@@ -22,44 +22,44 @@ Use Tailwind semantic classes (`bg-background`, `text-foreground`, `text-primary
 
 | Token | HSL | Usage |
 |-------|-----|-------|
-| `--background` | 222 47% 6% | Page background |
-| `--background-elevated` | 222 40% 8% | Elevated surfaces |
-| `--card` | 222 35% 10% | Card backgrounds |
-| `--card-hover` | 222 35% 12% | Card hover state |
-| `--muted` | 222 25% 14% | Muted backgrounds, data row bg |
-| `--popover` | 222 40% 9% | Dropdowns, popovers |
+| `--background` | 220 12% 4% | Near-black stage (#0A0B0D) |
+| `--background-elevated` | 222 12% 9% | Elevated surfaces |
+| `--card` | 222 12% 9% | Card backgrounds (#131519) |
+| `--card-hover` | 222 13% 12% | Card hover state |
+| `--muted` | 222 15% 13% | Muted backgrounds, data row bg |
+| `--popover` | 222 12% 9% | Dropdowns, popovers |
 
 ### Text
 
 | Token | HSL | Usage |
 |-------|-----|-------|
-| `--foreground` | 210 40% 98% | Primary text |
-| `--muted-foreground` | 215 20% 55% | Secondary text, labels |
+| `--foreground` | 0 0% 100% | Primary text |
+| `--muted-foreground` | 214 8% 64% | Secondary text, labels (#9AA1AC) |
 
 ### Brand
 
 | Token | HSL | Usage |
 |-------|-----|-------|
-| `--primary` | 260 60% 55% | Primary actions, active states |
-| `--primary-hover` | 260 60% 50% | Primary hover |
-| `--primary-muted` | 260 40% 25% | Subtle primary backgrounds |
-| `--accent` | 260 50% 45% | Accent elements |
+| `--primary` | 192 100% 60% | Pulse Blue (#33D6FF) — primary actions, active states |
+| `--primary-hover` | 192 90% 55% | Primary hover |
+| `--primary-muted` | 205 84% 20% | Deep Signal Blue (#013281 family) — subtle primary bg |
+| `--accent` | 74 100% 65% | Volt Green (#CFFF4A) — accent, gain axis |
 
 ### Trading Semantics
 
 | Token | HSL | Usage |
 |-------|-----|-------|
-| `--trading-green` | 145 80% 42% | Profit, success, buy/long |
-| `--trading-red` | 0 85% 55% | Loss, error, sell/short |
-| `--trading-purple` | 260 65% 58% | Brand emphasis |
-| `--trading-yellow` | 48 100% 55% | Warnings, alerts, pending |
+| `--trading-green` | 74 100% 65% | Gain — Volt Green (#CFFF4A) |
+| `--trading-red` | 0 100% 68% | Loss — Red (#FF5C5C) |
+| `--trading-purple` | 192 100% 60% | Brand emphasis — Pulse Blue (purple retired) |
+| `--trading-yellow` | 48 100% 55% | Warnings, alerts, pending (caution amber) |
 
 ### Borders
 
 | Token | HSL | Usage |
 |-------|-----|-------|
-| `--border` | 222 25% 18% | Default borders |
-| `--border-subtle` | 222 20% 14% | Subtle dividers |
+| `--border` | 222 15% 13% | Default borders / hairline (#1D2026) |
+| `--border-subtle` | 222 15% 11% | Subtle dividers |
 
 ### Transparency Scenario Accents
 
@@ -77,18 +77,22 @@ Use Tailwind semantic classes (`bg-background`, `text-foreground`, `text-primary
 
 ### Font Stack
 
-- **Sans** (UI text): `Inter` → `font-sans`
-- **Mono** (data): `JetBrains Mono` → `font-mono`
+One family, two widths — no separate mono face.
+
+- **Sans** (UI text / data): `Archivo` → `font-sans`
+- **Mono** (numbers): `Archivo` with `font-variant-numeric: tabular-nums` → `font-mono`
+- **Display** (hero numbers, headlines): `Archivo Expanded` → `font-display`
 
 ### When to Use Each Font
 
 | Content Type | Font | Example |
 |-------------|------|---------|
-| Labels, headers, descriptions | `font-sans` (Inter) | "Total Profit", "Settings" |
-| Prices, amounts, percentages | `font-mono` (JetBrains Mono) | "$0.5500", "12.5%" |
+| Labels, headers, descriptions | `font-sans` (Archivo) | "Total Profit", "Settings" |
+| Prices, amounts, percentages | `font-mono` (Archivo tabular-nums) | "$0.5500", "12.5%" |
 | Addresses, hashes, tx IDs | `font-mono` | "0x3b4e780d12...c6b3bf" |
 | Contract field names | `font-mono` | "txHash", "blockNumber" |
 | Raw / debug values | `font-mono` | "550000" |
+| Hero numbers, big headlines | `font-display` (Archivo Expanded) | "$12,540" |
 
 ### Typography Components
 
