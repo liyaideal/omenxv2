@@ -7,7 +7,6 @@ import {
   TrendingDown,
   Wallet as WalletIcon,
   ExternalLink,
-  Filter,
   Clock,
   CheckCircle2,
   XCircle,
@@ -20,14 +19,6 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuCheckboxItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-  DropdownMenuLabel,
-} from '@/components/ui/dropdown-menu';
 import {
   Pagination,
   PaginationContent,
@@ -139,8 +130,8 @@ const ACCOUNT_BADGE_CONFIG: Record<TransactionAccount, { label: string; classNam
 };
 
 export const TransactionHistory = ({ transactions, className }: TransactionHistoryProps) => {
-  const [typeFilters, setTypeFilters] = useState<TransactionType[]>([]);
-  const [statusFilters, setStatusFilters] = useState<TransactionStatus[]>([]);
+  type PillFilter = 'all' | 'deposit' | 'withdraw' | 'trade';
+  const [pillFilter, setPillFilter] = useState<PillFilter>('all');
   const isMobile = useIsMobile();
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 10;
@@ -185,35 +176,25 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
     return `${hash.slice(0, 6)}...${hash.slice(-6)}`;
   };
 
-  const toggleTypeFilter = (type: TransactionType) => {
-    setTypeFilters(prev => 
-      prev.includes(type) 
-        ? prev.filter(t => t !== type)
-        : [...prev, type]
-    );
-  };
+  const clearFilters = () => setPillFilter('all');
 
-  const toggleStatusFilter = (status: TransactionStatus) => {
-    setStatusFilters(prev => 
-      prev.includes(status) 
-        ? prev.filter(s => s !== status)
-        : [...prev, status]
-    );
-  };
-
-  const clearFilters = () => {
-    setTypeFilters([]);
-    setStatusFilters([]);
-  };
-
-  // Apply filters
+  // Apply pill filter
   const filteredTransactions = transactions.filter(tx => {
-    const typeMatch = typeFilters.length === 0 || typeFilters.includes(tx.type);
-    const statusMatch = statusFilters.length === 0 || statusFilters.includes(tx.status || 'completed');
-    return typeMatch && statusMatch;
+    if (pillFilter === 'all') return true;
+    if (pillFilter === 'deposit') return tx.type === 'deposit';
+    if (pillFilter === 'withdraw') return tx.type === 'withdraw';
+    if (pillFilter === 'trade') return tx.type === 'trade_profit' || tx.type === 'trade_loss';
+    return true;
   });
 
-  const hasActiveFilters = typeFilters.length > 0 || statusFilters.length > 0;
+  const hasActiveFilters = pillFilter !== 'all';
+
+  const PILLS: { key: PillFilter; label: string }[] = [
+    { key: 'all', label: 'All' },
+    { key: 'deposit', label: 'Deposits' },
+    { key: 'withdraw', label: 'Withdrawals' },
+    { key: 'trade', label: 'Trades' },
+  ];
 
   // Pagination
   const totalPages = Math.ceil(filteredTransactions.length / PAGE_SIZE);
@@ -288,75 +269,30 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
 
   return (
     <div className={cn("space-y-4", className)}>
-      {/* Header with Filter */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <History className="w-4 h-4 text-muted-foreground" />
-          <h2 className="text-sm sm:text-lg font-semibold">Transaction History</h2>
-          {filteredTransactions.length > 0 && (
-            <span className="text-xs text-muted-foreground">({filteredTransactions.length})</span>
-          )}
+      {/* Header: microlabel + inline pill filters */}
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground shrink-0">
+          Transaction history
+        </h2>
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide flex-nowrap">
+          {PILLS.map((p) => {
+            const active = pillFilter === p.key;
+            return (
+              <button
+                key={p.key}
+                onClick={() => setPillFilter(p.key)}
+                className={cn(
+                  "px-[15px] py-[7px] rounded-full text-xs font-semibold border-[1.5px] whitespace-nowrap transition-colors",
+                  active
+                    ? "bg-white text-[#0A0B0D] border-white"
+                    : "bg-transparent border-[#2B2F38] text-[#C9CED6] hover:text-white"
+                )}
+              >
+                {p.label}
+              </button>
+            );
+          })}
         </div>
-        
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className={cn(
-                "gap-2",
-                hasActiveFilters && "border-primary text-primary"
-              )}
-            >
-              <Filter className="w-4 h-4" />
-              Filter
-              {hasActiveFilters && (
-                <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-xs">
-                  {typeFilters.length + statusFilters.length}
-                </Badge>
-              )}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>Transaction Type</DropdownMenuLabel>
-            {(Object.keys(TYPE_LABELS) as TransactionType[]).map((type) => (
-              <DropdownMenuCheckboxItem
-                key={type}
-                checked={typeFilters.includes(type)}
-                onCheckedChange={() => toggleTypeFilter(type)}
-              >
-                {TYPE_LABELS[type]}
-              </DropdownMenuCheckboxItem>
-            ))}
-            
-            <DropdownMenuSeparator />
-            
-            <DropdownMenuLabel>Status</DropdownMenuLabel>
-            {(Object.keys(STATUS_CONFIG) as TransactionStatus[]).map((status) => (
-              <DropdownMenuCheckboxItem
-                key={status}
-                checked={statusFilters.includes(status)}
-                onCheckedChange={() => toggleStatusFilter(status)}
-              >
-                {STATUS_CONFIG[status].label}
-              </DropdownMenuCheckboxItem>
-            ))}
-            
-            {hasActiveFilters && (
-              <>
-                <DropdownMenuSeparator />
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="w-full justify-center text-muted-foreground"
-                  onClick={clearFilters}
-                >
-                  Clear filters
-                </Button>
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
 
       {/* Transaction List */}
