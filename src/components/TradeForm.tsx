@@ -520,7 +520,7 @@ export const TradeForm = ({
         onClick={handlePreview}
         disabled={orderIntent.kind === "blocked-cross-zero"}
         size="sm"
-        positionSide={side === "buy" ? "yes" : "no"}
+        positionSide={binaryMode ? (binaryMode.isYesSelected ? "yes" : "no") : undefined}
       />
     </div>
   );
