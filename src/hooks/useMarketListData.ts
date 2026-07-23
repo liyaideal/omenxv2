@@ -39,6 +39,9 @@ export interface EventRow {
   basePrice: number | null;
   imageUrl?: string | null;
 
+  /** Per-event Yes/No aliases (e.g. team names, "Up"/"Not Up"). Undefined when unset. */
+  sideLabels?: { yes: string; no: string };
+
   // Event-level aggregated metrics
   change1h: number;
   change4h: number;
@@ -156,6 +159,7 @@ export const useMarketListData = (events: EventWithOptions[]): EventRow[] => {
         lifecycleStatus: event.lifecycle_status ?? null,
         basePrice: event.base_price != null ? Number(event.base_price) : null,
         imageUrl: event.image_url ?? null,
+        sideLabels,
         change1h: maxVolChild?.change1h || 0,
         change4h: maxVolChild?.change4h || 0,
         change24h: maxVolChild?.change24h || 0,
