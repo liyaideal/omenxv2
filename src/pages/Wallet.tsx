@@ -592,133 +592,34 @@ export default function Wallet() {
 
           <MaintenanceNoticeBanner className="mb-6" />
 
-          {/* Band 1 · Total Equity 全宽总览条（DESIGN.md §5 例外：Wallet Total Equity Card） */}
-          <section className="relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/20 via-primary/10 to-transparent p-6">
-            <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-trading-green/10 rounded-full blur-2xl pointer-events-none" />
-            <div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
-                  <WalletIcon className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                    Est. Total Equity
-                  </div>
-                  <div className="flex items-center gap-3 mt-1">
-                    <span className="font-mono text-3xl font-bold whitespace-nowrap">
-                      {equityHidden ? "••••••" : `$${formatEquityUsd(totalEquity)}`}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setEquityHidden((v) => !v)}
-                      className="text-muted-foreground/70 hover:text-foreground transition-colors"
-                      aria-label={equityHidden ? "Show balance" : "Hide balance"}
-                    >
-                      {equityHidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                  <div className="text-[11px] text-muted-foreground mt-1 font-mono">
-                    Spot + Futures · does not include unrealized PnL
-                  </div>
-                </div>
-              </div>
-              <div className="flex gap-2 lg:shrink-0">
-                <Button className="btn-trading-green h-11 px-5" onClick={() => setDepositDialogOpen(true)}>
-                  <ArrowDownLeft className="w-4 h-4 mr-1.5" /> Deposit
-                </Button>
-                <Button
-                  variant="outline"
-                  className="h-11 px-5 border-border/50 hover:bg-muted/50 rounded-xl"
-                  onClick={() => setWithdrawDialogOpen(true)}
-                >
-                  <ArrowUpRight className="w-4 h-4 mr-1.5" /> Withdraw
-                </Button>
-                <Button
-                  variant="outline"
-                  className="h-11 px-5 border-border/50 hover:bg-muted/50 rounded-xl"
-                  onClick={() => openTransfer("to_spot")}
-                >
-                  <ArrowLeftRight className="w-4 h-4 mr-1.5" /> Transfer
-                </Button>
-              </div>
-            </div>
-          </section>
+          {/* Band 1 · Signal-DNA Hero: flat dark card + decorative X watermark */}
+          <HeroEquityCard
+            equity={totalEquity}
+            hidden={equityHidden}
+            onToggleHidden={() => setEquityHidden((v) => !v)}
+            onDeposit={() => setDepositDialogOpen(true)}
+            onWithdraw={() => setWithdrawDialogOpen(true)}
+            onTransfer={() => openTransfer("to_spot")}
+          />
 
-          {/* Band 2 · 双账户卡（Spot / Futures），stats-card 规格，不套英雄渐变 */}
+          {/* Band 2 · Flat dark account cards with capsule tags (Signal DNA) */}
           <section className="grid grid-cols-2 gap-6">
-            {/* Spot Account */}
-            <div className="stats-card p-6 relative">
-              <button
-                type="button"
-                onClick={() => openTransfer("to_spot")}
-                className="absolute top-4 right-4 h-8 w-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center justify-center transition-colors"
-                aria-label="Transfer to Spot"
-                title="Transfer"
-              >
-                <ArrowLeftRight className="w-3.5 h-3.5" />
-              </button>
-              <div className="text-sm font-medium text-muted-foreground">Spot Account</div>
-              <div className="mt-2 font-mono text-2xl font-semibold">${formatEquityUsd(spotBalance)}</div>
-              <div className="mt-4 grid grid-cols-1 gap-3">
-                <div className="p-3 rounded-lg bg-muted/20">
-                  <div className="text-xs text-muted-foreground mb-1">Available (USDC)</div>
-                  <div className="font-mono text-sm font-semibold">${formatEquityUsd(spotBalance)}</div>
-                </div>
-              </div>
-              <div className="text-[10px] text-muted-foreground mt-3">
-                Funds US-stock spot trading. Not shared with Futures.
-              </div>
-            </div>
-
-            {/* Futures Account */}
-            <div className="stats-card p-6 relative">
-              <button
-                type="button"
-                onClick={() => openTransfer("to_futures")}
-                className="absolute top-4 right-4 h-8 w-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center justify-center transition-colors"
-                aria-label="Transfer to Futures"
-                title="Transfer"
-              >
-                <ArrowLeftRight className="w-3.5 h-3.5" />
-              </button>
-              <div className="text-sm font-medium text-muted-foreground">Futures Account</div>
-              <div className="mt-2 font-mono text-2xl font-semibold">
-                ${formatEquityUsd(balance)}
-              </div>
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                <div className="p-3 rounded-lg bg-muted/20">
-                  <div className="flex items-center gap-1 mb-1">
-                    <span className="text-xs text-muted-foreground">Available</span>
-                    <AvailableBalanceTooltip marginInUse={imTotal} unrealizedPnL={unrealizedPnL} />
-                  </div>
-                  <div className="font-mono text-sm font-semibold">${formatEquityUsd(balance)}</div>
-                </div>
-                {h2e.lockedAmount > 0 && (
-                  <>
-                    <div className="p-3 rounded-lg bg-muted/20">
-                      <div className="flex items-center gap-1 mb-1">
-                        <span className="text-xs text-muted-foreground">Withdrawable</span>
-                        <InfoTooltip text="Available balance minus the still-locked portion of hedge airdrop rewards." />
-                      </div>
-                      <div className="font-mono text-sm font-semibold">
-                        ${formatEquityUsd(withdrawableBalance)}
-                      </div>
-                    </div>
-                    <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
-                      <div className="flex items-center gap-1 mb-1">
-                        <Lock className="w-3 h-3 text-primary" />
-                        <span className="text-xs text-muted-foreground">H2E Locked</span>
-                        <InfoTooltip text="Hedge airdrop earnings unlock in tiers as trading volume grows. Full withdrawal unlock is at $400K volume." />
-                      </div>
-                      <div className="font-mono text-sm font-semibold text-primary">
-                        ${formatEquityUsd(h2e.lockedAmount)}
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
+            <SpotAccountCard
+              balance={spotBalance}
+              hidden={equityHidden}
+              onTransfer={() => openTransfer("to_spot")}
+            />
+            <FuturesAccountCard
+              balance={balance}
+              withdrawable={withdrawableBalance}
+              locked={h2e.lockedAmount}
+              hidden={equityHidden}
+              onTransfer={() => openTransfer("to_futures")}
+              marginInUse={imTotal}
+              unrealizedPnL={unrealizedPnL}
+              AvailableTooltip={AvailableBalanceTooltip}
+              InfoTip={InfoTooltip}
+            />
           </section>
 
           {/* Band 3 · 12 栅格 */}
