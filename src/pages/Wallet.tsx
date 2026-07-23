@@ -80,8 +80,8 @@ import { cn } from "@/lib/utils";
 const XMotif = ({ className = "" }: { className?: string }) => (
   <svg
     aria-hidden
-    viewBox="0 0 200 200"
-    className={cn("pointer-events-none absolute opacity-25", className)}
+    viewBox="0 0 300 260"
+    className={cn("pointer-events-none absolute", className)}
   >
     <defs>
       <linearGradient id="xg-a" x1="0" y1="0" x2="1" y2="1">
@@ -89,12 +89,12 @@ const XMotif = ({ className = "" }: { className?: string }) => (
         <stop offset="100%" stopColor="#33D6FF" />
       </linearGradient>
       <linearGradient id="xg-b" x1="1" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#CFFF4A" />
-        <stop offset="100%" stopColor="#33D6FF" />
+        <stop offset="0%" stopColor="#CFFF4A" stopOpacity="0.8" />
+        <stop offset="100%" stopColor="#33D6FF" stopOpacity="0.2" />
       </linearGradient>
     </defs>
-    <line x1="20" y1="20" x2="180" y2="180" stroke="url(#xg-a)" strokeWidth="26" strokeLinecap="round" />
-    <line x1="180" y1="20" x2="20" y2="180" stroke="url(#xg-b)" strokeWidth="26" strokeLinecap="round" />
+    <path d="M20 -20 L280 280" stroke="url(#xg-a)" strokeWidth="26" opacity="0.28" />
+    <path d="M280 -20 L20 280" stroke="url(#xg-b)" strokeWidth="26" opacity="0.22" />
   </svg>
 );
 
@@ -120,15 +120,15 @@ const HeroEquityCard = ({
 }) => (
   <section
     className={cn(
-      "relative overflow-hidden rounded-2xl border border-border bg-card",
-      compact ? "p-5" : "p-6 lg:p-8",
+      "relative overflow-hidden rounded-[18px] border border-border bg-card",
+      compact ? "p-5" : "p-[34px_36px]",
     )}
   >
     <XMotif
       className={
         compact
-          ? "-right-10 -top-10 h-56 w-56"
-          : "-right-8 -top-10 h-72 w-72 lg:h-80 lg:w-80"
+          ? "-right-[30px] -top-[40px] h-[220px] w-[260px]"
+          : "-right-[30px] -top-[40px] h-[260px] w-[300px]"
       }
     />
     <div
@@ -138,8 +138,8 @@ const HeroEquityCard = ({
       )}
     >
       <div className="min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+        <div className="flex items-center gap-2 mb-2.5">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Est. Total Equity
           </span>
           <button
@@ -153,47 +153,47 @@ const HeroEquityCard = ({
         </div>
         <div
           className={cn(
-            "font-display font-bold tabular-nums leading-none mt-3 whitespace-nowrap",
-            compact ? "text-[42px]" : "text-5xl lg:text-6xl",
+            "font-display font-bold tabular-nums whitespace-nowrap",
+            compact ? "text-[42px] leading-[0.96]" : "text-[60px] leading-[0.96]",
           )}
         >
           {hidden ? "••••••" : `$${formatEquityUsd(equity)}`}
         </div>
-        <div className="text-xs text-muted-foreground mt-3">
+        <div className="text-[13px] text-muted-foreground mt-2.5">
           Spot + Futures · does not include unrealized PnL
         </div>
       </div>
 
       {compact ? (
         <div className="grid grid-cols-2 gap-2">
-          <Button className={cn("h-11", HERO_CTA_GRADIENT)} onClick={onDeposit}>
-            <ArrowDownLeft className="w-4 h-4 mr-1.5" /> Deposit
+          <Button className={cn("h-11 rounded-full font-semibold", HERO_CTA_GRADIENT)} onClick={onDeposit}>
+            Deposit
           </Button>
           <Button variant="outline" className="h-11" onClick={onWithdraw}>
-            <ArrowUpRight className="w-4 h-4 mr-1.5" /> Withdraw
+            Withdraw
           </Button>
           <Button
             variant="ghost"
             className="col-span-2 h-11 border border-border/50"
             onClick={onTransfer}
           >
-            <ArrowLeftRight className="w-4 h-4 mr-1.5" /> Transfer
+            Transfer <span className="ml-1.5 text-muted-foreground">⇄</span>
           </Button>
         </div>
       ) : (
-        <div className="flex flex-wrap gap-2 lg:shrink-0">
-          <Button className={cn("h-11 px-5 font-semibold", HERO_CTA_GRADIENT)} onClick={onDeposit}>
-            <ArrowDownLeft className="w-4 h-4 mr-1.5" /> Deposit
+        <div className="flex flex-wrap gap-2.5 lg:shrink-0">
+          <Button className={cn("h-auto py-3 px-[22px] rounded-full font-semibold text-sm", HERO_CTA_GRADIENT)} onClick={onDeposit}>
+            Deposit
           </Button>
-          <Button variant="outline" className="h-11 px-5" onClick={onWithdraw}>
-            <ArrowUpRight className="w-4 h-4 mr-1.5" /> Withdraw
+          <Button variant="outline" className="h-auto py-3 px-[22px] rounded-full font-semibold text-sm" onClick={onWithdraw}>
+            Withdraw
           </Button>
           <Button
             variant="ghost"
-            className="h-11 px-5 text-muted-foreground hover:text-foreground"
+            className="h-auto py-3 px-[22px] rounded-full font-semibold text-sm text-[#C9CED6] hover:text-foreground"
             onClick={onTransfer}
           >
-            <ArrowLeftRight className="w-4 h-4 mr-1.5" /> Transfer
+            Transfer <span className="ml-1.5 text-muted-foreground">⇄</span>
           </Button>
         </div>
       )}
