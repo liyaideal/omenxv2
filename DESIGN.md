@@ -77,11 +77,11 @@ Use Tailwind semantic classes (`bg-background`, `text-foreground`, `text-primary
 
 ### Font Stack
 
-One family, two widths — no separate mono face.
+One family for body/UI, one display face for hero numbers — no separate mono face.
 
 - **Sans** (UI text / data): `Archivo` → `font-sans`
 - **Mono** (numbers): `Archivo` with `font-variant-numeric: tabular-nums` → `font-mono`
-- **Display** (hero numbers, headlines): `Archivo` at expanded width via the width axis (`font-stretch: 125%`) → `font-display`. There is no separate "Archivo Expanded" family — the width axis on Archivo drives the wide look.
+- **Display** (hero numbers, headlines): `Space Grotesk` (`font-display`) → wide, bold headline/hero-number surfaces. Body/UI stays Archivo; data numbers stay Archivo tabular.
 
 ### When to Use Each Font
 
@@ -92,7 +92,7 @@ One family, two widths — no separate mono face.
 | Addresses, hashes, tx IDs | `font-mono` | "0x3b4e780d12...c6b3bf" |
 | Contract field names | `font-mono` | "txHash", "blockNumber" |
 | Raw / debug values | `font-mono` | "550000" |
-| Hero numbers, big headlines | `font-display` (Archivo, `font-stretch: 125%`) | "$12,540" |
+| Hero numbers, big headlines | `font-display` (Space Grotesk) | "$12,540" |
 
 ### Typography Components
 

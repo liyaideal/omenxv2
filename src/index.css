@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Bebas+Neue&family=Anton&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Space+Grotesk:wght@500;600;700&family=Bebas+Neue&family=Anton&display=swap');
 
 @layer base {
   :root {
@@ -139,9 +139,8 @@
   }
 
   .font-display {
-    font-family: 'Archivo', sans-serif;
-    font-stretch: 125%;
-    letter-spacing: -0.01em;
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: -0.02em;
   }
 }
 
