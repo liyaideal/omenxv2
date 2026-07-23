@@ -96,3 +96,7 @@ Rebuilt to match the design-system "Markets" mock:
   are literal `Record` lookups.
 - No schema/service changes; still pure display layer.
 - Pro `EventsPage` / `MarketCardB` untouched.
+
+## R3a-refine-2 — LiteEventCard Yes/No + settlement fixes
+- Yes/No inversion fixed: resolve the affirmative child via `sideLabels.yes` (new field on `EventRow`) with fallback to literal "yes"/"up" labels, replacing the `children[0]` assumption that flipped us-*-updown cards.
+- `settlementFooter` now uses calendar-day diff with buckets: today HH:MM / tomorrow / weekday / Mon D / Mon YYYY. Daily updown events now read "Settles tomorrow" instead of "Settles in 2d".
