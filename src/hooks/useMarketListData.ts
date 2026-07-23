@@ -37,7 +37,7 @@ export interface EventRow {
   eventSubtype: string | null;
   lifecycleStatus: string | null;
   basePrice: number | null;
-  imageUrl: string | null;
+  imageUrl?: string | null;
 
   // Event-level aggregated metrics
   change1h: number;
