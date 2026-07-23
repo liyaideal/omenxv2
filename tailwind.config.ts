@@ -14,11 +14,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
-        // display: Space Grotesk — marketing surfaces only (dev portal, landing).
-        // Never use in product pages, trading terminal, or data-dense UI.
-        display: ['"Space Grotesk"', 'Inter', 'sans-serif'],
+        sans: ['Archivo', 'sans-serif'],
+        mono: ['Archivo', 'sans-serif'],
+        // display: Archivo Expanded — headline / hero-number surfaces.
+        display: ['"Archivo Expanded"', 'Archivo', 'sans-serif'],
         // poster: Archivo Black — retro poster / campaign surfaces only (e.g. /hedge, homepage campaign banner).
         // Distinct from font-display; the two are not interchangeable.
         poster: ['"Archivo Black"', 'Impact', 'sans-serif'],
