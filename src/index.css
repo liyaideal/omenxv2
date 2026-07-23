@@ -139,8 +139,9 @@
   }
 
   .font-display {
-    font-family: 'Archivo Expanded', 'Archivo', sans-serif;
-    letter-spacing: -0.02em;
+    font-family: 'Archivo', sans-serif;
+    font-stretch: 125%;
+    letter-spacing: -0.01em;
   }
 }
 
