@@ -228,6 +228,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
                     Settings
                   </DropdownMenuItem>
+                  <SurfaceToggleMenuItem />
                   <DropdownMenuSub>
                     <DropdownMenuSubTrigger>
                       <Globe className="mr-2 h-4 w-4 text-muted-foreground" />
