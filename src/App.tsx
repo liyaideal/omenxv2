@@ -102,6 +102,7 @@ const App = () => (
             <Route path="/mainnet-launch" element={<Navigate to="/" replace />} />
             <Route path="/campaign-style-guide" element={<CampaignStyleGuide />} />
             <Route path="/style-guide/preview" element={<StyleGuidePreview />} />
+            <Route path="/font-preview" element={<FontPreview />} />
             <Route
               path="*"
               element={
