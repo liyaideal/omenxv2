@@ -70,9 +70,294 @@ import {
 } from "@/components/ui/popover";
 import { Progress } from "@/components/ui/progress";
 import { useH2eRewardsSummary } from "@/hooks/useH2eRewardsSummary";
+import { cn } from "@/lib/utils";
 
+/* ------------------------------------------------------------------
+ * Signal-DNA visual primitives (Wallet page only)
+ * Flat dark cards, hairline borders, gradient X motif on hero only.
+ * ------------------------------------------------------------------ */
 
+const XMotif = ({ className = "" }: { className?: string }) => (
+  <svg
+    aria-hidden
+    viewBox="0 0 200 200"
+    className={cn("pointer-events-none absolute opacity-25", className)}
+  >
+    <defs>
+      <linearGradient id="xg-a" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stopColor="#013281" />
+        <stop offset="100%" stopColor="#33D6FF" />
+      </linearGradient>
+      <linearGradient id="xg-b" x1="1" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#CFFF4A" />
+        <stop offset="100%" stopColor="#33D6FF" />
+      </linearGradient>
+    </defs>
+    <line x1="20" y1="20" x2="180" y2="180" stroke="url(#xg-a)" strokeWidth="26" strokeLinecap="round" />
+    <line x1="180" y1="20" x2="20" y2="180" stroke="url(#xg-b)" strokeWidth="26" strokeLinecap="round" />
+  </svg>
+);
 
+const HERO_CTA_GRADIENT =
+  "bg-[image:var(--gradient-button-primary)] text-primary-foreground hover:opacity-90";
+
+const HeroEquityCard = ({
+  equity,
+  hidden,
+  onToggleHidden,
+  onDeposit,
+  onWithdraw,
+  onTransfer,
+  compact = false,
+}: {
+  equity: number;
+  hidden: boolean;
+  onToggleHidden: () => void;
+  onDeposit: () => void;
+  onWithdraw: () => void;
+  onTransfer: () => void;
+  compact?: boolean;
+}) => (
+  <section
+    className={cn(
+      "relative overflow-hidden rounded-2xl border border-border bg-card",
+      compact ? "p-5" : "p-6 lg:p-8",
+    )}
+  >
+    <XMotif
+      className={
+        compact
+          ? "-right-10 -top-10 h-56 w-56"
+          : "-right-8 -top-10 h-72 w-72 lg:h-80 lg:w-80"
+      }
+    />
+    <div
+      className={cn(
+        "relative flex gap-6",
+        compact ? "flex-col" : "flex-col lg:flex-row lg:items-end lg:justify-between",
+      )}
+    >
+      <div className="min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+            Est. Total Equity
+          </span>
+          <button
+            type="button"
+            onClick={onToggleHidden}
+            className="text-muted-foreground/70 hover:text-foreground transition-colors"
+            aria-label={hidden ? "Show balance" : "Hide balance"}
+          >
+            {hidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          </button>
+        </div>
+        <div
+          className={cn(
+            "font-display font-bold tabular-nums leading-none mt-3 whitespace-nowrap",
+            compact ? "text-[42px]" : "text-5xl lg:text-6xl",
+          )}
+        >
+          {hidden ? "••••••" : `$${formatEquityUsd(equity)}`}
+        </div>
+        <div className="text-xs text-muted-foreground mt-3">
+          Spot + Futures · does not include unrealized PnL
+        </div>
+      </div>
+
+      {compact ? (
+        <div className="grid grid-cols-2 gap-2">
+          <Button className={cn("h-11", HERO_CTA_GRADIENT)} onClick={onDeposit}>
+            <ArrowDownLeft className="w-4 h-4 mr-1.5" /> Deposit
+          </Button>
+          <Button variant="outline" className="h-11" onClick={onWithdraw}>
+            <ArrowUpRight className="w-4 h-4 mr-1.5" /> Withdraw
+          </Button>
+          <Button
+            variant="ghost"
+            className="col-span-2 h-11 border border-border/50"
+            onClick={onTransfer}
+          >
+            <ArrowLeftRight className="w-4 h-4 mr-1.5" /> Transfer
+          </Button>
+        </div>
+      ) : (
+        <div className="flex flex-wrap gap-2 lg:shrink-0">
+          <Button className={cn("h-11 px-5 font-semibold", HERO_CTA_GRADIENT)} onClick={onDeposit}>
+            <ArrowDownLeft className="w-4 h-4 mr-1.5" /> Deposit
+          </Button>
+          <Button variant="outline" className="h-11 px-5" onClick={onWithdraw}>
+            <ArrowUpRight className="w-4 h-4 mr-1.5" /> Withdraw
+          </Button>
+          <Button
+            variant="ghost"
+            className="h-11 px-5 text-muted-foreground hover:text-foreground"
+            onClick={onTransfer}
+          >
+            <ArrowLeftRight className="w-4 h-4 mr-1.5" /> Transfer
+          </Button>
+        </div>
+      )}
+    </div>
+  </section>
+);
+
+const AccountCardShell = ({
+  tag,
+  tagClass,
+  onTransfer,
+  transferLabel,
+  children,
+  compact = false,
+}: {
+  tag: string;
+  tagClass: string;
+  onTransfer: () => void;
+  transferLabel: string;
+  children: React.ReactNode;
+  compact?: boolean;
+}) => (
+  <div
+    className={cn(
+      "relative rounded-2xl border border-border bg-card",
+      compact ? "p-4" : "p-6",
+    )}
+  >
+    <div className="flex items-center justify-between">
+      <span
+        className={cn(
+          "inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider",
+          tagClass,
+        )}
+      >
+        {tag}
+      </span>
+      <button
+        type="button"
+        onClick={onTransfer}
+        className="h-8 w-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center justify-center transition-colors"
+        aria-label={transferLabel}
+        title="Transfer"
+      >
+        <ArrowLeftRight className="w-3.5 h-3.5" />
+      </button>
+    </div>
+    {children}
+  </div>
+);
+
+const SpotAccountCard = ({
+  balance,
+  hidden,
+  onTransfer,
+  compact = false,
+}: {
+  balance: number;
+  hidden: boolean;
+  onTransfer: () => void;
+  compact?: boolean;
+}) => (
+  <AccountCardShell
+    tag="Spot"
+    tagClass="bg-primary/15 text-primary border border-primary/30"
+    onTransfer={onTransfer}
+    transferLabel="Transfer to Spot"
+    compact={compact}
+  >
+    <div
+      className={cn(
+        "font-display font-bold tabular-nums leading-none mt-3",
+        compact ? "text-3xl" : "text-4xl",
+      )}
+    >
+      {hidden ? "••••" : `$${formatEquityUsd(balance)}`}
+    </div>
+    <div className="my-4 h-px bg-border" />
+    <div className="flex items-center justify-between text-sm">
+      <span className="text-muted-foreground">Available (USDC)</span>
+      <span className="font-mono font-semibold tabular-nums">
+        {hidden ? "••••" : `$${formatEquityUsd(balance)}`}
+      </span>
+    </div>
+    <p className="text-[11px] text-muted-foreground mt-3 leading-relaxed">
+      Funds US-stock spot trading. Not shared with Futures.
+    </p>
+  </AccountCardShell>
+);
+
+const FuturesAccountCard = ({
+  balance,
+  withdrawable,
+  locked,
+  hidden,
+  onTransfer,
+  marginInUse,
+  unrealizedPnL,
+  AvailableTooltip,
+  InfoTip,
+  compact = false,
+}: {
+  balance: number;
+  withdrawable: number;
+  locked: number;
+  hidden: boolean;
+  onTransfer: () => void;
+  marginInUse: number;
+  unrealizedPnL: number;
+  AvailableTooltip: React.ComponentType<{ marginInUse: number; unrealizedPnL: number }>;
+  InfoTip: React.ComponentType<{ text: string }>;
+  compact?: boolean;
+}) => {
+  const hasLocked = locked > 0;
+  const mask = (v: number) => (hidden ? "••••" : `$${formatEquityUsd(v)}`);
+  return (
+    <AccountCardShell
+      tag="Futures"
+      tagClass="bg-accent/20 text-accent border border-accent/40"
+      onTransfer={onTransfer}
+      transferLabel="Transfer to Futures"
+      compact={compact}
+    >
+      <div
+        className={cn(
+          "font-display font-bold tabular-nums leading-none mt-3",
+          compact ? "text-3xl" : "text-4xl",
+        )}
+      >
+        {mask(balance)}
+      </div>
+      <div className="my-4 h-px bg-border" />
+      <div className="space-y-2 text-sm">
+        <div className="flex items-center justify-between">
+          <span className="text-muted-foreground inline-flex items-center gap-1">
+            Available
+            <AvailableTooltip marginInUse={marginInUse} unrealizedPnL={unrealizedPnL} />
+          </span>
+          <span className="font-mono font-semibold tabular-nums">{mask(balance)}</span>
+        </div>
+        {hasLocked && (
+          <>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground inline-flex items-center gap-1">
+                Withdrawable
+                <InfoTip text="Available balance minus the still-locked portion of hedge airdrop rewards." />
+              </span>
+              <span className="font-mono font-semibold tabular-nums">{mask(withdrawable)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground inline-flex items-center gap-1">
+                <Lock className="w-3 h-3 text-primary" /> H2E Locked
+                <InfoTip text="Hedge airdrop earnings unlock in tiers as trading volume grows. Full withdrawal unlock is at $400K volume." />
+              </span>
+              <span className="font-mono font-semibold tabular-nums text-primary">
+                {mask(locked)}
+              </span>
+            </div>
+          </>
+        )}
+      </div>
+    </AccountCardShell>
+  );
+};
 
 
 export default function Wallet() {
