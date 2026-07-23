@@ -87,7 +87,7 @@ export const LiteEventCard = ({ market }: LiteEventCardProps) => {
   const categoryRaw = (market.category || "").toLowerCase();
   const microlabel = MICROLABEL[categoryRaw] ?? "Market";
   const footer = settlementFooter(market.expiry, categoryRaw);
-  const image = CATEGORY_IMAGE[categoryRaw];
+  const image = market.imageUrl ?? CATEGORY_IMAGE[categoryRaw];
 
   // Tag pill: New → volt; otherwise Live → pulse blue. One tag max.
   const tag = market.isNew
