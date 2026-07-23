@@ -131,7 +131,7 @@ const LiteEventsPage = () => {
         ) : filtered.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border/60 p-10 text-center">
             <p className="text-sm text-muted-foreground">
-              No open markets in {activeSector.label} right now. Check back soon.
+              No open markets here right now. Check back soon.
             </p>
           </div>
         ) : (
