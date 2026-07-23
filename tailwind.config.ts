@@ -17,7 +17,7 @@ export default {
         sans: ['Archivo', 'sans-serif'],
         mono: ['Archivo', 'sans-serif'],
         // display: Archivo Expanded — headline / hero-number surfaces.
-        display: ['"Archivo Expanded"', 'Archivo', 'sans-serif'],
+        display: ['Archivo', 'sans-serif'],
         // poster: Archivo Black — retro poster / campaign surfaces only (e.g. /hedge, homepage campaign banner).
         // Distinct from font-display; the two are not interchangeable.
         poster: ['"Archivo Black"', 'Impact', 'sans-serif'],
