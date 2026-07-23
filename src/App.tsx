@@ -11,6 +11,7 @@ import OrderPreview from "./pages/OrderPreview";
 import DesktopTrading from "./pages/DesktopTrading";
 import StyleGuide from "./pages/StyleGuide/index";
 import StyleGuidePreview from "./pages/StyleGuide/preview/StyleGuidePreview";
+import FontPreview from "./pages/FontPreview";
 
 import EventsPage from "./pages/EventsPage";
 import ResolvedPage from "./pages/ResolvedPage";
