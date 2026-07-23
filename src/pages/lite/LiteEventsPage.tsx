@@ -46,7 +46,7 @@ const LiteEventsPage = () => {
   return (
     <div className="min-h-screen bg-background">
       {isMobile ? (
-        <MobileHeader preset="feed" title="Markets" />
+        <MobileHeader title="Markets" />
       ) : (
         <EventsDesktopHeader />
       )}
