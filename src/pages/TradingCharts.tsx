@@ -306,8 +306,8 @@ function TradingChartsContent({ selectedEvent, selectedOptionData, options }: Tr
             className={cn(
               "flex-1 font-semibold rounded-lg py-2.5 text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-1.5",
               side === "buy"
-                ? "bg-trading-green text-trading-green-foreground shadow-[0_0_0_2px_hsl(var(--background)),0_0_0_3px_hsl(var(--trading-green)/0.4)]"
-                : "bg-trading-green/15 text-trading-green border border-trading-green/30"
+                ? "bg-yes text-yes-foreground shadow-[0_0_0_2px_hsl(var(--background)),0_0_0_3px_hsl(var(--yes)/0.4)]"
+                : "bg-yes/15 text-yes border border-yes/30"
             )}
           >
             <span>{yesLabel}</span>
@@ -319,8 +319,8 @@ function TradingChartsContent({ selectedEvent, selectedOptionData, options }: Tr
             className={cn(
               "flex-1 font-semibold rounded-lg py-2.5 text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-1.5",
               side === "sell"
-                ? "bg-trading-red text-foreground shadow-[0_0_0_2px_hsl(var(--background)),0_0_0_3px_hsl(var(--trading-red)/0.4)]"
-                : "bg-trading-red/15 text-trading-red border border-trading-red/30"
+                ? "bg-no text-no-foreground shadow-[0_0_0_2px_hsl(var(--background)),0_0_0_3px_hsl(var(--no)/0.4)]"
+                : "bg-no/15 text-no border border-no/30"
             )}
           >
             <span>{noLabel}</span>
