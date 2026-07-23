@@ -34,6 +34,7 @@ export interface DatabaseEvent {
   event_subtype: string | null;
   lifecycle_status: string | null;
   base_price: number | null;
+  image_url: string | null;
 }
 
 export interface DatabaseEventOption {

@@ -37,6 +37,7 @@ export interface EventRow {
   eventSubtype: string | null;
   lifecycleStatus: string | null;
   basePrice: number | null;
+  imageUrl?: string | null;
 
   // Event-level aggregated metrics
   change1h: number;
@@ -154,6 +155,7 @@ export const useMarketListData = (events: EventWithOptions[]): EventRow[] => {
         eventSubtype: event.event_subtype ?? null,
         lifecycleStatus: event.lifecycle_status ?? null,
         basePrice: event.base_price != null ? Number(event.base_price) : null,
+        imageUrl: event.image_url ?? null,
         change1h: maxVolChild?.change1h || 0,
         change4h: maxVolChild?.change4h || 0,
         change24h: maxVolChild?.change24h || 0,
