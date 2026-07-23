@@ -98,6 +98,7 @@ const TradeOrderPage = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <RealtimePricesProvider>
+      <SurfaceProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -160,6 +161,7 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
+      </SurfaceProvider>
     </RealtimePricesProvider>
   </QueryClientProvider>
 );
