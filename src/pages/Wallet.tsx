@@ -903,7 +903,7 @@ export default function Wallet() {
           {/* Band 3 · 12 栅格 */}
           <div className="grid grid-cols-12 gap-6">
             <div className="col-span-8 space-y-6">
-              <PendingConfirmations className="trading-card p-6" />
+              <PendingConfirmations />
               <div className="trading-card p-6">
                 {txError ? (
                   <ErrorState
@@ -1109,7 +1109,7 @@ export default function Wallet() {
         </section>
 
         <H2eRewardsCard />
-        <PendingConfirmations className="trading-card p-4" />
+        <PendingConfirmations />
         <SavedAddressesList />
         <div className="trading-card p-4">
           {txError ? (
