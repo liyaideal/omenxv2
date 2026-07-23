@@ -307,7 +307,6 @@ const FuturesAccountCard = ({
   InfoTip: React.ComponentType<{ text: string }>;
   compact?: boolean;
 }) => {
-  const hasLocked = locked > 0;
   const mask = (v: number) => (hidden ? "••••" : `$${formatEquityUsd(v)}`);
   return (
     <AccountCardShell
@@ -334,26 +333,22 @@ const FuturesAccountCard = ({
           </span>
           <span className="font-mono font-semibold tabular-nums">{mask(balance)}</span>
         </div>
-        {hasLocked && (
-          <>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground inline-flex items-center gap-1">
-                Withdrawable
-                <InfoTip text="Available balance minus the still-locked portion of hedge airdrop rewards." />
-              </span>
-              <span className="font-mono font-semibold tabular-nums">{mask(withdrawable)}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground inline-flex items-center gap-1">
-                <Lock className="w-3 h-3 text-primary" /> H2E Locked
-                <InfoTip text="Hedge airdrop earnings unlock in tiers as trading volume grows. Full withdrawal unlock is at $400K volume." />
-              </span>
-              <span className="font-mono font-semibold tabular-nums text-primary">
-                {mask(locked)}
-              </span>
-            </div>
-          </>
-        )}
+        <div className="flex items-center justify-between">
+          <span className="text-muted-foreground inline-flex items-center gap-1">
+            Withdrawable
+            <InfoTip text="Available balance minus the still-locked portion of hedge airdrop rewards." />
+          </span>
+          <span className="font-mono font-semibold tabular-nums">{mask(withdrawable)}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-muted-foreground inline-flex items-center gap-1">
+            <Lock className="w-3 h-3" /> H2E Locked
+            <InfoTip text="Hedge airdrop earnings unlock in tiers as trading volume grows. Full withdrawal unlock is at $400K volume." />
+          </span>
+          <span className="font-mono font-semibold tabular-nums text-muted-foreground">
+            {mask(locked)}
+          </span>
+        </div>
       </div>
     </AccountCardShell>
   );
