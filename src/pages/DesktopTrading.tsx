@@ -1830,6 +1830,7 @@ export default function DesktopTrading() {
               potentialWin={parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
               onClick={handlePreview}
               disabled={orderIntent.kind === "blocked-cross-zero"}
+              positionSide={isBinarySingleMarket ? (isYesSelected ? "yes" : "no") : undefined}
             />
             </div>
           </div>
@@ -1939,6 +1940,7 @@ export default function DesktopTrading() {
             loading={isSubmittingOrder}
             size="lg"
             className="mt-4"
+            positionSide={isBinarySingleMarket ? (isYesSelected ? "yes" : "no") : undefined}
           />
         </DialogContent>
       </Dialog>
