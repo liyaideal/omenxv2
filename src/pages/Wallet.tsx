@@ -911,78 +911,27 @@ export default function Wallet() {
             <div className="col-span-4 space-y-6">
               <H2eRewardsCard />
               <div className="trading-card p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold">Saved Addresses</h2>
-                  <span className="text-sm text-muted-foreground">
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                    Saved addresses
+                  </h2>
+                  <span className="text-xs text-muted-foreground">
                     {wallets.length} address{wallets.length !== 1 ? "es" : ""}
                   </span>
                 </div>
                 {walletsLoading ? (
                   <LoadingState label="Loading addresses…" />
                 ) : (
-                  <div className="space-y-3">
-                    {wallets.map((wallet) => (
-                      <div
-                        key={wallet.id}
-                        className="bg-muted/30 rounded-xl p-4 hover:bg-muted/50 transition-colors"
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center p-2">
-                            <img src={wallet.icon} alt={wallet.network} className="w-6 h-6" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-medium text-sm">{wallet.label}</span>
-                              {wallet.isPrimary && (
-                                <Badge variant="outline" className="border-primary/50 text-primary text-xs">
-                                  Default
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <code className="text-xs font-mono text-muted-foreground">{wallet.address}</code>
-                              <button
-                                onClick={() => handleCopyWallet(wallet.id, wallet.fullAddress)}
-                                className="text-muted-foreground hover:text-foreground transition-colors"
-                              >
-                                {copiedWalletId === wallet.id ? (
-                                  <Check className="w-3 h-3 text-trading-green" />
-                                ) : (
-                                  <Copy className="w-3 h-3" />
-                                )}
-                              </button>
-                            </div>
-                            <span className="text-xs text-muted-foreground">{wallet.network}</span>
-                          </div>
-                        </div>
-                        <div className="mt-3 pt-3 border-t border-border/30 flex justify-end gap-2">
-                          {!wallet.isPrimary && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleSetPrimaryWallet(wallet.id)}
-                              className="text-primary hover:text-primary hover:bg-primary/10 h-8 text-xs"
-                            >
-                              <Star className="w-3 h-3 mr-1" /> Set Default
-                            </Button>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteWallet({ id: wallet.id, label: wallet.label })}
-                            className="text-muted-foreground hover:text-trading-red hover:bg-trading-red/10 h-8 text-xs"
-                          >
-                            <Trash2 className="w-3 h-3 mr-1" /> Delete
-                          </Button>
-                        </div>
-                      </div>
+                  <div>
+                    {wallets.map((wallet, i) => (
+                      <AddressRow key={wallet.id} wallet={wallet} isLast={i === wallets.length - 1} />
                     ))}
                     <button
                       onClick={() => setAddAddressOpen(true)}
-                      className="w-full border-2 border-dashed border-border/50 hover:border-primary/50 rounded-xl p-3 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-all text-sm"
+                      className="mt-3 w-full border-[1.5px] border-dashed border-[#2B2F38] hover:border-primary/60 rounded-xl h-10 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-all"
                     >
                       <Plus className="w-4 h-4" />
-                      <span className="font-medium">Add Address</span>
+                      <span className="font-medium">Add address</span>
                     </button>
                     {wallets.length === 0 && !walletsLoading && (
                       <EmptyState
