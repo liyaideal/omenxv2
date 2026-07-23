@@ -1,0 +1,1 @@
+ALTER TABLE public.events ADD COLUMN external_links jsonb DEFAULT NULL;

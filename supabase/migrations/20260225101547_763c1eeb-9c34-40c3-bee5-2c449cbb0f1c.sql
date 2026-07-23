@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN auth_method text DEFAULT NULL;

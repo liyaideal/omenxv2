@@ -1,0 +1,1 @@
+ALTER TABLE public.wallets ADD COLUMN label text DEFAULT NULL;

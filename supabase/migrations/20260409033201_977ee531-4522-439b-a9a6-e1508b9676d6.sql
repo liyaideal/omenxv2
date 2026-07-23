@@ -1,0 +1,2 @@
+UPDATE public.tasks SET trigger_condition = '{"action": "connect_external"}' WHERE name = 'Connect External Account';
+UPDATE public.tasks SET trigger_condition = '{"action": "activate_airdrop"}' WHERE name = 'Activate Your First Airdrop';

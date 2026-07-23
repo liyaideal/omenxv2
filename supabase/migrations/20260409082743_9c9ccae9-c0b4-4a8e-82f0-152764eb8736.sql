@@ -1,0 +1,1 @@
+DELETE FROM public.user_tasks WHERE user_id = 'abce716f-02c7-47c9-9aee-9715c0367767' AND task_id = '5708f62d-f85b-4837-83a8-debb2e1d56aa';

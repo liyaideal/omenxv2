@@ -1,0 +1,50 @@
+/* Confetti Animation Keyframes */
+@keyframes treasure-confetti-fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Sparkle Animation Keyframes */
+@keyframes treasure-sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Confetti Container */
+.treasure-confetti-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 999999;
+  overflow: hidden;
+}
+
+/* Confetti Particle */
+.treasure-confetti-particle {
+  position: absolute;
+  top: -30px;
+  border-radius: 2px;
+  animation: treasure-confetti-fall ease-out forwards;
+}
+
+/* Sparkle */
+.treasure-sparkle {
+  position: absolute;
+  color: #facc15; /* yellow-400 */
+  animation: treasure-sparkle ease-in-out infinite;
+}

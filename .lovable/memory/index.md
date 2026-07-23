@@ -1,0 +1,138 @@
+# Project Memory
+
+## Core
+- **Typography:** `font-mono` (JetBrains Mono) for numbers/addresses. `font-sans` (Inter) for text.
+- **Casing:** `camelCase` for on-chain fields, `Title Case` for headers, `sentence case` for descriptions.
+- **Icons:** Use Lucide React SVG. NO EMOJIS in UI, event names, or market names.
+- **Addresses:** Truncate to First 6 + Last 6 (e.g. 0x1234...345678). Full addresses: digits text-primary, letters text-foreground.
+- **Data Persistence:** Guest users -> localStorage. Authenticated -> Supabase.
+- **Edge Functions:** Always use POST with parameters in request body.
+- **Balances:** Total Equity = `spot_balance + balance` (no unrealized PnL). 合约扣款只动 `balance`。Trial Bonus 已于 2026-07-21 全站下线。
+- **Binary Events:** 'Yes-only' model. Convert 'No Long' -> 'Yes Short' & 'No Short' -> 'Yes Long'.
+- **Wallets:** No Web3 connection flow. Use manual 'Saved Addresses' (Address Book) system.
+- **Database:** `option_id` is the primary key for tracking prices.
+- **Grid Cards:** Only Style B (MarketCardB) exists. Style A and C were removed after community vote.
+- **Campaign Landing:** Use `CAMPAIGN_DESIGN.md` + `/campaign-style-guide`; keep separate from product DESIGN.md.
+- **Home Feed:** Priority-sorted stream. 3 tiers (personal/opportunity/browse), max 1 tier-1 visible, 2nd+ same-kind → compact. Logic in `useHomeFeed`.
+- **Delivery Docs:** 所有交付说明同时写到 `docs/changelog/YYYY-MM-DD-{slug}.md`，不能只放 `/mnt/documents/`。每次发布交付文档**必须在同一轮**完成三件事：(1) 写入 `docs/changelog/*.md`；(2) 在 `docs/changelog/INDEX.md` 表格**顶部**插入一行（日期 + 标题链接 + 一句话摘要 ≤80 字，摘要直接引用文档顶部 quote block 的关键信息）；(3) 在 `docs/changelog/STATUS.md` **顶部**追加一节，所有需求条目初始状态 ⬜。修订旧文档（vN）时 INDEX 旧行的备注列标注"已被 vN 取代"。研发以 `docs/` 为唯一需求来源。
+- **Demo 入口隔离:** 多状态/多角色的演示一律放 `/style-guide`，禁止在产品页面新增 demo 切换入口。详见 no-demo-entries-in-product。
+- **演示引擎定位:** 本仓库 Supabase 是**演示引擎**不是正式后端，逐表逐函数的参考边界见 `docs/backend-boundary.md`（append-only：新表 / 新 Edge Function 上线同一轮必须在该文档补一行标注 🟢/🟡/🔴）。
+- **状态走库，内容走 mock:** 跨模块流转的**状态**（下单 / 持仓 / 流水 / 券 / 积分）必须落 Supabase；纯展示**内容**（行情形态、联赛资料、社区帖子等）永远 mock，禁止入库。
+- **单一演示引擎:** 本项目的 Supabase 是所有 OmenX 前端蓝图项目（主站 / Sports / 未来 Pro / Lite）**唯一**后端；schema 变更只允许发生在本项目，其他前端只能调用现成 RPC / Edge Function。已有接入方：OmenX Sports（2026-07-13，两场 WC26 半决赛试点）。
+- **sim- 前缀:** 新增演示专用 Edge Function 一律用 `sim-` 前缀命名；存量函数不改名，以 `docs/backend-boundary.md` 标注为准。
+
+## Memories
+- [Voucher daily pool](mem://features/voucher-daily-pool) — Daily UTC-reset quota for voucher granting; powers the scarcity bar on granted cards
+- [Voucher earnings unlock tiers](mem://features/voucher-earnings-pool) — 5-tier claim-to-wallet ladder (T0 free $2 → T1 $10 deposit $5 → T2/T3/T4 volume $10/$20/$50)
+- [Voucher granted frosted reveal](mem://design/voucher-granted-frosted-reveal) — Granted card layout: scarcity bar on top, frosted-blur code+max-profit with centered Tap to claim pill
+- [Mainnet activation system](mem://features/activation-system) — User activation funnel, state machine, checklist, Wallet hub, MAINNET badge
+- [Chart adaptive timeframes](mem://features/chart-adaptive-timeframes) — Rules for default candlestick timeframe based on time until settlement
+- [Header tweet count](mem://features/header-tweet-count) — Tweet count display in mobile header
+- [Real-time price updates](mem://features/real-time-price-updates) — Supabase Realtime integration; direction arrows explicitly removed
+- [Price simulation engine](mem://features/price-simulation-engine) — Edge function cron job for realistic market movements
+- [Binary event UI clarification](mem://features/binary-event-ui-clarification) — Educational tooltips for unified Yes-only positions
+- [Unified data persistence](mem://technical/unified-data-persistence) — Dual-source persistence (Supabase + localStorage)
+- [Binary event conversion](mem://features/binary-event-conversion-logic) — Core logic for converting No positions to Yes positions
+- [Cross-zero reverse order prohibition](mem://features/cross-zero-prohibition) — Reverse orders can reduce/close only; crossing zero into a new opposite position is blocked
+- [Trading stats header](mem://features/trading-stats-header) — Real-time data module in trading interface header
+- [Account risk UI](mem://features/account-risk-ui-implementation) — Persistent sidebar and mobile drawer for account risk
+- [Account risk model](mem://features/account-risk-model) — 4-tier risk classification and margin formulas
+- [Portfolio risk integration](mem://features/portfolio-risk-integration) — Syncing portfolio metrics with global risk model
+- [Position option linkage](mem://technical/position-option-linkage) — Using option_id as primary key for prices
+- [Event sparkline architecture](mem://style/event-sparkline-architecture) — Bezier curves and dynamic scaling for charts
+- [Typography system](mem://components/typography-library-system) — Semantic font-mono and font-sans rules
+- [Blockchain address security](mem://style/blockchain-address-security-design) — Color-coded alphanumeric differentiation
+- [Deposit address management](mem://technical/deposit-address-management) — Address generation and fallback logic
+- [Transaction history ledger](mem://technical/transaction-history-ledger) — Standardized status lifecycle for asset movements
+- [Badge variants](mem://design/badge-variant-architecture) — Semantic variant system for hover states
+- [Event category styling](mem://design/event-category-styling) — Mapping categories to specific badge variants
+- [Share poster design](mem://features/share-poster-design-system) — Layout and hierarchy rules for shareable posters
+- [Edge function params](mem://technical/edge-function-body-parameterization) — POST body parameterization requirement
+- [Mobile detection](mem://technical/mobile-detection-initialization-pattern) — undefined initialization to prevent race conditions
+- [Share modal portal](mem://features/share-modal-portal-architecture) — createPortal rendering with high z-index
+- [Settlement poster theming](mem://features/settlement-poster-theming-logic) — Dynamic visual styles based on PnL
+- [Card UI variants](mem://style/card-ui-variants) — CSS variants for cards (default, trading, stats, web3)
+- [Header presets](mem://style/header-presets) — Mobile header logo and back button visibility
+- [Referral system unification](mem://features/referral-system-unification) — 6-character alphanumeric codes
+- [Trial Bonus sunset](../../docs/changelog/2026-07-21-trial-bonus-sunset.md) — Trial Bonus 全面下线（取代旧的 dual-balance-model）；Total Equity = spot + balance
+- [Wallet equity display](mem://style/wallet-equity-display) — Primary balance metric UI breakdowns
+- [Auth onboarding flow](mem://features/auth-onboarding-flow) — 3-step mandatory registration
+- [Security access control](mem://technical/security-access-control) — RLS and secure RPC functions
+- [Trading partial fill UX](mem://design/trading-partial-fill-ux) — Popover interface for partial executions
+- [Mystery box system](mem://features/mystery-box-system) — Treasure drop animation and probability logic
+- [Points security architecture](mem://technical/points-security-architecture) — Edge function processing for point transactions
+- [Rewards mainnet pause](mem://features/rewards/mainnet-launch-pause) — Only points→trial-balance redemption is paused (403); all other rewards features are live.
+- [Expired event fallback](mem://features/expired-event-fallback) — Fallback UI for invalid market URLs
+- [X share authorization](mem://features/x-share-authorization-flow) — Twitter share modal and OAuth flow
+- [Auth gate overlay](mem://features/auth-gate-overlay) — Blur overlay for unauthenticated users
+- [Quick trade market order](mem://features/quick-trade-market-order-ui) — Simplified UI for market orders
+- [Saved addresses](mem://features/saved-addresses-address-book) — Manual address book replacing web3 connections
+- [SEO/GEO infrastructure](mem://marketing/seo-geo-infrastructure) — Content pages for search visibility
+- [SEO footer layout](mem://features/seo-footer-layout) — Responsive 5-column footer
+- [Insights data hub](mem://features/insights-page-data-hub) — Real-time KPI boards and trending markets
+- [Automated insights feed](mem://features/automated-insights-feed) — Dynamic content generation from price triggers
+- [Insights navigation access](mem://features/insights-navigation-access) — Entry points for Insights page
+- [Legal content prose](mem://style/legal-content-prose) — Custom CSS for long-form legal text
+- [Glossary monolingual design](mem://features/glossary-monolingual-design) — Structure for SEO optimization
+- [External hedge links](mem://features/external-hedge-links) — Integration links to Polymarket and Kalshi
+- [Auth modal coordination](mem://technical/auth-flow-modal-coordination) — Global state for auth dialog priority
+- [Unified event info](mem://technical/unified-event-info-architecture) — Shared EventInfoContent component
+- [Insights card visual specs](mem://style/insights-card-visual-specs) — Visual hierarchy for insight cards
+- [Discord community support](mem://features/discord-community-support) — Support channel integration rules
+- [H2E data sync](mem://features/h2e/data-sync-and-persistence) — Order simulation and demo data persistence
+- [H2E UI standards](mem://style/h2e-and-settings-ui-standards) — Minimalist design for settings and airdrops
+- [Rewards task logic](mem://features/rewards/task-system-logic) — Task prerequisites and completion flow
+- [H2E lifecycle](mem://features/h2e/lifecycle-and-settlement) — Airdrop position states and automatic settlement
+- [H2E wallet integration](mem://features/h2e/wallet-and-anti-abuse) — Three-tier balance display and limits
+- [H2E homepage alerts](mem://features/h2e/homepage-alerts) — Notifications for airdrop opportunities
+- [H2E eligibility criteria](mem://features/h2e/eligibility-criteria) — Qualification criteria for H2E airdrops
+- [H2E verification security](mem://features/h2e/verification-security) — EIP-712 signature verification
+- [H2E schema](mem://technical/database/h2e-schema) — Dedicated database tables for H2E
+- [Transaction schema](mem://technical/database/transaction-schema) — Specialized tables for deposit/withdrawal
+- [Mainnet interface](mem://features/transactions/mainnet-interface) — Unified UI for deposits and withdrawals
+- [Cross-chain simulation](mem://features/transactions/cross-chain-simulation-flow) — Swap interface for bridged assets
+- [Fiat ramp simulation](mem://features/transactions/fiat-ramp-simulation) — Banxa integration for fiat buy/sell
+- [Blockchain architecture](mem://technical/blockchain-asset-architecture) — Base-USDC as primary asset custody layer
+- [Transaction design specs](mem://style/transaction-design-specs) — Typography and visual rules for transfer modules
+- [Transaction history labels](mem://features/transactions/history-labels) — Color-coded transaction types
+- [H2E notification logic](mem://features/h2e/notification-trigger-logic) — Logic for triggering airdrop toast alerts
+- [Liquidation audit structure](mem://features/transparency/liquidation-audit-structure) — 3-module presentation for liquidation fairness
+- [Socket swap logic](mem://features/transactions/socket-swap-logic) — Slippage modes for cross-chain interface
+- [Transparency audit scenarios](mem://features/transparency/audit-scenarios) — Transparency auditing coverage
+- [On-chain data dictionary](mem://features/transparency/on-chain-data-dictionary) — Simulating native contract fields
+- [Withdraw address logic](mem://features/transactions/withdraw-address-logic) — Platform-to-external transfer logic
+- [Project design specification](mem://design/project-design-specification) — Authoritative DESIGN.md reference
+- [UI casing conventions](mem://design/ui-casing-conventions) — camelCase, Title Case, sentence case rules
+- [Address truncation standards](mem://design/address-truncation-standards) — First 6 + Last 6 truncation standard
+- [Transparency branding](mem://features/transparency/navigation-branding-updates) — On-Chain Transparency naming
+- [Event list architecture](mem://features/event-list-v2-architecture) — High-density market list layout
+- [Watchlist persistence strategy](mem://features/watchlist-persistence-strategy) — Mixed storage strategy for user favorites
+- [Event discovery indicators](mem://features/event-discovery-indicators) — Visual feedback for new and closing markets
+- [Event market data dimensions](mem://design/event-market-data-dimensions) — Separation of event vs market data
+- [Mobile list page pattern](mem://design/mobile-list-page-pattern) — Standardized header/navigation for lists
+- [Mobile card visual standard](mem://design/mobile-card-visual-standard) — Unified styling for mobile event cards
+- [Content icon rules](mem://design/content-icon-rules) — Strict rules against emoji usage in UI
+- [Mobile status dropdown](mem://design/mobile-status-navigation-dropdown) — Bidirectional navigation in mobile headers
+- [Transparency tables](mem://technical/database/transparency-tables) — Storage for trade verification snapshots
+- [Binary event expansion](mem://features/binary-event-expansion-logic) — Multi-market row treatment for Yes/No events
+- [Desktop page layout](mem://style/desktop-page-layout-specification) — Unified max-width and vertical rhythm
+- [Event list timeframe switching](mem://features/event-list-timeframe-switching) — 1H/4H/24H filters for event list
+- [Watchlist icon unification](mem://style/watchlist-icon-unification) — Star icon usage for favorites
+- [Market list view hierarchy](mem://style/market-list-view-hierarchy) — Sub-header rows for expanded market data
+- [Event list filters](mem://features/event-list-filter-sort-refinement) — Restrictions on available event filters
+- [Event page branding](mem://content/event-page-branding) — Standardized titles and subtitles
+- [H2E landing architecture](mem://marketing/hedge-landing-architecture) — /hedge section order, anti-AI design tactics, mock data convention
+- [Campaign landing design system](mem://design/campaign-landing-design-system) — Dedicated campaign microsite rules, separate from product design system
+- [Campaign banner template](mem://design/campaign-banner-template) — Unified two-column banner skeleton; theme + visual slot only, no full-bleed photos
+- [Mobile header Preset D](mem://design/mobile-header-preset-d) — Locked spec for `<HomeKPIHeader>` on `/`; do not reuse, do not enlarge to text-4xl; SoT in DESIGN.md §10 + StyleGuide
+- [Demo accounts](mem://features/demo-accounts-fixed-identities) — Two persistent fixed demo accounts (matched/welcome) for QA login
+- [Home feed architecture](mem://features/home-feed-architecture) — DEPRECATED: priority-sorted mixed feed, no longer mounted on home (kept for reference)
+- [Home page purpose](mem://features/home-page-purpose) — Home v3: sportsbook layout with greeting, Tournaments rail, LIVE-switch Top Events, D-class HomeMatchCard
+
+- [World Cup 2026 portal](mem://features/world-cup-portal) — 主站右下角常驻悬浮 panel，2026-06-11~07-19 期间显示，跳转 OmenX Sports；× 24h TTL 隐藏
+- [Sports launcher](mem://features/sports-launcher) — Floating bottom-left pill linking to OmenX Sports during World Cup window; header untouched
+- [Retro Poster campaign style](mem://design/retro-poster-campaign-style) — /hedge 世界杯主题专用色板/字体/硬边硬阴影/三大 primitive，禁止外溢到产品其他页
+- [H2E landing architecture (Retro Poster)](mem://marketing/hedge-landing-architecture) — /hedge 新版 7 段结构 + 删除清单 + 文案契约（取代旧的 9 段版本）
+- [No demo entries in product](mem://workflow/no-demo-entries-in-product) — 多状态/多角色 demo 一律放 /style-guide，产品页禁止 demo 入口
+- [Pro / Spot US stocks pilot](mem://features/pro-spot-us-stocks) — 2026-07-15 上线现货产品线；events/trades/positions 加 product_line 维度；3 个美股当日涨跌种子事件；5 态 lifecycle + 4 个时刻表常量待确认；`/spot?event=` 独立页
+- [API key management](mem://features/api-key-management) — /settings/api 三层准入（Read-only/Trading/Pro-MM）+ 7 项 scope（FD-API-04）+ trade_*/ws_private 强制 IP whitelist + 一次性 secret；key/secret 前端仿真 DEMO-STATE

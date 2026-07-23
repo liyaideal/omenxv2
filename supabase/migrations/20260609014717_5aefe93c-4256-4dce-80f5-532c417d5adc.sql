@@ -1,0 +1,1 @@
+DROP INDEX IF EXISTS public.uniq_active_voucher_airdrop_per_user;
