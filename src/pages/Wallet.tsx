@@ -603,67 +603,59 @@ export default function Wallet() {
   // + dual-account cards structure as desktop. See docs/changelog/2026-07-21-dual-account-wallet-ui.md §2.
 
 
-  // Address Card for individual saved address
-  const AddressCard = ({ wallet }: { wallet: typeof wallets[0] }) => (
-    <div className="relative bg-muted/20 border border-border/40 rounded-xl p-3 hover:border-border/70 transition-colors">
-      <div className="flex items-start gap-3">
-        <div className="w-9 h-9 rounded-lg bg-muted/60 flex items-center justify-center p-1.5 flex-shrink-0">
-          <img src={wallet.icon} alt={wallet.network} className="w-5 h-5" />
-        </div>
-        <div className="flex-1 min-w-0 pr-16">
-          <div className="flex items-center gap-2 mb-0.5">
-            <span className="font-medium text-sm truncate">{wallet.label}</span>
-            {wallet.isPrimary && (
-              <Badge variant="outline" className="border-primary/50 text-primary text-[10px] px-1.5 py-0 h-4">
-                Default
-              </Badge>
-            )}
-          </div>
-          <div className="flex items-center gap-1.5">
-            <code className="text-xs font-mono text-muted-foreground truncate">{wallet.address}</code>
-            <button
-              onClick={() => handleCopyWallet(wallet.id, wallet.fullAddress)}
-              className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
-              aria-label="Copy address"
-            >
-              {copiedWalletId === wallet.id ? (
-                <Check className="w-3 h-3 text-trading-green" />
-              ) : (
-                <Copy className="w-3 h-3" />
-              )}
-            </button>
-          </div>
-          <span className="text-[10px] text-muted-foreground">{wallet.network}</span>
-        </div>
+  // Renders truncated address with digits in Pulse Blue and letters in muted grey.
+  const ColoredAddress = ({ address }: { address: string }) => (
+    <span className="font-mono text-xs">
+      {address.split('').map((ch, i) =>
+        /\d/.test(ch) ? (
+          <span key={i} style={{ color: '#7FE4FF' }}>{ch}</span>
+        ) : (
+          <span key={i} style={{ color: '#9AA1AC' }}>{ch}</span>
+        )
+      )}
+    </span>
+  );
 
-        {/* Icon-only actions, top-right */}
-        <div className="absolute top-2 right-2 flex items-center gap-1">
-          {!wallet.isPrimary && (
-            <button
-              onClick={() => handleSetPrimaryWallet(wallet.id)}
-              className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
-              aria-label="Set as default"
+  // Clean saved-address row (Signal DNA): hairline-separated row, no avatar, no inline delete/set-default.
+  const AddressRow = ({ wallet, isLast }: { wallet: typeof wallets[0]; isLast: boolean }) => (
+    <div className={cn("flex items-center justify-between gap-3 py-3", !isLast && "border-b border-[#1D2026]")}>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-semibold truncate">{wallet.label}</span>
+          {wallet.isPrimary && (
+            <span
+              className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase"
+              style={{ backgroundColor: 'rgba(207,255,74,0.16)', color: '#DCFF6A' }}
             >
-              <Star className="w-3.5 h-3.5" />
-            </button>
+              Default
+            </span>
           )}
-          <button
-            onClick={() => handleDeleteWallet({ id: wallet.id, label: wallet.label })}
-            className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-trading-red hover:bg-trading-red/10 transition-colors"
-            aria-label="Delete address"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
+        </div>
+        <div className="mt-0.5">
+          <ColoredAddress address={wallet.address} />
         </div>
       </div>
+      <button
+        onClick={() => handleCopyWallet(wallet.id, wallet.fullAddress)}
+        className="text-muted-foreground hover:text-white transition-colors shrink-0"
+        aria-label="Copy address"
+      >
+        {copiedWalletId === wallet.id ? (
+          <Check className="w-3.5 h-3.5 text-trading-green" />
+        ) : (
+          <Copy className="w-3.5 h-3.5" />
+        )}
+      </button>
     </div>
   );
 
-  // Saved Addresses List Component (mobile)
+  // Saved Addresses List Component (mobile) — clean Signal DNA rows.
   const SavedAddressesList = () => (
-    <div className="trading-card p-4 space-y-3">
+    <div className="trading-card p-4 space-y-2">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold">Saved Addresses</h2>
+        <h2 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          Saved addresses
+        </h2>
         <span className="text-xs text-muted-foreground">
           {wallets.length} address{wallets.length !== 1 ? 'es' : ''}
         </span>
@@ -672,17 +664,17 @@ export default function Wallet() {
       {walletsLoading ? (
         <LoadingState label="Loading addresses…" />
       ) : (
-        <div className="space-y-2">
-          {wallets.map((wallet) => (
-            <AddressCard key={wallet.id} wallet={wallet} />
+        <div>
+          {wallets.map((wallet, i) => (
+            <AddressRow key={wallet.id} wallet={wallet} isLast={i === wallets.length - 1} />
           ))}
 
           <button
             onClick={() => setAddAddressOpen(true)}
-            className="w-full border border-dashed border-border/60 hover:border-primary/50 rounded-xl h-10 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-all"
+            className="mt-3 w-full border-[1.5px] border-dashed border-[#2B2F38] hover:border-primary/60 rounded-xl h-10 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-all"
           >
             <Plus className="w-4 h-4" />
-            <span className="font-medium">Add Address</span>
+            <span className="font-medium">Add address</span>
           </button>
 
           {wallets.length === 0 && !walletsLoading && (
