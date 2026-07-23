@@ -77,21 +77,23 @@ Use Tailwind semantic classes (`bg-background`, `text-foreground`, `text-primary
 
 ### Font Stack
 
-One family for body/UI, one display face for hero numbers — no separate mono face.
+Type system = Archivo for text, Space Grotesk for ALL numbers.
 
-- **Sans** (UI text / data): `Archivo` → `font-sans`
-- **Mono** (numbers): `Archivo` with `font-variant-numeric: tabular-nums` → `font-mono`
-- **Display** (hero numbers, headlines): `Space Grotesk` (`font-display`) → wide, bold headline/hero-number surfaces. Body/UI stays Archivo; data numbers stay Archivo tabular.
+- **Sans** (UI text / labels / headers / descriptions): `Archivo` → `font-sans`
+- **Mono** (prices, amounts, balances, addresses, hashes, tx IDs, raw values): `Space Grotesk` with `font-variant-numeric: tabular-nums` → `font-mono`
+- **Display** (hero numbers, big headlines): `Space Grotesk` (`font-display`) → wide, bold headline/hero-number surfaces.
+
+Space Grotesk uses tabular-nums for column alignment across all data numbers.
 
 ### When to Use Each Font
 
 | Content Type | Font | Example |
 |-------------|------|---------|
 | Labels, headers, descriptions | `font-sans` (Archivo) | "Total Profit", "Settings" |
-| Prices, amounts, percentages | `font-mono` (Archivo tabular-nums) | "$0.5500", "12.5%" |
-| Addresses, hashes, tx IDs | `font-mono` | "0x3b4e780d12...c6b3bf" |
-| Contract field names | `font-mono` | "txHash", "blockNumber" |
-| Raw / debug values | `font-mono` | "550000" |
+| Prices, amounts, percentages | `font-mono` (Space Grotesk tabular-nums) | "$0.5500", "12.5%" |
+| Addresses, hashes, tx IDs | `font-mono` (Space Grotesk) | "0x3b4e780d12...c6b3bf" |
+| Contract field names | `font-mono` (Space Grotesk) | "txHash", "blockNumber" |
+| Raw / debug values | `font-mono` (Space Grotesk) | "550000" |
 | Hero numbers, big headlines | `font-display` (Space Grotesk) | "$12,540" |
 
 ### Typography Components
