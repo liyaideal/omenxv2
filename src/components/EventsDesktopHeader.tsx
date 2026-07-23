@@ -18,6 +18,7 @@ import {
   KeyRound,
   ArrowLeftRight,
 } from "lucide-react";
+import { Sparkles, Layers } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,6 +40,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 import { computeTotalEquity, formatEquityUsd } from "@/lib/equity";
 import { TransferDialog } from "@/components/wallet/TransferDialog";
+import { useSurface } from "@/contexts/SurfaceContext";
 
 
 // Main nav (4 items). Resolved is now an Events page tab; Leaderboard is a
