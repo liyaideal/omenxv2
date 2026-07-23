@@ -1,19 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { 
-  Clock, 
-  CheckCircle2, 
-  Loader2, 
-  ExternalLink,
-  ChevronDown,
-  ChevronUp,
-  Zap,
-  AlertTriangle,
-} from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Loader2, ArrowDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -51,7 +39,6 @@ interface PendingConfirmationsProps {
 
 export const PendingConfirmations = ({ className }: PendingConfirmationsProps) => {
   const { user } = useAuth();
-  const [expanded, setExpanded] = useState(true);
 
   // Fetch pending/processing transactions with real confirmations data
   const { data: pendingTransactions = [], isLoading } = useQuery({
@@ -84,30 +71,16 @@ export const PendingConfirmations = ({ className }: PendingConfirmationsProps) =
 
   const getEstimatedTimeRemaining = (current: number, required: number, network: string | null): string => {
     const remaining = required - current;
-    if (remaining <= 0) return 'Almost done...';
-    
+    if (remaining <= 0) return 'almost done';
     // Get block time based on network
     let blockTime = ESTIMATED_BLOCK_TIME_SECONDS;
     if (network?.includes('Bitcoin')) blockTime = 600; // 10 min
     if (network?.includes('Ethereum')) blockTime = 12;
     if (network?.includes('Solana')) blockTime = 0.4;
-    
     const seconds = remaining * blockTime;
-    if (seconds < 60) return `~${Math.ceil(seconds)}s`;
-    if (seconds < 3600) return `~${Math.ceil(seconds / 60)}m`;
-    return `~${Math.ceil(seconds / 3600)}h`;
-  };
-
-  const truncateTxHash = (hash: string): string => {
-    if (hash.length <= 15) return hash;
-    return `${hash.slice(0, 6)}...${hash.slice(-6)}`;
-  };
-
-  const getExplorerUrl = (network: string | null, txHash: string): string | null => {
-    if (!network || !txHash) return null;
-    const baseUrl = EXPLORER_URLS[network];
-    if (!baseUrl) return null;
-    return `${baseUrl}${txHash}`;
+    if (seconds < 60) return `~${Math.ceil(seconds)}s left`;
+    if (seconds < 3600) return `~${Math.ceil(seconds / 60)} min left`;
+    return `~${Math.ceil(seconds / 3600)}h left`;
   };
 
   const formatAmount = (amount: number): string => {
@@ -121,162 +94,71 @@ export const PendingConfirmations = ({ className }: PendingConfirmationsProps) =
     const date = new Date(dateString);
     const now = new Date();
     const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-    if (seconds < 60) return 'Just now';
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 60) return 'just now';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)} min ago`;
     if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
     return `${Math.floor(seconds / 86400)}d ago`;
   };
 
-  // Don't render if no pending transactions
   if (!isLoading && pendingTransactions.length === 0) {
     return null;
   }
 
   return (
-    <div className={cn("space-y-3", className)}>
-      {/* Header */}
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between"
-      >
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <Zap className="w-4 h-4 text-trading-yellow" />
-            <span className="absolute -top-1 -right-1 w-2 h-2 bg-trading-yellow rounded-full animate-pulse" />
-          </div>
-          <h2 className="text-sm sm:text-lg font-semibold">Pending Confirmations</h2>
-          <Badge variant="secondary" className="bg-trading-yellow/10 text-trading-yellow border-trading-yellow/20">
-            {pendingTransactions.length}
-          </Badge>
+    <div className={cn("rounded-[18px] border border-border bg-card p-[22px_22px_18px]", className)}>
+      <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-4">
+        Pending confirmations
+      </div>
+      {isLoading ? (
+        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+          <Loader2 className="w-4 h-4 animate-spin" /> Loading…
         </div>
-        {expanded ? (
-          <ChevronUp className="w-4 h-4 text-muted-foreground" />
-        ) : (
-          <ChevronDown className="w-4 h-4 text-muted-foreground" />
-        )}
-      </button>
-
-      {/* Transactions List */}
-      {expanded && (
-        <div className="space-y-3">
-          {isLoading ? (
-            <div className="bg-card border border-border/50 rounded-xl p-6 text-center">
-              <Loader2 className="w-6 h-6 animate-spin mx-auto text-muted-foreground" />
-              <p className="text-sm text-muted-foreground mt-2">Loading...</p>
-            </div>
-          ) : (
-            pendingTransactions.map((tx) => {
-              const confirmations = tx.confirmations;
-              const required = tx.required_confirmations;
-              const progress = Math.min((confirmations / required) * 100, 100);
-              const isComplete = confirmations >= required;
-              const explorerUrl = tx.tx_hash ? getExplorerUrl(tx.network, tx.tx_hash) : null;
-
-              return (
-                <div
-                  key={tx.id}
-                  className={cn(
-                    "bg-card border rounded-xl p-4 transition-all",
-                    isComplete 
-                      ? "border-trading-green/30 bg-trading-green/5" 
-                      : "border-trading-yellow/30 bg-trading-yellow/5"
-                  )}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className={cn(
-                        "w-10 h-10 rounded-full flex items-center justify-center",
-                        isComplete ? "bg-trading-green/20" : "bg-trading-yellow/20"
-                      )}>
-                        {isComplete ? (
-                          <CheckCircle2 className="w-5 h-5 text-trading-green" />
-                        ) : (
-                          <Loader2 className="w-5 h-5 text-trading-yellow animate-spin" />
-                        )}
-                      </div>
-                      <div>
-                        <div className="font-medium text-sm">
-                          +${formatAmount(tx.amount)} Deposit
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {tx.network || 'Unknown Network'} • {formatTimeAgo(tx.created_at)}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Status Badge */}
-                    <Badge 
-                      variant="outline" 
-                      className={cn(
-                        "text-xs",
-                        isComplete 
-                          ? "border-trading-green/50 text-trading-green" 
-                          : "border-trading-yellow/50 text-trading-yellow"
-                      )}
-                    >
-                      {isComplete ? 'Confirmed' : 'Confirming'}
-                    </Badge>
-                  </div>
-
-                  {/* Progress Section */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {isComplete ? 'Complete' : getEstimatedTimeRemaining(confirmations, required, tx.network)}
-                      </span>
-                      <span className={cn(
-                        "font-mono font-medium",
-                        isComplete ? "text-trading-green" : "text-trading-yellow"
-                      )}>
-                        {confirmations}/{required} blocks
-                      </span>
-                    </div>
-
-                    <Progress 
-                      value={progress} 
-                      className={cn(
-                        "h-2",
-                        isComplete 
-                          ? "[&>div]:bg-trading-green" 
-                          : "[&>div]:bg-trading-yellow [&>div]:animate-pulse"
-                      )}
-                    />
-                  </div>
-
-                  {/* Transaction Hash Link */}
-                  {tx.tx_hash && explorerUrl && (
-                    <div className="mt-3 pt-3 border-t border-border/30">
-                      <a
-                        href={explorerUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 text-xs text-primary hover:underline font-mono"
-                      >
-                        <span>{truncateTxHash(tx.tx_hash)}</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
-                    </div>
-                  )}
+      ) : (
+        <div className="space-y-4">
+          {pendingTransactions.map((tx) => {
+            const confirmations = tx.confirmations;
+            const required = tx.required_confirmations;
+            const progress = Math.min((confirmations / required) * 100, 100);
+            return (
+              <div key={tx.id} className="flex items-center gap-3.5">
+                <div className="w-9 h-9 rounded-xl grid place-items-center flex-shrink-0" style={{ background: 'rgba(51,214,255,0.12)', color: '#7FE4FF' }}>
+                  <ArrowDown className="w-4 h-4" />
                 </div>
-              );
-            })
-          )}
-
-          {/* Wrong-chain recovery entry */}
-          <Link
-            to="/wallet/recovery"
-            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors px-1"
-          >
-            <AlertTriangle className="w-3.5 h-3.5" />
-            <span>
-              Sent to the wrong network?{' '}
-              <span className="text-primary underline-offset-2 hover:underline">Request recovery</span>
-            </span>
-          </Link>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <span className="font-mono font-bold text-sm tabular-nums" style={{ color: '#DCFF6A' }}>
+                      +${formatAmount(tx.amount)}
+                    </span>
+                    <span className="text-sm font-semibold">Deposit</span>
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.08em]" style={{ background: 'rgba(51,214,255,0.14)', color: '#7FE4FF' }}>
+                      Confirming
+                    </span>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    {tx.network || 'Unknown Network'} · {formatTimeAgo(tx.created_at)} · est. {getEstimatedTimeRemaining(confirmations, required, tx.network)}
+                  </div>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <div className="font-mono text-xs font-semibold tabular-nums" style={{ color: '#C9CED6' }}>
+                    {confirmations}/{required} blocks
+                  </div>
+                  <div className="w-[110px] h-1 rounded-full mt-1.5 overflow-hidden" style={{ background: '#1D2026' }}>
+                    <div className="h-full rounded-full" style={{ width: `${progress}%`, background: 'linear-gradient(90deg,#013281,#33D6FF)' }} />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
+      <div className="mt-3.5 pt-3 border-t border-border">
+        <Link
+          to="/wallet/recovery"
+          className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-[3px]"
+        >
+          Sent to the wrong network? Request recovery
+        </Link>
+      </div>
     </div>
   );
 };
