@@ -11,6 +11,13 @@ interface TradeSubmitButtonProps {
   loadingText?: string;
   size?: "sm" | "md" | "lg";
   className?: string;
+  /**
+   * Market-axis position side. When provided AND intent is BUY, the CTA
+   * follows the market axis (Yes = Pulse Blue, No = Volt) instead of the
+   * money-axis green/red. Reduce / Sell intents always stay on trading-red
+   * so a "close" action never visually competes with the outcome color.
+   */
+  positionSide?: "yes" | "no";
 }
 
 /**
@@ -28,6 +35,7 @@ export const TradeSubmitButton = ({
   loadingText = "Processing...",
   size = "md",
   className,
+  positionSide,
 }: TradeSubmitButtonProps) => {
   const isBuy = side === "buy";
   const sizeClasses =
@@ -41,6 +49,10 @@ export const TradeSubmitButton = ({
     ? potentialWin.toLocaleString()
     : potentialWin;
 
+  // Market-axis palette for BUY intents; fall back to money-axis for SELL.
+  const useYes = isBuy && positionSide === "yes";
+  const useNo = isBuy && positionSide === "no";
+
   return (
     <button
       type="button"
@@ -51,7 +63,11 @@ export const TradeSubmitButton = ({
         "active:scale-[0.98] hover:-translate-y-[1px]",
         "disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0",
         "shadow-[0_4px_14px_-4px_hsl(var(--background))]",
-        isBuy
+        useYes
+          ? "bg-gradient-to-b from-yes to-yes/85 text-yes-foreground hover:shadow-[0_8px_20px_-6px_hsl(var(--yes)/0.55)]"
+          : useNo
+          ? "bg-gradient-to-b from-no to-no/85 text-no-foreground hover:shadow-[0_8px_20px_-6px_hsl(var(--no)/0.55)]"
+          : isBuy
           ? "bg-gradient-to-b from-trading-green to-trading-green/85 text-trading-green-foreground hover:shadow-[0_8px_20px_-6px_hsl(var(--trading-green)/0.55)]"
           : "bg-gradient-to-b from-trading-red to-trading-red/85 text-foreground hover:shadow-[0_8px_20px_-6px_hsl(var(--trading-red)/0.55)]",
         sizeClasses,
