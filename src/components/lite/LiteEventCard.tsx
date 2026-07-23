@@ -51,24 +51,27 @@ const formatCompactUSD = (val: number): string => {
 // Derive a settlement footer string from real expiry data. No hardcoded times.
 const settlementFooter = (expiry: Date | null, categoryRaw: string): string | null => {
   if (!expiry) return null;
-  const now = Date.now();
-  const diffMs = expiry.getTime() - now;
+  const nowDate = new Date();
+  const diffMs = expiry.getTime() - nowDate.getTime();
   if (diffMs <= 0) return "Settled";
-  const isStocks = categoryRaw === "stocks" || categoryRaw === "tech";
-  const sameCalendarDay =
-    expiry.getFullYear() === new Date(now).getFullYear() &&
-    expiry.getMonth() === new Date(now).getMonth() &&
-    expiry.getDate() === new Date(now).getDate();
+  // Compare local CALENDAR days, ignoring time-of-day, so an event ending
+  // tomorrow at 08:00 doesn't read "in 2d" via a naive ceil(diffMs/86_400_000).
+  const startOfDay = (d: Date) =>
+    new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const dayDiff = Math.round((startOfDay(expiry) - startOfDay(nowDate)) / 86_400_000);
   const hhmm = expiry.toLocaleTimeString(undefined, {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
   });
-  if (isStocks && sameCalendarDay) return `Settles today ${hhmm}`;
-  const days = Math.ceil(diffMs / 86_400_000);
-  if (days <= 1) return `Settles today ${hhmm}`;
-  if (days <= 7) return `Settles in ${days}d`;
-  if (days <= 30) return `Settles ${expiry.toLocaleDateString(undefined, { month: "short", day: "numeric" })}`;
+  if (dayDiff <= 0) return `Settles today ${hhmm}`;
+  if (dayDiff === 1) return "Settles tomorrow";
+  if (dayDiff <= 6) {
+    return `Settles ${expiry.toLocaleDateString(undefined, { weekday: "short" })}`;
+  }
+  if (dayDiff <= 30) {
+    return `Settles ${expiry.toLocaleDateString(undefined, { month: "short", day: "numeric" })}`;
+  }
   return `Settles ${expiry.toLocaleDateString(undefined, { month: "short", year: "numeric" })}`;
 };
 
@@ -79,10 +82,22 @@ export const LiteEventCard = ({ market }: LiteEventCardProps) => {
     ? `/spot?event=${market.eventId}`
     : `/trade?event=${market.eventId}`;
 
-  // Prefer top-market outcome pricing; neutral 50/50 fallback (never invented).
-  const topChild = market.children[0];
-  const yesPrice = topChild ? topChild.markPrice : 0.5;
-  const noPrice = Math.max(0, Math.min(1, 1 - yesPrice));
+  // Resolve which child is the affirmative ("Yes") side. We MUST NOT rely on
+  // children[0] — for us-*-updown events the first option is "Not Up", which
+  // would flip Yes/No on the card. Prefer the event's side_labels.yes alias
+  // (e.g. "Up"), then fall back to literal "yes"/"up" labels, then children[0].
+  const affirmativeAlias = (market.sideLabels?.yes ?? "").trim().toLowerCase();
+  const matchLabel = (label: string) => label.trim().toLowerCase();
+  const yesChild =
+    (affirmativeAlias &&
+      market.children.find((c) => matchLabel(c.optionLabel) === affirmativeAlias)) ||
+    market.children.find((c) => ["yes", "up"].includes(matchLabel(c.optionLabel))) ||
+    market.children[0];
+  const noChild = market.children.find((c) => c.id !== yesChild?.id);
+  const yesPrice = yesChild ? yesChild.markPrice : 0.5;
+  const noPrice = noChild
+    ? noChild.markPrice
+    : Math.max(0, Math.min(1, 1 - yesPrice));
 
   const categoryRaw = (market.category || "").toLowerCase();
   const microlabel = MICROLABEL[categoryRaw] ?? "Market";
