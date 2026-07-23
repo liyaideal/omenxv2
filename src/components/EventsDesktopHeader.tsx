@@ -62,6 +62,33 @@ interface EventsDesktopHeaderProps {
   rightContent?: React.ReactNode;
 }
 
+// Simple mode ↔ Pro mode toggle inside the user dropdown. Persists via
+// SurfaceContext (localStorage + best-effort profiles.preferred_surface).
+const SurfaceToggleMenuItem = () => {
+  const { surface, toggle } = useSurface();
+  const isLite = surface === "lite";
+  return (
+    <DropdownMenuItem
+      onSelect={(e) => {
+        e.preventDefault();
+        toggle();
+      }}
+    >
+      {isLite ? (
+        <Layers className="mr-2 h-4 w-4 text-primary" />
+      ) : (
+        <Sparkles className="mr-2 h-4 w-4 text-primary" />
+      )}
+      <span className="flex-1">
+        {isLite ? "Switch to Pro mode" : "Switch to Simple mode"}
+      </span>
+      <span className="ml-2 text-[10px] uppercase tracking-wide text-muted-foreground">
+        {isLite ? "Simple" : "Pro"}
+      </span>
+    </DropdownMenuItem>
+  );
+};
+
 export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
