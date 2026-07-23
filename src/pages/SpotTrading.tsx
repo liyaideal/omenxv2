@@ -662,7 +662,7 @@ export default function SpotTrading() {
           className={cn(
             "flex-1 flex items-center justify-center min-h-[24px] py-1.5 px-2 text-[11px] font-semibold leading-tight",
             isYesSelected
-              ? "bg-trading-green text-trading-green-foreground"
+              ? "bg-yes text-yes-foreground"
               : "bg-muted text-muted-foreground hover:bg-muted/80",
           )}
         >
@@ -672,7 +672,7 @@ export default function SpotTrading() {
           className={cn(
             "h-[22px] flex items-center justify-center text-[11px] font-mono border-t",
             isYesSelected
-              ? "bg-trading-green/85 text-trading-green-foreground border-black/20"
+              ? "bg-yes/85 text-yes-foreground border-black/20"
               : "bg-muted-foreground/15 text-foreground/80 border-border/40",
           )}
         >
@@ -690,7 +690,7 @@ export default function SpotTrading() {
           className={cn(
             "flex-1 flex items-center justify-center min-h-[24px] py-1.5 px-2 text-[11px] font-semibold leading-tight",
             !isYesSelected
-              ? "bg-trading-red text-foreground"
+              ? "bg-no text-no-foreground"
               : "bg-muted text-muted-foreground hover:bg-muted/80",
           )}
         >
@@ -700,7 +700,7 @@ export default function SpotTrading() {
           className={cn(
             "h-[22px] flex items-center justify-center text-[11px] font-mono border-t",
             !isYesSelected
-              ? "bg-trading-red/85 text-foreground border-black/20"
+              ? "bg-no/85 text-no-foreground border-black/20"
               : "bg-muted-foreground/15 text-foreground/80 border-border/40",
           )}
         >
@@ -912,8 +912,8 @@ export default function SpotTrading() {
           className={cn(
             "w-full h-11 rounded-lg font-semibold text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed",
             isYesSelected
-              ? "bg-trading-green hover:bg-trading-green/90 text-trading-green-foreground"
-              : "bg-trading-red hover:bg-trading-red/90 text-foreground",
+              ? "bg-yes hover:bg-yes/90 text-yes-foreground"
+              : "bg-no hover:bg-no/90 text-no-foreground",
           )}
         >
           {submitting ? (

@@ -14,6 +14,7 @@ import StyleGuidePreview from "./pages/StyleGuide/preview/StyleGuidePreview";
 import FontPreview from "./pages/FontPreview";
 
 import EventsPage from "./pages/EventsPage";
+import LiteEventsPage from "./pages/lite/LiteEventsPage";
 import ResolvedPage from "./pages/ResolvedPage";
 import ResolvedEventDetail from "./pages/ResolvedEventDetail";
 import Leaderboard from "./pages/Leaderboard";
@@ -47,6 +48,7 @@ import CampaignStyleGuide from "./pages/CampaignStyleGuide";
 import NotFound from "./pages/NotFound";
 import { useIsMobile } from "./hooks/use-mobile";
 import { RealtimePricesProvider } from "./contexts/RealtimePricesContext";
+import { SurfaceProvider, useSurface } from "./contexts/SurfaceContext";
 import { AirdropNotificationToast } from "./components/AirdropNotificationToast";
 import { SportsLauncher } from "./components/SportsLauncher";
 import { useOrderSimulation } from "./hooks/useOrderSimulation";
@@ -73,7 +75,14 @@ const ResponsiveLayout = ({ children }: { children: React.ReactNode }) => {
 // Route component that shows different pages based on device
 const HomePage = () => {
   const isMobile = useIsMobile();
+  const { surface } = useSurface();
+  if (surface === "lite") return <LiteEventsPage />;
   return isMobile ? <MobileHome /> : <EventsPage />;
+};
+
+const EventsRoute = () => {
+  const { surface } = useSurface();
+  return surface === "lite" ? <LiteEventsPage /> : <EventsPage />;
 };
 
 const TradingPage = () => {
@@ -89,6 +98,7 @@ const TradeOrderPage = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <RealtimePricesProvider>
+      <SurfaceProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -114,7 +124,7 @@ const App = () => (
               <Route path="/trade/order" element={<TradeOrderPage />} />
               <Route path="/spot" element={<SpotTrading />} />
               <Route path="/order-preview" element={<OrderPreview />} />
-              <Route path="/events" element={<EventsPage />} />
+              <Route path="/events" element={<EventsRoute />} />
               <Route path="/resolved" element={<ResolvedPage />} />
               <Route path="/resolved/:eventId" element={<ResolvedEventDetail />} />
               <Route path="/portfolio" element={<Portfolio />} />
@@ -151,6 +161,7 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
+      </SurfaceProvider>
     </RealtimePricesProvider>
   </QueryClientProvider>
 );

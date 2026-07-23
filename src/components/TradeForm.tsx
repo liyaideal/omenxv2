@@ -235,7 +235,7 @@ export const TradeForm = ({
                   <div
                     className={`relative flex-1 flex items-center justify-center min-h-[24px] py-1.5 px-2 ${
                       yesActive
-                        ? "bg-trading-green text-trading-green-foreground"
+                        ? "bg-yes text-yes-foreground"
                         : "bg-muted text-muted-foreground hover:bg-muted/80"
                     }`}
                   >
@@ -249,7 +249,7 @@ export const TradeForm = ({
                   <div
                     className={`h-[22px] flex items-center justify-center border-t ${
                       yesActive
-                        ? "bg-trading-green/85 text-trading-green-foreground border-black/20"
+                        ? "bg-yes/85 text-yes-foreground border-black/20"
                         : "bg-muted-foreground/15 text-foreground/80 border-border/40"
                     }`}
                   >
@@ -263,7 +263,7 @@ export const TradeForm = ({
                   <div
                     className={`relative flex-1 flex items-center justify-center min-h-[24px] py-1.5 px-2 ${
                       noActive
-                        ? "bg-trading-red text-foreground"
+                        ? "bg-no text-no-foreground"
                         : "bg-muted text-muted-foreground hover:bg-muted/80"
                     }`}
                   >
@@ -277,7 +277,7 @@ export const TradeForm = ({
                   <div
                     className={`h-[22px] flex items-center justify-center border-t ${
                       noActive
-                        ? "bg-trading-red/85 text-foreground border-black/20"
+                        ? "bg-no/85 text-no-foreground border-black/20"
                         : "bg-muted-foreground/15 text-foreground/80 border-border/40"
                     }`}
                   >
@@ -520,6 +520,7 @@ export const TradeForm = ({
         onClick={handlePreview}
         disabled={orderIntent.kind === "blocked-cross-zero"}
         size="sm"
+        positionSide={binaryMode ? (binaryMode.isYesSelected ? "yes" : "no") : undefined}
       />
     </div>
   );

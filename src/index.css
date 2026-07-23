@@ -74,6 +74,19 @@
     --trading-yellow-muted: 48 70% 28%;
     --trading-yellow-bg: 48 60% 10%;
 
+    /* ===== MARKET AXIS (Yes / No side semantics) ===== */
+    /* Distinct from money-axis (trading-green/red). Never mix in one component:
+       Yes/No side-selection controls use --yes / --no; PnL/gain/loss stays on
+       --trading-green / --trading-red. */
+    --yes: 192 100% 60%;              /* Pulse Blue */
+    --yes-foreground: 220 12% 4%;
+    --yes-muted: 205 84% 24%;
+    --yes-bg: 205 70% 10%;
+    --no: 74 100% 65%;                /* Volt Green */
+    --no-foreground: 220 12% 4%;
+    --no-muted: 74 60% 30%;
+    --no-bg: 74 50% 9%;
+
     /* ===== INDICATOR (Real-time) ===== */
     --indicator: 192 100% 60%;
     --indicator-muted: 192 70% 35%;

@@ -795,6 +795,40 @@ export const DesignTokensSection = ({ isMobile }: DesignTokensSectionProps) => {
       </SectionWrapper>
 
       {/* Category Card Backgrounds */}
+      {/* Market Axis (Yes / No side semantics) */}
+      <SectionWrapper
+        id="market-axis"
+        title="Market Axis (Yes / No)"
+        description="Side-selection controls only. Never mix with money-axis (trading-green/red). Yes = Pulse Blue, No = Volt."
+      >
+        <div className="grid grid-cols-2 gap-4">
+          <div className="rounded-xl border border-yes/30 bg-yes/10 p-4">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-xs font-semibold uppercase tracking-wide text-yes">Yes</span>
+              <code className="text-[10px] text-muted-foreground">bg-yes</code>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="h-10 flex-1 rounded-md bg-yes flex items-center justify-center text-yes-foreground text-xs font-semibold">Solid</div>
+              <div className="h-10 flex-1 rounded-md bg-yes/85 flex items-center justify-center text-yes-foreground text-xs font-semibold">85%</div>
+              <div className="h-10 flex-1 rounded-md bg-yes/15 border border-yes/30 flex items-center justify-center text-yes text-xs font-semibold">Tint</div>
+            </div>
+            <p className="mt-2 text-[10px] text-muted-foreground">Buy Yes CTA, Yes price chip, Yes toggle active state.</p>
+          </div>
+          <div className="rounded-xl border border-no/30 bg-no/10 p-4">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-xs font-semibold uppercase tracking-wide text-no">No</span>
+              <code className="text-[10px] text-muted-foreground">bg-no</code>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="h-10 flex-1 rounded-md bg-no flex items-center justify-center text-no-foreground text-xs font-semibold">Solid</div>
+              <div className="h-10 flex-1 rounded-md bg-no/85 flex items-center justify-center text-no-foreground text-xs font-semibold">85%</div>
+              <div className="h-10 flex-1 rounded-md bg-no/15 border border-no/30 flex items-center justify-center text-no text-xs font-semibold">Tint</div>
+            </div>
+            <p className="mt-2 text-[10px] text-muted-foreground">Buy No CTA, No price chip, No toggle active state.</p>
+          </div>
+        </div>
+      </SectionWrapper>
+
       <SectionWrapper id="card-backgrounds" title="Category Card Backgrounds" description="Themed background images for market cards. Displayed at 15% opacity with a dark gradient overlay.">
         <div className={`grid ${isMobile ? "grid-cols-2" : "grid-cols-4"} gap-4`}>
           {[

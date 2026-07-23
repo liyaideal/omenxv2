@@ -54,6 +54,26 @@ Use Tailwind semantic classes (`bg-background`, `text-foreground`, `text-primary
 | `--trading-purple` | 192 100% 60% | Brand emphasis — Pulse Blue (purple retired) |
 | `--trading-yellow` | 48 100% 55% | Warnings, alerts, pending (caution amber) |
 
+### Market Axis (Yes / No side semantics) — LOCKED
+
+Distinct axis from money (gain/loss). Never mix money-axis and market-axis
+tokens in the same component: Yes/No side-selection controls use `--yes` /
+`--no`; PnL / gain / loss stays on `--trading-green` / `--trading-red`.
+
+| Token | HSL | Tailwind | Usage |
+|-------|-----|----------|-------|
+| `--yes` | 192 100% 60% | `bg-yes` / `text-yes` | Yes side (Pulse Blue) — Yes toggle, Yes price chip, CTA `Buy Yes` |
+| `--yes-foreground` | 220 12% 4% | `text-yes-foreground` | Text on solid `bg-yes` |
+| `--yes-muted` / `--yes-bg` | — | `bg-yes-muted` / `bg-yes-bg` | Subtle tints (chips, backdrops) |
+| `--no` | 74 100% 65% | `bg-no` / `text-no` | No side (Volt Green) — No toggle, No price chip, CTA `Buy No` |
+| `--no-foreground` | 220 12% 4% | `text-no-foreground` | Text on solid `bg-no` |
+| `--no-muted` / `--no-bg` | — | `bg-no-muted` / `bg-no-bg` | Subtle tints (chips, backdrops) |
+
+**Contract**: `TradeSubmitButton` receives `positionSide?: 'yes' \| 'no'`.
+For BUY intents (`side === 'buy'`) with `positionSide` set, the CTA follows
+the market axis. All other cases fall back to money-axis (green/red) so that
+SELL / Reduce / Close actions never visually compete with an outcome color.
+
 ### Borders
 
 | Token | HSL | Usage |

@@ -78,6 +78,18 @@ export default {
           "yellow-bg": "hsl(var(--trading-yellow-bg))",
           "yellow-foreground": "hsl(var(--background))",
         },
+        yes: {
+          DEFAULT: "hsl(var(--yes))",
+          foreground: "hsl(var(--yes-foreground))",
+          muted: "hsl(var(--yes-muted))",
+          bg: "hsl(var(--yes-bg))",
+        },
+        no: {
+          DEFAULT: "hsl(var(--no))",
+          foreground: "hsl(var(--no-foreground))",
+          muted: "hsl(var(--no-muted))",
+          bg: "hsl(var(--no-bg))",
+        },
         indicator: {
           DEFAULT: "hsl(var(--indicator))",
           muted: "hsl(var(--indicator-muted))",
