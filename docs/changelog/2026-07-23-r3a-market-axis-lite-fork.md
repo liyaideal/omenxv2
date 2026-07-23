@@ -50,3 +50,49 @@ set, the CTA follows the market axis (Yes → blue, No → volt). Wired from
   static class strings.
 - No schema changes; `preferred_surface` column already existed.
 - Settlement/expiry copy derives from `EventRow.expiry`.
+## R3a-refine — LiteEventCard visual rebuild + sector filter fix
+
+### LiteEventCard (`src/components/lite/LiteEventCard.tsx`)
+Rebuilt to match the design-system "Markets" mock:
+
+- 130px image tile at the top, using literal-mapped category → `/card-bg/*.jpg`
+  (stocks/macro→finance, tech→tech, crypto→crypto, entertainment→entertainment,
+  politics→politics, sports→sports, social→social). Missing categories fall back
+  to the mock's diagonal stripe. Bottom-to-top scrim
+  `linear-gradient(to top, rgba(10,11,13,0.85), transparent 60%)` layered over
+  the image for legibility.
+- Tag pill (top-left): `New` on Volt `#CFFF4A` when `market.isNew`, otherwise
+  `Live` on Pulse `#33D6FF`. Text `#0A0B0D`.
+- Category microlabel (10px, tracked, uppercase) derived from raw DB category.
+- Title: `font-display` 17px/1.2 bold with `min-h-[42px]` so 1- and 2-line
+  titles align across the grid.
+- Yes/No chips: kept our tokens (`bg-yes/15 text-yes`, `bg-no/15 text-no`)
+  which visually match the mock's blue/volt tints; format unchanged
+  (`{price}¢`, No = 1 − Yes).
+- Footer: `Vol ${compactUSD(totalVolume||volume24h)}` + data-derived
+  settlement text (`Settles today HH:MM` for stocks/tech settling today).
+- Card shell: `#131519` bg, `#1D2026` border, 16px radius, `.mkt-card` hover
+  lift (translateY(-4px) + soft shadow) added to `src/index.css`. Reduced-motion
+  users skip the transform.
+- Whole card is a single button routing to `/spot?event=…` or `/trade?event=…`.
+
+### LiteEventsPage (`src/pages/lite/LiteEventsPage.tsx`)
+- Sector-filter bug fixed. Old code filtered on `categoryLabel` (Finance/Tech
+  after `getCategoryInfo` normalization), which never matched DB categories
+  `stocks`/`macro`/`tech`/`crypto` and caused "Stocks" to surface Tech events.
+  New rail filters on the raw lowercase DB category directly.
+- Rail is now data-driven: renders `All` + one pill per non-sports category
+  that actually has events + external `Sports ↗`. Empty sectors are dropped
+  automatically.
+- Pill styling matches the mock: active = white solid (`bg-white
+  text-[#0A0B0D]`), inactive = ghost border (`border-[1.5px]
+  border-[#2B2F38] text-[#C9CED6]`).
+- Headline promoted to `font-display` at `clamp(28px, 4vw, 40px)`, tight
+  tracking. No marketing hero, no fabricated volume/CTAs.
+- Grid gap tightened to 18px to match the mock spec.
+
+### Guardrails preserved
+- No string-concatenated Tailwind class names; category→image and tag→color
+  are literal `Record` lookups.
+- No schema/service changes; still pure display layer.
+- Pro `EventsPage` / `MarketCardB` untouched.
