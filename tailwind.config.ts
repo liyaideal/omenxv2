@@ -16,8 +16,8 @@ export default {
       fontFamily: {
         sans: ['Archivo', 'sans-serif'],
         mono: ['Archivo', 'sans-serif'],
-        // display: Archivo Expanded — headline / hero-number surfaces.
-        display: ['Archivo', 'sans-serif'],
+        // display: Space Grotesk — headline / hero-number surfaces.
+        display: ['Space Grotesk', 'sans-serif'],
         // poster: Archivo Black — retro poster / campaign surfaces only (e.g. /hedge, homepage campaign banner).
         // Distinct from font-display; the two are not interchangeable.
         poster: ['"Archivo Black"', 'Impact', 'sans-serif'],
