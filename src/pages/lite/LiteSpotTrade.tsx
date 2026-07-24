@@ -9,7 +9,7 @@
 // ============================================================
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ChevronRight, Info, Loader2, Star } from "lucide-react";
+import { ChevronRight, Info, Loader2, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -20,6 +20,8 @@ import { AuthDialog } from "@/components/auth/AuthDialog";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { MobileDrawer, MobileDrawerActions } from "@/components/ui/mobile-drawer";
 import { Button } from "@/components/ui/button";
+import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
+import { MobileHeader } from "@/components/MobileHeader";
 import {
   Tooltip,
   TooltipContent,
@@ -329,53 +331,59 @@ const LiteSpotTrade = () => {
       ? `$${(volDollars / 1_000_000).toFixed(1)}M`
       : `$${(volDollars / 1_000).toFixed(0)}K`;
 
-  // ============ HEADER (terminal chrome, no site nav) ============
-  const Header = (
-    <header className="flex items-center gap-3 border-b border-border/40 bg-background px-4 py-3">
+  // Mobile header title: prefer ticker, cap at 24 chars.
+  const mobileTitle = (company && company.length <= 24 ? company : ticker).slice(0, 24);
+
+  // Watchlist star (used in both surfaces).
+  const WatchStar = (
+    <button
+      type="button"
+      onClick={(e) => toggle(event.id, e as unknown as React.MouseEvent)}
+      className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted/50"
+      aria-label="Watchlist"
+    >
+      <Star
+        className={cn(
+          "h-5 w-5",
+          starred ? "fill-trading-yellow text-trading-yellow" : "text-muted-foreground",
+        )}
+      />
+    </button>
+  );
+
+  // Slim context row: countdown + close time. Used above the eyebrow on both
+  // surfaces; on desktop it also carries the "← Markets" back link and the star.
+  const CountdownLine = (
+    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+      <span
+        className={cn(
+          "inline-block h-1.5 w-1.5 rounded-full",
+          lifecycle === "TRADING" ? "bg-trading-green animate-pulse" : "bg-muted-foreground",
+        )}
+      />
+      <span>Closes in</span>
+      <span className="font-mono font-medium text-foreground">{countdown}</span>
+      {closeEt && (
+        <>
+          <span>·</span>
+          <span className="font-mono">{closeEt} ET</span>
+        </>
+      )}
+    </div>
+  );
+
+  const DesktopContextRow = (
+    <div className="flex items-center justify-between gap-3">
       <button
         type="button"
-        onClick={() => navigate(-1)}
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-muted/50 hover:bg-muted"
-        aria-label="Back"
+        onClick={() => navigate("/events")}
+        className="text-[11px] font-medium text-muted-foreground transition-colors hover:text-foreground"
       >
-        <ArrowLeft className="h-5 w-5" />
+        ← Markets
       </button>
-      <div className="flex h-9 items-center rounded-md bg-muted/50 px-2 font-mono text-[11px] font-semibold tracking-wider text-foreground">
-        {ticker}
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-medium">{event.name}</div>
-        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-          <span
-            className={cn(
-              "inline-block h-1.5 w-1.5 rounded-full",
-              lifecycle === "TRADING" ? "bg-trading-green animate-pulse" : "bg-muted-foreground",
-            )}
-          />
-          <span>Closes in</span>
-          <span className="font-mono font-medium text-foreground">{countdown}</span>
-          {closeEt && (
-            <>
-              <span>·</span>
-              <span className="font-mono">{closeEt} ET</span>
-            </>
-          )}
-        </div>
-      </div>
-      <button
-        type="button"
-        onClick={(e) => toggle(event.id, e as unknown as React.MouseEvent)}
-        className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted/50"
-        aria-label="Watchlist"
-      >
-        <Star
-          className={cn(
-            "h-5 w-5",
-            starred ? "fill-trading-yellow text-trading-yellow" : "text-muted-foreground",
-          )}
-        />
-      </button>
-    </header>
+      {CountdownLine}
+      {WatchStar}
+    </div>
   );
 
   // ============ Building blocks ============
@@ -642,8 +650,15 @@ const LiteSpotTrade = () => {
     return (
       <TooltipProvider>
         <div className="min-h-screen bg-background pb-32">
-          {Header}
+          <MobileHeader
+            title={mobileTitle}
+            showLogo={false}
+            showBack={true}
+            backTo="/events"
+            rightContent={WatchStar}
+          />
           <div className="space-y-4 px-4 py-4">
+            {CountdownLine}
             {QuestionBlock}
             {Chart}
             {SentimentBar}
@@ -737,12 +752,13 @@ const LiteSpotTrade = () => {
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-background">
-        {Header}
+        <EventsDesktopHeader />
         <div
           className="mx-auto grid w-full gap-6 px-6 py-6"
           style={{ maxWidth: 1160, gridTemplateColumns: "minmax(0, 1.55fr) minmax(0, 1fr)" }}
         >
           <div className="space-y-5">
+            {DesktopContextRow}
             {QuestionBlock}
             {SentimentBar}
             {Chart}
