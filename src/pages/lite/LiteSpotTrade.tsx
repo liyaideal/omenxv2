@@ -230,7 +230,7 @@ const LiteSpotTrade = () => {
 
   const sideLabels = useMemo(() => parseSideLabels(event?.side_labels), [event]);
   const yesLabel = sideLabels?.yes || "Up";
-  const noLabel = sideLabels?.no || "Down";
+  const noLabel = useMemo(() => liteSideName(sideLabels?.no), [sideLabels?.no]);
 
   const yesOpt = useMemo(() => {
     if (!event) return null;
