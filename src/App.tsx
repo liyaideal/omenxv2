@@ -7,6 +7,7 @@ import MobileHome from "./pages/MobileHome";
 import TradingCharts from "./pages/TradingCharts";
 import TradeOrder from "./pages/TradeOrder";
 import SpotTrading from "./pages/SpotTrading";
+import LiteSpotTrade from "./pages/lite/LiteSpotTrade";
 import OrderPreview from "./pages/OrderPreview";
 import DesktopTrading from "./pages/DesktopTrading";
 import StyleGuide from "./pages/StyleGuide/index";
@@ -95,6 +96,13 @@ const TradeOrderPage = () => {
   return isMobile ? <TradeOrder /> : <DesktopTrading />;
 };
 
+// /spot forks by surface: Lite renders its own odds-forward page,
+// Pro renders the existing SpotTrading terminal untouched.
+const SpotRoute = () => {
+  const { surface } = useSurface();
+  return surface === "lite" ? <LiteSpotTrade /> : <SpotTrading />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <RealtimePricesProvider>
@@ -122,7 +130,7 @@ const App = () => (
                     <Route path="/" element={<HomePage />} />
               <Route path="/trade" element={<TradingPage />} />
               <Route path="/trade/order" element={<TradeOrderPage />} />
-              <Route path="/spot" element={<SpotTrading />} />
+              <Route path="/spot" element={<SpotRoute />} />
               <Route path="/order-preview" element={<OrderPreview />} />
               <Route path="/events" element={<EventsRoute />} />
               <Route path="/resolved" element={<ResolvedPage />} />
