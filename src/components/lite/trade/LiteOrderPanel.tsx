@@ -100,7 +100,7 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
     if (!user) return onRequestAuth();
     if (blocked) return toast.error(blockedReason || "Market unavailable");
     if (amountNum <= 0) return toast.error("Enter an amount");
-    if (amountNum > spotBalance) return toast.error("Not enough in your spot wallet");
+    if (amountNum > spotBalance) return toast.error("Not enough balance — add funds to continue");
 
     // P0 #1 — snapshot the execution price at submit time. Never re-read
     // sidePrice / yesPrice / noPrice inside the async handler below.
@@ -308,7 +308,7 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
         )}
       </button>
       <p className="text-center text-[10px] text-muted-foreground">
-        Buys at the current price · no order book to manage
+        Buys instantly at the current price
       </p>
 
       {/* Switch-side link (mobile drawer only). */}

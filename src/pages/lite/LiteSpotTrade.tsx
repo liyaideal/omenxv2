@@ -441,6 +441,7 @@ const LiteSpotTrade = () => {
       basePrice={basePrice}
       currentPrice={currentPrice}
       upOdds={yesLive}
+      endDate={event?.end_date}
     />
   );
 
@@ -460,7 +461,7 @@ const LiteSpotTrade = () => {
       <RailTrack
         blocked={blocked}
         freezeLabel={freezeAt ? formatEtTime(freezeAt) : `close − ${FREEZE_MINUTES_BEFORE_CLOSE}min`}
-        closeLabel={endDate ? formatEtTime(endDate) : "16:00"}
+        closeLabel={endDate ? formatEtTime(endDate) : null}
       />
     </div>
   );
@@ -774,14 +775,14 @@ const RailTrack = ({
 }: {
   blocked: boolean;
   freezeLabel: string;
-  closeLabel: string;
+  closeLabel: string | null;
 }) => {
   const nodes = [
     { key: "opened", label: "Opened", time: "" },
-    { key: "open", label: "Market open", time: "09:30" },
+    { key: "open", label: "Market open", time: "9:30 AM ET" },
     { key: "now", label: blocked ? "Closed" : "Trading NOW", time: "" },
     { key: "closes", label: "Closes", time: freezeLabel },
-    { key: "settles", label: "Settles", time: `${closeLabel} ET` },
+    { key: "settles", label: "Settles", time: closeLabel ? `${closeLabel} ET` : "—" },
   ];
   return (
     <div>
