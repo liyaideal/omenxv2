@@ -15,6 +15,7 @@ import {
   Tooltip,
 } from "recharts";
 import { cn } from "@/lib/utils";
+import { formatEtTime } from "@/lib/usStockSessions";
 
 type Tab = "stock" | "odds";
 
@@ -29,6 +30,7 @@ interface Props {
   currentPrice: number | null;
   upOdds: number; // 0..1
   upHistory?: number[]; // optional real price history (0..1)
+  endDate?: string | Date | null;
   className?: string;
 }
 
@@ -57,6 +59,8 @@ const synth = (
   return out;
 };
 
+// Fixed US regular-session marks (intraday ticks). The final close tick is
+// derived from the event end_date so it never hardcodes 16:00.
 const REGULAR_LABELS = [
   "9:30",
   "10:30",
@@ -65,14 +69,13 @@ const REGULAR_LABELS = [
   "13:30",
   "14:30",
   "15:30",
-  "16:00",
 ];
 
-const buildPoints = (values: number[]): Point[] => {
+const buildPoints = (values: number[], labels: string[]): Point[] => {
   if (values.length === 0) return [];
   return values.map((v, i) => {
-    const labelIdx = Math.round((i / (values.length - 1)) * (REGULAR_LABELS.length - 1));
-    return { t: REGULAR_LABELS[labelIdx], v };
+    const labelIdx = Math.round((i / (values.length - 1)) * (labels.length - 1));
+    return { t: labels[labelIdx], v };
   });
 };
 
@@ -82,27 +85,36 @@ export const LiteStockChart = ({
   currentPrice,
   upOdds,
   upHistory,
+  endDate,
   className,
 }: Props) => {
   const [tab, setTab] = useState<Tab>("stock");
   const seed = ticker.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
 
+  // Final close tick derives from the event end_date when available; otherwise
+  // falls back to the regular 16:00 session close only as a last resort.
+  const closeTick = useMemo(
+    () => (endDate ? formatEtTime(new Date(endDate)) : "16:00"),
+    [endDate],
+  );
+  const labels = useMemo(() => [...REGULAR_LABELS, closeTick], [closeTick]);
+
   const stockSeries = useMemo(() => {
     if (!basePrice || !currentPrice) return [];
     // DEMO-STATE: synthetic intraday walk anchored on base_price → currentPrice.
     const amp = Math.max(basePrice * 0.006, 0.05);
-    return buildPoints(synth(seed, basePrice, currentPrice, 48, amp));
-  }, [seed, basePrice, currentPrice]);
+    return buildPoints(synth(seed, basePrice, currentPrice, 48, amp), labels);
+  }, [seed, basePrice, currentPrice, labels]);
 
   const oddsSeries = useMemo(() => {
     if (upHistory && upHistory.length >= 4) {
       const scaled = upHistory.map((p) => Math.max(0, Math.min(100, p * 100)));
-      return buildPoints(scaled);
+      return buildPoints(scaled, labels);
     }
     // DEMO-STATE: synthesize from 50¢ → current odds if no history rows.
     const end = Math.max(1, Math.min(99, Math.round(upOdds * 100)));
-    return buildPoints(synth(seed + 1, 50, end, 48, 3.2));
-  }, [upHistory, upOdds, seed]);
+    return buildPoints(synth(seed + 1, 50, end, 48, 3.2), labels);
+  }, [upHistory, upOdds, seed, labels]);
 
   const showOddsToggle = true; // odds always available (synth fallback)
 
