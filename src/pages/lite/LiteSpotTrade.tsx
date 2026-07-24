@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { parseSideLabels } from "@/lib/eventUtils";
+import { liteSideName } from "@/lib/liteSideName";
 import {
   formatEtTime,
   getBlockedReason,
