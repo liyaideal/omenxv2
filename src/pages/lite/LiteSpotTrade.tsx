@@ -317,7 +317,7 @@ const LiteSpotTrade = () => {
     );
   }
   if (notFound || !event || !yesOpt || !noOpt) {
-    return <ExpiredEventFallback />;
+    return <ExpiredEventFallback eventId={eventId} />;
   }
 
   // Volume — deterministic mock derived from event id (stable across renders).
