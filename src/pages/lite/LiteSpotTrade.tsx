@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { parseSideLabels } from "@/lib/eventUtils";
+import { liteSideName } from "@/lib/liteSideName";
 import {
   formatEtTime,
   getBlockedReason,
@@ -229,7 +230,7 @@ const LiteSpotTrade = () => {
 
   const sideLabels = useMemo(() => parseSideLabels(event?.side_labels), [event]);
   const yesLabel = sideLabels?.yes || "Up";
-  const noLabel = sideLabels?.no || "Down";
+  const noLabel = useMemo(() => liteSideName(sideLabels?.no), [sideLabels?.no]);
 
   const yesOpt = useMemo(() => {
     if (!event) return null;
