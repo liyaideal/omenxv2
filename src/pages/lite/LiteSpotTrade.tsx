@@ -351,8 +351,7 @@ const LiteSpotTrade = () => {
     </button>
   );
 
-  // Slim context row: countdown + close time. Used above the eyebrow on both
-  // surfaces; on desktop it also carries the "← Markets" back link and the star.
+  // Compact countdown line — MOBILE ONLY (desktop shows time left in the order card).
   const CountdownLine = (
     <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
       <span
@@ -372,20 +371,6 @@ const LiteSpotTrade = () => {
     </div>
   );
 
-  const DesktopContextRow = (
-    <div className="flex items-center justify-between gap-3">
-      <button
-        type="button"
-        onClick={() => navigate("/events")}
-        className="text-[11px] font-medium text-muted-foreground transition-colors hover:text-foreground"
-      >
-        ← Markets
-      </button>
-      {CountdownLine}
-      {WatchStar}
-    </div>
-  );
-
   // ============ Building blocks ============
   const QuestionBlock = (
     <div>
@@ -398,24 +383,27 @@ const LiteSpotTrade = () => {
       >
         {event.name}
       </h1>
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-xs text-muted-foreground">
-        {currentPrice != null && (
-          <span className="text-foreground">${currentPrice.toFixed(2)}</span>
-        )}
-        {basePrice != null && (
-          <span
-            className={cn(
-              pctToday >= 0 ? "text-trading-green" : "text-trading-red",
-            )}
-          >
-            {pctToday >= 0 ? "▲" : "▼"} {pctToday >= 0 ? "+" : ""}
-            {pctToday.toFixed(2)}% today
-          </span>
-        )}
-        {basePrice != null && (
-          <span>Price to beat ${basePrice.toFixed(2)}</span>
-        )}
-        <span>Vol {volText}</span>
+      <div className="mt-3 flex items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-xs text-muted-foreground">
+          {currentPrice != null && (
+            <span className="text-foreground">${currentPrice.toFixed(2)}</span>
+          )}
+          {basePrice != null && (
+            <span
+              className={cn(
+                pctToday >= 0 ? "text-trading-green" : "text-trading-red",
+              )}
+            >
+              {pctToday >= 0 ? "▲" : "▼"} {pctToday >= 0 ? "+" : ""}
+              {pctToday.toFixed(2)}% today
+            </span>
+          )}
+          {basePrice != null && (
+            <span>Price to beat ${basePrice.toFixed(2)}</span>
+          )}
+          <span>Vol {volText}</span>
+        </div>
+        <div className="flex-shrink-0">{WatchStar}</div>
       </div>
     </div>
   );
@@ -655,11 +643,10 @@ const LiteSpotTrade = () => {
             showLogo={false}
             showBack={true}
             backTo="/events"
-            rightContent={WatchStar}
           />
           <div className="space-y-4 px-4 py-4">
-            {CountdownLine}
             {QuestionBlock}
+            {CountdownLine}
             {Chart}
             {SentimentBar}
             {RuleCard}
@@ -758,7 +745,6 @@ const LiteSpotTrade = () => {
           style={{ maxWidth: 1160, gridTemplateColumns: "minmax(0, 1.55fr) minmax(0, 1fr)" }}
         >
           <div className="space-y-5">
-            {DesktopContextRow}
             {QuestionBlock}
             {SentimentBar}
             {Chart}
