@@ -438,32 +438,16 @@ const LiteContractTrade = () => {
 
   const YourPosition = heldPos ? (
     <div className="rounded-2xl border border-border bg-card p-4">
-      <div className="mb-3 flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <span
-            className={cn(
-              "rounded-md px-2 py-0.5 text-[11px] font-semibold",
-              heldIsYes ? "bg-yes/14 text-yes" : "bg-no/14 text-no",
-            )}
-          >
-            {heldIsYes ? yesLabel : noLabel}
+      <div className="mb-3 text-sm font-semibold">
+        <span className={heldIsYes ? "text-yes" : "text-no"}>
+          {heldIsYes ? yesLabel : noLabel}
+        </span>
+        {heldPos.leverageNum > 1 && (
+          <span className="text-foreground">
+            {" · "}
+            <span className="font-mono">{heldPos.leverageNum}×</span> Boost
           </span>
-          {heldPos.leverageNum > 1 && (
-            <span
-              className="rounded-md px-2 py-0.5 font-mono text-[11px] font-bold text-[#0A0B0D]"
-              style={{ background: "linear-gradient(120deg,#CFFF4A,#33D6FF)" }}
-            >
-              {heldPos.leverageNum}× Boost
-            </span>
-          )}
-        </div>
-        <button
-          type="button"
-          onClick={() => navigate("/portfolio")}
-          className="text-[11px] text-muted-foreground hover:text-foreground"
-        >
-          Manage in Portfolio →
-        </button>
+        )}
       </div>
       <div className="grid grid-cols-4 gap-2 border-t border-border pt-3 text-xs">
         <PosCell label="Put in" value={heldPos.margin} />
@@ -476,14 +460,43 @@ const LiteContractTrade = () => {
           value={`${heldPnlNum >= 0 ? "+" : "−"}$${Math.abs(heldPnlNum).toFixed(2)}`}
           tone={heldPnlNum >= 0 ? "up" : "down"}
         />
-        {heldAutoClose != null && (
-          <PosCell
-            label={isMobile ? "Auto-close" : "Est. auto-close"}
-            value={`≈ ${formatCents(heldAutoClose)}`}
-          />
-        )}
+        <PosCell
+          label={isMobile ? "Auto-close" : "Est. auto-close"}
+          value={
+            heldPos.leverageNum <= 1
+              ? "None"
+              : heldAutoClose != null
+                ? `≈ ${formatCents(heldAutoClose)}`
+                : isMobile
+                  ? "None"
+                  : "None at this balance"
+          }
+        />
+      </div>
+      <div className="mt-3 border-t border-border pt-3">
+        <button
+          type="button"
+          onClick={() => setCashOutOpen(true)}
+          className="h-9 w-full rounded-lg bg-muted text-xs font-semibold hover:bg-muted/80"
+        >
+          Cash out
+        </button>
       </div>
     </div>
+  ) : null;
+
+  const CashOut = heldPos ? (
+    <LiteCashOutFlow
+      open={cashOutOpen}
+      onOpenChange={setCashOutOpen}
+      isMobile={!!isMobile}
+      positionId={heldPos.id}
+      positionIndex={heldIndex}
+      currentValue={heldPos.marginNum + heldPnlNum}
+      sizeNum={heldPos.sizeNum}
+      sideLabel={heldIsYes ? yesLabel : noLabel}
+      onDone={() => setRefetchTick((n) => n + 1)}
+    />
   ) : null;
 
   const MarketPulse = (
