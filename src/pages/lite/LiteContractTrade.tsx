@@ -37,6 +37,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { LiteContractChart } from "@/components/lite/contract/LiteContractChart";
 import { LiteContractOrderPanel } from "@/components/lite/contract/LiteContractOrderPanel";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
+import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
 
 type EventRow = Tables<"events"> & { options: Tables<"event_options">[] };
 type Side = "yes" | "no";
@@ -196,6 +197,7 @@ const LiteContractTrade = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [refetchTick, setRefetchTick] = useState(0);
+  const [cashOutOpen, setCashOutOpen] = useState(false);
   // Only the FIRST fetch flips the full-page loader; later refetches
   // (post-fill) swap data in place so the page never unmounts.
   const isFirstLoad = useRef(true);
@@ -281,10 +283,18 @@ const LiteContractTrade = () => {
 
   const heldPos = useMemo(() => {
     if (!event) return null;
-    return (
-      positions.find((p) => p.productLine === "futures" && p.event === event.name) || null
+    // Legacy hedged data (pre-netting) can leave two open futures legs on the
+    // same event — pick the largest by margin so the card is deterministic.
+    const matches = positions.filter(
+      (p) => p.productLine === "futures" && p.event === event.name,
     );
+    if (matches.length === 0) return null;
+    return matches.reduce((a, b) => (b.marginNum > a.marginNum ? b : a));
   }, [positions, event]);
+  const heldIndex = useMemo(
+    () => (heldPos ? positions.findIndex((p) => p.id === heldPos.id) : -1),
+    [positions, heldPos],
+  );
 
   const pulse = usePulse(event?.name || null, yesOpt?.label || "", user?.id);
   // No market-volume field on Lite: `trades` is owner-scoped by RLS, so any
