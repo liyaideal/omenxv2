@@ -50,6 +50,9 @@ export interface LiteContractOrderPanelProps {
   boost: number;
   onBoostChange: (v: number) => void;
   boostEnabled: boolean;
+  /** Config still loading — reserve an equal-height slot so the module
+   *  never "pops in" and shoves the CTA down. */
+  boostLoading?: boolean;
   boostMax: number;
   boostTiers: number[];
   categoryLabel: string;
@@ -79,6 +82,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
     boost,
     onBoostChange,
     boostEnabled,
+    boostLoading,
     boostMax,
     boostTiers,
     categoryLabel,
@@ -291,7 +295,9 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
       </div>
 
       {/* Boost — hidden entirely when the category is not enabled */}
-      {boostEnabled && (
+      {boostLoading ? (
+        <div className="h-[68px] animate-pulse rounded-xl bg-muted/20" />
+      ) : boostEnabled ? (
         <LiteBoostSelector
           categoryLabel={categoryLabel}
           maxBoost={boostMax}
@@ -300,7 +306,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
           onChange={onBoostChange}
           variant={variant}
         />
-      )}
+      ) : null}
 
       {/* Returns */}
       <div className="space-y-1.5 rounded-xl border border-border bg-muted/20 p-3 text-xs">
