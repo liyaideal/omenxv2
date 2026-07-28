@@ -17,6 +17,8 @@ export interface LiteOutcomeHolding {
 interface Props {
   settledAt?: string | null;
   winnerLabel: string;
+  /** Market axis: was the winning side the affirmative (Yes) one? */
+  winnerIsYes?: boolean;
   loserLabel: string;
   sourceName?: string | null;
   sourceUrl?: string | null;
@@ -31,6 +33,7 @@ const money = (n: number) => `$${Math.abs(n).toFixed(2)}`;
 export const LiteOutcomeCard = ({
   settledAt,
   winnerLabel,
+  winnerIsYes = true,
   loserLabel,
   sourceName,
   sourceUrl,
@@ -63,15 +66,34 @@ export const LiteOutcomeCard = ({
       <div className="mt-2 space-y-1.5">
         <div
           className="flex items-center justify-between rounded-xl px-3 py-2.5"
-          style={{ background: "rgba(51,214,255,.07)" }}
+          style={{
+            background: winnerIsYes ? "rgba(51,214,255,.07)" : "rgba(207,255,74,.07)",
+          }}
         >
-          <span className="flex items-center gap-2 text-sm font-semibold text-yes">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-yes/20">
+          <span
+            className={cn(
+              "flex items-center gap-2 text-sm font-semibold",
+              winnerIsYes ? "text-yes" : "text-no",
+            )}
+          >
+            <span
+              className={cn(
+                "flex h-5 w-5 items-center justify-center rounded-full",
+                winnerIsYes ? "bg-yes/20" : "bg-no/20",
+              )}
+            >
               <Check className="h-3 w-3" />
             </span>
             {winnerLabel}
           </span>
-          <span className="font-mono text-sm font-semibold text-yes">$1.00</span>
+          <span
+            className={cn(
+              "font-mono text-sm font-semibold",
+              winnerIsYes ? "text-yes" : "text-no",
+            )}
+          >
+            $1.00
+          </span>
         </div>
         <div className="flex items-center justify-between rounded-xl bg-muted/25 px-3 py-2.5">
           <span className="flex items-center gap-2 text-sm font-semibold text-muted-foreground/70">
