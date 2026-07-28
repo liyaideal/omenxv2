@@ -1677,6 +1677,7 @@ export type Database = {
           referrer_id: string
         }[]
       }
+      roll_daily_stock_events: { Args: never; Returns: number }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
