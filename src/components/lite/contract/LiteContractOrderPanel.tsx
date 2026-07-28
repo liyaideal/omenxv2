@@ -296,7 +296,17 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
 
       {/* Boost — hidden entirely when the category is not enabled */}
       {boostLoading ? (
-        <div className="h-[68px] animate-pulse rounded-xl bg-muted/20" />
+        // Isomorphic skeleton: mirrors LiteBoostSelector's real structure
+        // (10px label row → h-10 chip row → two 10px caption lines) so the
+        // module swaps in without shifting the CTA.
+        <div className="space-y-2">
+          <div className="h-[10px] w-28 animate-pulse rounded bg-muted/30" />
+          <div className="h-10 w-full animate-pulse rounded-xl bg-muted/20" />
+          <div className="space-y-1">
+            <div className="h-[10px] w-full animate-pulse rounded bg-muted/20" />
+            <div className="h-[10px] w-2/3 animate-pulse rounded bg-muted/20" />
+          </div>
+        </div>
       ) : boostEnabled ? (
         <LiteBoostSelector
           categoryLabel={categoryLabel}
@@ -318,10 +328,12 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
         </div>
         <div
           className="flex items-center justify-between rounded-lg px-2 py-1.5"
-          style={{ background: "rgba(51,214,255,.05)" }}
+          style={{ background: "hsl(var(--muted) / 0.3)" }}
         >
           <span className="text-muted-foreground">If you're right, you win</span>
-          <span className="font-mono font-semibold text-yes">{money(potentialWin)}</span>
+          <span className="font-mono font-semibold text-foreground">
+            {money(potentialWin)}
+          </span>
         </div>
         {amountNum > 0 && autoClose != null && (
         <div className="flex items-start justify-between px-2 pt-0.5">
@@ -374,7 +386,9 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
         )}
       </button>
       <p className="text-center text-[10px] text-muted-foreground/70">
-        Not guaranteed. You can lose your full {money(amountNum)}.
+        {amountNum > 0
+          ? `Not guaranteed. You can lose your full ${money(amountNum)}.`
+          : "Not guaranteed. You can lose everything you put in."}
       </p>
 
       {variant === "mobile" && (
