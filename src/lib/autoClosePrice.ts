@@ -3,13 +3,14 @@
 //
 // The account is cross-collateralised (see useRealtimeRiskMetrics:
 // imTotal = Σ margin, equity = totalAssets + unrealizedPnL,
-// riskRatio = imTotal / equity × 100, ≥ 100 triggers). So:
-//   • no other open positions → the isolated single-position estimate;
-//   • with other positions   → solve for the price at which the
-//     ACCOUNT risk ratio reaches 100 once this position is included.
+// riskRatio = imTotal / equity × 100, ≥ 100 triggers). There is exactly
+// ONE code path: solve for the price at which the ACCOUNT risk ratio
+// reaches 100 with this position included. With no other positions the
+// "other" terms are simply 0 — we deliberately do NOT fall back to the
+// isolated-margin calcLiqPrice helper (its own comments admit it is not
+// an account-level threshold).
 // Always an ESTIMATE — the UI must keep the "≈" prefix.
 // ============================================================
-import { calcLiqPrice } from "@/lib/tradingUtils";
 
 export interface AutoCloseInput {
   entryPrice: number; // 0..1
@@ -17,35 +18,41 @@ export interface AutoCloseInput {
   amount: number; // cash put in = margin
   fee: number;
   quantity: number; // notional / entryPrice
-  /** Account snapshot (excluding this prospective position). */
+  /** Account snapshot. */
   hasOtherPositions: boolean;
   imTotalOther: number;
   totalAssets: number;
   unrealizedPnLOther: number;
+  /**
+   * 'new'      — prospective position: its margin + fee are still in
+   *              totalAssets and must be deducted.
+   * 'existing' — already-open position: caller passes a pre-open snapshot
+   *              (margin added back, own PnL excluded), so no deduction.
+   */
+  mode?: "new" | "existing";
 }
-
-const clamp01 = (n: number) => Math.max(0.0001, Math.min(0.9999, n));
 
 /** Returns the estimated auto-close price (0..1) or null when unknown. */
 export const estimateAutoClosePrice = (i: AutoCloseInput): number | null => {
   if (!isFinite(i.entryPrice) || i.entryPrice <= 0) return null;
   if (!isFinite(i.quantity) || i.quantity <= 0) return null;
+  // A 1× position carries no auto-close.
+  if (!isFinite(i.boost) || i.boost <= 1) return null;
 
-  if (!i.hasOtherPositions) {
-    // Isolated single-position estimate (same shape as calcLiqPrice).
-    const parsed = parseFloat(calcLiqPrice(i.entryPrice, i.boost, "long").replace("$", ""));
-    return isFinite(parsed) ? clamp01(parsed) : null;
-  }
+  const imTotalOther = i.hasOtherPositions ? i.imTotalOther : 0;
+  const pnlOther = i.hasOtherPositions ? i.unrealizedPnLOther : 0;
 
-  // Account-level: equity(P) = imTotal(after) at the trigger point.
-  //   equity(P) = (totalAssets − amount − fee) + pnlOther + (P − entry) × qty
-  //   imTotal(after) = imTotalOther + amount
-  const assetsAfter = i.totalAssets - i.amount - i.fee;
-  const imAfter = i.imTotalOther + i.amount;
-  const p =
-    i.entryPrice + (imAfter - (assetsAfter + i.unrealizedPnLOther)) / i.quantity;
+  // equity(P)  = assetsAfter + pnlOther + (P − entry) × qty
+  // imAfter    = imTotalOther + amount
+  // trigger when equity(P) === imAfter
+  const assetsAfter =
+    i.mode === "existing" ? i.totalAssets : i.totalAssets - i.amount - i.fee;
+  const imAfter = imTotalOther + i.amount;
+  const p = i.entryPrice + (imAfter - (assetsAfter + pnlOther)) / i.quantity;
+
   if (!isFinite(p)) return null;
-  return clamp01(p);
+  if (p < 0 || p > 1) return null;
+  return p;
 };
 
 export const formatCents = (p: number | null): string =>

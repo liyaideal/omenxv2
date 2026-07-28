@@ -11,7 +11,7 @@
 //        Pro /spot keeps using it untouched.
 //   1/2. Price snapshot + balance leg live in LiteContractOrderPanel.
 // ============================================================
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, ChevronRight, Info, Loader2, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -88,10 +88,16 @@ interface PulseRow {
   createdAt: string;
 }
 
-const usePulse = (eventName: string | null, yesOptionLabel: string) => {
+// RLS on `trades` is owner-scoped (auth.uid() = user_id), so this can only
+// ever return the CURRENT USER's own fills. It is rendered as "Your recent
+// activity" — never as anonymous social proof.
+const usePulse = (eventName: string | null, yesOptionLabel: string, userId?: string) => {
   const [rows, setRows] = useState<PulseRow[]>([]);
   useEffect(() => {
-    if (!eventName) return;
+    if (!eventName || !userId) {
+      setRows([]);
+      return;
+    }
     let alive = true;
     (async () => {
       const { data } = await supabase
@@ -116,7 +122,7 @@ const usePulse = (eventName: string | null, yesOptionLabel: string) => {
     return () => {
       alive = false;
     };
-  }, [eventName, yesOptionLabel]);
+  }, [eventName, yesOptionLabel, userId]);
   return rows;
 };
 
@@ -186,7 +192,8 @@ const LiteContractTrade = () => {
   const [boost, setBoost] = useState(1);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
-  const refetchRef = useRef(0);
+  const [refetchTick, setRefetchTick] = useState(0);
+  const [volumeUsd, setVolumeUsd] = useState<number | null>(null);
 
   useEffect(() => {
     if (!eventId) {
@@ -209,10 +216,10 @@ const LiteContractTrade = () => {
     return () => {
       alive = false;
     };
-  }, [eventId, refetchRef.current]);
+  }, [eventId, refetchTick]);
 
   const sideLabels = useMemo(() => parseSideLabels(event?.side_labels), [event]);
-  const yesLabel = sideLabels?.yes || "Yes";
+  const yesLabel = useMemo(() => liteSideName(sideLabels?.yes) || "Yes", [sideLabels?.yes]);
   const noLabel = useMemo(() => liteSideName(sideLabels?.no) || "No", [sideLabels?.no]);
 
   const yesOpt = useMemo(() => {
@@ -263,7 +270,27 @@ const LiteContractTrade = () => {
     );
   }, [positions, event]);
 
-  const pulse = usePulse(event?.name || null, yesOpt?.label || "");
+  const pulse = usePulse(event?.name || null, yesOpt?.label || "", user?.id);
+  // Volume: aggregated from real fills only. If nothing is readable
+  // (RLS scope or no trades), the field is not rendered — never synthesised.
+  useEffect(() => {
+    const name = event?.name;
+    if (!name) return;
+    let alive = true;
+    (async () => {
+      const { data } = await supabase
+        .from("trades")
+        .select("amount")
+        .eq("event_name", name);
+      if (!alive) return;
+      if (!data || data.length === 0) return setVolumeUsd(null);
+      setVolumeUsd(data.reduce((a, r) => a + (Number(r.amount) || 0), 0));
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [event?.name, refetchTick]);
+
   const more = useMoreMarkets(event?.category || null, event?.id || "");
 
   const openBuy = useCallback(
@@ -291,9 +318,14 @@ const LiteContractTrade = () => {
   const yesPct = Math.max(1, Math.min(99, Math.round(yesLive * 100)));
   const noPct = 100 - yesPct;
 
-  const volSeed = event.id.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
-  const volDollars = 8_000_000 + (volSeed % 22_000_000);
-  const volText = `$${(volDollars / 1_000_000).toFixed(1)}M`;
+  const volText =
+    volumeUsd != null && volumeUsd > 0
+      ? volumeUsd >= 1_000_000
+        ? `$${(volumeUsd / 1_000_000).toFixed(1)}M`
+        : volumeUsd >= 1_000
+          ? `$${(volumeUsd / 1_000).toFixed(1)}K`
+          : `$${volumeUsd.toFixed(0)}`
+      : null;
   const resolvesText = endDate
     ? endDate.toLocaleDateString(undefined, { month: "short", day: "numeric" })
     : "—";
@@ -301,6 +333,10 @@ const LiteContractTrade = () => {
   const heldIsYes =
     heldPos != null &&
     heldPos.option.trim().toLowerCase() === yesOpt.label.trim().toLowerCase();
+
+  const heldPnlNum = heldPos
+    ? parseFloat(heldPos.pnl.replace(/[^0-9.-]/g, "")) || 0
+    : 0;
 
   const heldAutoClose =
     heldPos != null
@@ -312,8 +348,11 @@ const LiteContractTrade = () => {
           quantity: heldPos.sizeNum,
           hasOtherPositions: positions.length > 1,
           imTotalOther: Math.max(risk.imTotal - heldPos.marginNum, 0),
-          totalAssets: risk.totalAssets,
-          unrealizedPnLOther: risk.unrealizedPnL,
+          // Pre-open snapshot: add this position's margin back and strip its
+          // own PnL so the account-level solve doesn't double-count it.
+          totalAssets: risk.totalAssets + heldPos.marginNum,
+          unrealizedPnLOther: risk.unrealizedPnL - heldPnlNum,
+          mode: "existing",
         })
       : null;
 
@@ -368,7 +407,7 @@ const LiteContractTrade = () => {
         <span className="text-yes">
           {yesLabel} {yesPct}¢
         </span>
-        <span>Vol {volText}</span>
+        {volText && <span>Vol {volText}</span>}
         <span>Resolves {resolvesText}</span>
       </div>
     </div>
@@ -379,9 +418,6 @@ const LiteContractTrade = () => {
       <div className="flex items-center justify-between">
         <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
           What the crowd thinks
-        </div>
-        <div className="font-mono text-[11px] text-muted-foreground">
-          {pulse.length} predictions
         </div>
       </div>
       <div
@@ -459,11 +495,17 @@ const LiteContractTrade = () => {
           label="Now worth"
           value={`$${(heldPos.markPriceNum * heldPos.sizeNum).toFixed(2)}`}
         />
-        <PosCell label="Profit" value={heldPos.pnl} tone="volt" />
         <PosCell
-          label={isMobile ? "Auto-close" : "Est. auto-close"}
-          value={`≈ ${formatCents(heldAutoClose)}`}
+          label="Profit"
+          value={heldPos.pnl}
+          tone={heldPnlNum >= 0 ? "up" : "down"}
         />
+        {heldAutoClose != null && (
+          <PosCell
+            label={isMobile ? "Auto-close" : "Est. auto-close"}
+            value={`≈ ${formatCents(heldAutoClose)}`}
+          />
+        )}
       </div>
     </div>
   ) : null;
@@ -472,14 +514,17 @@ const LiteContractTrade = () => {
     <div className="rounded-2xl border border-border bg-card p-4">
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-1.5 text-sm font-medium">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-trading-green" />
-          Live · Market pulse
+          <span
+            className="h-1.5 w-1.5 animate-pulse rounded-full"
+            style={{ background: "#6B7280" }}
+          />
+          Your recent activity
         </div>
-        <span className="text-[11px] text-muted-foreground">recent buys</span>
+        <span className="text-[11px] text-muted-foreground">your buys</span>
       </div>
       {pulse.length === 0 ? (
         <div className="rounded-lg bg-muted/20 py-6 text-center text-xs text-muted-foreground">
-          Quiet so far. Be the first mover.
+          No trades yet in this market.
         </div>
       ) : (
         <ul className="space-y-1.5">
@@ -494,7 +539,7 @@ const LiteContractTrade = () => {
                 {r.isYes ? yesLabel : noLabel}
               </span>
               <span className="flex-1 truncate text-xs text-muted-foreground">
-                Someone backed {r.isYes ? yesLabel : noLabel}{" "}
+                You backed {r.isYes ? yesLabel : noLabel}{" "}
                 <span className="font-mono text-foreground">${r.amount.toFixed(0)}</span>
                 {r.boost > 1 && (
                   <span className="font-mono"> · {r.boost}× Boost</span>
@@ -681,7 +726,7 @@ const LiteContractTrade = () => {
               variant="mobile"
               onFilled={() => {
                 setDrawerOpen(false);
-                refetchRef.current += 1;
+                setRefetchTick((n) => n + 1);
               }}
             />
             <MobileDrawerActions>
@@ -721,7 +766,7 @@ const LiteContractTrade = () => {
             )}
           </div>
           <aside className="space-y-4">
-            {!resolved && <LiteContractOrderPanel {...panelProps} variant="desktop" onFilled={() => { refetchRef.current += 1; }} />}
+            {!resolved && <LiteContractOrderPanel {...panelProps} variant="desktop" onFilled={() => setRefetchTick((n) => n + 1)} />}
             {MoreMarkets}
           </aside>
         </div>
@@ -770,14 +815,18 @@ const PosCell = ({
 }: {
   label: string;
   value: string;
-  tone?: "volt";
+  tone?: "up" | "down";
 }) => (
   <div>
     <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
     <div
       className={cn(
         "font-mono text-sm font-semibold",
-        tone === "volt" ? "text-trading-green" : "text-foreground",
+        tone === "up"
+          ? "text-trading-green"
+          : tone === "down"
+            ? "text-trading-red"
+            : "text-foreground",
       )}
     >
       {value}

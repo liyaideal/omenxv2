@@ -116,7 +116,12 @@ export const LiteOutcomeCard = ({
               <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
                 Profit
               </div>
-              <div className="font-mono text-[19px] font-bold text-no">
+              <div
+                className={cn(
+                  "font-mono text-[19px] font-bold",
+                  holding.profit >= 0 ? "text-trading-green" : "text-trading-red",
+                )}
+              >
                 {holding.profit >= 0 ? "+" : "−"}
                 {money(holding.profit)}
               </div>

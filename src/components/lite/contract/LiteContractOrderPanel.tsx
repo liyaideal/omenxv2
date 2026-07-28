@@ -121,6 +121,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
         imTotalOther: risk.imTotal,
         totalAssets: risk.totalAssets,
         unrealizedPnLOther: risk.unrealizedPnL,
+        mode: "new",
       }),
     [sidePrice, effBoost, amountNum, fee, quantity, risk],
   );
@@ -304,9 +305,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
       {/* Returns */}
       <div className="space-y-1.5 rounded-xl border border-border bg-muted/20 p-3 text-xs">
         <div className="flex items-center justify-between px-2">
-          <span className="text-muted-foreground">
-            Max loss <span className="opacity-70">· what you put in</span>
-          </span>
+          <span className="text-muted-foreground">Max loss · what you put in</span>
           <span className="font-mono font-semibold text-foreground">
             {money(amountNum)}
           </span>
@@ -318,6 +317,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
           <span className="text-muted-foreground">If you're right, you win</span>
           <span className="font-mono font-semibold text-yes">{money(potentialWin)}</span>
         </div>
+        {amountNum > 0 && autoClose != null && (
         <div className="flex items-start justify-between px-2 pt-0.5">
           <div>
             <span className="inline-flex items-center gap-1 text-muted-foreground">
@@ -339,9 +339,10 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
             </div>
           </div>
           <span className="font-mono font-semibold text-muted-foreground">
-            ≈ {formatCents(amountNum > 0 ? autoClose : null)}
+            ≈ {formatCents(autoClose)}
           </span>
         </div>
+        )}
       </div>
 
       {/* CTA */}
