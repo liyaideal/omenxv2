@@ -683,7 +683,7 @@ const LiteContractTrade = () => {
                   tone="yes"
                   label={`Buy ${yesLabel}`}
                   cents={Math.round(yesLive * 100)}
-                  boostLine={boostCfg.enabled ? `${boost}× BOOST` : null}
+                  boostLine={boostCfg.enabled && boost > 1 ? `${boost}× BOOST` : null}
                   disabled={blocked}
                   onClick={() => openBuy("yes")}
                 />
@@ -691,7 +691,7 @@ const LiteContractTrade = () => {
                   tone="no"
                   label={`Buy ${noLabel}`}
                   cents={Math.round(noLive * 100)}
-                  boostLine={boostCfg.enabled ? `${boost}× BOOST` : null}
+                  boostLine={boostCfg.enabled && boost > 1 ? `${boost}× BOOST` : null}
                   disabled={blocked}
                   onClick={() => openBuy("no")}
                 />
