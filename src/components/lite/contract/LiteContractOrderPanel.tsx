@@ -359,7 +359,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
           <span className="text-sm">
             {blocked ? blockedReason || "Market closed" : `Buy ${sideLabel}`}
           </span>
-          {!blocked && boostEnabled && (
+          {!blocked && boostEnabled && effBoost > 1 && (
             <span className="font-mono text-[11px] opacity-80">{effBoost}× BOOST</span>
           )}
         </span>
