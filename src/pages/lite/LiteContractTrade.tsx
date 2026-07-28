@@ -257,11 +257,12 @@ const LiteContractTrade = () => {
   const boostCfg = getConfig(event?.category);
   const tiers = useMemo(() => boostTiers(boostCfg.maxBoost), [boostCfg.maxBoost]);
 
-  // Default to the largest tier once the config lands.
+  // Default to the LOWEST tier (1×) — boosting must be an explicit user action.
+  // Keyed on the category only, so refetches / realtime never reset a manual pick.
+  const boostCategoryKey = (event?.category || "").trim().toLowerCase();
   useEffect(() => {
-    if (boostCfg.enabled && tiers.length > 0) setBoost(boostCfg.maxBoost);
-    else setBoost(1);
-  }, [boostCfg.enabled, boostCfg.maxBoost, tiers.length]);
+    setBoost(1);
+  }, [boostCategoryKey]);
 
   const heldPos = useMemo(() => {
     if (!event) return null;
@@ -592,6 +593,7 @@ const LiteContractTrade = () => {
     <LiteOutcomeCard
       settledAt={event.settled_at}
       winnerLabel={labelFor(winnerOpt.id)}
+      winnerIsYes={winnerOpt.id === yesOpt.id}
       loserLabel={labelFor(loserOpt.id)}
       sourceName={event.source_name}
       sourceUrl={event.source_url}
@@ -682,7 +684,7 @@ const LiteContractTrade = () => {
                   tone="yes"
                   label={`Buy ${yesLabel}`}
                   cents={Math.round(yesLive * 100)}
-                  boostLine={boostCfg.enabled ? `${boost}× BOOST` : null}
+                  boostLine={boostCfg.enabled && boost > 1 ? `${boost}× BOOST` : null}
                   disabled={blocked}
                   onClick={() => openBuy("yes")}
                 />
@@ -690,7 +692,7 @@ const LiteContractTrade = () => {
                   tone="no"
                   label={`Buy ${noLabel}`}
                   cents={Math.round(noLive * 100)}
-                  boostLine={boostCfg.enabled ? `${boost}× BOOST` : null}
+                  boostLine={boostCfg.enabled && boost > 1 ? `${boost}× BOOST` : null}
                   disabled={blocked}
                   onClick={() => openBuy("no")}
                 />

@@ -58,13 +58,14 @@ export const LiteBoostSelector = ({
               }}
               style={active ? SELECTED_STYLE : undefined}
               className={cn(
-                "h-10 flex-1 rounded-xl font-mono text-sm font-semibold transition-all",
+                "flex h-10 flex-1 flex-col items-center justify-center rounded-xl transition-all",
                 active
                   ? "text-yes"
                   : "border-[1.5px] border-border text-muted-foreground hover:text-foreground",
               )}
             >
-              {t}×
+              <span className="font-mono text-sm font-semibold">{t}×</span>
+              {t === 1 && <span className="text-[9px] opacity-70">none</span>}
             </button>
           );
         })}
