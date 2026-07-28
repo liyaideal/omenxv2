@@ -37,6 +37,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { LiteContractChart } from "@/components/lite/contract/LiteContractChart";
 import { LiteContractOrderPanel } from "@/components/lite/contract/LiteContractOrderPanel";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
+import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
 
 type EventRow = Tables<"events"> & { options: Tables<"event_options">[] };
 type Side = "yes" | "no";
@@ -196,6 +197,7 @@ const LiteContractTrade = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [refetchTick, setRefetchTick] = useState(0);
+  const [cashOutOpen, setCashOutOpen] = useState(false);
   // Only the FIRST fetch flips the full-page loader; later refetches
   // (post-fill) swap data in place so the page never unmounts.
   const isFirstLoad = useRef(true);
@@ -281,10 +283,18 @@ const LiteContractTrade = () => {
 
   const heldPos = useMemo(() => {
     if (!event) return null;
-    return (
-      positions.find((p) => p.productLine === "futures" && p.event === event.name) || null
+    // Legacy hedged data (pre-netting) can leave two open futures legs on the
+    // same event — pick the largest by margin so the card is deterministic.
+    const matches = positions.filter(
+      (p) => p.productLine === "futures" && p.event === event.name,
     );
+    if (matches.length === 0) return null;
+    return matches.reduce((a, b) => (b.marginNum > a.marginNum ? b : a));
   }, [positions, event]);
+  const heldIndex = useMemo(
+    () => (heldPos ? positions.findIndex((p) => p.id === heldPos.id) : -1),
+    [positions, heldPos],
+  );
 
   const pulse = usePulse(event?.name || null, yesOpt?.label || "", user?.id);
   // No market-volume field on Lite: `trades` is owner-scoped by RLS, so any
@@ -376,11 +386,6 @@ const LiteContractTrade = () => {
         </h1>
         <div className="shrink-0">{WatchStar}</div>
       </div>
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-xs text-muted-foreground">
-        <span className="text-yes">
-          {yesLabel} {yesPct}¢
-        </span>
-      </div>
     </div>
   );
 
@@ -433,32 +438,16 @@ const LiteContractTrade = () => {
 
   const YourPosition = heldPos ? (
     <div className="rounded-2xl border border-border bg-card p-4">
-      <div className="mb-3 flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <span
-            className={cn(
-              "rounded-md px-2 py-0.5 text-[11px] font-semibold",
-              heldIsYes ? "bg-yes/14 text-yes" : "bg-no/14 text-no",
-            )}
-          >
-            {heldIsYes ? yesLabel : noLabel}
+      <div className="mb-3 text-sm font-semibold">
+        <span className={heldIsYes ? "text-yes" : "text-no"}>
+          {heldIsYes ? yesLabel : noLabel}
+        </span>
+        {heldPos.leverageNum > 1 && (
+          <span className="text-foreground">
+            {" · "}
+            <span className="font-mono">{heldPos.leverageNum}×</span> Boost
           </span>
-          {heldPos.leverageNum > 1 && (
-            <span
-              className="rounded-md px-2 py-0.5 font-mono text-[11px] font-bold text-[#0A0B0D]"
-              style={{ background: "linear-gradient(120deg,#CFFF4A,#33D6FF)" }}
-            >
-              {heldPos.leverageNum}× Boost
-            </span>
-          )}
-        </div>
-        <button
-          type="button"
-          onClick={() => navigate("/portfolio")}
-          className="text-[11px] text-muted-foreground hover:text-foreground"
-        >
-          Manage in Portfolio →
-        </button>
+        )}
       </div>
       <div className="grid grid-cols-4 gap-2 border-t border-border pt-3 text-xs">
         <PosCell label="Put in" value={heldPos.margin} />
@@ -471,14 +460,43 @@ const LiteContractTrade = () => {
           value={`${heldPnlNum >= 0 ? "+" : "−"}$${Math.abs(heldPnlNum).toFixed(2)}`}
           tone={heldPnlNum >= 0 ? "up" : "down"}
         />
-        {heldAutoClose != null && (
-          <PosCell
-            label={isMobile ? "Auto-close" : "Est. auto-close"}
-            value={`≈ ${formatCents(heldAutoClose)}`}
-          />
-        )}
+        <PosCell
+          label={isMobile ? "Auto-close" : "Est. auto-close"}
+          value={
+            heldPos.leverageNum <= 1
+              ? "None"
+              : heldAutoClose != null
+                ? `≈ ${formatCents(heldAutoClose)}`
+                : isMobile
+                  ? "None"
+                  : "None at this balance"
+          }
+        />
+      </div>
+      <div className="mt-3 border-t border-border pt-3">
+        <button
+          type="button"
+          onClick={() => setCashOutOpen(true)}
+          className="h-9 w-full rounded-lg bg-muted text-xs font-semibold hover:bg-muted/80"
+        >
+          Cash out
+        </button>
       </div>
     </div>
+  ) : null;
+
+  const CashOut = heldPos ? (
+    <LiteCashOutFlow
+      open={cashOutOpen}
+      onOpenChange={setCashOutOpen}
+      isMobile={!!isMobile}
+      positionId={heldPos.id}
+      positionIndex={heldIndex}
+      currentValue={heldPos.marginNum + heldPnlNum}
+      sizeNum={heldPos.sizeNum}
+      sideLabel={heldIsYes ? yesLabel : noLabel}
+      onDone={() => setRefetchTick((n) => n + 1)}
+    />
   ) : null;
 
   const MarketPulse = (
@@ -607,8 +625,8 @@ const LiteContractTrade = () => {
     boostLoading,
     boostMax: boostCfg.maxBoost,
     boostTiers: tiers,
-    categoryLabel,
     countdownText: countdown,
+    heldSideLabel: heldPos ? (heldIsYes ? yesLabel : noLabel) : null,
     onRequestAuth: () => setAuthOpen(true),
   } as const;
 
@@ -715,6 +733,7 @@ const LiteContractTrade = () => {
           </MobileDrawer>
 
           <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
+          {CashOut}
         </div>
       </TooltipProvider>
     );
@@ -726,8 +745,8 @@ const LiteContractTrade = () => {
       <div className="min-h-screen bg-background">
         <EventsDesktopHeader />
         <div
-          className="mx-auto grid w-full gap-6 px-6 py-6"
-          style={{ maxWidth: 1160, gridTemplateColumns: "minmax(0, 1.55fr) minmax(0, 1fr)" }}
+          className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-6 lg:px-6"
+          style={{ gridTemplateColumns: "minmax(0, 1fr) 380px" }}
         >
           <div className="space-y-5">
             {QuestionBlock}
@@ -749,6 +768,7 @@ const LiteContractTrade = () => {
           </aside>
         </div>
         <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
+        {CashOut}
       </div>
     </TooltipProvider>
   );

@@ -82,6 +82,180 @@ const validateFeeCalculation = (amount: number, leverage: number, providedFee: n
   return Math.abs(providedFee - expectedFee) <= Math.max(tolerance, 0.01);
 };
 
+const EPS = 0.000001;
+
+/**
+ * Binary-event net position (futures, buy side only).
+ * Returns null when the branch does not apply, so the caller falls through
+ * to the untouched open/add path.
+ */
+const tryNetBinaryOppositeLeg = async (
+  userId: string,
+  validated: z.infer<typeof TradeDataSchema>,
+  trade: any,
+  optionId?: string,
+): Promise<TradeExecutionResult | null> => {
+  // 1. The event must be binary (exactly two outcomes). Lookup failure →
+  //    fall through to legacy behavior.
+  const { data: eventRow, error: eventErr } = await supabase
+    .from("events")
+    .select("id")
+    .eq("name", validated.eventName)
+    .maybeSingle();
+  if (eventErr || !eventRow) return null;
+  const { count, error: countErr } = await supabase
+    .from("event_options")
+    .select("id", { count: "exact", head: true })
+    .eq("event_id", eventRow.id);
+  if (countErr || count !== 2) return null;
+
+  // 2. An open futures long on the OTHER outcome of this event.
+  const { data: rows, error: findErr } = await supabase
+    .from("positions")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("event_name", validated.eventName)
+    .eq("side", "long")
+    .eq("status", "Open");
+  if (findErr) return null;
+  const opposite = (rows || []).find(
+    (p: any) =>
+      (p.product_line ?? "futures") !== "spot" &&
+      String(p.option_label).trim().toLowerCase() !==
+        validated.optionLabel.trim().toLowerCase(),
+  );
+  if (!opposite) return null;
+
+  // 3. Netting math (mirrors reduceOppositeLeg, leverage-aware).
+  const oppSize = Number(opposite.size);
+  const oppMargin = Number(opposite.margin);
+  const oppEntry = Number(opposite.entry_price);
+  const impliedOppMark = Math.min(0.99, Math.max(0.01, 1 - validated.price));
+  const closeQty = Math.min(validated.quantity, oppSize);
+  const marginReleased = oppSize > 0 ? (oppMargin * closeQty) / oppSize : 0;
+  const realizedPnl = (impliedOppMark - oppEntry) * closeQty;
+  const remainingSize = oppSize - closeQty;
+  const oppFullyClosed = remainingSize <= EPS;
+  const nowIso = new Date().toISOString();
+  const oppNewPnl = (Number(opposite.pnl) || 0) + realizedPnl;
+  const oppRemainingMargin = oppMargin - marginReleased;
+
+  const { data: updatedOpposite, error: reduceErr } = await supabase
+    .from("positions")
+    .update(
+      oppFullyClosed
+        ? {
+            status: "Closed",
+            mark_price: impliedOppMark,
+            pnl: oppNewPnl,
+            pnl_percent: oppMargin > 0 ? (oppNewPnl / oppMargin) * 100 : 0,
+            closed_at: nowIso,
+            updated_at: nowIso,
+          }
+        : {
+            size: remainingSize,
+            margin: oppRemainingMargin,
+            mark_price: impliedOppMark,
+            pnl: oppNewPnl,
+            pnl_percent:
+              oppRemainingMargin > 0 ? (oppNewPnl / oppRemainingMargin) * 100 : 0,
+            updated_at: nowIso,
+          },
+    )
+    .eq("id", opposite.id)
+    .select()
+    .single();
+  if (reduceErr) throw reduceErr;
+
+  // 4. Remainder opens / merges a same-side long. The client sends margin for
+  //    the FULL quantity, so validate against the remainder only.
+  const remainderQty = validated.quantity - closeQty;
+  let position: any = updatedOpposite;
+  let marginUsed = 0;
+
+  if (remainderQty > EPS) {
+    marginUsed = (remainderQty * validated.price) / validated.leverage;
+    if (!validateMarginCalculation(validated.price, remainderQty, validated.leverage, marginUsed)) {
+      throw new Error("Invalid margin calculation. Please try again.");
+    }
+    const { data: same } = await supabase
+      .from("positions")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("event_name", validated.eventName)
+      .eq("option_label", validated.optionLabel)
+      .eq("side", "long")
+      .eq("status", "Open")
+      .maybeSingle();
+
+    if (same) {
+      const newSize = Number(same.size) + remainderQty;
+      const newMargin = Number(same.margin) + marginUsed;
+      const weightedEntry =
+        (Number(same.size) * Number(same.entry_price) + remainderQty * validated.price) /
+        newSize;
+      const newPnl = (Number(same.mark_price) - weightedEntry) * newSize;
+      const { data: merged, error: mergeErr } = await supabase
+        .from("positions")
+        .update({
+          size: newSize,
+          margin: newMargin,
+          entry_price: weightedEntry,
+          pnl: newPnl,
+          pnl_percent: newMargin > 0 ? (newPnl / newMargin) * 100 : 0,
+          updated_at: nowIso,
+        })
+        .eq("id", same.id)
+        .select()
+        .single();
+      if (mergeErr) throw mergeErr;
+      position = merged;
+    } else {
+      const { data: created, error: createErr } = await supabase
+        .from("positions")
+        .insert({
+          user_id: userId,
+          trade_id: trade.id,
+          event_name: validated.eventName,
+          option_label: validated.optionLabel,
+          option_id: optionId || null,
+          side: "long",
+          entry_price: validated.price,
+          mark_price: validated.price,
+          size: remainderQty,
+          margin: marginUsed,
+          leverage: validated.leverage,
+          pnl: 0,
+          pnl_percent: 0,
+          status: "Open",
+        })
+        .select()
+        .single();
+      if (createErr) throw createErr;
+      position = created;
+    }
+  }
+
+  const intent: "reduce" | "close" =
+    oppFullyClosed && remainderQty <= EPS ? "close" : "reduce";
+
+  await supabase
+    .from("trades")
+    .update({
+      pnl: realizedPnl,
+      status: "Filled",
+      closed_at: intent === "close" ? nowIso : null,
+    })
+    .eq("id", trade.id);
+
+  return {
+    trade,
+    position,
+    intent,
+    balanceDelta: -(marginUsed + validated.fee) + marginReleased + realizedPnl,
+  } satisfies TradeExecutionResult;
+};
+
 // Create a new trade and position with validation
 export const executeTrade = async (userId: string, tradeData: TradeData) => {
   try {
@@ -230,7 +404,19 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
 
       return { trade, position: updatedPosition, intent, balanceDelta: marginReleased + realizedPnl - validated.fee } satisfies TradeExecutionResult;
     }
-    
+
+    // ------------------------------------------------------------
+    // Binary events are NET-POSITION per user (approved R3b-2 round 5).
+    // Buying the other outcome of a two-outcome event reduces the held
+    // outcome first (mirrors executeSpotTrade's net-position flow); only
+    // the remainder opens a new same-side position. Scope is deliberately
+    // narrow: buy-side only, futures only, exactly-two-option events.
+    // ------------------------------------------------------------
+    if (validated.side === "buy") {
+      const netted = await tryNetBinaryOppositeLeg(userId, validated, trade, tradeData.optionId);
+      if (netted) return netted;
+    }
+
     // Check if there's an existing open position with same event + option + side
     const { data: existingPosition, error: findError } = await supabase
       .from("positions")

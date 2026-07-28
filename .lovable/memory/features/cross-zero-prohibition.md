@@ -1,14 +1,21 @@
 ---
-name: Cross-zero reverse order prohibition
-description: Trading rule — reverse orders may reduce/close but cannot cross zero into a new opposite position
+name: Binary net position (futures) — supersedes cross-zero prohibition
+description: Trading rule — on binary events a user holds one direction; buying the opposite side reduces the held side first, remainder opens
 type: feature
 ---
-For the same canonical YES-axis market, reverse orders are allowed only up to the current position size. They are classified before margin checks:
+Binary events (exactly 2 rows in `event_options`) are **net-position per user** on the futures product line.
 
-1. Same direction open/add requires incremental initial margin.
-2. Opposite direction reduce/flat-close requires zero incremental initial margin and releases proportional margin immediately.
-3. Opposite direction beyond current size is blocked; users must close to zero before opening the opposite side.
+1. Buy on the outcome you already hold → open / add (weighted-average entry).
+2. Buy on the OTHER outcome → reduces the held leg first at `impliedOppMark = clamp(1 − price, 0.01, 0.99)`:
+   `closeQty = min(qty, oppSize)`, `marginReleased = oppMargin × closeQty/oppSize`,
+   `realizedPnl = (impliedOppMark − oppEntry) × closeQty`. Any `remainderQty` opens/merges a same-side long
+   with `marginUsed = remainderQty × price / leverage`. Opening margin is validated against the remainder only.
+   `balanceDelta = −(marginUsed + fee) + marginReleased + realizedPnl`. Intent is `close` when the opposite leg
+   is flat and there is no remainder, otherwise `reduce`.
+3. Same-option long-vs-short reduce/close rule is UNCHANGED: reverse orders may reduce up to current size,
+   must carry zero opening margin, and may not cross zero.
+4. Spot was already netted (`executeSpotTrade`); sell-side and multi-outcome events are out of scope.
 
-Binary markets use the Yes-only model first: No Long -> Yes Short and No Short -> Yes Long. Mobile page preview and desktop dialog preview must both enforce this rule.
-
-Margin semantics: keep traded notional separate from opening risk notional. Traded notional is qty * clicked UI price and is used for trade records/fees/display. Incremental opening margin is computed only from the net-risk-increasing slice after canonicalization. Reduce/flat-close slices always have incremental IM = 0 and release proportional existing margin. Blocked cross-zero may calculate the increase remainder for explanation, but execution remains blocked until the position is flat.
+The old "No maps to Yes-short, opposite side is blocked" model no longer applies to binary buys.
+Margin semantics stay: traded notional (qty × clicked price) drives records/fees/display; opening margin comes
+only from the net-risk-increasing slice.

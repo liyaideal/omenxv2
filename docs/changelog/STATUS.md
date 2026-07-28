@@ -404,3 +404,4 @@
 ## 维护历史
 
 - 2026-05-21：首次建立 STATUS.md，覆盖 4 份历史交付文档；新交付按顶部追加规则维护
+- 2026-07-28 · R3b-2 round 5 — Boost tier ladder + custom slider, auto-close cells always occupy their slot, binary futures buys now NET the opposite leg (approved executeTrade change, Pro buy-flow included), Lite container alignment, YourPosition rework with Cash out flow. [2026-07-28-r3b2-round5-boost-netting.md]
