@@ -230,7 +230,19 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
 
       return { trade, position: updatedPosition, intent, balanceDelta: marginReleased + realizedPnl - validated.fee } satisfies TradeExecutionResult;
     }
-    
+
+    // ------------------------------------------------------------
+    // Binary events are NET-POSITION per user (approved R3b-2 round 5).
+    // Buying the other outcome of a two-outcome event reduces the held
+    // outcome first (mirrors executeSpotTrade's net-position flow); only
+    // the remainder opens a new same-side position. Scope is deliberately
+    // narrow: buy-side only, futures only, exactly-two-option events.
+    // ------------------------------------------------------------
+    if (validated.side === "buy") {
+      const netted = await tryNetBinaryOppositeLeg(userId, validated, trade, tradeData.optionId);
+      if (netted) return netted;
+    }
+
     // Check if there's an existing open position with same event + option + side
     const { data: existingPosition, error: findError } = await supabase
       .from("positions")
