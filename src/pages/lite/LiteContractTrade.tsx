@@ -386,7 +386,6 @@ const LiteContractTrade = () => {
         </h1>
         <div className="shrink-0">{WatchStar}</div>
       </div>
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-xs text-muted-foreground">
     </div>
   );
 
