@@ -741,8 +741,8 @@ const LiteSpotTrade = () => {
       <div className="min-h-screen bg-background">
         <EventsDesktopHeader />
         <div
-          className="mx-auto grid w-full gap-6 px-6 py-6"
-          style={{ maxWidth: 1160, gridTemplateColumns: "minmax(0, 1.55fr) minmax(0, 1fr)" }}
+          className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-6 lg:px-6"
+          style={{ gridTemplateColumns: "minmax(0, 1fr) 380px" }}
         >
           <div className="space-y-5">
             {QuestionBlock}
