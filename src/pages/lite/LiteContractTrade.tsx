@@ -593,6 +593,7 @@ const LiteContractTrade = () => {
     <LiteOutcomeCard
       settledAt={event.settled_at}
       winnerLabel={labelFor(winnerOpt.id)}
+      winnerIsYes={winnerOpt.id === yesOpt.id}
       loserLabel={labelFor(loserOpt.id)}
       sourceName={event.source_name}
       sourceUrl={event.source_url}
