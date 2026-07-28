@@ -193,7 +193,9 @@ const LiteContractTrade = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [refetchTick, setRefetchTick] = useState(0);
-  const [volumeUsd, setVolumeUsd] = useState<number | null>(null);
+  // Only the FIRST fetch flips the full-page loader; later refetches
+  // (post-fill) swap data in place so the page never unmounts.
+  const isFirstLoad = useRef(true);
 
   useEffect(() => {
     if (!eventId) {
@@ -203,7 +205,7 @@ const LiteContractTrade = () => {
     }
     let alive = true;
     (async () => {
-      setLoading(true);
+      if (isFirstLoad.current) setLoading(true);
       const [{ data: e }, { data: opts }] = await Promise.all([
         supabase.from("events").select("*").eq("id", eventId).maybeSingle(),
         supabase.from("event_options").select("*").eq("event_id", eventId),
@@ -211,6 +213,7 @@ const LiteContractTrade = () => {
       if (!alive) return;
       if (!e) setNotFound(true);
       else setEvent({ ...e, options: opts || [] });
+      isFirstLoad.current = false;
       setLoading(false);
     })();
     return () => {
@@ -219,8 +222,17 @@ const LiteContractTrade = () => {
   }, [eventId, refetchTick]);
 
   const sideLabels = useMemo(() => parseSideLabels(event?.side_labels), [event]);
-  const yesLabel = useMemo(() => liteSideName(sideLabels?.yes) || "Yes", [sideLabels?.yes]);
-  const noLabel = useMemo(() => liteSideName(sideLabels?.no) || "No", [sideLabels?.no]);
+  // Null-check BEFORE sanitising: liteSideName(undefined) returns "Down"
+  // (a truthy value), so a `|| "Yes"` fallback would be dead code and both
+  // sides of the page would read "Down" whenever side_labels is missing.
+  const yesLabel = useMemo(
+    () => (sideLabels?.yes ? liteSideName(sideLabels.yes) : "Yes"),
+    [sideLabels?.yes],
+  );
+  const noLabel = useMemo(
+    () => (sideLabels?.no ? liteSideName(sideLabels.no) : "No"),
+    [sideLabels?.no],
+  );
 
   const yesOpt = useMemo(() => {
     if (!event) return null;
