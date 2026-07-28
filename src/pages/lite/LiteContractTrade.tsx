@@ -11,7 +11,7 @@
 //        Pro /spot keeps using it untouched.
 //   1/2. Price snapshot + balance leg live in LiteContractOrderPanel.
 // ============================================================
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, ChevronRight, Info, Loader2, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -284,25 +284,8 @@ const LiteContractTrade = () => {
   }, [positions, event]);
 
   const pulse = usePulse(event?.name || null, yesOpt?.label || "", user?.id);
-  // Volume: aggregated from real fills only. If nothing is readable
-  // (RLS scope or no trades), the field is not rendered — never synthesised.
-  useEffect(() => {
-    const name = event?.name;
-    if (!name) return;
-    let alive = true;
-    (async () => {
-      const { data } = await supabase
-        .from("trades")
-        .select("amount")
-        .eq("event_name", name);
-      if (!alive) return;
-      if (!data || data.length === 0) return setVolumeUsd(null);
-      setVolumeUsd(data.reduce((a, r) => a + (Number(r.amount) || 0), 0));
-    })();
-    return () => {
-      alive = false;
-    };
-  }, [event?.name, refetchTick]);
+  // No market-volume field on Lite: `trades` is owner-scoped by RLS, so any
+  // aggregate is the user's own notional and would be misread as market depth.
 
   const more = useMoreMarkets(event?.category || null, event?.id || "");
 
@@ -331,14 +314,6 @@ const LiteContractTrade = () => {
   const yesPct = Math.max(1, Math.min(99, Math.round(yesLive * 100)));
   const noPct = 100 - yesPct;
 
-  const volText =
-    volumeUsd != null && volumeUsd > 0
-      ? volumeUsd >= 1_000_000
-        ? `$${(volumeUsd / 1_000_000).toFixed(1)}M`
-        : volumeUsd >= 1_000
-          ? `$${(volumeUsd / 1_000).toFixed(1)}K`
-          : `$${volumeUsd.toFixed(0)}`
-      : null;
   const resolvesText = endDate
     ? endDate.toLocaleDateString(undefined, { month: "short", day: "numeric" })
     : "—";
