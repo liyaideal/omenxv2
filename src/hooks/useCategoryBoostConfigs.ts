@@ -14,13 +14,14 @@ export interface BoostConfig {
 export const BOOST_DISABLED: BoostConfig = { enabled: false, maxBoost: 1 };
 
 /**
- * Chip ladder for a max boost: [2, 5, max] deduped, ≤ max and ≥ 2.
- * Pads with the floor midpoint when fewer than 3 tiers (max=5 → 2/3/5).
+ * Chip ladder for a max boost: [1, 2, 5, max] deduped, ≤ max.
+ * Pads with the floor midpoint between 2 and max when fewer than 4 tiers
+ * (max=5 → 1/2/3/5). max < 2 → [1].
  */
 export const boostTiers = (max: number): number[] => {
-  if (!isFinite(max) || max < 2) return [];
-  const set = new Set<number>([2, 5, max].filter((n) => n >= 2 && n <= max));
-  if (set.size < 3) {
+  if (!isFinite(max) || max < 2) return [1];
+  const set = new Set<number>([1, 2, 5, max].filter((n) => n >= 1 && n <= max));
+  if (set.size < 4) {
     const mid = Math.floor((2 + max) / 2);
     if (mid >= 2 && mid <= max) set.add(mid);
   }
