@@ -210,6 +210,22 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
       ? "bg-gradient-to-r from-yes to-[#5FE0FF] text-[#04222c] hover:brightness-105"
       : "bg-gradient-to-r from-no to-[#E4FF88] text-[#1a2408] hover:brightness-105";
 
+  // The Est. auto-close row always occupies its slot — a null estimate means
+  // "cushioned", not "unknown", so we say so instead of unmounting the row.
+  const autoCloseText =
+    amountNum <= 0
+      ? "—"
+      : effBoost <= 1
+        ? "None"
+        : autoClose != null
+          ? `≈ ${formatCents(autoClose)}`
+          : "None at this balance";
+
+  const nettingNotice =
+    heldSideLabel && heldSideLabel !== sideLabel
+      ? `You're backing ${sideLabel}. This cashes out your ${heldSideLabel} first.`
+      : null;
+
   const wrapClass =
     variant === "desktop"
       ? "space-y-4 rounded-2xl border border-border bg-card p-5"
