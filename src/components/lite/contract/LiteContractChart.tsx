@@ -76,14 +76,30 @@ export const LiteContractChart = ({
   const stroke =
     active === "underlying" ? "hsl(var(--foreground))" : "hsl(var(--yes))";
 
+  // Odds domain adapts to the series (±8¢ padding, min 20¢ span) so a flat
+  // walk doesn't render as a dead line across a full 0–100 axis.
+  const oddsDomain = useMemo<[number, number]>(() => {
+    const vals = data.map((d) => d.v);
+    const lo = Math.min(...vals);
+    const hi = Math.max(...vals);
+    let min = lo - 8;
+    let max = hi + 8;
+    if (max - min < 20) {
+      const mid = (min + max) / 2;
+      min = mid - 10;
+      max = mid + 10;
+    }
+    return [Math.max(0, Math.round(min)), Math.min(100, Math.round(max))];
+  }, [data]);
+
   return (
     <div className={cn("rounded-2xl border border-border bg-card p-4", className)}>
       <div className="mb-3 flex items-center justify-between">
         <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
           {active === "underlying" ? underlyingLabel : `${yesLabel} odds`}
         </div>
+        {hasUnderlying && (
         <div className="flex gap-1 rounded-lg bg-muted/40 p-0.5">
-          {hasUnderlying && (
             <button
               type="button"
               onClick={() => setTab("underlying")}
@@ -96,7 +112,6 @@ export const LiteContractChart = ({
             >
               {underlyingLabel}
             </button>
-          )}
           <button
             type="button"
             onClick={() => setTab("odds")}
@@ -110,6 +125,7 @@ export const LiteContractChart = ({
             {yesLabel} odds ¢
           </button>
         </div>
+        )}
       </div>
       <div className="relative h-[180px] w-full">
         <span
@@ -119,14 +135,14 @@ export const LiteContractChart = ({
           Sample data
         </span>
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 6, right: 8, bottom: 0, left: -18 }}>
+          <LineChart data={data} margin={{ top: 6, right: 8, bottom: 0, left: 0 }}>
             <XAxis dataKey="i" hide />
             <YAxis
-              domain={active === "odds" ? [0, 100] : ["dataMin", "dataMax"]}
+              domain={active === "odds" ? oddsDomain : ["dataMin", "dataMax"]}
               tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
               tickLine={false}
               axisLine={false}
-              width={44}
+              width={48}
               tickFormatter={(v: number) =>
                 active === "odds" ? `${Math.round(v)}¢` : `$${Number(v).toFixed(0)}`
               }
