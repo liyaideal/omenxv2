@@ -1,0 +1,428 @@
+// ============================================================
+// Lite contract (Boost) order card — desktop rail card AND the body
+// of the mobile buy drawer (`variant` only changes framing).
+//
+// P0 guardrails:
+//   1. Execution price is snapshotted into a const at submit; the async
+//      handler never re-reads the live price.
+//   2. Cash leg mirrors Pro: executeTrade() → res.balanceDelta →
+//      deductBalance(Math.abs(delta)) / addBalance(delta). No self-math.
+//   4. No dynamic Tailwind class strings.
+// ============================================================
+import { useCallback, useMemo, useState } from "react";
+import { Info } from "lucide-react";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
+import { executeTrade } from "@/services/tradingService";
+import { estimateAutoClosePrice, formatCents } from "@/lib/autoClosePrice";
+import { LiteBoostSelector } from "./LiteBoostSelector";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+type Side = "yes" | "no";
+
+const FEE_RATE = 0.0005;
+const PRESETS = [10, 25, 50, 100];
+const money = (n: number) => `$${n.toFixed(2)}`;
+
+export interface LiteContractOrderPanelProps {
+  eventName: string;
+  yesLabel: string;
+  noLabel: string;
+  yesPrice: number;
+  noPrice: number;
+  yesOptionId: string;
+  noOptionId: string;
+  yesOptionLabel: string;
+  noOptionLabel: string;
+  blocked: boolean;
+  blockedReason?: string;
+  side: Side;
+  onSideChange: (s: Side) => void;
+  amount: string;
+  onAmountChange: (v: string) => void;
+  boost: number;
+  onBoostChange: (v: number) => void;
+  boostEnabled: boolean;
+  boostMax: number;
+  boostTiers: number[];
+  categoryLabel: string;
+  countdownText: string;
+  variant: "desktop" | "mobile";
+  onFilled?: () => void;
+  onRequestAuth: () => void;
+}
+
+export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
+  const {
+    eventName,
+    yesLabel,
+    noLabel,
+    yesPrice,
+    noPrice,
+    yesOptionId,
+    noOptionId,
+    yesOptionLabel,
+    noOptionLabel,
+    blocked,
+    blockedReason,
+    side,
+    onSideChange,
+    amount,
+    onAmountChange,
+    boost,
+    onBoostChange,
+    boostEnabled,
+    boostMax,
+    boostTiers,
+    categoryLabel,
+    countdownText,
+    variant,
+    onFilled,
+    onRequestAuth,
+  } = props;
+
+  const { user } = useAuth();
+  const { balance, deductBalance, addBalance } = useUserProfile();
+  const risk = useRealtimeRiskMetrics();
+  const [submitting, setSubmitting] = useState(false);
+
+  const effBoost = boostEnabled ? boost : 1;
+  const sidePrice = side === "yes" ? yesPrice : noPrice;
+  const sideLabel = side === "yes" ? yesLabel : noLabel;
+  const oppositeLabel = side === "yes" ? noLabel : yesLabel;
+
+  const amountNum = useMemo(() => {
+    const n = parseFloat(amount);
+    return isFinite(n) && n > 0 ? n : 0;
+  }, [amount]);
+
+  // Math copied verbatim from the Pro contract path.
+  const notional = amountNum * effBoost;
+  const fee = notional * FEE_RATE;
+  const quantity = sidePrice > 0 ? notional / sidePrice : 0;
+  const potentialWin = (1 - sidePrice) * quantity;
+
+  const autoClose = useMemo(
+    () =>
+      estimateAutoClosePrice({
+        entryPrice: sidePrice,
+        boost: effBoost,
+        amount: amountNum,
+        fee,
+        quantity,
+        hasOtherPositions: risk.hasPositions,
+        imTotalOther: risk.imTotal,
+        totalAssets: risk.totalAssets,
+        unrealizedPnLOther: risk.unrealizedPnL,
+      }),
+    [sidePrice, effBoost, amountNum, fee, quantity, risk],
+  );
+
+  const handleSubmit = useCallback(async () => {
+    if (!user) return onRequestAuth();
+    if (blocked) return toast.error(blockedReason || "Market unavailable");
+    if (amountNum <= 0) return toast.error("Enter an amount");
+    if (amountNum + fee > balance)
+      return toast.error("Not enough balance — add funds to continue");
+
+    // P0 #1 — snapshot everything price-derived at click time.
+    const priceSnapshot = sidePrice;
+    const boostSnapshot = effBoost;
+    const amountSnapshot = amountNum;
+    const notionalSnapshot = amountSnapshot * boostSnapshot;
+    const qtySnapshot = notionalSnapshot / priceSnapshot;
+    const feeSnapshot = notionalSnapshot * FEE_RATE;
+    const optionIdSnapshot = side === "yes" ? yesOptionId : noOptionId;
+    const optionLabelSnapshot = side === "yes" ? yesOptionLabel : noOptionLabel;
+    if (!(qtySnapshot > 0)) return toast.error("Amount too small");
+
+    setSubmitting(true);
+    try {
+      const res = await executeTrade(user.id, {
+        eventName,
+        optionLabel: optionLabelSnapshot,
+        optionId: optionIdSnapshot,
+        side: "buy",
+        orderType: "Market",
+        price: priceSnapshot,
+        amount: amountSnapshot,
+        quantity: qtySnapshot,
+        leverage: boostSnapshot,
+        margin: amountSnapshot,
+        fee: feeSnapshot,
+      });
+
+      // P0 #2 — cash leg exactly as the Pro path applies it.
+      if (res.balanceDelta < 0) {
+        const ok = await deductBalance(Math.abs(res.balanceDelta));
+        if (!ok) throw new Error("Failed to update balance");
+      } else if (res.balanceDelta > 0) {
+        await addBalance(res.balanceDelta);
+      }
+
+      toast.success(`Backed ${sideLabel} · ${money(amountSnapshot)}`);
+      onAmountChange("");
+      onFilled?.();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not place that");
+    } finally {
+      setSubmitting(false);
+    }
+  }, [
+    user,
+    blocked,
+    blockedReason,
+    amountNum,
+    fee,
+    balance,
+    sidePrice,
+    effBoost,
+    side,
+    yesOptionId,
+    noOptionId,
+    yesOptionLabel,
+    noOptionLabel,
+    eventName,
+    sideLabel,
+    deductBalance,
+    addBalance,
+    onAmountChange,
+    onFilled,
+    onRequestAuth,
+  ]);
+
+  const ctaClass =
+    side === "yes"
+      ? "bg-gradient-to-r from-yes to-[#5FE0FF] text-[#04222c] hover:brightness-105"
+      : "bg-gradient-to-r from-no to-[#E4FF88] text-[#1a2408] hover:brightness-105";
+
+  const wrapClass =
+    variant === "desktop"
+      ? "space-y-4 rounded-2xl border border-border bg-card p-5"
+      : "space-y-4";
+
+  return (
+    <div className={wrapClass}>
+      {variant === "desktop" && (
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold">Make your call</h3>
+          <span className="font-mono text-[11px] text-muted-foreground">
+            {countdownText} left
+          </span>
+        </div>
+      )}
+
+      {/* Side */}
+      <div className="grid grid-cols-2 gap-2">
+        <SideButton
+          active={side === "yes"}
+          tone="yes"
+          label={yesLabel}
+          price={yesPrice}
+          onClick={() => onSideChange("yes")}
+        />
+        <SideButton
+          active={side === "no"}
+          tone="no"
+          label={noLabel}
+          price={noPrice}
+          onClick={() => onSideChange("no")}
+        />
+      </div>
+
+      {/* Amount */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+            How much
+          </div>
+          <div className="font-mono text-[11px] text-muted-foreground">
+            Balance {money(balance)}
+          </div>
+        </div>
+        <div className="rounded-xl bg-muted/40 p-3">
+          <div className="flex items-baseline gap-2">
+            <span className="font-mono text-2xl font-bold text-foreground">$</span>
+            <input
+              type="number"
+              inputMode="decimal"
+              value={amount}
+              onChange={(e) => onAmountChange(e.target.value)}
+              placeholder="0"
+              className="w-full bg-transparent font-mono text-2xl font-bold text-foreground outline-none placeholder:text-muted-foreground/40"
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-5 gap-1.5">
+          {PRESETS.map((p) => {
+            const active = amountNum === p;
+            return (
+              <button
+                key={p}
+                type="button"
+                onClick={() => onAmountChange(String(p))}
+                className={cn(
+                  "rounded-lg border py-1.5 font-mono text-[11px] font-semibold transition-colors",
+                  active
+                    ? "border-transparent bg-white text-[#0A0B0D]"
+                    : "border-border text-muted-foreground hover:text-foreground",
+                )}
+              >
+                ${p}
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            onClick={() => onAmountChange(String(Math.max(0, Math.floor(balance))))}
+            className="rounded-lg border border-border py-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Max
+          </button>
+        </div>
+      </div>
+
+      {/* Boost — hidden entirely when the category is not enabled */}
+      {boostEnabled && (
+        <LiteBoostSelector
+          categoryLabel={categoryLabel}
+          maxBoost={boostMax}
+          tiers={boostTiers}
+          value={boost}
+          onChange={onBoostChange}
+          variant={variant}
+        />
+      )}
+
+      {/* Returns */}
+      <div className="space-y-1.5 rounded-xl border border-border bg-muted/20 p-3 text-xs">
+        <div className="flex items-center justify-between px-2">
+          <span className="text-muted-foreground">
+            Max loss <span className="opacity-70">· what you put in</span>
+          </span>
+          <span className="font-mono font-semibold text-foreground">
+            {money(amountNum)}
+          </span>
+        </div>
+        <div
+          className="flex items-center justify-between rounded-lg px-2 py-1.5"
+          style={{ background: "rgba(51,214,255,.05)" }}
+        >
+          <span className="text-muted-foreground">If you're right, you win</span>
+          <span className="font-mono font-semibold text-yes">{money(potentialWin)}</span>
+        </div>
+        <div className="flex items-start justify-between px-2 pt-0.5">
+          <div>
+            <span className="inline-flex items-center gap-1 text-muted-foreground">
+              Est. auto-close
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button type="button" aria-label="About auto-close">
+                    <Info className="h-3 w-3 text-muted-foreground" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-[240px] text-xs">
+                  An estimate of the price at which this call would be closed
+                  automatically. It shifts as your other positions move.
+                </TooltipContent>
+              </Tooltip>
+            </span>
+            <div className="text-[10px] text-muted-foreground/70">
+              Moves with your other positions
+            </div>
+          </div>
+          <span className="font-mono font-semibold text-muted-foreground">
+            ≈ {formatCents(amountNum > 0 ? autoClose : null)}
+          </span>
+        </div>
+      </div>
+
+      {/* CTA */}
+      <button
+        type="button"
+        disabled={submitting || blocked}
+        onClick={handleSubmit}
+        className={cn(
+          "flex h-14 w-full items-center justify-between rounded-xl px-4 font-display font-bold transition-all disabled:cursor-not-allowed disabled:opacity-50",
+          ctaClass,
+        )}
+      >
+        <span className="flex flex-col items-start leading-tight">
+          <span className="text-sm">
+            {blocked ? blockedReason || "Market closed" : `Buy ${sideLabel}`}
+          </span>
+          {!blocked && boostEnabled && (
+            <span className="font-mono text-[11px] opacity-80">{effBoost}× BOOST</span>
+          )}
+        </span>
+        {!blocked && (
+          <span className="font-mono text-sm">{money(potentialWin)} →</span>
+        )}
+      </button>
+      <p className="text-center text-[10px] text-muted-foreground/70">
+        Not guaranteed. You can lose your full {money(amountNum)}.
+      </p>
+
+      {variant === "mobile" && (
+        <button
+          type="button"
+          onClick={() => onSideChange(side === "yes" ? "no" : "yes")}
+          className="mx-auto block text-[11px] text-muted-foreground underline underline-offset-2 hover:text-foreground"
+        >
+          Switch to {oppositeLabel}
+        </button>
+      )}
+    </div>
+  );
+};
+
+const SideButton = ({
+  active,
+  tone,
+  label,
+  price,
+  onClick,
+}: {
+  active: boolean;
+  tone: "yes" | "no";
+  label: string;
+  price: number;
+  onClick: () => void;
+}) => {
+  const pct = Math.round(price * 100);
+  const yesActive = "bg-yes text-[#04222c] border-transparent";
+  const noActive = "bg-no text-[#1a2408] border-transparent";
+  const yesGhost = "bg-yes/12 text-yes border-[1.5px] border-yes/25";
+  const noGhost = "bg-no/12 text-no border-[1.5px] border-no/25";
+  const cls = active
+    ? tone === "yes"
+      ? yesActive
+      : noActive
+    : tone === "yes"
+      ? yesGhost
+      : noGhost;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "flex flex-col items-center justify-center rounded-xl px-3 py-3 transition-all",
+        cls,
+      )}
+    >
+      <span className="text-base font-bold">
+        {label} {pct}¢
+      </span>
+      <span className="text-[10px] font-medium opacity-70">{pct}% chance</span>
+    </button>
+  );
+};
+
+export default LiteContractOrderPanel;

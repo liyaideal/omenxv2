@@ -7,6 +7,7 @@ import MobileHome from "./pages/MobileHome";
 import TradingCharts from "./pages/TradingCharts";
 import TradeOrder from "./pages/TradeOrder";
 import SpotTrading from "./pages/SpotTrading";
+import LiteContractTrade from "./pages/lite/LiteContractTrade";
 import LiteSpotTrade from "./pages/lite/LiteSpotTrade";
 import OrderPreview from "./pages/OrderPreview";
 import DesktopTrading from "./pages/DesktopTrading";
@@ -86,8 +87,12 @@ const EventsRoute = () => {
   return surface === "lite" ? <LiteEventsPage /> : <EventsPage />;
 };
 
+// /trade forks by surface: Lite renders the Boost contract page,
+// Pro renders the existing terminals untouched.
 const TradingPage = () => {
+  const { surface } = useSurface();
   const isMobile = useIsMobile();
+  if (surface === "lite") return <LiteContractTrade />;
   return isMobile ? <TradingCharts /> : <DesktopTrading />;
 };
 
