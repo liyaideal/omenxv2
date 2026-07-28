@@ -182,7 +182,7 @@ const LiteContractTrade = () => {
   const { positions } = usePositions();
   const { isWatched, toggle } = useWatchlist();
   const pricesCtx = useRealtimePricesOptional();
-  const { getConfig } = useCategoryBoostConfigs();
+  const { getConfig, isLoading: boostLoading } = useCategoryBoostConfigs();
   const risk = useRealtimeRiskMetrics();
 
   const [event, setEvent] = useState<EventRow | null>(null);
@@ -485,7 +485,7 @@ const LiteContractTrade = () => {
         />
         <PosCell
           label="Profit"
-          value={heldPos.pnl}
+          value={`${heldPnlNum >= 0 ? "+" : "−"}$${Math.abs(heldPnlNum).toFixed(2)}`}
           tone={heldPnlNum >= 0 ? "up" : "down"}
         />
         {heldAutoClose != null && (
@@ -621,6 +621,7 @@ const LiteContractTrade = () => {
     boost,
     onBoostChange: setBoost,
     boostEnabled: boostCfg.enabled,
+    boostLoading,
     boostMax: boostCfg.maxBoost,
     boostTiers: tiers,
     categoryLabel,
