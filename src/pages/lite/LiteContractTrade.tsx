@@ -13,7 +13,7 @@
 // ============================================================
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ChevronRight, Info, Loader2, Star } from "lucide-react";
+import { ChevronRight, Info, Loader2, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -25,6 +25,8 @@ import { AuthDialog } from "@/components/auth/AuthDialog";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { MobileDrawer, MobileDrawerActions } from "@/components/ui/mobile-drawer";
 import { Button } from "@/components/ui/button";
+import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
+import { MobileHeader } from "@/components/MobileHeader";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { parseSideLabels } from "@/lib/eventUtils";
@@ -337,9 +339,12 @@ const LiteContractTrade = () => {
           quantity: heldPos.sizeNum,
           hasOtherPositions: positions.length > 1,
           imTotalOther: Math.max(risk.imTotal - heldPos.marginNum, 0),
-          // Pre-open snapshot: add this position's margin back and strip its
-          // own PnL so the account-level solve doesn't double-count it.
-          totalAssets: risk.totalAssets + heldPos.marginNum,
+          // `risk.totalAssets` is the live balance, from which this position's
+          // margin + fee were ALREADY deducted at fill time — adding it back
+          // would count the same cash twice. mode:"existing" performs no
+          // further deduction, so pass the balance as-is and only strip this
+          // position's own IM and PnL from the account aggregates.
+          totalAssets: risk.totalAssets,
           unrealizedPnLOther: risk.unrealizedPnL - heldPnlNum,
           mode: "existing",
         })
@@ -361,42 +366,24 @@ const LiteContractTrade = () => {
     </button>
   );
 
-  const TerminalChrome = (
-    <div className="flex items-center gap-3 border-b border-border px-4 py-3 md:px-6">
-      <button
-        type="button"
-        onClick={() => navigate("/events")}
-        className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted-foreground hover:text-foreground"
-        aria-label="Back"
-      >
-        <ArrowLeft className="h-4 w-4" />
-      </button>
-      <div className="min-w-0 flex-1 truncate text-sm font-medium">{event.name}</div>
-      {!resolved && (
-        <div className="hidden font-mono text-[11px] text-muted-foreground sm:block">
-          Resolves in {countdown}
-        </div>
-      )}
-      {WatchStar}
-    </div>
-  );
-
   const QuestionBlock = (
     <div>
       <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
         {categoryLabel}
       </div>
-      <h1
-        className="mt-2 font-display font-bold leading-[1.05] tracking-[-0.02em] text-foreground"
-        style={{ fontSize: isMobile ? 22 : 34 }}
-      >
-        {event.name}
-      </h1>
+      <div className="mt-2 flex items-start justify-between gap-3">
+        <h1
+          className="font-display font-bold leading-[1.05] tracking-[-0.02em] text-foreground"
+          style={{ fontSize: isMobile ? 22 : 34 }}
+        >
+          {event.name}
+        </h1>
+        <div className="shrink-0">{WatchStar}</div>
+      </div>
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-xs text-muted-foreground">
         <span className="text-yes">
           {yesLabel} {yesPct}¢
         </span>
-        <span>Resolves {resolvesText}</span>
       </div>
     </div>
   );
