@@ -14,18 +14,40 @@ export interface BoostConfig {
 export const BOOST_DISABLED: BoostConfig = { enabled: false, maxBoost: 1 };
 
 /**
- * Chip ladder for a max boost: [1, 2, 5, max] deduped, ≤ max.
- * Pads with the floor midpoint between 2 and max when fewer than 4 tiers
- * (max=5 → 1/2/3/5). max < 2 → [1].
+ * Chip ladder for a max boost. Always ≤ 4 numeric chips (Custom lives beside
+ * them). Candidate pool C = [2,3,5,10,20,50] filtered to ≤ max:
+ *   |C| ≤ 3 → [1, ...C]
+ *   |C| > 3 → [1, 2, m, L] where L = max(C) and m = element of C closest to
+ *             sqrt(2·max) (ties resolve to the smaller element).
+ *
+ * Acceptance fixtures:
+ *   max=2  → [1,2]
+ *   max=3  → [1,2,3]
+ *   max=5  → [1,2,3,5]
+ *   max=10 → [1,2,5,10]
+ *   max=20 → [1,2,5,20]
+ *   max=50 → [1,2,10,50]
+ *   max<2  → [1]
  */
+const BOOST_CANDIDATES = [2, 3, 5, 10, 20, 50];
+
 export const boostTiers = (max: number): number[] => {
   if (!isFinite(max) || max < 2) return [1];
-  const set = new Set<number>([1, 2, 5, max].filter((n) => n >= 1 && n <= max));
-  if (set.size < 4) {
-    const mid = Math.floor((2 + max) / 2);
-    if (mid >= 2 && mid <= max) set.add(mid);
+  const c = BOOST_CANDIDATES.filter((n) => n <= max);
+  if (c.length === 0) return [1];
+  if (c.length <= 3) return [1, ...c];
+  const target = Math.sqrt(2 * max);
+  const L = c[c.length - 1];
+  let m = c[0];
+  let best = Infinity;
+  for (const n of c) {
+    const d = Math.abs(n - target);
+    if (d < best) {
+      best = d;
+      m = n;
+    }
   }
-  return Array.from(set).sort((a, b) => a - b);
+  return Array.from(new Set([1, 2, m, L])).sort((a, b) => a - b);
 };
 
 export const useCategoryBoostConfigs = () => {
