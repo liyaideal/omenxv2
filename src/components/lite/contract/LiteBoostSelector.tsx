@@ -71,7 +71,6 @@ export const LiteBoostSelector = ({
         <button
           type="button"
           onClick={() => setTrayOpen((o) => !o)}
-          style={isCustom ? SELECTED_STYLE : undefined}
           className={cn(
             "flex h-10 shrink-0 items-center justify-center gap-1 rounded-xl text-sm font-semibold transition-all",
             isCustom
