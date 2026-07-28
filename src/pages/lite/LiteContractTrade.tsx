@@ -88,10 +88,16 @@ interface PulseRow {
   createdAt: string;
 }
 
-const usePulse = (eventName: string | null, yesOptionLabel: string) => {
+// RLS on `trades` is owner-scoped (auth.uid() = user_id), so this can only
+// ever return the CURRENT USER's own fills. It is rendered as "Your recent
+// activity" — never as anonymous social proof.
+const usePulse = (eventName: string | null, yesOptionLabel: string, userId?: string) => {
   const [rows, setRows] = useState<PulseRow[]>([]);
   useEffect(() => {
-    if (!eventName) return;
+    if (!eventName || !userId) {
+      setRows([]);
+      return;
+    }
     let alive = true;
     (async () => {
       const { data } = await supabase
@@ -116,7 +122,7 @@ const usePulse = (eventName: string | null, yesOptionLabel: string) => {
     return () => {
       alive = false;
     };
-  }, [eventName, yesOptionLabel]);
+  }, [eventName, yesOptionLabel, userId]);
   return rows;
 };
 
