@@ -55,9 +55,11 @@ export interface LiteContractOrderPanelProps {
   boostLoading?: boolean;
   boostMax: number;
   boostTiers: number[];
-  categoryLabel: string;
   countdownText: string;
   variant: "desktop" | "mobile";
+  /** Consumer label of the side the user currently holds on this event, if
+   *  any. When the selected side is the other one, the buy nets it down. */
+  heldSideLabel?: string | null;
   onFilled?: () => void;
   onRequestAuth: () => void;
 }
@@ -85,9 +87,9 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
     boostLoading,
     boostMax,
     boostTiers,
-    categoryLabel,
     countdownText,
     variant,
+    heldSideLabel,
     onFilled,
     onRequestAuth,
   } = props;
@@ -309,7 +311,6 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
         </div>
       ) : boostEnabled ? (
         <LiteBoostSelector
-          categoryLabel={categoryLabel}
           maxBoost={boostMax}
           tiers={boostTiers}
           value={boost}
@@ -326,16 +327,12 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
             {money(amountNum)}
           </span>
         </div>
-        <div
-          className="flex items-center justify-between rounded-lg px-2 py-1.5"
-          style={{ background: "hsl(var(--muted) / 0.3)" }}
-        >
-          <span className="text-muted-foreground">If you're right, you win</span>
-          <span className="font-mono font-semibold text-foreground">
+        <div className="mt-0.5 flex items-center justify-between border-t border-border/60 px-2 pt-1.5">
+          <span className="text-xs text-muted-foreground">If you're right, you win</span>
+          <span className="font-mono text-lg font-semibold text-foreground">
             {money(potentialWin)}
           </span>
         </div>
-        {amountNum > 0 && autoClose != null && (
         <div className="flex items-start justify-between px-2 pt-0.5">
           <div>
             <span className="inline-flex items-center gap-1 text-muted-foreground">
@@ -357,13 +354,15 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
             </div>
           </div>
           <span className="font-mono font-semibold text-muted-foreground">
-            ≈ {formatCents(autoClose)}
+            {autoCloseText}
           </span>
         </div>
-        )}
       </div>
 
       {/* CTA */}
+      {nettingNotice && (
+        <p className="text-[11px] text-muted-foreground">{nettingNotice}</p>
+      )}
       <button
         type="button"
         disabled={submitting || blocked}
