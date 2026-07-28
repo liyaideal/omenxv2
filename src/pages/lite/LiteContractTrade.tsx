@@ -621,7 +621,12 @@ const LiteContractTrade = () => {
     return (
       <TooltipProvider>
         <div className="min-h-screen bg-background pb-32">
-          {TerminalChrome}
+          <MobileHeader
+            title={categoryLabel}
+            showLogo={false}
+            showBack={true}
+            backTo="/events"
+          />
           <div className="space-y-4 px-4 py-4">
             {QuestionBlock}
             {resolved ? (
@@ -723,7 +728,7 @@ const LiteContractTrade = () => {
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-background">
-        {TerminalChrome}
+        <EventsDesktopHeader />
         <div
           className="mx-auto grid w-full gap-6 px-6 py-6"
           style={{ maxWidth: 1160, gridTemplateColumns: "minmax(0, 1.55fr) minmax(0, 1fr)" }}
