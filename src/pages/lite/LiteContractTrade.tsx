@@ -192,7 +192,8 @@ const LiteContractTrade = () => {
   const [boost, setBoost] = useState(1);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
-  const refetchRef = useRef(0);
+  const [refetchTick, setRefetchTick] = useState(0);
+  const [volumeUsd, setVolumeUsd] = useState<number | null>(null);
 
   useEffect(() => {
     if (!eventId) {
@@ -215,10 +216,10 @@ const LiteContractTrade = () => {
     return () => {
       alive = false;
     };
-  }, [eventId, refetchRef.current]);
+  }, [eventId, refetchTick]);
 
   const sideLabels = useMemo(() => parseSideLabels(event?.side_labels), [event]);
-  const yesLabel = sideLabels?.yes || "Yes";
+  const yesLabel = useMemo(() => liteSideName(sideLabels?.yes) || "Yes", [sideLabels?.yes]);
   const noLabel = useMemo(() => liteSideName(sideLabels?.no) || "No", [sideLabels?.no]);
 
   const yesOpt = useMemo(() => {
