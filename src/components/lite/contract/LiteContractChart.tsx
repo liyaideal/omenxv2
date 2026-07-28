@@ -72,7 +72,9 @@ export const LiteContractChart = ({
     return series.map((v, i) => ({ i, v: Math.max(1, Math.min(99, v)) }));
   }, [active, basePrice, currentPrice, yesOdds, seed]);
 
-  const stroke = active === "underlying" ? "#33D6FF" : "#33D6FF";
+  // Underlying = neutral foreground line; odds = market-axis Yes colour.
+  const stroke =
+    active === "underlying" ? "hsl(var(--foreground))" : "hsl(var(--yes))";
 
   return (
     <div className={cn("rounded-2xl border border-border bg-card p-4", className)}>
@@ -109,7 +111,13 @@ export const LiteContractChart = ({
           </button>
         </div>
       </div>
-      <div className="h-[180px] w-full">
+      <div className="relative h-[180px] w-full">
+        <span
+          className="pointer-events-none absolute right-1 top-1 z-10 font-mono tabular-nums"
+          style={{ fontSize: 9, color: "#6B7280" }}
+        >
+          Sample data
+        </span>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 6, right: 8, bottom: 0, left: -18 }}>
             <XAxis dataKey="i" hide />
