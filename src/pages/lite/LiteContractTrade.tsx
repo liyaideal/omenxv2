@@ -395,7 +395,6 @@ const LiteContractTrade = () => {
         <span className="text-yes">
           {yesLabel} {yesPct}¢
         </span>
-        {volText && <span>Vol {volText}</span>}
         <span>Resolves {resolvesText}</span>
       </div>
     </div>
