@@ -317,10 +317,6 @@ const LiteContractTrade = () => {
   const yesPct = Math.max(1, Math.min(99, Math.round(yesLive * 100)));
   const noPct = 100 - yesPct;
 
-  const resolvesText = endDate
-    ? endDate.toLocaleDateString(undefined, { month: "short", day: "numeric" })
-    : "—";
-
   const heldIsYes =
     heldPos != null &&
     heldPos.option.trim().toLowerCase() === yesOpt.label.trim().toLowerCase();
