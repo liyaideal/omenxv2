@@ -21,6 +21,9 @@ export interface UnifiedPosition {
   sizeDisplay: string;    // Formatted string for display (with commas)
   margin: string;
   pnl: string;            // Net PnL (price PnL − funding accrued)
+  /** Signed numeric net PnL. `pnl` is a formatted string that drops the sign
+   *  (Math.abs), so never parse it — consume this instead. Pure addition. */
+  pnlNum: number;
   pnlPercent: string;
   leverage: string;
   tp: string;
@@ -73,6 +76,7 @@ const convertSupabasePosition = (pos: SupabasePosition): UnifiedPosition => {
     sizeDisplay: sizeNum.toLocaleString(), // Formatted for display
     margin: `$${marginNum.toFixed(2)}`,
     pnl: `${pnlValue >= 0 ? "+" : ""}$${Math.abs(pnlValue).toFixed(2)}`,
+    pnlNum: pnlValue,
     pnlPercent: `${pnlPercentValue >= 0 ? "+" : ""}${pnlPercentValue.toFixed(1)}%`,
     leverage: `${pos.leverage}x`,
     tp: pos.tp_value ? String(pos.tp_value) : "",
@@ -113,6 +117,11 @@ const convertLocalPosition = (pos: LocalPosition, index: number): UnifiedPositio
     sizeDisplay: sizeNum.toLocaleString(), // Formatted for display
     margin: pos.margin,
     pnl: pos.pnl,
+    pnlNum: (() => {
+      const raw = pos.pnl.replace(/[$,+\s]/g, "");
+      const n = parseFloat(raw.replace(/[−–—]/g, "-"));
+      return isFinite(n) ? n : 0;
+    })(),
     pnlPercent: pos.pnlPercent,
     leverage: pos.leverage,
     tp: pos.tp,
@@ -156,6 +165,7 @@ const convertAirdropPosition = (airdrop: AirdropPosition): UnifiedPosition => {
     sizeDisplay: qty.toLocaleString(),
     margin: `$${airdrop.airdropValue.toFixed(2)}`,
     pnl: "+$0.00",
+    pnlNum: 0,
     pnlPercent: "+0.0%",
     leverage: `${lev}x`,
     tp: "",

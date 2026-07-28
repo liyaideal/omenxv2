@@ -11,7 +11,7 @@
 //        Pro /spot keeps using it untouched.
 //   1/2. Price snapshot + balance leg live in LiteContractOrderPanel.
 // ============================================================
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, ChevronRight, Info, Loader2, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -104,6 +104,7 @@ const usePulse = (eventName: string | null, yesOptionLabel: string, userId?: str
         .from("trades")
         .select("id, amount, leverage, created_at, option_label")
         .eq("event_name", eventName)
+        .eq("user_id", userId)
         .eq("side", "buy")
         .order("created_at", { ascending: false })
         .limit(10);
@@ -181,7 +182,7 @@ const LiteContractTrade = () => {
   const { positions } = usePositions();
   const { isWatched, toggle } = useWatchlist();
   const pricesCtx = useRealtimePricesOptional();
-  const { getConfig } = useCategoryBoostConfigs();
+  const { getConfig, isLoading: boostLoading } = useCategoryBoostConfigs();
   const risk = useRealtimeRiskMetrics();
 
   const [event, setEvent] = useState<EventRow | null>(null);
@@ -193,7 +194,9 @@ const LiteContractTrade = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [refetchTick, setRefetchTick] = useState(0);
-  const [volumeUsd, setVolumeUsd] = useState<number | null>(null);
+  // Only the FIRST fetch flips the full-page loader; later refetches
+  // (post-fill) swap data in place so the page never unmounts.
+  const isFirstLoad = useRef(true);
 
   useEffect(() => {
     if (!eventId) {
@@ -203,7 +206,7 @@ const LiteContractTrade = () => {
     }
     let alive = true;
     (async () => {
-      setLoading(true);
+      if (isFirstLoad.current) setLoading(true);
       const [{ data: e }, { data: opts }] = await Promise.all([
         supabase.from("events").select("*").eq("id", eventId).maybeSingle(),
         supabase.from("event_options").select("*").eq("event_id", eventId),
@@ -211,6 +214,7 @@ const LiteContractTrade = () => {
       if (!alive) return;
       if (!e) setNotFound(true);
       else setEvent({ ...e, options: opts || [] });
+      isFirstLoad.current = false;
       setLoading(false);
     })();
     return () => {
@@ -219,8 +223,17 @@ const LiteContractTrade = () => {
   }, [eventId, refetchTick]);
 
   const sideLabels = useMemo(() => parseSideLabels(event?.side_labels), [event]);
-  const yesLabel = useMemo(() => liteSideName(sideLabels?.yes) || "Yes", [sideLabels?.yes]);
-  const noLabel = useMemo(() => liteSideName(sideLabels?.no) || "No", [sideLabels?.no]);
+  // Null-check BEFORE sanitising: liteSideName(undefined) returns "Down"
+  // (a truthy value), so a `|| "Yes"` fallback would be dead code and both
+  // sides of the page would read "Down" whenever side_labels is missing.
+  const yesLabel = useMemo(
+    () => (sideLabels?.yes ? liteSideName(sideLabels.yes) : "Yes"),
+    [sideLabels?.yes],
+  );
+  const noLabel = useMemo(
+    () => (sideLabels?.no ? liteSideName(sideLabels.no) : "No"),
+    [sideLabels?.no],
+  );
 
   const yesOpt = useMemo(() => {
     if (!event) return null;
@@ -272,25 +285,8 @@ const LiteContractTrade = () => {
   }, [positions, event]);
 
   const pulse = usePulse(event?.name || null, yesOpt?.label || "", user?.id);
-  // Volume: aggregated from real fills only. If nothing is readable
-  // (RLS scope or no trades), the field is not rendered — never synthesised.
-  useEffect(() => {
-    const name = event?.name;
-    if (!name) return;
-    let alive = true;
-    (async () => {
-      const { data } = await supabase
-        .from("trades")
-        .select("amount")
-        .eq("event_name", name);
-      if (!alive) return;
-      if (!data || data.length === 0) return setVolumeUsd(null);
-      setVolumeUsd(data.reduce((a, r) => a + (Number(r.amount) || 0), 0));
-    })();
-    return () => {
-      alive = false;
-    };
-  }, [event?.name, refetchTick]);
+  // No market-volume field on Lite: `trades` is owner-scoped by RLS, so any
+  // aggregate is the user's own notional and would be misread as market depth.
 
   const more = useMoreMarkets(event?.category || null, event?.id || "");
 
@@ -319,14 +315,6 @@ const LiteContractTrade = () => {
   const yesPct = Math.max(1, Math.min(99, Math.round(yesLive * 100)));
   const noPct = 100 - yesPct;
 
-  const volText =
-    volumeUsd != null && volumeUsd > 0
-      ? volumeUsd >= 1_000_000
-        ? `$${(volumeUsd / 1_000_000).toFixed(1)}M`
-        : volumeUsd >= 1_000
-          ? `$${(volumeUsd / 1_000).toFixed(1)}K`
-          : `$${volumeUsd.toFixed(0)}`
-      : null;
   const resolvesText = endDate
     ? endDate.toLocaleDateString(undefined, { month: "short", day: "numeric" })
     : "—";
@@ -335,9 +323,9 @@ const LiteContractTrade = () => {
     heldPos != null &&
     heldPos.option.trim().toLowerCase() === yesOpt.label.trim().toLowerCase();
 
-  const heldPnlNum = heldPos
-    ? parseFloat(heldPos.pnl.replace(/[^0-9.-]/g, "")) || 0
-    : 0;
+  // Signed numeric PnL — never reverse-parsed from the formatted string
+  // (`pnl` drops the minus sign via Math.abs).
+  const heldPnlNum = heldPos ? heldPos.pnlNum : 0;
 
   const heldAutoClose =
     heldPos != null
@@ -408,7 +396,6 @@ const LiteContractTrade = () => {
         <span className="text-yes">
           {yesLabel} {yesPct}¢
         </span>
-        {volText && <span>Vol {volText}</span>}
         <span>Resolves {resolvesText}</span>
       </div>
     </div>
@@ -494,11 +481,11 @@ const LiteContractTrade = () => {
         <PosCell label="Put in" value={heldPos.margin} />
         <PosCell
           label="Now worth"
-          value={`$${(heldPos.markPriceNum * heldPos.sizeNum).toFixed(2)}`}
+          value={`$${(heldPos.marginNum + heldPnlNum).toFixed(2)}`}
         />
         <PosCell
           label="Profit"
-          value={heldPos.pnl}
+          value={`${heldPnlNum >= 0 ? "+" : "−"}$${Math.abs(heldPnlNum).toFixed(2)}`}
           tone={heldPnlNum >= 0 ? "up" : "down"}
         />
         {heldAutoClose != null && (
@@ -606,7 +593,7 @@ const LiteContractTrade = () => {
               boost: heldPos.leverageNum,
               putIn: heldPos.marginNum,
               paidOut: heldPos.markPriceNum * heldPos.sizeNum,
-              profit: parseFloat(heldPos.pnl.replace(/[^0-9.-]/g, "")) || 0,
+              profit: heldPos.pnlNum,
             }
           : null
       }
@@ -634,6 +621,7 @@ const LiteContractTrade = () => {
     boost,
     onBoostChange: setBoost,
     boostEnabled: boostCfg.enabled,
+    boostLoading,
     boostMax: boostCfg.maxBoost,
     boostTiers: tiers,
     categoryLabel,

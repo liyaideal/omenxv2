@@ -65,7 +65,12 @@ export const LiteBoostSelector = ({
               )}
             >
               <span className="font-mono text-sm font-semibold">{t}×</span>
-              {t === 1 && <span className="text-[9px] opacity-70">none</span>}
+              {t === 1 ? (
+                <span className="text-[9px] opacity-70">none</span>
+              ) : (
+                // Equal-height spacer keeps every chip's number on one baseline.
+                <span className="text-[9px] opacity-0">·</span>
+              )}
             </button>
           );
         })}
