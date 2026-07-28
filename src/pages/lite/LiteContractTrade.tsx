@@ -104,6 +104,7 @@ const usePulse = (eventName: string | null, yesOptionLabel: string, userId?: str
         .from("trades")
         .select("id, amount, leverage, created_at, option_label")
         .eq("event_name", eventName)
+        .eq("user_id", userId)
         .eq("side", "buy")
         .order("created_at", { ascending: false })
         .limit(10);
@@ -322,9 +323,9 @@ const LiteContractTrade = () => {
     heldPos != null &&
     heldPos.option.trim().toLowerCase() === yesOpt.label.trim().toLowerCase();
 
-  const heldPnlNum = heldPos
-    ? parseFloat(heldPos.pnl.replace(/[^0-9.-]/g, "")) || 0
-    : 0;
+  // Signed numeric PnL — never reverse-parsed from the formatted string
+  // (`pnl` drops the minus sign via Math.abs).
+  const heldPnlNum = heldPos ? heldPos.pnlNum : 0;
 
   const heldAutoClose =
     heldPos != null
@@ -480,7 +481,7 @@ const LiteContractTrade = () => {
         <PosCell label="Put in" value={heldPos.margin} />
         <PosCell
           label="Now worth"
-          value={`$${(heldPos.markPriceNum * heldPos.sizeNum).toFixed(2)}`}
+          value={`$${(heldPos.marginNum + heldPnlNum).toFixed(2)}`}
         />
         <PosCell
           label="Profit"
@@ -592,7 +593,7 @@ const LiteContractTrade = () => {
               boost: heldPos.leverageNum,
               putIn: heldPos.marginNum,
               paidOut: heldPos.markPriceNum * heldPos.sizeNum,
-              profit: parseFloat(heldPos.pnl.replace(/[^0-9.-]/g, "")) || 0,
+              profit: heldPos.pnlNum,
             }
           : null
       }
