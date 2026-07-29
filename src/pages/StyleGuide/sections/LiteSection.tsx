@@ -437,6 +437,7 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
     { id: "a1", isYes: true, amount: 25, boost: 5, createdAt: new Date(Date.now() - 120_000).toISOString() },
     { id: "a2", isYes: false, amount: 140, boost: 1, createdAt: new Date(Date.now() - 900_000).toISOString() },
     { id: "a3", isYes: true, amount: 7, boost: 20, createdAt: new Date(Date.now() - 5_400_000).toISOString() },
+    { id: "a4", isYes: false, amount: 1250, boost: 3, createdAt: new Date(Date.now() - 86_400_000).toISOString() },
   ];
 
   return (
@@ -444,9 +445,15 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
       id="lite"
       title="Lite — consumer surface"
       description="Every Lite component with all of its states. Static mock props; nothing here is reachable from a product page."
-      platform="shared"
     >
       <div className="space-y-12">
+        <SubSection
+          title="Where things live"
+          description="Mounting map for the Lite surface. Every demo below carries one of exactly three context chips: Desktop · right rail / Mobile · bottom drawer / Desktop & Mobile · same component."
+        >
+          <WhereThingsLive />
+        </SubSection>
+
         <SubSection title="Boost selector" description="Ladders derive from category_boost_configs.max_leverage — never hardcoded.">
           <BoostPlayground />
         </SubSection>
