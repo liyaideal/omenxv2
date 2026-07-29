@@ -130,11 +130,14 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
       {/* PageHeader */}
       <SectionWrapper
         id="page-header"
-        title="PageHeader"
+        title="PageHeader (DEPRECATED)"
         platform="shared"
-        description="Canonical product page title block. Purple bar + h1 + subtitle + optional right-aligned actions. All product pages MUST use this component (Leaderboard's marketing hero is the only exception)."
+        description="DEPRECATED — do not use in new pages. Replaced by the 'Two Openings' rule (DESIGN.md §4): account pages (Wallet/Portfolio) open with their data hero and have NO title; browse pages use <PageTitle> (display h1, clamp(28px,4vw,40px), no purple bar, no subtitle). Kept here for archive only."
       >
         <div className="space-y-6">
+          <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-foreground">
+            DEPRECATED · use <span className="font-mono">&lt;PageTitle&gt;</span> or no title at all — see DESIGN.md §4 "Two Openings".
+          </div>
           <div>
             <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Title only</div>
             <div className="rounded-xl border border-border/40 bg-muted/10 px-8 py-6">

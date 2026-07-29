@@ -13,7 +13,6 @@ import { useEventDisplayLookup } from "@/hooks/useEventDisplayLookup";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
-import { PageHeader } from "@/components/PageHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
@@ -280,10 +279,9 @@ export default function Portfolio() {
       )}
 
       <AuthGateOverlay title="Sign in to view your portfolio" description="Track your open positions and settlement history by signing in to your account." maxPreviewHeight="400px">
+      {/* DATA OPENING (DESIGN.md §4): account pages have no page title —
+          the tabs + stats hero are the opening. */}
       <main className={`${isMobile ? "px-4 py-6" : "px-8 py-10 max-w-7xl mx-auto"} space-y-6`}>
-        {/* Page Title */}
-        {!isMobile && <PageHeader title="Portfolio" subtitle="Track your open positions and settlement history" />}
-
         <VoucherBanner />
 
 

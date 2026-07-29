@@ -4,7 +4,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
-import { PageHeader } from "@/components/PageHeader";
+import { PageTitle } from "@/components/PageTitle";
 import { Button } from "@/components/ui/button";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { toast } from "sonner";
@@ -35,10 +35,7 @@ const ApiManagement = () => {
     <div>
       {!isMobile && (
         <div className="pb-8">
-          <PageHeader
-            title="Keys & access"
-            subtitle="Generate signed keys for programmatic access. Secrets are shown once at creation and never stored in plain text."
-          />
+          <PageTitle title="Keys & access" />
         </div>
       )}
 

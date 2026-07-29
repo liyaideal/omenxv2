@@ -331,7 +331,7 @@ const LiteContractTrade = () => {
       <div className="mt-2 flex items-start justify-between gap-3">
         <h1
           className="font-display font-bold leading-[1.05] tracking-[-0.02em] text-foreground"
-          style={{ fontSize: isMobile ? 22 : 34 }}
+          style={{ fontSize: "clamp(24px, 3.5vw, 34px)" }}
         >
           {event.name}
         </h1>
