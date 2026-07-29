@@ -4,7 +4,7 @@ import { Shield, FileSearch, Scale, ChevronRight, ExternalLink, Lock, Eye, Zap, 
 import { DesktopBackLink } from "@/components/ui/desktop-back-link";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
-import { PageHeader } from "@/components/PageHeader";
+import { PageTitle } from "@/components/PageTitle";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { Button } from "@/components/ui/button";
@@ -227,10 +227,7 @@ const TransparencyPage = () => {
     >
       <EventsDesktopHeader />
       <main className="flex-1 mx-auto w-full max-w-7xl px-8 py-10 space-y-6">
-        <PageHeader
-          title="On-Chain Transparency"
-          subtitle="Don't trust — verify. Audit your assets, trades, liquidations, fees, and settlements directly against on-chain data using cryptographic proofs."
-        />
+        <PageTitle title="On-Chain Transparency" />
         {content}
       </main>
       <SeoFooter />

@@ -12,7 +12,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
-import { PageHeader } from "@/components/PageHeader";
+import { PageTitle } from "@/components/PageTitle";
 import { usePoints } from "@/hooks/usePoints";
 import { useTasks, TaskWithProgress } from "@/hooks/useTasks";
 import { useReferral } from "@/hooks/useReferral";
@@ -222,10 +222,7 @@ export default function Rewards() {
       
       <AuthGateOverlay title="Rewards Center" description="Sign in to access your rewards and earn points!">
       <main className="mx-auto w-full max-w-7xl px-8 py-10 space-y-6">
-        <PageHeader
-          title="Rewards Center"
-          subtitle="Complete tasks, earn points — redemption opening soon"
-        />
+        <PageTitle title="Rewards Center" />
 
         {content}
       </main>

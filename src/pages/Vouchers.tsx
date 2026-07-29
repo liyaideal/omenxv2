@@ -3,7 +3,7 @@ import { Ticket, Sparkles } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
-import { PageHeader } from "@/components/PageHeader";
+import { PageTitle } from "@/components/PageTitle";
 import { BottomNav } from "@/components/BottomNav";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { usePositionVouchers } from "@/hooks/usePositionVouchers";
@@ -116,12 +116,7 @@ const Vouchers = () => {
         description="Position vouchers let you open a free position on any tradeable event."
       >
         <main className={`${isMobile ? "px-4 py-6" : "mx-auto w-full max-w-7xl px-8 py-10"} space-y-6`}>
-          {!isMobile && (
-            <PageHeader
-              title="Position Vouchers"
-              subtitle="Redeem a voucher to instantly open a free position on any eligible event. Profits are capped per voucher; losses don't touch your balance."
-            />
-          )}
+          {!isMobile && <PageTitle title="Position Vouchers" />}
 
           <VoucherEarningsCard />
 
