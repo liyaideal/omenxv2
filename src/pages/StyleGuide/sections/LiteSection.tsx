@@ -28,10 +28,168 @@ const StateChip = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
-const Cell = ({ label, children }: { label: string; children: React.ReactNode }) => (
+/**
+ * Mounting-context chip. Exactly three values are allowed platform-wide —
+ * "shared" is banned because it hides where a component actually mounts.
+ */
+type Ctx = "desktop-rail" | "mobile-drawer" | "both";
+const CTX_TEXT: Record<Ctx, string> = {
+  "desktop-rail": "Desktop · right rail",
+  "mobile-drawer": "Mobile · bottom drawer",
+  both: "Desktop & Mobile · same component",
+};
+const ContextChip = ({ ctx }: { ctx: Ctx }) => (
+  <span className="mb-2 ml-2 inline-flex rounded-full border border-border/60 bg-transparent px-2 py-0.5 text-[10px] font-medium tracking-[0.06em] text-muted-foreground/80">
+    {CTX_TEXT[ctx]}
+  </span>
+);
+
+const Cell = ({
+  label,
+  ctx = "both",
+  children,
+}: {
+  label: string;
+  ctx?: Ctx;
+  children: React.ReactNode;
+}) => (
   <div className="min-w-0">
-    <StateChip>{label}</StateChip>
+    <div className="flex flex-wrap items-center">
+      <StateChip>{label}</StateChip>
+      <ContextChip ctx={ctx} />
+    </div>
     {children}
+  </div>
+);
+
+/**
+ * 375px-wide bordered frame used to demonstrate MOBILE mounting contexts.
+ * The real MobileDrawer portals to <body>, so drawer compositions here use a
+ * static replica of its chrome (handle + rounded top + border) — the panel
+ * inside is the production component with variant="mobile".
+ */
+const MobileFrame = ({
+  children,
+  note,
+}: {
+  children: React.ReactNode;
+  note?: string;
+}) => (
+  <div className="w-[375px] max-w-full shrink-0">
+    <div className="mb-1 font-mono text-[10px] text-muted-foreground/70">
+      375px · mobile{note ? ` · ${note}` : ""}
+    </div>
+    <div className="overflow-hidden rounded-xl border border-dashed border-border bg-background">
+      {children}
+    </div>
+  </div>
+);
+
+/** Static replica of MobileDrawer chrome (drawer is portalled in production). */
+const FakeDrawerChrome = ({ children }: { children: React.ReactNode }) => (
+  <div className="rounded-t-2xl border-t border-border bg-card px-4 pb-4 pt-2">
+    <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-muted" />
+    {children}
+  </div>
+);
+
+/** Where every Lite component mounts, on each surface. */
+const WHERE_ROWS: {
+  name: string;
+  desktop: string;
+  mobile: string;
+  openedBy: string;
+  states: number;
+}[] = [
+  {
+    name: "LiteContractOrderPanel",
+    desktop: "right rail card, always visible",
+    mobile: "body of the buy MobileDrawer",
+    openedBy: "sticky bottom Buy Yes / Buy No buttons",
+    states: 7,
+  },
+  {
+    name: "LiteBoostSelector",
+    desktop: "inside the right-rail order card",
+    mobile: "inside the drawer order card",
+    openedBy: "always rendered when boost is enabled",
+    states: 7,
+  },
+  {
+    name: "LiteContractChart",
+    desktop: "main column, above the rules card",
+    mobile: "body, under the question block",
+    openedBy: "always visible (unresolved markets)",
+    states: 4,
+  },
+  {
+    name: "LiteSentimentBar",
+    desktop: "main column, above the chart",
+    mobile: "body, under the chart (compact)",
+    openedBy: "always visible",
+    states: 3,
+  },
+  {
+    name: "LitePositionCard",
+    desktop: "main column, under the rules card",
+    mobile: "same slot, compact labels",
+    openedBy: "rendered only when a holding exists",
+    states: 5,
+  },
+  {
+    name: "LiteCashOutFlow",
+    desktop: "centered Dialog",
+    mobile: "bottom MobileDrawer",
+    openedBy: "Cash out footer button on the position card",
+    states: 3,
+  },
+  {
+    name: "LiteMarketActivity",
+    desktop: "main column, below the position card",
+    mobile: "same slot, 4 rows instead of 8",
+    openedBy: "always visible",
+    states: 2,
+  },
+  {
+    name: "LiteOutcomeCard",
+    desktop: "replaces the whole main column",
+    mobile: "replaces the body stack",
+    openedBy: "events.is_resolved = true",
+    states: 3,
+  },
+  {
+    name: "LiteOrderPanel (spot)",
+    desktop: "right rail of the Lite daily up/down page",
+    mobile: "body of its buy drawer",
+    openedBy: "sticky bottom dual buy bar",
+    states: 3,
+  },
+];
+
+const WhereThingsLive = () => (
+  <div className="overflow-x-auto rounded-xl border border-border">
+    <table className="w-full min-w-[720px] text-left text-xs">
+      <thead className="bg-muted/30 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+        <tr>
+          <th className="px-3 py-2 font-semibold">Component</th>
+          <th className="px-3 py-2 font-semibold">Desktop placement</th>
+          <th className="px-3 py-2 font-semibold">Mobile placement</th>
+          <th className="px-3 py-2 font-semibold">Opened by</th>
+          <th className="px-3 py-2 text-right font-semibold">States</th>
+        </tr>
+      </thead>
+      <tbody>
+        {WHERE_ROWS.map((r) => (
+          <tr key={r.name} className="border-t border-border/60">
+            <td className="px-3 py-2 font-mono text-[11px] text-foreground">{r.name}</td>
+            <td className="px-3 py-2 text-muted-foreground">{r.desktop}</td>
+            <td className="px-3 py-2 text-muted-foreground">{r.mobile}</td>
+            <td className="px-3 py-2 text-muted-foreground">{r.openedBy}</td>
+            <td className="px-3 py-2 text-right font-mono text-foreground">{r.states}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   </div>
 );
 
