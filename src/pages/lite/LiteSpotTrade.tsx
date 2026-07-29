@@ -20,8 +20,7 @@ import { useWatchlist } from "@/hooks/useWatchlist";
 import { useRealtimePricesOptional } from "@/contexts/RealtimePricesContext";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
-import { MobileDrawer, MobileDrawerActions } from "@/components/ui/mobile-drawer";
-import { Button } from "@/components/ui/button";
+import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { MobileHeader } from "@/components/MobileHeader";
 import {
