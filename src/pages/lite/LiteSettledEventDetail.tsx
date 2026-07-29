@@ -253,7 +253,7 @@ const LiteSettledEventDetail = () => {
             loserLabel={sides.loserLabel}
             sourceName={detail.source_name}
             sourceUrl={detail.source_url}
-            summary={detail.settlement_description}
+            summary={consumerText(detail.settlement_description)}
             holding={holding}
             resultLine={resultLine}
             onSeeHow={scrollToHow}
