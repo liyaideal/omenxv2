@@ -18,6 +18,7 @@ import { LiteMarketActivity } from "@/components/lite/contract/LiteMarketActivit
 import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
 import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
+import { LiveSettledSwitch } from "@/components/lite/LiveSettledSwitch";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import { boostTiers } from "@/hooks/useCategoryBoostConfigs";
 
@@ -174,8 +175,15 @@ const WHERE_ROWS: {
     name: "LiteOutcomeCard",
     desktop: "replaces the whole main column",
     mobile: "replaces the body stack",
-    openedBy: "events.is_resolved = true",
+    openedBy: "events.is_resolved = true — contract AND daily up/down pages",
     states: 3,
+  },
+  {
+    name: "LiveSettledSwitch",
+    desktop: "markets list, right of the sector rail (same row)",
+    mobile: "same row, shrink-0 next to the scrolling rail",
+    openedBy: "always visible on the Lite markets list; Settled routes to /resolved",
+    states: 2,
   },
   {
     name: "LiteOrderPanel (spot)",
@@ -518,6 +526,17 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
         </SubSection>
 
         <SubSection title="Settled outcome card">
+          <div className="mb-6">
+            <StateChip>Live / Settled switch · both states</StateChip>
+            <Grid>
+              <Cell label="Live selected (markets list default)">
+                <LiveSettledSwitch value="live" onSelect={() => undefined} />
+              </Cell>
+              <Cell label="Settled selected (resolved browser)">
+                <LiveSettledSwitch value="settled" onSelect={() => undefined} />
+              </Cell>
+            </Grid>
+          </div>
           <Grid cols={3}>
             <Cell label="Won · with holding">
               <LiteOutcomeCard
