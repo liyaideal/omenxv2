@@ -56,3 +56,13 @@ price only.**
 
 Files: `LiteContractOrderPanel.tsx`, `LiteOrderPanel.tsx`, this changelog.
 No Pro terminal UI diffs. No `src/services/tradingService.ts` diff.
+
+## Round 7c · Market-activity multiplier column always visible
+- `LiteMarketActivity.tsx` multiplier column now renders `{boost}×` for every row
+  (no more blank 1× cells). 1× rows are styled one step quieter
+  (`text-muted-foreground/50`) so boosted rows still pop; the "Boost" word is gone.
+- `StyleGuide/sections/LiteSection.tsx`: market-activity demo rows include a 1×
+  row on both the Yes/No and Up/Down label demos.
+
+Files: `LiteMarketActivity.tsx`, `LiteSection.tsx`, this changelog.
+No Pro UI / tradingService diffs.
