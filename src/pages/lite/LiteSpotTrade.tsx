@@ -14,6 +14,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePositions } from "@/hooks/usePositions";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { executeSpotTrade } from "@/services/tradingService";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useRealtimePricesOptional } from "@/contexts/RealtimePricesContext";
 import { AuthDialog } from "@/components/auth/AuthDialog";
@@ -43,6 +45,11 @@ import { deriveTickerFromEvent } from "@/components/SpotStatsHeader";
 import type { Tables } from "@/integrations/supabase/types";
 import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
+import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
+import {
+  LiteMarketActivity,
+  useMarketActivityRows,
+} from "@/components/lite/contract/LiteMarketActivity";
 
 type EventRow = Tables<"events"> & { options: Tables<"event_options">[] };
 type Side = "yes" | "no";
@@ -85,61 +92,8 @@ const useCountdown = (target: Date | null) => {
   return { text, diffMs };
 };
 
-// -------- pulse (recent trades on this event) --------
-interface PulseRow {
-  id: string;
-  side: Side;
-  amount: number;
-  createdAt: string;
-  label: string;
-}
-
-const usePulse = (
-  eventName: string | null,
-  yesLabel: string,
-  noLabel: string,
-  yesOptionLabel: string,
-) => {
-  const [rows, setRows] = useState<PulseRow[]>([]);
-  useEffect(() => {
-    if (!eventName) return;
-    let alive = true;
-    (async () => {
-      const { data } = await supabase
-        .from("trades")
-        .select("id, side, amount, created_at, option_label")
-        .eq("event_name", eventName)
-        .eq("side", "buy")
-        .order("created_at", { ascending: false })
-        .limit(10);
-      if (!alive) return;
-      const yesLc = yesOptionLabel.trim().toLowerCase();
-      const mapped: PulseRow[] = (data || []).map((r) => {
-        const isYes = (r.option_label || "").trim().toLowerCase() === yesLc;
-        return {
-          id: r.id,
-          side: isYes ? "yes" : "no",
-          amount: Number(r.amount) || 0,
-          createdAt: r.created_at,
-          label: isYes ? yesLabel : noLabel,
-        };
-      });
-      setRows(mapped);
-    })();
-    return () => {
-      alive = false;
-    };
-  }, [eventName, yesLabel, noLabel, yesOptionLabel]);
-  return rows;
-};
-
-const relTime = (iso: string): string => {
-  const diff = Date.now() - new Date(iso).getTime();
-  if (diff < 60_000) return `${Math.max(1, Math.floor(diff / 1000))}s`;
-  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m`;
-  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h`;
-  return `${Math.floor(diff / 86_400_000)}d`;
-};
+// Market activity is the shared anonymised all-user feed — see
+// `useMarketActivityRows` in LiteMarketActivity (same module as the contract page).
 
 // -------- other closing stocks --------
 interface OtherStockRow {
