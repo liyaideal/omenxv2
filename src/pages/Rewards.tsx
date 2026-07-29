@@ -221,7 +221,7 @@ export default function Rewards() {
       <EventsDesktopHeader />
       
       <AuthGateOverlay title="Rewards Center" description="Sign in to access your rewards and earn points!">
-      <main className="mx-auto w-full max-w-7xl px-8 py-10 space-y-6">
+      <main className="mx-auto w-full max-w-7xl px-4 py-10 lg:px-6 space-y-6">
         <PageTitle title="Rewards Center" />
 
         {content}

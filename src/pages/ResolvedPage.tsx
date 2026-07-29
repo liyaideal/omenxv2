@@ -96,7 +96,7 @@ const ResolvedPage = () => {
 
       <main
         className={`${
-          isMobile ? "px-4 py-6" : "px-8 py-10 max-w-7xl mx-auto"
+          isMobile ? "px-4 py-6" : "px-4 py-10 lg:px-6 max-w-7xl mx-auto"
         } space-y-6`}
       >
         {/* Page Title (desktop) — mobile title lives in MobileHeader */}

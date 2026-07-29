@@ -115,7 +115,7 @@ const Vouchers = () => {
         title="Sign in to view your vouchers"
         description="Position vouchers let you open a free position on any tradeable event."
       >
-        <main className={`${isMobile ? "px-4 py-6" : "mx-auto w-full max-w-7xl px-8 py-10"} space-y-6`}>
+        <main className={`${isMobile ? "px-4 py-6" : "mx-auto w-full max-w-7xl px-4 py-10 lg:px-6"} space-y-6`}>
           {!isMobile && <PageTitle title="Position Vouchers" />}
 
           <VoucherEarningsCard />
