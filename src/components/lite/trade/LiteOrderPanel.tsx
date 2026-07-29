@@ -76,7 +76,6 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
 
   const sidePrice = side === "yes" ? yesPrice : noPrice;
   const sideLabel = side === "yes" ? yesLabel : noLabel;
-  const oppositeLabel = side === "yes" ? noLabel : yesLabel;
   const amountNum = useMemo(() => {
     const n = parseFloat(amount);
     return isFinite(n) && n > 0 ? n : 0;
@@ -166,13 +165,13 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
 
   const wrapClass =
     variant === "desktop"
-      ? "rounded-2xl border border-border bg-card p-5"
+      ? "space-y-4 rounded-2xl border border-border bg-card p-5"
       : "space-y-4";
 
   return (
     <div className={wrapClass}>
       {variant === "desktop" && (
-        <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold">Place your order</h3>
           <span className="font-mono text-[11px] text-muted-foreground">
             {countdownText} left
