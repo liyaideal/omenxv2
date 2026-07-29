@@ -121,7 +121,7 @@ const ApiManagement = () => {
             description="Create and revoke signed keys for programmatic access after signing in."
             maxPreviewHeight="600px"
           >
-            <main className="max-w-7xl mx-auto w-full px-8 py-10">{content}</main>
+            <main className="max-w-7xl mx-auto w-full px-4 py-10 lg:px-6">{content}</main>
           </AuthGateOverlay>
         </>
       )}

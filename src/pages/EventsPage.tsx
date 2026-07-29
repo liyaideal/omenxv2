@@ -297,12 +297,12 @@ const EventsPage = () => {
 
       {/* Campaign Entry — desktop only; mobile users see campaigns on Home */}
       {!isMobile && (
-        <div className="mx-auto w-full max-w-7xl overflow-hidden px-8 pt-6">
+        <div className="mx-auto w-full max-w-7xl overflow-hidden px-4 pt-6 lg:px-6">
           <CampaignBannerCarousel variant="desktop" />
         </div>
       )}
 
-      <main className={`${isMobile ? "px-4 py-6" : "mx-auto w-full max-w-7xl px-8 py-10"} space-y-6`}>
+      <main className={`${isMobile ? "px-4 py-6" : "mx-auto w-full max-w-7xl px-4 py-10 lg:px-6"} space-y-6`}>
 
         {/* Page Title (desktop) — mobile title lives in MobileHeader */}
         {!isMobile ? (

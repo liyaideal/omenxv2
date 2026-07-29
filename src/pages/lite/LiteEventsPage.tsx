@@ -61,7 +61,7 @@ const LiteEventsPage = () => {
         <EventsDesktopHeader />
       )}
 
-      <div className={cn("mx-auto w-full max-w-6xl px-4 pb-24 pt-6", isMobile ? "px-3 pt-3" : "px-8 pt-8") }>
+      <div className={cn("mx-auto w-full max-w-7xl pb-24", isMobile ? "px-4 py-4" : "px-4 py-6 lg:px-6") }>
         {/* Intro strip — plain-language, no trader jargon; display treatment */}
         <div className="mb-6">
           <h1

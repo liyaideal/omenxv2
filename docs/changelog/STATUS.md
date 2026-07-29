@@ -411,3 +411,4 @@
 - 2026-07-29 R3b-2 round 8 — Lite spot parity: chart side-follow, shared market-activity feed, spot Cash out (via spot sell path).
 
 - 2026-07-29 · R3b-2 round 10 — 全站 "two openings" 标题体系（账户页 Wallet/Portfolio 无标题，数据 hero 即开场；浏览页统一 `<PageTitle>` display h1，无紫竖线无副标题），11 处 PageHeader 全部迁移、组件标记 DEPRECATED；Lite 合约页事件名字号统一为 clamp(24px,3.5vw,34px)；Wallet 桌面容器改为标准 max-w-7xl px-8 py-10（内部视觉零改动）。[2026-07-29-r3b2-round10-two-openings.md]
+- 2026-07-29 R3b-2 round 11 — unified page frame (max-w-7xl px-4 lg:px-6), MobileHome dup BottomNav fix, dead files removed. [changelog](./2026-07-29-r3b2-round11-unified-frame.md)

@@ -208,7 +208,7 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 所有桌面端产品页面（Events、Resolved、Portfolio 等）必须遵循统一的页面结构：
 
 1. **共享导航栏**：`<EventsDesktopHeader />` 顶部导航
-2. **`<main>` 容器**：`px-8 py-10 max-w-7xl mx-auto space-y-6`
+2. **`<main>` 容器**：`max-w-7xl mx-auto px-4 lg:px-6 py-10 space-y-6`
 3. **开场区**：按下方 "Two Openings" 规则二选一 —— 账户页（Wallet / Portfolio）**无标题**，浏览页用 `<PageTitle>` display h1
 4. **筛选/Tabs 区**：标题下方，`space-y-6` 间距
 5. **内容区**：列表或网格
@@ -221,15 +221,15 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 
 **Layout Wide（默认，仪表盘/数据/多区块页）**
 
-- 容器：`<main className="mx-auto w-full max-w-7xl px-8 py-10 space-y-6">`（移动 `px-4 py-6`）
+- 容器：`<main className="mx-auto w-full max-w-7xl px-4 lg:px-6 py-10 space-y-6">`（移动 `px-4 py-6`）
 - 适用：Events / Resolved / Portfolio(+子页) / Vouchers / Rewards / Wallet / Transparency / API Management
 
 **Layout Narrow（纯单列表单/开关页）**
 
-- 容器：`<main className="mx-auto w-full max-w-3xl px-8 py-10 space-y-6">`（移动 `px-4 py-6`）
+- 容器：`<main className="mx-auto w-full max-w-3xl px-4 lg:px-6 py-10 space-y-6">`（移动 `px-4 py-6`）
 - 适用：**仅** Settings 这类纯设置表单页
 
-**允许的变体**：`/settings/api` (API Management) 用全宽 hairline `border-t border-border/40` 分段替代 `space-y-6`，这是 §4 明确允许的工程图纸变体，别当违规。仍需 `max-w-7xl px-8 py-10`（移动 `px-4 py-6`）。
+**允许的变体**：`/settings/api` (API Management) 用全宽 hairline `border-t border-border/40` 分段替代 `space-y-6`，这是 §4 明确允许的工程图纸变体，别当违规。仍需 `max-w-7xl px-4 lg:px-6 py-10`（移动 `px-4 py-6`）。
 
 ### Page Openings — "Two Openings" 标题体系（Liya 批准，取代 PageHeader 强制令）
 
@@ -255,11 +255,12 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 > **DEPRECATED — `src/components/PageHeader.tsx`**（紫竖线 + h1 + subtitle）已废弃，仅为 style-guide 存档保留，禁止在任何新页面使用。产品页已全部迁移到上述两种开场。
 
 **✅ Do**
-- 外层容器一律 `mx-auto` 居中 + `px-8 py-10` 节奏
+- 外层容器一律 `mx-auto` 居中 + `px-4 lg:px-6` 水平框架（与 EventsDesktopHeader 内容框对齐）+ `py-10` 节奏；Lite 交易/列表页 `py-6`（豁免）
 - 内容区左对齐排布
 
 **❌ Don't（容器层）**
 - 禁止 `max-w-2xl` / `max-w-6xl` 等非官方宽度
+- 禁止 `px-8` 外层水平内边距（已废止，统一 `px-4 lg:px-6`）
 - 禁止 `px-6` / `py-8` / `p-6` 作为外层容器节奏
 - 禁止内容整列 `text-center` 居中
 
@@ -555,7 +556,7 @@ Open API v1 采用行业标准的两层结构，禁止合并为单页：
 | 层 | Path | 定位 | 骨架 |
 |----|------|------|------|
 | 1. 门户 | `/developers` | 介绍 + 入口（对标 Binance /binance-api、Bybit developer 页） | Marketing (`EventsDesktopHeader` / `MobileHeader` + `SeoFooter`)，Hero + 能力三卡 + 三层权限概览 + Quickstart 代码块 + Reference 资源卡 + Footer CTA |
-| 2. 配置 | `/settings/api` | Key 自助管理 | §4 Layout Wide + `<PageHeader>` 标题块（`max-w-7xl mx-auto px-8 py-10`），去程靠 `/developers` 的 CTA，无正文面包屑 |
+| 2. 配置 | `/settings/api` | Key 自助管理 | §4 Layout Wide + `<PageHeader>` 标题块（`max-w-7xl mx-auto px-4 lg:px-6 py-10`），去程靠 `/developers` 的 CTA，无正文面包屑 |
 
 **LOCKED**：
 - 门户 Hero CTA 必须包含主 `Manage API Keys → /settings/api` + 次 `Read the Docs`
