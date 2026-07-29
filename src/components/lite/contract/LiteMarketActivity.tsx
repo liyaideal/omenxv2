@@ -31,7 +31,7 @@ interface Props {
 }
 
 // Ledger grid: chips align with chips, amounts with amounts, multipliers always shown.
-const ROW_GRID = "grid grid-cols-[minmax(48px,auto)_64px_48px_auto] items-center gap-x-3";
+const ROW_GRID = "grid grid-cols-[minmax(48px,auto)_64px_48px_1fr] items-center gap-x-3";
 
 export const LiteMarketActivity = ({ rows, yesLabel, noLabel, maxRows = 6 }: Props) => (
   <div className="rounded-2xl border border-border bg-card p-4">
