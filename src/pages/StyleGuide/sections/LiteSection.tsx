@@ -19,6 +19,50 @@ import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
 import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
 import { LiveSettledSwitch } from "@/components/lite/LiveSettledSwitch";
+import { LiteSettledCard } from "@/components/lite/LiteSettledCard";
+import type { ResolvedEvent } from "@/hooks/useResolvedEvents";
+
+// Static settled-card fixtures — four states, no data access.
+const settledDemo = (
+  state: "won" | "lost" | "neutral" | "negative",
+): ResolvedEvent => {
+  const negative = state === "negative";
+  return {
+    id: `demo-${state}`,
+    name: negative
+      ? "Will NVDA close higher today?"
+      : "Will BTC close above $70K this week?",
+    category: negative ? "stocks" : "crypto",
+    description: null,
+    volume: null,
+    is_resolved: true,
+    settled_at: new Date(Date.now() - 3_600_000).toISOString(),
+    winning_option_id: negative ? "o2" : "o1",
+    imageUrl: null,
+    options: [
+      {
+        id: "o1",
+        event_id: `demo-${state}`,
+        label: negative ? "Up" : "Yes",
+        price: 0.6,
+        final_price: negative ? 0 : 1,
+        is_winner: !negative,
+      },
+      {
+        id: "o2",
+        event_id: `demo-${state}`,
+        label: negative ? "Not Up" : "No",
+        price: 0.4,
+        final_price: negative ? 1 : 0,
+        is_winner: negative,
+      },
+    ],
+    sideLabels: negative ? { yes: "Up", no: "Not Up" } : undefined,
+    productLines: [negative ? "spot" : "futures"],
+    userParticipated: state === "won" || state === "lost",
+    userPnl: state === "won" ? 12.4 : state === "lost" ? -5 : null,
+  };
+};
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import { boostTiers } from "@/hooks/useCategoryBoostConfigs";
 
