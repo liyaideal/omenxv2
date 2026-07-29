@@ -595,14 +595,82 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
           title="Market activity"
           description="Anonymised all-user feed from market_activity — never the viewer's own owner-scoped fills."
         >
-          <Grid>
-            <Cell label="Populated">
+          <Grid cols={3}>
+            <Cell label="Populated · Yes / No">
               <LiteMarketActivity rows={activity} yesLabel="Yes" noLabel="No" />
+            </Cell>
+            <Cell label="Alias labels · Up / Down (alignment proof)">
+              <LiteMarketActivity rows={activity} yesLabel="Up" noLabel="Down" />
             </Cell>
             <Cell label="Empty">
               <LiteMarketActivity rows={[]} yesLabel="Yes" noLabel="No" />
             </Cell>
           </Grid>
+        </SubSection>
+
+        <SubSection
+          title="Mobile mounting contexts"
+          description="How the same components mount on mobile: inside the buy drawer, behind a sticky dual buy bar, and with compact position labels. Rendered in a 375px frame so the difference is visible on a desktop screen."
+        >
+          <div className="flex flex-wrap gap-6">
+            <MobileFrame note="buy drawer (statically open)">
+              <FakeDrawerChrome>
+                <div className="mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-md bg-yes/14 px-2 py-0.5 text-[11px] font-semibold text-yes">
+                      Yes
+                    </span>
+                    <span className="truncate text-sm font-semibold">
+                      Playground market
+                    </span>
+                  </div>
+                  <div className="mt-1 text-[11px] text-muted-foreground">
+                    02:14:09 left · 58% chance
+                  </div>
+                </div>
+                <MobileDrawerOrderPanel />
+              </FakeDrawerChrome>
+            </MobileFrame>
+
+            <MobileFrame note="sticky bottom buy bar">
+              <div className="border-t border-border bg-background/90 px-4 pb-4 pt-3">
+                <div className="mx-auto flex max-w-md gap-2">
+                  <button
+                    type="button"
+                    className="flex flex-1 flex-col items-center rounded-xl bg-yes py-2.5 font-display font-bold leading-tight text-[#04222c]"
+                  >
+                    <span className="text-sm">Buy Yes</span>
+                    <span className="font-mono text-[13px]">58¢</span>
+                    <span className="font-mono text-[10px] opacity-75">5× BOOST</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="flex flex-1 flex-col items-center rounded-xl border border-no/25 bg-no/14 py-2.5 font-display font-bold leading-tight text-no"
+                  >
+                    <span className="text-sm">Buy No</span>
+                    <span className="font-mono text-[13px]">42¢</span>
+                    <span className="font-mono text-[10px] opacity-75">5× BOOST</span>
+                  </button>
+                </div>
+              </div>
+            </MobileFrame>
+
+            <MobileFrame note="position card · compact labels">
+              <div className="p-3">
+                <LitePositionCard
+                  sideLabel="Yes"
+                  isYes
+                  boost={5}
+                  putIn={120}
+                  nowWorth={144}
+                  profit={24}
+                  autoCloseText="≈ 41¢"
+                  compact
+                  onCashOut={() => undefined}
+                />
+              </div>
+            </MobileFrame>
+          </div>
         </SubSection>
 
         <SubSection title="Lite spot order card" description="Daily up/down markets. Full playground lives in the Lite spot section.">
