@@ -29,6 +29,12 @@ interface Props {
   defaultPct?: number;
   /** Playground-only: pin the CTA in its submitting/disabled state. */
   forceBusy?: boolean;
+  /**
+   * Optional cash-leg override. Spot positions pass the existing spot sell
+   * path here (proceeds must credit the cash balance), which the generic
+   * position close does not do. When absent, close/partialClose is used.
+   */
+  onConfirmCashOut?: (qty: number, fraction: number) => Promise<void>;
 }
 
 export const LiteCashOutFlow = ({
@@ -43,6 +49,7 @@ export const LiteCashOutFlow = ({
   onDone,
   defaultPct = 100,
   forceBusy = false,
+  onConfirmCashOut,
 }: Props) => {
   const { closePosition, partialClosePosition } = usePositions();
   const [pct, setPct] = useState(defaultPct);
@@ -62,12 +69,14 @@ export const LiteCashOutFlow = ({
     if (busy) return;
     setBusy(true);
     try {
-      if (pct >= 100) {
+      // Sizes are fractional — never round to whole shares and never floor
+      // at 1. Clamp into (0, sizeNum].
+      const qty = Math.min(sizeNum, Math.max(Number.EPSILON, fraction * sizeNum));
+      if (onConfirmCashOut) {
+        await onConfirmCashOut(pct >= 100 ? sizeNum : qty, fraction);
+      } else if (pct >= 100) {
         await closePosition(positionId, positionIndex);
       } else {
-        // Sizes are fractional — never round to whole shares and never floor
-        // at 1. Clamp into (0, sizeNum] so 100% still routes to closePosition.
-        const qty = Math.min(sizeNum, Math.max(Number.EPSILON, fraction * sizeNum));
         await partialClosePosition(positionId, positionIndex, qty);
       }
       toast.success(`Cashed out ≈ $${payout.toFixed(2)}`);
