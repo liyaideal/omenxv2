@@ -20,7 +20,7 @@ import { LiveSettledSwitch } from "@/components/lite/LiveSettledSwitch";
 import {
   LiteSettledSeriesCard,
   LiteSettledSeriesDayRow,
-  STOCK_COMPANY,
+  companyOf,
   isDailyStockEvent,
   tickerOf,
   type SettledSeries,
@@ -126,7 +126,7 @@ const LiteSettledPage = () => {
       const mine = sorted.find((d) => d.userParticipated);
       out.push({
         ticker,
-        company: STOCK_COMPANY[ticker] ?? ticker,
+        company: companyOf(ticker, sorted[0]),
         days: sorted,
         userResult: mine ? mine.userPnl ?? 0 : null,
       });
@@ -150,7 +150,7 @@ const LiteSettledPage = () => {
         const mine = days.find((d) => d.userParticipated);
         return {
           ticker: seriesParam,
-          company: STOCK_COMPANY[seriesParam] ?? seriesParam,
+          company: companyOf(seriesParam, days[0]),
           days,
           userResult: mine ? mine.userPnl ?? 0 : null,
         } as SettledSeries;
