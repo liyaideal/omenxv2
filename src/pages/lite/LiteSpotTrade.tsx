@@ -45,6 +45,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
+import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
 import {
   LiteMarketActivity,
   useMarketActivityRows,
@@ -214,6 +215,7 @@ const LiteSpotTrade = () => {
   const closeEt = freezeAt ? formatEtTime(freezeAt) : endDate ? formatEtTime(endDate) : null;
 
   const dbLifecycle = event?.lifecycle_status || "TRADING";
+  const resolved = !!event?.is_resolved;
   const lifecycle = getDisplayLifecycle(dbLifecycle);
   const blockedByState = isOrderingBlocked(dbLifecycle);
   const blockedByTime = isPastFreeze(freezeAt, endDate);
