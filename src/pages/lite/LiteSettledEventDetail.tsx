@@ -16,7 +16,8 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
-import { relTime } from "@/components/lite/contract/LiteMarketActivity";
+import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
+import { isDailyStockEvent, tickerOf } from "@/components/lite/LiteSettledSeriesCard";
 import { liteSideName } from "@/lib/liteSideName";
 import { cn } from "@/lib/utils";
 
@@ -36,8 +37,6 @@ const lc = (s: string) => s.trim().toLowerCase();
 /** DB evidence text can carry the raw negative alias — never show it to Lite users. */
 const consumerText = (s: string | null | undefined): string | null =>
   s ? s.replace(/\bNot Up\b/gi, "didn't go up") : null;
-const ROW_GRID =
-  "grid grid-cols-[minmax(48px,auto)_64px_48px_1fr] items-center gap-x-3";
 
 interface OwnFill {
   id: string;
@@ -48,6 +47,10 @@ interface OwnFill {
   pnl: number | null;
   status: string;
 }
+
+// Personal accounting (fills, certificates) lives ONLY in the Portfolio
+// settlement pages. These owner-scoped fills are used here purely to derive
+// the compact LiteOutcomeCard result summary — nothing else personal renders.
 
 const useOwnFills = (eventName: string | null) => {
   const { user } = useUserProfile();
@@ -210,6 +213,25 @@ const LiteSettledEventDetail = () => {
 
   const hasEvidence = !!(detail.source_name || detail.settlement_description);
 
+  // Daily up/down stock events get the day's chart back; contract events don't.
+  const isDailyStock = isDailyStockEvent({
+    id: detail.id,
+    name: detail.name,
+    category: String(detail.category),
+  });
+  const basePrice = detail.base_price ?? null;
+  // DEMO-STATE: no official close is stored, so the final point is derived
+  // from base_price and the winning direction (±1.2%). Static, read-only.
+  const finalClose =
+    basePrice != null ? basePrice * (sides.winnerIsYes ? 1.012 : 0.988) : null;
+  const yesHistory = (detail.priceHistory[sides.yesOpt.id] || []).map((p) =>
+    Number(p.price),
+  );
+  const yesFinal =
+    sides.yesOpt.final_price != null
+      ? Number(sides.yesOpt.final_price)
+      : Number(sides.yesOpt.price);
+
   const scrollToHow = () =>
     howRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 
@@ -259,6 +281,27 @@ const LiteSettledEventDetail = () => {
             onSeeHow={scrollToHow}
             onBrowse={() => navigate("/events")}
           />
+
+          {/* 2b · The day's chart — daily stock events only */}
+          {isDailyStock && (
+            <div className="rounded-2xl border border-border bg-card p-4">
+              <div className="mb-2 text-sm font-medium text-foreground">
+                How the day went
+              </div>
+              <LiteStockChart
+                ticker={tickerOf({ id: detail.id, name: detail.name })}
+                basePrice={basePrice}
+                currentPrice={finalClose}
+                upOdds={yesFinal}
+                upHistory={yesHistory.length >= 4 ? yesHistory : undefined}
+                side={sides.winnerIsYes ? "yes" : "no"}
+                upLabel={sides.yesLabel}
+                downLabel={sides.noLabel}
+                endDate={detail.end_date}
+                className="border-0 bg-transparent"
+              />
+            </div>
+          )}
 
           {/* 3 · How it settled */}
           <div
@@ -312,68 +355,13 @@ const LiteSettledEventDetail = () => {
             </div>
           </div>
 
-          {/* 4 · Your activity */}
-          {fills.length > 0 && (
-            <div className="rounded-2xl border border-border bg-card p-4">
-              <div className="mb-3 text-sm font-medium">Your activity</div>
-              <ul className="space-y-1.5">
-                {fills.map((f) => {
-                  const isYes = lc(f.optionLabel) === lc(sides.yesOpt.label);
-                  return (
-                    <li
-                      key={f.id}
-                      className={cn(ROW_GRID, "rounded-lg px-2 py-1.5 hover:bg-muted/20")}
-                    >
-                      <span
-                        className={cn(
-                          "rounded-md px-1.5 py-0.5 text-center text-[11px] font-semibold",
-                          isYes ? "bg-yes/13 text-yes" : "bg-no/13 text-no",
-                        )}
-                      >
-                        {isYes ? sides.yesLabel : sides.noLabel}
-                      </span>
-                      <span className="text-right font-mono text-xs text-foreground">
-                        ${f.amount.toFixed(0)}
-                      </span>
-                      <span
-                        className={cn(
-                          "font-mono text-xs",
-                          f.boost > 1
-                            ? "text-muted-foreground"
-                            : "text-muted-foreground/50",
-                        )}
-                      >
-                        {f.boost}×
-                      </span>
-                      <span className="text-right font-mono text-[11px] text-muted-foreground">
-                        {relTime(f.createdAt)}
-                      </span>
-                    </li>
-                  );
-                })}
-                <li className={cn(ROW_GRID, "rounded-lg bg-muted/20 px-2 py-1.5")}>
-                  <span className="rounded-md bg-muted px-1.5 py-0.5 text-center text-[11px] font-semibold text-muted-foreground">
-                    Payout
-                  </span>
-                  <span
-                    className={cn(
-                      "text-right font-mono text-xs font-semibold",
-                      profit >= 0 ? "text-trading-green" : "text-trading-red",
-                    )}
-                  >
-                    {profit >= 0 ? "+" : "−"}
-                    {money(profit)}
-                  </span>
-                  <span className="font-mono text-xs text-muted-foreground/50">—</span>
-                  <span className="text-right font-mono text-[11px] text-muted-foreground">
-                    settled
-                  </span>
-                </li>
-              </ul>
+          {/* 4 · Quiet door to the personal accounting (Portfolio owns it) */}
+          {holding && (
+            <div className="text-right">
               <button
                 type="button"
                 onClick={() => navigate("/portfolio/settlements")}
-                className="mt-3 text-[11px] text-muted-foreground underline underline-offset-2 hover:text-foreground"
+                className="text-[11px] text-muted-foreground underline underline-offset-2 hover:text-foreground"
               >
                 See this in your Portfolio →
               </button>
