@@ -260,6 +260,7 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 
 **❌ Don't（容器层）**
 - 禁止 `max-w-2xl` / `max-w-6xl` 等非官方宽度
+- 禁止 `px-8` 外层水平内边距（已废止，统一 `px-4 lg:px-6`）
 - 禁止 `px-6` / `py-8` / `p-6` 作为外层容器节奏
 - 禁止内容整列 `text-center` 居中
 
@@ -555,7 +556,7 @@ Open API v1 采用行业标准的两层结构，禁止合并为单页：
 | 层 | Path | 定位 | 骨架 |
 |----|------|------|------|
 | 1. 门户 | `/developers` | 介绍 + 入口（对标 Binance /binance-api、Bybit developer 页） | Marketing (`EventsDesktopHeader` / `MobileHeader` + `SeoFooter`)，Hero + 能力三卡 + 三层权限概览 + Quickstart 代码块 + Reference 资源卡 + Footer CTA |
-| 2. 配置 | `/settings/api` | Key 自助管理 | §4 Layout Wide + `<PageHeader>` 标题块（`max-w-7xl mx-auto px-8 py-10`），去程靠 `/developers` 的 CTA，无正文面包屑 |
+| 2. 配置 | `/settings/api` | Key 自助管理 | §4 Layout Wide + `<PageHeader>` 标题块（`max-w-7xl mx-auto px-4 lg:px-6 py-10`），去程靠 `/developers` 的 CTA，无正文面包屑 |
 
 **LOCKED**：
 - 门户 Hero CTA 必须包含主 `Manage API Keys → /settings/api` + 次 `Read the Docs`
