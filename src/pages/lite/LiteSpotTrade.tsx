@@ -623,7 +623,8 @@ const LiteSpotTrade = () => {
             {RuleCard}
             {SettlementRail}
             {YourPosition}
-            {MarketPulse}
+            {MarketActivity}
+            {CashOut}
             <button
               type="button"
               onClick={() => navigate("/events")}
@@ -686,7 +687,7 @@ const LiteSpotTrade = () => {
               variant="mobile"
               onFilled={() => {
                 setDrawerOpen(false);
-                positionsRefetchRef.current += 1;
+                setRefetchTick((n) => n + 1);
               }}
             />
             <MobileDrawerActions>
@@ -722,14 +723,15 @@ const LiteSpotTrade = () => {
             {SettlementRail}
             {RuleCard}
             {YourPosition}
-            {MarketPulse}
+            {MarketActivity}
+            {CashOut}
           </div>
           <aside className="space-y-4">
             <LiteOrderPanel
               {...orderPanelProps}
               variant="desktop"
               onFilled={() => {
-                positionsRefetchRef.current += 1;
+                setRefetchTick((n) => n + 1);
               }}
             />
             {MoreStocks}
