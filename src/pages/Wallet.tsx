@@ -1071,6 +1071,13 @@ export default function Wallet() {
             <TransactionHistory transactions={transactions} />
           )}
         </div>
+        <button
+          type="button"
+          onClick={() => navigate("/wallet/recovery")}
+          className="text-[11px] text-muted-foreground underline underline-offset-2 hover:text-foreground"
+        >
+          Sent funds to the wrong network? Request recovery →
+        </button>
       </div>
       </AuthGateOverlay>
 
