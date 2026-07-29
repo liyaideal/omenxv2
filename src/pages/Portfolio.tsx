@@ -211,6 +211,36 @@ export default function Portfolio() {
     return m;
   }, [activeEventsForLookup]);
 
+  const { surface } = useSurface();
+
+  // Resolve a position's event id: prefer option_id → event_options.event_id,
+  // otherwise fall back to a name lookup against events.
+  const resolveEventId = async (
+    optionId: string | null | undefined,
+    eventName: string,
+  ): Promise<string | null> => {
+    const cached = eventIdByName.get(eventName);
+    if (cached) return cached;
+    try {
+      if (optionId) {
+        const { data } = await supabase
+          .from("event_options")
+          .select("event_id")
+          .eq("id", optionId)
+          .maybeSingle();
+        if (data?.event_id) return data.event_id;
+      }
+      const { data: ev } = await supabase
+        .from("events")
+        .select("id")
+        .eq("name", eventName)
+        .maybeSingle();
+      return ev?.id ?? null;
+    } catch {
+      return null;
+    }
+  };
+
   const handlePositionAction = async (index: number) => {
     // Read from sortedPositions — rows render from that array, so `index` is a
     // sorted-index. Reading `positions[index]` would route the wrong row after
