@@ -160,14 +160,14 @@ const WHERE_ROWS: {
     name: "LiteCashOutFlow",
     desktop: "centered Dialog",
     mobile: "bottom MobileDrawer",
-    openedBy: "Cash out footer button on the position card",
+    openedBy: "Cash out footer button on the contract AND spot position cards",
     states: 3,
   },
   {
     name: "LiteMarketActivity",
     desktop: "main column, below the position card",
     mobile: "same slot, 4 rows instead of 8",
-    openedBy: "always visible",
+    openedBy: "always visible — same component on contract and spot pages",
     states: 2,
   },
   {
@@ -183,6 +183,13 @@ const WHERE_ROWS: {
     mobile: "body of its buy drawer",
     openedBy: "sticky bottom dual buy bar",
     states: 3,
+  },
+  {
+    name: "LiteStockChart (spot)",
+    desktop: "main column of the Lite daily up/down page",
+    mobile: "body, under the price row",
+    openedBy: "always visible; odds series follows the selected side",
+    states: 4,
   },
 ];
 

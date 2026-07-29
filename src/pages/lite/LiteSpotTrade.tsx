@@ -7,13 +7,15 @@
 // submit; cash leg per SpotTrading). Time gating / formatting
 // derives from freeze_time / end_date / lifecycle_status only.
 // ============================================================
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ChevronRight, Info, Loader2, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePositions } from "@/hooks/usePositions";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { executeSpotTrade } from "@/services/tradingService";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useRealtimePricesOptional } from "@/contexts/RealtimePricesContext";
 import { AuthDialog } from "@/components/auth/AuthDialog";
@@ -43,6 +45,11 @@ import { deriveTickerFromEvent } from "@/components/SpotStatsHeader";
 import type { Tables } from "@/integrations/supabase/types";
 import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
+import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
+import {
+  LiteMarketActivity,
+  useMarketActivityRows,
+} from "@/components/lite/contract/LiteMarketActivity";
 
 type EventRow = Tables<"events"> & { options: Tables<"event_options">[] };
 type Side = "yes" | "no";
@@ -85,61 +92,8 @@ const useCountdown = (target: Date | null) => {
   return { text, diffMs };
 };
 
-// -------- pulse (recent trades on this event) --------
-interface PulseRow {
-  id: string;
-  side: Side;
-  amount: number;
-  createdAt: string;
-  label: string;
-}
-
-const usePulse = (
-  eventName: string | null,
-  yesLabel: string,
-  noLabel: string,
-  yesOptionLabel: string,
-) => {
-  const [rows, setRows] = useState<PulseRow[]>([]);
-  useEffect(() => {
-    if (!eventName) return;
-    let alive = true;
-    (async () => {
-      const { data } = await supabase
-        .from("trades")
-        .select("id, side, amount, created_at, option_label")
-        .eq("event_name", eventName)
-        .eq("side", "buy")
-        .order("created_at", { ascending: false })
-        .limit(10);
-      if (!alive) return;
-      const yesLc = yesOptionLabel.trim().toLowerCase();
-      const mapped: PulseRow[] = (data || []).map((r) => {
-        const isYes = (r.option_label || "").trim().toLowerCase() === yesLc;
-        return {
-          id: r.id,
-          side: isYes ? "yes" : "no",
-          amount: Number(r.amount) || 0,
-          createdAt: r.created_at,
-          label: isYes ? yesLabel : noLabel,
-        };
-      });
-      setRows(mapped);
-    })();
-    return () => {
-      alive = false;
-    };
-  }, [eventName, yesLabel, noLabel, yesOptionLabel]);
-  return rows;
-};
-
-const relTime = (iso: string): string => {
-  const diff = Date.now() - new Date(iso).getTime();
-  if (diff < 60_000) return `${Math.max(1, Math.floor(diff / 1000))}s`;
-  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m`;
-  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h`;
-  return `${Math.floor(diff / 86_400_000)}d`;
-};
+// Market activity is the shared anonymised all-user feed — see
+// `useMarketActivityRows` in LiteMarketActivity (same module as the contract page).
 
 // -------- other closing stocks --------
 interface OtherStockRow {
@@ -194,6 +148,7 @@ const LiteSpotTrade = () => {
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const { positions } = usePositions();
+  const { addSpotBalance } = useUserProfile();
   const { isWatched, toggle } = useWatchlist();
   const pricesCtx = useRealtimePricesOptional();
 
@@ -204,7 +159,8 @@ const LiteSpotTrade = () => {
   const [amount, setAmount] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
-  const positionsRefetchRef = useRef(0);
+  const [refetchTick, setRefetchTick] = useState(0);
+  const [cashOutOpen, setCashOutOpen] = useState(false);
 
   // Fetch event
   useEffect(() => {
@@ -228,7 +184,7 @@ const LiteSpotTrade = () => {
     return () => {
       alive = false;
     };
-  }, [eventId, positionsRefetchRef.current]);
+  }, [eventId, refetchTick]);
 
   const sideLabels = useMemo(() => parseSideLabels(event?.side_labels), [event]);
   const yesLabel = sideLabels?.yes || "Up";
@@ -289,20 +245,46 @@ const LiteSpotTrade = () => {
   const downPct = 100 - upPct;
 
   // Held position on this event, if any (spot only).
-  const heldPos = useMemo(() => {
-    if (!event) return null;
-    const same = positions.find(
+  const heldIndex = useMemo(() => {
+    if (!event) return -1;
+    return positions.findIndex(
       (p) => p.productLine === "spot" && p.event === event.name,
     );
-    return same || null;
   }, [positions, event]);
+  const heldPos = heldIndex >= 0 ? positions[heldIndex] : null;
 
   // Watchlist star
   const starred = event ? isWatched(event.id) : false;
 
-  // Pulse + more stocks
-  const pulse = usePulse(event?.name || null, yesLabel, noLabel, yesOpt?.label || "");
+  // Shared anonymised all-user activity + more stocks
+  const activity = useMarketActivityRows(
+    event?.name || null,
+    yesOpt?.label || "",
+    refetchTick,
+  );
   const otherStocks = useOtherStocks(event?.id || "");
+
+  // Spot cash-out routes through the existing spot SELL path (not the generic
+  // position close) because only that path credits the cash balance.
+  const handleSpotCashOut = useCallback(
+    async (qty: number) => {
+      if (!user || !event || !heldPos) throw new Error("Sign in to cash out");
+      const optionId = heldPos.optionId || yesOpt?.id;
+      if (!optionId) throw new Error("Market data unavailable");
+      const isYesHeld = optionId === yesOpt?.id;
+      const price = isYesHeld ? yesLive : noLive;
+      const res = await executeSpotTrade(user.id, {
+        eventName: event.name,
+        optionLabel: heldPos.option,
+        optionId,
+        side: "sell",
+        price,
+        quantity: qty,
+      });
+      if (res.balanceDelta > 0) await addSpotBalance(res.balanceDelta);
+    },
+    [user, event, heldPos, yesOpt?.id, yesLive, noLive, addSpotBalance],
+  );
 
   const openBuy = useCallback(
     (s: Side) => {
@@ -438,6 +420,9 @@ const LiteSpotTrade = () => {
       basePrice={basePrice}
       currentPrice={currentPrice}
       upOdds={yesLive}
+      side={side}
+      upLabel={yesLabel}
+      downLabel={noLabel}
       endDate={event?.end_date}
     />
   );
@@ -508,13 +493,6 @@ const LiteSpotTrade = () => {
             {heldPos.pnl.startsWith("-") ? "▼" : "▲"} {heldPos.pnl} / {heldPos.pnlPercent}
           </span>
         </div>
-        <button
-          type="button"
-          onClick={() => navigate("/portfolio")}
-          className="text-[11px] text-muted-foreground hover:text-foreground"
-        >
-          Manage in Portfolio →
-        </button>
       </div>
       <div className="grid grid-cols-4 gap-2 border-t border-border pt-3 text-xs">
         <PosCell
@@ -533,51 +511,47 @@ const LiteSpotTrade = () => {
           tone="yes"
         />
       </div>
+      <div className="mt-3 border-t border-border pt-3">
+        <button
+          type="button"
+          onClick={() => setCashOutOpen(true)}
+          className="h-9 w-full rounded-lg bg-muted text-xs font-semibold hover:bg-muted/80"
+        >
+          Cash out ·{" "}
+          <span className="font-mono">
+            ${(heldPos.markPriceNum * heldPos.sizeNum).toFixed(2)}
+          </span>
+        </button>
+      </div>
     </div>
   ) : null;
 
-  const MarketPulse = (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <div className="flex items-center gap-1.5 text-sm font-medium">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-trading-green" />
-          Live · Market pulse
-        </div>
-        <span className="text-[11px] text-muted-foreground">recent buys</span>
-      </div>
-      {pulse.length === 0 ? (
-        <div className="rounded-lg bg-muted/20 py-6 text-center text-xs text-muted-foreground">
-          Quiet so far. Be the first mover.
-        </div>
-      ) : (
-        <ul className="space-y-1.5">
-          {pulse.slice(0, isMobile ? 3 : 6).map((r) => (
-            <li
-              key={r.id}
-              className="flex items-center gap-3 rounded-lg px-2 py-1.5 hover:bg-muted/30"
-            >
-              <span
-                className={cn(
-                  "flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-semibold",
-                  r.side === "yes" ? "bg-yes/13 text-yes" : "bg-no/13 text-no",
-                )}
-              >
-                {r.side === "yes" ? "▲" : "▼"} {r.label}
-              </span>
-              <span className="font-mono text-sm text-foreground">
-                ${r.amount.toFixed(0)}
-              </span>
-              <span className="flex-1 truncate text-xs text-muted-foreground">
-                Someone backed {r.label}
-              </span>
-              <span className="font-mono text-[11px] text-muted-foreground">
-                {relTime(r.createdAt)}
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+  const CashOut = heldPos ? (
+    <LiteCashOutFlow
+      open={cashOutOpen}
+      onOpenChange={setCashOutOpen}
+      isMobile={!!isMobile}
+      positionId={heldPos.id}
+      positionIndex={heldIndex}
+      currentValue={heldPos.markPriceNum * heldPos.sizeNum}
+      sizeNum={heldPos.sizeNum}
+      sideLabel={
+        heldPos.option.trim().toLowerCase() === (yesOpt.label || "").trim().toLowerCase()
+          ? yesLabel
+          : noLabel
+      }
+      onConfirmCashOut={handleSpotCashOut}
+      onDone={() => setRefetchTick((n) => n + 1)}
+    />
+  ) : null;
+
+  const MarketActivity = (
+    <LiteMarketActivity
+      rows={activity}
+      yesLabel={yesLabel}
+      noLabel={noLabel}
+      maxRows={isMobile ? 4 : 8}
+    />
   );
 
   const MoreStocks = (
@@ -652,7 +626,8 @@ const LiteSpotTrade = () => {
             {RuleCard}
             {SettlementRail}
             {YourPosition}
-            {MarketPulse}
+            {MarketActivity}
+            {CashOut}
             <button
               type="button"
               onClick={() => navigate("/events")}
@@ -715,7 +690,7 @@ const LiteSpotTrade = () => {
               variant="mobile"
               onFilled={() => {
                 setDrawerOpen(false);
-                positionsRefetchRef.current += 1;
+                setRefetchTick((n) => n + 1);
               }}
             />
             <MobileDrawerActions>
@@ -751,14 +726,15 @@ const LiteSpotTrade = () => {
             {SettlementRail}
             {RuleCard}
             {YourPosition}
-            {MarketPulse}
+            {MarketActivity}
+            {CashOut}
           </div>
           <aside className="space-y-4">
             <LiteOrderPanel
               {...orderPanelProps}
               variant="desktop"
               onFilled={() => {
-                positionsRefetchRef.current += 1;
+                setRefetchTick((n) => n + 1);
               }}
             />
             {MoreStocks}

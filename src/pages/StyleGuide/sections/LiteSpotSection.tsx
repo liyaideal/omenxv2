@@ -97,15 +97,38 @@ export const LiteSpotSection = ({ isMobile }: { isMobile: boolean }) => {
 
       <SectionWrapper
         id="lite-spot-chart"
-        title="Lite spot · Chart toggle"
-        description="Default = stock price with dashed price-to-beat baseline; toggle to Up odds ¢ (yes-blue). Series come from price_history when available, else deterministic front-end synth (DEMO-STATE)."
+        title="Lite spot · Chart toggle (odds follow the selected side)"
+        description="Default = stock price with dashed price-to-beat baseline; toggle to odds ¢. The odds series, label and stroke follow the side selected in the order card — Up uses --yes, Down uses --no (100 − Up per point). Series come from price_history when available, else deterministic front-end synth (DEMO-STATE)."
       >
-        <LiteStockChart
-          ticker="NVDA"
-          basePrice={171.08}
-          currentPrice={173.42}
-          upOdds={preset.yesPrice}
-        />
+        <div className={cn("grid gap-4", isMobile ? "grid-cols-1" : "grid-cols-2")}>
+          {(["yes", "no"] as const).map((s) => (
+            <div key={s}>
+              <div className="mb-2 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                side = {s} ({s === "yes" ? "Up" : "Down"})
+              </div>
+              <LiteStockChart
+                ticker="NVDA"
+                basePrice={171.08}
+                currentPrice={173.42}
+                upOdds={preset.yesPrice}
+                side={s}
+                upLabel="Up"
+                downLabel="Down"
+              />
+            </div>
+          ))}
+        </div>
+      </SectionWrapper>
+
+      <SectionWrapper
+        id="lite-spot-parity"
+        title="Lite spot · Shared modules"
+        description="Market activity uses the same LiteMarketActivity component (and useMarketActivityRows hook) as the contract page — 4 rows mobile / 8 desktop, spot rows are always 1×. The position card carries a Cash out footer that opens LiteCashOutFlow; see the Lite contract section for its full state matrix. Spot cash-out routes through the existing spot sell path so proceeds credit the cash balance."
+      >
+        <div className="rounded-xl border border-dashed border-border/70 p-4 text-xs text-muted-foreground">
+          No duplicate demos here on purpose — both modules are rendered in the Lite
+          contract section and are byte-identical on this page.
+        </div>
       </SectionWrapper>
     </div>
   );

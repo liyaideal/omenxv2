@@ -6,6 +6,8 @@
 // caller.
 // ============================================================
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface MarketActivityRow {
   id: string;
@@ -14,6 +16,48 @@ export interface MarketActivityRow {
   boost: number;
   createdAt: string;
 }
+
+// `market_activity` is an anonymised, all-user feed (public SELECT, no user
+// identity column), so this is genuine market-wide social proof. Polled on
+// `tick` — no realtime subscription needed. Shared by the Lite contract page
+// and the Lite spot page; do not fork a second copy.
+export const useMarketActivityRows = (
+  eventName: string | null,
+  yesOptionLabel: string,
+  tick: number,
+): MarketActivityRow[] => {
+  const [rows, setRows] = useState<MarketActivityRow[]>([]);
+  useEffect(() => {
+    if (!eventName) {
+      setRows([]);
+      return;
+    }
+    let alive = true;
+    (async () => {
+      const { data } = await supabase
+        .from("market_activity")
+        .select("id, amount, boost, created_at, option_label")
+        .eq("event_name", eventName)
+        .order("created_at", { ascending: false })
+        .limit(30);
+      if (!alive) return;
+      const yesLc = yesOptionLabel.trim().toLowerCase();
+      setRows(
+        (data || []).map((r) => ({
+          id: r.id,
+          isYes: (r.option_label || "").trim().toLowerCase() === yesLc,
+          amount: Number(r.amount) || 0,
+          boost: Number(r.boost) || 1,
+          createdAt: r.created_at,
+        })),
+      );
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [eventName, yesOptionLabel, tick]);
+  return rows;
+};
 
 export const relTime = (iso: string): string => {
   const diff = Date.now() - new Date(iso).getTime();

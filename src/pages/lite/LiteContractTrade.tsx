@@ -40,7 +40,7 @@ import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
 import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
 import {
   LiteMarketActivity,
-  type MarketActivityRow,
+  useMarketActivityRows,
 } from "@/components/lite/contract/LiteMarketActivity";
 import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
 import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
@@ -81,46 +81,8 @@ const useCountdown = (target: Date | null) => {
   return text;
 };
 
-// `market_activity` is an anonymised, all-user feed (public SELECT, no user
-// identity column), so this is genuine market-wide social proof. Polled on
-// refetchTick — no realtime subscription needed.
-const useMarketActivity = (
-  eventName: string | null,
-  yesOptionLabel: string,
-  tick: number,
-) => {
-  const [rows, setRows] = useState<MarketActivityRow[]>([]);
-  useEffect(() => {
-    if (!eventName) {
-      setRows([]);
-      return;
-    }
-    let alive = true;
-    (async () => {
-      const { data } = await supabase
-        .from("market_activity")
-        .select("id, amount, boost, created_at, option_label")
-        .eq("event_name", eventName)
-        .order("created_at", { ascending: false })
-        .limit(30);
-      if (!alive) return;
-      const yesLc = yesOptionLabel.trim().toLowerCase();
-      setRows(
-        (data || []).map((r) => ({
-          id: r.id,
-          isYes: (r.option_label || "").trim().toLowerCase() === yesLc,
-          amount: Number(r.amount) || 0,
-          boost: Number(r.boost) || 1,
-          createdAt: r.created_at,
-        })),
-      );
-    })();
-    return () => {
-      alive = false;
-    };
-  }, [eventName, yesOptionLabel, tick]);
-  return rows;
-};
+// Market activity rows come from the shared `useMarketActivityRows` hook
+// (LiteMarketActivity) so the spot page renders the identical feed.
 
 interface MoreRow {
   id: string;
@@ -288,7 +250,7 @@ const LiteContractTrade = () => {
     [positions, heldPos],
   );
 
-  const activity = useMarketActivity(event?.name || null, yesOpt?.label || "", refetchTick);
+  const activity = useMarketActivityRows(event?.name || null, yesOpt?.label || "", refetchTick);
 
   const more = useMoreMarkets(event?.category || null, event?.id || "");
 
