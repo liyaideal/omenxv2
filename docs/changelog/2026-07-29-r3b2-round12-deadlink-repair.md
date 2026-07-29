@@ -12,3 +12,4 @@
 3. **Desktop logo** now navigates `/` instead of `/style-guide`.
 4. **Referral menu entries removed** from `EventsDesktopHeader` dropdown and `BottomNav` drawer (route does not exist); hooks/logic untouched.
 5. **Remove redundant Cancel from Lite mobile buy drawers** — deleted `MobileDrawerActions`/`Button` Cancel blocks in `LiteContractTrade.tsx` and `LiteSpotTrade.tsx`; drawers already close via drag handle / outside tap. `LiteCashOutFlow` Cancel kept (money confirmation flow).
+6. **Spot trade validation fix** — `src/services/tradingService.ts` `SpotTradeSchema.optionId` changed from `z.string().uuid(...)` to `z.string().min(1, ...)` because daily-seeded stock events use slug `option_id` values (e.g. `us-coin-updown-20260724-not`) rather than UUIDs, which was blocking every spot order on up/down markets.
