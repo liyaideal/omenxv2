@@ -7,7 +7,6 @@ import {
   LogOut,
   LogIn,
   Gift,
-  Users,
   Settings,
   HelpCircle,
   Shield,
