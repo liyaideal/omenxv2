@@ -18,6 +18,8 @@ import EventsPage from "./pages/EventsPage";
 import LiteEventsPage from "./pages/lite/LiteEventsPage";
 import ResolvedPage from "./pages/ResolvedPage";
 import ResolvedEventDetail from "./pages/ResolvedEventDetail";
+import LiteSettledPage from "./pages/lite/LiteSettledPage";
+import LiteSettledEventDetail from "./pages/lite/LiteSettledEventDetail";
 import Leaderboard from "./pages/Leaderboard";
 import Portfolio from "./pages/Portfolio";
 import PortfolioSettlements from "./pages/PortfolioSettlements";
@@ -110,6 +112,18 @@ const SpotRoute = () => {
   return surface === "lite" ? <LiteSpotTrade /> : <SpotTrading />;
 };
 
+// /resolved forks by surface: Lite gets the consumer settled experience,
+// Pro keeps the existing resolved browser untouched.
+const ResolvedRoute = () => {
+  const { surface } = useSurface();
+  return surface === "lite" ? <LiteSettledPage /> : <ResolvedPage />;
+};
+
+const ResolvedDetailRoute = () => {
+  const { surface } = useSurface();
+  return surface === "lite" ? <LiteSettledEventDetail /> : <ResolvedEventDetail />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <RealtimePricesProvider>
@@ -139,8 +153,8 @@ const App = () => (
               <Route path="/spot" element={<SpotRoute />} />
               <Route path="/order-preview" element={<OrderPreview />} />
               <Route path="/events" element={<EventsRoute />} />
-              <Route path="/resolved" element={<ResolvedPage />} />
-              <Route path="/resolved/:eventId" element={<ResolvedEventDetail />} />
+              <Route path="/resolved" element={<ResolvedRoute />} />
+              <Route path="/resolved/:eventId" element={<ResolvedDetailRoute />} />
               <Route path="/portfolio" element={<Portfolio />} />
               <Route path="/portfolio/settlements" element={<PortfolioSettlements />} />
               <Route path="/portfolio/airdrops" element={<PortfolioAirdrops />} />

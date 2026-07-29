@@ -414,3 +414,4 @@
 - 2026-07-29 R3b-2 round 11 — unified page frame (max-w-7xl px-4 lg:px-6), MobileHome dup BottomNav fix, dead files removed. [changelog](./2026-07-29-r3b2-round11-unified-frame.md)
 - 2026-07-29 R3b-2 round 12 — dead-link repair pack (Lite trade routing, bare /trade redirects, logo home, referral entries hidden).
 - 2026-07-29 · R3b-2 round 13 — resolved pathway: Live/Settled switch on the Lite markets list, settled outcome card on the Lite daily up/down page, permanent Wallet recovery link.
+- 2026-07-29 · R3b-2 round 14 — Lite settled experience: /resolved + /resolved/:id fork to LiteSettledPage / LiteSettledEventDetail, new LiteSettledCard. Pro resolved pages untouched.
