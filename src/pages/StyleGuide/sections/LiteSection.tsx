@@ -526,22 +526,48 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
 
         <SubSection title="Contract chart">
           <Grid>
-            <Cell label="Odds only (no underlying)">
+            <Cell label="Odds only · Yes side selected">
               <LiteContractChart
                 underlyingLabel={null}
                 basePrice={null}
                 currentPrice={null}
                 yesOdds={0.58}
                 yesLabel="Yes"
+                noLabel="No"
+                side="yes"
               />
             </Cell>
-            <Cell label="Odds + underlying (toggle)">
+            <Cell label="Odds only · No side selected (100 − Yes)">
+              <LiteContractChart
+                underlyingLabel={null}
+                basePrice={null}
+                currentPrice={null}
+                yesOdds={0.58}
+                yesLabel="Yes"
+                noLabel="No"
+                side="no"
+              />
+            </Cell>
+            <Cell label="Odds + underlying toggle · Yes side">
               <LiteContractChart
                 underlyingLabel="BTC price"
                 basePrice={64200}
                 currentPrice={65310}
                 yesOdds={0.58}
                 yesLabel="Yes"
+                noLabel="No"
+                side="yes"
+              />
+            </Cell>
+            <Cell label="Odds + underlying toggle · No side">
+              <LiteContractChart
+                underlyingLabel="BTC price"
+                basePrice={64200}
+                currentPrice={65310}
+                yesOdds={0.58}
+                yesLabel="Up"
+                noLabel="Down"
+                side="no"
               />
             </Cell>
           </Grid>
