@@ -71,6 +71,14 @@ const settledDemo = (
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import { boostTiers } from "@/hooks/useCategoryBoostConfigs";
 
+// Static daily-stock series fixture (two states: with / without a user result).
+const seriesDemo = (userResult: number | null): SettledSeries => ({
+  ticker: "NVDA",
+  company: "NVIDIA",
+  days: [settledDemo("negative"), settledDemo("won"), settledDemo("neutral")],
+  userResult,
+});
+
 /** Small label chip that names the state being demonstrated. */
 const StateChip = ({ children }: { children: React.ReactNode }) => (
   <div className="mb-2 inline-flex rounded-full border border-border bg-muted/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
