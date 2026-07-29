@@ -93,6 +93,26 @@ const FakeDrawerChrome = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
+/** Production order panel in its mobile framing, driven by local state. */
+const MobileDrawerOrderPanel = () => {
+  const [side, setSide] = useState<"yes" | "no">("yes");
+  const [amount, setAmount] = useState("50");
+  const [boost, setBoost] = useState(5);
+  return (
+    <LiteContractOrderPanel
+      {...baseOrderProps}
+      variant="mobile"
+      blocked={false}
+      side={side}
+      onSideChange={setSide}
+      amount={amount}
+      onAmountChange={setAmount}
+      boost={boost}
+      onBoostChange={setBoost}
+    />
+  );
+};
+
 /** Where every Lite component mounts, on each surface. */
 const WHERE_ROWS: {
   name: string;
