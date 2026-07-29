@@ -546,6 +546,26 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
           <PositionStates />
         </SubSection>
 
+        <SubSection
+          title="Settled market card"
+          description="Grid card on the Lite settled list. Three swaps vs. the live card: result/neutral tag, single winner row, past-tense footer."
+        >
+          <Grid cols={3}>
+            <Cell label="Won · participated">
+              <LiteSettledCard event={settledDemo("won")} onSelect={() => undefined} />
+            </Cell>
+            <Cell label="Lost · participated">
+              <LiteSettledCard event={settledDemo("lost")} onSelect={() => undefined} />
+            </Cell>
+            <Cell label="Neutral · not participated">
+              <LiteSettledCard event={settledDemo("neutral")} onSelect={() => undefined} />
+            </Cell>
+            <Cell label="Negative-alias winner (never renders the raw label)">
+              <LiteSettledCard event={settledDemo("negative")} onSelect={() => undefined} />
+            </Cell>
+          </Grid>
+        </SubSection>
+
         <SubSection title="Settled outcome card">
           <div className="mb-6">
             <StateChip>Live / Settled switch · both states</StateChip>
