@@ -627,7 +627,7 @@ export const updateUserBalance = async (userId: string, newBalance: number) => {
 const SpotTradeSchema = z.object({
   eventName: z.string().min(1).max(200),
   optionLabel: z.string().min(1).max(200),
-  optionId: z.string().uuid("optionId is required for spot trades"),
+  optionId: z.string().min(1, "optionId is required for spot trades"),
   side: z.enum(["buy", "sell"]),
   price: z.number().positive().max(1),
   quantity: z.number().positive().max(10_000_000),
