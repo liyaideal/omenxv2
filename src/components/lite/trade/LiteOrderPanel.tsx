@@ -358,15 +358,12 @@ const SideButton = ({
       type="button"
       onClick={onClick}
       className={cn(
-        "flex flex-col items-center justify-center rounded-xl px-3 py-3 text-sm font-semibold transition-all",
+        "flex items-center justify-center rounded-xl px-3 py-4 text-sm font-semibold transition-all",
         cls,
       )}
     >
       <span className="text-base font-bold">
         {label} {pct}¢
-      </span>
-      <span className={cn("text-[10px] font-medium", active ? "opacity-70" : "opacity-70")}>
-        {pct}% chance
       </span>
     </button>
   );

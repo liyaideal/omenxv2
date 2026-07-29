@@ -40,3 +40,19 @@ Files: `LiteContractChart.tsx`, `LiteMarketActivity.tsx`, `LiteContractTrade.tsx
 this changelog, `STATUS.md`, plus one DB migration.
 No Pro terminal UI diffs. No `src/services/tradingService.ts` diff. No edits inside
 any non-Lite style-guide section; the nav shell was not touched.
+## Round 7b · Probability dedup (approved by Liya)
+Rule: **probability renders once per page (the sentiment bar); side buttons carry
+price only.**
+- `LiteContractOrderPanel.tsx` / `LiteOrderPanel.tsx`: `SideButton` drops the
+  `{pct}% chance` sub-line and becomes a single vertically-centered
+  `{label} {pct}¢` row (`py-3` → `py-4` so button height stays comparable and
+  both sides remain equal).
+- Unchanged: `LiteSentimentBar` (sole probability display), mobile sticky Buy
+  bar (already ¢-only), mobile drawer header `{countdown} left · {pct}% chance`
+  (independent context).
+- Style-guide demos in `LiteSection.tsx` / `LiteSpotSection.tsx` render the real
+  components, so all order-card states pick up the single-line form; the
+  "Where things live" table and state labels stay accurate.
+
+Files: `LiteContractOrderPanel.tsx`, `LiteOrderPanel.tsx`, this changelog.
+No Pro terminal UI diffs. No `src/services/tradingService.ts` diff.
