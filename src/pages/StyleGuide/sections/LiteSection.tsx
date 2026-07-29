@@ -186,6 +186,27 @@ const WHERE_ROWS: {
     states: 2,
   },
   {
+    name: "LiteSettledCard",
+    desktop: "settled list grid (1/2/3 cols), grouped by settle date",
+    mobile: "same grid, single column",
+    openedBy: "LiteSettledPage (/resolved on the Lite surface)",
+    states: 4,
+  },
+  {
+    name: "LiteSettledPage",
+    desktop: "full page — unified frame, sector rail + Live/Settled + scope pills",
+    mobile: "same page, MobileHeader \"Settled\" + BottomNav",
+    openedBy: "/resolved when surface = lite",
+    states: 4,
+  },
+  {
+    name: "LiteSettledEventDetail",
+    desktop: "full page — single centred max-w-2xl reading column",
+    mobile: "same column, MobileHeader preset B (back to /resolved)",
+    openedBy: "/resolved/:eventId when surface = lite; also the outcome card's \"See how it settled\"",
+    states: 4,
+  },
+  {
     name: "LiteOrderPanel (spot)",
     desktop: "right rail of the Lite daily up/down page",
     mobile: "body of its buy drawer",
