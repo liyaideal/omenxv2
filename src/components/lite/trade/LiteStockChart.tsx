@@ -31,6 +31,10 @@ interface Props {
   upOdds: number; // 0..1
   upHistory?: number[]; // optional real price history (0..1)
   endDate?: string | Date | null;
+  /** Side selected in the order card — the odds series follows it. */
+  side?: "yes" | "no";
+  upLabel?: string;
+  downLabel?: string;
   className?: string;
 }
 
@@ -86,10 +90,16 @@ export const LiteStockChart = ({
   upOdds,
   upHistory,
   endDate,
+  side = "yes",
+  upLabel = "Up",
+  downLabel = "Down",
   className,
 }: Props) => {
   const [tab, setTab] = useState<Tab>("stock");
   const seed = ticker.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+  // Side identity → MARKET axis. Only ever one of the two at a time.
+  const isYesSide = side === "yes";
+  const sideLabel = isYesSide ? upLabel : downLabel;
 
   // Final close tick derives from the event end_date when available; otherwise
   // falls back to the regular 16:00 session close only as a last resort.
@@ -107,19 +117,25 @@ export const LiteStockChart = ({
   }, [seed, basePrice, currentPrice, labels]);
 
   const oddsSeries = useMemo(() => {
+    // Down odds are the complement of the Up walk, point by point.
+    const toSide = (v: number) => (isYesSide ? v : 100 - v);
     if (upHistory && upHistory.length >= 4) {
-      const scaled = upHistory.map((p) => Math.max(0, Math.min(100, p * 100)));
+      const scaled = upHistory.map((p) => toSide(Math.max(0, Math.min(100, p * 100))));
       return buildPoints(scaled, labels);
     }
     // DEMO-STATE: synthesize from 50¢ → current odds if no history rows.
     const end = Math.max(1, Math.min(99, Math.round(upOdds * 100)));
-    return buildPoints(synth(seed + 1, 50, end, 48, 3.2), labels);
-  }, [upHistory, upOdds, seed, labels]);
+    const walk = synth(seed + 1, 50, end, 48, 3.2).map((v) =>
+      toSide(Math.max(1, Math.min(99, v))),
+    );
+    return buildPoints(walk, labels);
+  }, [upHistory, upOdds, seed, labels, isYesSide]);
 
   const showOddsToggle = true; // odds always available (synth fallback)
 
   const series = tab === "stock" ? stockSeries : oddsSeries;
-  const lineColor = tab === "stock" ? "#C9CED6" : "hsl(var(--yes))";
+  const lineColor =
+    tab === "stock" ? "#C9CED6" : isYesSide ? "hsl(var(--yes))" : "hsl(var(--no))";
   const baseline = tab === "stock" ? basePrice : null;
 
   const yFmt = (v: number) =>
@@ -149,11 +165,13 @@ export const LiteStockChart = ({
               className={cn(
                 "rounded-md px-3 py-1 transition-colors font-medium",
                 tab === "odds"
-                  ? "bg-background text-yes shadow-sm"
+                  ? isYesSide
+                    ? "bg-background text-yes shadow-sm"
+                    : "bg-background text-no shadow-sm"
                   : "text-muted-foreground",
               )}
             >
-              Up odds ¢
+              {sideLabel} odds ¢
             </button>
           )}
         </div>
@@ -199,7 +217,10 @@ export const LiteStockChart = ({
                   fontSize: 11,
                 }}
                 labelStyle={{ color: "#9AA1AC" }}
-                formatter={(value: number) => [yFmt(value), tab === "stock" ? ticker : "Up odds"]}
+                formatter={(value: number) => [
+                  yFmt(value),
+                  tab === "stock" ? ticker : `${sideLabel} odds`,
+                ]}
               />
               {baseline != null && (
                 <ReferenceLine
