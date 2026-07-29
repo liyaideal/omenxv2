@@ -8,7 +8,10 @@ interface PageHeaderProps {
 }
 
 /**
- * Canonical product page title block (DESIGN.md §4).
+ * @deprecated DEPRECATED (R3b-2 round 10) — replaced by the "Two Openings" rule
+ * (DESIGN.md §4): account pages (Wallet / Portfolio) open with their data hero and
+ * carry NO title; browse pages use `<PageTitle>`. Kept only for the style-guide
+ * archive — do not use in new pages.
  *
  * Fixed structure — do NOT extend with eyebrows, icons, or custom sizes.
  * The only escape hatch is `actions` (right-aligned slot).
