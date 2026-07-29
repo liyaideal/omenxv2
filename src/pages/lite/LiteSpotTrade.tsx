@@ -490,13 +490,6 @@ const LiteSpotTrade = () => {
             {heldPos.pnl.startsWith("-") ? "▼" : "▲"} {heldPos.pnl} / {heldPos.pnlPercent}
           </span>
         </div>
-        <button
-          type="button"
-          onClick={() => navigate("/portfolio")}
-          className="text-[11px] text-muted-foreground hover:text-foreground"
-        >
-          Manage in Portfolio →
-        </button>
       </div>
       <div className="grid grid-cols-4 gap-2 border-t border-border pt-3 text-xs">
         <PosCell
@@ -515,51 +508,47 @@ const LiteSpotTrade = () => {
           tone="yes"
         />
       </div>
+      <div className="mt-3 border-t border-border pt-3">
+        <button
+          type="button"
+          onClick={() => setCashOutOpen(true)}
+          className="h-9 w-full rounded-lg bg-muted text-xs font-semibold hover:bg-muted/80"
+        >
+          Cash out ·{" "}
+          <span className="font-mono">
+            ${(heldPos.markPriceNum * heldPos.sizeNum).toFixed(2)}
+          </span>
+        </button>
+      </div>
     </div>
   ) : null;
 
-  const MarketPulse = (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <div className="flex items-center gap-1.5 text-sm font-medium">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-trading-green" />
-          Live · Market pulse
-        </div>
-        <span className="text-[11px] text-muted-foreground">recent buys</span>
-      </div>
-      {pulse.length === 0 ? (
-        <div className="rounded-lg bg-muted/20 py-6 text-center text-xs text-muted-foreground">
-          Quiet so far. Be the first mover.
-        </div>
-      ) : (
-        <ul className="space-y-1.5">
-          {pulse.slice(0, isMobile ? 3 : 6).map((r) => (
-            <li
-              key={r.id}
-              className="flex items-center gap-3 rounded-lg px-2 py-1.5 hover:bg-muted/30"
-            >
-              <span
-                className={cn(
-                  "flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-semibold",
-                  r.side === "yes" ? "bg-yes/13 text-yes" : "bg-no/13 text-no",
-                )}
-              >
-                {r.side === "yes" ? "▲" : "▼"} {r.label}
-              </span>
-              <span className="font-mono text-sm text-foreground">
-                ${r.amount.toFixed(0)}
-              </span>
-              <span className="flex-1 truncate text-xs text-muted-foreground">
-                Someone backed {r.label}
-              </span>
-              <span className="font-mono text-[11px] text-muted-foreground">
-                {relTime(r.createdAt)}
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+  const CashOut = heldPos ? (
+    <LiteCashOutFlow
+      open={cashOutOpen}
+      onOpenChange={setCashOutOpen}
+      isMobile={!!isMobile}
+      positionId={heldPos.id}
+      positionIndex={heldIndex}
+      currentValue={heldPos.markPriceNum * heldPos.sizeNum}
+      sizeNum={heldPos.sizeNum}
+      sideLabel={
+        heldPos.option.trim().toLowerCase() === (yesOpt.label || "").trim().toLowerCase()
+          ? yesLabel
+          : noLabel
+      }
+      onConfirmCashOut={handleSpotCashOut}
+      onDone={() => setRefetchTick((n) => n + 1)}
+    />
+  ) : null;
+
+  const MarketActivity = (
+    <LiteMarketActivity
+      rows={activity}
+      yesLabel={yesLabel}
+      noLabel={noLabel}
+      maxRows={isMobile ? 4 : 8}
+    />
   );
 
   const MoreStocks = (
