@@ -1,32 +1,17 @@
-## Goal
-Replace the category-based background images on Lite event cards with per-event AI-generated artwork, so each card has a unique, on-topic visual.
+## 问题
 
-## Approach
+`/style-guide` 桌面侧栏（`src/pages/StyleGuide/index.tsx`）用的是 `sticky top-24 h-fit`，没有自身滚动容器。分组变多后侧栏高度超出视口，鼠标在目录上滚动时事件冒泡到页面，滚的是右侧主内容，导致目录底部的项目（Mobile / Misc 等）无法直接滚到。
 
-### 1. Generation (one-off script, run in build mode)
-- Query all active events from Supabase (`events` where `is_resolved=false`) — currently ~21.
-- For each event, call the AI Gateway image endpoint (`google/gemini-3.1-flash-image`, fast + good quality, 1024x512 landscape to match the 130px tile aspect).
-- Prompt template per event:
-  > "Editorial hero illustration for a prediction market card about: '{event.name}'. Category: {category}. Dark near-black background (#0A0B0D base), subtle Pulse Blue (#33D6FF) and Volt Green (#CFFF4A) accent lighting. Cinematic, minimal, no text, no logos, no watermarks."
-- Save as JPGs to `public/event-images/{event.id}.jpg` (committed to repo — simple, no bucket, cacheable via CDN).
+## 方案（仅改导航壳层，不动任何 section 文件）
 
-### 2. DB wiring
-- Add nullable `image_url TEXT` column to `events` via migration (with GRANT preserved).
-- After generation, update each event row with `image_url = '/event-images/{id}.jpg'`.
-- Extend `DatabaseEvent` type in `useActiveEvents.ts` and pass through `EventRow.imageUrl` in `useMarketListData.ts`.
+在 `src/pages/StyleGuide/index.tsx` 的 `<nav>` 桌面分支 className 上：
 
-### 3. Card rendering
-- `LiteEventCard.tsx`: prefer `market.imageUrl` when present; fall back to the existing category → `/card-bg/*.jpg` map, then striped fallback.
-- Keep the scrim gradient and tag pill unchanged.
+- 把 `h-fit` 换成 `max-h-[calc(100vh-7rem)]`（与 `top-24` 对应，底部留呼吸位）
+- 加 `overflow-y-auto` + `overscroll-contain`（滚到边界不传导给页面）
+- 加 `pr-1 scrollbar-none`（避免滚动条挤压宽度；项目已在移动端 rail 使用 `scrollbar-none`）
 
-### 4. Guardrails
-- Display-layer + one additive column only. No changes to trading, wallet, or Pro paths.
-- Skip regeneration if the JPG already exists (idempotent script).
-- If gen fails for an event, leave `image_url` null → card falls back to category image.
+移动端横向 rail 不变。
 
-## Open question (blocking)
-Which model tier do you want?
-- **Fast** (`google/gemini-3.1-flash-image`) — ~2s/image, ~$0.02 each, good quality. Default.
-- **Premium** (`google/gemini-3-pro-image` or `openai/gpt-image-2` high) — sharper, more art-directed, ~10x cost.
+## 技术细节
 
-I'll default to **fast** unless you say otherwise, then run the script over all ~21 events in one pass.
+只修改一处 className 字符串，无逻辑、无新组件、无新依赖。改完跑 typecheck 确认通过。
