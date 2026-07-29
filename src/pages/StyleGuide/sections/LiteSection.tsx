@@ -20,6 +20,11 @@ import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
 import { LiveSettledSwitch } from "@/components/lite/LiveSettledSwitch";
 import { LiteSettledCard } from "@/components/lite/LiteSettledCard";
+import {
+  LiteSettledSeriesCard,
+  LiteSettledSeriesDayRow,
+  type SettledSeries,
+} from "@/components/lite/LiteSettledSeriesCard";
 import type { ResolvedEvent } from "@/hooks/useResolvedEvents";
 
 // Static settled-card fixtures — four states, no data access.
@@ -65,6 +70,14 @@ const settledDemo = (
 };
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import { boostTiers } from "@/hooks/useCategoryBoostConfigs";
+
+// Static daily-stock series fixture (two states: with / without a user result).
+const seriesDemo = (userResult: number | null): SettledSeries => ({
+  ticker: "NVDA",
+  company: "NVIDIA",
+  days: [settledDemo("negative"), settledDemo("won"), settledDemo("neutral")],
+  userResult,
+});
 
 /** Small label chip that names the state being demonstrated. */
 const StateChip = ({ children }: { children: React.ReactNode }) => (
@@ -233,21 +246,35 @@ const WHERE_ROWS: {
     name: "LiteSettledCard",
     desktop: "settled list grid (1/2/3 cols), grouped by settle date",
     mobile: "same grid, single column",
-    openedBy: "LiteSettledPage (/resolved on the Lite surface)",
+    openedBy: "LiteSettledPage (/resolved on the Lite surface) — non-daily events only",
     states: 4,
   },
   {
+    name: "LiteSettledSeriesCard",
+    desktop: "\"Daily stocks\" section above the time groups (2 cols)",
+    mobile: "same section, single column",
+    openedBy: "one card per ticker; tap sets ?series={TICKER} on /resolved",
+    states: 2,
+  },
+  {
+    name: "LiteSettledSeriesDayRow",
+    desktop: "series view ledger, newest first, 20 per page",
+    mobile: "same rows",
+    openedBy: "/resolved?series={TICKER} — row tap opens /resolved/{eventId}",
+    states: 3,
+  },
+  {
     name: "LiteSettledPage",
-    desktop: "full page — unified frame, sector rail + Live/Settled + scope pills",
+    desktop: "full page — list view (daily-stock series + time groups) or series view",
     mobile: "same page, MobileHeader \"Settled\" + BottomNav",
     openedBy: "/resolved when surface = lite",
     states: 4,
   },
   {
     name: "LiteSettledEventDetail",
-    desktop: "full page — single centred max-w-2xl reading column",
+    desktop: "public event page — max-w-2xl column; daily stocks add \"How the day went\"",
     mobile: "same column, MobileHeader preset B (back to /resolved)",
-    openedBy: "/resolved/:eventId when surface = lite; also the outcome card's \"See how it settled\"",
+    openedBy: "/resolved/:eventId when surface = lite; nothing personal beyond the outcome summary",
     states: 4,
   },
   {
@@ -608,6 +635,30 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
               <LiteSettledCard event={settledDemo("negative")} onSelect={() => undefined} />
             </Cell>
           </Grid>
+        </SubSection>
+
+        <SubSection
+          title="Daily-stock series"
+          description="Daily up/down days collapse into one card per ticker; the series view lists the days."
+        >
+          <div className="space-y-6">
+            <Grid cols={2}>
+              <Cell label="With the viewer's latest result">
+                <LiteSettledSeriesCard series={seriesDemo(12.4)} onSelect={() => undefined} />
+              </Cell>
+              <Cell label="No participation">
+                <LiteSettledSeriesCard series={seriesDemo(null)} onSelect={() => undefined} />
+              </Cell>
+            </Grid>
+            <div>
+              <StateChip>Series view · day rows</StateChip>
+              <div className="rounded-2xl border border-border bg-card p-2">
+                <LiteSettledSeriesDayRow event={settledDemo("won")} onSelect={() => undefined} />
+                <LiteSettledSeriesDayRow event={settledDemo("lost")} onSelect={() => undefined} />
+                <LiteSettledSeriesDayRow event={settledDemo("negative")} onSelect={() => undefined} />
+              </div>
+            </div>
+          </div>
         </SubSection>
 
         <SubSection title="Settled outcome card">

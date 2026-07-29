@@ -44,6 +44,10 @@ export interface ResolvedEventDetail {
   end_date: string | null;
   settled_at: string | null;
   winning_option_id: string | null;
+  /** Additive (Lite settled detail): prior official close for daily stock events. */
+  base_price?: number | null;
+  /** Additive: which product lines the event ran on ("spot" | "futures"). */
+  productLines?: string[];
   external_links: ExternalLinkData[] | null;
   /** Single-market binary 别名（如体育队名）。其它事件为 undefined。 */
   sideLabels?: { yes: string; no: string };
@@ -205,6 +209,11 @@ export const useResolvedEventDetail = ({ eventId }: UseResolvedEventDetailOption
         end_date: event.end_date,
         settled_at: event.settled_at,
         winning_option_id: event.winning_option_id,
+        base_price:
+          (event as any).base_price != null ? Number((event as any).base_price) : null,
+        productLines: Array.isArray((event as any).product_lines)
+          ? ((event as any).product_lines as string[])
+          : ["futures"],
         external_links: Array.isArray((event as any).external_links)
           ? (event as any).external_links as ExternalLinkData[]
           : null,

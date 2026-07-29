@@ -415,3 +415,4 @@
 - 2026-07-29 R3b-2 round 12 — dead-link repair pack (Lite trade routing, bare /trade redirects, logo home, referral entries hidden).
 - 2026-07-29 · R3b-2 round 13 — resolved pathway: Live/Settled switch on the Lite markets list, settled outcome card on the Lite daily up/down page, permanent Wallet recovery link.
 - 2026-07-29 · R3b-2 round 14 — Lite settled experience: /resolved + /resolved/:id fork to LiteSettledPage / LiteSettledEventDetail, new LiteSettledCard. Pro resolved pages untouched.
+- 2026-07-29 · R3b-2 round 14b — Lite settled corrections: 公开事件页删除 "Your activity" 个人流水（个人账目只留 Portfolio 入口）；每日股票按 ticker 收敛为 series 卡 + `?series=` 系列视图；每日股票结算详情回归 "How the day went" 静态图表（合约事件仍无图）。[2026-07-29-r3b2-round14b-lite-settled-corrections.md]
