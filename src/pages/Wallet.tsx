@@ -906,6 +906,15 @@ export default function Wallet() {
                   <TransactionHistory transactions={transactions} />
                 )}
               </div>
+              {/* Permanent door to recovery — the in-context link inside
+                  PendingConfirmations unmounts when nothing is pending. */}
+              <button
+                type="button"
+                onClick={() => navigate("/wallet/recovery")}
+                className="text-[11px] text-muted-foreground underline underline-offset-2 hover:text-foreground"
+              >
+                Sent funds to the wrong network? Request recovery →
+              </button>
             </div>
             <div className="col-span-4 space-y-6">
               <H2eRewardsCard />
