@@ -23,8 +23,8 @@ import { useRealtimePricesOptional } from "@/contexts/RealtimePricesContext";
 import { useCategoryBoostConfigs, boostTiers } from "@/hooks/useCategoryBoostConfigs";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
-import { MobileDrawer, MobileDrawerActions } from "@/components/ui/mobile-drawer";
-import { Button } from "@/components/ui/button";
+import { MobileDrawer } from "@/components/ui/mobile-drawer";
+
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { MobileHeader } from "@/components/MobileHeader";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -605,11 +605,6 @@ const LiteContractTrade = () => {
                 setRefetchTick((n) => n + 1);
               }}
             />
-            <MobileDrawerActions>
-              <Button variant="outline" className="w-full" onClick={() => setDrawerOpen(false)}>
-                Cancel
-              </Button>
-            </MobileDrawerActions>
           </MobileDrawer>
 
           <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
