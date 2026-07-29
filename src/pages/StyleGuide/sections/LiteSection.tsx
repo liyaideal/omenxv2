@@ -258,7 +258,7 @@ const BoostPlayground = () => {
             />
           </div>
         </Cell>
-        <Cell label="Mobile variant">
+        <Cell label="Mobile variant" ctx="mobile-drawer">
           <div className="rounded-2xl border border-border bg-card p-4">
             <LiteBoostSelector
               maxBoost={10}
@@ -316,7 +316,7 @@ const OrderCardDemo = ({
   const [amount, setAmount] = useState(amount0);
   const [boost, setBoost] = useState(boost0);
   return (
-    <Cell label={label}>
+    <Cell label={label} ctx="desktop-rail">
       <div className="max-w-[380px]">
         <LiteContractOrderPanel
           {...baseOrderProps}
