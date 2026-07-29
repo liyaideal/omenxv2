@@ -121,7 +121,7 @@ const StyleGuideIndex = () => {
           className={
             isMobile
               ? "sticky top-[57px] z-40 -mx-0 border-b border-border bg-background/95 px-4 py-3 backdrop-blur"
-              : "sticky top-24 h-fit w-[240px] shrink-0 space-y-5"
+              : "sticky top-24 max-h-[calc(100vh-7rem)] w-[240px] shrink-0 space-y-5 overflow-y-auto overscroll-contain pr-1 scrollbar-none"
           }
         >
           {isMobile ? (
