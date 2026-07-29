@@ -31,3 +31,10 @@ contract page. Display layer only — no Pro UI, no `tradingService.ts` diffs.
 - Lite spot section: side-by-side Up/Down chart states, shared-module note.
 - "Where things live": LiteCashOutFlow + LiteMarketActivity rows note spot reuse;
   new `LiteStockChart (spot)` row.
+
+## Round 9 · Order panel spacing and switch-link dedup
+- `LiteOrderPanel` desktop wrap now uses `space-y-4` (parity with contract card);
+  removed the header's `mb-4` so the rhythm is uniform 16px.
+- Deleted the redundant `Switch to {oppositeLabel}` link from both
+  `LiteOrderPanel` and `LiteContractOrderPanel` mobile drawers; the side
+  cards at the top already provide the same affordance.

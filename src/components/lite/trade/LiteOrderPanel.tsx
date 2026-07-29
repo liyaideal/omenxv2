@@ -310,17 +310,6 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
         Buys instantly at the current price
       </p>
 
-      {/* Switch-side link (mobile drawer only). */}
-      {variant === "mobile" && (
-        <button
-          type="button"
-          onClick={() => onSideChange(side === "yes" ? "no" : "yes")}
-          className="mx-auto block text-[11px] text-muted-foreground underline underline-offset-2 hover:text-foreground"
-        >
-          Switch to {oppositeLabel}
-        </button>
-      )}
-
       {/* eventId retained for potential deep-linking; keep referenced */}
       <span className="hidden" data-event-id={eventId}>{""}</span>
     </div>

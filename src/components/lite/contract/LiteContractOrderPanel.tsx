@@ -428,16 +428,6 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
           ? `Not guaranteed. You can lose your full ${money(amountNum)}.`
           : "Not guaranteed. You can lose everything you put in."}
       </p>
-
-      {variant === "mobile" && (
-        <button
-          type="button"
-          onClick={() => onSideChange(side === "yes" ? "no" : "yes")}
-          className="mx-auto block text-[11px] text-muted-foreground underline underline-offset-2 hover:text-foreground"
-        >
-          Switch to {oppositeLabel}
-        </button>
-      )}
     </div>
   );
 };
