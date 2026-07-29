@@ -30,9 +30,8 @@ interface Props {
   maxRows?: number;
 }
 
-// Ledger grid: chips align with chips, amounts with amounts. The side chip
-// carries the side identity (MARKET axis) — no "Backed …" sentence needed.
-const ROW_GRID = "grid grid-cols-[minmax(48px,auto)_64px_1fr_auto] items-center gap-x-3";
+// Ledger grid: chips align with chips, amounts with amounts, multipliers always shown.
+const ROW_GRID = "grid grid-cols-[minmax(48px,auto)_64px_48px_auto] items-center gap-x-3";
 
 export const LiteMarketActivity = ({ rows, yesLabel, noLabel, maxRows = 6 }: Props) => (
   <div className="rounded-2xl border border-border bg-card p-4">
@@ -62,12 +61,13 @@ export const LiteMarketActivity = ({ rows, yesLabel, noLabel, maxRows = 6 }: Pro
             <span className="text-right font-mono text-xs text-foreground">
               ${r.amount.toFixed(0)}
             </span>
-            <span className="truncate text-xs text-muted-foreground">
-              {r.boost > 1 ? (
-                <>
-                  <span className="font-mono">{r.boost}×</span> Boost
-                </>
-              ) : null}
+            <span
+              className={cn(
+                "text-xs font-mono",
+                r.boost > 1 ? "text-muted-foreground" : "text-muted-foreground/50",
+              )}
+            >
+              {r.boost}×
             </span>
             <span className="text-right font-mono text-[11px] text-muted-foreground">
               {relTime(r.createdAt)}
