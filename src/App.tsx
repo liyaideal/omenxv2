@@ -97,6 +97,9 @@ const TradingPage = () => {
 
 const TradeOrderPage = () => {
   const isMobile = useIsMobile();
+  const { surface } = useSurface();
+  // Lite users must never land on the Pro TradeOrder terminal.
+  if (surface === "lite") return <Navigate to="/trade" replace />;
   return isMobile ? <TradeOrder /> : <DesktopTrading />;
 };
 
