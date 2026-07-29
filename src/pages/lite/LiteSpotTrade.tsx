@@ -694,15 +694,6 @@ const LiteSpotTrade = () => {
                 setRefetchTick((n) => n + 1);
               }}
             />
-            <MobileDrawerActions>
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => setDrawerOpen(false)}
-              >
-                Cancel
-              </Button>
-            </MobileDrawerActions>
           </MobileDrawer>
 
           <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
