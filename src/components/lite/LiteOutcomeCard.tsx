@@ -24,6 +24,8 @@ interface Props {
   sourceUrl?: string | null;
   summary?: string | null;
   holding?: LiteOutcomeHolding | null;
+  /** Optional plain-English line under "Your result" (Lite settled detail page). */
+  resultLine?: string | null;
   onSeeHow: () => void;
   onBrowse: () => void;
 }
@@ -39,6 +41,7 @@ export const LiteOutcomeCard = ({
   sourceUrl,
   summary,
   holding,
+  resultLine,
   onSeeHow,
   onBrowse,
 }: Props) => {
@@ -149,6 +152,9 @@ export const LiteOutcomeCard = ({
               </div>
             </div>
           </div>
+          {resultLine && (
+            <p className="mt-3 text-xs text-muted-foreground">{resultLine}</p>
+          )}
           {sourceName && (
             <div className="mt-3 text-[11px] text-muted-foreground">
               Settled from {sourceName} ·{" "}
