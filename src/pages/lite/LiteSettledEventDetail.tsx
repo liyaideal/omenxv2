@@ -81,6 +81,21 @@ const LiteSettledEventDetail = () => {
   const { data: detail, isLoading } = useResolvedEventDetail({ eventId });
   const { data: fills = [] } = useOwnFills(detail?.name ?? null);
 
+  // The detail hook only returns settled events. When it comes back empty we
+  // check whether the id is a still-live market (vs. an unknown id).
+  const { data: liveProbe, isLoading: probing } = useQuery({
+    queryKey: ["lite-settled-live-probe", eventId],
+    enabled: !!eventId && !isLoading && !detail,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("events")
+        .select("id, is_resolved, product_lines")
+        .eq("id", eventId)
+        .maybeSingle();
+      return data ?? null;
+    },
+  });
+
   const sides = useMemo(() => {
     if (!detail) return null;
     const alias = lc(detail.sideLabels?.yes ?? "");
@@ -110,10 +125,32 @@ const LiteSettledEventDetail = () => {
     };
   }, [detail]);
 
-  if (isLoading) {
+  if (isLoading || (!detail && probing)) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+  if (!detail && liveProbe) {
+    const lines = Array.isArray((liveProbe as any).product_lines)
+      ? ((liveProbe as any).product_lines as string[])
+      : ["futures"];
+    const livePath = lines.includes("spot")
+      ? `/spot?event=${liveProbe.id}`
+      : `/trade?event=${liveProbe.id}`;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-6">
+        <div className="max-w-sm text-center">
+          <p className="text-sm text-foreground">This market hasn't settled yet.</p>
+          <button
+            type="button"
+            onClick={() => navigate(livePath)}
+            className="mt-4 rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-[#0A0B0D]"
+          >
+            Open the live market →
+          </button>
+        </div>
       </div>
     );
   }
