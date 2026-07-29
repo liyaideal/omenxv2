@@ -12,7 +12,7 @@
 //   1/2. Price snapshot + balance leg live in LiteContractOrderPanel.
 // ============================================================
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { ChevronRight, Info, Loader2, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -269,6 +269,8 @@ const LiteContractTrade = () => {
       </div>
     );
   }
+  // Bare /trade (no event param) is not a dead link — send users to the market list.
+  if (!eventId) return <Navigate to="/events" replace />;
   // Settled events render the outcome card — never the expired fallback.
   if (notFound || !event || !yesOpt || !noOpt) {
     return <ExpiredEventFallback eventId={eventId} />;
