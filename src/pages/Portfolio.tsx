@@ -2,6 +2,8 @@ import { useState, useMemo } from "react";
 import { useNavigate, useNavigationType } from "react-router-dom";
 import { ArrowUpDown, TrendingUp, TrendingDown, Wallet, BarChart3, ChevronRight, Info, AlertTriangle, Loader2, Gift, Inbox, Trophy } from "lucide-react";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useSurface } from "@/contexts/SurfaceContext";
+import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePositions } from "@/hooks/usePositions";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
@@ -209,7 +211,37 @@ export default function Portfolio() {
     return m;
   }, [activeEventsForLookup]);
 
-  const handlePositionAction = (index: number) => {
+  const { surface } = useSurface();
+
+  // Resolve a position's event id: prefer option_id → event_options.event_id,
+  // otherwise fall back to a name lookup against events.
+  const resolveEventId = async (
+    optionId: string | null | undefined,
+    eventName: string,
+  ): Promise<string | null> => {
+    const cached = eventIdByName.get(eventName);
+    if (cached) return cached;
+    try {
+      if (optionId) {
+        const { data } = await supabase
+          .from("event_options")
+          .select("event_id")
+          .eq("id", optionId)
+          .maybeSingle();
+        if (data?.event_id) return data.event_id;
+      }
+      const { data: ev } = await supabase
+        .from("events")
+        .select("id")
+        .eq("name", eventName)
+        .maybeSingle();
+      return ev?.id ?? null;
+    } catch {
+      return null;
+    }
+  };
+
+  const handlePositionAction = async (index: number) => {
     // Read from sortedPositions — rows render from that array, so `index` is a
     // sorted-index. Reading `positions[index]` would route the wrong row after
     // sorting by PnL/Qty (spot ↔ futures cross-routing).
@@ -224,6 +256,15 @@ export default function Portfolio() {
       }
       navigate("/spot");
       return;
+    }
+    // Lite surface: the Lite contract page is driven purely by ?event=<id>, so
+    // resolve an event id before navigating (optionId first, event name second).
+    if (surface === "lite") {
+      const eid = await resolveEventId(target.optionId, target.event);
+      if (eid) {
+        navigate(`/trade?event=${eid}`);
+        return;
+      }
     }
     // Futures destination filters spot out — recompute the highlight index
     // against the destination's futures-only ordering by matching position id.

@@ -7,7 +7,6 @@ import {
   LogOut,
   LogIn,
   Gift,
-  Users,
   Settings,
   HelpCircle,
   Shield,
@@ -124,7 +123,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
         {/* Left: Logo + Navigation */}
         <div className="flex min-w-0 items-center gap-4 xl:gap-8">
           <button
-            onClick={() => navigate("/style-guide")}
+            onClick={() => navigate("/")}
             className="flex flex-shrink-0 items-center gap-2 transition-all duration-300 hover:scale-[1.02] hover:opacity-80"
           >
             <Logo size="xl" />
@@ -233,10 +232,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     <Gift className="mr-2 h-4 w-4 text-primary" />
                     Rewards
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/referral")}>
-                    <Users className="mr-2 h-4 w-4 text-primary" />
-                    Referral
-                  </DropdownMenuItem>
+                  {/* Referral entry hidden until the /referral route exists (R3b-2 round 12) */}
                   <DropdownMenuItem onClick={() => navigate("/vouchers")}>
                     <Ticket className="mr-2 h-4 w-4 text-primary" />
                     Position Vouchers
