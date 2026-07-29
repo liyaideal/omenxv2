@@ -33,6 +33,9 @@ const CATEGORY_LABEL: Record<string, string> = {
 
 const money = (n: number) => `$${Math.abs(n).toFixed(2)}`;
 const lc = (s: string) => s.trim().toLowerCase();
+/** DB evidence text can carry the raw negative alias — never show it to Lite users. */
+const consumerText = (s: string | null | undefined): string | null =>
+  s ? s.replace(/\bNot Up\b/gi, "didn't go up") : null;
 const ROW_GRID =
   "grid grid-cols-[minmax(48px,auto)_64px_48px_1fr] items-center gap-x-3";
 
@@ -200,7 +203,8 @@ const LiteSettledEventDetail = () => {
     if (sides.winnerLabel.startsWith("No —")) {
       return `It didn't go up — ${detail.name} closed below the price to beat.`;
     }
-    const tail = detail.settlement_description || detail.description || "";
+    const tail =
+      consumerText(detail.settlement_description || detail.description) || "";
     return tail ? `${lead} ${tail}` : lead;
   })();
 
