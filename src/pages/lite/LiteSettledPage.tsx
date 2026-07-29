@@ -17,6 +17,14 @@ import { cn } from "@/lib/utils";
 import { SPORTS_LINK } from "@/lib/worldCup";
 import { LiteSettledCard } from "@/components/lite/LiteSettledCard";
 import { LiveSettledSwitch } from "@/components/lite/LiveSettledSwitch";
+import {
+  LiteSettledSeriesCard,
+  LiteSettledSeriesDayRow,
+  STOCK_COMPANY,
+  isDailyStockEvent,
+  tickerOf,
+  type SettledSeries,
+} from "@/components/lite/LiteSettledSeriesCard";
 
 const SECTOR_ORDER: Array<{ id: string; label: string }> = [
   { id: "stocks", label: "Stocks" },
@@ -62,6 +70,7 @@ const LiteSettledPage = () => {
   const [authOpen, setAuthOpen] = useState(false);
 
   const scope = searchParams.get("view") === "mine" ? "mine" : "all";
+  const seriesParam = searchParams.get("series");
   const { data: events = [], isLoading } = useResolvedEvents();
 
   const setScope = (next: "all" | "mine") => {
@@ -91,12 +100,83 @@ const LiteSettledPage = () => {
   }, [pool]);
 
   const filtered = useMemo(() => {
-    let rows = pool;
+    let rows = pool.filter((e) => !isDailyStockEvent(e));
     if (sector !== "all")
       rows = rows.filter((e) => (e.category || "").toLowerCase() === sector);
     if (scope === "mine") rows = rows.filter((e) => e.userParticipated);
     return rows;
   }, [pool, sector, scope]);
+
+  // Daily up/down stock events collapse into one series per ticker.
+  const seriesList: SettledSeries[] = useMemo(() => {
+    if (sector !== "all" && sector !== "stocks") return [];
+    const byTicker = new Map<string, ResolvedEvent[]>();
+    for (const e of pool) {
+      if (!isDailyStockEvent(e)) continue;
+      const t = tickerOf(e);
+      const list = byTicker.get(t) || [];
+      list.push(e);
+      byTicker.set(t, list);
+    }
+    const ts = (e: ResolvedEvent) =>
+      e.settled_at ? new Date(e.settled_at).getTime() : 0;
+    const out: SettledSeries[] = [];
+    byTicker.forEach((days, ticker) => {
+      const sorted = [...days].sort((a, b) => ts(b) - ts(a));
+      const mine = sorted.find((d) => d.userParticipated);
+      out.push({
+        ticker,
+        company: STOCK_COMPANY[ticker] ?? ticker,
+        days: sorted,
+        userResult: mine ? mine.userPnl ?? 0 : null,
+      });
+    });
+    return out
+      .filter((s) => (scope === "mine" ? s.userResult !== null : true))
+      .sort((a, b) => ts(b.days[0]) - ts(a.days[0]));
+  }, [pool, sector, scope]);
+
+  const activeSeries = seriesParam
+    ? seriesList.find((s) => s.ticker === seriesParam) ??
+      (() => {
+        const days = pool
+          .filter((e) => isDailyStockEvent(e) && tickerOf(e) === seriesParam)
+          .sort(
+            (a, b) =>
+              new Date(b.settled_at ?? 0).getTime() -
+              new Date(a.settled_at ?? 0).getTime(),
+          );
+        if (days.length === 0) return undefined;
+        const mine = days.find((d) => d.userParticipated);
+        return {
+          ticker: seriesParam,
+          company: STOCK_COMPANY[seriesParam] ?? seriesParam,
+          days,
+          userResult: mine ? mine.userPnl ?? 0 : null,
+        } as SettledSeries;
+      })()
+    : undefined;
+
+  const openSeries = (ticker: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("series", ticker);
+    setSearchParams(params, { replace: false });
+    setDisplayCount(20);
+  };
+
+  const closeSeries = () => {
+    const params = new URLSearchParams(searchParams);
+    params.delete("series");
+    setSearchParams(params, { replace: false });
+    setDisplayCount(20);
+  };
+
+  const seriesDays = useMemo(() => {
+    if (!activeSeries) return [];
+    return scope === "mine"
+      ? activeSeries.days.filter((d) => d.userParticipated)
+      : activeSeries.days;
+  }, [activeSeries, scope]);
 
   const shown = filtered.slice(0, displayCount);
   const hasMore = filtered.length > displayCount;
@@ -136,6 +216,81 @@ const LiteSettledPage = () => {
           isMobile ? "px-4 py-4" : "px-4 py-6 lg:px-6",
         )}
       >
+        {activeSeries ? (
+          <>
+            <button
+              type="button"
+              onClick={closeSeries}
+              className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
+            >
+              ← All settled
+            </button>
+            <div className="mb-6 mt-3">
+              <h1
+                className="font-display font-bold tracking-tight text-foreground"
+                style={{ fontSize: "clamp(24px, 3.5vw, 34px)", lineHeight: 1.05 }}
+              >
+                {activeSeries.company} ({activeSeries.ticker}) — daily close
+              </h1>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Every day this stock has settled. Newest first.
+              </p>
+            </div>
+
+            <div className="mb-6 flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setScope("all")}
+                className={cn(
+                  "rounded-full px-[18px] py-[9px] text-[13px] transition-colors",
+                  scope === "all" ? PILL_ACTIVE : PILL_IDLE,
+                )}
+              >
+                All
+              </button>
+              <button
+                type="button"
+                onClick={() => setScope("mine")}
+                className={cn(
+                  "rounded-full px-[18px] py-[9px] text-[13px] transition-colors",
+                  scope === "mine" ? PILL_ACTIVE : PILL_IDLE,
+                )}
+              >
+                My results
+              </button>
+            </div>
+
+            {seriesDays.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-border/60 p-10 text-center">
+                <p className="text-sm text-muted-foreground">
+                  You haven't backed a day of this one yet.
+                </p>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-border bg-card p-2">
+                {seriesDays.slice(0, displayCount).map((d) => (
+                  <LiteSettledSeriesDayRow
+                    key={d.id}
+                    event={d}
+                    onSelect={(id) => navigate(`/resolved/${id}`)}
+                  />
+                ))}
+              </div>
+            )}
+            {seriesDays.length > displayCount && (
+              <div className="flex justify-center pt-4">
+                <button
+                  type="button"
+                  onClick={() => setDisplayCount((n) => n + 20)}
+                  className="rounded-xl border border-border px-5 py-2.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+                >
+                  Load more
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+        <>
         <div className="mb-6">
           <h1
             className="font-display font-bold tracking-tight text-foreground"
@@ -221,7 +376,7 @@ const LiteSettledPage = () => {
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
-        ) : filtered.length === 0 ? (
+        ) : filtered.length === 0 && seriesList.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border/60 p-10 text-center">
             <p className="text-sm text-muted-foreground">{emptyCopy}</p>
             <button
@@ -234,6 +389,22 @@ const LiteSettledPage = () => {
           </div>
         ) : (
           <div className="space-y-8">
+            {seriesList.length > 0 && (
+              <div>
+                <div className="mb-3 text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                  Daily stocks
+                </div>
+                <div className="grid grid-cols-1 gap-[18px] lg:grid-cols-2">
+                  {seriesList.map((s) => (
+                    <LiteSettledSeriesCard
+                      key={s.ticker}
+                      series={s}
+                      onSelect={openSeries}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
             {groups.map((g) => (
               <div key={g.key}>
                 <div className="mb-3 text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
@@ -274,6 +445,8 @@ const LiteSettledPage = () => {
             Switch to Pro mode
           </button>
         </div>
+        </>
+        )}
       </div>
 
       {isMobile && <BottomNav />}
