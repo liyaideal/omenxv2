@@ -209,11 +209,11 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 
 1. **共享导航栏**：`<EventsDesktopHeader />` 顶部导航
 2. **`<main>` 容器**：`px-8 py-10 max-w-7xl mx-auto space-y-6`
-3. **标题区**：桌面标题块**必须**由 `<PageHeader>` 渲染（见下方 Page Title Block 小节），禁止手写紫竖线 + `<h1>` 模板
+3. **开场区**：按下方 "Two Openings" 规则二选一 —— 账户页（Wallet / Portfolio）**无标题**，浏览页用 `<PageTitle>` display h1
 4. **筛选/Tabs 区**：标题下方，`space-y-6` 间距
 5. **内容区**：列表或网格
 
-**❌ 不允许**：桌面端跳过标题区直接渲染 Tabs/内容；使用非标准 `max-w` 或 `py` 值；在页面内手写 `<h1>` 复制 PageHeader 的样式。
+**❌ 不允许**：使用非标准 `max-w` 或 `py` 值；在 `<PageTitle>` 之外手写 display h1 复制其样式。（浏览页跳过标题仍属违规；账户页无标题是**正确**的。）
 
 ### Canonical Product Page Layouts
 
@@ -231,46 +231,28 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 
 **允许的变体**：`/settings/api` (API Management) 用全宽 hairline `border-t border-border/40` 分段替代 `space-y-6`，这是 §4 明确允许的工程图纸变体，别当违规。仍需 `max-w-7xl px-8 py-10`（移动 `px-4 py-6`）。
 
-### Page Title Block — 强制使用 `<PageHeader>` 组件
+### Page Openings — "Two Openings" 标题体系（Liya 批准，取代 PageHeader 强制令）
 
-标题块**只能**通过 `src/components/PageHeader.tsx` 渲染。任何页面手写紫竖线 + `<h1>` 都算违规。
+每个产品页只允许以下两种开场之一，没有第三种。
 
-```tsx
-<PageHeader
-  title="Wallet"
-  subtitle="Manage your funds and saved addresses"
-  actions={<Button>Create key</Button>}  // 可选右侧操作
-/>
-```
+**A) DATA OPENING（账户页：Wallet、Portfolio 及其子页）**
 
-**组件内置固化（不暴露为 prop，杜绝漂移）**
+- **完全不出页面标题**。页面自身的数据 hero（Wallet 的 equity 卡 / Portfolio 的 tabs + stats 行）就是开场。
+- Wallet 没有标题是**按规则正确**的，不要补标题。
 
-- 紫竖线：`absolute -left-4 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-primary via-primary/60 to-transparent hidden md:block`
-- h1 字号：`text-2xl md:text-3xl font-bold text-foreground`（全站唯一响应式类）
-- subtitle：`text-muted-foreground text-sm mt-1.5 max-w-2xl`
-- 布局：`flex items-start justify-between gap-4`，左标题块 / 右 `actions`（可选，`flex-shrink-0`）
+**B) TITLE OPENING（浏览/功能页：Events、Resolved、Vouchers、Rewards、Transparency、Settings、API Management）**
 
-**Props**
+- 单行 display h1，由 `src/components/PageTitle.tsx` 渲染：
+  `font-display font-bold tracking-[-0.02em] leading-[1.05]`，`fontSize: clamp(28px, 4vw, 40px)`
+- **无紫竖线、无 subtitle、无 eyebrow、无图标**。
+- 可选 `actions` 右对齐（如 MarketStatusTabs），容器 `flex items-baseline justify-between`。
+- 仅桌面渲染；移动端标题由 `<MobileHeader>` 承担。
 
-| Prop       | Type        | Note                                  |
-| ---------- | ----------- | ------------------------------------- |
-| `title`    | `string`    | 必填                                  |
-| `subtitle` | `string?`   | 可选，独立段落                        |
-| `actions`  | `ReactNode?`| 可选，右侧操作槽（按钮、tabs、drawer 触发） |
+**豁免**：Leaderboard 的霓虹 Hero；SEO 页（`SeoPageLayout`）保留自身版式。
 
-**渲染口径（桌面-only）**
+**内容标题（content title）≠ 页面标题**：Lite 交易页的事件名 h1 统一 `clamp(24px, 3.5vw, 34px)`（`/spot` 与 `/trade` 必须一致）。
 
-- `<PageHeader>` **仅在桌面渲染**（`{!isMobile && <PageHeader .../>}`）。移动端标题一律由 `<MobileHeader>` 顶栏承担，正文不再重复出标题块。
-- 移动端专用的筛选/drawer 触发按钮不放进 `actions`（`actions` 只在桌面显示），应在移动分支单独渲染一行 `flex justify-end` 控件。
-
-**❌ 禁止清单**
-
-- 禁止在 PageHeader 之外手写 `<h1>` + 紫竖线组合（Leaderboard 营销 Hero 是唯一豁免）
-- 禁止在 PageHeader 上下添加 eyebrow 小标签（如 `v1 · API MANAGEMENT`）
-- 禁止在标题旁塞图标（Gift、Shield、Wallet 图标等）
-- 禁止自定义字号（`text-3xl` 固定 / JS 三元切换）
-- 禁止自定义 subtitle `max-w`
-- 禁止在移动端同时渲染 `MobileHeader` 和 `PageHeader`（标题重复）
+> **DEPRECATED — `src/components/PageHeader.tsx`**（紫竖线 + h1 + subtitle）已废弃，仅为 style-guide 存档保留，禁止在任何新页面使用。产品页已全部迁移到上述两种开场。
 
 **✅ Do**
 - 外层容器一律 `mx-auto` 居中 + `px-8 py-10` 节奏
