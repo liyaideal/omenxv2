@@ -580,6 +580,33 @@ export type Database = {
         }
         Relationships: []
       }
+      market_activity: {
+        Row: {
+          amount: number | null
+          boost: number | null
+          created_at: string
+          event_name: string | null
+          id: string
+          option_label: string | null
+        }
+        Insert: {
+          amount?: number | null
+          boost?: number | null
+          created_at?: string
+          event_name?: string | null
+          id?: string
+          option_label?: string | null
+        }
+        Update: {
+          amount?: number | null
+          boost?: number | null
+          created_at?: string
+          event_name?: string | null
+          id?: string
+          option_label?: string | null
+        }
+        Relationships: []
+      }
       points_accounts: {
         Row: {
           balance: number
@@ -1678,6 +1705,7 @@ export type Database = {
         }[]
       }
       roll_daily_stock_events: { Args: never; Returns: number }
+      sim_market_activity_tick: { Args: never; Returns: number }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

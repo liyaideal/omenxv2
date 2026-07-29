@@ -18,6 +18,8 @@ interface Props {
   value: number;
   onChange: (v: number) => void;
   variant: "desktop" | "mobile";
+  /** Playground-only: render with the Custom tray already expanded. */
+  defaultTrayOpen?: boolean;
 }
 
 export const LiteBoostSelector = ({
@@ -26,11 +28,16 @@ export const LiteBoostSelector = ({
   value,
   onChange,
   variant,
+  defaultTrayOpen = false,
 }: Props) => {
-  const [trayOpen, setTrayOpen] = useState(false);
+  const [trayOpen, setTrayOpen] = useState(defaultTrayOpen);
   const isCustom = !tiers.includes(value);
   const customWidth = variant === "desktop" ? 84 : 78;
   const clamp = (n: number) => Math.min(maxBoost, Math.max(2, Math.round(n)));
+  // At the 1× baseline the tray must not pretend a value is already chosen:
+  // the input renders empty with a range placeholder and the slider parks at 2.
+  const atBaseline = !(value >= 2);
+  const trayValue = atBaseline ? 2 : Math.min(maxBoost, Math.max(2, value));
 
   return (
     <div className="space-y-2">
@@ -94,7 +101,7 @@ export const LiteBoostSelector = ({
             min={2}
             max={maxBoost}
             step={1}
-            value={Math.min(maxBoost, Math.max(2, value))}
+            value={trayValue}
             onChange={(e) => onChange(clamp(Number(e.target.value)))}
             aria-label="Custom boost"
             className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-border accent-yes"
@@ -105,13 +112,14 @@ export const LiteBoostSelector = ({
               inputMode="numeric"
               min={2}
               max={maxBoost}
-              value={Math.min(maxBoost, Math.max(2, value))}
+              value={atBaseline ? "" : trayValue}
+              placeholder={`2–${maxBoost}`}
               onChange={(e) => {
                 const n = Number(e.target.value);
                 if (isFinite(n) && n > 0) onChange(clamp(n));
               }}
               aria-label="Custom boost value"
-              className="h-9 w-16 rounded-lg border border-border bg-background px-2 text-center font-mono text-sm font-semibold text-foreground outline-none"
+              className="h-9 w-16 rounded-lg border border-border bg-background px-2 text-center font-mono text-sm font-semibold text-foreground outline-none placeholder:font-normal placeholder:text-muted-foreground/60"
             />
             <span className="font-mono text-sm text-muted-foreground">×</span>
           </div>

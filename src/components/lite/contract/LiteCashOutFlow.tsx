@@ -25,6 +25,10 @@ interface Props {
   sizeNum: number;
   sideLabel: string;
   onDone: () => void;
+  /** Playground-only: initial slider position (defaults to 100%). */
+  defaultPct?: number;
+  /** Playground-only: pin the CTA in its submitting/disabled state. */
+  forceBusy?: boolean;
 }
 
 export const LiteCashOutFlow = ({
@@ -37,14 +41,16 @@ export const LiteCashOutFlow = ({
   sizeNum,
   sideLabel,
   onDone,
+  defaultPct = 100,
+  forceBusy = false,
 }: Props) => {
   const { closePosition, partialClosePosition } = usePositions();
-  const [pct, setPct] = useState(100);
+  const [pct, setPct] = useState(defaultPct);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (open) setPct(100);
-  }, [open]);
+    if (open) setPct(defaultPct);
+  }, [open, defaultPct]);
 
   const fraction = pct / 100;
   const payout = useMemo(
@@ -59,7 +65,9 @@ export const LiteCashOutFlow = ({
       if (pct >= 100) {
         await closePosition(positionId, positionIndex);
       } else {
-        const qty = Math.max(1, Math.round(fraction * sizeNum));
+        // Sizes are fractional — never round to whole shares and never floor
+        // at 1. Clamp into (0, sizeNum] so 100% still routes to closePosition.
+        const qty = Math.min(sizeNum, Math.max(Number.EPSILON, fraction * sizeNum));
         await partialClosePosition(positionId, positionIndex, qty);
       }
       toast.success(`Cashed out ≈ $${payout.toFixed(2)}`);
@@ -114,8 +122,9 @@ export const LiteCashOutFlow = ({
     </div>
   );
 
+  const disabled = busy || forceBusy;
   const cta = (
-    <Button className="h-11 w-full" disabled={busy} onClick={confirm}>
+    <Button className="h-11 w-full" disabled={disabled} onClick={confirm}>
       Cash out ≈ ${payout.toFixed(2)}
     </Button>
   );

@@ -1,70 +1,62 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Search, X, RotateCcw, Megaphone } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { ArrowLeft, Search, X, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { 
   ViewportSwitcher, 
   ViewportBanner, 
   type ViewportSize,
-  PlatformBadge,
 } from "./components";
-import {
-  DesignTokensSection,
-  TypographySection,
-  CommonUISection,
-  FormsSection,
-  TradingSection,
-  WalletSection,
-  MobilePatternsSection,
-  MobileHomeSection,
-  UserIdentitySection,
-  DepositWithdrawSection,
-  TransparencySection,
-  VouchersSection,
-  WorldCupSection,
-  SpotSection,
-  LiteSpotSection,
-  ApiSection,
-  StatesSection,
-} from "./sections";
-
+import { STYLE_GUIDE_GROUPS, ALL_SECTIONS, resolveSectionId } from "./nav";
 
 const StyleGuideIndex = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const actualIsMobile = useIsMobile();
   const [viewport, setViewport] = useState<ViewportSize>("auto");
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("tokens");
+  const [activeId, setActiveId] = useState(
+    () => resolveSectionId(location.hash) ?? ALL_SECTIONS[0].id,
+  );
+
+  // Deep links: /style-guide#lite keeps working, and selecting a section
+  // writes the hash back so links stay shareable.
+  useEffect(() => {
+    const fromHash = resolveSectionId(location.hash);
+    if (fromHash && fromHash !== activeId) setActiveId(fromHash);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.hash]);
+
+  const selectSection = (id: string) => {
+    setActiveId(id);
+    navigate(`#${id}`, { replace: true });
+    window.scrollTo({ top: 0 });
+  };
 
   // Determine effective isMobile based on viewport selection
   const isMobile = viewport === "auto" 
     ? actualIsMobile 
     : viewport === "mobile" || viewport === "tablet";
 
-  const tabs = [
-    { id: "tokens", label: "Tokens", icon: "🎨" },
-    { id: "typography", label: "Typography", icon: "🔤" },
-    { id: "ui", label: "Common UI", icon: "🧩" },
-    { id: "forms", label: "Forms", icon: "📝" },
-    { id: "trading", label: "Trading", icon: "💹" },
-    { id: "wallet", label: "Wallet", icon: "💰" },
-    { id: "deposit", label: "Deposit/Withdraw", icon: "🔄" },
-    { id: "home", label: "Mobile Home", icon: "🏠" },
-    { id: "mobile", label: "Mobile", icon: "📱" },
-    { id: "identity", label: "Identity", icon: "👤" },
-    { id: "transparency", label: "Transparency", icon: "🔗" },
-    { id: "vouchers", label: "Vouchers", icon: "🎫" },
-    { id: "worldcup", label: "World Cup", icon: "🏆" },
-    { id: "spot", label: "Spot", icon: "📈" },
-    { id: "lite-spot", label: "Lite Spot", icon: "✨" },
-    { id: "api", label: "API", icon: "🔑" },
-    { id: "states", label: "States", icon: "🧱" },
-  ];
+  const q = searchQuery.trim().toLowerCase();
+  const groups = useMemo(
+    () =>
+      STYLE_GUIDE_GROUPS.map((g) => ({
+        ...g,
+        sections: q
+          ? g.sections.filter(
+              (x) =>
+                x.label.toLowerCase().includes(q) || g.label.toLowerCase().includes(q),
+            )
+          : g.sections,
+      })).filter((g) => g.sections.length > 0),
+    [q],
+  );
 
+  const active = ALL_SECTIONS.find((x) => x.id === activeId) ?? ALL_SECTIONS[0];
 
   return (
     <div className={`min-h-screen bg-background ${isMobile ? "pb-20" : ""}`}>
@@ -123,106 +115,76 @@ const StyleGuideIndex = () => {
         <ViewportBanner viewport={viewport} onClose={() => setViewport("auto")} />
       </header>
 
-      {/* Main Content with Tabs */}
-      <main className={`${isMobile ? "px-4 py-4" : "px-8 py-6 max-w-7xl mx-auto"}`}>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <div className="mb-6 -mx-4 px-4 overflow-x-auto scrollbar-none">
-            <TabsList className="w-max flex-nowrap">
-              {tabs.map((tab) => (
-                <TabsTrigger
-                  key={tab.id}
-                  value={tab.id}
-                  className="shrink-0 whitespace-nowrap"
-                >
-                  <span className="mr-1.5">{tab.icon}</span>
-                  {tab.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </div>
-
-          {/* Search Results Info */}
-          {searchQuery && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/30 rounded-lg px-3 py-2 mb-6">
-              <Search className="h-4 w-4" />
-              <span>Filtering for "<span className="text-foreground font-medium">{searchQuery}</span>"</span>
-              <Button variant="ghost" size="sm" className="h-6 ml-auto" onClick={() => setSearchQuery("")}>
-                Clear
-              </Button>
+      {/* Grouped shell: sidebar (desktop) / stacked picker (mobile) */}
+      <div className={isMobile ? "" : "mx-auto flex max-w-[1600px] gap-8 px-8 py-6"}>
+        <nav
+          className={
+            isMobile
+              ? "sticky top-[57px] z-40 -mx-0 border-b border-border bg-background/95 px-4 py-3 backdrop-blur"
+              : "sticky top-24 h-fit w-[240px] shrink-0 space-y-5"
+          }
+        >
+          {isMobile ? (
+            <div className="flex gap-2 overflow-x-auto scrollbar-none">
+              {groups.flatMap((g) =>
+                g.sections.map((x) => (
+                  <button
+                    key={x.id}
+                    onClick={() => selectSection(x.id)}
+                    className={cn(
+                      "shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium",
+                      activeId === x.id
+                        ? "border-transparent bg-foreground text-background"
+                        : "border-border text-muted-foreground",
+                    )}
+                  >
+                    {x.label}
+                  </button>
+                )),
+              )}
             </div>
+          ) : (
+            <>
+              {groups.map((g) => (
+                <div key={g.id}>
+                  <div className="mb-1.5 px-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                    {g.label}
+                  </div>
+                  <div className="space-y-0.5">
+                    {g.sections.map((x) => (
+                      <button
+                        key={x.id}
+                        onClick={() => selectSection(x.id)}
+                        className={cn(
+                          "block w-full rounded-lg px-2 py-1.5 text-left text-sm transition-colors",
+                          activeId === x.id
+                            ? "bg-muted font-medium text-foreground"
+                            : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+                        )}
+                      >
+                        {x.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <div className="border-t border-border pt-3">
+                <button
+                  onClick={() => navigate("/campaign-style-guide")}
+                  className="flex items-center gap-1.5 px-2 text-xs text-muted-foreground hover:text-foreground"
+                >
+                  <Megaphone className="h-3.5 w-3.5" />
+                  Campaign style guide
+                </button>
+              </div>
+            </>
           )}
+        </nav>
 
-          {/* Tab Content */}
-          <TabsContent value="tokens" className="mt-0">
-            <DesignTokensSection isMobile={isMobile} />
-          </TabsContent>
-
-          <TabsContent value="typography" className="mt-0">
-            <TypographySection isMobile={isMobile} />
-          </TabsContent>
-
-          <TabsContent value="ui" className="mt-0">
-            <CommonUISection isMobile={isMobile} />
-          </TabsContent>
-
-          <TabsContent value="forms" className="mt-0">
-            <FormsSection isMobile={isMobile} />
-          </TabsContent>
-
-          <TabsContent value="trading" className="mt-0">
-            <TradingSection isMobile={isMobile} />
-          </TabsContent>
-
-          <TabsContent value="wallet" className="mt-0">
-            <WalletSection isMobile={isMobile} />
-          </TabsContent>
-
-          <TabsContent value="deposit" className="mt-0">
-            <DepositWithdrawSection isMobile={isMobile} />
-          </TabsContent>
-
-          <TabsContent value="home" className="mt-0">
-            <MobileHomeSection isMobile={isMobile} />
-          </TabsContent>
-
-          <TabsContent value="mobile" className="mt-0">
-            <MobilePatternsSection isMobile={isMobile} />
-          </TabsContent>
-
-          <TabsContent value="identity" className="mt-0">
-            <UserIdentitySection isMobile={isMobile} />
-          </TabsContent>
-
-          <TabsContent value="transparency" className="mt-0">
-            <TransparencySection isMobile={isMobile} />
-          </TabsContent>
-
-          <TabsContent value="vouchers" className="mt-0">
-            <VouchersSection isMobile={isMobile} />
-          </TabsContent>
-
-          <TabsContent value="worldcup" className="mt-0">
-            <WorldCupSection isMobile={isMobile} />
-          </TabsContent>
-
-          <TabsContent value="spot" className="mt-0">
-            <SpotSection isMobile={isMobile} />
-          </TabsContent>
-
-          <TabsContent value="lite-spot" className="mt-0">
-            <LiteSpotSection isMobile={isMobile} />
-          </TabsContent>
-
-          <TabsContent value="api" className="mt-0">
-            <ApiSection isMobile={isMobile} />
-          </TabsContent>
-
-          <TabsContent value="states" className="mt-0">
-            <StatesSection isMobile={isMobile} />
-          </TabsContent>
-        </Tabs>
-
-      </main>
+        <main className={isMobile ? "px-4 py-4" : "min-w-0 flex-1"}>
+          {active.render(isMobile)}
+        </main>
+      </div>
     </div>
   );
 };
