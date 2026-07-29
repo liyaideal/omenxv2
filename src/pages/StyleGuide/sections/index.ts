@@ -1,5 +1,6 @@
 export { DesignTokensSection } from "./DesignTokensSection";
 export { TypographySection } from "./TypographySection";
+export { AnimationsSection } from "./AnimationsSection";
 export { CommonUISection } from "./CommonUISection";
 export { FormsSection } from "./FormsSection";
 export { TradingSection } from "./TradingSection";
@@ -13,6 +14,7 @@ export { VouchersSection } from "./VouchersSection";
 export { WorldCupSection } from "./WorldCupSection";
 export { SpotSection } from "./SpotSection";
 export { LiteSpotSection } from "./LiteSpotSection";
+export { LiteSection } from "./LiteSection";
 export { ApiSection } from "./ApiSection";
 export { StatesSection } from "./StatesSection";
 

@@ -38,6 +38,12 @@ import { LiteContractChart } from "@/components/lite/contract/LiteContractChart"
 import { LiteContractOrderPanel } from "@/components/lite/contract/LiteContractOrderPanel";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
 import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
+import {
+  LiteMarketActivity,
+  type MarketActivityRow,
+} from "@/components/lite/contract/LiteMarketActivity";
+import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
+import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
 
 type EventRow = Tables<"events"> & { options: Tables<"event_options">[] };
 type Side = "yes" | "no";
@@ -75,42 +81,28 @@ const useCountdown = (target: Date | null) => {
   return text;
 };
 
-const relTime = (iso: string): string => {
-  const diff = Date.now() - new Date(iso).getTime();
-  if (diff < 60_000) return `${Math.max(1, Math.floor(diff / 1000))}s`;
-  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m`;
-  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h`;
-  return `${Math.floor(diff / 86_400_000)}d`;
-};
-
-interface PulseRow {
-  id: string;
-  isYes: boolean;
-  amount: number;
-  boost: number;
-  createdAt: string;
-}
-
-// RLS on `trades` is owner-scoped (auth.uid() = user_id), so this can only
-// ever return the CURRENT USER's own fills. It is rendered as "Your recent
-// activity" — never as anonymous social proof.
-const usePulse = (eventName: string | null, yesOptionLabel: string, userId?: string) => {
-  const [rows, setRows] = useState<PulseRow[]>([]);
+// `market_activity` is an anonymised, all-user feed (public SELECT, no user
+// identity column), so this is genuine market-wide social proof. Polled on
+// refetchTick — no realtime subscription needed.
+const useMarketActivity = (
+  eventName: string | null,
+  yesOptionLabel: string,
+  tick: number,
+) => {
+  const [rows, setRows] = useState<MarketActivityRow[]>([]);
   useEffect(() => {
-    if (!eventName || !userId) {
+    if (!eventName) {
       setRows([]);
       return;
     }
     let alive = true;
     (async () => {
       const { data } = await supabase
-        .from("trades")
-        .select("id, amount, leverage, created_at, option_label")
+        .from("market_activity")
+        .select("id, amount, boost, created_at, option_label")
         .eq("event_name", eventName)
-        .eq("user_id", userId)
-        .eq("side", "buy")
         .order("created_at", { ascending: false })
-        .limit(10);
+        .limit(30);
       if (!alive) return;
       const yesLc = yesOptionLabel.trim().toLowerCase();
       setRows(
@@ -118,7 +110,7 @@ const usePulse = (eventName: string | null, yesOptionLabel: string, userId?: str
           id: r.id,
           isYes: (r.option_label || "").trim().toLowerCase() === yesLc,
           amount: Number(r.amount) || 0,
-          boost: Number(r.leverage) || 1,
+          boost: Number(r.boost) || 1,
           createdAt: r.created_at,
         })),
       );
@@ -126,7 +118,7 @@ const usePulse = (eventName: string | null, yesOptionLabel: string, userId?: str
     return () => {
       alive = false;
     };
-  }, [eventName, yesOptionLabel, userId]);
+  }, [eventName, yesOptionLabel, tick]);
   return rows;
 };
 
@@ -296,9 +288,7 @@ const LiteContractTrade = () => {
     [positions, heldPos],
   );
 
-  const pulse = usePulse(event?.name || null, yesOpt?.label || "", user?.id);
-  // No market-volume field on Lite: `trades` is owner-scoped by RLS, so any
-  // aggregate is the user's own notional and would be misread as market depth.
+  const activity = useMarketActivity(event?.name || null, yesOpt?.label || "", refetchTick);
 
   const more = useMoreMarkets(event?.category || null, event?.id || "");
 
@@ -325,7 +315,6 @@ const LiteContractTrade = () => {
   const starred = isWatched(event.id);
   const categoryLabel = CATEGORY_LABEL[String(event.category).toLowerCase()] || event.category;
   const yesPct = Math.max(1, Math.min(99, Math.round(yesLive * 100)));
-  const noPct = 100 - yesPct;
 
   const heldIsYes =
     heldPos != null &&
@@ -390,27 +379,12 @@ const LiteContractTrade = () => {
   );
 
   const SentimentBar = (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-          What the crowd thinks
-        </div>
-      </div>
-      <div
-        className="flex overflow-hidden rounded-[11px] border border-border"
-        style={{ height: isMobile ? 38 : 44 }}
-      >
-        <div
-          className="flex items-center bg-gradient-to-r from-yes/30 to-yes/15 px-3 text-xs font-semibold text-yes"
-          style={{ width: `${yesPct}%`, borderRight: "2px solid hsl(var(--background))" }}
-        >
-          {yesLabel} {yesPct}%
-        </div>
-        <div className="flex flex-1 items-center justify-end bg-gradient-to-r from-no/15 to-no/25 px-3 text-xs font-semibold text-no">
-          {noPct}% {noLabel}
-        </div>
-      </div>
-    </div>
+    <LiteSentimentBar
+      yesLabel={yesLabel}
+      noLabel={noLabel}
+      yesPct={yesPct}
+      compact={!!isMobile}
+    />
   );
 
   const Chart = (
@@ -436,53 +410,28 @@ const LiteContractTrade = () => {
     </div>
   );
 
+  const heldNowWorth = heldPos ? heldPos.marginNum + heldPnlNum : 0;
+
   const YourPosition = heldPos ? (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <div className="mb-3 text-sm font-semibold">
-        <span className={heldIsYes ? "text-yes" : "text-no"}>
-          {heldIsYes ? yesLabel : noLabel}
-        </span>
-        {heldPos.leverageNum > 1 && (
-          <span className="text-foreground">
-            {" · "}
-            <span className="font-mono">{heldPos.leverageNum}×</span> Boost
-          </span>
-        )}
-      </div>
-      <div className="grid grid-cols-4 gap-2 border-t border-border pt-3 text-xs">
-        <PosCell label="Put in" value={heldPos.margin} />
-        <PosCell
-          label="Now worth"
-          value={`$${(heldPos.marginNum + heldPnlNum).toFixed(2)}`}
-        />
-        <PosCell
-          label="Profit"
-          value={`${heldPnlNum >= 0 ? "+" : "−"}$${Math.abs(heldPnlNum).toFixed(2)}`}
-          tone={heldPnlNum >= 0 ? "up" : "down"}
-        />
-        <PosCell
-          label={isMobile ? "Auto-close" : "Est. auto-close"}
-          value={
-            heldPos.leverageNum <= 1
+    <LitePositionCard
+      sideLabel={heldIsYes ? yesLabel : noLabel}
+      isYes={heldIsYes}
+      boost={heldPos.leverageNum}
+      putIn={heldPos.marginNum}
+      nowWorth={heldNowWorth}
+      profit={heldPnlNum}
+      autoCloseText={
+        heldPos.leverageNum <= 1
+          ? "None"
+          : heldAutoClose != null
+            ? `≈ ${formatCents(heldAutoClose)}`
+            : isMobile
               ? "None"
-              : heldAutoClose != null
-                ? `≈ ${formatCents(heldAutoClose)}`
-                : isMobile
-                  ? "None"
-                  : "None at this balance"
-          }
-        />
-      </div>
-      <div className="mt-3 border-t border-border pt-3">
-        <button
-          type="button"
-          onClick={() => setCashOutOpen(true)}
-          className="h-9 w-full rounded-lg bg-muted text-xs font-semibold hover:bg-muted/80"
-        >
-          Cash out
-        </button>
-      </div>
-    </div>
+              : "None at this balance"
+      }
+      compact={!!isMobile}
+      onCashOut={() => setCashOutOpen(true)}
+    />
   ) : null;
 
   const CashOut = heldPos ? (
@@ -492,56 +441,20 @@ const LiteContractTrade = () => {
       isMobile={!!isMobile}
       positionId={heldPos.id}
       positionIndex={heldIndex}
-      currentValue={heldPos.marginNum + heldPnlNum}
+      currentValue={heldNowWorth}
       sizeNum={heldPos.sizeNum}
       sideLabel={heldIsYes ? yesLabel : noLabel}
       onDone={() => setRefetchTick((n) => n + 1)}
     />
   ) : null;
 
-  const MarketPulse = (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <div className="flex items-center gap-1.5 text-sm font-medium">
-          <span
-            className="h-1.5 w-1.5 animate-pulse rounded-full"
-            style={{ background: "#6B7280" }}
-          />
-          Your recent activity
-        </div>
-        <span className="text-[11px] text-muted-foreground">your buys</span>
-      </div>
-      {pulse.length === 0 ? (
-        <div className="rounded-lg bg-muted/20 py-6 text-center text-xs text-muted-foreground">
-          No trades yet in this market.
-        </div>
-      ) : (
-        <ul className="space-y-1.5">
-          {pulse.slice(0, isMobile ? 3 : 6).map((r) => (
-            <li key={r.id} className="flex items-center gap-3 rounded-lg px-2 py-1.5">
-              <span
-                className={cn(
-                  "rounded-md px-1.5 py-0.5 text-[11px] font-semibold",
-                  r.isYes ? "bg-yes/13 text-yes" : "bg-no/13 text-no",
-                )}
-              >
-                {r.isYes ? yesLabel : noLabel}
-              </span>
-              <span className="flex-1 truncate text-xs text-muted-foreground">
-                You backed {r.isYes ? yesLabel : noLabel}{" "}
-                <span className="font-mono text-foreground">${r.amount.toFixed(0)}</span>
-                {r.boost > 1 && (
-                  <span className="font-mono"> · {r.boost}× Boost</span>
-                )}
-              </span>
-              <span className="font-mono text-[11px] text-muted-foreground">
-                {relTime(r.createdAt)}
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+  const MarketActivity = (
+    <LiteMarketActivity
+      rows={activity}
+      yesLabel={yesLabel}
+      noLabel={noLabel}
+      maxRows={isMobile ? 4 : 8}
+    />
   );
 
   const MoreMarkets = (
@@ -627,6 +540,7 @@ const LiteContractTrade = () => {
     boostTiers: tiers,
     countdownText: countdown,
     heldSideLabel: heldPos ? (heldIsYes ? yesLabel : noLabel) : null,
+    heldCurrentValue: heldPos ? heldNowWorth : null,
     onRequestAuth: () => setAuthOpen(true),
   } as const;
 
@@ -654,7 +568,7 @@ const LiteContractTrade = () => {
                 {SentimentBar}
                 {RuleCard}
                 {YourPosition}
-                {MarketPulse}
+                {MarketActivity}
                 {MoreMarkets}
               </>
             )}
@@ -758,7 +672,7 @@ const LiteContractTrade = () => {
                 {Chart}
                 {RuleCard}
                 {YourPosition}
-                {MarketPulse}
+                {MarketActivity}
               </>
             )}
           </div>
@@ -804,32 +718,6 @@ const BuyButton = ({
     <span className="font-mono text-[13px]">{cents}¢</span>
     {boostLine && <span className="font-mono text-[10px] opacity-75">{boostLine}</span>}
   </button>
-);
-
-const PosCell = ({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone?: "up" | "down";
-}) => (
-  <div>
-    <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
-    <div
-      className={cn(
-        "font-mono text-sm font-semibold",
-        tone === "up"
-          ? "text-trading-green"
-          : tone === "down"
-            ? "text-trading-red"
-            : "text-foreground",
-      )}
-    >
-      {value}
-    </div>
-  </div>
 );
 
 export default LiteContractTrade;

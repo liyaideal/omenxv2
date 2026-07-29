@@ -405,3 +405,4 @@
 
 - 2026-05-21：首次建立 STATUS.md，覆盖 4 份历史交付文档；新交付按顶部追加规则维护
 - 2026-07-28 · R3b-2 round 5 — Boost tier ladder + custom slider, auto-close cells always occupy their slot, binary futures buys now NET the opposite leg (approved executeTrade change, Pro buy-flow included), Lite container alignment, YourPosition rework with Cash out flow. [2026-07-28-r3b2-round5-boost-netting.md]
+- 2026-07-28 · R3b-2 round 6 — /style-guide 重构为分组侧栏（导航壳层，section 内容零改动）+ 新增 Lite playground；Market pulse 改为匿名全站 `market_activity` feed（触发器 + DEMO-STATE pg_cron 生成器 + 48h 清理）；round-5 尾巴（分数化 cash out、Cash out 带实时金额、netting toast 与余额预检、Boost custom tray 1× 空态）。[2026-07-28-r3b2-round6-styleguide-activity.md]

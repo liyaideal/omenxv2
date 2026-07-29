@@ -60,6 +60,10 @@ export interface LiteContractOrderPanelProps {
   /** Consumer label of the side the user currently holds on this event, if
    *  any. When the selected side is the other one, the buy nets it down. */
   heldSideLabel?: string | null;
+  /** Live cash value (put in + PnL) of that held side. Used only to soften the
+   *  client-side balance pre-check when the buy nets the held leg down — the
+   *  engine remains the final authority on funds. */
+  heldCurrentValue?: number | null;
   onFilled?: () => void;
   onRequestAuth: () => void;
 }
@@ -90,6 +94,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
     countdownText,
     variant,
     heldSideLabel,
+    heldCurrentValue,
     onFilled,
     onRequestAuth,
   } = props;
@@ -103,6 +108,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   const sidePrice = side === "yes" ? yesPrice : noPrice;
   const sideLabel = side === "yes" ? yesLabel : noLabel;
   const oppositeLabel = side === "yes" ? noLabel : yesLabel;
+  const isNetting = !!heldSideLabel && heldSideLabel !== sideLabel;
 
   const amountNum = useMemo(() => {
     const n = parseFloat(amount);
@@ -136,7 +142,12 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
     if (!user) return onRequestAuth();
     if (blocked) return toast.error(blockedReason || "Market unavailable");
     if (amountNum <= 0) return toast.error("Enter an amount");
-    if (amountNum + fee > balance)
+    // When netting, the held leg's cash comes back first, so only the
+    // shortfall has to be funded from the wallet.
+    const cashNeeded = isNetting
+      ? Math.max(0, amountNum - Math.max(0, heldCurrentValue ?? 0))
+      : amountNum;
+    if (cashNeeded + fee > balance)
       return toast.error("Not enough balance — add funds to continue");
 
     // P0 #1 — snapshot everything price-derived at click time.
@@ -174,7 +185,15 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
         await addBalance(res.balanceDelta);
       }
 
-      toast.success(`Backed ${sideLabel} · ${money(amountSnapshot)}`);
+      if (res.intent === "reduce" || res.intent === "close") {
+        toast.success(
+          res.balanceDelta > 0
+            ? `Cashed out ${heldSideLabel ?? oppositeLabel} · ${money(res.balanceDelta)} back`
+            : `Cashed out ${heldSideLabel ?? oppositeLabel}`,
+        );
+      } else {
+        toast.success(`Backed ${sideLabel} · ${money(amountSnapshot)}`);
+      }
       onAmountChange("");
       onFilled?.();
     } catch (err) {
@@ -189,6 +208,10 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
     amountNum,
     fee,
     balance,
+    isNetting,
+    heldCurrentValue,
+    heldSideLabel,
+    oppositeLabel,
     sidePrice,
     effBoost,
     side,
@@ -222,7 +245,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
           : "None at this balance";
 
   const nettingNotice =
-    heldSideLabel && heldSideLabel !== sideLabel
+    isNetting
       ? `You're backing ${sideLabel}. This cashes out your ${heldSideLabel} first.`
       : null;
 
