@@ -148,6 +148,7 @@ const LiteSpotTrade = () => {
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const { positions } = usePositions();
+  const { addSpotBalance } = useUserProfile();
   const { isWatched, toggle } = useWatchlist();
   const pricesCtx = useRealtimePricesOptional();
 
@@ -158,7 +159,8 @@ const LiteSpotTrade = () => {
   const [amount, setAmount] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
-  const positionsRefetchRef = useRef(0);
+  const [refetchTick, setRefetchTick] = useState(0);
+  const [cashOutOpen, setCashOutOpen] = useState(false);
 
   // Fetch event
   useEffect(() => {
@@ -182,7 +184,7 @@ const LiteSpotTrade = () => {
     return () => {
       alive = false;
     };
-  }, [eventId, positionsRefetchRef.current]);
+  }, [eventId, refetchTick]);
 
   const sideLabels = useMemo(() => parseSideLabels(event?.side_labels), [event]);
   const yesLabel = sideLabels?.yes || "Up";
@@ -243,20 +245,46 @@ const LiteSpotTrade = () => {
   const downPct = 100 - upPct;
 
   // Held position on this event, if any (spot only).
-  const heldPos = useMemo(() => {
-    if (!event) return null;
-    const same = positions.find(
+  const heldIndex = useMemo(() => {
+    if (!event) return -1;
+    return positions.findIndex(
       (p) => p.productLine === "spot" && p.event === event.name,
     );
-    return same || null;
   }, [positions, event]);
+  const heldPos = heldIndex >= 0 ? positions[heldIndex] : null;
 
   // Watchlist star
   const starred = event ? isWatched(event.id) : false;
 
-  // Pulse + more stocks
-  const pulse = usePulse(event?.name || null, yesLabel, noLabel, yesOpt?.label || "");
+  // Shared anonymised all-user activity + more stocks
+  const activity = useMarketActivityRows(
+    event?.name || null,
+    yesOpt?.label || "",
+    refetchTick,
+  );
   const otherStocks = useOtherStocks(event?.id || "");
+
+  // Spot cash-out routes through the existing spot SELL path (not the generic
+  // position close) because only that path credits the cash balance.
+  const handleSpotCashOut = useCallback(
+    async (qty: number) => {
+      if (!user || !event || !heldPos) throw new Error("Sign in to cash out");
+      const optionId = heldPos.optionId || yesOpt?.id;
+      if (!optionId) throw new Error("Market data unavailable");
+      const isYesHeld = optionId === yesOpt?.id;
+      const price = isYesHeld ? yesLive : noLive;
+      const res = await executeSpotTrade(user.id, {
+        eventName: event.name,
+        optionLabel: heldPos.option,
+        optionId,
+        side: "sell",
+        price,
+        quantity: qty,
+      });
+      if (res.balanceDelta > 0) await addSpotBalance(res.balanceDelta);
+    },
+    [user, event, heldPos, yesOpt?.id, yesLive, noLive, addSpotBalance],
+  );
 
   const openBuy = useCallback(
     (s: Side) => {
