@@ -19,18 +19,29 @@ export const STOCK_COMPANY: Record<string, string> = {
   AMZN: "Amazon",
 };
 
-/** Daily up/down stock event? Same ticker derivation the Lite spot page uses. */
+/**
+ * Daily up/down slugs look like `us-hood-updown-20260724`. The shared
+ * deriveTickerFromEvent fallback would read "US" out of that, which would
+ * merge every stock into one series — so read the slug first and only fall
+ * back to the shared derivation.
+ */
+const SLUG = /^us-([a-z]{1,5})-updown\b/i;
+
 export const isDailyStockEvent = (e: {
   id: string;
   name: string;
   category: string;
 }): boolean => {
   if ((e.category || "").toLowerCase() !== "stocks") return false;
+  if (SLUG.test(e.id)) return true;
   return deriveTickerFromEvent(e.id, e.name) !== "STOCK";
 };
 
-export const tickerOf = (e: { id: string; name: string }) =>
-  deriveTickerFromEvent(e.id, e.name);
+export const tickerOf = (e: { id: string; name: string }) => {
+  const m = e.id.match(SLUG);
+  if (m) return m[1].toUpperCase();
+  return deriveTickerFromEvent(e.id, e.name);
+};
 
 export interface SettledSeries {
   ticker: string;
