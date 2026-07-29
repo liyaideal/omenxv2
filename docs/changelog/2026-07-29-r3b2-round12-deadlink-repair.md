@@ -11,3 +11,4 @@
    - `BottomNav.tsx`: Trade tab targets `/events` on Lite.
 3. **Desktop logo** now navigates `/` instead of `/style-guide`.
 4. **Referral menu entries removed** from `EventsDesktopHeader` dropdown and `BottomNav` drawer (route does not exist); hooks/logic untouched.
+5. **Remove redundant Cancel from Lite mobile buy drawers** — deleted `MobileDrawerActions`/`Button` Cancel blocks in `LiteContractTrade.tsx` and `LiteSpotTrade.tsx`; drawers already close via drag handle / outside tap. `LiteCashOutFlow` Cancel kept (money confirmation flow).
