@@ -420,6 +420,9 @@ const LiteSpotTrade = () => {
       basePrice={basePrice}
       currentPrice={currentPrice}
       upOdds={yesLive}
+      side={side}
+      upLabel={yesLabel}
+      downLabel={noLabel}
       endDate={event?.end_date}
     />
   );
