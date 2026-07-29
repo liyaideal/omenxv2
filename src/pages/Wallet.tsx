@@ -859,7 +859,7 @@ export default function Wallet() {
         <EventsDesktopHeader />
         
         <AuthGateOverlay title="Sign in to view your wallet" description="Manage your funds and saved addresses by signing in.">
-        <main className="mx-auto w-full max-w-[1200px] px-6 py-8 space-y-[18px]">
+        <main className="mx-auto w-full max-w-7xl px-8 py-10 space-y-[18px]">
           <MaintenanceNoticeBanner className="mb-2" />
 
           {/* Band 1 · Signal-DNA Hero: flat dark card + decorative X watermark */}

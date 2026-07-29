@@ -9,7 +9,6 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { usePositions } from "@/hooks/usePositions";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
-import { PageHeader } from "@/components/PageHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
@@ -268,10 +267,8 @@ export default function PortfolioSettlements() {
       )}
 
       <AuthGateOverlay title="Sign in to view your settlements" description="Track your settlement history by signing in to your account.">
+      {/* DATA OPENING (DESIGN.md §4): no page title on account pages. */}
       <main className={`${isMobile ? "px-4 py-6" : "px-8 py-10 max-w-7xl mx-auto"} space-y-8`}>
-        {/* Page Title */}
-        {!isMobile && <PageHeader title="Portfolio" subtitle="Track your open positions and settlement history" />}
-
         {/* Desktop Tabs */}
         {!isMobile && (
           <div className="flex border-b border-border">
