@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { MobileDrawer, MobileDrawerList, MobileDrawerListItem } from "@/components/ui/mobile-drawer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useSurface } from "@/contexts/SurfaceContext";
 import { SPORTS_LINK } from "@/lib/worldCup";
 import soccerBallAsset from "@/assets/soccer-ball.png.asset.json";
 
@@ -30,6 +31,7 @@ export const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { balance, spotBalance, user, username, avatarUrl, profile } = useUserProfile();
+  const { surface } = useSurface();
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
   const [profileSheetOpen, setProfileSheetOpen] = useState(false);
 
@@ -97,7 +99,10 @@ export const BottomNav = () => {
               onClick={() => {
                 if (!item.disabled) {
                   triggerHaptic('light');
-                  navigate(item.path, { replace: true });
+                  // Lite has no bare /trade destination — send Trade to the market list.
+                  const dest =
+                    item.path === "/trade" && surface === "lite" ? "/events" : item.path;
+                  navigate(dest, { replace: true });
                 }
               }}
               className={`flex flex-col items-center gap-1 transition-all duration-300 ${
@@ -224,14 +229,7 @@ export const BottomNav = () => {
               navigate("/rewards");
             }}
           />
-          <MobileDrawerListItem
-            icon={Users}
-            label="Referral"
-            onClick={() => {
-              setProfileSheetOpen(false);
-              navigate("/referral");
-            }}
-          />
+          {/* Referral entry hidden until the /referral route exists (R3b-2 round 12) */}
           <MobileDrawerListItem
             icon={Ticket}
             label="Position Vouchers"
