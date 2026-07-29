@@ -10,6 +10,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { SPORTS_LINK } from "@/lib/worldCup";
 import { LiteEventCard } from "@/components/lite/LiteEventCard";
+import { LiveSettledSwitch } from "@/components/lite/LiveSettledSwitch";
 
 // Data-driven sector rail. Filters on the RAW event category (lowercase DB
 // value) so "Stocks" surfaces the us-*-updown spot events (category='stocks')
@@ -75,8 +76,9 @@ const LiteEventsPage = () => {
           </p>
         </div>
 
-        {/* Sector rail — mock pill row: white solid active, ghost border inactive */}
-        <div className="mb-6 flex flex-wrap items-center gap-2">
+        {/* Sector rail + Live/Settled switch. Rail scrolls; switch never gets pushed off. */}
+        <div className="mb-6 flex items-center justify-between gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto">
           {(() => {
             const active = sector === "all";
             return (
@@ -84,7 +86,7 @@ const LiteEventsPage = () => {
                 type="button"
                 onClick={() => handleSectorClick("all")}
                 className={cn(
-                  "rounded-full px-[18px] py-[9px] text-[13px] transition-colors",
+                  "shrink-0 rounded-full px-[18px] py-[9px] text-[13px] transition-colors",
                   active
                     ? "bg-white text-[#0A0B0D] font-semibold"
                     : "border-[1.5px] border-[#2B2F38] text-[#C9CED6] hover:text-foreground",
@@ -102,7 +104,7 @@ const LiteEventsPage = () => {
                 type="button"
                 onClick={() => handleSectorClick(s.id)}
                 className={cn(
-                  "rounded-full px-[18px] py-[9px] text-[13px] transition-colors",
+                  "shrink-0 rounded-full px-[18px] py-[9px] text-[13px] transition-colors",
                   active
                     ? "bg-white text-[#0A0B0D] font-semibold"
                     : "border-[1.5px] border-[#2B2F38] text-[#C9CED6] hover:text-foreground",
@@ -116,11 +118,19 @@ const LiteEventsPage = () => {
             href={SPORTS_LINK}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-1 rounded-full border-[1.5px] border-[#2B2F38] px-[18px] py-[9px] text-[13px] text-[#C9CED6] transition-colors hover:text-foreground"
+            className="flex shrink-0 items-center gap-1 rounded-full border-[1.5px] border-[#2B2F38] px-[18px] py-[9px] text-[13px] text-[#C9CED6] transition-colors hover:text-foreground"
           >
             Sports
             <ExternalLink className="h-3.5 w-3.5" />
           </a>
+          </div>
+          <LiveSettledSwitch
+            className="shrink-0"
+            value="live"
+            onSelect={(v) => {
+              if (v === "settled") navigate("/resolved");
+            }}
+          />
         </div>
 
         {/* Card grid */}
