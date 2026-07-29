@@ -13,7 +13,6 @@ import OrderPreview from "./pages/OrderPreview";
 import DesktopTrading from "./pages/DesktopTrading";
 import StyleGuide from "./pages/StyleGuide/index";
 import StyleGuidePreview from "./pages/StyleGuide/preview/StyleGuidePreview";
-import FontPreview from "./pages/FontPreview";
 
 import EventsPage from "./pages/EventsPage";
 import LiteEventsPage from "./pages/lite/LiteEventsPage";
@@ -125,7 +124,6 @@ const App = () => (
             <Route path="/mainnet-launch" element={<Navigate to="/" replace />} />
             <Route path="/campaign-style-guide" element={<CampaignStyleGuide />} />
             <Route path="/style-guide/preview" element={<StyleGuidePreview />} />
-            <Route path="/font-preview" element={<FontPreview />} />
             <Route
               path="*"
               element={
