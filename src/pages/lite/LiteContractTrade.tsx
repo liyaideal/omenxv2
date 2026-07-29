@@ -394,6 +394,8 @@ const LiteContractTrade = () => {
       currentPrice={event.base_price != null ? Number(event.base_price) : null}
       yesOdds={yesLive}
       yesLabel={yesLabel}
+      noLabel={noLabel}
+      side={side}
     />
   );
 

@@ -30,6 +30,10 @@ interface Props {
   maxRows?: number;
 }
 
+// Ledger grid: chips align with chips, amounts with amounts. The side chip
+// carries the side identity (MARKET axis) — no "Backed …" sentence needed.
+const ROW_GRID = "grid grid-cols-[minmax(48px,auto)_64px_1fr_auto] items-center gap-x-3";
+
 export const LiteMarketActivity = ({ rows, yesLabel, noLabel, maxRows = 6 }: Props) => (
   <div className="rounded-2xl border border-border bg-card p-4">
     <div className="mb-3 flex items-center gap-1.5 text-sm font-medium">
@@ -46,21 +50,26 @@ export const LiteMarketActivity = ({ rows, yesLabel, noLabel, maxRows = 6 }: Pro
     ) : (
       <ul className="space-y-1.5">
         {rows.slice(0, maxRows).map((r) => (
-          <li key={r.id} className="flex items-center gap-3 rounded-lg px-2 py-1.5">
+          <li key={r.id} className={cn(ROW_GRID, "rounded-lg px-2 py-1.5 hover:bg-muted/20")}>
             <span
               className={cn(
-                "rounded-md px-1.5 py-0.5 text-[11px] font-semibold",
+                "rounded-md px-1.5 py-0.5 text-center text-[11px] font-semibold",
                 r.isYes ? "bg-yes/13 text-yes" : "bg-no/13 text-no",
               )}
             >
               {r.isYes ? yesLabel : noLabel}
             </span>
-            <span className="flex-1 truncate text-xs text-muted-foreground">
-              Backed {r.isYes ? yesLabel : noLabel}{" "}
-              <span className="font-mono text-foreground">${r.amount.toFixed(0)}</span>
-              {r.boost > 1 && <span className="font-mono"> · {r.boost}× Boost</span>}
+            <span className="text-right font-mono text-xs text-foreground">
+              ${r.amount.toFixed(0)}
             </span>
-            <span className="font-mono text-[11px] text-muted-foreground">
+            <span className="truncate text-xs text-muted-foreground">
+              {r.boost > 1 ? (
+                <>
+                  <span className="font-mono">{r.boost}×</span> Boost
+                </>
+              ) : null}
+            </span>
+            <span className="text-right font-mono text-[11px] text-muted-foreground">
               {relTime(r.createdAt)}
             </span>
           </li>
