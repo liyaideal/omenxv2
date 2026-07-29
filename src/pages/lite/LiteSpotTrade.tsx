@@ -7,7 +7,7 @@
 // submit; cash leg per SpotTrading). Time gating / formatting
 // derives from freeze_time / end_date / lifecycle_status only.
 // ============================================================
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ChevronRight, Info, Loader2, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
