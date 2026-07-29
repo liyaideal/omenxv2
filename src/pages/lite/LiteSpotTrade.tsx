@@ -590,6 +590,43 @@ const LiteSpotTrade = () => {
   );
 
   // ============ Layouts ============
+  // Settled outcome. Winner comes from the DB flag when present; otherwise we
+  // fall back to the option whose final price settled at ≥ 0.5.
+  const heldIsUp =
+    heldPos != null &&
+    heldPos.option.trim().toLowerCase() === (yesOpt.label || "").trim().toLowerCase();
+  const winnerOpt =
+    event.options.find((o) => o.is_winner) ||
+    (Number(yesOpt.price) >= 0.5 ? yesOpt : noOpt);
+  const loserOpt = winnerOpt.id === yesOpt.id ? noOpt : yesOpt;
+  const labelForOpt = (optId: string) => (optId === yesOpt.id ? yesLabel : noLabel);
+
+  const OutcomeCard = resolved ? (
+    <LiteOutcomeCard
+      settledAt={event.settled_at}
+      winnerLabel={labelForOpt(winnerOpt.id)}
+      winnerIsYes={winnerOpt.id === yesOpt.id}
+      loserLabel={labelForOpt(loserOpt.id)}
+      sourceName={event.source_name}
+      sourceUrl={event.source_url}
+      summary={event.settlement_description}
+      holding={
+        heldPos
+          ? {
+              sideLabel: heldIsUp ? yesLabel : noLabel,
+              isYesSide: heldIsUp,
+              boost: 1,
+              putIn: heldPos.marginNum,
+              paidOut: heldPos.markPriceNum * heldPos.sizeNum,
+              profit: heldPos.pnlNum,
+            }
+          : null
+      }
+      onSeeHow={() => navigate(`/resolved/${event.id}`)}
+      onBrowse={() => navigate("/events")}
+    />
+  ) : null;
+
   const orderPanelProps = {
     eventName: event.name,
     eventId: event.id,
@@ -623,28 +660,52 @@ const LiteSpotTrade = () => {
           />
           <div className="space-y-4 px-4 py-4">
             {QuestionBlock}
-            {CountdownLine}
-            {Chart}
-            {SentimentBar}
-            {RuleCard}
-            {SettlementRail}
-            {YourPosition}
-            {MarketActivity}
-            {CashOut}
-            <button
-              type="button"
-              onClick={() => navigate("/events")}
-              className="w-full rounded-xl border border-border py-3 text-center text-xs text-muted-foreground hover:text-foreground"
-            >
-              More stocks closing today · See all →
-            </button>
+            {resolved ? (
+              <>
+                {OutcomeCard}
+                <button
+                  type="button"
+                  onClick={() => navigate("/events")}
+                  className="w-full rounded-xl border border-border py-3 text-center text-xs text-muted-foreground hover:text-foreground"
+                >
+                  More stocks closing today · See all →
+                </button>
+              </>
+            ) : (
+              <>
+                {CountdownLine}
+                {Chart}
+                {SentimentBar}
+                {RuleCard}
+                {SettlementRail}
+                {YourPosition}
+                {MarketActivity}
+                {CashOut}
+                <button
+                  type="button"
+                  onClick={() => navigate("/events")}
+                  className="w-full rounded-xl border border-border py-3 text-center text-xs text-muted-foreground hover:text-foreground"
+                >
+                  More stocks closing today · See all →
+                </button>
+              </>
+            )}
           </div>
 
-          {/* Sticky bottom buy bar */}
+          {/* Sticky bottom bar — buy pair while live, single Portfolio link once settled */}
           <div
             className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 px-4 pt-3 backdrop-blur"
             style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0) + 12px)" }}
           >
+            {resolved ? (
+              <button
+                type="button"
+                onClick={() => navigate("/portfolio")}
+                className="w-full rounded-xl bg-no py-3 font-display text-sm font-bold text-[#1a2408]"
+              >
+                View in Portfolio →
+              </button>
+            ) : (
             <div className="mx-auto flex max-w-md gap-2">
               <button
                 type="button"
@@ -663,6 +724,7 @@ const LiteSpotTrade = () => {
                 Buy {noLabel} {Math.round(noLive * 100)}¢
               </button>
             </div>
+            )}
           </div>
 
           <MobileDrawer
@@ -715,22 +777,30 @@ const LiteSpotTrade = () => {
         >
           <div className="space-y-5">
             {QuestionBlock}
-            {SentimentBar}
-            {Chart}
-            {SettlementRail}
-            {RuleCard}
-            {YourPosition}
-            {MarketActivity}
-            {CashOut}
+            {resolved ? (
+              OutcomeCard
+            ) : (
+              <>
+                {SentimentBar}
+                {Chart}
+                {SettlementRail}
+                {RuleCard}
+                {YourPosition}
+                {MarketActivity}
+                {CashOut}
+              </>
+            )}
           </div>
           <aside className="space-y-4">
-            <LiteOrderPanel
-              {...orderPanelProps}
-              variant="desktop"
-              onFilled={() => {
-                setRefetchTick((n) => n + 1);
-              }}
-            />
+            {!resolved && (
+              <LiteOrderPanel
+                {...orderPanelProps}
+                variant="desktop"
+                onFilled={() => {
+                  setRefetchTick((n) => n + 1);
+                }}
+              />
+            )}
             {MoreStocks}
           </aside>
         </div>
