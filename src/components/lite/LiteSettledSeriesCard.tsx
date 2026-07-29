@@ -43,6 +43,17 @@ export const tickerOf = (e: { id: string; name: string }) => {
   return deriveTickerFromEvent(e.id, e.name);
 };
 
+/** Company name: lookup first, else the "Robinhood (HOOD) — …" name prefix. */
+export const companyOf = (
+  ticker: string,
+  e?: { name: string } | null,
+): string => {
+  if (STOCK_COMPANY[ticker]) return STOCK_COMPANY[ticker];
+  const m = e?.name.match(/^(.+?)\s*\(/);
+  if (m && m[1].trim()) return m[1].trim();
+  return ticker;
+};
+
 export interface SettledSeries {
   ticker: string;
   company: string;
