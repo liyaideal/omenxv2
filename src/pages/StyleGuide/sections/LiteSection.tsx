@@ -458,6 +458,7 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
     { id: "a2", isYes: false, amount: 140, boost: 1, createdAt: new Date(Date.now() - 900_000).toISOString() },
     { id: "a3", isYes: true, amount: 7, boost: 20, createdAt: new Date(Date.now() - 5_400_000).toISOString() },
     { id: "a4", isYes: false, amount: 1250, boost: 3, createdAt: new Date(Date.now() - 86_400_000).toISOString() },
+    { id: "a5", isYes: true, amount: 55, boost: 1, createdAt: new Date(Date.now() - 100_800_000).toISOString() },
   ];
 
   return (
