@@ -22,6 +22,9 @@ interface Props {
   currentPrice: number | null;
   yesOdds: number; // 0..1
   yesLabel: string;
+  noLabel: string;
+  /** Side selected in the order card — the odds series follows it. */
+  side: "yes" | "no";
   className?: string;
 }
 
@@ -48,6 +51,8 @@ export const LiteContractChart = ({
   currentPrice,
   yesOdds,
   yesLabel,
+  noLabel,
+  side,
   className,
 }: Props) => {
   const hasUnderlying = underlyingLabel != null && basePrice != null;
@@ -55,6 +60,9 @@ export const LiteContractChart = ({
     hasUnderlying ? "underlying" : "odds",
   );
   const active = hasUnderlying ? tab : "odds";
+  // Side identity → MARKET axis. Only ever one of the two at a time.
+  const isYesSide = side === "yes";
+  const sideLabel = isYesSide ? yesLabel : noLabel;
 
   const seed = useMemo(
     () => (underlyingLabel || yesLabel).split("").reduce((a, c) => a + c.charCodeAt(0), 0),
@@ -69,12 +77,20 @@ export const LiteContractChart = ({
     }
     const endOdds = yesOdds * 100;
     const series = synth(seed + 3, Math.max(3, endOdds - 9), endOdds, 2.2);
-    return series.map((v, i) => ({ i, v: Math.max(1, Math.min(99, v)) }));
-  }, [active, basePrice, currentPrice, yesOdds, seed]);
+    // The No series is the complement of the Yes walk, point by point.
+    return series.map((v, i) => {
+      const yesV = Math.max(1, Math.min(99, v));
+      return { i, v: isYesSide ? yesV : 100 - yesV };
+    });
+  }, [active, basePrice, currentPrice, yesOdds, seed, isYesSide]);
 
   // Underlying = neutral foreground line; odds = market-axis Yes colour.
   const stroke =
-    active === "underlying" ? "hsl(var(--foreground))" : "hsl(var(--yes))";
+    active === "underlying"
+      ? "hsl(var(--foreground))"
+      : isYesSide
+        ? "hsl(var(--yes))"
+        : "hsl(var(--no))";
 
   // Odds domain adapts to the series (±8¢ padding, min 20¢ span) so a flat
   // walk doesn't render as a dead line across a full 0–100 axis.
@@ -96,7 +112,7 @@ export const LiteContractChart = ({
     <div className={cn("rounded-2xl border border-border bg-card p-4", className)}>
       <div className="mb-3 flex items-center justify-between">
         <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-          {active === "underlying" ? underlyingLabel : `${yesLabel} odds`}
+          {active === "underlying" ? underlyingLabel : `${sideLabel} odds`}
         </div>
         {hasUnderlying && (
         <div className="flex gap-1 rounded-lg bg-muted/40 p-0.5">
@@ -122,7 +138,7 @@ export const LiteContractChart = ({
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
-            {yesLabel} odds ¢
+            {sideLabel} odds ¢
           </button>
         </div>
         )}
@@ -158,7 +174,7 @@ export const LiteContractChart = ({
               labelFormatter={() => ""}
               formatter={(v: number) => [
                 active === "odds" ? `${Math.round(v)}¢` : `$${Number(v).toFixed(2)}`,
-                active === "odds" ? yesLabel : underlyingLabel || "",
+                active === "odds" ? sideLabel : underlyingLabel || "",
               ]}
             />
             {active === "underlying" && basePrice != null && (
