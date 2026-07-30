@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { LynxFigure, LynxMark } from "@/components/brand";
 import { cn } from "@/lib/utils";
 
-export type EmptyStateVariant = "page" | "module" | "card" | "inline";
+export type EmptyStateVariant = "page" | "section" | "module" | "card" | "inline";
 export type EmptyStateMascot = "figure" | "mark" | "none";
 
 export interface EmptyStateProps {
@@ -11,7 +11,12 @@ export interface EmptyStateProps {
   title: string;
   /** Line 2 — the method. How this list fills up. */
   description?: string;
-  /** `page` (default) vertical block. `module` compact horizontal row. */
+  /**
+   * `page` — fills the remaining viewport, centered, LynxFigure 150.
+   * `section` (default) — medium vertical block, LynxFigure 100.
+   * `module` — compact horizontal row, LynxMark 40.
+   * Legacy aliases: `card` → section, `inline` → module.
+   */
   variant?: EmptyStateVariant;
   /** Defaults to `figure` on page, `mark` on module. */
   mascot?: EmptyStateMascot;
@@ -28,10 +33,17 @@ export interface EmptyStateProps {
   className?: string;
 }
 
-const TITLE_CLS = "font-display text-[15px] font-semibold tracking-tight text-foreground";
-const DESC_CLS = "font-sans text-xs leading-relaxed text-muted-foreground";
-const PILL_CLS =
-  "inline-flex items-center rounded-full border-[1.5px] border-border bg-transparent px-[18px] py-2 text-[13px] text-foreground/80 transition-colors hover:text-foreground";
+const TITLE_BASE = "font-display font-semibold tracking-tight text-foreground";
+const DESC_BASE = "font-sans leading-relaxed text-muted-foreground";
+const PILL_BASE =
+  "inline-flex items-center rounded-full border-[1.5px] border-border bg-transparent text-foreground/80 transition-colors hover:text-foreground";
+const PILL_SM = "px-[18px] py-2 text-[13px]";
+const PILL_LG = "px-[22px] py-2.5 text-[14px]";
+
+const TITLE_SM = "text-[15px]";
+const TITLE_LG = "text-[19px]";
+const DESC_SM = "text-xs max-w-[360px]";
+const DESC_LG = "text-[13.5px] max-w-[420px]";
 
 /**
  * Canonical site-wide empty state (DESIGN.md §Empty states).
@@ -42,7 +54,7 @@ const PILL_CLS =
 export const EmptyState = ({
   title,
   description,
-  variant = "page",
+  variant = "section",
   mascot,
   actionLabel,
   onAction,
@@ -52,19 +64,21 @@ export const EmptyState = ({
   className,
 }: EmptyStateProps) => {
   const isModule = variant === "module" || variant === "inline";
+  const isPage = variant === "page";
   const resolvedMascot: EmptyStateMascot = mascot ?? (isModule ? "mark" : "figure");
+  const pillCls = cn(PILL_BASE, isPage ? PILL_LG : PILL_SM);
 
   const pill =
     action ??
     (actionLabel
       ? href
         ? (
-            <a href={href} className={PILL_CLS}>
+            <a href={href} className={pillCls}>
               {actionLabel}
             </a>
           )
         : (
-            <button type="button" onClick={onAction} className={PILL_CLS}>
+            <button type="button" onClick={onAction} className={pillCls}>
               {actionLabel}
             </button>
           )
@@ -73,6 +87,8 @@ export const EmptyState = ({
   const art =
     resolvedMascot === "none" ? null : resolvedMascot === "mark" ? (
       <LynxMark size={isModule ? 40 : 64} strokeWidth={isModule ? 3.4 : 2.6} />
+    ) : isPage ? (
+      <LynxFigure size={150} />
     ) : (
       <LynxFigure size={100} />
     );
@@ -88,8 +104,8 @@ export const EmptyState = ({
       >
         {art}
         <div className="min-w-0">
-          <div className={TITLE_CLS}>{title}</div>
-          {description && <p className={cn(DESC_CLS, "mt-[5px] max-w-[360px]")}>{description}</p>}
+          <div className={cn(TITLE_BASE, TITLE_SM)}>{title}</div>
+          {description && <p className={cn(DESC_BASE, DESC_SM, "mt-[5px]")}>{description}</p>}
           {pill && <div className="mt-4">{pill}</div>}
         </div>
       </div>
@@ -99,15 +115,24 @@ export const EmptyState = ({
   return (
     <div
       className={cn(
-        "flex flex-col items-center px-6 py-8 text-center",
+        "flex flex-col items-center text-center",
+        isPage
+          ? "flex-1 min-h-[420px] justify-center px-6 py-10"
+          : "px-6 py-8",
         bordered && "rounded-2xl border border-dashed border-border/80",
         className,
       )}
     >
       {art}
-      <div className={cn(TITLE_CLS, "mt-3")}>{title}</div>
-      {description && <p className={cn(DESC_CLS, "mt-[5px] max-w-[360px]")}>{description}</p>}
-      {pill && <div className="mt-4">{pill}</div>}
+      <div className={cn(TITLE_BASE, isPage ? TITLE_LG : TITLE_SM, isPage ? "mt-[22px]" : "mt-3")}>
+        {title}
+      </div>
+      {description && (
+        <p className={cn(DESC_BASE, isPage ? DESC_LG : DESC_SM, isPage ? "mt-2" : "mt-[5px]")}>
+          {description}
+        </p>
+      )}
+      {pill && <div className={isPage ? "mt-[22px]" : "mt-4"}>{pill}</div>}
     </div>
   );
 };
