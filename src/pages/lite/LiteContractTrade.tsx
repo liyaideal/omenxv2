@@ -514,6 +514,7 @@ const LiteContractTrade = () => {
     countdownText: countdown,
     heldSideLabel: heldPos ? (heldIsYes ? yesLabel : noLabel) : null,
     heldCurrentValue: heldPos ? heldNowWorth : null,
+    heldQty: heldPos ? heldPos.sizeNum : null,
     onRequestAuth: () => setAuthOpen(true),
   } as const;
 

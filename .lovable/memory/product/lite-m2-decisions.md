@@ -29,3 +29,12 @@ When a buy nets an opposite-side holding, the payout row reads
 "You'll get back ≈ $X" (full net) and adds "Then if the rest is right, you win $Y"
 when a remainder opens. Non-netting orders keep "If you're right, you win $X".
 Spot has no netting concept — the Lite spot order card is unchanged by design.
+
+**Estimate model (Round 19 fix):** the figure is **quantity-based**, mirroring
+the engine's `tryNetBinaryOppositeLeg` (`qtyToNet = min(orderQty, oppositeQty)`),
+NOT dollar-for-dollar — with Boost the two diverge badly. Panel math:
+`orderQty = amount × boost / sidePrice`, `qtyNet = min(orderQty, heldQty)`,
+`getBack ≈ heldValue × (qtyNet / heldQty)`, remainder win `= (1 − sidePrice) × (orderQty − qtyNet)`.
+The balance pre-check uses the same model (`cashNeeded = max(0, remainderMargin − getBack)`).
+If `heldQty` is unknown, show the netting notice but no figure — never a wrong number.
+The engine remains the final authority; the "≈" stays.
