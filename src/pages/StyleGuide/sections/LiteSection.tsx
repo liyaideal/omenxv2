@@ -20,6 +20,9 @@ import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
 import { LiveSettledSwitch } from "@/components/lite/LiveSettledSwitch";
 import { LiteSettledCard } from "@/components/lite/LiteSettledCard";
+import { LiteEventCard } from "@/components/lite/LiteEventCard";
+import type { EventRow } from "@/hooks/useMarketListData";
+import { Star, ExternalLink } from "lucide-react";
 import {
   LiteSettledSeriesCard,
   LiteSettledSeriesDayRow,
@@ -283,6 +286,27 @@ const WHERE_ROWS: {
     mobile: "body of its buy drawer",
     openedBy: "sticky bottom dual buy bar",
     states: 3,
+  },
+  {
+    name: "LiteEventCard",
+    desktop: "live markets list grid (1/2/3 cols)",
+    mobile: "same grid, single column",
+    openedBy: "LiteEventsPage (/events on the Lite surface); tap opens /trade or /spot",
+    states: 2,
+  },
+  {
+    name: "Sector rail (LiteEventsPage)",
+    desktop: "row above the grid, left of the Live/Settled switch",
+    mobile: "same row, horizontally scrolling",
+    openedBy: "always visible; pills render only for categories with live events",
+    states: 3,
+  },
+  {
+    name: "LiteEventsPage",
+    desktop: "full page — title opening, sector rail, card grid, Pro escape line",
+    mobile: "same page, MobileHeader preset A (logo only) + BottomNav",
+    openedBy: "/events when surface = lite",
+    states: 4,
   },
   {
     name: "LiteStockChart (spot)",
