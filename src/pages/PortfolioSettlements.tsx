@@ -336,10 +336,8 @@ export default function PortfolioSettlements() {
         {/* Empty State */}
         {!isLoading && !isError && settlements.length === 0 && (
           <EmptyState
-            variant="card"
-            icon={Trophy}
             title="No settlements yet"
-            description="Your closed trades will appear here."
+            description="Closed trades land here once they settle."
           />
         )}
 

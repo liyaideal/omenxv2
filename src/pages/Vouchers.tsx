@@ -132,10 +132,8 @@ const Vouchers = () => {
 
           {!isLoading && !isError && vouchers.length === 0 && (
             <EmptyState
-              variant="card"
-              icon={Ticket}
               title="No vouchers yet"
-              description="When you receive a position voucher, it'll show up here ready to redeem."
+              description="Vouchers you receive show up here ready to redeem."
             />
           )}
 

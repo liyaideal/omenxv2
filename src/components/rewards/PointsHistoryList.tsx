@@ -59,8 +59,8 @@ export const PointsHistoryList = () => {
   if (!pointsHistory || pointsHistory.length === 0) {
     return (
       <EmptyState
-        variant="inline"
-        icon={Clock}
+        variant="module"
+        bordered={false}
         title="No points history yet"
         description="Complete tasks to start earning points."
       />
