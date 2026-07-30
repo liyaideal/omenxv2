@@ -46,6 +46,7 @@ import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
+import { EmptyState } from "@/components/states";
 import {
   LiteMarketActivity,
   useMarketActivityRows,

@@ -44,6 +44,7 @@ import {
 } from "@/components/lite/contract/LiteMarketActivity";
 import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
 import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
+import { EmptyState } from "@/components/states";
 
 type EventRow = Tables<"events"> & { options: Tables<"event_options">[] };
 type Side = "yes" | "no";
@@ -429,7 +430,13 @@ const LiteContractTrade = () => {
         {resolved ? "Still live" : "More markets"}
       </div>
       {more.length === 0 ? (
-        <div className="text-xs text-muted-foreground">No other markets right now.</div>
+        <EmptyState
+          variant="module"
+          bordered={false}
+          title="No other markets right now"
+          description="New markets show up here as they open."
+          className="px-0 py-1"
+        />
       ) : (
         <ul className="space-y-1">
           {more.map((m) => (
