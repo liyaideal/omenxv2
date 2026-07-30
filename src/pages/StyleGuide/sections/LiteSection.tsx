@@ -355,6 +355,97 @@ const Grid = ({ children, cols = 2 }: { children: React.ReactNode; cols?: 2 | 3 
   </div>
 );
 
+// ------------------------------------------------- Markets list (live)
+// Static EventRow fixture — no hooks, no data access.
+const marketDemo = (variant: "default" | "closing"): EventRow => ({
+  id: `demo-live-${variant}`,
+  eventId: `demo-live-${variant}`,
+  eventName:
+    variant === "closing"
+      ? "Will the Fed cut rates in September?"
+      : "Will BTC close above $70K this week?",
+  eventIcon: "",
+  category: variant === "closing" ? "macro" : "crypto",
+  categoryLabel: variant === "closing" ? "Macro" : "Crypto",
+  productLines: ["futures"],
+  eventSubtype: null,
+  lifecycleStatus: "active",
+  basePrice: null,
+  imageUrl: null,
+  change1h: 0.8,
+  change4h: -1.2,
+  change24h: 3.4,
+  volume1h: 12_000,
+  volume4h: 48_000,
+  volume24h: 184_000,
+  totalVolume: variant === "closing" ? 2_400_000 : 860_000,
+  openInterest: 320_000,
+  expiry: new Date(Date.now() + (variant === "closing" ? 5 : 72) * 3_600_000),
+  createdAt: new Date(Date.now() - 86_400_000).toISOString(),
+  isNew: false,
+  isClosingSoon: variant === "closing",
+  topMarket: { label: "Yes" },
+  childCount: 0,
+  children: [],
+});
+
+const RAIL_PILL = "shrink-0 rounded-full px-[18px] py-[9px] text-[13px]";
+const RAIL_ACTIVE = "bg-white text-[#0A0B0D] font-semibold";
+const RAIL_IDLE = "border-[1.5px] border-[#2B2F38] text-[#C9CED6]";
+
+const SectorRailDemo = () => {
+  const [active, setActive] = useState("all");
+  const pills = [
+    "all",
+    "Stocks",
+    "Crypto",
+    "Macro",
+    "Tech",
+    "Entertainment",
+    "Politics",
+    "Finance",
+    "Social",
+  ];
+  return (
+    <div className="flex items-center gap-2 overflow-x-auto rounded-2xl border border-border bg-card p-3">
+      {pills.map((p) => (
+        <button
+          key={p}
+          type="button"
+          onClick={() => setActive(p)}
+          className={cn(RAIL_PILL, active === p ? RAIL_ACTIVE : RAIL_IDLE)}
+        >
+          {p === "all" ? "All" : p}
+        </button>
+      ))}
+      <button
+        type="button"
+        onClick={() => setActive("watchlist")}
+        className={cn(
+          RAIL_PILL,
+          "flex items-center gap-1.5",
+          active === "watchlist" ? RAIL_ACTIVE : RAIL_IDLE,
+        )}
+      >
+        <Star
+          className={cn(
+            "h-3.5 w-3.5",
+            active === "watchlist"
+              ? "fill-[#0A0B0D] text-[#0A0B0D]"
+              : "text-trading-yellow",
+          )}
+          strokeWidth={1.5}
+        />
+        Watchlist
+      </button>
+      <span className={cn(RAIL_PILL, RAIL_IDLE, "flex items-center gap-1")}>
+        Sports
+        <ExternalLink className="h-3.5 w-3.5" />
+      </span>
+    </div>
+  );
+};
+
 // ---------------------------------------------------------------- Boost
 const BoostPlayground = () => {
   const [values, setValues] = useState<Record<string, number>>({
