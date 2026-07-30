@@ -138,3 +138,4 @@
 - [API key management](mem://features/api-key-management) — /settings/api 三层准入（Read-only/Trading/Pro-MM）+ 7 项 scope（FD-API-04）+ trade_*/ws_private 强制 IP whitelist + 一次性 secret；key/secret 前端仿真 DEMO-STATE
 - [Market activity feed](mem://features/market-activity-feed) — 匿名全站成交流表 market_activity（不是 owner-scoped trades）
 - [Style guide IA](mem://design/style-guide-ia) — /style-guide 分组侧栏 IA + Lite playground；section 文件是活规范，只能移动注册不能改写
+- [Lite forbidden-words exceptions](mem://design/lite-forbidden-words-exceptions) — Pro escape-hatch 文案（"charts, leverage and the order book"）是 Lite 禁词的既批例外，禁止重写
