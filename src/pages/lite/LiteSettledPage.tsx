@@ -199,12 +199,21 @@ const LiteSettledPage = () => {
 
   const emptyCopy =
     scope === "mine"
-      ? "Nothing settled for you yet. Back a live market and it'll show up here when it wraps."
+      ? "Back a live market and it'll show up here when it wraps."
+      : sector !== "all"
+        ? `Markets in ${
+            SECTOR_ORDER.find((s) => s.id === sector)?.label ?? sector
+          } land here once they wrap up. Try All in the meantime.`
+        : "Markets land here when they wrap up.";
+
+  const emptyTitle =
+    scope === "mine"
+      ? "Nothing settled for you yet"
       : sector !== "all"
         ? `Nothing settled in ${
             SECTOR_ORDER.find((s) => s.id === sector)?.label ?? sector
-          } yet. Try All.`
-        : "Nothing has settled yet. Markets land here when they wrap up.";
+          } yet`
+        : "Nothing has settled yet";
 
   return (
     <div className="min-h-screen bg-background">
