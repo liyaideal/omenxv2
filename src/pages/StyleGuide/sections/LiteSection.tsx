@@ -714,25 +714,27 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
               <OrderCardDemo label="Amount at 1× (auto-close None)" amount0="50" boost0={1} />
               <OrderCardDemo label="Amount at 5×" amount0="50" boost0={5} />
               <OrderCardDemo
-                label="Netting notice (holds Yes, buying No)"
+                label="Netting notice only (no qty known → no figure)"
                 amount0="80"
                 boost0={2}
                 heldSideLabel="Yes"
                 heldCurrentValue={144}
               />
               <OrderCardDemo
-                label="Netting · full net (You'll get back ≈)"
+                label="Netting · full net (190 of 300 shares)"
                 amount0="80"
                 boost0={1}
                 heldSideLabel="Yes"
                 heldCurrentValue={144}
+                heldQty={300}
               />
               <OrderCardDemo
-                label="Netting · partial (get back + rest wins)"
+                label="Netting · partial (476 vs 300 shares)"
                 amount0="200"
                 boost0={1}
                 heldSideLabel="Yes"
                 heldCurrentValue={144}
+                heldQty={300}
               />
               <OrderCardDemo label="Blocked · Closed" amount0="50" boost0={5} blocked blockedReason="Closed" />
               <OrderCardDemo label="Blocked · Settled" amount0="" boost0={1} blocked blockedReason="Settled" />
