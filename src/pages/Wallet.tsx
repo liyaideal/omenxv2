@@ -678,11 +678,11 @@ export default function Wallet() {
 
           {wallets.length === 0 && !walletsLoading && (
             <EmptyState
-              variant="inline"
-              icon={Star}
+              variant="module"
+              bordered={false}
               title="No saved addresses"
               description="Save addresses for quick deposits and withdrawals."
-              className="py-4"
+              className="px-0 py-2"
             />
           )}
         </div>
@@ -943,11 +943,11 @@ export default function Wallet() {
                     </button>
                     {wallets.length === 0 && !walletsLoading && (
                       <EmptyState
-                        variant="inline"
-                        icon={Star}
+                        variant="module"
+                        bordered={false}
                         title="No saved addresses"
                         description="Save addresses for quick deposits and withdrawals."
-                        className="py-4"
+                        className="px-0 py-2"
                       />
                     )}
                   </div>
