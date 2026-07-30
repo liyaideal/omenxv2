@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { SPORTS_LINK } from "@/lib/worldCup";
 import { LiteSettledCard } from "@/components/lite/LiteSettledCard";
 import { LiveSettledSwitch } from "@/components/lite/LiveSettledSwitch";
+import { EmptyState } from "@/components/states";
 import {
   LiteSettledSeriesCard,
   LiteSettledSeriesDayRow,
