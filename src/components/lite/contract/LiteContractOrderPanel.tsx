@@ -64,6 +64,10 @@ export interface LiteContractOrderPanelProps {
    *  client-side balance pre-check when the buy nets the held leg down — the
    *  engine remains the final authority on funds. */
   heldCurrentValue?: number | null;
+  /** Share quantity of that held opposite leg. The engine nets by SHARE
+   *  QUANTITY (tryNetBinaryOppositeLeg), not by dollars, so every netting
+   *  estimate below is derived from this. Without it we show no number. */
+  heldQty?: number | null;
   onFilled?: () => void;
   onRequestAuth: () => void;
 }
@@ -95,6 +99,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
     variant,
     heldSideLabel,
     heldCurrentValue,
+    heldQty,
     onFilled,
     onRequestAuth,
   } = props;
@@ -121,15 +126,17 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   const quantity = sidePrice > 0 ? notional / sidePrice : 0;
   const potentialWin = (1 - sidePrice) * quantity;
 
-  // Netting display math — reuses exactly the figures the netting notice and
-  // the balance pre-check already use (heldCurrentValue = cash that comes
-  // back when the held leg is cashed out). No new derivation.
+  // Netting display math — mirrors the engine, which nets by SHARE QUANTITY
+  // (qtyToNet = min(orderQty, oppositeQty)). A dollar-for-dollar model diverges
+  // badly once Boost is involved. Estimates only; the engine is authoritative.
   const heldValue = isNetting ? Math.max(0, heldCurrentValue ?? 0) : 0;
-  const getBack = Math.min(amountNum, heldValue);
-  const remainderAmount = isNetting ? Math.max(0, amountNum - heldValue) : 0;
-  const remainderWin =
-    amountNum > 0 ? potentialWin * (remainderAmount / amountNum) : 0;
-  const isPartialNet = isNetting && remainderAmount > 0;
+  const heldQtyNum = isNetting ? Math.max(0, heldQty ?? 0) : 0;
+  const canEstimateNet = isNetting && heldQtyNum > 0;
+  const qtyNet = canEstimateNet ? Math.min(quantity, heldQtyNum) : 0;
+  const getBack = canEstimateNet ? heldValue * (qtyNet / heldQtyNum) : 0;
+  const remainderQty = canEstimateNet ? Math.max(0, quantity - qtyNet) : 0;
+  const remainderWin = (1 - sidePrice) * remainderQty;
+  const isPartialNet = canEstimateNet && remainderQty > 0;
 
   const autoClose = useMemo(
     () =>
@@ -154,8 +161,13 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
     if (amountNum <= 0) return toast.error("Enter an amount");
     // When netting, the held leg's cash comes back first, so only the
     // shortfall has to be funded from the wallet.
-    const cashNeeded = isNetting
-      ? Math.max(0, amountNum - Math.max(0, heldCurrentValue ?? 0))
+    // Same quantity model as the display: the netted shares refund cash, the
+    // remainder only needs its own margin. Conservative estimate — the engine
+    // is the final authority on funds.
+    const remainderMargin =
+      effBoost > 0 ? (remainderQty * sidePrice) / effBoost : 0;
+    const cashNeeded = canEstimateNet
+      ? Math.max(0, remainderMargin - getBack)
       : amountNum;
     if (cashNeeded + fee > balance)
       return toast.error("Not enough balance — add funds to continue");
@@ -219,7 +231,9 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
     fee,
     balance,
     isNetting,
-    heldCurrentValue,
+    canEstimateNet,
+    remainderQty,
+    getBack,
     heldSideLabel,
     oppositeLabel,
     sidePrice,
@@ -376,7 +390,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
             {money(amountNum)}
           </span>
         </div>
-        {isNetting ? (
+        {canEstimateNet ? (
           <>
             <div className="mt-0.5 flex items-center justify-between border-t border-border/60 px-2 pt-1.5">
               <span className="text-xs text-muted-foreground">You'll get back ≈</span>
