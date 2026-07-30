@@ -543,6 +543,7 @@ const OrderCardDemo = ({
   blockedReason,
   heldSideLabel,
   heldCurrentValue,
+  heldQty,
   boostLoading,
 }: {
   label: string;
@@ -552,6 +553,7 @@ const OrderCardDemo = ({
   blockedReason?: string;
   heldSideLabel?: string | null;
   heldCurrentValue?: number | null;
+  heldQty?: number | null;
   boostLoading?: boolean;
 }) => {
   const [side, setSide] = useState<"yes" | "no">(heldSideLabel === "Yes" ? "no" : "yes");
@@ -573,6 +575,7 @@ const OrderCardDemo = ({
           boostLoading={boostLoading}
           heldSideLabel={heldSideLabel}
           heldCurrentValue={heldCurrentValue}
+          heldQty={heldQty}
         />
       </div>
     </Cell>
