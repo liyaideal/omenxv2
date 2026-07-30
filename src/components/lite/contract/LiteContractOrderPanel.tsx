@@ -121,6 +121,17 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   const quantity = sidePrice > 0 ? notional / sidePrice : 0;
   const potentialWin = (1 - sidePrice) * quantity;
 
+  // Netting display math — reuses exactly the figures the netting notice and
+  // the balance pre-check already use (heldCurrentValue = cash that comes
+  // back when the held leg is cashed out). No new derivation.
+  const heldValue = isNetting ? Math.max(0, heldCurrentValue ?? 0) : 0;
+  const getBack = Math.min(amountNum, heldValue);
+  const remainderAmount = isNetting ? Math.max(0, amountNum - heldValue) : 0;
+  const remainderWin =
+    amountNum > 0 ? potentialWin * (remainderAmount / amountNum) : 0;
+  const isFullNet = isNetting && remainderAmount <= 0;
+  const isPartialNet = isNetting && remainderAmount > 0;
+
   const autoClose = useMemo(
     () =>
       estimateAutoClosePrice({
@@ -366,12 +377,33 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
             {money(amountNum)}
           </span>
         </div>
-        <div className="mt-0.5 flex items-center justify-between border-t border-border/60 px-2 pt-1.5">
-          <span className="text-xs text-muted-foreground">If you're right, you win</span>
-          <span className="font-mono text-lg font-semibold text-foreground">
-            {money(potentialWin)}
-          </span>
-        </div>
+        {isNetting ? (
+          <>
+            <div className="mt-0.5 flex items-center justify-between border-t border-border/60 px-2 pt-1.5">
+              <span className="text-xs text-muted-foreground">You'll get back ≈</span>
+              <span className="font-mono text-lg font-semibold text-foreground">
+                {money(getBack)}
+              </span>
+            </div>
+            {isPartialNet && (
+              <div className="flex items-center justify-between px-2 pt-0.5">
+                <span className="text-xs text-muted-foreground">
+                  Then if the rest is right, you win
+                </span>
+                <span className="font-mono font-semibold text-foreground">
+                  {money(remainderWin)}
+                </span>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="mt-0.5 flex items-center justify-between border-t border-border/60 px-2 pt-1.5">
+            <span className="text-xs text-muted-foreground">If you're right, you win</span>
+            <span className="font-mono text-lg font-semibold text-foreground">
+              {money(potentialWin)}
+            </span>
+          </div>
+        )}
         <div className="flex items-start justify-between px-2 pt-0.5">
           <div>
             <span className="inline-flex items-center gap-1 text-muted-foreground">
