@@ -1,12 +1,15 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ExternalLink, Loader2 } from "lucide-react";
+import { ExternalLink, Loader2, Star } from "lucide-react";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { useMarketListData } from "@/hooks/useMarketListData";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { MobileHeader } from "@/components/MobileHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/hooks/useAuth";
+import { useWatchlist } from "@/hooks/useWatchlist";
+import { AuthDialog } from "@/components/auth/AuthDialog";
 import { cn } from "@/lib/utils";
 import { SPORTS_LINK } from "@/lib/worldCup";
 import { LiteEventCard } from "@/components/lite/LiteEventCard";
@@ -21,13 +24,26 @@ const SECTOR_ORDER: Array<{ id: string; label: string }> = [
   { id: "macro", label: "Macro" },
   { id: "tech", label: "Tech" },
   { id: "entertainment", label: "Entertainment" },
+  { id: "politics", label: "Politics" },
+  { id: "finance", label: "Finance" },
+  { id: "social", label: "Social" },
 ];
+
+// Single source of truth for the pill visual language on this page.
+const PILL_BASE =
+  "shrink-0 rounded-full px-[18px] py-[9px] text-[13px] transition-colors";
+const PILL_ACTIVE = "bg-white text-[#0A0B0D] font-semibold";
+const PILL_IDLE =
+  "border-[1.5px] border-[#2B2F38] text-[#C9CED6] hover:text-foreground";
 
 const LiteEventsPage = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { events: dbEvents, isLoading } = useActiveEvents();
   const markets = useMarketListData(dbEvents);
+  const { user } = useAuth();
+  const { watchlist } = useWatchlist();
+  const [authOpen, setAuthOpen] = useState(false);
 
   // Non-sports markets pool ("All" and per-sector filter both operate here).
   const openMarkets = useMemo(
@@ -48,23 +64,39 @@ const LiteEventsPage = () => {
   const [sector, setSector] = useState<string>("all");
 
   const filtered = useMemo(() => {
+    if (sector === "watchlist") {
+      return openMarkets.filter((m) => watchlist.has(m.eventId));
+    }
     if (sector === "all") return openMarkets;
     return openMarkets.filter((m) => (m.category || "").toLowerCase() === sector);
-  }, [openMarkets, sector]);
+  }, [openMarkets, sector, watchlist]);
 
   const handleSectorClick = (id: string) => setSector(id);
+
+  const handleWatchlistClick = () => {
+    if (!user) {
+      setAuthOpen(true);
+      return;
+    }
+    setSector("watchlist");
+  };
 
   return (
     <div className="min-h-screen bg-background">
       {isMobile ? (
-        <MobileHeader title="Markets" />
+        <MobileHeader showLogo showBack={false} />
       ) : (
         <EventsDesktopHeader />
       )}
 
-      <div className={cn("mx-auto w-full max-w-7xl pb-24", isMobile ? "px-4 py-4" : "px-4 py-6 lg:px-6") }>
+      <div
+        className={cn(
+          "mx-auto w-full max-w-7xl space-y-6 pb-24",
+          isMobile ? "px-4 py-4" : "px-4 py-6 lg:px-6",
+        )}
+      >
         {/* Intro strip — plain-language, no trader jargon; display treatment */}
-        <div className="mb-6">
+        <div>
           <h1
             className="font-display font-bold tracking-tight text-foreground"
             style={{ fontSize: "clamp(28px, 4vw, 40px)", lineHeight: 1.05 }}
@@ -77,7 +109,7 @@ const LiteEventsPage = () => {
         </div>
 
         {/* Sector rail + Live/Settled switch. Rail scrolls; switch never gets pushed off. */}
-        <div className="mb-6 flex items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto">
           {(() => {
             const active = sector === "all";
@@ -85,12 +117,7 @@ const LiteEventsPage = () => {
               <button
                 type="button"
                 onClick={() => handleSectorClick("all")}
-                className={cn(
-                  "shrink-0 rounded-full px-[18px] py-[9px] text-[13px] transition-colors",
-                  active
-                    ? "bg-white text-[#0A0B0D] font-semibold"
-                    : "border-[1.5px] border-[#2B2F38] text-[#C9CED6] hover:text-foreground",
-                )}
+                className={cn(PILL_BASE, active ? PILL_ACTIVE : PILL_IDLE)}
               >
                 All
               </button>
@@ -103,22 +130,38 @@ const LiteEventsPage = () => {
                 key={s.id}
                 type="button"
                 onClick={() => handleSectorClick(s.id)}
-                className={cn(
-                  "shrink-0 rounded-full px-[18px] py-[9px] text-[13px] transition-colors",
-                  active
-                    ? "bg-white text-[#0A0B0D] font-semibold"
-                    : "border-[1.5px] border-[#2B2F38] text-[#C9CED6] hover:text-foreground",
-                )}
+                className={cn(PILL_BASE, active ? PILL_ACTIVE : PILL_IDLE)}
               >
                 {s.label}
               </button>
             );
           })}
+          {/* Watchlist pill renders for everyone — it is the teaching moment. */}
+          <button
+            type="button"
+            onClick={handleWatchlistClick}
+            className={cn(
+              PILL_BASE,
+              "flex items-center gap-1.5",
+              sector === "watchlist" ? PILL_ACTIVE : PILL_IDLE,
+            )}
+          >
+            <Star
+              className={cn(
+                "h-3.5 w-3.5",
+                sector === "watchlist"
+                  ? "fill-[#0A0B0D] text-[#0A0B0D]"
+                  : "text-trading-yellow",
+              )}
+              strokeWidth={1.5}
+            />
+            Watchlist
+          </button>
           <a
             href={SPORTS_LINK}
             target="_blank"
             rel="noreferrer"
-            className="flex shrink-0 items-center gap-1 rounded-full border-[1.5px] border-[#2B2F38] px-[18px] py-[9px] text-[13px] text-[#C9CED6] transition-colors hover:text-foreground"
+            className={cn(PILL_BASE, PILL_IDLE, "flex items-center gap-1")}
           >
             Sports
             <ExternalLink className="h-3.5 w-3.5" />
@@ -137,6 +180,19 @@ const LiteEventsPage = () => {
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          </div>
+        ) : sector === "watchlist" && filtered.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-border/60 p-10 text-center">
+            <p className="text-sm text-muted-foreground">
+              Nothing starred yet. Tap the ★ on any market and it'll show up here.
+            </p>
+            <button
+              type="button"
+              onClick={() => setSector("all")}
+              className="mt-3 text-sm text-primary underline underline-offset-2 hover:text-primary/80"
+            >
+              See all markets
+            </button>
           </div>
         ) : filtered.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border/60 p-10 text-center">
@@ -158,7 +214,7 @@ const LiteEventsPage = () => {
         )}
 
         {/* Pro escape hatch — plain-language, no big CTA. */}
-        <div className="mt-8 text-center text-xs text-muted-foreground">
+        <div className="pt-2 text-center text-xs text-muted-foreground">
           Want charts, leverage and the order book?{" "}
           <button
             type="button"
@@ -170,6 +226,7 @@ const LiteEventsPage = () => {
         </div>
       </div>
 
+      <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
       {isMobile && <BottomNav />}
     </div>
   );
