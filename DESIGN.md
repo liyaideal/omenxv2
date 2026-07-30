@@ -1342,16 +1342,15 @@ Dual-line events (`product_lines ⊇ {spot, futures}`): render **one row per pro
 
 One primitive site-wide: `src/components/states/EmptyState.tsx`. Never hand-roll an empty state.
 
-**Anatomy — `variant="page"` (default, page-level / large section):**
-| Slot | Rule |
-| --- | --- |
-| Container | `rounded-2xl` + 1px dashed hairline border, `px-6 py-8`, centered |
-| Mascot | `LynxFigure size={100}` (or `LynxMark size={64}` for medium sections), muted-foreground only |
-| Title (fact line) | `font-display` 15px semibold tracking-tight, `mt-3`. States the fact: "Nothing starred yet" |
-| Description (method line) | `font-sans` 12px muted, `max-w-[360px]`, `mt-[5px]`. Tells the user how it fills up |
-| Action | Pill: 1.5px hairline border, `rounded-full`, `px-[18px] py-2`, 13px, secondary ink, transparent bg, `mt-4` |
+**Three size tiers (2026-07-30, round 17).** `variant?: "page" | "section" | "module"`; default `section`. Legacy `card` → section, `inline` → module.
 
-**Anatomy — `variant="module"` (compact in-card):** horizontal row, `LynxMark size={40} strokeWidth={3.4}` + text block, padding ~16/20. Dashed border only when the empty state is the sole content of a bordered slot (`bordered={false}` inside an already-bordered card).
+| Tier | When | Container | Mascot | Title | Description | Pill |
+| --- | --- | --- | --- | --- | --- | --- |
+| `page` | The list / main content area is entirely empty | `flex-1 min-h-[420px]`, centered vertically + horizontally, dashed hairline `rounded-2xl`, `px-6 py-10`. Parent must be a flex column (fallback `min-h-[55vh]`) | `LynxFigure size={150}` | `font-display` 19px semibold, `mt-[22px]` | 13.5px muted, `max-w-[420px]`, `mt-2` | 14px, `px-[22px] py-2.5`, `mt-[22px]` |
+| `section` (default) | A 段 within an otherwise populated page | dashed hairline `rounded-2xl`, `px-6 py-8`, height follows content | `LynxFigure size={100}` | 15px semibold, `mt-3` | 12px muted, `max-w-[360px]`, `mt-[5px]` | 13px, `px-[18px] py-2`, `mt-4` |
+| `module` | In-card (activity feed, rails) | horizontal row, `px-5 py-4`; dashed border only when sole content of a bordered slot (`bordered={false}` inside a bordered card) | `LynxMark size={40} strokeWidth={3.4}` | 15px semibold | 12px muted | 13px |
+
+All tiers: mascot is muted-foreground only; pill = 1.5px hairline border, `rounded-full`, `text-foreground/80`, transparent bg, `hover:text-foreground`.
 
 **Copy rules:** line 1 = fact, line 2 = method. No "Oops", no exclamation marks, no apologies, no illustration other than the lynx. Lite surfaces keep Lite vocabulary.
 
