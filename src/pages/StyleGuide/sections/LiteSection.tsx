@@ -733,17 +733,28 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
         </SubSection>
 
         <SubSection
-          title="Settled market card"
-          description="Grid card on the Lite settled list. Three swaps vs. the live card: result/neutral tag, single winner row, past-tense footer."
+          title="Markets list"
+          description="The live Lite list (/events): grid card + sector rail. The Live | Settled switch is demoed once under the settled outcome card — not duplicated here."
         >
-          <Grid cols={3}>
-            <Cell label="placeholder-remove" />
-          </Grid>
+          <div className="space-y-6">
+            <Grid cols={2}>
+              <Cell label="Live market card · default">
+                <LiteEventCard market={marketDemo("default")} />
+              </Cell>
+              <Cell label="Live market card · closing soon footer">
+                <LiteEventCard market={marketDemo("closing")} />
+              </Cell>
+            </Grid>
+            <div>
+              <StateChip>Sector rail · pills render only for categories with live events</StateChip>
+              <SectorRailDemo />
+            </div>
+          </div>
         </SubSection>
 
         <SubSection
-          title="Settled market card (real)"
-          description="tmp"
+          title="Settled market card"
+          description="Grid card on the Lite settled list. Three swaps vs. the live card: result/neutral tag, single winner row, past-tense footer."
         >
           <Grid cols={3}>
             <Cell label="Won · participated">
