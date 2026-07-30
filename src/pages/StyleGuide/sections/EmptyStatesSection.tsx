@@ -19,20 +19,27 @@ const Chip = ({ children }: { children: string }) => (
 const WHERE_ROWS: Array<[string, string, string, string, string]> = [
   [
     "EmptyState (page)",
-    "Page / large section body",
+    "Fills remaining viewport · lynx 150 / title 19",
     "Same, full width",
-    "Zero-length list",
-    "3",
+    "Main list area empty",
+    "1",
+  ],
+  [
+    "EmptyState (section)",
+    "Medium block · lynx 100 / title 15",
+    "Same, full width",
+    "A section within a page is empty",
+    "2",
   ],
   [
     "EmptyState (module)",
-    "Inside a bordered card (activity, rails)",
+    "In-card row · lynx mark 40",
     "Same, inside the card",
     "Zero-length list",
-    "1",
+    "2",
   ],
   ["LynxMark", "Module empties, compact slots", "Same", "Rendered by EmptyState", "3"],
-  ["LynxFigure", "Page empties", "Same", "Rendered by EmptyState", "2"],
+  ["LynxFigure", "Page (150) + section (100) empties", "Same", "Rendered by EmptyState", "2"],
 ];
 
 export const EmptyStatesSection = ({ isMobile }: Props) => (
@@ -72,15 +79,33 @@ export const EmptyStatesSection = ({ isMobile }: Props) => (
 
       <SubSection
         title="variant=&quot;page&quot;"
-        description="Dashed hairline card, LynxFigure at 100px, centered."
+        description="Fills the remaining viewport (flex-1 + min-h-[420px]), vertically centered. LynxFigure 150 · title 19px · description 13.5px · pill 14px. Use when the main list/content area is entirely empty."
+      >
+        <Chip>Desktop &amp; Mobile · same component</Chip>
+        <div className="flex h-[560px] flex-col">
+          <EmptyState
+            variant="page"
+            title="Nothing has settled yet"
+            description="Markets land here when they wrap up."
+            actionLabel="See live markets"
+            onAction={() => {}}
+          />
+        </div>
+      </SubSection>
+
+      <SubSection
+        title="variant=&quot;section&quot;"
+        description="Height follows content. LynxFigure 100 · title 15px · description 12px · pill 13px. Use for a section within an otherwise populated page."
       >
         <Chip>Desktop &amp; Mobile · same component</Chip>
         <div className={cn("grid gap-4", isMobile ? "grid-cols-1" : "grid-cols-2")}>
           <EmptyState
+            variant="section"
             title="Nothing starred yet"
             description="Tap the ★ on any market and it'll show up here."
           />
           <EmptyState
+            variant="section"
             title="No results yet"
             description="Markets land here when they wrap up."
             actionLabel="See live markets"
@@ -91,7 +116,7 @@ export const EmptyStatesSection = ({ isMobile }: Props) => (
 
       <SubSection
         title="variant=&quot;module&quot;"
-        description="Horizontal compact row for in-card empties. Dashed border only when it is the sole content of a bordered slot."
+        description="Horizontal compact row for in-card empties. LynxMark 40 · strokeWidth 3.4. Dashed border only when it is the sole content of a bordered slot."
       >
         <Chip>Desktop &amp; Mobile · same component</Chip>
         <div className={cn("grid gap-4", isMobile ? "grid-cols-1" : "grid-cols-2")}>

@@ -217,12 +217,12 @@ const LiteSettledPage = () => {
         : "Nothing has settled yet";
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex min-h-screen flex-col bg-background">
       {isMobile ? <MobileHeader title="Settled" /> : <EventsDesktopHeader />}
 
       <div
         className={cn(
-          "mx-auto w-full max-w-7xl pb-24",
+          "mx-auto flex w-full max-w-7xl flex-1 flex-col pb-24",
           isMobile ? "px-4 py-4" : "px-4 py-6 lg:px-6",
         )}
       >
@@ -272,6 +272,7 @@ const LiteSettledPage = () => {
 
             {seriesDays.length === 0 ? (
               <EmptyState
+                variant="page"
                 title="You haven't backed a day of this one yet"
                 description="Back a live day and your result shows up here once it wraps."
                 actionLabel="See live markets"
@@ -389,6 +390,7 @@ const LiteSettledPage = () => {
           </div>
         ) : filtered.length === 0 && seriesList.length === 0 ? (
           <EmptyState
+            variant="page"
             title={emptyTitle}
             description={emptyCopy}
             actionLabel="See live markets"
