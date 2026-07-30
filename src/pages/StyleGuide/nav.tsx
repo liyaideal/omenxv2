@@ -24,6 +24,7 @@ import {
   ApiSection,
   WorldCupSection,
   StatesSection,
+  EmptyStatesSection,
 } from "./sections";
 
 export interface SectionEntry {
@@ -63,6 +64,7 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
     label: "Core UI",
     sections: [
       s("ui", "Common UI", CommonUISection),
+      s("empty-states", "Empty states", EmptyStatesSection),
       s("forms", "Forms", FormsSection),
       s("identity", "User identity", UserIdentitySection),
     ],
