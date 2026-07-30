@@ -142,3 +142,4 @@
 - [Empty state standard](mem://design/empty-state-standard) — 全站 EmptyState（page/module）解剖、文案禁令、pill-not-link，以及 lynx 吉祥物锁定规则
 - [Two page families](mem://design/page-families) — Two visual families (BROWSE vs ACCOUNT) define page grammar; Wallet is the reference implementation of ACCOUNT family
 
+- [Lite M2 decisions](mem://product/lite-m2-decisions) — M2 三方裁决：不加 spot Sell 入口、Limit 永久排除、TP/SL 延后、官方收盘价缺口归 M4

@@ -717,6 +717,20 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
                 heldSideLabel="Yes"
                 heldCurrentValue={144}
               />
+              <OrderCardDemo
+                label="Netting · full net (You'll get back ≈)"
+                amount0="80"
+                boost0={1}
+                heldSideLabel="Yes"
+                heldCurrentValue={144}
+              />
+              <OrderCardDemo
+                label="Netting · partial (get back + rest wins)"
+                amount0="200"
+                boost0={1}
+                heldSideLabel="Yes"
+                heldCurrentValue={144}
+              />
               <OrderCardDemo label="Blocked · Closed" amount0="50" boost0={5} blocked blockedReason="Closed" />
               <OrderCardDemo label="Blocked · Settled" amount0="" boost0={1} blocked blockedReason="Settled" />
               <OrderCardDemo label="Boost config loading (skeleton)" amount0="25" boost0={1} boostLoading />
