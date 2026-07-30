@@ -83,7 +83,7 @@ const LiteEventsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex min-h-screen flex-col bg-background">
       {isMobile ? (
         <MobileHeader showLogo showBack={false} />
       ) : (
@@ -92,7 +92,7 @@ const LiteEventsPage = () => {
 
       <div
         className={cn(
-          "mx-auto w-full max-w-7xl space-y-6 pb-24",
+          "mx-auto flex w-full max-w-7xl flex-1 flex-col space-y-6 pb-24",
           isMobile ? "px-4 py-4" : "px-4 py-6 lg:px-6",
         )}
       >
@@ -184,6 +184,7 @@ const LiteEventsPage = () => {
           </div>
         ) : sector === "watchlist" && filtered.length === 0 ? (
           <EmptyState
+            variant="page"
             title="Nothing starred yet"
             description="Tap the ★ on any market and it'll show up here."
             actionLabel="See all markets"
@@ -191,6 +192,7 @@ const LiteEventsPage = () => {
           />
         ) : filtered.length === 0 ? (
           <EmptyState
+            variant="page"
             title="No open markets here right now"
             description="New markets land in this topic as they open. Check back soon."
             actionLabel="See all markets"
