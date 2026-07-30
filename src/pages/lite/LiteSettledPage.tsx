@@ -261,11 +261,12 @@ const LiteSettledPage = () => {
             </div>
 
             {seriesDays.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-border/60 p-10 text-center">
-                <p className="text-sm text-muted-foreground">
-                  You haven't backed a day of this one yet.
-                </p>
-              </div>
+              <EmptyState
+                title="You haven't backed a day of this one yet"
+                description="Back a live day and your result shows up here once it wraps."
+                actionLabel="See live markets"
+                onAction={() => navigate("/events")}
+              />
             ) : (
               <div className="rounded-2xl border border-border bg-card p-2">
                 {seriesDays.slice(0, displayCount).map((d) => (
@@ -377,16 +378,12 @@ const LiteSettledPage = () => {
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         ) : filtered.length === 0 && seriesList.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border/60 p-10 text-center">
-            <p className="text-sm text-muted-foreground">{emptyCopy}</p>
-            <button
-              type="button"
-              onClick={() => navigate("/events")}
-              className="mt-4 rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-[#0A0B0D]"
-            >
-              See live markets
-            </button>
-          </div>
+          <EmptyState
+            title={emptyTitle}
+            description={emptyCopy}
+            actionLabel="See live markets"
+            onAction={() => navigate("/events")}
+          />
         ) : (
           <div className="space-y-8">
             {seriesList.length > 0 && (
