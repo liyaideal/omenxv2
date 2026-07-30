@@ -129,7 +129,6 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   const remainderAmount = isNetting ? Math.max(0, amountNum - heldValue) : 0;
   const remainderWin =
     amountNum > 0 ? potentialWin * (remainderAmount / amountNum) : 0;
-  const isFullNet = isNetting && remainderAmount <= 0;
   const isPartialNet = isNetting && remainderAmount > 0;
 
   const autoClose = useMemo(
