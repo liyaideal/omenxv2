@@ -31,7 +31,7 @@ export interface EmptyStateProps {
 const TITLE_CLS = "font-display text-[15px] font-semibold tracking-tight text-foreground";
 const DESC_CLS = "font-sans text-xs leading-relaxed text-muted-foreground";
 const PILL_CLS =
-  "inline-flex items-center rounded-full border-[1.5px] border-border bg-transparent px-[18px] py-2 text-[13px] text-secondary-foreground transition-colors hover:text-foreground";
+  "inline-flex items-center rounded-full border-[1.5px] border-border bg-transparent px-[18px] py-2 text-[13px] text-foreground/80 transition-colors hover:text-foreground";
 
 /**
  * Canonical site-wide empty state (DESIGN.md §Empty states).
