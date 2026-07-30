@@ -561,7 +561,13 @@ const LiteSpotTrade = () => {
     <div className="rounded-2xl border border-border bg-card p-4">
       <div className="mb-3 text-sm font-medium">More stocks closing today</div>
       {otherStocks.length === 0 ? (
-        <div className="text-xs text-muted-foreground">No other markets right now.</div>
+        <EmptyState
+          variant="module"
+          bordered={false}
+          title="No other markets right now"
+          description="More stocks open here at the start of each trading day."
+          className="px-0 py-1"
+        />
       ) : (
         <ul className="space-y-1">
           {otherStocks.map((s) => (
