@@ -1,63 +1,113 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
+import { LynxFigure, LynxMark } from "@/components/brand";
 import { cn } from "@/lib/utils";
 
+export type EmptyStateVariant = "page" | "module" | "card" | "inline";
+export type EmptyStateMascot = "figure" | "mark" | "none";
+
 export interface EmptyStateProps {
-  icon: LucideIcon;
+  /** Line 1 — the fact. "Nothing starred yet". */
   title: string;
+  /** Line 2 — the method. How this list fills up. */
   description?: string;
-  /** Optional CTA (typically a shadcn <Button>). */
+  /** `page` (default) vertical block. `module` compact horizontal row. */
+  variant?: EmptyStateVariant;
+  /** Defaults to `figure` on page, `mark` on module. */
+  mascot?: EmptyStateMascot;
+  /** Pill action. Renders a <button> with onClick or an <a> with href. */
+  actionLabel?: string;
+  onAction?: () => void;
+  href?: string;
+  /** Escape hatch for a custom node (legacy call sites). Prefer actionLabel. */
   action?: ReactNode;
-  /** `card` (default) renders a dashed bordered card. `inline` is unbordered for use inside lists/panels. */
-  variant?: "card" | "inline";
+  /** Deprecated — mascot replaces per-instance icons. Accepted, not rendered. */
+  icon?: LucideIcon;
+  /** Suppress the dashed border (e.g. inside an already bordered card). */
+  bordered?: boolean;
   className?: string;
 }
 
+const TITLE_CLS = "font-display text-[15px] font-semibold tracking-tight text-foreground";
+const DESC_CLS = "font-sans text-xs leading-relaxed text-muted-foreground";
+const PILL_CLS =
+  "inline-flex items-center rounded-full border-[1.5px] border-border bg-transparent px-[18px] py-2 text-[13px] text-muted-foreground transition-colors hover:text-foreground";
+
 /**
- * Canonical empty state (DESIGN.md §State Patterns).
+ * Canonical site-wide empty state (DESIGN.md §Empty states).
  *
- * Compact by design — never occupies half a viewport. Uses Lucide icons only
- * (no emoji) and semantic muted tokens.
+ * Anatomy: lynx mascot → fact line → method line → optional pill action.
+ * Blue underlined text links inside empty states are abolished — use the pill.
  */
 export const EmptyState = ({
-  icon: Icon,
   title,
   description,
+  variant = "page",
+  mascot,
+  actionLabel,
+  onAction,
+  href,
   action,
-  variant = "card",
+  bordered = true,
   className,
 }: EmptyStateProps) => {
-  const isCard = variant === "card";
+  const isModule = variant === "module" || variant === "inline";
+  const resolvedMascot: EmptyStateMascot = mascot ?? (isModule ? "mark" : "figure");
+
+  const pill =
+    action ??
+    (actionLabel
+      ? href
+        ? (
+            <a href={href} className={PILL_CLS}>
+              {actionLabel}
+            </a>
+          )
+        : (
+            <button type="button" onClick={onAction} className={PILL_CLS}>
+              {actionLabel}
+            </button>
+          )
+      : null);
+
+  const art =
+    resolvedMascot === "none" ? null : resolvedMascot === "mark" ? (
+      <LynxMark size={isModule ? 40 : 64} strokeWidth={isModule ? 3.4 : 2.6} />
+    ) : (
+      <LynxFigure size={100} />
+    );
+
+  if (isModule) {
+    return (
+      <div
+        className={cn(
+          "flex items-center gap-4 rounded-2xl px-5 py-4 text-left",
+          bordered && "border border-dashed border-border/80",
+          className,
+        )}
+      >
+        {art}
+        <div className="min-w-0">
+          <div className={TITLE_CLS}>{title}</div>
+          {description && <p className={cn(DESC_CLS, "mt-[5px] max-w-[360px]")}>{description}</p>}
+          {pill && <div className="mt-4">{pill}</div>}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(
-        "flex flex-col items-center text-center",
-        isCard
-          ? "rounded-lg border border-dashed border-border/50 bg-muted/10 px-6 py-8"
-          : "py-10",
+        "flex flex-col items-center px-6 py-8 text-center",
+        bordered && "rounded-2xl border border-dashed border-border/80",
         className,
       )}
     >
-      <div
-        className={cn(
-          "flex items-center justify-center",
-          isCard ? "w-10 h-10 rounded-lg bg-muted/40" : "w-8 h-8",
-        )}
-      >
-        <Icon
-          className={cn(
-            "text-muted-foreground",
-            isCard ? "w-5 h-5" : "w-5 h-5",
-          )}
-        />
-      </div>
-      <div className="mt-3 text-sm font-semibold text-foreground">{title}</div>
-      {description && (
-        <p className="mt-1 max-w-sm text-xs text-muted-foreground">
-          {description}
-        </p>
-      )}
-      {action && <div className="mt-4">{action}</div>}
+      {art}
+      <div className={cn(TITLE_CLS, "mt-3")}>{title}</div>
+      {description && <p className={cn(DESC_CLS, "mt-[5px] max-w-[360px]")}>{description}</p>}
+      {pill && <div className="mt-4">{pill}</div>}
     </div>
   );
 };

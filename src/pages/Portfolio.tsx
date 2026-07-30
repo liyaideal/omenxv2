@@ -520,10 +520,8 @@ export default function Portfolio() {
               />
             ) : sortedPositions.length === 0 ? (
               <EmptyState
-                variant="card"
-                icon={Wallet}
                 title="No open positions"
-                description="Your open positions will appear here once you enter a trade."
+                description="Open positions appear here once you enter a trade."
               />
             ) : isMobile ? (
               /* Mobile: Card View */
@@ -885,10 +883,8 @@ export default function Portfolio() {
               />
             ) : sortedSettlements.length === 0 ? (
               <EmptyState
-                variant="card"
-                icon={Trophy}
                 title="No settlements yet"
-                description="Your closed trades will appear here."
+                description="Closed trades land here once they settle."
               />
             ) : isMobile ? (
               /* Mobile: Card View */
@@ -1122,15 +1118,10 @@ export default function Portfolio() {
           <div className="space-y-3">
             {airdrops.length === 0 ? (
               <EmptyState
-                variant="card"
-                icon={Gift}
                 title="No airdrops yet"
                 description="Connect an external account to start receiving counter-position airdrops."
-                action={
-                  <Button variant="outline" size="sm" onClick={() => navigate("/settings")}>
-                    Connect Account
-                  </Button>
-                }
+                actionLabel="Connect account"
+                onAction={() => navigate("/settings")}
               />
             ) : (
               airdrops.map((airdrop) => (

@@ -156,7 +156,12 @@ export default function Rewards() {
           </Card>
 
           {tasks.length === 0 ? (
-            <EmptyState variant="inline" icon={Gift} title="No tasks available" />
+            <EmptyState
+              variant="module"
+              bordered={false}
+              title="No tasks available"
+              description="New tasks appear here as they go live."
+            />
           ) : (
             tasks.map(task => (
               <TaskCard 

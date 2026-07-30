@@ -1337,3 +1337,31 @@ Exit either condition → both revert.
 ### 6. Future rule (documented, not yet built)
 
 Dual-line events (`product_lines ⊇ {spot, futures}`): render **one row per product line**, each with its own badge and route. Not implemented in 4B — search / watchlist currently shows one row per event.
+
+## §Addendum 2026-07-30 · Empty states (LOCKED)
+
+One primitive site-wide: `src/components/states/EmptyState.tsx`. Never hand-roll an empty state.
+
+**Anatomy — `variant="page"` (default, page-level / large section):**
+| Slot | Rule |
+| --- | --- |
+| Container | `rounded-2xl` + 1px dashed hairline border, `px-6 py-8`, centered |
+| Mascot | `LynxFigure size={100}` (or `LynxMark size={64}` for medium sections), muted-foreground only |
+| Title (fact line) | `font-display` 15px semibold tracking-tight, `mt-3`. States the fact: "Nothing starred yet" |
+| Description (method line) | `font-sans` 12px muted, `max-w-[360px]`, `mt-[5px]`. Tells the user how it fills up |
+| Action | Pill: 1.5px hairline border, `rounded-full`, `px-[18px] py-2`, 13px, secondary ink, transparent bg, `mt-4` |
+
+**Anatomy — `variant="module"` (compact in-card):** horizontal row, `LynxMark size={40} strokeWidth={3.4}` + text block, padding ~16/20. Dashed border only when the empty state is the sole content of a bordered slot (`bordered={false}` inside an already-bordered card).
+
+**Copy rules:** line 1 = fact, line 2 = method. No "Oops", no exclamation marks, no apologies, no illustration other than the lynx. Lite surfaces keep Lite vocabulary.
+
+**Pill, not link:** blue underlined text links inside empty states are abolished site-wide. Any action is the pill.
+
+## §Addendum 2026-07-30 · Lynx mascot (LOCKED)
+
+`src/components/brand/LynxMark.tsx` (head) and `LynxFigure.tsx` (chibi full body).
+
+1. Mono stroke follows the `--muted-foreground` token via `currentColor`; componentised, never an image asset, never a hardcoded hex.
+2. Expression is locked — only this grumpy face. No variants, no redrawing, no coordinate edits.
+3. Minimum `LynxMark` render size is 40px; use `strokeWidth ≈ 3.4` at size ≤ 48.
+4. Never stretch, rotate, add shadow/gradient, or recolor. The mascot never participates in the MARKET or MONEY color axes.

@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { SPORTS_LINK } from "@/lib/worldCup";
 import { LiteSettledCard } from "@/components/lite/LiteSettledCard";
 import { LiveSettledSwitch } from "@/components/lite/LiveSettledSwitch";
+import { EmptyState } from "@/components/states";
 import {
   LiteSettledSeriesCard,
   LiteSettledSeriesDayRow,
@@ -199,12 +200,21 @@ const LiteSettledPage = () => {
 
   const emptyCopy =
     scope === "mine"
-      ? "Nothing settled for you yet. Back a live market and it'll show up here when it wraps."
+      ? "Back a live market and it'll show up here when it wraps."
+      : sector !== "all"
+        ? `Markets in ${
+            SECTOR_ORDER.find((s) => s.id === sector)?.label ?? sector
+          } land here once they wrap up. Try All in the meantime.`
+        : "Markets land here when they wrap up.";
+
+  const emptyTitle =
+    scope === "mine"
+      ? "Nothing settled for you yet"
       : sector !== "all"
         ? `Nothing settled in ${
             SECTOR_ORDER.find((s) => s.id === sector)?.label ?? sector
-          } yet. Try All.`
-        : "Nothing has settled yet. Markets land here when they wrap up.";
+          } yet`
+        : "Nothing has settled yet";
 
   return (
     <div className="min-h-screen bg-background">
@@ -261,11 +271,12 @@ const LiteSettledPage = () => {
             </div>
 
             {seriesDays.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-border/60 p-10 text-center">
-                <p className="text-sm text-muted-foreground">
-                  You haven't backed a day of this one yet.
-                </p>
-              </div>
+              <EmptyState
+                title="You haven't backed a day of this one yet"
+                description="Back a live day and your result shows up here once it wraps."
+                actionLabel="See live markets"
+                onAction={() => navigate("/events")}
+              />
             ) : (
               <div className="rounded-2xl border border-border bg-card p-2">
                 {seriesDays.slice(0, displayCount).map((d) => (
@@ -377,16 +388,12 @@ const LiteSettledPage = () => {
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         ) : filtered.length === 0 && seriesList.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border/60 p-10 text-center">
-            <p className="text-sm text-muted-foreground">{emptyCopy}</p>
-            <button
-              type="button"
-              onClick={() => navigate("/events")}
-              className="mt-4 rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-[#0A0B0D]"
-            >
-              See live markets
-            </button>
-          </div>
+          <EmptyState
+            title={emptyTitle}
+            description={emptyCopy}
+            actionLabel="See live markets"
+            onAction={() => navigate("/events")}
+          />
         ) : (
           <div className="space-y-8">
             {seriesList.length > 0 && (

@@ -243,15 +243,10 @@ export default function PortfolioAirdrops() {
         {/* Empty State */}
         {!isLoading && !isError && airdrops.length === 0 && (
           <EmptyState
-            variant="card"
-            icon={Gift}
             title="No airdrops yet"
             description="Connect an external account to start receiving counter-position airdrops."
-            action={
-              <Button variant="outline" size="sm" onClick={() => navigate("/settings")}>
-                Connect Account
-              </Button>
-            }
+            actionLabel="Connect account"
+            onAction={() => navigate("/settings")}
           />
         )}
 

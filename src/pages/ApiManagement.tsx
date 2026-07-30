@@ -82,15 +82,10 @@ const ApiManagement = () => {
           />
         ) : keys.length === 0 ? (
           <EmptyState
-            variant="card"
-            icon={KeyRound}
             title="No API keys yet"
             description="Create your first key to start streaming data or placing orders programmatically."
-            action={
-              <Button size="sm" onClick={() => setCreateOpen(true)} className="gap-1.5">
-                <Plus className="w-4 h-4" /> Create key
-              </Button>
-            }
+            actionLabel="Create key"
+            onAction={() => setCreateOpen(true)}
           />
         ) : (
           <KeysTable keys={keys} onRevoke={setRevokeTarget} />

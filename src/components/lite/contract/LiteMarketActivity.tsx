@@ -8,6 +8,7 @@
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { EmptyState } from "@/components/states";
 
 export interface MarketActivityRow {
   id: string;
@@ -87,9 +88,13 @@ export const LiteMarketActivity = ({ rows, yesLabel, noLabel, maxRows = 6 }: Pro
       Market activity
     </div>
     {rows.length === 0 ? (
-      <div className="rounded-lg bg-muted/20 py-6 text-center text-xs text-muted-foreground">
-        No activity yet — be the first.
-      </div>
+      <EmptyState
+        variant="module"
+        bordered={false}
+        title="No activity yet"
+        description="Trades on this market show up here as people back a side."
+        className="px-0 py-2"
+      />
     ) : (
       <ul className="space-y-1.5">
         {rows.slice(0, maxRows).map((r) => (

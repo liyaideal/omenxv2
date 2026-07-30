@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { SPORTS_LINK } from "@/lib/worldCup";
 import { LiteEventCard } from "@/components/lite/LiteEventCard";
 import { LiveSettledSwitch } from "@/components/lite/LiveSettledSwitch";
+import { EmptyState } from "@/components/states";
 
 // Data-driven sector rail. Filters on the RAW event category (lowercase DB
 // value) so "Stocks" surfaces the us-*-updown spot events (category='stocks')
@@ -182,24 +183,19 @@ const LiteEventsPage = () => {
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         ) : sector === "watchlist" && filtered.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border/60 p-10 text-center">
-            <p className="text-sm text-muted-foreground">
-              Nothing starred yet. Tap the ★ on any market and it'll show up here.
-            </p>
-            <button
-              type="button"
-              onClick={() => setSector("all")}
-              className="mt-3 text-sm text-primary underline underline-offset-2 hover:text-primary/80"
-            >
-              See all markets
-            </button>
-          </div>
+          <EmptyState
+            title="Nothing starred yet"
+            description="Tap the ★ on any market and it'll show up here."
+            actionLabel="See all markets"
+            onAction={() => setSector("all")}
+          />
         ) : filtered.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border/60 p-10 text-center">
-            <p className="text-sm text-muted-foreground">
-              No open markets here right now. Check back soon.
-            </p>
-          </div>
+          <EmptyState
+            title="No open markets here right now"
+            description="New markets land in this topic as they open. Check back soon."
+            actionLabel="See all markets"
+            onAction={() => setSector("all")}
+          />
         ) : (
           <div
             className={cn(

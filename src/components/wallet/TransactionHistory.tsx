@@ -32,6 +32,7 @@ import { cn } from '@/lib/utils';
 import { useRealtimeTransactions } from '@/hooks/useRealtimeTransactions';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PRODUCT_LINE_BADGE_CLASSES, PRODUCT_LINE_LABELS } from '@/lib/productLineBadge';
+import { EmptyState } from '@/components/states';
 
 
 // Network explorer URLs for txHash links
@@ -297,22 +298,16 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
 
       {/* Transaction List */}
       {filteredTransactions.length === 0 ? (
-        <div className="bg-card border border-border/50 rounded-xl p-6 text-center">
-          <History className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-          <p className="text-sm text-muted-foreground">
-            {hasActiveFilters ? 'No transactions match your filters' : 'No recent activity'}
-          </p>
-          {hasActiveFilters && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="mt-2"
-              onClick={clearFilters}
-            >
-              Clear filters
-            </Button>
-          )}
-        </div>
+        <EmptyState
+          title={hasActiveFilters ? 'No transactions match your filters' : 'No recent activity'}
+          description={
+            hasActiveFilters
+              ? 'Clear the filters to see the full history.'
+              : 'Deposits, withdrawals and trades land here as they happen.'
+          }
+          actionLabel={hasActiveFilters ? 'Clear filters' : undefined}
+          onAction={hasActiveFilters ? clearFilters : undefined}
+        />
       ) : (
         <div className="bg-card border border-border/50 rounded-xl divide-y divide-border/30">
           {paginatedTransactions.map((tx) => {
