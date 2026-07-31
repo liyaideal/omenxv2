@@ -525,6 +525,18 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
     const canonicalClosePrice = validated.price;
 
     const oppositeSide = positionSide === "long" ? "short" : "long";
+
+    // Multi-option events (3+ outcomes): Yes/No on the SAME option net against
+    // each other, and a flip is allowed. Runs before the legacy same-option
+    // opposite-side block so binary/single-market events keep their guards.
+    const sameOptionNetted = await tryNetSameOptionOppositeSide(
+      userId,
+      validated,
+      trade,
+      tradeData.optionId,
+    );
+    if (sameOptionNetted) return sameOptionNetted;
+
     const { data: oppositePosition, error: oppositeFindError } = await supabase
       .from("positions")
       .select("*")
@@ -554,9 +566,16 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
 
       const closeQty = Math.min(validated.quantity, existingSize);
       const marginReleased = existingSize > 0 ? (Number(oppositePosition.margin) * closeQty) / existingSize : 0;
+      // AXIS FIX: a long is closed by a SELL whose price sits on the opposite
+      // (no) axis, so it must be converted back to the long's own (yes) axis
+      // before marking/settling. Selling at 0.90 closes a long at 0.10, not
+      // 0.90. The short branch is intentionally left untouched.
+      const closeMark = oppositeSide === "long"
+        ? Math.min(0.99, Math.max(0.01, 1 - canonicalClosePrice))
+        : canonicalClosePrice;
       const realizedPnl = oppositeSide === "long"
-        ? (canonicalClosePrice - Number(oppositePosition.entry_price)) * closeQty
-        : (Number(oppositePosition.entry_price) - canonicalClosePrice) * closeQty;
+        ? (closeMark - Number(oppositePosition.entry_price)) * closeQty
+        : (Number(oppositePosition.entry_price) - closeMark) * closeQty;
       const remainingSize = existingSize - closeQty;
       const remainingMargin = Number(oppositePosition.margin) - marginReleased;
       const intent = remainingSize <= 0.000001 ? "close" : "reduce";
@@ -565,7 +584,7 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
         .from("positions")
         .update(intent === "close" ? {
           status: "Closed",
-          mark_price: canonicalClosePrice,
+          mark_price: closeMark,
           pnl: (Number(oppositePosition.pnl) || 0) + realizedPnl,
           pnl_percent: Number(oppositePosition.margin) > 0
             ? (((Number(oppositePosition.pnl) || 0) + realizedPnl) / Number(oppositePosition.margin)) * 100
@@ -575,7 +594,7 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
         } : {
           size: remainingSize,
           margin: remainingMargin,
-          mark_price: canonicalClosePrice,
+          mark_price: closeMark,
           pnl: (Number(oppositePosition.pnl) || 0) + realizedPnl,
           pnl_percent: remainingMargin > 0 ? (((Number(oppositePosition.pnl) || 0) + realizedPnl) / remainingMargin) * 100 : 0,
           updated_at: new Date().toISOString(),
