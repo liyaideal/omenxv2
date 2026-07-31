@@ -97,6 +97,7 @@ Deno.serve(async (req) => {
     settled?: unknown;
     seededDate?: string;
     seededEvents: string[];
+    art?: unknown;
     errors: Array<{ step: string; error: string }>;
   } = { seededEvents: [], errors: [] };
 
@@ -235,6 +236,26 @@ Deno.serve(async (req) => {
     }
 
     result.seededEvents.push(eventId);
+  }
+
+  // 3) Cover art for anything freshly listed without an image. Never blocks
+  //    the seed: art failures are reported, the card falls back to the
+  //    category image.
+  if (result.seededEvents.length > 0) {
+    try {
+      const artUrl = `${Deno.env.get("SUPABASE_URL")!}/functions/v1/generate-event-image`;
+      const r = await fetch(artUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!}`,
+        },
+        body: JSON.stringify({ event_ids: result.seededEvents }),
+      });
+      result.art = await r.json();
+    } catch (e) {
+      result.errors.push({ step: "generate-event-image", error: String(e) });
+    }
   }
 
 
