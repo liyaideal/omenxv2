@@ -71,6 +71,13 @@ export interface LiteContractOrderPanelProps {
   /** Multi-market events: the option the side buttons are bound to. Shown
    *  above the side buttons so the rail always names the selected market. */
   marketContextLabel?: string | null;
+  /** Multi-option events: the No side is submitted as a SELL on the SAME
+   *  option (stored as a short), which is what lets the engine net the two
+   *  sides against each other. Binary events leave this false and keep
+   *  buying the opposite option. */
+  noAsSell?: boolean;
+  /** Suffix for the netting notice, e.g. "on this market". */
+  nettingScopeLabel?: string;
   /** INTERIM GUARD (multi events): set when the user already backs the other
    *  side of THIS option. Disables submit and shows the notice verbatim.
    *  Remove once the engine's per-option netting extension ships. */
@@ -108,6 +115,8 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
     heldCurrentValue,
     heldQty,
     marketContextLabel,
+    noAsSell,
+    nettingScopeLabel,
     blockNotice,
     onFilled,
     onRequestAuth,
@@ -146,6 +155,8 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   const remainderQty = canEstimateNet ? Math.max(0, quantity - qtyNet) : 0;
   const remainderWin = (1 - sidePrice) * remainderQty;
   const isPartialNet = canEstimateNet && remainderQty > 0;
+  const remainderMarginEst = effBoost > 0 ? (remainderQty * sidePrice) / effBoost : 0;
+  const remainderFee = remainderMarginEst * effBoost * FEE_RATE;
 
   const autoClose = useMemo(
     () =>
@@ -162,6 +173,36 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
         mode: "new",
       }),
     [sidePrice, effBoost, amountNum, fee, quantity, risk],
+  );
+
+  // Reinforcement: when the order flips (partial net), the freshly opened leg
+  // stands on the remainder's margin alone — disclose ITS auto-close, not the
+  // full-order one.
+  const remainderAutoClose = useMemo(
+    () =>
+      isPartialNet
+        ? estimateAutoClosePrice({
+            entryPrice: sidePrice,
+            boost: effBoost,
+            amount: remainderMarginEst,
+            fee: remainderFee,
+            quantity: remainderQty,
+            hasOtherPositions: risk.hasPositions,
+            imTotalOther: risk.imTotal,
+            totalAssets: risk.totalAssets,
+            unrealizedPnLOther: risk.unrealizedPnL,
+            mode: "new",
+          })
+        : null,
+    [
+      isPartialNet,
+      sidePrice,
+      effBoost,
+      remainderMarginEst,
+      remainderFee,
+      remainderQty,
+      risk,
+    ],
   );
 
   const handleSubmit = useCallback(async () => {
@@ -191,6 +232,9 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
     const feeSnapshot = notionalSnapshot * FEE_RATE;
     const optionIdSnapshot = side === "yes" ? yesOptionId : noOptionId;
     const optionLabelSnapshot = side === "yes" ? yesOptionLabel : noOptionLabel;
+    // Multi events: No is a SELL on the same option so the engine nets it.
+    const orderSideSnapshot: "buy" | "sell" =
+      noAsSell && side === "no" ? "sell" : "buy";
     if (!(qtySnapshot > 0)) return toast.error("Amount too small");
 
     setSubmitting(true);
@@ -200,6 +244,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
         optionLabel: optionLabelSnapshot,
         optionId: optionIdSnapshot,
         side: "buy",
+        ...{ side: orderSideSnapshot },
         orderType: "Market",
         price: priceSnapshot,
         amount: amountSnapshot,
