@@ -9,15 +9,17 @@ type: design
 Config-like thresholds live ONLY in `src/lib/liteListBadges.ts` → `LITE_LIST_CONFIG`.
 All icons are Lucide components; emoji glyphs are forbidden in rendered DOM.
 
-## Badge tracks (image tile, top-left, horizontal stack, max 2 — status first)
+## Badges (image tile, top-left, horizontal stack, max 2)
+Fill order: STATUS -> Intraday -> Boost. Anything past the 2-slot cap is dropped, Boost first.
 | Track | Badge | Condition | Style | Icon |
 |---|---|---|---|---|
 | STATUS (max 1) | `Ends {Xh Ym}` | settles < 4h | amber `--trading-yellow`, ink `#241B00`, minute precision, 60s tick | Clock |
 | STATUS | `New` | created < 24h | Pulse Blue `--yes`, ink `#04222c` | — |
 | STATUS | `Trending` | 24h vol in top 20% of loaded live set; skipped if < 5 live events | white, ink `#0A0B0D` | Flame |
-| ATTRIBUTE (max 1) | `Boost {max}×` | contract events, maxBoost ≥ 2; spot never | Volt Green `--no`, ink `#1a2408` | Zap |
+| ATTRIBUTE | `Intraday` | opens and settles inside the same trading day (settle date == live date; `isDailyStockEvent` slug detector as fallback) | GHOST pill: transparent bg, 1.5px border rgba(255,255,255,0.35), white text | Timer |
+| ATTRIBUTE | `Boost {max}×` | contract events, maxBoost ≥ 2; spot never | Volt Green `--no`, ink `#1a2408` | Zap |
 
-STATUS priority fixed and exclusive: Ends soon > New > Trending. Settled cards are NOT part of this system.
+STATUS priority fixed and exclusive: Ends soon > New > Trending. Intraday is the only outline badge — it must stay visually distinct from the four solid pills. Same logic on All / every sector filter / watchlist. Settled cards are NOT part of this system.
 
 ## Live list sort (`sortLiteLiveList`)
 1. < 4h to settle first, ascending by time-to-settle.

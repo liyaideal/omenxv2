@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Clock, Flame, Zap } from "lucide-react";
+import { Clock, Flame, Timer, Zap } from "lucide-react";
 import { EventRow } from "@/hooks/useMarketListData";
 import { cn } from "@/lib/utils";
 import {
   formatEndsIn,
+  isIntradayEvent,
   msToSettle,
   statusBadgeFor,
   type LiteStatusBadge,
@@ -91,21 +92,35 @@ const settlementFooter = (expiry: Date | null, categoryRaw: string): string | nu
   return `Settles ${expiry.toLocaleDateString(undefined, { month: "short", year: "numeric" })}`;
 };
 
-/** One pill in the image-tile badge stack. Icons are Lucide nodes only. */
+/**
+ * One pill in the image-tile badge stack. Icons are Lucide nodes only.
+ * `ghost` renders the special-edition outline treatment (Intraday) so it
+ * never reads as another solid status badge.
+ */
 const BadgePill = ({
   bg,
   fg,
   icon,
   label,
+  ghost = false,
 }: {
-  bg: string;
-  fg: string;
+  bg?: string;
+  fg?: string;
   icon?: React.ReactNode;
   label: string;
+  ghost?: boolean;
 }) => (
   <span
     className="inline-flex items-center gap-1 rounded-full px-[10px] py-[5px] text-[11px] font-semibold leading-none"
-    style={{ background: bg, color: fg }}
+    style={
+      ghost
+        ? {
+            background: "transparent",
+            color: "#FFFFFF",
+            border: "1.5px solid rgba(255,255,255,0.35)",
+          }
+        : { background: bg, color: fg }
+    }
   >
     {icon}
     {label}
@@ -153,11 +168,61 @@ export const LiteEventCard = ({
   const footer = settlementFooter(market.expiry, categoryRaw);
   const image = market.imageUrl ?? CATEGORY_IMAGE[categoryRaw];
 
-  // Badge system v2 — two tracks, max two badges, status first.
+  // Badge system — max two pills, filled in a fixed order:
+  //   STATUS (Ends soon > New > Trending) → Intraday → Boost.
+  // Anything past the 2-slot cap is dropped, Boost first.
   // "Live" stays abolished; no emoji glyphs, Lucide icons only.
   const boostable = !isSpot && !!boostMax && boostMax >= 2;
   const status = statusBadgeFor(market, trendingCutoff, now);
   const endsInMs = msToSettle(market, now);
+  const intraday = isIntradayEvent(market);
+
+  const badges: React.ReactNode[] = [];
+  if (status === "ends-soon") {
+    badges.push(
+      <BadgePill
+        key="ends-soon"
+        bg="hsl(var(--trading-yellow))"
+        fg="#241B00"
+        icon={<Clock className="h-3 w-3" strokeWidth={2.5} />}
+        label={`Ends ${formatEndsIn(endsInMs ?? 0)}`}
+      />,
+    );
+  } else if (status === "new") {
+    badges.push(<BadgePill key="new" bg="hsl(var(--yes))" fg="#04222c" label="New" />);
+  } else if (status === "trending") {
+    badges.push(
+      <BadgePill
+        key="trending"
+        bg="#FFFFFF"
+        fg="#0A0B0D"
+        icon={<Flame className="h-3 w-3" strokeWidth={2.5} />}
+        label="Trending"
+      />,
+    );
+  }
+  if (intraday) {
+    badges.push(
+      <BadgePill
+        key="intraday"
+        ghost
+        icon={<Timer className="h-3 w-3" strokeWidth={2.5} />}
+        label="Intraday"
+      />,
+    );
+  }
+  if (boostable) {
+    badges.push(
+      <BadgePill
+        key="boost"
+        bg="hsl(var(--no))"
+        fg="#1a2408"
+        icon={<Zap className="h-3 w-3" strokeWidth={2.5} />}
+        label={`Boost ${boostMax}×`}
+      />,
+    );
+  }
+  const visibleBadges = badges.slice(0, 2);
 
   const fmt = (p: number) => `${Math.round(p * 100)}¢`;
   const volText = `Vol ${formatCompactUSD(market.totalVolume || market.volume24h || 0)}`;
@@ -186,35 +251,9 @@ export const LiteEventCard = ({
           backgroundPosition: "center, center",
         }}
       >
-        {(status || boostable) && (
+        {visibleBadges.length > 0 && (
           <div className="absolute left-3 top-3 flex items-center gap-1.5">
-            {status === "ends-soon" && (
-              <BadgePill
-                bg="hsl(var(--trading-yellow))"
-                fg="#241B00"
-                icon={<Clock className="h-3 w-3" strokeWidth={2.5} />}
-                label={`Ends ${formatEndsIn(endsInMs ?? 0)}`}
-              />
-            )}
-            {status === "new" && (
-              <BadgePill bg="hsl(var(--yes))" fg="#04222c" label="New" />
-            )}
-            {status === "trending" && (
-              <BadgePill
-                bg="#FFFFFF"
-                fg="#0A0B0D"
-                icon={<Flame className="h-3 w-3" strokeWidth={2.5} />}
-                label="Trending"
-              />
-            )}
-            {boostable && (
-              <BadgePill
-                bg="hsl(var(--no))"
-                fg="#1a2408"
-                icon={<Zap className="h-3 w-3" strokeWidth={2.5} />}
-                label={`Boost ${boostMax}×`}
-              />
-            )}
+            {visibleBadges}
           </div>
         )}
       </div>

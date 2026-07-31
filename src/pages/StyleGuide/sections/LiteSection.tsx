@@ -358,11 +358,23 @@ const Grid = ({ children, cols = 2 }: { children: React.ReactNode; cols?: 2 | 3 
 
 // ------------------------------------------------- Markets list (live)
 // Static EventRow fixture — no hooks, no data access.
-type MarketVariant = "default" | "closing" | "new" | "endsSoon" | "trending";
+type MarketVariant =
+  | "default"
+  | "closing"
+  | "new"
+  | "endsSoon"
+  | "trending"
+  | "intraday"
+  | "intradayBoost";
 
 const marketDemo = (variant: MarketVariant): EventRow => ({
   id: `demo-live-${variant}`,
-  eventId: `demo-live-${variant}`,
+  // Intraday fixtures carry a real daily up/down slug so the shipped
+  // detector recognises them exactly as it does in production.
+  eventId:
+    variant === "intraday" || variant === "intradayBoost"
+      ? "us-hood-updown-20260731"
+      : `demo-live-${variant}`,
   eventName:
     variant === "closing"
       ? "Will the Fed cut rates in September?"
@@ -372,11 +384,23 @@ const marketDemo = (variant: MarketVariant): EventRow => ({
           ? "Will ETH close above $4K today?"
           : variant === "trending"
             ? "Who takes the box office crown this weekend?"
-            : "Will BTC close above $70K this week?",
+            : variant === "intraday" || variant === "intradayBoost"
+              ? "Robinhood (HOOD) — will close higher today?"
+              : "Will BTC close above $70K this week?",
   eventIcon: "",
-  category: variant === "closing" ? "macro" : "crypto",
-  categoryLabel: variant === "closing" ? "Macro" : "Crypto",
-  productLines: ["futures"],
+  category:
+    variant === "closing"
+      ? "macro"
+      : variant === "intraday" || variant === "intradayBoost"
+        ? "stocks"
+        : "crypto",
+  categoryLabel:
+    variant === "closing"
+      ? "Macro"
+      : variant === "intraday" || variant === "intradayBoost"
+        ? "Stocks"
+        : "Crypto",
+  productLines: variant === "intraday" ? ["spot"] : ["futures"],
   eventSubtype: null,
   lifecycleStatus: "active",
   basePrice: null,
@@ -391,7 +415,14 @@ const marketDemo = (variant: MarketVariant): EventRow => ({
   openInterest: 320_000,
   expiry: new Date(
     Date.now() +
-      (variant === "endsSoon" ? 2.2 : variant === "closing" ? 5 : 72) * 3_600_000,
+      (variant === "endsSoon"
+        ? 2.2
+        : variant === "closing"
+          ? 5
+          : variant === "intraday" || variant === "intradayBoost"
+            ? 9
+            : 72) *
+        3_600_000,
   ),
   createdAt: new Date(
     Date.now() - (variant === "new" ? 3 * 3_600_000 : 86_400_000 * 3),
@@ -409,7 +440,7 @@ const RAIL_PILL = "shrink-0 rounded-full px-[18px] py-[9px] text-[13px]";
 const ListBadgeMatrix = () => (
   <div className="space-y-3">
     <StateChip>
-      Two tracks · max 2 badges · STATUS first, then ATTRIBUTE · Lucide icons only
+      Max 2 badges · fill order: STATUS → Intraday → Boost · Lucide icons only
     </StateChip>
     <Grid cols={2}>
       <Cell label="Status · Ends soon (settles &lt; 4h) + Boost">
@@ -424,13 +455,23 @@ const ListBadgeMatrix = () => (
       <Cell label="Attribute only · Boost, no status">
         <LiteEventCard market={marketDemo("default")} boostMax={5} />
       </Cell>
+      <Cell label="Attribute · Intraday (ghost pill, same-day stock event)">
+        <LiteEventCard market={marketDemo("intraday")} />
+      </Cell>
+      <Cell label="Attribute · Intraday + Boost (no status badge)">
+        <LiteEventCard market={marketDemo("intradayBoost")} boostMax={5} />
+      </Cell>
     </Grid>
     <p className="text-xs text-muted-foreground">
-      STATUS priority is fixed: <strong>Ends soon &gt; New &gt; Trending</strong> — at
-      most one ever renders. Trending is skipped entirely when fewer than 5 live
-      events are loaded. ATTRIBUTE is the Boost pill for contract events; spot
-      events never carry one. Settled cards keep their own result tag and are not
-      part of this system.
+      A card shows at most <strong>two</strong> pills, filled in a fixed order:{" "}
+      <strong>STATUS → Intraday → Boost</strong>; anything past the cap is dropped,
+      Boost first. STATUS priority is fixed —{" "}
+      <strong>Ends soon &gt; New &gt; Trending</strong>, at most one ever renders, and
+      Trending is skipped entirely when fewer than 5 live events are loaded. Intraday
+      marks events that open and settle inside the same trading day and uses the ghost
+      outline so it reads as a special-edition mark rather than another status. Boost
+      is contract-only; spot events never carry one. Settled cards keep their own
+      result tag and are not part of this system.
     </p>
   </div>
 );
