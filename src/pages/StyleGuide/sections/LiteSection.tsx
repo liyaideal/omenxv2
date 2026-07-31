@@ -419,9 +419,11 @@ const marketDemo = (variant: MarketVariant): EventRow => ({
         ? 2.2
         : variant === "closing"
           ? 5
-          : variant === "intraday" || variant === "intradayBoost"
-            ? 9
-            : 72) *
+          : variant === "intraday"
+            ? 6 + 40 / 60
+            : variant === "intradayBoost"
+              ? 1 + 20 / 60
+              : 72) *
         3_600_000,
   ),
   createdAt: new Date(
@@ -455,10 +457,10 @@ const ListBadgeMatrix = () => (
       <Cell label="Attribute only · Boost, no status">
         <LiteEventCard market={marketDemo("default")} boostMax={5} />
       </Cell>
-      <Cell label="Attribute · Intraday (ghost pill, same-day stock event)">
+      <Cell label="Attribute · Intraday, morning (settles later today)">
         <LiteEventCard market={marketDemo("intraday")} />
       </Cell>
-      <Cell label="Attribute · Intraday + Boost (no status badge)">
+      <Cell label="Attribute · Intraday, afternoon (< 4h) + Boost — no Ends soon">
         <LiteEventCard market={marketDemo("intradayBoost")} boostMax={5} />
       </Cell>
     </Grid>
@@ -468,10 +470,14 @@ const ListBadgeMatrix = () => (
       Boost first. STATUS priority is fixed —{" "}
       <strong>Ends soon &gt; New &gt; Trending</strong>, at most one ever renders, and
       Trending is skipped entirely when fewer than 5 live events are loaded. Intraday
-      marks events that open and settle inside the same trading day and uses the ghost
-      outline so it reads as a special-edition mark rather than another status. Boost
-      is contract-only; spot events never carry one. Settled cards keep their own
-      result tag and are not part of this system.
+      marks events that open and settle inside the same trading day; it is a solid
+      orange pill (<code>--badge-intraday</code>) and carries its own countdown to
+      settle. Intraday events are <strong>exempt from New and Ends soon</strong> — a
+      daily event is trivially new every morning and ends-soon every afternoon — so
+      the only status they may carry is Trending, and the amber Ends-soon pill can
+      never appear next to Intraday. The exemption is badge-only: ordering still uses
+      the real settle time. Boost is contract-only; spot events never carry one.
+      Settled cards keep their own result tag and are not part of this system.
     </p>
   </div>
 );
