@@ -805,6 +805,8 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
     { id: "m1", isYes: true, label: "Max Verstappen", amount: 25, boost: 2, createdAt: new Date(Date.now() - 15_000).toISOString() },
     { id: "m2", isYes: false, label: "No: Lando Norris", amount: 140, boost: 1, createdAt: new Date(Date.now() - 600_000).toISOString() },
     { id: "m3", isYes: true, label: "Charles Leclerc", amount: 1250, boost: 5, createdAt: new Date(Date.now() - 7_200_000).toISOString() },
+    // Post-netting No leg: plain option label, side carried by isYes only.
+    { id: "m4", isYes: false, label: "Oscar Piastri", amount: 60, boost: 3, createdAt: new Date(Date.now() - 10_800_000).toISOString() },
   ];
 
   return (
