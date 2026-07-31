@@ -369,6 +369,7 @@ const LiteContractTrade = () => {
       selectedSide={side}
       onSelect={selectMarket}
       compact={!!isMobile}
+      showChart={!isMobile}
     />
   );
 
@@ -706,19 +707,6 @@ const LiteContractTrade = () => {
             backTo="/events"
           />
           <div className="space-y-4 px-4 py-4">
-            {isMulti && !resolved && (
-              <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                <span className="rounded-full border border-border bg-muted/30 px-2.5 py-[3px] text-[10px] font-semibold uppercase tracking-[0.12em] text-foreground/80">
-                  {event.options.length} markets
-                </span>
-                <span>
-                  {endDate
-                    ? `Settles ${endDate.toLocaleDateString(undefined, { month: "short", day: "numeric" })} · `
-                    : ""}
-                  {countdown} · {volumeText}
-                </span>
-              </div>
-            )}
             {QuestionBlock}
             {resolved ? (
               <>
@@ -727,11 +715,12 @@ const LiteContractTrade = () => {
               </>
             ) : isMulti ? (
               <>
-                <LiteCrowdOverview
-                  rows={boardOptions
-                    .filter((o) => !o.settled)
-                    .map((o) => ({ id: o.id, label: o.label, yesPrice: o.yesPrice }))}
-                />
+                <div className="text-[11px] text-muted-foreground">
+                  {endDate
+                    ? `Settles ${endDate.toLocaleDateString(undefined, { month: "short", day: "numeric" })} · `
+                    : ""}
+                  {countdown} left
+                </div>
                 {MarketBoard}
                 {RuleCard}
                 {MultiPositions}
