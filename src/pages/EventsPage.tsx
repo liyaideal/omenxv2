@@ -28,6 +28,7 @@ import { HotShelf } from "@/components/events/HotShelf";
 import { CampaignBannerCarousel } from "@/components/campaign/CampaignBannerCarousel";
 import { MarketStatusTabs } from "@/components/events/MarketStatusTabs";
 import { WorldCupPortal } from "@/components/world-cup/WorldCupPortal";
+import { useSurface } from "@/contexts/SurfaceContext";
 
 // Persist view preference
 const getStoredView = (): ViewMode => {
