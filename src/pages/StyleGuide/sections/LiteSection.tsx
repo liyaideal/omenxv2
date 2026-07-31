@@ -358,7 +358,13 @@ const Grid = ({ children, cols = 2 }: { children: React.ReactNode; cols?: 2 | 3 
 
 // ------------------------------------------------- Markets list (live)
 // Static EventRow fixture — no hooks, no data access.
-type MarketVariant = "default" | "closing" | "new" | "endsSoon" | "trending";
+type MarketVariant =
+  | "default"
+  | "closing"
+  | "new"
+  | "endsSoon"
+  | "trending"
+  | "intraday";
 
 const marketDemo = (variant: MarketVariant): EventRow => ({
   id: `demo-live-${variant}`,
