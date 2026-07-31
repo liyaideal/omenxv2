@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Clock, Flame, Zap } from "lucide-react";
+import { Clock, Flame, Timer, Zap } from "lucide-react";
 import { EventRow } from "@/hooks/useMarketListData";
 import { cn } from "@/lib/utils";
 import {
   formatEndsIn,
+  isIntradayEvent,
   msToSettle,
   statusBadgeFor,
   type LiteStatusBadge,
