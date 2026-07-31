@@ -358,13 +358,21 @@ const Grid = ({ children, cols = 2 }: { children: React.ReactNode; cols?: 2 | 3 
 
 // ------------------------------------------------- Markets list (live)
 // Static EventRow fixture — no hooks, no data access.
-const marketDemo = (variant: "default" | "closing"): EventRow => ({
+type MarketVariant = "default" | "closing" | "new" | "endsSoon" | "trending";
+
+const marketDemo = (variant: MarketVariant): EventRow => ({
   id: `demo-live-${variant}`,
   eventId: `demo-live-${variant}`,
   eventName:
     variant === "closing"
       ? "Will the Fed cut rates in September?"
-      : "Will BTC close above $70K this week?",
+      : variant === "new"
+        ? "Will the next iPhone ship a foldable?"
+        : variant === "endsSoon"
+          ? "Will ETH close above $4K today?"
+          : variant === "trending"
+            ? "Who takes the box office crown this weekend?"
+            : "Will BTC close above $70K this week?",
   eventIcon: "",
   category: variant === "closing" ? "macro" : "crypto",
   categoryLabel: variant === "closing" ? "Macro" : "Crypto",
@@ -378,12 +386,17 @@ const marketDemo = (variant: "default" | "closing"): EventRow => ({
   change24h: 3.4,
   volume1h: 12_000,
   volume4h: 48_000,
-  volume24h: 184_000,
+  volume24h: variant === "trending" ? 4_800_000 : 184_000,
   totalVolume: variant === "closing" ? 2_400_000 : 860_000,
   openInterest: 320_000,
-  expiry: new Date(Date.now() + (variant === "closing" ? 5 : 72) * 3_600_000),
-  createdAt: new Date(Date.now() - 86_400_000).toISOString(),
-  isNew: false,
+  expiry: new Date(
+    Date.now() +
+      (variant === "endsSoon" ? 2.2 : variant === "closing" ? 5 : 72) * 3_600_000,
+  ),
+  createdAt: new Date(
+    Date.now() - (variant === "new" ? 3 * 3_600_000 : 86_400_000 * 3),
+  ).toISOString(),
+  isNew: variant === "new",
   isClosingSoon: variant === "closing",
   topMarket: { label: "Yes" },
   childCount: 0,
