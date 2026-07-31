@@ -4,6 +4,9 @@ import { cn } from "@/lib/utils";
 
 interface LiteEventCardProps {
   market: EventRow;
+  /** Max Boost for this event's category (from category_boost_configs).
+   *  null / undefined / <2 → no Boost badge. Spot events never get one. */
+  boostMax?: number | null;
 }
 
 // Literal-mapped category → microlabel (uppercase in render).
@@ -75,12 +78,14 @@ const settlementFooter = (expiry: Date | null, categoryRaw: string): string | nu
   return `Settles ${expiry.toLocaleDateString(undefined, { month: "short", year: "numeric" })}`;
 };
 
-export const LiteEventCard = ({ market }: LiteEventCardProps) => {
+export const LiteEventCard = ({ market, boostMax }: LiteEventCardProps) => {
   const navigate = useNavigate();
   const isSpot = market.productLines?.includes("spot");
   const href = isSpot
     ? `/spot?event=${market.eventId}`
     : `/trade?event=${market.eventId}`;
+  // Multi-market = one event with 3+ independently tradable options.
+  const isMulti = market.children.length > 2;
 
   // Resolve which child is the affirmative ("Yes") side. We MUST NOT rely on
   // children[0] — for us-*-updown events the first option is "Not Up", which
@@ -104,13 +109,26 @@ export const LiteEventCard = ({ market }: LiteEventCardProps) => {
   const footer = settlementFooter(market.expiry, categoryRaw);
   const image = market.imageUrl ?? CATEGORY_IMAGE[categoryRaw];
 
-  // Tag pill: New → volt; otherwise Live → pulse blue. One tag max.
+  // Badge system (frozen): "Live" is abolished. New (Pulse Blue) takes
+  // priority over the Boost badge (volt). Spot events get no badge.
+  const boostable = !isSpot && !!boostMax && boostMax >= 2;
   const tag = market.isNew
-    ? { label: "New", bg: "#CFFF4A" }
-    : { label: "Live", bg: "#33D6FF" };
+    ? { label: "New", bg: "hsl(var(--yes))", fg: "#04222c" }
+    : boostable
+      ? { label: `⚡ Boost ${boostMax}×`, bg: "hsl(var(--no))", fg: "#1a2408" }
+      : null;
 
   const fmt = (p: number) => `${Math.round(p * 100)}¢`;
   const volText = `Vol ${formatCompactUSD(market.totalVolume || market.volume24h || 0)}`;
+  const dateText = market.expiry
+    ? market.expiry.toLocaleDateString(undefined, { month: "short", day: "numeric" })
+    : "";
+
+  // Multi variant: top-2 options by chance, shown as compact chance rows.
+  const topTwo = isMulti
+    ? [...market.children].sort((a, b) => b.markPrice - a.markPrice).slice(0, 2)
+    : [];
+  const extraCount = Math.max(0, market.children.length - topTwo.length);
 
   return (
     <button
@@ -127,35 +145,82 @@ export const LiteEventCard = ({ market }: LiteEventCardProps) => {
           backgroundPosition: "center, center",
         }}
       >
-        <span
-          className="absolute left-3 top-3 rounded-full px-3 py-[5px] text-[11px] font-semibold"
-          style={{ background: tag.bg, color: "#0A0B0D" }}
-        >
-          {tag.label}
-        </span>
+        {tag && (
+          <span
+            className="absolute left-3 top-3 rounded-full px-3 py-[5px] text-[11px] font-semibold"
+            style={{ background: tag.bg, color: tag.fg }}
+          >
+            {tag.label}
+          </span>
+        )}
       </div>
 
       {/* Body */}
-      <div className="p-[18px]">
+      <div className="flex flex-1 flex-col p-[18px]">
         <div className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#6B7280]">
           {microlabel}
+          {isMulti && ` · ${market.children.length} markets`}
         </div>
         <h3 className="mt-[7px] mb-4 min-h-[42px] font-display text-[17px] font-bold leading-[1.2] text-foreground">
           {market.eventName}
         </h3>
 
-        <div className="flex gap-[10px]">
-          <span className="flex-1 rounded-[11px] bg-yes/15 py-[11px] text-center text-sm font-bold text-yes transition-colors group-hover:bg-yes/25">
-            Yes {fmt(yesPrice)}
-          </span>
-          <span className="flex-1 rounded-[11px] bg-no/15 py-[11px] text-center text-sm font-bold text-no transition-colors group-hover:bg-no/25">
-            No {fmt(noPrice)}
-          </span>
+        {/* Middle zone — vertically centred so binary and multi cards read
+            equally dense at the same grid height. */}
+        <div className="flex flex-1 flex-col justify-center">
+          {isMulti ? (
+            <div className="space-y-1.5">
+              {topTwo.map((c) => {
+                const p = Math.max(1, Math.min(99, Math.round(c.markPrice * 100)));
+                return (
+                  <div
+                    key={c.id}
+                    className="grid h-[30px] grid-cols-[minmax(0,1fr)_72px_34px] items-center gap-2"
+                  >
+                    <span className="truncate text-[12.5px] text-foreground/85">
+                      {c.displayLabel || c.optionLabel}
+                    </span>
+                    <span className="h-1.5 overflow-hidden rounded-full bg-white/8">
+                      <span
+                        className="block h-full rounded-full bg-yes"
+                        style={{ width: `${p}%` }}
+                      />
+                    </span>
+                    <span className="text-right font-mono text-[12.5px] font-bold text-foreground">
+                      {p}%
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex gap-[10px]">
+              <span className="flex min-h-[58px] flex-1 items-center justify-center rounded-[11px] bg-yes/15 text-center text-[13.5px] font-bold text-yes transition-colors group-hover:bg-yes/25">
+                Yes {fmt(yesPrice)}
+              </span>
+              <span className="flex min-h-[58px] flex-1 items-center justify-center rounded-[11px] bg-no/15 text-center text-[13.5px] font-bold text-no transition-colors group-hover:bg-no/25">
+                No {fmt(noPrice)}
+              </span>
+            </div>
+          )}
         </div>
 
-        <div className="mt-[14px] flex justify-between text-[11px] text-[#6B7280]">
-          <span className="font-mono">{volText}</span>
-          {footer && <span>{footer}</span>}
+        {/* Footer — single baseline row with a top hairline. */}
+        <div className="mt-[14px] flex items-center justify-between border-t border-[#1D2026] pt-[10px] text-[11px] text-[#6B7280]">
+          {isMulti ? (
+            <>
+              <span className="font-semibold text-yes">+{extraCount} markets</span>
+              <span className="font-mono">
+                {volText}
+                {dateText ? ` · ${dateText}` : ""}
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="font-mono">{volText}</span>
+              {footer && <span>{footer}</span>}
+            </>
+          )}
         </div>
       </div>
     </button>
