@@ -45,6 +45,7 @@ const LiteEventsPage = () => {
   const markets = useMarketListData(dbEvents);
   const { user } = useAuth();
   const { watchlist } = useWatchlist();
+  const { getConfig: getBoostConfig } = useCategoryBoostConfigs();
   const [authOpen, setAuthOpen] = useState(false);
 
   // Non-sports markets pool ("All" and per-sector filter both operate here).
