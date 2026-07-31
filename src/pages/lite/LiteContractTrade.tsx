@@ -380,26 +380,27 @@ const LiteContractTrade = () => {
   // (`pnl` drops the minus sign via Math.abs).
   const heldPnlNum = heldPos ? heldPos.pnlNum : 0;
 
-  const heldAutoClose =
-    heldPos != null
-      ? estimateAutoClosePrice({
-          entryPrice: heldPos.entryPriceNum,
-          boost: heldPos.leverageNum,
-          amount: heldPos.marginNum,
-          fee: 0,
-          quantity: heldPos.sizeNum,
-          hasOtherPositions: positions.length > 1,
-          imTotalOther: Math.max(risk.imTotal - heldPos.marginNum, 0),
-          // `risk.totalAssets` is the live balance, from which this position's
-          // margin + fee were ALREADY deducted at fill time — adding it back
-          // would count the same cash twice. mode:"existing" performs no
-          // further deduction, so pass the balance as-is and only strip this
-          // position's own IM and PnL from the account aggregates.
-          totalAssets: risk.totalAssets,
-          unrealizedPnLOther: risk.unrealizedPnL - heldPnlNum,
-          mode: "existing",
-        })
-      : null;
+  // Shared for the binary held leg and for every multi-market leg.
+  const autoCloseFor = (p: (typeof positions)[number]) =>
+    estimateAutoClosePrice({
+      entryPrice: p.entryPriceNum,
+      boost: p.leverageNum,
+      amount: p.marginNum,
+      fee: 0,
+      quantity: p.sizeNum,
+      hasOtherPositions: positions.length > 1,
+      imTotalOther: Math.max(risk.imTotal - p.marginNum, 0),
+      // `risk.totalAssets` is the live balance, from which this position's
+      // margin + fee were ALREADY deducted at fill time — adding it back
+      // would count the same cash twice. mode:"existing" performs no
+      // further deduction, so pass the balance as-is and only strip this
+      // position's own IM and PnL from the account aggregates.
+      totalAssets: risk.totalAssets,
+      unrealizedPnLOther: risk.unrealizedPnL - p.pnlNum,
+      mode: "existing",
+    });
+
+  const heldAutoClose = heldPos != null ? autoCloseFor(heldPos) : null;
 
   const WatchStar = (
     <button
