@@ -518,6 +518,32 @@ const LiteContractTrade = () => {
     />
   );
 
+  // ---- Mobile multi: meta chip row (sits ABOVE the title) ----
+  const MultiMetaRow = (
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="rounded-full bg-white/[0.07] px-2 py-[3px] text-[10px] font-semibold uppercase tracking-[0.12em] text-foreground/80">
+        {event.options.length} markets
+      </span>
+      <span className="font-mono text-[11.5px] text-muted-foreground">
+        {endDate
+          ? `Settles ${endDate.toLocaleDateString(undefined, { month: "short", day: "numeric" })} · `
+          : ""}
+        {countdown} · {volumeText.replace(/^Vol /, "Vol $")}
+      </span>
+    </div>
+  );
+
+  const CrowdOverview = (
+    <LiteCrowdOverview
+      options={event.options.map((o) => ({
+        id: o.id,
+        label: o.label,
+        yesPrice: pricesCtx?.getPrice(o.id) ?? Number(o.price),
+        settled: o.final_price != null,
+      }))}
+    />
+  );
+
   // ---- Multi-market: one card per held leg, cash out per card ----
   const cashOutTarget = cashOutId
     ? multiHeld.find((p) => p.id === cashOutId) || null
