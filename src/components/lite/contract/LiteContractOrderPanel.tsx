@@ -68,6 +68,13 @@ export interface LiteContractOrderPanelProps {
    *  QUANTITY (tryNetBinaryOppositeLeg), not by dollars, so every netting
    *  estimate below is derived from this. Without it we show no number. */
   heldQty?: number | null;
+  /** Multi-market events: the option the side buttons are bound to. Shown
+   *  above the side buttons so the rail always names the selected market. */
+  marketContextLabel?: string | null;
+  /** INTERIM GUARD (multi events): set when the user already backs the other
+   *  side of THIS option. Disables submit and shows the notice verbatim.
+   *  Remove once the engine's per-option netting extension ships. */
+  blockNotice?: string | null;
   onFilled?: () => void;
   onRequestAuth: () => void;
 }
@@ -100,6 +107,8 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
     heldSideLabel,
     heldCurrentValue,
     heldQty,
+    marketContextLabel,
+    blockNotice,
     onFilled,
     onRequestAuth,
   } = props;
@@ -157,6 +166,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
 
   const handleSubmit = useCallback(async () => {
     if (!user) return onRequestAuth();
+    if (blockNotice) return toast.error(blockNotice);
     if (blocked) return toast.error(blockedReason || "Market unavailable");
     if (amountNum <= 0) return toast.error("Enter an amount");
     // When netting, the held leg's cash comes back first, so only the
@@ -227,6 +237,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
     user,
     blocked,
     blockedReason,
+    blockNotice,
     amountNum,
     fee,
     balance,
@@ -290,6 +301,16 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
       )}
 
       {/* Side */}
+      {marketContextLabel && (
+        <div className="rounded-xl border border-border bg-muted/20 px-3 py-2">
+          <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+            Market · change in the list ←
+          </div>
+          <div className="mt-0.5 font-display text-[14px] font-semibold text-foreground">
+            {marketContextLabel}
+          </div>
+        </div>
+      )}
       <div className="grid grid-cols-2 gap-2">
         <SideButton
           active={side === "yes"}
@@ -444,12 +465,14 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
       </div>
 
       {/* CTA */}
-      {nettingNotice && (
+      {blockNotice ? (
+        <p className="text-[11px] text-muted-foreground">{blockNotice}</p>
+      ) : nettingNotice ? (
         <p className="text-[11px] text-muted-foreground">{nettingNotice}</p>
-      )}
+      ) : null}
       <button
         type="button"
-        disabled={submitting || blocked}
+        disabled={submitting || blocked || !!blockNotice}
         onClick={handleSubmit}
         className={cn(
           "flex h-14 w-full items-center justify-between rounded-xl px-4 font-display font-bold transition-all disabled:cursor-not-allowed disabled:opacity-50",
