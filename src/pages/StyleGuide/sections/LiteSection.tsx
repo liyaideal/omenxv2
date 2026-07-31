@@ -778,6 +778,8 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
                 <LiteEventCard market={marketDemo("closing")} />
               </Cell>
             </Grid>
+            <ListBadgeMatrix />
+            <ListSortAnnotation />
             <div>
               <StateChip>Sector rail · pills render only for categories with live events</StateChip>
               <SectorRailDemo />
