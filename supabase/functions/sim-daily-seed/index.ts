@@ -97,6 +97,7 @@ Deno.serve(async (req) => {
     settled?: unknown;
     seededDate?: string;
     seededEvents: string[];
+    art?: unknown;
     errors: Array<{ step: string; error: string }>;
   } = { seededEvents: [], errors: [] };
 
