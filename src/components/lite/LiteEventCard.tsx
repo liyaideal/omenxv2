@@ -1,12 +1,25 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Clock, Flame, Zap } from "lucide-react";
 import { EventRow } from "@/hooks/useMarketListData";
 import { cn } from "@/lib/utils";
+import {
+  formatEndsIn,
+  msToSettle,
+  statusBadgeFor,
+  type LiteStatusBadge,
+} from "@/lib/liteListBadges";
 
 interface LiteEventCardProps {
   market: EventRow;
   /** Max Boost for this event's category (from category_boost_configs).
    *  null / undefined / <2 → no Boost badge. Spot events never get one. */
   boostMax?: number | null;
+  /**
+   * 24h-volume cutoff for the Trending status badge, computed once by the
+   * list from the loaded live set. null → Trending never shows.
+   */
+  trendingCutoff?: number | null;
 }
 
 // Literal-mapped category → microlabel (uppercase in render).
