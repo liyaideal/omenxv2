@@ -55,7 +55,6 @@ type Side = "yes" | "no";
 // the two sides stay distinguishable in positions / history. Display layer
 // only — tradingService is untouched.
 const NO_PREFIX = "No: ";
-const noLabelFor = (optionLabel: string) => `${NO_PREFIX}${optionLabel}`;
 const baseOptionLabel = (positionOption: string) =>
   positionOption.startsWith(NO_PREFIX) ? positionOption.slice(NO_PREFIX.length) : positionOption;
 const positionIsNo = (positionOption: string) => positionOption.startsWith(NO_PREFIX);
