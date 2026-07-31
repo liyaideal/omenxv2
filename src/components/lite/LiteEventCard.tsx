@@ -168,11 +168,61 @@ export const LiteEventCard = ({
   const footer = settlementFooter(market.expiry, categoryRaw);
   const image = market.imageUrl ?? CATEGORY_IMAGE[categoryRaw];
 
-  // Badge system v2 — two tracks, max two badges, status first.
+  // Badge system — max two pills, filled in a fixed order:
+  //   STATUS (Ends soon > New > Trending) → Intraday → Boost.
+  // Anything past the 2-slot cap is dropped, Boost first.
   // "Live" stays abolished; no emoji glyphs, Lucide icons only.
   const boostable = !isSpot && !!boostMax && boostMax >= 2;
   const status = statusBadgeFor(market, trendingCutoff, now);
   const endsInMs = msToSettle(market, now);
+  const intraday = isIntradayEvent(market);
+
+  const badges: React.ReactNode[] = [];
+  if (status === "ends-soon") {
+    badges.push(
+      <BadgePill
+        key="ends-soon"
+        bg="hsl(var(--trading-yellow))"
+        fg="#241B00"
+        icon={<Clock className="h-3 w-3" strokeWidth={2.5} />}
+        label={`Ends ${formatEndsIn(endsInMs ?? 0)}`}
+      />,
+    );
+  } else if (status === "new") {
+    badges.push(<BadgePill key="new" bg="hsl(var(--yes))" fg="#04222c" label="New" />);
+  } else if (status === "trending") {
+    badges.push(
+      <BadgePill
+        key="trending"
+        bg="#FFFFFF"
+        fg="#0A0B0D"
+        icon={<Flame className="h-3 w-3" strokeWidth={2.5} />}
+        label="Trending"
+      />,
+    );
+  }
+  if (intraday) {
+    badges.push(
+      <BadgePill
+        key="intraday"
+        ghost
+        icon={<Timer className="h-3 w-3" strokeWidth={2.5} />}
+        label="Intraday"
+      />,
+    );
+  }
+  if (boostable) {
+    badges.push(
+      <BadgePill
+        key="boost"
+        bg="hsl(var(--no))"
+        fg="#1a2408"
+        icon={<Zap className="h-3 w-3" strokeWidth={2.5} />}
+        label={`Boost ${boostMax}×`}
+      />,
+    );
+  }
+  const visibleBadges = badges.slice(0, 2);
 
   const fmt = (p: number) => `${Math.round(p * 100)}¢`;
   const volText = `Vol ${formatCompactUSD(market.totalVolume || market.volume24h || 0)}`;
