@@ -345,8 +345,9 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
         </div>
       )}
 
-      {/* Side */}
-      {marketContextLabel && (
+      {/* Side. The market-context box is DESKTOP ONLY — on mobile the drawer
+          header already names side + market + countdown + chance. */}
+      {variant === "desktop" && marketContextLabel && (
         <div className="rounded-xl border border-border bg-muted/20 px-3 py-2">
           <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
             Market · change in the list ←
