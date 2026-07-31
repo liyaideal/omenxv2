@@ -74,7 +74,7 @@ export const LiteMarketBoard = ({
             <div
               className={cn(
                 "border bg-[hsl(var(--card))] transition-colors",
-                compact ? "px-3 pb-2 pt-2.5" : "px-4 pb-2.5 pt-3",
+                compact ? "px-3 pb-2.5 pt-2.5" : "px-4 pb-2.5 pt-3",
                 expanded ? "rounded-t-[14px] border-b-0" : "rounded-[14px]",
                 isSelected ? "border-yes/55" : "border-border",
                 o.settled && "opacity-50",
