@@ -219,12 +219,13 @@ const LiteEventsPage = () => {
               "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
             )}
           >
-            {filtered.map((market) => {
+            {filtered.map((market, i) => {
               const cfg = getBoostConfig(market.category);
               return (
                 <LiteEventCard
                   key={market.id}
                   market={market}
+                  index={i}
                   boostMax={cfg.enabled ? cfg.maxBoost : null}
                   trendingCutoff={trendingCutoff}
                 />
