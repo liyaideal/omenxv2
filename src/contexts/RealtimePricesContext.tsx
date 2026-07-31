@@ -1,6 +1,36 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+
+// ============================================================
+// Display micro-motion layer
+// ------------------------------------------------------------
+// On top of the DB anchor price we add a small DETERMINISTIC jitter that
+// changes every 3s. Same optionId + same 3s bucket ⇒ identical value on every
+// client (no Math.random), so all users always see the same number.
+// The jitter is DISPLAY ONLY: it never writes into `prices`, `previousPrices`
+// or `recentUpdates` — flash/change indicators stay driven by real DB updates.
+// ============================================================
+const JITTER_MS = 3000;
+const JITTER_AMP = 0.006; // ±0.006
+
+/** Simple deterministic string hash → [0, 1). */
+const hash01 = (s: string): number => {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return (h >>> 0) / 4294967296;
+};
+
+const jitterFor = (seed: string, bucket: number): number =>
+  (hash01(`${seed}:${bucket}`) - 0.5) * 2 * JITTER_AMP;
+
+const clampPrice = (n: number) => Math.min(0.99, Math.max(0.01, n));
+
+/** Pair map for 2-option events: mirrored jitter keeps Yes + No === 1. */
+type PairInfo = { seedId: string; sign: 1 | -1 };
 
 interface EventOption {
   id: string;
@@ -61,6 +91,14 @@ export const RealtimePricesProvider: React.FC<RealtimePricesProviderProps> = ({ 
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [recentUpdates, setRecentUpdates] = useState<PriceUpdate[]>([]);
+  // Re-render pulse for the display jitter (see comment at top of file).
+  const [jitterTick, setJitterTick] = useState(0);
+  const pairsRef = useRef<Record<string, PairInfo>>({});
+
+  useEffect(() => {
+    const t = setInterval(() => setJitterTick((n) => n + 1), JITTER_MS);
+    return () => clearInterval(t);
+  }, []);
 
   // Fetch all option prices
   const fetchPrices = useCallback(async () => {
@@ -79,6 +117,21 @@ export const RealtimePricesProvider: React.FC<RealtimePricesProviderProps> = ({ 
         data.forEach((option) => {
           pricesMap[option.id] = Number(option.price);
         });
+
+        // Group by event so 2-option events get mirrored jitter.
+        const byEvent: Record<string, string[]> = {};
+        data.forEach((option) => {
+          (byEvent[option.event_id] ||= []).push(option.id);
+        });
+        const pairs: Record<string, PairInfo> = {};
+        Object.values(byEvent).forEach((ids) => {
+          if (ids.length !== 2) return;
+          const sorted = [...ids].sort();
+          pairs[sorted[0]] = { seedId: sorted[0], sign: 1 };
+          pairs[sorted[1]] = { seedId: sorted[0], sign: -1 };
+        });
+        pairsRef.current = pairs;
+
         setPrices(pricesMap);
         setLastUpdate(new Date());
       }
@@ -89,12 +142,22 @@ export const RealtimePricesProvider: React.FC<RealtimePricesProviderProps> = ({ 
     }
   }, []);
 
-  // Get price for a specific option
+  // Get DISPLAY price for a specific option (DB anchor + deterministic jitter)
   const getPrice = useCallback(
     (optionId: string): number | undefined => {
-      return prices[optionId];
+      const base = prices[optionId];
+      if (base === undefined) return undefined;
+      const bucket = Math.floor(Date.now() / JITTER_MS);
+      const pair = pairsRef.current[optionId];
+      const j = pair
+        ? jitterFor(pair.seedId, bucket) * pair.sign
+        : jitterFor(optionId, bucket);
+      return clampPrice(base + j);
     },
-    [prices]
+    // jitterTick is intentionally a dependency: it re-creates the callback
+    // every 3s so consumers recompute the displayed price.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [prices, jitterTick]
   );
 
   // Get previous price for a specific option

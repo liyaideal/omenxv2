@@ -745,6 +745,10 @@ const LiteSpotTrade = () => {
             onOpenChange={setDrawerOpen}
             showHandle
             hideCloseButton
+            // Root cause of the trailing blank: the shared bottom-sheet
+            // variant ships `pb-24`. Overridden per-usage here (the shell
+            // itself stays untouched) so the drawer hugs its content.
+            className="pb-[calc(env(safe-area-inset-bottom,0px)+16px)]"
           >
             <div className="mb-3">
               <div className="flex items-center gap-2">

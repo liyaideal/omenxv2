@@ -6,7 +6,7 @@
 // caller.
 // ============================================================
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { EmptyState } from "@/components/states";
 
@@ -36,12 +36,19 @@ export const useMarketActivityRows = (
   multi = false,
 ): MarketActivityRow[] => {
   const [rows, setRows] = useState<MarketActivityRow[]>([]);
+  // Drip-feed queue: realtime INSERTs arrive in 5-minute bursts, so instead of
+  // dumping them into the list at once we reveal one row every 2–8s.
+  const pendingRef = useRef<MarketActivityRow[]>([]);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (!eventName) {
       setRows([]);
       return;
     }
     let alive = true;
+    pendingRef.current = [];
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = null;
     const yesLc = yesOptionLabel.trim().toLowerCase();
     const toRow = (r: {
       id: string;
@@ -75,6 +82,27 @@ export const useMarketActivityRows = (
       setRows((data || []).map(toRow));
     })();
 
+    const pushRow = (row: MarketActivityRow) => {
+      setRows((prev) => {
+        if (prev.some((p) => p.id === row.id)) return prev;
+        return [row, ...prev]
+          .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
+          .slice(0, 30);
+      });
+    };
+
+    const scheduleReveal = () => {
+      if (timerRef.current || pendingRef.current.length === 0) return;
+      const delay = 2000 + Math.random() * 6000; // 2–8s
+      timerRef.current = setTimeout(() => {
+        timerRef.current = null;
+        if (!alive) return;
+        const next = pendingRef.current.shift();
+        if (next) pushRow(next);
+        scheduleReveal();
+      }, delay);
+    };
+
     // Live feed: new anonymised fills for THIS event stream in without a poll.
     const channel = supabase
       .channel(`market-activity-${eventName}`)
@@ -92,18 +120,21 @@ export const useMarketActivityRows = (
             is_yes: boolean | null;
           };
           if (!r || r.event_name !== eventName) return;
-          setRows((prev) => {
-            if (prev.some((p) => p.id === r.id)) return prev;
-            return [toRow(r), ...prev]
-              .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
-              .slice(0, 30);
-          });
+          if (pendingRef.current.some((p) => p.id === r.id)) return;
+          pendingRef.current.push(toRow(r));
+          pendingRef.current.sort(
+            (a, b) => +new Date(a.createdAt) - +new Date(b.createdAt),
+          );
+          scheduleReveal();
         },
       )
       .subscribe();
 
     return () => {
       alive = false;
+      pendingRef.current = [];
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = null;
       supabase.removeChannel(channel);
     };
   }, [eventName, yesOptionLabel, tick, multi]);
@@ -112,7 +143,7 @@ export const useMarketActivityRows = (
 
 export const relTime = (iso: string): string => {
   const diff = Date.now() - new Date(iso).getTime();
-  if (diff < 60_000) return `${Math.max(1, Math.floor(diff / 1000))}s`;
+  if (diff < 60_000) return "now";
   if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m`;
   if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h`;
   return `${Math.floor(diff / 86_400_000)}d`;
