@@ -514,8 +514,63 @@ const LiteContractTrade = () => {
       yesLabel={yesLabel}
       noLabel={noLabel}
       maxRows={isMobile ? 4 : 8}
+      showOptionLabel={isMulti}
     />
   );
+
+  // ---- Multi-market: one card per held leg, cash out per card ----
+  const cashOutTarget = cashOutId
+    ? multiHeld.find((p) => p.id === cashOutId) || null
+    : null;
+
+  const MultiPositions =
+    isMulti && multiHeld.length > 0 ? (
+      <div className="space-y-3">
+        {multiHeld.map((p) => {
+          const isYesLeg = !positionIsNo(p.option);
+          const ac = autoCloseFor(p);
+          return (
+            <LitePositionCard
+              key={p.id}
+              sideLabel={`${baseOptionLabel(p.option)} · ${isYesLeg ? "Yes" : "No"} · ${p.leverageNum}× Boost`}
+              isYes={isYesLeg}
+              boost={1}
+              putIn={p.marginNum}
+              nowWorth={p.marginNum + p.pnlNum}
+              profit={p.pnlNum}
+              autoCloseText={
+                p.leverageNum <= 1
+                  ? "None"
+                  : ac != null
+                    ? `≈ ${formatCents(ac)}`
+                    : isMobile
+                      ? "None"
+                      : "None at this balance"
+              }
+              compact={!!isMobile}
+              onCashOut={() => setCashOutId(p.id)}
+            />
+          );
+        })}
+      </div>
+    ) : null;
+
+  const MultiCashOut = cashOutTarget ? (
+    <LiteCashOutFlow
+      open={!!cashOutId}
+      onOpenChange={(o) => !o && setCashOutId(null)}
+      isMobile={!!isMobile}
+      positionId={cashOutTarget.id}
+      positionIndex={positions.findIndex((p) => p.id === cashOutTarget.id)}
+      currentValue={cashOutTarget.marginNum + cashOutTarget.pnlNum}
+      sizeNum={cashOutTarget.sizeNum}
+      sideLabel={`${baseOptionLabel(cashOutTarget.option)} · ${positionIsNo(cashOutTarget.option) ? "No" : "Yes"}`}
+      onDone={() => {
+        setCashOutId(null);
+        setRefetchTick((n) => n + 1);
+      }}
+    />
+  ) : null;
 
   const MoreMarkets = (
     <div className="rounded-2xl border border-border bg-card p-4">
