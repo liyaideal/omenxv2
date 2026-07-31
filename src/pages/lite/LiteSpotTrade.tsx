@@ -23,6 +23,7 @@ import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { MobileHeader } from "@/components/MobileHeader";
+import { useHeadingScrolledOut } from "@/hooks/useHeadingScrolledOut";
 import {
   Tooltip,
   TooltipContent,
