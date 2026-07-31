@@ -3,11 +3,13 @@
 // SINGLE SOURCE OF TRUTH for every threshold used by the Lite markets
 // list. EN copy only. Display/derivation layer: no engine, no DB writes.
 //
-// Two tracks, max 2 badges per card, status first then attribute:
+// Max 2 badges per card. Fill order:
 //   STATUS    (max 1): Ends soon > New > Trending
-//   ATTRIBUTE (max 1): Boost {max}×  (contract events only)
+//   ATTRIBUTE        : Intraday (ghost pill) → Boost {max}×
+// Whatever does not fit the 2-slot cap is dropped, Boost first.
 // ============================================================
 import type { EventRow } from "@/hooks/useMarketListData";
+import { isDailyStockEvent } from "@/components/lite/LiteSettledSeriesCard";
 
 /** Config-like constants — change thresholds HERE and nowhere else. */
 export const LITE_LIST_CONFIG = {
@@ -24,6 +26,30 @@ export const LITE_LIST_CONFIG = {
 } as const;
 
 export type LiteStatusBadge = "ends-soon" | "new" | "trending";
+
+/**
+ * INTRADAY — the event opens and settles inside the same trading day.
+ * Primary signal: the settle timestamp lands on the same calendar day the
+ * event went live. Corroborating fallback: the daily up/down series
+ * detector already used by the settled series view, which recognises slugs
+ * like `us-hood-updown-20260724`.
+ */
+export const isIntradayEvent = (m: EventRow): boolean => {
+  if (m.expiry && m.createdAt) {
+    const live = new Date(m.createdAt);
+    if (
+      isFinite(live.getTime()) &&
+      live.toDateString() === m.expiry.toDateString()
+    ) {
+      return true;
+    }
+  }
+  return isDailyStockEvent({
+    id: m.eventId,
+    name: m.eventName,
+    category: m.category || "",
+  });
+};
 
 const volumeOf = (m: EventRow) => m.volume24h || m.totalVolume || 0;
 
