@@ -440,7 +440,7 @@ const RAIL_PILL = "shrink-0 rounded-full px-[18px] py-[9px] text-[13px]";
 const ListBadgeMatrix = () => (
   <div className="space-y-3">
     <StateChip>
-      Two tracks · max 2 badges · STATUS first, then ATTRIBUTE · Lucide icons only
+      Max 2 badges · fill order: STATUS → Intraday → Boost · Lucide icons only
     </StateChip>
     <Grid cols={2}>
       <Cell label="Status · Ends soon (settles &lt; 4h) + Boost">
@@ -455,13 +455,23 @@ const ListBadgeMatrix = () => (
       <Cell label="Attribute only · Boost, no status">
         <LiteEventCard market={marketDemo("default")} boostMax={5} />
       </Cell>
+      <Cell label="Attribute · Intraday (ghost pill, same-day stock event)">
+        <LiteEventCard market={marketDemo("intraday")} />
+      </Cell>
+      <Cell label="Attribute · Intraday + Boost (no status badge)">
+        <LiteEventCard market={marketDemo("intradayBoost")} boostMax={5} />
+      </Cell>
     </Grid>
     <p className="text-xs text-muted-foreground">
-      STATUS priority is fixed: <strong>Ends soon &gt; New &gt; Trending</strong> — at
-      most one ever renders. Trending is skipped entirely when fewer than 5 live
-      events are loaded. ATTRIBUTE is the Boost pill for contract events; spot
-      events never carry one. Settled cards keep their own result tag and are not
-      part of this system.
+      A card shows at most <strong>two</strong> pills, filled in a fixed order:{" "}
+      <strong>STATUS → Intraday → Boost</strong>; anything past the cap is dropped,
+      Boost first. STATUS priority is fixed —{" "}
+      <strong>Ends soon &gt; New &gt; Trending</strong>, at most one ever renders, and
+      Trending is skipped entirely when fewer than 5 live events are loaded. Intraday
+      marks events that open and settle inside the same trading day and uses the ghost
+      outline so it reads as a special-edition mark rather than another status. Boost
+      is contract-only; spot events never carry one. Settled cards keep their own
+      result tag and are not part of this system.
     </p>
   </div>
 );
