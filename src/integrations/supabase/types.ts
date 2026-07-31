@@ -1710,6 +1710,7 @@ export type Database = {
           referrer_id: string
         }[]
       }
+      roll_daily_hk_stock_events: { Args: never; Returns: number }
       roll_daily_stock_events: { Args: never; Returns: number }
       sim_market_activity_tick: { Args: never; Returns: number }
     }

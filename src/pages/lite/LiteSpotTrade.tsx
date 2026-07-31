@@ -34,7 +34,9 @@ import { cn } from "@/lib/utils";
 import { parseSideLabels } from "@/lib/eventUtils";
 import { liteSideName } from "@/lib/liteSideName";
 import {
-  formatEtTime,
+  formatMarketTime,
+  formatMarketPrice,
+  resolveStockMarket,
   getBlockedReason,
   getDisplayLifecycle,
   isOrderingBlocked,
@@ -203,7 +205,12 @@ const LiteSpotTrade = () => {
   const freezeAt = event?.freeze_time ? new Date(event.freeze_time) : null;
   const countdownTarget = freezeAt ?? endDate;
   const { text: countdown } = useCountdown(countdownTarget);
-  const closeEt = freezeAt ? formatEtTime(freezeAt) : endDate ? formatEtTime(endDate) : null;
+  const market = resolveStockMarket(event);
+  const closeEt = freezeAt
+    ? formatMarketTime(freezeAt, market)
+    : endDate
+      ? formatMarketTime(endDate, market)
+      : null;
 
   const dbLifecycle = event?.lifecycle_status || "TRADING";
   const resolved = !!event?.is_resolved;
@@ -338,7 +345,7 @@ const LiteSpotTrade = () => {
       {closeEt && (
         <>
           <span>·</span>
-          <span className="font-mono">{closeEt} ET</span>
+          <span className="font-mono">{closeEt} {market.label}</span>
         </>
       )}
     </div>
@@ -360,7 +367,7 @@ const LiteSpotTrade = () => {
       <div className="mt-3 flex items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-xs text-muted-foreground">
           {currentPrice != null && (
-            <span className="text-foreground">${currentPrice.toFixed(2)}</span>
+            <span className="text-foreground">{formatMarketPrice(currentPrice, market)}</span>
           )}
           {basePrice != null && (
             <span
@@ -373,7 +380,7 @@ const LiteSpotTrade = () => {
             </span>
           )}
           {basePrice != null && (
-            <span>Price to beat ${basePrice.toFixed(2)}</span>
+            <span>Price to beat {formatMarketPrice(basePrice, market)}</span>
           )}
           <span>Vol {volText}</span>
         </div>
@@ -434,8 +441,14 @@ const LiteSpotTrade = () => {
       </div>
       <RailTrack
         blocked={blocked}
-        freezeLabel={freezeAt ? formatEtTime(freezeAt) : `close − ${FREEZE_MINUTES_BEFORE_CLOSE}min`}
-        closeLabel={endDate ? formatEtTime(endDate) : null}
+        freezeLabel={
+          freezeAt
+            ? formatMarketTime(freezeAt, market)
+            : `close − ${FREEZE_MINUTES_BEFORE_CLOSE}min`
+        }
+        closeLabel={endDate ? formatMarketTime(endDate, market) : null}
+        openLabel={market.openLabel}
+        tzLabel={market.label}
       />
     </div>
   );
@@ -445,9 +458,11 @@ const LiteSpotTrade = () => {
       <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
       <p className="text-muted-foreground">
         Wins <span className="font-semibold text-yes">{yesLabel}</span> if{" "}
-        <span className="text-foreground">{ticker}</span>'s 4:00 PM ET close beats{" "}
+        <span className="text-foreground">{ticker}</span>'s {market.closeLabel} close beats{" "}
         {basePrice != null ? (
-          <span className="font-mono text-foreground">${basePrice.toFixed(2)}</span>
+          <span className="font-mono text-foreground">
+            {formatMarketPrice(basePrice, market)}
+          </span>
         ) : (
           "yesterday's close"
         )}
@@ -812,17 +827,21 @@ const RailTrack = ({
   blocked,
   freezeLabel,
   closeLabel,
+  openLabel,
+  tzLabel,
 }: {
   blocked: boolean;
   freezeLabel: string;
   closeLabel: string | null;
+  openLabel: string;
+  tzLabel: string;
 }) => {
   const nodes = [
     { key: "opened", label: "Opened", time: "" },
-    { key: "open", label: "Market open", time: "9:30 AM ET" },
+    { key: "open", label: "Market open", time: openLabel },
     { key: "now", label: blocked ? "Closed" : "Trading NOW", time: "" },
     { key: "closes", label: "Closes", time: freezeLabel },
-    { key: "settles", label: "Settles", time: closeLabel ? `${closeLabel} ET` : "—" },
+    { key: "settles", label: "Settles", time: closeLabel ? `${closeLabel} ${tzLabel}` : "—" },
   ];
   return (
     <div>
