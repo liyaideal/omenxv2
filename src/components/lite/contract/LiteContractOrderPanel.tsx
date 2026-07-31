@@ -298,6 +298,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
     noOptionId,
     yesOptionLabel,
     noOptionLabel,
+    noAsSell,
     eventName,
     sideLabel,
     deductBalance,
@@ -325,7 +326,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
 
   const nettingNotice =
     isNetting
-      ? `You're backing ${sideLabel}. This cashes out your ${heldSideLabel} first.`
+      ? `You're backing ${sideLabel}. This cashes out your ${heldSideLabel}${nettingScopeLabel ? ` ${nettingScopeLabel}` : ""} first.`
       : null;
 
   const wrapClass =
@@ -464,14 +465,28 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
               </span>
             </div>
             {isPartialNet && (
-              <div className="flex items-center justify-between px-2 pt-0.5">
-                <span className="text-xs text-muted-foreground">
-                  Then if the rest is right, you win
-                </span>
-                <span className="font-mono font-semibold text-foreground">
-                  {money(remainderWin)}
-                </span>
-              </div>
+              <>
+                <div className="flex items-center justify-between px-2 pt-0.5">
+                  <span className="text-xs text-muted-foreground">
+                    Then if the rest is right, you win
+                  </span>
+                  <span className="font-mono font-semibold text-foreground">
+                    {money(remainderWin)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between px-2 pt-0.5">
+                  <span className="text-xs text-muted-foreground">
+                    Est. auto-close (new position)
+                  </span>
+                  <span className="font-mono font-semibold text-muted-foreground">
+                    {effBoost <= 1
+                      ? "None"
+                      : remainderAutoClose != null
+                        ? `≈ ${formatCents(remainderAutoClose)}`
+                        : "None at this balance"}
+                  </span>
+                </div>
+              </>
             )}
           </>
         ) : (
