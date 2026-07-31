@@ -17,9 +17,9 @@ const LS_KEY = "omenx_surface";
 const readInitial = (): Surface => {
   try {
     const v = localStorage.getItem(LS_KEY);
-    return v === "lite" ? "lite" : "pro";
+    return v === "pro" ? "pro" : "lite";
   } catch {
-    return "pro";
+    return "lite";
   }
 };
 
@@ -66,7 +66,7 @@ export const useSurface = (): SurfaceContextValue => {
   if (!ctx) {
     // Safe fallback when consumed outside provider (e.g. isolated preview).
     return {
-      surface: "pro",
+      surface: "lite",
       setSurface: () => undefined,
       toggle: () => undefined,
     };
