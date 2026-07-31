@@ -594,6 +594,7 @@ const LiteContractTrade = () => {
       onDone={() => {
         setCashOutId(null);
         setRefetchTick((n) => n + 1);
+        refetchPositions();
       }}
     />
   ) : null;
@@ -877,7 +878,16 @@ const LiteContractTrade = () => {
             )}
           </div>
           <aside className="space-y-4">
-            {!resolved && <LiteContractOrderPanel {...panelProps} variant="desktop" onFilled={() => setRefetchTick((n) => n + 1)} />}
+            {!resolved && (
+              <LiteContractOrderPanel
+                {...panelProps}
+                variant="desktop"
+                onFilled={() => {
+                  setRefetchTick((n) => n + 1);
+                  refetchPositions();
+                }}
+              />
+            )}
             {MoreMarkets}
           </aside>
         </div>
