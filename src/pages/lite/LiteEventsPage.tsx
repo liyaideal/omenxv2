@@ -40,10 +40,10 @@ const SECTOR_ORDER: Array<{ id: string; label: string }> = [
 
 // Single source of truth for the pill visual language on this page (v3 sizing).
 const PILL_BASE =
-  "shrink-0 rounded-full px-[14px] py-[7px] text-[12.5px] font-display transition-colors";
+  "shrink-0 rounded-full px-[14px] py-[7px] text-[12.5px] transition-colors";
 const PILL_ACTIVE = "bg-white text-[#0A0B0D] font-semibold";
 const PILL_IDLE =
-  "border-[1.5px] border-[#2B2F38] text-[#C9CED6] font-semibold hover:text-foreground";
+  "border-[1.5px] border-[#2B2F38] text-[#C9CED6] hover:text-foreground";
 
 const LiteEventsPage = () => {
   const navigate = useNavigate();
