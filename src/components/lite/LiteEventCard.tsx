@@ -91,8 +91,18 @@ const settlementFooter = (expiry: Date | null, categoryRaw: string): string | nu
   return `Settles ${expiry.toLocaleDateString(undefined, { month: "short", year: "numeric" })}`;
 };
 
-export const LiteEventCard = ({ market, boostMax }: LiteEventCardProps) => {
+export const LiteEventCard = ({
+  market,
+  boostMax,
+  trendingCutoff = null,
+}: LiteEventCardProps) => {
   const navigate = useNavigate();
+  // Minute-precision tick so the "Ends {Xh Ym}" label stays honest.
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = window.setInterval(() => setNow(Date.now()), 60_000);
+    return () => window.clearInterval(t);
+  }, []);
   const isSpot = market.productLines?.includes("spot");
   const href = isSpot
     ? `/spot?event=${market.eventId}`
@@ -122,14 +132,11 @@ export const LiteEventCard = ({ market, boostMax }: LiteEventCardProps) => {
   const footer = settlementFooter(market.expiry, categoryRaw);
   const image = market.imageUrl ?? CATEGORY_IMAGE[categoryRaw];
 
-  // Badge system (frozen): "Live" is abolished. New (Pulse Blue) takes
-  // priority over the Boost badge (volt). Spot events get no badge.
+  // Badge system v2 — two tracks, max two badges, status first.
+  // "Live" stays abolished; no emoji glyphs, Lucide icons only.
   const boostable = !isSpot && !!boostMax && boostMax >= 2;
-  const tag = market.isNew
-    ? { label: "New", bg: "hsl(var(--yes))", fg: "#04222c" }
-    : boostable
-      ? { label: `⚡ Boost ${boostMax}×`, bg: "hsl(var(--no))", fg: "#1a2408" }
-      : null;
+  const status = statusBadgeFor(market, trendingCutoff, now);
+  const endsInMs = msToSettle(market, now);
 
   const fmt = (p: number) => `${Math.round(p * 100)}¢`;
   const volText = `Vol ${formatCompactUSD(market.totalVolume || market.volume24h || 0)}`;
