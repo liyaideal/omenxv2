@@ -91,6 +91,27 @@ const settlementFooter = (expiry: Date | null, categoryRaw: string): string | nu
   return `Settles ${expiry.toLocaleDateString(undefined, { month: "short", year: "numeric" })}`;
 };
 
+/** One pill in the image-tile badge stack. Icons are Lucide nodes only. */
+const BadgePill = ({
+  bg,
+  fg,
+  icon,
+  label,
+}: {
+  bg: string;
+  fg: string;
+  icon?: React.ReactNode;
+  label: string;
+}) => (
+  <span
+    className="inline-flex items-center gap-1 rounded-full px-[10px] py-[5px] text-[11px] font-semibold leading-none"
+    style={{ background: bg, color: fg }}
+  >
+    {icon}
+    {label}
+  </span>
+);
+
 export const LiteEventCard = ({
   market,
   boostMax,
