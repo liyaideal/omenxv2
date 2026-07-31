@@ -1113,6 +1113,7 @@ const MultiMarketStates = () => {
           boostMax={10}
           boostTiers={boostTiers(10)}
           countdownText="09:51:19"
+          variant="desktop"
           onRequestAuth={() => undefined}
         />
       </Cell>
