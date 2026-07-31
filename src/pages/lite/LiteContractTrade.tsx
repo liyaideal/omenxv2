@@ -504,7 +504,10 @@ const LiteContractTrade = () => {
       currentValue={heldNowWorth}
       sizeNum={heldPos.sizeNum}
       sideLabel={heldIsYes ? yesLabel : noLabel}
-      onDone={() => setRefetchTick((n) => n + 1)}
+      onDone={() => {
+        setRefetchTick((n) => n + 1);
+        refetchPositions();
+      }}
     />
   ) : null;
 
