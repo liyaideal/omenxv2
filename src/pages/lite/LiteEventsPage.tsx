@@ -17,6 +17,7 @@ import { LiteEventCard } from "@/components/lite/LiteEventCard";
 import { LiveSettledSwitch } from "@/components/lite/LiveSettledSwitch";
 import { EmptyState } from "@/components/states";
 import { sortLiteLiveList, trendingThreshold } from "@/lib/liteListBadges";
+import { useSurface } from "@/contexts/SurfaceContext";
 
 // Data-driven sector rail. Filters on the RAW event category (lowercase DB
 // value) so "Stocks" surfaces the us-*-updown spot events (category='stocks')
@@ -41,6 +42,7 @@ const PILL_IDLE =
 
 const LiteEventsPage = () => {
   const navigate = useNavigate();
+  const { setSurface } = useSurface();
   const isMobile = useIsMobile();
   const { events: dbEvents, isLoading } = useActiveEvents();
   const markets = useMarketListData(dbEvents);
@@ -236,7 +238,12 @@ const LiteEventsPage = () => {
           Want charts, leverage and the order book?{" "}
           <button
             type="button"
-            onClick={() => navigate("/settings")}
+            onClick={() => {
+              // Switch surfaces in place (context + localStorage + profile),
+              // then land on the Pro events page — no /settings detour.
+              setSurface("pro");
+              navigate("/events");
+            }}
             className="text-primary underline underline-offset-2 hover:text-primary/80"
           >
             Switch to Pro mode
