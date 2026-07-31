@@ -83,7 +83,9 @@ export const formatEndsIn = (ms: number): string => {
  *   2. Everything else by 24h volume (fallback total volume), descending.
  *   3. New events (< 24h) ranked below position 6 are lifted so they land
  *      within the top 6, preserving their relative order and never
- *      displacing an Ends-soon event.
+ *      displacing an Ends-soon event. When the Ends-soon block already
+ *      fills the top 6, injection is skipped entirely — that block owns
+ *      the top of the list.
  * Pure function over the already-filtered set — the same rules apply to
  * "All" and to each sector filter.
  */
@@ -98,6 +100,10 @@ export const sortLiteLiveList = (rows: EventRow[], now = Date.now()): EventRow[]
   const ordered = [...soon, ...rest];
   const limit = LITE_LIST_CONFIG.newLiftWithin;
 
+  // The Ends-soon block owns the top slots; if it already fills them there
+  // is nowhere to lift a New event without displacing one.
+  if (soon.length >= limit) return ordered;
+
   // Lift new events that fall outside the first `limit` slots.
   const lifted = ordered.filter(
     (m, i) => i >= limit && !isEndsSoon(m, now) && isNewEventRow(m, now),
@@ -106,7 +112,7 @@ export const sortLiteLiveList = (rows: EventRow[], now = Date.now()): EventRow[]
 
   const liftedSet = new Set(lifted);
   const remaining = ordered.filter((m) => !liftedSet.has(m));
-  // Insert after the Ends-soon block, but never past the top-6 boundary.
-  const insertAt = Math.min(soon.length, limit - 1, remaining.length);
+  // Insert directly after the Ends-soon block, never before it.
+  const insertAt = Math.min(soon.length, remaining.length);
   return [...remaining.slice(0, insertAt), ...lifted, ...remaining.slice(insertAt)];
 };

@@ -446,7 +446,8 @@ const ListSortAnnotation = () => (
       <li>
         Events created in the last 24h that would rank below position 6 are lifted
         into the top 6, keeping their relative order and never displacing an
-        Ends-soon event.
+        Ends-soon event — they always land after the Ends-soon block, and the lift
+        is skipped entirely when Ends-soon events already fill the top 6.
       </li>
     </ol>
     <p className="mt-2 text-xs text-muted-foreground">
