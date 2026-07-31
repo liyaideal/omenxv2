@@ -735,6 +735,7 @@ const LiteContractTrade = () => {
             backTo="/events"
           />
           <div className="space-y-4 px-4 py-4">
+            {isMulti && !resolved && MultiMetaRow}
             {QuestionBlock}
             {resolved ? (
               <>
@@ -743,12 +744,7 @@ const LiteContractTrade = () => {
               </>
             ) : isMulti ? (
               <>
-                <div className="text-[11px] text-muted-foreground">
-                  {endDate
-                    ? `Settles ${endDate.toLocaleDateString(undefined, { month: "short", day: "numeric" })} · `
-                    : ""}
-                  {countdown} left
-                </div>
+                {CrowdOverview}
                 {MarketBoard}
                 {RuleCard}
                 {MultiPositions}
