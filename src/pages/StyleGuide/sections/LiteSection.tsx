@@ -17,6 +17,8 @@ import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
 import { LiteMarketActivity } from "@/components/lite/contract/LiteMarketActivity";
 import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
 import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
+import { LiteMarketBoard, type BoardOption } from "@/components/lite/multi/LiteMarketBoard";
+import { LiteCrowdOverview } from "@/components/lite/multi/LiteCrowdOverview";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
 import { LiveSettledSwitch } from "@/components/lite/LiveSettledSwitch";
 import { LiteSettledCard } from "@/components/lite/LiteSettledCard";
