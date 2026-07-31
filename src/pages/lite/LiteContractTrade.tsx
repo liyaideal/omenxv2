@@ -55,10 +55,13 @@ type Side = "yes" | "no";
 // the two sides stay distinguishable in positions / history. Display layer
 // only — tradingService is untouched.
 const NO_PREFIX = "No: ";
-const noLabelFor = (optionLabel: string) => `${NO_PREFIX}${optionLabel}`;
 const baseOptionLabel = (positionOption: string) =>
   positionOption.startsWith(NO_PREFIX) ? positionOption.slice(NO_PREFIX.length) : positionOption;
 const positionIsNo = (positionOption: string) => positionOption.startsWith(NO_PREFIX);
+/** A No leg is either the legacy derived label OR (since per-option netting
+ *  shipped) a short stored under the plain option label. */
+const legIsNo = (p: { option: string; type: "long" | "short" }) =>
+  p.type === "short" || positionIsNo(p.option);
 
 const compactUSD = (v: number): string => {
   if (!isFinite(v) || v <= 0) return "$0";
@@ -335,11 +338,7 @@ const LiteContractTrade = () => {
   const heldOnSelected = selOpt
     ? multiHeld.find((p) => baseOptionLabel(p.option) === selOpt.label) || null
     : null;
-  const heldOnSelectedIsNo = heldOnSelected ? positionIsNo(heldOnSelected.option) : false;
-  const oppositeSameOption =
-    isMulti &&
-    heldOnSelected != null &&
-    ((heldOnSelectedIsNo && side === "yes") || (!heldOnSelectedIsNo && side === "no"));
+  const heldOnSelectedIsNo = heldOnSelected ? legIsNo(heldOnSelected) : false;
   const volumeText = `Vol ${compactUSD(Number(event.volume) || 0)}`;
 
   const boardOptions: BoardOption[] = event.options.map((o) => {
@@ -350,7 +349,7 @@ const LiteContractTrade = () => {
       yesPrice: pricesCtx?.getPrice(o.id) ?? Number(o.price),
       settled: o.final_price != null,
       outcomeYes: !!o.is_winner,
-      heldSide: held ? (positionIsNo(held.option) ? "no" : "yes") : null,
+      heldSide: held ? (legIsNo(held) ? "no" : "yes") : null,
     };
   });
 
@@ -527,7 +526,7 @@ const LiteContractTrade = () => {
     isMulti && multiHeld.length > 0 ? (
       <div className="space-y-3">
         {multiHeld.map((p) => {
-          const isYesLeg = !positionIsNo(p.option);
+          const isYesLeg = !legIsNo(p);
           const ac = autoCloseFor(p);
           return (
             <LitePositionCard
@@ -564,7 +563,7 @@ const LiteContractTrade = () => {
       positionIndex={positions.findIndex((p) => p.id === cashOutTarget.id)}
       currentValue={cashOutTarget.marginNum + cashOutTarget.pnlNum}
       sizeNum={cashOutTarget.sizeNum}
-      sideLabel={`${baseOptionLabel(cashOutTarget.option)} · ${positionIsNo(cashOutTarget.option) ? "No" : "Yes"}`}
+      sideLabel={`${baseOptionLabel(cashOutTarget.option)} · ${legIsNo(cashOutTarget) ? "No" : "Yes"}`}
       onDone={() => {
         setCashOutId(null);
         setRefetchTick((n) => n + 1);
@@ -678,17 +677,20 @@ const LiteContractTrade = () => {
         yesOptionId: selOpt.id,
         noOptionId: selOpt.id,
         yesOptionLabel: selOpt.label,
-        noOptionLabel: noLabelFor(selOpt.label),
+        // Same option_label on both sides so the engine can net them; the No
+        // leg is distinguished by side ("sell" → short).
+        noOptionLabel: selOpt.label,
+        noAsSell: true,
         blocked: blocked || selOpt.final_price != null,
         blockedReason: selOpt.final_price != null ? "Settled" : blockedReason,
         marketContextLabel: selOpt.label,
-        // Interim guard until the engine's per-option netting extension ships.
-        blockNotice: oppositeSameOption
-          ? `You already back ${heldOnSelectedIsNo ? "No" : "Yes"} on this market. Cash out first, then switch sides.`
+        blockNotice: null,
+        heldSideLabel: heldOnSelected ? (heldOnSelectedIsNo ? "No" : "Yes") : null,
+        heldCurrentValue: heldOnSelected
+          ? heldOnSelected.marginNum + heldOnSelected.pnlNum
           : null,
-        heldSideLabel: null,
-        heldCurrentValue: null,
-        heldQty: null,
+        heldQty: heldOnSelected ? heldOnSelected.sizeNum : null,
+        nettingScopeLabel: "on this market",
       } as const)
     : null;
 

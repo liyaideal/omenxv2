@@ -85,6 +85,198 @@ const validateFeeCalculation = (amount: number, leverage: number, providedFee: n
 const EPS = 0.000001;
 
 /**
+ * Multi-option event (3+ outcomes) per-option netting.
+ *
+ * Each option trades independently: a BUY is stored as `long` with entry on the
+ * option's yes axis, a SELL (consumer "back No") is stored as `short` with entry
+ * on the option's no axis. Both legs therefore gain when THEIR OWN stored axis
+ * price rises, so PnL on the held leg is always `(impliedMark - heldEntry) * qty`
+ * regardless of side, with `impliedMark = clamp(1 - orderPrice, 0.01, 0.99)`
+ * (the incoming order price always sits on the other axis).
+ *
+ * A flip IS allowed here: the remainder past the held size opens a fresh leg on
+ * the order's side, and the whole thing settles through one balanceDelta.
+ * Returns null when the branch does not apply so the caller falls through to the
+ * untouched legacy paths (binary events never enter here).
+ */
+const tryNetSameOptionOppositeSide = async (
+  userId: string,
+  validated: z.infer<typeof TradeDataSchema>,
+  trade: any,
+  optionId?: string,
+): Promise<TradeExecutionResult | null> => {
+  // 1. Multi-option events only (3+ outcomes). Binary stays byte-for-byte.
+  const { data: eventRow, error: eventErr } = await supabase
+    .from("events")
+    .select("id")
+    .eq("name", validated.eventName)
+    .maybeSingle();
+  if (eventErr || !eventRow) return null;
+  const { count, error: countErr } = await supabase
+    .from("event_options")
+    .select("id", { count: "exact", head: true })
+    .eq("event_id", eventRow.id);
+  if (countErr || !count || count <= 2) return null;
+
+  const orderSide: "long" | "short" = validated.side === "buy" ? "long" : "short";
+  const heldSide: "long" | "short" = orderSide === "long" ? "short" : "long";
+
+  // 2. An open futures leg on the SAME option with the opposite side.
+  const { data: rows, error: findErr } = await supabase
+    .from("positions")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("event_name", validated.eventName)
+    .eq("option_label", validated.optionLabel)
+    .eq("side", heldSide)
+    .eq("status", "Open");
+  if (findErr) return null;
+  const held = (rows || []).find(
+    (p: any) => (p.product_line ?? "futures") !== "spot",
+  );
+  if (!held) return null;
+
+  // 3. Netting math on the HELD leg's own price axis.
+  const heldSize = Number(held.size);
+  const heldMargin = Number(held.margin);
+  const heldEntry = Number(held.entry_price);
+  const impliedMark = Math.min(0.99, Math.max(0.01, 1 - validated.price));
+  const closeQty = Math.min(validated.quantity, heldSize);
+  const marginReleased = heldSize > 0 ? (heldMargin * closeQty) / heldSize : 0;
+  const realizedPnl = (impliedMark - heldEntry) * closeQty;
+  const remainingSize = heldSize - closeQty;
+  const heldFullyClosed = remainingSize <= EPS;
+  const nowIso = new Date().toISOString();
+  const heldNewPnl = (Number(held.pnl) || 0) + realizedPnl;
+  const heldRemainingMargin = heldMargin - marginReleased;
+
+  const { data: updatedHeld, error: reduceErr } = await supabase
+    .from("positions")
+    .update(
+      heldFullyClosed
+        ? {
+            status: "Closed",
+            mark_price: impliedMark,
+            pnl: heldNewPnl,
+            pnl_percent: heldMargin > 0 ? (heldNewPnl / heldMargin) * 100 : 0,
+            closed_at: nowIso,
+            updated_at: nowIso,
+          }
+        : {
+            size: remainingSize,
+            margin: heldRemainingMargin,
+            mark_price: impliedMark,
+            pnl: heldNewPnl,
+            pnl_percent:
+              heldRemainingMargin > 0 ? (heldNewPnl / heldRemainingMargin) * 100 : 0,
+            updated_at: nowIso,
+          },
+    )
+    .eq("id", held.id)
+    .select()
+    .single();
+  if (reduceErr) throw reduceErr;
+
+  // 4. Remainder flips: opens / merges a leg on the ORDER's side. The client
+  //    sends margin for the FULL quantity, so validate the remainder only.
+  const remainderQty = validated.quantity - closeQty;
+  let position: any = updatedHeld;
+  let marginUsed = 0;
+
+  if (remainderQty > EPS) {
+    marginUsed = (remainderQty * validated.price) / validated.leverage;
+    if (!validateMarginCalculation(validated.price, remainderQty, validated.leverage, marginUsed)) {
+      throw new Error("Invalid margin calculation. Please try again.");
+    }
+    const { data: same } = await supabase
+      .from("positions")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("event_name", validated.eventName)
+      .eq("option_label", validated.optionLabel)
+      .eq("side", orderSide)
+      .eq("status", "Open")
+      .maybeSingle();
+
+    if (same) {
+      const newSize = Number(same.size) + remainderQty;
+      const newMargin = Number(same.margin) + marginUsed;
+      const weightedEntry =
+        (Number(same.size) * Number(same.entry_price) + remainderQty * validated.price) /
+        newSize;
+      const newPnl =
+        orderSide === "long"
+          ? (Number(same.mark_price) - weightedEntry) * newSize
+          : (weightedEntry - Number(same.mark_price)) * newSize;
+      const existingNotional = Number(same.margin) * Number(same.leverage);
+      const incomingNotional = remainderQty * validated.price;
+      const newLeverage =
+        newMargin > 0
+          ? Math.round(((existingNotional + incomingNotional) / newMargin) * 100) / 100
+          : Number(same.leverage);
+      const { data: merged, error: mergeErr } = await supabase
+        .from("positions")
+        .update({
+          size: newSize,
+          margin: newMargin,
+          entry_price: weightedEntry,
+          leverage: newLeverage,
+          pnl: newPnl,
+          pnl_percent: newMargin > 0 ? (newPnl / newMargin) * 100 : 0,
+          updated_at: nowIso,
+        })
+        .eq("id", same.id)
+        .select()
+        .single();
+      if (mergeErr) throw mergeErr;
+      position = merged;
+    } else {
+      const { data: created, error: createErr } = await supabase
+        .from("positions")
+        .insert({
+          user_id: userId,
+          trade_id: trade.id,
+          event_name: validated.eventName,
+          option_label: validated.optionLabel,
+          option_id: optionId || null,
+          side: orderSide,
+          entry_price: validated.price,
+          mark_price: validated.price,
+          size: remainderQty,
+          margin: marginUsed,
+          leverage: validated.leverage,
+          pnl: 0,
+          pnl_percent: 0,
+          status: "Open",
+        })
+        .select()
+        .single();
+      if (createErr) throw createErr;
+      position = created;
+    }
+  }
+
+  const intent: "reduce" | "close" =
+    heldFullyClosed && remainderQty <= EPS ? "close" : "reduce";
+
+  await supabase
+    .from("trades")
+    .update({
+      pnl: realizedPnl,
+      status: "Filled",
+      closed_at: intent === "close" ? nowIso : null,
+    })
+    .eq("id", trade.id);
+
+  return {
+    trade,
+    position,
+    intent,
+    balanceDelta: -(marginUsed + validated.fee) + marginReleased + realizedPnl,
+  } satisfies TradeExecutionResult;
+};
+
+/**
  * Binary-event net position (futures, buy side only).
  * Returns null when the branch does not apply, so the caller falls through
  * to the untouched open/add path.
@@ -333,6 +525,18 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
     const canonicalClosePrice = validated.price;
 
     const oppositeSide = positionSide === "long" ? "short" : "long";
+
+    // Multi-option events (3+ outcomes): Yes/No on the SAME option net against
+    // each other, and a flip is allowed. Runs before the legacy same-option
+    // opposite-side block so binary/single-market events keep their guards.
+    const sameOptionNetted = await tryNetSameOptionOppositeSide(
+      userId,
+      validated,
+      trade,
+      tradeData.optionId,
+    );
+    if (sameOptionNetted) return sameOptionNetted;
+
     const { data: oppositePosition, error: oppositeFindError } = await supabase
       .from("positions")
       .select("*")
@@ -362,9 +566,16 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
 
       const closeQty = Math.min(validated.quantity, existingSize);
       const marginReleased = existingSize > 0 ? (Number(oppositePosition.margin) * closeQty) / existingSize : 0;
+      // AXIS FIX: a long is closed by a SELL whose price sits on the opposite
+      // (no) axis, so it must be converted back to the long's own (yes) axis
+      // before marking/settling. Selling at 0.90 closes a long at 0.10, not
+      // 0.90. The short branch is intentionally left untouched.
+      const closeMark = oppositeSide === "long"
+        ? Math.min(0.99, Math.max(0.01, 1 - canonicalClosePrice))
+        : canonicalClosePrice;
       const realizedPnl = oppositeSide === "long"
-        ? (canonicalClosePrice - Number(oppositePosition.entry_price)) * closeQty
-        : (Number(oppositePosition.entry_price) - canonicalClosePrice) * closeQty;
+        ? (closeMark - Number(oppositePosition.entry_price)) * closeQty
+        : (Number(oppositePosition.entry_price) - closeMark) * closeQty;
       const remainingSize = existingSize - closeQty;
       const remainingMargin = Number(oppositePosition.margin) - marginReleased;
       const intent = remainingSize <= 0.000001 ? "close" : "reduce";
@@ -373,7 +584,7 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
         .from("positions")
         .update(intent === "close" ? {
           status: "Closed",
-          mark_price: canonicalClosePrice,
+          mark_price: closeMark,
           pnl: (Number(oppositePosition.pnl) || 0) + realizedPnl,
           pnl_percent: Number(oppositePosition.margin) > 0
             ? (((Number(oppositePosition.pnl) || 0) + realizedPnl) / Number(oppositePosition.margin)) * 100
@@ -383,7 +594,7 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
         } : {
           size: remainingSize,
           margin: remainingMargin,
-          mark_price: canonicalClosePrice,
+          mark_price: closeMark,
           pnl: (Number(oppositePosition.pnl) || 0) + realizedPnl,
           pnl_percent: remainingMargin > 0 ? (((Number(oppositePosition.pnl) || 0) + realizedPnl) / remainingMargin) * 100 : 0,
           updated_at: new Date().toISOString(),
