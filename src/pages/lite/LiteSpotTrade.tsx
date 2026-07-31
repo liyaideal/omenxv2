@@ -423,6 +423,7 @@ const LiteSpotTrade = () => {
       upLabel={yesLabel}
       downLabel={noLabel}
       endDate={event?.end_date}
+      currency={market.currency}
     />
   );
 
