@@ -82,8 +82,17 @@ interface Props {
 
 // Ledger grid: chips align with chips, amounts with amounts, multipliers always shown.
 const ROW_GRID = "grid grid-cols-[minmax(48px,auto)_64px_48px_1fr] items-center gap-x-3";
+// Multi-market ledger grid — frozen order: time | ACTION | context | amount.
+// The option label NEVER leads the row (it reads like a username); it lives in
+// the muted context column together with the boost multiplier.
 const ROW_GRID_MULTI =
-  "grid grid-cols-[minmax(0,1fr)_64px_48px_44px] items-center gap-x-3";
+  "grid grid-cols-[44px_minmax(72px,auto)_minmax(0,1fr)_64px] items-center gap-x-3";
+
+/** Multi feed rows carry the option label; legacy "No: {option}" marks a No leg. */
+const splitMultiLabel = (label: string): { isYes: boolean; option: string } => {
+  const m = /^no:\s*/i.exec(label.trim());
+  return m ? { isYes: false, option: label.trim().slice(m[0].length) } : { isYes: true, option: label.trim() };
+};
 
 export const LiteMarketActivity = ({
   rows,
@@ -110,19 +119,41 @@ export const LiteMarketActivity = ({
       />
     ) : (
       <ul className="space-y-1.5">
-        {rows.slice(0, maxRows).map((r) => (
+        {rows.slice(0, maxRows).map((r) => {
+          if (showOptionLabel) {
+            const { isYes, option } = splitMultiLabel(r.label);
+            return (
+              <li
+                key={r.id}
+                className={cn(ROW_GRID_MULTI, "rounded-lg px-2 py-1.5 hover:bg-muted/20")}
+              >
+                <span className="font-mono text-[11px] text-muted-foreground">
+                  {relTime(r.createdAt)}
+                </span>
+                <span
+                  className={cn(
+                    "text-[11px] font-semibold",
+                    isYes ? "text-yes" : "text-no",
+                  )}
+                >
+                  Backed {isYes ? yesLabel : noLabel}
+                </span>
+                <span className="min-w-0 truncate text-[11px] text-muted-foreground">
+                  {option}
+                  {" · "}
+                  {r.boost}×
+                </span>
+                <span className="text-right font-mono text-xs text-foreground">
+                  ${r.amount.toFixed(0)}
+                </span>
+              </li>
+            );
+          }
+          return (
           <li
             key={r.id}
-            className={cn(
-              showOptionLabel ? ROW_GRID_MULTI : ROW_GRID,
-              "rounded-lg px-2 py-1.5 hover:bg-muted/20",
-            )}
+            className={cn(ROW_GRID, "rounded-lg px-2 py-1.5 hover:bg-muted/20")}
           >
-            {showOptionLabel ? (
-              <span className="min-w-0 truncate text-[11px] font-semibold text-foreground/85">
-                {r.label}
-              </span>
-            ) : (
             <span
               className={cn(
                 "rounded-md px-1.5 py-0.5 text-center text-[11px] font-semibold",
@@ -131,7 +162,6 @@ export const LiteMarketActivity = ({
             >
               {r.isYes ? yesLabel : noLabel}
             </span>
-            )}
             <span className="text-right font-mono text-xs text-foreground">
               ${r.amount.toFixed(0)}
             </span>
@@ -147,7 +177,8 @@ export const LiteMarketActivity = ({
               {relTime(r.createdAt)}
             </span>
           </li>
-        ))}
+          );
+        })}
       </ul>
     )}
   </div>
