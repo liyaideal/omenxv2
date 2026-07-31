@@ -42,6 +42,28 @@ export const useMarketActivityRows = (
       return;
     }
     let alive = true;
+    const yesLc = yesOptionLabel.trim().toLowerCase();
+    const toRow = (r: {
+      id: string;
+      option_label: string | null;
+      amount: number | string | null;
+      boost: number | string | null;
+      created_at: string;
+      is_yes: boolean | null;
+    }): MarketActivityRow => {
+      const label = r.option_label || "";
+      const inferred = multi
+        ? splitMultiLabel(label).isYes
+        : label.trim().toLowerCase() === yesLc;
+      return {
+        id: r.id,
+        isYes: r.is_yes ?? inferred,
+        label,
+        amount: Number(r.amount) || 0,
+        boost: Number(r.boost) || 1,
+        createdAt: r.created_at,
+      };
+    };
     (async () => {
       const { data } = await supabase
         .from("market_activity")
@@ -50,27 +72,39 @@ export const useMarketActivityRows = (
         .order("created_at", { ascending: false })
         .limit(30);
       if (!alive) return;
-      const yesLc = yesOptionLabel.trim().toLowerCase();
-      setRows(
-        (data || []).map((r) => {
-          const label = r.option_label || "";
-          // DB column wins; inference is a legacy-row fallback only.
-          const inferred = multi
-            ? splitMultiLabel(label).isYes
-            : label.trim().toLowerCase() === yesLc;
-          return {
-            id: r.id,
-            isYes: r.is_yes ?? inferred,
-            label,
-            amount: Number(r.amount) || 0,
-            boost: Number(r.boost) || 1,
-            createdAt: r.created_at,
-          };
-        }),
-      );
+      setRows((data || []).map(toRow));
     })();
+
+    // Live feed: new anonymised fills for THIS event stream in without a poll.
+    const channel = supabase
+      .channel(`market-activity-${eventName}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "market_activity" },
+        (payload) => {
+          const r = payload.new as {
+            id: string;
+            event_name: string | null;
+            option_label: string | null;
+            amount: number | string | null;
+            boost: number | string | null;
+            created_at: string;
+            is_yes: boolean | null;
+          };
+          if (!r || r.event_name !== eventName) return;
+          setRows((prev) => {
+            if (prev.some((p) => p.id === r.id)) return prev;
+            return [toRow(r), ...prev]
+              .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
+              .slice(0, 30);
+          });
+        },
+      )
+      .subscribe();
+
     return () => {
       alive = false;
+      supabase.removeChannel(channel);
     };
   }, [eventName, yesOptionLabel, tick, multi]);
   return rows;
