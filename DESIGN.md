@@ -1452,3 +1452,13 @@ Every listed event carries one AI-generated illustration of the OmenX lynx IP, w
 | Never | Any lettering (no mirrored/garbled words on props), logos, UI frames, borders, watermarks, human figures, rainbow palettes. |
 
 Restraint over variety: the palette discipline (paper + charcoal + tan + one accent) is what keeps a full grid of cards calm. Reference sheets live in the private `event-art` bucket under `_ref/`; the locked prompt text lives in `supabase/functions/_shared/event-art.ts`. Visual acceptance reference: `/style-guide` → Core UI → Event cover art.
+
+#### Delivery format (LOCKED)
+
+| Rule | Contract |
+| --- | --- |
+| Format | **JPEG q78 at 840px wide** (2× the card tile), stored as `event-art/<event_id>.jpg` with `cache-control: 31536000`. Never ship the raw model PNG — those are ~1.6 MB each and a full grid cost ~33 MB. Target ≤ 80 KB per tile. |
+| Placeholder | Every generated image also writes a 24px blurred JPEG data URI to `events.image_blur` (~400 bytes), painted under the art until it decodes. |
+| Rendering | Card tiles use `CardArtTile` (`src/components/lite/CardArtTile.tsx`): a real `<img>` with `loading="lazy"` / `decoding="async"` and fixed `840×360` intrinsic size, scrim as an absolute overlay. Never `background-image` — it defeats lazy loading. |
+| Priority | The first 4 cards in a list render `loading="eager"` + `fetchpriority="high"`; everything below the fold stays lazy. |
+| Backfill | `optimize-event-art` edge function converts any legacy PNG in the bucket, re-signs the URL and fills `image_blur`. |
