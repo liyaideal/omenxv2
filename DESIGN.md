@@ -1412,16 +1412,17 @@ A **multi-market event** = one event with **3+ options**. Every option trades Ye
 
 Thresholds live in exactly one place: `src/lib/liteListBadges.ts` (`LITE_LIST_CONFIG`). EN copy only. Icons are **Lucide components only** — no emoji glyph may reach the DOM.
 
-**Two tracks, max two badges**, top-left of the image tile, horizontal stack, status first then attribute.
+**Max two badges** per card, top-left of the image tile, horizontal stack. Fill order is fixed: **STATUS → Intraday → Boost**; anything past the two-slot cap is dropped, Boost first.
 
 | Track | Badge | Condition | Style | Icon |
 | --- | --- | --- | --- | --- |
 | STATUS (max 1) | `Ends {Xh Ym}` | settles in < **4h** | solid amber `--trading-yellow`, dark ink `#241B00`, minute-precision countdown (60s tick) | `Clock` |
 | STATUS | `New` | created < **24h** | solid Pulse Blue `--yes`, ink `#04222c` | — |
 | STATUS | `Trending` | 24h volume in the **top 20%** of the loaded live set; skipped when < 5 live events | solid white, ink `#0A0B0D` | `Flame` |
-| ATTRIBUTE (max 1) | `Boost {max}×` | contract events with `max_leverage ≥ 2`; spot never | solid Volt Green `--no`, ink `#1a2408` | `Zap` |
+| ATTRIBUTE | `Intraday` | event opens and settles inside the same trading day — settle timestamp on the same calendar day the event went live, with the daily up/down series detector (`isDailyStockEvent`) as a corroborating fallback | **ghost pill**: transparent bg, 1.5px border `rgba(255,255,255,0.35)`, white text | `Timer` |
+| ATTRIBUTE | `Boost {max}×` | contract events with `max_leverage ≥ 2`; spot never | solid Volt Green `--no`, ink `#1a2408` | `Zap` |
 
-STATUS priority is fixed and exclusive: **Ends soon > New > Trending**. The settled list is untouched by this system (it keeps its own result tag).
+STATUS priority is fixed and exclusive: **Ends soon > New > Trending**. Intraday is deliberately the only outline badge so it reads as a special-edition mark, not another status. Practical outcomes: a spot daily event shows `[status?] + Intraday`; a boostable intraday contract with a status badge shows status + Intraday (Boost yields); with no status badge, Intraday + Boost render together. The same logic runs everywhere the list card renders (All, every sector filter, watchlist). The settled list is untouched by this system (it keeps its own result tag).
 
 **Live list sort (approved option A)** — `sortLiteLiveList()`:
 1. Events settling in < 4h first, ascending by time-to-settle.
