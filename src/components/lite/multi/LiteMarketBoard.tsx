@@ -74,7 +74,7 @@ export const LiteMarketBoard = ({
             <div
               className={cn(
                 "border bg-[hsl(var(--card))] transition-colors",
-                compact ? "px-3 pb-2 pt-2.5" : "px-4 pb-2.5 pt-3",
+                compact ? "px-3 pb-2.5 pt-2.5" : "px-4 pb-2.5 pt-3",
                 expanded ? "rounded-t-[14px] border-b-0" : "rounded-[14px]",
                 isSelected ? "border-yes/55" : "border-border",
                 o.settled && "opacity-50",
@@ -150,7 +150,9 @@ export const LiteMarketBoard = ({
                 </div>
               )}
 
-              {/* Dual-tone strip — display only, never clickable. */}
+              {/* Dual-tone strip — INSET within the row padding, rounded ends.
+                  Never full-bleed: it must read as a different object from the
+                  faint dashed seam that attaches the chart panel below. */}
               {!o.settled && (
                 <div
                   className="mt-2.5 flex w-full overflow-hidden rounded-full"
@@ -175,10 +177,15 @@ export const LiteMarketBoard = ({
             >
               {expanded && (
                 <div
-                  className="rounded-b-[14px] border border-t-0 border-yes/55 bg-background/60"
+                  className="rounded-b-[14px] border border-t-0 border-yes/55 bg-[#0C1216]"
                   style={{ borderWidth: 1.5, borderTopWidth: 0 }}
                 >
-                  <div className="border-t border-dashed border-yes/55" />
+                  {/* Subtle seam — 1px dashed market-blue at 30%, never the
+                      default border colour and never full contrast. */}
+                  <div
+                    className="border-t border-dashed"
+                    style={{ borderTopColor: "hsl(var(--yes) / 0.3)", borderTopWidth: 1 }}
+                  />
                   <LiteBoardChart
                     sideLabel={selectedSide === "yes" ? "Yes" : "No"}
                     isYes={selectedSide === "yes"}

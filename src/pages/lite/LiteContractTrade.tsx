@@ -160,7 +160,7 @@ const LiteContractTrade = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { user } = useAuth();
-  const { positions } = usePositions();
+  const { positions, refetch: refetchPositions } = usePositions();
   const { isWatched, toggle } = useWatchlist();
   const pricesCtx = useRealtimePricesOptional();
   const { getConfig, isLoading: boostLoading } = useCategoryBoostConfigs();
@@ -504,7 +504,10 @@ const LiteContractTrade = () => {
       currentValue={heldNowWorth}
       sizeNum={heldPos.sizeNum}
       sideLabel={heldIsYes ? yesLabel : noLabel}
-      onDone={() => setRefetchTick((n) => n + 1)}
+      onDone={() => {
+        setRefetchTick((n) => n + 1);
+        refetchPositions();
+      }}
     />
   ) : null;
 
@@ -594,6 +597,7 @@ const LiteContractTrade = () => {
       onDone={() => {
         setCashOutId(null);
         setRefetchTick((n) => n + 1);
+        refetchPositions();
       }}
     />
   ) : null;
@@ -833,6 +837,7 @@ const LiteContractTrade = () => {
               onFilled={() => {
                 setDrawerOpen(false);
                 setRefetchTick((n) => n + 1);
+                refetchPositions();
               }}
             />
           </MobileDrawer>
@@ -876,7 +881,16 @@ const LiteContractTrade = () => {
             )}
           </div>
           <aside className="space-y-4">
-            {!resolved && <LiteContractOrderPanel {...panelProps} variant="desktop" onFilled={() => setRefetchTick((n) => n + 1)} />}
+            {!resolved && (
+              <LiteContractOrderPanel
+                {...panelProps}
+                variant="desktop"
+                onFilled={() => {
+                  setRefetchTick((n) => n + 1);
+                  refetchPositions();
+                }}
+              />
+            )}
             {MoreMarkets}
           </aside>
         </div>
