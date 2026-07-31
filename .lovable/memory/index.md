@@ -143,3 +143,4 @@
 - [Two page families](mem://design/page-families) — Two visual families (BROWSE vs ACCOUNT) define page grammar; Wallet is the reference implementation of ACCOUNT family
 
 - [Lite M2 decisions](mem://product/lite-m2-decisions) — M2 三方裁决：不加 spot Sell 入口、Limit 永久排除、TP/SL 延后、官方收盘价缺口归 M4
+- [Lite multi-market](mem://product/lite-multimarket) — 3+ options 事件：market board、每个 option 独立 Yes/No、多腿持仓、列表卡 top-2 + badge 优先级
