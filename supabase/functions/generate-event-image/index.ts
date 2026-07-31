@@ -11,18 +11,19 @@
 // Failures never throw: they are collected per event so a bad image can never
 // block a listing (the card falls back to the category image).
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { Image } from "https://deno.land/x/imagescript@1.2.15/mod.ts";
 import {
   ART_BUCKET,
+  ART_CONTENT_TYPE,
+  ART_EXT,
   ART_REFERENCE_PATH,
   ART_SIGNED_URL_TTL,
-  ART_ASPECT,
   IMAGE_MODEL,
   PROP_SYSTEM_PROMPT,
   TEXT_MODEL,
   buildImagePrompt,
   pickAccent,
 } from "../_shared/event-art.ts";
+import { toCardArt } from "../_shared/event-art-image.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -39,26 +40,6 @@ function bytesToBase64(bytes: Uint8Array): string {
     binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
   }
   return btoa(binary);
-}
-
-/**
- * Card tiles are a wide strip; a near-square render would be hard-cropped by
- * `background-size: cover`. When the model ignores the 21:9 instruction we
- * centre-crop to the target aspect ourselves so the card never sees a square.
- */
-async function enforceAspect(bin: Uint8Array): Promise<Uint8Array> {
-  try {
-    const img = await Image.decode(bin);
-    const ratio = img.width / img.height;
-    if (ratio >= ART_ASPECT - 0.15) return bin;
-    const cropH = Math.max(1, Math.round(img.width / ART_ASPECT));
-    // Bias the crop upward: the bottom of the tile sits under the UI scrim.
-    const top = Math.max(0, Math.round((img.height - cropH) * 0.38));
-    img.crop(0, top, img.width, Math.min(cropH, img.height - top));
-    return await img.encode(1);
-  } catch {
-    return bin; // never block a listing on a post-process failure
-  }
 }
 
 Deno.serve(async (req) => {
@@ -173,13 +154,19 @@ Deno.serve(async (req) => {
       const b64: string | undefined = imgJson?.data?.[0]?.b64_json;
       if (!b64) throw new Error(`no image payload: ${JSON.stringify(imgJson).slice(0, 300)}`);
 
-      const bin = await enforceAspect(Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)));
-      const path = `${event.id}.png`;
+      // Crop to 21:9, downscale and JPEG-encode: ~1.6 MB PNG -> ~60 KB.
+      const raw = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+      const { jpeg, blurDataUrl } = await toCardArt(raw);
+      const path = `${event.id}.${ART_EXT}`;
 
       // 3) store + publish
       const { error: upErr } = await supabase.storage
         .from(ART_BUCKET)
-        .upload(path, bin, { contentType: "image/png", upsert: true });
+        .upload(path, jpeg, {
+          contentType: ART_CONTENT_TYPE,
+          upsert: true,
+          cacheControl: "31536000",
+        });
       if (upErr) throw new Error(`upload: ${upErr.message}`);
 
       const { data: signed, error: signErr } = await supabase.storage
@@ -189,7 +176,7 @@ Deno.serve(async (req) => {
 
       const { error: writeErr } = await supabase
         .from("events")
-        .update({ image_url: signed.signedUrl })
+        .update({ image_url: signed.signedUrl, image_blur: blurDataUrl })
         .eq("id", event.id);
       if (writeErr) throw new Error(`write: ${writeErr.message}`);
 
