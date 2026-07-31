@@ -800,6 +800,13 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
     { id: "a5", isYes: true, label: "Yes", amount: 55, boost: 1, createdAt: new Date(Date.now() - 100_800_000).toISOString() },
   ];
 
+  // Multi-market feed: option labels, No legs carry the legacy "No: " prefix.
+  const activityMulti = [
+    { id: "m1", isYes: true, label: "Max Verstappen", amount: 25, boost: 2, createdAt: new Date(Date.now() - 15_000).toISOString() },
+    { id: "m2", isYes: false, label: "No: Lando Norris", amount: 140, boost: 1, createdAt: new Date(Date.now() - 600_000).toISOString() },
+    { id: "m3", isYes: true, label: "Charles Leclerc", amount: 1250, boost: 5, createdAt: new Date(Date.now() - 7_200_000).toISOString() },
+  ];
+
   return (
     <SectionWrapper
       id="lite"
@@ -1054,6 +1061,14 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
             </Cell>
             <Cell label="Alias labels · Up / Down (alignment proof)">
               <LiteMarketActivity rows={activity} yesLabel="Up" noLabel="Down" />
+            </Cell>
+            <Cell label="Multi-market · time | action | context | amount">
+              <LiteMarketActivity
+                rows={activityMulti}
+                yesLabel="Yes"
+                noLabel="No"
+                showOptionLabel
+              />
             </Cell>
             <Cell label="Empty">
               <LiteMarketActivity rows={[]} yesLabel="Yes" noLabel="No" />
