@@ -51,7 +51,14 @@ export const LiteMarketBoard = ({
   compact = false,
   showChart = true,
   className,
-}: Props) => (
+}: Props) => {
+  // Settled options sink to the BOTTOM of the board; live options keep their
+  // natural event order, settled ones keep their own relative order.
+  const ordered = [
+    ...options.filter((o) => !o.settled),
+    ...options.filter((o) => o.settled),
+  ];
+  return (
   <div className={cn("space-y-2", className)}>
     <div className="flex items-end justify-between gap-3">
       <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
@@ -65,7 +72,7 @@ export const LiteMarketBoard = ({
     </div>
 
     <div className="space-y-2">
-      {options.map((o) => {
+      {ordered.map((o) => {
         const isSelected = !o.settled && selectedId === o.id;
         const expanded = isSelected && showChart;
         const noPrice = 1 - o.yesPrice;
@@ -201,7 +208,8 @@ export const LiteMarketBoard = ({
       })}
     </div>
   </div>
-);
+  );
+};
 
 const HoldChip = ({ side }: { side: BoardSide }) => (
   <span

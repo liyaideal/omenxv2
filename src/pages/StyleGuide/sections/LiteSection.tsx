@@ -1055,16 +1055,16 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
 
         <SubSection
           title="Market activity"
-          description="Anonymised all-user feed from market_activity — never the viewer's own owner-scoped fills."
+          description="Anonymised all-user feed from market_activity — never the viewer's own owner-scoped fills. UNIFIED ledger on every surface: [time | Backed {side} | context | amount]; binary context is boost only, multi prepends the option label."
         >
           <Grid cols={3}>
-            <Cell label="Populated · Yes / No">
+            <Cell label="Binary · Yes / No · time | action | context | amount">
               <LiteMarketActivity rows={activity} yesLabel="Yes" noLabel="No" />
             </Cell>
-            <Cell label="Alias labels · Up / Down (alignment proof)">
+            <Cell label="Binary alias · Up / Down (same unified ledger)">
               <LiteMarketActivity rows={activity} yesLabel="Up" noLabel="Down" />
             </Cell>
-            <Cell label="Multi-market · time | action | context | amount">
+            <Cell label="Multi-market · context adds the option label">
               <LiteMarketActivity
                 rows={activityMulti}
                 yesLabel="Yes"
