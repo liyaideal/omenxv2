@@ -637,7 +637,7 @@ const LiteContractTrade = () => {
     />
   ) : null;
 
-  const panelProps = {
+  const binaryPanelProps = {
     eventName: event.name,
     yesLabel,
     noLabel,
@@ -666,6 +666,34 @@ const LiteContractTrade = () => {
     onRequestAuth: () => setAuthOpen(true),
   } as const;
 
+  // Multi-market rail: bound to the SELECTED option only. Both sides of that
+  // option are buyable; the No leg is recorded under the derived label.
+  const multiPanelProps = selOpt
+    ? ({
+        ...binaryPanelProps,
+        yesLabel: "Yes",
+        noLabel: "No",
+        yesPrice: selYes,
+        noPrice: selNo,
+        yesOptionId: selOpt.id,
+        noOptionId: selOpt.id,
+        yesOptionLabel: selOpt.label,
+        noOptionLabel: noLabelFor(selOpt.label),
+        blocked: blocked || selOpt.final_price != null,
+        blockedReason: selOpt.final_price != null ? "Settled" : blockedReason,
+        marketContextLabel: selOpt.label,
+        // Interim guard until the engine's per-option netting extension ships.
+        blockNotice: oppositeSameOption
+          ? `You already back ${heldOnSelectedIsNo ? "No" : "Yes"} on this market. Cash out first, then switch sides.`
+          : null,
+        heldSideLabel: null,
+        heldCurrentValue: null,
+        heldQty: null,
+      } as const)
+    : null;
+
+  const panelProps = isMulti && multiPanelProps ? multiPanelProps : binaryPanelProps;
+
   // -------- Mobile --------
   if (isMobile) {
     return (
@@ -678,10 +706,36 @@ const LiteContractTrade = () => {
             backTo="/events"
           />
           <div className="space-y-4 px-4 py-4">
+            {isMulti && !resolved && (
+              <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                <span className="rounded-full border border-border bg-muted/30 px-2.5 py-[3px] text-[10px] font-semibold uppercase tracking-[0.12em] text-foreground/80">
+                  {event.options.length} markets
+                </span>
+                <span>
+                  {endDate
+                    ? `Settles ${endDate.toLocaleDateString(undefined, { month: "short", day: "numeric" })} · `
+                    : ""}
+                  {countdown} · {volumeText}
+                </span>
+              </div>
+            )}
             {QuestionBlock}
             {resolved ? (
               <>
                 {OutcomeCard}
+                {MoreMarkets}
+              </>
+            ) : isMulti ? (
+              <>
+                <LiteCrowdOverview
+                  rows={boardOptions
+                    .filter((o) => !o.settled)
+                    .map((o) => ({ id: o.id, label: o.label, yesPrice: o.yesPrice }))}
+                />
+                {MarketBoard}
+                {RuleCard}
+                {MultiPositions}
+                {MarketActivity}
                 {MoreMarkets}
               </>
             ) : (
@@ -696,6 +750,7 @@ const LiteContractTrade = () => {
             )}
           </div>
 
+          {!isMulti && (
           <div
             className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 px-4 pt-3 backdrop-blur"
             style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0) + 12px)" }}
@@ -729,6 +784,7 @@ const LiteContractTrade = () => {
               </div>
             )}
           </div>
+          )}
 
           <MobileDrawer
             open={drawerOpen}
@@ -744,13 +800,18 @@ const LiteContractTrade = () => {
                     side === "yes" ? "bg-yes/14 text-yes" : "bg-no/14 text-no",
                   )}
                 >
-                  {side === "yes" ? yesLabel : noLabel}
+                  {side === "yes" ? panelProps.yesLabel : panelProps.noLabel}
                 </span>
-                <span className="truncate text-sm font-semibold">{event.name}</span>
+                <span className="truncate text-sm font-semibold">
+                  {isMulti && selOpt ? selOpt.label : event.name}
+                </span>
               </div>
               <div className="mt-1 text-[11px] text-muted-foreground">
                 {countdown} left ·{" "}
-                {Math.round((side === "yes" ? yesLive : noLive) * 100)}% chance
+                {Math.round(
+                  (side === "yes" ? panelProps.yesPrice : panelProps.noPrice) * 100,
+                )}
+                % chance
               </div>
             </div>
             <LiteContractOrderPanel
@@ -765,6 +826,7 @@ const LiteContractTrade = () => {
 
           <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
           {CashOut}
+          {MultiCashOut}
         </div>
       </TooltipProvider>
     );
@@ -783,6 +845,13 @@ const LiteContractTrade = () => {
             {QuestionBlock}
             {resolved ? (
               OutcomeCard
+            ) : isMulti ? (
+              <>
+                {MarketBoard}
+                {RuleCard}
+                {MultiPositions}
+                {MarketActivity}
+              </>
             ) : (
               <>
                 {SentimentBar}
@@ -800,6 +869,7 @@ const LiteContractTrade = () => {
         </div>
         <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
         {CashOut}
+        {MultiCashOut}
       </div>
     </TooltipProvider>
   );
