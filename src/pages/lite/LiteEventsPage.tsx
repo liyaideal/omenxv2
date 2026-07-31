@@ -42,6 +42,7 @@ const PILL_IDLE =
 
 const LiteEventsPage = () => {
   const navigate = useNavigate();
+  const { setSurface } = useSurface();
   const isMobile = useIsMobile();
   const { events: dbEvents, isLoading } = useActiveEvents();
   const markets = useMarketListData(dbEvents);
