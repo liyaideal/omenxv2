@@ -12,7 +12,9 @@ import { EmptyState } from "@/components/states";
 
 export interface MarketActivityRow {
   id: string;
-  isYes: boolean;
+  /** Source of truth for the side. Optional only for legacy rows where the
+   *  side has to be inferred from a "No: " label prefix. */
+  isYes?: boolean;
   /** Raw option label — multi-market events show this instead of Yes/No. */
   label: string;
   amount: number;
@@ -28,6 +30,11 @@ export const useMarketActivityRows = (
   eventName: string | null,
   yesOptionLabel: string,
   tick: number,
+  /** Multi-option events: the side cannot be inferred by comparing the option
+   *  label to the Yes option — every option is its own market. Since the
+   *  netting round, No legs are stored under the PLAIN option label, so the
+   *  only side marker still available on the feed is the legacy "No: " prefix. */
+  multi = false,
 ): MarketActivityRow[] => {
   const [rows, setRows] = useState<MarketActivityRow[]>([]);
   useEffect(() => {
@@ -46,20 +53,25 @@ export const useMarketActivityRows = (
       if (!alive) return;
       const yesLc = yesOptionLabel.trim().toLowerCase();
       setRows(
-        (data || []).map((r) => ({
-          id: r.id,
-          isYes: (r.option_label || "").trim().toLowerCase() === yesLc,
-          label: r.option_label || "",
-          amount: Number(r.amount) || 0,
-          boost: Number(r.boost) || 1,
-          createdAt: r.created_at,
-        })),
+        (data || []).map((r) => {
+          const label = r.option_label || "";
+          return {
+            id: r.id,
+            isYes: multi
+              ? splitMultiLabel(label).isYes
+              : label.trim().toLowerCase() === yesLc,
+            label,
+            amount: Number(r.amount) || 0,
+            boost: Number(r.boost) || 1,
+            createdAt: r.created_at,
+          };
+        }),
       );
     })();
     return () => {
       alive = false;
     };
-  }, [eventName, yesOptionLabel, tick]);
+  }, [eventName, yesOptionLabel, tick, multi]);
   return rows;
 };
 
@@ -88,7 +100,8 @@ const ROW_GRID = "grid grid-cols-[minmax(48px,auto)_64px_48px_1fr] items-center 
 const ROW_GRID_MULTI =
   "grid grid-cols-[44px_minmax(72px,auto)_minmax(0,1fr)_64px] items-center gap-x-3";
 
-/** Multi feed rows carry the option label; legacy "No: {option}" marks a No leg. */
+/** Strips the legacy "No: " display prefix. The prefix is ONLY a fallback side
+ *  marker for legacy rows — `row.isYes` is the source of truth. */
 const splitMultiLabel = (label: string): { isYes: boolean; option: string } => {
   const m = /^no:\s*/i.exec(label.trim());
   return m ? { isYes: false, option: label.trim().slice(m[0].length) } : { isYes: true, option: label.trim() };
@@ -121,7 +134,10 @@ export const LiteMarketActivity = ({
       <ul className="space-y-1.5">
         {rows.slice(0, maxRows).map((r) => {
           if (showOptionLabel) {
-            const { isYes, option } = splitMultiLabel(r.label);
+            const legacy = splitMultiLabel(r.label);
+            // `isYes` wins; the legacy prefix only fills in for rows without it.
+            const isYes = r.isYes ?? legacy.isYes;
+            const option = legacy.option;
             return (
               <li
                 key={r.id}
