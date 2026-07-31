@@ -1444,11 +1444,11 @@ Every listed event carries one AI-generated illustration of the OmenX lynx IP, w
 
 | Rule | Contract |
 | --- | --- |
-| Ground | Flat warm paper grey `#F2F2F0` with subtle grain. No scene, gradient or vignette. |
+| Ground | Flat warm paper grey `#F2F2F0` with subtle grain. No room, horizon, gradient or vignette. |
 | Character | The single lynx IP: thick black ink line, charcoal fur, tan `#B49A6A` markings, white whiskers, half-lidded skeptical face, chibi proportions. Same character in every image. |
 | Accent | Exactly ONE brand accent per image — Pulse Blue `#33D6FF` default, Volt Green `#CFFF4A` for bullish / winning semantics. Props may keep one essential local colour (e.g. trophy gold). |
-| Prop / pose | Derived from the event title by the copy model: stocks → ticker board + thinking pose; sports → kit and trophy; macro → the symbol itself. One prop only. |
-| Frame | One character, centred, full body, generous margin, square 1:1. |
-| Never | Headline text, logos, UI frames, borders, watermarks, human figures, rainbow palettes. Short ticker lettering printed on a prop is the only allowed text. |
+| Scene | The copy model returns a scene brief: one hero prop + 2–3 supporting environment props that tell a small story (desk + candle chart + coffee; podium + checkered flag + confetti). Supporting props stay in the ink/grey family. |
+| Frame | Ultra-wide **21:9 landscape** (the card tile is `h-[130px]`, cover-cropped). Mascot centre-right, full body, never touching the frame edge. Left third stays quiet low-detail (badge overlay); storytelling detail lives in the upper two thirds (bottom sits under the scrim). A near-square render is centre-cropped to 21:9 server-side. |
+| Never | Any lettering (no mirrored/garbled words on props), logos, UI frames, borders, watermarks, human figures, rainbow palettes. |
 
 Restraint over variety: the palette discipline (paper + charcoal + tan + one accent) is what keeps a full grid of cards calm. Reference sheets live in the private `event-art` bucket under `_ref/`; the locked prompt text lives in `supabase/functions/_shared/event-art.ts`. Visual acceptance reference: `/style-guide` → Core UI → Event cover art.
