@@ -587,6 +587,7 @@ export type Database = {
           created_at: string
           event_name: string | null
           id: string
+          is_yes: boolean | null
           option_label: string | null
         }
         Insert: {
@@ -595,6 +596,7 @@ export type Database = {
           created_at?: string
           event_name?: string | null
           id?: string
+          is_yes?: boolean | null
           option_label?: string | null
         }
         Update: {
@@ -603,6 +605,7 @@ export type Database = {
           created_at?: string
           event_name?: string | null
           id?: string
+          is_yes?: boolean | null
           option_label?: string | null
         }
         Relationships: []
