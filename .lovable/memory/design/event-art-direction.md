@@ -14,11 +14,14 @@ Locked rules:
 - Accent: exactly ONE brand accent per image. Pulse Blue #33D6FF default;
   Volt Green #CFFF4A for bullish/winning semantics. One essential local prop
   colour (trophy gold) allowed.
-- Prop/pose from the event title (stock → ticker board + thinking; sports → kit
-  + trophy; macro → the symbol). One prop only.
-- Square 1:1, single centred full-body character, generous margins.
-- Never: headline text, logos, UI frames, borders, watermarks, humans, rainbow
-  palettes. Short ticker lettering on a prop is the only allowed text.
+- Scene brief from the event title: one hero prop + 2–3 supporting environment
+  props that tell a small story. Supporting props stay in the ink/grey family.
+- Ultra-wide 21:9 landscape (card tile is h-[130px], cover-cropped). Mascot
+  centre-right, full body, off the frame edge; left third quiet (badge overlay);
+  detail in the upper two thirds (bottom sits under the scrim). Near-square
+  renders are centre-cropped to 21:9 in the edge function.
+- Never: any lettering (no mirrored/garbled words), logos, UI frames, borders,
+  watermarks, humans, rainbow palettes.
 
 Failure is non-blocking: the card falls back to the category image.
 Prompt text lives in `supabase/functions/_shared/event-art.ts`.
