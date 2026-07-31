@@ -148,12 +148,13 @@ export const TopicSheet = ({
   <Sheet open={open} onOpenChange={onOpenChange}>
     <SheetContent
       side="bottom"
-      className="border-0 p-0 pb-8 [&>button]:hidden"
+      className="border-0 p-0 [&>button]:hidden"
       style={{
         background: "#14171C",
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         borderTop: "1px solid #2B2F38",
+        paddingBottom: "calc(16px + env(safe-area-inset-bottom))",
       }}
     >
       <div style={{ paddingTop: 10 }}>
@@ -163,11 +164,11 @@ export const TopicSheet = ({
         />
         <SheetTitle
           className="font-display"
-          style={{ marginTop: 12, fontSize: 16, fontWeight: 700, paddingLeft: 20, paddingRight: 20 }}
+          style={{ marginTop: 12, fontSize: 16, fontWeight: 700, paddingLeft: 18, paddingRight: 18 }}
         >
           Topics
         </SheetTitle>
-        <div style={{ paddingLeft: 20, paddingRight: 20, marginTop: 4 }}>
+        <div style={{ paddingLeft: 18, paddingRight: 18, marginTop: 4 }}>
           {options.map((o, i) => {
             const selected = o.id === value;
             return (
@@ -186,13 +187,12 @@ export const TopicSheet = ({
                 }}
               >
                 <span
-                  className="font-display"
+                  className="flex-1 text-left font-display"
                   style={{ fontSize: 14, fontWeight: 600, color: selected ? "#FFFFFF" : "#C9CED6" }}
                 >
                   {o.label}
                 </span>
                 <span style={{ fontSize: 12, color: "#6B7280" }}>{o.count}</span>
-                <span className="flex-1" />
                 <span
                   className={cn("flex items-center justify-center rounded-full")}
                   style={{
