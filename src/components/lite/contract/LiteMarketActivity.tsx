@@ -12,8 +12,8 @@ import { EmptyState } from "@/components/states";
 
 export interface MarketActivityRow {
   id: string;
-  /** Source of truth for the side. Optional only for legacy rows where the
-   *  side has to be inferred from a "No: " label prefix. */
+  /** Source of truth for the side — comes from `market_activity.is_yes`.
+   *  Optional only for legacy rows recorded before that column existed. */
   isYes?: boolean;
   /** Raw option label — multi-market events show this instead of Yes/No. */
   label: string;
@@ -30,10 +30,9 @@ export const useMarketActivityRows = (
   eventName: string | null,
   yesOptionLabel: string,
   tick: number,
-  /** Multi-option events: the side cannot be inferred by comparing the option
-   *  label to the Yes option — every option is its own market. Since the
-   *  netting round, No legs are stored under the PLAIN option label, so the
-   *  only side marker still available on the feed is the legacy "No: " prefix. */
+  /** Multi-option events: the label can't identify the side (every option is
+   *  its own market), so only the persisted `is_yes` column — or, for legacy
+   *  rows, the "No: " prefix — can classify the row. */
   multi = false,
 ): MarketActivityRow[] => {
   const [rows, setRows] = useState<MarketActivityRow[]>([]);
@@ -46,7 +45,7 @@ export const useMarketActivityRows = (
     (async () => {
       const { data } = await supabase
         .from("market_activity")
-        .select("id, amount, boost, created_at, option_label")
+        .select("id, amount, boost, created_at, option_label, is_yes")
         .eq("event_name", eventName)
         .order("created_at", { ascending: false })
         .limit(30);
@@ -55,11 +54,13 @@ export const useMarketActivityRows = (
       setRows(
         (data || []).map((r) => {
           const label = r.option_label || "";
+          // DB column wins; inference is a legacy-row fallback only.
+          const inferred = multi
+            ? splitMultiLabel(label).isYes
+            : label.trim().toLowerCase() === yesLc;
           return {
             id: r.id,
-            isYes: multi
-              ? splitMultiLabel(label).isYes
-              : label.trim().toLowerCase() === yesLc,
+            isYes: r.is_yes ?? inferred,
             label,
             amount: Number(r.amount) || 0,
             boost: Number(r.boost) || 1,
