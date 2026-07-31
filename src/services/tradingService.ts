@@ -460,12 +460,24 @@ export const executeTrade = async (userId: string, tradeData: TradeData) => {
       }
       const newPnlPercent = newMargin > 0 ? (newPnl / newMargin) * 100 : 0;
 
+      // Leverage must be BLENDED, not inherited from the existing row: margin now
+      // contains slices opened at different multipliers, so a stale leverage makes
+      // every downstream consumer (auto-close / liq estimates / risk display)
+      // compute against the wrong notional. Notional at open = margin × leverage.
+      const existingNotional = Number(existingPosition.margin) * Number(existingPosition.leverage);
+      const incomingNotional = validated.quantity * canonicalClosePrice;
+      const newLeverage =
+        newMargin > 0
+          ? Math.round(((existingNotional + incomingNotional) / newMargin) * 100) / 100
+          : Number(existingPosition.leverage);
+
       const { data: updatedPosition, error: updateError } = await supabase
         .from("positions")
         .update({
           size: newSize,
           margin: newMargin,
           entry_price: weightedEntryPrice,
+          leverage: newLeverage,
           pnl: newPnl,
           pnl_percent: newPnlPercent,
           // Keep existing TP/SL unless new ones are provided
