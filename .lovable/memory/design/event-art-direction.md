@@ -26,3 +26,11 @@ Locked rules:
 Failure is non-blocking: the card falls back to the category image.
 Prompt text lives in `supabase/functions/_shared/event-art.ts`.
 Visual reference: /style-guide → Core UI → Event cover art.
+
+## Delivery format (added 2026-07-31)
+
+- Art ships as **JPEG q78, 840px wide** (`event-art/<event_id>.jpg`, `cache-control: 31536000`), never the raw ~1.6 MB model PNG. Target ≤ 80 KB per tile.
+- Each image also writes a 24px blurred JPEG data URI into `events.image_blur`, used as the card placeholder.
+- Card tiles render through `src/components/lite/CardArtTile.tsx`: real `<img>` with `loading="lazy"`, `decoding="async"`, fixed 840×360 intrinsic size and the scrim as an absolute overlay. `background-image` is forbidden for event art — it defeats lazy loading.
+- First 4 cards in a list are `loading="eager"` + `fetchpriority="high"`.
+- `optimize-event-art` edge function backfills legacy PNGs (crop → resize → JPEG → re-sign → fill blur → delete PNG).
