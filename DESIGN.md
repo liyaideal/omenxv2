@@ -1435,3 +1435,20 @@ Resulting intraday combos (cap 2 unchanged): `[Trending + Intraday·countdown]`,
 3. Events created < 24h that would rank below position 6 are lifted into the top 6, preserving relative order and never displacing an Ends-soon event.
 
 Applies to "All" and, scoped to the filtered set, to every sector filter. Watchlist keeps the user's own order. Settled list unchanged.
+
+---
+
+## §Addendum 2026-07-31 · Event cover art (LOCKED)
+
+Every listed event carries one AI-generated illustration of the OmenX lynx IP, written to `events.image_url` by the `generate-event-image` backend function at listing time (invoked from `sim-daily-seed`). Cards fall back to the category image when generation fails — never a broken tile.
+
+| Rule | Contract |
+| --- | --- |
+| Ground | Flat warm paper grey `#F2F2F0` with subtle grain. No scene, gradient or vignette. |
+| Character | The single lynx IP: thick black ink line, charcoal fur, tan `#B49A6A` markings, white whiskers, half-lidded skeptical face, chibi proportions. Same character in every image. |
+| Accent | Exactly ONE brand accent per image — Pulse Blue `#33D6FF` default, Volt Green `#CFFF4A` for bullish / winning semantics. Props may keep one essential local colour (e.g. trophy gold). |
+| Prop / pose | Derived from the event title by the copy model: stocks → ticker board + thinking pose; sports → kit and trophy; macro → the symbol itself. One prop only. |
+| Frame | One character, centred, full body, generous margin, square 1:1. |
+| Never | Headline text, logos, UI frames, borders, watermarks, human figures, rainbow palettes. Short ticker lettering printed on a prop is the only allowed text. |
+
+Restraint over variety: the palette discipline (paper + charcoal + tan + one accent) is what keeps a full grid of cards calm. Reference sheets live in the private `event-art` bucket under `_ref/`; the locked prompt text lives in `supabase/functions/_shared/event-art.ts`. Visual acceptance reference: `/style-guide` → Core UI → Event cover art.
