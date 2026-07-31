@@ -92,21 +92,35 @@ const settlementFooter = (expiry: Date | null, categoryRaw: string): string | nu
   return `Settles ${expiry.toLocaleDateString(undefined, { month: "short", year: "numeric" })}`;
 };
 
-/** One pill in the image-tile badge stack. Icons are Lucide nodes only. */
+/**
+ * One pill in the image-tile badge stack. Icons are Lucide nodes only.
+ * `ghost` renders the special-edition outline treatment (Intraday) so it
+ * never reads as another solid status badge.
+ */
 const BadgePill = ({
   bg,
   fg,
   icon,
   label,
+  ghost = false,
 }: {
-  bg: string;
-  fg: string;
+  bg?: string;
+  fg?: string;
   icon?: React.ReactNode;
   label: string;
+  ghost?: boolean;
 }) => (
   <span
     className="inline-flex items-center gap-1 rounded-full px-[10px] py-[5px] text-[11px] font-semibold leading-none"
-    style={{ background: bg, color: fg }}
+    style={
+      ghost
+        ? {
+            background: "transparent",
+            color: "#FFFFFF",
+            border: "1.5px solid rgba(255,255,255,0.35)",
+          }
+        : { background: bg, color: fg }
+    }
   >
     {icon}
     {label}
