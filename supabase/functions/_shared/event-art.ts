@@ -17,6 +17,19 @@ export const TEXT_MODEL = "openai/gpt-5.6-sol";
 /** Target aspect for the card tile (h-[130px] strip, cover-cropped). */
 export const ART_ASPECT = 21 / 9;
 
+// ---- delivery format ------------------------------------------------------
+// The card tile renders at ~420x130 CSS px; we ship 2x of that as JPEG so a
+// full /events grid costs tens of KB instead of tens of MB.
+/** Delivered art width in px (2x the widest card tile). */
+export const ART_DELIVERY_WIDTH = 840;
+/** JPEG quality for the delivered card art. */
+export const ART_JPEG_QUALITY = 78;
+/** Width of the inline blur placeholder written to events.image_blur. */
+export const ART_BLUR_WIDTH = 24;
+/** Storage extension for delivered art. */
+export const ART_EXT = "jpg";
+export const ART_CONTENT_TYPE = "image/jpeg";
+
 /** Turns an event title into a compact narrative scene brief. */
 export const PROP_SYSTEM_PROMPT = [
   "You write a short SCENE BRIEF for a wide illustration of a cartoon lynx mascot",
