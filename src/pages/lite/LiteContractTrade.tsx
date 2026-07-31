@@ -45,6 +45,7 @@ import {
 import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
 import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
 import { LiteMarketBoard, type BoardOption } from "@/components/lite/multi/LiteMarketBoard";
+import { LiteCrowdOverview } from "@/components/lite/multi/LiteCrowdOverview";
 import { EmptyState } from "@/components/states";
 
 type EventRow = Tables<"events"> & { options: Tables<"event_options">[] };
@@ -367,7 +368,7 @@ const LiteContractTrade = () => {
       selectedSide={side}
       onSelect={selectMarket}
       compact={!!isMobile}
-      showChart={!isMobile}
+      showChart
     />
   );
 
