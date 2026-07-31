@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ExternalLink, Loader2, Star } from "lucide-react";
+import { Loader2, Star } from "lucide-react";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { useMarketListData } from "@/hooks/useMarketListData";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
@@ -12,11 +12,16 @@ import { useWatchlist } from "@/hooks/useWatchlist";
 import { useCategoryBoostConfigs } from "@/hooks/useCategoryBoostConfigs";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { cn } from "@/lib/utils";
-import { SPORTS_LINK } from "@/lib/worldCup";
 import { LiteEventCard } from "@/components/lite/LiteEventCard";
 import { LiveSettledSwitch } from "@/components/lite/LiveSettledSwitch";
+import {
+  TopicSelectorButton,
+  TopicSheet,
+  TraitChip,
+  WatchlistChip,
+} from "@/components/lite/LiteListControls";
 import { EmptyState } from "@/components/states";
-import { sortLiteLiveList, trendingThreshold } from "@/lib/liteListBadges";
+import { isIntradayEvent, sortLiteLiveList, trendingThreshold } from "@/lib/liteListBadges";
 import { useSurface } from "@/contexts/SurfaceContext";
 
 // Data-driven sector rail. Filters on the RAW event category (lowercase DB
@@ -33,12 +38,12 @@ const SECTOR_ORDER: Array<{ id: string; label: string }> = [
   { id: "social", label: "Social" },
 ];
 
-// Single source of truth for the pill visual language on this page.
+// Single source of truth for the pill visual language on this page (v3 sizing).
 const PILL_BASE =
-  "shrink-0 rounded-full px-[18px] py-[9px] text-[13px] transition-colors";
+  "shrink-0 rounded-full px-[14px] py-[7px] text-[12.5px] font-display transition-colors";
 const PILL_ACTIVE = "bg-white text-[#0A0B0D] font-semibold";
 const PILL_IDLE =
-  "border-[1.5px] border-[#2B2F38] text-[#C9CED6] hover:text-foreground";
+  "border-[1.5px] border-[#2B2F38] text-[#C9CED6] font-semibold hover:text-foreground";
 
 const LiteEventsPage = () => {
   const navigate = useNavigate();
@@ -50,6 +55,9 @@ const LiteEventsPage = () => {
   const { watchlist } = useWatchlist();
   const { getConfig: getBoostConfig } = useCategoryBoostConfigs();
   const [authOpen, setAuthOpen] = useState(false);
+  const [topicSheetOpen, setTopicSheetOpen] = useState(false);
+  const [boostOnly, setBoostOnly] = useState(false);
+  const [intradayOnly, setIntradayOnly] = useState(false);
 
   // Non-sports markets pool ("All" and per-sector filter both operate here).
   const openMarkets = useMemo(
@@ -58,43 +66,115 @@ const LiteEventsPage = () => {
   );
 
   // Only render sector pills for categories that actually have events.
-  const availableSectors = useMemo(() => {
+  const sectorCounts = useMemo(() => {
     const counts = new Map<string, number>();
     for (const m of openMarkets) {
       const c = (m.category || "").toLowerCase();
       counts.set(c, (counts.get(c) || 0) + 1);
     }
-    return SECTOR_ORDER.filter((s) => (counts.get(s.id) || 0) > 0);
+    return counts;
   }, [openMarkets]);
 
+  const availableSectors = useMemo(
+    () => SECTOR_ORDER.filter((s) => (sectorCounts.get(s.id) || 0) > 0),
+    [sectorCounts],
+  );
+
   const [sector, setSector] = useState<string>("all");
+  const isWatchlistView = sector === "watchlist";
 
   const filtered = useMemo(() => {
-    if (sector === "watchlist") {
+    if (isWatchlistView) {
       // Watchlist keeps the user's own order — no re-ranking.
       return openMarkets.filter((m) => watchlist.has(m.eventId));
     }
-    const set =
+    let set =
       sector === "all"
         ? openMarkets
         : openMarkets.filter((m) => (m.category || "").toLowerCase() === sector);
+    if (boostOnly) {
+      set = set.filter((m) => {
+        const cfg = getBoostConfig(m.category);
+        return cfg.enabled && cfg.maxBoost >= 2;
+      });
+    }
+    if (intradayOnly) set = set.filter((m) => isIntradayEvent(m));
     // Same three-step rule for "All" and for each sector, scoped to the set.
     return sortLiteLiveList(set);
-  }, [openMarkets, sector, watchlist]);
+  }, [openMarkets, sector, watchlist, boostOnly, intradayOnly, getBoostConfig, isWatchlistView]);
 
   // Trending cutoff is computed once from the whole live pool so a card's
   // badge doesn't flip when the user changes sector.
   const trendingCutoff = useMemo(() => trendingThreshold(openMarkets), [openMarkets]);
 
-  const handleSectorClick = (id: string) => setSector(id);
+  const topicOptions = useMemo(
+    () => [
+      { id: "all", label: "All", count: openMarkets.length },
+      ...availableSectors.map((s) => ({
+        id: s.id,
+        label: s.label,
+        count: sectorCounts.get(s.id) || 0,
+      })),
+    ],
+    [availableSectors, sectorCounts, openMarkets.length],
+  );
+
+  const topicLabel =
+    sector === "all" ? "All" : availableSectors.find((s) => s.id === sector)?.label || "All";
+
+  const resetAll = () => {
+    setSector("all");
+    setBoostOnly(false);
+    setIntradayOnly(false);
+  };
 
   const handleWatchlistClick = () => {
     if (!user) {
       setAuthOpen(true);
       return;
     }
+    if (isWatchlistView) {
+      setSector("all");
+      return;
+    }
+    // Trait toggles don't apply inside watchlist view.
+    setBoostOnly(false);
+    setIntradayOnly(false);
     setSector("watchlist");
   };
+
+  const traitChips = (
+    <>
+      <TraitChip kind="boost" active={boostOnly} onClick={() => setBoostOnly((v) => !v)} />
+      <TraitChip
+        kind="intraday"
+        active={intradayOnly}
+        onClick={() => setIntradayOnly((v) => !v)}
+      />
+    </>
+  );
+
+  const watchlistStatusLine = (
+    <div className="flex items-center gap-2" style={{ marginTop: 12, fontSize: 13 }}>
+      <Star
+        className="h-3.5 w-3.5"
+        style={{ color: "#FFD23E", fill: "#FFD23E" }}
+        strokeWidth={1.5}
+      />
+      <span style={{ color: "#C9CED6" }}>
+        Your watchlist · {filtered.length} markets
+      </span>
+      <span className="flex-1" />
+      <button
+        type="button"
+        onClick={resetAll}
+        className="text-primary underline"
+        style={{ textUnderlineOffset: 3 }}
+      >
+        Browse all
+      </button>
+    </div>
+  );
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -106,103 +186,106 @@ const LiteEventsPage = () => {
 
       <div
         className={cn(
-          "mx-auto flex w-full max-w-7xl flex-1 flex-col space-y-6 pb-24",
+          "mx-auto flex w-full max-w-7xl flex-1 flex-col pb-24",
           isMobile ? "px-4 py-4" : "px-4 py-6 lg:px-6",
         )}
       >
         {/* Intro strip — plain-language, no trader jargon; display treatment */}
-        <div>
-          <h1
-            className="font-display font-bold tracking-tight text-foreground"
-            style={{ fontSize: "clamp(28px, 4vw, 40px)", lineHeight: 1.05 }}
-          >
-            What do you think happens next?
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Pick a topic. Tap Yes or No. That's it.
-          </p>
+        <div className={cn(!isMobile && "flex items-start justify-between gap-5")}>
+          <div>
+            <h1
+              className="font-display font-bold tracking-tight text-foreground"
+              style={{ fontSize: "clamp(28px, 4vw, 40px)", lineHeight: 1.05 }}
+            >
+              What do you think happens next?
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Pick a topic. Tap Yes or No. That's it.
+            </p>
+          </div>
+          {!isMobile && (
+            <div className="flex shrink-0 items-center gap-2" style={{ marginTop: 6 }}>
+              <WatchlistChip
+                active={isWatchlistView}
+                count={watchlist.size}
+                showLabel
+                onClick={handleWatchlistClick}
+              />
+              <LiveSettledSwitch
+                value="live"
+                onSelect={(v) => {
+                  if (v === "settled") navigate("/resolved");
+                }}
+              />
+            </div>
+          )}
         </div>
 
-        {/* Sector rail + Live/Settled switch. Rail scrolls; switch never gets pushed off. */}
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto">
-          {(() => {
-            const active = sector === "all";
-            return (
-              <button
-                type="button"
-                onClick={() => handleSectorClick("all")}
-                className={cn(PILL_BASE, active ? PILL_ACTIVE : PILL_IDLE)}
-              >
-                All
-              </button>
-            );
-          })()}
-          {availableSectors.map((s) => {
-            const active = s.id === sector;
-            return (
+        {/* Mobile view cluster — view switches, not filters */}
+        {isMobile && (
+          <div className="flex items-center justify-between" style={{ marginTop: 14 }}>
+            <LiveSettledSwitch
+              value="live"
+              onSelect={(v) => {
+                if (v === "settled") navigate("/resolved");
+              }}
+            />
+            <WatchlistChip
+              active={isWatchlistView}
+              count={watchlist.size}
+              onClick={handleWatchlistClick}
+            />
+          </div>
+        )}
+
+        {/* Filter row (removed entirely in watchlist view) */}
+        {isWatchlistView ? (
+          watchlistStatusLine
+        ) : isMobile ? (
+          <div className="flex items-center gap-2" style={{ marginTop: 12 }}>
+            <TopicSelectorButton
+              label={topicLabel}
+              active={sector !== "all"}
+              onClick={() => setTopicSheetOpen(true)}
+            />
+            {traitChips}
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-center gap-2" style={{ marginTop: 16 }}>
+            <button
+              type="button"
+              onClick={() => setSector("all")}
+              className={cn(PILL_BASE, sector === "all" ? PILL_ACTIVE : PILL_IDLE)}
+            >
+              All
+            </button>
+            {availableSectors.map((s) => (
               <button
                 key={s.id}
                 type="button"
-                onClick={() => handleSectorClick(s.id)}
-                className={cn(PILL_BASE, active ? PILL_ACTIVE : PILL_IDLE)}
+                onClick={() => setSector(s.id)}
+                className={cn(PILL_BASE, s.id === sector ? PILL_ACTIVE : PILL_IDLE)}
               >
                 {s.label}
               </button>
-            );
-          })}
-          {/* Watchlist pill renders for everyone — it is the teaching moment. */}
-          <button
-            type="button"
-            onClick={handleWatchlistClick}
-            className={cn(
-              PILL_BASE,
-              "flex items-center gap-1.5",
-              sector === "watchlist" ? PILL_ACTIVE : PILL_IDLE,
-            )}
-          >
-            <Star
-              className={cn(
-                "h-3.5 w-3.5",
-                sector === "watchlist"
-                  ? "fill-[#0A0B0D] text-[#0A0B0D]"
-                  : "text-trading-yellow",
-              )}
-              strokeWidth={1.5}
-            />
-            Watchlist
-          </button>
-          <a
-            href={SPORTS_LINK}
-            target="_blank"
-            rel="noreferrer"
-            className={cn(PILL_BASE, PILL_IDLE, "flex items-center gap-1")}
-          >
-            Sports
-            <ExternalLink className="h-3.5 w-3.5" />
-          </a>
+            ))}
+            <div className="ml-auto flex items-center gap-2">{traitChips}</div>
           </div>
-          <LiveSettledSwitch
-            className="shrink-0"
-            value="live"
-            onSelect={(v) => {
-              if (v === "settled") navigate("/resolved");
-            }}
-          />
-        </div>
+        )}
 
         {/* Card grid */}
+        <div className="mt-6 space-y-6">
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
-        ) : sector === "watchlist" && filtered.length === 0 ? (
+        ) : isWatchlistView && filtered.length === 0 ? (
           <EmptyState
             variant="page"
             title="Nothing starred yet"
             description="Tap the ★ on any market and it'll show up here."
             actionLabel="See all markets"
-            onAction={() => setSector("all")}
+            onAction={resetAll}
           />
         ) : filtered.length === 0 ? (
           <EmptyState
@@ -210,7 +293,7 @@ const LiteEventsPage = () => {
             title="No open markets here right now"
             description="New markets land in this topic as they open. Check back soon."
             actionLabel="See all markets"
-            onAction={() => setSector("all")}
+            onAction={resetAll}
           />
         ) : (
           <div
@@ -250,8 +333,16 @@ const LiteEventsPage = () => {
             Switch to Pro mode
           </button>
         </div>
+        </div>
       </div>
 
+      <TopicSheet
+        open={topicSheetOpen}
+        onOpenChange={setTopicSheetOpen}
+        options={topicOptions}
+        value={sector}
+        onSelect={setSector}
+      />
       <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
       {isMobile && <BottomNav />}
     </div>
