@@ -364,11 +364,17 @@ type MarketVariant =
   | "new"
   | "endsSoon"
   | "trending"
-  | "intraday";
+  | "intraday"
+  | "intradayBoost";
 
 const marketDemo = (variant: MarketVariant): EventRow => ({
   id: `demo-live-${variant}`,
-  eventId: `demo-live-${variant}`,
+  // Intraday fixtures carry a real daily up/down slug so the shipped
+  // detector recognises them exactly as it does in production.
+  eventId:
+    variant === "intraday" || variant === "intradayBoost"
+      ? "us-hood-updown-20260731"
+      : `demo-live-${variant}`,
   eventName:
     variant === "closing"
       ? "Will the Fed cut rates in September?"
@@ -378,11 +384,23 @@ const marketDemo = (variant: MarketVariant): EventRow => ({
           ? "Will ETH close above $4K today?"
           : variant === "trending"
             ? "Who takes the box office crown this weekend?"
-            : "Will BTC close above $70K this week?",
+            : variant === "intraday" || variant === "intradayBoost"
+              ? "Robinhood (HOOD) — will close higher today?"
+              : "Will BTC close above $70K this week?",
   eventIcon: "",
-  category: variant === "closing" ? "macro" : "crypto",
-  categoryLabel: variant === "closing" ? "Macro" : "Crypto",
-  productLines: ["futures"],
+  category:
+    variant === "closing"
+      ? "macro"
+      : variant === "intraday" || variant === "intradayBoost"
+        ? "stocks"
+        : "crypto",
+  categoryLabel:
+    variant === "closing"
+      ? "Macro"
+      : variant === "intraday" || variant === "intradayBoost"
+        ? "Stocks"
+        : "Crypto",
+  productLines: variant === "intraday" ? ["spot"] : ["futures"],
   eventSubtype: null,
   lifecycleStatus: "active",
   basePrice: null,
@@ -397,7 +415,14 @@ const marketDemo = (variant: MarketVariant): EventRow => ({
   openInterest: 320_000,
   expiry: new Date(
     Date.now() +
-      (variant === "endsSoon" ? 2.2 : variant === "closing" ? 5 : 72) * 3_600_000,
+      (variant === "endsSoon"
+        ? 2.2
+        : variant === "closing"
+          ? 5
+          : variant === "intraday" || variant === "intradayBoost"
+            ? 9
+            : 72) *
+        3_600_000,
   ),
   createdAt: new Date(
     Date.now() - (variant === "new" ? 3 * 3_600_000 : 86_400_000 * 3),
