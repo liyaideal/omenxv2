@@ -151,8 +151,7 @@ export const LiteMarketBoard = ({
               )}
 
               {/* Dual-tone strip — INSET within the row padding, rounded ends.
-                  Never full-bleed: it must read as a different object from the
-                  faint dashed seam that attaches the chart panel below. */}
+                  Never full-bleed. */}
               {!o.settled && (
                 <div
                   className="mt-2.5 flex w-full overflow-hidden rounded-full"
@@ -177,15 +176,13 @@ export const LiteMarketBoard = ({
             >
               {expanded && (
                 <div
-                  className="rounded-b-[14px] border border-t-0 border-yes/55 bg-[#0C1216]"
+                  className="rounded-b-[14px] border border-t-0 border-yes/55 bg-[#0C1216] pt-1.5"
                   style={{ borderWidth: 1.5, borderTopWidth: 0 }}
                 >
-                  {/* Subtle seam — 1px dashed market-blue at 30%, never the
-                      default border colour and never full contrast. */}
-                  <div
-                    className="border-t border-dashed"
-                    style={{ borderTopColor: "hsl(var(--yes) / 0.3)", borderTopWidth: 1 }}
-                  />
+                  {/* NO divider line of any kind between row and chart (desktop
+                      or compact). The boundary is expressed only by the shared
+                      --yes/55 side borders, the darker panel background and the
+                      ~6px of extra top padding here. */}
                   <LiteBoardChart
                     sideLabel={selectedSide === "yes" ? "Yes" : "No"}
                     isYes={selectedSide === "yes"}

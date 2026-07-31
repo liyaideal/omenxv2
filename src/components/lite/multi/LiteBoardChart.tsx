@@ -1,6 +1,6 @@
 // ============================================================
 // Inline accordion chart for the multi-market board. Attaches directly
-// beneath the selected board row (dashed top seam, squared top corners) —
+// beneath the selected board row (no divider line; squared top corners) —
 // there is NO standalone chart module on multi pages.
 // DEMO-STATE: the series is the same deterministic walk the Lite contract
 // chart uses, anchored on the selected option+side's live chance.
