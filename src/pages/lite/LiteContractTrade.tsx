@@ -278,9 +278,13 @@ const LiteContractTrade = () => {
     [positions, heldPos],
   );
 
-  const activity = useMarketActivityRows(event?.name || null, yesOpt?.label || "", refetchTick);
-
   const isMulti = (event?.options.length ?? 0) > 2;
+  const activity = useMarketActivityRows(
+    event?.name || null,
+    yesOpt?.label || "",
+    refetchTick,
+    isMulti,
+  );
   const liveOptions = useMemo(
     () => (event?.options || []).filter((o) => o.final_price == null),
     [event],
