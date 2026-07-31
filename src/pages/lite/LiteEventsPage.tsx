@@ -16,6 +16,7 @@ import { SPORTS_LINK } from "@/lib/worldCup";
 import { LiteEventCard } from "@/components/lite/LiteEventCard";
 import { LiveSettledSwitch } from "@/components/lite/LiveSettledSwitch";
 import { EmptyState } from "@/components/states";
+import { sortLiteLiveList, trendingThreshold } from "@/lib/liteListBadges";
 
 // Data-driven sector rail. Filters on the RAW event category (lowercase DB
 // value) so "Stocks" surfaces the us-*-updown spot events (category='stocks')
@@ -68,11 +69,20 @@ const LiteEventsPage = () => {
 
   const filtered = useMemo(() => {
     if (sector === "watchlist") {
+      // Watchlist keeps the user's own order — no re-ranking.
       return openMarkets.filter((m) => watchlist.has(m.eventId));
     }
-    if (sector === "all") return openMarkets;
-    return openMarkets.filter((m) => (m.category || "").toLowerCase() === sector);
+    const set =
+      sector === "all"
+        ? openMarkets
+        : openMarkets.filter((m) => (m.category || "").toLowerCase() === sector);
+    // Same three-step rule for "All" and for each sector, scoped to the set.
+    return sortLiteLiveList(set);
   }, [openMarkets, sector, watchlist]);
+
+  // Trending cutoff is computed once from the whole live pool so a card's
+  // badge doesn't flip when the user changes sector.
+  const trendingCutoff = useMemo(() => trendingThreshold(openMarkets), [openMarkets]);
 
   const handleSectorClick = (id: string) => setSector(id);
 
@@ -214,6 +224,7 @@ const LiteEventsPage = () => {
                   key={market.id}
                   market={market}
                   boostMax={cfg.enabled ? cfg.maxBoost : null}
+                  trendingCutoff={trendingCutoff}
                 />
               );
             })}

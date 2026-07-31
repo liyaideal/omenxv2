@@ -358,13 +358,21 @@ const Grid = ({ children, cols = 2 }: { children: React.ReactNode; cols?: 2 | 3 
 
 // ------------------------------------------------- Markets list (live)
 // Static EventRow fixture — no hooks, no data access.
-const marketDemo = (variant: "default" | "closing"): EventRow => ({
+type MarketVariant = "default" | "closing" | "new" | "endsSoon" | "trending";
+
+const marketDemo = (variant: MarketVariant): EventRow => ({
   id: `demo-live-${variant}`,
   eventId: `demo-live-${variant}`,
   eventName:
     variant === "closing"
       ? "Will the Fed cut rates in September?"
-      : "Will BTC close above $70K this week?",
+      : variant === "new"
+        ? "Will the next iPhone ship a foldable?"
+        : variant === "endsSoon"
+          ? "Will ETH close above $4K today?"
+          : variant === "trending"
+            ? "Who takes the box office crown this weekend?"
+            : "Will BTC close above $70K this week?",
   eventIcon: "",
   category: variant === "closing" ? "macro" : "crypto",
   categoryLabel: variant === "closing" ? "Macro" : "Crypto",
@@ -378,12 +386,17 @@ const marketDemo = (variant: "default" | "closing"): EventRow => ({
   change24h: 3.4,
   volume1h: 12_000,
   volume4h: 48_000,
-  volume24h: 184_000,
+  volume24h: variant === "trending" ? 4_800_000 : 184_000,
   totalVolume: variant === "closing" ? 2_400_000 : 860_000,
   openInterest: 320_000,
-  expiry: new Date(Date.now() + (variant === "closing" ? 5 : 72) * 3_600_000),
-  createdAt: new Date(Date.now() - 86_400_000).toISOString(),
-  isNew: false,
+  expiry: new Date(
+    Date.now() +
+      (variant === "endsSoon" ? 2.2 : variant === "closing" ? 5 : 72) * 3_600_000,
+  ),
+  createdAt: new Date(
+    Date.now() - (variant === "new" ? 3 * 3_600_000 : 86_400_000 * 3),
+  ).toISOString(),
+  isNew: variant === "new",
   isClosingSoon: variant === "closing",
   topMarket: { label: "Yes" },
   childCount: 0,
@@ -391,6 +404,58 @@ const marketDemo = (variant: "default" | "closing"): EventRow => ({
 });
 
 const RAIL_PILL = "shrink-0 rounded-full px-[18px] py-[9px] text-[13px]";
+
+// ------------------------------------------------ List badge system v2
+const ListBadgeMatrix = () => (
+  <div className="space-y-3">
+    <StateChip>
+      Two tracks · max 2 badges · STATUS first, then ATTRIBUTE · Lucide icons only
+    </StateChip>
+    <Grid cols={2}>
+      <Cell label="Status · Ends soon (settles &lt; 4h) + Boost">
+        <LiteEventCard market={marketDemo("endsSoon")} boostMax={5} />
+      </Cell>
+      <Cell label="Status · New (created &lt; 24h) + Boost">
+        <LiteEventCard market={marketDemo("new")} boostMax={5} />
+      </Cell>
+      <Cell label="Status · Trending (24h volume in the top 20%)">
+        <LiteEventCard market={marketDemo("trending")} trendingCutoff={1_000_000} />
+      </Cell>
+      <Cell label="Attribute only · Boost, no status">
+        <LiteEventCard market={marketDemo("default")} boostMax={5} />
+      </Cell>
+    </Grid>
+    <p className="text-xs text-muted-foreground">
+      STATUS priority is fixed: <strong>Ends soon &gt; New &gt; Trending</strong> — at
+      most one ever renders. Trending is skipped entirely when fewer than 5 live
+      events are loaded. ATTRIBUTE is the Boost pill for contract events; spot
+      events never carry one. Settled cards keep their own result tag and are not
+      part of this system.
+    </p>
+  </div>
+);
+
+const ListSortAnnotation = () => (
+  <div className="rounded-lg border bg-muted/30 p-3">
+    <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+      List sort · live markets
+    </div>
+    <ol className="mt-2 list-decimal space-y-1 pl-4 text-xs text-muted-foreground">
+      <li>Events settling in under 4h come first, soonest first.</li>
+      <li>Everything else by 24h volume (fallback total volume), highest first.</li>
+      <li>
+        Events created in the last 24h that would rank below position 6 are lifted
+        into the top 6, keeping their relative order and never displacing an
+        Ends-soon event.
+      </li>
+    </ol>
+    <p className="mt-2 text-xs text-muted-foreground">
+      Applies to “All” and to each sector filter (scoped to the filtered set).
+      Watchlist keeps the user’s own order; the settled list is unchanged.
+    </p>
+  </div>
+);
+
 const RAIL_ACTIVE = "bg-white text-[#0A0B0D] font-semibold";
 const RAIL_IDLE = "border-[1.5px] border-[#2B2F38] text-[#C9CED6]";
 
@@ -765,6 +830,8 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
                 <LiteEventCard market={marketDemo("closing")} />
               </Cell>
             </Grid>
+            <ListBadgeMatrix />
+            <ListSortAnnotation />
             <div>
               <StateChip>Sector rail · pills render only for categories with live events</StateChip>
               <SectorRailDemo />

@@ -1406,4 +1406,26 @@ A **multi-market event** = one event with **3+ options**. Every option trades Ye
 3. **Trade page order** — eyebrow (`{category} · {n} markets`) → QuestionBlock → board → RuleCard → position cards → activity. The right rail is bound to the SELECTED option and shows a market-context block (`MARKET · CHANGE IN THE LIST`).
 4. **Multiple legs** are holdable at once — one `LitePositionCard` per open leg, each with its own cash-out.
 5. **Interim guard:** backing the opposite side of an option you already hold is blocked with a `blockNotice` until the engine's per-option netting extension ships.
-6. **List cards:** no "Live" badge anywhere. `New` (Pulse Blue) takes priority over `⚡ Boost {max}×` (Volt Green); one badge max. Multi cards show the top-2 options by chance plus a `+N markets` footer.
+6. **List cards:** no "Live" badge anywhere. Badges follow the two-track system below. Multi cards show the top-2 options by chance plus a `+N markets` footer.
+
+## §Addendum 2026-07-31 · Lite list badges v2 + live sort (LOCKED)
+
+Thresholds live in exactly one place: `src/lib/liteListBadges.ts` (`LITE_LIST_CONFIG`). EN copy only. Icons are **Lucide components only** — no emoji glyph may reach the DOM.
+
+**Two tracks, max two badges**, top-left of the image tile, horizontal stack, status first then attribute.
+
+| Track | Badge | Condition | Style | Icon |
+| --- | --- | --- | --- | --- |
+| STATUS (max 1) | `Ends {Xh Ym}` | settles in < **4h** | solid amber `--trading-yellow`, dark ink `#241B00`, minute-precision countdown (60s tick) | `Clock` |
+| STATUS | `New` | created < **24h** | solid Pulse Blue `--yes`, ink `#04222c` | — |
+| STATUS | `Trending` | 24h volume in the **top 20%** of the loaded live set; skipped when < 5 live events | solid white, ink `#0A0B0D` | `Flame` |
+| ATTRIBUTE (max 1) | `Boost {max}×` | contract events with `max_leverage ≥ 2`; spot never | solid Volt Green `--no`, ink `#1a2408` | `Zap` |
+
+STATUS priority is fixed and exclusive: **Ends soon > New > Trending**. The settled list is untouched by this system (it keeps its own result tag).
+
+**Live list sort (approved option A)** — `sortLiteLiveList()`:
+1. Events settling in < 4h first, ascending by time-to-settle.
+2. Remaining events by 24h volume (fallback total volume), descending.
+3. Events created < 24h that would rank below position 6 are lifted into the top 6, preserving relative order and never displacing an Ends-soon event.
+
+Applies to "All" and, scoped to the filtered set, to every sector filter. Watchlist keeps the user's own order. Settled list unchanged.

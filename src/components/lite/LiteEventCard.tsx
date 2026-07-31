@@ -1,12 +1,25 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Clock, Flame, Zap } from "lucide-react";
 import { EventRow } from "@/hooks/useMarketListData";
 import { cn } from "@/lib/utils";
+import {
+  formatEndsIn,
+  msToSettle,
+  statusBadgeFor,
+  type LiteStatusBadge,
+} from "@/lib/liteListBadges";
 
 interface LiteEventCardProps {
   market: EventRow;
   /** Max Boost for this event's category (from category_boost_configs).
    *  null / undefined / <2 → no Boost badge. Spot events never get one. */
   boostMax?: number | null;
+  /**
+   * 24h-volume cutoff for the Trending status badge, computed once by the
+   * list from the loaded live set. null → Trending never shows.
+   */
+  trendingCutoff?: number | null;
 }
 
 // Literal-mapped category → microlabel (uppercase in render).
@@ -78,8 +91,39 @@ const settlementFooter = (expiry: Date | null, categoryRaw: string): string | nu
   return `Settles ${expiry.toLocaleDateString(undefined, { month: "short", year: "numeric" })}`;
 };
 
-export const LiteEventCard = ({ market, boostMax }: LiteEventCardProps) => {
+/** One pill in the image-tile badge stack. Icons are Lucide nodes only. */
+const BadgePill = ({
+  bg,
+  fg,
+  icon,
+  label,
+}: {
+  bg: string;
+  fg: string;
+  icon?: React.ReactNode;
+  label: string;
+}) => (
+  <span
+    className="inline-flex items-center gap-1 rounded-full px-[10px] py-[5px] text-[11px] font-semibold leading-none"
+    style={{ background: bg, color: fg }}
+  >
+    {icon}
+    {label}
+  </span>
+);
+
+export const LiteEventCard = ({
+  market,
+  boostMax,
+  trendingCutoff = null,
+}: LiteEventCardProps) => {
   const navigate = useNavigate();
+  // Minute-precision tick so the "Ends {Xh Ym}" label stays honest.
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = window.setInterval(() => setNow(Date.now()), 60_000);
+    return () => window.clearInterval(t);
+  }, []);
   const isSpot = market.productLines?.includes("spot");
   const href = isSpot
     ? `/spot?event=${market.eventId}`
@@ -109,14 +153,11 @@ export const LiteEventCard = ({ market, boostMax }: LiteEventCardProps) => {
   const footer = settlementFooter(market.expiry, categoryRaw);
   const image = market.imageUrl ?? CATEGORY_IMAGE[categoryRaw];
 
-  // Badge system (frozen): "Live" is abolished. New (Pulse Blue) takes
-  // priority over the Boost badge (volt). Spot events get no badge.
+  // Badge system v2 — two tracks, max two badges, status first.
+  // "Live" stays abolished; no emoji glyphs, Lucide icons only.
   const boostable = !isSpot && !!boostMax && boostMax >= 2;
-  const tag = market.isNew
-    ? { label: "New", bg: "hsl(var(--yes))", fg: "#04222c" }
-    : boostable
-      ? { label: `⚡ Boost ${boostMax}×`, bg: "hsl(var(--no))", fg: "#1a2408" }
-      : null;
+  const status = statusBadgeFor(market, trendingCutoff, now);
+  const endsInMs = msToSettle(market, now);
 
   const fmt = (p: number) => `${Math.round(p * 100)}¢`;
   const volText = `Vol ${formatCompactUSD(market.totalVolume || market.volume24h || 0)}`;
@@ -145,13 +186,36 @@ export const LiteEventCard = ({ market, boostMax }: LiteEventCardProps) => {
           backgroundPosition: "center, center",
         }}
       >
-        {tag && (
-          <span
-            className="absolute left-3 top-3 rounded-full px-3 py-[5px] text-[11px] font-semibold"
-            style={{ background: tag.bg, color: tag.fg }}
-          >
-            {tag.label}
-          </span>
+        {(status || boostable) && (
+          <div className="absolute left-3 top-3 flex items-center gap-1.5">
+            {status === "ends-soon" && (
+              <BadgePill
+                bg="hsl(var(--trading-yellow))"
+                fg="#241B00"
+                icon={<Clock className="h-3 w-3" strokeWidth={2.5} />}
+                label={`Ends ${formatEndsIn(endsInMs ?? 0)}`}
+              />
+            )}
+            {status === "new" && (
+              <BadgePill bg="hsl(var(--yes))" fg="#04222c" label="New" />
+            )}
+            {status === "trending" && (
+              <BadgePill
+                bg="#FFFFFF"
+                fg="#0A0B0D"
+                icon={<Flame className="h-3 w-3" strokeWidth={2.5} />}
+                label="Trending"
+              />
+            )}
+            {boostable && (
+              <BadgePill
+                bg="hsl(var(--no))"
+                fg="#1a2408"
+                icon={<Zap className="h-3 w-3" strokeWidth={2.5} />}
+                label={`Boost ${boostMax}×`}
+              />
+            )}
+          </div>
         )}
       </div>
 
