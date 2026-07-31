@@ -38,6 +38,8 @@ export interface EventRow {
   lifecycleStatus: string | null;
   basePrice: number | null;
   imageUrl?: string | null;
+  /** Tiny base64 blur placeholder for the card art tile. */
+  imageBlur?: string | null;
 
   /** Per-event Yes/No aliases (e.g. team names, "Up"/"Not Up"). Undefined when unset. */
   sideLabels?: { yes: string; no: string };
@@ -159,6 +161,7 @@ export const useMarketListData = (events: EventWithOptions[]): EventRow[] => {
         lifecycleStatus: event.lifecycle_status ?? null,
         basePrice: event.base_price != null ? Number(event.base_price) : null,
         imageUrl: event.image_url ?? null,
+        imageBlur: (event as { image_blur?: string | null }).image_blur ?? null,
         sideLabels,
         change1h: maxVolChild?.change1h || 0,
         change4h: maxVolChild?.change4h || 0,

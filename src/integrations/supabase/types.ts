@@ -470,6 +470,7 @@ export type Database = {
           freeze_time: string | null
           icon: string
           id: string
+          image_blur: string | null
           image_url: string | null
           is_resolved: boolean
           lifecycle_status: string | null
@@ -499,6 +500,7 @@ export type Database = {
           freeze_time?: string | null
           icon?: string
           id: string
+          image_blur?: string | null
           image_url?: string | null
           is_resolved?: boolean
           lifecycle_status?: string | null
@@ -528,6 +530,7 @@ export type Database = {
           freeze_time?: string | null
           icon?: string
           id?: string
+          image_blur?: string | null
           image_url?: string | null
           is_resolved?: boolean
           lifecycle_status?: string | null

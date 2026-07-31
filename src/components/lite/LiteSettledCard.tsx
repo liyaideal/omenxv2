@@ -7,10 +7,13 @@
 import { Check } from "lucide-react";
 import type { ResolvedEvent } from "@/hooks/useResolvedEvents";
 import { liteSideName } from "@/lib/liteSideName";
+import { CardArtTile } from "@/components/lite/CardArtTile";
 
 interface Props {
   event: ResolvedEvent;
   onSelect: (eventId: string) => void;
+  /** Index in the list — the first row loads eagerly, the rest lazily. */
+  index?: number;
 }
 
 const MICROLABEL: Record<string, string> = {
@@ -36,10 +39,6 @@ const CATEGORY_IMAGE: Record<string, string> = {
   entertainment: "/card-bg/entertainment.jpg",
   social: "/card-bg/social.jpg",
 };
-
-const STRIPE_FALLBACK =
-  "repeating-linear-gradient(135deg,#1D2026,#1D2026 12px,#131519 12px,#131519 24px)";
-const SCRIM = "linear-gradient(to top, rgba(10,11,13,0.85), transparent 60%)";
 
 /** Same date-tier logic as the live card, past tense. */
 export const settledFooter = (settledAt: string | null): string | null => {
@@ -91,7 +90,7 @@ export const resolveWinner = (event: ResolvedEvent) => {
 
 const money = (n: number) => `$${Math.abs(n).toFixed(2)}`;
 
-export const LiteSettledCard = ({ event, onSelect }: Props) => {
+export const LiteSettledCard = ({ event, onSelect, index = 0 }: Props) => {
   const categoryRaw = (event.category || "").toLowerCase();
   const microlabel = MICROLABEL[categoryRaw] ?? "Market";
   const image = (event as { imageUrl?: string | null }).imageUrl ?? CATEGORY_IMAGE[categoryRaw];
@@ -106,14 +105,7 @@ export const LiteSettledCard = ({ event, onSelect }: Props) => {
       onClick={() => onSelect(event.id)}
       className="mkt-card group flex w-full flex-col overflow-hidden rounded-[16px] border border-[#1D2026] bg-[#131519] text-left"
     >
-      <div
-        className="relative h-[130px] w-full"
-        style={{
-          backgroundImage: image ? `${SCRIM}, url("${image}")` : STRIPE_FALLBACK,
-          backgroundSize: "cover, cover",
-          backgroundPosition: "center, center",
-        }}
-      >
+      <CardArtTile src={image} blur={event.imageBlur} priority={index < 4}>
         {result === null ? (
           <span className="absolute left-3 top-3 rounded-full bg-[#242830] px-3 py-[5px] text-[11px] font-semibold text-[#C9CED6]">
             Settled
@@ -127,7 +119,7 @@ export const LiteSettledCard = ({ event, onSelect }: Props) => {
             Lost −{money(result)}
           </span>
         )}
-      </div>
+      </CardArtTile>
 
       <div className="p-[18px]">
         <div className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#6B7280]">

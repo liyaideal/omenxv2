@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Clock, Flame, Timer, Zap } from "lucide-react";
 import { EventRow } from "@/hooks/useMarketListData";
 import { cn } from "@/lib/utils";
+import { CardArtTile } from "@/components/lite/CardArtTile";
 import {
   formatEndsIn,
   isIntradayEvent,
@@ -13,6 +14,8 @@ import {
 
 interface LiteEventCardProps {
   market: EventRow;
+  /** Index in the list — the first row loads eagerly, the rest lazily. */
+  index?: number;
   /** Max Boost for this event's category (from category_boost_configs).
    *  null / undefined / <2 → no Boost badge. Spot events never get one. */
   boostMax?: number | null;
@@ -50,13 +53,6 @@ const CATEGORY_IMAGE: Record<string, string> = {
   entertainment: "/card-bg/entertainment.jpg",
   social: "/card-bg/social.jpg",
 };
-
-// Fallback diagonal stripe, matches the mock scaffolding.
-const STRIPE_FALLBACK =
-  "repeating-linear-gradient(135deg,#1D2026,#1D2026 12px,#131519 12px,#131519 24px)";
-
-// Scrim overlay (bottom → top) for image tiles so light photos stay legible.
-const SCRIM = "linear-gradient(to top, rgba(10,11,13,0.85), transparent 60%)";
 
 const formatCompactUSD = (val: number): string => {
   if (val >= 1_000_000_000) return `$${(val / 1_000_000_000).toFixed(1)}B`;
@@ -118,6 +114,7 @@ const INTRADAY_INK = "#2A1200";
 
 export const LiteEventCard = ({
   market,
+  index = 0,
   boostMax,
   trendingCutoff = null,
 }: LiteEventCardProps) => {
@@ -235,20 +232,13 @@ export const LiteEventCard = ({
       className="mkt-card group flex w-full flex-col overflow-hidden rounded-[16px] border border-[#1D2026] bg-[#131519] text-left"
     >
       {/* Image tile */}
-      <div
-        className="relative h-[130px] w-full"
-        style={{
-          backgroundImage: image ? `${SCRIM}, url("${image}")` : STRIPE_FALLBACK,
-          backgroundSize: "cover, cover",
-          backgroundPosition: "center, center",
-        }}
-      >
+      <CardArtTile src={image} blur={market.imageBlur} priority={index < 4}>
         {visibleBadges.length > 0 && (
           <div className="absolute left-3 top-3 flex items-center gap-1.5">
             {visibleBadges}
           </div>
         )}
-      </div>
+      </CardArtTile>
 
       {/* Body */}
       <div className="flex flex-1 flex-col p-[18px]">
