@@ -11,7 +11,8 @@ import { getLifecycleBadge } from "@/lib/usStockSessions";
  */
 
 // Map ticker → company name. Extend as we launch more names.
-const STOCK_NAME: Record<string, string> = {
+// Canonical map — Lite spot surfaces import this instead of duplicating it.
+export const STOCK_NAME: Record<string, string> = {
   NVDA: "NVIDIA",
   TSLA: "Tesla",
   AAPL: "Apple",
@@ -19,18 +20,39 @@ const STOCK_NAME: Record<string, string> = {
   GOOGL: "Alphabet",
   META: "Meta Platforms",
   AMZN: "Amazon",
+  COIN: "Coinbase",
+  HOOD: "Robinhood",
+  AMD: "AMD",
 };
 
-/** Best-effort ticker extraction from event id / name (e.g. `us-nvda-updown-...` → NVDA). */
+// Tokens that look like tickers but never are (the `us-` id prefix, session words).
+const TICKER_STOPWORDS = new Set(["US", "ET", "AM", "PM", "USD"]);
+
+/** Best-effort ticker extraction from event id / name (e.g. `us-coin-updown-...` → COIN). */
 export const deriveTickerFromEvent = (
   eventId?: string | null,
   eventName?: string | null,
 ): string => {
-  const src = `${eventId ?? ""} ${eventName ?? ""}`.toUpperCase();
+  const id = (eventId ?? "").toLowerCase();
+  const name = eventName ?? "";
+
+  // 1) canonical id shape: us-<ticker>-updown-<yyyymmdd>
+  const fromId = id.match(/^us-([a-z]{1,5})-updown/);
+  if (fromId) return fromId[1].toUpperCase();
+
+  // 2) ticker in parentheses in the event name: "Coinbase (COIN) — ..."
+  const fromName = name.match(/\(([A-Za-z]{1,5})\)/);
+  if (fromName) return fromName[1].toUpperCase();
+
+  const src = `${id} ${name}`.toUpperCase();
+
+  // 3) known-ticker scan (legacy ids)
   const known = Object.keys(STOCK_NAME).find((t) => new RegExp(`\\b${t}\\b`).test(src));
   if (known) return known;
-  const m = src.match(/\b[A-Z]{2,5}\b/);
-  return m ? m[0] : "STOCK";
+
+  // 4) generic scan, skipping stopwords like the `US` prefix
+  const generic = src.match(/\b[A-Z]{2,5}\b/g)?.find((t) => !TICKER_STOPWORDS.has(t));
+  return generic ?? "STOCK";
 };
 
 interface SpotStatsHeaderProps {

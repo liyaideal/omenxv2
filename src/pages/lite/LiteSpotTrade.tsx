@@ -40,7 +40,7 @@ import {
   isPastFreeze,
   FREEZE_MINUTES_BEFORE_CLOSE,
 } from "@/lib/usStockSessions";
-import { deriveTickerFromEvent } from "@/components/SpotStatsHeader";
+import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader";
 import type { Tables } from "@/integrations/supabase/types";
 import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
@@ -54,18 +54,6 @@ import {
 
 type EventRow = Tables<"events"> & { options: Tables<"event_options">[] };
 type Side = "yes" | "no";
-
-// Minimal ticker → company name lookup (local to Lite; SpotStatsHeader owns
-// the canonical version but keeps it internal).
-const STOCK_NAME: Record<string, string> = {
-  NVDA: "NVIDIA",
-  TSLA: "Tesla",
-  AAPL: "Apple",
-  MSFT: "Microsoft",
-  GOOGL: "Alphabet",
-  META: "Meta Platforms",
-  AMZN: "Amazon",
-};
 
 // -------- countdown --------
 const useCountdown = (target: Date | null) => {
