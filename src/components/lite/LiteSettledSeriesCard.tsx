@@ -17,6 +17,12 @@ export const STOCK_COMPANY: Record<string, string> = {
   GOOGL: "Alphabet",
   META: "Meta Platforms",
   AMZN: "Amazon",
+  "0700.HK": "Tencent",
+  "9988.HK": "Alibaba",
+  "3690.HK": "Meituan",
+  "1810.HK": "Xiaomi",
+  "1211.HK": "BYD",
+  "0005.HK": "HSBC",
 };
 
 /**
@@ -25,7 +31,7 @@ export const STOCK_COMPANY: Record<string, string> = {
  * merge every stock into one series — so read the slug first and only fall
  * back to the shared derivation.
  */
-const SLUG = /^us-([a-z]{1,5})-updown\b/i;
+const SLUG = /^(us|hk)-([a-z0-9]{1,5})-updown\b/i;
 
 export const isDailyStockEvent = (e: {
   id: string;
@@ -39,7 +45,10 @@ export const isDailyStockEvent = (e: {
 
 export const tickerOf = (e: { id: string; name: string }) => {
   const m = e.id.match(SLUG);
-  if (m) return m[1].toUpperCase();
+  if (m) {
+    const code = m[2].toUpperCase();
+    return m[1].toLowerCase() === "hk" ? `${code}.HK` : code;
+  }
   return deriveTickerFromEvent(e.id, e.name);
 };
 

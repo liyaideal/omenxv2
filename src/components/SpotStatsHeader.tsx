@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { getLifecycleBadge } from "@/lib/usStockSessions";
+import { getLifecycleBadge, resolveStockMarket } from "@/lib/usStockSessions";
 
 /**
  * SPOT products only — US-stock daily up/down.
@@ -23,6 +23,13 @@ export const STOCK_NAME: Record<string, string> = {
   COIN: "Coinbase",
   HOOD: "Robinhood",
   AMD: "AMD",
+  // Hong Kong batch — tickers are the numeric code + ".HK".
+  "0700.HK": "Tencent",
+  "9988.HK": "Alibaba",
+  "3690.HK": "Meituan",
+  "1810.HK": "Xiaomi",
+  "1211.HK": "BYD",
+  "0005.HK": "HSBC",
 };
 
 // Tokens that look like tickers but never are (the `us-` id prefix, session words).
@@ -36,9 +43,15 @@ export const deriveTickerFromEvent = (
   const id = (eventId ?? "").toLowerCase();
   const name = eventName ?? "";
 
-  // 1) canonical id shape: us-<ticker>-updown-<yyyymmdd>
+  // 1) canonical id shapes: us-<ticker>-updown-… / hk-<code>-updown-…
+  const fromHkId = id.match(/^hk-([a-z0-9]{1,5})-updown/);
+  if (fromHkId) return `${fromHkId[1].toUpperCase()}.HK`;
   const fromId = id.match(/^us-([a-z]{1,5})-updown/);
   if (fromId) return fromId[1].toUpperCase();
+
+  // 1b) HK code in parentheses in the name: "Tencent (0700.HK) — …"
+  const fromHkName = name.match(/\((\d{4}\.HK)\)/i);
+  if (fromHkName) return fromHkName[1].toUpperCase();
 
   // 2) ticker in parentheses in the event name: "Coinbase (COIN) — ..."
   const fromName = name.match(/\(([A-Za-z]{1,5})\)/);
@@ -47,7 +60,9 @@ export const deriveTickerFromEvent = (
   const src = `${id} ${name}`.toUpperCase();
 
   // 3) known-ticker scan (legacy ids)
-  const known = Object.keys(STOCK_NAME).find((t) => new RegExp(`\\b${t}\\b`).test(src));
+  const known = Object.keys(STOCK_NAME).find((t) =>
+    new RegExp(`\\b${t.replace(".", "\\.")}\\b`).test(src),
+  );
   if (known) return known;
 
   // 4) generic scan, skipping stopwords like the `US` prefix
@@ -74,6 +89,9 @@ export const SpotStatsHeader = ({
 }: SpotStatsHeaderProps) => {
   const ticker = useMemo(() => deriveTickerFromEvent(eventId, eventName), [eventId, eventName]);
   const company = STOCK_NAME[ticker] ?? ticker;
+  const market = resolveStockMarket({ id: eventId });
+  const cur = market.currency;
+  const exchangeLabel = market.key === "hk" ? "HKEX · HK Stock" : "Nasdaq · US Stock";
   const badge = getLifecycleBadge(lifecycle);
 
   // Indicative last price — small pseudo-random walk around base_price.
@@ -115,7 +133,7 @@ export const SpotStatsHeader = ({
               </Badge>
             </div>
             <div className="text-[11px] text-muted-foreground truncate">
-              {company} · Nasdaq · US Stock
+              {company} · {exchangeLabel}
             </div>
           </div>
         </div>
@@ -123,14 +141,14 @@ export const SpotStatsHeader = ({
         {/* Prior close */}
         <StatCell label="Prior Close">
           <span className="font-mono text-foreground">
-            {basePrice != null ? `$${basePrice.toFixed(2)}` : "—"}
+            {basePrice != null ? `${cur}${basePrice.toFixed(2)}` : "—"}
           </span>
         </StatCell>
 
         {/* Indicative last */}
         <StatCell label="Last (indicative)">
           <span className={cn("font-mono", isUp ? "text-trading-green" : "text-trading-red")}>
-            {indicative != null ? `$${indicative.toFixed(2)}` : "—"}
+            {indicative != null ? `${cur}${indicative.toFixed(2)}` : "—"}
           </span>
           {indicative != null && (
             <span

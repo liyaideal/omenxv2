@@ -168,6 +168,69 @@ export const formatEtTime = (date: Date): string =>
     hour12: false,
   }).format(date);
 
+// -----------------------------------------------------------------
+// Market resolution (US / HK daily up/down spot events).
+// Display layer only — every lifecycle/gating helper above keeps
+// operating on real timestamps and is market-agnostic.
+// -----------------------------------------------------------------
+export interface StockMarket {
+  key: "us" | "hk";
+  /** IANA timezone used to render session labels. */
+  tz: string;
+  /** Short session label shown next to times ("ET" / "HKT"). */
+  label: string;
+  /** Currency prefix for underlying share prices. */
+  currency: string;
+  /** Regular-session open, already localised copy. */
+  openLabel: string;
+  /** Regular-session close, already localised copy. */
+  closeLabel: string;
+}
+
+export const US_STOCK_MARKET: StockMarket = {
+  key: "us",
+  tz: "America/New_York",
+  label: "ET",
+  currency: "$",
+  openLabel: "9:30 AM ET",
+  closeLabel: "4:00 PM ET",
+};
+
+export const HK_STOCK_MARKET: StockMarket = {
+  key: "hk",
+  tz: "Asia/Hong_Kong",
+  label: "HKT",
+  currency: "HK$",
+  openLabel: "9:30 AM HKT",
+  closeLabel: "4:00 PM HKT",
+};
+
+/** Derive the market from an event id prefix or its event_subtype. */
+export const resolveStockMarket = (
+  event?: { id?: string | null; event_subtype?: string | null } | null,
+): StockMarket => {
+  const id = (event?.id ?? "").toLowerCase();
+  const subtype = (event?.event_subtype ?? "").toUpperCase();
+  if (id.startsWith("hk-") || subtype.startsWith("HK_")) return HK_STOCK_MARKET;
+  return US_STOCK_MARKET;
+};
+
+/** Short HH:mm label for a Date in the given market's timezone. */
+export const formatMarketTime = (date: Date, market: StockMarket): string =>
+  new Intl.DateTimeFormat("en-US", {
+    timeZone: market.tz,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(date);
+
+/** Underlying share price with the market's currency prefix. */
+export const formatMarketPrice = (
+  value: number,
+  market: StockMarket,
+  digits = 2,
+): string => `${market.currency}${value.toFixed(digits)}`;
+
 // Note: formatDualTimezone / formatBeijingTime removed per DESIGN.md §14 —
 // user-visible copy must not contain 北京/Beijing. Local time is shown only
 // via the browser-detected schedule ⓘ tooltip in the /spot terminal header.

@@ -35,6 +35,8 @@ interface Props {
   side?: "yes" | "no";
   upLabel?: string;
   downLabel?: string;
+  /** Market currency prefix for stock-axis labels ("$" | "HK$"). */
+  currency?: string;
   className?: string;
 }
 
@@ -93,6 +95,7 @@ export const LiteStockChart = ({
   side = "yes",
   upLabel = "Up",
   downLabel = "Down",
+  currency = "$",
   className,
 }: Props) => {
   const [tab, setTab] = useState<Tab>("stock");
@@ -139,7 +142,7 @@ export const LiteStockChart = ({
   const baseline = tab === "stock" ? basePrice : null;
 
   const yFmt = (v: number) =>
-    tab === "stock" ? `$${v.toFixed(2)}` : `${Math.round(v)}¢`;
+    tab === "stock" ? `${currency}${v.toFixed(2)}` : `${Math.round(v)}¢`;
 
   return (
     <div className={cn("rounded-2xl border border-border bg-card", className)}>
@@ -228,7 +231,7 @@ export const LiteStockChart = ({
                   stroke="#6B7280"
                   strokeDasharray="4 4"
                   label={{
-                    value: `Price to beat $${baseline.toFixed(2)}`,
+                    value: `Price to beat ${currency}${baseline.toFixed(2)}`,
                     position: "insideTopRight",
                     fill: "#9AA1AC",
                     fontSize: 10,
