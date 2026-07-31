@@ -274,7 +274,7 @@ const LiteEventsPage = () => {
         )}
 
         {/* Card grid */}
-        <div className="mt-6 space-y-6">
+        <div className="mt-6 flex flex-1 flex-col space-y-6">
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -318,7 +318,7 @@ const LiteEventsPage = () => {
         )}
 
         {/* Pro escape hatch — plain-language, no big CTA. */}
-        <div className="pt-2 text-center text-xs text-muted-foreground">
+        <div className="mt-auto pt-6 text-center text-xs text-muted-foreground">
           Want charts, leverage and the order book?{" "}
           <button
             type="button"
