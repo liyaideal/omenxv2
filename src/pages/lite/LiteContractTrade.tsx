@@ -528,7 +528,7 @@ const LiteContractTrade = () => {
         {endDate
           ? `Settles ${endDate.toLocaleDateString(undefined, { month: "short", day: "numeric" })} · `
           : ""}
-        {countdown} · {volumeText.replace(/^Vol /, "Vol $")}
+        {countdown} · {volumeText}
       </span>
     </div>
   );
