@@ -23,6 +23,8 @@ export interface ResolvedEvent {
   winning_option_id: string | null;
   /** Optional per-event illustration (Lite cards). Additive, Pro pages ignore it. */
   imageUrl?: string | null;
+  /** Tiny base64 blur placeholder for the card art tile. */
+  imageBlur?: string | null;
   options: ResolvedEventOption[];
   /** Single-market binary 别名（如体育队名）。其它事件为 undefined。 */
   sideLabels?: { yes: string; no: string };
@@ -109,6 +111,7 @@ export const useResolvedEvents = (options: UseResolvedEventsOptions = {}) => {
           settled_at: event.settled_at,
           winning_option_id: event.winning_option_id,
           imageUrl: (event as any).image_url ?? null,
+          imageBlur: (event as any).image_blur ?? null,
           options: (event.event_options || []).map((opt: any) => ({
             id: opt.id,
             event_id: opt.event_id,
