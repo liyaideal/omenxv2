@@ -13,6 +13,8 @@ import { EmptyState } from "@/components/states";
 export interface MarketActivityRow {
   id: string;
   isYes: boolean;
+  /** Raw option label — multi-market events show this instead of Yes/No. */
+  label: string;
   amount: number;
   boost: number;
   createdAt: string;
@@ -47,6 +49,7 @@ export const useMarketActivityRows = (
         (data || []).map((r) => ({
           id: r.id,
           isYes: (r.option_label || "").trim().toLowerCase() === yesLc,
+          label: r.option_label || "",
           amount: Number(r.amount) || 0,
           boost: Number(r.boost) || 1,
           createdAt: r.created_at,
@@ -73,12 +76,22 @@ interface Props {
   yesLabel: string;
   noLabel: string;
   maxRows?: number;
+  /** Multi-market events: name the option instead of a Yes/No side chip. */
+  showOptionLabel?: boolean;
 }
 
 // Ledger grid: chips align with chips, amounts with amounts, multipliers always shown.
 const ROW_GRID = "grid grid-cols-[minmax(48px,auto)_64px_48px_1fr] items-center gap-x-3";
+const ROW_GRID_MULTI =
+  "grid grid-cols-[minmax(0,1fr)_64px_48px_44px] items-center gap-x-3";
 
-export const LiteMarketActivity = ({ rows, yesLabel, noLabel, maxRows = 6 }: Props) => (
+export const LiteMarketActivity = ({
+  rows,
+  yesLabel,
+  noLabel,
+  maxRows = 6,
+  showOptionLabel = false,
+}: Props) => (
   <div className="rounded-2xl border border-border bg-card p-4">
     <div className="mb-3 flex items-center gap-1.5 text-sm font-medium">
       <span
@@ -98,7 +111,18 @@ export const LiteMarketActivity = ({ rows, yesLabel, noLabel, maxRows = 6 }: Pro
     ) : (
       <ul className="space-y-1.5">
         {rows.slice(0, maxRows).map((r) => (
-          <li key={r.id} className={cn(ROW_GRID, "rounded-lg px-2 py-1.5 hover:bg-muted/20")}>
+          <li
+            key={r.id}
+            className={cn(
+              showOptionLabel ? ROW_GRID_MULTI : ROW_GRID,
+              "rounded-lg px-2 py-1.5 hover:bg-muted/20",
+            )}
+          >
+            {showOptionLabel ? (
+              <span className="min-w-0 truncate text-[11px] font-semibold text-foreground/85">
+                {r.label}
+              </span>
+            ) : (
             <span
               className={cn(
                 "rounded-md px-1.5 py-0.5 text-center text-[11px] font-semibold",
@@ -107,6 +131,7 @@ export const LiteMarketActivity = ({ rows, yesLabel, noLabel, maxRows = 6 }: Pro
             >
               {r.isYes ? yesLabel : noLabel}
             </span>
+            )}
             <span className="text-right font-mono text-xs text-foreground">
               ${r.amount.toFixed(0)}
             </span>

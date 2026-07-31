@@ -9,6 +9,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
 import { useWatchlist } from "@/hooks/useWatchlist";
+import { useCategoryBoostConfigs } from "@/hooks/useCategoryBoostConfigs";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { cn } from "@/lib/utils";
 import { SPORTS_LINK } from "@/lib/worldCup";
@@ -44,6 +45,7 @@ const LiteEventsPage = () => {
   const markets = useMarketListData(dbEvents);
   const { user } = useAuth();
   const { watchlist } = useWatchlist();
+  const { getConfig: getBoostConfig } = useCategoryBoostConfigs();
   const [authOpen, setAuthOpen] = useState(false);
 
   // Non-sports markets pool ("All" and per-sector filter both operate here).
@@ -205,9 +207,16 @@ const LiteEventsPage = () => {
               "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
             )}
           >
-            {filtered.map((market) => (
-              <LiteEventCard key={market.id} market={market} />
-            ))}
+            {filtered.map((market) => {
+              const cfg = getBoostConfig(market.category);
+              return (
+                <LiteEventCard
+                  key={market.id}
+                  market={market}
+                  boostMax={cfg.enabled ? cfg.maxBoost : null}
+                />
+              );
+            })}
           </div>
         )}
 

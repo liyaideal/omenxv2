@@ -17,6 +17,7 @@ import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
 import { LiteMarketActivity } from "@/components/lite/contract/LiteMarketActivity";
 import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
 import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
+import { LiteMarketBoard, type BoardOption } from "@/components/lite/multi/LiteMarketBoard";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
 import { LiveSettledSwitch } from "@/components/lite/LiveSettledSwitch";
 import { LiteSettledCard } from "@/components/lite/LiteSettledCard";
@@ -679,11 +680,11 @@ const PositionStates = () => {
 // ------------------------------------------------------------------ Section
 export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
   const activity = [
-    { id: "a1", isYes: true, amount: 25, boost: 5, createdAt: new Date(Date.now() - 120_000).toISOString() },
-    { id: "a2", isYes: false, amount: 140, boost: 1, createdAt: new Date(Date.now() - 900_000).toISOString() },
-    { id: "a3", isYes: true, amount: 7, boost: 20, createdAt: new Date(Date.now() - 5_400_000).toISOString() },
-    { id: "a4", isYes: false, amount: 1250, boost: 3, createdAt: new Date(Date.now() - 86_400_000).toISOString() },
-    { id: "a5", isYes: true, amount: 55, boost: 1, createdAt: new Date(Date.now() - 100_800_000).toISOString() },
+    { id: "a1", isYes: true, label: "Yes", amount: 25, boost: 5, createdAt: new Date(Date.now() - 120_000).toISOString() },
+    { id: "a2", isYes: false, label: "No", amount: 140, boost: 1, createdAt: new Date(Date.now() - 900_000).toISOString() },
+    { id: "a3", isYes: true, label: "Yes", amount: 7, boost: 20, createdAt: new Date(Date.now() - 5_400_000).toISOString() },
+    { id: "a4", isYes: false, label: "No", amount: 1250, boost: 3, createdAt: new Date(Date.now() - 86_400_000).toISOString() },
+    { id: "a5", isYes: true, label: "Yes", amount: 55, boost: 1, createdAt: new Date(Date.now() - 100_800_000).toISOString() },
   ];
 
   return (
@@ -1014,6 +1015,15 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
           <LiteSpotStates isMobile={isMobile} />
         </SubSection>
 
+        <SubSection title="Multi-market board (3+ options)">
+          <p className="mb-3 text-sm text-muted-foreground">
+            Events with 3+ options replace the sentiment bar and the standalone chart with the
+            market board: one row per option, independent Yes / No chips, a 4px dual-tone strip,
+            and an inline accordion chart under the selected row. Binary events never render this.
+          </p>
+          <MultiMarketStates />
+        </SubSection>
+
         <SubSection title="Mobile header (preset B)">
           <p className="text-sm text-muted-foreground">
             Lite trade pages use the standard MobileHeader preset B (back arrow + title). It is
@@ -1026,6 +1036,78 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
         </SubSection>
       </div>
     </SectionWrapper>
+  );
+};
+
+// ---------------------------------------------------- Multi-market states
+const MULTI_OPTIONS: BoardOption[] = [
+  { id: "m1", label: "Above $130K", yesPrice: 0.02, settled: true, outcomeYes: false },
+  { id: "m2", label: "Above $120K", yesPrice: 0.12 },
+  { id: "m3", label: "$110K – $120K", yesPrice: 0.34, heldSide: "yes" },
+  { id: "m4", label: "$100K – $110K", yesPrice: 0.41 },
+  { id: "m5", label: "Below $100K", yesPrice: 0.13, heldSide: "no" },
+];
+
+const MultiMarketStates = () => {
+  const [selDesktop, setSelDesktop] = useState<{ id: string; side: "yes" | "no" }>({
+    id: "m3",
+    side: "yes",
+  });
+  const [selMobile, setSelMobile] = useState<{ id: string; side: "yes" | "no" }>({
+    id: "m4",
+    side: "no",
+  });
+  return (
+    <Grid cols={2}>
+      <Cell label="Desktop · row selected, chart open">
+        <LiteMarketBoard
+          options={MULTI_OPTIONS}
+          volumeText="Vol $30.0M"
+          selectedId={selDesktop.id}
+          selectedSide={selDesktop.side}
+          onSelect={(id, side) => setSelDesktop({ id, side })}
+        />
+      </Cell>
+      <Cell label="Mobile · compact rows, no inline chart">
+        <LiteMarketBoard
+          compact
+          showChart={false}
+          options={MULTI_OPTIONS}
+          volumeText="Vol $30.0M"
+          selectedId={selMobile.id}
+          selectedSide={selMobile.side}
+          onSelect={(id, side) => setSelMobile({ id, side })}
+        />
+      </Cell>
+      <Cell label="Order rail · same-option opposite side blocked">
+        <LiteContractOrderPanel
+          eventName="Where does Bitcoin end July?"
+          marketContextLabel="$110K – $120K"
+          blockNotice="You already back Yes on this market. Cash out first, then switch sides."
+          yesLabel="Yes"
+          noLabel="No"
+          yesPrice={0.34}
+          noPrice={0.66}
+          yesOptionId="m3"
+          noOptionId="m3"
+          yesOptionLabel="$110K – $120K"
+          noOptionLabel="No: $110K – $120K"
+          blocked={false}
+          side="no"
+          onSideChange={() => undefined}
+          amount="25"
+          onAmountChange={() => undefined}
+          boost={1}
+          onBoostChange={() => undefined}
+          boostEnabled
+          boostMax={10}
+          boostTiers={boostTiers(10)}
+          countdownText="09:51:19"
+          variant="desktop"
+          onRequestAuth={() => undefined}
+        />
+      </Cell>
+    </Grid>
   );
 };
 

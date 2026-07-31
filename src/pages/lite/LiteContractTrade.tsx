@@ -44,10 +44,29 @@ import {
 } from "@/components/lite/contract/LiteMarketActivity";
 import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
 import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
+import { LiteMarketBoard, type BoardOption } from "@/components/lite/multi/LiteMarketBoard";
 import { EmptyState } from "@/components/states";
 
 type EventRow = Tables<"events"> & { options: Tables<"event_options">[] };
 type Side = "yes" | "no";
+
+// Multi-market events trade BOTH sides of every option, but the engine only
+// knows one row per option. The No leg is recorded under a derived label so
+// the two sides stay distinguishable in positions / history. Display layer
+// only — tradingService is untouched.
+const NO_PREFIX = "No: ";
+const noLabelFor = (optionLabel: string) => `${NO_PREFIX}${optionLabel}`;
+const baseOptionLabel = (positionOption: string) =>
+  positionOption.startsWith(NO_PREFIX) ? positionOption.slice(NO_PREFIX.length) : positionOption;
+const positionIsNo = (positionOption: string) => positionOption.startsWith(NO_PREFIX);
+
+const compactUSD = (v: number): string => {
+  if (!isFinite(v) || v <= 0) return "$0";
+  if (v >= 1_000_000_000) return `$${(v / 1_000_000_000).toFixed(1)}B`;
+  if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`;
+  if (v >= 1_000) return `$${(v / 1_000).toFixed(1)}K`;
+  return `$${Math.round(v)}`;
+};
 
 const CATEGORY_LABEL: Record<string, string> = {
   crypto: "Crypto",
@@ -153,6 +172,10 @@ const LiteContractTrade = () => {
   const [authOpen, setAuthOpen] = useState(false);
   const [refetchTick, setRefetchTick] = useState(0);
   const [cashOutOpen, setCashOutOpen] = useState(false);
+  // Multi-market: which option the board / order rail is bound to, and which
+  // held leg the cash-out sheet targets.
+  const [selectedOptId, setSelectedOptId] = useState<string | null>(null);
+  const [cashOutId, setCashOutId] = useState<string | null>(null);
   // Only the FIRST fetch flips the full-page loader; later refetches
   // (post-fill) swap data in place so the page never unmounts.
   const isFirstLoad = useRef(true);
@@ -253,6 +276,29 @@ const LiteContractTrade = () => {
 
   const activity = useMarketActivityRows(event?.name || null, yesOpt?.label || "", refetchTick);
 
+  const isMulti = (event?.options.length ?? 0) > 2;
+  const liveOptions = useMemo(
+    () => (event?.options || []).filter((o) => o.final_price == null),
+    [event],
+  );
+  useEffect(() => {
+    if (!isMulti) return;
+    setSelectedOptId((cur) =>
+      cur && liveOptions.some((o) => o.id === cur) ? cur : (liveOptions[0]?.id ?? null),
+    );
+  }, [isMulti, liveOptions]);
+  const selOpt = useMemo(
+    () =>
+      (event?.options || []).find((o) => o.id === selectedOptId) || liveOptions[0] || null,
+    [event, selectedOptId, liveOptions],
+  );
+
+  // Every open leg on this event (multi events allow several at once).
+  const multiHeld = useMemo(() => {
+    if (!event) return [];
+    return positions.filter((p) => p.productLine === "futures" && p.event === event.name);
+  }, [positions, event]);
+
   const more = useMoreMarkets(event?.category || null, event?.id || "");
 
   const openBuy = useCallback(
@@ -281,6 +327,51 @@ const LiteContractTrade = () => {
   const categoryLabel = CATEGORY_LABEL[String(event.category).toLowerCase()] || event.category;
   const yesPct = Math.max(1, Math.min(99, Math.round(yesLive * 100)));
 
+  // ---- Multi-market derived view state (binary events never read these) ----
+  const selYes = selOpt
+    ? (pricesCtx?.getPrice(selOpt.id) ?? Number(selOpt.price))
+    : 0.5;
+  const selNo = Math.max(0.01, Math.min(0.99, 1 - selYes));
+  const heldOnSelected = selOpt
+    ? multiHeld.find((p) => baseOptionLabel(p.option) === selOpt.label) || null
+    : null;
+  const heldOnSelectedIsNo = heldOnSelected ? positionIsNo(heldOnSelected.option) : false;
+  const oppositeSameOption =
+    isMulti &&
+    heldOnSelected != null &&
+    ((heldOnSelectedIsNo && side === "yes") || (!heldOnSelectedIsNo && side === "no"));
+  const volumeText = `Vol ${compactUSD(Number(event.volume) || 0)}`;
+
+  const boardOptions: BoardOption[] = event.options.map((o) => {
+    const held = multiHeld.find((p) => baseOptionLabel(p.option) === o.label);
+    return {
+      id: o.id,
+      label: o.label,
+      yesPrice: pricesCtx?.getPrice(o.id) ?? Number(o.price),
+      settled: o.final_price != null,
+      outcomeYes: !!o.is_winner,
+      heldSide: held ? (positionIsNo(held.option) ? "no" : "yes") : null,
+    };
+  });
+
+  const selectMarket = (optionId: string, s: Side) => {
+    setSelectedOptId(optionId);
+    setSide(s);
+    if (isMobile) setDrawerOpen(true);
+  };
+
+  const MarketBoard = (
+    <LiteMarketBoard
+      options={boardOptions}
+      volumeText={volumeText}
+      selectedId={selOpt?.id ?? null}
+      selectedSide={side}
+      onSelect={selectMarket}
+      compact={!!isMobile}
+      showChart={!isMobile}
+    />
+  );
+
   const heldIsYes =
     heldPos != null &&
     heldPos.option.trim().toLowerCase() === yesOpt.label.trim().toLowerCase();
@@ -289,26 +380,27 @@ const LiteContractTrade = () => {
   // (`pnl` drops the minus sign via Math.abs).
   const heldPnlNum = heldPos ? heldPos.pnlNum : 0;
 
-  const heldAutoClose =
-    heldPos != null
-      ? estimateAutoClosePrice({
-          entryPrice: heldPos.entryPriceNum,
-          boost: heldPos.leverageNum,
-          amount: heldPos.marginNum,
-          fee: 0,
-          quantity: heldPos.sizeNum,
-          hasOtherPositions: positions.length > 1,
-          imTotalOther: Math.max(risk.imTotal - heldPos.marginNum, 0),
-          // `risk.totalAssets` is the live balance, from which this position's
-          // margin + fee were ALREADY deducted at fill time — adding it back
-          // would count the same cash twice. mode:"existing" performs no
-          // further deduction, so pass the balance as-is and only strip this
-          // position's own IM and PnL from the account aggregates.
-          totalAssets: risk.totalAssets,
-          unrealizedPnLOther: risk.unrealizedPnL - heldPnlNum,
-          mode: "existing",
-        })
-      : null;
+  // Shared for the binary held leg and for every multi-market leg.
+  const autoCloseFor = (p: (typeof positions)[number]) =>
+    estimateAutoClosePrice({
+      entryPrice: p.entryPriceNum,
+      boost: p.leverageNum,
+      amount: p.marginNum,
+      fee: 0,
+      quantity: p.sizeNum,
+      hasOtherPositions: positions.length > 1,
+      imTotalOther: Math.max(risk.imTotal - p.marginNum, 0),
+      // `risk.totalAssets` is the live balance, from which this position's
+      // margin + fee were ALREADY deducted at fill time — adding it back
+      // would count the same cash twice. mode:"existing" performs no
+      // further deduction, so pass the balance as-is and only strip this
+      // position's own IM and PnL from the account aggregates.
+      totalAssets: risk.totalAssets,
+      unrealizedPnLOther: risk.unrealizedPnL - p.pnlNum,
+      mode: "existing",
+    });
+
+  const heldAutoClose = heldPos != null ? autoCloseFor(heldPos) : null;
 
   const WatchStar = (
     <button
@@ -330,6 +422,7 @@ const LiteContractTrade = () => {
     <div>
       <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
         {categoryLabel}
+        {isMulti && ` · ${event.options.length} markets`}
       </div>
       <div className="mt-2 flex items-start justify-between gap-3">
         <h1
@@ -421,8 +514,63 @@ const LiteContractTrade = () => {
       yesLabel={yesLabel}
       noLabel={noLabel}
       maxRows={isMobile ? 4 : 8}
+      showOptionLabel={isMulti}
     />
   );
+
+  // ---- Multi-market: one card per held leg, cash out per card ----
+  const cashOutTarget = cashOutId
+    ? multiHeld.find((p) => p.id === cashOutId) || null
+    : null;
+
+  const MultiPositions =
+    isMulti && multiHeld.length > 0 ? (
+      <div className="space-y-3">
+        {multiHeld.map((p) => {
+          const isYesLeg = !positionIsNo(p.option);
+          const ac = autoCloseFor(p);
+          return (
+            <LitePositionCard
+              key={p.id}
+              sideLabel={`${baseOptionLabel(p.option)} · ${isYesLeg ? "Yes" : "No"} · ${p.leverageNum}× Boost`}
+              isYes={isYesLeg}
+              boost={1}
+              putIn={p.marginNum}
+              nowWorth={p.marginNum + p.pnlNum}
+              profit={p.pnlNum}
+              autoCloseText={
+                p.leverageNum <= 1
+                  ? "None"
+                  : ac != null
+                    ? `≈ ${formatCents(ac)}`
+                    : isMobile
+                      ? "None"
+                      : "None at this balance"
+              }
+              compact={!!isMobile}
+              onCashOut={() => setCashOutId(p.id)}
+            />
+          );
+        })}
+      </div>
+    ) : null;
+
+  const MultiCashOut = cashOutTarget ? (
+    <LiteCashOutFlow
+      open={!!cashOutId}
+      onOpenChange={(o) => !o && setCashOutId(null)}
+      isMobile={!!isMobile}
+      positionId={cashOutTarget.id}
+      positionIndex={positions.findIndex((p) => p.id === cashOutTarget.id)}
+      currentValue={cashOutTarget.marginNum + cashOutTarget.pnlNum}
+      sizeNum={cashOutTarget.sizeNum}
+      sideLabel={`${baseOptionLabel(cashOutTarget.option)} · ${positionIsNo(cashOutTarget.option) ? "No" : "Yes"}`}
+      onDone={() => {
+        setCashOutId(null);
+        setRefetchTick((n) => n + 1);
+      }}
+    />
+  ) : null;
 
   const MoreMarkets = (
     <div className="rounded-2xl border border-border bg-card p-4">
@@ -489,7 +637,7 @@ const LiteContractTrade = () => {
     />
   ) : null;
 
-  const panelProps = {
+  const binaryPanelProps = {
     eventName: event.name,
     yesLabel,
     noLabel,
@@ -518,6 +666,34 @@ const LiteContractTrade = () => {
     onRequestAuth: () => setAuthOpen(true),
   } as const;
 
+  // Multi-market rail: bound to the SELECTED option only. Both sides of that
+  // option are buyable; the No leg is recorded under the derived label.
+  const multiPanelProps = selOpt
+    ? ({
+        ...binaryPanelProps,
+        yesLabel: "Yes",
+        noLabel: "No",
+        yesPrice: selYes,
+        noPrice: selNo,
+        yesOptionId: selOpt.id,
+        noOptionId: selOpt.id,
+        yesOptionLabel: selOpt.label,
+        noOptionLabel: noLabelFor(selOpt.label),
+        blocked: blocked || selOpt.final_price != null,
+        blockedReason: selOpt.final_price != null ? "Settled" : blockedReason,
+        marketContextLabel: selOpt.label,
+        // Interim guard until the engine's per-option netting extension ships.
+        blockNotice: oppositeSameOption
+          ? `You already back ${heldOnSelectedIsNo ? "No" : "Yes"} on this market. Cash out first, then switch sides.`
+          : null,
+        heldSideLabel: null,
+        heldCurrentValue: null,
+        heldQty: null,
+      } as const)
+    : null;
+
+  const panelProps = isMulti && multiPanelProps ? multiPanelProps : binaryPanelProps;
+
   // -------- Mobile --------
   if (isMobile) {
     return (
@@ -536,6 +712,20 @@ const LiteContractTrade = () => {
                 {OutcomeCard}
                 {MoreMarkets}
               </>
+            ) : isMulti ? (
+              <>
+                <div className="text-[11px] text-muted-foreground">
+                  {endDate
+                    ? `Settles ${endDate.toLocaleDateString(undefined, { month: "short", day: "numeric" })} · `
+                    : ""}
+                  {countdown} left
+                </div>
+                {MarketBoard}
+                {RuleCard}
+                {MultiPositions}
+                {MarketActivity}
+                {MoreMarkets}
+              </>
             ) : (
               <>
                 {Chart}
@@ -548,6 +738,7 @@ const LiteContractTrade = () => {
             )}
           </div>
 
+          {!isMulti && (
           <div
             className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 px-4 pt-3 backdrop-blur"
             style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0) + 12px)" }}
@@ -581,6 +772,7 @@ const LiteContractTrade = () => {
               </div>
             )}
           </div>
+          )}
 
           <MobileDrawer
             open={drawerOpen}
@@ -596,13 +788,18 @@ const LiteContractTrade = () => {
                     side === "yes" ? "bg-yes/14 text-yes" : "bg-no/14 text-no",
                   )}
                 >
-                  {side === "yes" ? yesLabel : noLabel}
+                  {side === "yes" ? panelProps.yesLabel : panelProps.noLabel}
                 </span>
-                <span className="truncate text-sm font-semibold">{event.name}</span>
+                <span className="truncate text-sm font-semibold">
+                  {isMulti && selOpt ? selOpt.label : event.name}
+                </span>
               </div>
               <div className="mt-1 text-[11px] text-muted-foreground">
                 {countdown} left ·{" "}
-                {Math.round((side === "yes" ? yesLive : noLive) * 100)}% chance
+                {Math.round(
+                  (side === "yes" ? panelProps.yesPrice : panelProps.noPrice) * 100,
+                )}
+                % chance
               </div>
             </div>
             <LiteContractOrderPanel
@@ -617,6 +814,7 @@ const LiteContractTrade = () => {
 
           <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
           {CashOut}
+          {MultiCashOut}
         </div>
       </TooltipProvider>
     );
@@ -635,6 +833,13 @@ const LiteContractTrade = () => {
             {QuestionBlock}
             {resolved ? (
               OutcomeCard
+            ) : isMulti ? (
+              <>
+                {MarketBoard}
+                {RuleCard}
+                {MultiPositions}
+                {MarketActivity}
+              </>
             ) : (
               <>
                 {SentimentBar}
@@ -652,6 +857,7 @@ const LiteContractTrade = () => {
         </div>
         <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
         {CashOut}
+        {MultiCashOut}
       </div>
     </TooltipProvider>
   );

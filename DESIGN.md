@@ -1396,3 +1396,14 @@ All tiers: mascot is muted-foreground only; pill = 1.5px hairline border, `round
 2. Expression is locked — only this grumpy face. No variants, no redrawing, no coordinate edits.
 3. Minimum `LynxMark` render size is 40px; use `strokeWidth ≈ 3.4` at size ≤ 48.
 4. Never stretch, rotate, add shadow/gradient, or recolor. The mascot never participates in the MARKET or MONEY color axes.
+
+## §Addendum 2026-07-31 · Lite multi-market (LOCKED)
+
+A **multi-market event** = one event with **3+ options**. Every option trades Yes **and** No independently. Every multi behavior gates on `event.options.length > 2`; binary events (exactly 2 options) are completely unaffected.
+
+1. **Market board** (`src/components/lite/multi/LiteMarketBoard.tsx`) replaces both the sentiment bar and the standalone chart. One row per option: label (semibold) · optional "You hold" chip · chance % · independent `Yes {c}¢` / `No {c}¢` chips · 4px dual-tone strip (Pulse Blue Yes / Volt Green No).
+2. **Inline accordion chart** (`LiteBoardChart.tsx`) opens under the selected row only. Desktop only by default; mobile passes `showChart={false}` and uses `LiteCrowdOverview` as the summary.
+3. **Trade page order** — eyebrow (`{category} · {n} markets`) → QuestionBlock → board → RuleCard → position cards → activity. The right rail is bound to the SELECTED option and shows a market-context block (`MARKET · CHANGE IN THE LIST`).
+4. **Multiple legs** are holdable at once — one `LitePositionCard` per open leg, each with its own cash-out.
+5. **Interim guard:** backing the opposite side of an option you already hold is blocked with a `blockNotice` until the engine's per-option netting extension ships.
+6. **List cards:** no "Live" badge anywhere. `New` (Pulse Blue) takes priority over `⚡ Boost {max}×` (Volt Green); one badge max. Multi cards show the top-2 options by chance plus a `+N markets` footer.
