@@ -817,6 +817,8 @@ const LiteContractTrade = () => {
             onOpenChange={setDrawerOpen}
             showHandle
             hideCloseButton
+            // Drops the shared bottom-sheet's pb-24 tail (per-usage override).
+            className="pb-[calc(env(safe-area-inset-bottom,0px)+16px)]"
           >
             <div className="mb-3">
               <div className="flex items-center gap-2">
