@@ -165,13 +165,36 @@ export const LiteEventCard = ({
           backgroundPosition: "center, center",
         }}
       >
-        {tag && (
-          <span
-            className="absolute left-3 top-3 rounded-full px-3 py-[5px] text-[11px] font-semibold"
-            style={{ background: tag.bg, color: tag.fg }}
-          >
-            {tag.label}
-          </span>
+        {(status || boostable) && (
+          <div className="absolute left-3 top-3 flex items-center gap-1.5">
+            {status === "ends-soon" && (
+              <BadgePill
+                bg="hsl(var(--trading-yellow))"
+                fg="#241B00"
+                icon={<Clock className="h-3 w-3" strokeWidth={2.5} />}
+                label={`Ends ${formatEndsIn(endsInMs ?? 0)}`}
+              />
+            )}
+            {status === "new" && (
+              <BadgePill bg="hsl(var(--yes))" fg="#04222c" label="New" />
+            )}
+            {status === "trending" && (
+              <BadgePill
+                bg="#FFFFFF"
+                fg="#0A0B0D"
+                icon={<Flame className="h-3 w-3" strokeWidth={2.5} />}
+                label="Trending"
+              />
+            )}
+            {boostable && (
+              <BadgePill
+                bg="hsl(var(--no))"
+                fg="#1a2408"
+                icon={<Zap className="h-3 w-3" strokeWidth={2.5} />}
+                label={`Boost ${boostMax}×`}
+              />
+            )}
+          </div>
         )}
       </div>
 
