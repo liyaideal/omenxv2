@@ -1040,6 +1040,86 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
   );
 };
 
+// ---------------------------------------------------- Multi-market states
+const MULTI_OPTIONS: BoardOption[] = [
+  { id: "m1", label: "Above $130K", yesPrice: 0.02, settled: true, outcomeYes: false },
+  { id: "m2", label: "Above $120K", yesPrice: 0.12 },
+  { id: "m3", label: "$110K – $120K", yesPrice: 0.34, heldSide: "yes" },
+  { id: "m4", label: "$100K – $110K", yesPrice: 0.41 },
+  { id: "m5", label: "Below $100K", yesPrice: 0.13, heldSide: "no" },
+];
+
+const MultiMarketStates = () => {
+  const [selDesktop, setSelDesktop] = useState<{ id: string; side: "yes" | "no" }>({
+    id: "m3",
+    side: "yes",
+  });
+  const [selMobile, setSelMobile] = useState<{ id: string; side: "yes" | "no" }>({
+    id: "m4",
+    side: "no",
+  });
+  return (
+    <Grid cols={2}>
+      <Cell label="Desktop · row selected, chart open">
+        <LiteMarketBoard
+          options={MULTI_OPTIONS}
+          volumeText="Vol $30.0M"
+          selectedId={selDesktop.id}
+          selectedSide={selDesktop.side}
+          onSelect={(id, side) => setSelDesktop({ id, side })}
+        />
+      </Cell>
+      <Cell label="Mobile · compact rows, no inline chart">
+        <LiteMarketBoard
+          compact
+          showChart={false}
+          options={MULTI_OPTIONS}
+          volumeText="Vol $30.0M"
+          selectedId={selMobile.id}
+          selectedSide={selMobile.side}
+          onSelect={(id, side) => setSelMobile({ id, side })}
+        />
+      </Cell>
+      <Cell label="Crowd overview (mobile summary)">
+        <LiteCrowdOverview
+          rows={MULTI_OPTIONS.filter((o) => !o.settled).map((o) => ({
+            id: o.id,
+            label: o.label,
+            yesPrice: o.yesPrice,
+          }))}
+        />
+      </Cell>
+      <Cell label="Order rail · same-option opposite side blocked">
+        <LiteContractOrderPanel
+          eventName="Where does Bitcoin end July?"
+          marketContextLabel="$110K – $120K"
+          blockNotice="You already back Yes on this market. Cash out first, then switch sides."
+          yesLabel="Yes"
+          noLabel="No"
+          yesPrice={0.34}
+          noPrice={0.66}
+          yesOptionId="m3"
+          noOptionId="m3"
+          yesOptionLabel="$110K – $120K"
+          noOptionLabel="No: $110K – $120K"
+          blocked={false}
+          side="no"
+          onSideChange={() => undefined}
+          amount="25"
+          onAmountChange={() => undefined}
+          boost={1}
+          onBoostChange={() => undefined}
+          boostEnabled
+          boostMax={10}
+          boostTiers={boostTiers(10)}
+          countdownText="09:51:19"
+          onRequestAuth={() => undefined}
+        />
+      </Cell>
+    </Grid>
+  );
+};
+
 // -------------------------------------------------------- Lite spot states
 const LiteSpotStates = ({ isMobile }: { isMobile: boolean }) => {
   const [side, setSide] = useState<"yes" | "no">("yes");
