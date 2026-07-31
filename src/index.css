@@ -74,6 +74,10 @@
     --trading-yellow-muted: 48 70% 28%;
     --trading-yellow-bg: 48 60% 10%;
 
+    /* Lite list "Intraday" attribute badge — solid vibrant orange (#FF8A3D).
+       Pairs with the ink constant #2A1200 in the badge component. */
+    --badge-intraday: 24 100% 62%;
+
     /* ===== MARKET AXIS (Yes / No side semantics) ===== */
     /* Distinct from money-axis (trading-green/red). Never mix in one component:
        Yes/No side-selection controls use --yes / --no; PnL/gain/loss stays on

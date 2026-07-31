@@ -92,40 +92,29 @@ const settlementFooter = (expiry: Date | null, categoryRaw: string): string | nu
   return `Settles ${expiry.toLocaleDateString(undefined, { month: "short", year: "numeric" })}`;
 };
 
-/**
- * One pill in the image-tile badge stack. Icons are Lucide nodes only.
- * `ghost` renders the special-edition outline treatment (Intraday) so it
- * never reads as another solid status badge.
- */
+/** One pill in the image-tile badge stack. Icons are Lucide nodes only. */
 const BadgePill = ({
   bg,
   fg,
   icon,
   label,
-  ghost = false,
 }: {
   bg?: string;
   fg?: string;
   icon?: React.ReactNode;
   label: string;
-  ghost?: boolean;
 }) => (
   <span
     className="inline-flex items-center gap-1 rounded-full px-[10px] py-[5px] text-[11px] font-semibold leading-none"
-    style={
-      ghost
-        ? {
-            background: "transparent",
-            color: "#FFFFFF",
-            border: "1.5px solid rgba(255,255,255,0.35)",
-          }
-        : { background: bg, color: fg }
-    }
+    style={{ background: bg, color: fg }}
   >
     {icon}
     {label}
   </span>
 );
+
+/** Ink paired with the --badge-intraday orange. */
+const INTRADAY_INK = "#2A1200";
 
 export const LiteEventCard = ({
   market,
@@ -171,6 +160,8 @@ export const LiteEventCard = ({
   // Badge system — max two pills, filled in a fixed order:
   //   STATUS (Ends soon > New > Trending) → Intraday → Boost.
   // Anything past the 2-slot cap is dropped, Boost first.
+  // Intraday events are EXEMPT from New / Ends soon (see statusBadgeFor), so
+  // the amber Ends-soon pill and the orange Intraday pill can never co-occur.
   // "Live" stays abolished; no emoji glyphs, Lucide icons only.
   const boostable = !isSpot && !!boostMax && boostMax >= 2;
   const status = statusBadgeFor(market, trendingCutoff, now);
@@ -205,9 +196,10 @@ export const LiteEventCard = ({
     badges.push(
       <BadgePill
         key="intraday"
-        ghost
+        bg="hsl(var(--badge-intraday))"
+        fg={INTRADAY_INK}
         icon={<Timer className="h-3 w-3" strokeWidth={2.5} />}
-        label="Intraday"
+        label={`Intraday · ${formatEndsIn(Math.max(0, endsInMs ?? 0))}`}
       />,
     );
   }

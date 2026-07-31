@@ -1419,10 +1419,14 @@ Thresholds live in exactly one place: `src/lib/liteListBadges.ts` (`LITE_LIST_CO
 | STATUS (max 1) | `Ends {Xh Ym}` | settles in < **4h** | solid amber `--trading-yellow`, dark ink `#241B00`, minute-precision countdown (60s tick) | `Clock` |
 | STATUS | `New` | created < **24h** | solid Pulse Blue `--yes`, ink `#04222c` | — |
 | STATUS | `Trending` | 24h volume in the **top 20%** of the loaded live set; skipped when < 5 live events | solid white, ink `#0A0B0D` | `Flame` |
-| ATTRIBUTE | `Intraday` | event opens and settles inside the same trading day — settle timestamp on the same calendar day the event went live, with the daily up/down series detector (`isDailyStockEvent`) as a corroborating fallback | **ghost pill**: transparent bg, 1.5px border `rgba(255,255,255,0.35)`, white text | `Timer` |
+| ATTRIBUTE | `Intraday · {Xh Ym}` | event opens and settles inside the same trading day — settle timestamp on the same calendar day the event went live, with the daily up/down series detector (`isDailyStockEvent`) as a corroborating fallback | **solid orange** `--badge-intraday` (#FF8A3D), ink `#2A1200`; label carries its own minute-precision countdown to settle (same 60s tick as Ends soon) | `Timer` |
 | ATTRIBUTE | `Boost {max}×` | contract events with `max_leverage ≥ 2`; spot never | solid Volt Green `--no`, ink `#1a2408` | `Zap` |
 
-STATUS priority is fixed and exclusive: **Ends soon > New > Trending**. Intraday is deliberately the only outline badge so it reads as a special-edition mark, not another status. Practical outcomes: a spot daily event shows `[status?] + Intraday`; a boostable intraday contract with a status badge shows status + Intraday (Boost yields); with no status badge, Intraday + Boost render together. The same logic runs everywhere the list card renders (All, every sector filter, watchlist). The settled list is untouched by this system (it keeps its own result tag).
+STATUS priority is fixed and exclusive: **Ends soon > New > Trending**.
+
+**Intraday status exemption (2026-07-31 v2).** An intraday event is trivially "New" every morning and "Ends soon" every afternoon, so both are noise for it. Intraday events are therefore **exempt from `New` and `Ends soon`**; the only status badge they may carry is `Trending`. Assertion: the amber Ends-soon pill and the orange Intraday pill can **never co-occur** on one card. Non-intraday events keep the original rules untouched. The exemption lives in `statusBadgeFor()` and touches **badge rendering only** — `sortLiteLiveList()` still orders every event, intraday included, by its real settle time under the < 4h rule.
+
+Resulting intraday combos (cap 2 unchanged): `[Trending + Intraday·countdown]`, `[Intraday·countdown + Boost]`, or `[Intraday·countdown]` alone. The same logic runs everywhere the list card renders (All, every sector filter, watchlist). The settled list is untouched by this system (it keeps its own result tag).
 
 **Live list sort (approved option A)** — `sortLiteLiveList()`:
 1. Events settling in < 4h first, ascending by time-to-settle.
