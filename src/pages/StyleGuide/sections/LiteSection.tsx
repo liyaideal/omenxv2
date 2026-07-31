@@ -18,7 +18,6 @@ import { LiteMarketActivity } from "@/components/lite/contract/LiteMarketActivit
 import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
 import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
 import { LiteMarketBoard, type BoardOption } from "@/components/lite/multi/LiteMarketBoard";
-import { LiteCrowdOverview } from "@/components/lite/multi/LiteCrowdOverview";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
 import { LiveSettledSwitch } from "@/components/lite/LiveSettledSwitch";
 import { LiteSettledCard } from "@/components/lite/LiteSettledCard";
@@ -1078,15 +1077,6 @@ const MultiMarketStates = () => {
           selectedId={selMobile.id}
           selectedSide={selMobile.side}
           onSelect={(id, side) => setSelMobile({ id, side })}
-        />
-      </Cell>
-      <Cell label="Crowd overview (mobile summary)">
-        <LiteCrowdOverview
-          rows={MULTI_OPTIONS.filter((o) => !o.settled).map((o) => ({
-            id: o.id,
-            label: o.label,
-            yesPrice: o.yesPrice,
-          }))}
         />
       </Cell>
       <Cell label="Order rail · same-option opposite side blocked">
