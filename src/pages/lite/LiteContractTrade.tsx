@@ -160,7 +160,7 @@ const LiteContractTrade = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { user } = useAuth();
-  const { positions } = usePositions();
+  const { positions, refetch: refetchPositions } = usePositions();
   const { isWatched, toggle } = useWatchlist();
   const pricesCtx = useRealtimePricesOptional();
   const { getConfig, isLoading: boostLoading } = useCategoryBoostConfigs();
@@ -833,6 +833,7 @@ const LiteContractTrade = () => {
               onFilled={() => {
                 setDrawerOpen(false);
                 setRefetchTick((n) => n + 1);
+                refetchPositions();
               }}
             />
           </MobileDrawer>
