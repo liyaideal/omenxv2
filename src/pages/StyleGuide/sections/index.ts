@@ -18,4 +18,5 @@ export { LiteSection } from "./LiteSection";
 export { ApiSection } from "./ApiSection";
 export { StatesSection } from "./StatesSection";
 export { EmptyStatesSection } from "./EmptyStatesSection";
+export { EventArtSection } from "./EventArtSection";
 
