@@ -54,6 +54,8 @@ interface MobileHeaderProps {
   onTitleClick?: () => void;
   isFavorite?: boolean;
   onFavoriteToggle?: () => void;
+  /** Keeps the title mounted but transparent (used by scroll-aware trade headers). */
+  titleHidden?: boolean;
 }
 
 // Countdown hook
@@ -109,6 +111,7 @@ export const MobileHeader = ({
   onTitleClick,
   isFavorite = false,
   onFavoriteToggle,
+  titleHidden = false,
 }: MobileHeaderProps) => {
   const navigate = useNavigate();
   const navigationType = useNavigationType();
@@ -238,7 +241,7 @@ export const MobileHeader = ({
   const hasStats = displayTime || tweetCount !== undefined || currentPrice;
 
   return (
-    <header className="sticky top-0 bg-background/95 backdrop-blur z-40 px-4 py-2 border-b border-border">
+    <header className="sticky top-0 bg-background z-40 px-4 py-2 border-b border-border">
       {/* Row 1: Back + Title + Actions */}
       <div className="flex items-center justify-between gap-2">
         {/* Left: Back button and/or Logo */}
@@ -249,7 +252,7 @@ export const MobileHeader = ({
         {/* Center: Title - allows 2 lines for long titles */}
         {title ? (
           <div 
-            className={`flex-1 min-w-0 text-center ${onTitleClick ? "cursor-pointer" : ""}`}
+            className={`flex-1 min-w-0 text-center transition-opacity duration-150 ${titleHidden ? "opacity-0 pointer-events-none" : "opacity-100"} ${onTitleClick ? "cursor-pointer" : ""}`}
             onClick={onTitleClick}
           >
             <div className="flex items-center justify-center gap-1">

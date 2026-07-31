@@ -23,6 +23,7 @@ import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { MobileHeader } from "@/components/MobileHeader";
+import { useHeadingScrolledOut } from "@/hooks/useHeadingScrolledOut";
 import {
   Tooltip,
   TooltipContent,
@@ -139,6 +140,7 @@ const LiteSpotTrade = () => {
   const { positions } = usePositions();
   const { addSpotBalance } = useUserProfile();
   const { isWatched, toggle } = useWatchlist();
+  const { headingRef, scrolledOut } = useHeadingScrolledOut();
   const pricesCtx = useRealtimePricesOptional();
 
   const [event, setEvent] = useState<EventRow | null>(null);
@@ -305,9 +307,6 @@ const LiteSpotTrade = () => {
       ? `$${(volDollars / 1_000_000).toFixed(1)}M`
       : `$${(volDollars / 1_000).toFixed(0)}K`;
 
-  // Mobile header title: prefer ticker, cap at 24 chars.
-  const mobileTitle = (company && company.length <= 24 ? company : ticker).slice(0, 24);
-
   // Watchlist star (used in both surfaces).
   const WatchStar = (
     <button
@@ -352,6 +351,7 @@ const LiteSpotTrade = () => {
         Stocks · Daily up / down
       </div>
       <h1
+        ref={headingRef as unknown as React.Ref<HTMLHeadingElement>}
         className="mt-2 font-display font-bold leading-[1.05] tracking-[-0.02em] text-foreground"
         style={{ fontSize: "clamp(24px, 3.5vw, 34px)" }}
       >
@@ -377,7 +377,7 @@ const LiteSpotTrade = () => {
           )}
           <span>Vol {volText}</span>
         </div>
-        <div className="flex-shrink-0">{WatchStar}</div>
+        {!isMobile && <div className="flex-shrink-0">{WatchStar}</div>}
       </div>
     </div>
   );
@@ -648,10 +648,12 @@ const LiteSpotTrade = () => {
       <TooltipProvider>
         <div className="min-h-screen bg-background pb-32">
           <MobileHeader
-            title={mobileTitle}
+            title={event.name}
+            titleHidden={!scrolledOut}
             showLogo={false}
             showBack={true}
             backTo="/events"
+            rightContent={WatchStar}
           />
           <div className="space-y-4 px-4 py-4">
             {QuestionBlock}
