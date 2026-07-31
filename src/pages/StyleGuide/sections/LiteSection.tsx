@@ -1016,6 +1016,15 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
           <LiteSpotStates isMobile={isMobile} />
         </SubSection>
 
+        <SubSection title="Multi-market board (3+ options)">
+          <p className="mb-3 text-sm text-muted-foreground">
+            Events with 3+ options replace the sentiment bar and the standalone chart with the
+            market board: one row per option, independent Yes / No chips, a 4px dual-tone strip,
+            and an inline accordion chart under the selected row. Binary events never render this.
+          </p>
+          <MultiMarketStates />
+        </SubSection>
+
         <SubSection title="Mobile header (preset B)">
           <p className="text-sm text-muted-foreground">
             Lite trade pages use the standard MobileHeader preset B (back arrow + title). It is
