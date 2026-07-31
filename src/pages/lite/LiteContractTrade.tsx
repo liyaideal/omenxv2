@@ -45,6 +45,7 @@ import {
 import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
 import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
 import { LiteMarketBoard, type BoardOption } from "@/components/lite/multi/LiteMarketBoard";
+import { LiteCrowdOverview } from "@/components/lite/multi/LiteCrowdOverview";
 import { EmptyState } from "@/components/states";
 
 type EventRow = Tables<"events"> & { options: Tables<"event_options">[] };
@@ -367,7 +368,7 @@ const LiteContractTrade = () => {
       selectedSide={side}
       onSelect={selectMarket}
       compact={!!isMobile}
-      showChart={!isMobile}
+      showChart
     />
   );
 
@@ -421,7 +422,7 @@ const LiteContractTrade = () => {
     <div>
       <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
         {categoryLabel}
-        {isMulti && ` · ${event.options.length} markets`}
+        {isMulti && !isMobile && ` · ${event.options.length} markets`}
       </div>
       <div className="mt-2 flex items-start justify-between gap-3">
         <h1
@@ -514,6 +515,32 @@ const LiteContractTrade = () => {
       noLabel={noLabel}
       maxRows={isMobile ? 4 : 8}
       showOptionLabel={isMulti}
+    />
+  );
+
+  // ---- Mobile multi: meta chip row (sits ABOVE the title) ----
+  const MultiMetaRow = (
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="rounded-full bg-white/[0.07] px-2 py-[3px] text-[10px] font-semibold uppercase tracking-[0.12em] text-foreground/80">
+        {event.options.length} markets
+      </span>
+      <span className="font-mono text-[11.5px] text-muted-foreground">
+        {endDate
+          ? `Settles ${endDate.toLocaleDateString(undefined, { month: "short", day: "numeric" })} · `
+          : ""}
+        {countdown} · {volumeText}
+      </span>
+    </div>
+  );
+
+  const CrowdOverview = (
+    <LiteCrowdOverview
+      options={event.options.map((o) => ({
+        id: o.id,
+        label: o.label,
+        yesPrice: pricesCtx?.getPrice(o.id) ?? Number(o.price),
+        settled: o.final_price != null,
+      }))}
     />
   );
 
@@ -708,6 +735,7 @@ const LiteContractTrade = () => {
             backTo="/events"
           />
           <div className="space-y-4 px-4 py-4">
+            {isMulti && !resolved && MultiMetaRow}
             {QuestionBlock}
             {resolved ? (
               <>
@@ -716,12 +744,7 @@ const LiteContractTrade = () => {
               </>
             ) : isMulti ? (
               <>
-                <div className="text-[11px] text-muted-foreground">
-                  {endDate
-                    ? `Settles ${endDate.toLocaleDateString(undefined, { month: "short", day: "numeric" })} · `
-                    : ""}
-                  {countdown} left
-                </div>
+                {CrowdOverview}
                 {MarketBoard}
                 {RuleCard}
                 {MultiPositions}
