@@ -83,12 +83,25 @@ export const trendingThreshold = (rows: EventRow[]): number | null => {
   return cut > 0 ? cut : null;
 };
 
-/** The ONE status badge a card may show, or null. Priority is fixed. */
+/**
+ * The ONE status badge a card may show, or null. Priority is fixed.
+ *
+ * INTRADAY EXEMPTION (badge layer only): a same-day recurring event is
+ * trivially "New" every morning and "Ends soon" every afternoon, so both
+ * are pure noise for it. Intraday events may therefore ONLY carry
+ * "Trending". ASSERTION: with this exemption the amber "Ends soon" badge
+ * and the orange "Intraday" badge can NEVER co-occur on one card.
+ * This does NOT touch ordering — `sortLiteLiveList` keeps using the raw
+ * `isEndsSoon` settle-time rule for every event, intraday included.
+ */
 export const statusBadgeFor = (
   m: EventRow,
   cutoff: number | null,
   now = Date.now(),
 ): LiteStatusBadge | null => {
+  if (isIntradayEvent(m)) {
+    return cutoff !== null && volumeOf(m) >= cutoff ? "trending" : null;
+  }
   if (isEndsSoon(m, now)) return "ends-soon";
   if (isNewEventRow(m, now)) return "new";
   if (cutoff !== null && volumeOf(m) >= cutoff) return "trending";
