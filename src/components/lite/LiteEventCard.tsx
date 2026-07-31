@@ -264,24 +264,28 @@ export const LiteEventCard = ({
             equally dense at the same grid height. */}
         <div className="flex flex-1 flex-col justify-center">
           {isMulti ? (
+            // FROZEN anatomy — one continuous rounded-8 row per option:
+            // base rgba(--yes,0.05), absolute left-anchored fill at the yes-%
+            // in rgba(--yes,0.09), plain semibold label left, bold % right in
+            // --yes. No split segments, no standalone pill bars.
             <div className="space-y-1.5">
               {topTwo.map((c) => {
                 const p = Math.max(1, Math.min(99, Math.round(c.markPrice * 100)));
                 return (
                   <div
                     key={c.id}
-                    className="grid h-[30px] grid-cols-[minmax(0,1fr)_72px_34px] items-center gap-2"
+                    className="relative flex h-[30px] items-center overflow-hidden rounded-[8px] px-2.5"
+                    style={{ background: "hsl(var(--yes) / 0.05)" }}
                   >
-                    <span className="truncate text-[12.5px] text-foreground/85">
+                    <span
+                      aria-hidden
+                      className="absolute inset-y-0 left-0"
+                      style={{ width: `${p}%`, background: "hsl(var(--yes) / 0.09)" }}
+                    />
+                    <span className="relative min-w-0 flex-1 truncate text-[12.5px] font-semibold text-foreground">
                       {c.displayLabel || c.optionLabel}
                     </span>
-                    <span className="h-1.5 overflow-hidden rounded-full bg-white/8">
-                      <span
-                        className="block h-full rounded-full bg-yes"
-                        style={{ width: `${p}%` }}
-                      />
-                    </span>
-                    <span className="text-right font-mono text-[12.5px] font-bold text-foreground">
+                    <span className="relative ml-2 shrink-0 font-mono text-[12.5px] font-bold text-yes">
                       {p}%
                     </span>
                   </div>
