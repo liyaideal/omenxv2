@@ -162,6 +162,7 @@ const LiteContractTrade = () => {
   const { user } = useAuth();
   const { positions, refetch: refetchPositions } = usePositions();
   const { isWatched, toggle } = useWatchlist();
+  const { headingRef, scrolledOut } = useHeadingScrolledOut();
   const pricesCtx = useRealtimePricesOptional();
   const { getConfig, isLoading: boostLoading } = useCategoryBoostConfigs();
   const risk = useRealtimeRiskMetrics();
@@ -430,12 +431,13 @@ const LiteContractTrade = () => {
       </div>
       <div className="mt-2 flex items-start justify-between gap-3">
         <h1
+          ref={headingRef as unknown as React.Ref<HTMLHeadingElement>}
           className="font-display font-bold leading-[1.05] tracking-[-0.02em] text-foreground"
           style={{ fontSize: "clamp(24px, 3.5vw, 34px)" }}
         >
           {event.name}
         </h1>
-        <div className="shrink-0">{WatchStar}</div>
+        {!isMobile && <div className="shrink-0">{WatchStar}</div>}
       </div>
     </div>
   );
@@ -737,10 +739,12 @@ const LiteContractTrade = () => {
       <TooltipProvider>
         <div className="min-h-screen bg-background pb-32">
           <MobileHeader
-            title={categoryLabel}
+            title={event.name}
+            titleHidden={!scrolledOut}
             showLogo={false}
             showBack={true}
             backTo="/events"
+            rightContent={WatchStar}
           />
           <div className="space-y-4 px-4 py-4">
             {isMulti && !resolved && MultiMetaRow}
