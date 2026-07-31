@@ -44,10 +44,30 @@ import {
 } from "@/components/lite/contract/LiteMarketActivity";
 import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
 import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
+import { LiteMarketBoard, type BoardOption } from "@/components/lite/multi/LiteMarketBoard";
+import { LiteCrowdOverview } from "@/components/lite/multi/LiteCrowdOverview";
 import { EmptyState } from "@/components/states";
 
 type EventRow = Tables<"events"> & { options: Tables<"event_options">[] };
 type Side = "yes" | "no";
+
+// Multi-market events trade BOTH sides of every option, but the engine only
+// knows one row per option. The No leg is recorded under a derived label so
+// the two sides stay distinguishable in positions / history. Display layer
+// only — tradingService is untouched.
+const NO_PREFIX = "No: ";
+const noLabelFor = (optionLabel: string) => `${NO_PREFIX}${optionLabel}`;
+const baseOptionLabel = (positionOption: string) =>
+  positionOption.startsWith(NO_PREFIX) ? positionOption.slice(NO_PREFIX.length) : positionOption;
+const positionIsNo = (positionOption: string) => positionOption.startsWith(NO_PREFIX);
+
+const compactUSD = (v: number): string => {
+  if (!isFinite(v) || v <= 0) return "$0";
+  if (v >= 1_000_000_000) return `$${(v / 1_000_000_000).toFixed(1)}B`;
+  if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`;
+  if (v >= 1_000) return `$${(v / 1_000).toFixed(1)}K`;
+  return `$${Math.round(v)}`;
+};
 
 const CATEGORY_LABEL: Record<string, string> = {
   crypto: "Crypto",
@@ -153,6 +173,10 @@ const LiteContractTrade = () => {
   const [authOpen, setAuthOpen] = useState(false);
   const [refetchTick, setRefetchTick] = useState(0);
   const [cashOutOpen, setCashOutOpen] = useState(false);
+  // Multi-market: which option the board / order rail is bound to, and which
+  // held leg the cash-out sheet targets.
+  const [selectedOptId, setSelectedOptId] = useState<string | null>(null);
+  const [cashOutId, setCashOutId] = useState<string | null>(null);
   // Only the FIRST fetch flips the full-page loader; later refetches
   // (post-fill) swap data in place so the page never unmounts.
   const isFirstLoad = useRef(true);
@@ -253,6 +277,29 @@ const LiteContractTrade = () => {
 
   const activity = useMarketActivityRows(event?.name || null, yesOpt?.label || "", refetchTick);
 
+  const isMulti = (event?.options.length ?? 0) > 2;
+  const liveOptions = useMemo(
+    () => (event?.options || []).filter((o) => o.final_price == null),
+    [event],
+  );
+  useEffect(() => {
+    if (!isMulti) return;
+    setSelectedOptId((cur) =>
+      cur && liveOptions.some((o) => o.id === cur) ? cur : (liveOptions[0]?.id ?? null),
+    );
+  }, [isMulti, liveOptions]);
+  const selOpt = useMemo(
+    () =>
+      (event?.options || []).find((o) => o.id === selectedOptId) || liveOptions[0] || null,
+    [event, selectedOptId, liveOptions],
+  );
+
+  // Every open leg on this event (multi events allow several at once).
+  const multiHeld = useMemo(() => {
+    if (!event) return [];
+    return positions.filter((p) => p.productLine === "futures" && p.event === event.name);
+  }, [positions, event]);
+
   const more = useMoreMarkets(event?.category || null, event?.id || "");
 
   const openBuy = useCallback(
@@ -280,6 +327,50 @@ const LiteContractTrade = () => {
   const starred = isWatched(event.id);
   const categoryLabel = CATEGORY_LABEL[String(event.category).toLowerCase()] || event.category;
   const yesPct = Math.max(1, Math.min(99, Math.round(yesLive * 100)));
+
+  // ---- Multi-market derived view state (binary events never read these) ----
+  const selYes = selOpt
+    ? (pricesCtx?.getPrice(selOpt.id) ?? Number(selOpt.price))
+    : 0.5;
+  const selNo = Math.max(0.01, Math.min(0.99, 1 - selYes));
+  const heldOnSelected = selOpt
+    ? multiHeld.find((p) => baseOptionLabel(p.option) === selOpt.label) || null
+    : null;
+  const heldOnSelectedIsNo = heldOnSelected ? positionIsNo(heldOnSelected.option) : false;
+  const oppositeSameOption =
+    isMulti &&
+    heldOnSelected != null &&
+    ((heldOnSelectedIsNo && side === "yes") || (!heldOnSelectedIsNo && side === "no"));
+  const volumeText = `Vol ${compactUSD(Number(event.volume) || 0)}`;
+
+  const boardOptions: BoardOption[] = event.options.map((o) => {
+    const held = multiHeld.find((p) => baseOptionLabel(p.option) === o.label);
+    return {
+      id: o.id,
+      label: o.label,
+      yesPrice: pricesCtx?.getPrice(o.id) ?? Number(o.price),
+      settled: o.final_price != null,
+      outcomeYes: !!o.is_winner,
+      heldSide: held ? (positionIsNo(held.option) ? "no" : "yes") : null,
+    };
+  });
+
+  const selectMarket = (optionId: string, s: Side) => {
+    setSelectedOptId(optionId);
+    setSide(s);
+    if (isMobile) setDrawerOpen(true);
+  };
+
+  const MarketBoard = (
+    <LiteMarketBoard
+      options={boardOptions}
+      volumeText={volumeText}
+      selectedId={selOpt?.id ?? null}
+      selectedSide={side}
+      onSelect={selectMarket}
+      compact={!!isMobile}
+    />
+  );
 
   const heldIsYes =
     heldPos != null &&
@@ -330,6 +421,7 @@ const LiteContractTrade = () => {
     <div>
       <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
         {categoryLabel}
+        {isMulti && ` · ${event.options.length} markets`}
       </div>
       <div className="mt-2 flex items-start justify-between gap-3">
         <h1
