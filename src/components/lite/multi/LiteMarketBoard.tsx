@@ -79,7 +79,10 @@ export const LiteMarketBoard = ({
                 isSelected ? "border-yes/55" : "border-border",
                 o.settled && "opacity-50",
               )}
-              style={{ borderWidth: 1.5 }}
+              // Inline borderWidth overrides the `border-b-0` class, so the
+              // bottom border must be zeroed inline too when expanded —
+              // otherwise a solid --yes/55 line sits between row and chart.
+              style={{ borderWidth: 1.5, ...(expanded ? { borderBottomWidth: 0 } : {}) }}
             >
               {compact ? (
                 <>
