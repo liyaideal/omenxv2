@@ -93,12 +93,11 @@ interface Props {
   showOptionLabel?: boolean;
 }
 
-// Ledger grid: chips align with chips, amounts with amounts, multipliers always shown.
-const ROW_GRID = "grid grid-cols-[minmax(48px,auto)_64px_48px_1fr] items-center gap-x-3";
-// Multi-market ledger grid — frozen order: time | ACTION | context | amount.
-// The option label NEVER leads the row (it reads like a username); it lives in
-// the muted context column together with the boost multiplier.
-const ROW_GRID_MULTI =
+// UNIFIED ledger grid — frozen order for BOTH binary and multi surfaces:
+// time | ACTION ("Backed {side}", market-axis colour) | context (muted) |
+// amount (right). Binary context is the boost only — the page IS the market;
+// multi context prepends the option label. No leading side chip anywhere.
+const ROW_GRID =
   "grid grid-cols-[44px_minmax(72px,auto)_minmax(0,1fr)_64px] items-center gap-x-3";
 
 /** Strips the legacy "No: " display prefix. The prefix is ONLY a fallback side
@@ -134,66 +133,34 @@ export const LiteMarketActivity = ({
     ) : (
       <ul className="space-y-1.5">
         {rows.slice(0, maxRows).map((r) => {
-          if (showOptionLabel) {
-            const legacy = splitMultiLabel(r.label);
-            // `isYes` wins; the legacy prefix only fills in for rows without it.
-            const isYes = r.isYes ?? legacy.isYes;
-            const option = legacy.option;
-            return (
-              <li
-                key={r.id}
-                className={cn(ROW_GRID_MULTI, "rounded-lg px-2 py-1.5 hover:bg-muted/20")}
-              >
-                <span className="font-mono text-[11px] text-muted-foreground">
-                  {relTime(r.createdAt)}
-                </span>
-                <span
-                  className={cn(
-                    "text-[11px] font-semibold",
-                    isYes ? "text-yes" : "text-no",
-                  )}
-                >
-                  Backed {isYes ? yesLabel : noLabel}
-                </span>
-                <span className="min-w-0 truncate text-[11px] text-muted-foreground">
-                  {option}
-                  {" · "}
-                  {r.boost}×
-                </span>
-                <span className="text-right font-mono text-xs text-foreground">
-                  ${r.amount.toFixed(0)}
-                </span>
-              </li>
-            );
-          }
+          const legacy = splitMultiLabel(r.label);
+          // `isYes` wins; the legacy prefix only fills in for rows without it.
+          const isYes = r.isYes ?? (showOptionLabel ? legacy.isYes : false);
+          // Single row renderer — the ONLY difference between surfaces is the
+          // context column: multi names the option, binary shows boost only.
+          const context = showOptionLabel
+            ? `${legacy.option} · ${r.boost}×`
+            : `${r.boost}×`;
           return (
-          <li
-            key={r.id}
-            className={cn(ROW_GRID, "rounded-lg px-2 py-1.5 hover:bg-muted/20")}
-          >
-            <span
-              className={cn(
-                "rounded-md px-1.5 py-0.5 text-center text-[11px] font-semibold",
-                r.isYes ? "bg-yes/13 text-yes" : "bg-no/13 text-no",
-              )}
+            <li
+              key={r.id}
+              className={cn(ROW_GRID, "rounded-lg px-2 py-1.5 hover:bg-muted/20")}
             >
-              {r.isYes ? yesLabel : noLabel}
-            </span>
-            <span className="text-right font-mono text-xs text-foreground">
-              ${r.amount.toFixed(0)}
-            </span>
-            <span
-              className={cn(
-                "text-xs font-mono",
-                r.boost > 1 ? "text-muted-foreground" : "text-muted-foreground/50",
-              )}
-            >
-              {r.boost}×
-            </span>
-            <span className="text-right font-mono text-[11px] text-muted-foreground">
-              {relTime(r.createdAt)}
-            </span>
-          </li>
+              <span className="font-mono text-[11px] text-muted-foreground">
+                {relTime(r.createdAt)}
+              </span>
+              <span
+                className={cn("text-[11px] font-semibold", isYes ? "text-yes" : "text-no")}
+              >
+                Backed {isYes ? yesLabel : noLabel}
+              </span>
+              <span className="min-w-0 truncate font-mono text-[11px] text-muted-foreground">
+                {context}
+              </span>
+              <span className="text-right font-mono text-xs text-foreground">
+                ${r.amount.toFixed(0)}
+              </span>
+            </li>
           );
         })}
       </ul>
