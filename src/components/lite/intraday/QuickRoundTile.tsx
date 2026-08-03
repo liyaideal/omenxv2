@@ -5,6 +5,12 @@ import { useNavigate } from "react-router-dom";
 import { AssetAvatar } from "@/components/lite/AssetAvatar";
 import { RoundPlot, RoundOpenPill } from "./RoundPlot";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   COIN_META,
   Coin,
   QuickEvent,
@@ -193,8 +199,14 @@ export const QuickRoundTile = ({
         className="flex items-center gap-[8px]"
         style={{ padding: "10px 12px 12px" }}
       >
-        <span style={MICRO}>Last 8</span>
-        <span className="flex items-center gap-[3px]">
+        <span style={MICRO}>Last 8 rounds</span>
+        <TooltipProvider delayDuration={120}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span
+                className="flex items-center gap-[3px]"
+                aria-label="Last 8 rounds — ▲ Up won · ▼ Down won"
+              >
           {Array.from({ length: 8 }).map((_, i) => {
             const v = last8[i - (8 - last8.length)];
             return (
@@ -214,7 +226,14 @@ export const QuickRoundTile = ({
               />
             );
           })}
-        </span>
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              Last 8 rounds — <span style={{ color: "#33D6FF" }}>▲</span> Up won ·{" "}
+              <span style={{ color: "#CFFF4A" }}>▼</span> Down won
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <span className="flex-1" />
         <span className="font-display" style={{ fontSize: 11, color: "#6B7280" }}>
           {compactUsd(event?.volume ?? 0)} traded
