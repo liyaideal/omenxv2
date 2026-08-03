@@ -615,14 +615,15 @@ export const IntradayStageCard = ({
     if (!future) return null;
     const d = new Date(future.start_date!);
     const market = resolveStockMarket(future);
-    return `Next open ${d.toLocaleDateString(undefined, { weekday: "short" })} ${formatMarketTime(d, market)}`;
+    return `Next open ${d.toLocaleDateString(undefined, { weekday: "short" })} ${formatMarketTime(d, market)} ${market.label}`;
   }, [stockRows]);
 
   const closeLabel = useMemo(() => {
     const first = openStocks[0];
     if (!first) return "";
     const market = resolveStockMarket(first);
-    return `${market.label} closes ${first.end_date ? formatMarketTime(new Date(first.end_date), market) : ""}`;
+    const where = market.key === "hk" ? "HK" : "US";
+    return `${where} closes ${first.end_date ? formatMarketTime(new Date(first.end_date), market) : ""} ${market.label}`;
   }, [openStocks]);
 
   const cells: CoinCell[] = COINS.map((coin) => ({
