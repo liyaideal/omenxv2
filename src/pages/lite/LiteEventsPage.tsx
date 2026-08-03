@@ -362,7 +362,7 @@ const LiteEventsPage = () => {
                 letterSpacing: "-0.01em",
               }}
             >
-              Events
+              Will it happen?
             </span>
             <span style={{ fontSize: 12, color: "#6B7280" }}>
               {filtered.length} open
