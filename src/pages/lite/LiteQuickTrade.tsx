@@ -23,7 +23,12 @@ import {
   useMarketActivityRows,
 } from "@/components/lite/contract/LiteMarketActivity";
 import { AssetAvatar } from "@/components/lite/AssetAvatar";
-import { RoundPlot } from "@/components/lite/intraday/RoundPlot";
+import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
+import {
+  SpotSentimentBar,
+  SpotSettlementRail,
+  SpotYourPosition,
+} from "@/components/lite/trade/SpotBlocks";
 import {
   COINS,
   COIN_META,
@@ -341,60 +346,49 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   );
 
   const Chart = (
-    <div
-      className="relative"
-      style={{
-        marginTop: 16,
-        borderRadius: 14,
-        overflow: "hidden",
-        border: "1px solid rgba(255,255,255,.06)",
-      }}
-    >
-      {base != null && price != null ? (
-        <RoundPlot
-          eventId={event.id}
-          basePrice={base}
-          currentPrice={price}
-          height={230}
-          padTop={54}
-        />
-      ) : (
-        <div style={{ height: 230, background: "#0C1013" }} />
-      )}
-      <div className="absolute" style={{ left: 12, top: 10 }}>
-        <div
-          className="font-display"
-          style={{ fontSize: 9.5, letterSpacing: ".1em", color: "#33D6FF", textTransform: "uppercase" }}
-        >
-          ▲ Settles up above this line
-        </div>
-        <div style={{ fontSize: 11, color: "#6B7280", marginTop: 2 }}>
-          Round open ${openText}
-        </div>
-      </div>
-      <div
-        className="font-display absolute"
-        style={{
-          right: 12,
-          top: 10,
-          fontSize: 9.5,
-          letterSpacing: ".1em",
-          color: "#FF8A3D",
-          textTransform: "uppercase",
-        }}
-      >
-        Settles {settlesAt}
-      </div>
-      <div
-        className="absolute"
-        style={{
-          right: "3%",
-          top: 0,
-          bottom: 0,
-          borderLeft: "1.5px dashed rgba(255,138,61,.55)",
-        }}
-      />
-    </div>
+    <LiteStockChart
+      ticker={meta.ticker}
+      basePrice={base}
+      currentPrice={price}
+      upOdds={upPrice}
+      side={side}
+      upLabel="Up"
+      downLabel="Down"
+      endDate={event.end_date}
+      currency="$"
+    />
+  );
+
+  const SentimentBar = (
+    <SpotSentimentBar
+      yesLabel="Up"
+      noLabel="Down"
+      yesPct={upPrice * 100}
+      volText={compactUsd(event.volume)}
+    />
+  );
+
+  const openedAt = event.start_date ? utcHHMM(new Date(event.start_date)) : "--:--";
+  const SettlementRail = (
+    <SpotSettlementRail
+      blocked={remaining <= 0}
+      tradingNow={remaining > 0}
+      nodes={[
+        { key: "opened", label: "Round opened", time: `${openedAt} UTC` },
+        {
+          key: "now",
+          label: remaining <= 0 ? "Closed" : "Trading NOW",
+          time: "",
+          now: true,
+        },
+        { key: "closes", label: "Closes", time: settlesAt },
+        {
+          key: "settles",
+          label: "Settles instantly",
+          time: "next round starts right away",
+        },
+      ]}
+    />
   );
 
   const PickChip = (s: Side) => {
