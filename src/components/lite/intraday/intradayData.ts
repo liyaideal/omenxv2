@@ -281,6 +281,33 @@ export const synthSeries = (
   return out;
 };
 
+/** One pass of a 3-point moving average (endpoints preserved). */
+const smoothOnce = (xs: number[]): number[] =>
+  xs.map((v, i) =>
+    i === 0 || i === xs.length - 1 ? v : (xs[i - 1] + v + xs[i + 1]) / 3,
+  );
+
+/**
+ * Smooth deterministic random walk used by the intraday tile plots.
+ * Per-step relative sigma, optional per-step drift, then two smoothing passes.
+ */
+export const smoothWalk = (
+  seed: number,
+  start: number,
+  points: number,
+  sigma: number,
+  drift = 0,
+): number[] => {
+  const out: number[] = [];
+  let v = start;
+  for (let i = 0; i < points; i += 1) {
+    const step = (rnd(seed + i * 2.37) - 0.5) * 2 * sigma + drift;
+    v = v * (1 + step);
+    out.push(v);
+  }
+  return smoothOnce(smoothOnce(out));
+};
+
 /** Live-ish price for a coin round: base_price nudged by the current odds. */
 export const derivedPrice = (
   base: number | null,
