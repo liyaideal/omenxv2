@@ -20,3 +20,6 @@ type: feature
 
 ## Quick trade page
 `/spot?event=…` branches on the subtype into `src/pages/lite/LiteQuickTrade.tsx`: eyebrow `Crypto · Intraday`, price line `$X · ▲ +Y% today · Vol $Z`, ROUND switcher navigating (replace) to the sibling timeframe's current event, round tape (`ROUND #{n}` + last 10 settled squares + live countdown capsule + dashed NEXT), settle-line chart (price path never drawn past the settle marker), question card + reused `LiteOrderPanel`. Auto-rebinds to the next round when the bound one resolves. `?side=up|down` preselects direction on `/spot`.
+
+## Rebase onto the spot skeleton (2026-08-03)
+Per CHK-8, `LiteQuickTrade` is a variant branch of the spot trade page, not a separate page: it uses `LiteStockChart` (the settle-line `RoundPlot` overlay was dropped) plus the shared blocks from `src/components/lite/trade/SpotBlocks.tsx` — `SpotSentimentBar`, `SpotSettlementRail` (quick-round nodes), `SpotYourPosition` — alongside the round switcher, round tape, rule card, `LiteMarketActivity` and "Also live now". `RoundPlot` now lives **only** in the Intraday band tiles.
