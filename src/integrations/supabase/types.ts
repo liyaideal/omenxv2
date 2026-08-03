@@ -461,6 +461,7 @@ export type Database = {
         Row: {
           base_price: number | null
           category: string
+          close_price: number | null
           created_at: string
           description: string | null
           end_date: string | null
@@ -491,6 +492,7 @@ export type Database = {
         Insert: {
           base_price?: number | null
           category?: string
+          close_price?: number | null
           created_at?: string
           description?: string | null
           end_date?: string | null
@@ -521,6 +523,7 @@ export type Database = {
         Update: {
           base_price?: number | null
           category?: string
+          close_price?: number | null
           created_at?: string
           description?: string | null
           end_date?: string | null
@@ -1710,8 +1713,14 @@ export type Database = {
           referrer_id: string
         }[]
       }
+      roll_crypto_quick_rounds: { Args: never; Returns: Json }
       roll_daily_hk_stock_events: { Args: never; Returns: number }
       roll_daily_stock_events: { Args: never; Returns: number }
+      settle_prior_stock_session: {
+        Args: { _subtype: string }
+        Returns: number
+      }
+      settle_spot_event: { Args: { p_event_id: string }; Returns: number }
       sim_market_activity_tick: { Args: never; Returns: number }
       sim_price_tick: { Args: never; Returns: number }
     }
