@@ -1462,3 +1462,33 @@ Restraint over variety: the palette discipline (paper + charcoal + tan + one acc
 | Rendering | Card tiles use `CardArtTile` (`src/components/lite/CardArtTile.tsx`): a real `<img>` with `loading="lazy"` / `decoding="async"` and fixed `840×360` intrinsic size, scrim as an absolute overlay. Never `background-image` — it defeats lazy loading. |
 | Priority | The first 4 cards in a list render `loading="eager"` + `fetchpriority="high"`; everything below the fold stays lazy. |
 | Backfill | `optimize-event-art` edge function converts any legacy PNG in the bucket, re-signs the URL and fills `image_blur`. |
+
+---
+
+## §Addendum 2026-08-03 · Intraday band + quick rounds (LOCKED)
+
+### Band doctrine
+All **intraday** events (`CRYPTO_QUICK_UPDOWN_SPOT`, `US_STOCK_DAILY_UPDOWN_SPOT`, `HK_STOCK_DAILY_UPDOWN_SPOT`) live **only** in the orange Intraday band on the Lite list (`src/components/lite/intraday/IntradayBand.tsx`), mounted between the filter row and the card grid. The main grid **excludes every event with those subtypes** — zero intraday cards in any sector. The `◷ Intraday` trait chip is **removed** (mobile and desktop): the filter row is **topic control + Boost** only. Boost ON hides the whole band; the band renders when sector ∈ {all, crypto, stocks} and Boost is OFF.
+
+Container: 1px border `rgba(255,138,61,.18)`, bg `rgba(255,138,61,.03)`, radius 16, 3px `#FF8A3D` left rule.
+
+| Part | Contract |
+| --- | --- |
+| Header | eyebrow `● Live now` (orange 10.5px caps) · title `Intraday` (Space Grotesk 700, 27px desktop / 19px mobile) · teach line; mobile shows the selected round-window countdown top-right |
+| Quick rounds | sub-header `Quick rounds` + `crypto · rolls into the next round on settle`; one shared segmented dial `[5m 15m 1h 4h 1D]` (`ROUND WINDOW · ALL THREE`) drives **all three coin tiles**; tile = avatar + price + CLOSES IN countdown, 120px plot with round-open dashed baseline, Up/Down cent chips, `LAST 8` outcome bars, current-event volume |
+| Stocks closing today | sub-header + `one round per name · settles at the closing bell`; **session tabs** (US · Closes 4:00 PM ET / Hong Kong · Closes 4:00 PM HKT) — only sessions with live events are listed, never both row sets at once, auto-select the session closest to close; rows link to `/spot?event={id}&side={up|down}` |
+
+### Badge doctrine amendment
+The `Intraday · {Xh Ym}` badge **no longer appears in the list grid** — no intraday event reaches the grid. The badge rules stay defined in `liteListBadges.ts` for any future intraday event that is not band-homed. `sortLiteLiveList()` is unaffected.
+
+### Asset avatar token (`src/components/lite/AssetAvatar.tsx`)
+Always a circle. **34px** standard / **30px** compact, 1px border `rgba(255,255,255,.08)`.
+- **Crypto:** brand-colour fill + glyph — BTC `#F7931A` `₿` white, ETH `#7A86A8` `Ξ` white, SOL `linear-gradient(135deg,#9945FF,#14F195)` `S` dark ink.
+- **Equity:** `#F2F3F5` fill + **static repo logo** (object-fit contain, 6px padding); fallback = ticker monogram (Space Grotesk 700, `#101216`). No runtime third-party logo APIs.
+
+### Quick rounds engine (backend)
+Slug/id `crypto-{coin}-updown-{tf}-{YYYYMMDDHHMM}` (UTC period start), coins btc/eth/sol × tf 5m/15m/1h/4h/1d, subtype `CRYPTO_QUICK_UPDOWN_SPOT`, side labels Up/Down, `base_price` = round open.
+`roll_crypto_quick_rounds()` (cron `roll-crypto-quick-rounds`, every minute): **settles** past-due rounds with a synthetic close (timeframe-scaled volatility) picking the Up/Down winner and paying spot positions via `settle_spot_event(p_event_id)`; **opens** the current period at the prior settled close; **prunes** resolved rounds older than 72h with no positions. `roll_daily_stock_events` / `roll_daily_hk_stock_events` now settle the prior session **with payout** through the same `settle_spot_event` before opening the new day.
+
+### Quick trade page (`src/pages/lite/LiteQuickTrade.tsx`)
+`/spot?event=…` branches on subtype `CRYPTO_QUICK_UPDOWN_SPOT` into LiteQuickTrade: eyebrow `Crypto · Intraday`, price line `$X · ▲ +Y% today · Vol $Z`, **ROUND switcher** `[5m 15m 1h 4h 1D]` that navigates (replace) to the same coin's current event of that timeframe, **round tape** (`ROUND #{n}` + last 10 settled outcome squares + live orange countdown capsule + dashed `NEXT` ghost), **settle-line chart** (dashed round-open baseline, orange dashed vertical settle marker; the price path never draws past the marker), and a right-rail question card feeding the **reused** `LiteOrderPanel`. When the bound round resolves the page auto-rebinds to the next round of the same coin+tf. `/spot?...&side=up|down` preselects the direction on both the quick and stock spot pages.
