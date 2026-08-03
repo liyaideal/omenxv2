@@ -174,7 +174,7 @@ export const formatEtTime = (date: Date): string =>
 // operating on real timestamps and is market-agnostic.
 // -----------------------------------------------------------------
 export interface StockMarket {
-  key: "us" | "hk";
+  key: "us" | "hk" | "crypto";
   /** IANA timezone used to render session labels. */
   tz: string;
   /** Short session label shown next to times ("ET" / "HKT"). */
@@ -205,12 +205,24 @@ export const HK_STOCK_MARKET: StockMarket = {
   closeLabel: "4:00 PM HKT",
 };
 
+/** Crypto quick rounds settle on UTC period boundaries — no exchange session. */
+export const CRYPTO_QUICK_MARKET: StockMarket = {
+  key: "crypto",
+  tz: "UTC",
+  label: "UTC",
+  currency: "$",
+  openLabel: "Round open",
+  closeLabel: "Round close",
+};
+
 /** Derive the market from an event id prefix or its event_subtype. */
 export const resolveStockMarket = (
   event?: { id?: string | null; event_subtype?: string | null } | null,
 ): StockMarket => {
   const id = (event?.id ?? "").toLowerCase();
   const subtype = (event?.event_subtype ?? "").toUpperCase();
+  if (subtype === "CRYPTO_QUICK_UPDOWN_SPOT" || id.startsWith("crypto-"))
+    return CRYPTO_QUICK_MARKET;
   if (id.startsWith("hk-") || subtype.startsWith("HK_")) return HK_STOCK_MARKET;
   return US_STOCK_MARKET;
 };
