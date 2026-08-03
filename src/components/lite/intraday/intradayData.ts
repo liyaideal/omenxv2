@@ -114,7 +114,7 @@ export const downOptionOf = (e: QuickEvent | null | undefined) => {
 };
 
 /** Live quick rounds + recent settled history, grouped by coin+tf. */
-export const useQuickRounds = (enabled: boolean) => {
+export const useQuickRounds = (enabled: boolean, refreshKey: number = 0) => {
   const [live, setLive] = useState<QuickEvent[]>([]);
   const [settled, setSettled] = useState<QuickEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -157,7 +157,7 @@ export const useQuickRounds = (enabled: boolean) => {
     return () => {
       alive = false;
     };
-  }, [enabled, tick]);
+  }, [enabled, tick, refreshKey]);
 
   const currentFor = useMemo(() => {
     const map = new Map<string, QuickEvent>();
