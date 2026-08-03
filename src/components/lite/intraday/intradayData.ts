@@ -127,6 +127,25 @@ export const useQuickRounds = (enabled: boolean, refreshKey: number = 0) => {
     return () => clearInterval(t);
   }, [enabled]);
 
+  // Expiry watchdog — the moment a bound round's end_date passes, refetch once
+  // so the tiles roll to the next round instead of sitting at 00:00.
+  useEffect(() => {
+    if (!enabled || live.length === 0) return;
+    let fired = false;
+    const t = setInterval(() => {
+      if (fired) return;
+      const now = Date.now();
+      const expired = live.some(
+        (e) => e.end_date && new Date(e.end_date).getTime() <= now,
+      );
+      if (expired) {
+        fired = true;
+        setTick((n) => n + 1);
+      }
+    }, 1000);
+    return () => clearInterval(t);
+  }, [enabled, live]);
+
   useEffect(() => {
     if (!enabled) return;
     let alive = true;
@@ -279,6 +298,33 @@ export const synthSeries = (
     out.push(base + (end - base) * p + drift + wave);
   }
   return out;
+};
+
+/** One pass of a 3-point moving average (endpoints preserved). */
+const smoothOnce = (xs: number[]): number[] =>
+  xs.map((v, i) =>
+    i === 0 || i === xs.length - 1 ? v : (xs[i - 1] + v + xs[i + 1]) / 3,
+  );
+
+/**
+ * Smooth deterministic random walk used by the intraday tile plots.
+ * Per-step relative sigma, optional per-step drift, then two smoothing passes.
+ */
+export const smoothWalk = (
+  seed: number,
+  start: number,
+  points: number,
+  sigma: number,
+  drift = 0,
+): number[] => {
+  const out: number[] = [];
+  let v = start;
+  for (let i = 0; i < points; i += 1) {
+    const step = (rnd(seed + i * 2.37) - 0.5) * 2 * sigma + drift;
+    v = v * (1 + step);
+    out.push(v);
+  }
+  return smoothOnce(smoothOnce(out));
 };
 
 /** Live-ish price for a coin round: base_price nudged by the current odds. */
