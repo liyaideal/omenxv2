@@ -1716,6 +1716,10 @@ export type Database = {
       roll_crypto_quick_rounds: { Args: never; Returns: Json }
       roll_daily_hk_stock_events: { Args: never; Returns: number }
       roll_daily_stock_events: { Args: never; Returns: number }
+      settle_prior_stock_session: {
+        Args: { _subtype: string }
+        Returns: number
+      }
       settle_spot_event: { Args: { p_event_id: string }; Returns: number }
       sim_market_activity_tick: { Args: never; Returns: number }
       sim_price_tick: { Args: never; Returns: number }
