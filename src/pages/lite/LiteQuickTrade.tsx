@@ -462,7 +462,7 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   ) : null;
 
   const RuleCard = (
-    <div className="mt-4 flex gap-3 rounded-2xl border border-border bg-card p-4 text-xs">
+    <div className="flex gap-3 rounded-2xl border border-border bg-card p-4 text-xs">
       <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
       <p className="text-muted-foreground">
         Settles Up if {meta.ticker}'s price at the end of the round is above the round open
@@ -474,14 +474,12 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   );
 
   const MarketActivity = (
-    <div className="mt-4">
-      <LiteMarketActivity
-        rows={activity}
-        yesLabel="Up"
-        noLabel="Down"
-        maxRows={isMobile ? 4 : 8}
-      />
-    </div>
+    <LiteMarketActivity
+      rows={activity}
+      yesLabel="Up"
+      noLabel="Down"
+      maxRows={isMobile ? 4 : 8}
+    />
   );
 
   const AlsoLiveNow =
@@ -515,35 +513,20 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
       </div>
     );
 
+  const heldIsUp = heldPos ? heldPos.optionId === up.id : false;
   const Position = heldPos ? (
-    <div
-      style={{
-        background: "#131519",
-        border: "1px solid rgba(255,255,255,.06)",
-        borderRadius: 15,
-        padding: 14,
-        marginTop: 14,
-      }}
-    >
-      <div className="flex items-center justify-between">
-        <span className="font-display" style={{ fontSize: 13, fontWeight: 700 }}>
-          {heldPos.option} · {heldPos.sizeDisplay} shares
-        </span>
-        <span
-          className="font-mono"
-          style={{ fontSize: 13, color: heldPos.pnl.startsWith("-") ? "#FF5A5F" : "#3FD68C" }}
-        >
-          {heldPos.pnl}
-        </span>
-      </div>
-      <button
-        type="button"
-        onClick={() => setCashOutOpen(true)}
-        className="mt-3 h-9 w-full rounded-lg bg-muted text-xs font-semibold hover:bg-muted/80"
-      >
-        Cash out · ${(heldPos.markPriceNum * heldPos.sizeNum).toFixed(2)}
-      </button>
-    </div>
+    <SpotYourPosition
+      isYesSide={heldIsUp}
+      sideLabel={heldIsUp ? "Up" : "Down"}
+      sizeDisplay={heldPos.sizeDisplay}
+      pnl={heldPos.pnl}
+      pnlPercent={heldPos.pnlPercent}
+      currentValue={heldPos.markPriceNum * heldPos.sizeNum}
+      avgCost={heldPos.entryPrice}
+      ifWinsLabel={heldIsUp ? "If Up wins" : "If Down wins"}
+      ifWinsValue={`$${heldPos.sizeNum.toFixed(0)}`}
+      onCashOut={() => setCashOutOpen(true)}
+    />
   ) : null;
 
   // ---------- mobile ----------
