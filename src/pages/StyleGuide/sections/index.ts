@@ -15,6 +15,7 @@ export { WorldCupSection } from "./WorldCupSection";
 export { SpotSection } from "./SpotSection";
 export { LiteSpotSection } from "./LiteSpotSection";
 export { LiteSection } from "./LiteSection";
+export { LiteAllStageSection } from "./LiteAllStageSection";
 export { ApiSection } from "./ApiSection";
 export { StatesSection } from "./StatesSection";
 export { EmptyStatesSection } from "./EmptyStatesSection";
