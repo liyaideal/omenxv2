@@ -117,7 +117,10 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   const heldIndex = useMemo(() => {
     if (!event) return -1;
     return positions.findIndex(
-      (p) => p.productLine === "spot" && p.event === event.name,
+      (p) =>
+        p.productLine === "spot" &&
+        typeof p.optionId === "string" &&
+        p.optionId.startsWith(`${event.id}-`),
     );
   }, [positions, event]);
   const heldPos = heldIndex >= 0 ? positions[heldIndex] : null;
@@ -578,6 +581,7 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
           <LiteOrderPanel
             {...orderPanelProps}
             variant="desktop"
+            hideSideSelector
             onFilled={() => setRefetchTick((n) => n + 1)}
           />
         </aside>
