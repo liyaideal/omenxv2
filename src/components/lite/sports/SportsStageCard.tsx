@@ -278,10 +278,12 @@ const UpcomingRow = ({
 export const SportsStageCard = ({
   matches,
   variant = "stage",
+  onOpenAll,
 }: {
   matches: SportsMatch[];
   /** "stage" = right column of the All view. "full" = Sports category view. */
   variant?: "stage" | "full";
+  onOpenAll?: () => void;
 }) => {
   const navigate = useNavigate();
   const [bucket, setBucket] = useState("all");
@@ -429,14 +431,18 @@ export const SportsStageCard = ({
           className="flex flex-col gap-[7px]"
           style={{ padding: "12px 18px 14px", borderTop: "1px solid #1D2026" }}
         >
-          <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={onOpenAll}
+            className="flex items-center justify-between"
+          >
             <span style={{ fontSize: 12, color: "#9AA1AC" }}>
               All days mixed · newest kickoff first
             </span>
             <span style={{ fontSize: 12, color: "#F2F3F5", fontWeight: 700 }}>
               All {matches.length} matches →
             </span>
-          </div>
+          </button>
           <span style={{ fontSize: 11, color: "#6B7280" }}>
             {next
               ? `Next kickoff ${kickoffLabel(next.kickoff).time} · ${tomorrowCount} more matches tomorrow`
