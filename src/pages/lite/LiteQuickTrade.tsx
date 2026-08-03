@@ -568,7 +568,10 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
           {RoundSwitcher}
           {Tape}
           {Chart}
+          {RuleCard}
           {Position}
+          {MarketActivity}
+          {AlsoLiveNow ? <div className="mt-4">{AlsoLiveNow}</div> : null}
           {CashOut}
         </div>
 
@@ -643,7 +646,9 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
           {RoundSwitcher}
           {Tape}
           {Chart}
+          {RuleCard}
           {Position}
+          {MarketActivity}
           {CashOut}
         </div>
         <aside className="space-y-4">
@@ -654,6 +659,7 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
             hideSideSelector
             onFilled={() => setRefetchTick((n) => n + 1)}
           />
+          {AlsoLiveNow}
         </aside>
       </div>
       <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
