@@ -46,6 +46,8 @@ import {
 import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader";
 import type { Tables } from "@/integrations/supabase/types";
 import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
+import LiteQuickTrade from "@/pages/lite/LiteQuickTrade";
+import { QUICK_SUBTYPE } from "@/components/lite/intraday/intradayData";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
@@ -136,6 +138,7 @@ const useOtherStocks = (currentEventId: string) => {
 const LiteSpotTrade = () => {
   const [params] = useSearchParams();
   const eventId = params.get("event") || "";
+  const sideParam = params.get("side");
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { user } = useAuth();
@@ -149,6 +152,13 @@ const LiteSpotTrade = () => {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [side, setSide] = useState<Side>("yes");
+
+  // Deep links may preselect a direction (`&side=up|down`).
+  useEffect(() => {
+    if (sideParam === "up") setSide("yes");
+    else if (sideParam === "down") setSide("no");
+  }, [sideParam]);
+
   const [amount, setAmount] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
