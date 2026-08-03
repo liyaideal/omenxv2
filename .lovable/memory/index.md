@@ -9,6 +9,7 @@
 - **Edge Functions:** Always use POST with parameters in request body.
 - **Balances:** Total Equity = `spot_balance + balance` (no unrealized PnL). 合约扣款只动 `balance`。Trial Bonus 已于 2026-07-21 全站下线。
 - **Binary Events:** 'Yes-only' model. Convert 'No Long' -> 'Yes Short' & 'No Short' -> 'Yes Long'.
+- **CHK-8 交易页纪律:** 全站只有两个交易页 `/trade`（合约）与 `/spot`（现货，含快轮同骨架分支）。新品类/新功能只能在这两个骨架内增删模块，复用 SpotBlocks 与 LiteStockChart/LiteContractChart；禁止新建交易页或新图表视觉。详见 single-trade-page-discipline。
 - **Wallets:** No Web3 connection flow. Use manual 'Saved Addresses' (Address Book) system.
 - **Database:** `option_id` is the primary key for tracking prices.
 - **Grid Cards:** Only Style B (MarketCardB) exists. Style A and C were removed after community vote.
@@ -147,4 +148,5 @@
 - [Lite list badges + sort](mem://design/lite-list-badges-and-sort) — 两轨列表 badge（Ends soon / New / Trending + Boost）与 Live 列表三步排序；阈值只在 src/lib/liteListBadges.ts
 - [Event art direction](mem://design/event-art-direction) — Locked lynx-IP illustration rules + generate-event-image pipeline for /events card images
 - [Lite intraday band](mem://design/lite-intraday-band) — 所有 intraday 事件只在橙色 Intraday band 里；主 grid 排除；Intraday chip 已删；AssetAvatar 规范
+- [CHK-8 single trade-page discipline](mem://product/single-trade-page-discipline) — 只有 /trade 与 /spot 两个交易页，新品类以模块增删实现
 - [Crypto quick rounds](mem://features/crypto-quick-rounds) — 3 币 × 5 周期滚动 up/down spot 轮次、roll-crypto-quick-rounds cron、settle_spot_event 派彩、LiteQuickTrade 页面
