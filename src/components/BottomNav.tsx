@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, BarChart3, TrendingUp, User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, Ticket, KeyRound } from "lucide-react";
+import { Home, BarChart3, TrendingUp, User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, Ticket, KeyRound, Compass, PieChart } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthSheet } from "@/components/auth/AuthSheet";
@@ -17,6 +17,13 @@ const navItems = [
   { icon: BarChart3, label: "Events", path: "/events", disabled: false },
   { icon: User, label: "Sports", path: "__sports__", disabled: false, featured: true, external: true },
   { icon: TrendingUp, label: "Trade", path: "/trade", disabled: false },
+];
+
+// Lite surface: Markets / Portfolio / Wallet (+ shared Me button)
+const liteNavItems = [
+  { icon: Compass, label: "Markets", path: "/events" },
+  { icon: PieChart, label: "Portfolio", path: "/portfolio" },
+  { icon: Wallet, label: "Wallet", path: "/wallet" },
 ];
 
 // Haptic feedback utility
@@ -57,10 +64,48 @@ export const BottomNav = () => {
     return location.pathname === path;
   };
 
+  const isLite = surface === "lite";
+
+  const isLiteActive = (path: string) => {
+    const p = location.pathname;
+    if (path === "/events") {
+      return (
+        p === "/events" ||
+        p.startsWith("/resolved") ||
+        p.startsWith("/trade") ||
+        p.startsWith("/spot")
+      );
+    }
+    return p === path;
+  };
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/50 px-4 py-3 pb-6 z-[200]">
       <div className="flex justify-around items-end max-w-md mx-auto">
-        {navItems.map((item) => {
+        {isLite
+          ? liteNavItems.map((item) => {
+              const active = isLiteActive(item.path);
+              return (
+                <button
+                  key={item.path}
+                  onClick={() => {
+                    triggerHaptic('light');
+                    navigate(item.path, { replace: true });
+                  }}
+                  className={`flex flex-col items-center gap-1 transition-all duration-300 ${
+                    active
+                      ? "text-primary scale-110"
+                      : "text-muted-foreground scale-100 hover:scale-105"
+                  }`}
+                >
+                  <item.icon strokeWidth={1.75} className={`w-5 h-5 transition-all duration-300 ${active ? "text-primary" : ""}`} />
+                  <span className={`text-xs transition-all duration-300 ${active ? "font-semibold" : "font-medium"}`}>
+                    {item.label}
+                  </span>
+                </button>
+              );
+            })
+          : navItems.map((item) => {
           const active = isActive(item.path);
           const isFeatured = item.featured;
           
