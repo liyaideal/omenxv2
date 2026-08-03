@@ -3,7 +3,7 @@
 // Left 62% = history, right 38% = the current round region.
 // ============================================================
 import { useMemo } from "react";
-import { seedFromId, synthSeries } from "./intradayData";
+import { seedFromId, smoothWalk } from "./intradayData";
 
 interface Props {
   eventId: string;
@@ -13,11 +13,34 @@ interface Props {
   height?: number;
   /** Reserve vertical room so the overlay labels never sit on the path. */
   padTop?: number;
+  /** Up-side price (0–1) — biases the current-round segment's drift. */
+  upOdds?: number;
   className?: string;
 }
 
-const HIST_POINTS = 38;
-const CUR_POINTS = 24;
+const HIST_POINTS = 48;
+const CUR_POINTS = 20;
+const ZONE = 0.62;
+const END_X = 0.97;
+
+/** Catmull-Rom → cubic bezier path through the given points. */
+const smoothPath = (pts: { x: number; y: number }[]): string => {
+  if (pts.length === 0) return "";
+  if (pts.length === 1) return `M ${pts[0].x} ${pts[0].y}`;
+  let d = `M ${pts[0].x.toFixed(2)} ${pts[0].y.toFixed(2)}`;
+  for (let i = 0; i < pts.length - 1; i += 1) {
+    const p0 = pts[i - 1] ?? pts[i];
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const p3 = pts[i + 2] ?? p2;
+    const c1x = p1.x + (p2.x - p0.x) / 6;
+    const c1y = p1.y + (p2.y - p0.y) / 6;
+    const c2x = p2.x - (p3.x - p1.x) / 6;
+    const c2y = p2.y - (p3.y - p1.y) / 6;
+    d += ` C ${c1x.toFixed(2)} ${c1y.toFixed(2)}, ${c2x.toFixed(2)} ${c2y.toFixed(2)}, ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`;
+  }
+  return d;
+};
 
 export const RoundPlot = ({
   eventId,
@@ -26,55 +49,70 @@ export const RoundPlot = ({
   currency = "$",
   height = 120,
   padTop = 26,
+  upOdds = 0.5,
   className,
 }: Props) => {
   const seed = seedFromId(eventId);
-  const up = currentPrice >= basePrice;
-
-  const { histPath, curPath, baselineY, viewW, viewH } = useMemo(() => {
+  const { histD, curD, baselineY, lastPt, up, viewW, viewH } = useMemo(() => {
     const w = 300;
     const h = height;
-    const amp = Math.max(Math.abs(basePrice) * 0.0022, 0.01);
-    const hist = synthSeries(seed, basePrice * 0.9985, basePrice, HIST_POINTS, amp);
-    const cur = synthSeries(seed + 11, basePrice, currentPrice, CUR_POINTS, amp);
+    const sigma = 0.0006;
+    // History walks up to the round open, current segment drifts with the odds.
+    const histRaw = smoothWalk(seed, basePrice, HIST_POINTS, sigma);
+    const histShift = basePrice - histRaw[histRaw.length - 1];
+    const hist = histRaw.map((v) => v + histShift);
+    const drift = (upOdds - 0.5) * 0.0006;
+    const curRaw = smoothWalk(seed + 11, basePrice, CUR_POINTS, sigma, drift);
+    const curShift = basePrice - curRaw[0];
+    const cur = curRaw.map((v) => v + curShift);
+
     const all = [...hist, ...cur];
-    const min = Math.min(...all, basePrice);
-    const max = Math.max(...all, basePrice);
-    const span = max - min || 1;
-    const top = padTop;
-    const bottom = h - 14;
-    const yOf = (v: number) => bottom - ((v - min) / span) * (bottom - top);
-    const total = HIST_POINTS + CUR_POINTS - 1;
-    // The settle marker sits at 97% of the width; the plotted path must end
-    // exactly there so the price never renders past "SETTLES {HH:MM}".
-    const settleX = w * 0.97;
-    const xOf = (i: number) => (i / total) * settleX;
-    const pts = (vals: number[], offset: number) =>
-      vals.map((v, i) => `${xOf(i + offset).toFixed(2)},${yOf(v).toFixed(2)}`).join(" ");
+    const maxDev = Math.max(...all.map((v) => Math.abs(v - basePrice)));
+    const halfRange = Math.max(maxDev, Math.abs(basePrice) * 0.00175) || 1;
+    const halfBox = (h * 0.58) / 2;
+    const mid = h / 2;
+    const yOf = (v: number) => mid - ((v - basePrice) / halfRange) * halfBox;
+
+    const zoneX = w * ZONE;
+    const endX = w * END_X;
+    const histPts = hist.map((v, i) => ({
+      x: (i / (HIST_POINTS - 1)) * zoneX,
+      y: yOf(v),
+    }));
+    const curPts = cur.map((v, i) => ({
+      x: zoneX + (i / (CUR_POINTS - 1)) * (endX - zoneX),
+      y: yOf(v),
+    }));
+    const last = curPts[curPts.length - 1];
+    const lead = cur[cur.length - 1] >= basePrice;
     return {
-      histPath: pts(hist, 0),
-      curPath: pts(cur, HIST_POINTS - 1),
-      baselineY: yOf(basePrice),
+      histD: smoothPath(histPts),
+      curD: smoothPath(curPts),
+      baselineY: mid,
+      lastPt: last,
+      up: lead,
       viewW: w,
       viewH: h,
     };
-  }, [seed, basePrice, currentPrice, height, padTop]);
+  }, [seed, basePrice, currentPrice, height, padTop, upOdds]);
+
+  const curColor = up ? "#33D6FF" : "#CFFF4A";
 
   return (
-    <svg
-      className={className}
-      viewBox={`0 0 ${viewW} ${viewH}`}
-      preserveAspectRatio="none"
-      width="100%"
-      height={height}
-      style={{ display: "block", background: "#0C1013" }}
-      aria-hidden="true"
-    >
+    <div className={className} style={{ position: "relative" }}>
+      <svg
+        viewBox={`0 0 ${viewW} ${viewH}`}
+        preserveAspectRatio="none"
+        width="100%"
+        height={height}
+        style={{ display: "block", background: "#0C1013" }}
+        aria-hidden="true"
+      >
       {/* current-round region */}
       <rect
-        x={viewW * 0.62}
+        x={viewW * ZONE}
         y={0}
-        width={viewW * 0.38}
+        width={viewW * (1 - ZONE)}
         height={viewH}
         fill="rgba(255,255,255,.035)"
       />
@@ -88,14 +126,56 @@ export const RoundPlot = ({
         strokeWidth={1.5}
         strokeDasharray="5 4"
       />
-      <polyline points={histPath} fill="none" stroke="#3A4149" strokeWidth={1.5} />
-      <polyline
-        points={curPath}
+      <path
+        d={histD}
         fill="none"
-        stroke={up ? "#33D6FF" : "#CFFF4A"}
-        strokeWidth={2.5}
+        stroke="#3A4149"
+        strokeWidth={1.5}
+        strokeOpacity={0.75}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        vectorEffect="non-scaling-stroke"
       />
-    </svg>
+      <path
+        d={curD}
+        fill="none"
+        stroke={curColor}
+        strokeWidth={2.25}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        vectorEffect="non-scaling-stroke"
+      />
+      </svg>
+      {lastPt && (
+        <span
+          style={{
+            position: "absolute",
+            left: `${(lastPt.x / viewW) * 100}%`,
+            top: (lastPt.y / viewH) * height,
+            width: 6,
+            height: 6,
+            marginLeft: -3,
+            marginTop: -3,
+            borderRadius: "50%",
+            background: curColor,
+          }}
+        />
+      )}
+      <span
+        style={{
+          position: "absolute",
+          left: 0,
+          width: `${ZONE * 100}%`,
+          top: (baselineY / viewH) * height,
+          transform: "translateY(-50%)",
+          textAlign: "right",
+          paddingRight: 6,
+          pointerEvents: "none",
+        }}
+      >
+        <RoundOpenPill value={basePrice} currency={currency} />
+      </span>
+    </div>
   );
 };
 
