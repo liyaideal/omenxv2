@@ -521,21 +521,6 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
       </div>
     );
 
-  const _CashOutLegacy = heldPos ? (
-    <LiteCashOutFlow
-      open={cashOutOpen}
-      onOpenChange={setCashOutOpen}
-      isMobile={!!isMobile}
-      positionId={heldPos.id}
-      positionIndex={heldIndex}
-      currentValue={heldPos.markPriceNum * heldPos.sizeNum}
-      sizeNum={heldPos.sizeNum}
-      sideLabel={heldPos.option}
-      onConfirmCashOut={handleCashOut}
-      onDone={() => setRefetchTick((n) => n + 1)}
-    />
-  ) : null;
-
   const Position = heldPos ? (
     <div
       style={{
