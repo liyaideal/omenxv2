@@ -23,6 +23,8 @@ STATUS priority fixed and exclusive: Ends soon > New > Trending.
 
 **Intraday exemption (v2, 2026-07-31):** intraday events are EXEMPT from `New` and `Ends soon` (a daily event is always new in the morning, always ends-soon in the afternoon). Their only allowed status is `Trending`. Assertion: amber Ends-soon and orange Intraday can NEVER co-occur. Lives in `statusBadgeFor()`, badge-rendering only — `sortLiteLiveList` still orders intraday events by real settle time under the <4h rule. Combos: [Trending + Intraday·countdown], [Intraday·countdown + Boost], [Intraday·countdown].
 
+**Band amendment (2026-08-03):** the `Intraday` badge no longer appears in the list grid — intraday events are excluded from the grid and live only in the Intraday band (mem://design/lite-intraday-band). Its rules stay defined for any future intraday event that is not band-homed. `sortLiteLiveList` is unaffected.
+
 Same logic on All / every sector filter / watchlist. Settled cards are NOT part of this system.
 
 ## Live list sort (`sortLiteLiveList`)
