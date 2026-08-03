@@ -10,6 +10,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { IntradayStageCard } from "@/components/lite/allstage/IntradayStageCard";
 import { SportsStageCard } from "@/components/lite/sports/SportsStageCard";
+import { LiteIntradayView } from "@/components/lite/categoryviews/LiteIntradayView";
+import { LiteSportsView } from "@/components/lite/categoryviews/LiteSportsView";
 import { RoundPlot } from "@/components/lite/intraday/RoundPlot";
 import { TraitChip } from "@/components/lite/LiteListControls";
 import {
