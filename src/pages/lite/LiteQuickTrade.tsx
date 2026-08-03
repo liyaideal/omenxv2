@@ -23,7 +23,12 @@ import {
   useMarketActivityRows,
 } from "@/components/lite/contract/LiteMarketActivity";
 import { AssetAvatar } from "@/components/lite/AssetAvatar";
-import { RoundPlot } from "@/components/lite/intraday/RoundPlot";
+import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
+import {
+  SpotSentimentBar,
+  SpotSettlementRail,
+  SpotYourPosition,
+} from "@/components/lite/trade/SpotBlocks";
 import {
   COINS,
   COIN_META,
@@ -341,60 +346,49 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   );
 
   const Chart = (
-    <div
-      className="relative"
-      style={{
-        marginTop: 16,
-        borderRadius: 14,
-        overflow: "hidden",
-        border: "1px solid rgba(255,255,255,.06)",
-      }}
-    >
-      {base != null && price != null ? (
-        <RoundPlot
-          eventId={event.id}
-          basePrice={base}
-          currentPrice={price}
-          height={230}
-          padTop={54}
-        />
-      ) : (
-        <div style={{ height: 230, background: "#0C1013" }} />
-      )}
-      <div className="absolute" style={{ left: 12, top: 10 }}>
-        <div
-          className="font-display"
-          style={{ fontSize: 9.5, letterSpacing: ".1em", color: "#33D6FF", textTransform: "uppercase" }}
-        >
-          ▲ Settles up above this line
-        </div>
-        <div style={{ fontSize: 11, color: "#6B7280", marginTop: 2 }}>
-          Round open ${openText}
-        </div>
-      </div>
-      <div
-        className="font-display absolute"
-        style={{
-          right: 12,
-          top: 10,
-          fontSize: 9.5,
-          letterSpacing: ".1em",
-          color: "#FF8A3D",
-          textTransform: "uppercase",
-        }}
-      >
-        Settles {settlesAt}
-      </div>
-      <div
-        className="absolute"
-        style={{
-          right: "3%",
-          top: 0,
-          bottom: 0,
-          borderLeft: "1.5px dashed rgba(255,138,61,.55)",
-        }}
-      />
-    </div>
+    <LiteStockChart
+      ticker={meta.ticker}
+      basePrice={base}
+      currentPrice={price}
+      upOdds={upPrice}
+      side={side}
+      upLabel="Up"
+      downLabel="Down"
+      endDate={event.end_date}
+      currency="$"
+    />
+  );
+
+  const SentimentBar = (
+    <SpotSentimentBar
+      yesLabel="Up"
+      noLabel="Down"
+      yesPct={upPrice * 100}
+      volText={compactUsd(event.volume)}
+    />
+  );
+
+  const openedAt = event.start_date ? utcHHMM(new Date(event.start_date)) : "--:--";
+  const SettlementRail = (
+    <SpotSettlementRail
+      blocked={remaining <= 0}
+      tradingNow={remaining > 0}
+      nodes={[
+        { key: "opened", label: "Round opened", time: `${openedAt} UTC` },
+        {
+          key: "now",
+          label: remaining <= 0 ? "Closed" : "Trading NOW",
+          time: "",
+          now: true,
+        },
+        { key: "closes", label: "Closes", time: settlesAt },
+        {
+          key: "settles",
+          label: "Settles instantly",
+          time: "next round starts right away",
+        },
+      ]}
+    />
   );
 
   const PickChip = (s: Side) => {
@@ -468,7 +462,7 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   ) : null;
 
   const RuleCard = (
-    <div className="mt-4 flex gap-3 rounded-2xl border border-border bg-card p-4 text-xs">
+    <div className="flex gap-3 rounded-2xl border border-border bg-card p-4 text-xs">
       <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
       <p className="text-muted-foreground">
         Settles Up if {meta.ticker}'s price at the end of the round is above the round open
@@ -480,14 +474,12 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   );
 
   const MarketActivity = (
-    <div className="mt-4">
-      <LiteMarketActivity
-        rows={activity}
-        yesLabel="Up"
-        noLabel="Down"
-        maxRows={isMobile ? 4 : 8}
-      />
-    </div>
+    <LiteMarketActivity
+      rows={activity}
+      yesLabel="Up"
+      noLabel="Down"
+      maxRows={isMobile ? 4 : 8}
+    />
   );
 
   const AlsoLiveNow =
@@ -521,35 +513,20 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
       </div>
     );
 
+  const heldIsUp = heldPos ? heldPos.optionId === up.id : false;
   const Position = heldPos ? (
-    <div
-      style={{
-        background: "#131519",
-        border: "1px solid rgba(255,255,255,.06)",
-        borderRadius: 15,
-        padding: 14,
-        marginTop: 14,
-      }}
-    >
-      <div className="flex items-center justify-between">
-        <span className="font-display" style={{ fontSize: 13, fontWeight: 700 }}>
-          {heldPos.option} · {heldPos.sizeDisplay} shares
-        </span>
-        <span
-          className="font-mono"
-          style={{ fontSize: 13, color: heldPos.pnl.startsWith("-") ? "#FF5A5F" : "#3FD68C" }}
-        >
-          {heldPos.pnl}
-        </span>
-      </div>
-      <button
-        type="button"
-        onClick={() => setCashOutOpen(true)}
-        className="mt-3 h-9 w-full rounded-lg bg-muted text-xs font-semibold hover:bg-muted/80"
-      >
-        Cash out · ${(heldPos.markPriceNum * heldPos.sizeNum).toFixed(2)}
-      </button>
-    </div>
+    <SpotYourPosition
+      isYesSide={heldIsUp}
+      sideLabel={heldIsUp ? "Up" : "Down"}
+      sizeDisplay={heldPos.sizeDisplay}
+      pnl={heldPos.pnl}
+      pnlPercent={heldPos.pnlPercent}
+      currentValue={heldPos.markPriceNum * heldPos.sizeNum}
+      avgCost={heldPos.entryPrice}
+      ifWinsLabel={heldIsUp ? "If Up wins" : "If Down wins"}
+      ifWinsValue={`$${heldPos.sizeNum.toFixed(0)}`}
+      onCashOut={() => setCashOutOpen(true)}
+    />
   ) : null;
 
   // ---------- mobile ----------
@@ -567,12 +544,16 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
           {Head}
           {RoundSwitcher}
           {Tape}
-          {Chart}
-          {RuleCard}
-          {Position}
-          {MarketActivity}
-          {AlsoLiveNow ? <div className="mt-4">{AlsoLiveNow}</div> : null}
-          {CashOut}
+          <div className="mt-4 space-y-4">
+            {Chart}
+            {SentimentBar}
+            {RuleCard}
+            {SettlementRail}
+            {Position}
+            {MarketActivity}
+            {AlsoLiveNow}
+            {CashOut}
+          </div>
         </div>
 
         <div
@@ -645,11 +626,15 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
           {Head}
           {RoundSwitcher}
           {Tape}
-          {Chart}
-          {RuleCard}
-          {Position}
-          {MarketActivity}
-          {CashOut}
+          <div className="mt-4 space-y-5">
+            {SentimentBar}
+            {Chart}
+            {RuleCard}
+            {SettlementRail}
+            {Position}
+            {MarketActivity}
+            {CashOut}
+          </div>
         </div>
         <aside className="space-y-4">
           {PickCard}
