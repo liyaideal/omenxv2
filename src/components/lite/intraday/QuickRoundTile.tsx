@@ -3,7 +3,7 @@
 // ============================================================
 import { useNavigate } from "react-router-dom";
 import { AssetAvatar } from "@/components/lite/AssetAvatar";
-import { RoundPlot, RoundOpenPill } from "./RoundPlot";
+import { RoundPlot } from "./RoundPlot";
 import {
   Tooltip,
   TooltipContent,
@@ -125,6 +125,7 @@ export const QuickRoundTile = ({
             eventId={event!.id}
             basePrice={base}
             currentPrice={price}
+            upOdds={upOdds}
             height={120}
           />
         ) : (
@@ -143,12 +144,6 @@ export const QuickRoundTile = ({
         >
           ▼ Down
         </span>
-
-        {base != null && (
-          <div className="absolute" style={{ left: 10, top: 26 }}>
-            <RoundOpenPill value={base} />
-          </div>
-        )}
 
         <button
           type="button"
