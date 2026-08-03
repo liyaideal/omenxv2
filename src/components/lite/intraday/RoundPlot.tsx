@@ -45,7 +45,10 @@ export const RoundPlot = ({
     const bottom = h - 14;
     const yOf = (v: number) => bottom - ((v - min) / span) * (bottom - top);
     const total = HIST_POINTS + CUR_POINTS - 1;
-    const xOf = (i: number) => (i / total) * w;
+    // The settle marker sits at 97% of the width; the plotted path must end
+    // exactly there so the price never renders past "SETTLES {HH:MM}".
+    const settleX = w * 0.97;
+    const xOf = (i: number) => (i / total) * settleX;
     const pts = (vals: number[], offset: number) =>
       vals.map((v, i) => `${xOf(i + offset).toFixed(2)},${yOf(v).toFixed(2)}`).join(" ");
     return {
