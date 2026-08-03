@@ -219,6 +219,7 @@ export interface StockEventRow {
   id: string;
   name: string;
   base_price: number | null;
+  start_date: string | null;
   end_date: string | null;
   freeze_time: string | null;
   event_subtype: string | null;
@@ -237,7 +238,7 @@ export const useIntradayStocks = (enabled: boolean) => {
       const { data } = await supabase
         .from("events")
         .select(
-          "id, name, base_price, end_date, freeze_time, event_subtype, event_options(id, label, price)",
+          "id, name, base_price, start_date, end_date, freeze_time, event_subtype, event_options(id, label, price)",
         )
         .in("event_subtype", [US_STOCK_SUBTYPE, HK_STOCK_SUBTYPE])
         .eq("is_resolved", false)
@@ -251,6 +252,7 @@ export const useIntradayStocks = (enabled: boolean) => {
           id: e.id,
           name: e.name,
           base_price: e.base_price != null ? Number(e.base_price) : null,
+          start_date: (e as { start_date?: string | null }).start_date ?? null,
           end_date: e.end_date,
           freeze_time: (e as { freeze_time?: string | null }).freeze_time ?? null,
           event_subtype: e.event_subtype,

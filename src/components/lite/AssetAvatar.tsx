@@ -6,7 +6,7 @@
 // ============================================================
 import { useState } from "react";
 
-export type AssetAvatarSize = 34 | 30;
+export type AssetAvatarSize = number;
 
 const CRYPTO: Record<string, { bg: string; glyph: string; ink: string }> = {
   BTC: { bg: "#F7931A", glyph: "₿", ink: "#FFFFFF" },
@@ -75,7 +75,7 @@ export const AssetAvatar = ({
           color: crypto.ink,
           fontFamily: "Space Grotesk, sans-serif",
           fontWeight: 700,
-          fontSize: size === 34 ? 16 : 14,
+          fontSize: Math.round(size * 0.47),
           lineHeight: 1,
         }}
         aria-label={key}

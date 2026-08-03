@@ -475,6 +475,7 @@ export type Database = {
           image_url: string | null
           is_resolved: boolean
           lifecycle_status: string | null
+          metadata: Json | null
           name: string
           price_label: string | null
           product_lines: string[]
@@ -506,6 +507,7 @@ export type Database = {
           image_url?: string | null
           is_resolved?: boolean
           lifecycle_status?: string | null
+          metadata?: Json | null
           name: string
           price_label?: string | null
           product_lines?: string[]
@@ -537,6 +539,7 @@ export type Database = {
           image_url?: string | null
           is_resolved?: boolean
           lifecycle_status?: string | null
+          metadata?: Json | null
           name?: string
           price_label?: string | null
           product_lines?: string[]
