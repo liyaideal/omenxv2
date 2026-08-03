@@ -411,7 +411,7 @@ const IntradayDemo = () => {
         <IntradayStageCard
           currentFor={currentFor}
           historyFor={historyFor}
-          stockRows={p.rows as StockEventRow[]}
+          stockRows={[...p.rows]}
           tickSeconds={0}
           onOpenIntraday={() => {}}
         />
@@ -473,7 +473,7 @@ const SportsDemo = () => {
       <PresetRail presets={SPORTS_PRESETS} activeId={id} onSelect={setId} />
       <div key={id} className="max-w-[480px]">
         <SportsStageCard
-          matches={p.matches as SportsMatch[]}
+          matches={[...p.matches]}
           variant={p.variant}
           onOpenAll={() => {}}
         />
