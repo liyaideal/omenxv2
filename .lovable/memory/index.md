@@ -146,3 +146,5 @@
 - [Lite multi-market](mem://product/lite-multimarket) — 3+ options 事件：market board、每个 option 独立 Yes/No、多腿持仓、列表卡 top-2 + badge 优先级
 - [Lite list badges + sort](mem://design/lite-list-badges-and-sort) — 两轨列表 badge（Ends soon / New / Trending + Boost）与 Live 列表三步排序；阈值只在 src/lib/liteListBadges.ts
 - [Event art direction](mem://design/event-art-direction) — Locked lynx-IP illustration rules + generate-event-image pipeline for /events card images
+- [Lite intraday band](mem://design/lite-intraday-band) — 所有 intraday 事件只在橙色 Intraday band 里；主 grid 排除；Intraday chip 已删；AssetAvatar 规范
+- [Crypto quick rounds](mem://features/crypto-quick-rounds) — 3 币 × 5 周期滚动 up/down spot 轮次、roll-crypto-quick-rounds cron、settle_spot_event 派彩、LiteQuickTrade 页面
