@@ -5,7 +5,7 @@
 // ============================================================
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { Info, Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
 import { usePositions } from "@/hooks/usePositions";
@@ -18,9 +18,14 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { useHeadingScrolledOut } from "@/hooks/useHeadingScrolledOut";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
+import {
+  LiteMarketActivity,
+  useMarketActivityRows,
+} from "@/components/lite/contract/LiteMarketActivity";
 import { AssetAvatar } from "@/components/lite/AssetAvatar";
 import { RoundPlot } from "@/components/lite/intraday/RoundPlot";
 import {
+  COINS,
   COIN_META,
   TIMEFRAMES,
   TF_SECONDS,
@@ -113,6 +118,17 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
     const startSec = Math.floor(new Date(event.start_date).getTime() / 1000);
     return Math.floor(startSec / TF_SECONDS[tf]) % 10000;
   }, [event?.start_date, tf]);
+
+  // Shared anonymised all-user activity feed (same hook as the stock spot page).
+  const activity = useMarketActivityRows(event?.name || null, "Up", refetchTick);
+
+  const alsoLive = useMemo(
+    () =>
+      COINS.filter((c) => c !== coin)
+        .map((c) => ({ coin: c, ev: currentFor.get(`${c}-${tf}`) ?? null }))
+        .filter((x) => x.ev),
+    [coin, tf, currentFor],
+  );
 
   const heldIndex = useMemo(() => {
     if (!event) return -1;
@@ -451,6 +467,60 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
     />
   ) : null;
 
+  const RuleCard = (
+    <div className="mt-4 flex gap-3 rounded-2xl border border-border bg-card p-4 text-xs">
+      <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+      <p className="text-muted-foreground">
+        Settles Up if {meta.ticker}'s price at the end of the round is above the round open
+        (<span className="font-mono text-foreground">${openText}</span>); otherwise Down. Each
+        winning share pays <span className="font-mono text-foreground">$1</span>, credited
+        automatically the moment the round settles — and the next round starts right away.
+      </p>
+    </div>
+  );
+
+  const MarketActivity = (
+    <div className="mt-4">
+      <LiteMarketActivity
+        rows={activity}
+        yesLabel="Up"
+        noLabel="Down"
+        maxRows={isMobile ? 4 : 8}
+      />
+    </div>
+  );
+
+  const AlsoLiveNow =
+    alsoLive.length === 0 ? null : (
+      <div className="rounded-2xl border border-border bg-card p-4">
+        <div className="mb-3 text-sm font-medium">Also live now</div>
+        <div className="space-y-2">
+          {alsoLive.map(({ coin: c, ev }) => {
+            const o = upOptionOf(ev);
+            const p = o ? Math.round(o.price * 100) : 50;
+            return (
+              <button
+                key={c}
+                type="button"
+                onClick={() =>
+                  navigate(`/spot?event=${encodeURIComponent(ev!.id)}`, { replace: true })
+                }
+                className="flex w-full items-center gap-2 rounded-lg px-1 py-1.5 text-left hover:bg-muted/40"
+              >
+                <AssetAvatar symbol={COIN_META[c].ticker} kind="crypto" size={30} />
+                <span className="flex-1 text-xs text-foreground">
+                  {COIN_META[c].name} · {tf.toUpperCase()} round
+                </span>
+                <span className="font-display text-xs font-bold" style={{ color: "#33D6FF" }}>
+                  Up {p}%
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+
   const Position = heldPos ? (
     <div
       style={{
@@ -498,7 +568,10 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
           {RoundSwitcher}
           {Tape}
           {Chart}
+          {RuleCard}
           {Position}
+          {MarketActivity}
+          {AlsoLiveNow ? <div className="mt-4">{AlsoLiveNow}</div> : null}
           {CashOut}
         </div>
 
@@ -573,7 +646,9 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
           {RoundSwitcher}
           {Tape}
           {Chart}
+          {RuleCard}
           {Position}
+          {MarketActivity}
           {CashOut}
         </div>
         <aside className="space-y-4">
@@ -584,6 +659,7 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
             hideSideSelector
             onFilled={() => setRefetchTick((n) => n + 1)}
           />
+          {AlsoLiveNow}
         </aside>
       </div>
       <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
