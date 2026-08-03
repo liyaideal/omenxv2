@@ -272,6 +272,13 @@ const LiteEventsPage = () => {
           </div>
         )}
 
+        {/* Intraday band — sits between the filter row and the card grid. */}
+        {!isWatchlistView &&
+          !boostOnly &&
+          (sector === "all" || sector === "crypto" || sector === "stocks") && (
+            <IntradayBand />
+          )}
+
         {/* Card grid */}
         <div className="mt-6 flex flex-1 flex-col space-y-6">
         {isLoading ? (
