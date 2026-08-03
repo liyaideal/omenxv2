@@ -130,12 +130,6 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
     [coin, tf, currentFor],
   );
 
-  const _unusedRoundNo = useMemo(() => {
-    if (!event?.start_date) return 0;
-    const startSec = Math.floor(new Date(event.start_date).getTime() / 1000);
-    return Math.floor(startSec / TF_SECONDS[tf]) % 10000;
-  }, [event?.start_date, tf]);
-
   const heldIndex = useMemo(() => {
     if (!event) return -1;
     return positions.findIndex(
