@@ -56,6 +56,11 @@ import {
   LiteMarketActivity,
   useMarketActivityRows,
 } from "@/components/lite/contract/LiteMarketActivity";
+import {
+  SpotSentimentBar,
+  SpotSettlementRail,
+  SpotYourPosition,
+} from "@/components/lite/trade/SpotBlocks";
 
 type EventRow = Tables<"events"> & { options: Tables<"event_options">[] };
 type Side = "yes" | "no";
@@ -400,27 +405,12 @@ const LiteSpotTrade = () => {
   );
 
   const SentimentBar = (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-          What the crowd thinks
-        </div>
-        <div className="font-mono text-[11px] text-muted-foreground">
-          Vol {volText}
-        </div>
-      </div>
-      <div className="flex h-11 overflow-hidden rounded-[11px] border border-border">
-        <div
-          className="flex items-center bg-gradient-to-r from-yes/30 to-yes/15 px-3 text-xs font-semibold text-yes"
-          style={{ width: `${upPct}%`, borderRight: "2px solid hsl(var(--background))" }}
-        >
-          {yesLabel} {upPct}%
-        </div>
-        <div className="flex flex-1 items-center justify-end bg-gradient-to-r from-no/15 to-no/25 px-3 text-xs font-semibold text-no">
-          {downPct}% {noLabel}
-        </div>
-      </div>
-    </div>
+    <SpotSentimentBar
+      yesLabel={yesLabel}
+      noLabel={noLabel}
+      yesPct={upPct}
+      volText={volText}
+    />
   );
 
   const Chart = (
@@ -438,30 +428,27 @@ const LiteSpotTrade = () => {
   );
 
   const SettlementRail = (
-    <div className="rounded-2xl border border-border bg-muted/20 p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-          How it settles
-        </div>
-        {lifecycle === "TRADING" && (
-          <span className="flex items-center gap-1 text-[11px] font-medium text-yes">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-yes" />
-            Trading now
-          </span>
-        )}
-      </div>
-      <RailTrack
-        blocked={blocked}
-        freezeLabel={
-          freezeAt
+    <SpotSettlementRail
+      blocked={blocked}
+      tradingNow={lifecycle === "TRADING"}
+      nodes={[
+        { key: "opened", label: "Opened", time: "" },
+        { key: "open", label: "Market open", time: market.openLabel },
+        { key: "now", label: blocked ? "Closed" : "Trading NOW", time: "", now: true },
+        {
+          key: "closes",
+          label: "Closes",
+          time: freezeAt
             ? formatMarketTime(freezeAt, market)
-            : `close − ${FREEZE_MINUTES_BEFORE_CLOSE}min`
-        }
-        closeLabel={endDate ? formatMarketTime(endDate, market) : null}
-        openLabel={market.openLabel}
-        tzLabel={market.label}
-      />
-    </div>
+            : `close − ${FREEZE_MINUTES_BEFORE_CLOSE}min`,
+        },
+        {
+          key: "settles",
+          label: "Settles",
+          time: endDate ? `${formatMarketTime(endDate, market)} ${market.label}` : "—",
+        },
+      ]}
+    />
   );
 
   const RuleCard = (
@@ -486,62 +473,24 @@ const LiteSpotTrade = () => {
   );
 
   const YourPosition = heldPos ? (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <div className="mb-3 flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <span
-            className={cn(
-              "rounded-md px-2 py-0.5 text-[11px] font-semibold",
-              heldPos.option.trim().toLowerCase() === (yesOpt.label || "").trim().toLowerCase()
-                ? "bg-yes/14 text-yes"
-                : "bg-no/14 text-no",
-            )}
-          >
-            {heldPos.option.trim().toLowerCase() === (yesOpt.label || "").trim().toLowerCase()
-              ? yesLabel
-              : noLabel}
-          </span>
-          <span className="font-mono text-sm">{heldPos.sizeDisplay} shares</span>
-          <span
-            className={cn(
-              "font-mono text-sm font-semibold",
-              heldPos.pnl.startsWith("-") ? "text-trading-red" : "text-trading-green",
-            )}
-          >
-            {heldPos.pnl.startsWith("-") ? "▼" : "▲"} {heldPos.pnl} / {heldPos.pnlPercent}
-          </span>
-        </div>
-      </div>
-      <div className="grid grid-cols-4 gap-2 border-t border-border pt-3 text-xs">
-        <PosCell
-          label="Current value"
-          value={`$${(heldPos.markPriceNum * heldPos.sizeNum).toFixed(2)}`}
-        />
-        <PosCell label="Avg cost" value={heldPos.entryPrice} />
-        <PosCell
-          label="Profit"
-          value={heldPos.pnl}
-          tone={heldPos.pnl.startsWith("-") ? "red" : "green"}
-        />
-        <PosCell
-          label={`If ${yesLabel} wins`}
-          value={`$${heldPos.sizeNum.toFixed(0)}`}
-          tone="yes"
-        />
-      </div>
-      <div className="mt-3 border-t border-border pt-3">
-        <button
-          type="button"
-          onClick={() => setCashOutOpen(true)}
-          className="h-9 w-full rounded-lg bg-muted text-xs font-semibold hover:bg-muted/80"
-        >
-          Cash out ·{" "}
-          <span className="font-mono">
-            ${(heldPos.markPriceNum * heldPos.sizeNum).toFixed(2)}
-          </span>
-        </button>
-      </div>
-    </div>
+    <SpotYourPosition
+      isYesSide={
+        heldPos.option.trim().toLowerCase() === (yesOpt.label || "").trim().toLowerCase()
+      }
+      sideLabel={
+        heldPos.option.trim().toLowerCase() === (yesOpt.label || "").trim().toLowerCase()
+          ? yesLabel
+          : noLabel
+      }
+      sizeDisplay={heldPos.sizeDisplay}
+      pnl={heldPos.pnl}
+      pnlPercent={heldPos.pnlPercent}
+      currentValue={heldPos.markPriceNum * heldPos.sizeNum}
+      avgCost={heldPos.entryPrice}
+      ifWinsLabel={`If ${yesLabel} wins`}
+      ifWinsValue={`$${heldPos.sizeNum.toFixed(0)}`}
+      onCashOut={() => setCashOutOpen(true)}
+    />
   ) : null;
 
   const CashOut = heldPos ? (
