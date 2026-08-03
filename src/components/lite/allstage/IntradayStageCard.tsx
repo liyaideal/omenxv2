@@ -107,7 +107,7 @@ const Dial = ({
 }) =>
   size === "module" ? (
     <div
-      className="flex gap-[2px]"
+      className="inline-flex w-fit self-start gap-[2px]"
       style={{
         background: "#0A0B0D",
         border: "1px solid #1D2026",
