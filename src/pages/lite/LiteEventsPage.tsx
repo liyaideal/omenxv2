@@ -23,7 +23,15 @@ import {
 import { EmptyState } from "@/components/states";
 import { sortLiteLiveList, trendingThreshold } from "@/lib/liteListBadges";
 import { IntradayBand } from "@/components/lite/intraday/IntradayBand";
-import { INTRADAY_SUBTYPES } from "@/components/lite/intraday/intradayData";
+import {
+  INTRADAY_SUBTYPES,
+  useIntradayStocks,
+  useQuickRounds,
+  useSecondTick,
+} from "@/components/lite/intraday/intradayData";
+import { LiteAllStage } from "@/components/lite/allstage/LiteAllStage";
+import { SportsStageCard } from "@/components/lite/sports/SportsStageCard";
+import { useSportsMatches } from "@/components/lite/sports/sportsData";
 import { useSurface } from "@/contexts/SurfaceContext";
 
 // Data-driven sector rail. Filters on the RAW event category (lowercase DB
@@ -46,6 +54,18 @@ const PILL_BASE =
 const PILL_ACTIVE = "bg-white text-[#0A0B0D] font-semibold";
 const PILL_IDLE =
   "border-[1.5px] border-[#2B2F38] text-[#C9CED6] hover:text-foreground";
+
+// Desktop category row per the frozen contract. Dot-marked entries are views,
+// not sector filters.
+const DESKTOP_CATEGORIES: Array<{ id: string; label: string; dot?: string }> = [
+  { id: "all", label: "All" },
+  { id: "intraday", label: "Intraday", dot: "#FF8A3D" },
+  { id: "sports", label: "Sports", dot: "#F2F3F5" },
+  { id: "crypto", label: "Crypto" },
+  { id: "stocks", label: "Stocks" },
+  { id: "politics", label: "Politics" },
+  { id: "macro", label: "Economy" },
+];
 
 const LiteEventsPage = () => {
   const navigate = useNavigate();
@@ -91,6 +111,16 @@ const LiteEventsPage = () => {
 
   const [sector, setSector] = useState<string>("all");
   const isWatchlistView = sector === "watchlist";
+  const isStageView = !isMobile && sector === "all" && !boostOnly;
+  const isIntradayView = !isMobile && sector === "intraday";
+  const isSportsView = !isMobile && sector === "sports";
+
+  // Stage data — desktop only, and only for the views that render it.
+  const stageActive = !isMobile && (isStageView || isIntradayView);
+  const tickSeconds = useSecondTick();
+  const { currentFor, historyFor } = useQuickRounds(stageActive);
+  const { rows: stockRows } = useIntradayStocks(stageActive);
+  const { rows: sportsMatches } = useSportsMatches();
 
   const filtered = useMemo(() => {
     if (isWatchlistView) {
@@ -251,29 +281,69 @@ const LiteEventsPage = () => {
           </div>
         ) : (
           <div className="flex flex-wrap items-center gap-2" style={{ marginTop: 16 }}>
-            <button
-              type="button"
-              onClick={() => setSector("all")}
-              className={cn(PILL_BASE, sector === "all" ? PILL_ACTIVE : PILL_IDLE)}
-            >
-              All
-            </button>
-            {availableSectors.map((s) => (
+            {DESKTOP_CATEGORIES.filter(
+              (c) =>
+                c.id === "all" ||
+                c.id === "intraday" ||
+                (c.id === "sports" ? sportsMatches.length > 0 : sectorCounts.get(c.id)),
+            ).map((c) => (
               <button
-                key={s.id}
+                key={c.id}
                 type="button"
-                onClick={() => setSector(s.id)}
-                className={cn(PILL_BASE, s.id === sector ? PILL_ACTIVE : PILL_IDLE)}
+                onClick={() => setSector(c.id)}
+                className={cn(
+                  PILL_BASE,
+                  "flex items-center gap-[7px]",
+                  c.id === sector ? PILL_ACTIVE : PILL_IDLE,
+                )}
               >
-                {s.label}
+                {c.dot && (
+                  <span
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: 999,
+                      background: c.dot,
+                    }}
+                  />
+                )}
+                {c.label}
               </button>
             ))}
-            <div className="ml-auto flex items-center gap-2">{traitChips}</div>
+            <span
+              aria-hidden
+              style={{ width: 1, height: 22, background: "#1D2026", margin: "0 5px" }}
+            />
+            {traitChips}
           </div>
         )}
 
-        {/* Intraday band — sits between the filter row and the card grid. */}
-        {!isWatchlistView &&
+        {/* Desktop "All stage" — category-as-view. */}
+        {isStageView && (
+          <LiteAllStage
+            currentFor={currentFor}
+            historyFor={historyFor}
+            stockRows={stockRows}
+            matches={sportsMatches}
+            tickSeconds={tickSeconds}
+            onOpenIntraday={() => setSector("intraday")}
+            onOpenSports={() => setSector("sports")}
+          />
+        )}
+
+        {/* Intraday band — full width when the Intraday view is selected. */}
+        {isIntradayView && <IntradayBand />}
+
+        {/* Sports module — full width when the Sports view is selected. */}
+        {isSportsView && (
+          <div style={{ marginTop: 20 }}>
+            <SportsStageCard matches={sportsMatches} variant="full" />
+          </div>
+        )}
+
+        {/* Mobile intraday band — unchanged. */}
+        {isMobile &&
+          !isWatchlistView &&
           !boostOnly &&
           (sector === "all" || sector === "crypto" || sector === "stocks") && (
             <IntradayBand />
@@ -281,10 +351,37 @@ const LiteEventsPage = () => {
 
         {/* Card grid */}
         <div className="mt-6 flex flex-1 flex-col space-y-6">
+        {isStageView && (
+          <div className="flex items-center justify-between" style={{ padding: "6px 2px 0" }}>
+            <span
+              className="font-display"
+              style={{
+                fontWeight: 700,
+                fontSize: 18,
+                color: "#fff",
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Events
+            </span>
+            <span style={{ fontSize: 12, color: "#6B7280" }}>
+              {filtered.length} open
+            </span>
+          </div>
+        )}
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
+        ) : isIntradayView || isSportsView ? null : isWatchlistView &&
+          filtered.length === 0 ? (
+          <EmptyState
+            variant="page"
+            title="Nothing starred yet"
+            description="Tap the ★ on any market and it'll show up here."
+            actionLabel="See all markets"
+            onAction={resetAll}
+          />
         ) : isWatchlistView && filtered.length === 0 ? (
           <EmptyState
             variant="page"
