@@ -382,14 +382,6 @@ const LiteEventsPage = () => {
             actionLabel="See all markets"
             onAction={resetAll}
           />
-        ) : isWatchlistView && filtered.length === 0 ? (
-          <EmptyState
-            variant="page"
-            title="Nothing starred yet"
-            description="Tap the ★ on any market and it'll show up here."
-            actionLabel="See all markets"
-            onAction={resetAll}
-          />
         ) : filtered.length === 0 ? (
           <EmptyState
             variant="page"
