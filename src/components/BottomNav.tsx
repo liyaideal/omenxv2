@@ -144,10 +144,7 @@ export const BottomNav = () => {
               onClick={() => {
                 if (!item.disabled) {
                   triggerHaptic('light');
-                  // Lite has no bare /trade destination — send Trade to the market list.
-                  const dest =
-                    item.path === "/trade" && surface === "lite" ? "/events" : item.path;
-                  navigate(dest, { replace: true });
+                  navigate(item.path, { replace: true });
                 }
               }}
               className={`flex flex-col items-center gap-1 transition-all duration-300 ${
