@@ -674,3 +674,37 @@
   .mkt-card { transition: none; }
   .mkt-card:hover { transform: none; }
 }
+
+/* ── Chip tier rule (CPO ruling) ─────────────────────────────
+   Tier 1 "direction button": binary direction pairs only.
+   Tier 2 "outcome chip": all multi-outcome and Yes/No markets. */
+.chip-t1 {
+  border-radius: 10px;
+  border: 1px solid transparent;
+  transition: background-color 0.15s ease;
+}
+.chip-t1-up {
+  color: #33d6ff;
+  background: rgba(51, 214, 255, 0.08);
+  border-color: rgba(51, 214, 255, 0.4);
+}
+.chip-t1-up:hover {
+  background: rgba(51, 214, 255, 0.15);
+}
+.chip-t1-down {
+  color: #cfff4a;
+  background: rgba(207, 255, 74, 0.06);
+  border-color: rgba(207, 255, 74, 0.35);
+}
+.chip-t1-down:hover {
+  background: rgba(207, 255, 74, 0.13);
+}
+.chip-t2 {
+  background: #0a0b0d;
+  border: 1px solid #23262d;
+  border-radius: 9px;
+  transition: border-color 0.15s ease;
+}
+.chip-t2:hover {
+  border-color: var(--chip-accent, #23262d);
+}
