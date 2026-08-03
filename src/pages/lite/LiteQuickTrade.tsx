@@ -13,6 +13,12 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { executeSpotTrade } from "@/services/tradingService";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { MobileHeader } from "@/components/MobileHeader";
 import { useHeadingScrolledOut } from "@/hooks/useHeadingScrolledOut";
