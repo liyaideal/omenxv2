@@ -63,7 +63,8 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   const { positions } = usePositions();
   const { addSpotBalance } = useUserProfile();
   const { headingRef, scrolledOut } = useHeadingScrolledOut();
-  const { currentFor, historyFor, loading } = useQuickRounds(true);
+  const [refetchTick, setRefetchTick] = useState(0);
+  const { currentFor, historyFor, loading } = useQuickRounds(true, refetchTick);
 
   const parsed = parseQuickId(eventId);
   const coin = parsed?.coin ?? "btc";
@@ -74,7 +75,6 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [cashOutOpen, setCashOutOpen] = useState(false);
-  const [refetchTick, setRefetchTick] = useState(0);
 
   const event = currentFor.get(`${coin}-${tf}`) ?? null;
   const history = historyFor.get(`${coin}-${tf}`) ?? [];
@@ -101,6 +101,12 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   const endDate = event?.end_date ? new Date(event.end_date) : null;
   const remaining = endDate ? endDate.getTime() - Date.now() : 0;
   const countdown = formatCountdown(remaining);
+
+  // Tighten the auto-rebind window: refetch once as soon as the round expires.
+  const expired = remaining <= 0;
+  useEffect(() => {
+    if (expired) setRefetchTick((n) => n + 1);
+  }, [expired, event?.id]);
 
   const roundNo = useMemo(() => {
     if (!event?.start_date) return 0;
@@ -205,10 +211,12 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
             ? `$${price.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
             : "—"}
         </span>
+        <span style={{ color: "#6B7280" }}>·</span>
         <span style={{ color: pct >= 0 ? "#3FD68C" : "#FF5A5F" }}>
           {pct >= 0 ? "▲ +" : "▼ "}
           {pct.toFixed(2)}% today
         </span>
+        <span style={{ color: "#6B7280" }}>·</span>
         <span>Vol {compactUsd(event.volume)}</span>
       </div>
     </div>
