@@ -42,14 +42,12 @@ const OutcomeButton = ({
   <button
     type="button"
     onClick={onClick}
-    className="flex items-center justify-between transition-colors"
+    className="chip-t2 flex items-center justify-between"
     style={{
       color,
-      background: "#0A0B0D",
-      border: "1px solid #23262D",
-      borderRadius: 9,
       padding: "9px 10px",
-    }}
+      ["--chip-accent" as string]: color,
+    } as React.CSSProperties}
   >
     <span style={{ fontSize: 10, color: "#9AA1AC" }}>{label}</span>
     <span

@@ -523,6 +523,94 @@ const PlotDemo = () => {
 };
 
 /* ---------------- Section ---------------- */
+const CHIP_TIER_PRESETS = [
+  {
+    id: "tier-1",
+    label: "Tier 1 · direction button",
+    caption:
+      "Trigger — a binary DIRECTION pair (Up/Down on coin tiles and coin cards, Up/Not up on stock rows): tinted fill, coloured label AND price, hover brightens the fill.",
+  },
+  {
+    id: "tier-2",
+    label: "Tier 2 · outcome chip",
+    caption:
+      "Trigger — any multi-outcome or Yes/No market (sports 1x2, sports h2h, generic event chips): neutral #0A0B0D chip, muted label, only the price is coloured, hover sets border-color to the price colour.",
+  },
+] as const;
+
+const T1 = ({ label, price, tone }: { label: string; price: number; tone: "up" | "down" }) => (
+  <button
+    type="button"
+    className={cn(
+      "chip-t1 flex items-center justify-between",
+      tone === "up" ? "chip-t1-up" : "chip-t1-down",
+    )}
+    style={{ padding: "9px 12px", minWidth: 132 }}
+  >
+    <span style={{ fontSize: 11 }}>{label}</span>
+    <span
+      className="font-display"
+      style={{ fontSize: 15, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}
+    >
+      {Math.round(price * 100)}¢
+    </span>
+  </button>
+);
+
+const T2 = ({ label, price, color }: { label: string; price: number; color: string }) => (
+  <button
+    type="button"
+    className="chip-t2 flex items-center justify-between"
+    style={
+      { color, padding: "9px 10px", minWidth: 112, ["--chip-accent" as string]: color } as React.CSSProperties
+    }
+  >
+    <span style={{ fontSize: 10, color: "#9AA1AC" }}>{label}</span>
+    <span
+      className="font-display"
+      style={{ fontSize: 14, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}
+    >
+      {Math.round(price * 100)}¢
+    </span>
+  </button>
+);
+
+const ChipTiersDemo = () => {
+  const [id, setId] = useState<string>(CHIP_TIER_PRESETS[0].id);
+  const p = CHIP_TIER_PRESETS.find((x) => x.id === id) ?? CHIP_TIER_PRESETS[0];
+  return (
+    <div className="space-y-3">
+      <PresetRail presets={CHIP_TIER_PRESETS} activeId={id} onSelect={setId} />
+      <div className="grid gap-4 rounded-lg border border-[#1D2026] bg-[#111318] p-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            Tier 1 · direction button
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <T1 label="Up" price={0.58} tone="up" />
+            <T1 label="Down" price={0.42} tone="down" />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            Tier 2 · outcome chip
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <T2 label="Arsenal" price={0.44} color="#33D6FF" />
+            <T2 label="Draw" price={0.27} color="#E6E9EE" />
+            <T2 label="Sevilla" price={0.29} color="#CFFF4A" />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <T2 label="Yes" price={0.63} color="#33D6FF" />
+            <T2 label="No" price={0.37} color="#CFFF4A" />
+          </div>
+        </div>
+      </div>
+      <Caption>{p.caption}</Caption>
+    </div>
+  );
+};
+
 export const LiteAllStageSection = () => (
   <SectionWrapper
     id="lite-all-stage"
@@ -531,6 +619,17 @@ export const LiteAllStageSection = () => (
     description="Desktop-only category-as-view stage. Every preset uses fixed mock data and a frozen mock now (2026-08-03 15:20 UTC) — nothing here reads the database."
   >
     <div className="space-y-10">
+      <Card>
+        <CardContent className="space-y-4 p-6">
+          <SubSection
+            title="Chip tiers"
+            description="Desktop & Mobile · same components"
+          >
+            <ChipTiersDemo />
+          </SubSection>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardContent className="space-y-4 p-6">
           <SubSection title="Category row" description="Desktop · above the stage">

@@ -51,14 +51,8 @@ const SideButton = ({
   <button
     type="button"
     onClick={onClick}
-    className="flex items-center justify-between transition-colors"
-    style={{
-      color: tone === "up" ? "#33D6FF" : "#CFFF4A",
-      background: tone === "up" ? "rgba(51,214,255,0.08)" : "rgba(207,255,74,0.06)",
-      border: `1px solid ${tone === "up" ? "rgba(51,214,255,0.4)" : "rgba(207,255,74,0.35)"}`,
-      borderRadius: 10,
-      padding,
-    }}
+    className={`chip-t1 ${tone === "up" ? "chip-t1-up" : "chip-t1-down"} flex items-center justify-between`}
+    style={{ padding }}
   >
     <span style={{ fontSize: 11 }}>{label}</span>
     <span
@@ -539,16 +533,8 @@ const StockStageRow = ({
           key={tone}
           type="button"
           onClick={go(tone)}
-          className="box-border flex flex-none items-center justify-center gap-[5px] whitespace-nowrap"
-          style={{
-            color: tone === "up" ? "#33D6FF" : "#CFFF4A",
-            background:
-              tone === "up" ? "rgba(51,214,255,0.07)" : "rgba(207,255,74,0.06)",
-            border: `1px solid ${tone === "up" ? "rgba(51,214,255,0.45)" : "rgba(207,255,74,0.4)"}`,
-            borderRadius: 12,
-            minHeight: 44,
-            padding: "0 15px",
-          }}
+          className={`chip-t1 ${tone === "up" ? "chip-t1-up" : "chip-t1-down"} box-border flex flex-none items-center justify-center gap-[5px] whitespace-nowrap`}
+          style={{ borderRadius: 12, minHeight: 44, padding: "0 15px" }}
         >
           <span style={{ fontSize: 13, fontWeight: 700 }}>
             {tone === "up" ? "Up" : "Not up"}
