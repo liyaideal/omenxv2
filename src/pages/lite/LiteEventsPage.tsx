@@ -32,6 +32,8 @@ import {
 import { LiteAllStage } from "@/components/lite/allstage/LiteAllStage";
 import { SportsStageCard } from "@/components/lite/sports/SportsStageCard";
 import { useSportsMatches } from "@/components/lite/sports/sportsData";
+import { LiteIntradayView } from "@/components/lite/categoryviews/LiteIntradayView";
+import { LiteSportsView } from "@/components/lite/categoryviews/LiteSportsView";
 import { useSurface } from "@/contexts/SurfaceContext";
 
 // Data-driven sector rail. Filters on the RAW event category (lowercase DB
@@ -310,11 +312,16 @@ const LiteEventsPage = () => {
                 {c.label}
               </button>
             ))}
-            <span
-              aria-hidden
-              style={{ width: 1, height: 22, background: "#1D2026", margin: "0 5px" }}
-            />
-            {traitChips}
+            {/* Boost is a grid trait — hidden while a module view is active. */}
+            {!isIntradayView && !isSportsView && (
+              <>
+                <span
+                  aria-hidden
+                  style={{ width: 1, height: 22, background: "#1D2026", margin: "0 5px" }}
+                />
+                {traitChips}
+              </>
+            )}
           </div>
         )}
 
@@ -331,15 +338,18 @@ const LiteEventsPage = () => {
           />
         )}
 
-        {/* Intraday band — full width when the Intraday view is selected. */}
-        {isIntradayView && <IntradayBand />}
-
-        {/* Sports module — full width when the Sports view is selected. */}
-        {isSportsView && (
-          <div style={{ marginTop: 20 }}>
-            <SportsStageCard matches={sportsMatches} variant="full" />
-          </div>
+        {/* Intraday category view (contract 7A) — full width, desktop. */}
+        {isIntradayView && (
+          <LiteIntradayView
+            currentFor={currentFor}
+            historyFor={historyFor}
+            stockRows={stockRows}
+            tickSeconds={tickSeconds}
+          />
         )}
+
+        {/* Sports category view (contract 7B) — full width, desktop. */}
+        {isSportsView && <LiteSportsView matches={sportsMatches} />}
 
         {/* Mobile intraday band — unchanged. */}
         {isMobile &&
