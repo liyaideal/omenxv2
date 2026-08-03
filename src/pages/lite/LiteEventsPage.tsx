@@ -21,7 +21,9 @@ import {
   WatchlistChip,
 } from "@/components/lite/LiteListControls";
 import { EmptyState } from "@/components/states";
-import { isIntradayEvent, sortLiteLiveList, trendingThreshold } from "@/lib/liteListBadges";
+import { sortLiteLiveList, trendingThreshold } from "@/lib/liteListBadges";
+import { IntradayBand } from "@/components/lite/intraday/IntradayBand";
+import { INTRADAY_SUBTYPES } from "@/components/lite/intraday/intradayData";
 import { useSurface } from "@/contexts/SurfaceContext";
 
 // Data-driven sector rail. Filters on the RAW event category (lowercase DB
@@ -57,11 +59,18 @@ const LiteEventsPage = () => {
   const [authOpen, setAuthOpen] = useState(false);
   const [topicSheetOpen, setTopicSheetOpen] = useState(false);
   const [boostOnly, setBoostOnly] = useState(false);
-  const [intradayOnly, setIntradayOnly] = useState(false);
 
   // Non-sports markets pool ("All" and per-sector filter both operate here).
+  // Intraday events live in the dedicated band above the grid, never in it.
   const openMarkets = useMemo(
-    () => markets.filter((m) => (m.category || "").toLowerCase() !== "sports"),
+    () =>
+      markets.filter(
+        (m) =>
+          (m.category || "").toLowerCase() !== "sports" &&
+          !INTRADAY_SUBTYPES.includes(
+            (m.eventSubtype || "") as (typeof INTRADAY_SUBTYPES)[number],
+          ),
+      ),
     [markets],
   );
 
@@ -98,10 +107,9 @@ const LiteEventsPage = () => {
         return cfg.enabled && cfg.maxBoost >= 2;
       });
     }
-    if (intradayOnly) set = set.filter((m) => isIntradayEvent(m));
     // Same three-step rule for "All" and for each sector, scoped to the set.
     return sortLiteLiveList(set);
-  }, [openMarkets, sector, watchlist, boostOnly, intradayOnly, getBoostConfig, isWatchlistView]);
+  }, [openMarkets, sector, watchlist, boostOnly, getBoostConfig, isWatchlistView]);
 
   // Trending cutoff is computed once from the whole live pool so a card's
   // badge doesn't flip when the user changes sector.
@@ -125,7 +133,6 @@ const LiteEventsPage = () => {
   const resetAll = () => {
     setSector("all");
     setBoostOnly(false);
-    setIntradayOnly(false);
   };
 
   const handleWatchlistClick = () => {
@@ -139,19 +146,11 @@ const LiteEventsPage = () => {
     }
     // Trait toggles don't apply inside watchlist view.
     setBoostOnly(false);
-    setIntradayOnly(false);
     setSector("watchlist");
   };
 
   const traitChips = (
-    <>
-      <TraitChip kind="boost" active={boostOnly} onClick={() => setBoostOnly((v) => !v)} />
-      <TraitChip
-        kind="intraday"
-        active={intradayOnly}
-        onClick={() => setIntradayOnly((v) => !v)}
-      />
-    </>
+    <TraitChip kind="boost" active={boostOnly} onClick={() => setBoostOnly((v) => !v)} />
   );
 
   const watchlistStatusLine = (
