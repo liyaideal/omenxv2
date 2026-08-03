@@ -335,7 +335,7 @@ export const SportsStageCard = ({
       >
         <div className="flex flex-col gap-[6px]">
           <span className="flex items-center gap-[8px]" style={MICRO_LABEL}>
-            Sports · next 7 days
+            Sports · match winners
           </span>
           <span
             className="font-display"
@@ -346,12 +346,12 @@ export const SportsStageCard = ({
               color: "#fff",
             }}
           >
-            Live events
+            Who wins the match?
           </span>
           <span style={{ fontSize: 12, color: "#9AA1AC" }}>
             Winning shares pay{" "}
-            <strong style={{ color: "#fff", fontWeight: 600 }}>$1</strong>. Trade
-            before kickoff or during the match.
+            <strong style={{ color: "#fff", fontWeight: 600 }}>$1</strong>. Matches
+            over the next 7 days — trade before kickoff or during the match.
           </span>
         </div>
       </div>

@@ -352,18 +352,23 @@ const LiteEventsPage = () => {
         {/* Card grid */}
         <div className="mt-6 flex flex-1 flex-col space-y-6">
         {isStageView && (
-          <div className="flex items-center justify-between" style={{ padding: "6px 2px 0" }}>
-            <span
-              className="font-display"
-              style={{
-                fontWeight: 700,
-                fontSize: 18,
-                color: "#fff",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              Will it happen?
-            </span>
+          <div className="flex items-start justify-between" style={{ padding: "6px 2px 0" }}>
+            <div className="flex flex-col gap-[6px]">
+              <span
+                className="font-display"
+                style={{
+                  fontWeight: 700,
+                  fontSize: 18,
+                  color: "#fff",
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                Will it happen?
+              </span>
+              <span style={{ fontSize: 12, color: "#9AA1AC" }}>
+                Back Yes or No on real-world outcomes. Winning shares pay $1.
+              </span>
+            </div>
             <span style={{ fontSize: 12, color: "#6B7280" }}>
               {filtered.length} open
             </span>
