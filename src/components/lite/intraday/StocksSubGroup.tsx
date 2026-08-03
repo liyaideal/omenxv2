@@ -160,10 +160,23 @@ export const StocksSubGroup = ({
 }) => {
   const bySession = useMemo(() => {
     const map: Record<SessionKey, StockEventRow[]> = { us: [], hk: [] };
+    // One round per stock per session: dedupe by ticker, keep the round
+    // that settles soonest, and cap the group at the six seeded names.
+    const seen: Record<SessionKey, Map<string, StockEventRow>> = {
+      us: new Map(),
+      hk: new Map(),
+    };
     for (const r of rows) {
       const k: SessionKey = r.event_subtype === HK_STOCK_SUBTYPE ? "hk" : "us";
-      map[k].push(r);
+      const t = deriveTickerFromEvent(r.id, r.name);
+      const prev = seen[k].get(t);
+      const endOf = (x: StockEventRow) =>
+        x.end_date ? new Date(x.end_date).getTime() : Infinity;
+      if (!prev || endOf(r) < endOf(prev)) seen[k].set(t, r);
     }
+    (["us", "hk"] as SessionKey[]).forEach((k) => {
+      map[k] = [...seen[k].values()].slice(0, 6);
+    });
     return map;
   }, [rows]);
 
