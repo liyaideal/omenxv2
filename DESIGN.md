@@ -1492,3 +1492,22 @@ Slug/id `crypto-{coin}-updown-{tf}-{YYYYMMDDHHMM}` (UTC period start), coins btc
 
 ### Quick trade page (`src/pages/lite/LiteQuickTrade.tsx`)
 `/spot?event=…` branches on subtype `CRYPTO_QUICK_UPDOWN_SPOT` into LiteQuickTrade: eyebrow `Crypto · Intraday`, price line `$X · ▲ +Y% today · Vol $Z`, **ROUND switcher** `[5m 15m 1h 4h 1D]` that navigates (replace) to the same coin's current event of that timeframe, **round tape** (`ROUND #{n}` + last 10 settled outcome squares + live orange countdown capsule + dashed `NEXT` ghost), **settle-line chart** (dashed round-open baseline, orange dashed vertical settle marker; the price path never draws past the marker), and a right-rail question card feeding the **reused** `LiteOrderPanel`. When the bound round resolves the page auto-rebinds to the next round of the same coin+tf. `/spot?...&side=up|down` preselects the direction on both the quick and stock spot pages.
+
+---
+
+## CHK-8 · Single trade-page discipline (LOCKED 2026-08-03, user-mandated)
+
+The product has exactly **two** trade pages:
+
+| Page | Route | Skeleton |
+| --- | --- | --- |
+| Contract trade | `/trade` | `LiteContractTrade` (Lite) + `DesktopTrading` (Pro) |
+| Spot trade | `/spot` | `LiteSpotTrade` and its same-skeleton variant branches (e.g. the quick-rounds view `LiteQuickTrade`) + `SpotTrading` (Pro) |
+
+Rules:
+- Every feature addition, removal, or new market category MUST be implemented as **module additions/removals inside these two skeletons**, reusing the shared blocks (`src/components/lite/trade/SpotBlocks.tsx`) and the existing chart components (`LiteStockChart` / `LiteContractChart`).
+- Creating a separate trade page, a new chart visual style, or a parallel visual system for any category is **forbidden**.
+- Any spec introducing a new category into the trade flow must first declare: which page it belongs to (contract or spot), which modules it inherits, and which modules it adds/removes.
+- Changes to shared blocks must keep **every** consumer (stock spot, quick rounds, contract) rendering correctly.
+
+**2026-08-03:** the quick-rounds trade view was rebased onto the spot-page skeleton — same chart (`LiteStockChart`), sentiment bar, settlement rail and position card as the stock spot page. `RoundPlot` remains **only** in the Intraday band tiles.
