@@ -127,6 +127,25 @@ export const useQuickRounds = (enabled: boolean, refreshKey: number = 0) => {
     return () => clearInterval(t);
   }, [enabled]);
 
+  // Expiry watchdog — the moment a bound round's end_date passes, refetch once
+  // so the tiles roll to the next round instead of sitting at 00:00.
+  useEffect(() => {
+    if (!enabled || live.length === 0) return;
+    let fired = false;
+    const t = setInterval(() => {
+      if (fired) return;
+      const now = Date.now();
+      const expired = live.some(
+        (e) => e.end_date && new Date(e.end_date).getTime() <= now,
+      );
+      if (expired) {
+        fired = true;
+        setTick((n) => n + 1);
+      }
+    }, 1000);
+    return () => clearInterval(t);
+  }, [enabled, live]);
+
   useEffect(() => {
     if (!enabled) return;
     let alive = true;
