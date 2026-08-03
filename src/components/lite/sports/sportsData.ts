@@ -28,6 +28,7 @@ export interface SportsMatch {
   minute: number | null;
   phase: string | null;
   score: string | null;
+  volume: number;
   options: SportsOption[];
 }
 
@@ -62,7 +63,7 @@ export const useSportsMatches = () => {
       const { data } = await supabase
         .from("events")
         .select(
-          "id, name, start_date, end_date, metadata, event_options(id, label, price)",
+          "id, name, start_date, end_date, volume, metadata, event_options(id, label, price)",
         )
         .eq("event_subtype", SPORTS_SUBTYPE)
         .eq("is_resolved", false)
@@ -96,6 +97,7 @@ export const useSportsMatches = () => {
           minute: isLive ? liveMinute(kickoff) : null,
           phase: meta.phase ?? null,
           score: meta.score ?? null,
+          volume: Number((e as { volume?: number | string | null }).volume ?? 0),
           options: opts,
         };
       });
@@ -182,4 +184,108 @@ export const kickoffLabel = (d: Date | null): { day: string; time: string } => {
     hour12: false,
   });
   return { day, time };
+};
+
+// ------------------------------------------------------------------
+// League → local kickoff zone. Single source of truth: kickoff_at is
+// stored UTC, the ledger renders the league's own local wall clock.
+// ------------------------------------------------------------------
+interface LeagueZone {
+  tz: string;
+  label: string;
+}
+
+const ET: LeagueZone = { tz: "America/New_York", label: "ET" };
+const CET: LeagueZone = { tz: "Europe/Berlin", label: "CET" };
+const BST: LeagueZone = { tz: "Europe/London", label: "BST" };
+const CST: LeagueZone = { tz: "Asia/Shanghai", label: "CST" };
+const KST: LeagueZone = { tz: "Asia/Seoul", label: "KST" };
+
+const LEAGUE_ZONES: Array<[RegExp, LeagueZone]> = [
+  [/champions|^ucl\b/i, CET],
+  [/chinese super|^csl\b/i, CST],
+  [/k league/i, KST],
+  [/^ufc/i, ET],
+  [/premier league|^epl\b/i, BST],
+  [/laliga|la liga|serie a|bundesliga|ligue 1|eredivisie|atp|wta/i, CET],
+];
+
+export const zoneForLeague = (league: string): LeagueZone => {
+  for (const [re, zone] of LEAGUE_ZONES) if (re.test(league)) return zone;
+  return ET;
+};
+
+/** Kickoff time cell — league-local HH:mm + the zone micro-label. */
+export const kickoffCell = (
+  d: Date | null,
+  league: string,
+): { time: string; zone: string } => {
+  const zone = zoneForLeague(league);
+  if (!d) return { time: "TBD", zone: zone.label };
+  return {
+    time: new Intl.DateTimeFormat("en-GB", {
+      timeZone: zone.tz,
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(d),
+    zone: zone.label,
+  };
+};
+
+export interface DayGroup {
+  key: number;
+  label: string;
+  note: string;
+  matches: SportsMatch[];
+}
+
+const dayTitle = (d: Date) =>
+  d.toLocaleDateString(undefined, {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
+
+/**
+ * Day-grouped ledger. Live matches are pinned above the ledger, so they
+ * are excluded from the rows but still counted in today's note.
+ */
+export const buildDayGroups = (rows: SportsMatch[]): DayGroup[] => {
+  const today = startOfDay(new Date());
+  const byDay = new Map<number, SportsMatch[]>();
+  for (const r of rows) {
+    if (!r.kickoff) continue;
+    const k = startOfDay(r.kickoff);
+    byDay.set(k, [...(byDay.get(k) || []), r]);
+  }
+  return [...byDay.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([k, all]) => {
+      const list = all
+        .filter((m) => !m.live)
+        .sort(
+          (a, b) =>
+            (a.kickoff?.getTime() ?? 0) - (b.kickoff?.getTime() ?? 0),
+        );
+      const liveCount = all.length - list.length;
+      const d = new Date(k);
+      const isToday = k === today;
+      return {
+        key: k,
+        label: isToday ? `Today · ${dayTitle(d)}` : dayTitle(d),
+        note: isToday
+          ? `${liveCount} playing now · ${list.length} to come`
+          : `${all.length} ${all.length === 1 ? "match" : "matches"}`,
+        matches: list,
+      };
+    })
+    .filter((g) => g.matches.length > 0);
+};
+
+/** "$182K" style compact volume used by the ledger rows. */
+export const compactVolume = (n: number): string => {
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `$${Math.round(n / 1_000)}K`;
+  return `$${Math.round(n)}`;
 };

@@ -10,6 +10,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { IntradayStageCard } from "@/components/lite/allstage/IntradayStageCard";
 import { SportsStageCard } from "@/components/lite/sports/SportsStageCard";
+import { LiteIntradayView } from "@/components/lite/categoryviews/LiteIntradayView";
+import { LiteSportsView } from "@/components/lite/categoryviews/LiteSportsView";
 import { RoundPlot } from "@/components/lite/intraday/RoundPlot";
 import { TraitChip } from "@/components/lite/LiteListControls";
 import {
@@ -611,6 +613,107 @@ const ChipTiersDemo = () => {
   );
 };
 
+/* ---------------- 6. Category views 7A / 7B ---------------- */
+/* The category views group stock rows by "is a round open right now",
+   so these presets hang off the real clock while every other value
+   stays a fixed mock. */
+const rel = (min: number) => new Date(Date.now() + min * MIN).toISOString();
+
+const viewStock = (
+  base: StockEventRow,
+  startMin: number,
+  endMin: number,
+): StockEventRow => ({ ...base, start_date: rel(startMin), end_date: rel(endMin) });
+
+const US_TRADING = US_OPEN_ROWS.map((r) => viewStock(r, -180, 95));
+const US_ASLEEP = US_OPEN_ROWS.map((r) => viewStock(r, 900, 1290));
+const HK_TRADING = HK_OPEN_ROWS.map((r) => viewStock(r, -120, 60));
+const HK_ASLEEP = HK_OPEN_ROWS.map((r) => viewStock(r, 600, 990));
+
+const VIEW_7A_PRESETS = [
+  {
+    id: "7a-us",
+    label: "US session open",
+    rows: [...US_TRADING, ...HK_ASLEEP],
+    caption:
+      "US session open — the 3 US names trade, the 3 HK names sit in the asleep group with \"Hong Kong opens …\".",
+  },
+  {
+    id: "7a-hk",
+    label: "HK session open",
+    rows: [...HK_TRADING, ...US_ASLEEP],
+    caption:
+      "HK session open — inverse of the above; the session pill reads \"HK session open\" and prices use HK$.",
+  },
+  {
+    id: "7a-none",
+    label: "No session open",
+    rows: [...US_ASLEEP, ...HK_ASLEEP],
+    caption:
+      "No US/HK session open — all 6 stock rows fall into the asleep group; the coin rounds keep running.",
+  },
+] as const;
+
+const IntradayViewDemo = () => {
+  const [id, setId] = useState<string>(VIEW_7A_PRESETS[0].id);
+  const p = VIEW_7A_PRESETS.find((x) => x.id === id) ?? VIEW_7A_PRESETS[0];
+  return (
+    <div className="space-y-3">
+      <PresetRail presets={VIEW_7A_PRESETS} activeId={id} onSelect={setId} />
+      <div key={id}>
+        <LiteIntradayView
+          currentFor={currentFor}
+          historyFor={historyFor}
+          stockRows={[...p.rows]}
+          tickSeconds={0}
+        />
+      </div>
+      <Caption>{p.caption}</Caption>
+    </div>
+  );
+};
+
+const VIEW_7B_PRESETS = [
+  {
+    id: "7b-live",
+    label: "Live pinned + ledger",
+    matches: [LIVE_1, LIVE_2, UPCOMING_TODAY, UPCOMING_TOMORROW, UPCOMING_H2H, UPCOMING_H2H_2],
+    caption:
+      "At least one match is live — \"PLAYING NOW\" pins the live cards above the ledger and those rows are excluded from the day groups.",
+  },
+  {
+    id: "7b-nolive",
+    label: "Nothing live",
+    matches: [UPCOMING_TODAY, UPCOMING_TOMORROW, UPCOMING_H2H, UPCOMING_H2H_2],
+    caption:
+      "No live match — the pinned block is dropped entirely and the ledger starts right under the day strip.",
+  },
+  {
+    id: "7b-h2h",
+    label: "h2h 2-chip vs 1x2 3-chip",
+    matches: [UPCOMING_TODAY, UPCOMING_H2H, UPCOMING_H2H_2],
+    caption:
+      "Chip cluster follows metadata.format — the Draw chip renders only for 1x2 football rows.",
+  },
+] as const;
+
+const SportsViewDemo = () => {
+  const [id, setId] = useState<string>(VIEW_7B_PRESETS[0].id);
+  const p = VIEW_7B_PRESETS.find((x) => x.id === id) ?? VIEW_7B_PRESETS[0];
+  return (
+    <div className="space-y-3">
+      <PresetRail presets={VIEW_7B_PRESETS} activeId={id} onSelect={setId} />
+      <div key={id}>
+        <LiteSportsView matches={[...p.matches]} />
+      </div>
+      <Caption>
+        {p.caption} Day chips filter the ledger in place — select a day chip to see
+        the filtered state.
+      </Caption>
+    </div>
+  );
+};
+
 export const LiteAllStageSection = () => (
   <SectionWrapper
     id="lite-all-stage"
@@ -667,6 +770,28 @@ export const LiteAllStageSection = () => (
             description="Desktop & Mobile · same component (RoundPlot)"
           >
             <PlotDemo />
+          </SubSection>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="space-y-4 p-6">
+          <SubSection
+            title="Category view 7A · Intraday"
+            description="Desktop · full-width state when the Intraday category chip is active"
+          >
+            <IntradayViewDemo />
+          </SubSection>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="space-y-4 p-6">
+          <SubSection
+            title="Category view 7B · Sports"
+            description="Desktop · full-width state when the Sports category chip is active"
+          >
+            <SportsViewDemo />
           </SubSection>
         </CardContent>
       </Card>
