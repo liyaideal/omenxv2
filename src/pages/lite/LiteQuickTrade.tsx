@@ -544,12 +544,16 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
           {Head}
           {RoundSwitcher}
           {Tape}
-          {Chart}
-          {RuleCard}
-          {Position}
-          {MarketActivity}
-          {AlsoLiveNow ? <div className="mt-4">{AlsoLiveNow}</div> : null}
-          {CashOut}
+          <div className="mt-4 space-y-4">
+            {Chart}
+            {SentimentBar}
+            {RuleCard}
+            {SettlementRail}
+            {Position}
+            {MarketActivity}
+            {AlsoLiveNow}
+            {CashOut}
+          </div>
         </div>
 
         <div
