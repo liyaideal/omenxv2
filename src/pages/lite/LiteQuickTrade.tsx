@@ -626,11 +626,15 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
           {Head}
           {RoundSwitcher}
           {Tape}
-          {Chart}
-          {RuleCard}
-          {Position}
-          {MarketActivity}
-          {CashOut}
+          <div className="mt-4 space-y-5">
+            {SentimentBar}
+            {Chart}
+            {RuleCard}
+            {SettlementRail}
+            {Position}
+            {MarketActivity}
+            {CashOut}
+          </div>
         </div>
         <aside className="space-y-4">
           {PickCard}
