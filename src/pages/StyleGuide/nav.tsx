@@ -15,6 +15,7 @@ import {
   SpotSection,
   TransparencySection,
   LiteSection,
+  LiteAllStageSection,
   LiteSpotSection,
   WalletSection,
   DepositWithdrawSection,
@@ -98,6 +99,7 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
     label: "Lite (consumer surface)",
     sections: [
       s("lite", "Lite components", LiteSection),
+      s("lite-all-stage", "Lite · All stage", LiteAllStageSection),
       s("lite-spot", "Lite spot trade", LiteSpotSection),
     ],
   },
@@ -138,6 +140,7 @@ export const SECTION_ALIASES: Record<string, string> = {
   mobile: "mobile-patterns",
   "mobile-patterns": "mobile-patterns",
   "lite-spot": "lite-spot",
+  "lite-all-stage": "lite-all-stage",
   "trading-header": "trading-header",
 };
 
