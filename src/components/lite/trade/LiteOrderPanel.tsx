@@ -32,6 +32,8 @@ export interface LiteOrderPanelProps {
   blockedReason?: string;
   side: Side;
   onSideChange: (s: Side) => void;
+  /** When true, the panel does not render its own Up/Down side buttons. */
+  hideSideSelector?: boolean;
   amount: string;
   onAmountChange: (v: string) => void;
   onFilled?: () => void; // e.g. close drawer, refresh positions
@@ -63,6 +65,7 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
     blockedReason,
     side,
     onSideChange,
+    hideSideSelector = false,
     amount,
     onAmountChange,
     onFilled,
@@ -180,27 +183,29 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
       )}
 
       {/* YOUR CALL */}
-      <div className="space-y-2">
-        <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-          Your call
+      {!hideSideSelector && (
+        <div className="space-y-2">
+          <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+            Your call
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <SideButton
+              active={side === "yes"}
+              tone="yes"
+              label={yesLabel}
+              price={yesPrice}
+              onClick={() => onSideChange("yes")}
+            />
+            <SideButton
+              active={side === "no"}
+              tone="no"
+              label={noLabel}
+              price={noPrice}
+              onClick={() => onSideChange("no")}
+            />
+          </div>
         </div>
-        <div className="grid grid-cols-2 gap-2">
-          <SideButton
-            active={side === "yes"}
-            tone="yes"
-            label={yesLabel}
-            price={yesPrice}
-            onClick={() => onSideChange("yes")}
-          />
-          <SideButton
-            active={side === "no"}
-            tone="no"
-            label={noLabel}
-            price={noPrice}
-            onClick={() => onSideChange("no")}
-          />
-        </div>
-      </div>
+      )}
 
       {/* HOW MUCH */}
       <div className="space-y-2">
