@@ -13,6 +13,12 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { executeSpotTrade } from "@/services/tradingService";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { MobileHeader } from "@/components/MobileHeader";
 import { useHeadingScrolledOut } from "@/hooks/useHeadingScrolledOut";
@@ -285,6 +291,8 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   );
 
   const Tape = (
+    <TooltipProvider delayDuration={120}>
+      <>
     <div
       className={cn(
         "flex items-center gap-[6px]",
@@ -298,8 +306,10 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
           #{roundNo}
         </div>
       </div>
-      {history.slice(-10).map((h, i) => (
-        <span
+      {history.slice(-10).map((h, i, arr) => (
+        <Tooltip key={i}>
+          <TooltipTrigger asChild>
+            <span
           key={i}
           className="flex shrink-0 items-center justify-center"
           style={{
@@ -312,9 +322,16 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
           }}
         >
           {h === "up" ? "▲" : "▼"}
-        </span>
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>
+            Round #{roundNo - (arr.length - i)} · {h === "up" ? "Up" : "Down"} won
+          </TooltipContent>
+        </Tooltip>
       ))}
-      <span
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span
         className="font-display flex shrink-0 items-center gap-[5px]"
         style={{
           border: "1.5px solid #FF8A3D",
@@ -327,8 +344,13 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
       >
         <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#FF8A3D" }} />
         {countdown}
-      </span>
-      <span
+          </span>
+        </TooltipTrigger>
+        <TooltipContent>Current round · closes in {countdown}</TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span
         className="flex shrink-0 items-center justify-center"
         style={{
           width: 26,
@@ -341,8 +363,21 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
         }}
       >
         NEXT
-      </span>
+          </span>
+        </TooltipTrigger>
+        <TooltipContent>Next round starts the moment this one settles</TooltipContent>
+      </Tooltip>
     </div>
+    <div
+      className="font-display"
+      style={{ marginTop: 6, fontSize: 10.5, color: "#6B7280" }}
+    >
+      Past rounds — <span style={{ color: "#33D6FF" }}>▲</span> Up won ·{" "}
+      <span style={{ color: "#CFFF4A" }}>▼</span> Down won · a new round starts the
+      moment one settles.
+    </div>
+      </>
+    </TooltipProvider>
   );
 
   const Chart = (
