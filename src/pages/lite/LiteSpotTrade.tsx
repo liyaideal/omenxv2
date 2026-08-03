@@ -922,4 +922,16 @@ const PosCell = ({
   </div>
 );
 
-export default LiteSpotTrade;
+/**
+ * Route entry for /spot. Crypto quick rounds (CRYPTO_QUICK_UPDOWN_SPOT)
+ * render the intraday fusion trade page; everything else keeps the
+ * daily-stock terminal above.
+ */
+const LiteSpotRoute = () => {
+  const [params] = useSearchParams();
+  const eventId = params.get("event") || "";
+  if (parseQuickId(eventId)) return <LiteQuickTrade eventId={eventId} />;
+  return <LiteSpotTrade />;
+};
+
+export default LiteSpotRoute;
