@@ -5,7 +5,7 @@
 // ============================================================
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { Info, Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
 import { usePositions } from "@/hooks/usePositions";
@@ -18,9 +18,14 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { useHeadingScrolledOut } from "@/hooks/useHeadingScrolledOut";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
+import {
+  LiteMarketActivity,
+  useMarketActivityRows,
+} from "@/components/lite/contract/LiteMarketActivity";
 import { AssetAvatar } from "@/components/lite/AssetAvatar";
 import { RoundPlot } from "@/components/lite/intraday/RoundPlot";
 import {
+  COINS,
   COIN_META,
   TIMEFRAMES,
   TF_SECONDS,
@@ -109,6 +114,23 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   }, [expired, event?.id]);
 
   const roundNo = useMemo(() => {
+    if (!event?.start_date) return 0;
+    const startSec = Math.floor(new Date(event.start_date).getTime() / 1000);
+    return Math.floor(startSec / TF_SECONDS[tf]) % 10000;
+  }, [event?.start_date, tf]);
+
+  // Shared anonymised all-user activity feed (same hook as the stock spot page).
+  const activity = useMarketActivityRows(event?.name || null, "Up", refetchTick);
+
+  const alsoLive = useMemo(
+    () =>
+      COINS.filter((c) => c !== coin)
+        .map((c) => ({ coin: c, ev: currentFor.get(`${c}-${tf}`) ?? null }))
+        .filter((x) => x.ev),
+    [coin, tf, currentFor],
+  );
+
+  const _unusedRoundNo = useMemo(() => {
     if (!event?.start_date) return 0;
     const startSec = Math.floor(new Date(event.start_date).getTime() / 1000);
     return Math.floor(startSec / TF_SECONDS[tf]) % 10000;
