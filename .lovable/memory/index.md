@@ -152,3 +152,4 @@
 - [Lite intraday band](mem://design/lite-intraday-band) — 所有 intraday 事件只在橙色 Intraday band 里；主 grid 排除；Intraday chip 已删；AssetAvatar 规范
 - [CHK-8 single trade-page discipline](mem://product/single-trade-page-discipline) — 只有 /trade 与 /spot 两个交易页，新品类以模块增删实现
 - [Crypto quick rounds](mem://features/crypto-quick-rounds) — 3 币 × 5 周期滚动 up/down spot 轮次、roll-crypto-quick-rounds cron、settle_spot_event 派彩、LiteQuickTrade 页面
+- [LiteEventCard frozen](mem://design/lite-event-card-frozen) — 通用事件卡（Will it happen? 网格）五段视觉语法冻结：只可放置，禁止重设计或另造替代卡
