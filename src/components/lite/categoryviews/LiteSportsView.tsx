@@ -324,6 +324,12 @@ export const LiteSportsView = ({ matches }: { matches: SportsMatch[] }) => {
 
   const live = useMemo(() => matches.filter((m) => m.live), [matches]);
   const days: DayBucket[] = useMemo(() => buildDayStrip(matches), [matches]);
+  // Header count stays consistent with the strip + ledger: live now plus
+  // everything still to kick off. Past/finished matches are never counted.
+  const weekCount = useMemo(
+    () => matches.filter((m) => m.live || isUpcoming(m)).length,
+    [matches],
+  );
   const groups = useMemo(
     () => buildDayGroups(matchesInBucket(matches, bucket)),
     [matches, bucket],
@@ -384,7 +390,7 @@ export const LiteSportsView = ({ matches }: { matches: SportsMatch[] }) => {
               letterSpacing: "-0.02em",
             }}
           >
-            {matches.length}
+            {weekCount}
           </span>
           <span
             style={{
