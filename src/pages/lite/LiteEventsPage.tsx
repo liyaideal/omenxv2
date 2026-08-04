@@ -306,7 +306,7 @@ const LiteEventsPage = () => {
           </div>
         ) : (
           <div className="flex flex-wrap items-center gap-2" style={{ marginTop: 16 }}>
-            {DESKTOP_CATEGORIES.filter(
+            {TOP_CATEGORIES.filter(
               (c) =>
                 c.id === "all" ||
                 c.id === "intraday" ||
