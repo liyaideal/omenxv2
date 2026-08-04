@@ -57,6 +57,12 @@ export interface LiteCalendarViewProps {
   onOpenIntraday: () => void;
   /** Frozen clock override — style-guide presets only. */
   nowOverride?: number;
+  /** Injected initial UI state — style-guide presets only. */
+  initialMode?: "day" | "week";
+  /** Day-key offset in days from today for the Day frame / mobile focus. */
+  initialDayOffset?: number;
+  initialSubType?: string;
+  initialLanesOpen?: boolean;
 }
 
 const WEEK_TICKET_CAP = 4;
@@ -137,18 +143,28 @@ export const LiteCalendarView = ({
   onBackToList,
   onOpenIntraday,
   nowOverride,
+  initialMode,
+  initialDayOffset,
+  initialSubType,
+  initialLanesOpen,
 }: LiteCalendarViewProps) => {
   const navigate = useNavigate();
   const now = nowOverride ?? Date.now();
   const todayKey = startOfDay(now);
   const tz = userTzAbbrev();
 
-  const [mode, setMode] = useState<"day" | "week">("week");
-  const [dayKey, setDayKey] = useState<number>(todayKey);
-  const [subType, setSubType] = useState<string>("all");
-  const [lanesOpen, setLanesOpen] = useState(false);
+  const [mode, setMode] = useState<"day" | "week">(initialMode ?? "week");
+  const [dayKey, setDayKey] = useState<number>(
+    todayKey + (initialDayOffset ?? 0) * DAY_MS,
+  );
+  const [subType, setSubType] = useState<string>(initialSubType ?? "all");
+  const [lanesOpen, setLanesOpen] = useState(!!initialLanesOpen);
   /** Mobile: day-strip chip filters the ticket list in place. */
-  const [mobileDay, setMobileDay] = useState<number | null>(null);
+  const [mobileDay, setMobileDay] = useState<number | null>(
+    initialMode === "day"
+      ? todayKey + (initialDayOffset ?? 0) * DAY_MS
+      : null,
+  );
 
   const allItems = useMemo(
     () =>
