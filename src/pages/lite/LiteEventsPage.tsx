@@ -14,11 +14,7 @@ import { AuthDialog } from "@/components/auth/AuthDialog";
 import { cn } from "@/lib/utils";
 import { LiteEventCard } from "@/components/lite/LiteEventCard";
 import { LiveSettledSwitch } from "@/components/lite/LiveSettledSwitch";
-import {
-  TopicSheet,
-  TraitChip,
-  WatchlistChip,
-} from "@/components/lite/LiteListControls";
+import { TraitChip, WatchlistChip } from "@/components/lite/LiteListControls";
 import { CalendarChip } from "@/components/lite/LiteListControls";
 import { LiteCalendarView } from "@/components/lite/calendar/LiteCalendarView";
 import { EmptyState } from "@/components/states";
@@ -86,7 +82,6 @@ const LiteEventsPage = () => {
   const { watchlist } = useWatchlist();
   const { getConfig: getBoostConfig } = useCategoryBoostConfigs();
   const [authOpen, setAuthOpen] = useState(false);
-  const [topicSheetOpen, setTopicSheetOpen] = useState(false);
   const [boostOnly, setBoostOnly] = useState(false);
   // Calendar is a lens on this page — a view state, never a route.
   const [calendarOn, setCalendarOn] = useState(false);
