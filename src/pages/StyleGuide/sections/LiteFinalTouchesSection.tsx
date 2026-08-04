@@ -5,6 +5,7 @@
 // category-row control cluster. Deterministic mocks, frozen clock.
 // Pixel contract: docs/design-contracts/list-final-touches-11.html
 // ============================================================
+import { TOP_CATEGORIES } from "@/lib/taxonomy";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
