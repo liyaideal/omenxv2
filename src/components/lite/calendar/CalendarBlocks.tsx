@@ -10,6 +10,7 @@ import { kickoffCell } from "@/components/lite/sports/sportsData";
 import {
   CalItem,
   TicketView,
+  TicketTone,
   centLabel,
   closesSoon,
   compactUsd,
@@ -21,6 +22,60 @@ export const ORANGE = "#FF8A3D";
 const UP = "#33D6FF";
 const DOWN = "#CFFF4A";
 const NEUTRAL = "#E6E9EE";
+const CHALK = "#F2F3F5";
+
+/* ---------------- Ticket category identity ---------------- */
+/** Category is the first thing a ticket must say in a 7-column grid, so it
+ *  leads the card as a filled badge plus a 3px edge bar. Three tones only —
+ *  orange = Intraday, chalk = Sports, neutral for every other category. */
+const TONE_BAR: Record<TicketTone, string> = {
+  intraday: ORANGE,
+  sports: CHALK,
+  neutral: "#3A3F47",
+};
+
+export const TicketCategoryBadge = ({
+  label,
+  tone,
+  size = "week",
+}: {
+  label: string;
+  tone: TicketTone;
+  size?: "week" | "mobile";
+}) => (
+  <span
+    className="min-w-0 truncate"
+    style={{
+      fontSize: size === "week" ? 8.5 : 9,
+      letterSpacing: "0.1em",
+      textTransform: "uppercase",
+      fontWeight: 700,
+      borderRadius: 4,
+      padding: size === "week" ? "1.5px 5px" : "2px 6px",
+      lineHeight: 1.3,
+      color: tone === "neutral" ? "#C9CED6" : "#0A0B0D",
+      background:
+        tone === "intraday" ? ORANGE : tone === "sports" ? CHALK : "#1D2026",
+    }}
+  >
+    {label}
+  </span>
+);
+
+/** 3px scanning anchor pinned to the ticket's left edge. */
+const EdgeBar = ({ tone, radius }: { tone: TicketTone; radius: number }) => (
+  <span
+    aria-hidden
+    className="pointer-events-none absolute inset-y-0 left-0"
+    style={{
+      width: 3,
+      borderTopLeftRadius: radius,
+      borderBottomLeftRadius: radius,
+      background: tone === "neutral" ? "transparent" : TONE_BAR[tone],
+      opacity: tone === "neutral" ? 0 : 0.85,
+    }}
+  />
+);
 
 /* ---------------- Small parts ---------------- */
 
