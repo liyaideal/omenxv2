@@ -57,7 +57,7 @@ export interface EventRow {
   // Dates
   expiry: Date | null;
   /** Trading opens at this moment; null == already open. */
-  opensAt: Date | null;
+  opensAt?: Date | null;
   createdAt: string;
 
   // Computed flags
@@ -174,6 +174,7 @@ export const useMarketListData = (events: EventWithOptions[]): EventRow[] => {
         totalVolume: children.reduce((s, c) => s + c.totalVolume, 0),
         openInterest: children.reduce((s, c) => s + c.openInterest, 0),
         expiry: endDate,
+        opensAt: event.start_date ? new Date(event.start_date) : null,
         createdAt: event.created_at,
         isNew: newEvent,
         isClosingSoon: closingSoon,
