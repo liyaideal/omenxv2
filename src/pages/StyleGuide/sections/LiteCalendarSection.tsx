@@ -397,7 +397,7 @@ const DESKTOP_FRAMES: Frame[] = [
     data: EMPTY_DATA,
     mode: "day",
     caption:
-      "Standing intraday row stays; dashed panel offers the next decision moment and a route back to the list.",
+      "Standing intraday row stays; the shared lynx EmptyState (section tier, LynxFigure 100) states the next decision moment and offers the pill route back to the list — no hand-rolled panel, no blue text link.",
   },
 ];
 
@@ -466,7 +466,8 @@ const MOBILE_FRAMES: Frame[] = [
     sector: "all",
     data: EMPTY_DATA,
     mode: "week",
-    caption: "Dashed empty panel with the route back to the list; footer count reads 0.",
+    caption:
+      "Shared lynx EmptyState (section tier) with the pill route back to the list; footer count reads 0.",
   },
 ];
 
