@@ -260,6 +260,35 @@ const ROW_PRESETS = [
   { id: "calendar", label: "Calendar active" },
 ] as const;
 
+const BOOST_PRESETS = [
+  { id: "off", label: "Boost inactive" },
+  { id: "grouped", label: "Boost active · grouped" },
+  { id: "sports", label: "Sports + Boost · flat" },
+] as const;
+
+/** Desktop chip set, order and labels straight from the taxonomy. */
+const TAXONOMY_CHIPS = TOP_CATEGORIES.filter((c) =>
+  ["all", "intraday", "sports", "crypto", "finance", "politics", "macro"].includes(c.id),
+).map((c) => ({ id: c.id, label: c.label }));
+
+const BOOST_GROUPS = [
+  { label: "Crypto", n: 3 },
+  { label: "Finance", n: 2 },
+  { label: "Politics", n: 1 },
+];
+
+/** Neutral card placeholder — this preset documents grouping, not card art. */
+const CardSlot = () => (
+  <div
+    style={{
+      height: 132,
+      borderRadius: 14,
+      border: "1px solid #23262D",
+      background: "#0E1013",
+    }}
+  />
+);
+
 export const LiteFinalTouchesSection = () => {
   const [pickPreset, setPickPreset] = useState<string>("desktop");
   const [pagePreset, setPagePreset] = useState<string>("live");
