@@ -14,11 +14,7 @@ import { AuthDialog } from "@/components/auth/AuthDialog";
 import { cn } from "@/lib/utils";
 import { LiteEventCard } from "@/components/lite/LiteEventCard";
 import { LiveSettledSwitch } from "@/components/lite/LiveSettledSwitch";
-import {
-  TopicSheet,
-  TraitChip,
-  WatchlistChip,
-} from "@/components/lite/LiteListControls";
+import { TraitChip, WatchlistChip } from "@/components/lite/LiteListControls";
 import { CalendarChip } from "@/components/lite/LiteListControls";
 import { LiteCalendarView } from "@/components/lite/calendar/LiteCalendarView";
 import { EmptyState } from "@/components/states";
@@ -86,7 +82,6 @@ const LiteEventsPage = () => {
   const { watchlist } = useWatchlist();
   const { getConfig: getBoostConfig } = useCategoryBoostConfigs();
   const [authOpen, setAuthOpen] = useState(false);
-  const [topicSheetOpen, setTopicSheetOpen] = useState(false);
   const [boostOnly, setBoostOnly] = useState(false);
   // Calendar is a lens on this page — a view state, never a route.
   const [calendarOn, setCalendarOn] = useState(false);
@@ -165,21 +160,6 @@ const LiteEventsPage = () => {
   // Trending cutoff is computed once from the whole live pool so a card's
   // badge doesn't flip when the user changes sector.
   const trendingCutoff = useMemo(() => trendingThreshold(openMarkets), [openMarkets]);
-
-  const topicOptions = useMemo(
-    () => [
-      { id: "all", label: "All", count: openMarkets.length },
-      ...availableSectors.map((s) => ({
-        id: s.id,
-        label: s.label,
-        count: sectorCounts.get(s.id) || 0,
-      })),
-    ],
-    [availableSectors, sectorCounts, openMarkets.length],
-  );
-
-  const topicLabel =
-    sector === "all" ? "All" : availableSectors.find((s) => s.id === sector)?.label || "All";
 
   const resetAll = () => {
     setSector("all");
@@ -578,13 +558,6 @@ const LiteEventsPage = () => {
         </div>
       </div>
 
-      <TopicSheet
-        open={topicSheetOpen}
-        onOpenChange={setTopicSheetOpen}
-        options={topicOptions}
-        value={sector}
-        onSelect={setSector}
-      />
       <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
       {isMobile && <BottomNav />}
     </div>
