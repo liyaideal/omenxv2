@@ -150,7 +150,6 @@ const PickCard = ({
             color: "#fff",
             fontWeight: 600,
             lineHeight: 1.3,
-            minHeight: compact ? undefined : 63,
           }}
         >
           {pick.name}
