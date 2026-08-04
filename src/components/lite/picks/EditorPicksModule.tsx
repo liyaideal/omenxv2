@@ -241,7 +241,6 @@ export const EditorPicksModule = ({
       className="flex flex-col"
       style={{
         gap: 16,
-        borderTop: "1px solid #1D2026",
         marginTop: 28,
         paddingTop: 26,
       }}
