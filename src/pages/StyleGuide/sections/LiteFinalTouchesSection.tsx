@@ -240,6 +240,7 @@ export const LiteFinalTouchesSection = () => {
 
   return (
     <SectionWrapper
+      id="lite-final-touches"
       title="Lite · Final touches (11)"
       description="Editor's picks module, the rebuilt mobile events page and the mobile category-row control cluster. Contract: docs/design-contracts/list-final-touches-11.html"
     >
