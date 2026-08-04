@@ -497,8 +497,8 @@ export const ticketOf = (
     return {
       id: item.id,
       time,
-      title: `${marketShortName(item.market)} session close`,
-      cat: `${item.rows.length} ${marketShortName(item.market)} closes`,
+      title: `${marketShortName(item.market)} closing bell`,
+      cat: `${item.rows.length} settle at the bell`,
       tone: "intraday",
       leagueShort: null,
       live: false,
