@@ -410,6 +410,12 @@ export const localTime = (d: Date): string =>
 export const shortDate = (d: Date): string =>
   `${d.getDate()} ${d.toLocaleDateString(undefined, { month: "short" })}`;
 
+/** "Closes 21:00" when it stops today, otherwise "Closes 30 Sep". */
+export const closesStamp = (item: CalItem, now: number = Date.now()): string =>
+  startOfDay(item.to) === startOfDay(now)
+    ? `Closes ${localTime(item.to)}`
+    : `Closes ${shortDate(item.to)}`;
+
 /** "Today · Mon 3 Aug" / "Tue 4 Aug". */
 export const stepperLabel = (key: number, todayKey: number): string => {
   const d = new Date(key);
