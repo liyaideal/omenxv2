@@ -259,7 +259,27 @@ const US_TICKERS = [
 ];
 
 /** One 16:00 ET bell today, one tomorrow — aggregated per close moment. */
+const hkStock = (
+  ticker: string,
+  base: number,
+  upPrice: number,
+  msFromNow: number,
+): StockEventRow => ({
+  id: `hk-${ticker.toLowerCase()}-updown-20260803`,
+  name: `${ticker} — will it close higher today?`,
+  base_price: base,
+  start_date: iso(-6 * HOUR),
+  end_date: iso(msFromNow),
+  freeze_time: null,
+  event_subtype: "HK_STOCK_DAILY_UPDOWN_SPOT",
+  upPrice,
+  downPrice: Number((1 - upPrice).toFixed(2)),
+});
+
+const HK_TICKERS = ["0700", "9988", "3690", "1810", "0005", "1211", "0388", "2318"];
+
 const STOCKS: StockEventRow[] = [
+  ...HK_TICKERS.map((t, i) => hkStock(t, 60 + i * 12.5, 0.44 + (i % 4) * 0.05, 21 * HOUR)),
   ...US_TICKERS.map((t, i) => usStock(t, 100 + i * 9.4, 0.42 + (i % 5) * 0.06, 5 * HOUR)),
   ...US_TICKERS.slice(0, 8).map((t, i) => ({
     ...usStock(t, 100 + i * 9.4, 0.5, 29 * HOUR),
@@ -267,182 +287,3 @@ const STOCKS: StockEventRow[] = [
   })),
 ];
 
-/* ---------------- Presets ---------------- */
-const noop = () => undefined;
-
-const DESKTOP_PRESETS = [
-  {
-    id: "week",
-    label: "Week (default)",
-    mode: "week" as const,
-    sector: "all",
-    data: { events: EVENTS, matches: MATCHES, stocks: STOCKS },
-    caption:
-      "7 columns from today. Category leads every ticket — filled badge + 3px edge bar (orange Intraday / chalk Sports / neutral for everything else); sports tickets carry a short league code instead of the full league name. Live sports ticket keeps the red pulse dot. Tickets never open a trade page from week mode.",
-  },
-  {
-    id: "week-sports",
-    label: "Week · Sports sub-types",
-    mode: "week" as const,
-    sector: "sports",
-    data: { events: EVENTS, matches: MATCHES, stocks: STOCKS },
-    caption:
-      "Sub-type chip row renders only when the category has sub-types — built data-driven from the real league list (All sports / Football / MMA · divider · leagues).",
-  },
-  {
-    id: "day",
-    label: "Day (live + session + generic)",
-    mode: "day" as const,
-    sector: "all",
-    data: { events: EVENTS, matches: MATCHES, stocks: STOCKS },
-    caption:
-      "Clock spine: 66px time cell + rail. Live sports card, aggregated session-close block (10-tile cap + overflow line), and generic cards with no avatars.",
-  },
-  {
-    id: "empty",
-    label: "Empty day",
-    mode: "day" as const,
-    sector: "all",
-    data: { events: [], matches: [], stocks: [] },
-    caption:
-      "Standing intraday row stays; dashed panel offers the next decision moment and a route back to the list.",
-  },
-] as const;
-
-const CalendarDesktopDemo = () => {
-  const [id, setId] = useState<string>(DESKTOP_PRESETS[0].id);
-  const p = DESKTOP_PRESETS.find((x) => x.id === id) ?? DESKTOP_PRESETS[0];
-  return (
-    <div className="space-y-3">
-      <PresetRail presets={DESKTOP_PRESETS} activeId={id} onSelect={setId} />
-      <Canvas>
-        {/* Remount per preset so the internal Day/Week state resets. */}
-        <div key={id} style={{ minWidth: 1040 }}>
-          <LiteCalendarView
-            events={[...p.data.events]}
-            matches={[...p.data.matches]}
-            stocks={[...p.data.stocks]}
-            sector={p.sector}
-            isMobile={false}
-            nowOverride={NOW}
-            onBackToList={noop}
-            onOpenIntraday={noop}
-          />
-        </div>
-      </Canvas>
-      <Caption>
-        {p.caption}
-        {p.mode === "day"
-          ? " Switch the header pill to Day to see this frame."
-          : ""}
-      </Caption>
-    </div>
-  );
-};
-
-const CalendarMobileDemo = () => (
-  <div className="space-y-3">
-    <Canvas width={390}>
-      <LiteCalendarView
-        events={EVENTS}
-        matches={MATCHES}
-        stocks={STOCKS}
-        sector="all"
-        isMobile
-        nowOverride={NOW}
-        onBackToList={noop}
-        onOpenIntraday={noop}
-      />
-    </Canvas>
-    <Caption>
-      390 week mode — the only mobile calendar frame this round. Day-strip chips
-      filter the ticket list in place; ticket taps route straight to the market's
-      trade page.
-    </Caption>
-  </div>
-);
-
-const CalendarChipDemo = () => {
-  const [active, setActive] = useState(false);
-  return (
-    <div className="space-y-3">
-      <Canvas>
-        <div className="flex items-center gap-3">
-          <CalendarChip active={false} onClick={noop} />
-          <CalendarChip active onClick={noop} />
-          <CalendarChip active={active} minHeight={44} onClick={() => setActive((v) => !v)} />
-        </div>
-      </Canvas>
-      <Caption>
-        Inactive · active · interactive (mobile 44px target). The lens is not a
-        category, so the active fill is plain white with no category colour.
-      </Caption>
-    </div>
-  );
-};
-
-const ClosesSoonDemo = () => (
-  <div className="space-y-3">
-    <Canvas>
-      <ClosesSoonBadge />
-    </Canvas>
-    <Caption>
-      Shown when a market decides within 24h. Muted outlined text only — never
-      coloured.
-    </Caption>
-  </div>
-);
-
-export const LiteCalendarSection = () => (
-  <SectionWrapper
-    id="lite-calendar"
-    title="Lite · Calendar"
-    platform="shared"
-    description="Calendar lens on the Lite events page (a view state, not a route). Every preset uses fixed mock data and a frozen mock now (2026-08-03 15:20 UTC) — nothing here reads the database."
-  >
-    <div className="space-y-10">
-      <Card>
-        <CardContent className="space-y-4 p-6">
-          <SubSection
-            title="Header cluster · Calendar chip"
-            description="Desktop & Mobile · same component"
-          >
-            <CalendarChipDemo />
-          </SubSection>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="space-y-4 p-6">
-          <SubSection title="Closes soon badge" description="Desktop & Mobile">
-            <ClosesSoonDemo />
-          </SubSection>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="space-y-4 p-6">
-          <SubSection
-            title="Calendar · desktop frames"
-            description="Desktop · Week (default), Day, Empty day"
-          >
-            <CalendarDesktopDemo />
-          </SubSection>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="space-y-4 p-6">
-          <SubSection
-            title="Calendar · mobile week"
-            description="Mobile 390 · week mode only this round"
-          >
-            <CalendarMobileDemo />
-          </SubSection>
-        </CardContent>
-      </Card>
-    </div>
-  </SectionWrapper>
-);
-
-export default LiteCalendarSection;
