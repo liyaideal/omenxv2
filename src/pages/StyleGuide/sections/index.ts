@@ -16,6 +16,7 @@ export { SpotSection } from "./SpotSection";
 export { LiteSpotSection } from "./LiteSpotSection";
 export { LiteSection } from "./LiteSection";
 export { LiteAllStageSection } from "./LiteAllStageSection";
+export { LiteCalendarSection } from "./LiteCalendarSection";
 export { ApiSection } from "./ApiSection";
 export { StatesSection } from "./StatesSection";
 export { EmptyStatesSection } from "./EmptyStatesSection";

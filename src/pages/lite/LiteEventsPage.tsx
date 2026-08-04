@@ -20,6 +20,8 @@ import {
   TraitChip,
   WatchlistChip,
 } from "@/components/lite/LiteListControls";
+import { CalendarChip } from "@/components/lite/LiteListControls";
+import { LiteCalendarView } from "@/components/lite/calendar/LiteCalendarView";
 import { EmptyState } from "@/components/states";
 import { sortLiteLiveList, trendingThreshold } from "@/lib/liteListBadges";
 import { IntradayBand } from "@/components/lite/intraday/IntradayBand";
@@ -81,6 +83,8 @@ const LiteEventsPage = () => {
   const [authOpen, setAuthOpen] = useState(false);
   const [topicSheetOpen, setTopicSheetOpen] = useState(false);
   const [boostOnly, setBoostOnly] = useState(false);
+  // Calendar is a lens on this page — a view state, never a route.
+  const [calendarOn, setCalendarOn] = useState(false);
 
   // Non-sports markets pool ("All" and per-sector filter both operate here).
   // Intraday events live in the dedicated band above the grid, never in it.
@@ -113,12 +117,12 @@ const LiteEventsPage = () => {
 
   const [sector, setSector] = useState<string>("all");
   const isWatchlistView = sector === "watchlist";
-  const isStageView = !isMobile && sector === "all" && !boostOnly;
-  const isIntradayView = !isMobile && sector === "intraday";
-  const isSportsView = !isMobile && sector === "sports";
+  const isStageView = !calendarOn && !isMobile && sector === "all" && !boostOnly;
+  const isIntradayView = !calendarOn && !isMobile && sector === "intraday";
+  const isSportsView = !calendarOn && !isMobile && sector === "sports";
 
   // Stage data — desktop only, and only for the views that render it.
-  const stageActive = !isMobile && (isStageView || isIntradayView);
+  const stageActive = calendarOn || (!isMobile && (isStageView || isIntradayView));
   const tickSeconds = useSecondTick();
   const { currentFor, historyFor } = useQuickRounds(stageActive);
   const { rows: stockRows } = useIntradayStocks(stageActive);
@@ -248,6 +252,10 @@ const LiteEventsPage = () => {
                   if (v === "settled") navigate("/resolved");
                 }}
               />
+              <CalendarChip
+                active={calendarOn}
+                onClick={() => setCalendarOn((v) => !v)}
+              />
             </div>
           )}
         </div>
@@ -266,11 +274,16 @@ const LiteEventsPage = () => {
               count={watchlist.size}
               onClick={handleWatchlistClick}
             />
+            <CalendarChip
+              active={calendarOn}
+              minHeight={44}
+              onClick={() => setCalendarOn((v) => !v)}
+            />
           </div>
         )}
 
         {/* Filter row (removed entirely in watchlist view) */}
-        {isWatchlistView ? (
+        {isWatchlistView && !calendarOn ? (
           watchlistStatusLine
         ) : isMobile ? (
           <div className="flex items-center gap-2" style={{ marginTop: 12 }}>
@@ -279,7 +292,7 @@ const LiteEventsPage = () => {
               active={sector !== "all"}
               onClick={() => setTopicSheetOpen(true)}
             />
-            {traitChips}
+            {!calendarOn && traitChips}
           </div>
         ) : (
           <div className="flex flex-wrap items-center gap-2" style={{ marginTop: 16 }}>
@@ -312,8 +325,8 @@ const LiteEventsPage = () => {
                 {c.label}
               </button>
             ))}
-            {/* Boost is a grid trait — hidden while a module view is active. */}
-            {!isIntradayView && !isSportsView && (
+            {/* Boost is a grid trait — hidden in calendar and module views. */}
+            {!calendarOn && !isIntradayView && !isSportsView && (
               <>
                 <span
                   aria-hidden
@@ -325,8 +338,28 @@ const LiteEventsPage = () => {
           </div>
         )}
 
+        {/* Calendar lens — replaces the page body in place. */}
+        {calendarOn && (
+          <div style={{ marginTop: 20 }}>
+            <LiteCalendarView
+              events={openMarkets}
+              matches={sportsMatches}
+              stocks={stockRows}
+              sector={sector}
+              isMobile={!!isMobile}
+              onBackToList={() => setCalendarOn(false)}
+              onOpenIntraday={() => {
+                setCalendarOn(false);
+                // Desktop has a dedicated Intraday view; mobile surfaces the
+                // Intraday band on the "All" list.
+                setSector(isMobile ? "all" : "intraday");
+              }}
+            />
+          </div>
+        )}
+
         {/* Desktop "All stage" — category-as-view. */}
-        {isStageView && (
+        {!calendarOn && isStageView && (
           <LiteAllStage
             currentFor={currentFor}
             historyFor={historyFor}
@@ -353,6 +386,7 @@ const LiteEventsPage = () => {
 
         {/* Mobile intraday band — unchanged. */}
         {isMobile &&
+          !calendarOn &&
           !isWatchlistView &&
           !boostOnly &&
           (sector === "all" || sector === "crypto" || sector === "stocks") && (
@@ -361,7 +395,7 @@ const LiteEventsPage = () => {
 
         {/* Card grid */}
         <div className="mt-6 flex flex-1 flex-col space-y-6">
-        {isStageView && (
+        {!calendarOn && isStageView && (
           <div className="flex items-start justify-between" style={{ padding: "6px 2px 0" }}>
             <div className="flex flex-col gap-[6px]">
               <span
@@ -384,7 +418,7 @@ const LiteEventsPage = () => {
             </span>
           </div>
         )}
-        {isLoading ? (
+        {calendarOn ? null : isLoading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
