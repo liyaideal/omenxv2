@@ -228,20 +228,23 @@ export const LiteCalendarView = ({
           </span>
           {mode === "day" && (
             <div className="flex items-center" style={{ gap: 6 }}>
-              {/* Past navigation is not built — static disabled affordance. */}
-              <span
-                aria-hidden
-                className="flex items-center justify-center"
+              {/* Back steps within the window; today is the floor (past days hold no live markets). */}
+              <button
+                type="button"
+                onClick={() => setDayKey((k) => Math.max(k - DAY_MS, todayKey))}
+                disabled={dayKey <= todayKey}
+                aria-label="Previous day"
+                className="flex items-center justify-center disabled:cursor-default disabled:opacity-40"
                 style={{
                   width: 36,
                   height: 36,
                   borderRadius: 999,
-                  border: "1px solid #16181D",
-                  color: "#3A3F47",
+                  border: "1px solid #23262D",
+                  color: "#9AA1AC",
                 }}
               >
                 <ChevronLeft size={14} />
-              </span>
+              </button>
               <span
                 className="font-display text-center"
                 style={{ fontSize: 14, fontWeight: 700, color: "#fff", minWidth: 132 }}
@@ -256,7 +259,8 @@ export const LiteCalendarView = ({
                   )
                 }
                 disabled={dayKey >= todayKey + (WEEK_DAYS - 1) * DAY_MS}
-                className="flex items-center justify-center disabled:opacity-40"
+                aria-label="Next day"
+                className="flex items-center justify-center disabled:cursor-default disabled:opacity-40"
                 style={{
                   width: 36,
                   height: 36,
