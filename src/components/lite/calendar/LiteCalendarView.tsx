@@ -676,25 +676,6 @@ export const LiteCalendarView = ({
         </div>
       ) : (
         <div className="flex flex-col">
-          {dayOpen.length > 0 && (
-            <div className="flex flex-col" style={{ gap: 6, paddingBottom: 16 }}>
-              <div className="flex items-center" style={{ gap: 10 }}>
-                <LaneCaption>Open all day</LaneCaption>
-                <span style={{ height: 1, background: "#1D2026", flex: 1 }} />
-                <span style={{ fontSize: 11, color: "#6B7280", fontWeight: 600 }}>
-                  {dayOpen.length} {dayOpen.length === 1 ? "market" : "markets"}
-                </span>
-              </div>
-              {dayOpen.map((it) => (
-                <SpanBar
-                  key={it.id}
-                  ticket={ticketOf(it)}
-                  closes={closesStamp(it, now)}
-                  onClick={() => openItem(it)}
-                />
-              ))}
-            </div>
-          )}
           {dayItems.map((it, i) => (
             <SpineRow
               key={it.id}
@@ -716,6 +697,25 @@ export const LiteCalendarView = ({
               )}
             </SpineRow>
           ))}
+          {dayOpen.length > 0 && (
+            <div className="flex flex-col" style={{ gap: 6, paddingTop: 16 }}>
+              <div className="flex items-center" style={{ gap: 10 }}>
+                <LaneCaption>Open all day</LaneCaption>
+                <span style={{ height: 1, background: "#1D2026", flex: 1 }} />
+                <span style={{ fontSize: 11, color: "#6B7280", fontWeight: 600 }}>
+                  {dayOpen.length} {dayOpen.length === 1 ? "market" : "markets"}
+                </span>
+              </div>
+              {dayOpen.map((it) => (
+                <SpanBar
+                  key={it.id}
+                  ticket={ticketOf(it)}
+                  closes={closesStamp(it, now)}
+                  onClick={() => openItem(it)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
