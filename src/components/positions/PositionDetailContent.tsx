@@ -1,3 +1,4 @@
+import { FUTURES_FEE_RATE } from "@/services/tradingService";
 import { useMemo } from "react";
 import { TrendingUp, TrendingDown, Clock, Receipt, Info } from "lucide-react";
 import { cn } from "@/lib/utils";

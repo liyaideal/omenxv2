@@ -56,7 +56,7 @@ import { useEventSideLabelsLookup, resolveBinarySideLabel } from "@/hooks/useEve
 
 
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { executeTrade } from "@/services/tradingService";
+import { executeTrade, FUTURES_FEE_RATE } from "@/services/tradingService";
 import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { AccountRiskIndicator } from "@/components/AccountRiskIndicator";

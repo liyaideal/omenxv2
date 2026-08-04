@@ -1,3 +1,4 @@
+import { FUTURES_FEE_RATE } from "@/services/tradingService";
 import { useState, useMemo } from "react";
 import { ChevronDown, Plus, ArrowLeftRight, ChevronUp, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
