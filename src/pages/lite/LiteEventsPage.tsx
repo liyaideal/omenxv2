@@ -145,6 +145,24 @@ const LiteEventsPage = () => {
   // badge doesn't flip when the user changes sector.
   const trendingCutoff = useMemo(() => trendingThreshold(openMarkets), [openMarkets]);
 
+  // Boost is an IN-PLACE filter. With no category selected the filtered list
+  // is grouped by category with small headers, in taxonomy order. Combined
+  // with a category (Sports + Boost) it's a flat list — no headers needed.
+  const boostGroups = useMemo(() => {
+    if (!boostOnly || sector !== "all" || isWatchlistView) return null;
+    const by = new Map<string, { id: string; label: string; items: typeof filtered }>();
+    for (const m of filtered) {
+      const top = topCategoryForKey(m.category);
+      const id = top?.id ?? "other";
+      const g = by.get(id) ?? { id, label: top?.label ?? "Other", items: [] };
+      g.items.push(m);
+      by.set(id, g);
+    }
+    return [...by.values()].sort(
+      (a, b) => topCategoryOrder(a.id) - topCategoryOrder(b.id),
+    );
+  }, [filtered, boostOnly, sector, isWatchlistView]);
+
   const resetAll = () => {
     setSector("all");
     setBoostOnly(false);
