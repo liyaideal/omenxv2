@@ -12,6 +12,9 @@ import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader"
 import {
   formatMarketPrice,
   formatMarketTime,
+  formatSessionStamp,
+  getMarketSession,
+  marketCityName,
   resolveStockMarket,
   StockMarket,
 } from "@/lib/usStockSessions";
@@ -65,8 +68,7 @@ const fmtLeft = (ms: number) => {
 };
 
 /** "Tue 09:30 HKT" for a market-local instant. */
-const openStamp = (d: Date, market: StockMarket) =>
-  `${new Intl.DateTimeFormat("en-US", { timeZone: market.tz, weekday: "short" }).format(d)} ${formatMarketTime(d, market)} ${market.label}`;
+const openStamp = (d: Date, market: StockMarket) => formatSessionStamp(d, market);
 
 // ------------------------------------------------------------------
 // Coin sparkline — dashed open baseline, gradient underfill, end dot.
