@@ -41,6 +41,10 @@ export type CalItem =
 export const marketCountOf = (item: CalItem): number =>
   item.kind === "session" ? item.rows.length : 1;
 
+/** "US" / "HK" — short market name used by the session copy. */
+export const marketShortName = (market: StockMarket): string =>
+  market.key === "hk" ? "HK" : "US";
+
 export const sumMarkets = (items: CalItem[]): number =>
   items.reduce((n, i) => n + marketCountOf(i), 0);
 
@@ -266,8 +270,8 @@ export const ticketOf = (item: CalItem): TicketView => {
     return {
       id: item.id,
       time,
-      title: `${item.market.label} session close`,
-      cat: `${item.rows.length} ${item.market.label} closes`,
+      title: `${marketShortName(item.market)} session close`,
+      cat: `${item.rows.length} ${marketShortName(item.market)} closes`,
       live: false,
       intraday: true,
       item,
