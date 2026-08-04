@@ -28,7 +28,7 @@ import {
 } from "@/components/lite/LiteSettledSeriesCard";
 
 const SECTOR_ORDER: Array<{ id: string; label: string }> = [
-  { id: "stocks", label: "Stocks" },
+  { id: "stocks", label: "Finance" },
   { id: "crypto", label: "Crypto" },
   { id: "macro", label: "Macro" },
   { id: "tech", label: "Tech" },
