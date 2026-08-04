@@ -555,51 +555,6 @@ export const LiteCalendarView = ({
 
       {mode === "week" ? (
         <>
-          {weekLanes.length > 0 && (
-            <div className="flex flex-col" style={{ gap: 6 }}>
-              <div className="flex items-center" style={{ gap: 10 }}>
-                <LaneCaption>Open across days</LaneCaption>
-                <span style={{ height: 1, background: "#1D2026", flex: 1 }} />
-                <span style={{ fontSize: 11, color: "#6B7280", fontWeight: 600 }}>
-                  {spanTotal} {spanTotal === 1 ? "market" : "markets"} tradeable now
-                </span>
-              </div>
-              {visibleLanes.map((lane, li) => (
-                <div
-                  key={li}
-                  className="grid"
-                  style={{ gridTemplateColumns: "repeat(7,1fr)", gap: 8 }}
-                >
-                  {lane.map((p) => (
-                    <div
-                      key={p.item.id}
-                      style={{
-                        gridColumn: `${p.colStart + 1} / span ${p.colSpan}`,
-                      }}
-                    >
-                      <SpanBar
-                        ticket={ticketOf(p.item)}
-                        clippedLeft={p.clippedLeft}
-                        clippedRight={p.clippedRight}
-                        closes={closesStamp(p.item, now)}
-                        onClick={() => openItem(p.item)}
-                      />
-                    </div>
-                  ))}
-                </div>
-              ))}
-              {(hiddenSpans > 0 || lanesOpen) && (
-                <button
-                  type="button"
-                  onClick={() => setLanesOpen((v) => !v)}
-                  className="self-start"
-                  style={{ fontSize: 11, color: "#9AA1AC", fontWeight: 600 }}
-                >
-                  {lanesOpen ? "Show fewer" : `+${hiddenSpans} more open markets`}
-                </button>
-              )}
-            </div>
-          )}
           <div
             className="grid"
             style={{
@@ -672,6 +627,52 @@ export const LiteCalendarView = ({
             })}
           </div>
 
+          {weekLanes.length > 0 && (
+            <div className="flex flex-col" style={{ gap: 6 }}>
+              <div className="flex items-center" style={{ gap: 10 }}>
+                <LaneCaption>Open across days</LaneCaption>
+                <span style={{ height: 1, background: "#1D2026", flex: 1 }} />
+                <span style={{ fontSize: 11, color: "#6B7280", fontWeight: 600 }}>
+                  {spanTotal} {spanTotal === 1 ? "market" : "markets"} tradeable now
+                </span>
+              </div>
+              {visibleLanes.map((lane, li) => (
+                <div
+                  key={li}
+                  className="grid"
+                  style={{ gridTemplateColumns: "repeat(7,1fr)", gap: 8 }}
+                >
+                  {lane.map((p) => (
+                    <div
+                      key={p.item.id}
+                      style={{
+                        gridColumn: `${p.colStart + 1} / span ${p.colSpan}`,
+                      }}
+                    >
+                      <SpanBar
+                        ticket={ticketOf(p.item)}
+                        clippedLeft={p.clippedLeft}
+                        clippedRight={p.clippedRight}
+                        closes={closesStamp(p.item, now)}
+                        onClick={() => openItem(p.item)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ))}
+              {(hiddenSpans > 0 || lanesOpen) && (
+                <button
+                  type="button"
+                  onClick={() => setLanesOpen((v) => !v)}
+                  className="self-start"
+                  style={{ fontSize: 11, color: "#9AA1AC", fontWeight: 600 }}
+                >
+                  {lanesOpen ? "Show fewer" : `+${hiddenSpans} more open markets`}
+                </button>
+              )}
+            </div>
+          )}
+
           <div
             className="flex items-center justify-between"
             style={{ borderTop: "1px solid #1D2026", paddingTop: 14 }}
@@ -680,7 +681,7 @@ export const LiteCalendarView = ({
               {weekTotal} markets close in the next 7 days. Pick a day to trade it —
               prices live in Day mode.
               {spanTotal > 0 &&
-                ` ${spanTotal} more stay open across the week — the bars above.`}
+                ` ${spanTotal} more stay open across the week — the bars below the grid.`}
             </span>
             <span style={{ fontSize: 12, color: "#9AA1AC", fontWeight: 600 }}>
               Rolling Intraday rounds are not counted.
