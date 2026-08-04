@@ -368,16 +368,17 @@ export const MobileTicket = ({
   <button
     type="button"
     onClick={onClick}
-    className="box-border flex w-full items-center text-left"
+    className="relative box-border flex w-full items-center overflow-hidden text-left"
     style={{
       background: "#131519",
       border: "1px solid #1D2026",
       borderRadius: 12,
-      padding: "0 13px",
+      padding: "0 13px 0 15px",
       minHeight: 56,
       gap: 12,
     }}
   >
+    <EdgeBar tone={ticket.tone} radius={12} />
     <span className="flex flex-none flex-col" style={{ width: 46, gap: 1 }}>
       <span
         className="font-display"
@@ -398,6 +399,22 @@ export const MobileTicket = ({
       )}
     </span>
     <span className="flex min-w-0 flex-1 flex-col" style={{ gap: 2 }}>
+      <span className="flex items-center" style={{ gap: 6 }}>
+        <TicketCategoryBadge label={ticket.cat} tone={ticket.tone} size="mobile" />
+        {ticket.leagueShort && (
+          <span
+            style={{
+              fontSize: 9,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "#6B7280",
+              fontWeight: 700,
+            }}
+          >
+            {ticket.leagueShort}
+          </span>
+        )}
+      </span>
       <span
         style={{
           fontSize: 13,
@@ -408,17 +425,6 @@ export const MobileTicket = ({
         }}
       >
         {ticket.title}
-      </span>
-      <span
-        style={{
-          fontSize: 9,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
-          color: "#6B7280",
-          fontWeight: 700,
-        }}
-      >
-        {ticket.cat}
       </span>
     </span>
     <span className="flex-none" style={{ fontSize: 16, color: "#4B5563" }}>
