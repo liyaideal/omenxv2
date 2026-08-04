@@ -13,6 +13,7 @@ import { EventRow } from "@/hooks/useMarketListData";
 import { SportsMatch } from "@/components/lite/sports/sportsData";
 import { StockEventRow } from "@/components/lite/intraday/intradayData";
 import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/states/EmptyState";
 import {
   CalItem,
   DAY_MS,
@@ -486,29 +487,12 @@ export const LiteCalendarView = ({
         )}
 
         {weekTotal === 0 && openNow.length === 0 && (
-          <div
-            className="flex flex-col items-center"
-            style={{
-              border: "1px dashed #23262D",
-              borderRadius: 14,
-              padding: "40px 20px",
-              gap: 10,
-            }}
-          >
-            <span
-              className="font-display"
-              style={{ fontSize: 18, fontWeight: 700, color: "#fff" }}
-            >
-              Nothing scheduled this week
-            </span>
-            <button
-              type="button"
-              onClick={onBackToList}
-              style={{ fontSize: 13, color: "#33D6FF", fontWeight: 700 }}
-            >
-              Back to all markets →
-            </button>
-          </div>
+          <EmptyState
+            title="Nothing scheduled this week"
+            description="Pick another week, or browse every open market from the list."
+            actionLabel="Back to all markets"
+            onAction={onBackToList}
+          />
         )}
 
         <span style={{ fontSize: 11, color: "#6B7280", textWrap: "pretty" }}>
@@ -664,42 +648,19 @@ export const LiteCalendarView = ({
           </div>
         </>
       ) : dayItems.length === 0 && dayOpen.length === 0 ? (
-        <div
-          className="flex flex-col items-center"
-          style={{
-            border: "1px dashed #23262D",
-            borderRadius: 14,
-            padding: "56px 24px",
-            gap: 10,
-          }}
-        >
-          <span
-            className="font-display"
-            style={{
-              fontSize: 20,
-              fontWeight: 700,
-              color: "#fff",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Nothing scheduled this day
-          </span>
-          <span style={{ fontSize: 13, color: "#9AA1AC" }}>
-            {nextItem
+        <EmptyState
+          title="Nothing scheduled this day"
+          description={
+            nextItem
               ? `${weekTotal} markets decide this week — the next one is ${stepperLabel(
                   startOfDay(nextItem.at),
                   todayKey,
                 ).replace("Today · ", "")} at ${localTime(nextItem.at)} ${tz}.`
-              : `${weekTotal} markets decide this week.`}
-          </span>
-          <button
-            type="button"
-            onClick={onBackToList}
-            style={{ fontSize: 13, color: "#33D6FF", fontWeight: 700 }}
-          >
-            Back to all markets →
-          </button>
-        </div>
+              : `${weekTotal} markets decide this week.`
+          }
+          actionLabel="Back to all markets"
+          onAction={onBackToList}
+        />
       ) : (
         <div className="flex flex-col">
           {dayItems.map((it, i) => (
