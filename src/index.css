@@ -708,3 +708,22 @@
 .chip-t2:hover {
   border-color: var(--chip-accent, #23262d);
 }
+
+/* ── Calendar view (lens on the Lite events page) ─────────────
+   Hover treatments only; every colour matches the frozen contract
+   docs/design-contracts/calendar-final.html. */
+.lite-cal-ticket {
+  transition: border-color 0.15s ease;
+}
+.lite-cal-ticket:hover {
+  border-color: #f2f3f5;
+}
+.lite-cal-ticket[data-intraday="true"]:hover {
+  border-color: #ff8a3d;
+}
+.lite-cal-tile {
+  transition: border-color 0.15s ease;
+}
+.lite-cal-tile:hover {
+  border-color: #23262d;
+}
