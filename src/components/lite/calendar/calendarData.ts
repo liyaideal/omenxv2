@@ -24,12 +24,27 @@ export const startOfDay = (t: number | Date): number => {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 };
 
+export const startOfMonth = (t: number | Date): number => {
+  const d = new Date(t);
+  return new Date(d.getFullYear(), d.getMonth(), 1).getTime();
+};
+
+export const addMonths = (t: number, n: number): number => {
+  const d = new Date(t);
+  return new Date(d.getFullYear(), d.getMonth() + n, 1).getTime();
+};
+
 /* ---------------- Items ---------------- */
 
 interface CalBase {
   id: string;
   /** Decision moment, in absolute time. */
   at: Date;
+  /** Tradeable window — opens at `from`, stops trading at `to` (= `at`). */
+  from: Date;
+  to: Date;
+  /** True when the tradeable window covers more than one calendar day. */
+  spanning: boolean;
 }
 
 export type CalItem =
@@ -53,12 +68,14 @@ export interface BuildInput {
   matches: SportsMatch[];
   stocks: StockEventRow[];
   now?: number;
-  /** Horizon in days. The week grid uses 7; the "Later" bucket looks further. */
+  /** Horizon in days for point-in-time items. Spans are only clipped, never dropped. */
   horizonDays?: number;
 }
 
 /**
- * Every market with a concrete decision moment inside the 7-day window.
+ * Every market that is tradeable inside the window. Markets are intervals
+ * (`start_date` → `end_date`), not points: a market that opened in July and
+ * closes in September is present on every day in between.
  * Rolling intraday crypto rounds are excluded by design — they live in
  * the standing orange row above the timeline.
  */
@@ -74,7 +91,7 @@ export const buildCalendarItems = ({
   const inWindow = (t: number) => t >= from && t < to;
   const out: CalItem[] = [];
 
-  // Generic events — settle time is the decision moment.
+  // Generic events — the whole tradeable window counts, not just the close.
   for (const row of events) {
     if (!row.expiry) continue;
     if ((row.category || "").toLowerCase() === "sports") continue;
@@ -83,9 +100,24 @@ export const buildCalendarItems = ({
       (INTRADAY_SUBTYPES as readonly string[]).includes(row.eventSubtype)
     )
       continue;
-    const t = row.expiry.getTime();
-    if (t <= now || !inWindow(t)) continue;
-    out.push({ kind: "generic", id: `g-${row.id}`, at: row.expiry, row });
+    const closes = row.expiry.getTime();
+    if (closes <= now) continue;
+    // Missing open date == already open.
+    const opens = row.opensAt ? row.opensAt.getTime() : from;
+    if (opens >= to) continue; // opens past the horizon
+    const openDay = startOfDay(Math.max(opens, from));
+    const spanning = openDay < startOfDay(closes);
+    // Point-in-time markets outside the horizon have no home; spans always do.
+    if (!spanning && !inWindow(closes)) continue;
+    out.push({
+      kind: "generic",
+      id: `g-${row.id}`,
+      at: row.expiry,
+      from: new Date(Math.max(opens, from)),
+      to: row.expiry,
+      spanning,
+      row,
+    });
   }
 
   // Sports — kickoff is the decision moment. Live matches stay listed.
@@ -94,7 +126,15 @@ export const buildCalendarItems = ({
     const t = m.kickoff.getTime();
     if (!inWindow(t)) continue;
     if (t <= now && !m.live) continue;
-    out.push({ kind: "sports", id: `s-${m.id}`, at: m.kickoff, match: m });
+    out.push({
+      kind: "sports",
+      id: `s-${m.id}`,
+      at: m.kickoff,
+      from: m.kickoff,
+      to: m.kickoff,
+      spanning: false,
+      match: m,
+    });
   }
 
   // Stock dailies — aggregated per market close moment, never one item
@@ -112,10 +152,141 @@ export const buildCalendarItems = ({
     else bells.set(key, { at, market, rows: [s] });
   }
   for (const [key, b] of bells) {
-    out.push({ kind: "session", id: `c-${key}`, at: b.at, market: b.market, rows: b.rows });
+    out.push({
+      kind: "session",
+      id: `c-${key}`,
+      at: b.at,
+      from: b.at,
+      to: b.at,
+      spanning: false,
+      market: b.market,
+      rows: b.rows,
+    });
   }
 
   return out.sort((a, b) => a.at.getTime() - b.at.getTime());
+};
+
+/* ---------------- Span placement ---------------- */
+
+export interface SpanPlacement {
+  item: CalItem;
+  /** 0-based column index inside the frame. */
+  colStart: number;
+  colSpan: number;
+  clippedLeft: boolean;
+  clippedRight: boolean;
+}
+
+/**
+ * Greedy lane packing: each returned array is one row of non-overlapping
+ * bars, laid out over `days` columns starting at `windowStart`.
+ */
+export const buildSpanLanes = (
+  items: CalItem[],
+  windowStart: number,
+  days: number,
+): SpanPlacement[][] => {
+  const windowEnd = windowStart + days * DAY_MS;
+  const placed: SpanPlacement[] = [];
+  for (const item of items) {
+    if (!item.spanning) continue;
+    const openDay = startOfDay(item.from);
+    const closeDay = startOfDay(item.to);
+    if (closeDay < windowStart || openDay >= windowEnd) continue;
+    const startKey = Math.max(openDay, windowStart);
+    const endKey = Math.min(closeDay, windowEnd - DAY_MS);
+    const colStart = Math.round((startKey - windowStart) / DAY_MS);
+    const colSpan = Math.round((endKey - startKey) / DAY_MS) + 1;
+    placed.push({
+      item,
+      colStart,
+      colSpan,
+      clippedLeft: openDay < windowStart,
+      clippedRight: closeDay > windowEnd - DAY_MS,
+    });
+  }
+  placed.sort(
+    (a, b) => a.colStart - b.colStart || b.colSpan - a.colSpan,
+  );
+  const lanes: SpanPlacement[][] = [];
+  for (const p of placed) {
+    const lane = lanes.find((l) => {
+      const last = l[l.length - 1];
+      return last.colStart + last.colSpan <= p.colStart;
+    });
+    if (lane) lane.push(p);
+    else lanes.push([p]);
+  }
+  return lanes;
+};
+
+/** Markets tradeable on a given day but not closing on it. */
+export const openOnDay = (items: CalItem[], dayKey: number): CalItem[] =>
+  items.filter(
+    (i) =>
+      i.spanning &&
+      startOfDay(i.from) <= dayKey &&
+      startOfDay(i.to) > dayKey,
+  );
+
+/** Markets whose trading stops on that exact day (the point items). */
+export const closingOnDay = (items: CalItem[], dayKey: number): CalItem[] =>
+  items.filter((i) => startOfDay(i.at) === dayKey);
+
+/* ---------------- Month grid ---------------- */
+
+export interface MonthCellModel {
+  key: number;
+  /** Day-of-month number. */
+  day: number;
+  inMonth: boolean;
+  isToday: boolean;
+  /** Point items closing that day. */
+  items: CalItem[];
+  markets: number;
+}
+
+export interface MonthWeek {
+  start: number;
+  cells: MonthCellModel[];
+  lanes: SpanPlacement[][];
+}
+
+export const monthLabel = (monthStart: number): string =>
+  new Date(monthStart).toLocaleDateString(undefined, {
+    month: "long",
+    year: "numeric",
+  });
+
+export const buildMonthWeeks = (
+  items: CalItem[],
+  monthStart: number,
+  now: number = Date.now(),
+): MonthWeek[] => {
+  const todayKey = startOfDay(now);
+  const first = new Date(monthStart);
+  const gridStart = startOfDay(monthStart) - first.getDay() * DAY_MS;
+  const weeks: MonthWeek[] = [];
+  for (let w = 0; w < 6; w += 1) {
+    const start = gridStart + w * WEEK_DAYS * DAY_MS;
+    const cells: MonthCellModel[] = [];
+    for (let d = 0; d < WEEK_DAYS; d += 1) {
+      const key = start + d * DAY_MS;
+      const date = new Date(key);
+      const dayItems = closingOnDay(items, key);
+      cells.push({
+        key,
+        day: date.getDate(),
+        inMonth: startOfMonth(key) === startOfMonth(monthStart),
+        isToday: key === todayKey,
+        items: dayItems,
+        markets: sumMarkets(dayItems),
+      });
+    }
+    weeks.push({ start, cells, lanes: buildSpanLanes(items, start, WEEK_DAYS) });
+  }
+  return weeks;
 };
 
 /* ---------------- Category + sub-type filtering ---------------- */
@@ -204,7 +375,7 @@ export const buildWeekColumns = (
   const cols: WeekColumn[] = [];
   for (let i = 0; i < WEEK_DAYS; i += 1) {
     const key = today + i * DAY_MS;
-    const dayItems = items.filter((it) => startOfDay(it.at) === key);
+    const dayItems = closingOnDay(items, key);
     const markets = sumMarkets(dayItems);
     cols.push({
       key,
@@ -238,6 +409,12 @@ export const localTime = (d: Date): string =>
 /** "16 Sep" — stamp used by the Later bucket, where the hour is noise. */
 export const shortDate = (d: Date): string =>
   `${d.getDate()} ${d.toLocaleDateString(undefined, { month: "short" })}`;
+
+/** "Closes 21:00" when it stops today, otherwise "Closes 30 Sep". */
+export const closesStamp = (item: CalItem, now: number = Date.now()): string =>
+  startOfDay(item.to) === startOfDay(now)
+    ? `Closes ${localTime(item.to)}`
+    : `Closes ${shortDate(item.to)}`;
 
 /** "Today · Mon 3 Aug" / "Tue 4 Aug". */
 export const stepperLabel = (key: number, todayKey: number): string => {

@@ -358,6 +358,106 @@ export const WeekTicket = ({
 
 /* ---------------- Mobile ticket ---------------- */
 
+/* ---------------- Span bar (tradeable window) ---------------- */
+
+/** A market that is open across several days renders as one continuous bar
+ *  instead of a point ticket — the calendar shows when you can trade, not
+ *  only when it settles. */
+export const SpanBar = ({
+  ticket,
+  clippedLeft = false,
+  clippedRight = false,
+  closes,
+  compact = false,
+  onClick,
+}: {
+  ticket: TicketView;
+  clippedLeft?: boolean;
+  clippedRight?: boolean;
+  closes: string;
+  compact?: boolean;
+  onClick: () => void;
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    title={`${ticket.title} · ${closes}`}
+    className="relative box-border flex w-full items-center overflow-hidden text-left"
+    style={{
+      background: "#131519",
+      border: `1px solid ${ticket.intraday ? "rgba(255,138,61,0.30)" : "#1D2026"}`,
+      borderTopLeftRadius: clippedLeft ? 3 : 999,
+      borderBottomLeftRadius: clippedLeft ? 3 : 999,
+      borderTopRightRadius: clippedRight ? 3 : 999,
+      borderBottomRightRadius: clippedRight ? 3 : 999,
+      minHeight: compact ? 22 : 26,
+      padding: compact ? "0 8px" : "0 10px",
+      gap: 7,
+    }}
+  >
+    {clippedLeft && (
+      <span className="flex-none" style={{ fontSize: 10, color: "#6B7280" }}>
+        ←
+      </span>
+    )}
+    <span
+      aria-hidden
+      className="flex-none"
+      style={{
+        width: 6,
+        height: 6,
+        borderRadius: 999,
+        background:
+          ticket.tone === "intraday"
+            ? ORANGE
+            : ticket.tone === "sports"
+              ? CHALK
+              : "#4B5563",
+      }}
+    />
+    <span
+      className="min-w-0 flex-1 truncate"
+      style={{ fontSize: compact ? 10 : 11, color: "#fff", fontWeight: 600 }}
+    >
+      {ticket.title}
+    </span>
+    {!compact && (
+      <span
+        className="flex-none"
+        style={{
+          fontSize: 10,
+          color: "#6B7280",
+          fontWeight: 600,
+          fontVariantNumeric: "tabular-nums",
+        }}
+      >
+        {closes}
+      </span>
+    )}
+    {clippedRight && (
+      <span className="flex-none" style={{ fontSize: 10, color: "#6B7280" }}>
+        →
+      </span>
+    )}
+  </button>
+);
+
+/** Small-caps lane heading used above the span rail. */
+export const LaneCaption = ({ children }: { children: React.ReactNode }) => (
+  <span
+    style={{
+      fontSize: 9,
+      letterSpacing: "0.16em",
+      textTransform: "uppercase",
+      color: "#6B7280",
+      fontWeight: 700,
+      whiteSpace: "nowrap",
+    }}
+  >
+    {children}
+  </span>
+);
+
 export const MobileTicket = ({
   ticket,
   onClick,

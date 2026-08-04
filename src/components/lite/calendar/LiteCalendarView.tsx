@@ -17,13 +17,20 @@ import {
   CalItem,
   DAY_MS,
   WEEK_DAYS,
+  addMonths,
   buildCalendarItems,
+  buildMonthWeeks,
+  buildSpanLanes,
   buildSportsSubTypes,
   buildWeekColumns,
+  closesStamp,
   itemMatchesCategory,
   itemMatchesSubType,
   localTime,
+  monthLabel,
+  openOnDay,
   startOfDay,
+  startOfMonth,
   stepperLabel,
   sumMarkets,
   ticketOf,
@@ -31,8 +38,10 @@ import {
 } from "./calendarData";
 import {
   GenericBlock,
+  LaneCaption,
   MobileTicket,
   SessionBlock,
+  SpanBar,
   SpineRow,
   SportsBlock,
   StandingIntradayRow,
@@ -55,16 +64,17 @@ export interface LiteCalendarViewProps {
 }
 
 const WEEK_TICKET_CAP = 4;
-/** Everything with a decision moment past the week still gets a home. */
-const LATER_HORIZON_DAYS = 730;
-const LATER_TICKET_CAP = 6;
+/** Point items are collected far out so month mode has something to show. */
+const HORIZON_DAYS = 730;
+/** Span lanes stay scannable; the rest collapses behind a "+N" toggle. */
+const LANE_CAP = 5;
 
 const SegPill = ({
   value,
   onSelect,
 }: {
-  value: "day" | "week";
-  onSelect: (v: "day" | "week") => void;
+  value: "day" | "week" | "month";
+  onSelect: (v: "day" | "week" | "month") => void;
 }) => (
   <span
     className="flex"
@@ -75,7 +85,7 @@ const SegPill = ({
       padding: 3,
     }}
   >
-    {(["day", "week"] as const).map((v) => (
+    {(["day", "week", "month"] as const).map((v) => (
       <button
         key={v}
         type="button"
@@ -89,7 +99,7 @@ const SegPill = ({
           color: v === value ? "#0A0B0D" : "#9AA1AC",
         }}
       >
-        {v === "day" ? "Day" : "Week"}
+        {v === "day" ? "Day" : v === "week" ? "Week" : "Month"}
       </button>
     ))}
   </span>
@@ -137,9 +147,11 @@ export const LiteCalendarView = ({
   const todayKey = startOfDay(now);
   const tz = userTzAbbrev();
 
-  const [mode, setMode] = useState<"day" | "week">("week");
+  const [mode, setMode] = useState<"day" | "week" | "month">("week");
   const [dayKey, setDayKey] = useState<number>(todayKey);
   const [subType, setSubType] = useState<string>("all");
+  const [monthStart, setMonthStart] = useState<number>(startOfMonth(now));
+  const [lanesOpen, setLanesOpen] = useState(false);
   /** Mobile: day-strip chip filters the ticket list in place. */
   const [mobileDay, setMobileDay] = useState<number | null>(null);
 
@@ -150,7 +162,7 @@ export const LiteCalendarView = ({
         matches,
         stocks,
         now,
-        horizonDays: LATER_HORIZON_DAYS,
+        horizonDays: HORIZON_DAYS,
       }),
     [events, matches, stocks, now],
   );
@@ -169,24 +181,38 @@ export const LiteCalendarView = ({
   );
 
   const weekEnd = todayKey + WEEK_DAYS * DAY_MS;
-  /** In-window items drive the 7 columns; the rest fall into "Later". */
-  const weekItems = useMemo(
-    () => items.filter((i) => i.at.getTime() < weekEnd),
-    [items, weekEnd],
-  );
-  const laterItems = useMemo(
-    () => items.filter((i) => i.at.getTime() >= weekEnd),
-    [items, weekEnd],
-  );
-  const laterTotal = useMemo(() => sumMarkets(laterItems), [laterItems]);
 
-  const columns = useMemo(() => buildWeekColumns(weekItems, now), [weekItems, now]);
-  const weekTotal = useMemo(() => sumMarkets(weekItems), [weekItems]);
+  /** Columns only carry the markets that stop trading that exact day. */
+  const columns = useMemo(() => buildWeekColumns(items, now), [items, now]);
+  const weekTotal = useMemo(
+    () => columns.reduce((n, c) => n + c.markets, 0),
+    [columns],
+  );
+
+  /** Everything tradeable across several days becomes a bar on the rail. */
+  const weekLanes = useMemo(
+    () => buildSpanLanes(items, todayKey, WEEK_DAYS),
+    [items, todayKey],
+  );
+  const spanTotal = useMemo(
+    () => weekLanes.reduce((n, lane) => n + lane.length, 0),
+    [weekLanes],
+  );
+  const visibleLanes = lanesOpen ? weekLanes : weekLanes.slice(0, LANE_CAP);
+  const hiddenSpans = weekLanes
+    .slice(visibleLanes.length)
+    .reduce((n, lane) => n + lane.length, 0);
+
+  const monthWeeks = useMemo(
+    () => buildMonthWeeks(items, monthStart, now),
+    [items, monthStart, now],
+  );
 
   const dayItems = useMemo(
-    () => weekItems.filter((i) => startOfDay(i.at) === dayKey),
-    [weekItems, dayKey],
+    () => items.filter((i) => startOfDay(i.at) === dayKey),
+    [items, dayKey],
   );
+  const dayOpen = useMemo(() => openOnDay(items, dayKey), [items, dayKey]);
 
   const nextItem = useMemo(
     () => items.find((i) => i.at.getTime() > now) ?? null,
@@ -276,13 +302,51 @@ export const LiteCalendarView = ({
               <button
                 type="button"
                 onClick={() =>
-                  setDayKey((k) =>
-                    Math.min(k + DAY_MS, todayKey + (WEEK_DAYS - 1) * DAY_MS),
-                  )
+                  setDayKey((k) => k + DAY_MS)
                 }
-                disabled={dayKey >= todayKey + (WEEK_DAYS - 1) * DAY_MS}
                 aria-label="Next day"
                 className="flex items-center justify-center disabled:cursor-default disabled:opacity-40"
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 999,
+                  border: "1px solid #23262D",
+                  color: "#9AA1AC",
+                }}
+              >
+                <ChevronRight size={14} />
+              </button>
+            </div>
+          )}
+          {mode === "month" && (
+            <div className="flex items-center" style={{ gap: 6 }}>
+              <button
+                type="button"
+                onClick={() => setMonthStart((m) => addMonths(m, -1))}
+                disabled={monthStart <= startOfMonth(now)}
+                aria-label="Previous month"
+                className="flex items-center justify-center disabled:cursor-default disabled:opacity-40"
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 999,
+                  border: "1px solid #23262D",
+                  color: "#9AA1AC",
+                }}
+              >
+                <ChevronLeft size={14} />
+              </button>
+              <span
+                className="font-display text-center"
+                style={{ fontSize: 14, fontWeight: 700, color: "#fff", minWidth: 132 }}
+              >
+                {monthLabel(monthStart)}
+              </span>
+              <button
+                type="button"
+                onClick={() => setMonthStart((m) => addMonths(m, 1))}
+                aria-label="Next month"
+                className="flex items-center justify-center"
                 style={{
                   width: 36,
                   height: 36,
@@ -351,9 +415,8 @@ export const LiteCalendarView = ({
   if (isMobile) {
     const strip = columns.filter((c) => c.markets > 0);
     const visible = mobileDay == null ? columns : columns.filter((c) => c.key === mobileDay);
-    const LATER_KEY = -1;
-    const showLater =
-      laterItems.length > 0 && (mobileDay == null || mobileDay === LATER_KEY);
+    /** Markets you can trade on the focused day but that close later. */
+    const openNow = openOnDay(items, mobileDay ?? todayKey);
     return (
       <div className="flex flex-col" style={{ gap: 14, paddingTop: 4 }}>
         {header}
@@ -393,33 +456,27 @@ export const LiteCalendarView = ({
               </button>
             );
           })}
-          {laterItems.length > 0 && (
-            <button
-              type="button"
-              onClick={() =>
-                setMobileDay(mobileDay === LATER_KEY ? null : LATER_KEY)
-              }
-              className="flex flex-none flex-col items-center"
-              style={{
-                background: mobileDay === LATER_KEY ? "#fff" : "#0A0B0D",
-                color: mobileDay === LATER_KEY ? "#0A0B0D" : "#9AA1AC",
-                border: `1px solid ${mobileDay === LATER_KEY ? "#fff" : "#23262D"}`,
-                borderRadius: 12,
-                padding: "8px 14px",
-                gap: 2,
-              }}
-            >
-              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em" }}>
-                LATER
-              </span>
-              <span
-                style={{ fontSize: 12, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}
-              >
-                {laterTotal}
-              </span>
-            </button>
-          )}
         </div>
+
+        {openNow.length > 0 && (
+          <div className="flex flex-col" style={{ gap: 7 }}>
+            <div className="flex items-center" style={{ gap: 10 }}>
+              <LaneCaption>Open all day</LaneCaption>
+              <span style={{ height: 1, background: "#1D2026", flex: 1 }} />
+              <span style={{ fontSize: 10, color: "#6B7280", fontWeight: 600 }}>
+                {openNow.length} {openNow.length === 1 ? "market" : "markets"}
+              </span>
+            </div>
+            {openNow.map((it) => (
+              <SpanBar
+                key={it.id}
+                ticket={ticketOf(it)}
+                closes={closesStamp(it, now)}
+                onClick={() => openItem(it)}
+              />
+            ))}
+          </div>
+        )}
 
         {visible
           .filter((c) => c.items.length > 0)
@@ -453,37 +510,7 @@ export const LiteCalendarView = ({
             </div>
           ))}
 
-        {showLater && (
-          <div className="flex flex-col" style={{ gap: 9 }}>
-            <div className="flex items-center" style={{ gap: 10 }}>
-              <span
-                style={{
-                  fontSize: 10,
-                  letterSpacing: "0.16em",
-                  textTransform: "uppercase",
-                  color: "#F2F3F5",
-                  fontWeight: 700,
-                  whiteSpace: "nowrap",
-                }}
-              >
-                Later
-              </span>
-              <span style={{ height: 1, background: "#1D2026", flex: 1 }} />
-              <span style={{ fontSize: 10, color: "#6B7280", fontWeight: 600 }}>
-                {laterTotal} {laterTotal === 1 ? "market" : "markets"}
-              </span>
-            </div>
-            {laterItems.map((it) => (
-              <MobileTicket
-                key={it.id}
-                ticket={ticketOf(it, { asDate: true })}
-                onClick={() => openItem(it)}
-              />
-            ))}
-          </div>
-        )}
-
-        {weekTotal === 0 && laterItems.length === 0 && (
+        {weekTotal === 0 && openNow.length === 0 && (
           <div
             className="flex flex-col items-center"
             style={{
@@ -510,8 +537,9 @@ export const LiteCalendarView = ({
         )}
 
         <span style={{ fontSize: 11, color: "#6B7280", textWrap: "pretty" }}>
-          {weekTotal} markets decide in the next 7 days. Tap a day to trade it.
-          {laterTotal > 0 && ` ${laterTotal} more decide later.`}
+          {weekTotal} markets close in the next 7 days. Tap a day to trade it.
+          {openNow.length > 0 &&
+            ` ${openNow.length} more stay open past today.`}
         </span>
       </div>
     );
@@ -527,12 +555,55 @@ export const LiteCalendarView = ({
 
       {mode === "week" ? (
         <>
+          {weekLanes.length > 0 && (
+            <div className="flex flex-col" style={{ gap: 6 }}>
+              <div className="flex items-center" style={{ gap: 10 }}>
+                <LaneCaption>Open across days</LaneCaption>
+                <span style={{ height: 1, background: "#1D2026", flex: 1 }} />
+                <span style={{ fontSize: 11, color: "#6B7280", fontWeight: 600 }}>
+                  {spanTotal} {spanTotal === 1 ? "market" : "markets"} tradeable now
+                </span>
+              </div>
+              {visibleLanes.map((lane, li) => (
+                <div
+                  key={li}
+                  className="grid"
+                  style={{ gridTemplateColumns: "repeat(7,1fr)", gap: 8 }}
+                >
+                  {lane.map((p) => (
+                    <div
+                      key={p.item.id}
+                      style={{
+                        gridColumn: `${p.colStart + 1} / span ${p.colSpan}`,
+                      }}
+                    >
+                      <SpanBar
+                        ticket={ticketOf(p.item)}
+                        clippedLeft={p.clippedLeft}
+                        clippedRight={p.clippedRight}
+                        closes={closesStamp(p.item, now)}
+                        onClick={() => openItem(p.item)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ))}
+              {(hiddenSpans > 0 || lanesOpen) && (
+                <button
+                  type="button"
+                  onClick={() => setLanesOpen((v) => !v)}
+                  className="self-start"
+                  style={{ fontSize: 11, color: "#9AA1AC", fontWeight: 600 }}
+                >
+                  {lanesOpen ? "Show fewer" : `+${hiddenSpans} more open markets`}
+                </button>
+              )}
+            </div>
+          )}
           <div
             className="grid"
             style={{
-              gridTemplateColumns: laterItems.length
-                ? "repeat(7,1fr) 1fr"
-                : "repeat(7,1fr)",
+              gridTemplateColumns: "repeat(7,1fr)",
               gap: 8,
             }}
           >
@@ -599,49 +670,6 @@ export const LiteCalendarView = ({
                 </div>
               );
             })}
-            {laterItems.length > 0 && (
-              <div className="flex flex-col" style={{ gap: 7 }}>
-                <div
-                  className="flex flex-col text-left"
-                  style={{ gap: 1, padding: "0 2px 5px", borderBottom: "1px solid #1D2026" }}
-                >
-                  <span
-                    style={{
-                      fontSize: 10,
-                      letterSpacing: "0.1em",
-                      textTransform: "uppercase",
-                      color: "#F2F3F5",
-                      fontWeight: 700,
-                    }}
-                  >
-                    Later
-                  </span>
-                  <span
-                    style={{
-                      fontSize: 10,
-                      color: "#6B7280",
-                      fontWeight: 600,
-                      fontVariantNumeric: "tabular-nums",
-                    }}
-                  >
-                    {laterTotal} {laterTotal === 1 ? "market" : "markets"}
-                  </span>
-                </div>
-                {laterItems.slice(0, LATER_TICKET_CAP).map((it) => (
-                  <WeekTicket
-                    key={it.id}
-                    ticket={ticketOf(it, { asDate: true })}
-                    // Beyond the week there is no day frame — go straight to the market.
-                    onClick={() => openItem(it)}
-                  />
-                ))}
-                {laterItems.length > LATER_TICKET_CAP && (
-                  <span style={{ fontSize: 10, color: "#6B7280", padding: "0 2px" }}>
-                    +{laterItems.length - LATER_TICKET_CAP} more
-                  </span>
-                )}
-              </div>
-            )}
           </div>
 
           <div
@@ -649,16 +677,112 @@ export const LiteCalendarView = ({
             style={{ borderTop: "1px solid #1D2026", paddingTop: 14 }}
           >
             <span style={{ fontSize: 12, color: "#6B7280" }}>
-              {weekTotal} markets decide in the next 7 days. Pick a day to trade it —
+              {weekTotal} markets close in the next 7 days. Pick a day to trade it —
               prices live in Day mode.
-              {laterTotal > 0 && ` ${laterTotal} more decide later.`}
+              {spanTotal > 0 &&
+                ` ${spanTotal} more stay open across the week — the bars above.`}
             </span>
             <span style={{ fontSize: 12, color: "#9AA1AC", fontWeight: 600 }}>
               Rolling Intraday rounds are not counted.
             </span>
           </div>
         </>
-      ) : dayItems.length === 0 ? (
+      ) : mode === "month" ? (
+        <div className="flex flex-col" style={{ gap: 8 }}>
+          <div className="grid" style={{ gridTemplateColumns: "repeat(7,1fr)", gap: 8 }}>
+            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
+              <span
+                key={d}
+                style={{
+                  fontSize: 10,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  color: "#6B7280",
+                  fontWeight: 700,
+                }}
+              >
+                {d}
+              </span>
+            ))}
+          </div>
+          {monthWeeks.map((w) => (
+            <div key={w.start} className="flex flex-col" style={{ gap: 4 }}>
+              <div className="grid" style={{ gridTemplateColumns: "repeat(7,1fr)", gap: 8 }}>
+                {w.cells.map((cell) => (
+                  <button
+                    key={cell.key}
+                    type="button"
+                    onClick={() => {
+                      setDayKey(cell.key);
+                      setMode("day");
+                    }}
+                    className="flex flex-col text-left"
+                    style={{
+                      gap: 2,
+                      minHeight: 54,
+                      borderRadius: 10,
+                      border: `1px solid ${cell.isToday ? "#33D6FF" : "#1D2026"}`,
+                      background: cell.inMonth ? "#131519" : "transparent",
+                      opacity: cell.inMonth ? 1 : 0.45,
+                      padding: "6px 8px",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        color: cell.isToday ? "#33D6FF" : "#F2F3F5",
+                        fontVariantNumeric: "tabular-nums",
+                      }}
+                    >
+                      {cell.day}
+                    </span>
+                    {cell.markets > 0 && (
+                      <span style={{ fontSize: 10, color: "#9AA1AC", fontWeight: 600 }}>
+                        {cell.markets} {cell.markets === 1 ? "close" : "closes"}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+              {w.lanes.slice(0, 3).map((lane, li) => (
+                <div
+                  key={li}
+                  className="grid"
+                  style={{ gridTemplateColumns: "repeat(7,1fr)", gap: 8 }}
+                >
+                  {lane.map((p) => (
+                    <div
+                      key={p.item.id}
+                      style={{ gridColumn: `${p.colStart + 1} / span ${p.colSpan}` }}
+                    >
+                      <SpanBar
+                        compact
+                        ticket={ticketOf(p.item)}
+                        clippedLeft={p.clippedLeft}
+                        clippedRight={p.clippedRight}
+                        closes={closesStamp(p.item, now)}
+                        onClick={() => openItem(p.item)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ))}
+          <span
+            style={{
+              fontSize: 12,
+              color: "#6B7280",
+              borderTop: "1px solid #1D2026",
+              paddingTop: 14,
+            }}
+          >
+            Bars show how long a market stays tradeable; day cells count the markets
+            that close that day.
+          </span>
+        </div>
+      ) : dayItems.length === 0 && dayOpen.length === 0 ? (
         <div
           className="flex flex-col items-center"
           style={{
@@ -697,6 +821,25 @@ export const LiteCalendarView = ({
         </div>
       ) : (
         <div className="flex flex-col">
+          {dayOpen.length > 0 && (
+            <div className="flex flex-col" style={{ gap: 6, paddingBottom: 16 }}>
+              <div className="flex items-center" style={{ gap: 10 }}>
+                <LaneCaption>Open all day</LaneCaption>
+                <span style={{ height: 1, background: "#1D2026", flex: 1 }} />
+                <span style={{ fontSize: 11, color: "#6B7280", fontWeight: 600 }}>
+                  {dayOpen.length} {dayOpen.length === 1 ? "market" : "markets"}
+                </span>
+              </div>
+              {dayOpen.map((it) => (
+                <SpanBar
+                  key={it.id}
+                  ticket={ticketOf(it)}
+                  closes={closesStamp(it, now)}
+                  onClick={() => openItem(it)}
+                />
+              ))}
+            </div>
+          )}
           {dayItems.map((it, i) => (
             <SpineRow
               key={it.id}
