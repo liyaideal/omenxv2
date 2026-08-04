@@ -11,7 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { LiteCalendarView } from "@/components/lite/calendar/LiteCalendarView";
 import { ClosesSoonBadge } from "@/components/lite/calendar/CalendarBlocks";
-import { CalendarChip } from "@/components/lite/LiteListControls";
+import { CalendarChip, WatchlistChip } from "@/components/lite/LiteListControls";
 import { EventRow, MarketChildRow } from "@/hooks/useMarketListData";
 import { SportsMatch } from "@/components/lite/sports/sportsData";
 import { StockEventRow } from "@/components/lite/intraday/intradayData";
