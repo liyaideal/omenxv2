@@ -3,9 +3,42 @@
 // Watchlist chip, trait toggle chips (Boost / Intraday) and the
 // mobile Topics bottom sheet. Lucide icons only, no emoji.
 // ============================================================
-import { Check, ChevronDown, Star, Timer, Zap } from "lucide-react";
+import { Calendar, Check, ChevronDown, Star, Timer, Zap } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+
+/* ---------------- Calendar lens chip ---------------- */
+/** Third element of the header view cluster. A lens, not a category —
+ *  active state is a plain white fill with no category colour. */
+export const CalendarChip = ({
+  active,
+  onClick,
+  minHeight,
+}: {
+  active: boolean;
+  onClick: () => void;
+  /** Mobile cluster uses a 44px touch target. */
+  minHeight?: number;
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    aria-pressed={active}
+    className="flex shrink-0 items-center gap-[6px] rounded-full border-[1.5px] transition-colors"
+    style={{
+      padding: "6px 13px",
+      minHeight,
+      borderColor: active ? "#FFFFFF" : "#2B2F38",
+      background: active ? "#FFFFFF" : "transparent",
+      color: active ? "#0A0B0D" : "#C9CED6",
+    }}
+  >
+    <Calendar className="h-3.5 w-3.5" strokeWidth={2} />
+    <span className="font-display font-semibold" style={{ fontSize: 12 }}>
+      Calendar
+    </span>
+  </button>
+);
 
 /* ---------------- Watchlist chip ---------------- */
 export const WatchlistChip = ({
