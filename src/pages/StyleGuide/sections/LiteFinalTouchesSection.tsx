@@ -264,6 +264,7 @@ export const LiteFinalTouchesSection = () => {
   const [pickPreset, setPickPreset] = useState<string>("desktop");
   const [pagePreset, setPagePreset] = useState<string>("live");
   const [rowPreset, setRowPreset] = useState<string>("all");
+  const [boostPreset, setBoostPreset] = useState<string>("off");
   const [tf, setTf] = useState<"5m" | "15m" | "1h" | "4h" | "1d">("15m");
 
   const quiet = pagePreset === "quiet";
