@@ -55,6 +55,9 @@ export interface LiteCalendarViewProps {
 }
 
 const WEEK_TICKET_CAP = 4;
+/** Everything with a decision moment past the week still gets a home. */
+const LATER_HORIZON_DAYS = 730;
+const LATER_TICKET_CAP = 6;
 
 const SegPill = ({
   value,
@@ -141,7 +144,14 @@ export const LiteCalendarView = ({
   const [mobileDay, setMobileDay] = useState<number | null>(null);
 
   const allItems = useMemo(
-    () => buildCalendarItems({ events, matches, stocks, now }),
+    () =>
+      buildCalendarItems({
+        events,
+        matches,
+        stocks,
+        now,
+        horizonDays: LATER_HORIZON_DAYS,
+      }),
     [events, matches, stocks, now],
   );
 
@@ -158,12 +168,24 @@ export const LiteCalendarView = ({
     [allItems, sector, showSubTypes, subType],
   );
 
-  const columns = useMemo(() => buildWeekColumns(items, now), [items, now]);
-  const weekTotal = useMemo(() => sumMarkets(items), [items]);
+  const weekEnd = todayKey + WEEK_DAYS * DAY_MS;
+  /** In-window items drive the 7 columns; the rest fall into "Later". */
+  const weekItems = useMemo(
+    () => items.filter((i) => i.at.getTime() < weekEnd),
+    [items, weekEnd],
+  );
+  const laterItems = useMemo(
+    () => items.filter((i) => i.at.getTime() >= weekEnd),
+    [items, weekEnd],
+  );
+  const laterTotal = useMemo(() => sumMarkets(laterItems), [laterItems]);
+
+  const columns = useMemo(() => buildWeekColumns(weekItems, now), [weekItems, now]);
+  const weekTotal = useMemo(() => sumMarkets(weekItems), [weekItems]);
 
   const dayItems = useMemo(
-    () => items.filter((i) => startOfDay(i.at) === dayKey),
-    [items, dayKey],
+    () => weekItems.filter((i) => startOfDay(i.at) === dayKey),
+    [weekItems, dayKey],
   );
 
   const nextItem = useMemo(
@@ -329,6 +351,9 @@ export const LiteCalendarView = ({
   if (isMobile) {
     const strip = columns.filter((c) => c.markets > 0);
     const visible = mobileDay == null ? columns : columns.filter((c) => c.key === mobileDay);
+    const LATER_KEY = -1;
+    const showLater =
+      laterItems.length > 0 && (mobileDay == null || mobileDay === LATER_KEY);
     return (
       <div className="flex flex-col" style={{ gap: 14, paddingTop: 4 }}>
         {header}
@@ -368,6 +393,32 @@ export const LiteCalendarView = ({
               </button>
             );
           })}
+          {laterItems.length > 0 && (
+            <button
+              type="button"
+              onClick={() =>
+                setMobileDay(mobileDay === LATER_KEY ? null : LATER_KEY)
+              }
+              className="flex flex-none flex-col items-center"
+              style={{
+                background: mobileDay === LATER_KEY ? "#fff" : "#0A0B0D",
+                color: mobileDay === LATER_KEY ? "#0A0B0D" : "#9AA1AC",
+                border: `1px solid ${mobileDay === LATER_KEY ? "#fff" : "#23262D"}`,
+                borderRadius: 12,
+                padding: "8px 14px",
+                gap: 2,
+              }}
+            >
+              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em" }}>
+                LATER
+              </span>
+              <span
+                style={{ fontSize: 12, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}
+              >
+                {laterTotal}
+              </span>
+            </button>
+          )}
         </div>
 
         {visible
@@ -402,7 +453,37 @@ export const LiteCalendarView = ({
             </div>
           ))}
 
-        {weekTotal === 0 && (
+        {showLater && (
+          <div className="flex flex-col" style={{ gap: 9 }}>
+            <div className="flex items-center" style={{ gap: 10 }}>
+              <span
+                style={{
+                  fontSize: 10,
+                  letterSpacing: "0.16em",
+                  textTransform: "uppercase",
+                  color: "#F2F3F5",
+                  fontWeight: 700,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Later
+              </span>
+              <span style={{ height: 1, background: "#1D2026", flex: 1 }} />
+              <span style={{ fontSize: 10, color: "#6B7280", fontWeight: 600 }}>
+                {laterTotal} {laterTotal === 1 ? "market" : "markets"}
+              </span>
+            </div>
+            {laterItems.map((it) => (
+              <MobileTicket
+                key={it.id}
+                ticket={ticketOf(it, { asDate: true })}
+                onClick={() => openItem(it)}
+              />
+            ))}
+          </div>
+        )}
+
+        {weekTotal === 0 && laterItems.length === 0 && (
           <div
             className="flex flex-col items-center"
             style={{
@@ -430,6 +511,7 @@ export const LiteCalendarView = ({
 
         <span style={{ fontSize: 11, color: "#6B7280", textWrap: "pretty" }}>
           {weekTotal} markets decide in the next 7 days. Tap a day to trade it.
+          {laterTotal > 0 && ` ${laterTotal} more decide later.`}
         </span>
       </div>
     );
@@ -445,7 +527,15 @@ export const LiteCalendarView = ({
 
       {mode === "week" ? (
         <>
-          <div className="grid" style={{ gridTemplateColumns: "repeat(7,1fr)", gap: 8 }}>
+          <div
+            className="grid"
+            style={{
+              gridTemplateColumns: laterItems.length
+                ? "repeat(7,1fr) 1fr"
+                : "repeat(7,1fr)",
+              gap: 8,
+            }}
+          >
             {columns.map((c) => {
               const shown = c.items.slice(0, WEEK_TICKET_CAP);
               const more = c.items.length - shown.length;
@@ -509,6 +599,49 @@ export const LiteCalendarView = ({
                 </div>
               );
             })}
+            {laterItems.length > 0 && (
+              <div className="flex flex-col" style={{ gap: 7 }}>
+                <div
+                  className="flex flex-col text-left"
+                  style={{ gap: 1, padding: "0 2px 5px", borderBottom: "1px solid #1D2026" }}
+                >
+                  <span
+                    style={{
+                      fontSize: 10,
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                      color: "#F2F3F5",
+                      fontWeight: 700,
+                    }}
+                  >
+                    Later
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      color: "#6B7280",
+                      fontWeight: 600,
+                      fontVariantNumeric: "tabular-nums",
+                    }}
+                  >
+                    {laterTotal} {laterTotal === 1 ? "market" : "markets"}
+                  </span>
+                </div>
+                {laterItems.slice(0, LATER_TICKET_CAP).map((it) => (
+                  <WeekTicket
+                    key={it.id}
+                    ticket={ticketOf(it, { asDate: true })}
+                    // Beyond the week there is no day frame — go straight to the market.
+                    onClick={() => openItem(it)}
+                  />
+                ))}
+                {laterItems.length > LATER_TICKET_CAP && (
+                  <span style={{ fontSize: 10, color: "#6B7280", padding: "0 2px" }}>
+                    +{laterItems.length - LATER_TICKET_CAP} more
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           <div
@@ -518,6 +651,7 @@ export const LiteCalendarView = ({
             <span style={{ fontSize: 12, color: "#6B7280" }}>
               {weekTotal} markets decide in the next 7 days. Pick a day to trade it —
               prices live in Day mode.
+              {laterTotal > 0 && ` ${laterTotal} more decide later.`}
             </span>
             <span style={{ fontSize: 12, color: "#9AA1AC", fontWeight: 600 }}>
               Rolling Intraday rounds are not counted.
