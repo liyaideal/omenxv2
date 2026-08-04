@@ -302,13 +302,51 @@ export const LiteCalendarView = ({
               <button
                 type="button"
                 onClick={() =>
-                  setDayKey((k) =>
-                    Math.min(k + DAY_MS, todayKey + (WEEK_DAYS - 1) * DAY_MS),
-                  )
+                  setDayKey((k) => k + DAY_MS)
                 }
-                disabled={dayKey >= todayKey + (WEEK_DAYS - 1) * DAY_MS}
                 aria-label="Next day"
                 className="flex items-center justify-center disabled:cursor-default disabled:opacity-40"
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 999,
+                  border: "1px solid #23262D",
+                  color: "#9AA1AC",
+                }}
+              >
+                <ChevronRight size={14} />
+              </button>
+            </div>
+          )}
+          {mode === "month" && (
+            <div className="flex items-center" style={{ gap: 6 }}>
+              <button
+                type="button"
+                onClick={() => setMonthStart((m) => addMonths(m, -1))}
+                disabled={monthStart <= startOfMonth(now)}
+                aria-label="Previous month"
+                className="flex items-center justify-center disabled:cursor-default disabled:opacity-40"
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 999,
+                  border: "1px solid #23262D",
+                  color: "#9AA1AC",
+                }}
+              >
+                <ChevronLeft size={14} />
+              </button>
+              <span
+                className="font-display text-center"
+                style={{ fontSize: 14, fontWeight: 700, color: "#fff", minWidth: 132 }}
+              >
+                {monthLabel(monthStart)}
+              </span>
+              <button
+                type="button"
+                onClick={() => setMonthStart((m) => addMonths(m, 1))}
+                aria-label="Next month"
+                className="flex items-center justify-center"
                 style={{
                   width: 36,
                   height: 36,
