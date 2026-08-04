@@ -235,6 +235,10 @@ export const localTime = (d: Date): string =>
     hour12: false,
   });
 
+/** "16 Sep" — stamp used by the Later bucket, where the hour is noise. */
+export const shortDate = (d: Date): string =>
+  `${d.getDate()} ${d.toLocaleDateString(undefined, { month: "short" })}`;
+
 /** "Today · Mon 3 Aug" / "Tue 4 Aug". */
 export const stepperLabel = (key: number, todayKey: number): string => {
   const d = new Date(key);
@@ -307,8 +311,11 @@ export interface TicketView {
   item: CalItem;
 }
 
-export const ticketOf = (item: CalItem): TicketView => {
-  const time = localTime(item.at);
+export const ticketOf = (
+  item: CalItem,
+  opts?: { asDate?: boolean },
+): TicketView => {
+  const time = opts?.asDate ? shortDate(item.at) : localTime(item.at);
   if (item.kind === "session")
     return {
       id: item.id,
