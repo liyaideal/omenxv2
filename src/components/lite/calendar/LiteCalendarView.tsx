@@ -467,7 +467,15 @@ export const LiteCalendarView = ({
 
       {mode === "week" ? (
         <>
-          <div className="grid" style={{ gridTemplateColumns: "repeat(7,1fr)", gap: 8 }}>
+          <div
+            className="grid"
+            style={{
+              gridTemplateColumns: laterItems.length
+                ? "repeat(7,1fr) 1fr"
+                : "repeat(7,1fr)",
+              gap: 8,
+            }}
+          >
             {columns.map((c) => {
               const shown = c.items.slice(0, WEEK_TICKET_CAP);
               const more = c.items.length - shown.length;
@@ -531,6 +539,49 @@ export const LiteCalendarView = ({
                 </div>
               );
             })}
+            {laterItems.length > 0 && (
+              <div className="flex flex-col" style={{ gap: 7 }}>
+                <div
+                  className="flex flex-col text-left"
+                  style={{ gap: 1, padding: "0 2px 5px", borderBottom: "1px solid #1D2026" }}
+                >
+                  <span
+                    style={{
+                      fontSize: 10,
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                      color: "#F2F3F5",
+                      fontWeight: 700,
+                    }}
+                  >
+                    Later
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      color: "#6B7280",
+                      fontWeight: 600,
+                      fontVariantNumeric: "tabular-nums",
+                    }}
+                  >
+                    {laterTotal} {laterTotal === 1 ? "market" : "markets"}
+                  </span>
+                </div>
+                {laterItems.slice(0, LATER_TICKET_CAP).map((it) => (
+                  <WeekTicket
+                    key={it.id}
+                    ticket={ticketOf(it, { asDate: true })}
+                    // Beyond the week there is no day frame — go straight to the market.
+                    onClick={() => openItem(it)}
+                  />
+                ))}
+                {laterItems.length > LATER_TICKET_CAP && (
+                  <span style={{ fontSize: 10, color: "#6B7280", padding: "0 2px" }}>
+                    +{laterItems.length - LATER_TICKET_CAP} more
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           <div
@@ -540,6 +591,7 @@ export const LiteCalendarView = ({
             <span style={{ fontSize: 12, color: "#6B7280" }}>
               {weekTotal} markets decide in the next 7 days. Pick a day to trade it —
               prices live in Day mode.
+              {laterTotal > 0 && ` ${laterTotal} more decide later.`}
             </span>
             <span style={{ fontSize: 12, color: "#9AA1AC", fontWeight: 600 }}>
               Rolling Intraday rounds are not counted.
