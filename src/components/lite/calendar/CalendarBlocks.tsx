@@ -302,22 +302,26 @@ export const WeekTicket = ({
   <button
     type="button"
     onClick={onClick}
-    className="lite-cal-ticket box-border flex flex-col text-left"
+    className="lite-cal-ticket relative box-border flex flex-col overflow-hidden text-left"
     data-intraday={ticket.intraday ? "true" : "false"}
     style={{
       background: "#131519",
       border: `1px solid ${ticket.intraday ? "rgba(255,138,61,0.30)" : "#1D2026"}`,
       borderRadius: 10,
-      padding: 8,
+      padding: "8px 8px 8px 10px",
       gap: 3,
     }}
   >
-    <span className="flex items-center" style={{ gap: 4 }}>
+    <EdgeBar tone={ticket.tone} radius={10} />
+    {/* Category leads the ticket; the time follows on the same row. */}
+    <span className="flex items-center" style={{ gap: 5 }}>
+      <TicketCategoryBadge label={ticket.cat} tone={ticket.tone} />
       {ticket.live && <LivePulse size={4} />}
       <span
+        className="ml-auto flex-none"
         style={{
           fontSize: 10,
-          color: ticket.intraday ? "#9AA1AC" : "#fff",
+          color: "#9AA1AC",
           fontWeight: 700,
           fontVariantNumeric: "tabular-nums",
         }}
@@ -336,17 +340,19 @@ export const WeekTicket = ({
     >
       {ticket.title}
     </span>
-    <span
-      style={{
-        fontSize: 8,
-        letterSpacing: "0.08em",
-        textTransform: "uppercase",
-        color: ticket.intraday ? ORANGE : "#6B7280",
-        fontWeight: 700,
-      }}
-    >
-      {ticket.cat}
-    </span>
+    {ticket.leagueShort && (
+      <span
+        style={{
+          fontSize: 8,
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          color: "#6B7280",
+          fontWeight: 700,
+        }}
+      >
+        {ticket.leagueShort}
+      </span>
+    )}
   </button>
 );
 
