@@ -483,7 +483,7 @@ const LiteEventsPage = () => {
 
         {/* Editor's picks — desktop All view, between Sports and the catalogue. */}
         {!calendarOn && isStageView && editorPicks.length > 0 && picksUpdatedAt && (
-          <div style={{ marginTop: 26 }}>
+          <div style={{ marginTop: 24 }}>
             <EditorPicksModule picks={editorPicks} updatedAt={picksUpdatedAt} />
           </div>
         )}
