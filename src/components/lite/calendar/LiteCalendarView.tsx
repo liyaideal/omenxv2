@@ -13,6 +13,7 @@ import { EventRow } from "@/hooks/useMarketListData";
 import { SportsMatch } from "@/components/lite/sports/sportsData";
 import { StockEventRow } from "@/components/lite/intraday/intradayData";
 import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/states/EmptyState";
 import {
   CalItem,
   DAY_MS,
@@ -486,29 +487,12 @@ export const LiteCalendarView = ({
         )}
 
         {weekTotal === 0 && openNow.length === 0 && (
-          <div
-            className="flex flex-col items-center"
-            style={{
-              border: "1px dashed #23262D",
-              borderRadius: 14,
-              padding: "40px 20px",
-              gap: 10,
-            }}
-          >
-            <span
-              className="font-display"
-              style={{ fontSize: 18, fontWeight: 700, color: "#fff" }}
-            >
-              Nothing scheduled this week
-            </span>
-            <button
-              type="button"
-              onClick={onBackToList}
-              style={{ fontSize: 13, color: "#33D6FF", fontWeight: 700 }}
-            >
-              Back to all markets →
-            </button>
-          </div>
+          <EmptyState
+            title="Nothing scheduled this week"
+            description="Pick another week, or browse every open market from the list."
+            actionLabel="Back to all markets"
+            onAction={onBackToList}
+          />
         )}
 
         <span style={{ fontSize: 11, color: "#6B7280", textWrap: "pretty" }}>
