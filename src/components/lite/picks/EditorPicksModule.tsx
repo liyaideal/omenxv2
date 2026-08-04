@@ -92,7 +92,6 @@ const ReasonStrip = ({ note, compact }: { note: string; compact?: boolean }) => 
           fontSize: 12,
           color: "#C9CED6",
           lineHeight: 1.45,
-          minHeight: compact ? undefined : 53,
         }}
       >
         {note}
