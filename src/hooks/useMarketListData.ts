@@ -56,6 +56,8 @@ export interface EventRow {
 
   // Dates
   expiry: Date | null;
+  /** Trading opens at this moment; null == already open. */
+  opensAt: Date | null;
   createdAt: string;
 
   // Computed flags
