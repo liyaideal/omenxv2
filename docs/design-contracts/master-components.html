@@ -1,0 +1,1013 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OmenX Lite — Master Components</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   MASTER COMPONENTS — every value below is copied from the live
+   build (src/index.css + the named component file). Nothing here
+   is an approximation. Static markup only, no app imports.
+   ============================================================ */
+:root{
+  --background:#0A0B0D;          /* 220 12% 4% */
+  --background-elevated:#14171C; /* 222 12% 9% */
+  --foreground:#FFFFFF;
+  --yes:#33D6FF;                 /* 192 100% 60% — Pulse Blue */
+  --no:#CFFF4A;                  /* 74 100% 65% — Volt Green */
+  --trading-green:#CFFF4A;       /* 74 100% 65% */
+  --trading-red:#FF5C5C;         /* 0 100% 68% */
+  --trading-yellow:#FFC61A;      /* 48 100% 55% */
+  --badge-intraday:#FF8A3D;      /* 24 100% 62% */
+  --live-red:#FF3B4E;
+  --hairline:#1D2026;
+  --stroke:#23262D;
+  --stroke-strong:#2B2F38;
+  --surface:#131519;
+  --surface-alt:#111318;
+  --ink-2:#C9CED6;
+  --ink-3:#9AA1AC;
+  --ink-4:#6B7280;
+  --chalk:#F2F3F5;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--background);color:var(--foreground);font-family:'Archivo',sans-serif;-webkit-font-smoothing:antialiased;padding:40px 28px 120px}
+.font-display{font-family:'Space Grotesk',sans-serif;letter-spacing:-0.02em}
+.mono{font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+
+/* ---- doc chrome (not part of the product) ---- */
+.doc-wrap{max-width:1360px;margin:0 auto}
+.doc-title{font-family:'Space Grotesk',sans-serif;font-size:38px;font-weight:700;letter-spacing:-0.02em}
+.doc-sub{font-size:13px;color:var(--ink-3);margin-top:8px;max-width:760px;line-height:1.55}
+.doc-section{margin-top:56px;border-top:1px solid var(--hairline);padding-top:22px}
+.doc-section h2{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.02em}
+.lbl{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:30px 0 12px;padding:7px 10px;background:#101216;border-left:3px solid #33D6FF;border-radius:0 6px 6px 0}
+.lbl .n{font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:#F2F3F5}
+.lbl .r{font-size:11.5px;color:var(--ink-3)}
+.lbl.frozen{border-left-color:#CFFF4A}
+.lbl.frozen .n:after{content:" · FROZEN";color:#CFFF4A}
+.stage{background:#0A0B0D;border:1px dashed #23262D;border-radius:12px;padding:18px}
+.stage.m{width:390px}
+.stage.d{width:1280px;max-width:100%;overflow-x:auto}
+.row{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
+.cap{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4);font-weight:700;margin-bottom:8px}
+
+/* ============================================================
+   LIVE CLASSES — verbatim from src/index.css
+   ============================================================ */
+.mkt-card{transition:transform .2s cubic-bezier(.2,.9,.15,1),box-shadow .2s}
+.mkt-card:hover{transform:translateY(-4px);box-shadow:0 18px 48px rgba(0,0,0,.5)}
+.chip-t1{border-radius:10px;border:1px solid transparent;transition:background-color .15s ease}
+.chip-t1-up{color:#33d6ff;background:rgba(51,214,255,.08);border-color:rgba(51,214,255,.4)}
+.chip-t1-up:hover{background:rgba(51,214,255,.15)}
+.chip-t1-down{color:#cfff4a;background:rgba(207,255,74,.06);border-color:rgba(207,255,74,.35)}
+.chip-t1-down:hover{background:rgba(207,255,74,.13)}
+.chip-t2{background:#0a0b0d;border:1px solid #23262d;border-radius:9px;transition:border-color .15s ease}
+.chip-t2:hover{border-color:var(--chip-accent,#23262d)}
+.lite-cal-ticket{transition:border-color .15s ease}
+.lite-cal-ticket:hover{border-color:#f2f3f5}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+.pulse{animation:pulse 2s cubic-bezier(.4,0,.6,1) infinite}
+.scrollx{overflow-x:auto;scrollbar-width:none}
+.scrollx::-webkit-scrollbar{display:none}
+.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="doc-wrap">
+
+<h1 class="doc-title">OmenX Lite — Master Components</h1>
+<p class="doc-sub">
+Component bible for the Lite surface. Every size, colour, radius and padding is the shipped value read out of
+<code>src/index.css</code> and the named component file — not a redraw. Components are rendered at actual size inside their real
+grid context. Desktop stage = 1280 content width, mobile stage = 390. Type: <strong>Archivo</strong> (body) ·
+<strong>Space Grotesk</strong> (<code>.font-display</code> / numerals, letter-spacing −0.02em).
+Colour axes: direction = Pulse Blue <code>#33D6FF</code> / Volt <code>#CFFF4A</code>; money = <code>#CFFF4A</code>/<code>#FF5C5C</code>;
+Intraday identity orange <code>#FF8A3D</code>; live red <code>#FF3B4E</code>.
+</p>
+
+<!-- ======================================================= 1 CHROME -->
+<section class="doc-section">
+<h2>1 · Chrome</h2>
+
+<div class="lbl"><span class="n">Desktop top bar</span><span class="r">EventsDesktopHeader — sticky, 1px bottom hairline, logo + 4 nav items + equity + avatar. One per page, never duplicated inside a module.</span></div>
+<div class="stage d">
+  <header style="border-bottom:1px solid rgba(255,255,255,.06);background:linear-gradient(180deg,#0B0E14 0%,#080A0F 100%);border-radius:10px">
+    <div style="position:relative;height:1px;background:linear-gradient(90deg,transparent,rgba(51,214,255,.4),transparent)"></div>
+    <div style="display:flex;align-items:center;gap:28px;padding:0 20px;height:60px">
+      <span class="font-display" style="font-size:19px;font-weight:700;letter-spacing:-.03em">OmenX</span>
+      <nav style="display:flex;align-items:center;gap:22px;font-size:13.5px">
+        <span style="color:#fff;font-weight:600">Events</span>
+        <span style="color:var(--ink-3)">Portfolio</span>
+        <span style="color:var(--ink-3)">Leaderboard</span>
+        <span style="color:var(--ink-3)">Insights</span>
+      </nav>
+      <span style="flex:1"></span>
+      <span style="display:flex;flex-direction:column;align-items:flex-end;gap:1px">
+        <span style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4);font-weight:700">Equity</span>
+        <span class="font-display mono" style="font-size:14px;font-weight:700">$12,480.65</span>
+      </span>
+      <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-3)">EN ▾</span>
+      <span style="width:32px;height:32px;border-radius:999px;background:#23262D;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">JD</span>
+    </div>
+  </header>
+</div>
+
+<div class="lbl"><span class="n">Desktop category row</span><span class="r">LiteEventsPage PILL_BASE/ACTIVE/IDLE — pills left, 1×22px divider, Boost trait chip, then the Watchlist + Calendar lenses pinned right via ml-auto.</span></div>
+<div class="stage d">
+  <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">
+    <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;background:#fff;color:#0A0B0D;font-weight:600">All</button>
+    <button style="flex:none;display:flex;align-items:center;gap:7px;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6"><span style="width:6px;height:6px;border-radius:999px;background:#FF8A3D"></span>Intraday</button>
+    <button style="flex:none;display:flex;align-items:center;gap:7px;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6"><span class="pulse" style="width:6px;height:6px;border-radius:999px;background:#FF3B4E"></span>Sports</button>
+    <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6">Crypto</button>
+    <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6">Finance</button>
+    <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6">Politics</button>
+    <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6">Economy</button>
+    <span style="width:1px;height:22px;background:#1D2026;margin:0 5px"></span>
+    <button class="font-display" style="display:flex;align-items:center;gap:5px;border-radius:999px;border:1.5px solid #2B2F38;padding:7px 13px;font-size:12.5px;font-weight:600;color:#C9CED6"><span style="color:#CFFF4A">⚡</span>Boost</button>
+    <span style="margin-left:auto;display:flex;gap:8px">
+      <button style="display:flex;align-items:center;gap:5px;border-radius:999px;border:1.5px solid #2B2F38;padding:6px 11px"><span style="color:#FFD23E">★</span><span class="font-display" style="font-size:12px;font-weight:600;color:#C9CED6">Watchlist</span><span class="font-display" style="font-size:12px;font-weight:600;color:#C9CED6">· 6</span></button>
+      <button style="display:flex;align-items:center;gap:6px;border-radius:999px;border:1.5px solid #2B2F38;padding:6px 13px;color:#C9CED6"><span style="font-size:13px">▤</span><span class="font-display" style="font-size:12px;font-weight:600">Calendar</span></button>
+    </span>
+  </div>
+  <div class="cap" style="margin-top:14px">Boost chip active state</div>
+  <button class="font-display" style="display:flex;align-items:center;gap:5px;border-radius:999px;border:1.5px solid #CFFF4A;background:#CFFF4A;padding:7px 13px;font-size:12.5px;font-weight:600;color:#1a2408">⚡ Boost</button>
+</div>
+
+<div class="lbl"><span class="n">Mobile top bar (390)</span><span class="r">MobileHeader — opaque bg-background, sticky, 1px border-bottom, logo left / title centre / action right. Never blurred.</span></div>
+<div class="stage m">
+  <header style="background:#0A0B0D;border-bottom:1px solid #1D2026;padding:8px 16px;border-radius:8px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <span class="font-display" style="font-size:17px;font-weight:700;letter-spacing:-.03em">OmenX</span>
+      <span style="flex:1"></span>
+      <span class="font-display mono" style="font-size:13px;font-weight:700">$12,480.65</span>
+      <span style="width:28px;height:28px;border-radius:999px;background:#23262D;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">JD</span>
+    </div>
+  </header>
+</div>
+
+<div class="lbl"><span class="n">Mobile category row</span><span class="r">MobileCategoryRow — scrolling pills with an 18px right fade mask, 1×28px divider, then the FIXED Watchlist count chip (52px) and Calendar chip (44px). Controls never scroll.</span></div>
+<div class="stage m">
+  <div style="display:flex;align-items:center;gap:8px;padding-bottom:12px;border-bottom:1px solid #1D2026">
+    <div class="scrollx" style="display:flex;min-width:0;flex:1;gap:8px;-webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 18px),transparent 100%);mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 18px),transparent 100%)">
+      <button style="flex:none;display:flex;align-items:center;gap:6px;border-radius:999px;min-height:44px;font-size:12px;padding:0 15px;background:#fff;color:#0A0B0D;border:1px solid #fff;font-weight:700">All</button>
+      <button style="flex:none;display:flex;align-items:center;gap:6px;border-radius:999px;min-height:44px;font-size:12px;padding:0 14px;background:transparent;color:#9AA1AC;border:1px solid #23262D;font-weight:600"><span style="width:6px;height:6px;border-radius:999px;background:#FF8A3D"></span>Intraday</button>
+      <button style="flex:none;display:flex;align-items:center;gap:6px;border-radius:999px;min-height:44px;font-size:12px;padding:0 14px;background:transparent;color:#9AA1AC;border:1px solid #23262D;font-weight:600"><span class="pulse" style="width:6px;height:6px;border-radius:999px;background:#FF3B4E"></span>Sports</button>
+      <button style="flex:none;border-radius:999px;min-height:44px;font-size:12px;padding:0 14px;background:transparent;color:#9AA1AC;border:1px solid #23262D;font-weight:600">Crypto</button>
+      <button style="flex:none;border-radius:999px;min-height:44px;font-size:12px;padding:0 14px;background:transparent;color:#9AA1AC;border:1px solid #23262D;font-weight:600">Finance</button>
+    </div>
+    <span style="flex:none;width:1px;height:28px;background:#23262D"></span>
+    <button style="flex:none;display:flex;align-items:center;justify-content:center;gap:5px;width:52px;min-height:44px;border-radius:999px;border:1px solid #23262D;color:#9AA1AC;font-size:12px;font-weight:700"><span style="width:6px;height:6px;border-radius:2px;background:#33D6FF"></span>6</button>
+    <button style="flex:none;display:flex;align-items:center;justify-content:center;width:44px;min-height:44px;border-radius:999px;border:1px solid #23262D;color:#9AA1AC">▤</button>
+  </div>
+</div>
+
+<div class="lbl"><span class="n">Mobile bottom nav (Lite)</span><span class="r">BottomNav surface="lite" — Markets / Portfolio / Wallet / Me only. z-[200]; fixed, px-4 py-3 pb-6. No Home, Sports or Trade tab in Lite.</span></div>
+<div class="stage m">
+  <nav style="background:#0A0B0D;border-top:1px solid rgba(255,255,255,.08);padding:12px 16px 24px;border-radius:8px">
+    <div style="display:flex;justify-content:space-around;align-items:flex-end;max-width:448px;margin:0 auto">
+      <span style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#33D6FF;transform:scale(1.1)"><span style="font-size:18px">◎</span><span style="font-size:12px;font-weight:600">Markets</span></span>
+      <span style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#9AA1AC"><span style="font-size:18px">◔</span><span style="font-size:12px;font-weight:500">Portfolio</span></span>
+      <span style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#9AA1AC"><span style="font-size:18px">▤</span><span style="font-size:12px;font-weight:500">Wallet</span></span>
+      <span style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#9AA1AC"><span style="width:20px;height:20px;border-radius:999px;background:#23262D"></span><span style="font-size:12px;font-weight:500">Me</span></span>
+    </div>
+  </nav>
+</div>
+</section>
+
+<!-- ======================================================= 2 GENERIC CARD -->
+<section class="doc-section">
+<h2>2 · Generic event card (LiteEventCard)</h2>
+<div class="lbl frozen"><span class="n">LiteEventCard</span><span class="r">Copy verbatim. One card only — no simplified variant, no alternate catalogue card. Grouping headers and filters live OUTSIDE the card. Shell rounded-16 · border #1D2026 · bg #131519 · body padding 18 · grid gap 18 · 3 columns at 1280.</span></div>
+<div class="stage d">
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px">
+
+  <!-- MULTI -->
+  <div class="mkt-card" style="display:flex;flex-direction:column;overflow:hidden;border-radius:16px;border:1px solid #1D2026;background:#131519;text-align:left">
+    <div style="position:relative;height:130px;background:linear-gradient(135deg,#1B2430,#0E1319)">
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(10,11,13,.85),transparent 60%)"></div>
+      <div style="position:absolute;left:12px;top:12px;display:flex;align-items:center;gap:6px">
+        <span style="display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:5px 10px;font-size:11px;font-weight:600;line-height:1;background:#FFFFFF;color:#0A0B0D">🔥 Trending</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:5px 10px;font-size:11px;font-weight:600;line-height:1;background:#CFFF4A;color:#1a2408">⚡ Boost 5×</span>
+      </div>
+    </div>
+    <div style="display:flex;flex:1;flex-direction:column;padding:18px">
+      <div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.12em;color:#6B7280">Economy · 4 markets</div>
+      <h3 class="font-display" style="margin:7px 0 16px;min-height:42px;font-size:17px;font-weight:700;line-height:1.2;color:#fff">What does the Fed do at the September meeting?</h3>
+      <div style="display:flex;flex:1;flex-direction:column;justify-content:center">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="position:relative;display:flex;height:30px;align-items:center;overflow:hidden;border-radius:8px;padding:0 10px;background:rgba(51,214,255,.05)">
+            <span style="position:absolute;top:0;bottom:0;left:0;width:82%;background:rgba(51,214,255,.09)"></span>
+            <span style="position:relative;flex:1;font-size:12.5px;font-weight:600;color:#fff">No change</span>
+            <span class="mono" style="position:relative;margin-left:8px;font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:700;color:#33D6FF">82%</span>
+          </div>
+          <div style="position:relative;display:flex;height:30px;align-items:center;overflow:hidden;border-radius:8px;padding:0 10px;background:rgba(51,214,255,.05)">
+            <span style="position:absolute;top:0;bottom:0;left:0;width:14%;background:rgba(51,214,255,.09)"></span>
+            <span style="position:relative;flex:1;font-size:12.5px;font-weight:600;color:#fff">25 bps cut</span>
+            <span class="mono" style="position:relative;margin-left:8px;font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:700;color:#33D6FF">14%</span>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #1D2026;padding-top:10px;font-size:11px;color:#6B7280">
+        <span style="font-weight:600;color:#33D6FF">+2 markets</span>
+        <span class="mono" style="font-family:'Space Grotesk',sans-serif">Vol $88.9M · Sep 17</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BINARY -->
+  <div class="mkt-card" style="display:flex;flex-direction:column;overflow:hidden;border-radius:16px;border:1px solid #1D2026;background:#131519;text-align:left">
+    <div style="position:relative;height:130px;background:linear-gradient(135deg,#241A0E,#120E0A)">
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(10,11,13,.85),transparent 60%)"></div>
+      <div style="position:absolute;left:12px;top:12px;display:flex;align-items:center;gap:6px">
+        <span style="display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:5px 10px;font-size:11px;font-weight:600;line-height:1;background:#FFC61A;color:#241B00">⏱ Ends 3h 12m</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:5px 10px;font-size:11px;font-weight:600;line-height:1;background:#CFFF4A;color:#1a2408">⚡ Boost 10×</span>
+      </div>
+    </div>
+    <div style="display:flex;flex:1;flex-direction:column;padding:18px">
+      <div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.12em;color:#6B7280">Crypto</div>
+      <h3 class="font-display" style="margin:7px 0 16px;min-height:42px;font-size:17px;font-weight:700;line-height:1.2;color:#fff">Will Bitcoin close above $120,000 this week?</h3>
+      <div style="display:flex;flex:1;flex-direction:column;justify-content:center">
+        <div style="display:flex;gap:10px">
+          <span style="display:flex;min-height:58px;flex:1;align-items:center;justify-content:center;border-radius:11px;background:rgba(51,214,255,.15);font-size:13.5px;font-weight:700;color:#33D6FF">Yes 61¢</span>
+          <span style="display:flex;min-height:58px;flex:1;align-items:center;justify-content:center;border-radius:11px;background:rgba(207,255,74,.15);font-size:13.5px;font-weight:700;color:#CFFF4A">No 39¢</span>
+        </div>
+      </div>
+      <div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #1D2026;padding-top:10px;font-size:11px;color:#6B7280">
+        <span class="mono" style="font-family:'Space Grotesk',sans-serif">Vol $12.4M</span>
+        <span>Settles Sun</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BINARY / NEW -->
+  <div class="mkt-card" style="display:flex;flex-direction:column;overflow:hidden;border-radius:16px;border:1px solid #1D2026;background:#131519;text-align:left">
+    <div style="position:relative;height:130px;background:linear-gradient(135deg,#181B24,#0C0E13)">
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(10,11,13,.85),transparent 60%)"></div>
+      <div style="position:absolute;left:12px;top:12px;display:flex;align-items:center;gap:6px">
+        <span style="display:inline-flex;align-items:center;border-radius:999px;padding:5px 10px;font-size:11px;font-weight:600;line-height:1;background:#33D6FF;color:#04222c">New</span>
+      </div>
+    </div>
+    <div style="display:flex;flex:1;flex-direction:column;padding:18px">
+      <div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.12em;color:#6B7280">Macro</div>
+      <h3 class="font-display" style="margin:7px 0 16px;min-height:42px;font-size:17px;font-weight:700;line-height:1.2;color:#fff">Will US CPI print below 2.5% in December?</h3>
+      <div style="display:flex;flex:1;flex-direction:column;justify-content:center">
+        <div style="display:flex;gap:10px">
+          <span style="display:flex;min-height:58px;flex:1;align-items:center;justify-content:center;border-radius:11px;background:rgba(51,214,255,.15);font-size:13.5px;font-weight:700;color:#33D6FF">Yes 43¢</span>
+          <span style="display:flex;min-height:58px;flex:1;align-items:center;justify-content:center;border-radius:11px;background:rgba(207,255,74,.15);font-size:13.5px;font-weight:700;color:#CFFF4A">No 57¢</span>
+        </div>
+      </div>
+      <div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #1D2026;padding-top:10px;font-size:11px;color:#6B7280">
+        <span class="mono" style="font-family:'Space Grotesk',sans-serif">Vol $3.1M</span>
+        <span>Settles Jan 2027</span>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="lbl frozen"><span class="n">LiteEventCard · mobile</span><span class="r">Same card, grid-cols-1 at 390. Nothing is dropped or shrunk — the art zone stays 130px and the body padding stays 18.</span></div>
+<div class="stage m">
+  <div class="mkt-card" style="display:flex;flex-direction:column;overflow:hidden;border-radius:16px;border:1px solid #1D2026;background:#131519">
+    <div style="position:relative;height:130px;background:linear-gradient(135deg,#241A0E,#120E0A)">
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(10,11,13,.85),transparent 60%)"></div>
+      <div style="position:absolute;left:12px;top:12px;display:flex;gap:6px">
+        <span style="display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:5px 10px;font-size:11px;font-weight:600;line-height:1;background:#FFFFFF;color:#0A0B0D">🔥 Trending</span>
+      </div>
+    </div>
+    <div style="display:flex;flex:1;flex-direction:column;padding:18px">
+      <div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.12em;color:#6B7280">Crypto</div>
+      <h3 class="font-display" style="margin:7px 0 16px;min-height:42px;font-size:17px;font-weight:700;line-height:1.2;color:#fff">Will Ethereum flip $5,000 before October?</h3>
+      <div style="display:flex;gap:10px">
+        <span style="display:flex;min-height:58px;flex:1;align-items:center;justify-content:center;border-radius:11px;background:rgba(51,214,255,.15);font-size:13.5px;font-weight:700;color:#33D6FF">Yes 28¢</span>
+        <span style="display:flex;min-height:58px;flex:1;align-items:center;justify-content:center;border-radius:11px;background:rgba(207,255,74,.15);font-size:13.5px;font-weight:700;color:#CFFF4A">No 72¢</span>
+      </div>
+      <div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #1D2026;padding-top:10px;font-size:11px;color:#6B7280">
+        <span class="mono" style="font-family:'Space Grotesk',sans-serif">Vol $6.7M</span><span>Settles Sep 30</span>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ======================================================= 3 PICKS -->
+<section class="doc-section">
+<h2>3 · Editor's pick card</h2>
+<div class="lbl"><span class="n">EditorPicksModule · desktop</span><span class="r">The ONLY other card style allowed on the list page. 3-col subgrid so every row aligns; art 118px; reason strip is mandatory — a pick without a note is skipped.</span></div>
+<div class="stage d">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:16px">
+    <div style="display:flex;flex-direction:column;gap:7px">
+      <h2 class="font-display" style="font-weight:700;font-size:26px;letter-spacing:-.02em;color:#fff">What's worth watching?</h2>
+      <p style="font-size:13px;color:#9AA1AC">Hand-picked markets — and why we think they matter. Winning shares pay <strong style="color:#fff;font-weight:600">$1</strong>.</p>
+    </div>
+    <span style="display:flex;flex:none;align-items:center;gap:9px">
+      <span style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#6B7280;font-weight:700">Picked by the OmenX desk</span>
+      <span style="font-size:12px;color:#9AA1AC;font-weight:600">Updated 2h ago</span>
+    </span>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+    <div class="mkt-card" style="overflow:hidden;background:#131519;border:1px solid #1D2026;border-radius:16px">
+      <div style="height:118px;background:linear-gradient(135deg,#1B2430,#0E1319)"></div>
+      <div style="padding:14px 16px 16px">
+        <div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#6B7280;font-weight:700;margin-bottom:12px">Economy</div>
+        <div style="font-size:16px;color:#fff;font-weight:600;line-height:1.3;margin-bottom:12px">What does the Fed do at the September meeting?</div>
+        <div style="display:flex;gap:10px;background:#0A0B0D;border:1px solid #23262D;border-radius:12px;padding:11px 13px;margin-bottom:12px">
+          <span class="font-display" style="font-size:22px;line-height:.9;color:#33D6FF;font-weight:700">&ldquo;</span>
+          <span style="display:flex;flex-direction:column;gap:3px;min-width:0">
+            <span style="font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#6B7280;font-weight:700">Why this</span>
+            <span style="font-size:12px;color:#C9CED6;line-height:1.45">Every desk on the street is priced for a hold — the interesting money is in the tail.</span>
+          </span>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <button class="chip-t2" style="flex:1;display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 13px;border-radius:9px;color:#33D6FF"><span style="font-size:11px;color:#9AA1AC">No change</span><span class="font-display mono" style="font-size:17px;font-weight:700">82¢</span></button>
+          <button class="chip-t2" style="flex:1;display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 13px;border-radius:9px;color:#CFFF4A"><span style="font-size:11px;color:#9AA1AC">25 bps cut</span><span class="font-display mono" style="font-size:17px;font-weight:700">14¢</span></button>
+        </div>
+        <div style="font-size:11px;color:#6B7280" class="mono">$88.9M traded</div>
+      </div>
+    </div>
+    <div class="mkt-card" style="overflow:hidden;background:#131519;border:1px solid #1D2026;border-radius:16px">
+      <div style="height:118px;background:linear-gradient(135deg,#241A0E,#120E0A)"></div>
+      <div style="padding:14px 16px 16px">
+        <div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#6B7280;font-weight:700;margin-bottom:12px">Crypto</div>
+        <div style="font-size:16px;color:#fff;font-weight:600;line-height:1.3;margin-bottom:12px">Will Bitcoin close above $120,000 this week?</div>
+        <div style="display:flex;gap:10px;background:#0A0B0D;border:1px solid #23262D;border-radius:12px;padding:11px 13px;margin-bottom:12px">
+          <span class="font-display" style="font-size:22px;line-height:.9;color:#33D6FF;font-weight:700">&ldquo;</span>
+          <span style="display:flex;flex-direction:column;gap:3px;min-width:0">
+            <span style="font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#6B7280;font-weight:700">Why this</span>
+            <span style="font-size:12px;color:#C9CED6;line-height:1.45">Spot ETF inflows turned positive again on Monday and the weekly close sits right on the level.</span>
+          </span>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <button class="chip-t2" style="flex:1;display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 13px;border-radius:9px;color:#33D6FF"><span style="font-size:11px;color:#9AA1AC">Yes</span><span class="font-display mono" style="font-size:17px;font-weight:700">61¢</span></button>
+          <button class="chip-t2" style="flex:1;display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 13px;border-radius:9px;color:#CFFF4A"><span style="font-size:11px;color:#9AA1AC">No</span><span class="font-display mono" style="font-size:17px;font-weight:700">39¢</span></button>
+        </div>
+        <div style="font-size:11px;color:#6B7280" class="mono">$12.4M traded</div>
+      </div>
+    </div>
+    <div class="mkt-card" style="overflow:hidden;background:#131519;border:1px solid #1D2026;border-radius:16px">
+      <div style="height:118px;background:linear-gradient(135deg,#101A16,#0A0F0C)"></div>
+      <div style="padding:14px 16px 16px">
+        <div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#6B7280;font-weight:700;margin-bottom:12px">Sports</div>
+        <div style="font-size:16px;color:#fff;font-weight:600;line-height:1.3;margin-bottom:12px">Manchester City v Arsenal — who wins?</div>
+        <div style="display:flex;gap:10px;background:#0A0B0D;border:1px solid #23262D;border-radius:12px;padding:11px 13px;margin-bottom:12px">
+          <span class="font-display" style="font-size:22px;line-height:.9;color:#33D6FF;font-weight:700">&ldquo;</span>
+          <span style="display:flex;flex-direction:column;gap:3px;min-width:0">
+            <span style="font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#6B7280;font-weight:700">Why this</span>
+            <span style="font-size:12px;color:#C9CED6;line-height:1.45">Both squads are fully fit for once, and the draw is still trading under 25¢.</span>
+          </span>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <button class="chip-t2" style="flex:1;display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 13px;border-radius:9px;color:#33D6FF"><span style="font-size:11px;color:#9AA1AC">Man City</span><span class="font-display mono" style="font-size:17px;font-weight:700">47¢</span></button>
+          <button class="chip-t2" style="flex:1;display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 13px;border-radius:9px;color:#CFFF4A"><span style="font-size:11px;color:#9AA1AC">Arsenal</span><span class="font-display mono" style="font-size:17px;font-weight:700">30¢</span></button>
+        </div>
+        <div style="font-size:11px;color:#6B7280" class="mono">$2.2M traded</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="lbl"><span class="n">EditorPicksModule · mobile</span><span class="r">compact=true: art 96px, radius 14, body padding 13/14, title 14px, volume line moves ABOVE the chips, header H1 22px + one small-caps desk line.</span></div>
+<div class="stage m">
+  <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">
+    <h2 class="font-display" style="font-weight:700;font-size:22px;letter-spacing:-.02em;color:#fff">What's worth watching?</h2>
+    <p style="font-size:12px;color:#9AA1AC">Hand-picked markets — and why we think they matter. Winning shares pay <strong style="color:#fff;font-weight:600">$1</strong>.</p>
+    <span style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#6B7280;font-weight:700">Picked by the OmenX desk · 2h ago</span>
+  </div>
+  <div class="mkt-card" style="overflow:hidden;background:#131519;border:1px solid #1D2026;border-radius:14px">
+    <div style="height:96px;background:linear-gradient(135deg,#241A0E,#120E0A)"></div>
+    <div style="display:flex;flex-direction:column;gap:11px;padding:13px 14px 14px">
+      <span style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#6B7280;font-weight:700">Crypto</span>
+      <span style="font-size:14px;color:#fff;font-weight:600;line-height:1.3">Will Bitcoin close above $120,000 this week?</span>
+      <span style="display:flex;gap:9px;background:#0A0B0D;border:1px solid #23262D;border-radius:11px;padding:10px 12px">
+        <span class="font-display" style="font-size:20px;line-height:.9;color:#33D6FF;font-weight:700">&ldquo;</span>
+        <span style="display:flex;flex-direction:column;gap:3px;min-width:0">
+          <span style="font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#6B7280;font-weight:700">Why this</span>
+          <span style="font-size:12px;color:#C9CED6;line-height:1.45">Spot ETF inflows turned positive again and the weekly close sits right on the level.</span>
+        </span>
+      </span>
+      <span class="mono" style="font-size:10px;color:#6B7280">$12.4M traded</span>
+      <span style="display:flex;gap:7px">
+        <button class="chip-t2" style="flex:1;display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 12px;border-radius:9px;color:#33D6FF"><span style="font-size:11px;color:#9AA1AC">Yes</span><span class="font-display mono" style="font-size:16px;font-weight:700">61¢</span></button>
+        <button class="chip-t2" style="flex:1;display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 12px;border-radius:9px;color:#CFFF4A"><span style="font-size:11px;color:#9AA1AC">No</span><span class="font-display mono" style="font-size:16px;font-weight:700">39¢</span></button>
+      </span>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ======================================================= 4 INTRADAY -->
+<section class="doc-section">
+<h2>4 · Intraday</h2>
+
+<div class="lbl"><span class="n">Round-length switcher · module dial</span><span class="r">IntradayStageCard Dial size="module" — five windows always present. Active fill #FF8A3D on #0A0B0D, radius 12 outer / 9 inner.</span></div>
+<div class="stage d">
+  <div style="display:inline-flex;gap:2px;background:#0A0B0D;border:1px solid #1D2026;border-radius:12px;padding:4px">
+    <button style="background:#FF8A3D;color:#0A0B0D;border-radius:9px;padding:8px 13px;font-size:12px;font-weight:700">5m</button>
+    <button style="background:transparent;color:#9AA1AC;border-radius:9px;padding:8px 13px;font-size:12px;font-weight:600">15m</button>
+    <button style="background:transparent;color:#9AA1AC;border-radius:9px;padding:8px 13px;font-size:12px;font-weight:600">1h</button>
+    <button style="background:transparent;color:#9AA1AC;border-radius:9px;padding:8px 13px;font-size:12px;font-weight:600">4h</button>
+    <button style="background:transparent;color:#9AA1AC;border-radius:9px;padding:8px 13px;font-size:12px;font-weight:600">1D</button>
+  </div>
+  <div class="cap" style="margin-top:16px">Card dial (size="card") — 5-col grid, radius 10 / 7, 10px labels</div>
+  <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;background:#0A0B0D;border:1px solid #1D2026;border-radius:10px;padding:3px;width:300px">
+    <button style="background:transparent;color:#9AA1AC;border-radius:7px;padding:6px 0;font-size:10px;font-weight:700">5m</button>
+    <button style="background:#FF8A3D;color:#0A0B0D;border-radius:7px;padding:6px 0;font-size:10px;font-weight:700">15m</button>
+    <button style="background:transparent;color:#9AA1AC;border-radius:7px;padding:6px 0;font-size:10px;font-weight:700">1h</button>
+    <button style="background:transparent;color:#9AA1AC;border-radius:7px;padding:6px 0;font-size:10px;font-weight:700">4h</button>
+    <button style="background:transparent;color:#9AA1AC;border-radius:7px;padding:6px 0;font-size:10px;font-weight:700">1D</button>
+  </div>
+</div>
+
+<div class="lbl"><span class="n">Desktop coin tile</span><span class="r">QuickRoundTile — 34px crypto avatar, 120px RoundPlot with ▲Up/▼Down anchors and floating cent buttons, LAST 8 ROUNDS footer strip (7×14 bars). Countdown always orange #FF8A3D 19px.</span></div>
+<div class="stage d">
+<div style="display:grid;grid-template-columns:repeat(3,300px);gap:14px">
+  <div style="background:#131519;border:1px solid rgba(255,255,255,.06);border-radius:15px;overflow:hidden">
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:12px 12px 10px">
+      <span style="width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.08);background:#F7931A;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px">₿</span>
+      <div style="flex:1;min-width:0">
+        <div class="font-display" style="font-size:11px;letter-spacing:.08em;color:#C9CED6">BTC</div>
+        <div style="display:flex;align-items:baseline;gap:7px">
+          <span class="font-display" style="font-size:18px;font-weight:700">$117,482.30</span>
+          <span class="font-display" style="font-size:12px;color:#3FD68C">+0.42%</span>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#6B7280">Closes in</div>
+        <div class="font-display" style="font-size:19px;font-weight:700;color:#FF8A3D;line-height:1.1">08:41</div>
+      </div>
+    </div>
+    <div style="position:relative;height:120px;background:#0C1013">
+      <svg viewBox="0 0 300 120" preserveAspectRatio="none" style="width:100%;height:120px;display:block">
+        <line x1="0" x2="300" y1="70" y2="70" stroke="#4B5563" stroke-width="1" stroke-dasharray="3 4"/>
+        <path d="M0 84 L40 76 L80 82 L120 66 L160 71 L200 58 L240 62 L300 48" fill="none" stroke="#33D6FF" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span class="font-display" style="position:absolute;left:10px;top:8px;font-size:10.5px;letter-spacing:.08em;color:#33D6FF;text-transform:uppercase">▲ Up</span>
+      <span class="font-display" style="position:absolute;left:10px;bottom:8px;font-size:10.5px;letter-spacing:.08em;color:#CFFF4A;text-transform:uppercase">▼ Down</span>
+      <button class="font-display" style="position:absolute;right:10px;top:8px;background:rgba(51,214,255,.13);border:1.5px solid rgba(51,214,255,.4);color:#33D6FF;font-weight:700;font-size:14px;border-radius:9px;padding:3px 9px">57¢</button>
+      <button class="font-display" style="position:absolute;right:10px;bottom:8px;background:rgba(207,255,74,.13);border:1.5px solid rgba(207,255,74,.4);color:#CFFF4A;font-weight:700;font-size:14px;border-radius:9px;padding:3px 9px">43¢</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 12px">
+      <span style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#6B7280">Last 8 rounds</span>
+      <span style="display:flex;gap:3px">
+        <span style="width:7px;height:14px;border-radius:3px;background:rgba(51,214,255,.7)"></span>
+        <span style="width:7px;height:14px;border-radius:3px;background:rgba(207,255,74,.55)"></span>
+        <span style="width:7px;height:14px;border-radius:3px;background:rgba(51,214,255,.7)"></span>
+        <span style="width:7px;height:14px;border-radius:3px;background:rgba(51,214,255,.7)"></span>
+        <span style="width:7px;height:14px;border-radius:3px;background:rgba(207,255,74,.55)"></span>
+        <span style="width:7px;height:14px;border-radius:3px;background:rgba(51,214,255,.7)"></span>
+        <span style="width:7px;height:14px;border-radius:3px;background:rgba(207,255,74,.55)"></span>
+        <span style="width:7px;height:14px;border-radius:3px;background:#1D2026"></span>
+      </span>
+      <span style="flex:1"></span>
+      <span class="font-display" style="font-size:11px;color:#6B7280">$482.1K traded</span>
+    </div>
+  </div>
+</div>
+<div class="cap" style="margin-top:14px">Stage-card history strip (IntradayStageCard) — square 9px dots, solid #33D6FF / #CFFF4A, caption "Last 8"</div>
+<div style="display:flex;align-items:center;gap:8px">
+  <span style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#6B7280;font-weight:700">Last 8</span>
+  <span style="display:flex;gap:3px">
+    <span style="width:9px;height:9px;border-radius:2px;background:#33D6FF"></span><span style="width:9px;height:9px;border-radius:2px;background:#CFFF4A"></span><span style="width:9px;height:9px;border-radius:2px;background:#33D6FF"></span><span style="width:9px;height:9px;border-radius:2px;background:#33D6FF"></span><span style="width:9px;height:9px;border-radius:2px;background:#CFFF4A"></span><span style="width:9px;height:9px;border-radius:2px;background:#33D6FF"></span><span style="width:9px;height:9px;border-radius:2px;background:#CFFF4A"></span><span style="width:9px;height:9px;border-radius:2px;background:#1D2026"></span>
+  </span>
+</div>
+</div>
+
+<div class="lbl"><span class="n">Mobile coin card</span><span class="r">MobileIntradayModule CoinCard — 32px avatar, 44px sparkline with dashed open line, 10px LAST-8 squares, Open $ read-out, Tier-1 Up/Down pair at 48px.</span></div>
+<div class="stage m">
+  <div style="display:flex;flex-direction:column;gap:11px;background:#131519;border:1px solid #1D2026;border-radius:14px;padding:13px 14px">
+    <div style="display:flex;align-items:center;gap:11px">
+      <span style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.08);background:#7A86A8;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px">Ξ</span>
+      <span style="display:flex;flex:1;min-width:0;flex-direction:column;gap:1px">
+        <span style="font-size:10px;color:#9AA1AC;font-weight:700;letter-spacing:.04em">ETH · 15m round</span>
+        <span style="display:flex;align-items:baseline;gap:7px">
+          <span class="font-display mono" style="font-size:18px;font-weight:700;color:#fff;letter-spacing:-.02em">$4,182.44</span>
+          <span class="mono" style="font-size:11px;font-weight:700;color:#CFFF4A">+0.31%</span>
+        </span>
+      </span>
+      <span style="display:flex;flex-direction:column;align-items:flex-end;gap:1px;flex:none">
+        <span style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#6B7280;font-weight:700">Closes</span>
+        <span class="font-display mono" style="font-size:17px;font-weight:700;color:#FF8A3D">08:41</span>
+      </span>
+    </div>
+    <svg viewBox="0 0 200 44" preserveAspectRatio="none" style="width:100%;height:44px;display:block">
+      <line x1="0" x2="200" y1="26" y2="26" stroke="#4B5563" stroke-width="1" stroke-dasharray="3 4"/>
+      <path d="M0 32 L30 28 L60 31 L90 22 L120 25 L150 17 L200 12" fill="none" stroke="#33D6FF" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+    </svg>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <span style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#6B7280;font-weight:700">Last 8</span>
+        <span style="display:flex;gap:3px">
+          <span style="width:10px;height:10px;border-radius:3px;background:#33D6FF"></span><span style="width:10px;height:10px;border-radius:3px;background:#CFFF4A"></span><span style="width:10px;height:10px;border-radius:3px;background:#33D6FF"></span><span style="width:10px;height:10px;border-radius:3px;background:#33D6FF"></span><span style="width:10px;height:10px;border-radius:3px;background:#CFFF4A"></span><span style="width:10px;height:10px;border-radius:3px;background:#33D6FF"></span><span style="width:10px;height:10px;border-radius:3px;background:#CFFF4A"></span><span style="width:10px;height:10px;border-radius:3px;background:#33D6FF"></span>
+        </span>
+      </span>
+      <span class="mono" style="font-size:10px;color:#6B7280">Open $4,169.60</span>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="chip-t1 chip-t1-up" style="flex:1;display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 13px;border-radius:11px"><span style="font-size:12px;font-weight:700">Up</span><span class="font-display mono" style="font-size:16px;font-weight:700">54¢</span></button>
+      <button class="chip-t1 chip-t1-down" style="flex:1;display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 13px;border-radius:11px"><span style="font-size:12px;font-weight:700">Down</span><span class="font-display mono" style="font-size:16px;font-weight:700">46¢</span></button>
+    </div>
+  </div>
+  <div class="cap" style="margin-top:14px">Round switcher (mobile) — 44px targets, all five windows, horizontal scroll</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:#131519;border:1px solid #1D2026;border-radius:12px;padding:8px 10px">
+    <span style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#6B7280;font-weight:700;flex:none">Round</span>
+    <span class="scrollx" style="display:flex;gap:5px">
+      <button style="flex:none;border-radius:9px;padding:0 14px;min-height:44px;display:flex;align-items:center;font-size:13px;font-weight:600;color:#9AA1AC">5m</button>
+      <button style="flex:none;border-radius:9px;padding:0 14px;min-height:44px;display:flex;align-items:center;font-size:13px;font-weight:700;background:#FF8A3D;color:#0A0B0D">15m</button>
+      <button style="flex:none;border-radius:9px;padding:0 14px;min-height:44px;display:flex;align-items:center;font-size:13px;font-weight:600;color:#9AA1AC">1h</button>
+      <button style="flex:none;border-radius:9px;padding:0 14px;min-height:44px;display:flex;align-items:center;font-size:13px;font-weight:600;color:#9AA1AC">4h</button>
+      <button style="flex:none;border-radius:9px;padding:0 14px;min-height:44px;display:flex;align-items:center;font-size:13px;font-weight:600;color:#9AA1AC">1D</button>
+    </span>
+  </div>
+  <div class="cap" style="margin-top:14px">Collapsed stock-session row (56px) — orange dot, session line, "Open →"</div>
+  <button style="display:flex;align-items:center;gap:11px;background:#131519;border:1px solid #1D2026;border-radius:14px;padding:0 14px;min-height:56px;width:100%;text-align:left">
+    <span style="width:6px;height:6px;border-radius:999px;background:#FF8A3D;flex:none"></span>
+    <span style="display:flex;flex:1;min-width:0;flex-direction:column;gap:2px">
+      <span style="font-size:13px;color:#fff;font-weight:600">US session open · 18 stock rounds</span>
+      <span class="mono" style="font-size:11px;color:#6B7280">Closes 16:00 ET · 2h 14m left</span>
+    </span>
+    <span style="font-size:12px;color:#FF8A3D;font-weight:700;flex:none">Open →</span>
+  </button>
+  <div class="cap" style="margin-top:14px">Both sessions closed — caption replaces the row (11C)</div>
+  <span style="font-size:11px;color:#6B7280">Stock rounds are closed. US opens Tue 09:30 ET, Hong Kong Wed 09:30 HKT.</span>
+</div>
+
+<div class="lbl"><span class="n">Session pill + stock rows</span><span class="r">StocksSubGroup — session tab (orange 1.5px outline when active, dot + "in Xh MMm"), 60px trading row (desktop) / 52px compact row (mobile). Asleep names are excluded, never greyed in place.</span></div>
+<div class="stage d">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
+    <div>
+      <div class="font-display" style="font-size:17px;font-weight:700">Stocks closing today</div>
+      <div style="font-size:12px;color:#6B7280;margin-top:2px">one round per name · settles at the closing bell</div>
+    </div>
+    <div style="display:flex;gap:6px">
+      <button style="display:flex;align-items:center;gap:6px;border-radius:999px;padding:6px 11px;font-size:11.5px;border:1.5px solid #FF8A3D;color:#C9CED6"><span style="width:7px;height:7px;border-radius:50%;background:#FF8A3D"></span><span>US · Closes 4:00 PM ET</span><span class="font-display" style="font-weight:700;color:#FF8A3D">in 2h 14m</span></button>
+      <button style="display:flex;align-items:center;gap:6px;border-radius:999px;padding:6px 11px;font-size:11.5px;border:1.5px solid #2B2F38;color:#6B7280"><span>Hong Kong · Closes 4:00 PM HKT</span></button>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px">
+    <div style="display:flex;align-items:center;gap:10px;height:60px;background:#131519;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:0 10px">
+      <span style="width:34px;height:34px;border-radius:50%;background:#F2F3F5;border:1px solid rgba(255,255,255,.08);display:inline-flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:11px;color:#101216">NVDA</span>
+      <div style="flex:1;min-width:0">
+        <div class="font-display truncate" style="font-size:13.5px;font-weight:700">NVDA</div>
+        <div class="truncate" style="font-size:10.5px;color:#6B7280">NVIDIA Corporation</div>
+      </div>
+      <div style="text-align:right">
+        <div class="font-display" style="font-size:13.5px;font-weight:700">$184.22</div>
+        <div style="font-size:11px;color:#3FD68C">+0.61%</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="font-display" style="font-weight:700;font-size:12px;padding:9px 14px;border-radius:10px;background:rgba(51,214,255,.13);border:1.5px solid rgba(51,214,255,.4);color:#33D6FF">Up 58¢</button>
+        <button class="font-display" style="font-weight:700;font-size:12px;padding:9px 14px;border-radius:10px;background:rgba(207,255,74,.13);border:1.5px solid rgba(207,255,74,.4);color:#CFFF4A">Not Up 42¢</button>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;height:52px;background:#131519;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:0 10px;opacity:.55">
+      <span style="width:30px;height:30px;border-radius:50%;background:#F2F3F5;border:1px solid rgba(255,255,255,.08);display:inline-flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:9px;color:#101216">0700</span>
+      <div style="flex:1;min-width:0">
+        <div class="font-display truncate" style="font-size:13.5px;font-weight:700">0700.HK</div>
+        <div style="display:flex;align-items:baseline;gap:6px"><span class="font-display" style="font-size:11px;color:#C9CED6">HK$612.50</span><span style="font-size:11px;color:#6B7280">market asleep</span></div>
+      </div>
+      <span style="font-size:11px;color:#6B7280">Opens 09:30 HKT</span>
+    </div>
+  </div>
+  <div style="font-size:11.5px;color:#6B7280;margin-top:10px">One round per stock per session · settles at the closing bell</div>
+</div>
+</section>
+
+<!-- ======================================================= 5 SPORTS -->
+<section class="doc-section">
+<h2>5 · Sports</h2>
+
+<div class="lbl"><span class="n">Sports module · desktop (SportsStageCard)</span><span class="r">Card shell #111318 / radius 18. Live block sits directly under the "Live now · n" pulse line; the day strip is the only filter; upcoming rows are Tier-2 only.</span></div>
+<div class="stage d">
+<div style="width:520px;display:flex;flex-direction:column;overflow:hidden;background:#111318;border:1px solid #1D2026;border-radius:18px;padding-bottom:14px">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:18px 18px 12px">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#F2F3F5;font-weight:700">Sports · match winners</span>
+      <span class="font-display" style="font-weight:700;font-size:26px;letter-spacing:-.02em;color:#fff">Who wins the match?</span>
+      <span style="font-size:12px;color:#9AA1AC">Winning shares pay <strong style="color:#fff;font-weight:600">$1</strong>. Matches over the next 7 days — trade before kickoff or during the match.</span>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:9px;padding:0 18px 9px">
+    <span class="pulse" style="width:6px;height:6px;border-radius:999px;background:#FF3B4E"></span>
+    <span style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#fff;font-weight:700">Live now · 1</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:13px;padding:22px 18px 24px;border-top:1px solid #16181D;background:#101216">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <span class="truncate" style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#6B7280;font-weight:700">Premier League · Matchday 3</span>
+      <span style="display:flex;align-items:center;gap:5px">
+        <span class="pulse" style="width:5px;height:5px;border-radius:999px;background:#FF3B4E"></span>
+        <span class="mono" style="font-size:12px;color:#fff;font-weight:700">67'</span>
+      </span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="display:flex;flex:1;min-width:0;align-items:center;gap:8px">
+        <span class="font-display" style="width:30px;height:30px;border-radius:999px;background:#F2F3F5;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:9px;color:#0A0B0D">MCI</span>
+        <span class="truncate" style="font-size:13px;color:#fff;font-weight:600">Manchester City</span>
+      </span>
+      <span class="font-display mono" style="font-weight:700;font-size:24px;color:#fff;letter-spacing:-.01em">1–1</span>
+      <span style="display:flex;flex:1;min-width:0;align-items:center;justify-content:flex-end;gap:8px">
+        <span class="truncate" style="font-size:13px;color:#fff;font-weight:600">Arsenal</span>
+        <span class="font-display" style="width:30px;height:30px;border-radius:999px;background:#F2F3F5;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:9px;color:#0A0B0D">ARS</span>
+      </span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">
+      <button class="chip-t2" style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;color:#33D6FF;--chip-accent:#33D6FF"><span style="font-size:10px;color:#9AA1AC">Man City</span><span class="font-display mono" style="font-size:14px;font-weight:700">47¢</span></button>
+      <button class="chip-t2" style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;color:#E6E9EE;--chip-accent:#E6E9EE"><span style="font-size:10px;color:#9AA1AC">Draw</span><span class="font-display mono" style="font-size:14px;font-weight:700">24¢</span></button>
+      <button class="chip-t2" style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;color:#CFFF4A;--chip-accent:#CFFF4A"><span style="font-size:10px;color:#9AA1AC">Arsenal</span><span class="font-display mono" style="font-size:14px;font-weight:700">30¢</span></button>
+    </div>
+  </div>
+  <div class="scrollx" style="display:flex;gap:6px;padding:17px 18px 15px;border-top:1px solid #1D2026">
+    <button style="display:flex;flex:none;flex-direction:column;align-items:center;gap:1px;background:#F2F3F5;color:#0A0B0D;border:1px solid #F2F3F5;border-radius:10px;padding:7px 12px"><span style="font-size:10px;font-weight:700;letter-spacing:.06em">ALL</span><span class="mono" style="font-size:11px;font-weight:700">17</span></button>
+    <button style="display:flex;flex:none;flex-direction:column;align-items:center;gap:1px;background:#0A0B0D;color:#9AA1AC;border:1px solid #23262D;border-radius:10px;padding:7px 12px"><span style="font-size:10px;font-weight:700;letter-spacing:.06em">TUE</span><span class="mono" style="font-size:11px;font-weight:700">4</span></button>
+    <button style="display:flex;flex:none;flex-direction:column;align-items:center;gap:1px;background:#0A0B0D;color:#9AA1AC;border:1px solid #23262D;border-radius:10px;padding:7px 12px"><span style="font-size:10px;font-weight:700;letter-spacing:.06em">WED</span><span class="mono" style="font-size:11px;font-weight:700">3</span></button>
+    <button style="display:flex;flex:none;flex-direction:column;align-items:center;gap:1px;background:#0A0B0D;color:#9AA1AC;border:1px solid #23262D;border-radius:10px;padding:7px 12px"><span style="font-size:10px;font-weight:700;letter-spacing:.06em">THU</span><span class="mono" style="font-size:11px;font-weight:700">5</span></button>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:9px;padding:13px 18px 14px;border-top:1px solid #16181D">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="display:flex;flex:none;align-items:center;gap:5px;width:78px">
+        <span class="mono" style="font-size:11px;color:#E6E9EE;font-weight:700">Tue<br/>20:00</span>
+      </span>
+      <span style="display:flex;align-items:center">
+        <span class="font-display" style="width:30px;height:30px;border-radius:999px;background:#F2F3F5;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:9px;color:#0A0B0D">RMA</span>
+        <span class="font-display" style="width:30px;height:30px;border-radius:999px;background:#F2F3F5;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:9px;color:#0A0B0D;margin-left:-9px">BAR</span>
+      </span>
+      <span style="display:flex;flex:1;min-width:0;flex-direction:column;gap:1px">
+        <span class="truncate" style="font-size:13px;color:#fff;font-weight:600">Real Madrid v Barcelona</span>
+        <span style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#6B7280;font-weight:700">LaLiga</span>
+      </span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">
+      <button class="chip-t2" style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;color:#33D6FF;--chip-accent:#33D6FF"><span style="font-size:10px;color:#9AA1AC">Real Madrid</span><span class="font-display mono" style="font-size:14px;font-weight:700">44¢</span></button>
+      <button class="chip-t2" style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;color:#E6E9EE;--chip-accent:#E6E9EE"><span style="font-size:10px;color:#9AA1AC">Draw</span><span class="font-display mono" style="font-size:14px;font-weight:700">25¢</span></button>
+      <button class="chip-t2" style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;color:#CFFF4A;--chip-accent:#CFFF4A"><span style="font-size:10px;color:#9AA1AC">Barcelona</span><span class="font-display mono" style="font-size:14px;font-weight:700">33¢</span></button>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:7px;padding:12px 18px 14px;border-top:1px solid #1D2026">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:12px;color:#9AA1AC">All days mixed · newest kickoff first</span>
+      <span style="font-size:12px;color:#F2F3F5;font-weight:700">All 17 matches →</span>
+    </div>
+    <span style="font-size:11px;color:#6B7280">Next kickoff 20:00 · 3 more matches tomorrow</span>
+  </div>
+</div>
+</div>
+
+<div class="lbl"><span class="n">Mobile live match card + upcoming card</span><span class="r">MobileSportsModule — live card border #23262D (upcoming #1D2026), 30px crests / 20px score; every outcome is a 48px stacked-label Tier-2 chip. Meta chip row states live count or "Nothing playing now".</span></div>
+<div class="stage m">
+  <span style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+    <span style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#fff;background:#131519;border:1px solid #23262D;border-radius:999px;padding:5px 10px"><span class="pulse" style="width:5px;height:5px;border-radius:999px;background:#FF3B4E"></span>1 playing now</span>
+    <span style="font-size:11px;font-weight:600;color:#9AA1AC;background:#131519;border:1px solid #23262D;border-radius:999px;padding:5px 10px">17 this week</span>
+  </span>
+  <div style="display:flex;flex-direction:column;gap:12px;background:#131519;border:1px solid #23262D;border-radius:14px;padding:13px 14px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#6B7280;font-weight:700">Premier League · Matchday 3</span>
+      <span style="display:flex;align-items:center;gap:5px"><span class="pulse" style="width:5px;height:5px;border-radius:999px;background:#FF3B4E"></span><span class="mono" style="font-size:12px;color:#fff;font-weight:700">67'</span></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="display:flex;flex:1;min-width:0;align-items:center;gap:8px"><span class="font-display" style="width:30px;height:30px;border-radius:999px;background:#F2F3F5;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#0A0B0D">MCI</span><span class="truncate" style="font-size:13px;color:#fff;font-weight:600">Man City</span></span>
+      <span class="font-display mono" style="font-size:20px;font-weight:700;color:#fff">1–1</span>
+      <span style="display:flex;flex:1;min-width:0;align-items:center;justify-content:flex-end;gap:8px"><span class="truncate" style="font-size:13px;color:#fff;font-weight:600">Arsenal</span><span class="font-display" style="width:30px;height:30px;border-radius:999px;background:#F2F3F5;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#0A0B0D">ARS</span></span>
+    </div>
+    <div style="display:flex;gap:7px">
+      <button class="chip-t2" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:48px;padding:0 10px;color:#33D6FF;--chip-accent:#33D6FF"><span class="truncate" style="font-size:10px;color:#9AA1AC">Man City</span><span class="font-display mono" style="font-size:15px;font-weight:700">47¢</span></button>
+      <button class="chip-t2" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:48px;padding:0 10px;color:#E6E9EE;--chip-accent:#E6E9EE"><span class="truncate" style="font-size:10px;color:#9AA1AC">Draw</span><span class="font-display mono" style="font-size:15px;font-weight:700">24¢</span></button>
+      <button class="chip-t2" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:48px;padding:0 10px;color:#CFFF4A;--chip-accent:#CFFF4A"><span class="truncate" style="font-size:10px;color:#9AA1AC">Arsenal</span><span class="font-display mono" style="font-size:15px;font-weight:700">30¢</span></button>
+    </div>
+  </div>
+  <div style="height:12px"></div>
+  <div style="display:flex;flex-direction:column;gap:11px;background:#131519;border:1px solid #1D2026;border-radius:14px;padding:13px 14px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="display:flex;flex-direction:column;gap:1px;width:56px;flex:none">
+        <span class="font-display mono" style="font-size:13px;font-weight:700;color:#fff">20:00</span>
+        <span style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#6B7280;font-weight:700">Tonight</span>
+      </span>
+      <span style="display:flex;align-items:center;flex:none">
+        <span class="font-display" style="width:28px;height:28px;border-radius:999px;background:#F2F3F5;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#0A0B0D">RMA</span>
+        <span class="font-display" style="width:28px;height:28px;border-radius:999px;background:#F2F3F5;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#0A0B0D;margin-left:-9px">BAR</span>
+      </span>
+      <span style="display:flex;flex:1;min-width:0;flex-direction:column;gap:2px">
+        <span class="truncate" style="font-size:13px;color:#fff;font-weight:600;line-height:1.25">Real Madrid v Barcelona</span>
+        <span style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#6B7280;font-weight:700">LaLiga</span>
+      </span>
+    </div>
+    <div style="display:flex;gap:7px">
+      <button class="chip-t2" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:48px;color:#33D6FF;--chip-accent:#33D6FF"><span class="truncate" style="font-size:10px;color:#9AA1AC">Real Madrid</span><span class="font-display mono" style="font-size:15px;font-weight:700">44¢</span></button>
+      <button class="chip-t2" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:48px;color:#E6E9EE;--chip-accent:#E6E9EE"><span class="truncate" style="font-size:10px;color:#9AA1AC">Draw</span><span class="font-display mono" style="font-size:15px;font-weight:700">25¢</span></button>
+      <button class="chip-t2" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:48px;color:#CFFF4A;--chip-accent:#CFFF4A"><span class="truncate" style="font-size:10px;color:#9AA1AC">Barcelona</span><span class="font-display mono" style="font-size:15px;font-weight:700">33¢</span></button>
+    </div>
+  </div>
+  <div class="cap" style="margin-top:14px">Nothing-live state (11C)</div>
+  <span style="font-size:11px;font-weight:600;color:#9AA1AC;background:#131519;border:1px solid #23262D;border-radius:999px;padding:5px 10px">Nothing playing now</span>
+</div>
+</section>
+
+<!-- ======================================================= 6 CHIPS -->
+<section class="doc-section">
+<h2>6 · Chip tiers</h2>
+<div class="lbl frozen"><span class="n">Tier 1 — direction button</span><span class="r">TRIGGER: binary direction pairs ONLY (Up/Down, Yes/No on an intraday round). Tinted fill, coloured label AND price. .chip-t1 + .chip-t1-up / .chip-t1-down.</span></div>
+<div class="stage d">
+  <div style="display:flex;gap:8px;width:420px">
+    <button class="chip-t1 chip-t1-up" style="flex:1;display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 13px;border-radius:11px"><span style="font-size:12px;font-weight:700">Up</span><span class="font-display mono" style="font-size:16px;font-weight:700">54¢</span></button>
+    <button class="chip-t1 chip-t1-down" style="flex:1;display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 13px;border-radius:11px"><span style="font-size:12px;font-weight:700">Down</span><span class="font-display mono" style="font-size:16px;font-weight:700">46¢</span></button>
+  </div>
+  <div class="cap" style="margin-top:14px">Stacked Tier-1 (calendar session tiles) — 9px label over 14px price, min-height 46</div>
+  <div style="display:flex;gap:6px">
+    <button class="chip-t1 chip-t1-up" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:46px;border-radius:11px;padding:0 11px"><span style="font-size:9px;font-weight:700">Up</span><span class="font-display mono" style="font-size:14px;font-weight:700">58¢</span></button>
+    <button class="chip-t1 chip-t1-down" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:46px;border-radius:11px;padding:0 11px"><span style="font-size:9px;font-weight:700">Not up</span><span class="font-display mono" style="font-size:14px;font-weight:700">42¢</span></button>
+  </div>
+</div>
+<div class="lbl frozen"><span class="n">Tier 2 — outcome chip</span><span class="r">TRIGGER: every multi-outcome market and every Yes/No catalogue market. Neutral #0A0B0D surface, grey label, ONLY the price carries colour; hover border = --chip-accent.</span></div>
+<div class="stage d">
+  <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:520px">
+    <button class="chip-t2" style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;color:#33D6FF;--chip-accent:#33D6FF"><span style="font-size:10px;color:#9AA1AC">Man City</span><span class="font-display mono" style="font-size:14px;font-weight:700">47¢</span></button>
+    <button class="chip-t2" style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;color:#E6E9EE;--chip-accent:#E6E9EE"><span style="font-size:10px;color:#9AA1AC">Draw</span><span class="font-display mono" style="font-size:14px;font-weight:700">24¢</span></button>
+    <button class="chip-t2" style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;color:#CFFF4A;--chip-accent:#CFFF4A"><span style="font-size:10px;color:#9AA1AC">Arsenal</span><span class="font-display mono" style="font-size:14px;font-weight:700">30¢</span></button>
+  </div>
+  <div class="cap" style="margin-top:14px">Yes/No as Tier 2 (picks + calendar) — 48px picks form and 128×52 calendar form</div>
+  <div style="display:flex;gap:12px;align-items:flex-start">
+    <div style="display:flex;gap:8px;width:320px">
+      <button class="chip-t2" style="flex:1;display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 13px;color:#33D6FF;--chip-accent:#33D6FF"><span style="font-size:11px;color:#9AA1AC">Yes</span><span class="font-display mono" style="font-size:17px;font-weight:700">61¢</span></button>
+      <button class="chip-t2" style="flex:1;display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 13px;color:#CFFF4A;--chip-accent:#CFFF4A"><span style="font-size:11px;color:#9AA1AC">No</span><span class="font-display mono" style="font-size:17px;font-weight:700">39¢</span></button>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="chip-t2" style="width:128px;min-height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 13px;gap:8px;color:#33D6FF;--chip-accent:#33D6FF"><span class="truncate" style="font-size:11px;color:#9AA1AC">Yes</span><span class="font-display mono" style="font-size:17px;font-weight:700">61¢</span></button>
+      <button class="chip-t2" style="width:128px;min-height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 13px;gap:8px;color:#CFFF4A;--chip-accent:#CFFF4A"><span class="truncate" style="font-size:11px;color:#9AA1AC">No</span><span class="font-display mono" style="font-size:17px;font-weight:700">39¢</span></button>
+    </div>
+  </div>
+  <div class="cap" style="margin-top:14px">Card-face Yes/No (LiteEventCard only) — 58px tinted blocks, NOT a chip tier; never reused elsewhere</div>
+  <div style="display:flex;gap:10px;width:340px">
+    <span style="display:flex;min-height:58px;flex:1;align-items:center;justify-content:center;border-radius:11px;background:rgba(51,214,255,.15);font-size:13.5px;font-weight:700;color:#33D6FF">Yes 61¢</span>
+    <span style="display:flex;min-height:58px;flex:1;align-items:center;justify-content:center;border-radius:11px;background:rgba(207,255,74,.15);font-size:13.5px;font-weight:700;color:#CFFF4A">No 39¢</span>
+  </div>
+</div>
+</section>
+
+<!-- ======================================================= 7 CALENDAR -->
+<section class="doc-section">
+<h2>7 · Calendar (as-built)</h2>
+<div class="lbl"><span class="n">Week ticket</span><span class="r">CalendarBlocks WeekTicket — radius 10, padding 8/8/8/10, 3px left edge bar (orange Intraday, chalk Sports, hidden for neutral), category badge leads, time right, title 11px.</span></div>
+<div class="stage d">
+  <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;max-width:980px">
+    <div>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;padding:0 2px 8px">
+        <span style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff">Mon 4</span>
+        <span class="mono" style="font-size:10px;color:#6B7280;font-weight:600">6</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button class="lite-cal-ticket" style="position:relative;display:flex;flex-direction:column;gap:3px;overflow:hidden;text-align:left;background:#131519;border:1px solid rgba(255,138,61,.30);border-radius:10px;padding:8px 8px 8px 10px">
+          <span aria-hidden style="position:absolute;top:0;bottom:0;left:0;width:3px;border-top-left-radius:10px;border-bottom-left-radius:10px;background:#FF8A3D;opacity:.85"></span>
+          <span style="display:flex;align-items:center;gap:5px">
+            <span class="truncate" style="font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:4px;padding:1.5px 5px;line-height:1.3;color:#0A0B0D;background:#FF8A3D">Intraday</span>
+            <span class="mono" style="margin-left:auto;font-size:10px;color:#9AA1AC;font-weight:700">16:00</span>
+          </span>
+          <span style="font-size:11px;color:#fff;font-weight:600;line-height:1.25">US closing bell · 6 names</span>
+        </button>
+        <button class="lite-cal-ticket" style="position:relative;display:flex;flex-direction:column;gap:3px;overflow:hidden;text-align:left;background:#131519;border:1px solid #1D2026;border-radius:10px;padding:8px 8px 8px 10px">
+          <span aria-hidden style="position:absolute;top:0;bottom:0;left:0;width:3px;border-top-left-radius:10px;border-bottom-left-radius:10px;background:#F2F3F5;opacity:.85"></span>
+          <span style="display:flex;align-items:center;gap:5px">
+            <span class="truncate" style="font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:4px;padding:1.5px 5px;line-height:1.3;color:#0A0B0D;background:#F2F3F5">Sports</span>
+            <span class="pulse" style="width:4px;height:4px;border-radius:999px;background:#FF3B4E"></span>
+            <span class="mono" style="margin-left:auto;font-size:10px;color:#9AA1AC;font-weight:700">20:00</span>
+          </span>
+          <span style="font-size:11px;color:#fff;font-weight:600;line-height:1.25">Man City v Arsenal</span>
+          <span style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:#6B7280;font-weight:700">EPL</span>
+        </button>
+        <button class="lite-cal-ticket" style="position:relative;display:flex;flex-direction:column;gap:3px;overflow:hidden;text-align:left;background:#131519;border:1px solid #1D2026;border-radius:10px;padding:8px 8px 8px 10px">
+          <span style="display:flex;align-items:center;gap:5px">
+            <span class="truncate" style="font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:4px;padding:1.5px 5px;line-height:1.3;color:#C9CED6;background:#1D2026">Economy</span>
+            <span class="mono" style="margin-left:auto;font-size:10px;color:#9AA1AC;font-weight:700">14:00</span>
+          </span>
+          <span style="font-size:11px;color:#fff;font-weight:600;line-height:1.25">Fed decision — September</span>
+        </button>
+        <span style="font-size:10px;color:#6B7280;padding:0 2px">+3 more</span>
+      </div>
+    </div>
+  </div>
+  <div class="cap" style="margin-top:18px">Span bar (tradeable window) — pill ends, clipped ends drop to radius 3, min-height 26</div>
+  <div style="display:flex;flex-direction:column;gap:6px;max-width:560px">
+    <span style="font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#6B7280;font-weight:700">Open all week</span>
+    <button style="position:relative;display:flex;width:100%;align-items:center;overflow:hidden;text-align:left;background:#131519;border:1px solid #1D2026;border-radius:999px;min-height:26px;padding:0 10px;gap:7px">
+      <span style="width:6px;height:6px;border-radius:999px;background:#4B5563;flex:none"></span>
+      <span class="truncate" style="flex:1;font-size:11px;color:#fff;font-weight:600">Will US CPI print below 2.5% in December?</span>
+      <span class="mono" style="flex:none;font-size:10px;color:#6B7280;font-weight:600">closes Fri 14:00</span>
+    </button>
+    <button style="position:relative;display:flex;width:100%;align-items:center;overflow:hidden;text-align:left;background:#131519;border:1px solid rgba(255,138,61,.30);border-top-left-radius:3px;border-bottom-left-radius:3px;border-top-right-radius:999px;border-bottom-right-radius:999px;min-height:26px;padding:0 10px;gap:7px">
+      <span style="flex:none;font-size:10px;color:#6B7280">←</span>
+      <span style="width:6px;height:6px;border-radius:999px;background:#FF8A3D;flex:none"></span>
+      <span class="truncate" style="flex:1;font-size:11px;color:#fff;font-weight:600">Hong Kong daily rounds</span>
+      <span class="mono" style="flex:none;font-size:10px;color:#6B7280;font-weight:600">closes 16:00 HKT</span>
+    </button>
+  </div>
+  <div class="cap" style="margin-top:18px">Date stepper (Day mode) + mode switch + Closes-soon badge</div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span style="display:inline-flex;gap:2px;background:#0A0B0D;border:1px solid #1D2026;border-radius:10px;padding:3px">
+      <button style="font-size:12px;padding:6px 12px;border-radius:8px;background:#F2F3F5;color:#0A0B0D;font-weight:700">Week</button>
+      <button style="font-size:12px;padding:6px 12px;border-radius:8px;color:#9AA1AC;font-weight:600">Day</button>
+    </span>
+    <span style="display:inline-flex;align-items:center;gap:6px;border:1px solid #1D2026;border-radius:10px;padding:4px 6px">
+      <button style="width:26px;height:26px;border-radius:7px;color:#9AA1AC">‹</button>
+      <span class="font-display" style="font-size:14px;font-weight:700;color:#fff;min-width:132px;text-align:center">Today · Tue Aug 4</span>
+      <button style="width:26px;height:26px;border-radius:7px;color:#9AA1AC">›</button>
+    </span>
+    <span style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#C9CED6;font-weight:700;border:1px solid #23262D;border-radius:6px;padding:2px 7px;white-space:nowrap">Closes soon</span>
+  </div>
+</div>
+
+<div class="lbl"><span class="n">Day-mode blocks</span><span class="r">SpineRow (66px clock cell + 1px rail, gap 16) with the three block types: sports, intraday session (2-col tiles, cap 10), generic. CardShell = #131519 / radius 14 / padding 14×16 / gap 16.</span></div>
+<div class="stage d">
+  <div style="display:flex;gap:16px;max-width:1000px">
+    <span style="display:flex;flex:none;flex-direction:column;align-items:flex-end;width:66px;gap:2px;padding-top:3px">
+      <span class="font-display mono" style="font-size:16px;color:#fff;font-weight:700">16:00</span>
+      <span style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#6B7280;font-weight:700">ET</span>
+    </span>
+    <span style="flex:none;width:1px;background:#1D2026"></span>
+    <span style="flex:1;min-width:0;padding-bottom:16px;display:flex;flex-direction:column;gap:9px">
+      <span style="display:flex;flex-wrap:wrap;align-items:center;gap:9px">
+        <span style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;border-radius:5px;padding:2px 7px;color:#0A0B0D;background:#FF8A3D">Intraday</span>
+        <span style="font-size:12px;color:#9AA1AC">US closing bell · 6 names settle when the market closes</span>
+        <span style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#C9CED6;font-weight:700;border:1px solid #23262D;border-radius:6px;padding:2px 7px">Closes soon</span>
+      </span>
+      <span style="display:grid;grid-template-columns:repeat(2,1fr);gap:9px">
+        <span style="display:flex;align-items:center;gap:11px;background:#131519;border:1px solid #1D2026;border-radius:12px;padding:11px 13px">
+          <span style="width:28px;height:28px;border-radius:50%;background:#F2F3F5;display:inline-flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:9px;color:#101216">NVDA</span>
+          <span style="display:flex;flex:1;min-width:0;flex-direction:column;gap:1px">
+            <span class="truncate" style="font-size:13px;color:#fff;font-weight:600">NVIDIA Corporation finishes up</span>
+            <span class="mono" style="font-size:11px;color:#6B7280">NVDA</span>
+          </span>
+          <span style="display:flex;flex:none;gap:6px">
+            <button class="chip-t1 chip-t1-up" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:46px;border-radius:11px;padding:0 11px"><span style="font-size:9px;font-weight:700">Up</span><span class="font-display mono" style="font-size:14px;font-weight:700">58¢</span></button>
+            <button class="chip-t1 chip-t1-down" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:46px;border-radius:11px;padding:0 11px"><span style="font-size:9px;font-weight:700">Not up</span><span class="font-display mono" style="font-size:14px;font-weight:700">42¢</span></button>
+          </span>
+        </span>
+        <span style="display:flex;align-items:center;gap:11px;background:#131519;border:1px solid #1D2026;border-radius:12px;padding:11px 13px">
+          <span style="width:28px;height:28px;border-radius:50%;background:#F2F3F5;display:inline-flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:9px;color:#101216">TSLA</span>
+          <span style="display:flex;flex:1;min-width:0;flex-direction:column;gap:1px">
+            <span class="truncate" style="font-size:13px;color:#fff;font-weight:600">Tesla finishes up</span>
+            <span class="mono" style="font-size:11px;color:#6B7280">TSLA</span>
+          </span>
+          <span style="display:flex;flex:none;gap:6px">
+            <button class="chip-t1 chip-t1-up" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:46px;border-radius:11px;padding:0 11px"><span style="font-size:9px;font-weight:700">Up</span><span class="font-display mono" style="font-size:14px;font-weight:700">51¢</span></button>
+            <button class="chip-t1 chip-t1-down" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:46px;border-radius:11px;padding:0 11px"><span style="font-size:9px;font-weight:700">Not up</span><span class="font-display mono" style="font-size:14px;font-weight:700">49¢</span></button>
+          </span>
+        </span>
+      </span>
+    </span>
+  </div>
+  <div style="display:flex;gap:16px;max-width:1000px">
+    <span style="display:flex;flex:none;flex-direction:column;align-items:flex-end;width:66px;gap:2px;padding-top:3px">
+      <span class="font-display mono" style="font-size:16px;color:#fff;font-weight:700">20:00</span>
+      <span style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#6B7280;font-weight:700">BST</span>
+    </span>
+    <span style="flex:none;width:1px;background:#1D2026"></span>
+    <span style="flex:1;min-width:0">
+      <span style="display:flex;align-items:center;gap:16px;background:#131519;border:1px solid #1D2026;border-radius:14px;padding:14px 16px">
+        <span style="display:flex;flex:1;min-width:0;flex-direction:column;gap:7px">
+          <span style="display:flex;flex-wrap:wrap;align-items:center;gap:9px">
+            <span style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;border-radius:5px;padding:2px 7px;color:#0A0B0D;background:#F2F3F5">Sports</span>
+            <span style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#6B7280;font-weight:700">Premier League · Football</span>
+            <span style="font-size:10px;color:#4B5563">kickoff 20:00 BST</span>
+            <span style="display:flex;align-items:center;gap:5px"><span class="pulse" style="width:5px;height:5px;border-radius:999px;background:#FF3B4E"></span><span class="mono" style="font-size:12px;color:#fff;font-weight:700">67'</span></span>
+          </span>
+          <span style="display:flex;align-items:center;gap:12px">
+            <span style="display:flex;flex:none;align-items:center">
+              <span class="font-display" style="width:32px;height:32px;border-radius:999px;background:#22262D;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#F2F3F5">MCI</span>
+              <span class="font-display" style="width:32px;height:32px;border-radius:999px;background:#22262D;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#F2F3F5;margin-left:-10px">ARS</span>
+            </span>
+            <span style="font-size:17px;color:#fff;font-weight:600">Manchester City v Arsenal</span>
+            <span class="font-display mono" style="font-size:17px;font-weight:700;color:#fff">1–1</span>
+          </span>
+          <span class="mono" style="font-size:11px;color:#6B7280">$2.2M traded</span>
+        </span>
+        <span style="display:flex;flex:none;gap:8px">
+          <button class="chip-t2" style="width:128px;min-height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 13px;gap:8px;color:#33D6FF;--chip-accent:#33D6FF"><span class="truncate" style="font-size:11px;color:#9AA1AC">Man City</span><span class="font-display mono" style="font-size:17px;font-weight:700">47¢</span></button>
+          <button class="chip-t2" style="width:128px;min-height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 13px;gap:8px;color:#E6E9EE;--chip-accent:#E6E9EE"><span class="truncate" style="font-size:11px;color:#9AA1AC">Draw</span><span class="font-display mono" style="font-size:17px;font-weight:700">24¢</span></button>
+          <button class="chip-t2" style="width:128px;min-height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 13px;gap:8px;color:#CFFF4A;--chip-accent:#CFFF4A"><span class="truncate" style="font-size:11px;color:#9AA1AC">Arsenal</span><span class="font-display mono" style="font-size:17px;font-weight:700">30¢</span></button>
+        </span>
+      </span>
+    </span>
+  </div>
+</div>
+
+<div class="lbl"><span class="n">Mobile ticket + standing Intraday row</span><span class="r">MobileTicket 56px, 46px time cell, edge bar radius 12. The standing Intraday row is the only orange-bordered row in the calendar — rolling rounds have no date, so they never sit on the timeline.</span></div>
+<div class="stage m">
+  <button style="position:relative;display:flex;width:100%;align-items:center;overflow:hidden;text-align:left;background:#131519;border:1px solid #1D2026;border-radius:12px;padding:9px 13px 9px 15px;min-height:56px;gap:12px">
+    <span aria-hidden style="position:absolute;top:0;bottom:0;left:0;width:3px;border-top-left-radius:12px;border-bottom-left-radius:12px;background:#F2F3F5;opacity:.85"></span>
+    <span style="display:flex;flex:none;flex-direction:column;width:46px;gap:1px">
+      <span class="font-display mono" style="font-size:13px;color:#fff;font-weight:700">20:00</span>
+      <span style="display:flex;align-items:center;gap:4px"><span class="pulse" style="width:4px;height:4px;border-radius:999px;background:#FF3B4E"></span><span style="font-size:9px;color:#fff;font-weight:700">live</span></span>
+    </span>
+    <span style="display:flex;flex:1;min-width:0;flex-direction:column;gap:2px">
+      <span style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:4px;padding:2px 6px;line-height:1.3;color:#0A0B0D;background:#F2F3F5">Sports</span>
+        <span style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#6B7280;font-weight:700">EPL</span>
+      </span>
+      <span style="font-size:13px;color:#fff;font-weight:600;line-height:1.25">Manchester City v Arsenal</span>
+    </span>
+    <span style="flex:none;font-size:16px;color:#4B5563">›</span>
+  </button>
+  <div style="height:10px"></div>
+  <button style="display:flex;width:100%;align-items:center;text-align:left;background:#131519;border:1px solid rgba(255,138,61,.35);border-radius:14px;padding:13px 14px;gap:12px">
+    <span style="display:flex;flex:none;align-items:center;justify-content:center;width:30px;height:30px;border-radius:999px;background:rgba(255,138,61,.12);border:1px solid rgba(255,255,255,.08)"><span class="pulse" style="width:7px;height:7px;border-radius:999px;background:#FF8A3D"></span></span>
+    <span style="display:flex;flex:1;min-width:0;flex-direction:column;gap:2px">
+      <span style="font-size:13px;color:#fff;font-weight:700">Crypto rounds never stop</span>
+      <span style="font-size:11px;color:#9AA1AC">Trade Intraday any time</span>
+    </span>
+    <span style="flex:none;font-size:16px;color:#FF8A3D;font-weight:700">→</span>
+  </button>
+</div>
+</section>
+
+<!-- ======================================================= 8 MODULE HEADERS -->
+<section class="doc-section">
+<h2>8 · Module headers</h2>
+<div class="lbl frozen"><span class="n">Module header set</span><span class="r">Verbatim copy. Desktop H1 26px / mobile 22px, font-display 700, tracking −0.02em; teach line 13px desktop / 12px mobile #9AA1AC. Eyebrow 10px, tracking .18em–.2em, uppercase 700. Only Intraday's eyebrow is orange.</span></div>
+<div class="stage d">
+  <div style="display:flex;flex-direction:column;gap:26px;max-width:760px">
+    <div style="display:flex;flex-direction:column;gap:7px">
+      <span style="display:flex;align-items:center;gap:7px;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#FF8A3D;font-weight:700"><span class="pulse" style="width:6px;height:6px;border-radius:999px;background:#FF8A3D"></span>Intraday · rolling rounds</span>
+      <h2 class="font-display" style="font-weight:700;font-size:26px;letter-spacing:-.02em;color:#fff">Will the price go up?</h2>
+      <p style="font-size:13px;color:#9AA1AC">Pick Up or Down before the clock hits zero. Winning shares pay <strong style="color:#fff;font-weight:600">$1</strong>, losing shares pay $0.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#F2F3F5;font-weight:700">Sports · match winners</span>
+      <span class="font-display" style="font-weight:700;font-size:26px;letter-spacing:-.02em;color:#fff">Who wins the match?</span>
+      <span style="font-size:12px;color:#9AA1AC">Winning shares pay <strong style="color:#fff;font-weight:600">$1</strong>. Matches over the next 7 days — trade before kickoff or during the match.</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:7px">
+      <h2 class="font-display" style="font-weight:700;font-size:26px;letter-spacing:-.02em;color:#fff">What's worth watching?</h2>
+      <p style="font-size:13px;color:#9AA1AC">Hand-picked markets — and why we think they matter. Winning shares pay <strong style="color:#fff;font-weight:600">$1</strong>.</p>
+    </div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:6px 2px 0">
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <span class="font-display" style="font-weight:700;font-size:26px;color:#fff;letter-spacing:-.02em">Will it happen?</span>
+        <span style="font-size:13px;color:#9AA1AC">Back Yes or No on real-world outcomes. Winning shares pay $1.</span>
+      </div>
+      <span style="font-size:12px;color:#6B7280">34 open</span>
+    </div>
+    <div>
+      <h1 class="font-display" style="font-size:40px;font-weight:700;line-height:1.05;letter-spacing:-.02em;color:#fff">What do you think happens next?</h1>
+      <p style="margin-top:8px;font-size:14px;color:#9AA1AC">Pick a topic. Tap Yes or No. That's it.</p>
+    </div>
+    <div class="cap">Boost-filter group header (grouped list) — 10px volt small-caps, count, hairline fill</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#CFFF4A;font-weight:700">Crypto</span>
+      <span style="font-size:11px;color:#6B7280">7</span>
+      <span style="flex:1;height:1px;background:#1D2026"></span>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ======================================================= 9 BADGES & MICRO -->
+<section class="doc-section">
+<h2>9 · Badges &amp; micro</h2>
+<div class="lbl frozen"><span class="n">Card overlay pills</span><span class="r">Max TWO per card, fixed fill order STATUS (Ends soon &gt; New &gt; Trending) → Intraday → Boost. Pill = rounded-full, padding 5/10, 11px 600, line-height 1. Intraday events are exempt from New/Ends-soon, so amber and orange can never co-occur.</span></div>
+<div class="stage d">
+  <div style="display:flex;gap:10px;flex-wrap:wrap;background:#14171C;padding:14px;border-radius:12px">
+    <span style="display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:5px 10px;font-size:11px;font-weight:600;line-height:1;background:#FFC61A;color:#241B00">⏱ Ends 3h 12m</span>
+    <span style="display:inline-flex;align-items:center;border-radius:999px;padding:5px 10px;font-size:11px;font-weight:600;line-height:1;background:#33D6FF;color:#04222c">New</span>
+    <span style="display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:5px 10px;font-size:11px;font-weight:600;line-height:1;background:#FFFFFF;color:#0A0B0D">🔥 Trending</span>
+    <span style="display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:5px 10px;font-size:11px;font-weight:600;line-height:1;background:#FF8A3D;color:#2A1200">⏲ Intraday · 08:41</span>
+    <span style="display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:5px 10px;font-size:11px;font-weight:600;line-height:1;background:#CFFF4A;color:#1a2408">⚡ Boost 5×</span>
+  </div>
+  <div class="cap" style="margin-top:14px">Live pulse conventions — 4px (week ticket) / 5px (match meta, spine) / 6px (module header, sector dot). Always #FF3B4E, always animate-pulse, never used for anything but "in play".</div>
+  <div style="display:flex;align-items:center;gap:18px">
+    <span style="display:flex;align-items:center;gap:5px"><span class="pulse" style="width:4px;height:4px;border-radius:999px;background:#FF3B4E"></span><span style="font-size:11px;color:#9AA1AC">4px ticket</span></span>
+    <span style="display:flex;align-items:center;gap:5px"><span class="pulse" style="width:5px;height:5px;border-radius:999px;background:#FF3B4E"></span><span class="mono" style="font-size:12px;color:#fff;font-weight:700">67'</span></span>
+    <span style="display:flex;align-items:center;gap:9px"><span class="pulse" style="width:6px;height:6px;border-radius:999px;background:#FF3B4E"></span><span style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#fff;font-weight:700">Live now · 1</span></span>
+    <span style="display:flex;align-items:center;gap:7px"><span class="pulse" style="width:6px;height:6px;border-radius:999px;background:#FF8A3D"></span><span style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#FF8A3D;font-weight:700">Intraday</span></span>
+  </div>
+  <div class="cap" style="margin-top:18px">Avatar set — AssetAvatar is ALWAYS a circle. 34px standard / 30px compact / 32px mobile coin card / 28px calendar tile. Crypto = brand fill + glyph; equity = white #F2F3F5 fill + static logo (monogram fallback); sports crest = white #F2F3F5 (chalk) with #0A0B0D ink, muted #23262D for h2h fighters (dark fighter token).</div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <span style="width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.08);background:#F7931A;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px">₿</span>
+    <span style="width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.08);background:#7A86A8;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px">Ξ</span>
+    <span style="width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.08);background:linear-gradient(135deg,#9945FF,#14F195);display:inline-flex;align-items:center;justify-content:center;color:#101216;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px">S</span>
+    <span style="width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.08);background:#F2F3F5;display:inline-flex;align-items:center;justify-content:center;color:#101216;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:11px">NVDA</span>
+    <span style="width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.08);background:#F2F3F5;display:inline-flex;align-items:center;justify-content:center;color:#101216;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:9px">0700</span>
+    <span class="font-display" style="width:30px;height:30px;border-radius:999px;background:#F2F3F5;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:9px;color:#0A0B0D">MCI</span>
+    <span class="font-display" style="width:30px;height:30px;border-radius:999px;background:#23262D;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:9px;color:#E6E9EE">MAK</span>
+    <span class="font-display" style="width:32px;height:32px;border-radius:999px;background:#22262D;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#F2F3F5">ARS</span>
+  </div>
+  <div class="cap" style="margin-top:18px">Calendar micro badges — TicketCategoryBadge (week 8.5px / mobile 9px), CategoryBadge (day mode, 9px), ClosesSoonBadge (outlined, never coloured)</div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span style="font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:4px;padding:1.5px 5px;color:#0A0B0D;background:#FF8A3D">Intraday</span>
+    <span style="font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:4px;padding:1.5px 5px;color:#0A0B0D;background:#F2F3F5">Sports</span>
+    <span style="font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:4px;padding:1.5px 5px;color:#C9CED6;background:#1D2026">Economy</span>
+    <span style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;border-radius:5px;padding:2px 7px;color:#C9CED6;border:1px solid #23262D">Crypto</span>
+    <span style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#C9CED6;font-weight:700;border:1px solid #23262D;border-radius:6px;padding:2px 7px">Closes soon</span>
+  </div>
+</div>
+</section>
+
+<section class="doc-section">
+<h2>Banned in Lite UI</h2>
+<p class="doc-sub">Margin · Liquidation · Funding · Leverage · Long · Short · Order book · Limit · Moneyline · <strong>Props</strong> (internal taxonomy name only). Account nouns keep Spot / Futures. No emoji in product UI — Lucide icons only (the glyphs in this static bible stand in for Lucide nodes).</p>
+</section>
+
+</div>
+</body>
+</html>
