@@ -519,26 +519,43 @@ const LiteEventsPage = () => {
             actionLabel="See all markets"
             onAction={resetAll}
           />
-        ) : (
-          <div
-            className={cn(
-              "grid gap-[18px]",
-              "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
-            )}
-          >
-            {filtered.map((market, i) => {
-              const cfg = getBoostConfig(market.category);
-              return (
-                <LiteEventCard
-                  key={market.id}
-                  market={market}
-                  index={i}
-                  boostMax={cfg.enabled ? cfg.maxBoost : null}
+        ) : boostGroups ? (
+          <div className="flex flex-col" style={{ gap: 26 }}>
+            {boostGroups.map((g) => (
+              <div key={g.id} className="flex flex-col" style={{ gap: 12 }}>
+                <div className="flex items-center" style={{ gap: 8 }}>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      letterSpacing: "0.16em",
+                      textTransform: "uppercase",
+                      color: "#CFFF4A",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {g.label}
+                  </span>
+                  <span style={{ fontSize: 11, color: "#6B7280" }}>{g.items.length}</span>
+                  <span
+                    aria-hidden
+                    className="flex-1"
+                    style={{ height: 1, background: "#1D2026" }}
+                  />
+                </div>
+                <CardGrid
+                  items={g.items}
+                  getBoostConfig={getBoostConfig}
                   trendingCutoff={trendingCutoff}
                 />
-              );
-            })}
+              </div>
+            ))}
           </div>
+        ) : (
+          <CardGrid
+            items={filtered}
+            getBoostConfig={getBoostConfig}
+            trendingCutoff={trendingCutoff}
+          />
         )}
 
         {/* Pro escape hatch — plain-language, no big CTA. */}
