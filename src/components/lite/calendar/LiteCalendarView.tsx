@@ -407,26 +407,6 @@ export const LiteCalendarView = ({
           })}
         </div>
 
-        {openNow.length > 0 && (
-          <div className="flex flex-col" style={{ gap: 7 }}>
-            <div className="flex items-center" style={{ gap: 10 }}>
-              <LaneCaption>Open all day</LaneCaption>
-              <span style={{ height: 1, background: "#1D2026", flex: 1 }} />
-              <span style={{ fontSize: 10, color: "#6B7280", fontWeight: 600 }}>
-                {openNow.length} {openNow.length === 1 ? "market" : "markets"}
-              </span>
-            </div>
-            {openNow.map((it) => (
-              <SpanBar
-                key={it.id}
-                ticket={ticketOf(it)}
-                closes={closesStamp(it, now)}
-                onClick={() => openItem(it)}
-              />
-            ))}
-          </div>
-        )}
-
         {visible
           .filter((c) => c.items.length > 0)
           .map((c) => (
@@ -458,6 +438,26 @@ export const LiteCalendarView = ({
               ))}
             </div>
           ))}
+
+        {openNow.length > 0 && (
+          <div className="flex flex-col" style={{ gap: 7, paddingTop: 2 }}>
+            <div className="flex items-center" style={{ gap: 10 }}>
+              <LaneCaption>Open all day</LaneCaption>
+              <span style={{ height: 1, background: "#1D2026", flex: 1 }} />
+              <span style={{ fontSize: 10, color: "#6B7280", fontWeight: 600 }}>
+                {openNow.length} {openNow.length === 1 ? "market" : "markets"}
+              </span>
+            </div>
+            {openNow.map((it) => (
+              <SpanBar
+                key={it.id}
+                ticket={ticketOf(it)}
+                closes={closesStamp(it, now)}
+                onClick={() => openItem(it)}
+              />
+            ))}
+          </div>
+        )}
 
         {weekTotal === 0 && openNow.length === 0 && (
           <div
