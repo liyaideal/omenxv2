@@ -38,20 +38,13 @@ import { useSportsMatches } from "@/components/lite/sports/sportsData";
 import { LiteIntradayView } from "@/components/lite/categoryviews/LiteIntradayView";
 import { LiteSportsView } from "@/components/lite/categoryviews/LiteSportsView";
 import { useSurface } from "@/contexts/SurfaceContext";
-
-// Data-driven sector rail. Filters on the RAW event category (lowercase DB
-// value) so "Stocks" surfaces the us-*-updown spot events (category='stocks')
-// rather than the Tech/Finance categoryLabel bucket.
-const SECTOR_ORDER: Array<{ id: string; label: string }> = [
-  { id: "stocks", label: "Stocks" },
-  { id: "crypto", label: "Crypto" },
-  { id: "macro", label: "Macro" },
-  { id: "tech", label: "Tech" },
-  { id: "entertainment", label: "Entertainment" },
-  { id: "politics", label: "Politics" },
-  { id: "finance", label: "Finance" },
-  { id: "social", label: "Social" },
-];
+import {
+  SECTOR_CATEGORIES,
+  TOP_CATEGORIES,
+  categoryMatchesTop,
+  topCategoryForKey,
+  topCategoryOrder,
+} from "@/lib/taxonomy";
 
 // Single source of truth for the pill visual language on this page (v3 sizing).
 const PILL_BASE =
@@ -59,18 +52,6 @@ const PILL_BASE =
 const PILL_ACTIVE = "bg-white text-[#0A0B0D] font-semibold";
 const PILL_IDLE =
   "border-[1.5px] border-[#2B2F38] text-[#C9CED6] hover:text-foreground";
-
-// Desktop category row per the frozen contract. Dot-marked entries are views,
-// not sector filters.
-const DESKTOP_CATEGORIES: Array<{ id: string; label: string; dot?: string }> = [
-  { id: "all", label: "All" },
-  { id: "intraday", label: "Intraday", dot: "#FF8A3D" },
-  { id: "sports", label: "Sports", dot: "#F2F3F5" },
-  { id: "crypto", label: "Crypto" },
-  { id: "stocks", label: "Stocks" },
-  { id: "politics", label: "Politics" },
-  { id: "macro", label: "Economy" },
-];
 
 const LiteEventsPage = () => {
   const navigate = useNavigate();
