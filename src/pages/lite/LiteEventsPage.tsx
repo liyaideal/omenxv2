@@ -53,6 +53,32 @@ const PILL_ACTIVE = "bg-white text-[#0A0B0D] font-semibold";
 const PILL_IDLE =
   "border-[1.5px] border-[#2B2F38] text-[#C9CED6] hover:text-foreground";
 
+/** Shared card grid — used flat and inside Boost category groups. */
+const CardGrid = ({
+  items,
+  getBoostConfig,
+  trendingCutoff,
+}: {
+  items: ReturnType<typeof useMarketListData>;
+  getBoostConfig: (category: string) => { enabled: boolean; maxBoost: number };
+  trendingCutoff: number;
+}) => (
+  <div className={cn("grid gap-[18px]", "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>
+    {items.map((market, i) => {
+      const cfg = getBoostConfig(market.category);
+      return (
+        <LiteEventCard
+          key={market.id}
+          market={market}
+          index={i}
+          boostMax={cfg.enabled ? cfg.maxBoost : null}
+          trendingCutoff={trendingCutoff}
+        />
+      );
+    })}
+  </div>
+);
+
 const LiteEventsPage = () => {
   const navigate = useNavigate();
   const { setSurface } = useSurface();
