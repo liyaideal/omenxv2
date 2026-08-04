@@ -350,7 +350,9 @@ const LiteEventsPage = () => {
               onBackToList={() => setCalendarOn(false)}
               onOpenIntraday={() => {
                 setCalendarOn(false);
-                setSector("intraday");
+                // Desktop has a dedicated Intraday view; mobile surfaces the
+                // Intraday band on the "All" list.
+                setSector(isMobile ? "all" : "intraday");
               }}
             />
           </div>
@@ -384,6 +386,7 @@ const LiteEventsPage = () => {
 
         {/* Mobile intraday band — unchanged. */}
         {isMobile &&
+          !calendarOn &&
           !isWatchlistView &&
           !boostOnly &&
           (sector === "all" || sector === "crypto" || sector === "stocks") && (
@@ -392,7 +395,7 @@ const LiteEventsPage = () => {
 
         {/* Card grid */}
         <div className="mt-6 flex flex-1 flex-col space-y-6">
-        {isStageView && (
+        {!calendarOn && isStageView && (
           <div className="flex items-start justify-between" style={{ padding: "6px 2px 0" }}>
             <div className="flex flex-col gap-[6px]">
               <span
@@ -415,7 +418,7 @@ const LiteEventsPage = () => {
             </span>
           </div>
         )}
-        {isLoading ? (
+        {calendarOn ? null : isLoading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
