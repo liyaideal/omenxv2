@@ -16,6 +16,7 @@ import {
   TransparencySection,
   LiteSection,
   LiteAllStageSection,
+  LiteCalendarSection,
   LiteSpotSection,
   WalletSection,
   DepositWithdrawSection,
@@ -100,6 +101,7 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
     sections: [
       s("lite", "Lite components", LiteSection),
       s("lite-all-stage", "Lite · All stage", LiteAllStageSection),
+      s("lite-calendar", "Lite · Calendar", LiteCalendarSection),
       s("lite-spot", "Lite spot trade", LiteSpotSection),
     ],
   },
