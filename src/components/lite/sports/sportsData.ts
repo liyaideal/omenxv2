@@ -130,7 +130,7 @@ export const useSportsMatches = () => {
   const upcoming = useMemo(
     () =>
       rows
-        .filter((r) => !r.live)
+        .filter((r) => !r.live && isUpcoming(r))
         .sort(
           (a, b) =>
             (a.kickoff?.getTime() ?? Infinity) - (b.kickoff?.getTime() ?? Infinity),
@@ -140,6 +140,14 @@ export const useSportsMatches = () => {
 
   return { rows, live, upcoming, loading };
 };
+
+/**
+ * Ledger rule: only matches whose kickoff is still in the future are
+ * listed. Anything already kicked off shows in the pinned live section
+ * (when in play) or nowhere at all.
+ */
+export const isUpcoming = (m: SportsMatch, now: number = Date.now()) =>
+  !!m.kickoff && m.kickoff.getTime() > now;
 
 const DAY_MS = 86_400_000;
 const startOfDay = (d: Date) =>
@@ -154,13 +162,14 @@ export interface DayBucket {
 /** "ALL" + one chip per day over the next 7 days that has matches. */
 export const buildDayStrip = (rows: SportsMatch[]): DayBucket[] => {
   const today = startOfDay(new Date());
+  const future = rows.filter((r) => isUpcoming(r));
   const counts = new Map<number, number>();
-  for (const r of rows) {
+  for (const r of future) {
     if (!r.kickoff) continue;
     const k = startOfDay(r.kickoff);
     counts.set(k, (counts.get(k) || 0) + 1);
   }
-  const out: DayBucket[] = [{ id: "all", label: "ALL", count: rows.length }];
+  const out: DayBucket[] = [{ id: "all", label: "ALL", count: future.length }];
   for (let i = 0; i < 7; i += 1) {
     const k = today + i * DAY_MS;
     const n = counts.get(k) || 0;
@@ -272,7 +281,7 @@ export const buildDayGroups = (rows: SportsMatch[]): DayGroup[] => {
   const today = startOfDay(new Date());
   const byDay = new Map<number, SportsMatch[]>();
   for (const r of rows) {
-    if (!r.kickoff) continue;
+    if (!r.kickoff || !isUpcoming(r)) continue;
     const k = startOfDay(r.kickoff);
     byDay.set(k, [...(byDay.get(k) || []), r]);
   }
@@ -285,7 +294,9 @@ export const buildDayGroups = (rows: SportsMatch[]): DayGroup[] => {
           (a, b) =>
             (a.kickoff?.getTime() ?? 0) - (b.kickoff?.getTime() ?? 0),
         );
-      const liveCount = all.length - list.length;
+      const liveCount = rows.filter(
+        (m) => m.live && m.kickoff && startOfDay(m.kickoff) === k,
+      ).length;
       const d = new Date(k);
       const isToday = k === today;
       return {
