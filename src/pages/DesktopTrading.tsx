@@ -56,7 +56,7 @@ import { useEventSideLabelsLookup, resolveBinarySideLabel } from "@/hooks/useEve
 
 
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { executeTrade } from "@/services/tradingService";
+import { executeTrade, FUTURES_FEE_RATE } from "@/services/tradingService";
 import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { AccountRiskIndicator } from "@/components/AccountRiskIndicator";
@@ -356,7 +356,7 @@ export default function DesktopTrading() {
   };
   
   const available = balance;
-  const feeRate = 0.0005; // 0.05% trading fee
+  const feeRate = FUTURES_FEE_RATE; // 0.1% trading fee (authoritative)
 
   
   

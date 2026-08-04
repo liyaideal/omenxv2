@@ -27,7 +27,9 @@ import {
 
 type Side = "yes" | "no";
 
-const FEE_RATE = 0.0005;
+import { FUTURES_FEE_RATE } from "@/services/tradingService";
+
+const FEE_RATE = FUTURES_FEE_RATE;
 const PRESETS = [10, 25, 50, 100];
 const money = (n: number) => `$${n.toFixed(2)}`;
 

@@ -4,7 +4,14 @@ import { z } from "zod";
 // Maximum allowed leverage
 const MAX_LEVERAGE = 100;
 const MIN_LEVERAGE = 1;
-const FEE_RATE = 0.0005; // 0.05% fee rate (must match TradeForm)
+/**
+ * Authoritative futures (contract) trade fee rate — 0.1%.
+ * Single source of truth: Pro ticket/confirm, Lite contract panel, position
+ * detail display and the client-side re-validation below all read this.
+ * SPOT is fee-free (SPOT_FEE_RATE = 0 in SpotTrading.tsx) — unrelated.
+ */
+export const FUTURES_FEE_RATE = 0.001;
+const FEE_RATE = FUTURES_FEE_RATE;
 
 // Zod schema for trade data validation
 const TradeDataSchema = z.object({

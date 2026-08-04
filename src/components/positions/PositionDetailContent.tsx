@@ -1,3 +1,4 @@
+import { FUTURES_FEE_RATE } from "@/services/tradingService";
 import { useMemo } from "react";
 import { TrendingUp, TrendingDown, Clock, Receipt, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -26,7 +27,7 @@ interface PositionDetailContentProps {
 }
 
 // Use a fixed sentence-case display per design rules
-const TRADE_FEE_RATE = 0.001; // 0.1% taker fee assumption for display only
+const TRADE_FEE_RATE = FUTURES_FEE_RATE; // 0.1% taker fee (shared constant)
 
 export const PositionDetailContent = ({
   position,
