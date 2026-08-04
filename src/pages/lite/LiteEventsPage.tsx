@@ -176,6 +176,13 @@ const LiteEventsPage = () => {
       setAuthOpen(true);
       return;
     }
+    // Calendar and watchlist are mutually exclusive views.
+    if (calendarOn) {
+      setCalendarOn(false);
+      setBoostOnly(false);
+      setSector("watchlist");
+      return;
+    }
     if (isWatchlistView) {
       setSector("all");
       return;
@@ -183,6 +190,14 @@ const LiteEventsPage = () => {
     // Trait toggles don't apply inside watchlist view.
     setBoostOnly(false);
     setSector("watchlist");
+  };
+
+  const handleCalendarClick = () => {
+    setCalendarOn((v) => {
+      const next = !v;
+      if (next && isWatchlistView) setSector("all");
+      return next;
+    });
   };
 
   const traitChips = (
