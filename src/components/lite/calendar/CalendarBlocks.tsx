@@ -26,7 +26,7 @@ const NEUTRAL = "#E6E9EE";
 
 export const LivePulse = ({ size = 5 }: { size?: number }) => (
   <span
-    className="lite-live-dot"
+    className="animate-pulse"
     style={{
       width: size,
       height: size,
@@ -205,7 +205,7 @@ export const StandingIntradayRow = ({
       }}
     >
       <span
-        className="lite-live-dot"
+        className="animate-pulse"
         style={{
           width: compact ? 7 : 8,
           height: compact ? 7 : 8,
