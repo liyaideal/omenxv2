@@ -17,9 +17,7 @@ import {
   CalItem,
   DAY_MS,
   WEEK_DAYS,
-  addMonths,
   buildCalendarItems,
-  buildMonthWeeks,
   buildSpanLanes,
   buildSportsSubTypes,
   buildWeekColumns,
@@ -27,10 +25,8 @@ import {
   itemMatchesCategory,
   itemMatchesSubType,
   localTime,
-  monthLabel,
   openOnDay,
   startOfDay,
-  startOfMonth,
   stepperLabel,
   sumMarkets,
   ticketOf,
@@ -73,8 +69,8 @@ const SegPill = ({
   value,
   onSelect,
 }: {
-  value: "day" | "week" | "month";
-  onSelect: (v: "day" | "week" | "month") => void;
+  value: "day" | "week";
+  onSelect: (v: "day" | "week") => void;
 }) => (
   <span
     className="flex"
@@ -85,7 +81,7 @@ const SegPill = ({
       padding: 3,
     }}
   >
-    {(["day", "week", "month"] as const).map((v) => (
+    {(["day", "week"] as const).map((v) => (
       <button
         key={v}
         type="button"
@@ -99,7 +95,7 @@ const SegPill = ({
           color: v === value ? "#0A0B0D" : "#9AA1AC",
         }}
       >
-        {v === "day" ? "Day" : v === "week" ? "Week" : "Month"}
+        {v === "day" ? "Day" : "Week"}
       </button>
     ))}
   </span>
@@ -147,10 +143,9 @@ export const LiteCalendarView = ({
   const todayKey = startOfDay(now);
   const tz = userTzAbbrev();
 
-  const [mode, setMode] = useState<"day" | "week" | "month">("week");
+  const [mode, setMode] = useState<"day" | "week">("week");
   const [dayKey, setDayKey] = useState<number>(todayKey);
   const [subType, setSubType] = useState<string>("all");
-  const [monthStart, setMonthStart] = useState<number>(startOfMonth(now));
   const [lanesOpen, setLanesOpen] = useState(false);
   /** Mobile: day-strip chip filters the ticket list in place. */
   const [mobileDay, setMobileDay] = useState<number | null>(null);
@@ -202,11 +197,6 @@ export const LiteCalendarView = ({
   const hiddenSpans = weekLanes
     .slice(visibleLanes.length)
     .reduce((n, lane) => n + lane.length, 0);
-
-  const monthWeeks = useMemo(
-    () => buildMonthWeeks(items, monthStart, now),
-    [items, monthStart, now],
-  );
 
   const dayItems = useMemo(
     () => items.filter((i) => startOfDay(i.at) === dayKey),
@@ -306,47 +296,6 @@ export const LiteCalendarView = ({
                 }
                 aria-label="Next day"
                 className="flex items-center justify-center disabled:cursor-default disabled:opacity-40"
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 999,
-                  border: "1px solid #23262D",
-                  color: "#9AA1AC",
-                }}
-              >
-                <ChevronRight size={14} />
-              </button>
-            </div>
-          )}
-          {mode === "month" && (
-            <div className="flex items-center" style={{ gap: 6 }}>
-              <button
-                type="button"
-                onClick={() => setMonthStart((m) => addMonths(m, -1))}
-                disabled={monthStart <= startOfMonth(now)}
-                aria-label="Previous month"
-                className="flex items-center justify-center disabled:cursor-default disabled:opacity-40"
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 999,
-                  border: "1px solid #23262D",
-                  color: "#9AA1AC",
-                }}
-              >
-                <ChevronLeft size={14} />
-              </button>
-              <span
-                className="font-display text-center"
-                style={{ fontSize: 14, fontWeight: 700, color: "#fff", minWidth: 132 }}
-              >
-                {monthLabel(monthStart)}
-              </span>
-              <button
-                type="button"
-                onClick={() => setMonthStart((m) => addMonths(m, 1))}
-                aria-label="Next month"
-                className="flex items-center justify-center"
                 style={{
                   width: 36,
                   height: 36,
@@ -688,101 +637,6 @@ export const LiteCalendarView = ({
             </span>
           </div>
         </>
-      ) : mode === "month" ? (
-        <div className="flex flex-col" style={{ gap: 8 }}>
-          <div className="grid" style={{ gridTemplateColumns: "repeat(7,1fr)", gap: 8 }}>
-            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-              <span
-                key={d}
-                style={{
-                  fontSize: 10,
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                  color: "#6B7280",
-                  fontWeight: 700,
-                }}
-              >
-                {d}
-              </span>
-            ))}
-          </div>
-          {monthWeeks.map((w) => (
-            <div key={w.start} className="flex flex-col" style={{ gap: 4 }}>
-              <div className="grid" style={{ gridTemplateColumns: "repeat(7,1fr)", gap: 8 }}>
-                {w.cells.map((cell) => (
-                  <button
-                    key={cell.key}
-                    type="button"
-                    onClick={() => {
-                      setDayKey(cell.key);
-                      setMode("day");
-                    }}
-                    className="flex flex-col text-left"
-                    style={{
-                      gap: 2,
-                      minHeight: 54,
-                      borderRadius: 10,
-                      border: `1px solid ${cell.isToday ? "#33D6FF" : "#1D2026"}`,
-                      background: cell.inMonth ? "#131519" : "transparent",
-                      opacity: cell.inMonth ? 1 : 0.45,
-                      padding: "6px 8px",
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 700,
-                        color: cell.isToday ? "#33D6FF" : "#F2F3F5",
-                        fontVariantNumeric: "tabular-nums",
-                      }}
-                    >
-                      {cell.day}
-                    </span>
-                    {cell.markets > 0 && (
-                      <span style={{ fontSize: 10, color: "#9AA1AC", fontWeight: 600 }}>
-                        {cell.markets} {cell.markets === 1 ? "close" : "closes"}
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
-              {w.lanes.slice(0, 3).map((lane, li) => (
-                <div
-                  key={li}
-                  className="grid"
-                  style={{ gridTemplateColumns: "repeat(7,1fr)", gap: 8 }}
-                >
-                  {lane.map((p) => (
-                    <div
-                      key={p.item.id}
-                      style={{ gridColumn: `${p.colStart + 1} / span ${p.colSpan}` }}
-                    >
-                      <SpanBar
-                        compact
-                        ticket={ticketOf(p.item)}
-                        clippedLeft={p.clippedLeft}
-                        clippedRight={p.clippedRight}
-                        closes={closesStamp(p.item, now)}
-                        onClick={() => openItem(p.item)}
-                      />
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-          ))}
-          <span
-            style={{
-              fontSize: 12,
-              color: "#6B7280",
-              borderTop: "1px solid #1D2026",
-              paddingTop: 14,
-            }}
-          >
-            Bars show how long a market stays tradeable; day cells count the markets
-            that close that day.
-          </span>
-        </div>
       ) : dayItems.length === 0 && dayOpen.length === 0 ? (
         <div
           className="flex flex-col items-center"
