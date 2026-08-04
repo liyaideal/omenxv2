@@ -415,9 +415,8 @@ export const LiteCalendarView = ({
   if (isMobile) {
     const strip = columns.filter((c) => c.markets > 0);
     const visible = mobileDay == null ? columns : columns.filter((c) => c.key === mobileDay);
-    const LATER_KEY = -1;
-    const showLater =
-      laterItems.length > 0 && (mobileDay == null || mobileDay === LATER_KEY);
+    /** Markets you can trade on the focused day but that close later. */
+    const openNow = openOnDay(items, mobileDay ?? todayKey);
     return (
       <div className="flex flex-col" style={{ gap: 14, paddingTop: 4 }}>
         {header}
@@ -457,33 +456,27 @@ export const LiteCalendarView = ({
               </button>
             );
           })}
-          {laterItems.length > 0 && (
-            <button
-              type="button"
-              onClick={() =>
-                setMobileDay(mobileDay === LATER_KEY ? null : LATER_KEY)
-              }
-              className="flex flex-none flex-col items-center"
-              style={{
-                background: mobileDay === LATER_KEY ? "#fff" : "#0A0B0D",
-                color: mobileDay === LATER_KEY ? "#0A0B0D" : "#9AA1AC",
-                border: `1px solid ${mobileDay === LATER_KEY ? "#fff" : "#23262D"}`,
-                borderRadius: 12,
-                padding: "8px 14px",
-                gap: 2,
-              }}
-            >
-              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em" }}>
-                LATER
-              </span>
-              <span
-                style={{ fontSize: 12, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}
-              >
-                {laterTotal}
-              </span>
-            </button>
-          )}
         </div>
+
+        {openNow.length > 0 && (
+          <div className="flex flex-col" style={{ gap: 7 }}>
+            <div className="flex items-center" style={{ gap: 10 }}>
+              <LaneCaption>Open all day</LaneCaption>
+              <span style={{ height: 1, background: "#1D2026", flex: 1 }} />
+              <span style={{ fontSize: 10, color: "#6B7280", fontWeight: 600 }}>
+                {openNow.length} {openNow.length === 1 ? "market" : "markets"}
+              </span>
+            </div>
+            {openNow.map((it) => (
+              <SpanBar
+                key={it.id}
+                ticket={ticketOf(it)}
+                closes={closesStamp(it, now)}
+                onClick={() => openItem(it)}
+              />
+            ))}
+          </div>
+        )}
 
         {visible
           .filter((c) => c.items.length > 0)
@@ -517,37 +510,7 @@ export const LiteCalendarView = ({
             </div>
           ))}
 
-        {showLater && (
-          <div className="flex flex-col" style={{ gap: 9 }}>
-            <div className="flex items-center" style={{ gap: 10 }}>
-              <span
-                style={{
-                  fontSize: 10,
-                  letterSpacing: "0.16em",
-                  textTransform: "uppercase",
-                  color: "#F2F3F5",
-                  fontWeight: 700,
-                  whiteSpace: "nowrap",
-                }}
-              >
-                Later
-              </span>
-              <span style={{ height: 1, background: "#1D2026", flex: 1 }} />
-              <span style={{ fontSize: 10, color: "#6B7280", fontWeight: 600 }}>
-                {laterTotal} {laterTotal === 1 ? "market" : "markets"}
-              </span>
-            </div>
-            {laterItems.map((it) => (
-              <MobileTicket
-                key={it.id}
-                ticket={ticketOf(it, { asDate: true })}
-                onClick={() => openItem(it)}
-              />
-            ))}
-          </div>
-        )}
-
-        {weekTotal === 0 && laterItems.length === 0 && (
+        {weekTotal === 0 && openNow.length === 0 && (
           <div
             className="flex flex-col items-center"
             style={{
@@ -574,8 +537,9 @@ export const LiteCalendarView = ({
         )}
 
         <span style={{ fontSize: 11, color: "#6B7280", textWrap: "pretty" }}>
-          {weekTotal} markets decide in the next 7 days. Tap a day to trade it.
-          {laterTotal > 0 && ` ${laterTotal} more decide later.`}
+          {weekTotal} markets close in the next 7 days. Tap a day to trade it.
+          {openNow.length > 0 &&
+            ` ${openNow.length} more stay open past today.`}
         </span>
       </div>
     );
