@@ -369,9 +369,11 @@ export const LiteCalendarView = ({
 
   if (isMobile) {
     const strip = columns.filter((c) => c.markets > 0);
-    const visible = mobileDay == null ? columns : columns.filter((c) => c.key === mobileDay);
+    const focusedDay = mode === "day" ? (mobileDay ?? todayKey) : mobileDay;
+    const visible =
+      focusedDay == null ? columns : columns.filter((c) => c.key === focusedDay);
     /** Markets you can trade on the focused day but that close later. */
-    const openNow = openOnDay(items, mobileDay ?? todayKey);
+    const openNow = openOnDay(items, focusedDay ?? todayKey);
     return (
       <div className="flex flex-col" style={{ gap: 14, paddingTop: 4 }}>
         {header}
@@ -380,12 +382,14 @@ export const LiteCalendarView = ({
 
         <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-[2px]">
           {strip.map((c) => {
-            const active = mobileDay === c.key;
+            const active = focusedDay === c.key;
             return (
               <button
                 key={c.key}
                 type="button"
-                onClick={() => setMobileDay(active ? null : c.key)}
+                onClick={() =>
+                  setMobileDay(active && mode !== "day" ? null : c.key)
+                }
                 className="flex flex-none flex-col items-center"
                 style={{
                   background: active ? "#fff" : "#0A0B0D",
