@@ -240,21 +240,11 @@ const LiteEventsPage = () => {
           </div>
           {!isMobile && (
             <div className="flex shrink-0 items-center gap-2" style={{ marginTop: 6 }}>
-              <WatchlistChip
-                active={isWatchlistView}
-                count={watchlist.size}
-                showLabel
-                onClick={handleWatchlistClick}
-              />
               <LiveSettledSwitch
                 value="live"
                 onSelect={(v) => {
                   if (v === "settled") navigate("/resolved");
                 }}
-              />
-              <CalendarChip
-                active={calendarOn}
-                onClick={() => setCalendarOn((v) => !v)}
               />
             </div>
           )}
@@ -284,7 +274,25 @@ const LiteEventsPage = () => {
 
         {/* Filter row (removed entirely in watchlist view) */}
         {isWatchlistView && !calendarOn ? (
-          watchlistStatusLine
+          isMobile ? (
+            watchlistStatusLine
+          ) : (
+            <div className="flex items-center gap-2" style={{ marginTop: 16 }}>
+              <div className="min-w-0 flex-1">{watchlistStatusLine}</div>
+              <div className="flex shrink-0 items-center gap-2">
+                <WatchlistChip
+                  active
+                  count={watchlist.size}
+                  showLabel
+                  onClick={handleWatchlistClick}
+                />
+                <CalendarChip
+                  active={calendarOn}
+                  onClick={() => setCalendarOn((v) => !v)}
+                />
+              </div>
+            </div>
+          )
         ) : isMobile ? (
           <div className="flex items-center gap-2" style={{ marginTop: 12 }}>
             <TopicSelectorButton
@@ -335,6 +343,19 @@ const LiteEventsPage = () => {
                 {traitChips}
               </>
             )}
+            {/* View lenses live at the right end of the category row. */}
+            <div className="ml-auto flex shrink-0 items-center gap-2">
+              <WatchlistChip
+                active={isWatchlistView}
+                count={watchlist.size}
+                showLabel
+                onClick={handleWatchlistClick}
+              />
+              <CalendarChip
+                active={calendarOn}
+                onClick={() => setCalendarOn((v) => !v)}
+              />
+            </div>
           </div>
         )}
 
