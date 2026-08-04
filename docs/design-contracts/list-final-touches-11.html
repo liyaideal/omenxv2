@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="../_ds/omenx-lite-design-system-82d07a6f-daaf-49f6-9e34-4a0416440c7b/tokens/fonts.css">
+<link rel="stylesheet" href="../_ds/omenx-lite-design-system-82d07a6f-daaf-49f6-9e34-4a0416440c7b/tokens/colors.css">
+<link rel="stylesheet" href="../_ds/omenx-lite-design-system-82d07a6f-daaf-49f6-9e34-4a0416440c7b/tokens/typography.css">
+<link rel="stylesheet" href="../_ds/omenx-lite-design-system-82d07a6f-daaf-49f6-9e34-4a0416440c7b/tokens/spacing.css">
+<link rel="stylesheet" href="../_ds/omenx-lite-design-system-82d07a6f-daaf-49f6-9e34-4a0416440c7b/styles.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+  body { margin:0; background:#0A0B0D; font-family:"Archivo", system-ui, sans-serif; }
+  a { color:#33D6FF; text-decoration:none; }
+  a:hover { color:#CFFF4A; }
+  ::selection { background:#33D6FF; color:#0A0B0D; }
+  @keyframes livepulse { 0%,100% { opacity:1; } 50% { opacity:.25; } }
+</style>
+</helmet>
+
+<section style="padding:64px 72px 96px; display:flex; flex-direction:column; gap:44px; background:#0A0B0D;">
+
+  <div style="display:flex; flex-direction:column; gap:14px; max-width:1040px;">
+    <div style="font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#33D6FF; font-weight:700;">Turn 11 · List page final touches</div>
+    <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:48px; line-height:1.02; letter-spacing:-0.03em; color:#fff;">A curated module,<br>and a mobile page of its own.</div>
+    <div style="font-size:15px; line-height:1.6; color:#9AA1AC; text-wrap:pretty; max-width:880px;">11A puts ops' three picks between the flagship modules and the catalogue, with the reason printed on the card. 11B rebuilds the whole events page for 390 from mobile habits — one column, actions at thumb height, module meta on its own line. 11C is the same page with nothing live.</div>
+  </div>
+
+  <div style="display:flex; flex-direction:column; gap:12px;">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; color:#0A0B0D; background:#fff; padding:4px 10px; border-radius:6px;">11A</span>
+      <span style="font-size:13px; color:#9AA1AC;">Desktop 1280 · in situ, between the Sports module and the catalogue.</span>
+    </div>
+
+    <div style="width:1280px; flex:none; box-sizing:border-box; background:#0A0B0D; border:1px solid #1D2026; border-radius:16px; padding:0 24px 28px; display:flex; flex-direction:column;">
+
+      <div style="padding:20px 0 26px; display:flex; flex-direction:column; gap:12px; opacity:0.55;">
+        <span style="font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:#6B7280; font-weight:700;">… end of the Sports module</span>
+        <div style="box-sizing:border-box; background:#131519; border:1px solid #1D2026; border-radius:14px; padding:12px 16px; display:flex; align-items:center; gap:18px;">
+          <span style="display:flex; flex-direction:column; gap:1px; width:74px; flex:none;"><span style="font-size:15px; color:#fff; font-weight:700; font-variant-numeric:tabular-nums; font-family:'Space Grotesk',sans-serif;">15:00</span><span style="font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:#6B7280; font-weight:700;">ET</span></span>
+          <span style="display:flex; align-items:center; flex:none;"><span style="width:34px; height:34px; border-radius:999px; background:#F2F3F5; border:1px solid rgba(255,255,255,.08); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:9px; color:#0A0B0D;">RMA</span><span style="width:34px; height:34px; border-radius:999px; background:#F2F3F5; border:1px solid rgba(255,255,255,.08); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:9px; color:#0A0B0D; margin-left:-10px;">MIL</span></span>
+          <span style="display:flex; flex-direction:column; gap:2px; flex:1; min-width:0;"><span style="font-size:15px; color:#fff; font-weight:600;">Real Madrid v Milan</span><span style="font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:#6B7280; font-weight:700;">UCL</span></span>
+          <span style="display:flex; gap:8px; width:420px; flex:none;">
+            <span style="box-sizing:border-box; flex:1; color:#33D6FF; background:#0A0B0D; border:1px solid #23262D; border-radius:9px; min-height:48px; padding:0 13px; display:flex; align-items:center; justify-content:space-between;"><span style="font-size:11px; color:#9AA1AC;">Real Madrid</span><span style="font-size:16px; font-weight:700; font-variant-numeric:tabular-nums; font-family:'Space Grotesk',sans-serif;">55¢</span></span>
+            <span style="box-sizing:border-box; flex:1; color:#E6E9EE; background:#0A0B0D; border:1px solid #23262D; border-radius:9px; min-height:48px; padding:0 13px; display:flex; align-items:center; justify-content:space-between;"><span style="font-size:11px; color:#9AA1AC;">Draw</span><span style="font-size:16px; font-weight:700; font-variant-numeric:tabular-nums; font-family:'Space Grotesk',sans-serif;">24¢</span></span>
+            <span style="box-sizing:border-box; flex:1; color:#CFFF4A; background:#0A0B0D; border:1px solid #23262D; border-radius:9px; min-height:48px; padding:0 13px; display:flex; align-items:center; justify-content:space-between;"><span style="font-size:11px; color:#9AA1AC;">Milan</span><span style="font-size:16px; font-weight:700; font-variant-numeric:tabular-nums; font-family:'Space Grotesk',sans-serif;">23¢</span></span>
+          </span>
+        </div>
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <span style="font-size:12px; color:#6B7280;">Two-way matches show two prices, football shows three.</span>
+          <span style="font-size:12px; color:#F2F3F5; font-weight:700;">All 17 matches · next 7 days →</span>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid #1D2026; padding:26px 0 0; display:flex; flex-direction:column; gap:16px;">
+        <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:24px;">
+          <div style="display:flex; flex-direction:column; gap:7px;">
+            <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:26px; letter-spacing:-0.02em; color:#fff;">What's worth watching?</span>
+            <span style="font-size:13px; color:#9AA1AC;">Hand-picked markets — and why we think they matter. Winning shares pay <strong style="color:#fff; font-weight:600;">$1</strong>.</span>
+          </div>
+          <span style="display:flex; align-items:center; gap:9px; flex:none;">
+            <span style="font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:#6B7280; font-weight:700;">Picked by the OmenX desk</span>
+            <span style="font-size:12px; color:#9AA1AC; font-weight:600;">Updated 1h ago</span>
+          </span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px;">
+          <sc-for list="{{ picks }}" as="p" hint-placeholder-count="3">
+            <div style="box-sizing:border-box; background:#131519; border:1px solid #1D2026; border-radius:16px; overflow:hidden; display:flex; flex-direction:column; cursor:pointer;" style-hover="border-color:#23262D;">
+              <div style="height:118px; background:repeating-linear-gradient(135deg,#16181D 0 10px,#1D2026 10px 20px); border-bottom:1px solid #1D2026; display:flex; align-items:flex-end; justify-content:space-between; padding:10px 12px;">
+                <span style="font-size:8px; letter-spacing:0.1em; text-transform:uppercase; color:#6B7280; font-weight:700;">IP art slot · {{ p.artNote }}</span>
+              </div>
+              <div style="padding:14px 16px 16px; display:flex; flex-direction:column; gap:12px; flex:1;">
+                <span style="font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#6B7280; font-weight:700;">{{ p.cat }}</span>
+                <span style="font-size:16px; color:#fff; font-weight:600; line-height:1.3; text-wrap:pretty; min-height:63px;">{{ p.title }}</span>
+                <span style="display:flex; gap:10px; background:#0A0B0D; border:1px solid #23262D; border-radius:12px; padding:11px 13px;">
+                  <span style="font-family:'Space Grotesk',sans-serif; font-size:22px; line-height:0.9; color:#33D6FF; font-weight:700; flex:none;">“</span>
+                  <span style="display:flex; flex-direction:column; gap:3px; min-width:0;">
+                    <span style="font-size:9px; letter-spacing:0.16em; text-transform:uppercase; color:#6B7280; font-weight:700;">Why this</span>
+                    <span style="font-size:12px; color:#C9CED6; line-height:1.45; text-wrap:pretty; min-height:53px;">{{ p.reason }}</span>
+                  </span>
+                </span>
+                <span style="display:flex; gap:8px; margin-top:auto;">
+                  <button style="box-sizing:border-box; flex:1; color:#33D6FF; background:#0A0B0D; border:1px solid #23262D; border-radius:9px; min-height:48px; padding:0 13px; display:flex; align-items:center; justify-content:space-between; gap:8px; cursor:pointer; font-family:inherit;" style-hover="border-color:#33D6FF;"><span style="font-size:11px; color:#9AA1AC;">Yes</span><span style="font-size:17px; font-weight:700; font-variant-numeric:tabular-nums; font-family:'Space Grotesk',sans-serif;">{{ p.yes }}</span></button>
+                  <button style="box-sizing:border-box; flex:1; color:#CFFF4A; background:#0A0B0D; border:1px solid #23262D; border-radius:9px; min-height:48px; padding:0 13px; display:flex; align-items:center; justify-content:space-between; gap:8px; cursor:pointer; font-family:inherit;" style-hover="border-color:#CFFF4A;"><span style="font-size:11px; color:#9AA1AC;">No</span><span style="font-size:17px; font-weight:700; font-variant-numeric:tabular-nums; font-family:'Space Grotesk',sans-serif;">{{ p.no }}</span></button>
+                </span>
+                <span style="font-size:11px; color:#6B7280; font-variant-numeric:tabular-nums;">{{ p.volume }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid #1D2026; margin-top:28px; padding:26px 0 0; display:flex; flex-direction:column; gap:14px; opacity:0.55;">
+        <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:14px;">
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:18px; color:#fff; letter-spacing:-0.01em;">Will it happen?</span>
+            <span style="font-size:12px; color:#9AA1AC;">Back Yes or No on real-world outcomes. Winning shares pay <strong style="color:#fff; font-weight:600;">$1</strong>.</span>
+          </div>
+          <span style="font-size:12px; color:#6B7280;">38 open</span>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:14px;">
+          <sc-for list="{{ generic }}" as="g" hint-placeholder-count="4">
+            <div style="box-sizing:border-box; background:#131519; border:1px solid #1D2026; border-radius:14px; overflow:hidden; display:flex; flex-direction:column;">
+              <div style="height:74px; background:repeating-linear-gradient(135deg,#16181D 0 10px,#1D2026 10px 20px); border-bottom:1px solid #1D2026;"></div>
+              <div style="padding:12px 13px 13px; display:flex; flex-direction:column; gap:9px;">
+                <span style="font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#6B7280; font-weight:700;">{{ g.cat }}</span>
+                <span style="font-size:13px; color:#fff; font-weight:600; line-height:1.3;">{{ g.title }}</span>
+                <span style="display:flex; gap:7px;">
+                  <span style="box-sizing:border-box; flex:1; color:#33D6FF; background:#0A0B0D; border:1px solid #23262D; border-radius:9px; min-height:44px; padding:0 11px; display:flex; align-items:center; justify-content:space-between;"><span style="font-size:10px; color:#9AA1AC;">Yes</span><span style="font-size:14px; font-weight:700; font-variant-numeric:tabular-nums; font-family:'Space Grotesk',sans-serif;">{{ g.yes }}</span></span>
+                  <span style="box-sizing:border-box; flex:1; color:#CFFF4A; background:#0A0B0D; border:1px solid #23262D; border-radius:9px; min-height:44px; padding:0 11px; display:flex; align-items:center; justify-content:space-between;"><span style="font-size:10px; color:#9AA1AC;">No</span><span style="font-size:14px; font-weight:700; font-variant-numeric:tabular-nums; font-family:'Space Grotesk',sans-serif;">{{ g.no }}</span></span>
+                </span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex; align-items:flex-start; gap:24px;">
+    <div style="display:flex; flex-direction:column; gap:12px; flex:none;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; color:#0A0B0D; background:#fff; padding:4px 10px; border-radius:6px;">11B</span>
+        <span style="font-size:13px; color:#9AA1AC;">Mobile 390 · full events page.</span>
+      </div>
+
+      <div style="width:390px; flex:none; box-sizing:border-box; background:#0A0B0D; border:1px solid #1D2026; border-radius:22px; overflow:hidden; display:flex; flex-direction:column;">
+        <div style="padding:12px 16px 0; display:flex; align-items:center; justify-content:space-between;">
+          <span style="font-family:'Archivo Expanded','Archivo',sans-serif; font-weight:800; font-size:15px; color:#fff;">OMEN<span style="color:#33D6FF;">X</span></span>
+          <span style="display:flex; align-items:center; gap:9px;"><span style="font-size:12px; font-weight:600; color:#fff; font-variant-numeric:tabular-nums;">$1,240.86</span><span style="width:28px; height:28px; border-radius:999px; background:linear-gradient(120deg,#CFFF4A,#33D6FF);"></span></span>
+        </div>
+
+        <div style="padding:12px 16px 10px;">
+          <span style="display:inline-flex; background:#131519; border:1px solid #1D2026; border-radius:999px; padding:3px;"><span style="background:#fff; color:#0A0B0D; border-radius:999px; padding:0 16px; min-height:38px; display:flex; align-items:center; font-size:12px; font-weight:700;">Live</span><span style="color:#9AA1AC; padding:0 16px; min-height:38px; display:flex; align-items:center; font-size:12px; font-weight:600;">Settled</span></span>
+        </div>
+
+        <div style="padding:0 16px 12px; display:flex; align-items:center; gap:8px; border-bottom:1px solid #1D2026;">
+          <div style="flex:1; min-width:0; display:flex; gap:8px; overflow-x:auto; mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 18px),transparent 100%);">
+
+          <span style="flex:none; background:#fff; color:#0A0B0D; border:1px solid #fff; border-radius:999px; padding:0 15px; min-height:44px; display:flex; align-items:center; font-size:12px; font-weight:700;">All</span>
+          <span style="flex:none; display:flex; align-items:center; gap:6px; color:#9AA1AC; border:1px solid #23262D; border-radius:999px; padding:0 14px; min-height:44px; font-size:12px; font-weight:600;"><span style="width:6px; height:6px; border-radius:999px; background:#FF8A3D;"></span>Intraday</span>
+          <span style="flex:none; display:flex; align-items:center; gap:6px; color:#9AA1AC; border:1px solid #23262D; border-radius:999px; padding:0 14px; min-height:44px; font-size:12px; font-weight:600;"><span style="width:6px; height:6px; border-radius:999px; background:#FF3B4E; animation:livepulse 1.6s infinite;"></span>Sports</span>
+          <span style="flex:none; display:flex; align-items:center; color:#9AA1AC; border:1px solid #23262D; border-radius:999px; padding:0 14px; min-height:44px; font-size:12px; font-weight:600;">Politics</span>
+          </div>
+          <span style="flex:none; width:1px; height:28px; background:#23262D;"></span>
+          <span style="flex:none; display:flex; align-items:center; justify-content:center; gap:5px; color:#9AA1AC; border:1px solid #23262D; border-radius:999px; width:52px; min-height:44px; font-size:12px; font-weight:700;" style-hover="border-color:#F2F3F5; color:#fff;"><span style="width:6px; height:6px; border-radius:2px; background:#33D6FF;"></span>4</span>
+          <span style="flex:none; display:flex; align-items:center; justify-content:center; color:#9AA1AC; border:1px solid #23262D; border-radius:999px; width:44px; min-height:44px;" style-hover="border-color:#F2F3F5; color:#fff;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg></span>
+        </div>
+
+        <div style="padding:16px 16px 20px; display:flex; flex-direction:column; gap:22px;">
+
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; flex-direction:column; gap:7px;">
+              <span style="display:flex; align-items:center; gap:7px; font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:#FF8A3D; font-weight:700;"><span style="width:6px; height:6px; border-radius:999px; background:#FF8A3D; animation:livepulse 1.5s infinite;"></span>Intraday · rolling rounds</span>
+              <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:22px; letter-spacing:-0.02em; color:#fff;">Will the price go up?</span>
+              <span style="font-size:12px; color:#9AA1AC; text-wrap:pretty;">Pick Up or Down before the clock hits zero. Winning shares pay <strong style="color:#fff; font-weight:600;">$1</strong>, losing shares pay $0.</span>
+            </div>
+
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; background:#131519; border:1px solid #1D2026; border-radius:12px; padding:8px 10px;">
+              <span style="font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:#6B7280; font-weight:700; flex:none;">Round</span>
+              <span style="display:flex; gap:5px; overflow-x:auto;">
+                <span style="flex:none; background:#FF8A3D; color:#0A0B0D; border-radius:9px; padding:0 14px; min-height:44px; display:flex; align-items:center; font-size:13px; font-weight:700;">5m</span>
+                <span style="flex:none; color:#9AA1AC; border-radius:9px; padding:0 14px; min-height:44px; display:flex; align-items:center; font-size:13px; font-weight:600;">15m</span>
+                <span style="flex:none; color:#9AA1AC; border-radius:9px; padding:0 14px; min-height:44px; display:flex; align-items:center; font-size:13px; font-weight:600;">1h</span>
+                <span style="flex:none; color:#9AA1AC; border-radius:9px; padding:0 14px; min-height:44px; display:flex; align-items:center; font-size:13px; font-weight:600;">4h</span>
+                <span style="flex:none; color:#9AA1AC; border-radius:9px; padding:0 14px; min-height:44px; display:flex; align-items:center; font-size:13px; font-weight:600;">1D</span>
+              </span>
+            </div>
+
+            <sc-for list="{{ coins }}" as="c" hint-placeholder-count="3">
+              <div style="box-sizing:border-box; background:#131519; border:1px solid #1D2026; border-radius:14px; padding:13px 14px; display:flex; flex-direction:column; gap:11px;">
+                <div style="display:flex; align-items:center; gap:11px;">
+                  <span style="width:32px; height:32px; border-radius:999px; background:{{ c.bg }}; border:1px solid rgba(255,255,255,.08); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; color:{{ c.fg }}; flex:none;">{{ c.glyph }}</span>
+                  <span style="display:flex; flex-direction:column; gap:1px; flex:1; min-width:0;">
+                    <span style="font-size:10px; color:#9AA1AC; font-weight:700; letter-spacing:0.04em;">{{ c.tag }}</span>
+                    <span style="display:flex; align-items:baseline; gap:7px;"><span style="font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:700; color:#fff; font-variant-numeric:tabular-nums; letter-spacing:-0.02em;">{{ c.price }}</span><span style="font-size:11px; font-weight:700; font-variant-numeric:tabular-nums; color:{{ c.chgColor }};">{{ c.chg }}</span></span>
+                  </span>
+                  <span style="display:flex; flex-direction:column; align-items:flex-end; gap:1px; flex:none;"><span style="font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:#6B7280; font-weight:700;">Closes</span><span style="font-family:'Space Grotesk',sans-serif; font-size:17px; font-weight:700; color:#FF8A3D; font-variant-numeric:tabular-nums;">02:14</span></span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <svg viewBox="0 0 200 44" style="width:100%; height:44px; display:block;"><line x1="0" y1="{{ c.base }}" x2="200" y2="{{ c.base }}" stroke="#4B5563" stroke-width="1" stroke-dasharray="3 4"></line><path d="{{ c.path }}" fill="none" stroke="{{ c.stroke }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </div>
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                  <span style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:#6B7280; font-weight:700;">Last 8</span>
+                    <span style="display:flex; gap:3px;">
+                      <sc-for list="{{ c.last8 }}" as="s" hint-placeholder-count="8">
+                        <span style="width:10px; height:10px; border-radius:3px; background:{{ s.bg }};"></span>
+                      </sc-for>
+                    </span>
+                  </span>
+                  <span style="font-size:10px; color:#6B7280; font-variant-numeric:tabular-nums;">{{ c.open }}</span>
+                </div>
+                <div style="display:flex; gap:8px;">
+                  <button style="box-sizing:border-box; flex:1; color:#33D6FF; background:rgba(51,214,255,0.08); border:1px solid rgba(51,214,255,0.40); border-radius:11px; min-height:48px; padding:0 13px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; font-family:inherit;"><span style="font-size:12px; font-weight:700;">Up</span><span style="font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700; font-variant-numeric:tabular-nums;">{{ c.up }}</span></button>
+                  <button style="box-sizing:border-box; flex:1; color:#CFFF4A; background:rgba(207,255,74,0.06); border:1px solid rgba(207,255,74,0.35); border-radius:11px; min-height:48px; padding:0 13px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; font-family:inherit;"><span style="font-size:12px; font-weight:700;">Down</span><span style="font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700; font-variant-numeric:tabular-nums;">{{ c.down }}</span></button>
+                </div>
+              </div>
+            </sc-for>
+
+            <div style="box-sizing:border-box; background:#131519; border:1px solid #1D2026; border-radius:14px; padding:0 14px; min-height:56px; display:flex; align-items:center; gap:11px;">
+              <span style="width:6px; height:6px; border-radius:999px; background:#FF8A3D; flex:none;"></span>
+              <span style="display:flex; flex-direction:column; gap:2px; flex:1; min-width:0;">
+                <span style="font-size:13px; color:#fff; font-weight:600;">US session open · 18 stock rounds</span>
+                <span style="font-size:11px; color:#6B7280; font-variant-numeric:tabular-nums;">Closes 16:00 ET · 3h 12m left</span>
+              </span>
+              <span style="font-size:12px; color:#FF8A3D; font-weight:700; flex:none;">Open →</span>
+            </div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; flex-direction:column; gap:7px;">
+              <span style="font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:#F2F3F5; font-weight:700;">Sports · match winners</span>
+              <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:22px; letter-spacing:-0.02em; color:#fff;">Who wins the match?</span>
+              <span style="font-size:12px; color:#9AA1AC; text-wrap:pretty;">Winning shares pay <strong style="color:#fff; font-weight:600;">$1</strong>. Matches over the next 7 days — trade before kickoff or during the match.</span>
+              <span style="display:flex; align-items:center; gap:8px; padding-top:2px;">
+                <span style="display:flex; align-items:center; gap:6px; font-size:11px; color:#fff; font-weight:700; background:#131519; border:1px solid #23262D; border-radius:999px; padding:5px 10px;"><span style="width:5px; height:5px; border-radius:999px; background:#FF3B4E; animation:livepulse 1.5s infinite;"></span>1 playing now</span>
+                <span style="font-size:11px; color:#9AA1AC; font-weight:600; background:#131519; border:1px solid #23262D; border-radius:999px; padding:5px 10px;">17 this week</span>
+              </span>
+            </div>
+
+            <div style="box-sizing:border-box; background:#131519; border:1px solid #23262D; border-radius:14px; padding:13px 14px; display:flex; flex-direction:column; gap:12px;">
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <span style="font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:#6B7280; font-weight:700;">UCL · second half</span>
+                <span style="display:flex; align-items:center; gap:5px;"><span style="width:5px; height:5px; border-radius:999px; background:#FF3B4E; animation:livepulse 1.5s infinite;"></span><span style="font-size:12px; color:#fff; font-weight:700; font-variant-numeric:tabular-nums;">61'</span></span>
+              </div>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span style="display:flex; align-items:center; gap:8px; flex:1; min-width:0;"><span style="width:30px; height:30px; border-radius:999px; background:#F2F3F5; border:1px solid rgba(255,255,255,.08); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:8px; color:#0A0B0D; flex:none;">BAY</span><span style="font-size:13px; color:#fff; font-weight:600;">Bayern</span></span>
+                <span style="font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:700; color:#fff; font-variant-numeric:tabular-nums; flex:none;">1–1</span>
+                <span style="display:flex; align-items:center; gap:8px; flex:1; min-width:0; justify-content:flex-end;"><span style="font-size:13px; color:#fff; font-weight:600;">Real Madrid</span><span style="width:30px; height:30px; border-radius:999px; background:#F2F3F5; border:1px solid rgba(255,255,255,.08); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:8px; color:#0A0B0D; flex:none;">RMA</span></span>
+              </div>
+              <div style="display:flex; gap:7px;">
+                <button style="box-sizing:border-box; flex:1; min-width:0; color:#33D6FF; background:#0A0B0D; border:1px solid #23262D; border-radius:9px; min-height:48px; padding:0 10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; cursor:pointer; font-family:inherit;"><span style="font-size:10px; color:#9AA1AC;">Bayern</span><span style="font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700; font-variant-numeric:tabular-nums;">38¢</span></button>
+                <button style="box-sizing:border-box; flex:1; min-width:0; color:#E6E9EE; background:#0A0B0D; border:1px solid #23262D; border-radius:9px; min-height:48px; padding:0 10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; cursor:pointer; font-family:inherit;"><span style="font-size:10px; color:#9AA1AC;">Draw</span><span style="font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700; font-variant-numeric:tabular-nums;">29¢</span></button>
+                <button style="box-sizing:border-box; flex:1; min-width:0; color:#CFFF4A; background:#0A0B0D; border:1px solid #23262D; border-radius:9px; min-height:48px; padding:0 10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; cursor:pointer; font-family:inherit;"><span style="font-size:10px; color:#9AA1AC;">Real Madrid</span><span style="font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700; font-variant-numeric:tabular-nums;">35¢</span></button>
+              </div>
+            </div>
+
+            <sc-for list="{{ upcoming }}" as="u" hint-placeholder-count="2">
+              <div style="box-sizing:border-box; background:#131519; border:1px solid #1D2026; border-radius:14px; padding:13px 14px; display:flex; flex-direction:column; gap:11px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <span style="display:flex; flex-direction:column; gap:1px; width:56px; flex:none;"><span style="font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:700; color:#fff; font-variant-numeric:tabular-nums;">{{ u.time }}</span><span style="font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:#6B7280; font-weight:700;">{{ u.day }}</span></span>
+                  <span style="display:flex; align-items:center; flex:none;"><span style="width:28px; height:28px; border-radius:999px; background:#F2F3F5; border:1px solid rgba(255,255,255,.08); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:8px; color:#0A0B0D;">{{ u.homeTag }}</span><span style="width:28px; height:28px; border-radius:999px; background:#F2F3F5; border:1px solid rgba(255,255,255,.08); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:8px; color:#0A0B0D; margin-left:-9px;">{{ u.awayTag }}</span></span>
+                  <span style="display:flex; flex-direction:column; gap:2px; flex:1; min-width:0;"><span style="font-size:13px; color:#fff; font-weight:600; line-height:1.25;">{{ u.fixture }}</span><span style="font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:#6B7280; font-weight:700;">{{ u.league }}</span></span>
+                </div>
+                <div style="display:flex; gap:7px;">
+                  <button style="box-sizing:border-box; flex:1; min-width:0; color:#33D6FF; background:#0A0B0D; border:1px solid #23262D; border-radius:9px; min-height:48px; padding:0 10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; cursor:pointer; font-family:inherit;"><span style="font-size:10px; color:#9AA1AC;">{{ u.l1 }}</span><span style="font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700; font-variant-numeric:tabular-nums;">{{ u.p1 }}</span></button>
+                  <sc-if value="{{ u.hasDraw }}" hint-placeholder-val="{{ true }}">
+                    <button style="box-sizing:border-box; flex:1; min-width:0; color:#E6E9EE; background:#0A0B0D; border:1px solid #23262D; border-radius:9px; min-height:48px; padding:0 10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; cursor:pointer; font-family:inherit;"><span style="font-size:10px; color:#9AA1AC;">Draw</span><span style="font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700; font-variant-numeric:tabular-nums;">{{ u.pDraw }}</span></button>
+                  </sc-if>
+                  <button style="box-sizing:border-box; flex:1; min-width:0; color:#CFFF4A; background:#0A0B0D; border:1px solid #23262D; border-radius:9px; min-height:48px; padding:0 10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; cursor:pointer; font-family:inherit;"><span style="font-size:10px; color:#9AA1AC;">{{ u.l2 }}</span><span style="font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700; font-variant-numeric:tabular-nums;">{{ u.p2 }}</span></button>
+                </div>
+              </div>
+            </sc-for>
+
+            <span style="font-size:12px; color:#F2F3F5; font-weight:700;">All 17 matches →</span>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:22px; letter-spacing:-0.02em; color:#fff;">What's worth watching?</span>
+              <span style="font-size:12px; color:#9AA1AC; text-wrap:pretty;">Hand-picked markets — and why we think they matter. Winning shares pay <strong style="color:#fff; font-weight:600;">$1</strong>.</span>
+              <span style="font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:#6B7280; font-weight:700;">Picked by the OmenX desk · 1h ago</span>
+            </div>
+
+            <sc-for list="{{ picksMobile }}" as="p" hint-placeholder-count="2">
+              <div style="box-sizing:border-box; background:#131519; border:1px solid #1D2026; border-radius:14px; overflow:hidden; display:flex; flex-direction:column;">
+                <div style="height:96px; background:repeating-linear-gradient(135deg,#16181D 0 10px,#1D2026 10px 20px); border-bottom:1px solid #1D2026; display:flex; align-items:flex-end; justify-content:space-between; padding:9px 11px;">
+                  <span style="font-size:8px; letter-spacing:0.1em; text-transform:uppercase; color:#6B7280; font-weight:700;">IP art slot</span>
+                </div>
+                <div style="padding:13px 14px 14px; display:flex; flex-direction:column; gap:11px;">
+                  <span style="font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#6B7280; font-weight:700;">{{ p.cat }}</span>
+                  <span style="font-size:14px; color:#fff; font-weight:600; line-height:1.3; text-wrap:pretty;">{{ p.title }}</span>
+                  <span style="display:flex; gap:9px; background:#0A0B0D; border:1px solid #23262D; border-radius:11px; padding:10px 12px;">
+                    <span style="font-family:'Space Grotesk',sans-serif; font-size:20px; line-height:0.9; color:#33D6FF; font-weight:700; flex:none;">“</span>
+                    <span style="display:flex; flex-direction:column; gap:3px; min-width:0;">
+                      <span style="font-size:9px; letter-spacing:0.16em; text-transform:uppercase; color:#6B7280; font-weight:700;">Why this</span>
+                      <span style="font-size:12px; color:#C9CED6; line-height:1.45; text-wrap:pretty;">{{ p.reason }}</span>
+                    </span>
+                  </span>
+                  <span style="font-size:10px; color:#6B7280; font-variant-numeric:tabular-nums;">{{ p.volume }}</span>
+                  <span style="display:flex; gap:7px;">
+                    <button style="box-sizing:border-box; flex:1; color:#33D6FF; background:#0A0B0D; border:1px solid #23262D; border-radius:9px; min-height:48px; padding:0 12px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; font-family:inherit;"><span style="font-size:11px; color:#9AA1AC;">Yes</span><span style="font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700; font-variant-numeric:tabular-nums;">{{ p.yes }}</span></button>
+                    <button style="box-sizing:border-box; flex:1; color:#CFFF4A; background:#0A0B0D; border:1px solid #23262D; border-radius:9px; min-height:48px; padding:0 12px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; font-family:inherit;"><span style="font-size:11px; color:#9AA1AC;">No</span><span style="font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700; font-variant-numeric:tabular-nums;">{{ p.no }}</span></button>
+                  </span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:19px; letter-spacing:-0.01em; color:#fff;">Will it happen?</span>
+              <span style="font-size:12px; color:#9AA1AC; text-wrap:pretty;">Back Yes or No on real-world outcomes. Winning shares pay <strong style="color:#fff; font-weight:600;">$1</strong>.</span>
+              <span style="font-size:11px; color:#6B7280; font-weight:600;">38 open</span>
+            </div>
+            <sc-for list="{{ generic }}" as="g" hint-placeholder-count="4">
+              <div style="box-sizing:border-box; background:#131519; border:1px solid #1D2026; border-radius:14px; overflow:hidden; display:flex; flex-direction:column;">
+                <div style="height:80px; background:repeating-linear-gradient(135deg,#16181D 0 10px,#1D2026 10px 20px); border-bottom:1px solid #1D2026;"></div>
+                <div style="padding:12px 14px 13px; display:flex; flex-direction:column; gap:10px;">
+                  <span style="font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#6B7280; font-weight:700;">{{ g.cat }}</span>
+                  <span style="font-size:14px; color:#fff; font-weight:600; line-height:1.3; text-wrap:pretty;">{{ g.title }}</span>
+                  <span style="font-size:10px; color:#6B7280; font-variant-numeric:tabular-nums;">{{ g.volume }}</span>
+                  <span style="display:flex; gap:7px;">
+                    <button style="box-sizing:border-box; flex:1; color:#33D6FF; background:#0A0B0D; border:1px solid #23262D; border-radius:9px; min-height:48px; padding:0 12px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; font-family:inherit;"><span style="font-size:11px; color:#9AA1AC;">Yes</span><span style="font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700; font-variant-numeric:tabular-nums;">{{ g.yes }}</span></button>
+                    <button style="box-sizing:border-box; flex:1; color:#CFFF4A; background:#0A0B0D; border:1px solid #23262D; border-radius:9px; min-height:48px; padding:0 12px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; font-family:inherit;"><span style="font-size:11px; color:#9AA1AC;">No</span><span style="font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700; font-variant-numeric:tabular-nums;">{{ g.no }}</span></button>
+                  </span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="margin-top:auto; border-top:1px solid #1D2026; padding:10px 16px 18px; display:flex; align-items:center; justify-content:space-between;">
+          <span style="display:flex; flex-direction:column; align-items:center; gap:5px; min-width:60px;"><span style="width:20px; height:20px; border-radius:5px; border:2px solid #fff;"></span><span style="font-size:10px; color:#fff; font-weight:700;">Markets</span></span>
+          <span style="display:flex; flex-direction:column; align-items:center; gap:5px; min-width:60px;"><span style="width:20px; height:20px; border-radius:5px; border:2px solid #4B5563;"></span><span style="font-size:10px; color:#6B7280; font-weight:600;">Portfolio</span></span>
+          <span style="display:flex; flex-direction:column; align-items:center; gap:5px; min-width:60px;"><span style="width:20px; height:20px; border-radius:5px; border:2px solid #4B5563;"></span><span style="font-size:10px; color:#6B7280; font-weight:600;">Wallet</span></span>
+          <span style="display:flex; flex-direction:column; align-items:center; gap:5px; min-width:60px;"><span style="width:20px; height:20px; border-radius:999px; border:2px solid #4B5563;"></span><span style="font-size:10px; color:#6B7280; font-weight:600;">Me</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div style="width:360px; flex:none; display:flex; flex-direction:column; gap:14px; padding-top:44px;">
+      <div style="background:#131519; border:1px solid #23262D; border-radius:14px; padding:16px; display:flex; flex-direction:column; gap:9px;">
+        <span style="font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:#33D6FF; font-weight:700;">Overflow decision</span>
+        <span style="font-size:14px; color:#fff; font-weight:700;">Module header meta drops to its own line</span>
+        <span style="font-size:13px; color:#9AA1AC; line-height:1.55; text-wrap:pretty;">On desktop the Sports header carries its meta on the right (session pill, "17 this week"). At 390 that right slot has nowhere to go, so the meta becomes a full-width chip row directly under the teach line: "1 playing now" first (it is the reason to look), then the count. Intraday does the same with its session pill, which becomes the collapsed stocks row at the bottom of the module instead of a header badge. Nothing truncates and nothing hides behind hover.</span>
+      </div>
+      <div style="background:#131519; border:1px solid #1D2026; border-radius:14px; padding:16px; display:flex; flex-direction:column; gap:9px;">
+        <span style="font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:#6B7280; font-weight:700;">Thumb reach</span>
+        <span style="font-size:13px; color:#9AA1AC; line-height:1.55; text-wrap:pretty;">Every card puts its price buttons on the last line, 48px tall, full card width split two or three ways. Reading material (title, reason, volume) sits above them, so the scroll ends on something tappable.</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex; flex-direction:column; gap:12px;">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; color:#0A0B0D; background:#fff; padding:4px 10px; border-radius:6px;">11C</span>
+      <span style="font-size:13px; color:#9AA1AC;">Mobile 390 · nothing live, both stock sessions closed.</span>
+    </div>
+
+    <div style="width:390px; flex:none; box-sizing:border-box; background:#0A0B0D; border:1px solid #1D2026; border-radius:22px; overflow:hidden; display:flex; flex-direction:column;">
+      <div style="padding:12px 16px 0; display:flex; align-items:center; justify-content:space-between;">
+        <span style="font-family:'Archivo Expanded','Archivo',sans-serif; font-weight:800; font-size:15px; color:#fff;">OMEN<span style="color:#33D6FF;">X</span></span>
+        <span style="display:flex; align-items:center; gap:9px;"><span style="font-size:12px; font-weight:600; color:#fff; font-variant-numeric:tabular-nums;">$1,240.86</span><span style="width:28px; height:28px; border-radius:999px; background:linear-gradient(120deg,#CFFF4A,#33D6FF);"></span></span>
+      </div>
+
+      <div style="padding:12px 16px 10px;">
+        <span style="display:inline-flex; background:#131519; border:1px solid #1D2026; border-radius:999px; padding:3px;"><span style="background:#fff; color:#0A0B0D; border-radius:999px; padding:0 16px; min-height:38px; display:flex; align-items:center; font-size:12px; font-weight:700;">Live</span><span style="color:#9AA1AC; padding:0 16px; min-height:38px; display:flex; align-items:center; font-size:12px; font-weight:600;">Settled</span></span>
+      </div>
+
+      <div style="padding:0 16px 12px; display:flex; align-items:center; gap:8px; border-bottom:1px solid #1D2026;">
+          <div style="flex:1; min-width:0; display:flex; gap:8px; overflow-x:auto; mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 18px),transparent 100%);">
+
+        <span style="flex:none; background:#fff; color:#0A0B0D; border:1px solid #fff; border-radius:999px; padding:0 15px; min-height:44px; display:flex; align-items:center; font-size:12px; font-weight:700;">All</span>
+        <span style="flex:none; display:flex; align-items:center; gap:6px; color:#9AA1AC; border:1px solid #23262D; border-radius:999px; padding:0 14px; min-height:44px; font-size:12px; font-weight:600;"><span style="width:6px; height:6px; border-radius:999px; background:#FF8A3D;"></span>Intraday</span>
+        <span style="flex:none; display:flex; align-items:center; color:#9AA1AC; border:1px solid #23262D; border-radius:999px; padding:0 14px; min-height:44px; font-size:12px; font-weight:600;">Sports</span>
+        <span style="flex:none; display:flex; align-items:center; color:#9AA1AC; border:1px solid #23262D; border-radius:999px; padding:0 14px; min-height:44px; font-size:12px; font-weight:600;">Politics</span>
+          </div>
+          <span style="flex:none; width:1px; height:28px; background:#23262D;"></span>
+          <span style="flex:none; display:flex; align-items:center; justify-content:center; gap:5px; color:#9AA1AC; border:1px solid #23262D; border-radius:999px; width:52px; min-height:44px; font-size:12px; font-weight:700;" style-hover="border-color:#F2F3F5; color:#fff;"><span style="width:6px; height:6px; border-radius:2px; background:#33D6FF;"></span>4</span>
+          <span style="flex:none; display:flex; align-items:center; justify-content:center; color:#9AA1AC; border:1px solid #23262D; border-radius:999px; width:44px; min-height:44px;" style-hover="border-color:#F2F3F5; color:#fff;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg></span>
+        </div>
+
+      <div style="padding:16px 16px 20px; display:flex; flex-direction:column; gap:22px;">
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:7px;">
+            <span style="display:flex; align-items:center; gap:7px; font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:#FF8A3D; font-weight:700;"><span style="width:6px; height:6px; border-radius:999px; background:#FF8A3D; animation:livepulse 1.5s infinite;"></span>Intraday · rolling rounds</span>
+            <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:22px; letter-spacing:-0.02em; color:#fff;">Will the price go up?</span>
+            <span style="font-size:12px; color:#9AA1AC; text-wrap:pretty;">Pick Up or Down before the clock hits zero. Winning shares pay <strong style="color:#fff; font-weight:600;">$1</strong>, losing shares pay $0.</span>
+          </div>
+
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; background:#131519; border:1px solid #1D2026; border-radius:12px; padding:8px 10px;">
+            <span style="font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:#6B7280; font-weight:700; flex:none;">Round</span>
+            <span style="display:flex; gap:5px; overflow-x:auto;">
+              <span style="flex:none; background:#FF8A3D; color:#0A0B0D; border-radius:9px; padding:0 14px; min-height:44px; display:flex; align-items:center; font-size:13px; font-weight:700;">15m</span>
+              <span style="flex:none; color:#9AA1AC; border-radius:9px; padding:0 14px; min-height:44px; display:flex; align-items:center; font-size:13px; font-weight:600;">1h</span>
+              <span style="flex:none; color:#9AA1AC; border-radius:9px; padding:0 14px; min-height:44px; display:flex; align-items:center; font-size:13px; font-weight:600;">4h</span>
+              <span style="flex:none; color:#9AA1AC; border-radius:9px; padding:0 14px; min-height:44px; display:flex; align-items:center; font-size:13px; font-weight:600;">1D</span>
+            </span>
+          </div>
+
+          <sc-for list="{{ coins }}" as="c" hint-placeholder-count="3">
+            <div style="box-sizing:border-box; background:#131519; border:1px solid #1D2026; border-radius:14px; padding:13px 14px; display:flex; flex-direction:column; gap:11px;">
+              <div style="display:flex; align-items:center; gap:11px;">
+                <span style="width:32px; height:32px; border-radius:999px; background:{{ c.bg }}; border:1px solid rgba(255,255,255,.08); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; color:{{ c.fg }}; flex:none;">{{ c.glyph }}</span>
+                <span style="display:flex; flex-direction:column; gap:1px; flex:1; min-width:0;">
+                  <span style="font-size:10px; color:#9AA1AC; font-weight:700; letter-spacing:0.04em;">{{ c.tag }}</span>
+                  <span style="display:flex; align-items:baseline; gap:7px;"><span style="font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:700; color:#fff; font-variant-numeric:tabular-nums; letter-spacing:-0.02em;">{{ c.price }}</span><span style="font-size:11px; font-weight:700; font-variant-numeric:tabular-nums; color:{{ c.chgColor }};">{{ c.chg }}</span></span>
+                </span>
+                <span style="display:flex; flex-direction:column; align-items:flex-end; gap:1px; flex:none;"><span style="font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:#6B7280; font-weight:700;">Closes</span><span style="font-family:'Space Grotesk',sans-serif; font-size:17px; font-weight:700; color:#FF8A3D; font-variant-numeric:tabular-nums;">08:41</span></span>
+              </div>
+              <svg viewBox="0 0 200 56" style="width:100%; height:56px; display:block;"><line x1="0" y1="{{ c.baseTall }}" x2="200" y2="{{ c.baseTall }}" stroke="#4B5563" stroke-width="1" stroke-dasharray="3 4"></line><path d="{{ c.pathTall }}" fill="none" stroke="{{ c.stroke }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                <span style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:#6B7280; font-weight:700;">Last 8</span>
+                  <span style="display:flex; gap:3px;">
+                    <sc-for list="{{ c.last8 }}" as="s" hint-placeholder-count="8">
+                      <span style="width:10px; height:10px; border-radius:3px; background:{{ s.bg }};"></span>
+                    </sc-for>
+                  </span>
+                </span>
+                <span style="font-size:10px; color:#6B7280; font-variant-numeric:tabular-nums;">{{ c.open }}</span>
+              </div>
+              <div style="display:flex; gap:8px;">
+                <button style="box-sizing:border-box; flex:1; color:#33D6FF; background:rgba(51,214,255,0.08); border:1px solid rgba(51,214,255,0.40); border-radius:11px; min-height:48px; padding:0 13px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; font-family:inherit;"><span style="font-size:12px; font-weight:700;">Up</span><span style="font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700; font-variant-numeric:tabular-nums;">{{ c.up }}</span></button>
+                <button style="box-sizing:border-box; flex:1; color:#CFFF4A; background:rgba(207,255,74,0.06); border:1px solid rgba(207,255,74,0.35); border-radius:11px; min-height:48px; padding:0 13px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; font-family:inherit;"><span style="font-size:12px; font-weight:700;">Down</span><span style="font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700; font-variant-numeric:tabular-nums;">{{ c.down }}</span></button>
+              </div>
+            </div>
+          </sc-for>
+
+          <span style="font-size:11px; color:#6B7280;">Stock rounds are closed. US opens Tue 09:30 ET, Hong Kong Tue 09:30 HKT.</span>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:7px;">
+            <span style="font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:#F2F3F5; font-weight:700;">Sports · match winners</span>
+            <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:22px; letter-spacing:-0.02em; color:#fff;">Who wins the match?</span>
+            <span style="font-size:12px; color:#9AA1AC; text-wrap:pretty;">Winning shares pay <strong style="color:#fff; font-weight:600;">$1</strong>. Matches over the next 7 days — trade before kickoff or during the match.</span>
+            <span style="display:flex; align-items:center; gap:8px; padding-top:2px;">
+              <span style="font-size:11px; color:#9AA1AC; font-weight:600; background:#131519; border:1px solid #23262D; border-radius:999px; padding:5px 10px;">Nothing playing now</span>
+              <span style="font-size:11px; color:#9AA1AC; font-weight:600; background:#131519; border:1px solid #23262D; border-radius:999px; padding:5px 10px;">17 this week</span>
+            </span>
+          </div>
+
+          <sc-for list="{{ upcomingAll }}" as="u" hint-placeholder-count="3">
+            <div style="box-sizing:border-box; background:#131519; border:1px solid #1D2026; border-radius:14px; padding:13px 14px; display:flex; flex-direction:column; gap:11px;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span style="display:flex; flex-direction:column; gap:1px; width:56px; flex:none;"><span style="font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:700; color:#fff; font-variant-numeric:tabular-nums;">{{ u.time }}</span><span style="font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:#6B7280; font-weight:700;">{{ u.day }}</span></span>
+                <span style="display:flex; align-items:center; flex:none;"><span style="width:28px; height:28px; border-radius:999px; background:#F2F3F5; border:1px solid rgba(255,255,255,.08); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:8px; color:#0A0B0D;">{{ u.homeTag }}</span><span style="width:28px; height:28px; border-radius:999px; background:#F2F3F5; border:1px solid rgba(255,255,255,.08); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:8px; color:#0A0B0D; margin-left:-9px;">{{ u.awayTag }}</span></span>
+                <span style="display:flex; flex-direction:column; gap:2px; flex:1; min-width:0;"><span style="font-size:13px; color:#fff; font-weight:600; line-height:1.25;">{{ u.fixture }}</span><span style="font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:#6B7280; font-weight:700;">{{ u.league }}</span></span>
+              </div>
+              <div style="display:flex; gap:7px;">
+                <button style="box-sizing:border-box; flex:1; min-width:0; color:#33D6FF; background:#0A0B0D; border:1px solid #23262D; border-radius:9px; min-height:48px; padding:0 10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; cursor:pointer; font-family:inherit;"><span style="font-size:10px; color:#9AA1AC;">{{ u.l1 }}</span><span style="font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700; font-variant-numeric:tabular-nums;">{{ u.p1 }}</span></button>
+                <sc-if value="{{ u.hasDraw }}" hint-placeholder-val="{{ true }}">
+                  <button style="box-sizing:border-box; flex:1; min-width:0; color:#E6E9EE; background:#0A0B0D; border:1px solid #23262D; border-radius:9px; min-height:48px; padding:0 10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; cursor:pointer; font-family:inherit;"><span style="font-size:10px; color:#9AA1AC;">Draw</span><span style="font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700; font-variant-numeric:tabular-nums;">{{ u.pDraw }}</span></button>
+                </sc-if>
+                <button style="box-sizing:border-box; flex:1; min-width:0; color:#CFFF4A; background:#0A0B0D; border:1px solid #23262D; border-radius:9px; min-height:48px; padding:0 10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; cursor:pointer; font-family:inherit;"><span style="font-size:10px; color:#9AA1AC;">{{ u.l2 }}</span><span style="font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700; font-variant-numeric:tabular-nums;">{{ u.p2 }}</span></button>
+              </div>
+            </div>
+          </sc-for>
+
+          <span style="font-size:12px; color:#F2F3F5; font-weight:700;">All 17 matches →</span>
+        </div>
+
+        <span style="font-size:11px; color:#6B7280; text-wrap:pretty;">Editor's picks and the catalogue continue below, unchanged from 11B.</span>
+      </div>
+
+      <div style="margin-top:auto; border-top:1px solid #1D2026; padding:10px 16px 18px; display:flex; align-items:center; justify-content:space-between;">
+        <span style="display:flex; flex-direction:column; align-items:center; gap:5px; min-width:60px;"><span style="width:20px; height:20px; border-radius:5px; border:2px solid #fff;"></span><span style="font-size:10px; color:#fff; font-weight:700;">Markets</span></span>
+        <span style="display:flex; flex-direction:column; align-items:center; gap:5px; min-width:60px;"><span style="width:20px; height:20px; border-radius:5px; border:2px solid #4B5563;"></span><span style="font-size:10px; color:#6B7280; font-weight:600;">Portfolio</span></span>
+        <span style="display:flex; flex-direction:column; align-items:center; gap:5px; min-width:60px;"><span style="width:20px; height:20px; border-radius:5px; border:2px solid #4B5563;"></span><span style="font-size:10px; color:#6B7280; font-weight:600;">Wallet</span></span>
+        <span style="display:flex; flex-direction:column; align-items:center; gap:5px; min-width:60px;"><span style="width:20px; height:20px; border-radius:999px; border:2px solid #4B5563;"></span><span style="font-size:10px; color:#6B7280; font-weight:600;">Me</span></span>
+      </div>
+    </div>
+  </div>
+
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  renderVals() {
+    const sq = (pattern) => pattern.split("").map(ch => ({ bg: ch === "u" ? "#33D6FF" : "#CFFF4A" }));
+
+    const coins = [
+      { tag: "BTC", glyph: "₿", bg: "#F7931A", fg: "#0A0B0D", price: "$118,240", chg: "+0.82%", chgColor: "hsl(74 100% 65%)",
+        open: "Open $117,280", up: "54¢", down: "48¢", stroke: "#33D6FF",
+        base: 26, path: "M2 38 L30 34 L58 36 L86 26 L114 29 L142 18 L170 21 L198 9",
+        baseTall: 34, pathTall: "M2 48 L30 43 L58 46 L86 34 L114 37 L142 23 L170 27 L198 11",
+        last8: sq("uduuduuu") },
+      { tag: "ETH", glyph: "Ξ", bg: "#7A86A8", fg: "#ffffff", price: "$4,182", chg: "−0.94%", chgColor: "hsl(0 100% 68%)",
+        open: "Open $4,222", up: "45¢", down: "57¢", stroke: "#CFFF4A",
+        base: 16, path: "M2 12 L30 16 L58 14 L86 22 L114 20 L142 29 L170 27 L198 36",
+        baseTall: 20, pathTall: "M2 14 L30 20 L58 17 L86 28 L114 25 L142 37 L170 34 L198 46",
+        last8: sq("ddududdu") },
+      { tag: "SOL", glyph: "◎", bg: "linear-gradient(160deg,#9945FF 0%,#14F195 100%)", fg: "#0A0B0D", price: "$214.60", chg: "+2.14%", chgColor: "hsl(74 100% 65%)",
+        open: "Open $210.10", up: "61¢", down: "41¢", stroke: "#33D6FF",
+        base: 30, path: "M2 37 L30 31 L58 33 L86 26 L114 28 L142 19 L170 14 L198 8",
+        baseTall: 38, pathTall: "M2 47 L30 39 L58 42 L86 33 L114 36 L142 24 L170 18 L198 10",
+        last8: sq("uuduuudu") }
+    ];
+
+    const upcoming = [
+      { time: "19:00", day: "Tonight", homeTag: "INT", awayTag: "NAP", fixture: "Inter v Napoli", league: "Serie A",
+        l1: "Inter", p1: "46¢", pDraw: "26¢", l2: "Napoli", p2: "30¢", hasDraw: true },
+      { time: "22:00", day: "Tonight", homeTag: "IA", awayTag: "DDP", fixture: "Adesanya v du Plessis", league: "UFC 312",
+        l1: "Adesanya", p1: "47¢", pDraw: null, l2: "du Plessis", p2: "55¢", hasDraw: false }
+    ];
+
+    const upcomingAll = [
+      { time: "06:00", day: "Tue", homeTag: "ULS", awayTag: "JBH", fixture: "Ulsan HD v Jeonbuk Hyundai", league: "K League 1",
+        l1: "Ulsan", p1: "44¢", pDraw: "27¢", l2: "Jeonbuk", p2: "31¢", hasDraw: true },
+      { time: "07:30", day: "Tue", homeTag: "SHP", awayTag: "BJG", fixture: "Shanghai Port v Beijing Guoan", league: "Chinese Super League",
+        l1: "Shanghai", p1: "58¢", pDraw: "24¢", l2: "Beijing", p2: "20¢", hasDraw: true },
+      { time: "22:00", day: "Tue", homeTag: "IA", awayTag: "DDP", fixture: "Adesanya v du Plessis", league: "UFC 312",
+        l1: "Adesanya", p1: "47¢", pDraw: null, l2: "du Plessis", p2: "55¢", hasDraw: false }
+    ];
+
+    const picks = [
+      { cat: "Politics", artNote: "Bonix at the podium",
+        title: "Senate confirms the Fed chair nominee before September?",
+        reason: "Volume tripled overnight after the debate, and the price has not caught up yet.",
+        yes: "34¢", no: "68¢", volume: "$286K traded" },
+      { cat: "Sports · UCL", artNote: "Bonix with a scarf",
+        title: "Bayern München beat Real Madrid",
+        reason: "Both first-choice keepers are out, so the draw is priced lower than it usually is.",
+        yes: "38¢", no: "64¢", volume: "$412K traded" },
+      { cat: "Economy", artNote: "Bonix reading a chart",
+        title: "Fed cuts rates at the September meeting?",
+        reason: "The crowd moved 12 cents in two days — the biggest swing on the platform this week.",
+        yes: "72¢", no: "30¢", volume: "$1.1M traded" }
+    ];
+
+    const generic = [
+      { cat: "Politics", title: "Government shutdown before 1 October?", yes: "28¢", no: "74¢", volume: "$540K traded" },
+      { cat: "Economy", title: "July CPI comes in above 3.0%?", yes: "41¢", no: "61¢", volume: "$226K traded" },
+      { cat: "Crypto", title: "Bitcoin above $125,000 by 31 August?", yes: "37¢", no: "65¢", volume: "$820K traded" },
+      { cat: "Tech", title: "Apple ships a foldable this year?", yes: "19¢", no: "83¢", volume: "$164K traded" }
+    ];
+
+    return { coins, upcoming, upcomingAll, picks, picksMobile: picks.slice(0, 2), generic };
+  }
+}
+</script>
+</body>
+</html>
