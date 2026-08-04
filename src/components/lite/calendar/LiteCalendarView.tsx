@@ -254,7 +254,13 @@ export const LiteCalendarView = ({
       </div>
       {isMobile ? (
         <div className="flex items-center justify-between" style={{ gap: 10 }}>
-          <SegPill value="week" onSelect={() => undefined} />
+          <SegPill
+            value={mode}
+            onSelect={(v) => {
+              setMode(v);
+              setMobileDay(v === "day" ? (mobileDay ?? todayKey) : null);
+            }}
+          />
           <span style={{ fontSize: 11, color: "#6B7280", fontWeight: 600 }}>
             Times in {tz}
           </span>
