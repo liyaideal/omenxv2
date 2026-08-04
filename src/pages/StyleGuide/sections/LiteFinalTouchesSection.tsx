@@ -120,28 +120,52 @@ const PICKS: EditorPick[] = [
   ),
 ];
 
-const quick = (coin: "btc" | "eth" | "sol", base: number, up: number): QuickEvent => ({
-  id: `crypto-${coin}-updown-15m-202608031515`,
+// Countdowns are measured against the wall clock, so mock rounds end a
+// believable number of seconds from *now* (never 00:00 on the frozen clock).
+const TF_LEFT_SEC: Record<string, number> = {
+  "5m": 134, // 02:14
+  "15m": 521, // 08:41
+  "1h": 2_467, // 41:07
+  "4h": 7_384, // 02:03:04
+  "1d": 40_930, // 11:22:10
+};
+
+const quick = (
+  coin: "btc" | "eth" | "sol",
+  base: number,
+  up: number,
+  tf: "5m" | "15m" | "1h" | "4h" | "1d",
+): QuickEvent => ({
+  id: `crypto-${coin}-updown-${tf}-202608031515`,
   name: `${coin.toUpperCase()} — up or down?`,
   coin,
-  tf: "15m",
+  tf,
   period: "202608031515",
   base_price: base,
   start_date: iso(-5 * MIN),
-  end_date: iso(10 * MIN),
+  end_date: new Date(Date.now() + TF_LEFT_SEC[tf] * 1000).toISOString(),
   volume: 42_000,
   is_resolved: false,
   options: [
-    { id: `${coin}-up`, label: "Up", price: up, is_winner: null },
-    { id: `${coin}-down`, label: "Down", price: 1 - up, is_winner: null },
+    { id: `${coin}-${tf}-up`, label: "Up", price: up, is_winner: null },
+    { id: `${coin}-${tf}-down`, label: "Down", price: 1 - up, is_winner: null },
   ],
 });
 
-const CURRENT = new Map<string, QuickEvent>([
-  ["btc-15m", quick("btc", 64210.5, 0.53)],
-  ["eth-15m", quick("eth", 3118.4, 0.47)],
-  ["sol-15m", quick("sol", 188.22, 0.61)],
-]);
+const COINS = [
+  { coin: "btc" as const, base: 64_210.5, up: 0.53 },
+  { coin: "eth" as const, base: 3_118.4, up: 0.47 },
+  { coin: "sol" as const, base: 188.22, up: 0.61 },
+];
+const TFS = ["5m", "15m", "1h", "4h", "1d"] as const;
+
+const CURRENT = new Map<string, QuickEvent>(
+  TFS.flatMap((tf) =>
+    COINS.map(
+      (c) => [`${c.coin}-${tf}`, quick(c.coin, c.base, c.up, tf)] as [string, QuickEvent],
+    ),
+  ),
+);
 
 const HIST: ("up" | "down")[] = [
   "up",
@@ -153,11 +177,17 @@ const HIST: ("up" | "down")[] = [
   "down",
   "up",
 ];
-const HISTORY = new Map<string, ("up" | "down")[]>([
-  ["btc-15m", HIST],
-  ["eth-15m", [...HIST].reverse()],
-  ["sol-15m", HIST],
-]);
+const HISTORY = new Map<string, ("up" | "down")[]>(
+  TFS.flatMap((tf) =>
+    COINS.map(
+      (c) =>
+        [c.coin === "eth" ? `eth-${tf}` : `${c.coin}-${tf}`, c.coin === "eth" ? [...HIST].reverse() : HIST] as [
+          string,
+          ("up" | "down")[],
+        ],
+    ),
+  ),
+);
 
 const STOCKS: StockEventRow[] = Array.from({ length: 18 }, (_, i) => ({
   id: `us-mock-${i}`,
