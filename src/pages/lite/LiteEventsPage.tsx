@@ -82,17 +82,20 @@ const LiteEventsPage = () => {
   );
 
   // Only render sector pills for categories that actually have events.
+  // Counts are keyed by TAXONOMY top-level id, so `stocks` + `finance`
+  // events fold into the single "Finance" chip.
   const sectorCounts = useMemo(() => {
     const counts = new Map<string, number>();
     for (const m of openMarkets) {
-      const c = (m.category || "").toLowerCase();
-      counts.set(c, (counts.get(c) || 0) + 1);
+      const top = topCategoryForKey(m.category);
+      if (!top) continue;
+      counts.set(top.id, (counts.get(top.id) || 0) + 1);
     }
     return counts;
   }, [openMarkets]);
 
   const availableSectors = useMemo(
-    () => SECTOR_ORDER.filter((s) => (sectorCounts.get(s.id) || 0) > 0),
+    () => SECTOR_CATEGORIES.filter((s) => (sectorCounts.get(s.id) || 0) > 0),
     [sectorCounts],
   );
 
@@ -127,7 +130,7 @@ const LiteEventsPage = () => {
     let set =
       sector === "all"
         ? openMarkets
-        : openMarkets.filter((m) => (m.category || "").toLowerCase() === sector);
+        : openMarkets.filter((m) => categoryMatchesTop(m.category, sector));
     if (boostOnly) {
       set = set.filter((m) => {
         const cfg = getBoostConfig(m.category);
