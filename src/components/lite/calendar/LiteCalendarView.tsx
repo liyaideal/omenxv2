@@ -17,13 +17,20 @@ import {
   CalItem,
   DAY_MS,
   WEEK_DAYS,
+  addMonths,
   buildCalendarItems,
+  buildMonthWeeks,
+  buildSpanLanes,
   buildSportsSubTypes,
   buildWeekColumns,
+  closesStamp,
   itemMatchesCategory,
   itemMatchesSubType,
   localTime,
+  monthLabel,
+  openOnDay,
   startOfDay,
+  startOfMonth,
   stepperLabel,
   sumMarkets,
   ticketOf,
@@ -31,8 +38,10 @@ import {
 } from "./calendarData";
 import {
   GenericBlock,
+  LaneCaption,
   MobileTicket,
   SessionBlock,
+  SpanBar,
   SpineRow,
   SportsBlock,
   StandingIntradayRow,
@@ -55,16 +64,17 @@ export interface LiteCalendarViewProps {
 }
 
 const WEEK_TICKET_CAP = 4;
-/** Everything with a decision moment past the week still gets a home. */
-const LATER_HORIZON_DAYS = 730;
-const LATER_TICKET_CAP = 6;
+/** Point items are collected far out so month mode has something to show. */
+const HORIZON_DAYS = 730;
+/** Span lanes stay scannable; the rest collapses behind a "+N" toggle. */
+const LANE_CAP = 5;
 
 const SegPill = ({
   value,
   onSelect,
 }: {
-  value: "day" | "week";
-  onSelect: (v: "day" | "week") => void;
+  value: "day" | "week" | "month";
+  onSelect: (v: "day" | "week" | "month") => void;
 }) => (
   <span
     className="flex"
@@ -75,7 +85,7 @@ const SegPill = ({
       padding: 3,
     }}
   >
-    {(["day", "week"] as const).map((v) => (
+    {(["day", "week", "month"] as const).map((v) => (
       <button
         key={v}
         type="button"
@@ -89,7 +99,7 @@ const SegPill = ({
           color: v === value ? "#0A0B0D" : "#9AA1AC",
         }}
       >
-        {v === "day" ? "Day" : "Week"}
+        {v === "day" ? "Day" : v === "week" ? "Week" : "Month"}
       </button>
     ))}
   </span>
