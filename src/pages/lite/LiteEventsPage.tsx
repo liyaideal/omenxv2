@@ -20,6 +20,8 @@ import {
   TraitChip,
   WatchlistChip,
 } from "@/components/lite/LiteListControls";
+import { CalendarChip } from "@/components/lite/LiteListControls";
+import { LiteCalendarView } from "@/components/lite/calendar/LiteCalendarView";
 import { EmptyState } from "@/components/states";
 import { sortLiteLiveList, trendingThreshold } from "@/lib/liteListBadges";
 import { IntradayBand } from "@/components/lite/intraday/IntradayBand";
@@ -81,6 +83,8 @@ const LiteEventsPage = () => {
   const [authOpen, setAuthOpen] = useState(false);
   const [topicSheetOpen, setTopicSheetOpen] = useState(false);
   const [boostOnly, setBoostOnly] = useState(false);
+  // Calendar is a lens on this page — a view state, never a route.
+  const [calendarOn, setCalendarOn] = useState(false);
 
   // Non-sports markets pool ("All" and per-sector filter both operate here).
   // Intraday events live in the dedicated band above the grid, never in it.
@@ -113,12 +117,12 @@ const LiteEventsPage = () => {
 
   const [sector, setSector] = useState<string>("all");
   const isWatchlistView = sector === "watchlist";
-  const isStageView = !isMobile && sector === "all" && !boostOnly;
-  const isIntradayView = !isMobile && sector === "intraday";
-  const isSportsView = !isMobile && sector === "sports";
+  const isStageView = !calendarOn && !isMobile && sector === "all" && !boostOnly;
+  const isIntradayView = !calendarOn && !isMobile && sector === "intraday";
+  const isSportsView = !calendarOn && !isMobile && sector === "sports";
 
   // Stage data — desktop only, and only for the views that render it.
-  const stageActive = !isMobile && (isStageView || isIntradayView);
+  const stageActive = calendarOn || (!isMobile && (isStageView || isIntradayView));
   const tickSeconds = useSecondTick();
   const { currentFor, historyFor } = useQuickRounds(stageActive);
   const { rows: stockRows } = useIntradayStocks(stageActive);
