@@ -55,6 +55,9 @@ export interface LiteCalendarViewProps {
 }
 
 const WEEK_TICKET_CAP = 4;
+/** Everything with a decision moment past the week still gets a home. */
+const LATER_HORIZON_DAYS = 730;
+const LATER_TICKET_CAP = 6;
 
 const SegPill = ({
   value,
@@ -141,7 +144,14 @@ export const LiteCalendarView = ({
   const [mobileDay, setMobileDay] = useState<number | null>(null);
 
   const allItems = useMemo(
-    () => buildCalendarItems({ events, matches, stocks, now }),
+    () =>
+      buildCalendarItems({
+        events,
+        matches,
+        stocks,
+        now,
+        horizonDays: LATER_HORIZON_DAYS,
+      }),
     [events, matches, stocks, now],
   );
 
@@ -158,12 +168,24 @@ export const LiteCalendarView = ({
     [allItems, sector, showSubTypes, subType],
   );
 
-  const columns = useMemo(() => buildWeekColumns(items, now), [items, now]);
-  const weekTotal = useMemo(() => sumMarkets(items), [items]);
+  const weekEnd = todayKey + WEEK_DAYS * DAY_MS;
+  /** In-window items drive the 7 columns; the rest fall into "Later". */
+  const weekItems = useMemo(
+    () => items.filter((i) => i.at.getTime() < weekEnd),
+    [items, weekEnd],
+  );
+  const laterItems = useMemo(
+    () => items.filter((i) => i.at.getTime() >= weekEnd),
+    [items, weekEnd],
+  );
+  const laterTotal = useMemo(() => sumMarkets(laterItems), [laterItems]);
+
+  const columns = useMemo(() => buildWeekColumns(weekItems, now), [weekItems, now]);
+  const weekTotal = useMemo(() => sumMarkets(weekItems), [weekItems]);
 
   const dayItems = useMemo(
-    () => items.filter((i) => startOfDay(i.at) === dayKey),
-    [items, dayKey],
+    () => weekItems.filter((i) => startOfDay(i.at) === dayKey),
+    [weekItems, dayKey],
   );
 
   const nextItem = useMemo(
