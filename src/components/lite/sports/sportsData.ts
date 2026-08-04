@@ -56,6 +56,13 @@ const liveMinute = (kickoff: Date | null): number | null => {
 export const useSportsMatches = () => {
   const [rows, setRows] = useState<SportsMatch[]>([]);
   const [loading, setLoading] = useState(true);
+  // Live/upcoming classification is clock-driven — re-derive every 30s.
+  const [clock, setClock] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => setClock((n) => n + 1), 30_000);
+    return () => clearInterval(t);
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -71,10 +78,20 @@ export const useSportsMatches = () => {
       if (!alive) return;
       const list: SportsMatch[] = (data || []).map((e) => {
         const meta = ((e as { metadata?: RawMeta | null }).metadata || {}) as RawMeta;
-        const kickoff = e.start_date ? new Date(e.start_date) : null;
+        const kickoff = meta.kickoff_at
+          ? new Date(meta.kickoff_at)
+          : e.start_date
+            ? new Date(e.start_date)
+            : null;
         const endDate = e.end_date ? new Date(e.end_date) : null;
+        // In play = the clock says so. A match that has kicked off and has
+        // not reached its end time is live regardless of the metadata flag.
+        const now = Date.now();
         const isLive =
-          !!meta.live && !!endDate && endDate.getTime() > Date.now();
+          !!kickoff &&
+          kickoff.getTime() <= now &&
+          !!endDate &&
+          endDate.getTime() > now;
         const opts = ((e.event_options || []) as {
           id: string;
           label: string;
@@ -107,7 +124,7 @@ export const useSportsMatches = () => {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [clock]);
 
   const live = useMemo(() => rows.filter((r) => r.live), [rows]);
   const upcoming = useMemo(
