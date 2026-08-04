@@ -73,8 +73,8 @@ const SegPill = ({
   value,
   onSelect,
 }: {
-  value: "day" | "week" | "month";
-  onSelect: (v: "day" | "week" | "month") => void;
+  value: "day" | "week";
+  onSelect: (v: "day" | "week") => void;
 }) => (
   <span
     className="flex"
@@ -85,7 +85,7 @@ const SegPill = ({
       padding: 3,
     }}
   >
-    {(["day", "week", "month"] as const).map((v) => (
+    {(["day", "week"] as const).map((v) => (
       <button
         key={v}
         type="button"
@@ -99,7 +99,7 @@ const SegPill = ({
           color: v === value ? "#0A0B0D" : "#9AA1AC",
         }}
       >
-        {v === "day" ? "Day" : v === "week" ? "Week" : "Month"}
+        {v === "day" ? "Day" : "Week"}
       </button>
     ))}
   </span>
@@ -147,7 +147,7 @@ export const LiteCalendarView = ({
   const todayKey = startOfDay(now);
   const tz = userTzAbbrev();
 
-  const [mode, setMode] = useState<"day" | "week" | "month">("week");
+  const [mode, setMode] = useState<"day" | "week">("week");
   const [dayKey, setDayKey] = useState<number>(todayKey);
   const [subType, setSubType] = useState<string>("all");
   const [monthStart, setMonthStart] = useState<number>(startOfMonth(now));
