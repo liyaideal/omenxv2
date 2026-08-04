@@ -56,6 +56,13 @@ const liveMinute = (kickoff: Date | null): number | null => {
 export const useSportsMatches = () => {
   const [rows, setRows] = useState<SportsMatch[]>([]);
   const [loading, setLoading] = useState(true);
+  // Live/upcoming classification is clock-driven — re-derive every 30s.
+  const [clock, setClock] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => setClock((n) => n + 1), 30_000);
+    return () => clearInterval(t);
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -71,10 +78,20 @@ export const useSportsMatches = () => {
       if (!alive) return;
       const list: SportsMatch[] = (data || []).map((e) => {
         const meta = ((e as { metadata?: RawMeta | null }).metadata || {}) as RawMeta;
-        const kickoff = e.start_date ? new Date(e.start_date) : null;
+        const kickoff = meta.kickoff_at
+          ? new Date(meta.kickoff_at)
+          : e.start_date
+            ? new Date(e.start_date)
+            : null;
         const endDate = e.end_date ? new Date(e.end_date) : null;
+        // In play = the clock says so. A match that has kicked off and has
+        // not reached its end time is live regardless of the metadata flag.
+        const now = Date.now();
         const isLive =
-          !!meta.live && !!endDate && endDate.getTime() > Date.now();
+          !!kickoff &&
+          kickoff.getTime() <= now &&
+          !!endDate &&
+          endDate.getTime() > now;
         const opts = ((e.event_options || []) as {
           id: string;
           label: string;
@@ -107,13 +124,13 @@ export const useSportsMatches = () => {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [clock]);
 
   const live = useMemo(() => rows.filter((r) => r.live), [rows]);
   const upcoming = useMemo(
     () =>
       rows
-        .filter((r) => !r.live)
+        .filter((r) => !r.live && isUpcoming(r))
         .sort(
           (a, b) =>
             (a.kickoff?.getTime() ?? Infinity) - (b.kickoff?.getTime() ?? Infinity),
@@ -123,6 +140,14 @@ export const useSportsMatches = () => {
 
   return { rows, live, upcoming, loading };
 };
+
+/**
+ * Ledger rule: only matches whose kickoff is still in the future are
+ * listed. Anything already kicked off shows in the pinned live section
+ * (when in play) or nowhere at all.
+ */
+export const isUpcoming = (m: SportsMatch, now: number = Date.now()) =>
+  !!m.kickoff && m.kickoff.getTime() > now;
 
 const DAY_MS = 86_400_000;
 const startOfDay = (d: Date) =>
@@ -137,13 +162,14 @@ export interface DayBucket {
 /** "ALL" + one chip per day over the next 7 days that has matches. */
 export const buildDayStrip = (rows: SportsMatch[]): DayBucket[] => {
   const today = startOfDay(new Date());
+  const future = rows.filter((r) => isUpcoming(r));
   const counts = new Map<number, number>();
-  for (const r of rows) {
+  for (const r of future) {
     if (!r.kickoff) continue;
     const k = startOfDay(r.kickoff);
     counts.set(k, (counts.get(k) || 0) + 1);
   }
-  const out: DayBucket[] = [{ id: "all", label: "ALL", count: rows.length }];
+  const out: DayBucket[] = [{ id: "all", label: "ALL", count: future.length }];
   for (let i = 0; i < 7; i += 1) {
     const k = today + i * DAY_MS;
     const n = counts.get(k) || 0;
@@ -255,7 +281,7 @@ export const buildDayGroups = (rows: SportsMatch[]): DayGroup[] => {
   const today = startOfDay(new Date());
   const byDay = new Map<number, SportsMatch[]>();
   for (const r of rows) {
-    if (!r.kickoff) continue;
+    if (!r.kickoff || !isUpcoming(r)) continue;
     const k = startOfDay(r.kickoff);
     byDay.set(k, [...(byDay.get(k) || []), r]);
   }
@@ -268,7 +294,9 @@ export const buildDayGroups = (rows: SportsMatch[]): DayGroup[] => {
           (a, b) =>
             (a.kickoff?.getTime() ?? 0) - (b.kickoff?.getTime() ?? 0),
         );
-      const liveCount = all.length - list.length;
+      const liveCount = rows.filter(
+        (m) => m.live && m.kickoff && startOfDay(m.kickoff) === k,
+      ).length;
       const d = new Date(k);
       const isToday = k === today;
       return {

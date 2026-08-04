@@ -635,6 +635,8 @@ const VIEW_7A_PRESETS = [
     id: "7a-us",
     label: "US session open",
     rows: [...US_TRADING, ...HK_ASLEEP],
+    // 11:25 ET — US regular session open, 23:25 HKT so HK is shut.
+    sessionNow: new Date("2026-08-03T15:25:00Z"),
     caption:
       "US session open — the 3 US names trade, the 3 HK names sit in the asleep group with \"Hong Kong opens …\".",
   },
@@ -642,6 +644,8 @@ const VIEW_7A_PRESETS = [
     id: "7a-hk",
     label: "HK session open",
     rows: [...HK_TRADING, ...US_ASLEEP],
+    // 11:00 HKT — HK open, 23:00 ET so New York is shut.
+    sessionNow: new Date("2026-08-03T03:00:00Z"),
     caption:
       "HK session open — inverse of the above; the session pill reads \"HK session open\" and prices use HK$.",
   },
@@ -649,6 +653,8 @@ const VIEW_7A_PRESETS = [
     id: "7a-none",
     label: "No session open",
     rows: [...US_ASLEEP, ...HK_ASLEEP],
+    // 18:00 ET / 06:00 HKT — neither exchange is trading.
+    sessionNow: new Date("2026-08-03T22:00:00Z"),
     caption:
       "No US/HK session open — all 6 stock rows fall into the asleep group; the coin rounds keep running.",
   },
@@ -666,6 +672,7 @@ const IntradayViewDemo = () => {
           historyFor={historyFor}
           stockRows={[...p.rows]}
           tickSeconds={0}
+          sessionNow={p.sessionNow}
         />
       </div>
       <Caption>{p.caption}</Caption>
