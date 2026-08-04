@@ -542,53 +542,48 @@ export const LiteIntradayView = ({
     }
     const trading: StockEventRow[] = [];
     const asleep: Array<{ row: StockEventRow; nextOpen: string }> = [];
+    let openMarket: StockMarket | null = null;
+    let openCloseAt: number | null = null;
+    let wake: { market: StockMarket; at: Date } | null = null;
+
     for (const rows of byTicker.values()) {
-      const open = rows.find((r) => {
-        const s = r.start_date ? new Date(r.start_date).getTime() : 0;
-        const e = r.end_date ? new Date(r.end_date).getTime() : 0;
-        return s <= now && e > now;
-      });
-      if (open) {
-        trading.push(open);
-        continue;
-      }
-      const future = rows
-        .filter((r) => r.start_date && new Date(r.start_date).getTime() > now)
+      // Newest round for the name — the one whose window has not expired.
+      const live = rows
+        .filter((r) => !r.end_date || new Date(r.end_date).getTime() > now)
         .sort(
           (a, b) =>
-            new Date(a.start_date!).getTime() - new Date(b.start_date!).getTime(),
+            new Date(a.end_date || 0).getTime() - new Date(b.end_date || 0).getTime(),
         )[0];
-      const row = future ?? rows[0];
+      const row = live ?? rows[rows.length - 1];
       if (!row) continue;
       const market = resolveStockMarket(row);
-      asleep.push({
-        row,
-        nextOpen: future?.start_date
-          ? openStamp(new Date(future.start_date), market)
-          : `next ${market.label} session`,
-      });
+      // Session state comes from the market calendar, never from the row's
+      // 24h event window (that window spans bell-to-bell).
+      const session = getMarketSession(market, new Date(now));
+      if (live && session.open) {
+        trading.push(row);
+        if (!openMarket) {
+          openMarket = market;
+          openCloseAt = session.closeAt ? session.closeAt.getTime() : null;
+        }
+        continue;
+      }
+      asleep.push({ row, nextOpen: openStamp(session.nextOpenAt, market) });
+      if (!wake || session.nextOpenAt.getTime() < wake.at.getTime()) {
+        wake = { market, at: session.nextOpenAt };
+      }
     }
     trading.sort(
       (a, b) => new Date(a.end_date || 0).getTime() - new Date(b.end_date || 0).getTime(),
     );
-    const first = trading[0] ?? null;
-    const wake = asleep
-      .map((a) => a.row)
-      .filter((r) => r.start_date && new Date(r.start_date).getTime() > now)
-      .sort(
-        (a, b) =>
-          new Date(a.start_date!).getTime() - new Date(b.start_date!).getTime(),
-      )[0];
-    const wakeMarket = wake ? resolveStockMarket(wake) : null;
     return {
       trading,
       asleep,
-      sessionMarket: first ? resolveStockMarket(first) : null,
-      sessionEnd: first?.end_date ? new Date(first.end_date).getTime() : null,
-      wakeLabel:
-        wake && wakeMarket && wake.start_date
-          ? `${wakeMarket.key === "hk" ? "Hong Kong" : "New York"} opens ${openStamp(new Date(wake.start_date), wakeMarket)}`
-          : null,
+      sessionMarket: openMarket,
+      sessionEnd: openCloseAt,
+      wakeLabel: wake
+        ? `${marketCityName(wake.market)} opens ${openStamp(wake.at, wake.market)}`
+        : null,
     };
   }, [stockRows, tickSeconds]);
 
