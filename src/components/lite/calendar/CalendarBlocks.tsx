@@ -730,8 +730,8 @@ export const SessionBlock = ({
       <span className="flex flex-wrap items-center" style={{ gap: 9 }}>
         <CategoryBadge label="Intraday" tone="intraday" />
         <span style={{ fontSize: 12, color: "#9AA1AC" }}>
-          {short} session close · {total} {total === 1 ? "name" : "names"} settle at the
-          bell
+          {short} closing bell · {total} {total === 1 ? "name" : "names"} settle when the
+          market closes
         </span>
         {closesSoon(item.at, now) && <ClosesSoonBadge />}
       </span>
