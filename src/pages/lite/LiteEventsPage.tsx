@@ -282,7 +282,7 @@ const LiteEventsPage = () => {
             <CalendarChip
               active={calendarOn}
               minHeight={44}
-              onClick={() => setCalendarOn((v) => !v)}
+              onClick={handleCalendarClick}
             />
           </div>
         )}
@@ -303,7 +303,7 @@ const LiteEventsPage = () => {
                 />
                 <CalendarChip
                   active={calendarOn}
-                  onClick={() => setCalendarOn((v) => !v)}
+                  onClick={handleCalendarClick}
                 />
               </div>
             </div>
@@ -368,7 +368,7 @@ const LiteEventsPage = () => {
               />
               <CalendarChip
                 active={calendarOn}
-                onClick={() => setCalendarOn((v) => !v)}
+                onClick={handleCalendarClick}
               />
             </div>
           </div>
