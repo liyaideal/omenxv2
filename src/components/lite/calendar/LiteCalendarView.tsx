@@ -147,9 +147,11 @@ export const LiteCalendarView = ({
   const todayKey = startOfDay(now);
   const tz = userTzAbbrev();
 
-  const [mode, setMode] = useState<"day" | "week">("week");
+  const [mode, setMode] = useState<"day" | "week" | "month">("week");
   const [dayKey, setDayKey] = useState<number>(todayKey);
   const [subType, setSubType] = useState<string>("all");
+  const [monthStart, setMonthStart] = useState<number>(startOfMonth(now));
+  const [lanesOpen, setLanesOpen] = useState(false);
   /** Mobile: day-strip chip filters the ticket list in place. */
   const [mobileDay, setMobileDay] = useState<number | null>(null);
 
@@ -160,7 +162,7 @@ export const LiteCalendarView = ({
         matches,
         stocks,
         now,
-        horizonDays: LATER_HORIZON_DAYS,
+        horizonDays: HORIZON_DAYS,
       }),
     [events, matches, stocks, now],
   );
@@ -179,24 +181,38 @@ export const LiteCalendarView = ({
   );
 
   const weekEnd = todayKey + WEEK_DAYS * DAY_MS;
-  /** In-window items drive the 7 columns; the rest fall into "Later". */
-  const weekItems = useMemo(
-    () => items.filter((i) => i.at.getTime() < weekEnd),
-    [items, weekEnd],
-  );
-  const laterItems = useMemo(
-    () => items.filter((i) => i.at.getTime() >= weekEnd),
-    [items, weekEnd],
-  );
-  const laterTotal = useMemo(() => sumMarkets(laterItems), [laterItems]);
 
-  const columns = useMemo(() => buildWeekColumns(weekItems, now), [weekItems, now]);
-  const weekTotal = useMemo(() => sumMarkets(weekItems), [weekItems]);
+  /** Columns only carry the markets that stop trading that exact day. */
+  const columns = useMemo(() => buildWeekColumns(items, now), [items, now]);
+  const weekTotal = useMemo(
+    () => columns.reduce((n, c) => n + c.markets, 0),
+    [columns],
+  );
+
+  /** Everything tradeable across several days becomes a bar on the rail. */
+  const weekLanes = useMemo(
+    () => buildSpanLanes(items, todayKey, WEEK_DAYS),
+    [items, todayKey],
+  );
+  const spanTotal = useMemo(
+    () => weekLanes.reduce((n, lane) => n + lane.length, 0),
+    [weekLanes],
+  );
+  const visibleLanes = lanesOpen ? weekLanes : weekLanes.slice(0, LANE_CAP);
+  const hiddenSpans = weekLanes
+    .slice(visibleLanes.length)
+    .reduce((n, lane) => n + lane.length, 0);
+
+  const monthWeeks = useMemo(
+    () => buildMonthWeeks(items, monthStart, now),
+    [items, monthStart, now],
+  );
 
   const dayItems = useMemo(
-    () => weekItems.filter((i) => startOfDay(i.at) === dayKey),
-    [weekItems, dayKey],
+    () => items.filter((i) => startOfDay(i.at) === dayKey),
+    [items, dayKey],
   );
+  const dayOpen = useMemo(() => openOnDay(items, dayKey), [items, dayKey]);
 
   const nextItem = useMemo(
     () => items.find((i) => i.at.getTime() > now) ?? null,
