@@ -1,6 +1,7 @@
 # Project Memory
 
 ## Core
+- **LiteEventCard 冻结:** `Will it happen?` 网格通用卡只可放置、禁止重设计或另造卡型；Editor's picks 是唯一例外。详见 lite-event-card-frozen。
 - **Typography:** `font-mono` (JetBrains Mono) for numbers/addresses. `font-sans` (Inter) for text.
 - **Casing:** `camelCase` for on-chain fields, `Title Case` for headers, `sentence case` for descriptions.
 - **Icons:** Use Lucide React SVG. NO EMOJIS in UI, event names, or market names.
