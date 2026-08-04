@@ -743,7 +743,7 @@ export const LiteIntradayView = ({
                 closes{" "}
                 {formatMarketTime(new Date(groups.sessionEnd), groups.sessionMarket)}{" "}
                 {groups.sessionMarket.label} ·{" "}
-                {fmtLeft(groups.sessionEnd - Date.now())}
+                {fmtLeft(groups.sessionEnd - (sessionNow?.getTime() ?? Date.now()))}
               </span>
             </span>
           )}
