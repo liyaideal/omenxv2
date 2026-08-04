@@ -13,7 +13,6 @@ import {
   TicketTone,
   centLabel,
   closesSoon,
-  closesStamp,
   compactUsd,
   localTime,
   marketShortName,
