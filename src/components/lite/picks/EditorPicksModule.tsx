@@ -284,7 +284,15 @@ export const EditorPicksModule = ({
           </span>
         </span>
       </div>
-      <div className="grid gap-[16px]" style={{ gridTemplateColumns: "repeat(3,1fr)" }}>
+      <div
+        className="grid"
+        style={{
+          gridTemplateColumns: "repeat(3,1fr)",
+          gridTemplateRows: "repeat(6, auto)",
+          columnGap: 16,
+          rowGap: 16,
+        }}
+      >
         {picks.map((p) => (
           <PickCard key={p.id} pick={p} />
         ))}
