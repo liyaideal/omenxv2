@@ -525,11 +525,14 @@ export const LiteIntradayView = ({
   historyFor,
   stockRows,
   tickSeconds,
+  sessionNow,
 }: {
   currentFor: Map<string, QuickEvent>;
   historyFor: Map<string, ("up" | "down")[]>;
   stockRows: StockEventRow[];
   tickSeconds: number;
+  /** Style-guide only — freeze the market calendar clock. */
+  sessionNow?: Date;
 }) => {
   const [tf, setTf] = useState<Timeframe>("5m");
 
@@ -559,7 +562,7 @@ export const LiteIntradayView = ({
       const market = resolveStockMarket(row);
       // Session state comes from the market calendar, never from the row's
       // 24h event window (that window spans bell-to-bell).
-      const session = getMarketSession(market, new Date(now));
+      const session = getMarketSession(market, sessionNow ?? new Date(now));
       if (live && session.open) {
         trading.push(row);
         if (!openMarket) {
@@ -585,7 +588,7 @@ export const LiteIntradayView = ({
         ? `${marketCityName(wake.market)} opens ${openStamp(wake.at, wake.market)}`
         : null,
     };
-  }, [stockRows, tickSeconds]);
+  }, [stockRows, tickSeconds, sessionNow]);
 
   const total = groups.trading.length + groups.asleep.length;
 
