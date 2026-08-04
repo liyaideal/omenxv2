@@ -53,6 +53,8 @@ export interface BuildInput {
   matches: SportsMatch[];
   stocks: StockEventRow[];
   now?: number;
+  /** Horizon in days. The week grid uses 7; the "Later" bucket looks further. */
+  horizonDays?: number;
 }
 
 /**
@@ -65,9 +67,10 @@ export const buildCalendarItems = ({
   matches,
   stocks,
   now = Date.now(),
+  horizonDays = WEEK_DAYS,
 }: BuildInput): CalItem[] => {
   const from = startOfDay(now);
-  const to = from + WEEK_DAYS * DAY_MS;
+  const to = from + horizonDays * DAY_MS;
   const inWindow = (t: number) => t >= from && t < to;
   const out: CalItem[] = [];
 
