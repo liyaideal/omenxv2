@@ -278,7 +278,7 @@ const DESKTOP_PRESETS = [
     sector: "all",
     data: { events: EVENTS, matches: MATCHES, stocks: STOCKS },
     caption:
-      "7 columns from today. Live sports ticket carries the red pulse dot; the aggregated session-close ticket uses the orange intraday border. Tickets never open a trade page from week mode.",
+      "7 columns from today. Category leads every ticket — filled badge + 3px edge bar (orange Intraday / chalk Sports / neutral for everything else); sports tickets carry a short league code instead of the full league name. Live sports ticket keeps the red pulse dot. Tickets never open a trade page from week mode.",
   },
   {
     id: "week-sports",

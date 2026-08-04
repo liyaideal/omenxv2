@@ -10,6 +10,7 @@ import { kickoffCell } from "@/components/lite/sports/sportsData";
 import {
   CalItem,
   TicketView,
+  TicketTone,
   centLabel,
   closesSoon,
   compactUsd,
@@ -21,6 +22,60 @@ export const ORANGE = "#FF8A3D";
 const UP = "#33D6FF";
 const DOWN = "#CFFF4A";
 const NEUTRAL = "#E6E9EE";
+const CHALK = "#F2F3F5";
+
+/* ---------------- Ticket category identity ---------------- */
+/** Category is the first thing a ticket must say in a 7-column grid, so it
+ *  leads the card as a filled badge plus a 3px edge bar. Three tones only —
+ *  orange = Intraday, chalk = Sports, neutral for every other category. */
+const TONE_BAR: Record<TicketTone, string> = {
+  intraday: ORANGE,
+  sports: CHALK,
+  neutral: "#3A3F47",
+};
+
+export const TicketCategoryBadge = ({
+  label,
+  tone,
+  size = "week",
+}: {
+  label: string;
+  tone: TicketTone;
+  size?: "week" | "mobile";
+}) => (
+  <span
+    className="min-w-0 truncate"
+    style={{
+      fontSize: size === "week" ? 8.5 : 9,
+      letterSpacing: "0.1em",
+      textTransform: "uppercase",
+      fontWeight: 700,
+      borderRadius: 4,
+      padding: size === "week" ? "1.5px 5px" : "2px 6px",
+      lineHeight: 1.3,
+      color: tone === "neutral" ? "#C9CED6" : "#0A0B0D",
+      background:
+        tone === "intraday" ? ORANGE : tone === "sports" ? CHALK : "#1D2026",
+    }}
+  >
+    {label}
+  </span>
+);
+
+/** 3px scanning anchor pinned to the ticket's left edge. */
+const EdgeBar = ({ tone, radius }: { tone: TicketTone; radius: number }) => (
+  <span
+    aria-hidden
+    className="pointer-events-none absolute inset-y-0 left-0"
+    style={{
+      width: 3,
+      borderTopLeftRadius: radius,
+      borderBottomLeftRadius: radius,
+      background: tone === "neutral" ? "transparent" : TONE_BAR[tone],
+      opacity: tone === "neutral" ? 0 : 0.85,
+    }}
+  />
+);
 
 /* ---------------- Small parts ---------------- */
 
@@ -247,22 +302,26 @@ export const WeekTicket = ({
   <button
     type="button"
     onClick={onClick}
-    className="lite-cal-ticket box-border flex flex-col text-left"
+    className="lite-cal-ticket relative box-border flex flex-col overflow-hidden text-left"
     data-intraday={ticket.intraday ? "true" : "false"}
     style={{
       background: "#131519",
       border: `1px solid ${ticket.intraday ? "rgba(255,138,61,0.30)" : "#1D2026"}`,
       borderRadius: 10,
-      padding: 8,
+      padding: "8px 8px 8px 10px",
       gap: 3,
     }}
   >
-    <span className="flex items-center" style={{ gap: 4 }}>
+    <EdgeBar tone={ticket.tone} radius={10} />
+    {/* Category leads the ticket; the time follows on the same row. */}
+    <span className="flex items-center" style={{ gap: 5 }}>
+      <TicketCategoryBadge label={ticket.cat} tone={ticket.tone} />
       {ticket.live && <LivePulse size={4} />}
       <span
+        className="ml-auto flex-none"
         style={{
           fontSize: 10,
-          color: ticket.intraday ? "#9AA1AC" : "#fff",
+          color: "#9AA1AC",
           fontWeight: 700,
           fontVariantNumeric: "tabular-nums",
         }}
@@ -281,17 +340,19 @@ export const WeekTicket = ({
     >
       {ticket.title}
     </span>
-    <span
-      style={{
-        fontSize: 8,
-        letterSpacing: "0.08em",
-        textTransform: "uppercase",
-        color: ticket.intraday ? ORANGE : "#6B7280",
-        fontWeight: 700,
-      }}
-    >
-      {ticket.cat}
-    </span>
+    {ticket.leagueShort && (
+      <span
+        style={{
+          fontSize: 8,
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          color: "#6B7280",
+          fontWeight: 700,
+        }}
+      >
+        {ticket.leagueShort}
+      </span>
+    )}
   </button>
 );
 
@@ -307,16 +368,17 @@ export const MobileTicket = ({
   <button
     type="button"
     onClick={onClick}
-    className="box-border flex w-full items-center text-left"
+    className="relative box-border flex w-full items-center overflow-hidden text-left"
     style={{
       background: "#131519",
       border: "1px solid #1D2026",
       borderRadius: 12,
-      padding: "0 13px",
+      padding: "9px 13px 9px 15px",
       minHeight: 56,
       gap: 12,
     }}
   >
+    <EdgeBar tone={ticket.tone} radius={12} />
     <span className="flex flex-none flex-col" style={{ width: 46, gap: 1 }}>
       <span
         className="font-display"
@@ -337,6 +399,22 @@ export const MobileTicket = ({
       )}
     </span>
     <span className="flex min-w-0 flex-1 flex-col" style={{ gap: 2 }}>
+      <span className="flex items-center" style={{ gap: 6 }}>
+        <TicketCategoryBadge label={ticket.cat} tone={ticket.tone} size="mobile" />
+        {ticket.leagueShort && (
+          <span
+            style={{
+              fontSize: 9,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "#6B7280",
+              fontWeight: 700,
+            }}
+          >
+            {ticket.leagueShort}
+          </span>
+        )}
+      </span>
       <span
         style={{
           fontSize: 13,
@@ -347,17 +425,6 @@ export const MobileTicket = ({
         }}
       >
         {ticket.title}
-      </span>
-      <span
-        style={{
-          fontSize: 9,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
-          color: "#6B7280",
-          fontWeight: 700,
-        }}
-      >
-        {ticket.cat}
       </span>
     </span>
     <span className="flex-none" style={{ fontSize: 16, color: "#4B5563" }}>

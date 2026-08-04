@@ -254,11 +254,51 @@ export const centLabel = (price: number): string => `${Math.round(price * 100)}�
 
 /* ---------------- Ticket projection ---------------- */
 
+/** Visual identity of a ticket's category token. Colour axis is fixed:
+ *  orange belongs to Intraday only, chalk to Sports, everything else
+ *  stays neutral — no per-category colour invention. */
+export type TicketTone = "intraday" | "sports" | "neutral";
+
+/** Long league names read like titles in a 7-column grid — short codes
+ *  keep the category token scannable. Falls back to an initialism. */
+const LEAGUE_SHORT: Record<string, string> = {
+  "uefa champions league": "UCL",
+  "uefa europa league": "UEL",
+  "premier league": "EPL",
+  "la liga": "LAL",
+  "serie a": "SEA",
+  bundesliga: "BUN",
+  "ligue 1": "L1",
+  csl: "CSL",
+  "chinese super league": "CSL",
+  "k league 1": "K1",
+  ufc: "UFC",
+  nba: "NBA",
+  nfl: "NFL",
+  mlb: "MLB",
+};
+
+export const leagueShortCode = (league: string): string => {
+  const key = league.trim().toLowerCase();
+  if (LEAGUE_SHORT[key]) return LEAGUE_SHORT[key];
+  const initials = league
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
+  return initials.slice(0, 4) || "SPORTS";
+};
+
 export interface TicketView {
   id: string;
   time: string;
   title: string;
+  /** Short category token shown in the badge. */
   cat: string;
+  tone: TicketTone;
+  /** Secondary league code (sports only). */
+  leagueShort: string | null;
   live: boolean;
   intraday: boolean;
   item: CalItem;
@@ -272,6 +312,8 @@ export const ticketOf = (item: CalItem): TicketView => {
       time,
       title: `${marketShortName(item.market)} session close`,
       cat: `${item.rows.length} ${marketShortName(item.market)} closes`,
+      tone: "intraday",
+      leagueShort: null,
       live: false,
       intraday: true,
       item,
@@ -281,7 +323,9 @@ export const ticketOf = (item: CalItem): TicketView => {
       id: item.id,
       time,
       title: item.match.name,
-      cat: item.match.league || "Sports",
+      cat: "Sports",
+      tone: "sports",
+      leagueShort: item.match.league ? leagueShortCode(item.match.league) : null,
       live: item.match.live,
       intraday: false,
       item,
@@ -291,6 +335,8 @@ export const ticketOf = (item: CalItem): TicketView => {
     time,
     title: item.row.eventName,
     cat: item.row.categoryLabel || item.row.category,
+    tone: "neutral",
+    leagueShort: null,
     live: false,
     intraday: false,
     item,

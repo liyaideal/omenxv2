@@ -1511,3 +1511,20 @@ Rules:
 - Changes to shared blocks must keep **every** consumer (stock spot, quick rounds, contract) rendering correctly.
 
 **2026-08-03:** the quick-rounds trade view was rebased onto the spot-page skeleton — same chart (`LiteStockChart`), sentiment bar, settlement rail and position card as the stock spot page. `RoundPlot` remains **only** in the Intraday band tiles.
+
+## §Addendum 2026-08-04 · Calendar week ticket category identity (LOCKED)
+
+Week-mode tickets in the calendar lens must announce their category first.
+
+| Element | Rule |
+| --- | --- |
+| Category badge | Leads the ticket, first row, before the time. 8.5px (week) / 9px (mobile) uppercase, weight 700, radius 4. |
+| Tone: Intraday | Orange `#FF8A3D` fill, `#0A0B0D` text. Orange stays exclusive to Intraday identity. |
+| Tone: Sports | Chalk `#F2F3F5` fill, `#0A0B0D` text. Badge reads `SPORTS`; the league appears separately as a short code (UCL / CSL / K1 / UFC), never the full league name. |
+| Tone: neutral | `#1D2026` fill, `#C9CED6` text. Every other category (Economy / Politics / Tech / Culture …) uses this one token — no per-category colour invention. |
+| Edge bar | 3px left bar matching the tone (transparent for neutral), 0.85 opacity, inherits the ticket radius. |
+| Time | Right-aligned on the badge row, `#9AA1AC`, tabular. |
+
+**Deviation from the frozen contract:** `docs/design-contracts/calendar-final.html` (Final · Week) placed a uniform grey micro-label at the *bottom* of the ticket. That failed the "which category is this?" read in a 7-column grid, so the token was promoted to the top with the three tones above. The contract file itself is untouched; this addendum supersedes it for the ticket's category treatment only.
+
+Registered in `/style-guide` → **Lite · Calendar** → *Calendar · desktop frames*.
