@@ -38,20 +38,13 @@ import { useSportsMatches } from "@/components/lite/sports/sportsData";
 import { LiteIntradayView } from "@/components/lite/categoryviews/LiteIntradayView";
 import { LiteSportsView } from "@/components/lite/categoryviews/LiteSportsView";
 import { useSurface } from "@/contexts/SurfaceContext";
-
-// Data-driven sector rail. Filters on the RAW event category (lowercase DB
-// value) so "Stocks" surfaces the us-*-updown spot events (category='stocks')
-// rather than the Tech/Finance categoryLabel bucket.
-const SECTOR_ORDER: Array<{ id: string; label: string }> = [
-  { id: "stocks", label: "Stocks" },
-  { id: "crypto", label: "Crypto" },
-  { id: "macro", label: "Macro" },
-  { id: "tech", label: "Tech" },
-  { id: "entertainment", label: "Entertainment" },
-  { id: "politics", label: "Politics" },
-  { id: "finance", label: "Finance" },
-  { id: "social", label: "Social" },
-];
+import {
+  SECTOR_CATEGORIES,
+  TOP_CATEGORIES,
+  categoryMatchesTop,
+  topCategoryForKey,
+  topCategoryOrder,
+} from "@/lib/taxonomy";
 
 // Single source of truth for the pill visual language on this page (v3 sizing).
 const PILL_BASE =
@@ -60,17 +53,31 @@ const PILL_ACTIVE = "bg-white text-[#0A0B0D] font-semibold";
 const PILL_IDLE =
   "border-[1.5px] border-[#2B2F38] text-[#C9CED6] hover:text-foreground";
 
-// Desktop category row per the frozen contract. Dot-marked entries are views,
-// not sector filters.
-const DESKTOP_CATEGORIES: Array<{ id: string; label: string; dot?: string }> = [
-  { id: "all", label: "All" },
-  { id: "intraday", label: "Intraday", dot: "#FF8A3D" },
-  { id: "sports", label: "Sports", dot: "#F2F3F5" },
-  { id: "crypto", label: "Crypto" },
-  { id: "stocks", label: "Stocks" },
-  { id: "politics", label: "Politics" },
-  { id: "macro", label: "Economy" },
-];
+/** Shared card grid — used flat and inside Boost category groups. */
+const CardGrid = ({
+  items,
+  getBoostConfig,
+  trendingCutoff,
+}: {
+  items: ReturnType<typeof useMarketListData>;
+  getBoostConfig: (category: string) => { enabled: boolean; maxBoost: number };
+  trendingCutoff: number;
+}) => (
+  <div className={cn("grid gap-[18px]", "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>
+    {items.map((market, i) => {
+      const cfg = getBoostConfig(market.category);
+      return (
+        <LiteEventCard
+          key={market.id}
+          market={market}
+          index={i}
+          boostMax={cfg.enabled ? cfg.maxBoost : null}
+          trendingCutoff={trendingCutoff}
+        />
+      );
+    })}
+  </div>
+);
 
 const LiteEventsPage = () => {
   const navigate = useNavigate();
@@ -101,17 +108,20 @@ const LiteEventsPage = () => {
   );
 
   // Only render sector pills for categories that actually have events.
+  // Counts are keyed by TAXONOMY top-level id, so `stocks` + `finance`
+  // events fold into the single "Finance" chip.
   const sectorCounts = useMemo(() => {
     const counts = new Map<string, number>();
     for (const m of openMarkets) {
-      const c = (m.category || "").toLowerCase();
-      counts.set(c, (counts.get(c) || 0) + 1);
+      const top = topCategoryForKey(m.category);
+      if (!top) continue;
+      counts.set(top.id, (counts.get(top.id) || 0) + 1);
     }
     return counts;
   }, [openMarkets]);
 
   const availableSectors = useMemo(
-    () => SECTOR_ORDER.filter((s) => (sectorCounts.get(s.id) || 0) > 0),
+    () => SECTOR_CATEGORIES.filter((s) => (sectorCounts.get(s.id) || 0) > 0),
     [sectorCounts],
   );
 
@@ -146,7 +156,7 @@ const LiteEventsPage = () => {
     let set =
       sector === "all"
         ? openMarkets
-        : openMarkets.filter((m) => (m.category || "").toLowerCase() === sector);
+        : openMarkets.filter((m) => categoryMatchesTop(m.category, sector));
     if (boostOnly) {
       set = set.filter((m) => {
         const cfg = getBoostConfig(m.category);
@@ -160,6 +170,24 @@ const LiteEventsPage = () => {
   // Trending cutoff is computed once from the whole live pool so a card's
   // badge doesn't flip when the user changes sector.
   const trendingCutoff = useMemo(() => trendingThreshold(openMarkets), [openMarkets]);
+
+  // Boost is an IN-PLACE filter. With no category selected the filtered list
+  // is grouped by category with small headers, in taxonomy order. Combined
+  // with a category (Sports + Boost) it's a flat list — no headers needed.
+  const boostGroups = useMemo(() => {
+    if (!boostOnly || sector !== "all" || isWatchlistView) return null;
+    const by = new Map<string, { id: string; label: string; items: typeof filtered }>();
+    for (const m of filtered) {
+      const top = topCategoryForKey(m.category);
+      const id = top?.id ?? "other";
+      const g = by.get(id) ?? { id, label: top?.label ?? "Other", items: [] };
+      g.items.push(m);
+      by.set(id, g);
+    }
+    return [...by.values()].sort(
+      (a, b) => topCategoryOrder(a.id) - topCategoryOrder(b.id),
+    );
+  }, [filtered, boostOnly, sector, isWatchlistView]);
 
   const resetAll = () => {
     setSector("all");
@@ -322,7 +350,7 @@ const LiteEventsPage = () => {
           </div>
         ) : (
           <div className="flex flex-wrap items-center gap-2" style={{ marginTop: 16 }}>
-            {DESKTOP_CATEGORIES.filter(
+            {TOP_CATEGORIES.filter(
               (c) =>
                 c.id === "all" ||
                 c.id === "intraday" ||
@@ -517,26 +545,43 @@ const LiteEventsPage = () => {
             actionLabel="See all markets"
             onAction={resetAll}
           />
-        ) : (
-          <div
-            className={cn(
-              "grid gap-[18px]",
-              "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
-            )}
-          >
-            {filtered.map((market, i) => {
-              const cfg = getBoostConfig(market.category);
-              return (
-                <LiteEventCard
-                  key={market.id}
-                  market={market}
-                  index={i}
-                  boostMax={cfg.enabled ? cfg.maxBoost : null}
+        ) : boostGroups ? (
+          <div className="flex flex-col" style={{ gap: 26 }}>
+            {boostGroups.map((g) => (
+              <div key={g.id} className="flex flex-col" style={{ gap: 12 }}>
+                <div className="flex items-center" style={{ gap: 8 }}>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      letterSpacing: "0.16em",
+                      textTransform: "uppercase",
+                      color: "#CFFF4A",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {g.label}
+                  </span>
+                  <span style={{ fontSize: 11, color: "#6B7280" }}>{g.items.length}</span>
+                  <span
+                    aria-hidden
+                    className="flex-1"
+                    style={{ height: 1, background: "#1D2026" }}
+                  />
+                </div>
+                <CardGrid
+                  items={g.items}
+                  getBoostConfig={getBoostConfig}
                   trendingCutoff={trendingCutoff}
                 />
-              );
-            })}
+              </div>
+            ))}
           </div>
+        ) : (
+          <CardGrid
+            items={filtered}
+            getBoostConfig={getBoostConfig}
+            trendingCutoff={trendingCutoff}
+          />
         )}
 
         {/* Pro escape hatch — plain-language, no big CTA. */}

@@ -79,7 +79,7 @@ const CATEGORY_LABEL: Record<string, string> = {
   sports: "Sports",
   politics: "Politics",
   tech: "Tech",
-  stocks: "Stocks",
+  stocks: "Finance",
 };
 
 const useCountdown = (target: Date | null) => {

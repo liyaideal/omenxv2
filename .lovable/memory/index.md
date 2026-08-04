@@ -23,6 +23,8 @@
 - **sim- 前缀:** 新增演示专用 Edge Function 一律用 `sim-` 前缀命名；存量函数不改名，以 `docs/backend-boundary.md` 标注为准。
 
 ## Memories
+- [Event taxonomy](mem://product/event-taxonomy) — Canonical category tree in src/lib/taxonomy.ts; Finance replaces Stocks; Boost = in-place filter
+- [Lite banned words](mem://design/lite-banned-words) — Rendered Lite copy bans trader jargon + "Props" / "Moneyline" internal names
 - [Voucher daily pool](mem://features/voucher-daily-pool) — Daily UTC-reset quota for voucher granting; powers the scarcity bar on granted cards
 - [Voucher earnings unlock tiers](mem://features/voucher-earnings-pool) — 5-tier claim-to-wallet ladder (T0 free $2 → T1 $10 deposit $5 → T2/T3/T4 volume $10/$20/$50)
 - [Voucher granted frosted reveal](mem://design/voucher-granted-frosted-reveal) — Granted card layout: scarcity bar on top, frosted-blur code+max-profit with centered Tap to claim pill

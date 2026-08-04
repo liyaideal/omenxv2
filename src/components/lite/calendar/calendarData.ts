@@ -8,6 +8,12 @@
 import { EventRow } from "@/hooks/useMarketListData";
 import { SportsMatch } from "@/components/lite/sports/sportsData";
 import {
+  ALL_LEAGUES,
+  SPORTS_GROUPS,
+  leagueCodeFor,
+  sportGroupFor,
+} from "@/lib/taxonomy";
+import {
   INTRADAY_SUBTYPES,
   StockEventRow,
 } from "@/components/lite/intraday/intradayData";
@@ -306,9 +312,12 @@ export const itemMatchesCategory = (item: CalItem, sector: string): boolean => {
   );
 };
 
-/** UFC is the only MMA league in the seed set; everything else is football. */
+/**
+ * Sport group for a raw league string — resolved through the taxonomy
+ * (src/lib/taxonomy.ts). No hardcoded league lists live here any more.
+ */
 export const sportForLeague = (league: string): string =>
-  /ufc|mma/i.test(league) ? "MMA" : "Football";
+  sportGroupFor(leagueCodeFor(league))?.label ?? "Other";
 
 export interface SubTypeOption {
   id: string;
@@ -324,19 +333,39 @@ export interface SubTypeRow {
   leaves: SubTypeOption[];
 }
 
-/** Data-driven sub-type row. Generic shape; wired for Sports this round. */
+/**
+ * Sub-type row. Visibility is data-driven (only leagues with live markets
+ * render); ORDER and GROUPING come from the taxonomy.
+ */
 export const buildSportsSubTypes = (matches: SportsMatch[]): SubTypeRow => {
-  const sports = new Set<string>();
-  const leagues = new Set<string>();
+  const groupCodes = new Set<string>();
+  const leagueCodes = new Set<string>();
+  const unmapped = new Set<string>();
   for (const m of matches) {
     if (!m.league) continue;
-    leagues.add(m.league);
-    sports.add(sportForLeague(m.league));
+    const code = leagueCodeFor(m.league);
+    if (!code) {
+      unmapped.add(m.league);
+      continue;
+    }
+    leagueCodes.add(code);
+    const g = sportGroupFor(code);
+    if (g) groupCodes.add(g.code);
   }
   return {
     micro: "Sports",
-    groups: [...sports].sort().map((s) => ({ id: `sport:${s}`, label: s })),
-    leaves: [...leagues].sort().map((l) => ({ id: `league:${l}`, label: l })),
+    groups: SPORTS_GROUPS.filter((g) => groupCodes.has(g.code)).map((g) => ({
+      id: `sport:${g.label}`,
+      label: g.label,
+    })),
+    leaves: [
+      ...ALL_LEAGUES.filter((l) => leagueCodes.has(l.code)).map((l) => ({
+        id: `league:${l.code}`,
+        label: l.label,
+      })),
+      // Anything outside the tree still gets a chip, parked at the end.
+      ...[...unmapped].sort().map((l) => ({ id: `league:${l}`, label: l })),
+    ],
   };
 };
 
@@ -344,7 +373,8 @@ export const itemMatchesSubType = (item: CalItem, subType: string): boolean => {
   if (subType === "all") return true;
   if (item.kind !== "sports") return false;
   const [kind, value] = subType.split(":");
-  if (kind === "league") return item.match.league === value;
+  if (kind === "league")
+    return (leagueCodeFor(item.match.league) ?? item.match.league) === value;
   if (kind === "sport") return sportForLeague(item.match.league) === value;
   return true;
 };

@@ -29,12 +29,12 @@ interface LiteEventCardProps {
 // Literal-mapped category → microlabel (uppercase in render).
 // Keyed on the raw DB category value (lowercase).
 const MICROLABEL: Record<string, string> = {
-  stocks: "Stocks",
+  stocks: "Finance",
   crypto: "Crypto",
   tech: "Tech",
   macro: "Macro",
   politics: "Macro",
-  finance: "Stocks",
+  finance: "Finance",
   sports: "Sports",
   entertainment: "Entertainment",
   social: "Social",

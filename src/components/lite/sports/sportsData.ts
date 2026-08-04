@@ -4,6 +4,7 @@
 // ============================================================
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { leagueCodeFor } from "@/lib/taxonomy";
 
 export const SPORTS_SUBTYPE = "SPORTS_MATCH";
 
@@ -213,8 +214,9 @@ export const kickoffLabel = (d: Date | null): { day: string; time: string } => {
 };
 
 // ------------------------------------------------------------------
-// League → local kickoff zone. Single source of truth: kickoff_at is
-// stored UTC, the ledger renders the league's own local wall clock.
+// League → local kickoff zone. Keyed by TAXONOMY league codes (see
+// src/lib/taxonomy.ts) — no free-text league list lives here. kickoff_at
+// is stored UTC; the ledger renders the league's own local wall clock.
 // ------------------------------------------------------------------
 interface LeagueZone {
   tz: string;
@@ -227,18 +229,25 @@ const BST: LeagueZone = { tz: "Europe/London", label: "BST" };
 const CST: LeagueZone = { tz: "Asia/Shanghai", label: "CST" };
 const KST: LeagueZone = { tz: "Asia/Seoul", label: "KST" };
 
-const LEAGUE_ZONES: Array<[RegExp, LeagueZone]> = [
-  [/champions|^ucl\b/i, CET],
-  [/chinese super|^csl\b/i, CST],
-  [/k league/i, KST],
-  [/^ufc/i, ET],
-  [/premier league|^epl\b/i, BST],
-  [/laliga|la liga|serie a|bundesliga|ligue 1|eredivisie|atp|wta/i, CET],
-];
+const LEAGUE_ZONES: Record<string, LeagueZone> = {
+  UCL: CET,
+  CSL: CST,
+  K_LEAGUE_1: KST,
+  UFC: ET,
+  EPL: BST,
+  LALIGA: CET,
+  SERIE_A: CET,
+  BUNDESLIGA: CET,
+  LIGUE_1: CET,
+  ATP: CET,
+  WTA: CET,
+  LPL: CST,
+  LCK: KST,
+};
 
 export const zoneForLeague = (league: string): LeagueZone => {
-  for (const [re, zone] of LEAGUE_ZONES) if (re.test(league)) return zone;
-  return ET;
+  const code = leagueCodeFor(league);
+  return (code && LEAGUE_ZONES[code]) || ET;
 };
 
 /** Kickoff time cell — league-local HH:mm + the zone micro-label. */

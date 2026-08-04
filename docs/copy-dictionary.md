@@ -82,3 +82,18 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 
 Truncate to **First 6 + Last 6**, e.g. `0x1234...345678`.
 Full address rendering: digits `text-primary`, letters `text-foreground` (see `mem://style/blockchain-address-security-design`).
+
+---
+
+## Lite banned words
+
+Trader jargon is banned in rendered Lite copy: **Margin, Liquidation, Funding,
+Leverage, Long, Short, Spot, Futures, Order book, Limit, Moneyline** (account
+nouns Spot/Futures are exempt).
+
+| Banned | Why | Use instead |
+|---|---|---|
+| **Props** | Internal taxonomy bucket name only (`PROPS_BUCKET` in `src/lib/taxonomy.ts`) — the non-intraday event catalogue of a vertical. Same class as the Moneyline ban. | Question-style section titles: "Will it happen?", "Who wins the match?" |
+
+Approved exception: the Pro escape-hatch line ("Want charts, leverage and the
+order book? Switch to Pro mode") stays byte-identical.

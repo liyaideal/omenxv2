@@ -5,6 +5,7 @@
 // category-row control cluster. Deterministic mocks, frozen clock.
 // Pixel contract: docs/design-contracts/list-final-touches-11.html
 // ============================================================
+import { TOP_CATEGORIES } from "@/lib/taxonomy";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
@@ -260,10 +261,40 @@ const ROW_PRESETS = [
   { id: "calendar", label: "Calendar active" },
 ] as const;
 
+const BOOST_PRESETS = [
+  { id: "off", label: "Boost inactive" },
+  { id: "grouped", label: "Boost active · grouped" },
+  { id: "sports", label: "Sports + Boost · flat" },
+] as const;
+
+/** Desktop chip set, order and labels straight from the taxonomy. */
+const TAXONOMY_CHIPS = TOP_CATEGORIES.filter((c) =>
+  ["all", "intraday", "sports", "crypto", "finance", "politics", "macro"].includes(c.id),
+).map((c) => ({ id: c.id, label: c.label }));
+
+const BOOST_GROUPS = [
+  { label: "Crypto", n: 3 },
+  { label: "Finance", n: 2 },
+  { label: "Politics", n: 1 },
+];
+
+/** Neutral card placeholder — this preset documents grouping, not card art. */
+const CardSlot = () => (
+  <div
+    style={{
+      height: 132,
+      borderRadius: 14,
+      border: "1px solid #23262D",
+      background: "#0E1013",
+    }}
+  />
+);
+
 export const LiteFinalTouchesSection = () => {
   const [pickPreset, setPickPreset] = useState<string>("desktop");
   const [pagePreset, setPagePreset] = useState<string>("live");
   const [rowPreset, setRowPreset] = useState<string>("all");
+  const [boostPreset, setBoostPreset] = useState<string>("off");
   const [tf, setTf] = useState<"5m" | "15m" | "1h" | "4h" | "1d">("15m");
 
   const quiet = pagePreset === "quiet";
@@ -327,6 +358,8 @@ export const LiteFinalTouchesSection = () => {
         <Caption>
           Categories scroll under a right fade mask; the divider, the 52px Watchlist count
           chip and the 44px Calendar icon chip are fixed at the right end and never scroll.
+          Chip set, order and labels come from <code>src/lib/taxonomy.ts</code> — "Stocks"
+          is now <strong>Finance</strong> and "Macro" renders as <strong>Economy</strong>.
         </Caption>
         <Canvas width={390}>
           <MobileCategoryRow
@@ -335,8 +368,9 @@ export const LiteFinalTouchesSection = () => {
               { id: "intraday", label: "Intraday", dot: "#FF8A3D" },
               { id: "sports", label: "Sports", dot: "#FF3B4E", pulse: true },
               { id: "crypto", label: "Crypto" },
-              { id: "stocks", label: "Stocks" },
+              { id: "finance", label: "Finance" },
               { id: "politics", label: "Politics" },
+              { id: "macro", label: "Economy" },
             ]}
             value={rowPreset === "intraday" ? "intraday" : "all"}
             onSelect={() => {}}
@@ -346,6 +380,92 @@ export const LiteFinalTouchesSection = () => {
             calendarActive={rowPreset === "calendar"}
             onCalendar={() => {}}
           />
+        </Canvas>
+      </SubSection>
+
+      <SubSection title="Boost · in-place filter">
+        <PresetRail
+          presets={BOOST_PRESETS}
+          activeId={boostPreset}
+          onSelect={setBoostPreset}
+        />
+        <Caption>
+          Boost is a filter, not a category: it sits after the divider in the category row
+          and filters the CURRENT list in place. With no category selected the results are
+          grouped by category with small headers in <code>taxonomy.ts</code> order; combined
+          with a category (Sports + Boost) the list stays flat, no headers. Sub-type rows
+          take their order and grouping from the same file. No new page, no new route.
+        </Caption>
+        <Canvas width="100%">
+          <div className="flex flex-col" style={{ gap: 20 }}>
+            <div className="flex flex-wrap items-center" style={{ gap: 8 }}>
+              {TAXONOMY_CHIPS.map((c) => (
+                <span
+                  key={c.id}
+                  className="rounded-full px-[14px] py-[7px] text-[12.5px]"
+                  style={
+                    c.id === (boostPreset === "sports" ? "sports" : "all")
+                      ? { background: "#fff", color: "#0A0B0D", fontWeight: 600 }
+                      : { border: "1.5px solid #2B2F38", color: "#C9CED6" }
+                  }
+                >
+                  {c.label}
+                </span>
+              ))}
+              <span aria-hidden style={{ width: 1, height: 20, background: "#23262D" }} />
+              <span
+                className="rounded-full px-[14px] py-[7px] text-[12.5px]"
+                style={
+                  boostPreset === "off"
+                    ? { border: "1.5px solid #CFFF4A", color: "#CFFF4A" }
+                    : { background: "#CFFF4A", color: "#0A0B0D", fontWeight: 700 }
+                }
+              >
+                Boost
+              </span>
+            </div>
+
+            {boostPreset === "off" ? (
+              <Caption>Boost inactive — the normal flat grid renders.</Caption>
+            ) : boostPreset === "sports" ? (
+              <div className="grid grid-cols-3" style={{ gap: 18 }}>
+                {[0, 1, 2].map((i) => (
+                  <CardSlot key={i} />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col" style={{ gap: 26 }}>
+                {BOOST_GROUPS.map((g) => (
+                  <div key={g.label} className="flex flex-col" style={{ gap: 12 }}>
+                    <div className="flex items-center" style={{ gap: 8 }}>
+                      <span
+                        style={{
+                          fontSize: 10,
+                          letterSpacing: "0.16em",
+                          textTransform: "uppercase",
+                          color: "#CFFF4A",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {g.label}
+                      </span>
+                      <span style={{ fontSize: 11, color: "#6B7280" }}>{g.n}</span>
+                      <span
+                        aria-hidden
+                        className="flex-1"
+                        style={{ height: 1, background: "#1D2026" }}
+                      />
+                    </div>
+                    <div className="grid grid-cols-3" style={{ gap: 18 }}>
+                      {Array.from({ length: g.n }).map((_, i) => (
+                        <CardSlot key={i} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </Canvas>
       </SubSection>
     </SectionWrapper>

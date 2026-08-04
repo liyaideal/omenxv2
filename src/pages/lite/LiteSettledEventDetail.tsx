@@ -27,7 +27,7 @@ const CATEGORY_LABEL: Record<string, string> = {
   sports: "Sports",
   politics: "Macro",
   tech: "Tech",
-  stocks: "Stocks",
+  stocks: "Finance",
   entertainment: "Entertainment",
   social: "Social",
 };
