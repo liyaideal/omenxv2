@@ -687,7 +687,102 @@ export const LiteCalendarView = ({
             </span>
           </div>
         </>
-      ) : dayItems.length === 0 ? (
+      ) : mode === "month" ? (
+        <div className="flex flex-col" style={{ gap: 8 }}>
+          <div className="grid" style={{ gridTemplateColumns: "repeat(7,1fr)", gap: 8 }}>
+            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
+              <span
+                key={d}
+                style={{
+                  fontSize: 10,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  color: "#6B7280",
+                  fontWeight: 700,
+                }}
+              >
+                {d}
+              </span>
+            ))}
+          </div>
+          {monthWeeks.map((w) => (
+            <div key={w.start} className="flex flex-col" style={{ gap: 4 }}>
+              <div className="grid" style={{ gridTemplateColumns: "repeat(7,1fr)", gap: 8 }}>
+                {w.cells.map((cell) => (
+                  <button
+                    key={cell.key}
+                    type="button"
+                    onClick={() => {
+                      setDayKey(cell.key);
+                      setMode("day");
+                    }}
+                    className="flex flex-col text-left"
+                    style={{
+                      gap: 2,
+                      minHeight: 54,
+                      borderRadius: 10,
+                      border: `1px solid ${cell.isToday ? "#33D6FF" : "#1D2026"}`,
+                      background: cell.inMonth ? "#131519" : "transparent",
+                      opacity: cell.inMonth ? 1 : 0.45,
+                      padding: "6px 8px",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        color: cell.isToday ? "#33D6FF" : "#F2F3F5",
+                        fontVariantNumeric: "tabular-nums",
+                      }}
+                    >
+                      {cell.day}
+                    </span>
+                    {cell.markets > 0 && (
+                      <span style={{ fontSize: 10, color: "#9AA1AC", fontWeight: 600 }}>
+                        {cell.markets} {cell.markets === 1 ? "close" : "closes"}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+              {w.lanes.slice(0, 3).map((lane, li) => (
+                <div
+                  key={li}
+                  className="grid"
+                  style={{ gridTemplateColumns: "repeat(7,1fr)", gap: 8 }}
+                >
+                  {lane.map((p) => (
+                    <div
+                      key={p.item.id}
+                      style={{ gridColumn: `${p.colStart + 1} / span ${p.colSpan}` }}
+                    >
+                      <SpanBar
+                        compact
+                        ticket={ticketOf(p.item)}
+                        clippedLeft={p.clippedLeft}
+                        clippedRight={p.clippedRight}
+                        closes={closesStamp(p.item, now)}
+                        onClick={() => openItem(p.item)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ))}
+          <span
+            style={{
+              fontSize: 12,
+              color: "#6B7280",
+              borderTop: "1px solid #1D2026",
+              paddingTop: 14,
+            }}
+          >
+            Bars show how long a market stays tradeable; day cells count the markets
+            that close that day.
+          </span>
+        </div>
+      ) : dayItems.length === 0 && dayOpen.length === 0 ? (
         <div
           className="flex flex-col items-center"
           style={{
@@ -726,6 +821,25 @@ export const LiteCalendarView = ({
         </div>
       ) : (
         <div className="flex flex-col">
+          {dayOpen.length > 0 && (
+            <div className="flex flex-col" style={{ gap: 6, paddingBottom: 16 }}>
+              <div className="flex items-center" style={{ gap: 10 }}>
+                <LaneCaption>Open all day</LaneCaption>
+                <span style={{ height: 1, background: "#1D2026", flex: 1 }} />
+                <span style={{ fontSize: 11, color: "#6B7280", fontWeight: 600 }}>
+                  {dayOpen.length} {dayOpen.length === 1 ? "market" : "markets"}
+                </span>
+              </div>
+              {dayOpen.map((it) => (
+                <SpanBar
+                  key={it.id}
+                  ticket={ticketOf(it)}
+                  closes={closesStamp(it, now)}
+                  onClick={() => openItem(it)}
+                />
+              ))}
+            </div>
+          )}
           {dayItems.map((it, i) => (
             <SpineRow
               key={it.id}
