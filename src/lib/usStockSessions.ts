@@ -390,3 +390,86 @@ export const getDisplayLifecycle = (
   const REG_START = 9 * 60 + 30;
   return mins < REG_START ? "EXTENDED_TRADING" : "TRADING";
 };
+
+// -----------------------------------------------------------------
+// Market calendar — the single source of truth for "is the session
+// open right now", when it closes, and when it next opens.
+//
+// Session resolution must NEVER be inferred from event rows: the daily
+// up/down events span a full 24h window (open bell → next open bell),
+// so a live row does not imply an open exchange session.
+// Regular sessions: 09:30–16:00 local, Monday–Friday (lunch break and
+// exchange holidays are out of scope for the display layer).
+// -----------------------------------------------------------------
+const SESSION_OPEN_MIN = 9 * 60 + 30;
+const SESSION_CLOSE_MIN = 16 * 60;
+const WEEKDAY_INDEX: Record<string, number> = {
+  Sun: 0,
+  Mon: 1,
+  Tue: 2,
+  Wed: 3,
+  Thu: 4,
+  Fri: 5,
+  Sat: 6,
+};
+
+const zonedClock = (d: Date, tz: string): { dow: number; minutes: number } => {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: tz,
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(d);
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  const h = parseInt(get("hour"), 10) % 24;
+  const m = parseInt(get("minute"), 10);
+  return { dow: WEEKDAY_INDEX[get("weekday")] ?? 0, minutes: h * 60 + m };
+};
+
+export interface MarketSession {
+  market: StockMarket;
+  /** Regular session currently in progress. */
+  open: boolean;
+  /** Instant the in-progress session closes (only set when `open`). */
+  closeAt: Date | null;
+  /** Instant the next regular session opens. */
+  nextOpenAt: Date;
+}
+
+const MIN_MS = 60_000;
+const DAY_MIN = 24 * 60;
+
+/** Session state for a market, derived from the exchange wall clock. */
+export const getMarketSession = (
+  market: StockMarket,
+  now: Date = new Date(),
+): MarketSession => {
+  const { dow, minutes } = zonedClock(now, market.tz);
+  const isWeekday = dow >= 1 && dow <= 5;
+  const open =
+    isWeekday && minutes >= SESSION_OPEN_MIN && minutes < SESSION_CLOSE_MIN;
+  const closeAt = open
+    ? new Date(now.getTime() + (SESSION_CLOSE_MIN - minutes) * MIN_MS)
+    : null;
+
+  // Next opening bell: today when the session hasn't started yet, otherwise
+  // walk forward to the next weekday.
+  let dayOffset = isWeekday && minutes < SESSION_OPEN_MIN ? 0 : 1;
+  while (((dow + dayOffset) % 7) === 0 || ((dow + dayOffset) % 7) === 6) {
+    dayOffset += 1;
+  }
+  const nextOpenAt = new Date(
+    now.getTime() +
+      (dayOffset * DAY_MIN + (SESSION_OPEN_MIN - minutes)) * MIN_MS,
+  );
+  return { market, open, closeAt, nextOpenAt };
+};
+
+/** "Tue 09:30 ET" — market-local weekday + time + zone label. */
+export const formatSessionStamp = (d: Date, market: StockMarket): string =>
+  `${new Intl.DateTimeFormat("en-US", { timeZone: market.tz, weekday: "short" }).format(d)} ${formatMarketTime(d, market)} ${market.label}`;
+
+/** City name used by the asleep-divider label. */
+export const marketCityName = (market: StockMarket): string =>
+  market.key === "hk" ? "Hong Kong" : "New York";
