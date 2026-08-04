@@ -492,19 +492,19 @@ const LiteEventsPage = () => {
         <div className="mt-6 flex flex-1 flex-col space-y-6">
         {!calendarOn && (isStageView || isMobileStage) && (
           <div className="flex items-start justify-between" style={{ padding: "6px 2px 0" }}>
-            <div className="flex flex-col gap-[6px]">
+            <div className="flex flex-col gap-[7px]">
               <span
                 className="font-display"
                 style={{
                   fontWeight: 700,
-                  fontSize: 18,
+                  fontSize: 26,
                   color: "#fff",
-                  letterSpacing: "-0.01em",
+                  letterSpacing: "-0.02em",
                 }}
               >
                 Will it happen?
               </span>
-              <span style={{ fontSize: 12, color: "#9AA1AC" }}>
+              <span style={{ fontSize: 13, color: "#9AA1AC" }}>
                 Back Yes or No on real-world outcomes. Winning shares pay $1.
               </span>
             </div>
