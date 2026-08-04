@@ -578,13 +578,6 @@ const LiteEventsPage = () => {
         </div>
       </div>
 
-      <TopicSheet
-        open={topicSheetOpen}
-        onOpenChange={setTopicSheetOpen}
-        options={topicOptions}
-        value={sector}
-        onSelect={setSector}
-      />
       <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
       {isMobile && <BottomNav />}
     </div>
