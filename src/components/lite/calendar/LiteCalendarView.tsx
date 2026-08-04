@@ -17,9 +17,7 @@ import {
   CalItem,
   DAY_MS,
   WEEK_DAYS,
-  addMonths,
   buildCalendarItems,
-  buildMonthWeeks,
   buildSpanLanes,
   buildSportsSubTypes,
   buildWeekColumns,
@@ -27,10 +25,8 @@ import {
   itemMatchesCategory,
   itemMatchesSubType,
   localTime,
-  monthLabel,
   openOnDay,
   startOfDay,
-  startOfMonth,
   stepperLabel,
   sumMarkets,
   ticketOf,
@@ -150,7 +146,6 @@ export const LiteCalendarView = ({
   const [mode, setMode] = useState<"day" | "week">("week");
   const [dayKey, setDayKey] = useState<number>(todayKey);
   const [subType, setSubType] = useState<string>("all");
-  const [monthStart, setMonthStart] = useState<number>(startOfMonth(now));
   const [lanesOpen, setLanesOpen] = useState(false);
   /** Mobile: day-strip chip filters the ticket list in place. */
   const [mobileDay, setMobileDay] = useState<number | null>(null);
@@ -202,11 +197,6 @@ export const LiteCalendarView = ({
   const hiddenSpans = weekLanes
     .slice(visibleLanes.length)
     .reduce((n, lane) => n + lane.length, 0);
-
-  const monthWeeks = useMemo(
-    () => buildMonthWeeks(items, monthStart, now),
-    [items, monthStart, now],
-  );
 
   const dayItems = useMemo(
     () => items.filter((i) => startOfDay(i.at) === dayKey),
