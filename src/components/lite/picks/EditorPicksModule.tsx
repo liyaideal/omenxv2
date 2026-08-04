@@ -241,8 +241,6 @@ export const EditorPicksModule = ({
       className="flex flex-col"
       style={{
         gap: 16,
-        marginTop: 28,
-        paddingTop: 26,
       }}
     >
       <div className="flex items-end justify-between" style={{ gap: 24 }}>
