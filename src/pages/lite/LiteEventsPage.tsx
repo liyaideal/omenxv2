@@ -15,7 +15,6 @@ import { cn } from "@/lib/utils";
 import { LiteEventCard } from "@/components/lite/LiteEventCard";
 import { LiveSettledSwitch } from "@/components/lite/LiveSettledSwitch";
 import {
-  TopicSelectorButton,
   TopicSheet,
   TraitChip,
   WatchlistChip,
@@ -24,14 +23,20 @@ import { CalendarChip } from "@/components/lite/LiteListControls";
 import { LiteCalendarView } from "@/components/lite/calendar/LiteCalendarView";
 import { EmptyState } from "@/components/states";
 import { sortLiteLiveList, trendingThreshold } from "@/lib/liteListBadges";
-import { IntradayBand } from "@/components/lite/intraday/IntradayBand";
 import {
   INTRADAY_SUBTYPES,
+  type Timeframe,
   useIntradayStocks,
   useQuickRounds,
   useSecondTick,
 } from "@/components/lite/intraday/intradayData";
 import { LiteAllStage } from "@/components/lite/allstage/LiteAllStage";
+import { LiteMobileAllStage } from "@/components/lite/mobile/LiteMobileAllStage";
+import { MobileCategoryRow } from "@/components/lite/mobile/MobileCategoryRow";
+import { MobileIntradayModule } from "@/components/lite/mobile/MobileIntradayModule";
+import { MobileSportsModule } from "@/components/lite/mobile/MobileSportsModule";
+import { EditorPicksModule } from "@/components/lite/picks/EditorPicksModule";
+import { useEditorPicks } from "@/components/lite/picks/editorialPicks";
 import { SportsStageCard } from "@/components/lite/sports/SportsStageCard";
 import { useSportsMatches } from "@/components/lite/sports/sportsData";
 import { LiteIntradayView } from "@/components/lite/categoryviews/LiteIntradayView";
@@ -120,13 +125,23 @@ const LiteEventsPage = () => {
   const isStageView = !calendarOn && !isMobile && sector === "all" && !boostOnly;
   const isIntradayView = !calendarOn && !isMobile && sector === "intraday";
   const isSportsView = !calendarOn && !isMobile && sector === "sports";
+  // Mobile mirrors the same category-as-view IA (contract 11B).
+  const isMobileStage = !calendarOn && !!isMobile && sector === "all" && !boostOnly;
+  const isMobileIntraday = !calendarOn && !!isMobile && sector === "intraday";
+  const isMobileSports = !calendarOn && !!isMobile && sector === "sports";
+  const [mobileTf, setMobileTf] = useState<Timeframe>("15m");
 
   // Stage data — desktop only, and only for the views that render it.
-  const stageActive = calendarOn || (!isMobile && (isStageView || isIntradayView));
+  const stageActive =
+    calendarOn ||
+    (!isMobile && (isStageView || isIntradayView)) ||
+    isMobileStage ||
+    isMobileIntraday;
   const tickSeconds = useSecondTick();
   const { currentFor, historyFor } = useQuickRounds(stageActive);
   const { rows: stockRows } = useIntradayStocks(stageActive);
   const { rows: sportsMatches } = useSportsMatches();
+  const { picks: editorPicks, updatedAt: picksUpdatedAt } = useEditorPicks();
 
   const filtered = useMemo(() => {
     if (isWatchlistView) {
@@ -267,22 +282,12 @@ const LiteEventsPage = () => {
 
         {/* Mobile view cluster — view switches, not filters */}
         {isMobile && (
-          <div className="flex items-center justify-between" style={{ marginTop: 14 }}>
+          <div className="flex items-center" style={{ marginTop: 14 }}>
             <LiveSettledSwitch
               value="live"
               onSelect={(v) => {
                 if (v === "settled") navigate("/resolved");
               }}
-            />
-            <WatchlistChip
-              active={isWatchlistView}
-              count={watchlist.size}
-              onClick={handleWatchlistClick}
-            />
-            <CalendarChip
-              active={calendarOn}
-              minHeight={44}
-              onClick={handleCalendarClick}
             />
           </div>
         )}
@@ -309,13 +314,31 @@ const LiteEventsPage = () => {
             </div>
           )
         ) : isMobile ? (
-          <div className="flex items-center gap-2" style={{ marginTop: 12 }}>
-            <TopicSelectorButton
-              label={topicLabel}
-              active={sector !== "all"}
-              onClick={() => setTopicSheetOpen(true)}
+          <div style={{ marginTop: 12 }}>
+            <MobileCategoryRow
+              categories={[
+                { id: "all", label: "All" },
+                { id: "intraday", label: "Intraday", dot: "#FF8A3D" },
+                ...(sportsMatches.length
+                  ? [
+                      {
+                        id: "sports",
+                        label: "Sports",
+                        dot: "#FF3B4E",
+                        pulse: sportsMatches.some((m) => m.live),
+                      },
+                    ]
+                  : []),
+                ...availableSectors.map((s) => ({ id: s.id, label: s.label })),
+              ]}
+              value={sector}
+              onSelect={setSector}
+              watchlistActive={isWatchlistView}
+              watchlistCount={watchlist.size}
+              onWatchlist={handleWatchlistClick}
+              calendarActive={calendarOn}
+              onCalendar={handleCalendarClick}
             />
-            {!calendarOn && traitChips}
           </div>
         ) : (
           <div className="flex flex-wrap items-center gap-2" style={{ marginTop: 16 }}>
@@ -420,18 +443,54 @@ const LiteEventsPage = () => {
         {/* Sports category view (contract 7B) — full width, desktop. */}
         {isSportsView && <LiteSportsView matches={sportsMatches} />}
 
-        {/* Mobile intraday band — unchanged. */}
-        {isMobile &&
-          !calendarOn &&
-          !isWatchlistView &&
-          !boostOnly &&
-          (sector === "all" || sector === "crypto" || sector === "stocks") && (
-            <IntradayBand />
-          )}
+        {/* Mobile "All" stage (contract 11B/11C) — Intraday · Sports · Picks. */}
+        {isMobileStage && (
+          <LiteMobileAllStage
+            currentFor={currentFor}
+            historyFor={historyFor}
+            stockRows={stockRows}
+            matches={sportsMatches}
+            tf={mobileTf}
+            onSelectTf={setMobileTf}
+            tickSeconds={tickSeconds}
+            onOpenIntraday={() => setSector("intraday")}
+            onOpenSports={() => setSector("sports")}
+          />
+        )}
+
+        {/* Mobile category-as-view: Intraday / Sports full width. */}
+        {isMobileIntraday && (
+          <div style={{ marginTop: 18 }}>
+            <MobileIntradayModule
+              currentFor={currentFor}
+              historyFor={historyFor}
+              stockRows={stockRows}
+              tf={mobileTf}
+              onSelectTf={setMobileTf}
+              tickSeconds={tickSeconds}
+              onOpenIntraday={() => setSector("intraday")}
+            />
+          </div>
+        )}
+        {isMobileSports && (
+          <div style={{ marginTop: 18 }}>
+            <MobileSportsModule
+              matches={sportsMatches}
+              onOpenAll={() => setSector("sports")}
+            />
+          </div>
+        )}
+
+        {/* Editor's picks — desktop All view, between Sports and the catalogue. */}
+        {!calendarOn && isStageView && editorPicks.length > 0 && picksUpdatedAt && (
+          <div style={{ marginTop: 26 }}>
+            <EditorPicksModule picks={editorPicks} updatedAt={picksUpdatedAt} />
+          </div>
+        )}
 
         {/* Card grid */}
         <div className="mt-6 flex flex-1 flex-col space-y-6">
-        {!calendarOn && isStageView && (
+        {!calendarOn && (isStageView || isMobileStage) && (
           <div className="flex items-start justify-between" style={{ padding: "6px 2px 0" }}>
             <div className="flex flex-col gap-[6px]">
               <span
@@ -458,7 +517,10 @@ const LiteEventsPage = () => {
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
-        ) : isIntradayView || isSportsView ? null : isWatchlistView &&
+        ) : isIntradayView ||
+          isSportsView ||
+          isMobileIntraday ||
+          isMobileSports ? null : isWatchlistView &&
           filtered.length === 0 ? (
           <EmptyState
             variant="page"
