@@ -373,7 +373,7 @@ export const MobileTicket = ({
       background: "#131519",
       border: "1px solid #1D2026",
       borderRadius: 12,
-      padding: "0 13px 0 15px",
+      padding: "9px 13px 9px 15px",
       minHeight: 56,
       gap: 12,
     }}
