@@ -161,21 +161,6 @@ const LiteEventsPage = () => {
   // badge doesn't flip when the user changes sector.
   const trendingCutoff = useMemo(() => trendingThreshold(openMarkets), [openMarkets]);
 
-  const topicOptions = useMemo(
-    () => [
-      { id: "all", label: "All", count: openMarkets.length },
-      ...availableSectors.map((s) => ({
-        id: s.id,
-        label: s.label,
-        count: sectorCounts.get(s.id) || 0,
-      })),
-    ],
-    [availableSectors, sectorCounts, openMarkets.length],
-  );
-
-  const topicLabel =
-    sector === "all" ? "All" : availableSectors.find((s) => s.id === sector)?.label || "All";
-
   const resetAll = () => {
     setSector("all");
     setBoostOnly(false);
