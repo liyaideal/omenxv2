@@ -312,7 +312,7 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
         )}
       </button>
       <p className="text-center text-[10px] text-muted-foreground">
-        Buys instantly at the current price
+        Buys instantly at the current price (within 0.5%)
       </p>
 
       {/* eventId retained for potential deep-linking; keep referenced */}

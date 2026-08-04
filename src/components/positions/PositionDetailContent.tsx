@@ -26,7 +26,7 @@ interface PositionDetailContentProps {
 }
 
 // Use a fixed sentence-case display per design rules
-const TRADE_FEE_RATE = 0.001; // 0.1% taker fee assumption for display only
+const TRADE_FEE_RATE = FUTURES_FEE_RATE; // 0.1% taker fee (shared constant)
 
 export const PositionDetailContent = ({
   position,

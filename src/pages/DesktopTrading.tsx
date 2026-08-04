@@ -356,7 +356,7 @@ export default function DesktopTrading() {
   };
   
   const available = balance;
-  const feeRate = 0.0005; // 0.05% trading fee
+  const feeRate = FUTURES_FEE_RATE; // 0.1% trading fee (authoritative)
 
   
   
