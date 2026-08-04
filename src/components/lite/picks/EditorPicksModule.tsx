@@ -92,7 +92,6 @@ const ReasonStrip = ({ note, compact }: { note: string; compact?: boolean }) => 
           fontSize: 12,
           color: "#C9CED6",
           lineHeight: 1.45,
-          minHeight: compact ? undefined : 53,
         }}
       >
         {note}
@@ -124,11 +123,22 @@ const PickCard = ({
       onKeyDown={(e) => {
         if (e.key === "Enter") navigate(pickHref(pick));
       }}
-      className="mkt-card flex cursor-pointer flex-col overflow-hidden text-left"
+      className={
+        compact
+          ? "mkt-card flex cursor-pointer flex-col overflow-hidden text-left"
+          : "mkt-card grid cursor-pointer overflow-hidden text-left"
+      }
       style={{
         background: "#131519",
         border: "1px solid #1D2026",
         borderRadius: compact ? 14 : 16,
+        ...(compact
+          ? {}
+          : {
+              gridRow: "span 6",
+              gridTemplateRows: "subgrid",
+              rowGap: 0,
+            }),
       }}
     >
       <CardArtTile
@@ -137,24 +147,31 @@ const PickCard = ({
         className={compact ? "h-[96px]" : "h-[118px]"}
       />
       <div
-        className="flex flex-1 flex-col"
+        className={compact ? "flex flex-1 flex-col" : "grid"}
         style={{
           padding: compact ? "13px 14px 14px" : "14px 16px 16px",
-          gap: compact ? 11 : 12,
+          ...(compact
+            ? { gap: 11 }
+            : { gridRow: "span 5", gridTemplateRows: "subgrid", rowGap: 0 }),
         }}
       >
-        <span style={MICRO}>{microlabelFor(pick.category)}</span>
+        <span style={{ ...MICRO, marginBottom: compact ? undefined : 12 }}>
+          {microlabelFor(pick.category)}
+        </span>
         <span
           style={{
             fontSize: compact ? 14 : 16,
             color: "#fff",
             fontWeight: 600,
             lineHeight: 1.3,
+            marginBottom: compact ? undefined : 12,
           }}
         >
           {pick.name}
         </span>
-        <ReasonStrip note={pick.note} compact={compact} />
+        <span className="flex flex-col" style={{ marginBottom: compact ? undefined : 12 }}>
+          <ReasonStrip note={pick.note} compact={compact} />
+        </span>
         {compact && (
           <span
             style={{ fontSize: 10, color: "#6B7280", fontVariantNumeric: "tabular-nums" }}
@@ -164,7 +181,7 @@ const PickCard = ({
         )}
         <span
           className="flex"
-          style={{ gap: compact ? 7 : 8, marginTop: compact ? undefined : "auto" }}
+          style={{ gap: compact ? 7 : 8, marginBottom: compact ? undefined : 12 }}
         >
           <OutcomeChip
             label={pick.yesLabel}
@@ -267,7 +284,15 @@ export const EditorPicksModule = ({
           </span>
         </span>
       </div>
-      <div className="grid gap-[16px]" style={{ gridTemplateColumns: "repeat(3,1fr)" }}>
+      <div
+        className="grid"
+        style={{
+          gridTemplateColumns: "repeat(3,1fr)",
+          gridTemplateRows: "repeat(6, auto)",
+          columnGap: 16,
+          rowGap: 16,
+        }}
+      >
         {picks.map((p) => (
           <PickCard key={p.id} pick={p} />
         ))}
