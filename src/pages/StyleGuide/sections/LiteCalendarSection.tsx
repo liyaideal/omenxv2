@@ -397,7 +397,7 @@ export const LiteCalendarSection = () => (
   <SectionWrapper
     id="lite-calendar"
     title="Lite · Calendar"
-    platform="both"
+    platform="shared"
     description="Calendar lens on the Lite events page (a view state, not a route). Every preset uses fixed mock data and a frozen mock now (2026-08-03 15:20 UTC) — nothing here reads the database."
   >
     <div className="space-y-10">
