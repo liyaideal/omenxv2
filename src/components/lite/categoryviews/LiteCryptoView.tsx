@@ -24,7 +24,7 @@ import {
   VerticalHeader,
 } from "./verticalChrome";
 import { coinOfEvent } from "./verticalFilters";
-import { EmptyState } from "@/components/ui/empty-state";
+import { EmptyState } from "@/components/states";
 
 const COIN_IDS = CRYPTO_COINS.map((c) => c.code as Coin);
 
