@@ -151,7 +151,19 @@ export const MobileCoinCard = ({
         </span>
       </div>
 
-      <Sparkline seed={seed} base={base ?? 1} up={upOdds >= 0.5} />
+      <div style={{ borderRadius: 9, overflow: "hidden" }}>
+        {base != null && price != null ? (
+          <RoundPlot
+            eventId={event.id}
+            basePrice={base}
+            currentPrice={price}
+            upOdds={upOdds}
+            height={PLOT_H}
+          />
+        ) : (
+          <div style={{ height: PLOT_H, background: "#0C1013" }} />
+        )}
+      </div>
 
       <div className="flex items-center justify-between" style={{ gap: 10 }}>
         <span className="flex items-center" style={{ gap: 8 }}>
@@ -173,9 +185,7 @@ export const MobileCoinCard = ({
         <span
           style={{ fontSize: 10, color: "#6B7280", fontVariantNumeric: "tabular-nums" }}
         >
-          {base != null
-            ? `Open $${base.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
-            : ""}
+          {`${Math.round((event.volume ?? 0) / 1000)}K traded`}
         </span>
       </div>
 
