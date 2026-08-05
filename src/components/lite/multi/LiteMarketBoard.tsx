@@ -237,6 +237,11 @@ const SettledMark = ({
   </div>
 );
 
+/**
+ * Board Yes/No capsule — the COMPACT named size of the Yes/No pair
+ * (12.5px label, py-[9px]). The order panels ship the standard size
+ * (shared/SideButton); this density is board-only and intentional.
+ */
 const Chip = ({
   side,
   price,
