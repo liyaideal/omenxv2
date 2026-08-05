@@ -304,7 +304,7 @@ const EventsPage = () => {
         </div>
       )}
 
-      <main className={`${isMobile ? "px-4 py-6" : "mx-auto w-full max-w-7xl px-4 py-10 lg:px-6"} flex flex-1 flex-col space-y-6`}>
+      <main className={`${isMobile ? "px-4 py-6" : "mx-auto w-full max-w-7xl px-4 py-10 lg:px-6"} flex flex-1 flex-col gap-6`}>
 
         {/* Page Title (desktop) — mobile title lives in MobileHeader */}
         {!isMobile ? (
