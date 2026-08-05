@@ -52,6 +52,7 @@ import {
   useSecondTick,
 } from "@/components/lite/intraday/intradayData";
 import { cn } from "@/lib/utils";
+import { pctColor } from "@/components/lite/shared/primitives";
 
 type Side = "yes" | "no";
 
@@ -242,7 +243,7 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
             : "—"}
         </span>
         <span style={{ color: "#6B7280" }}>·</span>
-        <span style={{ color: pct >= 0 ? "#3FD68C" : "#FF5A5F" }}>
+        <span style={{ color: pctColor(pct) }}>
           {pct >= 0 ? "▲ +" : "▼ "}
           {pct.toFixed(2)}% today
         </span>

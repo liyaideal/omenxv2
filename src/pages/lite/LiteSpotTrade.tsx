@@ -47,7 +47,7 @@ import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader"
 import type { Tables } from "@/integrations/supabase/types";
 import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
 import LiteQuickTrade from "@/pages/lite/LiteQuickTrade";
-import { parseQuickId } from "@/components/lite/intraday/intradayData";
+import { parseQuickId, useTradeCountdown } from "@/components/lite/intraday/intradayData";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
@@ -65,31 +65,8 @@ import {
 type EventRow = Tables<"events"> & { options: Tables<"event_options">[] };
 type Side = "yes" | "no";
 
-// -------- countdown --------
-const useCountdown = (target: Date | null) => {
-  const [text, setText] = useState("--:--:--");
-  const [diffMs, setDiffMs] = useState<number>(Infinity);
-  useEffect(() => {
-    if (!target) return;
-    const tick = () => {
-      const diff = target.getTime() - Date.now();
-      if (diff <= 0) {
-        setText("00:00:00");
-        setDiffMs(0);
-        return;
-      }
-      const h = Math.floor(diff / 3_600_000);
-      const m = Math.floor((diff % 3_600_000) / 60_000);
-      const s = Math.floor((diff % 60_000) / 1_000);
-      setText(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`);
-      setDiffMs(diff);
-    };
-    tick();
-    const t = setInterval(tick, 1000);
-    return () => clearInterval(t);
-  }, [target]);
-  return { text, diffMs };
-};
+// Countdown comes from the shared `useTradeCountdown` (intradayData) — one
+// countdown implementation for both Lite trade pages.
 
 // Market activity is the shared anonymised all-user feed — see
 // `useMarketActivityRows` in LiteMarketActivity (same module as the contract page).
@@ -219,7 +196,7 @@ const LiteSpotTrade = () => {
   const endDate = event?.end_date ? new Date(event.end_date) : null;
   const freezeAt = event?.freeze_time ? new Date(event.freeze_time) : null;
   const countdownTarget = freezeAt ?? endDate;
-  const { text: countdown } = useCountdown(countdownTarget);
+  const { text: countdown } = useTradeCountdown(countdownTarget);
   const market = resolveStockMarket(event);
   const closeEt = freezeAt
     ? formatMarketTime(freezeAt, market)

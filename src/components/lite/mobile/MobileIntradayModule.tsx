@@ -29,6 +29,8 @@ import {
   getMarketSession,
   type StockMarket,
 } from "@/lib/usStockSessions";
+import { Last8Strip, LivePulse } from "@/components/lite/shared/primitives";
+import { DirectionButton } from "@/components/lite/categoryviews/verticalBlocks";
 
 const MICRO: React.CSSProperties = {
   fontSize: 9,
@@ -166,54 +168,43 @@ export const MobileCoinCard = ({
       </div>
 
       <div className="flex items-center justify-between" style={{ gap: 10 }}>
-        <span className="flex items-center" style={{ gap: 8 }}>
-          <span style={MICRO}>Last 8</span>
-          <span className="flex" style={{ gap: 3 }}>
-            {history.slice(-8).map((h, i) => (
-              <span
-                key={i}
-                style={{
-                  width: 10,
-                  height: 10,
-                  borderRadius: 3,
-                  background: h === "up" ? "#33D6FF" : "#CFFF4A",
-                }}
-              />
-            ))}
-          </span>
-        </span>
+        <Last8Strip
+          history={history}
+          variant="strip"
+          dot={10}
+          outerGap={8}
+          innerGap={3}
+          pad={false}
+          labelStyle={MICRO}
+        />
         {/* Round-open value now lives in the RoundPlot pill — no duplicate here. */}
       </div>
 
       <div className="flex" style={{ gap: 8 }}>
-        <button
-          type="button"
+        <DirectionButton
+          label="Up"
+          price={up?.price ?? 0.5}
+          tone="up"
+          grow
+          minHeight={48}
+          radius={11}
+          padding="0 13px"
+          labelSize={12}
+          priceSize={16}
           onClick={go("up")}
-          className="chip-t1 chip-t1-up flex flex-1 items-center justify-between"
-          style={{ minHeight: 48, padding: "0 13px", borderRadius: 11 }}
-        >
-          <span style={{ fontSize: 12, fontWeight: 700 }}>Up</span>
-          <span
-            className="font-display"
-            style={{ fontSize: 16, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}
-          >
-            {cents(up?.price ?? 0.5)}
-          </span>
-        </button>
-        <button
-          type="button"
+        />
+        <DirectionButton
+          label="Down"
+          price={down?.price ?? 0.5}
+          tone="down"
+          grow
+          minHeight={48}
+          radius={11}
+          padding="0 13px"
+          labelSize={12}
+          priceSize={16}
           onClick={go("down")}
-          className="chip-t1 chip-t1-down flex flex-1 items-center justify-between"
-          style={{ minHeight: 48, padding: "0 13px", borderRadius: 11 }}
-        >
-          <span style={{ fontSize: 12, fontWeight: 700 }}>Down</span>
-          <span
-            className="font-display"
-            style={{ fontSize: 16, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}
-          >
-            {cents(down?.price ?? 0.5)}
-          </span>
-        </button>
+        />
       </div>
     </div>
   );
@@ -363,10 +354,7 @@ export const MobileIntradayModule = ({
             fontWeight: 700,
           }}
         >
-          <span
-            className="animate-pulse"
-            style={{ width: 6, height: 6, borderRadius: 999, background: "#FF8A3D" }}
-          />
+          <LivePulse size={6} color="#FF8A3D" />
           Intraday · rolling rounds
         </span>
         <h2

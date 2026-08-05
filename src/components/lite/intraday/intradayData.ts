@@ -359,6 +359,44 @@ export const formatCountdown = (ms: number): string => {
   return h > 0 ? `${h}:${pad(m)}:${pad(sec)}` : `${pad(m)}:${pad(sec)}`;
 };
 
+/**
+ * Zero-padded ladder used by the two trade pages (`HH:MM:SS`, or `Nd HHh`
+ * once a day or more remains and `days` is on). Same rendered format the
+ * pages shipped with their private copies of this hook.
+ */
+export const formatClockCountdown = (ms: number, days = false): string => {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  if (ms <= 0) return "00:00:00";
+  const d = Math.floor(ms / 86_400_000);
+  if (days && d > 0) return `${d}d ${pad(Math.floor((ms % 86_400_000) / 3_600_000))}h`;
+  const h = Math.floor(ms / 3_600_000);
+  const m = Math.floor((ms % 3_600_000) / 60_000);
+  const s = Math.floor((ms % 60_000) / 1_000);
+  return `${pad(h)}:${pad(m)}:${pad(s)}`;
+};
+
+/** Shared trade-page countdown. Ticks every second while a target exists. */
+export const useTradeCountdown = (
+  target: Date | null,
+  opts?: { days?: boolean },
+) => {
+  const days = opts?.days ?? false;
+  const [text, setText] = useState("--:--:--");
+  const [diffMs, setDiffMs] = useState<number>(Infinity);
+  useEffect(() => {
+    if (!target) return;
+    const tick = () => {
+      const diff = target.getTime() - Date.now();
+      setText(formatClockCountdown(diff, days));
+      setDiffMs(Math.max(0, diff));
+    };
+    tick();
+    const t = setInterval(tick, 1000);
+    return () => clearInterval(t);
+  }, [target, days]);
+  return { text, diffMs };
+};
+
 /** Second-resolution clock shared by the band's countdowns. */
 export const useSecondTick = () => {
   const [n, setN] = useState(0);

@@ -13,6 +13,7 @@ import { useCallback, useMemo, useState } from "react";
 import { Info } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { SideButton } from "@/components/lite/shared/SideButton";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
@@ -562,45 +563,6 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   );
 };
 
-const SideButton = ({
-  active,
-  tone,
-  label,
-  price,
-  onClick,
-}: {
-  active: boolean;
-  tone: "yes" | "no";
-  label: string;
-  price: number;
-  onClick: () => void;
-}) => {
-  const pct = Math.round(price * 100);
-  const yesActive = "bg-yes text-[#04222c] border-transparent";
-  const noActive = "bg-no text-[#1a2408] border-transparent";
-  const yesGhost = "bg-yes/12 text-yes border-[1.5px] border-yes/25";
-  const noGhost = "bg-no/12 text-no border-[1.5px] border-no/25";
-  const cls = active
-    ? tone === "yes"
-      ? yesActive
-      : noActive
-    : tone === "yes"
-      ? yesGhost
-      : noGhost;
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "flex items-center justify-center rounded-xl px-3 py-4 transition-all",
-        cls,
-      )}
-    >
-      <span className="text-base font-bold">
-        {label} {pct}¢
-      </span>
-    </button>
-  );
-};
+// SideButton is the shared order-panel primitive (see shared/SideButton).
 
 export default LiteContractOrderPanel;

@@ -17,11 +17,13 @@ import {
   localTime,
   marketShortName,
 } from "./calendarData";
+import { DirectionButton as SharedDirectionButton } from "@/components/lite/categoryviews/verticalBlocks";
+import { CHALK_SOFT, LivePulse } from "@/components/lite/shared/primitives";
 
 export const ORANGE = "#FF8A3D";
 const UP = "#33D6FF";
 const DOWN = "#CFFF4A";
-const NEUTRAL = "#E6E9EE";
+const NEUTRAL = CHALK_SOFT;
 const CHALK = "#F2F3F5";
 
 /* ---------------- Ticket category identity ---------------- */
@@ -79,18 +81,8 @@ const EdgeBar = ({ tone, radius }: { tone: TicketTone; radius: number }) => (
 
 /* ---------------- Small parts ---------------- */
 
-export const LivePulse = ({ size = 5 }: { size?: number }) => (
-  <span
-    className="animate-pulse"
-    style={{
-      width: size,
-      height: size,
-      borderRadius: 999,
-      background: "#FF3B4E",
-      flex: "none",
-    }}
-  />
-);
+/** Calendar consumes the shared pulse; 5px is this surface's size. */
+export { LivePulse };
 
 /** Muted outlined text badge — never coloured. */
 export const ClosesSoonBadge = () => (
@@ -212,20 +204,19 @@ const DirectionButton = ({
   tone: "up" | "down";
   onClick: (e: React.MouseEvent) => void;
 }) => (
-  <button
-    type="button"
+  <SharedDirectionButton
+    label={label}
+    price={price}
+    tone={tone}
+    layout="stacked"
+    minHeight={46}
+    radius={11}
+    padding="0 11px"
+    gap={1}
+    labelSize={9}
+    priceSize={14}
     onClick={onClick}
-    className={`chip-t1 ${tone === "up" ? "chip-t1-up" : "chip-t1-down"} box-border flex flex-col items-center justify-center`}
-    style={{ minHeight: 46, borderRadius: 11, padding: "0 11px", gap: 1 }}
-  >
-    <span style={{ fontSize: 9, fontWeight: 700 }}>{label}</span>
-    <span
-      className="font-display"
-      style={{ fontSize: 14, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}
-    >
-      {centLabel(price)}
-    </span>
-  </button>
+  />
 );
 
 /* ---------------- Standing intraday row ---------------- */
@@ -651,7 +642,7 @@ export const SportsBlock = ({
           </span>
           {m.live && (
             <span className="flex items-center" style={{ gap: 5 }}>
-              <LivePulse />
+              <LivePulse size={5} />
               <span
                 style={{
                   fontSize: 12,

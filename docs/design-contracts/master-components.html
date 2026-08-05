@@ -507,7 +507,7 @@ Intraday identity orange <code>#FF8A3D</code>; live red <code>#FF3B4E</code>.
   </div>
 </div>
 
-<div class="lbl"><span class="n">Stage-card history strip (IntradayStageCard)</span><span class="r">square 9px dots, solid #33D6FF / #CFFF4A, caption "Last 8" — the compact All-page variant of the LAST 8 footer.</span></div>
+<div class="lbl"><span class="n">Stage-card history strip (IntradayStageCard)</span><span class="r">square 9px dots, solid #33D6FF / #CFFF4A, caption "Last 8" — the "strip" variant of the ONE shared Last8Strip component (variants: squares 11px r3 · strip 9px r2 · bars 7×14 softened). Every surface picks a variant; nobody hand-rolls the marks.</span></div>
 <div class="stage d">
 <div style="display:flex;align-items:center;gap:8px">
   <span style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#6B7280;font-weight:700">Last 8</span>
@@ -604,7 +604,7 @@ Intraday identity orange <code>#FF8A3D</code>; live red <code>#FF3B4E</code>.
       </div>
       <div style="text-align:right">
         <div class="font-display" style="font-size:13.5px;font-weight:700">$184.22</div>
-        <div style="font-size:11px;color:#3FD68C">+0.61%</div>
+        <div style="font-size:11px;color:hsl(74 100% 65%)">+0.61%</div>
       </div>
       <div style="display:flex;gap:6px">
         <button class="font-display" style="font-weight:700;font-size:12px;padding:9px 14px;border-radius:10px;background:rgba(51,214,255,.13);border:1.5px solid rgba(51,214,255,.4);color:#33D6FF">Up 58¢</button>
@@ -1021,14 +1021,14 @@ Intraday identity orange <code>#FF8A3D</code>; live red <code>#FF3B4E</code>.
     <span style="display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:5px 10px;font-size:11px;font-weight:600;line-height:1;background:#FF8A3D;color:#2A1200"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M10 2h4"/><path d="M12 14 9 11"/><circle cx="12" cy="14" r="8"/></svg> Intraday · 08:41</span>
     <span style="display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:5px 10px;font-size:11px;font-weight:600;line-height:1;background:#CFFF4A;color:#1a2408"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg> Boost 5×</span>
   </div>
-  <div class="cap" style="margin-top:14px">Live pulse conventions — 4px (week ticket) / 5px (match meta, spine) / 6px (module header, sector dot). Always #FF3B4E, always animate-pulse, never used for anything but "in play".</div>
+  <div class="cap" style="margin-top:14px">Live pulse conventions — one shared LivePulse component with a size prop: 4px (week ticket) / 5px (match meta, spine) / 6px (module header, sector dot). Always #FF3B4E (orange #FF8A3D only for the Intraday identity), always animate-pulse, never used for anything but "in play".</div>
   <div style="display:flex;align-items:center;gap:18px">
     <span style="display:flex;align-items:center;gap:5px"><span class="pulse" style="width:4px;height:4px;border-radius:999px;background:#FF3B4E"></span><span style="font-size:11px;color:#9AA1AC">4px ticket</span></span>
     <span style="display:flex;align-items:center;gap:5px"><span class="pulse" style="width:5px;height:5px;border-radius:999px;background:#FF3B4E"></span><span class="mono" style="font-size:12px;color:#fff;font-weight:700">67'</span></span>
     <span style="display:flex;align-items:center;gap:9px"><span class="pulse" style="width:6px;height:6px;border-radius:999px;background:#FF3B4E"></span><span style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#fff;font-weight:700">Live now · 1</span></span>
     <span style="display:flex;align-items:center;gap:7px"><span class="pulse" style="width:6px;height:6px;border-radius:999px;background:#FF8A3D"></span><span style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#FF8A3D;font-weight:700">Intraday</span></span>
   </div>
-  <div class="cap" style="margin-top:18px">Avatar set — AssetAvatar is ALWAYS a circle. 34px standard / 30px compact / 32px mobile coin card / 28px calendar tile. Crypto = brand fill + glyph; equity = white #F2F3F5 fill + static logo (monogram fallback); sports crest = white #F2F3F5 (chalk) with #0A0B0D ink, muted #23262D for h2h fighters (dark fighter token).</div>
+  <div class="cap" style="margin-top:18px">Avatar set — AssetAvatar is ALWAYS a circle. 34px standard / 30px compact / 32px mobile coin card / 28px calendar tile. Crypto = brand fill + glyph; equity = white #F2F3F5 fill + static logo (monogram fallback); sports crest = the shared Crest component — white #F2F3F5 (chalk) with #0A0B0D ink, muted #23262D + #E6E9EE ink for h2h fighters (dark fighter token); sizes and overlap come from props, never from per-surface copies.</div>
   <div style="display:flex;align-items:center;gap:12px">
     <span style="width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.08);background:#F7931A;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px">₿</span>
     <span style="width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.08);background:#7A86A8;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px">Ξ</span>
@@ -1055,6 +1055,11 @@ Intraday identity orange <code>#FF8A3D</code>; live red <code>#FF3B4E</code>.
 <p class="doc-sub">Margin · Liquidation · Funding · Leverage · Long · Short · Order book · Limit · Moneyline · <strong>Props</strong> (internal taxonomy name only). Account nouns keep Spot / Futures. No emoji in product UI — Lucide icons only (the glyphs in this static bible stand in for Lucide nodes).</p>
 </section>
 
+</div>
+<div class="lbl"><span class="n">Shared implementations (consolidation round A)</span><span class="r">One component per rendered object — surfaces vary only through props.</span></div>
+<div class="stage d">
+  <div class="cap">Tier-1 direction pair — shared <b>DirectionButton</b> (categoryviews/verticalBlocks) with <code>layout</code>: split (coin tiles, mobile intraday) · centered (stock rows) · stacked (calendar tickets). Order panels use <b>SideButton</b> (shared/SideButton) — the spot panel's look is canonical for both spot and contract; the board capsule (12.5px / py-9px) is the named COMPACT size.</div>
+  <div class="cap" style="margin-top:10px">Last-8 marks — shared <b>Last8Strip</b>. Crests — shared <b>Crest</b>. Live dot — shared <b>LivePulse</b>. Price and ±% — shared <b>PriceReadout</b> / <b>PctChange</b>; ±% colour law is hsl(74 100% 65%) / hsl(0 100% 68%) everywhere (the old #3FD68C / #FF5A5F literals are retired). Soft chalk #E6E9EE is the <b>CHALK_SOFT</b> token.</div>
 </div>
 </body>
 </html>
