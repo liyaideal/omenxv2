@@ -31,6 +31,12 @@ interface Props {
   upOdds: number; // 0..1
   upHistory?: number[]; // optional real price history (0..1)
   endDate?: string | Date | null;
+  /**
+   * Round start. When present the X axis spans start → end (UTC HH:MM) instead
+   * of the US regular-session marks — used by sub-day rounds (crypto windows),
+   * which have no relationship to a stock session.
+   */
+  startDate?: string | Date | null;
   /** Side selected in the order card — the odds series follows it. */
   side?: "yes" | "no";
   upLabel?: string;
@@ -85,6 +91,17 @@ const buildPoints = (values: number[], labels: string[]): Point[] => {
   });
 };
 
+const utcHHMM = (d: Date) =>
+  `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
+
+/** Evenly spaced UTC ticks across an arbitrary round window. */
+const roundLabels = (start: Date, end: Date, ticks = 8): string[] => {
+  const span = end.getTime() - start.getTime();
+  return Array.from({ length: ticks }, (_, i) =>
+    utcHHMM(new Date(start.getTime() + (span * i) / (ticks - 1))),
+  );
+};
+
 export const LiteStockChart = ({
   ticker,
   basePrice,
@@ -92,6 +109,7 @@ export const LiteStockChart = ({
   upOdds,
   upHistory,
   endDate,
+  startDate,
   side = "yes",
   upLabel = "Up",
   downLabel = "Down",
@@ -110,7 +128,20 @@ export const LiteStockChart = ({
     () => (endDate ? formatEtTime(new Date(endDate)) : "16:00"),
     [endDate],
   );
-  const labels = useMemo(() => [...REGULAR_LABELS, closeTick], [closeTick]);
+  const labels = useMemo(() => {
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      if (
+        !Number.isNaN(start.getTime()) &&
+        !Number.isNaN(end.getTime()) &&
+        end.getTime() > start.getTime()
+      ) {
+        return roundLabels(start, end);
+      }
+    }
+    return [...REGULAR_LABELS, closeTick];
+  }, [startDate, endDate, closeTick]);
 
   const stockSeries = useMemo(() => {
     if (!basePrice || !currentPrice) return [];

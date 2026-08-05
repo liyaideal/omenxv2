@@ -390,6 +390,7 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
       upLabel="Up"
       downLabel="Down"
       endDate={event.end_date}
+      startDate={event.start_date}
       currency="$"
     />
   );

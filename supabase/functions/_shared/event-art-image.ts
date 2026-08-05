@@ -3,7 +3,15 @@
 // The image model returns ~1.6 MB 1024px PNGs. Card tiles are 130px tall, so
 // we crop to 21:9, downscale to ART_DELIVERY_WIDTH and re-encode as JPEG
 // (~50-80 KB), plus a 24px blurred data-URI placeholder for the card.
-import { Image } from "https://deno.land/x/imagescript@1.2.15/mod.ts";
+// NOTE: imagescript pulls a native node codec that crashes the Supabase edge
+// runtime ("unsupported arch/platform"), so post-processing runs on the pure
+// WASM ImageMagick build instead.
+import {
+  ImageMagick,
+  initialize,
+  MagickFormat,
+  MagickGeometry,
+} from "https://deno.land/x/imagemagick_deno@0.0.31/mod.ts";
 import {
   ART_ASPECT,
   ART_BLUR_WIDTH,
@@ -27,29 +35,50 @@ function bytesToBase64(bytes: Uint8Array): string {
   return btoa(binary);
 }
 
+let magickReady: Promise<void> | null = null;
+const ensureMagick = () => (magickReady ??= initialize());
+
 /**
  * Crop to 21:9 (bias the crop upward — the bottom sits under the UI scrim),
  * downscale, and encode both the delivery JPEG and the blur placeholder.
  */
 export async function toCardArt(bin: Uint8Array): Promise<CardArt> {
-  const img = await Image.decode(bin);
+  await ensureMagick();
 
-  const ratio = img.width / img.height;
-  if (ratio < ART_ASPECT - 0.15) {
-    const cropH = Math.max(1, Math.round(img.width / ART_ASPECT));
-    const top = Math.max(0, Math.round((img.height - cropH) * 0.38));
-    img.crop(0, top, img.width, Math.min(cropH, img.height - top));
-  }
+  let jpeg: Uint8Array | null = null;
+  let blur: Uint8Array | null = null;
 
-  if (img.width > ART_DELIVERY_WIDTH) {
-    img.resize(ART_DELIVERY_WIDTH, Image.RESIZE_AUTO);
-  }
+  ImageMagick.read(bin, (img) => {
+    const ratio = img.width / img.height;
+    if (ratio < ART_ASPECT - 0.15) {
+      const cropH = Math.max(1, Math.round(img.width / ART_ASPECT));
+      const top = Math.max(0, Math.round((img.height - cropH) * 0.38));
+      img.crop(
+        new MagickGeometry(0, top, img.width, Math.min(cropH, img.height - top)),
+      );
+      // Drop the crop offset so the encoded frame starts at 0,0.
+      img.page = new MagickGeometry(0, 0, img.width, img.height);
+    }
 
-  const jpeg = await img.encodeJPEG(ART_JPEG_QUALITY);
+    if (img.width > ART_DELIVERY_WIDTH) {
+      const h = Math.max(1, Math.round((img.height / img.width) * ART_DELIVERY_WIDTH));
+      img.resize(new MagickGeometry(ART_DELIVERY_WIDTH, h));
+    }
 
-  const blur = img.clone();
-  blur.resize(ART_BLUR_WIDTH, Image.RESIZE_AUTO);
-  const blurDataUrl = `data:image/jpeg;base64,${bytesToBase64(await blur.encodeJPEG(55))}`;
+    img.quality = ART_JPEG_QUALITY;
+    img.write(MagickFormat.Jpeg, (data) => {
+      jpeg = new Uint8Array(data);
+    });
 
-  return { jpeg, blurDataUrl };
+    const blurH = Math.max(1, Math.round((img.height / img.width) * ART_BLUR_WIDTH));
+    img.resize(new MagickGeometry(ART_BLUR_WIDTH, blurH));
+    img.quality = 55;
+    img.write(MagickFormat.Jpeg, (data) => {
+      blur = new Uint8Array(data);
+    });
+  });
+
+  if (!jpeg || !blur) throw new Error("Image post-processing produced no output");
+
+  return { jpeg, blurDataUrl: `data:image/jpeg;base64,${bytesToBase64(blur)}` };
 }

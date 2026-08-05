@@ -10,6 +10,7 @@ import { SportsMatch } from "@/components/lite/sports/sportsData";
 import {
   ALL_LEAGUES,
   SPORTS_GROUPS,
+  categoryMatchesTop,
   leagueCodeFor,
   sportGroupFor,
 } from "@/lib/taxonomy";
@@ -302,13 +303,15 @@ export const itemMatchesCategory = (item: CalItem, sector: string): boolean => {
   if (sector === "all" || sector === "watchlist") return true;
   if (sector === "sports") return item.kind === "sports";
   if (sector === "intraday") return item.kind === "session";
-  if (sector === "stocks")
+  // Finance folds the raw keys "finance" and "stocks" (taxonomy contract), so
+  // stock closing-bell sessions belong to it too.
+  if (sector === "finance" || sector === "stocks")
     return (
       item.kind === "session" ||
-      (item.kind === "generic" && (item.row.category || "").toLowerCase() === "stocks")
+      (item.kind === "generic" && categoryMatchesTop(item.row.category, "finance"))
     );
   return (
-    item.kind === "generic" && (item.row.category || "").toLowerCase() === sector
+    item.kind === "generic" && categoryMatchesTop(item.row.category, sector)
   );
 };
 
