@@ -916,6 +916,20 @@ export const LiteAllStageSection = () => (
           </SubSection>
         </CardContent>
       </Card>
+
+      <Card>
+        <CardContent className="space-y-4 p-6">
+          <SubSection
+            title="Sports sub-nav 13A · SPORT + LEAGUE rows"
+            description="Desktop · dimension rows above the sports module"
+          >
+            <SportsSubnavDemo />
+          </SubSection>
+          <SubSection title="Sports sub-nav 13A · 390" description="Mobile composition">
+            <SportsSubnavMobileDemo />
+          </SubSection>
+        </CardContent>
+      </Card>
     </div>
   </SectionWrapper>
 );
