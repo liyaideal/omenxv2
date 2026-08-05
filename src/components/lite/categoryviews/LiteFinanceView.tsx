@@ -136,16 +136,6 @@ export const LiteFinanceView = ({
               mobile={isMobile}
             />
           ))}
-          {!isMobile && (
-            <RowHelper
-              scope={`${cls === "all" ? "All" : (FINANCE_ASSET_CLASSES.find((c) => c.code === cls)?.label ?? cls)} · ${
-                region === "all"
-                  ? "All regions"
-                  : (FINANCE_REGIONS.find((r) => r.code === region)?.label ?? region)
-              }`}
-              tail={`${trading.length} rounds open`}
-            />
-          )}
         </DimensionRow>
       </div>
 
