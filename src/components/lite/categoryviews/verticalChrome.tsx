@@ -47,7 +47,7 @@ export const VerticalHeader = ({
 }: {
   eyebrow: string;
   title: string;
-  subtitle: string;
+  subtitle: ReactNode;
   right?: ReactNode;
   compact?: boolean;
 }) => (
