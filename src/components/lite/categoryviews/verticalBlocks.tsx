@@ -12,6 +12,7 @@ import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader"
 import {
   formatMarketPrice,
   formatSessionStamp,
+  formatMarketTime,
   getMarketSession,
   marketCityName,
   resolveStockMarket,
