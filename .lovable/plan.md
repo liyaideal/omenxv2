@@ -9,13 +9,17 @@
 顺序变为：
 
 ```text
-[ 品类横滑区（All · Intraday · Sports · …） ]  |  [Boost] [★ 7] [📅]
+[ 品类横滑区（All · Intraday · Sports · …） ]  |  [⚡] [★7] [📅]
 ```
 
-- Boost 不再随品类横滑，固定在右端，永远可见。
-- 保持 Volt 绿 (#CFFF4A) 激活态：激活时实心绿底深色字，未激活时描边 + 灰字，与现有样式一致。
-- 尺寸压缩为紧凑药丸（约 60px 宽、44px 高），和旁边 44px 的图标按钮同高，避免右侧控件区过挤。
-- 行为、状态、数据逻辑完全不变，只调整位置与样式归属。
+屏幕只有 393px，文字版 Boost 药丸放进右侧固定区会把品类横滑区挤没。所以 **Boost 改成与 Watchlist / Calendar 同规格的 44px 纯图标按钮**（Zap 闪电图标）：
+
+- 未激活：描边 #23262D + 灰色图标，与旁边两个图标按钮完全一致。
+- 激活：Volt 绿 (#CFFF4A) 实心底 + 深色图标，一眼看出正处于加成筛选态。
+- 三个图标按钮 + 分隔线共约 145px，品类横滑区仍留约 210px 可滑动，不会被挤压。
+- 顺序：分隔线 → Boost → Watchlist → Calendar。
+- 加 `aria-label="Boost"` 与 `aria-pressed`，无障碍与另外两个按钮对齐。
+- 行为、状态、数据逻辑完全不变，只调整位置与呈现形态。
 
 ## 技术细节
 - 只改 `src/components/lite/mobile/MobileCategoryRow.tsx`：把 Boost 按钮从横滑容器内移出，放到分隔线之后、Watchlist 之前；props 不变（`boostActive` / `onBoost`），调用方 `LiteEventsPage.tsx` 无需改动。
