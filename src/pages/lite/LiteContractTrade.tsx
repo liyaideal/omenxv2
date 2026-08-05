@@ -222,7 +222,7 @@ const LiteContractTrade = () => {
 
   const endDate = event?.end_date ? new Date(event.end_date) : null;
   const freezeAt = event?.freeze_time ? new Date(event.freeze_time) : null;
-  const countdown = useCountdown(freezeAt ?? endDate);
+  const { text: countdown } = useTradeCountdown(freezeAt ?? endDate, { days: true });
 
   const resolved = !!event?.is_resolved;
   const pastEnd = endDate ? endDate.getTime() <= Date.now() : false;

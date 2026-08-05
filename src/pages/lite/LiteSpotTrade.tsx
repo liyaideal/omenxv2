@@ -196,7 +196,7 @@ const LiteSpotTrade = () => {
   const endDate = event?.end_date ? new Date(event.end_date) : null;
   const freezeAt = event?.freeze_time ? new Date(event.freeze_time) : null;
   const countdownTarget = freezeAt ?? endDate;
-  const { text: countdown } = useCountdown(countdownTarget);
+  const { text: countdown } = useTradeCountdown(countdownTarget);
   const market = resolveStockMarket(event);
   const closeEt = freezeAt
     ? formatMarketTime(freezeAt, market)
