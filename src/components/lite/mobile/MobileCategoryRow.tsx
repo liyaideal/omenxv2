@@ -33,6 +33,8 @@ export const MobileCategoryRow = ({
   onWatchlist,
   calendarActive,
   onCalendar,
+  boostActive,
+  onBoost,
 }: {
   categories: MobileCategory[];
   value: string;
@@ -42,6 +44,9 @@ export const MobileCategoryRow = ({
   onWatchlist: () => void;
   calendarActive: boolean;
   onCalendar: () => void;
+  /** Boost trait — composes in place with whatever view is open. */
+  boostActive?: boolean;
+  onBoost?: () => void;
 }) => (
   <div
     className="flex items-center"
@@ -88,6 +93,23 @@ export const MobileCategoryRow = ({
           </button>
         );
       })}
+      {onBoost && (
+        <button
+          type="button"
+          onClick={onBoost}
+          aria-pressed={!!boostActive}
+          style={{
+            ...PILL,
+            padding: boostActive ? "0 15px" : "0 14px",
+            background: boostActive ? "#CFFF4A" : "transparent",
+            color: boostActive ? "#1a2408" : "#9AA1AC",
+            border: `1px solid ${boostActive ? "#CFFF4A" : "#23262D"}`,
+            fontWeight: boostActive ? 700 : 600,
+          }}
+        >
+          Boost
+        </button>
+      )}
     </div>
 
     <span
