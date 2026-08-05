@@ -15,7 +15,6 @@ import {
   groupStockRows,
 } from "@/components/lite/categoryviews/verticalBlocks";
 import {
-  CHALK_SOFT,
   Last8Strip,
   LivePulse,
   PctChange,
@@ -520,7 +519,6 @@ export const IntradayStageCard = ({
   );
   const openStocks = groups.trading;
   const sessionOpen = groups.sessionMarket != null && groups.sessionEnd != null;
-  const nextOpen = groups.wakeLabel;
 
   const closeLabel = useMemo(() => {
     const market = groups.sessionMarket;
@@ -626,16 +624,7 @@ export const IntradayStageCard = ({
               Art slot 1 · Bonix bust, header corner only
             </span>
           </span>
-        ) : (
-          <span className="flex flex-col items-end gap-[3px]">
-            <span style={{ fontSize: 13, color: CHALK_SOFT, fontWeight: 600 }}>
-              No stock session today
-            </span>
-            {nextOpen && (
-              <span style={{ fontSize: 11, color: "#6B7280" }}>{nextOpen}</span>
-            )}
-          </span>
-        )}
+        ) : null}
       </div>
 
       {/* Coins */}
