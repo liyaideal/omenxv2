@@ -394,8 +394,8 @@ const LiteEventsPage = () => {
               </button>
             ))}
             {/* Boost composes in place with every category view (Intraday,
-                Crypto, Finance) — only the calendar lens and Sports opt out. */}
-            {!calendarOn && !isSportsView && (
+                Sports, Crypto, Finance) — only the calendar lens opts out. */}
+            {!calendarOn && (
               <>
                 <span
                   aria-hidden
@@ -465,7 +465,13 @@ const LiteEventsPage = () => {
         )}
 
         {/* Sports category view (contract 7B) — full width, desktop. */}
-        {isSportsView && <LiteSportsView matches={sportsMatches} />}
+        {isSportsView && (
+          <LiteSportsView
+            matches={sportsMatches}
+            boostOnly={boostOnly}
+            boostEnabled={sportsBoostEnabled}
+          />
+        )}
 
         {/* Crypto vertical view — engine (rounds) + catalogue. */}
         {isCryptoView && (
@@ -538,6 +544,9 @@ const LiteEventsPage = () => {
           <div style={{ marginTop: 18 }}>
             <MobileSportsModule
               matches={sportsMatches}
+              filters
+              boostOnly={boostOnly}
+              boostEnabled={sportsBoostEnabled}
               onOpenAll={() => setSector("sports")}
             />
           </div>
