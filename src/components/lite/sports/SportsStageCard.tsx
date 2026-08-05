@@ -12,6 +12,7 @@ import {
   kickoffLabel,
   matchesInBucket,
 } from "./sportsData";
+import { CHALK_SOFT, Crest, DIR_DOWN, DIR_UP, LivePulse } from "@/components/lite/shared/primitives";
 
 const MICRO_LABEL: React.CSSProperties = {
   fontSize: 10,
@@ -22,10 +23,10 @@ const MICRO_LABEL: React.CSSProperties = {
 };
 
 const outcomeTone = (label: string, i: number, total: number) => {
-  if (/^draw$/i.test(label)) return "#E6E9EE";
-  if (i === 0) return "#33D6FF";
-  if (i === total - 1) return "#CFFF4A";
-  return "#E6E9EE";
+  if (/^draw$/i.test(label)) return CHALK_SOFT;
+  if (i === 0) return DIR_UP;
+  if (i === total - 1) return DIR_DOWN;
+  return CHALK_SOFT;
 };
 
 const OutcomeButton = ({
@@ -59,6 +60,7 @@ const OutcomeButton = ({
   </button>
 );
 
+/** Stage-card crest: 30px, 9px monogram, -9px overlap, muted away side. */
 const TeamToken = ({
   abbr,
   muted = false,
@@ -68,26 +70,7 @@ const TeamToken = ({
   muted?: boolean;
   overlap?: boolean;
 }) => (
-  <span
-    className="font-display"
-    style={{
-      width: 30,
-      height: 30,
-      borderRadius: 999,
-      background: muted ? "#23262D" : "#F2F3F5",
-      border: "1px solid rgba(255,255,255,.08)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      fontWeight: 700,
-      fontSize: 9,
-      color: muted ? "#E6E9EE" : "#0A0B0D",
-      flex: "none",
-      marginLeft: overlap ? -9 : 0,
-    }}
-  >
-    {abbr}
-  </span>
+  <Crest abbr={abbr} size={30} fontSize={9} muted={muted} overlap={overlap} overlapPx={-9} />
 );
 
 const OutcomeGrid = ({
@@ -153,10 +136,7 @@ const LiveBlock = ({
         {match.phase ? ` · ${match.phase}` : ""}
       </span>
       <span className="flex flex-none items-center gap-[5px]">
-        <span
-          className="animate-pulse"
-          style={{ width: 5, height: 5, borderRadius: 999, background: "#FF3B4E" }}
-        />
+        <LivePulse size={5} color="#FF3B4E" />
         <span
           style={{
             fontSize: 12,
@@ -234,7 +214,7 @@ const UpcomingRow = ({
           <span
             style={{
               fontSize: 11,
-              color: "#E6E9EE",
+              color: CHALK_SOFT,
               fontWeight: 700,
               fontVariantNumeric: "tabular-nums",
             }}
@@ -359,10 +339,7 @@ export const SportsStageCard = ({
           className="flex items-center gap-[9px]"
           style={{ padding: "0 18px 9px" }}
         >
-          <span
-            className="animate-pulse"
-            style={{ width: 6, height: 6, borderRadius: 999, background: "#FF3B4E" }}
-          />
+          <LivePulse size={6} color="#FF3B4E" />
           <span
             style={{
               fontSize: 10,

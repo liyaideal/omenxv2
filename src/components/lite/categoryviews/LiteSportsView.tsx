@@ -26,46 +26,16 @@ import {
 } from "@/components/lite/sports/sportsFilters";
 import { DimensionPill, DimensionRow } from "./verticalChrome";
 import { EmptyState } from "@/components/states";
+import { CHALK, CHALK_SOFT, Crest, DIR_DOWN, DIR_UP, LivePulse } from "@/components/lite/shared/primitives";
 
-const CHALK = "#F2F3F5";
+
 
 const toneOf = (label: string, i: number, total: number) => {
-  if (/^draw$/i.test(label)) return "#E6E9EE";
-  if (i === 0) return "#33D6FF";
-  if (i === total - 1) return "#CFFF4A";
-  return "#E6E9EE";
+  if (/^draw$/i.test(label)) return CHALK_SOFT;
+  if (i === 0) return DIR_UP;
+  if (i === total - 1) return DIR_DOWN;
+  return CHALK_SOFT;
 };
-
-const Crest = ({
-  abbr,
-  size = 34,
-  overlap = false,
-}: {
-  abbr: string;
-  size?: number;
-  overlap?: boolean;
-}) => (
-  <span
-    className="font-display"
-    style={{
-      width: size,
-      height: size,
-      borderRadius: 999,
-      background: CHALK,
-      border: "1px solid rgba(255,255,255,.08)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      fontWeight: 700,
-      fontSize: size >= 38 ? 10 : 9,
-      color: "#0A0B0D",
-      flex: "none",
-      marginLeft: overlap ? -10 : 0,
-    }}
-  >
-    {abbr}
-  </span>
-);
 
 /** Tier-2 outcome chip — the only pattern allowed for match outcomes. */
 const OutcomeChip = ({
@@ -155,10 +125,7 @@ const LiveCard = ({
           {match.phase ? ` · ${match.phase}` : ""}
         </span>
         <span className="flex items-center" style={{ gap: 5 }}>
-          <span
-            className="animate-pulse"
-            style={{ width: 5, height: 5, borderRadius: 999, background: "#FF3B4E" }}
-          />
+          <LivePulse size={5} color="#FF3B4E" />
           <span
             style={{
               fontSize: 12,
@@ -518,10 +485,7 @@ export const LiteSportsView = ({
       {live.length > 0 && (
         <div className="flex flex-col" style={{ gap: 10 }}>
           <div className="flex items-center" style={{ gap: 9 }}>
-            <span
-              className="animate-pulse"
-              style={{ width: 6, height: 6, borderRadius: 999, background: "#FF3B4E" }}
-            />
+            <LivePulse size={6} color="#FF3B4E" />
             <span
               style={{
                 fontSize: 10,

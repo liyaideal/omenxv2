@@ -23,6 +23,7 @@ import {
   groupStockRows,
 } from "./verticalBlocks";
 import { EmptyState } from "@/components/states";
+import { LivePulse } from "@/components/lite/shared/primitives";
 
 export const LiteIntradayView = ({
   currentFor,
@@ -66,10 +67,7 @@ export const LiteIntradayView = ({
               fontWeight: 700,
             }}
           >
-            <span
-              className="animate-pulse"
-              style={{ width: 6, height: 6, borderRadius: 999, background: ORANGE }}
-            />
+            <LivePulse size={6} color={ORANGE} />
             Intraday · rolling rounds
           </span>
           <span
