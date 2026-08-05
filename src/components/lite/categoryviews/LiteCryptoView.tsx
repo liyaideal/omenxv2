@@ -121,9 +121,6 @@ export const LiteCryptoView = ({
         ) : (
           <DimensionRow label="Window">
             <StageDial value={tf} onChange={setTf} size="module" />
-            <span style={{ fontSize: 11, color: "#6B7280" }}>
-              These are the Intraday rounds — same engine, filtered to coins.
-            </span>
           </DimensionRow>
         )}
       </div>
