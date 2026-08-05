@@ -333,6 +333,7 @@ export const LiteSportsView = ({
   boostOnly,
   boostEnabled,
   now,
+  defaultSport,
 }: {
   matches: SportsMatch[];
   /** Boost filter composes IN PLACE — chrome stays, content narrows. */
@@ -341,10 +342,12 @@ export const LiteSportsView = ({
   boostEnabled?: boolean;
   /** Frozen clock for the style guide; production reads the real clock. */
   now?: number;
+  /** Style-guide only — preselect a sport so a preset renders its league row. */
+  defaultSport?: string;
 }) => {
   const navigate = useNavigate();
   const [bucket, setBucket] = useState("all");
-  const [sport, setSport] = useState<string>(ALL_OPTION);
+  const [sport, setSport] = useState<string>(defaultSport ?? ALL_OPTION);
   const [league, setLeague] = useState<string>(ALL_OPTION);
   const clock = now ?? Date.now();
 

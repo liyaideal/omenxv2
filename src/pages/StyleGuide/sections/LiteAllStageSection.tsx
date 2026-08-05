@@ -771,6 +771,7 @@ const SUBNAV_PRESETS = [
     label: "Soccer · 4 leagues",
     matches: [...SOCCER_4, ...OTHER_SPORTS],
     boostOnly: false,
+    sport: "SOCCER",
     caption:
       "Select Soccer on the SPORT row: the LEAGUE row appears with the four leagues that have markets this week (taxonomy order, leading All) and the footer counts the other groups.",
   },
@@ -779,6 +780,7 @@ const SUBNAV_PRESETS = [
     label: "Single-league sport (UFC)",
     matches: SINGLE_LEAGUE,
     boostOnly: false,
+    sport: "UFC",
     caption:
       "UFC has one league with markets, so the LEAGUE row is not rendered at all — the module starts straight under the SPORT row.",
   },
@@ -787,6 +789,7 @@ const SUBNAV_PRESETS = [
     label: "Worst case · 9 leagues wrap",
     matches: [...SOCCER_9, ...OTHER_SPORTS],
     boostOnly: false,
+    sport: "SOCCER",
     caption:
       "13A-max: all nine soccer leagues are live. The row wraps onto a second line at the same 7px gaps — never a horizontal scroll and never a truncated pill.",
   },
@@ -795,6 +798,7 @@ const SUBNAV_PRESETS = [
     label: "Boost on · nothing boosted",
     matches: [...SOCCER_4, ...OTHER_SPORTS],
     boostOnly: true,
+    sport: "SOCCER",
     caption:
       "Boost composes in place: header and both filter rows stay mounted, the module body is replaced by the standard empty line.",
   },
@@ -810,6 +814,7 @@ const SportsSubnavDemo = () => {
         <LiteSportsView
           matches={[...p.matches]}
           now={NOW}
+          defaultSport={p.sport}
           boostOnly={p.boostOnly}
           boostEnabled={false}
         />
