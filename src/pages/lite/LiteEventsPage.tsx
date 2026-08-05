@@ -358,6 +358,8 @@ const LiteEventsPage = () => {
               onWatchlist={handleWatchlistClick}
               calendarActive={calendarOn}
               onCalendar={handleCalendarClick}
+              boostActive={boostOnly}
+              onBoost={() => setBoostOnly((v) => !v)}
             />
           </div>
         ) : (
