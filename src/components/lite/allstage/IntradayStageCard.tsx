@@ -10,6 +10,7 @@ import { AssetAvatar } from "@/components/lite/AssetAvatar";
 import { RoundPlot } from "@/components/lite/intraday/RoundPlot";
 import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader";
 import { formatMarketPrice, formatMarketTime, resolveStockMarket } from "@/lib/usStockSessions";
+import { groupStockRows } from "@/components/lite/categoryviews/verticalBlocks";
 import {
   COINS,
   COIN_META,
