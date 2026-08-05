@@ -227,11 +227,14 @@ export const CoinTile = ({
   event,
   history,
   tickSeconds,
+  nowMs,
 }: {
   coin: Coin;
   event: QuickEvent | null;
   history: ("up" | "down")[];
   tickSeconds: number;
+  /** Style-guide only — freeze the countdown clock. */
+  nowMs?: number;
 }) => {
   const navigate = useNavigate();
   const meta = COIN_META[coin];
@@ -321,7 +324,7 @@ export const CoinTile = ({
               fontVariantNumeric: "tabular-nums",
             }}
           >
-            {endMs != null ? formatCountdown(endMs - Date.now()) : "--:--"}
+            {endMs != null ? formatCountdown(endMs - (nowMs ?? Date.now())) : "--:--"}
           </span>
         </span>
       </div>
@@ -567,7 +570,9 @@ export const groupStockRows = (
   stockRows: StockEventRow[],
   sessionNow?: Date,
 ): StockGroups => {
-  const now = Date.now();
+  // One clock for EVERYTHING: row liveness and session resolution both read
+  // the injected instant when present (style-guide frozen clock).
+  const now = sessionNow ? sessionNow.getTime() : Date.now();
   const byTicker = new Map<string, StockEventRow[]>();
   for (const r of stockRows) {
     const t = deriveTickerFromEvent(r.id, r.name);
