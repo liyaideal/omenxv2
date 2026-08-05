@@ -82,29 +82,8 @@ const CATEGORY_LABEL: Record<string, string> = {
   stocks: "Finance",
 };
 
-const useCountdown = (target: Date | null) => {
-  const [text, setText] = useState("--:--:--");
-  useEffect(() => {
-    if (!target) return;
-    const tick = () => {
-      const diff = target.getTime() - Date.now();
-      if (diff <= 0) return setText("00:00:00");
-      const d = Math.floor(diff / 86_400_000);
-      const h = Math.floor((diff % 86_400_000) / 3_600_000);
-      const m = Math.floor((diff % 3_600_000) / 60_000);
-      const s = Math.floor((diff % 60_000) / 1_000);
-      setText(
-        d > 0
-          ? `${d}d ${String(h).padStart(2, "0")}h`
-          : `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`,
-      );
-    };
-    tick();
-    const t = setInterval(tick, 1000);
-    return () => clearInterval(t);
-  }, [target]);
-  return text;
-};
+// Countdown comes from the shared `useTradeCountdown` (intradayData) — one
+// countdown implementation for both Lite trade pages.
 
 // Market activity rows come from the shared `useMarketActivityRows` hook
 // (LiteMarketActivity) so the spot page renders the identical feed.
