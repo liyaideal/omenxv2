@@ -3,7 +3,7 @@
 // fade mask, a divider, then the fixed Watchlist count chip (52px) and
 // Calendar icon chip (44px). Contract: list-final-touches-11.html 11B.
 // ============================================================
-import { Calendar } from "lucide-react";
+import { Calendar, Star } from "lucide-react";
 import { LivePulse } from "@/components/lite/shared/primitives";
 
 export interface MobileCategory {
@@ -123,8 +123,8 @@ export const MobileCategoryRow = ({
       className="flex items-center justify-center"
       style={{
         flex: "none",
-        gap: 5,
-        width: 52,
+        gap: 4,
+        width: watchlistCount > 0 ? 52 : 44,
         minHeight: 44,
         borderRadius: 999,
         border: `1px solid ${watchlistActive ? "#F2F3F5" : "#23262D"}`,
@@ -133,10 +133,12 @@ export const MobileCategoryRow = ({
         fontWeight: 700,
       }}
     >
-      <span
-        style={{ width: 6, height: 6, borderRadius: 2, background: "#33D6FF" }}
+      <Star
+        style={{ width: 15, height: 15 }}
+        strokeWidth={2}
+        fill={watchlistActive ? "currentColor" : "none"}
       />
-      {watchlistCount}
+      {watchlistCount > 0 && watchlistCount}
     </button>
 
     <button
