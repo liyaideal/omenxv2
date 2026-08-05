@@ -79,10 +79,6 @@ export const LiteFinanceView = ({
     [events, cls, region],
   );
 
-  const clsLabel =
-    cls === "all"
-      ? "the markets"
-      : (FINANCE_ASSET_CLASSES.find((c) => c.code === cls)?.label ?? cls);
   const regionLabel =
     region === "all"
       ? "every region"
