@@ -284,11 +284,29 @@ export const LiteEventCard = ({
             </div>
           ) : (
             <div className="flex gap-[10px]">
-              <span className="flex min-h-[58px] flex-1 items-center justify-center rounded-[11px] bg-yes/15 text-center text-[13.5px] font-bold text-yes transition-colors group-hover:bg-yes/25">
-                Yes {fmt(yesPrice)}
+              <span
+                className="chip-t2 flex min-h-[58px] flex-1 items-center justify-between px-[13px]"
+                style={{ borderRadius: 11, ["--chip-accent" as string]: "#33D6FF" }}
+              >
+                <span className="text-[11px] text-[#9AA1AC]">Yes</span>
+                <span
+                  className="font-display text-[17px] font-bold"
+                  style={{ color: "#33D6FF", fontVariantNumeric: "tabular-nums" }}
+                >
+                  {fmt(yesPrice)}
+                </span>
               </span>
-              <span className="flex min-h-[58px] flex-1 items-center justify-center rounded-[11px] bg-no/15 text-center text-[13.5px] font-bold text-no transition-colors group-hover:bg-no/25">
-                No {fmt(noPrice)}
+              <span
+                className="chip-t2 flex min-h-[58px] flex-1 items-center justify-between px-[13px]"
+                style={{ borderRadius: 11, ["--chip-accent" as string]: "#CFFF4A" }}
+              >
+                <span className="text-[11px] text-[#9AA1AC]">No</span>
+                <span
+                  className="font-display text-[17px] font-bold"
+                  style={{ color: "#CFFF4A", fontVariantNumeric: "tabular-nums" }}
+                >
+                  {fmt(noPrice)}
+                </span>
               </span>
             </div>
           )}
