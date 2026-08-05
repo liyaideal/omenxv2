@@ -260,6 +260,8 @@ const ROW_PRESETS = [
   { id: "intraday", label: "Intraday selected" },
   { id: "watchlist", label: "Watchlist active" },
   { id: "calendar", label: "Calendar active" },
+  { id: "boost-off", label: "Boost inactive" },
+  { id: "boost-on", label: "Boost active" },
 ] as const;
 
 const BOOST_PRESETS = [
@@ -359,6 +361,8 @@ export const LiteFinalTouchesSection = () => {
         <Caption>
           Categories scroll under a right fade mask; the divider, the 52px Watchlist count
           chip and the 44px Calendar icon chip are fixed at the right end and never scroll.
+          Boost is a filter, not a category: it sits after the divider as a 44px Zap icon
+          chip (Volt #CFFF4A when active), never inside the scrolling category list.
           Chip set, order and labels come from <code>src/lib/taxonomy.ts</code> — "Stocks"
           is now <strong>Finance</strong> and "Macro" renders as <strong>Economy</strong>.
         </Caption>
@@ -380,6 +384,8 @@ export const LiteFinalTouchesSection = () => {
             onWatchlist={() => {}}
             calendarActive={rowPreset === "calendar"}
             onCalendar={() => {}}
+            boostActive={rowPreset === "boost-on"}
+            onBoost={() => {}}
           />
         </Canvas>
       </SubSection>
