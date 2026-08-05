@@ -30,6 +30,7 @@ import {
   type SettledSeries,
 } from "@/components/lite/LiteSettledSeriesCard";
 import type { ResolvedEvent } from "@/hooks/useResolvedEvents";
+import { FROZEN_NOW, frozenIso } from "../frozenClock";
 
 // Static settled-card fixtures — four states, no data access.
 const settledDemo = (
@@ -45,7 +46,7 @@ const settledDemo = (
     description: null,
     volume: null,
     is_resolved: true,
-    settled_at: new Date(Date.now() - 3_600_000).toISOString(),
+    settled_at: frozenIso(-3_600_000),
     winning_option_id: negative ? "o2" : "o1",
     imageUrl: null,
     options: [
@@ -414,7 +415,7 @@ const marketDemo = (variant: MarketVariant): EventRow => ({
   totalVolume: variant === "closing" ? 2_400_000 : 860_000,
   openInterest: 320_000,
   expiry: new Date(
-    Date.now() +
+    FROZEN_NOW +
       (variant === "endsSoon"
         ? 2.2
         : variant === "closing"
@@ -426,9 +427,9 @@ const marketDemo = (variant: MarketVariant): EventRow => ({
               : 72) *
         3_600_000,
   ),
-  createdAt: new Date(
-    Date.now() - (variant === "new" ? 3 * 3_600_000 : 86_400_000 * 3),
-  ).toISOString(),
+  createdAt: frozenIso(
+    -(variant === "new" ? 3 * 3_600_000 : 86_400_000 * 3),
+  ),
   isNew: variant === "new",
   isClosingSoon: variant === "closing",
   topMarket: { label: "Yes" },
@@ -793,20 +794,20 @@ const PositionStates = () => {
 // ------------------------------------------------------------------ Section
 export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
   const activity = [
-    { id: "a1", isYes: true, label: "Yes", amount: 25, boost: 5, createdAt: new Date(Date.now() - 120_000).toISOString() },
-    { id: "a2", isYes: false, label: "No", amount: 140, boost: 1, createdAt: new Date(Date.now() - 900_000).toISOString() },
-    { id: "a3", isYes: true, label: "Yes", amount: 7, boost: 20, createdAt: new Date(Date.now() - 5_400_000).toISOString() },
-    { id: "a4", isYes: false, label: "No", amount: 1250, boost: 3, createdAt: new Date(Date.now() - 86_400_000).toISOString() },
-    { id: "a5", isYes: true, label: "Yes", amount: 55, boost: 1, createdAt: new Date(Date.now() - 100_800_000).toISOString() },
+    { id: "a1", isYes: true, label: "Yes", amount: 25, boost: 5, createdAt: frozenIso(-120_000) },
+    { id: "a2", isYes: false, label: "No", amount: 140, boost: 1, createdAt: frozenIso(-900_000) },
+    { id: "a3", isYes: true, label: "Yes", amount: 7, boost: 20, createdAt: frozenIso(-5_400_000) },
+    { id: "a4", isYes: false, label: "No", amount: 1250, boost: 3, createdAt: frozenIso(-86_400_000) },
+    { id: "a5", isYes: true, label: "Yes", amount: 55, boost: 1, createdAt: frozenIso(-100_800_000) },
   ];
 
   // Multi-market feed: option labels, No legs carry the legacy "No: " prefix.
   const activityMulti = [
-    { id: "m1", isYes: true, label: "Max Verstappen", amount: 25, boost: 2, createdAt: new Date(Date.now() - 15_000).toISOString() },
-    { id: "m2", isYes: false, label: "No: Lando Norris", amount: 140, boost: 1, createdAt: new Date(Date.now() - 600_000).toISOString() },
-    { id: "m3", isYes: true, label: "Charles Leclerc", amount: 1250, boost: 5, createdAt: new Date(Date.now() - 7_200_000).toISOString() },
+    { id: "m1", isYes: true, label: "Max Verstappen", amount: 25, boost: 2, createdAt: frozenIso(-15_000) },
+    { id: "m2", isYes: false, label: "No: Lando Norris", amount: 140, boost: 1, createdAt: frozenIso(-600_000) },
+    { id: "m3", isYes: true, label: "Charles Leclerc", amount: 1250, boost: 5, createdAt: frozenIso(-7_200_000) },
     // Post-netting No leg: plain option label, side carried by isYes only.
-    { id: "m4", isYes: false, label: "Oscar Piastri", amount: 60, boost: 3, createdAt: new Date(Date.now() - 10_800_000).toISOString() },
+    { id: "m4", isYes: false, label: "Oscar Piastri", amount: 60, boost: 3, createdAt: frozenIso(-10_800_000) },
   ];
 
   return (
@@ -955,7 +956,7 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
           <Grid cols={3}>
             <Cell label="Won · with holding">
               <LiteOutcomeCard
-                settledAt={new Date().toISOString()}
+                settledAt={frozenIso()}
                 winnerLabel="Yes"
                 winnerIsYes
                 loserLabel="No"
@@ -969,7 +970,7 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
             </Cell>
             <Cell label="Lost · with holding">
               <LiteOutcomeCard
-                settledAt={new Date().toISOString()}
+                settledAt={frozenIso()}
                 winnerLabel="No"
                 winnerIsYes={false}
                 loserLabel="Yes"
@@ -981,7 +982,7 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
             </Cell>
             <Cell label="Signed out / no holding">
               <LiteOutcomeCard
-                settledAt={new Date().toISOString()}
+                settledAt={frozenIso()}
                 winnerLabel="Yes"
                 winnerIsYes
                 loserLabel="No"

@@ -19,9 +19,10 @@ import type {
   StockEventRow,
 } from "@/components/lite/intraday/intradayData";
 import type { SportsMatch } from "@/components/lite/sports/sportsData";
+import { FROZEN_NOW } from "../frozenClock";
 
 /* ---------------- Frozen clock ---------------- */
-const NOW = new Date("2026-08-03T15:20:00Z").getTime();
+const NOW = FROZEN_NOW;
 const MIN = 60_000;
 const iso = (ms: number) => new Date(NOW + ms).toISOString();
 
@@ -144,7 +145,7 @@ const quick = (
   period: "202608031515",
   base_price: base,
   start_date: iso(-5 * MIN),
-  end_date: new Date(Date.now() + TF_LEFT_SEC[tf] * 1000).toISOString(),
+  end_date: iso(TF_LEFT_SEC[tf] * 1000),
   volume: 42_000,
   is_resolved: false,
   options: [
