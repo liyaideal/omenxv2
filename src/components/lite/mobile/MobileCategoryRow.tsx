@@ -3,7 +3,7 @@
 // fade mask, a divider, then the fixed Watchlist count chip (52px) and
 // Calendar icon chip (44px). Contract: list-final-touches-11.html 11B.
 // ============================================================
-import { Calendar, Star } from "lucide-react";
+import { Calendar, Star, Zap } from "lucide-react";
 import { LivePulse } from "@/components/lite/shared/primitives";
 
 export interface MobileCategory {
@@ -91,29 +91,37 @@ export const MobileCategoryRow = ({
           </button>
         );
       })}
-      {onBoost && (
-        <button
-          type="button"
-          onClick={onBoost}
-          aria-pressed={!!boostActive}
-          style={{
-            ...PILL,
-            padding: boostActive ? "0 15px" : "0 14px",
-            background: boostActive ? "#CFFF4A" : "transparent",
-            color: boostActive ? "#1a2408" : "#9AA1AC",
-            border: `1px solid ${boostActive ? "#CFFF4A" : "#23262D"}`,
-            fontWeight: boostActive ? 700 : 600,
-          }}
-        >
-          Boost
-        </button>
-      )}
     </div>
 
     <span
       aria-hidden
       style={{ flex: "none", width: 1, height: 28, background: "#23262D" }}
     />
+
+    {onBoost && (
+      <button
+        type="button"
+        onClick={onBoost}
+        aria-label="Boost"
+        aria-pressed={!!boostActive}
+        className="flex items-center justify-center"
+        style={{
+          flex: "none",
+          width: 44,
+          minHeight: 44,
+          borderRadius: 999,
+          background: boostActive ? "#CFFF4A" : "transparent",
+          border: `1px solid ${boostActive ? "#CFFF4A" : "#23262D"}`,
+          color: boostActive ? "#1a2408" : "#9AA1AC",
+        }}
+      >
+        <Zap
+          style={{ width: 15, height: 15 }}
+          strokeWidth={2}
+          fill={boostActive ? "currentColor" : "none"}
+        />
+      </button>
+    )}
 
     <button
       type="button"
