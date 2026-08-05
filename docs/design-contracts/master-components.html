@@ -517,7 +517,7 @@ Intraday identity orange <code>#FF8A3D</code>; live red <code>#FF3B4E</code>.
 </div>
 </div>
 
-<div class="lbl"><span class="n">Mobile coin card</span><span class="r">MobileIntradayModule CoinCard — 32px avatar, 44px sparkline with dashed open line, 10px LAST-8 squares, Open $ read-out, Tier-1 Up/Down pair at 48px.</span></div>
+<div class="lbl"><span class="n">Mobile coin card</span><span class="r">MobileIntradayModule CoinCard — the 390 chrome of the same crypto round tile: 32px avatar, 84px RoundPlot (two-segment + round-open pill), 10px LAST-8 squares, Tier-1 Up/Down pair at 48px. No separate "Open $" read-out — the pill carries it.</span></div>
 <div class="stage m">
   <div style="display:flex;flex-direction:column;gap:11px;background:#131519;border:1px solid #1D2026;border-radius:14px;padding:13px 14px">
     <div style="display:flex;align-items:center;gap:11px">
@@ -534,10 +534,17 @@ Intraday identity orange <code>#FF8A3D</code>; live red <code>#FF3B4E</code>.
         <span class="font-display mono" style="font-size:17px;font-weight:700;color:#FF8A3D">08:41</span>
       </span>
     </div>
-    <svg viewBox="0 0 200 44" preserveAspectRatio="none" style="width:100%;height:44px;display:block">
-      <line x1="0" x2="200" y1="26" y2="26" stroke="#4B5563" stroke-width="1" stroke-dasharray="3 4"/>
-      <path d="M0 32 L30 28 L60 31 L90 22 L120 25 L150 17 L200 12" fill="none" stroke="#33D6FF" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
-    </svg>
+    <div style="position:relative;height:84px;background:#0C1013;border-radius:9px;overflow:hidden">
+      <svg viewBox="0 0 300 84" preserveAspectRatio="none" style="width:100%;height:84px;display:block">
+        <rect x="186" y="0" width="114" height="84" fill="rgba(255,255,255,.035)"/>
+        <line x1="0" x2="300" y1="42" y2="42" stroke="rgba(255,255,255,.28)" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <path d="M0 52 C 30 48, 52 58, 74 51 C 100 43, 128 55, 152 46 C 168 40, 178 44, 186 42" fill="none" stroke="#3A4149" stroke-width="1.5" stroke-opacity=".75" vector-effect="non-scaling-stroke"/>
+        <path d="M186 42 C 202 38, 218 46, 234 36 C 254 24, 272 32, 291 23" fill="none" stroke="#33D6FF" stroke-width="2.25" vector-effect="non-scaling-stroke"/>
+      </svg>
+      <span style="position:absolute;left:0;width:62%;top:42px;transform:translateY(-50%);text-align:right;padding-right:6px">
+        <span style="background:#1B1F25;border:1px solid #2B2F38;border-radius:6px;font-size:9.5px;color:#9AA1AC;padding:2px 6px;white-space:nowrap">Round open $4,169.60</span>
+      </span>
+    </div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
       <span style="display:flex;align-items:center;gap:8px">
         <span style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#6B7280;font-weight:700">Last 8</span>
@@ -545,7 +552,7 @@ Intraday identity orange <code>#FF8A3D</code>; live red <code>#FF3B4E</code>.
           <span style="width:10px;height:10px;border-radius:3px;background:#33D6FF"></span><span style="width:10px;height:10px;border-radius:3px;background:#CFFF4A"></span><span style="width:10px;height:10px;border-radius:3px;background:#33D6FF"></span><span style="width:10px;height:10px;border-radius:3px;background:#33D6FF"></span><span style="width:10px;height:10px;border-radius:3px;background:#CFFF4A"></span><span style="width:10px;height:10px;border-radius:3px;background:#33D6FF"></span><span style="width:10px;height:10px;border-radius:3px;background:#CFFF4A"></span><span style="width:10px;height:10px;border-radius:3px;background:#33D6FF"></span>
         </span>
       </span>
-      <span class="mono" style="font-size:10px;color:#6B7280">Open $4,169.60</span>
+      <span></span>
     </div>
     <div style="display:flex;gap:8px">
       <button class="chip-t1 chip-t1-up" style="flex:1;display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 13px;border-radius:11px"><span style="font-size:12px;font-weight:700">Up</span><span class="font-display mono" style="font-size:16px;font-weight:700">54¢</span></button>
