@@ -4,6 +4,7 @@
 // Calendar icon chip (44px). Contract: list-final-touches-11.html 11B.
 // ============================================================
 import { Calendar } from "lucide-react";
+import { LivePulse } from "@/components/lite/shared/primitives";
 
 export interface MobileCategory {
   id: string;
@@ -78,17 +79,14 @@ export const MobileCategoryRow = ({
               fontWeight: active ? 700 : 600,
             }}
           >
-            {c.dot && (
-              <span
-                className={c.pulse ? "animate-pulse" : undefined}
-                style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: 999,
-                  background: c.dot,
-                }}
-              />
-            )}
+            {c.dot &&
+              (c.pulse ? (
+                <LivePulse size={6} color={c.dot} />
+              ) : (
+                <span
+                  style={{ width: 6, height: 6, borderRadius: 999, background: c.dot }}
+                />
+              ))}
             {c.label}
           </button>
         );
