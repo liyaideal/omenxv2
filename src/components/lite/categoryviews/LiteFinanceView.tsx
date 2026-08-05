@@ -38,6 +38,7 @@ export const LiteFinanceView = ({
   initialClass = "all",
   initialRegion = "all",
   nowMs,
+  boostOnly,
 }: {
   stockRows: StockEventRow[];
   tickSeconds: number;
@@ -50,6 +51,8 @@ export const LiteFinanceView = ({
   initialRegion?: string;
   /** Style-guide only — freeze every clock in the view. */
   nowMs?: number;
+  /** Boost composes in place — engine hides until boost rounds exist. */
+  boostOnly?: boolean;
 }) => {
   const [cls, setCls] = useState<string>(initialClass);
   const [region, setRegion] = useState<string>(initialRegion);
@@ -61,7 +64,8 @@ export const LiteFinanceView = ({
 
   const inRegion = (r: StockEventRow) =>
     region === "all" || resolveStockMarket(r).key === region;
-  const engineOn = (cls === ENGINE_CLASS || cls === "all") && region !== "kr";
+  const engineOn =
+    !boostOnly && (cls === ENGINE_CLASS || cls === "all") && region !== "kr";
   const trading = engineOn ? groups.trading.filter(inRegion) : [];
   const asleep = engineOn ? groups.asleep.filter((a) => inRegion(a.row)) : [];
   const shown = trading.length + asleep.length;
@@ -185,6 +189,14 @@ export const LiteFinanceView = ({
             </div>
           )}
         </div>
+      )}
+
+      {/* Boost with nothing boosted — keep chrome, show the empty line. */}
+      {boostOnly && catalogue.length === 0 && (
+        <EmptyState
+          variant="page"
+          title="Nothing boosted here yet — check back soon."
+        />
       )}
 
       {/* Catalogue — hidden entirely when nothing is open. */}
