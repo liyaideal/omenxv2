@@ -37,6 +37,8 @@ import { SportsStageCard } from "@/components/lite/sports/SportsStageCard";
 import { useSportsMatches } from "@/components/lite/sports/sportsData";
 import { LiteIntradayView } from "@/components/lite/categoryviews/LiteIntradayView";
 import { LiteSportsView } from "@/components/lite/categoryviews/LiteSportsView";
+import { LiteCryptoView } from "@/components/lite/categoryviews/LiteCryptoView";
+import { LiteFinanceView } from "@/components/lite/categoryviews/LiteFinanceView";
 import { useSurface } from "@/contexts/SurfaceContext";
 import {
   SECTOR_CATEGORIES,
@@ -134,6 +136,9 @@ const LiteEventsPage = () => {
   const isMobileStage = !calendarOn && !!isMobile && sector === "all" && !boostOnly;
   const isMobileIntraday = !calendarOn && !!isMobile && sector === "intraday";
   const isMobileSports = !calendarOn && !!isMobile && sector === "sports";
+  // Crypto / Finance verticals — same component on both breakpoints.
+  const isCryptoView = !calendarOn && sector === "crypto" && !boostOnly;
+  const isFinanceView = !calendarOn && sector === "finance" && !boostOnly;
   const [mobileTf, setMobileTf] = useState<Timeframe>("15m");
 
   // Stage data — desktop only, and only for the views that render it.
@@ -141,7 +146,9 @@ const LiteEventsPage = () => {
     calendarOn ||
     (!isMobile && (isStageView || isIntradayView)) ||
     isMobileStage ||
-    isMobileIntraday;
+    isMobileIntraday ||
+    isCryptoView ||
+    isFinanceView;
   const tickSeconds = useSecondTick();
   const { currentFor, historyFor } = useQuickRounds(stageActive);
   const { rows: stockRows } = useIntradayStocks(stageActive);
@@ -451,6 +458,41 @@ const LiteEventsPage = () => {
         {/* Sports category view (contract 7B) — full width, desktop. */}
         {isSportsView && <LiteSportsView matches={sportsMatches} />}
 
+        {/* Crypto vertical view — engine (rounds) + catalogue. */}
+        {isCryptoView && (
+          <LiteCryptoView
+            currentFor={currentFor}
+            historyFor={historyFor}
+            tickSeconds={tickSeconds}
+            events={filtered}
+            isMobile={!!isMobile}
+            renderGrid={(items) => (
+              <CardGrid
+                items={items}
+                getBoostConfig={getBoostConfig}
+                trendingCutoff={trendingCutoff}
+              />
+            )}
+          />
+        )}
+
+        {/* Finance vertical view — session engine + catalogue. */}
+        {isFinanceView && (
+          <LiteFinanceView
+            stockRows={stockRows}
+            tickSeconds={tickSeconds}
+            events={filtered}
+            isMobile={!!isMobile}
+            renderGrid={(items) => (
+              <CardGrid
+                items={items}
+                getBoostConfig={getBoostConfig}
+                trendingCutoff={trendingCutoff}
+              />
+            )}
+          />
+        )}
+
         {/* Mobile "All" stage (contract 11B/11C) — Intraday · Sports · Picks. */}
         {isMobileStage && (
           <LiteMobileAllStage
@@ -525,7 +567,9 @@ const LiteEventsPage = () => {
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
-        ) : isIntradayView ||
+        ) : isCryptoView ||
+          isFinanceView ||
+          isIntradayView ||
           isSportsView ||
           isMobileIntraday ||
           isMobileSports ? null : isWatchlistView &&

@@ -16,6 +16,7 @@ export { SpotSection } from "./SpotSection";
 export { LiteSpotSection } from "./LiteSpotSection";
 export { LiteSection } from "./LiteSection";
 export { LiteAllStageSection } from "./LiteAllStageSection";
+export { LiteVerticalViewsSection } from "./LiteVerticalViewsSection";
 export { LiteCalendarSection } from "./LiteCalendarSection";
 export { LiteFinalTouchesSection } from "./LiteFinalTouchesSection";
 export { ApiSection } from "./ApiSection";
