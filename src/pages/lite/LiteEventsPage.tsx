@@ -318,11 +318,10 @@ const LiteEventsPage = () => {
           </div>
         )}
 
-        {/* Filter row (removed entirely in watchlist view) */}
-        {isWatchlistView && !calendarOn ? (
-          isMobile ? (
-            watchlistStatusLine
-          ) : (
+        {/* Filter row — mobile keeps the control row in every view (watchlist
+            included), desktop still swaps it for the watchlist status line. */}
+        {isWatchlistView && !calendarOn && !isMobile ? (
+          (
             <div className="flex items-center gap-2" style={{ marginTop: 16 }}>
               <div className="min-w-0 flex-1">{watchlistStatusLine}</div>
               <div className="flex shrink-0 items-center gap-2">
@@ -340,7 +339,7 @@ const LiteEventsPage = () => {
             </div>
           )
         ) : isMobile ? (
-          <div style={{ marginTop: 12 }}>
+          <div className="flex flex-col" style={{ marginTop: 12, gap: 10 }}>
             <MobileCategoryRow
               categories={[
                 { id: "all", label: "All" },
@@ -367,6 +366,7 @@ const LiteEventsPage = () => {
               boostActive={boostOnly}
               onBoost={() => setBoostOnly((v) => !v)}
             />
+            {isWatchlistView && !calendarOn && watchlistStatusLine}
           </div>
         ) : (
           <div className="flex flex-wrap items-center gap-2" style={{ marginTop: 16 }}>
