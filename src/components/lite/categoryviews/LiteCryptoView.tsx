@@ -1,0 +1,210 @@
+// ============================================================
+// CRYPTO VERTICAL VIEW — category chip "Crypto".
+// ASSEMBLY ONLY: every visible part is an already-shipped component —
+// the module header grammar, the round-length dial, the coin tile
+// (desktop) / mobile coin card, and the frozen LiteEventCard grid.
+// Options come from src/lib/taxonomy.ts, never from literals.
+// ============================================================
+import { useMemo, useState } from "react";
+import { CRYPTO_COINS, CRYPTO_TIMEFRAMES } from "@/lib/taxonomy";
+import type { EventRow } from "@/hooks/useMarketListData";
+import {
+  Coin,
+  QuickEvent,
+  Timeframe,
+  compactUsd,
+} from "@/components/lite/intraday/intradayData";
+import { CoinTile, ORANGE, RoundLengthDial } from "./verticalBlocks";
+import { MobileCoinCard, MobileRoundSwitcher } from "@/components/lite/mobile/MobileIntradayModule";
+import {
+  CatalogueHeader,
+  DimensionPill,
+  DimensionRow,
+  EYEBROW,
+  VerticalHeader,
+} from "./verticalChrome";
+import { coinOfEvent } from "./verticalFilters";
+import { EmptyState } from "@/components/ui/empty-state";
+
+const COIN_IDS = CRYPTO_COINS.map((c) => c.code as Coin);
+
+export const LiteCryptoView = ({
+  currentFor,
+  historyFor,
+  tickSeconds,
+  events,
+  renderGrid,
+  isMobile,
+  initialTf = "5m",
+  initialCoin = "all",
+}: {
+  currentFor: Map<string, QuickEvent>;
+  historyFor: Map<string, ("up" | "down")[]>;
+  tickSeconds: number;
+  /** Crypto catalogue events (already category-filtered by the page). */
+  events: EventRow[];
+  renderGrid: (items: EventRow[]) => React.ReactNode;
+  isMobile?: boolean;
+  /** Style-guide only. */
+  initialTf?: Timeframe;
+  initialCoin?: string;
+}) => {
+  const [tf, setTf] = useState<Timeframe>(initialTf);
+  const [coin, setCoin] = useState<string>(initialCoin);
+
+  const coins = coin === "all" ? COIN_IDS : (COIN_IDS.filter((c) => c === coin) as Coin[]);
+
+  const rounds = useMemo(
+    () => coins.map((c) => ({ coin: c, event: currentFor.get(`${c}-${tf}`) ?? null })),
+    [coins, currentFor, tf],
+  );
+
+  const roundVolume = useMemo(
+    () =>
+      COIN_IDS.reduce((sum, c) => {
+        const ev = currentFor.get(`${c}-${tf}`);
+        return sum + (ev?.volume ?? 0);
+      }, 0),
+    [currentFor, tf],
+  );
+
+  const catalogue = useMemo(
+    () => (coin === "all" ? events : events.filter((m) => coinOfEvent(m) === coin)),
+    [events, coin],
+  );
+
+  const tfLabel = CRYPTO_TIMEFRAMES.find((t) => t.code === tf)?.label ?? tf;
+
+  return (
+    <div className="flex flex-col" style={{ marginTop: isMobile ? 18 : 20, gap: 22 }}>
+      <VerticalHeader
+        compact={isMobile}
+        eyebrow="Crypto · open 24/7"
+        title="Where is crypto headed?"
+        subtitle="Rolling price rounds plus the wider crypto catalogue. Winning shares pay $1."
+        right={
+          isMobile ? undefined : (
+            <div className="flex flex-col items-end" style={{ gap: 6 }}>
+              <span style={EYEBROW}>Traded this round</span>
+              <span
+                className="font-display"
+                style={{
+                  fontSize: 22,
+                  fontWeight: 700,
+                  color: "#fff",
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
+                {compactUsd(roundVolume)}
+              </span>
+            </div>
+          )
+        }
+      />
+
+      {/* Filters — row 1 WINDOW (dial), row 2 COIN (pills). */}
+      <div className="flex flex-col" style={{ gap: 12 }}>
+        {isMobile ? (
+          <MobileRoundSwitcher value={tf} onSelect={setTf} />
+        ) : (
+          <DimensionRow label="Window">
+            <RoundLengthDial value={tf} onSelect={setTf} />
+          </DimensionRow>
+        )}
+        <DimensionRow label="Coin" scroll={isMobile}>
+          <DimensionPill
+            label="All coins"
+            active={coin === "all"}
+            onSelect={() => setCoin("all")}
+          />
+          {CRYPTO_COINS.map((c) => (
+            <DimensionPill
+              key={c.code}
+              label={c.label}
+              active={coin === c.code}
+              onSelect={() => setCoin(c.code)}
+            />
+          ))}
+        </DimensionRow>
+      </div>
+
+      {/* Engine — the selected window × coin rounds. */}
+      <div className="flex flex-col" style={{ gap: 12 }}>
+        <span
+          className="flex items-center"
+          style={{ ...EYEBROW, gap: 8, color: ORANGE }}
+        >
+          <span
+            className="animate-pulse"
+            style={{ width: 6, height: 6, borderRadius: 999, background: ORANGE }}
+          />
+          Intraday · {tfLabel} rounds
+        </span>
+        {rounds.some((r) => r.event) ? (
+          <div
+            className={isMobile ? "flex flex-col" : "grid"}
+            style={
+              isMobile
+                ? { gap: 12 }
+                : {
+                    gap: 16,
+                    gridTemplateColumns: `repeat(${Math.min(3, Math.max(1, rounds.length))},minmax(0,1fr))`,
+                  }
+            }
+          >
+            {rounds.map(({ coin: c, event }) =>
+              isMobile ? (
+                <MobileCoinCard
+                  key={c}
+                  coin={c}
+                  event={event}
+                  history={historyFor.get(`${c}-${tf}`) ?? []}
+                  tf={tf}
+                  tickSeconds={tickSeconds}
+                />
+              ) : (
+                <CoinTile
+                  key={c}
+                  coin={c}
+                  event={event}
+                  history={historyFor.get(`${c}-${tf}`) ?? []}
+                  tickSeconds={tickSeconds}
+                />
+              ),
+            )}
+          </div>
+        ) : (
+          <span style={{ fontSize: 12, color: "#6B7280" }}>
+            No {tfLabel} round open right now — the next one starts shortly.
+          </span>
+        )}
+      </div>
+
+      {/* Catalogue */}
+      <div
+        className="flex flex-col"
+        style={{ gap: 14, borderTop: "1px solid #1D2026", paddingTop: 22 }}
+      >
+        <CatalogueHeader
+          compact={isMobile}
+          title="Will it happen?"
+          subtitle="Back Yes or No on the rest of the crypto market."
+          count={catalogue.length}
+        />
+        {catalogue.length === 0 ? (
+          <EmptyState
+            variant="page"
+            title="No open markets for this coin"
+            description="New crypto markets land here as they open. Check back soon."
+            actionLabel="See all coins"
+            onAction={() => setCoin("all")}
+          />
+        ) : (
+          renderGrid(catalogue)
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default LiteCryptoView;
