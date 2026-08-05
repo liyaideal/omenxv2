@@ -37,7 +37,7 @@ export const ORANGE = "#FF8A3D";
 export const UP = "#33D6FF";
 export const DOWN = "#CFFF4A";
 
-const MICRO: React.CSSProperties = {
+export const MICRO: React.CSSProperties = {
   fontSize: 9,
   letterSpacing: "0.14em",
   textTransform: "uppercase",
