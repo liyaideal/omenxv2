@@ -221,10 +221,12 @@ const STOCK_ROWS: StockEventRow[] = [
   hkStock("9988", 84.3, 0.48),
 ];
 
-/** US cash session open at the frozen instant (15:20 UTC = 11:20 ET). */
-const US_OPEN_NOW = new Date(NOW);
-/** Hong Kong is shut at 15:20 UTC (23:20 HKT). */
-const HK_SHUT_NOW = new Date(NOW);
+/**
+ * ONE injected instant for the whole playground: row liveness, session
+ * resolution, countdowns and traded-today all read it. At 15:20 UTC the US
+ * cash session is open (11:20 ET) and Hong Kong is shut (23:20 HKT).
+ */
+const FROZEN_NOW = new Date(NOW);
 
 /* ---------------- Presets ---------------- */
 const CRYPTO_PRESETS = [
