@@ -161,9 +161,12 @@ export interface DayBucket {
 }
 
 /** "ALL" + one chip per day over the next 7 days that has matches. */
-export const buildDayStrip = (rows: SportsMatch[]): DayBucket[] => {
-  const today = startOfDay(new Date());
-  const future = rows.filter((r) => isUpcoming(r));
+export const buildDayStrip = (
+  rows: SportsMatch[],
+  now: number = Date.now(),
+): DayBucket[] => {
+  const today = startOfDay(new Date(now));
+  const future = rows.filter((r) => isUpcoming(r, now));
   const counts = new Map<number, number>();
   for (const r of future) {
     if (!r.kickoff) continue;
@@ -286,11 +289,14 @@ const dayTitle = (d: Date) =>
  * Day-grouped ledger. Live matches are pinned above the ledger, so they
  * are excluded from the rows but still counted in today's note.
  */
-export const buildDayGroups = (rows: SportsMatch[]): DayGroup[] => {
-  const today = startOfDay(new Date());
+export const buildDayGroups = (
+  rows: SportsMatch[],
+  now: number = Date.now(),
+): DayGroup[] => {
+  const today = startOfDay(new Date(now));
   const byDay = new Map<number, SportsMatch[]>();
   for (const r of rows) {
-    if (!r.kickoff || !isUpcoming(r)) continue;
+    if (!r.kickoff || !isUpcoming(r, now)) continue;
     const k = startOfDay(r.kickoff);
     byDay.set(k, [...(byDay.get(k) || []), r]);
   }
