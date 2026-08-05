@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="../_ds/omenx-lite-design-system-82d07a6f-daaf-49f6-9e34-4a0416440c7b/tokens/fonts.css">
+<link rel="stylesheet" href="../_ds/omenx-lite-design-system-82d07a6f-daaf-49f6-9e34-4a0416440c7b/tokens/colors.css">
+<link rel="stylesheet" href="../_ds/omenx-lite-design-system-82d07a6f-daaf-49f6-9e34-4a0416440c7b/tokens/typography.css">
+<link rel="stylesheet" href="../_ds/omenx-lite-design-system-82d07a6f-daaf-49f6-9e34-4a0416440c7b/tokens/spacing.css">
+<link rel="stylesheet" href="../_ds/omenx-lite-design-system-82d07a6f-daaf-49f6-9e34-4a0416440c7b/styles.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+  body { margin:0; background:#0A0B0D; font-family:"Archivo", system-ui, sans-serif; }
+  a { color:#33D6FF; text-decoration:none; }
+  a:hover { color:#CFFF4A; }
+  @keyframes livepulse { 0%,100% { opacity:1; } 50% { opacity:.25; } }
+  .pulse { animation:livepulse 1.6s infinite; }
+  .chip-t2 { background:#0A0B0D; border:1px solid #23262D; border-radius:9px; transition:border-color .15s ease; cursor:pointer; font-family:inherit; }
+  .chip-t2:hover { border-color:var(--chip-accent,#23262D); }
+  .scrollx { overflow-x:auto; scrollbar-width:none; }
+  .scrollx::-webkit-scrollbar { display:none; }
+  .truncate { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+</style>
+</helmet>
+
+<section style="padding:64px 72px 96px; display:flex; flex-direction:column; gap:44px; background:#0A0B0D;">
+
+  <div style="display:flex; flex-direction:column; gap:14px; max-width:1000px;">
+    <div style="font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#33D6FF; font-weight:700;">Turn 13 · Pattern A selected</div>
+    <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:48px; line-height:1.02; letter-spacing:-0.03em; color:#fff;">Narrow by sport,<br>then by league.</div>
+    <div style="font-size:15px; line-height:1.6; color:#9AA1AC; text-wrap:pretty;">A flat row of 17 leagues is out. The selected pattern is the two-row dimension filter already shipped on Crypto and Finance: SPORT on top, LEAGUE below it, and the sports module unchanged underneath. The league row is data-driven — only leagues with markets this week render, it disappears entirely when the selected sport has one league, and its overflow behaviour is to wrap onto a second line, never to scroll or truncate.</div>
+  </div>
+
+  <div style="display:flex; flex-direction:column; gap:12px;">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; color:#0A0B0D; background:#fff; padding:4px 10px; border-radius:6px;">13A</span>
+      <span style="font-size:13px; color:#9AA1AC;">Pattern A · two-row dimension filter · desktop 1280 · Soccer selected.</span>
+    </div>
+
+    <div style="width:1280px; flex:none; box-sizing:border-box; background:#0A0B0D; border:1px solid #1D2026; border-radius:16px; overflow:hidden;">
+      <div style="height:58px; display:flex; align-items:center; justify-content:space-between; padding:0 24px; border-bottom:1px solid #1D2026;">
+        <div style="display:flex; align-items:center; gap:26px;">
+          <span style="font-family:'Archivo Expanded','Archivo',sans-serif; font-weight:800; font-size:16px; color:#fff;">OMEN<span style="color:#33D6FF;">X</span></span>
+          <span style="display:flex; background:#131519; border:1px solid #1D2026; border-radius:999px; padding:3px;"><span style="background:#fff; color:#0A0B0D; border-radius:999px; padding:6px 14px; font-size:12px; font-weight:700;">Live</span><span style="color:#9AA1AC; padding:6px 14px; font-size:12px; font-weight:600;">Settled</span></span>
+        </div>
+        <div style="display:flex; align-items:center; gap:11px;">
+          <span style="font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:700; color:#fff; font-variant-numeric:tabular-nums;">$12,480.65</span>
+          <span style="width:28px; height:28px; border-radius:999px; background:#23262D; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#fff;">JD</span>
+        </div>
+      </div>
+
+      <div style="padding:14px 24px; border-bottom:1px solid #1D2026;">
+        <div style="display:flex; flex-wrap:wrap; align-items:center; gap:8px;">
+          <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">All</button>
+          <button style="flex:none;display:flex;align-items:center;gap:7px;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;"><span style="width:6px;height:6px;border-radius:999px;background:#FF8A3D"></span>Intraday</button>
+          <button style="flex:none;display:flex;align-items:center;gap:7px;border-radius:999px;padding:7px 14px;font-size:12.5px;background:#fff;color:#0A0B0D;font-weight:600;border:none;font-family:inherit;cursor:pointer;"><span class="pulse" style="width:6px;height:6px;border-radius:999px;background:#FF3B4E"></span>Sports</button>
+          <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">Crypto</button>
+          <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">Finance</button>
+          <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">Politics</button>
+          <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">Economy</button>
+          <span style="margin-left:auto; display:flex; gap:8px;">
+            <button style="display:flex;align-items:center;gap:5px;border-radius:999px;border:1.5px solid #2B2F38;padding:6px 11px;background:transparent;font-family:inherit;cursor:pointer;"><span style="color:#FFD23E;display:inline-flex"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="m12 3 2.7 5.5 6 .9-4.3 4.2 1 6-5.4-2.8L6.6 19.6l1-6L3.3 9.4l6-.9z"></path></svg></span><span style="font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;color:#C9CED6">Watchlist</span><span style="font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;color:#C9CED6">· 6</span></button>
+            <button style="display:flex;align-items:center;gap:6px;border-radius:999px;border:1.5px solid #2B2F38;padding:6px 13px;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M8 3v4M16 3v4M3 11h18"></path></svg><span style="font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;">Calendar</span></button>
+          </span>
+        </div>
+      </div>
+
+      <div style="padding:26px 24px 30px; display:flex; flex-direction:column; gap:20px;">
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <span style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#F2F3F5;font-weight:700">Sports · match winners</span>
+          <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:26px;letter-spacing:-.02em;color:#fff">Who wins the match?</span>
+          <span style="font-size:12px;color:#9AA1AC">Winning shares pay <strong style="color:#fff;font-weight:600">$1</strong>. Matches over the next 7 days — trade before kickoff or during the match.</span>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span style="font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#6B7280; font-weight:700; width:66px; flex:none;">Sport</span>
+            <span style="display:flex; flex-wrap:wrap; gap:8px;">
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">All</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;background:#fff;color:#0A0B0D;font-weight:600;border:none;font-family:inherit;cursor:pointer;">Soccer</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">Basketball</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">Tennis</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">UFC</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">NFL</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">Esports</button>
+            </span>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span style="font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#6B7280; font-weight:700; width:66px; flex:none;">League</span>
+            <span style="display:flex; flex-wrap:wrap; gap:8px;">
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;background:#fff;color:#0A0B0D;font-weight:600;border:none;font-family:inherit;cursor:pointer;">All</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">UEFA Champions League</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">Premier League</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">LaLiga</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">K League 1</button>
+            </span>
+            <span style="font-size:11px; color:#6B7280;">Only leagues with markets this week</span>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;overflow:hidden;background:#111318;border:1px solid #1D2026;border-radius:18px;padding-bottom:14px">
+          <div style="display:flex;align-items:center;gap:9px;padding:16px 18px 9px">
+            <span class="pulse" style="width:6px;height:6px;border-radius:999px;background:#FF3B4E"></span>
+            <span style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#fff;font-weight:700">Live now · 1</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:13px;padding:22px 18px 24px;border-top:1px solid #16181D;background:#101216">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+              <span class="truncate" style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#6B7280;font-weight:700">Premier League · Matchday 3</span>
+              <span style="display:flex;align-items:center;gap:5px">
+                <span class="pulse" style="width:5px;height:5px;border-radius:999px;background:#FF3B4E"></span>
+                <span style="font-family:'Space Grotesk',sans-serif;font-size:12px;color:#fff;font-weight:700;font-variant-numeric:tabular-nums">67'</span>
+              </span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="display:flex;flex:1;min-width:0;align-items:center;gap:8px">
+                <span style="font-family:'Space Grotesk',sans-serif;width:30px;height:30px;border-radius:999px;background:#F2F3F5;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:9px;color:#0A0B0D">MCI</span>
+                <span class="truncate" style="font-size:13px;color:#fff;font-weight:600">Manchester City</span>
+              </span>
+              <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:24px;color:#fff;letter-spacing:-.01em;font-variant-numeric:tabular-nums">1–1</span>
+              <span style="display:flex;flex:1;min-width:0;align-items:center;justify-content:flex-end;gap:8px">
+                <span class="truncate" style="font-size:13px;color:#fff;font-weight:600">Arsenal</span>
+                <span style="font-family:'Space Grotesk',sans-serif;width:30px;height:30px;border-radius:999px;background:#F2F3F5;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:9px;color:#0A0B0D">ARS</span>
+              </span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">
+              <button class="chip-t2" style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;color:#33D6FF;--chip-accent:#33D6FF"><span style="font-size:10px;color:#9AA1AC">Man City</span><span style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">47¢</span></button>
+              <button class="chip-t2" style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;color:#E6E9EE;--chip-accent:#E6E9EE"><span style="font-size:10px;color:#9AA1AC">Draw</span><span style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">24¢</span></button>
+              <button class="chip-t2" style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;color:#CFFF4A;--chip-accent:#CFFF4A"><span style="font-size:10px;color:#9AA1AC">Arsenal</span><span style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">30¢</span></button>
+            </div>
+          </div>
+          <div class="scrollx" style="display:flex;gap:6px;padding:17px 18px 15px;border-top:1px solid #1D2026">
+            <button style="display:flex;flex:none;flex-direction:column;align-items:center;gap:1px;background:#F2F3F5;color:#0A0B0D;border:1px solid #F2F3F5;border-radius:10px;padding:7px 12px;font-family:inherit;cursor:pointer;"><span style="font-size:10px;font-weight:700;letter-spacing:.06em">ALL</span><span style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700">12</span></button>
+            <button style="display:flex;flex:none;flex-direction:column;align-items:center;gap:1px;background:#0A0B0D;color:#9AA1AC;border:1px solid #23262D;border-radius:10px;padding:7px 12px;font-family:inherit;cursor:pointer;"><span style="font-size:10px;font-weight:700;letter-spacing:.06em">TUE</span><span style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700">3</span></button>
+            <button style="display:flex;flex:none;flex-direction:column;align-items:center;gap:1px;background:#0A0B0D;color:#9AA1AC;border:1px solid #23262D;border-radius:10px;padding:7px 12px;font-family:inherit;cursor:pointer;"><span style="font-size:10px;font-weight:700;letter-spacing:.06em">WED</span><span style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700">2</span></button>
+            <button style="display:flex;flex:none;flex-direction:column;align-items:center;gap:1px;background:#0A0B0D;color:#9AA1AC;border:1px solid #23262D;border-radius:10px;padding:7px 12px;font-family:inherit;cursor:pointer;"><span style="font-size:10px;font-weight:700;letter-spacing:.06em">THU</span><span style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700">4</span></button>
+            <button style="display:flex;flex:none;flex-direction:column;align-items:center;gap:1px;background:#0A0B0D;color:#9AA1AC;border:1px solid #23262D;border-radius:10px;padding:7px 12px;font-family:inherit;cursor:pointer;"><span style="font-size:10px;font-weight:700;letter-spacing:.06em">SAT</span><span style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700">3</span></button>
+          </div>
+          <sc-for list="{{ soccerRows }}" as="m" hint-placeholder-count="4">
+            <div style="display:flex;flex-direction:column;gap:9px;padding:13px 18px 14px;border-top:1px solid #16181D">
+              <div style="display:flex;align-items:center;gap:10px">
+                <span style="display:flex;flex:none;align-items:center;gap:5px;width:78px">
+                  <span style="font-family:'Space Grotesk',sans-serif;font-size:11px;color:#E6E9EE;font-weight:700;font-variant-numeric:tabular-nums">{{ m.day }}<br>{{ m.time }}</span>
+                </span>
+                <span style="display:flex;align-items:center">
+                  <span style="font-family:'Space Grotesk',sans-serif;width:30px;height:30px;border-radius:999px;background:#F2F3F5;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:9px;color:#0A0B0D">{{ m.a }}</span>
+                  <span style="font-family:'Space Grotesk',sans-serif;width:30px;height:30px;border-radius:999px;background:#F2F3F5;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:9px;color:#0A0B0D;margin-left:-9px">{{ m.b }}</span>
+                </span>
+                <span style="display:flex;flex:1;min-width:0;flex-direction:column;gap:1px">
+                  <span class="truncate" style="font-size:13px;color:#fff;font-weight:600">{{ m.fixture }}</span>
+                  <span style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#6B7280;font-weight:700">{{ m.league }}</span>
+                </span>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">
+                <button class="chip-t2" style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;color:#33D6FF;--chip-accent:#33D6FF"><span style="font-size:10px;color:#9AA1AC">{{ m.n1 }}</span><span style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">{{ m.p1 }}</span></button>
+                <button class="chip-t2" style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;color:#E6E9EE;--chip-accent:#E6E9EE"><span style="font-size:10px;color:#9AA1AC">Draw</span><span style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">{{ m.pd }}</span></button>
+                <button class="chip-t2" style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;color:#CFFF4A;--chip-accent:#CFFF4A"><span style="font-size:10px;color:#9AA1AC">{{ m.n2 }}</span><span style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">{{ m.p2 }}</span></button>
+              </div>
+            </div>
+          </sc-for>
+          <div style="display:flex;flex-direction:column;gap:7px;padding:12px 18px 14px;border-top:1px solid #1D2026">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span style="font-size:12px;color:#9AA1AC">Soccer · all days mixed · next kickoff first</span>
+              <span style="font-size:12px;color:#F2F3F5;font-weight:700">All 12 soccer matches →</span>
+            </div>
+            <span style="font-size:11px;color:#6B7280">5 more matches in Basketball, UFC and Esports — switch sport above.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex; flex-direction:column; gap:12px;">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; color:#0A0B0D; background:#fff; padding:4px 10px; border-radius:6px;">13A-max</span>
+      <span style="font-size:13px; color:#9AA1AC;">Rare worst case · all nine soccer leagues have markets · the league row wraps, nothing truncates.</span>
+    </div>
+
+    <div style="width:1280px; flex:none; box-sizing:border-box; background:#0A0B0D; border:1px solid #1D2026; border-radius:16px; overflow:hidden;">
+      <div style="height:58px; display:flex; align-items:center; justify-content:space-between; padding:0 24px; border-bottom:1px solid #1D2026;">
+        <div style="display:flex; align-items:center; gap:26px;">
+          <span style="font-family:'Archivo Expanded','Archivo',sans-serif; font-weight:800; font-size:16px; color:#fff;">OMEN<span style="color:#33D6FF;">X</span></span>
+          <span style="display:flex; background:#131519; border:1px solid #1D2026; border-radius:999px; padding:3px;"><span style="background:#fff; color:#0A0B0D; border-radius:999px; padding:6px 14px; font-size:12px; font-weight:700;">Live</span><span style="color:#9AA1AC; padding:6px 14px; font-size:12px; font-weight:600;">Settled</span></span>
+        </div>
+        <div style="display:flex; align-items:center; gap:11px;">
+          <span style="font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:700; color:#fff; font-variant-numeric:tabular-nums;">$12,480.65</span>
+          <span style="width:28px; height:28px; border-radius:999px; background:#23262D; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#fff;">JD</span>
+        </div>
+      </div>
+
+      <div style="padding:14px 24px; border-bottom:1px solid #1D2026;">
+        <div style="display:flex; flex-wrap:wrap; align-items:center; gap:8px;">
+          <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">All</button>
+          <button style="flex:none;display:flex;align-items:center;gap:7px;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;"><span style="width:6px;height:6px;border-radius:999px;background:#FF8A3D"></span>Intraday</button>
+          <button style="flex:none;display:flex;align-items:center;gap:7px;border-radius:999px;padding:7px 14px;font-size:12.5px;background:#fff;color:#0A0B0D;font-weight:600;border:none;font-family:inherit;cursor:pointer;"><span class="pulse" style="width:6px;height:6px;border-radius:999px;background:#FF3B4E"></span>Sports</button>
+          <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">Crypto</button>
+          <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">Finance</button>
+          <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">Politics</button>
+          <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">Economy</button>
+          <span style="margin-left:auto; display:flex; gap:8px;">
+            <button style="display:flex;align-items:center;gap:5px;border-radius:999px;border:1.5px solid #2B2F38;padding:6px 11px;background:transparent;font-family:inherit;cursor:pointer;"><span style="color:#FFD23E;display:inline-flex"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="m12 3 2.7 5.5 6 .9-4.3 4.2 1 6-5.4-2.8L6.6 19.6l1-6L3.3 9.4l6-.9z"></path></svg></span><span style="font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;color:#C9CED6">Watchlist</span><span style="font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;color:#C9CED6">· 6</span></button>
+            <button style="display:flex;align-items:center;gap:6px;border-radius:999px;border:1.5px solid #2B2F38;padding:6px 13px;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M8 3v4M16 3v4M3 11h18"></path></svg><span style="font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;">Calendar</span></button>
+          </span>
+        </div>
+      </div>
+
+      <div style="padding:26px 24px 30px; display:flex; flex-direction:column; gap:20px;">
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <span style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#F2F3F5;font-weight:700">Sports · match winners</span>
+          <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:26px;letter-spacing:-.02em;color:#fff">Who wins the match?</span>
+          <span style="font-size:12px;color:#9AA1AC">Winning shares pay <strong style="color:#fff;font-weight:600">$1</strong>. Matches over the next 7 days — trade before kickoff or during the match.</span>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span style="font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#6B7280; font-weight:700; width:66px; flex:none;">Sport</span>
+            <span style="display:flex; flex-wrap:wrap; gap:8px;">
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">All</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;background:#fff;color:#0A0B0D;font-weight:600;border:none;font-family:inherit;cursor:pointer;">Soccer</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">Basketball</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">Tennis</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">UFC</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">NFL</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">Esports</button>
+            </span>
+          </div>
+          <div style="display:flex; align-items:flex-start; gap:12px;">
+            <span style="font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#6B7280; font-weight:700; width:66px; flex:none; padding-top:9px;">League</span>
+            <span style="display:flex; flex-wrap:wrap; gap:7px; flex:1; min-width:0;">
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;background:#fff;color:#0A0B0D;font-weight:600;border:none;font-family:inherit;cursor:pointer;">All</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">World Cup</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">UEFA Champions League</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">Premier League</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">LaLiga</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">Serie A</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">Bundesliga</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">Ligue 1</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">Chinese Super League</button>
+              <button style="flex:none;border-radius:999px;padding:7px 14px;font-size:12.5px;border:1.5px solid #2B2F38;color:#C9CED6;background:transparent;font-family:inherit;cursor:pointer;">K League 1</button>
+            </span>
+            <span style="font-size:11px; color:#6B7280; flex:none; padding-top:9px;">Only leagues with markets this week</span>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;overflow:hidden;background:#111318;border:1px solid #1D2026;border-radius:18px;padding-bottom:14px">
+          <div style="display:flex;align-items:center;gap:9px;padding:16px 18px 9px">
+            <span class="pulse" style="width:6px;height:6px;border-radius:999px;background:#FF3B4E"></span>
+            <span style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#fff;font-weight:700">Live now · 1</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:13px;padding:22px 18px 24px;border-top:1px solid #16181D;background:#101216">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+              <span class="truncate" style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#6B7280;font-weight:700">Premier League · Matchday 3</span>
+              <span style="display:flex;align-items:center;gap:5px">
+                <span class="pulse" style="width:5px;height:5px;border-radius:999px;background:#FF3B4E"></span>
+                <span style="font-family:'Space Grotesk',sans-serif;font-size:12px;color:#fff;font-weight:700;font-variant-numeric:tabular-nums">67'</span>
+              </span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="display:flex;flex:1;min-width:0;align-items:center;gap:8px">
+                <span style="font-family:'Space Grotesk',sans-serif;width:30px;height:30px;border-radius:999px;background:#F2F3F5;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:9px;color:#0A0B0D">MCI</span>
+                <span class="truncate" style="font-size:13px;color:#fff;font-weight:600">Manchester City</span>
+              </span>
+              <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:24px;color:#fff;letter-spacing:-.01em;font-variant-numeric:tabular-nums">1–1</span>
+              <span style="display:flex;flex:1;min-width:0;align-items:center;justify-content:flex-end;gap:8px">
+                <span class="truncate" style="font-size:13px;color:#fff;font-weight:600">Arsenal</span>
+                <span style="font-family:'Space Grotesk',sans-serif;width:30px;height:30px;border-radius:999px;background:#F2F3F5;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:9px;color:#0A0B0D">ARS</span>
+              </span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">
+              <button class="chip-t2" style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;color:#33D6FF;--chip-accent:#33D6FF"><span style="font-size:10px;color:#9AA1AC">Man City</span><span style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">47¢</span></button>
+              <button class="chip-t2" style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;color:#E6E9EE;--chip-accent:#E6E9EE"><span style="font-size:10px;color:#9AA1AC">Draw</span><span style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">24¢</span></button>
+              <button class="chip-t2" style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;color:#CFFF4A;--chip-accent:#CFFF4A"><span style="font-size:10px;color:#9AA1AC">Arsenal</span><span style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">30¢</span></button>
+            </div>
+          </div>
+          <div class="scrollx" style="display:flex;gap:6px;padding:17px 18px 15px;border-top:1px solid #1D2026">
+            <button style="display:flex;flex:none;flex-direction:column;align-items:center;gap:1px;background:#F2F3F5;color:#0A0B0D;border:1px solid #F2F3F5;border-radius:10px;padding:7px 12px;font-family:inherit;cursor:pointer;"><span style="font-size:10px;font-weight:700;letter-spacing:.06em">ALL</span><span style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700">12</span></button>
+            <button style="display:flex;flex:none;flex-direction:column;align-items:center;gap:1px;background:#0A0B0D;color:#9AA1AC;border:1px solid #23262D;border-radius:10px;padding:7px 12px;font-family:inherit;cursor:pointer;"><span style="font-size:10px;font-weight:700;letter-spacing:.06em">TUE</span><span style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700">3</span></button>
+            <button style="display:flex;flex:none;flex-direction:column;align-items:center;gap:1px;background:#0A0B0D;color:#9AA1AC;border:1px solid #23262D;border-radius:10px;padding:7px 12px;font-family:inherit;cursor:pointer;"><span style="font-size:10px;font-weight:700;letter-spacing:.06em">WED</span><span style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700">2</span></button>
+            <button style="display:flex;flex:none;flex-direction:column;align-items:center;gap:1px;background:#0A0B0D;color:#9AA1AC;border:1px solid #23262D;border-radius:10px;padding:7px 12px;font-family:inherit;cursor:pointer;"><span style="font-size:10px;font-weight:700;letter-spacing:.06em">THU</span><span style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700">4</span></button>
+            <button style="display:flex;flex:none;flex-direction:column;align-items:center;gap:1px;background:#0A0B0D;color:#9AA1AC;border:1px solid #23262D;border-radius:10px;padding:7px 12px;font-family:inherit;cursor:pointer;"><span style="font-size:10px;font-weight:700;letter-spacing:.06em">SAT</span><span style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700">3</span></button>
+          </div>
+          <sc-for list="{{ soccerRows }}" as="m" hint-placeholder-count="4">
+            <div style="display:flex;flex-direction:column;gap:9px;padding:13px 18px 14px;border-top:1px solid #16181D">
+              <div style="display:flex;align-items:center;gap:10px">
+                <span style="display:flex;flex:none;align-items:center;gap:5px;width:78px">
+                  <span style="font-family:'Space Grotesk',sans-serif;font-size:11px;color:#E6E9EE;font-weight:700;font-variant-numeric:tabular-nums">{{ m.day }}<br>{{ m.time }}</span>
+                </span>
+                <span style="display:flex;align-items:center">
+                  <span style="font-family:'Space Grotesk',sans-serif;width:30px;height:30px;border-radius:999px;background:#F2F3F5;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:9px;color:#0A0B0D">{{ m.a }}</span>
+                  <span style="font-family:'Space Grotesk',sans-serif;width:30px;height:30px;border-radius:999px;background:#F2F3F5;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:9px;color:#0A0B0D;margin-left:-9px">{{ m.b }}</span>
+                </span>
+                <span style="display:flex;flex:1;min-width:0;flex-direction:column;gap:1px">
+                  <span class="truncate" style="font-size:13px;color:#fff;font-weight:600">{{ m.fixture }}</span>
+                  <span style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#6B7280;font-weight:700">{{ m.league }}</span>
+                </span>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">
+                <button class="chip-t2" style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;color:#33D6FF;--chip-accent:#33D6FF"><span style="font-size:10px;color:#9AA1AC">{{ m.n1 }}</span><span style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">{{ m.p1 }}</span></button>
+                <button class="chip-t2" style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;color:#E6E9EE;--chip-accent:#E6E9EE"><span style="font-size:10px;color:#9AA1AC">Draw</span><span style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">{{ m.pd }}</span></button>
+                <button class="chip-t2" style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;color:#CFFF4A;--chip-accent:#CFFF4A"><span style="font-size:10px;color:#9AA1AC">{{ m.n2 }}</span><span style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">{{ m.p2 }}</span></button>
+              </div>
+            </div>
+          </sc-for>
+          <div style="display:flex;flex-direction:column;gap:7px;padding:12px 18px 14px;border-top:1px solid #1D2026">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span style="font-size:12px;color:#9AA1AC">Soccer · all days mixed · next kickoff first</span>
+              <span style="font-size:12px;color:#F2F3F5;font-weight:700">All 12 soccer matches →</span>
+            </div>
+            <span style="font-size:11px;color:#6B7280">A nine-league week is the ceiling: the row wraps to a second line and keeps the same 7px gaps — no horizontal scroll on desktop.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div style="display:flex; align-items:flex-start; gap:24px;">
+
+    <div style="display:flex; flex-direction:column; gap:12px; flex:none;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; color:#0A0B0D; background:#fff; padding:4px 10px; border-radius:6px;">13C</span>
+        <span style="font-size:13px; color:#9AA1AC;">Pattern A · 390.</span>
+      </div>
+      <div style="width:390px; flex:none; box-sizing:border-box; background:#0A0B0D; border:1px solid #1D2026; border-radius:22px; overflow:hidden; display:flex; flex-direction:column;">
+        <header style="background:#0A0B0D;border-bottom:1px solid #1D2026;padding:8px 16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <span style="font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;letter-spacing:-.03em;color:#fff">OmenX</span>
+            <span style="flex:1"></span>
+            <span style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums">$12,480.65</span>
+            <span style="width:28px;height:28px;border-radius:999px;background:#23262D;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff">JD</span>
+          </div>
+        </header>
+        <div style="padding:12px 16px 0;">
+          <div style="display:flex;align-items:center;gap:8px;padding-bottom:12px;border-bottom:1px solid #1D2026">
+            <div class="scrollx" style="display:flex;min-width:0;flex:1;gap:8px;-webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 18px),transparent 100%);mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 18px),transparent 100%)">
+              <button style="flex:none;border-radius:999px;min-height:44px;font-size:12px;padding:0 15px;background:transparent;color:#9AA1AC;border:1px solid #23262D;font-weight:600;font-family:inherit;">All</button>
+              <button style="flex:none;display:flex;align-items:center;gap:6px;border-radius:999px;min-height:44px;font-size:12px;padding:0 14px;background:transparent;color:#9AA1AC;border:1px solid #23262D;font-weight:600;font-family:inherit;"><span style="width:6px;height:6px;border-radius:999px;background:#FF8A3D"></span>Intraday</button>
+              <button style="flex:none;display:flex;align-items:center;gap:6px;border-radius:999px;min-height:44px;font-size:12px;padding:0 14px;background:#fff;color:#0A0B0D;border:1px solid #fff;font-weight:700;font-family:inherit;"><span class="pulse" style="width:6px;height:6px;border-radius:999px;background:#FF3B4E"></span>Sports</button>
+              <button style="flex:none;border-radius:999px;min-height:44px;font-size:12px;padding:0 14px;background:transparent;color:#9AA1AC;border:1px solid #23262D;font-weight:600;font-family:inherit;">Crypto</button>
+              <button style="flex:none;border-radius:999px;min-height:44px;font-size:12px;padding:0 14px;background:transparent;color:#9AA1AC;border:1px solid #23262D;font-weight:600;font-family:inherit;">Finance</button>
+            </div>
+            <span style="flex:none;width:1px;height:28px;background:#23262D"></span>
+            <button style="flex:none;display:flex;align-items:center;justify-content:center;gap:4px;border-radius:999px;width:52px;min-height:44px;background:transparent;border:1px solid #23262D;font-family:inherit;"><span style="color:#FFD23E;display:inline-flex"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2.7 5.5 6 .9-4.3 4.2 1 6-5.4-2.8L6.6 19.6l1-6L3.3 9.4l6-.9z"></path></svg></span><span style="font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;color:#C9CED6">6</span></button>
+            <button style="flex:none;display:flex;align-items:center;justify-content:center;border-radius:999px;width:44px;min-height:44px;background:transparent;border:1px solid #23262D;color:#C9CED6;font-family:inherit;"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M8 3v4M16 3v4M3 11h18"></path></svg></button>
+          </div>
+        </div>
+
+        <div style="padding:16px 16px 20px; display:flex; flex-direction:column; gap:22px;">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#F2F3F5;font-weight:700">Sports · match winners</span>
+            <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;letter-spacing:-.02em;color:#fff">Who wins the match?</span>
+            <span style="font-size:12px;color:#9AA1AC;text-wrap:pretty">Winning shares pay <strong style="color:#fff;font-weight:600">$1</strong>. Matches over the next 7 days — trade before kickoff or during the match.</span>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:9px;">
+            <div style="display:flex; align-items:center; gap:9px;">
+              <span style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#6B7280;font-weight:700;width:44px;flex:none">Sport</span>
+              <div class="scrollx" style="display:flex;min-width:0;flex:1;gap:6px;-webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 18px),transparent 100%);mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 18px),transparent 100%)">
+                <button style="flex:none;border-radius:999px;min-height:44px;font-size:12px;padding:0 14px;background:transparent;color:#9AA1AC;border:1px solid #23262D;font-weight:600;font-family:inherit;">All</button>
+                <button style="flex:none;border-radius:999px;min-height:44px;font-size:12px;padding:0 14px;background:#fff;color:#0A0B0D;border:1px solid #fff;font-weight:700;font-family:inherit;">Soccer</button>
+                <button style="flex:none;border-radius:999px;min-height:44px;font-size:12px;padding:0 14px;background:transparent;color:#9AA1AC;border:1px solid #23262D;font-weight:600;font-family:inherit;">Basketball</button>
+                <button style="flex:none;border-radius:999px;min-height:44px;font-size:12px;padding:0 14px;background:transparent;color:#9AA1AC;border:1px solid #23262D;font-weight:600;font-family:inherit;">UFC</button>
+                <button style="flex:none;border-radius:999px;min-height:44px;font-size:12px;padding:0 14px;background:transparent;color:#9AA1AC;border:1px solid #23262D;font-weight:600;font-family:inherit;">Esports</button>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:9px;">
+              <span style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#6B7280;font-weight:700;width:44px;flex:none">League</span>
+              <div class="scrollx" style="display:flex;min-width:0;flex:1;gap:6px;-webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 18px),transparent 100%);mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 18px),transparent 100%)">
+                <button style="flex:none;border-radius:999px;min-height:44px;font-size:12px;padding:0 14px;background:#fff;color:#0A0B0D;border:1px solid #fff;font-weight:700;font-family:inherit;">All</button>
+                <button style="flex:none;border-radius:999px;min-height:44px;font-size:12px;padding:0 14px;background:transparent;color:#9AA1AC;border:1px solid #23262D;font-weight:600;font-family:inherit;">UEFA Champions League</button>
+                <button style="flex:none;border-radius:999px;min-height:44px;font-size:12px;padding:0 14px;background:transparent;color:#9AA1AC;border:1px solid #23262D;font-weight:600;font-family:inherit;">Premier League</button>
+                <button style="flex:none;border-radius:999px;min-height:44px;font-size:12px;padding:0 14px;background:transparent;color:#9AA1AC;border:1px solid #23262D;font-weight:600;font-family:inherit;">LaLiga</button>
+                <button style="flex:none;border-radius:999px;min-height:44px;font-size:12px;padding:0 14px;background:transparent;color:#9AA1AC;border:1px solid #23262D;font-weight:600;font-family:inherit;">K League 1</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <span style="display:flex;align-items:center;gap:8px">
+              <span style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#fff;background:#131519;border:1px solid #23262D;border-radius:999px;padding:5px 10px"><span class="pulse" style="width:5px;height:5px;border-radius:999px;background:#FF3B4E"></span>1 playing now</span>
+              <span style="font-size:11px;font-weight:600;color:#9AA1AC;background:#131519;border:1px solid #23262D;border-radius:999px;padding:5px 10px">12 soccer this week</span>
+            </span>
+            <div style="display:flex;flex-direction:column;gap:12px;background:#131519;border:1px solid #23262D;border-radius:14px;padding:13px 14px">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <span style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#6B7280;font-weight:700">Premier League · Matchday 3</span>
+                <span style="display:flex;align-items:center;gap:5px"><span class="pulse" style="width:5px;height:5px;border-radius:999px;background:#FF3B4E"></span><span style="font-family:'Space Grotesk',sans-serif;font-size:12px;color:#fff;font-weight:700;font-variant-numeric:tabular-nums">67'</span></span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px">
+                <span style="display:flex;flex:1;min-width:0;align-items:center;gap:8px"><span style="font-family:'Space Grotesk',sans-serif;width:30px;height:30px;border-radius:999px;background:#F2F3F5;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#0A0B0D">MCI</span><span class="truncate" style="font-size:13px;color:#fff;font-weight:600">Man City</span></span>
+                <span style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums">1–1</span>
+                <span style="display:flex;flex:1;min-width:0;align-items:center;justify-content:flex-end;gap:8px"><span class="truncate" style="font-size:13px;color:#fff;font-weight:600">Arsenal</span><span style="font-family:'Space Grotesk',sans-serif;width:30px;height:30px;border-radius:999px;background:#F2F3F5;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#0A0B0D">ARS</span></span>
+              </div>
+              <div style="display:flex;gap:7px">
+                <button class="chip-t2" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:48px;padding:0 10px;color:#33D6FF;--chip-accent:#33D6FF"><span class="truncate" style="font-size:10px;color:#9AA1AC">Man City</span><span style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums">47¢</span></button>
+                <button class="chip-t2" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:48px;padding:0 10px;color:#E6E9EE;--chip-accent:#E6E9EE"><span class="truncate" style="font-size:10px;color:#9AA1AC">Draw</span><span style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums">24¢</span></button>
+                <button class="chip-t2" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:48px;padding:0 10px;color:#CFFF4A;--chip-accent:#CFFF4A"><span class="truncate" style="font-size:10px;color:#9AA1AC">Arsenal</span><span style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums">30¢</span></button>
+              </div>
+            </div>
+            <sc-for list="{{ mobileRows }}" as="m" hint-placeholder-count="2">
+              <div style="display:flex;flex-direction:column;gap:11px;background:#131519;border:1px solid #1D2026;border-radius:14px;padding:13px 14px">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <span style="display:flex;flex-direction:column;gap:1px;width:56px;flex:none">
+                    <span style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums">{{ m.time }}</span>
+                    <span style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#6B7280;font-weight:700">{{ m.day }}</span>
+                  </span>
+                  <span style="display:flex;align-items:center;flex:none">
+                    <span style="font-family:'Space Grotesk',sans-serif;width:28px;height:28px;border-radius:999px;background:#F2F3F5;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#0A0B0D">{{ m.a }}</span>
+                    <span style="font-family:'Space Grotesk',sans-serif;width:28px;height:28px;border-radius:999px;background:#F2F3F5;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#0A0B0D;margin-left:-9px">{{ m.b }}</span>
+                  </span>
+                  <span style="display:flex;flex:1;min-width:0;flex-direction:column;gap:2px">
+                    <span class="truncate" style="font-size:13px;color:#fff;font-weight:600;line-height:1.25">{{ m.fixture }}</span>
+                    <span style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#6B7280;font-weight:700">{{ m.league }}</span>
+                  </span>
+                </div>
+                <div style="display:flex;gap:7px">
+                  <button class="chip-t2" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:48px;color:#33D6FF;--chip-accent:#33D6FF"><span class="truncate" style="font-size:10px;color:#9AA1AC">{{ m.n1 }}</span><span style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums">{{ m.p1 }}</span></button>
+                  <button class="chip-t2" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:48px;color:#E6E9EE;--chip-accent:#E6E9EE"><span class="truncate" style="font-size:10px;color:#9AA1AC">Draw</span><span style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums">{{ m.pd }}</span></button>
+                  <button class="chip-t2" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:48px;color:#CFFF4A;--chip-accent:#CFFF4A"><span class="truncate" style="font-size:10px;color:#9AA1AC">{{ m.n2 }}</span><span style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums">{{ m.p2 }}</span></button>
+                </div>
+              </div>
+            </sc-for>
+            <span style="font-size:11px;color:#6B7280">All 12 soccer matches →</span>
+          </div>
+        </div>
+
+        <div style="margin-top:auto; border-top:1px solid #1D2026; padding:10px 16px 18px; display:flex; align-items:center; justify-content:space-between;">
+          <span style="display:flex;flex-direction:column;align-items:center;gap:5px;min-width:60px"><span style="width:20px;height:20px;border-radius:5px;border:2px solid #fff"></span><span style="font-size:10px;color:#fff;font-weight:700">Markets</span></span>
+          <span style="display:flex;flex-direction:column;align-items:center;gap:5px;min-width:60px"><span style="width:20px;height:20px;border-radius:5px;border:2px solid #4B5563"></span><span style="font-size:10px;color:#6B7280;font-weight:600">Portfolio</span></span>
+          <span style="display:flex;flex-direction:column;align-items:center;gap:5px;min-width:60px"><span style="width:20px;height:20px;border-radius:5px;border:2px solid #4B5563"></span><span style="font-size:10px;color:#6B7280;font-weight:600">Wallet</span></span>
+          <span style="display:flex;flex-direction:column;align-items:center;gap:5px;min-width:60px"><span style="width:20px;height:20px;border-radius:999px;border:2px solid #4B5563"></span><span style="font-size:10px;color:#6B7280;font-weight:600">Me</span></span>
+        </div>
+      </div>
+    </div>
+
+
+    <div style="width:300px; flex:none; display:flex; flex-direction:column; gap:14px; padding-top:44px;">
+      <div style="background:#131519; border:1px solid #23262D; border-radius:14px; padding:16px; display:flex; flex-direction:column; gap:9px;">
+        <span style="font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:#33D6FF; font-weight:700;">Selected</span>
+        <span style="font-size:13px; color:#9AA1AC; line-height:1.55; text-wrap:pretty;">Same grammar as Crypto and Finance, so every vertical behaves alike. The league row only exists when it earns its place, and the day strip keeps working inside the narrowed set.</span>
+      </div>
+      <div style="background:#131519; border:1px solid #23262D; border-radius:14px; padding:16px; display:flex; flex-direction:column; gap:9px;">
+        <span style="font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:#6B7280; font-weight:700;">Overflow</span>
+        <span style="font-size:13px; color:#9AA1AC; line-height:1.55; text-wrap:pretty;">Desktop wraps — see 13A-max, where all nine soccer leagues are live and the row takes a second line at the same 7px gaps. Mobile scrolls horizontally with the 18px fade mask, as the Master mobile row does.</span>
+      </div>
+      <div style="background:#131519; border:1px solid #1D2026; border-radius:14px; padding:16px; display:flex; flex-direction:column; gap:9px;">
+        <span style="font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:#6B7280; font-weight:700;">Sample week</span>
+        <span style="font-size:13px; color:#9AA1AC; line-height:1.55; text-wrap:pretty;">17 matches: Soccer 12 (UCL, Premier League, LaLiga, K League 1), Basketball 3 (NBA), UFC 1, Esports 1 (LCK). All league names come from the taxonomy; fixtures are design samples.</span>
+      </div>
+    </div>
+  </div>
+
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  renderVals() {
+    const soccerRows = [
+      { day: "Tue", time: "20:00", a: "RMA", b: "BAR", fixture: "Real Madrid v Barcelona", league: "LaLiga", n1: "Real Madrid", n2: "Barcelona", p1: "44¢", pd: "25¢", p2: "33¢" },
+      { day: "Tue", time: "21:00", a: "BAY", b: "PSG", fixture: "Bayern München v Paris Saint-Germain", league: "UEFA Champions League", n1: "Bayern", n2: "PSG", p1: "51¢", pd: "23¢", p2: "28¢" },
+      { day: "Wed", time: "19:45", a: "LIV", b: "NEW", fixture: "Liverpool v Newcastle United", league: "Premier League", n1: "Liverpool", n2: "Newcastle", p1: "62¢", pd: "21¢", p2: "19¢" },
+      { day: "Thu", time: "19:30", a: "JEO", b: "ULS", fixture: "Jeonbuk Hyundai v Ulsan HD", league: "K League 1", n1: "Jeonbuk", n2: "Ulsan", p1: "38¢", pd: "27¢", p2: "37¢" }
+    ];
+
+    const mobileRows = soccerRows.slice(0, 2).map(r => ({ ...r, day: r.day === "Tue" ? "Tonight" : r.day }));
+
+    return { soccerRows, mobileRows };
+  }
+}
+</script>
+</body>
+</html>
