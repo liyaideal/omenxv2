@@ -182,11 +182,7 @@ export const MobileCoinCard = ({
             ))}
           </span>
         </span>
-        <span
-          style={{ fontSize: 10, color: "#6B7280", fontVariantNumeric: "tabular-nums" }}
-        >
-          {`${Math.round((event.volume ?? 0) / 1000)}K traded`}
-        </span>
+        {/* Round-open value now lives in the RoundPlot pill — no duplicate here. */}
       </div>
 
       <div className="flex" style={{ gap: 8 }}>
