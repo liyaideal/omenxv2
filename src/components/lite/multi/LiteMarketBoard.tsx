@@ -255,7 +255,9 @@ const Chip = ({
   settled: boolean;
   onClick: () => void;
 }) => {
-  const label = `${side === "yes" ? "Yes" : "No"} ${cents(price)}`;
+  const sideLabel = side === "yes" ? "Yes" : "No";
+  const accent = side === "yes" ? "#33D6FF" : "#CFFF4A";
+  const label = `${sideLabel} ${cents(price)}`;
   if (settled) {
     return (
       <span className="flex min-w-[86px] items-center justify-center rounded-[10px] border border-dashed border-muted-foreground/40 py-[9px] text-center font-mono text-[12.5px] font-bold text-muted-foreground">
@@ -263,23 +265,32 @@ const Chip = ({
       </span>
     );
   }
-  const cls = selected
-    ? side === "yes"
-      ? "bg-yes text-[#04222c] border-transparent"
-      : "bg-no text-[#1a2408] border-transparent"
-    : side === "yes"
-      ? "bg-yes/12 text-yes border-yes/25 hover:bg-yes/20"
-      : "bg-no/12 text-no border-no/25 hover:bg-no/20";
+  if (selected) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className={cn(
+          "min-w-[86px] rounded-[10px] border border-transparent py-[9px] text-center font-mono text-[12.5px] font-bold transition-colors",
+          side === "yes" ? "bg-yes text-[#04222c]" : "bg-no text-[#1a2408]",
+        )}
+      >
+        {label}
+      </button>
+    );
+  }
+  // Tier-2 neutral at rest — neutral container, only the price is coloured.
   return (
     <button
       type="button"
       onClick={onClick}
-      className={cn(
-        "min-w-[86px] rounded-[10px] border py-[9px] text-center font-mono text-[12.5px] font-bold transition-colors",
-        cls,
-      )}
+      className="chip-t2 flex min-w-[86px] items-center justify-between gap-2 px-2.5 py-[9px] text-[12.5px]"
+      style={{ borderRadius: 10, ["--chip-accent" as string]: accent }}
     >
-      {label}
+      <span className="text-[11px] text-[#9AA1AC]">{sideLabel}</span>
+      <span className="font-mono font-bold" style={{ color: accent }}>
+        {cents(price)}
+      </span>
     </button>
   );
 };
