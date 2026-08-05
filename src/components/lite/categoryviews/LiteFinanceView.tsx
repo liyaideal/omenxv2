@@ -20,7 +20,6 @@ import {
   CatalogueHeader,
   DimensionPill,
   DimensionRow,
-  RowHelper,
   VerticalHeader,
 } from "./verticalChrome";
 import { financeClassOf, financeRegionOf } from "./verticalFilters";
