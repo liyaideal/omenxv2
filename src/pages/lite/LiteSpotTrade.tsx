@@ -47,7 +47,7 @@ import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader"
 import type { Tables } from "@/integrations/supabase/types";
 import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
 import LiteQuickTrade from "@/pages/lite/LiteQuickTrade";
-import { parseQuickId } from "@/components/lite/intraday/intradayData";
+import { parseQuickId, useTradeCountdown } from "@/components/lite/intraday/intradayData";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
