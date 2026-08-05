@@ -501,12 +501,6 @@ export const LiteSportsView = ({
                 onSelect={() => setLeague(l.code)}
               />
             ))}
-            <span
-              className="whitespace-nowrap"
-              style={{ fontSize: 11, color: "#6B7280", marginLeft: 5 }}
-            >
-              Only leagues with markets this week
-            </span>
           </DimensionRow>
         )}
       </div>
