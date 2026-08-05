@@ -85,6 +85,17 @@ Full address rendering: digits `text-primary`, letters `text-foreground` (see `m
 
 ---
 
+## Intraday rounds
+
+| Canonical | Meaning | Banned variants |
+|---|---|---|
+| **Round** | The 5m / 15m / 1h / 4h / 1D duration selector (dial) on every intraday surface — desktop Intraday view, Crypto vertical, mobile module, quick-trade page | Window, WINDOW, Round length, Timeframe, Duration |
+
+`Round #12`, `Round open $X` and `Round opens 09:30` refer to the round *object*
+and stay as-is — they are a different noun from the selector label.
+
+---
+
 ## Lite banned words
 
 Trader jargon is banned in rendered Lite copy: **Margin, Liquidation, Funding,

@@ -112,12 +112,12 @@ export const LiteCryptoView = ({
         }
       />
 
-      {/* Filters — row 1 WINDOW (dial), row 2 COIN (pills). */}
+      {/* Filters — row 1 ROUND (dial), row 2 COIN (pills). */}
       <div className="flex flex-col" style={{ gap: 9 }}>
         {isMobile ? (
           <MobileRoundSwitcher value={tf} onSelect={setTf} />
         ) : (
-          <DimensionRow label="Window">
+          <DimensionRow label="Round">
             <StageDial value={tf} onChange={setTf} size="module" />
           </DimensionRow>
         )}
