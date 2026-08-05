@@ -322,9 +322,6 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
 };
 
 // SideButton is the shared order-panel primitive (see shared/SideButton).
-    </button>
-  );
-};
 
 const SummaryRow = ({
   label,
