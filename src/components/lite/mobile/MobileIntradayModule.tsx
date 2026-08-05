@@ -359,6 +359,7 @@ export const MobileRoundSwitcher = ({
         );
       })}
     </span>
+  </div>
 );
 
 export const MobileIntradayModule = ({
