@@ -564,6 +564,8 @@ export interface StockGroups {
   sessionMarket: StockMarket | null;
   sessionEnd: number | null;
   wakeLabel: string | null;
+  /** Every non-open region's wake stamp, earliest first. */
+  wakeLabels: string[];
 }
 
 /** Session-aware grouping of the daily stock rounds (extracted verbatim). */
@@ -584,6 +586,7 @@ export const groupStockRows = (
   let openMarket: StockMarket | null = null;
   let openCloseAt: number | null = null;
   let wake: { market: StockMarket; at: Date } | null = null;
+  const wakes = new Map<string, { market: StockMarket; at: Date }>();
 
   for (const rows of byTicker.values()) {
     const live = rows
@@ -605,6 +608,9 @@ export const groupStockRows = (
       continue;
     }
     asleep.push({ row, nextOpen: openStamp(session.nextOpenAt, market) });
+    const prev = wakes.get(market.key);
+    if (!prev || session.nextOpenAt.getTime() < prev.at.getTime())
+      wakes.set(market.key, { market, at: session.nextOpenAt });
     if (!wake || session.nextOpenAt.getTime() < wake.at.getTime()) {
       wake = { market, at: session.nextOpenAt };
     }
@@ -620,6 +626,9 @@ export const groupStockRows = (
     wakeLabel: wake
       ? `${marketCityName(wake.market)} opens ${openStamp(wake.at, wake.market)}`
       : null,
+    wakeLabels: [...wakes.values()]
+      .sort((a, b) => a.at.getTime() - b.at.getTime())
+      .map((w) => `${marketCityName(w.market)} opens ${openStamp(w.at, w.market)}`),
   };
 };
 
@@ -646,7 +655,7 @@ export const SessionStatusChip = ({
         background: "#131519",
         border: "1px solid #23262D",
         borderRadius: 999,
-        padding: "8px 14px",
+        padding: "9px 15px",
       }}
     >
       <span

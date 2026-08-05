@@ -90,7 +90,7 @@ const HistoryStrip = ({ history, dot = 9 }: { history: ("up" | "down")[]; dot?: 
   );
 };
 
-const Dial = ({
+export const Dial = ({
   value,
   onChange,
   size,

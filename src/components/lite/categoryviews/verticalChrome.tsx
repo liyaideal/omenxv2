@@ -14,14 +14,28 @@ export const EYEBROW: React.CSSProperties = {
 };
 
 export const ROW_LABEL: React.CSSProperties = {
-  fontSize: 10,
-  letterSpacing: "0.16em",
+  fontSize: 9,
+  letterSpacing: "0.14em",
   textTransform: "uppercase",
   color: "#6B7280",
   fontWeight: 700,
   flex: "none",
-  width: 62,
+  width: 74,
 };
+
+/** Inline helper under a filter row — "Showing Stocks · US — 18 rounds open". */
+export const RowHelper = ({
+  scope,
+  tail,
+}: {
+  scope: string;
+  tail: string;
+}) => (
+  <span style={{ fontSize: 11, color: "#6B7280" }}>
+    Showing <strong style={{ color: "#C9CED6", fontWeight: 700 }}>{scope}</strong> —{" "}
+    {tail}
+  </span>
+);
 
 /** Module header — eyebrow, display title, one plain-language line. */
 export const VerticalHeader = ({
@@ -33,13 +47,13 @@ export const VerticalHeader = ({
 }: {
   eyebrow: string;
   title: string;
-  subtitle: string;
+  subtitle: ReactNode;
   right?: ReactNode;
   compact?: boolean;
 }) => (
   <div className="flex items-end justify-between" style={{ gap: 24 }}>
     <div className="flex flex-col" style={{ gap: 7 }}>
-      <span style={EYEBROW}>{eyebrow}</span>
+      <span style={{ ...EYEBROW, color: "#F2F3F5" }}>{eyebrow}</span>
       <span
         className="font-display"
         style={{
@@ -83,13 +97,13 @@ export const DimensionRow = ({
       style={
         scroll
           ? {
-              gap: 8,
+              gap: 7,
               maskImage:
                 "linear-gradient(to right,#000 0,#000 calc(100% - 18px),transparent 100%)",
               WebkitMaskImage:
                 "linear-gradient(to right,#000 0,#000 calc(100% - 18px),transparent 100%)",
             }
-          : { gap: 8 }
+          : { gap: 7 }
       }
     >
       {children}
@@ -136,7 +150,9 @@ export const DimensionPill = ({
     type="button"
     onClick={onSelect}
     aria-pressed={active}
-    className="shrink-0 rounded-full px-[14px] py-[7px] text-[12.5px] transition-colors"
+    className={`shrink-0 rounded-full px-[14px] py-[7px] text-[12.5px] transition-colors${
+      active ? "" : " hover:border-[#F2F3F5] hover:text-white"
+    }`}
     style={
       active
         ? { background: "#fff", color: "#0A0B0D", fontWeight: 600 }
@@ -158,7 +174,7 @@ export const CatalogueHeader = ({
   compact,
 }: {
   title: string;
-  subtitle: string;
+  subtitle: ReactNode;
   count: number;
   compact?: boolean;
 }) => (
@@ -168,15 +184,15 @@ export const CatalogueHeader = ({
         className="font-display"
         style={{
           fontWeight: 700,
-          fontSize: compact ? 22 : 26,
+          fontSize: compact ? 22 : 20,
           color: "#fff",
           letterSpacing: "-0.02em",
         }}
       >
         {title}
       </span>
-      <span style={{ fontSize: compact ? 12 : 13, color: "#9AA1AC" }}>{subtitle}</span>
+      <span style={{ fontSize: 12, color: "#9AA1AC" }}>{subtitle}</span>
     </div>
-    <span style={{ fontSize: 12, color: "#6B7280", flex: "none" }}>{count} open</span>
+    <span style={{ fontSize: 11, color: "#6B7280", flex: "none" }}>{count} open</span>
   </div>
 );
