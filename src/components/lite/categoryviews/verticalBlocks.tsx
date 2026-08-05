@@ -214,28 +214,12 @@ export const CoinTile = ({
               {meta.ticker}
             </span>
             <span className="flex items-baseline" style={{ gap: 8 }}>
-              <span
-                className="font-display"
-                style={{
-                  fontSize: 22,
-                  color: "#fff",
-                  fontWeight: 700,
-                  fontVariantNumeric: "tabular-nums",
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                {price != null ? fmtUsd(price) : "—"}
-              </span>
-              <span
-                style={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  fontVariantNumeric: "tabular-nums",
-                  color: pctColor(pct),
-                }}
-              >
-                {fmtPct(pct)}
-              </span>
+              <PriceReadout
+                text={price != null ? fmtUsd(price) : "—"}
+                size={22}
+                letterSpacing="-0.02em"
+              />
+              <PctChange value={pct} size={12} weight={700} />
             </span>
           </span>
         </span>
@@ -354,27 +338,11 @@ export const TradingStockRow = ({
         className="flex flex-none flex-col items-end"
         style={{ gap: 1, marginRight: 4 }}
       >
-        <span
-          className="font-display"
-          style={{
-            fontSize: 16,
-            color: "#fff",
-            fontWeight: 700,
-            fontVariantNumeric: "tabular-nums",
-          }}
-        >
-          {price != null ? formatMarketPrice(price, market) : "—"}
-        </span>
-        <span
-          style={{
-            fontSize: 12,
-            fontWeight: 700,
-            fontVariantNumeric: "tabular-nums",
-            color: pctColor(pct),
-          }}
-        >
-          {fmtPct(pct)}
-        </span>
+        <PriceReadout
+          text={price != null ? formatMarketPrice(price, market) : "—"}
+          size={16}
+        />
+        <PctChange value={pct} size={12} weight={700} />
       </span>
       <DirectionButton
         label="Up"
@@ -383,7 +351,7 @@ export const TradingStockRow = ({
         minHeight={44}
         labelSize={13}
         priceSize={15}
-        centered
+        layout="centered"
         onClick={go("up")}
       />
       <DirectionButton
@@ -393,7 +361,7 @@ export const TradingStockRow = ({
         minHeight={44}
         labelSize={13}
         priceSize={15}
-        centered
+        layout="centered"
         onClick={go("down")}
       />
     </div>
