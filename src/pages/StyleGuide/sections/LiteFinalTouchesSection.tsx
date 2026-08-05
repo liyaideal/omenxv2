@@ -328,7 +328,7 @@ export const LiteFinalTouchesSection = () => {
         <Caption>
           11C is a data state of the same build: no live match → "Nothing playing now" and
           no live card; both stock sessions closed → the session row is replaced by the
-          market-calendar caption line. Round switcher always shows all five windows.
+          market-calendar caption line. Round dial always shows all five rounds.
         </Caption>
         <Canvas width={390}>
           <div className="flex flex-col" style={{ gap: 22 }}>

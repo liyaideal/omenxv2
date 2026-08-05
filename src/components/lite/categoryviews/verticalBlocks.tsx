@@ -416,8 +416,8 @@ export const AsleepStockRow = ({
 };
 
 
-/** Round-length dial (module size) — the Intraday header control, verbatim. */
-export const RoundLengthDial = ({
+/** Round dial (module size) — the Intraday header control, verbatim. */
+export const RoundDial = ({
   value,
   onSelect,
 }: {

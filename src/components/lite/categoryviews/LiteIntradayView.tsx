@@ -17,7 +17,7 @@ import {
   CoinTile,
   ORANGE,
   fmtLeft,
-  RoundLengthDial,
+  RoundDial,
   StockGroups,
   TradingStockRow,
   groupStockRows,
@@ -99,7 +99,7 @@ export const LiteIntradayView = ({
           >
             Round
           </span>
-          <RoundLengthDial value={tf} onSelect={setTf} />
+          <RoundDial value={tf} onSelect={setTf} />
         </div>
       </div>
 

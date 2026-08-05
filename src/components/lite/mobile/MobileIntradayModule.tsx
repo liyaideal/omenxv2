@@ -370,7 +370,7 @@ export const MobileIntradayModule = ({
         </p>
       </div>
 
-      {/* Round switcher — all five windows, always. */}
+      {/* Round dial — all five rounds, always. */}
       <MobileRoundSwitcher value={tf} onSelect={onSelectTf} />
 
       {boostOnly ? (
