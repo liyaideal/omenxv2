@@ -84,7 +84,12 @@ export const otherGroupsSummary = (
   now?: number,
 ): { count: number; labels: string } => {
   if (sport === ALL_OPTION) return { count: 0, labels: "" };
-  const rest = marketable(matches, now).filter((m) => sportCodeOf(m) !== sport);
+  // Only matches that map to another taxonomy group count — an unmapped
+  // league has no pill to switch to, so it must not inflate the number.
+  const rest = marketable(matches, now).filter((m) => {
+    const code = sportCodeOf(m);
+    return !!code && code !== sport;
+  });
   const labels = SPORTS_GROUPS.filter((g) =>
     rest.some((m) => sportCodeOf(m) === g.code),
   ).map((g) => g.label);
