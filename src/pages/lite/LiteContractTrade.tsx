@@ -46,6 +46,7 @@ import {
 import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
 import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
 import { LiteMarketBoard, type BoardOption } from "@/components/lite/multi/LiteMarketBoard";
+import { useTradeCountdown } from "@/components/lite/intraday/intradayData";
 import { LiteCrowdOverview } from "@/components/lite/multi/LiteCrowdOverview";
 import { EmptyState } from "@/components/states";
 
