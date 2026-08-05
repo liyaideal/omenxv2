@@ -1,0 +1,31 @@
+insert into public.events (id,name,icon,category,description,rules,start_date,end_date,volume,is_resolved,product_lines) values
+('pol-us-midterm-house-2026','Which party controls the US House after the 2026 midterms?','🏛️','politics','Multi-outcome market on House control after the November 2026 midterm elections.','Settles on the certified seat count reported by the Associated Press.',now(),now()+interval '96 days','7420000',false,'{futures}'),
+('pol-uk-election-2026','Will the UK call a general election before 2027?','🗳️','politics','Binary market on an early UK general election.','Settles Yes if a dissolution of Parliament is formally announced before 1 Jan 2027.',now(),now()+interval '132 days','1880000',false,'{futures}'),
+('macro-fed-cut-sep-2026','Will the Fed cut rates at the September 2026 FOMC meeting?','🏦','macro','Rate-decision market on the September FOMC.','Settles on the official FOMC statement target range.',now(),now()+interval '41 days','6310000',false,'{futures}'),
+('macro-us-cpi-band-2026','Where does US headline CPI land for August 2026?','📉','macro','Multi-outcome market on the year-over-year headline CPI print.','Settles on the first BLS release for the August reference month.',now(),now()+interval '27 days','4470000',false,'{futures}'),
+('macro-recession-2026','Will the NBER declare a US recession before 2027?','⚠️','macro','Binary macro market on an official recession call.','Settles on an NBER Business Cycle Dating Committee announcement.',now(),now()+interval '145 days','2050000',false,'{futures}'),
+('crypto-btc-150k-2026','Will Bitcoin trade above $150,000 in 2026?','₿','crypto','Long-dated BTC price market.','Settles Yes if BTC/USD prints above $150,000 on Coinbase at any point in 2026.',now(),now()+interval '118 days','12400000',false,'{futures}'),
+('crypto-eth-flip-2026','Will ETH outperform BTC this quarter?','⟠','crypto','Relative performance market on ETH versus BTC.','Settles on the ETH/BTC ratio change over the quarter.',now(),now()+interval '54 days','3760000',false,'{futures}'),
+('crypto-etf-solana-2026','Will a spot Solana ETF be approved this year?','🪙','crypto','Regulatory market on a US spot SOL ETF.','Settles on an SEC approval order published before 31 Dec 2026.',now(),now()+interval '101 days','2940000',false,'{futures}'),
+('tech-openai-gpt6-2026','Will OpenAI ship a model branded GPT-6 this year?','🤖','tech','Product-release market on OpenAI naming.','Settles on an official OpenAI announcement of a generally available GPT-6 model.',now(),now()+interval '87 days','3120000',false,'{futures}'),
+('tech-apple-foldable-2026','Will Apple announce a foldable iPhone before 2027?','📱','tech','Hardware announcement market.','Settles on an official Apple keynote or press release.',now(),now()+interval '129 days','1660000',false,'{futures}'),
+('tech-nvidia-share-2026','Does NVIDIA keep above 80% of the AI accelerator market this year?','🧠','tech','Market-share question on AI accelerators.','Settles on the year-end market share figure published by Mercury Research.',now(),now()+interval '112 days','1430000',false,'{futures}'),
+('ent-box-office-2026','Which film tops the 2026 worldwide box office?','🎬','entertainment','Multi-outcome market on the highest-grossing film of 2026.','Settles on the Box Office Mojo worldwide gross as of 31 Dec 2026.',now(),now()+interval '138 days','980000',false,'{futures}'),
+('soc-x-users-2026','Will X report more than 700M monthly users this year?','💬','social','Platform metric market.','Settles on an official X or parent-company disclosure.',now(),now()+interval '76 days','1210000',false,'{futures}'),
+('soc-creator-payout-2026','Will TikTok raise its creator fund payout rate before 2027?','🎵','social','Creator economy market.','Settles on an official TikTok policy announcement.',now(),now()+interval '92 days','870000',false,'{futures}');
+
+insert into public.event_options (id,event_id,label,price) values
+('pol-us-midterm-house-2026-dem','pol-us-midterm-house-2026','Democrats',0.52),('pol-us-midterm-house-2026-rep','pol-us-midterm-house-2026','Republicans',0.46),('pol-us-midterm-house-2026-tie','pol-us-midterm-house-2026','Exact tie',0.02),
+('pol-uk-election-2026-yes','pol-uk-election-2026','Yes',0.28),('pol-uk-election-2026-no','pol-uk-election-2026','No',0.72),
+('macro-fed-cut-sep-2026-yes','macro-fed-cut-sep-2026','Yes',0.64),('macro-fed-cut-sep-2026-no','macro-fed-cut-sep-2026','No',0.36),
+('macro-us-cpi-band-2026-below25','macro-us-cpi-band-2026','Below 2.5%',0.31),('macro-us-cpi-band-2026-25-30','macro-us-cpi-band-2026','2.5%–3.0%',0.44),('macro-us-cpi-band-2026-above30','macro-us-cpi-band-2026','Above 3.0%',0.25),
+('macro-recession-2026-yes','macro-recession-2026','Yes',0.21),('macro-recession-2026-no','macro-recession-2026','No',0.79),
+('crypto-btc-150k-2026-yes','crypto-btc-150k-2026','Yes',0.58),('crypto-btc-150k-2026-no','crypto-btc-150k-2026','No',0.42),
+('crypto-eth-flip-2026-yes','crypto-eth-flip-2026','Yes',0.49),('crypto-eth-flip-2026-no','crypto-eth-flip-2026','No',0.51),
+('crypto-etf-solana-2026-yes','crypto-etf-solana-2026','Yes',0.67),('crypto-etf-solana-2026-no','crypto-etf-solana-2026','No',0.33),
+('tech-openai-gpt6-2026-yes','tech-openai-gpt6-2026','Yes',0.38),('tech-openai-gpt6-2026-no','tech-openai-gpt6-2026','No',0.62),
+('tech-apple-foldable-2026-yes','tech-apple-foldable-2026','Yes',0.26),('tech-apple-foldable-2026-no','tech-apple-foldable-2026','No',0.74),
+('tech-nvidia-share-2026-yes','tech-nvidia-share-2026','Yes',0.71),('tech-nvidia-share-2026-no','tech-nvidia-share-2026','No',0.29),
+('ent-box-office-2026-avatar','ent-box-office-2026','Avatar: Fire and Ash',0.41),('ent-box-office-2026-marvel','ent-box-office-2026','Avengers: Doomsday',0.36),('ent-box-office-2026-other','ent-box-office-2026','Any other film',0.23),
+('soc-x-users-2026-yes','soc-x-users-2026','Yes',0.44),('soc-x-users-2026-no','soc-x-users-2026','No',0.56),
+('soc-creator-payout-2026-yes','soc-creator-payout-2026','Yes',0.33),('soc-creator-payout-2026-no','soc-creator-payout-2026','No',0.67);
