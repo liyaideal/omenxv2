@@ -57,7 +57,7 @@ export async function toCardArt(bin: Uint8Array): Promise<CardArt> {
         new MagickGeometry(0, top, img.width, Math.min(cropH, img.height - top)),
       );
       // Drop the crop offset so the encoded frame starts at 0,0.
-      img.repage();
+      img.page = new MagickGeometry(0, 0, img.width, img.height);
     }
 
     if (img.width > ART_DELIVERY_WIDTH) {
