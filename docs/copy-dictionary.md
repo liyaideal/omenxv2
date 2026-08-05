@@ -85,8 +85,6 @@ Full address rendering: digits `text-primary`, letters `text-foreground` (see `m
 
 ---
 
-## Lite banned words
-
 ## Intraday rounds
 
 | Canonical | Meaning | Banned variants |
