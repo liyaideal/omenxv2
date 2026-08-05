@@ -278,7 +278,6 @@ export const EditorPicksModule = ({
           </p>
         </div>
         <span className="flex shrink-0 items-center" style={{ gap: 9 }}>
-          <span style={{ ...MICRO, fontSize: 10 }}>Picked by the OmenX desk</span>
           <span style={{ fontSize: 12, color: "#9AA1AC", fontWeight: 600 }}>
             Updated {relativeSince(updatedAt)}
           </span>
