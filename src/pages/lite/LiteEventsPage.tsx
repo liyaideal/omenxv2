@@ -391,8 +391,9 @@ const LiteEventsPage = () => {
                 {c.label}
               </button>
             ))}
-            {/* Boost is a grid trait — hidden in calendar and module views. */}
-            {!calendarOn && !isIntradayView && !isSportsView && (
+            {/* Boost composes in place with every category view (Intraday,
+                Crypto, Finance) — only the calendar lens and Sports opt out. */}
+            {!calendarOn && !isSportsView && (
               <>
                 <span
                   aria-hidden
