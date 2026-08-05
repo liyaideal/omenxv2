@@ -159,6 +159,12 @@ const LiteEventsPage = () => {
   const { rows: stockRows } = useIntradayStocks(stageActive);
   const { rows: sportsMatches } = useSportsMatches();
   const { picks: editorPicks, updatedAt: picksUpdatedAt } = useEditorPicks();
+  // Sports matches carry no per-event boost row — the category config is the
+  // same predicate the card grid uses (enabled + at least 2x).
+  const sportsBoostEnabled = useMemo(() => {
+    const cfg = getBoostConfig("sports");
+    return cfg.enabled && cfg.maxBoost >= 2;
+  }, [getBoostConfig]);
 
   const filtered = useMemo(() => {
     if (isWatchlistView) {
