@@ -118,6 +118,9 @@ export const LiteCryptoView = ({
         ) : (
           <DimensionRow label="Window">
             <StageDial value={tf} onChange={setTf} size="module" />
+            <span style={{ fontSize: 11, color: "#6B7280" }}>
+              These are the Intraday rounds — same engine, filtered to coins.
+            </span>
           </DimensionRow>
         )}
         <DimensionRow label="Coin" scroll={isMobile}>
@@ -139,7 +142,7 @@ export const LiteCryptoView = ({
           {!isMobile && (
             <RowHelper
               scope={`Crypto · ${coin === "all" ? "All coins" : coin.toUpperCase()}`}
-              tail={`${rounds.filter((r) => r.event).length} ${tfLabel} rounds open`}
+              tail={`${rounds.filter((r) => r.event).length} rounds open`}
             />
           )}
         </DimensionRow>
