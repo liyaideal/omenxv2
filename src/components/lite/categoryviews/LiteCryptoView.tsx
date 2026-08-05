@@ -14,13 +14,15 @@ import {
   Timeframe,
   compactUsd,
 } from "@/components/lite/intraday/intradayData";
-import { CoinTile, ORANGE, RoundLengthDial } from "./verticalBlocks";
+import { CoinTile, RoundLengthDial } from "./verticalBlocks";
+import { Dial as StageDial } from "@/components/lite/allstage/IntradayStageCard";
 import { MobileCoinCard, MobileRoundSwitcher } from "@/components/lite/mobile/MobileIntradayModule";
 import {
   CatalogueHeader,
   DimensionPill,
   DimensionRow,
   EYEBROW,
+  RowHelper,
   VerticalHeader,
 } from "./verticalChrome";
 import { coinOfEvent } from "./verticalFilters";
@@ -82,14 +84,20 @@ export const LiteCryptoView = ({
         compact={isMobile}
         eyebrow="Crypto · around the clock"
         title="Where do the coins go next?"
-        subtitle="Pick a window, pick a direction. Winning shares pay $1, losing shares pay $0."
+        subtitle={
+          <>
+            Pick a window, pick a direction. Winning shares pay{" "}
+            <strong style={{ color: "#fff", fontWeight: 700 }}>$1</strong>, losing
+            shares pay $0.
+          </>
+        }
         right={
           isMobile || tradedToday <= 0 ? undefined : (
             <div className="flex flex-col items-end" style={{ gap: 4 }}>
               <span
                 className="font-display"
                 style={{
-                  fontSize: 22,
+                  fontSize: 26,
                   fontWeight: 700,
                   color: "#fff",
                   fontVariantNumeric: "tabular-nums",
@@ -97,19 +105,19 @@ export const LiteCryptoView = ({
               >
                 {compactUsd(tradedToday)}
               </span>
-              <span style={EYEBROW}>Traded today</span>
+              <span style={{ ...EYEBROW, fontSize: 11 }}>Traded today</span>
             </div>
           )
         }
       />
 
       {/* Filters — row 1 WINDOW (dial), row 2 COIN (pills). */}
-      <div className="flex flex-col" style={{ gap: 12 }}>
+      <div className="flex flex-col" style={{ gap: 9 }}>
         {isMobile ? (
           <MobileRoundSwitcher value={tf} onSelect={setTf} />
         ) : (
           <DimensionRow label="Window">
-            <RoundLengthDial value={tf} onSelect={setTf} />
+            <StageDial value={tf} onChange={setTf} size="module" />
           </DimensionRow>
         )}
         <DimensionRow label="Coin" scroll={isMobile}>
@@ -128,21 +136,17 @@ export const LiteCryptoView = ({
               mobile={isMobile}
             />
           ))}
+          {!isMobile && (
+            <RowHelper
+              scope={`Crypto · ${coin === "all" ? "All coins" : coin.toUpperCase()}`}
+              tail={`${rounds.filter((r) => r.event).length} ${tfLabel} rounds open`}
+            />
+          )}
         </DimensionRow>
       </div>
 
       {/* Engine — the selected window × coin rounds. */}
       <div className="flex flex-col" style={{ gap: 12 }}>
-        <span
-          className="flex items-center"
-          style={{ ...EYEBROW, gap: 8, color: ORANGE }}
-        >
-          <span
-            className="animate-pulse"
-            style={{ width: 6, height: 6, borderRadius: 999, background: ORANGE }}
-          />
-          Intraday · {tfLabel} rounds
-        </span>
         {rounds.some((r) => r.event) ? (
           <div
             className={isMobile ? "flex flex-col" : "grid"}
