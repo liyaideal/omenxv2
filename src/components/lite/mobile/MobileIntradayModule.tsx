@@ -311,6 +311,56 @@ const SessionRow = ({
   );
 };
 
+/** Mobile round switcher — compact dial grammar (all five windows). */
+export const MobileRoundSwitcher = ({
+  value,
+  onSelect,
+}: {
+  value: Timeframe;
+  onSelect: (tf: Timeframe) => void;
+}) => (
+  <div
+    className="flex items-center justify-between"
+    style={{
+      gap: 10,
+      background: "#131519",
+      border: "1px solid #1D2026",
+      borderRadius: 12,
+      padding: "8px 10px",
+    }}
+  >
+    <span style={{ ...MICRO, flex: "none" }}>Round</span>
+    <span
+      className="flex overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      style={{ gap: 5 }}
+    >
+      {TIMEFRAMES.map((t) => {
+        const active = t.id === value;
+        return (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => onSelect(t.id)}
+            style={{
+              flex: "none",
+              borderRadius: 9,
+              padding: "0 14px",
+              minHeight: 44,
+              display: "flex",
+              alignItems: "center",
+              fontSize: 13,
+              fontWeight: active ? 700 : 600,
+              background: active ? "#FF8A3D" : "transparent",
+              color: active ? "#0A0B0D" : "#9AA1AC",
+            }}
+          >
+            {t.label}
+          </button>
+        );
+      })}
+    </span>
+);
+
 export const MobileIntradayModule = ({
   currentFor,
   historyFor,
@@ -374,47 +424,6 @@ export const MobileIntradayModule = ({
       {/* Round switcher — all five windows, always. */}
       <MobileRoundSwitcher value={tf} onSelect={onSelectTf} />
 
-      <div style={{ display: "none" }}><div
-        className="flex items-center justify-between"
-        style={{
-          gap: 10,
-          background: "#131519",
-          border: "1px solid #1D2026",
-          borderRadius: 12,
-          padding: "8px 10px",
-        }}
-      >
-        <span style={{ ...MICRO, flex: "none" }}>Round</span>
-        <span
-          className="flex overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          style={{ gap: 5 }}
-        >
-          {TIMEFRAMES.map((t) => {
-            const active = t.id === tf;
-            return (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => onSelectTf(t.id)}
-                style={{
-                  flex: "none",
-                  borderRadius: 9,
-                  padding: "0 14px",
-                  minHeight: 44,
-                  display: "flex",
-                  alignItems: "center",
-                  fontSize: 13,
-                  fontWeight: active ? 700 : 600,
-                  background: active ? "#FF8A3D" : "transparent",
-                  color: active ? "#0A0B0D" : "#9AA1AC",
-                }}
-              >
-                {t.label}
-              </button>
-            );
-          })}
-        </span>
-      </div>
 
       {COINS.map((coin) => (
         <MobileCoinCard
