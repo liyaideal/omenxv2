@@ -83,7 +83,7 @@ export const LiteCryptoView = ({
         title="Where is crypto headed?"
         subtitle="Rolling price rounds plus the wider crypto catalogue. Winning shares pay $1."
         right={
-          isMobile ? undefined : (
+          isMobile || roundVolume <= 0 ? undefined : (
             <div className="flex flex-col items-end" style={{ gap: 6 }}>
               <span style={EYEBROW}>Traded this round</span>
               <span
