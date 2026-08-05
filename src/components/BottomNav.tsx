@@ -21,7 +21,7 @@ const navItems = [
 
 // Lite surface: Markets / Portfolio / Wallet (+ shared Me button)
 const liteNavItems = [
-  { icon: Compass, label: "Markets", path: "/events" },
+  { icon: Compass, label: "Events", path: "/events" },
   { icon: PieChart, label: "Portfolio", path: "/portfolio" },
   { icon: Wallet, label: "Wallet", path: "/wallet" },
 ];
