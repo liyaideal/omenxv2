@@ -15,7 +15,6 @@ import {
   groupStockRows,
 } from "@/components/lite/categoryviews/verticalBlocks";
 import {
-  CHALK_SOFT,
   Last8Strip,
   LivePulse,
   PctChange,
@@ -520,7 +519,6 @@ export const IntradayStageCard = ({
   );
   const openStocks = groups.trading;
   const sessionOpen = groups.sessionMarket != null && groups.sessionEnd != null;
-  const nextOpen = groups.wakeLabel;
 
   const closeLabel = useMemo(() => {
     const market = groups.sessionMarket;
