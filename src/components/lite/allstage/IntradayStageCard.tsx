@@ -579,8 +579,7 @@ export const IntradayStageCard = ({
   );
   const openStocks = groups.trading;
   const sessionOpen = groups.sessionMarket != null && groups.sessionEnd != null;
-  const nextOpen =
-    groups.asleep.length > 0 ? `Next open ${groups.asleep[0].nextOpen}` : null;
+  const nextOpen = groups.wakeLabel;
 
   const closeLabel = useMemo(() => {
     const market = groups.sessionMarket;
