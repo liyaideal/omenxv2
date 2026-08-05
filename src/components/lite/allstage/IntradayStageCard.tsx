@@ -571,47 +571,23 @@ export const IntradayStageCard = ({
 }) => {
   const [tf, setTf] = useState<Timeframe>("5m");
 
-  // A session is "open" when a stock round has started and not yet closed.
-  const openStocks = useMemo(() => {
-    const now = Date.now();
-    const seen = new Map<string, StockEventRow>();
-    for (const r of stockRows) {
-      const started = r.start_date ? new Date(r.start_date).getTime() <= now : false;
-      const ends = r.end_date ? new Date(r.end_date).getTime() : 0;
-      if (!started || ends <= now) continue;
-      const t = deriveTickerFromEvent(r.id, r.name);
-      const prev = seen.get(t);
-      if (!prev || ends < new Date(prev.end_date!).getTime()) seen.set(t, r);
-    }
-    return [...seen.values()].sort(
-      (a, b) =>
-        new Date(a.end_date || 0).getTime() - new Date(b.end_date || 0).getTime(),
-    );
-  }, [stockRows]);
-
-  const sessionOpen = openStocks.length > 0;
-
-  const nextOpen = useMemo(() => {
-    const now = Date.now();
-    const future = stockRows
-      .filter((r) => r.start_date && new Date(r.start_date).getTime() > now)
-      .sort(
-        (a, b) =>
-          new Date(a.start_date!).getTime() - new Date(b.start_date!).getTime(),
-      )[0];
-    if (!future) return null;
-    const d = new Date(future.start_date!);
-    const market = resolveStockMarket(future);
-    return `Next open ${d.toLocaleDateString(undefined, { weekday: "short" })} ${formatMarketTime(d, market)} ${market.label}`;
-  }, [stockRows]);
+  // ONE shared selector for every surface — the All stage, the Intraday view
+  // and the Finance view group the same feed with the same session rules.
+  const groups = useMemo(
+    () => groupStockRows(stockRows),
+    [stockRows, tickSeconds],
+  );
+  const openStocks = groups.trading;
+  const sessionOpen = groups.sessionMarket != null && groups.sessionEnd != null;
+  const nextOpen =
+    groups.asleep.length > 0 ? `Next open ${groups.asleep[0].nextOpen}` : null;
 
   const closeLabel = useMemo(() => {
-    const first = openStocks[0];
-    if (!first) return "";
-    const market = resolveStockMarket(first);
+    const market = groups.sessionMarket;
+    if (!market || groups.sessionEnd == null) return "";
     const where = market.key === "hk" ? "HK" : "US";
-    return `${where} closes ${first.end_date ? formatMarketTime(new Date(first.end_date), market) : ""} ${market.label}`;
-  }, [openStocks]);
+    return `${where} closes ${formatMarketTime(new Date(groups.sessionEnd), market)} ${market.label}`;
+  }, [groups.sessionMarket, groups.sessionEnd]);
 
   const cells: CoinCell[] = COINS.map((coin) => ({
     coin,
