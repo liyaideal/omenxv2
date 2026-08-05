@@ -22,6 +22,7 @@ import {
   TF_SECONDS,
 } from "@/components/lite/intraday/intradayData";
 import { SportsMatch } from "@/components/lite/sports/sportsData";
+import { MobileSportsModule } from "@/components/lite/mobile/MobileSportsModule";
 
 /* ---------------- Frozen mock clock ---------------- */
 /** All mock timestamps hang off this single frozen instant. */
@@ -259,6 +260,48 @@ const UPCOMING_H2H_2 = match({
   endDate: new Date(NOW + 54 * 60 * MIN),
   options: [opt("s-up-4-h", "Adesanya", 0.48), opt("s-up-4-a", "Pereira", 0.52)],
 });
+
+/* --- Sub-nav (13A) mocks: sport row + league row --------------- */
+/** One soccer fixture per named league, spread over the next 3 days. */
+const soccer = (
+  id: string,
+  league: string,
+  home: string,
+  away: string,
+  hours: number,
+) =>
+  match({
+    id,
+    league,
+    home,
+    away,
+    kickoff: new Date(NOW + hours * 60 * MIN),
+    endDate: new Date(NOW + (hours * 60 + 120) * MIN),
+  });
+
+/** Four soccer leagues — the contract's 13A frame. */
+const SOCCER_4 = [
+  soccer("s13-1", "LaLiga", "Real Madrid", "Barcelona", 5),
+  soccer("s13-2", "UEFA Champions League", "Bayern", "PSG", 6),
+  soccer("s13-3", "Premier League", "Liverpool", "Newcastle", 28),
+  soccer("s13-4", "K League 1", "Jeonbuk", "Ulsan", 52),
+];
+
+/** Nine soccer leagues — the 13A-max wrap frame. */
+const SOCCER_9 = [
+  ...SOCCER_4,
+  soccer("s13-5", "World Cup", "Brazil", "Croatia", 30),
+  soccer("s13-6", "Serie A", "Inter", "Roma", 31),
+  soccer("s13-7", "Bundesliga", "Dortmund", "Leipzig", 32),
+  soccer("s13-8", "Ligue 1", "Marseille", "Lyon", 54),
+  soccer("s13-9", "Chinese Super League", "Shanghai Port", "Beijing Guoan", 56),
+];
+
+/** Other groups so the "switch sport above" line has live values. */
+const OTHER_SPORTS = [UPCOMING_H2H, UPCOMING_H2H_2];
+
+/** UFC only — one league in the group, so the league row is suppressed. */
+const SINGLE_LEAGUE = [UPCOMING_H2H_2];
 
 /* ---------------- 1. Category row ---------------- */
 const PILL_BASE =
@@ -711,7 +754,7 @@ const SportsViewDemo = () => {
     <div className="space-y-3">
       <PresetRail presets={VIEW_7B_PRESETS} activeId={id} onSelect={setId} />
       <div key={id}>
-        <LiteSportsView matches={[...p.matches]} />
+        <LiteSportsView matches={[...p.matches]} now={NOW} />
       </div>
       <Caption>
         {p.caption} Day chips filter the ledger in place — select a day chip to see
@@ -720,6 +763,82 @@ const SportsViewDemo = () => {
     </div>
   );
 };
+
+/* ---------------- 13A · sports sub-nav ---------------- */
+const SUBNAV_PRESETS = [
+  {
+    id: "13a-soccer",
+    label: "Soccer · 4 leagues",
+    matches: [...SOCCER_4, ...OTHER_SPORTS],
+    boostOnly: false,
+    sport: "SOCCER",
+    caption:
+      "Select Soccer on the SPORT row: the LEAGUE row appears with the four leagues that have markets this week (taxonomy order, leading All) and the footer counts the other groups.",
+  },
+  {
+    id: "13a-single",
+    label: "Single-league sport (UFC)",
+    matches: SINGLE_LEAGUE,
+    boostOnly: false,
+    sport: "UFC",
+    caption:
+      "UFC has one league with markets, so the LEAGUE row is not rendered at all — the module starts straight under the SPORT row.",
+  },
+  {
+    id: "13a-max",
+    label: "Worst case · 9 leagues wrap",
+    matches: [...SOCCER_9, ...OTHER_SPORTS],
+    boostOnly: false,
+    sport: "SOCCER",
+    caption:
+      "13A-max: all nine soccer leagues are live. The row wraps onto a second line at the same 7px gaps — never a horizontal scroll and never a truncated pill.",
+  },
+  {
+    id: "13a-boost",
+    label: "Boost on · nothing boosted",
+    matches: [...SOCCER_4, ...OTHER_SPORTS],
+    boostOnly: true,
+    sport: "SOCCER",
+    caption:
+      "Boost composes in place: header and both filter rows stay mounted, the module body is replaced by the standard empty line.",
+  },
+] as const;
+
+const SportsSubnavDemo = () => {
+  const [id, setId] = useState<string>(SUBNAV_PRESETS[0].id);
+  const p = SUBNAV_PRESETS.find((x) => x.id === id) ?? SUBNAV_PRESETS[0];
+  return (
+    <div className="space-y-3">
+      <PresetRail presets={SUBNAV_PRESETS} activeId={id} onSelect={setId} />
+      <div key={id}>
+        <LiteSportsView
+          matches={[...p.matches]}
+          now={NOW}
+          defaultSport={p.sport}
+          boostOnly={p.boostOnly}
+          boostEnabled={false}
+        />
+      </div>
+      <Caption>{p.caption}</Caption>
+    </div>
+  );
+};
+
+const SportsSubnavMobileDemo = () => (
+  <div className="space-y-3">
+    <div style={{ width: 390 }}>
+      <MobileSportsModule
+        matches={[...SOCCER_4, ...OTHER_SPORTS]}
+        filters
+        onOpenAll={() => {}}
+      />
+    </div>
+    <Caption>
+      390 composition — both dimension rows use the 44px mobile pill grammar and
+      scroll horizontally under the 18px fade mask (never wrap).
+    </Caption>
+  </div>
+);
 
 export const LiteAllStageSection = () => (
   <SectionWrapper
@@ -799,6 +918,20 @@ export const LiteAllStageSection = () => (
             description="Desktop · full-width state when the Sports category chip is active"
           >
             <SportsViewDemo />
+          </SubSection>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="space-y-4 p-6">
+          <SubSection
+            title="Sports sub-nav 13A · SPORT + LEAGUE rows"
+            description="Desktop · dimension rows above the sports module"
+          >
+            <SportsSubnavDemo />
+          </SubSection>
+          <SubSection title="Sports sub-nav 13A · 390" description="Mobile composition">
+            <SportsSubnavMobileDemo />
           </SubSection>
         </CardContent>
       </Card>
