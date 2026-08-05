@@ -153,7 +153,12 @@ export const LiteFinanceView = ({
               <TradingStockRow key={row.id} row={row} tickSeconds={tickSeconds} />
             ))}
           </div>
-          <div className="flex flex-col" style={{ gap: 10 }}>
+          <div
+            className={isMobile ? "flex flex-col" : "grid"}
+            style={
+              isMobile ? { gap: 10 } : { gap: 12, gridTemplateColumns: "1fr 1fr" }
+            }
+          >
             {asleep.map(({ row, nextOpen }) => (
               <AsleepStockRow key={row.id} row={row} nextOpen={nextOpen} />
             ))}
