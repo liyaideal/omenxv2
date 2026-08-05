@@ -12,6 +12,7 @@ import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader"
 import {
   formatMarketPrice,
   formatSessionStamp,
+  formatMarketTime,
   getMarketSession,
   marketCityName,
   resolveStockMarket,
@@ -227,11 +228,14 @@ export const CoinTile = ({
   event,
   history,
   tickSeconds,
+  nowMs,
 }: {
   coin: Coin;
   event: QuickEvent | null;
   history: ("up" | "down")[];
   tickSeconds: number;
+  /** Style-guide only — freeze the countdown clock. */
+  nowMs?: number;
 }) => {
   const navigate = useNavigate();
   const meta = COIN_META[coin];
@@ -321,7 +325,7 @@ export const CoinTile = ({
               fontVariantNumeric: "tabular-nums",
             }}
           >
-            {endMs != null ? formatCountdown(endMs - Date.now()) : "--:--"}
+            {endMs != null ? formatCountdown(endMs - (nowMs ?? Date.now())) : "--:--"}
           </span>
         </span>
       </div>
@@ -567,7 +571,9 @@ export const groupStockRows = (
   stockRows: StockEventRow[],
   sessionNow?: Date,
 ): StockGroups => {
-  const now = Date.now();
+  // One clock for EVERYTHING: row liveness and session resolution both read
+  // the injected instant when present (style-guide frozen clock).
+  const now = sessionNow ? sessionNow.getTime() : Date.now();
   const byTicker = new Map<string, StockEventRow[]>();
   for (const r of stockRows) {
     const t = deriveTickerFromEvent(r.id, r.name);
@@ -615,4 +621,59 @@ export const groupStockRows = (
       ? `${marketCityName(wake.market)} opens ${openStamp(wake.at, wake.market)}`
       : null,
   };
+};
+
+/**
+ * Session status chip — the EXACT treatment the Intraday view uses for
+ * stock session state. Open → orange dot + "US session open · closes
+ * 16:00 ET · 3h 12m left". Shut → the asleep phrasing with the next
+ * open stamp (groups.wakeLabel).
+ */
+export const SessionStatusChip = ({
+  groups,
+  nowMs,
+}: {
+  groups: StockGroups;
+  nowMs?: number;
+}) => {
+  const open = groups.sessionMarket && groups.sessionEnd != null;
+  if (!open && !groups.wakeLabel) return null;
+  return (
+    <span
+      className="flex flex-none items-center"
+      style={{
+        gap: 8,
+        background: "#131519",
+        border: "1px solid #23262D",
+        borderRadius: 999,
+        padding: "8px 14px",
+      }}
+    >
+      <span
+        style={{
+          width: 6,
+          height: 6,
+          borderRadius: 999,
+          background: open ? ORANGE : "#3A3F49",
+        }}
+      />
+      {open ? (
+        <>
+          <span style={{ fontSize: 12, color: "#fff", fontWeight: 700 }}>
+            {groups.sessionMarket!.key === "hk" ? "HK" : "US"} session open
+          </span>
+          <span
+            style={{ fontSize: 12, color: "#9AA1AC", fontVariantNumeric: "tabular-nums" }}
+          >
+            closes{" "}
+            {formatMarketTime(new Date(groups.sessionEnd!), groups.sessionMarket!)}{" "}
+            {groups.sessionMarket!.label} ·{" "}
+            {fmtLeft(groups.sessionEnd! - (nowMs ?? Date.now()))}
+          </span>
+        </>
+      ) : (
+        <span style={{ fontSize: 12, color: "#9AA1AC" }}>{groups.wakeLabel}</span>
+      )}
+    </span>
+  );
 };

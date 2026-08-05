@@ -102,12 +102,15 @@ export const MobileCoinCard = ({
   history,
   tf,
   tickSeconds,
+  nowMs,
 }: {
   coin: (typeof COINS)[number];
   event: QuickEvent | null;
   history: ("up" | "down")[];
   tf: Timeframe;
   tickSeconds: number;
+  /** Style-guide only — freeze the countdown clock. */
+  nowMs?: number;
 }) => {
   const navigate = useNavigate();
   const meta = COIN_META[coin];
@@ -195,7 +198,7 @@ export const MobileCoinCard = ({
               fontVariantNumeric: "tabular-nums",
             }}
           >
-            {endMs != null ? formatCountdown(endMs - Date.now()) : "—"}
+            {endMs != null ? formatCountdown(endMs - (nowMs ?? Date.now())) : "—"}
           </span>
         </span>
       </div>

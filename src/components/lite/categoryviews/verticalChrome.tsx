@@ -62,36 +62,76 @@ export const DimensionRow = ({
   label,
   children,
   scroll,
+  labelWidth,
 }: {
   label: string;
   children: ReactNode;
   scroll?: boolean;
+  /** Widen the label gutter for longer labels ("ASSET CLASS"). */
+  labelWidth?: number;
 }) => (
   <div className="flex items-center" style={{ gap: 14 }}>
-    <span style={ROW_LABEL}>{label}</span>
+    <span style={labelWidth ? { ...ROW_LABEL, width: labelWidth } : ROW_LABEL}>
+      {label}
+    </span>
     <div
       className={
         scroll
-          ? "flex min-w-0 flex-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          ? "flex min-w-0 flex-1 items-center overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           : "flex flex-wrap items-center"
       }
-      style={{ gap: 8 }}
+      style={
+        scroll
+          ? {
+              gap: 8,
+              maskImage:
+                "linear-gradient(to right,#000 0,#000 calc(100% - 18px),transparent 100%)",
+              WebkitMaskImage:
+                "linear-gradient(to right,#000 0,#000 calc(100% - 18px),transparent 100%)",
+            }
+          : { gap: 8 }
+      }
     >
       {children}
     </div>
   </div>
 );
 
-/** Filter pill — the list-page pill language (v3 sizing). */
+/**
+ * Filter pill. Desktop = the list-page v3 pill (32px). Mobile = the 44px
+ * MobileCategoryRow grammar (CHK-7 — touch targets never shrink).
+ */
 export const DimensionPill = ({
   label,
   active,
   onSelect,
+  mobile,
 }: {
   label: string;
   active: boolean;
   onSelect: () => void;
-}) => (
+  mobile?: boolean;
+}) =>
+  mobile ? (
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={active}
+      className="flex flex-none items-center"
+      style={{
+        borderRadius: 999,
+        minHeight: 44,
+        fontSize: 12,
+        padding: active ? "0 15px" : "0 14px",
+        background: active ? "#fff" : "transparent",
+        color: active ? "#0A0B0D" : "#9AA1AC",
+        border: `1px solid ${active ? "#fff" : "#23262D"}`,
+        fontWeight: active ? 700 : 600,
+      }}
+    >
+      {label}
+    </button>
+  ) : (
   <button
     type="button"
     onClick={onSelect}

@@ -221,10 +221,12 @@ const STOCK_ROWS: StockEventRow[] = [
   hkStock("9988", 84.3, 0.48),
 ];
 
-/** US cash session open at the frozen instant (15:20 UTC = 11:20 ET). */
-const US_OPEN_NOW = new Date(NOW);
-/** Hong Kong is shut at 15:20 UTC (23:20 HKT). */
-const HK_SHUT_NOW = new Date(NOW);
+/**
+ * ONE injected instant for the whole playground: row liveness, session
+ * resolution, countdowns and traded-today all read it. At 15:20 UTC the US
+ * cash session is open (11:20 ET) and Hong Kong is shut (23:20 HKT).
+ */
+const FROZEN_NOW = new Date(NOW);
 
 /* ---------------- Presets ---------------- */
 const CRYPTO_PRESETS = [
@@ -235,6 +237,7 @@ const CRYPTO_PRESETS = [
 ] as const;
 
 const FINANCE_PRESETS = [
+  { id: "all", label: "All classes · all regions", cls: "all", region: "all" },
   { id: "us-stocks", label: "Stocks · US (open)", cls: "stocks", region: "us" },
   { id: "hk-stocks", label: "Stocks · HK (asleep)", cls: "stocks", region: "hk" },
   { id: "indices", label: "Indices · US", cls: "indices", region: "us" },
@@ -267,6 +270,7 @@ export const LiteVerticalViewsSection = () => {
               currentFor={currentFor}
               historyFor={historyFor}
               tickSeconds={0}
+              nowMs={NOW}
               events={[...crypto.events]}
               renderGrid={grid}
               initialTf={crypto.tf}
@@ -283,6 +287,7 @@ export const LiteVerticalViewsSection = () => {
                 currentFor={currentFor}
                 historyFor={historyFor}
                 tickSeconds={0}
+                nowMs={NOW}
                 events={[...crypto.events]}
                 renderGrid={grid}
                 isMobile
@@ -310,7 +315,8 @@ export const LiteVerticalViewsSection = () => {
               key={finance.id}
               stockRows={STOCK_ROWS}
               tickSeconds={0}
-              sessionNow={finance.region === "hk" ? HK_SHUT_NOW : US_OPEN_NOW}
+              sessionNow={FROZEN_NOW}
+              nowMs={NOW}
               events={FINANCE_EVENTS}
               renderGrid={grid}
               initialClass={finance.cls}
@@ -326,7 +332,8 @@ export const LiteVerticalViewsSection = () => {
                 key={`m-${finance.id}`}
                 stockRows={STOCK_ROWS}
                 tickSeconds={0}
-                sessionNow={finance.region === "hk" ? HK_SHUT_NOW : US_OPEN_NOW}
+                sessionNow={FROZEN_NOW}
+                nowMs={NOW}
                 events={FINANCE_EVENTS}
                 renderGrid={grid}
                 isMobile

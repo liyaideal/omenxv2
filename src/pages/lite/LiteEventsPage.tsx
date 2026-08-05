@@ -111,16 +111,19 @@ const LiteEventsPage = () => {
 
   // Only render sector pills for categories that actually have events.
   // Counts are keyed by TAXONOMY top-level id, so `stocks` + `finance`
-  // events fold into the single "Finance" chip.
+  // events fold into the single "Finance" chip. They are computed over the
+  // WHOLE live pool (intraday rounds included) — a vertical view owns both
+  // its engine and its catalogue, so Finance must light up when the only
+  // live finance markets are the daily stock rounds.
   const sectorCounts = useMemo(() => {
     const counts = new Map<string, number>();
-    for (const m of openMarkets) {
+    for (const m of markets) {
       const top = topCategoryForKey(m.category);
       if (!top) continue;
       counts.set(top.id, (counts.get(top.id) || 0) + 1);
     }
     return counts;
-  }, [openMarkets]);
+  }, [markets]);
 
   const availableSectors = useMemo(
     () => SECTOR_CATEGORIES.filter((s) => (sectorCounts.get(s.id) || 0) > 0),

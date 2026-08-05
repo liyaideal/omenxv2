@@ -37,6 +37,7 @@ export const LiteCryptoView = ({
   isMobile,
   initialTf = "5m",
   initialCoin = "all",
+  nowMs,
 }: {
   currentFor: Map<string, QuickEvent>;
   historyFor: Map<string, ("up" | "down")[]>;
@@ -48,6 +49,8 @@ export const LiteCryptoView = ({
   /** Style-guide only. */
   initialTf?: Timeframe;
   initialCoin?: string;
+  /** Style-guide only — freeze every clock in the view. */
+  nowMs?: number;
 }) => {
   const [tf, setTf] = useState<Timeframe>(initialTf);
   const [coin, setCoin] = useState<string>(initialCoin);
@@ -59,14 +62,12 @@ export const LiteCryptoView = ({
     [coins, currentFor, tf],
   );
 
-  const roundVolume = useMemo(
-    () =>
-      COIN_IDS.reduce((sum, c) => {
-        const ev = currentFor.get(`${c}-${tf}`);
-        return sum + (ev?.volume ?? 0);
-      }, 0),
-    [currentFor, tf],
-  );
+  /** Today's traded volume across every open crypto round. */
+  const tradedToday = useMemo(() => {
+    let sum = 0;
+    for (const ev of currentFor.values()) sum += ev?.volume ?? 0;
+    return sum;
+  }, [currentFor]);
 
   const catalogue = useMemo(
     () => (coin === "all" ? events : events.filter((m) => coinOfEvent(m) === coin)),
@@ -79,13 +80,12 @@ export const LiteCryptoView = ({
     <div className="flex flex-col" style={{ marginTop: isMobile ? 18 : 20, gap: 22 }}>
       <VerticalHeader
         compact={isMobile}
-        eyebrow="Crypto · open 24/7"
-        title="Where is crypto headed?"
-        subtitle="Rolling price rounds plus the wider crypto catalogue. Winning shares pay $1."
+        eyebrow="Crypto · around the clock"
+        title="Where do the coins go next?"
+        subtitle="Pick a window, pick a direction. Winning shares pay $1, losing shares pay $0."
         right={
-          isMobile || roundVolume <= 0 ? undefined : (
-            <div className="flex flex-col items-end" style={{ gap: 6 }}>
-              <span style={EYEBROW}>Traded this round</span>
+          isMobile || tradedToday <= 0 ? undefined : (
+            <div className="flex flex-col items-end" style={{ gap: 4 }}>
               <span
                 className="font-display"
                 style={{
@@ -95,8 +95,9 @@ export const LiteCryptoView = ({
                   fontVariantNumeric: "tabular-nums",
                 }}
               >
-                {compactUsd(roundVolume)}
+                {compactUsd(tradedToday)}
               </span>
+              <span style={EYEBROW}>Traded today</span>
             </div>
           )
         }
@@ -116,6 +117,7 @@ export const LiteCryptoView = ({
             label="All coins"
             active={coin === "all"}
             onSelect={() => setCoin("all")}
+            mobile={isMobile}
           />
           {CRYPTO_COINS.map((c) => (
             <DimensionPill
@@ -123,6 +125,7 @@ export const LiteCryptoView = ({
               label={c.label}
               active={coin === c.code}
               onSelect={() => setCoin(c.code)}
+              mobile={isMobile}
             />
           ))}
         </DimensionRow>
@@ -161,6 +164,7 @@ export const LiteCryptoView = ({
                   history={historyFor.get(`${c}-${tf}`) ?? []}
                   tf={tf}
                   tickSeconds={tickSeconds}
+                  nowMs={nowMs}
                 />
               ) : (
                 <CoinTile
@@ -169,6 +173,7 @@ export const LiteCryptoView = ({
                   event={event}
                   history={historyFor.get(`${c}-${tf}`) ?? []}
                   tickSeconds={tickSeconds}
+                  nowMs={nowMs}
                 />
               ),
             )}
@@ -187,8 +192,8 @@ export const LiteCryptoView = ({
       >
         <CatalogueHeader
           compact={isMobile}
-          title="Will it happen?"
-          subtitle="Back Yes or No on the rest of the crypto market."
+          title="What else could crypto do?"
+          subtitle="Longer-running questions about coins, chains and the people behind them. Winning shares pay $1."
           count={catalogue.length}
         />
         {catalogue.length === 0 ? (
