@@ -2,12 +2,24 @@
 // MOBILE SPORTS MODULE (390) — live match card pinned above two
 // upcoming match cards. Contract: list-final-touches-11.html 11B / 11C.
 // ============================================================
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   SportsMatch,
   isUpcoming,
   kickoffLabel,
 } from "@/components/lite/sports/sportsData";
+import {
+  ALL_OPTION,
+  filterMatches,
+  leagueOptions,
+  sportOptions,
+} from "@/components/lite/sports/sportsFilters";
+import {
+  DimensionPill,
+  DimensionRow,
+} from "@/components/lite/categoryviews/verticalChrome";
+import { EmptyState } from "@/components/states";
 
 const MICRO: React.CSSProperties = {
   fontSize: 9,
@@ -266,18 +278,41 @@ const UpcomingMatchCard = ({ match }: { match: SportsMatch }) => {
 export const MobileSportsModule = ({
   matches,
   onOpenAll,
+  filters,
+  boostOnly,
+  boostEnabled,
 }: {
   matches: SportsMatch[];
   onOpenAll: () => void;
+  /** Sports category view only — the All stage keeps the plain module. */
+  filters?: boolean;
+  boostOnly?: boolean;
+  boostEnabled?: boolean;
 }) => {
-  const live = matches.filter((m) => m.live);
-  const upcoming = matches
+  const [sport, setSport] = useState<string>(ALL_OPTION);
+  const [league, setLeague] = useState<string>(ALL_OPTION);
+
+  const sports = useMemo(() => sportOptions(matches), [matches]);
+  const leagues = useMemo(
+    () => (sport === ALL_OPTION ? [] : leagueOptions(matches, sport)),
+    [matches, sport],
+  );
+  const showLeagueRow = !!filters && leagues.length > 1;
+  const activeLeague = showLeagueRow ? league : ALL_OPTION;
+  const scoped = useMemo(
+    () => (filters ? filterMatches(matches, sport, activeLeague) : matches),
+    [matches, filters, sport, activeLeague],
+  );
+  const boostEmpty = !!filters && !!boostOnly && !boostEnabled;
+
+  const live = scoped.filter((m) => m.live);
+  const upcoming = scoped
     .filter((m) => !m.live && isUpcoming(m))
     .sort(
       (a, b) => (a.kickoff?.getTime() ?? Infinity) - (b.kickoff?.getTime() ?? Infinity),
     );
   const weekCount = live.length + upcoming.length;
-  if (weekCount === 0) return null;
+  if (!filters && weekCount === 0) return null;
 
   return (
     <section className="flex flex-col" style={{ gap: 12 }}>
@@ -303,6 +338,7 @@ export const MobileSportsModule = ({
           Winning shares pay <strong style={{ color: "#fff", fontWeight: 600 }}>$1</strong>.
           Matches over the next 7 days — trade before kickoff or during the match.
         </p>
+        {!boostEmpty && (
         <span className="flex items-center" style={{ gap: 8, paddingTop: 2 }}>
           {live.length > 0 ? (
             <span
@@ -320,8 +356,64 @@ export const MobileSportsModule = ({
           )}
           <span style={CHIP}>{weekCount} this week</span>
         </span>
+        )}
       </div>
 
+      {/* Dimension rows — 44px pills, horizontal scroll with the fade mask. */}
+      {filters && (
+        <div className="flex flex-col" style={{ gap: 9 }}>
+          <DimensionRow label="Sport" labelWidth={44} scroll>
+            <DimensionPill
+              mobile
+              label="All"
+              active={sport === ALL_OPTION}
+              onSelect={() => {
+                setSport(ALL_OPTION);
+                setLeague(ALL_OPTION);
+              }}
+            />
+            {sports.map((g) => (
+              <DimensionPill
+                key={g.code}
+                mobile
+                label={g.label}
+                active={sport === g.code}
+                onSelect={() => {
+                  setSport(g.code);
+                  setLeague(ALL_OPTION);
+                }}
+              />
+            ))}
+          </DimensionRow>
+          {showLeagueRow && (
+            <DimensionRow label="League" labelWidth={44} scroll>
+              <DimensionPill
+                mobile
+                label="All"
+                active={activeLeague === ALL_OPTION}
+                onSelect={() => setLeague(ALL_OPTION)}
+              />
+              {leagues.map((l) => (
+                <DimensionPill
+                  key={l.code}
+                  mobile
+                  label={l.label}
+                  active={activeLeague === l.code}
+                  onSelect={() => setLeague(l.code)}
+                />
+              ))}
+            </DimensionRow>
+          )}
+        </div>
+      )}
+
+      {boostEmpty ? (
+        <EmptyState
+          variant="page"
+          title="Nothing boosted here yet — check back soon."
+        />
+      ) : (
+        <>
       {live.slice(0, 1).map((m) => (
         <LiveMatchCard key={m.id} match={m} />
       ))}
@@ -338,6 +430,8 @@ export const MobileSportsModule = ({
       >
         All {weekCount} matches →
       </button>
+        </>
+      )}
     </section>
   );
 };
