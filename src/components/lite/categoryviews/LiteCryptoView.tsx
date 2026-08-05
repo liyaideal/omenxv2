@@ -14,7 +14,7 @@ import {
   Timeframe,
   compactUsd,
 } from "@/components/lite/intraday/intradayData";
-import { CoinTile, RoundLengthDial } from "./verticalBlocks";
+import { CoinTile } from "./verticalBlocks";
 import { Dial as StageDial } from "@/components/lite/allstage/IntradayStageCard";
 import { MobileCoinCard, MobileRoundSwitcher } from "@/components/lite/mobile/MobileIntradayModule";
 import {
