@@ -431,7 +431,7 @@ Intraday identity orange <code>#FF8A3D</code>; live red <code>#FF3B4E</code>.
   </div>
 </div>
 
-<div class="lbl"><span class="n">Vertical-view coin tile (CoinTile)</span><span class="r">categoryviews/verticalBlocks.tsx — the tile used by the Crypto / Intraday vertical views. Shell #131519 / 1px #1D2026 / radius 16 / padding 18. Avatar 34px, ticker 11px #9AA1AC, price 22px display, change 12px, "Closes" countdown 20px #FF8A3D, sparkline height 86, LAST 8 squares 7×14 radius 3, volume 11px #6B7280, direction buttons min-height 48 (label 12 / price 17).</span></div>
+<div class="lbl"><span class="n">Crypto round tile (unified)</span><span class="r">ONE tile for the crypto round object — categoryviews/verticalBlocks.tsx CoinTile (Crypto / Intraday vertical views), allstage/IntradayStageCard coin cell (All page) and intraday/QuickRoundTile all render the SAME canonical chart: RoundPlot — two-segment plot (grey previous round on the left 62%, coloured current round on the right 38% over a lighter split background), dashed round-open baseline, end dot, and the "Round open $X" pill overlaid on the chart. Shell #131519 / 1px #1D2026 / radius 16 / padding 18. Avatar 34px, ticker 11px #9AA1AC, price 22px display, change 12px next to the price, "Closes" countdown 20px #FF8A3D, chart slot 96 (mobile 84), LAST 8 squares 11×11 radius 3, volume 11px #6B7280, direction buttons min-height 48 (label 12 / price 17). No standalone "Open $X" text — the pill carries it.</span></div>
 <div class="stage d">
   <div style="width:320px;display:flex;flex-direction:column;gap:12px;background:#131519;border:1px solid #1D2026;border-radius:16px;padding:18px">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
@@ -447,12 +447,23 @@ Intraday identity orange <code>#FF8A3D</code>; live red <code>#FF3B4E</code>.
         <span class="font-display mono" style="font-size:20px;font-weight:700;color:#FF8A3D">02:06</span>
       </span>
     </div>
-    <div style="height:86px;background:#0C1013;border-radius:10px"></div>
+    <div style="position:relative;height:96px;background:#0C1013;border-radius:10px;overflow:hidden">
+      <svg viewBox="0 0 300 96" preserveAspectRatio="none" style="width:100%;height:96px;display:block">
+        <rect x="186" y="0" width="114" height="96" fill="rgba(255,255,255,.035)"/>
+        <line x1="0" x2="300" y1="48" y2="48" stroke="rgba(255,255,255,.28)" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <path d="M0 60 C 30 56, 52 66, 74 58 C 100 49, 128 63, 152 52 C 168 45, 178 50, 186 48" fill="none" stroke="#3A4149" stroke-width="1.5" stroke-opacity=".75" vector-effect="non-scaling-stroke"/>
+        <path d="M186 48 C 202 44, 218 52, 234 41 C 254 28, 272 36, 291 26" fill="none" stroke="#33D6FF" stroke-width="2.25" vector-effect="non-scaling-stroke"/>
+      </svg>
+      <span style="position:absolute;left:291px;top:26px;width:6px;height:6px;margin-left:-3px;margin-top:-3px;border-radius:50%;background:#33D6FF"></span>
+      <span style="position:absolute;left:0;width:62%;top:48px;transform:translateY(-50%);text-align:right;padding-right:6px">
+        <span style="background:#1B1F25;border:1px solid #2B2F38;border-radius:6px;font-size:9.5px;color:#9AA1AC;padding:2px 6px;white-space:nowrap">Round open $68,201.40</span>
+      </span>
+    </div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
       <span style="display:flex;align-items:center;gap:8px">
         <span style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#6B7280;font-weight:700">Last 8</span>
-        <span style="display:flex;gap:3px">
-          <span style="width:7px;height:14px;border-radius:3px;background:#33D6FF"></span><span style="width:7px;height:14px;border-radius:3px;background:#CFFF4A"></span><span style="width:7px;height:14px;border-radius:3px;background:#33D6FF"></span><span style="width:7px;height:14px;border-radius:3px;background:#33D6FF"></span><span style="width:7px;height:14px;border-radius:3px;background:#CFFF4A"></span><span style="width:7px;height:14px;border-radius:3px;background:#33D6FF"></span><span style="width:7px;height:14px;border-radius:3px;background:#CFFF4A"></span><span style="width:7px;height:14px;border-radius:3px;background:#33D6FF"></span>
+      <span style="display:flex;gap:4px">
+          <span style="width:11px;height:11px;border-radius:3px;background:#33D6FF"></span><span style="width:11px;height:11px;border-radius:3px;background:#CFFF4A"></span><span style="width:11px;height:11px;border-radius:3px;background:#33D6FF"></span><span style="width:11px;height:11px;border-radius:3px;background:#33D6FF"></span><span style="width:11px;height:11px;border-radius:3px;background:#CFFF4A"></span><span style="width:11px;height:11px;border-radius:3px;background:#33D6FF"></span><span style="width:11px;height:11px;border-radius:3px;background:#CFFF4A"></span><span style="width:11px;height:11px;border-radius:3px;background:#33D6FF"></span>
         </span>
       </span>
       <span class="mono" style="font-size:11px;color:#6B7280">$48.2K traded</span>
@@ -463,6 +474,7 @@ Intraday identity orange <code>#FF8A3D</code>; live red <code>#FF3B4E</code>.
     </div>
   </div>
 </div>
+<div class="cap" style="margin-top:14px">Same object, per-surface chrome: the All-page coin cell additionally carries the card-size 5-window dial above the chart (vertical views use the page-level dial instead). Everything else — chart grammar, pill, history strip, Tier-1 pair — is identical.</div>
 
 <div class="lbl"><span class="n">Vertical-view stock rows (TradingStockRow / AsleepStockRow)</span><span class="r">categoryviews/verticalBlocks.tsx — Finance view engine rows. Shell #131519 / radius 14 / padding 11px 14px / gap 13. Avatar 44px (asleep 38px), ticker 15px, company 12px #6B7280, price 16px display, change 12px, direction buttons min-height 44 (label 13 / price 15, centered).</span></div>
 <div class="stage d">
