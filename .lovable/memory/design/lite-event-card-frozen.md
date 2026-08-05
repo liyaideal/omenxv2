@@ -34,9 +34,14 @@ separately CPO-approved card. That is the ONLY other card style on the list page
      rows, base `hsl(var(--yes)/0.05)`, absolute left-anchored fill at the
      probability width in `hsl(var(--yes)/0.09)`, label `text-[12.5px] font-semibold`
      left, `{p}%` right in `font-mono font-bold text-yes`. `space-y-1.5`.
-   - BINARY: two `min-h-[58px] flex-1 rounded-[11px] text-[13.5px] font-bold`
-     buttons, `gap-[10px]` — `bg-yes/15 text-yes` "Yes {n}¢" and
-     `bg-no/15 text-no` "No {n}¢", hover `/25`.
+   - BINARY (CPO ruling 2026-08-05 — the tinted-capsule exemption is
+     CANCELLED): two Tier-2 neutral chips, `chip-t2` + `min-h-[58px] flex-1`,
+     `border-radius: 11px`, `px-[13px]`, `gap-[10px]`, label left
+     `text-[11px] text-[#9AA1AC]` ("Yes" / "No"), price right
+     `font-display text-[17px] font-bold` in `#33D6FF` (Yes) / `#CFFF4A` (No),
+     `--chip-accent` = the same colour for the hover border. No tinted fill,
+     no coloured border at rest. Tier-1 tinted pairs are direction-only
+     (Up/Down, Up/Not-up).
 5. **Footer** — `mt-[14px] border-t border-[#1D2026] pt-[10px] text-[11px]
    text-[#6B7280]`, single baseline row. Multi: left `+{n} markets` in
    `font-semibold text-yes`, right `Vol $X · {Mon D}`. Binary: left `Vol $X`
