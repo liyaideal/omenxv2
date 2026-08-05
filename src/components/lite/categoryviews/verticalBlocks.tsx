@@ -9,6 +9,14 @@ import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { AssetAvatar } from "@/components/lite/AssetAvatar";
 import { RoundPlot } from "@/components/lite/intraday/RoundPlot";
+import {
+  DIR_DOWN,
+  DIR_UP,
+  Last8Strip,
+  PctChange,
+  PriceReadout,
+  pctColor as sharedPctColor,
+} from "@/components/lite/shared/primitives";
 import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader";
 import {
   formatMarketPrice,
@@ -35,8 +43,8 @@ import {
 } from "@/components/lite/intraday/intradayData";
 
 export const ORANGE = "#FF8A3D";
-export const UP = "#33D6FF";
-export const DOWN = "#CFFF4A";
+export const UP = DIR_UP;
+export const DOWN = DIR_DOWN;
 
 export const MICRO: React.CSSProperties = {
   fontSize: 9,
@@ -52,8 +60,8 @@ export const fmtUsd = (v: number) =>
     maximumFractionDigits: v < 1000 ? 2 : 0,
   })}`;
 
-export const pctColor = (pct: number) =>
-  pct >= 0 ? "hsl(74 100% 65%)" : "hsl(0 100% 68%)";
+/** Re-exported so existing call sites keep one colour law. */
+export const pctColor = sharedPctColor;
 
 export const fmtPct = (pct: number) =>
   `${pct >= 0 ? "+" : "−"}${Math.abs(pct).toFixed(2)}%`;
@@ -72,7 +80,13 @@ export const openStamp = (d: Date, market: StockMarket) => formatSessionStamp(d,
 /** Chart slot height for the crypto round tile (desktop vertical views). */
 const PLOT_H = 96;
 
-/** Tier-1 direction button. */
+/**
+ * Tier-1 direction button — THE binary direction pair for every Lite surface.
+ * `layout` covers the three shipped shapes:
+ *   split    — label left, price right (coin tiles, mobile intraday)
+ *   centered — label + price hugged, non-growing (stock rows)
+ *   stacked  — label over price (calendar tickets)
+ */
 export const DirectionButton = ({
   label,
   price,
@@ -80,32 +94,46 @@ export const DirectionButton = ({
   minHeight,
   labelSize,
   priceSize,
-  centered,
+  layout = "split",
+  radius = 12,
+  padding,
+  gap,
+  grow,
+  labelWeight = 700,
   onClick,
 }: {
   label: string;
   price: number;
   tone: "up" | "down";
-  minHeight: number;
+  minHeight?: number;
   labelSize: number;
   priceSize: number;
-  centered?: boolean;
+  layout?: "split" | "centered" | "stacked";
+  radius?: number;
+  padding?: string;
+  gap?: number;
+  grow?: boolean;
+  labelWeight?: number;
   onClick: (e: React.MouseEvent) => void;
 }) => (
   <button
     type="button"
     onClick={onClick}
-    className={`chip-t1 ${tone === "up" ? "chip-t1-up" : "chip-t1-down"} box-border flex items-center ${
-      centered ? "flex-none justify-center whitespace-nowrap" : "justify-between"
-    }`}
+    className={`chip-t1 ${tone === "up" ? "chip-t1-up" : "chip-t1-down"} box-border flex ${
+      layout === "stacked"
+        ? "flex-col items-center justify-center"
+        : layout === "centered"
+          ? "flex-none items-center justify-center whitespace-nowrap"
+          : "items-center justify-between"
+    }${grow ? " flex-1" : ""}`}
     style={{
-      borderRadius: 12,
+      borderRadius: radius,
       minHeight,
-      padding: centered ? "0 15px" : "0 14px",
-      gap: centered ? 5 : undefined,
+      padding: padding ?? (layout === "centered" ? "0 15px" : "0 14px"),
+      gap: gap ?? (layout === "centered" ? 5 : undefined),
     }}
   >
-    <span style={{ fontSize: labelSize, fontWeight: 700 }}>{label}</span>
+    <span style={{ fontSize: labelSize, fontWeight: labelWeight }}>{label}</span>
     <span
       className="font-display"
       style={{ fontSize: priceSize, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}
@@ -115,30 +143,10 @@ export const DirectionButton = ({
   </button>
 );
 
-export const HistorySquares = ({ history }: { history: ("up" | "down")[] }) => {
-  const last8 = history.slice(-8);
-  return (
-    <span className="flex items-center" style={{ gap: 9 }}>
-      <span style={MICRO}>Last 8</span>
-      <span className="flex" style={{ gap: 4 }}>
-        {Array.from({ length: 8 }).map((_, i) => {
-          const v = last8[i - (8 - last8.length)];
-          return (
-            <span
-              key={i}
-              style={{
-                width: 11,
-                height: 11,
-                borderRadius: 3,
-                background: v === "up" ? UP : v === "down" ? DOWN : "#1D2026",
-              }}
-            />
-          );
-        })}
-      </span>
-    </span>
-  );
-};
+/** Vertical-view density of the shared Last-8 strip. */
+export const HistorySquares = ({ history }: { history: ("up" | "down")[] }) => (
+  <Last8Strip history={history} variant="squares" labelStyle={MICRO} />
+);
 
 export const CoinTile = ({
   coin,
