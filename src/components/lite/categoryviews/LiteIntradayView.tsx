@@ -22,6 +22,7 @@ import {
   TradingStockRow,
   groupStockRows,
 } from "./verticalBlocks";
+import { EmptyState } from "@/components/states";
 
 export const LiteIntradayView = ({
   currentFor,
