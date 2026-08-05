@@ -174,7 +174,7 @@ export const CatalogueHeader = ({
   compact,
 }: {
   title: string;
-  subtitle: string;
+  subtitle: ReactNode;
   count: number;
   compact?: boolean;
 }) => (
