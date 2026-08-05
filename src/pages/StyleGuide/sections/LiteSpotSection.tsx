@@ -65,7 +65,7 @@ export const LiteSpotSection = ({ isMobile }: { isMobile: boolean }) => {
       <SectionWrapper
         id="lite-spot-order"
         title="Lite spot · Order card (states)"
-        description="P0 #1 price snapshot at submit; P0 #2 cash leg via balanceDelta. Sides labels from event.side_labels (Up/Down aliases), never children[0]."
+        description="P0 #1 price snapshot at submit; P0 #2 cash leg via balanceDelta. Sides labels from event.side_labels (Up/Down aliases), never children[0]. The Yes/No pair is the shared SideButton — the COMPACT Yes/No capsule variant is the py-[9px] one used by LiteMarketBoard."
       >
         <div className="mb-4 flex flex-wrap gap-2">
           {PRESETS.map((p) => (
@@ -128,6 +128,18 @@ export const LiteSpotSection = ({ isMobile }: { isMobile: boolean }) => {
         <div className="rounded-xl border border-dashed border-border/70 p-4 text-xs text-muted-foreground">
           No duplicate demos here on purpose — both modules are rendered in the Lite
           contract section and are byte-identical on this page.
+        </div>
+        <div className="mt-3 rounded-xl border border-dashed border-border/70 p-4 text-xs text-muted-foreground">
+          <span className="font-medium text-foreground">
+            Quick-round trade page (LiteQuickTrade) — no page-level preset.
+          </span>{" "}
+          Its round switcher, round tape and rule card are private to the page
+          component and the page itself resolves live rounds through
+          useQuickRounds (database) plus useSecondTick (real clock), so it cannot
+          render deterministically here without being refactored into exported
+          modules. Its shared parts are covered elsewhere: the order card above,
+          RoundPlot and Last8Strip in the All-stage section, LiteMarketActivity in
+          the Lite contract section, and the SpotBlocks rails in this section.
         </div>
       </SectionWrapper>
     </div>

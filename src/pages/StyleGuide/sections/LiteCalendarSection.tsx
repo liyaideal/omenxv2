@@ -15,9 +15,10 @@ import { CalendarChip, WatchlistChip } from "@/components/lite/LiteListControls"
 import { EventRow, MarketChildRow } from "@/hooks/useMarketListData";
 import { SportsMatch } from "@/components/lite/sports/sportsData";
 import { StockEventRow } from "@/components/lite/intraday/intradayData";
+import { FROZEN_NOW } from "../frozenClock";
 
 /* ---------------- Frozen mock clock ---------------- */
-const NOW = new Date("2026-08-03T15:20:00Z").getTime();
+const NOW = FROZEN_NOW;
 const MIN = 60_000;
 const HOUR = 60 * MIN;
 const iso = (ms: number) => new Date(NOW + ms).toISOString();

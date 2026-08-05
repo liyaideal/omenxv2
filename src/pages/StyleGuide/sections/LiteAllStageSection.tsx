@@ -22,11 +22,12 @@ import {
   TF_SECONDS,
 } from "@/components/lite/intraday/intradayData";
 import { SportsMatch } from "@/components/lite/sports/sportsData";
+import { FROZEN_NOW } from "../frozenClock";
 import { MobileSportsModule } from "@/components/lite/mobile/MobileSportsModule";
 
 /* ---------------- Frozen mock clock ---------------- */
 /** All mock timestamps hang off this single frozen instant. */
-const NOW = new Date("2026-08-03T15:20:00Z").getTime();
+const NOW = FROZEN_NOW;
 const MIN = 60_000;
 const iso = (msFromNow: number) => new Date(NOW + msFromNow).toISOString();
 
@@ -657,10 +658,10 @@ const ChipTiersDemo = () => {
 };
 
 /* ---------------- 6. Category views 7A / 7B ---------------- */
-/* The category views group stock rows by "is a round open right now",
-   so these presets hang off the real clock while every other value
-   stays a fixed mock. */
-const rel = (min: number) => new Date(Date.now() + min * MIN).toISOString();
+/* The category views group stock rows by "is a round open right now";
+   like every other fixture here they hang off the frozen clock so the
+   grouping (and therefore the render) is deterministic. */
+const rel = (min: number) => new Date(NOW + min * MIN).toISOString();
 
 const viewStock = (
   base: StockEventRow,
@@ -785,6 +786,16 @@ const SUBNAV_PRESETS = [
       "UFC has one league with markets, so the LEAGUE row is not rendered at all — the module starts straight under the SPORT row.",
   },
   {
+    id: "13a-league",
+    label: "League-filtered (Premier League)",
+    matches: [...SOCCER_4, ...OTHER_SPORTS],
+    boostOnly: false,
+    sport: "SOCCER",
+    league: "Premier League",
+    caption:
+      "A league pill is active: the SPORT and LEAGUE rows stay mounted and the ledger below narrows to that league only.",
+  },
+  {
     id: "13a-max",
     label: "Worst case · 9 leagues wrap",
     matches: [...SOCCER_9, ...OTHER_SPORTS],
@@ -815,6 +826,7 @@ const SportsSubnavDemo = () => {
           matches={[...p.matches]}
           now={NOW}
           defaultSport={p.sport}
+          defaultLeague={"league" in p ? p.league : undefined}
           boostOnly={p.boostOnly}
           boostEnabled={false}
         />
@@ -852,7 +864,7 @@ export const LiteAllStageSection = () => (
         <CardContent className="space-y-4 p-6">
           <SubSection
             title="Chip tiers"
-            description="Desktop & Mobile · same components"
+            description="Desktop & Mobile · same components. Tier-1 = DirectionButton, named layout variants: split (default) / centered (stock rows) / stacked (calendar). Tier-2 = outcome chip. The order-panel Yes/No pair is the COMPACT capsule variant."
           >
             <ChipTiersDemo />
           </SubSection>
@@ -861,7 +873,7 @@ export const LiteAllStageSection = () => (
 
       <Card>
         <CardContent className="space-y-4 p-6">
-          <SubSection title="Category row" description="Desktop · above the stage">
+          <SubSection title="Category row" description="Desktop · above the stage. Object name: Category pill (PILL_BASE, top-level category row) — not the Dimension pill (DimensionPill) used by the sub-dimension rows below.">
             <CategoryRowDemo />
           </SubSection>
         </CardContent>
@@ -871,7 +883,7 @@ export const LiteAllStageSection = () => (
         <CardContent className="space-y-4 p-6">
           <SubSection
             title="IntradayStageCard"
-            description="Desktop · left column (62%) of the All stage"
+            description="Desktop · left column (62%) of the All stage. Uses DirectionButton (centered), Last8Strip (strip variant, 9px) and LivePulse (6px)."
           >
             <IntradayDemo />
           </SubSection>
@@ -882,7 +894,7 @@ export const LiteAllStageSection = () => (
         <CardContent className="space-y-4 p-6">
           <SubSection
             title="SportsStageCard"
-            description="Desktop · right column (1fr) of the All stage, or full-width in the Sports view"
+            description="Desktop · right column (1fr) of the All stage, or full-width in the Sports view. Uses the shared Crest and LivePulse (5px)."
           >
             <SportsDemo />
           </SubSection>
@@ -926,7 +938,7 @@ export const LiteAllStageSection = () => (
         <CardContent className="space-y-4 p-6">
           <SubSection
             title="Sports sub-nav 13A · SPORT + LEAGUE rows"
-            description="Desktop · dimension rows above the sports module"
+            description="Desktop · dimension rows above the sports module. Object name: Dimension pill (DimensionPill, sub-dimension rows) — distinct from the Category pill (PILL_BASE) of the top-level category row."
           >
             <SportsSubnavDemo />
           </SubSection>

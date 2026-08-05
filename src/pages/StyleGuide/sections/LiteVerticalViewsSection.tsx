@@ -18,8 +18,9 @@ import {
   TF_SECONDS,
   Timeframe,
 } from "@/components/lite/intraday/intradayData";
+import { FROZEN_NOW } from "../frozenClock";
 
-const NOW = new Date("2026-08-03T15:20:00Z").getTime();
+const NOW = FROZEN_NOW;
 const MIN = 60_000;
 const iso = (ms: number) => new Date(NOW + ms).toISOString();
 
@@ -226,7 +227,7 @@ const STOCK_ROWS: StockEventRow[] = [
  * resolution, countdowns and traded-today all read it. At 15:20 UTC the US
  * cash session is open (11:20 ET) and Hong Kong is shut (23:20 HKT).
  */
-const FROZEN_NOW = new Date(NOW);
+const FROZEN_DATE = new Date(NOW);
 
 /* ---------------- Presets ---------------- */
 const CRYPTO_PRESETS = [
@@ -263,7 +264,7 @@ export const LiteVerticalViewsSection = () => {
     <SectionWrapper
       id="lite-verticals"
       title="Lite · Vertical views (Crypto / Finance)"
-      description="Assembly-only category views. Frozen clock 2026-08-03T15:20:00Z."
+      description="Assembly-only category views. Frozen clock FROZEN_NOW = 2026-08-03T15:20:00Z. Both filter rows use the Dimension pill (DimensionPill, sub-dimension rows); the top-level category row above the stage uses the Category pill (PILL_BASE). Coin tiles use Last8Strip (squares, 11px) and DirectionButton (split)."
     >
       <SubSection title="Crypto view">
         <PresetRail presets={CRYPTO_PRESETS} activeId={cryptoId} onSelect={setCryptoId} />
@@ -325,7 +326,7 @@ export const LiteVerticalViewsSection = () => {
               key={finance.id}
               stockRows={STOCK_ROWS}
               tickSeconds={0}
-              sessionNow={FROZEN_NOW}
+              sessionNow={FROZEN_DATE}
               nowMs={NOW}
               events={FINANCE_EVENTS}
               renderGrid={grid}
@@ -342,7 +343,7 @@ export const LiteVerticalViewsSection = () => {
                 key={`m-${finance.id}`}
                 stockRows={STOCK_ROWS}
                 tickSeconds={0}
-                sessionNow={FROZEN_NOW}
+                sessionNow={FROZEN_DATE}
                 nowMs={NOW}
                 events={FINANCE_EVENTS}
                 renderGrid={grid}
