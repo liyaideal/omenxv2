@@ -6,6 +6,7 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { AssetAvatar } from "@/components/lite/AssetAvatar";
+import { RoundPlot } from "@/components/lite/intraday/RoundPlot";
 import {
   COINS,
   COIN_META,
@@ -18,7 +19,6 @@ import {
   downOptionOf,
   formatCountdown,
   seedFromId,
-  smoothWalk,
   upOptionOf,
 } from "@/components/lite/intraday/intradayData";
 import {
@@ -40,60 +40,8 @@ const MICRO: React.CSSProperties = {
 
 const cents = (p: number) => `${Math.round(p * 100)}¢`;
 
-/** 200×44 deterministic sparkline with the round-open dashed line. */
-const Sparkline = ({
-  seed,
-  base,
-  up,
-  height = 44,
-}: {
-  seed: number;
-  base: number;
-  up: boolean;
-  height?: number;
-}) => {
-  const { d, baseY } = useMemo(() => {
-    const pts = smoothWalk(seed, base || 1, 40, 0.0009, up ? 0.00035 : -0.00035);
-    const min = Math.min(...pts, base);
-    const max = Math.max(...pts, base);
-    const span = max - min || 1;
-    const pad = 5;
-    const yOf = (v: number) =>
-      height - pad - ((v - min) / span) * (height - pad * 2);
-    const path = pts
-      .map((v, i) => `${i === 0 ? "M" : "L"} ${((i / (pts.length - 1)) * 200).toFixed(1)} ${yOf(v).toFixed(1)}`)
-      .join(" ");
-    return { d: path, baseY: yOf(base) };
-  }, [seed, base, up, height]);
-
-  return (
-    <svg
-      viewBox={`0 0 200 ${height}`}
-      preserveAspectRatio="none"
-      style={{ width: "100%", height, display: "block" }}
-      aria-hidden
-    >
-      <line
-        x1="0"
-        x2="200"
-        y1={baseY}
-        y2={baseY}
-        stroke="#4B5563"
-        strokeWidth="1"
-        strokeDasharray="3 4"
-      />
-      <path
-        d={d}
-        fill="none"
-        stroke={up ? "#33D6FF" : "#CFFF4A"}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        vectorEffect="non-scaling-stroke"
-      />
-    </svg>
-  );
-};
+/** Chart slot height for the crypto round tile at 390. */
+const PLOT_H = 84;
 
 /** Mobile coin card — reused by the Crypto vertical view. */
 export const MobileCoinCard = ({
