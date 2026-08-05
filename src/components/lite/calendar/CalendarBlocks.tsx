@@ -18,7 +18,7 @@ import {
   marketShortName,
 } from "./calendarData";
 import { DirectionButton as SharedDirectionButton } from "@/components/lite/categoryviews/verticalBlocks";
-import { CHALK_SOFT } from "@/components/lite/shared/primitives";
+import { CHALK_SOFT, LivePulse } from "@/components/lite/shared/primitives";
 
 export const ORANGE = "#FF8A3D";
 const UP = "#33D6FF";
@@ -81,8 +81,8 @@ const EdgeBar = ({ tone, radius }: { tone: TicketTone; radius: number }) => (
 
 /* ---------------- Small parts ---------------- */
 
-/** Calendar re-exports the shared pulse (compact 4px default here). */
-export { LivePulse } from "@/components/lite/shared/primitives";
+/** Calendar consumes the shared pulse; 5px is this surface's size. */
+export { LivePulse };
 
 /** Muted outlined text badge — never coloured. */
 export const ClosesSoonBadge = () => (
@@ -642,7 +642,7 @@ export const SportsBlock = ({
           </span>
           {m.live && (
             <span className="flex items-center" style={{ gap: 5 }}>
-              <LivePulse />
+              <LivePulse size={5} />
               <span
                 style={{
                   fontSize: 12,
