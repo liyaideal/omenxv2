@@ -16,6 +16,16 @@ import {
   kickoffCell,
   matchesInBucket,
 } from "@/components/lite/sports/sportsData";
+import {
+  ALL_OPTION,
+  filterMatches,
+  leagueOptions,
+  otherGroupsSummary,
+  sportLabel,
+  sportOptions,
+} from "@/components/lite/sports/sportsFilters";
+import { DimensionPill, DimensionRow } from "./verticalChrome";
+import { EmptyState } from "@/components/EmptyState";
 
 const CHALK = "#F2F3F5";
 
@@ -318,22 +328,66 @@ const LedgerRow = ({
   );
 };
 
-export const LiteSportsView = ({ matches }: { matches: SportsMatch[] }) => {
+export const LiteSportsView = ({
+  matches,
+  boostOnly,
+  boostEnabled,
+  now,
+}: {
+  matches: SportsMatch[];
+  /** Boost filter composes IN PLACE — chrome stays, content narrows. */
+  boostOnly?: boolean;
+  /** Sports boost predicate (category boost config, ≥2x). */
+  boostEnabled?: boolean;
+  /** Frozen clock for the style guide; production reads the real clock. */
+  now?: number;
+}) => {
   const navigate = useNavigate();
   const [bucket, setBucket] = useState("all");
+  const [sport, setSport] = useState<string>(ALL_OPTION);
+  const [league, setLeague] = useState<string>(ALL_OPTION);
+  const clock = now ?? Date.now();
 
-  const live = useMemo(() => matches.filter((m) => m.live), [matches]);
-  const days: DayBucket[] = useMemo(() => buildDayStrip(matches), [matches]);
+  // ---- Dimension rows (taxonomy-driven, data-gated) ----
+  const sports = useMemo(() => sportOptions(matches, now), [matches, now]);
+  const leagues = useMemo(
+    () => (sport === ALL_OPTION ? [] : leagueOptions(matches, sport, now)),
+    [matches, sport, now],
+  );
+  // The league row exists only when the sport has MORE THAN ONE league live.
+  const showLeagueRow = leagues.length > 1;
+  const activeLeague = showLeagueRow ? league : ALL_OPTION;
+
+  const scoped = useMemo(
+    () => filterMatches(matches, sport, activeLeague),
+    [matches, sport, activeLeague],
+  );
+  const boostEmpty = !!boostOnly && !boostEnabled;
+
+  const live = useMemo(() => scoped.filter((m) => m.live), [scoped]);
+  const days: DayBucket[] = useMemo(
+    () => buildDayStrip(scoped, clock),
+    [scoped, clock],
+  );
   // Header count stays consistent with the strip + ledger: live now plus
   // everything still to kick off. Past/finished matches are never counted.
   const weekCount = useMemo(
-    () => matches.filter((m) => m.live || isUpcoming(m)).length,
-    [matches],
+    () => scoped.filter((m) => m.live || isUpcoming(m, clock)).length,
+    [scoped, clock],
   );
   const groups = useMemo(
-    () => buildDayGroups(matchesInBucket(matches, bucket)),
-    [matches, bucket],
+    () => buildDayGroups(matchesInBucket(scoped, bucket), clock),
+    [scoped, bucket, clock],
   );
+  const others = useMemo(
+    () => otherGroupsSummary(matches, sport, now),
+    [matches, sport, now],
+  );
+  const dayScope =
+    bucket === "all"
+      ? "all days mixed"
+      : (days.find((d) => d.id === bucket)?.label ?? "all days mixed").toLowerCase();
+  const sportWord = sport === ALL_OPTION ? "" : `${sportLabel(sport).toLowerCase()} `;
 
   const open = (id: string) => () =>
     navigate(`/trade?event=${encodeURIComponent(id)}`);
@@ -406,6 +460,63 @@ export const LiteSportsView = ({ matches }: { matches: SportsMatch[] }) => {
         </span>
       </div>
 
+      {/* Dimension filter rows — SPORT, then LEAGUE (13A). */}
+      <div className="flex flex-col" style={{ gap: 10 }}>
+        <DimensionRow label="Sport" labelWidth={66}>
+          <DimensionPill
+            label="All"
+            active={sport === ALL_OPTION}
+            onSelect={() => {
+              setSport(ALL_OPTION);
+              setLeague(ALL_OPTION);
+            }}
+          />
+          {sports.map((g) => (
+            <DimensionPill
+              key={g.code}
+              label={g.label}
+              active={sport === g.code}
+              onSelect={() => {
+                setSport(g.code);
+                setLeague(ALL_OPTION);
+              }}
+            />
+          ))}
+        </DimensionRow>
+        {showLeagueRow && (
+          <DimensionRow label="League" labelWidth={66}>
+            <DimensionPill
+              label="All"
+              active={activeLeague === ALL_OPTION}
+              onSelect={() => setLeague(ALL_OPTION)}
+            />
+            {leagues.map((l) => (
+              <DimensionPill
+                key={l.code}
+                label={l.label}
+                active={activeLeague === l.code}
+                onSelect={() => setLeague(l.code)}
+              />
+            ))}
+            <span
+              className="whitespace-nowrap"
+              style={{ fontSize: 11, color: "#6B7280", marginLeft: 5 }}
+            >
+              Only leagues with markets this week
+            </span>
+          </DimensionRow>
+        )}
+      </div>
+
+      {boostEmpty && (
+        <EmptyState
+          variant="page"
+          title="Nothing boosted here yet — check back soon."
+        />
+      )}
+
+      {!boostEmpty && (
+        <>
       {/* Playing now */}
       {live.length > 0 && (
         <div className="flex flex-col" style={{ gap: 10 }}>
@@ -512,14 +623,30 @@ export const LiteSportsView = ({ matches }: { matches: SportsMatch[] }) => {
 
       {/* Footer */}
       <div
-        className="flex items-center justify-between"
-        style={{ borderTop: "1px solid #1D2026", paddingTop: 14 }}
+        className="flex flex-col"
+        style={{ borderTop: "1px solid #1D2026", paddingTop: 14, gap: 7 }}
       >
-        <span style={{ fontSize: 12, color: "#6B7280" }}>
-          Two-way matches show two prices, football shows three. Prices are what the
-          crowd thinks right now.
-        </span>
+        <div className="flex items-center justify-between" style={{ gap: 16 }}>
+          <span style={{ fontSize: 12, color: "#9AA1AC" }}>
+            {sport === ALL_OPTION ? "All sports" : sportLabel(sport)} · {dayScope} ·
+            next kickoff first
+          </span>
+          <span
+            className="flex-none whitespace-nowrap"
+            style={{ fontSize: 12, color: CHALK, fontWeight: 700 }}
+          >
+            All {weekCount} {sportWord}matches →
+          </span>
+        </div>
+        {others.count > 0 && (
+          <span style={{ fontSize: 11, color: "#6B7280" }}>
+            {others.count} more {others.count === 1 ? "match" : "matches"} in{" "}
+            {others.labels} — switch sport above.
+          </span>
+        )}
       </div>
+        </>
+      )}
     </div>
   );
 };
