@@ -235,6 +235,7 @@ const CRYPTO_PRESETS = [
 ] as const;
 
 const FINANCE_PRESETS = [
+  { id: "all", label: "All classes · all regions", cls: "all", region: "all" },
   { id: "us-stocks", label: "Stocks · US (open)", cls: "stocks", region: "us" },
   { id: "hk-stocks", label: "Stocks · HK (asleep)", cls: "stocks", region: "hk" },
   { id: "indices", label: "Indices · US", cls: "indices", region: "us" },
@@ -267,6 +268,7 @@ export const LiteVerticalViewsSection = () => {
               currentFor={currentFor}
               historyFor={historyFor}
               tickSeconds={0}
+              nowMs={NOW}
               events={[...crypto.events]}
               renderGrid={grid}
               initialTf={crypto.tf}
@@ -283,6 +285,7 @@ export const LiteVerticalViewsSection = () => {
                 currentFor={currentFor}
                 historyFor={historyFor}
                 tickSeconds={0}
+                nowMs={NOW}
                 events={[...crypto.events]}
                 renderGrid={grid}
                 isMobile
@@ -310,7 +313,8 @@ export const LiteVerticalViewsSection = () => {
               key={finance.id}
               stockRows={STOCK_ROWS}
               tickSeconds={0}
-              sessionNow={finance.region === "hk" ? HK_SHUT_NOW : US_OPEN_NOW}
+              sessionNow={FROZEN_NOW}
+              nowMs={NOW}
               events={FINANCE_EVENTS}
               renderGrid={grid}
               initialClass={finance.cls}
@@ -326,7 +330,8 @@ export const LiteVerticalViewsSection = () => {
                 key={`m-${finance.id}`}
                 stockRows={STOCK_ROWS}
                 tickSeconds={0}
-                sessionNow={finance.region === "hk" ? HK_SHUT_NOW : US_OPEN_NOW}
+                sessionNow={FROZEN_NOW}
+                nowMs={NOW}
                 events={FINANCE_EVENTS}
                 renderGrid={grid}
                 isMobile
