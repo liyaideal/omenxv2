@@ -404,8 +404,16 @@ Intraday identity orange <code>#FF8A3D</code>; live red <code>#FF3B4E</code>.
 <section class="doc-section">
 <h2>4 · Intraday</h2>
 
-<div class="lbl"><span class="n">Round-length switcher · module dial</span><span class="r">IntradayStageCard Dial size="module" — five windows always present. Active fill #FF8A3D on #0A0B0D, radius 12 outer / 9 inner.</span></div>
+<div class="lbl"><span class="n">Round-length switcher · module dial</span><span class="r">RoundLengthDial (categoryviews/verticalBlocks.tsx) — the real module dial used by the Intraday and Crypto vertical views. Container #131519 / 1px #1D2026 / radius 12 / padding 4 / gap 2. Buttons: min-height 44px, padding 0 18px, font-size 13px, radius 9, active #FF8A3D on #0A0B0D weight 700, idle transparent #9AA1AC weight 600.</span></div>
 <div class="stage d">
+  <div style="display:inline-flex;gap:2px;background:#131519;border:1px solid #1D2026;border-radius:12px;padding:4px">
+    <button style="background:#FF8A3D;color:#0A0B0D;border-radius:9px;padding:0 18px;min-height:44px;font-size:13px;font-weight:700">5m</button>
+    <button style="background:transparent;color:#9AA1AC;border-radius:9px;padding:0 18px;min-height:44px;font-size:13px;font-weight:600">15m</button>
+    <button style="background:transparent;color:#9AA1AC;border-radius:9px;padding:0 18px;min-height:44px;font-size:13px;font-weight:600">1h</button>
+    <button style="background:transparent;color:#9AA1AC;border-radius:9px;padding:0 18px;min-height:44px;font-size:13px;font-weight:600">4h</button>
+    <button style="background:transparent;color:#9AA1AC;border-radius:9px;padding:0 18px;min-height:44px;font-size:13px;font-weight:600">1D</button>
+  </div>
+  <div class="cap" style="margin-top:16px">Compact stage dial — IntradayStageCard Dial size="module" (#0A0B0D container, 8px 13px buttons, 12px labels). Used ONLY inside the All-stage Intraday card, not on the vertical views.</div>
   <div style="display:inline-flex;gap:2px;background:#0A0B0D;border:1px solid #1D2026;border-radius:12px;padding:4px">
     <button style="background:#FF8A3D;color:#0A0B0D;border-radius:9px;padding:8px 13px;font-size:12px;font-weight:700">5m</button>
     <button style="background:transparent;color:#9AA1AC;border-radius:9px;padding:8px 13px;font-size:12px;font-weight:600">15m</button>
@@ -413,7 +421,7 @@ Intraday identity orange <code>#FF8A3D</code>; live red <code>#FF3B4E</code>.
     <button style="background:transparent;color:#9AA1AC;border-radius:9px;padding:8px 13px;font-size:12px;font-weight:600">4h</button>
     <button style="background:transparent;color:#9AA1AC;border-radius:9px;padding:8px 13px;font-size:12px;font-weight:600">1D</button>
   </div>
-  <div class="cap" style="margin-top:16px">Card dial (size="card") — 5-col grid, radius 10 / 7, 10px labels</div>
+  <div class="cap" style="margin-top:16px">Card dial — IntradayStageCard Dial size="card" (src/components/lite/allstage/IntradayStageCard.tsx, line 390: coin cell inside the All-stage Intraday card). 5-col grid, radius 10 / 7, 10px labels</div>
   <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;background:#0A0B0D;border:1px solid #1D2026;border-radius:10px;padding:3px;width:300px">
     <button style="background:transparent;color:#9AA1AC;border-radius:7px;padding:6px 0;font-size:10px;font-weight:700">5m</button>
     <button style="background:#FF8A3D;color:#0A0B0D;border-radius:7px;padding:6px 0;font-size:10px;font-weight:700">15m</button>
