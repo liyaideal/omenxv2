@@ -19,10 +19,8 @@ import { Dial as StageDial } from "@/components/lite/allstage/IntradayStageCard"
 import { MobileCoinCard, MobileRoundSwitcher } from "@/components/lite/mobile/MobileIntradayModule";
 import {
   CatalogueHeader,
-  DimensionPill,
   DimensionRow,
   EYEBROW,
-  RowHelper,
   VerticalHeader,
 } from "./verticalChrome";
 import { coinOfEvent } from "./verticalFilters";
