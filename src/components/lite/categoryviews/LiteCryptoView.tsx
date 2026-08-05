@@ -126,29 +126,6 @@ export const LiteCryptoView = ({
             </span>
           </DimensionRow>
         )}
-        <DimensionRow label="Coin" scroll={isMobile}>
-          <DimensionPill
-            label="All coins"
-            active={coin === "all"}
-            onSelect={() => setCoin("all")}
-            mobile={isMobile}
-          />
-          {CRYPTO_COINS.map((c) => (
-            <DimensionPill
-              key={c.code}
-              label={c.label}
-              active={coin === c.code}
-              onSelect={() => setCoin(c.code)}
-              mobile={isMobile}
-            />
-          ))}
-          {!isMobile && (
-            <RowHelper
-              scope={`Crypto · ${coin === "all" ? "All coins" : coin.toUpperCase()}`}
-              tail={`${rounds.filter((r) => r.event).length} rounds open`}
-            />
-          )}
-        </DimensionRow>
       </div>
 
       {/* Engine — the selected window × coin rounds. Hidden under Boost:
