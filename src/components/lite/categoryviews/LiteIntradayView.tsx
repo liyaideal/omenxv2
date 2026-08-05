@@ -235,6 +235,7 @@ export const LiteIntradayView = ({
           </span>
         </div>
       </div>
+      )}
     </div>
   );
 };
