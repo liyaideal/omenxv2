@@ -283,8 +283,6 @@ export const LiteEventCard = ({
               })}
             </div>
           ) : (
-            // Tier-2 neutral pair (chip law, 2026-08-05): Yes/No never gets a
-            // tinted container — neutral surface, only the price is coloured.
             <div className="flex gap-[10px]">
               <span
                 className="chip-t2 flex min-h-[58px] flex-1 items-center justify-between px-[13px]"
