@@ -95,7 +95,8 @@ const Sparkline = ({
   );
 };
 
-const CoinCard = ({
+/** Mobile coin card — reused by the Crypto vertical view. */
+export const MobileCoinCard = ({
   coin,
   event,
   history,
@@ -371,7 +372,9 @@ export const MobileIntradayModule = ({
       </div>
 
       {/* Round switcher — all five windows, always. */}
-      <div
+      <MobileRoundSwitcher value={tf} onSelect={onSelectTf} />
+
+      <div style={{ display: "none" }}><div
         className="flex items-center justify-between"
         style={{
           gap: 10,
@@ -414,7 +417,7 @@ export const MobileIntradayModule = ({
       </div>
 
       {COINS.map((coin) => (
-        <CoinCard
+        <MobileCoinCard
           key={coin}
           coin={coin}
           event={currentFor.get(`${coin}-${tf}`) ?? null}
