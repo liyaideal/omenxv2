@@ -97,7 +97,7 @@ export const LiteIntradayView = ({
               fontWeight: 700,
             }}
           >
-            Round length
+            WINDOW
           </span>
           <RoundLengthDial value={tf} onSelect={setTf} />
         </div>
