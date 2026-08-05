@@ -36,7 +36,45 @@ function bytesToBase64(bytes: Uint8Array): string {
 }
 
 let magickReady: Promise<void> | null = null;
-const ensureMagick = () => (magickReady ??= initialize());
+
+// The Supabase edge runtime has no Web Cache API; imagemagick_deno uses it to
+// memoise the wasm binary. Stub it so initialize() just fetches every boot.
+function ensureCacheStub() {
+  try {
+    if ((globalThis as { caches?: unknown }).caches) {
+      // Touching `caches.open` is what throws in this runtime.
+      void (globalThis as unknown as { caches: CacheStorage }).caches.open;
+    }
+  } catch {
+    // fall through to the stub below
+  }
+  const stub = {
+    open: async () => ({
+      match: async () => undefined,
+      put: async () => {},
+      delete: async () => false,
+    }),
+    match: async () => undefined,
+    has: async () => false,
+    delete: async () => false,
+    keys: async () => [],
+  };
+  try {
+    Object.defineProperty(globalThis, "caches", {
+      value: stub,
+      configurable: true,
+      writable: true,
+    });
+  } catch {
+    // ignore — nothing else we can do
+  }
+}
+
+const ensureMagick = () =>
+  (magickReady ??= (async () => {
+    ensureCacheStub();
+    await initialize();
+  })());
 
 /**
  * Crop to 21:9 (bias the crop upward — the bottom sits under the UI scrim),

@@ -77,7 +77,14 @@ Deno.serve(async (req) => {
   if (ids.length > 0) {
     query = query.in("id", ids);
   } else {
-    query = query.is("image_url", null).eq("is_resolved", false);
+    // Intraday quick rounds roll every few minutes and never show cover art.
+    query = query
+      .is("image_url", null)
+      .eq("is_resolved", false)
+      // NOT IN is NULL-unsafe in Postgres, so keep NULL subtypes explicitly.
+      .or(
+        "event_subtype.is.null,event_subtype.not.in.(CRYPTO_QUICK_UPDOWN_SPOT,US_STOCK_DAILY_UPDOWN_SPOT,HK_STOCK_DAILY_UPDOWN_SPOT)",
+      );
   }
   const { data: events, error: readErr } = await query;
   if (readErr) {
