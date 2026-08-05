@@ -98,7 +98,7 @@ export const LiteFinanceView = ({
 
       {/* Filters — row 1 ASSET CLASS, row 2 REGION. */}
       <div className="flex flex-col" style={{ gap: 12 }}>
-        <DimensionRow label="Asset class" scroll={isMobile} labelWidth={86}>
+        <DimensionRow label="Asset class" scroll={isMobile} labelWidth={104}>
           <DimensionPill
             label="All"
             active={cls === "all"}
@@ -115,7 +115,7 @@ export const LiteFinanceView = ({
             />
           ))}
         </DimensionRow>
-        <DimensionRow label="Region" scroll={isMobile} labelWidth={86}>
+        <DimensionRow label="Region" scroll={isMobile} labelWidth={104}>
           <DimensionPill
             label="All regions"
             active={region === "all"}
