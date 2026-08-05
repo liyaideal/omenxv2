@@ -182,32 +182,21 @@ export const LiteFinanceView = ({
         </div>
       )}
 
-      {/* Catalogue */}
-      <div
-        className="flex flex-col"
-        style={{ gap: 14, borderTop: "1px solid #1D2026", paddingTop: 22 }}
-      >
-        <CatalogueHeader
-          compact={isMobile}
-          title="What else could the markets do?"
-          subtitle="Questions that run longer than one trading day. Winning shares pay $1."
-          count={catalogue.length}
-        />
-        {catalogue.length === 0 ? (
-          <EmptyState
-            variant="page"
-            title="Nothing open here yet"
-            description="Try another class or region — new markets land as they open."
-            actionLabel="See everything"
-            onAction={() => {
-              setCls("all");
-              setRegion("all");
-            }}
+      {/* Catalogue — hidden entirely when nothing is open. */}
+      {catalogue.length > 0 && (
+        <div
+          className="flex flex-col"
+          style={{ gap: 14, borderTop: "1px solid #1D2026", paddingTop: 22 }}
+        >
+          <CatalogueHeader
+            compact={isMobile}
+            title="What else could the markets do?"
+            subtitle="Questions that run longer than one trading day. Winning shares pay $1."
+            count={catalogue.length}
           />
-        ) : (
-          renderGrid(catalogue)
-        )}
-      </div>
+          {renderGrid(catalogue)}
+        </div>
+      )}
     </div>
   );
 };
