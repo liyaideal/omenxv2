@@ -431,7 +431,7 @@ Intraday identity orange <code>#FF8A3D</code>; live red <code>#FF3B4E</code>.
   </div>
 </div>
 
-<div class="lbl"><span class="n">Vertical-view coin tile (CoinTile)</span><span class="r">categoryviews/verticalBlocks.tsx — the tile used by the Crypto / Intraday vertical views. Shell #131519 / 1px #1D2026 / radius 16 / padding 18. Avatar 34px, ticker 11px #9AA1AC, price 22px display, change 12px, "Closes" countdown 20px #FF8A3D, sparkline height 86, LAST 8 squares 7×14 radius 3, volume 11px #6B7280, direction buttons min-height 48 (label 12 / price 17).</span></div>
+<div class="lbl"><span class="n">Crypto round tile (unified)</span><span class="r">ONE tile for the crypto round object — categoryviews/verticalBlocks.tsx CoinTile (Crypto / Intraday vertical views), allstage/IntradayStageCard coin cell (All page) and intraday/QuickRoundTile all render the SAME canonical chart: RoundPlot — two-segment plot (grey previous round on the left 62%, coloured current round on the right 38% over a lighter split background), dashed round-open baseline, end dot, and the "Round open $X" pill overlaid on the chart. Shell #131519 / 1px #1D2026 / radius 16 / padding 18. Avatar 34px, ticker 11px #9AA1AC, price 22px display, change 12px next to the price, "Closes" countdown 20px #FF8A3D, chart slot 96 (mobile 84), LAST 8 squares 11×11 radius 3, volume 11px #6B7280, direction buttons min-height 48 (label 12 / price 17). No standalone "Open $X" text — the pill carries it.</span></div>
 <div class="stage d">
   <div style="width:320px;display:flex;flex-direction:column;gap:12px;background:#131519;border:1px solid #1D2026;border-radius:16px;padding:18px">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
@@ -447,12 +447,23 @@ Intraday identity orange <code>#FF8A3D</code>; live red <code>#FF3B4E</code>.
         <span class="font-display mono" style="font-size:20px;font-weight:700;color:#FF8A3D">02:06</span>
       </span>
     </div>
-    <div style="height:86px;background:#0C1013;border-radius:10px"></div>
+    <div style="position:relative;height:96px;background:#0C1013;border-radius:10px;overflow:hidden">
+      <svg viewBox="0 0 300 96" preserveAspectRatio="none" style="width:100%;height:96px;display:block">
+        <rect x="186" y="0" width="114" height="96" fill="rgba(255,255,255,.035)"/>
+        <line x1="0" x2="300" y1="48" y2="48" stroke="rgba(255,255,255,.28)" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <path d="M0 60 C 30 56, 52 66, 74 58 C 100 49, 128 63, 152 52 C 168 45, 178 50, 186 48" fill="none" stroke="#3A4149" stroke-width="1.5" stroke-opacity=".75" vector-effect="non-scaling-stroke"/>
+        <path d="M186 48 C 202 44, 218 52, 234 41 C 254 28, 272 36, 291 26" fill="none" stroke="#33D6FF" stroke-width="2.25" vector-effect="non-scaling-stroke"/>
+      </svg>
+      <span style="position:absolute;left:291px;top:26px;width:6px;height:6px;margin-left:-3px;margin-top:-3px;border-radius:50%;background:#33D6FF"></span>
+      <span style="position:absolute;left:0;width:62%;top:48px;transform:translateY(-50%);text-align:right;padding-right:6px">
+        <span style="background:#1B1F25;border:1px solid #2B2F38;border-radius:6px;font-size:9.5px;color:#9AA1AC;padding:2px 6px;white-space:nowrap">Round open $68,201.40</span>
+      </span>
+    </div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
       <span style="display:flex;align-items:center;gap:8px">
         <span style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#6B7280;font-weight:700">Last 8</span>
-        <span style="display:flex;gap:3px">
-          <span style="width:7px;height:14px;border-radius:3px;background:#33D6FF"></span><span style="width:7px;height:14px;border-radius:3px;background:#CFFF4A"></span><span style="width:7px;height:14px;border-radius:3px;background:#33D6FF"></span><span style="width:7px;height:14px;border-radius:3px;background:#33D6FF"></span><span style="width:7px;height:14px;border-radius:3px;background:#CFFF4A"></span><span style="width:7px;height:14px;border-radius:3px;background:#33D6FF"></span><span style="width:7px;height:14px;border-radius:3px;background:#CFFF4A"></span><span style="width:7px;height:14px;border-radius:3px;background:#33D6FF"></span>
+      <span style="display:flex;gap:4px">
+          <span style="width:11px;height:11px;border-radius:3px;background:#33D6FF"></span><span style="width:11px;height:11px;border-radius:3px;background:#CFFF4A"></span><span style="width:11px;height:11px;border-radius:3px;background:#33D6FF"></span><span style="width:11px;height:11px;border-radius:3px;background:#33D6FF"></span><span style="width:11px;height:11px;border-radius:3px;background:#CFFF4A"></span><span style="width:11px;height:11px;border-radius:3px;background:#33D6FF"></span><span style="width:11px;height:11px;border-radius:3px;background:#CFFF4A"></span><span style="width:11px;height:11px;border-radius:3px;background:#33D6FF"></span>
         </span>
       </span>
       <span class="mono" style="font-size:11px;color:#6B7280">$48.2K traded</span>
@@ -463,6 +474,7 @@ Intraday identity orange <code>#FF8A3D</code>; live red <code>#FF3B4E</code>.
     </div>
   </div>
 </div>
+<div class="cap" style="margin-top:14px">Same object, per-surface chrome: the All-page coin cell additionally carries the card-size 5-window dial above the chart (vertical views use the page-level dial instead). Everything else — chart grammar, pill, history strip, Tier-1 pair — is identical.</div>
 
 <div class="lbl"><span class="n">Vertical-view stock rows (TradingStockRow / AsleepStockRow)</span><span class="r">categoryviews/verticalBlocks.tsx — Finance view engine rows. Shell #131519 / radius 14 / padding 11px 14px / gap 13. Avatar 44px (asleep 38px), ticker 15px, company 12px #6B7280, price 16px display, change 12px, direction buttons min-height 44 (label 13 / price 15, centered).</span></div>
 <div class="stage d">
@@ -495,52 +507,8 @@ Intraday identity orange <code>#FF8A3D</code>; live red <code>#FF3B4E</code>.
   </div>
 </div>
 
-<div class="lbl"><span class="n">Desktop coin tile</span><span class="r">QuickRoundTile — 34px crypto avatar, 120px RoundPlot with ▲Up/▼Down anchors and floating cent buttons, LAST 8 ROUNDS footer strip (7×14 bars). Countdown always orange #FF8A3D 19px.</span></div>
+<div class="lbl"><span class="n">Stage-card history strip (IntradayStageCard)</span><span class="r">square 9px dots, solid #33D6FF / #CFFF4A, caption "Last 8" — the compact All-page variant of the LAST 8 footer.</span></div>
 <div class="stage d">
-<div style="display:grid;grid-template-columns:repeat(3,300px);gap:14px">
-  <div style="background:#131519;border:1px solid rgba(255,255,255,.06);border-radius:15px;overflow:hidden">
-    <div style="display:flex;align-items:flex-start;gap:10px;padding:12px 12px 10px">
-      <span style="width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.08);background:#F7931A;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px">₿</span>
-      <div style="flex:1;min-width:0">
-        <div class="font-display" style="font-size:11px;letter-spacing:.08em;color:#C9CED6">BTC</div>
-        <div style="display:flex;align-items:baseline;gap:7px">
-          <span class="font-display" style="font-size:18px;font-weight:700">$117,482.30</span>
-          <span class="font-display" style="font-size:12px;color:#3FD68C">+0.42%</span>
-        </div>
-      </div>
-      <div style="text-align:right">
-        <div style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#6B7280">Closes in</div>
-        <div class="font-display" style="font-size:19px;font-weight:700;color:#FF8A3D;line-height:1.1">08:41</div>
-      </div>
-    </div>
-    <div style="position:relative;height:120px;background:#0C1013">
-      <svg viewBox="0 0 300 120" preserveAspectRatio="none" style="width:100%;height:120px;display:block">
-        <line x1="0" x2="300" y1="70" y2="70" stroke="#4B5563" stroke-width="1" stroke-dasharray="3 4"/>
-        <path d="M0 84 L40 76 L80 82 L120 66 L160 71 L200 58 L240 62 L300 48" fill="none" stroke="#33D6FF" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-      <span class="font-display" style="position:absolute;left:10px;top:8px;font-size:10.5px;letter-spacing:.08em;color:#33D6FF;text-transform:uppercase">▲ Up</span>
-      <span class="font-display" style="position:absolute;left:10px;bottom:8px;font-size:10.5px;letter-spacing:.08em;color:#CFFF4A;text-transform:uppercase">▼ Down</span>
-      <button class="font-display" style="position:absolute;right:10px;top:8px;background:rgba(51,214,255,.13);border:1.5px solid rgba(51,214,255,.4);color:#33D6FF;font-weight:700;font-size:14px;border-radius:9px;padding:3px 9px">57¢</button>
-      <button class="font-display" style="position:absolute;right:10px;bottom:8px;background:rgba(207,255,74,.13);border:1.5px solid rgba(207,255,74,.4);color:#CFFF4A;font-weight:700;font-size:14px;border-radius:9px;padding:3px 9px">43¢</button>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 12px">
-      <span style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#6B7280">Last 8 rounds</span>
-      <span style="display:flex;gap:3px">
-        <span style="width:7px;height:14px;border-radius:3px;background:rgba(51,214,255,.7)"></span>
-        <span style="width:7px;height:14px;border-radius:3px;background:rgba(207,255,74,.55)"></span>
-        <span style="width:7px;height:14px;border-radius:3px;background:rgba(51,214,255,.7)"></span>
-        <span style="width:7px;height:14px;border-radius:3px;background:rgba(51,214,255,.7)"></span>
-        <span style="width:7px;height:14px;border-radius:3px;background:rgba(207,255,74,.55)"></span>
-        <span style="width:7px;height:14px;border-radius:3px;background:rgba(51,214,255,.7)"></span>
-        <span style="width:7px;height:14px;border-radius:3px;background:rgba(207,255,74,.55)"></span>
-        <span style="width:7px;height:14px;border-radius:3px;background:#1D2026"></span>
-      </span>
-      <span style="flex:1"></span>
-      <span class="font-display" style="font-size:11px;color:#6B7280">$482.1K traded</span>
-    </div>
-  </div>
-</div>
-<div class="cap" style="margin-top:14px">Stage-card history strip (IntradayStageCard) — square 9px dots, solid #33D6FF / #CFFF4A, caption "Last 8"</div>
 <div style="display:flex;align-items:center;gap:8px">
   <span style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#6B7280;font-weight:700">Last 8</span>
   <span style="display:flex;gap:3px">
@@ -549,7 +517,7 @@ Intraday identity orange <code>#FF8A3D</code>; live red <code>#FF3B4E</code>.
 </div>
 </div>
 
-<div class="lbl"><span class="n">Mobile coin card</span><span class="r">MobileIntradayModule CoinCard — 32px avatar, 44px sparkline with dashed open line, 10px LAST-8 squares, Open $ read-out, Tier-1 Up/Down pair at 48px.</span></div>
+<div class="lbl"><span class="n">Mobile coin card</span><span class="r">MobileIntradayModule CoinCard — the 390 chrome of the same crypto round tile: 32px avatar, 84px RoundPlot (two-segment + round-open pill), 10px LAST-8 squares, Tier-1 Up/Down pair at 48px. No separate "Open $" read-out — the pill carries it.</span></div>
 <div class="stage m">
   <div style="display:flex;flex-direction:column;gap:11px;background:#131519;border:1px solid #1D2026;border-radius:14px;padding:13px 14px">
     <div style="display:flex;align-items:center;gap:11px">
@@ -566,10 +534,17 @@ Intraday identity orange <code>#FF8A3D</code>; live red <code>#FF3B4E</code>.
         <span class="font-display mono" style="font-size:17px;font-weight:700;color:#FF8A3D">08:41</span>
       </span>
     </div>
-    <svg viewBox="0 0 200 44" preserveAspectRatio="none" style="width:100%;height:44px;display:block">
-      <line x1="0" x2="200" y1="26" y2="26" stroke="#4B5563" stroke-width="1" stroke-dasharray="3 4"/>
-      <path d="M0 32 L30 28 L60 31 L90 22 L120 25 L150 17 L200 12" fill="none" stroke="#33D6FF" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
-    </svg>
+    <div style="position:relative;height:84px;background:#0C1013;border-radius:9px;overflow:hidden">
+      <svg viewBox="0 0 300 84" preserveAspectRatio="none" style="width:100%;height:84px;display:block">
+        <rect x="186" y="0" width="114" height="84" fill="rgba(255,255,255,.035)"/>
+        <line x1="0" x2="300" y1="42" y2="42" stroke="rgba(255,255,255,.28)" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <path d="M0 52 C 30 48, 52 58, 74 51 C 100 43, 128 55, 152 46 C 168 40, 178 44, 186 42" fill="none" stroke="#3A4149" stroke-width="1.5" stroke-opacity=".75" vector-effect="non-scaling-stroke"/>
+        <path d="M186 42 C 202 38, 218 46, 234 36 C 254 24, 272 32, 291 23" fill="none" stroke="#33D6FF" stroke-width="2.25" vector-effect="non-scaling-stroke"/>
+      </svg>
+      <span style="position:absolute;left:0;width:62%;top:42px;transform:translateY(-50%);text-align:right;padding-right:6px">
+        <span style="background:#1B1F25;border:1px solid #2B2F38;border-radius:6px;font-size:9.5px;color:#9AA1AC;padding:2px 6px;white-space:nowrap">Round open $4,169.60</span>
+      </span>
+    </div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
       <span style="display:flex;align-items:center;gap:8px">
         <span style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#6B7280;font-weight:700">Last 8</span>
@@ -577,7 +552,7 @@ Intraday identity orange <code>#FF8A3D</code>; live red <code>#FF3B4E</code>.
           <span style="width:10px;height:10px;border-radius:3px;background:#33D6FF"></span><span style="width:10px;height:10px;border-radius:3px;background:#CFFF4A"></span><span style="width:10px;height:10px;border-radius:3px;background:#33D6FF"></span><span style="width:10px;height:10px;border-radius:3px;background:#33D6FF"></span><span style="width:10px;height:10px;border-radius:3px;background:#CFFF4A"></span><span style="width:10px;height:10px;border-radius:3px;background:#33D6FF"></span><span style="width:10px;height:10px;border-radius:3px;background:#CFFF4A"></span><span style="width:10px;height:10px;border-radius:3px;background:#33D6FF"></span>
         </span>
       </span>
-      <span class="mono" style="font-size:10px;color:#6B7280">Open $4,169.60</span>
+      <span></span>
     </div>
     <div style="display:flex;gap:8px">
       <button class="chip-t1 chip-t1-up" style="flex:1;display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 13px;border-radius:11px"><span style="font-size:12px;font-weight:700">Up</span><span class="font-display mono" style="font-size:16px;font-weight:700">54¢</span></button>

@@ -8,6 +8,7 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { AssetAvatar } from "@/components/lite/AssetAvatar";
+import { RoundPlot } from "@/components/lite/intraday/RoundPlot";
 import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader";
 import {
   formatMarketPrice,
@@ -30,7 +31,6 @@ import {
   downOptionOf,
   formatCountdown,
   seedFromId,
-  smoothWalk,
   upOptionOf,
 } from "@/components/lite/intraday/intradayData";
 
@@ -69,91 +69,8 @@ export const fmtLeft = (ms: number) => {
 /** "Tue 09:30 HKT" for a market-local instant. */
 export const openStamp = (d: Date, market: StockMarket) => formatSessionStamp(d, market);
 
-// ------------------------------------------------------------------
-// Coin sparkline — dashed open baseline, gradient underfill, end dot.
-// ------------------------------------------------------------------
-const SPARK_W = 372;
-const SPARK_H = 86;
-const SPARK_POINTS = 26;
-
-export const CoinSpark = ({
-  seed,
-  base,
-  upOdds,
-  above,
-}: {
-  seed: number;
-  base: number;
-  upOdds: number;
-  above: boolean;
-}) => {
-  const gid = `spark-${seed}-${above ? "u" : "d"}`;
-  const { line, area, baselineY, last } = useMemo(() => {
-    const drift = (upOdds - 0.5) * 0.0007;
-    const raw = smoothWalk(seed, base, SPARK_POINTS, 0.0006, drift);
-    const shift = base - raw[0];
-    const series = raw.map((v) => v + shift);
-    const maxDev = Math.max(
-      ...series.map((v) => Math.abs(v - base)),
-      Math.abs(base) * 0.0009,
-    );
-    const half = (SPARK_H * 0.62) / 2;
-    const mid = SPARK_H / 2;
-    const y = (v: number) => mid - ((v - base) / maxDev) * half;
-    const pts = series.map((v, i) => ({
-      x: 2 + (i / (SPARK_POINTS - 1)) * (SPARK_W - 4),
-      y: y(v),
-    }));
-    const d = pts
-      .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`)
-      .join(" ");
-    return {
-      line: d,
-      area: `${d} L ${pts[pts.length - 1].x.toFixed(1)} ${SPARK_H} L ${pts[0].x.toFixed(1)} ${SPARK_H} Z`,
-      baselineY: mid,
-      last: pts[pts.length - 1],
-    };
-  }, [seed, base, upOdds]);
-
-  const color = above ? UP : DOWN;
-  return (
-    <svg
-      viewBox={`0 0 ${SPARK_W} ${SPARK_H}`}
-      style={{ width: "100%", height: SPARK_H, display: "block", overflow: "visible" }}
-      aria-hidden="true"
-    >
-      <defs>
-        <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor={color} stopOpacity="0.22" />
-          <stop offset="1" stopColor={color} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d={area} fill={`url(#${gid})`} />
-      <line
-        x1={0}
-        y1={baselineY}
-        x2={SPARK_W}
-        y2={baselineY}
-        stroke="#4B5563"
-        strokeWidth={1}
-        strokeDasharray="3 4"
-      />
-      <path
-        d={line}
-        fill="none"
-        stroke={color}
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <circle cx={last.x} cy={last.y} r={8} fill={color} opacity={0.16} />
-      <circle cx={last.x} cy={last.y} r={3.5} fill={color} />
-      <text x={4} y={baselineY - 6} fontFamily="Archivo, sans-serif" fontSize={9} fill="#6B7280">
-        Open {fmtUsd(base)}
-      </text>
-    </svg>
-  );
-};
+/** Chart slot height for the crypto round tile (desktop vertical views). */
+const PLOT_H = 96;
 
 /** Tier-1 direction button. */
 export const DirectionButton = ({
@@ -330,11 +247,19 @@ export const CoinTile = ({
         </span>
       </div>
 
-      {base != null ? (
-        <CoinSpark seed={seed} base={base} upOdds={upOdds} above={pct >= 0} />
-      ) : (
-        <div style={{ height: SPARK_H }} />
-      )}
+      <div style={{ borderRadius: 10, overflow: "hidden" }}>
+        {base != null && price != null && event ? (
+          <RoundPlot
+            eventId={event.id}
+            basePrice={base}
+            currentPrice={price}
+            upOdds={upOdds}
+            height={PLOT_H}
+          />
+        ) : (
+          <div style={{ height: PLOT_H, background: "#0C1013" }} />
+        )}
+      </div>
 
       <div className="flex items-center justify-between" style={{ gap: 10 }}>
         <HistorySquares history={history} />
