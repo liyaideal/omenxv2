@@ -551,7 +551,7 @@ const LiteEventsPage = () => {
         )}
 
         {/* Card grid */}
-        <div className="mt-6 flex flex-1 flex-col space-y-6">
+        <div className="mt-6 flex flex-1 flex-col gap-6">
         {!calendarOn && (isStageView || isMobileStage) && (
           <div className="flex items-start justify-between" style={{ padding: "6px 2px 0" }}>
             <div className="flex flex-col gap-[7px]">
