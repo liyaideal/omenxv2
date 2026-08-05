@@ -234,6 +234,14 @@ const CRYPTO_PRESETS = [
   { id: "btc-15m", label: "BTC · 15m", coin: "btc", tf: "15m" as Timeframe, events: CRYPTO_EVENTS },
   { id: "eth-1d", label: "ETH · Daily", coin: "eth", tf: "1d" as Timeframe, events: CRYPTO_EVENTS },
   { id: "empty", label: "Empty catalogue", coin: "sol", tf: "1h" as Timeframe, events: [] },
+  {
+    id: "boost-empty",
+    label: "Boost on (empty)",
+    coin: "all",
+    tf: "5m" as Timeframe,
+    events: [],
+    boost: true,
+  },
 ] as const;
 
 const FINANCE_PRESETS = [
@@ -275,6 +283,7 @@ export const LiteVerticalViewsSection = () => {
               renderGrid={grid}
               initialTf={crypto.tf}
               initialCoin={crypto.coin}
+              boostOnly={"boost" in crypto ? crypto.boost : false}
             />
           </CardContent>
         </Card>
@@ -293,6 +302,7 @@ export const LiteVerticalViewsSection = () => {
                 isMobile
                 initialTf={crypto.tf}
                 initialCoin={crypto.coin}
+                boostOnly={"boost" in crypto ? crypto.boost : false}
               />
             </div>
           </CardContent>
