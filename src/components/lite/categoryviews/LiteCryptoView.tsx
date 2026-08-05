@@ -121,8 +121,38 @@ export const LiteCryptoView = ({
         ) : (
           <DimensionRow label="Window">
             <StageDial value={tf} onChange={setTf} size="module" />
+            <span style={{ fontSize: 11, color: "#6B7280", marginLeft: 7 }}>
+              These are the Intraday rounds — same engine, filtered to coins.
+            </span>
           </DimensionRow>
         )}
+        <DimensionRow label="Coin" scroll={isMobile}>
+          <DimensionPill
+            label="All coins"
+            active={coin === "all"}
+            onSelect={() => setCoin("all")}
+            mobile={isMobile}
+          />
+          {CRYPTO_COINS.map((c) => (
+            <DimensionPill
+              key={c.code}
+              label={c.label}
+              active={coin === c.code}
+              onSelect={() => setCoin(c.code)}
+              mobile={isMobile}
+            />
+          ))}
+          {!isMobile && (
+            <RowHelper
+              scope={`Crypto · ${
+                coin === "all"
+                  ? "All coins"
+                  : (CRYPTO_COINS.find((c) => c.code === coin)?.label ?? coin)
+              }`}
+              tail={`${rounds.filter((r) => r.event).length} rounds open`}
+            />
+          )}
+        </DimensionRow>
       </div>
 
       {/* Engine — the selected window × coin rounds. Hidden under Boost:
