@@ -29,6 +29,7 @@ export const LiteIntradayView = ({
   stockRows,
   tickSeconds,
   sessionNow,
+  boostOnly,
 }: {
   currentFor: Map<string, QuickEvent>;
   historyFor: Map<string, ("up" | "down")[]>;
@@ -36,6 +37,8 @@ export const LiteIntradayView = ({
   tickSeconds: number;
   /** Style-guide only — freeze the market calendar clock. */
   sessionNow?: Date;
+  /** Boost composes in place — engine hides until boost rounds exist. */
+  boostOnly?: boolean;
 }) => {
   const [tf, setTf] = useState<Timeframe>("5m");
 
@@ -101,7 +104,15 @@ export const LiteIntradayView = ({
         </div>
       </div>
 
+      {boostOnly && (
+        <EmptyState
+          variant="page"
+          title="Nothing boosted here yet — check back soon."
+        />
+      )}
+
       {/* Coin tiles */}
+      {!boostOnly && (
       <div className="grid grid-cols-3" style={{ gap: 16 }}>
         {COINS.map((coin) => (
           <CoinTile
@@ -113,8 +124,10 @@ export const LiteIntradayView = ({
           />
         ))}
       </div>
+      )}
 
       {/* Stocks */}
+      {!boostOnly && (
       <div
         className="flex flex-col"
         style={{ gap: 12, borderTop: "1px solid #1D2026", paddingTop: 22 }}
