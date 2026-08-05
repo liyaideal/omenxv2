@@ -11,7 +11,6 @@ import type { StockEventRow } from "@/components/lite/intraday/intradayData";
 import { resolveStockMarket } from "@/lib/usStockSessions";
 import {
   AsleepStockRow,
-  ORANGE,
   SessionStatusChip,
   StockGroups,
   TradingStockRow,
@@ -21,7 +20,7 @@ import {
   CatalogueHeader,
   DimensionPill,
   DimensionRow,
-  EYEBROW,
+  RowHelper,
   VerticalHeader,
 } from "./verticalChrome";
 import { financeClassOf, financeRegionOf } from "./verticalFilters";
@@ -90,15 +89,21 @@ export const LiteFinanceView = ({
         compact={isMobile}
         eyebrow="Finance · daily closes"
         title="Which way does it close?"
-        subtitle="One round per trading day, settled at the closing bell. Winning shares pay $1, losing shares pay $0."
+        subtitle={
+          <>
+            One round per trading day, settled at the closing bell. Winning shares pay{" "}
+            <strong style={{ color: "#fff", fontWeight: 700 }}>$1</strong>, losing
+            shares pay $0.
+          </>
+        }
         right={
           isMobile ? undefined : <SessionStatusChip groups={groups} nowMs={nowMs} />
         }
       />
 
       {/* Filters — row 1 ASSET CLASS, row 2 REGION. */}
-      <div className="flex flex-col" style={{ gap: 12 }}>
-        <DimensionRow label="Asset class" scroll={isMobile} labelWidth={104}>
+      <div className="flex flex-col" style={{ gap: 9 }}>
+        <DimensionRow label="Asset class" scroll={isMobile} labelWidth={88}>
           <DimensionPill
             label="All"
             active={cls === "all"}
@@ -115,7 +120,7 @@ export const LiteFinanceView = ({
             />
           ))}
         </DimensionRow>
-        <DimensionRow label="Region" scroll={isMobile} labelWidth={104}>
+        <DimensionRow label="Region" scroll={isMobile} labelWidth={88}>
           <DimensionPill
             label="All regions"
             active={region === "all"}
@@ -131,51 +136,56 @@ export const LiteFinanceView = ({
               mobile={isMobile}
             />
           ))}
+          {!isMobile && (
+            <RowHelper
+              scope={`${cls === "all" ? "All" : (FINANCE_ASSET_CLASSES.find((c) => c.code === cls)?.label ?? cls)} · ${
+                region === "all"
+                  ? "All regions"
+                  : (FINANCE_REGIONS.find((r) => r.code === region)?.label ?? region)
+              }`}
+              tail={`${trading.length} rounds open`}
+            />
+          )}
         </DimensionRow>
       </div>
 
       {/* Engine — session-aware daily rounds. */}
       {engineOn && (trading.length > 0 || asleep.length > 0) && (
         <div className="flex flex-col" style={{ gap: 12 }}>
-          <div className="flex items-center justify-between" style={{ gap: 16 }}>
-            <span
-              className="flex items-center"
-              style={{ ...EYEBROW, gap: 8, color: ORANGE }}
-            >
-              <span
-                className="animate-pulse"
-                style={{ width: 6, height: 6, borderRadius: 999, background: ORANGE }}
-              />
-              Intraday · {region === "all" ? "daily" : regionLabel} closing rounds
-            </span>
-            {groups.wakeLabel && trading.length === 0 && (
-              <span style={{ fontSize: 11, color: "#6B7280" }}>{groups.wakeLabel}</span>
-            )}
-          </div>
-          <div className="flex flex-col" style={{ gap: 10 }}>
+          <div
+            className={isMobile ? "flex flex-col" : "grid"}
+            style={
+              isMobile
+                ? { gap: 10 }
+                : { gap: 12, gridTemplateColumns: "1fr 1fr" }
+            }
+          >
             {trading.map((row) => (
               <TradingStockRow key={row.id} row={row} tickSeconds={tickSeconds} />
             ))}
+          </div>
+          <div className="flex flex-col" style={{ gap: 10 }}>
             {asleep.map(({ row, nextOpen }) => (
               <AsleepStockRow key={row.id} row={row} nextOpen={nextOpen} />
             ))}
           </div>
-          {(shown < totalNames || groups.wakeLabel) && (
+          {(shown < totalNames || groups.wakeLabels.length > 0) && (
             <div
-              className="flex items-center justify-between"
-              style={{ gap: 16, borderTop: "1px solid #1D2026", paddingTop: 12 }}
+              className="flex items-center"
+              style={{ gap: 12, paddingTop: 12 }}
             >
-              <span style={{ fontSize: 12, color: "#6B7280" }}>
-                {shown < totalNames
-                  ? `Showing ${shown} of ${totalNames} ${region === "all" ? "" : `${regionLabel} `}names`
-                  : ""}
-              </span>
-              {groups.wakeLabel && (
+              {shown < totalNames && (
+                <span className="flex-none" style={{ fontSize: 11, color: "#6B7280" }}>
+                  {`Showing ${shown} of ${totalNames} ${region === "all" ? "" : `${regionLabel} `}names`}
+                </span>
+              )}
+              <span style={{ flex: 1, height: 1, background: "#1D2026" }} />
+              {groups.wakeLabels.length > 0 && (
                 <span
-                  className="whitespace-nowrap"
-                  style={{ fontSize: 12, color: "#9AA1AC" }}
+                  className="flex-none whitespace-nowrap"
+                  style={{ fontSize: 11, color: "#6B7280" }}
                 >
-                  {groups.wakeLabel}
+                  {groups.wakeLabels.join(" · ")}
                 </span>
               )}
             </div>
