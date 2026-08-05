@@ -40,6 +40,7 @@ export const LiteCryptoView = ({
   initialTf = "5m",
   initialCoin = "all",
   nowMs,
+  boostOnly,
 }: {
   currentFor: Map<string, QuickEvent>;
   historyFor: Map<string, ("up" | "down")[]>;
@@ -53,6 +54,8 @@ export const LiteCryptoView = ({
   initialCoin?: string;
   /** Style-guide only — freeze every clock in the view. */
   nowMs?: number;
+  /** Boost composes in place — engine hides until boost rounds exist. */
+  boostOnly?: boolean;
 }) => {
   const [tf, setTf] = useState<Timeframe>(initialTf);
   const [coin, setCoin] = useState<string>(initialCoin);
@@ -148,7 +151,9 @@ export const LiteCryptoView = ({
         </DimensionRow>
       </div>
 
-      {/* Engine — the selected window × coin rounds. */}
+      {/* Engine — the selected window × coin rounds. Hidden under Boost:
+          no boost-capable rounds exist yet (all round subtypes are *_SPOT). */}
+      {!boostOnly && (
       <div className="flex flex-col" style={{ gap: 12 }}>
         {rounds.some((r) => r.event) ? (
           <div
@@ -191,6 +196,7 @@ export const LiteCryptoView = ({
           </span>
         )}
       </div>
+      )}
 
       {/* Catalogue */}
       <div
@@ -204,6 +210,12 @@ export const LiteCryptoView = ({
           count={catalogue.length}
         />
         {catalogue.length === 0 ? (
+          boostOnly ? (
+            <EmptyState
+              variant="page"
+              title="Nothing boosted here yet — check back soon."
+            />
+          ) : (
           <EmptyState
             variant="page"
             title="No open markets for this coin"
@@ -211,6 +223,7 @@ export const LiteCryptoView = ({
             actionLabel="See all coins"
             onAction={() => setCoin("all")}
           />
+          )
         ) : (
           renderGrid(catalogue)
         )}

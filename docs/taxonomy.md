@@ -79,3 +79,23 @@ the Boost chip filters the current list to boost-capable contract events,
 grouped by category with small group headers in taxonomy order. It composes
 with a selected category (Sports + Boost = boostable sports only, no group
 headers). Boost stays hidden inside module/channel views.
+
+### Boost composes with the vertical views
+
+Boost never navigates. Activating the Boost chip while Intraday, Crypto or
+Finance is open keeps that view mounted (desktop and 390): header and filter
+rows stay, and the engine + catalogue filter through the *same* boost
+predicate the generic list uses (`category_boost_configs.enabled && maxBoost >= 2`).
+Chips never disappear. With zero boost-capable events the engine grid hides
+and the view shows the standard list empty state:
+"Nothing boosted here yet — check back soon."
+
+**Forward contract (not built yet).** No boost round data exists today — every
+round subtype in the database is `*_SPOT`. When boost rounds arrive:
+
+- they mix into the *same* engine grid as the 1× spot rounds — no separate pool,
+  no separate module;
+- boost-capable tiles carry the volt "Boost 5×/10×" pill using the existing
+  `LiteEventCard` pill grammar;
+- trading routes per CHK-8 — 1× rounds open the spot panel (`/spot`), boost
+  rounds open the contract order panel (`/trade`). No new trade surface, ever.

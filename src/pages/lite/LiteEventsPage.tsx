@@ -140,8 +140,10 @@ const LiteEventsPage = () => {
   const isMobileIntraday = !calendarOn && !!isMobile && sector === "intraday";
   const isMobileSports = !calendarOn && !!isMobile && sector === "sports";
   // Crypto / Finance verticals — same component on both breakpoints.
-  const isCryptoView = !calendarOn && sector === "crypto" && !boostOnly;
-  const isFinanceView = !calendarOn && sector === "finance" && !boostOnly;
+  // Boost composes IN PLACE with the vertical views — the view stays mounted
+  // and its engine/catalogue filter through the same boost predicate.
+  const isCryptoView = !calendarOn && sector === "crypto";
+  const isFinanceView = !calendarOn && sector === "finance";
   const [mobileTf, setMobileTf] = useState<Timeframe>("15m");
 
   // Stage data — desktop only, and only for the views that render it.
@@ -356,6 +358,8 @@ const LiteEventsPage = () => {
               onWatchlist={handleWatchlistClick}
               calendarActive={calendarOn}
               onCalendar={handleCalendarClick}
+              boostActive={boostOnly}
+              onBoost={() => setBoostOnly((v) => !v)}
             />
           </div>
         ) : (
@@ -389,8 +393,9 @@ const LiteEventsPage = () => {
                 {c.label}
               </button>
             ))}
-            {/* Boost is a grid trait — hidden in calendar and module views. */}
-            {!calendarOn && !isIntradayView && !isSportsView && (
+            {/* Boost composes in place with every category view (Intraday,
+                Crypto, Finance) — only the calendar lens and Sports opt out. */}
+            {!calendarOn && !isSportsView && (
               <>
                 <span
                   aria-hidden
@@ -455,6 +460,7 @@ const LiteEventsPage = () => {
             historyFor={historyFor}
             stockRows={stockRows}
             tickSeconds={tickSeconds}
+            boostOnly={boostOnly}
           />
         )}
 
@@ -469,6 +475,7 @@ const LiteEventsPage = () => {
             tickSeconds={tickSeconds}
             events={filtered}
             isMobile={!!isMobile}
+            boostOnly={boostOnly}
             renderGrid={(items) => (
               <CardGrid
                 items={items}
@@ -486,6 +493,7 @@ const LiteEventsPage = () => {
             tickSeconds={tickSeconds}
             events={filtered}
             isMobile={!!isMobile}
+            boostOnly={boostOnly}
             renderGrid={(items) => (
               <CardGrid
                 items={items}
@@ -522,6 +530,7 @@ const LiteEventsPage = () => {
               onSelectTf={setMobileTf}
               tickSeconds={tickSeconds}
               onOpenIntraday={() => setSector("intraday")}
+              boostOnly={boostOnly}
             />
           </div>
         )}

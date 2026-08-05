@@ -373,6 +373,7 @@ export const MobileIntradayModule = ({
   onSelectTf,
   tickSeconds,
   onOpenIntraday,
+  boostOnly,
 }: {
   currentFor: Map<string, QuickEvent>;
   historyFor: Map<string, ("up" | "down")[]>;
@@ -381,6 +382,8 @@ export const MobileIntradayModule = ({
   onSelectTf: (tf: Timeframe) => void;
   tickSeconds: number;
   onOpenIntraday: () => void;
+  /** Boost composes in place: no boost rounds exist yet, so the engine hides. */
+  boostOnly?: boolean;
 }) => {
   const usSession = getMarketSession(US_STOCK_MARKET);
   const hkSession = getMarketSession(HK_STOCK_MARKET);
@@ -428,7 +431,12 @@ export const MobileIntradayModule = ({
       {/* Round switcher — all five windows, always. */}
       <MobileRoundSwitcher value={tf} onSelect={onSelectTf} />
 
-
+      {boostOnly ? (
+        <span style={{ fontSize: 12, color: "#6B7280" }}>
+          Nothing boosted here yet — check back soon.
+        </span>
+      ) : (
+        <>
       {COINS.map((coin) => (
         <MobileCoinCard
           key={coin}
@@ -456,6 +464,8 @@ export const MobileIntradayModule = ({
           {formatSessionStamp(usSession.nextOpenAt, US_STOCK_MARKET)}, Hong Kong{" "}
           {formatSessionStamp(hkSession.nextOpenAt, HK_STOCK_MARKET)}.
         </span>
+      )}
+        </>
       )}
     </section>
   );
