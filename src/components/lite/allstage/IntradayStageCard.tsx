@@ -10,7 +10,17 @@ import { AssetAvatar } from "@/components/lite/AssetAvatar";
 import { RoundPlot } from "@/components/lite/intraday/RoundPlot";
 import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader";
 import { formatMarketPrice, formatMarketTime, resolveStockMarket } from "@/lib/usStockSessions";
-import { groupStockRows } from "@/components/lite/categoryviews/verticalBlocks";
+import {
+  DirectionButton,
+  groupStockRows,
+} from "@/components/lite/categoryviews/verticalBlocks";
+import {
+  CHALK_SOFT,
+  Last8Strip,
+  LivePulse,
+  PctChange,
+  PriceReadout,
+} from "@/components/lite/shared/primitives";
 import {
   COINS,
   COIN_META,
@@ -36,60 +46,12 @@ const MICRO: React.CSSProperties = {
   fontWeight: 700,
 };
 
-const SideButton = ({
-  label,
-  price,
-  tone,
-  padding,
-  onClick,
-}: {
-  label: string;
-  price: number;
-  tone: "up" | "down";
-  padding: string;
-  onClick: (e: React.MouseEvent) => void;
-}) => (
-  <button
-    type="button"
-    onClick={onClick}
-    className={`chip-t1 ${tone === "up" ? "chip-t1-up" : "chip-t1-down"} flex items-center justify-between`}
-    style={{ padding }}
-  >
-    <span style={{ fontSize: 11 }}>{label}</span>
-    <span
-      className="font-display"
-      style={{ fontSize: 15, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}
-    >
-      {Math.round(price * 100)}¢
-    </span>
-  </button>
-);
+// Tier-1 direction pair = shared DirectionButton (categoryviews/verticalBlocks).
 
-const HistoryStrip = ({ history, dot = 9 }: { history: ("up" | "down")[]; dot?: number }) => {
-  const last8 = history.slice(-8);
-  return (
-    <div className="flex items-center gap-[8px]">
-      <span style={MICRO}>Last 8</span>
-      <span className="flex gap-[3px]">
-        {Array.from({ length: 8 }).map((_, i) => {
-          const v = last8[i - (8 - last8.length)];
-          return (
-            <span
-              key={i}
-              style={{
-                width: dot,
-                height: dot,
-                borderRadius: 2,
-                background:
-                  v === "up" ? "#33D6FF" : v === "down" ? "#CFFF4A" : "#1D2026",
-              }}
-            />
-          );
-        })}
-      </span>
-    </div>
-  );
-};
+/** All-stage density of the shared Last-8 strip. */
+const HistoryStrip = ({ history, dot = 9 }: { history: ("up" | "down")[]; dot?: number }) => (
+  <Last8Strip history={history} variant="strip" dot={dot} labelStyle={MICRO} />
+);
 
 export const Dial = ({
   value,
@@ -286,18 +248,26 @@ const CompactCoinTile = ({
       <HistoryStrip history={cell.history} />
 
       <div className="grid grid-cols-2 gap-[7px]">
-        <SideButton
+        <DirectionButton
           label="Up"
           price={up?.price ?? 0.5}
           tone="up"
+          radius={10}
           padding="10px"
+          labelSize={11}
+          labelWeight={400}
+          priceSize={15}
           onClick={go("up")}
         />
-        <SideButton
+        <DirectionButton
           label="Down"
           price={down?.price ?? 0.5}
           tone="down"
+          radius={10}
           padding="10px"
+          labelSize={11}
+          labelWeight={400}
+          priceSize={15}
           onClick={go("down")}
         />
       </div>
@@ -408,35 +378,33 @@ const MajorCoinCard = ({
           >
             Round open {base != null ? fmtUsd(base) : "—"}
           </span>
-          <span
-            style={{
-              fontSize: 10,
-              color: pct >= 0 ? "hsl(74 100% 65%)" : "hsl(0 100% 68%)",
-              fontWeight: 700,
-              fontVariantNumeric: "tabular-nums",
-            }}
-          >
-            {pct >= 0 ? "+" : "−"}
-            {Math.abs(pct).toFixed(2)}%
-          </span>
+          <PctChange value={pct} size={10} weight={700} />
         </div>
       </div>
 
       <HistoryStrip history={history} dot={8} />
 
       <div className="grid grid-cols-2 gap-[6px]">
-        <SideButton
+        <DirectionButton
           label="Up"
           price={up?.price ?? 0.5}
           tone="up"
+          radius={10}
           padding="12px 10px"
+          labelSize={11}
+          labelWeight={400}
+          priceSize={15}
           onClick={go("up")}
         />
-        <SideButton
+        <DirectionButton
           label="Down"
           price={down?.price ?? 0.5}
           tone="down"
+          radius={10}
           padding="12px 10px"
+          labelSize={11}
+          labelWeight={400}
+          priceSize={15}
           onClick={go("down")}
         />
       </div>
@@ -506,51 +474,24 @@ const StockStageRow = ({
         className="flex flex-none flex-col items-end gap-[1px]"
         style={{ marginRight: 6 }}
       >
-        <span
-          className="font-display"
-          style={{
-            fontSize: 16,
-            color: "#fff",
-            fontWeight: 700,
-            fontVariantNumeric: "tabular-nums",
-          }}
-        >
-          {price != null ? formatMarketPrice(price, market) : "—"}
-        </span>
-        <span
-          style={{
-            fontSize: 12,
-            fontWeight: 700,
-            fontVariantNumeric: "tabular-nums",
-            color: pct >= 0 ? "hsl(74 100% 65%)" : "hsl(0 100% 68%)",
-          }}
-        >
-          {pct >= 0 ? "+" : "−"}
-          {Math.abs(pct).toFixed(2)}%
-        </span>
+        <PriceReadout
+          text={price != null ? formatMarketPrice(price, market) : "—"}
+          size={16}
+        />
+        <PctChange value={pct} size={12} weight={700} />
       </span>
       {(["up", "down"] as const).map((tone) => (
-        <button
+        <DirectionButton
           key={tone}
-          type="button"
+          label={tone === "up" ? "Up" : "Not up"}
+          price={tone === "up" ? row.upPrice : row.downPrice}
+          tone={tone}
+          layout="centered"
+          minHeight={44}
+          labelSize={13}
+          priceSize={15}
           onClick={go(tone)}
-          className={`chip-t1 ${tone === "up" ? "chip-t1-up" : "chip-t1-down"} box-border flex flex-none items-center justify-center gap-[5px] whitespace-nowrap`}
-          style={{ borderRadius: 12, minHeight: 44, padding: "0 15px" }}
-        >
-          <span style={{ fontSize: 13, fontWeight: 700 }}>
-            {tone === "up" ? "Up" : "Not up"}
-          </span>
-          <span
-            className="font-display"
-            style={{
-              fontSize: 15,
-              fontWeight: 700,
-              fontVariantNumeric: "tabular-nums",
-            }}
-          >
-            {Math.round((tone === "up" ? row.upPrice : row.downPrice) * 100)}¢
-          </span>
-        </button>
+        />
       ))}
     </div>
   );
@@ -618,10 +559,7 @@ export const IntradayStageCard = ({
               fontWeight: 700,
             }}
           >
-            <span
-              className="animate-pulse"
-              style={{ width: 6, height: 6, borderRadius: 999, background: ORANGE }}
-            />
+            <LivePulse size={6} color={ORANGE} />
             Intraday · rolling rounds
           </span>
           <span
@@ -690,7 +628,7 @@ export const IntradayStageCard = ({
           </span>
         ) : (
           <span className="flex flex-col items-end gap-[3px]">
-            <span style={{ fontSize: 13, color: "#E6E9EE", fontWeight: 600 }}>
+            <span style={{ fontSize: 13, color: CHALK_SOFT, fontWeight: 600 }}>
               No stock session today
             </span>
             {nextOpen && (
