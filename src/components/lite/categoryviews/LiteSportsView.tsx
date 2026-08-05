@@ -25,7 +25,7 @@ import {
   sportOptions,
 } from "@/components/lite/sports/sportsFilters";
 import { DimensionPill, DimensionRow } from "./verticalChrome";
-import { EmptyState } from "@/components/EmptyState";
+import { EmptyState } from "@/components/states";
 
 const CHALK = "#F2F3F5";
 
