@@ -250,6 +250,7 @@ export const LiteVerticalViewsSection = () => {
 
   return (
     <SectionWrapper
+      id="lite-verticals"
       title="Lite · Vertical views (Crypto / Finance)"
       description="Assembly-only category views. Frozen clock 2026-08-03T15:20:00Z."
     >
