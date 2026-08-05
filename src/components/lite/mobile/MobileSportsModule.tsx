@@ -386,14 +386,15 @@ export const MobileSportsModule = ({
         />
       ) : (
         <>
-      {live.slice(0, 1).map((m) => (
+      {(filters ? live : live.slice(0, 1)).map((m) => (
         <LiveMatchCard key={m.id} match={m} />
       ))}
 
-      {upcoming.slice(0, live.length > 0 ? 2 : 3).map((m) => (
+      {(filters ? upcoming : upcoming.slice(0, live.length > 0 ? 2 : 3)).map((m) => (
         <UpcomingMatchCard key={m.id} match={m} />
       ))}
 
+      {!filters && (
       <button
         type="button"
         onClick={onOpenAll}
@@ -402,6 +403,7 @@ export const MobileSportsModule = ({
       >
         All {weekCount} matches →
       </button>
+      )}
         </>
       )}
     </section>
