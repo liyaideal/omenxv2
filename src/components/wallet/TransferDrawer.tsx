@@ -16,7 +16,7 @@ export const TransferDrawer = ({ open, onOpenChange, initialDirection }: Transfe
     open={open}
     onOpenChange={onOpenChange}
     title="Transfer funds"
-    description="Move USDC between your Spot and Futures accounts."
+    description="Move USDC between your Standard and Boost accounts."
   >
     <TransferForm
       onCancel={() => onOpenChange(false)}
