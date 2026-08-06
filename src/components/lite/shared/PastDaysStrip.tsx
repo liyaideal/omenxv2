@@ -85,6 +85,36 @@ export const usePastDays = (eventId: string, upLabelAlias?: string | null) => {
   return days;
 };
 
+/** Today's still-trading event in this ticker's daily series, if any. */
+export const useTodayEventId = (eventId: string) => {
+  const [todayId, setTodayId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const prefix = seriesPrefixOf(eventId);
+    if (!prefix) {
+      setTodayId(null);
+      return;
+    }
+    let alive = true;
+    (async () => {
+      const { data } = await supabase
+        .from("events")
+        .select("id")
+        .like("id", `${prefix}-%`)
+        .eq("is_resolved", false)
+        .order("end_date", { ascending: true })
+        .limit(1);
+      if (!alive) return;
+      setTodayId(data && data[0] ? data[0].id : null);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [eventId]);
+
+  return todayId;
+};
+
 interface Props {
   days: PastDay[];
   /** Today's live event — rendered as the trailing highlighted chip. */
@@ -98,6 +128,7 @@ interface Props {
 
 export const PastDaysStrip = ({
   days,
+  todayId,
   currentId,
   upLabel,
   downLabel,
@@ -105,9 +136,10 @@ export const PastDaysStrip = ({
   className,
 }: Props) => {
   const navigate = useNavigate();
-  if (days.length === 0) return null;
+  if (days.length === 0 && !todayId) return null;
 
   const size = isMobile ? 44 : 26;
+  const showToday = !!todayId && !days.some((d) => d.id === todayId);
 
   return (
     <TooltipProvider delayDuration={120}>
@@ -150,6 +182,29 @@ export const PastDaysStrip = ({
               </Tooltip>
             );
           })}
+          {showToday && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => navigate(`/spot?event=${todayId}`)}
+                  className="flex shrink-0 items-center justify-center border border-border text-muted-foreground"
+                  style={{
+                    width: size,
+                    height: size,
+                    borderRadius: isMobile ? 11 : 7,
+                    fontSize: 10,
+                    letterSpacing: ".06em",
+                    outline:
+                      todayId === currentId ? "1.5px solid currentColor" : undefined,
+                  }}
+                >
+                  NOW
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>Today · still trading</TooltipContent>
+            </Tooltip>
+          )}
         </div>
       </div>
     </TooltipProvider>

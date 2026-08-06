@@ -34,6 +34,11 @@ interface Props {
   multiSeries?: MultiSeries[] | null;
   /** Label for the dashed reference level in the price view. */
   targetLabel?: string;
+  /**
+   * Settled events with no real odds history: hide the Chance/odds view
+   * entirely rather than rendering the synthetic walk.
+   */
+  hideOddsView?: boolean;
   className?: string;
 }
 
@@ -75,6 +80,7 @@ export const LiteContractChart = ({
   oddsHistory,
   multiSeries,
   targetLabel,
+  hideOddsView,
   className,
 }: Props) => {
   const isMulti = !!multiSeries && multiSeries.length > 0;
@@ -83,7 +89,7 @@ export const LiteContractChart = ({
   const [tab, setTab] = useState<"underlying" | "odds">(
     hasUnderlying ? "underlying" : "odds",
   );
-  const active = hasUnderlying ? tab : "odds";
+  const active = hideOddsView ? "underlying" : hasUnderlying ? tab : "odds";
   // Side identity → MARKET axis. Only ever one of the two at a time.
   const isYesSide = side === "yes";
   const sideLabel = isYesSide ? yesLabel : noLabel;
@@ -168,7 +174,7 @@ export const LiteContractChart = ({
               ? underlyingLabel
               : `${sideLabel} odds`}
         </div>
-        {hasUnderlying && !isMulti && (
+        {hasUnderlying && !isMulti && !hideOddsView && (
         <div className="flex gap-1 rounded-lg bg-muted/40 p-0.5">
             <button
               type="button"
@@ -256,8 +262,9 @@ export const LiteContractChart = ({
             )}
             {isMulti ? (
               multiSeries!
-                .filter((s) => !hidden[s.id])
-                .map((s, i) => (
+                .map((s, i) => ({ s, i }))
+                .filter(({ s }) => !hidden[s.id])
+                .map(({ s, i }) => (
                   <Line
                     key={s.id}
                     type="monotone"

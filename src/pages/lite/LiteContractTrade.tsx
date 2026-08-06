@@ -493,7 +493,13 @@ const LiteContractTrade = () => {
     <LiteContractChart
       underlyingLabel={event.base_price != null ? "Price" : null}
       basePrice={event.base_price != null ? Number(event.base_price) : null}
-      currentPrice={event.base_price != null ? Number(event.base_price) : null}
+      currentPrice={
+        resolved && event.close_price != null
+          ? Number(event.close_price)
+          : event.base_price != null
+            ? Number(event.base_price)
+            : null
+      }
       yesOdds={
         resolved && winnerOption
           ? winnerOption.id === yesOpt.id
@@ -507,6 +513,7 @@ const LiteContractTrade = () => {
       oddsHistory={settledOddsHistory.length > 1 ? settledOddsHistory : null}
       multiSeries={settledMultiSeries.length > 0 ? settledMultiSeries : null}
       targetLabel="Needed"
+      hideOddsView={resolved && !isMulti && settledOddsHistory.length < 2}
     />
   );
 
