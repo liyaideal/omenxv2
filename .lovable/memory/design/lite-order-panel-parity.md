@@ -31,6 +31,9 @@ Daily stocks are one round per day, so side selection lives in-panel.
 All side selection (panels, PickCard, boards) uses the single
 `src/components/lite/shared/SideButton.tsx`. Density via props (`size="compact"`).
 No bespoke chip styling, no re-drawn lookalikes.
+SideButton's tinted states (selected = solid fill, unselected = outline) are the
+ruled exemption to the chip law: colour expresses the selected control state,
+not an information lean. Ruled 2026-08-06.
 
 ## (e) Banned copy
 "% say Up/Down" sublabels are banned — duplicate of the crowd/sentiment bar.
