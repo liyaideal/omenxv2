@@ -147,7 +147,9 @@ const LiteSettledRedirect = () => {
       setTo(
         lines.includes("spot")
           ? `/spot?event=${data.id}`
-          : `/trade?event=${data.id}`,
+          : lines.includes("futures")
+            ? `/trade?event=${data.id}`
+            : "/events",
       );
     })();
     return () => {
