@@ -398,41 +398,6 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
     />
   );
 
-  const PickChip = (s: Side) => {
-    const isUp = s === "yes";
-    const p = isUp ? upPrice : downPrice;
-    const active = side === s;
-    return (
-      <button
-        type="button"
-        onClick={() => setSide(s)}
-        className="font-display flex-1 text-left"
-        style={{
-          borderRadius: 12,
-          padding: "10px 12px",
-          background: isUp ? "rgba(51,214,255,.13)" : "rgba(207,255,74,.13)",
-          border: `1.5px solid ${
-            active
-              ? isUp
-                ? "#33D6FF"
-                : "#CFFF4A"
-              : isUp
-                ? "rgba(51,214,255,.4)"
-                : "rgba(207,255,74,.4)"
-          }`,
-          color: isUp ? "#33D6FF" : "#CFFF4A",
-        }}
-      >
-        <div style={{ fontSize: 14, fontWeight: 700 }}>
-          {isUp ? "Up" : "Down"} {Math.round(p * 100)}¢
-        </div>
-        <div style={{ fontSize: 10.5, opacity: 0.75 }}>
-          {Math.round(p * 100)}% say {isUp ? "Up" : "Down"}
-        </div>
-      </button>
-    );
-  };
-
   const PickCard = (
     <div
       style={{
@@ -446,9 +411,24 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
       <div className="font-display" style={{ fontSize: 14.5, fontWeight: 700, marginTop: 6 }}>
         {meta.ticker} higher than ${openText} at {settlesAt}?
       </div>
-      <div className="mt-3 flex gap-[8px]">
-        {PickChip("yes")}
-        {PickChip("no")}
+      {/* Side selection uses the ONE shared SideButton (compact density). */}
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        <SideButton
+          active={side === "yes"}
+          tone="yes"
+          label="Up"
+          price={upPrice}
+          size="compact"
+          onClick={() => setSide("yes")}
+        />
+        <SideButton
+          active={side === "no"}
+          tone="no"
+          label="Down"
+          price={downPrice}
+          size="compact"
+          onClick={() => setSide("no")}
+        />
       </div>
     </div>
   );
