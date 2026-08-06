@@ -139,6 +139,40 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   // Shared anonymised all-user activity feed (same hook as the stock spot page).
   const activity = useMarketActivityRows(event?.name || null, "Up", refetchTick);
 
+  // Time-anchored tape label + chip tooltips (UTC, same axis convention as the chart).
+  const startMs = event?.start_date ? new Date(event.start_date).getTime() : null;
+  const endMs = event?.end_date ? new Date(event.end_date).getTime() : null;
+  const tfMs = TF_SECONDS[tf] * 1000;
+  const isDay = tf === "1d";
+
+  const tapeLabel = useMemo(() => {
+    if (isDay) {
+      return {
+        micro: `Round #${roundNo}`,
+        value: startMs != null ? utcMonthDay(new Date(startMs)) : "—",
+      };
+    }
+    const dayPart = startMs != null ? utcMonthDay(new Date(startMs)).toUpperCase() : null;
+    return {
+      micro: dayPart ? `Round #${roundNo} · ${dayPart}` : `Round #${roundNo}`,
+      value:
+        startMs != null && endMs != null
+          ? `${utcHHMM(new Date(startMs))}–${utcHHMM(new Date(endMs))}`
+          : "—",
+    };
+  }, [isDay, roundNo, startMs, endMs]);
+
+  // `back` = how many rounds before the current one this chip is.
+  const chipWindow = useCallback(
+    (back: number) => {
+      if (startMs == null) return `Round #${roundNo - back}`;
+      const s = startMs - back * tfMs;
+      if (isDay) return utcMonthDay(new Date(s));
+      return `${utcHHMM(new Date(s))}–${utcHHMM(new Date(s + tfMs))}`;
+    },
+    [startMs, tfMs, isDay, roundNo],
+  );
+
   const alsoLive = useMemo(
     () =>
       COINS.filter((c) => c !== coin)
