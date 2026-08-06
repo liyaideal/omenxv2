@@ -25,6 +25,9 @@ interface LiteEventCardProps {
    * list from the loaded live set. null → Trending never shows.
    */
   trendingCutoff?: number | null;
+  /** Force the mobile composition (style-guide previews render in a 390px
+   *  frame on a desktop window, where the viewport hook would say desktop). */
+  mobile?: boolean;
 }
 
 // Literal-mapped category → microlabel (uppercase in render).
@@ -118,9 +121,11 @@ export const LiteEventCard = ({
   index = 0,
   boostMax,
   trendingCutoff = null,
+  mobile,
 }: LiteEventCardProps) => {
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
+  const viewportMobile = useIsMobile();
+  const isMobile = mobile ?? viewportMobile;
   // Minute-precision tick so the "Ends {Xh Ym}" label stays honest.
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
