@@ -131,6 +131,8 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   const { balance, deductBalance, addBalance } = useUserProfile();
   const risk = useRealtimeRiskMetrics();
   const [submitting, setSubmitting] = useState(false);
+  const { notify: notifyInsufficient, overlay: transferOverlay } =
+    useInsufficientBalanceToast("to_futures");
 
   const effBoost = boostEnabled ? boost : 1;
   const sidePrice = side === "yes" ? yesPrice : noPrice;
@@ -559,6 +561,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
           ? `Not guaranteed. You can lose your full ${money(amountNum)}.`
           : "Not guaranteed. You can lose everything you put in."}
       </p>
+      {transferOverlay}
     </div>
   );
 };
