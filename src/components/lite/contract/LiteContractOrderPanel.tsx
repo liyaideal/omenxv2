@@ -13,6 +13,7 @@ import { useCallback, useMemo, useState } from "react";
 import { Info } from "lucide-react";
 import { toast } from "sonner";
 import { AccountBalanceLine } from "@/components/wallet/AccountBalanceLine";
+import { useInsufficientBalanceToast } from "@/components/wallet/useInsufficientBalanceToast";
 import { cn } from "@/lib/utils";
 import { SideButton } from "@/components/lite/shared/SideButton";
 import { useAuth } from "@/hooks/useAuth";
@@ -225,7 +226,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
       ? Math.max(0, remainderMargin - getBack)
       : amountNum;
     if (cashNeeded + fee > balance)
-      return toast.error("Not enough balance — add funds to continue");
+      return notifyInsufficient();
 
     // P0 #1 — snapshot everything price-derived at click time.
     const priceSnapshot = sidePrice;
@@ -384,7 +385,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
           <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
             How much
           </div>
-          <AccountBalanceLine value={money(balance)} direction="to_futures" />
+          <AccountBalanceLine label="Boost balance" value={money(balance)} direction="to_futures" />
         </div>
         <div className="rounded-xl bg-muted/40 p-3">
           <div className="flex items-baseline gap-2">
