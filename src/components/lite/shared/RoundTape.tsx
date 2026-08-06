@@ -40,7 +40,8 @@ interface Props {
   /** Left slot: micro caption plus an optional bold second line. */
   leftLabel: { micro: string; value?: string };
   chips: TapeChip[];
-  currentSlot?: TapeCurrentSlot;
+  /** One slot, or several (the quick-round tape shows countdown + NEXT). */
+  currentSlot?: TapeCurrentSlot | TapeCurrentSlot[];
   legend?: React.ReactNode;
   isMobile?: boolean;
   className?: string;
@@ -58,7 +59,10 @@ export const RoundTape = ({
   className,
   style,
 }: Props) => {
-  if (chips.length === 0 && !currentSlot) return null;
+  const slots = (Array.isArray(currentSlot) ? currentSlot : [currentSlot]).filter(
+    Boolean,
+  ) as Exclude<TapeCurrentSlot, null>[];
+  if (chips.length === 0 && slots.length === 0) return null;
 
   return (
     <TooltipProvider delayDuration={120}>
@@ -108,7 +112,9 @@ export const RoundTape = ({
             );
           })}
 
-          {currentSlot?.kind === "countdown" && (
+          {slots.map((slot, si) => (
+            <span key={si} className="contents">
+          {slot.kind === "countdown" && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <span
@@ -130,21 +136,21 @@ export const RoundTape = ({
                       background: "#FF8A3D",
                     }}
                   />
-                  {currentSlot.text}
+                  {slot.text}
                 </span>
               </TooltipTrigger>
               <TooltipContent>
-                {currentSlot.tooltip ?? `Current round · closes in ${currentSlot.text}`}
+                {slot.tooltip ?? `Current round · closes in ${slot.text}`}
               </TooltipContent>
             </Tooltip>
           )}
 
-          {currentSlot?.kind === "today" && (
+          {slot.kind === "today" && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
                   type="button"
-                  onClick={currentSlot.onClick}
+                  onClick={slot.onClick}
                   className="font-display flex shrink-0 items-center"
                   style={{
                     border: "1.5px solid #2B2F38",
@@ -154,7 +160,7 @@ export const RoundTape = ({
                     fontSize: 12,
                     fontWeight: 700,
                     letterSpacing: ".06em",
-                    outline: currentSlot.active
+                    outline: slot.active
                       ? "1.5px solid currentColor"
                       : undefined,
                   }}
@@ -163,12 +169,12 @@ export const RoundTape = ({
                 </button>
               </TooltipTrigger>
               <TooltipContent>
-                {currentSlot.tooltip ?? "Today · still trading"}
+                {slot.tooltip ?? "Today · still trading"}
               </TooltipContent>
             </Tooltip>
           )}
 
-          {currentSlot?.kind === "next" && (
+          {slot.kind === "next" && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <span
@@ -187,11 +193,13 @@ export const RoundTape = ({
                 </span>
               </TooltipTrigger>
               <TooltipContent>
-                {currentSlot.tooltip ??
+                {slot.tooltip ??
                   "Next round starts the moment this one settles"}
               </TooltipContent>
             </Tooltip>
           )}
+            </span>
+          ))}
         </div>
 
         {legend && (
