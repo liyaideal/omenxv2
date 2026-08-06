@@ -37,6 +37,6 @@ export const useAccountPreference = (kind: "deposit" | "withdraw") => {
 };
 
 export const ACCOUNT_LABEL: Record<AccountKind, string> = {
-  spot: "Spot Account",
-  futures: "Futures Account",
+  spot: "Standard Account",
+  futures: "Boost Account",
 };
