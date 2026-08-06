@@ -733,12 +733,12 @@ const LiteContractTrade = () => {
     <HowItSettled
       summary={event.settlement_description}
       criterion={
-        event.base_price != null
+        event.base_price != null && event.close_price != null
           ? {
               neededLabel: "Needed",
               neededValue: `$${Number(event.base_price).toLocaleString()}`,
               actualLabel: "Actual",
-              actualValue: `$${Number(event.base_price).toLocaleString()}`,
+              actualValue: `$${Number(event.close_price).toLocaleString()}`,
             }
           : null
       }
