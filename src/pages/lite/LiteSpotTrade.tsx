@@ -307,6 +307,10 @@ const LiteSpotTrade = () => {
     [isMobile],
   );
 
+  // Intraday family: the current day slot is the SAME orange countdown pill the
+  // quick-round tape uses. Session state comes from the exchange wall clock.
+  useSecondTick();
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -621,9 +625,6 @@ const LiteSpotTrade = () => {
     />
   ) : null;
 
-  // Intraday family: the current day slot is the SAME orange countdown pill the
-  // quick-round tape uses. Session state comes from the exchange wall clock.
-  useSecondTick();
   const tapeSession = getMarketSession(market);
   const tapeSlot: TapeCurrentSlot =
     tapeSession.open && tapeSession.closeAt && todayEventId
