@@ -150,28 +150,35 @@ export const LiteFinanceView = ({
       {/* Engine — session-aware daily rounds. */}
       {engineOn && (trading.length > 0 || asleep.length > 0) && (
         <div className="flex flex-col" style={{ gap: 12 }}>
-          <div
-            className={isMobile ? "flex flex-col" : "grid"}
-            style={
-              isMobile
-                ? { gap: 10 }
-                : { gap: 12, gridTemplateColumns: "1fr 1fr" }
-            }
-          >
-            {trading.map((row) => (
-              <TradingStockRow key={row.id} row={row} tickSeconds={tickSeconds} />
-            ))}
-          </div>
-          <div
-            className={isMobile ? "flex flex-col" : "grid"}
-            style={
-              isMobile ? { gap: 10 } : { gap: 12, gridTemplateColumns: "1fr 1fr" }
-            }
-          >
-            {asleep.map(({ row, nextOpen }) => (
-              <AsleepStockRow key={row.id} row={row} nextOpen={nextOpen} />
-            ))}
-          </div>
+          {isMobile ? (
+            <div className="flex flex-col" style={{ gap: 10 }}>
+              {trading.map((row) => (
+                <MobileTradingStockRow key={row.id} row={row} tickSeconds={tickSeconds} />
+              ))}
+              {asleep.map(({ row, nextOpen }) => (
+                <MobileAsleepStockRow key={row.id} row={row} nextOpen={nextOpen} />
+              ))}
+            </div>
+          ) : (
+            <>
+              <div
+                className="grid"
+                style={{ gap: 12, gridTemplateColumns: "1fr 1fr" }}
+              >
+                {trading.map((row) => (
+                  <TradingStockRow key={row.id} row={row} tickSeconds={tickSeconds} />
+                ))}
+              </div>
+              <div
+                className="grid"
+                style={{ gap: 12, gridTemplateColumns: "1fr 1fr" }}
+              >
+                {asleep.map(({ row, nextOpen }) => (
+                  <AsleepStockRow key={row.id} row={row} nextOpen={nextOpen} />
+                ))}
+              </div>
+            </>
+          )}
           {(shown < totalNames || groups.wakeLabels.length > 0) && (
             <div
               className="flex items-center"
@@ -195,6 +202,7 @@ export const LiteFinanceView = ({
           )}
         </div>
       )}
+
 
       {/* Boost with nothing boosted — keep chrome, show the empty line. */}
       {boostOnly && catalogue.length === 0 && (
