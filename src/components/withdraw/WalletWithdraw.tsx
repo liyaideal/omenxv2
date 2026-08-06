@@ -257,7 +257,17 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
           </div>
         )}
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>Available: <span className="font-mono">{availableBalance.toFixed(2)}</span> USDC</span>
+          <span className="flex items-center gap-1.5">
+            Available: <span className="font-mono">{availableBalance.toFixed(2)}</span> USDC
+            <button
+              type="button"
+              onClick={() => setTransferOpen(true)}
+              aria-label="Transfer funds"
+              className="rounded p-0.5 hover:bg-muted hover:text-foreground"
+            >
+              <ArrowLeftRight className="h-3 w-3" />
+            </button>
+          </span>
           <span>Min <span className="font-mono">{minAmount}</span> USDC</span>
         </div>
       </div>
