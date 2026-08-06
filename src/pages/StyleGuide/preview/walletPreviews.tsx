@@ -287,11 +287,11 @@ export const TransactionHistoryPreview = () => (
 export const AccountBadgeLegendPreview = () => (
   <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border/40 bg-muted/20 p-3">
     <div className="flex items-center gap-2">
-      <Badge className="border-blue-500/30 bg-blue-500/10 text-blue-400 text-[10px] rounded-full">SPOT</Badge>
+      <Badge className="border-blue-500/30 bg-blue-500/10 text-blue-400 text-[10px] rounded-full">STANDARD</Badge>
       <span className="text-xs text-muted-foreground">Standard Account row</span>
     </div>
     <div className="flex items-center gap-2">
-      <Badge className="border-primary/30 bg-primary/10 text-primary text-[10px] rounded-full">FUTURES</Badge>
+      <Badge className="border-primary/30 bg-primary/10 text-primary text-[10px] rounded-full">BOOST</Badge>
       <span className="text-xs text-muted-foreground">Boost Account row</span>
     </div>
     <div className="flex items-center gap-2 text-xs text-muted-foreground">

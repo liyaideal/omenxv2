@@ -221,23 +221,6 @@ export const BottomNav = () => {
             </p>
             <p className="text-xs text-muted-foreground truncate">{user?.email || profile?.email || "Account"}</p>
           </div>
-          <div className="mt-3 flex items-center justify-between border-t border-trading-green/20 pt-3 text-xs">
-            <span className="text-muted-foreground">
-              Standard ${spotBalance.toFixed(2)} · Boost ${balance.toFixed(2)}
-            </span>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setProfileSheetOpen(false);
-                setTransferOpen(true);
-              }}
-              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-primary hover:bg-primary/10"
-            >
-              <ArrowLeftRight className="h-3 w-3" />
-              Transfer
-            </button>
-          </div>
         </div>
 
         {/* Equity Card - Tappable to go to Wallet page */}
@@ -261,6 +244,23 @@ export const BottomNav = () => {
               </span>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </div>
+          </div>
+          <div className="mt-3 flex items-center justify-between border-t border-trading-green/20 pt-3 text-xs">
+            <span className="text-muted-foreground">
+              Standard ${spotBalance.toFixed(2)} · Boost ${balance.toFixed(2)}
+            </span>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setProfileSheetOpen(false);
+                setTransferOpen(true);
+              }}
+              className="inline-flex min-h-[44px] items-center gap-1 rounded-md px-2 py-1 text-primary hover:bg-primary/10"
+            >
+              <ArrowLeftRight className="h-3 w-3" />
+              Transfer
+            </button>
           </div>
         </div>
 

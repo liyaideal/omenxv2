@@ -36,7 +36,11 @@ export const AccountBalanceLine = ({
           type="button"
           onClick={() => setOpen(true)}
           aria-label="Transfer funds"
-          className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          className={cn(
+            "inline-flex items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+            // Mobile needs a >=44px tap target; negative margin keeps layout unchanged.
+            isMobile ? "min-h-[44px] min-w-[44px] -my-3 -mx-2" : "p-0.5",
+          )}
         >
           <ArrowLeftRight className="h-3 w-3" />
         </button>
