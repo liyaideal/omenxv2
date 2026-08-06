@@ -300,11 +300,11 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
     <RoundTape
       style={{ marginTop: 14 }}
       isMobile={isMobile}
-      leftLabel={{ micro: "Round", value: `#${roundNo}` }}
+      leftLabel={tapeLabel}
       chips={history.slice(-10).map((h, i, arr) => ({
         key: String(i),
         up: h === "up",
-        tooltip: `Round #${roundNo - (arr.length - i)} · ${h === "up" ? "Up" : "Down"} won`,
+        tooltip: `${chipWindow(arr.length - i)} · ${h === "up" ? "Up" : "Down"} won`,
       }))}
       currentSlot={[{ kind: "countdown", text: countdown }, { kind: "next" }]}
       legend={
