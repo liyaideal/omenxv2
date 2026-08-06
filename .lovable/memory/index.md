@@ -25,6 +25,7 @@
 
 ## Memories
 - [Event taxonomy](mem://product/event-taxonomy) — Canonical category tree in src/lib/taxonomy.ts; Finance replaces Stocks; Boost = in-place filter
+- [Boost config](docs/taxonomy.md#boost) — 2026-08-06 category leverage caps: Crypto 10×, Macro/Social 5×, Sports 3×; Finance/Politics/Economy explicitly disabled
 - [Lite banned words](mem://design/lite-banned-words) — Rendered Lite copy bans trader jargon + "Props" / "Moneyline" internal names
 - [Voucher daily pool](mem://features/voucher-daily-pool) — Daily UTC-reset quota for voucher granting; powers the scarcity bar on granted cards
 - [Voucher earnings unlock tiers](mem://features/voucher-earnings-pool) — 5-tier claim-to-wallet ladder (T0 free $2 → T1 $10 deposit $5 → T2/T3/T4 volume $10/$20/$50)
