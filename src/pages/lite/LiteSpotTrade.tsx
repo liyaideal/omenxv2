@@ -230,13 +230,14 @@ const LiteSpotTrade = () => {
     if (!basePrice) return null;
     // Settled: the chart freezes at the final close — no live drift.
     if (event?.is_resolved) {
+      if (event.close_price != null) return Number(event.close_price);
       const fin = event.options.find((o) => o.is_winner);
       const wentUp = fin ? /(^|[-_ ])(yes|up)$/i.test(fin.label) : true;
       return basePrice * (wentUp ? 1.0128 : 0.9912);
     }
     const drift = Math.sin(tick / 3 + (event?.id.length || 0) % 7) * 0.009;
     return basePrice * (1 + drift);
-  }, [basePrice, tick, event?.id, event?.is_resolved, event?.options]);
+  }, [basePrice, tick, event?.id, event?.is_resolved, event?.options, event?.close_price]);
   const pctToday = basePrice && currentPrice ? ((currentPrice - basePrice) / basePrice) * 100 : 0;
 
   // Sentiment %s
@@ -593,12 +594,12 @@ const LiteSpotTrade = () => {
     <HowItSettled
       summary={event.settlement_description}
       criterion={
-        basePrice != null && currentPrice != null
+        basePrice != null && event.close_price != null
           ? {
               neededLabel: `Needed — close above ${ticker}'s previous close`,
               neededValue: formatMarketPrice(basePrice, market),
               actualLabel: "Actual — final close",
-              actualValue: formatMarketPrice(currentPrice, market),
+              actualValue: formatMarketPrice(Number(event.close_price), market),
             }
           : null
       }
