@@ -981,7 +981,7 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
             </Cell>
             <Cell label="Desktop · stock past days (session open)">
               <RoundTape
-                leftLabel={{ micro: "Past days" }}
+                leftLabel={{ micro: "TODAY · AUG 3", value: "09:30–16:00" }}
                 chips={pastDaysDemo.map((d) => ({
                   key: d.id,
                   up: d.up,
@@ -991,9 +991,9 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
                 }))}
                 currentSlot={{
                   kind: "countdown",
-                  text: "4:40:00",
+                  text: "04:40:00",
                   onClick: () => undefined,
-                  tooltip: "Today's round · closes in 4:40:00",
+                  tooltip: "Today's round · closes in 04:40:00",
                 }}
                 legend={
                   <>
@@ -1035,7 +1035,7 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
               <div className="w-[343px]">
                 <RoundTape
                   isMobile
-                  leftLabel={{ micro: "Past days" }}
+                  leftLabel={{ micro: "TODAY · AUG 3", value: "09:30–16:00" }}
                   chips={pastDaysDemo.map((d) => ({
                     key: d.id,
                     up: d.up,
@@ -1045,9 +1045,9 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
                   }))}
                   currentSlot={{
                     kind: "countdown",
-                    text: "4:40:00",
+                    text: "04:40:00",
                     onClick: () => undefined,
-                    tooltip: "Today's round · closes in 4:40:00",
+                    tooltip: "Today's round · closes in 04:40:00",
                   }}
                   legend={
                     <>
@@ -1060,7 +1060,7 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
             </Cell>
             <Cell label="Desktop · stock past days (market closed)">
               <RoundTape
-                leftLabel={{ micro: "Past days" }}
+                leftLabel={{ micro: "NEXT ROUND · AUG 4", value: "09:30–16:00" }}
                 chips={pastDaysDemo.map((d) => ({
                   key: d.id,
                   up: d.up,
@@ -1084,7 +1084,7 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
               <div className="w-[343px]">
                 <RoundTape
                   isMobile
-                  leftLabel={{ micro: "Past days" }}
+                  leftLabel={{ micro: "NEXT ROUND · AUG 4", value: "09:30–16:00" }}
                   chips={pastDaysDemo.map((d) => ({
                     key: d.id,
                     up: d.up,

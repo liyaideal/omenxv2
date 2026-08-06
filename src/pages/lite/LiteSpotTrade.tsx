@@ -50,7 +50,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
 import LiteQuickTrade from "@/pages/lite/LiteQuickTrade";
 import {
-  formatCountdown,
+  formatClockCountdown,
   parseQuickId,
   useSecondTick,
   useTradeCountdown,
@@ -626,11 +626,32 @@ const LiteSpotTrade = () => {
   ) : null;
 
   const tapeSession = getMarketSession(market);
+  const SESSION_MS = 6.5 * 60 * 60 * 1000;
+  const sessionOpenAt =
+    tapeSession.open && tapeSession.closeAt
+      ? new Date(tapeSession.closeAt.getTime() - SESSION_MS)
+      : tapeSession.nextOpenAt;
+  const sessionCloseAt =
+    tapeSession.open && tapeSession.closeAt
+      ? tapeSession.closeAt
+      : new Date(tapeSession.nextOpenAt.getTime() + SESSION_MS);
+  const sessionDate = new Intl.DateTimeFormat("en-US", {
+    timeZone: market.tz,
+    month: "short",
+    day: "numeric",
+  })
+    .format(sessionOpenAt)
+    .toUpperCase();
+  const isOpenNow = tapeSession.open && !!tapeSession.closeAt && !!todayEventId;
+  const tapeLeftLabel = {
+    micro: isOpenNow ? `TODAY · ${sessionDate}` : `NEXT ROUND · ${sessionDate}`,
+    value: `${formatMarketTime(sessionOpenAt, market)}–${formatMarketTime(sessionCloseAt, market)}`,
+  };
   const tapeSlot: TapeCurrentSlot =
-    tapeSession.open && tapeSession.closeAt && todayEventId
+    isOpenNow && tapeSession.closeAt
       ? {
           kind: "countdown",
-          text: formatCountdown(tapeSession.closeAt.getTime() - Date.now()),
+          text: formatClockCountdown(tapeSession.closeAt.getTime() - Date.now()),
           tooltip: `Today's round · closes at ${formatSessionStamp(tapeSession.closeAt, market)}`,
           onClick:
             todayEventId === event.id
@@ -645,7 +666,7 @@ const LiteSpotTrade = () => {
   const PastDays = (
     <RoundTape
       isMobile={!!isMobile}
-      leftLabel={{ micro: "Past days" }}
+      leftLabel={tapeLeftLabel}
       chips={pastDays.map((d) => ({
         key: d.id,
         up: d.up,
