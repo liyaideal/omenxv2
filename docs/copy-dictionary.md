@@ -73,8 +73,26 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | **Liq. Price** | Estimated liquidation price. Formula: `entry × (1 ∓ 0.9/leverage)`, clamped to `[0, 1]`. Ignores funding drift and MM buffer — account-level threshold lives in `useRealtimeRiskMetrics`. Always rendered as `$0.xxxx` (4 decimals) or `--`. |
 | **PnL** | `(mark − entry) × size × side` (see `mem://technical/pnl-formula-canonical`) |
 | **Side** | `long` / `short`. Binary markets use `Yes` / `No`. Never `Buy` / `Sell` as a position side. |
-| **Available balance** | Free balance in the futures account (`profiles.balance`) |
-| **Total equity** | `Spot + Futures available` (`spot_balance + balance`). **Retired 2026-07-21:** "Trial bonus" field — the Trial Bonus wallet feature was fully sunset before mainnet launch; do not reintroduce copy that references it. |
+| **Available balance** | Free balance in the Boost account (`profiles.balance`) |
+| **Total equity** | `Boost + Standard available` (`balance + spot_balance`). **Retired 2026-07-21:** "Trial bonus" field — the Trial Bonus wallet feature was fully sunset before mainnet launch; do not reintroduce copy that references it. |
+
+---
+
+## Accounts (CPO ruling 2026-08-06)
+
+| Canonical | Meaning | Banned variants |
+|---|---|---|
+| **Standard Account** | Spot account (`profiles.spot_balance`, productLine `spot`, route `/spot`) | Spot Account, Spot |
+| **Boost Account** | Futures account (`profiles.balance`, productLine `futures`, route `/trade`) | Futures Account, Futures, Margin account |
+| **STANDARD / BOOST** | Product-line badge labels | SPOT / FUTURES |
+| **In use by open positions** | Margin currently locked | Margin in Use, Margin |
+
+Internal identifiers are unchanged and NOT governed here: `spot` / `futures`
+productLine values, `to_spot` / `to_futures` transfer directions, DB columns,
+routes, localStorage keys.
+
+User-visible **Spot / Futures / Margin / Leverage / Liquidation** are banned
+platform-wide (not just Lite).
 
 ---
 
@@ -106,5 +124,5 @@ nouns Spot/Futures are exempt).
 |---|---|---|
 | **Props** | Internal taxonomy bucket name only (`PROPS_BUCKET` in `src/lib/taxonomy.ts`) — the non-intraday event catalogue of a vertical. Same class as the Moneyline ban. | Question-style section titles: "Will it happen?", "Who wins the match?" |
 
-Approved exception: the Pro escape-hatch line ("Want charts, leverage and the
-order book? Switch to Pro mode") stays byte-identical.
+Pro escape-hatch line (updated 2026-08-06, byte-identical from now on):
+"Want charts and advanced trading tools? Switch to Pro mode".
