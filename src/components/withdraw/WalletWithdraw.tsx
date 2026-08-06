@@ -266,7 +266,10 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
               type="button"
               onClick={() => setTransferOpen(true)}
               aria-label="Transfer funds"
-              className="rounded p-0.5 hover:bg-muted hover:text-foreground"
+              className={cn(
+                "inline-flex items-center justify-center rounded hover:bg-muted hover:text-foreground",
+                isMobile ? "min-h-[44px] min-w-[44px] -my-3 -mx-2" : "p-0.5",
+              )}
             >
               <ArrowLeftRight className="h-3 w-3" />
             </button>
@@ -353,9 +356,17 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
       )}
 
       {isMobile ? (
-        <TransferDrawer open={transferOpen} onOpenChange={setTransferOpen} />
+        <TransferDrawer
+          open={transferOpen}
+          onOpenChange={setTransferOpen}
+          initialDirection={effectiveAccount === 'futures' ? 'to_futures' : 'to_spot'}
+        />
       ) : (
-        <TransferDialog open={transferOpen} onOpenChange={setTransferOpen} />
+        <TransferDialog
+          open={transferOpen}
+          onOpenChange={setTransferOpen}
+          initialDirection={effectiveAccount === 'futures' ? 'to_futures' : 'to_spot'}
+        />
       )}
     </div>
   );
