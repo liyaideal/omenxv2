@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Home, BarChart3, TrendingUp, User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, Ticket, KeyRound, Compass, PieChart } from "lucide-react";
+import { Home, BarChart3, TrendingUp, User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, Ticket, KeyRound, Compass, PieChart, ArrowLeftRight } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { toast } from "sonner";
+import { TransferDrawer } from "@/components/wallet/TransferDrawer";
 import { MobileDrawer, MobileDrawerList, MobileDrawerListItem } from "@/components/ui/mobile-drawer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -41,6 +42,7 @@ export const BottomNav = () => {
   const { surface } = useSurface();
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
   const [profileSheetOpen, setProfileSheetOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -344,6 +346,8 @@ export const BottomNav = () => {
           />
         </MobileDrawerList>
       </MobileDrawer>
+
+      <TransferDrawer open={transferOpen} onOpenChange={setTransferOpen} />
     </nav>
   );
 };
