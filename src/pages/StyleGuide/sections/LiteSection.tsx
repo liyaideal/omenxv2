@@ -19,16 +19,11 @@ import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
 import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
 import { LiteMarketBoard, type BoardOption } from "@/components/lite/multi/LiteMarketBoard";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
-import { LiveSettledSwitch } from "@/components/lite/LiveSettledSwitch";
-import { LiteSettledCard } from "@/components/lite/LiteSettledCard";
+import { HowItSettled } from "@/components/lite/trade/HowItSettled";
+import { PastDaysStrip } from "@/components/lite/shared/PastDaysStrip";
 import { LiteEventCard } from "@/components/lite/LiteEventCard";
 import type { EventRow } from "@/hooks/useMarketListData";
 import { Star, ExternalLink } from "lucide-react";
-import {
-  LiteSettledSeriesCard,
-  LiteSettledSeriesDayRow,
-  type SettledSeries,
-} from "@/components/lite/LiteSettledSeriesCard";
 import type { ResolvedEvent } from "@/hooks/useResolvedEvents";
 import { FROZEN_NOW, frozenIso } from "../frozenClock";
 
