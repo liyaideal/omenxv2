@@ -958,7 +958,7 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
 
         <SubSection
           title="History tape · RoundTape (one implementation)"
-          description="One component, two compositions: crypto quick-round tape (countdown + NEXT slots) and daily stock past-days tape (neutral NOW slot, tappable chips)."
+          description="One component, two compositions: crypto quick-round tape (countdown + NEXT slots) and daily stock past-days tape (tappable chips; orange countdown pill while the session is open, dashed NEXT slot after the close)."
         >
           <Grid cols={2}>
             <Cell label="Desktop · crypto round tape">
@@ -979,7 +979,7 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
                 }
               />
             </Cell>
-            <Cell label="Desktop · stock past days">
+            <Cell label="Desktop · stock past days (session open)">
               <RoundTape
                 leftLabel={{ micro: "Past days" }}
                 chips={pastDaysDemo.map((d) => ({
@@ -989,7 +989,12 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
                   onClick: () => undefined,
                   tooltip: `${d.label} · ${d.up ? "Up" : "Not up"} won`,
                 }))}
-                currentSlot={{ kind: "today", onClick: () => undefined }}
+                currentSlot={{
+                  kind: "countdown",
+                  text: "4:40:00",
+                  onClick: () => undefined,
+                  tooltip: "Today's round · closes in 4:40:00",
+                }}
                 legend={
                   <>
                     Past days — <span style={{ color: "#33D6FF" }}>▲</span> Up won ·{" "}
@@ -1026,7 +1031,7 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
                 />
               </div>
             </Cell>
-            <Cell label="Mobile 375 · stock past days">
+            <Cell label="Mobile 375 · stock past days (session open)">
               <div className="w-[343px]">
                 <RoundTape
                   isMobile
@@ -1038,7 +1043,12 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
                     onClick: () => undefined,
                     tooltip: `${d.label} · ${d.up ? "Up" : "Not up"} won`,
                   }))}
-                  currentSlot={{ kind: "today", onClick: () => undefined }}
+                  currentSlot={{
+                    kind: "countdown",
+                    text: "4:40:00",
+                    onClick: () => undefined,
+                    tooltip: "Today's round · closes in 4:40:00",
+                  }}
                   legend={
                     <>
                       Past days — <span style={{ color: "#33D6FF" }}>▲</span> Up won ·{" "}
