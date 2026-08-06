@@ -10,12 +10,15 @@ export const SideButton = ({
   label,
   price,
   onClick,
+  size = "default",
 }: {
   active: boolean;
   tone: "yes" | "no";
   label: string;
   price: number;
   onClick: () => void;
+  /** `compact` = card/rail density (quick-round PickCard). Same states. */
+  size?: "default" | "compact";
 }) => {
   const pct = Math.round(price * 100);
   const yesActive = "bg-yes text-[#04222c] border-transparent";
@@ -34,11 +37,12 @@ export const SideButton = ({
       type="button"
       onClick={onClick}
       className={cn(
-        "flex items-center justify-center rounded-xl px-3 py-4 text-sm font-semibold transition-all",
+        "flex items-center justify-center rounded-xl font-semibold transition-all",
+        size === "compact" ? "px-3 py-2.5 text-sm" : "px-3 py-4 text-sm",
         cls,
       )}
     >
-      <span className="text-base font-bold">
+      <span className={cn("font-bold", size === "compact" ? "text-sm" : "text-base")}>
         {label} {pct}¢
       </span>
     </button>
