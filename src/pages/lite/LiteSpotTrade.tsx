@@ -583,10 +583,39 @@ const LiteSpotTrade = () => {
             }
           : null
       }
-      onSeeHow={() => navigate(`/resolved/${event.id}`)}
       onBrowse={() => navigate("/events")}
     />
   ) : null;
+
+  // Proof segment — daily stocks always carry a numeric criterion
+  // (previous close vs final close), so both rows render when we have data.
+  const Proof = resolved ? (
+    <HowItSettled
+      summary={event.settlement_description}
+      criterion={
+        basePrice != null && currentPrice != null
+          ? {
+              neededLabel: `Needed — close above ${ticker}'s previous close`,
+              neededValue: formatMarketPrice(basePrice, market),
+              actualLabel: "Actual — final close",
+              actualValue: formatMarketPrice(currentPrice, market),
+            }
+          : null
+      }
+      sourceName={event.source_name}
+      sourceUrl={event.source_url}
+    />
+  ) : null;
+
+  const PastDays = (
+    <PastDaysStrip
+      days={pastDays}
+      currentId={event.id}
+      upLabel={yesLabel}
+      downLabel={noLabel}
+      isMobile={!!isMobile}
+    />
+  );
 
   const orderPanelProps = {
     eventName: event.name,
@@ -626,6 +655,13 @@ const LiteSpotTrade = () => {
             {resolved ? (
               <>
                 {OutcomeCard}
+                {PastDays}
+                {Chart}
+                {SentimentBar}
+                {Proof}
+                {RuleCard}
+                {SettlementRail}
+                {MarketActivity}
                 <button
                   type="button"
                   onClick={() => navigate("/events")}
@@ -637,6 +673,7 @@ const LiteSpotTrade = () => {
             ) : (
               <>
                 {CountdownLine}
+                {PastDays}
                 {Chart}
                 {SentimentBar}
                 {RuleCard}
@@ -744,22 +781,20 @@ const LiteSpotTrade = () => {
         >
           <div className="space-y-5">
             {QuestionBlock}
+            {PastDays}
+            {SentimentBar}
+            {Chart}
+            {SettlementRail}
+            {resolved && Proof}
+            {RuleCard}
+            {!resolved && YourPosition}
+            {MarketActivity}
+            {!resolved && CashOut}
+          </div>
+          <aside className="space-y-4">
             {resolved ? (
               OutcomeCard
             ) : (
-              <>
-                {SentimentBar}
-                {Chart}
-                {SettlementRail}
-                {RuleCard}
-                {YourPosition}
-                {MarketActivity}
-                {CashOut}
-              </>
-            )}
-          </div>
-          <aside className="space-y-4">
-            {!resolved && (
               <LiteOrderPanel
                 {...orderPanelProps}
                 variant="desktop"
