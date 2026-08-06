@@ -80,6 +80,25 @@ grouped by category with small group headers in taxonomy order. It composes
 with a selected category (Sports + Boost = boostable sports only, no group
 headers). Boost stays hidden inside module/channel views.
 
+### Current category config
+
+| Category | Enabled | Max leverage | Notes |
+|----------|---------|--------------|-------|
+| Crypto | Yes | 10× | Highest cap; continuous price path. |
+| Macro / Economy | Yes | 5× | |
+| Social | Yes | 5× | |
+| Sports | Yes | 3× | Enabled 2026-08-06. Conservative cap because sports settle as jump events with no continuous price path; cross-margin shock risk is why it stayed off until now. |
+| Entertainment | No | 1× | Explicitly disabled. |
+| Tech | No | 1× | Explicitly disabled. |
+| Finance | No | 1× | Explicitly disabled (row added 2026-08-06). |
+| Politics | No | 1× | Explicitly disabled (row added 2026-08-06). |
+| Economy | No | 1× | Explicitly disabled (row added 2026-08-06). |
+| Stocks | No | 1× | Explicitly disabled. |
+
+The `finance`, `politics`, and `economy` disabled rows were added explicitly on
+2026-08-06 so the intent is recorded in the database rather than relying on the
+code fallback (`BOOST_DISABLED`).
+
 ### Boost composes with the vertical views
 
 Boost never navigates. Activating the Boost chip while Intraday, Crypto or
