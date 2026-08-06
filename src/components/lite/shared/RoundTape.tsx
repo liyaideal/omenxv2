@@ -191,21 +191,30 @@ export const RoundTape = ({
                 <button
                   type="button"
                   onClick={slot.onClick}
-                  className="font-display flex shrink-0 items-center"
-                  style={{
-                    border: "1.5px solid #2B2F38",
-                    borderRadius: 13,
-                    padding: "3px 10px",
-                    color: "#F2F3F5",
-                    fontSize: 12,
-                    fontWeight: 700,
-                    letterSpacing: ".06em",
-                    outline: slot.active
-                      ? "1.5px solid currentColor"
-                      : undefined,
-                  }}
+                  className="flex shrink-0 items-center justify-center"
+                  style={
+                    isMobile
+                      ? { minWidth: TOUCH, minHeight: TOUCH, marginTop: -10, marginBottom: -10 }
+                      : undefined
+                  }
                 >
-                  NOW
+                  <span
+                    className="font-display flex items-center"
+                    style={{
+                      border: "1.5px solid #2B2F38",
+                      borderRadius: 13,
+                      padding: "3px 10px",
+                      color: "#F2F3F5",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      letterSpacing: ".06em",
+                      outline: slot.active
+                        ? "1.5px solid currentColor"
+                        : undefined,
+                    }}
+                  >
+                    NOW
+                  </span>
                 </button>
               </TooltipTrigger>
               <TooltipContent>
