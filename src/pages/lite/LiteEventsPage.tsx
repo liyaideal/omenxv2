@@ -13,7 +13,6 @@ import { useCategoryBoostConfigs } from "@/hooks/useCategoryBoostConfigs";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { cn } from "@/lib/utils";
 import { LiteEventCard } from "@/components/lite/LiteEventCard";
-import { LiveSettledSwitch } from "@/components/lite/LiveSettledSwitch";
 import { TraitChip, WatchlistChip } from "@/components/lite/LiteListControls";
 import { CalendarChip } from "@/components/lite/LiteListControls";
 import { LiteCalendarView } from "@/components/lite/calendar/LiteCalendarView";
@@ -294,29 +293,7 @@ const LiteEventsPage = () => {
               Pick a topic. Tap Yes or No. That's it.
             </p>
           </div>
-          {!isMobile && (
-            <div className="flex shrink-0 items-center gap-2" style={{ marginTop: 6 }}>
-              <LiveSettledSwitch
-                value="live"
-                onSelect={(v) => {
-                  if (v === "settled") navigate("/resolved");
-                }}
-              />
-            </div>
-          )}
         </div>
-
-        {/* Mobile view cluster — view switches, not filters */}
-        {isMobile && (
-          <div className="flex items-center" style={{ marginTop: 14 }}>
-            <LiveSettledSwitch
-              value="live"
-              onSelect={(v) => {
-                if (v === "settled") navigate("/resolved");
-              }}
-            />
-          </div>
-        )}
 
         {/* Filter row — mobile keeps the control row in every view (watchlist
             included), desktop still swaps it for the watchlist status line. */}
