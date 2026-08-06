@@ -62,7 +62,7 @@ export const LiteMarketBoard = ({
   <div className={cn("space-y-2", className)}>
     <div className="flex items-end justify-between gap-3">
       <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-        "What the crowd thinks"}
+        What the crowd thinks
       </div>
       <div className="shrink-0 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
         {volumeText}
