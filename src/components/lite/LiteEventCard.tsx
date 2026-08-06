@@ -4,6 +4,7 @@ import { Clock, Flame, Timer, Zap } from "lucide-react";
 import { EventRow } from "@/hooks/useMarketListData";
 import { cn } from "@/lib/utils";
 import { CardArtTile } from "@/components/lite/CardArtTile";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   formatEndsIn,
   isIntradayEvent,
@@ -119,6 +120,7 @@ export const LiteEventCard = ({
   trendingCutoff = null,
 }: LiteEventCardProps) => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   // Minute-precision tick so the "Ends {Xh Ym}" label stays honest.
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
@@ -224,6 +226,116 @@ export const LiteEventCard = ({
     ? [...market.children].sort((a, b) => b.markPrice - a.markPrice).slice(0, 2)
     : [];
   const extraCount = Math.max(0, market.children.length - topTwo.length);
+
+  // ── Mobile composition ────────────────────────────────────────────────
+  // Same data, re-laid-out for 390px: art becomes a 56px thumbnail beside the
+  // title, chips drop to 44px, padding tightens to 12px. Desktop is untouched.
+  if (isMobile) {
+    return (
+      <button
+        type="button"
+        onClick={() => navigate(href)}
+        className="mkt-card flex w-full flex-col gap-3 rounded-[14px] border border-[#1D2026] bg-[#131519] p-3 text-left"
+      >
+        <div className="flex items-start gap-3">
+          <div className="h-[56px] w-[56px] shrink-0 overflow-hidden rounded-[10px]">
+            <CardArtTile
+              src={image}
+              blur={market.imageBlur}
+              priority={index < 2}
+              className="h-full w-full"
+            />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#6B7280]">
+                {microlabel}
+                {isMulti && ` · ${market.children.length} markets`}
+              </span>
+            </div>
+            <h3 className="mt-1 line-clamp-2 font-display text-[15px] font-bold leading-[1.25] text-foreground">
+              {market.eventName}
+            </h3>
+          </div>
+        </div>
+
+        {visibleBadges.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5">{visibleBadges}</div>
+        )}
+
+        {isMulti ? (
+          <div className="space-y-1.5">
+            {topTwo.map((c) => {
+              const p = Math.max(1, Math.min(99, Math.round(c.markPrice * 100)));
+              return (
+                <div
+                  key={c.id}
+                  className="relative flex h-[30px] items-center overflow-hidden rounded-[8px] px-2.5"
+                  style={{ background: "hsl(var(--yes) / 0.05)" }}
+                >
+                  <span
+                    aria-hidden
+                    className="absolute inset-y-0 left-0"
+                    style={{ width: `${p}%`, background: "hsl(var(--yes) / 0.09)" }}
+                  />
+                  <span className="relative min-w-0 flex-1 truncate text-[12.5px] font-semibold text-foreground">
+                    {c.displayLabel || c.optionLabel}
+                  </span>
+                  <span className="relative ml-2 shrink-0 font-mono text-[12.5px] font-bold text-yes">
+                    {p}%
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <span
+              className="chip-t2 flex min-h-[44px] flex-1 items-center justify-between px-3"
+              style={{ borderRadius: 10, ["--chip-accent" as string]: "#33D6FF" }}
+            >
+              <span className="text-[11px] text-[#9AA1AC]">Yes</span>
+              <span
+                className="font-display text-[15px] font-bold"
+                style={{ color: "#33D6FF", fontVariantNumeric: "tabular-nums" }}
+              >
+                {fmt(yesPrice)}
+              </span>
+            </span>
+            <span
+              className="chip-t2 flex min-h-[44px] flex-1 items-center justify-between px-3"
+              style={{ borderRadius: 10, ["--chip-accent" as string]: "#CFFF4A" }}
+            >
+              <span className="text-[11px] text-[#9AA1AC]">No</span>
+              <span
+                className="font-display text-[15px] font-bold"
+                style={{ color: "#CFFF4A", fontVariantNumeric: "tabular-nums" }}
+              >
+                {fmt(noPrice)}
+              </span>
+            </span>
+          </div>
+        )}
+
+        <div className="flex items-center justify-between text-[11px] text-[#6B7280]">
+          {isMulti ? (
+            <>
+              <span className="font-semibold text-yes">+{extraCount} markets</span>
+              <span className="font-mono">
+                {volText}
+                {dateText ? ` · ${dateText}` : ""}
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="font-mono">{volText}</span>
+              {footer && <span>{footer}</span>}
+            </>
+          )}
+        </div>
+      </button>
+    );
+  }
 
   return (
     <button
