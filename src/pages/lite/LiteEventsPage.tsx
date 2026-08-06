@@ -559,7 +559,7 @@ const LiteEventsPage = () => {
                 Will it happen?
               </span>
               <span style={{ fontSize: 13, color: "#9AA1AC" }}>
-                Back Yes or No on real-world outcomes. Winning shares pay $1.
+                Buy Yes or No on real-world outcomes. Winning shares pay $1.
               </span>
             </div>
             <span style={{ fontSize: 12, color: "#6B7280" }}>
