@@ -700,6 +700,15 @@ const LiteContractTrade = () => {
       winnerLabel={labelFor(winnerOpt.id)}
       winnerIsYes={winnerOpt.id === yesOpt.id}
       loserLabel={labelFor(loserOpt.id)}
+      options={
+        isMulti
+          ? event.options.map((o) => ({
+              id: o.id,
+              label: o.label,
+              isWinner: !!o.is_winner,
+            }))
+          : null
+      }
       sourceName={event.source_name}
       sourceUrl={event.source_url}
       summary={event.settlement_description}
@@ -715,8 +724,26 @@ const LiteContractTrade = () => {
             }
           : null
       }
-      onSeeHow={() => navigate(`/resolved/${event.id}`)}
       onBrowse={() => navigate("/events")}
+    />
+  ) : null;
+
+  // Proof segment — numeric rows only for threshold events with a base price.
+  const Proof = resolved ? (
+    <HowItSettled
+      summary={event.settlement_description}
+      criterion={
+        event.base_price != null
+          ? {
+              neededLabel: "Needed",
+              neededValue: `$${Number(event.base_price).toLocaleString()}`,
+              actualLabel: "Actual",
+              actualValue: `$${Number(event.base_price).toLocaleString()}`,
+            }
+          : null
+      }
+      sourceName={event.source_name}
+      sourceUrl={event.source_url}
     />
   ) : null;
 
