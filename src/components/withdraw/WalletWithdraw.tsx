@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Loader2, AlertTriangle, ChevronDown, Wallet, ChevronRight } from 'lucide-react';
+import { Loader2, AlertTriangle, ChevronDown, Wallet, ChevronRight, ArrowLeftRight } from 'lucide-react';
+import { TransferDialog } from '@/components/wallet/TransferDialog';
+import { TransferDrawer } from '@/components/wallet/TransferDrawer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useWithdraw } from '@/hooks/useWithdraw';
@@ -52,6 +54,7 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
   const [error, setError] = useState<string | null>(null);
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [accountPickerOpen, setAccountPickerOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
 
   const fee = getWithdrawFee('USDC');
   const minAmount = getWithdrawMinimum('USDC');
@@ -347,6 +350,12 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
           }}
           title="From account"
         />
+      )}
+
+      {isMobile ? (
+        <TransferDrawer open={transferOpen} onOpenChange={setTransferOpen} />
+      ) : (
+        <TransferDialog open={transferOpen} onOpenChange={setTransferOpen} />
       )}
     </div>
   );
