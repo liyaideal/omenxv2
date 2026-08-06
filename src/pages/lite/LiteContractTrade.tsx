@@ -35,7 +35,11 @@ import { liteSideName } from "@/lib/liteSideName";
 import { formatCents, estimateAutoClosePrice } from "@/lib/autoClosePrice";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import type { Tables } from "@/integrations/supabase/types";
-import { LiteContractChart } from "@/components/lite/contract/LiteContractChart";
+import {
+  LiteContractChart,
+  type MultiSeries,
+} from "@/components/lite/contract/LiteContractChart";
+import { HowItSettled } from "@/components/lite/trade/HowItSettled";
 import { LiteContractOrderPanel } from "@/components/lite/contract/LiteContractOrderPanel";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
 import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
@@ -261,6 +265,34 @@ const LiteContractTrade = () => {
   );
 
   const isMulti = (event?.options.length ?? 0) > 2;
+
+  // Settled charts read real odds history — never synthesised data.
+  const [history, setHistory] = useState<Record<string, number[]>>({});
+  useEffect(() => {
+    if (!event?.is_resolved || event.options.length === 0) {
+      setHistory({});
+      return;
+    }
+    let alive = true;
+    (async () => {
+      const { data } = await supabase
+        .from("price_history")
+        .select("option_id, price, recorded_at")
+        .eq("event_id", event.id)
+        .order("recorded_at", { ascending: true });
+      if (!alive) return;
+      const grouped: Record<string, number[]> = {};
+      (data || []).forEach((p) => {
+        const key = p.option_id as string;
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(Number(p.price));
+      });
+      setHistory(grouped);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [event?.id, event?.is_resolved, event?.options.length]);
   const activity = useMarketActivityRows(
     event?.name || null,
     yesOpt?.label || "",
