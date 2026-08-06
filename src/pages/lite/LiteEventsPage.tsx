@@ -657,7 +657,7 @@ const LiteEventsPage = () => {
 
         {/* Pro escape hatch — plain-language, no big CTA. */}
         <div className="mt-auto pt-6 text-center text-xs text-muted-foreground">
-          Want charts, leverage and the order book?{" "}
+          Want charts and advanced trading tools?{" "}
           <button
             type="button"
             onClick={() => {
