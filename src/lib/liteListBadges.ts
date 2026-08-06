@@ -9,7 +9,7 @@
 // Whatever does not fit the 2-slot cap is dropped, Boost first.
 // ============================================================
 import type { EventRow } from "@/hooks/useMarketListData";
-import { isDailyStockEvent } from "@/components/lite/LiteSettledSeriesCard";
+import { isDailyStockEvent } from "@/lib/dailyStockSeries";
 
 /** Config-like constants — change thresholds HERE and nowhere else. */
 export const LITE_LIST_CONFIG = {

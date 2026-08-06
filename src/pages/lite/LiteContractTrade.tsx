@@ -35,7 +35,11 @@ import { liteSideName } from "@/lib/liteSideName";
 import { formatCents, estimateAutoClosePrice } from "@/lib/autoClosePrice";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import type { Tables } from "@/integrations/supabase/types";
-import { LiteContractChart } from "@/components/lite/contract/LiteContractChart";
+import {
+  LiteContractChart,
+  type MultiSeries,
+} from "@/components/lite/contract/LiteContractChart";
+import { HowItSettled } from "@/components/lite/trade/HowItSettled";
 import { LiteContractOrderPanel } from "@/components/lite/contract/LiteContractOrderPanel";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
 import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
@@ -261,6 +265,34 @@ const LiteContractTrade = () => {
   );
 
   const isMulti = (event?.options.length ?? 0) > 2;
+
+  // Settled charts read real odds history — never synthesised data.
+  const [history, setHistory] = useState<Record<string, number[]>>({});
+  useEffect(() => {
+    if (!event?.is_resolved || event.options.length === 0) {
+      setHistory({});
+      return;
+    }
+    let alive = true;
+    (async () => {
+      const { data } = await supabase
+        .from("price_history")
+        .select("option_id, price, recorded_at")
+        .eq("event_id", event.id)
+        .order("recorded_at", { ascending: true });
+      if (!alive) return;
+      const grouped: Record<string, number[]> = {};
+      (data || []).forEach((p) => {
+        const key = p.option_id as string;
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(Number(p.price));
+      });
+      setHistory(grouped);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [event?.id, event?.is_resolved, event?.options.length]);
   const activity = useMarketActivityRows(
     event?.name || null,
     yesOpt?.label || "",
@@ -432,15 +464,49 @@ const LiteContractTrade = () => {
     />
   );
 
-  const Chart = (
+  // ---- Settled chart grading rule ----
+  // underlying price present  → price line + "Needed" level + Chance toggle
+  // no underlying             → single Chance line from real odds history
+  // multi-option              → Chance multi-line, winner bright, legend chips
+  const winnerOption = event.options.find((o) => o.is_winner) || null;
+  const settledMultiSeries: MultiSeries[] = resolved && isMulti
+    ? event.options
+        .map((o) => ({
+          id: o.id,
+          label: o.label,
+          points: history[o.id] || [],
+          isWinner: !!o.is_winner,
+        }))
+        .filter((s) => s.points.length > 1)
+    : [];
+  const settledOddsHistory =
+    resolved && !isMulti ? history[yesOpt.id] || [] : [];
+  // Never fake data: a settled event with no underlying and no odds history
+  // hides the chart module entirely.
+  const hideSettledChart =
+    resolved &&
+    (isMulti
+      ? settledMultiSeries.length === 0
+      : event.base_price == null && settledOddsHistory.length < 2);
+
+  const Chart = hideSettledChart ? null : (
     <LiteContractChart
       underlyingLabel={event.base_price != null ? "Price" : null}
       basePrice={event.base_price != null ? Number(event.base_price) : null}
       currentPrice={event.base_price != null ? Number(event.base_price) : null}
-      yesOdds={yesLive}
+      yesOdds={
+        resolved && winnerOption
+          ? winnerOption.id === yesOpt.id
+            ? 1
+            : 0
+          : yesLive
+      }
       yesLabel={yesLabel}
       noLabel={noLabel}
-      side={side}
+      side={resolved && winnerOption ? (winnerOption.id === yesOpt.id ? "yes" : "no") : side}
+      oddsHistory={settledOddsHistory.length > 1 ? settledOddsHistory : null}
+      multiSeries={settledMultiSeries.length > 0 ? settledMultiSeries : null}
+      targetLabel="Needed"
     />
   );
 
@@ -634,6 +700,15 @@ const LiteContractTrade = () => {
       winnerLabel={labelFor(winnerOpt.id)}
       winnerIsYes={winnerOpt.id === yesOpt.id}
       loserLabel={labelFor(loserOpt.id)}
+      options={
+        isMulti
+          ? event.options.map((o) => ({
+              id: o.id,
+              label: o.label,
+              isWinner: !!o.is_winner,
+            }))
+          : null
+      }
       sourceName={event.source_name}
       sourceUrl={event.source_url}
       summary={event.settlement_description}
@@ -649,8 +724,26 @@ const LiteContractTrade = () => {
             }
           : null
       }
-      onSeeHow={() => navigate(`/resolved/${event.id}`)}
       onBrowse={() => navigate("/events")}
+    />
+  ) : null;
+
+  // Proof segment — numeric rows only for threshold events with a base price.
+  const Proof = resolved ? (
+    <HowItSettled
+      summary={event.settlement_description}
+      criterion={
+        event.base_price != null && event.close_price != null
+          ? {
+              neededLabel: "Needed",
+              neededValue: `$${Number(event.base_price).toLocaleString()}`,
+              actualLabel: "Actual",
+              actualValue: `$${Number(event.close_price).toLocaleString()}`,
+            }
+          : null
+      }
+      sourceName={event.source_name}
+      sourceUrl={event.source_url}
     />
   ) : null;
 
@@ -733,6 +826,11 @@ const LiteContractTrade = () => {
             {resolved ? (
               <>
                 {OutcomeCard}
+                {Chart}
+                {isMulti ? MarketBoard : SentimentBar}
+                {Proof}
+                {RuleCard}
+                {MarketActivity}
                 {MoreMarkets}
               </>
             ) : isMulti ? (
@@ -853,7 +951,13 @@ const LiteContractTrade = () => {
           <div className="space-y-5">
             {QuestionBlock}
             {resolved ? (
-              OutcomeCard
+              <>
+                {isMulti ? MarketBoard : SentimentBar}
+                {Chart}
+                {Proof}
+                {RuleCard}
+                {MarketActivity}
+              </>
             ) : isMulti ? (
               <>
                 {MarketBoard}
@@ -872,7 +976,9 @@ const LiteContractTrade = () => {
             )}
           </div>
           <aside className="space-y-4">
-            {!resolved && (
+            {resolved ? (
+              OutcomeCard
+            ) : (
               <LiteContractOrderPanel
                 {...panelProps}
                 variant="desktop"

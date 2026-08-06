@@ -14,19 +14,27 @@ export interface LiteOutcomeHolding {
   profit: number;
 }
 
+/** Multi-option settled board — no side colours, winner is neutral-bright. */
+export interface LiteOutcomeOption {
+  id: string;
+  label: string;
+  isWinner: boolean;
+}
+
 interface Props {
   settledAt?: string | null;
   winnerLabel: string;
   /** Market axis: was the winning side the affirmative (Yes) one? */
   winnerIsYes?: boolean;
   loserLabel: string;
+  /** When present the card renders a multi-option board instead of the pair. */
+  options?: LiteOutcomeOption[] | null;
   sourceName?: string | null;
   sourceUrl?: string | null;
   summary?: string | null;
   holding?: LiteOutcomeHolding | null;
   /** Optional plain-English line under "Your result" (Lite settled detail page). */
   resultLine?: string | null;
-  onSeeHow: () => void;
   onBrowse: () => void;
 }
 
@@ -37,12 +45,12 @@ export const LiteOutcomeCard = ({
   winnerLabel,
   winnerIsYes = true,
   loserLabel,
+  options,
   sourceName,
   sourceUrl,
   summary,
   holding,
   resultLine,
-  onSeeHow,
   onBrowse,
 }: Props) => {
   const when = settledAt
@@ -67,6 +75,51 @@ export const LiteOutcomeCard = ({
         Outcome
       </div>
       <div className="mt-2 space-y-1.5">
+        {options && options.length > 0 ? (
+          [...options]
+            .sort((a, b) => Number(b.isWinner) - Number(a.isWinner))
+            .map((o) =>
+              o.isWinner ? (
+                <div
+                  key={o.id}
+                  className="flex items-center justify-between rounded-xl px-3 py-2.5"
+                  style={{ background: "rgba(255,255,255,.06)" }}
+                >
+                  <span
+                    className="flex items-center gap-2 text-sm font-bold"
+                    style={{ color: "#F2F3F5" }}
+                  >
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/10">
+                      <Check className="h-3 w-3" />
+                    </span>
+                    {o.label}
+                  </span>
+                  <span
+                    className="font-mono text-sm font-bold"
+                    style={{ color: "#F2F3F5" }}
+                  >
+                    $1.00
+                  </span>
+                </div>
+              ) : (
+                <div
+                  key={o.id}
+                  className="flex items-center justify-between rounded-xl bg-muted/25 px-3 py-2.5"
+                >
+                  <span className="flex items-center gap-2 text-sm font-semibold text-muted-foreground/70">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-muted">
+                      <X className="h-3 w-3" />
+                    </span>
+                    {o.label}
+                  </span>
+                  <span className="font-mono text-sm font-semibold text-muted-foreground/70">
+                    $0.00
+                  </span>
+                </div>
+              ),
+            )
+        ) : (
+          <>
         <div
           className="flex items-center justify-between rounded-xl px-3 py-2.5"
           style={{
@@ -109,6 +162,8 @@ export const LiteOutcomeCard = ({
             $0.00
           </span>
         </div>
+          </>
+        )}
       </div>
 
       {holding ? (
@@ -172,13 +227,6 @@ export const LiteOutcomeCard = ({
               )}
             </div>
           )}
-          <button
-            type="button"
-            onClick={onSeeHow}
-            className="mt-3 w-full rounded-xl border border-border py-2.5 text-xs font-medium text-muted-foreground hover:text-foreground"
-          >
-            See how it settled →
-          </button>
         </div>
       ) : (
         <div className="mt-4 border-t border-border pt-3">
@@ -196,13 +244,6 @@ export const LiteOutcomeCard = ({
             className="mt-3 w-full rounded-xl bg-no py-3 font-display text-sm font-bold text-[#1a2408]"
           >
             Browse live markets →
-          </button>
-          <button
-            type="button"
-            onClick={onSeeHow}
-            className="mt-2 w-full rounded-xl border border-border py-2.5 text-xs font-medium text-muted-foreground hover:text-foreground"
-          >
-            See how it settled →
           </button>
         </div>
       )}

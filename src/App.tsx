@@ -2,7 +2,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import MobileHome from "./pages/MobileHome";
 import TradingCharts from "./pages/TradingCharts";
 import TradeOrder from "./pages/TradeOrder";
@@ -18,8 +20,6 @@ import EventsPage from "./pages/EventsPage";
 import LiteEventsPage from "./pages/lite/LiteEventsPage";
 import ResolvedPage from "./pages/ResolvedPage";
 import ResolvedEventDetail from "./pages/ResolvedEventDetail";
-import LiteSettledPage from "./pages/lite/LiteSettledPage";
-import LiteSettledEventDetail from "./pages/lite/LiteSettledEventDetail";
 import Leaderboard from "./pages/Leaderboard";
 import Portfolio from "./pages/Portfolio";
 import PortfolioSettlements from "./pages/PortfolioSettlements";
@@ -112,16 +112,56 @@ const SpotRoute = () => {
   return surface === "lite" ? <LiteSpotTrade /> : <SpotTrading />;
 };
 
-// /resolved forks by surface: Lite gets the consumer settled experience,
-// Pro keeps the existing resolved browser untouched.
+// /resolved forks by surface. Lite has no settled browser any more — a settled
+// event's only home is its own trade page — so old links redirect there.
 const ResolvedRoute = () => {
   const { surface } = useSurface();
-  return surface === "lite" ? <LiteSettledPage /> : <ResolvedPage />;
+  return surface === "lite" ? <Navigate to="/events" replace /> : <ResolvedPage />;
+};
+
+/** Resolves the event's product line, then sends the reader to its trade page. */
+const LiteSettledRedirect = () => {
+  const { eventId = "" } = useParams();
+  const [to, setTo] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      if (!eventId) {
+        if (alive) setTo("/events");
+        return;
+      }
+      const { data } = await supabase
+        .from("events")
+        .select("id, product_lines")
+        .eq("id", eventId)
+        .maybeSingle();
+      if (!alive) return;
+      if (!data) {
+        setTo("/events");
+        return;
+      }
+      const lines = Array.isArray(data.product_lines)
+        ? (data.product_lines as string[])
+        : [];
+      setTo(
+        lines.includes("spot")
+          ? `/spot?event=${data.id}`
+          : `/trade?event=${data.id}`,
+      );
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [eventId]);
+
+  if (!to) return <div className="min-h-screen bg-background" />;
+  return <Navigate to={to} replace />;
 };
 
 const ResolvedDetailRoute = () => {
   const { surface } = useSurface();
-  return surface === "lite" ? <LiteSettledEventDetail /> : <ResolvedEventDetail />;
+  return surface === "lite" ? <LiteSettledRedirect /> : <ResolvedEventDetail />;
 };
 
 const App = () => (

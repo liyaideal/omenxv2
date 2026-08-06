@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Clock, ArrowLeft, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useSurface } from "@/contexts/SurfaceContext";
 
 interface ExpiredEventFallbackProps {
   eventId: string;
@@ -8,6 +9,8 @@ interface ExpiredEventFallbackProps {
 
 export function ExpiredEventFallback({ eventId }: ExpiredEventFallbackProps) {
   const navigate = useNavigate();
+  const { surface } = useSurface();
+  const isLite = surface === "lite";
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-6">
@@ -33,14 +36,25 @@ export function ExpiredEventFallback({ eventId }: ExpiredEventFallbackProps) {
 
         {/* Actions */}
         <div className="w-full space-y-3">
-          <Button
-            onClick={() => navigate("/resolved")}
-            variant="outline"
-            className="w-full gap-2"
-          >
-            <Search className="w-4 h-4" />
-            View Settled Events
-          </Button>
+          {isLite ? (
+            <Button
+              onClick={() => navigate("/events")}
+              variant="outline"
+              className="w-full gap-2"
+            >
+              <Search className="w-4 h-4" />
+              Browse live markets →
+            </Button>
+          ) : (
+            <Button
+              onClick={() => navigate("/resolved")}
+              variant="outline"
+              className="w-full gap-2"
+            >
+              <Search className="w-4 h-4" />
+              View Settled Events
+            </Button>
+          )}
           <Button
             onClick={() => navigate("/")}
             className="w-full gap-2"
