@@ -20,7 +20,7 @@ import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
 import { LiteMarketBoard, type BoardOption } from "@/components/lite/multi/LiteMarketBoard";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
 import { HowItSettled } from "@/components/lite/trade/HowItSettled";
-import { PastDaysStrip } from "@/components/lite/shared/PastDaysStrip";
+import { RoundTape } from "@/components/lite/shared/RoundTape";
 import { LiteEventCard } from "@/components/lite/LiteEventCard";
 import type { EventRow } from "@/hooks/useMarketListData";
 import { Star, ExternalLink } from "lucide-react";
@@ -247,7 +247,7 @@ const WHERE_ROWS: {
     states: 3,
   },
   {
-    name: "PastDaysStrip",
+    name: "RoundTape",
     desktop: "daily up/down spot page, under the price context row (26px chips)",
     mobile: "same slot, 44px chips, horizontally scrollable",
     openedBy: "daily up/down stock events — live AND settled states",
@@ -957,26 +957,89 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
         </SubSection>
 
         <SubSection
-          title="Trade-page settled state · past-days strip"
-          description="Same chip grammar as the quick-round tape. Shown on daily up/down spot pages in BOTH live and settled states; each chip opens that day."
+          title="History tape · RoundTape (one implementation)"
+          description="One component, two compositions: crypto quick-round tape (countdown + NEXT slots) and daily stock past-days tape (neutral NOW slot, tappable chips)."
         >
           <Grid cols={2}>
-            <Cell label="Desktop · 26px chips">
-              <PastDaysStrip
-                days={pastDaysDemo}
-                currentId="us-nvda-updown-20260801"
-                upLabel="Up"
-                downLabel="Not up"
+            <Cell label="Desktop · crypto round tape">
+              <RoundTape
+                leftLabel={{ micro: "Round", value: "#3332" }}
+                chips={["up", "down", "up", "up", "down", "up"].map((h, i) => ({
+                  key: String(i),
+                  up: h === "up",
+                  tooltip: `Round #${3326 + i} · ${h === "up" ? "Up" : "Down"} won`,
+                }))}
+                currentSlot={[{ kind: "countdown", text: "02:41" }, { kind: "next" }]}
+                legend={
+                  <>
+                    Past rounds — <span style={{ color: "#33D6FF" }}>▲</span> Up won ·{" "}
+                    <span style={{ color: "#CFFF4A" }}>▼</span> Down won · a new round
+                    starts the moment one settles.
+                  </>
+                }
               />
             </Cell>
-            <Cell label="Mobile 375 · 44px touch targets">
+            <Cell label="Desktop · stock past days">
+              <RoundTape
+                leftLabel={{ micro: "Past days" }}
+                chips={pastDaysDemo.map((d) => ({
+                  key: d.id,
+                  up: d.up,
+                  active: d.id === "us-nvda-updown-20260801",
+                  onClick: () => undefined,
+                  tooltip: `${d.label} · ${d.up ? "Up" : "Not up"} won`,
+                }))}
+                currentSlot={{ kind: "today", onClick: () => undefined }}
+                legend={
+                  <>
+                    Past days — <span style={{ color: "#33D6FF" }}>▲</span> Up won ·{" "}
+                    <span style={{ color: "#CFFF4A" }}>▼</span> Down won · tap a day to
+                    see how it settled.
+                  </>
+                }
+              />
+            </Cell>
+            <Cell label="Mobile 375 · crypto round tape">
               <div className="w-[343px]">
-                <PastDaysStrip
-                  days={pastDaysDemo}
-                  currentId="us-nvda-updown-20260801"
-                  upLabel="Up"
-                  downLabel="Not up"
+                <RoundTape
                   isMobile
+                  leftLabel={{ micro: "Round", value: "#3332" }}
+                  chips={["up", "down", "up", "up", "down", "up", "down", "up"].map(
+                    (h, i) => ({
+                      key: String(i),
+                      up: h === "up",
+                      tooltip: `Round #${3324 + i} · ${h === "up" ? "Up" : "Down"} won`,
+                    }),
+                  )}
+                  currentSlot={[{ kind: "countdown", text: "02:41" }, { kind: "next" }]}
+                  legend={
+                    <>
+                      Past rounds — <span style={{ color: "#33D6FF" }}>▲</span> Up won ·{" "}
+                      <span style={{ color: "#CFFF4A" }}>▼</span> Down won.
+                    </>
+                  }
+                />
+              </div>
+            </Cell>
+            <Cell label="Mobile 375 · stock past days">
+              <div className="w-[343px]">
+                <RoundTape
+                  isMobile
+                  leftLabel={{ micro: "Past days" }}
+                  chips={pastDaysDemo.map((d) => ({
+                    key: d.id,
+                    up: d.up,
+                    active: d.id === "us-nvda-updown-20260801",
+                    onClick: () => undefined,
+                    tooltip: `${d.label} · ${d.up ? "Up" : "Not up"} won`,
+                  }))}
+                  currentSlot={{ kind: "today", onClick: () => undefined }}
+                  legend={
+                    <>
+                      Past days — <span style={{ color: "#33D6FF" }}>▲</span> Up won ·{" "}
+                      <span style={{ color: "#CFFF4A" }}>▼</span> Down won · tap a day.
+                    </>
+                  }
                 />
               </div>
             </Cell>

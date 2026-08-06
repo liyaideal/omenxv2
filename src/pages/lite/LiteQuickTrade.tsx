@@ -1,6 +1,7 @@
 // ============================================================
 // /spot?event=crypto-… — Intraday QUICK ROUND trade page.
 // Fusion design: round switcher + round tape + settle-line chart.
+import { RoundTape } from "@/components/lite/shared/RoundTape";
 // Execution reuses the existing spot order panel / service.
 // ============================================================
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -292,93 +293,24 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   );
 
   const Tape = (
-    <TooltipProvider delayDuration={120}>
-      <>
-    <div
-      className={cn(
-        "flex items-center gap-[6px]",
-        isMobile && "overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-      )}
+    <RoundTape
       style={{ marginTop: 14 }}
-    >
-      <div className="shrink-0" style={{ marginRight: 4 }}>
-        <div style={MICRO}>Round</div>
-        <div className="font-display" style={{ fontSize: 13, fontWeight: 700 }}>
-          #{roundNo}
-        </div>
-      </div>
-      {history.slice(-10).map((h, i, arr) => (
-        <Tooltip key={i}>
-          <TooltipTrigger asChild>
-            <span
-          key={i}
-          className="flex shrink-0 items-center justify-center"
-          style={{
-            width: 26,
-            height: 26,
-            borderRadius: 7,
-            fontSize: 12,
-            background: h === "up" ? "rgba(51,214,255,.13)" : "rgba(207,255,74,.13)",
-            color: h === "up" ? "#33D6FF" : "#CFFF4A",
-          }}
-        >
-          {h === "up" ? "▲" : "▼"}
-            </span>
-          </TooltipTrigger>
-          <TooltipContent>
-            Round #{roundNo - (arr.length - i)} · {h === "up" ? "Up" : "Down"} won
-          </TooltipContent>
-        </Tooltip>
-      ))}
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span
-        className="font-display flex shrink-0 items-center gap-[5px]"
-        style={{
-          border: "1.5px solid #FF8A3D",
-          borderRadius: 13,
-          padding: "3px 10px",
-          color: "#FF8A3D",
-          fontSize: 12,
-          fontWeight: 700,
-        }}
-      >
-        <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#FF8A3D" }} />
-        {countdown}
-          </span>
-        </TooltipTrigger>
-        <TooltipContent>Current round · closes in {countdown}</TooltipContent>
-      </Tooltip>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span
-        className="flex shrink-0 items-center justify-center"
-        style={{
-          width: 26,
-          height: 26,
-          borderRadius: 7,
-          border: "1px dashed #2B2F38",
-          fontSize: 7.5,
-          letterSpacing: ".06em",
-          color: "#6B7280",
-        }}
-      >
-        NEXT
-          </span>
-        </TooltipTrigger>
-        <TooltipContent>Next round starts the moment this one settles</TooltipContent>
-      </Tooltip>
-    </div>
-    <div
-      className="font-display"
-      style={{ marginTop: 6, fontSize: 10.5, color: "#6B7280" }}
-    >
-      Past rounds — <span style={{ color: "#33D6FF" }}>▲</span> Up won ·{" "}
-      <span style={{ color: "#CFFF4A" }}>▼</span> Down won · a new round starts the
-      moment one settles.
-    </div>
-      </>
-    </TooltipProvider>
+      isMobile={isMobile}
+      leftLabel={{ micro: "Round", value: `#${roundNo}` }}
+      chips={history.slice(-10).map((h, i, arr) => ({
+        key: String(i),
+        up: h === "up",
+        tooltip: `Round #${roundNo - (arr.length - i)} · ${h === "up" ? "Up" : "Down"} won`,
+      }))}
+      currentSlot={[{ kind: "countdown", text: countdown }, { kind: "next" }]}
+      legend={
+        <>
+          Past rounds — <span style={{ color: "#33D6FF" }}>▲</span> Up won ·{" "}
+          <span style={{ color: "#CFFF4A" }}>▼</span> Down won · a new round starts
+          the moment one settles.
+        </>
+      }
+    />
   );
 
   const Chart = (
