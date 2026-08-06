@@ -4,6 +4,7 @@ import { Clock, Flame, Timer, Zap } from "lucide-react";
 import { EventRow } from "@/hooks/useMarketListData";
 import { cn } from "@/lib/utils";
 import { CardArtTile } from "@/components/lite/CardArtTile";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   formatEndsIn,
   isIntradayEvent,
