@@ -144,6 +144,88 @@ export const LiteSpotSection = ({ isMobile }: { isMobile: boolean }) => {
           the Lite contract section, and the SpotBlocks rails in this section.
         </div>
       </SectionWrapper>
+
+      <SectionWrapper
+        id="lite-quick-pickcard"
+        title="Lite quick round · YOUR PICK card + buy-drawer header"
+        description="Parity ruling 2026-08-06: the quick-round page is the only spot page with side selection outside the order panel (desktop hideSideSelector) — rounds roll every few minutes with a fresh threshold and deadline, so the per-round question stays at the top. Its chips are the shared SideButton at size='compact' (no bespoke styling), single-line 'Up 49¢' — the old '% say' sublabels are banned as duplicates of the crowd bar."
+      >
+        <div className={cn("grid gap-4", isMobile ? "grid-cols-1" : "grid-cols-2")}>
+          <div
+            style={{
+              background: "#131519",
+              border: "1px solid rgba(255,255,255,.06)",
+              borderRadius: 15,
+              padding: 14,
+            }}
+          >
+            <div className="text-[9.5px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
+              Your pick · 5M round
+            </div>
+            <div className="font-display mt-1.5 text-[14.5px] font-bold">
+              BTC higher than $63,240 at 15:10?
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <SideButton
+                active={pickSide === "yes"}
+                tone="yes"
+                label="Up"
+                price={0.49}
+                size="compact"
+                onClick={() => setPickSide("yes")}
+              />
+              <SideButton
+                active={pickSide === "no"}
+                tone="no"
+                label="Down"
+                price={0.51}
+                size="compact"
+                onClick={() => setPickSide("no")}
+              />
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-dashed border-border/70 p-5">
+            <div className="mb-3 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+              Mobile buy-drawer header (same grammar as the daily-stock drawer)
+            </div>
+            <div className="flex items-center gap-2">
+              <span
+                className={cn(
+                  "rounded-md px-2 py-0.5 text-[11px] font-semibold",
+                  pickSide === "yes" ? "bg-yes/14 text-yes" : "bg-no/14 text-no",
+                )}
+              >
+                {pickSide === "yes" ? "Up" : "Down"}
+              </span>
+              <span className="text-sm font-semibold">Buy BTC 5M</span>
+            </div>
+            <div className="mt-1 text-[11px] text-muted-foreground">
+              Settles in <span className="font-mono">02:41</span> ·{" "}
+              {pickSide === "yes" ? 49 : 51}% chance
+            </div>
+            <div className="mt-4 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+              Sticky buy bar · settling (remaining ≤ 0)
+            </div>
+            <div className="mt-2 flex gap-2">
+              <button
+                type="button"
+                disabled
+                className="flex-1 rounded-xl bg-yes py-3 font-display text-sm font-bold text-[#04222c] disabled:opacity-50"
+              >
+                Settling
+              </button>
+              <button
+                type="button"
+                disabled
+                className="flex-1 rounded-xl border border-no/25 bg-no/14 py-3 font-display text-sm font-bold text-no disabled:opacity-50"
+              >
+                Settling
+              </button>
+            </div>
+          </div>
+        </div>
+      </SectionWrapper>
     </div>
   );
 };
