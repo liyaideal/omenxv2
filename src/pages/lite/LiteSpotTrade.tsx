@@ -51,6 +51,8 @@ import { parseQuickId, useTradeCountdown } from "@/components/lite/intraday/intr
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
+import { HowItSettled } from "@/components/lite/trade/HowItSettled";
+import { PastDaysStrip, usePastDays } from "@/components/lite/shared/PastDaysStrip";
 import { EmptyState } from "@/components/states";
 import {
   LiteMarketActivity,
@@ -226,9 +228,15 @@ const LiteSpotTrade = () => {
   }, []);
   const currentPrice = useMemo(() => {
     if (!basePrice) return null;
+    // Settled: the chart freezes at the final close — no live drift.
+    if (event?.is_resolved) {
+      const fin = event.options.find((o) => o.is_winner);
+      const wentUp = fin ? /(^|[-_ ])(yes|up)$/i.test(fin.label) : true;
+      return basePrice * (wentUp ? 1.0128 : 0.9912);
+    }
     const drift = Math.sin(tick / 3 + (event?.id.length || 0) % 7) * 0.009;
     return basePrice * (1 + drift);
-  }, [basePrice, tick, event?.id]);
+  }, [basePrice, tick, event?.id, event?.is_resolved, event?.options]);
   const pctToday = basePrice && currentPrice ? ((currentPrice - basePrice) / basePrice) * 100 : 0;
 
   // Sentiment %s
@@ -254,6 +262,7 @@ const LiteSpotTrade = () => {
     refetchTick,
   );
   const otherStocks = useOtherStocks(event?.id || "");
+  const pastDays = usePastDays(eventId, yesOpt?.label);
 
   // Spot cash-out routes through the existing spot SELL path (not the generic
   // position close) because only that path credits the cash balance.
@@ -407,11 +416,16 @@ const LiteSpotTrade = () => {
   const SettlementRail = (
     <SpotSettlementRail
       blocked={blocked}
-      tradingNow={lifecycle === "TRADING"}
+      tradingNow={!resolved && lifecycle === "TRADING"}
       nodes={[
         { key: "opened", label: "Opened", time: "" },
         { key: "open", label: "Market open", time: market.openLabel },
-        { key: "now", label: blocked ? "Closed" : "Trading NOW", time: "", now: true },
+        {
+          key: "now",
+          label: resolved ? "Closed" : blocked ? "Closed" : "Trading NOW",
+          time: "",
+          now: !resolved,
+        },
         {
           key: "closes",
           label: "Closes",
@@ -421,7 +435,7 @@ const LiteSpotTrade = () => {
         },
         {
           key: "settles",
-          label: "Settles",
+          label: resolved ? "Settled" : "Settles",
           time: endDate ? `${formatMarketTime(endDate, market)} ${market.label}` : "—",
         },
       ]}
