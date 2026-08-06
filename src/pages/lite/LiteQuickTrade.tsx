@@ -555,9 +555,10 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
                 setSide("yes");
                 setDrawerOpen(true);
               }}
-              className="flex-1 rounded-xl bg-yes py-3 font-display text-sm font-bold text-[#04222c]"
+              disabled={remaining <= 0}
+              className="flex-1 rounded-xl bg-yes py-3 font-display text-sm font-bold text-[#04222c] disabled:opacity-50"
             >
-              Buy Up {Math.round(upPrice * 100)}¢
+              {remaining <= 0 ? "Settling" : `Buy Up ${Math.round(upPrice * 100)}¢`}
             </button>
             <button
               type="button"
@@ -565,9 +566,10 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
                 setSide("no");
                 setDrawerOpen(true);
               }}
-              className="flex-1 rounded-xl border border-no/25 bg-no/14 py-3 font-display text-sm font-bold text-no"
+              disabled={remaining <= 0}
+              className="flex-1 rounded-xl border border-no/25 bg-no/14 py-3 font-display text-sm font-bold text-no disabled:opacity-50"
             >
-              Buy Down {Math.round(downPrice * 100)}¢
+              {remaining <= 0 ? "Settling" : `Buy Down ${Math.round(downPrice * 100)}¢`}
             </button>
           </div>
         </div>
@@ -580,11 +582,22 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
           className="pb-[calc(env(safe-area-inset-bottom,0px)+16px)]"
         >
           <div className="mb-3">
-            <div className="text-sm font-semibold">
-              Buy {side === "yes" ? "Up" : "Down"} · {meta.ticker} {tf.toUpperCase()}
+            <div className="flex items-center gap-2">
+              <span
+                className={cn(
+                  "rounded-md px-2 py-0.5 text-[11px] font-semibold",
+                  side === "yes" ? "bg-yes/14 text-yes" : "bg-no/14 text-no",
+                )}
+              >
+                {side === "yes" ? "Up" : "Down"}
+              </span>
+              <span className="text-sm font-semibold">
+                Buy {meta.ticker} {tf.toUpperCase()}
+              </span>
             </div>
             <div className="mt-1 text-[11px] text-muted-foreground">
-              Settles in <span className="font-mono">{countdown}</span>
+              Settles in <span className="font-mono">{countdown}</span> ·{" "}
+              {Math.round((side === "yes" ? upPrice : downPrice) * 100)}% chance
             </div>
           </div>
           <LiteOrderPanel
