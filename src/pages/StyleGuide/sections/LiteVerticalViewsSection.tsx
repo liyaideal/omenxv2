@@ -181,6 +181,14 @@ const FINANCE_EVENTS: EventRow[] = [
   mockEvent("f4", "Will gold hold above $2,400 this month?", "finance", 0.71),
 ];
 
+const mobileGrid = (items: EventRow[]) => (
+  <div className="grid grid-cols-1 gap-3">
+    {items.map((m, i) => (
+      <LiteEventCard key={m.id} market={m} index={i} trendingCutoff={null} mobile />
+    ))}
+  </div>
+);
+
 const grid = (items: EventRow[]) => (
   <div className="grid gap-[18px] sm:grid-cols-2 lg:grid-cols-3">
     {items.map((m, i) => (
@@ -299,7 +307,7 @@ export const LiteVerticalViewsSection = () => {
                 tickSeconds={0}
                 nowMs={NOW}
                 events={[...crypto.events]}
-                renderGrid={grid}
+                renderGrid={mobileGrid}
                 isMobile
                 initialTf={crypto.tf}
                 initialCoin={crypto.coin}
@@ -346,7 +354,7 @@ export const LiteVerticalViewsSection = () => {
                 sessionNow={FROZEN_DATE}
                 nowMs={NOW}
                 events={FINANCE_EVENTS}
-                renderGrid={grid}
+                renderGrid={mobileGrid}
                 isMobile
                 initialClass={finance.cls}
                 initialRegion={finance.region}
