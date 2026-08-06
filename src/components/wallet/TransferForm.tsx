@@ -61,8 +61,8 @@ export const TransferForm = ({
 
   // From = Futures 时 Available 直接读 balance（Trial Bonus 已下线，无需拆分）
   const fromAvailable = direction === "to_spot" ? balance : spotBalance;
-  const fromLabel = direction === "to_spot" ? "Futures Account" : "Spot Account";
-  const toLabel = direction === "to_spot" ? "Spot Account" : "Futures Account";
+  const fromLabel = direction === "to_spot" ? "Boost Account" : "Standard Account";
+  const toLabel = direction === "to_spot" ? "Standard Account" : "Boost Account";
   const toCurrent = direction === "to_spot" ? spotBalance : balance;
 
   const amount = useMemo(() => {
@@ -82,7 +82,7 @@ export const TransferForm = ({
     setSubmitting(false);
     if (res.success) {
       toast.success(
-        `Transferred $${fmt(amount)} to ${direction === "to_spot" ? "Spot" : "Futures"}`,
+        `Transferred $${fmt(amount)} to ${direction === "to_spot" ? "Standard" : "Boost"}`,
       );
       setAmountStr("");
       onSuccess?.();
@@ -97,8 +97,8 @@ export const TransferForm = ({
       <div className="grid grid-cols-2 gap-0.5 rounded-lg bg-muted p-0.5">
         {(
           [
-            { key: "to_spot", label: "Futures → Spot" },
-            { key: "to_futures", label: "Spot → Futures" },
+            { key: "to_spot", label: "Boost → Standard" },
+            { key: "to_futures", label: "Standard → Boost" },
           ] as const
         ).map((opt) => {
           const active = direction === opt.key;
