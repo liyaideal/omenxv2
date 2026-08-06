@@ -85,6 +85,36 @@ export const usePastDays = (eventId: string, upLabelAlias?: string | null) => {
   return days;
 };
 
+/** Today's still-trading event in this ticker's daily series, if any. */
+export const useTodayEventId = (eventId: string) => {
+  const [todayId, setTodayId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const prefix = seriesPrefixOf(eventId);
+    if (!prefix) {
+      setTodayId(null);
+      return;
+    }
+    let alive = true;
+    (async () => {
+      const { data } = await supabase
+        .from("events")
+        .select("id")
+        .like("id", `${prefix}-%`)
+        .eq("is_resolved", false)
+        .order("end_date", { ascending: true })
+        .limit(1);
+      if (!alive) return;
+      setTodayId(data && data[0] ? data[0].id : null);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [eventId]);
+
+  return todayId;
+};
+
 interface Props {
   days: PastDay[];
   /** Today's live event — rendered as the trailing highlighted chip. */
