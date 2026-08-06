@@ -1075,12 +1075,16 @@ Intraday identity orange <code>#FF8A3D</code>; live red <code>#FF3B4E</code>.
   <div class="cap">currentSlot variants — <b>countdown</b>: orange pill, 1.5px solid #FF8A3D, radius 13, padding 3px 10px, 6px dot, label 12px .font-display 700; optional <code>onClick</code> turns it into a button (mobile ≥44px hit area, visual unchanged) — crypto passes none (status only), stock passes a navigate handler to today's event. Long-window rounds (stock daily; crypto 4h/1D) render <code>formatClockCountdown</code> as hh:mm:ss with ticking seconds, e.g. "00:05:59"; mm:ss is reserved for short crypto rounds because on a day-long round "13:00" reads as a wall-clock time (CPO ruling 2026-08-06). <b>next</b>: 26px square, radius 7, 1px dashed #2B2F38, label "NEXT" 7.5px / .06em / #6B7280. Both carry tooltips.</div>
   <div class="cap" style="margin-top:14px">Canonical composition A — crypto quick round (LiteQuickTrade): micro "ROUND #3332 · AUG 6" + value = the round's real window "15:05–15:10" (1D rounds: micro "ROUND #212", value "Aug 6"); past-round chip tooltips are window + result ("14:45–14:50 · Up won"); slots = countdown + next; legend "Past rounds — ▲ up · ▼ down".</div>
   <div style="display:flex;align-items:center;gap:6px;margin:10px 0 6px">
-    <div style="margin-right:4px"><div style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#6B7280">PAST DAYS</div></div>
+    <div style="margin-right:4px">
+      <div style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#6B7280">TODAY · AUG 6</div>
+      <div class="font-display" style="font-size:13px;font-weight:700">09:30–16:00</div>
+    </div>
     <span style="width:26px;height:26px;border-radius:7px;font-size:12px;display:inline-flex;align-items:center;justify-content:center;background:rgba(207,255,74,.13);color:#CFFF4A">▼</span>
     <span style="width:26px;height:26px;border-radius:7px;font-size:12px;display:inline-flex;align-items:center;justify-content:center;background:rgba(51,214,255,.13);color:#33D6FF">▲</span>
+    <span class="font-display" style="display:inline-flex;align-items:center;gap:5px;border:1.5px solid #FF8A3D;border-radius:13px;padding:3px 10px;color:#FF8A3D;font-size:12px;font-weight:700"><span style="width:6px;height:6px;border-radius:50%;background:#FF8A3D"></span>00:05:59</span>
     <span style="width:26px;height:26px;border-radius:7px;border:1px dashed #2B2F38;font-size:7.5px;letter-spacing:.06em;color:#6B7280;display:inline-flex;align-items:center;justify-content:center">NEXT</span>
   </div>
-  <div style="font-size:10.5px;color:#6B7280">Past days — ▲ up · ▼ down</div>
+  <div style="font-size:10.5px;color:#6B7280">Past days — ▲ Up won · ▼ Down won · tap a day to see how it settled.</div>
   <div class="cap" style="margin-top:14px">Canonical composition B — stock past days (LiteSpotTrade): micro "PAST DAYS", no value line; chips are tappable and navigate to that day's event page (each tooltip is the date + result); currentSlot = the SAME orange countdown pill (time to today's close, session state read from getMarketSession wall-clock logic) while the session is open, and the dashed next slot after the close with a tooltip naming the next open ("Next round · opens 9:30 ET"); legend "Past days — ▲ up · ▼ down".</div>
   <div class="cap" style="margin-top:14px">RULING 2026-08-06 — stock daily rounds ARE the Intraday family (same species as the quick-round 1D timeframe), so the current-round pill is the same orange countdown everywhere. The bespoke neutral "NOW" pill is abolished; the "today" slot kind no longer exists.</div>
 </div>
