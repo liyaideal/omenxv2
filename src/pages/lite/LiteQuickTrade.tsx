@@ -24,6 +24,7 @@ import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { MobileHeader } from "@/components/MobileHeader";
 import { useHeadingScrolledOut } from "@/hooks/useHeadingScrolledOut";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
+import { SideButton } from "@/components/lite/shared/SideButton";
 import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
 import {
   LiteMarketActivity,
