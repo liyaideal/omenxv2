@@ -28,7 +28,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
-import { TopUpDialog } from "@/components/TopUpDialog";
 import { LoadingState, EmptyState, ErrorState } from "@/components/states";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -472,7 +471,6 @@ export default function Wallet() {
     .sort((a, b) => b.timestamp - a.timestamp);
   
   // Dialog states
-  const [topUpOpen, setTopUpOpen] = useState(false);
   const [depositDialogOpen, setDepositDialogOpen] = useState(false);
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
@@ -964,14 +962,6 @@ export default function Wallet() {
         </main>
         </AuthGateOverlay>
 
-        <TopUpDialog 
-          open={topUpOpen} 
-          onOpenChange={setTopUpOpen} 
-          currentBalance={balance}
-          onTopUp={(amount, method) => {
-            toast.success(`Deposited $${amount} via ${method}`);
-          }}
-        />
 
         <DepositDialog 
           open={depositDialogOpen} 
@@ -1088,14 +1078,6 @@ export default function Wallet() {
 
       <BottomNav />
 
-      <TopUpDialog 
-        open={topUpOpen} 
-        onOpenChange={setTopUpOpen} 
-        currentBalance={balance}
-        onTopUp={(amount, method) => {
-          toast.success(`Deposited $${amount} via ${method}`);
-        }}
-      />
 
       {/* Add Address Dialog (shared component handles mobile/desktop) */}
       <AddAddressDialog open={addAddressOpen} onOpenChange={setAddAddressOpen} />
@@ -1132,7 +1114,6 @@ export default function Wallet() {
         </div>
       </MobileDrawer>
 
-      <TopUpDialog open={topUpOpen} onOpenChange={setTopUpOpen} currentBalance={balance} />
     </div>
   );
 }
