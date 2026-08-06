@@ -2,6 +2,7 @@ import { useState } from "react";
 import { SectionWrapper } from "../components/SectionWrapper";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
+import { SideButton } from "@/components/lite/shared/SideButton";
 import { cn } from "@/lib/utils";
 
 /**
@@ -38,6 +39,7 @@ export const LiteSpotSection = ({ isMobile }: { isMobile: boolean }) => {
   const preset = PRESETS.find((p) => p.id === presetId) ?? PRESETS[0];
   const [side, setSide] = useState<"yes" | "no">("yes");
   const [amount, setAmount] = useState("50");
+  const [pickSide, setPickSide] = useState<"yes" | "no">("yes");
 
   const shared = {
     eventName: "Preview event",
