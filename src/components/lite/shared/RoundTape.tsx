@@ -49,6 +49,8 @@ interface Props {
 }
 
 const CHIP = 26;
+/** Minimum effective hit area for interactive tape slots on touch. */
+const TOUCH = 44;
 
 export const RoundTape = ({
   leftLabel,
@@ -85,6 +87,44 @@ export const RoundTape = ({
 
           {chips.map((c) => {
             const Chip = c.onClick ? "button" : "span";
+            // Clickable chips on mobile keep the 26px visual but get a ≥44px
+            // hit area; negative margins keep the 6px gap and row height intact.
+            if (c.onClick && isMobile) {
+              return (
+                <Tooltip key={c.key}>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={c.onClick}
+                      className="flex shrink-0 items-center justify-center"
+                      style={{
+                        minWidth: TOUCH,
+                        minHeight: TOUCH,
+                        margin: -((TOUCH - CHIP) / 2),
+                      }}
+                    >
+                      <span
+                        className="flex items-center justify-center"
+                        style={{
+                          width: CHIP,
+                          height: CHIP,
+                          borderRadius: 7,
+                          fontSize: 12,
+                          background: c.up
+                            ? "rgba(51,214,255,.13)"
+                            : "rgba(207,255,74,.13)",
+                          color: c.up ? "#33D6FF" : "#CFFF4A",
+                          outline: c.active ? "1.5px solid currentColor" : undefined,
+                        }}
+                      >
+                        {c.up ? "▲" : "▼"}
+                      </span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>{c.tooltip}</TooltipContent>
+                </Tooltip>
+              );
+            }
             return (
               <Tooltip key={c.key}>
                 <TooltipTrigger asChild>
