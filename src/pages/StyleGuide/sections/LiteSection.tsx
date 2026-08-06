@@ -963,11 +963,11 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
           <Grid cols={2}>
             <Cell label="Desktop · crypto round tape">
               <RoundTape
-                leftLabel={{ micro: "Round", value: "#3332" }}
+                leftLabel={{ micro: "Round #3332 · Aug 3", value: "15:20–15:25" }}
                 chips={["up", "down", "up", "up", "down", "up"].map((h, i) => ({
                   key: String(i),
                   up: h === "up",
-                  tooltip: `Round #${3326 + i} · ${h === "up" ? "Up" : "Down"} won`,
+                  tooltip: `${["14:50", "14:55", "15:00", "15:05", "15:10", "15:15"][i]}–${["14:55", "15:00", "15:05", "15:10", "15:15", "15:20"][i]} · ${h === "up" ? "Up" : "Down"} won`,
                 }))}
                 currentSlot={[{ kind: "countdown", text: "02:41" }, { kind: "next" }]}
                 legend={
@@ -1003,13 +1003,18 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
               <div className="w-[343px]">
                 <RoundTape
                   isMobile
-                  leftLabel={{ micro: "Round", value: "#3332" }}
+                  leftLabel={{ micro: "Round #3332 · Aug 3", value: "15:20–15:25" }}
                   chips={["up", "down", "up", "up", "down", "up", "down", "up"].map(
-                    (h, i) => ({
-                      key: String(i),
-                      up: h === "up",
-                      tooltip: `Round #${3324 + i} · ${h === "up" ? "Up" : "Down"} won`,
-                    }),
+                    (h, i) => {
+                      const s = 14 * 60 + 40 + i * 5;
+                      const fmt = (m: number) =>
+                        `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+                      return {
+                        key: String(i),
+                        up: h === "up",
+                        tooltip: `${fmt(s)}–${fmt(s + 5)} · ${h === "up" ? "Up" : "Down"} won`,
+                      };
+                    },
                   )}
                   currentSlot={[{ kind: "countdown", text: "02:41" }, { kind: "next" }]}
                   legend={
