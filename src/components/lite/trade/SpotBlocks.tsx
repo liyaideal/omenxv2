@@ -56,9 +56,12 @@ export interface RailNode {
 
 export const SpotRailTrack = ({
   blocked,
+  settled,
   nodes,
 }: {
   blocked: boolean;
+  /** Settled events render every node complete. */
+  settled?: boolean;
   nodes: RailNode[];
 }) => (
   <div>
@@ -66,7 +69,7 @@ export const SpotRailTrack = ({
       <div
         className="absolute inset-y-0 left-0 rounded-full"
         style={{
-          width: blocked ? "100%" : "50%",
+          width: blocked || settled ? "100%" : "50%",
           background: "linear-gradient(90deg, #013281 0%, #33D6FF 100%)",
         }}
       />
@@ -79,7 +82,7 @@ export const SpotRailTrack = ({
               className={cn(
                 "h-2.5 w-2.5 rounded-full",
                 isNow ? "bg-yes shadow-[0_0_0_4px_rgba(51,214,255,.18)]" : "bg-border",
-                i < 2 && !isNow ? "bg-yes/60" : "",
+                (settled || i < 2) && !isNow ? "bg-yes/60" : "",
               )}
             />
           );
@@ -99,10 +102,12 @@ export const SpotRailTrack = ({
 
 export const SpotSettlementRail = ({
   blocked,
+  settled,
   tradingNow,
   nodes,
 }: {
   blocked: boolean;
+  settled?: boolean;
   tradingNow: boolean;
   nodes: RailNode[];
 }) => (
@@ -118,7 +123,7 @@ export const SpotSettlementRail = ({
         </span>
       )}
     </div>
-    <SpotRailTrack blocked={blocked} nodes={nodes} />
+    <SpotRailTrack blocked={blocked} settled={settled} nodes={nodes} />
   </div>
 );
 
