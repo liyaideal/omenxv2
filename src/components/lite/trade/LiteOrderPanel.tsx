@@ -10,6 +10,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AccountBalanceLine } from "@/components/wallet/AccountBalanceLine";
+import { useInsufficientBalanceToast } from "@/components/wallet/useInsufficientBalanceToast";
 import { cn } from "@/lib/utils";
 import { SideButton } from "@/components/lite/shared/SideButton";
 import { useAuth } from "@/hooks/useAuth";
@@ -78,6 +79,8 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
   const { user } = useAuth();
   const { spotBalance, deductSpotBalance, addSpotBalance } = useUserProfile();
   const [submitting, setSubmitting] = useState(false);
+  const { notify: notifyInsufficient, overlay: transferOverlay } =
+    useInsufficientBalanceToast("to_spot");
 
   const sidePrice = side === "yes" ? yesPrice : noPrice;
   const sideLabel = side === "yes" ? yesLabel : noLabel;
@@ -104,7 +107,7 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
     if (!user) return onRequestAuth();
     if (blocked) return toast.error(blockedReason || "Market unavailable");
     if (amountNum <= 0) return toast.error("Enter an amount");
-    if (amountNum > spotBalance) return toast.error("Not enough balance — add funds to continue");
+    if (amountNum > spotBalance) return notifyInsufficient();
 
     // P0 #1 — snapshot the execution price at submit time. Never re-read
     // sidePrice / yesPrice / noPrice inside the async handler below.
@@ -161,6 +164,7 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
     onAmountChange,
     onFilled,
     onRequestAuth,
+    notifyInsufficient,
   ]);
 
   const cta =
@@ -215,7 +219,7 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
           <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
             How much
           </div>
-          <AccountBalanceLine value={money(spotBalance)} direction="to_spot" />
+          <AccountBalanceLine label="Standard balance" value={money(spotBalance)} direction="to_spot" />
         </div>
         <div className="rounded-xl bg-muted/40 p-3">
           <div className="flex items-baseline gap-2">
@@ -317,6 +321,7 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
 
       {/* eventId retained for potential deep-linking; keep referenced */}
       <span className="hidden" data-event-id={eventId}>{""}</span>
+      {transferOverlay}
     </div>
   );
 };
