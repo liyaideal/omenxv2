@@ -82,7 +82,12 @@ export const useCategoryBoostConfigs = () => {
     [map],
   );
 
-  return { getConfig, isLoading };
+  const maxBoost = useMemo(() => {
+    const vals = Object.values(map).filter((c) => c.enabled).map((c) => c.maxBoost);
+    return vals.length ? Math.max(...vals) : 1;
+  }, [map]);
+
+  return { getConfig, isLoading, maxBoost };
 };
 
 export default useCategoryBoostConfigs;
