@@ -159,7 +159,7 @@ interface Props {
 }
 
 // UNIFIED ledger grid — frozen order for BOTH binary and multi surfaces:
-// time | ACTION ("Backed {side}", market-axis colour) | context (muted) |
+// time | ACTION ("Bought {side}", market-axis colour) | context (muted) |
 // amount (right). Binary context is the boost only — the page IS the market;
 // multi context prepends the option label. No leading side chip anywhere.
 const ROW_GRID =
@@ -192,7 +192,7 @@ export const LiteMarketActivity = ({
         variant="module"
         bordered={false}
         title="No activity yet"
-        description="Trades on this market show up here as people back a side."
+        description="Trades on this market show up here as people buy in."
         className="px-0 py-2"
       />
     ) : (
@@ -217,7 +217,7 @@ export const LiteMarketActivity = ({
               <span
                 className={cn("text-[11px] font-semibold", isYes ? "text-yes" : "text-no")}
               >
-                Backed {isYes ? yesLabel : noLabel}
+                Bought {isYes ? yesLabel : noLabel}
               </span>
               <span className="min-w-0 truncate font-mono text-[11px] text-muted-foreground">
                 {context}

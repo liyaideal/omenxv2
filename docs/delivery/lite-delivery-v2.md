@@ -237,7 +237,7 @@ quantity  = notional / sidePrice
 - 成功文案三种：
   - 反向净掉且有现金回流：`Cashed out {heldSideLabel} · ${x.xx} back`
   - 反向净掉无回流：`Cashed out {heldSideLabel}`
-  - 常规开仓：`Backed {sideLabel} · ${x.xx}`
+  - 常规开仓：`Bought {sideLabel} · ${x.xx}`
 - 余额落账由面板执行：`balanceDelta < 0 → deductBalance`，`> 0 → addBalance`；`deductBalance` 失败抛 `Failed to update balance`。
 - 失败兜底：`toast.error(err instanceof Error ? err.message : "Could not place that")`。引擎侧可见错误原样透出，例如 `Invalid margin calculation. Please try again.`、`Close existing position first before opening the opposite side.`、`Reduce and close orders must not require opening margin.`。
 
@@ -316,7 +316,7 @@ quantity  = notional / sidePrice
 | /trade | 无 event 参数 | `<Navigate to="/events" replace />` |
 | /trade | 事件不存在 / 缺 option | `<ExpiredEventFallback eventId={eventId} />` |
 | /trade | Boost 配置加载中 | 面板内同构骨架（标签行 + chip 行 + 两行说明） |
-| /trade | 流水为空 | `No activity yet` / `Trades on this market show up here as people back a side.` |
+| /trade | 流水为空 | `No activity yet` / `Trades on this market show up here as people buy in.` |
 | /trade | 更多市场为空 | `No other markets right now` / `New markets show up here as they open.` |
 | /spot | 加载 | `Loader2` 全屏 |
 | /spot | 无 event 参数 | `<Navigate to="/events" replace />` |
@@ -471,7 +471,7 @@ _Generated on 2026-08-05._
 
 1. **Chip 法则（绝对，2026-08-05 裁定）**：染色 Tier-1 只给方向对（Up/Down、Up/Not-up）；任何 Yes/No 对一律 Tier-2 中性容器（中性底 + 1px #23262D 描边，仅价格带方向色 Yes #33D6FF / No #CFFF4A），全站无豁免。唯一另案：交易面板 SideButton 暂保持染色，待单独裁定，不得外推。
 2. **色轴令**：方向色 = Pulse Blue #33D6FF（Up/Yes）/ Volt #CFFF4A（Down/No）；标的涨跌 ±% = trading token `hsl(74 100% 65%)` / `hsl(0 100% 68%)`（两套色永不混用）；橙 #FF8A3D 仅 Intraday 身份（表盘/倒计时/身份点）；红点仅表示 live；chalk #F2F3F5 为 Sports 身份。禁止新增字面量色，#E6E9EE 已收敛为 `CHALK_SOFT` token。
-3. **词汇红线（Lite UI 禁词）**：Margin、Liquidation、Funding、Leverage、Long、Short、Spot、Futures、Order book、Limit、Moneyline、Props。替换口径：Leverage→Boost、强平价→Est. auto-close、本金→Put in、当前市值→Now worth；用户动词只有 Back（买入）与 Cash out（拿回）。
+3. **词汇红线（Lite UI 禁词）**：Margin、Liquidation、Funding、Leverage、Long、Short、Spot、Futures、Order book、Limit、Moneyline、Props。替换口径：Leverage→Boost、强平价→Est. auto-close、本金→Put in、当前市值→Now worth；用户动词只有 Buy（买入）与 Cash out（拿回）。
 4. **页面网格**：桌面 1280 内容区 3 卡/行、16px 间距（禁 4 列）、左右 24px；移动 390、16px 边距、单列、22px 模块间距、触控目标 ≥44px。
 5. **CHK-8 单一交易页**：全站只有 `/trade` 与 `/spot`，任何新品类以模块接入，禁止新建交易页面或新图表画法。
 6. **Intraday 事件不进主 grid**；Boost 是就地筛选（组合于当前视图，不开新页）；分类的顺序与层级唯一来源是 `src/lib/taxonomy.ts`（可见性数据驱动）。

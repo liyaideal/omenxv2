@@ -83,7 +83,7 @@ export interface LiteContractOrderPanelProps {
   noAsSell?: boolean;
   /** Suffix for the netting notice, e.g. "on this market". */
   nettingScopeLabel?: string;
-  /** INTERIM GUARD (multi events): set when the user already backs the other
+  /** INTERIM GUARD (multi events): set when the user already holds the other
    *  side of THIS option. Disables submit and shows the notice verbatim.
    *  Remove once the engine's per-option netting extension ships. */
   blockNotice?: string | null;
@@ -275,7 +275,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
             : `Cashed out ${heldSideLabel ?? oppositeLabel}`,
         );
       } else {
-        toast.success(`Backed ${sideLabel} · ${money(amountSnapshot)}`);
+        toast.success(`Bought ${sideLabel} · ${money(amountSnapshot)}`);
       }
       onAmountChange("");
       onFilled?.();
@@ -333,7 +333,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
 
   const nettingNotice =
     isNetting
-      ? `You're backing ${sideLabel}. This cashes out your ${heldSideLabel}${nettingScopeLabel ? ` ${nettingScopeLabel}` : ""} first.`
+      ? `Buying ${sideLabel} cashes out your ${heldSideLabel}${nettingScopeLabel ? ` ${nettingScopeLabel}` : ""} first.`
       : null;
 
   const wrapClass =

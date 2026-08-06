@@ -1169,7 +1169,7 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
 
         <SubSection
           title="Market activity"
-          description="Anonymised all-user feed from market_activity — never the viewer's own owner-scoped fills. UNIFIED ledger on every surface: [time | Backed {side} | context | amount]; binary context is boost only, multi prepends the option label."
+          description="Anonymised all-user feed from market_activity — never the viewer's own owner-scoped fills. UNIFIED ledger on every surface: [time | Bought {side} | context | amount]; binary context is boost only, multi prepends the option label."
         >
           <Grid cols={3}>
             <Cell label="Binary · Yes / No · time | action | context | amount">
@@ -1329,7 +1329,7 @@ const MultiMarketStates = () => {
         <LiteContractOrderPanel
           eventName="Where does Bitcoin end July?"
           marketContextLabel="$110K – $120K"
-          blockNotice="You already back Yes on this market. Cash out first, then switch sides."
+          blockNotice="You already hold Yes on this market. Cash out first, then switch sides."
           yesLabel="Yes"
           noLabel="No"
           yesPrice={0.34}

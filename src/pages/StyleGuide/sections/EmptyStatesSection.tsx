@@ -123,7 +123,7 @@ export const EmptyStatesSection = ({ isMobile }: Props) => (
           <EmptyState
             variant="module"
             title="No activity yet"
-            description="Trades on this market show up here as people back a side."
+            description="Trades on this market show up here as people buy in."
           />
           <div className="rounded-2xl border border-border bg-card p-4">
             <div className="mb-2 text-sm font-medium">Inside a bordered card</div>

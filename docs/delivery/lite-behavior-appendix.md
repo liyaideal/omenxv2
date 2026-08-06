@@ -57,7 +57,7 @@ quantity  = notional / sidePrice
 - 成功文案三种：
   - 反向净掉且有现金回流：`Cashed out {heldSideLabel} · ${x.xx} back`
   - 反向净掉无回流：`Cashed out {heldSideLabel}`
-  - 常规开仓：`Backed {sideLabel} · ${x.xx}`
+  - 常规开仓：`Bought {sideLabel} · ${x.xx}`
 - 余额落账由面板执行：`balanceDelta < 0 → deductBalance`，`> 0 → addBalance`；`deductBalance` 失败抛 `Failed to update balance`。
 - 失败兜底：`toast.error(err instanceof Error ? err.message : "Could not place that")`。引擎侧可见错误原样透出，例如 `Invalid margin calculation. Please try again.`、`Close existing position first before opening the opposite side.`、`Reduce and close orders must not require opening margin.`。
 
@@ -136,7 +136,7 @@ quantity  = notional / sidePrice
 | /trade | 无 event 参数 | `<Navigate to="/events" replace />` |
 | /trade | 事件不存在 / 缺 option | `<ExpiredEventFallback eventId={eventId} />` |
 | /trade | Boost 配置加载中 | 面板内同构骨架（标签行 + chip 行 + 两行说明） |
-| /trade | 流水为空 | `No activity yet` / `Trades on this market show up here as people back a side.` |
+| /trade | 流水为空 | `No activity yet` / `Trades on this market show up here as people buy in.` |
 | /trade | 更多市场为空 | `No other markets right now` / `New markets show up here as they open.` |
 | /spot | 加载 | `Loader2` 全屏 |
 | /spot | 无 event 参数 | `<Navigate to="/events" replace />` |

@@ -126,3 +126,13 @@ nouns Spot/Futures are exempt).
 
 Pro escape-hatch line (updated 2026-08-06, byte-identical from now on):
 "Want charts and advanced trading tools? Switch to Pro mode".
+
+---
+
+## Verb ruling — "Back" retired (2026-08-06, CPO-approved)
+
+The wagering verb **Back** is retired from the Lite UI. User verbs are
+**Buy / Cash out**, matching the CTAs that already say Buy
+(`Bought {side} · $X`, "Buying {side} cashes out your {heldSide} first.").
+Money-sense "back" ("You'll get back ≈", "$X back") is unaffected and stays.
+The "call" family ("Make your call", "your Yes call") is reviewed separately.
