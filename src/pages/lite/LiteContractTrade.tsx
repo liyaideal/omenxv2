@@ -826,6 +826,11 @@ const LiteContractTrade = () => {
             {resolved ? (
               <>
                 {OutcomeCard}
+                {Chart}
+                {isMulti ? MarketBoard : SentimentBar}
+                {Proof}
+                {RuleCard}
+                {MarketActivity}
                 {MoreMarkets}
               </>
             ) : isMulti ? (
@@ -946,7 +951,13 @@ const LiteContractTrade = () => {
           <div className="space-y-5">
             {QuestionBlock}
             {resolved ? (
-              OutcomeCard
+              <>
+                {isMulti ? MarketBoard : SentimentBar}
+                {Chart}
+                {Proof}
+                {RuleCard}
+                {MarketActivity}
+              </>
             ) : isMulti ? (
               <>
                 {MarketBoard}
@@ -965,7 +976,9 @@ const LiteContractTrade = () => {
             )}
           </div>
           <aside className="space-y-4">
-            {!resolved && (
+            {resolved ? (
+              OutcomeCard
+            ) : (
               <LiteContractOrderPanel
                 {...panelProps}
                 variant="desktop"
