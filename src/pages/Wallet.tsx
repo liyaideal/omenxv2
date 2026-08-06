@@ -28,7 +28,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
-import { TopUpDialog } from "@/components/TopUpDialog";
 import { LoadingState, EmptyState, ErrorState } from "@/components/states";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -68,6 +67,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Progress } from "@/components/ui/progress";
+import useCategoryBoostConfigs from "@/hooks/useCategoryBoostConfigs";
 import { useH2eRewardsSummary } from "@/hooks/useH2eRewardsSummary";
 import { cn } from "@/lib/utils";
 
@@ -159,7 +159,7 @@ const HeroEquityCard = ({
           {hidden ? "••••••" : `$${formatEquityUsd(equity)}`}
         </div>
         <div className="text-[13px] text-muted-foreground mt-2.5">
-          Spot + Futures · does not include unrealized PnL
+          Boost + Standard · does not include unrealized PnL
         </div>
       </div>
 
@@ -256,10 +256,10 @@ const SpotAccountCard = ({
   compact?: boolean;
 }) => (
   <AccountCardShell
-    tag="Spot"
+    tag="Standard"
     tagClass="bg-primary/15 text-primary border border-primary/30"
     onTransfer={onTransfer}
-    transferLabel="Transfer to Spot"
+    transferLabel="Transfer to Standard"
     compact={compact}
   >
     <div
@@ -278,7 +278,7 @@ const SpotAccountCard = ({
       </span>
     </div>
     <p className="text-[11px] text-muted-foreground mt-3 leading-relaxed">
-      Funds US-stock spot trading. Not shared with Futures.
+      Buy and sell shares at full price.
     </p>
   </AccountCardShell>
 );
@@ -294,6 +294,7 @@ const FuturesAccountCard = ({
   AvailableTooltip,
   InfoTip,
   compact = false,
+  boostMax,
 }: {
   balance: number;
   withdrawable: number;
@@ -305,14 +306,15 @@ const FuturesAccountCard = ({
   AvailableTooltip: React.ComponentType<{ marginInUse: number; unrealizedPnL: number }>;
   InfoTip: React.ComponentType<{ text: string }>;
   compact?: boolean;
+  boostMax?: number;
 }) => {
   const mask = (v: number) => (hidden ? "••••" : `$${formatEquityUsd(v)}`);
   return (
     <AccountCardShell
-      tag="Futures"
+      tag="Boost"
       tagClass="bg-accent/20 text-accent border border-accent/40"
       onTransfer={onTransfer}
-      transferLabel="Transfer to Futures"
+      transferLabel="Transfer to Boost"
       compact={compact}
     >
       <div
@@ -349,6 +351,9 @@ const FuturesAccountCard = ({
           </span>
         </div>
       </div>
+      <p className="text-[11px] text-muted-foreground mt-3 leading-relaxed">
+        Put in a little to control a bigger trade{boostMax && boostMax > 1 ? ` — Boost up to ${boostMax}×` : ""}.
+      </p>
     </AccountCardShell>
   );
 };
@@ -360,6 +365,7 @@ export default function Wallet() {
   const { balance, spotBalance, user } = useUserProfile();
   const { imTotal, unrealizedPnL, hasPositions } = useRealtimeRiskMetrics();
   const h2e = useH2eRewardsSummary();
+  const { maxBoost } = useCategoryBoostConfigs();
   const previousH2eTierRef = useRef(0);
   const [showH2eUnlockToast, setShowH2eUnlockToast] = useState(false);
   const { 
@@ -467,7 +473,6 @@ export default function Wallet() {
     .sort((a, b) => b.timestamp - a.timestamp);
   
   // Dialog states
-  const [topUpOpen, setTopUpOpen] = useState(false);
   const [depositDialogOpen, setDepositDialogOpen] = useState(false);
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
@@ -564,7 +569,7 @@ export default function Wallet() {
         {marginInUse > 0 && (
           <div className="pt-2 border-t border-border/50 space-y-1">
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground">Margin in Use:</span>
+              <span className="text-muted-foreground">In use by open positions:</span>
               <span className="font-mono text-trading-yellow">${formatCurrency(marginInUse)}</span>
             </div>
             <div className="flex justify-between text-xs">
@@ -888,6 +893,7 @@ export default function Wallet() {
               unrealizedPnL={unrealizedPnL}
               AvailableTooltip={AvailableBalanceTooltip}
               InfoTip={InfoTooltip}
+              boostMax={maxBoost}
             />
           </section>
 
@@ -959,14 +965,6 @@ export default function Wallet() {
         </main>
         </AuthGateOverlay>
 
-        <TopUpDialog 
-          open={topUpOpen} 
-          onOpenChange={setTopUpOpen} 
-          currentBalance={balance}
-          onTopUp={(amount, method) => {
-            toast.success(`Deposited $${amount} via ${method}`);
-          }}
-        />
 
         <DepositDialog 
           open={depositDialogOpen} 
@@ -1053,6 +1051,7 @@ export default function Wallet() {
             unrealizedPnL={unrealizedPnL}
             AvailableTooltip={AvailableBalanceTooltip}
             InfoTip={InfoTooltip}
+            boostMax={maxBoost}
             compact
           />
         </section>
@@ -1083,14 +1082,6 @@ export default function Wallet() {
 
       <BottomNav />
 
-      <TopUpDialog 
-        open={topUpOpen} 
-        onOpenChange={setTopUpOpen} 
-        currentBalance={balance}
-        onTopUp={(amount, method) => {
-          toast.success(`Deposited $${amount} via ${method}`);
-        }}
-      />
 
       {/* Add Address Dialog (shared component handles mobile/desktop) */}
       <AddAddressDialog open={addAddressOpen} onOpenChange={setAddAddressOpen} />
@@ -1127,7 +1118,6 @@ export default function Wallet() {
         </div>
       </MobileDrawer>
 
-      <TopUpDialog open={topUpOpen} onOpenChange={setTopUpOpen} currentBalance={balance} />
     </div>
   );
 }

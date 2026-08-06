@@ -104,8 +104,8 @@ const TYPE_LABELS: Record<TransactionType, string> = {
   cross_chain_out: 'Cross-Chain Out',
   fiat_buy: 'Fiat Buy',
   fiat_sell: 'Fiat Sell',
-  transfer_to_spot: 'Transfer → Spot',
-  transfer_to_futures: 'Transfer → Futures',
+  transfer_to_spot: 'Transfer → Standard',
+  transfer_to_futures: 'Transfer → Boost',
 };
 
 const TYPE_BADGE_CONFIG: Record<TransactionType, { label: string; className: string }> = {

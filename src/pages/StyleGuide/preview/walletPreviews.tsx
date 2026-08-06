@@ -67,7 +67,7 @@ export const WalletEquityBandsPreview = () => {
                 </button>
               </div>
               <div className="text-[11px] text-muted-foreground mt-1 font-mono">
-                Spot + Futures · does not include unrealized PnL
+                Boost + Standard · does not include unrealized PnL
               </div>
             </div>
           </div>
@@ -94,12 +94,12 @@ export const WalletEquityBandsPreview = () => {
           <button
             type="button"
             className="absolute top-4 right-4 h-8 w-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center justify-center transition-colors"
-            aria-label="Transfer to Spot"
+            aria-label="Transfer to Standard"
             title="Transfer"
           >
             <ArrowLeftRight className="w-3.5 h-3.5" />
           </button>
-          <div className="text-sm font-medium text-muted-foreground">Spot Account</div>
+          <div className="text-sm font-medium text-muted-foreground">Standard Account</div>
           <div className="mt-2 font-mono text-2xl font-semibold">${formatEquityUsd(DEMO.spot)}</div>
           <div className="mt-4 grid grid-cols-1 gap-3">
             <div className="p-3 rounded-lg bg-muted/20">
@@ -108,7 +108,7 @@ export const WalletEquityBandsPreview = () => {
             </div>
           </div>
           <div className="text-[10px] text-muted-foreground mt-3">
-            Funds US-stock spot trading. Not shared with Futures.
+            Buy and sell shares at full price.
           </div>
         </div>
 
@@ -117,12 +117,12 @@ export const WalletEquityBandsPreview = () => {
           <button
             type="button"
             className="absolute top-4 right-4 h-8 w-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center justify-center transition-colors"
-            aria-label="Transfer to Futures"
+            aria-label="Transfer to Boost"
             title="Transfer"
           >
             <ArrowLeftRight className="w-3.5 h-3.5" />
           </button>
-          <div className="text-sm font-medium text-muted-foreground">Futures Account</div>
+          <div className="text-sm font-medium text-muted-foreground">Boost Account</div>
           <div className="mt-2 font-mono text-2xl font-semibold">${formatEquityUsd(DEMO.balance)}</div>
           <div className="mt-4 grid grid-cols-2 gap-3">
             <div className="p-3 rounded-lg bg-muted/20">
@@ -200,11 +200,11 @@ export const EquityHoverCardPreview = () => {
       </div>
       <div className="space-y-1.5 text-xs">
         <div className="flex items-center justify-between">
-          <span className="text-muted-foreground">Spot Account</span>
+          <span className="text-muted-foreground">Standard Account</span>
           <span className="font-mono">${formatEquityUsd(DEMO.spot)}</span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-muted-foreground">Futures Account</span>
+          <span className="text-muted-foreground">Boost Account</span>
           <span className="font-mono">${formatEquityUsd(DEMO.balance)}</span>
         </div>
       </div>
@@ -239,14 +239,14 @@ const DEMO_TXS: Transaction[] = [
     id: "t1",
     type: "transfer_to_spot",
     amount: 250,
-    description: "Transfer · Futures → Spot",
+    description: "Transfer · Boost → Standard",
     account: "spot",
   }),
   mkTx({
     id: "t2",
     type: "transfer_to_futures",
     amount: 500,
-    description: "Transfer · Spot → Futures",
+    description: "Transfer · Standard → Boost",
     account: "futures",
   }),
   mkTx({
@@ -288,11 +288,11 @@ export const AccountBadgeLegendPreview = () => (
   <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border/40 bg-muted/20 p-3">
     <div className="flex items-center gap-2">
       <Badge className="border-blue-500/30 bg-blue-500/10 text-blue-400 text-[10px] rounded-full">SPOT</Badge>
-      <span className="text-xs text-muted-foreground">Spot Account row</span>
+      <span className="text-xs text-muted-foreground">Standard Account row</span>
     </div>
     <div className="flex items-center gap-2">
       <Badge className="border-primary/30 bg-primary/10 text-primary text-[10px] rounded-full">FUTURES</Badge>
-      <span className="text-xs text-muted-foreground">Futures Account row</span>
+      <span className="text-xs text-muted-foreground">Boost Account row</span>
     </div>
     <div className="flex items-center gap-2 text-xs text-muted-foreground">
       <ArrowLeftRight className="w-3.5 h-3.5 text-primary" />

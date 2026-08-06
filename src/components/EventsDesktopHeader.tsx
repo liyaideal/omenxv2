@@ -95,6 +95,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const { balance, spotBalance, user, username, avatarUrl } = useUserProfile();
   const [transferOpen, setTransferOpen] = useState(false);
+  const { surface } = useSurface();
   const totalEquity = computeTotalEquity({ spotBalance, balance });
 
   const handleSignOut = async () => {
@@ -181,11 +182,11 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                   </div>
                   <div className="space-y-1.5 text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Spot Account</span>
+                      <span className="text-muted-foreground">Standard Account</span>
                       <span className="font-mono">${formatEquityUsd(spotBalance)}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Futures Account</span>
+                      <span className="text-muted-foreground">Boost Account</span>
                       <span className="font-mono">${formatEquityUsd(balance)}</span>
                     </div>
                   </div>
@@ -284,12 +285,14 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                   <DropdownMenuSeparator />
 
                   {/* Product & support */}
-                  <DropdownMenuItem
-                    onClick={() => navigate("/settings/transparency")}
-                  >
-                    <Shield className="mr-2 h-4 w-4 text-emerald-400" />
-                    Transparency Audit
-                  </DropdownMenuItem>
+                  {surface !== "lite" && (
+                    <DropdownMenuItem
+                      onClick={() => navigate("/settings/transparency")}
+                    >
+                      <Shield className="mr-2 h-4 w-4 text-emerald-400" />
+                      Transparency Audit
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem
                     onClick={() =>
                       window.open(

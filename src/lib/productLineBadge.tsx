@@ -19,8 +19,8 @@ export const PRODUCT_LINE_BADGE_CLASSES: Record<ProductLine, string> = {
 };
 
 export const PRODUCT_LINE_LABELS: Record<ProductLine, string> = {
-  spot: "SPOT",
-  futures: "FUTURES",
+  spot: "STANDARD",
+  futures: "BOOST",
 };
 
 interface ProductLineBadgeProps {

@@ -3,7 +3,7 @@
 // Missing / unknown category → { enabled: false, maxBoost: 1 } so the
 // Boost module simply does not render. Never defaults to 10x.
 // ============================================================
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface BoostConfig {
@@ -82,7 +82,12 @@ export const useCategoryBoostConfigs = () => {
     [map],
   );
 
-  return { getConfig, isLoading };
+  const maxBoost = useMemo(() => {
+    const vals = Object.values(map).filter((c) => c.enabled).map((c) => c.maxBoost);
+    return vals.length ? Math.max(...vals) : 1;
+  }, [map]);
+
+  return { getConfig, isLoading, maxBoost };
 };
 
 export default useCategoryBoostConfigs;
