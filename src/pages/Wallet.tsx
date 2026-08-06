@@ -67,6 +67,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Progress } from "@/components/ui/progress";
+import useCategoryBoostConfigs from "@/hooks/useCategoryBoostConfigs";
 import { useH2eRewardsSummary } from "@/hooks/useH2eRewardsSummary";
 import { cn } from "@/lib/utils";
 
@@ -364,6 +365,7 @@ export default function Wallet() {
   const { balance, spotBalance, user } = useUserProfile();
   const { imTotal, unrealizedPnL, hasPositions } = useRealtimeRiskMetrics();
   const h2e = useH2eRewardsSummary();
+  const { maxBoost } = useCategoryBoostConfigs();
   const previousH2eTierRef = useRef(0);
   const [showH2eUnlockToast, setShowH2eUnlockToast] = useState(false);
   const { 
@@ -891,6 +893,7 @@ export default function Wallet() {
               unrealizedPnL={unrealizedPnL}
               AvailableTooltip={AvailableBalanceTooltip}
               InfoTip={InfoTooltip}
+              boostMax={maxBoost}
             />
           </section>
 
@@ -1048,6 +1051,7 @@ export default function Wallet() {
             unrealizedPnL={unrealizedPnL}
             AvailableTooltip={AvailableBalanceTooltip}
             InfoTip={InfoTooltip}
+            boostMax={maxBoost}
             compact
           />
         </section>
