@@ -159,7 +159,7 @@ const HeroEquityCard = ({
           {hidden ? "••••••" : `$${formatEquityUsd(equity)}`}
         </div>
         <div className="text-[13px] text-muted-foreground mt-2.5">
-          Spot + Futures · does not include unrealized PnL
+          Boost + Standard · does not include unrealized PnL
         </div>
       </div>
 
@@ -256,10 +256,10 @@ const SpotAccountCard = ({
   compact?: boolean;
 }) => (
   <AccountCardShell
-    tag="Spot"
+    tag="Standard"
     tagClass="bg-primary/15 text-primary border border-primary/30"
     onTransfer={onTransfer}
-    transferLabel="Transfer to Spot"
+    transferLabel="Transfer to Standard"
     compact={compact}
   >
     <div
@@ -278,7 +278,7 @@ const SpotAccountCard = ({
       </span>
     </div>
     <p className="text-[11px] text-muted-foreground mt-3 leading-relaxed">
-      Funds US-stock spot trading. Not shared with Futures.
+      Buy and sell shares at full price.
     </p>
   </AccountCardShell>
 );
@@ -294,6 +294,7 @@ const FuturesAccountCard = ({
   AvailableTooltip,
   InfoTip,
   compact = false,
+  boostMax,
 }: {
   balance: number;
   withdrawable: number;
@@ -305,14 +306,15 @@ const FuturesAccountCard = ({
   AvailableTooltip: React.ComponentType<{ marginInUse: number; unrealizedPnL: number }>;
   InfoTip: React.ComponentType<{ text: string }>;
   compact?: boolean;
+  boostMax?: number;
 }) => {
   const mask = (v: number) => (hidden ? "••••" : `$${formatEquityUsd(v)}`);
   return (
     <AccountCardShell
-      tag="Futures"
+      tag="Boost"
       tagClass="bg-accent/20 text-accent border border-accent/40"
       onTransfer={onTransfer}
-      transferLabel="Transfer to Futures"
+      transferLabel="Transfer to Boost"
       compact={compact}
     >
       <div
@@ -349,6 +351,9 @@ const FuturesAccountCard = ({
           </span>
         </div>
       </div>
+      <p className="text-[11px] text-muted-foreground mt-3 leading-relaxed">
+        Put in a little to control a bigger trade{boostMax && boostMax > 1 ? ` — Boost up to ${boostMax}×` : ""}.
+      </p>
     </AccountCardShell>
   );
 };
@@ -564,7 +569,7 @@ export default function Wallet() {
         {marginInUse > 0 && (
           <div className="pt-2 border-t border-border/50 space-y-1">
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground">Margin in Use:</span>
+              <span className="text-muted-foreground">In use by open positions:</span>
               <span className="font-mono text-trading-yellow">${formatCurrency(marginInUse)}</span>
             </div>
             <div className="flex justify-between text-xs">
