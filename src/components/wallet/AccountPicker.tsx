@@ -26,14 +26,14 @@ interface AccountPickerProps {
 const ROWS: Array<{ key: AccountKind; label: string; hint: string; icon: React.ElementType }> = [
   {
     key: "spot",
-    label: "Spot Account",
-    hint: "Funds US-stock spot trading",
+    label: "Standard Account",
+    hint: "Buy and sell shares at full price.",
     icon: Wallet,
   },
   {
     key: "futures",
-    label: "Futures Account",
-    hint: "Funds prediction market futures",
+    label: "Boost Account",
+    hint: "Put in a little to control a bigger trade.",
     icon: Landmark,
   },
 ];
