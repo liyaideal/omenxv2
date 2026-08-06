@@ -85,7 +85,7 @@ headers). Boost stays hidden inside module/channel views.
 | Category | Enabled | Max leverage | Notes |
 |----------|---------|--------------|-------|
 | Crypto | Yes | 10× | Highest cap; continuous price path. |
-| Macro / Economy | Yes | 5× | |
+| Macro | Yes | 5× | |
 | Social | Yes | 5× | |
 | Sports | Yes | 3× | Enabled 2026-08-06. Conservative cap because sports settle as jump events with no continuous price path; cross-margin shock risk is why it stayed off until now. |
 | Entertainment | No | 1× | Explicitly disabled. |
