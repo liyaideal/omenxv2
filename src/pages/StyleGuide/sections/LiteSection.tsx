@@ -71,13 +71,17 @@ const settledDemo = (
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import { boostTiers } from "@/hooks/useCategoryBoostConfigs";
 
-// Static daily-stock series fixture (two states: with / without a user result).
-const seriesDemo = (userResult: number | null): SettledSeries => ({
-  ticker: "NVDA",
-  company: "NVIDIA",
-  days: [settledDemo("negative"), settledDemo("won"), settledDemo("neutral")],
-  userResult,
-});
+// Past-days strip fixture — eight settled days of one ticker's series.
+const pastDaysDemo = [
+  { id: "us-nvda-updown-20260725", label: "Jul 25", up: true },
+  { id: "us-nvda-updown-20260726", label: "Jul 26", up: false },
+  { id: "us-nvda-updown-20260727", label: "Jul 27", up: true },
+  { id: "us-nvda-updown-20260728", label: "Jul 28", up: true },
+  { id: "us-nvda-updown-20260729", label: "Jul 29", up: false },
+  { id: "us-nvda-updown-20260730", label: "Jul 30", up: true },
+  { id: "us-nvda-updown-20260731", label: "Jul 31", up: false },
+  { id: "us-nvda-updown-20260801", label: "Aug 1", up: true },
+];
 
 /** Small label chip that names the state being demonstrated. */
 const StateChip = ({ children }: { children: React.ReactNode }) => (
