@@ -53,10 +53,10 @@ import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
 import { HowItSettled } from "@/components/lite/trade/HowItSettled";
 import {
-  PastDaysStrip,
   usePastDays,
   useTodayEventId,
-} from "@/components/lite/shared/PastDaysStrip";
+} from "@/components/lite/shared/pastDays";
+import { RoundTape } from "@/components/lite/shared/RoundTape";
 import { EmptyState } from "@/components/states";
 import {
   LiteMarketActivity,
@@ -615,13 +615,32 @@ const LiteSpotTrade = () => {
   ) : null;
 
   const PastDays = (
-    <PastDaysStrip
-      days={pastDays}
-      todayId={todayEventId}
-      currentId={event.id}
-      upLabel={yesLabel}
-      downLabel={noLabel}
+    <RoundTape
       isMobile={!!isMobile}
+      leftLabel={{ micro: "Past days" }}
+      chips={pastDays.map((d) => ({
+        key: d.id,
+        up: d.up,
+        active: d.id === event.id,
+        onClick: () => navigate(`/spot?event=${d.id}`),
+        tooltip: `${d.label} · ${d.up ? yesLabel : noLabel} won`,
+      }))}
+      currentSlot={
+        todayEventId && !pastDays.some((d) => d.id === todayEventId)
+          ? {
+              kind: "today",
+              active: todayEventId === event.id,
+              onClick: () => navigate(`/spot?event=${todayEventId}`),
+            }
+          : null
+      }
+      legend={
+        <>
+          Past days — <span style={{ color: "#33D6FF" }}>▲</span> Up won ·{" "}
+          <span style={{ color: "#CFFF4A" }}>▼</span> Down won · tap a day to see how
+          it settled.
+        </>
+      }
     />
   );
 
