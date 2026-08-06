@@ -1058,6 +1058,52 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
                 />
               </div>
             </Cell>
+            <Cell label="Desktop · stock past days (market closed)">
+              <RoundTape
+                leftLabel={{ micro: "Past days" }}
+                chips={pastDaysDemo.map((d) => ({
+                  key: d.id,
+                  up: d.up,
+                  onClick: () => undefined,
+                  tooltip: `${d.label} · ${d.up ? "Up" : "Not up"} won`,
+                }))}
+                currentSlot={{
+                  kind: "next",
+                  tooltip: "Next round · opens Tue 09:30 ET",
+                }}
+                legend={
+                  <>
+                    Past days — <span style={{ color: "#33D6FF" }}>▲</span> Up won ·{" "}
+                    <span style={{ color: "#CFFF4A" }}>▼</span> Down won · tap a day to
+                    see how it settled.
+                  </>
+                }
+              />
+            </Cell>
+            <Cell label="Mobile 375 · stock past days (market closed)">
+              <div className="w-[343px]">
+                <RoundTape
+                  isMobile
+                  leftLabel={{ micro: "Past days" }}
+                  chips={pastDaysDemo.map((d) => ({
+                    key: d.id,
+                    up: d.up,
+                    onClick: () => undefined,
+                    tooltip: `${d.label} · ${d.up ? "Up" : "Not up"} won`,
+                  }))}
+                  currentSlot={{
+                    kind: "next",
+                    tooltip: "Next round · opens Tue 09:30 ET",
+                  }}
+                  legend={
+                    <>
+                      Past days — <span style={{ color: "#33D6FF" }}>▲</span> Up won ·{" "}
+                      <span style={{ color: "#CFFF4A" }}>▼</span> Down won · tap a day.
+                    </>
+                  }
+                />
+              </div>
+            </Cell>
           </Grid>
         </SubSection>
 
