@@ -24,6 +24,11 @@ import {
 } from "./verticalChrome";
 import { financeClassOf, financeRegionOf } from "./verticalFilters";
 import { EmptyState } from "@/components/states";
+import {
+  MobileAsleepStockRow,
+  MobileTradingStockRow,
+} from "@/components/lite/mobile/MobileStockRow";
+
 
 /** Stock rounds are equities only — the other classes have no engine. */
 const ENGINE_CLASS = "stocks";
