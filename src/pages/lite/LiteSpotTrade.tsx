@@ -37,6 +37,8 @@ import {
   formatMarketTime,
   formatMarketPrice,
   resolveStockMarket,
+  getMarketSession,
+  formatSessionStamp,
   getBlockedReason,
   getDisplayLifecycle,
   isOrderingBlocked,
@@ -47,7 +49,12 @@ import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader"
 import type { Tables } from "@/integrations/supabase/types";
 import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
 import LiteQuickTrade from "@/pages/lite/LiteQuickTrade";
-import { parseQuickId, useTradeCountdown } from "@/components/lite/intraday/intradayData";
+import {
+  formatCountdown,
+  parseQuickId,
+  useSecondTick,
+  useTradeCountdown,
+} from "@/components/lite/intraday/intradayData";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
@@ -56,7 +63,7 @@ import {
   usePastDays,
   useTodayEventId,
 } from "@/components/lite/shared/pastDays";
-import { RoundTape } from "@/components/lite/shared/RoundTape";
+import { RoundTape, type TapeCurrentSlot } from "@/components/lite/shared/RoundTape";
 import { EmptyState } from "@/components/states";
 import {
   LiteMarketActivity,
@@ -614,6 +621,26 @@ const LiteSpotTrade = () => {
     />
   ) : null;
 
+  // Intraday family: the current day slot is the SAME orange countdown pill the
+  // quick-round tape uses. Session state comes from the exchange wall clock.
+  useSecondTick();
+  const tapeSession = getMarketSession(market);
+  const tapeSlot: TapeCurrentSlot =
+    tapeSession.open && tapeSession.closeAt && todayEventId
+      ? {
+          kind: "countdown",
+          text: formatCountdown(tapeSession.closeAt.getTime() - Date.now()),
+          tooltip: `Today's round · closes at ${formatSessionStamp(tapeSession.closeAt, market)}`,
+          onClick:
+            todayEventId === event.id
+              ? undefined
+              : () => navigate(`/spot?event=${todayEventId}`),
+        }
+      : {
+          kind: "next",
+          tooltip: `Next round · opens ${formatSessionStamp(tapeSession.nextOpenAt, market)}`,
+        };
+
   const PastDays = (
     <RoundTape
       isMobile={!!isMobile}
@@ -625,15 +652,7 @@ const LiteSpotTrade = () => {
         onClick: () => navigate(`/spot?event=${d.id}`),
         tooltip: `${d.label} · ${d.up ? yesLabel : noLabel} won`,
       }))}
-      currentSlot={
-        todayEventId && !pastDays.some((d) => d.id === todayEventId)
-          ? {
-              kind: "today",
-              active: todayEventId === event.id,
-              onClick: () => navigate(`/spot?event=${todayEventId}`),
-            }
-          : null
-      }
+      currentSlot={tapeSlot}
       legend={
         <>
           Past days — <span style={{ color: "#33D6FF" }}>▲</span> Up won ·{" "}

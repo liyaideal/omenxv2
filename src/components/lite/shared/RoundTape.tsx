@@ -2,8 +2,9 @@
 // ROUND TAPE — the ONE history-strip implementation on the Lite surface.
 // Used by the crypto quick-round page (label "ROUND / #3332", orange live
 // countdown pill, dashed NEXT slot) and by daily up/down stock pages
-// (label "PAST DAYS", neutral NOW pill). Density/context differences are
-// props — never re-drawn markup.
+// (label "PAST DAYS", same orange countdown pill while the session is open —
+// both are the Intraday family — dashed NEXT slot after the close).
+// Density/context differences are props — never re-drawn markup.
 // ============================================================
 import { cn } from "@/lib/utils";
 import {
@@ -31,8 +32,13 @@ export interface TapeChip {
 }
 
 export type TapeCurrentSlot =
-  | { kind: "countdown"; text: string; tooltip?: React.ReactNode }
-  | { kind: "today"; tooltip?: React.ReactNode; onClick?: () => void; active?: boolean }
+  | {
+      kind: "countdown";
+      text: string;
+      tooltip?: React.ReactNode;
+      /** Present → pill becomes a button (stock tape navigates to today's event). */
+      onClick?: () => void;
+    }
   | { kind: "next"; tooltip?: React.ReactNode }
   | null;
 
@@ -157,68 +163,65 @@ export const RoundTape = ({
           {slot.kind === "countdown" && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <span
-                  className="font-display flex shrink-0 items-center gap-[5px]"
-                  style={{
-                    border: "1.5px solid #FF8A3D",
-                    borderRadius: 13,
-                    padding: "3px 10px",
-                    color: "#FF8A3D",
-                    fontSize: 12,
-                    fontWeight: 700,
-                  }}
-                >
+                {slot.onClick ? (
+                  <button
+                    type="button"
+                    onClick={slot.onClick}
+                    className="flex shrink-0 items-center justify-center"
+                    style={
+                      isMobile
+                        ? { minWidth: TOUCH, minHeight: TOUCH, marginTop: -10, marginBottom: -10 }
+                        : undefined
+                    }
+                  >
+                    <span
+                      className="font-display flex items-center gap-[5px]"
+                      style={{
+                        border: "1.5px solid #FF8A3D",
+                        borderRadius: 13,
+                        padding: "3px 10px",
+                        color: "#FF8A3D",
+                        fontSize: 12,
+                        fontWeight: 700,
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: 6,
+                          height: 6,
+                          borderRadius: "50%",
+                          background: "#FF8A3D",
+                        }}
+                      />
+                      {slot.text}
+                    </span>
+                  </button>
+                ) : (
                   <span
+                    className="font-display flex shrink-0 items-center gap-[5px]"
                     style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: "50%",
-                      background: "#FF8A3D",
+                      border: "1.5px solid #FF8A3D",
+                      borderRadius: 13,
+                      padding: "3px 10px",
+                      color: "#FF8A3D",
+                      fontSize: 12,
+                      fontWeight: 700,
                     }}
-                  />
-                  {slot.text}
-                </span>
+                  >
+                    <span
+                      style={{
+                        width: 6,
+                        height: 6,
+                        borderRadius: "50%",
+                        background: "#FF8A3D",
+                      }}
+                    />
+                    {slot.text}
+                  </span>
+                )}
               </TooltipTrigger>
               <TooltipContent>
                 {slot.tooltip ?? `Current round · closes in ${slot.text}`}
-              </TooltipContent>
-            </Tooltip>
-          )}
-
-          {slot.kind === "today" && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  onClick={slot.onClick}
-                  className="flex shrink-0 items-center justify-center"
-                  style={
-                    isMobile
-                      ? { minWidth: TOUCH, minHeight: TOUCH, marginTop: -10, marginBottom: -10 }
-                      : undefined
-                  }
-                >
-                  <span
-                    className="font-display flex items-center"
-                    style={{
-                      border: "1.5px solid #2B2F38",
-                      borderRadius: 13,
-                      padding: "3px 10px",
-                      color: "#F2F3F5",
-                      fontSize: 12,
-                      fontWeight: 700,
-                      letterSpacing: ".06em",
-                      outline: slot.active
-                        ? "1.5px solid currentColor"
-                        : undefined,
-                    }}
-                  >
-                    NOW
-                  </span>
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {slot.tooltip ?? "Today · still trading"}
               </TooltipContent>
             </Tooltip>
           )}
