@@ -52,7 +52,11 @@ import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
 import { HowItSettled } from "@/components/lite/trade/HowItSettled";
-import { PastDaysStrip, usePastDays } from "@/components/lite/shared/PastDaysStrip";
+import {
+  PastDaysStrip,
+  usePastDays,
+  useTodayEventId,
+} from "@/components/lite/shared/PastDaysStrip";
 import { EmptyState } from "@/components/states";
 import {
   LiteMarketActivity,
@@ -230,15 +234,15 @@ const LiteSpotTrade = () => {
     if (!basePrice) return null;
     // Settled: the chart freezes at the final close — no live drift.
     if (event?.is_resolved) {
-      if (event.close_price != null) return Number(event.close_price);
-      const fin = event.options.find((o) => o.is_winner);
-      const wentUp = fin ? /(^|[-_ ])(yes|up)$/i.test(fin.label) : true;
-      return basePrice * (wentUp ? 1.0128 : 0.9912);
+      // No fake data on settled pages: without a real close we show nothing.
+      return event.close_price != null ? Number(event.close_price) : null;
     }
     const drift = Math.sin(tick / 3 + (event?.id.length || 0) % 7) * 0.009;
     return basePrice * (1 + drift);
   }, [basePrice, tick, event?.id, event?.is_resolved, event?.options, event?.close_price]);
   const pctToday = basePrice && currentPrice ? ((currentPrice - basePrice) / basePrice) * 100 : 0;
+  // Settled events without a recorded close show no price / % figures.
+  const showPriceReadout = currentPrice != null;
 
   // Sentiment %s
   const upPct = Math.max(1, Math.min(99, Math.round(yesLive * 100)));
@@ -264,6 +268,7 @@ const LiteSpotTrade = () => {
   );
   const otherStocks = useOtherStocks(event?.id || "");
   const pastDays = usePastDays(eventId, yesOpt?.label);
+  const todayEventId = useTodayEventId(eventId);
 
   // Spot cash-out routes through the existing spot SELL path (not the generic
   // position close) because only that path credits the cash balance.
@@ -371,7 +376,7 @@ const LiteSpotTrade = () => {
           {currentPrice != null && (
             <span className="text-foreground">{formatMarketPrice(currentPrice, market)}</span>
           )}
-          {basePrice != null && (
+          {basePrice != null && showPriceReadout && (
             <span
               className={cn(
                 pctToday >= 0 ? "text-trading-green" : "text-trading-red",
@@ -416,7 +421,8 @@ const LiteSpotTrade = () => {
 
   const SettlementRail = (
     <SpotSettlementRail
-      blocked={blocked}
+      blocked={blocked || resolved}
+      settled={resolved}
       tradingNow={!resolved && lifecycle === "TRADING"}
       nodes={[
         { key: "opened", label: "Opened", time: "" },
@@ -611,6 +617,7 @@ const LiteSpotTrade = () => {
   const PastDays = (
     <PastDaysStrip
       days={pastDays}
+      todayId={todayEventId}
       currentId={event.id}
       upLabel={yesLabel}
       downLabel={noLabel}
