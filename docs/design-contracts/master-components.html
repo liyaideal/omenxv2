@@ -91,6 +91,10 @@ Colour axes: direction = Pulse Blue <code>#33D6FF</code> / Volt <code>#CFFF4A</c
 Intraday identity orange <code>#FF8A3D</code>; live red <code>#FF3B4E</code>.
 </p>
 
+<p class="doc-sub" style="margin-top:10px;color:#CFFF4A">
+<strong>2026-08-06</strong> — settled surface restructure: /resolved deleted on Lite; RoundTape unified; outcome card multi support; AccountBalanceLine; account naming Boost/Standard.
+</p>
+
 <!-- ======================================================= 1 CHROME -->
 <section class="doc-section">
 <h2>1 · Chrome</h2>
@@ -1048,6 +1052,44 @@ Intraday identity orange <code>#FF8A3D</code>; live red <code>#FF3B4E</code>.
     <span style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#C9CED6;font-weight:700;border:1px solid #23262D;border-radius:6px;padding:2px 7px">Closes soon</span>
   </div>
 </div>
+</section>
+
+<!-- ======================================================= 10 SETTLED SURFACE & SHARED TAPE -->
+<section class="doc-section">
+<h2>10 · Settled surface &amp; shared tape</h2>
+
+<div class="lbl frozen"><span class="n">RoundTape — history tape (the ONE strip implementation)</span><span class="r">src/components/lite/shared/RoundTape.tsx. ABSOLUTE: no re-drawn lookalikes — every history strip on the Lite surface is this component; density/context differences are props only. Anatomy: left compass slot (micro line 9.5px / letter-spacing .1em / uppercase / #6B7280, plus an optional bold value line 13px .font-display 700) → chip row (gap 6px) → currentSlot(s) → optional legend caption 10.5px #6B7280, margin-top 6. Mobile: row is horizontally scrollable with hidden scrollbars.</span></div>
+<div class="stage d">
+  <div class="cap">Chip spec — 26×26, radius 7, font-size 12. ▲ up = background rgba(51,214,255,.13) / colour #33D6FF · ▼ down = background rgba(207,255,74,.13) / colour #CFFF4A. Active (the round you are on) = outline 1.5px currentColor. Clickable chips on mobile keep the 26px visual inside a transparent ≥44×44 hit area (negative margin −9px preserves the 6px gap and row height).</div>
+  <div style="display:flex;align-items:center;gap:6px;margin-bottom:18px">
+    <div style="margin-right:4px">
+      <div style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#6B7280">ROUND #3332 · AUG 6</div>
+      <div class="font-display" style="font-size:13px;font-weight:700">15:05–15:10</div>
+    </div>
+    <span style="width:26px;height:26px;border-radius:7px;font-size:12px;display:inline-flex;align-items:center;justify-content:center;background:rgba(51,214,255,.13);color:#33D6FF">▲</span>
+    <span style="width:26px;height:26px;border-radius:7px;font-size:12px;display:inline-flex;align-items:center;justify-content:center;background:rgba(207,255,74,.13);color:#CFFF4A">▼</span>
+    <span style="width:26px;height:26px;border-radius:7px;font-size:12px;display:inline-flex;align-items:center;justify-content:center;background:rgba(51,214,255,.13);color:#33D6FF;outline:1.5px solid currentColor">▲</span>
+    <span class="font-display" style="display:inline-flex;align-items:center;gap:5px;border:1.5px solid #FF8A3D;border-radius:13px;padding:3px 10px;color:#FF8A3D;font-size:12px;font-weight:700"><span style="width:6px;height:6px;border-radius:50%;background:#FF8A3D"></span>02:41</span>
+    <span style="width:26px;height:26px;border-radius:7px;border:1px dashed #2B2F38;font-size:7.5px;letter-spacing:.06em;color:#6B7280;display:inline-flex;align-items:center;justify-content:center">NEXT</span>
+  </div>
+  <div class="cap">currentSlot variants — <b>countdown</b>: orange pill, 1.5px solid #FF8A3D, radius 13, padding 3px 10px, 6px dot, label 12px .font-display 700; optional <code>onClick</code> turns it into a button (mobile ≥44px hit area, visual unchanged) — crypto passes none (status only), stock passes a navigate handler to today's event. <b>next</b>: 26px square, radius 7, 1px dashed #2B2F38, label "NEXT" 7.5px / .06em / #6B7280. Both carry tooltips.</div>
+  <div class="cap" style="margin-top:14px">Canonical composition A — crypto quick round (LiteQuickTrade): micro "ROUND #3332 · AUG 6" + value = the round's real window "15:05–15:10" (1D rounds: micro "ROUND #212", value "Aug 6"); past-round chip tooltips are window + result ("14:45–14:50 · Up won"); slots = countdown + next; legend "Past rounds — ▲ up · ▼ down".</div>
+  <div style="display:flex;align-items:center;gap:6px;margin:10px 0 6px">
+    <div style="margin-right:4px"><div style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#6B7280">PAST DAYS</div></div>
+    <span style="width:26px;height:26px;border-radius:7px;font-size:12px;display:inline-flex;align-items:center;justify-content:center;background:rgba(207,255,74,.13);color:#CFFF4A">▼</span>
+    <span style="width:26px;height:26px;border-radius:7px;font-size:12px;display:inline-flex;align-items:center;justify-content:center;background:rgba(51,214,255,.13);color:#33D6FF">▲</span>
+    <span style="width:26px;height:26px;border-radius:7px;border:1px dashed #2B2F38;font-size:7.5px;letter-spacing:.06em;color:#6B7280;display:inline-flex;align-items:center;justify-content:center">NEXT</span>
+  </div>
+  <div style="font-size:10.5px;color:#6B7280">Past days — ▲ up · ▼ down</div>
+  <div class="cap" style="margin-top:14px">Canonical composition B — stock past days (LiteSpotTrade): micro "PAST DAYS", no value line; chips are tappable and navigate to that day's event page (each tooltip is the date + result); currentSlot = the SAME orange countdown pill (time to today's close, session state read from getMarketSession wall-clock logic) while the session is open, and the dashed next slot after the close with a tooltip naming the next open ("Next round · opens 9:30 ET"); legend "Past days — ▲ up · ▼ down".</div>
+  <div class="cap" style="margin-top:14px">RULING 2026-08-06 — stock daily rounds ARE the Intraday family (same species as the quick-round 1D timeframe), so the current-round pill is the same orange countdown everywhere. The bespoke neutral "NOW" pill is abolished; the "today" slot kind no longer exists.</div>
+</div>
+
+<div class="lbl"><span class="n">LiteOutcomeCard — settled result card</span><span class="r">src/components/lite/LiteOutcomeCard.tsx. Rendered in place by BOTH trade pages when the event is settled (the Lite settled list and standalone settled detail page are deleted). Shell rounded-2xl / border / bg-card / p-4; "SETTLED" pill + settled timestamp (font-mono 11px); "OUTCOME" micro caption. Binary board unchanged: winner row tinted rgba(51,214,255,.07) (Yes axis) or rgba(207,255,74,.07) (No axis) with matching text-yes / text-no and $1.00, loser row bg-muted/25 muted $0.00. NEW multi-option board: when <code>options</code> is passed, ALL options are listed, winner sorted first with a NEUTRAL highlight — background rgba(255,255,255,.06), label + $1.00 in #F2F3F5 bold (multi-option markets have no side colours) — losers muted at $0.00. "Your result" block: side badge, optional Boost badge, You put in / Paid out / Profit (19px font-mono, trading-green / trading-red). The "See how it settled" action is REMOVED — the proof segment lives on the same page.</span></div>
+
+<div class="lbl"><span class="n">How it settled — proof segment</span><span class="r">Settled-state segment rendered in the trade pages' rule-module area, using the existing rule-card recipe — no new chrome. Order: conclusion sentence (consumerText, plain English); Needed / Actual numeric rows ONLY for events with a numeric criterion (omitted entirely otherwise); source line with link, falling back to generic copy when no source URL exists.</span></div>
+
+<div class="lbl"><span class="n">AccountBalanceLine</span><span class="r">src/components/wallet/AccountBalanceLine.tsx. Labelled balance read-out + inline transfer entry, used in BOTH Lite order panels: "Boost balance $X" / "Standard balance $X" in font-mono 11px muted-foreground, followed by an ArrowLeftRight (⇄) button that opens TransferDialog (desktop) / TransferDrawer (mobile) with <code>initialDirection</code> preset. Icon 12×12. Desktop hit area = p-0.5; mobile = min 44×44 with negative margins (−my-3 −mx-2) so the row height is unchanged. CPO ruling 2026-08-06: every displayed account balance offers a Transfer entry, and accounts are named Standard (spot) / Boost (futures) — never Spot/Futures in Lite copy.</span></div>
 </section>
 
 <section class="doc-section">
