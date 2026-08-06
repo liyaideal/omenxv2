@@ -50,7 +50,6 @@ import type { Tables } from "@/integrations/supabase/types";
 import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
 import LiteQuickTrade from "@/pages/lite/LiteQuickTrade";
 import {
-  formatCountdown,
   formatClockCountdown,
   parseQuickId,
   useSecondTick,
