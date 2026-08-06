@@ -9,6 +9,7 @@
 // ============================================================
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { AccountBalanceLine } from "@/components/wallet/AccountBalanceLine";
 import { cn } from "@/lib/utils";
 import { SideButton } from "@/components/lite/shared/SideButton";
 import { useAuth } from "@/hooks/useAuth";
