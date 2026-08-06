@@ -464,15 +464,49 @@ const LiteContractTrade = () => {
     />
   );
 
-  const Chart = (
+  // ---- Settled chart grading rule ----
+  // underlying price present  → price line + "Needed" level + Chance toggle
+  // no underlying             → single Chance line from real odds history
+  // multi-option              → Chance multi-line, winner bright, legend chips
+  const winnerOption = event.options.find((o) => o.is_winner) || null;
+  const settledMultiSeries: MultiSeries[] = resolved && isMulti
+    ? event.options
+        .map((o) => ({
+          id: o.id,
+          label: o.label,
+          points: history[o.id] || [],
+          isWinner: !!o.is_winner,
+        }))
+        .filter((s) => s.points.length > 1)
+    : [];
+  const settledOddsHistory =
+    resolved && !isMulti ? history[yesOpt.id] || [] : [];
+  // Never fake data: a settled event with no underlying and no odds history
+  // hides the chart module entirely.
+  const hideSettledChart =
+    resolved &&
+    (isMulti
+      ? settledMultiSeries.length === 0
+      : event.base_price == null && settledOddsHistory.length < 2);
+
+  const Chart = hideSettledChart ? null : (
     <LiteContractChart
       underlyingLabel={event.base_price != null ? "Price" : null}
       basePrice={event.base_price != null ? Number(event.base_price) : null}
       currentPrice={event.base_price != null ? Number(event.base_price) : null}
-      yesOdds={yesLive}
+      yesOdds={
+        resolved && winnerOption
+          ? winnerOption.id === yesOpt.id
+            ? 1
+            : 0
+          : yesLive
+      }
       yesLabel={yesLabel}
       noLabel={noLabel}
-      side={side}
+      side={resolved && winnerOption ? (winnerOption.id === yesOpt.id ? "yes" : "no") : side}
+      oddsHistory={settledOddsHistory.length > 1 ? settledOddsHistory : null}
+      multiSeries={settledMultiSeries.length > 0 ? settledMultiSeries : null}
+      targetLabel="Needed"
     />
   );
 
