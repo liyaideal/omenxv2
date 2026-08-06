@@ -4,19 +4,22 @@
 // ============================================================
 import { useNavigate } from "react-router-dom";
 import { AssetAvatar } from "@/components/lite/AssetAvatar";
-import type { StockEventRow } from "@/components/lite/intraday/intradayData";
+import {
+  type StockEventRow,
+  formatCountdown,
+  seedFromId,
+} from "@/components/lite/intraday/intradayData";
 import {
   PctChange,
   PriceReadout,
 } from "@/components/lite/shared/primitives";
 import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader";
 import {
-  formatCountdown,
   formatMarketPrice,
   resolveStockMarket,
-  seedFromId,
 } from "@/lib/usStockSessions";
 import { DirectionButton } from "../categoryviews/verticalBlocks";
+
 
 const MICRO: React.CSSProperties = {
   fontSize: 9,
