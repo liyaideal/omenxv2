@@ -2,8 +2,9 @@
 // ROUND TAPE — the ONE history-strip implementation on the Lite surface.
 // Used by the crypto quick-round page (label "ROUND / #3332", orange live
 // countdown pill, dashed NEXT slot) and by daily up/down stock pages
-// (label "PAST DAYS", neutral NOW pill). Density/context differences are
-// props — never re-drawn markup.
+// (label "PAST DAYS", same orange countdown pill while the session is open —
+// both are the Intraday family — dashed NEXT slot after the close).
+// Density/context differences are props — never re-drawn markup.
 // ============================================================
 import { cn } from "@/lib/utils";
 import {
