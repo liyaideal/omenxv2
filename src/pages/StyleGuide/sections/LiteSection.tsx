@@ -897,61 +897,9 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
         </SubSection>
 
         <SubSection
-          title="Settled market card"
-          description="Grid card on the Lite settled list. Three swaps vs. the live card: result/neutral tag, single winner row, past-tense footer."
+          title="Trade-page settled state · outcome card"
+          description="A settled event has no separate page — the trade page renders its settled state in place and the outcome card takes the order-panel slot."
         >
-          <Grid cols={3}>
-            <Cell label="Won · participated">
-              <LiteSettledCard event={settledDemo("won")} onSelect={() => undefined} />
-            </Cell>
-            <Cell label="Lost · participated">
-              <LiteSettledCard event={settledDemo("lost")} onSelect={() => undefined} />
-            </Cell>
-            <Cell label="Neutral · not participated">
-              <LiteSettledCard event={settledDemo("neutral")} onSelect={() => undefined} />
-            </Cell>
-            <Cell label="Negative-alias winner (never renders the raw label)">
-              <LiteSettledCard event={settledDemo("negative")} onSelect={() => undefined} />
-            </Cell>
-          </Grid>
-        </SubSection>
-
-        <SubSection
-          title="Daily-stock series"
-          description="Daily up/down days collapse into one card per ticker; the series view lists the days."
-        >
-          <div className="space-y-6">
-            <Grid cols={2}>
-              <Cell label="With the viewer's latest result">
-                <LiteSettledSeriesCard series={seriesDemo(12.4)} onSelect={() => undefined} />
-              </Cell>
-              <Cell label="No participation">
-                <LiteSettledSeriesCard series={seriesDemo(null)} onSelect={() => undefined} />
-              </Cell>
-            </Grid>
-            <div>
-              <StateChip>Series view · day rows</StateChip>
-              <div className="rounded-2xl border border-border bg-card p-2">
-                <LiteSettledSeriesDayRow event={settledDemo("won")} onSelect={() => undefined} />
-                <LiteSettledSeriesDayRow event={settledDemo("lost")} onSelect={() => undefined} />
-                <LiteSettledSeriesDayRow event={settledDemo("negative")} onSelect={() => undefined} />
-              </div>
-            </div>
-          </div>
-        </SubSection>
-
-        <SubSection title="Settled outcome card">
-          <div className="mb-6">
-            <StateChip>Live / Settled switch · both states</StateChip>
-            <Grid>
-              <Cell label="Live selected (markets list default)">
-                <LiveSettledSwitch value="live" onSelect={() => undefined} />
-              </Cell>
-              <Cell label="Settled selected (resolved browser)">
-                <LiveSettledSwitch value="settled" onSelect={() => undefined} />
-              </Cell>
-            </Grid>
-          </div>
           <Grid cols={3}>
             <Cell label="Won · with holding">
               <LiteOutcomeCard
@@ -963,7 +911,6 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
                 sourceUrl="https://example.com"
                 summary="Closed above the target at the cash close."
                 holding={{ sideLabel: "Yes", isYesSide: true, boost: 5, putIn: 120, paidOut: 206.9, profit: 86.9 }}
-                onSeeHow={() => undefined}
                 onBrowse={() => undefined}
               />
             </Cell>
@@ -975,7 +922,6 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
                 loserLabel="Yes"
                 summary="Closed below the target."
                 holding={{ sideLabel: "Yes", isYesSide: true, boost: 3, putIn: 120, paidOut: 0, profit: -120 }}
-                onSeeHow={() => undefined}
                 onBrowse={() => undefined}
               />
             </Cell>
@@ -986,9 +932,81 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
                 winnerIsYes
                 loserLabel="No"
                 holding={null}
-                onSeeHow={() => undefined}
                 onBrowse={() => undefined}
               />
+            </Cell>
+            <Cell label="Multi-option · winner neutral-bright, no side colours">
+              <LiteOutcomeCard
+                settledAt={frozenIso()}
+                winnerLabel="Fed holds rates"
+                loserLabel="Cut by 25bps"
+                options={[
+                  { id: "a", label: "Fed holds rates", isWinner: true },
+                  { id: "b", label: "Cut by 25bps", isWinner: false },
+                  { id: "c", label: "Cut by 50bps", isWinner: false },
+                  { id: "d", label: "Hike", isWinner: false },
+                ]}
+                holding={null}
+                onBrowse={() => undefined}
+              />
+            </Cell>
+          </Grid>
+        </SubSection>
+
+        <SubSection
+          title="Trade-page settled state · how-it-settled proof"
+          description="Sits in the rule-module area of both trade pages, settled state only. Numeric rows appear only when the event has a numeric criterion."
+        >
+          <Grid cols={3}>
+            <Cell label="Numeric criterion (daily stock)">
+              <HowItSettled
+                summary="NVDA closed above its previous close, so Up paid out."
+                criterion={{
+                  neededLabel: "Needed — close above NVDA's previous close",
+                  neededValue: "$118.42",
+                  actualLabel: "Actual — final close",
+                  actualValue: "$121.07",
+                }}
+                sourceName="Nasdaq"
+                sourceUrl="https://example.com"
+              />
+            </Cell>
+            <Cell label="No numeric criterion (policy / awards)">
+              <HowItSettled summary="The nominee didn't take office before the deadline, so No paid out." />
+            </Cell>
+            <Cell label="Multi-option">
+              <HowItSettled
+                summary="The committee held rates, so Fed holds rates paid out."
+                sourceName="Federal Reserve"
+                sourceUrl="https://example.com"
+              />
+            </Cell>
+          </Grid>
+        </SubSection>
+
+        <SubSection
+          title="Trade-page settled state · past-days strip"
+          description="Same chip grammar as the quick-round tape. Shown on daily up/down spot pages in BOTH live and settled states; each chip opens that day."
+        >
+          <Grid cols={2}>
+            <Cell label="Desktop · 26px chips">
+              <PastDaysStrip
+                days={pastDaysDemo}
+                currentId="us-nvda-updown-20260801"
+                upLabel="Up"
+                downLabel="Not up"
+              />
+            </Cell>
+            <Cell label="Mobile 375 · 44px touch targets">
+              <div className="w-[343px]">
+                <PastDaysStrip
+                  days={pastDaysDemo}
+                  currentId="us-nvda-updown-20260801"
+                  upLabel="Up"
+                  downLabel="Not up"
+                  isMobile
+                />
+              </div>
             </Cell>
           </Grid>
         </SubSection>
