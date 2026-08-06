@@ -214,9 +214,7 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
           <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
             How much
           </div>
-          <div className="font-mono text-[11px] text-muted-foreground">
-            Balance {money(spotBalance)}
-          </div>
+          <AccountBalanceLine value={money(spotBalance)} direction="to_spot" />
         </div>
         <div className="rounded-xl bg-muted/40 p-3">
           <div className="flex items-baseline gap-2">
