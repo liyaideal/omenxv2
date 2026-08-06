@@ -72,6 +72,10 @@ const utcHHMM = (d: Date) =>
     hour12: false,
   }).format(d);
 
+// "AUG 6" / "Aug 6" — UTC, same axis convention as the round chart.
+const utcMonthDay = (d: Date) =>
+  new Intl.DateTimeFormat("en-US", { timeZone: "UTC", month: "short", day: "numeric" }).format(d);
+
 export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
