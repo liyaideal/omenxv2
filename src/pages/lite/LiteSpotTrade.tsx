@@ -63,7 +63,7 @@ import {
   usePastDays,
   useTodayEventId,
 } from "@/components/lite/shared/pastDays";
-import { RoundTape } from "@/components/lite/shared/RoundTape";
+import { RoundTape, type TapeCurrentSlot } from "@/components/lite/shared/RoundTape";
 import { EmptyState } from "@/components/states";
 import {
   LiteMarketActivity,
