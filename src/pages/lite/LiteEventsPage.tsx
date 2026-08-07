@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Loader2, Star } from "lucide-react";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { useMarketListData } from "@/hooks/useMarketListData";
@@ -129,7 +129,9 @@ const LiteEventsPage = () => {
     [sectorCounts],
   );
 
-  const [sector, setSector] = useState<string>("all");
+  // Campaign task CTAs land here with ?sector=<category> — deep-link the filter.
+  const [searchParams] = useSearchParams();
+  const [sector, setSector] = useState<string>(() => searchParams.get("sector") || "all");
   const isWatchlistView = sector === "watchlist";
   const isStageView = !calendarOn && !isMobile && sector === "all" && !boostOnly;
   const isIntradayView = !calendarOn && !isMobile && sector === "intraday";
