@@ -138,19 +138,6 @@ export default function LiteCampaignDetailPage() {
               <span className="font-sans font-medium text-[#6B7280]">not guaranteed</span>
             </span>
           )}
-          {isSpecial && (
-            <span
-              className="rounded-full font-display text-[12.5px] font-semibold"
-              style={{
-                background: "rgba(255,138,61,.10)",
-                border: "1px solid rgba(255,138,61,.45)",
-                color: "#FF8A3D",
-                padding: "7px 13px",
-              }}
-            >
-              {entry?.branding.blurb || "Exclusive: trade $200 (public asks $500)"}
-            </span>
-          )}
           {frozen && (
             <span
               className="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.06em]"
