@@ -342,14 +342,14 @@ export default function LiteCampaignDetailPage() {
     <div className="py-16 text-center text-[13px] text-[#9AA1AC]">This campaign is no longer available.</div>
   ) : isMobile ? (
     <div className="space-y-5">
-      {hero}
+      {mobileHero}
       {tasksPanel}
       {rewardsCard}
       {finePrint}
     </div>
   ) : (
     <div className="space-y-5">
-      {hero}
+      {desktopHero}
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="order-2 lg:order-1">{tasksPanel}</div>
         <div className="order-1 lg:order-2">{rewardsCard}</div>
