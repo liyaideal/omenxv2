@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -165,6 +166,45 @@ export const useCampaignGrants = () => {
 
 export type CampaignPhase = "live" | "upcoming" | "always-on" | "ended";
 
+const PENDING_ENTRY_KEY = "omenx_pending_campaign_entry";
+
+/** `?entry=CODE` on the URL, or the code stashed for a visitor who isn't signed in yet. */
+export const usePendingEntryCode = (): string | null => {
+  const [searchParams] = useSearchParams();
+  const fromUrl = searchParams.get("entry");
+  return useMemo(() => {
+    if (fromUrl) return fromUrl;
+    try {
+      return localStorage.getItem(PENDING_ENTRY_KEY);
+    } catch {
+      return null;
+    }
+  }, [fromUrl]);
+};
+
+const PHASE_RANK: Record<CampaignPhase, number> = {
+  live: 0,
+  "always-on": 1,
+  upcoming: 2,
+  ended: 3,
+};
+
+/** LIVE (soonest ending first) → ALWAYS ON → upcoming (soonest starting first) → ended. */
+export const sortCampaignViews = (views: CampaignView[]): CampaignView[] =>
+  [...views].sort((a, b) => {
+    const rank = PHASE_RANK[a.phase] - PHASE_RANK[b.phase];
+    if (rank !== 0) return rank;
+    if (a.phase === "live") {
+      return (
+        new Date(a.campaign.endsAt ?? 0).getTime() - new Date(b.campaign.endsAt ?? 0).getTime()
+      );
+    }
+    if (a.phase === "upcoming") {
+      return new Date(a.campaign.startsAt).getTime() - new Date(b.campaign.startsAt).getTime();
+    }
+    return new Date(b.campaign.startsAt).getTime() - new Date(a.campaign.startsAt).getTime();
+  });
+
 export interface CampaignView {
   campaign: Campaign;
   entry: CampaignEntry | null;
@@ -196,10 +236,16 @@ export const buildCampaignView = (
   participations: CampaignParticipation[],
   grants: CampaignGrant[],
   joinedMap: Record<string, number>,
+  pendingLinkCode?: string | null,
 ): CampaignView => {
   const participation = participations.find((p) => p.campaignId === campaign.id) ?? null;
   const entry =
     campaign.entries.find((e) => e.id === participation?.entryId) ??
+    (pendingLinkCode
+      ? campaign.entries.find(
+          (e) => e.linkCode && e.linkCode.toUpperCase() === pendingLinkCode.toUpperCase(),
+        )
+      : undefined) ??
     campaign.entries.find((e) => e.kind === "public") ??
     campaign.entries[0] ??
     null;
@@ -250,13 +296,22 @@ export const useCampaignViews = () => {
   const participations = useCampaignParticipations();
   const grants = useCampaignGrants();
   const queryClient = useQueryClient();
+  const pendingLinkCode = usePendingEntryCode();
 
   const views = useMemo(
     () =>
-      (catalogue.data ?? []).map((c) =>
-        buildCampaignView(c, participations.data ?? [], grants.data ?? [], joined.data ?? {}),
+      sortCampaignViews(
+        (catalogue.data ?? []).map((c) =>
+          buildCampaignView(
+            c,
+            participations.data ?? [],
+            grants.data ?? [],
+            joined.data ?? {},
+            pendingLinkCode,
+          ),
+        ),
       ),
-    [catalogue.data, participations.data, grants.data, joined.data],
+    [catalogue.data, participations.data, grants.data, joined.data, pendingLinkCode],
   );
 
   return {
