@@ -245,6 +245,191 @@ export type Database = {
         }
         Relationships: []
       }
+      campaign_entries: {
+        Row: {
+          branding: Json
+          campaign_id: string
+          cap: number | null
+          channel_id: string | null
+          created_at: string
+          id: string
+          kind: string
+          link_code: string | null
+          reward: Json
+          rules: Json
+          seed_base: number
+          updated_at: string
+        }
+        Insert: {
+          branding?: Json
+          campaign_id: string
+          cap?: number | null
+          channel_id?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          link_code?: string | null
+          reward?: Json
+          rules?: Json
+          seed_base?: number
+          updated_at?: string
+        }
+        Update: {
+          branding?: Json
+          campaign_id?: string
+          cap?: number | null
+          channel_id?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          link_code?: string | null
+          reward?: Json
+          rules?: Json
+          seed_base?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_entries_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_entries_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_grants: {
+        Row: {
+          created_at: string
+          entry_id: string
+          id: string
+          progress: Json
+          status: string
+          task_key: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entry_id: string
+          id?: string
+          progress?: Json
+          status?: string
+          task_key: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entry_id?: string
+          id?: string
+          progress?: Json
+          status?: string
+          task_key?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_grants_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_participations: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          entry_id: string
+          id: string
+          joined_at: string
+          locked_at: string | null
+          source: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          entry_id: string
+          id?: string
+          joined_at?: string
+          locked_at?: string | null
+          source?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          entry_id?: string
+          id?: string
+          joined_at?: string
+          locked_at?: string | null
+          source?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_participations_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_participations_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaigns: {
+        Row: {
+          budget_total: number | null
+          created_at: string
+          ends_at: string | null
+          id: string
+          name: string
+          starts_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          budget_total?: number | null
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          name: string
+          starts_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          budget_total?: number | null
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          name?: string
+          starts_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       category_boost_configs: {
         Row: {
           category: string
@@ -262,6 +447,30 @@ export type Database = {
           category?: string
           enabled?: boolean
           max_leverage?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      channels: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -809,6 +1018,7 @@ export type Database = {
           redeemed_event_id: string | null
           redeemed_option_id: string | null
           redeemed_side: string | null
+          source_entry_id: string | null
           status: string
           updated_at: string
           user_id: string
@@ -831,6 +1041,7 @@ export type Database = {
           redeemed_event_id?: string | null
           redeemed_option_id?: string | null
           redeemed_side?: string | null
+          source_entry_id?: string | null
           status?: string
           updated_at?: string
           user_id: string
@@ -853,6 +1064,7 @@ export type Database = {
           redeemed_event_id?: string | null
           redeemed_option_id?: string | null
           redeemed_side?: string | null
+          source_entry_id?: string | null
           status?: string
           updated_at?: string
           user_id?: string
@@ -863,6 +1075,13 @@ export type Database = {
             columns: ["redeemed_airdrop_position_id"]
             isOneToOne: false
             referencedRelation: "airdrop_positions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "position_vouchers_source_entry_id_fkey"
+            columns: ["source_entry_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_entries"
             referencedColumns: ["id"]
           },
         ]
@@ -1690,6 +1909,14 @@ export type Database = {
       }
       ensure_voucher_pool_today: { Args: never; Returns: undefined }
       gen_voucher_code: { Args: never; Returns: string }
+      get_campaign_entry_joined: {
+        Args: never
+        Returns: {
+          campaign_id: string
+          entry_id: string
+          joined: number
+        }[]
+      }
       get_voucher_pool_today: {
         Args: never
         Returns: {
