@@ -5,8 +5,6 @@
  * preview route is mounted inside a 375px iframe (see DeviceFrame).
  */
 import { CampaignCard } from "@/components/campaigns/CampaignCard";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
-import LiteCampaignDetailPage from "@/pages/lite/LiteCampaignDetailPage";
 import { CampaignKeyVisual } from "@/components/campaigns/CampaignKeyVisual";
 import { GrantTaskRow } from "@/components/campaigns/GrantTaskRow";
 import { EndedCampaignsArchive } from "@/components/campaigns/EndedCampaignsArchive";
@@ -276,12 +274,13 @@ export const EndedArchivePreview = () => (
 );
 
 /* ---------------- Ended campaign detail — frozen settled view ---------------- */
+/** Nested iframe: the production route itself, so the frozen settled view is the real page. */
 export const EndedCampaignDetailPreview = () => (
-  <MemoryRouter initialEntries={[`/rewards/campaign/${JULY_WARMUP_ID}`]}>
-    <Routes>
-      <Route path="/rewards/campaign/:campaignId" element={<LiteCampaignDetailPage />} />
-    </Routes>
-  </MemoryRouter>
+  <iframe
+    title="ended-campaign-detail"
+    src={`/rewards/campaign/${JULY_WARMUP_ID}`}
+    className="h-[860px] w-full rounded-[12px] border border-[#1D2026] bg-background"
+  />
 );
 
 /* ---------------- Points retirement notice (as shipped on /rewards) ---------------- */
