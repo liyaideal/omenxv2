@@ -64,7 +64,7 @@ export const EndedCampaignsArchive = ({
                     </div>
                     <div className="mt-0.5 text-[11.5px] font-semibold text-[#CFFF4A]">
                       ${v.voucherClaimed} in vouchers
-                      {v.usdcClaimed > 0 && <span className="text-[#33D6FF]"> · +${v.usdcClaimed} USDC</span>}
+                      {v.usdcClaimed > 0 && <span className="text-[#33D6FF]"> · ${v.usdcClaimed} USDC</span>}
                     </div>
                   </div>
                 </button>
@@ -92,7 +92,7 @@ export const EndedCampaignsArchive = ({
               </div>
               <div className="shrink-0 text-right">
                 <div className="text-[12.5px] font-semibold text-[#CFFF4A]">${v.voucherClaimed} in vouchers</div>
-                {v.usdcClaimed > 0 && <div className="text-[11.5px] text-[#33D6FF]">+${v.usdcClaimed} USDC</div>}
+                {v.usdcClaimed > 0 && <div className="text-[11.5px] text-[#33D6FF]">${v.usdcClaimed} USDC</div>}
                 <div className="text-[11.5px] text-[#6B7280]">
                   {v.tasksDone} / {v.tasksTotal} tasks
                 </div>
