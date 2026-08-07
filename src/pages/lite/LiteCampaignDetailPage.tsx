@@ -67,44 +67,88 @@ export default function LiteCampaignDetailPage() {
   const kolName = entry?.branding.display_name ?? "Partner";
   const avatar = entry?.branding.avatar_url;
 
-  const hero = view && (
+  const mobileHero = view && (
+    <div className="flex flex-col">
+      {/* Art band — image only, no text baked on top. */}
+      <CampaignKeyVisual
+        src={entry?.branding.key_visual_url}
+        accent={view.accent}
+        ratio="16 / 7"
+        className="rounded-[14px]"
+        scrim="linear-gradient(180deg,rgba(10,11,13,0) 34%,rgba(10,11,13,.55) 100%)"
+      >
+        <div />
+        <div />
+      </CampaignKeyVisual>
+
+      {/* Info block — one clean vertical rhythm. */}
+      <div className="mt-[14px] flex flex-col gap-[10px]">
+        {isSpecial && (
+          <div
+            className="inline-flex max-w-full self-start items-center gap-[8px] rounded-full"
+            style={{ background: "#FF8A3D", color: "#2A1200", padding: "3px 11px 3px 3px" }}
+          >
+            <span
+              className="grid h-[22px] w-[22px] shrink-0 place-items-center overflow-hidden rounded-full text-[11px] font-bold"
+              style={{ background: "#2A1200", color: "#FF8A3D" }}
+            >
+              {avatar ? <img src={avatar} alt="" className="h-full w-full object-cover" /> : kolName.slice(0, 1)}
+            </span>
+            <span className="truncate font-display text-[11.5px] font-bold">{kolName} × OmenX</span>
+          </div>
+        )}
+
+        <h1 className="font-display text-[22px] font-bold leading-[28px] text-[#F2F3F5]">{view.campaign.name}</h1>
+
+        <div className="font-display text-[12px] leading-[16px] tabular-nums text-[#9AA1AC]">
+          {view.phase === "always-on"
+            ? "Always valid"
+            : formatDateRange(view.campaign.startsAt, view.campaign.endsAt)}
+          {view.daysLeft !== null && ` · ${view.daysLeft}d left`} · {view.joined.toLocaleString()} joined
+          {frozen && " · Ended"}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {view.rewardVoucherUpTo > 0 && (
+            <span
+              className="rounded-full font-display text-[12px] font-bold"
+              style={{ background: "#131519", border: "1px solid #1D2026", color: "#CFFF4A", padding: "6px 12px" }}
+            >
+              ${view.rewardVoucherUpTo} Trial Position Voucher
+            </span>
+          )}
+          {view.rewardUsdcUpTo > 0 && (
+            <span
+              className="inline-flex items-center gap-1.5 rounded-full font-display text-[12px] font-bold"
+              style={{ background: "#131519", border: "1px solid #1D2026", color: "#33D6FF", padding: "6px 12px" }}
+            >
+              +${view.rewardUsdcUpTo} USDC
+              <span className="font-sans font-medium text-[#6B7280]">not guaranteed</span>
+            </span>
+          )}
+        </div>
+
+        {isSpecial && (
+          <span className="text-[11.5px] leading-[16px] text-[#6B7280]">
+            Exclusive entry — you joined through {kolName}'s link.
+          </span>
+        )}
+      </div>
+    </div>
+  );
+
+  const desktopHero = view && (
     <CampaignKeyVisual
       src={entry?.branding.key_visual_url}
       accent={view.accent}
-      ratio={isMobile ? "16 / 9" : "1232 / 300"}
+      ratio="1232 / 300"
       className="rounded-[14px]"
       scrim="linear-gradient(180deg,rgba(10,11,13,0) 0%,rgba(10,11,13,.72) 46%,rgba(10,11,13,.94) 100%)"
       scrimHeight="190px"
     >
       <div />
       <div className="mx-auto flex w-full max-w-[1248px] flex-col gap-[12px]">
-        {isSpecial && (isMobile ? (
-          /* Mobile: slim single-line badge; the terms sentence drops to a
-             muted line so the orange block does not dominate the hero. */
-          <div className="flex min-w-0 flex-col gap-[6px]">
-            <div
-              className="inline-flex max-w-full self-start items-center gap-[8px] rounded-full"
-              style={{ background: "#FF8A3D", color: "#2A1200", padding: "3px 11px 3px 3px" }}
-            >
-              <span
-                className="grid h-[24px] w-[24px] shrink-0 place-items-center overflow-hidden rounded-full text-[11px] font-bold"
-                style={{ background: "#2A1200", color: "#FF8A3D" }}
-              >
-                {avatar ? (
-                  <img src={avatar} alt="" className="h-full w-full object-cover" />
-                ) : (
-                  kolName.slice(0, 1)
-                )}
-              </span>
-              <span className="truncate font-display text-[12px] font-bold">
-                {kolName} × OmenX
-              </span>
-            </div>
-            <span className="text-[11.5px] leading-[16px] text-[#C9CED6]">
-              Exclusive entry — you joined through {kolName}'s link.
-            </span>
-          </div>
-        ) : (
+        {isSpecial && (
           <div
             className="inline-flex self-start items-center gap-[11px] rounded-full"
             style={{ background: "#FF8A3D", color: "#2A1200", padding: "5px 15px 5px 5px" }}
@@ -126,37 +170,17 @@ export default function LiteCampaignDetailPage() {
               </span>
             </div>
           </div>
-        ))}
-
-        <h1 className="font-display text-[22px] font-bold leading-tight text-[#F2F3F5] md:text-[36px]">
-          {view.campaign.name}
-        </h1>
-        {isMobile ? (
-          <div className="font-display text-[12.5px] leading-[18px] tabular-nums text-[#C9CED6]">
-            <div>
-              {view.phase === "always-on"
-                ? "Always valid"
-                : formatDateRange(view.campaign.startsAt, view.campaign.endsAt)}
-            </div>
-            <div className="text-[#9AA1AC]">
-              {view.joined.toLocaleString()} joined
-              {view.daysLeft !== null && ` · ${view.daysLeft}d left`}
-            </div>
-          </div>
-        ) : (
-          <div className="font-display text-[12.5px] tabular-nums text-[#C9CED6]">
-            {view.phase === "always-on" ? "Always valid" : formatDateRange(view.campaign.startsAt, view.campaign.endsAt)}
-            {view.daysLeft !== null && ` · ${view.daysLeft} days left`} · {view.joined.toLocaleString()} joined
-          </div>
         )}
 
-        <div
-          className={
-            isMobile
-              ? "-mx-1 flex items-center gap-2 overflow-x-auto whitespace-nowrap px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-              : "flex flex-wrap items-center gap-2"
-          }
-        >
+        <h1 className="font-display text-[36px] font-bold leading-tight text-[#F2F3F5]">
+          {view.campaign.name}
+        </h1>
+        <div className="font-display text-[12.5px] tabular-nums text-[#C9CED6]">
+            {view.phase === "always-on" ? "Always valid" : formatDateRange(view.campaign.startsAt, view.campaign.endsAt)}
+            {view.daysLeft !== null && ` · ${view.daysLeft} days left`} · {view.joined.toLocaleString()} joined
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
           {view.rewardVoucherUpTo > 0 && (
             <span
               className="shrink-0 whitespace-nowrap rounded-full font-display text-[12.5px] font-bold"
@@ -318,14 +342,14 @@ export default function LiteCampaignDetailPage() {
     <div className="py-16 text-center text-[13px] text-[#9AA1AC]">This campaign is no longer available.</div>
   ) : isMobile ? (
     <div className="space-y-5">
-      {hero}
+      {mobileHero}
       {tasksPanel}
       {rewardsCard}
       {finePrint}
     </div>
   ) : (
     <div className="space-y-5">
-      {hero}
+      {desktopHero}
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="order-2 lg:order-1">{tasksPanel}</div>
         <div className="order-1 lg:order-2">{rewardsCard}</div>
