@@ -24,3 +24,4 @@ export { StatesSection } from "./StatesSection";
 export { EmptyStatesSection } from "./EmptyStatesSection";
 export { EventArtSection } from "./EventArtSection";
 
+export { RewardsMobileSection } from "./RewardsMobileSection";
