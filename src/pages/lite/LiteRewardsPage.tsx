@@ -5,7 +5,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ReferralCard } from "@/components/rewards/ReferralCard";
+import { ReferralPanel } from "@/components/campaigns/ReferralPanel";
 import { CampaignCard } from "@/components/campaigns/CampaignCard";
 import { SignInPromptCard } from "@/components/campaigns/SignInPromptCard";
 import { EndedCampaignsArchive } from "@/components/campaigns/EndedCampaignsArchive";
@@ -135,7 +135,7 @@ export default function LiteRewardsPage() {
       ) : signedOut ? (
         <SignInPromptCard cap="REFERRAL" description="Sign in to track progress and claim rewards." />
       ) : (
-        <ReferralCard />
+        <ReferralPanel />
       )}
     </div>
   );
