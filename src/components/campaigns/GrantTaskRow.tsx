@@ -39,7 +39,6 @@ export const GrantTaskRow = ({
   const notEligible = status === "not_eligible";
   const showBar =
     status === "in_progress" && typeof progressValue === "number" && typeof task.target === "number";
-  const pct = showBar ? Math.min(100, (progressValue! / task.target!) * 100) : 0;
   const Icon = iconFor(task, notEligible);
 
   return (
