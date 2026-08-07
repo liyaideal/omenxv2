@@ -5,11 +5,12 @@ import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { ReferralCard } from "@/components/rewards/ReferralCard";
 import { CampaignCard } from "@/components/campaigns/CampaignCard";
+import { SignInPromptCard } from "@/components/campaigns/SignInPromptCard";
 import { EndedCampaignsArchive } from "@/components/campaigns/EndedCampaignsArchive";
 import { useCampaignViews } from "@/hooks/useCampaigns";
+import { useAuth } from "@/hooks/useAuth";
 import { EmptyState } from "@/components/states";
 
 const NOTICE_KEY = "omenx_points_retired_notice_dismissed";
@@ -80,6 +81,8 @@ const Tabs = ({ value, onChange }: { value: string; onChange: (v: string) => voi
 
 export default function LiteRewardsPage() {
   const isMobile = useIsMobile();
+  const { user } = useAuth();
+  const signedOut = !user;
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get("tab");
   const [tab, setTab] = useState(tabParam === "referral" ? "referral" : "campaigns");
@@ -122,13 +125,15 @@ export default function LiteRewardsPage() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
               {active.map((v) => (
-                <CampaignCard key={v.campaign.id} view={v} />
+                <CampaignCard key={v.campaign.id} view={v} signedOut={signedOut} />
               ))}
             </div>
           )}
 
           <EndedCampaignsArchive views={ended} />
         </div>
+      ) : signedOut ? (
+        <SignInPromptCard cap="REFERRAL" description="Sign in to track progress and claim rewards." />
       ) : (
         <ReferralCard />
       )}
@@ -139,13 +144,7 @@ export default function LiteRewardsPage() {
     return (
       <div className="min-h-screen bg-background pb-24">
         <MobileHeader title="Rewards" showLogo={false} showBack />
-        <AuthGateOverlay
-          title="Rewards"
-          description="Sign in to join campaigns and collect vouchers."
-          maxPreviewHeight="400px"
-        >
-          <main className="px-4 py-4">{body}</main>
-        </AuthGateOverlay>
+        <main className="px-4 py-4">{body}</main>
         <BottomNav />
       </div>
     );
@@ -154,9 +153,7 @@ export default function LiteRewardsPage() {
   return (
     <div className="min-h-screen bg-background">
       <EventsDesktopHeader />
-      <AuthGateOverlay title="Rewards" description="Sign in to join campaigns and collect vouchers.">
-        <main className="mx-auto w-full max-w-7xl px-4 py-8 lg:px-6">{body}</main>
-      </AuthGateOverlay>
+      <main className="mx-auto w-full max-w-7xl px-4 py-8 lg:px-6">{body}</main>
     </div>
   );
 }

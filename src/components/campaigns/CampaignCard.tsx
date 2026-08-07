@@ -47,7 +47,7 @@ const Badge = ({ view }: { view: CampaignView }) => {
   );
 };
 
-export const CampaignCard = ({ view }: { view: CampaignView }) => {
+export const CampaignCard = ({ view, signedOut }: { view: CampaignView; signedOut?: boolean }) => {
   const navigate = useNavigate();
   const pct = view.tasksTotal > 0 ? (view.tasksDone / view.tasksTotal) * 100 : 0;
   const dateLine = formatDateRange(view.campaign.startsAt, view.campaign.endsAt);
@@ -76,15 +76,19 @@ export const CampaignCard = ({ view }: { view: CampaignView }) => {
       </CampaignKeyVisual>
 
       <div className="space-y-3 p-4">
-        <div className="flex items-center justify-between">
+        {!signedOut && (
+          <>
+            <div className="flex items-center justify-between">
           <span className="text-[12px] text-[#9AA1AC]">Your progress</span>
           <span className="font-display text-[12.5px] font-semibold tabular-nums text-[#F2F3F5]">
             {view.tasksDone} / {view.tasksTotal} tasks done
           </span>
-        </div>
-        <div className="h-[5px] w-full overflow-hidden rounded-[3px] bg-[#1A1D22]">
-          <div className="h-full rounded-[3px]" style={{ width: `${pct}%`, background: view.accent }} />
-        </div>
+            </div>
+            <div className="h-[5px] w-full overflow-hidden rounded-[3px] bg-[#1A1D22]">
+              <div className="h-full rounded-[3px]" style={{ width: `${pct}%`, background: view.accent }} />
+            </div>
+          </>
+        )}
 
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[12px]">
           <span className="text-[#9AA1AC]">Rewards up to</span>
@@ -105,7 +109,7 @@ export const CampaignCard = ({ view }: { view: CampaignView }) => {
 
         <div className="flex items-center justify-between gap-3">
           <span className="text-[11px] font-bold text-[#CFFF4A]">
-            {view.claimableCount > 0 ? `● ${view.claimableCount} ready to claim` : ""}
+            {!signedOut && view.claimableCount > 0 ? `● ${view.claimableCount} ready to claim` : ""}
           </span>
           <span className="text-[11px] tabular-nums text-[#6B7280]">{meta.join(" · ")}</span>
         </div>

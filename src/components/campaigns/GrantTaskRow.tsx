@@ -23,6 +23,7 @@ export const GrantTaskRow = ({
   onClaim,
   isClaiming,
   frozen,
+  signedOut,
 }: {
   task: CampaignTaskDef;
   status: GrantStatus;
@@ -30,6 +31,7 @@ export const GrantTaskRow = ({
   onClaim: () => void;
   isClaiming?: boolean;
   frozen?: boolean;
+  signedOut?: boolean;
 }) => {
   const voucher = task.reward?.voucher ?? 0;
   const usdc = task.reward?.usdc ?? 0;
@@ -89,7 +91,9 @@ export const GrantTaskRow = ({
           {usdc > 0 && <div className="font-display text-[13.5px] font-bold text-[#33D6FF]">${usdc} USDC</div>}
         </div>
 
-        {status === "claimable" && voucher > 0 && !frozen ? (
+        {signedOut ? (
+          <span className="whitespace-nowrap text-[12.5px] text-[#6B7280]">Sign in to start</span>
+        ) : status === "claimable" && voucher > 0 && !frozen ? (
           <button
             type="button"
             onClick={onClaim}
