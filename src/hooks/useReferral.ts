@@ -22,6 +22,7 @@ export interface Referral {
   rewarded_at: string | null;
   points_awarded: number | null;
   created_at: string;
+  metadata?: Record<string, unknown> | null;
 }
 
 // Generate a random referral code (6 characters)
