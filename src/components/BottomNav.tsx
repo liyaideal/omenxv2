@@ -20,7 +20,7 @@ const navItems = [
   { icon: TrendingUp, label: "Trade", path: "/trade", disabled: false },
 ];
 
-// Lite surface: Markets / Portfolio / Wallet (+ shared Me button)
+// Lite surface: Events / Portfolio / Wallet (+ shared Me button)
 const liteNavItems = [
   { icon: Compass, label: "Events", path: "/events" },
   { icon: PieChart, label: "Portfolio", path: "/portfolio" },

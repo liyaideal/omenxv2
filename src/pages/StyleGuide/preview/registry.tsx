@@ -53,6 +53,16 @@ import {
   ResolvedMarketCardSpotPreview,
   MarketSearchRowSpotPreview,
 } from "./settlementPreviews";
+import {
+  CampaignCardStatesPreview,
+  GrantTaskRowStatesPreview,
+  KolBandPreview,
+  EndedArchivePreview,
+  PointsRetiredNoticePreview,
+  SignInPromptPreview,
+  ReferralPanelPreview,
+  RewardsFinePrintPreview,
+} from "./rewardsPreviews";
 
 /* ---- Mock factories (shared with ApiSection) ---- */
 export const makeTiers = (level: "ok-readonly" | "ok-trading" | "locked"): TierEligibility[] => [
@@ -310,6 +320,16 @@ export const previewRegistry: Record<string, () => JSX.Element> = {
   "product-line-badge-legend": () => <ProductLineBadgeLegendPreview />,
   "resolved-market-card-spot": () => <ResolvedMarketCardSpotPreview />,
   "market-search-row-spot": () => <MarketSearchRowSpotPreview />,
+
+  /* -------- Rewards / Campaigns (R3) -------- */
+  "rewards-campaign-cards": () => <CampaignCardStatesPreview />,
+  "rewards-grant-rows": () => <GrantTaskRowStatesPreview />,
+  "rewards-kol-band": () => <KolBandPreview />,
+  "rewards-ended-archive": () => <EndedArchivePreview />,
+  "rewards-points-notice": () => <PointsRetiredNoticePreview />,
+  "rewards-signin-prompt": () => <SignInPromptPreview />,
+  "rewards-referral-panels": () => <ReferralPanelPreview />,
+  "rewards-fine-print": () => <RewardsFinePrintPreview />,
 };
 
 export type PreviewKey = keyof typeof previewRegistry;

@@ -118,7 +118,6 @@ export default function LiteCampaignDetailPage() {
                 style={{ background: "#131519", border: "1px solid #1D2026", color: "#33D6FF", padding: "6px 12px" }}
               >
                 +${view.rewardUsdcUpTo} USDC
-                <span className="font-sans font-medium text-[#6B7280]">not guaranteed</span>
               </span>
             )}
             {frozen && (
@@ -203,7 +202,6 @@ export default function LiteCampaignDetailPage() {
               }}
             >
               +${view.rewardUsdcUpTo} USDC
-              <span className="font-sans font-medium text-[#6B7280]">not guaranteed</span>
             </span>
           )}
           {frozen && (

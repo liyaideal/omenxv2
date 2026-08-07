@@ -4,7 +4,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
-import { PageTitle } from "@/components/PageTitle";
 import { Button } from "@/components/ui/button";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { toast } from "sonner";
@@ -33,12 +32,7 @@ const ApiManagement = () => {
 
   const content = (
     <div>
-      {!isMobile && (
-        <div className="pb-8">
-          <PageTitle title="Keys & access" />
-        </div>
-      )}
-
+      {/* DATA OPENING — TierQuickAnswer is the opening; no page h1. */}
       <div className="border-t border-border/30" />
 
       <TierQuickAnswer tiers={tiers} />

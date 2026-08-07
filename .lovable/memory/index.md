@@ -24,6 +24,8 @@
 - **sim- 前缀:** 新增演示专用 Edge Function 一律用 `sim-` 前缀命名；存量函数不改名，以 `docs/backend-boundary.md` 标注为准。
 
 ## Memories
+- [Page opening system v3](mem://design/two-openings-title-system) — 三种开场（实体/数据/控件）、栏目页无 h1、PageTitle 与 PageHeader 退役、tab vs chips 判据
+- [Revert scope & frozen components](mem://workflow/revert-scope-and-frozen-components) — revert 是整轮回退；BottomNav 与 /rewards 全家为冻结组件
 - [Event taxonomy](mem://product/event-taxonomy) — Canonical category tree in src/lib/taxonomy.ts; Finance replaces Stocks; Boost = in-place filter
 - [Boost config](docs/taxonomy.md#boost) — 2026-08-06 category leverage caps: Crypto 10×, Macro/Social 5×, Sports 3×; Finance/Politics/Economy explicitly disabled
 - [Lite banned words](mem://design/lite-banned-words) — Rendered Lite copy bans trader jargon + "Props" / "Moneyline" internal names

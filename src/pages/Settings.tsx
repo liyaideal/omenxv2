@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, User, Copy, Check, AlertTriangle, Plus, Camera, Mail, Star, Shield, LogOut, Key } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
-import { PageTitle } from "@/components/PageTitle";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -537,8 +536,7 @@ const Settings = () => {
       <EventsDesktopHeader />
       
       <main className="mx-auto w-full max-w-3xl px-8 py-10 space-y-6">
-        <PageTitle title="Account Settings" />
-
+        {/* DATA OPENING — ProfileCard is the opening; no page h1. */}
         <div className="space-y-6">
           <ProfileCard />
           <UsernameCard />

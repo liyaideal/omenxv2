@@ -7,11 +7,12 @@ interface PageTitleProps {
 }
 
 /**
- * TITLE OPENING (DESIGN.md §4 — "two openings").
+ * RETIRED (2026-08-07) — style-guide archive only, same treatment as PageHeader.
  *
- * Browse pages open with a single clean display h1. No eyebrow, no purple bar,
- * no subtitle. Account pages (Wallet / Portfolio) use the DATA OPENING instead
- * (no title at all — their data hero is the opening).
+ * Opening system v2: section pages carry no h1 at all. A page opens with an
+ * ENTITY opening (entity name — trade event, campaign), a DATA opening (its own
+ * hero/stat module) or a CONTROL opening (tabs / chips / filters).
+ * Do not import this component into product pages.
  */
 export const PageTitle = ({ title, actions }: PageTitleProps) => (
   <div className="flex items-baseline justify-between gap-4">

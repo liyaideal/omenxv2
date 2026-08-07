@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
-import { PageTitle } from "@/components/PageTitle";
 import { MobileHeader } from "@/components/MobileHeader";
 
 import { AirdropHomepageModal } from "@/components/AirdropHomepageModal";
@@ -306,12 +305,12 @@ const EventsPage = () => {
 
       <main className={`${isMobile ? "px-4 py-6" : "mx-auto w-full max-w-7xl px-4 py-10 lg:px-6"} flex flex-1 flex-col gap-6`}>
 
-        {/* Page Title (desktop) — mobile title lives in MobileHeader */}
+        {/* CONTROL OPENING (no h1) — the status tabs are the opening on desktop;
+            mobile opens with its filter controls. */}
         {!isMobile ? (
-          <PageTitle
-            title="Explore Events"
-            actions={<MarketStatusTabs active="active" />}
-          />
+          <div className="flex items-center justify-between gap-3">
+            <MarketStatusTabs active="active" />
+          </div>
         ) : (
           <div className="flex items-center justify-end gap-2">
             <ChgTimeframePicker value={chgTimeframe} onChange={setChgTimeframe} compact />
