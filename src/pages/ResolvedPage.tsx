@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
-import { PageTitle } from "@/components/PageTitle";
 import { MobileHeader } from "@/components/MobileHeader";
 import { MobileStatusDropdown } from "@/components/EventFilters";
 import { ResolvedGroupedGrid } from "@/components/resolved/ResolvedGroupedGrid";
@@ -99,12 +98,11 @@ const ResolvedPage = () => {
           isMobile ? "px-4 py-6" : "px-4 py-10 lg:px-6 max-w-7xl mx-auto"
         } space-y-6`}
       >
-        {/* Page Title (desktop) — mobile title lives in MobileHeader */}
+        {/* CONTROL OPENING (no h1) — status tabs open the page on desktop. */}
         {!isMobile ? (
-          <PageTitle
-            title="Resolved Events"
-            actions={<MarketStatusTabs active="resolved" />}
-          />
+          <div className="flex items-center justify-between gap-3">
+            <MarketStatusTabs active="resolved" />
+          </div>
         ) : (
           <div className="flex items-center justify-end">
             <MobileResolvedFilterDrawer

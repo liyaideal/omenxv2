@@ -127,16 +127,16 @@ export const CommonUISection = ({ isMobile }: CommonUISectionProps) => {
 
   return (
     <div className="space-y-12">
-      {/* PageHeader */}
+      {/* PageHeader + PageTitle — both retired (archive only) */}
       <SectionWrapper
         id="page-header"
-        title="PageHeader (DEPRECATED)"
+        title="PageHeader / PageTitle (RETIRED)"
         platform="shared"
-        description="DEPRECATED — do not use in new pages. Replaced by the 'Two Openings' rule (DESIGN.md §4): account pages (Wallet/Portfolio) open with their data hero and have NO title; browse pages use <PageTitle> (display h1, clamp(28px,4vw,40px), no purple bar, no subtitle). Kept here for archive only."
+        description="RETIRED — neither component may be used in product pages. Opening system v2 (2026-08-07): every page opens with an ENTITY opening (entity name only — trade event, campaign name), a DATA opening (its own hero/stat module), or a CONTROL opening (tabs / chips / filters). Section pages carry NO h1 — 实体名才配标题. Exemptions: Leaderboard neon hero, SEO pages. Kept here for archive only."
       >
         <div className="space-y-6">
           <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-foreground">
-            DEPRECATED · use <span className="font-mono">&lt;PageTitle&gt;</span> or no title at all — see DESIGN.md §4 "Two Openings".
+            RETIRED · <span className="font-mono">&lt;PageHeader&gt;</span> and <span className="font-mono">&lt;PageTitle&gt;</span> are archive-only. Use an entity / data / control opening instead.
           </div>
           <div>
             <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Title only</div>

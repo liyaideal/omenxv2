@@ -107,12 +107,9 @@ export const CampaignCard = ({ view, signedOut }: { view: CampaignView; signedOu
             </span>
           )}
           {view.rewardUsdcUpTo > 0 && (
-            <>
-              <span className="font-display font-semibold tabular-nums text-[#33D6FF]">
-                +${view.rewardUsdcUpTo} USDC
-              </span>
-              <span className="text-[11px] text-[#6B7280]">not guaranteed</span>
-            </>
+            <span className="font-display font-semibold tabular-nums text-[#33D6FF]">
+              +${view.rewardUsdcUpTo} USDC
+            </span>
           )}
         </div>
 

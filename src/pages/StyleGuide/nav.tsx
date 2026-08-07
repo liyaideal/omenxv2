@@ -31,6 +31,7 @@ import {
   EmptyStatesSection,
   EventArtSection,
   RewardsMobileSection,
+  RewardsSection,
 } from "./sections";
 
 export interface SectionEntry {
@@ -117,6 +118,7 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
       s("wallet", "Wallet", WalletSection),
       s("deposit", "Deposit / Withdraw", DepositWithdrawSection),
       s("vouchers", "Vouchers", VouchersSection),
+      s("rewards", "Rewards / Campaigns", RewardsSection),
     ],
   },
   {

@@ -4,7 +4,6 @@ import { Shield, FileSearch, Scale, ChevronRight, ExternalLink, Lock, Eye, Zap, 
 import { DesktopBackLink } from "@/components/ui/desktop-back-link";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
-import { PageTitle } from "@/components/PageTitle";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { Button } from "@/components/ui/button";
@@ -227,7 +226,6 @@ const TransparencyPage = () => {
     >
       <EventsDesktopHeader />
       <main className="flex-1 mx-auto w-full max-w-7xl px-4 py-10 lg:px-6 space-y-6">
-        <PageTitle title="On-Chain Transparency" />
         {content}
       </main>
       <SeoFooter />

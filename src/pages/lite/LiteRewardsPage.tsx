@@ -146,6 +146,12 @@ export default function LiteRewardsPage() {
 
           <EndedCampaignsArchive views={ended} />
 
+          {/* One fine print per page carrying USDC amounts (no inline "not guaranteed"). */}
+          <p className="pt-1 text-[11.5px] leading-5 text-[#6B7280]">
+            USDC amounts are estimates and not guaranteed. A Trial Position Voucher opens a trial position — the
+            profit is yours, the voucher itself is not withdrawable.
+          </p>
+
           {isMobile && <PointsRetiredNotice />}
         </div>
       ) : signedOut ? (
