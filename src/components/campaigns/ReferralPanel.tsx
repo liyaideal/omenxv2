@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Check, Copy, Loader2, UserCheck, UserPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useReferral, type Referral } from "@/hooks/useReferral";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { EmptyState } from "@/components/states";
 import { ClaimButton, TaskRowShell } from "./TaskRowShell";
 
@@ -28,6 +29,7 @@ const STEPS = [
 
 export const ReferralPanel = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const { referralCode, referrals, isLoading } = useReferral();
   const [copied, setCopied] = useState(false);
   const [claiming, setClaiming] = useState<string | null>(null);
@@ -86,13 +88,15 @@ export const ReferralPanel = () => {
             : `Signed up ${fmtDate(r.created_at)} · $${volume} / $${QUALIFY_TARGET} traded`
         }
         progress={isQualified ? undefined : { value: volume, target: QUALIFY_TARGET }}
-        right={
-          <>
-            {isQualified && (
+        reward={
+          isQualified ? (
               <div className="font-display text-[13.5px] font-bold text-[#CFFF4A]">
                 ${REFERRAL_VOUCHER} voucher
               </div>
-            )}
+          ) : null
+        }
+        action={
+          <>
             {isClaimed ? (
               <span className="whitespace-nowrap text-[12.5px] font-semibold text-[#9AA1AC]">Claimed</span>
             ) : isQualified ? (
@@ -109,71 +113,121 @@ export const ReferralPanel = () => {
     );
   };
 
-  return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-      <div className="order-2 space-y-4 lg:order-1">
-        {/* Invite a friend */}
-        <section className={PANEL}>
-          <div className={CAP}>Invite a friend</div>
+  const inviteSection = (
+    <section className={PANEL}>
+      <div className={CAP}>Invite a friend</div>
 
-          <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-            <div
-              className="flex min-h-[44px] flex-1 items-center overflow-hidden rounded-[12px] px-3 font-display text-[14px] text-[#F2F3F5]"
-              style={{ background: "#0F1114", border: "1px solid #2B2F38" }}
-            >
-              <span className="truncate">{isLoading ? "…" : link}</span>
-            </div>
-            <ClaimButton onClick={copy} disabled={!link}>
-              {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-              {copied ? "Copied" : "Copy link"}
-            </ClaimButton>
+      <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+        <div
+          className="flex min-h-[44px] flex-1 items-center overflow-hidden rounded-[12px] px-3 font-display text-[14px] text-[#F2F3F5]"
+          style={{ background: "#0F1114", border: "1px solid #2B2F38" }}
+        >
+          <span className="truncate">{isLoading ? "…" : link}</span>
+        </div>
+        <ClaimButton fullWidth={isMobile} onClick={copy} disabled={!link}>
+          {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+          {copied ? "Copied" : "Copy link"}
+        </ClaimButton>
+      </div>
+
+      <div className="mt-4 space-y-2.5">
+        {STEPS.map((s) => (
+          <div key={s.step} className="flex items-baseline gap-3">
+            <span className="w-[52px] shrink-0 text-[10px] font-bold uppercase tracking-[0.12em] text-[#6B7280]">
+              {s.step}
+            </span>
+            <span className="text-[12.5px]" style={{ color: s.volt ? "#CFFF4A" : "#C9CED6" }}>
+              {s.text}
+            </span>
           </div>
+        ))}
+      </div>
+    </section>
+  );
 
-          <div className="mt-4 space-y-2.5">
-            {STEPS.map((s) => (
-              <div key={s.step} className="flex items-baseline gap-3">
-                <span className="w-[52px] shrink-0 text-[10px] font-bold uppercase tracking-[0.12em] text-[#6B7280]">
-                  {s.step}
-                </span>
-                <span className="text-[12.5px]" style={{ color: s.volt ? "#CFFF4A" : "#C9CED6" }}>
-                  {s.text}
-                </span>
+  const invitesSection = (
+    <section className="space-y-3">
+      <div className="flex items-baseline justify-between">
+        <span className={CAP}>Your invites</span>
+        <span className="text-[11.5px] text-[#6B7280]">
+          {qualified.length} of {rows.length} qualified
+        </span>
+      </div>
+
+      {isLoading ? (
+        <div className="h-[76px] animate-pulse rounded-[14px] bg-[#0F1114]" />
+      ) : rows.length === 0 ? (
+        <EmptyState
+          variant="module"
+          bordered={false}
+          title="No invites yet"
+          description="Share your link to get started."
+        />
+      ) : (
+        rows.map(inviteRow)
+      )}
+    </section>
+  );
+
+  const finePrintSection = (
+    <section className={PANEL}>
+      <div className={CAP}>The fine print</div>
+      <p className="mt-2 text-[11.5px] leading-5 text-[#6B7280]">
+        Referral rewards are Trial Position Vouchers, issued after your friend completes $100 in trades and passes
+        review. One reward per qualified friend, subject to anti-abuse checks.
+      </p>
+    </section>
+  );
+
+  if (isMobile) {
+    return (
+      <div className="space-y-4">
+        {inviteSection}
+
+        {/* Compact three-column overview strip */}
+        <section className="rounded-[16px] border border-[#1D2026] bg-[#131519] p-4">
+          <div className={CAP}>Your referrals</div>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            {[
+              { label: "Invited", value: `${rows.length}`, color: "#FFFFFF" },
+              { label: "Qualified", value: `${qualified.length}`, color: "#FFFFFF" },
+              { label: "Vouchers", value: `$${vouchersEarned}`, color: "#CFFF4A" },
+            ].map((s) => (
+              <div key={s.label} className="rounded-[12px] bg-[#0F1114] px-3 py-2.5">
+                <div className="text-[10px] uppercase tracking-[0.1em] text-[#6B7280]">{s.label}</div>
+                <div
+                  className="mt-1 font-display text-[16px] font-bold tabular-nums"
+                  style={{ color: s.color }}
+                >
+                  {s.value}
+                </div>
               </div>
             ))}
           </div>
-        </section>
 
-        {/* Your invites */}
-        <section className="space-y-3">
-          <div className="flex items-baseline justify-between">
-            <span className={CAP}>Your invites</span>
-            <span className="text-[11.5px] text-[#6B7280]">
-              {qualified.length} of {rows.length} qualified
-            </span>
-          </div>
-
-          {isLoading ? (
-            <div className="h-[76px] animate-pulse rounded-[14px] bg-[#0F1114]" />
-          ) : rows.length === 0 ? (
-            <EmptyState
-              variant="module"
-              bordered={false}
-              title="No invites yet"
-              description="Share your link to get started."
-            />
-          ) : (
-            rows.map(inviteRow)
+          {claimable > 0 && (
+            <div className="mt-3 text-[12.5px] font-bold text-[#CFFF4A]">● {claimable} ready to claim</div>
           )}
+
+          <div className="mt-3">
+            <ClaimButton fullWidth onClick={() => navigate("/vouchers")}>
+              Open Position Vouchers →
+            </ClaimButton>
+          </div>
         </section>
 
-        {/* Fine print */}
-        <section className={PANEL}>
-          <div className={CAP}>The fine print</div>
-          <p className="mt-2 text-[11.5px] leading-5 text-[#6B7280]">
-            Referral rewards are Trial Position Vouchers, issued after your friend completes $100 in trades and passes
-            review. One reward per qualified friend, subject to anti-abuse checks.
-          </p>
-        </section>
+        {invitesSection}
+        {finePrintSection}
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <div className="order-2 space-y-4 lg:order-1">
+        {inviteSection}
+        {invitesSection}
+        {finePrintSection}
       </div>
 
       {/* Rail */}
