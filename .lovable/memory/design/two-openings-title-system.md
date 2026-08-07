@@ -30,8 +30,15 @@ Exemptions: Leaderboard neon hero; SEO pages under `SeoPageLayout`.
 ## Tabs vs chips — the "can it have All?" test
 - **No All** (mutually exclusive states of one page: Campaigns/Referral,
   Active/Resolved) → **tab**: underline style, 2–4 items, never scrolls, no All.
-  13.5px, active #F2F3F5 semibold + 2px white underline, inactive #9AA1AC,
-  min-height 44px, bottom border #1D2026, sticky at top-44 on mobile.
+  Two tiers:
+  - **Opening-level tab** (top of a control-opening page): font-display,
+    mobile 19px/26px, desktop 24px/30px, −0.01em; active #F2F3F5 w700 with a
+    2.5px rounded #F2F3F5 underline, inactive #6B7280 w500; min-height 48/56px,
+    pb 8/12px, gap 28/36px, items-end on the 1px #1D2026 divider, sticky top-44.
+    控件开场的分区 tab 使用开场级 display 字号，承担页面字号锚点
+    (2026-08-07 CPO 定稿, ref 6a5875a2 · LiteRewardsPage).
+  - **Local tab** (nested, inside a panel): 13.5px, active #F2F3F5 semibold +
+    2px white underline, inactive #9AA1AC, min-height 44px, border #1D2026.
 - **Can have All** (filters a list: categories, sectors) → **chip**: capsule,
   horizontally scrollable, first item is All.
 - Never mix shapes in one row. If a page needs both: tabs on top, chips below.
