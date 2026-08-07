@@ -56,8 +56,20 @@ const PointsRetiredNotice = () => {
   );
 };
 
-const Tabs = ({ value, onChange }: { value: string; onChange: (v: string) => void }) => (
-  <div className="flex items-center gap-[22px] border-b border-[#1D2026]">
+const Tabs = ({
+  value,
+  onChange,
+  sticky,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  sticky?: boolean;
+}) => (
+  <div
+    className={`flex items-center gap-[22px] border-b border-[#1D2026] ${
+      sticky ? "sticky top-[44px] z-30 -mx-4 bg-background px-4" : ""
+    }`}
+  >
     {[
       { id: "campaigns", label: "Campaigns" },
       { id: "referral", label: "Referral" },
@@ -99,6 +111,7 @@ export default function LiteRewardsPage() {
     <div className="space-y-5">
       <Tabs
         value={tab}
+        sticky={isMobile}
         onChange={(v) => {
           setTab(v);
           setSearchParams({ tab: v }, { replace: true });
@@ -107,7 +120,8 @@ export default function LiteRewardsPage() {
 
       {tab === "campaigns" ? (
         <div className="space-y-5">
-          <PointsRetiredNotice />
+          {/* Desktop keeps the notice above the grid; mobile pushes it below the cards. */}
+          {!isMobile && <PointsRetiredNotice />}
 
           {isLoading ? (
             <div className="grid gap-4 md:grid-cols-2">
@@ -131,6 +145,8 @@ export default function LiteRewardsPage() {
           )}
 
           <EndedCampaignsArchive views={ended} />
+
+          {isMobile && <PointsRetiredNotice />}
         </div>
       ) : signedOut ? (
         <SignInPromptCard cap="REFERRAL" description="Sign in to track progress and claim rewards." />

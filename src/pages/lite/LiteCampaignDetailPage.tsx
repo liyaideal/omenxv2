@@ -95,25 +95,45 @@ export default function LiteCampaignDetailPage() {
             </span>
             <div className="flex min-w-0 flex-col gap-[1px]">
               <span className="font-display text-[13.5px] font-bold">{kolName} × OmenX · Exclusive entry</span>
-              <span className="text-[11.5px] font-semibold">
+              <span className="truncate text-[11.5px] font-semibold">
                 You joined through {kolName}'s link — his terms apply.
               </span>
             </div>
           </div>
         )}
 
-        <h1 className="font-display text-[24px] font-bold leading-tight text-[#F2F3F5] md:text-[36px]">
+        <h1 className="font-display text-[22px] font-bold leading-tight text-[#F2F3F5] md:text-[36px]">
           {view.campaign.name}
         </h1>
-        <div className="font-display text-[12.5px] tabular-nums text-[#C9CED6]">
-          {view.phase === "always-on" ? "Always valid" : formatDateRange(view.campaign.startsAt, view.campaign.endsAt)}
-          {view.daysLeft !== null && ` · ${view.daysLeft} days left`} · {view.joined.toLocaleString()} joined
-        </div>
+        {isMobile ? (
+          <div className="font-display text-[12.5px] leading-[18px] tabular-nums text-[#C9CED6]">
+            <div>
+              {view.phase === "always-on"
+                ? "Always valid"
+                : formatDateRange(view.campaign.startsAt, view.campaign.endsAt)}
+            </div>
+            <div className="text-[#9AA1AC]">
+              {view.joined.toLocaleString()} joined
+              {view.daysLeft !== null && ` · ${view.daysLeft}d left`}
+            </div>
+          </div>
+        ) : (
+          <div className="font-display text-[12.5px] tabular-nums text-[#C9CED6]">
+            {view.phase === "always-on" ? "Always valid" : formatDateRange(view.campaign.startsAt, view.campaign.endsAt)}
+            {view.daysLeft !== null && ` · ${view.daysLeft} days left`} · {view.joined.toLocaleString()} joined
+          </div>
+        )}
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div
+          className={
+            isMobile
+              ? "-mx-1 flex items-center gap-2 overflow-x-auto whitespace-nowrap px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              : "flex flex-wrap items-center gap-2"
+          }
+        >
           {view.rewardVoucherUpTo > 0 && (
             <span
-              className="rounded-full font-display text-[12.5px] font-bold"
+              className="shrink-0 whitespace-nowrap rounded-full font-display text-[12.5px] font-bold"
               style={{
                 background: "#131519",
                 border: "1px solid #1D2026",
@@ -126,7 +146,7 @@ export default function LiteCampaignDetailPage() {
           )}
           {view.rewardUsdcUpTo > 0 && (
             <span
-              className="inline-flex items-center gap-1.5 rounded-full font-display text-[12.5px] font-bold"
+              className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full font-display text-[12.5px] font-bold"
               style={{
                 background: "#131519",
                 border: "1px solid #1D2026",
@@ -140,7 +160,7 @@ export default function LiteCampaignDetailPage() {
           )}
           {frozen && (
             <span
-              className="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.06em]"
+              className="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.06em]"
               style={{ background: "#242830", color: "#C9CED6" }}
             >
               Ended
@@ -156,10 +176,34 @@ export default function LiteCampaignDetailPage() {
   ) : (
     <aside
       className="flex flex-col gap-[14px] rounded-[16px] border border-[#1D2026] bg-[#131519]"
-      style={{ padding: 18 }}
+      style={{ padding: isMobile ? 16 : 18 }}
     >
       <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6B7280]">Your rewards here</div>
 
+      {isMobile ? (
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { label: "Vouchers", value: `$${view.voucherClaimed}`, color: "#CFFF4A" },
+            { label: "USDC", value: `$${view.usdcClaimed}`, color: "#33D6FF" },
+            {
+              label: "Available",
+              value: `$${Math.max(
+                0,
+                view.rewardVoucherUpTo + view.rewardUsdcUpTo - view.voucherClaimed - view.usdcClaimed,
+              )}`,
+              color: "#FFFFFF",
+            },
+          ].map((s) => (
+            <div key={s.label} className="rounded-[12px] bg-[#0F1114] px-3 py-2.5">
+              <div className="text-[10px] uppercase tracking-[0.1em] text-[#6B7280]">{s.label}</div>
+              <div className="mt-1 font-display text-[16px] font-bold tabular-nums" style={{ color: s.color }}>
+                {s.value}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <>
       <div className="flex items-baseline justify-between">
         <span className="text-[12.5px] text-[#9AA1AC]">Vouchers claimed</span>
         <span className="font-display text-[15px] font-bold tabular-nums text-[#CFFF4A]">${view.voucherClaimed}</span>
@@ -177,6 +221,8 @@ export default function LiteCampaignDetailPage() {
           ${Math.max(0, view.rewardVoucherUpTo + view.rewardUsdcUpTo - view.voucherClaimed - view.usdcClaimed)}
         </span>
       </div>
+        </>
+      )}
 
       <button
         type="button"
@@ -207,6 +253,13 @@ export default function LiteCampaignDetailPage() {
     </aside>
   ));
 
+  const finePrint = (
+    <p className="pt-1 text-[11.5px] leading-5 text-[#6B7280]">
+      USDC amounts are estimates and not guaranteed. A Trial Position Voucher opens a trial position — the profit is
+      yours, the voucher itself is not withdrawable.
+    </p>
+  );
+
   const tasksPanel = view && (
     <div className="space-y-3">
       <div className="flex items-baseline justify-between">
@@ -229,10 +282,7 @@ export default function LiteCampaignDetailPage() {
         />
       ))}
 
-      <p className="pt-1 text-[11.5px] leading-5 text-[#6B7280]">
-        USDC amounts are estimates and not guaranteed. A Trial Position Voucher opens a trial position — the profit is
-        yours, the voucher itself is not withdrawable.
-      </p>
+      {!isMobile && finePrint}
     </div>
   );
 
@@ -240,6 +290,13 @@ export default function LiteCampaignDetailPage() {
     <div className="h-[420px] animate-pulse rounded-[16px] bg-[#0F1114]" />
   ) : !view ? (
     <div className="py-16 text-center text-[13px] text-[#9AA1AC]">This campaign is no longer available.</div>
+  ) : isMobile ? (
+    <div className="space-y-5">
+      {hero}
+      {tasksPanel}
+      {rewardsCard}
+      {finePrint}
+    </div>
   ) : (
     <div className="space-y-5">
       {hero}
