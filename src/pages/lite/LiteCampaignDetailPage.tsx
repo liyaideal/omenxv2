@@ -118,7 +118,7 @@ export default function LiteCampaignDetailPage() {
                 className="inline-flex items-center gap-1.5 rounded-full font-display text-[12px] font-bold"
                 style={{ background: "#131519", border: "1px solid #1D2026", color: "#33D6FF", padding: "6px 12px" }}
               >
-                +${view.rewardUsdcUpTo} USDC
+                ${view.rewardUsdcUpTo} USDC
               </span>
             )}
             {frozen && (
