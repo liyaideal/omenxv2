@@ -461,7 +461,7 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
                           <td className="py-1.5 font-mono text-muted-foreground">{row.slot === "null" ? "— hidden —" : row.slot}</td>
                           <td className="py-1.5 font-mono text-muted-foreground">{row.onboardingStep ? `${row.onboardingStep} of 3` : "—"}</td>
                           <td className="py-1.5">{row.eventsTitle}</td>
-                          <td className="py-1.5 text-muted-foreground">{row.interlude ? "—" : "—"}</td>
+                          <td className="py-1.5 text-muted-foreground">{"—"}</td>
                         </tr>
                       );
                     })}
@@ -723,7 +723,7 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/50">
-                    <tr><td className="py-1.5">Guest</td><td className="py-1.5 font-mono">Top Events</td><td className="py-1.5">"—"</td></tr>
+                    <tr><td className="py-1.5">Guest</td><td className="py-1.5 font-mono">Top Events</td><td className="py-1.5">—</td></tr>
                     <tr><td className="py-1.5">Authed · no position</td><td className="py-1.5 font-mono">Pick your first prediction</td><td className="py-1.5 text-muted-foreground">none</td></tr>
                     <tr><td className="py-1.5">Authed · with position</td><td className="py-1.5 font-mono">Top Events</td><td className="py-1.5 text-muted-foreground">none</td></tr>
                   </tbody>
