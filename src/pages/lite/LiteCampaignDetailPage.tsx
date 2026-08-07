@@ -11,6 +11,7 @@ import { GrantTaskRow } from "@/components/campaigns/GrantTaskRow";
 import { SignInPromptCard } from "@/components/campaigns/SignInPromptCard";
 import { softBindPublicEntry } from "@/components/campaigns/CampaignAttribution";
 import { useAuth } from "@/hooks/useAuth";
+import { omenxLogo } from "@/components/Logo";
 import { formatDateRange, useCampaignViews } from "@/hooks/useCampaigns";
 
 export default function LiteCampaignDetailPage() {
@@ -326,14 +327,20 @@ export default function LiteCampaignDetailPage() {
       >
         <span
           className="grid h-7 w-7 shrink-0 place-items-center overflow-hidden rounded-full text-[11px] font-bold"
-          style={{ background: "#2A1200", color: isSpecial ? "#FF8A3D" : "#9AA1AC" }}
+          style={{ background: isSpecial ? "#2A1200" : "#16181D", color: isSpecial ? "#FF8A3D" : "#9AA1AC" }}
         >
-          {avatar ? <img src={avatar} alt="" className="h-full w-full object-cover" /> : kolName.slice(0, 1)}
+          {isSpecial ? (
+            avatar ? <img src={avatar} alt="" className="h-full w-full object-cover" /> : kolName.slice(0, 1)
+          ) : (
+            <img src={omenxLogo} alt="OmenX" className="h-2.5 w-[18px] object-contain" />
+          )}
         </span>
         <div className="min-w-0">
-          <div className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#6B7280]">Entry</div>
+          <div className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#6B7280]">
+            {isSpecial ? "Entry" : "Host"}
+          </div>
           <div className="text-[12.5px] font-semibold" style={{ color: isSpecial ? "#FF8A3D" : "#F2F3F5" }}>
-            {isSpecial ? `Joined via ${kolName}` : "Joined via public entry"}
+            {isSpecial ? `Joined via ${kolName}` : "Official OmenX campaign — open to everyone"}
           </div>
         </div>
       </div>
