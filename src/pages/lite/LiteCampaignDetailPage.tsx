@@ -6,9 +6,9 @@ import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { CampaignKeyVisual } from "@/components/campaigns/CampaignKeyVisual";
 import { GrantTaskRow } from "@/components/campaigns/GrantTaskRow";
+import { SignInPromptCard } from "@/components/campaigns/SignInPromptCard";
 import { softBindPublicEntry } from "@/components/campaigns/CampaignAttribution";
 import { useAuth } from "@/hooks/useAuth";
 import { formatDateRange, useCampaignViews } from "@/hooks/useCampaigns";
@@ -20,6 +20,7 @@ export default function LiteCampaignDetailPage() {
   const { user } = useAuth();
   const { views, isLoading, refresh } = useCampaignViews();
   const [claiming, setClaiming] = useState<string | null>(null);
+  const signedOut = !user;
 
   const view = views.find((v) => v.campaign.id === campaignId) ?? null;
   const entry = view?.entry ?? null;
@@ -162,7 +163,9 @@ export default function LiteCampaignDetailPage() {
     </CampaignKeyVisual>
   );
 
-  const rewardsCard = view && (
+  const rewardsCard = view && (signedOut ? (
+    <SignInPromptCard />
+  ) : (
     <aside
       className="flex flex-col gap-[14px] rounded-[16px] border border-[#1D2026] bg-[#131519]"
       style={{ padding: 18 }}
@@ -214,7 +217,7 @@ export default function LiteCampaignDetailPage() {
         </div>
       </div>
     </aside>
-  );
+  ));
 
   const tasksPanel = view && (
     <div className="space-y-3">
@@ -233,6 +236,7 @@ export default function LiteCampaignDetailPage() {
           progressValue={progressFor(task.task_key)}
           isClaiming={claiming === task.task_key}
           frozen={frozen}
+          signedOut={signedOut}
           onClaim={() => handleClaim(task.task_key)}
         />
       ))}
