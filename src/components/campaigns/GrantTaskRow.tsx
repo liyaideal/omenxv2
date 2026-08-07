@@ -98,7 +98,7 @@ export const GrantTaskRow = ({
       }
       action={
         <div className={`flex items-center justify-end ${isMobile ? "" : "w-[132px] shrink-0"}`}>
-        {signedOut ? (
+        {signedOut && !frozen ? (
           <span className="whitespace-nowrap text-[12.5px] text-[#6B7280]">Sign in to start</span>
         ) : showAction ? (
           <TaskActionButton label={cta.label} href={cta.href} />
