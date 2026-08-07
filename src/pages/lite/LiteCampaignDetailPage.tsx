@@ -284,7 +284,7 @@ export default function LiteCampaignDetailPage() {
               className="w-full rounded-[10px] bg-white px-4 font-display text-[12.5px] font-bold text-[#0A0B0D] transition-colors hover:bg-[#E6E9EE]"
               style={{ minHeight: 44 }}
             >
-              Open Position Vouchers →
+              Open Vouchers →
             </button>
           );
         }
@@ -308,7 +308,7 @@ export default function LiteCampaignDetailPage() {
               className="w-full rounded-[10px] bg-white px-4 font-display text-[12.5px] font-bold text-[#0A0B0D] transition-colors hover:bg-[#E6E9EE]"
               style={{ minHeight: 44 }}
             >
-              Open Position Vouchers →
+              Open Vouchers →
             </button>
             <button
               type="button"
