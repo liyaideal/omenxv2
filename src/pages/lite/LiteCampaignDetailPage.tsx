@@ -11,6 +11,7 @@ import { GrantTaskRow } from "@/components/campaigns/GrantTaskRow";
 import { SignInPromptCard } from "@/components/campaigns/SignInPromptCard";
 import { softBindPublicEntry } from "@/components/campaigns/CampaignAttribution";
 import { useAuth } from "@/hooks/useAuth";
+import { omenxLogo } from "@/components/Logo";
 import { formatDateRange, useCampaignViews } from "@/hooks/useCampaigns";
 
 export default function LiteCampaignDetailPage() {
