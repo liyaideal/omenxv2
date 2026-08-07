@@ -259,15 +259,17 @@ export default function LiteCampaignDetailPage() {
         <span className="text-[12.5px] text-[#9AA1AC]">USDC credited</span>
         <span className="font-display text-[15px] font-bold tabular-nums text-[#33D6FF]">${view.usdcClaimed}</span>
       </div>
-      <div
-        className="flex items-baseline justify-between"
-        style={{ borderTop: "1px solid #1D2026", paddingTop: 11 }}
-      >
-        <span className="text-[12.5px] text-[#9AA1AC]">Still available</span>
-        <span className="font-display text-[15px] font-bold tabular-nums text-white">
-          ${Math.max(0, view.rewardVoucherUpTo + view.rewardUsdcUpTo - view.voucherClaimed - view.usdcClaimed)}
-        </span>
-      </div>
+      {!frozen && (
+        <div
+          className="flex items-baseline justify-between"
+          style={{ borderTop: "1px solid #1D2026", paddingTop: 11 }}
+        >
+          <span className="text-[12.5px] text-[#9AA1AC]">Still available</span>
+          <span className="font-display text-[15px] font-bold tabular-nums text-white">
+            ${Math.max(0, view.rewardVoucherUpTo + view.rewardUsdcUpTo - view.voucherClaimed - view.usdcClaimed)}
+          </span>
+        </div>
+      )}
         </>
       )}
 
