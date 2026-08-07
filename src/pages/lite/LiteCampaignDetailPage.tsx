@@ -266,13 +266,7 @@ export default function LiteCampaignDetailPage() {
     return (
       <div className="min-h-screen bg-background pb-24">
         <MobileHeader title="Campaign" showLogo={false} showBack />
-        <AuthGateOverlay
-          title="Campaign"
-          description="Sign in to take part and collect vouchers."
-          maxPreviewHeight="400px"
-        >
-          <main className="px-4 py-4">{body}</main>
-        </AuthGateOverlay>
+        <main className="px-4 py-4">{body}</main>
         <BottomNav />
       </div>
     );
@@ -281,9 +275,7 @@ export default function LiteCampaignDetailPage() {
   return (
     <div className="min-h-screen bg-background">
       <EventsDesktopHeader />
-      <AuthGateOverlay title="Campaign" description="Sign in to take part and collect vouchers.">
-        <main className="mx-auto w-full max-w-7xl px-4 py-8 lg:px-6">{body}</main>
-      </AuthGateOverlay>
+      <main className="mx-auto w-full max-w-7xl px-4 py-8 lg:px-6">{body}</main>
     </div>
   );
 }
