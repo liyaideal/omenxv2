@@ -130,12 +130,6 @@ export default function LiteCampaignDetailPage() {
               </span>
             )}
           </div>
-
-          {isSpecial && (
-            <span className="text-[11.5px] leading-[16px] text-[#9AA1AC]">
-              Exclusive entry — you joined through {kolName}'s link.
-            </span>
-          )}
         </div>
       </CampaignKeyVisual>
     </div>
