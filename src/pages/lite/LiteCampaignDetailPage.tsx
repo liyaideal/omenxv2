@@ -272,14 +272,55 @@ export default function LiteCampaignDetailPage() {
         </>
       )}
 
-      <button
-        type="button"
-        onClick={() => navigate("/vouchers")}
-        className="w-full rounded-[10px] bg-white px-4 font-display text-[12.5px] font-bold text-[#0A0B0D] transition-colors hover:bg-[#E6E9EE]"
-        style={{ minHeight: 44 }}
-      >
-        Open Position Vouchers →
-      </button>
+      {(() => {
+        const hasVoucher = view.rewardVoucherUpTo > 0;
+        const hasUsdc = view.rewardUsdcUpTo > 0;
+        if (!hasVoucher && !hasUsdc) return null;
+        if (hasVoucher && !hasUsdc) {
+          return (
+            <button
+              type="button"
+              onClick={() => navigate("/vouchers")}
+              className="w-full rounded-[10px] bg-white px-4 font-display text-[12.5px] font-bold text-[#0A0B0D] transition-colors hover:bg-[#E6E9EE]"
+              style={{ minHeight: 44 }}
+            >
+              Open Position Vouchers →
+            </button>
+          );
+        }
+        if (hasUsdc && !hasVoucher) {
+          return (
+            <button
+              type="button"
+              onClick={() => navigate("/wallet")}
+              className="w-full rounded-[10px] bg-white px-4 font-display text-[12.5px] font-bold text-[#0A0B0D] transition-colors hover:bg-[#E6E9EE]"
+              style={{ minHeight: 44 }}
+            >
+              Open Wallet →
+            </button>
+          );
+        }
+        return (
+          <div className="flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => navigate("/vouchers")}
+              className="w-full rounded-[10px] bg-white px-4 font-display text-[12.5px] font-bold text-[#0A0B0D] transition-colors hover:bg-[#E6E9EE]"
+              style={{ minHeight: 44 }}
+            >
+              Open Position Vouchers →
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/wallet")}
+              className="w-full rounded-[10px] border border-[#2B2F38] bg-transparent px-4 font-display text-[12.5px] font-semibold text-[#F2F3F5] transition-colors hover:border-[#3A3F47]"
+              style={{ minHeight: 44 }}
+            >
+              Open Wallet →
+            </button>
+          </div>
+        );
+      })()}
 
       <div
         className="flex items-center gap-2.5 rounded-[12px]"
