@@ -253,6 +253,13 @@ export default function LiteCampaignDetailPage() {
     </aside>
   ));
 
+  const finePrint = (
+    <p className="pt-1 text-[11.5px] leading-5 text-[#6B7280]">
+      USDC amounts are estimates and not guaranteed. A Trial Position Voucher opens a trial position — the profit is
+      yours, the voucher itself is not withdrawable.
+    </p>
+  );
+
   const tasksPanel = view && (
     <div className="space-y-3">
       <div className="flex items-baseline justify-between">
@@ -275,10 +282,7 @@ export default function LiteCampaignDetailPage() {
         />
       ))}
 
-      <p className="pt-1 text-[11.5px] leading-5 text-[#6B7280]">
-        USDC amounts are estimates and not guaranteed. A Trial Position Voucher opens a trial position — the profit is
-        yours, the voucher itself is not withdrawable.
-      </p>
+      {!isMobile && finePrint}
     </div>
   );
 
@@ -286,6 +290,13 @@ export default function LiteCampaignDetailPage() {
     <div className="h-[420px] animate-pulse rounded-[16px] bg-[#0F1114]" />
   ) : !view ? (
     <div className="py-16 text-center text-[13px] text-[#9AA1AC]">This campaign is no longer available.</div>
+  ) : isMobile ? (
+    <div className="space-y-5">
+      {hero}
+      {tasksPanel}
+      {rewardsCard}
+      {finePrint}
+    </div>
   ) : (
     <div className="space-y-5">
       {hero}
