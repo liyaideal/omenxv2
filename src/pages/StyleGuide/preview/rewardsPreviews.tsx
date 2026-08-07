@@ -147,28 +147,34 @@ const NO_ART = makeView(
   { id: "camp-5", name: "Fallback — no key visual" },
 );
 
+/** Seeded ended campaigns (July Warm-up / Finals Week) — real ids so rows link somewhere real. */
+const JULY_WARMUP_ID = "a1111111-1111-4111-8111-aaaaaaaaaaa1";
+const FINALS_WEEK_ID = "a2222222-2222-4222-8222-aaaaaaaaaaa2";
+
 const ENDED = [
   makeView(
     {
       phase: "ended",
       daysLeft: null,
-      voucherClaimed: 25,
-      usdcClaimed: 4,
-      tasksDone: 2,
+      voucherClaimed: 18,
+      usdcClaimed: 0,
+      tasksDone: 3,
+      tasksTotal: 4,
     },
-    { id: "camp-e1", name: "July macro sprint", startsAt: iso(-40), endsAt: iso(-8) },
+    { id: JULY_WARMUP_ID, name: "July Warm-up", startsAt: iso(-40), endsAt: iso(-8) },
   ),
   makeView(
     {
       entry: makeEntry({ id: "entry-e2", branding: { key_visual_url: null, accent: "#CFFF4A" } }),
       phase: "ended",
       daysLeft: null,
-      voucherClaimed: 5,
+      voucherClaimed: 16,
       usdcClaimed: 0,
-      tasksDone: 1,
+      tasksDone: 3,
+      tasksTotal: 3,
       accent: "#CFFF4A",
     },
-    { id: "camp-e2", name: "Spring referral push", startsAt: iso(-90), endsAt: iso(-55) },
+    { id: FINALS_WEEK_ID, name: "Finals Week", startsAt: iso(-90), endsAt: iso(-55) },
   ),
 ];
 
@@ -255,10 +261,26 @@ export const KolBandPreview = () => (
 
 /* ---------------- Ended archive ---------------- */
 export const EndedArchivePreview = () => (
-  <div className="space-y-3">
-    <EndedCampaignsArchive views={ENDED} />
-    <p className="text-[11px] text-[#6B7280]">Tap the bar to expand — rows differ desktop vs mobile.</p>
+  <div className="space-y-4">
+    <div className="space-y-2">
+      <p className="text-[11px] text-[#6B7280]">Collapsed</p>
+      <EndedCampaignsArchive views={ENDED} />
+    </div>
+    <div className="space-y-2">
+      <p className="text-[11px] text-[#6B7280]">Expanded — rows differ desktop vs mobile</p>
+      <EndedCampaignsArchive views={ENDED} defaultOpen />
+    </div>
   </div>
+);
+
+/* ---------------- Ended campaign detail — frozen settled view ---------------- */
+/** Nested iframe: the production route itself, so the frozen settled view is the real page. */
+export const EndedCampaignDetailPreview = () => (
+  <iframe
+    title="ended-campaign-detail"
+    src={`/rewards/campaign/${JULY_WARMUP_ID}`}
+    className="h-[860px] w-full rounded-[12px] border border-[#1D2026] bg-background"
+  />
 );
 
 /* ---------------- Points retirement notice (as shipped on /rewards) ---------------- */

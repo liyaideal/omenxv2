@@ -4,8 +4,14 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { CampaignView } from "@/hooks/useCampaigns";
 
-export const EndedCampaignsArchive = ({ views }: { views: CampaignView[] }) => {
-  const [open, setOpen] = useState(false);
+export const EndedCampaignsArchive = ({
+  views,
+  defaultOpen = false,
+}: {
+  views: CampaignView[];
+  defaultOpen?: boolean;
+}) => {
+  const [open, setOpen] = useState(defaultOpen);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   if (views.length === 0) return null;

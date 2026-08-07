@@ -47,6 +47,14 @@ export const RewardsSection = ({ isMobile: _isMobile }: { isMobile: boolean }) =
       </SubSection>
 
       <SubSection
+        title="4b. Ended campaign detail — frozen settled view"
+        description="Real detail page for a seeded ended campaign (July Warm-up): ENDED badge, read-only task rows at their final state (no buttons), YOUR REWARDS HERE showing what was actually received, fine print kept."
+        platform="shared"
+      >
+        <DualDevicePreview previewKey="rewards-ended-detail" label="Live data — signed out inside the frame" minHeight={720} />
+      </SubSection>
+
+      <SubSection
         title="5. Points retirement notice"
         description="Dismissible once per device (localStorage). Desktop sits above the grid; mobile below the cards."
         platform="shared"

@@ -272,13 +272,16 @@ export const buildCampaignView = (
   });
 
   const endsAt = campaign.endsAt ? new Date(campaign.endsAt).getTime() : null;
-  const daysLeft = endsAt ? Math.max(0, Math.ceil((endsAt - Date.now()) / 86_400_000)) : null;
+  const phase = phaseOf(campaign);
+  // An ended campaign has no countdown — a frozen "0 days left" reads like a bug.
+  const daysLeft =
+    endsAt && phase !== "ended" ? Math.max(0, Math.ceil((endsAt - Date.now()) / 86_400_000)) : null;
 
   return {
     campaign,
     entry,
     participation,
-    phase: phaseOf(campaign),
+    phase,
     tasksTotal: tasks.length,
     tasksDone: tasks.filter((t) => statusFor(t.task_key) === "claimed").length,
     claimableCount: tasks.filter((t) => statusFor(t.task_key) === "claimable").length,
