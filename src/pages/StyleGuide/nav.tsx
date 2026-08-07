@@ -30,6 +30,7 @@ import {
   StatesSection,
   EmptyStatesSection,
   EventArtSection,
+  RewardsMobileSection,
 } from "./sections";
 
 export interface SectionEntry {
@@ -124,6 +125,7 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
     sections: [
       s("mobile-patterns", "Mobile patterns", MobilePatternsSection),
       s("mobile-home", "Mobile home", MobileHomeSection),
+      s("rewards-mobile", "Rewards task rows", RewardsMobileSection),
     ],
   },
   {
