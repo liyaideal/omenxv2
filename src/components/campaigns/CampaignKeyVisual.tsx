@@ -13,6 +13,8 @@ export const CampaignKeyVisual = ({
   ratio,
   children,
   className,
+  scrim,
+  scrimHeight,
 }: {
   src?: string | null;
   accent: string;
@@ -20,6 +22,10 @@ export const CampaignKeyVisual = ({
   ratio: string;
   children: ReactNode;
   className?: string;
+  /** Optional scrim gradient override (hero uses the design-contract gradient). */
+  scrim?: string;
+  /** Optional fixed scrim height, e.g. "190px". Defaults to full bleed. */
+  scrimHeight?: string;
 }) => {
   const [failed, setFailed] = useState(false);
   const showImage = !!src && !failed;
@@ -38,7 +44,10 @@ export const CampaignKeyVisual = ({
             className="absolute inset-0 h-full w-full object-cover"
             onError={() => setFailed(true)}
           />
-          <div className="absolute inset-0" style={{ background: SCRIM }} />
+          <div
+            className="absolute inset-x-0 bottom-0"
+            style={{ background: scrim ?? SCRIM, top: scrimHeight ? undefined : 0, height: scrimHeight }}
+          />
         </>
       ) : (
         <div className="absolute inset-y-0 left-0 w-[3px]" style={{ background: accent }} />

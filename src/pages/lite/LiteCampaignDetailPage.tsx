@@ -62,70 +62,91 @@ export default function LiteCampaignDetailPage() {
     return typeof raw?.value === "number" ? raw.value : undefined;
   };
 
+  const kolName = entry?.branding.display_name ?? "Partner";
+  const avatar = entry?.branding.avatar_url;
+
   const hero = view && (
     <CampaignKeyVisual
       src={entry?.branding.key_visual_url}
       accent={view.accent}
       ratio={isMobile ? "16 / 9" : "1232 / 300"}
       className="rounded-[14px]"
+      scrim="linear-gradient(180deg,rgba(10,11,13,0) 0%,rgba(10,11,13,.72) 46%,rgba(10,11,13,.94) 100%)"
+      scrimHeight="190px"
     >
       <div />
-      <div className="space-y-2">
+      <div className="mx-auto flex w-full max-w-[1248px] flex-col gap-[12px]">
         {isSpecial && (
-          <div className="flex items-center gap-2.5">
+          <div
+            className="inline-flex self-start items-center gap-[11px] rounded-full"
+            style={{ background: "#FF8A3D", color: "#2A1200", padding: "5px 15px 5px 5px" }}
+          >
             <span
-              className="grid h-[34px] w-[34px] shrink-0 place-items-center overflow-hidden rounded-full text-[12px] text-[#FF8A3D]"
-              style={{ border: "1px solid #FF8A3D", background: "#2A2016" }}
+              className="grid h-[34px] w-[34px] shrink-0 place-items-center overflow-hidden rounded-full text-[13px] font-bold"
+              style={{ background: "#2A1200", color: "#FF8A3D" }}
             >
-              {entry?.branding.avatar_url ? (
-                <img src={entry.branding.avatar_url} alt="" className="h-full w-full object-cover" />
+              {avatar ? (
+                <img src={avatar} alt="" className="h-full w-full object-cover" />
               ) : (
-                (entry?.branding.display_name ?? "P").slice(0, 1)
+                kolName.slice(0, 1)
               )}
             </span>
-            <div className="min-w-0">
-              <div className="font-display text-[14px] font-bold text-[#FF8A3D]">
-                {entry?.branding.display_name} × OmenX — Exclusive entry
-              </div>
-              <div className="text-[11px] text-[#9AA1AC]">
-                You joined through {entry?.branding.display_name}'s link — their terms apply
-              </div>
+            <div className="flex min-w-0 flex-col gap-[1px]">
+              <span className="font-display text-[13.5px] font-bold">{kolName} × OmenX · Exclusive entry</span>
+              <span className="text-[11.5px] font-semibold">
+                You joined through {kolName}'s link — his terms apply.
+              </span>
             </div>
           </div>
         )}
 
-        <h1 className="font-display text-[19px] font-bold leading-tight text-[#F2F3F5] md:text-[26px]">
+        <h1 className="font-display text-[24px] font-bold leading-tight text-[#F2F3F5] md:text-[36px]">
           {view.campaign.name}
         </h1>
-        <div className="text-[11.5px] text-[#C9CED6]">
+        <div className="font-display text-[12.5px] tabular-nums text-[#C9CED6]">
           {formatDateRange(view.campaign.startsAt, view.campaign.endsAt)}
-          {view.daysLeft !== null && ` · Ends in ${view.daysLeft}d`} · {view.joined.toLocaleString()} joined
+          {view.daysLeft !== null && ` · ${view.daysLeft} days left`} · {view.joined.toLocaleString()} joined
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 pt-1">
+        <div className="flex flex-wrap items-center gap-2">
           {view.rewardVoucherUpTo > 0 && (
             <span
-              className="rounded-full px-2.5 py-1 text-[11.5px] font-semibold"
-              style={{ background: "rgba(207,255,74,.12)", color: "#CFFF4A" }}
+              className="rounded-full font-display text-[12.5px] font-bold"
+              style={{
+                background: "#131519",
+                border: "1px solid #1D2026",
+                color: "#CFFF4A",
+                padding: "7px 13px",
+              }}
             >
               ${view.rewardVoucherUpTo} Trial Position Voucher
             </span>
           )}
           {view.rewardUsdcUpTo > 0 && (
             <span
-              className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-semibold"
-              style={{ background: "rgba(51,214,255,.12)", color: "#33D6FF" }}
+              className="inline-flex items-center gap-1.5 rounded-full font-display text-[12.5px] font-bold"
+              style={{
+                background: "#131519",
+                border: "1px solid #1D2026",
+                color: "#33D6FF",
+                padding: "7px 13px",
+              }}
             >
               +${view.rewardUsdcUpTo} USDC
-              <span className="text-[10px] font-normal text-[#6B7280]">not guaranteed</span>
+              <span className="font-sans font-medium text-[#6B7280]">not guaranteed</span>
             </span>
           )}
-          {isSpecial && entry?.branding.blurb && (
+          {isSpecial && (
             <span
-              className="rounded-full px-2.5 py-1 text-[11.5px] font-semibold"
-              style={{ background: "rgba(255,138,61,.12)", color: "#FF8A3D" }}
+              className="rounded-full font-display text-[12.5px] font-semibold"
+              style={{
+                background: "rgba(255,138,61,.10)",
+                border: "1px solid rgba(255,138,61,.45)",
+                color: "#FF8A3D",
+                padding: "7px 13px",
+              }}
             >
-              {entry.branding.blurb}
+              {entry?.branding.blurb || "Exclusive: trade $200 (public asks $500)"}
             </span>
           )}
           {frozen && (
@@ -142,81 +163,84 @@ export default function LiteCampaignDetailPage() {
   );
 
   const rewardsCard = view && (
-    <div className="space-y-4">
-      <div className="rounded-[16px] border border-[#1D2026] bg-[#131519] p-4">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6B7280]">Your rewards here</div>
-        <div className="mt-3 space-y-2 text-[12.5px]">
-          <div className="flex items-center justify-between">
-            <span className="text-[#9AA1AC]">Vouchers claimed</span>
-            <span className="font-display font-bold text-[#CFFF4A]">${view.voucherClaimed}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-[#9AA1AC]">USDC credited</span>
-            <span className="font-display font-bold text-[#33D6FF]">${view.usdcClaimed}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-[#9AA1AC]">Still available</span>
-            <span className="font-display font-bold text-[#F2F3F5]">
-              ${Math.max(0, view.rewardVoucherUpTo + view.rewardUsdcUpTo - view.voucherClaimed - view.usdcClaimed)}
-            </span>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={() => navigate("/vouchers")}
-          className="mt-4 h-[44px] w-full rounded-[10px] bg-white text-[13px] font-semibold text-[#06080A]"
-        >
-          Open Position Vouchers →
-        </button>
+    <aside
+      className="flex flex-col gap-[14px] rounded-[16px] border border-[#1D2026] bg-[#131519]"
+      style={{ padding: 18 }}
+    >
+      <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6B7280]">Your rewards here</div>
+
+      <div className="flex items-baseline justify-between">
+        <span className="text-[12.5px] text-[#9AA1AC]">Vouchers claimed</span>
+        <span className="font-display text-[15px] font-bold tabular-nums text-[#CFFF4A]">${view.voucherClaimed}</span>
+      </div>
+      <div className="flex items-baseline justify-between">
+        <span className="text-[12.5px] text-[#9AA1AC]">USDC credited</span>
+        <span className="font-display text-[15px] font-bold tabular-nums text-[#33D6FF]">${view.usdcClaimed}</span>
+      </div>
+      <div
+        className="flex items-baseline justify-between"
+        style={{ borderTop: "1px solid #1D2026", paddingTop: 11 }}
+      >
+        <span className="text-[12.5px] text-[#9AA1AC]">Still available</span>
+        <span className="font-display text-[15px] font-bold tabular-nums text-white">
+          ${Math.max(0, view.rewardVoucherUpTo + view.rewardUsdcUpTo - view.voucherClaimed - view.usdcClaimed)}
+        </span>
       </div>
 
-      <div className="rounded-[16px] border border-[#1D2026] bg-[#131519] p-4">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6B7280]">Entry</div>
-        <div className="mt-2 text-[12.5px] font-semibold" style={{ color: isSpecial ? "#FF8A3D" : "#F2F3F5" }}>
-          {isSpecial ? `Joined via ${entry?.branding.display_name}` : "Joined via public entry"}
-        </div>
-        {view.participation && (
-          <div className="mt-1 text-[11.5px] text-[#6B7280]">
-            {new Date(view.participation.joinedAt).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
+      <button
+        type="button"
+        onClick={() => navigate("/vouchers")}
+        className="w-full rounded-[10px] bg-white px-4 font-display text-[12.5px] font-bold text-[#0A0B0D] transition-colors hover:bg-[#E6E9EE]"
+        style={{ minHeight: 44 }}
+      >
+        Open Position Vouchers →
+      </button>
+
+      <div
+        className="flex items-center gap-2.5 rounded-[12px]"
+        style={{ background: "#0F1115", border: "1px solid #1D2026", padding: "11px 12px" }}
+      >
+        <span
+          className="grid h-7 w-7 shrink-0 place-items-center overflow-hidden rounded-full text-[11px] font-bold"
+          style={{ background: "#2A1200", color: isSpecial ? "#FF8A3D" : "#9AA1AC" }}
+        >
+          {avatar ? <img src={avatar} alt="" className="h-full w-full object-cover" /> : kolName.slice(0, 1)}
+        </span>
+        <div className="min-w-0">
+          <div className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#6B7280]">Entry</div>
+          <div className="text-[12.5px] font-semibold" style={{ color: isSpecial ? "#FF8A3D" : "#F2F3F5" }}>
+            {isSpecial ? `Joined via ${kolName}` : "Joined via public entry"}
           </div>
-        )}
+        </div>
       </div>
-    </div>
+    </aside>
   );
 
   const tasksPanel = view && (
-    <div className="space-y-4">
-      <div className="overflow-hidden rounded-[16px] border border-[#1D2026] bg-[#131519]">
-        <div className="px-4 pt-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6B7280]">
-          Grant tasks
-        </div>
-        <div className="mt-2">
-          {(entry?.tasks ?? []).map((task) => (
-            <GrantTaskRow
-              key={task.task_key}
-              task={task}
-              status={statusFor(task.task_key)}
-              progressValue={progressFor(task.task_key)}
-              isClaiming={claiming === task.task_key}
-              frozen={frozen}
-              onClaim={() => handleClaim(task.task_key)}
-            />
-          ))}
-        </div>
+    <div className="space-y-3">
+      <div className="flex items-baseline justify-between">
+        <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6B7280]">Grant tasks</span>
+        <span className="text-[11.5px] text-[#6B7280]">
+          {view.tasksDone} of {view.tasksTotal} done
+        </span>
       </div>
 
-      <div className="rounded-[12px] border border-[#1D2026] bg-[#0F1114] p-4">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6B7280]">The fine print</div>
-        <p className="mt-2 text-[11.5px] leading-5 text-[#9AA1AC]">
-          Voucher rewards are Trial Position Vouchers — redeem within 7 days of claiming, profits accrue to your
-          voucher earnings. USDC rewards are credited to your Standard balance after review. Reward amounts are not
-          guaranteed and subject to the campaign budget.
-        </p>
-      </div>
+      {(entry?.tasks ?? []).map((task) => (
+        <GrantTaskRow
+          key={task.task_key}
+          task={task}
+          status={statusFor(task.task_key)}
+          progressValue={progressFor(task.task_key)}
+          isClaiming={claiming === task.task_key}
+          frozen={frozen}
+          onClaim={() => handleClaim(task.task_key)}
+        />
+      ))}
+
+      <p className="pt-1 text-[11.5px] leading-5 text-[#6B7280]">
+        USDC amounts are estimates and not guaranteed. A Trial Position Voucher opens a trial position — the profit is
+        yours, the voucher itself is not withdrawable.
+      </p>
     </div>
   );
 
@@ -227,7 +251,7 @@ export default function LiteCampaignDetailPage() {
   ) : (
     <div className="space-y-5">
       {hero}
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="order-2 lg:order-1">{tasksPanel}</div>
         <div className="order-1 lg:order-2">{rewardsCard}</div>
       </div>
