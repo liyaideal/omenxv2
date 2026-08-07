@@ -256,13 +256,22 @@ export const useCampaignViews = () => {
   const participations = useCampaignParticipations();
   const grants = useCampaignGrants();
   const queryClient = useQueryClient();
+  const pendingLinkCode = usePendingEntryCode();
 
   const views = useMemo(
     () =>
-      (catalogue.data ?? []).map((c) =>
-        buildCampaignView(c, participations.data ?? [], grants.data ?? [], joined.data ?? {}),
+      sortCampaignViews(
+        (catalogue.data ?? []).map((c) =>
+          buildCampaignView(
+            c,
+            participations.data ?? [],
+            grants.data ?? [],
+            joined.data ?? {},
+            pendingLinkCode,
+          ),
+        ),
       ),
-    [catalogue.data, participations.data, grants.data, joined.data],
+    [catalogue.data, participations.data, grants.data, joined.data, pendingLinkCode],
   );
 
   return {
