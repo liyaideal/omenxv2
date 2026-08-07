@@ -196,10 +196,16 @@ export const buildCampaignView = (
   participations: CampaignParticipation[],
   grants: CampaignGrant[],
   joinedMap: Record<string, number>,
+  pendingLinkCode?: string | null,
 ): CampaignView => {
   const participation = participations.find((p) => p.campaignId === campaign.id) ?? null;
   const entry =
     campaign.entries.find((e) => e.id === participation?.entryId) ??
+    (pendingLinkCode
+      ? campaign.entries.find(
+          (e) => e.linkCode && e.linkCode.toUpperCase() === pendingLinkCode.toUpperCase(),
+        )
+      : undefined) ??
     campaign.entries.find((e) => e.kind === "public") ??
     campaign.entries[0] ??
     null;
