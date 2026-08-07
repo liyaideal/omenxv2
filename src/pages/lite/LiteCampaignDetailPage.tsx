@@ -58,9 +58,10 @@ export default function LiteCampaignDetailPage() {
     view?.grants.find((g) => g.taskKey === taskKey)?.status ?? "not_started";
   const progressFor = (taskKey: string) => {
     const raw = view?.grants.find((g) => g.taskKey === taskKey)?.progress as
-      | { value?: number }
+      | { value?: number; current?: number }
       | undefined;
-    return typeof raw?.value === "number" ? raw.value : undefined;
+    if (typeof raw?.value === "number") return raw.value;
+    return typeof raw?.current === "number" ? raw.current : undefined;
   };
 
   const kolName = entry?.branding.display_name ?? "Partner";

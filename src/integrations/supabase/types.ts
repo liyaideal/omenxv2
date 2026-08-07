@@ -1903,6 +1903,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_campaign_progress: {
+        Args: {
+          _amount: number
+          _at: string
+          _event_name: string
+          _user_id: string
+        }
+        Returns: number
+      }
+      campaign_scope_matches: {
+        Args: { _event_name: string; _scope: Json }
+        Returns: boolean
+      }
       consume_daily_voucher_pool: {
         Args: { _face_value: number }
         Returns: boolean

@@ -14,6 +14,10 @@ export interface CampaignTaskDef {
   target?: number;
   metric?: "count" | "usd_volume";
   reward?: { voucher?: number; usdc?: number };
+  /** Which markets count toward this task (server-side driver reads the same field). */
+  scope?: { categories?: string[]; any_market?: boolean };
+  /** Action button shown while the task is not yet claimable. */
+  cta?: { label?: string; href?: string };
 }
 
 export interface CampaignBranding {

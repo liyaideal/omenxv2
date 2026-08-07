@@ -158,3 +158,4 @@
 - [Lite order panel parity](mem://design/lite-order-panel-parity) — 只有 contract/spot 两套 order panel；quick-round PickCard 是唯一允许的结构差异；侧选一律用 SideButton；禁 "% say" 副标
 - [Demo account seeding](mem://workflow/demo-account-seeding) — 新功能同轮为固定演示账号 alex_carter 种演示数据（metadata.demo）+ /style-guide 全状态
 - [No demo entries in product](mem://workflow/no-demo-entries-in-product) — 产品页禁 demo 入口；demo 数据只挂演示账号，禁污染真实用户与公共统计
+- [Campaign progress driver](mem://features/campaign-progress-driver) — 服务端触发器口径：什么算数、从何时起算、scope 命中、待研发事件源
