@@ -106,7 +106,7 @@ export default function LiteCampaignDetailPage() {
           {view.campaign.name}
         </h1>
         <div className="font-display text-[12.5px] tabular-nums text-[#C9CED6]">
-          {formatDateRange(view.campaign.startsAt, view.campaign.endsAt)}
+          {view.phase === "always-on" ? "Always valid" : formatDateRange(view.campaign.startsAt, view.campaign.endsAt)}
           {view.daysLeft !== null && ` · ${view.daysLeft} days left`} · {view.joined.toLocaleString()} joined
         </div>
 
