@@ -78,7 +78,33 @@ export default function LiteCampaignDetailPage() {
     >
       <div />
       <div className="mx-auto flex w-full max-w-[1248px] flex-col gap-[12px]">
-        {isSpecial && (
+        {isSpecial && (isMobile ? (
+          /* Mobile: slim single-line badge; the terms sentence drops to a
+             muted line so the orange block does not dominate the hero. */
+          <div className="flex min-w-0 flex-col gap-[6px]">
+            <div
+              className="inline-flex max-w-full self-start items-center gap-[8px] rounded-full"
+              style={{ background: "#FF8A3D", color: "#2A1200", padding: "3px 11px 3px 3px" }}
+            >
+              <span
+                className="grid h-[24px] w-[24px] shrink-0 place-items-center overflow-hidden rounded-full text-[11px] font-bold"
+                style={{ background: "#2A1200", color: "#FF8A3D" }}
+              >
+                {avatar ? (
+                  <img src={avatar} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  kolName.slice(0, 1)
+                )}
+              </span>
+              <span className="truncate font-display text-[12px] font-bold">
+                {kolName} × OmenX
+              </span>
+            </div>
+            <span className="text-[11.5px] leading-[16px] text-[#C9CED6]">
+              Exclusive entry — you joined through {kolName}'s link.
+            </span>
+          </div>
+        ) : (
           <div
             className="inline-flex self-start items-center gap-[11px] rounded-full"
             style={{ background: "#FF8A3D", color: "#2A1200", padding: "5px 15px 5px 5px" }}
@@ -100,7 +126,7 @@ export default function LiteCampaignDetailPage() {
               </span>
             </div>
           </div>
-        )}
+        ))}
 
         <h1 className="font-display text-[22px] font-bold leading-tight text-[#F2F3F5] md:text-[36px]">
           {view.campaign.name}
