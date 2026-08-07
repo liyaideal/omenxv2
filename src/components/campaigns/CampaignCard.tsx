@@ -71,14 +71,14 @@ export const CampaignCard = ({ view }: { view: CampaignView }) => {
         </div>
         <div>
           <div className="font-display text-[17px] font-bold leading-tight text-[#F2F3F5]">{view.campaign.name}</div>
-          <div className="mt-1 text-[11.5px] text-[#C9CED6]">{dateLine}</div>
+          <div className="mt-1 font-display text-[11.5px] tabular-nums text-[#C9CED6]">{dateLine}</div>
         </div>
       </CampaignKeyVisual>
 
       <div className="space-y-3 p-4">
         <div className="flex items-center justify-between">
           <span className="text-[12px] text-[#9AA1AC]">Your progress</span>
-          <span className="font-display text-[12.5px] font-semibold text-[#F2F3F5]">
+          <span className="font-display text-[12.5px] font-semibold tabular-nums text-[#F2F3F5]">
             {view.tasksDone} / {view.tasksTotal} tasks done
           </span>
         </div>
@@ -89,11 +89,15 @@ export const CampaignCard = ({ view }: { view: CampaignView }) => {
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[12px]">
           <span className="text-[#9AA1AC]">Rewards up to</span>
           {view.rewardVoucherUpTo > 0 && (
-            <span className="font-display font-semibold text-[#CFFF4A]">${view.rewardVoucherUpTo} in vouchers</span>
+            <span className="font-display font-semibold tabular-nums text-[#CFFF4A]">
+              ${view.rewardVoucherUpTo} in vouchers
+            </span>
           )}
           {view.rewardUsdcUpTo > 0 && (
             <>
-              <span className="font-display font-semibold text-[#33D6FF]">+${view.rewardUsdcUpTo} USDC</span>
+              <span className="font-display font-semibold tabular-nums text-[#33D6FF]">
+                +${view.rewardUsdcUpTo} USDC
+              </span>
               <span className="text-[11px] text-[#6B7280]">not guaranteed</span>
             </>
           )}
@@ -103,7 +107,7 @@ export const CampaignCard = ({ view }: { view: CampaignView }) => {
           <span className="text-[11px] font-bold text-[#CFFF4A]">
             {view.claimableCount > 0 ? `● ${view.claimableCount} ready to claim` : ""}
           </span>
-          <span className="text-[11px] text-[#6B7280]">{meta.join(" · ")}</span>
+          <span className="text-[11px] tabular-nums text-[#6B7280]">{meta.join(" · ")}</span>
         </div>
       </div>
     </button>
