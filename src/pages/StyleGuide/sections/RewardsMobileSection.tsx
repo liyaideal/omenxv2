@@ -61,7 +61,7 @@ export const RewardsMobileSection = ({ isMobile }: { isMobile: boolean }) => {
     <SectionWrapper
       id="rewards-mobile"
       title="Rewards · mobile task rows"
-      platform="lite"
+      platform="mobile"
       description="One row recipe (TaskRowShell) for campaign grants and referral invites. Mobile stacks it into two layers: icon + copy + full-width progress, hairline divider, then reward left / 44px action right."
     >
       <div className="space-y-8">
