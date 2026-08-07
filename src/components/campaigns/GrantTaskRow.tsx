@@ -1,6 +1,7 @@
 import { CirclePlus, CircleSlash, Loader2, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { CampaignTaskDef, GrantStatus } from "@/hooks/useCampaigns";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { ClaimButton, TaskRowShell } from "./TaskRowShell";
 
 const iconFor = (task: CampaignTaskDef, notEligible: boolean) => {
@@ -32,7 +33,7 @@ const fallbackCta = (task: CampaignTaskDef): { label: string; href: string } => 
 /** Secondary action button — deliberately quieter than the white Claim button. */
 const TaskActionButton = ({ label, href }: { label: string; href: string }) => {
   const className =
-    "inline-flex min-h-[44px] items-center justify-center whitespace-nowrap rounded-[10px] border border-[#2B2F38] bg-transparent px-4 font-display text-[12.5px] font-semibold text-[#F2F3F5] transition-colors hover:border-[#3A3F47] md:min-h-[40px]";
+    "inline-flex min-h-[44px] items-center justify-center whitespace-nowrap rounded-[10px] border border-[#2B2F38] bg-transparent px-5 font-display text-[12.5px] font-semibold text-[#F2F3F5] transition-colors hover:border-[#3A3F47] md:min-h-[40px] md:px-4";
   if (/^https?:/.test(href)) {
     return (
       <a href={href} target="_blank" rel="noreferrer" className={className}>
@@ -64,6 +65,7 @@ export const GrantTaskRow = ({
   frozen?: boolean;
   signedOut?: boolean;
 }) => {
+  const isMobile = useIsMobile();
   const voucher = task.reward?.voucher ?? 0;
   const usdc = task.reward?.usdc ?? 0;
   const notEligible = status === "not_eligible";
@@ -86,16 +88,16 @@ export const GrantTaskRow = ({
           : task.subtitle
       }
       progress={showBar ? { value: progressValue!, target: task.target! } : undefined}
-      right={
-        <>
-        <div className="w-[92px] shrink-0 text-right">
+      reward={
+        <div className={isMobile ? "" : "w-[92px] shrink-0 text-right"}>
           {voucher > 0 && (
             <div className="font-display text-[13.5px] font-bold text-[#CFFF4A]">${voucher} voucher</div>
           )}
           {usdc > 0 && <div className="font-display text-[13.5px] font-bold text-[#33D6FF]">${usdc} USDC</div>}
         </div>
-
-        <div className="flex w-[132px] shrink-0 items-center justify-end">
+      }
+      action={
+        <div className={`flex items-center justify-end ${isMobile ? "" : "w-[132px] shrink-0"}`}>
         {signedOut ? (
           <span className="whitespace-nowrap text-[12.5px] text-[#6B7280]">Sign in to start</span>
         ) : showAction ? (
@@ -113,7 +115,6 @@ export const GrantTaskRow = ({
           </span>
         )}
         </div>
-        </>
       }
     />
   );
