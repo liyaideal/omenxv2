@@ -1,4 +1,5 @@
 import { CirclePlus, CircleSlash, Loader2, TrendingUp } from "lucide-react";
+import { Link } from "react-router-dom";
 import type { CampaignTaskDef, GrantStatus } from "@/hooks/useCampaigns";
 import { ClaimButton, TaskRowShell } from "./TaskRowShell";
 
@@ -15,6 +16,35 @@ const STATUS_LABEL: Record<GrantStatus, string> = {
   claimable: "Ready",
   claimed: "Claimed",
   not_eligible: "Not eligible",
+};
+
+/** Fallback action when a task carries no explicit `cta`. */
+const fallbackCta = (task: CampaignTaskDef): { label: string; href: string } => {
+  const key = task.task_key.toLowerCase();
+  if (key.includes("discord")) return { label: "Join", href: "https://discord.gg/qXssm2crf9" };
+  if (key.includes("connect")) return { label: "Connect", href: "/settings" };
+  const sector = task.scope?.categories?.[0];
+  const href = sector ? `/events?sector=${sector}` : "/events";
+  if (key.includes("share")) return { label: "Share", href };
+  return { label: "Trade", href };
+};
+
+/** Secondary action button — deliberately quieter than the white Claim button. */
+const TaskActionButton = ({ label, href }: { label: string; href: string }) => {
+  const className =
+    "inline-flex min-h-[44px] items-center justify-center whitespace-nowrap rounded-[10px] border border-[#2B2F38] bg-transparent px-4 font-display text-[12.5px] font-semibold text-[#F2F3F5] transition-colors hover:border-[#3A3F47] md:min-h-[40px]";
+  if (/^https?:/.test(href)) {
+    return (
+      <a href={href} target="_blank" rel="noreferrer" className={className}>
+        {label}
+      </a>
+    );
+  }
+  return (
+    <Link to={href} className={className}>
+      {label}
+    </Link>
+  );
 };
 
 export const GrantTaskRow = ({
@@ -40,6 +70,9 @@ export const GrantTaskRow = ({
   const showBar =
     status === "in_progress" && typeof progressValue === "number" && typeof task.target === "number";
   const Icon = iconFor(task, notEligible);
+  const cta = { ...fallbackCta(task), ...(task.cta ?? {}) } as { label: string; href: string };
+  const showAction =
+    !signedOut && !frozen && !notEligible && (status === "not_started" || status === "in_progress");
 
   return (
     <TaskRowShell
@@ -64,6 +97,8 @@ export const GrantTaskRow = ({
 
         {signedOut ? (
           <span className="whitespace-nowrap text-[12.5px] text-[#6B7280]">Sign in to start</span>
+        ) : showAction ? (
+          <TaskActionButton label={cta.label} href={cta.href} />
         ) : status === "claimable" && voucher > 0 && !frozen ? (
           <ClaimButton onClick={onClaim} disabled={isClaiming}>
             {isClaiming && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
