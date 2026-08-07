@@ -88,13 +88,14 @@ export const GrantTaskRow = ({
       progress={showBar ? { value: progressValue!, target: task.target! } : undefined}
       right={
         <>
-        <div className="text-right">
+        <div className="w-[92px] shrink-0 text-right">
           {voucher > 0 && (
             <div className="font-display text-[13.5px] font-bold text-[#CFFF4A]">${voucher} voucher</div>
           )}
           {usdc > 0 && <div className="font-display text-[13.5px] font-bold text-[#33D6FF]">${usdc} USDC</div>}
         </div>
 
+        <div className="flex w-[132px] shrink-0 items-center justify-end">
         {signedOut ? (
           <span className="whitespace-nowrap text-[12.5px] text-[#6B7280]">Sign in to start</span>
         ) : showAction ? (
@@ -105,12 +106,13 @@ export const GrantTaskRow = ({
             Claim voucher
           </ClaimButton>
         ) : (
-          <span className="whitespace-nowrap text-[12.5px] font-semibold text-[#9AA1AC]">
+          <span className="text-right text-[12.5px] font-semibold text-[#9AA1AC]">
             {status === "claimable" && usdc > 0
               ? "Credited to Standard after review"
               : STATUS_LABEL[status]}
           </span>
         )}
+        </div>
         </>
       }
     />
