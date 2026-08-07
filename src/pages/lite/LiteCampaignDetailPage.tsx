@@ -95,7 +95,7 @@ export default function LiteCampaignDetailPage() {
             </span>
             <div className="flex min-w-0 flex-col gap-[1px]">
               <span className="font-display text-[13.5px] font-bold">{kolName} × OmenX · Exclusive entry</span>
-              <span className="text-[11.5px] font-semibold">
+              <span className="truncate text-[11.5px] font-semibold">
                 You joined through {kolName}'s link — his terms apply.
               </span>
             </div>
