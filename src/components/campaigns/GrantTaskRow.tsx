@@ -41,7 +41,7 @@ export const GrantTaskRow = ({
 
   return (
     <div
-      className="flex items-center gap-[14px] rounded-[14px] border p-[15px_16px]"
+      className="flex items-center gap-[14px] rounded-[14px] border"
       style={{
         background: notEligible ? "#101216" : "#131519",
         borderColor: "#1D2026",
