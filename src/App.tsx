@@ -31,7 +31,9 @@ import Withdraw from "./pages/Withdraw";
 import RecoveryRequest from "./pages/RecoveryRequest";
 import RecoveryRequestDetail from "./pages/RecoveryRequestDetail";
 import Settings from "./pages/Settings";
-import Rewards from "./pages/Rewards";
+import LiteRewardsPage from "./pages/lite/LiteRewardsPage";
+import LiteCampaignDetailPage from "./pages/lite/LiteCampaignDetailPage";
+import { CampaignAttribution } from "@/components/campaigns/CampaignAttribution";
 import Vouchers from "./pages/Vouchers";
 import FaqPage from "./pages/FaqPage";
 import GlossaryPage from "./pages/GlossaryPage";
@@ -176,6 +178,7 @@ const App = () => (
         <BrowserRouter>
           <OrderSimulationRunner />
           <AirdropNotificationToast />
+          <CampaignAttribution />
           <Routes>
             {/* Full-width landing pages (rendered outside max-w-md mobile shell) */}
             <Route path="/hedge" element={<Navigate to="/campaign/world-cup-polymarket-hedge" replace />} />
@@ -207,7 +210,8 @@ const App = () => (
               <Route path="/wallet/recovery" element={<RecoveryRequest />} />
               <Route path="/wallet/recovery/:id" element={<RecoveryRequestDetail />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
-              <Route path="/rewards" element={<Rewards />} />
+              <Route path="/rewards" element={<LiteRewardsPage />} />
+              <Route path="/rewards/campaign/:campaignId" element={<LiteCampaignDetailPage />} />
               <Route path="/vouchers" element={<Vouchers />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/settings/transparency" element={<TransparencyPage />} />
