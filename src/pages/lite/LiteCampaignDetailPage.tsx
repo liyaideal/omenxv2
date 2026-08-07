@@ -69,71 +69,75 @@ export default function LiteCampaignDetailPage() {
 
   const mobileHero = view && (
     <div className="flex flex-col">
-      {/* Art band — image only, no text baked on top. */}
       <CampaignKeyVisual
         src={entry?.branding.key_visual_url}
         accent={view.accent}
-        ratio="16 / 7"
+        ratio="16 / 9.5"
         className="rounded-[14px]"
-        scrim="linear-gradient(180deg,rgba(10,11,13,0) 34%,rgba(10,11,13,.55) 100%)"
+        scrim="linear-gradient(180deg, rgba(10,11,13,0.0) 0%, rgba(10,11,13,0.45) 20%, rgba(10,11,13,0.85) 55%, rgba(10,11,13,0.98) 100%)"
       >
-        <div />
-        <div />
-      </CampaignKeyVisual>
-
-      {/* Info block — one clean vertical rhythm. */}
-      <div className="mt-[14px] flex flex-col gap-[10px]">
-        {isSpecial && (
-          <div
-            className="inline-flex max-w-full self-start items-center gap-[8px] rounded-full"
-            style={{ background: "#FF8A3D", color: "#2A1200", padding: "3px 11px 3px 3px" }}
-          >
-            <span
-              className="grid h-[22px] w-[22px] shrink-0 place-items-center overflow-hidden rounded-full text-[11px] font-bold"
-              style={{ background: "#2A1200", color: "#FF8A3D" }}
+        <div /> {/* top slot intentionally empty */}
+        <div className="flex flex-col gap-[10px]">
+          {isSpecial && (
+            <div
+              className="inline-flex max-w-full self-start items-center gap-[8px] rounded-full"
+              style={{ background: "#FF8A3D", color: "#2A1200", padding: "3px 11px 3px 3px" }}
             >
-              {avatar ? <img src={avatar} alt="" className="h-full w-full object-cover" /> : kolName.slice(0, 1)}
-            </span>
-            <span className="truncate font-display text-[11.5px] font-bold">{kolName} × OmenX</span>
+              <span
+                className="grid h-[22px] w-[22px] shrink-0 place-items-center overflow-hidden rounded-full text-[11px] font-bold"
+                style={{ background: "#2A1200", color: "#FF8A3D" }}
+              >
+                {avatar ? <img src={avatar} alt="" className="h-full w-full object-cover" /> : kolName.slice(0, 1)}
+              </span>
+              <span className="truncate font-display text-[11.5px] font-bold">{kolName} × OmenX</span>
+            </div>
+          )}
+
+          <h1 className="font-display text-[22px] font-bold leading-[28px] text-[#F2F3F5]">{view.campaign.name}</h1>
+
+          <div className="font-display text-[12px] leading-[16px] tabular-nums text-[#9AA1AC]">
+            {view.phase === "always-on"
+              ? "Always valid"
+              : formatDateRange(view.campaign.startsAt, view.campaign.endsAt)}
+            {view.daysLeft !== null && ` · ${view.daysLeft}d left`} · {view.joined.toLocaleString()} joined
+            {frozen && " · Ended"}
           </div>
-        )}
 
-        <h1 className="font-display text-[22px] font-bold leading-[28px] text-[#F2F3F5]">{view.campaign.name}</h1>
+          <div className="flex flex-wrap items-center gap-2">
+            {view.rewardVoucherUpTo > 0 && (
+              <span
+                className="rounded-full font-display text-[12px] font-bold"
+                style={{ background: "#131519", border: "1px solid #1D2026", color: "#CFFF4A", padding: "6px 12px" }}
+              >
+                ${view.rewardVoucherUpTo} Trial Position Voucher
+              </span>
+            )}
+            {view.rewardUsdcUpTo > 0 && (
+              <span
+                className="inline-flex items-center gap-1.5 rounded-full font-display text-[12px] font-bold"
+                style={{ background: "#131519", border: "1px solid #1D2026", color: "#33D6FF", padding: "6px 12px" }}
+              >
+                +${view.rewardUsdcUpTo} USDC
+                <span className="font-sans font-medium text-[#6B7280]">not guaranteed</span>
+              </span>
+            )}
+            {frozen && (
+              <span
+                className="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.06em]"
+                style={{ background: "#242830", color: "#C9CED6" }}
+              >
+                Ended
+              </span>
+            )}
+          </div>
 
-        <div className="font-display text-[12px] leading-[16px] tabular-nums text-[#9AA1AC]">
-          {view.phase === "always-on"
-            ? "Always valid"
-            : formatDateRange(view.campaign.startsAt, view.campaign.endsAt)}
-          {view.daysLeft !== null && ` · ${view.daysLeft}d left`} · {view.joined.toLocaleString()} joined
-          {frozen && " · Ended"}
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          {view.rewardVoucherUpTo > 0 && (
-            <span
-              className="rounded-full font-display text-[12px] font-bold"
-              style={{ background: "#131519", border: "1px solid #1D2026", color: "#CFFF4A", padding: "6px 12px" }}
-            >
-              ${view.rewardVoucherUpTo} Trial Position Voucher
+          {isSpecial && (
+            <span className="text-[11.5px] leading-[16px] text-[#9AA1AC]">
+              Exclusive entry — you joined through {kolName}'s link.
             </span>
           )}
-          {view.rewardUsdcUpTo > 0 && (
-            <span
-              className="inline-flex items-center gap-1.5 rounded-full font-display text-[12px] font-bold"
-              style={{ background: "#131519", border: "1px solid #1D2026", color: "#33D6FF", padding: "6px 12px" }}
-            >
-              +${view.rewardUsdcUpTo} USDC
-              <span className="font-sans font-medium text-[#6B7280]">not guaranteed</span>
-            </span>
-          )}
         </div>
-
-        {isSpecial && (
-          <span className="text-[11.5px] leading-[16px] text-[#6B7280]">
-            Exclusive entry — you joined through {kolName}'s link.
-          </span>
-        )}
-      </div>
+      </CampaignKeyVisual>
     </div>
   );
 
