@@ -50,7 +50,7 @@ const Badge = ({ view }: { view: CampaignView }) => {
 export const CampaignCard = ({ view, signedOut }: { view: CampaignView; signedOut?: boolean }) => {
   const navigate = useNavigate();
   const pct = view.tasksTotal > 0 ? (view.tasksDone / view.tasksTotal) * 100 : 0;
-  const dateLine = formatDateRange(view.campaign.startsAt, view.campaign.endsAt);
+  const dateLine = view.phase === "always-on" ? "Always valid" : formatDateRange(view.campaign.startsAt, view.campaign.endsAt);
 
   const meta: string[] = [];
   const claimedTotal = view.voucherClaimed + view.usdcClaimed;
