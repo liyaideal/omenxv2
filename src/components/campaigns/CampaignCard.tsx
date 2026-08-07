@@ -108,7 +108,7 @@ export const CampaignCard = ({ view, signedOut }: { view: CampaignView; signedOu
           )}
           {view.rewardUsdcUpTo > 0 && (
             <span className="font-display font-semibold tabular-nums text-[#33D6FF]">
-              +${view.rewardUsdcUpTo} USDC
+              ${view.rewardUsdcUpTo} USDC
             </span>
           )}
         </div>

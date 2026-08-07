@@ -202,7 +202,7 @@ export default function LiteCampaignDetailPage() {
                 padding: "7px 13px",
               }}
             >
-              +${view.rewardUsdcUpTo} USDC
+              ${view.rewardUsdcUpTo} USDC
             </span>
           )}
           {frozen && (
