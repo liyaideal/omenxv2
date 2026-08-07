@@ -66,7 +66,7 @@ const Tabs = ({
   sticky?: boolean;
 }) => (
   <div
-    className={`flex items-center gap-[22px] border-b border-[#1D2026] ${
+    className={`flex items-end gap-7 border-b border-[#1D2026] md:gap-9 ${
       sticky ? "sticky top-[44px] z-30 -mx-4 bg-background px-4" : ""
     }`}
   >
@@ -80,11 +80,11 @@ const Tabs = ({
           key={t.id}
           type="button"
           onClick={() => onChange(t.id)}
-          className="relative min-h-[44px] text-[13.5px]"
-          style={{ color: active ? "#F2F3F5" : "#9AA1AC", fontWeight: active ? 600 : 400 }}
+          className="relative min-h-[48px] pb-2 font-display text-[19px] leading-[26px] tracking-[-0.01em] transition-colors md:min-h-[56px] md:pb-3 md:text-[24px] md:leading-[30px]"
+          style={{ color: active ? "#F2F3F5" : "#6B7280", fontWeight: active ? 700 : 500 }}
         >
           {t.label}
-          {active && <span className="absolute inset-x-0 -bottom-px h-[2px] bg-white" />}
+          {active && <span className="absolute inset-x-0 -bottom-px h-[2.5px] rounded-full bg-[#F2F3F5]" />}
         </button>
       );
     })}
