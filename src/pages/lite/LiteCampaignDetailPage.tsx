@@ -102,18 +102,38 @@ export default function LiteCampaignDetailPage() {
           </div>
         )}
 
-        <h1 className="font-display text-[24px] font-bold leading-tight text-[#F2F3F5] md:text-[36px]">
+        <h1 className="font-display text-[22px] font-bold leading-tight text-[#F2F3F5] md:text-[36px]">
           {view.campaign.name}
         </h1>
-        <div className="font-display text-[12.5px] tabular-nums text-[#C9CED6]">
-          {view.phase === "always-on" ? "Always valid" : formatDateRange(view.campaign.startsAt, view.campaign.endsAt)}
-          {view.daysLeft !== null && ` · ${view.daysLeft} days left`} · {view.joined.toLocaleString()} joined
-        </div>
+        {isMobile ? (
+          <div className="font-display text-[12.5px] leading-[18px] tabular-nums text-[#C9CED6]">
+            <div>
+              {view.phase === "always-on"
+                ? "Always valid"
+                : formatDateRange(view.campaign.startsAt, view.campaign.endsAt)}
+            </div>
+            <div className="text-[#9AA1AC]">
+              {view.joined.toLocaleString()} joined
+              {view.daysLeft !== null && ` · ${view.daysLeft}d left`}
+            </div>
+          </div>
+        ) : (
+          <div className="font-display text-[12.5px] tabular-nums text-[#C9CED6]">
+            {view.phase === "always-on" ? "Always valid" : formatDateRange(view.campaign.startsAt, view.campaign.endsAt)}
+            {view.daysLeft !== null && ` · ${view.daysLeft} days left`} · {view.joined.toLocaleString()} joined
+          </div>
+        )}
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div
+          className={
+            isMobile
+              ? "-mx-1 flex items-center gap-2 overflow-x-auto whitespace-nowrap px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              : "flex flex-wrap items-center gap-2"
+          }
+        >
           {view.rewardVoucherUpTo > 0 && (
             <span
-              className="rounded-full font-display text-[12.5px] font-bold"
+              className="shrink-0 whitespace-nowrap rounded-full font-display text-[12.5px] font-bold"
               style={{
                 background: "#131519",
                 border: "1px solid #1D2026",
@@ -126,7 +146,7 @@ export default function LiteCampaignDetailPage() {
           )}
           {view.rewardUsdcUpTo > 0 && (
             <span
-              className="inline-flex items-center gap-1.5 rounded-full font-display text-[12.5px] font-bold"
+              className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full font-display text-[12.5px] font-bold"
               style={{
                 background: "#131519",
                 border: "1px solid #1D2026",
@@ -140,7 +160,7 @@ export default function LiteCampaignDetailPage() {
           )}
           {frozen && (
             <span
-              className="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.06em]"
+              className="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.06em]"
               style={{ background: "#242830", color: "#C9CED6" }}
             >
               Ended
