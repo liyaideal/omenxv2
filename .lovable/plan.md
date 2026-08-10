@@ -1,12 +1,13 @@
-# 专属链接不合格拦截态 — style-guide 演示
+# 专属链接参与资格不符 — style-guide 演示
 
-只在 `/style-guide#rewards` 新增一个演示小节，展示「用户点 Lao Wang 专属链接进入活动，但不符合参与资格 → 提示 + 立即跳回主页」这一状态。生产页面（LiteCampaignDetailPage / CampaignCard / GrantTaskRow / Referral / 移动端版式）零改动。
+只在 `/style-guide#rewards` 新增一个演示小节，展示「用户通过 Lao Wang 专属链接进入活动，但当前账号不符合参与资格 → 提示后自动返回主页」这一状态。生产页面（LiteCampaignDetailPage / CampaignCard / GrantTaskRow / Referral / 移动端版式）零改动。
 
 ## 交互定义（写进演示说明）
 - 形态：sonner toast + 立即 `navigate("/")`，用户不停留在详情页。
-- 文案走通用口径，不逐条暴露原因（名额已满 / 已锁定其他 entry / 账号不符 / 链接失效都用同一句），这样后续新增拦截原因不用改文案：
-  - 标题：`You can't join this entry`
-  - 说明：`This exclusive link isn't available for your account. Taking you back to home.`
+- 文案采用正式、克制口径，不暴露具体原因：
+  - 标题：`This entry is not available`
+  - 说明：`Your account isn't eligible for this exclusive link. Redirecting you to the home page.`
+- 不逐条区分名额已满 / 已锁定其他 entry / 账号不符 / 链接失效，后续新增拦截原因无需改文案。
 - 拦截是瞬时的，演示用「冻结帧」呈现：静态 toast + 一行触发条件说明 + 跳转目标标注，不做真实计时或真实跳转。
 
 ## 改动点
