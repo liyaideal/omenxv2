@@ -18,11 +18,12 @@ type: preference
 ## 铁律
 1. **改版状态展示只许进 Lite 区对应页面节**；没有该页面节就新建一节，禁止散落到
    Foundations / Legacy / Archive。页面节徽标随改版进度更新。
-2. **section 源文件是活规范**：只能移动、重新注册、import，禁止改写其内部实现。
-3. **只增不删**：previewRegistry 键集合只增不减；重组不得让任何 section 内容缩水。
-4. 深链用 hash（`/style-guide#lite-events`），`resolveSectionId` + `SECTION_ALIASES`
+2. **徽标判定标准**：✅ 只代表该页完成过 Lite 视觉改版；仅有功能/状态展示而未翻新视觉的页面标 ⏳，其现役 demo 以「现状留档」名义留在页面节内。
+3. **section 源文件是活规范**：只能移动、重新注册、import，禁止改写其内部实现。
+4. **只增不删**：previewRegistry 键集合只增不减；重组不得让任何 section 内容缩水。
+5. 深链用 hash（`/style-guide#lite-events`），`resolveSectionId` + `SECTION_ALIASES`
    负责老 id 兼容（如 `#lite` → `#lite-events`、`#wallet` → `#lite-wallet`）。
-5. Lite 组件的多状态 playground 只允许加"零风险附加 prop"（如 `defaultTrayOpen`），
+6. Lite 组件的多状态 playground 只允许加"零风险附加 prop"（如 `defaultTrayOpen`），
    不允许为 demo 重构生产组件。
 
 ## Demo 标注标准（round 7 起，所有新 section 必须遵守）
