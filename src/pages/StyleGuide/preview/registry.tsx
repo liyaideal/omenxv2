@@ -333,6 +333,7 @@ export const previewRegistry: Record<string, () => JSX.Element> = {
   "rewards-signin-prompt": () => <SignInPromptPreview />,
   "rewards-referral-panels": () => <ReferralPanelPreview />,
   "rewards-fine-print": () => <RewardsFinePrintPreview />,
+  "rewards-ineligible-redirect": () => <CampaignIneligibleRedirectPreview />,
 };
 
 export type PreviewKey = keyof typeof previewRegistry;
