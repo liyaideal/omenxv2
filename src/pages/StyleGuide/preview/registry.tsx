@@ -63,6 +63,7 @@ import {
   SignInPromptPreview,
   ReferralPanelPreview,
   RewardsFinePrintPreview,
+  CampaignIneligibleRedirectPreview,
 } from "./rewardsPreviews";
 
 /* ---- Mock factories (shared with ApiSection) ---- */
