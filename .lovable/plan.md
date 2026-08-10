@@ -1,6 +1,6 @@
-# 专属链接不合格拦截态 — style-guide 演示
+# 专属链接参与资格不符 — style-guide 演示
 
-只在 `/style-guide#rewards` 新增一个演示小节，展示「用户点 Lao Wang 专属链接进入活动，但不符合参与资格 → 提示 + 立即跳回主页」这一状态。生产页面（LiteCampaignDetailPage / CampaignCard / GrantTaskRow / Referral / 移动端版式）零改动。
+只在 `/style-guide#rewards` 新增一个演示小节，展示「用户通过 Lao Wang 专属链接进入活动，但当前账号不符合参与资格 → 提示后自动返回主页」这一状态。生产页面（LiteCampaignDetailPage / CampaignCard / GrantTaskRow / Referral / 移动端版式）零改动。
 
 ## 交互定义（写进演示说明）
 - 形态：sonner toast + 立即 `navigate("/")`，用户不停留在详情页。
