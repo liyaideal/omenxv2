@@ -26,8 +26,34 @@ export const DeviceFrame = ({
   minHeight?: number;
 }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const holderRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(minHeight);
+  // Viewport lazy-mount: booting every preview iframe at once made section
+  // nodes with many demos crawl. Mount on approach (400px buffer) and keep
+  // mounted forever after — never unmount, or the app re-boots on scroll.
+  const [mounted, setMounted] = useState(false);
   const width = DEVICE_WIDTH[device];
+
+  useEffect(() => {
+    if (mounted) return;
+    const el = holderRef.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setMounted(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setMounted(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "400px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [mounted]);
 
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
@@ -42,14 +68,23 @@ export const DeviceFrame = ({
 
   return (
     <div className="rounded-lg border border-border/40 bg-background/40 p-3 overflow-x-auto">
-      <div className="mx-auto" style={width ? { width, maxWidth: width } : undefined}>
-        <iframe
-          ref={iframeRef}
-          title={`preview-${previewKey}-${device}`}
-          src={`/style-guide/preview?c=${encodeURIComponent(previewKey)}`}
-          className="w-full block border-0 rounded-md bg-background"
-          style={{ height }}
-        />
+      <div ref={holderRef} className="mx-auto" style={width ? { width, maxWidth: width } : undefined}>
+        {mounted ? (
+          <iframe
+            ref={iframeRef}
+            title={`preview-${previewKey}-${device}`}
+            src={`/style-guide/preview?c=${encodeURIComponent(previewKey)}`}
+            loading="lazy"
+            className="w-full block border-0 rounded-md bg-background"
+            style={{ height }}
+          />
+        ) : (
+          <div
+            className="w-full rounded-md border border-dashed border-border/40 bg-muted/20 animate-pulse"
+            style={{ height }}
+            aria-hidden
+          />
+        )}
       </div>
     </div>
   );
