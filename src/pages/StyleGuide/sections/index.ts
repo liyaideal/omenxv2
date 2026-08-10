@@ -26,3 +26,5 @@ export { EventArtSection } from "./EventArtSection";
 
 export { RewardsMobileSection } from "./RewardsMobileSection";
 export { RewardsSection } from "./RewardsSection";
+export { GlobalStandardsSection } from "./GlobalStandardsSection";
+export { ArchiveSection } from "./ArchiveSection";
