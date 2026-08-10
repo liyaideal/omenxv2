@@ -31,7 +31,7 @@ const PAGES: Array<{ id: string; page: string; route: string; status: RevampStat
   { id: "lite-trade", page: "交易页（合约 + 现货 + 结算态）", route: "/trade · /spot", status: "done" },
   { id: "lite-wallet", page: "Wallet", route: "/wallet", status: "done" },
   { id: "lite-rewards", page: "Rewards", route: "/rewards", status: "done" },
-  { id: "lite-vouchers", page: "Vouchers", route: "/vouchers", status: "done" },
+  { id: "lite-vouchers", page: "Vouchers", route: "/vouchers", status: "todo" },
   { id: "lite-api", page: "API / Developers", route: "/api · /developers", status: "done" },
   { id: "lite-portfolio", page: "Portfolio", route: "/portfolio", status: "todo" },
   { id: "lite-leaderboard", page: "Leaderboard", route: "/leaderboard", status: "todo" },
@@ -180,7 +180,13 @@ export const LiteRewardsPage = ({ isMobile }: P) => (
 );
 
 export const LiteVouchersPage = ({ isMobile }: P) => (
-  <LitePage id="lite-vouchers" title="Vouchers" route="/vouchers" status="done">
+  <LitePage
+    id="lite-vouchers"
+    title="Vouchers"
+    route="/vouchers"
+    status="todo"
+    note="现状留档：以下为改版前的现役实现（视觉翻新未开始）。"
+  >
     <VouchersSection isMobile={isMobile} />
   </LitePage>
 );
