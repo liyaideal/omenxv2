@@ -1,6 +1,11 @@
 // ============================================================
-// /style-guide information architecture. Navigation shell ONLY — every
-// section file below is a living spec and is imported as-is.
+// /style-guide information architecture — four top-level areas:
+//   A) Lite       — one node per user page, each carrying a revamp badge
+//   B) Foundations— cross-page primitives + 全站规范
+//   C) Legacy     — surfaces not yet revamped, stored as-is
+//   D) Archive    — retired components
+// Navigation shell ONLY — every section file below is a living spec and is
+// imported as-is. Never rewrite a section to fit the nav.
 // ============================================================
 import { SectionWrapper } from "./components/SectionWrapper";
 import { TradingHeaderPlayground } from "./components/TradingHeaderPlayground";
@@ -14,25 +19,25 @@ import {
   TradingSection,
   SpotSection,
   TransparencySection,
-  LiteSection,
-  LiteAllStageSection,
-  LiteVerticalViewsSection,
-  LiteCalendarSection,
-  LiteFinalTouchesSection,
-  LiteSpotSection,
-  WalletSection,
-  DepositWithdrawSection,
-  VouchersSection,
   MobilePatternsSection,
-  MobileHomeSection,
-  ApiSection,
   WorldCupSection,
   StatesSection,
   EmptyStatesSection,
-  EventArtSection,
-  RewardsMobileSection,
-  RewardsSection,
+  GlobalStandardsSection,
+  ArchiveSection,
 } from "./sections";
+import {
+  LiteOverviewSection,
+  LiteHomePage,
+  LiteEventsPage,
+  LiteTradePage,
+  LiteWalletPage,
+  LiteRewardsPage,
+  LiteVouchersPage,
+  LiteApiPage,
+  LitePortfolioPage,
+  LiteLeaderboardPage,
+} from "./sections/pages/litePages";
 
 export interface SectionEntry {
   id: string;
@@ -58,30 +63,42 @@ const s = (
 
 export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
   {
-    id: "foundations",
-    label: "Foundations",
+    id: "lite",
+    label: "Lite — 按页面",
     sections: [
-      s("tokens", "Design tokens", DesignTokensSection),
-      s("typography", "Typography", TypographySection),
-      s("animations", "Animations", AnimationsSection),
+      s("lite-overview", "改版进度总览", LiteOverviewSection),
+      s("lite-home", "Home ✅", LiteHomePage),
+      s("lite-events", "Events 列表 ✅", LiteEventsPage),
+      s("lite-trade", "交易页 ✅", LiteTradePage),
+      s("lite-wallet", "Wallet ✅", LiteWalletPage),
+      s("lite-rewards", "Rewards ✅", LiteRewardsPage),
+      s("lite-vouchers", "Vouchers ✅", LiteVouchersPage),
+      s("lite-api", "API / Developers ✅", LiteApiPage),
+      s("lite-portfolio", "Portfolio ⏳", LitePortfolioPage),
+      s("lite-leaderboard", "Leaderboard ⏳", LiteLeaderboardPage),
     ],
   },
   {
-    id: "core-ui",
-    label: "Core UI",
+    id: "foundations",
+    label: "Foundations",
     sections: [
+      s("global-standards", "全站规范", GlobalStandardsSection),
+      s("tokens", "Design tokens", DesignTokensSection),
+      s("typography", "Typography", TypographySection),
+      s("animations", "Animations", AnimationsSection),
       s("ui", "Common UI", CommonUISection),
-      s("empty-states", "Empty states", EmptyStatesSection),
-      s("event-art", "Event cover art", EventArtSection),
       s("forms", "Forms", FormsSection),
+      s("states", "States", StatesSection),
+      s("empty-states", "Empty states", EmptyStatesSection),
+      s("mobile-patterns", "Mobile patterns", MobilePatternsSection),
       s("identity", "User identity", UserIdentitySection),
     ],
   },
   {
-    id: "trading-pro",
-    label: "Trading — Pro",
+    id: "legacy",
+    label: "Legacy — 未改版存量",
     sections: [
-      s("trading", "Trading", TradingSection),
+      s("trading", "Trading (Pro 终端)", TradingSection),
       {
         id: "trading-header",
         label: "Trading header playground",
@@ -95,49 +112,15 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
           </SectionWrapper>
         ),
       },
-      s("spot", "Spot", SpotSection),
+      s("spot", "Spot (Pro 现货)", SpotSection),
       s("transparency", "Transparency", TransparencySection),
-    ],
-  },
-  {
-    id: "lite",
-    label: "Lite (consumer surface)",
-    sections: [
-      s("lite", "Lite components", LiteSection),
-      s("lite-all-stage", "Lite · All stage", LiteAllStageSection),
-      s("lite-verticals", "Lite · Crypto / Finance views", LiteVerticalViewsSection),
-      s("lite-calendar", "Lite · Calendar", LiteCalendarSection),
-      s("lite-final-touches", "Lite · Final touches (11)", LiteFinalTouchesSection),
-      s("lite-spot", "Lite spot trade", LiteSpotSection),
-    ],
-  },
-  {
-    id: "wallet-money",
-    label: "Wallet & Money",
-    sections: [
-      s("wallet", "Wallet", WalletSection),
-      s("deposit", "Deposit / Withdraw", DepositWithdrawSection),
-      s("vouchers", "Vouchers", VouchersSection),
-      s("rewards", "Rewards / Campaigns", RewardsSection),
-    ],
-  },
-  {
-    id: "mobile",
-    label: "Mobile",
-    sections: [
-      s("mobile-patterns", "Mobile patterns", MobilePatternsSection),
-      s("mobile-home", "Mobile home", MobileHomeSection),
-      s("rewards-mobile", "Rewards task rows", RewardsMobileSection),
-    ],
-  },
-  {
-    id: "misc",
-    label: "Misc / Legacy",
-    sections: [
-      s("api", "API keys", ApiSection),
-      s("states", "States", StatesSection),
       s("worldcup", "World Cup (legacy)", WorldCupSection),
     ],
+  },
+  {
+    id: "archive",
+    label: "Archive — 退役件",
+    sections: [s("archive", "PageTitle / PageHeader", ArchiveSection)],
   },
 ];
 
@@ -145,18 +128,28 @@ export const ALL_SECTIONS: SectionEntry[] = STYLE_GUIDE_GROUPS.flatMap((g) => g.
 
 /** Legacy hash/tab ids kept alive so old deep links still resolve. */
 export const SECTION_ALIASES: Record<string, string> = {
-  home: "mobile-home",
-  "mobile-home": "mobile-home",
+  // pre-restructure ids → the page node that absorbed them
+  home: "lite-home",
+  "mobile-home": "lite-home",
+  lite: "lite-events",
+  "lite-all-stage": "lite-events",
+  "lite-verticals": "lite-events",
+  "lite-calendar": "lite-events",
+  "lite-final-touches": "lite-events",
+  "event-art": "lite-events",
+  "lite-spot": "lite-trade",
+  wallet: "lite-wallet",
+  deposit: "lite-wallet",
+  rewards: "lite-rewards",
+  "rewards-mobile": "lite-rewards",
+  vouchers: "lite-vouchers",
+  api: "lite-api",
   mobile: "mobile-patterns",
-  "mobile-patterns": "mobile-patterns",
-  "lite-spot": "lite-spot",
-  "lite-all-stage": "lite-all-stage",
-  "trading-header": "trading-header",
 };
 
 export const resolveSectionId = (raw: string | null | undefined): string | null => {
   if (!raw) return null;
   const key = raw.replace(/^#/, "");
-  if (SECTION_ALIASES[key]) return SECTION_ALIASES[key];
-  return ALL_SECTIONS.some((x) => x.id === key) ? key : null;
+  if (ALL_SECTIONS.some((x) => x.id === key)) return key;
+  return SECTION_ALIASES[key] ?? null;
 };

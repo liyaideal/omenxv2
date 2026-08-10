@@ -144,7 +144,7 @@
 - [Pro / Spot US stocks pilot](mem://features/pro-spot-us-stocks) — 2026-07-15 上线现货产品线；events/trades/positions 加 product_line 维度；3 个美股当日涨跌种子事件；5 态 lifecycle + 4 个时刻表常量待确认；`/spot?event=` 独立页
 - [API key management](mem://features/api-key-management) — /settings/api 三层准入（Read-only/Trading/Pro-MM）+ 7 项 scope（FD-API-04）+ trade_*/ws_private 强制 IP whitelist + 一次性 secret；key/secret 前端仿真 DEMO-STATE
 - [Market activity feed](mem://features/market-activity-feed) — 匿名全站成交流表 market_activity（不是 owner-scoped trades）
-- [Style guide IA](mem://design/style-guide-ia) — /style-guide 分组侧栏 IA + Lite playground；section 文件是活规范，只能移动注册不能改写
+- [Style guide IA](mem://design/style-guide-ia) — /style-guide 四区结构（Lite 按页面 / Foundations / Legacy / Archive）；改版状态只进 Lite 对应页面节；section 文件是活规范，只能移动注册不能改写
 - [Lite forbidden-words exceptions](mem://design/lite-forbidden-words-exceptions) — Pro escape-hatch 文案（"charts, leverage and the order book"）是 Lite 禁词的既批例外，禁止重写
 - [Empty state standard](mem://design/empty-state-standard) — 全站 EmptyState（page/module）解剖、文案禁令、pill-not-link，以及 lynx 吉祥物锁定规则
 - [Two page families](mem://design/page-families) — Two visual families (BROWSE vs ACCOUNT) define page grammar; Wallet is the reference implementation of ACCOUNT family
