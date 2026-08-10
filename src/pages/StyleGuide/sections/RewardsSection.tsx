@@ -85,6 +85,14 @@ export const RewardsSection = ({ isMobile: _isMobile }: { isMobile: boolean }) =
       >
         <DualDevicePreview previewKey="rewards-fine-print" label="11.5px / #6B7280" minHeight={110} />
       </SubSection>
+
+      <SubSection
+        title="9. Exclusive link — ineligible redirect"
+        description="User lands via ?entry=LAOWANG but the entry cannot be bound (cap reached, already locked to another entry, account not eligible, link expired, etc.). UX: a single formal sonner toast + immediate redirect to /; the detail page never renders. Copy intentionally generic so new refusal reasons don't require new strings."
+        platform="shared"
+      >
+        <DualDevicePreview previewKey="rewards-ineligible-redirect" label="Frozen toast frame · desktop top-center · mobile full-width" minHeight={220} />
+      </SubSection>
     </div>
   </SectionWrapper>
 );
