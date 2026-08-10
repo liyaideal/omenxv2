@@ -37,6 +37,9 @@ import {
   LiteApiPage,
   LitePortfolioPage,
   LiteLeaderboardPage,
+  LiteSettingsPage,
+  LiteInsightsPage,
+  LiteContentPage,
 } from "./sections/pages/litePages";
 
 export interface SectionEntry {
@@ -76,6 +79,9 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
       s("lite-api", "API / Developers ✅", LiteApiPage),
       s("lite-portfolio", "Portfolio ⏳", LitePortfolioPage),
       s("lite-leaderboard", "Leaderboard ⏳", LiteLeaderboardPage),
+      s("lite-settings", "Settings ⏳", LiteSettingsPage),
+      s("lite-insights", "Insights ⏳", LiteInsightsPage),
+      s("lite-content", "内容页 ⏳", LiteContentPage),
     ],
   },
   {

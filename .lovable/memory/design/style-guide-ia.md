@@ -25,6 +25,8 @@ type: preference
    负责老 id 兼容（如 `#lite` → `#lite-events`、`#wallet` → `#lite-wallet`）。
 6. Lite 组件的多状态 playground 只允许加"零风险附加 prop"（如 `defaultTrayOpen`），
    不允许为 demo 重构生产组件。
+7. **进度总览必须覆盖 `src/App.tsx` 全部用户路由**（重定向、style-guide 自身、campaign landing 除外）；
+   新增路由的同一轮必须把该页面补进总览表与 Lite 区导航。
 
 ## Demo 标注标准（round 7 起，所有新 section 必须遵守）
 1. **禁止 "shared" 字样**。每个 demo 必须挂一个 context chip，只能是三选一：

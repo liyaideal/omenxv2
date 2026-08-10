@@ -29,12 +29,20 @@ const PAGES: Array<{ id: string; page: string; route: string; status: RevampStat
   { id: "lite-home", page: "Home", route: "/", status: "done" },
   { id: "lite-events", page: "Events 列表", route: "/events", status: "done" },
   { id: "lite-trade", page: "交易页（合约 + 现货 + 结算态）", route: "/trade · /spot", status: "done" },
-  { id: "lite-wallet", page: "Wallet", route: "/wallet", status: "done" },
+  { id: "lite-wallet", page: "Wallet", route: "/wallet · /deposit · /withdraw · /wallet/recovery", status: "done" },
   { id: "lite-rewards", page: "Rewards", route: "/rewards", status: "done" },
   { id: "lite-vouchers", page: "Vouchers", route: "/vouchers", status: "todo" },
-  { id: "lite-api", page: "API / Developers", route: "/api · /developers", status: "done" },
-  { id: "lite-portfolio", page: "Portfolio", route: "/portfolio", status: "todo" },
+  { id: "lite-api", page: "API / Developers", route: "/settings/api · /developers", status: "done" },
+  { id: "lite-portfolio", page: "Portfolio", route: "/portfolio · /portfolio/settlements · /portfolio/airdrops", status: "todo" },
   { id: "lite-leaderboard", page: "Leaderboard", route: "/leaderboard", status: "todo" },
+  { id: "lite-settings", page: "Settings", route: "/settings · /settings/transparency", status: "todo" },
+  { id: "lite-insights", page: "Insights", route: "/insights", status: "todo" },
+  {
+    id: "lite-content",
+    page: "内容页（FAQ · Glossary · About · Methodology · 法务）",
+    route: "/faq · /glossary · /about · /methodology · /privacy-policy · /terms-of-service",
+    status: "todo",
+  },
 ];
 
 export const LiteOverviewSection = (_: P) => (
@@ -157,7 +165,7 @@ export const LiteWalletPage = ({ isMobile }: P) => (
   <LitePage
     id="lite-wallet"
     title="Wallet"
-    route="/wallet"
+    route="/wallet · /deposit · /withdraw · /wallet/recovery"
     status="done"
     note="Dual-account（Boost / Standard）余额与转账、交易历史，以及充值 / 提现动线。"
   >
@@ -195,7 +203,7 @@ export const LiteApiPage = ({ isMobile }: P) => (
   <LitePage
     id="lite-api"
     title="API / Developers"
-    route="/api-management · /developers"
+    route="/settings/api · /developers"
     status="done"
     note="Tier track、密钥表、创建向导，以及 /developers 移动端 tier stepper。"
   >
@@ -207,7 +215,7 @@ export const LitePortfolioPage = (_: P) => (
   <NotStartedPage
     id="lite-portfolio"
     title="Portfolio"
-    route="/portfolio"
+    route="/portfolio · /portfolio/settlements · /portfolio/airdrops"
     what="覆盖范围：持仓表、结算历史入口、equity 曲线、空态。"
   />
 );
@@ -218,5 +226,32 @@ export const LiteLeaderboardPage = (_: P) => (
     title="Leaderboard"
     route="/leaderboard"
     what="覆盖范围：霓虹 hero（现有豁免）、榜单行、周期切换、我的排名条。"
+  />
+);
+
+export const LiteSettingsPage = (_: P) => (
+  <NotStartedPage
+    id="lite-settings"
+    title="Settings"
+    route="/settings · /settings/transparency"
+    what="覆盖范围：账户设置主页、通知/安全分组、transparency 子页（其现有 demo 暂存 Legacy 区，改版后迁入本节）。"
+  />
+);
+
+export const LiteInsightsPage = (_: P) => (
+  <NotStartedPage
+    id="lite-insights"
+    title="Insights"
+    route="/insights"
+    what="覆盖范围：洞察列表、文章详情、空态。"
+  />
+);
+
+export const LiteContentPage = (_: P) => (
+  <NotStartedPage
+    id="lite-content"
+    title="内容页（FAQ · Glossary · About · Methodology · 法务）"
+    route="/faq · /glossary · /about · /methodology · /privacy-policy · /terms-of-service"
+    what="覆盖范围：共用 SeoPageLayout（现有豁免），改版时作为一轮统一处理。"
   />
 );
