@@ -97,12 +97,12 @@ export const LiteEventsPage = ({ isMobile }: P) => (
     status="done"
     note="列表卡、All stage、垂类视图、日历视图、收官细节，以及事件封面插画契约（封面只在列表/卡片出现，故归入本页）。"
   >
-    <LiteSection isMobile={isMobile} />
-    <LiteAllStageSection isMobile={isMobile} />
-    <LiteVerticalViewsSection isMobile={isMobile} />
-    <LiteCalendarSection isMobile={isMobile} />
-    <LiteFinalTouchesSection isMobile={isMobile} />
-    <EventArtSection isMobile={isMobile} />
+    <LiteSection />
+    <LiteAllStageSection />
+    <LiteVerticalViewsSection />
+    <LiteCalendarSection />
+    <LiteFinalTouchesSection />
+    <EventArtSection />
   </LitePage>
 );
 
