@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
     let markPrice = Number(pos.counter_price)
     const { data: voucher } = await admin
       .from('position_vouchers')
-      .select('redeemed_option_id, redeemed_side, face_value, redeemable_cap_pct')
+      .select('redeemed_option_id, redeemed_side, face_value, redeemable_cap_pct, payout_mode')
       .eq('redeemed_airdrop_position_id', pos.id)
       .maybeSingle()
 
@@ -123,7 +123,11 @@ Deno.serve(async (req) => {
     // 6) Credit voucher_earnings pool (NOT trial_balance / wallet).
     //    Users must hit the 50k USDC trading volume gate and then call
     //    claim-voucher-earnings to move the pool into wallet.balance.
-    if (creditedPnl > 0) {
+    // payout_mode='instant' vouchers are paid straight to the Standard balance by
+    // the pay_instant_voucher_settlement() trigger on airdrop_positions — they must
+    // NOT also accrue to the tiered pending pool.
+    const isInstant = voucher?.payout_mode === 'instant'
+    if (creditedPnl > 0 && !isInstant) {
       const { data: pool } = await admin
         .from('voucher_earnings')
         .select('id, pending_amount')
