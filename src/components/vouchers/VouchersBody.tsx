@@ -101,21 +101,7 @@ export const VouchersBody = () => {
   })() : null;
 
   return (
-    <div
-      className={`min-h-screen ${isMobile ? "pb-24" : ""}`}
-      style={{
-        background: isMobile
-          ? "hsl(222 47% 6%)"
-          : "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(260 50% 15% / 0.3) 0%, hsl(222 47% 6%) 70%)",
-      }}
-    >
-      {isMobile ? <MobileHeader title="Vouchers" showLogo={false} showBack={true} /> : <EventsDesktopHeader />}
-
-      <AuthGateOverlay
-        title="Sign in to view your vouchers"
-        description="Position vouchers let you open a free position on any tradeable event."
-      >
-        <main className={`${isMobile ? "px-4 py-6" : "mx-auto w-full max-w-7xl px-4 py-10 lg:px-6"} space-y-6`}>
+    <div className="space-y-6">
           {/* DATA OPENING — VoucherEarningsCard is the opening; no page h1. */}
           <VoucherEarningsCard />
 
@@ -257,10 +243,6 @@ export const VouchersBody = () => {
               </div>
             )
           )}
-        </main>
-      </AuthGateOverlay>
-
-      {isMobile && <BottomNav />}
     </div>
   );
 };
@@ -380,5 +362,3 @@ const ExpiredSection = ({ items }: { items: ReturnType<typeof usePositionVoucher
   </section>
 );
 
-
-export default Vouchers;
