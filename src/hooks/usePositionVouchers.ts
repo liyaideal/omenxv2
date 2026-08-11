@@ -32,6 +32,8 @@ export interface PositionVoucher {
   redeemedOutcomeLabel: string | null;
   redeemedSettledPnl: number | null;
   redeemedCloseReason: string | null;
+  /** "August Kickoff — Trade $500" — campaign the voucher came from. */
+  sourceLabel: string | null;
 }
 
 const QUERY_KEY = ["position-vouchers"];
@@ -60,7 +62,7 @@ const mapRow = (row: any): PositionVoucher => ({
   redeemedOutcomeLabel: null,
   redeemedSettledPnl: null,
   redeemedCloseReason: null,
-
+  sourceLabel: null,
 });
 
 export const usePositionVouchers = () => {
@@ -85,6 +87,27 @@ export const usePositionVouchers = () => {
         throw error;
       }
       const mapped = (data as any[]).map(mapRow);
+
+      // Enrich with the campaign the voucher was granted from (row line 1).
+      const entryIds = Array.from(
+        new Set((data as any[]).map((r) => r.source_entry_id).filter(Boolean)),
+      ) as string[];
+      const sourceById = new Map<string, string>();
+      if (entryIds.length > 0) {
+        const { data: entryRows } = await supabase
+          .from("campaign_entries")
+          .select("id, rules, campaigns(name)")
+          .in("id", entryIds);
+        (entryRows ?? []).forEach((row: any) => {
+          const campaignName = row.campaigns?.name ?? null;
+          const taskTitle = row.rules?.title ?? null;
+          const label = [campaignName, taskTitle].filter(Boolean).join(" — ");
+          if (label) sourceById.set(row.id, label);
+        });
+      }
+      (data as any[]).forEach((row, i) => {
+        mapped[i].sourceLabel = row.source_entry_id ? sourceById.get(row.source_entry_id) ?? null : null;
+      });
 
       // Enrich with linked airdrop_positions.status so we can show "closed"
       // even if the voucher row itself wasn't flipped to 'settled'.
