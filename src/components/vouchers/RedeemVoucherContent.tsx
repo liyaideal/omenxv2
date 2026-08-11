@@ -45,7 +45,9 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
     const res = await redeem(voucher.id, picked.eventId, picked.optionId, picked.side);
     if (res.success) {
       onClose?.();
-      navigate(`/trade?event=${picked.eventId}`);
+      // Route by product line: Standard (spot) markets live on /spot.
+      const path = picked.productLine === "spot" ? "/spot" : "/trade";
+      navigate(`${path}?event=${picked.eventId}`);
     }
   };
 
