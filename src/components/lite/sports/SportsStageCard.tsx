@@ -422,8 +422,24 @@ export const SportsStageCard = ({
         })}
       </div>
 
-      {upcoming.map((m) => (
-        <UpcomingRow key={m.id} match={m} onOpen={open(m.id)} onPick={pick(m.id)} />
+      {upcoming.map((m, i) => (
+        <div key={m.id} ref={i === 0 ? rowRef : undefined}>
+          <UpcomingRow match={m} onOpen={open(m.id)} onPick={pick(m.id)} />
+        </div>
+      ))}
+
+      {Array.from({ length: fillerCount }).map((_, i) => (
+        <div
+          key={`filler-${i}`}
+          className="flex items-center justify-center"
+          style={{ height: rowH, borderTop: "1px solid #16181D" }}
+        >
+          {i === 0 && upcoming.length === 0 && (
+            <span style={{ fontSize: 11.5, color: "#6B7280" }}>
+              No matches on this day
+            </span>
+          )}
+        </div>
       ))}
 
       {variant === "stage" && (
