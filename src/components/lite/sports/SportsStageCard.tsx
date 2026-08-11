@@ -266,15 +266,21 @@ export const SportsStageCard = ({
   const navigate = useNavigate();
   const [bucket, setBucket] = useState("all");
 
-  const live = useMemo(() => matches.filter((m) => m.live), [matches]);
+  const allLive = useMemo(() => matches.filter((m) => m.live), [matches]);
   const days: DayBucket[] = useMemo(() => buildDayStrip(matches), [matches]);
   const pool = useMemo(
     () => matchesInBucket(matches, bucket).filter((m) => !m.live),
     [matches, bucket],
   );
 
+  // Stage variant keeps a fixed row budget so the card can't outgrow the
+  // Intraday card beside it. Overflow lives on the Sports category page.
+  const ROW_BUDGET = 4;
+  const LIVE_BUDGET = 3;
+  const live =
+    variant === "full" ? allLive : allLive.slice(0, LIVE_BUDGET);
   const upcomingLimit =
-    variant === "full" ? pool.length : live.length > 0 ? 1 : 3;
+    variant === "full" ? pool.length : Math.max(0, ROW_BUDGET - live.length);
   const upcoming = pool.slice(0, upcomingLimit);
 
   const open = (id: string) => () => navigate(`/trade?event=${encodeURIComponent(id)}`);
@@ -349,7 +355,7 @@ export const SportsStageCard = ({
               fontWeight: 700,
             }}
           >
-            Live now · {live.length}
+            Live now · {allLive.length}
           </span>
         </div>
       )}
