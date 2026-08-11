@@ -199,7 +199,7 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
   return (
     <div className="flex flex-col gap-[14px]">
       {categories.length > 0 && (
-        <div className={isMobile ? "flex gap-[7px] overflow-x-auto no-scrollbar -mx-1 px-1" : "flex flex-wrap gap-[7px]"}>
+        <div className={isMobile ? "flex gap-[7px] overflow-x-auto scrollbar-hide -mx-1 px-1" : "flex flex-wrap gap-[7px]"}>
           <Chip active={!activeCat} onClick={() => setActiveCat(null)} mobile={isMobile}>All</Chip>
           {categories.map((c) => (
             <Chip key={c} active={activeCat === c} onClick={() => setActiveCat(c)} mobile={isMobile}>
