@@ -16,6 +16,8 @@ export interface PositionVoucher {
   entryPriceMax: number;
   minHoursToSettlement: number;
   status: VoucherStatus;
+  /** 'instant' pays profit straight to the Standard balance; 'tiered' accrues to the pool. */
+  payoutMode: "instant" | "tiered";
   issuedAt: string;
   expiresAt: string;
   claimedAt: string | null;
@@ -44,6 +46,7 @@ const mapRow = (row: any): PositionVoucher => ({
   entryPriceMax: Number(row.entry_price_max),
   minHoursToSettlement: Number(row.min_hours_to_settlement),
   status: row.status,
+  payoutMode: row.payout_mode === "instant" ? "instant" : "tiered",
   issuedAt: row.issued_at,
   expiresAt: row.expires_at,
   claimedAt: row.claimed_at ?? null,
@@ -133,6 +136,7 @@ export const usePositionVouchers = () => {
       entryPriceMax: 0.70,
       minHoursToSettlement: 6,
       status: "expired",
+      payoutMode: "tiered",
       issuedAt: new Date(now - 14 * DAY).toISOString(),
       expiresAt: new Date(now - 7 * DAY).toISOString(),
       claimedAt: null,
@@ -157,6 +161,7 @@ export const usePositionVouchers = () => {
       entryPriceMax: 0.70,
       minHoursToSettlement: 6,
       status: "expired",
+      payoutMode: "tiered",
       issuedAt: new Date(now - 12 * DAY).toISOString(),
       expiresAt: new Date(now - 2 * DAY).toISOString(),
       claimedAt: new Date(now - 9 * DAY).toISOString(),
@@ -188,6 +193,14 @@ export const usePositionVouchers = () => {
 
   // Backwards-compat alias used by older call sites.
   const issuedVouchers = claimedVouchers;
+
+  // Event-level one-voucher lock (cross product line), derived from the
+  // vouchers already loaded — no extra query needed.
+  const usedEventIds = new Set<string>(
+    vouchers
+      .filter((v) => !!v.redeemedEventId)
+      .map((v) => v.redeemedEventId as string),
+  );
 
   const claim = async (voucherId: string): Promise<{ success: boolean; error?: string }> => {
     const { data, error } = await supabase.functions.invoke("claim-position-voucher", {
@@ -233,5 +246,5 @@ export const usePositionVouchers = () => {
     }
   };
 
-  return { vouchers, grantedVouchers, claimedVouchers, issuedVouchers, isLoading, isError, refetch, claim, redeem, isRedeeming };
+  return { vouchers, grantedVouchers, claimedVouchers, issuedVouchers, usedEventIds, isLoading, isError, refetch, claim, redeem, isRedeeming };
 };
