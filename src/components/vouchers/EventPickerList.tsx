@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { parseSideLabels } from "@/lib/eventUtils";
-import type { PositionVoucher } from "@/hooks/usePositionVouchers";
+import { usePositionVouchers, type PositionVoucher } from "@/hooks/usePositionVouchers";
 
 export interface PickedOption {
   eventId: string;
@@ -17,6 +17,8 @@ export interface PickedOption {
   price: number;
   side: "long" | "short";
   isBinary: boolean;
+  /** Product line of the event — drives post-redeem routing (/trade vs /spot). */
+  productLine: "spot" | "futures";
 }
 
 
@@ -30,7 +32,11 @@ const checkEligibility = (
   price: number,
   endDate: string | null,
   isResolved: boolean,
+  eventLocked = false,
 ): EligibilityResult => {
+  if (eventLocked) {
+    return { ok: false, reason: "One voucher per event — you already opened a trial position here." };
+  }
   if (isResolved) return { ok: false, reason: "Event already resolved" };
   if (!endDate) return { ok: false, reason: "No end date" };
   const hoursToEnd = (new Date(endDate).getTime() - Date.now()) / 3600 / 1000;
@@ -53,14 +59,12 @@ interface EventPickerListProps {
 }
 
 export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerListProps) => {
-  const { events: allEvents, isLoading } = useActiveEvents();
-  // Position vouchers are FUTURES-only — spot events must not be pickable
-  // (server also enforces this in redeem-position-voucher; see
-  // docs/backend-boundary.md).
-  const events = useMemo(
-    () => allEvents.filter((e: any) => !(e.product_lines?.includes("spot"))),
-    [allEvents],
-  );
+  // Vouchers v2 Round A: Standard (spot) markets are redeemable too — the old
+  // futures-only filter is gone (server match: redeem-position-voucher).
+  const { events, isLoading } = useActiveEvents();
+  // Event-level one-voucher lock, surfaced to the client so used events are
+  // visibly disabled instead of only failing server-side.
+  const { usedEventIds } = usePositionVouchers();
   const [query, setQuery] = useState("");
   const [activeCats, setActiveCats] = useState<Set<string>>(new Set());
 
