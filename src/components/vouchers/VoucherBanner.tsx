@@ -24,7 +24,7 @@ export const VoucherBanner = () => {
 
   return (
     <Link
-      to="/vouchers"
+      to="/rewards?tab=vouchers"
       className="flex items-center justify-between gap-3 rounded-xl border border-primary/30 bg-gradient-to-r from-primary/15 via-primary/5 to-transparent px-4 py-3 hover:border-primary/50 transition"
     >
       <div className="flex items-center gap-3">
