@@ -75,7 +75,7 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
       s("lite-trade", "交易页 ✅", LiteTradePage),
       s("lite-wallet", "Wallet ✅", LiteWalletPage),
       s("lite-rewards", "Rewards ✅", LiteRewardsPage),
-      s("lite-vouchers", "Vouchers ⏳", LiteVouchersPage),
+      s("lite-vouchers", "Vouchers ✅", LiteVouchersPage),
       s("lite-api", "API / Developers ✅", LiteApiPage),
       s("lite-portfolio", "Portfolio ⏳", LitePortfolioPage),
       s("lite-leaderboard", "Leaderboard ⏳", LiteLeaderboardPage),
@@ -149,6 +149,7 @@ export const SECTION_ALIASES: Record<string, string> = {
   rewards: "lite-rewards",
   "rewards-mobile": "lite-rewards",
   vouchers: "lite-vouchers",
+  vouchers2: "lite-vouchers",
   api: "lite-api",
   mobile: "mobile-patterns",
 };
