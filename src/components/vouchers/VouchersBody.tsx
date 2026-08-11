@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
-import { Ticket, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { MobileHeader } from "@/components/MobileHeader";
-import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
-import { BottomNav } from "@/components/BottomNav";
-import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { usePositionVouchers } from "@/hooks/usePositionVouchers";
 import { useEventSideLabelsLookup } from "@/hooks/useEventSideLabelsLookup";
 import { getBinaryOutcome } from "@/lib/eventUtils";
@@ -13,7 +9,12 @@ import { RedeemVoucherContent } from "@/components/vouchers/RedeemVoucherContent
 import { VoucherEarningsCard } from "@/components/vouchers/VoucherEarningsCard";
 import { EmptyState, LoadingState, ErrorState } from "@/components/states";
 
-const Vouchers = () => {
+/**
+ * Vouchers page body — moved verbatim out of the retired /vouchers page so it
+ * can mount inside the /rewards "Vouchers" tab (Vouchers v2 Round A).
+ * Visual rewrite lands in the next round; nothing here was restyled.
+ */
+export const VouchersBody = () => {
   const isMobile = useIsMobile();
   const { vouchers, grantedVouchers, claimedVouchers, isLoading, isError, refetch, claim } = usePositionVouchers();
   const [selectedId, setSelectedId] = useState<string | null>(null);
