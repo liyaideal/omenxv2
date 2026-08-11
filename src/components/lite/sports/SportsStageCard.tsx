@@ -3,7 +3,7 @@
 // Also rendered full-width when the Sports category is selected.
 // Pixel contract: docs/design-contracts/all-stage-6A/6B.html
 // ============================================================
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   DayBucket,
@@ -283,6 +283,25 @@ export const SportsStageCard = ({
     variant === "full" ? pool.length : Math.max(0, ROW_BUDGET - live.length);
   const upcoming = pool.slice(0, upcomingLimit);
 
+  // Stage keeps the same number of row slots on every day bucket so the card
+  // height never jumps when the user taps a different date.
+  const rowRef = useRef<HTMLDivElement | null>(null);
+  const [rowH, setRowH] = useState(96);
+  useEffect(() => {
+    const el = rowRef.current;
+    if (!el) return;
+    const measure = () => {
+      const h = el.getBoundingClientRect().height;
+      if (h > 0) setRowH(h);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [upcoming.length]);
+  const fillerCount =
+    variant === "full" ? 0 : Math.max(0, upcomingLimit - upcoming.length);
+
   const open = (id: string) => () => navigate(`/trade?event=${encodeURIComponent(id)}`);
   const pick = (id: string) => (optionId: string) => (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -403,8 +422,24 @@ export const SportsStageCard = ({
         })}
       </div>
 
-      {upcoming.map((m) => (
-        <UpcomingRow key={m.id} match={m} onOpen={open(m.id)} onPick={pick(m.id)} />
+      {upcoming.map((m, i) => (
+        <div key={m.id} ref={i === 0 ? rowRef : undefined}>
+          <UpcomingRow match={m} onOpen={open(m.id)} onPick={pick(m.id)} />
+        </div>
+      ))}
+
+      {Array.from({ length: fillerCount }).map((_, i) => (
+        <div
+          key={`filler-${i}`}
+          className="flex items-center justify-center"
+          style={{ height: rowH, borderTop: "1px solid #16181D" }}
+        >
+          {i === 0 && upcoming.length === 0 && (
+            <span style={{ fontSize: 11.5, color: "#6B7280" }}>
+              No matches on this day
+            </span>
+          )}
+        </div>
       ))}
 
       {variant === "stage" && (
