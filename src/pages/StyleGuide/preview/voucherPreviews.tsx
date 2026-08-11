@@ -51,6 +51,7 @@ const baseVoucher = (overrides: Partial<PositionVoucher> = {}): PositionVoucher 
   entryPriceMax: 0.8,
   minHoursToSettlement: 6,
   status: "claimed",
+  payoutMode: "tiered",
   issuedAt: new Date().toISOString(),
   expiresAt: new Date(Date.now() + 5 * 24 * 3600 * 1000).toISOString(),
   claimedAt: new Date().toISOString(),
