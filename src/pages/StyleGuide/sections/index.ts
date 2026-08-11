@@ -11,6 +11,7 @@ export { UserIdentitySection } from "./UserIdentitySection";
 export { DepositWithdrawSection } from "./DepositWithdrawSection";
 export { TransparencySection } from "./TransparencySection";
 export { VouchersSection } from "./VouchersSection";
+export { Vouchers2Section } from "./Vouchers2Section";
 export { WorldCupSection } from "./WorldCupSection";
 export { SpotSection } from "./SpotSection";
 export { LiteSpotSection } from "./LiteSpotSection";
