@@ -18,6 +18,7 @@ import {
   RewardsSection,
   RewardsMobileSection,
   VouchersSection,
+  Vouchers2Section,
   ApiSection,
 } from "../index";
 
@@ -31,7 +32,7 @@ const PAGES: Array<{ id: string; page: string; route: string; status: RevampStat
   { id: "lite-trade", page: "交易页（合约 + 现货 + 结算态）", route: "/trade · /spot", status: "done" },
   { id: "lite-wallet", page: "Wallet", route: "/wallet · /deposit · /withdraw · /wallet/recovery", status: "done" },
   { id: "lite-rewards", page: "Rewards", route: "/rewards", status: "done" },
-  { id: "lite-vouchers", page: "Vouchers", route: "/vouchers", status: "todo" },
+  { id: "lite-vouchers", page: "Vouchers（并入 /rewards Tab）", route: "/rewards?tab=vouchers", status: "done" },
   { id: "lite-api", page: "API / Developers", route: "/settings/api · /developers", status: "done" },
   { id: "lite-portfolio", page: "Portfolio", route: "/portfolio · /portfolio/settlements · /portfolio/airdrops", status: "todo" },
   { id: "lite-leaderboard", page: "Leaderboard", route: "/leaderboard", status: "todo" },
@@ -191,11 +192,14 @@ export const LiteVouchersPage = ({ isMobile }: P) => (
   <LitePage
     id="lite-vouchers"
     title="Vouchers"
-    route="/vouchers"
-    status="todo"
-    note="现状留档：以下为改版前的现役实现（视觉翻新未开始）。"
+    route="/rewards?tab=vouchers（/vouchers 重定向）"
+    status="done"
+    note="v2 已上线：入口并入 /rewards 第三个 tab，双收益模式（instant → 钱包 / tiered → pending 池）。下方 v1 区块为改版前留档，仅作对照，不再是事实。"
   >
-    <VouchersSection isMobile={isMobile} />
+    <div className="space-y-12">
+      <Vouchers2Section isMobile={isMobile} />
+      <VouchersSection isMobile={isMobile} />
+    </div>
   </LitePage>
 );
 
