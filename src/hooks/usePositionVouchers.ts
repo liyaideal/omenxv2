@@ -33,7 +33,7 @@ export interface PositionVoucher {
   redeemedSettledPnl: number | null;
   redeemedCloseReason: string | null;
   /** "August Kickoff — Trade $500" — campaign the voucher came from. */
-  sourceLabel: string | null;
+  sourceLabel?: string | null;
 }
 
 const QUERY_KEY = ["position-vouchers"];
