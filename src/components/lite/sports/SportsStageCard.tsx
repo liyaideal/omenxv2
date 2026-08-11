@@ -3,7 +3,7 @@
 // Also rendered full-width when the Sports category is selected.
 // Pixel contract: docs/design-contracts/all-stage-6A/6B.html
 // ============================================================
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   DayBucket,
