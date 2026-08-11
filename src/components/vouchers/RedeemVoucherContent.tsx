@@ -1,18 +1,28 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertTriangle } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { usePositionVouchers, type PositionVoucher } from "@/hooks/usePositionVouchers";
 import { EventPickerList, type PickedOption } from "./EventPickerList";
+import { VoucherDeskHeader } from "./VoucherDeskHeader";
+import { VT } from "./voucherTokens";
 
 interface RedeemVoucherContentProps {
   voucher: PositionVoucher;
   onClose?: () => void;
-  /** dialog/drawer wrap actions in a footer; `inline` renders directly on the page */
+  /** dialog/drawer wrap actions in a footer; `inline` renders inside the desk */
   variant?: "dialog" | "drawer" | "inline";
+  sourceLabel?: string | null;
 }
 
-export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: RedeemVoucherContentProps) => {
+/**
+ * Redeem flow — logic unchanged; chrome redrawn in flat tokens.
+ * Frozen spec: OmenX Lite Vouchers v2 Final, frames 7 / 8 / 9.
+ */
+export const RedeemVoucherContent = ({
+  voucher,
+  onClose,
+  variant = "dialog",
+  sourceLabel,
+}: RedeemVoucherContentProps) => {
   const [picked, setPicked] = useState<PickedOption | null>(null);
   const { redeem, isRedeeming } = usePositionVouchers();
   const navigate = useNavigate();
@@ -22,8 +32,6 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
   const size = picked ? voucher.faceValue / picked.price : 0;
   const isInline = variant === "inline";
 
-  // When user picks an option in inline mode, scroll the sticky action bar into view.
-  // On mobile we offset by the fixed BottomNav (~88px) so the bar isn't hidden behind it.
   useEffect(() => {
     if (!isInline || !picked) return;
     const el = stickyBarRef.current;
@@ -33,12 +41,9 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
       const bottomNavOffset = window.matchMedia("(max-width: 767px)").matches ? 96 : 16;
       const targetBottom = window.innerHeight - bottomNavOffset;
       const delta = rect.bottom - targetBottom;
-      if (delta > 0) {
-        window.scrollBy({ top: delta + 8, behavior: "smooth" });
-      }
+      if (delta > 0) window.scrollBy({ top: delta + 8, behavior: "smooth" });
     });
   }, [picked?.optionId, picked?.side, isInline]);
-
 
   const handleSubmit = async () => {
     if (!picked) return;
@@ -51,142 +56,143 @@ export const RedeemVoucherContent = ({ voucher, onClose, variant = "dialog" }: R
     }
   };
 
-  return (
-    <div className="flex flex-col gap-4">
-      {!isInline && (
-        <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Voucher code</span>
-            <span className="font-mono">{voucher.code}</span>
-          </div>
-          <div className="flex items-center justify-between text-sm mt-1">
-            <span className="text-muted-foreground">Face value</span>
-            <span className="font-mono text-trading-green">${voucher.faceValue.toFixed(2)}</span>
-          </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Max profit</span>
-            <span className="font-mono">${cap.toFixed(2)}</span>
-          </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Hold window</span>
-            <span className="font-mono">{voucher.maxHoldingHours}h</span>
-          </div>
-        </div>
-      )}
+  /* ------------------------------ summary read-out ------------------------------ */
+  const summaryLine = picked ? (
+    <span className="flex items-baseline gap-[5px] min-w-0" style={{ fontSize: 12.5, fontWeight: 600, color: VT.ink }}>
+      <span className="flex-1 min-w-0 truncate">
+        {picked.eventName}
+        {!picked.isBinary ? ` · ${picked.displayLabel}` : ""}
+      </span>
+      <span className="flex-none whitespace-nowrap tabular-nums">
+        {" · "}
+        {picked.isBinary ? picked.displayLabel : picked.side === "long" ? "Yes" : "No"} at{" "}
+        {Math.round(picked.price * 100)}¢
+      </span>
+    </span>
+  ) : null;
 
-      <div>
-        <div className="text-sm font-medium mb-2">Pick a market</div>
-        <EventPickerList voucher={voucher} selected={picked} onSelect={setPicked} />
-      </div>
-
-      {!isInline && picked && (
-        <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5">
-          <div className="text-xs font-medium text-foreground">{picked.eventName}</div>
-          <div className="text-xs text-muted-foreground">
-            {picked.isBinary ? (
-              <span className={picked.optionLabel.trim().toLowerCase() === "yes" ? "text-trading-green" : "text-trading-red"}>
-                {picked.displayLabel}
-              </span>
-            ) : (
-              <>
-                {picked.optionLabel} ·{" "}
-                <span className={picked.side === "long" ? "text-trading-green" : "text-trading-red"}>
-                  {picked.side === "long" ? "Yes" : "No"}
-                </span>
-              </>
-            )}
-          </div>
-
-          <div className="grid grid-cols-3 gap-2 pt-2 text-xs">
-            <div>
-              <div className="text-[10px] text-muted-foreground">Entry</div>
-              <div className="font-mono">${picked.price.toFixed(4)}</div>
-            </div>
-            <div>
-              <div className="text-[10px] text-muted-foreground">Size</div>
-              <div className="font-mono">{size.toFixed(2)}</div>
-            </div>
-            <div>
-              <div className="text-[10px] text-muted-foreground">Max profit</div>
-              <div className="font-mono text-trading-green">${cap.toFixed(2)}</div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {!isInline && (
-        <div className="flex items-start gap-2 text-[11px] text-muted-foreground rounded-md bg-muted/30 p-2.5">
-          <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-trading-yellow" />
-          <span>
-            Profits are capped at ${cap.toFixed(2)}; losses don't affect your balance.
+  const metaCells = picked && (
+    <div className="grid gap-[10px]" style={{ gridTemplateColumns: "repeat(3,minmax(0,1fr))" }}>
+      {[
+        { label: "Entry", value: `${Math.round(picked.price * 100)}¢`, color: VT.ink },
+        { label: "Size", value: `${size.toFixed(0)} shares`, color: VT.ink },
+        { label: "Max profit", value: `$${cap.toFixed(2)}`, color: VT.volt },
+      ].map((c) => (
+        <div
+          key={c.label}
+          className="rounded-[10px] flex flex-col gap-[4px]"
+          style={{ background: VT.surfaceInset, border: `1px solid ${VT.line}`, padding: "11px 13px" }}
+        >
+          <span className="font-display uppercase" style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: ".12em", color: VT.muted }}>
+            {c.label}
+          </span>
+          <span className="font-display tabular-nums" style={{ fontSize: 16, fontWeight: 700, color: c.color }}>
+            {c.value}
           </span>
         </div>
-      )}
+      ))}
+    </div>
+  );
 
-      {!isInline && (
-        <div className={variant === "drawer" ? "flex gap-2 pt-2" : "flex justify-end gap-2 pt-2"}>
-          <Button variant="outline" onClick={onClose} className={variant === "drawer" ? "flex-1 h-11" : ""}>
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={!picked || isRedeeming}
-            className={variant === "drawer" ? "flex-1 h-11" : ""}
-          >
-            {isRedeeming ? "Redeeming..." : "Confirm & open position"}
-          </Button>
-        </div>
-      )}
+  const confirmButton = (
+    <button
+      type="button"
+      onClick={handleSubmit}
+      disabled={!picked || isRedeeming}
+      className="font-display rounded-[10px] flex-none"
+      style={{
+        minHeight: 44,
+        padding: "0 20px",
+        border: picked ? "none" : `1px solid ${VT.line3}`,
+        background: picked ? "#FFFFFF" : VT.disabledBg,
+        color: picked ? "#0A0B0D" : VT.muted2,
+        fontSize: 13,
+        fontWeight: 700,
+        cursor: picked && !isRedeeming ? "pointer" : "default",
+      }}
+    >
+      {isRedeeming ? "Redeeming…" : "Confirm & open position"}
+    </button>
+  );
 
-      {isInline && (
-        <div ref={stickyBarRef} className="sticky bottom-[88px] md:bottom-0 z-10 -mx-4 md:-mx-5 -mb-4 md:-mb-5 px-4 md:px-5 py-3 bg-background/95 backdrop-blur border-t border-border rounded-b-xl scroll-mt-4 scroll-mb-4">
+  const resetWord = (
+    <button type="button" onClick={() => setPicked(null)} style={{ fontSize: 12.5, color: VT.ink3 }}>
+      Reset
+    </button>
+  );
+
+  const picker = (
+    <div className="flex flex-col gap-[14px]">
+      <div className="flex items-baseline justify-between gap-[12px]">
+        <span className="font-display" style={{ fontSize: 15, fontWeight: 700, color: VT.ink }}>
+          Pick a market
+        </span>
+        <span style={{ fontSize: 11.5, color: VT.muted }}>One voucher opens one trial position</span>
+      </div>
+      <EventPickerList voucher={voucher} selected={picked} onSelect={setPicked} />
+      {metaCells}
+    </div>
+  );
+
+  /* --------------------------------- inline -------------------------------- */
+  if (isInline) {
+    return (
+      <div className="flex flex-col">
+        <div style={{ padding: "16px 20px 20px" }}>{picker}</div>
+
+        <div
+          ref={stickyBarRef}
+          className="sticky bottom-[88px] md:bottom-0 z-10 flex items-center justify-between gap-[14px] flex-wrap"
+          style={{
+            borderTop: `1px solid ${VT.line}`,
+            background: VT.surfaceInset,
+            padding: "13px 16px",
+            minHeight: 60,
+          }}
+        >
           {picked ? (
-            <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3">
-              <div className="min-w-0 flex-1">
-                <div className="text-xs text-foreground truncate">
-                  <span className="font-medium">{picked.eventName}</span>
-                  {picked.isBinary ? (
-                    <>
-                      <span className="text-muted-foreground"> · </span>
-                      <span className={picked.optionLabel.trim().toLowerCase() === "yes" ? "text-trading-green" : "text-trading-red"}>
-                        {picked.displayLabel}
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="text-muted-foreground"> · {picked.optionLabel} · </span>
-                      <span className={picked.side === "long" ? "text-trading-green" : "text-trading-red"}>
-                        {picked.side === "long" ? "Yes" : "No"}
-                      </span>
-                    </>
-                  )}
-                </div>
-                <div className="text-[11px] text-muted-foreground mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 font-mono tabular-nums">
-                  <span>Entry ${picked.price.toFixed(4)}</span>
-                  <span>Size {size.toFixed(2)}</span>
-                  <span className="text-trading-green">Max profit ${cap.toFixed(2)}</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 md:shrink-0">
-                <Button variant="ghost" size="sm" onClick={() => setPicked(null)}>
-                  Reset
-                </Button>
-                <Button onClick={handleSubmit} disabled={isRedeeming} className="flex-1 md:flex-none h-10 md:h-9">
-                  {isRedeeming ? "Redeeming..." : "Confirm & open position"}
-                </Button>
-              </div>
+            <div className="flex flex-col gap-[2px] min-w-0 flex-1">
+              {summaryLine}
+              <span className="tabular-nums" style={{ fontSize: 11, color: VT.ink3 }}>
+                ${voucher.faceValue} voucher · closes automatically after {voucher.maxHoldingHours}h
+              </span>
             </div>
           ) : (
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-3">
-              <span className="text-xs text-muted-foreground">
-                Select an outcome on a market above to continue.
-              </span>
-              <Button disabled className="w-full md:w-auto h-10 md:h-9">Confirm & open position</Button>
-
-            </div>
+            <span style={{ fontSize: 12, color: VT.ink3 }}>Pick an outcome above to see your trial position.</span>
           )}
+          <div className="flex-none flex items-center gap-[12px]">
+            {picked && resetWord}
+            {confirmButton}
+          </div>
         </div>
-      )}
+      </div>
+    );
+  }
+
+  /* --------------------------- dialog / drawer shell ------------------------ */
+  return (
+    <div className="flex flex-col gap-[12px]">
+      <VoucherDeskHeader voucher={voucher} sourceLabel={sourceLabel} compact />
+      {picker}
+      <div
+        className="flex items-center justify-between gap-[12px] rounded-[12px]"
+        style={{ background: VT.surfaceInset, border: `1px solid ${VT.line}`, padding: "13px 16px" }}
+      >
+        {picked ? (
+          <div className="flex flex-col gap-[2px] min-w-0 flex-1">
+            {summaryLine}
+            <span className="tabular-nums" style={{ fontSize: 11, color: VT.ink3 }}>
+              ${voucher.faceValue} voucher · closes automatically after {voucher.maxHoldingHours}h
+            </span>
+          </div>
+        ) : (
+          <span style={{ fontSize: 12, color: VT.ink3 }}>Pick an outcome above to see your trial position.</span>
+        )}
+        <div className="flex-none flex items-center gap-[12px]">
+          {picked && resetWord}
+          {confirmButton}
+        </div>
+      </div>
     </div>
   );
 };
