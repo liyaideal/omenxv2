@@ -12,6 +12,7 @@ import { EndedCampaignsArchive } from "@/components/campaigns/EndedCampaignsArch
 import { useCampaignViews } from "@/hooks/useCampaigns";
 import { useAuth } from "@/hooks/useAuth";
 import { EmptyState } from "@/components/states";
+import { VouchersBody } from "@/components/vouchers/VouchersBody";
 
 const NOTICE_KEY = "omenx_points_retired_notice_dismissed";
 
@@ -72,6 +73,7 @@ const Tabs = ({
   >
     {[
       { id: "campaigns", label: "Campaigns" },
+      { id: "vouchers", label: "Vouchers" },
       { id: "referral", label: "Referral" },
     ].map((t) => {
       const active = value === t.id;
@@ -97,11 +99,13 @@ export default function LiteRewardsPage() {
   const signedOut = !user;
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get("tab");
-  const [tab, setTab] = useState(tabParam === "referral" ? "referral" : "campaigns");
+  const [tab, setTab] = useState(
+    tabParam === "referral" || tabParam === "vouchers" ? tabParam : "campaigns",
+  );
   const { views, isLoading } = useCampaignViews();
 
   useEffect(() => {
-    if (tabParam === "referral" || tabParam === "campaigns") setTab(tabParam);
+    if (tabParam === "referral" || tabParam === "campaigns" || tabParam === "vouchers") setTab(tabParam);
   }, [tabParam]);
 
   const active = views.filter((v) => v.phase !== "ended");
@@ -154,6 +158,12 @@ export default function LiteRewardsPage() {
 
           {isMobile && <PointsRetiredNotice />}
         </div>
+      ) : tab === "vouchers" ? (
+        signedOut ? (
+          <SignInPromptCard cap="VOUCHERS" description="Sign in to view and redeem your vouchers." />
+        ) : (
+          <VouchersBody />
+        )
       ) : signedOut ? (
         <SignInPromptCard cap="REFERRAL" description="Sign in to track progress and claim rewards." />
       ) : (

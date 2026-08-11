@@ -55,6 +55,12 @@ Deno.serve(async (req) => {
     const faceValue = Number(reward.voucher ?? 0)
     if (!faceValue) return json({ error: 'This task has no voucher reward to claim' }, 400)
 
+    // Operators configure the payout mode on the entry/task reward; default tiered.
+    const rawMode =
+      (task.reward as Record<string, unknown> | undefined)?.payout_mode ??
+      (rules.reward as Record<string, unknown> | undefined)?.payout_mode
+    const payoutMode = rawMode === 'instant' ? 'instant' : 'tiered'
+
     const { data: grant, error: gErr } = await admin
       .from('campaign_grants')
       .select('*')
@@ -74,6 +80,7 @@ Deno.serve(async (req) => {
         user_id: user.id,
         code,
         face_value: faceValue,
+        payout_mode: payoutMode,
         status: 'granted',
         issued_at: new Date().toISOString(),
         expires_at: new Date(Date.now() + VOUCHER_EXPIRY_DAYS * 86_400_000).toISOString(),

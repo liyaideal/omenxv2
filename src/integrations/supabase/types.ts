@@ -1009,9 +1009,11 @@ export type Database = {
           expires_at: string
           face_value: number
           id: string
+          instant_paid_at: string | null
           issued_at: string
           max_holding_hours: number
           min_hours_to_settlement: number
+          payout_mode: string
           redeemable_cap_pct: number
           redeemed_airdrop_position_id: string | null
           redeemed_at: string | null
@@ -1032,9 +1034,11 @@ export type Database = {
           expires_at: string
           face_value: number
           id?: string
+          instant_paid_at?: string | null
           issued_at?: string
           max_holding_hours?: number
           min_hours_to_settlement?: number
+          payout_mode?: string
           redeemable_cap_pct?: number
           redeemed_airdrop_position_id?: string | null
           redeemed_at?: string | null
@@ -1055,9 +1059,11 @@ export type Database = {
           expires_at?: string
           face_value?: number
           id?: string
+          instant_paid_at?: string | null
           issued_at?: string
           max_holding_hours?: number
           min_hours_to_settlement?: number
+          payout_mode?: string
           redeemable_cap_pct?: number
           redeemed_airdrop_position_id?: string | null
           redeemed_at?: string | null

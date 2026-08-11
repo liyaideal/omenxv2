@@ -262,7 +262,7 @@ export default function PortfolioAirdrops() {
                     if (airdrop.status === "activated") {
                       navigate(`/trade?event=${airdrop.counterEventId}`);
                     } else if (airdrop.status === "settled") {
-                      navigate(airdrop.source === "voucher" ? "/vouchers" : "/wallet");
+                      navigate(airdrop.source === "voucher" ? "/rewards?tab=vouchers" : "/wallet");
                     }
                   }}
                 >
@@ -407,7 +407,7 @@ export default function PortfolioAirdrops() {
                             variant="outline"
                             size="sm"
                             className="h-7 text-xs"
-                            onClick={() => navigate(airdrop.source === "voucher" ? "/vouchers" : "/wallet")}
+                            onClick={() => navigate(airdrop.source === "voucher" ? "/rewards?tab=vouchers" : "/wallet")}
                           >
                             <span className={`font-mono ${(airdrop.settledPnl ?? 0) >= 0 ? 'text-trading-green' : 'text-trading-red'}`}>
                               <CheckCircle2 className="w-3 h-3 inline mr-1" />
