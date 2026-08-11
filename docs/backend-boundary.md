@@ -122,7 +122,8 @@
 
 | 函数 / 前端约束 | 类别 | 说明 |
 |---|---|---|
-| `redeem-position-voucher`（spot 拒绝） | 🟢 | Position vouchers 明确**仅限 futures**。函数在读取 event 时必须一并读 `product_lines`，若数组含 `'spot'` 立即返回 409 `Position vouchers cannot be redeemed on spot markets`。前端 `EventPickerList` 同步过滤 spot 事件（防御性双闸），文案与错误码对齐。 |
+| `redeem-position-voucher`（spot 开放 + event 级一券锁） | 🟢 | **2026-08-06 Vouchers v2 Round A 更新：撤销 futures-only 限制**，Boost（futures）与 Standard（spot）市场均可兑换，前端 `EventPickerList` 亦不再过滤 spot。改为强制 **event 级一券锁（跨产品线）**：兑换前查 `position_vouchers.redeemed_event_id = eventId AND user_id = uid`，命中即 409 `One voucher per event — you already opened a trial position here.`；前端据同一口径把该 event 整卡置灰。 |
+| `position_vouchers.payout_mode` 双轨 | 🟢 | `instant` = 结算盈利由服务端触发器 `pay_instant_voucher_settlement()` 直接入 Standard 余额（`profiles.spot_balance`）并写一条 `bonus` 交易，`instant_paid_at` 保证幂等，不进 pending 池、不看 tier；`tiered`（默认，存量回填值）维持 `voucher_earnings` 池 + 阶梯解冻。发券路径从 campaign entry 的 reward 配置继承 `payout_mode`。 |
 | `useSupabaseOrders.fillOrder` / `cancelOrder`（product_line 分流） | 🟢 | 撮合/撤单必须按 `trades.product_line` 分流：`spot` 走 `fillSpotLimitOrder` / `cancelSpotLimitOrder`（SIGNED_YES_SHARE 净仓、撤单退预扣款）；`futures` 走原插入 positions 的路径。**红线**：任何路径不得给 spot 建 `side='short'` 的持仓（现货不支持做空），fill 路径显式抛错兜底。 |
 | `DesktopPositionsPanel`（futures-only 视图） | 🟢 | `/trade` 主面板的 Positions / Pending Orders / History 三个 Tab 均**只展示 `product_line !== 'spot'`** 的行；spot 行在 `/spot` 页面自己的 spot-scoped 面板中展示，两条产品线互不串。 |
 | `PositionDetailContent`（spot 分支） | 🟢 | Spot 持仓详情面板**必须隐藏** leverage / liquidation price / funding / est. close fee，改用 Shares / Avg cost / Current value / Cost basis + "Each winning share pays $1 at settlement" 提示。桌面 dialog 与移动 drawer 共用同一组件、行为一致。 |
