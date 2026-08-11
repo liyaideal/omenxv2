@@ -149,11 +149,10 @@ export const VoucherEarningsCard = ({ data, stats, mobile, onRedeemPrompt }: Pro
   /* ------------------------------ right cell ----------------------------- */
   const rightCell = (
     <div
-      className="flex flex-col gap-[12px]"
+      className={`flex flex-col gap-[12px] ${mobile ? "border-t" : "border-t md:border-t-0 md:border-l"}`}
       style={{
         background: VT.surfaceInset,
-        borderLeft: mobile ? undefined : `1px solid ${VT.line}`,
-        borderTop: mobile ? `1px solid ${VT.line}` : undefined,
+        borderColor: VT.line,
         padding: mobile ? "14px 16px" : "18px 20px",
       }}
     >
@@ -250,12 +249,10 @@ export const VoucherEarningsCard = ({ data, stats, mobile, onRedeemPrompt }: Pro
 
   return (
     <section
-      className="overflow-hidden rounded-[16px]"
+      className={`overflow-hidden rounded-[16px] grid ${mobile ? "grid-cols-1" : "grid-cols-1 md:grid-cols-[1fr_392px]"}`}
       style={{
         background: VT.surfaceRow,
         border: `1px solid ${VT.line}`,
-        display: "grid",
-        gridTemplateColumns: mobile ? "1fr" : "1fr 392px",
       }}
     >
       {leftCell}
