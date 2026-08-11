@@ -30,6 +30,14 @@ import {
   ExpiredRowPreview,
 } from "./voucherPreviews";
 import {
+  Vouchers2RowsPreview,
+  Vouchers2EarningsPreview,
+  Vouchers2ArchivePreview,
+  Vouchers2PickerPreview,
+  Vouchers2DeskPreview,
+  Vouchers2MobileFlowPreview,
+} from "./vouchers2Previews";
+import {
   WalletEquityBandsPreview,
   TransferFormNormalPreview,
   TransferFormInsufficientPreview,
@@ -239,6 +247,13 @@ const RevokeDemo = () => {
 
 /* ---- Registry ---- */
 export const previewRegistry: Record<string, () => JSX.Element> = {
+  "vouchers2-rows": () => <Vouchers2RowsPreview />,
+  "vouchers2-earnings": () => <Vouchers2EarningsPreview />,
+  "vouchers2-archive": () => <Vouchers2ArchivePreview />,
+  "vouchers2-picker": () => <Vouchers2PickerPreview />,
+  "vouchers2-desk": () => <Vouchers2DeskPreview />,
+  "vouchers2-mobile-flow": () => <Vouchers2MobileFlowPreview />,
+
   "tier-track-ok": () => <TierTrack tiers={makeTiers("ok-trading")} highestEligible="trading" />,
   "tier-track-partial": () => <TierTrack tiers={makeTiers("ok-readonly")} highestEligible="read_only" />,
   "tier-track-locked": () => <TierTrack tiers={makeTiers("locked")} />,
