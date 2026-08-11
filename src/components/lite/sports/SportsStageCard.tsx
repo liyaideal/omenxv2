@@ -355,7 +355,7 @@ export const SportsStageCard = ({
               fontWeight: 700,
             }}
           >
-            Live now · {live.length}
+            Live now · {allLive.length}
           </span>
         </div>
       )}
