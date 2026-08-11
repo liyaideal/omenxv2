@@ -66,9 +66,22 @@ Deno.serve(async (req) => {
       .maybeSingle()
     if (!event) return json({ error: 'Event not found' }, 404)
     if (event.is_resolved) return json({ error: 'Event already resolved' }, 409)
-    // Position vouchers are futures-only.
-    if (Array.isArray((event as any).product_lines) && (event as any).product_lines.includes('spot')) {
-      return json({ error: 'Position vouchers cannot be redeemed on spot markets' }, 409)
+    // Vouchers v2 Round A: both Boost (futures) and Standard (spot) markets are
+    // redeemable. See docs/backend-boundary.md.
+
+    // Event-level one-voucher lock (across product lines).
+    const { data: existing } = await admin
+      .from('position_vouchers')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('redeemed_event_id', body.eventId)
+      .limit(1)
+      .maybeSingle()
+    if (existing) {
+      return json(
+        { error: 'One voucher per event — you already opened a trial position here.' },
+        409,
+      )
     }
 
     const minMsToEnd = Number(voucher.min_hours_to_settlement) * 3600 * 1000
