@@ -283,6 +283,25 @@ export const SportsStageCard = ({
     variant === "full" ? pool.length : Math.max(0, ROW_BUDGET - live.length);
   const upcoming = pool.slice(0, upcomingLimit);
 
+  // Stage keeps the same number of row slots on every day bucket so the card
+  // height never jumps when the user taps a different date.
+  const rowRef = useRef<HTMLDivElement | null>(null);
+  const [rowH, setRowH] = useState(96);
+  useEffect(() => {
+    const el = rowRef.current;
+    if (!el) return;
+    const measure = () => {
+      const h = el.getBoundingClientRect().height;
+      if (h > 0) setRowH(h);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [upcoming.length]);
+  const fillerCount =
+    variant === "full" ? 0 : Math.max(0, upcomingLimit - upcoming.length);
+
   const open = (id: string) => () => navigate(`/trade?event=${encodeURIComponent(id)}`);
   const pick = (id: string) => (optionId: string) => (e: React.MouseEvent) => {
     e.stopPropagation();
