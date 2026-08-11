@@ -86,13 +86,17 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
   const eventEligibility = useMemo(() => {
     const map = new Map<string, boolean>();
     events.forEach((e) => {
+      if (usedEventIds.has(e.id)) {
+        map.set(e.id, false);
+        return;
+      }
       const any = e.options.some(
         (o) => checkEligibility(voucher, o.price, e.end_date, e.is_resolved).ok,
       );
       map.set(e.id, any);
     });
     return map;
-  }, [events, voucher]);
+  }, [events, voucher, usedEventIds]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -177,7 +181,13 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
           };
 
           return (
-          <div key={event.id} className="rounded-lg border border-border bg-muted/30 p-3">
+          <div
+            key={event.id}
+            className={[
+              "rounded-lg border border-border bg-muted/30 p-3",
+              usedEventIds.has(event.id) ? "opacity-50" : "",
+            ].join(" ")}
+          >
             <div className="flex items-center justify-between gap-2 mb-2">
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-medium text-foreground truncate">{event.name}</div>
@@ -190,7 +200,13 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
 
             <div className="space-y-1.5">
               {event.options.map((opt) => {
-                const eligibility = checkEligibility(voucher, opt.price, event.end_date, event.is_resolved);
+                const eligibility = checkEligibility(
+                  voucher,
+                  opt.price,
+                  event.end_date,
+                  event.is_resolved,
+                  usedEventIds.has(event.id),
+                );
                 const isSelectedLong = selected?.optionId === opt.id && selected?.side === "long";
                 const isSelectedShort = selected?.optionId === opt.id && selected?.side === "short";
                 const isYes = opt.label.trim().toLowerCase() === "yes";
@@ -213,6 +229,7 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
                           price: opt.price,
                           side,
                           isBinary,
+                          productLine: (event as any).product_lines?.includes("spot") ? "spot" : "futures",
                         });
                       }}
                       className={[
