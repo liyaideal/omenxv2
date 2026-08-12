@@ -155,6 +155,11 @@ const LiteEventsPage = () => {
   const { currentFor, historyFor } = useQuickRounds(stageActive);
   const { rows: stockRows } = useIntradayStocks(stageActive);
   const { rows: sportsMatches } = useSportsMatches();
+  /** A sports fixture is in play right now → the Sports pill pulses red. */
+  const sportsLive = useMemo(
+    () => sportsMatches.some((m) => m.live),
+    [sportsMatches],
+  );
   const { picks: editorPicks, updatedAt: picksUpdatedAt } = useEditorPicks();
   // Sports matches carry no per-event boost row — the category config is the
   // same predicate the card grid uses (enabled + at least 2x).
