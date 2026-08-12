@@ -13,6 +13,7 @@
  */
 import { useState } from "react";
 import { ArrowLeftRight, Info } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { computeTotalEquity } from "@/lib/equity";
@@ -52,11 +53,46 @@ const DemoAvailableTooltip = () => <DemoInfoTip text="Funds available for tradin
 // so this demo cannot drift from /wallet.
 export const WalletEquityBandsPreview = () => {
   const [hidden, setHidden] = useState(false);
+  const isMobile = useIsMobile();
   const total = computeTotalEquity({
     spotBalance: DEMO.spot,
     balance: DEMO.balance,
   });
   const noop = () => {};
+
+  // Mirrors the /wallet mobile branch verbatim: compact hero + compact account
+  // cards stacked with space-y-3 (Wallet.tsx mobile return).
+  if (isMobile) {
+    return (
+      <div className="space-y-4">
+        <HeroEquityCard
+          equity={total}
+          hidden={hidden}
+          onToggleHidden={() => setHidden((h) => !h)}
+          onDeposit={noop}
+          onWithdraw={noop}
+          onTransfer={noop}
+          compact
+        />
+        <section className="space-y-3">
+          <SpotAccountCard balance={DEMO.spot} hidden={hidden} onTransfer={noop} compact />
+          <FuturesAccountCard
+            balance={DEMO.balance}
+            withdrawable={7_920.42}
+            locked={800}
+            hidden={hidden}
+            onTransfer={noop}
+            marginInUse={1_240}
+            unrealizedPnL={86.4}
+            AvailableTooltip={DemoAvailableTooltip}
+            InfoTip={DemoInfoTip}
+            boostMax={10}
+            compact
+          />
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

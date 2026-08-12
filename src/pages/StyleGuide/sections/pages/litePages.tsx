@@ -85,6 +85,17 @@ export const LiteOverviewSection = (_: P) => (
       <h3 className="mb-2 text-sm font-semibold text-foreground">Changelog</h3>
       <ul className="space-y-1 text-[12px] text-muted-foreground">
         <li>
+          2026-08-12 · 漂移修复 Round D — 删除过期 IA 手抄件 <code className="font-mono">SectorRailDemo</code>
+          （规则并入 All-stage 真 Category row caption）；wallet 权益带 preview 补移动分支（compact ×3 + space-y-3）；
+          vouchers2 移动 redeem 屏改挂真 <code className="font-mono">RedeemSummaryBar</code>（inline）+ 真 ChevronLeft；
+          多市场「对侧封锁」demo 改为 netting 现行态（<code className="font-mono">blockNotice: null</code> +
+          <code className="font-mono">noAsSell</code> + <code className="font-mono">nettingScopeLabel</code>）；
+          四个股票 RoundTape demo 文案对齐生产（Down won / closes at Tue 16:00 ET）；
+          LiteSpotSection 补 SpotBlocks 三件真 import demo；MobileHome 幽灵代码
+          <code className="font-mono">TrialCallout/interlude</code> 删除、theme 表补 <code className="font-mono">poster</code>；
+          WHERE_ROWS 与 Wallet 节文按 Standard/Boost 现行 IA 订正。
+        </li>
+        <li>
           2026-08-12 · CPO 裁定删除 Vouchers v1 留档块（两次被误读为现行规格）；仍服役组件 demo 并入 v2 节。
         </li>
         <li>
@@ -133,6 +144,34 @@ export const LiteOverviewSection = (_: P) => (
           <code className="font-mono">RedeemSummaryBar</code>
           ）。概念示意图（Mobile patterns、API marketing）已加注标注。
         </li>
+      </ul>
+    </div>
+
+    <div className="mt-4 rounded-xl border border-dashed border-border p-4">
+      <h3 className="mb-2 text-sm font-semibold text-foreground">覆盖欠账（待补 demo）</h3>
+      <p className="mb-2 text-[12px] text-muted-foreground">
+        以下生产件目前在 style-guide 零覆盖或仅部分覆盖，登记为欠账，后续轮次补 demo：
+      </p>
+      <ul className="grid gap-1 text-[12px] text-muted-foreground sm:grid-cols-2">
+        {[
+          "AirdropHomepageModal",
+          "AuthSheet",
+          "移动 watchlistStatusLine",
+          "Boost 组合空态（MobileIntradayModule / MobileSportsModule boostOnly）",
+          "LiteCrowdOverview",
+          "MultiMetaRow",
+          "MoreMarkets / MoreStocks",
+          "移动 CountdownLine",
+          "已结算移动底条",
+          "LiteStockChart currency / 时间轴分支",
+          "SavedAddressesList / PendingConfirmations",
+          "campaign 详情登录态 3 格统计",
+          "Vouchers 空态 + metaCells",
+          "GrantTaskRow frozen preset",
+          "/rewards sticky Tabs",
+        ].map((t) => (
+          <li key={t}>· {t} — 待补 demo</li>
+        ))}
       </ul>
     </div>
   </section>

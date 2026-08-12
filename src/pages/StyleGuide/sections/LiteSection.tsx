@@ -25,7 +25,6 @@ import { HowItSettled } from "@/components/lite/trade/HowItSettled";
 import { RoundTape } from "@/components/lite/shared/RoundTape";
 import { LiteEventCard } from "@/components/lite/LiteEventCard";
 import type { EventRow } from "@/hooks/useMarketListData";
-import { Star, ExternalLink } from "lucide-react";
 import type { ResolvedEvent } from "@/hooks/useResolvedEvents";
 import { FROZEN_NOW, frozenIso } from "../frozenClock";
 
@@ -270,18 +269,19 @@ const WHERE_ROWS: {
     states: 2,
   },
   {
-    name: "Sector rail (LiteEventsPage)",
-    desktop: "row above the grid, left of the Live/Settled switch",
+    name: "Category row (CategoryPill + TOP_CATEGORIES)",
+    desktop: "row above the grid; Watchlist / Calendar / Boost cluster pinned right",
     mobile: "same row, horizontally scrolling",
-    openedBy: "always visible; pills render only for categories with live events",
+    openedBy:
+      "always visible; All and Intraday always render, Sports needs a fixture, other categories need ≥1 live event",
     states: 3,
   },
   {
     name: "LiteEventsPage",
-    desktop: "full page — title opening, sector rail, card grid, Pro escape line",
+    desktop: "full page — data opening, category row, card grid (no Live/Settled switch)",
     mobile: "same page, MobileHeader preset A (logo only) + BottomNav",
     openedBy: "/events when surface = lite",
-    states: 4,
+    states: 3,
   },
   {
     name: "LiteStockChart (spot)",
@@ -410,8 +410,6 @@ const marketDemo = (variant: MarketVariant): EventRow => ({
   children: [],
 });
 
-const RAIL_PILL = "shrink-0 rounded-full px-[18px] py-[9px] text-[13px]";
-
 // ------------------------------------------------ List badge system v2
 const ListBadgeMatrix = () => (
   <div className="space-y-3">
@@ -477,62 +475,6 @@ const ListSortAnnotation = () => (
     </p>
   </div>
 );
-
-const RAIL_ACTIVE = "bg-white text-[#0A0B0D] font-semibold";
-const RAIL_IDLE = "border-[1.5px] border-[#2B2F38] text-[#C9CED6]";
-
-const SectorRailDemo = () => {
-  const [active, setActive] = useState("all");
-  const pills = [
-    "all",
-    "Stocks",
-    "Crypto",
-    "Macro",
-    "Tech",
-    "Entertainment",
-    "Politics",
-    "Finance",
-    "Social",
-  ];
-  return (
-    <div className="flex items-center gap-2 overflow-x-auto rounded-2xl border border-border bg-card p-3">
-      {pills.map((p) => (
-        <button
-          key={p}
-          type="button"
-          onClick={() => setActive(p)}
-          className={cn(RAIL_PILL, active === p ? RAIL_ACTIVE : RAIL_IDLE)}
-        >
-          {p === "all" ? "All" : p}
-        </button>
-      ))}
-      <button
-        type="button"
-        onClick={() => setActive("watchlist")}
-        className={cn(
-          RAIL_PILL,
-          "flex items-center gap-1.5",
-          active === "watchlist" ? RAIL_ACTIVE : RAIL_IDLE,
-        )}
-      >
-        <Star
-          className={cn(
-            "h-3.5 w-3.5",
-            active === "watchlist"
-              ? "fill-[#0A0B0D] text-[#0A0B0D]"
-              : "text-trading-yellow",
-          )}
-          strokeWidth={1.5}
-        />
-        Watchlist
-      </button>
-      <span className={cn(RAIL_PILL, RAIL_IDLE, "flex items-center gap-1")}>
-        Sports
-        <ExternalLink className="h-3.5 w-3.5" />
-      </span>
-    </div>
-  );
-};
 
 // ---------------------------------------------------------------- Boost
 const BoostPlayground = () => {
@@ -920,7 +862,7 @@ export const LiteSection = ({
 
         <SubSection
           title="Markets list"
-          description="The live Lite list (/events): grid card + sector rail. The Live | Settled switch is demoed once under the settled outcome card — not duplicated here."
+          description="The live Lite list (/events): grid card, badge system and list sort. The category row itself is demoed once in the All-stage section (real CategoryPill + TOP_CATEGORIES) — not duplicated here."
         >
           <div className="space-y-6">
             <Grid cols={2}>
@@ -933,10 +875,6 @@ export const LiteSection = ({
             </Grid>
             <ListBadgeMatrix />
             <ListSortAnnotation />
-            <div>
-              <StateChip>Sector rail · pills render only for categories with live events</StateChip>
-              <SectorRailDemo />
-            </div>
           </div>
         </SubSection>
           </>
@@ -1063,13 +1001,13 @@ export const LiteSection = ({
                   up: d.up,
                   active: d.id === "us-nvda-updown-20260801",
                   onClick: () => undefined,
-                  tooltip: `${d.label} · ${d.up ? "Up" : "Not up"} won`,
+                  tooltip: `${d.label} · ${d.up ? "Up" : "Down"} won`,
                 }))}
                 currentSlot={{
                   kind: "countdown",
                   text: "04:40:00",
                   onClick: () => undefined,
-                  tooltip: "Today's round · closes in 04:40:00",
+                  tooltip: "Today's round · closes at Tue 16:00 ET",
                 }}
                 legend={
                   <>
@@ -1117,13 +1055,13 @@ export const LiteSection = ({
                     up: d.up,
                     active: d.id === "us-nvda-updown-20260801",
                     onClick: () => undefined,
-                    tooltip: `${d.label} · ${d.up ? "Up" : "Not up"} won`,
+                    tooltip: `${d.label} · ${d.up ? "Up" : "Down"} won`,
                   }))}
                   currentSlot={{
                     kind: "countdown",
                     text: "04:40:00",
                     onClick: () => undefined,
-                    tooltip: "Today's round · closes in 04:40:00",
+                    tooltip: "Today's round · closes at Tue 16:00 ET",
                   }}
                   legend={
                     <>
@@ -1141,7 +1079,7 @@ export const LiteSection = ({
                   key: d.id,
                   up: d.up,
                   onClick: () => undefined,
-                  tooltip: `${d.label} · ${d.up ? "Up" : "Not up"} won`,
+                  tooltip: `${d.label} · ${d.up ? "Up" : "Down"} won`,
                 }))}
                 currentSlot={{
                   kind: "next",
@@ -1165,7 +1103,7 @@ export const LiteSection = ({
                     key: d.id,
                     up: d.up,
                     onClick: () => undefined,
-                    tooltip: `${d.label} · ${d.up ? "Up" : "Not up"} won`,
+                    tooltip: `${d.label} · ${d.up ? "Up" : "Down"} won`,
                   }))}
                   currentSlot={{
                     kind: "next",
@@ -1342,6 +1280,11 @@ export const LiteSection = ({
             Events with 3+ options replace the sentiment bar and the standalone chart with the
             market board: one row per option, independent Yes / No chips, a 4px dual-tone strip,
             and an inline accordion chart under the selected row. Binary events never render this.
+            Since netting shipped the order rail never blocks the opposite side: production always
+            passes <code className="font-mono">blockNotice: null</code>,{" "}
+            <code className="font-mono">noAsSell: true</code> and{" "}
+            <code className="font-mono">nettingScopeLabel: "on this market"</code>, so buying the
+            other side cashes out the held leg first (same option_label on both legs).
           </p>
           <MultiMarketStates />
         </SubSection>
@@ -1405,11 +1348,16 @@ const MultiMarketStates = () => {
           onSelect={(id, side) => setSelMobile({ id, side })}
         />
       </Cell>
-      <Cell label="Order rail · same-option opposite side blocked">
+      <Cell label="Order rail · opposite side nets out (no block)">
         <LiteContractOrderPanel
           eventName="Where does Bitcoin end July?"
           marketContextLabel="$110K – $120K"
-          blockNotice="You already hold Yes on this market. Cash out first, then switch sides."
+          blockNotice={null}
+          noAsSell
+          nettingScopeLabel="on this market"
+          heldSideLabel="Yes"
+          heldCurrentValue={38.5}
+          heldQty={110}
           yesLabel="Yes"
           noLabel="No"
           yesPrice={0.34}
@@ -1417,7 +1365,7 @@ const MultiMarketStates = () => {
           yesOptionId="m3"
           noOptionId="m3"
           yesOptionLabel="$110K – $120K"
-          noOptionLabel="No: $110K – $120K"
+          noOptionLabel="$110K – $120K"
           blocked={false}
           side="no"
           onSideChange={() => undefined}

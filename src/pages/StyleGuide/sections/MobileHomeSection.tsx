@@ -423,7 +423,7 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
         id="mobile-home-campaign-rail"
         title="HomeCampaignRail"
         platform="mobile"
-        description="Horizontal-scrolling banner rail. 4 theme keys map to surface + metric + chip color sets."
+        description="Horizontal-scrolling banner rail. 5 theme keys map to surface + metric + chip color sets."
       >
         <Card className="trading-card">
           <CardContent className="pt-6">
@@ -444,11 +444,13 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
                   <tr><td className="py-1.5 font-mono">primary</td><td className="py-1.5 text-primary">primary</td><td className="py-1.5 text-muted-foreground">General campaigns, new features</td></tr>
                   <tr><td className="py-1.5 font-mono">green</td><td className="py-1.5 text-trading-green">trading-green</td><td className="py-1.5 text-muted-foreground">Earnings / trading incentives</td></tr>
                   <tr><td className="py-1.5 font-mono">violet</td><td className="py-1.5 text-purple-400">purple-400</td><td className="py-1.5 text-muted-foreground">Community / partnership events</td></tr>
+                  <tr><td className="py-1.5 font-mono">poster</td><td className="py-1.5 text-muted-foreground">full-card key visual (no metric tint)</td><td className="py-1.5 text-muted-foreground">Cinematic poster banners — the ONLY theme currently shipped in <code className="font-mono">banners.ts</code> (Hedge / World Cup)</td></tr>
                 </tbody>
               </table>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
               Source: <code className="font-mono">src/components/home/HomeCampaignRail.tsx</code> · Banner data: <code className="font-mono">@/components/campaign/banners</code>
+              {" "}· 现状：<code className="font-mono">banners.ts</code> 目前只在架一条 banner（<code className="font-mono">hedge</code>，theme <code className="font-mono">poster</code>）；gold / primary / green / violet 为可用但当前无在架用例。
             </p>
           </CardContent>
         </Card>
@@ -576,7 +578,6 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
   <div className="mt-5">
     <HomeTopEvents
       title={isAuthed && !hasPosition ? "Pick your first prediction" : "Top Events"}
-      interlude={!isAuthed ? <TrialCallout onSignIn={...} /> : undefined}
     />
   </div>
 </main>`}
