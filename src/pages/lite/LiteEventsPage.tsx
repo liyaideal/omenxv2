@@ -39,6 +39,7 @@ import { LiteSportsView } from "@/components/lite/categoryviews/LiteSportsView";
 import { LiteCryptoView } from "@/components/lite/categoryviews/LiteCryptoView";
 import { LiteFinanceView } from "@/components/lite/categoryviews/LiteFinanceView";
 import { useSurface } from "@/contexts/SurfaceContext";
+import { CategoryPill } from "@/components/lite/CategoryPill";
 import {
   SECTOR_CATEGORIES,
   TOP_CATEGORIES,
@@ -350,28 +351,14 @@ const LiteEventsPage = () => {
                 c.id === "intraday" ||
                 (c.id === "sports" ? sportsMatches.length > 0 : sectorCounts.get(c.id)),
             ).map((c) => (
-              <button
+              <CategoryPill
                 key={c.id}
-                type="button"
+                label={c.label}
+                dot={c.dot}
+                active={c.id === sector}
+                live={c.id === "sports" && sportsLive}
                 onClick={() => setSector(c.id)}
-                className={cn(
-                  PILL_BASE,
-                  "flex items-center gap-[7px]",
-                  c.id === sector ? PILL_ACTIVE : PILL_IDLE,
-                )}
-              >
-                {c.dot && (
-                  <span
-                    style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: 999,
-                      background: c.dot,
-                    }}
-                  />
-                )}
-                {c.label}
-              </button>
+              />
             ))}
             {/* Boost composes in place with every category view (Intraday,
                 Sports, Crypto, Finance) — only the calendar lens opts out. */}
