@@ -106,7 +106,7 @@ export const LiteEventsPage = ({ isMobile }: P) => (
     status="done"
     note="列表卡、All stage、垂类视图、日历视图、收官细节，以及事件封面插画契约（封面只在列表/卡片出现，故归入本页）。"
   >
-    <LiteSection isMobile={isMobile} />
+    <LiteSection isMobile={isMobile} part="events" />
     <LiteAllStageSection />
     <LiteVerticalViewsSection />
     <LiteCalendarSection />
@@ -123,6 +123,7 @@ export const LiteTradePage = ({ isMobile }: P) => (
     status="done"
     note="单一交易页纪律：全站只有 /trade 与 /spot 两个交易页，任何品类都在这两个骨架内做模块增删。结算态展示也归本页。"
   >
+    <LiteSection isMobile={isMobile} part="trade" />
     <LiteSpotSection isMobile={isMobile} />
 
     <section className="scroll-mt-20">
