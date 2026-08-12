@@ -61,6 +61,22 @@ export const Vouchers2Section = ({ isMobile: _isMobile }: { isMobile: boolean })
       >
         <DualDevicePreview previewKey="vouchers2-mobile-flow" label="list · redeem screen" minHeight={420} />
       </SubSection>
+
+      <SubSection
+        title="7. VoucherBanner"
+        description="Real VoucherBannerView — production mount: /portfolio (src/pages/Portfolio.tsx). Granted CTA (Gift icon) wins over claimed CTA (Ticket icon) whenever any granted voucher exists; returns null at zero."
+        platform="shared"
+      >
+        <DualDevicePreview previewKey="voucher-banner" label="hidden · granted · granted+claimed · claimed" minHeight={280} />
+      </SubSection>
+
+      <SubSection
+        title="8. CloseVoucherContent — cash out a voucher position"
+        description="Real CloseVoucherContent — production mounts: CloseVoucherDialog on /trade desktop and CloseVoucherDrawer inside PositionCard on mobile. Credit floors at 0 and caps at Max profit; covers long / short × profit / loss / capped / submitting."
+        platform="shared"
+      >
+        <DualDevicePreview previewKey="voucher-close" label="6 PnL states" minHeight={620} />
+      </SubSection>
     </div>
   </SectionWrapper>
 );
