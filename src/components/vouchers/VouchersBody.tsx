@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronLeft } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePositionVouchers, type PositionVoucher } from "@/hooks/usePositionVouchers";
 import { useVoucherDailyPool, formatResetCountdown, useMinuteTick } from "@/hooks/useVoucherDailyPool";
@@ -41,7 +41,22 @@ export const VouchersBody = () => {
   useMinuteTick();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [claimingId, setClaimingId] = useState<string | null>(null);
-  const [mobileRedeeming, setMobileRedeeming] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const redeemParam = searchParams.get("redeem");
+  const mobileRedeeming = !!redeemParam;
+
+  /** Mobile redeem lives in the URL so the page shell + system back both follow it. */
+  const openMobileRedeem = (voucherId: string) => {
+    const next = new URLSearchParams(searchParams);
+    next.set("tab", "vouchers");
+    next.set("redeem", voucherId);
+    setSearchParams(next);
+  };
+  const closeMobileRedeem = () => {
+    const next = new URLSearchParams(searchParams);
+    next.delete("redeem");
+    setSearchParams(next, { replace: true });
+  };
 
   const handleClaim = async (voucherId: string) => {
     setClaimingId(voucherId);
@@ -56,10 +71,14 @@ export const VouchersBody = () => {
       if (selectedId !== null) setSelectedId(null);
       return;
     }
+    if (redeemParam && activeVouchers.some((v) => v.id === redeemParam)) {
+      if (selectedId !== redeemParam) setSelectedId(redeemParam);
+      return;
+    }
     if (!selectedId || !activeVouchers.some((v) => v.id === selectedId)) {
       setSelectedId(activeVouchers[0].id);
     }
-  }, [activeVouchers, selectedId]);
+  }, [activeVouchers, selectedId, redeemParam]);
 
   const selected = activeVouchers.find((v) => v.id === selectedId) ?? null;
 
