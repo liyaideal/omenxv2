@@ -1,4 +1,4 @@
-import { LegacyNotice } from "../components/SectionWrapper";
+import { LegacyNotice } from "./SectionWrapper";
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
