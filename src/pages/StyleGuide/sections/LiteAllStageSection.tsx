@@ -13,6 +13,7 @@ import { SportsStageCard } from "@/components/lite/sports/SportsStageCard";
 import { LiteIntradayView } from "@/components/lite/categoryviews/LiteIntradayView";
 import { LiteSportsView } from "@/components/lite/categoryviews/LiteSportsView";
 import { RoundPlot } from "@/components/lite/intraday/RoundPlot";
+import { DirectionButton } from "@/components/lite/categoryviews/verticalBlocks";
 import { TraitChip } from "@/components/lite/LiteListControls";
 import {
   Coin,
@@ -566,25 +567,6 @@ const CHIP_TIER_PRESETS = [
   },
 ] as const;
 
-const T1 = ({ label, price, tone }: { label: string; price: number; tone: "up" | "down" }) => (
-  <button
-    type="button"
-    className={cn(
-      "chip-t1 flex items-center justify-between",
-      tone === "up" ? "chip-t1-up" : "chip-t1-down",
-    )}
-    style={{ padding: "9px 12px", minWidth: 132 }}
-  >
-    <span style={{ fontSize: 11 }}>{label}</span>
-    <span
-      className="font-display"
-      style={{ fontSize: 15, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}
-    >
-      {Math.round(price * 100)}¢
-    </span>
-  </button>
-);
-
 const T2 = ({ label, price, color }: { label: string; price: number; color: string }) => (
   <button
     type="button"
@@ -615,8 +597,26 @@ const ChipTiersDemo = () => {
             Tier 1 · direction button
           </p>
           <div className="flex flex-wrap gap-2">
-            <T1 label="Up" price={0.58} tone="up" />
-            <T1 label="Down" price={0.42} tone="down" />
+            <DirectionButton
+              label="Up"
+              price={0.58}
+              tone="up"
+              labelSize={11}
+              priceSize={15}
+              padding="9px 12px"
+              gap={10}
+              onClick={() => {}}
+            />
+            <DirectionButton
+              label="Down"
+              price={0.42}
+              tone="down"
+              labelSize={11}
+              priceSize={15}
+              padding="9px 12px"
+              gap={10}
+              onClick={() => {}}
+            />
           </div>
         </div>
         <div className="space-y-2">

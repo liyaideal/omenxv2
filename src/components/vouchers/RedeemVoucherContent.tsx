@@ -4,6 +4,7 @@ import { usePositionVouchers, type PositionVoucher } from "@/hooks/usePositionVo
 import { EventPickerList, type PickedOption } from "./EventPickerList";
 import { VoucherDeskHeader } from "./VoucherDeskHeader";
 import { VT } from "./voucherTokens";
+import { RedeemSummaryBar } from "./RedeemSummaryBar";
 
 interface RedeemVoucherContentProps {
   voucher: PositionVoucher;
@@ -56,21 +57,6 @@ export const RedeemVoucherContent = ({
     }
   };
 
-  /* ------------------------------ summary read-out ------------------------------ */
-  const summaryLine = picked ? (
-    <span className="flex items-baseline gap-[5px] min-w-0" style={{ fontSize: 12.5, fontWeight: 600, color: VT.ink }}>
-      <span className="flex-1 min-w-0 truncate">
-        {picked.eventName}
-        {!picked.isBinary ? ` · ${picked.displayLabel}` : ""}
-      </span>
-      <span className="flex-none whitespace-nowrap tabular-nums">
-        {" · "}
-        {picked.isBinary ? picked.displayLabel : picked.side === "long" ? "Yes" : "No"} at{" "}
-        {Math.round(picked.price * 100)}¢
-      </span>
-    </span>
-  ) : null;
-
   const metaCells = picked && (
     <div className="grid gap-[10px]" style={{ gridTemplateColumns: "repeat(3,minmax(0,1fr))" }}>
       {[
@@ -94,33 +80,6 @@ export const RedeemVoucherContent = ({
     </div>
   );
 
-  const confirmButton = (
-    <button
-      type="button"
-      onClick={handleSubmit}
-      disabled={!picked || isRedeeming}
-      className="font-display rounded-[10px] flex-none"
-      style={{
-        minHeight: 44,
-        padding: "0 20px",
-        border: picked ? "none" : `1px solid ${VT.line3}`,
-        background: picked ? "#FFFFFF" : VT.disabledBg,
-        color: picked ? "#0A0B0D" : VT.muted2,
-        fontSize: 13,
-        fontWeight: 700,
-        cursor: picked && !isRedeeming ? "pointer" : "default",
-      }}
-    >
-      {isRedeeming ? "Redeeming…" : "Confirm & open position"}
-    </button>
-  );
-
-  const resetWord = (
-    <button type="button" onClick={() => setPicked(null)} style={{ fontSize: 12.5, color: VT.ink3 }}>
-      Reset
-    </button>
-  );
-
   const picker = (
     <div className="flex flex-col gap-[14px]">
       <div className="flex items-baseline justify-between gap-[12px]">
@@ -140,31 +99,16 @@ export const RedeemVoucherContent = ({
       <div className="flex flex-col">
         <div style={{ padding: "16px 20px 20px" }}>{picker}</div>
 
-        <div
-          ref={stickyBarRef}
-          className="sticky bottom-[88px] md:bottom-0 z-10 flex items-center justify-between gap-[14px] flex-wrap"
-          style={{
-            borderTop: `1px solid ${VT.line}`,
-            background: VT.surfaceInset,
-            padding: "13px 16px",
-            minHeight: 60,
-          }}
-        >
-          {picked ? (
-            <div className="flex flex-col gap-[2px] min-w-0 flex-1">
-              {summaryLine}
-              <span className="tabular-nums" style={{ fontSize: 11, color: VT.ink3 }}>
-                ${voucher.faceValue} voucher · closes automatically after {voucher.maxHoldingHours}h
-              </span>
-            </div>
-          ) : (
-            <span style={{ fontSize: 12, color: VT.ink3 }}>Pick an outcome above to see your trial position.</span>
-          )}
-          <div className="flex-none flex items-center gap-[12px]">
-            {picked && resetWord}
-            {confirmButton}
-          </div>
-        </div>
+        <RedeemSummaryBar
+          innerRef={stickyBarRef}
+          variant="inline"
+          picked={picked}
+          faceValue={voucher.faceValue}
+          maxHoldingHours={voucher.maxHoldingHours}
+          isRedeeming={isRedeeming}
+          onConfirm={handleSubmit}
+          onReset={() => setPicked(null)}
+        />
       </div>
     );
   }
@@ -174,25 +118,14 @@ export const RedeemVoucherContent = ({
     <div className="flex flex-col gap-[12px]">
       <VoucherDeskHeader voucher={voucher} sourceLabel={sourceLabel} compact />
       {picker}
-      <div
-        className="flex items-center justify-between gap-[12px] rounded-[12px]"
-        style={{ background: VT.surfaceInset, border: `1px solid ${VT.line}`, padding: "13px 16px" }}
-      >
-        {picked ? (
-          <div className="flex flex-col gap-[2px] min-w-0 flex-1">
-            {summaryLine}
-            <span className="tabular-nums" style={{ fontSize: 11, color: VT.ink3 }}>
-              ${voucher.faceValue} voucher · closes automatically after {voucher.maxHoldingHours}h
-            </span>
-          </div>
-        ) : (
-          <span style={{ fontSize: 12, color: VT.ink3 }}>Pick an outcome above to see your trial position.</span>
-        )}
-        <div className="flex-none flex items-center gap-[12px]">
-          {picked && resetWord}
-          {confirmButton}
-        </div>
-      </div>
+      <RedeemSummaryBar
+        picked={picked}
+        faceValue={voucher.faceValue}
+        maxHoldingHours={voucher.maxHoldingHours}
+        isRedeeming={isRedeeming}
+        onConfirm={handleSubmit}
+        onReset={() => setPicked(null)}
+      />
     </div>
   );
 };

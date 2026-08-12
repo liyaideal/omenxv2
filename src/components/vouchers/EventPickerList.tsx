@@ -1,10 +1,15 @@
 import { useMemo, useState } from "react";
-import { Search, Lock } from "lucide-react";
+import { Search } from "lucide-react";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { parseSideLabels } from "@/lib/eventUtils";
 import { usePositionVouchers, type PositionVoucher } from "@/hooks/usePositionVouchers";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { VT } from "./voucherTokens";
+import {
+  EventPickerCard,
+  PickerOptionRow,
+  PickerBlockedReason,
+} from "./EventPickerCard";
 
 export interface PickedOption {
   eventId: string;
@@ -47,8 +52,6 @@ const checkEligibility = (
   return { ok: true };
 };
 
-const cents = (p: number) => `${Math.round(p * 100)}¢`;
-
 /* --------------------------------- chrome -------------------------------- */
 
 const Chip = ({
@@ -77,74 +80,6 @@ const Chip = ({
     {children}
   </button>
 );
-
-const MetaCaps = ({ children }: { children: React.ReactNode }) => (
-  <span
-    className="font-display uppercase"
-    style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: ".12em", color: VT.muted }}
-  >
-    {children}
-  </span>
-);
-
-const LineBadge = ({ children, strong }: { children: React.ReactNode; strong?: boolean }) => (
-  <span
-    className="font-display uppercase rounded-[6px]"
-    style={{
-      fontSize: 9.5,
-      fontWeight: 700,
-      letterSpacing: ".1em",
-      color: strong ? VT.ink2 : VT.muted,
-      background: VT.surfaceInset,
-      border: `1px solid ${strong ? VT.line3 : VT.line}`,
-      padding: "4px 7px",
-    }}
-  >
-    {children}
-  </span>
-);
-
-const SideButton = ({
-  label,
-  tone,
-  picked,
-  disabled,
-  onClick,
-  block,
-}: {
-  label: string;
-  tone: "neutral" | "yes" | "no";
-  picked?: boolean;
-  disabled?: boolean;
-  onClick?: () => void;
-  block?: boolean;
-}) => {
-  const base = {
-    yes: { color: "hsl(74 100% 65%)", border: "hsl(74 100% 65% / .4)" },
-    no: { color: "hsl(0 100% 68%)", border: "hsl(0 100% 68% / .4)" },
-    neutral: { color: VT.ink, border: VT.line3 },
-  }[tone];
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className={`font-display rounded-[8px] ${block ? "min-h-[44px] w-full flex items-center justify-center" : ""}`}
-      style={{
-        fontSize: block ? 12 : 11.5,
-        fontWeight: 700,
-        padding: block ? undefined : "5px 10px",
-        color: picked ? "#0A0B0D" : disabled ? VT.muted2 : base.color,
-        background: picked ? "hsl(74 100% 65%)" : "transparent",
-        border: picked ? "none" : `1px solid ${disabled ? VT.line2 : base.border}`,
-        cursor: disabled ? "default" : "pointer",
-      }}
-    >
-      {picked ? "Picked" : label}
-    </button>
-  );
-};
 
 /* --------------------------------- list ---------------------------------- */
 
@@ -292,44 +227,24 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
             ? checkEligibility(voucher, event.options[0]?.price ?? 0, event.end_date, event.is_resolved).reason
             : null;
 
-          const header = (
-            <div className="flex items-start justify-between gap-[12px]" style={{ marginBottom: 11 }}>
-              <div className="flex flex-col gap-[3px] min-w-0">
-                <span className="truncate" style={{ fontSize: 13.5, fontWeight: 600, color: cardEligible ? VT.ink : VT.ink2 }}>
-                  {event.name}
-                </span>
-                <MetaCaps>
-                  {event.category}
-                  {event.end_date ? ` · settles ${new Date(event.end_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}` : ""}
-                </MetaCaps>
-              </div>
-              <div className="flex-none flex items-center gap-[6px] flex-wrap justify-end">
-                {lines.includes("futures") && <LineBadge strong>Boost</LineBadge>}
-                {lines.includes("spot") && <LineBadge strong>Standard</LineBadge>}
-                {!eventLocked && <LineBadge>{isBinary ? "Binary" : `${event.options.length} options`}</LineBadge>}
-                {eventLocked && (
-                  <span className="flex items-center gap-[5px]" style={{ fontSize: 11, fontWeight: 600, color: VT.ink2 }}>
-                    <Lock className="w-3 h-3" />
-                    Voucher already used
-                  </span>
-                )}
-              </div>
-            </div>
-          );
+          const meta = `${event.category}${event.end_date ? ` · settles ${new Date(event.end_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}` : ""}`;
 
           if (eventLocked) {
             return (
-              <div
+              <EventPickerCard
                 key={event.id}
-                className="rounded-[12px]"
-                style={{ background: VT.surfaceCard, border: `1px solid ${VT.line}`, padding: 14, opacity: 0.5 }}
+                mobile={isMobile}
+                name={event.name}
+                meta={meta}
+                lines={lines}
+                eligible={!!cardEligible}
+                locked
               >
-                {header}
                 <div style={{ fontSize: 11, color: VT.ink3, lineHeight: 1.5 }}>
                   One voucher per event — you already opened a trial position here. The lock covers both product
                   lines of this event.
                 </div>
-              </div>
+              </EventPickerCard>
             );
           }
 
@@ -346,109 +261,35 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
               productLine,
             });
 
-          const rows = event.options.map((opt) => {
-            const eligibility = checkEligibility(voucher, opt.price, event.end_date, event.is_resolved);
-            const pickedLong = selected?.optionId === opt.id && selected?.side === "long";
-            const pickedShort = selected?.optionId === opt.id && selected?.side === "short";
-            const shownLabel = displayLabel(opt.label);
-            const dim = !eligibility.ok;
-
-            const priceEl = (
-              <span
-                className="font-display tabular-nums flex-none"
-                style={{ fontSize: 13, fontWeight: 700, color: dim ? VT.muted : VT.ink3 }}
-              >
-                {cents(opt.price)}
-              </span>
-            );
-
-            // Mobile multi-option: label + price on top, Yes/No 44px grid beneath.
-            if (!isBinary && isMobile) {
-              return (
-                <div
-                  key={opt.id}
-                  className="rounded-[9px] flex flex-col gap-[8px]"
-                  style={{
-                    background: VT.surfaceDeep,
-                    border: `1px solid ${pickedLong || pickedShort ? VT.volt : VT.line2}`,
-                    padding: "9px 11px 10px",
-                  }}
-                >
-                  <div className="flex items-center justify-between gap-[10px]">
-                    <span className="flex-1 min-w-0 truncate" style={{ fontSize: 11.5, color: dim ? VT.muted : VT.ink }}>
-                      {shownLabel}
-                    </span>
-                    {priceEl}
-                  </div>
-                  <div className="grid grid-cols-2 gap-[7px]">
-                    <SideButton block label="Yes" tone="yes" picked={pickedLong} disabled={dim} onClick={() => pick(opt, "long")} />
-                    <SideButton block label="No" tone="no" picked={pickedShort} disabled={dim} onClick={() => pick(opt, "short")} />
-                  </div>
-                </div>
-              );
-            }
-
-            return (
-              <div
-                key={opt.id}
-                className="flex items-center justify-between gap-[10px] rounded-[9px]"
-                style={{
-                  background: VT.surfaceDeep,
-                  border: `1px solid ${pickedLong || pickedShort ? VT.volt : VT.line2}`,
-                  padding: isMobile ? "0 12px" : "9px 12px",
-                  minHeight: 44,
-                }}
-              >
-                <span
-                  className="flex-1 min-w-0 truncate"
-                  style={{
-                    fontSize: isBinary ? 11 : 11.5,
-                    fontWeight: pickedLong || pickedShort ? 600 : 400,
-                    color: dim ? VT.muted : isBinary ? VT.ink3 : VT.ink,
-                  }}
-                >
-                  {shownLabel}
-                </span>
-                <span className="flex-none flex items-center gap-[9px]">
-                  {priceEl}
-                  {isBinary ? (
-                    <SideButton label="Buy" tone="neutral" picked={pickedLong} disabled={dim} onClick={() => pick(opt, "long")} />
-                  ) : (
-                    <>
-                      <SideButton label="Yes" tone="yes" picked={pickedLong} disabled={dim} onClick={() => pick(opt, "long")} />
-                      <SideButton label="No" tone="no" picked={pickedShort} disabled={dim} onClick={() => pick(opt, "short")} />
-                    </>
-                  )}
-                </span>
-              </div>
-            );
-          });
-
           return (
-            <div
+            <EventPickerCard
               key={event.id}
-              className="rounded-[12px]"
-              style={{
-                background: VT.surfaceCard,
-                border: `1px solid ${VT.line}`,
-                padding: isMobile ? 13 : 14,
-                opacity: cardEligible ? 1 : 0.62,
-              }}
+              mobile={isMobile}
+              name={event.name}
+              meta={meta}
+              lines={lines}
+              tail={isBinary ? "Binary" : `${event.options.length} options`}
+              eligible={!!cardEligible}
+              rowsLayout={isBinary && !isMobile ? "grid" : "stack"}
             >
-              {header}
-              <div className={isBinary && !isMobile ? "grid grid-cols-2 gap-[8px]" : "flex flex-col gap-[6px]"}>
-                {rows}
-                {blockedReason && (
-                  <div
-                    className="flex items-start gap-[6px]"
-                    style={{ fontSize: 11, color: VT.ink3, lineHeight: 1.5, paddingTop: 2 }}
-                  >
-                    <Lock className="w-3 h-3 flex-none" style={{ marginTop: 2, color: VT.ink2 }} />
-                    {blockedReason}
-                  </div>
-                )}
-              </div>
-            </div>
+              {event.options.map((opt) => {
+                const eligibility = checkEligibility(voucher, opt.price, event.end_date, event.is_resolved);
+                return (
+                  <PickerOptionRow
+                    key={opt.id}
+                    label={displayLabel(opt.label)}
+                    price={opt.price}
+                    isBinary={isBinary}
+                    mobile={isMobile}
+                    dim={!eligibility.ok}
+                    pickedLong={selected?.optionId === opt.id && selected?.side === "long"}
+                    pickedShort={selected?.optionId === opt.id && selected?.side === "short"}
+                    onPick={(side) => pick(opt, side)}
+                  />
+                );
+              })}
+              {blockedReason && <PickerBlockedReason>{blockedReason}</PickerBlockedReason>}
+            </EventPickerCard>
           );
         })}
       </div>

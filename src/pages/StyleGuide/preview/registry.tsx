@@ -19,15 +19,12 @@ import { ALL_SCOPES, useApiKeys } from "@/hooks/useApiKeys";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   BannerPreview,
-  PageListLevelPreview,
   VoucherCardPreview,
   EarningsPreview,
   PickerPreview,
   RedeemStickyPreview,
   ClosePreview,
-  RedeemedRowPreview,
   PositionChipPreview,
-  ExpiredRowPreview,
 } from "./voucherPreviews";
 import {
   Vouchers2RowsPreview,
@@ -303,15 +300,12 @@ export const previewRegistry: Record<string, () => JSX.Element> = {
 
   /* -------- Vouchers -------- */
   "voucher-banner": () => <BannerPreview />,
-  "voucher-page-list-level": () => <PageListLevelPreview />,
   "voucher-card": () => <VoucherCardPreview />,
   "voucher-earnings": () => <EarningsPreview />,
   "voucher-picker": () => <PickerPreview />,
   "voucher-redeem-sticky": () => <RedeemStickyPreview />,
   "voucher-close": () => <ClosePreview />,
-  "voucher-redeemed-row": () => <RedeemedRowPreview />,
   "voucher-position-chip": () => <PositionChipPreview />,
-  "voucher-expired-row": () => <ExpiredRowPreview />,
 
   /* -------- Wallet · Dual-Account 2b -------- */
   "wallet-equity-bands": () => <WalletEquityBandsPreview />,

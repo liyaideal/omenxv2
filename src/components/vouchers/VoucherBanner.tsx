@@ -2,12 +2,17 @@ import { Link } from "react-router-dom";
 import { Ticket, ChevronRight, Gift } from "lucide-react";
 import { usePositionVouchers } from "@/hooks/usePositionVouchers";
 
-export const VoucherBanner = () => {
-  const { grantedVouchers, claimedVouchers, isLoading } = usePositionVouchers();
-  if (isLoading) return null;
-
-  const grantedCount = grantedVouchers.length;
-  const claimedCount = claimedVouchers.length;
+/**
+ * Pure presentational banner — same JSX as before, counts arrive as props so
+ * the style-guide can mount the real component instead of a replica.
+ */
+export const VoucherBannerView = ({
+  grantedCount,
+  claimedCount,
+}: {
+  grantedCount: number;
+  claimedCount: number;
+}) => {
   const total = grantedCount + claimedCount;
   if (total === 0) return null;
 
@@ -38,5 +43,16 @@ export const VoucherBanner = () => {
       </div>
       <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
     </Link>
+  );
+};
+
+export const VoucherBanner = () => {
+  const { grantedVouchers, claimedVouchers, isLoading } = usePositionVouchers();
+  if (isLoading) return null;
+  return (
+    <VoucherBannerView
+      grantedCount={grantedVouchers.length}
+      claimedCount={claimedVouchers.length}
+    />
   );
 };
