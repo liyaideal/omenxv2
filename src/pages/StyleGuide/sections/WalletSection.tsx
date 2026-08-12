@@ -207,12 +207,12 @@ export const WalletSection = ({ isMobile }: WalletSectionProps) => {
         id="dual-account-2b"
         title="Dual-Account · 2b"
         platform="shared"
-        description="Total Equity band, dual account cards, TransferForm state coverage, Deposit-to picker, header HoverCard, and transaction row account badges. Desktop + mobile via iframe DeviceFrame."
+        description="Total Equity band, dual account cards (Standard = spot, Boost = futures), TransferForm state coverage, Deposit-to picker, header HoverCard, and transaction row account badges. Desktop + mobile via iframe DeviceFrame."
       >
         <SubSection title="Band 1 Total Equity + Band 2 dual account cards" platform="shared">
           <DualDevicePreview
             previewKey="wallet-equity-bands"
-            label="Total Equity hero band + Spot / Futures cards (Trial Bonus sunset — Futures = single Available tile)"
+            label="Total Equity hero band + Standard / Boost cards (Trial Bonus sunset — Boost card carries three rows: Available / Withdrawable / H2E Locked, plus the “Boost up to N×” footnote)"
             minHeight={340}
           />
         </SubSection>
@@ -221,7 +221,7 @@ export const WalletSection = ({ isMobile }: WalletSectionProps) => {
           <div className="grid grid-cols-1 gap-4">
             <DualDevicePreview
               previewKey="wallet-transfer-normal"
-              label="Normal · Futures $8,720 → Spot, amount $250"
+              label="Normal · Boost $8,720 → Standard, amount $250"
               minHeight={460}
             />
             <DualDevicePreview
