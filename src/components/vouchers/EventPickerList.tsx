@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { parseSideLabels } from "@/lib/eventUtils";
 import { usePositionVouchers, type PositionVoucher } from "@/hooks/usePositionVouchers";
@@ -9,6 +8,9 @@ import {
   EventPickerCard,
   PickerOptionRow,
   PickerBlockedReason,
+  PickerSkeleton,
+  PickerEmpty,
+  PickerSearchBar,
 } from "./EventPickerCard";
 
 export interface PickedOption {
@@ -144,68 +146,19 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
         </div>
       )}
 
-      <div
-        className="flex items-center gap-[9px] rounded-[10px]"
-        style={{
-          background: VT.surfaceInset,
-          border: `1px solid ${VT.line}`,
-          padding: "0 12px",
-          minHeight: isMobile ? 44 : 40,
-        }}
-      >
-        <Search className="w-[15px] h-[15px] flex-none" style={{ color: VT.muted }} />
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search markets"
-          className="flex-1 bg-transparent outline-none"
-          style={{ fontSize: 12.5, color: VT.ink }}
-        />
-      </div>
+      <PickerSearchBar value={query} onChange={setQuery} mobile={isMobile} />
 
       <div className={`flex flex-col gap-[10px] ${isMobile ? "" : "max-h-[520px] overflow-y-auto pr-1"}`}>
-        {isLoading &&
-          [0, 1].map((i) => (
-            <div
-              key={i}
-              className="rounded-[12px] flex flex-col gap-[11px]"
-              style={{ background: VT.surfaceCard, border: `1px solid ${VT.line}`, padding: 14 }}
-            >
-              <div className="flex flex-col gap-[6px]">
-                <span className="rounded-[4px]" style={{ width: "70%", height: 12, background: "#171A1F" }} />
-                <span className="rounded-[4px]" style={{ width: "38%", height: 9, background: "#15181C" }} />
-              </div>
-              <div className="grid grid-cols-2 gap-[8px]">
-                {[0, 1].map((j) => (
-                  <span key={j} className="rounded-[9px]" style={{ height: 44, background: VT.surfaceDeep, border: `1px solid ${VT.hairline}` }} />
-                ))}
-              </div>
-            </div>
-          ))}
+        {isLoading && <PickerSkeleton />}
 
         {!isLoading && filtered.length === 0 && (
-          <div
-            className="rounded-[12px] flex flex-col items-center gap-[8px] text-center"
-            style={{ background: VT.surfaceDeep, border: `1px solid ${VT.line}`, padding: "34px 24px" }}
-          >
-            <span className="font-display" style={{ fontSize: 14, fontWeight: 700, color: VT.ink }}>
-              {query ? `No markets match “${query}”` : "No markets take a voucher right now"}
-            </span>
-            <span style={{ fontSize: 11.5, color: VT.ink3, lineHeight: 1.6, maxWidth: 270 }}>
-              Nothing here right now takes a voucher. Clear the filter to see everything eligible.
-            </span>
-            <button
-              type="button"
-              onClick={() => {
-                setQuery("");
-                setActiveCat(null);
-              }}
-              className="font-display rounded-[10px] flex items-center"
-              style={{ marginTop: 4, minHeight: 40, padding: "0 16px", border: `1px solid ${VT.line3}`, fontSize: 12.5, fontWeight: 600, color: VT.ink }}
-            >
-              Clear filters
-            </button>
-          </div>
+          <PickerEmpty
+            query={query}
+            onClear={() => {
+              setQuery("");
+              setActiveCat(null);
+            }}
+          />
         )}
 
         {filtered.map((event) => {

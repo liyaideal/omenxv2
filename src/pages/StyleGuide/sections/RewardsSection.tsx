@@ -35,7 +35,7 @@ export const RewardsSection = ({ isMobile: _isMobile }: { isMobile: boolean }) =
         description="Desktop: solid #FF8A3D capsule, 34px avatar, two-line lockup inside the hero scrim. Mobile: slim single-line capsule, 22px avatar, no explainer sentence — it lives inside the integrated hero card (16/9.5 + bottom scrim)."
         platform="shared"
       >
-        <DualDevicePreview previewKey="rewards-kol-band" label="Toggle Mobile·375 for the shipped mobile hero" minHeight={420} />
+        <DualDevicePreview previewKey="rewards-kol-band" label={"Toggle Mobile·375 for the shipped mobile hero. 手抄镜像 — 生产文件为 CPO 冻结画布，转活体待 CPO 批准。"} minHeight={420} />
       </SubSection>
 
       <SubSection
@@ -59,7 +59,7 @@ export const RewardsSection = ({ isMobile: _isMobile }: { isMobile: boolean }) =
         description="Dismissible once per device (localStorage). Desktop sits above the grid; mobile below the cards."
         platform="shared"
       >
-        <DualDevicePreview previewKey="rewards-points-notice" label="Static render (dismiss button omitted)" minHeight={140} />
+        <DualDevicePreview previewKey="rewards-points-notice" label={"Static render (dismiss button omitted). 手抄镜像 — 生产文件为 CPO 冻结画布，转活体待 CPO 批准。"} minHeight={140} />
       </SubSection>
 
       <SubSection
@@ -83,7 +83,7 @@ export const RewardsSection = ({ isMobile: _isMobile }: { isMobile: boolean }) =
         description="One per page that shows a USDC amount: /rewards Campaigns tab (below the archive bar) and the campaign detail page. Never inline next to an amount."
         platform="shared"
       >
-        <DualDevicePreview previewKey="rewards-fine-print" label="11.5px / #6B7280" minHeight={110} />
+        <DualDevicePreview previewKey="rewards-fine-print" label={"11.5px / #6B7280. 手抄镜像 — 生产文件为 CPO 冻结画布，转活体待 CPO 批准。"} minHeight={110} />
       </SubSection>
 
       <SubSection
@@ -91,7 +91,7 @@ export const RewardsSection = ({ isMobile: _isMobile }: { isMobile: boolean }) =
         description="User lands via ?entry=LAOWANG but the entry cannot be bound (cap reached, already locked to another entry, account not eligible, link expired, etc.). UX: a single formal sonner toast + immediate redirect to /; the detail page never renders. Copy intentionally generic so new refusal reasons don't require new strings."
         platform="shared"
       >
-        <DualDevicePreview previewKey="rewards-ineligible-redirect" label="Frozen toast frame · desktop top-center · mobile full-width" minHeight={220} />
+        <DualDevicePreview previewKey="rewards-ineligible-redirect" label={"Frozen toast frame · desktop top-center · mobile full-width. 手抄镜像 — 生产文件为 CPO 冻结画布，转活体待 CPO 批准。"} minHeight={220} />
       </SubSection>
     </div>
   </SectionWrapper>

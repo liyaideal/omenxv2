@@ -23,6 +23,8 @@ import {
   MAINTENANCE_NOTICE_DEMO_SETS,
 } from "@/components/wallet/MaintenanceNoticeBanner";
 import { cn } from "@/lib/utils";
+import { H2eRewardsCard } from "@/pages/Wallet";
+import type { H2eRewardsSummary } from "@/hooks/useH2eRewardsSummary";
 
 type MaintenancePreset = "single" | "multiple" | "withNote" | "empty";
 const MAINTENANCE_PRESETS: { id: MaintenancePreset; label: string }[] = [
@@ -113,6 +115,42 @@ export const WalletSection = ({ isMobile }: WalletSectionProps) => {
   const nextTier = H2E_UNLOCK_TIERS.find((tier) => mockVolume < tier.volume) ?? null;
   const unlockedPercent = currentTier?.percent ?? 0;
   const volumeToNextTier = nextTier ? Math.max(0, nextTier.volume - mockVolume) : 0;
+  // Mock H2eRewardsSummary so the demo can mount the production card.
+  const mockH2eSummary: H2eRewardsSummary = {
+    frozenBalance: 128.4,
+    volumeCompleted: mockVolume,
+    isUnlocked: unlockedPercent > 0,
+    isFullyUnlocked: !nextTier,
+    unlockedPercent,
+    unlockedAmount: (128.4 * unlockedPercent) / 100,
+    lockedAmount: 128.4 - (128.4 * unlockedPercent) / 100,
+    nextTierVolume: nextTier?.volume ?? null,
+    nextTierPercent: nextTier?.percent ?? null,
+    volumeToNextTier,
+    unlockTiers: H2E_UNLOCK_TIERS,
+    starterUnlock: H2E_STARTER_UNLOCK,
+    totalEarned: 128.4,
+    earningsCap: 500,
+    volumeRequired: H2E_FULL_VOLUME_UNLOCK,
+    volumePercent: nextTier ? Math.min((mockVolume / nextTier.volume) * 100, 100) : 100,
+    earningsPercent: Math.min((128.4 / 500) * 100, 100),
+    settlements: [
+      {
+        id: "s1",
+        eventName: "BTC ≥ $150k by Dec 31",
+        pnl: 42.18,
+        trigger: "Auto-close",
+        settledAt: new Date().toISOString(),
+      },
+      {
+        id: "s2",
+        eventName: "Fed cuts in September?",
+        pnl: -8.4,
+        trigger: "Settlement",
+        settledAt: new Date().toISOString(),
+      },
+    ],
+  };
 
   return (
     <div className="space-y-12">
@@ -218,7 +256,7 @@ export const WalletSection = ({ isMobile }: WalletSectionProps) => {
         <SubSection title="Transaction history — account badges + transfer icon" platform="shared">
           <DualDevicePreview
             previewKey="wallet-tx-history"
-            label="Real TransactionHistory with SPOT / FUTURES badges and ArrowLeftRight transfer icon"
+            label="Real TransactionHistory · desktop single line (flex items-center justify-between: icon + description + type badge + status icon left, amount + chevron right); mobile two-layer (row 1 icon + truncate description + amount; row 2 pl-[52px] date · type badge · status icon · chevron). Chevron only when the row has details. See DESIGN.md §8."
             minHeight={520}
           />
           <div className="mt-3">
@@ -336,126 +374,10 @@ export const WalletSection = ({ isMobile }: WalletSectionProps) => {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 space-y-4">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm font-semibold">Withdrawal unlock progress</p>
-                  <p className="text-xs text-muted-foreground">
-                    Current unlocked: {unlockedPercent}% · Mock volume ${mockVolume.toLocaleString()}
-                  </p>
-                </div>
-                {unlockedPercent > 0 && (
-                  <Badge key={mockVolume} className="animate-fade-in bg-primary/10 text-primary border-primary/20">
-                    已解锁{unlockedPercent}%
-                  </Badge>
-                )}
-              </div>
+            {/* LIVE: production H2eRewardsCard (src/pages/Wallet.tsx) driven by
+                the mock volume above — same card /wallet renders. */}
+            <H2eRewardsCard h2e={mockH2eSummary} showUnlockToast={unlockedPercent > 0} />
 
-              {!isMobile && (
-                <div className="pt-3">
-                  <div className="relative px-1">
-                    <div className="absolute left-1 right-1 top-3 h-px bg-border/70" />
-                    <div
-                      className="absolute left-1 top-3 h-px bg-primary transition-all duration-500"
-                      style={{ width: `${Math.min((mockVolume / H2E_FULL_VOLUME_UNLOCK) * 100, 100)}%` }}
-                    />
-                    <div className="relative grid grid-cols-6 gap-3">
-                      {H2E_UNLOCK_TIERS.map((tier) => {
-                        const isReached = mockVolume >= tier.volume;
-                        const isNext = nextTier?.volume === tier.volume;
-                        const isStarter = tier.volume === 0;
-
-                        return (
-                          <div key={tier.volume} className="flex flex-col items-center text-center">
-                            <span
-                              className={cn(
-                                "relative z-10 h-6 w-6 rounded-full border-2 bg-background transition-all duration-300",
-                                isStarter && "border-trading-green/60",
-                                !isStarter && isReached && "border-primary shadow-[0_0_0_4px_hsl(var(--primary)/0.12)]",
-                                !isStarter && isNext && !isReached && "border-primary/70 shadow-[0_0_0_4px_hsl(var(--primary)/0.08)]",
-                                !isStarter && !isReached && !isNext && "border-border"
-                              )}
-                            >
-                              {!isStarter && isReached && tier.percent === unlockedPercent && (
-                                <span key={mockVolume} className="absolute -inset-1 rounded-full border border-primary/60 animate-scale-in" />
-                              )}
-                            </span>
-                            <span className={cn("mt-2 font-mono text-[11px] font-semibold", isStarter ? "text-trading-green" : isReached || isNext ? "text-foreground" : "text-muted-foreground")}>
-                              {isStarter ? `+$${H2E_STARTER_UNLOCK}` : `${tier.percent}%`}
-                            </span>
-                            <span className="font-mono text-[10px] text-muted-foreground">
-                              {isStarter ? "Starter" : `$${(tier.volume / 1000).toFixed(0)}K`}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {isMobile && (
-                <div className="space-y-2 rounded-lg border border-border/40 bg-muted/10 p-3">
-                  {nextTier && (
-                    <div className="rounded-md border border-primary/20 bg-primary/10 px-3 py-2">
-                      <div className="text-[10px] uppercase text-muted-foreground">Next unlock</div>
-                      <div className="mt-0.5 flex items-center justify-between text-xs">
-                        <span className="font-medium">{nextTier.percent}% at ${nextTier.volume.toLocaleString()}</span>
-                        <span className="font-mono text-primary">${volumeToNextTier.toLocaleString()} left</span>
-                      </div>
-                    </div>
-                  )}
-                  <div className="space-y-0.5">
-                    {H2E_UNLOCK_TIERS.map((tier, index) => {
-                      const isReached = mockVolume >= tier.volume;
-                      const isNext = nextTier?.volume === tier.volume;
-                      const isLast = index === H2E_UNLOCK_TIERS.length - 1;
-                      const isStarter = tier.volume === 0;
-
-                      return (
-                        <div key={tier.volume} className="relative flex gap-3 pb-2 last:pb-0">
-                          {!isLast && <div className={cn("absolute left-[7px] top-5 h-[calc(100%-12px)] w-px", isReached ? "bg-primary/60" : "bg-border/70")} />}
-                          <span
-                            className={cn(
-                              "relative mt-1 h-3.5 w-3.5 flex-shrink-0 rounded-full border-2 bg-background transition-all duration-300",
-                              isStarter && "border-trading-green/60",
-                              !isStarter && isReached && "border-primary shadow-[0_0_0_4px_hsl(var(--primary)/0.12)]",
-                              !isStarter && isNext && !isReached && "border-primary/70",
-                              !isStarter && !isReached && !isNext && "border-border"
-                            )}
-                          >
-                            {!isStarter && isReached && tier.percent === unlockedPercent && (
-                              <span key={mockVolume} className="absolute -inset-1 rounded-full border border-primary/60 animate-scale-in" />
-                            )}
-                          </span>
-                          <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
-                            <div>
-                              <div className={cn("text-xs font-medium", isStarter ? "text-trading-green" : isReached || isNext ? "text-foreground" : "text-muted-foreground")}>
-                                {isStarter ? `Starter unlock +$${H2E_STARTER_UNLOCK}` : `${tier.percent}% unlock`}
-                              </div>
-                              <div className="font-mono text-[10px] text-muted-foreground">
-                                {isStarter ? "Free, independent of H2E" : `$${(tier.volume / 1000).toFixed(0)}K volume`}
-                              </div>
-                            </div>
-                            <span className={cn("text-[10px]", isStarter ? "text-trading-green" : isReached ? "text-primary" : isNext ? "text-foreground" : "text-muted-foreground")}>
-                              {isStarter ? "included" : isReached ? "unlocked" : isNext ? "current target" : "locked"}
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {nextTier ? (
-                <p className="text-[10px] text-muted-foreground">
-                  Trade ${volumeToNextTier.toLocaleString()} more to unlock {nextTier.percent}%
-                </p>
-              ) : (
-                <p className="text-[10px] text-trading-green">Fully unlocked — rewards are withdrawable</p>
-              )}
-            </div>
           </CardContent>
         </Card>
       </SectionWrapper>
@@ -546,176 +468,6 @@ export const WalletSection = ({ isMobile }: WalletSectionProps) => {
   <Icon className={cn("h-3 w-3 mr-1", config.animate && "animate-spin")} />
   {config.label}
 </Badge>`}
-            />
-          </CardContent>
-        </Card>
-      </SectionWrapper>
-
-      {/* Transaction History Row */}
-      <SectionWrapper
-        id="transaction-history-row"
-        title="Transaction History Row"
-        platform="shared"
-        description="Canonical row layout used on /wallet — desktop single-line, mobile two-layer. See DESIGN.md §8."
-      >
-        <Card className="trading-card">
-          <CardHeader>
-            <CardTitle className="text-lg">Desktop — single line</CardTitle>
-            <CardDescription>
-              {`flex items-center justify-between`} · icon + description + type badge + status icon on the left, amount + chevron on the right
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="bg-card border border-border/50 rounded-xl divide-y divide-border/30">
-              {/* Deposit completed */}
-              <div className="p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <div className="w-10 h-10 rounded-full bg-trading-green/20 flex items-center justify-center shrink-0">
-                    <ArrowDownLeft className="w-5 h-5 text-trading-green" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium truncate">Deposit on Ethereum</span>
-                    </div>
-                    <div className="text-xs text-muted-foreground">20/05/2026, 17:05</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-sm font-semibold font-mono text-trading-green">+$500.00</span>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                </div>
-              </div>
-
-              {/* Withdraw processing */}
-              <div className="p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <div className="w-10 h-10 rounded-full bg-trading-red/20 flex items-center justify-center shrink-0">
-                    <ArrowUpRight className="w-5 h-5 text-trading-red" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium truncate">Withdrawal to wallet</span>
-                      <Loader2 className="w-3.5 h-3.5 shrink-0 text-trading-yellow animate-spin" />
-                    </div>
-                    <div className="text-xs text-muted-foreground">20/05/2026, 18:34</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-sm font-semibold font-mono text-trading-red">-$2,000.00</span>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                </div>
-              </div>
-
-              {/* Cross-chain in */}
-              <div className="p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0">
-                    <ArrowLeftRight className="w-5 h-5 text-blue-400" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium truncate">Bridge from Arbitrum</span>
-                      <span className="inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap border-blue-500/40 text-blue-400">
-                        Cross-Chain In
-                      </span>
-                    </div>
-                    <div className="text-xs text-muted-foreground">20/05/2026, 19:11</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-sm font-semibold font-mono text-trading-green">+$1,200.00</span>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="trading-card mt-6">
-          <CardHeader>
-            <CardTitle className="text-lg">Mobile — two-layer</CardTitle>
-            <CardDescription>
-              Row 1: icon + description {`(truncate flex-1)`} + amount {`(shrink-0)`}.
-              Row 2: {`pl-[52px]`} aligns under the description — date · type badge · status icon · chevron.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="mx-auto max-w-[390px] bg-card border border-border/50 rounded-xl divide-y divide-border/30">
-              {/* Withdraw processing */}
-              <div className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-trading-red/20 flex items-center justify-center shrink-0">
-                    <ArrowUpRight className="w-5 h-5 text-trading-red" />
-                  </div>
-                  <span className="text-sm font-medium truncate flex-1 min-w-0">Withdrawal to wallet</span>
-                  <span className="text-sm font-semibold font-mono shrink-0 text-right text-trading-red">-$2,000.00</span>
-                </div>
-                <div className="flex items-start justify-between gap-2 mt-1 pl-[52px]">
-                  <div className="flex items-center flex-wrap gap-1.5 text-xs text-muted-foreground min-w-0">
-                    <span>20/05/2026, 18:34</span>
-                    <Loader2 className="w-3.5 h-3.5 shrink-0 text-trading-yellow animate-spin" />
-                  </div>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
-                </div>
-              </div>
-
-              {/* Cross-chain in */}
-              <div className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0">
-                    <ArrowLeftRight className="w-5 h-5 text-blue-400" />
-                  </div>
-                  <span className="text-sm font-medium truncate flex-1 min-w-0">Bridge from Arbitrum</span>
-                  <span className="text-sm font-semibold font-mono shrink-0 text-right text-trading-green">+$1,200.00</span>
-                </div>
-                <div className="flex items-start justify-between gap-2 mt-1 pl-[52px]">
-                  <div className="flex items-center flex-wrap gap-1.5 text-xs text-muted-foreground min-w-0">
-                    <span>20/05/2026, 19:11</span>
-                    <span className="inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap border-blue-500/40 text-blue-400">
-                      Cross-Chain In
-                    </span>
-                  </div>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
-                </div>
-              </div>
-
-              {/* Deposit completed (no badge, no status icon, no chevron when no details) */}
-              <div className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-trading-green/20 flex items-center justify-center shrink-0">
-                    <ArrowDownLeft className="w-5 h-5 text-trading-green" />
-                  </div>
-                  <span className="text-sm font-medium truncate flex-1 min-w-0">Deposit on Ethereum</span>
-                  <span className="text-sm font-semibold font-mono shrink-0 text-right text-trading-green">+$500.00</span>
-                </div>
-                <div className="flex items-start justify-between gap-2 mt-1 pl-[52px]">
-                  <div className="flex items-center flex-wrap gap-1.5 text-xs text-muted-foreground min-w-0">
-                    <span>20/05/2026, 17:05</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <CodePreview
-              className="mt-4"
-              code={`{/* Mobile: two-layer row */}
-<div className="p-4">
-  {/* Row 1: icon + description + amount */}
-  <div className="flex items-center gap-3">
-    <div className="w-10 h-10 rounded-full shrink-0">{icon}</div>
-    <span className="text-sm font-medium truncate flex-1 min-w-0">{description}</span>
-    <span className="text-sm font-semibold font-mono shrink-0 text-right">{amount}</span>
-  </div>
-  {/* Row 2: aligned with description via pl-[52px] */}
-  <div className="flex items-start justify-between gap-2 mt-1 pl-[52px]">
-    <div className="flex items-center flex-wrap gap-1.5 text-xs text-muted-foreground">
-      <span>{date}</span>
-      {typeBadge}
-      {statusIcon /* w-3.5 h-3.5, processing → animate-spin */}
-    </div>
-    {hasDetails(tx) && <ChevronDown className="w-4 h-4 shrink-0 mt-0.5" />}
-  </div>
-</div>`}
             />
           </CardContent>
         </Card>

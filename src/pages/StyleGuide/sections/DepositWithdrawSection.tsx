@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowDown } from "lucide-react";
-import { SectionWrapper, SubSection } from "../components/SectionWrapper";
+import { SectionWrapper, SubSection, LegacyNotice } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
 import { cn } from "@/lib/utils";
 import { RecoveryStatusTimeline, RecoveryStatusBadge } from "@/components/recovery/RecoveryStatusTimeline";
@@ -157,6 +157,7 @@ export const DepositWithdrawSection = ({ isMobile }: DepositWithdrawSectionProps
 
     {/* ── Swap Card Layout ── */}
     <SubSection title="Swap Card Pattern" description="The From → To card with arrow divider. Used in both Cross-Chain Deposit and Withdraw.">
+      <LegacyNotice />
       <Card>
         <CardContent className="pt-6">
           <div className="max-w-sm mx-auto space-y-0">
@@ -208,6 +209,7 @@ export const DepositWithdrawSection = ({ isMobile }: DepositWithdrawSectionProps
 
     {/* ── Quote Details ── */}
     <SubSection title="Quote Details Row" description="Inline quote rows below the swap card. Use text-xs for inline and text-sm in the review page.">
+      <LegacyNotice />
       <Card>
         <CardContent className="pt-6">
           <div className="max-w-sm mx-auto space-y-2">
@@ -230,6 +232,7 @@ export const DepositWithdrawSection = ({ isMobile }: DepositWithdrawSectionProps
 
     {/* ── Status Flow ── */}
     <SubSection title="Status Flow" description="Processing → Result. Step indicators use consistent sizing.">
+      <LegacyNotice />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
           { label: "Sign", desc: "Waiting for wallet signature", badge: "Pending" },

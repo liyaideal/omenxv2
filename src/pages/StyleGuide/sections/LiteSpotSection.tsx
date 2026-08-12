@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SectionWrapper } from "../components/SectionWrapper";
+import { SectionWrapper, LegacyNotice } from "../components/SectionWrapper";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
 import { SideButton } from "@/components/lite/shared/SideButton";
@@ -150,6 +150,7 @@ export const LiteSpotSection = ({ isMobile }: { isMobile: boolean }) => {
         title="Lite quick round · YOUR PICK card + buy-drawer header"
         description="Parity ruling 2026-08-06: the quick-round page is the only spot page with side selection outside the order panel (desktop hideSideSelector) — rounds roll every few minutes with a fresh threshold and deadline, so the per-round question stays at the top. Its chips are the shared SideButton at size='compact' (no bespoke styling), single-line 'Up 49¢' — the old '% say' sublabels are banned as duplicates of the crowd bar."
       >
+        <LegacyNotice />
         <div className={cn("grid gap-4", isMobile ? "grid-cols-1" : "grid-cols-2")}>
           <div
             style={{

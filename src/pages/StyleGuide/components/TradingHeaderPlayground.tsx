@@ -1,3 +1,4 @@
+import { LegacyNotice } from "./SectionWrapper";
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -76,6 +77,7 @@ export const TradingHeaderPlayground = () => {
 
   return (
     <Card className="trading-card">
+      <LegacyNotice className="mx-6 mt-6" />
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>

@@ -213,7 +213,7 @@ export const VoucherCardPreview = () => {
         </div>
       </Frame>
       <p className="text-[11px] text-muted-foreground italic">
-        Expired visuals live in the Expired-row case — VoucherCard has no expired branch.
+        VoucherCard has no expired branch.
       </p>
     </div>
   );

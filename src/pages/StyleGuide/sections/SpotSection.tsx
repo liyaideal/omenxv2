@@ -6,7 +6,7 @@ import {
   type SessionProfile,
 } from "@/lib/usStockSessions";
 import { SpotStatsHeader } from "@/components/SpotStatsHeader";
-import { SectionWrapper } from "../components/SectionWrapper";
+import { SectionWrapper, LegacyNotice } from "../components/SectionWrapper";
 import { PositionDetailContent } from "@/components/positions/PositionDetailContent";
 import type { UnifiedPosition } from "@/hooks/usePositions";
 import { ArrowLeft, Star, Info } from "lucide-react";
@@ -22,6 +22,7 @@ interface Props { isMobile: boolean }
 export const SpotSection = ({ isMobile }: Props) => {
   return (
     <div className="space-y-8">
+      <LegacyNotice />
       {/* Terminal chrome — the whole point: NO site nav on trading pages */}
       <SectionWrapper
         id="spot-terminal-chrome"
