@@ -212,13 +212,11 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
                     — PersonalSlot collapsed (empty:hidden) —
                   </div>
                 )}
-                <div className="mt-5 -mx-1 flex gap-2 overflow-x-auto pb-1">
-                  <CampaignBannerReplica theme="gold" />
-                  <CampaignBannerReplica theme="primary" />
-                  <CampaignBannerReplica theme="green" />
+                <div className="mt-5">
+                  <HomeCampaignRail />
                 </div>
                 <div className="mt-5">
-                  <TopEventsReplica title={composed.eventsTitle} withInterlude={composed.interlude} />
+                  <HomeTopEvents title={composed.eventsTitle} />
                 </div>
               </div>
             </Frame>
