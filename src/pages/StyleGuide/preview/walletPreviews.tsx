@@ -12,7 +12,7 @@
  * on the Futures card or a Trial row in the HoverCard.
  */
 import { useState } from "react";
-import { Info } from "lucide-react";
+import { ArrowLeftRight, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { computeTotalEquity } from "@/lib/equity";
