@@ -474,7 +474,7 @@ const SPORTS_PRESETS = [
     matches: [LIVE_1, UPCOMING_TODAY, UPCOMING_TOMORROW, UPCOMING_H2H, UPCOMING_H2H_2],
     variant: "full" as const,
     caption:
-      "Day strip filtering — select TODAY to keep only matches kicking off before midnight local.",
+      "stage 内部变体（variant=\"full\"）——Sports 类目视图现由 LiteSportsView（7B）承担。Day strip filtering — select TODAY to keep only matches kicking off before midnight local.",
   },
   {
     id: "formats",
@@ -482,7 +482,7 @@ const SPORTS_PRESETS = [
     matches: [UPCOMING_TODAY, UPCOMING_H2H, UPCOMING_H2H_2],
     variant: "full" as const,
     caption:
-      "Row price chips follow metadata.format — 1x2 renders home/draw/away, h2h renders two chips.",
+      "stage 内部变体（variant=\"full\"）——Sports 类目视图现由 LiteSportsView（7B）承担。Row price chips follow metadata.format — 1x2 renders home/draw/away, h2h renders two chips.",
   },
   {
     id: "sparse",
@@ -490,7 +490,7 @@ const SPORTS_PRESETS = [
     matches: [LIVE_1, UPCOMING_TODAY],
     variant: "full" as const,
     caption:
-      "Sparse fallback — with fewer than 4 matches the card stacks full-width without padding rows.",
+      "stage 内部变体（variant=\"full\"）——Sports 类目视图现由 LiteSportsView（7B）承担。Sparse fallback — with fewer than 4 matches the card stacks full-width without padding rows.",
   },
 ] as const;
 
