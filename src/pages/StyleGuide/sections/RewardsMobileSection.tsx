@@ -1,127 +1,54 @@
-import { useState } from "react";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
-import { GrantTaskRow } from "@/components/campaigns/GrantTaskRow";
-import type { CampaignTaskDef, GrantStatus } from "@/hooks/useCampaigns";
-import { cn } from "@/lib/utils";
+import { DualDevicePreview } from "../components/DeviceFrame";
 
 /**
  * Rewards mobile task rows — playground.
- * Enumerates every visual state of the shared TaskRowShell recipe used by
- * campaign grants and referral invites. Mobile (<768px) renders the two-layer
- * stack; desktop keeps the three-column row.
+ * Every case mounts the REAL GrantTaskRow inside a same-origin preview iframe.
+ * Mobile · 375 is a true 375px viewport, so GrantTaskRow's useIsMobile (<768px)
+ * branch resolves for real: two-layer stack (icon + copy, hairline divider,
+ * reward left / 44px action right). Desktop keeps the three-column row.
+ * Narrow containers in the parent viewport are forbidden here — they render a
+ * squeezed desktop row and lie about the mobile layout.
  */
+export const RewardsMobileSection = ({ isMobile }: { isMobile: boolean }) => (
+  <SectionWrapper
+    id="rewards-mobile"
+    title="Rewards · mobile task rows"
+    platform="mobile"
+    description="One row recipe (TaskRowShell) for campaign grants and referral invites. Mobile stacks it into two layers: icon + copy + full-width progress, hairline divider, then reward left / 44px action right."
+  >
+    <div className="space-y-8">
+      <SubSection
+        title="State playground"
+        description="Every state a task row can render. The preset rail lives inside the frame — switch device to compare the mobile stack against the desktop row."
+      >
+        <DualDevicePreview
+          previewKey="rewards-taskrow-playground"
+          label="GrantTaskRow — live component, preset rail inside the frame"
+          defaultDevice="mobile"
+          minHeight={220}
+        />
+      </SubSection>
 
-const baseTask: CampaignTaskDef = {
-  task_key: "trade_volume_macro",
-  name: "Trade $500 on Macro markets",
-  subtitle: "Any Macro market counts.",
-  target: 500,
-  metric: "usd_volume",
-  reward: { voucher: 10 },
-  scope: { categories: ["macro"] },
-};
+      <SubSection title="All states at once" description="Regression board — every row must keep reward and action columns aligned.">
+        <DualDevicePreview
+          previewKey="rewards-taskrow-board"
+          label="GrantTaskRow — all states"
+          defaultDevice="mobile"
+          minHeight={520}
+        />
+      </SubSection>
 
-type PresetId =
-  | "not_started"
-  | "in_progress"
-  | "claimable"
-  | "claimed"
-  | "not_eligible"
-  | "signed_out"
-  | "usdc_review";
-
-const PRESETS: {
-  id: PresetId;
-  label: string;
-  status: GrantStatus;
-  progressValue?: number;
-  signedOut?: boolean;
-  task?: Partial<CampaignTaskDef>;
-}[] = [
-  { id: "not_started", label: "Not started", status: "not_started" },
-  { id: "in_progress", label: "In progress", status: "in_progress", progressValue: 180 },
-  { id: "claimable", label: "Claimable", status: "claimable" },
-  { id: "claimed", label: "Claimed", status: "claimed" },
-  { id: "not_eligible", label: "Not eligible", status: "not_eligible" },
-  { id: "signed_out", label: "Signed out", status: "not_started", signedOut: true },
-  {
-    id: "usdc_review",
-    label: "USDC · under review",
-    status: "claimable",
-    task: { name: "Invite a friend who trades", reward: { usdc: 5 }, task_key: "referral_qualified" },
-  },
-];
-
-export const RewardsMobileSection = ({ isMobile }: { isMobile: boolean }) => {
-  const [active, setActive] = useState<PresetId>("in_progress");
-  const preset = PRESETS.find((p) => p.id === active)!;
-  const task = { ...baseTask, ...(preset.task ?? {}) };
-
-  return (
-    <SectionWrapper
-      id="rewards-mobile"
-      title="Rewards · mobile task rows"
-      platform="mobile"
-      description="One row recipe (TaskRowShell) for campaign grants and referral invites. Mobile stacks it into two layers: icon + copy + full-width progress, hairline divider, then reward left / 44px action right."
-    >
-      <div className="space-y-8">
-        <SubSection
-          title="State playground"
-          description="Every state a task row can render. Switch the preset and resize to compare mobile vs desktop."
-        >
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-            {PRESETS.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => setActive(p.id)}
-                className={cn(
-                  "shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-                  active === p.id
-                    ? "border-transparent bg-foreground text-background"
-                    : "border-border text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="mx-auto w-full max-w-[420px] rounded-2xl bg-[#0A0B0D] p-4">
-            <GrantTaskRow
-              task={task}
-              status={preset.status}
-              progressValue={preset.progressValue}
-              signedOut={preset.signedOut}
-              onClaim={() => {}}
-            />
-          </div>
-        </SubSection>
-
-        <SubSection title="All states at once" description="Regression board — every row must keep reward and action columns aligned.">
-          <div className="mx-auto w-full max-w-[560px] space-y-2.5 rounded-2xl bg-[#0A0B0D] p-4">
-            {PRESETS.map((p) => (
-              <GrantTaskRow
-                key={p.id}
-                task={{ ...baseTask, ...(p.task ?? {}) }}
-                status={p.status}
-                progressValue={p.progressValue}
-                signedOut={p.signedOut}
-                onClaim={() => {}}
-              />
-            ))}
-          </div>
-        </SubSection>
-
-        <SubSection title="Rules" description="">
-          <ul className="list-disc space-y-1.5 pl-5 text-sm text-muted-foreground">
-            <li>Mobile: no fixed reward/action widths — the divider row handles alignment.</li>
-            <li>Desktop: reward column w-[92px] right-aligned, action column w-[132px] justified end.</li>
-            <li>Action buttons keep a 44px minimum touch target on mobile (40px desktop).</li>
-            <li>Status words only appear when there is no action to take; otherwise the CTA wins.</li>
-            <li>{isMobile ? "Currently rendering the mobile stack." : "Currently rendering the desktop row."}</li>
-          </ul>
-        </SubSection>
-      </div>
-    </SectionWrapper>
-  );
-};
+      <SubSection title="Rules" description="">
+        <ul className="list-disc space-y-1.5 pl-5 text-sm text-muted-foreground">
+          <li>Mobile: no fixed reward/action widths — the divider row handles alignment.</li>
+          <li>Desktop: reward column w-[92px] right-aligned, action column w-[132px] justified end.</li>
+          <li>Action buttons keep a 44px minimum touch target on mobile (40px desktop).</li>
+          <li>Status words only appear when there is no action to take; otherwise the CTA wins.</li>
+          <li>Mobile cases must run in the 375px iframe — a narrow container in this viewport renders the desktop row squeezed, never the real stack.</li>
+          <li>{isMobile ? "You are viewing the style guide on a mobile viewport." : "You are viewing the style guide on a desktop viewport."}</li>
+        </ul>
+      </SubSection>
+    </div>
+  </SectionWrapper>
+);

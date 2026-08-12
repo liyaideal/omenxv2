@@ -86,6 +86,11 @@ export const LiteOverviewSection = (_: P) => (
       <h3 className="mb-2 text-sm font-semibold text-foreground">Changelog</h3>
       <ul className="space-y-1 text-[12px] text-muted-foreground">
         <li>
+          2026-08-12 · CPO 抓获 RewardsMobile 假移动端（窄容器冒充 375 iframe），修复 + 全站清扫：
+          <code className="font-mono">rewards-taskrow-playground</code> /{" "}
+          <code className="font-mono">rewards-taskrow-board</code> 改走 DualDevicePreview 真 375 iframe。
+        </li>
+        <li>
           2026-08-12 · CPO 裁定补生产 — ineligible entry 拒绝 toast+跳转落地：
           <code className="font-mono">?entry=CODE</code> 绑定被拒时弹一次通用 toast 并 redirect 到{" "}
           <code className="font-mono">/</code>；<code className="font-mono">rewards-ineligible-redirect</code> demo

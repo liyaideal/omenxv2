@@ -4,6 +4,7 @@
  * here is a lookalike. Mobile cases resolve their own breakpoint because the
  * preview route is mounted inside a 375px iframe (see DeviceFrame).
  */
+import { useState } from "react";
 import { CampaignCard } from "@/components/campaigns/CampaignCard";
 import { CampaignKeyVisual } from "@/components/campaigns/CampaignKeyVisual";
 import { GrantTaskRow } from "@/components/campaigns/GrantTaskRow";
@@ -14,7 +15,7 @@ import { KolBandDesktop, KolBandMobile } from "@/components/campaigns/KolBand";
 import { PointsRetiredNoticeCard } from "@/components/campaigns/PointsRetiredNotice";
 import { RewardsFinePrint } from "@/components/campaigns/RewardsFinePrint";
 import { IneligibleEntryToastBody } from "@/components/campaigns/IneligibleEntryToast";
-import type { Campaign, CampaignEntry, CampaignTaskDef, CampaignView } from "@/hooks/useCampaigns";
+import type { Campaign, CampaignEntry, CampaignTaskDef, CampaignView, GrantStatus } from "@/hooks/useCampaigns";
 import kvWorldCup from "@/assets/campaigns/kv-worldcup.jpg.asset.json";
 import kvLaowang from "@/assets/campaigns/kv-laowang.jpg.asset.json";
 import kvStarter from "@/assets/campaigns/kv-starter.jpg.asset.json";
@@ -295,3 +296,82 @@ export const CampaignIneligibleRedirectPreview = () => (
 
 /* ---------------- Fine print (one per page carrying USDC amounts) ---------------- */
 export const RewardsFinePrintPreview = () => <RewardsFinePrint />;
+
+/* ---------------- Task row · state playground (rail lives inside the frame) ----------------
+ * Mounted through DualDevicePreview so the Mobile · 375 tab is a real iframe
+ * viewport — GrantTaskRow branches on useIsMobile (<768px), which a narrow
+ * container in the parent viewport can never trigger. */
+type RowPresetId =
+  | "not_started"
+  | "in_progress"
+  | "claimable"
+  | "claimed"
+  | "not_eligible"
+  | "signed_out"
+  | "usdc_review";
+
+const ROW_PRESETS: {
+  id: RowPresetId;
+  label: string;
+  status: GrantStatus;
+  progressValue?: number;
+  signedOut?: boolean;
+  task?: CampaignTaskDef;
+}[] = [
+  { id: "not_started", label: "Not started", status: "not_started" },
+  { id: "in_progress", label: "In progress", status: "in_progress", progressValue: 180 },
+  { id: "claimable", label: "Claimable", status: "claimable" },
+  { id: "claimed", label: "Claimed", status: "claimed" },
+  { id: "not_eligible", label: "Not eligible", status: "not_eligible" },
+  { id: "signed_out", label: "Signed out", status: "not_started", signedOut: true },
+  { id: "usdc_review", label: "USDC · under review", status: "claimable", task: USDC_TASK },
+];
+
+export const GrantTaskRowPlaygroundPreview = () => {
+  const [active, setActive] = useState<RowPresetId>("in_progress");
+  const preset = ROW_PRESETS.find((p) => p.id === active)!;
+  return (
+    <div className="space-y-3">
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+        {ROW_PRESETS.map((p) => (
+          <button
+            key={p.id}
+            onClick={() => setActive(p.id)}
+            className={
+              "shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors " +
+              (active === p.id
+                ? "border-transparent bg-foreground text-background"
+                : "border-border text-muted-foreground hover:text-foreground")
+            }
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+      <div className="rounded-2xl bg-[#0A0B0D] p-4">
+        <GrantTaskRow
+          task={preset.task ?? ROW_TASK}
+          status={preset.status}
+          progressValue={preset.progressValue}
+          signedOut={preset.signedOut}
+          onClaim={() => {}}
+        />
+      </div>
+    </div>
+  );
+};
+
+export const GrantTaskRowBoardPreview = () => (
+  <div className="space-y-2.5 rounded-2xl bg-[#0A0B0D] p-4">
+    {ROW_PRESETS.map((p) => (
+      <GrantTaskRow
+        key={p.id}
+        task={p.task ?? ROW_TASK}
+        status={p.status}
+        progressValue={p.progressValue}
+        signedOut={p.signedOut}
+        onClaim={() => {}}
+      />
+    ))}
+  </div>
+);
