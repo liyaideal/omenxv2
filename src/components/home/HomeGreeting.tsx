@@ -16,6 +16,22 @@ interface HomeGreetingProps {
   onSignIn: () => void;
   /** Deprecated — kept for backward compatibility, no longer rendered. */
   todayPnLPercent?: string;
+  /**
+   * Style-guide only. When present the card renders from these values
+   * instead of the live hooks, so every state can be shown side by side.
+   * Production never passes it — rendering is byte-identical without it.
+   */
+  demoOverride?: {
+    isAuthed: boolean;
+    displayName?: string;
+    balance?: number;
+    pnlPercent?: number;
+    points?: number[];
+    hasData?: boolean;
+    volume24h?: number;
+    activeMarkets?: number;
+    sparkPoints?: number[];
+  };
 }
 
 const formatBalance = (n: number | null | undefined) =>
@@ -67,23 +83,30 @@ const buildSparkPaths = (points: number[]) => {
  *
  * 7D PnL + 7D sparkline derived from closed trades (mark-to-market on realized PnL).
  */
-export const HomeGreeting = ({ onSignIn }: HomeGreetingProps) => {
+export const HomeGreeting = ({ onSignIn, demoOverride }: HomeGreetingProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { username, profile } = useUserProfile();
-  const { pnlPercent, points, hasData } = useEquity7D();
+  const live7d = useEquity7D();
+  const pnlPercent = demoOverride ? demoOverride.pnlPercent ?? 0 : live7d.pnlPercent;
+  const points = demoOverride ? demoOverride.points ?? [] : live7d.points;
+  const hasData = demoOverride ? !!demoOverride.hasData : live7d.hasData;
 
-  const isAuthed = !!user;
-  const displayName = isAuthed
-    ? (username || user?.email?.split("@")[0] || "trader").replace(/_/g, " ")
-    : "there";
+  const isAuthed = demoOverride ? demoOverride.isAuthed : !!user;
+  const displayName = demoOverride
+    ? demoOverride.displayName ?? "trader"
+    : isAuthed
+      ? (username || user?.email?.split("@")[0] || "trader").replace(/_/g, " ")
+      : "there";
 
   const handleDeposit = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
+    if (demoOverride) return;
     navigate("/deposit");
   };
 
   const handleBlockClick = () => {
+    if (demoOverride) return;
     if (isAuthed) navigate("/wallet");
     else onSignIn();
   };
@@ -93,7 +116,11 @@ export const HomeGreeting = ({ onSignIn }: HomeGreetingProps) => {
   const { line, area } = buildSparkPaths(points);
 
   // Guest-only platform stats
-  const { volume24h, activeMarkets, sparkPoints, isLoading: statsLoading } = useHomeStats();
+  const liveStats = useHomeStats();
+  const volume24h = demoOverride ? demoOverride.volume24h ?? 0 : liveStats.volume24h;
+  const activeMarkets = demoOverride ? demoOverride.activeMarkets ?? 0 : liveStats.activeMarkets;
+  const sparkPoints = demoOverride ? demoOverride.sparkPoints ?? [] : liveStats.sparkPoints;
+  const statsLoading = demoOverride ? false : liveStats.isLoading;
   const guestSpark = buildSparkPaths(sparkPoints);
 
   return (
@@ -143,7 +170,7 @@ export const HomeGreeting = ({ onSignIn }: HomeGreetingProps) => {
                 Total equity
               </p>
               <div className="mt-1.5 font-mono text-[34px] font-bold leading-none tracking-tight text-foreground">
-                {formatBalance(profile?.balance)}
+                {formatBalance(demoOverride ? demoOverride.balance : profile?.balance)}
               </div>
               {hasData ? (
                 <div className="mt-2.5 flex items-center gap-2">

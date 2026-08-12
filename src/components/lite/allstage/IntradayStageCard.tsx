@@ -502,20 +502,27 @@ export const IntradayStageCard = ({
   stockRows,
   tickSeconds,
   onOpenIntraday,
+  sessionNow,
 }: {
   currentFor: Map<string, QuickEvent>;
   historyFor: Map<string, ("up" | "down")[]>;
   stockRows: StockEventRow[];
   tickSeconds: number;
   onOpenIntraday: () => void;
+  /**
+   * Style-guide only — frozen instant used to resolve exchange sessions.
+   * Production never passes it, so session resolution keeps reading the
+   * real wall clock exactly as before.
+   */
+  sessionNow?: Date;
 }) => {
   const [tf, setTf] = useState<Timeframe>("5m");
 
   // ONE shared selector for every surface — the All stage, the Intraday view
   // and the Finance view group the same feed with the same session rules.
   const groups = useMemo(
-    () => groupStockRows(stockRows),
-    [stockRows, tickSeconds],
+    () => groupStockRows(stockRows, sessionNow),
+    [stockRows, tickSeconds, sessionNow],
   );
   const openStocks = groups.trading;
   const sessionOpen = groups.sessionMarket != null && groups.sessionEnd != null;

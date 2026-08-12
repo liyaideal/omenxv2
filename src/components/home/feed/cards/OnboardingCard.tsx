@@ -7,27 +7,37 @@ import { cn } from "@/lib/utils";
 
 interface OnboardingCardProps {
   compact?: boolean;
+  /**
+   * Style-guide only — renders the card from fixed activation flags and
+   * skips both the auth gate and navigation. Production never passes it.
+   */
+  demoOverride?: { hasDeposited: boolean; hasTraded: boolean };
 }
 
 /**
  * Tier 1 personal signal — only renders when user is authed and activation is incomplete.
  */
-export const OnboardingCard = ({ compact }: OnboardingCardProps) => {
+export const OnboardingCard = ({ compact, demoOverride }: OnboardingCardProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { state, hasDeposited, hasTraded, isLoading } = useActivationState();
 
-  if (!user || isLoading) return null;
-  if (state !== "S0_NEW" && state !== "S1_DEPOSITED") return null;
+  if (!demoOverride) {
+    if (!user || isLoading) return null;
+    if (state !== "S0_NEW" && state !== "S1_DEPOSITED") return null;
+  }
+
+  const deposited = demoOverride ? demoOverride.hasDeposited : hasDeposited;
+  const traded = demoOverride ? demoOverride.hasTraded : hasTraded;
 
   const steps = [
     { label: "Verify your account", done: true },
-    { label: "Deposit USDC on Base", done: hasDeposited },
-    { label: "Place your first trade", done: hasTraded },
+    { label: "Deposit USDC on Base", done: deposited },
+    { label: "Place your first trade", done: traded },
   ];
   const completed = steps.filter((s) => s.done).length;
   const current = steps.find((s) => !s.done) ?? steps[steps.length - 1];
-  const action = !hasDeposited ? "/deposit" : "/events";
+  const action = !deposited ? "/deposit" : "/events";
 
   return (
     <FeedCard
@@ -36,7 +46,9 @@ export const OnboardingCard = ({ compact }: OnboardingCardProps) => {
       accent="primary"
       compact={compact}
       unread
-      onClick={() => navigate(action)}
+      onClick={() => {
+        if (!demoOverride) navigate(action);
+      }}
     >
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-semibold text-foreground">{current.label}</p>

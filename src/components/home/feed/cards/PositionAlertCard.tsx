@@ -8,16 +8,36 @@ import { cn } from "@/lib/utils";
 interface PositionAlertCardProps {
   positionId: string;
   compact?: boolean;
+  /**
+   * Style-guide only — renders a fixed position and disables navigation.
+   * Production never passes it.
+   */
+  demoOverride?: {
+    event: string;
+    option: string;
+    pnl: string;
+    pnlPercent: string;
+  };
 }
 
 /**
  * Tier 1 personal signal — surfaces a position with significant unrealized
  * PnL. Renders nothing if the position is no longer in the user's portfolio.
  */
-export const PositionAlertCard = ({ positionId, compact }: PositionAlertCardProps) => {
+export const PositionAlertCard = ({ positionId, compact, demoOverride }: PositionAlertCardProps) => {
   const navigate = useNavigate();
   const { positions } = usePositions();
-  const pos = positions.find((p) => p.id === positionId);
+  const livePos = positions.find((p) => p.id === positionId);
+  const pos = demoOverride
+    ? ({
+        id: positionId,
+        event: demoOverride.event,
+        option: demoOverride.option,
+        displayOption: demoOverride.option,
+        pnl: demoOverride.pnl,
+        pnlPercent: demoOverride.pnlPercent,
+      } as typeof livePos)
+    : livePos;
 
   // Bucket PnL% by 5% steps so material moves re-arm the unread state.
   const pnlNum = pos ? parseFloat(pos.pnlPercent.replace(/[^\d.\-]/g, "")) : 0;
@@ -40,6 +60,7 @@ export const PositionAlertCard = ({ positionId, compact }: PositionAlertCardProp
       compact={compact}
       unread={unread}
       onClick={() => {
+        if (demoOverride) return;
         markRead();
         navigate(`/portfolio?position=${pos.id}`);
       }}

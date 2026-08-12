@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { LiteBoostSelector } from "@/components/lite/contract/LiteBoostSelector";
+import { CategoryPill } from "@/components/lite/CategoryPill";
+import { TOP_CATEGORIES } from "@/lib/taxonomy";
 import { LiteContractOrderPanel } from "@/components/lite/contract/LiteContractOrderPanel";
 import { LiteContractChart } from "@/components/lite/contract/LiteContractChart";
 import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
@@ -881,6 +883,41 @@ export const LiteSection = ({
 
         {part === "events" && (
           <>
+        <SubSection
+          title="Category pill · Sports live pulse"
+          description="Desktop category row (/events). Production component `CategoryPill` + `TOP_CATEGORIES`. The Sports dot turns red and pulses whenever `useSportsMatches().rows.some(m => m.live)` is true; otherwise it keeps the chalk dot."
+        >
+          <div className="space-y-4">
+            <div>
+              <StateChip>Live — at least one fixture in play</StateChip>
+              <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-[#0A0B0D] p-4">
+                {TOP_CATEGORIES.slice(0, 5).map((c) => (
+                  <CategoryPill
+                    key={c.id}
+                    label={c.label}
+                    dot={c.dot}
+                    active={c.id === "all"}
+                    live={c.id === "sports"}
+                  />
+                ))}
+              </div>
+            </div>
+            <div>
+              <StateChip>No live fixture — chalk dot, no animation</StateChip>
+              <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-[#0A0B0D] p-4">
+                {TOP_CATEGORIES.slice(0, 5).map((c) => (
+                  <CategoryPill
+                    key={c.id}
+                    label={c.label}
+                    dot={c.dot}
+                    active={c.id === "all"}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </SubSection>
+
         <SubSection
           title="Markets list"
           description="The live Lite list (/events): grid card + sector rail. The Live | Settled switch is demoed once under the settled outcome card — not duplicated here."
