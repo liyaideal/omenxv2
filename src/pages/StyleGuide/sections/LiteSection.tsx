@@ -1280,6 +1280,11 @@ export const LiteSection = ({
             Events with 3+ options replace the sentiment bar and the standalone chart with the
             market board: one row per option, independent Yes / No chips, a 4px dual-tone strip,
             and an inline accordion chart under the selected row. Binary events never render this.
+            Since netting shipped the order rail never blocks the opposite side: production always
+            passes <code className="font-mono">blockNotice: null</code>,{" "}
+            <code className="font-mono">noAsSell: true</code> and{" "}
+            <code className="font-mono">nettingScopeLabel: "on this market"</code>, so buying the
+            other side cashes out the held leg first (same option_label on both legs).
           </p>
           <MultiMarketStates />
         </SubSection>
