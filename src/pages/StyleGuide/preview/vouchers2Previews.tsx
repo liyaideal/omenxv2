@@ -14,6 +14,7 @@
  */
 import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { ChevronLeft } from "lucide-react";
 import {
   VoucherRow,
   RowPrimaryButton,
@@ -23,6 +24,7 @@ import {
 import { VoucherEarningsCard } from "@/components/vouchers/VoucherEarningsCard";
 import { VoucherHistoryArchive } from "@/components/vouchers/VoucherHistoryArchive";
 import { VoucherDeskHeader } from "@/components/vouchers/VoucherDeskHeader";
+import { RedeemSummaryBar } from "@/components/vouchers/RedeemSummaryBar";
 import { VT } from "@/components/vouchers/voucherTokens";
 import {
   EventPickerCard,
@@ -490,26 +492,32 @@ export const Vouchers2MobileFlowPreview = () => {
         ) : (
           <div className="flex flex-col gap-[12px]">
             <header className="flex items-center gap-[10px]" style={{ borderBottom: `1px solid ${VT.line}`, padding: "10px 0" }}>
-              <span style={{ width: 34, color: VT.ink }}>‹</span>
+              <button
+                type="button"
+                aria-label="Back"
+                className="flex items-center justify-center"
+                style={{ width: 34, height: 34, color: VT.ink }}
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
               <span className="flex-1 text-center font-display" style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-.01em", color: VT.ink }}>
                 Redeem voucher
               </span>
               <span style={{ width: 34 }} />
             </header>
             <VoucherDeskHeader voucher={v2({ faceValue: 15, payoutMode: "instant" })} sourceLabel="World Cup Kickoff" compact />
-            <div
-              className="flex items-center justify-between gap-[10px] rounded-[12px]"
-              style={{ background: VT.surfaceRow, border: `1px solid ${VT.line}`, padding: "10px 12px" }}
-            >
-              <span className="truncate" style={{ fontSize: 11.5, color: VT.ink3 }}>Brazil · Yes · 32¢</span>
-              <button
-                type="button"
-                className="font-display rounded-[10px] flex-none"
-                style={{ minHeight: 44, padding: "0 18px", background: "#FFFFFF", color: "#0A0B0D", fontSize: 13, fontWeight: 700 }}
-              >
-                Open trial position
-              </button>
-            </div>
+            <RedeemSummaryBar
+              variant="inline"
+              faceValue={15}
+              maxHoldingHours={24}
+              picked={{
+                eventName: "Who wins the World Cup?",
+                displayLabel: "Brazil",
+                isBinary: false,
+                side: "long",
+                price: 0.32,
+              }}
+            />
           </div>
         )}
       </Frame>
