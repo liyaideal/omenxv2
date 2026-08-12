@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
 import { TrendingUp, TrendingDown, AlertTriangle, ShieldCheck, Ban, Clock, Check } from "lucide-react";
-import { SectionWrapper } from "../components/SectionWrapper";
+import { SectionWrapper, LegacyNotice } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
 import { CATEGORY_STYLES, getCategoryFromName } from "@/lib/categoryUtils";
 import { OptionChips } from "@/components/OptionChips";

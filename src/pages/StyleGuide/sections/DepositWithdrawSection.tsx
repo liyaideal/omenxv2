@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowDown } from "lucide-react";
-import { SectionWrapper, SubSection } from "../components/SectionWrapper";
+import { SectionWrapper, SubSection, LegacyNotice } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
 import { cn } from "@/lib/utils";
 import { RecoveryStatusTimeline, RecoveryStatusBadge } from "@/components/recovery/RecoveryStatusTimeline";

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SectionWrapper } from "../components/SectionWrapper";
+import { SectionWrapper, LegacyNotice } from "../components/SectionWrapper";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
 import { SideButton } from "@/components/lite/shared/SideButton";

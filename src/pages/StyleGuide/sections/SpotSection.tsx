@@ -6,7 +6,7 @@ import {
   type SessionProfile,
 } from "@/lib/usStockSessions";
 import { SpotStatsHeader } from "@/components/SpotStatsHeader";
-import { SectionWrapper } from "../components/SectionWrapper";
+import { SectionWrapper, LegacyNotice } from "../components/SectionWrapper";
 import { PositionDetailContent } from "@/components/positions/PositionDetailContent";
 import type { UnifiedPosition } from "@/hooks/usePositions";
 import { ArrowLeft, Star, Info } from "lucide-react";
