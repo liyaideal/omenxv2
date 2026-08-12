@@ -763,7 +763,38 @@ const PositionStates = () => {
 };
 
 // ------------------------------------------------------------------ Section
-export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
+// Sorting round (2026-08-12): this file used to be one "Lite consumer surface"
+// grab-bag registered under lite-events. Its sub-sections are now routed to the
+// page node where the component actually mounts. Sub-section JSX is untouched —
+// only the wrapper and the render gates below changed.
+export type LitePart = "trade" | "events" | "mobile-header";
+
+const PART_META: Record<LitePart, { id: string; title: string; description: string }> = {
+  trade: {
+    id: "lite",
+    title: "合约交易 playground",
+    description:
+      "Every Lite trade-page component with all of its states. Static mock props; nothing here is reachable from a product page.",
+  },
+  events: {
+    id: "lite-markets-list",
+    title: "Markets list — 事件列表卡",
+    description: "Event list cards as they mount on /events. Static mock props.",
+  },
+  "mobile-header": {
+    id: "lite-mobile-header-preset-b",
+    title: "Mobile header (preset B)",
+    description: "Site-wide mobile header preset used by the Lite trade pages.",
+  },
+};
+
+export const LiteSection = ({
+  isMobile,
+  part = "trade",
+}: {
+  isMobile: boolean;
+  part?: LitePart;
+}) => {
   const activity = [
     { id: "a1", isYes: true, label: "Yes", amount: 25, boost: 5, createdAt: frozenIso(-120_000) },
     { id: "a2", isYes: false, label: "No", amount: 140, boost: 1, createdAt: frozenIso(-900_000) },
@@ -781,13 +812,13 @@ export const LiteSection = ({ isMobile }: { isMobile: boolean }) => {
     { id: "m4", isYes: false, label: "Oscar Piastri", amount: 60, boost: 3, createdAt: frozenIso(-10_800_000) },
   ];
 
+  const meta = PART_META[part];
+
   return (
-    <SectionWrapper
-      id="lite"
-      title="Lite — consumer surface"
-      description="Every Lite component with all of its states. Static mock props; nothing here is reachable from a product page."
-    >
+    <SectionWrapper id={meta.id} title={meta.title} description={meta.description}>
       <div className="space-y-12">
+        {part === "trade" && (
+          <>
         <SubSection
           title="Where things live"
           description="Mounting map for the Lite surface. Every demo below carries one of exactly three context chips: Desktop · right rail / Mobile · bottom drawer / Desktop & Mobile · same component."
