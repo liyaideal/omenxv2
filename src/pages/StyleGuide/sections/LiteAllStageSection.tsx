@@ -23,6 +23,8 @@ import {
 } from "@/components/lite/intraday/intradayData";
 import { SportsMatch } from "@/components/lite/sports/sportsData";
 import { FROZEN_NOW } from "../frozenClock";
+import { CategoryPill } from "@/components/lite/CategoryPill";
+import { TOP_CATEGORIES } from "@/lib/taxonomy";
 import { MobileSportsModule } from "@/components/lite/mobile/MobileSportsModule";
 
 /* ---------------- Frozen mock clock ---------------- */
@@ -401,22 +403,28 @@ const INTRADAY_PRESETS = [
     id: "state-a-us",
     label: "State A — US session live",
     rows: US_OPEN_ROWS,
+    // 15:20 UTC = 11:20 ET → the US cash session is open at the frozen clock.
+    sessionNow: new Date(NOW),
     caption:
-      "State A — a US session is open; one module-level dial drives all three coin tiles, plus the top 3 stock rows closing today.",
+      "State A (US) — production shape when a US session is open: ONE shared module-level window selector drives all three coin tiles, the \"STOCKS CLOSING TODAY\" row lists the open US tickers, and each stock row carries its art slot. Session line reads \"US session open · closes 16:00 ET\".",
   },
   {
     id: "state-a-hk",
     label: "State A — HK session live",
     rows: HK_OPEN_ROWS,
+    // 05:00 UTC = 13:00 HKT → mid HK afternoon session.
+    sessionNow: new Date("2026-08-03T05:00:00Z"),
     caption:
-      "State A with HK rows — the close line reads \"HK closes … HKT\" and prices carry the HK$ prefix.",
+      "State A (HK) — same production shape driven by the HK exchange branch: shared window selector, \"STOCKS CLOSING TODAY\" row of HK tickers with art slots, close line in HKT and HK$ prices.",
   },
   {
     id: "state-b",
     label: "State B — no session",
     rows: CLOSED_ROWS,
+    // 21:00 UTC — both US (17:00 ET) and HK (05:00 HKT) are shut.
+    sessionNow: new Date("2026-08-03T21:00:00Z"),
     caption:
-      "State B — no US/HK session open; coin-major layout, each card's window switcher is independent (try 5m / 15m / 1h on different cards).",
+      "State B — the CURRENT production form when no exchange is open (not an old version): no stocks-closing row, coin-major layout, and each coin card owns its own window switcher; the stock row shows its next-open stamp instead.",
   },
 ] as const;
 
@@ -433,6 +441,7 @@ const IntradayDemo = () => {
           stockRows={[...p.rows]}
           tickSeconds={0}
           onOpenIntraday={() => {}}
+          sessionNow={p.sessionNow}
         />
       </div>
       <Caption>{p.caption}</Caption>
