@@ -61,6 +61,9 @@ export default function LiteRewardsPage() {
     tabParam === "referral" || tabParam === "vouchers" ? tabParam : "campaigns",
   );
   const { views, isLoading } = useCampaignViews();
+  // Mobile redeem is a full screen owned by the shell: single header, no tabs.
+  const redeemParam = searchParams.get("redeem");
+  const mobileRedeeming = isMobile && tab === "vouchers" && !!redeemParam;
 
   useEffect(() => {
     if (tabParam === "referral" || tabParam === "campaigns" || tabParam === "vouchers") setTab(tabParam);
@@ -71,6 +74,7 @@ export default function LiteRewardsPage() {
 
   const body = (
     <div className="space-y-5">
+      {!mobileRedeeming && (
       <Tabs
         value={tab}
         sticky={isMobile}
@@ -79,6 +83,7 @@ export default function LiteRewardsPage() {
           setSearchParams({ tab: v }, { replace: true });
         }}
       />
+      )}
 
       {tab === "campaigns" ? (
         <div className="space-y-5">
@@ -129,7 +134,20 @@ export default function LiteRewardsPage() {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background pb-24">
-        <MobileHeader title="Rewards" showLogo={false} showBack />
+        <MobileHeader
+          title={mobileRedeeming ? "Redeem voucher" : "Rewards"}
+          showLogo={false}
+          showBack
+          onBack={
+            mobileRedeeming
+              ? () => {
+                  const next = new URLSearchParams(searchParams);
+                  next.delete("redeem");
+                  setSearchParams(next, { replace: true });
+                }
+              : undefined
+          }
+        />
         <main className="px-4 py-4">{body}</main>
         <BottomNav />
       </div>
