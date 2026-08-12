@@ -17,7 +17,6 @@ import {
   DepositWithdrawSection,
   RewardsSection,
   RewardsMobileSection,
-  VouchersSection,
   Vouchers2Section,
   ApiSection,
 } from "../index";
@@ -251,7 +250,6 @@ export const LiteVouchersPage = ({ isMobile }: P) => (
   >
     <div className="space-y-12">
       <Vouchers2Section isMobile={isMobile} />
-      <VouchersSection isMobile={isMobile} />
     </div>
   </LitePage>
 );
