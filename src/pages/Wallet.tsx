@@ -100,7 +100,7 @@ const XMotif = ({ className = "" }: { className?: string }) => (
 const HERO_CTA_GRADIENT =
   "bg-[image:var(--gradient-button-primary)] text-primary-foreground hover:opacity-90";
 
-const HeroEquityCard = ({
+export const HeroEquityCard = ({
   equity,
   hidden,
   onToggleHidden,
@@ -244,7 +244,7 @@ const AccountCardShell = ({
   </div>
 );
 
-const SpotAccountCard = ({
+export const SpotAccountCard = ({
   balance,
   hidden,
   onTransfer,
@@ -283,7 +283,7 @@ const SpotAccountCard = ({
   </AccountCardShell>
 );
 
-const FuturesAccountCard = ({
+export const FuturesAccountCard = ({
   balance,
   withdrawable,
   locked,
