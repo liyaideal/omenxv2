@@ -398,6 +398,7 @@ const CategoryRowDemo = () => {
   );
 };
 
+/* ---------------- 3. Sports stage card ---------------- */
 /* ---------------- 2. Intraday stage card ---------------- */
 const INTRADAY_PRESETS = [
   {
