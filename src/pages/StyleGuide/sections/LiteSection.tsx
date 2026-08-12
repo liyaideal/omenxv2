@@ -862,7 +862,7 @@ export const LiteSection = ({
 
         <SubSection
           title="Markets list"
-          description="The live Lite list (/events): grid card + sector rail. The Live | Settled switch is demoed once under the settled outcome card — not duplicated here."
+          description="The live Lite list (/events): grid card, badge system and list sort. The category row itself is demoed once in the All-stage section (real CategoryPill + TOP_CATEGORIES) — not duplicated here."
         >
           <div className="space-y-6">
             <Grid cols={2}>
@@ -875,10 +875,6 @@ export const LiteSection = ({
             </Grid>
             <ListBadgeMatrix />
             <ListSortAnnotation />
-            <div>
-              <StateChip>Sector rail · pills render only for categories with live events</StateChip>
-              <SectorRailDemo />
-            </div>
           </div>
         </SubSection>
           </>
