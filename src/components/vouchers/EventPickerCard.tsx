@@ -6,7 +6,7 @@
  * hand-copied replica. No behaviour lives here — every interaction arrives
  * through props.
  */
-import { Lock } from "lucide-react";
+import { Lock, Search } from "lucide-react";
 import { VT } from "./voucherTokens";
 
 export const cents = (p: number) => `${Math.round(p * 100)}¢`;
