@@ -77,7 +77,7 @@ export const TradingHeaderPlayground = () => {
 
   return (
     <Card className="trading-card">
-      <LegacyNotice className="mb-4" />
+      <LegacyNotice className="mx-6 mt-6" />
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
