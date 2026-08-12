@@ -291,14 +291,7 @@ export const BottomNav = () => {
             }}
           />
           {/* Referral entry hidden until the /referral route exists (R3b-2 round 12) */}
-          <MobileDrawerListItem
-            icon={Ticket}
-            label="Position Vouchers"
-            onClick={() => {
-              setProfileSheetOpen(false);
-              navigate("/vouchers");
-            }}
-          />
+          {/* Vouchers live inside /rewards as a tab — no separate menu entry (2026-08-12) */}
           <MobileDrawerListItem
             icon={KeyRound}
             label="API"
