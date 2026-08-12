@@ -47,12 +47,7 @@ import {
   topCategoryOrder,
 } from "@/lib/taxonomy";
 
-// Single source of truth for the pill visual language on this page (v3 sizing).
-const PILL_BASE =
-  "shrink-0 rounded-full px-[14px] py-[7px] text-[12.5px] transition-colors";
-const PILL_ACTIVE = "bg-white text-[#0A0B0D] font-semibold";
-const PILL_IDLE =
-  "border-[1.5px] border-[#2B2F38] text-[#C9CED6] hover:text-foreground";
+// Pill visual language lives in the shared CategoryPill module (v3 sizing).
 
 /** Shared card grid — used flat and inside Boost category groups. */
 const CardGrid = ({
