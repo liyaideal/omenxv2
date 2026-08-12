@@ -22,6 +22,7 @@ interface Props { isMobile: boolean }
 export const SpotSection = ({ isMobile }: Props) => {
   return (
     <div className="space-y-8">
+      <LegacyNotice />
       {/* Terminal chrome — the whole point: NO site nav on trading pages */}
       <SectionWrapper
         id="spot-terminal-chrome"

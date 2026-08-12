@@ -72,6 +72,7 @@ export const TradingSection = ({ isMobile }: TradingSectionProps) => {
 
   return (
     <div className="space-y-12">
+      <LegacyNotice />
       {/* Trading Colors */}
       <SectionWrapper
         id="trading-colors"
