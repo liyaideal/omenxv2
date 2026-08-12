@@ -17,14 +17,7 @@ import {
 import type { ApiKey, ApiScope, ApiTier, TierEligibility } from "@/hooks/useApiKeys";
 import { ALL_SCOPES, useApiKeys } from "@/hooks/useApiKeys";
 import { useIsMobile } from "@/hooks/use-mobile";
-import {
-  BannerPreview,
-  VoucherCardPreview,
-  EarningsPreview,
-  PickerPreview,
-  RedeemStickyPreview,
-  ClosePreview,
-} from "./voucherPreviews";
+import { BannerPreview, ClosePreview } from "./voucherPreviews";
 import {
   Vouchers2RowsPreview,
   Vouchers2EarningsPreview,
@@ -299,12 +292,8 @@ export const previewRegistry: Record<string, () => JSX.Element> = {
   "wizard-shell": () => <WizardShellDemo />,
   "revoke-dialog": () => <RevokeDemo />,
 
-  /* -------- Vouchers -------- */
+  /* -------- Vouchers (still-serving components, shown in the v2 section) -------- */
   "voucher-banner": () => <BannerPreview />,
-  "voucher-card": () => <VoucherCardPreview />,
-  "voucher-earnings": () => <EarningsPreview />,
-  "voucher-picker": () => <PickerPreview />,
-  "voucher-redeem-sticky": () => <RedeemStickyPreview />,
   "voucher-close": () => <ClosePreview />,
 
   /* -------- Wallet · Dual-Account 2b -------- */
