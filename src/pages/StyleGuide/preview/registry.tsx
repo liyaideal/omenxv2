@@ -24,7 +24,6 @@ import {
   PickerPreview,
   RedeemStickyPreview,
   ClosePreview,
-  PositionChipPreview,
 } from "./voucherPreviews";
 import {
   Vouchers2RowsPreview,
@@ -305,7 +304,6 @@ export const previewRegistry: Record<string, () => JSX.Element> = {
   "voucher-picker": () => <PickerPreview />,
   "voucher-redeem-sticky": () => <RedeemStickyPreview />,
   "voucher-close": () => <ClosePreview />,
-  "voucher-position-chip": () => <PositionChipPreview />,
 
   /* -------- Wallet · Dual-Account 2b -------- */
   "wallet-equity-bands": () => <WalletEquityBandsPreview />,
