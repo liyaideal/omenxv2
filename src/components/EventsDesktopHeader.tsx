@@ -234,10 +234,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     Rewards
                   </DropdownMenuItem>
                   {/* Referral entry hidden until the /referral route exists (R3b-2 round 12) */}
-                  <DropdownMenuItem onClick={() => navigate("/rewards?tab=vouchers")}>
-                    <Ticket className="mr-2 h-4 w-4 text-primary" />
-                    Position Vouchers
-                  </DropdownMenuItem>
+                  {/* Vouchers live inside /rewards as a tab — no separate menu entry (2026-08-12) */}
                   <DropdownMenuItem onClick={() => navigate("/developers")}>
                     <KeyRound className="mr-2 h-4 w-4 text-primary" />
                     API
