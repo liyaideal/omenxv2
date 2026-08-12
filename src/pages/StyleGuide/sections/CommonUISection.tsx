@@ -15,6 +15,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { RotateCcw, Info, HelpCircle, Settings, Bell, User, Monitor, Smartphone, Globe, ChevronDown, Share2, Trophy, Star, CheckCircle2, AlertCircle, XCircle, Gift } from "lucide-react";
+import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { Logo } from "@/components/Logo";
 import { PageHeader } from "@/components/PageHeader";
 import { SeoFooter } from "@/components/seo/SeoFooter";
@@ -2067,54 +2068,16 @@ const DesktopNavigationSection = ({ isMobile }: { isMobile: boolean }) => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {/* Visual Preview */}
-            <div className="bg-background rounded-lg border border-border overflow-hidden mb-6">
-              <div className="h-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-              
-              <div className="flex items-center justify-between px-6 py-3">
-                <div className="flex items-center gap-8">
-                  <Logo size="xl" />
-                  <nav className="flex items-center gap-1">
-                    {["Events", "Resolved", "Portfolio"].map((tab, i) => (
-                      <button
-                        key={tab}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                          i === 0
-                            ? "bg-primary text-primary-foreground shadow-[0_0_12px_hsl(260_60%_55%/0.3)]"
-                            : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                        }`}
-                      >
-                        {tab}
-                      </button>
-                    ))}
-                    <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-primary hover:bg-primary/10 border border-primary/30 ml-1">
-                      <Trophy className="w-4 h-4" />
-                      Leaderboard
-                    </button>
-                  </nav>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border/50 bg-muted/30">
-                    <Globe className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">EN</span>
-                  </button>
-                  <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/30 border border-border/50 hover:border-trading-green/30">
-                    <span className="text-sm text-muted-foreground">Balance:</span>
-                    <span className="text-sm font-bold text-trading-green font-mono">$10,000.00</span>
-                  </button>
-                  <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg hover:bg-muted/50">
-                    <div className="w-9 h-9 rounded-full bg-primary/20 border-2 border-primary/50 flex items-center justify-center">
-                      <span className="text-sm text-primary font-medium">U</span>
-                    </div>
-                    <span className="text-sm font-medium">Username</span>
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                </div>
+            {/* LIVE: the production EventsDesktopHeader — no hand-drawn preview.
+                A replica drifted here once (old Resolved nav item, Trophy
+                Leaderboard, "Balance:" chip); never re-draw this. */}
+            <div className="mb-6 overflow-x-auto rounded-lg border border-border bg-background">
+              <div className="min-w-[1100px]">
+                <EventsDesktopHeader />
               </div>
             </div>
 
-            {/* Component Specifications */}
+            {/* Component Specifications — read off the live component */}
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
@@ -2127,28 +2090,28 @@ const DesktopNavigationSection = ({ isMobile }: { isMobile: boolean }) => {
                 <tbody className="divide-y divide-border/50">
                   <tr>
                     <td className="py-2 font-medium flex items-center gap-2"><Logo size="sm" showMainnetBadge={false} /> Logo</td>
-                    <td className="py-2 font-mono text-primary">size="xl" (h-8)</td>
-                    <td className="py-2 text-muted-foreground">Left-aligned, clickable</td>
+                    <td className="py-2 font-mono text-primary">size="xl"</td>
+                    <td className="py-2 text-muted-foreground">Left-aligned, clickable → /events</td>
                   </tr>
                   <tr>
-                    <td className="py-2 font-medium">Nav Tabs</td>
-                    <td className="py-2 font-mono">px-4 py-2 rounded-lg text-sm</td>
-                    <td className="py-2 text-muted-foreground">Active: bg-primary + shadow glow</td>
+                    <td className="py-2 font-medium">Nav items</td>
+                    <td className="py-2 font-mono">Events · Portfolio · Leaderboard · Insights</td>
+                    <td className="py-2 text-muted-foreground">Four peers, no featured styling. Resolved is an Events tab, not a nav item.</td>
                   </tr>
                   <tr>
-                    <td className="py-2 font-medium">Leaderboard</td>
-                    <td className="py-2 font-mono">border border-primary/30</td>
-                    <td className="py-2 text-muted-foreground">Featured style with Trophy icon</td>
+                    <td className="py-2 font-medium">Nav tab</td>
+                    <td className="py-2 font-mono">rounded-lg px-3 py-2 text-sm (xl:px-4)</td>
+                    <td className="py-2 text-muted-foreground">Active: bg-primary + glow shadow + 2px underline pip</td>
                   </tr>
                   <tr>
-                    <td className="py-2 font-medium">Balance Display</td>
-                    <td className="py-2 font-mono">font-mono text-trading-green</td>
-                    <td className="py-2 text-muted-foreground">Clickable → /wallet</td>
+                    <td className="py-2 font-medium">Equity chip</td>
+                    <td className="py-2 font-mono">"Equity:" + font-mono text-trading-green</td>
+                    <td className="py-2 text-muted-foreground">Total equity (Standard + Boost). HoverCard body = EquityHoverCardBody. Click → /wallet</td>
                   </tr>
                   <tr>
-                    <td className="py-2 font-medium">Profile Avatar</td>
+                    <td className="py-2 font-medium">Profile avatar</td>
                     <td className="py-2 font-mono">h-9 w-9 border-2 border-primary/50</td>
-                    <td className="py-2 text-muted-foreground">Dropdown: Portfolio, Settings, Sign Out</td>
+                    <td className="py-2 text-muted-foreground">Dropdown menu of account entries</td>
                   </tr>
                 </tbody>
               </table>
