@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronLeft } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePositionVouchers, type PositionVoucher } from "@/hooks/usePositionVouchers";
 import { useVoucherDailyPool, formatResetCountdown, useMinuteTick } from "@/hooks/useVoucherDailyPool";
@@ -41,7 +41,22 @@ export const VouchersBody = () => {
   useMinuteTick();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [claimingId, setClaimingId] = useState<string | null>(null);
-  const [mobileRedeeming, setMobileRedeeming] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const redeemParam = searchParams.get("redeem");
+  const mobileRedeeming = !!redeemParam;
+
+  /** Mobile redeem lives in the URL so the page shell + system back both follow it. */
+  const openMobileRedeem = (voucherId: string) => {
+    const next = new URLSearchParams(searchParams);
+    next.set("tab", "vouchers");
+    next.set("redeem", voucherId);
+    setSearchParams(next);
+  };
+  const closeMobileRedeem = () => {
+    const next = new URLSearchParams(searchParams);
+    next.delete("redeem");
+    setSearchParams(next, { replace: true });
+  };
 
   const handleClaim = async (voucherId: string) => {
     setClaimingId(voucherId);
@@ -56,10 +71,14 @@ export const VouchersBody = () => {
       if (selectedId !== null) setSelectedId(null);
       return;
     }
+    if (redeemParam && activeVouchers.some((v) => v.id === redeemParam)) {
+      if (selectedId !== redeemParam) setSelectedId(redeemParam);
+      return;
+    }
     if (!selectedId || !activeVouchers.some((v) => v.id === selectedId)) {
       setSelectedId(activeVouchers[0].id);
     }
-  }, [activeVouchers, selectedId]);
+  }, [activeVouchers, selectedId, redeemParam]);
 
   const selected = activeVouchers.find((v) => v.id === selectedId) ?? null;
 
@@ -140,7 +159,7 @@ export const VouchersBody = () => {
               mobile={isMobile}
               onClick={() => {
                 setSelectedId(v.id);
-                if (isMobile) setMobileRedeeming(true);
+                if (isMobile) openMobileRedeem(v.id);
               }}
             >
               Redeem
@@ -163,31 +182,16 @@ export const VouchersBody = () => {
       />
     );
 
-  /* --------------------- mobile: redeem is its own screen ------------------ */
+  /* --- mobile: redeem is its own screen; the page shell owns the header --- */
   if (isMobile && mobileRedeeming && selected) {
     return (
       <div className="flex flex-col gap-[12px]">
-        <header className="flex items-center gap-[10px]" style={{ borderBottom: `1px solid ${VT.line}`, padding: "10px 0" }}>
-          <button
-            type="button"
-            onClick={() => setMobileRedeeming(false)}
-            className="flex items-center justify-center -ml-[10px]"
-            style={{ width: 44, height: 44, color: VT.ink }}
-            aria-label="Back"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <span className="flex-1 text-center font-display" style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-.01em", color: VT.ink }}>
-            Redeem voucher
-          </span>
-          <span style={{ width: 34 }} />
-        </header>
         <VoucherDeskHeader voucher={selected} sourceLabel={selected.sourceLabel} compact />
         <RedeemVoucherContent
           voucher={selected}
           variant="inline"
           sourceLabel={selected.sourceLabel}
-          onClose={() => setMobileRedeeming(false)}
+          onClose={closeMobileRedeem}
         />
       </div>
     );
@@ -263,7 +267,7 @@ export const VouchersBody = () => {
           activeVouchers.length > 0
             ? () => {
                 setSelectedId(activeVouchers[0].id);
-                if (isMobile) setMobileRedeeming(true);
+                if (isMobile) openMobileRedeem(activeVouchers[0].id);
               }
             : undefined
         }
