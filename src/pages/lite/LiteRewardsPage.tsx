@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { X } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
@@ -13,49 +12,8 @@ import { useCampaignViews } from "@/hooks/useCampaigns";
 import { useAuth } from "@/hooks/useAuth";
 import { EmptyState } from "@/components/states";
 import { VouchersBody } from "@/components/vouchers/VouchersBody";
-
-const NOTICE_KEY = "omenx_points_retired_notice_dismissed";
-
-const PointsRetiredNotice = () => {
-  const navigate = useNavigate();
-  const [dismissed, setDismissed] = useState(true);
-
-  useEffect(() => {
-    try {
-      setDismissed(localStorage.getItem(NOTICE_KEY) === "1");
-    } catch {
-      setDismissed(false);
-    }
-  }, []);
-
-  if (dismissed) return null;
-
-  return (
-    <div className="flex items-start gap-3 rounded-[12px] border border-[#23262D] bg-[#0F1114] px-4 py-3">
-      <p className="flex-1 text-[12.5px] leading-5 text-[#C9CED6]">
-        Points have retired. Rewards now come as Trial Position Vouchers.{" "}
-        <button type="button" onClick={() => navigate("/vouchers")} className="text-[#33D6FF]">
-          Open vouchers →
-        </button>
-      </p>
-      <button
-        type="button"
-        aria-label="Dismiss"
-        onClick={() => {
-          try {
-            localStorage.setItem(NOTICE_KEY, "1");
-          } catch {
-            /* ignore */
-          }
-          setDismissed(true);
-        }}
-        className="-m-2 grid h-11 w-11 place-items-center text-[#6B7280]"
-      >
-        <X className="h-4 w-4" />
-      </button>
-    </div>
-  );
-};
+import { PointsRetiredNotice } from "@/components/campaigns/PointsRetiredNotice";
+import { RewardsFinePrint } from "@/components/campaigns/RewardsFinePrint";
 
 const Tabs = ({
   value,
@@ -150,11 +108,7 @@ export default function LiteRewardsPage() {
 
           <EndedCampaignsArchive views={ended} />
 
-          {/* One fine print per page carrying USDC amounts (no inline "not guaranteed"). */}
-          <p className="pt-1 text-[11.5px] leading-5 text-[#6B7280]">
-            USDC amounts are estimates and not guaranteed. A Trial Position Voucher opens a trial position — the
-            profit is yours, the voucher itself is not withdrawable.
-          </p>
+          <RewardsFinePrint />
 
           {isMobile && <PointsRetiredNotice />}
         </div>

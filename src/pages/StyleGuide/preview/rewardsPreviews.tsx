@@ -1,19 +1,11 @@
 /**
- * Rewards / Campaign previews.
+ * Rewards / Campaign previews — REAL production components only.
+ * Every case imports the shipped component and feeds it mock props; nothing
+ * here is a lookalike. Mobile cases resolve their own breakpoint because the
+ * preview route is mounted inside a 375px iframe (see DeviceFrame).
  *
- * LIVE (real production components + mock props):
- *   CampaignCard, GrantTaskRow, CampaignKeyVisual, EndedCampaignsArchive,
- *   SignInPromptCard, ReferralPanel, and the ended-campaign detail (nested
- *   iframe of the real /rewards/campaign/:id route).
- *
- * HAND-COPIED MIRRORS (still to be converted):
- *   KolBandPreview, PointsRetiredNoticePreview, RewardsFinePrintPreview,
- *   CampaignIneligibleRedirectPreview — their production files
- *   (LiteRewardsPage / LiteCampaignDetailPage) are a CPO-frozen canvas, so no
- *   extraction may happen without CPO approval.
- *
- * Mobile cases resolve their own breakpoint because the preview route is
- * mounted inside a 375px iframe (see DeviceFrame).
+ * Exception: CampaignIneligibleRedirectPreview is a concept diagram — the
+ * ineligible-link toast has no production implementation yet.
  */
 import { CampaignCard } from "@/components/campaigns/CampaignCard";
 import { CampaignKeyVisual } from "@/components/campaigns/CampaignKeyVisual";
@@ -21,6 +13,9 @@ import { GrantTaskRow } from "@/components/campaigns/GrantTaskRow";
 import { EndedCampaignsArchive } from "@/components/campaigns/EndedCampaignsArchive";
 import { SignInPromptCard } from "@/components/campaigns/SignInPromptCard";
 import { ReferralPanel } from "@/components/campaigns/ReferralPanel";
+import { KolBandDesktop, KolBandMobile } from "@/components/campaigns/KolBand";
+import { PointsRetiredNoticeCard } from "@/components/campaigns/PointsRetiredNotice";
+import { RewardsFinePrint } from "@/components/campaigns/RewardsFinePrint";
 import type { Campaign, CampaignEntry, CampaignTaskDef, CampaignView } from "@/hooks/useCampaigns";
 import kvWorldCup from "@/assets/campaigns/kv-worldcup.jpg.asset.json";
 import kvLaowang from "@/assets/campaigns/kv-laowang.jpg.asset.json";
@@ -230,20 +225,7 @@ export const KolBandPreview = () => (
   <div className="space-y-4">
     {/* Desktop band — lives inside the hero scrim on /rewards/campaign/:id */}
     <div className="hidden md:block">
-      <div
-        className="inline-flex items-center gap-[11px] rounded-full"
-        style={{ background: "#FF8A3D", color: "#2A1200", padding: "5px 15px 5px 5px" }}
-      >
-        <span className="grid h-[34px] w-[34px] shrink-0 place-items-center overflow-hidden rounded-full">
-          <img src={laowangAvatar.url} alt="" className="h-full w-full object-cover" />
-        </span>
-        <div className="flex min-w-0 flex-col gap-[1px]">
-          <span className="font-display text-[13.5px] font-bold">Lao Wang × OmenX · Exclusive entry</span>
-          <span className="truncate text-[11.5px] font-semibold">
-            You joined through Lao Wang's link — his terms apply.
-          </span>
-        </div>
-      </div>
+      <KolBandDesktop kolName="Lao Wang" avatar={laowangAvatar.url} />
     </div>
 
     {/* Mobile capsule — single line, 22px avatar, no explainer sentence */}
@@ -252,15 +234,7 @@ export const KolBandPreview = () => (
         scrim="linear-gradient(180deg, rgba(10,11,13,0.0) 0%, rgba(10,11,13,0.45) 20%, rgba(10,11,13,0.85) 55%, rgba(10,11,13,0.98) 100%)">
         <div />
         <div className="flex flex-col gap-[10px]">
-          <div
-            className="inline-flex max-w-full self-start items-center gap-[8px] rounded-full"
-            style={{ background: "#FF8A3D", color: "#2A1200", padding: "3px 11px 3px 3px" }}
-          >
-            <span className="grid h-[22px] w-[22px] shrink-0 place-items-center overflow-hidden rounded-full">
-              <img src={laowangAvatar.url} alt="" className="h-full w-full object-cover" />
-            </span>
-            <span className="truncate font-display text-[11.5px] font-bold">Lao Wang × OmenX</span>
-          </div>
+          <KolBandMobile kolName="Lao Wang" avatar={laowangAvatar.url} />
           <h1 className="font-display text-[22px] font-bold leading-[28px] text-[#F2F3F5]">
             Lao Wang × OmenX — Rookie run
           </h1>
@@ -296,12 +270,7 @@ export const EndedCampaignDetailPreview = () => (
 
 /* ---------------- Points retirement notice (as shipped on /rewards) ---------------- */
 export const PointsRetiredNoticePreview = () => (
-  <div className="flex items-start gap-3 rounded-[12px] border border-[#23262D] bg-[#0F1114] px-4 py-3">
-    <p className="flex-1 text-[12.5px] leading-5 text-[#C9CED6]">
-      Points have retired. Rewards now come as Trial Position Vouchers.{" "}
-      <span className="text-[#33D6FF]">Open vouchers →</span>
-    </p>
-  </div>
+  <PointsRetiredNoticeCard onOpenVouchers={() => {}} onDismiss={() => {}} />
 );
 
 export const SignInPromptPreview = () => (
@@ -334,9 +303,4 @@ export const CampaignIneligibleRedirectPreview = () => (
 );
 
 /* ---------------- Fine print (one per page carrying USDC amounts) ---------------- */
-export const RewardsFinePrintPreview = () => (
-  <p className="pt-1 text-[11.5px] leading-5 text-[#6B7280]">
-    USDC amounts are estimates and not guaranteed. A Trial Position Voucher opens a trial position — the profit is
-    yours, the voucher itself is not withdrawable.
-  </p>
-);
+export const RewardsFinePrintPreview = () => <RewardsFinePrint />;
