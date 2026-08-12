@@ -428,12 +428,7 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
         <Card className="trading-card">
           <CardContent className="pt-6">
             <Frame>
-              <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
-                <CampaignBannerReplica theme="gold" />
-                <CampaignBannerReplica theme="primary" />
-                <CampaignBannerReplica theme="green" />
-                <CampaignBannerReplica theme="violet" />
-              </div>
+              <HomeCampaignRail />
             </Frame>
             <div className="mt-4 overflow-x-auto">
               <table className="w-full text-xs">
@@ -490,10 +485,7 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
           </CardHeader>
           <CardContent>
             <Frame>
-              <TopEventsReplica
-                title={eventsConfig[eventsState].title}
-                withInterlude={eventsConfig[eventsState].withInterlude}
-              />
+              <HomeTopEvents title={eventsConfig[eventsState].title} />
             </Frame>
             <p className="mt-3 text-xs text-muted-foreground">{eventsConfig[eventsState].note}</p>
 
