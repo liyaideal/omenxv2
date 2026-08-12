@@ -33,6 +33,18 @@ const MobileHome = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      <MobileHeader showLogo showBack={false} rightContent={headerActions} />
+
+      <main className="px-4 pt-3 pb-2">
+        {/* === Greeting + plus === */}
+        <HomeGreetingBlock />
+      </main>
+    </div>
+  );
+};
+
+/** Header action cluster — shared with the style-guide so the demo mounts the real thing. */
+export const HomeHeaderActions = () => (
     <div className="flex items-center gap-1">
       <a
         href="https://discord.gg/qXssm2crf9"
@@ -65,15 +77,6 @@ const MobileHome = () => {
         <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-trading-red rounded-full" />
       </button>
     </div>
-  );
-
-  return (
-    <div className="min-h-screen bg-background pb-24">
-      <MobileHeader showLogo showBack={false} rightContent={headerActions} />
-
-      <main className="px-4 pt-3 pb-2">
-        {/* === Greeting + plus === */}
-        <HomeGreeting onSignIn={() => setAuthOpen(true)} />
 
 
         {/* === Personal slot: onboarding OR position alert (single card) === */}
