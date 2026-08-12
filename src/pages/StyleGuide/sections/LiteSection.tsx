@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { LiteBoostSelector } from "@/components/lite/contract/LiteBoostSelector";
+import { CategoryPill } from "@/components/lite/CategoryPill";
+import { TOP_CATEGORIES } from "@/lib/taxonomy";
 import { LiteContractOrderPanel } from "@/components/lite/contract/LiteContractOrderPanel";
 import { LiteContractChart } from "@/components/lite/contract/LiteContractChart";
 import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
