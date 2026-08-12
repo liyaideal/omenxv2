@@ -29,7 +29,10 @@ const MobileHome = () => {
   const isAuthed = !!user;
   const hasPosition = positions.length > 0;
 
-  const headerActions = (
+  const headerActions = <HomeHeaderActions />;
+
+  return (
+    <div className="min-h-screen bg-background pb-24">
     <div className="flex items-center gap-1">
       <a
         href="https://discord.gg/qXssm2crf9"
