@@ -91,7 +91,7 @@ export const RewardsSection = ({ isMobile: _isMobile }: { isMobile: boolean }) =
         description="User lands via ?entry=LAOWANG but the entry cannot be bound (cap reached, already locked to another entry, account not eligible, link expired, etc.). UX: a single formal sonner toast + immediate redirect to /; the detail page never renders. Copy intentionally generic so new refusal reasons don't require new strings."
         platform="shared"
       >
-        <DualDevicePreview previewKey="rewards-ineligible-redirect" label={"Frozen toast frame · desktop top-center · mobile full-width. 概念示意图 — 生产暂无对应实现，非组件规格。"} minHeight={220} />
+        <DualDevicePreview previewKey="rewards-ineligible-redirect" label={"Live — IneligibleEntryToastBody，生产 toast 调用同一组件。桌面 top-center，移动全宽；?entry=CODE 绑定被拒时弹一次并跳回 /。"} minHeight={220} />
       </SubSection>
     </div>
   </SectionWrapper>

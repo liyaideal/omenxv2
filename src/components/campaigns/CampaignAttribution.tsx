@@ -1,9 +1,10 @@
 import { useEffect, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { showIneligibleEntryToast } from "@/components/campaigns/IneligibleEntryToast";
 
 const PENDING_KEY = "omenx_pending_campaign_entry";
 
@@ -17,6 +18,8 @@ export const CampaignAttribution = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const handled = useRef<string | null>(null);
+  const refused = useRef(false);
+  const navigate = useNavigate();
 
   const linkCode = searchParams.get("entry");
 
@@ -45,13 +48,28 @@ export const CampaignAttribution = () => {
     if (handled.current === token) return;
     handled.current = token;
 
+    const refuse = () => {
+      try {
+        localStorage.removeItem(PENDING_KEY);
+      } catch {
+        /* ignore */
+      }
+      if (refused.current) return;
+      refused.current = true;
+      showIneligibleEntryToast();
+      navigate("/", { replace: true });
+    };
+
     (async () => {
       const { data: entry } = await supabase
         .from("campaign_entries")
         .select("id, campaign_id, branding, kind")
         .eq("link_code", pending)
         .maybeSingle();
-      if (!entry) return;
+      if (!entry) {
+        refuse();
+        return;
+      }
 
       const displayName =
         ((entry.branding as Record<string, unknown> | null)?.display_name as string) ?? "This entry";
@@ -69,13 +87,24 @@ export const CampaignAttribution = () => {
           entry_id: entry.id,
           source: "link",
         });
-        if (!error) toast(`You're in — ${displayName}'s terms apply`);
+        if (error) {
+          refuse();
+          return;
+        }
+        toast(`You're in — ${displayName}'s terms apply`);
       } else if (!existing.locked_at && existing.entry_id !== entry.id) {
         const { error } = await supabase
           .from("campaign_participations")
           .update({ entry_id: entry.id, source: "link" })
           .eq("id", existing.id);
-        if (!error) toast(`You're in — ${displayName}'s terms apply`);
+        if (error) {
+          refuse();
+          return;
+        }
+        toast(`You're in — ${displayName}'s terms apply`);
+      } else if (existing.locked_at && existing.entry_id !== entry.id) {
+        refuse();
+        return;
       }
 
       try {
@@ -86,7 +115,7 @@ export const CampaignAttribution = () => {
       queryClient.invalidateQueries({ queryKey: ["campaign-participations"] });
       queryClient.invalidateQueries({ queryKey: ["campaign-joined"] });
     })();
-  }, [user, linkCode, queryClient]);
+  }, [user, linkCode, queryClient, navigate]);
 
   return null;
 };

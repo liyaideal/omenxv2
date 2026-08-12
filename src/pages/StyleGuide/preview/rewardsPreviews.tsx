@@ -3,9 +3,6 @@
  * Every case imports the shipped component and feeds it mock props; nothing
  * here is a lookalike. Mobile cases resolve their own breakpoint because the
  * preview route is mounted inside a 375px iframe (see DeviceFrame).
- *
- * Exception: CampaignIneligibleRedirectPreview is a concept diagram — the
- * ineligible-link toast has no production implementation yet.
  */
 import { CampaignCard } from "@/components/campaigns/CampaignCard";
 import { CampaignKeyVisual } from "@/components/campaigns/CampaignKeyVisual";
@@ -16,6 +13,7 @@ import { ReferralPanel } from "@/components/campaigns/ReferralPanel";
 import { KolBandDesktop, KolBandMobile } from "@/components/campaigns/KolBand";
 import { PointsRetiredNoticeCard } from "@/components/campaigns/PointsRetiredNotice";
 import { RewardsFinePrint } from "@/components/campaigns/RewardsFinePrint";
+import { IneligibleEntryToastBody } from "@/components/campaigns/IneligibleEntryToast";
 import type { Campaign, CampaignEntry, CampaignTaskDef, CampaignView } from "@/hooks/useCampaigns";
 import kvWorldCup from "@/assets/campaigns/kv-worldcup.jpg.asset.json";
 import kvLaowang from "@/assets/campaigns/kv-laowang.jpg.asset.json";
@@ -282,18 +280,11 @@ export const SignInPromptPreview = () => (
 
 export const ReferralPanelPreview = () => <ReferralPanel />;
 
-/* ---------------- Exclusive link — ineligible redirect (frozen toast frame) ---------------- */
+/* ---------------- Exclusive link — ineligible redirect (live toast body) ---------------- */
 export const CampaignIneligibleRedirectPreview = () => (
   <div className="relative min-h-[200px] bg-transparent">
     <div className="w-full md:absolute md:top-4 md:left-1/2 md:w-auto md:max-w-[420px] md:-translate-x-1/2">
-      <div className="flex items-start gap-3 rounded-lg border border-border bg-background px-4 py-3.5 shadow-lg">
-        <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-semibold leading-5 text-foreground">This entry is not available</p>
-          <p className="mt-0.5 text-[11.5px] leading-5 text-muted-foreground">
-            Your account isn't eligible for this exclusive link. Redirecting you to the home page.
-          </p>
-        </div>
-      </div>
+      <IneligibleEntryToastBody />
     </div>
     <p className="absolute bottom-0 left-0 right-0 text-center text-[11px] leading-4 text-muted-foreground">
       Triggered on <code className="text-[11px] text-foreground">?entry=LAOWANG</code> when binding is refused · redirects to{" "}

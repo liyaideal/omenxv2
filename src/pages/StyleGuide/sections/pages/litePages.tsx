@@ -86,6 +86,12 @@ export const LiteOverviewSection = (_: P) => (
       <h3 className="mb-2 text-sm font-semibold text-foreground">Changelog</h3>
       <ul className="space-y-1 text-[12px] text-muted-foreground">
         <li>
+          2026-08-12 · CPO 裁定补生产 — ineligible entry 拒绝 toast+跳转落地：
+          <code className="font-mono">?entry=CODE</code> 绑定被拒时弹一次通用 toast 并 redirect 到{" "}
+          <code className="font-mono">/</code>；<code className="font-mono">rewards-ineligible-redirect</code> demo
+          改挂真 <code className="font-mono">IneligibleEntryToastBody</code>。
+        </li>
+        <li>
           2026-08-12 · 复审修复 Round 3 — Desktop Header 手绘 preview 删除，改挂真{" "}
           <code className="font-mono">EventsDesktopHeader</code>；Wallet 手抄 Transaction History Row
           删除（规格并入 <code className="font-mono">wallet-tx-history</code> caption）；
