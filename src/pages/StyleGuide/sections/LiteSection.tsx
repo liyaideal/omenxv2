@@ -25,7 +25,6 @@ import { HowItSettled } from "@/components/lite/trade/HowItSettled";
 import { RoundTape } from "@/components/lite/shared/RoundTape";
 import { LiteEventCard } from "@/components/lite/LiteEventCard";
 import type { EventRow } from "@/hooks/useMarketListData";
-import { Star, ExternalLink } from "lucide-react";
 import type { ResolvedEvent } from "@/hooks/useResolvedEvents";
 import { FROZEN_NOW, frozenIso } from "../frozenClock";
 
@@ -270,18 +269,19 @@ const WHERE_ROWS: {
     states: 2,
   },
   {
-    name: "Sector rail (LiteEventsPage)",
-    desktop: "row above the grid, left of the Live/Settled switch",
+    name: "Category row (CategoryPill + TOP_CATEGORIES)",
+    desktop: "row above the grid; Watchlist / Calendar / Boost cluster pinned right",
     mobile: "same row, horizontally scrolling",
-    openedBy: "always visible; pills render only for categories with live events",
+    openedBy:
+      "always visible; All and Intraday always render, Sports needs a fixture, other categories need ≥1 live event",
     states: 3,
   },
   {
     name: "LiteEventsPage",
-    desktop: "full page — title opening, sector rail, card grid, Pro escape line",
+    desktop: "full page — data opening, category row, card grid (no Live/Settled switch)",
     mobile: "same page, MobileHeader preset A (logo only) + BottomNav",
     openedBy: "/events when surface = lite",
-    states: 4,
+    states: 3,
   },
   {
     name: "LiteStockChart (spot)",
