@@ -876,7 +876,11 @@ export const LiteSection = ({
         <SubSection title="Your call — position card + Cash out" description="Money axis for profit only; market axis for side identity.">
           <PositionStates />
         </SubSection>
+          </>
+        )}
 
+        {part === "events" && (
+          <>
         <SubSection
           title="Markets list"
           description="The live Lite list (/events): grid card + sector rail. The Live | Settled switch is demoed once under the settled outcome card — not duplicated here."
@@ -898,7 +902,11 @@ export const LiteSection = ({
             </div>
           </div>
         </SubSection>
+          </>
+        )}
 
+        {part === "trade" && (
+          <>
         <SubSection
           title="Trade-page settled state · outcome card"
           description="A settled event has no separate page — the trade page renders its settled state in place and the outcome card takes the order-panel slot."
@@ -1300,8 +1308,11 @@ export const LiteSection = ({
           </p>
           <MultiMarketStates />
         </SubSection>
+          </>
+        )}
 
-        <SubSection title="Mobile header (preset B)">
+        {part === "mobile-header" && (
+          <SubSection title="Mobile header (preset B)">
           <p className="text-sm text-muted-foreground">
             Lite trade pages use the standard MobileHeader preset B (back arrow + title). It is
             specified once in{" "}
@@ -1310,7 +1321,8 @@ export const LiteSection = ({
             </Link>{" "}
             and is not duplicated here.
           </p>
-        </SubSection>
+          </SubSection>
+        )}
       </div>
     </SectionWrapper>
   );
