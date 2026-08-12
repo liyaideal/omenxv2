@@ -1,8 +1,19 @@
 /**
- * Rewards / Campaign previews — REAL production components only.
- * Every case imports the shipped component and feeds it mock props; nothing
- * here is a lookalike. Mobile cases resolve their own breakpoint because the
- * preview route is mounted inside a 375px iframe (see DeviceFrame).
+ * Rewards / Campaign previews.
+ *
+ * LIVE (real production components + mock props):
+ *   CampaignCard, GrantTaskRow, CampaignKeyVisual, EndedCampaignsArchive,
+ *   SignInPromptCard, ReferralPanel, and the ended-campaign detail (nested
+ *   iframe of the real /rewards/campaign/:id route).
+ *
+ * HAND-COPIED MIRRORS (still to be converted):
+ *   KolBandPreview, PointsRetiredNoticePreview, RewardsFinePrintPreview,
+ *   CampaignIneligibleRedirectPreview — their production files
+ *   (LiteRewardsPage / LiteCampaignDetailPage) are a CPO-frozen canvas, so no
+ *   extraction may happen without CPO approval.
+ *
+ * Mobile cases resolve their own breakpoint because the preview route is
+ * mounted inside a 375px iframe (see DeviceFrame).
  */
 import { CampaignCard } from "@/components/campaigns/CampaignCard";
 import { CampaignKeyVisual } from "@/components/campaigns/CampaignKeyVisual";
