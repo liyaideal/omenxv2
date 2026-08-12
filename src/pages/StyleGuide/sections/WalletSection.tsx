@@ -23,6 +23,8 @@ import {
   MAINTENANCE_NOTICE_DEMO_SETS,
 } from "@/components/wallet/MaintenanceNoticeBanner";
 import { cn } from "@/lib/utils";
+import { H2eRewardsCard } from "@/pages/Wallet";
+import type { H2eRewardsSummary } from "@/hooks/useH2eRewardsSummary";
 
 type MaintenancePreset = "single" | "multiple" | "withNote" | "empty";
 const MAINTENANCE_PRESETS: { id: MaintenancePreset; label: string }[] = [
@@ -113,6 +115,42 @@ export const WalletSection = ({ isMobile }: WalletSectionProps) => {
   const nextTier = H2E_UNLOCK_TIERS.find((tier) => mockVolume < tier.volume) ?? null;
   const unlockedPercent = currentTier?.percent ?? 0;
   const volumeToNextTier = nextTier ? Math.max(0, nextTier.volume - mockVolume) : 0;
+  // Mock H2eRewardsSummary so the demo can mount the production card.
+  const mockH2eSummary: H2eRewardsSummary = {
+    frozenBalance: 128.4,
+    volumeCompleted: mockVolume,
+    isUnlocked: unlockedPercent > 0,
+    isFullyUnlocked: !nextTier,
+    unlockedPercent,
+    unlockedAmount: (128.4 * unlockedPercent) / 100,
+    lockedAmount: 128.4 - (128.4 * unlockedPercent) / 100,
+    nextTierVolume: nextTier?.volume ?? null,
+    nextTierPercent: nextTier?.percent ?? null,
+    volumeToNextTier,
+    unlockTiers: H2E_UNLOCK_TIERS,
+    starterUnlock: H2E_STARTER_UNLOCK,
+    totalEarned: 128.4,
+    earningsCap: 500,
+    volumeRequired: H2E_FULL_VOLUME_UNLOCK,
+    volumePercent: nextTier ? Math.min((mockVolume / nextTier.volume) * 100, 100) : 100,
+    earningsPercent: Math.min((128.4 / 500) * 100, 100),
+    settlements: [
+      {
+        id: "s1",
+        eventName: "BTC ≥ $150k by Dec 31",
+        pnl: 42.18,
+        trigger: "Auto-close",
+        settledAt: new Date().toISOString(),
+      },
+      {
+        id: "s2",
+        eventName: "Fed cuts in September?",
+        pnl: -8.4,
+        trigger: "Settlement",
+        settledAt: new Date().toISOString(),
+      },
+    ],
+  };
 
   return (
     <div className="space-y-12">
@@ -336,126 +374,10 @@ export const WalletSection = ({ isMobile }: WalletSectionProps) => {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 space-y-4">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm font-semibold">Withdrawal unlock progress</p>
-                  <p className="text-xs text-muted-foreground">
-                    Current unlocked: {unlockedPercent}% · Mock volume ${mockVolume.toLocaleString()}
-                  </p>
-                </div>
-                {unlockedPercent > 0 && (
-                  <Badge key={mockVolume} className="animate-fade-in bg-primary/10 text-primary border-primary/20">
-                    已解锁{unlockedPercent}%
-                  </Badge>
-                )}
-              </div>
+            {/* LIVE: production H2eRewardsCard (src/pages/Wallet.tsx) driven by
+                the mock volume above — same card /wallet renders. */}
+            <H2eRewardsCard h2e={mockH2eSummary} showUnlockToast={unlockedPercent > 0} />
 
-              {!isMobile && (
-                <div className="pt-3">
-                  <div className="relative px-1">
-                    <div className="absolute left-1 right-1 top-3 h-px bg-border/70" />
-                    <div
-                      className="absolute left-1 top-3 h-px bg-primary transition-all duration-500"
-                      style={{ width: `${Math.min((mockVolume / H2E_FULL_VOLUME_UNLOCK) * 100, 100)}%` }}
-                    />
-                    <div className="relative grid grid-cols-6 gap-3">
-                      {H2E_UNLOCK_TIERS.map((tier) => {
-                        const isReached = mockVolume >= tier.volume;
-                        const isNext = nextTier?.volume === tier.volume;
-                        const isStarter = tier.volume === 0;
-
-                        return (
-                          <div key={tier.volume} className="flex flex-col items-center text-center">
-                            <span
-                              className={cn(
-                                "relative z-10 h-6 w-6 rounded-full border-2 bg-background transition-all duration-300",
-                                isStarter && "border-trading-green/60",
-                                !isStarter && isReached && "border-primary shadow-[0_0_0_4px_hsl(var(--primary)/0.12)]",
-                                !isStarter && isNext && !isReached && "border-primary/70 shadow-[0_0_0_4px_hsl(var(--primary)/0.08)]",
-                                !isStarter && !isReached && !isNext && "border-border"
-                              )}
-                            >
-                              {!isStarter && isReached && tier.percent === unlockedPercent && (
-                                <span key={mockVolume} className="absolute -inset-1 rounded-full border border-primary/60 animate-scale-in" />
-                              )}
-                            </span>
-                            <span className={cn("mt-2 font-mono text-[11px] font-semibold", isStarter ? "text-trading-green" : isReached || isNext ? "text-foreground" : "text-muted-foreground")}>
-                              {isStarter ? `+$${H2E_STARTER_UNLOCK}` : `${tier.percent}%`}
-                            </span>
-                            <span className="font-mono text-[10px] text-muted-foreground">
-                              {isStarter ? "Starter" : `$${(tier.volume / 1000).toFixed(0)}K`}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {isMobile && (
-                <div className="space-y-2 rounded-lg border border-border/40 bg-muted/10 p-3">
-                  {nextTier && (
-                    <div className="rounded-md border border-primary/20 bg-primary/10 px-3 py-2">
-                      <div className="text-[10px] uppercase text-muted-foreground">Next unlock</div>
-                      <div className="mt-0.5 flex items-center justify-between text-xs">
-                        <span className="font-medium">{nextTier.percent}% at ${nextTier.volume.toLocaleString()}</span>
-                        <span className="font-mono text-primary">${volumeToNextTier.toLocaleString()} left</span>
-                      </div>
-                    </div>
-                  )}
-                  <div className="space-y-0.5">
-                    {H2E_UNLOCK_TIERS.map((tier, index) => {
-                      const isReached = mockVolume >= tier.volume;
-                      const isNext = nextTier?.volume === tier.volume;
-                      const isLast = index === H2E_UNLOCK_TIERS.length - 1;
-                      const isStarter = tier.volume === 0;
-
-                      return (
-                        <div key={tier.volume} className="relative flex gap-3 pb-2 last:pb-0">
-                          {!isLast && <div className={cn("absolute left-[7px] top-5 h-[calc(100%-12px)] w-px", isReached ? "bg-primary/60" : "bg-border/70")} />}
-                          <span
-                            className={cn(
-                              "relative mt-1 h-3.5 w-3.5 flex-shrink-0 rounded-full border-2 bg-background transition-all duration-300",
-                              isStarter && "border-trading-green/60",
-                              !isStarter && isReached && "border-primary shadow-[0_0_0_4px_hsl(var(--primary)/0.12)]",
-                              !isStarter && isNext && !isReached && "border-primary/70",
-                              !isStarter && !isReached && !isNext && "border-border"
-                            )}
-                          >
-                            {!isStarter && isReached && tier.percent === unlockedPercent && (
-                              <span key={mockVolume} className="absolute -inset-1 rounded-full border border-primary/60 animate-scale-in" />
-                            )}
-                          </span>
-                          <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
-                            <div>
-                              <div className={cn("text-xs font-medium", isStarter ? "text-trading-green" : isReached || isNext ? "text-foreground" : "text-muted-foreground")}>
-                                {isStarter ? `Starter unlock +$${H2E_STARTER_UNLOCK}` : `${tier.percent}% unlock`}
-                              </div>
-                              <div className="font-mono text-[10px] text-muted-foreground">
-                                {isStarter ? "Free, independent of H2E" : `$${(tier.volume / 1000).toFixed(0)}K volume`}
-                              </div>
-                            </div>
-                            <span className={cn("text-[10px]", isStarter ? "text-trading-green" : isReached ? "text-primary" : isNext ? "text-foreground" : "text-muted-foreground")}>
-                              {isStarter ? "included" : isReached ? "unlocked" : isNext ? "current target" : "locked"}
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {nextTier ? (
-                <p className="text-[10px] text-muted-foreground">
-                  Trade ${volumeToNextTier.toLocaleString()} more to unlock {nextTier.percent}%
-                </p>
-              ) : (
-                <p className="text-[10px] text-trading-green">Fully unlocked — rewards are withdrawable</p>
-              )}
-            </div>
           </CardContent>
         </Card>
       </SectionWrapper>
