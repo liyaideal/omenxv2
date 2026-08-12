@@ -26,6 +26,7 @@ import {
   GlobalStandardsSection,
   ArchiveSection,
 } from "./sections";
+import { LiteSection } from "./sections";
 import {
   LiteOverviewSection,
   LiteHomePage,
