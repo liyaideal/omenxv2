@@ -2061,7 +2061,9 @@ const DesktopNavigationSection = ({ isMobile }: { isMobile: boolean }) => {
               EventsDesktopHeader
             </CardTitle>
             <CardDescription>
-              Primary navigation header used on Events, Portfolio, Leaderboard, and other main pages
+              Live component. Primary navigation header used on Events, Portfolio, Leaderboard and other
+              main pages. It renders in the style-guide's own session state — signed out shows the Sign in
+              button where the green Equity chip sits when signed in.
             </CardDescription>
           </CardHeader>
           <CardContent>
