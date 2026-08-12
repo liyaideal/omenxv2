@@ -304,12 +304,9 @@ const OTHER_SPORTS = [UPCOMING_H2H, UPCOMING_H2H_2];
 /** UFC only — one league in the group, so the league row is suppressed. */
 const SINGLE_LEAGUE = [UPCOMING_H2H_2];
 
-/* ---------------- 1. Category row ---------------- */
-const PILL_BASE =
-  "shrink-0 rounded-full px-[14px] py-[7px] text-[12.5px] transition-colors";
-const PILL_ACTIVE = "bg-white text-[#0A0B0D] font-semibold";
-const PILL_IDLE =
-  "border-[1.5px] border-[#2B2F38] text-[#C9CED6] hover:text-foreground";
+/* ---------------- 1. Category row ----------------
+   Uses the production CategoryPill + TOP_CATEGORIES — no hand-copied pill
+   markup, so this demo cannot drift from /events again. */
 
 const CATEGORY_PRESETS = [
   {
@@ -366,15 +363,8 @@ const CATEGORY_PRESETS = [
   },
 ] as const;
 
-const CATEGORIES: Array<{ id: string; label: string; dot?: string }> = [
-  { id: "all", label: "All" },
-  { id: "intraday", label: "Intraday", dot: "#FF8A3D" },
-  { id: "sports", label: "Sports", dot: "#F2F3F5" },
-  { id: "crypto", label: "Crypto" },
-  { id: "stocks", label: "Stocks" },
-  { id: "politics", label: "Politics" },
-  { id: "macro", label: "Economy" },
-];
+/** The production taxonomy, trimmed to what the desktop row shows here. */
+const CATEGORIES = TOP_CATEGORIES.slice(0, 7);
 
 const CategoryRowDemo = () => {
   const [id, setId] = useState<string>(CATEGORY_PRESETS[0].id);
@@ -384,32 +374,15 @@ const CategoryRowDemo = () => {
       <PresetRail presets={CATEGORY_PRESETS} activeId={id} onSelect={setId} />
       <div className="rounded-lg border border-border bg-[#0A0B0D] p-4">
         <div className="flex flex-wrap items-center gap-2">
-          {CATEGORIES.map((c) => {
-            const liveDot = c.id === "sports" && p.sportsLive;
-            return (
-              <span
-                key={c.id}
-                className={cn(
-                  PILL_BASE,
-                  "flex items-center gap-[7px]",
-                  c.id === p.sector ? PILL_ACTIVE : PILL_IDLE,
-                )}
-              >
-                {c.dot && (
-                  <span
-                    className={liveDot ? "animate-pulse" : undefined}
-                    style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: 999,
-                      background: liveDot ? "#FF4D4F" : c.dot,
-                    }}
-                  />
-                )}
-                {c.label}
-              </span>
-            );
-          })}
+          {CATEGORIES.map((c) => (
+            <CategoryPill
+              key={c.id}
+              label={c.label}
+              dot={c.dot}
+              active={c.id === p.sector}
+              live={c.id === "sports" && p.sportsLive}
+            />
+          ))}
           <span
             aria-hidden
             style={{ width: 1, height: 22, background: "#1D2026", margin: "0 5px" }}
