@@ -33,7 +33,7 @@ export const VouchersSection = ({ isMobile: _isMobile }: Props) => {
 
         <SubSection
           title="3. VoucherCard"
-          description="Real VoucherCard, compact variant, driven by mock voucher + poolOverride props. Enumerates granted (comfortable / warning / urgent / sold out / claiming) and claimed (fresh / selected / urgent) lifecycles. Expired visuals live in case 10 — VoucherCard has no expired branch."
+          description="Real VoucherCard, compact variant, driven by mock voucher + poolOverride props. Enumerates granted (comfortable / warning / urgent / sold out / claiming) and claimed (fresh / selected / urgent) lifecycles. VoucherCard has no expired branch."
           platform="shared"
         >
           <DualDevicePreview previewKey="voucher-card" label="8 lifecycle states via preset rail" minHeight={520} />

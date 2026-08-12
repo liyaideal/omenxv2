@@ -31,7 +31,7 @@ const Frame = ({ children }: { children: React.ReactNode }) => (
 
 /* ---------- A. Header (live MobileHeader + real action cluster) ---------- */
 
-const HeaderReplica = () => (
+const HeaderDemo = () => (
   <MobileHeader showLogo showBack={false} rightContent={<HomeHeaderActions />} />
 );
 
@@ -67,11 +67,11 @@ const HomeGreetingAuthed = ({ hasData }: { hasData: boolean }) => (
 
 /* ---------- C. PersonalSlot cards (live) ---------- */
 
-const OnboardingCardReplica = ({ step = 2 }: { step?: 2 | 3 }) => (
+const OnboardingCardDemo = ({ step = 2 }: { step?: 2 | 3 }) => (
   <OnboardingCard demoOverride={{ hasDeposited: step === 3, hasTraded: false }} />
 );
 
-const PositionAlertReplica = () => (
+const PositionAlertDemo = () => (
   <PositionAlertCard
     positionId="style-guide-demo"
     demoOverride={{
@@ -139,7 +139,7 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
           <CardContent className="pt-6">
             <Frame>
               <div className="space-y-3">
-                <HeaderReplica />
+                <HeaderDemo />
                 <div className="text-[10px] font-mono text-muted-foreground">— main · px-4 pt-3 pb-2 —</div>
                 <div className="rounded-xl border border-dashed border-primary/40 bg-primary/5 px-3 py-3 text-center text-[11px] font-mono text-primary">
                   HomeGreeting
@@ -195,7 +195,7 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
           <CardContent>
             <Frame>
               <div className="space-y-3">
-                <HeaderReplica />
+                <HeaderDemo />
                 <div className="pt-1">
                   {composed.greeting === "guest" && <HomeGreetingGuest />}
                   {composed.greeting === "authedActive" && <HomeGreetingAuthed hasData />}
@@ -203,8 +203,8 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
                 </div>
                 {composed.slot !== "null" && (
                   <div className="mt-3">
-                    {composed.slot === "onboarding" && <OnboardingCardReplica step={composed.onboardingStep ?? 2} />}
-                    {composed.slot === "positionAlert" && <PositionAlertReplica />}
+                    {composed.slot === "onboarding" && <OnboardingCardDemo step={composed.onboardingStep ?? 2} />}
+                    {composed.slot === "positionAlert" && <PositionAlertDemo />}
                   </div>
                 )}
                 {composed.slot === "null" && (
@@ -275,7 +275,7 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
         <Card className="trading-card">
           <CardContent className="pt-6">
             <Frame>
-              <HeaderReplica />
+              <HeaderDemo />
             </Frame>
             <div className="mt-4 grid gap-1.5 text-xs text-muted-foreground">
               <p><span className="text-foreground font-semibold">Discord:</span> external link, <code className="font-mono">hover:bg-[#5865F2]/15</code></p>
@@ -404,8 +404,8 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
                   renders null (slot wrapper has empty:hidden)
                 </div>
               )}
-              {slotState === "onboarding" && <OnboardingCardReplica />}
-              {slotState === "positionAlert" && <PositionAlertReplica />}
+              {slotState === "onboarding" && <OnboardingCardDemo />}
+              {slotState === "positionAlert" && <PositionAlertDemo />}
             </Frame>
 
             <div className="mt-4 grid gap-1.5 text-xs text-muted-foreground">
