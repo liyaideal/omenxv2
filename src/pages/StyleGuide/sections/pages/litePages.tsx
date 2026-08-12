@@ -92,6 +92,17 @@ export const LiteOverviewSection = (_: P) => (
           <code className="font-mono">voucher-expired-row</code>
           ），原因：页面已并入 /rewards，镜像已无生产对应物。
         </li>
+        <li>
+          2026-08-12 · 漂移修复 Round 2 · P3 — 手抄碎屑转活体：T1 chip → 真{" "}
+          <code className="font-mono">DirectionButton</code>、日历/Boost 品类底板 → 真{" "}
+          <code className="font-mono">CategoryPill</code> + <code className="font-mono">TOP_CATEGORIES</code>、
+          boost pill → 真 <code className="font-mono">TraitChip</code>；voucher banner / picker /
+          redeem confirm bar 改为 import 生产纯展示件（
+          <code className="font-mono">VoucherBannerView</code>、
+          <code className="font-mono">EventPickerCard</code>、
+          <code className="font-mono">RedeemSummaryBar</code>
+          ）。概念示意图（Mobile patterns、API marketing）已加注标注。
+        </li>
       </ul>
     </div>
   </section>
