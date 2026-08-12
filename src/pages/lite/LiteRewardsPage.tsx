@@ -138,15 +138,7 @@ export default function LiteRewardsPage() {
           title={mobileRedeeming ? "Redeem voucher" : "Rewards"}
           showLogo={false}
           showBack
-          onBack={
-            mobileRedeeming
-              ? () => {
-                  const next = new URLSearchParams(searchParams);
-                  next.delete("redeem");
-                  setSearchParams(next, { replace: true });
-                }
-              : undefined
-          }
+          backTo={mobileRedeeming ? "/rewards?tab=vouchers" : undefined}
         />
         <main className="px-4 py-4">{body}</main>
         <BottomNav />
