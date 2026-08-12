@@ -8,12 +8,12 @@
  *  - VoucherHistoryArchive (items)
  *  - VoucherDeskHeader     (voucher, compact)
  *
- * Style-guide-internal mirror (annotated, must stay 1:1 with production):
- *  - Market picker cards — EventPickerList is hook-driven (useActiveEvents +
- *    usePositionVouchers); eligibility / lock states cannot be forced with props.
+ *  - EventPickerCard / PickerOptionRow / PickerBlockedReason — the pure
+ *    presentational pieces extracted out of EventPickerList (same JSX as
+ *    production; only the hook-driven data is mocked here).
  */
 import { useState } from "react";
-import { Lock, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   VoucherRow,
@@ -25,6 +25,11 @@ import { VoucherEarningsCard } from "@/components/vouchers/VoucherEarningsCard";
 import { VoucherHistoryArchive } from "@/components/vouchers/VoucherHistoryArchive";
 import { VoucherDeskHeader } from "@/components/vouchers/VoucherDeskHeader";
 import { VT } from "@/components/vouchers/voucherTokens";
+import {
+  EventPickerCard,
+  PickerOptionRow,
+  PickerBlockedReason,
+} from "@/components/vouchers/EventPickerCard";
 import type { PositionVoucher } from "@/hooks/usePositionVouchers";
 
 /* ------------------------------ shared bits ------------------------------ */
@@ -287,186 +292,6 @@ export const Vouchers2ArchivePreview = () => (
 /* ------------------------ 4. Market picker (mirror) ----------------------- */
 /* 1:1 mirror of src/components/vouchers/EventPickerList.tsx card recipe. */
 
-const MetaCaps = ({ children }: { children: React.ReactNode }) => (
-  <span className="font-display uppercase" style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: ".12em", color: VT.muted }}>
-    {children}
-  </span>
-);
-
-const LineBadge = ({ children, strong }: { children: React.ReactNode; strong?: boolean }) => (
-  <span
-    className="font-display uppercase rounded-[6px]"
-    style={{
-      fontSize: 9.5,
-      fontWeight: 700,
-      letterSpacing: ".1em",
-      color: strong ? VT.ink2 : VT.muted,
-      background: VT.surfaceInset,
-      border: `1px solid ${strong ? VT.line3 : VT.line}`,
-      padding: "4px 7px",
-    }}
-  >
-    {children}
-  </span>
-);
-
-const SideButton = ({
-  label,
-  tone,
-  picked,
-  disabled,
-  block,
-}: {
-  label: string;
-  tone: "neutral" | "yes" | "no";
-  picked?: boolean;
-  disabled?: boolean;
-  block?: boolean;
-}) => {
-  const base = {
-    yes: { color: "hsl(74 100% 65%)", border: "hsl(74 100% 65% / .4)" },
-    no: { color: "hsl(0 100% 68%)", border: "hsl(0 100% 68% / .4)" },
-    neutral: { color: VT.ink, border: VT.line3 },
-  }[tone];
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      className={`font-display rounded-[8px] ${block ? "min-h-[44px] w-full flex items-center justify-center" : ""}`}
-      style={{
-        fontSize: block ? 12 : 11.5,
-        fontWeight: 700,
-        padding: block ? undefined : "5px 10px",
-        color: picked ? "#0A0B0D" : disabled ? VT.muted2 : base.color,
-        background: picked ? "hsl(74 100% 65%)" : "transparent",
-        border: picked ? "none" : `1px solid ${disabled ? VT.line2 : base.border}`,
-      }}
-    >
-      {picked ? "Picked" : label}
-    </button>
-  );
-};
-
-const OptionRow = ({
-  label,
-  price,
-  dim,
-  binary,
-  picked,
-  mobile,
-}: {
-  label: string;
-  price: string;
-  dim?: boolean;
-  binary?: boolean;
-  picked?: "long" | "short";
-  mobile?: boolean;
-}) => {
-  const priceEl = (
-    <span className="font-display tabular-nums flex-none" style={{ fontSize: 13, fontWeight: 700, color: dim ? VT.muted : VT.ink3 }}>
-      {price}
-    </span>
-  );
-  if (!binary && mobile) {
-    return (
-      <div
-        className="rounded-[9px] flex flex-col gap-[8px]"
-        style={{ background: VT.surfaceDeep, border: `1px solid ${picked ? VT.volt : VT.line2}`, padding: "9px 11px 10px" }}
-      >
-        <div className="flex items-center justify-between gap-[10px]">
-          <span className="flex-1 min-w-0 truncate" style={{ fontSize: 11.5, color: dim ? VT.muted : VT.ink }}>{label}</span>
-          {priceEl}
-        </div>
-        <div className="grid grid-cols-2 gap-[7px]">
-          <SideButton block label="Yes" tone="yes" picked={picked === "long"} disabled={dim} />
-          <SideButton block label="No" tone="no" picked={picked === "short"} disabled={dim} />
-        </div>
-      </div>
-    );
-  }
-  return (
-    <div
-      className="flex items-center justify-between gap-[10px] rounded-[9px]"
-      style={{
-        background: VT.surfaceDeep,
-        border: `1px solid ${picked ? VT.volt : VT.line2}`,
-        padding: mobile ? "0 12px" : "9px 12px",
-        minHeight: 44,
-      }}
-    >
-      <span
-        className="flex-1 min-w-0 truncate"
-        style={{ fontSize: binary ? 11 : 11.5, fontWeight: picked ? 600 : 400, color: dim ? VT.muted : binary ? VT.ink3 : VT.ink }}
-      >
-        {label}
-      </span>
-      <span className="flex-none flex items-center gap-[9px]">
-        {priceEl}
-        {binary ? (
-          <SideButton label="Buy" tone="neutral" picked={picked === "long"} disabled={dim} />
-        ) : (
-          <>
-            <SideButton label="Yes" tone="yes" picked={picked === "long"} disabled={dim} />
-            <SideButton label="No" tone="no" picked={picked === "short"} disabled={dim} />
-          </>
-        )}
-      </span>
-    </div>
-  );
-};
-
-const PickerCard = ({
-  name,
-  meta,
-  lines,
-  tail,
-  locked,
-  dim,
-  children,
-  mobile,
-}: {
-  name: string;
-  meta: string;
-  lines: string[];
-  tail?: string;
-  locked?: boolean;
-  dim?: boolean;
-  children?: React.ReactNode;
-  mobile?: boolean;
-}) => (
-  <div
-    className="rounded-[12px]"
-    style={{
-      background: VT.surfaceCard,
-      border: `1px solid ${VT.line}`,
-      padding: mobile ? 13 : 14,
-      opacity: locked ? 0.5 : dim ? 0.62 : 1,
-    }}
-  >
-    <div className="flex items-start justify-between gap-[12px]" style={{ marginBottom: 11 }}>
-      <div className="flex flex-col gap-[3px] min-w-0">
-        <span className="truncate" style={{ fontSize: 13.5, fontWeight: 600, color: dim || locked ? VT.ink2 : VT.ink }}>
-          {name}
-        </span>
-        <MetaCaps>{meta}</MetaCaps>
-      </div>
-      <div className="flex-none flex items-center gap-[6px] flex-wrap justify-end">
-        {lines.map((l) => (
-          <LineBadge key={l} strong>{l}</LineBadge>
-        ))}
-        {!locked && tail && <LineBadge>{tail}</LineBadge>}
-        {locked && (
-          <span className="flex items-center gap-[5px]" style={{ fontSize: 11, fontWeight: 600, color: VT.ink2 }}>
-            <Lock className="w-3 h-3" />
-            Voucher already used
-          </span>
-        )}
-      </div>
-    </div>
-    {children}
-  </div>
-);
-
 type PickerState = "boost" | "standard" | "multi" | "priceBand" | "usedEvent" | "empty" | "loading";
 
 export const Vouchers2PickerPreview = () => {
@@ -517,63 +342,61 @@ export const Vouchers2PickerPreview = () => {
 
     if (state === "usedEvent")
       return (
-        <PickerCard
+        <EventPickerCard
           mobile={isMobile}
           locked
+          eligible={false}
           name="Will BTC close above $70k on Aug 12?"
           meta="Crypto · settles Aug 12"
-          lines={["Boost"]}
+          lines={["futures"]}
         >
           <div style={{ fontSize: 11, color: VT.ink3, lineHeight: 1.5 }}>
             One voucher per event — you already opened a trial position here. The lock covers both product lines
             of this event.
           </div>
-        </PickerCard>
+        </EventPickerCard>
       );
 
     if (state === "priceBand")
       return (
-        <PickerCard mobile={isMobile} dim name="Fed cuts in September?" meta="Macro · settles Sep 18" lines={["Boost"]} tail="Binary">
-          <div className={isMobile ? "flex flex-col gap-[6px]" : "grid grid-cols-2 gap-[8px]"}>
-            <OptionRow binary mobile={isMobile} dim label="Yes" price="91¢" />
-            <OptionRow binary mobile={isMobile} dim label="No" price="9¢" />
-            <div className="flex items-start gap-[6px]" style={{ fontSize: 11, color: VT.ink3, lineHeight: 1.5, paddingTop: 2 }}>
-              <Lock className="w-3 h-3 flex-none" style={{ marginTop: 2, color: VT.ink2 }} />
-              Priced outside the voucher band — pick another option.
-            </div>
-          </div>
-        </PickerCard>
+        <EventPickerCard
+          mobile={isMobile}
+          eligible={false}
+          name="Fed cuts in September?"
+          meta="Macro · settles Sep 18"
+          lines={["futures"]}
+          tail="Binary"
+          rowsLayout={isMobile ? "stack" : "grid"}
+        >
+          <PickerOptionRow isBinary mobile={isMobile} dim label="Yes" price={0.91} />
+          <PickerOptionRow isBinary mobile={isMobile} dim label="No" price={0.09} />
+          <PickerBlockedReason>Priced outside the voucher band — pick another option.</PickerBlockedReason>
+        </EventPickerCard>
       );
 
     if (state === "multi")
       return (
-        <PickerCard mobile={isMobile} name="Who wins the World Cup?" meta="Sports · settles Dec 18" lines={["Boost"]} tail="4 options">
-          <div className="flex flex-col gap-[6px]">
-            <OptionRow mobile={isMobile} label="Brazil" price="32¢" picked="long" />
-            <OptionRow mobile={isMobile} label="France" price="24¢" />
-            <OptionRow mobile={isMobile} label="Argentina" price="19¢" />
-            <OptionRow mobile={isMobile} dim label="Japan" price="4¢" />
-          </div>
-        </PickerCard>
+        <EventPickerCard mobile={isMobile} name="Who wins the World Cup?" meta="Sports · settles Dec 18" lines={["futures"]} tail="4 options">
+          <PickerOptionRow isBinary={false} mobile={isMobile} label="Brazil" price={0.32} pickedLong />
+          <PickerOptionRow isBinary={false} mobile={isMobile} label="France" price={0.24} />
+          <PickerOptionRow isBinary={false} mobile={isMobile} label="Argentina" price={0.19} />
+          <PickerOptionRow isBinary={false} mobile={isMobile} dim label="Japan" price={0.04} />
+        </EventPickerCard>
       );
 
     if (state === "standard")
       return (
-        <PickerCard mobile={isMobile} name="NVDA up or down — Aug 12" meta="Stocks · settles Aug 12" lines={["Standard"]} tail="Binary">
-          <div className={isMobile ? "flex flex-col gap-[6px]" : "grid grid-cols-2 gap-[8px]"}>
-            <OptionRow binary mobile={isMobile} label="Up" price="54¢" />
-            <OptionRow binary mobile={isMobile} label="Down" price="46¢" />
-          </div>
-        </PickerCard>
+        <EventPickerCard mobile={isMobile} name="NVDA up or down — Aug 12" meta="Stocks · settles Aug 12" lines={["spot"]} tail="Binary" rowsLayout={isMobile ? "stack" : "grid"}>
+          <PickerOptionRow isBinary mobile={isMobile} label="Up" price={0.54} />
+          <PickerOptionRow isBinary mobile={isMobile} label="Down" price={0.46} />
+        </EventPickerCard>
       );
 
     return (
-      <PickerCard mobile={isMobile} name="Will ETH close above $4k on Aug 14?" meta="Crypto · settles Aug 14" lines={["Boost"]} tail="Binary">
-        <div className={isMobile ? "flex flex-col gap-[6px]" : "grid grid-cols-2 gap-[8px]"}>
-          <OptionRow binary mobile={isMobile} label="Yes" price="61¢" />
-          <OptionRow binary mobile={isMobile} label="No" price="39¢" />
-        </div>
-      </PickerCard>
+      <EventPickerCard mobile={isMobile} name="Will ETH close above $4k on Aug 14?" meta="Crypto · settles Aug 14" lines={["futures"]} tail="Binary" rowsLayout={isMobile ? "stack" : "grid"}>
+        <PickerOptionRow isBinary mobile={isMobile} label="Yes" price={0.61} />
+        <PickerOptionRow isBinary mobile={isMobile} label="No" price={0.39} />
+      </EventPickerCard>
     );
   })();
 

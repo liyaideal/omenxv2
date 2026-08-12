@@ -37,7 +37,11 @@ const PortalGroup = ({ isMobile }: { isMobile: boolean }) => (
       </div>
     </SubSection>
 
-    <SubSection title="Capabilities row" platform="shared">
+    <SubSection
+      title="Capabilities row"
+      description="概念示意图，非组件规格 — hand-composed marketing illustration, not a production component spec."
+      platform="shared"
+    >
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {[
           { icon: LineChart, title: "Market Data", body: "Real-time order book, trades, mark & funding.", tag: "REST · WS" },
@@ -60,7 +64,11 @@ const PortalGroup = ({ isMobile }: { isMobile: boolean }) => (
       </div>
     </SubSection>
 
-    <SubSection title="Access-tier stepped ladder (marketing)" platform="desktop">
+    <SubSection
+      title="Access-tier stepped ladder (marketing)"
+      description="概念示意图，非组件规格 — hand-composed marketing illustration, not a production component spec."
+      platform="desktop"
+    >
       <div className={isMobile ? "hidden" : "flex items-stretch gap-0"}>
         {[
           { name: "Read-only", tag: "Free", accent: "muted" as const, offset: 16 },

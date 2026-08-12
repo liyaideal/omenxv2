@@ -6,6 +6,8 @@
 // Pixel contract: docs/design-contracts/list-final-touches-11.html
 // ============================================================
 import { TOP_CATEGORIES } from "@/lib/taxonomy";
+import { CategoryPill } from "@/components/lite/CategoryPill";
+import { TraitChip } from "@/components/lite/LiteListControls";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
@@ -273,7 +275,7 @@ const BOOST_PRESETS = [
 /** Desktop chip set, order and labels straight from the taxonomy. */
 const TAXONOMY_CHIPS = TOP_CATEGORIES.filter((c) =>
   ["all", "intraday", "sports", "crypto", "finance", "politics", "macro"].includes(c.id),
-).map((c) => ({ id: c.id, label: c.label }));
+);
 
 const BOOST_GROUPS = [
   { label: "Crypto", n: 3 },
@@ -407,29 +409,16 @@ export const LiteFinalTouchesSection = () => {
           <div className="flex flex-col" style={{ gap: 20 }}>
             <div className="flex flex-wrap items-center" style={{ gap: 8 }}>
               {TAXONOMY_CHIPS.map((c) => (
-                <span
+                <CategoryPill
                   key={c.id}
-                  className="rounded-full px-[14px] py-[7px] text-[12.5px]"
-                  style={
-                    c.id === (boostPreset === "sports" ? "sports" : "all")
-                      ? { background: "#fff", color: "#0A0B0D", fontWeight: 600 }
-                      : { border: "1.5px solid #2B2F38", color: "#C9CED6" }
-                  }
-                >
-                  {c.label}
-                </span>
+                  label={c.label}
+                  dot={c.dot}
+                  active={c.id === (boostPreset === "sports" ? "sports" : "all")}
+                  onClick={() => {}}
+                />
               ))}
               <span aria-hidden style={{ width: 1, height: 20, background: "#23262D" }} />
-              <span
-                className="rounded-full px-[14px] py-[7px] text-[12.5px]"
-                style={
-                  boostPreset === "off"
-                    ? { border: "1.5px solid #CFFF4A", color: "#CFFF4A" }
-                    : { background: "#CFFF4A", color: "#0A0B0D", fontWeight: 700 }
-                }
-              >
-                Boost
-              </span>
+              <TraitChip kind="boost" active={boostPreset !== "off"} onClick={() => {}} />
             </div>
 
             {boostPreset === "off" ? (

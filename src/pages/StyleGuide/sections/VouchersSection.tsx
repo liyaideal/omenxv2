@@ -25,18 +25,10 @@ export const VouchersSection = ({ isMobile: _isMobile }: Props) => {
       <div className="space-y-10">
         <SubSection
           title="1. VoucherBanner"
-          description="Home / Vouchers entry banner. Granted CTA (Gift icon) wins over claimed CTA (Ticket icon) whenever any granted voucher exists. Mirror — production VoucherBanner is hook-driven with no props."
+          description="Real VoucherBannerView (src/components/vouchers/VoucherBanner.tsx) driven by mock counts. Granted CTA (Gift icon) wins over claimed CTA (Ticket icon) whenever any granted voucher exists; returns null at zero."
           platform="shared"
         >
           <DualDevicePreview previewKey="voucher-banner" label="Toggle Mobile·375 to see the stacked breakpoint." minHeight={280} />
-        </SubSection>
-
-        <SubSection
-          title="2. Vouchers page — list-level states"
-          description="Loading / empty / populated branches rendered by src/pages/Vouchers.tsx. Uses the real EmptyState and LoadingState components mounted by the page."
-          platform="shared"
-        >
-          <DualDevicePreview previewKey="voucher-page-list-level" label="loading · empty · populated (see other cases)" minHeight={360} />
         </SubSection>
 
         <SubSection
@@ -57,7 +49,7 @@ export const VouchersSection = ({ isMobile: _isMobile }: Props) => {
 
         <SubSection
           title="5. EventPickerList — option rows"
-          description="Eligibility check per option: price band, time-to-settlement, resolution. Binary events render Buy {alias}; multi-market events render Yes / No. Mirror — EventPickerList is hook-driven and eligibility states can't be forced without mocking useActiveEvents."
+          description="Real EventPickerCard / PickerOptionRow / PickerBlockedReason (extracted out of EventPickerList) with mock props. Eligibility check per option: price band, time-to-settlement, resolution. Binary events render one neutral Buy button per outcome; multi-market events render Yes / No."
           platform="shared"
         >
           <DualDevicePreview previewKey="voucher-picker" label="binary vs multi-market · locked reasons" minHeight={420} />
@@ -65,7 +57,7 @@ export const VouchersSection = ({ isMobile: _isMobile }: Props) => {
 
         <SubSection
           title="6. Redeem confirm — sticky action bar"
-          description="Bottom bar for the redemption flow. Mirror — this bar is embedded inside RedeemVoucherContent and is not exported as a standalone component."
+          description="Real RedeemSummaryBar — the same bar RedeemVoucherContent mounts inline (sticky) and inside the dialog / drawer shell."
           platform="shared"
         >
           <DualDevicePreview previewKey="voucher-redeem-sticky" label="empty · picked (binary / multi) · submitting" minHeight={260} />
@@ -80,27 +72,11 @@ export const VouchersSection = ({ isMobile: _isMobile }: Props) => {
         </SubSection>
 
         <SubSection
-          title="8. Redeemed voucher row (Vouchers page)"
-          description="Mirror of RedeemedSection row in src/pages/Vouchers.tsx. Binary events surface the alias chip on its own line; multi-market events show market label + YES/NO inline. Right column mirrors production exactly: flat `Position open` / `Position closed` — PnL amount varies per settled variant."
-          platform="shared"
-        >
-          <DualDevicePreview previewKey="voucher-redeemed-row" label="6 open / settled variants" minHeight={340} />
-        </SubSection>
-
-        <SubSection
           title="9. Position chip — voucher source marker"
-          description="Voucher badge + Hold-window countdown rendered inside positions tables. Mirror — chips are composed inline in the positions surface."
+          description="Voucher badge + Hold-window countdown. ORPHAN — no production surface renders this chip today (PositionCard has no voucher markup). Kept pending CPO ruling: keep and build, or delete."
           platform="shared"
         >
           <DualDevicePreview previewKey="voucher-position-chip" label="comfortable · urgent · past hold" minHeight={180} />
-        </SubSection>
-
-        <SubSection
-          title="10. Expired voucher row (Vouchers page)"
-          description="Mirror of ExpiredSection row in src/pages/Vouchers.tsx. Two lifecycle sources surface via the subline: granted-never-claimed (Unclaimed) and claimed-never-redeemed within 7 days (Claimed, not redeemed)."
-          platform="shared"
-        >
-          <DualDevicePreview previewKey="voucher-expired-row" label="Unclaimed · Claimed, not redeemed" minHeight={260} />
         </SubSection>
       </div>
     </SectionWrapper>

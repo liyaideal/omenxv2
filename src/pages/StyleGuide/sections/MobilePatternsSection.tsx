@@ -331,7 +331,7 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
         id="mobile-header-specs"
         title="Mobile Header Design Specification"
         platform="mobile"
-        description="Comprehensive rules for mobile header layout and behavior"
+        description="Comprehensive rules for mobile header layout and behavior. 概念示意图 — the boxes below are hand-drawn diagrams illustrating the rules, not live components. The live header lives in the Mobile Header Playground below."
       >
         {/* Page Type Classification */}
         <Card className="trading-card mb-6 border-primary/30">
@@ -660,7 +660,7 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
         id="mobile-header"
         title="Mobile Header Playground"
         platform="mobile"
-        description="Interactive configuration for all header variants"
+        description="Interactive configuration for all header variants — real MobileHeader component, live props."
       >
         {/* Props Documentation */}
         <Card className="trading-card border-primary/30 mb-6">
@@ -829,7 +829,7 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
         id="mobile-patterns"
         title="Mobile UI Patterns"
         platform="mobile"
-        description="Best practices for mobile trading interfaces"
+        description="Best practices for mobile trading interfaces. 概念示意图 — every block in this section is a hand-drawn diagram, not a live component."
       >
         <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
           {/* Bottom CTA Placement */}

@@ -16,6 +16,8 @@ import { EventRow, MarketChildRow } from "@/hooks/useMarketListData";
 import { SportsMatch } from "@/components/lite/sports/sportsData";
 import { StockEventRow } from "@/components/lite/intraday/intradayData";
 import { FROZEN_NOW } from "../frozenClock";
+import { CategoryPill } from "@/components/lite/CategoryPill";
+import { TOP_CATEGORIES } from "@/lib/taxonomy";
 
 /* ---------------- Frozen mock clock ---------------- */
 const NOW = FROZEN_NOW;
@@ -486,20 +488,8 @@ const EntryChipsDemo = () => (
         </div>
         {/* As-built placement: right-aligned tail of the category filter row. */}
         <div className="flex items-center" style={{ gap: 8 }}>
-          {["All", "Intraday", "Sports", "Economy", "Politics"].map((l, i) => (
-            <span
-              key={l}
-              style={{
-                borderRadius: 999,
-                padding: "7px 13px",
-                fontSize: 12.5,
-                border: `1.5px solid ${i === 0 ? "#FFFFFF" : "#2B2F38"}`,
-                background: i === 0 ? "#FFFFFF" : "transparent",
-                color: i === 0 ? "#0A0B0D" : "#C9CED6",
-              }}
-            >
-              {l}
-            </span>
+          {TOP_CATEGORIES.slice(0, 5).map((c, i) => (
+            <CategoryPill key={c.id} label={c.label} dot={c.dot} active={i === 0} onClick={noop} />
           ))}
           <span className="ml-auto flex items-center" style={{ gap: 8 }}>
             <WatchlistChip active={false} count={6} showLabel onClick={noop} />

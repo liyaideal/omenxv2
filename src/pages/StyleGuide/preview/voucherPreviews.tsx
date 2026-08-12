@@ -6,37 +6,39 @@
  *  - VoucherCard              → src/components/vouchers/VoucherCard.tsx
  *  - VoucherEarningsCard      → src/components/vouchers/VoucherEarningsCard.tsx
  *  - CloseVoucherContent      → src/components/positions/CloseVoucherContent.tsx
- *  - EmptyState / LoadingState → src/components/states/*
+ *  - VoucherBannerView        → src/components/vouchers/VoucherBanner.tsx
+ *  - EventPickerCard / PickerOptionRow / PickerBlockedReason
+ *                             → src/components/vouchers/EventPickerCard.tsx
+ *  - RedeemSummaryBar         → src/components/vouchers/RedeemSummaryBar.tsx
  *
  * The following demos stay as style-guide-internal mirrors because production has
  * no independent, prop-driven component to import:
- *  - Banner            (VoucherBanner reads usePositionVouchers() directly; no props)
- *  - Event picker rows (EventPickerList is hook-driven; eligibility states can't
- *                       be forced without mocking useActiveEvents)
- *  - Redeem sticky bar (embedded inside RedeemVoucherContent; not exported)
- *  - Redeemed row      (RedeemedSection is inline in Vouchers.tsx, not exported)
- *  - Position chip     (composed inline in positions tables)
- *  - Expired row       (ExpiredSection is inline in Vouchers.tsx)
+ *  - Position chip     (no production surface renders it today — pending CPO
+ *                       ruling on whether to keep or delete the demo)
  * Each mirror must be kept 1:1 in sync with its production source.
  */
 
 import { useState } from "react";
 import {
   Ticket,
-  ChevronRight,
   Lock,
   Clock,
-  Gift,
   Loader2,
   Wallet,
-  Coins,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { VoucherCard } from "@/components/vouchers/VoucherCard";
 import { VoucherEarningsCard } from "@/components/vouchers/VoucherEarningsCard";
 import { CloseVoucherContent } from "@/components/positions/CloseVoucherContent";
-import { EmptyState, LoadingState } from "@/components/states";
+import { VoucherBannerView } from "@/components/vouchers/VoucherBanner";
+import {
+  EventPickerCard,
+  PickerOptionRow,
+  PickerBlockedReason,
+} from "@/components/vouchers/EventPickerCard";
+import { RedeemSummaryBar } from "@/components/vouchers/RedeemSummaryBar";
+import { useIsMobile } from "@/hooks/use-mobile";
 import type { PositionVoucher } from "@/hooks/usePositionVouchers";
 
 /* ---------------- shared bits ---------------- */
@@ -102,25 +104,15 @@ const Frame = ({ children, label }: { children: React.ReactNode; label?: string 
   </div>
 );
 
-/* ---------------- 1. Banner (mirror) ---------------- */
-/* 1:1 mirror of src/components/vouchers/VoucherBanner.tsx — keep className /
-   copy / icon in lockstep. */
+/* ---------------- 1. Banner (real component) ---------------- */
 
 type BannerState = "hidden" | "grantedOnly" | "grantedAndClaimed" | "claimedOnly";
 
 export const BannerPreview = () => {
   const [state, setState] = useState<BannerState>("grantedOnly");
 
-  const grantedCount: number = state === "grantedOnly" ? 2 : state === "grantedAndClaimed" ? 1 : 0;
-  const claimedCount: number = state === "claimedOnly" ? 3 : state === "grantedAndClaimed" ? 2 : 0;
-  const showGranted = grantedCount > 0;
-  const Icon = showGranted ? Gift : Ticket;
-  const headline = showGranted
-    ? `You have ${grantedCount} unclaimed voucher${grantedCount === 1 ? "" : "s"}`
-    : `You have ${claimedCount} voucher${claimedCount === 1 ? "" : "s"} ready to redeem`;
-  const subline = showGranted
-    ? "Tap to claim — then redeem within 7 days."
-    : "Redeem to open a free position on any eligible event.";
+  const grantedCount = state === "grantedOnly" ? 2 : state === "grantedAndClaimed" ? 1 : 0;
+  const claimedCount = state === "claimedOnly" ? 3 : state === "grantedAndClaimed" ? 2 : 0;
 
   return (
     <div className="space-y-3">
@@ -135,62 +127,12 @@ export const BannerPreview = () => {
         ]}
       />
       <Frame>
-        {state === "hidden" ? (
+        {state === "hidden" && (
           <div className="text-xs text-muted-foreground italic">
-            Banner is not rendered when the user has zero granted and zero claimed vouchers.
-          </div>
-        ) : (
-          <div className="flex items-center justify-between gap-3 rounded-xl border border-primary/30 bg-gradient-to-r from-primary/15 via-primary/5 to-transparent px-4 py-3">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
-                <Icon className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <div className="text-sm font-medium text-foreground">{headline}</div>
-                <div className="text-xs text-muted-foreground">{subline}</div>
-              </div>
-            </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+            Banner returns null when the user has zero granted and zero claimed vouchers.
           </div>
         )}
-      </Frame>
-    </div>
-  );
-};
-
-/* ---------------- 2. Page list-level states ---------------- */
-/* Real EmptyState / LoadingState, matching the components mounted by
-   src/pages/Vouchers.tsx around its list branches. */
-
-export const PageListLevelPreview = () => {
-  const [state, setState] = useState<"loading" | "empty" | "populated">("empty");
-  return (
-    <div className="space-y-3">
-      <PresetRail
-        value={state}
-        onChange={setState}
-        options={[
-          { id: "loading", label: "Loading" },
-          { id: "empty", label: "Empty" },
-          { id: "populated", label: "Populated (see other cases)" },
-        ]}
-      />
-      <Frame>
-        {state === "loading" && <LoadingState label="Loading vouchers…" variant="skeleton" skeletonRows={3} />}
-        {state === "empty" && (
-          <EmptyState
-            variant="card"
-            icon={Ticket}
-            title="No vouchers yet"
-            description="When you receive a position voucher, it'll show up here ready to redeem."
-          />
-        )}
-        {state === "populated" && (
-          <div className="text-xs text-muted-foreground italic">
-            When vouchers exist the page renders the To-claim rail, Ready-to-redeem grid,
-            Redeemed list, and Expired list — see the other cases in this section.
-          </div>
-        )}
+        <VoucherBannerView grantedCount={grantedCount} claimedCount={claimedCount} />
       </Frame>
     </div>
   );
@@ -367,80 +309,10 @@ export const EarningsPreview = () => {
   );
 };
 
-/* ---------------- 5. Event picker rows (mirror) ---------------- */
-
-const PickerOptionRow = ({
-  label,
-  price,
-  state,
-  binary,
-  isYes,
-}: {
-  label: string;
-  price: number;
-  state: "eligible" | "band" | "time" | "resolved";
-  binary: boolean;
-  isYes?: boolean;
-}) => {
-  const locked = state !== "eligible";
-  const reason =
-    state === "band"
-      ? "Price out of 0.20–0.80 band"
-      : state === "time"
-        ? "Closes within 6h"
-        : state === "resolved"
-          ? "Event already resolved"
-          : "";
-  const colorClass = binary
-    ? isYes
-      ? "border-trading-green/40 bg-trading-green/15 text-trading-green"
-      : "border-trading-red/40 bg-trading-red/15 text-trading-red"
-    : "border-trading-green/40 bg-trading-green/15 text-trading-green";
-
-  const btnClass = locked
-    ? "border-border bg-muted/40 text-muted-foreground cursor-not-allowed"
-    : colorClass;
-
-  return (
-    <div className="flex items-center justify-between gap-2 flex-wrap md:flex-nowrap">
-      <div className="min-w-0 flex-1 text-xs text-foreground/90 truncate">{label}</div>
-      <div className="font-mono text-xs text-muted-foreground tabular-nums w-12 text-right">
-        ${price.toFixed(2)}
-      </div>
-      <div className="flex gap-1">
-        {binary ? (
-          <button className={`h-7 px-2 rounded text-[11px] font-medium border ${btnClass}`} disabled={locked}>
-            {locked && <Lock className="w-3 h-3 inline mr-1" />}
-            Buy {label}
-          </button>
-        ) : (
-          <>
-            <button className={`h-7 px-2 rounded text-[11px] font-medium border ${btnClass}`} disabled={locked}>
-              {locked && <Lock className="w-3 h-3 inline mr-1" />}
-              Yes
-            </button>
-            <button
-              className={`h-7 px-2 rounded text-[11px] font-medium border ${
-                locked ? "border-border bg-muted/40 text-muted-foreground cursor-not-allowed" : "border-trading-red/40 bg-trading-red/15 text-trading-red"
-              }`}
-              disabled={locked}
-            >
-              {locked && <Lock className="w-3 h-3 inline mr-1" />}
-              No
-            </button>
-          </>
-        )}
-      </div>
-      {locked && (
-        <span className="text-[10px] text-muted-foreground italic md:w-44 md:text-right shrink-0 basis-full md:basis-auto">
-          {reason}
-        </span>
-      )}
-    </div>
-  );
-};
+/* ---------------- 5. Event picker rows (real components) ---------------- */
 
 export const PickerPreview = () => {
+  const isMobile = useIsMobile();
   const [eventType, setEventType] = useState<"binary" | "multi">("binary");
   return (
     <div className="space-y-3">
@@ -453,52 +325,58 @@ export const PickerPreview = () => {
         ]}
       />
       <Frame>
-        <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
-          <div className="flex items-center justify-between gap-2">
-            <div className="min-w-0">
-              <div className="text-sm font-medium text-foreground truncate">
-                {eventType === "binary" ? "UFC 316 Headliner: Pereira vs Ankalaev?" : "US unemployment rate May 2026?"}
-              </div>
-              <div className="text-[10px] text-muted-foreground capitalize">
-                {eventType === "binary" ? "sports" : "macro"}
-              </div>
-            </div>
-            <Badge variant="outline" className="text-[10px] shrink-0">
-              {eventType === "binary" ? "Binary" : "5 options"}
-            </Badge>
-          </div>
-          <div className="space-y-1.5">
-            {eventType === "binary" ? (
-              <>
-                <PickerOptionRow label="Alex Pereira" price={0.42} state="eligible" binary isYes />
-                <PickerOptionRow label="Magomed Ankalaev" price={0.58} state="eligible" binary isYes={false} />
-              </>
-            ) : (
-              <>
-                <PickerOptionRow label="Above 5.0%" price={0.35} state="eligible" binary={false} />
-                <PickerOptionRow label="4.5%–5.0%" price={0.18} state="band" binary={false} />
-                <PickerOptionRow label="4.0%–4.5%" price={0.55} state="time" binary={false} />
-                <PickerOptionRow label="Below 4.0%" price={0.92} state="resolved" binary={false} />
-              </>
-            )}
-          </div>
-        </div>
+        {eventType === "binary" ? (
+          <EventPickerCard
+            mobile={isMobile}
+            name="UFC 316 Headliner: Pereira vs Ankalaev?"
+            meta="sports · settles Jun 7"
+            lines={["futures"]}
+            tail="Binary"
+            rowsLayout={isMobile ? "stack" : "grid"}
+          >
+            <PickerOptionRow isBinary mobile={isMobile} label="Alex Pereira" price={0.42} />
+            <PickerOptionRow isBinary mobile={isMobile} label="Magomed Ankalaev" price={0.58} />
+          </EventPickerCard>
+        ) : (
+          <EventPickerCard
+            mobile={isMobile}
+            name="US unemployment rate May 2026?"
+            meta="macro · settles Jun 5"
+            lines={["futures"]}
+            tail="4 options"
+            eligible={false}
+          >
+            <PickerOptionRow isBinary={false} mobile={isMobile} label="Above 5.0%" price={0.35} />
+            <PickerOptionRow isBinary={false} mobile={isMobile} label="4.5%–5.0%" price={0.18} dim />
+            <PickerOptionRow isBinary={false} mobile={isMobile} label="4.0%–4.5%" price={0.55} dim />
+            <PickerOptionRow isBinary={false} mobile={isMobile} label="Below 4.0%" price={0.92} dim />
+            <PickerBlockedReason>Priced outside the voucher band — pick another option.</PickerBlockedReason>
+          </EventPickerCard>
+        )}
       </Frame>
     </div>
   );
 };
 
-/* ---------------- 6. Redeem sticky bar (mirror) ---------------- */
+/* ---------------- 6. Redeem confirm bar (real component) ---------------- */
+
+type StickyState = "empty" | "binary" | "multiYes" | "multiNo" | "submitting";
+
+const STICKY_PICKS: Record<Exclude<StickyState, "empty">, {
+  eventName: string;
+  displayLabel: string;
+  isBinary: boolean;
+  side: "long" | "short";
+  price: number;
+}> = {
+  binary: { eventName: "UFC 316 Headliner", displayLabel: "Magomed Ankalaev", isBinary: true, side: "long", price: 0.58 },
+  multiYes: { eventName: "US unemployment rate May 2026?", displayLabel: "Above 5.0%", isBinary: false, side: "long", price: 0.35 },
+  multiNo: { eventName: "US unemployment rate May 2026?", displayLabel: "Above 5.0%", isBinary: false, side: "short", price: 0.65 },
+  submitting: { eventName: "UFC 316 Headliner", displayLabel: "Magomed Ankalaev", isBinary: true, side: "long", price: 0.58 },
+};
 
 export const RedeemStickyPreview = () => {
-  const [state, setState] = useState<"empty" | "binary" | "multiYes" | "multiNo" | "submitting">("binary");
-
-  const labels: Record<string, { display: string; color: string; hint: string }> = {
-    binary: { display: "Magomed Ankalaev", color: "text-trading-red", hint: "Binary · alias" },
-    multiYes: { display: "Above 5.0% · YES", color: "text-trading-green", hint: "Multi-market · Yes side" },
-    multiNo: { display: "Above 5.0% · NO", color: "text-trading-red", hint: "Multi-market · No side" },
-  };
-
+  const [state, setState] = useState<StickyState>("binary");
   return (
     <div className="space-y-3">
       <PresetRail
@@ -513,19 +391,12 @@ export const RedeemStickyPreview = () => {
         ]}
       />
       <Frame>
-        <div className="rounded-lg border border-border bg-muted/30 p-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-          {state === "empty" ? (
-            <span className="text-xs text-muted-foreground">Select an outcome on a market above to continue.</span>
-          ) : (
-            <div className="min-w-0">
-              <div className={`text-sm font-medium ${labels[state]?.color}`}>{labels[state]?.display}</div>
-              <div className="text-[11px] text-muted-foreground">{labels[state]?.hint}</div>
-            </div>
-          )}
-          <Button size="sm" disabled={state === "empty" || state === "submitting"} className="w-full md:w-auto">
-            {state === "submitting" ? "Redeeming…" : "Redeem"}
-          </Button>
-        </div>
+        <RedeemSummaryBar
+          picked={state === "empty" ? null : STICKY_PICKS[state]}
+          faceValue={25}
+          maxHoldingHours={72}
+          isRedeeming={state === "submitting"}
+        />
       </Frame>
     </div>
   );
@@ -589,116 +460,6 @@ export const ClosePreview = () => {
   );
 };
 
-/* ---------------- 8. Redeemed voucher row (mirror) ---------------- */
-
-type RedeemedState =
-  | "binaryOpen"
-  | "multiOpen"
-  | "settledManualProfit"
-  | "settledEventResolved"
-  | "settledHoldExpiry"
-  | "settledFullLoss";
-
-
-export const RedeemedRowPreview = () => {
-  const [state, setState] = useState<RedeemedState>("binaryOpen");
-  const isClosed = state.startsWith("settled");
-
-  const pnl =
-    state === "settledManualProfit" ? 7.35
-    : state === "settledEventResolved" ? 18.20
-    : state === "settledHoldExpiry" ? -4.10
-    : state === "settledFullLoss" ? 0
-    : null;
-  const pnlColor =
-    pnl == null
-      ? "text-muted-foreground"
-      : pnl > 0
-        ? "text-trading-green"
-        : pnl < 0
-          ? "text-trading-red"
-          : "text-muted-foreground";
-
-  const isBinary = state === "binaryOpen";
-  const code =
-    state === "binaryOpen" ? "50AAC401"
-    : state === "multiOpen" ? "DC3CAC02"
-    : "EE8ECA03";
-  const face =
-    state === "binaryOpen" ? 10
-    : state === "multiOpen" ? 25
-    : 50;
-  const eventName =
-    state === "binaryOpen"
-      ? "UFC 316 Headliner: Pereira vs Ankalaev?"
-      : state === "multiOpen"
-        ? "NBA Finals 2026 Game 7: Celtics vs Thunder?"
-        : "US unemployment rate May 2026?";
-
-  return (
-    <div className="space-y-3">
-      <PresetRail
-        value={state}
-        onChange={setState}
-        options={[
-          { id: "binaryOpen", label: "Binary · open" },
-          { id: "multiOpen", label: "Multi · open" },
-          { id: "settledManualProfit", label: "Settled · manual · +PnL" },
-          { id: "settledEventResolved", label: "Settled · resolved · +PnL" },
-          { id: "settledHoldExpiry", label: "Settled · hold expired · −PnL" },
-          { id: "settledFullLoss", label: "Settled · $0.00" },
-        ]}
-      />
-      <Frame>
-        <div className={`rounded-lg border border-border bg-muted/20 p-3 max-w-xl ${isClosed ? "opacity-90" : ""}`}>
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-mono text-xs text-muted-foreground">{code}</span>
-                <span className="font-mono text-sm">${face.toFixed(2)}</span>
-              </div>
-              {!isBinary && (
-                <div className="mt-1.5 flex items-center gap-2 flex-wrap">
-                  <span className="inline-flex items-center rounded border border-border bg-background/40 px-1.5 py-0.5 text-[10px] tracking-wider uppercase text-muted-foreground">
-                    Above 5.0%
-                  </span>
-                  <span className="inline-flex items-center rounded border border-trading-green/40 bg-trading-green/10 px-1.5 py-0.5 text-[10px] tracking-wider uppercase text-trading-green">
-                    YES
-                  </span>
-                </div>
-              )}
-              <div className="text-xs text-foreground/80 mt-1 truncate">{eventName}</div>
-
-              {isBinary && (
-                <div className="mt-1.5 min-w-0">
-                  <span className="inline-flex max-w-full items-center rounded border border-border bg-background/40 px-1.5 py-0.5 text-[10px] normal-case truncate text-trading-red">
-                    Magomed Ankalaev
-                  </span>
-                </div>
-              )}
-              <div className="text-[11px] text-muted-foreground mt-1">Redeemed 03/06/2026</div>
-            </div>
-            <div className="flex flex-col items-end gap-1 shrink-0">
-              <span className={`text-[11px] ${isClosed ? "text-muted-foreground" : "text-primary"}`}>
-                {isClosed ? "Position closed" : "Position open"}
-              </span>
-              {isClosed && pnl != null && (
-                <span className={`font-mono text-sm ${pnlColor}`}>
-                  {pnl > 0 ? "+" : ""}${pnl.toFixed(2)}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-      </Frame>
-      <p className="text-[11px] text-muted-foreground italic">
-        Right column mirrors production: flat <code className="font-mono">Position open</code> /
-        <code className="font-mono"> Position closed</code>. PnL amount varies per state below.
-      </p>
-    </div>
-  );
-};
-
 /* ---------------- 9. Position chip (mirror) ---------------- */
 
 export const PositionChipPreview = () => {
@@ -740,50 +501,6 @@ export const PositionChipPreview = () => {
           </span>
         </div>
       </Frame>
-    </div>
-  );
-};
-
-/* ---------------- 10. Expired voucher row (mirror) ---------------- */
-/* Mirrors src/pages/Vouchers.tsx::ExpiredSection row 1:1. Production subline
-   copy: "Unclaimed" (never claimed) or "Claimed, not redeemed" (claimed but
-   never redeemed within the 7-day window). */
-
-type ExpiredState = "expiredUnclaimed" | "expiredUnredeemed";
-
-export const ExpiredRowPreview = () => {
-  const [state, setState] = useState<ExpiredState>("expiredUnclaimed");
-  const isUnclaimed = state === "expiredUnclaimed";
-  const code = isUnclaimed ? "AB12CD34" : "EF56GH78";
-  const face = isUnclaimed ? 10 : 25;
-  const reason = isUnclaimed ? "Unclaimed" : "Claimed, not redeemed";
-
-  return (
-    <div className="space-y-3">
-      <PresetRail
-        value={state}
-        onChange={setState}
-        options={[
-          { id: "expiredUnclaimed", label: "Granted → never claimed" },
-          { id: "expiredUnredeemed", label: "Claimed → not redeemed in 7d" },
-        ]}
-      />
-      <Frame>
-        <div className="rounded-lg border border-border bg-muted/10 p-3 flex items-center justify-between gap-3 opacity-70 max-w-xl">
-          <div>
-            <span className="font-mono text-xs text-muted-foreground">{code}</span>
-            <span className="font-mono text-sm ml-2">${face.toFixed(2)}</span>
-          </div>
-          <div className="flex flex-col items-end">
-            <span className="text-[11px] text-muted-foreground">Expired</span>
-            <span className="text-[10px] text-muted-foreground/70">{reason}</span>
-          </div>
-        </div>
-      </Frame>
-      <p className="text-[11px] text-muted-foreground italic flex items-center gap-1.5">
-        <Coins className="w-3 h-3" />
-        Source: src/pages/Vouchers.tsx::ExpiredSection.
-      </p>
     </div>
   );
 };
