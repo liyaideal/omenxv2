@@ -3,6 +3,11 @@ import { SectionWrapper, LegacyNotice } from "../components/SectionWrapper";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
 import { SideButton } from "@/components/lite/shared/SideButton";
+import {
+  SpotSentimentBar,
+  SpotSettlementRail,
+  SpotYourPosition,
+} from "@/components/lite/trade/SpotBlocks";
 import { cn } from "@/lib/utils";
 
 /**
@@ -141,7 +146,93 @@ export const LiteSpotSection = ({ isMobile }: { isMobile: boolean }) => {
           render deterministically here without being refactored into exported
           modules. Its shared parts are covered elsewhere: the order card above,
           RoundPlot and Last8Strip in the All-stage section, LiteMarketActivity in
-          the Lite contract section, and the SpotBlocks rails in this section.
+          the Lite contract section, and the SpotBlocks trio demoed below.
+        </div>
+      </SectionWrapper>
+
+      <SectionWrapper
+        id="lite-spot-blocks"
+        title="Lite spot · SpotBlocks (crowd bar · settlement rail · your position)"
+        description="The three shared trunk modules of /spot (also reused by the quick-round page). Real components from src/components/lite/trade/SpotBlocks.tsx with mock props — desktop and mobile mount the same markup, only the column width changes."
+      >
+        <div className={cn("grid gap-4", isMobile ? "grid-cols-1" : "grid-cols-2")}>
+          <div className="space-y-2">
+            <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+              SpotSentimentBar · Up favoured
+            </div>
+            <SpotSentimentBar yesLabel="Up" noLabel="Down" yesPct={preset.yesPrice * 100} volText="$184.2K" />
+          </div>
+          <div className="space-y-2">
+            <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+              SpotSentimentBar · edge 99/1 clamp
+            </div>
+            <SpotSentimentBar yesLabel="Up" noLabel="Down" yesPct={0.4} volText="$12.0K" />
+          </div>
+          <div className="space-y-2">
+            <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+              SpotSettlementRail · trading now
+            </div>
+            <SpotSettlementRail
+              blocked={false}
+              tradingNow
+              nodes={[
+                { key: "open", label: "Market opens", time: "09:30" },
+                { key: "now", label: "Trading", time: "now", now: true },
+                { key: "close", label: "Cash close", time: "16:00" },
+                { key: "settle", label: "Settles", time: "16:05" },
+              ]}
+            />
+          </div>
+          <div className="space-y-2">
+            <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+              SpotSettlementRail · settled (all nodes complete)
+            </div>
+            <SpotSettlementRail
+              blocked
+              settled
+              tradingNow={false}
+              nodes={[
+                { key: "open", label: "Market opens", time: "09:30" },
+                { key: "mid", label: "Trading", time: "closed" },
+                { key: "close", label: "Cash close", time: "16:00" },
+                { key: "settle", label: "Settled", time: "16:05" },
+              ]}
+            />
+          </div>
+          <div className="space-y-2">
+            <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+              SpotYourPosition · Up in profit
+            </div>
+            <SpotYourPosition
+              sideLabel="Up"
+              isYesSide
+              sizeDisplay="92.59"
+              pnl="+$12.40"
+              pnlPercent="+24.8%"
+              currentValue={62.4}
+              avgCost="54¢"
+              ifWinsLabel="If Up wins"
+              ifWinsValue="$92.59"
+              onCashOut={() => undefined}
+            />
+          </div>
+          <div className="space-y-2">
+            <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+              SpotYourPosition · Down under water
+            </div>
+            <SpotYourPosition
+              sideLabel="Down"
+              isYesSide={false}
+              sizeDisplay="108.70"
+              pnl="-$8.10"
+              pnlPercent="-16.2%"
+              currentValue={41.9}
+              avgCost="46¢"
+              ifWinsLabel="If Down wins"
+              ifWinsValue="$108.70"
+              onCashOut={() => undefined}
+            />
+          </div>
         </div>
       </SectionWrapper>
 
