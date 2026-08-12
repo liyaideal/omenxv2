@@ -1343,11 +1343,16 @@ const MultiMarketStates = () => {
           onSelect={(id, side) => setSelMobile({ id, side })}
         />
       </Cell>
-      <Cell label="Order rail · same-option opposite side blocked">
+      <Cell label="Order rail · opposite side nets out (no block)">
         <LiteContractOrderPanel
           eventName="Where does Bitcoin end July?"
           marketContextLabel="$110K – $120K"
-          blockNotice="You already hold Yes on this market. Cash out first, then switch sides."
+          blockNotice={null}
+          noAsSell
+          nettingScopeLabel="on this market"
+          heldSideLabel="Yes"
+          heldCurrentValue={38.5}
+          heldQty={110}
           yesLabel="Yes"
           noLabel="No"
           yesPrice={0.34}
@@ -1355,7 +1360,7 @@ const MultiMarketStates = () => {
           yesOptionId="m3"
           noOptionId="m3"
           yesOptionLabel="$110K – $120K"
-          noOptionLabel="No: $110K – $120K"
+          noOptionLabel="$110K – $120K"
           blocked={false}
           side="no"
           onSideChange={() => undefined}
