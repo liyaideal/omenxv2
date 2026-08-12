@@ -394,11 +394,16 @@ const CategoryRowDemo = () => {
         </div>
       </div>
       <Caption>{p.caption}</Caption>
+      <Caption>
+        Pills render only for categories that have something to show: All and Intraday are
+        always present, Sports needs at least one fixture, every other category needs ≥1 live
+        event (sectorCounts &gt; 0). Watchlist / Calendar / Boost sit in the fixed right-hand
+        cluster.
+      </Caption>
     </div>
   );
 };
 
-/* ---------------- 3. Sports stage card ---------------- */
 /* ---------------- 2. Intraday stage card ---------------- */
 const INTRADAY_PRESETS = [
   {
