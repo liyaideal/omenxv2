@@ -423,7 +423,7 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
         id="mobile-home-campaign-rail"
         title="HomeCampaignRail"
         platform="mobile"
-        description="Horizontal-scrolling banner rail. 4 theme keys map to surface + metric + chip color sets."
+        description="Horizontal-scrolling banner rail. 5 theme keys map to surface + metric + chip color sets."
       >
         <Card className="trading-card">
           <CardContent className="pt-6">
@@ -576,7 +576,6 @@ export const MobileHomeSection = (_: MobileHomeSectionProps) => {
   <div className="mt-5">
     <HomeTopEvents
       title={isAuthed && !hasPosition ? "Pick your first prediction" : "Top Events"}
-      interlude={!isAuthed ? <TrialCallout onSignIn={...} /> : undefined}
     />
   </div>
 </main>`}
