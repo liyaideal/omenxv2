@@ -60,6 +60,55 @@ interface EventsDesktopHeaderProps {
   rightContent?: React.ReactNode;
 }
 
+/**
+ * Pure presentational body of the header Equity HoverCard.
+ * Extracted verbatim so /style-guide can mount the real thing
+ * (previewKey `wallet-equity-hovercard`) instead of a replica.
+ */
+export const EquityHoverCardBody = ({
+  spotBalance,
+  balance,
+  onTransfer,
+}: {
+  spotBalance: number;
+  balance: number;
+  onTransfer?: () => void;
+}) => {
+  const total = computeTotalEquity({ spotBalance, balance });
+  return (
+    <>
+      <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">
+        Total Equity
+      </div>
+      <div className="space-y-1.5 text-xs">
+        <div className="flex items-center justify-between">
+          <span className="text-muted-foreground">Standard Account</span>
+          <span className="font-mono">${formatEquityUsd(spotBalance)}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-muted-foreground">Boost Account</span>
+          <span className="font-mono">${formatEquityUsd(balance)}</span>
+        </div>
+      </div>
+      <div className="my-2 border-t border-border/50" />
+      <div className="flex items-center justify-between text-xs">
+        <span className="font-medium">Total Equity</span>
+        <span className="font-mono font-bold">${formatEquityUsd(total)}</span>
+      </div>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onTransfer?.();
+        }}
+        className="mt-3 flex w-full items-center justify-center gap-1 rounded-md py-1.5 text-xs text-primary hover:bg-primary/10 transition-colors"
+      >
+        <ArrowLeftRight className="w-3 h-3" /> Transfer ›
+      </button>
+    </>
+  );
+};
+
 // Simple mode ↔ Pro mode toggle inside the user dropdown. Persists via
 // SurfaceContext (localStorage + best-effort profiles.preferred_surface).
 const SurfaceToggleMenuItem = () => {
@@ -176,34 +225,11 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                   </button>
                 </HoverCardTrigger>
                 <HoverCardContent align="end" className="w-[260px] p-3">
-                  <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">
-                    Total Equity
-                  </div>
-                  <div className="space-y-1.5 text-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Standard Account</span>
-                      <span className="font-mono">${formatEquityUsd(spotBalance)}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Boost Account</span>
-                      <span className="font-mono">${formatEquityUsd(balance)}</span>
-                    </div>
-                  </div>
-                  <div className="my-2 border-t border-border/50" />
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium">Total Equity</span>
-                    <span className="font-mono font-bold">${formatEquityUsd(totalEquity)}</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setTransferOpen(true);
-                    }}
-                    className="mt-3 flex w-full items-center justify-center gap-1 rounded-md py-1.5 text-xs text-primary hover:bg-primary/10 transition-colors"
-                  >
-                    <ArrowLeftRight className="w-3 h-3" /> Transfer ›
-                  </button>
+                  <EquityHoverCardBody
+                    spotBalance={spotBalance}
+                    balance={balance}
+                    onTransfer={() => setTransferOpen(true)}
+                  />
                 </HoverCardContent>
               </HoverCard>
               <TransferDialog open={transferOpen} onOpenChange={setTransferOpen} />
