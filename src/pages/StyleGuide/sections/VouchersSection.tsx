@@ -71,13 +71,6 @@ export const VouchersSection = ({ isMobile: _isMobile }: Props) => {
           <DualDevicePreview previewKey="voucher-close" label="6 PnL states" minHeight={620} />
         </SubSection>
 
-        <SubSection
-          title="9. Position chip — voucher source marker"
-          description="Voucher badge + Hold-window countdown. ORPHAN — no production surface renders this chip today (PositionCard has no voucher markup). Kept pending CPO ruling: keep and build, or delete."
-          platform="shared"
-        >
-          <DualDevicePreview previewKey="voucher-position-chip" label="comfortable · urgent · past hold" minHeight={180} />
-        </SubSection>
       </div>
     </SectionWrapper>
   );

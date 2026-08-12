@@ -10,24 +10,15 @@
  *  - EventPickerCard / PickerOptionRow / PickerBlockedReason
  *                             → src/components/vouchers/EventPickerCard.tsx
  *  - RedeemSummaryBar         → src/components/vouchers/RedeemSummaryBar.tsx
- *
- * The following demos stay as style-guide-internal mirrors because production has
- * no independent, prop-driven component to import:
- *  - Position chip     (no production surface renders it today — pending CPO
- *                       ruling on whether to keep or delete the demo)
- * Each mirror must be kept 1:1 in sync with its production source.
  */
 
 import { useState } from "react";
 import {
-  Ticket,
   Lock,
-  Clock,
   Loader2,
   Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { VoucherCard } from "@/components/vouchers/VoucherCard";
 import { VoucherEarningsCard } from "@/components/vouchers/VoucherEarningsCard";
 import { CloseVoucherContent } from "@/components/positions/CloseVoucherContent";
@@ -460,47 +451,3 @@ export const ClosePreview = () => {
   );
 };
 
-/* ---------------- 9. Position chip (mirror) ---------------- */
-
-export const PositionChipPreview = () => {
-  const [state, setState] = useState<"comfortable" | "warning" | "overdue">("comfortable");
-  const remainingH = state === "comfortable" ? 47 : state === "warning" ? 0.5 : -2;
-  const label =
-    remainingH < 0
-      ? "Auto-settling…"
-      : remainingH < 1
-        ? `${Math.round(remainingH * 60)}m left`
-        : `${Math.round(remainingH)}h left`;
-  const tone =
-    remainingH < 0
-      ? "border-muted-foreground/30 bg-muted/30 text-muted-foreground"
-      : remainingH < 1
-        ? "border-trading-red/40 bg-trading-red/10 text-trading-red"
-        : "border-primary/30 bg-primary/10 text-primary";
-
-  return (
-    <div className="space-y-3">
-      <PresetRail
-        value={state}
-        onChange={setState}
-        options={[
-          { id: "comfortable", label: "Comfortable (>1h)" },
-          { id: "warning", label: "Urgent (<1h)" },
-          { id: "overdue", label: "Past hold window" },
-        ]}
-      />
-      <Frame>
-        <div className="flex items-center gap-2 flex-wrap">
-          <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-primary/20 text-primary border-primary/30">
-            <Ticket className="w-3 h-3 mr-1" />
-            Voucher
-          </Badge>
-          <span className={`inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-mono ${tone}`}>
-            <Clock className="w-3 h-3" />
-            {label}
-          </span>
-        </div>
-      </Frame>
-    </div>
-  );
-};
