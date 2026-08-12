@@ -86,6 +86,20 @@ export const LiteOverviewSection = (_: P) => (
       <h3 className="mb-2 text-sm font-semibold text-foreground">Changelog</h3>
       <ul className="space-y-1 text-[12px] text-muted-foreground">
         <li>
+          2026-08-12 · 复审修复 Round 3 — Desktop Header 手绘 preview 删除，改挂真{" "}
+          <code className="font-mono">EventsDesktopHeader</code>；Wallet 手抄 Transaction History Row
+          删除（规格并入 <code className="font-mono">wallet-tx-history</code> caption）；
+          <code className="font-mono">H2eRewardsCard</code>、
+          <code className="font-mono">EquityHoverCardBody</code>、
+          <code className="font-mono">SettlementPoster</code>、picker 的{" "}
+          <code className="font-mono">PickerSkeleton / PickerEmpty / PickerSearchBar</code> 全部转活体。
+        </li>
+        <li>
+          2026-08-12 · Legacy 标注条款 — 存量手抄块（Trading / Trading header playground / Spot /
+          Deposit-Withdraw 的 Swap·Quote·Status / Lite quick round YOUR PICK）一律挂
+          「存量手抄留档 — 未与生产逐行核对，不可作为研发规格；随该页改版一并转活体」，本轮不要求转活体。
+        </li>
+        <li>
           2026-08-12 · CPO 裁定删除 <code className="font-mono">voucher-position-chip</code> 孤儿 demo（生产 PositionCard 无此物，判为 v1 遗想，不落地）。
         </li>
         <li>
