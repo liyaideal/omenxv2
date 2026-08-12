@@ -4,6 +4,7 @@
  * here is a lookalike. Mobile cases resolve their own breakpoint because the
  * preview route is mounted inside a 375px iframe (see DeviceFrame).
  */
+import { useState } from "react";
 import { CampaignCard } from "@/components/campaigns/CampaignCard";
 import { CampaignKeyVisual } from "@/components/campaigns/CampaignKeyVisual";
 import { GrantTaskRow } from "@/components/campaigns/GrantTaskRow";
@@ -14,7 +15,7 @@ import { KolBandDesktop, KolBandMobile } from "@/components/campaigns/KolBand";
 import { PointsRetiredNoticeCard } from "@/components/campaigns/PointsRetiredNotice";
 import { RewardsFinePrint } from "@/components/campaigns/RewardsFinePrint";
 import { IneligibleEntryToastBody } from "@/components/campaigns/IneligibleEntryToast";
-import type { Campaign, CampaignEntry, CampaignTaskDef, CampaignView } from "@/hooks/useCampaigns";
+import type { Campaign, CampaignEntry, CampaignTaskDef, CampaignView, GrantStatus } from "@/hooks/useCampaigns";
 import kvWorldCup from "@/assets/campaigns/kv-worldcup.jpg.asset.json";
 import kvLaowang from "@/assets/campaigns/kv-laowang.jpg.asset.json";
 import kvStarter from "@/assets/campaigns/kv-starter.jpg.asset.json";
