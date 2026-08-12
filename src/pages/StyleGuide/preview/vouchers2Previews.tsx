@@ -13,7 +13,6 @@
  *    production; only the hook-driven data is mocked here).
  */
 import { useState } from "react";
-import { Search } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   VoucherRow,
