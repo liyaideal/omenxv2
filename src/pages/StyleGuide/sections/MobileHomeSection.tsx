@@ -1,22 +1,26 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Bell, Globe, Plus, ChevronRight } from "lucide-react";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
-import { Logo } from "@/components/Logo";
+import { MobileHeader } from "@/components/MobileHeader";
+import { HomeHeaderActions } from "@/pages/MobileHome";
+import { HomeGreeting } from "@/components/home/HomeGreeting";
+import { OnboardingCard } from "@/components/home/feed/cards/OnboardingCard";
+import { PositionAlertCard } from "@/components/home/feed/cards/PositionAlertCard";
+import { HomeCampaignRail } from "@/components/home/HomeCampaignRail";
+import { HomeTopEvents } from "@/components/home/HomeTopEvents";
 
 interface MobileHomeSectionProps {
   isMobile: boolean;
 }
 
 /* -----------------------------------------------------------------------
- * Visual replicas
+ * Live component demos
  *
- * We render *static markup* replicas of each module instead of mounting the
- * live components. The live components depend on auth / supabase / hooks,
- * which would either fail or only show a single state. Replicas let us
- * show every state side-by-side with zero data setup.
+ * Every module below mounts the REAL production component. State variety
+ * comes from `demoOverride` props (style-guide only) which bypass the auth /
+ * supabase hooks and disable navigation — never from hand-copied markup.
  * ----------------------------------------------------------------------- */
 
 const Frame = ({ children }: { children: React.ReactNode }) => (
@@ -25,275 +29,58 @@ const Frame = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
-/* ---------- A. Header replica ---------- */
+/* ---------- A. Header (live MobileHeader + real action cluster) ---------- */
 
 const HeaderReplica = () => (
-  <div className="flex items-center justify-between border-b border-border/40 pb-2">
-    <Logo size="md" />
-    <div className="flex items-center gap-1">
-      <div className="flex h-9 w-9 items-center justify-center rounded-full">
-        <svg viewBox="0 0 24 24" className="h-5 w-5 fill-muted-foreground">
-          <path d="M20.317 4.3698a19.79 19.79 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.865-.608 1.25-1.844-.277-3.68-.277-5.486 0-.164-.394-.406-.875-.618-1.25a.077.077 0 00-.079-.037 19.736 19.736 0 00-4.885 1.515.07.07 0 00-.032.028C.533 9.046-.319 13.58.099 18.058a.082.082 0 00.031.056c2.053 1.508 4.04 2.423 5.993 3.03a.078.078 0 00.084-.028c.462-.63.873-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.13 13.13 0 01-1.872-.892.077.077 0 01-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 01.078-.011c3.928 1.794 8.18 1.794 12.061 0a.074.074 0 01.079.01c.12.099.246.198.373.292a.077.077 0 01-.007.128 12.3 12.3 0 01-1.873.891.077.077 0 00-.041.107c.36.698.772 1.363 1.225 1.993a.076.076 0 00.084.029c1.961-.607 3.95-1.522 6.002-3.03a.077.077 0 00.031-.055c.5-5.177-.838-9.674-3.548-13.66a.061.061 0 00-.031-.029z" />
-        </svg>
-      </div>
-      <div className="flex h-9 w-9 items-center justify-center rounded-full">
-        <Globe className="h-5 w-5 text-muted-foreground" />
-      </div>
-      <div className="relative flex h-9 w-9 items-center justify-center rounded-full">
-        <Bell className="h-5 w-5 text-muted-foreground" />
-        <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-trading-red" />
-      </div>
-    </div>
-  </div>
+  <MobileHeader showLogo showBack={false} rightContent={<HomeHeaderActions />} />
 );
 
-/* ---------- B. HomeGreeting replicas ---------- */
+/* ---------- B. HomeGreeting (live, demoOverride-driven) ---------- */
 
-const sparkPathDemo =
-  "M0 28 C12 22, 18 30, 28 24 C38 18, 46 26, 58 14 C70 4, 80 18, 92 8 L100 6";
-const sparkAreaDemo = `${sparkPathDemo} L100 40 L0 40 Z`;
+const DEMO_SPARK = [100, 101.2, 100.4, 102.1, 101.6, 103.4, 104.2];
 
 const HomeGreetingGuest = () => (
-  <button className="group relative block w-full overflow-hidden rounded-2xl border border-border/40 bg-card p-5 text-left">
-    <div className="flex items-start justify-between gap-3">
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-trading-green opacity-60" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-trading-green" />
-          </span>
-          <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-trading-green">
-            Live on OmenX
-          </span>
-        </div>
-        <h1 className="mt-2 text-[15px] font-semibold leading-snug text-foreground">
-          Hey Caller. Ready to make your next call?
-        </h1>
-      </div>
-    </div>
-
-    <div className="mt-5 flex items-end justify-between gap-3">
-      <div className="min-w-0 flex-1">
-        <div className="flex items-baseline gap-1.5">
-          <span className="font-mono text-[28px] font-bold leading-none tracking-tight text-foreground tabular-nums">
-            $4.2M
-          </span>
-          <span className="font-sans text-[12px] font-medium text-muted-foreground">
-            traded · 24h
-          </span>
-        </div>
-        <div className="mt-2 font-sans text-[12px] text-muted-foreground">
-          <span className="font-mono font-semibold text-foreground tabular-nums">128</span>{" "}
-          active markets
-        </div>
-      </div>
-      <div className="relative h-12 w-24 shrink-0 opacity-70">
-        <svg viewBox="0 0 100 40" preserveAspectRatio="none" className="h-full w-full overflow-visible">
-          <defs>
-            <linearGradient id="sgGuestSparkFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.25" />
-              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          <path d={sparkAreaDemo} fill="url(#sgGuestSparkFill)" />
-          <path
-            d={sparkPathDemo}
-            fill="none"
-            stroke="hsl(var(--primary))"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
-    </div>
-
-    <div className="mt-5 border-t border-border/40 pt-4">
-      <div className="flex items-center justify-between gap-2 text-[13px] font-semibold text-foreground">
-        <span>Sign in to start trading</span>
-        <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
-      </div>
-    </div>
-  </button>
+  <HomeGreeting
+    onSignIn={() => {}}
+    demoOverride={{
+      isAuthed: false,
+      volume24h: 4_200_000,
+      activeMarkets: 128,
+      sparkPoints: DEMO_SPARK,
+    }}
+  />
 );
 
 const HomeGreetingAuthed = ({ hasData }: { hasData: boolean }) => (
-  <div className="relative block w-full overflow-hidden rounded-2xl border border-border/40 bg-card p-5 text-left">
-    <div className="flex items-start justify-between gap-3">
-      <div className="min-w-0 flex-1">
-        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Welcome back
-        </p>
-        <h1 className="mt-1 text-[17px] font-bold leading-tight text-foreground">
-          alex
-        </h1>
-      </div>
-      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border/50 bg-muted/30 px-2.5 py-1.5">
-        <span className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-foreground">
-          Deposit
-        </span>
-        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground">
-          <Plus className="h-2.5 w-2.5" strokeWidth={3.5} />
-        </span>
-      </span>
-    </div>
-
-    <div className="mt-6 flex items-end justify-between gap-3">
-      <div className="min-w-0 flex-1">
-        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Total equity
-        </p>
-        <div className="mt-1.5 font-mono text-[34px] font-bold leading-none tracking-tight text-foreground">
-          $13,530.00
-        </div>
-        {hasData ? (
-          <div className="mt-2.5 flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 font-mono text-sm font-bold text-trading-green tabular-nums">
-              +1.9%
-            </span>
-            <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              7D
-            </span>
-          </div>
-        ) : (
-          <p className="mt-2.5 whitespace-nowrap">
-            <span className="font-sans text-[12px] font-medium text-muted-foreground">
-              No 7D activity ·{" "}
-            </span>
-            <span className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-primary">
-              Tap Deposit to start
-            </span>
-          </p>
-        )}
-      </div>
-      {hasData && (
-        <div className="relative h-12 w-24 shrink-0 opacity-70">
-          <svg viewBox="0 0 100 40" preserveAspectRatio="none" className="h-full w-full overflow-visible">
-            <defs>
-              <linearGradient id="sgAuthSparkFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="hsl(var(--trading-green))" stopOpacity="0.25" />
-                <stop offset="100%" stopColor="hsl(var(--trading-green))" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            <path d={sparkAreaDemo} fill="url(#sgAuthSparkFill)" />
-            <path
-              d={sparkPathDemo}
-              fill="none"
-              stroke="hsl(var(--trading-green))"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
-      )}
-    </div>
-  </div>
+  <HomeGreeting
+    onSignIn={() => {}}
+    demoOverride={{
+      isAuthed: true,
+      displayName: "alex",
+      balance: 13530,
+      hasData,
+      pnlPercent: hasData ? 1.9 : 0,
+      points: hasData ? DEMO_SPARK : [],
+    }}
+  />
 );
 
-/* ---------- C. PersonalSlot replicas ---------- */
+/* ---------- C. PersonalSlot cards (live) ---------- */
 
-const OnboardingCardReplica = ({ step = 2 }: { step?: 2 | 3 }) => {
-  const completed = step - 1; // step 2 → 1/3 done, step 3 → 2/3 done
-  const label = step === 2 ? "Deposit USDC on Base" : "Place your first trade";
-  return (
-    <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4">
-      <div className="flex items-center justify-between gap-3">
-        <div className="min-w-0">
-          <p className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-primary">
-            Step {step} of 3
-          </p>
-          <p className="mt-1 text-[14px] font-semibold text-foreground">{label}</p>
-        </div>
-        <ChevronRight className="h-4 w-4 flex-shrink-0 text-primary" />
-      </div>
-      <div className="mt-3 flex items-center gap-1">
-        {[0, 1, 2].map((i) => (
-          <span
-            key={i}
-            className={`h-1 flex-1 rounded-full ${i < completed ? "bg-primary" : "bg-muted"}`}
-          />
-        ))}
-      </div>
-    </div>
-  );
-};
-
+const OnboardingCardReplica = ({ step = 2 }: { step?: 2 | 3 }) => (
+  <OnboardingCard demoOverride={{ hasDeposited: step === 3, hasTraded: false }} />
+);
 
 const PositionAlertReplica = () => (
-  <div className="rounded-2xl border border-trading-green/30 bg-trading-green/5 p-4">
-    <div className="flex items-start justify-between gap-3">
-      <div>
-        <p className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-trading-green">
-          Position update
-        </p>
-        <p className="mt-1 text-[13px] font-semibold text-foreground">
-          BTC &gt; $100k · Yes
-        </p>
-        <p className="mt-0.5 font-mono text-[11px] text-muted-foreground">
-          +$24.30 <span className="text-trading-green">+12.4%</span>
-        </p>
-      </div>
-      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-    </div>
-  </div>
-);
-
-/* ---------- D. CampaignRail replica ---------- */
-
-const CampaignBannerReplica = ({ theme }: { theme: "gold" | "primary" | "green" | "violet" }) => {
-  const themes = {
-    gold: { bg: "bg-mainnet-surface", metric: "text-mainnet-gold", chip: "border-mainnet-gold/30 bg-mainnet-gold/10 text-mainnet-gold" },
-    primary: { bg: "bg-card", metric: "text-primary", chip: "border-primary/30 bg-primary/10 text-primary" },
-    green: { bg: "bg-card", metric: "text-trading-green", chip: "border-trading-green/30 bg-trading-green/10 text-trading-green" },
-    violet: { bg: "bg-card", metric: "text-purple-400", chip: "border-purple-500/30 bg-purple-500/10 text-purple-400" },
-  };
-  const t = themes[theme];
-  return (
-    <div className={`min-w-[200px] rounded-2xl border border-border/50 ${t.bg} p-4`}>
-      <span className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${t.chip}`}>
-        Campaign
-      </span>
-      <p className="mt-2 text-[13px] font-semibold text-foreground">Win $10k airdrop</p>
-      <p className={`mt-1 font-mono text-[18px] font-bold ${t.metric}`}>$2,400</p>
-    </div>
-  );
-};
-
-/* ---------- E. TopEvents header replica ---------- */
-
-const TopEventsReplica = ({ title, withInterlude }: { title: string; withInterlude: boolean }) => (
-  <div>
-    <div className="flex items-center justify-between mb-3">
-      <h3 className="text-[15px] font-semibold text-foreground">{title}</h3>
-      <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-primary">
-        See all →
-      </span>
-    </div>
-    <div className="space-y-2">
-      <div className="rounded-xl border border-border/40 bg-card p-3">
-        <p className="text-[13px] font-medium text-foreground">Will BTC hit $100k by Mar 31?</p>
-        <p className="mt-1 font-mono text-[11px] text-muted-foreground">
-          $1.2M · 24h
-        </p>
-      </div>
-      {withInterlude && (
-        <div className="rounded-xl border border-mainnet-gold/30 bg-mainnet-gold/5 p-3">
-          <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-mainnet-gold">
-            Mainnet Launch Callout
-          </p>
-          <p className="mt-1 text-[12px] font-semibold text-foreground">Trade once. Earn up to $200.</p>
-          <p className="mt-0.5 text-[11px] text-muted-foreground"><span className="font-mono">$5K</span> weekly pool · Mainnet Launch is live.</p>
-        </div>
-      )}
-      <div className="rounded-xl border border-border/40 bg-card p-3">
-        <p className="text-[13px] font-medium text-foreground">ETH ETF approved this quarter?</p>
-        <p className="mt-1 font-mono text-[11px] text-muted-foreground">
-          $890K · 24h
-        </p>
-      </div>
-    </div>
-  </div>
+  <PositionAlertCard
+    positionId="style-guide-demo"
+    demoOverride={{
+      event: "BTC > $100k",
+      option: "Yes",
+      pnl: "+$24.30",
+      pnlPercent: "+12.4%",
+    }}
+  />
 );
 
 /* =======================================================================
