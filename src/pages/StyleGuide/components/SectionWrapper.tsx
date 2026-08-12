@@ -54,3 +54,19 @@ export const SubSection = ({ title, description, platform, children, className }
     </div>
   );
 };
+
+/**
+ * Legacy hand-copied block marker.
+ * Required on every static replica that has NOT been line-checked against
+ * production (2026-08-12 review ruling).
+ */
+export const LegacyNotice = ({ className }: { className?: string }) => (
+  <p
+    className={cn(
+      "rounded-md border border-trading-yellow/25 bg-trading-yellow/5 px-3 py-2 text-xs leading-5 text-trading-yellow",
+      className,
+    )}
+  >
+    存量手抄留档 — 未与生产逐行核对，不可作为研发规格；随该页改版一并转活体。
+  </p>
+);
