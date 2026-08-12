@@ -101,6 +101,7 @@ export const HomeGreeting = ({ onSignIn, demoOverride }: HomeGreetingProps) => {
 
   const handleDeposit = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
+    if (demoOverride) return;
     navigate("/deposit");
   };
 
@@ -169,7 +170,7 @@ export const HomeGreeting = ({ onSignIn, demoOverride }: HomeGreetingProps) => {
                 Total equity
               </p>
               <div className="mt-1.5 font-mono text-[34px] font-bold leading-none tracking-tight text-foreground">
-                {formatBalance(profile?.balance)}
+                {formatBalance(demoOverride ? demoOverride.balance : profile?.balance)}
               </div>
               {hasData ? (
                 <div className="mt-2.5 flex items-center gap-2">
