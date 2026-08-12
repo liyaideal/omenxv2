@@ -96,7 +96,16 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
       s("forms", "Forms", FormsSection),
       s("states", "States", StatesSection),
       s("empty-states", "Empty states", EmptyStatesSection),
-      s("mobile-patterns", "Mobile patterns", MobilePatternsSection),
+      {
+        id: "mobile-patterns",
+        label: "Mobile patterns",
+        render: (isMobile) => (
+          <>
+            <MobilePatternsSection isMobile={isMobile} />
+            <LiteSection isMobile={isMobile} part="mobile-header" />
+          </>
+        ),
+      },
       s("identity", "User identity", UserIdentitySection),
     ],
   },
@@ -137,7 +146,7 @@ export const SECTION_ALIASES: Record<string, string> = {
   // pre-restructure ids → the page node that absorbed them
   home: "lite-home",
   "mobile-home": "lite-home",
-  lite: "lite-events",
+  lite: "lite-trade",
   "lite-all-stage": "lite-events",
   "lite-verticals": "lite-events",
   "lite-calendar": "lite-events",
