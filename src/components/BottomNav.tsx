@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, BarChart3, TrendingUp, User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, Ticket, KeyRound, Compass, PieChart, ArrowLeftRight } from "lucide-react";
+import { Home, BarChart3, TrendingUp, User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, KeyRound, Compass, PieChart, ArrowLeftRight } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthSheet } from "@/components/auth/AuthSheet";
@@ -291,14 +291,7 @@ export const BottomNav = () => {
             }}
           />
           {/* Referral entry hidden until the /referral route exists (R3b-2 round 12) */}
-          <MobileDrawerListItem
-            icon={Ticket}
-            label="Position Vouchers"
-            onClick={() => {
-              setProfileSheetOpen(false);
-              navigate("/vouchers");
-            }}
-          />
+          {/* Vouchers live inside /rewards as a tab — no separate menu entry (2026-08-12) */}
           <MobileDrawerListItem
             icon={KeyRound}
             label="API"
