@@ -1001,13 +1001,13 @@ export const LiteSection = ({
                   up: d.up,
                   active: d.id === "us-nvda-updown-20260801",
                   onClick: () => undefined,
-                  tooltip: `${d.label} · ${d.up ? "Up" : "Not up"} won`,
+                  tooltip: `${d.label} · ${d.up ? "Up" : "Down"} won`,
                 }))}
                 currentSlot={{
                   kind: "countdown",
                   text: "04:40:00",
                   onClick: () => undefined,
-                  tooltip: "Today's round · closes in 04:40:00",
+                  tooltip: "Today's round · closes at Tue 16:00 ET",
                 }}
                 legend={
                   <>
@@ -1055,13 +1055,13 @@ export const LiteSection = ({
                     up: d.up,
                     active: d.id === "us-nvda-updown-20260801",
                     onClick: () => undefined,
-                    tooltip: `${d.label} · ${d.up ? "Up" : "Not up"} won`,
+                    tooltip: `${d.label} · ${d.up ? "Up" : "Down"} won`,
                   }))}
                   currentSlot={{
                     kind: "countdown",
                     text: "04:40:00",
                     onClick: () => undefined,
-                    tooltip: "Today's round · closes in 04:40:00",
+                    tooltip: "Today's round · closes at Tue 16:00 ET",
                   }}
                   legend={
                     <>
@@ -1079,7 +1079,7 @@ export const LiteSection = ({
                   key: d.id,
                   up: d.up,
                   onClick: () => undefined,
-                  tooltip: `${d.label} · ${d.up ? "Up" : "Not up"} won`,
+                  tooltip: `${d.label} · ${d.up ? "Up" : "Down"} won`,
                 }))}
                 currentSlot={{
                   kind: "next",
@@ -1103,7 +1103,7 @@ export const LiteSection = ({
                     key: d.id,
                     up: d.up,
                     onClick: () => undefined,
-                    tooltip: `${d.label} · ${d.up ? "Up" : "Not up"} won`,
+                    tooltip: `${d.label} · ${d.up ? "Up" : "Down"} won`,
                   }))}
                   currentSlot={{
                     kind: "next",
