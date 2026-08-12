@@ -3,19 +3,20 @@
  *
  * Truth Rule (§16.1.1): renders the same production components used by
  * /wallet, /events header, and TransactionHistory. Composition-only pieces
- * (Band 1 Total Equity + dual-account cards, header HoverCard content)
- * mirror the exact JSX from Wallet.tsx / EventsDesktopHeader.tsx so the
- * spec cannot drift silently — any change there must be mirrored here.
+ * All demos below mount production components (Wallet.tsx bands, the
+ * EventsDesktopHeader HoverCard body, TransactionHistory, TransferForm,
+ * AccountPickerRows, H2eRewardsCard) with mock props — no replica markup.
  *
  * NOTE (2026-07-21 Trial Bonus sunset): Trial Bonus has been fully
  * decommissioned. Demos below intentionally do NOT render a Trial tile
  * on the Futures card or a Trial row in the HoverCard.
  */
 import { useState } from "react";
-import { ArrowLeftRight, Info } from "lucide-react";
+import { Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { computeTotalEquity, formatEquityUsd } from "@/lib/equity";
+import { computeTotalEquity } from "@/lib/equity";
+import { EquityHoverCardBody } from "@/components/EventsDesktopHeader";
 import { TransferForm } from "@/components/wallet/TransferForm";
 import { AccountPickerRows, type AccountKind } from "@/components/wallet/AccountPicker";
 import {
@@ -133,42 +134,14 @@ export const DepositToPickerPreview = () => {
 
 /* ---------- Header Equity HoverCard content ---------- */
 
-// MIRROR: must stay in sync with src/components/EventsDesktopHeader.tsx
-// Equity HoverCardContent block. 改生产必改此处。
-export const EquityHoverCardPreview = () => {
-  const total = computeTotalEquity({
-    spotBalance: DEMO.spot,
-    balance: DEMO.balance,
-  });
-  return (
-    <div className="mx-auto w-[260px] rounded-lg border border-border bg-popover p-3 shadow-md">
-      <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">
-        Total Equity
-      </div>
-      <div className="space-y-1.5 text-xs">
-        <div className="flex items-center justify-between">
-          <span className="text-muted-foreground">Standard Account</span>
-          <span className="font-mono">${formatEquityUsd(DEMO.spot)}</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-muted-foreground">Boost Account</span>
-          <span className="font-mono">${formatEquityUsd(DEMO.balance)}</span>
-        </div>
-      </div>
-      <div className="my-2 border-t border-border/50" />
-      <div className="flex items-center justify-between text-xs">
-        <span className="font-medium">Total Equity</span>
-        <span className="font-mono font-bold">${formatEquityUsd(total)}</span>
-      </div>
-      <button
-        type="button"
-        className="mt-3 flex w-full items-center justify-center gap-1 rounded-md py-1.5 text-xs text-primary hover:bg-primary/10 transition-colors"
-      >
-        <ArrowLeftRight className="w-3 h-3" /> Transfer ›
-      </button>
-    </div>
-  );
-};
+// LIVE: renders the production EquityHoverCardBody exported from
+// src/components/EventsDesktopHeader.tsx — the popover shell below only
+// reproduces HoverCardContent's own container classes.
+export const EquityHoverCardPreview = () => (
+  <div className="mx-auto w-[260px] rounded-lg border border-border bg-popover p-3 shadow-md">
+    <EquityHoverCardBody spotBalance={DEMO.spot} balance={DEMO.balance} />
+  </div>
+);
 
 /* ---------- TransactionHistory account badges + transfer icon row ---------- */
 
