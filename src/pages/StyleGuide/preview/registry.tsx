@@ -68,6 +68,8 @@ import {
   ReferralPanelPreview,
   RewardsFinePrintPreview,
   CampaignIneligibleRedirectPreview,
+  GrantTaskRowPlaygroundPreview,
+  GrantTaskRowBoardPreview,
 } from "./rewardsPreviews";
 
 /* ---- Mock factories (shared with ApiSection) ---- */
@@ -341,6 +343,10 @@ export const previewRegistry: Record<string, () => JSX.Element> = {
   "rewards-referral-panels": () => <ReferralPanelPreview />,
   "rewards-fine-print": () => <RewardsFinePrintPreview />,
   "rewards-ineligible-redirect": () => <CampaignIneligibleRedirectPreview />,
+
+  /* -------- Rewards · mobile task rows (375 iframe, real breakpoint) -------- */
+  "rewards-taskrow-playground": () => <GrantTaskRowPlaygroundPreview />,
+  "rewards-taskrow-board": () => <GrantTaskRowBoardPreview />,
 };
 
 export type PreviewKey = keyof typeof previewRegistry;
