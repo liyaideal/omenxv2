@@ -13,7 +13,6 @@ import {
   MessageCircle,
   ExternalLink,
   Check,
-  Ticket,
   KeyRound,
   ArrowLeftRight,
 } from "lucide-react";
