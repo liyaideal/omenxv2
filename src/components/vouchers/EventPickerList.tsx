@@ -339,22 +339,27 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
                     onPick={(side) => pick(side === "long" ? yesOpt : noOpt, "long")}
                   />
                 );
-              })() : event.options.map((opt) => {
-                const eligibility = checkEligibility(voucher, opt.price, event.end_date, event.is_resolved);
-                return (
-                  <PickerOptionRow
-                    key={opt.id}
-                    label={displayLabel(opt.label)}
-                    price={opt.price}
-                    isBinary={isBinary}
-                    mobile={isMobile}
-                    dim={!eligibility.ok}
-                    pickedLong={selected?.optionId === opt.id && selected?.side === "long"}
-                    pickedShort={selected?.optionId === opt.id && selected?.side === "short"}
-                    onPick={(side) => pick(opt, side)}
-                  />
-                );
-              })}
+              })() : (
+                <MultiOptionRows
+                  rows={event.options.map((opt) => {
+                    const eligibility = checkEligibility(voucher, opt.price, event.end_date, event.is_resolved);
+                    const pickedLong = selected?.optionId === opt.id && selected?.side === "long";
+                    const pickedShort = selected?.optionId === opt.id && selected?.side === "short";
+                    return {
+                      key: opt.id,
+                      picked: !!(pickedLong || pickedShort),
+                      label: displayLabel(opt.label),
+                      price: opt.price,
+                      isBinary,
+                      mobile: isMobile,
+                      dim: !eligibility.ok,
+                      pickedLong,
+                      pickedShort,
+                      onPick: (side: "long" | "short") => pick(opt, side),
+                    };
+                  })}
+                />
+              )}
               {blockedReason && <PickerBlockedReason>{blockedReason}</PickerBlockedReason>}
             </EventPickerCard>
           );
