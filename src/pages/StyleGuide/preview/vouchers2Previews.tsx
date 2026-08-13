@@ -456,75 +456,158 @@ export const Vouchers2DeskPreview = () => {
   );
 };
 
-/* ---------------- 6. Mobile 375 — list + dedicated redeem screen ---------- */
+/* ------------- 6. Redeem screen v2.1 — six-state playground -------------- */
+/* Production mount: /rewards?tab=vouchers&redeem=<id> (mobile full screen,
+   no BottomNav) and the right-hand desk column of the same tab on desktop.
+   Every piece below is the real component with mock props. */
+
+type RedeemState = "default" | "stubOpen" | "pairPicked" | "multiPicked" | "lockedEmpty" | "desk";
+
+const CAPTION = (
+  <div className="flex items-center justify-between gap-[10px] px-4">
+    <span style={{ fontSize: 12, color: VT.ink3, lineHeight: 1.4 }}>
+      Pick a market — one voucher opens one trial position
+    </span>
+    <button type="button" aria-label="Search markets" className="flex-none flex items-center justify-center" style={{ width: 44, height: 44, marginRight: -10, color: VT.muted }}>
+      <Search className="w-[17px] h-[17px]" />
+    </button>
+  </div>
+);
 
 export const Vouchers2MobileFlowPreview = () => {
-  const [screen, setScreen] = useState<"list" | "redeem">("list");
-  return (
-    <div className="space-y-3">
-      <PresetRail
-        value={screen}
-        onChange={setScreen}
-        options={[
-          { id: "list", label: "List (rows stack)" },
-          { id: "redeem", label: "Redeem screen" },
-        ]}
+  const isMobile = useIsMobile();
+  const [state, setState] = useState<RedeemState>("default");
+  const voucher = v2({ faceValue: 10, payoutMode: "instant", sourceLabel: "World Cup Kickoff" });
+
+  const pairCard = (picked?: boolean) => (
+    <EventPickerCard
+      mobile={isMobile}
+      name="Will ETH close above $4k on Aug 14?"
+      meta="Crypto · settles Aug 14"
+      lines={["futures"]}
+    >
+      <PickerDirectionPair
+        mobile={isMobile}
+        longLabel="Up"
+        longPrice={0.61}
+        shortLabel="Down"
+        shortPrice={0.39}
+        pickedLong={picked}
       />
-      <Frame label="Toggle Mobile·375 above for the true breakpoint">
-        {screen === "list" ? (
-          <div className="flex flex-col gap-[8px]">
-            <VoucherRow
-              mobile
-              faceValue={10}
-              sourceLine="From August Kickoff"
-              metaLine="Claim by Aug 18 · 653/1000 left today"
-              action={<RowPrimaryButton mobile>Claim</RowPrimaryButton>}
-            />
-            <VoucherRow
-              mobile
-              faceValue={15}
-              sourceLine="From World Cup Kickoff"
-              metaLine="Expires in 3d"
-              instantLine
-              action={<RowOutlineButton mobile>Redeem</RowOutlineButton>}
-            />
-          </div>
-        ) : (
-          <div className="flex flex-col gap-[12px]">
-            <header className="flex items-center gap-[10px]" style={{ borderBottom: `1px solid ${VT.line}`, padding: "10px 0" }}>
-              <button
-                type="button"
-                aria-label="Back"
-                className="flex items-center justify-center"
-                style={{ width: 34, height: 34, color: VT.ink }}
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <span className="flex-1 text-center font-display" style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-.01em", color: VT.ink }}>
-                Redeem voucher
-              </span>
-              <span style={{ width: 34 }} />
-            </header>
-            <VoucherDeskHeader voucher={v2({ faceValue: 15, payoutMode: "instant" })} sourceLabel="World Cup Kickoff" compact />
+    </EventPickerCard>
+  );
+
+  const multiCard = (
+    <EventPickerCard mobile={isMobile} name="Ballon d'Or" meta="Sports · settles Oct 27" lines={["futures"]} tail="4 options">
+      <PickerOptionRow isBinary={false} mobile={isMobile} label="Lamine Yamal" price={0.44} pickedLong />
+      <PickerOptionRow isBinary={false} mobile={isMobile} label="Mbappé" price={0.26} />
+      <PickerOptionRow isBinary={false} mobile={isMobile} label="Haaland" price={0.18} />
+    </EventPickerCard>
+  );
+
+  const body = (() => {
+    if (state === "lockedEmpty")
+      return (
+        <div className="flex flex-col gap-[12px]">
+          <EventPickerCard
+            mobile={isMobile}
+            locked
+            eligible={false}
+            name="Will BTC close above $70k on Aug 12?"
+            meta="Crypto · settles Aug 12"
+            lines={["futures"]}
+          >
+            <div style={{ fontSize: 11, color: VT.ink3, lineHeight: 1.5 }}>
+              One voucher per event — you already opened a trial position here. The lock covers both product
+              lines of this event.
+            </div>
+          </EventPickerCard>
+          <PickerNoEligible expiresLabel="Aug 18" />
+        </div>
+      );
+    if (state === "multiPicked") return multiCard;
+    if (state === "pairPicked") return pairCard(true);
+    return pairCard();
+  })();
+
+  const summary =
+    state === "pairPicked"
+      ? { eventName: "Will ETH close above $4k on Aug 14?", displayLabel: "Up", isBinary: true, side: "long" as const, price: 0.61 }
+      : state === "multiPicked"
+        ? { eventName: "Ballon d'Or", displayLabel: "Lamine Yamal", isBinary: false, side: "long" as const, price: 0.44 }
+        : null;
+
+  if (state === "desk") {
+    return (
+      <div className="space-y-3">
+        <PresetRail value={state} onChange={setState} options={PRESETS} />
+        <Frame label="F · desktop desk — same complementary-collapse branch, inline summary card">
+          <div className="overflow-hidden rounded-[16px]" style={{ background: VT.surfaceDesk, border: `1px solid ${VT.line}` }}>
+            <VoucherDeskHeader voucher={voucher} sourceLabel="World Cup Kickoff" />
+            <div className="px-5 pt-4 pb-4 flex flex-col gap-[12px]">
+              {CAPTION}
+              <EventPickerCard mobile={false} name="Will ETH close above $4k on Aug 14?" meta="Crypto · settles Aug 14" lines={["futures"]}>
+                <PickerDirectionPair mobile={false} longLabel="Up" longPrice={0.61} shortLabel="Down" shortPrice={0.39} pickedLong />
+              </EventPickerCard>
+            </div>
             <RedeemSummaryBar
               variant="inline"
-              faceValue={15}
-              maxHoldingHours={24}
-              picked={{
-                eventName: "Who wins the World Cup?",
-                displayLabel: "Brazil",
-                isBinary: false,
-                side: "long",
-                price: 0.32,
-              }}
+              faceValue={10}
+              maxHoldingHours={72}
+              maxProfit={5}
+              picked={{ eventName: "Will ETH close above $4k on Aug 14?", displayLabel: "Up", isBinary: true, side: "long", price: 0.61 }}
             />
           </div>
-        )}
+        </Frame>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <PresetRail value={state} onChange={setState} options={PRESETS} />
+      <Frame label="Toggle Mobile·375 for the true redeem screen (no BottomNav)">
+        <div className="relative flex flex-col gap-[12px]" style={{ minHeight: 360 }}>
+          <VoucherDeskHeader voucher={voucher} sourceLabel="World Cup Kickoff" compact />
+          {CAPTION}
+          {state === "stubOpen" && (
+            <div className="flex gap-[7px] overflow-x-auto scrollbar-hide px-4">
+              {["All", "Crypto", "Sports", "Stocks", "Macro"].map((c, i) => (
+                <span
+                  key={c}
+                  className="flex-none rounded-full flex items-center px-[14px]"
+                  style={{
+                    minHeight: 44,
+                    fontSize: 12,
+                    fontWeight: i === 0 ? 700 : 600,
+                    background: i === 0 ? "#fff" : "transparent",
+                    color: i === 0 ? "#0A0B0D" : VT.ink3,
+                    border: i === 0 ? "1px solid #fff" : `1px solid ${VT.line2}`,
+                  }}
+                >
+                  {c}
+                </span>
+              ))}
+            </div>
+          )}
+          {body}
+          <RedeemSummaryBar variant="inline" faceValue={10} maxHoldingHours={72} maxProfit={5} picked={summary} />
+        </div>
       </Frame>
       <p className="text-[11px] leading-relaxed text-muted-foreground">
-        On 375 the redeem flow is its own screen (list is replaced, not overlaid) and the confirm bar floats
-        above the BottomNav.
+        A default has no bottom chrome at all — the bar only exists once an outcome is picked. The stub is
+        collapsed by default; tapping it grows the terms panel in place. Pills only render when more than 8
+        eligible markets are open.
       </p>
     </div>
   );
 };
+
+const PRESETS = [
+  { id: "default", label: "A · default (no bar)" },
+  { id: "stubOpen", label: "B · stub open + pills" },
+  { id: "pairPicked", label: "C · complementary picked" },
+  { id: "multiPicked", label: "D · multi picked" },
+  { id: "lockedEmpty", label: "E · locked + empty" },
+  { id: "desk", label: "F · desktop desk" },
+];
