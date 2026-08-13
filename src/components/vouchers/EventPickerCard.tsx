@@ -44,6 +44,7 @@ export const SideButton = ({
   disabled,
   onClick,
   block,
+  mobile,
 }: {
   label: string;
   tone: "neutral" | "yes" | "no";
@@ -51,6 +52,7 @@ export const SideButton = ({
   disabled?: boolean;
   onClick?: () => void;
   block?: boolean;
+  mobile?: boolean;
 }) => {
   const base = {
     yes: { color: "hsl(74 100% 65%)", border: "hsl(74 100% 65% / .4)" },
@@ -65,9 +67,10 @@ export const SideButton = ({
       disabled={disabled}
       className={`font-display rounded-[8px] ${block ? "min-h-[44px] w-full flex items-center justify-center" : ""}`}
       style={{
-        fontSize: block ? 12 : 11.5,
+        fontSize: block ? 12 : mobile ? 12.5 : 11.5,
         fontWeight: 700,
-        padding: block ? undefined : "5px 10px",
+        padding: block ? undefined : mobile ? "0 14px" : "5px 10px",
+        minHeight: block ? undefined : mobile ? 36 : undefined,
         color: picked ? "#0A0B0D" : disabled ? VT.muted2 : base.color,
         background: picked ? "hsl(74 100% 65%)" : "transparent",
         border: picked ? "none" : `1px solid ${disabled ? VT.line2 : base.border}`,
@@ -103,7 +106,7 @@ export const PickerOptionRow = ({
   const priceEl = (
     <span
       className="font-display tabular-nums flex-none"
-      style={{ fontSize: 13, fontWeight: 700, color: dim ? VT.muted : VT.ink3 }}
+      style={{ fontSize: mobile ? 14 : 13, fontWeight: 700, color: dim ? VT.muted : VT.ink3 }}
     >
       {cents(price)}
     </span>
@@ -121,7 +124,7 @@ export const PickerOptionRow = ({
         }}
       >
         <div className="flex items-center justify-between gap-[10px]">
-          <span className="flex-1 min-w-0 truncate" style={{ fontSize: 11.5, color: dim ? VT.muted : VT.ink }}>
+          <span className="flex-1 min-w-0" style={{ fontSize: 13, lineHeight: 1.3, color: dim ? VT.muted : VT.ink }}>
             {label}
           </span>
           {priceEl}
@@ -140,14 +143,15 @@ export const PickerOptionRow = ({
       style={{
         background: VT.surfaceDeep,
         border: `1px solid ${pickedLong || pickedShort ? VT.volt : VT.line2}`,
-        padding: mobile ? "0 12px" : "9px 12px",
-        minHeight: 44,
+        padding: mobile ? "8px 12px" : "9px 12px",
+        minHeight: mobile ? 48 : 44,
       }}
     >
       <span
-        className="flex-1 min-w-0 truncate"
+        className={`flex-1 min-w-0 ${mobile ? "" : "truncate"}`}
         style={{
-          fontSize: isBinary ? 11 : 11.5,
+          fontSize: mobile ? 13 : isBinary ? 11 : 11.5,
+          lineHeight: 1.3,
           fontWeight: pickedLong || pickedShort ? 600 : 400,
           color: dim ? VT.muted : isBinary ? VT.ink3 : VT.ink,
         }}
@@ -157,11 +161,11 @@ export const PickerOptionRow = ({
       <span className="flex-none flex items-center gap-[9px]">
         {priceEl}
         {isBinary ? (
-          <SideButton label="Buy" tone="neutral" picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
+          <SideButton mobile={mobile} label="Buy" tone="neutral" picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
         ) : (
           <>
-            <SideButton label="Yes" tone="yes" picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
-            <SideButton label="No" tone="no" picked={pickedShort} disabled={dim} onClick={() => onPick?.("short")} />
+            <SideButton mobile={mobile} label="Yes" tone="yes" picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
+            <SideButton mobile={mobile} label="No" tone="no" picked={pickedShort} disabled={dim} onClick={() => onPick?.("short")} />
           </>
         )}
       </span>
@@ -200,7 +204,32 @@ export const EventPickerCard = ({
   rowsLayout = "stack",
   children,
 }: EventPickerCardProps) => {
-  const header = (
+  /* Mobile: the title owns a full-width line (wraps to 2, never truncates to
+     "…"), badges drop to the meta line underneath. */
+  const mobileHeader = (
+    <div className="flex flex-col gap-[6px]" style={{ marginBottom: 11 }}>
+      <span
+        className="line-clamp-2"
+        style={{ fontSize: 14.5, fontWeight: 600, lineHeight: 1.35, color: eligible ? VT.ink : VT.ink2 }}
+      >
+        {name}
+      </span>
+      <div className="flex items-center gap-[6px] flex-wrap">
+        <MetaCaps>{meta}</MetaCaps>
+        {lines.includes("futures") && <LineBadge strong>Boost</LineBadge>}
+        {lines.includes("spot") && <LineBadge strong>Standard</LineBadge>}
+        {!locked && tail && <LineBadge>{tail}</LineBadge>}
+        {locked && (
+          <span className="flex items-center gap-[5px]" style={{ fontSize: 11, fontWeight: 600, color: VT.ink2 }}>
+            <Lock className="w-3 h-3" />
+            Voucher already used
+          </span>
+        )}
+      </div>
+    </div>
+  );
+
+  const desktopHeader = (
     <div className="flex items-start justify-between gap-[12px]" style={{ marginBottom: 11 }}>
       <div className="flex flex-col gap-[3px] min-w-0">
         <span className="truncate" style={{ fontSize: 13.5, fontWeight: 600, color: eligible ? VT.ink : VT.ink2 }}>
@@ -221,6 +250,8 @@ export const EventPickerCard = ({
       </div>
     </div>
   );
+
+  const header = mobile ? mobileHeader : desktopHeader;
 
   if (locked) {
     return (
@@ -245,7 +276,15 @@ export const EventPickerCard = ({
       }}
     >
       {header}
-      <div className={rowsLayout === "grid" ? "grid grid-cols-2 gap-[8px]" : "flex flex-col gap-[6px]"}>{children}</div>
+      <div
+        className={
+          rowsLayout === "grid" && !mobile
+            ? "grid grid-cols-2 gap-[8px]"
+            : `flex flex-col ${mobile ? "gap-[8px]" : "gap-[6px]"}`
+        }
+      >
+        {children}
+      </div>
     </div>
   );
 };
