@@ -14,6 +14,7 @@ import { ReferralPanel } from "@/components/campaigns/ReferralPanel";
 import { KolBandDesktop, KolBandMobile } from "@/components/campaigns/KolBand";
 import { PointsRetiredNoticeCard } from "@/components/campaigns/PointsRetiredNotice";
 import { RewardsFinePrint } from "@/components/campaigns/RewardsFinePrint";
+import { CampaignRulesDisclosure } from "@/components/campaigns/CampaignRulesDisclosure";
 import { IneligibleEntryToastBody } from "@/components/campaigns/IneligibleEntryToast";
 import type { Campaign, CampaignEntry, CampaignTaskDef, CampaignView, GrantStatus } from "@/hooks/useCampaigns";
 import kvWorldCup from "@/assets/campaigns/kv-worldcup.jpg.asset.json";
@@ -296,6 +297,20 @@ export const CampaignIneligibleRedirectPreview = () => (
 
 /* ---------------- Fine print (one per page carrying USDC amounts) ---------------- */
 export const RewardsFinePrintPreview = () => <RewardsFinePrint />;
+
+const RULE_PARAGRAPHS = [
+  "This campaign runs from Aug 1 to Aug 31. Only markets listed under the campaign scope count toward task progress; trades placed outside the window or outside the scope are ignored.",
+  "A Trial Position Voucher opens one trial position. The profit is yours; the voucher itself stays with OmenX and is never withdrawable.",
+  "One account per person. Accounts sharing a device, payment route or coordinated trading pattern may be removed from the campaign and have unclaimed rewards voided.",
+];
+
+export const CampaignRulesDisclosurePreview = () => (
+  <div className="space-y-3 p-3">
+    <CampaignRulesDisclosure paragraphs={RULE_PARAGRAPHS.slice(0, 1)} />
+    <CampaignRulesDisclosure paragraphs={RULE_PARAGRAPHS} heading="Campaign rules" />
+    <p className="text-[11px] text-[#6B7280]">Tap a bar to expand — collapsed is the default state on both surfaces.</p>
+  </div>
+);
 
 /* ---------------- Task row · state playground (rail lives inside the frame) ----------------
  * Mounted through DualDevicePreview so the Mobile · 375 tab is a real iframe

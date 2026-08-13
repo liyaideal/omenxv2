@@ -28,6 +28,11 @@ export interface CampaignBranding {
   accent?: string | null;
 }
 
+export interface CampaignRuleDetails {
+  heading?: string;
+  paragraphs: string[];
+}
+
 export interface CampaignEntry {
   id: string;
   campaignId: string;
@@ -37,6 +42,8 @@ export interface CampaignEntry {
   tasks: CampaignTaskDef[];
   reward: { voucher?: number; usdc?: number };
   branding: CampaignBranding;
+  /** Long-form campaign rules, authored in rules.details. */
+  details?: CampaignRuleDetails;
   seedBase: number;
   cap: number | null;
 }
@@ -75,6 +82,13 @@ const asRecord = (v: unknown): Record<string, unknown> =>
 const mapEntry = (row: any): CampaignEntry => {
   const rules = asRecord(row.rules);
   const tasks = Array.isArray(rules.tasks) ? (rules.tasks as CampaignTaskDef[]) : [];
+  const rawDetails = asRecord(rules.details);
+  const paragraphs = Array.isArray(rawDetails.paragraphs)
+    ? (rawDetails.paragraphs as unknown[]).filter((p): p is string => typeof p === "string" && p.trim().length > 0)
+    : [];
+  const details: CampaignRuleDetails | undefined = paragraphs.length
+    ? { heading: typeof rawDetails.heading === "string" ? rawDetails.heading : undefined, paragraphs }
+    : undefined;
   return {
     id: row.id,
     campaignId: row.campaign_id,
@@ -84,6 +98,7 @@ const mapEntry = (row: any): CampaignEntry => {
     tasks,
     reward: asRecord(row.reward) as { voucher?: number; usdc?: number },
     branding: asRecord(row.branding) as CampaignBranding,
+    details,
     seedBase: Number(row.seed_base ?? 0),
     cap: row.cap === null || row.cap === undefined ? null : Number(row.cap),
   };

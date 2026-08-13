@@ -87,6 +87,14 @@ export const RewardsSection = ({ isMobile: _isMobile }: { isMobile: boolean }) =
       </SubSection>
 
       <SubSection
+        title="8b. Campaign rules disclosure"
+        description="Read-only long-form rules on the campaign detail page, authored in campaign_entries.rules.details. Collapsed to a 44px CAMPAIGN RULES bar; expands in place to 12.5px/#9AA1AC paragraphs. Renders nothing when the entry has no details."
+        platform="shared"
+      >
+        <DualDevicePreview previewKey="rewards-campaign-rules" label="collapsed · expanded" minHeight={320} />
+      </SubSection>
+
+      <SubSection
         title="9. Exclusive link — ineligible redirect"
         description="User lands via ?entry=LAOWANG but the entry cannot be bound (cap reached, already locked to another entry, account not eligible, link expired, etc.). UX: a single formal sonner toast + immediate redirect to /; the detail page never renders. Copy intentionally generic so new refusal reasons don't require new strings."
         platform="shared"

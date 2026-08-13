@@ -11,6 +11,7 @@ import { GrantTaskRow } from "@/components/campaigns/GrantTaskRow";
 import { SignInPromptCard } from "@/components/campaigns/SignInPromptCard";
 import { KolBandDesktop, KolBandMobile } from "@/components/campaigns/KolBand";
 import { RewardsFinePrint } from "@/components/campaigns/RewardsFinePrint";
+import { CampaignRulesDisclosure } from "@/components/campaigns/CampaignRulesDisclosure";
 import { softBindPublicEntry } from "@/components/campaigns/CampaignAttribution";
 import { useAuth } from "@/hooks/useAuth";
 import omenxLogo from "@/assets/omenx-logo.svg";
@@ -344,9 +345,12 @@ export default function LiteCampaignDetailPage() {
         />
       ))}
 
-      {!isMobile && finePrint}
     </div>
   );
+
+  const rulesModule = entry?.details ? (
+    <CampaignRulesDisclosure paragraphs={entry.details.paragraphs} heading={entry.details.heading} />
+  ) : null;
 
   const body = isLoading ? (
     <div className="h-[420px] animate-pulse rounded-[16px] bg-[#0F1114]" />
@@ -356,6 +360,7 @@ export default function LiteCampaignDetailPage() {
     <div className="space-y-5">
       {mobileHero}
       {tasksPanel}
+      {rulesModule}
       {rewardsCard}
       {finePrint}
     </div>
@@ -363,7 +368,11 @@ export default function LiteCampaignDetailPage() {
     <div className="space-y-5">
       {desktopHero}
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-        <div className="order-2 lg:order-1">{tasksPanel}</div>
+        <div className="order-2 space-y-5 lg:order-1">
+          {tasksPanel}
+          {rulesModule}
+          {finePrint}
+        </div>
         <div className="order-1 lg:order-2">{rewardsCard}</div>
       </div>
     </div>
