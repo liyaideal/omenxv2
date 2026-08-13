@@ -107,6 +107,7 @@ export const RedeemVoucherContent = ({
           picked={picked}
           faceValue={voucher.faceValue}
           maxHoldingHours={voucher.maxHoldingHours}
+          maxProfit={cap}
           isRedeeming={isRedeeming}
           onConfirm={handleSubmit}
           onReset={() => setPicked(null)}
@@ -124,6 +125,7 @@ export const RedeemVoucherContent = ({
         picked={picked}
         faceValue={voucher.faceValue}
         maxHoldingHours={voucher.maxHoldingHours}
+        maxProfit={cap}
         isRedeeming={isRedeeming}
         onConfirm={handleSubmit}
         onReset={() => setPicked(null)}
