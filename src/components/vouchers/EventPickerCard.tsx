@@ -351,9 +351,9 @@ export const EventPickerCard = ({
         {name}
       </span>
       <div className="flex items-center gap-[6px] flex-wrap">
-        <MetaCaps>{meta}</MetaCaps>
         {lines.includes("futures") && <LineBadge strong>Boost</LineBadge>}
         {lines.includes("spot") && <LineBadge strong>Standard</LineBadge>}
+        <MetaCaps>{meta}</MetaCaps>
         {!locked && tail && <LineBadge>{tail}</LineBadge>}
         {locked && (
           <span className="flex items-center gap-[5px]" style={{ fontSize: 11, fontWeight: 600, color: VT.ink2 }}>
