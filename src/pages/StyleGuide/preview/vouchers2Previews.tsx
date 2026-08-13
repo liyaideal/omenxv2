@@ -14,7 +14,7 @@
  */
 import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ChevronLeft } from "lucide-react";
+import { Search } from "lucide-react";
 import {
   VoucherRow,
   RowPrimaryButton,
@@ -29,6 +29,8 @@ import { VT } from "@/components/vouchers/voucherTokens";
 import {
   EventPickerCard,
   PickerOptionRow,
+  PickerDirectionPair,
+  PickerNoEligible,
   PickerBlockedReason,
   PickerSkeleton,
   PickerEmpty,
@@ -338,11 +340,8 @@ export const Vouchers2PickerPreview = () => {
           name="Fed cuts in September?"
           meta="Macro · settles Sep 18"
           lines={["futures"]}
-          tail="Binary"
-          rowsLayout={isMobile ? "stack" : "grid"}
         >
-          <PickerOptionRow isBinary mobile={isMobile} dim label="Yes" price={0.91} />
-          <PickerOptionRow isBinary mobile={isMobile} dim label="No" price={0.09} />
+          <PickerDirectionPair mobile={isMobile} longLabel="Yes" longPrice={0.91} shortLabel="No" shortPrice={0.09} dimLong dimShort />
           <PickerBlockedReason>Priced outside the voucher band — pick another option.</PickerBlockedReason>
         </EventPickerCard>
       );
@@ -359,16 +358,14 @@ export const Vouchers2PickerPreview = () => {
 
     if (state === "standard")
       return (
-        <EventPickerCard mobile={isMobile} name="NVDA up or down — Aug 12" meta="Stocks · settles Aug 12" lines={["spot"]} tail="Binary" rowsLayout={isMobile ? "stack" : "grid"}>
-          <PickerOptionRow isBinary mobile={isMobile} label="Up" price={0.54} />
-          <PickerOptionRow isBinary mobile={isMobile} label="Down" price={0.46} />
+        <EventPickerCard mobile={isMobile} name="NVDA up or down — Aug 12" meta="Stocks · settles Aug 12" lines={["spot"]}>
+          <PickerDirectionPair mobile={isMobile} longLabel="Up" longPrice={0.54} shortLabel="Down" shortPrice={0.46} />
         </EventPickerCard>
       );
 
     return (
-      <EventPickerCard mobile={isMobile} name="Will ETH close above $4k on Aug 14?" meta="Crypto · settles Aug 14" lines={["futures"]} tail="Binary" rowsLayout={isMobile ? "stack" : "grid"}>
-        <PickerOptionRow isBinary mobile={isMobile} label="Yes" price={0.61} />
-        <PickerOptionRow isBinary mobile={isMobile} label="No" price={0.39} />
+      <EventPickerCard mobile={isMobile} name="Will ETH close above $4k on Aug 14?" meta="Crypto · settles Aug 14" lines={["futures"]}>
+        <PickerDirectionPair mobile={isMobile} longLabel="Up" longPrice={0.61} shortLabel="Down" shortPrice={0.39} />
       </EventPickerCard>
     );
   })();
@@ -395,8 +392,9 @@ export const Vouchers2PickerPreview = () => {
         </div>
       </Frame>
       <p className="text-[11px] leading-relaxed text-muted-foreground">
-        Prices stay neutral mono (#9AA1AC) — direction colour lives on the Yes/No action buttons only. Binary
-        cards expose one neutral Buy button per outcome.
+        Complementary markets collapse to one direction pair (long = --yes Pulse Blue, short = --no Volt) with
+        the price inside each button and no BINARY tail. Multi-option cards keep the per-option Yes/No pair,
+        each side carrying its own price.
       </p>
     </div>
   );
