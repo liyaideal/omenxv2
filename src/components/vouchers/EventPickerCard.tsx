@@ -128,7 +128,7 @@ export const SideButton = ({
           cursor: disabled ? "default" : "pointer",
         }}
       >
-        <span>{label}</span>
+        <span>{picked ? "Picked" : label}</span>
         <span
           className="tabular-nums"
           style={{ fontSize: 12, fontWeight: 700, color: picked ? "#0A0B0D" : disabled ? VT.muted2 : "#9AA1AC" }}
@@ -260,6 +260,8 @@ export const PickerOptionRow = ({
 };
 
 export const PickerBlockedReason = ({ children }: { children: React.ReactNode }) => (
+  <></>
+);
   <div className="flex items-start gap-[6px]" style={{ fontSize: 11, color: "#9AA1AC", lineHeight: 1.5, paddingTop: 6 }}>
     <Lock className="w-3 h-3 flex-none" style={{ marginTop: 2, color: VT.ink2 }} />
     {children}
