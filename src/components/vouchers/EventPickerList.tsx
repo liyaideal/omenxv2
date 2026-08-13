@@ -3,6 +3,12 @@ import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { parseSideLabels } from "@/lib/eventUtils";
 import { usePositionVouchers, type PositionVoucher } from "@/hooks/usePositionVouchers";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  TOP_CATEGORIES,
+  categoryLabelForKey,
+  categoryMatchesTop,
+  topCategoryForKey,
+} from "@/lib/taxonomy";
 import { VT } from "./voucherTokens";
 import {
   EventPickerCard,
@@ -101,9 +107,14 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
   const [activeCat, setActiveCat] = useState<string | null>(null);
 
   const categories = useMemo(() => {
-    const set = new Set<string>();
-    events.forEach((e) => e.category && set.add(e.category));
-    return Array.from(set).sort();
+    // Taxonomy is the single source of truth for order + label; a chip renders
+    // only when live events map onto it (data-driven visibility).
+    const live = new Set<string>();
+    events.forEach((e) => {
+      const top = topCategoryForKey(e.category);
+      if (top) live.add(top.id);
+    });
+    return TOP_CATEGORIES.filter((c) => c.id !== "all" && live.has(c.id));
   }, [events]);
 
   const eventEligibility = useMemo(() => {
@@ -124,9 +135,12 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const base = events.filter((e) => {
-      if (activeCat && e.category !== activeCat) return false;
+      if (activeCat && !categoryMatchesTop(e.category, activeCat)) return false;
       if (!q) return true;
-      return e.name.toLowerCase().includes(q) || e.category.toLowerCase().includes(q);
+      return (
+        e.name.toLowerCase().includes(q) ||
+        categoryLabelForKey(e.category).toLowerCase().includes(q)
+      );
     });
     return [...base].sort(
       (a, b) => (eventEligibility.get(b.id) ? 1 : 0) - (eventEligibility.get(a.id) ? 1 : 0),
@@ -139,8 +153,8 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
         <div className={isMobile ? "flex gap-[7px] overflow-x-auto scrollbar-hide -mx-1 px-1" : "flex flex-wrap gap-[7px]"}>
           <Chip active={!activeCat} onClick={() => setActiveCat(null)} mobile={isMobile}>All</Chip>
           {categories.map((c) => (
-            <Chip key={c} active={activeCat === c} onClick={() => setActiveCat(c)} mobile={isMobile}>
-              {c}
+            <Chip key={c.id} active={activeCat === c.id} onClick={() => setActiveCat(c.id)} mobile={isMobile}>
+              {c.label}
             </Chip>
           ))}
         </div>
@@ -180,7 +194,7 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
             ? checkEligibility(voucher, event.options[0]?.price ?? 0, event.end_date, event.is_resolved).reason
             : null;
 
-          const meta = `${event.category}${event.end_date ? ` · settles ${new Date(event.end_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}` : ""}`;
+          const meta = `${categoryLabelForKey(event.category)}${event.end_date ? ` · settles ${new Date(event.end_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}` : ""}`;
 
           if (eventLocked) {
             return (
