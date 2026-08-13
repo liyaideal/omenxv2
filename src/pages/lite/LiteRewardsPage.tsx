@@ -140,7 +140,7 @@ export default function LiteRewardsPage() {
           showBack
           backTo={mobileRedeeming ? "/rewards?tab=vouchers" : undefined}
         />
-        <main className="px-4 py-4">{body}</main>
+        <main className={`py-4 ${mobileRedeeming ? "px-0" : "px-4"}`}>{body}</main>
         <BottomNav />
       </div>
     );
