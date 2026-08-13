@@ -498,6 +498,47 @@ export const PickerEmpty = ({ query, onClear }: { query?: string; onClear?: () =
   </div>
 );
 
+/**
+ * Nothing eligible right now — the voucher stays alive, so this is a wait
+ * state, not a failure. Copy is locked (Vouchers v2.1).
+ */
+export const PickerNoEligible = ({
+  expiresLabel,
+  onBrowse,
+}: {
+  expiresLabel: string;
+  onBrowse?: () => void;
+}) => (
+  <div
+    className="rounded-[12px] flex flex-col items-center gap-[9px] text-center mx-4 md:mx-0"
+    style={{ background: VT.surfaceDeep, border: `1px solid ${VT.line}`, padding: "30px 22px" }}
+  >
+    <span className="font-display" style={{ fontSize: 14, fontWeight: 700, color: VT.ink }}>
+      No eligible markets right now
+    </span>
+    <span style={{ fontSize: 11.5, color: VT.ink3, lineHeight: 1.6, maxWidth: 290 }}>
+      This voucher opens a trial position on Boost and Standard markets priced between 20¢ and 80¢. None are
+      open at the moment — the voucher stays valid until {expiresLabel}.
+    </span>
+    <button
+      type="button"
+      onClick={onBrowse}
+      className="font-display rounded-[10px] flex items-center justify-center"
+      style={{
+        marginTop: 4,
+        minHeight: 44,
+        padding: "0 18px",
+        border: `1px solid ${VT.line3}`,
+        fontSize: 12.5,
+        fontWeight: 700,
+        color: VT.ink,
+      }}
+    >
+      Browse all events
+    </button>
+  </div>
+);
+
 /** Market search field. */
 export const PickerSearchBar = ({
   value,
