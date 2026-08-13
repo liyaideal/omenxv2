@@ -175,14 +175,14 @@ Redeem 入口：券行右侧动作 → 桌面在 tab 内展开 redeem desk；移
 市场卡数据规则（双端一致）：
 - **互补两选项市场**折叠为方向对（如 Up / Down），不渲染 Buy 按钮，选中侧填色但保留原 label。
 - **真多选市场（3+）**保留 per-option Yes/No 对并内置价格；默认只展示前 2 个选项，其余折进 `Show N more options` 行；若被折叠项已选中，则顶替进前 2 显示。
-- 选中后 confirm bar 才从底部升起（fixed 坐底）；三行读出：`{eventName} · {label} at {price}¢` / `${face} voucher · closes automatically after {h}h · Max profit $X.XX` / `Reset` + `Confirm & open position`（进行中 `Redeeming…`）。未选中时的占位文案：`Pick an outcome above to see your trial position.`
+- 选中后 confirm bar 才从底部升起（fixed 坐底）；三行读出：`{eventName} · {label} at {price}¢` / `${face} voucher · closes automatically after {h}h · Max profit $X.XX` / `Reset` + `Confirm & open position`（进行中 `Redeeming…`）。移动端未选中时无任何底部 chrome。
 - 无可用市场空态：`No eligible markets right now` / `This voucher opens a trial position on Boost and Standard markets priced between 20¢ and 80¢. None are open at the moment — the voucher stays valid until {expiresLabel}.` + `Browse all events`。搜索无结果：`No markets match "{query}"` / `Nothing here right now takes a voucher. Clear the filter to see everything eligible.`
 
 确认后按产品线分流：`productLine === "spot"` → `/spot?event=<id>`，否则 `/trade?event=<id>`。
 
 ### 4.5 桌面 redeem desk
 
-与移动同一套判定与数据规则，差异仅在容器：`VoucherDeskHeader` 完整头（`REDEEMING VOUCHER` + 面值 + 券码 + Max profit / Hold window / Payout 三格 + 收益模式说明句）+ picker 内嵌于卡片，summary 为 inline 卡而非坐底 bar。移动端同一头折叠为 56px 票根。
+与移动同一套判定与数据规则，差异仅在容器：`VoucherDeskHeader` 完整头（`REDEEMING VOUCHER` + 面值 + 券码 + Max profit / Hold window / Payout 三格 + 收益模式说明句）+ picker 内嵌于卡片，summary 为 inline 卡而非坐底 bar。未选中时 summary 卡占位文案：`Pick an outcome above to see your trial position.`。移动端同一头折叠为 56px 票根。
 
 ### 4.6 Referral tab
 
@@ -250,4 +250,4 @@ edge function `claim-voucher-earnings`；函数 `apply_campaign_progress` / `cam
 - `/portfolio` VoucherBanner 与 `/trade` `/spot` CloseVoucher 的内部行为。
 - 交易页开仓 / 平仓链路本身，voucher 只作为开仓来源标记。
 - 账户命名沿用 **Boost / Standard**（用户可见文案不出现 Futures / Spot；`futures` / `spot` 仅作为代码字段名）。
-- 方向色语义不变：交易绿/红只染方向词，动作动词（Buy / Confirm）永不染色；蓝 `#33D6FF` 专用于 USDC。
+- 色彩双轴语义：方向/选边控件走 market axis —— Yes / Up = `--yes` Pulse Blue `#33D6FF`，No / Down = `--no` Volt `#CFFF4A`，选中态填各自颜色 + `#0A0B0D` 文字；`trading-green` / `trading-red` 是盈亏轴，只用于 PnL/涨跌数字，永不染方向控件。动作动词（Buy / Confirm）不染色。USDC 徽章用蓝为既有 token 复用，与 `--yes` 同值。
