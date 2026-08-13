@@ -26,9 +26,9 @@ import { VoucherHistoryArchive } from "@/components/vouchers/VoucherHistoryArchi
 import { VoucherDeskHeader } from "@/components/vouchers/VoucherDeskHeader";
 import { RedeemSummaryBar } from "@/components/vouchers/RedeemSummaryBar";
 import { VT } from "@/components/vouchers/voucherTokens";
+import { MultiOptionRows } from "@/components/vouchers/EventPickerList";
 import {
   EventPickerCard,
-  PickerOptionRow,
   PickerDirectionPair,
   PickerNoEligible,
   PickerBlockedReason,
@@ -349,10 +349,14 @@ export const Vouchers2PickerPreview = () => {
     if (state === "multi")
       return (
         <EventPickerCard mobile={isMobile} name="Who wins the World Cup?" meta="Sports · settles Dec 18" lines={["futures"]} tail="4 options">
-          <PickerOptionRow isBinary={false} mobile={isMobile} label="Brazil" price={0.32} pickedLong />
-          <PickerOptionRow isBinary={false} mobile={isMobile} label="France" price={0.24} />
-          <PickerOptionRow isBinary={false} mobile={isMobile} label="Argentina" price={0.19} />
-          <PickerOptionRow isBinary={false} mobile={isMobile} dim label="Japan" price={0.04} />
+          <MultiOptionRows
+            rows={[
+              { key: "br", picked: true, isBinary: false, mobile: isMobile, label: "Brazil", price: 0.32, pickedLong: true },
+              { key: "fr", picked: false, isBinary: false, mobile: isMobile, label: "France", price: 0.24 },
+              { key: "ar", picked: false, isBinary: false, mobile: isMobile, label: "Argentina", price: 0.19 },
+              { key: "jp", picked: false, isBinary: false, mobile: isMobile, dim: true, label: "Japan", price: 0.04 },
+            ]}
+          />
         </EventPickerCard>
       );
 
@@ -497,9 +501,14 @@ export const Vouchers2MobileFlowPreview = () => {
 
   const multiCard = (
     <EventPickerCard mobile={isMobile} name="Ballon d'Or" meta="Sports · settles Oct 27" lines={["futures"]} tail="4 options">
-      <PickerOptionRow isBinary={false} mobile={isMobile} label="Lamine Yamal" price={0.44} pickedLong />
-      <PickerOptionRow isBinary={false} mobile={isMobile} label="Mbappé" price={0.26} />
-      <PickerOptionRow isBinary={false} mobile={isMobile} label="Haaland" price={0.18} />
+      <MultiOptionRows
+        rows={[
+          { key: "ly", picked: true, isBinary: false, mobile: isMobile, label: "Lamine Yamal", price: 0.44, pickedLong: true },
+          { key: "mb", picked: false, isBinary: false, mobile: isMobile, label: "Mbappé", price: 0.26 },
+          { key: "ha", picked: false, isBinary: false, mobile: isMobile, label: "Haaland", price: 0.18 },
+          { key: "be", picked: false, isBinary: false, mobile: isMobile, label: "Bellingham", price: 0.09 },
+        ]}
+      />
     </EventPickerCard>
   );
 
