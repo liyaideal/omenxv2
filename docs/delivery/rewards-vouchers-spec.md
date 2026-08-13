@@ -145,11 +145,17 @@ Trigger：`trg_pay_instant_voucher_settlement` → `pay_instant_voucher_settleme
 
 ### 4.2 Campaigns tab
 
-活动卡网格（进行中 / 即将开始 / 常驻 / 已结束四相位），已结束折进 archive 条。详情页 = hero（special entry 走 KOL band 品牌带）+ 任务面板（GrantTaskRow 五态）+ Campaign rules 长文折叠（`rules.details`）+ 奖励汇总栏 + fine print。Starter Rewards 为常驻 campaign，承接原 onboarding 任务。
+活动卡网格（`live` / `upcoming` / `always-on` / `ended` 四相位），已结束折进 archive 条。空态：`No campaigns running` / `New campaigns show up here as they go live.`
+
+详情页 = hero（`entry.kind === "special"` 才出 KOL band 品牌带）+ 任务面板（GrantTaskRow 五态）+ Campaign rules 长文折叠（仅当 `entry.details` 存在，标题取 `heading`，缺省 `Campaign rules`）+ 奖励汇总栏（`Your rewards here`，底部归属 chip：special → `Joined via {kolName}`，public → `Official OmenX campaign — open to everyone`）+ fine print。奖励徽章文案：`$X Trial Position Voucher`（volt）与 `$X USDC`（蓝）。领取走 edge function `claim-campaign-grant`（`{entryId, taskKey}`），成功 toast `Voucher sent to Position Vouchers` / `Open vouchers to reveal it.`，失败回落 `Could not claim this reward`。活动不存在时正文为 `This campaign is no longer available.`
+
+首次访问 public 活动详情且尚无 participation 时，自动 soft-bind（`source: "direct"`）。Starter Rewards 为常驻 campaign，承接原 onboarding 任务。
 
 ### 4.3 Vouchers tab
 
-分区顺序：`Ready to claim`（granted/issued，volt dot）→ `Active`（claimed/redeemed）→ earnings hero（pending / lifetime、tier 段条、claim 按钮）→ History 折叠档案条（settled / expired / revoked）。
+分区顺序：`Ready to claim`（granted，volt dot）→ `Active`（claimed / issued）→ earnings hero（pending / lifetime、tier 段条、`Claim $X to wallet` 或 `Redeem a voucher`）→ History 折叠档案条（settled / expired / revoked，档案行 payout caption：`Credited to wallet` / `Added to pending` / `Voucher lost · nothing owed`）。
+
+空态：`No vouchers yet` / `Vouchers you earn from campaigns and referrals land here, ready to open a trial position.`；桌面 desk 未选券时：`Pick a voucher to redeem` / `Choose one on the left and the market picker opens here. Your own balance is never used — the voucher funds the trial position.`
 
 Redeem 入口：券行右侧动作 → 桌面在 tab 内展开 redeem desk；移动端写 URL `?redeem=<voucherId>`。
 
@@ -169,14 +175,14 @@ Redeem 入口：券行右侧动作 → 桌面在 tab 内展开 redeem desk；移
 市场卡数据规则（双端一致）：
 - **互补两选项市场**折叠为方向对（如 Up / Down），不渲染 Buy 按钮，选中侧填色但保留原 label。
 - **真多选市场（3+）**保留 per-option Yes/No 对并内置价格；默认只展示前 2 个选项，其余折进 `Show N more options` 行；若被折叠项已选中，则顶替进前 2 显示。
-- 选中后 confirm bar 才从底部升起（fixed 坐底）；三行读出：市场名 · 方向 · 价格 / `${face} voucher · closes automatically after {h}h` / `Reset` + `Confirm & open position`（进行中 `Redeeming…`）。
-- 空态：`No eligible markets right now` + `Browse all events`。
+- 选中后 confirm bar 才从底部升起（fixed 坐底）；三行读出：`{eventName} · {label} at {price}¢` / `${face} voucher · closes automatically after {h}h · Max profit $X.XX` / `Reset` + `Confirm & open position`（进行中 `Redeeming…`）。未选中时的占位文案：`Pick an outcome above to see your trial position.`
+- 无可用市场空态：`No eligible markets right now` / `This voucher opens a trial position on Boost and Standard markets priced between 20¢ and 80¢. None are open at the moment — the voucher stays valid until {expiresLabel}.` + `Browse all events`。搜索无结果：`No markets match "{query}"` / `Nothing here right now takes a voucher. Clear the filter to see everything eligible.`
 
 确认后按产品线分流：`productLine === "spot"` → `/spot?event=<id>`，否则 `/trade?event=<id>`。
 
 ### 4.5 桌面 redeem desk
 
-与移动同一套判定与数据规则，差异仅在容器：票根 + picker 内嵌于卡片，summary 为 inline 卡而非坐底 bar。
+与移动同一套判定与数据规则，差异仅在容器：`VoucherDeskHeader` 完整头（`REDEEMING VOUCHER` + 面值 + 券码 + Max profit / Hold window / Payout 三格 + 收益模式说明句）+ picker 内嵌于卡片，summary 为 inline 卡而非坐底 bar。移动端同一头折叠为 56px 票根。
 
 ### 4.6 Referral tab
 
