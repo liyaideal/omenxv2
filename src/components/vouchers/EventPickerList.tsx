@@ -27,6 +27,7 @@ import { liteSideName } from "@/lib/liteSideName";
 import { shortDate } from "./voucherTokens";
 
 export interface PickedOption {
+  /* eslint-disable-next-line */
   eventId: string;
   eventName: string;
   optionId: string;
