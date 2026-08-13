@@ -175,7 +175,7 @@ Redeem 入口：券行右侧动作 → 桌面在 tab 内展开 redeem desk；移
 市场卡数据规则（双端一致）：
 - **互补两选项市场**折叠为方向对（如 Up / Down），不渲染 Buy 按钮，选中侧填色但保留原 label。
 - **真多选市场（3+）**保留 per-option Yes/No 对并内置价格；默认只展示前 2 个选项，其余折进 `Show N more options` 行；若被折叠项已选中，则顶替进前 2 显示。
-- 选中后 confirm bar 才从底部升起（fixed 坐底）；三行读出：`{eventName} · {label} at {price}¢` / `${face} voucher · closes automatically after {h}h · Max profit $X.XX` / `Reset` + `Confirm & open position`（进行中 `Redeeming…`）。未选中时的占位文案：`Pick an outcome above to see your trial position.`
+- 选中后 confirm bar 才从底部升起（fixed 坐底）；三行读出：`{eventName} · {label} at {price}¢` / `${face} voucher · closes automatically after {h}h · Max profit $X.XX` / `Reset` + `Confirm & open position`（进行中 `Redeeming…`）。移动端未选中时无任何底部 chrome。
 - 无可用市场空态：`No eligible markets right now` / `This voucher opens a trial position on Boost and Standard markets priced between 20¢ and 80¢. None are open at the moment — the voucher stays valid until {expiresLabel}.` + `Browse all events`。搜索无结果：`No markets match "{query}"` / `Nothing here right now takes a voucher. Clear the filter to see everything eligible.`
 
 确认后按产品线分流：`productLine === "spot"` → `/spot?event=<id>`，否则 `/trade?event=<id>`。
