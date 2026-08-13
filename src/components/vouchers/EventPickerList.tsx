@@ -217,8 +217,10 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
 
         {!nothingEligible && filtered.map((event) => {
           const labels = event.options.map((o) => o.label.trim().toLowerCase());
-          const isBinary = event.options.length === 2 && labels.includes("yes") && labels.includes("no");
-          const sideLabels = isBinary ? parseSideLabels((event as any).side_labels) : undefined;
+          /* Complementary market = exactly two mutually exclusive outcomes
+             (Yes/No, Up/Down…). It collapses to one direction pair. */
+          const isBinary = event.options.length === 2;
+          const sideLabels = event.options.length === 2 ? parseSideLabels((event as any).side_labels) : undefined;
           const displayLabel = (optLabel: string) => {
             if (!sideLabels) return optLabel;
             const l = optLabel.trim().toLowerCase();
@@ -282,10 +284,10 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
               {isBinary ? (() => {
                 /* Complementary market → one direction pair (data rule, same on
                    mobile and on the desktop desk). */
-                const yesOpt =
-                  event.options.find((o) => o.label.trim().toLowerCase() === "yes") ?? event.options[0];
-                const noOpt =
-                  event.options.find((o) => o.label.trim().toLowerCase() === "no") ?? event.options[1];
+                const NEGATIVE = ["no", "down", "not up"];
+                const negIdx = event.options.findIndex((o) => NEGATIVE.includes(o.label.trim().toLowerCase()));
+                const noOpt = event.options[negIdx === -1 ? 1 : negIdx];
+                const yesOpt = event.options.find((o) => o.id !== noOpt.id) ?? event.options[0];
                 const yesOk = checkEligibility(voucher, yesOpt.price, event.end_date, event.is_resolved).ok;
                 const noOk = checkEligibility(voucher, noOpt.price, event.end_date, event.is_resolved).ok;
                 return (
