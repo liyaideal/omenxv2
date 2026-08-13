@@ -125,7 +125,7 @@ export const PickerOptionRow = ({
           borderTop: `1px solid ${VT.hairline}`,
           borderLeft: `3px solid ${isPicked ? VT.volt : "transparent"}`,
           paddingLeft: 13,
-          paddingRight: 0,
+          paddingRight: 16,
         }}
       >
         <span
