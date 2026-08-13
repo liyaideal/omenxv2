@@ -103,7 +103,7 @@ export const PickerOptionRow = ({
   const priceEl = (
     <span
       className="font-display tabular-nums flex-none"
-      style={{ fontSize: 13, fontWeight: 700, color: dim ? VT.muted : VT.ink3 }}
+      style={{ fontSize: mobile ? 14 : 13, fontWeight: 700, color: dim ? VT.muted : VT.ink3 }}
     >
       {cents(price)}
     </span>
@@ -121,7 +121,7 @@ export const PickerOptionRow = ({
         }}
       >
         <div className="flex items-center justify-between gap-[10px]">
-          <span className="flex-1 min-w-0 truncate" style={{ fontSize: 11.5, color: dim ? VT.muted : VT.ink }}>
+          <span className="flex-1 min-w-0" style={{ fontSize: 13, lineHeight: 1.3, color: dim ? VT.muted : VT.ink }}>
             {label}
           </span>
           {priceEl}
@@ -140,14 +140,15 @@ export const PickerOptionRow = ({
       style={{
         background: VT.surfaceDeep,
         border: `1px solid ${pickedLong || pickedShort ? VT.volt : VT.line2}`,
-        padding: mobile ? "0 12px" : "9px 12px",
-        minHeight: 44,
+        padding: mobile ? "8px 12px" : "9px 12px",
+        minHeight: mobile ? 48 : 44,
       }}
     >
       <span
-        className="flex-1 min-w-0 truncate"
+        className={`flex-1 min-w-0 ${mobile ? "" : "truncate"}`}
         style={{
-          fontSize: isBinary ? 11 : 11.5,
+          fontSize: mobile ? 13 : isBinary ? 11 : 11.5,
+          lineHeight: 1.3,
           fontWeight: pickedLong || pickedShort ? 600 : 400,
           color: dim ? VT.muted : isBinary ? VT.ink3 : VT.ink,
         }}
