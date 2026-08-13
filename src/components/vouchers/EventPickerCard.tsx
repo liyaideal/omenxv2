@@ -327,7 +327,7 @@ export const PickerSkeleton = () => (
     {[0, 1].map((i) => (
       <div
         key={i}
-        className="rounded-[12px] flex flex-col gap-[11px]"
+        className="rounded-[12px] flex flex-col gap-[11px] mx-4 md:mx-0"
         style={{ background: VT.surfaceCard, border: `1px solid ${VT.line}`, padding: 14 }}
       >
         <div className="flex flex-col gap-[6px]">
@@ -351,7 +351,7 @@ export const PickerSkeleton = () => (
 /** Empty result card — search miss or nothing eligible. */
 export const PickerEmpty = ({ query, onClear }: { query?: string; onClear?: () => void }) => (
   <div
-    className="rounded-[12px] flex flex-col items-center gap-[8px] text-center"
+    className="rounded-[12px] flex flex-col items-center gap-[8px] text-center mx-4 md:mx-0"
     style={{ background: VT.surfaceDeep, border: `1px solid ${VT.line}`, padding: "34px 24px" }}
   >
     <span className="font-display" style={{ fontSize: 14, fontWeight: 700, color: VT.ink }}>
