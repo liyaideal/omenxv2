@@ -28,6 +28,7 @@ export const RedeemVoucherContent = ({
   const [picked, setPicked] = useState<PickedOption | null>(null);
   const { redeem, isRedeeming } = usePositionVouchers();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const stickyBarRef = useRef<HTMLDivElement | null>(null);
 
   const cap = voucher.faceValue * voucher.redeemableCapPct;
