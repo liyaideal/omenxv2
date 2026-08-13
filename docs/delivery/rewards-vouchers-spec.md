@@ -27,6 +27,8 @@
 | `expired` | 到期未 redeem | `expires_at` 到期 | History 档案条 |
 | `revoked` | 人工作废 | 运营 | History 档案条 |
 
+发放与领取补充：新用户注册由 `handle_new_user()` 从当日券池（`voucher_daily_pools`，面值 $10 / $25 / $50，配额 1000 / 500 / 100，`consume_daily_voucher_pool` 原子扣减）发 `granted` 券，`expires_at = now() + 30 天`。领取走 edge function `claim-position-voucher`，toast `Voucher claimed` / `You have 7 days to redeem it.`；兑换走 `redeem-position-voucher`，成功 toast `Voucher redeemed` / `Your position is now active.`。列表另注入两条只读 demo `expired` 券，用于无真实数据时展示过期态，永不参与 claim/redeem。
+
 `payout_mode` 双轨：
 
 | payout_mode | 结算行为 |
@@ -56,6 +58,8 @@
 | 结算过近 | 距结算 < `min_hours_to_settlement`（默认 12h） | `Vouchers can't open a position this close to settlement.` |
 | 价格带 | option 价格需落在 `entry_price_min`–`entry_price_max`（默认 20¢–80¢） | `Priced outside the voucher band — pick another option.` |
 
+锁卡右上徽标文案：`Voucher already used`。锁的判定来源是 `usedEventIds`（本人全部券的 `redeemedEventId` 集合），跨 Boost / Standard 两条产品线生效。
+
 其余固定业务参数：面值 `face_value`；最大利润 = `face_value × redeemable_cap_pct`（默认 0.5）；持仓窗口 `max_holding_hours` 默认 72h，到点自动平仓。
 
 ### 2.3 Campaign 归因判定（`CampaignAttribution`）
@@ -75,6 +79,8 @@
 ### 2.4 Grant 任务状态
 
 `not_started` / `in_progress` / `claimable` / `claimed` / `not_eligible`。状态词让位给动作：`not_started`、`in_progress` 且已登录未冻结时，行右渲染次级动作按钮（由 task `cta` 决定跳转，缺省按 task_key 推导：discord → 外链、connect → `/settings`、其余 → `/events?sector=…`）。
+
+行右侧渲染优先级：未登录且未冻结 → 文案 `Sign in to start`（无按钮）；`showAction` → 动作按钮；`claimable` 且 voucher > 0 → 白底 `Claim voucher`；`claimable` 且仅 USDC → 静态文案 `Credited to Standard after review`；其余 → 状态词。`not_eligible` 行走 muted / dashed，副标题固定为 `Covered by your friend's invite — this one goes to them.`
 
 ---
 
