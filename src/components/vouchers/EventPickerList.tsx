@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Search } from "lucide-react";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { parseSideLabels } from "@/lib/eventUtils";
 import { usePositionVouchers, type PositionVoucher } from "@/hooks/usePositionVouchers";
@@ -13,11 +15,15 @@ import { VT } from "./voucherTokens";
 import {
   EventPickerCard,
   PickerOptionRow,
+  PickerDirectionPair,
   PickerBlockedReason,
   PickerSkeleton,
   PickerEmpty,
+  PickerNoEligible,
   PickerSearchBar,
 } from "./EventPickerCard";
+import { liteSideName } from "@/lib/liteSideName";
+import { shortDate } from "./voucherTokens";
 
 export interface PickedOption {
   eventId: string;
@@ -103,8 +109,10 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
   const { events, isLoading } = useActiveEvents();
   const { usedEventIds } = usePositionVouchers();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [activeCat, setActiveCat] = useState<string | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const categories = useMemo(() => {
     // Taxonomy is the single source of truth for order + label; a chip renders
@@ -147,9 +155,39 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
     );
   }, [events, query, activeCat, eventEligibility]);
 
+  const eligibleCount = useMemo(
+    () => events.filter((e) => eventEligibility.get(e.id)).length,
+    [events, eventEligibility],
+  );
+  /* Pills are chrome, not decoration: they only earn their 44px when the list
+     is long enough to need narrowing. */
+  const showPills = categories.length > 0 && eligibleCount > 8;
+  const nothingEligible = !isLoading && !query && !activeCat && eligibleCount === 0;
+
   return (
     <div className={`flex flex-col ${isMobile ? "gap-[12px]" : "gap-[14px]"}`}>
-      {categories.length > 0 && (
+      <div className={`flex items-center justify-between gap-[10px] ${isMobile ? "px-4" : ""}`}>
+        <span style={{ fontSize: 12, color: VT.ink3, lineHeight: 1.4 }}>
+          Pick a market — one voucher opens one trial position
+        </span>
+        <button
+          type="button"
+          aria-label="Search markets"
+          onClick={() => setSearchOpen((o) => !o)}
+          className="flex-none flex items-center justify-center"
+          style={{ width: 44, height: 44, marginRight: -10, color: searchOpen ? VT.ink : VT.muted }}
+        >
+          <Search className="w-[17px] h-[17px]" />
+        </button>
+      </div>
+
+      {searchOpen && (
+        <div className={isMobile ? "px-4" : ""}>
+          <PickerSearchBar value={query} onChange={setQuery} mobile={isMobile} />
+        </div>
+      )}
+
+      {showPills && (
         <div className={isMobile ? "flex gap-[7px] overflow-x-auto scrollbar-hide px-4" : "flex flex-wrap gap-[7px]"}>
           <Chip active={!activeCat} onClick={() => setActiveCat(null)} mobile={isMobile}>All</Chip>
           {categories.map((c) => (
@@ -160,14 +198,14 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
         </div>
       )}
 
-      <div className={isMobile ? "px-4" : ""}>
-        <PickerSearchBar value={query} onChange={setQuery} mobile={isMobile} />
-      </div>
-
       <div className={`flex flex-col ${isMobile ? "" : "gap-[10px] max-h-[520px] overflow-y-auto pr-1"}`}>
         {isLoading && <PickerSkeleton />}
 
-        {!isLoading && filtered.length === 0 && (
+        {nothingEligible && (
+          <PickerNoEligible expiresLabel={shortDate(voucher.expiresAt)} onBrowse={() => navigate("/events")} />
+        )}
+
+        {!isLoading && !nothingEligible && filtered.length === 0 && (
           <PickerEmpty
             query={query}
             onClear={() => {
@@ -177,7 +215,7 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
           />
         )}
 
-        {filtered.map((event) => {
+        {!nothingEligible && filtered.map((event) => {
           const labels = event.options.map((o) => o.label.trim().toLowerCase());
           const isBinary = event.options.length === 2 && labels.includes("yes") && labels.includes("no");
           const sideLabels = isBinary ? parseSideLabels((event as any).side_labels) : undefined;
@@ -237,11 +275,34 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
               name={event.name}
               meta={meta}
               lines={lines}
-              tail={isBinary ? "Binary" : `${event.options.length} options`}
+              tail={isBinary ? undefined : `${event.options.length} options`}
               eligible={!!cardEligible}
-              rowsLayout={isBinary && !isMobile ? "grid" : "stack"}
+              rowsLayout="stack"
             >
-              {event.options.map((opt) => {
+              {isBinary ? (() => {
+                /* Complementary market → one direction pair (data rule, same on
+                   mobile and on the desktop desk). */
+                const yesOpt =
+                  event.options.find((o) => o.label.trim().toLowerCase() === "yes") ?? event.options[0];
+                const noOpt =
+                  event.options.find((o) => o.label.trim().toLowerCase() === "no") ?? event.options[1];
+                const yesOk = checkEligibility(voucher, yesOpt.price, event.end_date, event.is_resolved).ok;
+                const noOk = checkEligibility(voucher, noOpt.price, event.end_date, event.is_resolved).ok;
+                return (
+                  <PickerDirectionPair
+                    mobile={isMobile}
+                    longLabel={liteSideName(displayLabel(yesOpt.label))}
+                    longPrice={yesOpt.price}
+                    shortLabel={liteSideName(displayLabel(noOpt.label))}
+                    shortPrice={noOpt.price}
+                    dimLong={!yesOk}
+                    dimShort={!noOk}
+                    pickedLong={selected?.optionId === yesOpt.id}
+                    pickedShort={selected?.optionId === noOpt.id}
+                    onPick={(side) => pick(side === "long" ? yesOpt : noOpt, "long")}
+                  />
+                );
+              })() : event.options.map((opt) => {
                 const eligibility = checkEligibility(voucher, opt.price, event.end_date, event.is_resolved);
                 return (
                   <PickerOptionRow
