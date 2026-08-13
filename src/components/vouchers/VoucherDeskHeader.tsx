@@ -186,18 +186,3 @@ const VoucherStub = ({
     </div>
   );
 };
-
-const LEGACY_COMPACT = () => {
-    return (
-      <div className="overflow-hidden rounded-[12px]" style={{ background: VT.surfaceDesk, border: `1px solid ${VT.line}` }}>
-        <div className="flex flex-col gap-[6px]" style={{ padding: "13px 14px 12px" }}>
-          <div className="flex items-center justify-between gap-[10px]">
-            <span className="font-display uppercase" style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".14em", color: VT.muted }}>
-              Redeeming voucher
-            </span>
-            <span className="font-mono" style={{ fontSize: 10, color: VT.muted }}>—</span>
-          </div>
-        </div>
-      </div>
-    );
-};
