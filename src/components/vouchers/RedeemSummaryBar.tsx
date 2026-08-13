@@ -45,12 +45,12 @@ export const RedeemSummaryBar = ({
 
   /* line 1 — event name (truncates) + " · {side} at {price}¢" */
   const lineOne = picked && (
-    <span className="flex items-baseline gap-[4px] min-w-0" style={{ fontSize: 12, color: VT.ink2 }}>
+    <span className="flex items-baseline gap-[4px] min-w-0" style={{ fontSize: 12, color: "#C9CED6" }}>
       <span className="flex-1 min-w-0 truncate">
         {picked.eventName}
         {!picked.isBinary ? ` · ${picked.displayLabel}` : ""}
       </span>
-      <span className="flex-none whitespace-nowrap tabular-nums" style={{ color: VT.ink3 }}>
+      <span className="flex-none whitespace-nowrap tabular-nums" style={{ color: "#9AA1AC" }}>
         {" · "}
         {picked.isBinary ? picked.displayLabel : picked.side === "long" ? "Yes" : "No"} at{" "}
         {Math.round(picked.price * 100)}¢
@@ -60,7 +60,7 @@ export const RedeemSummaryBar = ({
 
   /* line 2 — voucher terms, every number from the real voucher */
   const lineTwo = (
-    <span className="tabular-nums" style={{ fontSize: 11, color: VT.muted }}>
+    <span className="tabular-nums" style={{ fontSize: 11, color: "#6B7280" }}>
       ${faceValue} voucher · closes automatically after {maxHoldingHours}h
       {maxProfit !== undefined ? ` · Max profit $${maxProfit.toFixed(2)}` : ""}
     </span>
@@ -71,7 +71,7 @@ export const RedeemSummaryBar = ({
       type="button"
       onClick={onReset}
       className="flex-none flex items-center justify-center"
-      style={{ minHeight: 44, padding: "0 12px", fontSize: 12.5, color: VT.ink3 }}
+      style={{ minHeight: 44, padding: "0 12px", fontSize: 11.5, color: "#9AA1AC" }}
     >
       Reset
     </button>
@@ -82,9 +82,10 @@ export const RedeemSummaryBar = ({
       type="button"
       onClick={onConfirm}
       disabled={!picked || isRedeeming}
-      className={`font-display rounded-[10px] ${grow ? "flex-1" : "flex-none"}`}
+      className={`font-display ${grow ? "flex-1" : "flex-none"}`}
       style={{
         minHeight: 44,
+        borderRadius: 10,
         padding: "0 20px",
         border: picked ? "none" : `1px solid ${VT.line3}`,
         background: picked ? "#FFFFFF" : VT.disabledBg,
@@ -104,17 +105,17 @@ export const RedeemSummaryBar = ({
     return (
       <div
         ref={innerRef}
-        className="fixed inset-x-0 bottom-0 z-[199] flex flex-col gap-[8px]"
+        className="fixed inset-x-0 bottom-0 z-[199] flex flex-col gap-[10px]"
         style={{
-          borderTop: `1px solid ${VT.line}`,
-          background: VT.surfaceInset,
+          borderTop: "1px solid #1D2026",
+          background: "#101216",
           padding: "12px 16px 24px",
           paddingBottom: "max(24px, env(safe-area-inset-bottom))",
         }}
       >
         {lineOne}
         {lineTwo}
-        <div className="flex items-center gap-[10px]">
+        <div className="flex items-center gap-[12px]">
           {resetButton}
           {confirmButton(true)}
         </div>
@@ -124,7 +125,7 @@ export const RedeemSummaryBar = ({
 
   /* ------------------------- desktop / dialog card ------------------------ */
   const card = (
-    <div className="flex items-center justify-between gap-[14px] flex-wrap">
+    <div className="w-full flex items-center justify-between gap-[14px] flex-wrap">
       {picked ? (
         <div className="flex flex-col gap-[3px] min-w-0 flex-1">
           {lineOne}
@@ -144,8 +145,8 @@ export const RedeemSummaryBar = ({
     return (
       <div
         ref={innerRef}
-        className="mx-5 mb-5 rounded-[12px]"
-        style={{ background: VT.surfaceInset, border: `1px solid ${VT.line}`, padding: "13px 16px" }}
+        className="mx-5 mb-5 flex items-center"
+        style={{ background: "#101216", border: "1px solid #1D2026", borderRadius: 12, padding: "13px 16px", minHeight: 60 }}
       >
         {card}
       </div>
@@ -155,8 +156,8 @@ export const RedeemSummaryBar = ({
   return (
     <div
       ref={innerRef}
-      className="rounded-[12px]"
-      style={{ background: VT.surfaceInset, border: `1px solid ${VT.line}`, padding: "13px 16px" }}
+      className="flex items-center"
+      style={{ background: "#101216", border: "1px solid #1D2026", borderRadius: 12, padding: "13px 16px", minHeight: 60 }}
     >
       {card}
     </div>

@@ -82,13 +82,16 @@ const Chip = ({
   <button
     type="button"
     onClick={onClick}
-    className={`flex-none rounded-full capitalize ${mobile ? "flex items-center min-h-[44px] px-[14px]" : "px-[14px] py-[7px]"}`}
+    className="flex-none capitalize flex items-center"
     style={{
-      fontSize: mobile ? 12 : 12.5,
+      borderRadius: 999,
+      minHeight: 44,
+      padding: "0 14px",
+      fontSize: 12,
       fontWeight: active ? 700 : 600,
       background: active ? "#fff" : "transparent",
-      color: active ? "#0A0B0D" : mobile ? VT.ink3 : VT.ink2,
-      border: active ? "1px solid #fff" : `${mobile ? 1 : 1.5}px solid ${mobile ? VT.line2 : VT.line3}`,
+      color: active ? "#0A0B0D" : "#9AA1AC",
+      border: active ? "1px solid #fff" : "1px solid #23262D",
     }}
   >
     {children}
@@ -165,9 +168,9 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
   const nothingEligible = !isLoading && !query && !activeCat && eligibleCount === 0;
 
   return (
-    <div className={`flex flex-col ${isMobile ? "gap-[12px]" : "gap-[14px]"}`}>
-      <div className={`flex items-center justify-between gap-[10px] ${isMobile ? "px-4" : ""}`}>
-        <span style={{ fontSize: 12, color: VT.ink3, lineHeight: 1.4 }}>
+    <div className="flex flex-col gap-[12px]">
+      <div className="flex items-center justify-between gap-[10px]">
+        <span style={{ fontSize: 12, color: "#9AA1AC", lineHeight: 1.4 }}>
           Pick a market — one voucher opens one trial position
         </span>
         <button
@@ -175,20 +178,18 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
           aria-label="Search markets"
           onClick={() => setSearchOpen((o) => !o)}
           className="flex-none flex items-center justify-center"
-          style={{ width: 44, height: 44, marginRight: -10, color: searchOpen ? VT.ink : VT.muted }}
+          style={{ width: 44, height: 44, marginRight: -10, color: searchOpen ? VT.ink : "#9AA1AC" }}
         >
           <Search className="w-[17px] h-[17px]" />
         </button>
       </div>
 
       {searchOpen && (
-        <div className={isMobile ? "px-4" : ""}>
-          <PickerSearchBar value={query} onChange={setQuery} mobile={isMobile} />
-        </div>
+        <PickerSearchBar value={query} onChange={setQuery} mobile={isMobile} />
       )}
 
       {showPills && (
-        <div className={isMobile ? "flex gap-[7px] overflow-x-auto scrollbar-hide px-4" : "flex flex-wrap gap-[7px]"}>
+        <div className={isMobile ? "flex gap-[7px] overflow-x-auto scrollbar-hide" : "flex flex-wrap gap-[7px]"}>
           <Chip active={!activeCat} onClick={() => setActiveCat(null)} mobile={isMobile}>All</Chip>
           {categories.map((c) => (
             <Chip key={c.id} active={activeCat === c.id} onClick={() => setActiveCat(c.id)} mobile={isMobile}>
@@ -198,7 +199,7 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
         </div>
       )}
 
-      <div className={`flex flex-col ${isMobile ? "" : "gap-[10px] max-h-[520px] overflow-y-auto pr-1"}`}>
+      <div className={`flex flex-col gap-[10px] ${isMobile ? "" : "max-h-[520px] overflow-y-auto pr-1"}`}>
         {isLoading && <PickerSkeleton />}
 
         {nothingEligible && (
@@ -279,6 +280,7 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
               lines={lines}
               tail={isBinary ? undefined : `${event.options.length} options`}
               eligible={!!cardEligible}
+              picked={selected?.eventId === event.id}
               rowsLayout="stack"
             >
               {isBinary ? (() => {

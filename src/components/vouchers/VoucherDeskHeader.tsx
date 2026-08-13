@@ -120,68 +120,79 @@ const VoucherStub = ({
   ];
 
   return (
-    <div className="overflow-hidden" style={{ background: VT.surfaceDesk, borderBottom: `1px solid ${VT.line}` }}>
+    <div className="overflow-hidden" style={{ background: "#0B0C0E", border: "1px solid #1D2026", borderRadius: 12 }}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="w-full flex items-center gap-[10px] text-left"
-        style={{ minHeight: 56, borderLeft: `3px solid ${VT.volt}`, padding: "0 14px 0 13px" }}
+        className="relative w-full flex items-center gap-[10px] text-left"
+        style={{ minHeight: 56, padding: "0 12px 0 15px" }}
       >
+        <span className="absolute inset-y-0 left-0" style={{ width: 3, background: "#CFFF4A" }} aria-hidden />
         <span
           className="font-display tabular-nums flex-none"
-          style={{ fontSize: 24, lineHeight: 1, fontWeight: 700, letterSpacing: "-.02em", color: VT.volt }}
+          style={{ fontSize: 24, lineHeight: 1, fontWeight: 700, letterSpacing: "-.03em", color: "#CFFF4A" }}
         >
           ${voucher.faceValue}
         </span>
-        <span className="flex-1 min-w-0 truncate" style={{ fontSize: 12, fontWeight: 600, color: VT.ink }}>
+        <span className="flex-1 min-w-0 truncate" style={{ fontSize: 12, fontWeight: 600, color: "#F2F3F5" }}>
           {sourceLabel ? `From ${sourceLabel}` : "Trial Position Voucher"}
         </span>
         {instant && (
           <span
             className="font-display uppercase flex-none"
-            style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".12em", color: VT.volt }}
+            style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".1em", color: "#CFFF4A" }}
           >
             Instant
           </span>
         )}
-        <ChevronDown
-          className="w-4 h-4 flex-none transition-transform"
-          style={{ color: VT.muted, transform: open ? "rotate(180deg)" : undefined }}
-        />
+        <span className="flex-none flex items-center justify-center" style={{ width: 32, height: 44 }}>
+          <ChevronDown
+            className="transition-transform"
+            style={{ width: 16, height: 16, color: "#6B7280", transform: open ? "rotate(180deg)" : undefined }}
+          />
+        </span>
       </button>
 
       {open && (
-        <div
-          className="flex flex-col gap-[10px]"
-          style={{ borderTop: `1px solid ${VT.line}`, background: VT.surfaceInset, padding: "12px 14px" }}
-        >
-          <div className="grid gap-[10px]" style={{ gridTemplateColumns: "repeat(3,minmax(0,1fr))" }}>
+        <>
+          <div
+            className="grid gap-[8px]"
+            style={{
+              borderTop: "1px solid #1D2026",
+              background: "#101216",
+              padding: "10px 14px 10px 15px",
+              gridTemplateColumns: "repeat(3,minmax(0,1fr))",
+            }}
+          >
             {terms.map((t) => (
               <div key={t.label} className="flex flex-col gap-[3px]">
                 <span
                   className="font-display uppercase"
-                  style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".12em", color: VT.muted }}
+                  style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".1em", color: "#6B7280" }}
                 >
                   {t.label}
                 </span>
-                <span className="font-display tabular-nums" style={{ fontSize: 12.5, fontWeight: 700, color: VT.ink }}>
+                <span className="font-display tabular-nums" style={{ fontSize: 12.5, fontWeight: 700, color: "#F2F3F5" }}>
                   {t.value}
                 </span>
               </div>
             ))}
           </div>
-          <div className="flex items-center justify-between gap-[10px]">
-            <span className="font-mono flex-none" style={{ fontSize: 10, color: VT.muted }}>
+          <div
+            className="flex items-center justify-between gap-[10px]"
+            style={{ borderTop: "1px solid #16191E", background: "#101216", padding: "9px 14px 11px 15px" }}
+          >
+            <span className="font-mono flex-none" style={{ fontSize: 10, color: "#6B7280" }}>
               {voucher.code}
             </span>
-            <span className="text-right" style={{ fontSize: 11, color: VT.ink3, lineHeight: 1.4 }}>
+            <span className="text-right" style={{ fontSize: 11, color: "#9AA1AC", lineHeight: 1.4 }}>
               {instant
                 ? "Profit goes straight to your wallet"
                 : "Profit lands in your pending balance, unlocked by volume"}
             </span>
           </div>
-        </div>
+        </>
       )}
     </div>
   );

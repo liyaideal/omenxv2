@@ -1,36 +1,47 @@
 /**
  * Pure presentational pieces of the voucher market picker.
  *
- * Extracted verbatim from EventPickerList (same JSX / same tokens) so the
- * style-guide can mount the real card + rows with mock props instead of a
- * hand-copied replica. No behaviour lives here — every interaction arrives
- * through props.
+ * Vouchers v2.1 correction round (2026-08-13): every number below is copied
+ * literally from the frozen mock's inline styles. Where a VT token or a
+ * tailwind class disagreed with the mock, the literal wins — do not
+ * "approximate with the nearest token".
  */
 import { Lock, Search } from "lucide-react";
 import { VT } from "./voucherTokens";
 
 export const cents = (p: number) => `${Math.round(p * 100)}¢`;
 
+/** meta caps — mobile 9px / desktop 9px, .12em, #6B7280 */
 export const MetaCaps = ({ children }: { children: React.ReactNode }) => (
   <span
     className="font-display uppercase"
-    style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: ".12em", color: VT.muted }}
+    style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".12em", color: "#6B7280" }}
   >
     {children}
   </span>
 );
 
-export const LineBadge = ({ children, strong }: { children: React.ReactNode; strong?: boolean }) => (
+/** Boost / Standard / "4 options" tag — mock: 9px .1em, r5, pad 3px 6px */
+export const LineBadge = ({
+  children,
+  strong,
+  desktop,
+}: {
+  children: React.ReactNode;
+  strong?: boolean;
+  desktop?: boolean;
+}) => (
   <span
-    className="font-display uppercase rounded-[6px]"
+    className="font-display uppercase"
     style={{
-      fontSize: 9.5,
+      fontSize: desktop ? 9.5 : 9,
       fontWeight: 700,
       letterSpacing: ".1em",
-      color: strong ? VT.ink2 : VT.muted,
-      background: VT.surfaceInset,
-      border: `1px solid ${strong ? VT.line3 : VT.line}`,
-      padding: "4px 7px",
+      color: strong ? "#C9CED6" : "#6B7280",
+      background: "#101216",
+      border: `1px solid ${strong ? "#2B2F38" : "#1D2026"}`,
+      borderRadius: desktop ? 6 : 5,
+      padding: desktop ? "4px 7px" : "3px 6px",
     }}
   >
     {children}
@@ -57,23 +68,18 @@ export const SideButton = ({
   mobile?: boolean;
   /** 0–1 probability rendered on the right edge of the button */
   price?: number;
-  /** direction-pair geometry: 44px tall, radius 11, label left / price right */
+  /** direction-pair geometry: min-h 44, r11, pad 0 14, label 12 / price 15 */
   pair?: boolean;
 }) => {
-  const base = {
-    yes: { color: "hsl(192 100% 60%)", border: "hsl(192 100% 60% / .4)" },
-    no: { color: "hsl(74 100% 65%)", border: "hsl(74 100% 65% / .4)" },
-    neutral: { color: VT.ink, border: VT.line3 },
+  const AXIS = {
+    yes: { fg: "#33D6FF", border: "rgba(51,214,255,.4)", tint: "rgba(51,214,255,.08)", fill: "#33D6FF" },
+    no: { fg: "#CFFF4A", border: "rgba(207,255,74,.35)", tint: "rgba(207,255,74,.06)", fill: "#CFFF4A" },
+    neutral: { fg: VT.ink, border: "#2B2F38", tint: "transparent", fill: "#CFFF4A" },
   }[tone];
-  /* Picked fill follows the market axis: Yes = --yes (Pulse Blue),
-     No = --no (Volt). neutral (binary Buy) keeps its volt fill. */
-  const pickedBg =
-    tone === "yes" ? "hsl(192 100% 60%)" : tone === "no" ? "hsl(74 100% 65%)" : "hsl(74 100% 65%)";
 
+  /* --- complementary direction pair (mock: 市场卡 · 方向对) --- */
   if (pair) {
-    const tint = tone === "yes" ? "rgba(51,214,255,.08)" : "rgba(207,255,74,.06)";
-    const brd = tone === "yes" ? "rgba(51,214,255,.4)" : "rgba(207,255,74,.35)";
-    const fg = picked ? "#0A0B0D" : disabled ? VT.muted2 : base.color;
+    const fg = picked ? "#0A0B0D" : disabled ? VT.muted2 : AXIS.fg;
     return (
       <button
         type="button"
@@ -84,22 +90,51 @@ export const SideButton = ({
           minHeight: 44,
           borderRadius: 11,
           padding: "0 14px",
-          background: picked ? pickedBg : disabled ? "transparent" : tint,
-          border: picked ? "none" : `1px solid ${disabled ? VT.line2 : brd}`,
+          background: picked ? AXIS.fill : disabled ? "transparent" : AXIS.tint,
+          border: picked ? "none" : `1px solid ${disabled ? "#23262D" : AXIS.border}`,
           cursor: disabled ? "default" : "pointer",
         }}
       >
-        <span className="truncate" style={{ fontSize: mobile ? 13 : 13.5, fontWeight: 700, color: fg }}>
+        <span className="truncate" style={{ fontSize: 12, fontWeight: 700, color: fg }}>
           {label}
         </span>
         {price !== undefined && (
-          <span
-            className="tabular-nums flex-none"
-            style={{ fontSize: mobile ? 15 : 17, fontWeight: 700, color: fg }}
-          >
+          <span className="tabular-nums flex-none" style={{ fontSize: mobile ? 15 : 17, fontWeight: 700, color: fg }}>
             {cents(price)}
           </span>
         )}
+      </button>
+    );
+  }
+
+  /* --- multi-option Yes/No button (mock: 真多选卡) --- */
+  if (price !== undefined) {
+    const fg = picked ? "#0A0B0D" : disabled ? VT.muted2 : AXIS.fg;
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={disabled}
+        className="font-display w-full flex items-center justify-between gap-[8px]"
+        style={{
+          minHeight: 44,
+          borderRadius: 8,
+          padding: "0 14px",
+          background: picked ? AXIS.fill : "transparent",
+          border: picked ? "none" : `1px solid ${disabled ? "#23262D" : AXIS.border}`,
+          fontSize: 12,
+          fontWeight: 700,
+          color: fg,
+          cursor: disabled ? "default" : "pointer",
+        }}
+      >
+        <span>{label}</span>
+        <span
+          className="tabular-nums"
+          style={{ fontSize: 12, fontWeight: 700, color: picked ? "#0A0B0D" : disabled ? VT.muted2 : "#9AA1AC" }}
+        >
+          {cents(price)}
+        </span>
       </button>
     );
   }
@@ -109,47 +144,27 @@ export const SideButton = ({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`font-display rounded-[8px] ${
-        block
-          ? "min-h-[44px] w-full flex items-center justify-center"
-          : price !== undefined
-            ? "flex items-center justify-between gap-[8px]"
-            : ""
-      }`}
+      className={`font-display rounded-[8px] ${block ? "min-h-[44px] w-full flex items-center justify-center" : ""}`}
       style={{
-        fontSize: block ? 12 : mobile ? 12.5 : 11.5,
+        fontSize: block ? 12 : mobile ? 12 : 11.5,
         fontWeight: 700,
-        padding: block ? undefined : price !== undefined ? "0 14px" : mobile ? "0 14px" : "5px 10px",
-        minHeight: block ? undefined : price !== undefined ? 44 : mobile ? 36 : undefined,
-        borderRadius: price !== undefined ? 11 : undefined,
-        minWidth: price !== undefined ? (mobile ? 96 : 108) : undefined,
-        color: picked ? "#0A0B0D" : disabled ? VT.muted2 : base.color,
-        background: picked ? pickedBg : "transparent",
-        border: picked ? "none" : `1px solid ${disabled ? VT.line2 : base.border}`,
+        padding: block ? undefined : mobile ? "0 14px" : "5px 10px",
+        minHeight: block ? undefined : mobile ? 36 : undefined,
+        color: picked ? "#0A0B0D" : disabled ? VT.muted2 : AXIS.fg,
+        background: picked ? AXIS.fill : "transparent",
+        border: picked ? "none" : `1px solid ${disabled ? "#23262D" : AXIS.border}`,
         cursor: disabled ? "default" : "pointer",
       }}
     >
-      {price === undefined ? (
-        picked ? "Picked" : label
-      ) : (
-        <>
-          <span style={{ fontWeight: 700 }}>{label}</span>
-          <span
-            className="tabular-nums"
-            style={{ fontSize: mobile ? 15 : 17, fontWeight: 700, color: picked ? "#0A0B0D" : VT.ink3 }}
-          >
-            {cents(price)}
-          </span>
-        </>
-      )}
+      {picked ? "Picked" : label}
     </button>
   );
 };
 
 /**
  * Complementary market (two mutually exclusive outcomes) — one direction pair
- * replaces the two neutral Buy rows. Same branch on mobile and on the desktop
- * desk: it is a data rule, not a viewport rule.
+ * replaces the two neutral Buy rows. Same branch on mobile and desktop desk:
+ * it is a data rule, not a viewport rule.
  */
 export const PickerDirectionPair = ({
   mobile,
@@ -174,7 +189,7 @@ export const PickerDirectionPair = ({
   dimShort?: boolean;
   onPick?: (side: "long" | "short") => void;
 }) => (
-  <div className={`grid grid-cols-2 gap-[8px] ${mobile ? "px-4" : ""}`}>
+  <div className="grid grid-cols-2 gap-[8px]">
     <SideButton
       pair
       mobile={mobile}
@@ -209,108 +224,43 @@ export interface PickerOptionRowProps {
   onPick?: (side: "long" | "short") => void;
 }
 
+/** Real multi-option row — nested box, name line, Yes/No pair underneath. */
 export const PickerOptionRow = ({
   label,
   price,
-  isBinary,
   mobile,
   dim,
   pickedLong,
   pickedShort,
   onPick,
 }: PickerOptionRowProps) => {
-  /* Multi-option rows carry the price inside each Yes/No button, so the
-     row-level price is dropped to avoid printing the same number twice. */
-  const priceInButtons = !isBinary;
-  const priceEl = (
-    <span
-      className="font-display tabular-nums flex-none"
-      style={{ fontSize: mobile ? 14 : 13, fontWeight: 700, color: dim ? VT.muted : VT.ink3 }}
-    >
-      {cents(price)}
-    </span>
-  );
-
-  /* Mobile: Lite list grammar — flat hairline row, no nested box. Label owns
-     the line, price sits mono on the right, the side chips are the only
-     chrome. Picked state shows as a 3px volt rail. */
-  if (mobile) {
-    const isPicked = !!(pickedLong || pickedShort);
-    return (
-      <div
-        className="flex items-center gap-[10px]"
-        style={{
-          minHeight: 52,
-          borderTop: `1px solid ${VT.hairline}`,
-          borderLeft: `3px solid ${isPicked ? VT.volt : "transparent"}`,
-          paddingLeft: 13,
-          paddingRight: 16,
-        }}
-      >
-        <span
-          className="flex-1 min-w-0"
-          style={{
-            fontSize: 13.5,
-            lineHeight: 1.35,
-            fontWeight: isPicked ? 600 : 500,
-            color: dim ? VT.muted : VT.ink,
-          }}
-        >
-          {label}
-        </span>
-        {!priceInButtons && priceEl}
-        <span className="flex-none flex items-center gap-[7px]">
-          {isBinary ? (
-            <SideButton mobile label="Buy" tone="neutral" picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
-          ) : (
-            <>
-              <SideButton mobile label="Yes" tone="yes" price={price} picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
-              <SideButton mobile label="No" tone="no" price={1 - price} picked={pickedShort} disabled={dim} onClick={() => onPick?.("short")} />
-            </>
-          )}
-        </span>
-      </div>
-    );
-  }
-
+  const picked = !!(pickedLong || pickedShort);
   return (
     <div
-      className="flex items-center justify-between gap-[10px] rounded-[9px]"
+      className="flex flex-col gap-[8px]"
       style={{
-        background: VT.surfaceDeep,
-        border: `1px solid ${pickedLong || pickedShort ? VT.volt : VT.line2}`,
-        padding: mobile ? "8px 12px" : "9px 12px",
-        minHeight: mobile ? 48 : 44,
+        background: "#0A0B0D",
+        border: `1px solid ${picked ? "#CFFF4A" : "#23262D"}`,
+        borderRadius: 9,
+        padding: "9px 11px 10px",
       }}
     >
       <span
-        className={`flex-1 min-w-0 ${mobile ? "" : "truncate"}`}
-        style={{
-          fontSize: mobile ? 13 : isBinary ? 11 : 11.5,
-          lineHeight: 1.3,
-          fontWeight: pickedLong || pickedShort ? 600 : 400,
-          color: dim ? VT.muted : isBinary ? VT.ink3 : VT.ink,
-        }}
+        className="min-w-0 truncate"
+        style={{ fontSize: 11.5, lineHeight: 1.3, fontWeight: picked ? 600 : 400, color: dim ? "#6B7280" : VT.ink }}
       >
         {label}
       </span>
-      <span className="flex-none flex items-center gap-[9px]">
-        {!priceInButtons && priceEl}
-        {isBinary ? (
-          <SideButton mobile={mobile} label="Buy" tone="neutral" picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
-        ) : (
-          <>
-            <SideButton mobile={mobile} label="Yes" tone="yes" price={price} picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
-            <SideButton mobile={mobile} label="No" tone="no" price={1 - price} picked={pickedShort} disabled={dim} onClick={() => onPick?.("short")} />
-          </>
-        )}
-      </span>
+      <div className="grid grid-cols-2 gap-[7px]">
+        <SideButton mobile={mobile} label="Yes" tone="yes" price={price} picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
+        <SideButton mobile={mobile} label="No" tone="no" price={1 - price} picked={pickedShort} disabled={dim} onClick={() => onPick?.("short")} />
+      </div>
     </div>
   );
 };
 
 export const PickerBlockedReason = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex items-start gap-[6px] px-4 md:px-0" style={{ fontSize: 11, color: VT.ink3, lineHeight: 1.5, paddingTop: 6 }}>
+  <div className="flex items-start gap-[6px]" style={{ fontSize: 11, color: "#9AA1AC", lineHeight: 1.5, paddingTop: 6 }}>
     <Lock className="w-3 h-3 flex-none" style={{ marginTop: 2, color: VT.ink2 }} />
     {children}
   </div>
@@ -325,10 +275,13 @@ export interface EventPickerCardProps {
   tail?: React.ReactNode;
   eligible?: boolean;
   locked?: boolean;
+  /** any outcome of this event is the current pick → volt card border */
+  picked?: boolean;
   rowsLayout?: "grid" | "stack";
   children?: React.ReactNode;
 }
 
+/** Market card — mock: #0F1114 / 1px #1D2026 / r12 / pad 13 (volt border when picked). */
 export const EventPickerCard = ({
   mobile,
   name,
@@ -337,107 +290,68 @@ export const EventPickerCard = ({
   tail,
   eligible = true,
   locked = false,
+  picked = false,
   rowsLayout = "stack",
   children,
 }: EventPickerCardProps) => {
-  /* Mobile: the title owns a full-width line (wraps to 2, never truncates to
-     "…"), badges drop to the meta line underneath. */
+  const badges = (
+    <>
+      {lines.includes("futures") && <LineBadge strong desktop={!mobile}>Boost</LineBadge>}
+      {lines.includes("spot") && <LineBadge strong desktop={!mobile}>Standard</LineBadge>}
+      {!locked && tail && <LineBadge desktop={!mobile}>{tail}</LineBadge>}
+      {locked && (
+        <span className="flex items-center gap-[5px]" style={{ fontSize: 11, fontWeight: 600, color: VT.ink2 }}>
+          <Lock className="w-3 h-3" />
+          Voucher already used
+        </span>
+      )}
+    </>
+  );
+
   const mobileHeader = (
-    <div className="flex flex-col gap-[6px] px-4" style={{ marginBottom: 10 }}>
-      <span
-        className="line-clamp-2"
-        style={{ fontSize: 15, fontWeight: 600, lineHeight: 1.35, color: eligible ? VT.ink : VT.ink2 }}
-      >
+    <div className="flex flex-col gap-[3px]" style={{ marginBottom: 10 }}>
+      <span className="line-clamp-2" style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.35, color: eligible ? VT.ink : VT.ink2 }}>
         {name}
       </span>
       <div className="flex items-center gap-[6px] flex-wrap">
-        {lines.includes("futures") && <LineBadge strong>Boost</LineBadge>}
-        {lines.includes("spot") && <LineBadge strong>Standard</LineBadge>}
+        {badges}
         <MetaCaps>{meta}</MetaCaps>
-        {!locked && tail && <LineBadge>{tail}</LineBadge>}
-        {locked && (
-          <span className="flex items-center gap-[5px]" style={{ fontSize: 11, fontWeight: 600, color: VT.ink2 }}>
-            <Lock className="w-3 h-3" />
-            Voucher already used
-          </span>
-        )}
       </div>
     </div>
   );
 
   const desktopHeader = (
-    <div className="flex items-start justify-between gap-[12px]" style={{ marginBottom: 11 }}>
+    <div className="flex items-start justify-between gap-[12px]" style={{ marginBottom: 10 }}>
       <div className="flex flex-col gap-[3px] min-w-0">
         <span className="truncate" style={{ fontSize: 13.5, fontWeight: 600, color: eligible ? VT.ink : VT.ink2 }}>
           {name}
         </span>
         <MetaCaps>{meta}</MetaCaps>
       </div>
-      <div className="flex-none flex items-center gap-[6px] flex-wrap justify-end">
-        {lines.includes("futures") && <LineBadge strong>Boost</LineBadge>}
-        {lines.includes("spot") && <LineBadge strong>Standard</LineBadge>}
-        {!locked && tail && <LineBadge>{tail}</LineBadge>}
-        {locked && (
-          <span className="flex items-center gap-[5px]" style={{ fontSize: 11, fontWeight: 600, color: VT.ink2 }}>
-            <Lock className="w-3 h-3" />
-            Voucher already used
-          </span>
-        )}
-      </div>
+      <div className="flex-none flex items-center gap-[6px] flex-wrap justify-end">{badges}</div>
     </div>
   );
 
-  const header = mobile ? mobileHeader : desktopHeader;
-
-  if (locked) {
-    return (
-      <div
-        className={mobile ? "" : "rounded-[12px]"}
-        style={
-          mobile
-            ? { borderBottom: `1px solid ${VT.line}`, padding: "14px 0 14px", opacity: 0.5 }
-            : { background: VT.surfaceCard, border: `1px solid ${VT.line}`, padding: 14, opacity: 0.5 }
-        }
-      >
-        {header}
-        {mobile ? <div className="px-4">{children}</div> : children}
-      </div>
-    );
-  }
-
   return (
     <div
-      className={mobile ? "" : "rounded-[12px]"}
-      style={
-        mobile
-          ? { borderBottom: `1px solid ${VT.line}`, padding: "14px 0 6px", opacity: eligible ? 1 : 0.62 }
-          : {
-              background: VT.surfaceCard,
-              border: `1px solid ${VT.line}`,
-              padding: 14,
-              opacity: eligible ? 1 : 0.62,
-            }
-      }
+      style={{
+        background: "#0F1114",
+        border: `1px solid ${picked && !locked ? "#CFFF4A" : "#1D2026"}`,
+        borderRadius: 12,
+        padding: 13,
+        opacity: locked ? 0.5 : eligible ? 1 : 0.62,
+      }}
     >
-      {header}
-      <div
-        className={
-          rowsLayout === "grid" && !mobile
-            ? "grid grid-cols-2 gap-[8px]"
-            : `flex flex-col ${mobile ? "" : "gap-[6px]"}`
-        }
-      >
+      {mobile ? mobileHeader : desktopHeader}
+      <div className={rowsLayout === "grid" && !mobile ? "grid grid-cols-2 gap-[8px]" : "flex flex-col gap-[8px]"}>
         {children}
       </div>
-      {mobile && <div style={{ height: 8 }} />}
     </div>
   );
 };
 
 /* ---------------------------------------------------------------------------
  * Picker chrome — skeleton / empty / search bar.
- * Pure presentational, extracted verbatim from EventPickerList so both
- * production and /style-guide render the exact same markup.
  * ------------------------------------------------------------------------ */
 
 /** Loading placeholder cards shown while active events resolve. */
@@ -446,8 +360,8 @@ export const PickerSkeleton = () => (
     {[0, 1].map((i) => (
       <div
         key={i}
-        className="rounded-[12px] flex flex-col gap-[11px] mx-4 md:mx-0"
-        style={{ background: VT.surfaceCard, border: `1px solid ${VT.line}`, padding: 14 }}
+        className="flex flex-col gap-[10px]"
+        style={{ background: "#0F1114", border: "1px solid #1D2026", borderRadius: 12, padding: 13 }}
       >
         <div className="flex flex-col gap-[6px]">
           <span className="rounded-[4px]" style={{ width: "70%", height: 12, background: "#171A1F" }} />
@@ -455,11 +369,7 @@ export const PickerSkeleton = () => (
         </div>
         <div className="grid grid-cols-2 gap-[8px]">
           {[0, 1].map((j) => (
-            <span
-              key={j}
-              className="rounded-[9px]"
-              style={{ height: 44, background: VT.surfaceDeep, border: `1px solid ${VT.hairline}` }}
-            />
+            <span key={j} style={{ height: 44, borderRadius: 11, background: "#0A0B0D", border: "1px solid #16191E" }} />
           ))}
         </div>
       </div>
@@ -467,29 +377,30 @@ export const PickerSkeleton = () => (
   </>
 );
 
-/** Empty result card — search miss or nothing eligible. */
+/** Empty result card — search miss. */
 export const PickerEmpty = ({ query, onClear }: { query?: string; onClear?: () => void }) => (
   <div
-    className="rounded-[12px] flex flex-col items-center gap-[8px] text-center mx-4 md:mx-0"
-    style={{ background: VT.surfaceDeep, border: `1px solid ${VT.line}`, padding: "34px 24px" }}
+    className="flex flex-col items-center gap-[9px] text-center"
+    style={{ background: "#0F1114", border: "1px solid #1D2026", borderRadius: 12, padding: "26px 18px" }}
   >
     <span className="font-display" style={{ fontSize: 14, fontWeight: 700, color: VT.ink }}>
       {query ? `No markets match “${query}”` : "No markets take a voucher right now"}
     </span>
-    <span style={{ fontSize: 11.5, color: VT.ink3, lineHeight: 1.6, maxWidth: 270 }}>
+    <span style={{ fontSize: 11.5, color: "#9AA1AC", lineHeight: 1.6, maxWidth: 250 }}>
       Nothing here right now takes a voucher. Clear the filter to see everything eligible.
     </span>
     <button
       type="button"
       onClick={onClear}
-      className="font-display rounded-[10px] flex items-center"
+      className="font-display flex items-center justify-center"
       style={{
         marginTop: 4,
-        minHeight: 40,
-        padding: "0 16px",
-        border: `1px solid ${VT.line3}`,
+        minHeight: 44,
+        padding: "0 18px",
+        border: "1px solid #2B2F38",
+        borderRadius: 10,
         fontSize: 12.5,
-        fontWeight: 600,
+        fontWeight: 700,
         color: VT.ink,
       }}
     >
@@ -510,25 +421,26 @@ export const PickerNoEligible = ({
   onBrowse?: () => void;
 }) => (
   <div
-    className="rounded-[12px] flex flex-col items-center gap-[9px] text-center mx-4 md:mx-0"
-    style={{ background: VT.surfaceDeep, border: `1px solid ${VT.line}`, padding: "30px 22px" }}
+    className="flex flex-col items-center gap-[9px] text-center"
+    style={{ background: "#0F1114", border: "1px solid #1D2026", borderRadius: 12, padding: "26px 18px" }}
   >
     <span className="font-display" style={{ fontSize: 14, fontWeight: 700, color: VT.ink }}>
       No eligible markets right now
     </span>
-    <span style={{ fontSize: 11.5, color: VT.ink3, lineHeight: 1.6, maxWidth: 290 }}>
+    <span style={{ fontSize: 11.5, color: "#9AA1AC", lineHeight: 1.6, maxWidth: 250 }}>
       This voucher opens a trial position on Boost and Standard markets priced between 20¢ and 80¢. None are
       open at the moment — the voucher stays valid until {expiresLabel}.
     </span>
     <button
       type="button"
       onClick={onBrowse}
-      className="font-display rounded-[10px] flex items-center justify-center"
+      className="font-display flex items-center justify-center"
       style={{
         marginTop: 4,
         minHeight: 44,
         padding: "0 18px",
-        border: `1px solid ${VT.line3}`,
+        border: "1px solid #2B2F38",
+        borderRadius: 10,
         fontSize: 12.5,
         fontWeight: 700,
         color: VT.ink,
@@ -550,15 +462,16 @@ export const PickerSearchBar = ({
   mobile?: boolean;
 }) => (
   <div
-    className="flex items-center gap-[9px] rounded-[10px]"
+    className="flex items-center gap-[9px]"
     style={{
-      background: VT.surfaceInset,
-      border: `1px solid ${VT.line}`,
+      background: "#101216",
+      border: "1px solid #1D2026",
+      borderRadius: 10,
       padding: "0 12px",
       minHeight: mobile ? 44 : 40,
     }}
   >
-    <Search className="w-[15px] h-[15px] flex-none" style={{ color: VT.muted }} />
+    <Search className="w-[15px] h-[15px] flex-none" style={{ color: "#6B7280" }} />
     <input
       value={value}
       onChange={(e) => onChange?.(e.target.value)}
