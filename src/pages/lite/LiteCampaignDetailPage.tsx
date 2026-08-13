@@ -345,7 +345,6 @@ export default function LiteCampaignDetailPage() {
         />
       ))}
 
-      {!isMobile && finePrint}
     </div>
   );
 
@@ -372,6 +371,7 @@ export default function LiteCampaignDetailPage() {
         <div className="order-2 space-y-5 lg:order-1">
           {tasksPanel}
           {rulesModule}
+          {finePrint}
         </div>
         <div className="order-1 lg:order-2">{rewardsCard}</div>
       </div>
