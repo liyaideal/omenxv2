@@ -224,10 +224,10 @@ export const EventPickerCard = ({
   /* Mobile: the title owns a full-width line (wraps to 2, never truncates to
      "…"), badges drop to the meta line underneath. */
   const mobileHeader = (
-    <div className="flex flex-col gap-[6px]" style={{ marginBottom: 11 }}>
+    <div className="flex flex-col gap-[6px] px-4" style={{ marginBottom: 10 }}>
       <span
         className="line-clamp-2"
-        style={{ fontSize: 14.5, fontWeight: 600, lineHeight: 1.35, color: eligible ? VT.ink : VT.ink2 }}
+        style={{ fontSize: 15, fontWeight: 600, lineHeight: 1.35, color: eligible ? VT.ink : VT.ink2 }}
       >
         {name}
       </span>
@@ -273,35 +273,44 @@ export const EventPickerCard = ({
   if (locked) {
     return (
       <div
-        className="rounded-[12px]"
-        style={{ background: VT.surfaceCard, border: `1px solid ${VT.line}`, padding: 14, opacity: 0.5 }}
+        className={mobile ? "" : "rounded-[12px]"}
+        style={
+          mobile
+            ? { borderBottom: `1px solid ${VT.line}`, padding: "14px 0 14px", opacity: 0.5 }
+            : { background: VT.surfaceCard, border: `1px solid ${VT.line}`, padding: 14, opacity: 0.5 }
+        }
       >
         {header}
-        {children}
+        {mobile ? <div className="px-4">{children}</div> : children}
       </div>
     );
   }
 
   return (
     <div
-      className="rounded-[12px]"
-      style={{
-        background: VT.surfaceCard,
-        border: `1px solid ${VT.line}`,
-        padding: mobile ? 13 : 14,
-        opacity: eligible ? 1 : 0.62,
-      }}
+      className={mobile ? "" : "rounded-[12px]"}
+      style={
+        mobile
+          ? { borderBottom: `1px solid ${VT.line}`, padding: "14px 0 6px", opacity: eligible ? 1 : 0.62 }
+          : {
+              background: VT.surfaceCard,
+              border: `1px solid ${VT.line}`,
+              padding: 14,
+              opacity: eligible ? 1 : 0.62,
+            }
+      }
     >
       {header}
       <div
         className={
           rowsLayout === "grid" && !mobile
             ? "grid grid-cols-2 gap-[8px]"
-            : `flex flex-col ${mobile ? "gap-[8px]" : "gap-[6px]"}`
+            : `flex flex-col ${mobile ? "" : "gap-[6px]"}`
         }
       >
         {children}
       </div>
+      {mobile && <div style={{ height: 8 }} />}
     </div>
   );
 };
