@@ -85,6 +85,16 @@ export const LiteOverviewSection = (_: P) => (
       <h3 className="mb-2 text-sm font-semibold text-foreground">Changelog</h3>
       <ul className="space-y-1 text-[12px] text-muted-foreground">
         <li>
+          2026-08-13 · Vouchers v2.1 实装（CPO 定稿 sha 5f430ac4）— mobile redeem 全屏化（redeem 态隐藏
+          BottomNav，头部 ‹ 唯一出口）；<code className="font-mono">VoucherDeskHeader</code> compact 改票根
+          stub + 就地 disclosure；picker chrome 合并为单行 caption + 放大镜（分类 pills 仅在 eligible &gt; 8
+          时渲染）；互补市场折叠为 <code className="font-mono">PickerDirectionPair</code>（44px、label 左 / 价格
+          右、无 BINARY 尾签），多选按钮自带价格并删除行级重复价；
+          <code className="font-mono">RedeemSummaryBar</code> 未选中不渲染、选中后坐底三行（桌面为 inline 卡）；
+          新增 <code className="font-mono">PickerNoEligible</code> 空态。style-guide vouchers2 §6 改为六态
+          playground（A–F，375 真 iframe）。
+        </li>
+        <li>
           2026-08-13 · CPO 批准（冻结画布一次性手术）— redeem picker 的{" "}
           <code className="font-mono">SideButton</code> 方向色统一到 market axis：Yes ={" "}
           <code className="font-mono">--yes</code> Pulse Blue、No = <code className="font-mono">--no</code> Volt，

@@ -40,7 +40,7 @@ export const Vouchers2Section = ({ isMobile: _isMobile }: { isMobile: boolean })
 
       <SubSection
         title="4. Market picker — cards, locks, empty"
-        description="Live pieces of EventPickerList (PickerSearchBar / PickerSkeleton / PickerEmpty / EventPickerCard rows) with mock props — production is the same code, hook-driven. BOOST / STANDARD line badges, neutral mono prices, 1px outline Buy button on binary cards, Yes/No pair on multi-option coloured on the market axis (Yes = --yes Pulse Blue, No = --no Volt; never trading-green/red), picked state fills the same axis colour, price-band dim and event-level voucher lock."
+        description="Live pieces of EventPickerList (PickerSearchBar / PickerSkeleton / PickerEmpty / PickerDirectionPair / EventPickerCard rows) with mock props — production is the same code, hook-driven. v2.1: complementary markets (two outcomes) collapse to one 44px direction pair with the price inside each button and no BINARY tail; multi-option cards keep the per-option Yes/No pair, each side carrying its own price. Colours ride the market axis (long = --yes Pulse Blue, short = --no Volt; never trading-green/red)."
         platform="shared"
       >
         <DualDevicePreview previewKey="vouchers2-picker" label="7 card states · toggle Mobile for stacked option rows" minHeight={420} />
@@ -48,15 +48,15 @@ export const Vouchers2Section = ({ isMobile: _isMobile }: { isMobile: boolean })
 
       <SubSection
         title="5. Redeem desk — header + empty"
-        description="Real VoucherDeskHeader (Max profit · Hold window · Payout) inside the desk shell, plus the nothing-selected placeholder. Compact variant is what mobile mounts above the picker."
+        description="Real VoucherDeskHeader (Max profit · Hold window · Payout) inside the desk shell, plus the nothing-selected placeholder. The compact variant is now a ticket stub: 56px collapsed line (volt rail · face value · From {campaign} · INSTANT tail · chevron) that grows a terms disclosure in place."
         platform="shared"
       >
         <DualDevicePreview previewKey="vouchers2-desk" label="tiered · instant · empty desk" minHeight={420} />
       </SubSection>
 
       <SubSection
-        title="6. Mobile 375 — list and redeem screen"
-        description="On 375 the redeem flow replaces the list with its own screen (back header + compact desk header + picker) and the confirm bar floats above the BottomNav with a truncating summary."
+        title="6. Redeem screen v2.1 — six states"
+        description="Production mount: /rewards?tab=vouchers&redeem=<id> (mobile full screen, BottomNav retires — the header ‹ owns the exit) and the desk column of the same tab on desktop. States: A default (no bottom chrome) · B stub open + pills (>8 eligible markets) · C complementary picked · D multi picked · E locked + no-eligible empty · F desktop desk on the same collapse branch."
         platform="mobile"
       >
         <DualDevicePreview previewKey="vouchers2-mobile-flow" label="list · redeem screen" minHeight={420} />

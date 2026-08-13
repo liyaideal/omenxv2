@@ -133,7 +133,7 @@ export default function LiteRewardsPage() {
 
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-background pb-24">
+      <div className={`min-h-screen bg-background ${mobileRedeeming ? "pb-0" : "pb-24"}`}>
         <MobileHeader
           title={mobileRedeeming ? "Redeem voucher" : "Rewards"}
           showLogo={false}
@@ -141,7 +141,8 @@ export default function LiteRewardsPage() {
           backTo={mobileRedeeming ? "/rewards?tab=vouchers" : undefined}
         />
         <main className={`py-4 ${mobileRedeeming ? "px-0" : "px-4"}`}>{body}</main>
-        <BottomNav />
+        {/* Redeem is a focused full-screen task: nav retires, the header ‹ owns the exit. */}
+        {!mobileRedeeming && <BottomNav />}
       </div>
     );
   }

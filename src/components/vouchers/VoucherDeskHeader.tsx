@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import type { PositionVoucher } from "@/hooks/usePositionVouchers";
 import { VT } from "./voucherTokens";
 
@@ -57,32 +59,7 @@ export const VoucherDeskHeader = ({
   );
 
   if (compact) {
-    return (
-      <div className="overflow-hidden rounded-[12px]" style={{ background: VT.surfaceDesk, border: `1px solid ${VT.line}` }}>
-        <div className="flex flex-col gap-[6px]" style={{ padding: "13px 14px 12px" }}>
-          <div className="flex items-center justify-between gap-[10px]">
-            <span className="font-display uppercase" style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".14em", color: VT.muted }}>
-              Redeeming voucher
-            </span>
-            <span className="font-mono" style={{ fontSize: 10, color: VT.muted }}>{voucher.code}</span>
-          </div>
-          <div className="flex items-baseline gap-[9px] min-w-0">
-            <span
-              className="font-display tabular-nums"
-              style={{ fontSize: 28, lineHeight: 1, fontWeight: 700, letterSpacing: "-.02em", color: VT.volt }}
-            >
-              ${voucher.faceValue}
-            </span>
-            <span className="truncate" style={{ fontSize: 12, fontWeight: 600, color: VT.ink }}>
-              {sourceLabel ? `From ${sourceLabel}` : "Trial Position Voucher"}
-            </span>
-          </div>
-        </div>
-        <div style={{ borderTop: `1px solid ${VT.line}`, background: VT.surfaceInset, padding: "10px 14px" }}>
-          {cells}
-        </div>
-      </div>
-    );
+    return <VoucherStub voucher={voucher} sourceLabel={sourceLabel} />;
   }
 
   return (
@@ -117,6 +94,95 @@ export const VoucherDeskHeader = ({
           ? "Instant payout: profit lands straight in your Standard balance when the trial position closes."
           : "Tiered payout: profit lands in your pending balance, and how much you can claim at once unlocks with traded volume."}
       </div>
+    </div>
+  );
+};
+
+/**
+ * Mobile / compact form — a ticket stub. Collapsed by default (56px single
+ * line); tapping grows a non-modal disclosure panel underneath with the three
+ * terms + code + payout sentence. Vouchers v2.1.
+ */
+const VoucherStub = ({
+  voucher,
+  sourceLabel,
+}: {
+  voucher: PositionVoucher;
+  sourceLabel?: string | null;
+}) => {
+  const [open, setOpen] = useState(false);
+  const cap = voucher.faceValue * voucher.redeemableCapPct;
+  const instant = voucher.payoutMode === "instant";
+  const terms = [
+    { label: "Max profit", value: `$${cap.toFixed(2)}` },
+    { label: "Hold window", value: `${voucher.maxHoldingHours}h` },
+    { label: "Payout", value: instant ? "Instant" : "Tiered by volume" },
+  ];
+
+  return (
+    <div className="overflow-hidden" style={{ background: VT.surfaceDesk, borderBottom: `1px solid ${VT.line}` }}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="w-full flex items-center gap-[10px] text-left"
+        style={{ minHeight: 56, borderLeft: `3px solid ${VT.volt}`, padding: "0 14px 0 13px" }}
+      >
+        <span
+          className="font-display tabular-nums flex-none"
+          style={{ fontSize: 24, lineHeight: 1, fontWeight: 700, letterSpacing: "-.02em", color: VT.volt }}
+        >
+          ${voucher.faceValue}
+        </span>
+        <span className="flex-1 min-w-0 truncate" style={{ fontSize: 12, fontWeight: 600, color: VT.ink }}>
+          {sourceLabel ? `From ${sourceLabel}` : "Trial Position Voucher"}
+        </span>
+        {instant && (
+          <span
+            className="font-display uppercase flex-none"
+            style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".12em", color: VT.volt }}
+          >
+            Instant
+          </span>
+        )}
+        <ChevronDown
+          className="w-4 h-4 flex-none transition-transform"
+          style={{ color: VT.muted, transform: open ? "rotate(180deg)" : undefined }}
+        />
+      </button>
+
+      {open && (
+        <div
+          className="flex flex-col gap-[10px]"
+          style={{ borderTop: `1px solid ${VT.line}`, background: VT.surfaceInset, padding: "12px 14px" }}
+        >
+          <div className="grid gap-[10px]" style={{ gridTemplateColumns: "repeat(3,minmax(0,1fr))" }}>
+            {terms.map((t) => (
+              <div key={t.label} className="flex flex-col gap-[3px]">
+                <span
+                  className="font-display uppercase"
+                  style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".12em", color: VT.muted }}
+                >
+                  {t.label}
+                </span>
+                <span className="font-display tabular-nums" style={{ fontSize: 12.5, fontWeight: 700, color: VT.ink }}>
+                  {t.value}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="flex items-center justify-between gap-[10px]">
+            <span className="font-mono flex-none" style={{ fontSize: 10, color: VT.muted }}>
+              {voucher.code}
+            </span>
+            <span className="text-right" style={{ fontSize: 11, color: VT.ink3, lineHeight: 1.4 }}>
+              {instant
+                ? "Profit goes straight to your wallet"
+                : "Profit lands in your pending balance, unlocked by volume"}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
