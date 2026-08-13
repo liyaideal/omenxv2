@@ -63,6 +63,7 @@ import {
   CampaignIneligibleRedirectPreview,
   GrantTaskRowPlaygroundPreview,
   GrantTaskRowBoardPreview,
+  CampaignRulesDisclosurePreview,
 } from "./rewardsPreviews";
 
 /* ---- Mock factories (shared with ApiSection) ---- */
@@ -331,6 +332,7 @@ export const previewRegistry: Record<string, () => JSX.Element> = {
   "rewards-signin-prompt": () => <SignInPromptPreview />,
   "rewards-referral-panels": () => <ReferralPanelPreview />,
   "rewards-fine-print": () => <RewardsFinePrintPreview />,
+  "rewards-campaign-rules": () => <CampaignRulesDisclosurePreview />,
   "rewards-ineligible-redirect": () => <CampaignIneligibleRedirectPreview />,
 
   /* -------- Rewards · mobile task rows (375 iframe, real breakpoint) -------- */
