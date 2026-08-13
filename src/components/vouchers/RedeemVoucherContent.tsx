@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePositionVouchers, type PositionVoucher } from "@/hooks/usePositionVouchers";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { EventPickerList, type PickedOption } from "./EventPickerList";
 import { VoucherDeskHeader } from "./VoucherDeskHeader";
 import { VT } from "./voucherTokens";
