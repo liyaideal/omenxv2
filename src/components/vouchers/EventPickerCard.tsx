@@ -128,7 +128,7 @@ export const SideButton = ({
           cursor: disabled ? "default" : "pointer",
         }}
       >
-        <span>{label}</span>
+        <span>{picked ? "Picked" : label}</span>
         <span
           className="tabular-nums"
           style={{ fontSize: 12, fontWeight: 700, color: picked ? "#0A0B0D" : disabled ? VT.muted2 : "#9AA1AC" }}
@@ -258,6 +258,26 @@ export const PickerOptionRow = ({
     </div>
   );
 };
+
+/** "Show N more options" / "Show fewer" — mock: plain text row, 11.5px #9AA1AC, pad-top 2. */
+export const PickerMoreOptionsRow = ({
+  hiddenCount,
+  expanded,
+  onToggle,
+}: {
+  hiddenCount: number;
+  expanded: boolean;
+  onToggle: () => void;
+}) => (
+  <button
+    type="button"
+    onClick={onToggle}
+    className="text-left"
+    style={{ fontSize: 11.5, color: "#9AA1AC", paddingTop: 2, background: "none", border: "none", cursor: "pointer" }}
+  >
+    {expanded ? "Show fewer" : `Show ${hiddenCount} more option${hiddenCount === 1 ? "" : "s"}`}
+  </button>
+);
 
 export const PickerBlockedReason = ({ children }: { children: React.ReactNode }) => (
   <div className="flex items-start gap-[6px]" style={{ fontSize: 11, color: "#9AA1AC", lineHeight: 1.5, paddingTop: 6 }}>

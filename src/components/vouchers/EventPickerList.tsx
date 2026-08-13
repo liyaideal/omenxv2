@@ -17,6 +17,7 @@ import {
   PickerOptionRow,
   PickerDirectionPair,
   PickerBlockedReason,
+  PickerMoreOptionsRow,
   PickerSkeleton,
   PickerEmpty,
   PickerNoEligible,
@@ -38,6 +39,38 @@ export interface PickedOption {
   /** Product line of the event — drives post-redeem routing (/trade vs /spot). */
   productLine: "spot" | "futures";
 }
+
+/**
+ * Multi-option rows with the mock's collapse rule: 3+ options show only the
+ * first two, the rest fold behind "Show N more options". A picked option that
+ * lives in the folded tail is promoted into the visible pair.
+ */
+const MultiOptionRows = ({
+  rows,
+}: {
+  rows: Array<React.ComponentProps<typeof PickerOptionRow> & { key: string; picked: boolean }>;
+}) => {
+  const [expanded, setExpanded] = useState(false);
+  if (rows.length <= 2) {
+    return <>{rows.map(({ key, picked: _p, ...props }) => <PickerOptionRow key={key} {...props} />)}</>;
+  }
+  let visible = rows;
+  if (!expanded) {
+    visible = rows.slice(0, 2);
+    const pickedRow = rows.find((r) => r.picked);
+    if (pickedRow && !visible.includes(pickedRow)) visible = [...rows.slice(0, 1), pickedRow];
+  }
+  return (
+    <>
+      {visible.map(({ key, picked: _p, ...props }) => <PickerOptionRow key={key} {...props} />)}
+      <PickerMoreOptionsRow
+        hiddenCount={rows.length - 2}
+        expanded={expanded}
+        onToggle={() => setExpanded((v) => !v)}
+      />
+    </>
+  );
+};
 
 interface EligibilityResult {
   ok: boolean;
@@ -306,22 +339,27 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
                     onPick={(side) => pick(side === "long" ? yesOpt : noOpt, "long")}
                   />
                 );
-              })() : event.options.map((opt) => {
-                const eligibility = checkEligibility(voucher, opt.price, event.end_date, event.is_resolved);
-                return (
-                  <PickerOptionRow
-                    key={opt.id}
-                    label={displayLabel(opt.label)}
-                    price={opt.price}
-                    isBinary={isBinary}
-                    mobile={isMobile}
-                    dim={!eligibility.ok}
-                    pickedLong={selected?.optionId === opt.id && selected?.side === "long"}
-                    pickedShort={selected?.optionId === opt.id && selected?.side === "short"}
-                    onPick={(side) => pick(opt, side)}
-                  />
-                );
-              })}
+              })() : (
+                <MultiOptionRows
+                  rows={event.options.map((opt) => {
+                    const eligibility = checkEligibility(voucher, opt.price, event.end_date, event.is_resolved);
+                    const pickedLong = selected?.optionId === opt.id && selected?.side === "long";
+                    const pickedShort = selected?.optionId === opt.id && selected?.side === "short";
+                    return {
+                      key: opt.id,
+                      picked: !!(pickedLong || pickedShort),
+                      label: displayLabel(opt.label),
+                      price: opt.price,
+                      isBinary,
+                      mobile: isMobile,
+                      dim: !eligibility.ok,
+                      pickedLong,
+                      pickedShort,
+                      onPick: (side: "long" | "short") => pick(opt, side),
+                    };
+                  })}
+                />
+              )}
               {blockedReason && <PickerBlockedReason>{blockedReason}</PickerBlockedReason>}
             </EventPickerCard>
           );
