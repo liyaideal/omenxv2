@@ -45,7 +45,7 @@ export interface PickedOption {
  * first two, the rest fold behind "Show N more options". A picked option that
  * lives in the folded tail is promoted into the visible pair.
  */
-const MultiOptionRows = ({
+export const MultiOptionRows = ({
   rows,
 }: {
   rows: Array<React.ComponentProps<typeof PickerOptionRow> & { key: string; picked: boolean }>;
