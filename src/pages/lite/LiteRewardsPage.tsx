@@ -166,12 +166,10 @@ export default function LiteRewardsPage() {
   if (isMobile) {
     return (
       <div className={`min-h-screen bg-background ${mobileRedeeming ? "pb-0" : "pb-24"}`}>
-        <MobileHeader
-          title={mobileRedeeming ? "Redeem voucher" : "Rewards"}
-          showLogo={false}
-          showBack
-          backTo={undefined}
-        />
+        {mobileRedeeming ? (
+          <RedeemMobileHeader onBack={() => navigate("/rewards?tab=vouchers")} />
+        ) : (
+          <MobileHeader title="Rewards" showLogo={false} showBack />
         )}
         <main className={mobileRedeeming ? "" : "px-4 py-4"}>{body}</main>
         {/* Redeem is a focused full-screen task: nav retires, the header ‹ owns the exit. */}
