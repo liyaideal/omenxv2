@@ -191,7 +191,7 @@ export const PickerOptionRow = ({
 };
 
 export const PickerBlockedReason = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex items-start gap-[6px]" style={{ fontSize: 11, color: VT.ink3, lineHeight: 1.5, paddingTop: 2 }}>
+  <div className="flex items-start gap-[6px] px-4 md:px-0" style={{ fontSize: 11, color: VT.ink3, lineHeight: 1.5, paddingTop: 6 }}>
     <Lock className="w-3 h-3 flex-none" style={{ marginTop: 2, color: VT.ink2 }} />
     {children}
   </div>
