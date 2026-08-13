@@ -228,7 +228,7 @@ Redeem 入口：券行右侧动作 → 桌面在 tab 内展开 redeem desk；移
 `src/pages/lite/LiteRewardsPage.tsx`、`src/pages/lite/LiteCampaignDetailPage.tsx`、`src/pages/Vouchers.tsx`（重定向）
 
 **前端 — Campaigns**
-`src/components/campaigns/CampaignAttribution.tsx`、`IneligibleEntryToast.tsx`、`GrantTaskRow.tsx`、`TaskRowShell.tsx`、`CampaignCard.tsx`、`CampaignKeyVisual.tsx`、`CampaignRulesDisclosure.tsx`、`KolBand.tsx`、`PointsRetiredNotice.tsx`、`RewardsFinePrint.tsx`
+`src/components/campaigns/CampaignAttribution.tsx`、`IneligibleEntryToast.tsx`（toast id `campaign-entry-ineligible`，top-center，4s）、`GrantTaskRow.tsx`、`TaskRowShell.tsx`、`CampaignCard.tsx`、`CampaignKeyVisual.tsx`、`CampaignRulesDisclosure.tsx`、`KolBand.tsx`、`PointsRetiredNotice.tsx`、`RewardsFinePrint.tsx`
 
 **前端 — Vouchers**
 `src/components/vouchers/VouchersBody.tsx`、`VoucherRow.tsx`、`VoucherEarningsCard.tsx`、`RedeemVoucherContent.tsx`、`VoucherDeskHeader.tsx`、`EventPickerList.tsx`、`EventPickerCard.tsx`、`RedeemSummaryBar.tsx`、`VoucherBanner.tsx`
