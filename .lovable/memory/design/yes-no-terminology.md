@@ -34,8 +34,12 @@ Always render through these (or inline ternaries that match the same mapping).
 Display still uses dual price `yes + no = 1` (`noPrice = 1 - yesPrice`). Only the column/button labels changed; the underlying calculation is identical.
 
 ## Colors
-- Yes → `text-trading-green` / `bg-trading-green`
-- No  → `text-trading-red` / `bg-trading-red`
+Direction controls follow the **market axis** defined in `src/index.css` ("Never mix"):
+- Yes → `--yes` = Pulse Blue `hsl(192 100% 60%)` (#33D6FF)
+- No  → `--no`  = Volt `hsl(74 100% 65%)` (#CFFF4A)
+
+`trading-green` / `trading-red` is the **money axis** — PnL, gain/loss, settled results only. It never
+colours a side-selection control (Yes/No buttons, direction chips, picker SideButton).
 
 ## Exceptions (keep original wording)
 - Fiat ramp ("Fiat Buy / Fiat Sell", "Sell USDC") — these describe asset purchase, not direction.

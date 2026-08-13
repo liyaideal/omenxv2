@@ -85,6 +85,12 @@ export const LiteOverviewSection = (_: P) => (
       <h3 className="mb-2 text-sm font-semibold text-foreground">Changelog</h3>
       <ul className="space-y-1 text-[12px] text-muted-foreground">
         <li>
+          2026-08-13 · CPO 批准（冻结画布一次性手术）— redeem picker 的{" "}
+          <code className="font-mono">SideButton</code> 方向色统一到 market axis：Yes ={" "}
+          <code className="font-mono">--yes</code> Pulse Blue、No = <code className="font-mono">--no</code> Volt，
+          选中态按 tone 分色填充；neutral（binary Buy）不动。盈亏红绿仅留给 PnL。
+        </li>
+        <li>
           2026-08-12 · 漂移修复 Round D — 删除过期 IA 手抄件 <code className="font-mono">SectorRailDemo</code>
           （规则并入 All-stage 真 Category row caption）；wallet 权益带 preview 补移动分支（compact ×3 + space-y-3）；
           vouchers2 移动 redeem 屏改挂真 <code className="font-mono">RedeemSummaryBar</code>（inline）+ 真 ChevronLeft；
