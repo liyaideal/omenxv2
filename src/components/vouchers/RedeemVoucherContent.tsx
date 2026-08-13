@@ -98,6 +98,8 @@ export const RedeemVoucherContent = ({
     return (
       <div className="flex flex-col">
         <div style={{ padding: "16px 20px 20px" }}>{picker}</div>
+        {/* mobile: room for the docked confirm bar + BottomNav */}
+        <div className="h-[150px] md:hidden" aria-hidden />
 
         <RedeemSummaryBar
           innerRef={stickyBarRef}

@@ -5,6 +5,7 @@
  * props. Pure presentation; every action arrives through props.
  */
 import { VT } from "./voucherTokens";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export interface RedeemSummaryBarProps {
   /** null → "Pick an outcome above" empty branch */
@@ -35,6 +36,7 @@ export const RedeemSummaryBar = ({
   variant = "panel",
   innerRef,
 }: RedeemSummaryBarProps) => {
+  const isMobile = useIsMobile();
   const summaryLine = picked ? (
     <span className="flex items-baseline gap-[5px] min-w-0" style={{ fontSize: 12.5, fontWeight: 600, color: VT.ink }}>
       <span className="flex-1 min-w-0 truncate">
@@ -48,6 +50,27 @@ export const RedeemSummaryBar = ({
       </span>
     </span>
   ) : null;
+
+  const confirmButton = (fullWidth: boolean) => (
+    <button
+      type="button"
+      onClick={onConfirm}
+      disabled={!picked || isRedeeming}
+      className={`font-display rounded-[10px] ${fullWidth ? "w-full" : "flex-none"}`}
+      style={{
+        minHeight: 44,
+        padding: "0 20px",
+        border: picked ? "none" : `1px solid ${VT.line3}`,
+        background: picked ? "#FFFFFF" : VT.disabledBg,
+        color: picked ? "#0A0B0D" : VT.muted2,
+        fontSize: 13,
+        fontWeight: 700,
+        cursor: picked && !isRedeeming ? "pointer" : "default",
+      }}
+    >
+      {isRedeeming ? "Redeeming…" : "Confirm & open position"}
+    </button>
+  );
 
   const body = (
     <>
@@ -67,33 +90,58 @@ export const RedeemSummaryBar = ({
             Reset
           </button>
         )}
-        <button
-          type="button"
-          onClick={onConfirm}
-          disabled={!picked || isRedeeming}
-          className="font-display rounded-[10px] flex-none"
-          style={{
-            minHeight: 44,
-            padding: "0 20px",
-            border: picked ? "none" : `1px solid ${VT.line3}`,
-            background: picked ? "#FFFFFF" : VT.disabledBg,
-            color: picked ? "#0A0B0D" : VT.muted2,
-            fontSize: 13,
-            fontWeight: 700,
-            cursor: picked && !isRedeeming ? "pointer" : "default",
-          }}
-        >
-          {isRedeeming ? "Redeeming…" : "Confirm & open position"}
-        </button>
+        {confirmButton(false)}
       </div>
     </>
   );
 
   if (variant === "inline") {
+    /* mobile: a real docked bar pinned above the BottomNav, stacked so the
+       summary text gets a full line instead of being squeezed by the button. */
+    if (isMobile) {
+      return (
+        <div
+          ref={innerRef}
+          className="fixed inset-x-0 bottom-[76px] z-[199] flex flex-col gap-[10px]"
+          style={{
+            borderTop: `1px solid ${VT.line}`,
+            background: VT.surfaceInset,
+            padding: "12px 16px",
+          }}
+        >
+          {picked ? (
+            <div className="flex items-start justify-between gap-[12px] min-w-0">
+              <div className="flex flex-col gap-[3px] min-w-0 flex-1">
+                <span className="truncate" style={{ fontSize: 12.5, fontWeight: 600, color: VT.ink }}>
+                  {picked.eventName}
+                </span>
+                <span className="tabular-nums truncate" style={{ fontSize: 11, color: VT.ink3 }}>
+                  {picked.isBinary ? picked.displayLabel : `${picked.displayLabel} · ${picked.side === "long" ? "Yes" : "No"}`}
+                  {" at "}
+                  {Math.round(picked.price * 100)}¢ · ${faceValue} voucher · closes after {maxHoldingHours}h
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={onReset}
+                className="flex-none"
+                style={{ fontSize: 12.5, color: VT.ink3, minHeight: 28 }}
+              >
+                Reset
+              </button>
+            </div>
+          ) : (
+            <span style={{ fontSize: 12, color: VT.ink3 }}>Pick an outcome above to see your trial position.</span>
+          )}
+          {confirmButton(true)}
+        </div>
+      );
+    }
+
     return (
       <div
         ref={innerRef}
-        className="sticky bottom-[88px] md:bottom-0 z-10 flex items-center justify-between gap-[14px] flex-wrap"
+        className="sticky bottom-0 z-10 flex items-center justify-between gap-[14px] flex-wrap"
         style={{
           borderTop: `1px solid ${VT.line}`,
           background: VT.surfaceInset,
