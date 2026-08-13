@@ -148,9 +148,9 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
   }, [events, query, activeCat, eventEligibility]);
 
   return (
-    <div className="flex flex-col gap-[14px]">
+    <div className={`flex flex-col ${isMobile ? "gap-[12px]" : "gap-[14px]"}`}>
       {categories.length > 0 && (
-        <div className={isMobile ? "flex gap-[7px] overflow-x-auto scrollbar-hide -mx-1 px-1" : "flex flex-wrap gap-[7px]"}>
+        <div className={isMobile ? "flex gap-[7px] overflow-x-auto scrollbar-hide px-4" : "flex flex-wrap gap-[7px]"}>
           <Chip active={!activeCat} onClick={() => setActiveCat(null)} mobile={isMobile}>All</Chip>
           {categories.map((c) => (
             <Chip key={c.id} active={activeCat === c.id} onClick={() => setActiveCat(c.id)} mobile={isMobile}>
@@ -160,9 +160,11 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
         </div>
       )}
 
-      <PickerSearchBar value={query} onChange={setQuery} mobile={isMobile} />
+      <div className={isMobile ? "px-4" : ""}>
+        <PickerSearchBar value={query} onChange={setQuery} mobile={isMobile} />
+      </div>
 
-      <div className={`flex flex-col gap-[10px] ${isMobile ? "" : "max-h-[520px] overflow-y-auto pr-1"}`}>
+      <div className={`flex flex-col ${isMobile ? "" : "gap-[10px] max-h-[520px] overflow-y-auto pr-1"}`}>
         {isLoading && <PickerSkeleton />}
 
         {!isLoading && filtered.length === 0 && (

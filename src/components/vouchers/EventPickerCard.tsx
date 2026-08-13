@@ -112,27 +112,44 @@ export const PickerOptionRow = ({
     </span>
   );
 
-  // Mobile multi-option: label + price on top, Yes/No 44px grid beneath.
-  if (!isBinary && mobile) {
+  /* Mobile: Lite list grammar — flat hairline row, no nested box. Label owns
+     the line, price sits mono on the right, the side chips are the only
+     chrome. Picked state shows as a 3px volt rail. */
+  if (mobile) {
+    const isPicked = !!(pickedLong || pickedShort);
     return (
       <div
-        className="rounded-[9px] flex flex-col gap-[8px]"
+        className="flex items-center gap-[10px]"
         style={{
-          background: VT.surfaceDeep,
-          border: `1px solid ${pickedLong || pickedShort ? VT.volt : VT.line2}`,
-          padding: "9px 11px 10px",
+          minHeight: 52,
+          borderTop: `1px solid ${VT.hairline}`,
+          borderLeft: `3px solid ${isPicked ? VT.volt : "transparent"}`,
+          paddingLeft: 13,
+          paddingRight: 16,
         }}
       >
-        <div className="flex items-center justify-between gap-[10px]">
-          <span className="flex-1 min-w-0" style={{ fontSize: 13, lineHeight: 1.3, color: dim ? VT.muted : VT.ink }}>
-            {label}
-          </span>
-          {priceEl}
-        </div>
-        <div className="grid grid-cols-2 gap-[7px]">
-          <SideButton block label="Yes" tone="yes" picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
-          <SideButton block label="No" tone="no" picked={pickedShort} disabled={dim} onClick={() => onPick?.("short")} />
-        </div>
+        <span
+          className="flex-1 min-w-0"
+          style={{
+            fontSize: 13.5,
+            lineHeight: 1.35,
+            fontWeight: isPicked ? 600 : 500,
+            color: dim ? VT.muted : VT.ink,
+          }}
+        >
+          {label}
+        </span>
+        {priceEl}
+        <span className="flex-none flex items-center gap-[7px]">
+          {isBinary ? (
+            <SideButton mobile label="Buy" tone="neutral" picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
+          ) : (
+            <>
+              <SideButton mobile label="Yes" tone="yes" picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
+              <SideButton mobile label="No" tone="no" picked={pickedShort} disabled={dim} onClick={() => onPick?.("short")} />
+            </>
+          )}
+        </span>
       </div>
     );
   }
@@ -174,7 +191,7 @@ export const PickerOptionRow = ({
 };
 
 export const PickerBlockedReason = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex items-start gap-[6px]" style={{ fontSize: 11, color: VT.ink3, lineHeight: 1.5, paddingTop: 2 }}>
+  <div className="flex items-start gap-[6px] px-4 md:px-0" style={{ fontSize: 11, color: VT.ink3, lineHeight: 1.5, paddingTop: 6 }}>
     <Lock className="w-3 h-3 flex-none" style={{ marginTop: 2, color: VT.ink2 }} />
     {children}
   </div>
@@ -207,10 +224,10 @@ export const EventPickerCard = ({
   /* Mobile: the title owns a full-width line (wraps to 2, never truncates to
      "…"), badges drop to the meta line underneath. */
   const mobileHeader = (
-    <div className="flex flex-col gap-[6px]" style={{ marginBottom: 11 }}>
+    <div className="flex flex-col gap-[6px] px-4" style={{ marginBottom: 10 }}>
       <span
         className="line-clamp-2"
-        style={{ fontSize: 14.5, fontWeight: 600, lineHeight: 1.35, color: eligible ? VT.ink : VT.ink2 }}
+        style={{ fontSize: 15, fontWeight: 600, lineHeight: 1.35, color: eligible ? VT.ink : VT.ink2 }}
       >
         {name}
       </span>
@@ -256,35 +273,44 @@ export const EventPickerCard = ({
   if (locked) {
     return (
       <div
-        className="rounded-[12px]"
-        style={{ background: VT.surfaceCard, border: `1px solid ${VT.line}`, padding: 14, opacity: 0.5 }}
+        className={mobile ? "" : "rounded-[12px]"}
+        style={
+          mobile
+            ? { borderBottom: `1px solid ${VT.line}`, padding: "14px 0 14px", opacity: 0.5 }
+            : { background: VT.surfaceCard, border: `1px solid ${VT.line}`, padding: 14, opacity: 0.5 }
+        }
       >
         {header}
-        {children}
+        {mobile ? <div className="px-4">{children}</div> : children}
       </div>
     );
   }
 
   return (
     <div
-      className="rounded-[12px]"
-      style={{
-        background: VT.surfaceCard,
-        border: `1px solid ${VT.line}`,
-        padding: mobile ? 13 : 14,
-        opacity: eligible ? 1 : 0.62,
-      }}
+      className={mobile ? "" : "rounded-[12px]"}
+      style={
+        mobile
+          ? { borderBottom: `1px solid ${VT.line}`, padding: "14px 0 6px", opacity: eligible ? 1 : 0.62 }
+          : {
+              background: VT.surfaceCard,
+              border: `1px solid ${VT.line}`,
+              padding: 14,
+              opacity: eligible ? 1 : 0.62,
+            }
+      }
     >
       {header}
       <div
         className={
           rowsLayout === "grid" && !mobile
             ? "grid grid-cols-2 gap-[8px]"
-            : `flex flex-col ${mobile ? "gap-[8px]" : "gap-[6px]"}`
+            : `flex flex-col ${mobile ? "" : "gap-[6px]"}`
         }
       >
         {children}
       </div>
+      {mobile && <div style={{ height: 8 }} />}
     </div>
   );
 };
@@ -301,7 +327,7 @@ export const PickerSkeleton = () => (
     {[0, 1].map((i) => (
       <div
         key={i}
-        className="rounded-[12px] flex flex-col gap-[11px]"
+        className="rounded-[12px] flex flex-col gap-[11px] mx-4 md:mx-0"
         style={{ background: VT.surfaceCard, border: `1px solid ${VT.line}`, padding: 14 }}
       >
         <div className="flex flex-col gap-[6px]">
@@ -325,7 +351,7 @@ export const PickerSkeleton = () => (
 /** Empty result card — search miss or nothing eligible. */
 export const PickerEmpty = ({ query, onClear }: { query?: string; onClear?: () => void }) => (
   <div
-    className="rounded-[12px] flex flex-col items-center gap-[8px] text-center"
+    className="rounded-[12px] flex flex-col items-center gap-[8px] text-center mx-4 md:mx-0"
     style={{ background: VT.surfaceDeep, border: `1px solid ${VT.line}`, padding: "34px 24px" }}
   >
     <span className="font-display" style={{ fontSize: 14, fontWeight: 700, color: VT.ink }}>
