@@ -182,7 +182,7 @@ Redeem 入口：券行右侧动作 → 桌面在 tab 内展开 redeem desk；移
 
 ### 4.5 桌面 redeem desk
 
-与移动同一套判定与数据规则，差异仅在容器：`VoucherDeskHeader` 完整头（`REDEEMING VOUCHER` + 面值 + 券码 + Max profit / Hold window / Payout 三格 + 收益模式说明句）+ picker 内嵌于卡片，summary 为 inline 卡而非坐底 bar。移动端同一头折叠为 56px 票根。
+与移动同一套判定与数据规则，差异仅在容器：`VoucherDeskHeader` 完整头（`REDEEMING VOUCHER` + 面值 + 券码 + Max profit / Hold window / Payout 三格 + 收益模式说明句）+ picker 内嵌于卡片，summary 为 inline 卡而非坐底 bar。未选中时 summary 卡占位文案：`Pick an outcome above to see your trial position.`。移动端同一头折叠为 56px 票根。
 
 ### 4.6 Referral tab
 
@@ -250,4 +250,4 @@ edge function `claim-voucher-earnings`；函数 `apply_campaign_progress` / `cam
 - `/portfolio` VoucherBanner 与 `/trade` `/spot` CloseVoucher 的内部行为。
 - 交易页开仓 / 平仓链路本身，voucher 只作为开仓来源标记。
 - 账户命名沿用 **Boost / Standard**（用户可见文案不出现 Futures / Spot；`futures` / `spot` 仅作为代码字段名）。
-- 方向色语义不变：交易绿/红只染方向词，动作动词（Buy / Confirm）永不染色；蓝 `#33D6FF` 专用于 USDC。
+- 色彩双轴语义：方向/选边控件走 market axis —— Yes / Up = `--yes` Pulse Blue `#33D6FF`，No / Down = `--no` Volt `#CFFF4A`，选中态填各自颜色 + `#0A0B0D` 文字；`trading-green` / `trading-red` 是盈亏轴，只用于 PnL/涨跌数字，永不染方向控件。动作动词（Buy / Confirm）不染色。USDC 徽章用蓝为既有 token 复用，与 `--yes` 同值。
