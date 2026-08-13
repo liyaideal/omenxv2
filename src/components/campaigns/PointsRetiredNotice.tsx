@@ -16,7 +16,7 @@ export const PointsRetiredNoticeCard = ({
   onOpenVouchers: () => void;
   onDismiss: () => void;
 }) => (
-  <div className="flex items-start gap-3 rounded-[12px] border border-[#23262D] bg-[#0F1114] px-4 py-3">
+  <div className="flex items-center gap-3 rounded-[12px] border border-[#23262D] bg-[#0F1114] px-4 py-3">
     <p className="flex-1 text-[12.5px] leading-5 text-[#C9CED6]">
       Points have retired. Rewards now come as Trial Position Vouchers.{" "}
       <button type="button" onClick={onOpenVouchers} className="text-[#33D6FF]">
