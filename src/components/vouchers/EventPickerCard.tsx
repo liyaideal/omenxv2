@@ -45,6 +45,8 @@ export const SideButton = ({
   onClick,
   block,
   mobile,
+  price,
+  pair,
 }: {
   label: string;
   tone: "neutral" | "yes" | "no";
@@ -53,6 +55,10 @@ export const SideButton = ({
   onClick?: () => void;
   block?: boolean;
   mobile?: boolean;
+  /** 0–1 probability rendered on the right edge of the button */
+  price?: number;
+  /** direction-pair geometry: 44px tall, radius 11, label left / price right */
+  pair?: boolean;
 }) => {
   const base = {
     yes: { color: "hsl(192 100% 60%)", border: "hsl(192 100% 60% / .4)" },
@@ -64,27 +70,133 @@ export const SideButton = ({
   const pickedBg =
     tone === "yes" ? "hsl(192 100% 60%)" : tone === "no" ? "hsl(74 100% 65%)" : "hsl(74 100% 65%)";
 
+  if (pair) {
+    const tint = tone === "yes" ? "rgba(51,214,255,.08)" : "rgba(207,255,74,.06)";
+    const brd = tone === "yes" ? "rgba(51,214,255,.4)" : "rgba(207,255,74,.35)";
+    const fg = picked ? "#0A0B0D" : disabled ? VT.muted2 : base.color;
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={disabled}
+        className="font-display w-full flex items-center justify-between gap-[8px]"
+        style={{
+          minHeight: 44,
+          borderRadius: 11,
+          padding: "0 14px",
+          background: picked ? pickedBg : disabled ? "transparent" : tint,
+          border: picked ? "none" : `1px solid ${disabled ? VT.line2 : brd}`,
+          cursor: disabled ? "default" : "pointer",
+        }}
+      >
+        <span className="truncate" style={{ fontSize: mobile ? 13 : 13.5, fontWeight: 700, color: fg }}>
+          {label}
+        </span>
+        {price !== undefined && (
+          <span
+            className="tabular-nums flex-none"
+            style={{ fontSize: mobile ? 15 : 17, fontWeight: 700, color: fg }}
+          >
+            {cents(price)}
+          </span>
+        )}
+      </button>
+    );
+  }
+
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`font-display rounded-[8px] ${block ? "min-h-[44px] w-full flex items-center justify-center" : ""}`}
+      className={`font-display rounded-[8px] ${
+        block
+          ? "min-h-[44px] w-full flex items-center justify-center"
+          : price !== undefined
+            ? "flex items-center justify-between gap-[8px]"
+            : ""
+      }`}
       style={{
         fontSize: block ? 12 : mobile ? 12.5 : 11.5,
         fontWeight: 700,
-        padding: block ? undefined : mobile ? "0 14px" : "5px 10px",
-        minHeight: block ? undefined : mobile ? 36 : undefined,
+        padding: block ? undefined : price !== undefined ? "0 14px" : mobile ? "0 14px" : "5px 10px",
+        minHeight: block ? undefined : price !== undefined ? 44 : mobile ? 36 : undefined,
+        borderRadius: price !== undefined ? 11 : undefined,
+        minWidth: price !== undefined ? (mobile ? 96 : 108) : undefined,
         color: picked ? "#0A0B0D" : disabled ? VT.muted2 : base.color,
         background: picked ? pickedBg : "transparent",
         border: picked ? "none" : `1px solid ${disabled ? VT.line2 : base.border}`,
         cursor: disabled ? "default" : "pointer",
       }}
     >
-      {picked ? "Picked" : label}
+      {price === undefined ? (
+        picked ? "Picked" : label
+      ) : (
+        <>
+          <span style={{ fontWeight: 700 }}>{label}</span>
+          <span
+            className="tabular-nums"
+            style={{ fontSize: mobile ? 15 : 17, fontWeight: 700, color: picked ? "#0A0B0D" : VT.ink3 }}
+          >
+            {cents(price)}
+          </span>
+        </>
+      )}
     </button>
   );
 };
+
+/**
+ * Complementary market (two mutually exclusive outcomes) — one direction pair
+ * replaces the two neutral Buy rows. Same branch on mobile and on the desktop
+ * desk: it is a data rule, not a viewport rule.
+ */
+export const PickerDirectionPair = ({
+  mobile,
+  longLabel,
+  longPrice,
+  shortLabel,
+  shortPrice,
+  pickedLong,
+  pickedShort,
+  dimLong,
+  dimShort,
+  onPick,
+}: {
+  mobile: boolean;
+  longLabel: string;
+  longPrice: number;
+  shortLabel: string;
+  shortPrice: number;
+  pickedLong?: boolean;
+  pickedShort?: boolean;
+  dimLong?: boolean;
+  dimShort?: boolean;
+  onPick?: (side: "long" | "short") => void;
+}) => (
+  <div className={`grid grid-cols-2 gap-[8px] ${mobile ? "px-4" : ""}`}>
+    <SideButton
+      pair
+      mobile={mobile}
+      tone="yes"
+      label={longLabel}
+      price={longPrice}
+      picked={pickedLong}
+      disabled={dimLong}
+      onClick={() => onPick?.("long")}
+    />
+    <SideButton
+      pair
+      mobile={mobile}
+      tone="no"
+      label={shortLabel}
+      price={shortPrice}
+      picked={pickedShort}
+      disabled={dimShort}
+      onClick={() => onPick?.("short")}
+    />
+  </div>
+);
 
 export interface PickerOptionRowProps {
   label: string;
