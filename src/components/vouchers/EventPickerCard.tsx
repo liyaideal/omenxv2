@@ -44,6 +44,7 @@ export const SideButton = ({
   disabled,
   onClick,
   block,
+  mobile,
 }: {
   label: string;
   tone: "neutral" | "yes" | "no";
@@ -51,6 +52,7 @@ export const SideButton = ({
   disabled?: boolean;
   onClick?: () => void;
   block?: boolean;
+  mobile?: boolean;
 }) => {
   const base = {
     yes: { color: "hsl(74 100% 65%)", border: "hsl(74 100% 65% / .4)" },
@@ -65,9 +67,10 @@ export const SideButton = ({
       disabled={disabled}
       className={`font-display rounded-[8px] ${block ? "min-h-[44px] w-full flex items-center justify-center" : ""}`}
       style={{
-        fontSize: block ? 12 : 11.5,
+        fontSize: block ? 12 : mobile ? 12.5 : 11.5,
         fontWeight: 700,
-        padding: block ? undefined : "5px 10px",
+        padding: block ? undefined : mobile ? "0 14px" : "5px 10px",
+        minHeight: block ? undefined : mobile ? 36 : undefined,
         color: picked ? "#0A0B0D" : disabled ? VT.muted2 : base.color,
         background: picked ? "hsl(74 100% 65%)" : "transparent",
         border: picked ? "none" : `1px solid ${disabled ? VT.line2 : base.border}`,
@@ -158,11 +161,11 @@ export const PickerOptionRow = ({
       <span className="flex-none flex items-center gap-[9px]">
         {priceEl}
         {isBinary ? (
-          <SideButton label="Buy" tone="neutral" picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
+          <SideButton mobile={mobile} label="Buy" tone="neutral" picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
         ) : (
           <>
-            <SideButton label="Yes" tone="yes" picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
-            <SideButton label="No" tone="no" picked={pickedShort} disabled={dim} onClick={() => onPick?.("short")} />
+            <SideButton mobile={mobile} label="Yes" tone="yes" picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
+            <SideButton mobile={mobile} label="No" tone="no" picked={pickedShort} disabled={dim} onClick={() => onPick?.("short")} />
           </>
         )}
       </span>
