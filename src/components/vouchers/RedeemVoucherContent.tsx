@@ -82,12 +82,10 @@ export const RedeemVoucherContent = ({
     </div>
   );
 
-  const mobileBleed = isInline && isMobile;
-
   const picker = (
-    <div className="flex flex-col gap-[14px]">
+    <div className="flex flex-col gap-[12px]">
       <EventPickerList voucher={voucher} selected={picked} onSelect={setPicked} />
-      {metaCells && <div className={mobileBleed ? "px-4" : ""}>{metaCells}</div>}
+      {metaCells}
     </div>
   );
 
@@ -95,9 +93,8 @@ export const RedeemVoucherContent = ({
   if (isInline) {
     return (
       <div className="flex flex-col">
-        <div className="md:px-5 pt-4 pb-5">
-          {picker}
-        </div>
+        {/* mobile content area — mock: padding 12px 16px, block gap 12 */}
+        <div style={{ padding: isMobile ? "12px 16px" : "16px 20px 20px" }}>{picker}</div>
         {/* mobile: room for the confirm bar once it rises from the bottom */}
         {picked && <div className="h-[150px] md:hidden" aria-hidden />}
 
