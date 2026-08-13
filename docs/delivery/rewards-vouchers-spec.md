@@ -212,7 +212,7 @@ Redeem 入口：券行右侧动作 → 桌面在 tab 内展开 redeem desk；移
 
 ## 6. Style Guide
 
-视觉唯一真相。全部 demo 为真组件 + mock props；移动端一律 375px 真 iframe（`DualDevicePreview`）。
+视觉唯一真相。全部 demo 为真组件 + mock props；移动端一律 375px 真 iframe（`DualDevicePreview`）。规范锚点为 `#lite-rewards` 与 `#lite-vouchers`，旧链接 `#rewards` / `#rewards-mobile` / `#vouchers` / `#vouchers2` 由 `SECTION_ALIASES` 自动重定向。
 
 `#lite-rewards`：
 `rewards-campaign-cards`（四相位 + fallback）、`rewards-grant-rows`（五态）、`rewards-kol-band`、`rewards-ended-archive`、`rewards-ended-detail`、`rewards-points-notice`、`rewards-signin-prompt`、`rewards-referral-panels`、`rewards-fine-print`、`rewards-campaign-rules`（collapsed / expanded）、`rewards-ineligible-redirect`；移动任务行另有 `rewards-taskrow-playground` 与 `rewards-taskrow-board`。
