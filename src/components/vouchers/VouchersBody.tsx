@@ -185,7 +185,7 @@ export const VouchersBody = () => {
   /* --- mobile: redeem is its own screen; the page shell owns the header --- */
   if (isMobile && mobileRedeeming && selected) {
     return (
-      <div className="flex flex-col gap-[12px]">
+      <div className="flex flex-col gap-[12px]" style={{ padding: "12px 16px 0" }}>
         <VoucherDeskHeader voucher={selected} sourceLabel={selected.sourceLabel} compact />
         <RedeemVoucherContent
           voucher={selected}

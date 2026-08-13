@@ -94,7 +94,7 @@ export const RedeemVoucherContent = ({
     return (
       <div className="flex flex-col">
         {/* mobile content area — mock: padding 12px 16px, block gap 12 */}
-        <div style={{ padding: isMobile ? "12px 16px" : "16px 20px 20px" }}>{picker}</div>
+        <div style={{ padding: isMobile ? 0 : "16px 20px 20px" }}>{picker}</div>
         {/* mobile: room for the confirm bar once it rises from the bottom */}
         {picked && <div className="h-[150px] md:hidden" aria-hidden />}
 
