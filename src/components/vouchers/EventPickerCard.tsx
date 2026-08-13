@@ -112,27 +112,44 @@ export const PickerOptionRow = ({
     </span>
   );
 
-  // Mobile multi-option: label + price on top, Yes/No 44px grid beneath.
-  if (!isBinary && mobile) {
+  /* Mobile: Lite list grammar — flat hairline row, no nested box. Label owns
+     the line, price sits mono on the right, the side chips are the only
+     chrome. Picked state shows as a 3px volt rail. */
+  if (mobile) {
+    const isPicked = !!(pickedLong || pickedShort);
     return (
       <div
-        className="rounded-[9px] flex flex-col gap-[8px]"
+        className="flex items-center gap-[10px]"
         style={{
-          background: VT.surfaceDeep,
-          border: `1px solid ${pickedLong || pickedShort ? VT.volt : VT.line2}`,
-          padding: "9px 11px 10px",
+          minHeight: 52,
+          borderTop: `1px solid ${VT.hairline}`,
+          borderLeft: `3px solid ${isPicked ? VT.volt : "transparent"}`,
+          paddingLeft: 13,
+          paddingRight: 0,
         }}
       >
-        <div className="flex items-center justify-between gap-[10px]">
-          <span className="flex-1 min-w-0" style={{ fontSize: 13, lineHeight: 1.3, color: dim ? VT.muted : VT.ink }}>
-            {label}
-          </span>
-          {priceEl}
-        </div>
-        <div className="grid grid-cols-2 gap-[7px]">
-          <SideButton block label="Yes" tone="yes" picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
-          <SideButton block label="No" tone="no" picked={pickedShort} disabled={dim} onClick={() => onPick?.("short")} />
-        </div>
+        <span
+          className="flex-1 min-w-0"
+          style={{
+            fontSize: 13.5,
+            lineHeight: 1.35,
+            fontWeight: isPicked ? 600 : 500,
+            color: dim ? VT.muted : VT.ink,
+          }}
+        >
+          {label}
+        </span>
+        {priceEl}
+        <span className="flex-none flex items-center gap-[7px]">
+          {isBinary ? (
+            <SideButton mobile label="Buy" tone="neutral" picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
+          ) : (
+            <>
+              <SideButton mobile label="Yes" tone="yes" picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
+              <SideButton mobile label="No" tone="no" picked={pickedShort} disabled={dim} onClick={() => onPick?.("short")} />
+            </>
+          )}
+        </span>
       </div>
     );
   }
