@@ -219,6 +219,9 @@ export const PickerOptionRow = ({
   pickedShort,
   onPick,
 }: PickerOptionRowProps) => {
+  /* Multi-option rows carry the price inside each Yes/No button, so the
+     row-level price is dropped to avoid printing the same number twice. */
+  const priceInButtons = !isBinary;
   const priceEl = (
     <span
       className="font-display tabular-nums flex-none"
@@ -255,14 +258,14 @@ export const PickerOptionRow = ({
         >
           {label}
         </span>
-        {priceEl}
+        {!priceInButtons && priceEl}
         <span className="flex-none flex items-center gap-[7px]">
           {isBinary ? (
             <SideButton mobile label="Buy" tone="neutral" picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
           ) : (
             <>
-              <SideButton mobile label="Yes" tone="yes" picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
-              <SideButton mobile label="No" tone="no" picked={pickedShort} disabled={dim} onClick={() => onPick?.("short")} />
+              <SideButton mobile label="Yes" tone="yes" price={price} picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
+              <SideButton mobile label="No" tone="no" price={1 - price} picked={pickedShort} disabled={dim} onClick={() => onPick?.("short")} />
             </>
           )}
         </span>
@@ -292,13 +295,13 @@ export const PickerOptionRow = ({
         {label}
       </span>
       <span className="flex-none flex items-center gap-[9px]">
-        {priceEl}
+        {!priceInButtons && priceEl}
         {isBinary ? (
           <SideButton mobile={mobile} label="Buy" tone="neutral" picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
         ) : (
           <>
-            <SideButton mobile={mobile} label="Yes" tone="yes" picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
-            <SideButton mobile={mobile} label="No" tone="no" picked={pickedShort} disabled={dim} onClick={() => onPick?.("short")} />
+            <SideButton mobile={mobile} label="Yes" tone="yes" price={price} picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
+            <SideButton mobile={mobile} label="No" tone="no" price={1 - price} picked={pickedShort} disabled={dim} onClick={() => onPick?.("short")} />
           </>
         )}
       </span>
