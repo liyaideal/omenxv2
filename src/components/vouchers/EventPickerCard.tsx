@@ -55,10 +55,14 @@ export const SideButton = ({
   mobile?: boolean;
 }) => {
   const base = {
-    yes: { color: "hsl(74 100% 65%)", border: "hsl(74 100% 65% / .4)" },
-    no: { color: "hsl(0 100% 68%)", border: "hsl(0 100% 68% / .4)" },
+    yes: { color: "hsl(192 100% 60%)", border: "hsl(192 100% 60% / .4)" },
+    no: { color: "hsl(74 100% 65%)", border: "hsl(74 100% 65% / .4)" },
     neutral: { color: VT.ink, border: VT.line3 },
   }[tone];
+  /* Picked fill follows the market axis: Yes = --yes (Pulse Blue),
+     No = --no (Volt). neutral (binary Buy) keeps its volt fill. */
+  const pickedBg =
+    tone === "yes" ? "hsl(192 100% 60%)" : tone === "no" ? "hsl(74 100% 65%)" : "hsl(74 100% 65%)";
 
   return (
     <button
@@ -72,7 +76,7 @@ export const SideButton = ({
         padding: block ? undefined : mobile ? "0 14px" : "5px 10px",
         minHeight: block ? undefined : mobile ? 36 : undefined,
         color: picked ? "#0A0B0D" : disabled ? VT.muted2 : base.color,
-        background: picked ? "hsl(74 100% 65%)" : "transparent",
+        background: picked ? pickedBg : "transparent",
         border: picked ? "none" : `1px solid ${disabled ? VT.line2 : base.border}`,
         cursor: disabled ? "default" : "pointer",
       }}

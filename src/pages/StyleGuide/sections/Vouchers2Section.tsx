@@ -40,7 +40,7 @@ export const Vouchers2Section = ({ isMobile: _isMobile }: { isMobile: boolean })
 
       <SubSection
         title="4. Market picker — cards, locks, empty"
-        description="Live pieces of EventPickerList (PickerSearchBar / PickerSkeleton / PickerEmpty / EventPickerCard rows) with mock props — production is the same code, hook-driven. BOOST / STANDARD line badges, neutral mono prices, 1px outline Buy button on binary cards, Yes/No pair on multi-option, volt Picked state, price-band dim and event-level voucher lock."
+        description="Live pieces of EventPickerList (PickerSearchBar / PickerSkeleton / PickerEmpty / EventPickerCard rows) with mock props — production is the same code, hook-driven. BOOST / STANDARD line badges, neutral mono prices, 1px outline Buy button on binary cards, Yes/No pair on multi-option coloured on the market axis (Yes = --yes Pulse Blue, No = --no Volt; never trading-green/red), picked state fills the same axis colour, price-band dim and event-level voucher lock."
         platform="shared"
       >
         <DualDevicePreview previewKey="vouchers2-picker" label="7 card states · toggle Mobile for stacked option rows" minHeight={420} />
