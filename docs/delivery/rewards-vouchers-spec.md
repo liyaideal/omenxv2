@@ -107,6 +107,14 @@ RLS：仅 `GRANT SELECT ... TO authenticated`，策略 `auth.uid() = user_id`；
 
 Trigger：`trg_pay_instant_voucher_settlement` → `pay_instant_voucher_settlement()`，在 `airdrop_positions` 结算时对 `payout_mode = 'instant'` 的券把利润写入 Standard 余额并落 transaction。
 
+### 3.1b 收益与券池附表
+
+| 表 | 内容 |
+|---|---|
+| `voucher_earnings` | 每人一行：`pending_amount` / `lifetime_credited` / `last_settled_at`，本人只读 |
+| `voucher_earnings_ledger` | `type ∈ (accrual, claim)`、`amount`、`airdrop_position_id`，本人只读 |
+| `voucher_daily_pools` | `face_value + pool_date` 唯一，`total_quota` / `claimed_count`，公开可读；`ensure_voucher_pool_today()` 播种，`consume_daily_voucher_pool()` 仅 service_role |
+
 ### 3.2 Campaign 系列
 
 | 表 | 读权限 | 写权限 |
@@ -119,7 +127,9 @@ Trigger：`trg_pay_instant_voucher_settlement` → `pay_instant_voucher_settleme
 
 `campaign_entries.rules` JSON 承载：`tasks[]`（`task_key / name / subtitle / target / metric(count|usd_volume) / reward{voucher,usdc} / scope{categories,any_market} / cta{label,href}`）与 `details{heading, paragraphs[]}`（长文规则）。
 
-进度驱动（全部在 Postgres）：`trades` 的 AFTER INSERT/UPDATE 触发器 `trades_campaign_progress()` → `apply_campaign_progress(user, event_name, amount, at)`，按 `campaign_scope_matches(scope, event_name)` 累加 `usd_volume` 或 `count` 并写 `campaign_grants`。两个函数对 anon/authenticated `REVOKE EXECUTE`。口径参考实现见 `campaign-progress-driver.md`。
+进度驱动（全部在 Postgres）：`trades` 的 AFTER INSERT / AFTER UPDATE OF status 触发器 `trades_campaign_progress()` 仅在 `status = 'Filled'` 时触发 → `apply_campaign_progress(user, event_name, amount, at)`，按 `campaign_scope_matches(scope, event_name)` 累加 `usd_volume` 或 `count` 并 upsert `campaign_grants`（达标转 `claimable`）；同一函数顺带把被邀用户累计成交 ≥ $100 的 referral 转 qualified。两个函数对 anon/authenticated `REVOKE EXECUTE`。口径参考实现见 `campaign-progress-driver.md`。
+
+种子数据：World Cup Qualifiers（public 入口 + special 入口 `WANG24`）、Starter Rewards（常驻，无 `ends_at`）、CPI Print Week（upcoming）。
 
 ---
 
