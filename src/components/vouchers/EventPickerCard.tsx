@@ -200,7 +200,32 @@ export const EventPickerCard = ({
   rowsLayout = "stack",
   children,
 }: EventPickerCardProps) => {
-  const header = (
+  /* Mobile: the title owns a full-width line (wraps to 2, never truncates to
+     "…"), badges drop to the meta line underneath. */
+  const mobileHeader = (
+    <div className="flex flex-col gap-[6px]" style={{ marginBottom: 11 }}>
+      <span
+        className="line-clamp-2"
+        style={{ fontSize: 14.5, fontWeight: 600, lineHeight: 1.35, color: eligible ? VT.ink : VT.ink2 }}
+      >
+        {name}
+      </span>
+      <div className="flex items-center gap-[6px] flex-wrap">
+        <MetaCaps>{meta}</MetaCaps>
+        {lines.includes("futures") && <LineBadge strong>Boost</LineBadge>}
+        {lines.includes("spot") && <LineBadge strong>Standard</LineBadge>}
+        {!locked && tail && <LineBadge>{tail}</LineBadge>}
+        {locked && (
+          <span className="flex items-center gap-[5px]" style={{ fontSize: 11, fontWeight: 600, color: VT.ink2 }}>
+            <Lock className="w-3 h-3" />
+            Voucher already used
+          </span>
+        )}
+      </div>
+    </div>
+  );
+
+  const desktopHeader = (
     <div className="flex items-start justify-between gap-[12px]" style={{ marginBottom: 11 }}>
       <div className="flex flex-col gap-[3px] min-w-0">
         <span className="truncate" style={{ fontSize: 13.5, fontWeight: 600, color: eligible ? VT.ink : VT.ink2 }}>
@@ -221,6 +246,8 @@ export const EventPickerCard = ({
       </div>
     </div>
   );
+
+  const header = mobile ? mobileHeader : desktopHeader;
 
   if (locked) {
     return (
@@ -245,7 +272,15 @@ export const EventPickerCard = ({
       }}
     >
       {header}
-      <div className={rowsLayout === "grid" ? "grid grid-cols-2 gap-[8px]" : "flex flex-col gap-[6px]"}>{children}</div>
+      <div
+        className={
+          rowsLayout === "grid" && !mobile
+            ? "grid grid-cols-2 gap-[8px]"
+            : `flex flex-col ${mobile ? "gap-[8px]" : "gap-[6px]"}`
+        }
+      >
+        {children}
+      </div>
     </div>
   );
 };
