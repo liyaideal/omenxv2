@@ -27,7 +27,6 @@ import { liteSideName } from "@/lib/liteSideName";
 import { shortDate } from "./voucherTokens";
 
 export interface PickedOption {
-  /* eslint-disable-next-line */
   eventId: string;
   eventName: string;
   optionId: string;
@@ -40,6 +39,38 @@ export interface PickedOption {
   /** Product line of the event — drives post-redeem routing (/trade vs /spot). */
   productLine: "spot" | "futures";
 }
+
+/**
+ * Multi-option rows with the mock's collapse rule: 3+ options show only the
+ * first two, the rest fold behind "Show N more options". A picked option that
+ * lives in the folded tail is promoted into the visible pair.
+ */
+const MultiOptionRows = ({
+  rows,
+}: {
+  rows: Array<React.ComponentProps<typeof PickerOptionRow> & { key: string; picked: boolean }>;
+}) => {
+  const [expanded, setExpanded] = useState(false);
+  if (rows.length <= 2) {
+    return <>{rows.map(({ key, picked: _p, ...props }) => <PickerOptionRow key={key} {...props} />)}</>;
+  }
+  let visible = rows;
+  if (!expanded) {
+    visible = rows.slice(0, 2);
+    const pickedRow = rows.find((r) => r.picked);
+    if (pickedRow && !visible.includes(pickedRow)) visible = [...rows.slice(0, 1), pickedRow];
+  }
+  return (
+    <>
+      {visible.map(({ key, picked: _p, ...props }) => <PickerOptionRow key={key} {...props} />)}
+      <PickerMoreOptionsRow
+        hiddenCount={rows.length - 2}
+        expanded={expanded}
+        onToggle={() => setExpanded((v) => !v)}
+      />
+    </>
+  );
+};
 
 interface EligibilityResult {
   ok: boolean;
