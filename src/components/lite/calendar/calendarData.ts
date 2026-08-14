@@ -63,9 +63,9 @@ export type CalItem =
 export const marketCountOf = (item: CalItem): number =>
   item.kind === "session" ? item.rows.length : 1;
 
-/** "US" / "HK" — short market name used by the session copy. */
+/** "US" / "HK" / "KR" — short market name used by the session copy. */
 export const marketShortName = (market: StockMarket): string =>
-  market.key === "hk" ? "HK" : "US";
+  market.short;
 
 export const sumMarkets = (items: CalItem[]): number =>
   items.reduce((n, i) => n + marketCountOf(i), 0);

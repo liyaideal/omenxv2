@@ -150,35 +150,45 @@ export const LiteIntradayView = ({
               losing shares pay $0.
             </span>
           </div>
-          {groups.sessionMarket && groups.sessionEnd != null && (
+          {groups.openSessions.length > 0 && (
             <span
-              className="flex flex-none items-center"
-              style={{
-                gap: 8,
-                background: "#131519",
-                border: "1px solid #23262D",
-                borderRadius: 999,
-                padding: "8px 14px",
-              }}
+              className="flex flex-none items-center overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              style={{ gap: 8, maxWidth: "100%" }}
             >
-              <span
-                style={{ width: 6, height: 6, borderRadius: 999, background: ORANGE }}
-              />
-              <span style={{ fontSize: 12, color: "#fff", fontWeight: 700 }}>
-                {groups.sessionMarket.key === "hk" ? "HK" : "US"} session open
-              </span>
-              <span
-                style={{
-                  fontSize: 12,
-                  color: "#9AA1AC",
-                  fontVariantNumeric: "tabular-nums",
-                }}
-              >
-                closes{" "}
-                {formatMarketTime(new Date(groups.sessionEnd), groups.sessionMarket)}{" "}
-                {groups.sessionMarket.label} ·{" "}
-                {fmtLeft(groups.sessionEnd - (sessionNow?.getTime() ?? Date.now()))}
-              </span>
+              {groups.openSessions.map(({ market, closeAt }) => (
+                <span
+                  key={market.key}
+                  className="flex flex-none items-center"
+                  style={{
+                    gap: 8,
+                    background: "#131519",
+                    border: "1px solid #23262D",
+                    borderRadius: 999,
+                    padding: "8px 14px",
+                  }}
+                >
+                  <span
+                    style={{ width: 6, height: 6, borderRadius: 999, background: ORANGE }}
+                  />
+                  <span
+                    className="whitespace-nowrap"
+                    style={{ fontSize: 12, color: "#fff", fontWeight: 700 }}
+                  >
+                    {market.short} session open
+                  </span>
+                  <span
+                    className="whitespace-nowrap"
+                    style={{
+                      fontSize: 12,
+                      color: "#9AA1AC",
+                      fontVariantNumeric: "tabular-nums",
+                    }}
+                  >
+                    closes {formatMarketTime(new Date(closeAt), market)} {market.label} ·{" "}
+                    {fmtLeft(closeAt - (sessionNow?.getTime() ?? Date.now()))}
+                  </span>
+                </span>
+              ))}
             </span>
           )}
         </div>

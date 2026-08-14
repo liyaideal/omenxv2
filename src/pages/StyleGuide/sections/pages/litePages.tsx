@@ -85,6 +85,14 @@ export const LiteOverviewSection = (_: P) => (
       <h3 className="mb-2 text-sm font-semibold text-foreground">Changelog</h3>
       <ul className="space-y-1 text-[12px] text-muted-foreground">
         <li>
+          2026-08-14 · 新增韩国市场（KRX 09:00–15:30 KST）与多会话并排芯片 ——{" "}
+          <code className="font-mono">StockMarket</code> 增加 <code className="font-mono">short</code> /
+          每市场 open-close 分钟数，<code className="font-mono">getMarketSession</code> 不再假设全市场 09:30–16:00；
+          <code className="font-mono">groupStockRows</code> 返回 <code className="font-mono">openSessions[]</code>
+          （按收盘时间升序），会话芯片改为「每个开市市场一枚」并排、窄屏横向滚动；
+          <code className="font-mono">STOCKS CLOSING TODAY</code> 的 close 行用 · 串联多市场。
+        </li>
+        <li>
           2026-08-14 · Sports kickoff 时间口径统一 —— 行内 kickoff 改为用户本地时间、无时区微标，与日期签 /
           日期分组 / stage 卡（<code className="font-mono">kickoffLabel</code>）同一口径；
           <code className="font-mono">kickoffCell</code> 不再接 league 参数，删除{" "}

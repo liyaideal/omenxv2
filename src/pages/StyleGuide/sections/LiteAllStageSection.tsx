@@ -170,6 +170,31 @@ const HK_OPEN_ROWS: StockEventRow[] = [
   hkStock("3690", 122.9, 0.53, 60),
 ];
 
+const krStock = (
+  code: string,
+  base: number,
+  upPrice: number,
+  endMin: number,
+): StockEventRow => ({
+  id: `kr-${code}-updown-20260803`,
+  name: `${code}.KS — will it close higher today?`,
+  base_price: base,
+  start_date: iso(-180 * MIN),
+  end_date: iso(endMin * MIN),
+  freeze_time: null,
+  event_subtype: "KR_STOCK_DAILY_UPDOWN_SPOT",
+  upPrice,
+  downPrice: Number((1 - upPrice).toFixed(2)),
+});
+
+const KR_OPEN_ROWS: StockEventRow[] = [
+  krStock("005930", 74_800, 0.55, 45),
+  krStock("000660", 198_500, 0.47, 45),
+];
+
+/** HK 09:30–16:00 HKT and KR 09:00–15:30 KST overlap almost fully. */
+const HK_KR_OPEN_ROWS: StockEventRow[] = [...HK_OPEN_ROWS, ...KR_OPEN_ROWS];
+
 /** No open round; one future round so the header can show "Next open". */
 const CLOSED_ROWS: StockEventRow[] = [
   { ...usStock("AAPL", 224.8, 0.61, 1_200), start_date: iso(960 * MIN) },
@@ -433,6 +458,24 @@ const INTRADAY_PRESETS = [
     caption:
       "State B — the CURRENT production form when no exchange is open (not an old version): no stocks-closing row, coin-major layout, and each coin card owns its own window switcher; the stock row shows its next-open stamp instead.",
   },
+  {
+    id: "state-a-hk-kr",
+    label: "State A — HK + KR overlap",
+    rows: HK_KR_OPEN_ROWS,
+    // 05:00 UTC = 13:00 HKT and 14:00 KST → both Asian sessions are open.
+    sessionNow: new Date("2026-08-03T05:00:00Z"),
+    caption:
+      "Overlapping sessions — when more than one exchange is open, every open market gets its own entry, sorted by close time (earliest first): the close line reads \"KR closes 15:30 KST · HK closes 16:00 HKT\" and the stocks-closing row mixes both markets with their own currency prefixes.",
+  },
+  {
+    id: "state-a-kr",
+    label: "State A — KR only (pre-HK open)",
+    rows: HK_KR_OPEN_ROWS,
+    // 00:30 UTC = 09:30 KST (open) while HK only opens at 01:30 UTC.
+    sessionNow: new Date("2026-08-03T00:30:00Z"),
+    caption:
+      "Korea alone — KRX runs 09:00–15:30 KST, so it opens an hour before Hong Kong. Only the KR session line shows; HK tickers fall into the asleep group with their next-open stamp.",
+  },
 ] as const;
 
 const IntradayDemo = () => {
@@ -661,6 +704,8 @@ const US_TRADING = US_OPEN_ROWS.map((r) => viewStock(r, -180, 95));
 const US_ASLEEP = US_OPEN_ROWS.map((r) => viewStock(r, 900, 1290));
 const HK_TRADING = HK_OPEN_ROWS.map((r) => viewStock(r, -120, 60));
 const HK_ASLEEP = HK_OPEN_ROWS.map((r) => viewStock(r, 600, 990));
+const KR_TRADING = KR_OPEN_ROWS.map((r) => viewStock(r, -120, 45));
+const KR_ASLEEP = KR_OPEN_ROWS.map((r) => viewStock(r, 570, 960));
 
 const VIEW_7A_PRESETS = [
   {
@@ -689,6 +734,15 @@ const VIEW_7A_PRESETS = [
     sessionNow: new Date("2026-08-03T22:00:00Z"),
     caption:
       "No US/HK session open — all 6 stock rows fall into the asleep group; the coin rounds keep running.",
+  },
+  {
+    id: "7a-hk-kr",
+    label: "HK + KR open (overlap)",
+    rows: [...HK_TRADING, ...KR_TRADING, ...US_ASLEEP],
+    // 13:00 HKT / 14:00 KST — both Asian exchanges trade at once.
+    sessionNow: new Date("2026-08-03T05:00:00Z"),
+    caption:
+      "Overlapping sessions — one chip per open market, sorted by close time (KR 15:30 KST closes before HK 16:00 HKT). Chips sit side by side and scroll horizontally when the header is narrow; the US names stay in the asleep group.",
   },
 ] as const;
 

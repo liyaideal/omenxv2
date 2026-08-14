@@ -174,35 +174,60 @@ export const formatEtTime = (date: Date): string =>
 // operating on real timestamps and is market-agnostic.
 // -----------------------------------------------------------------
 export interface StockMarket {
-  key: "us" | "hk" | "crypto";
+  key: "us" | "hk" | "kr" | "crypto";
   /** IANA timezone used to render session labels. */
   tz: string;
   /** Short session label shown next to times ("ET" / "HKT"). */
   label: string;
+  /** Short market code used in session copy ("US" / "HK" / "KR"). */
+  short: string;
   /** Currency prefix for underlying share prices. */
   currency: string;
   /** Regular-session open, already localised copy. */
   openLabel: string;
   /** Regular-session close, already localised copy. */
   closeLabel: string;
+  /** Regular-session open, minutes past exchange-local midnight. */
+  openMinutes?: number;
+  /** Regular-session close, minutes past exchange-local midnight. */
+  closeMinutes?: number;
 }
 
 export const US_STOCK_MARKET: StockMarket = {
   key: "us",
   tz: "America/New_York",
   label: "ET",
+  short: "US",
   currency: "$",
   openLabel: "9:30 AM ET",
   closeLabel: "4:00 PM ET",
+  openMinutes: 9 * 60 + 30,
+  closeMinutes: 16 * 60,
 };
 
 export const HK_STOCK_MARKET: StockMarket = {
   key: "hk",
   tz: "Asia/Hong_Kong",
   label: "HKT",
+  short: "HK",
   currency: "HK$",
   openLabel: "9:30 AM HKT",
   closeLabel: "4:00 PM HKT",
+  openMinutes: 9 * 60 + 30,
+  closeMinutes: 16 * 60,
+};
+
+/** Korea Exchange regular session — 09:00–15:30 KST. */
+export const KR_STOCK_MARKET: StockMarket = {
+  key: "kr",
+  tz: "Asia/Seoul",
+  label: "KST",
+  short: "KR",
+  currency: "₩",
+  openLabel: "9:00 AM KST",
+  closeLabel: "3:30 PM KST",
+  openMinutes: 9 * 60,
+  closeMinutes: 15 * 60 + 30,
 };
 
 /** Crypto quick rounds settle on UTC period boundaries — no exchange session. */
@@ -210,6 +235,7 @@ export const CRYPTO_QUICK_MARKET: StockMarket = {
   key: "crypto",
   tz: "UTC",
   label: "UTC",
+  short: "CRYPTO",
   currency: "$",
   openLabel: "Round open",
   closeLabel: "Round close",
@@ -224,6 +250,7 @@ export const resolveStockMarket = (
   if (subtype === "CRYPTO_QUICK_UPDOWN_SPOT" || id.startsWith("crypto-"))
     return CRYPTO_QUICK_MARKET;
   if (id.startsWith("hk-") || subtype.startsWith("HK_")) return HK_STOCK_MARKET;
+  if (id.startsWith("kr-") || subtype.startsWith("KR_")) return KR_STOCK_MARKET;
   return US_STOCK_MARKET;
 };
 
@@ -446,22 +473,24 @@ export const getMarketSession = (
   now: Date = new Date(),
 ): MarketSession => {
   const { dow, minutes } = zonedClock(now, market.tz);
+  const openMin = market.openMinutes ?? SESSION_OPEN_MIN;
+  const closeMin = market.closeMinutes ?? SESSION_CLOSE_MIN;
   const isWeekday = dow >= 1 && dow <= 5;
   const open =
-    isWeekday && minutes >= SESSION_OPEN_MIN && minutes < SESSION_CLOSE_MIN;
+    isWeekday && minutes >= openMin && minutes < closeMin;
   const closeAt = open
-    ? new Date(now.getTime() + (SESSION_CLOSE_MIN - minutes) * MIN_MS)
+    ? new Date(now.getTime() + (closeMin - minutes) * MIN_MS)
     : null;
 
   // Next opening bell: today when the session hasn't started yet, otherwise
   // walk forward to the next weekday.
-  let dayOffset = isWeekday && minutes < SESSION_OPEN_MIN ? 0 : 1;
+  let dayOffset = isWeekday && minutes < openMin ? 0 : 1;
   while (((dow + dayOffset) % 7) === 0 || ((dow + dayOffset) % 7) === 6) {
     dayOffset += 1;
   }
   const nextOpenAt = new Date(
     now.getTime() +
-      (dayOffset * DAY_MIN + (SESSION_OPEN_MIN - minutes)) * MIN_MS,
+      (dayOffset * DAY_MIN + (openMin - minutes)) * MIN_MS,
   );
   return { market, open, closeAt, nextOpenAt };
 };
@@ -472,4 +501,4 @@ export const formatSessionStamp = (d: Date, market: StockMarket): string =>
 
 /** City name used by the asleep-divider label. */
 export const marketCityName = (market: StockMarket): string =>
-  market.key === "hk" ? "Hong Kong" : "New York";
+  market.key === "hk" ? "Hong Kong" : market.key === "kr" ? "Seoul" : "New York";

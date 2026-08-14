@@ -974,7 +974,10 @@ export default function SpotTrading() {
         <InfoCell label="Prior official close" value={basePrice != null ? `${cur}${basePrice.toFixed(2)}` : "—"} />
         <InfoCell label="Settles vs" value={`Prior close · flat close = ${noLabel}`} />
         <InfoCell label="Resolution source" value={event.source_name || "databento"} />
-        <InfoCell label="Symbol" value={`${ticker} · ${market.key === "hk" ? "HKEX" : "Nasdaq"}`} />
+        <InfoCell
+          label="Symbol"
+          value={`${ticker} · ${market.key === "hk" ? "HKEX" : market.key === "kr" ? "KRX" : "Nasdaq"}`}
+        />
         <InfoCell label="Volume" value={mock24hVolume(event.id)} />
       </div>
       <div className="space-y-1 text-xs text-muted-foreground">

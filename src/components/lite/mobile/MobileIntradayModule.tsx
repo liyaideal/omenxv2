@@ -14,7 +14,6 @@ import {
   StockEventRow,
   TIMEFRAMES,
   Timeframe,
-  US_STOCK_SUBTYPE,
   derivedPrice,
   downOptionOf,
   formatCountdown,
@@ -23,10 +22,13 @@ import {
 } from "@/components/lite/intraday/intradayData";
 import {
   HK_STOCK_MARKET,
+  KR_STOCK_MARKET,
   US_STOCK_MARKET,
   formatMarketTime,
   formatSessionStamp,
   getMarketSession,
+  marketCityName,
+  resolveStockMarket,
   type StockMarket,
 } from "@/lib/usStockSessions";
 import { Last8Strip, LivePulse } from "@/components/lite/shared/primitives";
@@ -243,7 +245,7 @@ const SessionRow = ({
       />
       <span className="flex min-w-0 flex-1 flex-col" style={{ gap: 2 }}>
         <span style={{ fontSize: 13, color: "#fff", fontWeight: 600 }}>
-          {market.key === "hk" ? "Hong Kong" : "US"} session open · {count} stock{" "}
+          {marketCityName(market)} session open · {count} stock{" "}
           {count === 1 ? "round" : "rounds"}
         </span>
         <span
@@ -330,15 +332,18 @@ export const MobileIntradayModule = ({
   /** Boost composes in place: no boost rounds exist yet, so the engine hides. */
   boostOnly?: boolean;
 }) => {
-  const usSession = getMarketSession(US_STOCK_MARKET);
-  const hkSession = getMarketSession(HK_STOCK_MARKET);
-  const usCount = stockRows.filter((r) => r.event_subtype === US_STOCK_SUBTYPE).length;
-  const hkCount = stockRows.length - usCount;
-
-  const openSessions = [
-    { session: usSession, count: usCount },
-    { session: hkSession, count: hkCount },
-  ].filter((s) => s.session.open && s.session.closeAt && s.count > 0);
+  // Every exchange with rounds today gets its own row — sessions can overlap
+  // (HK 09:30–16:00 HKT and KR 09:00–15:30 KST run almost in parallel).
+  const openSessions = [US_STOCK_MARKET, HK_STOCK_MARKET, KR_STOCK_MARKET]
+    .map((market) => ({
+      session: getMarketSession(market),
+      count: stockRows.filter((r) => resolveStockMarket(r).key === market.key).length,
+    }))
+    .filter((s) => s.session.open && s.session.closeAt && s.count > 0)
+    .sort(
+      (a, b) =>
+        (a.session.closeAt as Date).getTime() - (b.session.closeAt as Date).getTime(),
+    );
 
   return (
     <section className="flex flex-col" style={{ gap: 12 }}>
@@ -402,9 +407,14 @@ export const MobileIntradayModule = ({
         ))
       ) : (
         <span style={{ fontSize: 11, color: "#6B7280" }}>
-          Stock rounds are closed. US opens{" "}
-          {formatSessionStamp(usSession.nextOpenAt, US_STOCK_MARKET)}, Hong Kong{" "}
-          {formatSessionStamp(hkSession.nextOpenAt, HK_STOCK_MARKET)}.
+          Stock rounds are closed.{" "}
+          {[US_STOCK_MARKET, HK_STOCK_MARKET, KR_STOCK_MARKET]
+            .map(
+              (m) =>
+                `${marketCityName(m)} opens ${formatSessionStamp(getMarketSession(m).nextOpenAt, m)}`,
+            )
+            .join(", ")}
+          .
         </span>
       )}
         </>
