@@ -45,43 +45,9 @@ export const SkelBlock = ({
   />
 );
 
-/* ---------------- Category rail / pills ---------------- */
-
-/** Desktop category pill row (44px pills + right-end lens chips). */
-export const LiteCategoryPillsSkeleton = () => (
-  <div
-    className="flex flex-wrap items-center gap-2 animate-pulse"
-    style={{ marginTop: 16 }}
-    aria-busy="true"
-  >
-    {[62, 84, 76, 70, 68, 74].map((w, i) => (
-      <SkelBlock key={i} w={w} h={38} r={999} tone={i === 0 ? "primary" : "secondary"} />
-    ))}
-    <span aria-hidden style={{ width: 1, height: 22, background: "#1D2026", margin: "0 5px" }} />
-    <SkelBlock w={76} h={38} r={999} tone="secondary" />
-    <div className="ml-auto flex shrink-0 items-center gap-2">
-      <SkelBlock w={96} h={38} r={999} tone="secondary" />
-      <SkelBlock w={44} h={38} r={999} tone="secondary" />
-    </div>
-  </div>
-);
-
-/** Mobile category row (44px chips + hairline, mirrors MobileCategoryRow). */
-export const LiteMobileCategoryRowSkeleton = () => (
-  <div
-    className="flex items-center overflow-hidden animate-pulse"
-    style={{ gap: 8, paddingBottom: 12, borderBottom: "1px solid #1D2026" }}
-    aria-busy="true"
-  >
-    {[54, 82, 72, 66, 70].map((w, i) => (
-      <SkelBlock key={i} w={w} h={44} r={999} tone={i === 0 ? "primary" : "secondary"} />
-    ))}
-    <span aria-hidden style={{ flex: "none", width: 1, height: 28, background: "#23262D" }} />
-    <SkelBlock w={44} h={44} r={999} tone="secondary" />
-  </div>
-);
-
-/* ---------------- Market cards ---------------- */
+/* ---------------- Market cards ----------------
+   Category rails/pills are static chrome — they render live on first
+   load and are deliberately NOT skeletoned. */
 
 /** Desktop catalogue card — 130px art strip + 18px body + footer hairline. */
 export const LiteEventCardSkeleton = () => (

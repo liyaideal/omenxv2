@@ -2,10 +2,8 @@
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   LiteAllStageSkeleton,
-  LiteCategoryPillsSkeleton,
   LiteMarketGridSkeleton,
   LiteMarketListSkeleton,
-  LiteMobileCategoryRowSkeleton,
   LiteMobileStageSkeleton,
 } from "@/components/lite/skeletons/LiteEventsSkeletons";
 
@@ -14,7 +12,6 @@ export const LiteEventsLoadingPreview = () => {
   const isMobile = useIsMobile();
   return (
     <div className="flex flex-col gap-6 bg-[#0A0B0D] p-4">
-      {isMobile ? <LiteMobileCategoryRowSkeleton /> : <LiteCategoryPillsSkeleton />}
       {isMobile ? <LiteMobileStageSkeleton /> : <LiteAllStageSkeleton />}
       {isMobile ? <LiteMarketListSkeleton count={2} /> : <LiteMarketGridSkeleton count={3} />}
     </div>

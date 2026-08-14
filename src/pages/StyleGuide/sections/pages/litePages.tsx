@@ -87,7 +87,7 @@ export const LiteOverviewSection = (_: P) => (
         <li>
           2026-08-14 · LiteEventsPage 模块级骨架屏落地 —— 新增{" "}
           <code className="font-mono">src/components/lite/skeletons/LiteEventsSkeletons.tsx</code>
-          （品类 rail 双端、All-stage intraday/sports、桌面网格卡与移动列表卡）。仅首载显示，缓存直渲，
+          （All-stage intraday/sports、桌面网格卡与移动列表卡）。品类 rail 属静态 chrome，首载即渲染真 pills、不骨架。仅首载显示，缓存直渲，
           各模块独立 loading 渐进点亮；纯中性色 #171A1F / #15181C + 统一 pulse，与终态逐模块同尺寸。
           style-guide #lite-events 补 loading 态 demo（真组件 + 375 真 iframe）。
         </li>
