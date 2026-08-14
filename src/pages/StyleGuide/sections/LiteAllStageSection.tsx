@@ -170,6 +170,31 @@ const HK_OPEN_ROWS: StockEventRow[] = [
   hkStock("3690", 122.9, 0.53, 60),
 ];
 
+const krStock = (
+  code: string,
+  base: number,
+  upPrice: number,
+  endMin: number,
+): StockEventRow => ({
+  id: `kr-${code}-updown-20260803`,
+  name: `${code}.KS — will it close higher today?`,
+  base_price: base,
+  start_date: iso(-180 * MIN),
+  end_date: iso(endMin * MIN),
+  freeze_time: null,
+  event_subtype: "KR_STOCK_DAILY_UPDOWN_SPOT",
+  upPrice,
+  downPrice: Number((1 - upPrice).toFixed(2)),
+});
+
+const KR_OPEN_ROWS: StockEventRow[] = [
+  krStock("005930", 74_800, 0.55, 45),
+  krStock("000660", 198_500, 0.47, 45),
+];
+
+/** HK 09:30–16:00 HKT and KR 09:00–15:30 KST overlap almost fully. */
+const HK_KR_OPEN_ROWS: StockEventRow[] = [...HK_OPEN_ROWS, ...KR_OPEN_ROWS];
+
 /** No open round; one future round so the header can show "Next open". */
 const CLOSED_ROWS: StockEventRow[] = [
   { ...usStock("AAPL", 224.8, 0.61, 1_200), start_date: iso(960 * MIN) },
