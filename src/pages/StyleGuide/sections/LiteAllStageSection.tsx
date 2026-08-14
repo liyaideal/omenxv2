@@ -704,6 +704,8 @@ const US_TRADING = US_OPEN_ROWS.map((r) => viewStock(r, -180, 95));
 const US_ASLEEP = US_OPEN_ROWS.map((r) => viewStock(r, 900, 1290));
 const HK_TRADING = HK_OPEN_ROWS.map((r) => viewStock(r, -120, 60));
 const HK_ASLEEP = HK_OPEN_ROWS.map((r) => viewStock(r, 600, 990));
+const KR_TRADING = KR_OPEN_ROWS.map((r) => viewStock(r, -120, 45));
+const KR_ASLEEP = KR_OPEN_ROWS.map((r) => viewStock(r, 570, 960));
 
 const VIEW_7A_PRESETS = [
   {
@@ -732,6 +734,15 @@ const VIEW_7A_PRESETS = [
     sessionNow: new Date("2026-08-03T22:00:00Z"),
     caption:
       "No US/HK session open — all 6 stock rows fall into the asleep group; the coin rounds keep running.",
+  },
+  {
+    id: "7a-hk-kr",
+    label: "HK + KR open (overlap)",
+    rows: [...HK_TRADING, ...KR_TRADING, ...US_ASLEEP],
+    // 13:00 HKT / 14:00 KST — both Asian exchanges trade at once.
+    sessionNow: new Date("2026-08-03T05:00:00Z"),
+    caption:
+      "Overlapping sessions — one chip per open market, sorted by close time (KR 15:30 KST closes before HK 16:00 HKT). Chips sit side by side and scroll horizontally when the header is narrow; the US names stay in the asleep group.",
   },
 ] as const;
 
