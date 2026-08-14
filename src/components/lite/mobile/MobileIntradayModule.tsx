@@ -14,7 +14,6 @@ import {
   StockEventRow,
   TIMEFRAMES,
   Timeframe,
-  US_STOCK_SUBTYPE,
   derivedPrice,
   downOptionOf,
   formatCountdown,
