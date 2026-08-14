@@ -49,8 +49,9 @@ import {
   isOrderingBlocked,
   getBlockedReason,
   // formatDualTimezone / formatBeijingTime removed — header + settlement
-  // captions now render ET only; local time lives in the schedule ⓘ tooltip.
-  formatMarketTime,
+  // captions render viewer-local clocks with no timezone suffix (R1).
+  formatLocalTime,
+  formatLocalDate,
   resolveStockMarket,
   getCurrentSession,
   isInPreFreezeWindow,
@@ -346,24 +347,6 @@ export default function SpotTrading() {
     return formatLocalDate(d);
   }, [endDate, market.tz]);
 
-  // Local-time hint for the schedule tooltip. Browser-detected zone, English label only.
-  const localFreezeLabel = useMemo(() => {
-    if (!freezeAt) return null;
-    const offsetMin = -new Date().getTimezoneOffset();
-    const sign = offsetMin >= 0 ? "+" : "-";
-    const abs = Math.abs(offsetMin);
-    const hh = Math.floor(abs / 60);
-    const mm = abs % 60;
-    const gmt = `GMT${sign}${hh}${mm ? `:${String(mm).padStart(2, "0")}` : ""}`;
-    const s = new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    }).format(freezeAt);
-    return `trading ends ${s} (${gmt})`;
-  }, [freezeAt]);
 
   // pre-mkt / after-hrs tag beside the live indicative price. Recomputes on the
   // countdown tick so it flips sessions live.
@@ -1236,9 +1219,6 @@ export default function SpotTrading() {
                     <div><span className="text-muted-foreground">Trading ends:</span> {freezeEtOnly ?? "—"}</div>
                     <div><span className="text-muted-foreground">Official close:</span> {closeEtOnly ?? "—"} (settlement price)</div>
                     <div><span className="text-muted-foreground">Credits by:</span> ~{settleEtOnly ?? "—"}</div>
-                    {localFreezeLabel && (
-                      <div><span className="text-muted-foreground">Your time:</span> {localFreezeLabel}</div>
-                    )}
                   </div>
                 </TooltipContent>
               </Tooltip></TooltipProvider>
@@ -1339,9 +1319,6 @@ export default function SpotTrading() {
                 <div><span className="text-muted-foreground">Trading ends:</span> {freezeEtOnly ?? "—"}</div>
                 <div><span className="text-muted-foreground">Official close:</span> {closeEtOnly ?? "—"} (settlement price)</div>
                 <div><span className="text-muted-foreground">Credits by:</span> ~{settleEtOnly ?? "—"}</div>
-                {localFreezeLabel && (
-                  <div><span className="text-muted-foreground">Your time:</span> {localFreezeLabel}</div>
-                )}
               </div>
             </PopoverContent>
           </Popover>
