@@ -438,7 +438,7 @@ const INTRADAY_PRESETS = [
     // 15:20 UTC = 11:20 ET → the US cash session is open at the frozen clock.
     sessionNow: new Date(NOW),
     caption:
-      "State A (US) — production shape when a US session is open: ONE shared module-level window selector drives all three coin tiles, the \"STOCKS CLOSING TODAY\" row lists the open US tickers, and each stock row carries its art slot. Session line reads \"US session open · closes 16:00 ET\".",
+      "State A (US) — production shape when a US session is open: ONE shared module-level window selector drives all three coin tiles, the \"STOCKS CLOSING TODAY\" row lists the open US tickers, and each stock row carries its art slot. Session line reads \"US session open · closes {viewer-local clock}\" — no timezone suffix (全站时间口径 R1).",
   },
   {
     id: "state-a-hk",
@@ -447,7 +447,7 @@ const INTRADAY_PRESETS = [
     // 05:00 UTC = 13:00 HKT → mid HK afternoon session.
     sessionNow: new Date("2026-08-03T05:00:00Z"),
     caption:
-      "State A (HK) — same production shape driven by the HK exchange branch: shared window selector, \"STOCKS CLOSING TODAY\" row of HK tickers with art slots, close line in HKT and HK$ prices.",
+      "State A (HK) — same production shape driven by the HK exchange branch: shared window selector, \"STOCKS CLOSING TODAY\" row of HK tickers with art slots, close line rendered in the viewer\u2019s local clock (no HKT suffix) and HK$ prices.",
   },
   {
     id: "state-b",
@@ -465,7 +465,7 @@ const INTRADAY_PRESETS = [
     // 05:00 UTC = 13:00 HKT and 14:00 KST → both Asian sessions are open.
     sessionNow: new Date("2026-08-03T05:00:00Z"),
     caption:
-      "Overlapping sessions — when more than one exchange is open, every open market gets its own entry, sorted by close time (earliest first): the close line reads \"KR closes 15:30 KST · HK closes 16:00 HKT\" and the stocks-closing row mixes both markets with their own currency prefixes.",
+      "Overlapping sessions — when more than one exchange is open, every open market gets its own entry, sorted by close time (earliest first): the close line reads \"KR closes {local} · HK closes {local}\" (viewer-local clocks, no zone labels) and the stocks-closing row mixes both markets with their own currency prefixes.",
   },
   {
     id: "state-a-kr",
@@ -474,7 +474,7 @@ const INTRADAY_PRESETS = [
     // 00:30 UTC = 09:30 KST (open) while HK only opens at 01:30 UTC.
     sessionNow: new Date("2026-08-03T00:30:00Z"),
     caption:
-      "Korea alone — KRX runs 09:00–15:30 KST, so it opens an hour before Hong Kong. Only the KR session line shows; HK tickers fall into the asleep group with their next-open stamp.",
+      "Korea alone — KRX runs 09:00–15:30 Seoul time, so it opens an hour before Hong Kong. Only the KR session line shows; HK tickers fall into the asleep group with their next-open stamp.",
   },
 ] as const;
 
@@ -742,7 +742,7 @@ const VIEW_7A_PRESETS = [
     // 13:00 HKT / 14:00 KST — both Asian exchanges trade at once.
     sessionNow: new Date("2026-08-03T05:00:00Z"),
     caption:
-      "Overlapping sessions — one chip per open market, sorted by close time (KR 15:30 KST closes before HK 16:00 HKT). Chips sit side by side and scroll horizontally when the header is narrow; the US names stay in the asleep group.",
+      "Overlapping sessions — one chip per open market, sorted by close time (Seoul closes before Hong Kong). Chips sit side by side and scroll horizontally when the header is narrow; the US names stay in the asleep group.",
   },
 ] as const;
 

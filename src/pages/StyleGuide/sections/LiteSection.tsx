@@ -1026,7 +1026,7 @@ export const LiteSection = ({
                   kind: "countdown",
                   text: "04:40:00",
                   onClick: () => undefined,
-                  tooltip: "Today's round · closes at Tue 16:00 ET",
+                  tooltip: "Today's round · closes at Tue 16:00",
                 }}
                 legend={
                   <>
@@ -1080,7 +1080,7 @@ export const LiteSection = ({
                     kind: "countdown",
                     text: "04:40:00",
                     onClick: () => undefined,
-                    tooltip: "Today's round · closes at Tue 16:00 ET",
+                    tooltip: "Today's round · closes at Tue 16:00",
                   }}
                   legend={
                     <>
@@ -1102,7 +1102,7 @@ export const LiteSection = ({
                 }))}
                 currentSlot={{
                   kind: "next",
-                  tooltip: "Next round · opens Tue 09:30 ET",
+                  tooltip: "Next round · opens Tue 09:30",
                 }}
                 legend={
                   <>
@@ -1126,7 +1126,7 @@ export const LiteSection = ({
                   }))}
                   currentSlot={{
                     kind: "next",
-                    tooltip: "Next round · opens Tue 09:30 ET",
+                    tooltip: "Next round · opens Tue 09:30",
                   }}
                   legend={
                     <>

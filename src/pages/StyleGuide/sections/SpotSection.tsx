@@ -27,7 +27,7 @@ export const SpotSection = ({ isMobile }: Props) => {
       <SectionWrapper
         id="spot-terminal-chrome"
         title="Spot terminal chrome"
-        description="LOCKED per DESIGN.md §7: Left = identity + status badges + single countdown row (Trading ends in X · until HH:MM ET · ⓘ schedule). Right = Volume · Base ({priorDate} close) · {TICKER} price %. NO second time row, NO Yes-price stat, NO 中文 characters in the header — local time only inside the ⓘ tooltip and auto-detected."
+        description="LOCKED per DESIGN.md §7: Left = identity + status badges + single countdown row (Trading ends in X · until HH:MM · ⓘ schedule). Right = Volume · Base ({priorDate} close) · {TICKER} price %. NO second time row, NO Yes-price stat, NO 中文 characters in the header — every clock renders viewer-local with no timezone suffix (全站时间口径 R1)."
       >
         <div className="rounded-lg border border-border/50 overflow-hidden bg-background">
           <header className="flex items-center gap-4 px-4 py-2 border-b border-border/30">
@@ -47,7 +47,7 @@ export const SpotSection = ({ isMobile }: Props) => {
                   <span>Trading ends in</span>
                   <span className="font-mono font-medium text-foreground">09:23:56</span>
                   <span>·</span>
-                  <span className="font-mono">until 15:55 ET</span>
+                  <span className="font-mono">until 15:55</span>
                   <Info className="w-3 h-3 opacity-70" />
                 </div>
               </div>
@@ -271,7 +271,7 @@ export const SpotSection = ({ isMobile }: Props) => {
           <div>❌ Liq. price / Margin req.</div>
           <div>❌ BTCUSDT / USDT Perpetual defaults from `DesktopHeader`</div>
           <div>❌ Site-wide nav header (`EventsDesktopHeader`, `MobileHeader` w/ Logo)</div>
-          <div>❌ Second time row under the countdown ("Settles at HH:MM ET · credits by ...")</div>
+          <div>❌ Second time row under the countdown ("Settles at HH:MM · credits by ...")</div>
           <div>❌ Yes Price stat in the header (duplicates the Trade panel + chart)</div>
           <div>❌ Non-English characters anywhere in the header (中文/北京 chip, Beijing timezone label)</div>
           <div>❌ "24h Volume" — event lifecycle is intraday, drop the "24h" prefix, just "Volume"</div>
