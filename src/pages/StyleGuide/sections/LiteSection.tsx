@@ -828,12 +828,12 @@ export const LiteSection = ({
           <>
         <SubSection
           title="Loading — 首载模块骨架"
-          description="真组件 import（LiteEventsSkeletons）：品类 rail / All-stage（intraday + sports）/ 目录卡片，桌面网格与移动列表各一形态。触发规则：仅数据首次加载（hook loading 且无缓存数据）时显示；切 tab、返回等有缓存的情况直接渲染真内容，不闪骨架。各模块独立判断自己的 loading，先到先实底、渐进点亮，不做整页骨架门。色块只用中性 #171A1F / #15181C，与终态版式逐模块同尺寸（CLS≈0）。"
+          description="真组件 import（LiteEventsSkeletons）：All-stage（intraday + sports）/ 目录卡片，桌面网格与移动列表各一形态。品类 rail 为静态内容，首载即实底、不骨架。触发规则：仅数据首次加载（hook loading 且无缓存数据）时显示；切 tab、返回等有缓存的情况直接渲染真内容，不闪骨架。各模块独立判断自己的 loading，先到先实底、渐进点亮，不做整页骨架门。色块只用中性 #171A1F / #15181C，与终态版式逐模块同尺寸（CLS≈0）。"
         >
           <div className="space-y-4">
             <DualDevicePreview
               previewKey="lite-events-loading"
-              label="All 视图首载 — 品类 rail + stage + 目录"
+              label="All 视图首载 — stage + 目录（品类 rail 不骨架）"
               minHeight={620}
             />
             <DualDevicePreview
