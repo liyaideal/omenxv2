@@ -318,16 +318,15 @@ export default function SpotTrading() {
   const indicative = useIndicativeLast(basePrice, event?.id || "");
   const indicativePct = basePrice && indicative ? ((indicative - basePrice) / basePrice) * 100 : 0;
 
-  // Settlement caption is ET-only per DESIGN.md §14 (no 北京/Beijing in user-visible copy);
-  // the browser-local time is surfaced only in the header schedule ⓘ tooltip.
+  // 全站时间口径 R1: every clock renders in the viewer's own zone with no
+  // timezone suffix; venue nouns ("Official close") stay as-is (R2).
   const market = resolveStockMarket(event);
-  const tzLabel = market.label;
   const cur = market.currency;
-  const settleEtOnly = settleAt ? `${formatMarketTime(settleAt, market)} ${tzLabel}` : null;
-  const freezeEtOnly = freezeAt ? formatMarketTime(freezeAt, market) : null;
-  const closeEtOnly = endDate ? formatMarketTime(endDate, market) : null;
+  const settleEtOnly = settleAt ? formatLocalTime(settleAt) : null;
+  const freezeEtOnly = freezeAt ? formatLocalTime(freezeAt) : null;
+  const closeEtOnly = endDate ? formatLocalTime(endDate) : null;
   const freezeLabel = freezeAt
-    ? `${formatMarketTime(freezeAt, market)} ${tzLabel}`
+    ? formatLocalTime(freezeAt)
     : `close − ${FREEZE_MINUTES_BEFORE_CLOSE}min`;
 
   const ticker = event ? deriveTickerFromEvent(event.id, event.name) : "";
@@ -344,11 +343,7 @@ export default function SpotTrading() {
       if (w !== "Sat" && w !== "Sun") break;
       d = new Date(d.getTime() - 24 * 3600 * 1000);
     }
-    return new Intl.DateTimeFormat("en-US", {
-      timeZone: market.tz,
-      month: "short",
-      day: "numeric",
-    }).format(d);
+    return formatLocalDate(d);
   }, [endDate, market.tz]);
 
   // Local-time hint for the schedule tooltip. Browser-detected zone, English label only.
@@ -1214,7 +1209,7 @@ export default function SpotTrading() {
               {freezeEtOnly && (
                 <>
                   <span>·</span>
-                  <span className="font-mono">until {freezeEtOnly} {tzLabel}</span>
+                  <span className="font-mono">until {freezeEtOnly}</span>
                 </>
               )}
               {closingSoon && lifecycle === "TRADING" && (
@@ -1238,8 +1233,8 @@ export default function SpotTrading() {
                 <TooltipContent side="bottom" align="start" className="text-xs max-w-[280px]">
                   <div className="space-y-1">
                     <div><span className="text-muted-foreground">Opens:</span> after prior close (extended trading)</div>
-                    <div><span className="text-muted-foreground">Trading ends:</span> {freezeEtOnly ?? "—"} {tzLabel}</div>
-                    <div><span className="text-muted-foreground">Official close:</span> {closeEtOnly ?? "—"} {tzLabel} (settlement price)</div>
+                    <div><span className="text-muted-foreground">Trading ends:</span> {freezeEtOnly ?? "—"}</div>
+                    <div><span className="text-muted-foreground">Official close:</span> {closeEtOnly ?? "—"} (settlement price)</div>
                     <div><span className="text-muted-foreground">Credits by:</span> ~{settleEtOnly ?? "—"}</div>
                     {localFreezeLabel && (
                       <div><span className="text-muted-foreground">Your time:</span> {localFreezeLabel}</div>
@@ -1320,7 +1315,7 @@ export default function SpotTrading() {
           {freezeEtOnly && (
             <>
               <span>·</span>
-              <span className="font-mono">{freezeEtOnly} {tzLabel}</span>
+              <span className="font-mono">{freezeEtOnly}</span>
             </>
           )}
           {closingSoon && lifecycle === "TRADING" && (
@@ -1341,8 +1336,8 @@ export default function SpotTrading() {
             <PopoverContent side="bottom" align="start" className="text-[11px] max-w-[280px] p-2">
               <div className="space-y-1">
                 <div><span className="text-muted-foreground">Opens:</span> after prior close (extended trading)</div>
-                <div><span className="text-muted-foreground">Trading ends:</span> {freezeEtOnly ?? "—"} {tzLabel}</div>
-                <div><span className="text-muted-foreground">Official close:</span> {closeEtOnly ?? "—"} {tzLabel} (settlement price)</div>
+                <div><span className="text-muted-foreground">Trading ends:</span> {freezeEtOnly ?? "—"}</div>
+                <div><span className="text-muted-foreground">Official close:</span> {closeEtOnly ?? "—"} (settlement price)</div>
                 <div><span className="text-muted-foreground">Credits by:</span> ~{settleEtOnly ?? "—"}</div>
                 {localFreezeLabel && (
                   <div><span className="text-muted-foreground">Your time:</span> {localFreezeLabel}</div>
