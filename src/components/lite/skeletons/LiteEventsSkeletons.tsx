@@ -117,7 +117,7 @@ export const LiteMarketListSkeleton = ({ count = 4 }: { count?: number }) => (
 
 /* ---------------- Stage cards (desktop All view) ---------------- */
 
-/** Intraday stage card — dial rail + 2×2 round tiles. */
+/** Intraday stage card — header + 3-up coin tiles + "stocks closing today" rows. */
 export const LiteIntradayStageSkeleton = () => (
   <div
     className="flex flex-col animate-pulse"
@@ -137,8 +137,9 @@ export const LiteIntradayStageSkeleton = () => (
       </div>
       <SkelBlock w={210} h={38} r={10} tone="secondary" />
     </div>
-    <div className="grid gap-[12px]" style={{ gridTemplateColumns: "1fr 1fr" }}>
-      {[0, 1, 2, 3].map((i) => (
+    {/* Coin tiles — grid-cols-3, mirrors CompactCoinTile */}
+    <div className="grid grid-cols-3 gap-[12px]">
+      {[0, 1, 2].map((i) => (
         <div
           key={i}
           className="flex flex-col"
@@ -147,24 +148,74 @@ export const LiteIntradayStageSkeleton = () => (
             border: "1px solid #1D2026",
             borderRadius: 14,
             padding: 13,
-            gap: 11,
+            gap: 10,
           }}
         >
-          <div className="flex items-center" style={{ gap: 11 }}>
-            <SkelBlock w={32} h={32} r={999} tone="secondary" />
-            <div className="flex min-w-0 flex-1 flex-col gap-[5px]">
-              <SkelBlock w={90} h={9} tone="secondary" />
-              <SkelBlock w={124} h={16} />
-            </div>
-            <SkelBlock w={62} h={20} tone="secondary" />
+          <div className="flex items-start justify-between">
+            <span className="flex min-w-0 items-center" style={{ gap: 9 }}>
+              <SkelBlock w={34} h={34} r={999} tone="secondary" />
+              <span className="flex min-w-0 flex-col gap-[4px]">
+                <SkelBlock w={34} h={9} tone="secondary" />
+                <SkelBlock w={74} h={15} />
+              </span>
+            </span>
+            <span className="flex flex-col items-end gap-[4px]">
+              <SkelBlock w={34} h={9} tone="secondary" />
+              <SkelBlock w={48} h={14} />
+            </span>
           </div>
           <SkelBlock h={52} r={9} tone="secondary" />
-          <div className="flex" style={{ gap: 8 }}>
-            <SkelBlock h={44} r={11} tone="secondary" />
-            <SkelBlock h={44} r={11} tone="secondary" />
+          <SkelBlock h={20} r={6} tone="secondary" />
+          <div className="grid grid-cols-2 gap-[7px]">
+            <SkelBlock h={42} r={10} tone="secondary" />
+            <SkelBlock h={42} r={10} tone="secondary" />
           </div>
         </div>
       ))}
+    </div>
+    {/* Stocks closing today */}
+    <div className="flex flex-col gap-[9px]">
+      <div className="flex items-center justify-between">
+        <SkelBlock w={140} h={10} tone="secondary" />
+        <SkelBlock w={230} h={10} tone="secondary" />
+      </div>
+      {[0, 1].map((i) => (
+        <div
+          key={i}
+          className="box-border flex items-center gap-[13px]"
+          style={{
+            background: "#0F1114",
+            border: "1px solid #1D2026",
+            borderRadius: 14,
+            padding: "11px 14px",
+          }}
+        >
+          <span className="flex min-w-0 flex-1 items-center" style={{ gap: 12 }}>
+            <SkelBlock w={44} h={44} r={999} tone="secondary" />
+            <span className="flex min-w-0 flex-col gap-[5px]">
+              <SkelBlock w={62} h={14} />
+              <SkelBlock w={112} h={11} tone="secondary" />
+            </span>
+          </span>
+          <span
+            className="flex flex-none flex-col items-end gap-[5px]"
+            style={{ marginRight: 6 }}
+          >
+            <SkelBlock w={72} h={15} />
+            <SkelBlock w={44} h={11} tone="secondary" />
+          </span>
+          <SkelBlock w={92} h={44} r={11} tone="secondary" />
+          <SkelBlock w={92} h={44} r={11} tone="secondary" />
+        </div>
+      ))}
+    </div>
+    {/* Footer rail */}
+    <div
+      className="flex items-center justify-between"
+      style={{ borderTop: "1px solid #1D2026", paddingTop: 13 }}
+    >
+      <SkelBlock w={250} h={11} tone="secondary" />
+      <SkelBlock w={104} h={11} tone="secondary" />
     </div>
   </div>
 );
