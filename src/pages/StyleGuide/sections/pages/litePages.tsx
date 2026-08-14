@@ -85,6 +85,13 @@ export const LiteOverviewSection = (_: P) => (
       <h3 className="mb-2 text-sm font-semibold text-foreground">Changelog</h3>
       <ul className="space-y-1 text-[12px] text-muted-foreground">
         <li>
+          2026-08-13 · LiteEventsPage 模块级骨架屏落地 —— 新增{" "}
+          <code className="font-mono">src/components/lite/skeletons/LiteEventsSkeletons.tsx</code>
+          （品类 rail 双端、All-stage intraday/sports、桌面网格卡与移动列表卡）。仅首载显示，缓存直渲，
+          各模块独立 loading 渐进点亮；纯中性色 #171A1F / #15181C + 统一 pulse，与终态逐模块同尺寸。
+          style-guide #lite-events 补 loading 态 demo（真组件 + 375 真 iframe）。
+        </li>
+        <li>
           2026-08-13 · Vouchers v2.1 实装（CPO 定稿 sha 5f430ac4）— mobile redeem 全屏化（redeem 态隐藏
           BottomNav，头部 ‹ 唯一出口）；<code className="font-mono">VoucherDeskHeader</code> compact 改票根
           stub + 就地 disclosure；picker chrome 合并为单行 caption + 放大镜（分类 pills 仅在 eligible &gt; 8
