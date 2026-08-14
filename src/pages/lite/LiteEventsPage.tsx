@@ -338,6 +338,9 @@ const LiteEventsPage = () => {
           )
         ) : isMobile ? (
           <div className="flex flex-col" style={{ marginTop: 12, gap: 10 }}>
+            {eventsFirstLoad ? (
+              <LiteMobileCategoryRowSkeleton />
+            ) : (
             <MobileCategoryRow
               categories={[
                 { id: "all", label: "All" },
@@ -364,8 +367,11 @@ const LiteEventsPage = () => {
               boostActive={boostOnly}
               onBoost={() => setBoostOnly((v) => !v)}
             />
+            )}
             {isWatchlistView && !calendarOn && watchlistStatusLine}
           </div>
+        ) : eventsFirstLoad ? (
+          <LiteCategoryPillsSkeleton />
         ) : (
           <div className="flex flex-wrap items-center gap-2" style={{ marginTop: 16 }}>
             {TOP_CATEGORIES.filter(
