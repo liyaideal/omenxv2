@@ -423,14 +423,6 @@ export const buildWeekColumns = (
 
 /* ---------------- Formatting ---------------- */
 
-/** Viewer's own timezone abbreviation — the contract sample shows ET. */
-export const userTzAbbrev = (): string => {
-  const parts = new Intl.DateTimeFormat(undefined, {
-    timeZoneName: "short",
-  }).formatToParts(new Date());
-  return parts.find((p) => p.type === "timeZoneName")?.value ?? "";
-};
-
 /** Local HH:mm, 24h, tabular. */
 export const localTime = (d: Date): string =>
   d.toLocaleTimeString(undefined, {

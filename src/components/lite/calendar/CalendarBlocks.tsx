@@ -528,12 +528,10 @@ export const MobileTicket = ({
 
 export const SpineRow = ({
   time,
-  tz,
   last,
   children,
 }: {
   time: string;
-  tz: string;
   last: boolean;
   children: React.ReactNode;
 }) => (
@@ -553,7 +551,6 @@ export const SpineRow = ({
       >
         {time}
       </span>
-      <MicroCaption>{tz}</MicroCaption>
     </span>
     <span
       className="flex-none"

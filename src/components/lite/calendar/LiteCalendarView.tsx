@@ -31,7 +31,6 @@ import {
   stepperLabel,
   sumMarkets,
   ticketOf,
-  userTzAbbrev,
 } from "./calendarData";
 import {
   GenericBlock,
@@ -152,7 +151,6 @@ export const LiteCalendarView = ({
   const navigate = useNavigate();
   const now = nowOverride ?? Date.now();
   const todayKey = startOfDay(now);
-  const tz = userTzAbbrev();
 
   const [mode, setMode] = useState<"day" | "week">(initialMode ?? "week");
   const [dayKey, setDayKey] = useState<number>(
@@ -278,15 +276,9 @@ export const LiteCalendarView = ({
               setMobileDay(v === "day" ? (mobileDay ?? todayKey) : null);
             }}
           />
-          <span style={{ fontSize: 11, color: "#6B7280", fontWeight: 600 }}>
-            Times in {tz}
-          </span>
         </div>
       ) : (
         <div className="flex flex-none items-center" style={{ gap: 10 }}>
-          <span style={{ fontSize: 11, color: "#6B7280", fontWeight: 600 }}>
-            Times in {tz}
-          </span>
           {mode === "day" && (
             <div className="flex items-center" style={{ gap: 6 }}>
               {/* Back steps within the window; today is the floor (past days hold no live markets). */}
@@ -655,7 +647,7 @@ export const LiteCalendarView = ({
               ? `${weekTotal} markets decide this week — the next one is ${stepperLabel(
                   startOfDay(nextItem.at),
                   todayKey,
-                ).replace("Today · ", "")} at ${localTime(nextItem.at)} ${tz}.`
+                ).replace("Today · ", "")} at ${localTime(nextItem.at)}.`
               : `${weekTotal} markets decide this week.`
           }
           actionLabel="Back to all markets"
@@ -667,7 +659,6 @@ export const LiteCalendarView = ({
             <SpineRow
               key={it.id}
               time={localTime(it.at)}
-              tz={tz}
               last={i === dayItems.length - 1}
             >
               {it.kind === "sports" ? (

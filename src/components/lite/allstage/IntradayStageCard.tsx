@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { AssetAvatar } from "@/components/lite/AssetAvatar";
 import { RoundPlot } from "@/components/lite/intraday/RoundPlot";
 import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader";
-import { formatMarketPrice, formatMarketTime, resolveStockMarket } from "@/lib/usStockSessions";
+import { formatMarketPrice, formatLocalTime, resolveStockMarket } from "@/lib/usStockSessions";
 import {
   DirectionButton,
   groupStockRows,
@@ -532,7 +532,7 @@ export const IntradayStageCard = ({
       groups.openSessions
         .map(
           ({ market, closeAt }) =>
-            `${market.short} closes ${formatMarketTime(new Date(closeAt), market)} ${market.label}`,
+            `${market.short} closes ${formatLocalTime(new Date(closeAt))}`,
         )
         .join(" · "),
     [groups.openSessions],

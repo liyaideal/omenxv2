@@ -34,11 +34,13 @@ import { cn } from "@/lib/utils";
 import { parseSideLabels } from "@/lib/eventUtils";
 import { liteSideName } from "@/lib/liteSideName";
 import {
-  formatMarketTime,
   formatMarketPrice,
   resolveStockMarket,
   getMarketSession,
-  formatSessionStamp,
+  formatLocalStamp,
+  formatLocalTime,
+  formatLocalDate,
+  sessionWindowFor,
   getBlockedReason,
   getDisplayLifecycle,
   isOrderingBlocked,
@@ -211,11 +213,13 @@ const LiteSpotTrade = () => {
   const countdownTarget = freezeAt ?? endDate;
   const { text: countdown } = useTradeCountdown(countdownTarget);
   const market = resolveStockMarket(event);
+  // R1 — viewer-local clock, no zone suffix.
   const closeEt = freezeAt
-    ? formatMarketTime(freezeAt, market)
+    ? formatLocalTime(freezeAt)
     : endDate
-      ? formatMarketTime(endDate, market)
+      ? formatLocalTime(endDate)
       : null;
+  const marketWindow = sessionWindowFor(market);
 
   const dbLifecycle = event?.lifecycle_status || "TRADING";
   const resolved = !!event?.is_resolved;
@@ -363,7 +367,7 @@ const LiteSpotTrade = () => {
       {closeEt && (
         <>
           <span>·</span>
-          <span className="font-mono">{closeEt} {market.label}</span>
+          <span className="font-mono">{closeEt}</span>
         </>
       )}
     </div>
@@ -437,7 +441,7 @@ const LiteSpotTrade = () => {
       tradingNow={!resolved && lifecycle === "TRADING"}
       nodes={[
         { key: "opened", label: "Opened", time: "" },
-        { key: "open", label: "Market open", time: market.openLabel },
+        { key: "open", label: "Market open", time: formatLocalTime(marketWindow.openAt) },
         {
           key: "now",
           label: resolved ? "Closed" : blocked ? "Closed" : "Trading NOW",
@@ -448,13 +452,13 @@ const LiteSpotTrade = () => {
           key: "closes",
           label: "Closes",
           time: freezeAt
-            ? formatMarketTime(freezeAt, market)
+            ? formatLocalTime(freezeAt)
             : `close − ${FREEZE_MINUTES_BEFORE_CLOSE}min`,
         },
         {
           key: "settles",
           label: resolved ? "Settled" : "Settles",
-          time: endDate ? `${formatMarketTime(endDate, market)} ${market.label}` : "—",
+          time: endDate ? formatLocalTime(endDate) : "—",
         },
       ]}
     />
@@ -465,7 +469,8 @@ const LiteSpotTrade = () => {
       <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
       <p className="text-muted-foreground">
         Wins <span className="font-semibold text-yes">{yesLabel}</span> if{" "}
-        <span className="text-foreground">{ticker}</span>'s {market.closeLabel} close beats{" "}
+        <span className="text-foreground">{ticker}</span>'s {market.short} close (
+        {formatLocalTime(endDate ?? marketWindow.closeAt)}) beats{" "}
         {basePrice != null ? (
           <span className="font-mono text-foreground">
             {formatMarketPrice(basePrice, market)}
@@ -635,24 +640,19 @@ const LiteSpotTrade = () => {
     tapeSession.open && tapeSession.closeAt
       ? tapeSession.closeAt
       : new Date(tapeSession.nextOpenAt.getTime() + SESSION_MS);
-  const sessionDate = new Intl.DateTimeFormat("en-US", {
-    timeZone: market.tz,
-    month: "short",
-    day: "numeric",
-  })
-    .format(sessionOpenAt)
-    .toUpperCase();
+  // R3 — the day word comes from the viewer-local instant, never the venue date.
+  const sessionDate = formatLocalDate(sessionOpenAt).toUpperCase();
   const isOpenNow = tapeSession.open && !!tapeSession.closeAt && !!todayEventId;
   const tapeLeftLabel = {
     micro: isOpenNow ? `TODAY · ${sessionDate}` : `NEXT ROUND · ${sessionDate}`,
-    value: `${formatMarketTime(sessionOpenAt, market)}–${formatMarketTime(sessionCloseAt, market)}`,
+    value: `${formatLocalTime(sessionOpenAt)}–${formatLocalTime(sessionCloseAt)}`,
   };
   const tapeSlot: TapeCurrentSlot =
     isOpenNow && tapeSession.closeAt
       ? {
           kind: "countdown",
           text: formatClockCountdown(tapeSession.closeAt.getTime() - Date.now()),
-          tooltip: `Today's round · closes at ${formatSessionStamp(tapeSession.closeAt, market)}`,
+          tooltip: `Today's round · closes at ${formatLocalStamp(tapeSession.closeAt)}`,
           onClick:
             todayEventId === event.id
               ? undefined
@@ -660,7 +660,7 @@ const LiteSpotTrade = () => {
         }
       : {
           kind: "next",
-          tooltip: `Next round · opens ${formatSessionStamp(tapeSession.nextOpenAt, market)}`,
+          tooltip: `Next round · opens ${formatLocalStamp(tapeSession.nextOpenAt)}`,
         };
 
   const PastDays = (

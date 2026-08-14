@@ -177,16 +177,15 @@ export interface StockMarket {
   key: "us" | "hk" | "kr" | "crypto";
   /** IANA timezone used to render session labels. */
   tz: string;
-  /** Short session label shown next to times ("ET" / "HKT"). */
+  /**
+   * Internal zone code ("ET" / "HKT" / "KST"). Grouping key + logic only —
+   * NEVER rendered next to a clock (全站时间口径 R1).
+   */
   label: string;
   /** Short market code used in session copy ("US" / "HK" / "KR"). */
   short: string;
   /** Currency prefix for underlying share prices. */
   currency: string;
-  /** Regular-session open, already localised copy. */
-  openLabel: string;
-  /** Regular-session close, already localised copy. */
-  closeLabel: string;
   /** Regular-session open, minutes past exchange-local midnight. */
   openMinutes?: number;
   /** Regular-session close, minutes past exchange-local midnight. */
@@ -199,8 +198,6 @@ export const US_STOCK_MARKET: StockMarket = {
   label: "ET",
   short: "US",
   currency: "$",
-  openLabel: "9:30 AM ET",
-  closeLabel: "4:00 PM ET",
   openMinutes: 9 * 60 + 30,
   closeMinutes: 16 * 60,
 };
@@ -211,8 +208,6 @@ export const HK_STOCK_MARKET: StockMarket = {
   label: "HKT",
   short: "HK",
   currency: "HK$",
-  openLabel: "9:30 AM HKT",
-  closeLabel: "4:00 PM HKT",
   openMinutes: 9 * 60 + 30,
   closeMinutes: 16 * 60,
 };
@@ -224,8 +219,6 @@ export const KR_STOCK_MARKET: StockMarket = {
   label: "KST",
   short: "KR",
   currency: "₩",
-  openLabel: "9:00 AM KST",
-  closeLabel: "3:30 PM KST",
   openMinutes: 9 * 60,
   closeMinutes: 15 * 60 + 30,
 };
@@ -237,8 +230,6 @@ export const CRYPTO_QUICK_MARKET: StockMarket = {
   label: "UTC",
   short: "CRYPTO",
   currency: "$",
-  openLabel: "Round open",
-  closeLabel: "Round close",
 };
 
 /** Derive the market from an event id prefix or its event_subtype. */
@@ -495,9 +486,51 @@ export const getMarketSession = (
   return { market, open, closeAt, nextOpenAt };
 };
 
-/** "Tue 09:30 ET" — market-local weekday + time + zone label. */
-export const formatSessionStamp = (d: Date, market: StockMarket): string =>
-  `${new Intl.DateTimeFormat("en-US", { timeZone: market.tz, weekday: "short" }).format(d)} ${formatMarketTime(d, market)} ${market.label}`;
+// -----------------------------------------------------------------
+// Viewer-local clock rendering (全站时间口径 R1-R3).
+// R1: every clock shown to a user renders in the viewer's own zone with
+//     no timezone suffix. R2: venue nouns ("HK close", "US session") stay.
+//     R3: day words are re-derived from the SAME local timestamp.
+// Countdowns/durations are timezone-free and never routed through here.
+// The market `tz` fields below remain in use for *session logic only*.
+// -----------------------------------------------------------------
+
+/** R1 — viewer-local HH:mm, 24h, no zone label. */
+export const formatLocalTime = (d: Date): string =>
+  d.toLocaleTimeString(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+/** R3 — "Tue 09:30": weekday derived from the viewer-local instant. */
+export const formatLocalStamp = (d: Date): string =>
+  `${d.toLocaleDateString(undefined, { weekday: "short" })} ${formatLocalTime(d)}`;
+
+/** R3 — "Aug 6" derived from the viewer-local instant. */
+export const formatLocalDate = (d: Date): string =>
+  d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+
+/**
+ * Real open/close instants for the session in progress, or the next one
+ * when the exchange is shut. Display code must derive clock strings from
+ * these timestamps instead of hardcoding exchange-local copy.
+ */
+export const sessionWindowFor = (
+  market: StockMarket,
+  now: Date = new Date(),
+): { openAt: Date; closeAt: Date } => {
+  const s = getMarketSession(market, now);
+  const openMin = market.openMinutes ?? SESSION_OPEN_MIN;
+  const closeMin = market.closeMinutes ?? SESSION_CLOSE_MIN;
+  const spanMs = (closeMin - openMin) * MIN_MS;
+  if (s.open && s.closeAt)
+    return { openAt: new Date(s.closeAt.getTime() - spanMs), closeAt: s.closeAt };
+  return {
+    openAt: s.nextOpenAt,
+    closeAt: new Date(s.nextOpenAt.getTime() + spanMs),
+  };
+};
 
 /** City name used by the asleep-divider label. */
 export const marketCityName = (market: StockMarket): string =>

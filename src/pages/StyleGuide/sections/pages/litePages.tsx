@@ -85,6 +85,15 @@ export const LiteOverviewSection = (_: P) => (
       <h3 className="mb-2 text-sm font-semibold text-foreground">Changelog</h3>
       <ul className="space-y-1 text-[12px] text-muted-foreground">
         <li>
+          2026-08-14 · 全站时间口径统一（R1-R3）—— 展示层所有钟点改用户本地渲染、去掉 ET / HKT / KST
+          等时区标（<code className="font-mono">formatLocalTime / formatLocalStamp / formatLocalDate /
+          sessionWindowFor</code> 取代 <code className="font-mono">formatSessionStamp / formatEtTime /
+          market.label / openLabel / closeLabel</code>）；场所名词保留（“HK closes …”“New York opens …”）；
+          日词从本地时间戳重推；日历去掉「Times in TZ」与 spine 行的时区微标；Pro /spot 时间行与 schedule
+          tooltip 去掉「Your time」冗余行。倒计时与时长不受影响，DB / 结算仍为 UTC。Foundations 新增
+          「5. 时间口径（全站）」。
+        </li>
+        <li>
           2026-08-14 · 新增韩国市场（KRX 09:00–15:30 KST）与多会话并排芯片 ——{" "}
           <code className="font-mono">StockMarket</code> 增加 <code className="font-mono">short</code> /
           每市场 open-close 分钟数，<code className="font-mono">getMarketSession</code> 不再假设全市场 09:30–16:00；
@@ -127,7 +136,7 @@ export const LiteOverviewSection = (_: P) => (
           vouchers2 移动 redeem 屏改挂真 <code className="font-mono">RedeemSummaryBar</code>（inline）+ 真 ChevronLeft；
           多市场「对侧封锁」demo 改为 netting 现行态（<code className="font-mono">blockNotice: null</code> +
           <code className="font-mono">noAsSell</code> + <code className="font-mono">nettingScopeLabel</code>）；
-          四个股票 RoundTape demo 文案对齐生产（Down won / closes at Tue 16:00 ET）；
+          四个股票 RoundTape demo 文案对齐生产（Down won / closes at Tue 16:00）；
           LiteSpotSection 补 SpotBlocks 三件真 import demo；MobileHome 幽灵代码
           <code className="font-mono">TrialCallout/interlude</code> 删除、theme 表补 <code className="font-mono">poster</code>；
           WHERE_ROWS 与 Wallet 节文按 Standard/Boost 现行 IA 订正。
