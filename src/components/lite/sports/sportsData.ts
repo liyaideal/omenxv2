@@ -4,7 +4,6 @@
 // ============================================================
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { leagueCodeFor } from "@/lib/taxonomy";
 
 export const SPORTS_SUBTYPE = "SPORTS_MATCH";
 
@@ -216,58 +215,15 @@ export const kickoffLabel = (d: Date | null): { day: string; time: string } => {
   return { day, time };
 };
 
-// ------------------------------------------------------------------
-// League → local kickoff zone. Keyed by TAXONOMY league codes (see
-// src/lib/taxonomy.ts) — no free-text league list lives here. kickoff_at
-// is stored UTC; the ledger renders the league's own local wall clock.
-// ------------------------------------------------------------------
-interface LeagueZone {
-  tz: string;
-  label: string;
-}
-
-const ET: LeagueZone = { tz: "America/New_York", label: "ET" };
-const CET: LeagueZone = { tz: "Europe/Berlin", label: "CET" };
-const BST: LeagueZone = { tz: "Europe/London", label: "BST" };
-const CST: LeagueZone = { tz: "Asia/Shanghai", label: "CST" };
-const KST: LeagueZone = { tz: "Asia/Seoul", label: "KST" };
-
-const LEAGUE_ZONES: Record<string, LeagueZone> = {
-  UCL: CET,
-  CSL: CST,
-  K_LEAGUE_1: KST,
-  UFC: ET,
-  EPL: BST,
-  LALIGA: CET,
-  SERIE_A: CET,
-  BUNDESLIGA: CET,
-  LIGUE_1: CET,
-  ATP: CET,
-  WTA: CET,
-  LPL: CST,
-  LCK: KST,
-};
-
-export const zoneForLeague = (league: string): LeagueZone => {
-  const code = leagueCodeFor(league);
-  return (code && LEAGUE_ZONES[code]) || ET;
-};
-
-/** Kickoff time cell — league-local HH:mm + the zone micro-label. */
-export const kickoffCell = (
-  d: Date | null,
-  league: string,
-): { time: string; zone: string } => {
-  const zone = zoneForLeague(league);
-  if (!d) return { time: "TBD", zone: zone.label };
+/** Kickoff time cell — user-local HH:mm, no timezone label. */
+export const kickoffCell = (d: Date | null): { time: string } => {
+  if (!d) return { time: "TBD" };
   return {
-    time: new Intl.DateTimeFormat("en-GB", {
-      timeZone: zone.tz,
+    time: d.toLocaleTimeString(undefined, {
       hour: "2-digit",
       minute: "2-digit",
       hour12: false,
-    }).format(d),
-    zone: zone.label,
+    }),
   };
 };
 
