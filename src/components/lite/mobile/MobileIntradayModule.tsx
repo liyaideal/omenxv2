@@ -29,6 +29,7 @@ import {
   formatSessionStamp,
   getMarketSession,
   marketCityName,
+  resolveStockMarket,
   type StockMarket,
 } from "@/lib/usStockSessions";
 import { Last8Strip, LivePulse } from "@/components/lite/shared/primitives";
@@ -407,9 +408,14 @@ export const MobileIntradayModule = ({
         ))
       ) : (
         <span style={{ fontSize: 11, color: "#6B7280" }}>
-          Stock rounds are closed. US opens{" "}
-          {formatSessionStamp(usSession.nextOpenAt, US_STOCK_MARKET)}, Hong Kong{" "}
-          {formatSessionStamp(hkSession.nextOpenAt, HK_STOCK_MARKET)}.
+          Stock rounds are closed.{" "}
+          {[US_STOCK_MARKET, HK_STOCK_MARKET, KR_STOCK_MARKET]
+            .map(
+              (m) =>
+                `${marketCityName(m)} opens ${formatSessionStamp(getMarketSession(m).nextOpenAt, m)}`,
+            )
+            .join(", ")}
+          .
         </span>
       )}
         </>
