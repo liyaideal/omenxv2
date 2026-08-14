@@ -85,6 +85,12 @@ export const LiteOverviewSection = (_: P) => (
       <h3 className="mb-2 text-sm font-semibold text-foreground">Changelog</h3>
       <ul className="space-y-1 text-[12px] text-muted-foreground">
         <li>
+          2026-08-14 · Sports kickoff 时间口径统一 —— 行内 kickoff 改为用户本地时间、无时区微标，与日期签 /
+          日期分组 / stage 卡（<code className="font-mono">kickoffLabel</code>）同一口径；
+          <code className="font-mono">kickoffCell</code> 不再接 league 参数，删除{" "}
+          <code className="font-mono">LEAGUE_ZONES / zoneForLeague</code> 死代码；ledger 时间格改单行垂直居中（列宽 74 不变）。
+        </li>
+        <li>
           2026-08-14 · LiteEventsPage 模块级骨架屏落地 —— 新增{" "}
           <code className="font-mono">src/components/lite/skeletons/LiteEventsSkeletons.tsx</code>
           （All-stage intraday/sports、桌面网格卡与移动列表卡）。品类 rail 属静态 chrome，首载即渲染真 pills、不骨架。仅首载显示，缓存直渲，
