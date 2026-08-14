@@ -174,35 +174,60 @@ export const formatEtTime = (date: Date): string =>
 // operating on real timestamps and is market-agnostic.
 // -----------------------------------------------------------------
 export interface StockMarket {
-  key: "us" | "hk" | "crypto";
+  key: "us" | "hk" | "kr" | "crypto";
   /** IANA timezone used to render session labels. */
   tz: string;
   /** Short session label shown next to times ("ET" / "HKT"). */
   label: string;
+  /** Short market code used in session copy ("US" / "HK" / "KR"). */
+  short: string;
   /** Currency prefix for underlying share prices. */
   currency: string;
   /** Regular-session open, already localised copy. */
   openLabel: string;
   /** Regular-session close, already localised copy. */
   closeLabel: string;
+  /** Regular-session open, minutes past exchange-local midnight. */
+  openMinutes?: number;
+  /** Regular-session close, minutes past exchange-local midnight. */
+  closeMinutes?: number;
 }
 
 export const US_STOCK_MARKET: StockMarket = {
   key: "us",
   tz: "America/New_York",
   label: "ET",
+  short: "US",
   currency: "$",
   openLabel: "9:30 AM ET",
   closeLabel: "4:00 PM ET",
+  openMinutes: 9 * 60 + 30,
+  closeMinutes: 16 * 60,
 };
 
 export const HK_STOCK_MARKET: StockMarket = {
   key: "hk",
   tz: "Asia/Hong_Kong",
   label: "HKT",
+  short: "HK",
   currency: "HK$",
   openLabel: "9:30 AM HKT",
   closeLabel: "4:00 PM HKT",
+  openMinutes: 9 * 60 + 30,
+  closeMinutes: 16 * 60,
+};
+
+/** Korea Exchange regular session — 09:00–15:30 KST. */
+export const KR_STOCK_MARKET: StockMarket = {
+  key: "kr",
+  tz: "Asia/Seoul",
+  label: "KST",
+  short: "KR",
+  currency: "₩",
+  openLabel: "9:00 AM KST",
+  closeLabel: "3:30 PM KST",
+  openMinutes: 9 * 60,
+  closeMinutes: 15 * 60 + 30,
 };
 
 /** Crypto quick rounds settle on UTC period boundaries — no exchange session. */
@@ -210,6 +235,7 @@ export const CRYPTO_QUICK_MARKET: StockMarket = {
   key: "crypto",
   tz: "UTC",
   label: "UTC",
+  short: "CRYPTO",
   currency: "$",
   openLabel: "Round open",
   closeLabel: "Round close",
@@ -224,6 +250,7 @@ export const resolveStockMarket = (
   if (subtype === "CRYPTO_QUICK_UPDOWN_SPOT" || id.startsWith("crypto-"))
     return CRYPTO_QUICK_MARKET;
   if (id.startsWith("hk-") || subtype.startsWith("HK_")) return HK_STOCK_MARKET;
+  if (id.startsWith("kr-") || subtype.startsWith("KR_")) return KR_STOCK_MARKET;
   return US_STOCK_MARKET;
 };
 
