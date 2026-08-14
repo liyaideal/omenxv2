@@ -177,16 +177,15 @@ export interface StockMarket {
   key: "us" | "hk" | "kr" | "crypto";
   /** IANA timezone used to render session labels. */
   tz: string;
-  /** Short session label shown next to times ("ET" / "HKT"). */
+  /**
+   * Internal zone code ("ET" / "HKT" / "KST"). Grouping key + logic only —
+   * NEVER rendered next to a clock (全站时间口径 R1).
+   */
   label: string;
   /** Short market code used in session copy ("US" / "HK" / "KR"). */
   short: string;
   /** Currency prefix for underlying share prices. */
   currency: string;
-  /** Regular-session open, already localised copy. */
-  openLabel: string;
-  /** Regular-session close, already localised copy. */
-  closeLabel: string;
   /** Regular-session open, minutes past exchange-local midnight. */
   openMinutes?: number;
   /** Regular-session close, minutes past exchange-local midnight. */
@@ -199,8 +198,6 @@ export const US_STOCK_MARKET: StockMarket = {
   label: "ET",
   short: "US",
   currency: "$",
-  openLabel: "9:30 AM ET",
-  closeLabel: "4:00 PM ET",
   openMinutes: 9 * 60 + 30,
   closeMinutes: 16 * 60,
 };
@@ -211,8 +208,6 @@ export const HK_STOCK_MARKET: StockMarket = {
   label: "HKT",
   short: "HK",
   currency: "HK$",
-  openLabel: "9:30 AM HKT",
-  closeLabel: "4:00 PM HKT",
   openMinutes: 9 * 60 + 30,
   closeMinutes: 16 * 60,
 };
@@ -224,8 +219,6 @@ export const KR_STOCK_MARKET: StockMarket = {
   label: "KST",
   short: "KR",
   currency: "₩",
-  openLabel: "9:00 AM KST",
-  closeLabel: "3:30 PM KST",
   openMinutes: 9 * 60,
   closeMinutes: 15 * 60 + 30,
 };
@@ -237,8 +230,6 @@ export const CRYPTO_QUICK_MARKET: StockMarket = {
   label: "UTC",
   short: "CRYPTO",
   currency: "$",
-  openLabel: "Round open",
-  closeLabel: "Round close",
 };
 
 /** Derive the market from an event id prefix or its event_subtype. */
