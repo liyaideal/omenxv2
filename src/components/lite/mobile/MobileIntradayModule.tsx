@@ -23,10 +23,12 @@ import {
 } from "@/components/lite/intraday/intradayData";
 import {
   HK_STOCK_MARKET,
+  KR_STOCK_MARKET,
   US_STOCK_MARKET,
   formatMarketTime,
   formatSessionStamp,
   getMarketSession,
+  marketCityName,
   type StockMarket,
 } from "@/lib/usStockSessions";
 import { Last8Strip, LivePulse } from "@/components/lite/shared/primitives";
@@ -243,7 +245,7 @@ const SessionRow = ({
       />
       <span className="flex min-w-0 flex-1 flex-col" style={{ gap: 2 }}>
         <span style={{ fontSize: 13, color: "#fff", fontWeight: 600 }}>
-          {market.key === "hk" ? "Hong Kong" : "US"} session open · {count} stock{" "}
+          {marketCityName(market)} session open · {count} stock{" "}
           {count === 1 ? "round" : "rounds"}
         </span>
         <span
