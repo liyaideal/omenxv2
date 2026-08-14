@@ -473,22 +473,24 @@ export const getMarketSession = (
   now: Date = new Date(),
 ): MarketSession => {
   const { dow, minutes } = zonedClock(now, market.tz);
+  const openMin = market.openMinutes ?? SESSION_OPEN_MIN;
+  const closeMin = market.closeMinutes ?? SESSION_CLOSE_MIN;
   const isWeekday = dow >= 1 && dow <= 5;
   const open =
-    isWeekday && minutes >= SESSION_OPEN_MIN && minutes < SESSION_CLOSE_MIN;
+    isWeekday && minutes >= openMin && minutes < closeMin;
   const closeAt = open
-    ? new Date(now.getTime() + (SESSION_CLOSE_MIN - minutes) * MIN_MS)
+    ? new Date(now.getTime() + (closeMin - minutes) * MIN_MS)
     : null;
 
   // Next opening bell: today when the session hasn't started yet, otherwise
   // walk forward to the next weekday.
-  let dayOffset = isWeekday && minutes < SESSION_OPEN_MIN ? 0 : 1;
+  let dayOffset = isWeekday && minutes < openMin ? 0 : 1;
   while (((dow + dayOffset) % 7) === 0 || ((dow + dayOffset) % 7) === 6) {
     dayOffset += 1;
   }
   const nextOpenAt = new Date(
     now.getTime() +
-      (dayOffset * DAY_MIN + (SESSION_OPEN_MIN - minutes)) * MIN_MS,
+      (dayOffset * DAY_MIN + (openMin - minutes)) * MIN_MS,
   );
   return { market, open, closeAt, nextOpenAt };
 };
@@ -499,4 +501,4 @@ export const formatSessionStamp = (d: Date, market: StockMarket): string =>
 
 /** City name used by the asleep-divider label. */
 export const marketCityName = (market: StockMarket): string =>
-  market.key === "hk" ? "Hong Kong" : "New York";
+  market.key === "hk" ? "Hong Kong" : market.key === "kr" ? "Seoul" : "New York";
