@@ -623,7 +623,7 @@ export const SportsBlock = ({
   onOpen: (eventId: string, optionId?: string) => void;
 }) => {
   const m = item.match;
-  const kick = kickoffCell(m.kickoff, m.league);
+  const kick = kickoffCell(m.kickoff);
   const colorFor = (i: number, n: number) => {
     if (i === 0) return UP;
     if (i === n - 1) return DOWN;
@@ -638,7 +638,7 @@ export const SportsBlock = ({
             {m.league} · {/ufc|mma/i.test(m.league) ? "MMA" : "Football"}
           </MicroCaption>
           <span style={{ fontSize: 10, color: "#4B5563" }}>
-            kickoff {kick.time} {kick.zone}
+            kickoff {kick.time}
           </span>
           {m.live && (
             <span className="flex items-center" style={{ gap: 5 }}>

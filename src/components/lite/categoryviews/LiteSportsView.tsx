@@ -206,7 +206,7 @@ const LedgerRow = ({
   onOpen: () => void;
   onPick: (optionId: string) => (e: React.MouseEvent) => void;
 }) => {
-  const { time, zone } = kickoffCell(match.kickoff, match.league);
+  const { time } = kickoffCell(match.kickoff);
   return (
     <div
       role="button"
@@ -224,7 +224,7 @@ const LedgerRow = ({
         gap: 18,
       }}
     >
-      <span className="flex flex-none flex-col" style={{ gap: 1, width: 74 }}>
+      <span className="flex flex-none items-center" style={{ width: 74 }}>
         <span
           className="font-display"
           style={{
@@ -235,17 +235,6 @@ const LedgerRow = ({
           }}
         >
           {time}
-        </span>
-        <span
-          style={{
-            fontSize: 10,
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-            color: "#6B7280",
-            fontWeight: 700,
-          }}
-        >
-          {zone}
         </span>
       </span>
       <span className="flex flex-none items-center">
