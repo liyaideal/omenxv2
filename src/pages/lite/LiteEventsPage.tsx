@@ -437,7 +437,8 @@ const LiteEventsPage = () => {
         )}
 
         {/* Desktop "All stage" — category-as-view. */}
-        {!calendarOn && isStageView && (
+        {!calendarOn && isStageView && stageFirstLoad && <LiteAllStageSkeleton />}
+        {!calendarOn && isStageView && !stageFirstLoad && (
           <LiteAllStage
             currentFor={currentFor}
             historyFor={historyFor}
@@ -507,7 +508,8 @@ const LiteEventsPage = () => {
         )}
 
         {/* Mobile "All" stage (contract 11B/11C) — Intraday · Sports · Picks. */}
-        {isMobileStage && (
+        {isMobileStage && stageFirstLoad && <LiteMobileStageSkeleton />}
+        {isMobileStage && !stageFirstLoad && (
           <LiteMobileAllStage
             currentFor={currentFor}
             historyFor={historyFor}
@@ -580,10 +582,12 @@ const LiteEventsPage = () => {
             </span>
           </div>
         )}
-        {calendarOn ? null : isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          </div>
+        {calendarOn ? null : eventsFirstLoad ? (
+          isMobile ? (
+            <LiteMarketListSkeleton />
+          ) : (
+            <LiteMarketGridSkeleton />
+          )
         ) : isCryptoView ||
           isFinanceView ||
           isIntradayView ||
