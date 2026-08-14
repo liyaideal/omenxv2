@@ -15,7 +15,7 @@ import {
   Tooltip,
 } from "recharts";
 import { cn } from "@/lib/utils";
-import { formatEtTime } from "@/lib/usStockSessions";
+import { formatLocalTime } from "@/lib/usStockSessions";
 
 type Tab = "stock" | "odds";
 
@@ -125,7 +125,7 @@ export const LiteStockChart = ({
   // Final close tick derives from the event end_date when available; otherwise
   // falls back to the regular 16:00 session close only as a last resort.
   const closeTick = useMemo(
-    () => (endDate ? formatEtTime(new Date(endDate)) : "16:00"),
+    () => (endDate ? formatLocalTime(new Date(endDate)) : "16:00"),
     [endDate],
   );
   const labels = useMemo(() => {

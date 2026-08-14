@@ -25,7 +25,8 @@ import {
   KR_STOCK_MARKET,
   US_STOCK_MARKET,
   formatMarketTime,
-  formatSessionStamp,
+  formatLocalStamp,
+  formatLocalTime,
   getMarketSession,
   marketCityName,
   resolveStockMarket,
@@ -251,7 +252,7 @@ const SessionRow = ({
         <span
           style={{ fontSize: 11, color: "#6B7280", fontVariantNumeric: "tabular-nums" }}
         >
-          Closes {formatMarketTime(closeAt, market)} {market.label} · {h}h {m}m left
+          Closes {formatLocalTime(closeAt)} · {h}h {m}m left
         </span>
       </span>
       <span style={{ fontSize: 12, color: "#FF8A3D", fontWeight: 700, flex: "none" }}>
@@ -411,7 +412,7 @@ export const MobileIntradayModule = ({
           {[US_STOCK_MARKET, HK_STOCK_MARKET, KR_STOCK_MARKET]
             .map(
               (m) =>
-                `${marketCityName(m)} opens ${formatSessionStamp(getMarketSession(m).nextOpenAt, m)}`,
+                `${marketCityName(m)} opens ${formatLocalStamp(getMarketSession(m).nextOpenAt)}`,
             )
             .join(", ")}
           .

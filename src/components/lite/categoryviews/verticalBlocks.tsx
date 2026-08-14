@@ -20,7 +20,8 @@ import {
 import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader";
 import {
   formatMarketPrice,
-  formatSessionStamp,
+  formatLocalStamp,
+  formatLocalTime,
   formatMarketTime,
   getMarketSession,
   marketCityName,
@@ -74,8 +75,8 @@ export const fmtLeft = (ms: number) => {
   return h > 0 ? `${h}h ${m}m left` : `${m}m left`;
 };
 
-/** "Tue 09:30 HKT" for a market-local instant. */
-export const openStamp = (d: Date, market: StockMarket) => formatSessionStamp(d, market);
+/** "Tue 09:30" — viewer-local weekday + clock (R1/R3), no zone label. */
+export const openStamp = (d: Date, _market?: StockMarket) => formatLocalStamp(d);
 
 /** Chart slot height for the crypto round tile (desktop vertical views). */
 const PLOT_H = 96;
@@ -538,7 +539,7 @@ export const groupStockRows = (
 /**
  * Session status chip — the EXACT treatment the Intraday view uses for
  * stock session state. Open → orange dot + "US session open · closes
- * 16:00 ET · 3h 12m left". Shut → the asleep phrasing with the next
+ * 16:00 · 3h 12m left" (viewer-local clock, no zone label). Shut → the asleep phrasing with the next
  * open stamp (groups.wakeLabel).
  */
 export const SessionStatusChip = ({
@@ -585,7 +586,7 @@ export const SessionStatusChip = ({
                 fontVariantNumeric: "tabular-nums",
               }}
             >
-              closes {formatMarketTime(new Date(closeAt), market)} {market.label} ·{" "}
+              closes {formatLocalTime(new Date(closeAt))} ·{" "}
               {fmtLeft(closeAt - (nowMs ?? Date.now()))}
             </span>
           </span>

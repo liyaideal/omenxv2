@@ -11,7 +11,7 @@
 // ============================================================
 import { useMemo, useState } from "react";
 import { COINS, QuickEvent, StockEventRow, Timeframe } from "@/components/lite/intraday/intradayData";
-import { formatMarketTime } from "@/lib/usStockSessions";
+import { formatLocalTime } from "@/lib/usStockSessions";
 import {
   AsleepStockRow,
   CoinTile,
@@ -184,7 +184,7 @@ export const LiteIntradayView = ({
                       fontVariantNumeric: "tabular-nums",
                     }}
                   >
-                    closes {formatMarketTime(new Date(closeAt), market)} {market.label} ·{" "}
+                    closes {formatLocalTime(new Date(closeAt))} ·{" "}
                     {fmtLeft(closeAt - (sessionNow?.getTime() ?? Date.now()))}
                   </span>
                 </span>
