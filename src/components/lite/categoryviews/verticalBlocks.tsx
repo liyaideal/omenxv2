@@ -22,7 +22,6 @@ import {
   formatMarketPrice,
   formatLocalStamp,
   formatLocalTime,
-  formatMarketTime,
   getMarketSession,
   marketCityName,
   resolveStockMarket,

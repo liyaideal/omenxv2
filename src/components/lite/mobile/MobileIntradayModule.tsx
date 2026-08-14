@@ -24,7 +24,6 @@ import {
   HK_STOCK_MARKET,
   KR_STOCK_MARKET,
   US_STOCK_MARKET,
-  formatMarketTime,
   formatLocalStamp,
   formatLocalTime,
   getMarketSession,
