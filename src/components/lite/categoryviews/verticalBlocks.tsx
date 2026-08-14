@@ -462,6 +462,9 @@ export const RoundDial = ({
 export interface StockGroups {
   trading: StockEventRow[];
   asleep: Array<{ row: StockEventRow; nextOpen: string }>;
+  /** Every exchange currently open, earliest close first. */
+  openSessions: Array<{ market: StockMarket; closeAt: number }>;
+  /** Compat: the earliest-closing open market (null when all shut). */
   sessionMarket: StockMarket | null;
   sessionEnd: number | null;
   wakeLabel: string | null;
@@ -484,8 +487,7 @@ export const groupStockRows = (
   }
   const trading: StockEventRow[] = [];
   const asleep: Array<{ row: StockEventRow; nextOpen: string }> = [];
-  let openMarket: StockMarket | null = null;
-  let openCloseAt: number | null = null;
+  const opens = new Map<string, { market: StockMarket; closeAt: number }>();
   let wake: { market: StockMarket; at: Date } | null = null;
   const wakes = new Map<string, { market: StockMarket; at: Date }>();
 
@@ -502,10 +504,8 @@ export const groupStockRows = (
     const session = getMarketSession(market, sessionNow ?? new Date(now));
     if (live && session.open) {
       trading.push(row);
-      if (!openMarket) {
-        openMarket = market;
-        openCloseAt = session.closeAt ? session.closeAt.getTime() : null;
-      }
+      if (!opens.has(market.key) && session.closeAt)
+        opens.set(market.key, { market, closeAt: session.closeAt.getTime() });
       continue;
     }
     asleep.push({ row, nextOpen: openStamp(session.nextOpenAt, market) });
@@ -519,11 +519,13 @@ export const groupStockRows = (
   trading.sort(
     (a, b) => new Date(a.end_date || 0).getTime() - new Date(b.end_date || 0).getTime(),
   );
+  const openSessions = [...opens.values()].sort((a, b) => a.closeAt - b.closeAt);
   return {
     trading,
     asleep,
-    sessionMarket: openMarket,
-    sessionEnd: openCloseAt,
+    openSessions,
+    sessionMarket: openSessions[0]?.market ?? null,
+    sessionEnd: openSessions[0]?.closeAt ?? null,
     wakeLabel: wake
       ? `${marketCityName(wake.market)} opens ${openStamp(wake.at, wake.market)}`
       : null,
