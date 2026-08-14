@@ -242,7 +242,7 @@ export const useIntradayStocks = (enabled: boolean) => {
         .select(
           "id, name, base_price, start_date, end_date, freeze_time, event_subtype, event_options(id, label, price)",
         )
-        .in("event_subtype", [US_STOCK_SUBTYPE, HK_STOCK_SUBTYPE])
+        .in("event_subtype", [US_STOCK_SUBTYPE, HK_STOCK_SUBTYPE, KR_STOCK_SUBTYPE])
         .eq("is_resolved", false)
         .order("end_date", { ascending: true });
       if (!alive) return;
