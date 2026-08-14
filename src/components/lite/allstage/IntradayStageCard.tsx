@@ -527,12 +527,16 @@ export const IntradayStageCard = ({
   const openStocks = groups.trading;
   const sessionOpen = groups.sessionMarket != null && groups.sessionEnd != null;
 
-  const closeLabel = useMemo(() => {
-    const market = groups.sessionMarket;
-    if (!market || groups.sessionEnd == null) return "";
-    const where = market.key === "hk" ? "HK" : "US";
-    return `${where} closes ${formatMarketTime(new Date(groups.sessionEnd), market)} ${market.label}`;
-  }, [groups.sessionMarket, groups.sessionEnd]);
+  const closeLabel = useMemo(
+    () =>
+      groups.openSessions
+        .map(
+          ({ market, closeAt }) =>
+            `${market.short} closes ${formatMarketTime(new Date(closeAt), market)} ${market.label}`,
+        )
+        .join(" · "),
+    [groups.openSessions],
+  );
 
   const cells: CoinCell[] = COINS.map((coin) => ({
     coin,
