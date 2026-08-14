@@ -495,9 +495,51 @@ export const getMarketSession = (
   return { market, open, closeAt, nextOpenAt };
 };
 
-/** "Tue 09:30 ET" — market-local weekday + time + zone label. */
-export const formatSessionStamp = (d: Date, market: StockMarket): string =>
-  `${new Intl.DateTimeFormat("en-US", { timeZone: market.tz, weekday: "short" }).format(d)} ${formatMarketTime(d, market)} ${market.label}`;
+// -----------------------------------------------------------------
+// Viewer-local clock rendering (全站时间口径 R1-R3).
+// R1: every clock shown to a user renders in the viewer's own zone with
+//     no timezone suffix. R2: venue nouns ("HK close", "US session") stay.
+//     R3: day words are re-derived from the SAME local timestamp.
+// Countdowns/durations are timezone-free and never routed through here.
+// The market `tz` fields below remain in use for *session logic only*.
+// -----------------------------------------------------------------
+
+/** R1 — viewer-local HH:mm, 24h, no zone label. */
+export const formatLocalTime = (d: Date): string =>
+  d.toLocaleTimeString(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+/** R3 — "Tue 09:30": weekday derived from the viewer-local instant. */
+export const formatLocalStamp = (d: Date): string =>
+  `${d.toLocaleDateString(undefined, { weekday: "short" })} ${formatLocalTime(d)}`;
+
+/** R3 — "Aug 6" derived from the viewer-local instant. */
+export const formatLocalDate = (d: Date): string =>
+  d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+
+/**
+ * Real open/close instants for the session in progress, or the next one
+ * when the exchange is shut. Display code must derive clock strings from
+ * these timestamps instead of hardcoding exchange-local copy.
+ */
+export const sessionWindowFor = (
+  market: StockMarket,
+  now: Date = new Date(),
+): { openAt: Date; closeAt: Date } => {
+  const s = getMarketSession(market, now);
+  const openMin = market.openMinutes ?? SESSION_OPEN_MIN;
+  const closeMin = market.closeMinutes ?? SESSION_CLOSE_MIN;
+  const spanMs = (closeMin - openMin) * MIN_MS;
+  if (s.open && s.closeAt)
+    return { openAt: new Date(s.closeAt.getTime() - spanMs), closeAt: s.closeAt };
+  return {
+    openAt: s.nextOpenAt,
+    closeAt: new Date(s.nextOpenAt.getTime() + spanMs),
+  };
+};
 
 /** City name used by the asleep-divider label. */
 export const marketCityName = (market: StockMarket): string =>
