@@ -332,15 +332,18 @@ export const MobileIntradayModule = ({
   /** Boost composes in place: no boost rounds exist yet, so the engine hides. */
   boostOnly?: boolean;
 }) => {
-  const usSession = getMarketSession(US_STOCK_MARKET);
-  const hkSession = getMarketSession(HK_STOCK_MARKET);
-  const usCount = stockRows.filter((r) => r.event_subtype === US_STOCK_SUBTYPE).length;
-  const hkCount = stockRows.length - usCount;
-
-  const openSessions = [
-    { session: usSession, count: usCount },
-    { session: hkSession, count: hkCount },
-  ].filter((s) => s.session.open && s.session.closeAt && s.count > 0);
+  // Every exchange with rounds today gets its own row — sessions can overlap
+  // (HK 09:30–16:00 HKT and KR 09:00–15:30 KST run almost in parallel).
+  const openSessions = [US_STOCK_MARKET, HK_STOCK_MARKET, KR_STOCK_MARKET]
+    .map((market) => ({
+      session: getMarketSession(market),
+      count: stockRows.filter((r) => resolveStockMarket(r).key === market.key).length,
+    }))
+    .filter((s) => s.session.open && s.session.closeAt && s.count > 0)
+    .sort(
+      (a, b) =>
+        (a.session.closeAt as Date).getTime() - (b.session.closeAt as Date).getTime(),
+    );
 
   return (
     <section className="flex flex-col" style={{ gap: 12 }}>
