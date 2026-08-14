@@ -7,6 +7,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
+import { DualDevicePreview } from "../components";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -825,6 +826,24 @@ export const LiteSection = ({
 
         {part === "events" && (
           <>
+        <SubSection
+          title="Loading — 首载模块骨架"
+          description="真组件 import（LiteEventsSkeletons）：品类 rail / All-stage（intraday + sports）/ 目录卡片，桌面网格与移动列表各一形态。触发规则：仅数据首次加载（hook loading 且无缓存数据）时显示；切 tab、返回等有缓存的情况直接渲染真内容，不闪骨架。各模块独立判断自己的 loading，先到先实底、渐进点亮，不做整页骨架门。色块只用中性 #171A1F / #15181C，与终态版式逐模块同尺寸（CLS≈0）。"
+        >
+          <div className="space-y-4">
+            <DualDevicePreview
+              previewKey="lite-events-loading"
+              label="All 视图首载 — 品类 rail + stage + 目录"
+              minHeight={620}
+            />
+            <DualDevicePreview
+              previewKey="lite-events-loading-catalogue"
+              label="品类 / watchlist 视图首载 — 仅目录骨架"
+              minHeight={420}
+            />
+          </div>
+        </SubSection>
+
         <SubSection
           title="Category pill · Sports live pulse"
           description="Desktop category row (/events). Production component `CategoryPill` + `TOP_CATEGORIES`. The Sports dot turns red and pulses whenever `useSportsMatches().rows.some(m => m.live)` is true; otherwise it keeps the chalk dot."
