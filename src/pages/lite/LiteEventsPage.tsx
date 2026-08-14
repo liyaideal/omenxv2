@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Loader2, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { useMarketListData } from "@/hooks/useMarketListData";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
@@ -26,6 +26,14 @@ import {
   useSecondTick,
 } from "@/components/lite/intraday/intradayData";
 import { LiteAllStage } from "@/components/lite/allstage/LiteAllStage";
+import {
+  LiteAllStageSkeleton,
+  LiteCategoryPillsSkeleton,
+  LiteMarketGridSkeleton,
+  LiteMarketListSkeleton,
+  LiteMobileCategoryRowSkeleton,
+  LiteMobileStageSkeleton,
+} from "@/components/lite/skeletons/LiteEventsSkeletons";
 import { LiteMobileAllStage } from "@/components/lite/mobile/LiteMobileAllStage";
 import { MobileCategoryRow } from "@/components/lite/mobile/MobileCategoryRow";
 import { MobileIntradayModule } from "@/components/lite/mobile/MobileIntradayModule";
@@ -152,9 +160,19 @@ const LiteEventsPage = () => {
     isCryptoView ||
     isFinanceView;
   const tickSeconds = useSecondTick();
-  const { currentFor, historyFor } = useQuickRounds(stageActive);
-  const { rows: stockRows } = useIntradayStocks(stageActive);
-  const { rows: sportsMatches } = useSportsMatches();
+  const { currentFor, historyFor, loading: roundsLoading } = useQuickRounds(stageActive);
+  const { rows: stockRows, loading: stocksLoading } = useIntradayStocks(stageActive);
+  const { rows: sportsMatches, loading: sportsLoading } = useSportsMatches();
+
+  // First-load gates. A module only skeletons while its own hook is loading
+  // AND it has nothing cached — a tab switch or a back-navigation with data
+  // in hand renders the real content immediately (no skeleton flash).
+  const eventsFirstLoad = isLoading && dbEvents.length === 0;
+  const sportsFirstLoad = sportsLoading && sportsMatches.length === 0;
+  const stageFirstLoad =
+    (roundsLoading && currentFor.size === 0) ||
+    (stocksLoading && stockRows.length === 0) ||
+    sportsFirstLoad;
   /** A sports fixture is in play right now → the Sports pill pulses red. */
   const sportsLive = useMemo(
     () => sportsMatches.some((m) => m.live),
