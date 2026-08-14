@@ -65,6 +65,10 @@ import {
   GrantTaskRowBoardPreview,
   CampaignRulesDisclosurePreview,
 } from "./rewardsPreviews";
+import {
+  LiteEventsLoadingPreview,
+  LiteEventsCatalogueLoadingPreview,
+} from "./liteEventsPreviews";
 
 /* ---- Mock factories (shared with ApiSection) ---- */
 export const makeTiers = (level: "ok-readonly" | "ok-trading" | "locked"): TierEligibility[] => [
@@ -239,6 +243,9 @@ const RevokeDemo = () => {
 
 /* ---- Registry ---- */
 export const previewRegistry: Record<string, () => JSX.Element> = {
+  "lite-events-loading": () => <LiteEventsLoadingPreview />,
+  "lite-events-loading-catalogue": () => <LiteEventsCatalogueLoadingPreview />,
+
   "vouchers2-rows": () => <Vouchers2RowsPreview />,
   "vouchers2-earnings": () => <Vouchers2EarningsPreview />,
   "vouchers2-archive": () => <Vouchers2ArchivePreview />,
