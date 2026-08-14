@@ -458,6 +458,24 @@ const INTRADAY_PRESETS = [
     caption:
       "State B — the CURRENT production form when no exchange is open (not an old version): no stocks-closing row, coin-major layout, and each coin card owns its own window switcher; the stock row shows its next-open stamp instead.",
   },
+  {
+    id: "state-a-hk-kr",
+    label: "State A — HK + KR overlap",
+    rows: HK_KR_OPEN_ROWS,
+    // 05:00 UTC = 13:00 HKT and 14:00 KST → both Asian sessions are open.
+    sessionNow: new Date("2026-08-03T05:00:00Z"),
+    caption:
+      "Overlapping sessions — when more than one exchange is open, every open market gets its own entry, sorted by close time (earliest first): the close line reads \"KR closes 15:30 KST · HK closes 16:00 HKT\" and the stocks-closing row mixes both markets with their own currency prefixes.",
+  },
+  {
+    id: "state-a-kr",
+    label: "State A — KR only (pre-HK open)",
+    rows: HK_KR_OPEN_ROWS,
+    // 00:30 UTC = 09:30 KST (open) while HK only opens at 01:30 UTC.
+    sessionNow: new Date("2026-08-03T00:30:00Z"),
+    caption:
+      "Korea alone — KRX runs 09:00–15:30 KST, so it opens an hour before Hong Kong. Only the KR session line shows; HK tickers fall into the asleep group with their next-open stamp.",
+  },
 ] as const;
 
 const IntradayDemo = () => {
