@@ -582,18 +582,18 @@ const LiteEventsPage = () => {
             </span>
           </div>
         )}
-        {calendarOn ? null : eventsFirstLoad ? (
+        {calendarOn ? null : isCryptoView ||
+          isFinanceView ||
+          isIntradayView ||
+          isSportsView ||
+          isMobileIntraday ||
+          isMobileSports ? null : eventsFirstLoad ? (
           isMobile ? (
             <LiteMarketListSkeleton />
           ) : (
             <LiteMarketGridSkeleton />
           )
-        ) : isCryptoView ||
-          isFinanceView ||
-          isIntradayView ||
-          isSportsView ||
-          isMobileIntraday ||
-          isMobileSports ? null : isWatchlistView &&
+        ) : isWatchlistView &&
           filtered.length === 0 ? (
           <EmptyState
             variant="page"
