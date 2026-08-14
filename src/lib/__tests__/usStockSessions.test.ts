@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   HK_STOCK_MARKET,
+  KR_STOCK_MARKET,
   US_STOCK_MARKET,
   formatSessionStamp,
   getMarketSession,
+  resolveStockMarket,
 } from "@/lib/usStockSessions";
 
 // 2026-08-03 is a Monday.
@@ -53,5 +55,29 @@ describe("market session resolution", () => {
     expect(formatSessionStamp(us.nextOpenAt, US_STOCK_MARKET)).toBe(
       "Mon 09:30 ET",
     );
+  });
+
+  it("KR runs 09:00-15:30 KST and overlaps HK", () => {
+    const now = at("2026-08-03T05:00:00Z"); // 13:00 HKT / 14:00 KST
+    const kr = getMarketSession(KR_STOCK_MARKET, now);
+    const hk = getMarketSession(HK_STOCK_MARKET, now);
+    expect(kr.open).toBe(true);
+    expect(hk.open).toBe(true);
+    // KR closes 15:30 KST = 06:30 UTC, before HK's 16:00 HKT = 08:00 UTC.
+    expect(kr.closeAt?.toISOString()).toBe("2026-08-03T06:30:00.000Z");
+    expect(kr.closeAt!.getTime()).toBeLessThan(hk.closeAt!.getTime());
+  });
+
+  it("KR opens before HK (00:30 UTC = 09:30 KST / 08:30 HKT)", () => {
+    const now = at("2026-08-03T00:30:00Z");
+    expect(getMarketSession(KR_STOCK_MARKET, now).open).toBe(true);
+    expect(getMarketSession(HK_STOCK_MARKET, now).open).toBe(false);
+  });
+
+  it("resolves KR events by id prefix and subtype", () => {
+    expect(resolveStockMarket({ id: "kr-005930-updown-20260803" }).key).toBe("kr");
+    expect(
+      resolveStockMarket({ event_subtype: "KR_STOCK_DAILY_UPDOWN_SPOT" }).key,
+    ).toBe("kr");
   });
 });
