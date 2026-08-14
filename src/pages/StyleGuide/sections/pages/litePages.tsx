@@ -85,7 +85,7 @@ export const LiteOverviewSection = (_: P) => (
       <h3 className="mb-2 text-sm font-semibold text-foreground">Changelog</h3>
       <ul className="space-y-1 text-[12px] text-muted-foreground">
         <li>
-          2026-08-13 · LiteEventsPage 模块级骨架屏落地 —— 新增{" "}
+          2026-08-14 · LiteEventsPage 模块级骨架屏落地 —— 新增{" "}
           <code className="font-mono">src/components/lite/skeletons/LiteEventsSkeletons.tsx</code>
           （品类 rail 双端、All-stage intraday/sports、桌面网格卡与移动列表卡）。仅首载显示，缓存直渲，
           各模块独立 loading 渐进点亮；纯中性色 #171A1F / #15181C + 统一 pulse，与终态逐模块同尺寸。
