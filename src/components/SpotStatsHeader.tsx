@@ -91,7 +91,12 @@ export const SpotStatsHeader = ({
   const company = STOCK_NAME[ticker] ?? ticker;
   const market = resolveStockMarket({ id: eventId });
   const cur = market.currency;
-  const exchangeLabel = market.key === "hk" ? "HKEX · HK Stock" : "Nasdaq · US Stock";
+  const exchangeLabel =
+    market.key === "hk"
+      ? "HKEX · HK Stock"
+      : market.key === "kr"
+        ? "KRX · KR Stock"
+        : "Nasdaq · US Stock";
   const badge = getLifecycleBadge(lifecycle);
 
   // Indicative last price — small pseudo-random walk around base_price.
