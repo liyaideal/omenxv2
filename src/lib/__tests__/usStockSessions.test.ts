@@ -3,7 +3,6 @@ import {
   HK_STOCK_MARKET,
   KR_STOCK_MARKET,
   US_STOCK_MARKET,
-  formatSessionStamp,
   getMarketSession,
   resolveStockMarket,
 } from "@/lib/usStockSessions";
@@ -19,9 +18,8 @@ describe("market session resolution", () => {
     expect(us.open).toBe(true);
     expect(us.closeAt?.toISOString()).toBe("2026-08-03T20:00:00.000Z"); // 16:00 ET
     expect(hk.open).toBe(false);
-    expect(formatSessionStamp(hk.nextOpenAt, HK_STOCK_MARKET)).toBe(
-      "Tue 09:30 HKT",
-    );
+    // 09:30 HKT next day = 01:30 UTC (display renders it viewer-local).
+    expect(hk.nextOpenAt.toISOString()).toBe("2026-08-04T01:30:00.000Z");
   });
 
   it("HK open / US closed at 03:00 UTC (11:00 HKT, 23:00 ET prev day)", () => {
@@ -31,9 +29,8 @@ describe("market session resolution", () => {
     expect(hk.open).toBe(true);
     expect(hk.closeAt?.toISOString()).toBe("2026-08-03T08:00:00.000Z"); // 16:00 HKT
     expect(us.open).toBe(false);
-    expect(formatSessionStamp(us.nextOpenAt, US_STOCK_MARKET)).toBe(
-      "Mon 09:30 ET",
-    );
+    // 09:30 ET same day = 13:30 UTC.
+    expect(us.nextOpenAt.toISOString()).toBe("2026-08-03T13:30:00.000Z");
   });
 
   it("no session open at 22:00 UTC (18:00 ET, 06:00 HKT next day)", () => {
@@ -41,20 +38,15 @@ describe("market session resolution", () => {
     expect(getMarketSession(US_STOCK_MARKET, now).open).toBe(false);
     expect(getMarketSession(HK_STOCK_MARKET, now).open).toBe(false);
     expect(
-      formatSessionStamp(
-        getMarketSession(US_STOCK_MARKET, now).nextOpenAt,
-        US_STOCK_MARKET,
-      ),
-    ).toBe("Tue 09:30 ET");
+      getMarketSession(US_STOCK_MARKET, now).nextOpenAt.toISOString(),
+    ).toBe("2026-08-04T13:30:00.000Z");
   });
 
   it("weekend rolls to Monday", () => {
     const now = at("2026-08-08T15:25:00Z"); // Saturday
     const us = getMarketSession(US_STOCK_MARKET, now);
     expect(us.open).toBe(false);
-    expect(formatSessionStamp(us.nextOpenAt, US_STOCK_MARKET)).toBe(
-      "Mon 09:30 ET",
-    );
+    expect(us.nextOpenAt.toISOString()).toBe("2026-08-10T13:30:00.000Z");
   });
 
   it("KR runs 09:00-15:30 KST and overlaps HK", () => {
