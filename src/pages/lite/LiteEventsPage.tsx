@@ -28,10 +28,8 @@ import {
 import { LiteAllStage } from "@/components/lite/allstage/LiteAllStage";
 import {
   LiteAllStageSkeleton,
-  LiteCategoryPillsSkeleton,
   LiteMarketGridSkeleton,
   LiteMarketListSkeleton,
-  LiteMobileCategoryRowSkeleton,
   LiteMobileStageSkeleton,
 } from "@/components/lite/skeletons/LiteEventsSkeletons";
 import { LiteMobileAllStage } from "@/components/lite/mobile/LiteMobileAllStage";
