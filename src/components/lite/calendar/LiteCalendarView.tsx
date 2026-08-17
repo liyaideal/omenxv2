@@ -383,6 +383,15 @@ export const LiteCalendarView = ({
       focusedDay == null ? columns : columns.filter((c) => c.key === focusedDay);
     /** Markets you can trade on the focused day but that close later. */
     const openNow = openOnDay(items, focusedDay ?? todayKey);
+    /** Week mode mirrors desktop: a ticket opens that day, it does not trade. */
+    const tapTicket = (dayKeyOf: number, item: CalItem) => {
+      if (mode === "week") {
+        setMobileDay(dayKeyOf);
+        setMode("day");
+        return;
+      }
+      openItem(item);
+    };
     return (
       <div className="flex flex-col" style={{ gap: 14, paddingTop: 4 }}>
         {header}
@@ -452,7 +461,7 @@ export const LiteCalendarView = ({
                 <MobileTicket
                   key={it.id}
                   ticket={ticketOf(it)}
-                  onClick={() => openItem(it)}
+                  onClick={() => tapTicket(c.key, it)}
                 />
               ))}
             </div>
@@ -472,7 +481,7 @@ export const LiteCalendarView = ({
                 key={it.id}
                 ticket={ticketOf(it)}
                 closes={closesStamp(it, now)}
-                onClick={() => openItem(it)}
+                onClick={() => tapTicket(focusedDay ?? todayKey, it)}
               />
             ))}
           </div>
