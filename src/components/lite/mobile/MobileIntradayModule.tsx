@@ -329,6 +329,8 @@ export const MobileIntradayModule = ({
   onSelectTf: (tf: Timeframe) => void;
   tickSeconds: number;
   onOpenIntraday: () => void;
+  /** Tapping an open-session row: surface that exchange's stock rounds. */
+  onOpenSession?: (market: StockMarket) => void;
   /** Boost composes in place: no boost rounds exist yet, so the engine hides. */
   boostOnly?: boolean;
 }) => {
@@ -402,7 +404,9 @@ export const MobileIntradayModule = ({
             market={session.market}
             count={count}
             closeAt={session.closeAt as Date}
-            onOpen={onOpenIntraday}
+            onOpen={() =>
+              onOpenSession ? onOpenSession(session.market) : onOpenIntraday()
+            }
           />
         ))
       ) : (
