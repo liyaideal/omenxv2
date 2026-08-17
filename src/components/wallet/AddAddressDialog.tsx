@@ -174,7 +174,7 @@ export const AddAddressDialog = ({
         title="Add address"
       >
         {formContent}
-        <MobileDrawerActions className="flex gap-2">
+        <MobileDrawerActions className="flex gap-2 space-y-0">
           <Button variant="outline" onClick={() => handleClose(false)} className="flex-1 h-11">
             Cancel
           </Button>
