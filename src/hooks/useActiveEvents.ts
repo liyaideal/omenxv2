@@ -84,13 +84,15 @@ export const useActiveEvents = (): UseActiveEventsReturn => {
         throw eventsError;
       }
 
-      if (!eventsData || eventsData.length === 0) {
+      const visibleEvents = (eventsData || []).filter((e) => !isFixtureSibling(e));
+
+      if (visibleEvents.length === 0) {
         setEvents([]);
         return;
       }
 
       // Get event IDs
-      const eventIds = eventsData.map((e) => e.id);
+      const eventIds = visibleEvents.map((e) => e.id);
 
       // Fetch options for all events
       const { data: optionsData, error: optionsError } = await supabase
@@ -104,7 +106,7 @@ export const useActiveEvents = (): UseActiveEventsReturn => {
       }
 
       // Combine events with their options
-      const eventsWithOptions: EventWithOptions[] = eventsData.map((event) => ({
+      const eventsWithOptions: EventWithOptions[] = visibleEvents.map((event) => ({
         ...event,
         options: (optionsData || [])
           .filter((opt) => opt.event_id === event.id)
