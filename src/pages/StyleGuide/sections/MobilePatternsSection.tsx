@@ -37,8 +37,8 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
                 { size: "sm" as const, label: "Small (h-4)", usage: "Compact headers, nav items" },
-                { size: "md" as const, label: "Medium (h-5)", usage: "Mobile headers (default)" },
-                { size: "lg" as const, label: "Large (h-6)", usage: "Desktop headers" },
+                { size: "md" as const, label: "Medium (h-5)", usage: "Compact contexts (nav items, tight cells)" },
+                { size: "lg" as const, label: "Large (h-6)", usage: "Desktop headers · mobile brand bar" },
                 { size: "xl" as const, label: "Extra Large (h-8)", usage: "Landing pages, branding" },
               ].map(({ size, label, usage }) => (
                 <div key={size} className="bg-muted/30 rounded-xl p-4 flex flex-col items-center gap-3 overflow-visible">
@@ -55,12 +55,12 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
             <p className="mt-3 text-[11px] text-muted-foreground">
               Mainnet badge is hidden when the logo sits next to a title or in a tight cell — pass <code className="text-primary">showMainnetBadge={`{false}`}</code>.
             </p>
-            <CodePreview 
+            <CodePreview
               code={`import { Logo } from "@/components/Logo";
 
 <Logo size="sm" />  // h-4 - Compact headers
-<Logo size="md" />  // h-5 - Mobile headers (default)
-<Logo size="lg" />  // h-6 - Desktop headers
+<Logo size="md" />  // h-5 - Compact contexts (nav items, tight cells)
+<Logo size="lg" />  // h-6 - Desktop headers + mobile brand bar (variant="brand")
 <Logo size="xl" />  // h-8 - Landing pages
 <Logo size="md" showMainnetBadge={false} />  // hide badge in tight layouts`}
             />

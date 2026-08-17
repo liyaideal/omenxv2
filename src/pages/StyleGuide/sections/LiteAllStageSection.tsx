@@ -188,7 +188,7 @@ const krStock = (
 });
 
 const KR_OPEN_ROWS: StockEventRow[] = [
-  krStock("005930", 74_800, 0.55, 45),
+  krStock("005930", 74_611, 0.55, 45),
   krStock("000660", 198_500, 0.47, 45),
 ];
 
