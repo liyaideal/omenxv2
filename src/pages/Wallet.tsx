@@ -49,6 +49,7 @@ import {
   Transaction, 
   TransactionStatus 
 } from "@/components/wallet";
+import { DeleteAddressDrawer } from '@/components/wallet/DeleteAddressDrawer';
 import { AddAddressDialog } from "@/components/wallet/AddAddressDialog";
 import { DepositDialog } from "@/components/deposit/DepositDialog";
 import { WithdrawDialog } from "@/components/withdraw/WithdrawDialog";
@@ -1090,33 +1091,12 @@ export default function Wallet() {
       <TransferDrawer open={transferOpen} onOpenChange={setTransferOpen} initialDirection={transferInitDir} />
 
       {/* Delete Confirmation - Mobile */}
-      <MobileDrawer
+      <DeleteAddressDrawer
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
-        showHandle={true}
-      >
-        <MobileDrawerStatus
-          icon={<AlertTriangle className="w-8 h-8 text-trading-red" />}
-          title="Delete Address?"
-          description={`Are you sure you want to delete "${walletToDelete?.label}"? This action cannot be undone.`}
-          variant="error"
-        />
-        <MobileDrawerActions className="flex gap-2 space-y-0">
-          <Button
-            variant="outline"
-            onClick={() => setDeleteDialogOpen(false)}
-            className="flex-1 h-11"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleConfirmDelete}
-            className="flex-1 h-11 bg-trading-red hover:bg-trading-red/90 text-white"
-          >
-            Delete
-          </Button>
-        </MobileDrawerActions>
-      </MobileDrawer>
+        label={walletToDelete?.label}
+        onConfirm={handleConfirmDelete}
+      />
 
     </div>
   );
