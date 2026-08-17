@@ -823,6 +823,7 @@ The right slot takes **either ≤2 `MobileHeaderIconButton`s or exactly 1 compac
 - Icon buttons: `h-9 w-9`, icon `w-5 h-5` `strokeWidth={1.5}` `text-muted-foreground`; active state uses a semantic colour (watched star = `text-trading-yellow fill-trading-yellow`). Wrap the slot in `<div className="flex items-center gap-1 -mr-2">`.
 - No text pills, no `bg-primary/20` buttons, no balances or countdowns.
 - `MobileHeaderIconButton` is exported from `@/components/MobileHeader` — import it, never re-draw it.
+- Pro surface only: `EventsPage` / `ResolvedPage` keep `MobileStatusDropdown` as their compact control (Lite has no equivalent).
 
 ### Preset D · Home Equity Hero Spec (`<HomeEquityHero>`)
 
