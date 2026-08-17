@@ -30,6 +30,9 @@ export const STOCK_NAME: Record<string, string> = {
   "1810.HK": "Xiaomi",
   "1211.HK": "BYD",
   "0005.HK": "HSBC",
+  // Korea batch — tickers are the numeric code + ".KS".
+  "005930.KS": "Samsung Electronics",
+  "000660.KS": "SK Hynix",
 };
 
 // Tokens that look like tickers but never are (the `us-` id prefix, session words).
@@ -43,9 +46,11 @@ export const deriveTickerFromEvent = (
   const id = (eventId ?? "").toLowerCase();
   const name = eventName ?? "";
 
-  // 1) canonical id shapes: us-<ticker>-updown-… / hk-<code>-updown-…
+  // 1) canonical id shapes: us-<ticker>-updown-… / hk-<code>-updown-… / kr-<code>-updown-…
   const fromHkId = id.match(/^hk-([a-z0-9]{1,5})-updown/);
   if (fromHkId) return `${fromHkId[1].toUpperCase()}.HK`;
+  const fromKrId = id.match(/^kr-([a-z0-9]{1,6})-updown/);
+  if (fromKrId) return `${fromKrId[1].toUpperCase()}.KS`;
   const fromId = id.match(/^us-([a-z]{1,5})-updown/);
   if (fromId) return fromId[1].toUpperCase();
 
