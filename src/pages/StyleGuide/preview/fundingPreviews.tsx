@@ -6,7 +6,6 @@
  * are named in each style-guide caption.
  */
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WalletDeposit } from "@/components/deposit/WalletDeposit";
 import { WalletWithdraw } from "@/components/withdraw/WalletWithdraw";
@@ -14,16 +13,9 @@ import { WithdrawAddressSelect } from "@/components/withdraw/WithdrawAddressSele
 import { WithdrawVerifyDialog } from "@/components/withdraw/WithdrawVerifyDialog";
 import { WithdrawStatusTracker } from "@/components/withdraw/WithdrawStatusTracker";
 import { AccountPicker, AccountPickerRows, type AccountKind } from "@/components/wallet/AccountPicker";
-import {
-  MobileDrawer,
-  MobileDrawerActions,
-  MobileDrawerStatus,
-} from "@/components/ui/mobile-drawer";
-import { AlertTriangle } from "lucide-react";
-import {
-  WithdrawSubmitProvider,
-  useWithdrawSubmit,
-} from "@/components/withdraw/WithdrawSubmitContext";
+import { WithdrawSubmitProvider } from "@/components/withdraw/WithdrawSubmitContext";
+import { StickyWithdrawBar } from "@/components/withdraw/StickyWithdrawBar";
+import { DeleteAddressDrawer } from "@/components/wallet/DeleteAddressDrawer";
 import type { WithdrawRecord } from "@/types/withdraw";
 import type { TokenConfig } from "@/types/deposit";
 
@@ -51,32 +43,11 @@ export const DepositAddressPreview = () => <WalletDeposit demoAcknowledged accou
 
 /* ---------- WalletWithdraw + sticky CTA ---------- */
 
-const StickyBarDemo = () => {
-  const ctx = useWithdrawSubmit();
-  if (!ctx?.state.visible) return null;
-  const { disabled, loading, onSubmit } = ctx.state;
-  return (
-    <div className="sticky bottom-0 z-30 bg-background border-t border-border px-4 pt-3 pb-3">
-      <Button
-        onClick={onSubmit}
-        disabled={disabled}
-        className="w-full h-12 rounded-xl bg-primary hover:bg-primary-hover font-semibold text-sm"
-      >
-        {loading ? (
-          <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Processing...</>
-        ) : (
-          "Withdraw"
-        )}
-      </Button>
-    </div>
-  );
-};
-
 export const WithdrawFormPreview = () => (
   <WithdrawSubmitProvider>
     <div className="-mx-4">
       <WalletWithdraw demoAvailableBalance={8720.42} />
-      <StickyBarDemo />
+      <StickyWithdrawBar offsetBottomNav={false} />
     </div>
   </WithdrawSubmitProvider>
 );
@@ -88,17 +59,12 @@ const AddressDrawerDemo = ({ startOnAdd }: { startOnAdd?: boolean }) => {
   return (
     <div className="min-h-[420px]">
       <WithdrawAddressSelect
-        key={startOnAdd ? "add" : "list"}
         open
+        initialStep={startOnAdd ? "add" : "list"}
         onClose={() => {}}
         selectedAddress={selected}
         onSelectAddress={setSelected}
       />
-      {startOnAdd && (
-        <p className="text-[11px] text-muted-foreground">
-          Tap “Add new address” — the same drawer swaps to the add step (no nested drawer).
-        </p>
-      )}
     </div>
   );
 };
@@ -166,17 +132,6 @@ export const AccountPickerDrawerPreview = () => {
 
 export const AddressDeleteDrawerPreview = () => (
   <div className="min-h-[360px]">
-    <MobileDrawer open onOpenChange={() => {}} showHandle>
-      <MobileDrawerStatus
-        icon={<AlertTriangle className="w-8 h-8 text-trading-red" />}
-        title="Delete Address?"
-        description={'Are you sure you want to delete "Cold Wallet"? This action cannot be undone.'}
-        variant="error"
-      />
-      <MobileDrawerActions className="flex gap-2 space-y-0">
-        <Button variant="outline" className="flex-1 h-11">Cancel</Button>
-        <Button className="flex-1 h-11 bg-trading-red hover:bg-trading-red/90 text-white">Delete</Button>
-      </MobileDrawerActions>
-    </MobileDrawer>
+    <DeleteAddressDrawer open onOpenChange={() => {}} label="Cold Wallet" onConfirm={() => {}} />
   </div>
 );
