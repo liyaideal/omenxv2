@@ -2331,7 +2331,7 @@ const StyleGuide = () => {
               </div>
 
               <CodePreview 
-                code={`<MobileHeader${headerTitle ? ` title="${headerTitle.substring(0, 30)}${headerTitle.length > 30 ? '...' : ''}"` : ''}${headerShowLogo ? '' : ' showLogo={false}'}${headerShowBack ? ' showBack' : ''}${headerShowActions ? ' showActions' : ''}${headerShowCountdown ? ' endTime={...}' : ''}${headerShowTweets ? ` tweetCount={${headerTweetCount}}` : ''}${headerShowPrice ? ` currentPrice="${headerCurrentPrice}"` : ''} />`}
+                code={`<MobileHeader${headerTitle ? ` title="${headerTitle.substring(0, 30)}${headerTitle.length > 30 ? '...' : ''}"` : ''}${headerShowLogo ? '' : ' showLogo={false}'}${headerShowBack ? ' showBack' : ''}${headerShowActions ? ' rightContent={<WatchStar />}' : ''}${headerShowCountdown ? ' endTime={...}' : ''}${headerShowTweets ? ` tweetCount={${headerTweetCount}}` : ''}${headerShowPrice ? ` currentPrice="${headerCurrentPrice}"` : ''} />`}
                 id="mobile-header-code"
               />
             </CardContent>
@@ -3794,18 +3794,18 @@ toast.promise(asyncFn(), {
               <h3 className="text-base font-medium mb-4">右侧操作按钮</h3>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="bg-muted/30 rounded-xl p-4">
-                  <p className="text-sm font-medium mb-2">showActions={"{true}"}</p>
+                  <p className="text-sm font-medium mb-2">MobileHeaderIconButton</p>
                   <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• 显示收藏按钮 (Star)</li>
-                    <li>• 显示分享按钮 (Share2)</li>
-                    <li>• 需配合 isFavorite, onFavoriteToggle</li>
+                    <li>• 右槽最多 2 枚图标钮</li>
+                    <li>• w-5 h-5 / strokeWidth 1.5 / muted</li>
+                    <li>• 激活态用语义色（如 text-trading-yellow）</li>
                   </ul>
                 </div>
                 <div className="bg-muted/30 rounded-xl p-4">
                   <p className="text-sm font-medium mb-2">rightContent</p>
                   <ul className="text-sm text-muted-foreground space-y-1">
                     <li>• 自定义右侧内容</li>
-                    <li>• 会覆盖 showActions</li>
+                    <li>• ≤2 图标钮 或 1 个 h-9 紧凑控件</li>
                     <li>• 用于状态下拉菜单等</li>
                   </ul>
                 </div>
@@ -3884,7 +3884,7 @@ toast.promise(asyncFn(), {
 {`<MobileHeader 
   title={selectedEvent.name}
   endTime={selectedEvent.endTime}
-  showActions
+  rightContent={<WatchStar />}
   showBack={true}
   backTo={backTo}
   showLogo={false}
@@ -3970,10 +3970,10 @@ toast.promise(asyncFn(), {
                       <td className="py-2 px-2">自定义返回路径</td>
                     </tr>
                     <tr className="border-b border-border/50">
-                      <td className="py-2 px-2 font-mono text-xs">showActions</td>
+                      <td className="py-2 px-2 font-mono text-xs">flushBottom</td>
                       <td className="py-2 px-2">boolean</td>
                       <td className="py-2 px-2">false</td>
-                      <td className="py-2 px-2">显示收藏/分享按钮</td>
+                      <td className="py-2 px-2">把分隔线交给下方 sticky 子栏</td>
                     </tr>
                     <tr className="border-b border-border/50">
                       <td className="py-2 px-2 font-mono text-xs">rightContent</td>
