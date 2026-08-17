@@ -22,6 +22,7 @@ const StickyWithdrawBar = () => {
       className="sticky z-30 bg-background border-t border-border px-4 pt-3"
       style={{
         bottom: 'var(--bottom-nav-h, 76px)',
+        marginBottom: 'var(--bottom-nav-h, 76px)',
         paddingBottom: 'calc(12px + env(safe-area-inset-bottom))',
       }}
     >
