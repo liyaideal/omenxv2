@@ -154,7 +154,8 @@ Use `@/components/typography` instead of raw `<span className="font-mono">`:
 | Element | Casing | Example |
 |---------|--------|---------|
 | Section / component headers | Title Case | "On-Chain Liquidation Snapshot" |
-| Page titles | Title Case | "Trade Verification" |
+| Page titles (desktop PageHeader) | Title Case | "Trade Verification" |
+| Mobile header titles | Sentence case | "Settlement detail", "Redeem voucher", "Keys & access" |
 | On-chain contract fields | camelCase | `positionSide`, `markPrice`, `uid` |
 | Blockchain metadata | camelCase | `txHash`, `blockNumber`, `contract` |
 | Platform analysis fields | camelCase | `oracleSource`, `priceDeviation` |
@@ -1527,3 +1528,7 @@ Week-mode tickets in the calendar lens must announce their category first.
 **Deviation from the frozen contract:** `docs/design-contracts/calendar-final.html` (Final · Week) placed a uniform grey micro-label at the *bottom* of the ticket. That failed the "which category is this?" read in a 7-column grid, so the token was promoted to the top with the three tones above. The contract file itself is untouched; this addendum supersedes it for the ticket's category treatment only.
 
 Registered in `/style-guide` → **Lite · Calendar** → *Calendar · desktop frames*.
+
+## Changelog
+
+**2026-08-17 Mobile Header System v1** — 7 ad-hoc headers retired, 56px unified, A/B variants, sentence-case titles.

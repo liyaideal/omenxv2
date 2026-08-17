@@ -3,6 +3,8 @@ name: Mobile header Preset D · Home Equity Hero
 description: Locked spec for `/` (MobileHome). Header uses standard Preset A (`<MobileHeader>`); Total Equity KPI lives in non-sticky `<HomeEquityHero>` card as the first body section. **Main number data source = `computeTotalEquity` from `src/lib/equity.ts` (spot_balance + balance, no unrealized PnL)** — same source as top-nav Equity capsule and /wallet Band 1. Trial Bonus fully sunset 2026-07-21 — do NOT re-introduce trial_balance into this sum. Do NOT reuse Hero on other pages, do NOT put KPI back into header, do NOT re-derive the sum locally. Source of truth: DESIGN.md §10 + §Addendum 2026-07-21 + StyleGuide → Mobile Patterns → "Header Preset D".
 type: design
 ---
+Pro `/` only. Lite surface follows Mobile Header System v1 (DESIGN §10 A/B).
+
 
 **Components:**
 - `src/pages/MobileHome.tsx` — uses `<MobileHeader showLogo showBack={false} rightContent={headerActions} />`
