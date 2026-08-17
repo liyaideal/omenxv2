@@ -377,14 +377,8 @@ export const LiteCalendarView = ({
       focusedDay == null ? columns : columns.filter((c) => c.key === focusedDay);
     /** Markets you can trade on the focused day but that close later. */
     const openNow = openOnDay(items, focusedDay ?? todayKey);
-    /** Unfocused mirrors desktop week: a ticket opens that day, it does not trade. */
-    const tapTicket = (dayKeyOf: number, item: CalItem) => {
-      if (focusedDay == null) {
-        setMobileDay(dayKeyOf);
-        return;
-      }
-      openItem(item);
-    };
+    /** The day strip is the only filter — a ticket always opens its market. */
+    const tapTicket = (_dayKeyOf: number, item: CalItem) => openItem(item);
     return (
       <div className="flex flex-col" style={{ gap: 14, paddingTop: 4 }}>
         {header}
@@ -492,8 +486,8 @@ export const LiteCalendarView = ({
         <span style={{ fontSize: 11, color: "#6B7280", textWrap: "pretty" }}>
           {weekTotal} markets close in the next 7 days.{" "}
           {focusedDay == null
-            ? "Tap a day to trade it."
-            : "Tap the day again to see the whole week."}
+            ? "Tap a market to trade it."
+            : "Tap a market to trade it. Tap the day again to see the whole week."}
           {openNow.length > 0 &&
             ` ${openNow.length} more stay open past today.`}
         </span>
