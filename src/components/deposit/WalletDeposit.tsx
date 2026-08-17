@@ -9,7 +9,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LabelText, MonoText } from '@/components/typography';
+import { LabelText } from '@/components/typography';
+import { ColoredAddress } from '@/components/wallet/ColoredAddress';
 import { toast } from 'sonner';
 import { useDeposit } from '@/hooks/useDeposit';
 import { useUserProfile } from '@/hooks/useUserProfile';
@@ -189,9 +190,8 @@ export const WalletDeposit = ({ onDone, account: _account }: WalletDepositProps)
           USDC deposit address (Base)
         </LabelText>
         <div className="px-2">
-          <MonoText className={cn("leading-relaxed break-all", isMobile ? "text-xs" : "text-sm")}>
-            {custodyAddress}
-          </MonoText>
+          {/* §6 address coloring — digits Pulse Blue, letters muted grey. */}
+          <ColoredAddress address={custodyAddress} className="leading-relaxed break-all" />
         </div>
       </div>
 
