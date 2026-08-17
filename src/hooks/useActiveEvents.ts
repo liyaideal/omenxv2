@@ -74,6 +74,9 @@ export const useActiveEvents = (): UseActiveEventsReturn => {
         .from("events")
         .select("*")
         .eq("is_resolved", false)
+        // Sports fixture line siblings (handicap / total) are reachable only
+        // through their fixture board, never through generic lists.
+        .or(NON_SIBLING_FILTER)
         .order("end_date", { ascending: true });
 
       if (eventsError) {
