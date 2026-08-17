@@ -6,7 +6,6 @@
  * are named in each style-guide caption.
  */
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { WalletDeposit } from "@/components/deposit/WalletDeposit";
 import { WalletWithdraw } from "@/components/withdraw/WalletWithdraw";
 import { WithdrawAddressSelect } from "@/components/withdraw/WithdrawAddressSelect";
