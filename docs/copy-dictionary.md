@@ -49,6 +49,22 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 ---
 
 
+## Sports game lines (`/trade` fixture board)
+
+| Canonical | Meaning | Banned variants |
+|---|---|---|
+| **Winner** | Match-result group (1x2 or head-to-head) | Moneyline, 1X2, Match odds |
+| **Handicap** | Signed-line group, home-team perspective (`ARS +1.5`) | Spread, Spreads, Line betting |
+| **Total goals** / **Total points** | Combined-score group; noun follows the sport | Totals, O/U, Over/Under market |
+| **Over {line}** / **Under {line}** | The two sides of a total | O 2.5, U 2.5 |
+| **covers** | Verb for a handicap row (`ARS +1.5 covers`) | beats the spread |
+| **Regulation time** | Settlement window note on every group header | Full time only, 90 mins |
+
+Signed lines always use a real minus sign (U+2212) for negatives and `+` for
+positives. Chip words come from the sibling event's `side_labels`.
+
+---
+
 ## Airdrops (`/portfolio/airdrops`)
 
 | Canonical | Meaning |
@@ -122,6 +138,7 @@ nouns Spot/Futures are exempt).
 
 | Banned | Why | Use instead |
 |---|---|---|
+| **Spread(s) / Totals / 1X2 / O/U** | Bookmaker jargon for the sports game-line groups. | Handicap · Total goals · Over/Under · Winner |
 | **Props** | Internal taxonomy bucket name only (`PROPS_BUCKET` in `src/lib/taxonomy.ts`) — the non-intraday event catalogue of a vertical. Same class as the Moneyline ban. | Question-style section titles: "Will it happen?", "Who wins the match?" |
 
 Pro escape-hatch line (updated 2026-08-06, byte-identical from now on):

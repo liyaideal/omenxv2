@@ -44,7 +44,50 @@ interface RawMeta {
   minute?: number | null;
   phase?: string | null;
   score?: string | null;
+  /** Sports game lines — every market of one match shares this id. */
+  fixture_id?: string;
+  market_type?: "winner" | "handicap" | "total";
+  /** Handicap = home-team perspective, signed. Total = positive. */
+  line?: number;
+  sport?: string;
 }
+
+export type FixtureMeta = RawMeta;
+
+/** Reads the sports metadata blob off any events row. */
+export const fixtureMeta = (e: { metadata?: unknown } | null | undefined): FixtureMeta =>
+  ((e?.metadata as FixtureMeta | null) || {}) as FixtureMeta;
+
+/** "+1.5" / "−1.5" — real minus sign (U+2212) for negatives. */
+export const formatSignedLine = (n: number): string => {
+  const abs = Math.abs(n);
+  const body = Number.isInteger(abs) ? String(abs) : String(abs);
+  return `${n < 0 ? "\u2212" : "+"}${body}`;
+};
+
+/** Sport-aware scoring noun for the Total group. */
+export const scoringNoun = (meta: FixtureMeta): "goals" | "points" => {
+  const sport = (meta.sport || "").toLowerCase();
+  if (sport) return sport === "basketball" ? "points" : "goals";
+  const league = (meta.league || "").toLowerCase();
+  return /nba|basket|wnba|euroleague/.test(league) ? "points" : "goals";
+};
+
+/**
+ * Splits the sibling events of one fixture into their market groups.
+ * Handicap / Total are sorted by line ascending.
+ */
+export const groupFixtureMarkets = <T extends { metadata?: unknown }>(
+  events: T[],
+): { winner: T | null; handicap: T[]; total: T[] } => {
+  const byLine = (a: T, b: T) => (fixtureMeta(a).line ?? 0) - (fixtureMeta(b).line ?? 0);
+  const of = (t: string) => events.filter((e) => fixtureMeta(e).market_type === t);
+  return {
+    winner: of("winner")[0] ?? null,
+    handicap: of("handicap").sort(byLine),
+    total: of("total").sort(byLine),
+  };
+};
 
 /** Live matches age their own clock off the kickoff timestamp. */
 const liveMinute = (kickoff: Date | null): number | null => {
@@ -76,7 +119,14 @@ export const useSportsMatches = () => {
         .eq("is_resolved", false)
         .order("start_date", { ascending: true });
       if (!alive) return;
-      const list: SportsMatch[] = (data || []).map((e) => {
+      const list: SportsMatch[] = (data || [])
+        // Game-line siblings (handicap / total) belong to their fixture's
+        // trade board, never to the match ledger.
+        .filter((e) => {
+          const mt = ((e as { metadata?: RawMeta | null }).metadata || {}).market_type;
+          return !mt || mt === "winner";
+        })
+        .map((e) => {
         const meta = ((e as { metadata?: RawMeta | null }).metadata || {}) as RawMeta;
         const kickoff = meta.kickoff_at
           ? new Date(meta.kickoff_at)

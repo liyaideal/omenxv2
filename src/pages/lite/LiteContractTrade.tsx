@@ -50,6 +50,14 @@ import {
 import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
 import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
 import { LiteMarketBoard, type BoardOption } from "@/components/lite/multi/LiteMarketBoard";
+import { LiteLineScrubber } from "@/components/lite/multi/LiteLineScrubber";
+import {
+  fixtureMeta,
+  formatSignedLine,
+  groupFixtureMarkets,
+  scoringNoun,
+} from "@/components/lite/sports/sportsData";
+import { LiteBoardGroupHeader as GroupHeader } from "@/components/lite/multi/LiteBoardGroupHeader";
 import { useTradeCountdown } from "@/components/lite/intraday/intradayData";
 import { LiteCrowdOverview } from "@/components/lite/multi/LiteCrowdOverview";
 import { EmptyState } from "@/components/states";
@@ -87,11 +95,50 @@ const CATEGORY_LABEL: Record<string, string> = {
   stocks: "Finance",
 };
 
-// Countdown comes from the shared `useTradeCountdown` (intradayData) — one
-// countdown implementation for both Lite trade pages.
+// ---- Sports game lines -------------------------------------------------
+// One fixture = several sibling events (winner / handicap / total). They are
+// fetched together and rendered as groups on the SAME board component; the
+// scrubber only swaps which sibling a line group is bound to.
+const useFixtureSiblings = (fixtureId: string | null, tick: number) => {
+  const [rows, setRows] = useState<EventRow[]>([]);
+  useEffect(() => {
+    if (!fixtureId) {
+      setRows([]);
+      return;
+    }
+    let alive = true;
+    (async () => {
+      const { data } = await supabase
+        .from("events")
+        .select("*, options:event_options(*)")
+        .eq("metadata->>fixture_id", fixtureId);
+      if (!alive) return;
+      setRows((data || []) as unknown as EventRow[]);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [fixtureId, tick]);
+  return rows;
+};
 
-// Market activity rows come from the shared `useMarketActivityRows` hook
-// (LiteMarketActivity) so the spot page renders the identical feed.
+/** Yes/No split of a binary sibling event, using its side_labels aliases. */
+const splitBinary = (ev: EventRow) => {
+  const labels = parseSideLabels(ev.side_labels);
+  const alias = (labels?.yes || "").trim().toLowerCase();
+  const yesOpt =
+    (alias && ev.options.find((o) => o.label.trim().toLowerCase() === alias)) ||
+    ev.options.find((o) => /(^|[-_ ])yes$/i.test(o.label)) ||
+    ev.options[0] ||
+    null;
+  const noOpt = ev.options.find((o) => o.id !== yesOpt?.id) || ev.options[1] || null;
+  return {
+    yesOpt,
+    noOpt,
+    yesLabel: labels?.yes || "Yes",
+    noLabel: labels?.no || "No",
+  };
+};
 
 interface MoreRow {
   id: string;
@@ -266,6 +313,68 @@ const LiteContractTrade = () => {
 
   const isMulti = (event?.options.length ?? 0) > 2;
 
+  // ---- Sports game lines: sibling markets of the same fixture ----
+  const meta = fixtureMeta(event);
+  const siblings = useFixtureSiblings(meta.fixture_id ?? null, refetchTick);
+  const groups = useMemo(() => groupFixtureMarkets(siblings), [siblings]);
+  const hasLines = groups.handicap.length > 0 || groups.total.length > 0;
+  const handicapLines = useMemo(
+    () => groups.handicap.map((e) => fixtureMeta(e).line ?? 0),
+    [groups.handicap],
+  );
+  const totalLines = useMemo(
+    () => groups.total.map((e) => fixtureMeta(e).line ?? 0),
+    [groups.total],
+  );
+  const [handicapLine, setHandicapLine] = useState<number | null>(null);
+  const [totalLine, setTotalLine] = useState<number | null>(null);
+  // Deep link: /trade?event=<winner>&line=<sibling id> preselects a group.
+  const deepLineId = params.get("line");
+
+  const pickDefault = (values: number[], wanted?: number | null) =>
+    wanted != null && values.includes(wanted)
+      ? wanted
+      : (values[Math.floor(values.length / 2)] ?? null);
+
+  useEffect(() => {
+    const deep = deepLineId ? siblings.find((e) => e.id === deepLineId) : null;
+    const dMeta = deep ? fixtureMeta(deep) : null;
+    setHandicapLine((cur) =>
+      cur != null && handicapLines.includes(cur)
+        ? cur
+        : pickDefault(
+            handicapLines,
+            dMeta?.market_type === "handicap" ? dMeta.line : null,
+          ),
+    );
+    setTotalLine((cur) =>
+      cur != null && totalLines.includes(cur)
+        ? cur
+        : pickDefault(totalLines, dMeta?.market_type === "total" ? dMeta.line : null),
+    );
+  }, [handicapLines, totalLines, deepLineId, siblings]);
+
+  // Deep link straight to a line market: the fixture board is the canonical
+  // surface, so bounce to the winner event and carry the line in the URL.
+  useEffect(() => {
+    if (!event || !meta.fixture_id) return;
+    if (meta.market_type && meta.market_type !== "winner" && meta.fixture_id !== event.id) {
+      navigate(`/trade?event=${meta.fixture_id}&line=${event.id}`, { replace: true });
+    }
+  }, [event, meta.fixture_id, meta.market_type, navigate]);
+
+  const activeHandicap = useMemo(
+    () =>
+      groups.handicap.find((e) => fixtureMeta(e).line === handicapLine) ||
+      groups.handicap[0] ||
+      null,
+    [groups.handicap, handicapLine],
+  );
+  const activeTotal = useMemo(
+    () => groups.total.find((e) => fixtureMeta(e).line === totalLine) || groups.total[0] || null,
+    [groups.total, totalLine],
+  );
+
   // Settled charts read real odds history — never synthesised data.
   const [history, setHistory] = useState<Record<string, number[]>>({});
   useEffect(() => {
@@ -318,8 +427,10 @@ const LiteContractTrade = () => {
   // Every open leg on this event (multi events allow several at once).
   const multiHeld = useMemo(() => {
     if (!event) return [];
-    return positions.filter((p) => p.productLine === "futures" && p.event === event.name);
-  }, [positions, event]);
+    // Fixtures also count legs opened on their sibling line markets.
+    const names = new Set<string>([event.name, ...siblings.map((s) => s.name)]);
+    return positions.filter((p) => p.productLine === "futures" && names.has(p.event));
+  }, [positions, event, siblings]);
 
   const more = useMoreMarkets(event?.category || null, event?.id || "");
 
@@ -390,6 +501,128 @@ const LiteContractTrade = () => {
     />
   );
 
+  // ---- Sports game lines: grouped board -------------------------------
+  const noun = scoringNoun(meta);
+  const homeAbbr = meta.home_abbr || meta.home || "Home";
+  const regulationTip =
+    "Settles on the regulation-time result. Extra time and penalties don't count.";
+
+  const lineRow = (
+    ev: EventRow | null,
+    label: (line: number) => string,
+  ): BoardOption | null => {
+    if (!ev) return null;
+    const { yesOpt: y, noOpt: n, yesLabel: yl, noLabel: nl } = splitBinary(ev);
+    if (!y || !n) return null;
+    const held = multiHeld.find((p) => p.event === ev.name);
+    return {
+      id: y.id,
+      label: label(fixtureMeta(ev).line ?? 0),
+      yesPrice: pricesCtx?.getPrice(y.id) ?? Number(y.price),
+      settled: y.final_price != null,
+      outcomeYes: !!y.is_winner,
+      heldSide: held ? (legIsNo(held) ? "no" : "yes") : null,
+      yesChipLabel: yl,
+      noChipLabel: nl,
+    };
+  };
+
+  const handicapRow = lineRow(activeHandicap, (l) => `${homeAbbr} ${formatSignedLine(l)} covers`);
+  const totalRow = lineRow(activeTotal, (l) => `Over ${l} ${noun}`);
+
+  const lineGroupBoard = (
+    row: BoardOption | null,
+    values: number[],
+    value: number | null,
+    onChange: (v: number) => void,
+    format?: (n: number) => string,
+  ) =>
+    row ? (
+      <LiteMarketBoard
+        options={[row]}
+        volumeText={volumeText}
+        selectedId={selectedOptId === row.id ? row.id : null}
+        selectedSide={side}
+        onSelect={selectMarket}
+        compact={!!isMobile}
+        showChart
+        hideHeader
+        renderFooter={() => (
+          <LiteLineScrubber
+            values={values}
+            value={value ?? values[0]}
+            onChange={onChange}
+            format={format}
+            compact={!!isMobile}
+          />
+        )}
+      />
+    ) : null;
+
+  const FixtureBoard = (
+    <div className="space-y-2">
+      {!isMobile && (
+        // Mobile already carries the crowd caption in LiteCrowdOverview.
+        <div className="flex items-end justify-between gap-3">
+          <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+            What the crowd thinks
+          </div>
+          <div className="shrink-0 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+            {volumeText}
+          </div>
+        </div>
+      )}
+      {event.options.length > 1 && (
+        <>
+          <GroupHeader title="Winner" note="Regulation time" tip={regulationTip} />
+          <LiteMarketBoard
+            options={boardOptions}
+            volumeText={volumeText}
+            selectedId={
+              selectedOptId && event.options.some((o) => o.id === selectedOptId)
+                ? selectedOptId
+                : null
+            }
+            selectedSide={side}
+            onSelect={selectMarket}
+            compact={!!isMobile}
+            showChart
+            hideHeader
+          />
+        </>
+      )}
+      {handicapRow && (
+        <>
+          <GroupHeader
+            title="Handicap"
+            note="Regulation time"
+            tip={`A team covers when its regulation-time score plus the line beats the opponent. ${regulationTip}`}
+          />
+          {lineGroupBoard(handicapRow, handicapLines, handicapLine, setHandicapLine)}
+        </>
+      )}
+      {totalRow && (
+        <>
+          <GroupHeader
+            title={`Total ${noun}`}
+            note="Regulation time"
+            tip={`Counts both teams' ${noun} in regulation time. ${regulationTip}`}
+          />
+          {lineGroupBoard(
+            totalRow,
+            totalLines,
+            totalLine,
+            setTotalLine,
+            (n) => String(n),
+          )}
+        </>
+      )}
+    </div>
+  );
+
+  const BoardModule = hasLines ? FixtureBoard : MarketBoard;
+  const boardMode = isMulti || hasLines;
+
   const heldIsYes =
     heldPos != null &&
     heldPos.option.trim().toLowerCase() === yesOpt.label.trim().toLowerCase();
@@ -436,8 +669,17 @@ const LiteContractTrade = () => {
   const QuestionBlock = (
     <div>
       <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-        {categoryLabel}
-        {isMulti && !isMobile && ` · ${event.options.length} markets`}
+        {hasLines
+          ? [
+              categoryLabel,
+              event.options.length > 1 ? "Winner" : null,
+              handicapRow ? "Handicap" : null,
+              totalRow ? `Total ${noun}` : null,
+            ]
+              .filter(Boolean)
+              .join(" · ")
+          : categoryLabel}
+        {!hasLines && isMulti && !isMobile && ` · ${event.options.length} markets`}
       </div>
       <div className="mt-2 flex items-start justify-between gap-3">
         <h1
@@ -610,7 +852,7 @@ const LiteContractTrade = () => {
     : null;
 
   const MultiPositions =
-    isMulti && multiHeld.length > 0 ? (
+    boardMode && multiHeld.length > 0 ? (
       <div className="space-y-3">
         {multiHeld.map((p) => {
           const isYesLeg = !legIsNo(p);
@@ -809,7 +1051,56 @@ const LiteContractTrade = () => {
       } as const)
     : null;
 
-  const panelProps = isMulti && multiPanelProps ? multiPanelProps : binaryPanelProps;
+  // ---- Game lines: the rail binds to the selected sibling event ----
+  const selectedLineEvent =
+    hasLines && selectedOptId
+      ? [activeHandicap, activeTotal].find(
+          (ev) => !!ev && ev.options.some((o) => o.id === selectedOptId),
+        ) || null
+      : null;
+  const selectedLineGroup =
+    selectedLineEvent && selectedLineEvent.id === activeHandicap?.id
+      ? "Handicap"
+      : selectedLineEvent
+        ? `Total ${noun}`
+        : null;
+
+  const linePanelProps = (() => {
+    if (!selectedLineEvent) return null;
+    const s = splitBinary(selectedLineEvent);
+    if (!s.yesOpt || !s.noOpt) return null;
+    const held = multiHeld.find((p) => p.event === selectedLineEvent.name) || null;
+    const heldIsNo = held ? legIsNo(held) : false;
+    return {
+      ...binaryPanelProps,
+      eventName: selectedLineEvent.name,
+      yesLabel: s.yesLabel,
+      noLabel: s.noLabel,
+      yesPrice: pricesCtx?.getPrice(s.yesOpt.id) ?? Number(s.yesOpt.price),
+      noPrice: pricesCtx?.getPrice(s.noOpt.id) ?? Number(s.noOpt.price),
+      yesOptionId: s.yesOpt.id,
+      noOptionId: s.noOpt.id,
+      yesOptionLabel: s.yesOpt.label,
+      noOptionLabel: s.noOpt.label,
+      blocked: blocked || s.yesOpt.final_price != null,
+      blockedReason: s.yesOpt.final_price != null ? "Settled" : blockedReason,
+      marketContextLabel: `${event.name} · ${selectedLineGroup} · ${
+        side === "yes" ? s.yesLabel : s.noLabel
+      }`,
+      heldSideLabel: held ? (heldIsNo ? s.noLabel : s.yesLabel) : null,
+      heldCurrentValue: held ? held.marginNum + held.pnlNum : null,
+      heldQty: held ? held.sizeNum : null,
+      nettingScopeLabel: "on this market",
+    } as const;
+  })();
+
+  const panelProps =
+    linePanelProps ?? (isMulti && multiPanelProps ? multiPanelProps : binaryPanelProps);
+  const orderContextLine = linePanelProps
+    ? (linePanelProps.marketContextLabel as string)
+    : isMulti && selOpt
+      ? selOpt.label
+      : event.name;
 
   // -------- Mobile --------
   if (isMobile) {
@@ -831,16 +1122,16 @@ const LiteContractTrade = () => {
               <>
                 {OutcomeCard}
                 {Chart}
-                {isMulti ? MarketBoard : SentimentBar}
+                {boardMode ? BoardModule : SentimentBar}
                 {Proof}
                 {RuleCard}
                 {MarketActivity}
                 {MoreMarkets}
               </>
-            ) : isMulti ? (
+            ) : boardMode ? (
               <>
-                {CrowdOverview}
-                {MarketBoard}
+                {isMulti && CrowdOverview}
+                {BoardModule}
                 {RuleCard}
                 {MultiPositions}
                 {MarketActivity}
@@ -858,7 +1149,7 @@ const LiteContractTrade = () => {
             )}
           </div>
 
-          {!isMulti && (
+          {!boardMode && (
           <div
             className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 px-4 pt-3 backdrop-blur"
             style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0) + 12px)" }}
@@ -913,7 +1204,7 @@ const LiteContractTrade = () => {
                   {side === "yes" ? panelProps.yesLabel : panelProps.noLabel}
                 </span>
                 <span className="truncate text-sm font-semibold">
-                  {isMulti && selOpt ? selOpt.label : event.name}
+                  {orderContextLine}
                 </span>
               </div>
               <div className="mt-1 text-[11px] text-muted-foreground">
@@ -956,15 +1247,15 @@ const LiteContractTrade = () => {
             {QuestionBlock}
             {resolved ? (
               <>
-                {isMulti ? MarketBoard : SentimentBar}
+                {boardMode ? BoardModule : SentimentBar}
                 {Chart}
                 {Proof}
                 {RuleCard}
                 {MarketActivity}
               </>
-            ) : isMulti ? (
+            ) : boardMode ? (
               <>
-                {MarketBoard}
+                {BoardModule}
                 {RuleCard}
                 {MultiPositions}
                 {MarketActivity}

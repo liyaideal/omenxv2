@@ -85,6 +85,13 @@ export const LiteOverviewSection = (_: P) => (
       <h3 className="mb-2 text-sm font-semibold text-foreground">Changelog</h3>
       <ul className="space-y-1 text-[12px] text-muted-foreground">
         <li>
+          2026-08-17 · Sports Game Lines v1 —— 一场比赛 = 多条同{" "}
+          <code className="font-mono">fixture_id</code> 的兄弟事件（winner / handicap / total），
+          交易页在同一块 LiteMarketBoard 上按组渲染：组标题 + 让分/大小球各一行 +{" "}
+          <code className="font-mono">LiteLineScrubber</code> 离散换线；chip 文案取兄弟事件的{" "}
+          side_labels。非体育事件 DOM 完全不变。style-guide 交易页新增 6 键。
+        </li>
+        <li>
           2026-08-17 · 资金流移动端整治 —— /deposit /withdraw 判定为全屏流（§5 新判据）；账户/地址选择器
           收编 MobileDrawer，新增地址改为抽屉内二步（去嵌套），提交型抽屉统一 MobileDrawerActions
           Cancel+主按钮；Withdraw 主 CTA sticky；充值地址 §6 着色；style-guide 新增 10 键。
