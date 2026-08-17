@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
+import { cn } from "@/lib/utils";
 
 /**
  * Mobile Header Design Specification
