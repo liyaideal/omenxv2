@@ -497,6 +497,7 @@ const LiteEventsPage = () => {
             events={filtered}
             isMobile={!!isMobile}
             boostOnly={boostOnly}
+            scrollToEngine={scrollToEngine}
             renderGrid={(items) => (
               <CardGrid
                 items={items}
