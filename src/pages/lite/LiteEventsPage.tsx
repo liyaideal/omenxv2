@@ -148,6 +148,9 @@ const LiteEventsPage = () => {
   const isCryptoView = !calendarOn && sector === "crypto";
   const isFinanceView = !calendarOn && sector === "finance";
   const [mobileTf, setMobileTf] = useState<Timeframe>("15m");
+  // One-shot intent: the user tapped a "session open" row, so the Finance view
+  // should scroll its rounds engine into view once after landing.
+  const [scrollToEngine, setScrollToEngine] = useState(0);
 
   // Stage data — desktop only, and only for the views that render it.
   const stageActive =
