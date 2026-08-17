@@ -325,510 +325,149 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
       </SectionWrapper>
 
       {/* =========================== */}
-      {/* MOBILE HEADER DESIGN SPECS  */}
+      {/* MOBILE HEADER SYSTEM v1     */}
       {/* =========================== */}
       <SectionWrapper
         id="mobile-header-specs"
-        title="Mobile Header Design Specification"
+        title="Mobile Header System v1"
         platform="mobile"
-        description="Comprehensive rules for mobile header layout and behavior. 概念示意图 — the boxes below are hand-drawn diagrams illustrating the rules, not live components. The live header lives in the Mobile Header Playground below."
+        description="ONE component, ONE height (56px + safe-area-top), TWO variants (A brand / B inner), four slot contracts. Every case below mounts the real production MobileHeader inside a 375px iframe — no re-drawn copies. No Lite page may draw its own top bar."
       >
-        {/* Page Type Classification */}
+        {/* Variant table */}
         <Card className="trading-card mb-6 border-primary/30">
           <CardHeader>
-            <CardTitle className="text-lg">Page Type Classification</CardTitle>
-            <CardDescription>Different page types have different header requirements</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-3"}`}>
-              {/* Functional Pages */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-primary" />
-                  <h4 className="font-medium">Functional Pages</h4>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Core app navigation pages accessed via BottomNav. Never show back button.
-                </p>
-                <div className="bg-muted/30 rounded-lg p-3 space-y-2">
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="font-mono text-primary">/</span>
-                    <span>Home (MobileHome)</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="font-mono text-primary">/events</span>
-                    <span>Events List</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="font-mono text-primary">/leaderboard</span>
-                    <span>Leaderboard</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="font-mono text-primary">/trade</span>
-                    <span>Trade Hub</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="font-mono text-primary">/portfolio</span>
-                    <span>Portfolio</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Operational Pages - With Logo */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-trading-purple" />
-                  <h4 className="font-medium">Operational (Logo)</h4>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Detail pages with rich content. Show back + logo + title.
-                </p>
-                <div className="bg-muted/30 rounded-lg p-3 space-y-2">
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="font-mono text-primary">/trade/:id</span>
-                    <span>Trade Order</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="font-mono text-primary">/resolved/:id</span>
-                    <span>Resolved Event</span>
-                  </div>
-                </div>
-                <div className="bg-primary/10 rounded-lg p-2 mt-2">
-                  <code className="text-[10px] text-primary">showLogo=&#123;true&#125;</code>
-                </div>
-              </div>
-
-              {/* Operational Pages - Title Only */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-trading-green" />
-                  <h4 className="font-medium">Operational (Title Only)</h4>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Utility/settings pages. Clean header with back + centered title only.
-                </p>
-                <div className="bg-muted/30 rounded-lg p-3 space-y-2">
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="font-mono text-primary">/settings</span>
-                    <span>Settings</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="font-mono text-primary">/rewards</span>
-                    <span>Rewards Center</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="font-mono text-primary">/wallet</span>
-                    <span>Wallet</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="font-mono text-primary">/deposit</span>
-                    <span>Deposit</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="font-mono text-primary">/withdraw</span>
-                    <span>Withdraw</span>
-                  </div>
-                </div>
-                <div className="bg-trading-green/10 rounded-lg p-2 mt-2">
-                  <code className="text-[10px] text-trading-green">showLogo=&#123;false&#125;</code>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Header Rules Table */}
-        <Card className="trading-card mb-6">
-          <CardHeader>
-            <CardTitle className="text-lg">Header Component Rules</CardTitle>
+            <CardTitle className="text-lg">A / B variants</CardTitle>
+            <CardDescription>Former Preset C merged into B. Former Preset D is Pro `/` only.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left py-2 text-muted-foreground font-medium">Element</th>
-                    <th className="text-left py-2 text-muted-foreground font-medium">Rule</th>
-                    <th className="text-left py-2 text-muted-foreground font-medium">Implementation</th>
+                    <th className="text-left py-2 text-muted-foreground font-medium">Variant</th>
+                    <th className="text-left py-2 text-muted-foreground font-medium">Props</th>
+                    <th className="text-left py-2 text-muted-foreground font-medium">Where</th>
+                    <th className="text-left py-2 text-muted-foreground font-medium">Anatomy</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/50">
                   <tr>
-                    <td className="py-2 font-medium flex items-center gap-2">
-                      <ChevronLeft className="h-3 w-3" /> Back Button
-                    </td>
-                    <td className="py-2 text-muted-foreground">
-                      Auto-detect via navigationType. Never on BottomNav pages.
-                    </td>
-                    <td className="py-2">
-                      <code className="text-primary text-[10px]">showBack</code> prop or auto
-                    </td>
+                    <td className="py-2 font-medium">A · Brand bar</td>
+                    <td className="py-2 font-mono text-primary text-[10px]">variant="brand"</td>
+                    <td className="py-2 text-muted-foreground">Lite bottom-nav roots /, /events, /portfolio, /wallet</td>
+                    <td className="py-2 text-muted-foreground">Logo lg + Mainnet left, no back, no title, optional right slot; divider fades in after 8px scroll</td>
                   </tr>
                   <tr>
-                    <td className="py-2 font-medium flex items-center gap-2">
-                      <Logo size="sm" showMainnetBadge={false} /> Logo
-                    </td>
-                    <td className="py-2 text-muted-foreground">
-                      Show everywhere EXCEPT Trade pages. Left-aligned.
-                    </td>
-                    <td className="py-2">
-                      <code className="text-primary text-[10px]">showLogo=&#123;true&#125;</code>
-                    </td>
+                    <td className="py-2 font-medium">B · Inner bar</td>
+                    <td className="py-2 font-mono text-primary text-[10px]">variant="inner"</td>
+                    <td className="py-2 text-muted-foreground">Everything else — Lite trade pages, /rewards*, /settings*, /deposit, /withdraw, /wallet/recovery*, /leaderboard, /portfolio sub-pages, campaign, SEO sub-pages</td>
+                    <td className="py-2 text-muted-foreground">Back 36×36 left, centered 14/600 single-line sentence-case title (≤24 chars, ellipsis), right slot ≤2 icons or 1 compact control, divider always (or handed over with flushBottom)</td>
                   </tr>
-                  <tr>
-                    <td className="py-2 font-medium">Title</td>
-                    <td className="py-2 text-muted-foreground">
-                      Centered. Max 2 lines with line-clamp-2. 14px semibold.
-                    </td>
-                    <td className="py-2">
-                      <code className="text-primary text-[10px]">title</code> prop
-                    </td>
+                </tbody>
+              </table>
+            </div>
+            <p className="mt-3 text-[11px] text-muted-foreground">
+              Height: 56px + env(safe-area-inset-top) for both. Sub-bars stick at
+              <code className="text-primary"> top-[var(--mobile-header-h)]</code>.
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Page classification */}
+        <Card className="trading-card mb-6">
+          <CardHeader>
+            <CardTitle className="text-lg">Page classification</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-2 text-muted-foreground font-medium">Route</th>
+                    <th className="text-left py-2 text-muted-foreground font-medium">Variant</th>
+                    <th className="text-left py-2 text-muted-foreground font-medium">Right slot</th>
                   </tr>
-                  <tr>
-                    <td className="py-2 font-medium flex items-center gap-2">
-                      <Star className="h-3 w-3" />
-                      <Share2 className="h-3 w-3" />
-                      Actions
-                    </td>
-                    <td className="py-2 text-muted-foreground">
-                      Favorite + Share. 36x36 touch targets. Ghost style.
-                    </td>
-                    <td className="py-2">
-                      <code className="text-primary text-[10px]">showActions=&#123;true&#125;</code>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="py-2 font-medium">rightContent</td>
-                    <td className="py-2 text-muted-foreground">
-                      Custom slot overrides showActions. Any ReactNode.
-                    </td>
-                    <td className="py-2">
-                      <code className="text-primary text-[10px]">rightContent=&#123;...&#125;</code>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="py-2 font-medium">Stats Row</td>
-                    <td className="py-2 text-muted-foreground">
-                      Shows when endTime/currentPrice/tweetCount provided.
-                    </td>
-                    <td className="py-2">
-                      <code className="text-primary text-[10px]">endTime, currentPrice</code>
-                    </td>
-                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/50">
+                  {[
+                    ["/", "A (Pro home keeps its header actions)", "headerActions"],
+                    ["/events", "A", "—"],
+                    ["/portfolio", "A", "Tab dropdown (compact control)"],
+                    ["/wallet", "A", "—"],
+                    ["/portfolio/settlements · /portfolio/airdrops", "B — Settlements / Airdrops", "—"],
+                    ["/trade · /spot (Lite)", "B — event name, titleHidden until scroll", "Watchlist star"],
+                    ["/rewards", "B — Rewards, flushBottom", "—"],
+                    ["/rewards redeem", "B — Redeem voucher", "—"],
+                    ["/leaderboard", "B — Leaderboard", "Share"],
+                    ["/settings · /settings/api", "B — Settings / Keys & access", "—"],
+                    ["/deposit · /withdraw", "B — Deposit / Withdraw", "—"],
+                    ["/wallet/recovery*", "B — Recovery / Recovery request", "—"],
+                    ["/portfolio/settlement/:id", "B — Settlement detail", "Share"],
+                    ["/campaign/:slug", "B — Campaign", "—"],
+                    ["/transparency", "B — Transparency audit", "—"],
+                  ].map(([r, v, s]) => (
+                    <tr key={r}>
+                      <td className="py-2 font-mono text-primary text-[10px]">{r}</td>
+                      <td className="py-2 text-muted-foreground">{v}</td>
+                      <td className="py-2 text-muted-foreground">{s}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
           </CardContent>
         </Card>
 
-        {/* Visual Examples */}
+        {/* Live playground — 375px iframes */}
         <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
-          {/* Home Page Header — opening brand bar (live component) */}
-          <Card className="trading-card">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Home Page Header (brand bar)</CardTitle>
-              <CardDescription className="text-[10px]">
-                Logo only, no back, no actions — taller opening bar, lg logo, no
-                spacer on the right. Divider only appears once the page scrolls.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="bg-background rounded-lg border border-border overflow-hidden">
-                <MobileHeader showLogo showBack={false} />
-              </div>
-              <div className="text-[10px] text-muted-foreground">Scrolled (divider fades in)</div>
-              <div className="bg-background rounded-lg border border-border overflow-hidden">
-                <div className="border-b border-border">
-                  <MobileHeader showLogo showBack={false} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Trade Page Header */}
-          <Card className="trading-card">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Trade Page Header</CardTitle>
-              <CardDescription className="text-[10px]">Back button, title, actions, stats row</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-background rounded-lg border border-border overflow-hidden">
-                <div className="px-4 py-2 border-b border-border">
-                  <div className="flex items-center justify-between">
-                    <button className="h-9 w-9 flex items-center justify-center">
-                      <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    <h1 className="text-sm font-semibold text-center flex-1">BTC to $100k?</h1>
-                    <div className="flex items-center gap-1">
-                      <button className="h-9 w-9 flex items-center justify-center">
-                        <Star className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
-                      </button>
-                      <button className="h-9 w-9 flex items-center justify-center">
-                        <Share2 className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
-                      </button>
-                    </div>
-                  </div>
-                  {/* Stats row */}
-                  <div className="flex items-center justify-center gap-4 mt-1.5 pt-1.5 border-t border-border/30">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 bg-trading-red rounded-full" />
-                      <span className="text-[10px] text-muted-foreground">Ends in</span>
-                      <span className="text-[10px] text-trading-red font-mono">23:45:12</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 bg-trading-green rounded-full" />
-                      <span className="text-[10px] text-muted-foreground">Price</span>
-                      <span className="text-[10px] text-trading-green font-mono">$94,532</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Detail Page Header */}
-          <Card className="trading-card">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Detail Page Header</CardTitle>
-              <CardDescription className="text-[10px]">Back + centered title (no logo)</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-background rounded-lg border border-border overflow-hidden">
-                <div className="flex items-center justify-between gap-2 px-4 py-2 border-b border-border">
-                  <button className="h-9 w-9 flex items-center justify-center flex-shrink-0">
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                  <h1 className="text-sm font-semibold flex-1 text-center">Event Details</h1>
-                  <div className="w-9 flex-shrink-0" />
-                </div>
-
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* With Custom rightContent */}
-          <Card className="trading-card">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Custom rightContent</CardTitle>
-              <CardDescription className="text-[10px]">Using rightContent prop for custom buttons</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-background rounded-lg border border-border overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-2 border-b border-border">
-                  <Logo size="md" showMainnetBadge={false} />
-                  <h1 className="text-sm font-semibold flex-1 text-center">Settings</h1>
-                  <Button variant="ghost" size="sm" className="text-xs">
-                    Save
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {[
+            ["A · top of page", "mobile-header-brand-top"],
+            ["A · scrolled (divider in)", "mobile-header-brand-scrolled"],
+            ["A · + compact control (Portfolio)", "mobile-header-brand-control"],
+            ["B · title only (Settings)", "mobile-header-inner-title"],
+            ["B · + 1 icon (Leaderboard)", "mobile-header-inner-one-icon"],
+            ["B · + 2 icons (slot cap)", "mobile-header-inner-two-icons"],
+            ["B · trade titleHidden toggle", "mobile-header-inner-title-hidden"],
+            ["B · overlong title truncates", "mobile-header-inner-long-title"],
+            ["B · flushBottom + sticky sub-bar", "mobile-header-inner-subbar"],
+            ["Don't pair", "mobile-header-dont"],
+          ].map(([label, key]) => (
+            <Card key={key} className="trading-card">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">{label}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <DeviceFrame previewKey={key} device="mobile" minHeight={160} />
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
-        <CodePreview 
-          code={`// Page type determines header configuration:
+        <CodePreview
+          className="mt-6"
+          code={`// A — Lite root
+<MobileHeader variant="brand" showBack={false} />
 
-// 1. Functional Pages (BottomNav entries) - Never show back
-<MobileHeader showLogo showBack={false} />
-
-// 2. Trade Pages - No logo, show back, with stats
-<MobileHeader 
+// B — inner page with one icon
+<MobileHeader
+  title="Leaderboard"
+  showBack
   showLogo={false}
-  title="Will BTC reach $100k?"
-  showActions
-  endTime={eventEndTime}
-  currentPrice="$94,532"
+  rightContent={
+    <div className="flex items-center gap-1 -mr-2">
+      <MobileHeaderIconButton aria-label="Share" onClick={share}>
+        <Share2 className="w-5 h-5" strokeWidth={1.5} />
+      </MobileHeaderIconButton>
+    </div>
+  }
 />
 
-// 3. Detail Pages - Back + Logo together
-<MobileHeader 
-  showLogo
-  title="Event Details"
-  showActions
-/>
-
-// 4. Custom rightContent
-<MobileHeader 
-  title="Settings"
-  rightContent={<Button variant="ghost">Save</Button>}
-/>`}
-          collapsible
-          defaultExpanded={false}
+// B — hands the divider to a sticky sub-bar
+<MobileHeader title="Rewards" showBack showLogo={false} flushBottom />
+<div className="sticky top-[var(--mobile-header-h)] z-30">…tabs…</div>`}
         />
       </SectionWrapper>
 
-
-      {/* =========================== */}
-      {/* MOBILE HEADER PLAYGROUND    */}
-      {/* =========================== */}
-      <SectionWrapper
-        id="mobile-header"
-        title="Mobile Header Playground"
-        platform="mobile"
-        description="Interactive configuration for all header variants — real MobileHeader component, live props."
-      >
-        {/* Props Documentation */}
-        <Card className="trading-card border-primary/30 mb-6">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Props Reference</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-2 text-muted-foreground font-medium">Prop</th>
-                    <th className="text-left py-2 text-muted-foreground font-medium">Type</th>
-                    <th className="text-left py-2 text-muted-foreground font-medium">Description</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border/50">
-                  <tr><td className="py-1.5 font-mono text-primary">title</td><td className="py-1.5">string</td><td className="py-1.5 text-muted-foreground">Main title text (optional)</td></tr>
-                  <tr><td className="py-1.5 font-mono text-primary">showLogo</td><td className="py-1.5">boolean</td><td className="py-1.5 text-muted-foreground">Show logo on left (default: true)</td></tr>
-                  <tr><td className="py-1.5 font-mono text-primary">showBack</td><td className="py-1.5">boolean</td><td className="py-1.5 text-muted-foreground">Show back button (auto-detected by default)</td></tr>
-                  <tr><td className="py-1.5 font-mono text-primary">showActions</td><td className="py-1.5">boolean</td><td className="py-1.5 text-muted-foreground">Show favorite + share buttons</td></tr>
-                  <tr><td className="py-1.5 font-mono text-primary">endTime</td><td className="py-1.5">Date</td><td className="py-1.5 text-muted-foreground">Countdown timer end time</td></tr>
-                  <tr><td className="py-1.5 font-mono text-primary">currentPrice</td><td className="py-1.5">string</td><td className="py-1.5 text-muted-foreground">Live price display</td></tr>
-                  <tr><td className="py-1.5 font-mono text-primary">priceChange24h</td><td className="py-1.5">string</td><td className="py-1.5 text-muted-foreground">24h price change (e.g., "+2.34%")</td></tr>
-                  <tr><td className="py-1.5 font-mono text-primary">tweetCount</td><td className="py-1.5">number</td><td className="py-1.5 text-muted-foreground">Tweet count indicator</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="trading-card">
-          <CardHeader>
-            <CardTitle className="text-lg">Mobile Header Playground</CardTitle>
-            <CardDescription>Interactive configuration for all header variants</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {/* Quick Presets */}
-            <div className="flex flex-wrap gap-2 mb-6">
-              <span className="text-xs text-muted-foreground self-center">Presets:</span>
-              <Badge 
-                variant="outline" 
-                className="cursor-pointer hover:bg-primary/10"
-                onClick={() => applyHeaderPreset("trade")}
-              >
-                Trade Page
-              </Badge>
-              <Badge 
-                variant="outline" 
-                className="cursor-pointer hover:bg-primary/10"
-                onClick={() => applyHeaderPreset("home")}
-              >
-                Home Page
-              </Badge>
-              <Badge 
-                variant="outline" 
-                className="cursor-pointer hover:bg-primary/10"
-                onClick={() => applyHeaderPreset("detail")}
-              >
-                Detail Page
-              </Badge>
-            </div>
-
-            {/* Preview */}
-            <div className="bg-background rounded-xl border border-border overflow-hidden mb-6">
-              <MobileHeader
-                title={headerShowLogo && !headerTitle ? undefined : headerTitle}
-                showLogo={headerShowLogo}
-                showBack={headerShowBack}
-                showActions={headerShowActions}
-                isFavorite={headerIsFavorite}
-                onFavoriteToggle={() => setHeaderIsFavorite(!headerIsFavorite)}
-                endTime={headerShowCountdown ? new Date(Date.now() + 86400000 * 7) : undefined}
-                currentPrice={headerShowPrice ? headerCurrentPrice : undefined}
-                priceChange24h={headerShowPrice ? headerPriceChange : undefined}
-                priceLabel={headerPriceLabel}
-                tweetCount={headerShowTweetCount ? headerTweetCount : undefined}
-              />
-            </div>
-
-            {/* Controls - 2 Column Layout */}
-            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
-              {/* Left Column: Basic Settings */}
-              <div className="space-y-4">
-                <h4 className="text-sm font-medium text-muted-foreground">Basic Settings</h4>
-                <div className="space-y-2">
-                  <Label className="text-xs">Title</Label>
-                  <Input 
-                    value={headerTitle} 
-                    onChange={(e) => setHeaderTitle(e.target.value)}
-                    placeholder="Enter title or leave empty"
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs">Show Logo</Label>
-                  <Switch checked={headerShowLogo} onCheckedChange={setHeaderShowLogo} />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs">Show Back Button</Label>
-                  <Switch checked={headerShowBack} onCheckedChange={setHeaderShowBack} />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs">Show Actions (♡ + Share)</Label>
-                  <Switch checked={headerShowActions} onCheckedChange={setHeaderShowActions} />
-                </div>
-              </div>
-
-              {/* Right Column: Stats Bar */}
-              <div className="space-y-4">
-                <h4 className="text-sm font-medium text-muted-foreground">Stats Bar</h4>
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs">Show Countdown</Label>
-                  <Switch checked={headerShowCountdown} onCheckedChange={setHeaderShowCountdown} />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs">Show Price</Label>
-                  <Switch checked={headerShowPrice} onCheckedChange={setHeaderShowPrice} />
-                </div>
-                {headerShowPrice && (
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1">
-                      <Label className="text-[10px] text-muted-foreground">Price</Label>
-                      <Input 
-                        value={headerCurrentPrice} 
-                        onChange={(e) => setHeaderCurrentPrice(e.target.value)}
-                        className="h-8 text-xs"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-[10px] text-muted-foreground">24h Change</Label>
-                      <Input 
-                        value={headerPriceChange} 
-                        onChange={(e) => setHeaderPriceChange(e.target.value)}
-                        className="h-8 text-xs"
-                      />
-                    </div>
-                  </div>
-                )}
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs">Show Tweet Count</Label>
-                  <Switch checked={headerShowTweetCount} onCheckedChange={setHeaderShowTweetCount} />
-                </div>
-              </div>
-            </div>
-
-            <CodePreview 
-              code={`<MobileHeader
-  title="${headerTitle || "(none)"}"
-  showLogo={${headerShowLogo}}
-  showBack={${headerShowBack}}
-  showActions={${headerShowActions}}${headerShowCountdown ? `
-  endTime={new Date(...)}` : ""}${headerShowPrice ? `
-  currentPrice="${headerCurrentPrice}"
-  priceChange24h="${headerPriceChange}"` : ""}${headerShowTweetCount ? `
-  tweetCount={${headerTweetCount}}` : ""}
-/>`}
-              collapsible
-              defaultExpanded={false}
-            />
-          </CardContent>
-        </Card>
-      </SectionWrapper>
 
       {/* Mobile UI Patterns */}
       <SectionWrapper
