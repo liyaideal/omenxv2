@@ -85,6 +85,15 @@ export const LiteOverviewSection = (_: P) => (
       <h3 className="mb-2 text-sm font-semibold text-foreground">Changelog</h3>
       <ul className="space-y-1 text-[12px] text-muted-foreground">
         <li>
+          2026-08-17 · 移动端 logo-only 头部改为开场式品牌栏 —— 一级页（无返回键 / 无标题 /
+          无右侧动作）加高至 py-4、logo 提到 <code className="font-mono">lg</code>、移除右侧占位方块；
+          分割线改为滚动 &gt; 8px 后淡入。带返回键 / 标题 / 动作 / stats 行的头部形态不变。
+        </li>
+        <li>
+          2026-08-17 · Finance 视图 rounds 引擎新增一次性滚动锚点 —— 从移动 Intraday 的
+          “session open” 行进入时自动把当日股票 rounds 滚进首屏，筛选保持 All / All regions。
+        </li>
+        <li>
           2026-08-14 · 全站时间口径统一（R1-R3）—— 展示层所有钟点改用户本地渲染、去掉 ET / HKT / KST
           等时区标（<code className="font-mono">formatLocalTime / formatLocalStamp / formatLocalDate /
           sessionWindowFor</code> 取代 <code className="font-mono">formatSessionStamp / formatEtTime /

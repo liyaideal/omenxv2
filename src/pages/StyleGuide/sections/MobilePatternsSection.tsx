@@ -523,17 +523,23 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
 
         {/* Visual Examples */}
         <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
-          {/* Home Page Header */}
+          {/* Home Page Header — opening brand bar (live component) */}
           <Card className="trading-card">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Home Page Header</CardTitle>
-              <CardDescription className="text-[10px]">Logo only, no back, no actions</CardDescription>
+              <CardTitle className="text-sm">Home Page Header (brand bar)</CardTitle>
+              <CardDescription className="text-[10px]">
+                Logo only, no back, no actions — taller opening bar, lg logo, no
+                spacer on the right. Divider only appears once the page scrolls.
+              </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-3">
               <div className="bg-background rounded-lg border border-border overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-2 border-b border-border">
-                  <Logo size="md" />
-                  <div className="w-9" />
+                <MobileHeader showLogo showBack={false} />
+              </div>
+              <div className="text-[10px] text-muted-foreground">Scrolled (divider fades in)</div>
+              <div className="bg-background rounded-lg border border-border overflow-hidden">
+                <div className="border-b border-border">
+                  <MobileHeader showLogo showBack={false} />
                 </div>
               </div>
             </CardContent>

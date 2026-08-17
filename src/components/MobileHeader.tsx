@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
+import { cn } from "@/lib/utils";
 
 /**
  * Mobile Header Design Specification
@@ -173,6 +174,28 @@ export const MobileHeader = ({
   // Determine what to show on the left
   // Hide MAINNET badge whenever there's a centered title to avoid overlap.
   const showBadge = !title;
+  // Logo-only "opening" state: a first-level page with no back button, no
+  // centered title and no right-hand actions. It gets more height, a bigger
+  // logo and no hard divider until the page scrolls.
+  const hasStatsRow =
+    !!(endTime ? countdown : subtitle) || tweetCount !== undefined || !!currentPrice;
+  const isBrandBar =
+    showLogo &&
+    !shouldShowBack &&
+    !title &&
+    !rightContent &&
+    !showActions &&
+    !hasStatsRow;
+
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    if (!isBrandBar) return;
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [isBrandBar]);
+
   const renderLeft = () => {
     if (shouldShowBack && showLogo) {
       // Both back button and logo
@@ -199,7 +222,7 @@ export const MobileHeader = ({
       );
     } else if (showLogo) {
       // Only logo, no back button
-      return <Logo size="md" showMainnetBadge={showBadge} />;
+      return <Logo size={isBrandBar ? "lg" : "md"} showMainnetBadge={showBadge} />;
     } else {
       // Neither - empty space for alignment
       return <div className="w-9" />;
@@ -241,7 +264,17 @@ export const MobileHeader = ({
   const hasStats = displayTime || tweetCount !== undefined || currentPrice;
 
   return (
-    <header className="sticky top-0 bg-background z-40 px-4 py-2 border-b border-border">
+    <header
+      className={cn(
+        "sticky top-0 bg-background z-40 px-4",
+        isBrandBar
+          ? cn(
+              "py-4 border-b transition-colors duration-200",
+              scrolled ? "border-border" : "border-transparent",
+            )
+          : "py-2 border-b border-border",
+      )}
+    >
       {/* Row 1: Back + Title + Actions */}
       <div className="flex items-center justify-between gap-2">
         {/* Left: Back button and/or Logo */}
@@ -264,10 +297,9 @@ export const MobileHeader = ({
           <div className="flex-1" />
         )}
 
-        {/* Right: Action buttons or custom content */}
-        <div className="flex-shrink-0">
-          {renderRight()}
-        </div>
+        {/* Right: Action buttons or custom content — the opening brand bar
+            leaves the right side genuinely empty (no spacer block). */}
+        {!isBrandBar && <div className="flex-shrink-0">{renderRight()}</div>}
       </div>
 
       {/* Row 2: Stats bar (only for Trade pages with stats) */}
