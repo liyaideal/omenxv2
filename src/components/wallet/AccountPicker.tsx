@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { MobileDrawer, MobileDrawerSection } from "@/components/ui/mobile-drawer";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { formatEquityUsd } from "@/lib/equity";
 import { cn } from "@/lib/utils";
@@ -116,15 +116,11 @@ export const AccountPicker = ({
 
   if (isMobile) {
     return (
-      <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent side="bottom" className="rounded-t-2xl">
-          <SheetHeader className="pb-4">
-            <SheetTitle>{title}</SheetTitle>
-          </SheetHeader>
-          {rows}
-          <div className="h-4" />
-        </SheetContent>
-      </Sheet>
+      /* Pure-selection drawer: no footer (§5 single-action exception). */
+      <MobileDrawer open={open} onOpenChange={onOpenChange} title={title}>
+        <MobileDrawerSection>{rows}</MobileDrawerSection>
+        <div className="h-4" />
+      </MobileDrawer>
     );
   }
 
