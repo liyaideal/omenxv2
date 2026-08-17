@@ -268,15 +268,8 @@ export const LiteCalendarView = ({
         </span>
       </div>
       {isMobile ? (
-        <div className="flex items-center justify-between" style={{ gap: 10 }}>
-          <SegPill
-            value={mode}
-            onSelect={(v) => {
-              setMode(v);
-              setMobileDay(v === "day" ? (mobileDay ?? todayKey) : null);
-            }}
-          />
-        </div>
+        /* Mobile has no Day|Week control — the day strip IS the mode. */
+        null
       ) : (
         <div className="flex flex-none items-center" style={{ gap: 10 }}>
           {mode === "day" && (
@@ -378,16 +371,16 @@ export const LiteCalendarView = ({
 
   if (isMobile) {
     const strip = columns.filter((c) => c.markets > 0);
-    const focusedDay = mode === "day" ? (mobileDay ?? todayKey) : mobileDay;
+    /** Mobile mode is derived: no chip selected = whole week, one chip = that day. */
+    const focusedDay = mobileDay;
     const visible =
       focusedDay == null ? columns : columns.filter((c) => c.key === focusedDay);
     /** Markets you can trade on the focused day but that close later. */
     const openNow = openOnDay(items, focusedDay ?? todayKey);
-    /** Week mode mirrors desktop: a ticket opens that day, it does not trade. */
+    /** Unfocused mirrors desktop week: a ticket opens that day, it does not trade. */
     const tapTicket = (dayKeyOf: number, item: CalItem) => {
-      if (mode === "week") {
+      if (focusedDay == null) {
         setMobileDay(dayKeyOf);
-        setMode("day");
         return;
       }
       openItem(item);
@@ -406,7 +399,7 @@ export const LiteCalendarView = ({
                 key={c.key}
                 type="button"
                 onClick={() =>
-                  setMobileDay(active && mode !== "day" ? null : c.key)
+                  setMobileDay(active ? null : c.key)
                 }
                 className="flex flex-none flex-col items-center"
                 style={{
@@ -497,7 +490,10 @@ export const LiteCalendarView = ({
         )}
 
         <span style={{ fontSize: 11, color: "#6B7280", textWrap: "pretty" }}>
-          {weekTotal} markets close in the next 7 days. Tap a day to trade it.
+          {weekTotal} markets close in the next 7 days.{" "}
+          {focusedDay == null
+            ? "Tap a day to trade it."
+            : "Tap the day again to see the whole week."}
           {openNow.length > 0 &&
             ` ${openNow.length} more stay open past today.`}
         </span>
