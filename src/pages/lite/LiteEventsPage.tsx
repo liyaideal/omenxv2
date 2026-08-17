@@ -295,9 +295,14 @@ const LiteEventsPage = () => {
 
       <div
         className={cn(
-          "mx-auto flex w-full max-w-7xl flex-1 flex-col pb-24",
-          isMobile ? "px-4 py-4" : "px-4 py-6 lg:px-6",
+          "mx-auto flex w-full max-w-7xl flex-1 flex-col",
+          isMobile ? "px-4 py-4" : "px-4 py-6 pb-24 lg:px-6",
         )}
+        style={
+          isMobile
+            ? { paddingBottom: "calc(112px + env(safe-area-inset-bottom))" }
+            : undefined
+        }
       >
         {/* Intro strip — plain-language, no trader jargon; display treatment */}
         <div className={cn(!isMobile && "flex items-start justify-between gap-5")}>
@@ -526,6 +531,7 @@ const LiteEventsPage = () => {
               onSelectTf={setMobileTf}
               tickSeconds={tickSeconds}
               onOpenIntraday={() => setSector("intraday")}
+              onOpenSession={() => setSector("finance")}
               boostOnly={boostOnly}
             />
           </div>
