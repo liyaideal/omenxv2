@@ -428,9 +428,8 @@ const LiteEventsPage = () => {
               onBackToList={() => setCalendarOn(false)}
               onOpenIntraday={() => {
                 setCalendarOn(false);
-                // Desktop has a dedicated Intraday view; mobile surfaces the
-                // Intraday band on the "All" list.
-                setSector(isMobile ? "all" : "intraday");
+                // Both surfaces have a dedicated Intraday view.
+                setSector("intraday");
               }}
             />
           </div>
