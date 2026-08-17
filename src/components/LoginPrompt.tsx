@@ -30,7 +30,7 @@ export function LoginPrompt({
       }}
     >
       {isMobile ? (
-        <MobileHeader showLogo />
+        <MobileHeader variant="brand" showBack={false} />
       ) : (
         <EventsDesktopHeader />
       )}

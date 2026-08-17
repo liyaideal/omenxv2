@@ -1,63 +1,85 @@
-import { useState, useEffect, ReactNode } from "react";
-import { ChevronLeft, ChevronDown, Star, Share2, ExternalLink } from "lucide-react";
+import type React from "react";
+import { useState, useEffect, ReactNode, CSSProperties } from "react";
+import { ChevronLeft, ChevronDown, ExternalLink } from "lucide-react";
 import { useNavigate, useNavigationType, useLocation } from "react-router-dom";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
+import { useSurface } from "@/contexts/SurfaceContext";
 import { cn } from "@/lib/utils";
 
 /**
- * Mobile Header Design Specification
- * ==================================
- * 
- * LOGO RULES:
- * - Show logo on all pages EXCEPT Trade pages (TradeOrder, TradingCharts)
- * - Logo is positioned on the left side
- * - Use showLogo prop to control (default: true)
- * 
- * BACK BUTTON RULES:
- * - NEVER show on BottomNav entry pages: /, /events, /leaderboard, /trade, /portfolio
- * - Show when navigationType === "PUSH" (user clicked a link to get here)
- * - Hide when navigationType === "POP" or "REPLACE" (browser back, or direct URL)
- * - Use showBack prop to force override
- * - Style: Ghost button, h-9 w-9, no background frame
- * 
- * TITLE RULES:
- * - Always centered
- * - Subtitle or countdown displayed below title
- * 
- * RIGHT ACTIONS:
- * - Optional favorite and share buttons via showActions prop
- * - Custom right content via rightContent prop
+ * Mobile Header System v1 (DESIGN.md §10)
+ * =======================================
+ * ONE component, ONE height (56px + safe-area-top), TWO variants,
+ * FOUR slot contracts. No Lite page may draw its own top bar.
+ *
+ * VARIANT A — "brand": Lite bottom-nav roots (/, /events, /portfolio,
+ *   /wallet). Logo lg + Mainnet badge on the left, no back, no title,
+ *   optional right slot. Divider fades in after 8px of scroll.
+ * VARIANT B — "inner": everything else. Back 36x36 on the left, centered
+ *   single-line 14/600 title, optional right slot, divider always on
+ *   (unless `flushBottom` hands the divider to a sticky sub-bar).
+ *
+ * SLOTS: left (back | logo | spacer) · title (inner only) · right
+ *   (`rightContent`: ≤2 MobileHeaderIconButton or 1 compact control)
+ *   · optional Pro-only second stats row (endTime / tweets / price).
+ *
+ * Sub-bars that stick under the header use `top-[var(--mobile-header-h)]`.
  */
 
 interface MobileHeaderProps {
-  title?: string; // Optional - when not provided, title section is hidden
+  /** A/B variant. Defaults to brand when a logo is shown without a title. */
+  variant?: "brand" | "inner";
+  title?: string;
   subtitle?: string;
   endTime?: Date; // For countdown display
-  showBack?: boolean; // Force show/hide back button (default: auto based on navigationType)
+  showBack?: boolean; // Force show/hide back button (default: surface-aware)
   backTo?: string; // Custom back navigation path (default: navigate(-1))
-  showLogo?: boolean; // Show logo (default: true, set false for Trade pages)
-  showActions?: boolean; // Show favorite and share buttons
-  rightContent?: ReactNode; // Custom right side content (overrides showActions)
+  showLogo?: boolean;
+  rightContent?: ReactNode;
+  /** Hands the bottom divider to a sticky sub-bar directly below. */
+  flushBottom?: boolean;
   tweetCount?: number;
-  // Price-based event data
+  // Price-based event data (Pro stats row)
   currentPrice?: string;
   priceChange24h?: string;
-  priceLabel?: string; // Dynamic label for the asset (e.g., "BTC/USD", "S&P 500")
+  priceLabel?: string;
   sourceUrl?: string;
   sourceName?: string;
   period?: string;
   onTitleClick?: () => void;
-  isFavorite?: boolean;
-  onFavoriteToggle?: () => void;
-  /** Keeps the title mounted but transparent (used by scroll-aware trade headers). */
+  /** Keeps the title mounted but transparent (scroll-aware trade headers). */
   titleHidden?: boolean;
 }
+
+/** Right-slot icon button standard. Last one in the slot gets -mr-2 via wrapper. */
+export const MobileHeaderIconButton = ({
+  onClick,
+  className,
+  "aria-label": ariaLabel,
+  children,
+}: {
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  className?: string;
+  "aria-label"?: string;
+  children: ReactNode;
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    aria-label={ariaLabel}
+    className={cn(
+      "h-9 w-9 flex items-center justify-center active:scale-95 transition-transform duration-200 text-muted-foreground",
+      className,
+    )}
+  >
+    {children}
+  </button>
+);
 
 // Countdown hook
 const useCountdown = (endTime: Date | undefined) => {
@@ -93,16 +115,20 @@ const useCountdown = (endTime: Date | undefined) => {
   return timeLeft;
 };
 
-export const MobileHeader = ({ 
-  title, 
-  subtitle, 
-  endTime, 
-  showBack, 
+const LITE_ROOTS = ["/", "/events", "/portfolio", "/wallet"];
+const PRO_ROOTS = ["/", "/events", "/leaderboard", "/trade", "/portfolio"];
+
+export const MobileHeader = ({
+  variant,
+  title,
+  subtitle,
+  endTime,
+  showBack,
   backTo,
   showLogo = true,
-  showActions = false,
   rightContent,
-  tweetCount, 
+  flushBottom = false,
+  tweetCount,
   currentPrice,
   priceChange24h,
   priceLabel,
@@ -110,201 +136,115 @@ export const MobileHeader = ({
   sourceName,
   period,
   onTitleClick,
-  isFavorite = false,
-  onFavoriteToggle,
   titleHidden = false,
 }: MobileHeaderProps) => {
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const location = useLocation();
+  const { surface } = useSurface();
   const countdown = useCountdown(endTime);
   const displayTime = endTime ? countdown : subtitle;
-  
-  // BottomNav entry pages - should NEVER show back button
-  const BOTTOM_NAV_ROUTES = ['/', '/events', '/leaderboard', '/trade', '/portfolio'];
-  const isBottomNavPage = BOTTOM_NAV_ROUTES.includes(location.pathname);
-  
-  // Show back button: 
-  // 1. If explicitly set, use that value
-  // 2. Never show on BottomNav entry pages
-  // 3. Otherwise show only for PUSH navigation
-  const shouldShowBack = showBack !== undefined 
-    ? showBack 
-    : (!isBottomNavPage && navigationType === "PUSH");
+
+  const resolvedVariant = variant ?? (showLogo && !title ? "brand" : "inner");
+  const isBrand = resolvedVariant === "brand";
+
+  // Surface-aware root fallback: a bottom-nav root never shows back.
+  const roots = surface === "pro" ? PRO_ROOTS : LITE_ROOTS;
+  const isRoot = roots.includes(location.pathname);
+  const shouldShowBack =
+    showBack !== undefined ? showBack : !isRoot && navigationType === "PUSH";
 
   const handleBack = () => {
-    if (backTo) {
-      navigate(backTo);
-    } else {
-      navigate(-1);
-    }
+    if (backTo) navigate(backTo);
+    else navigate(-1);
   };
-
-  const handleFavorite = () => {
-    if (onFavoriteToggle) {
-      onFavoriteToggle();
-      toast(isFavorite ? "Removed from favorites" : "Added to favorites", {
-        duration: 2000,
-      });
-    }
-  };
-
-  const handleShare = async () => {
-    const shareData = {
-      title: title,
-      text: `Check out this prediction market: ${title}`,
-      url: window.location.href,
-    };
-
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(window.location.href);
-        toast("Link copied to clipboard", { duration: 2000 });
-      }
-    } catch (err) {
-      if ((err as Error).name !== "AbortError") {
-        await navigator.clipboard.writeText(window.location.href);
-        toast("Link copied to clipboard", { duration: 2000 });
-      }
-    }
-  };
-
-  // Determine what to show on the left
-  // Hide MAINNET badge whenever there's a centered title to avoid overlap.
-  const showBadge = !title;
-  // Logo-only "opening" state: a first-level page with no back button, no
-  // centered title and no right-hand actions. It gets more height, a bigger
-  // logo and no hard divider until the page scrolls.
-  const hasStatsRow =
-    !!(endTime ? countdown : subtitle) || tweetCount !== undefined || !!currentPrice;
-  const isBrandBar =
-    showLogo &&
-    !shouldShowBack &&
-    !title &&
-    !rightContent &&
-    !showActions &&
-    !hasStatsRow;
 
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
-    if (!isBrandBar) return;
+    if (!isBrand) return;
     const onScroll = () => setScrolled(window.scrollY > 8);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [isBrandBar]);
+  }, [isBrand]);
 
   const renderLeft = () => {
-    if (shouldShowBack && showLogo) {
-      // Both back button and logo
-      return (
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleBack}
-            className="h-9 w-9 flex items-center justify-center transition-all duration-200 active:scale-95"
-          >
-            <ChevronLeft className="w-5 h-5 text-foreground" />
-          </button>
-          <Logo size="md" showMainnetBadge={showBadge} />
-        </div>
-      );
-    } else if (shouldShowBack) {
-      // Only back button, no logo
+    if (isBrand && showLogo) return <Logo size="lg" showMainnetBadge />;
+    if (shouldShowBack) {
       return (
         <button
           onClick={handleBack}
-          className="h-9 w-9 flex items-center justify-center transition-all duration-200 active:scale-95"
+          aria-label="Back"
+          className="h-9 w-9 -ml-2 flex items-center justify-center active:scale-95 transition-transform duration-200"
         >
-          <ChevronLeft className="w-5 h-5 text-foreground" />
+          <ChevronLeft className="w-5 h-5 text-foreground" strokeWidth={1.5} />
         </button>
       );
-    } else if (showLogo) {
-      // Only logo, no back button
-      return <Logo size={isBrandBar ? "lg" : "md"} showMainnetBadge={showBadge} />;
-    } else {
-      // Neither - empty space for alignment
-      return <div className="w-9" />;
     }
+    if (showLogo) return <Logo size="lg" showMainnetBadge />;
+    return <div className="w-9 -ml-2" />;
   };
 
-  // Determine what to show on the right
   const renderRight = () => {
-    if (rightContent) {
-      return rightContent;
-    }
-    
-    if (showActions) {
-      return (
-        <div className="flex items-center gap-1">
-          <button 
-            onClick={handleFavorite}
-            className="h-9 w-9 flex items-center justify-center transition-all duration-200 active:scale-95"
-          >
-            <Star 
-              className={`w-5 h-5 transition-colors ${isFavorite ? "text-trading-yellow fill-trading-yellow" : "text-muted-foreground"}`} 
-              strokeWidth={1.5} 
-            />
-          </button>
-          <button 
-            onClick={handleShare}
-            className="h-9 w-9 flex items-center justify-center transition-all duration-200 active:scale-95"
-          >
-            <Share2 className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
-          </button>
-        </div>
-      );
-    }
-    
-    return <div className="w-9" />;
+    if (rightContent) return rightContent;
+    if (isBrand) return null;
+    return <div className="w-9 -mr-2" />;
   };
 
-  // Check if we have stats to show (Trade page specific)
   const hasStats = displayTime || tweetCount !== undefined || currentPrice;
+
+  const headerStyle = {
+    paddingTop: "env(safe-area-inset-top)",
+    ["--mobile-header-h" as string]: "calc(56px + env(safe-area-inset-top))",
+  } as CSSProperties;
 
   return (
     <header
       className={cn(
-        "sticky top-0 bg-background z-40 px-4",
-        isBrandBar
+        "sticky top-0 z-40 bg-background px-4",
+        isBrand
           ? cn(
-              "py-4 border-b transition-colors duration-200",
+              "border-b transition-colors duration-200",
               scrolled ? "border-border" : "border-transparent",
             )
-          : "py-2 border-b border-border",
+          : flushBottom
+            ? "border-b border-transparent"
+            : "border-b border-border",
       )}
+      style={headerStyle}
     >
-      {/* Row 1: Back + Title + Actions */}
-      <div className="flex items-center justify-between gap-2">
-        {/* Left: Back button and/or Logo */}
-        <div className="flex-shrink-0">
-          {renderLeft()}
-        </div>
+      {/* Row 1: left slot + title + right slot — fixed 56px */}
+      <div className="flex h-14 items-center gap-2">
+        <div className="flex-shrink-0">{renderLeft()}</div>
 
-        {/* Center: Title - allows 2 lines for long titles */}
-        {title ? (
-          <div 
-            className={`flex-1 min-w-0 text-center transition-opacity duration-150 ${titleHidden ? "opacity-0 pointer-events-none" : "opacity-100"} ${onTitleClick ? "cursor-pointer" : ""}`}
+        {isBrand || !title ? (
+          <div className="flex-1" />
+        ) : (
+          <div
+            className={cn(
+              "flex-1 min-w-0 text-center px-1 transition-opacity duration-150",
+              titleHidden ? "opacity-0 pointer-events-none" : "opacity-100",
+              onTitleClick ? "cursor-pointer" : "",
+            )}
             onClick={onTitleClick}
           >
             <div className="flex items-center justify-center gap-1">
-              <h1 className="text-sm font-semibold text-foreground line-clamp-2 leading-tight">{title}</h1>
-              {onTitleClick && <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0 self-start mt-0.5" />}
+              <h1 className="text-sm font-semibold text-foreground truncate">
+                {title}
+              </h1>
+              {onTitleClick && (
+                <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+              )}
             </div>
           </div>
-        ) : (
-          <div className="flex-1" />
         )}
 
-        {/* Right: Action buttons or custom content — the opening brand bar
-            leaves the right side genuinely empty (no spacer block). */}
-        {!isBrandBar && <div className="flex-shrink-0">{renderRight()}</div>}
+        <div className="flex-shrink-0">{renderRight()}</div>
       </div>
 
-      {/* Row 2: Stats bar (only for Trade pages with stats) */}
+      {/* Row 2: Pro stats bar (trade surfaces only) */}
       {hasStats && (
-        <div className="flex items-center justify-center gap-4 mt-1.5 pt-1.5 border-t border-border/30">
+        <div className="flex items-center justify-center gap-4 pb-1.5 pt-1.5 border-t border-border/30">
           {displayTime && (
             <div className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 bg-trading-red rounded-full animate-pulse" />
@@ -315,7 +255,7 @@ export const MobileHeader = ({
           {tweetCount !== undefined && (
             <Popover>
               <PopoverTrigger asChild>
-                <button 
+                <button
                   onClick={(e) => e.stopPropagation()}
                   className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
                 >
@@ -358,7 +298,7 @@ export const MobileHeader = ({
           {currentPrice && (
             <Popover>
               <PopoverTrigger asChild>
-                <button 
+                <button
                   onClick={(e) => e.stopPropagation()}
                   className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
                 >

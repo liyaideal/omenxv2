@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, AlertTriangle, ChevronRight, Loader2, Plus, Inbox, Info } from 'lucide-react';
+import { AlertTriangle, ChevronRight, Loader2, Plus, Inbox, Info } from 'lucide-react';
 import { DesktopBackLink } from '@/components/ui/desktop-back-link';
 import { useAuth } from '@/hooks/useAuth';
 import { useRecoveryRequests } from '@/hooks/useRecoveryRequests';
@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { EventsDesktopHeader } from '@/components/EventsDesktopHeader';
 import { BottomNav } from '@/components/BottomNav';
+import { MobileHeader } from '@/components/MobileHeader';
 
 export default function RecoveryRequestPage() {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ export default function RecoveryRequestPage() {
     if (isMobile) {
       return (
         <div className="min-h-screen bg-background flex flex-col">
-          <MobileHeader onBack={() => navigate(-1)} />
+          <MobileHeader title="Recovery" showBack showLogo={false} />
           {signInPrompt}
         </div>
       );
@@ -181,7 +182,7 @@ export default function RecoveryRequestPage() {
   // ---- Mobile ----
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <MobileHeader onBack={() => navigate(-1)} />
+      <MobileHeader title="Recovery" showBack showLogo={false} />
       <main className="flex-1 overflow-auto pb-24">
         <div className="px-4 mt-5">{intro}</div>
         <div className="px-4 mt-6">{showForm ? formSection : listSection}</div>
@@ -197,17 +198,3 @@ const Pill = ({ children }: { children: React.ReactNode }) => (
   </span>
 );
 
-const MobileHeader = ({ onBack }: { onBack: () => void }) => (
-  <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border/50">
-    <div className="flex items-center justify-between px-4 h-14">
-      <button
-        onClick={onBack}
-        className="p-2 -ml-2 text-muted-foreground hover:text-foreground transition-colors"
-      >
-        <ChevronLeft className="w-6 h-6" />
-      </button>
-      <h1 className="text-lg font-semibold">Recovery</h1>
-      <div className="w-9" />
-    </div>
-  </header>
-);

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams, useNavigationType, useLocation } from "react-router-dom";
-import { Loader2, Link } from "lucide-react";
-import { MobileHeader } from "@/components/MobileHeader";
+import { Loader2, Link, Star, Share2 } from "lucide-react";
+import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
 import { OptionChips } from "@/components/OptionChips";
 import { EventSelectorSheet } from "@/components/EventSelectorSheet";
 import { EventInfoContent } from "@/components/EventInfoContent";
@@ -139,7 +139,6 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
       <MobileHeader 
         title={selectedEvent.name}
         endTime={selectedEvent.endTime}
-        showActions
         showBack={true}
         backTo={backTo}
         showLogo={false} // Trade pages don't show logo per design spec
@@ -151,8 +150,27 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
         sourceName={selectedEvent.sourceName}
         period={selectedEvent.period}
         onTitleClick={() => setEventSheetOpen(true)}
-        isFavorite={favorites.has(selectedEvent.id)}
-        onFavoriteToggle={() => toggleFavorite(selectedEvent.id)}
+        rightContent={
+          <div className="flex items-center gap-1 -mr-2">
+            <MobileHeaderIconButton
+              aria-label="Favorite"
+              onClick={() => toggleFavorite(selectedEvent.id)}
+            >
+              <Star
+                className={`w-5 h-5 ${favorites.has(selectedEvent.id) ? "text-trading-yellow fill-trading-yellow" : ""}`}
+                strokeWidth={1.5}
+              />
+            </MobileHeaderIconButton>
+            <MobileHeaderIconButton
+              aria-label="Share"
+              onClick={() => {
+                navigator.clipboard?.writeText(window.location.href);
+              }}
+            >
+              <Share2 className="w-5 h-5" strokeWidth={1.5} />
+            </MobileHeaderIconButton>
+          </div>
+        }
       />
 
       {/* Option Chips — 单 market binary 不渲染（对阵信息已在标题+Yes/No 切换器表达）；多 outcome 才显示横排选择 */}

@@ -77,7 +77,7 @@ const ResolvedEventDetail = () => {
     return (
       <div className="min-h-screen pb-24" style={{ background: "hsl(222 47% 6%)" }}>
         {/* Header */}
-        <MobileHeader title="Event Details" showLogo={false} />
+        <MobileHeader title="Event details" showLogo={false} showBack />
 
         <main className="px-4 py-5 space-y-5">
           {/* ═══════════════════════════════════════════════════════════════

@@ -14,37 +14,7 @@ import { EmptyState } from "@/components/states";
 import { VouchersBody } from "@/components/vouchers/VouchersBody";
 import { PointsRetiredNotice } from "@/components/campaigns/PointsRetiredNotice";
 import { RewardsFinePrint } from "@/components/campaigns/RewardsFinePrint";
-import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-/**
- * Mobile redeem screen header — frozen mock literals (Vouchers v2.1):
- * 10px 16px pad, 44px back hit area with a -10px pull, centered 15px/700
- * Space Grotesk title, 34px spacer on the right.
- */
-const RedeemMobileHeader = ({ onBack }: { onBack: () => void }) => (
-  <header
-    className="sticky top-0 z-40 flex items-center gap-[10px]"
-    style={{ background: "#0A0B0D", borderBottom: "1px solid #1D2026", padding: "10px 16px" }}
-  >
-    <button
-      type="button"
-      onClick={onBack}
-      aria-label="Back"
-      className="flex-none flex items-center justify-center"
-      style={{ width: 44, height: 44, marginLeft: -10 }}
-    >
-      <ChevronLeft style={{ width: 20, height: 20 }} strokeWidth={2} className="text-foreground" />
-    </button>
-    <span
-      className="font-display flex-1 text-center"
-      style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-.01em", color: "#F2F3F5" }}
-    >
-      Redeem voucher
-    </span>
-    <span className="flex-none" style={{ width: 34 }} aria-hidden />
-  </header>
-);
 
 const Tabs = ({
   value,
@@ -57,7 +27,7 @@ const Tabs = ({
 }) => (
   <div
     className={`flex items-end gap-7 border-b border-[#1D2026] md:gap-9 ${
-      sticky ? "sticky top-[44px] z-30 -mx-4 bg-background px-4" : ""
+      sticky ? "sticky top-[var(--mobile-header-h)] z-30 -mx-4 bg-background px-4" : ""
     }`}
   >
     {[
@@ -167,9 +137,14 @@ export default function LiteRewardsPage() {
     return (
       <div className={`min-h-screen bg-background ${mobileRedeeming ? "pb-0" : "pb-24"}`}>
         {mobileRedeeming ? (
-          <RedeemMobileHeader onBack={() => navigate("/rewards?tab=vouchers")} />
+          <MobileHeader
+            title="Redeem voucher"
+            showBack
+            showLogo={false}
+            backTo="/rewards?tab=vouchers"
+          />
         ) : (
-          <MobileHeader title="Rewards" showLogo={false} showBack />
+          <MobileHeader title="Rewards" showLogo={false} showBack flushBottom />
         )}
         <main className={mobileRedeeming ? "" : "px-4 py-4"}>{body}</main>
         {/* Redeem is a focused full-screen task: nav retires, the header ‹ owns the exit. */}

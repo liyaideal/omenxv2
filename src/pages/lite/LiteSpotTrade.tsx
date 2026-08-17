@@ -22,7 +22,7 @@ import { AuthDialog } from "@/components/auth/AuthDialog";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
-import { MobileHeader } from "@/components/MobileHeader";
+import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
 import { useHeadingScrolledOut } from "@/hooks/useHeadingScrolledOut";
 import {
   Tooltip,
@@ -338,19 +338,16 @@ const LiteSpotTrade = () => {
 
   // Watchlist star (used in both surfaces).
   const WatchStar = (
-    <button
-      type="button"
+    <MobileHeaderIconButton
       onClick={(e) => toggle(event.id, e as unknown as React.MouseEvent)}
-      className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted/50"
       aria-label="Watchlist"
+      className={starred ? "text-trading-yellow" : undefined}
     >
       <Star
-        className={cn(
-          "h-5 w-5",
-          starred ? "fill-trading-yellow text-trading-yellow" : "text-muted-foreground",
-        )}
+        className={cn("h-5 w-5", starred && "fill-trading-yellow")}
+        strokeWidth={1.5}
       />
-    </button>
+    </MobileHeaderIconButton>
   );
 
   // Compact countdown line — MOBILE ONLY (desktop shows time left in the order card).
@@ -716,7 +713,7 @@ const LiteSpotTrade = () => {
             showLogo={false}
             showBack={true}
             backTo="/events"
-            rightContent={WatchStar}
+            rightContent={<div className="flex items-center gap-1 -mr-2">{WatchStar}</div>}
           />
           <div className="space-y-4 px-4 py-4">
             {QuestionBlock}

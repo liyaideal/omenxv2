@@ -77,7 +77,7 @@ const PortfolioTabDropdown = ({
 
   return (
     <Select value={activeTab} onValueChange={(v) => onTabChange(v as TabType)}>
-      <SelectTrigger className="w-[140px] bg-secondary border-border/50 h-9">
+      <SelectTrigger className="h-9 w-auto rounded-lg border-0 bg-secondary px-3 pr-2.5 text-[13px] font-medium [&>svg]:h-4 [&>svg]:w-4 [&>svg]:text-muted-foreground [&>svg]:opacity-100">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -300,7 +300,8 @@ export default function Portfolio() {
       {/* Header - 主入口页：Logo + Tab下拉切换 */}
       {isMobile ? (
         <MobileHeader 
-          showLogo
+          variant="brand"
+          showBack={false}
           rightContent={
             <PortfolioTabDropdown
               activeTab={activeTab}

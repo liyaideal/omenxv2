@@ -26,7 +26,7 @@ import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
-import { MobileHeader } from "@/components/MobileHeader";
+import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
 import { useHeadingScrolledOut } from "@/hooks/useHeadingScrolledOut";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -421,19 +421,16 @@ const LiteContractTrade = () => {
   const heldAutoClose = heldPos != null ? autoCloseFor(heldPos) : null;
 
   const WatchStar = (
-    <button
-      type="button"
+    <MobileHeaderIconButton
       onClick={(e) => toggle(event.id, e as unknown as React.MouseEvent)}
-      className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted/50"
       aria-label="Watchlist"
+      className={starred ? "text-trading-yellow" : undefined}
     >
       <Star
-        className={cn(
-          "h-5 w-5",
-          starred ? "fill-trading-yellow text-trading-yellow" : "text-muted-foreground",
-        )}
+        className={cn("h-5 w-5", starred && "fill-trading-yellow")}
+        strokeWidth={1.5}
       />
-    </button>
+    </MobileHeaderIconButton>
   );
 
   const QuestionBlock = (
@@ -825,7 +822,7 @@ const LiteContractTrade = () => {
             showLogo={false}
             showBack={true}
             backTo="/events"
-            rightContent={WatchStar}
+            rightContent={<div className="flex items-center gap-1 -mr-2">{WatchStar}</div>}
           />
           <div className="space-y-4 px-4 py-4">
             {isMulti && !resolved && MultiMetaRow}

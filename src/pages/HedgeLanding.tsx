@@ -66,7 +66,7 @@ const HedgeLanding = () => {
   return (
     <div className="min-h-screen flex flex-col bg-[#FDFCF0] text-[#0E0E0E]">
       {isMobile ? (
-        <MobileHeader title="World Cup H2E" showLogo={false} showBack={true} />
+        <MobileHeader title="World Cup H2E" showLogo={false} showBack />
       ) : (
         <EventsDesktopHeader />
       )}

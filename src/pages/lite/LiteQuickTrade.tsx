@@ -6,9 +6,10 @@ import { RoundTape } from "@/components/lite/shared/RoundTape";
 // ============================================================
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Info, Loader2 } from "lucide-react";
+import { Info, Loader2, Star } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
+import { useWatchlist } from "@/hooks/useWatchlist";
 import { usePositions } from "@/hooks/usePositions";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { executeSpotTrade } from "@/services/tradingService";
@@ -21,7 +22,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
-import { MobileHeader } from "@/components/MobileHeader";
+import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
 import { useHeadingScrolledOut } from "@/hooks/useHeadingScrolledOut";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import { SideButton } from "@/components/lite/shared/SideButton";
@@ -83,6 +84,7 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   const isMobile = useIsMobile();
   const seconds = useSecondTick();
   const { user } = useAuth();
+  const { toggle: toggleWatch, isWatched } = useWatchlist();
   const { positions } = usePositions();
   const { addSpotBalance } = useUserProfile();
   const { headingRef, scrolledOut } = useHeadingScrolledOut();
@@ -517,6 +519,18 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
     />
   ) : null;
 
+  const watched = event ? isWatched(event.id) : false;
+
+  const WatchStar = (
+    <MobileHeaderIconButton
+      onClick={(e) => toggleWatch(event.id, e as unknown as React.MouseEvent)}
+      aria-label="Watchlist"
+      className={watched ? "text-trading-yellow" : undefined}
+    >
+      <Star className={cn("h-5 w-5", watched && "fill-trading-yellow")} strokeWidth={1.5} />
+    </MobileHeaderIconButton>
+  );
+
   // ---------- mobile ----------
   if (isMobile) {
     return (
@@ -527,6 +541,7 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
           showLogo={false}
           showBack
           backTo="/events"
+          rightContent={<div className="flex items-center gap-1 -mr-2">{WatchStar}</div>}
         />
         <div className="px-4 py-4">
           {Head}

@@ -213,7 +213,7 @@ const TransparencyPage = () => {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background pb-24">
-        <MobileHeader title="Transparency Audit" showLogo={false} showBack={true} />
+        <MobileHeader title="Transparency audit" showLogo={false} showBack />
         <div className="px-4 py-6">{content}</div>
         <BottomNav />
       </div>
