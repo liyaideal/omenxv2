@@ -1,83 +1,23 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { MobileHeader } from "@/components/MobileHeader";
-import { useNavigate } from "react-router-dom";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
 import { DeviceFrame } from "../components/DeviceFrame";
-import { Logo, omenxLogo } from "@/components/Logo";
-import { Check, X, AlertCircle, ChevronLeft, Star, Share2, Loader2 } from "lucide-react";
+import { Logo } from "@/components/Logo";
+import { Check, X, AlertCircle, ChevronLeft, Loader2 } from "lucide-react";
 
 interface MobilePatternsSectionProps {
   isMobile: boolean;
 }
 
 export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) => {
-  const navigate = useNavigate();
-  
-  // Mobile Header Playground - Basic
-  const [headerTitle, setHeaderTitle] = useState("Bitcoin price on January 31, 2026?");
-  const [headerShowLogo, setHeaderShowLogo] = useState(false);
-  const [headerShowBack, setHeaderShowBack] = useState(true);
-  const [headerShowActions, setHeaderShowActions] = useState(true);
-  const [headerIsFavorite, setHeaderIsFavorite] = useState(false);
-  
-  // Mobile Header Playground - Stats Bar
-  const [headerShowCountdown, setHeaderShowCountdown] = useState(true);
-  const [headerShowPrice, setHeaderShowPrice] = useState(true);
-  const [headerCurrentPrice, setHeaderCurrentPrice] = useState("$94,532.18");
-  const [headerPriceChange, setHeaderPriceChange] = useState("+2.34%");
-  const [headerPriceLabel, setHeaderPriceLabel] = useState("BTC/USD");
-  const [headerShowTweetCount, setHeaderShowTweetCount] = useState(false);
-  const [headerTweetCount, setHeaderTweetCount] = useState(1234);
-  
   // Expandable Row Pattern demo
   const [expandableRowOpen, setExpandableRowOpen] = useState(false);
-  
-  // Quick Presets for Header
-  const applyHeaderPreset = (preset: string) => {
-    switch (preset) {
-      case "trade":
-        setHeaderTitle("Will BTC reach $100k by March 2026?");
-        setHeaderShowLogo(false);
-        setHeaderShowBack(true);
-        setHeaderShowActions(true);
-        setHeaderShowCountdown(true);
-        setHeaderShowPrice(true);
-        setHeaderShowTweetCount(false);
-        break;
-      case "home":
-        setHeaderTitle("");
-        setHeaderShowLogo(true);
-        setHeaderShowBack(false);
-        setHeaderShowActions(false);
-        setHeaderShowCountdown(false);
-        setHeaderShowPrice(false);
-        setHeaderShowTweetCount(false);
-        break;
-      case "detail":
-        setHeaderTitle("Event Details");
-        setHeaderShowLogo(true);
-        setHeaderShowBack(true);
-        setHeaderShowActions(true);
-        setHeaderShowCountdown(true);
-        setHeaderShowPrice(false);
-        setHeaderShowTweetCount(true);
-        break;
-    }
-  };
 
   return (
     <div className="space-y-12">
-      {/* Preset D · Home Equity Hero — REMOVED. The new MobileHome layout
-          is documented in the dedicated "Mobile Home" tab. */}
-
       {/* =========================== */}
       {/* LOGO USAGE GUIDELINES       */}
       {/* =========================== */}
@@ -295,18 +235,13 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
                 <tbody className="divide-y divide-border/50">
                   <tr>
                     <td className="py-2">MobileHome, EventsPage headers</td>
-                    <td className="py-2 font-mono text-primary">md</td>
-                    <td className="py-2 text-muted-foreground">Left-aligned, no back button</td>
+                    <td className="py-2 font-mono text-primary">lg</td>
+                    <td className="py-2 text-muted-foreground">Left-aligned, no back button (brand bar)</td>
                   </tr>
                   <tr>
                     <td className="py-2">Trade pages (TradeOrder, TradingCharts)</td>
                     <td className="py-2 font-mono text-muted-foreground">—</td>
                     <td className="py-2 text-muted-foreground">Logo hidden, show back button only</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2">Detail pages with back button</td>
-                    <td className="py-2 font-mono text-primary">md</td>
-                    <td className="py-2 text-muted-foreground">Back + Logo together</td>
                   </tr>
                   <tr>
                     <td className="py-2">Desktop navigation</td>
