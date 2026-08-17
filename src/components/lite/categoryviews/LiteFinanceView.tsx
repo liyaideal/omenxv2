@@ -4,7 +4,7 @@
 // from the Intraday view (Trading / Asleep), and the frozen
 // LiteEventCard grid. Class + region options come from taxonomy.ts.
 // ============================================================
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FINANCE_ASSET_CLASSES, FINANCE_REGIONS } from "@/lib/taxonomy";
 import type { EventRow } from "@/hooks/useMarketListData";
 import type { StockEventRow } from "@/components/lite/intraday/intradayData";
@@ -44,6 +44,7 @@ export const LiteFinanceView = ({
   initialRegion = "all",
   nowMs,
   boostOnly,
+  scrollToEngine,
 }: {
   stockRows: StockEventRow[];
   tickSeconds: number;
@@ -58,9 +59,16 @@ export const LiteFinanceView = ({
   nowMs?: number;
   /** Boost composes in place — engine hides until boost rounds exist. */
   boostOnly?: boolean;
+  /**
+   * One-shot scroll intent: bumped by the caller when the user arrived from a
+   * "session open" row, so the rounds engine lands in view instead of below
+   * the header + filter chrome. Filters are never pre-set.
+   */
+  scrollToEngine?: number;
 }) => {
   const [cls, setCls] = useState<string>(initialClass);
   const [region, setRegion] = useState<string>(initialRegion);
+  const engineRef = useRef<HTMLDivElement | null>(null);
 
   const groups: StockGroups = useMemo(
     () => groupStockRows(stockRows, sessionNow),
@@ -75,6 +83,21 @@ export const LiteFinanceView = ({
   const asleep = engineOn ? groups.asleep.filter((a) => inRegion(a.row)) : [];
   const shown = trading.length + asleep.length;
   const totalNames = groups.trading.length + groups.asleep.length;
+  const hasEngineRows = engineOn && shown > 0;
+
+  useEffect(() => {
+    if (!scrollToEngine || !hasEngineRows) return;
+    const id = window.requestAnimationFrame(() => {
+      const el = engineRef.current;
+      if (!el) return;
+      // Leave room for the sticky header so the first round row isn't tucked
+      // underneath it.
+      const HEADER_OFFSET = 72;
+      const top = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [scrollToEngine, hasEngineRows]);
 
   const catalogue = useMemo(
     () =>
@@ -149,7 +172,7 @@ export const LiteFinanceView = ({
 
       {/* Engine — session-aware daily rounds. */}
       {engineOn && (trading.length > 0 || asleep.length > 0) && (
-        <div className="flex flex-col" style={{ gap: 12 }}>
+        <div ref={engineRef} className="flex flex-col" style={{ gap: 12 }}>
           {isMobile ? (
             <div className="flex flex-col" style={{ gap: 10 }}>
               {trading.map((row) => (
