@@ -221,7 +221,7 @@ export const MobileHeader = ({
       );
     } else if (showLogo) {
       // Only logo, no back button
-      return <Logo size="md" showMainnetBadge={showBadge} />;
+      return <Logo size={isBrandBar ? "lg" : "md"} showMainnetBadge={showBadge} />;
     } else {
       // Neither - empty space for alignment
       return <div className="w-9" />;
@@ -263,7 +263,17 @@ export const MobileHeader = ({
   const hasStats = displayTime || tweetCount !== undefined || currentPrice;
 
   return (
-    <header className="sticky top-0 bg-background z-40 px-4 py-2 border-b border-border">
+    <header
+      className={cn(
+        "sticky top-0 bg-background z-40 px-4",
+        isBrandBar
+          ? cn(
+              "py-4 border-b transition-colors duration-200",
+              scrolled ? "border-border" : "border-transparent",
+            )
+          : "py-2 border-b border-border",
+      )}
+    >
       {/* Row 1: Back + Title + Actions */}
       <div className="flex items-center justify-between gap-2">
         {/* Left: Back button and/or Logo */}
@@ -286,10 +296,9 @@ export const MobileHeader = ({
           <div className="flex-1" />
         )}
 
-        {/* Right: Action buttons or custom content */}
-        <div className="flex-shrink-0">
-          {renderRight()}
-        </div>
+        {/* Right: Action buttons or custom content — the opening brand bar
+            leaves the right side genuinely empty (no spacer block). */}
+        {!isBrandBar && <div className="flex-shrink-0">{renderRight()}</div>}
       </div>
 
       {/* Row 2: Stats bar (only for Trade pages with stats) */}
