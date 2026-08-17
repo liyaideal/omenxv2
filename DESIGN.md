@@ -743,86 +743,85 @@ flex justify-between text-xs text-muted-foreground
 
 | Context | Size | Notes |
 |---------|------|-------|
-| MobileHome, EventsPage headers | `md` (h-5) | Left-aligned, no back button |
+| EventsPage / hub headers (brand bar) | `lg` (h-6) | Left-aligned, no back button |
 | Trade pages | — | Logo hidden, back button only |
-| Detail pages with back button | `md` | Back + Logo together |
 | Desktop navigation | `xl` (h-8) | Left side of top nav |
 | Marketing / landing pages | `xl` (h-8) | Hero sections, footers |
 
 Logo rules:
+- **Never combine the Logo with a back button.**
 - Always use `<Logo>` component from `@/components/Logo`
 - On light backgrounds: use `className="invert"` or wrap in dark container
 - Never stretch, add effects, or use raw SVG import
 
 ### Page Type Classification
 
-| Type | Back Button | Logo | Examples |
-|------|------------|------|----------|
-| Functional | Never | Yes | `/`, `/events`, `/leaderboard`, `/portfolio` |
-| Operational (Logo) | Yes | Yes | `/trade/:id`, `/resolved/:id` |
-| Operational (No Logo) | Yes | No | `/deposit`, `/withdraw`, `/settings` |
+| Type | Variant | Back Button | Logo | Examples |
+|------|---------|------------|------|----------|
+| Lite root (bottom nav) | A | Never | Yes | `/`, `/events`, `/portfolio`, `/wallet` |
+| Lite trade page | B | Yes | No | `/trade`, `/spot` |
+| Operational inner page | B | Yes | No | `/deposit`, `/withdraw`, `/settings`, `/rewards`, `/leaderboard`, `/portfolio/settlements`, `/portfolio/airdrops` |
 | SEO / Marketing sub-page | Yes | No | `/about`, `/faq`, `/insights`, `/methodology`, `/developers`, `/glossary`, `/hedge`, `/transparency`, `/privacy`, `/terms` |
 
-### Mobile Header Presets
+### Mobile Header Presets — Mobile Header System v1 (2026-08-17)
 
-The mobile `<MobileHeader>` component has **three canonical presets**. Pick one based on the page type above — never invent a fourth.
+ONE component (`src/components/MobileHeader.tsx`), ONE height, TWO variants. No page on the Lite surface may render its own top bar.
 
-| Preset | `showLogo` | `showBack` | `title` | Visual | When to use |
-|--------|------------|-----------|---------|--------|-------------|
-| **A. Home / hub** | `true` | `false` | optional | Logo left-aligned, no back arrow | Top-level functional pages reachable from bottom nav: `/events`, `/portfolio`, `/leaderboard`, `/wallet` (when nav-rooted) |
-| **B. Functional inner page** | `false` | `true` | required, centered | Back arrow ← centered title | Operational flows the user enters from another screen: `/settings`, `/deposit`, `/withdraw`, `/rewards`, `/trade/:id`, `/resolved/:id`, `/portfolio/airdrops`, `/portfolio/settlements` |
-| **C. SEO / marketing sub-page** | `false` | `true` | required, centered | Back arrow ← centered title | Content & marketing pages: `/about`, `/faq`, `/glossary`, `/insights`, `/methodology`, `/developers`, `/hedge`, `/transparency`, `/privacy`, `/terms` |
-| **D. Home (Preset A + Equity Hero)** | `true` | `false` | n/a | Standard Preset A header + non-sticky `<HomeEquityHero>` card as first body section | **Only `/` (MobileHome).** Header is identical to Preset A — KPI lives in a separate Hero card, not the header. See "Preset D · Home Equity Hero Spec" below. |
+| Preset | Props | Where | Anatomy |
+|--------|-------|-------|---------|
+| **A. Brand bar** | `variant="brand"` | Lite bottom-nav roots `/`, `/events`, `/portfolio`, `/wallet` | Logo `lg` + Mainnet badge left, no back, no title, optional right slot (≤2 icon buttons or 1 compact control), divider fades in after 8px scroll |
+| **B. Inner bar** | `variant="inner"` | every other page incl. Lite trade pages, `/rewards*`, `/settings*`, `/deposit`, `/withdraw`, `/wallet/recovery*`, `/leaderboard`, `/portfolio` sub-pages, SEO / marketing sub-pages, campaign | back 36×36 left, centered 14/600 single-line title (sentence case, ≤24 chars, ellipsis), right slot ≤2 icons or 1 compact control, divider always (or handed to a sticky sub-bar via `flushBottom`) |
 
-Preset C is identical in chrome to Preset B — the distinction matters because SEO pages are routed to from search engines & footer links, so the back button **must** still render even when there is no in-app history (the component handles fallback navigation to `/`).
+Height: **56px + `env(safe-area-inset-top)`** for both. The `--mobile-header-h` CSS var (also in `:root`) is what sub-bars stick to: `sticky top-[var(--mobile-header-h)] z-30`.
+
+Former **Preset C** (SEO / marketing sub-page) is merged into B — same chrome, and `showBack` must still be explicit because search traffic has no history stack. Former **Preset D** is Pro `/` only: the header is variant brand with Pro `headerActions`; it is not a Lite concept.
 
 #### Examples
 
 ```tsx
-// Preset A — home / hub (only the very few nav-rooted pages)
-<MobileHeader title="Events" showLogo={true} showBack={false} />
+// A — Lite root
+<MobileHeader variant="brand" showBack={false} />
 
-// Preset B — functional inner page
-<MobileHeader title="Settings" showLogo={false} showBack={true} />
-<MobileHeader title="Wallet"   showLogo={false} showBack={true} />
+// B — inner page with one icon in the right slot
+<MobileHeader
+  title="Leaderboard"
+  showBack
+  showLogo={false}
+  rightContent={
+    <div className="flex items-center gap-1 -mr-2">
+      <MobileHeaderIconButton aria-label="Share" onClick={share}>
+        <Share2 className="w-5 h-5" strokeWidth={1.5} />
+      </MobileHeaderIconButton>
+    </div>
+  }
+/>
 
-// Preset C — SEO / marketing sub-page
-// In practice, prefer <SeoPageLayout title="..."> which wires this preset for you:
-<SeoPageLayout title="OmenX Insights" description="...">
-  {children}
-</SeoPageLayout>
-
-// Equivalent raw usage (only when SeoPageLayout is unsuitable, e.g. /hedge):
-<MobileHeader title="Hedge-to-Earn" showLogo={false} showBack={true} />
+// B — hands the divider to a sticky sub-bar
+<MobileHeader title="Rewards" showBack showLogo={false} flushBottom />
+<div className="sticky top-[var(--mobile-header-h)] z-30">…tabs…</div>
 ```
 
 #### Do / Don't
 
 ✅ **Do**
-- Use `<SeoPageLayout>` for any new SEO / marketing sub-page — it locks in Preset C automatically.
-- Always set `showBack={true}` on SEO pages, even when the page is occasionally linked from in-app surfaces. Search-engine entry traffic has no history stack.
-- **功能内页 / SEO 页的 `<MobileHeader>` 必须显式 `showBack={true}`**——不依赖 `navigationType` 或历史栈自动判定。直接 URL/刷新进入时自动判定会让 back 箭头消失。Preset B/C 一律显式声明。
-- Center the title; keep it short (≤ 24 chars) so it renders on a single line at 375 px width.
-- Match the page's `<title>` / `h1` tag with the `MobileHeader` `title` prop for consistency.
+- Pass `showBack` explicitly on every inner page — never rely on `navigationType` for direct URL / refresh entries.
+- Keep titles sentence case and ≤24 chars so they render on one line at 375px.
+- Use `<SeoPageLayout>` for SEO / marketing sub-pages — it wires variant B for you.
 
 ❌ **Don't**
-- Don't use `showLogo={true}` on SEO / marketing sub-pages (e.g. `/hedge`, `/about`). The Logo is reserved for top-level hub pages — putting it on every marketing page makes the app look like it has many disconnected entry points.
-- Don't omit `showBack` on an SEO page just because the desktop version doesn't need it. Mobile users arriving from Google must be able to navigate up.
-- Don't replace the standard back arrow with a custom button, or stack a Logo + back button + title in the SEO preset — that breaks visual rhythm with `/about`, `/faq`, `/glossary`, etc.
-- Don't introduce a new preset combination (e.g. `showLogo={true} showBack={true}`) for marketing pages. If a page genuinely needs custom chrome, build a dedicated marketing header (see `/leaderboard`) rather than overloading `MobileHeader`.
+- Don't self-draw a top bar on any Lite page.
+- Don't combine the Logo with a back button, and don't show a back arrow and an X close in the same bar.
+- Don't put KPI, balance or countdown values in the header (Pro's stats row is the only legacy exception).
+- Don't use `bg-background/95 backdrop-blur` or hex backgrounds — the header is solid `bg-background`.
+- Don't let a title wrap to two lines.
 
-### Mobile Header `rightContent` 规范
+### Mobile Header `rightContent` slot contract
 
-**关键规则：EventsPage 与 ResolvedPage 的移动端 Header 右上角必须使用 `MobileStatusDropdown` 组件**，允许用户通过下拉菜单在 "Active" 和 "Resolved" 之间切换页面。**严禁**替换为普通按钮、图标链接或其他自定义 UI。
+The right slot takes **either ≤2 `MobileHeaderIconButton`s or exactly 1 compact control** (`h-9 rounded-lg bg-secondary px-3` — e.g. the Portfolio tab switcher). Nothing else.
 
-| Page | rightContent | Component | Behavior |
-|------|-------------|-----------|----------|
-| EventsPage (`/events`) | Status dropdown | `<MobileStatusDropdown statusFilter="active" />` | 选择 "Resolved" → `navigate("/resolved")` |
-| ResolvedPage (`/resolved`) | Status dropdown | `<MobileStatusDropdown statusFilter="resolved" />` | 选择 "Active" → `navigate("/events")` |
-
-- 组件来源：`import { MobileStatusDropdown } from "@/components/EventFilters"`
-- 两个页面的行为必须**镜像对称**，保持一致体验
-- 修改这两个页面的 Header 时，必须先确认此规范
+- Icon buttons: `h-9 w-9`, icon `w-5 h-5` `strokeWidth={1.5}` `text-muted-foreground`; active state uses a semantic colour (watched star = `text-trading-yellow fill-trading-yellow`). Wrap the slot in `<div className="flex items-center gap-1 -mr-2">`.
+- No text pills, no `bg-primary/20` buttons, no balances or countdowns.
+- `MobileHeaderIconButton` is exported from `@/components/MobileHeader` — import it, never re-draw it.
 
 ### Preset D · Home Equity Hero Spec (`<HomeEquityHero>`)
 
