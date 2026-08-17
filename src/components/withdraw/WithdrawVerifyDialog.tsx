@@ -344,21 +344,21 @@ export const WithdrawVerifyDialog = ({
           <p className="text-xs text-muted-foreground -mt-1 mb-3">{subtitle}</p>
           {renderStep()}
         </MobileDrawerSection>
-        <MobileDrawerActions>
-          <Button
-            onClick={primary.onClick}
-            disabled={primary.disabled}
-            className="w-full h-11"
-          >
-            {primary.label}
-            {!isLastStep && <ArrowRight className="w-4 h-4 ml-1" />}
-          </Button>
+        <MobileDrawerActions className="flex gap-2 space-y-0">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="w-full h-11"
+            className="flex-1 h-11"
           >
             Cancel
+          </Button>
+          <Button
+            onClick={primary.onClick}
+            disabled={primary.disabled}
+            className="flex-1 h-11"
+          >
+            {primary.label}
+            {!isLastStep && <ArrowRight className="w-4 h-4 ml-1" />}
           </Button>
         </MobileDrawerActions>
       </MobileDrawer>
