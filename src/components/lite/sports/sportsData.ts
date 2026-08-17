@@ -62,8 +62,8 @@ export const fixtureMeta = (e: { metadata?: unknown } | null | undefined): Fixtu
  * Handicap / Total siblings are only reachable through their fixture board,
  * never through a generic market list, ledger or watchlist.
  */
-export const isFixtureSibling = (e: { metadata?: unknown } | null | undefined): boolean => {
-  const mt = fixtureMeta(e).market_type;
+export const isFixtureSibling = (e: unknown): boolean => {
+  const mt = fixtureMeta(e as { metadata?: unknown } | null).market_type;
   return mt === "handicap" || mt === "total";
 };
 
