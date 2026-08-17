@@ -55,6 +55,8 @@ import {
   fixtureMeta,
   formatSignedLine,
   groupFixtureMarkets,
+  isFixtureSibling,
+  NON_SIBLING_FILTER,
   scoringNoun,
 } from "@/components/lite/sports/sportsData";
 import { LiteBoardGroupHeader as GroupHeader } from "@/components/lite/multi/LiteBoardGroupHeader";
@@ -156,11 +158,13 @@ const useMoreMarkets = (category: string | null, currentId: string) => {
         .select("id, name, side_labels, options:event_options(id, label, price)")
         .eq("category", category)
         .eq("is_resolved", false)
+        // Fixture line siblings live on their fixture board only.
+        .or(NON_SIBLING_FILTER)
         .limit(8);
       if (!alive) return;
       setRows(
         (data || [])
-          .filter((e) => e.id !== currentId)
+          .filter((e) => e.id !== currentId && !isFixtureSibling(e))
           .slice(0, 5)
           .map((e) => {
             const opts = (e.options || []) as { label: string; price: number }[];
