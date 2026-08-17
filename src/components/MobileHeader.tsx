@@ -181,7 +181,6 @@ export const MobileHeader = ({
         </button>
       );
     }
-    if (showLogo) return <Logo size="lg" showMainnetBadge />;
     return <div className="w-9 -ml-2" />;
   };
 
