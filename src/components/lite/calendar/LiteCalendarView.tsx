@@ -486,8 +486,8 @@ export const LiteCalendarView = ({
         <span style={{ fontSize: 11, color: "#6B7280", textWrap: "pretty" }}>
           {weekTotal} markets close in the next 7 days.{" "}
           {focusedDay == null
-            ? "Tap a day to trade it."
-            : "Tap the day again to see the whole week."}
+            ? "Tap a market to trade it."
+            : "Tap a market to trade it. Tap the day again to see the whole week."}
           {openNow.length > 0 &&
             ` ${openNow.length} more stay open past today.`}
         </span>
