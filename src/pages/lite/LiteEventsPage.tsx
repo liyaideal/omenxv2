@@ -536,6 +536,10 @@ const LiteEventsPage = () => {
               tickSeconds={tickSeconds}
               onOpenIntraday={() => setSector("intraday")}
               onOpenSession={() => setSector("finance")}
+            onOpenSession={() => {
+              setSector("finance");
+              setScrollToEngine((n) => n + 1);
+            }}
               boostOnly={boostOnly}
             />
           </div>
