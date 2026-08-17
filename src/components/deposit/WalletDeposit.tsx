@@ -196,7 +196,7 @@ export const WalletDeposit = ({ onDone, account: _account, demoAcknowledged }: W
           USDC deposit address (Base)
         </LabelText>
         <div className="px-2">
-          {/* §6 address coloring — digits Pulse Blue, letters muted grey. */}
+          {/* §6 address coloring — digits Pulse Blue, letters foreground. */}
           <ColoredAddress address={custodyAddress} className="leading-relaxed break-all" />
         </div>
       </div>

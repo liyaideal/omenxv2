@@ -20,6 +20,8 @@ interface WithdrawAddressSelectProps {
   onClose: () => void;
   selectedAddress: string;
   onSelectAddress: (address: string) => void;
+  /** Seeds the internal step — style-guide only; production callers omit it. */
+  initialStep?: 'list' | 'add';
 }
 
 const EMPTY_FORM: AddAddressValues = { label: '', address: '', network: '' };
@@ -34,18 +36,19 @@ export const WithdrawAddressSelect = ({
   onClose,
   selectedAddress,
   onSelectAddress,
+  initialStep = 'list',
 }: WithdrawAddressSelectProps) => {
   const { wallets, addWallet } = useWallets();
-  const [step, setStep] = useState<'list' | 'add'>('list');
+  const [step, setStep] = useState<'list' | 'add'>(initialStep);
   const [form, setForm] = useState<AddAddressValues>(EMPTY_FORM);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (open) {
-      setStep('list');
+      setStep(initialStep);
       setForm(EMPTY_FORM);
     }
-  }, [open]);
+  }, [open, initialStep]);
 
   const handleSave = async () => {
     if (!form.label.trim()) return toast.error('Please enter a label');
@@ -97,10 +100,7 @@ export const WithdrawAddressSelect = ({
                   <div className="flex items-center gap-2">
                     <span className="font-medium truncate">{wallet.label}</span>
                     {wallet.isPrimary && (
-                      <span
-                        className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase shrink-0"
-                        style={{ backgroundColor: 'rgba(207,255,74,0.16)', color: '#DCFF6A' }}
-                      >
+                       <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase shrink-0 bg-trading-green/15 text-trading-green">
                         Default
                       </span>
                     )}
