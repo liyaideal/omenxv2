@@ -320,6 +320,7 @@ export const MobileIntradayModule = ({
   onSelectTf,
   tickSeconds,
   onOpenIntraday,
+  onOpenSession,
   boostOnly,
 }: {
   currentFor: Map<string, QuickEvent>;
