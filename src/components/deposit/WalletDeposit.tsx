@@ -58,9 +58,11 @@ interface WalletDepositProps {
    * any future real credit path is account-safe by construction.
    */
   account?: 'spot' | 'futures';
+  /** Style-guide only: force the acknowledged/unacknowledged branch. */
+  demoAcknowledged?: boolean;
 }
 
-export const WalletDeposit = ({ onDone, account: _account }: WalletDepositProps) => {
+export const WalletDeposit = ({ onDone, account: _account, demoAcknowledged }: WalletDepositProps) => {
   const isMobile = useIsMobile();
   const { user } = useUserProfile();
   const [copied, setCopied] = useState(false);
@@ -79,9 +81,13 @@ export const WalletDeposit = ({ onDone, account: _account }: WalletDepositProps)
   const [warningAcknowledged, setWarningAcknowledged] = useState(false);
 
   useEffect(() => {
+    if (demoAcknowledged !== undefined) {
+      setWarningAcknowledged(demoAcknowledged);
+      return;
+    }
     if (typeof window === 'undefined') return;
     setWarningAcknowledged(window.localStorage.getItem(warningAckKey) === 'true');
-  }, [warningAckKey]);
+  }, [warningAckKey, demoAcknowledged]);
 
   const custodyAddress = getCurrentAddress();
 

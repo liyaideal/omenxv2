@@ -23,9 +23,11 @@ import { useWithdrawSubmit } from './WithdrawSubmitContext';
 
 interface WalletWithdrawProps {
   onDone?: () => void;
+  /** Style-guide only: mock the source-account balance. */
+  demoAvailableBalance?: number;
 }
 
-export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
+export const WalletWithdraw = ({ onDone, demoAvailableBalance }: WalletWithdrawProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const submitBar = useWithdrawSubmit();
@@ -46,9 +48,9 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
   } = useWithdraw(effectiveAccount);
 
   // H2E lock only applies to Futures Account (rewards live there).
-  const availableBalance = effectiveAccount === 'futures'
+  const availableBalance = demoAvailableBalance ?? (effectiveAccount === 'futures'
     ? Math.max(0, rawAvailableBalance - h2e.lockedAmount)
-    : rawAvailableBalance;
+    : rawAvailableBalance);
 
   const [amount, setAmount] = useState('');
   const [selectedAddress, setSelectedAddress] = useState('');
