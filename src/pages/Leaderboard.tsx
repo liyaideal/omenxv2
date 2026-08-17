@@ -11,13 +11,14 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
-// MobileHeader is NOT used here - Leaderboard is a marketing page with custom hero header
+// Mobile Header System v1: no page draws its own top bar (DESIGN.md §10).
 import { LaurelWreath, SmallLaurelBadge } from "@/components/LaurelWreath";
 import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useReferral } from "@/hooks/useReferral";
 import * as htmlToImage from "html-to-image";
 import omenxLogo from "@/assets/omenx-logo.svg";
+import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
 import { QRCodeSVG } from "qrcode.react";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { AuthDialog } from "@/components/auth/AuthDialog";
@@ -1045,6 +1046,20 @@ export default function Leaderboard() {
 
   const content = (
     <div className="min-h-screen bg-background">
+      {isMobile && (
+        <MobileHeader
+          title="Leaderboard"
+          showBack
+          showLogo={false}
+          rightContent={
+            <div className="flex items-center gap-1 -mr-2">
+              <MobileHeaderIconButton aria-label="Share" onClick={handleShareCard}>
+                <Share2 className="w-5 h-5" strokeWidth={1.5} />
+              </MobileHeaderIconButton>
+            </div>
+          }
+        />
+      )}
       {/* Unified background with seamless gradient */}
       <div className="relative">
         {/* Single unified background - extends through entire page */}
@@ -1053,20 +1068,6 @@ export default function Leaderboard() {
         
         {/* Content wrapper */}
         <div className="relative z-10 px-4 pt-4">
-          {/* Custom Marketing Header - NOT using MobileHeader */}
-          {isMobile && (
-            <div className="flex items-center justify-between mb-4">
-              <img src={omenxLogo} alt="OMENX" className="h-6" />
-              <button 
-                onClick={handleShareCard}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors"
-              >
-                <Share2 className="w-3.5 h-3.5" />
-                <span className="text-xs font-medium">Share</span>
-              </button>
-            </div>
-          )}
-
           {/* Logo + Title with Neon Effect */}
           <div className="text-center mb-4">
             {/* Logo - only show on desktop since mobile has it above */}

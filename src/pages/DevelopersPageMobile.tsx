@@ -159,7 +159,7 @@ export const DevelopersPageMobile = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col pb-safe">
-      <MobileHeader title="Open API" showLogo={false} showBack={true} />
+      <MobileHeader title="Open API" showLogo={false} showBack />
 
       <main className="flex-1 w-full">
         {/* HERO */}

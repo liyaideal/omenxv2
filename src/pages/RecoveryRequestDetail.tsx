@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { ChevronLeft, Copy, Loader2, ExternalLink } from 'lucide-react';
+import { Copy, Loader2, ExternalLink } from 'lucide-react';
 import { DesktopBackLink } from '@/components/ui/desktop-back-link';
 import { toast } from 'sonner';
 import { useRecoveryRequest } from '@/hooks/useRecoveryRequests';
@@ -7,6 +7,7 @@ import { RecoveryStatusTimeline, RecoveryStatusBadge } from '@/components/recove
 import { useIsMobile } from '@/hooks/use-mobile';
 import { EventsDesktopHeader } from '@/components/EventsDesktopHeader';
 import { BottomNav } from '@/components/BottomNav';
+import { MobileHeader } from '@/components/MobileHeader';
 
 const FEE_PERCENT = 10;
 
@@ -24,7 +25,7 @@ export default function RecoveryRequestDetailPage() {
     if (isMobile) {
       return (
         <div className="min-h-screen bg-background flex flex-col">
-          <MobileHeader onBack={back} />
+          <MobileHeader title="Recovery request" showBack showLogo={false} />
           {children}
           <BottomNav />
         </div>
@@ -217,20 +218,6 @@ export default function RecoveryRequestDetailPage() {
   );
 }
 
-const MobileHeader = ({ onBack }: { onBack: () => void }) => (
-  <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border/50">
-    <div className="flex items-center justify-between px-4 h-14">
-      <button
-        onClick={onBack}
-        className="p-2 -ml-2 text-muted-foreground hover:text-foreground transition-colors"
-      >
-        <ChevronLeft className="w-6 h-6" />
-      </button>
-      <h1 className="text-lg font-semibold">Recovery request</h1>
-      <div className="w-9" />
-    </div>
-  </header>
-);
 
 const Row = ({ label, value }: { label: string; value: string }) => (
   <div className="flex items-center justify-between">

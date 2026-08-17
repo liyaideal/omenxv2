@@ -172,7 +172,7 @@ export default function OrderPreview() {
 
   return (
     <div className="min-h-screen bg-background pb-32">
-      <MobileHeader title="Order preview" showLogo={false} />
+      <MobileHeader title="Order preview" showLogo={false} showBack />
 
       {/* Order Details Card */}
       <div className="px-4 py-4 animate-fade-in">

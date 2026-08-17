@@ -14,13 +14,6 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Table,
   TableBody,
   TableCell,
@@ -34,42 +27,6 @@ import { STATUS_STYLES } from "@/lib/statusStyles";
 import { ProductLineBadge } from "@/lib/productLineBadge";
 
 type TabType = "positions" | "settlements" | "airdrops";
-
-// Portfolio Tab 下拉组件
-const PortfolioTabDropdown = ({
-  activeTab,
-  onTabChange,
-  positionsCount,
-  settlementsCount,
-  airdropsCount,
-}: {
-  activeTab: TabType;
-  onTabChange: (tab: TabType) => void;
-  positionsCount: number;
-  settlementsCount: number;
-  airdropsCount: number;
-}) => {
-  const tabOptions: { value: TabType; label: string }[] = [
-    { value: "positions", label: `Positions (${positionsCount})` },
-    { value: "settlements", label: `Settlements (${settlementsCount})` },
-    { value: "airdrops", label: `Airdrops (${airdropsCount})` },
-  ];
-
-  return (
-    <Select value={activeTab} onValueChange={(v) => onTabChange(v as TabType)}>
-      <SelectTrigger className="w-[140px] bg-secondary border-border/50 h-9">
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        {tabOptions.map((opt) => (
-          <SelectItem key={opt.value} value={opt.value}>
-            {opt.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  );
-};
 
 // ---------------------------------------------------------------------------
 // Row components (extracted per DESIGN.md §16.1 so /style-guide can mount
@@ -223,14 +180,6 @@ export default function PortfolioSettlements() {
     };
   }, [settlements]);
 
-  const handleTabChange = (tab: TabType) => {
-    if (tab === "positions") {
-      navigate("/portfolio");
-    } else if (tab === "airdrops") {
-      navigate("/portfolio/airdrops");
-    }
-  };
-
   const handleSettlementAction = (id: string) => {
     navigate(`/portfolio/settlement/${id}`);
   };
@@ -250,18 +199,7 @@ export default function PortfolioSettlements() {
     >
       {/* Header */}
       {isMobile ? (
-        <MobileHeader 
-          showLogo
-          rightContent={
-            <PortfolioTabDropdown
-              activeTab="settlements"
-              onTabChange={handleTabChange}
-              positionsCount={positions.length}
-              settlementsCount={settlements.length}
-              airdropsCount={airdrops.length}
-            />
-          }
-        />
+        <MobileHeader title="Settlements" showBack showLogo={false} backTo="/portfolio" />
       ) : (
         <EventsDesktopHeader />
       )}

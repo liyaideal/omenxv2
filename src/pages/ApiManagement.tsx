@@ -92,7 +92,7 @@ const ApiManagement = () => {
     <div className="min-h-screen bg-background">
       {isMobile ? (
         <>
-          <MobileHeader title="Keys & access" showLogo={false} showBack={true} />
+          <MobileHeader title="Keys & access" showLogo={false} showBack />
           <AuthGateOverlay
             title="Sign in to manage API keys"
             description="Create and revoke signed keys for programmatic access after signing in."

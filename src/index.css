@@ -8,6 +8,10 @@
   :root {
     /* ===== SAFE AREA FOR MOBILE BOTTOM NAV ===== */
     --safe-area-bottom: 5rem;
+
+    /* ===== MOBILE HEADER SYSTEM v1 (DESIGN.md §10) ===== */
+    /* Single header height; sticky sub-bars use top-[var(--mobile-header-h)] */
+    --mobile-header-h: calc(56px + env(safe-area-inset-top));
     
     /* ===== CORE SURFACE COLORS ===== */
     --background: 220 12% 4%;

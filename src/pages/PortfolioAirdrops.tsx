@@ -19,13 +19,6 @@ import { STATUS_STYLES } from "@/lib/statusStyles";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Table,
   TableBody,
   TableCell,
@@ -50,42 +43,6 @@ const HeaderWithInfo = ({ label, description, align = "left" }: { label: string;
     </Tooltip>
   </div>
 );
-
-// Portfolio Tab 下拉组件
-const PortfolioTabDropdown = ({
-  activeTab,
-  onTabChange,
-  positionsCount,
-  settlementsCount,
-  airdropsCount,
-}: {
-  activeTab: TabType;
-  onTabChange: (tab: TabType) => void;
-  positionsCount: number;
-  settlementsCount: number;
-  airdropsCount: number;
-}) => {
-  const tabOptions: { value: TabType; label: string }[] = [
-    { value: "positions", label: `Positions (${positionsCount})` },
-    { value: "settlements", label: `Settlements (${settlementsCount})` },
-    { value: "airdrops", label: `Airdrops (${airdropsCount})` },
-  ];
-
-  return (
-    <Select value={activeTab} onValueChange={(v) => onTabChange(v as TabType)}>
-      <SelectTrigger className="w-[140px] bg-secondary border-border/50 h-9">
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        {tabOptions.map((opt) => (
-          <SelectItem key={opt.value} value={opt.value}>
-            {opt.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  );
-};
 
 // Desktop table row for an airdrop
 const AirdropStatusBadge = ({ status }: { status: string }) => {
@@ -126,14 +83,6 @@ export default function PortfolioAirdrops() {
   const sideLabelsLookup = useEventSideLabelsLookup();
 
 
-  const handleTabChange = (tab: TabType) => {
-    if (tab === "positions") {
-      navigate("/portfolio");
-    } else if (tab === "settlements") {
-      navigate("/portfolio/settlements");
-    }
-  };
-
   const isGuest = !authLoading && !user;
 
   const totalValue = useMemo(() => {
@@ -151,18 +100,7 @@ export default function PortfolioAirdrops() {
     >
       {/* Header */}
       {isMobile ? (
-        <MobileHeader 
-          showLogo
-          rightContent={
-            <PortfolioTabDropdown
-              activeTab="airdrops"
-              onTabChange={handleTabChange}
-              positionsCount={positions.length}
-              settlementsCount={settlements.length}
-              airdropsCount={airdrops.length}
-            />
-          }
-        />
+        <MobileHeader title="Airdrops" showBack showLogo={false} backTo="/portfolio" />
       ) : (
         <EventsDesktopHeader />
       )}

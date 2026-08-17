@@ -16,7 +16,7 @@ export const SeoPageLayout = ({ children, title, description }: SeoPageLayoutPro
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       {isMobile ? (
-        <MobileHeader title={title} showLogo={false} showBack={true} />
+        <MobileHeader title={title} showLogo={false} showBack />
       ) : (
         <EventsDesktopHeader />
       )}

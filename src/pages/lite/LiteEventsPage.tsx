@@ -291,7 +291,7 @@ const LiteEventsPage = () => {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {isMobile ? (
-        <MobileHeader showLogo showBack={false} />
+        <MobileHeader variant="brand" showBack={false} />
       ) : (
         <EventsDesktopHeader />
       )}
