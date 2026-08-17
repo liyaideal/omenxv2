@@ -1,6 +1,6 @@
 /**
  * ColoredAddress — DESIGN.md §6 address coloring.
- * Digits render in Pulse Blue, letters in muted grey, so the eye can
+ * Digits render in Pulse Blue (text-primary), letters in text-foreground, so the eye can
  * scan an address without reading it. Mono, xs, break-all safe.
  *
  * Mounted by: /wallet saved-address rows, /deposit full address block.
@@ -16,9 +16,9 @@ export const ColoredAddress = ({ address, className }: ColoredAddressProps) => (
   <span className={cn("font-mono text-xs", className)}>
     {address.split("").map((ch, i) =>
       /\d/.test(ch) ? (
-        <span key={i} style={{ color: "#7FE4FF" }}>{ch}</span>
+        <span key={i} className="text-primary">{ch}</span>
       ) : (
-        <span key={i} style={{ color: "#9AA1AC" }}>{ch}</span>
+        <span key={i} className="text-foreground">{ch}</span>
       )
     )}
   </span>
