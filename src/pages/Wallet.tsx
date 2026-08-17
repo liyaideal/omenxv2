@@ -33,6 +33,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
   MobileDrawer,
+  MobileDrawerActions,
   MobileDrawerStatus,
 } from "@/components/ui/mobile-drawer";
 import {
@@ -52,6 +53,7 @@ import { AddAddressDialog } from "@/components/wallet/AddAddressDialog";
 import { DepositDialog } from "@/components/deposit/DepositDialog";
 import { WithdrawDialog } from "@/components/withdraw/WithdrawDialog";
 import { TransferDialog } from "@/components/wallet/TransferDialog";
+import { ColoredAddress } from '@/components/wallet/ColoredAddress';
 import { TransferDrawer } from "@/components/wallet/TransferDrawer";
 import { MaintenanceNoticeBanner } from "@/components/wallet/MaintenanceNoticeBanner";
 import { computeTotalEquity, formatEquityUsd } from "@/lib/equity";
@@ -779,19 +781,6 @@ export default function Wallet() {
   // + dual-account cards structure as desktop. See docs/changelog/2026-07-21-dual-account-wallet-ui.md §2.
 
 
-  // Renders truncated address with digits in Pulse Blue and letters in muted grey.
-  const ColoredAddress = ({ address }: { address: string }) => (
-    <span className="font-mono text-xs">
-      {address.split('').map((ch, i) =>
-        /\d/.test(ch) ? (
-          <span key={i} style={{ color: '#7FE4FF' }}>{ch}</span>
-        ) : (
-          <span key={i} style={{ color: '#9AA1AC' }}>{ch}</span>
-        )
-      )}
-    </span>
-  );
-
   // Clean saved-address row (Signal DNA): hairline-separated row, no avatar, no inline delete/set-default.
   const AddressRow = ({ wallet, isLast }: { wallet: typeof wallets[0]; isLast: boolean }) => (
     <div className={cn("flex items-center justify-between gap-3 py-3", !isLast && "border-b border-[#1D2026]")}>
@@ -1112,21 +1101,21 @@ export default function Wallet() {
           description={`Are you sure you want to delete "${walletToDelete?.label}"? This action cannot be undone.`}
           variant="error"
         />
-        <div className="flex gap-3">
+        <MobileDrawerActions className="flex gap-2 space-y-0">
           <Button
             variant="outline"
             onClick={() => setDeleteDialogOpen(false)}
-            className="flex-1 h-12"
+            className="flex-1 h-11"
           >
             Cancel
           </Button>
           <Button
             onClick={handleConfirmDelete}
-            className="flex-1 h-12 bg-trading-red hover:bg-trading-red/90 text-white"
+            className="flex-1 h-11 bg-trading-red hover:bg-trading-red/90 text-white"
           >
             Delete
           </Button>
-        </div>
+        </MobileDrawerActions>
       </MobileDrawer>
 
     </div>

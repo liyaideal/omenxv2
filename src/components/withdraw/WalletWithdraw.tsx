@@ -19,14 +19,18 @@ import { useNavigate } from 'react-router-dom';
 import { AccountPicker, AccountPickerRows } from '@/components/wallet/AccountPicker';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useAccountPreference, ACCOUNT_LABEL } from '@/hooks/useAccountPreference';
+import { useWithdrawSubmit } from './WithdrawSubmitContext';
 
 interface WalletWithdrawProps {
   onDone?: () => void;
+  /** Style-guide only: mock the source-account balance. */
+  demoAvailableBalance?: number;
 }
 
-export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
+export const WalletWithdraw = ({ onDone, demoAvailableBalance }: WalletWithdrawProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const submitBar = useWithdrawSubmit();
   const { wallets } = useWallets();
   const h2e = useH2eRewardsSummary();
   const { account: withdrawAccount, setAccount: setWithdrawAccount } = useAccountPreference('withdraw');
@@ -44,9 +48,9 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
   } = useWithdraw(effectiveAccount);
 
   // H2E lock only applies to Futures Account (rewards live there).
-  const availableBalance = effectiveAccount === 'futures'
+  const availableBalance = demoAvailableBalance ?? (effectiveAccount === 'futures'
     ? Math.max(0, rawAvailableBalance - h2e.lockedAmount)
-    : rawAvailableBalance;
+    : rawAvailableBalance);
 
   const [amount, setAmount] = useState('');
   const [selectedAddress, setSelectedAddress] = useState('');
@@ -114,6 +118,24 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
       toast.error(err.message || 'Failed to submit withdrawal');
     }
   };
+
+  const submitDisabled =
+    isSubmitting || !amount || !selectedAddress || parseFloat(amount) < minAmount;
+
+  // Publish CTA state to the full-screen /withdraw sticky bar (flow unchanged).
+  const barVisible = !!submitBar && isMobile === true && !currentWithdrawal;
+  const setBarState = submitBar?.setState;
+  useEffect(() => {
+    if (!setBarState) return;
+    setBarState({
+      visible: barVisible,
+      disabled: submitDisabled,
+      loading: isSubmitting,
+      onSubmit: handleSubmit,
+    });
+    // handleSubmit is re-created each render; the primitive deps below cover it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setBarState, barVisible, submitDisabled, isSubmitting, amount, selectedAddress, effectiveAccount]);
 
   const handleDone = () => {
     if (onDone) onDone();
@@ -302,18 +324,20 @@ export const WalletWithdraw = ({ onDone }: WalletWithdrawProps) => {
         </p>
       </div>
 
-      {/* Submit */}
-      <Button
-        onClick={handleSubmit}
-        disabled={isSubmitting || !amount || !selectedAddress || parseFloat(amount) < minAmount}
-        className={cn("w-full bg-primary hover:bg-primary-hover font-semibold", isMobile ? "h-12 rounded-xl text-sm" : "h-11 rounded-lg")}
-      >
-        {isSubmitting ? (
-          <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Processing...</>
-        ) : (
-          'Withdraw'
-        )}
-      </Button>
+      {/* Submit — on the full-screen mobile flow this lives in the sticky bar. */}
+      {!barVisible && (
+        <Button
+          onClick={handleSubmit}
+          disabled={submitDisabled}
+          className={cn("w-full bg-primary hover:bg-primary-hover font-semibold", isMobile ? "h-12 rounded-xl text-sm" : "h-11 rounded-lg")}
+        >
+          {isSubmitting ? (
+            <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Processing...</>
+          ) : (
+            'Withdraw'
+          )}
+        </Button>
+      )}
 
       {/* Address Selection */}
       {isMobile ? (

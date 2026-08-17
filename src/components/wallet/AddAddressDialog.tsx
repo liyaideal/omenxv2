@@ -24,7 +24,7 @@ import { useWallets } from '@/hooks/useWallets';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
 
-const NETWORKS = [
+export const NETWORKS = [
   "Ethereum",
   "BNB Smart Chain (BEP20)",
   "Tron (TRC20)",
@@ -34,6 +34,63 @@ const NETWORKS = [
   "Avalanche C-Chain",
   "Bitcoin",
 ];
+
+export interface AddAddressValues {
+  label: string;
+  address: string;
+  network: string;
+}
+
+/**
+ * AddAddressFields — the single 3-field form block (Label / Address / Network).
+ * Shared by the desktop AddAddressDialog and the in-drawer "add" step of
+ * WithdrawAddressSelect (DESIGN.md §5: reuse the same form component,
+ * never open a drawer on top of a drawer).
+ */
+export const AddAddressFields = ({
+  values,
+  onChange,
+  idPrefix = 'add-addr',
+}: {
+  values: AddAddressValues;
+  onChange: (next: AddAddressValues) => void;
+  idPrefix?: string;
+}) => (
+  <div className="space-y-4">
+    <div className="space-y-2">
+      <Label htmlFor={`${idPrefix}-label`}>Label</Label>
+      <Input
+        id={`${idPrefix}-label`}
+        placeholder="e.g. My Binance, Cold Wallet"
+        value={values.label}
+        onChange={(e) => onChange({ ...values, label: e.target.value })}
+      />
+    </div>
+    <div className="space-y-2">
+      <Label htmlFor={`${idPrefix}-address`}>Address</Label>
+      <Input
+        id={`${idPrefix}-address`}
+        placeholder="Paste wallet address"
+        value={values.address}
+        onChange={(e) => onChange({ ...values, address: e.target.value })}
+        className="font-mono"
+      />
+    </div>
+    <div className="space-y-2">
+      <Label>Network</Label>
+      <Select value={values.network} onValueChange={(v) => onChange({ ...values, network: v })}>
+        <SelectTrigger>
+          <SelectValue placeholder="Select network" />
+        </SelectTrigger>
+        <SelectContent>
+          {NETWORKS.map((net) => (
+            <SelectItem key={net} value={net}>{net}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  </div>
+);
 
 interface AddAddressDialogProps {
   open: boolean;
@@ -99,40 +156,14 @@ export const AddAddressDialog = ({
   };
 
   const formContent = (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="add-addr-label">Label</Label>
-        <Input
-          id="add-addr-label"
-          placeholder="e.g. My Binance, Cold Wallet"
-          value={newLabel}
-          onChange={(e) => setNewLabel(e.target.value)}
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="add-addr-address">Address</Label>
-        <Input
-          id="add-addr-address"
-          placeholder="Paste wallet address"
-          value={newAddress}
-          onChange={(e) => setNewAddress(e.target.value)}
-          className="font-mono"
-        />
-      </div>
-      <div className="space-y-2">
-        <Label>Network</Label>
-        <Select value={newNetwork} onValueChange={setNewNetwork}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select network" />
-          </SelectTrigger>
-          <SelectContent>
-            {NETWORKS.map((net) => (
-              <SelectItem key={net} value={net}>{net}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-    </div>
+    <AddAddressFields
+      values={{ label: newLabel, address: newAddress, network: newNetwork }}
+      onChange={(next) => {
+        setNewLabel(next.label);
+        setNewAddress(next.address);
+        setNewNetwork(next.network);
+      }}
+    />
   );
 
   if (isMobile) {
@@ -140,16 +171,19 @@ export const AddAddressDialog = ({
       <MobileDrawer
         open={open}
         onOpenChange={handleClose}
-        title="Add Address"
+        title="Add address"
       >
         {formContent}
-        <MobileDrawerActions>
+        <MobileDrawerActions className="flex gap-2 space-y-0">
+          <Button variant="outline" onClick={() => handleClose(false)} className="flex-1 h-11">
+            Cancel
+          </Button>
           <Button
             onClick={handleAdd}
             disabled={isAdding}
-            className="w-full btn-primary h-12"
+            className="flex-1 btn-primary h-11"
           >
-            {isAdding ? "Saving..." : "Save Address"}
+            {isAdding ? "Saving..." : "Save address"}
           </Button>
         </MobileDrawerActions>
       </MobileDrawer>

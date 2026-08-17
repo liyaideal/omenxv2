@@ -85,6 +85,11 @@ export const LiteOverviewSection = (_: P) => (
       <h3 className="mb-2 text-sm font-semibold text-foreground">Changelog</h3>
       <ul className="space-y-1 text-[12px] text-muted-foreground">
         <li>
+          2026-08-17 · 资金流移动端整治 —— /deposit /withdraw 判定为全屏流（§5 新判据）；账户/地址选择器
+          收编 MobileDrawer，新增地址改为抽屉内二步（去嵌套），提交型抽屉统一 MobileDrawerActions
+          Cancel+主按钮；Withdraw 主 CTA sticky；充值地址 §6 着色；style-guide 新增 10 键。
+        </li>
+        <li>
           2026-08-17 · Mobile Header System v1 —— Lite 移动端顶栏统一为一套组件 / 56px / A brand · B
           inner 两形态；收编 RedeemMobileHeader、Deposit/Withdraw、Recovery×2、Leaderboard 自绘头与
           <code className="font-mono">showActions</code>；标题 sentence case；Rewards Tabs 吸顶改读{" "}

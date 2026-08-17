@@ -456,19 +456,23 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
             </CardHeader>
             <CardContent>
               <p className="text-xs text-muted-foreground mb-4">
-                Use Vaul drawer for mobile-friendly bottom sheets instead of dialogs.
+                Every mobile bottom sheet is <code className="text-primary">MobileDrawer</code>. A drawer never
+                opens another drawer — a second step replaces the content of the same drawer (§5).
               </p>
               <CodePreview 
-                code={`import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+                code={`import {
+  MobileDrawer,
+  MobileDrawerSection,
+  MobileDrawerActions,
+} from "@/components/ui/mobile-drawer";
 
-<Drawer>
-  <DrawerTrigger asChild>
-    <Button>Open Sheet</Button>
-  </DrawerTrigger>
-  <DrawerContent>
-    {/* Content */}
-  </DrawerContent>
-</Drawer>`}
+<MobileDrawer open={open} onOpenChange={setOpen} title="Add address">
+  <MobileDrawerSection>{/* fields */}</MobileDrawerSection>
+  <MobileDrawerActions className="flex gap-2 space-y-0">
+    <Button variant="outline" className="flex-1 h-11">Cancel</Button>
+    <Button className="flex-1 h-11">Save address</Button>
+  </MobileDrawerActions>
+</MobileDrawer>`}
               />
             </CardContent>
           </Card>

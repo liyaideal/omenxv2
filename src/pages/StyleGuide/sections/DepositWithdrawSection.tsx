@@ -8,6 +8,7 @@ import { CodePreview } from "../components/CodePreview";
 import { cn } from "@/lib/utils";
 import { RecoveryStatusTimeline, RecoveryStatusBadge } from "@/components/recovery/RecoveryStatusTimeline";
 import { WithdrawVerifyDialog } from "@/components/withdraw/WithdrawVerifyDialog";
+import { DeviceFrame } from "../components/DeviceFrame";
 
 interface DepositWithdrawSectionProps {
   isMobile: boolean;
@@ -33,6 +34,19 @@ const TOKEN_LOGOS = [
 const BRAND_LOGOS = [
   { name: "Banxa", src: "/brand-logos/banxa.png" },
   { name: "SOCKET", src: "" },
+];
+
+const FUNDING_DEMOS: { key: string; title: string; caption: string; minHeight?: number }[] = [
+  { key: "wallet-deposit-to-screen", title: "Deposit · step 0 “Deposit to”", caption: "Production mount: src/pages/Deposit.tsx pre-screen (AccountPickerRows).", minHeight: 260 },
+  { key: "wallet-deposit-checklist", title: "Deposit · address tab, unacknowledged", caption: "Production mount: WalletDeposit inside /deposit → Address tab (3-item safety checklist).", minHeight: 420 },
+  { key: "wallet-deposit-address", title: "Deposit · address tab, acknowledged", caption: "Production mount: WalletDeposit — QR, §6 ColoredAddress, info rows. No sticky CTA (display page).", minHeight: 620 },
+  { key: "wallet-withdraw-form", title: "Withdraw · form + sticky CTA", caption: "Production mount: WalletWithdraw inside /withdraw; the CTA is rendered by the route’s sticky bar.", minHeight: 720 },
+  { key: "wallet-withdraw-address-drawer", title: "Withdraw · address drawer (list step)", caption: "Production mount: WithdrawAddressSelect from WalletWithdraw “Withdrawal Address”.", minHeight: 460 },
+  { key: "wallet-withdraw-address-add", title: "Withdraw · address drawer (add step)", caption: "Same drawer, step “add” — AddAddressFields shared with the desktop AddAddressDialog.", minHeight: 460 },
+  { key: "wallet-withdraw-verify", title: "Withdraw · verification drawer", caption: "Production mount: WithdrawVerifyDialog mobile branch, email OTP step. Demo code 111111.", minHeight: 460 },
+  { key: "wallet-withdraw-status", title: "Withdraw · status tracker (REQUESTED)", caption: "Production mount: WithdrawStatusTracker after a submitted withdrawal.", minHeight: 420 },
+  { key: "wallet-account-picker", title: "Account picker drawer", caption: "Production mount: AccountPicker mobile branch (/withdraw “From account”, /deposit “To”).", minHeight: 340 },
+  { key: "wallet-address-delete", title: "Delete address confirm drawer", caption: "Production mount: /wallet saved addresses → delete (MobileDrawerStatus + MobileDrawerActions).", minHeight: 380 },
 ];
 
 export const DepositWithdrawSection = ({ isMobile }: DepositWithdrawSectionProps) => {
@@ -324,6 +338,24 @@ export const DepositWithdrawSection = ({ isMobile }: DepositWithdrawSectionProps
 <RecoveryStatusBadge status="submitted" />
 <RecoveryStatusTimeline status="completed" />
 // status: 'submitted' | 'completed' | 'rejected'`} />
+    </SubSection>
+
+    {/* ── Funding flows · mobile (2026-08-17) ── */}
+    <SubSection
+      title="Funding flows — mobile (375 iframe, production components)"
+      description="/deposit and /withdraw are full-screen flows (DESIGN.md §5): MobileHeader variant B + sticky bottom CTA on withdraw. Inside them every picker/confirm is a MobileDrawer, and a drawer never opens another drawer — the add-address step replaces the content of the same drawer."
+    >
+      <div className="grid gap-6 md:grid-cols-2">
+        {FUNDING_DEMOS.map((d) => (
+          <div key={d.key} className="space-y-2">
+            <div>
+              <div className="text-sm font-medium">{d.title}</div>
+              <p className="text-[11px] text-muted-foreground">{d.caption}</p>
+            </div>
+            <DeviceFrame previewKey={d.key} device="mobile" minHeight={d.minHeight ?? 320} />
+          </div>
+        ))}
+      </div>
     </SubSection>
 
     {/* ── Withdraw Verification ── */}

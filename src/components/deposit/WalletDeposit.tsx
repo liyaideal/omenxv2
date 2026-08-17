@@ -9,7 +9,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LabelText, MonoText } from '@/components/typography';
+import { LabelText } from '@/components/typography';
+import { ColoredAddress } from '@/components/wallet/ColoredAddress';
 import { toast } from 'sonner';
 import { useDeposit } from '@/hooks/useDeposit';
 import { useUserProfile } from '@/hooks/useUserProfile';
@@ -57,9 +58,11 @@ interface WalletDepositProps {
    * any future real credit path is account-safe by construction.
    */
   account?: 'spot' | 'futures';
+  /** Style-guide only: force the acknowledged/unacknowledged branch. */
+  demoAcknowledged?: boolean;
 }
 
-export const WalletDeposit = ({ onDone, account: _account }: WalletDepositProps) => {
+export const WalletDeposit = ({ onDone, account: _account, demoAcknowledged }: WalletDepositProps) => {
   const isMobile = useIsMobile();
   const { user } = useUserProfile();
   const [copied, setCopied] = useState(false);
@@ -78,9 +81,13 @@ export const WalletDeposit = ({ onDone, account: _account }: WalletDepositProps)
   const [warningAcknowledged, setWarningAcknowledged] = useState(false);
 
   useEffect(() => {
+    if (demoAcknowledged !== undefined) {
+      setWarningAcknowledged(demoAcknowledged);
+      return;
+    }
     if (typeof window === 'undefined') return;
     setWarningAcknowledged(window.localStorage.getItem(warningAckKey) === 'true');
-  }, [warningAckKey]);
+  }, [warningAckKey, demoAcknowledged]);
 
   const custodyAddress = getCurrentAddress();
 
@@ -189,9 +196,8 @@ export const WalletDeposit = ({ onDone, account: _account }: WalletDepositProps)
           USDC deposit address (Base)
         </LabelText>
         <div className="px-2">
-          <MonoText className={cn("leading-relaxed break-all", isMobile ? "text-xs" : "text-sm")}>
-            {custodyAddress}
-          </MonoText>
+          {/* §6 address coloring — digits Pulse Blue, letters muted grey. */}
+          <ColoredAddress address={custodyAddress} className="leading-relaxed break-all" />
         </div>
       </div>
 

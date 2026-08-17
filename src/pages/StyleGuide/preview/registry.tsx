@@ -81,6 +81,18 @@ import {
   LiteEventsLoadingPreview,
   LiteEventsCatalogueLoadingPreview,
 } from "./liteEventsPreviews";
+import {
+  DepositToScreenPreview,
+  DepositChecklistPreview,
+  DepositAddressPreview,
+  WithdrawFormPreview,
+  WithdrawAddressDrawerPreview,
+  WithdrawAddressAddStepPreview,
+  WithdrawVerifyPreview,
+  WithdrawStatusPreview,
+  AccountPickerDrawerPreview,
+  AddressDeleteDrawerPreview,
+} from "./fundingPreviews";
 
 /* ---- Mock factories (shared with ApiSection) ---- */
 export const makeTiers = (level: "ok-readonly" | "ok-trading" | "locked"): TierEligibility[] => [
@@ -364,6 +376,18 @@ export const previewRegistry: Record<string, () => JSX.Element> = {
   "rewards-fine-print": () => <RewardsFinePrintPreview />,
   "rewards-campaign-rules": () => <CampaignRulesDisclosurePreview />,
   "rewards-ineligible-redirect": () => <CampaignIneligibleRedirectPreview />,
+
+  /* -------- Funding flows (2026-08-17 mobile overlay hygiene) -------- */
+  "wallet-deposit-to-screen": () => <DepositToScreenPreview />,
+  "wallet-deposit-checklist": () => <DepositChecklistPreview />,
+  "wallet-deposit-address": () => <DepositAddressPreview />,
+  "wallet-withdraw-form": () => <WithdrawFormPreview />,
+  "wallet-withdraw-address-drawer": () => <WithdrawAddressDrawerPreview />,
+  "wallet-withdraw-address-add": () => <WithdrawAddressAddStepPreview />,
+  "wallet-withdraw-verify": () => <WithdrawVerifyPreview />,
+  "wallet-withdraw-status": () => <WithdrawStatusPreview />,
+  "wallet-account-picker": () => <AccountPickerDrawerPreview />,
+  "wallet-address-delete": () => <AddressDeleteDrawerPreview />,
 
   /* -------- Rewards · mobile task rows (375 iframe, real breakpoint) -------- */
   "rewards-taskrow-playground": () => <GrantTaskRowPlaygroundPreview />,

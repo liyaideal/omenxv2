@@ -482,6 +482,12 @@ Do NOT swap the active color for theme/brand accents (gold, violet, green) — p
 
 ---
 
+### Full-screen funding flows vs drawers（decision rule, LOCKED 2026-08-17）
+
+**Full-screen flow vs drawer — decision rule.** A panel that lives *inside a context page* (order ticket on a trade page, transfer, edit TP/SL, filters, confirmations) is a `MobileDrawer`. A flow that *is* the page — no surrounding context to keep visible, multi-tab or multi-step, and which itself needs sub-pickers — is a full-screen route with `MobileHeader` variant B and a sticky bottom primary CTA. `/deposit` and `/withdraw` are full-screen flows by this rule. Inside such a flow every picker/confirm is still a `MobileDrawer`; a drawer must never open another drawer — a second step replaces the content of the same drawer.
+
+**Submit-type drawer footer (locked):** `MobileDrawerActions className="flex gap-2 space-y-0"` → `Cancel` (`variant="outline" flex-1 h-11`) + primary/destructive (`flex-1 h-11`). Pure-selection drawers (account picker, address list) render no footer.
+
 ## 6. Address & Hash Truncation
 
 **Unified standard: First 6 + Last 6** — applies to ALL contexts (addresses, tx hashes, UIDs, oracle proofs, contract addresses).
@@ -1298,7 +1304,7 @@ Form structure: Segmented direction switch → From/To swap cards (From `bg-mute
 ### 3. §9 Deposit / Withdraw account selection
 
 - **Deposit:** Insert an "Deposit to" pre-screen (radio card list, active = `border-primary bg-primary/10`) **before** the three tabs (WalletDeposit / CrossChainDeposit / BuyWithFiat). No default preselection. `useAccountPreference` persists per-flow choice in localStorage. Post-selection: a clickable crumb "To: Spot Account ›" appears above the tabs.
-- **Withdraw:** Add a "From account" selector row at the top of `WalletWithdraw` (below the Base-USDC info strip). Uses same picker pattern as `WithdrawAddressSelect` (desktop Dialog / mobile Sheet). Amount validation + Available row follows the selected account.
+- **Withdraw:** Add a "From account" selector row at the top of `WalletWithdraw` (below the Base-USDC info strip). Desktop = `Popover` + `AccountPickerRows` (anchored to the selector row, not a Dialog); mobile = `AccountPicker` `MobileDrawer`. Amount validation + Available row follows the selected account.
 - Both flows must write `account` on the resulting `transactions` row via `record-transaction`.
 
 ### 4. §5 Overlay parity table — add Transfer row + Equity HoverCard spec
@@ -1531,5 +1537,7 @@ Week-mode tickets in the calendar lens must announce their category first.
 Registered in `/style-guide` → **Lite · Calendar** → *Calendar · desktop frames*.
 
 ## Changelog
+
+**2026-08-17 资金流移动端整治** — /deposit /withdraw 判定为全屏流（§5 新判据）；账户/地址选择器收编 MobileDrawer，新增地址改为抽屉内二步（去嵌套）；提交型抽屉统一 `MobileDrawerActions` Cancel+主按钮；Withdraw 主 CTA sticky；充值地址 §6 着色；style-guide 新增 10 键。
 
 **2026-08-17 Mobile Header System v1** — 7 ad-hoc headers retired, 56px unified, A/B variants, sentence-case titles.
