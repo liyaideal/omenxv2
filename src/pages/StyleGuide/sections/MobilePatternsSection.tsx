@@ -10,6 +10,7 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { useNavigate } from "react-router-dom";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
+import { DeviceFrame } from "../components/DeviceFrame";
 import { Logo, omenxLogo } from "@/components/Logo";
 import { Check, X, AlertCircle, ChevronLeft, Star, Share2, Loader2 } from "lucide-react";
 

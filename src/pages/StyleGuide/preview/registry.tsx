@@ -66,6 +66,18 @@ import {
   CampaignRulesDisclosurePreview,
 } from "./rewardsPreviews";
 import {
+  HeaderBrandTopPreview,
+  HeaderBrandScrolledPreview,
+  HeaderBrandControlPreview,
+  HeaderInnerTitlePreview,
+  HeaderInnerOneIconPreview,
+  HeaderInnerTwoIconsPreview,
+  HeaderInnerTitleHiddenPreview,
+  HeaderInnerLongTitlePreview,
+  HeaderInnerSubBarPreview,
+  HeaderDontPreview,
+} from "./mobileHeaderPreviews";
+import {
   LiteEventsLoadingPreview,
   LiteEventsCatalogueLoadingPreview,
 } from "./liteEventsPreviews";
@@ -243,6 +255,17 @@ const RevokeDemo = () => {
 
 /* ---- Registry ---- */
 export const previewRegistry: Record<string, () => JSX.Element> = {
+  "mobile-header-brand-top": () => <HeaderBrandTopPreview />,
+  "mobile-header-brand-scrolled": () => <HeaderBrandScrolledPreview />,
+  "mobile-header-brand-control": () => <HeaderBrandControlPreview />,
+  "mobile-header-inner-title": () => <HeaderInnerTitlePreview />,
+  "mobile-header-inner-one-icon": () => <HeaderInnerOneIconPreview />,
+  "mobile-header-inner-two-icons": () => <HeaderInnerTwoIconsPreview />,
+  "mobile-header-inner-title-hidden": () => <HeaderInnerTitleHiddenPreview />,
+  "mobile-header-inner-long-title": () => <HeaderInnerLongTitlePreview />,
+  "mobile-header-inner-subbar": () => <HeaderInnerSubBarPreview />,
+  "mobile-header-dont": () => <HeaderDontPreview />,
+
   "lite-events-loading": () => <LiteEventsLoadingPreview />,
   "lite-events-loading-catalogue": () => <LiteEventsCatalogueLoadingPreview />,
 
