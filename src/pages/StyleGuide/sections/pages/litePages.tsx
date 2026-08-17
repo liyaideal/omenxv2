@@ -85,9 +85,12 @@ export const LiteOverviewSection = (_: P) => (
       <h3 className="mb-2 text-sm font-semibold text-foreground">Changelog</h3>
       <ul className="space-y-1 text-[12px] text-muted-foreground">
         <li>
-          2026-08-17 · 移动端 logo-only 头部改为开场式品牌栏 —— 一级页（无返回键 / 无标题 /
-          无右侧动作）加高至 py-4、logo 提到 <code className="font-mono">lg</code>、移除右侧占位方块；
-          分割线改为滚动 &gt; 8px 后淡入。带返回键 / 标题 / 动作 / stats 行的头部形态不变。
+          2026-08-17 · Mobile Header System v1 —— Lite 移动端顶栏统一为一套组件 / 56px / A brand · B
+          inner 两形态；收编 RedeemMobileHeader、Deposit/Withdraw、Recovery×2、Leaderboard 自绘头与
+          <code className="font-mono">showActions</code>；标题 sentence case；Rewards Tabs 吸顶改读{" "}
+          <code className="font-mono">--mobile-header-h</code>。style-guide Mobile patterns 新增 10 个
+          375 iframe 预览键。A brand 形态含此前的开场式品牌栏（logo{" "}
+          <code className="font-mono">lg</code>、无右侧占位方块、分割线滚动 &gt; 8px 后淡入）。
         </li>
         <li>
           2026-08-17 · Finance 视图 rounds 引擎新增一次性滚动锚点 —— 从移动 Intraday 的

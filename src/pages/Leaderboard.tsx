@@ -1070,7 +1070,7 @@ export default function Leaderboard() {
         <div className="relative z-10 px-4 pt-4">
           {/* Logo + Title with Neon Effect */}
           <div className="text-center mb-4">
-            {/* Logo - only show on desktop since mobile has it above */}
+            {/* Logo — desktop only */}
             {!isMobile && (
               <div className="flex justify-center mb-2">
                 <img src={omenxLogo} alt="OMENX" className="h-6" />
