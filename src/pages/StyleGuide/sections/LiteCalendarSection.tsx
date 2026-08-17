@@ -452,7 +452,7 @@ const MOBILE_FRAMES: Frame[] = [
     data: ALL_DATA,
     mode: "week",
     caption:
-      "390 unfocused state. Mobile has no Day|Week control — the day strip is the only mode control. Chips scroll horizontally (label + market count); tapping one focuses that day. With no day focused, a ticket tap focuses its day rather than opening the market. 'Open all day' spans render at the bottom of the list.",
+      "390 unfocused state. Mobile has no Day|Week control — the day strip is the only filter. Chips scroll horizontally (label + market count); tapping one focuses that day. Ticket taps always open the market, focused or not. 'Open all day' spans render at the bottom of the list.",
   },
   {
     id: "m-day",
@@ -461,7 +461,7 @@ const MOBILE_FRAMES: Frame[] = [
     data: ALL_DATA,
     mode: "day",
     caption:
-      "A day chip is pre-selected (defaults to today) so the list shows that day only. Ticket taps now open the market. Tapping the active chip again clears the focus and returns to the whole week.",
+      "A day chip is pre-selected (defaults to today) so the list shows that day only. Ticket taps open the market. Tapping the active chip again clears the focus and returns to the whole week.",
   },
   {
     id: "m-empty",
