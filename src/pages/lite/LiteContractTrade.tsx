@@ -55,6 +55,8 @@ import {
   fixtureMeta,
   formatSignedLine,
   groupFixtureMarkets,
+  isFixtureSibling,
+  NON_SIBLING_FILTER,
   scoringNoun,
 } from "@/components/lite/sports/sportsData";
 import { LiteBoardGroupHeader as GroupHeader } from "@/components/lite/multi/LiteBoardGroupHeader";
@@ -156,11 +158,13 @@ const useMoreMarkets = (category: string | null, currentId: string) => {
         .select("id, name, side_labels, options:event_options(id, label, price)")
         .eq("category", category)
         .eq("is_resolved", false)
+        // Fixture line siblings live on their fixture board only.
+        .or(NON_SIBLING_FILTER)
         .limit(8);
       if (!alive) return;
       setRows(
         (data || [])
-          .filter((e) => e.id !== currentId)
+          .filter((e) => e.id !== currentId && !isFixtureSibling(e))
           .slice(0, 5)
           .map((e) => {
             const opts = (e.options || []) as { label: string; price: number }[];
@@ -530,6 +534,22 @@ const LiteContractTrade = () => {
   const handicapRow = lineRow(activeHandicap, (l) => `${homeAbbr} ${formatSignedLine(l)} covers`);
   const totalRow = lineRow(activeTotal, (l) => `Over ${l} ${noun}`);
 
+  // Switching the line keeps the row selected: the selection hops to the new
+  // sibling's option id (same side), so the inline chart stays open and the
+  // order rail rebinds. Nothing selected → stays nothing.
+  const changeLine =
+    (list: EventRow[], current: EventRow | null, setLine: (v: number) => void) =>
+    (v: number) => {
+      setLine(v);
+      const next = list.find((e) => fixtureMeta(e).line === v) || null;
+      if (!next || !current || next.id === current.id) return;
+      const currentIds = new Set(current.options.map((o) => o.id));
+      setSelectedOptId((cur) => {
+        if (!cur || !currentIds.has(cur)) return cur;
+        return splitBinary(next).yesOpt?.id ?? cur;
+      });
+    };
+
   const lineGroupBoard = (
     row: BoardOption | null,
     values: number[],
@@ -598,7 +618,12 @@ const LiteContractTrade = () => {
             note="Regulation time"
             tip={`A team covers when its regulation-time score plus the line beats the opponent. ${regulationTip}`}
           />
-          {lineGroupBoard(handicapRow, handicapLines, handicapLine, setHandicapLine)}
+          {lineGroupBoard(
+            handicapRow,
+            handicapLines,
+            handicapLine,
+            changeLine(groups.handicap, activeHandicap, setHandicapLine),
+          )}
         </>
       )}
       {totalRow && (
@@ -612,7 +637,7 @@ const LiteContractTrade = () => {
             totalRow,
             totalLines,
             totalLine,
-            setTotalLine,
+            changeLine(groups.total, activeTotal, setTotalLine),
             (n) => String(n),
           )}
         </>

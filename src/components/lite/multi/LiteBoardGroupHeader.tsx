@@ -4,6 +4,8 @@
 // exactly one implementation.
 // ============================================================
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const LiteBoardGroupHeader = ({
   title,
@@ -13,25 +15,39 @@ export const LiteBoardGroupHeader = ({
   title: string;
   note: string;
   tip: string;
-}) => (
-  <div className="mt-3.5 flex items-baseline justify-between">
-    <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#C9CED6]">
-      {title}
-    </span>
-    <Popover>
-      <PopoverTrigger asChild>
-        <button
-          type="button"
-          className="text-[9.5px] uppercase tracking-[0.06em] text-muted-foreground underline decoration-dotted underline-offset-2"
-        >
-          {note}
-        </button>
-      </PopoverTrigger>
-      <PopoverContent align="end" className="w-64 text-xs text-muted-foreground">
-        {tip}
-      </PopoverContent>
-    </Popover>
-  </div>
-);
+}) => {
+  const isMobile = useIsMobile();
+  const trigger = (
+    <button
+      type="button"
+      className="text-[9.5px] uppercase tracking-[0.06em] text-muted-foreground underline decoration-dotted underline-offset-2"
+    >
+      {note}
+    </button>
+  );
+  return (
+    <div className="mt-3.5 flex items-baseline justify-between">
+      <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#C9CED6]">
+        {title}
+      </span>
+      {isMobile ? (
+        <Popover>
+          <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+          <PopoverContent align="end" className="w-64 text-xs text-muted-foreground">
+            {tip}
+          </PopoverContent>
+        </Popover>
+      ) : (
+        // Desktop: hover tooltip — no overlay chrome for a passive note.
+        <Tooltip>
+          <TooltipTrigger asChild>{trigger}</TooltipTrigger>
+          <TooltipContent side="left" className="max-w-64 text-xs">
+            {tip}
+          </TooltipContent>
+        </Tooltip>
+      )}
+    </div>
+  );
+};
 
 export default LiteBoardGroupHeader;

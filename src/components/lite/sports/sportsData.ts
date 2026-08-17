@@ -58,6 +58,19 @@ export type FixtureMeta = RawMeta;
 export const fixtureMeta = (e: { metadata?: unknown } | null | undefined): FixtureMeta =>
   ((e?.metadata as FixtureMeta | null) || {}) as FixtureMeta;
 
+/**
+ * Handicap / Total siblings are only reachable through their fixture board,
+ * never through a generic market list, ledger or watchlist.
+ */
+export const isFixtureSibling = (e: unknown): boolean => {
+  const mt = fixtureMeta(e as { metadata?: unknown } | null).market_type;
+  return mt === "handicap" || mt === "total";
+};
+
+/** PostgREST filter equivalent of `!isFixtureSibling`. */
+export const NON_SIBLING_FILTER =
+  "metadata->>market_type.is.null,metadata->>market_type.eq.winner";
+
 /** "+1.5" / "−1.5" — real minus sign (U+2212) for negatives. */
 export const formatSignedLine = (n: number): string => {
   const abs = Math.abs(n);

@@ -1,3 +1,4 @@
+import { NON_SIBLING_FILTER, isFixtureSibling } from "@/components/lite/sports/sportsData";
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Json } from "@/integrations/supabase/types";
@@ -74,19 +75,24 @@ export const useActiveEvents = (): UseActiveEventsReturn => {
         .from("events")
         .select("*")
         .eq("is_resolved", false)
+        // Sports fixture line siblings (handicap / total) are reachable only
+        // through their fixture board, never through generic lists.
+        .or(NON_SIBLING_FILTER)
         .order("end_date", { ascending: true });
 
       if (eventsError) {
         throw eventsError;
       }
 
-      if (!eventsData || eventsData.length === 0) {
+      const visibleEvents = (eventsData || []).filter((e) => !isFixtureSibling(e));
+
+      if (visibleEvents.length === 0) {
         setEvents([]);
         return;
       }
 
       // Get event IDs
-      const eventIds = eventsData.map((e) => e.id);
+      const eventIds = visibleEvents.map((e) => e.id);
 
       // Fetch options for all events
       const { data: optionsData, error: optionsError } = await supabase
@@ -100,7 +106,7 @@ export const useActiveEvents = (): UseActiveEventsReturn => {
       }
 
       // Combine events with their options
-      const eventsWithOptions: EventWithOptions[] = eventsData.map((event) => ({
+      const eventsWithOptions: EventWithOptions[] = visibleEvents.map((event) => ({
         ...event,
         options: (optionsData || [])
           .filter((opt) => opt.event_id === event.id)
