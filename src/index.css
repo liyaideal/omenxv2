@@ -6,6 +6,9 @@
 
 @layer base {
   :root {
+    /* Height of the mobile BottomNav — sticky CTA bars offset by this. */
+    --bottom-nav-h: 76px;
+
     /* ===== SAFE AREA FOR MOBILE BOTTOM NAV ===== */
     --safe-area-bottom: 5rem;
 
