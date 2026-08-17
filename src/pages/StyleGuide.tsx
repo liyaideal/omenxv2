@@ -15,7 +15,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { OptionChips } from "@/components/OptionChips";
 import { ArrowLeft, Copy, Check, TrendingUp, TrendingDown, AlertCircle, Bell, Settings, Zap, Play, RotateCcw, Info, HelpCircle, Maximize2, X, Monitor, Smartphone, Tablet, Search, Download, ShieldCheck, AlertTriangle, Ban, Type, Clock, Loader2, ExternalLink } from "lucide-react";
 import omenxLogo from "@/assets/omenx-logo.svg";
-import { MobileHeader } from "@/components/MobileHeader";
+import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { CATEGORY_STYLES, getCategoryFromName } from "@/lib/categoryUtils";
@@ -2147,9 +2147,19 @@ const StyleGuide = () => {
                     title={headerTitle || undefined}
                     showLogo={headerShowLogo}
                     showBack={headerShowBack}
-                    showActions={headerShowActions}
-                    isFavorite={headerIsFavorite}
-                    onFavoriteToggle={() => setHeaderIsFavorite(!headerIsFavorite)}
+                    rightContent={
+                      headerShowActions ? (
+                        <div className="flex items-center gap-1 -mr-2">
+                          <MobileHeaderIconButton
+                            aria-label="Watchlist"
+                            className={headerIsFavorite ? "text-trading-yellow" : undefined}
+                            onClick={() => setHeaderIsFavorite(!headerIsFavorite)}
+                          >
+                            <Star className={`w-5 h-5 ${headerIsFavorite ? "fill-trading-yellow" : ""}`} strokeWidth={1.5} />
+                          </MobileHeaderIconButton>
+                        </div>
+                      ) : undefined
+                    }
                     endTime={headerShowCountdown ? new Date(Date.now() + 1000 * 60 * 60 * 24 * 30) : undefined}
                     tweetCount={headerShowTweets ? headerTweetCount : undefined}
                     currentPrice={headerShowPrice ? headerCurrentPrice : undefined}
