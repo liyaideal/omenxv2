@@ -173,6 +173,28 @@ export const MobileHeader = ({
   // Determine what to show on the left
   // Hide MAINNET badge whenever there's a centered title to avoid overlap.
   const showBadge = !title;
+  // Logo-only "opening" state: a first-level page with no back button, no
+  // centered title and no right-hand actions. It gets more height, a bigger
+  // logo and no hard divider until the page scrolls.
+  const hasStatsRow =
+    !!(endTime ? countdown : subtitle) || tweetCount !== undefined || !!currentPrice;
+  const isBrandBar =
+    showLogo &&
+    !shouldShowBack &&
+    !title &&
+    !rightContent &&
+    !showActions &&
+    !hasStatsRow;
+
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    if (!isBrandBar) return;
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [isBrandBar]);
+
   const renderLeft = () => {
     if (shouldShowBack && showLogo) {
       // Both back button and logo
