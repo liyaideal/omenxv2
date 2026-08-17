@@ -82,6 +82,14 @@ import {
   LiteEventsCatalogueLoadingPreview,
 } from "./liteEventsPreviews";
 import {
+  SportsLinesDefaultPreview,
+  SportsLinesHandicapSelectedPreview,
+  SportsLinesScrubbedPreview,
+  SportsLinesSingleLinePreview,
+  SportsLinesSettledPreview,
+  LineScrubberPreview,
+} from "./sportsLinesPreviews";
+import {
   DepositToScreenPreview,
   DepositChecklistPreview,
   DepositAddressPreview,
@@ -280,6 +288,13 @@ export const previewRegistry: Record<string, () => JSX.Element> = {
 
   "lite-events-loading": () => <LiteEventsLoadingPreview />,
   "lite-events-loading-catalogue": () => <LiteEventsCatalogueLoadingPreview />,
+
+  "trade-sports-lines-default": () => <SportsLinesDefaultPreview />,
+  "trade-sports-lines-handicap-selected": () => <SportsLinesHandicapSelectedPreview />,
+  "trade-sports-lines-scrubbed": () => <SportsLinesScrubbedPreview />,
+  "trade-sports-lines-single-line": () => <SportsLinesSingleLinePreview />,
+  "trade-sports-lines-settled": () => <SportsLinesSettledPreview />,
+  "line-scrubber": () => <LineScrubberPreview />,
 
   "vouchers2-rows": () => <Vouchers2RowsPreview />,
   "vouchers2-earnings": () => <Vouchers2EarningsPreview />,

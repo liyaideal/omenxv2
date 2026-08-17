@@ -1307,6 +1307,50 @@ export const LiteSection = ({
           </p>
           <MultiMarketStates />
         </SubSection>
+
+        <SubSection title="Sports game lines">
+          <p className="mb-3 text-sm text-muted-foreground">
+            A fixture is several sibling events (winner / handicap / total) sharing one{" "}
+            <code className="font-mono">metadata.fixture_id</code>. The trade page groups them on
+            the SAME board component — one group header per group, one row per line group, and a{" "}
+            <code className="font-mono">LiteLineScrubber</code> under the strip that swaps which
+            sibling the row is bound to. Chip words come from the sibling's{" "}
+            <code className="font-mono">side_labels</code>. Production mount:{" "}
+            <code className="font-mono">LiteContractTrade</code> fixture board.
+          </p>
+          <div className="space-y-6">
+            <DualDevicePreview
+              previewKey="trade-sports-lines-default"
+              label="Default — Winner 3 rows + Handicap +1.5 + Total 2.5, nothing selected"
+              minHeight={620}
+            />
+            <DualDevicePreview
+              previewKey="trade-sports-lines-handicap-selected"
+              label="ARS +1.5 Yes selected — inline chart open under the handicap row"
+              minHeight={720}
+            />
+            <DualDevicePreview
+              previewKey="trade-sports-lines-scrubbed"
+              label="Scrubbed to handicap −2.5, no side selected"
+              minHeight={620}
+            />
+            <DualDevicePreview
+              previewKey="trade-sports-lines-single-line"
+              label="Total group with a single line → no scrubber rendered"
+              minHeight={620}
+            />
+            <DualDevicePreview
+              previewKey="trade-sports-lines-settled"
+              label="Winner rows settled, handicap still live"
+              minHeight={620}
+            />
+            <DualDevicePreview
+              previewKey="line-scrubber"
+              label="LiteLineScrubber standalone — desktop window + compact at the left edge"
+              minHeight={260}
+            />
+          </div>
+        </SubSection>
           </>
         )}
 

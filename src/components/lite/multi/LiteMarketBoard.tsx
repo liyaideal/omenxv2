@@ -24,6 +24,9 @@ export interface BoardOption {
   outcomeYes?: boolean;
   /** Side the user currently holds on this option, if any. */
   heldSide?: BoardSide | null;
+  /** Sports game lines: chip words become the side labels ("KAL +1.5"). */
+  yesChipLabel?: string;
+  noChipLabel?: string;
 }
 
 interface Props {
@@ -36,6 +39,10 @@ interface Props {
   compact?: boolean;
   /** Inline accordion chart under the selected row. Defaults to true. */
   showChart?: boolean;
+  /** Rendered under every row's strip — the line scrubber on game lines. */
+  renderFooter?: (option: BoardOption) => React.ReactNode;
+  /** Suppresses the "What the crowd thinks" caption (group boards own it). */
+  hideHeader?: boolean;
   className?: string;
 }
 
@@ -50,6 +57,8 @@ export const LiteMarketBoard = ({
   onSelect,
   compact = false,
   showChart = true,
+  renderFooter,
+  hideHeader = false,
   className,
 }: Props) => {
   // Settled options sink to the BOTTOM of the board; live options keep their
@@ -60,6 +69,7 @@ export const LiteMarketBoard = ({
   ];
   return (
   <div className={cn("space-y-2", className)}>
+    {!hideHeader && (
     <div className="flex items-end justify-between gap-3">
       <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
         What the crowd thinks
@@ -68,6 +78,7 @@ export const LiteMarketBoard = ({
         {volumeText}
       </div>
     </div>
+    )}
 
     <div className="space-y-2">
       {ordered.map((o) => {
@@ -108,6 +119,7 @@ export const LiteMarketBoard = ({
                     <Chip
                       side="yes"
                       price={o.yesPrice}
+                      label={o.yesChipLabel}
                       selected={isSelected && selectedSide === "yes"}
                       settled={!!o.settled}
                       onClick={() => onSelect(o.id, "yes")}
@@ -115,6 +127,7 @@ export const LiteMarketBoard = ({
                     <Chip
                       side="no"
                       price={noPrice}
+                      label={o.noChipLabel}
                       selected={isSelected && selectedSide === "no"}
                       settled={!!o.settled}
                       onClick={() => onSelect(o.id, "no")}
@@ -144,6 +157,7 @@ export const LiteMarketBoard = ({
                   <Chip
                     side="yes"
                     price={o.yesPrice}
+                    label={o.yesChipLabel}
                     selected={isSelected && selectedSide === "yes"}
                     settled={!!o.settled}
                     onClick={() => onSelect(o.id, "yes")}
@@ -151,6 +165,7 @@ export const LiteMarketBoard = ({
                   <Chip
                     side="no"
                     price={noPrice}
+                    label={o.noChipLabel}
                     selected={isSelected && selectedSide === "no"}
                     settled={!!o.settled}
                     onClick={() => onSelect(o.id, "no")}
@@ -175,6 +190,8 @@ export const LiteMarketBoard = ({
                   <div className="flex-1" style={{ background: "hsl(var(--no) / 0.4)" }} />
                 </div>
               )}
+
+              {renderFooter?.(o)}
             </div>
 
             {/* Inline accordion chart — exactly one row open at a time. */}
@@ -243,17 +260,20 @@ const SettledMark = ({
 const Chip = ({
   side,
   price,
+  label: labelOverride,
   selected,
   settled,
   onClick,
 }: {
   side: BoardSide;
   price: number;
+  /** Replaces the "Yes"/"No" word — sports game lines pass "KAL +1.5". */
+  label?: string;
   selected: boolean;
   settled: boolean;
   onClick: () => void;
 }) => {
-  const sideLabel = side === "yes" ? "Yes" : "No";
+  const sideLabel = labelOverride || (side === "yes" ? "Yes" : "No");
   const accent = side === "yes" ? "#33D6FF" : "#CFFF4A";
   const label = `${sideLabel} ${cents(price)}`;
   if (settled) {
