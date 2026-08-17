@@ -282,7 +282,8 @@ const EventsPage = () => {
       {/* Header */}
       {isMobile ? (
         <MobileHeader
-          showLogo
+          variant="brand"
+          showBack={false}
           rightContent={
             <MobileStatusDropdown
               statusFilter="active"

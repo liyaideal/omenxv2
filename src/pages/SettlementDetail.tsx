@@ -4,7 +4,7 @@ import { Share2, Trophy, TrendingUp, TrendingDown, Clock, FileCheck, Check, Load
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MobileHeader } from "@/components/MobileHeader";
+import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { ShareModal } from "@/components/ShareModal";
@@ -142,7 +142,7 @@ export default function SettlementDetail() {
         style={{ background: "hsl(222 47% 6%)" }}
       >
         {isMobile ? (
-          <MobileHeader showBack backTo="/portfolio/settlements" showLogo={false} title="Settlement Detail" />
+          <MobileHeader showBack backTo="/portfolio/settlements" showLogo={false} title="Settlement detail" />
         ) : (
           <EventsDesktopHeader />
         )}
@@ -175,14 +175,13 @@ export default function SettlementDetail() {
           showBack
           backTo="/portfolio/settlements"
           showLogo={false}
-          title="Settlement Detail"
+          title="Settlement detail"
           rightContent={
-            <button
-              onClick={() => setShowShareModal(true)}
-              className="h-9 w-9 flex items-center justify-center transition-all duration-200 active:scale-95"
-            >
-              <Share2 className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
-            </button>
+            <div className="flex items-center gap-1 -mr-2">
+              <MobileHeaderIconButton aria-label="Share" onClick={() => setShowShareModal(true)}>
+                <Share2 className="w-5 h-5" strokeWidth={1.5} />
+              </MobileHeaderIconButton>
+            </div>
           }
         />
       ) : (

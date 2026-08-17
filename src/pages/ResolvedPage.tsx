@@ -79,7 +79,8 @@ const ResolvedPage = () => {
     >
       {isMobile ? (
         <MobileHeader
-          showLogo
+          variant="brand"
+          showBack={false}
           rightContent={
             <MobileStatusDropdown
               statusFilter="resolved"
