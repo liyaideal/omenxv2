@@ -120,20 +120,6 @@ const FixtureBoard = ({
           />
         )}
       />
-      {handicapHeld && (
-        // 1× carries no Boost suffix — the title is the side label alone.
-        <LitePositionCard
-          sideLabel={`ARS ${formatSignedLine(hcp)}`}
-          isYes
-          boost={1}
-          putIn={25}
-          nowWorth={31.4}
-          profit={6.4}
-          autoCloseText="None"
-          compact={!!isMobile}
-          onCashOut={() => {}}
-        />
-      )}
       <LiteBoardGroupHeader
         title="Total goals"
         note="Regulation time"
@@ -158,6 +144,23 @@ const FixtureBoard = ({
           />
         )}
       />
+      {handicapHeld && (
+        // Production MultiPositions wrapper — no eyebrow header.
+        <div className="space-y-3">
+          {/* 1× carries no Boost suffix — the title is the side label alone. */}
+          <LitePositionCard
+            sideLabel={`ARS ${formatSignedLine(hcp)}`}
+            isYes
+            boost={1}
+            putIn={25}
+            nowWorth={31.4}
+            profit={6.4}
+            autoCloseText="None"
+            compact={!!isMobile}
+            onCashOut={() => {}}
+          />
+        </div>
+      )}
     </div>
   );
 };
