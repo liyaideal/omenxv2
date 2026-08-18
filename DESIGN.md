@@ -550,6 +550,14 @@ Use `<OptionChips>` component for event option selection:
 - Inactive: `option-chip-inactive` (muted bg, transparent border)
 - Always show price in `font-mono` next to label
 
+### Priced buttons (site-wide, Lite) — LOCKED 2026-08-17
+
+Any button carrying a price is **label-left / price-right** (`flex items-center justify-between`),
+price in `font-mono font-bold shrink-0`, label `truncate`. Only **unpriced** labels
+(e.g. "Settling", "View in Portfolio →") stay centered. Canonical implementation:
+`src/components/lite/shared/SideButton.tsx`; the stacked mobile `BuyButton`
+(label above price) is the one documented exception.
+
 ### Event Category Badges
 
 Use `CATEGORY_STYLES` from `@/lib/categoryUtils` — never hardcode category colors:

@@ -37,13 +37,21 @@ export const SideButton = ({
       type="button"
       onClick={onClick}
       className={cn(
-        "flex items-center justify-center rounded-xl font-semibold transition-all",
-        size === "compact" ? "px-3 py-2.5 text-sm" : "px-3 py-4 text-sm",
+        "flex items-center justify-between rounded-xl font-semibold transition-all",
+        size === "compact" ? "px-3.5 py-2.5 text-sm" : "px-4 py-4 text-sm",
         cls,
       )}
     >
-      <span className={cn("font-bold", size === "compact" ? "text-sm" : "text-base")}>
-        {label} {pct}¢
+      <span className={cn("font-bold truncate", size === "compact" ? "text-sm" : "text-base")}>
+        {label}
+      </span>
+      <span
+        className={cn(
+          "font-mono font-bold shrink-0",
+          size === "compact" ? "text-sm" : "text-base",
+        )}
+      >
+        {pct}¢
       </span>
     </button>
   );

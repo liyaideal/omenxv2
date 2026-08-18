@@ -1,0 +1,1 @@
+do $$ declare r jsonb; begin r := public.roll_sports_matches(); raise notice 'roll_sports_matches -> %', r; end $$;

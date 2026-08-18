@@ -571,9 +571,18 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
                 setDrawerOpen(true);
               }}
               disabled={remaining <= 0}
-              className="flex-1 rounded-xl bg-yes py-3 font-display text-sm font-bold text-[#04222c] disabled:opacity-50"
+              className={`flex flex-1 items-center rounded-xl bg-yes px-4 py-3 font-display text-sm font-bold text-[#04222c] disabled:opacity-50 ${
+                remaining <= 0 ? "justify-center" : "justify-between"
+              }`}
             >
-              {remaining <= 0 ? "Settling" : `Buy Up ${Math.round(upPrice * 100)}¢`}
+              {remaining <= 0 ? (
+                "Settling"
+              ) : (
+                <>
+                  <span className="truncate">Buy Up</span>
+                  <span className="ml-2 shrink-0 font-mono">{Math.round(upPrice * 100)}¢</span>
+                </>
+              )}
             </button>
             <button
               type="button"
@@ -582,9 +591,18 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
                 setDrawerOpen(true);
               }}
               disabled={remaining <= 0}
-              className="flex-1 rounded-xl border border-no/25 bg-no/14 py-3 font-display text-sm font-bold text-no disabled:opacity-50"
+              className={`flex flex-1 items-center rounded-xl border border-no/25 bg-no/14 px-4 py-3 font-display text-sm font-bold text-no disabled:opacity-50 ${
+                remaining <= 0 ? "justify-center" : "justify-between"
+              }`}
             >
-              {remaining <= 0 ? "Settling" : `Buy Down ${Math.round(downPrice * 100)}¢`}
+              {remaining <= 0 ? (
+                "Settling"
+              ) : (
+                <>
+                  <span className="truncate">Buy Down</span>
+                  <span className="ml-2 shrink-0 font-mono">{Math.round(downPrice * 100)}¢</span>
+                </>
+              )}
             </button>
           </div>
         </div>

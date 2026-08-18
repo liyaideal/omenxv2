@@ -1407,6 +1407,21 @@ export type Database = {
         }
         Relationships: []
       }
+      sports_league_map: {
+        Row: {
+          league: string
+          sport: string
+        }
+        Insert: {
+          league: string
+          sport: string
+        }
+        Update: {
+          league?: string
+          sport?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           created_at: string
@@ -1926,6 +1941,7 @@ export type Database = {
         Args: { _face_value: number }
         Returns: boolean
       }
+      ensure_soccer_lines: { Args: { p_fixture_id: string }; Returns: number }
       ensure_voucher_pool_today: { Args: never; Returns: undefined }
       gen_voucher_code: { Args: never; Returns: string }
       get_campaign_entry_joined: {
@@ -1962,6 +1978,7 @@ export type Database = {
           referrer_id: string
         }[]
       }
+      reprice_soccer_lines: { Args: { p_fixture_id: string }; Returns: number }
       roll_crypto_quick_rounds: { Args: never; Returns: Json }
       roll_daily_hk_stock_events: { Args: never; Returns: number }
       roll_daily_stock_events: { Args: never; Returns: number }
@@ -1972,7 +1989,20 @@ export type Database = {
       }
       settle_spot_event: { Args: { p_event_id: string }; Returns: number }
       sim_market_activity_tick: { Args: never; Returns: number }
+      sim_poisson: { Args: { p_lambda: number }; Returns: number }
       sim_price_tick: { Args: never; Returns: number }
+      soccer_line_prices: {
+        Args: { p_away: number; p_draw: number; p_home: number }
+        Returns: {
+          line: number
+          market_type: string
+          yes_price: number
+        }[]
+      }
+      soccer_winner_prices: {
+        Args: { p_fixture_id: string }
+        Returns: Record<string, unknown>
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
