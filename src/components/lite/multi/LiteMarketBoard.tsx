@@ -203,7 +203,11 @@ export const LiteMarketBoard = ({
                 </div>
               )}
 
-              {renderFooter?.(o)}
+              {/* Footer (line scrubber) lives inside the clickable row, so its
+                  clicks must not bubble into the row's expand/collapse toggle. */}
+              {renderFooter && (
+                <div onClick={(e) => e.stopPropagation()}>{renderFooter(o)}</div>
+              )}
             </div>
 
             {/* Inline accordion chart — exactly one row open at a time. */}
