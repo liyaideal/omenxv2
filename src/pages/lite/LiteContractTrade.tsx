@@ -438,6 +438,19 @@ const LiteContractTrade = () => {
 
   const more = useMoreMarkets(event?.category || null, event?.id || "");
 
+  // A leg's event row (this event or one of its fixture siblings), so
+  // side-labelled legs can name their side ("ARS +1.5") instead of Yes/No.
+  const legEventByName = useMemo(() => {
+    const m = new Map<string, { side_labels?: unknown }>();
+    if (event) m.set(event.name, event);
+    for (const s of siblings) m.set(s.name, s);
+    return m;
+  }, [event, siblings]);
+  const hasSideLabels = (eventName: string) =>
+    !!parseSideLabels(legEventByName.get(eventName)?.side_labels);
+  const legSideWord = (p: { event: string; option: string; type: "long" | "short" }) =>
+    legSideLabel(legEventByName.get(p.event) ?? null, legIsNo(p) ? "no" : "yes");
+
   const openBuy = useCallback(
     (s: Side) => {
       setSide(s);
