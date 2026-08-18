@@ -31,7 +31,7 @@ import { useHeadingScrolledOut } from "@/hooks/useHeadingScrolledOut";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { parseSideLabels } from "@/lib/eventUtils";
-import { liteSideName } from "@/lib/liteSideName";
+import { boostSuffix, legSideLabel, liteSideName } from "@/lib/liteSideName";
 import { formatCents, estimateAutoClosePrice } from "@/lib/autoClosePrice";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import type { Tables } from "@/integrations/supabase/types";
