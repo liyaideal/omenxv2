@@ -35,6 +35,8 @@ interface Props {
   selectedId: string | null;
   selectedSide: BoardSide;
   onSelect: (optionId: string, side: BoardSide) => void;
+  /** Called when an already-expanded desktop row is clicked again to collapse it. */
+  onDeselect?: () => void;
   /** Mobile rows are denser and never open an inline order form. */
   compact?: boolean;
   /** Inline accordion chart under the selected row. Defaults to true. */
@@ -55,6 +57,7 @@ export const LiteMarketBoard = ({
   selectedId,
   selectedSide,
   onSelect,
+  onDeselect,
   compact = false,
   showChart = true,
   renderFooter,
@@ -94,7 +97,16 @@ export const LiteMarketBoard = ({
                 expanded ? "rounded-t-[14px] border-b-0" : "rounded-[14px]",
                 isSelected ? "border-yes/55" : "border-border",
                 o.settled && "opacity-50",
+                !compact && !o.settled && "cursor-pointer hover:bg-muted/10",
               )}
+              onClick={() => {
+                if (compact || o.settled) return;
+                if (isSelected) {
+                  onDeselect?.();
+                } else {
+                  onSelect(o.id, "yes");
+                }
+              }}
               // Inline borderWidth overrides the `border-b-0` class, so the
               // bottom border must be zeroed inline too when expanded —
               // otherwise a solid --yes/55 line sits between row and chart.
@@ -287,7 +299,10 @@ const Chip = ({
     return (
       <button
         type="button"
-        onClick={onClick}
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick();
+        }}
         className={cn(
           "min-w-[86px] rounded-[10px] border border-transparent py-[9px] text-center font-mono text-[12.5px] font-bold transition-colors",
           side === "yes" ? "bg-yes text-[#04222c]" : "bg-no text-[#1a2408]",
@@ -301,7 +316,10 @@ const Chip = ({
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
       className="chip-t2 flex min-w-[86px] items-center justify-between gap-2 px-2.5 py-[9px] text-[12.5px]"
       style={{ borderRadius: 10, ["--chip-accent" as string]: accent }}
     >

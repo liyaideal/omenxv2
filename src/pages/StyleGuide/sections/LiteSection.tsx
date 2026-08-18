@@ -1398,6 +1398,7 @@ const MultiMarketStates = () => {
           selectedId={selDesktop.id}
           selectedSide={selDesktop.side}
           onSelect={(id, side) => setSelDesktop({ id, side })}
+          onDeselect={() => setSelDesktop({ id: "", side: "yes" })}
         />
       </Cell>
       <Cell label="Mobile · compact rows, no inline chart">
@@ -1409,6 +1410,7 @@ const MultiMarketStates = () => {
           selectedId={selMobile.id}
           selectedSide={selMobile.side}
           onSelect={(id, side) => setSelMobile({ id, side })}
+          onDeselect={() => setSelMobile({ id: "", side: "yes" })}
         />
       </Cell>
       <Cell label="Order rail · opposite side nets out (no block)">

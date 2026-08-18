@@ -87,6 +87,7 @@ const FixtureBoard = ({
         selectedId={sel}
         selectedSide={side}
         onSelect={pick}
+        onDeselect={() => setSel(null)}
         compact={!!isMobile}
         hideHeader
       />
@@ -101,6 +102,7 @@ const FixtureBoard = ({
         selectedId={sel}
         selectedSide={side}
         onSelect={pick}
+        onDeselect={() => setSel(null)}
         compact={!!isMobile}
         hideHeader
         renderFooter={() => (
@@ -123,6 +125,7 @@ const FixtureBoard = ({
         selectedId={sel}
         selectedSide={side}
         onSelect={pick}
+        onDeselect={() => setSel(null)}
         compact={!!isMobile}
         hideHeader
         renderFooter={() => (
