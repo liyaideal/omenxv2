@@ -776,17 +776,19 @@ const LiteSpotTrade = () => {
                 type="button"
                 onClick={() => openBuy("yes")}
                 disabled={blocked}
-                className="flex-1 rounded-xl bg-yes py-3 font-display text-sm font-bold text-[#04222c] disabled:opacity-50"
+                className="flex flex-1 items-center justify-between rounded-xl bg-yes px-4 py-3 font-display text-sm font-bold text-[#04222c] disabled:opacity-50"
               >
-                Buy {yesLabel} {Math.round(yesLive * 100)}¢
+                <span className="truncate">Buy {yesLabel}</span>
+                <span className="ml-2 shrink-0 font-mono">{Math.round(yesLive * 100)}¢</span>
               </button>
               <button
                 type="button"
                 onClick={() => openBuy("no")}
                 disabled={blocked}
-                className="flex-1 rounded-xl border border-no/25 bg-no/14 py-3 font-display text-sm font-bold text-no disabled:opacity-50"
+                className="flex flex-1 items-center justify-between rounded-xl border border-no/25 bg-no/14 px-4 py-3 font-display text-sm font-bold text-no disabled:opacity-50"
               >
-                Buy {noLabel} {Math.round(noLive * 100)}¢
+                <span className="truncate">Buy {noLabel}</span>
+                <span className="ml-2 shrink-0 font-mono">{Math.round(noLive * 100)}¢</span>
               </button>
             </div>
             )}
