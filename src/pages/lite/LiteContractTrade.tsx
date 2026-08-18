@@ -909,10 +909,21 @@ const LiteContractTrade = () => {
         {multiHeld.map((p) => {
           const isYesLeg = !legIsNo(p);
           const ac = autoCloseFor(p);
+          // Side-labelled legs (fixture lines) are named by their side label
+          // alone; generic multi options keep "{option} · Yes|No". 1× adds
+          // no Boost suffix.
+          const title = [
+            hasSideLabels(p.event)
+              ? legSideWord(p)
+              : `${baseOptionLabel(p.option)} · ${legSideWord(p)}`,
+            boostSuffix(p.leverageNum),
+          ]
+            .filter(Boolean)
+            .join(" · ");
           return (
             <LitePositionCard
               key={p.id}
-              sideLabel={`${baseOptionLabel(p.option)} · ${isYesLeg ? "Yes" : "No"} · ${p.leverageNum}× Boost`}
+              sideLabel={title}
               isYes={isYesLeg}
               boost={1}
               putIn={p.marginNum}
@@ -944,7 +955,11 @@ const LiteContractTrade = () => {
       positionIndex={positions.findIndex((p) => p.id === cashOutTarget.id)}
       currentValue={cashOutTarget.marginNum + cashOutTarget.pnlNum}
       sizeNum={cashOutTarget.sizeNum}
-      sideLabel={`${baseOptionLabel(cashOutTarget.option)} · ${legIsNo(cashOutTarget) ? "No" : "Yes"}`}
+      sideLabel={
+        hasSideLabels(cashOutTarget.event)
+          ? legSideWord(cashOutTarget)
+          : `${baseOptionLabel(cashOutTarget.option)} · ${legSideWord(cashOutTarget)}`
+      }
       onDone={() => {
         setCashOutId(null);
         setRefetchTick((n) => n + 1);
