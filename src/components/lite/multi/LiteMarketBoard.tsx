@@ -24,6 +24,11 @@ export interface BoardOption {
   outcomeYes?: boolean;
   /** Side the user currently holds on this option, if any. */
   heldSide?: BoardSide | null;
+  /**
+   * Word the held side is called — the event's side label on side-labelled
+   * markets ("ARS +1.5"), else "Yes"/"No".
+   */
+  heldSideLabel?: string | null;
   /** Sports game lines: chip words become the side labels ("KAL +1.5"). */
   yesChipLabel?: string;
   noChipLabel?: string;
@@ -125,7 +130,7 @@ export const LiteMarketBoard = ({
                   <div className="flex items-center justify-between gap-2">
                     <span className="min-w-0 truncate font-display text-[13.5px] font-semibold text-foreground">
                       {o.label}
-                      {o.heldSide && <HoldChip side={o.heldSide} />}
+                      {o.heldSide && <HoldChip side={o.heldSide} label={o.heldSideLabel} />}
                     </span>
                     {o.settled ? (
                       <SettledMark outcomeYes={!!o.outcomeYes} />
@@ -158,7 +163,7 @@ export const LiteMarketBoard = ({
                 <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3">
                   <span className="min-w-0 font-display text-[15.5px] font-semibold leading-tight text-foreground">
                     {o.label}
-                    {o.heldSide && <HoldChip side={o.heldSide} />}
+                    {o.heldSide && <HoldChip side={o.heldSide} label={o.heldSideLabel} />}
                   </span>
                   {o.settled ? (
                     <div className="min-w-[74px] text-right">
@@ -250,14 +255,14 @@ export const LiteMarketBoard = ({
   );
 };
 
-const HoldChip = ({ side }: { side: BoardSide }) => (
+const HoldChip = ({ side, label }: { side: BoardSide; label?: string | null }) => (
   <span
     className={cn(
       "ml-2 inline-flex translate-y-[-1px] items-center rounded-full border px-1.5 py-[1px] align-middle text-[9.5px] font-semibold",
       side === "yes" ? "border-yes/45 text-yes" : "border-no/45 text-no",
     )}
   >
-    You hold {side === "yes" ? "Yes" : "No"}
+    You hold {label || (side === "yes" ? "Yes" : "No")}
   </span>
 );
 
