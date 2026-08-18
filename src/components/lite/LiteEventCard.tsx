@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Clock, Flame, Timer, Zap } from "lucide-react";
 import { EventRow } from "@/hooks/useMarketListData";
