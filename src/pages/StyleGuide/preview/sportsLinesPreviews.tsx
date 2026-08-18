@@ -9,6 +9,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { LiteMarketBoard, type BoardOption } from "@/components/lite/multi/LiteMarketBoard";
 import { LiteLineScrubber } from "@/components/lite/multi/LiteLineScrubber";
 import { LiteBoardGroupHeader } from "@/components/lite/multi/LiteBoardGroupHeader";
+import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
 import { formatSignedLine } from "@/components/lite/sports/sportsData";
 
 const REG_TIP =
@@ -32,13 +33,16 @@ const TOT_PRICE: Record<number, number> = {
   4.5: 0.1,
 };
 
-const hcpRow = (line: number, settled = false): BoardOption => ({
+const hcpRow = (line: number, settled = false, held = false): BoardOption => ({
   id: `hcp-${line}`,
   label: `ARS ${formatSignedLine(line)} covers`,
   yesPrice: HCP_PRICE[line],
   yesChipLabel: `ARS ${formatSignedLine(line)}`,
   noChipLabel: `LIV ${formatSignedLine(-line)}`,
   settled,
+  // Side-labelled leg: the side word IS the side label, never "Yes".
+  heldSide: held ? "yes" : null,
+  heldSideLabel: held ? `ARS ${formatSignedLine(line)}` : null,
 });
 
 const totRow = (line: number): BoardOption => ({
@@ -56,12 +60,14 @@ const FixtureBoard = ({
   initialHandicap = 1.5,
   totalsSingleLine = false,
   winnerSettled = false,
+  handicapHeld = false,
 }: {
   selectedId?: string | null;
   selectedSide?: "yes" | "no";
   initialHandicap?: number;
   totalsSingleLine?: boolean;
   winnerSettled?: boolean;
+  handicapHeld?: boolean;
 }) => {
   const isMobile = useIsMobile();
   const [hcp, setHcp] = useState(initialHandicap);
@@ -97,7 +103,7 @@ const FixtureBoard = ({
         tip={`A team covers when its regulation-time score plus the line beats the opponent. ${REG_TIP}`}
       />
       <LiteMarketBoard
-        options={[hcpRow(hcp)]}
+        options={[hcpRow(hcp, false, handicapHeld)]}
         volumeText={VOL}
         selectedId={sel}
         selectedSide={side}
@@ -114,6 +120,20 @@ const FixtureBoard = ({
           />
         )}
       />
+      {handicapHeld && (
+        // 1× carries no Boost suffix — the title is the side label alone.
+        <LitePositionCard
+          sideLabel={`ARS ${formatSignedLine(hcp)}`}
+          isYes
+          boost={1}
+          putIn={25}
+          nowWorth={31.4}
+          profit={6.4}
+          autoCloseText="None"
+          compact={!!isMobile}
+          onCashOut={() => {}}
+        />
+      )}
       <LiteBoardGroupHeader
         title="Total goals"
         note="Regulation time"
@@ -145,7 +165,7 @@ const FixtureBoard = ({
 export const SportsLinesDefaultPreview = () => <FixtureBoard />;
 
 export const SportsLinesHandicapSelectedPreview = () => (
-  <FixtureBoard selectedId="hcp-1.5" selectedSide="yes" />
+  <FixtureBoard selectedId="hcp-1.5" selectedSide="yes" handicapHeld />
 );
 
 export const SportsLinesScrubbedPreview = () => <FixtureBoard initialHandicap={-2.5} />;
