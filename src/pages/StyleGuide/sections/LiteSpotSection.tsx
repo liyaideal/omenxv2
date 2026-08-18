@@ -72,7 +72,7 @@ export const LiteSpotSection = ({ isMobile }: { isMobile: boolean }) => {
       <SectionWrapper
         id="lite-spot-order"
         title="Lite spot · Order card (states)"
-        description="P0 #1 price snapshot at submit; P0 #2 cash leg via balanceDelta. Sides labels from event.side_labels (Up/Down aliases), never children[0]. The Yes/No pair is the shared SideButton — the COMPACT Yes/No capsule variant is the py-[9px] one used by LiteMarketBoard."
+        description="P0 #1 price snapshot at submit; P0 #2 cash leg via balanceDelta. Sides labels from event.side_labels (Up/Down aliases), never children[0]. The Yes/No pair is the shared SideButton — priced buttons are label-left / price-right (justify-between, mono price); the COMPACT Yes/No capsule variant is the py-[9px] one used by LiteMarketBoard."
       >
         <div className="mb-4 flex flex-wrap gap-2">
           {PRESETS.map((p) => (
