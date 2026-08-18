@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Clock, Flame, Timer, Zap } from "lucide-react";
 import { EventRow } from "@/hooks/useMarketListData";
@@ -93,25 +93,26 @@ const settlementFooter = (expiry: Date | null, categoryRaw: string): string | nu
 };
 
 /** One pill in the image-tile badge stack. Icons are Lucide nodes only. */
-const BadgePill = ({
-  bg,
-  fg,
-  icon,
-  label,
-}: {
-  bg?: string;
-  fg?: string;
-  icon?: React.ReactNode;
-  label: string;
-}) => (
+const BadgePill = React.forwardRef<
+  HTMLSpanElement,
+  React.HTMLAttributes<HTMLSpanElement> & {
+    bg?: string;
+    fg?: string;
+    icon?: React.ReactNode;
+    label: string;
+  }
+>(({ bg, fg, icon, label, style, ...rest }, ref) => (
   <span
+    ref={ref}
+    {...rest}
     className="inline-flex items-center gap-1 rounded-full px-[10px] py-[5px] text-[11px] font-semibold leading-none"
-    style={{ background: bg, color: fg }}
+    style={{ background: bg, color: fg, ...style }}
   >
     {icon}
     {label}
   </span>
-);
+));
+BadgePill.displayName = "BadgePill";
 
 /** Ink paired with the --badge-intraday orange. */
 const INTRADAY_INK = "#2A1200";
