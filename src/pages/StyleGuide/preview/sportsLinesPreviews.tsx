@@ -17,9 +17,9 @@ const REG_TIP =
 const VOL = "Vol $550.1K";
 
 const WINNER_ROWS: BoardOption[] = [
-  { id: "w-ars", label: "Arsenal", yesPrice: 0.76 },
-  { id: "w-draw", label: "Draw", yesPrice: 0.33 },
-  { id: "w-liv", label: "Liverpool", yesPrice: 0.53 },
+  { id: "w-ars", label: "Arsenal", yesPrice: 0.47 },
+  { id: "w-draw", label: "Draw", yesPrice: 0.26 },
+  { id: "w-liv", label: "Liverpool", yesPrice: 0.27 },
 ];
 
 const HCP_LINES = [-2.5, -1.5, 1.5, 2.5];
