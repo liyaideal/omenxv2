@@ -97,7 +97,16 @@ export const LiteMarketBoard = ({
                 expanded ? "rounded-t-[14px] border-b-0" : "rounded-[14px]",
                 isSelected ? "border-yes/55" : "border-border",
                 o.settled && "opacity-50",
+                !compact && !o.settled && "cursor-pointer hover:bg-muted/10",
               )}
+              onClick={() => {
+                if (o.settled) return;
+                if (isSelected) {
+                  onDeselect?.();
+                } else {
+                  onSelect(o.id, "yes");
+                }
+              }}
               // Inline borderWidth overrides the `border-b-0` class, so the
               // bottom border must be zeroed inline too when expanded —
               // otherwise a solid --yes/55 line sits between row and chart.
