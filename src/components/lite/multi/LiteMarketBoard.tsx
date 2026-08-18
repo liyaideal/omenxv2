@@ -299,7 +299,10 @@ const Chip = ({
     return (
       <button
         type="button"
-        onClick={onClick}
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick();
+        }}
         className={cn(
           "min-w-[86px] rounded-[10px] border border-transparent py-[9px] text-center font-mono text-[12.5px] font-bold transition-colors",
           side === "yes" ? "bg-yes text-[#04222c]" : "bg-no text-[#1a2408]",
