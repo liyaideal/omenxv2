@@ -500,6 +500,7 @@ const LiteContractTrade = () => {
       selectedId={selOpt?.id ?? null}
       selectedSide={side}
       onSelect={selectMarket}
+      onDeselect={() => setSelectedOptId(null)}
       compact={!!isMobile}
       showChart
     />
