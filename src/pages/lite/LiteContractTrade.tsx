@@ -497,6 +497,7 @@ const LiteContractTrade = () => {
       settled: o.final_price != null,
       outcomeYes: !!o.is_winner,
       heldSide: held ? (legIsNo(held) ? "no" : "yes") : null,
+      heldSideLabel: held ? legSideWord(held) : null,
     };
   });
 
@@ -547,6 +548,7 @@ const LiteContractTrade = () => {
       settled: y.final_price != null,
       outcomeYes: !!y.is_winner,
       heldSide: held ? (legIsNo(held) ? "no" : "yes") : null,
+      heldSideLabel: held ? legSideWord(held) : null,
       yesChipLabel: yl,
       noChipLabel: nl,
     };
