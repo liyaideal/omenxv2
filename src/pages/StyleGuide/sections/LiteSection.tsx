@@ -1401,15 +1401,15 @@ const MultiMarketStates = () => {
           onDeselect={() => setSelDesktop({ id: "", side: "yes" })}
         />
       </Cell>
-      <Cell label="Mobile · compact rows, no inline chart">
+      <Cell label="Mobile · compact rows, row tap opens chart (chips open the drawer)">
         <LiteMarketBoard
           compact
-          showChart={false}
           options={MULTI_OPTIONS}
           volumeText="Vol $30.0M"
           selectedId={selMobile.id}
           selectedSide={selMobile.side}
           onSelect={(id, side) => setSelMobile({ id, side })}
+          onRowSelect={(id, side) => setSelMobile({ id, side })}
           onDeselect={() => setSelMobile({ id: "", side: "yes" })}
         />
       </Cell>

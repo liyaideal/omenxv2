@@ -35,6 +35,11 @@ interface Props {
   selectedId: string | null;
   selectedSide: BoardSide;
   onSelect: (optionId: string, side: BoardSide) => void;
+  /**
+   * Row-body click (not a chip). Selects/expands WITHOUT opening the mobile
+   * order drawer. Falls back to `onSelect` when not provided.
+   */
+  onRowSelect?: (optionId: string, side: BoardSide) => void;
   /** Called when an already-expanded desktop row is clicked again to collapse it. */
   onDeselect?: () => void;
   /** Mobile rows are denser and never open an inline order form. */
@@ -57,6 +62,7 @@ export const LiteMarketBoard = ({
   selectedId,
   selectedSide,
   onSelect,
+  onRowSelect,
   onDeselect,
   compact = false,
   showChart = true,
@@ -97,14 +103,16 @@ export const LiteMarketBoard = ({
                 expanded ? "rounded-t-[14px] border-b-0" : "rounded-[14px]",
                 isSelected ? "border-yes/55" : "border-border",
                 o.settled && "opacity-50",
-                !compact && !o.settled && "cursor-pointer hover:bg-muted/10",
+                !o.settled && "cursor-pointer",
+                !compact && !o.settled && "hover:bg-muted/10",
+                compact && !o.settled && "active:bg-muted/10",
               )}
               onClick={() => {
-                if (compact || o.settled) return;
+                if (o.settled) return;
                 if (isSelected) {
                   onDeselect?.();
                 } else {
-                  onSelect(o.id, "yes");
+                  (onRowSelect || onSelect)(o.id, isSelected ? selectedSide : "yes");
                 }
               }}
               // Inline borderWidth overrides the `border-b-0` class, so the

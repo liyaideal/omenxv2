@@ -493,6 +493,12 @@ const LiteContractTrade = () => {
     if (isMobile) setDrawerOpen(true);
   };
 
+  // Row-body tap (mobile included): only selects + expands the inline chart.
+  const selectMarketRow = (optionId: string, s: Side) => {
+    setSelectedOptId(optionId);
+    setSide(s);
+  };
+
   const MarketBoard = (
     <LiteMarketBoard
       options={boardOptions}
@@ -500,6 +506,7 @@ const LiteContractTrade = () => {
       selectedId={selOpt?.id ?? null}
       selectedSide={side}
       onSelect={selectMarket}
+      onRowSelect={selectMarketRow}
       onDeselect={() => setSelectedOptId(null)}
       compact={!!isMobile}
       showChart
@@ -565,6 +572,7 @@ const LiteContractTrade = () => {
         selectedId={selectedOptId === row.id ? row.id : null}
         selectedSide={side}
         onSelect={selectMarket}
+        onRowSelect={selectMarketRow}
         onDeselect={() => setSelectedOptId(null)}
         compact={!!isMobile}
         showChart
@@ -607,6 +615,7 @@ const LiteContractTrade = () => {
             }
             selectedSide={side}
             onSelect={selectMarket}
+            onRowSelect={selectMarketRow}
             onDeselect={() => setSelectedOptId(null)}
             compact={!!isMobile}
             showChart
