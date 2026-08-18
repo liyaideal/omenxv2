@@ -100,7 +100,7 @@ export const LiteMarketBoard = ({
                 !compact && !o.settled && "cursor-pointer hover:bg-muted/10",
               )}
               onClick={() => {
-                if (o.settled) return;
+                if (compact || o.settled) return;
                 if (isSelected) {
                   onDeselect?.();
                 } else {
