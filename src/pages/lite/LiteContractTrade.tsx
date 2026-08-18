@@ -565,6 +565,7 @@ const LiteContractTrade = () => {
         selectedId={selectedOptId === row.id ? row.id : null}
         selectedSide={side}
         onSelect={selectMarket}
+        onDeselect={() => setSelectedOptId(null)}
         compact={!!isMobile}
         showChart
         hideHeader
@@ -606,6 +607,7 @@ const LiteContractTrade = () => {
             }
             selectedSide={side}
             onSelect={selectMarket}
+            onDeselect={() => setSelectedOptId(null)}
             compact={!!isMobile}
             showChart
             hideHeader
