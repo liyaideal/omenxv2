@@ -31,7 +31,7 @@ import { useHeadingScrolledOut } from "@/hooks/useHeadingScrolledOut";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { parseSideLabels } from "@/lib/eventUtils";
-import { liteSideName } from "@/lib/liteSideName";
+import { boostSuffix, legSideLabel, liteSideName } from "@/lib/liteSideName";
 import { formatCents, estimateAutoClosePrice } from "@/lib/autoClosePrice";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import type { Tables } from "@/integrations/supabase/types";
@@ -438,6 +438,19 @@ const LiteContractTrade = () => {
 
   const more = useMoreMarkets(event?.category || null, event?.id || "");
 
+  // A leg's event row (this event or one of its fixture siblings), so
+  // side-labelled legs can name their side ("ARS +1.5") instead of Yes/No.
+  const legEventByName = useMemo(() => {
+    const m = new Map<string, { side_labels?: unknown }>();
+    if (event) m.set(event.name, event);
+    for (const s of siblings) m.set(s.name, s);
+    return m;
+  }, [event, siblings]);
+  const hasSideLabels = (eventName: string) =>
+    !!parseSideLabels(legEventByName.get(eventName)?.side_labels);
+  const legSideWord = (p: { event: string; option: string; type: "long" | "short" }) =>
+    legSideLabel(legEventByName.get(p.event) ?? null, legIsNo(p) ? "no" : "yes");
+
   const openBuy = useCallback(
     (s: Side) => {
       setSide(s);
@@ -484,6 +497,7 @@ const LiteContractTrade = () => {
       settled: o.final_price != null,
       outcomeYes: !!o.is_winner,
       heldSide: held ? (legIsNo(held) ? "no" : "yes") : null,
+      heldSideLabel: held ? legSideWord(held) : null,
     };
   });
 
@@ -534,6 +548,7 @@ const LiteContractTrade = () => {
       settled: y.final_price != null,
       outcomeYes: !!y.is_winner,
       heldSide: held ? (legIsNo(held) ? "no" : "yes") : null,
+      heldSideLabel: held ? legSideWord(held) : null,
       yesChipLabel: yl,
       noChipLabel: nl,
     };
@@ -793,13 +808,21 @@ const LiteContractTrade = () => {
     />
   );
 
+  // Seeded rules already end with "Winning shares pay $1." — drop that
+  // sentence so the card never says it twice.
+  const ruleBody = (
+    event.rules ||
+    event.description ||
+    "Pays $1 a share to the winning side when this market resolves."
+  )
+    .replace(/\s*Winning shares pay \$1[^.]*\.\s*$/i, "")
+    .trim();
+
   const RuleCard = (
     <div className="flex gap-3 rounded-2xl border border-border bg-card p-4 text-xs">
       <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
       <p className="text-muted-foreground">
-        {event.rules ||
-          event.description ||
-          `Pays $1 a share to the winning side when this market resolves.`}{" "}
+        {ruleBody}{" "}
         Winning shares pay <span className="font-mono text-foreground">$1</span> each,
         credited automatically at settlement.
       </p>
@@ -894,10 +917,21 @@ const LiteContractTrade = () => {
         {multiHeld.map((p) => {
           const isYesLeg = !legIsNo(p);
           const ac = autoCloseFor(p);
+          // Side-labelled legs (fixture lines) are named by their side label
+          // alone; generic multi options keep "{option} · Yes|No". 1× adds
+          // no Boost suffix.
+          const title = [
+            hasSideLabels(p.event)
+              ? legSideWord(p)
+              : `${baseOptionLabel(p.option)} · ${legSideWord(p)}`,
+            boostSuffix(p.leverageNum),
+          ]
+            .filter(Boolean)
+            .join(" · ");
           return (
             <LitePositionCard
               key={p.id}
-              sideLabel={`${baseOptionLabel(p.option)} · ${isYesLeg ? "Yes" : "No"} · ${p.leverageNum}× Boost`}
+              sideLabel={title}
               isYes={isYesLeg}
               boost={1}
               putIn={p.marginNum}
@@ -929,7 +963,11 @@ const LiteContractTrade = () => {
       positionIndex={positions.findIndex((p) => p.id === cashOutTarget.id)}
       currentValue={cashOutTarget.marginNum + cashOutTarget.pnlNum}
       sizeNum={cashOutTarget.sizeNum}
-      sideLabel={`${baseOptionLabel(cashOutTarget.option)} · ${legIsNo(cashOutTarget) ? "No" : "Yes"}`}
+      sideLabel={
+        hasSideLabels(cashOutTarget.event)
+          ? legSideWord(cashOutTarget)
+          : `${baseOptionLabel(cashOutTarget.option)} · ${legSideWord(cashOutTarget)}`
+      }
       onDone={() => {
         setCashOutId(null);
         setRefetchTick((n) => n + 1);
