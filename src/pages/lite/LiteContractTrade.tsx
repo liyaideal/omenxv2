@@ -808,13 +808,21 @@ const LiteContractTrade = () => {
     />
   );
 
+  // Seeded rules already end with "Winning shares pay $1." — drop that
+  // sentence so the card never says it twice.
+  const ruleBody = (
+    event.rules ||
+    event.description ||
+    "Pays $1 a share to the winning side when this market resolves."
+  )
+    .replace(/\s*Winning shares pay \$1[^.]*\.\s*$/i, "")
+    .trim();
+
   const RuleCard = (
     <div className="flex gap-3 rounded-2xl border border-border bg-card p-4 text-xs">
       <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
       <p className="text-muted-foreground">
-        {event.rules ||
-          event.description ||
-          `Pays $1 a share to the winning side when this market resolves.`}{" "}
+        {ruleBody}{" "}
         Winning shares pay <span className="font-mono text-foreground">$1</span> each,
         credited automatically at settlement.
       </p>
