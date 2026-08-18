@@ -57,6 +57,7 @@ export const LiteMarketBoard = ({
   selectedId,
   selectedSide,
   onSelect,
+  onDeselect,
   compact = false,
   showChart = true,
   renderFooter,
