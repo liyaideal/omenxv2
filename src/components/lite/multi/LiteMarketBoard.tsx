@@ -35,6 +35,8 @@ interface Props {
   selectedId: string | null;
   selectedSide: BoardSide;
   onSelect: (optionId: string, side: BoardSide) => void;
+  /** Called when an already-expanded desktop row is clicked again to collapse it. */
+  onDeselect?: () => void;
   /** Mobile rows are denser and never open an inline order form. */
   compact?: boolean;
   /** Inline accordion chart under the selected row. Defaults to true. */
