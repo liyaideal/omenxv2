@@ -316,7 +316,10 @@ const Chip = ({
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
       className="chip-t2 flex min-w-[86px] items-center justify-between gap-2 px-2.5 py-[9px] text-[12.5px]"
       style={{ borderRadius: 10, ["--chip-accent" as string]: accent }}
     >
