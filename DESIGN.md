@@ -234,6 +234,9 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 - 单仓 KPI：`RESULT`（值=净额 signedMoney，胜 #3DD68C / 负 #FF5C5C）/ `COST` / `PAYOUT`。
 - 系列 KPI：`NET` / `COST` / `PAYOUT`；双卡为 `DETAILS` + `ROUNDS`，每轮一行可点进单轮详情。
 
+**桌面详情页正文禁放返回文字链/面包屑——去程 = 站点导航 + 浏览器返回（同 Pro SettlementDetail 与 /settings/api 先例）。**
+
+
 **移动端**：`MobileHeader variant="inner"` + BottomNav，居中眉线 + 大字净额 + 明细行纵列。
 
 **Payout 公式（全局）**：`payout = max(0, cost + pnl − fees)`，永不为负。
