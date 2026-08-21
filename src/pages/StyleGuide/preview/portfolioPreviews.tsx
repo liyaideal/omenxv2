@@ -155,9 +155,10 @@ export const PortfolioKpiPreview = () => (
         subColor={VOLT}
       />
     </KpiGrid>
-    <KpiGrid cols={2}>
+    <KpiGrid cols={3}>
       <KpiCard label="WIN RATE" value="58%" sub="7 of 12" />
       <KpiCard label="NET PROFIT" value={signedMoney(214)} sub="12 settled" subColor={VOLT} />
+      <KpiCard label="RECORD" value="7W 5L" sub="wins · losses" />
     </KpiGrid>
     <KpiGrid cols={2}>
       <KpiCard label="COST" value={money(310)} sub="2 calls" />
