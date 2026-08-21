@@ -279,8 +279,11 @@ export const useLitePortfolio = () => {
 
   /* --------------------- pending Pro orders --------------------- */
   const pendingOrders = useMemo(
-    () => orders.filter((o) => o.status === "Pending" || o.status === "Partial Filled"),
-    [orders],
+    () =>
+      orders
+        .filter((o) => o.status === "Pending" || o.status === "Partial Filled")
+        .map((o) => ({ ...o, eventId: eventByName.get(o.event)?.id ?? null })),
+    [orders, eventByName],
   );
 
   return {
