@@ -15,7 +15,10 @@ interface Props {
   profit: number;
   autoCloseText: string;
   compact?: boolean;
+  /** When set, the Cash out button is disabled and shows this note instead. */
+  cashOutDisabledText?: string;
   onCashOut: () => void;
+
 }
 
 export const LitePositionCard = ({
