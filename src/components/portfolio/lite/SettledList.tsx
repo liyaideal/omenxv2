@@ -27,7 +27,7 @@ export const SettledRow = ({ row }: { row: LiteSettledRow }) => {
   const go = () =>
     row.isSeries
       ? navigate(`/portfolio?tab=settled&series=${row.seriesId}`)
-      : navigate(`/portfolio/settlements/${row.id}`);
+      : navigate(`/portfolio/settlement/${row.id}`);
   return (
     <button
       type="button"

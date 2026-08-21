@@ -31,7 +31,7 @@ import {
   LiveRowHeader,
   PendingOrdersRow,
 } from "@/components/portfolio/lite/LiveCards";
-import { SettledList, SettledRow } from "@/components/portfolio/lite/SettledList";
+import { SettledList } from "@/components/portfolio/lite/SettledList";
 
 const EmptyLive = () => {
   const navigate = useNavigate();

@@ -21,10 +21,12 @@ import LiteEventsPage from "./pages/lite/LiteEventsPage";
 import ResolvedPage from "./pages/ResolvedPage";
 import ResolvedEventDetail from "./pages/ResolvedEventDetail";
 import Leaderboard from "./pages/Leaderboard";
-import Portfolio from "./pages/Portfolio";
-import PortfolioSettlements from "./pages/PortfolioSettlements";
-import PortfolioAirdrops from "./pages/PortfolioAirdrops";
-import SettlementDetail from "./pages/SettlementDetail";
+import {
+  PortfolioRoute,
+  PortfolioSettlementsRoute,
+  PortfolioAirdropsRoute,
+  SettlementDetailRoute,
+} from "./pages/PortfolioRoutes";
 import Wallet from "./pages/Wallet";
 import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
@@ -200,10 +202,10 @@ const App = () => (
               <Route path="/events" element={<EventsRoute />} />
               <Route path="/resolved" element={<ResolvedRoute />} />
               <Route path="/resolved/:eventId" element={<ResolvedDetailRoute />} />
-              <Route path="/portfolio" element={<Portfolio />} />
-              <Route path="/portfolio/settlements" element={<PortfolioSettlements />} />
-              <Route path="/portfolio/airdrops" element={<PortfolioAirdrops />} />
-              <Route path="/portfolio/settlement/:settlementId" element={<SettlementDetail />} />
+              <Route path="/portfolio" element={<PortfolioRoute />} />
+              <Route path="/portfolio/settlements" element={<PortfolioSettlementsRoute />} />
+              <Route path="/portfolio/airdrops" element={<PortfolioAirdropsRoute />} />
+              <Route path="/portfolio/settlement/:settlementId" element={<SettlementDetailRoute />} />
               <Route path="/wallet" element={<Wallet />} />
               <Route path="/deposit" element={<Deposit />} />
               <Route path="/withdraw" element={<Withdraw />} />
