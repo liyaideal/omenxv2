@@ -74,7 +74,9 @@ export const useSettlementDetail = ({ settlementId, eventName }: UseSettlementDe
       }
 
       if (!position && (eventName || settlementId)) {
-        const searchName = eventName || decodeURIComponent(settlementId || "");
+        // Router params arrive decoded — decoding again breaks titles with `%`.
+        const searchName = eventName || settlementId || "";
+
         const { data } = await supabase
           .from("positions")
           .select("*")
