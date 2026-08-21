@@ -37,6 +37,7 @@ import {
 } from "@/components/portfolio/lite/SeriesDetailView";
 import { liteTradePath } from "@/lib/liteTradePath";
 import { PortfolioErrorBoundary } from "@/components/portfolio/lite/PortfolioErrorBoundary";
+import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
 
 
 const EmptyLive = () => {
@@ -297,7 +298,7 @@ export default function LitePortfolio() {
             showBack
             backTo="/portfolio?tab=settled"
           />
-          {seriesView}
+          <LiteAuthGate>{seriesView}</LiteAuthGate>
           <BottomNav />
         </div>
       );
@@ -306,7 +307,7 @@ export default function LitePortfolio() {
     return (
       <div className="min-h-screen bg-background pb-24">
         <MobileHeader variant="brand" />
-        {content}
+        <LiteAuthGate>{content}</LiteAuthGate>
         <BottomNav />
       </div>
     );
@@ -315,7 +316,9 @@ export default function LitePortfolio() {
   return (
     <div className="min-h-screen bg-background">
       <EventsDesktopHeader />
-      <div className="mx-auto w-full max-w-7xl px-4 py-6 lg:px-6">{content}</div>
+      <div className="mx-auto w-full max-w-7xl px-4 py-6 lg:px-6">
+        <LiteAuthGate>{content}</LiteAuthGate>
+      </div>
     </div>
   );
 }

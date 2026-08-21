@@ -19,6 +19,7 @@ import {
   SettlementDetailMobile,
   type SettlementDetailVM,
 } from "@/components/portfolio/lite/SettlementDetailView";
+import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
 
 export default function LiteSettlementDetail() {
   const { settlementId } = useParams();
@@ -38,13 +39,15 @@ export default function LiteSettlementDetail() {
     return isMobile ? (
       <div className="min-h-screen bg-background pb-24">
         <MobileHeader variant="inner" title="Settled" />
-        {body}
+        <LiteAuthGate>{body}</LiteAuthGate>
         <BottomNav />
       </div>
     ) : (
       <div className="min-h-screen bg-background">
         <EventsDesktopHeader />
-        <div className="mx-auto w-full max-w-7xl px-4 py-6 lg:px-6">{body}</div>
+        <div className="mx-auto w-full max-w-7xl px-4 py-6 lg:px-6">
+          <LiteAuthGate>{body}</LiteAuthGate>
+        </div>
       </div>
     );
   }
@@ -95,7 +98,9 @@ export default function LiteSettlementDetail() {
     return (
       <div className="min-h-screen bg-background pb-24">
         <MobileHeader variant="inner" title={s.event} />
-        <SettlementDetailMobile vm={vm} actions={actions} />
+        <LiteAuthGate>
+          <SettlementDetailMobile vm={vm} actions={actions} />
+        </LiteAuthGate>
         <BottomNav />
       </div>
     );
@@ -105,7 +110,9 @@ export default function LiteSettlementDetail() {
     <div className="min-h-screen bg-background">
       <EventsDesktopHeader />
       <div className="mx-auto w-full max-w-7xl px-4 py-6 lg:px-6">
-        <SettlementDetailDesktop vm={vm} actions={actions} />
+        <LiteAuthGate>
+          <SettlementDetailDesktop vm={vm} actions={actions} />
+        </LiteAuthGate>
       </div>
     </div>
   );
