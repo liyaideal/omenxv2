@@ -3,7 +3,7 @@
 // A "series" is 2+ settled rounds of the same recurring event. Numbers are
 // reconciled by the caller: Net = Payout − Cost, and the round nets sum to Net.
 // ============================================================
-import { KpiCard, KpiGrid, GREEN, RED, money, signedMoney } from "./parts";
+import { KpiCard, KpiGrid, GREEN, RED, money, signedMoney, pnlColor } from "./parts";
 import { settledDayLabel } from "@/lib/settleLabel";
 import { DetailCard, DetailTitleRow } from "./SettlementDetailView";
 
@@ -30,6 +30,8 @@ export interface SeriesDetailVM {
   net: number;
 
   wins: number;
+  /** Shown only when every round bought the same side/market. */
+  sideLabel?: string;
 }
 
 export interface SeriesDetailActions {
@@ -66,7 +68,7 @@ const RoundRow = ({
       {r.autoClosed && <span style={{ color: RED }}> · auto-closed</span>}
     </span>
     <span className="flex shrink-0 items-center gap-1.5">
-      <span className="font-mono font-bold" style={{ color: r.net >= 0 ? GREEN : RED }}>
+      <span className="font-mono font-bold" style={{ color: pnlColor(r.net) }}>
         {signedMoney(r.net)}
       </span>
       <span className="text-[#6B7280]">›</span>
@@ -95,13 +97,14 @@ export const SeriesDetailMobile = ({
       </div>
       <div
         className="mt-1 font-display text-[30px] font-extrabold"
-        style={{ color: vm.net >= 0 ? GREEN : RED }}
+        style={{ color: pnlColor(vm.net) }}
       >
         Net <span className="font-mono">{signedMoney(vm.net)}</span>
       </div>
     </div>
 
     <div className="px-4">
+      {vm.sideLabel && <Row k="Side" v={vm.sideLabel} />}
       <Row k="Rounds" v={`${vm.rounds.length} · ${vm.cadence}`} />
       <Row k="Cost" v={money(vm.cost)} />
       <Row k="Fees" v={money(vm.fees)} />
@@ -154,7 +157,7 @@ export const SeriesDetailDesktop = ({
         <KpiCard
           label="NET"
           value={signedMoney(vm.net)}
-          valueColor={vm.net >= 0 ? GREEN : RED}
+          valueColor={pnlColor(vm.net)}
           sub={`won ${vm.wins} of ${vm.rounds.length} rounds`}
         />
         <KpiCard
@@ -169,6 +172,7 @@ export const SeriesDetailDesktop = ({
     <div className="mt-3 grid grid-cols-2 gap-3">
       <DetailCard title="DETAILS">
         <Row k="Type" v={`Series · ${vm.segmentLabel}`} />
+        {vm.sideLabel && <Row k="Side" v={vm.sideLabel} />}
         <Row k="Rounds" v={`${vm.rounds.length} · ${vm.cadence}`} />
         <Row k="First round" v={firstRound(vm)} />
         <Row k="Last settled" v={lastSettled(vm)} />
