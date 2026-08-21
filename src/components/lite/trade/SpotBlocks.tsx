@@ -165,6 +165,7 @@ export const SpotYourPosition = ({
   avgCost,
   ifWinsLabel,
   ifWinsValue,
+  cashOutDisabledText,
   onCashOut,
 }: {
   sideLabel: string;
@@ -176,6 +177,8 @@ export const SpotYourPosition = ({
   avgCost: string;
   ifWinsLabel: string;
   ifWinsValue: string;
+  /** When set, Cash out is disabled and this note renders below it. */
+  cashOutDisabledText?: string;
   onCashOut: () => void;
 }) => (
   <div className="rounded-2xl border border-border bg-card p-4">
@@ -209,12 +212,19 @@ export const SpotYourPosition = ({
     <div className="mt-3 border-t border-border pt-3">
       <button
         type="button"
-        onClick={onCashOut}
-        className="h-9 w-full rounded-lg bg-muted text-xs font-semibold hover:bg-muted/80"
+        onClick={cashOutDisabledText ? undefined : onCashOut}
+        disabled={!!cashOutDisabledText}
+        className={cn(
+          "h-9 w-full rounded-lg bg-muted text-xs font-semibold",
+          cashOutDisabledText ? "opacity-50" : "hover:bg-muted/80",
+        )}
       >
         Cash out ·{" "}
         <span className="font-mono">${currentValue.toFixed(2)}</span>
       </button>
+      {cashOutDisabledText && (
+        <p className="mt-2 text-[11px] text-muted-foreground">{cashOutDisabledText}</p>
+      )}
     </div>
   </div>
 );
