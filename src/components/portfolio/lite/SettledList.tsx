@@ -2,13 +2,13 @@
 // Lite /portfolio Settled list — month groups, lazy month loading,
 // series aggregate rows. Literal spec (工单 §4).
 // ============================================================
-import { useState } from "react";
+import { forwardRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { LiteMonthGroup, LiteSettledRow } from "@/hooks/useLitePortfolio";
 import { RED, signedMoney, pnlColor } from "./parts";
 
-const MetaLine = ({ row }: { row: LiteSettledRow }) => (
-  <div className="truncate text-[11px] text-[#6B7280]">
+const MetaLine = forwardRef<HTMLDivElement, { row: LiteSettledRow }>(({ row }, ref) => (
+  <div ref={ref} className="truncate text-[11px] text-[#6B7280]">
     {row.metaParts.map((p, i) => {
       const last = i === row.metaParts.length - 1;
       const isRemark = last && row.remark !== "none";
@@ -20,21 +20,24 @@ const MetaLine = ({ row }: { row: LiteSettledRow }) => (
       );
     })}
   </div>
-);
+));
+MetaLine.displayName = "MetaLine";
 
-export const SettledRow = ({ row }: { row: LiteSettledRow }) => {
+export const SettledRow = forwardRef<HTMLButtonElement, { row: LiteSettledRow }>(({ row }, ref) => {
   const navigate = useNavigate();
   const go = () =>
     row.isSeries
-      ? navigate(`/portfolio?tab=settled&series=${row.seriesId}`)
+      ? navigate(`/portfolio?tab=settled&series=${encodeURIComponent(row.seriesId ?? "")}`)
       : navigate(`/portfolio/settlement/${row.id}`);
   return (
     <button
+      ref={ref}
       type="button"
       onClick={go}
       className="flex w-full items-center gap-3 px-4 py-[13px] text-left"
       style={{ borderBottom: "1px solid rgba(28,31,38,.8)" }}
     >
+
       <div className="min-w-0 flex-1">
         <div className="truncate text-[13.5px] font-semibold text-[#F2F3F5]">{row.title}</div>
         <MetaLine row={row} />
