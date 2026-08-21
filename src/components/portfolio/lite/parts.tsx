@@ -43,8 +43,17 @@ export const moneyAuto = (n: number) =>
       ? `${n < 0 ? "-" : ""}$${Math.abs(n).toLocaleString("en-US")}`
       : money(n);
 
-/** Zero is muted and unsigned; otherwise the usual green/red split. */
-export const pnlColor = (n: number) => (isZeroMoney(n) ? MUTED : n >= 0 ? GREEN : RED);
+/**
+ * Zero is muted and unsigned; otherwise the usual up/down split.
+ * `positive` lets each surface keep its own up-colour — Live's up-axis is VOLT,
+ * settled's is GREEN. Never leak the settled green into Live.
+ */
+export const pnlColor = (n: number, positive: string = GREEN) =>
+  isZeroMoney(n) ? MUTED : n >= 0 ? positive : RED;
+
+/** Live axis: up = volt, down = red, zero = muted. */
+export const livePnlColor = (n: number) => pnlColor(n, VOLT);
+
 
 
 /* ------------------------------ Tabs ------------------------------ */

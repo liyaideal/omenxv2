@@ -1,0 +1,1 @@
+UPDATE public.positions SET leverage = 3 WHERE leverage IS NOT NULL AND leverage <> round(leverage);

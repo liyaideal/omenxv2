@@ -9,7 +9,7 @@ import { useSurface } from "@/contexts/SurfaceContext";
 import { settleLabel } from "@/lib/settleLabel";
 import { boostSuffix } from "@/lib/liteSideName";
 import type { LiteLiveRow } from "@/hooks/useLitePortfolio";
-import { VOLT, RED, money, signedMoney } from "./parts";
+import { VOLT, RED, money, signedMoney, livePnlColor } from "./parts";
 
 const cents = (p: number) => `${Math.round(p * 100)}¢`;
 
@@ -81,7 +81,7 @@ export const LiveCard = ({
         {[
           { k: "COST", v: money(row.cost), c: "#F2F3F5" },
           { k: "NOW WORTH", v: money(row.nowWorth), c: "#F2F3F5" },
-          { k: "PROFIT", v: signedMoney(row.profit), c: row.profit >= 0 ? VOLT : RED },
+          { k: "PROFIT", v: signedMoney(row.profit), c: livePnlColor(row.profit) },
         ].map((cell) => (
           <div key={cell.k}>
             <div className="text-[9.5px] text-[#6B7280]" style={{ letterSpacing: "1px" }}>
@@ -201,7 +201,7 @@ export const LiveRow = ({
       <div className="font-mono text-[13px] font-semibold text-[#F2F3F5]">{money(row.nowWorth)}</div>
       <div
         className="font-mono text-[13px] font-semibold"
-        style={{ color: row.profit >= 0 ? VOLT : RED }}
+        style={{ color: livePnlColor(row.profit) }}
       >
         {signedMoney(row.profit)}
       </div>

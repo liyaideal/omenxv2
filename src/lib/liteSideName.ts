@@ -30,8 +30,13 @@ export function legSideLabel(
 
 /** `"3× Boost"` — renders nothing at 1×, because 1× is "no Boost" on Lite. */
 export function boostSuffix(boost: number | null | undefined): string {
-  return boost && boost > 1 ? `${boost}× Boost` : "";
+  if (!boost || boost <= 1) return "";
+  // Weighted multiples (several fills at different boosts) keep ONE decimal;
+  // whole multiples never render a trailing ".0".
+  const shown = Math.round(boost * 10) / 10;
+  return `${Number.isInteger(shown) ? shown : shown.toFixed(1)}× Boost`;
 }
+
 
 /**
  * The word to show for a leg the user actually bought. Yes/No legs resolve

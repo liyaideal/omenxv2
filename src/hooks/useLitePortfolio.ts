@@ -165,7 +165,11 @@ export const useLitePortfolio = () => {
         sideWord,
         priceNow,
         cost,
-        nowWorth: cost + profit,
+        // NOW WORTH is recoverable value, never negative: a position whose loss
+        // exceeds its cost is worth $0 (the overhang is carried by the account,
+        // which the Boost check expresses). PROFIT still shows the true pnl.
+        nowWorth: Math.max(0, cost + profit),
+
         profit,
         leverageNum: p.leverageNum,
         isVoucher: p.airdropSource === "voucher",
@@ -190,7 +194,9 @@ export const useLitePortfolio = () => {
     const profit = live.reduce((s, r) => s + r.profit, 0);
     return {
       cost,
-      nowWorth: cost + profit,
+      // Sum of the per-position clamped values (clamp first, then add).
+      nowWorth: live.reduce((s, r) => s + r.nowWorth, 0),
+
       profit,
       profitPercent: cost > 0 ? (profit / cost) * 100 : 0,
       count: live.length,
