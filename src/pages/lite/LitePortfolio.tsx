@@ -78,6 +78,20 @@ export default function LitePortfolio() {
     if (p.boostLive.length === 0 && p.standardLive.length > 0) setSegment("standard");
   }, [p.boostLive.length, p.standardLive.length]);
 
+  // Legacy links carried the event NAME in ?series=; canonicalise to the
+  // stable event id once the events are in.
+  useEffect(() => {
+    if (!series) return;
+    const canonical = p.canonicalSeriesId(series);
+    if (canonical && canonical !== series) {
+      const next = new URLSearchParams(params);
+      next.set("series", canonical);
+      setParams(next, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [series, p.settledRows]);
+
+
   const gauge = useMemo(
     () => ({
       riskRatio: p.risk.riskRatio,
