@@ -14,21 +14,37 @@ export const GREEN = "#3DD68C";
 export const RED = "#FF5C5C";
 export const AMBER = "#FFC24B";
 
+export const MUTED = "#6B7280";
+
+/** Anything under half a cent IS zero — never render "-$0.00". */
+export const isZeroMoney = (n: number) => !Number.isFinite(n) || Math.abs(n) < 0.005;
+
 export const money = (n: number) =>
-  `${n < 0 ? "-" : ""}$${Math.abs(n).toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+  isZeroMoney(n)
+    ? "$0.00"
+    : `${n < 0 ? "-" : ""}$${Math.abs(n).toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`;
 
 export const signedMoney = (n: number) =>
-  `${n >= 0 ? "+" : "-"}$${Math.abs(n).toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+  isZeroMoney(n)
+    ? "$0.00"
+    : `${n >= 0 ? "+" : "-"}$${Math.abs(n).toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`;
 
 /** Gauge buffer amounts: whole dollars carry no decimals ($310, $0). */
 export const moneyAuto = (n: number) =>
-  Number.isInteger(n) ? `${n < 0 ? "-" : ""}$${Math.abs(n).toLocaleString("en-US")}` : money(n);
+  isZeroMoney(n)
+    ? "$0"
+    : Number.isInteger(n)
+      ? `${n < 0 ? "-" : ""}$${Math.abs(n).toLocaleString("en-US")}`
+      : money(n);
+
+/** Zero is muted and unsigned; otherwise the usual green/red split. */
+export const pnlColor = (n: number) => (isZeroMoney(n) ? MUTED : n >= 0 ? GREEN : RED);
 
 
 /* ------------------------------ Tabs ------------------------------ */
