@@ -209,6 +209,23 @@ export const LiteSpotSection = ({ isMobile }: { isMobile: boolean }) => {
           </div>
           <div className="space-y-2">
             <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+              SpotSettlementRail · in review (terminal node pending)
+            </div>
+            <SpotSettlementRail
+              blocked
+              tradingNow={false}
+              nodes={[
+                { key: "open", label: "Market opens", time: "09:30" },
+                { key: "mid", label: "Trading", time: "closed" },
+                { key: "close", label: "Cash close", time: "16:00" },
+                { key: "settle", label: "In review", time: "16:05" },
+              ]}
+            />
+            <InReviewCard sourceName="Nasdaq official close" holding />
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
               SpotYourPosition · Up in profit
             </div>
             <SpotYourPosition
