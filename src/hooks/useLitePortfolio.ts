@@ -314,7 +314,7 @@ export const useLitePortfolio = () => {
       rounds,
       cost,
       fees,
-      payout: Math.max(0, cost + net - fees),
+      payout: Math.max(0, cost + net),
       net,
       wins: rounds.filter((r) => r.net > 0).length,
     };
