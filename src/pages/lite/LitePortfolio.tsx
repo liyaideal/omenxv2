@@ -37,6 +37,7 @@ import {
 } from "@/components/portfolio/lite/SeriesDetailView";
 import { liteTradePath } from "@/lib/liteTradePath";
 import { PortfolioErrorBoundary } from "@/components/portfolio/lite/PortfolioErrorBoundary";
+import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
 
 
 const EmptyLive = () => {

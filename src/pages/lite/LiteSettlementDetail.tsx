@@ -19,6 +19,7 @@ import {
   SettlementDetailMobile,
   type SettlementDetailVM,
 } from "@/components/portfolio/lite/SettlementDetailView";
+import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
 
 export default function LiteSettlementDetail() {
   const { settlementId } = useParams();
