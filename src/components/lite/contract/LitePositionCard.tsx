@@ -30,8 +30,10 @@ export const LitePositionCard = ({
   profit,
   autoCloseText,
   compact = false,
+  cashOutDisabledText,
   onCashOut,
 }: Props) => (
+
   <div className="rounded-2xl border border-border bg-card p-4">
     <div className="mb-3 text-sm font-semibold">
       <span className={isYes ? "text-yes" : "text-no"}>{sideLabel}</span>
