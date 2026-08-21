@@ -287,14 +287,20 @@ const LiteContractTrade = () => {
   const { text: countdown } = useTradeCountdown(freezeAt ?? endDate, { days: true });
 
   const resolved = !!event?.is_resolved;
+  // Intermediate state between trading close and settlement — the result is
+  // being checked and can stay here for a long time. Settled always wins.
+  const inReview = !resolved && (event as any)?.lifecycle_status === "REVIEW";
   const pastEnd = endDate ? endDate.getTime() <= Date.now() : false;
   const pastFreeze = freezeAt ? freezeAt.getTime() <= Date.now() : false;
-  const blocked = resolved || pastEnd || pastFreeze;
+  const blocked = resolved || inReview || pastEnd || pastFreeze;
   const blockedReason = resolved
     ? "Settled"
-    : pastEnd || pastFreeze
-      ? "Closed"
-      : "";
+    : inReview
+      ? IN_REVIEW_BADGE
+      : pastEnd || pastFreeze
+        ? "Closed"
+        : "";
+
 
   const boostCfg = getConfig(event?.category);
   const tiers = useMemo(() => boostTiers(boostCfg.maxBoost), [boostCfg.maxBoost]);
