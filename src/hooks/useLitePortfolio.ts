@@ -85,6 +85,23 @@ export const useLitePortfolio = () => {
     return m;
   }, [events]);
 
+  const eventNameById = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const ev of events) m.set(String(ev.id), ev.name);
+    return m;
+  }, [events]);
+
+  /**
+   * Series keys are STABLE EVENT IDS. Legacy links used the raw event name
+   * (which broke on `%` in titles), so a key that is not a known id is
+   * treated as a name for one hop and canonicalised by the caller.
+   */
+  const resolveSeriesName = (key: string) => eventNameById.get(key) ?? key;
+  const seriesKeyForName = (name: string) => String(eventByName.get(name)?.id ?? name);
+  /** Canonical (id-form) key for any incoming series param. */
+  const canonicalSeriesId = (key: string) => seriesKeyForName(resolveSeriesName(key));
+
+
   const live = useMemo<LiteLiveRow[]>(() => {
     return positions.map((p) => {
       const ev = eventByName.get(p.event);
