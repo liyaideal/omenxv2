@@ -1,0 +1,295 @@
+// ============================================================
+// Lite /portfolio data layer (2026-08-19).
+// ONE hook feeds both the mobile and the desktop Lite portfolio: live rows
+// (enriched with event category / settle time / side word / auto-close),
+// settled rows (month groups + series aggregation) and the segment counts.
+// Pro portfolio keeps its own code path and is untouched.
+// ============================================================
+import { useMemo } from "react";
+import { usePositions } from "@/hooks/usePositions";
+import { useOrders } from "@/hooks/useOrders";
+import { useActiveEvents } from "@/hooks/useActiveEvents";
+import { useSettlements, type SettlementListItem } from "@/hooks/useSettlements";
+import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
+import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
+import { usePositionVouchers } from "@/hooks/usePositionVouchers";
+import { getCategoryInfo } from "@/lib/categoryUtils";
+import { legSideLabel, liteSideName, boostSuffix } from "@/lib/liteSideName";
+import { estimateAutoClosePrice } from "@/lib/autoClosePrice";
+import { monthGroupLabel, monthKey, settledDayLabel } from "@/lib/settleLabel";
+
+export type LiteSegment = "boost" | "standard";
+
+export interface LiteLiveRow {
+  id: string;
+  eventId: string | null;
+  eventName: string;
+  categoryLabel: string;
+  /** Event end date — feeds settleLabel(). */
+  settlesAt: string | null;
+  /** The word this leg is called (team name / Up / Yes). */
+  sideWord: string;
+  priceNow: number;
+  cost: number;
+  nowWorth: number;
+  profit: number;
+  leverageNum: number;
+  isVoucher: boolean;
+  segment: LiteSegment;
+  sizeNum: number;
+  /** Payout if this leg wins (shares × $1). */
+  ifWins: number;
+  /** Estimated account-level auto-close price (Boost only, >1×). */
+  autoClosePrice: number | null;
+  /** Price is within 10% of the auto-close price. */
+  hot: boolean;
+  tradePath: string;
+}
+
+export interface LiteSettledRow {
+  id: string;
+  title: string;
+  /** `{side} · {2× Boost} · {settled day} · {remark}` */
+  metaParts: string[];
+  /** Remark kind drives the colour of the last meta part. */
+  remark: "none" | "cashout" | "auto_close";
+  net: number;
+  segment: LiteSegment;
+  closedAt: string;
+  isSeries: boolean;
+  seriesId?: string;
+  won: boolean;
+}
+
+export interface LiteMonthGroup {
+  key: string;
+  label: string;
+  rows: LiteSettledRow[];
+}
+
+const cents = (p: number) => `${Math.round(p * 100)}¢`;
+
+export const useLitePortfolio = () => {
+  const { positions, isLoading: positionsLoading } = usePositions();
+  const { orders } = useOrders();
+  const { events } = useActiveEvents();
+  const { data: settlements = [], isLoading: settledLoading } = useSettlements();
+  const { getRealtimeMarkPrice, calculateRealtimePnL } = useRealtimePositionsPnL();
+  const risk = useRealtimeRiskMetrics();
+  const { grantedVouchers } = usePositionVouchers();
+
+  const eventByName = useMemo(() => {
+    const m = new Map<string, any>();
+    for (const ev of events) if (!m.has(ev.name)) m.set(ev.name, ev);
+    return m;
+  }, [events]);
+
+  const live = useMemo<LiteLiveRow[]>(() => {
+    return positions.map((p) => {
+      const ev = eventByName.get(p.event);
+      const segment: LiteSegment = p.productLine === "spot" ? "standard" : "boost";
+      const rt = calculateRealtimePnL({
+        event: p.event,
+        option: p.option,
+        optionId: p.optionId,
+        type: p.type,
+        entryPrice: p.entryPrice,
+        size: p.size,
+        margin: p.margin,
+      });
+      const priceNow = getRealtimeMarkPrice({ event: p.event, option: p.option, optionId: p.optionId })
+        ?? p.markPriceNum;
+      const profit = rt.hasRealtimePrice ? rt.pnl : p.pnlNum;
+      const cost = p.marginNum;
+
+      const optLower = p.option.trim().toLowerCase();
+      const sideWord =
+        optLower === "yes" || optLower === "no"
+          ? legSideLabel(ev, optLower as "yes" | "no")
+          : liteSideName(p.displayOption ?? p.option);
+
+      // Auto-close: account-level solve with THIS position excluded from the
+      // snapshot (mode 'existing' — margin added back, own PnL excluded).
+      const autoClosePrice =
+        segment === "boost" && p.leverageNum > 1
+          ? estimateAutoClosePrice({
+              entryPrice: p.entryPriceNum,
+              boost: p.leverageNum,
+              amount: cost,
+              fee: 0,
+              quantity: p.sizeNum,
+              hasOtherPositions: true,
+              imTotalOther: Math.max(risk.imTotal - cost, 0),
+              totalAssets: risk.totalAssets + cost,
+              unrealizedPnLOther: risk.unrealizedPnL - profit,
+              mode: "existing",
+            })
+          : null;
+
+      const hot =
+        autoClosePrice != null && priceNow > 0
+          ? Math.abs(priceNow - autoClosePrice) / priceNow <= 0.1
+          : false;
+
+      return {
+        id: p.id,
+        eventId: ev?.id ?? null,
+        eventName: p.event,
+        categoryLabel: getCategoryInfo(ev?.category ?? "general").label,
+        settlesAt: ev?.end_date ?? null,
+        sideWord,
+        priceNow,
+        cost,
+        nowWorth: cost + profit,
+        profit,
+        leverageNum: p.leverageNum,
+        isVoucher: p.airdropSource === "voucher",
+        segment,
+        sizeNum: p.sizeNum,
+        ifWins: p.sizeNum,
+        autoClosePrice,
+        hot,
+        tradePath: ev?.id
+          ? `${segment === "standard" ? "/spot" : "/trade"}?event=${ev.id}`
+          : "/events",
+      };
+    });
+  }, [positions, eventByName, calculateRealtimePnL, getRealtimeMarkPrice, risk]);
+
+  const boostLive = useMemo(() => live.filter((r) => r.segment === "boost"), [live]);
+  const standardLive = useMemo(() => live.filter((r) => r.segment === "standard"), [live]);
+
+  /** KPI is ALWAYS whole-account (Boost + Standard) — segment chips never move it. */
+  const liveKpi = useMemo(() => {
+    const cost = live.reduce((s, r) => s + r.cost, 0);
+    const profit = live.reduce((s, r) => s + r.profit, 0);
+    return {
+      cost,
+      nowWorth: cost + profit,
+      profit,
+      profitPercent: cost > 0 ? (profit / cost) * 100 : 0,
+      count: live.length,
+    };
+  }, [live]);
+
+  /* ------------------------- settled ------------------------- */
+
+  const settledRows = useMemo<LiteSettledRow[]>(() => {
+    // Series = 2+ settled rows on the SAME event name; they collapse into one
+    // aggregate row keyed by the event name.
+    const byEvent = new Map<string, SettlementListItem[]>();
+    for (const s of settlements) {
+      const arr = byEvent.get(s.event) ?? [];
+      arr.push(s);
+      byEvent.set(s.event, arr);
+    }
+
+    const rows: LiteSettledRow[] = [];
+    for (const [eventName, items] of byEvent) {
+      const segment: LiteSegment = items[0].productLine === "spot" ? "standard" : "boost";
+      if (items.length > 1) {
+        const net = items.reduce((s, i) => s + i.pnlValue, 0);
+        const wins = items.filter((i) => i.pnlValue > 0).length;
+        const latest = items.reduce((a, b) => (a.closedAt > b.closedAt ? a : b));
+        rows.push({
+          id: `series-${eventName}`,
+          seriesId: encodeURIComponent(eventName),
+          title: eventName,
+          metaParts: [
+            "Series",
+            `won ${wins} of ${items.length}`,
+            settledDayLabel(latest.closedAt),
+          ],
+          remark: "none",
+          net,
+          segment,
+          closedAt: latest.closedAt,
+          isSeries: true,
+          won: net > 0,
+        });
+        continue;
+      }
+
+      const s = items[0];
+      const sideWord = liteSideName(s.option);
+      const boost = boostSuffix(s.leverageNum);
+      const meta = [sideWord];
+      if (boost) meta.push(boost);
+      meta.push(settledDayLabel(s.closedAt));
+      if (s.closeReason === "cashout") meta.push("cashed out early");
+      if (s.closeReason === "auto_close") meta.push("auto-closed");
+
+      rows.push({
+        id: s.id,
+        title: s.event,
+        metaParts: meta,
+        remark: s.closeReason === "settlement" ? "none" : s.closeReason,
+        net: s.pnlValue,
+        segment,
+        closedAt: s.closedAt,
+        isSeries: false,
+        won: s.pnlValue > 0,
+      });
+    }
+
+    return rows.sort((a, b) => (a.closedAt < b.closedAt ? 1 : -1));
+  }, [settlements]);
+
+  const settledKpi = useMemo(() => {
+    const wins = settlements.filter((s) => s.pnlValue > 0).length;
+    const total = settlements.length;
+    return {
+      winRate: total > 0 ? Math.round((wins / total) * 100) : 0,
+      wins,
+      losses: total - wins,
+      total,
+      net: settlements.reduce((s, i) => s + i.pnlValue, 0),
+    };
+  }, [settlements]);
+
+  const settledCounts = useMemo(
+    () => ({
+      boost: settledRows.filter((r) => r.segment === "boost").length,
+      standard: settledRows.filter((r) => r.segment === "standard").length,
+    }),
+    [settledRows],
+  );
+
+  const monthGroups = (segment: LiteSegment): LiteMonthGroup[] => {
+    const groups = new Map<string, LiteMonthGroup>();
+    for (const r of settledRows.filter((x) => x.segment === segment)) {
+      const k = monthKey(r.closedAt);
+      if (!groups.has(k)) groups.set(k, { key: k, label: monthGroupLabel(r.closedAt), rows: [] });
+      groups.get(k)!.rows.push(r);
+    }
+    return Array.from(groups.values()).sort((a, b) => (a.key < b.key ? 1 : -1));
+  };
+
+  const seriesRows = (seriesId: string): SettlementListItem[] =>
+    settlements
+      .filter((s) => s.event === decodeURIComponent(seriesId))
+      .sort((a, b) => (a.closedAt < b.closedAt ? 1 : -1));
+
+  /* --------------------- pending Pro orders --------------------- */
+  const pendingOrders = useMemo(
+    () => orders.filter((o) => o.status === "Pending" || o.status === "Partial Filled"),
+    [orders],
+  );
+
+  return {
+    isLoading: positionsLoading || settledLoading,
+    live,
+    boostLive,
+    standardLive,
+    liveKpi,
+    risk,
+    claimableVouchers: grantedVouchers.length,
+    settledRows,
+    settledKpi,
+    settledCounts,
+    monthGroups,
+    seriesRows,
+    pendingOrders,
+    cents,
+  };
+};
