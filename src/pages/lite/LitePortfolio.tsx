@@ -256,6 +256,7 @@ export default function LitePortfolio() {
           <MobileHeader
             variant="inner"
             title={name.length > 24 ? `${name.slice(0, 24)}…` : name}
+            showBack
             backTo="/portfolio?tab=settled"
           />
           {seriesView}
