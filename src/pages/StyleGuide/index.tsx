@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Search, X, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -182,7 +182,17 @@ const StyleGuideIndex = () => {
         </nav>
 
         <main className={isMobile ? "px-4 py-4" : "min-w-0 flex-1"}>
-          {active.render(isMobile)}
+          <Suspense
+            fallback={
+              <div className="space-y-3">
+                <div className="h-6 w-48 animate-pulse rounded bg-muted/50" />
+                <div className="h-40 w-full animate-pulse rounded-xl bg-muted/30" />
+              </div>
+            }
+            key={active.id}
+          >
+            {active.render(isMobile)}
+          </Suspense>
         </main>
       </div>
     </div>
