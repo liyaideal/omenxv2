@@ -12,7 +12,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSettlementDetail } from "@/hooks/useSettlementDetail";
 import { useSettlements } from "@/hooks/useSettlements";
-import { liteSideName } from "@/lib/liteSideName";
+import { optionSideWord } from "@/lib/liteSideName";
 import {
   SettlementDetailDesktop,
   SettlementDetailMobile,
@@ -64,7 +64,7 @@ export default function LiteSettlementDetail() {
     avgPrice: s.entryPrice,
     exitPrice: s.exitPrice,
     leverage: s.leverage,
-    sideWord: liteSideName(s.option),
+    sideWord: optionSideWord(s.option, s.sideLabels),
     outcomeWon: s.outcomeWon,
     openedAt: s.openedAt,
     closedAt: s.settledAt,

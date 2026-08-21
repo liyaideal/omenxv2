@@ -3,7 +3,7 @@
 // A "series" is 2+ settled rounds of the same recurring event. Numbers are
 // reconciled by the caller: Net = Payout − Cost, and the round nets sum to Net.
 // ============================================================
-import { KpiCard, KpiGrid, GREEN, RED, money, signedMoney, pnlColor } from "./parts";
+import { KpiCard, KpiGrid, RED, money, signedMoney, pnlColor } from "./parts";
 import { settledDayLabel } from "@/lib/settleLabel";
 import { DetailCard, DetailTitleRow } from "./SettlementDetailView";
 

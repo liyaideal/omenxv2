@@ -14,7 +14,7 @@ import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import { usePositionVouchers } from "@/hooks/usePositionVouchers";
 import { getCategoryInfo } from "@/lib/categoryUtils";
-import { legSideLabel, liteSideName, boostSuffix } from "@/lib/liteSideName";
+import { legSideLabel, liteSideName, boostSuffix, optionSideWord } from "@/lib/liteSideName";
 import { estimateAutoClosePrice } from "@/lib/autoClosePrice";
 import { monthGroupLabel, monthKey, settledDayLabel } from "@/lib/settleLabel";
 import type { SeriesDetailVM, SeriesRoundVM } from "@/components/portfolio/lite/SeriesDetailView";
@@ -219,7 +219,7 @@ export const useLitePortfolio = () => {
       }
 
       const s = items[0];
-      const sideWord = liteSideName(s.option);
+      const sideWord = optionSideWord(s.option, s.sideLabels);
       const boost = boostSuffix(s.leverageNum);
       const meta = [sideWord];
       if (boost) meta.push(boost);
@@ -288,7 +288,7 @@ export const useLitePortfolio = () => {
     const rounds: SeriesRoundVM[] = items.map((s) => ({
       id: s.id,
       closedAt: s.closedAt,
-      sideWord: liteSideName(s.option),
+      sideWord: optionSideWord(s.option, s.sideLabels),
       autoClosed: s.closeReason === "auto_close",
       net: s.pnlValue - s.fees,
     }));
@@ -317,6 +317,8 @@ export const useLitePortfolio = () => {
       payout: Math.max(0, cost + net),
       net,
       wins: rounds.filter((r) => r.net > 0).length,
+      sideLabel:
+        new Set(rounds.map((r) => r.sideWord)).size === 1 ? rounds[0].sideWord : undefined,
     };
   };
 

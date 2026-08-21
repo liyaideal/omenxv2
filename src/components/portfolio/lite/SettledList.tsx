@@ -5,7 +5,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { LiteMonthGroup, LiteSettledRow } from "@/hooks/useLitePortfolio";
-import { GREEN, RED, signedMoney } from "./parts";
+import { RED, signedMoney, pnlColor } from "./parts";
 
 const MetaLine = ({ row }: { row: LiteSettledRow }) => (
   <div className="truncate text-[11px] text-[#6B7280]">
@@ -41,7 +41,7 @@ export const SettledRow = ({ row }: { row: LiteSettledRow }) => {
       </div>
       <span
         className="font-mono text-[14px] font-bold"
-        style={{ color: row.net >= 0 ? GREEN : RED }}
+        style={{ color: pnlColor(row.net) }}
       >
         {signedMoney(row.net)}
       </span>
