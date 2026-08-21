@@ -218,7 +218,7 @@ export const useLitePortfolio = () => {
         const latest = items.reduce((a, b) => (a.closedAt > b.closedAt ? a : b));
         rows.push({
           id: `series-${eventName}`,
-          seriesId: encodeURIComponent(eventName),
+          seriesId: seriesKeyForName(eventName),
           title: eventName,
           metaParts: [
             "Series",
