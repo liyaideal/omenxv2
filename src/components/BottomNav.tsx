@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from "react";
+import { useState, useEffect, type CSSProperties } from "react";
 import { Home, BarChart3, TrendingUp, User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, KeyRound, Compass, PieChart, ArrowLeftRight } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,8 +41,28 @@ export const BottomNav = () => {
   const { balance, spotBalance, user, username, avatarUrl, profile } = useUserProfile();
   const { surface } = useSurface();
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
+  const [pendingPath, setPendingPath] = useState<string | null>(null);
   const [profileSheetOpen, setProfileSheetOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
+
+  // Deliver the user to the tab they originally tapped, once signed in
+  useEffect(() => {
+    if (user && pendingPath) {
+      navigate(pendingPath, { replace: true });
+      setPendingPath(null);
+    }
+  }, [user, pendingPath, navigate]);
+
+  const handleAuthSheetOpenChange = (open: boolean) => {
+    setAuthSheetOpen(open);
+    if (!open) {
+      // Only forget the pending destination if the user really abandoned sign-in.
+      // (Local `user` state can lag right after a successful login closes the sheet.)
+      supabase.auth.getSession().then(({ data }) => {
+        if (!data.session) setPendingPath(null);
+      });
+    }
+  };
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -95,6 +115,11 @@ export const BottomNav = () => {
                   key={item.path}
                   onClick={() => {
                     triggerHaptic('light');
+                    if (!user && (item.path === "/portfolio" || item.path === "/wallet")) {
+                      setPendingPath(item.path);
+                      setAuthSheetOpen(true);
+                      return;
+                    }
                     navigate(item.path, { replace: true });
                   }}
                   className={`flex flex-col items-center gap-1 transition-all duration-300 ${
@@ -206,7 +231,7 @@ export const BottomNav = () => {
       </div>
 
       {/* Auth Sheet for mobile */}
-      <AuthSheet open={authSheetOpen} onOpenChange={setAuthSheetOpen} />
+      <AuthSheet open={authSheetOpen} onOpenChange={handleAuthSheetOpenChange} />
 
       {/* Profile Drawer for logged in users - updated */}
       <MobileDrawer open={profileSheetOpen} onOpenChange={setProfileSheetOpen} hideCloseButton>
