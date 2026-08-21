@@ -367,6 +367,8 @@ export const useLitePortfolio = () => {
     monthGroups,
     seriesRows,
     seriesDetail,
+    canonicalSeriesId,
+
     pendingOrders,
     cents,
   };
