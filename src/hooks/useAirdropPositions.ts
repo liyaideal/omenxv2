@@ -191,7 +191,9 @@ export const useAirdropPositions = () => {
     counterPrice: Number(row.counter_price),
     airdropValue: Number(row.airdrop_value),
     redeemableCap: row.redeemable_cap != null ? Number(row.redeemable_cap) : null,
-    status: row.status,
+    // DB writes 'active' for a live airdrop; the UI vocabulary is 'activated'.
+    // Without this alias the row falls through every branch and reads "Expired".
+    status: row.status === "active" ? "activated" : row.status,
     expiresAt: row.expires_at,
     activatedAt: row.activated_at,
     createdAt: row.created_at,
