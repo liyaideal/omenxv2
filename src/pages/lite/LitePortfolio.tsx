@@ -76,9 +76,9 @@ export default function LitePortfolio() {
   const gauge = useMemo(
     () => ({
       riskRatio: p.risk.riskRatio,
-      equity: p.risk.totalEquity ?? p.risk.totalAssets,
+      equity: p.risk.equity,
       imTotal: p.risk.imTotal,
-      untilAutoClose: Math.max((p.risk.totalEquity ?? p.risk.totalAssets) - p.risk.imTotal, 0),
+      untilAutoClose: Math.max(p.risk.equity - p.risk.imTotal, 0),
     }),
     [p.risk],
   );
