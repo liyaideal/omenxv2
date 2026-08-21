@@ -207,12 +207,14 @@ export const useAirdropPositions = () => {
         : undefined,
   });
 
+  // Real stored airdrops — voucher-redeemed AND matched. Demo mode used to
+  // filter this to source='voucher', so genuinely matched airdrops written by
+  // the scan never appeared for demo users.
   const fetchVoucherAirdropsFromSupabase = async (userId: string): Promise<AirdropPosition[]> => {
     const { data, error } = await supabase
       .from("airdrop_positions")
       .select("*")
       .eq("user_id", userId)
-      .eq("source", "voucher")
       .order("created_at", { ascending: false });
     if (error) {
       console.error("Error fetching voucher airdrop positions:", error);
