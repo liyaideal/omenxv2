@@ -275,20 +275,22 @@ export default function SettlementDetail() {
           </div>
         </div>
 
-        {/* Price Chart */}
-        <div className={`bg-card rounded-2xl ${isMobile ? "p-4" : "p-6"}`}>
-          <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-muted-foreground" />
-            Price History
-          </h2>
-          <SettlementPriceChart 
-            priceHistory={settlement.priceHistory}
-            entryPrice={pnlBreakdown.avgEntryPrice}
-            exitPrice={settlement.exitPrice}
-            trades={settlement.trades}
-            isMobile={isMobile}
-          />
-        </div>
+        {/* Price Chart — only when REAL recorded history exists. Never synthesised. */}
+        {settlement.priceHistory.length > 0 && (
+          <div className={`bg-card rounded-2xl ${isMobile ? "p-4" : "p-6"}`}>
+            <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-muted-foreground" />
+              Price History
+            </h2>
+            <SettlementPriceChart 
+              priceHistory={settlement.priceHistory}
+              entryPrice={pnlBreakdown.avgEntryPrice}
+              exitPrice={settlement.exitPrice}
+              trades={settlement.trades}
+              isMobile={isMobile}
+            />
+          </div>
+        )}
 
         {/* P&L Breakdown */}
         <div className={`bg-card rounded-2xl ${isMobile ? "p-4" : "p-6"}`}>
