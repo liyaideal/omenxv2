@@ -1328,6 +1328,27 @@ export const LiteSection = ({
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                Contract order panel · Desktop · right rail — buy disabled
+              </div>
+              <div className="max-w-[380px]">
+                <InReviewOrderPanelDemo variant="desktop" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                Contract order panel · Mobile · bottom drawer body
+              </div>
+              <MobileFrame>
+                <InReviewOrderPanelDemo variant="mobile" />
+              </MobileFrame>
+            </div>
+          </div>
+
+
+
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
                 Position card while in review (Cash out withheld)
               </div>
               <LitePositionCard
