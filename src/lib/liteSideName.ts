@@ -32,3 +32,20 @@ export function legSideLabel(
 export function boostSuffix(boost: number | null | undefined): string {
   return boost && boost > 1 ? `${boost}× Boost` : "";
 }
+
+/**
+ * The word to show for a leg the user actually bought. Yes/No legs resolve
+ * through the event's side_labels aliases ("$55K–$65K", "ARS +1.5", Up/Down);
+ * generic multi-option legs keep their own option label.
+ */
+export function optionSideWord(
+  option: string | null | undefined,
+  sideLabels?: { yes?: string; no?: string } | null,
+): string {
+  const raw = (option ?? "").trim();
+  const lower = raw.toLowerCase();
+  if (lower === "yes" || lower === "no") {
+    return legSideLabel({ side_labels: sideLabels ?? undefined }, lower as "yes" | "no");
+  }
+  return liteSideName(raw);
+}
