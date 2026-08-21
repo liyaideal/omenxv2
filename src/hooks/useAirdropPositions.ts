@@ -245,22 +245,23 @@ export const useAirdropPositions = () => {
       if (isDemoMode) {
         if (!user) return [];
 
-        // Voucher-redeemed positions live in Supabase even in demo mode —
-        // always merge them so redeemed vouchers show up in Positions.
-        const voucherAirdrops = await fetchVoucherAirdropsFromSupabase(user.id);
+        // Stored positions (voucher-redeemed AND matched) live in Supabase even
+        // in demo mode — always merge them so they show up in Positions.
+        const storedAirdrops = await fetchVoucherAirdropsFromSupabase(user.id);
+        const storedIds = new Set(storedAirdrops.map((a) => a.id));
 
-        if (!hasScanComplete) return voucherAirdrops;
+        if (!hasScanComplete) return storedAirdrops;
 
         const cached = queryClient.getQueryData<AirdropPosition[]>(queryKey);
         const demoAirdrops = cached && cached.length > 0
-          ? cached.filter((a) => a.source !== "voucher")
+          ? cached.filter((a) => !storedIds.has(a.id) && a.source !== "voucher")
           : (() => {
               const stored = loadDemoAirdrops(user.id, email);
               saveDemoAirdrops(user.id, stored);
-              return stored;
+              return stored.filter((a) => !storedIds.has(a.id));
             })();
 
-        return [...voucherAirdrops, ...demoAirdrops];
+        return [...storedAirdrops, ...demoAirdrops];
       }
 
       if (!user) return [];
