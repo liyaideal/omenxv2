@@ -2,6 +2,7 @@ import { useState } from "react";
 import { SectionWrapper, LegacyNotice } from "../components/SectionWrapper";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
+import { InReviewCard } from "@/components/lite/trade/InReviewCard";
 import { SideButton } from "@/components/lite/shared/SideButton";
 import {
   SpotSentimentBar,
