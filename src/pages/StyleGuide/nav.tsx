@@ -43,10 +43,12 @@ const lp = (name: string) => lz(litePages, name);
 
 /* ---------------- Foundations / Legacy / Archive ---------------- */
 const sec = (file: string, name: string) =>
-  lz(() => import(/* @vite-ignore */ `./sections/${file}.tsx`), name);
+  lz(() => import(`./sections/${file}.tsx`), name);
 
 const MobilePatternsSection = lz(() => import("./sections/MobilePatternsSection"), "MobilePatternsSection");
-const LiteSection = lz(() => import("./sections/LiteSection"), "LiteSection");
+const LiteSection = lazy(async () => ({
+  default: (await import("./sections/LiteSection")).LiteSection as ComponentType<any>,
+}));
 const MobilePatternsNode = ({ isMobile }: P) => (
   <>
     <MobilePatternsSection isMobile={isMobile} />
