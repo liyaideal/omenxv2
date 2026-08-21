@@ -6,6 +6,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { LiteSegment } from "@/hooks/useLitePortfolio";
 
 export const VOLT = "#CFFF4A";
@@ -185,6 +186,15 @@ export const boostState = (riskRatio: number) => {
   return { word: "Healthy", color: GREEN };
 };
 
+const detailRows = (data: BoostCheckData) => [
+  { k: "Equity", v: moneyAuto(data.equity) },
+  { k: "Used by Boost calls", v: moneyAuto(data.imTotal) },
+  { k: "Until auto-close starts", v: moneyAuto(data.untilAutoClose) },
+];
+
+const DETAILS_SENTENCE =
+  "Boost calls share one pool of backing. If it runs out, positions start closing automatically.";
+
 const DetailsDrawer = ({
   open,
   onOpenChange,
@@ -196,16 +206,9 @@ const DetailsDrawer = ({
 }) => (
   <MobileDrawer open={open} onOpenChange={onOpenChange} title="Boost check">
     <div className="space-y-3 pb-6">
-      <p className="text-xs text-muted-foreground">
-        Boost calls share one pool of backing. If it runs out, positions start closing
-        automatically.
-      </p>
+      <p className="text-xs text-muted-foreground">{DETAILS_SENTENCE}</p>
       <div className="rounded-lg border border-border bg-muted/30 p-3">
-        {[
-          { k: "Equity", v: money(data.equity) },
-          { k: "Used by Boost calls", v: money(data.imTotal) },
-          { k: "Until auto-close starts", v: money(data.untilAutoClose) },
-        ].map((r) => (
+        {detailRows(data).map((r) => (
           <div key={r.k} className="flex items-center justify-between py-1.5 text-xs">
             <span className="text-muted-foreground">{r.k}</span>
             <span className="font-mono font-semibold text-foreground">{r.v}</span>
@@ -214,6 +217,32 @@ const DetailsDrawer = ({
       </div>
     </div>
   </MobileDrawer>
+);
+
+/** Desktop overlay parity (DESIGN §5): anchored Popover, never a bottom sheet. */
+const DetailsPopover = ({ data }: { data: BoostCheckData }) => (
+  <Popover>
+    <PopoverTrigger asChild>
+      <button type="button" className="text-[12px] text-[#6B7280]">
+        Details ›
+      </button>
+    </PopoverTrigger>
+    <PopoverContent
+      align="end"
+      className="w-[320px] rounded-[12px] border-[#1D2026] bg-[#12151A] p-4"
+    >
+      <div className="text-[13px] font-bold text-[#F2F3F5]">Boost check</div>
+      <p className="mt-1.5 text-[12px] text-[#6B7280]">{DETAILS_SENTENCE}</p>
+      <div className="mt-3 space-y-2">
+        {detailRows(data).map((r) => (
+          <div key={r.k} className="flex items-center justify-between">
+            <span className="text-[12.5px] text-[#6B7280]">{r.k}</span>
+            <span className="font-mono text-[12.5px] font-semibold text-[#F2F3F5]">{r.v}</span>
+          </div>
+        ))}
+      </div>
+    </PopoverContent>
+  </Popover>
 );
 
 /** Mobile card form — section head of the Boost segment. */
@@ -255,12 +284,10 @@ export const BoostCheckCard = ({ data }: { data: BoostCheckData }) => {
 
 /** Desktop bar form. */
 export const BoostCheckBar = ({ data }: { data: BoostCheckData }) => {
-  const [open, setOpen] = useState(false);
   const st = boostState(data.riskRatio);
   const fill = Math.min(Math.max(data.riskRatio, 0), 100);
   return (
-    <>
-      <div className="flex items-center gap-3.5 rounded-[12px] bg-[#12151A] px-[16px] py-[11px]">
+    <div className="flex items-center gap-3.5 rounded-[12px] bg-[#12151A] px-[16px] py-[11px]">
         <span className="text-[10px] font-bold text-[#6B7280]" style={{ letterSpacing: "1.4px" }}>
           BOOST CHECK
         </span>
@@ -274,11 +301,7 @@ export const BoostCheckBar = ({ data }: { data: BoostCheckData }) => {
           <span className="font-mono font-bold text-[#F2F3F5]">{moneyAuto(data.untilAutoClose)}</span>{" "}
           until auto-close starts · shared across Boost calls
         </span>
-        <button type="button" onClick={() => setOpen(true)} className="text-[12px] text-[#6B7280]">
-          Details ›
-        </button>
-      </div>
-      <DetailsDrawer open={open} onOpenChange={setOpen} data={data} />
-    </>
+      <DetailsPopover data={data} />
+    </div>
   );
 };
