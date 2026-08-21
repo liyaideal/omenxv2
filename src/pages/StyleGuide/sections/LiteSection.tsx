@@ -1290,6 +1290,64 @@ export const LiteSection = ({
           </div>
         </SubSection>
 
+        <SubSection
+          title="In review — result pending"
+          description="Intermediate state between trading close and settlement (lifecycle_status = REVIEW, not yet resolved). Real InReviewCard from src/components/lite/trade/InReviewCard.tsx, mounted on both Lite trade pages in the rule-module slot. Buying is blocked with 'In review · result pending' and Cash out is withheld (position card renders without the onCashOut prop)."
+        >
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-2">
+              <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                Desktop &amp; Mobile · same component — no position
+              </div>
+              <InReviewCard />
+            </div>
+            <div className="space-y-2">
+              <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                With source line
+              </div>
+              <InReviewCard sourceName="Nasdaq official close" />
+            </div>
+            <div className="space-y-2">
+              <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                Holding a leg (cash out paused)
+              </div>
+              <InReviewCard sourceName="Nasdaq official close" holding />
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                Position card while in review (no Cash out button)
+              </div>
+              <LitePositionCard
+                sideLabel="Yes"
+                isYes
+                boost={2}
+                putIn={120}
+                nowWorth={144}
+                profit={24}
+              />
+            </div>
+            <div className="space-y-2">
+              <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                Settlement rail · terminal node reads "In review"
+              </div>
+              <SpotSettlementRail
+                blocked
+                tradingNow={false}
+                nodes={[
+                  { key: "open", label: "Market opens", time: "09:30" },
+                  { key: "mid", label: "Trading", time: "closed" },
+                  { key: "close", label: "Cash close", time: "16:00" },
+                  { key: "settle", label: "In review", time: "16:05" },
+                ]}
+              />
+            </div>
+          </div>
+        </SubSection>
+
+
         <SubSection title="Lite spot order card" description="Daily up/down markets. Full playground lives in the Lite spot section.">
           <LiteSpotStates isMobile={isMobile} />
         </SubSection>
