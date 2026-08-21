@@ -25,6 +25,11 @@ export const signedMoney = (n: number) =>
     maximumFractionDigits: 2,
   })}`;
 
+/** Gauge buffer amounts: whole dollars carry no decimals ($310, $0). */
+export const moneyAuto = (n: number) =>
+  Number.isInteger(n) ? `${n < 0 ? "-" : ""}$${Math.abs(n).toLocaleString("en-US")}` : money(n);
+
+
 /* ------------------------------ Tabs ------------------------------ */
 /** Rewards opening-tab treatment (ACCOUNT family tabs = underline tabs). */
 export const PortfolioTabs = ({
@@ -235,7 +240,7 @@ export const BoostCheckCard = ({ data }: { data: BoostCheckData }) => {
         </div>
         <div className="flex items-center justify-between text-[12px] text-[#6B7280]">
           <span>
-            <span className="font-mono font-bold text-[#F2F3F5]">{money(data.untilAutoClose)}</span>{" "}
+            <span className="font-mono font-bold text-[#F2F3F5]">{moneyAuto(data.untilAutoClose)}</span>{" "}
             until auto-close starts
           </span>
           <button type="button" onClick={() => setOpen(true)} className="text-[12px] text-[#6B7280]">
@@ -266,7 +271,7 @@ export const BoostCheckBar = ({ data }: { data: BoostCheckData }) => {
           <div className="h-full rounded-full" style={{ width: `${fill}%`, background: st.color }} />
         </div>
         <span className="ml-auto text-[12px] text-[#6B7280]">
-          <span className="font-mono font-bold text-[#F2F3F5]">{money(data.untilAutoClose)}</span>{" "}
+          <span className="font-mono font-bold text-[#F2F3F5]">{moneyAuto(data.untilAutoClose)}</span>{" "}
           until auto-close starts · shared across Boost calls
         </span>
         <button type="button" onClick={() => setOpen(true)} className="text-[12px] text-[#6B7280]">

@@ -78,7 +78,7 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
       s("lite-rewards", "Rewards ✅", LiteRewardsPage),
       s("lite-vouchers", "Vouchers ✅", LiteVouchersPage),
       s("lite-api", "API / Developers ✅", LiteApiPage),
-      s("lite-portfolio", "Portfolio ⏳", LitePortfolioPage),
+      s("lite-portfolio", "Portfolio ✅", LitePortfolioPage),
       s("lite-leaderboard", "Leaderboard ⏳", LiteLeaderboardPage),
       s("lite-settings", "Settings ⏳", LiteSettingsPage),
       s("lite-insights", "Insights ⏳", LiteInsightsPage),

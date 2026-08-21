@@ -45,7 +45,8 @@ export default function LiteSettlementDetail() {
   const sideWord = liteSideName(s.option);
   const boost = boostSuffix(s.leverage);
   const settledDate = new Date(s.settledAt);
-  const payout = s.margin + s.pnl;
+  // Payout = Cost + PnL − fees (fees are the real summed trade fees).
+  const payout = s.margin + s.pnl - s.fee;
 
   return (
     <div className="min-h-screen bg-background pb-24">

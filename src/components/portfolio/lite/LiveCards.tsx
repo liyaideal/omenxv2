@@ -14,7 +14,8 @@ const cents = (p: number) => `${Math.round(p * 100)}¢`;
 const chipText = (row: LiteLiveRow) => `${row.sideWord} ${cents(row.priceNow)}`;
 
 const metaLine = (row: LiteLiveRow) => {
-  const parts = [row.categoryLabel, `settles ${settleLabel(row.settlesAt)}`];
+  const parts = [row.categoryLabel];
+  if (row.settlesAt) parts.push(`settles ${settleLabel(row.settlesAt)}`);
   const boost = boostSuffix(row.leverageNum);
   if (boost) parts.push(boost);
   return parts;
@@ -25,6 +26,7 @@ const autoCloseSentence = (row: LiteLiveRow) =>
   row.autoClosePrice != null
     ? `Auto-closes if price hits ${cents(row.autoClosePrice)} · now ${cents(row.priceNow)}`
     : null;
+
 
 /* ----------------------------- mobile card ----------------------------- */
 export const LiveCard = ({
@@ -55,11 +57,12 @@ export const LiveCard = ({
           {row.eventName}
         </div>
         <span
-          className="shrink-0 rounded-[8px] px-[9px] py-1 font-mono text-[12px] font-bold"
+          className="max-w-[45%] shrink-0 truncate whitespace-nowrap rounded-[8px] px-[9px] py-1 font-mono text-[12px] font-bold"
           style={{ background: VOLT, color: "#0B0D10" }}
         >
           {chipText(row)}
         </span>
+
       </div>
 
       <div className="mt-1 text-[11.5px] text-[#6B7280]">
@@ -126,8 +129,8 @@ export const LiveRowHeader = () => (
     <span>COST</span>
     <span>NOW WORTH</span>
     <span>PROFIT</span>
-    <span>AUTO-CLOSE</span>
-    <span>IF WINS</span>
+    <span>AUTO-CLOSE / IF WINS</span>
+    <span />
   </div>
 );
 
@@ -140,12 +143,14 @@ export const LiveRow = ({
 }) => {
   const navigate = useNavigate();
   const hot = row.hot;
-  const lastCol =
+  // ONE merged column: Boost shows the auto-close level, Standard the if-wins
+  // payout. A Boost row never shows an if-wins amount.
+  const mergedCol =
     row.segment === "standard"
       ? `If ${row.sideWord} wins → ${money(row.ifWins)}`
       : row.autoClosePrice != null
         ? `${cents(row.autoClosePrice)} · now ${cents(row.priceNow)}`
-        : "—";
+        : null;
 
   return (
     <div
@@ -173,9 +178,9 @@ export const LiveRow = ({
           )}
         </div>
       </div>
-      <div>
+      <div className="min-w-0 pr-2">
         <span
-          className="rounded-[8px] px-[9px] py-1 font-mono text-[12px] font-bold"
+          className="inline-block max-w-full truncate whitespace-nowrap rounded-[8px] px-[9px] py-1 align-middle font-mono text-[12px] font-bold"
           style={{ background: VOLT, color: "#0B0D10" }}
         >
           {chipText(row)}
@@ -189,20 +194,17 @@ export const LiveRow = ({
       >
         {signedMoney(row.profit)}
       </div>
-      <div className="text-[12px]" style={{ color: hot ? RED : "#6B7280" }}>
-        {row.segment === "standard" ? "—" : lastCol}
+      <div className="pr-3 text-[12px]" style={{ color: hot ? RED : "#6B7280" }}>
+        {mergedCol}
       </div>
-      <div className="flex items-center justify-end gap-3">
-        <span className="text-[12px] text-[#6B7280]">
-          {row.segment === "standard" ? lastCol : money(row.ifWins)}
-        </span>
+      <div className="flex items-center justify-end">
         <button
           type="button"
           onClick={(e) => {
             e.stopPropagation();
             onCashOut?.(row);
           }}
-          className="h-8 rounded-[8px] px-3 text-[12.5px] font-semibold text-[#F2F3F5]"
+          className="h-8 whitespace-nowrap rounded-[8px] px-3 text-[12.5px] font-semibold text-[#F2F3F5]"
           style={{ border: "1px solid #2A2F38" }}
         >
           Cash out
@@ -211,6 +213,7 @@ export const LiveRow = ({
     </div>
   );
 };
+
 
 /* ------------------------- pending Pro orders ------------------------- */
 export const PendingOrdersRow = ({ orders }: { orders: any[] }) => {
