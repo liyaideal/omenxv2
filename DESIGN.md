@@ -286,7 +286,24 @@ Pages: Wallet, Portfolio, and future account/data pages.
   2. **Surface language** — subtle 145° dark card gradients (`--gradient-card` / `trading-card`), hairline borders, 14–18px radii.
   3. **Section headers** — 11px uppercase `tracking-[0.12em]` micro-labels (no display-size text headers).
   4. **Two number voices** — primary numbers in `font-display` bold with tight tracking; detail rows in `font-mono` tabular.
-  5. **Furniture** — white-pill active states for tabs/filters, hairline row dividers, capsule tags, PnL colored strictly by the MONEY axis.
+  5. **Furniture** — hairline row dividers, capsule tags, PnL colored strictly by the MONEY axis. Tabs in this family use the **Rewards opening tab** treatment (underline tabs), never white pills.
+
+#### 2b. Settlement time wording (LOCKED 2026-08-19)
+
+Every "when did / when does this settle" string in Portfolio comes from
+`settleLabel()` in `src/lib/settleLabel.ts` — never a local `format()` call:
+
+| Case | Output |
+| --- | --- |
+| same calendar day | `today 16:00` |
+| same year | `Aug 21 16:00` |
+| another year | `Jan 12, 2027` (no clock) |
+
+24h user-local time, no timezone suffix. The caller prepends the verb
+(`settles ${settleLabel(d)}`). Sports `kickoffLabel` is out of scope and unchanged.
+
+Close-reason remarks on a settled row: `auto-closed` (risk close) /
+`cashed out early` (user exit); a normal resolution carries no remark.
 
 #### 3. CRITICAL BOUNDARY
 
