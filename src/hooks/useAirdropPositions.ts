@@ -191,7 +191,9 @@ export const useAirdropPositions = () => {
     counterPrice: Number(row.counter_price),
     airdropValue: Number(row.airdrop_value),
     redeemableCap: row.redeemable_cap != null ? Number(row.redeemable_cap) : null,
-    status: row.status,
+    // DB writes 'active' for a live airdrop; the UI vocabulary is 'activated'.
+    // Without this alias the row falls through every branch and reads "Expired".
+    status: row.status === "active" ? "activated" : row.status,
     expiresAt: row.expires_at,
     activatedAt: row.activated_at,
     createdAt: row.created_at,
@@ -205,12 +207,14 @@ export const useAirdropPositions = () => {
         : undefined,
   });
 
+  // Real stored airdrops — voucher-redeemed AND matched. Demo mode used to
+  // filter this to source='voucher', so genuinely matched airdrops written by
+  // the scan never appeared for demo users.
   const fetchVoucherAirdropsFromSupabase = async (userId: string): Promise<AirdropPosition[]> => {
     const { data, error } = await supabase
       .from("airdrop_positions")
       .select("*")
       .eq("user_id", userId)
-      .eq("source", "voucher")
       .order("created_at", { ascending: false });
     if (error) {
       console.error("Error fetching voucher airdrop positions:", error);
@@ -241,22 +245,23 @@ export const useAirdropPositions = () => {
       if (isDemoMode) {
         if (!user) return [];
 
-        // Voucher-redeemed positions live in Supabase even in demo mode —
-        // always merge them so redeemed vouchers show up in Positions.
-        const voucherAirdrops = await fetchVoucherAirdropsFromSupabase(user.id);
+        // Stored positions (voucher-redeemed AND matched) live in Supabase even
+        // in demo mode — always merge them so they show up in Positions.
+        const storedAirdrops = await fetchVoucherAirdropsFromSupabase(user.id);
+        const storedIds = new Set(storedAirdrops.map((a) => a.id));
 
-        if (!hasScanComplete) return voucherAirdrops;
+        if (!hasScanComplete) return storedAirdrops;
 
         const cached = queryClient.getQueryData<AirdropPosition[]>(queryKey);
         const demoAirdrops = cached && cached.length > 0
-          ? cached.filter((a) => a.source !== "voucher")
+          ? cached.filter((a) => !storedIds.has(a.id) && a.source !== "voucher")
           : (() => {
               const stored = loadDemoAirdrops(user.id, email);
               saveDemoAirdrops(user.id, stored);
-              return stored;
+              return stored.filter((a) => !storedIds.has(a.id));
             })();
 
-        return [...voucherAirdrops, ...demoAirdrops];
+        return [...storedAirdrops, ...demoAirdrops];
       }
 
       if (!user) return [];

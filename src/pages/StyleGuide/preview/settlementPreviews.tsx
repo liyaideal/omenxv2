@@ -29,6 +29,13 @@ const mkRow = (over: Partial<SettlementListItem>): SettlementListItem => ({
   result: "win",
   kind: "settled",
   productLine: "futures",
+  closedAt: `${now}T16:00:00Z`,
+  closeReason: "settlement",
+  cost: 131.1,
+  exitPriceNum: 1,
+  entryPriceNum: 0.54,
+  sizeNum: 120,
+  leverageNum: 5,
   ...over,
 });
 

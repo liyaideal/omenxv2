@@ -34,11 +34,18 @@ export interface SettlementData {
   openedAt: string;
   result: "win" | "lose";
   trades: TradeRecord[];
+  /** REAL recorded prices only — empty when the market has no history stored. */
   priceHistory: PricePoint[];
   /** Single-market binary 别名（如体育队名）。其它事件为 undefined。 */
   sideLabels?: { yes: string; no: string };
   /** 4B: drives spot branches (hide leverage / funding / position value). */
   productLine: "futures" | "spot";
+  /** Why the position left the book. */
+  closeReason: "settlement" | "cashout" | "auto_close";
+  /** Event id for "View event" links, when resolvable. */
+  eventId?: string | null;
+  /** True when the event resolved and this leg is the winning outcome. */
+  outcomeWon: boolean;
 }
 
 interface UseSettlementDetailOptions {
@@ -54,207 +61,125 @@ export const useSettlementDetail = ({ settlementId, eventName }: UseSettlementDe
     queryFn: async (): Promise<SettlementData | null> => {
       if ((!settlementId && !eventName) || !user) return null;
 
-      let mainTrade: any = null;
+      let position: any = null;
 
       if (settlementId) {
-        // Try fetching by ID first
-        const { data, error } = await supabase
-          .from("trades")
+        const { data } = await supabase
+          .from("positions")
           .select("*")
           .eq("id", settlementId)
           .eq("user_id", user.id)
           .maybeSingle();
-
-        if (error) {
-          console.error("Error fetching settlement by id:", error);
-        }
-        mainTrade = data;
+        position = data;
       }
 
-      // If not found by ID, try by event name
-      if (!mainTrade && (eventName || settlementId)) {
+      if (!position && (eventName || settlementId)) {
         const searchName = eventName || decodeURIComponent(settlementId || "");
-        const { data, error } = await supabase
-          .from("trades")
+        const { data } = await supabase
+          .from("positions")
           .select("*")
           .eq("user_id", user.id)
           .eq("event_name", searchName)
-          .not("closed_at", "is", null)
+          .eq("status", "Closed")
           .order("closed_at", { ascending: false })
           .limit(1)
           .maybeSingle();
-
-        if (error) {
-          console.error("Error fetching settlement by event name:", error);
-        }
-        mainTrade = data;
+        position = data;
       }
 
-      if (!mainTrade) {
-        return null;
-      }
+      if (!position) return null;
 
-      // Fetch all related trades for the same event + option (trade history)
-      const { data: relatedTrades, error: relatedError } = await supabase
+      // Fill ledger for the ACTIVITY block.
+      const { data: relatedTrades } = await supabase
         .from("trades")
         .select("*")
         .eq("user_id", user.id)
-        .eq("event_name", mainTrade.event_name)
-        .eq("option_label", mainTrade.option_label)
+        .eq("event_name", position.event_name)
+        .eq("option_label", position.option_label)
         .order("created_at", { ascending: true });
 
-      if (relatedError) {
-        console.error("Error fetching related trades:", relatedError);
-      }
-
-      // Fetch event to get event_id for price history (+ side_labels for alias display)
+      // Event row: side aliases + resolution truth.
       const { data: eventData } = await supabase
         .from("events")
-        .select("id, end_date, side_labels")
-        .eq("name", mainTrade.event_name)
+        .select("id, side_labels, is_resolved, winning_option_id")
+        .eq("name", position.event_name)
+        .order("created_at", { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       const sideLabels = parseSideLabels((eventData as any)?.side_labels);
 
-      // Fetch price history if we have event data
+      // REAL price history only — no synthesis. When the option has no stored
+      // series the detail page renders without a chart.
       let priceHistory: PricePoint[] = [];
-      if (eventData?.id) {
-        // Get option_id for this option_label
-        const { data: optionData } = await supabase
-          .from("event_options")
-          .select("id")
-          .eq("event_id", eventData.id)
-          .eq("label", mainTrade.option_label)
-          .maybeSingle();
-
-        if (optionData?.id) {
-          const { data: historyData } = await supabase
-            .from("price_history")
-            .select("price, recorded_at")
-            .eq("option_id", optionData.id)
-            .gte("recorded_at", mainTrade.created_at)
-            .order("recorded_at", { ascending: true });
-
-          if (historyData && historyData.length > 0) {
-            priceHistory = historyData.map((h) => ({
-              date: h.recorded_at,
-              price: Number(h.price),
-            }));
-          }
-        }
+      if (position.option_id) {
+        const { data: historyData } = await supabase
+          .from("price_history")
+          .select("price, recorded_at")
+          .eq("option_id", position.option_id)
+          .gte("recorded_at", position.created_at)
+          .order("recorded_at", { ascending: true });
+        priceHistory = (historyData ?? []).map((h: any) => ({
+          date: h.recorded_at,
+          price: Number(h.price),
+        }));
       }
 
-      // If no price history, generate continuous mock data based on trade data
-      if (priceHistory.length === 0) {
-        const startDate = new Date(mainTrade.created_at);
-        const endDate = mainTrade.closed_at ? new Date(mainTrade.closed_at) : new Date();
-        const daysDiff = Math.max(7, Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)));
-        
-        const entryPrice = Number(mainTrade.price);
-        const isWin = Number(mainTrade.pnl) > 0;
-        const exitPrice = isWin ? 1.0 : 0.0; // Binary outcome
-        
-        // Generate smooth continuous path using bezier-like interpolation
-        let currentPrice = entryPrice;
-        priceHistory = Array.from({ length: daysDiff }, (_, i) => {
-          const date = new Date(startDate);
-          date.setDate(date.getDate() + i);
-          
-          // Create a realistic continuous price path
-          const progress = i / (daysDiff - 1);
-          const targetPrice = exitPrice;
-          
-          // Smooth transition with momentum - small step changes
-          const targetDelta = (targetPrice - currentPrice) * 0.15;
-          const noise = (Math.random() - 0.5) * 0.05;
-          currentPrice = Math.max(0.01, Math.min(0.99, currentPrice + targetDelta + noise));
-          
-          // On last point, set to exact exit price
-          if (i === daysDiff - 1) {
-            currentPrice = exitPrice;
-          }
-          
-          return {
-            date: date.toISOString(),
-            price: currentPrice,
-          };
-        });
-      }
+      const fills = relatedTrades ?? [];
+      const firstSide = fills[0]?.side;
+      const trades: TradeRecord[] = fills.map((trade: any, index: number) => ({
+        id: trade.id,
+        time: trade.created_at,
+        action: index === 0 ? "Open" : trade.side === firstSide ? "Add" : "Reduce",
+        qty: Number(trade.quantity),
+        price: Number(trade.price),
+        total: Number(trade.amount),
+      }));
 
-      // Build trade history with proper action labels
-      const allTrades = relatedTrades || [mainTrade];
-      const firstTradeSide = allTrades[0]?.side;
-      
-      const trades: TradeRecord[] = allTrades.map((trade, index) => {
-        let action: string;
-        
-        if (index === 0) {
-          action = "Open";
-        } else if (trade.side === firstTradeSide) {
-          // Same direction as initial trade = adding to position
-          action = "Add";
-        } else {
-          // Opposite direction = reducing position
-          action = "Reduce";
-        }
-        
-        return {
-          id: trade.id,
-          time: trade.created_at,
-          action,
-          qty: Number(trade.quantity),
-          price: Number(trade.price),
-          total: Number(trade.amount),
-        };
-      });
+      const closeReason: SettlementData["closeReason"] =
+        position.close_reason === "cashout" || position.close_reason === "auto_close"
+          ? position.close_reason
+          : "settlement";
 
-      // Calculate aggregated values
-      const totalQty = trades.reduce((sum, t) => sum + t.qty, 0);
-      const totalCost = trades.reduce((sum, t) => sum + t.total, 0);
-      const avgEntryPrice = totalQty > 0 ? totalCost / totalQty : Number(mainTrade.price);
-      const totalFee = (relatedTrades || [mainTrade]).reduce((sum, t) => sum + Number(t.fee), 0);
-      const totalMargin = (relatedTrades || [mainTrade]).reduce((sum, t) => sum + Number(t.margin), 0);
-      const totalPnl = (relatedTrades || [mainTrade]).reduce((sum, t) => sum + (Number(t.pnl) || 0), 0);
+      const entryPrice = Number(position.entry_price) || 0;
+      // Exit price = the recorded close. For a settled binary that IS the
+      // resolution value ($1 winner / $0 loser) written at settlement time —
+      // never guessed from the sign of PnL.
+      const exitPrice = Number(position.mark_price) || 0;
+      const size = Number(position.size) || 0;
+      const margin = Number(position.margin) || 0;
+      const pnl = Number(position.pnl) || 0;
+      const fee = fills.reduce((sum: number, t: any) => sum + (Number(t.fee) || 0), 0);
+      const pnlPercent = margin > 0 ? (pnl / margin) * 100 : 0;
 
-      // Determine exit price based on PnL
-      // For binary markets: win = $1.00, lose = $0.00
-      const isWin = totalPnl > 0;
-      const exitPrice = isWin ? 1.0 : 0.0;
-      
-      // Calculate PnL percent based on margin
-      const pnlPercent = totalMargin > 0 ? (totalPnl / totalMargin) * 100 : 0;
-
-      // Determine side: buy = long, sell = short
-      const side: "long" | "short" = mainTrade.side === "buy" ? "long" : "short";
-
-      // Find earliest and latest dates
-      const openedAt = trades.length > 0 
-        ? trades.reduce((earliest, t) => t.time < earliest ? t.time : earliest, trades[0].time)
-        : mainTrade.created_at;
-      const settledAt = mainTrade.closed_at || mainTrade.updated_at;
+      const outcomeWon =
+        closeReason === "settlement" && !!(eventData as any)?.is_resolved && exitPrice >= 1;
 
       return {
-        id: mainTrade.id,
-        event: mainTrade.event_name,
-        option: mainTrade.option_label,
-        side,
-        entryPrice: avgEntryPrice,
+        id: position.id,
+        event: position.event_name,
+        option: position.option_label,
+        side: position.side === "short" ? "short" : "long",
+        entryPrice,
         exitPrice,
-        size: totalQty,
-        leverage: mainTrade.leverage,
-        margin: totalMargin,
-        fee: totalFee,
-        pnl: totalPnl,
+        size,
+        leverage: Number(position.leverage) || 1,
+        margin,
+        fee,
+        pnl,
         pnlPercent,
-        settledAt,
-        openedAt,
-        result: isWin ? "win" : "lose",
+        settledAt: position.closed_at ?? position.updated_at,
+        openedAt: position.created_at,
+        result: pnl > 0 ? "win" : "lose",
         trades,
         priceHistory,
         sideLabels,
-        productLine: (mainTrade as any).product_line === "spot" ? "spot" : "futures",
+        productLine: position.product_line === "spot" ? "spot" : "futures",
+        closeReason,
+        eventId: (eventData as any)?.id ?? null,
+        outcomeWon,
       };
     },
-    enabled: !!settlementId && !!user,
+    enabled: (!!settlementId || !!eventName) && !!user,
   });
 };
