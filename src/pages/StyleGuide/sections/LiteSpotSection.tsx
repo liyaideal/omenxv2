@@ -37,6 +37,14 @@ const PRESETS: Preset[] = [
     blocked: true,
     blockedReason: "Market frozen",
   },
+  {
+    id: "in-review",
+    label: "In review",
+    yesPrice: 0.54,
+    noPrice: 0.46,
+    blocked: true,
+    blockedReason: "In review · result pending",
+  },
 ];
 
 export const LiteSpotSection = ({ isMobile }: { isMobile: boolean }) => {
