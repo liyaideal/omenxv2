@@ -615,6 +615,28 @@ const OrderCardDemo = ({
   );
 };
 
+/** Contract order panel frozen in the in-review blocked state. */
+const InReviewOrderPanelDemo = ({ variant }: { variant: "desktop" | "mobile" }) => {
+  const [side, setSide] = useState<"yes" | "no">("yes");
+  const [amount, setAmount] = useState("50");
+  const [boost, setBoost] = useState(2);
+  return (
+    <LiteContractOrderPanel
+      {...baseOrderProps}
+      variant={variant}
+      blocked
+      blockedReason="In review · result pending"
+      side={side}
+      onSideChange={setSide}
+      amount={amount}
+      onAmountChange={setAmount}
+      boost={boost}
+      onBoostChange={setBoost}
+    />
+  );
+};
+
+
 /** The auto-close cell never disappears — these are its four texts. */
 const AutoCloseStates = () => (
   <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
