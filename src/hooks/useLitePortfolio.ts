@@ -258,7 +258,8 @@ export const useLitePortfolio = () => {
     }
 
     return rows.sort((a, b) => (a.closedAt < b.closedAt ? 1 : -1));
-  }, [settlements]);
+  }, [settlements, eventByName]);
+
 
   const settledKpi = useMemo(() => {
     const wins = settlements.filter((s) => s.pnlValue > 0).length;
