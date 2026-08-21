@@ -40,6 +40,12 @@ import {
   type MultiSeries,
 } from "@/components/lite/contract/LiteContractChart";
 import { HowItSettled } from "@/components/lite/trade/HowItSettled";
+import {
+  InReviewCard,
+  IN_REVIEW_BADGE,
+  IN_REVIEW_HOLD_LINE,
+} from "@/components/lite/trade/InReviewCard";
+
 import { LiteContractOrderPanel } from "@/components/lite/contract/LiteContractOrderPanel";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
 import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
