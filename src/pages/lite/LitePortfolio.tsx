@@ -247,6 +247,23 @@ export default function LitePortfolio() {
   );
 
   if (isMobile) {
+    // A selected series is its OWN page on mobile: inner header + detail body.
+    // No brand header, no tabs, no settled KPI, no segment chips.
+    if (series) {
+      const name = seriesVm?.seriesName ?? decodeURIComponent(series);
+      return (
+        <div className="min-h-screen bg-background pb-24">
+          <MobileHeader
+            variant="inner"
+            title={name.length > 24 ? `${name.slice(0, 24)}…` : name}
+            backTo="/portfolio?tab=settled"
+          />
+          {seriesView}
+          <BottomNav />
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-screen bg-background pb-24">
         <MobileHeader variant="brand" />
