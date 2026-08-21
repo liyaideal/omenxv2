@@ -300,15 +300,16 @@ const seriesVm: SeriesDetailVM = {
   cadence: "daily",
   segmentLabel: "Standard",
   rounds: [
-    { id: "r3", closedAt: "2026-08-14T12:20:00Z", sideWord: "Up", autoClosed: false, net: -15 },
-    { id: "r2", closedAt: "2026-08-13T12:20:00Z", sideWord: "Up", autoClosed: false, net: 18 },
-    { id: "r1", closedAt: "2026-08-12T12:20:00Z", sideWord: "Up", autoClosed: true, net: -15 },
+    { id: "r3", closedAt: "2026-08-14T12:20:00Z", sideWord: "Up", autoClosed: false, net: -15.15 },
+    { id: "r2", closedAt: "2026-08-13T12:20:00Z", sideWord: "Up", autoClosed: false, net: 17.85 },
+    { id: "r1", closedAt: "2026-08-12T12:20:00Z", sideWord: "Up", autoClosed: true, net: -15.15 },
   ],
   cost: 45,
   fees: 0.45,
   payout: 32.55,
-  net: -12,
+  net: -12.45,
   wins: 1,
+
 };
 
 export const SettlementDetailDesktopPreview = () => (

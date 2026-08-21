@@ -24,9 +24,11 @@ export interface SeriesDetailVM {
   rounds: SeriesRoundVM[];
   cost: number;
   fees: number;
-  /** payout = max(0, cost + net − fees) */
+  /** payout = max(0, cost + net); net is already net of fees */
   payout: number;
+  /** Net of fees. Equals payout − cost, and equals the sum of round nets. */
   net: number;
+
   wins: number;
 }
 
