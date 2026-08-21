@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from "react";
+import { useState, useEffect, type CSSProperties } from "react";
 import { Home, BarChart3, TrendingUp, User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, KeyRound, Compass, PieChart, ArrowLeftRight } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,8 +41,24 @@ export const BottomNav = () => {
   const { balance, spotBalance, user, username, avatarUrl, profile } = useUserProfile();
   const { surface } = useSurface();
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
+  const [pendingPath, setPendingPath] = useState<string | null>(null);
   const [profileSheetOpen, setProfileSheetOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
+
+  // Deliver the user to the tab they originally tapped, once signed in
+  useEffect(() => {
+    if (user && pendingPath) {
+      navigate(pendingPath, { replace: true });
+      setPendingPath(null);
+    }
+  }, [user, pendingPath, navigate]);
+
+  const handleAuthSheetOpenChange = (open: boolean) => {
+    setAuthSheetOpen(open);
+    if (!open && !user) {
+      setPendingPath(null);
+    }
+  };
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
