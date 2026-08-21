@@ -22,7 +22,10 @@ export const LiteAuthGate = ({ children }: { children: React.ReactNode }) => {
   return (
     <div
       className="relative isolate overflow-hidden"
-      style={{ maxHeight: isMobile ? "420px" : "400px" }}
+      style={{
+        minHeight: isMobile ? "420px" : "400px",
+        maxHeight: isMobile ? "420px" : "400px",
+      }}
     >
       <div className="select-none pointer-events-none blur-[3px] opacity-70" aria-hidden="true">
         {children}
@@ -51,7 +54,7 @@ export const LiteAuthGate = ({ children }: { children: React.ReactNode }) => {
             <button
               type="button"
               onClick={() => setAuthOpen(true)}
-              className="btn-primary inline-flex items-center gap-2 text-[13px]"
+              className="btn-primary inline-flex items-center gap-2 text-sm"
             >
               <LogIn className="h-4 w-4" />
               Sign in
