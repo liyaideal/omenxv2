@@ -46,20 +46,24 @@ interface MobileDrawerProps {
  * </MobileDrawer>
  * ```
  */
-export function MobileDrawer({
-  open,
-  onOpenChange,
-  title,
-  description,
-  children,
-  className,
-  showHandle = true,
-  height,
-  hideCloseButton = false,
-}: MobileDrawerProps) {
+export const MobileDrawer = React.forwardRef<HTMLDivElement, MobileDrawerProps>(function MobileDrawer(
+  {
+    open,
+    onOpenChange,
+    title,
+    description,
+    children,
+    className,
+    showHandle = true,
+    height,
+    hideCloseButton = false,
+  },
+  ref,
+) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
+        ref={ref}
         side="bottom"
         className={cn(
           "rounded-t-3xl px-5 pt-4 max-h-[85vh] overflow-y-auto",
@@ -86,7 +90,8 @@ export function MobileDrawer({
       </SheetContent>
     </Sheet>
   );
-}
+});
+
 
 interface MobileDrawerSectionProps {
   children: React.ReactNode;
