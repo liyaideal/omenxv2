@@ -57,11 +57,12 @@ export const LiveCard = ({
           {row.eventName}
         </div>
         <span
-          className="shrink-0 rounded-[8px] px-[9px] py-1 font-mono text-[12px] font-bold"
+          className="max-w-[45%] shrink-0 truncate whitespace-nowrap rounded-[8px] px-[9px] py-1 font-mono text-[12px] font-bold"
           style={{ background: VOLT, color: "#0B0D10" }}
         >
           {chipText(row)}
         </span>
+
       </div>
 
       <div className="mt-1 text-[11.5px] text-[#6B7280]">
