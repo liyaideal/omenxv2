@@ -7,7 +7,7 @@
 import { Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export const IN_REVIEW_BADGE = "In review · result pending";
+export const IN_REVIEW_BADGE = "In review";
 export const IN_REVIEW_LINE = "Result is under review. Payout once confirmed.";
 export const IN_REVIEW_HOLD_LINE =
   "Cash out is paused while the result is under review.";

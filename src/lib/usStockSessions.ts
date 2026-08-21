@@ -121,7 +121,7 @@ export const getBlockedReason = (lifecycle: string | null | undefined): string =
     case "SUSPENDED":
       return "Suspended · cancel only";
     case "REVIEW":
-      return "In review · result pending";
+      return "In review";
     case "CANCELED":
       return "Canceled";
     case "CREATED":
