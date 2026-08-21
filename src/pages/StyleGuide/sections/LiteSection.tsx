@@ -625,7 +625,7 @@ const InReviewOrderPanelDemo = ({ variant }: { variant: "desktop" | "mobile" }) 
       {...baseOrderProps}
       variant={variant}
       blocked
-      blockedReason="In review · result pending"
+      blockedReason={IN_REVIEW_BADGE}
       side={side}
       onSideChange={setSide}
       amount={amount}
@@ -838,7 +838,7 @@ export const LiteSection = ({
                 amount0="50"
                 boost0={2}
                 blocked
-                blockedReason="In review · result pending"
+                blockedReason={IN_REVIEW_BADGE}
               />
 
               <OrderCardDemo label="Boost config loading (skeleton)" amount0="25" boost0={1} boostLoading />
