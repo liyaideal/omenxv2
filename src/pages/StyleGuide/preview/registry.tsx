@@ -1,4 +1,14 @@
 import { useState } from "react";
+import {
+  PortfolioChromePreview,
+  PortfolioKpiPreview,
+  PortfolioGaugeStatesPreview,
+  PortfolioGaugeBarPreview,
+  PortfolioLiveCardsPreview,
+  PortfolioDesktopRowsPreview,
+  PortfolioSettledListPreview,
+  PortfolioEmptyStatesPreview,
+} from "./portfolioPreviews";
 import { Button } from "@/components/ui/button";
 import { KeyRound, Plus } from "lucide-react";
 import { EmptyState, LoadingState, ErrorState } from "@/components/states";
@@ -285,6 +295,15 @@ export const previewRegistry: Record<string, () => JSX.Element> = {
   "mobile-header-inner-long-title": () => <HeaderInnerLongTitlePreview />,
   "mobile-header-inner-subbar": () => <HeaderInnerSubBarPreview />,
   "mobile-header-dont": () => <HeaderDontPreview />,
+
+  "portfolio-lite-chrome": () => <PortfolioChromePreview />,
+  "portfolio-lite-kpi": () => <PortfolioKpiPreview />,
+  "portfolio-lite-gauge-states": () => <PortfolioGaugeStatesPreview />,
+  "portfolio-lite-gauge-bar": () => <PortfolioGaugeBarPreview />,
+  "portfolio-lite-live-cards": () => <PortfolioLiveCardsPreview />,
+  "portfolio-lite-desktop-rows": () => <PortfolioDesktopRowsPreview />,
+  "portfolio-lite-settled": () => <PortfolioSettledListPreview />,
+  "portfolio-lite-empty": () => <PortfolioEmptyStatesPreview />,
 
   "lite-events-loading": () => <LiteEventsLoadingPreview />,
   "lite-events-loading-catalogue": () => <LiteEventsCatalogueLoadingPreview />,
