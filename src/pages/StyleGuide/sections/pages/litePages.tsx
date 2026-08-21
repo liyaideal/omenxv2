@@ -3,6 +3,7 @@
 // existing section files are imported and rendered untouched.
 // ============================================================
 import { SubSection, DualDevicePreview } from "../../components";
+import { DeviceFrame } from "../../components/DeviceFrame";
 import { LitePage, NotStartedPage, StatusBadge, type RevampStatus } from "./shell";
 import {
   MobileHomeSection,
@@ -33,7 +34,7 @@ const PAGES: Array<{ id: string; page: string; route: string; status: RevampStat
   { id: "lite-rewards", page: "Rewards", route: "/rewards", status: "done" },
   { id: "lite-vouchers", page: "Vouchers（并入 /rewards Tab）", route: "/rewards?tab=vouchers", status: "done" },
   { id: "lite-api", page: "API / Developers", route: "/settings/api · /developers", status: "done" },
-  { id: "lite-portfolio", page: "Portfolio", route: "/portfolio · /portfolio/settlements · /portfolio/airdrops", status: "todo" },
+  { id: "lite-portfolio", page: "Portfolio", route: "/portfolio · /portfolio?tab=settled · /portfolio/settlement/:id", status: "done" },
   { id: "lite-leaderboard", page: "Leaderboard", route: "/leaderboard", status: "todo" },
   { id: "lite-settings", page: "Settings", route: "/settings · /settings/transparency", status: "todo" },
   { id: "lite-insights", page: "Insights", route: "/insights", status: "todo" },
@@ -378,13 +379,43 @@ export const LiteApiPage = ({ isMobile }: P) => (
   </LitePage>
 );
 
-export const LitePortfolioPage = (_: P) => (
-  <NotStartedPage
+export const LitePortfolioPage = ({ isMobile }: P) => (
+  <LitePage
     id="lite-portfolio"
     title="Portfolio"
-    route="/portfolio · /portfolio/settlements · /portfolio/airdrops"
-    what="覆盖范围：持仓表、结算历史入口、equity 曲线、空态。"
-  />
+    route="/portfolio · /portfolio?tab=settled · /portfolio/settlement/:id"
+    status="done"
+    note="2026-08-19 改版：Live / Settled 两 tab（Rewards 开场 tab 制式），KPI 卡、voucher 发丝行、Boost/Standard 双段 chips、Boost check 仪表、持仓卡 / 桌面行式网格、结算月份分组与系列聚合行。以下全部挂载生产组件（fixture 数据驱动状态），非手抄。"
+  >
+    <SubSection title="Tabs · voucher 发丝行 · 双段 chips" description="开场 chrome，两态 chips 可直接点击切换。">
+      <DeviceFrame previewKey="portfolio-lite-chrome" device="mobile" minHeight={220} />
+    </SubSection>
+
+    <SubSection title="KPI 卡（Live 正 / Settled / Live 负）" description="全账户口径，切段不变。">
+      <DeviceFrame previewKey="portfolio-lite-kpi" device="mobile" minHeight={360} />
+    </SubSection>
+
+    <SubSection title="Boost check 仪表三态" description="Healthy &lt;80 / Getting tight ≥80 / Auto-close soon ≥95。">
+      <DeviceFrame previewKey="portfolio-lite-gauge-states" device="mobile" minHeight={300} />
+      <DeviceFrame previewKey="portfolio-lite-gauge-bar" device="desktop" minHeight={120} />
+    </SubSection>
+
+    <SubSection title="持仓卡：常规 / 热卡 / voucher 仓 / Standard + 挂单虚线行" description="热卡=现价距 auto-close ≤10%，整句转红且卡描边红。">
+      <DeviceFrame previewKey="portfolio-lite-live-cards" device="mobile" minHeight={640} />
+    </SubSection>
+
+    <SubSection title="桌面行式网格" description="列模板 minmax(0,1fr) 110px 96px 104px 100px 150px 170px；热行 inset 左轨。">
+      <DeviceFrame previewKey="portfolio-lite-desktop-rows" device="desktop" minHeight={260} />
+    </SubSection>
+
+    <SubSection title="Settled 列表" description="月份分组、auto-closed 红备注、cashed out early、系列聚合行、按月懒加载。">
+      <DeviceFrame previewKey="portfolio-lite-settled" device="mobile" minHeight={420} />
+    </SubSection>
+
+    <SubSection title="空态" description="Live 段空态与 Settled 空态。">
+      <DeviceFrame previewKey="portfolio-lite-empty" device="mobile" minHeight={220} />
+    </SubSection>
+  </LitePage>
 );
 
 export const LiteLeaderboardPage = (_: P) => (
