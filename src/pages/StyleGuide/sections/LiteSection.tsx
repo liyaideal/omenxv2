@@ -23,6 +23,8 @@ import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
 import { LiteMarketBoard, type BoardOption } from "@/components/lite/multi/LiteMarketBoard";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
 import { HowItSettled } from "@/components/lite/trade/HowItSettled";
+import { InReviewCard, IN_REVIEW_HOLD_LINE } from "@/components/lite/trade/InReviewCard";
+import { SpotSettlementRail } from "@/components/lite/trade/SpotBlocks";
 import { RoundTape } from "@/components/lite/shared/RoundTape";
 import { LiteEventCard } from "@/components/lite/LiteEventCard";
 import type { EventRow } from "@/hooks/useMarketListData";
@@ -1318,7 +1320,7 @@ export const LiteSection = ({
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                Position card while in review (no Cash out button)
+                Position card while in review (Cash out withheld)
               </div>
               <LitePositionCard
                 sideLabel="Yes"
@@ -1327,6 +1329,9 @@ export const LiteSection = ({
                 putIn={120}
                 nowWorth={144}
                 profit={24}
+                autoCloseText="≈ 41¢"
+                cashOutDisabledText={IN_REVIEW_HOLD_LINE}
+                onCashOut={() => undefined}
               />
             </div>
             <div className="space-y-2">
