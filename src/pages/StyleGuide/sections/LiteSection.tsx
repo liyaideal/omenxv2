@@ -811,6 +811,14 @@ export const LiteSection = ({
               />
               <OrderCardDemo label="Blocked · Closed" amount0="50" boost0={5} blocked blockedReason="Closed" />
               <OrderCardDemo label="Blocked · Settled" amount0="" boost0={1} blocked blockedReason="Settled" />
+              <OrderCardDemo
+                label="Blocked · In review"
+                amount0="50"
+                boost0={2}
+                blocked
+                blockedReason="In review · result pending"
+              />
+
               <OrderCardDemo label="Boost config loading (skeleton)" amount0="25" boost0={1} boostLoading />
             </Grid>
             <div>
