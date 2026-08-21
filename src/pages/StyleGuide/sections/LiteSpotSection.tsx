@@ -2,6 +2,7 @@ import { useState } from "react";
 import { SectionWrapper, LegacyNotice } from "../components/SectionWrapper";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
 import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
+import { InReviewCard } from "@/components/lite/trade/InReviewCard";
 import { SideButton } from "@/components/lite/shared/SideButton";
 import {
   SpotSentimentBar,
@@ -36,6 +37,14 @@ const PRESETS: Preset[] = [
     noPrice: 0.46,
     blocked: true,
     blockedReason: "Market frozen",
+  },
+  {
+    id: "in-review",
+    label: "In review",
+    yesPrice: 0.54,
+    noPrice: 0.46,
+    blocked: true,
+    blockedReason: "In review · result pending",
   },
 ];
 
@@ -199,6 +208,23 @@ export const LiteSpotSection = ({ isMobile }: { isMobile: boolean }) => {
               ]}
             />
           </div>
+          <div className="space-y-2">
+            <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+              SpotSettlementRail · in review (terminal node pending)
+            </div>
+            <SpotSettlementRail
+              blocked
+              tradingNow={false}
+              nodes={[
+                { key: "open", label: "Market opens", time: "09:30" },
+                { key: "mid", label: "Trading", time: "closed" },
+                { key: "close", label: "Cash close", time: "16:00" },
+                { key: "settle", label: "In review", time: "16:05" },
+              ]}
+            />
+            <InReviewCard sourceName="Nasdaq official close" holding />
+          </div>
+
           <div className="space-y-2">
             <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
               SpotYourPosition · Up in profit
