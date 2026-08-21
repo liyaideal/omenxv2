@@ -35,6 +35,8 @@ import {
   SeriesDetailDesktop,
   SeriesDetailMobile,
 } from "@/components/portfolio/lite/SeriesDetailView";
+import { PortfolioErrorBoundary } from "@/components/portfolio/lite/PortfolioErrorBoundary";
+
 
 const EmptyLive = () => {
   const navigate = useNavigate();
