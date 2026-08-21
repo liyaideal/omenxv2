@@ -153,3 +153,29 @@ The wagering verb **Back** is retired from the Lite UI. User verbs are
 (`Bought {side} · $X`, "Buying {side} cashes out your {heldSide} first.").
 Money-sense "back" ("You'll get back ≈", "$X back") is unaffected and stays.
 The "call" family ("Make your call", "your Yes call") is reviewed separately.
+
+---
+
+## Settlement time wording — `settleLabel()` (2026-08-19, CPO-approved)
+
+All Portfolio "settles / settled at" strings come from
+`settleLabel()` (`src/lib/settleLabel.ts`). No page formats its own.
+
+| Case | Output |
+|---|---|
+| same calendar day | `today 16:00` |
+| same year | `Aug 21 16:00` |
+| another year | `Jan 12, 2027` (no clock) |
+
+24h user-local time, **no timezone suffix**. The verb is added by the caller
+(`settles Aug 21 16:00`). Sports `kickoffLabel` is a separate rule, unchanged.
+
+### Close-reason remarks
+
+| Reason | Rendered remark |
+|---|---|
+| `settlement` | (nothing — a normal resolution needs no remark) |
+| `auto_close` | `auto-closed` |
+| `cashout` | `cashed out early` |
+
+Never render "liquidated" or "stopped out" — banned Lite jargon.
