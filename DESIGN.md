@@ -224,14 +224,18 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 共用同一骨架，视图为纯展示组件（`SettlementDetailView.tsx` / `SeriesDetailView.tsx`），
 数据走 props，style-guide 与生产同源。
 
-**桌面（≥1024）**：不渲染 MobileHeader / BottomNav。`EventsDesktopHeader` + 标准容器，自上而下
-`‹ Back to settled`（12.5px muted）→ 标题行（22/700，letter-spacing −0.2px；右侧 `View event ›` 蓝 13/600）
+**桌面（≥1024）**：不渲染 MobileHeader / BottomNav。`EventsDesktopHeader` + 标准容器，自上而下：
+标题行（22/700，letter-spacing −0.2px；右侧 `View event ›` 蓝 13/600）
+
 → meta 12.5px muted → KPI 三卡（grid 3×1fr gap-3，复用 `KpiCard`）→ 双卡两栏
 （grid 2×1fr gap-3，bg #12151A、圆角 12、p-[14px_18px]；组标 10px/700 字距 1.4px muted；
 行 13px，label muted / 值 mono 600，底边框 rgba(28,31,38,.8)，末行无边框）。
 
 - 单仓 KPI：`RESULT`（值=净额 signedMoney，胜 #3DD68C / 负 #FF5C5C）/ `COST` / `PAYOUT`。
 - 系列 KPI：`NET` / `COST` / `PAYOUT`；双卡为 `DETAILS` + `ROUNDS`，每轮一行可点进单轮详情。
+
+**桌面详情页正文禁放返回文字链/面包屑——去程 = 站点导航 + 浏览器返回（同 Pro SettlementDetail 与 /settings/api 先例）。**
+
 
 **移动端**：`MobileHeader variant="inner"` + BottomNav，居中眉线 + 大字净额 + 明细行纵列。
 

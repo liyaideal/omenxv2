@@ -5,7 +5,7 @@
 // ============================================================
 import { KpiCard, KpiGrid, GREEN, RED, money, signedMoney } from "./parts";
 import { settledDayLabel } from "@/lib/settleLabel";
-import { BackLink, DetailCard, DetailTitleRow } from "./SettlementDetailView";
+import { DetailCard, DetailTitleRow } from "./SettlementDetailView";
 
 export interface SeriesRoundVM {
   id: string;
@@ -143,8 +143,8 @@ export const SeriesDetailDesktop = ({
   actions?: SeriesDetailActions;
 }) => (
   <div className="bg-background">
-    <BackLink label={actions?.backLabel ?? "Back to settled"} onClick={actions?.onBack} />
     <DetailTitleRow title={vm.seriesName} onViewEvent={actions?.onViewEvent} />
+
     <div className="mt-1 text-[12.5px] text-[#6B7280]">
       Series · {vm.cadence} round · last settled {lastSettled(vm)}
     </div>

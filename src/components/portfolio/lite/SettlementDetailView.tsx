@@ -207,11 +207,6 @@ export const DetailCard = ({ title, children }: { title: string; children: React
   </div>
 );
 
-export const BackLink = ({ label, onClick }: { label: string; onClick?: () => void }) => (
-  <button type="button" onClick={onClick} className="text-[12.5px] text-[#6B7280]">
-    ‹ {label}
-  </button>
-);
 
 export const DetailTitleRow = ({
   title,
@@ -250,13 +245,13 @@ export const SettlementDetailDesktop = ({
 
   return (
     <div className="bg-background">
-      <BackLink label={actions?.backLabel ?? "Back to settled"} onClick={actions?.onBack} />
       <DetailTitleRow title={vm.eventName} onViewEvent={actions?.onViewEvent} />
       <div className="mt-1 text-[12.5px] text-[#6B7280]">
         {vm.closeReason === "settlement" ? "Settled" : "Closed"} {settledStampLabel(vm.closedAt)}
       </div>
 
       <div className="mt-4">
+
         <KpiGrid cols={3}>
           <KpiCard
             label="RESULT"
