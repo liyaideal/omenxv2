@@ -1223,6 +1223,7 @@ const LiteContractTrade = () => {
               </>
             ) : boardMode ? (
               <>
+                {InReview}
                 {isMulti && CrowdOverview}
                 {BoardModule}
                 {RuleCard}
@@ -1232,6 +1233,7 @@ const LiteContractTrade = () => {
               </>
             ) : (
               <>
+                {InReview}
                 {Chart}
                 {SentimentBar}
                 {RuleCard}
@@ -1348,6 +1350,7 @@ const LiteContractTrade = () => {
               </>
             ) : boardMode ? (
               <>
+                {InReview}
                 {BoardModule}
                 {RuleCard}
                 {MultiPositions}
@@ -1355,6 +1358,7 @@ const LiteContractTrade = () => {
               </>
             ) : (
               <>
+                {InReview}
                 {SentimentBar}
                 {Chart}
                 {RuleCard}
