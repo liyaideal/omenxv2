@@ -44,7 +44,7 @@ const PRESETS: Preset[] = [
     yesPrice: 0.54,
     noPrice: 0.46,
     blocked: true,
-    blockedReason: "In review · result pending",
+    blockedReason: "In review",
   },
 ];
 

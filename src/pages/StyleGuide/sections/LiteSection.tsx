@@ -23,7 +23,7 @@ import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
 import { LiteMarketBoard, type BoardOption } from "@/components/lite/multi/LiteMarketBoard";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
 import { HowItSettled } from "@/components/lite/trade/HowItSettled";
-import { InReviewCard, IN_REVIEW_HOLD_LINE } from "@/components/lite/trade/InReviewCard";
+import { InReviewCard, IN_REVIEW_BADGE, IN_REVIEW_HOLD_LINE } from "@/components/lite/trade/InReviewCard";
 import { SpotSettlementRail } from "@/components/lite/trade/SpotBlocks";
 import { RoundTape } from "@/components/lite/shared/RoundTape";
 import { LiteEventCard } from "@/components/lite/LiteEventCard";
@@ -625,7 +625,7 @@ const InReviewOrderPanelDemo = ({ variant }: { variant: "desktop" | "mobile" }) 
       {...baseOrderProps}
       variant={variant}
       blocked
-      blockedReason="In review · result pending"
+      blockedReason={IN_REVIEW_BADGE}
       side={side}
       onSideChange={setSide}
       amount={amount}
@@ -838,7 +838,7 @@ export const LiteSection = ({
                 amount0="50"
                 boost0={2}
                 blocked
-                blockedReason="In review · result pending"
+                blockedReason={IN_REVIEW_BADGE}
               />
 
               <OrderCardDemo label="Boost config loading (skeleton)" amount0="25" boost0={1} boostLoading />
@@ -1324,7 +1324,7 @@ export const LiteSection = ({
 
         <SubSection
           title="In review — result pending"
-          description="Intermediate state between trading close and settlement (lifecycle_status = REVIEW, not yet resolved). Real InReviewCard from src/components/lite/trade/InReviewCard.tsx, mounted on both Lite trade pages in the rule-module slot. The order panel stays mounted with its buy button disabled reading 'In review · result pending'; the position card keeps its Cash out row disabled via cashOutDisabledText. Spot-side panel preset lives in the Lite spot section."
+          description="Intermediate state between trading close and settlement (lifecycle_status = REVIEW, not yet resolved). Real InReviewCard from src/components/lite/trade/InReviewCard.tsx, mounted on both Lite trade pages in the rule-module slot. The order panel stays mounted with its buy button disabled reading 'In review'; the position card keeps its Cash out row disabled via cashOutDisabledText. Spot-side panel preset lives in the Lite spot section."
         >
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
