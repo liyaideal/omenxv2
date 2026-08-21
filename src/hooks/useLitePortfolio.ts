@@ -126,9 +126,16 @@ export const useLitePortfolio = () => {
             })
           : null;
 
+      // Guard: with no equity (signed-out demo) the solve degenerates onto the
+      // current price — never surface a bogus auto-close level.
+      const safeAutoClose =
+        autoClosePrice != null && risk.equity > 0 && autoClosePrice > 0 && autoClosePrice < priceNow
+          ? autoClosePrice
+          : null;
+
       const hot =
-        autoClosePrice != null && priceNow > 0
-          ? Math.abs(priceNow - autoClosePrice) / priceNow <= 0.1
+        safeAutoClose != null && priceNow > 0
+          ? Math.abs(priceNow - safeAutoClose) / priceNow <= 0.1
           : false;
 
       return {
@@ -147,7 +154,7 @@ export const useLitePortfolio = () => {
         segment,
         sizeNum: p.sizeNum,
         ifWins: p.sizeNum,
-        autoClosePrice,
+        autoClosePrice: safeAutoClose,
         hot,
         tradePath: ev?.id
           ? `${segment === "standard" ? "/spot" : "/trade"}?event=${ev.id}`
