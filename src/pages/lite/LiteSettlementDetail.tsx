@@ -39,13 +39,15 @@ export default function LiteSettlementDetail() {
     return isMobile ? (
       <div className="min-h-screen bg-background pb-24">
         <MobileHeader variant="inner" title="Settled" />
-        {body}
+        <LiteAuthGate>{body}</LiteAuthGate>
         <BottomNav />
       </div>
     ) : (
       <div className="min-h-screen bg-background">
         <EventsDesktopHeader />
-        <div className="mx-auto w-full max-w-7xl px-4 py-6 lg:px-6">{body}</div>
+        <div className="mx-auto w-full max-w-7xl px-4 py-6 lg:px-6">
+          <LiteAuthGate>{body}</LiteAuthGate>
+        </div>
       </div>
     );
   }
