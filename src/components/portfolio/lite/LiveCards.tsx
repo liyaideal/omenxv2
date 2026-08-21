@@ -4,6 +4,8 @@
 // ============================================================
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useSurface } from "@/contexts/SurfaceContext";
 import { settleLabel } from "@/lib/settleLabel";
 import { boostSuffix } from "@/lib/liteSideName";
 import type { LiteLiveRow } from "@/hooks/useLitePortfolio";
@@ -117,7 +119,7 @@ export const LiveCard = ({
 };
 
 /* ---------------------------- desktop rows ---------------------------- */
-export const DESKTOP_GRID = "minmax(0,1fr) 110px 96px 104px 100px 150px 170px";
+export const DESKTOP_GRID = "minmax(0,1fr) minmax(110px,200px) 96px 104px 100px 150px 170px";
 
 export const LiveRowHeader = () => (
   <div
@@ -179,12 +181,21 @@ export const LiveRow = ({
         </div>
       </div>
       <div className="min-w-0 pr-2">
-        <span
-          className="inline-block max-w-full truncate whitespace-nowrap rounded-[8px] px-[9px] py-1 align-middle font-mono text-[12px] font-bold"
-          style={{ background: VOLT, color: "#0B0D10" }}
-        >
-          {chipText(row)}
-        </span>
+        <TooltipProvider delayDuration={150}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span
+                className="inline-block max-w-full truncate whitespace-nowrap rounded-[8px] px-[9px] py-1 align-middle font-mono text-[12px] font-bold"
+                style={{ background: VOLT, color: "#0B0D10" }}
+              >
+                {chipText(row)}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="font-mono text-[12px]">
+              {chipText(row)}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
       <div className="font-mono text-[13px] font-semibold text-[#F2F3F5]">{money(row.cost)}</div>
       <div className="font-mono text-[13px] font-semibold text-[#F2F3F5]">{money(row.nowWorth)}</div>
@@ -218,7 +229,16 @@ export const LiveRow = ({
 /* ------------------------- pending Pro orders ------------------------- */
 export const PendingOrdersRow = ({ orders }: { orders: any[] }) => {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const { setSurface } = useSurface();
   if (orders.length === 0) return null;
+
+  // Editing / cancelling a resting order only exists in Pro — send the reader there.
+  const openInPro = (o: any) => {
+    setSurface("pro");
+    navigate(o.eventId ? `/trade?event=${o.eventId}` : "/trade");
+  };
+
   return (
     <div
       className="rounded-[10px] px-[13px] py-[11px] text-[12.5px] text-[#6B7280]"
@@ -235,14 +255,22 @@ export const PendingOrdersRow = ({ orders }: { orders: any[] }) => {
         <span>›</span>
       </button>
       {open && (
-        <div className="mt-2 space-y-1.5">
+        <div className="mt-2 space-y-0.5">
           {orders.map((o) => (
-            <div key={o.id} className="flex items-center justify-between text-[12px]">
-              <span className="truncate pr-3 text-[#C7CCD4]">{o.event}</span>
-              <span className="font-mono text-[#C7CCD4]">
-                {o.size} @ {o.price}
+            <button
+              key={o.id}
+              type="button"
+              onClick={() => openInPro(o)}
+              className="flex w-full items-center justify-between gap-3 rounded-[8px] px-1.5 py-1.5 text-left text-[12px] transition-colors hover:bg-white/[0.04]"
+            >
+              <span className="truncate text-[#C7CCD4]">{o.event}</span>
+              <span className="flex shrink-0 items-center gap-1.5">
+                <span className="font-mono text-[#C7CCD4]">
+                  {o.size ?? o.amount} @ {o.price}
+                </span>
+                <span className="text-[#6B7280]">›</span>
               </span>
-            </div>
+            </button>
           ))}
         </div>
       )}
