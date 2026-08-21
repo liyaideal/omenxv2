@@ -14,7 +14,8 @@ const cents = (p: number) => `${Math.round(p * 100)}¢`;
 const chipText = (row: LiteLiveRow) => `${row.sideWord} ${cents(row.priceNow)}`;
 
 const metaLine = (row: LiteLiveRow) => {
-  const parts = [row.categoryLabel, `settles ${settleLabel(row.settlesAt)}`];
+  const parts = [row.categoryLabel];
+  if (row.settlesAt) parts.push(`settles ${settleLabel(row.settlesAt)}`);
   const boost = boostSuffix(row.leverageNum);
   if (boost) parts.push(boost);
   return parts;
@@ -25,6 +26,7 @@ const autoCloseSentence = (row: LiteLiveRow) =>
   row.autoClosePrice != null
     ? `Auto-closes if price hits ${cents(row.autoClosePrice)} · now ${cents(row.priceNow)}`
     : null;
+
 
 /* ----------------------------- mobile card ----------------------------- */
 export const LiveCard = ({
