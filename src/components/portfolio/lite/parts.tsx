@@ -25,6 +25,11 @@ export const signedMoney = (n: number) =>
     maximumFractionDigits: 2,
   })}`;
 
+/** Gauge buffer amounts: whole dollars carry no decimals ($310, $0). */
+export const moneyAuto = (n: number) =>
+  Number.isInteger(n) ? `${n < 0 ? "-" : ""}$${Math.abs(n).toLocaleString("en-US")}` : money(n);
+
+
 /* ------------------------------ Tabs ------------------------------ */
 /** Rewards opening-tab treatment (ACCOUNT family tabs = underline tabs). */
 export const PortfolioTabs = ({
