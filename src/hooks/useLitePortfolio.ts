@@ -291,10 +291,13 @@ export const useLitePortfolio = () => {
     return Array.from(groups.values()).sort((a, b) => (a.key < b.key ? 1 : -1));
   };
 
-  const seriesRows = (seriesId: string): SettlementListItem[] =>
-    settlements
-      .filter((s) => s.event === decodeURIComponent(seriesId))
+  const seriesRows = (seriesId: string): SettlementListItem[] => {
+    const name = resolveSeriesName(seriesId);
+    return settlements
+      .filter((s) => s.event === name)
       .sort((a, b) => (a.closedAt < b.closedAt ? 1 : -1));
+  };
+
 
   /** §4d — reconciled series VM: Net = Payout − Cost, round nets sum to Net. */
   const seriesDetail = (seriesId: string): SeriesDetailVM | null => {
