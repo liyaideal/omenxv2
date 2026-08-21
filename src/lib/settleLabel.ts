@@ -66,3 +66,11 @@ export const monthKey = (date: Date | string): string => {
   const d = typeof date === "string" ? new Date(date) : date;
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 };
+
+/** "Aug 1, 2026 · 14:00" — the settlement-detail meta stamp. */
+export const settledStampLabel = (date: Date | string | null | undefined): string => {
+  if (!date) return "—";
+  const d = typeof date === "string" ? new Date(date) : date;
+  if (isNaN(d.getTime())) return "—";
+  return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} · ${clock(d)}`;
+};

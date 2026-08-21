@@ -19,6 +19,16 @@ import {
 } from "@/components/portfolio/lite/parts";
 import { LiveCard, LiveRow, LiveRowHeader, PendingOrdersRow } from "@/components/portfolio/lite/LiveCards";
 import { SettledList } from "@/components/portfolio/lite/SettledList";
+import {
+  SettlementDetailDesktop,
+  SettlementDetailMobile,
+  type SettlementDetailVM,
+} from "@/components/portfolio/lite/SettlementDetailView";
+import {
+  SeriesDetailDesktop,
+  SeriesDetailMobile,
+  type SeriesDetailVM,
+} from "@/components/portfolio/lite/SeriesDetailView";
 import { useState } from "react";
 
 /** Fixture dates stay relative so settleLabel() output never goes stale. */
@@ -237,5 +247,90 @@ export const PortfolioEmptyStatesPreview = () => (
   <div className="space-y-6 bg-background p-4">
     <div className="py-10 text-center text-[13px] text-[#6B7280]">No live calls yet</div>
     <SettledList groups={[]} />
+  </div>
+);
+
+/* ================= Settlement detail (v1.17 §4b/§4c/§4d) ================= */
+
+const detailBase: SettlementDetailVM = {
+  eventName: "Bitcoin above $70,000 on Aug 1",
+  eventId: "demo-event",
+  closeReason: "settlement",
+  net: 235,
+  cost: 120,
+  fees: 1.2,
+  shares: 355,
+  avgPrice: 0.34,
+  exitPrice: 1,
+  leverage: 2,
+  sideWord: "Up",
+  outcomeWon: true,
+  openedAt: "2026-07-28T09:12:00Z",
+  closedAt: "2026-08-01T14:00:00Z",
+  trades: [
+    { id: "t1", time: "2026-07-28T09:12:00Z", action: "Open", total: 80, price: 0.33 },
+    { id: "t2", time: "2026-07-30T11:40:00Z", action: "Add", total: 40, price: 0.36 },
+  ],
+};
+
+const detailAutoClosed: SettlementDetailVM = {
+  ...detailBase,
+  eventName: "Will the Fed cut rates in September?",
+  closeReason: "auto_close",
+  net: -105,
+  cost: 60,
+  fees: 5,
+  shares: 300,
+  avgPrice: 0.6,
+  exitPrice: 0.25,
+  leverage: 3,
+  sideWord: "Yes",
+  outcomeWon: false,
+  openedAt: "2026-08-09T10:00:00Z",
+  closedAt: "2026-08-12T16:45:00Z",
+  trades: [
+    { id: "t1", time: "2026-08-09T10:00:00Z", action: "Open", total: 30, price: 0.6 },
+    { id: "t2", time: "2026-08-10T12:00:00Z", action: "Add", total: 30, price: 0.6 },
+  ],
+};
+
+const seriesVm: SeriesDetailVM = {
+  seriesName: "Ethereum — up or down?",
+  eventId: "demo-eth",
+  cadence: "daily",
+  segmentLabel: "Standard",
+  rounds: [
+    { id: "r3", closedAt: "2026-08-14T12:20:00Z", sideWord: "Up", autoClosed: false, net: -15 },
+    { id: "r2", closedAt: "2026-08-13T12:20:00Z", sideWord: "Up", autoClosed: false, net: 18 },
+    { id: "r1", closedAt: "2026-08-12T12:20:00Z", sideWord: "Up", autoClosed: true, net: -15 },
+  ],
+  cost: 45,
+  fees: 0.45,
+  payout: 32.55,
+  net: -12,
+  wins: 1,
+};
+
+export const SettlementDetailDesktopPreview = () => (
+  <div className="bg-background p-6">
+    <SettlementDetailDesktop vm={detailBase} actions={{ onViewEvent: () => {} }} />
+  </div>
+);
+
+export const SettlementDetailMobilePreview = () => (
+  <SettlementDetailMobile vm={detailBase} actions={{ onViewEvent: () => {} }} />
+);
+
+export const SettlementDetailAutoClosedPreview = () => (
+  <div className="grid gap-4 bg-background p-4 lg:grid-cols-[380px_1fr]">
+    <SettlementDetailMobile vm={detailAutoClosed} actions={{ onViewEvent: () => {} }} />
+    <SettlementDetailDesktop vm={detailAutoClosed} actions={{ onViewEvent: () => {} }} />
+  </div>
+);
+
+export const SettlementSeriesDetailPreview = () => (
+  <div className="grid gap-4 bg-background p-4 lg:grid-cols-[380px_1fr]">
+    <SeriesDetailMobile vm={seriesVm} actions={{ onViewEvent: () => {} }} />
+    <SeriesDetailDesktop vm={seriesVm} actions={{ onViewEvent: () => {} }} />
   </div>
 );

@@ -218,6 +218,34 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 
 **❌ 不允许**：使用非标准 `max-w` 或 `py` 值；在 `<PageTitle>` 之外手写 display h1 复制其样式。（浏览页跳过标题仍属违规；账户页无标题是**正确**的。）
 
+### 结算详情页骨架（settlement / series detail，LOCKED 2026-08-21）
+
+单仓详情 `/portfolio/settlement/:id` 与系列详情 `/portfolio?tab=settled&series=<id>`
+共用同一骨架，视图为纯展示组件（`SettlementDetailView.tsx` / `SeriesDetailView.tsx`），
+数据走 props，style-guide 与生产同源。
+
+**桌面（≥1024）**：不渲染 MobileHeader / BottomNav。`EventsDesktopHeader` + 标准容器，自上而下
+`‹ Back to settled`（12.5px muted）→ 标题行（22/700，letter-spacing −0.2px；右侧 `View event ›` 蓝 13/600）
+→ meta 12.5px muted → KPI 三卡（grid 3×1fr gap-3，复用 `KpiCard`）→ 双卡两栏
+（grid 2×1fr gap-3，bg #12151A、圆角 12、p-[14px_18px]；组标 10px/700 字距 1.4px muted；
+行 13px，label muted / 值 mono 600，底边框 rgba(28,31,38,.8)，末行无边框）。
+
+- 单仓 KPI：`RESULT`（值=净额 signedMoney，胜 #3DD68C / 负 #FF5C5C）/ `COST` / `PAYOUT`。
+- 系列 KPI：`NET` / `COST` / `PAYOUT`；双卡为 `DETAILS` + `ROUNDS`，每轮一行可点进单轮详情。
+
+**移动端**：`MobileHeader variant="inner"` + BottomNav，居中眉线 + 大字净额 + 明细行纵列。
+
+**Payout 公式（全局）**：`payout = max(0, cost + pnl − fees)`，永不为负。
+对账约束：系列 `Net = Payout − Cost`，且各轮净额合计 = Net。
+
+### close_reason 三态语义（双端同时生效）
+
+| close_reason | 眉线 / meta | 价格行 | 时间行 label |
+|---|---|---|---|
+| `settlement` | `SETTLED · {日期}` | `Settled price` | `Settled` |
+| `auto_close` | `CLOSED · {日期}` | `Closed at 25¢ · auto-closed`（整值红） | `Closed` |
+| `cashout` | `CLOSED · {日期}` | `Closed at {价} · cashed out early`（muted） | `Closed` |
+
 ### Canonical Product Page Layouts
 
 全站产品功能页只允许以下两种官方布局，不允许第三种。营销/SEO 页（Insights 走 SeoPageLayout、Leaderboard 自定义 Hero）不受此规范约束。

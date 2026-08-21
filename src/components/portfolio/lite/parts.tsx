@@ -74,11 +74,14 @@ export const KpiCard = ({
   value,
   sub,
   subColor,
+  valueColor,
 }: {
   label: string;
   value: string;
   sub?: string;
   subColor?: string;
+  /** Result cards colour the headline number; default stays neutral. */
+  valueColor?: string;
 }) => (
   <div className="rounded-[12px] bg-[#12151A] px-[14px] py-[12px]">
     <div
@@ -87,7 +90,9 @@ export const KpiCard = ({
     >
       {label}
     </div>
-    <div className="mt-1 font-mono text-[21px] font-bold text-[#F2F3F5]">{value}</div>
+    <div className="mt-1 font-mono text-[21px] font-bold" style={{ color: valueColor ?? "#F2F3F5" }}>
+      {value}
+    </div>
     {sub && (
       <div className="mt-0.5 font-mono text-[11px]" style={{ color: subColor ?? "#6B7280" }}>
         {sub}

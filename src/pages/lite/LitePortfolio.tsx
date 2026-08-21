@@ -21,7 +21,6 @@ import {
   BoostCheckBar,
   VOLT,
   RED,
-  GREEN,
   money,
   signedMoney,
 } from "@/components/portfolio/lite/parts";
@@ -32,6 +31,10 @@ import {
   PendingOrdersRow,
 } from "@/components/portfolio/lite/LiveCards";
 import { SettledList } from "@/components/portfolio/lite/SettledList";
+import {
+  SeriesDetailDesktop,
+  SeriesDetailMobile,
+} from "@/components/portfolio/lite/SeriesDetailView";
 
 const EmptyLive = () => {
   const navigate = useNavigate();
@@ -84,7 +87,8 @@ export default function LitePortfolio() {
   );
 
   const rows = segment === "boost" ? p.boostLive : p.standardLive;
-  const seriesItems = series ? p.seriesRows(series) : [];
+
+
 
   /* ------------------------------ blocks ------------------------------ */
   const liveKpiMobile = (
@@ -153,35 +157,26 @@ export default function LitePortfolio() {
     </KpiGrid>
   );
 
+  const seriesVm = series ? p.seriesDetail(series) : null;
+  const seriesActions = {
+    backLabel: "Back to settled",
+    onBack: () => setTab("settled"),
+    onViewEvent: seriesVm?.eventId ? () => navigate(`/event/${seriesVm.eventId}`) : undefined,
+    onOpenRound: (id: string) =>
+      navigate(`/portfolio/settlement/${id}?series=${series ?? ""}`),
+  };
+
   const seriesView = series && (
     <div className="px-4 lg:px-0 pt-4">
-      <button
-        type="button"
-        onClick={() => setTab("settled")}
-        className="mb-3 text-[12.5px] text-[#6B7280]"
-      >
-        ‹ Back to settled
-      </button>
-      <div className="text-[15px] font-semibold text-[#F2F3F5]">
-        {decodeURIComponent(series)}
-      </div>
-      <div className="mt-3 space-y-0">
-        {seriesItems.map((s) => (
-          <div
-            key={s.id}
-            className="flex items-center justify-between py-3"
-            style={{ borderBottom: "1px solid rgba(28,31,38,.8)" }}
-          >
-            <span className="text-[13px] text-[#C7CCD4]">{s.settledAt}</span>
-            <span
-              className="font-mono text-[13.5px] font-bold"
-              style={{ color: s.pnlValue >= 0 ? GREEN : RED }}
-            >
-              {signedMoney(s.pnlValue)}
-            </span>
-          </div>
-        ))}
-      </div>
+      {seriesVm ? (
+        isMobile ? (
+          <SeriesDetailMobile vm={seriesVm} actions={seriesActions} />
+        ) : (
+          <SeriesDetailDesktop vm={seriesVm} actions={seriesActions} />
+        )
+      ) : (
+        <div className="py-14 text-center text-[13px] text-[#6B7280]">Nothing settled yet</div>
+      )}
     </div>
   );
 
