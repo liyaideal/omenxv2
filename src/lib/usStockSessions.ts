@@ -72,7 +72,7 @@ export const LIFECYCLE_BADGE: Record<
     className: "bg-trading-red/15 text-trading-red border-trading-red/40",
   },
   REVIEW: {
-    label: "Under Review",
+    label: "In review",
     className: "bg-trading-red/15 text-trading-red border-trading-red/40",
   },
   CANCELED: {
@@ -121,7 +121,7 @@ export const getBlockedReason = (lifecycle: string | null | undefined): string =
     case "SUSPENDED":
       return "Suspended · cancel only";
     case "REVIEW":
-      return "Under review";
+      return "In review · result pending";
     case "CANCELED":
       return "Canceled";
     case "CREATED":

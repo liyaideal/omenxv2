@@ -40,6 +40,12 @@ import {
   type MultiSeries,
 } from "@/components/lite/contract/LiteContractChart";
 import { HowItSettled } from "@/components/lite/trade/HowItSettled";
+import {
+  InReviewCard,
+  IN_REVIEW_BADGE,
+  IN_REVIEW_HOLD_LINE,
+} from "@/components/lite/trade/InReviewCard";
+
 import { LiteContractOrderPanel } from "@/components/lite/contract/LiteContractOrderPanel";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
 import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
@@ -281,14 +287,20 @@ const LiteContractTrade = () => {
   const { text: countdown } = useTradeCountdown(freezeAt ?? endDate, { days: true });
 
   const resolved = !!event?.is_resolved;
+  // Intermediate state between trading close and settlement — the result is
+  // being checked and can stay here for a long time. Settled always wins.
+  const inReview = !resolved && (event as any)?.lifecycle_status === "REVIEW";
   const pastEnd = endDate ? endDate.getTime() <= Date.now() : false;
   const pastFreeze = freezeAt ? freezeAt.getTime() <= Date.now() : false;
-  const blocked = resolved || pastEnd || pastFreeze;
+  const blocked = resolved || inReview || pastEnd || pastFreeze;
   const blockedReason = resolved
     ? "Settled"
-    : pastEnd || pastFreeze
-      ? "Closed"
-      : "";
+    : inReview
+      ? IN_REVIEW_BADGE
+      : pastEnd || pastFreeze
+        ? "Closed"
+        : "";
+
 
   const boostCfg = getConfig(event?.category);
   const tiers = useMemo(() => boostTiers(boostCfg.maxBoost), [boostCfg.maxBoost]);
@@ -849,11 +861,12 @@ const LiteContractTrade = () => {
               : "None at this balance"
       }
       compact={!!isMobile}
+      cashOutDisabledText={inReview ? IN_REVIEW_HOLD_LINE : undefined}
       onCashOut={() => setCashOutOpen(true)}
     />
   ) : null;
 
-  const CashOut = heldPos ? (
+  const CashOut = heldPos && !inReview ? (
     <LiteCashOutFlow
       open={cashOutOpen}
       onOpenChange={setCashOutOpen}
@@ -947,6 +960,7 @@ const LiteContractTrade = () => {
                       : "None at this balance"
               }
               compact={!!isMobile}
+              cashOutDisabledText={inReview ? IN_REVIEW_HOLD_LINE : undefined}
               onCashOut={() => setCashOutId(p.id)}
             />
           );
@@ -954,7 +968,7 @@ const LiteContractTrade = () => {
       </div>
     ) : null;
 
-  const MultiCashOut = cashOutTarget ? (
+  const MultiCashOut = cashOutTarget && !inReview ? (
     <LiteCashOutFlow
       open={!!cashOutId}
       onOpenChange={(o) => !o && setCashOutId(null)}
@@ -1014,6 +1028,10 @@ const LiteContractTrade = () => {
   const winnerOpt = event.options.find((o) => o.is_winner) || yesOpt;
   const loserOpt = event.options.find((o) => o.id !== winnerOpt.id) || noOpt;
   const labelFor = (optId: string) => (optId === yesOpt.id ? yesLabel : noLabel);
+
+  const InReview = inReview ? (
+    <InReviewCard sourceName={event.source_name} holding={!!heldPos || multiHeld.length > 0} />
+  ) : null;
 
   const OutcomeCard = resolved ? (
     <LiteOutcomeCard
@@ -1205,6 +1223,7 @@ const LiteContractTrade = () => {
               </>
             ) : boardMode ? (
               <>
+                {InReview}
                 {isMulti && CrowdOverview}
                 {BoardModule}
                 {RuleCard}
@@ -1214,6 +1233,7 @@ const LiteContractTrade = () => {
               </>
             ) : (
               <>
+                {InReview}
                 {Chart}
                 {SentimentBar}
                 {RuleCard}
@@ -1330,6 +1350,7 @@ const LiteContractTrade = () => {
               </>
             ) : boardMode ? (
               <>
+                {InReview}
                 {BoardModule}
                 {RuleCard}
                 {MultiPositions}
@@ -1337,6 +1358,7 @@ const LiteContractTrade = () => {
               </>
             ) : (
               <>
+                {InReview}
                 {SentimentBar}
                 {Chart}
                 {RuleCard}
