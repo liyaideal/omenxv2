@@ -1302,7 +1302,7 @@ export const LiteSection = ({
 
         <SubSection
           title="In review — result pending"
-          description="Intermediate state between trading close and settlement (lifecycle_status = REVIEW, not yet resolved). Real InReviewCard from src/components/lite/trade/InReviewCard.tsx, mounted on both Lite trade pages in the rule-module slot. Buying is blocked with 'In review · result pending' and Cash out is withheld (position card renders without the onCashOut prop)."
+          description="Intermediate state between trading close and settlement (lifecycle_status = REVIEW, not yet resolved). Real InReviewCard from src/components/lite/trade/InReviewCard.tsx, mounted on both Lite trade pages in the rule-module slot. The order panel stays mounted with its buy button disabled reading 'In review · result pending'; the position card keeps its Cash out row disabled via cashOutDisabledText. Spot-side panel preset lives in the Lite spot section."
         >
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
