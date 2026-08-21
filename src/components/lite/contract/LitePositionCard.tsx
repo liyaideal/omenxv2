@@ -58,14 +58,28 @@ export const LitePositionCard = ({
       />
     </div>
     <div className="mt-3 border-t border-border pt-3">
-      <button
-        type="button"
-        onClick={onCashOut}
-        className="h-9 w-full rounded-lg bg-muted text-xs font-semibold hover:bg-muted/80"
-      >
-        Cash out · <span className="font-mono">${nowWorth.toFixed(2)}</span>
-      </button>
+      {cashOutDisabledText ? (
+        <>
+          <button
+            type="button"
+            disabled
+            className="h-9 w-full rounded-lg bg-muted text-xs font-semibold opacity-50"
+          >
+            Cash out · <span className="font-mono">${nowWorth.toFixed(2)}</span>
+          </button>
+          <p className="mt-2 text-[11px] text-muted-foreground">{cashOutDisabledText}</p>
+        </>
+      ) : (
+        <button
+          type="button"
+          onClick={onCashOut}
+          className="h-9 w-full rounded-lg bg-muted text-xs font-semibold hover:bg-muted/80"
+        >
+          Cash out · <span className="font-mono">${nowWorth.toFixed(2)}</span>
+        </button>
+      )}
     </div>
+
   </div>
 );
 
