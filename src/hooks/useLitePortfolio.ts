@@ -194,7 +194,9 @@ export const useLitePortfolio = () => {
     const profit = live.reduce((s, r) => s + r.profit, 0);
     return {
       cost,
-      nowWorth: cost + profit,
+      // Sum of the per-position clamped values (clamp first, then add).
+      nowWorth: live.reduce((s, r) => s + r.nowWorth, 0),
+
       profit,
       profitPercent: cost > 0 ? (profit / cost) * 100 : 0,
       count: live.length,
