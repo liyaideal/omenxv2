@@ -28,32 +28,40 @@ export const DeviceFrame = ({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const holderRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(minHeight);
-  // Viewport lazy-mount: booting every preview iframe at once made section
-  // nodes with many demos crawl. Mount on approach (400px buffer) and keep
-  // mounted forever after — never unmount, or the app re-boots on scroll.
+  // Viewport windowing: each preview iframe boots a full copy of the app, so
+  // they are mounted on approach (600px) and UNMOUNTED once far off-screen
+  // (>1600px). Unmounting tears the iframe document down, which also kills its
+  // realtime subscriptions and intervals. Measured height is kept so the
+  // placeholder holds the same space and scrolling stays stable.
   const [mounted, setMounted] = useState(false);
   const width = DEVICE_WIDTH[device];
 
   useEffect(() => {
-    if (mounted) return;
     const el = holderRef.current;
     if (!el) return;
     if (typeof IntersectionObserver === "undefined") {
       setMounted(true);
       return;
     }
-    const io = new IntersectionObserver(
+    const near = new IntersectionObserver(
       (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          setMounted(true);
-          io.disconnect();
-        }
+        if (entries.some((e) => e.isIntersecting)) setMounted(true);
       },
-      { rootMargin: "400px 0px" },
+      { rootMargin: "600px 0px" },
     );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [mounted]);
+    const far = new IntersectionObserver(
+      (entries) => {
+        if (entries.every((e) => !e.isIntersecting)) setMounted(false);
+      },
+      { rootMargin: "1600px 0px" },
+    );
+    near.observe(el);
+    far.observe(el);
+    return () => {
+      near.disconnect();
+      far.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
