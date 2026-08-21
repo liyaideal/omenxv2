@@ -1,0 +1,227 @@
+// ============================================================
+// /portfolio (Lite) previews — PRODUCTION components mounted with fixture
+// rows. No hand-copied markup: every card/row/gauge below is the same
+// component the page renders.
+// ============================================================
+import type { LiteLiveRow, LiteMonthGroup, LiteSettledRow } from "@/hooks/useLitePortfolio";
+import {
+  BoostCheckCard,
+  BoostCheckBar,
+  KpiCard,
+  KpiGrid,
+  SegmentChips,
+  VoucherHairline,
+  PortfolioTabs,
+  VOLT,
+  RED,
+  money,
+  signedMoney,
+} from "@/components/portfolio/lite/parts";
+import { LiveCard, LiveRow, LiveRowHeader, PendingOrdersRow } from "@/components/portfolio/lite/LiveCards";
+import { SettledList } from "@/components/portfolio/lite/SettledList";
+import { useState } from "react";
+
+const base: LiteLiveRow = {
+  id: "demo-1",
+  eventId: "demo-event",
+  eventName: "Bitcoin above $70,000 on Aug 21",
+  categoryLabel: "Crypto",
+  settlesAt: "2026-08-21T16:00:00Z",
+  sideWord: "Up",
+  priceNow: 0.38,
+  cost: 120,
+  nowWorth: 158.4,
+  profit: 38.4,
+  leverageNum: 2,
+  isVoucher: false,
+  segment: "boost",
+  sizeNum: 480,
+  ifWins: 480,
+  autoClosePrice: 0.34,
+  hot: false,
+  tradePath: "/events",
+};
+
+const hotRow: LiteLiveRow = {
+  ...base,
+  id: "demo-hot",
+  eventName: "Arsenal to beat Liverpool",
+  sideWord: "ARS +1.5",
+  priceNow: 0.36,
+  autoClosePrice: 0.35,
+  hot: true,
+  profit: -42.1,
+  nowWorth: 77.9,
+};
+
+const voucherRow: LiteLiveRow = {
+  ...base,
+  id: "demo-voucher",
+  eventName: "ETH above $4,000 today",
+  isVoucher: true,
+  leverageNum: 1,
+  autoClosePrice: null,
+  profit: 12.5,
+  nowWorth: 62.5,
+  cost: 50,
+};
+
+const standardRow: LiteLiveRow = {
+  ...base,
+  id: "demo-standard",
+  eventName: "9988.HK closes up today",
+  segment: "standard",
+  leverageNum: 1,
+  autoClosePrice: null,
+  cost: 250,
+  profit: -18,
+  nowWorth: 232,
+  ifWins: 500,
+  tradePath: "/spot",
+};
+
+const gauge = (riskRatio: number) => ({
+  riskRatio,
+  equity: 1240,
+  imTotal: 930,
+  untilAutoClose: 310,
+});
+
+export const PortfolioGaugeStatesPreview = () => (
+  <div className="space-y-3 bg-background p-4">
+    <BoostCheckCard data={gauge(42)} />
+    <BoostCheckCard data={gauge(86)} />
+    <BoostCheckCard data={gauge(97)} />
+  </div>
+);
+
+export const PortfolioGaugeBarPreview = () => (
+  <div className="bg-background p-4">
+    <BoostCheckBar data={gauge(86)} />
+  </div>
+);
+
+export const PortfolioLiveCardsPreview = () => (
+  <div className="flex flex-col gap-2 bg-background p-4">
+    <LiveCard row={base} />
+    <LiveCard row={hotRow} />
+    <LiveCard row={voucherRow} />
+    <LiveCard row={standardRow} />
+    <PendingOrdersRow orders={[{ id: "o1", event: "BTC above $70,000", size: "120", price: "41¢" }]} />
+  </div>
+);
+
+export const PortfolioDesktopRowsPreview = () => (
+  <div className="bg-background py-4">
+    <LiveRowHeader />
+    <LiveRow row={base} />
+    <LiveRow row={hotRow} />
+    <LiveRow row={standardRow} />
+  </div>
+);
+
+export const PortfolioKpiPreview = () => (
+  <div className="space-y-3 bg-background p-4">
+    <KpiGrid cols={2}>
+      <KpiCard label="COST" value={money(669.67)} sub="7 calls" />
+      <KpiCard
+        label="NOW WORTH"
+        value={money(775.31)}
+        sub={`${signedMoney(105.64)} · +15.8%`}
+        subColor={VOLT}
+      />
+    </KpiGrid>
+    <KpiGrid cols={2}>
+      <KpiCard label="WIN RATE" value="58%" sub="7 of 12" />
+      <KpiCard label="NET PROFIT" value={signedMoney(214)} sub="12 settled" subColor={VOLT} />
+    </KpiGrid>
+    <KpiGrid cols={2}>
+      <KpiCard label="COST" value={money(310)} sub="2 calls" />
+      <KpiCard
+        label="NOW WORTH"
+        value={money(268.4)}
+        sub={`${signedMoney(-41.6)} · -13.4%`}
+        subColor={RED}
+      />
+    </KpiGrid>
+  </div>
+);
+
+export const PortfolioChromePreview = () => {
+  const [tab, setTab] = useState<"live" | "settled">("live");
+  const [seg, setSeg] = useState<"boost" | "standard">("boost");
+  return (
+    <div className="space-y-3 bg-background">
+      <div className="px-4 pt-3">
+        <PortfolioTabs value={tab} onChange={setTab} />
+      </div>
+      <VoucherHairline count={2} />
+      <div className="px-4 pb-4">
+        <SegmentChips value={seg} onChange={setSeg} boostCount={6} standardCount={1} />
+      </div>
+    </div>
+  );
+};
+
+const settled = (o: Partial<LiteSettledRow>): LiteSettledRow => ({
+  id: Math.random().toString(36).slice(2),
+  title: "Bitcoin above $70,000 on Aug 1",
+  metaParts: ["Up", "2× Boost", "Aug 1"],
+  remark: "none",
+  net: 235,
+  segment: "boost",
+  closedAt: "2026-08-01T14:00:00Z",
+  isSeries: false,
+  won: true,
+  ...o,
+});
+
+const groups: LiteMonthGroup[] = [
+  {
+    key: "2026-08",
+    label: "AUGUST 2026",
+    rows: [
+      settled({}),
+      settled({
+        title: "ETH above $4,000 today",
+        metaParts: ["Up", "3× Boost", "Aug 9", "auto-closed"],
+        remark: "auto_close",
+        net: -88,
+        won: false,
+      }),
+      settled({
+        title: "Arsenal to beat Liverpool",
+        metaParts: ["ARS +1.5", "Aug 12", "cashed out early"],
+        remark: "cashout",
+        net: 42.5,
+      }),
+      settled({
+        title: "9988.HK closes up",
+        metaParts: ["Series", "won 1 of 3", "Aug 14"],
+        remark: "none",
+        net: -31,
+        isSeries: true,
+        seriesId: "9988.HK%20closes%20up",
+        won: false,
+      }),
+    ],
+  },
+  {
+    key: "2026-07",
+    label: "JULY 2026",
+    rows: [settled({ title: "US CPI above 3%", metaParts: ["Yes", "Jul 22"], net: 96 })],
+  },
+];
+
+export const PortfolioSettledListPreview = () => (
+  <div className="bg-background pb-4">
+    <SettledList groups={groups} />
+  </div>
+);
+
+export const PortfolioEmptyStatesPreview = () => (
+  <div className="space-y-6 bg-background p-4">
+    <div className="py-10 text-center text-[13px] text-[#6B7280]">No live calls yet</div>
+    <SettledList groups={[]} />
+  </div>
+);
