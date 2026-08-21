@@ -21,12 +21,20 @@ import { LiveCard, LiveRow, LiveRowHeader, PendingOrdersRow } from "@/components
 import { SettledList } from "@/components/portfolio/lite/SettledList";
 import { useState } from "react";
 
+/** Fixture dates stay relative so settleLabel() output never goes stale. */
+const inDays = (d: number, hour = 16) => {
+  const t = new Date();
+  t.setDate(t.getDate() + d);
+  t.setHours(hour, 0, 0, 0);
+  return t.toISOString();
+};
+
 const base: LiteLiveRow = {
   id: "demo-1",
   eventId: "demo-event",
-  eventName: "Bitcoin above $70,000 on Aug 21",
+  eventName: "Bitcoin above $70,000",
   categoryLabel: "Crypto",
-  settlesAt: "2026-08-21T16:00:00Z",
+  settlesAt: inDays(2),
   sideWord: "Up",
   priceNow: 0.38,
   cost: 120,
@@ -47,6 +55,7 @@ const hotRow: LiteLiveRow = {
   id: "demo-hot",
   eventName: "Arsenal to beat Liverpool",
   categoryLabel: "Soccer",
+  settlesAt: inDays(0, 22),
   sideWord: "ARS +1.5",
   priceNow: 0.36,
   autoClosePrice: 0.35,
@@ -59,6 +68,8 @@ const voucherRow: LiteLiveRow = {
   ...base,
   id: "demo-voucher",
   eventName: "ETH above $4,000 today",
+  categoryLabel: "Crypto",
+  settlesAt: inDays(0, 23),
   isVoucher: true,
   leverageNum: 1,
   autoClosePrice: null,
@@ -72,6 +83,7 @@ const standardRow: LiteLiveRow = {
   id: "demo-standard",
   eventName: "9988.HK closes up today",
   categoryLabel: "Stocks",
+  settlesAt: inDays(0, 16),
   segment: "standard",
   leverageNum: 1,
   autoClosePrice: null,
