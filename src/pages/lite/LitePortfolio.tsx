@@ -35,6 +35,8 @@ import {
   SeriesDetailDesktop,
   SeriesDetailMobile,
 } from "@/components/portfolio/lite/SeriesDetailView";
+import { PortfolioErrorBoundary } from "@/components/portfolio/lite/PortfolioErrorBoundary";
+
 
 const EmptyLive = () => {
   const navigate = useNavigate();
@@ -75,6 +77,20 @@ export default function LitePortfolio() {
   useEffect(() => {
     if (p.boostLive.length === 0 && p.standardLive.length > 0) setSegment("standard");
   }, [p.boostLive.length, p.standardLive.length]);
+
+  // Legacy links carried the event NAME in ?series=; canonicalise to the
+  // stable event id once the events are in.
+  useEffect(() => {
+    if (!series) return;
+    const canonical = p.canonicalSeriesId(series);
+    if (canonical && canonical !== series) {
+      const next = new URLSearchParams(params);
+      next.set("series", canonical);
+      setParams(next, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [series, p.settledRows]);
+
 
   const gauge = useMemo(
     () => ({
@@ -163,22 +179,27 @@ export default function LitePortfolio() {
     onBack: () => setTab("settled"),
     onViewEvent: seriesVm?.eventId ? () => navigate(`/event/${seriesVm.eventId}`) : undefined,
     onOpenRound: (id: string) =>
-      navigate(`/portfolio/settlement/${id}?series=${series ?? ""}`),
+      navigate(
+        `/portfolio/settlement/${id}?series=${encodeURIComponent(series ?? "")}`,
+      ),
   };
 
   const seriesView = series && (
     <div className="px-4 lg:px-0 pt-4">
-      {seriesVm ? (
-        isMobile ? (
-          <SeriesDetailMobile vm={seriesVm} actions={seriesActions} />
+      <PortfolioErrorBoundary resetKey={series} onReset={() => setTab("settled")}>
+        {seriesVm ? (
+          isMobile ? (
+            <SeriesDetailMobile vm={seriesVm} actions={seriesActions} />
+          ) : (
+            <SeriesDetailDesktop vm={seriesVm} actions={seriesActions} />
+          )
         ) : (
-          <SeriesDetailDesktop vm={seriesVm} actions={seriesActions} />
-        )
-      ) : (
-        <div className="py-14 text-center text-[13px] text-[#6B7280]">Nothing settled yet</div>
-      )}
+          <div className="py-14 text-center text-[13px] text-[#6B7280]">Nothing settled yet</div>
+        )}
+      </PortfolioErrorBoundary>
     </div>
   );
+
 
   const liveBody = (
     <>
@@ -250,7 +271,9 @@ export default function LitePortfolio() {
     // A selected series is its OWN page on mobile: inner header + detail body.
     // No brand header, no tabs, no settled KPI, no segment chips.
     if (series) {
-      const name = seriesVm?.seriesName ?? decodeURIComponent(series);
+      // react-router already decoded the param — never decode twice.
+      const name = seriesVm?.seriesName ?? series;
+
       return (
         <div className="min-h-screen bg-background pb-24">
           <MobileHeader

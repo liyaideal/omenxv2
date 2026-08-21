@@ -85,6 +85,23 @@ export const useLitePortfolio = () => {
     return m;
   }, [events]);
 
+  const eventNameById = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const ev of events) m.set(String(ev.id), ev.name);
+    return m;
+  }, [events]);
+
+  /**
+   * Series keys are STABLE EVENT IDS. Legacy links used the raw event name
+   * (which broke on `%` in titles), so a key that is not a known id is
+   * treated as a name for one hop and canonicalised by the caller.
+   */
+  const resolveSeriesName = (key: string) => eventNameById.get(key) ?? key;
+  const seriesKeyForName = (name: string) => String(eventByName.get(name)?.id ?? name);
+  /** Canonical (id-form) key for any incoming series param. */
+  const canonicalSeriesId = (key: string) => seriesKeyForName(resolveSeriesName(key));
+
+
   const live = useMemo<LiteLiveRow[]>(() => {
     return positions.map((p) => {
       const ev = eventByName.get(p.event);
@@ -201,7 +218,7 @@ export const useLitePortfolio = () => {
         const latest = items.reduce((a, b) => (a.closedAt > b.closedAt ? a : b));
         rows.push({
           id: `series-${eventName}`,
-          seriesId: encodeURIComponent(eventName),
+          seriesId: seriesKeyForName(eventName),
           title: eventName,
           metaParts: [
             "Series",
@@ -241,7 +258,8 @@ export const useLitePortfolio = () => {
     }
 
     return rows.sort((a, b) => (a.closedAt < b.closedAt ? 1 : -1));
-  }, [settlements]);
+  }, [settlements, eventByName]);
+
 
   const settledKpi = useMemo(() => {
     const wins = settlements.filter((s) => s.pnlValue > 0).length;
@@ -273,10 +291,13 @@ export const useLitePortfolio = () => {
     return Array.from(groups.values()).sort((a, b) => (a.key < b.key ? 1 : -1));
   };
 
-  const seriesRows = (seriesId: string): SettlementListItem[] =>
-    settlements
-      .filter((s) => s.event === decodeURIComponent(seriesId))
+  const seriesRows = (seriesId: string): SettlementListItem[] => {
+    const name = resolveSeriesName(seriesId);
+    return settlements
+      .filter((s) => s.event === name)
       .sort((a, b) => (a.closedAt < b.closedAt ? 1 : -1));
+  };
+
 
   /** §4d — reconciled series VM: Net = Payout − Cost, round nets sum to Net. */
   const seriesDetail = (seriesId: string): SeriesDetailVM | null => {
@@ -307,8 +328,9 @@ export const useLitePortfolio = () => {
     const cadence = median <= 0 ? "daily" : median <= day * 1.5 ? "daily" : median <= day * 9 ? "weekly" : "monthly";
 
     return {
-      seriesName: decodeURIComponent(seriesId),
-      eventId: eventByName.get(decodeURIComponent(seriesId))?.id ?? null,
+      seriesName: resolveSeriesName(seriesId),
+      eventId: eventByName.get(resolveSeriesName(seriesId))?.id ?? null,
+
       cadence,
       segmentLabel: items[0].productLine === "spot" ? "Standard" : "Boost",
       rounds,
@@ -345,6 +367,8 @@ export const useLitePortfolio = () => {
     monthGroups,
     seriesRows,
     seriesDetail,
+    canonicalSeriesId,
+
     pendingOrders,
     cents,
   };
