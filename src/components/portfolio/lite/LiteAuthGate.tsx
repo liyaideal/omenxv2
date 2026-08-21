@@ -54,7 +54,7 @@ export const LiteAuthGate = ({ children }: { children: React.ReactNode }) => {
             <button
               type="button"
               onClick={() => setAuthOpen(true)}
-              className="btn-primary inline-flex items-center gap-2 text-[13px]"
+              className="btn-primary inline-flex items-center gap-2 text-sm"
             >
               <LogIn className="h-4 w-4" />
               Sign in
