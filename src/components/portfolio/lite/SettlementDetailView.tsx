@@ -50,7 +50,7 @@ export interface SettlementDetailActions {
 const HAIRLINE = "1px solid rgba(28,31,38,.8)";
 
 const Row = ({ k, v, color }: { k: string; v: string; color?: string }) => (
-  <div className="flex items-center justify-between py-3 text-[13px] [&:last-child]:border-b-0" style={{ borderBottom: HAIRLINE }}>
+  <div className="flex items-center justify-between border-b border-b-[rgba(28,31,38,.8)] py-3 text-[13px] last:border-b-0">
     <span className="text-[#6B7280]">{k}</span>
     <span className="font-mono font-semibold" style={{ color: color ?? "#F2F3F5" }}>
       {v}
