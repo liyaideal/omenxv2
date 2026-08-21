@@ -51,7 +51,9 @@ export const SettledRow = forwardRef<HTMLButtonElement, { row: LiteSettledRow }>
       <span className="text-[#6B7280]">›</span>
     </button>
   );
-};
+});
+SettledRow.displayName = "SettledRow";
+
 
 export const SettledList = ({ groups }: { groups: LiteMonthGroup[] }) => {
   const [visible, setVisible] = useState(2);
