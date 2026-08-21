@@ -170,7 +170,11 @@ export default function LitePortfolio() {
         sub={`${p.settledKpi.total} settled`}
         subColor={p.settledKpi.net >= 0 ? VOLT : RED}
       />
-      <KpiCard label="RECORD" value={`${p.settledKpi.wins} – ${p.settledKpi.losses}`} />
+      <KpiCard
+        label="RECORD"
+        value={`${p.settledKpi.wins}W ${p.settledKpi.losses}L`}
+        sub="wins · losses"
+      />
     </KpiGrid>
   );
 
