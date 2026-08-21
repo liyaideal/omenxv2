@@ -8,6 +8,10 @@ import {
   PortfolioDesktopRowsPreview,
   PortfolioSettledListPreview,
   PortfolioEmptyStatesPreview,
+  SettlementDetailDesktopPreview,
+  SettlementDetailMobilePreview,
+  SettlementDetailAutoClosedPreview,
+  SettlementSeriesDetailPreview,
 } from "./portfolioPreviews";
 import { Button } from "@/components/ui/button";
 import { KeyRound, Plus } from "lucide-react";
@@ -304,6 +308,10 @@ export const previewRegistry: Record<string, () => JSX.Element> = {
   "portfolio-lite-desktop-rows": () => <PortfolioDesktopRowsPreview />,
   "portfolio-lite-settled": () => <PortfolioSettledListPreview />,
   "portfolio-lite-empty": () => <PortfolioEmptyStatesPreview />,
+  "portfolio-lite-detail-desktop": () => <SettlementDetailDesktopPreview />,
+  "portfolio-lite-detail-mobile": () => <SettlementDetailMobilePreview />,
+  "portfolio-lite-detail-autoclosed": () => <SettlementDetailAutoClosedPreview />,
+  "portfolio-lite-series-detail": () => <SettlementSeriesDetailPreview />,
 
   "lite-events-loading": () => <LiteEventsLoadingPreview />,
   "lite-events-loading-catalogue": () => <LiteEventsCatalogueLoadingPreview />,

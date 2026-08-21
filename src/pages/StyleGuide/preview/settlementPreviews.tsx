@@ -32,6 +32,7 @@ const mkRow = (over: Partial<SettlementListItem>): SettlementListItem => ({
   closedAt: `${now}T16:00:00Z`,
   closeReason: "settlement",
   cost: 131.1,
+  fees: 1.31,
   exitPriceNum: 1,
   entryPriceNum: 0.54,
   sizeNum: 120,

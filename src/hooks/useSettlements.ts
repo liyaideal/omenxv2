@@ -34,6 +34,8 @@ export interface SettlementListItem {
   closeReason: SettlementCloseReason;
   /** Cash put in. */
   cost: number;
+  /** Trading fees attributable to this position (pro-rated by cost on shared ledgers). */
+  fees: number;
   exitPriceNum: number;
   entryPriceNum: number;
   sizeNum: number;
@@ -80,6 +82,25 @@ export const useSettlements = () => {
         if (!labelsByName.has(e.name)) labelsByName.set(e.name, parseSideLabels(e.side_labels));
       }
 
+      // Fees live on the fill ledger, keyed by (event, option). When several
+      // closed positions share one ledger (recurring series) the fee is
+      // pro-rated by each position's cost so the parts always sum to the whole.
+      const { data: feeRows } = await supabase
+        .from("trades")
+        .select("event_name, option_label, fee")
+        .eq("user_id", user.id)
+        .in("event_name", names);
+      const feeByPair = new Map<string, number>();
+      for (const t of (feeRows ?? []) as any[]) {
+        const k = `${t.event_name}::${t.option_label}`;
+        feeByPair.set(k, (feeByPair.get(k) ?? 0) + (Number(t.fee) || 0));
+      }
+      const costByPair = new Map<string, number>();
+      for (const r of rows as any[]) {
+        const k = `${r.event_name}::${r.option_label}`;
+        costByPair.set(k, (costByPair.get(k) ?? 0) + (Number(r.margin) || 0));
+      }
+
       return rows.map((row: any): SettlementListItem => {
         const entry = Number(row.entry_price) || 0;
         const exit = Number(row.mark_price) || 0;
@@ -94,6 +115,10 @@ export const useSettlements = () => {
             ? row.close_reason
             : "settlement";
         const closedAt: string = row.closed_at ?? row.updated_at;
+        const pairKey = `${row.event_name}::${row.option_label}`;
+        const pairFee = feeByPair.get(pairKey) ?? 0;
+        const pairCost = costByPair.get(pairKey) ?? 0;
+        const fees = pairCost > 0 ? (pairFee * cost) / pairCost : pairFee;
         const isWin = pnl > 0;
         const pnlPercent = cost > 0 ? (pnl / cost) * 100 : 0;
 
@@ -116,6 +141,7 @@ export const useSettlements = () => {
           closedAt,
           closeReason,
           cost,
+          fees,
           exitPriceNum: exit,
           entryPriceNum: entry,
           sizeNum: size,

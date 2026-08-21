@@ -170,6 +170,17 @@ All Portfolio "settles / settled at" strings come from
 24h user-local time, **no timezone suffix**. The verb is added by the caller
 (`settles Aug 21 16:00`). Sports `kickoffLabel` is a separate rule, unchanged.
 
+### CLOSED vs SETTLED（结算详情眉线，2026-08-21）
+
+| close_reason | 眉线 | 价格行 | 时间行 label |
+|---|---|---|---|
+| `settlement` | `SETTLED · {日期}` | `Settled price` | `Settled` |
+| `auto_close` | `CLOSED · {日期}` | `Closed at {价} · auto-closed` | `Closed` |
+| `cashout` | `CLOSED · {日期}` | `Closed at {价} · cashed out early` | `Closed` |
+
+`Payout = max(0, Cost + PnL − Fees)`；为 0 时副行写 `nothing returned`。
+系列眉线为 `SERIES · WON {x} OF {n}`。
+
 ### Close-reason remarks
 
 | Reason | Rendered remark |

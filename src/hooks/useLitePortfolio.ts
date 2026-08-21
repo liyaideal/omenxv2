@@ -17,6 +17,7 @@ import { getCategoryInfo } from "@/lib/categoryUtils";
 import { legSideLabel, liteSideName, boostSuffix } from "@/lib/liteSideName";
 import { estimateAutoClosePrice } from "@/lib/autoClosePrice";
 import { monthGroupLabel, monthKey, settledDayLabel } from "@/lib/settleLabel";
+import type { SeriesDetailVM, SeriesRoundVM } from "@/components/portfolio/lite/SeriesDetailView";
 
 export type LiteSegment = "boost" | "standard";
 
@@ -277,6 +278,45 @@ export const useLitePortfolio = () => {
       .filter((s) => s.event === decodeURIComponent(seriesId))
       .sort((a, b) => (a.closedAt < b.closedAt ? 1 : -1));
 
+  /** §4d — reconciled series VM: Net = Payout − Cost, round nets sum to Net. */
+  const seriesDetail = (seriesId: string): SeriesDetailVM | null => {
+    const items = seriesRows(seriesId);
+    if (items.length === 0) return null;
+
+    const rounds: SeriesRoundVM[] = items.map((s) => ({
+      id: s.id,
+      closedAt: s.closedAt,
+      sideWord: liteSideName(s.option),
+      autoClosed: s.closeReason === "auto_close",
+      net: s.pnlValue,
+    }));
+
+    const cost = items.reduce((a, s) => a + s.cost, 0);
+    const fees = items.reduce((a, s) => a + s.fees, 0);
+    const net = rounds.reduce((a, r) => a + r.net, 0);
+
+    // Cadence from the median gap between consecutive rounds.
+    const stamps = items.map((s) => new Date(s.closedAt).getTime()).sort((a, b) => a - b);
+    const gaps: number[] = [];
+    for (let i = 1; i < stamps.length; i++) gaps.push(stamps[i] - stamps[i - 1]);
+    const median = gaps.length ? gaps.sort((a, b) => a - b)[Math.floor(gaps.length / 2)] : 0;
+    const day = 86_400_000;
+    const cadence = median <= 0 ? "daily" : median <= day * 1.5 ? "daily" : median <= day * 9 ? "weekly" : "monthly";
+
+    return {
+      seriesName: decodeURIComponent(seriesId),
+      eventId: eventByName.get(decodeURIComponent(seriesId))?.id ?? null,
+      cadence,
+      segmentLabel: items[0].productLine === "spot" ? "Standard" : "Boost",
+      rounds,
+      cost,
+      fees,
+      payout: Math.max(0, cost + net - fees),
+      net,
+      wins: rounds.filter((r) => r.net > 0).length,
+    };
+  };
+
   /* --------------------- pending Pro orders --------------------- */
   const pendingOrders = useMemo(
     () =>
@@ -299,6 +339,7 @@ export const useLitePortfolio = () => {
     settledCounts,
     monthGroups,
     seriesRows,
+    seriesDetail,
     pendingOrders,
     cents,
   };

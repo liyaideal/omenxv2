@@ -412,6 +412,19 @@ export const LitePortfolioPage = ({ isMobile }: P) => (
       <DeviceFrame previewKey="portfolio-lite-settled" device="mobile" minHeight={420} />
     </SubSection>
 
+    <SubSection title="单仓结算详情（桌面 / 移动 · won）" description="v1.17 §4b：桌面 back 链接 + 标题行 + meta + KPI 三卡 + DETAILS/ACTIVITY 双卡；移动保持既有纵列。Payout = max(0, Cost + PnL − Fees)。">
+      <DeviceFrame previewKey="portfolio-lite-detail-desktop" device="desktop" minHeight={520} />
+      <DeviceFrame previewKey="portfolio-lite-detail-mobile" device="mobile" minHeight={620} />
+    </SubSection>
+
+    <SubSection title="Auto-closed 态（双端并排）" description="§4c：眉线 CLOSED、Closed at 25¢ · auto-closed 整值红、时间行 label Closed、Payout $0.00 → 副行 nothing returned。">
+      <DeviceFrame previewKey="portfolio-lite-detail-autoclosed" device="desktop" minHeight={640} />
+    </SubSection>
+
+    <SubSection title="系列结算详情（双端并排）" description="§4d：SERIES · WON x OF n 眉线、Rounds/Cost/Fees/Payout 明细、每轮一行可点进单轮详情（auto-closed 轮追加红字）。Net = Payout − Cost。">
+      <DeviceFrame previewKey="portfolio-lite-series-detail" device="desktop" minHeight={640} />
+    </SubSection>
+
     <SubSection title="空态" description="Live 段空态与 Settled 空态。">
       <DeviceFrame previewKey="portfolio-lite-empty" device="mobile" minHeight={220} />
     </SubSection>
