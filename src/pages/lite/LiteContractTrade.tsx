@@ -861,11 +861,12 @@ const LiteContractTrade = () => {
               : "None at this balance"
       }
       compact={!!isMobile}
+      cashOutDisabledText={inReview ? IN_REVIEW_HOLD_LINE : undefined}
       onCashOut={() => setCashOutOpen(true)}
     />
   ) : null;
 
-  const CashOut = heldPos ? (
+  const CashOut = heldPos && !inReview ? (
     <LiteCashOutFlow
       open={cashOutOpen}
       onOpenChange={setCashOutOpen}
@@ -959,6 +960,7 @@ const LiteContractTrade = () => {
                       : "None at this balance"
               }
               compact={!!isMobile}
+              cashOutDisabledText={inReview ? IN_REVIEW_HOLD_LINE : undefined}
               onCashOut={() => setCashOutId(p.id)}
             />
           );
@@ -966,7 +968,7 @@ const LiteContractTrade = () => {
       </div>
     ) : null;
 
-  const MultiCashOut = cashOutTarget ? (
+  const MultiCashOut = cashOutTarget && !inReview ? (
     <LiteCashOutFlow
       open={!!cashOutId}
       onOpenChange={(o) => !o && setCashOutId(null)}
@@ -1026,6 +1028,10 @@ const LiteContractTrade = () => {
   const winnerOpt = event.options.find((o) => o.is_winner) || yesOpt;
   const loserOpt = event.options.find((o) => o.id !== winnerOpt.id) || noOpt;
   const labelFor = (optId: string) => (optId === yesOpt.id ? yesLabel : noLabel);
+
+  const InReview = inReview ? (
+    <InReviewCard sourceName={event.source_name} holding={!!heldPos || multiHeld.length > 0} />
+  ) : null;
 
   const OutcomeCard = resolved ? (
     <LiteOutcomeCard
