@@ -264,7 +264,7 @@ export default function LitePortfolio() {
   return (
     <div className="min-h-screen bg-background">
       <EventsDesktopHeader />
-      <div className="mx-auto w-full max-w-[1200px] px-6 py-6">{content}</div>
+      <div className="mx-auto w-full max-w-7xl px-4 py-6 lg:px-6">{content}</div>
     </div>
   );
 }

@@ -214,6 +214,8 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 4. **筛选/Tabs 区**：标题下方，`space-y-6` 间距
 5. **内容区**：列表或网格
 
+**Lite 页面桌面容器 = `mx-auto w-full max-w-7xl px-4 py-6 lg:px-6`，禁止任何页面自定义 `max-w` / `px`。**
+
 **❌ 不允许**：使用非标准 `max-w` 或 `py` 值；在 `<PageTitle>` 之外手写 display h1 复制其样式。（浏览页跳过标题仍属违规；账户页无标题是**正确**的。）
 
 ### Canonical Product Page Layouts
