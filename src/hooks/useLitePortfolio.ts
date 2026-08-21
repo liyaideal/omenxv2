@@ -283,17 +283,20 @@ export const useLitePortfolio = () => {
     const items = seriesRows(seriesId);
     if (items.length === 0) return null;
 
+    // Reconciliation contract: Net = Payout − Cost, i.e. every figure is
+    // net of fees. Round nets carry their own fees so they sum to Net.
     const rounds: SeriesRoundVM[] = items.map((s) => ({
       id: s.id,
       closedAt: s.closedAt,
       sideWord: liteSideName(s.option),
       autoClosed: s.closeReason === "auto_close",
-      net: s.pnlValue,
+      net: s.pnlValue - s.fees,
     }));
 
     const cost = items.reduce((a, s) => a + s.cost, 0);
     const fees = items.reduce((a, s) => a + s.fees, 0);
     const net = rounds.reduce((a, r) => a + r.net, 0);
+
 
     // Cadence from the median gap between consecutive rounds.
     const stamps = items.map((s) => new Date(s.closedAt).getTime()).sort((a, b) => a - b);
