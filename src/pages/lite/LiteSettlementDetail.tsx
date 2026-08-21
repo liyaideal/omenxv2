@@ -13,6 +13,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useSettlementDetail } from "@/hooks/useSettlementDetail";
 import { useSettlements } from "@/hooks/useSettlements";
 import { optionSideWord } from "@/lib/liteSideName";
+import { liteTradePath, segmentFromProductLine } from "@/lib/liteTradePath";
 import {
   SettlementDetailDesktop,
   SettlementDetailMobile,
@@ -85,7 +86,9 @@ export default function LiteSettlementDetail() {
           ? `/portfolio?tab=settled&series=${fromSeries}`
           : "/portfolio?tab=settled",
       ),
-    onViewEvent: s.eventId ? () => navigate(`/event/${s.eventId}`) : undefined,
+    onViewEvent: s.eventId
+      ? () => navigate(liteTradePath(s.eventId, segmentFromProductLine(s.productLine)))
+      : undefined,
   };
 
   if (isMobile) {

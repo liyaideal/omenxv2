@@ -297,7 +297,7 @@ const detailAutoClosed: SettlementDetailVM = {
 const seriesVm: SeriesDetailVM = {
   seriesName: "Ethereum — up or down?",
   eventId: "demo-eth",
-  cadence: "daily",
+  isDailyRounds: true,
   segmentLabel: "Standard",
   rounds: [
     { id: "r3", closedAt: "2026-08-14T12:20:00Z", sideWord: "Up", autoClosed: false, net: -15.15 },

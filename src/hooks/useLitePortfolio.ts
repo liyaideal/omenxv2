@@ -18,6 +18,8 @@ import { legSideLabel, liteSideName, boostSuffix, optionSideWord } from "@/lib/l
 import { estimateAutoClosePrice } from "@/lib/autoClosePrice";
 import { monthGroupLabel, monthKey, settledDayLabel } from "@/lib/settleLabel";
 import type { SeriesDetailVM, SeriesRoundVM } from "@/components/portfolio/lite/SeriesDetailView";
+import { liteTradePath } from "@/lib/liteTradePath";
+import { INTRADAY_SUBTYPES } from "@/components/lite/intraday/intradayData";
 
 export type LiteSegment = "boost" | "standard";
 
@@ -178,9 +180,7 @@ export const useLitePortfolio = () => {
         ifWins: p.sizeNum,
         autoClosePrice: safeAutoClose,
         hot,
-        tradePath: ev?.id
-          ? `${segment === "standard" ? "/spot" : "/trade"}?event=${ev.id}`
-          : "/events",
+        tradePath: liteTradePath(ev?.id ?? null, segment),
       };
     });
   }, [positions, eventByName, calculateRealtimePnL, getRealtimeMarkPrice, risk]);
@@ -325,19 +325,18 @@ export const useLitePortfolio = () => {
     const net = rounds.reduce((a, r) => a + r.net, 0);
 
 
-    // Cadence from the median gap between consecutive rounds.
-    const stamps = items.map((s) => new Date(s.closedAt).getTime()).sort((a, b) => a - b);
-    const gaps: number[] = [];
-    for (let i = 1; i < stamps.length; i++) gaps.push(stamps[i] - stamps[i - 1]);
-    const median = gaps.length ? gaps.sort((a, b) => a - b)[Math.floor(gaps.length / 2)] : 0;
-    const day = 86_400_000;
-    const cadence = median <= 0 ? "daily" : median <= day * 1.5 ? "daily" : median <= day * 9 ? "weekly" : "monthly";
+    // Cadence words are NOT guessed from gaps — only an explicitly intraday
+    // (daily-round) event may say "daily rounds".
+    const ev = eventByName.get(resolveSeriesName(seriesId));
+    const isDailyRounds = (INTRADAY_SUBTYPES as readonly string[]).includes(
+      String(ev?.event_subtype ?? ""),
+    );
 
     return {
       seriesName: resolveSeriesName(seriesId),
-      eventId: eventByName.get(resolveSeriesName(seriesId))?.id ?? null,
+      eventId: ev?.id ?? null,
 
-      cadence,
+      isDailyRounds,
       segmentLabel: items[0].productLine === "spot" ? "Standard" : "Boost",
       rounds,
       cost,
@@ -345,8 +344,6 @@ export const useLitePortfolio = () => {
       payout: Math.max(0, cost + net),
       net,
       wins: rounds.filter((r) => r.net > 0).length,
-      sideLabel:
-        new Set(rounds.map((r) => r.sideWord)).size === 1 ? rounds[0].sideWord : undefined,
     };
   };
 
