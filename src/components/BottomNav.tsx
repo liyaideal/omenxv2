@@ -55,8 +55,12 @@ export const BottomNav = () => {
 
   const handleAuthSheetOpenChange = (open: boolean) => {
     setAuthSheetOpen(open);
-    if (!open && !user) {
-      setPendingPath(null);
+    if (!open) {
+      // Only forget the pending destination if the user really abandoned sign-in.
+      // (Local `user` state can lag right after a successful login closes the sheet.)
+      supabase.auth.getSession().then(({ data }) => {
+        if (!data.session) setPendingPath(null);
+      });
     }
   };
 
