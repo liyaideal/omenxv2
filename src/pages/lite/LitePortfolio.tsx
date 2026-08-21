@@ -154,7 +154,7 @@ export default function LitePortfolio() {
   );
 
   const seriesView = series && (
-    <div className="px-4 pt-4">
+    <div className="px-4 lg:px-0 pt-4">
       <button
         type="button"
         onClick={() => setTab("settled")}
@@ -188,7 +188,7 @@ export default function LitePortfolio() {
   const liveBody = (
     <>
       {segment === "boost" && p.boostLive.length > 0 && (
-        <div className="px-4 pt-3">
+        <div className="px-4 lg:px-0 pt-3">
           {isMobile ? <BoostCheckCard data={gauge} /> : <BoostCheckBar data={gauge} />}
         </div>
       )}
@@ -196,7 +196,7 @@ export default function LitePortfolio() {
       {rows.length === 0 ? (
         <EmptyLive />
       ) : isMobile ? (
-        <div className="flex flex-col gap-2 px-4 pb-4 pt-3">
+        <div className="flex flex-col gap-2 px-4 lg:px-0 pb-4 pt-3">
           {rows.map((r) => (
             <LiveCard key={r.id} row={r} onCashOut={() => navigate(r.tradePath)} />
           ))}
@@ -209,7 +209,7 @@ export default function LitePortfolio() {
             <LiveRow key={r.id} row={r} onCashOut={() => navigate(r.tradePath)} />
           ))}
           {segment === "boost" && (
-            <div className="px-4 pt-3">
+            <div className="px-4 lg:px-0 pt-3">
               <PendingOrdersRow orders={p.pendingOrders} />
             </div>
           )}
@@ -222,10 +222,10 @@ export default function LitePortfolio() {
 
   const content = (
     <>
-      <div className="px-4">
+      <div className="px-4 lg:px-0">
         <PortfolioTabs value={tab} onChange={setTab} sticky={isMobile} />
       </div>
-      <div className="px-4 pb-1 pt-3.5">
+      <div className="px-4 lg:px-0 pb-1 pt-3.5">
         {tab === "live"
           ? isMobile
             ? liveKpiMobile
@@ -238,7 +238,7 @@ export default function LitePortfolio() {
         <VoucherHairline count={p.claimableVouchers} />
       </div>
       {!series && (
-        <div className="px-4 pt-3">
+        <div className="px-4 lg:px-0 pt-3">
           <SegmentChips
             value={segment}
             onChange={setSegment}
