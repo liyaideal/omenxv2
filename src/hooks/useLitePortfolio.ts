@@ -328,8 +328,9 @@ export const useLitePortfolio = () => {
     const cadence = median <= 0 ? "daily" : median <= day * 1.5 ? "daily" : median <= day * 9 ? "weekly" : "monthly";
 
     return {
-      seriesName: decodeURIComponent(seriesId),
-      eventId: eventByName.get(decodeURIComponent(seriesId))?.id ?? null,
+      seriesName: resolveSeriesName(seriesId),
+      eventId: eventByName.get(resolveSeriesName(seriesId))?.id ?? null,
+
       cadence,
       segmentLabel: items[0].productLine === "spot" ? "Standard" : "Boost",
       rounds,
