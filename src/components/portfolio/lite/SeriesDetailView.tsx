@@ -93,7 +93,7 @@ export const SeriesDetailMobile = ({
   actions?: SeriesDetailActions;
 }) => (
   <div className="bg-background">
-    <div className="pb-6 pt-6 text-center">
+    <div className="px-4 pb-6 pt-6 text-center">
       <div className="text-[13px] text-[#6B7280]" style={{ letterSpacing: "1.2px" }}>
         SERIES · WON {vm.wins} OF {vm.rounds.length}
       </div>
@@ -105,7 +105,7 @@ export const SeriesDetailMobile = ({
       </div>
     </div>
 
-    <div>
+    <div className="px-4">
       <Row k="Rounds" v={roundsLabel(vm)} />
       <Row k="Cost" v={money(vm.cost)} />
       <Row k="Fees" v={money(vm.fees)} />
@@ -114,7 +114,7 @@ export const SeriesDetailMobile = ({
       <Row k="Last settled" v={lastSettled(vm)} />
     </div>
 
-    <div className="pt-6">
+    <div className="px-4 pt-6">
       <div className="pb-1.5 text-[10px] font-bold text-[#6B7280]" style={{ letterSpacing: "1.4px" }}>
         ROUNDS
       </div>
@@ -124,7 +124,7 @@ export const SeriesDetailMobile = ({
     </div>
 
     {actions?.onViewEvent && (
-      <div className="py-7 text-center">
+      <div className="px-4 py-7 text-center">
         <button
           type="button"
           onClick={actions.onViewEvent}
