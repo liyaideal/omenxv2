@@ -111,6 +111,11 @@ export const BottomNav = () => {
                   key={item.path}
                   onClick={() => {
                     triggerHaptic('light');
+                    if (!user && (item.path === "/portfolio" || item.path === "/wallet")) {
+                      setPendingPath(item.path);
+                      setAuthSheetOpen(true);
+                      return;
+                    }
                     navigate(item.path, { replace: true });
                   }}
                   className={`flex flex-col items-center gap-1 transition-all duration-300 ${
@@ -222,7 +227,7 @@ export const BottomNav = () => {
       </div>
 
       {/* Auth Sheet for mobile */}
-      <AuthSheet open={authSheetOpen} onOpenChange={setAuthSheetOpen} />
+      <AuthSheet open={authSheetOpen} onOpenChange={handleAuthSheetOpenChange} />
 
       {/* Profile Drawer for logged in users - updated */}
       <MobileDrawer open={profileSheetOpen} onOpenChange={setProfileSheetOpen} hideCloseButton>
