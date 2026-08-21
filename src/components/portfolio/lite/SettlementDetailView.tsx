@@ -250,8 +250,8 @@ export const SettlementDetailDesktop = ({
         {vm.closeReason === "settlement" ? "Settled" : "Closed"} {settledStampLabel(vm.closedAt)}
       </div>
 
-
       <div className="mt-4">
+
         <KpiGrid cols={3}>
           <KpiCard
             label="RESULT"
