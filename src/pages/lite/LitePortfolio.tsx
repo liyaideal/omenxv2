@@ -35,6 +35,7 @@ import {
   SeriesDetailDesktop,
   SeriesDetailMobile,
 } from "@/components/portfolio/lite/SeriesDetailView";
+import { liteTradePath } from "@/lib/liteTradePath";
 import { PortfolioErrorBoundary } from "@/components/portfolio/lite/PortfolioErrorBoundary";
 
 
@@ -177,7 +178,15 @@ export default function LitePortfolio() {
   const seriesActions = {
     backLabel: "Back to settled",
     onBack: () => setTab("settled"),
-    onViewEvent: seriesVm?.eventId ? () => navigate(`/event/${seriesVm.eventId}`) : undefined,
+    onViewEvent: seriesVm?.eventId
+      ? () =>
+          navigate(
+            liteTradePath(
+              seriesVm.eventId,
+              seriesVm.segmentLabel === "Standard" ? "standard" : "boost",
+            ),
+          )
+      : undefined,
     onOpenRound: (id: string) =>
       navigate(
         `/portfolio/settlement/${id}?series=${encodeURIComponent(series ?? "")}`,
@@ -185,7 +194,9 @@ export default function LitePortfolio() {
   };
 
   const seriesView = series && (
-    <div className="px-4 lg:px-0 pt-4">
+    // Mobile body padding comes ONLY from the detail component (16px) so the
+    // series page indents identically to the single-position detail page.
+    <div className="lg:px-0 pt-4">
       <PortfolioErrorBoundary resetKey={series} onReset={() => setTab("settled")}>
         {seriesVm ? (
           isMobile ? (

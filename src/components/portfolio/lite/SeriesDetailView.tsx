@@ -18,8 +18,8 @@ export interface SeriesRoundVM {
 export interface SeriesDetailVM {
   seriesName: string;
   eventId?: string | null;
-  /** "daily" / "weekly" — the rhythm word in copy. */
-  cadence: string;
+  /** True only for explicit intraday (daily-round) events; drives copy. */
+  isDailyRounds: boolean;
   segmentLabel: "Boost" | "Standard";
   rounds: SeriesRoundVM[];
   cost: number;
@@ -30,8 +30,6 @@ export interface SeriesDetailVM {
   net: number;
 
   wins: number;
-  /** Shown only when every round bought the same side/market. */
-  sideLabel?: string;
 }
 
 export interface SeriesDetailActions {
@@ -76,6 +74,10 @@ const RoundRow = ({
   </button>
 );
 
+/** Rounds value: bare count, and a rhythm word only for daily-round events. */
+const roundsLabel = (vm: SeriesDetailVM) =>
+  vm.isDailyRounds ? `${vm.rounds.length} · daily rounds` : String(vm.rounds.length);
+
 const firstRound = (vm: SeriesDetailVM) =>
   vm.rounds.length ? settledDayLabel(vm.rounds[vm.rounds.length - 1].closedAt) : "—";
 const lastSettled = (vm: SeriesDetailVM) =>
@@ -91,7 +93,7 @@ export const SeriesDetailMobile = ({
   actions?: SeriesDetailActions;
 }) => (
   <div className="bg-background">
-    <div className="px-4 pb-6 pt-6 text-center">
+    <div className="pb-6 pt-6 text-center">
       <div className="text-[13px] text-[#6B7280]" style={{ letterSpacing: "1.2px" }}>
         SERIES · WON {vm.wins} OF {vm.rounds.length}
       </div>
@@ -103,9 +105,8 @@ export const SeriesDetailMobile = ({
       </div>
     </div>
 
-    <div className="px-4">
-      {vm.sideLabel && <Row k="Side" v={vm.sideLabel} />}
-      <Row k="Rounds" v={`${vm.rounds.length} · ${vm.cadence}`} />
+    <div>
+      <Row k="Rounds" v={roundsLabel(vm)} />
       <Row k="Cost" v={money(vm.cost)} />
       <Row k="Fees" v={money(vm.fees)} />
       <Row k="Payout" v={money(vm.payout)} />
@@ -113,7 +114,7 @@ export const SeriesDetailMobile = ({
       <Row k="Last settled" v={lastSettled(vm)} />
     </div>
 
-    <div className="px-4 pt-6">
+    <div className="pt-6">
       <div className="pb-1.5 text-[10px] font-bold text-[#6B7280]" style={{ letterSpacing: "1.4px" }}>
         ROUNDS
       </div>
@@ -123,7 +124,7 @@ export const SeriesDetailMobile = ({
     </div>
 
     {actions?.onViewEvent && (
-      <div className="px-4 py-7 text-center">
+      <div className="py-7 text-center">
         <button
           type="button"
           onClick={actions.onViewEvent}
@@ -149,7 +150,7 @@ export const SeriesDetailDesktop = ({
     <DetailTitleRow title={vm.seriesName} onViewEvent={actions?.onViewEvent} />
 
     <div className="mt-1 text-[12.5px] text-[#6B7280]">
-      Series · {vm.cadence} round · last settled {lastSettled(vm)}
+      Series · {vm.rounds.length} rounds · last settled {lastSettled(vm)}
     </div>
 
     <div className="mt-4">
@@ -172,8 +173,7 @@ export const SeriesDetailDesktop = ({
     <div className="mt-3 grid grid-cols-2 gap-3">
       <DetailCard title="DETAILS">
         <Row k="Type" v={`Series · ${vm.segmentLabel}`} />
-        {vm.sideLabel && <Row k="Side" v={vm.sideLabel} />}
-        <Row k="Rounds" v={`${vm.rounds.length} · ${vm.cadence}`} />
+        <Row k="Rounds" v={roundsLabel(vm)} />
         <Row k="First round" v={firstRound(vm)} />
         <Row k="Last settled" v={lastSettled(vm)} />
       </DetailCard>
