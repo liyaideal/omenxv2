@@ -223,6 +223,8 @@ const LiteSpotTrade = () => {
 
   const dbLifecycle = event?.lifecycle_status || "TRADING";
   const resolved = !!event?.is_resolved;
+  // Result is being checked — between trading close and settlement.
+  const inReview = !resolved && dbLifecycle === "REVIEW";
   const lifecycle = getDisplayLifecycle(dbLifecycle);
   const blockedByState = isOrderingBlocked(dbLifecycle);
   const blockedByTime = isPastFreeze(freezeAt, endDate);
@@ -454,7 +456,7 @@ const LiteSpotTrade = () => {
         },
         {
           key: "settles",
-          label: resolved ? "Settled" : "Settles",
+          label: resolved ? "Settled" : inReview ? "In review" : "Settles",
           time: endDate ? formatLocalTime(endDate) : "—",
         },
       ]}
@@ -500,11 +502,12 @@ const LiteSpotTrade = () => {
       avgCost={heldPos.entryPrice}
       ifWinsLabel={`If ${yesLabel} wins`}
       ifWinsValue={`$${heldPos.sizeNum.toFixed(0)}`}
+      cashOutDisabledText={inReview ? IN_REVIEW_HOLD_LINE : undefined}
       onCashOut={() => setCashOutOpen(true)}
     />
   ) : null;
 
-  const CashOut = heldPos ? (
+  const CashOut = heldPos && !inReview ? (
     <LiteCashOutFlow
       open={cashOutOpen}
       onOpenChange={setCashOutOpen}
@@ -581,6 +584,10 @@ const LiteSpotTrade = () => {
     (Number(yesOpt.price) >= 0.5 ? yesOpt : noOpt);
   const loserOpt = winnerOpt.id === yesOpt.id ? noOpt : yesOpt;
   const labelForOpt = (optId: string) => (optId === yesOpt.id ? yesLabel : noLabel);
+
+  const InReview = inReview ? (
+    <InReviewCard sourceName={event.source_name} holding={!!heldPos} />
+  ) : null;
 
   const OutcomeCard = resolved ? (
     <LiteOutcomeCard
@@ -737,6 +744,7 @@ const LiteSpotTrade = () => {
               </>
             ) : (
               <>
+                {InReview}
                 {CountdownLine}
                 {PastDays}
                 {Chart}
@@ -853,6 +861,7 @@ const LiteSpotTrade = () => {
             {Chart}
             {SettlementRail}
             {resolved && Proof}
+            {InReview}
             {RuleCard}
             {!resolved && YourPosition}
             {MarketActivity}
