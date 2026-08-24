@@ -187,6 +187,7 @@ export const useLitePortfolio = () => {
         sizeNum: p.sizeNum,
         ifWins: p.sizeNum,
         autoClosePrice: safeAutoClose,
+        autoCloseState,
         hot,
         tradePath: liteTradePath(ev?.id ?? null, segment),
       };
