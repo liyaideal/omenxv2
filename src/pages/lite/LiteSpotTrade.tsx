@@ -19,6 +19,7 @@ import { executeSpotTrade } from "@/services/tradingService";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useRealtimePricesOptional } from "@/contexts/RealtimePricesContext";
 import { AuthDialog } from "@/components/auth/AuthDialog";
+import { AuthSheet } from "@/components/auth/AuthSheet";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
@@ -160,6 +161,7 @@ const LiteSpotTrade = () => {
   const [amount, setAmount] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
+  const [resumeBuy, setResumeBuy] = useState(false);
   const [refetchTick, setRefetchTick] = useState(0);
   const [cashOutOpen, setCashOutOpen] = useState(false);
 
@@ -708,7 +710,13 @@ const LiteSpotTrade = () => {
     onSideChange: setSide,
     amount,
     onAmountChange: setAmount,
-    onRequestAuth: () => setAuthOpen(true),
+    onRequestAuth: () => {
+      if (isMobile) {
+        setDrawerOpen(false);
+        setResumeBuy(true);
+      }
+      setAuthOpen(true);
+    },
   } as const;
 
   if (isMobile) {
@@ -840,7 +848,16 @@ const LiteSpotTrade = () => {
             />
           </MobileDrawer>
 
-          <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
+          <AuthSheet
+            open={authOpen}
+            onOpenChange={(o) => {
+              setAuthOpen(o);
+              if (!o) {
+                if (resumeBuy && user) setDrawerOpen(true);
+                setResumeBuy(false);
+              }
+            }}
+          />
         </div>
       </TooltipProvider>
     );
