@@ -3,13 +3,24 @@
 // the "waiting to fill" Pro order tail row. Literal spec (工单 §3).
 // ============================================================
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { fromState, savePortfolioScroll } from "@/lib/portfolioReturn";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSurface } from "@/contexts/SurfaceContext";
 import { settleLabel } from "@/lib/settleLabel";
 import { boostSuffix } from "@/lib/liteSideName";
 import type { LiteLiveRow } from "@/hooks/useLitePortfolio";
 import { VOLT, RED, money, signedMoney, livePnlColor } from "./parts";
+
+/** Navigate into a market while remembering where the reader was. */
+const useGoToMarket = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  return (path: string) => {
+    savePortfolioScroll();
+    navigate(path, fromState(`${location.pathname}${location.search}`));
+  };
+};
 
 const cents = (p: number) => `${Math.round(p * 100)}¢`;
 
@@ -38,7 +49,7 @@ export const LiveCard = ({
   row: LiteLiveRow;
   onCashOut?: (row: LiteLiveRow) => void;
 }) => {
-  const navigate = useNavigate();
+  const goToMarket = useGoToMarket();
   const hot = row.hot;
   const sentence =
     row.segment === "standard"
@@ -49,8 +60,8 @@ export const LiveCard = ({
     <div
       role="button"
       tabIndex={0}
-      onClick={() => navigate(row.tradePath)}
-      onKeyDown={(e) => e.key === "Enter" && navigate(row.tradePath)}
+      onClick={() => goToMarket(row.tradePath)}
+      onKeyDown={(e) => e.key === "Enter" && goToMarket(row.tradePath)}
       className="rounded-[12px] bg-[#12151A] p-3.5 text-left"
       style={hot ? { border: "1px solid rgba(255,92,92,.55)" } : undefined}
     >
@@ -143,7 +154,7 @@ export const LiveRow = ({
   row: LiteLiveRow;
   onCashOut?: (row: LiteLiveRow) => void;
 }) => {
-  const navigate = useNavigate();
+  const goToMarket = useGoToMarket();
   const hot = row.hot;
   // ONE merged column: Boost shows the auto-close level, Standard the if-wins
   // payout. A Boost row never shows an if-wins amount.
@@ -158,8 +169,8 @@ export const LiveRow = ({
     <div
       role="button"
       tabIndex={0}
-      onClick={() => navigate(row.tradePath)}
-      onKeyDown={(e) => e.key === "Enter" && navigate(row.tradePath)}
+      onClick={() => goToMarket(row.tradePath)}
+      onKeyDown={(e) => e.key === "Enter" && goToMarket(row.tradePath)}
       className="grid items-center px-4 py-[13px] text-left"
       style={{
         gridTemplateColumns: DESKTOP_GRID,
