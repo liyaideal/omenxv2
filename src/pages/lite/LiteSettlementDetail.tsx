@@ -110,7 +110,7 @@ export default function LiteSettlementDetail() {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background pb-24">
-        <MobileHeader variant="inner" title={s.event} />
+        <MobileHeader variant="inner" title={s.event} showBack backTo={backTo} />
         <LiteAuthGate>
           <SettlementDetailMobile vm={vm} actions={actions} />
         </LiteAuthGate>
