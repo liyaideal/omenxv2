@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
+import { useSurface } from "@/contexts/SurfaceContext";
+import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -534,9 +536,38 @@ export const H2eRewardsCard = ({
   );
 };
 
+/** Surface-aware wallet auth gate: Lite → LiteAuthGate, Pro → AuthGateOverlay (unchanged). */
+const WalletAuthGate = ({
+  isLite,
+  maxPreviewHeight,
+  children,
+}: {
+  isLite: boolean;
+  maxPreviewHeight?: string;
+  children: React.ReactNode;
+}) =>
+  isLite ? (
+    <LiteAuthGate
+      title="Sign in to view your wallet"
+      description="Deposit, withdraw and move funds between your accounts by signing in."
+    >
+      {children}
+    </LiteAuthGate>
+  ) : (
+    <AuthGateOverlay
+      title="Sign in to view your wallet"
+      description="Manage your funds and saved addresses by signing in."
+      maxPreviewHeight={maxPreviewHeight}
+    >
+      {children}
+    </AuthGateOverlay>
+  );
+
 export default function Wallet() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { surface } = useSurface();
+  const isLite = surface === "lite";
   const { balance, spotBalance, user } = useUserProfile();
   const { imTotal, unrealizedPnL, hasPositions } = useRealtimeRiskMetrics();
   const h2e = useH2eRewardsSummary();
@@ -863,7 +894,7 @@ export default function Wallet() {
       <div className="min-h-screen bg-background">
         <EventsDesktopHeader />
         
-        <AuthGateOverlay title="Sign in to view your wallet" description="Manage your funds and saved addresses by signing in.">
+        <WalletAuthGate isLite={isLite}>
         <main className="mx-auto w-full max-w-7xl px-4 py-10 lg:px-6 space-y-[18px]">
           <MaintenanceNoticeBanner className="mb-2" />
 
@@ -964,7 +995,7 @@ export default function Wallet() {
           </div>
 
         </main>
-        </AuthGateOverlay>
+        </WalletAuthGate>
 
 
         <DepositDialog 
@@ -1021,7 +1052,7 @@ export default function Wallet() {
     <div className="min-h-screen bg-background pb-24">
       <MobileHeader variant="brand" showBack={false} />
 
-      <AuthGateOverlay title="Sign in to view your wallet" description="Manage your funds and saved addresses by signing in." maxPreviewHeight="400px">
+      <WalletAuthGate isLite={isLite} maxPreviewHeight="400px">
       <div className="px-4 py-6 space-y-4">
         <MaintenanceNoticeBanner />
 
@@ -1079,7 +1110,7 @@ export default function Wallet() {
           Sent funds to the wrong network? Request recovery →
         </button>
       </div>
-      </AuthGateOverlay>
+      </WalletAuthGate>
 
       <BottomNav />
 

@@ -20,11 +20,13 @@ import {
   Zap,
   Gift,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Cloud
 } from "lucide-react";
 import type { AuthStep } from "@/hooks/useAuth";
 import sillyname from "sillyname";
 import { GoogleAccountChooser } from "./GoogleAccountChooser";
+import { useSurface } from "@/contexts/SurfaceContext";
 
 interface AuthContentProps {
   step: AuthStep;
@@ -44,6 +46,8 @@ export const AuthContent = ({
   variant = "desktop" 
 }: AuthContentProps) => {
   const queryClient = useQueryClient();
+  const { surface } = useSurface();
+  const isLite = surface === "lite";
   const [searchParams] = useSearchParams();
   const { profile, username: profileUsername, email: profileEmail } = useUserProfile();
   const [authMethod, setAuthMethod] = useState<"wallet" | "google" | "telegram">("google");
@@ -289,25 +293,43 @@ export const AuthContent = ({
     return (
       <div className={containerClass}>
         {/* Headlines */}
-        <div className="text-center space-y-1">
-          <h2 className="text-lg font-semibold text-foreground">
-            Predict the Future, Profit from Certainty
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Trade crypto, politics, sports & more like futures
-          </p>
-        </div>
-
-        {/* Value Proposition Banner */}
-        <div className="bg-primary/10 border border-primary/30 rounded-xl p-3 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
-            <TrendingUp className="w-5 h-5 text-primary" />
-          </div>
+        {isLite ? (
           <div>
-            <p className="font-medium text-foreground text-sm">Predict. Trade. Profit.</p>
-            <p className="text-xs text-muted-foreground">Up to 100x Leverage · Pro Trading Tools</p>
+            <img
+              src="/lynx-auth-placeholder.png"
+              alt="OMENX lynx"
+              className="w-[72px] h-auto mx-auto mb-1 drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
+            />
+            <h2 className="font-display text-[20px] font-semibold tracking-tight text-foreground text-center">
+              Trade what happens next
+            </h2>
+            <p className="text-[13px] text-muted-foreground text-center mt-1.5 leading-snug">
+              Intraday crypto, stock and sports markets — settled in USDC.
+            </p>
           </div>
-        </div>
+        ) : (
+          <>
+            <div className="text-center space-y-1">
+              <h2 className="text-lg font-semibold text-foreground">
+                Predict the Future, Profit from Certainty
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Trade crypto, politics, sports & more like futures
+              </p>
+            </div>
+
+            {/* Value Proposition Banner */}
+            <div className="bg-primary/10 border border-primary/30 rounded-xl p-3 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
+                <TrendingUp className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <p className="font-medium text-foreground text-sm">Predict. Trade. Profit.</p>
+                <p className="text-xs text-muted-foreground">Up to 100x Leverage · Pro Trading Tools</p>
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Auth Method Tabs */}
         <div className="flex bg-muted/50 rounded-xl p-1 gap-1">
@@ -321,7 +343,9 @@ export const AuthContent = ({
               onClick={() => setAuthMethod(method.id)}
               className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all ${
                 authMethod === method.id
-                  ? "bg-primary text-primary-foreground shadow-sm"
+                  ? isLite
+                    ? "bg-[#F2F3F5] text-[#090A0C] shadow-sm"
+                    : "bg-primary text-primary-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               }`}
             >
@@ -353,7 +377,7 @@ export const AuthContent = ({
                 Sign in with Google
               </Button>
               <p className="text-xs text-muted-foreground text-center">
-                Instant access · No wallet needed · Start trading in seconds
+                {isLite ? "No wallet needed · Ready in seconds" : "Instant access · No wallet needed · Start trading in seconds"}
               </p>
             </>
           )}
@@ -412,13 +436,21 @@ export const AuthContent = ({
 
         {/* Info text */}
         <div className="text-center space-y-2">
-          <p className="text-sm text-foreground">
-            New to OMENX? Authorization creates your account automatically
-          </p>
-          <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5">
-            <Zap className="w-3.5 h-3.5 text-primary" />
-            Predict. Trade. Profit. · Start Trading Now
-          </p>
+          {isLite ? (
+            <p className="text-sm text-foreground">
+              New to OMENX? Your account is created the first time you sign in.
+            </p>
+          ) : (
+            <>
+              <p className="text-sm text-foreground">
+                New to OMENX? Authorization creates your account automatically
+              </p>
+              <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5">
+                <Zap className="w-3.5 h-3.5 text-primary" />
+                Predict. Trade. Profit. · Start Trading Now
+              </p>
+            </>
+          )}
         </div>
 
 
@@ -460,11 +492,53 @@ export const AuthContent = ({
           Back
         </button>
 
-        <div className="text-center space-y-1">
-          <h2 className="text-lg font-semibold text-foreground">Create Your Trading Wallet</h2>
-          <p className="text-sm text-muted-foreground">Start trading events with real funds</p>
+        {isLite ? (
+          <div className="text-center space-y-1">
+            <h2 className="font-display text-[20px] font-semibold tracking-tight text-foreground">Create your wallet</h2>
+            <p className="text-[13px] text-muted-foreground leading-snug">A USDC wallet on Base, set up for you in one tap.</p>
+          </div>
+        ) : (
+          <div className="text-center space-y-1">
+            <h2 className="text-lg font-semibold text-foreground">Create Your Trading Wallet</h2>
+            <p className="text-sm text-muted-foreground">Start trading events with real funds</p>
+          </div>
+        )}
+
+        {isLite ? (
+          <>
+        {/* Value points */}
+        <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-0">
+          {[
+            "Back events with USDC on Base",
+            "No seed phrase, no gas — sign in and go",
+            "Cash out to your own address any time",
+          ].map((line) => (
+            <div key={line} className="flex items-start gap-2.5 py-1.5 text-[13px] text-[#F2F3F5]">
+              <Check className="w-4 h-4 text-[#CFFF4A] shrink-0 mt-0.5" strokeWidth={2} />
+              {line}
+            </div>
+          ))}
         </div>
 
+        {/* TODO: wire real Cloudflare Turnstile (no Turnstile integration exists in this project yet) */}
+        <div className="flex items-center justify-between bg-[#1A1D22] border border-[#2A2F38] rounded-lg px-3.5 py-2.5 gap-2.5">
+          <div className="flex items-center gap-2.5">
+            <span className="w-[22px] h-[22px] rounded-[5px] bg-[#00A67D] flex items-center justify-center shrink-0">
+              <Check className="w-[13px] h-[13px] text-white" strokeWidth={3.5} />
+            </span>
+            <span className="text-[13px] text-[#F2F3F5]">Success!</span>
+          </div>
+          <div className="flex flex-col items-end gap-px">
+            <span className="flex items-center gap-1.5 text-[11px] text-[#9CA3AD]">
+              <Cloud className="w-3 h-3" />
+              Cloudflare
+            </span>
+            <span className="text-[9px] text-[#6B7280]">Privacy · Terms</span>
+          </div>
+        </div>
+          </>
+        ) : (
+          <>
         {/* Platform Features Card */}
         <div className="bg-primary/10 border border-primary/30 rounded-xl p-3">
           <div className="flex items-start gap-3">
@@ -514,13 +588,15 @@ export const AuthContent = ({
             <span className="text-xs text-trading-green">Verified</span>
           </div>
         </div>
+          </>
+        )}
 
         {/* Create Button */}
         <Button
           onClick={handleCreateWallet}
-          className="w-full h-11 btn-trading-green"
+          className={`w-full h-11 ${isLite ? "btn-primary" : "btn-trading-green"}`}
         >
-          Create Wallet & Start Trading
+          {isLite ? "Create wallet" : "Create Wallet & Start Trading"}
         </Button>
       </div>
     );
@@ -542,20 +618,31 @@ export const AuthContent = ({
         </button>
 
         {/* Success Banner */}
-        <div className="bg-trading-green/10 border border-trading-green/30 rounded-xl p-2.5 flex items-center gap-2">
-          <Check className="w-4 h-4 text-trading-green flex-shrink-0" />
-          <span className="text-trading-green font-medium text-sm">
-            Wallet created! Complete your profile to start
-          </span>
-        </div>
+        {isLite ? (
+          <div className="bg-[rgba(207,255,74,0.1)] border border-[rgba(207,255,74,0.3)] text-[#DCFF6A] rounded-xl p-2.5 flex items-center gap-2">
+            <Check className="w-4 h-4 flex-shrink-0" />
+            <span className="font-medium text-sm">
+              Wallet created — complete your profile to start
+            </span>
+          </div>
+        ) : (
+          <div className="bg-trading-green/10 border border-trading-green/30 rounded-xl p-2.5 flex items-center gap-2">
+            <Check className="w-4 h-4 text-trading-green flex-shrink-0" />
+            <span className="text-trading-green font-medium text-sm">
+              Wallet created! Complete your profile to start
+            </span>
+          </div>
+        )}
 
         <div className="text-center space-y-0.5">
-          <p className="text-xs text-muted-foreground">Final Step</p>
-          <h2 className="text-lg font-semibold text-foreground">Complete Your Profile</h2>
+          <p className="text-xs text-muted-foreground">{isLite ? "Final step" : "Final Step"}</p>
+          <h2 className={isLite ? "font-display text-[20px] font-semibold tracking-tight text-foreground" : "text-lg font-semibold text-foreground"}>
+            {isLite ? "Complete your profile" : "Complete Your Profile"}
+          </h2>
         </div>
 
         {/* Account Info Section */}
-        <div className="bg-card/50 border border-border/50 rounded-xl p-4 space-y-3">
+        <div className={isLite ? "rounded-lg border border-border bg-muted/30 p-4 space-y-3" : "bg-card/50 border border-border/50 rounded-xl p-4 space-y-3"}>
           {/* Username Input */}
           <div className="space-y-1">
             <div className="flex items-center gap-2">
@@ -605,7 +692,7 @@ export const AuthContent = ({
         </div>
 
         {/* Referral Code Section */}
-        <div className="bg-card/50 border border-border/50 rounded-xl overflow-hidden">
+        <div className={isLite ? "rounded-lg border border-border bg-muted/30 overflow-hidden" : "bg-card/50 border border-border/50 rounded-xl overflow-hidden"}>
           <button
             type="button"
             onClick={() => setShowReferralInput(!showReferralInput)}
@@ -651,9 +738,11 @@ export const AuthContent = ({
         <Button
           onClick={handleCompleteProfile}
           disabled={isLoading}
-          className="w-full h-11 btn-trading-green"
+          className={`w-full h-11 ${isLite ? "btn-primary" : "btn-trading-green"}`}
         >
-          {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+          {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : isLite ? (
+            "Start trading →"
+          ) : (
             <>
               Start Trading Now
               <ArrowRight className="w-4 h-4 ml-1.5" />
