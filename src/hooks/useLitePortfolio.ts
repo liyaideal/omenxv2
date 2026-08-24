@@ -44,6 +44,8 @@ export interface LiteLiveRow {
   ifWins: number;
   /** Estimated account-level auto-close price (Boost only, >1×). */
   autoClosePrice: number | null;
+  /** Whether an auto-close level exists, is absent, or data is missing. */
+  autoCloseState: "level" | "none" | "missing";
   /** Price is within 10% of the auto-close price. */
   hot: boolean;
   tradePath: string;
@@ -130,28 +132,34 @@ export const useLitePortfolio = () => {
 
       // Auto-close: account-level solve with THIS position excluded from the
       // snapshot (mode 'existing' — margin added back, own PnL excluded).
-      const autoClosePrice =
-        segment === "boost" && p.leverageNum > 1
-          ? estimateAutoClosePrice({
-              entryPrice: p.entryPriceNum,
-              boost: p.leverageNum,
-              amount: cost,
-              fee: 0,
-              quantity: p.sizeNum,
-              hasOtherPositions: true,
-              imTotalOther: Math.max(risk.imTotal - cost, 0),
-              totalAssets: risk.totalAssets + cost,
-              unrealizedPnLOther: risk.unrealizedPnL - profit,
-              mode: "existing",
-            })
-          : null;
-
-      // Guard: with no equity (signed-out demo) the solve degenerates onto the
-      // current price — never surface a bogus auto-close level.
-      const safeAutoClose =
-        autoClosePrice != null && risk.equity > 0 && autoClosePrice > 0 && autoClosePrice < priceNow
-          ? autoClosePrice
-          : null;
+      let autoCloseState: LiteLiveRow["autoCloseState"] = "none";
+      let safeAutoClose: number | null = null;
+      if (segment === "boost" && p.leverageNum > 1) {
+        if (risk.equity <= 0) {
+          autoCloseState = "missing";
+        } else {
+          const raw = estimateAutoClosePrice({
+            entryPrice: p.entryPriceNum,
+            boost: p.leverageNum,
+            amount: cost,
+            fee: 0,
+            quantity: p.sizeNum,
+            hasOtherPositions: true,
+            imTotalOther: Math.max(risk.imTotal - cost, 0),
+            totalAssets: risk.totalAssets + cost,
+            unrealizedPnLOther: risk.unrealizedPnL - profit,
+            mode: "existing",
+          });
+          if (raw == null) {
+            autoCloseState = "missing";
+          } else if (raw > 0 && raw < priceNow) {
+            autoCloseState = "level";
+            safeAutoClose = raw;
+          } else {
+            autoCloseState = "none";
+          }
+        }
+      }
 
       const hot =
         safeAutoClose != null && priceNow > 0
@@ -179,6 +187,7 @@ export const useLitePortfolio = () => {
         sizeNum: p.sizeNum,
         ifWins: p.sizeNum,
         autoClosePrice: safeAutoClose,
+        autoCloseState,
         hot,
         tradePath: liteTradePath(ev?.id ?? null, segment),
       };
