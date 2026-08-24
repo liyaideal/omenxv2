@@ -43,5 +43,36 @@ export const readPortfolioSegment = (): string | null => {
   }
 };
 
+// The pending-Pro-orders row flips the reader into the Pro terminal. Remember
+// that they came from Lite so the browser back button lands on the Lite
+// portfolio again instead of the Pro one.
+const RETURN_SURFACE_KEY = "lite-portfolio-return-surface";
+
+export const savePortfolioReturnSurface = (surface: string) => {
+  try {
+    sessionStorage.setItem(RETURN_SURFACE_KEY, surface);
+  } catch {
+    /* noop */
+  }
+};
+
+export const takePortfolioReturnSurface = (): string | null => {
+  try {
+    const v = sessionStorage.getItem(RETURN_SURFACE_KEY);
+    if (v != null) sessionStorage.removeItem(RETURN_SURFACE_KEY);
+    return v;
+  } catch {
+    return null;
+  }
+};
+
+export const clearPortfolioReturnSurface = () => {
+  try {
+    sessionStorage.removeItem(RETURN_SURFACE_KEY);
+  } catch {
+    /* noop */
+  }
+};
+
 /** Router state carried into a trade page so its back button can come home. */
 export const fromState = (from: string) => ({ state: { from } });

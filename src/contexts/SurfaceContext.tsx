@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
+import { clearPortfolioReturnSurface } from "@/lib/portfolioReturn";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile } from "@/hooks/useUserProfile";
 
@@ -51,6 +52,8 @@ export const SurfaceProvider = ({ children }: { children: ReactNode }) => {
   }, [profile?.user_id]);
 
   const toggle = useCallback(() => {
+    // A manual switch cancels any pending "return to Lite" intent.
+    clearPortfolioReturnSurface();
     setSurface(surface === "lite" ? "pro" : "lite");
   }, [surface, setSurface]);
 

@@ -4,7 +4,11 @@
 // ============================================================
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { fromState, savePortfolioScroll } from "@/lib/portfolioReturn";
+import {
+  fromState,
+  savePortfolioReturnSurface,
+  savePortfolioScroll,
+} from "@/lib/portfolioReturn";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSurface } from "@/contexts/SurfaceContext";
 import { settleLabel } from "@/lib/settleLabel";
@@ -246,6 +250,10 @@ export const PendingOrdersRow = ({ orders }: { orders: any[] }) => {
 
   // Editing / cancelling a resting order only exists in Pro — send the reader there.
   const openInPro = (o: any) => {
+    // Stash where (and how) we were reading so the browser back button returns
+    // to the Lite portfolio at the same offset rather than the Pro one.
+    savePortfolioScroll();
+    savePortfolioReturnSurface("lite");
     setSurface("pro");
     navigate(o.eventId ? `/trade?event=${o.eventId}` : "/trade");
   };
