@@ -256,7 +256,7 @@ export const useLitePortfolio = () => {
       const meta = [sideWord];
       if (boost) meta.push(boost);
       meta.push(settledDayLabel(s.closedAt));
-      if (s.closeReason === "cashout") meta.push("cashed out early");
+      // Early cash-out is not surfaced — users only care about win / loss.
       if (s.closeReason === "auto_close") meta.push("auto-closed");
 
       rows.push({

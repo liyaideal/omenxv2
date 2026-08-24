@@ -477,11 +477,11 @@ const PORTFOLIO_MOBILE_CASES: SectionCase[] = [
   {
     key: "portfolio-lite-settled",
     label: "Settled 列表",
-    note: "按月份分组、按月懒加载。备注行的三态完全由 closeReason 决定，不看盈亏。",
+    note: "按月份分组、按月懒加载。备注只有 auto-closed 一种；提前平仓（cashout）不做任何可见标注。",
     spec: [
-      { state: "settlement", when: "closeReason === 'settlement'", visual: "无红备注，正常结算行", source: "resolvedGrouping" },
+      { state: "settlement", when: "closeReason === 'settlement'", visual: "无备注，正常结算行", source: "resolvedGrouping" },
       { state: "auto_close", when: "closeReason === 'auto_close'", visual: "行内红字备注 auto-closed", source: "closeReason" },
-      { state: "cashout", when: "closeReason === 'cashout'", visual: "备注 `cashed out early`（中性色）", source: "closeReason" },
+      { state: "cashout", when: "closeReason === 'cashout'", visual: "与 settlement 完全一致，无备注（`cashed out early` 已废弃）", source: "closeReason" },
       { state: "系列聚合行", when: "isSeries === true", visual: "一行代表整个系列，点进系列详情而非单仓详情", source: "isSeries" },
       { state: "零结果行", when: "Math.abs(net) < 0.005", visual: "muted $0.00，不带符号", source: "isZeroMoney" },
     ],
@@ -639,7 +639,7 @@ const PORTFOLIO_DESKTOP_CASES: SectionCase[] = [
       {
         state: "cashout",
         when: "closeReason === 'cashout'",
-        visual: "`Closed at 48¢ · cashed out early`，时间行 label Closed；outcomeWon 不参与文案",
+        visual: "`Closed at 48¢`（无备注），结果行只有 Won / Lost；时间行 label Closed；提前平仓不做可见标注",
         source: "closeReason",
       },
     ],

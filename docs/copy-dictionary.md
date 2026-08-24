@@ -186,7 +186,7 @@ All Portfolio "settles / settled at" strings come from
 |---|---|---|---|
 | `settlement` | `SETTLED · {日期}` | `Settled price` | `Settled` |
 | `auto_close` | `CLOSED · {日期}` | `Closed at {价} · auto-closed` | `Closed` |
-| `cashout` | `CLOSED · {日期}` | `Closed at {价} · cashed out early` | `Closed` |
+| `cashout` | `CLOSED · {日期}` | `Closed at {价}`（无备注） | `Closed` |
 
 `Payout = max(0, Cost + PnL − Fees)`；为 0 时副行写 `nothing returned`。
 系列眉线为 `SERIES · WON {x} OF {n}`。
@@ -197,6 +197,8 @@ All Portfolio "settles / settled at" strings come from
 |---|---|
 | `settlement` | (nothing — a normal resolution needs no remark) |
 | `auto_close` | `auto-closed` |
-| `cashout` | `cashed out early` |
+| `cashout` | (nothing — 提前平仓不做可见标注) |
+
+**已废弃（禁用）：`cashed out early`**（2026-08-24）。用户只关心 win / loss 与金额；cashout 在 Settled 列表行与详情结果行上与 settlement 完全一致，仅保留眉线 CLOSED 与价格行 label `Closed at` 的口径差异。
 
 Never render "liquidated" or "stopped out" — banned Lite jargon.

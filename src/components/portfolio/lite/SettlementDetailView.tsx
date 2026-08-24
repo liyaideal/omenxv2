@@ -65,7 +65,8 @@ export const detailPayout = (vm: SettlementDetailVM) =>
 
 const exitValueLine = (vm: SettlementDetailVM) => {
   if (vm.closeReason === "auto_close") return `${centsLabel(vm.exitPrice)} · auto-closed`;
-  if (vm.closeReason === "cashout") return `${centsLabel(vm.exitPrice)} · cashed out early`;
+  // Early cash-out carries no remark — the price row states the exit, nothing else.
+  if (vm.closeReason === "cashout") return centsLabel(vm.exitPrice);
   return `${money(vm.exitPrice)} · ${vm.outcomeWon ? `${vm.sideWord} won` : `${vm.sideWord} lost`}`;
 };
 
@@ -77,7 +78,7 @@ const resultSub = (vm: SettlementDetailVM) => {
   if (vm.closeReason === "auto_close")
     return { text: `Lost · auto-closed at ${centsLabel(vm.exitPrice)}`, color: RED };
   if (vm.closeReason === "cashout")
-    return { text: `${won ? "Won" : "Lost"} · cashed out early`, color: undefined };
+    return { text: won ? "Won" : "Lost", color: undefined };
   return {
     text: `${won ? "Won" : "Lost"} · ${vm.sideWord} settled at ${money(vm.exitPrice)}`,
     color: undefined,
