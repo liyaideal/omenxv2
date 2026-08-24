@@ -221,13 +221,19 @@ export default function LitePortfolio() {
     backLabel: "Back to settled",
     onBack: () => setTab("settled"),
     onViewEvent: seriesVm?.eventId
-      ? () =>
+      ? () => {
+          // Come back to this series page (not the events list) from the trade page.
+          savePortfolioScroll();
           navigate(
             liteTradePath(
               seriesVm.eventId,
               seriesVm.segmentLabel === "Standard" ? "standard" : "boost",
             ),
-          )
+            fromState(
+              `/portfolio?tab=settled&series=${encodeURIComponent(series ?? "")}`,
+            ),
+          );
+        }
       : undefined,
     onOpenRound: (id: string) =>
       navigate(
