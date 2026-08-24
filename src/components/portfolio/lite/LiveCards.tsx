@@ -166,14 +166,18 @@ export const LiveRow = ({
 }) => {
   const goToMarket = useGoToMarket();
   const hot = row.hot;
-  // ONE merged column: Boost shows the auto-close level, Standard the if-wins
-  // payout. A Boost row never shows an if-wins amount.
-  const mergedCol =
-    row.segment === "standard"
-      ? `If ${row.sideWord} wins → ${money(row.ifWins)}`
-      : row.autoClosePrice != null
-        ? `${cents(row.autoClosePrice)} · now ${cents(row.priceNow)}`
-        : null;
+  const autoCloseSecondLine = (row: LiteLiveRow): string | null => {
+    if (row.segment !== "boost" || row.leverageNum <= 1) return null;
+    if (row.autoCloseState === "level" && row.autoClosePrice != null) {
+      return `· auto-close ≈${cents(row.autoClosePrice)}`;
+    }
+    if (row.autoCloseState === "missing") return "· auto-close —";
+    return null;
+  };
+  const mergedCol = [
+    `If ${row.sideWord} wins → ${money(row.ifWins)}`,
+    autoCloseSecondLine(row),
+  ].filter(Boolean).join(" ");
 
   return (
     <div
