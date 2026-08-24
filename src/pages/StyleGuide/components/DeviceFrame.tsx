@@ -47,7 +47,7 @@ export const DeviceFrame = ({
       (entries) => {
         if (entries.some((e) => e.isIntersecting)) setMounted(true);
       },
-      { rootMargin: "600px 0px" },
+      { rootMargin: "300px 0px" },
     );
     const far = new IntersectionObserver(
       (entries) => {
