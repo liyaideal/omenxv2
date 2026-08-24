@@ -4,6 +4,7 @@
 // ============================================================
 import { forwardRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { savePortfolioScroll } from "@/lib/portfolioReturn";
 import type { LiteMonthGroup, LiteSettledRow } from "@/hooks/useLitePortfolio";
 import { RED, signedMoney, pnlColor } from "./parts";
 
@@ -25,10 +26,12 @@ MetaLine.displayName = "MetaLine";
 
 export const SettledRow = forwardRef<HTMLButtonElement, { row: LiteSettledRow }>(({ row }, ref) => {
   const navigate = useNavigate();
-  const go = () =>
-    row.isSeries
+  const go = () => {
+    savePortfolioScroll();
+    return row.isSeries
       ? navigate(`/portfolio?tab=settled&series=${encodeURIComponent(row.seriesId ?? "")}`)
       : navigate(`/portfolio/settlement/${row.id}`);
+  };
   return (
     <button
       ref={ref}

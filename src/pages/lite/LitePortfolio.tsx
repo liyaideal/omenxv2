@@ -4,7 +4,7 @@
 // Boost/Standard chips → segment list. Desktop: site header + 3 KPI cards +
 // gauge bar + grid rows. Pro portfolio is a separate code path.
 // ============================================================
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileHeader } from "@/components/MobileHeader";
@@ -36,6 +36,11 @@ import {
   SeriesDetailMobile,
 } from "@/components/portfolio/lite/SeriesDetailView";
 import { liteTradePath } from "@/lib/liteTradePath";
+import {
+  readPortfolioSegment,
+  savePortfolioSegment,
+  takePortfolioScroll,
+} from "@/lib/portfolioReturn";
 import { PortfolioErrorBoundary } from "@/components/portfolio/lite/PortfolioErrorBoundary";
 import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
 
@@ -63,7 +68,15 @@ export default function LitePortfolio() {
   const [params, setParams] = useSearchParams();
   const tab = params.get("tab") === "settled" ? "settled" : "live";
   const series = params.get("series");
-  const [segment, setSegment] = useState<LiteSegment>("boost");
+  const restoredSegment = useRef<string | null>(readPortfolioSegment());
+  const [segment, setSegment] = useState<LiteSegment>(
+    restoredSegment.current === "standard" ? "standard" : "boost",
+  );
+
+  // Remember the segment so a round-trip into a market comes back the same.
+  useEffect(() => {
+    savePortfolioSegment(segment);
+  }, [segment]);
 
   const p = useLitePortfolio();
 
@@ -75,10 +88,30 @@ export default function LitePortfolio() {
     setParams(next, { replace: true });
   };
 
-  // Default segment follows where the user actually has rows.
+  // Default segment follows where the user actually has rows — unless we just
+  // restored the reader's previous segment.
   useEffect(() => {
+    if (restoredSegment.current) return;
     if (p.boostLive.length === 0 && p.standardLive.length > 0) setSegment("standard");
   }, [p.boostLive.length, p.standardLive.length]);
+
+  // Restore the scroll offset once the lists have data to scroll through.
+  const pendingScroll = useRef<number | null>(takePortfolioScroll());
+  useEffect(() => {
+    if (pendingScroll.current == null || p.isLoading) return;
+    const y = pendingScroll.current;
+    pendingScroll.current = null;
+    // The list keeps growing for a few frames after data lands, so retry until
+    // the document is tall enough (or we run out of patience).
+    let tries = 0;
+    const tick = () => {
+      window.scrollTo(0, y);
+      tries += 1;
+      if (Math.abs(window.scrollY - y) > 2 && tries < 40) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }, [p.isLoading]);
+
 
   // Legacy links carried the event NAME in ?series=; canonicalise to the
   // stable event id once the events are in.

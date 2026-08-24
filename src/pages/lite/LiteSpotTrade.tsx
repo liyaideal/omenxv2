@@ -8,7 +8,7 @@
 // derives from freeze_time / end_date / lifecycle_status only.
 // ============================================================
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
+import { Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ChevronRight, Info, Loader2, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -140,6 +140,10 @@ const LiteSpotTrade = () => {
   const sideParam = params.get("side");
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const routerLocation = useLocation();
+  // Back goes home to wherever the reader came from (portfolio keeps its spot).
+  const backHref =
+    (routerLocation.state as { from?: string } | null)?.from ?? "/events";
   const { user } = useAuth();
   const { positions } = usePositions();
   const { addSpotBalance } = useUserProfile();
@@ -728,7 +732,7 @@ const LiteSpotTrade = () => {
             titleHidden={!scrolledOut}
             showLogo={false}
             showBack={true}
-            backTo="/events"
+            backTo={backHref}
             rightContent={<div className="flex items-center gap-1 -mr-2">{WatchStar}</div>}
           />
           <div className="space-y-4 px-4 py-4">
