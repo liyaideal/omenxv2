@@ -400,11 +400,11 @@ export const LitePortfolioPage = ({ isMobile }: P) => (
       <DeviceFrame previewKey="portfolio-lite-gauge-bar" device="desktop" minHeight={120} />
     </SubSection>
 
-    <SubSection title="持仓卡：常规 / 热卡 / 安全 Boost / 缺失态 / voucher 仓 / Standard + 挂单虚线行" description="热卡=现价距 auto-close ≤10%，整句转红且卡描边红；无 auto-close 时只显示 If it wins 主句；有 auto-close 时追加 auto-close 第二段（≈{cents} 或 —）。">
+    <SubSection title="持仓卡：常规 / 热卡 / 安全 Boost / 缺失态 / voucher 仓 / Standard + 挂单虚线行" description="热卡=现价距 auto-close ≤10%，整句转红且卡描边红；无 auto-close 时只显示 If it wins 主句；有 auto-close 价格时追加 auto-close ≈{cents} 第二段，无价格时不追加。">
       <DeviceFrame previewKey="portfolio-lite-live-cards" device="mobile" minHeight={640} />
     </SubSection>
 
-    <SubSection title="桌面行式网格" description="列模板 minmax(0,1fr) 110px 96px 104px 100px 150px 170px；热行 inset 左轨。AUTO-CLOSE / IF WINS 列统一为 If it wins → $X 主句 + 可选 auto-close 第二段。">
+    <SubSection title="桌面行式网格" description="列模板 minmax(0,1fr) 110px 96px 104px 100px 150px 170px；热行 inset 左轨。AUTO-CLOSE / IF WINS 列统一为 If it wins → $X 主句，有 auto-close 价格时才追加第二段。">
       <DeviceFrame previewKey="portfolio-lite-desktop-rows" device="desktop" minHeight={260} />
     </SubSection>
 
