@@ -52,7 +52,9 @@ export const previewRegistry: Record<string, Loader> = {
   "portfolio-lite-desktop-rows": pick(portfolio, "PortfolioDesktopRowsPreview"),
   "portfolio-lite-settled": pick(portfolio, "PortfolioSettledListPreview"),
   "portfolio-lite-empty": pick(portfolio, "PortfolioEmptyStatesPreview"),
-  "portfolio-lite-auth-gate": pick(portfolio, "PortfolioAuthGatePreview"),
+  "portfolio-lite-auth-gate-out": pick(portfolio, "PortfolioAuthGateSignedOutPreview"),
+  "portfolio-lite-auth-gate-in": pick(portfolio, "PortfolioAuthGateSignedInPreview"),
+
   "portfolio-lite-error": pick(portfolio, "PortfolioErrorBoundaryPreview"),
   "portfolio-lite-detail-won": pick(portfolio, "SettlementDetailWonPreview"),
   "portfolio-lite-detail-autoclosed": pick(portfolio, "SettlementDetailAutoClosedPreview"),

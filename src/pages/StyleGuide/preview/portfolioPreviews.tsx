@@ -393,22 +393,34 @@ export const PortfolioEmptyStatesPreview = () => (
   </div>
 );
 
-/** Signed-out /portfolio — blurred under-layer + sign-in overlay. */
-export const PortfolioAuthGatePreview = () => (
+const AuthGateBody = () => (
+  <div className="p-4">
+    <KpiGrid cols={2}>
+      <KpiCard label="COST" value={money(669.67)} sub="7 calls" />
+      <KpiCard label="NOW WORTH" value={money(775.31)} sub={`${signedMoney(105.64)} · +15.8%`} subColor={VOLT} />
+    </KpiGrid>
+    <div className="pt-3">
+      <LiveCard row={base} />
+    </div>
+  </div>
+);
+
+/** Signed-out /portfolio — blurred under-layer + sign-in overlay (forced for docs). */
+export const PortfolioAuthGateSignedOutPreview = () => (
   <div className="bg-background">
-    <LiteAuthGate>
-      <div className="p-4">
-        <KpiGrid cols={2}>
-          <KpiCard label="COST" value={money(669.67)} sub="7 calls" />
-          <KpiCard label="NOW WORTH" value={money(775.31)} sub={`${signedMoney(105.64)} · +15.8%`} subColor={VOLT} />
-        </KpiGrid>
-        <div className="pt-3">
-          <LiveCard row={base} />
-        </div>
-      </div>
+    <LiteAuthGate forceSignedOut>
+      <AuthGateBody />
     </LiteAuthGate>
   </div>
 );
+
+/** Signed-in /portfolio — the gate passes children straight through. */
+export const PortfolioAuthGateSignedInPreview = () => (
+  <div className="bg-background">
+    <AuthGateBody />
+  </div>
+);
+
 
 const Boom = () => {
   throw new Error("style-guide: forced detail crash");

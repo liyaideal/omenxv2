@@ -12,12 +12,20 @@ import { AuthDialog } from "@/components/auth/AuthDialog";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { LynxFigure } from "@/components/brand/LynxFigure";
 
-export const LiteAuthGate = ({ children }: { children: React.ReactNode }) => {
+export const LiteAuthGate = ({
+  children,
+  /** Docs-only: force the signed-out overlay in /style-guide. Never set in product. */
+  forceSignedOut = false,
+}: {
+  children: React.ReactNode;
+  forceSignedOut?: boolean;
+}) => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
   const [authOpen, setAuthOpen] = useState(false);
 
-  if (user) return <>{children}</>;
+  if (user && !forceSignedOut) return <>{children}</>;
+
 
   return (
     <div

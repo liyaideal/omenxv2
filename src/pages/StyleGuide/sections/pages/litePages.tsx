@@ -525,17 +525,38 @@ const PORTFOLIO_MOBILE_CASES: SectionCase[] = [
     ],
   },
   {
-    key: "portfolio-lite-auth-gate",
-    label: "未登录门 LiteAuthGate",
+    key: "portfolio-lite-auth-gate-out",
+    label: "未登录门 LiteAuthGate · 未登录",
+    note: "门高度锁定：移动 min/maxHeight 420px，桌面 400px，避免大片空白模糊区。",
     spec: [
       {
-        state: "signed-out",
-        when: "!user",
-        visual: "内容层 blur(3px)/opacity .7 垫底 + Lynx 图 + Sign in / Create account；移动弹 AuthSheet，桌面弹 AuthDialog",
-        source: "LiteAuthGate",
+        state: "未登录",
+        when: "user === null",
+        visual:
+          "children 层 blur-[3px] + opacity-70 + pointer-events-none；上覆 bg-background/40 遮罩：Lynx 100px + 标题 `Sign in to view your portfolio` + 描述 + Sign in（btn-primary）/ Create account（描边 pill）",
+        source: "useAuth().user",
+      },
+      {
+        state: "点击任一 CTA",
+        when: "authOpen === true",
+        visual: "isMobile → AuthSheet；!isMobile → AuthDialog。两个按钮打开同一个入口",
+        source: "useIsMobile()",
       },
     ],
   },
+  {
+    key: "portfolio-lite-auth-gate-in",
+    label: "未登录门 LiteAuthGate · 已登录",
+    spec: [
+      {
+        state: "已登录",
+        when: "user !== null",
+        visual: "门直接 return children：无模糊、无遮罩、无高度锁定",
+        source: "useAuth().user",
+      },
+    ],
+  },
+
   {
     key: "portfolio-lite-error",
     label: "详情页错误边界",
