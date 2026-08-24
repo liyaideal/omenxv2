@@ -31,6 +31,12 @@ export default function LiteSettlementDetail() {
   const { data: s, isLoading } = useSettlementDetail({ settlementId });
   const { data: settlements = [] } = useSettlements();
 
+  // Always a determinate target — history-based back would bounce between this
+  // page and the trade page reached via "View event".
+  const backTo = fromSeries
+    ? `/portfolio?tab=settled&series=${encodeURIComponent(fromSeries)}`
+    : "/portfolio?tab=settled";
+
   if (isLoading || !s) {
     const body = (
       <div className="px-4 py-10 text-center text-[13px] text-[#6B7280]">
@@ -39,7 +45,8 @@ export default function LiteSettlementDetail() {
     );
     return isMobile ? (
       <div className="min-h-screen bg-background pb-24">
-        <MobileHeader variant="inner" title="Settled" />
+        <MobileHeader variant="inner" title="Settled" showBack backTo={backTo} />
+
         <LiteAuthGate>{body}</LiteAuthGate>
         <BottomNav />
       </div>
@@ -84,12 +91,8 @@ export default function LiteSettlementDetail() {
 
   const actions = {
     backLabel: fromSeries ? "Back to series" : "Back to settled",
-    onBack: () =>
-      navigate(
-        fromSeries
-          ? `/portfolio?tab=settled&series=${fromSeries}`
-          : "/portfolio?tab=settled",
-      ),
+    onBack: () => navigate(backTo),
+
     onViewEvent: s.eventId
       ? () =>
           // The trade page back arrow returns to this settlement detail page.
@@ -107,7 +110,7 @@ export default function LiteSettlementDetail() {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background pb-24">
-        <MobileHeader variant="inner" title={s.event} />
+        <MobileHeader variant="inner" title={s.event} showBack backTo={backTo} />
         <LiteAuthGate>
           <SettlementDetailMobile vm={vm} actions={actions} />
         </LiteAuthGate>
