@@ -100,8 +100,7 @@ positives. Chip words come from the sibling event's `side_labels`.
 |---|---|---|
 | **If it wins you get $X** | Mobile live-card payout sentence | — |
 | **If it wins → $X** | Desktop live-row payout column | — |
-| **auto-close ≈{c}¢** | Auto-close suffix when a real price exists | Liquidation, stop out, Liq. Price |
-| **auto-close —** | Auto-close placeholder when estimate is missing/degenerate | — |
+| **auto-close ≈{c}¢** | Auto-close suffix when a real price exists (Boost only) | Liquidation, stop out, Liq. Price |
 
 ---
 
