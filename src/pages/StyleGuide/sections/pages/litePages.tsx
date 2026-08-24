@@ -4,6 +4,8 @@
 // ============================================================
 import { SubSection, DualDevicePreview } from "../../components";
 import { DeviceFrame } from "../../components/DeviceFrame";
+import { SectionFrame, type SectionCase } from "../../components/SectionFrame";
+
 import { LitePage, NotStartedPage, StatusBadge, type RevampStatus } from "./shell";
 import {
   MobileHomeSection,
