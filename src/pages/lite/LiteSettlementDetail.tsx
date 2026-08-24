@@ -91,12 +91,8 @@ export default function LiteSettlementDetail() {
 
   const actions = {
     backLabel: fromSeries ? "Back to series" : "Back to settled",
-    onBack: () =>
-      navigate(
-        fromSeries
-          ? `/portfolio?tab=settled&series=${fromSeries}`
-          : "/portfolio?tab=settled",
-      ),
+    onBack: () => navigate(backTo),
+
     onViewEvent: s.eventId
       ? () =>
           // The trade page back arrow returns to this settlement detail page.
