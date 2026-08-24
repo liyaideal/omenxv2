@@ -165,6 +165,8 @@ export const PortfolioLiveCardsPreview = () => (
   <div className="flex flex-col gap-2 bg-background p-4">
     <LiveCard row={base} />
     <LiveCard row={hotRow} />
+    <LiveCard row={safeBoostRow} />
+    <LiveCard row={missingBoostRow} />
     <LiveCard row={voucherRow} />
     <LiveCard row={standardRow} />
     <PendingOrdersRow orders={[{ id: "o1", event: "BTC above $70,000", size: "120", price: "41¢" }]} />
@@ -175,7 +177,9 @@ export const PortfolioDesktopRowsPreview = () => (
   <div className="bg-background py-4">
     <LiveRowHeader />
     <LiveRow row={base} />
-    <LiveRow row={hotRow} />
+    <LiveCard row={hotRow} />
+    <LiveRow row={safeBoostRow} />
+    <LiveRow row={missingBoostRow} />
     <LiveRow row={standardRow} />
   </div>
 );
