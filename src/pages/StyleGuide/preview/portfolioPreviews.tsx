@@ -350,7 +350,7 @@ const groups: LiteMonthGroup[] = [
       }),
       settled({
         title: "Arsenal to beat Liverpool",
-        metaParts: ["ARS +1.5", "Aug 12", "cashed out early"],
+        metaParts: ["ARS +1.5", "Aug 12"],
         remark: "cashout",
         net: 42.5,
       }),
