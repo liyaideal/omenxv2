@@ -53,14 +53,14 @@ export const LiteAuthGate = ({
               isMobile ? "text-[18px]" : "text-[19px]"
             }`}
           >
-            Sign in to view your portfolio
+            {title}
           </h2>
           <p
             className={`font-sans text-muted-foreground leading-relaxed mt-2 max-w-[320px] mx-auto ${
               isMobile ? "text-[13px]" : "text-[13.5px]"
             }`}
           >
-            Track your live calls and settled results by signing in to your account.
+            {description}
           </p>
           <div className="mt-[22px] flex items-center justify-center gap-3">
             <button
