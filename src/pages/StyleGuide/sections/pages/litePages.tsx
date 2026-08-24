@@ -387,74 +387,20 @@ export const LitePortfolioPage = ({ isMobile }: P) => (
     status="done"
     note="2026-08-19 改版：Live / Settled 两 tab（Rewards 开场 tab 制式），KPI 卡、voucher 发丝行、Boost/Standard 双段 chips、Boost check 仪表、持仓卡 / 桌面行式网格、结算月份分组与系列聚合行。AUTO-CLOSE / IF WINS 列统一显示 If it wins 主句，Boost 有 auto-close 时追加第二段。以下全部挂载生产组件（fixture 数据驱动状态），非手抄。"
   >
-    <SubSection title="Tabs · voucher 发丝行 · 双段 chips" description="开场 chrome。voucher 发丝行只在 count > 0 时渲染（第二条 count=0 什么都不画）；chips 计数可为 0，两态可直接点击切换。">
-      <DeviceFrame previewKey="portfolio-lite-chrome" device="mobile" minHeight={280} />
+    <SubSection
+      title="移动端全状态（375 · 单 iframe）"
+      description="整节移动端案例合并在一个 375px iframe 里按顺序纵向排列，每段上方有 label 分隔线；下方图例给出每个状态的字段口径。"
+    >
+      <SectionFrame device="mobile" minHeight={900} cases={PORTFOLIO_MOBILE_CASES} />
     </SubSection>
 
-    <SubSection title="KPI 卡 · 移动（Live 正 / Live 负 / 零态 / Settled 2 卡）" description="移动端一律 2 列。零态走 isZeroMoney：$0.00 不带符号、不上色。">
-      <DeviceFrame previewKey="portfolio-lite-kpi-mobile" device="mobile" minHeight={620} />
+    <SubSection
+      title="桌面端全状态（单 iframe）"
+      description="整节桌面端案例合并在一个桌面宽 iframe 里；3 列 KPI、行式网格与结算详情只在桌面宽度成立。"
+    >
+      <SectionFrame device="desktop" minHeight={900} cases={PORTFOLIO_DESKTOP_CASES} />
     </SubSection>
 
-    <SubSection title="KPI 卡 · 桌面（Live 3 卡 COST/NOW WORTH/PROFIT · Settled 3 卡 + RECORD）" description="桌面 Live 是三卡（PROFIT 独立成卡），Settled 第三卡为 RECORD 7W 5L / wins · losses。3 列 KPI 只在桌面宽度成立，不要放进 375 预览。">
-      <DeviceFrame previewKey="portfolio-lite-kpi-desktop" device="desktop" minHeight={520} />
-    </SubSection>
-
-    <SubSection title="Boost check 仪表三态" description="Healthy &lt;80 / Getting tight ≥80 / Auto-close soon ≥95。">
-      <DeviceFrame previewKey="portfolio-lite-gauge-states" device="mobile" minHeight={300} />
-      <DeviceFrame previewKey="portfolio-lite-gauge-bar" device="desktop" minHeight={120} />
-    </SubSection>
-
-    <SubSection title="持仓卡：常规 / 热卡 / 安全 Boost / 缺失态 / voucher 仓 / Standard / 零盈亏 + 挂单行两态" description="状态字段：segment（boost/standard）、isVoucher、autoCloseState（level/none/missing）、hot（现价距 auto-close ≤10%，整句转红且卡描边红）。无 auto-close 价格时只显示 If it wins 主句；有价格才追加 auto-close ≈{cents}。零盈亏行走 isZeroMoney 显 muted $0.00。挂单虚线行 orders=[] 时不渲染。">
-      <DeviceFrame previewKey="portfolio-lite-live-cards" device="mobile" minHeight={760} />
-    </SubSection>
-
-    <SubSection title="桌面行式网格（含 voucher 行 / 热行 / 零盈亏行）" description="列模板 minmax(0,1fr) 110px 96px 104px 100px 150px 170px；热行 inset 左轨。AUTO-CLOSE / IF WINS 列统一为 If it wins → $X 主句，有 auto-close 价格时才追加第二段。">
-      <DeviceFrame previewKey="portfolio-lite-desktop-rows" device="desktop" minHeight={320} />
-    </SubSection>
-
-    <SubSection title="Settled 列表" description="月份分组、remark 三态（none / auto_close 红备注 / cashout「cashed out early」）、isSeries 聚合行、net 绝对值 < $0.005 的零结果行显 muted $0.00、按月懒加载。">
-      <DeviceFrame previewKey="portfolio-lite-settled" device="mobile" minHeight={460} />
-    </SubSection>
-
-    <SubSection title="单仓结算详情 · settlement + won（双端并排）" description="v1.17 §4b：桌面 back 链接 + 标题行 + meta + KPI 三卡 + DETAILS/ACTIVITY 双卡；移动纵列。Payout = max(0, Cost + PnL − Fees)。">
-      <DeviceFrame previewKey="portfolio-lite-detail-won" device="desktop" minHeight={640} />
-    </SubSection>
-
-    <SubSection title="单仓结算详情 · auto_close（双端并排）" description="§4c：眉线 CLOSED、Closed at 25¢ · auto-closed 整值红、时间行 label Closed、Payout $0.00 → 副行 nothing returned。">
-      <DeviceFrame previewKey="portfolio-lite-detail-autoclosed" device="desktop" minHeight={640} />
-    </SubSection>
-
-    <SubSection title="单仓结算详情 · cashout（双端并排）" description="closeReason='cashout'：Closed at 48¢ · cashed out early，时间行 label Closed，outcomeWon 不参与文案。">
-      <DeviceFrame previewKey="portfolio-lite-detail-cashout" device="desktop" minHeight={640} />
-    </SubSection>
-
-    <SubSection title="单仓结算详情 · settlement + lost（双端并排）" description="closeReason='settlement' 且 outcomeWon=false：Settled at $0.00 · Up lost，Payout $0.00 → nothing returned。">
-      <DeviceFrame previewKey="portfolio-lite-detail-lost" device="desktop" minHeight={640} />
-    </SubSection>
-
-    <SubSection title="系列结算详情（双端并排）" description="§4d：SERIES · WON x OF n 眉线、Rounds/Cost/Fees/Payout 明细、每轮一行可点进单轮详情（auto-closed 轮追加红字）。Net = Payout − Cost。">
-      <DeviceFrame previewKey="portfolio-lite-series-detail" device="desktop" minHeight={640} />
-    </SubSection>
-
-    <SubSection title="系列两极 + Standard/Boost 口径" description="全胜（WON 2 OF 2，净正）/ 全败（WON 0 OF 2，Payout $0.00）/ Boost 非日轮（isDailyRounds=false，segmentLabel=Boost）。">
-      <DeviceFrame previewKey="portfolio-lite-series-extremes" device="desktop" minHeight={900} />
-    </SubSection>
-
-    <SubSection title="系列详情 · 移动独立整页" description="移动端选中 series 时是自己的一页：MobileHeader variant=inner + 返回 /portfolio?tab=settled，无 brand 头、无 tabs、无 KPI、无 chips。">
-      <DeviceFrame previewKey="portfolio-lite-series-mobile-page" device="mobile" minHeight={620} />
-    </SubSection>
-
-    <SubSection title="空态" description="Live 段空态（No live calls yet + Browse events）与 Settled 空态（Nothing settled yet）。">
-      <DeviceFrame previewKey="portfolio-lite-empty" device="mobile" minHeight={220} />
-    </SubSection>
-
-    <SubSection title="未登录门 LiteAuthGate" description="signed-out：内容层 blur(3px)/opacity .7 垫底 + Lynx 图 + Sign in / Create account。移动端弹 AuthSheet，桌面弹 AuthDialog。">
-      <DeviceFrame previewKey="portfolio-lite-auth-gate" device="mobile" minHeight={460} />
-    </SubSection>
-
-    <SubSection title="详情页错误边界" description="PortfolioErrorBoundary：详情视图抛错时降级为 Something went wrong + Back to settled，不白屏。">
-      <DeviceFrame previewKey="portfolio-lite-error" device="mobile" minHeight={200} />
-    </SubSection>
 
   </LitePage>
 );
