@@ -38,11 +38,17 @@ const metaLine = (row: LiteLiveRow) => {
   return parts;
 };
 
-/** Row 4 sentence for the Boost segment. */
-const autoCloseSentence = (row: LiteLiveRow) =>
-  row.autoClosePrice != null
-    ? `Auto-closes if price hits ${cents(row.autoClosePrice)} · now ${cents(row.priceNow)}`
-    : null;
+const winSentence = (row: LiteLiveRow) =>
+  `If ${row.sideWord} wins you get ${money(row.ifWins)}`;
+
+const autoCloseSuffix = (row: LiteLiveRow): string | null => {
+  if (row.segment !== "boost" || row.leverageNum <= 1) return null;
+  if (row.autoCloseState === "level" && row.autoClosePrice != null) {
+    return `Auto-closes if price hits ${cents(row.autoClosePrice)}`;
+  }
+  if (row.autoCloseState === "missing") return "auto-close —";
+  return null;
+};
 
 
 /* ----------------------------- mobile card ----------------------------- */
@@ -57,8 +63,8 @@ export const LiveCard = ({
   const hot = row.hot;
   const sentence =
     row.segment === "standard"
-      ? `If ${row.sideWord} wins you get ${money(row.ifWins)}`
-      : autoCloseSentence(row);
+      ? winSentence(row)
+      : [winSentence(row), autoCloseSuffix(row)].filter(Boolean).join(" · ");
 
   return (
     <div
