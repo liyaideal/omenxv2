@@ -20,11 +20,13 @@ import {
   Zap,
   Gift,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Cloud
 } from "lucide-react";
 import type { AuthStep } from "@/hooks/useAuth";
 import sillyname from "sillyname";
 import { GoogleAccountChooser } from "./GoogleAccountChooser";
+import { useSurface } from "@/contexts/SurfaceContext";
 
 interface AuthContentProps {
   step: AuthStep;
@@ -44,6 +46,8 @@ export const AuthContent = ({
   variant = "desktop" 
 }: AuthContentProps) => {
   const queryClient = useQueryClient();
+  const { surface } = useSurface();
+  const isLite = surface === "lite";
   const [searchParams] = useSearchParams();
   const { profile, username: profileUsername, email: profileEmail } = useUserProfile();
   const [authMethod, setAuthMethod] = useState<"wallet" | "google" | "telegram">("google");
@@ -289,25 +293,43 @@ export const AuthContent = ({
     return (
       <div className={containerClass}>
         {/* Headlines */}
-        <div className="text-center space-y-1">
-          <h2 className="text-lg font-semibold text-foreground">
-            Predict the Future, Profit from Certainty
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Trade crypto, politics, sports & more like futures
-          </p>
-        </div>
-
-        {/* Value Proposition Banner */}
-        <div className="bg-primary/10 border border-primary/30 rounded-xl p-3 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
-            <TrendingUp className="w-5 h-5 text-primary" />
-          </div>
+        {isLite ? (
           <div>
-            <p className="font-medium text-foreground text-sm">Predict. Trade. Profit.</p>
-            <p className="text-xs text-muted-foreground">Up to 100x Leverage · Pro Trading Tools</p>
+            <img
+              src="/lynx-auth-placeholder.png"
+              alt="OMENX lynx"
+              className="w-[72px] h-auto mx-auto mb-1 drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
+            />
+            <h2 className="font-display text-[20px] font-semibold tracking-tight text-foreground text-center">
+              Trade what happens next
+            </h2>
+            <p className="text-[13px] text-muted-foreground text-center mt-1.5 leading-snug">
+              Intraday crypto, stock and sports markets — settled in USDC.
+            </p>
           </div>
-        </div>
+        ) : (
+          <>
+            <div className="text-center space-y-1">
+              <h2 className="text-lg font-semibold text-foreground">
+                Predict the Future, Profit from Certainty
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Trade crypto, politics, sports & more like futures
+              </p>
+            </div>
+
+            {/* Value Proposition Banner */}
+            <div className="bg-primary/10 border border-primary/30 rounded-xl p-3 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
+                <TrendingUp className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <p className="font-medium text-foreground text-sm">Predict. Trade. Profit.</p>
+                <p className="text-xs text-muted-foreground">Up to 100x Leverage · Pro Trading Tools</p>
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Auth Method Tabs */}
         <div className="flex bg-muted/50 rounded-xl p-1 gap-1">
@@ -321,7 +343,9 @@ export const AuthContent = ({
               onClick={() => setAuthMethod(method.id)}
               className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all ${
                 authMethod === method.id
-                  ? "bg-primary text-primary-foreground shadow-sm"
+                  ? isLite
+                    ? "bg-[#F2F3F5] text-[#090A0C] shadow-sm"
+                    : "bg-primary text-primary-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               }`}
             >
@@ -353,7 +377,7 @@ export const AuthContent = ({
                 Sign in with Google
               </Button>
               <p className="text-xs text-muted-foreground text-center">
-                Instant access · No wallet needed · Start trading in seconds
+                {isLite ? "No wallet needed · Ready in seconds" : "Instant access · No wallet needed · Start trading in seconds"}
               </p>
             </>
           )}
@@ -412,13 +436,21 @@ export const AuthContent = ({
 
         {/* Info text */}
         <div className="text-center space-y-2">
-          <p className="text-sm text-foreground">
-            New to OMENX? Authorization creates your account automatically
-          </p>
-          <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5">
-            <Zap className="w-3.5 h-3.5 text-primary" />
-            Predict. Trade. Profit. · Start Trading Now
-          </p>
+          {isLite ? (
+            <p className="text-sm text-foreground">
+              New to OMENX? Your account is created the first time you sign in.
+            </p>
+          ) : (
+            <>
+              <p className="text-sm text-foreground">
+                New to OMENX? Authorization creates your account automatically
+              </p>
+              <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5">
+                <Zap className="w-3.5 h-3.5 text-primary" />
+                Predict. Trade. Profit. · Start Trading Now
+              </p>
+            </>
+          )}
         </div>
 
 
