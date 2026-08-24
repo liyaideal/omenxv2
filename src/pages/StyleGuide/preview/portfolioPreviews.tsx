@@ -564,37 +564,37 @@ const seriesBoostWeekly: SeriesDetailVM = {
   wins: 1,
 };
 
-export const SettlementDetailWonPreview = () => (
-  <div className="grid gap-4 bg-background p-4 lg:grid-cols-[380px_1fr]">
-    <SettlementDetailMobile vm={detailBase} actions={{ onViewEvent: () => {} }} />
-    <SettlementDetailDesktop vm={detailBase} actions={{ onViewEvent: () => {} }} />
+/* --------------------------------------------------------------------------
+ * Settlement details — STRICTLY one device per preview.
+ * A desktop SectionFrame must never contain a mobile component: 双端对照靠两个
+ * frame 并列，而不是一个 iframe 内左右并排。
+ * ----------------------------------------------------------------------- */
+const DetailDesktop = ({ vm }: { vm: SettlementDetailVM }) => (
+  <div className="bg-background p-4">
+    <SettlementDetailDesktop vm={vm} actions={{ onViewEvent: () => {} }} />
   </div>
 );
 
-export const SettlementDetailAutoClosedPreview = () => (
-  <div className="grid gap-4 bg-background p-4 lg:grid-cols-[380px_1fr]">
-    <SettlementDetailMobile vm={detailAutoClosed} actions={{ onViewEvent: () => {} }} />
-    <SettlementDetailDesktop vm={detailAutoClosed} actions={{ onViewEvent: () => {} }} />
+const DetailMobile = ({ vm }: { vm: SettlementDetailVM }) => (
+  <div className="bg-background p-4">
+    <SettlementDetailMobile vm={vm} actions={{ onViewEvent: () => {} }} />
   </div>
 );
 
-export const SettlementDetailCashoutPreview = () => (
-  <div className="grid gap-4 bg-background p-4 lg:grid-cols-[380px_1fr]">
-    <SettlementDetailMobile vm={detailCashout} actions={{ onViewEvent: () => {} }} />
-    <SettlementDetailDesktop vm={detailCashout} actions={{ onViewEvent: () => {} }} />
-  </div>
-);
+export const SettlementDetailWonPreview = () => <DetailDesktop vm={detailBase} />;
+export const SettlementDetailWonMobilePreview = () => <DetailMobile vm={detailBase} />;
 
-export const SettlementDetailLostPreview = () => (
-  <div className="grid gap-4 bg-background p-4 lg:grid-cols-[380px_1fr]">
-    <SettlementDetailMobile vm={detailLost} actions={{ onViewEvent: () => {} }} />
-    <SettlementDetailDesktop vm={detailLost} actions={{ onViewEvent: () => {} }} />
-  </div>
-);
+export const SettlementDetailAutoClosedPreview = () => <DetailDesktop vm={detailAutoClosed} />;
+export const SettlementDetailAutoClosedMobilePreview = () => <DetailMobile vm={detailAutoClosed} />;
+
+export const SettlementDetailCashoutPreview = () => <DetailDesktop vm={detailCashout} />;
+export const SettlementDetailCashoutMobilePreview = () => <DetailMobile vm={detailCashout} />;
+
+export const SettlementDetailLostPreview = () => <DetailDesktop vm={detailLost} />;
+export const SettlementDetailLostMobilePreview = () => <DetailMobile vm={detailLost} />;
 
 export const SettlementSeriesDetailPreview = () => (
-  <div className="grid gap-4 bg-background p-4 lg:grid-cols-[380px_1fr]">
-    <SeriesDetailMobile vm={seriesVm} actions={{ onViewEvent: () => {} }} />
+  <div className="bg-background p-4">
     <SeriesDetailDesktop vm={seriesVm} actions={{ onViewEvent: () => {} }} />
   </div>
 );
