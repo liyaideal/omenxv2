@@ -560,7 +560,7 @@ const WalletAuthGate = ({
       maxPreviewHeight={maxPreviewHeight}
     >
       {children}
-    </WalletAuthGate>
+    </AuthGateOverlay>
   );
 
 export default function Wallet() {
