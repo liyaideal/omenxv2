@@ -28,11 +28,10 @@ export const DeviceFrame = ({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const holderRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(minHeight);
-  // Viewport windowing: each preview iframe boots a full copy of the app, so
-  // they are mounted on approach (600px) and UNMOUNTED once far off-screen
-  // (>1600px). Unmounting tears the iframe document down, which also kills its
-  // realtime subscriptions and intervals. Measured height is kept so the
-  // placeholder holds the same space and scrolling stays stable.
+  // Mount-once: an iframe boots a React root, so it is mounted lazily on
+  // approach (300px) — but never unmounted again. Tearing it down on scroll
+  // made already-loaded modules re-boot every time the user scrolled back,
+  // which reads as "the section keeps reloading".
   const [mounted, setMounted] = useState(false);
   const width = DEVICE_WIDTH[device];
 
@@ -45,23 +44,17 @@ export const DeviceFrame = ({
     }
     const near = new IntersectionObserver(
       (entries) => {
-        if (entries.some((e) => e.isIntersecting)) setMounted(true);
+        if (entries.some((e) => e.isIntersecting)) {
+          setMounted(true);
+          near.disconnect();
+        }
       },
       { rootMargin: "300px 0px" },
     );
-    const far = new IntersectionObserver(
-      (entries) => {
-        if (entries.every((e) => !e.isIntersecting)) setMounted(false);
-      },
-      { rootMargin: "1600px 0px" },
-    );
     near.observe(el);
-    far.observe(el);
-    return () => {
-      near.disconnect();
-      far.disconnect();
-    };
+    return () => near.disconnect();
   }, []);
+
 
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
