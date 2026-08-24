@@ -17,14 +17,12 @@ Remove the redundant side/outcome from the payout sentence while preserving clar
 ## Proposed copy changes
 
 1. **Mobile card sentence**
-   - Standard / 1× Boost / voucher: `If it wins you get {money}`
-   - With auto-close level: `If it wins you get {money} · Auto-closes if price hits {cents}`
-   - Missing auto-close: `If it wins you get {money} · auto-close —`
+   - Without auto-close: `If it wins you get {money}`
+   - With auto-close: `If it wins you get {money} · auto-close` (render `≈{cents}` when price is available, otherwise `—`)
 
 2. **Desktop row merged column**
    - `If it wins → {money}`
-   - With level: append `· auto-close ≈{cents}`
-   - Missing: append `· auto-close —`
+   - With auto-close: append `· auto-close` (render `≈{cents}` when price is available, otherwise `—`)
 
 3. **Hot state stays unchanged**: the whole sentence turns red when the price is within 10% of auto-close.
 
