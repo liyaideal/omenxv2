@@ -34,6 +34,12 @@ const PORTFOLIO_MOBILE_CASES: SectionCase[] = [
         visual: "chip 仍渲染并可点，计数显示 0",
         source: "SegmentChips",
       },
+      {
+        state: "首载 loading",
+        when: "isLoading === true（positionsLoading || settledLoading）",
+        visual: "生产无专门加载视觉：chrome（tabs / KPI / chips）照常渲染，列表区按空数组渲染，数据到达后就地填充；isLoading 只用于抑制滚动恢复。骨架屏为待实现项，不要按 LiteEventsPage 的骨架去实现",
+        source: "useLitePortfolio.isLoading · LitePortfolio",
+      },
     ],
   },
   {
@@ -61,6 +67,17 @@ const PORTFOLIO_MOBILE_CASES: SectionCase[] = [
       { state: "Getting tight", when: "80 ≤ riskRatio < 95", visual: "琥珀字 Getting tight + 琥珀条", source: "boostState()" },
       { state: "Auto-close soon", when: "riskRatio ≥ 95", visual: "红字 Auto-close soon + 红条", source: "boostState()" },
       { state: "不渲染", when: "boostLive.length === 0", visual: "整张 Boost check 卡不出现", source: "LitePortfolio" },
+    ],
+  },
+  {
+    key: "portfolio-lite-details-drawer",
+    label: "Boost check · Details 展开（移动 MobileDrawer）",
+    note: "对等表（v1.14 §5）：同一个 `Details ›` 触发器，移动端开 MobileDrawer（底部抽屉、title=Boost check），桌面端开 320px 锚定 Popover。两端内容三行完全一致，只有承载壳不同。demo 里挂载后自动点了一次 Details ›，展示的就是生产展开态本体。",
+    spec: [
+      { state: "折叠（默认）", when: "open === false", visual: "只有仪表卡；右下 `Details ›` 灰字按钮", source: "BoostCheckCard" },
+      { state: "展开", when: "点击 `Details ›` → open === true", visual: "MobileDrawer 自底升起，title `Boost check` + 说明句 + 三行：Equity / Used by Boost calls / Until auto-close starts", source: "DetailsDrawer" },
+      { state: "三行取值", when: "始终", visual: "Equity=equity；Used by Boost calls=imTotal；Until auto-close starts=max(equity − imTotal, 0)，整数金额不带小数（$310）", source: "moneyAuto" },
+      { state: "端差异", when: "isMobile === true", visual: "移动是抽屉；桌面同一按钮改开 Popover（见桌面 frame）。移动端绝不出现 Popover", source: "DESIGN §5" },
     ],
   },
   {
@@ -95,6 +112,11 @@ const PORTFOLIO_MOBILE_CASES: SectionCase[] = [
       { state: "voucher 行", when: "isVoucher === true", visual: "meta 行尾追加 volt 色 `Voucher`", source: "airdropSource === 'voucher'" },
       { state: "挂单行 · 有单", when: "orders.length > 0", visual: "虚线折叠行 `n orders waiting to fill · placed in Pro`，点开跳 Pro", source: "PendingOrdersRow" },
       { state: "挂单行 · 无单", when: "orders.length === 0", visual: "组件 return null，不占高度", source: "PendingOrdersRow" },
+      { state: "settles 时间 · 今天", when: "settlesAt 与 now 同年同月同日", visual: "`settles today 16:00`（24 小时制、用户本地、无时区标）", source: "settleLabel()" },
+      { state: "settles 时间 · 同年异日", when: "settlesAt.getFullYear() === now.getFullYear() 且非同日", visual: "`settles Aug 21 16:00`", source: "settleLabel()" },
+      { state: "settles 时间 · 跨年", when: "settlesAt.getFullYear() !== now.getFullYear()", visual: "`settles Jan 12, 2027`（不带钟点）", source: "settleLabel()" },
+      { state: "settles 缺失", when: "settlesAt == null", visual: "meta 行不出现 settles 段（不画 `—` 占位）", source: "LiveCards.metaLine" },
+      { state: "Cash out 点击", when: "点击卡内 Cash out 按钮", visual: "无确认弹层、无中间态：直接 navigate(row.tradePath) 进入该市场交易页；平仓在交易页完成", source: "LitePortfolio onCashOut" },
     ],
   },
   {
@@ -107,6 +129,17 @@ const PORTFOLIO_MOBILE_CASES: SectionCase[] = [
       { state: "cashout", when: "closeReason === 'cashout'", visual: "与 settlement 完全一致，无备注（`cashed out early` 已废弃）", source: "closeReason" },
       { state: "系列聚合行", when: "isSeries === true", visual: "一行代表整个系列，点进系列详情而非单仓详情", source: "isSeries" },
       { state: "零结果行", when: "Math.abs(net) < 0.005", visual: "muted $0.00，不带符号", source: "isZeroMoney" },
+    ],
+  },
+  {
+    key: "portfolio-lite-settled-loadmore",
+    label: "Settled 月份懒加载（Load earlier months）",
+    note: "懒加载是有可见控件的：首屏只渲染最近 2 个月份组，其余靠按钮逐次追加 2 组。不是滚动自动加载，也没有 spinner。",
+    spec: [
+      { state: "首屏", when: "visible = 2（初始）", visual: "只渲染 groups.slice(0,2)，其余月份完全不在 DOM", source: "SettledList" },
+      { state: "按钮显示", when: "visible < groups.length", visual: "列表底部整宽描边按钮 `Load earlier months`（h-40px、#2A2F38 描边）", source: "SettledList" },
+      { state: "点击追加", when: "点击按钮 → visible += 2", visual: "再追加 2 个月份组，无 loading 态（数据已在本地）", source: "SettledList" },
+      { state: "按钮隐藏", when: "visible ≥ groups.length", visual: "按钮不渲染，列表到底", source: "SettledList" },
     ],
   },
   {
@@ -124,6 +157,22 @@ const PORTFOLIO_MOBILE_CASES: SectionCase[] = [
     spec: [
       { state: "auto_close", when: "closeReason === 'auto_close'", visual: "眉线 CLOSED；`Closed at 25¢ · auto-closed` 整值红；时间行 label 为 Closed", source: "closeReason" },
       { state: "零回收", when: "payout === 0", visual: "Payout $0.00 → 副行 `nothing returned`", source: "settlementCopy" },
+    ],
+  },
+  {
+    key: "portfolio-lite-detail-cashout-mobile",
+    label: "单仓结算详情 · 移动（cashout）",
+    note: "与桌面 cashout case 同一套 fixture 数值（cost $150 / fees $1.50 / exit 48¢ / net +$42.50）。",
+    spec: [
+      { state: "cashout", when: "closeReason === 'cashout'", visual: "`Closed at 48¢`（无备注）；结果行只有 Won / Lost；时间行 label 为 Closed；提前平仓不做任何可见标注", source: "closeReason" },
+    ],
+  },
+  {
+    key: "portfolio-lite-detail-lost-mobile",
+    label: "单仓结算详情 · 移动（settlement + lost）",
+    note: "与桌面 lost case 同一套 fixture 数值（cost $100 / fees $0.90 / exit $0.00 / net −$100）。",
+    spec: [
+      { state: "lost", when: "closeReason === 'settlement' && outcomeWon === false", visual: "`Settled at $0.00 · Up lost`；Payout $0.00 → `nothing returned`", source: "outcomeWon" },
     ],
   },
   {
@@ -216,6 +265,16 @@ const PORTFOLIO_DESKTOP_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "portfolio-lite-details-popover",
+    label: "Boost check · Details 展开（桌面 Popover 320px）",
+    note: "移动端对等件是 MobileDrawer（见移动 frame）。桌面绝不用底部抽屉。demo 里挂载后自动点了一次 Details ›。",
+    spec: [
+      { state: "折叠（默认）", when: "Popover 未打开", visual: "条右端 `Details ›` 灰字按钮", source: "BoostCheckBar" },
+      { state: "展开", when: "点击 `Details ›`", visual: "align=end 锚定 Popover，宽 320px、圆角 12px、bg #12151A、border #1D2026、p-16px；标题 Boost check + 说明句 + 三行数值", source: "DetailsPopover" },
+      { state: "三行取值", when: "始终", visual: "与移动抽屉同源同值：Equity / Used by Boost calls / Until auto-close starts", source: "moneyAuto" },
+    ],
+  },
+  {
     key: "portfolio-lite-desktop-rows",
     label: "桌面行式网格（含 voucher 行 / 热行 / 零盈亏行）",
     note: "列模板：minmax(0,1fr) minmax(110px,200px) 96px 104px 100px 150px 170px。",
@@ -235,6 +294,18 @@ const PORTFOLIO_DESKTOP_CASES: SectionCase[] = [
       { state: "voucher 行", when: "isVoucher === true", visual: "CALL 列 meta 尾部 volt `Voucher`", source: "airdropSource" },
       { state: "零盈亏行", when: "Math.abs(profit) < 0.005", visual: "PROFIT 列 muted $0.00", source: "isZeroMoney" },
       { state: "Side chip 溢出", when: "sideWord 过长", visual: "chip truncate + hover tooltip 显示全文", source: "LiveRow" },
+    ],
+  },
+  {
+    key: "portfolio-lite-pending-desktop",
+    label: "桌面挂单行（折叠 / 展开两态）",
+    note: "桌面与移动共用同一个 PendingOrdersRow：桌面挂在行式网格下方（px-4 pt-3），且只在 segment === 'boost' 时渲染。展开态是生产实态，不是移动独有。",
+    spec: [
+      { state: "折叠（默认）", when: "orders.length > 0 && open === false", visual: "虚线描边行（1px dashed #2A2F38）`n orders waiting to fill · placed in Pro` + 右侧 ›", source: "PendingOrdersRow" },
+      { state: "展开", when: "点击折叠行 → open === true", visual: "行下逐单展开：左事件名 truncate、右 `size @ price` 等宽字 + ›，hover 底 rgba(255,255,255,.04)", source: "PendingOrdersRow" },
+      { state: "点单跳 Pro", when: "点击任一单行", visual: "savePortfolioScroll() → setSurface('pro') → /trade?event={eventId}；改单/撤单只在 Pro 存在。返回时回到 Lite portfolio 原位", source: "savePortfolioReturnSurface('lite')" },
+      { state: "无单", when: "orders.length === 0", visual: "组件 return null，桌面同样不占高度", source: "PendingOrdersRow" },
+      { state: "Standard 段", when: "segment === 'standard'", visual: "整个挂单行不渲染（只有 Boost 段挂）", source: "LitePortfolio" },
     ],
   },
   {
