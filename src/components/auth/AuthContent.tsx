@@ -492,11 +492,53 @@ export const AuthContent = ({
           Back
         </button>
 
-        <div className="text-center space-y-1">
-          <h2 className="text-lg font-semibold text-foreground">Create Your Trading Wallet</h2>
-          <p className="text-sm text-muted-foreground">Start trading events with real funds</p>
+        {isLite ? (
+          <div className="text-center space-y-1">
+            <h2 className="font-display text-[20px] font-semibold tracking-tight text-foreground">Create your wallet</h2>
+            <p className="text-[13px] text-muted-foreground leading-snug">A USDC wallet on Base, set up for you in one tap.</p>
+          </div>
+        ) : (
+          <div className="text-center space-y-1">
+            <h2 className="text-lg font-semibold text-foreground">Create Your Trading Wallet</h2>
+            <p className="text-sm text-muted-foreground">Start trading events with real funds</p>
+          </div>
+        )}
+
+        {isLite ? (
+          <>
+        {/* Value points */}
+        <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-0">
+          {[
+            "Back events with USDC on Base",
+            "No seed phrase, no gas — sign in and go",
+            "Cash out to your own address any time",
+          ].map((line) => (
+            <div key={line} className="flex items-start gap-2.5 py-1.5 text-[13px] text-[#F2F3F5]">
+              <Check className="w-4 h-4 text-[#CFFF4A] shrink-0 mt-0.5" strokeWidth={2} />
+              {line}
+            </div>
+          ))}
         </div>
 
+        {/* TODO: wire real Cloudflare Turnstile (no Turnstile integration exists in this project yet) */}
+        <div className="flex items-center justify-between bg-[#1A1D22] border border-[#2A2F38] rounded-lg px-3.5 py-2.5 gap-2.5">
+          <div className="flex items-center gap-2.5">
+            <span className="w-[22px] h-[22px] rounded-[5px] bg-[#00A67D] flex items-center justify-center shrink-0">
+              <Check className="w-[13px] h-[13px] text-white" strokeWidth={3.5} />
+            </span>
+            <span className="text-[13px] text-[#F2F3F5]">Success!</span>
+          </div>
+          <div className="flex flex-col items-end gap-px">
+            <span className="flex items-center gap-1.5 text-[11px] text-[#9CA3AD]">
+              <Cloud className="w-3 h-3" />
+              Cloudflare
+            </span>
+            <span className="text-[9px] text-[#6B7280]">Privacy · Terms</span>
+          </div>
+        </div>
+          </>
+        ) : (
+          <>
         {/* Platform Features Card */}
         <div className="bg-primary/10 border border-primary/30 rounded-xl p-3">
           <div className="flex items-start gap-3">
@@ -546,13 +588,15 @@ export const AuthContent = ({
             <span className="text-xs text-trading-green">Verified</span>
           </div>
         </div>
+          </>
+        )}
 
         {/* Create Button */}
         <Button
           onClick={handleCreateWallet}
-          className="w-full h-11 btn-trading-green"
+          className={`w-full h-11 ${isLite ? "btn-primary" : "btn-trading-green"}`}
         >
-          Create Wallet & Start Trading
+          {isLite ? "Create wallet" : "Create Wallet & Start Trading"}
         </Button>
       </div>
     );
@@ -574,20 +618,31 @@ export const AuthContent = ({
         </button>
 
         {/* Success Banner */}
-        <div className="bg-trading-green/10 border border-trading-green/30 rounded-xl p-2.5 flex items-center gap-2">
-          <Check className="w-4 h-4 text-trading-green flex-shrink-0" />
-          <span className="text-trading-green font-medium text-sm">
-            Wallet created! Complete your profile to start
-          </span>
-        </div>
+        {isLite ? (
+          <div className="bg-[rgba(207,255,74,0.1)] border border-[rgba(207,255,74,0.3)] text-[#DCFF6A] rounded-xl p-2.5 flex items-center gap-2">
+            <Check className="w-4 h-4 flex-shrink-0" />
+            <span className="font-medium text-sm">
+              Wallet created — complete your profile to start
+            </span>
+          </div>
+        ) : (
+          <div className="bg-trading-green/10 border border-trading-green/30 rounded-xl p-2.5 flex items-center gap-2">
+            <Check className="w-4 h-4 text-trading-green flex-shrink-0" />
+            <span className="text-trading-green font-medium text-sm">
+              Wallet created! Complete your profile to start
+            </span>
+          </div>
+        )}
 
         <div className="text-center space-y-0.5">
-          <p className="text-xs text-muted-foreground">Final Step</p>
-          <h2 className="text-lg font-semibold text-foreground">Complete Your Profile</h2>
+          <p className="text-xs text-muted-foreground">{isLite ? "Final step" : "Final Step"}</p>
+          <h2 className={isLite ? "font-display text-[20px] font-semibold tracking-tight text-foreground" : "text-lg font-semibold text-foreground"}>
+            {isLite ? "Complete your profile" : "Complete Your Profile"}
+          </h2>
         </div>
 
         {/* Account Info Section */}
-        <div className="bg-card/50 border border-border/50 rounded-xl p-4 space-y-3">
+        <div className={isLite ? "rounded-lg border border-border bg-muted/30 p-4 space-y-3" : "bg-card/50 border border-border/50 rounded-xl p-4 space-y-3"}>
           {/* Username Input */}
           <div className="space-y-1">
             <div className="flex items-center gap-2">
@@ -637,7 +692,7 @@ export const AuthContent = ({
         </div>
 
         {/* Referral Code Section */}
-        <div className="bg-card/50 border border-border/50 rounded-xl overflow-hidden">
+        <div className={isLite ? "rounded-lg border border-border bg-muted/30 overflow-hidden" : "bg-card/50 border border-border/50 rounded-xl overflow-hidden"}>
           <button
             type="button"
             onClick={() => setShowReferralInput(!showReferralInput)}
@@ -683,9 +738,11 @@ export const AuthContent = ({
         <Button
           onClick={handleCompleteProfile}
           disabled={isLoading}
-          className="w-full h-11 btn-trading-green"
+          className={`w-full h-11 ${isLite ? "btn-primary" : "btn-trading-green"}`}
         >
-          {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+          {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : isLite ? (
+            "Start trading →"
+          ) : (
             <>
               Start Trading Now
               <ArrowRight className="w-4 h-4 ml-1.5" />
