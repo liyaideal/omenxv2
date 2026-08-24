@@ -22,6 +22,7 @@ import { useWatchlist } from "@/hooks/useWatchlist";
 import { useRealtimePricesOptional } from "@/contexts/RealtimePricesContext";
 import { useCategoryBoostConfigs, boostTiers } from "@/hooks/useCategoryBoostConfigs";
 import { AuthDialog } from "@/components/auth/AuthDialog";
+import { AuthSheet } from "@/components/auth/AuthSheet";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 
@@ -217,6 +218,7 @@ const LiteContractTrade = () => {
   const [boost, setBoost] = useState(1);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
+  const [resumeBuy, setResumeBuy] = useState(false);
   const [refetchTick, setRefetchTick] = useState(0);
   const [cashOutOpen, setCashOutOpen] = useState(false);
   // Multi-market: which option the board / order rail is bound to, and which
@@ -1112,7 +1114,13 @@ const LiteContractTrade = () => {
     heldSideLabel: heldPos ? (heldIsYes ? yesLabel : noLabel) : null,
     heldCurrentValue: heldPos ? heldNowWorth : null,
     heldQty: heldPos ? heldPos.sizeNum : null,
-    onRequestAuth: () => setAuthOpen(true),
+    onRequestAuth: () => {
+      if (isMobile) {
+        setDrawerOpen(false);
+        setResumeBuy(true);
+      }
+      setAuthOpen(true);
+    },
   } as const;
 
   // Multi-market rail: bound to the SELECTED option only. Both sides of that
@@ -1321,7 +1329,16 @@ const LiteContractTrade = () => {
             />
           </MobileDrawer>
 
-          <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
+          <AuthSheet
+            open={authOpen}
+            onOpenChange={(o) => {
+              setAuthOpen(o);
+              if (!o) {
+                if (resumeBuy && user) setDrawerOpen(true);
+                setResumeBuy(false);
+              }
+            }}
+          />
           {CashOut}
           {MultiCashOut}
         </div>

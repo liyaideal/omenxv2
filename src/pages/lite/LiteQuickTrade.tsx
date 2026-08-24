@@ -14,6 +14,7 @@ import { usePositions } from "@/hooks/usePositions";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { executeSpotTrade } from "@/services/tradingService";
 import { AuthDialog } from "@/components/auth/AuthDialog";
+import { AuthSheet } from "@/components/auth/AuthSheet";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import {
   Tooltip,
@@ -99,6 +100,7 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   const [amount, setAmount] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
+  const [resumeBuy, setResumeBuy] = useState(false);
   const [cashOutOpen, setCashOutOpen] = useState(false);
 
   const event = currentFor.get(`${coin}-${tf}`) ?? null;
@@ -258,7 +260,13 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
     onSideChange: setSide,
     amount,
     onAmountChange: setAmount,
-    onRequestAuth: () => setAuthOpen(true),
+    onRequestAuth: () => {
+      if (isMobile) {
+        setDrawerOpen(false);
+        setResumeBuy(true);
+      }
+      setAuthOpen(true);
+    },
   } as const;
 
   // ---------- blocks ----------
@@ -643,7 +651,16 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
           />
         </MobileDrawer>
 
-        <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
+        <AuthSheet
+            open={authOpen}
+            onOpenChange={(o) => {
+              setAuthOpen(o);
+              if (!o) {
+                if (resumeBuy && user) setDrawerOpen(true);
+                setResumeBuy(false);
+              }
+            }}
+          />
       </div>
     );
   }
