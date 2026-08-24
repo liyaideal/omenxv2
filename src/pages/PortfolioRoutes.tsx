@@ -5,7 +5,7 @@
 // into the new structure.
 // ============================================================
 import { useEffect } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigationType } from "react-router-dom";
 import { useSurface } from "@/contexts/SurfaceContext";
 import Portfolio from "./Portfolio";
 import PortfolioSettlements from "./PortfolioSettlements";
@@ -17,13 +17,17 @@ import { takePortfolioReturnSurface } from "@/lib/portfolioReturn";
 
 export const PortfolioRoute = () => {
   const { surface, setSurface } = useSurface();
+  const navigationType = useNavigationType();
 
-  // Coming back from a Pro terminal that was opened from the Lite portfolio
-  // (the "orders waiting to fill" row): return the reader to Lite.
+  // Coming BACK from a Pro terminal that was opened from the Lite portfolio
+  // (the "orders waiting to fill" row): return the reader to Lite. Only on a
+  // POP — on the outbound click this route briefly re-renders as Pro, and
+  // consuming the flag there would bounce the reader into the Lite terminal.
   useEffect(() => {
+    if (navigationType !== "POP") return;
     const back = takePortfolioReturnSurface();
     if (back === "lite" && surface !== "lite") setSurface("lite");
-  }, [surface, setSurface]);
+  }, [navigationType, surface, setSurface]);
 
   return surface === "lite" ? <LitePortfolio /> : <Portfolio />;
 };
