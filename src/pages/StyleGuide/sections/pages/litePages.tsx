@@ -639,7 +639,7 @@ const PORTFOLIO_DESKTOP_CASES: SectionCase[] = [
       {
         state: "cashout",
         when: "closeReason === 'cashout'",
-        visual: "`Closed at 48¢ · cashed out early`，时间行 label Closed；outcomeWon 不参与文案",
+        visual: "`Closed at 48¢`（无备注），结果行只有 Won / Lost；时间行 label Closed；提前平仓不做可见标注",
         source: "closeReason",
       },
     ],
