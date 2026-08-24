@@ -536,9 +536,38 @@ export const H2eRewardsCard = ({
   );
 };
 
+/** Surface-aware wallet auth gate: Lite → LiteAuthGate, Pro → AuthGateOverlay (unchanged). */
+const WalletAuthGate = ({
+  isLite,
+  maxPreviewHeight,
+  children,
+}: {
+  isLite: boolean;
+  maxPreviewHeight?: string;
+  children: React.ReactNode;
+}) =>
+  isLite ? (
+    <LiteAuthGate
+      title="Sign in to view your wallet"
+      description="Deposit, withdraw and move funds between your accounts by signing in."
+    >
+      {children}
+    </LiteAuthGate>
+  ) : (
+    <AuthGateOverlay
+      title="Sign in to view your wallet"
+      description="Manage your funds and saved addresses by signing in."
+      maxPreviewHeight={maxPreviewHeight}
+    >
+      {children}
+    </AuthGateOverlay>
+  );
+
 export default function Wallet() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { surface } = useSurface();
+  const isLite = surface === "lite";
   const { balance, spotBalance, user } = useUserProfile();
   const { imTotal, unrealizedPnL, hasPositions } = useRealtimeRiskMetrics();
   const h2e = useH2eRewardsSummary();
