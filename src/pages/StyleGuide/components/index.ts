@@ -4,4 +4,6 @@ export { CodePreview, InlineCode } from "./CodePreview";
 export { SectionWrapper, SubSection, LegacyNotice } from "./SectionWrapper";
 export { TradingHeaderPlayground } from "./TradingHeaderPlayground";
 export { DeviceFrame, DualDevicePreview } from "./DeviceFrame";
+export { SectionFrame, type SectionCase } from "./SectionFrame";
+
 
