@@ -14,6 +14,7 @@ import { useSettlementDetail } from "@/hooks/useSettlementDetail";
 import { useSettlements } from "@/hooks/useSettlements";
 import { optionSideWord } from "@/lib/liteSideName";
 import { liteTradePath, segmentFromProductLine } from "@/lib/liteTradePath";
+import { fromState } from "@/lib/portfolioReturn";
 import {
   SettlementDetailDesktop,
   SettlementDetailMobile,
@@ -90,7 +91,16 @@ export default function LiteSettlementDetail() {
           : "/portfolio?tab=settled",
       ),
     onViewEvent: s.eventId
-      ? () => navigate(liteTradePath(s.eventId, segmentFromProductLine(s.productLine)))
+      ? () =>
+          // The trade page back arrow returns to this settlement detail page.
+          navigate(
+            liteTradePath(s.eventId, segmentFromProductLine(s.productLine)),
+            fromState(
+              `/portfolio/settlement/${settlementId}${
+                fromSeries ? `?series=${encodeURIComponent(fromSeries)}` : ""
+              }`,
+            ),
+          )
       : undefined,
   };
 
