@@ -37,7 +37,9 @@ import {
 } from "@/components/portfolio/lite/SeriesDetailView";
 import { liteTradePath } from "@/lib/liteTradePath";
 import {
+  fromState,
   readPortfolioSegment,
+  savePortfolioScroll,
   savePortfolioSegment,
   takePortfolioScroll,
 } from "@/lib/portfolioReturn";
