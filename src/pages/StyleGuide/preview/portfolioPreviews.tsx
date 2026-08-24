@@ -109,6 +109,7 @@ const missingBoostRow: LiteLiveRow = {
   profit: 8,
   nowWorth: 108,
   cost: 100,
+  ifWins: 250,
 };
 
 const voucherRow: LiteLiveRow = {
@@ -124,6 +125,7 @@ const voucherRow: LiteLiveRow = {
   profit: 12.5,
   nowWorth: 62.5,
   cost: 50,
+  ifWins: 125,
 };
 
 const standardRow: LiteLiveRow = {
