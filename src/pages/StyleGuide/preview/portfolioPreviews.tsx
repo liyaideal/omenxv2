@@ -56,6 +56,7 @@ const base: LiteLiveRow = {
   sizeNum: 480,
   ifWins: 480,
   autoClosePrice: 0.34,
+  autoCloseState: "level",
   hot: false,
   tradePath: "/events",
 };
@@ -69,9 +70,42 @@ const hotRow: LiteLiveRow = {
   sideWord: "ARS +1.5",
   priceNow: 0.36,
   autoClosePrice: 0.35,
+  autoCloseState: "level",
   hot: true,
   profit: -42.1,
   nowWorth: 77.9,
+};
+
+const safeBoostRow: LiteLiveRow = {
+  ...base,
+  id: "demo-safe",
+  eventName: "Fed cuts in September",
+  categoryLabel: "Finance",
+  settlesAt: inDays(5, 16),
+  sideWord: "Yes",
+  priceNow: 0.55,
+  autoClosePrice: null,
+  autoCloseState: "none",
+  hot: false,
+  profit: 22,
+  nowWorth: 142,
+  cost: 120,
+};
+
+const missingBoostRow: LiteLiveRow = {
+  ...base,
+  id: "demo-missing",
+  eventName: "BTC ETF approved this week",
+  categoryLabel: "Crypto",
+  settlesAt: inDays(3, 16),
+  sideWord: "Yes",
+  priceNow: 0.42,
+  autoClosePrice: null,
+  autoCloseState: "missing",
+  hot: false,
+  profit: 8,
+  nowWorth: 108,
+  cost: 100,
 };
 
 const voucherRow: LiteLiveRow = {
@@ -83,6 +117,7 @@ const voucherRow: LiteLiveRow = {
   isVoucher: true,
   leverageNum: 1,
   autoClosePrice: null,
+  autoCloseState: "none",
   profit: 12.5,
   nowWorth: 62.5,
   cost: 50,
@@ -97,6 +132,7 @@ const standardRow: LiteLiveRow = {
   segment: "standard",
   leverageNum: 1,
   autoClosePrice: null,
+  autoCloseState: "none",
   cost: 250,
   profit: -18,
   nowWorth: 232,
