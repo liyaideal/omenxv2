@@ -2,13 +2,31 @@ import { useEffect, useRef, useState } from "react";
 
 type Device = "desktop" | "mobile";
 
+/**
+ * One row of the trigger table under a case.
+ * `when` MUST be a decidable expression (field / formula), never an adjective —
+ * this document is read as a spec, not as a gallery.
+ */
+export type SectionSpecRow = {
+  /** state name as it appears in the preview */
+  state: string;
+  /** the exact condition that produces it */
+  when: string;
+  /** what the user sees when the condition holds */
+  visual: string;
+  /** field / hook / component the condition comes from */
+  source?: string;
+};
+
 export type SectionCase = {
   /** registry key */
   key: string;
   /** label rendered inside the iframe above the case */
   label: string;
-  /** spec note rendered in the legend below the frame */
+  /** free-form supplementary note (context, not trigger rules) */
   note?: string;
+  /** trigger table — one row per visual state */
+  spec?: SectionSpecRow[];
 };
 
 /**
