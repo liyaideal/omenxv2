@@ -39,15 +39,15 @@ const metaLine = (row: LiteLiveRow) => {
 };
 
 const winSentence = (row: LiteLiveRow) =>
-  `If ${row.sideWord} wins you get ${money(row.ifWins)}`;
+  `If it wins you get ${money(row.ifWins)}`;
 
 const autoCloseSuffix = (row: LiteLiveRow): string | null => {
   if (row.segment !== "boost" || row.leverageNum <= 1) return null;
+  if (row.autoCloseState === "none") return null;
   if (row.autoCloseState === "level" && row.autoClosePrice != null) {
-    return `Auto-closes if price hits ${cents(row.autoClosePrice)}`;
+    return `auto-close ≈${cents(row.autoClosePrice)}`;
   }
-  if (row.autoCloseState === "missing") return "auto-close —";
-  return null;
+  return "auto-close —";
 };
 
 
