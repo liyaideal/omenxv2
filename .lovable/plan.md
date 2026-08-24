@@ -17,7 +17,7 @@ Boost 现在全空的原因在 `useLitePortfolio.ts`：auto-close 用的是**账
 2. **auto-close 作为第二段补在同一格里**，并遵循 W2 的四态文案：
    - 有解：`· auto-close ≈{c}¢`
    - 1×（无 Boost）：不显示第二段
-   - 账户很安全、当前余额下解不出：`· no auto-close at this balance`
+   - 账户很安全、当前余额下解不出：第二段整句省略，只保留主句 `If {side} wins → $X`。
    - 缺数据：`· auto-close —`
 3. 移动卡片 `sentence` 与桌面 `mergedCol` 用同一套 helper，保持两端文案一致（移动端仍用长句式 "If … you get …／Auto-closes if price hits …"）。
 4. `hot` 红色高亮逻辑不变（仍只在有解且距离 ≤10% 时触发）。
