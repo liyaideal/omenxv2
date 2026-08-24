@@ -14,10 +14,14 @@ import { LynxFigure } from "@/components/brand/LynxFigure";
 
 export const LiteAuthGate = ({
   children,
+  title = "Sign in to view your portfolio",
+  description = "Track your live calls and settled results by signing in to your account.",
   /** Docs-only: force the signed-out overlay in /style-guide. Never set in product. */
   forceSignedOut = false,
 }: {
   children: React.ReactNode;
+  title?: string;
+  description?: string;
   forceSignedOut?: boolean;
 }) => {
   const { user } = useAuth();
