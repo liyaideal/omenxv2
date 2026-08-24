@@ -29,6 +29,9 @@ import {
   SeriesDetailMobile,
   type SeriesDetailVM,
 } from "@/components/portfolio/lite/SeriesDetailView";
+import { PortfolioErrorBoundary } from "@/components/portfolio/lite/PortfolioErrorBoundary";
+import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
+import { MobileHeader } from "@/components/MobileHeader";
 import { useState } from "react";
 
 /** Fixture dates stay relative so settleLabel() output never goes stale. */
@@ -106,6 +109,7 @@ const missingBoostRow: LiteLiveRow = {
   profit: 8,
   nowWorth: 108,
   cost: 100,
+  ifWins: 250,
 };
 
 const voucherRow: LiteLiveRow = {
@@ -121,6 +125,7 @@ const voucherRow: LiteLiveRow = {
   profit: 12.5,
   nowWorth: 62.5,
   cost: 50,
+  ifWins: 125,
 };
 
 const standardRow: LiteLiveRow = {
@@ -138,6 +143,24 @@ const standardRow: LiteLiveRow = {
   nowWorth: 232,
   ifWins: 500,
   tradePath: "/spot",
+};
+
+/** Flat position — exercises isZeroMoney() (muted, unsigned $0.00). */
+const flatRow: LiteLiveRow = {
+  ...base,
+  id: "demo-flat",
+  eventName: "US CPI above 3% in September",
+  categoryLabel: "Finance",
+  settlesAt: inDays(6, 16),
+  sideWord: "Yes",
+  segment: "standard",
+  leverageNum: 1,
+  autoClosePrice: null,
+  autoCloseState: "none",
+  cost: 100,
+  profit: 0,
+  nowWorth: 100,
+  ifWins: 210,
 };
 
 const gauge = (riskRatio: number) => ({
@@ -169,7 +192,13 @@ export const PortfolioLiveCardsPreview = () => (
     <LiveCard row={missingBoostRow} />
     <LiveCard row={voucherRow} />
     <LiveCard row={standardRow} />
+    <LiveCard row={flatRow} />
     <PendingOrdersRow orders={[{ id: "o1", event: "BTC above $70,000", size: "120", price: "41¢" }]} />
+    {/* Empty orders → the dashed row renders nothing at all. */}
+    <PendingOrdersRow orders={[]} />
+    <p className="text-[11px] text-[#6B7280]">
+      ↑ 最后一行是 orders=[] 的挂单行：不渲染任何 chrome。
+    </p>
   </div>
 );
 
@@ -177,52 +206,117 @@ export const PortfolioDesktopRowsPreview = () => (
   <div className="bg-background py-4">
     <LiveRowHeader />
     <LiveRow row={base} />
-    <LiveCard row={hotRow} />
+    <LiveRow row={hotRow} />
     <LiveRow row={safeBoostRow} />
     <LiveRow row={missingBoostRow} />
+    <LiveRow row={voucherRow} />
     <LiveRow row={standardRow} />
+    <LiveRow row={flatRow} />
   </div>
 );
 
-export const PortfolioKpiPreview = () => (
-  <div className="space-y-3 bg-background p-4">
-    <KpiGrid cols={2}>
-      <KpiCard label="COST" value={money(669.67)} sub="7 calls" />
-      <KpiCard
-        label="NOW WORTH"
-        value={money(775.31)}
-        sub={`${signedMoney(105.64)} · +15.8%`}
-        subColor={VOLT}
-      />
-    </KpiGrid>
-    <KpiGrid cols={3}>
-      <KpiCard label="WIN RATE" value="58%" sub="7 of 12" />
-      <KpiCard label="NET PROFIT" value={signedMoney(214)} sub="12 settled" subColor={VOLT} />
-      <KpiCard label="RECORD" value="7W 5L" sub="wins · losses" />
-    </KpiGrid>
-    <KpiGrid cols={2}>
-      <KpiCard label="COST" value={money(310)} sub="2 calls" />
-      <KpiCard
-        label="NOW WORTH"
-        value={money(268.4)}
-        sub={`${signedMoney(-41.6)} · -13.4%`}
-        subColor={RED}
-      />
-    </KpiGrid>
+/* ------------------------------- KPI ------------------------------- */
+
+export const PortfolioKpiMobilePreview = () => (
+  <div className="space-y-4 bg-background p-4">
+    <div>
+      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Live · 正</p>
+      <KpiGrid cols={2}>
+        <KpiCard label="COST" value={money(669.67)} sub="7 calls" />
+        <KpiCard
+          label="NOW WORTH"
+          value={money(775.31)}
+          sub={`${signedMoney(105.64)} · +15.8%`}
+          subColor={VOLT}
+        />
+      </KpiGrid>
+    </div>
+    <div>
+      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Live · 负</p>
+      <KpiGrid cols={2}>
+        <KpiCard label="COST" value={money(310)} sub="2 calls" />
+        <KpiCard
+          label="NOW WORTH"
+          value={money(268.4)}
+          sub={`${signedMoney(-41.6)} · -13.4%`}
+          subColor={RED}
+        />
+      </KpiGrid>
+    </div>
+    <div>
+      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Live · 零态</p>
+      <KpiGrid cols={2}>
+        <KpiCard label="COST" value={money(0)} sub="0 calls" />
+        <KpiCard label="NOW WORTH" value={money(0)} sub={`${signedMoney(0)} · +0.0%`} />
+      </KpiGrid>
+    </div>
+    <div>
+      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Settled · 移动 2 卡</p>
+      <KpiGrid cols={2}>
+        <KpiCard label="WIN RATE" value="58%" sub="7 of 12" />
+        <KpiCard label="NET PROFIT" value={signedMoney(214)} sub="12 settled" subColor={VOLT} />
+      </KpiGrid>
+    </div>
+  </div>
+);
+
+export const PortfolioKpiDesktopPreview = () => (
+  <div className="space-y-4 bg-background p-4">
+    <div>
+      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Live · 桌面 3 卡</p>
+      <KpiGrid cols={3}>
+        <KpiCard label="COST" value={money(669.67)} sub="7 calls" />
+        <KpiCard label="NOW WORTH" value={money(775.31)} />
+        <KpiCard label="PROFIT" value={signedMoney(105.64)} sub="+15.8%" subColor={VOLT} />
+      </KpiGrid>
+    </div>
+    <div>
+      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Live · 桌面 3 卡（负）</p>
+      <KpiGrid cols={3}>
+        <KpiCard label="COST" value={money(310)} sub="2 calls" />
+        <KpiCard label="NOW WORTH" value={money(268.4)} />
+        <KpiCard label="PROFIT" value={signedMoney(-41.6)} sub="-13.4%" subColor={RED} />
+      </KpiGrid>
+    </div>
+    <div>
+      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Settled · 桌面 3 卡</p>
+      <KpiGrid cols={3}>
+        <KpiCard label="WIN RATE" value="58%" sub="7 of 12" />
+        <KpiCard label="NET PROFIT" value={signedMoney(214)} sub="12 settled" subColor={VOLT} />
+        <KpiCard label="RECORD" value="7W 5L" sub="wins · losses" />
+      </KpiGrid>
+    </div>
+    <div>
+      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Settled · 零态</p>
+      <KpiGrid cols={3}>
+        <KpiCard label="WIN RATE" value="0%" sub="0 of 0" />
+        <KpiCard label="NET PROFIT" value={signedMoney(0)} sub="0 settled" />
+        <KpiCard label="RECORD" value="0W 0L" sub="wins · losses" />
+      </KpiGrid>
+    </div>
   </div>
 );
 
 export const PortfolioChromePreview = () => {
   const [tab, setTab] = useState<"live" | "settled">("live");
   const [seg, setSeg] = useState<"boost" | "standard">("boost");
+  const [seg2, setSeg2] = useState<"boost" | "standard">("standard");
   return (
     <div className="space-y-3 bg-background">
       <div className="px-4 pt-3">
         <PortfolioTabs value={tab} onChange={setTab} />
       </div>
       <VoucherHairline count={2} />
-      <div className="px-4 pb-4">
+      {/* count=0 renders nothing — the hairline is conditional chrome. */}
+      <VoucherHairline count={0} />
+      <div className="px-4">
         <SegmentChips value={seg} onChange={setSeg} boostCount={6} standardCount={1} />
+      </div>
+      <div className="px-4 pb-4">
+        <SegmentChips value={seg2} onChange={setSeg2} boostCount={0} standardCount={0} />
+        <p className="pt-2 text-[11px] text-[#6B7280]">
+          ↑ 计数为 0 的 chips（两段都空时仍可切换）。上方 voucher 发丝行只有 count &gt; 0 才渲染。
+        </p>
       </div>
     </div>
   );
@@ -269,6 +363,14 @@ const groups: LiteMonthGroup[] = [
         seriesId: "9988.HK%20closes%20up",
         won: false,
       }),
+      settled({
+        title: "US jobs report beats forecast",
+        metaParts: ["Yes", "Aug 15"],
+        remark: "none",
+        net: 0.002,
+        segment: "standard",
+        won: true,
+      }),
     ],
   },
   {
@@ -288,6 +390,36 @@ export const PortfolioEmptyStatesPreview = () => (
   <div className="space-y-6 bg-background p-4">
     <div className="py-10 text-center text-[13px] text-[#6B7280]">No live calls yet</div>
     <SettledList groups={[]} />
+  </div>
+);
+
+/** Signed-out /portfolio — blurred under-layer + sign-in overlay. */
+export const PortfolioAuthGatePreview = () => (
+  <div className="bg-background">
+    <LiteAuthGate>
+      <div className="p-4">
+        <KpiGrid cols={2}>
+          <KpiCard label="COST" value={money(669.67)} sub="7 calls" />
+          <KpiCard label="NOW WORTH" value={money(775.31)} sub={`${signedMoney(105.64)} · +15.8%`} subColor={VOLT} />
+        </KpiGrid>
+        <div className="pt-3">
+          <LiveCard row={base} />
+        </div>
+      </div>
+    </LiteAuthGate>
+  </div>
+);
+
+const Boom = () => {
+  throw new Error("style-guide: forced detail crash");
+};
+
+/** Detail views are wrapped by PortfolioErrorBoundary — never a white screen. */
+export const PortfolioErrorBoundaryPreview = () => (
+  <div className="bg-background p-4">
+    <PortfolioErrorBoundary>
+      <Boom />
+    </PortfolioErrorBoundary>
   </div>
 );
 
@@ -335,6 +467,42 @@ const detailAutoClosed: SettlementDetailVM = {
   ],
 };
 
+const detailCashout: SettlementDetailVM = {
+  ...detailBase,
+  eventName: "Arsenal to beat Liverpool",
+  closeReason: "cashout",
+  net: 42.5,
+  cost: 150,
+  fees: 1.5,
+  shares: 410,
+  avgPrice: 0.37,
+  exitPrice: 0.48,
+  leverage: 2,
+  sideWord: "ARS +1.5",
+  outcomeWon: false,
+  openedAt: "2026-08-11T18:00:00Z",
+  closedAt: "2026-08-12T20:10:00Z",
+  trades: [{ id: "t1", time: "2026-08-11T18:00:00Z", action: "Open", total: 150, price: 0.37 }],
+};
+
+const detailLost: SettlementDetailVM = {
+  ...detailBase,
+  eventName: "9988.HK closes up on Aug 14",
+  closeReason: "settlement",
+  net: -100,
+  cost: 100,
+  fees: 0.9,
+  shares: 240,
+  avgPrice: 0.42,
+  exitPrice: 0,
+  leverage: 1,
+  sideWord: "Up",
+  outcomeWon: false,
+  openedAt: "2026-08-14T01:40:00Z",
+  closedAt: "2026-08-14T08:00:00Z",
+  trades: [{ id: "t1", time: "2026-08-14T01:40:00Z", action: "Open", total: 100, price: 0.42 }],
+};
+
 const seriesVm: SeriesDetailVM = {
   seriesName: "Ethereum — up or down?",
   eventId: "demo-eth",
@@ -350,17 +518,57 @@ const seriesVm: SeriesDetailVM = {
   payout: 32.55,
   net: -12.45,
   wins: 1,
-
 };
 
-export const SettlementDetailDesktopPreview = () => (
-  <div className="bg-background p-6">
+const seriesAllWon: SeriesDetailVM = {
+  ...seriesVm,
+  seriesName: "Bitcoin — up or down?",
+  rounds: [
+    { id: "w2", closedAt: "2026-08-14T12:20:00Z", sideWord: "Up", autoClosed: false, net: 18.4 },
+    { id: "w1", closedAt: "2026-08-13T12:20:00Z", sideWord: "Up", autoClosed: false, net: 21.1 },
+  ],
+  cost: 30,
+  fees: 0.3,
+  payout: 69.5,
+  net: 39.5,
+  wins: 2,
+};
+
+const seriesAllLost: SeriesDetailVM = {
+  ...seriesVm,
+  seriesName: "Solana — up or down?",
+  rounds: [
+    { id: "l2", closedAt: "2026-08-14T12:20:00Z", sideWord: "Down", autoClosed: true, net: -15 },
+    { id: "l1", closedAt: "2026-08-13T12:20:00Z", sideWord: "Down", autoClosed: false, net: -15 },
+  ],
+  cost: 30,
+  fees: 0.3,
+  payout: 0,
+  net: -30,
+  wins: 0,
+};
+
+const seriesBoostWeekly: SeriesDetailVM = {
+  ...seriesVm,
+  seriesName: "Arsenal — weekly result",
+  isDailyRounds: false,
+  segmentLabel: "Boost",
+  rounds: [
+    { id: "b2", closedAt: "2026-08-12T20:00:00Z", sideWord: "ARS +1.5", autoClosed: false, net: 24 },
+    { id: "b1", closedAt: "2026-08-05T20:00:00Z", sideWord: "ARS -0.5", autoClosed: false, net: -12 },
+  ],
+  cost: 60,
+  fees: 0.6,
+  payout: 72,
+  net: 12,
+  wins: 1,
+};
+
+export const SettlementDetailWonPreview = () => (
+  <div className="grid gap-4 bg-background p-4 lg:grid-cols-[380px_1fr]">
+    <SettlementDetailMobile vm={detailBase} actions={{ onViewEvent: () => {} }} />
     <SettlementDetailDesktop vm={detailBase} actions={{ onViewEvent: () => {} }} />
   </div>
-);
-
-export const SettlementDetailMobilePreview = () => (
-  <SettlementDetailMobile vm={detailBase} actions={{ onViewEvent: () => {} }} />
 );
 
 export const SettlementDetailAutoClosedPreview = () => (
@@ -370,9 +578,41 @@ export const SettlementDetailAutoClosedPreview = () => (
   </div>
 );
 
+export const SettlementDetailCashoutPreview = () => (
+  <div className="grid gap-4 bg-background p-4 lg:grid-cols-[380px_1fr]">
+    <SettlementDetailMobile vm={detailCashout} actions={{ onViewEvent: () => {} }} />
+    <SettlementDetailDesktop vm={detailCashout} actions={{ onViewEvent: () => {} }} />
+  </div>
+);
+
+export const SettlementDetailLostPreview = () => (
+  <div className="grid gap-4 bg-background p-4 lg:grid-cols-[380px_1fr]">
+    <SettlementDetailMobile vm={detailLost} actions={{ onViewEvent: () => {} }} />
+    <SettlementDetailDesktop vm={detailLost} actions={{ onViewEvent: () => {} }} />
+  </div>
+);
+
 export const SettlementSeriesDetailPreview = () => (
   <div className="grid gap-4 bg-background p-4 lg:grid-cols-[380px_1fr]">
     <SeriesDetailMobile vm={seriesVm} actions={{ onViewEvent: () => {} }} />
     <SeriesDetailDesktop vm={seriesVm} actions={{ onViewEvent: () => {} }} />
+  </div>
+);
+
+export const SettlementSeriesExtremesPreview = () => (
+  <div className="space-y-4 bg-background p-4">
+    <SeriesDetailDesktop vm={seriesAllWon} actions={{ onViewEvent: () => {} }} />
+    <SeriesDetailDesktop vm={seriesAllLost} actions={{ onViewEvent: () => {} }} />
+    <SeriesDetailDesktop vm={seriesBoostWeekly} actions={{ onViewEvent: () => {} }} />
+  </div>
+);
+
+/** Mobile series是独立整页：inner header + 返回，无 tabs / KPI / chips。 */
+export const SeriesMobilePagePreview = () => (
+  <div className="min-h-[560px] bg-background">
+    <MobileHeader variant="inner" title="Ethereum — up or down?" showBack backTo="/portfolio?tab=settled" />
+    <div className="pt-4">
+      <SeriesDetailMobile vm={seriesVm} actions={{ onViewEvent: () => {} }} />
+    </div>
   </div>
 );
