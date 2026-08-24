@@ -44,10 +44,8 @@ const winSentence = (row: LiteLiveRow) =>
 const autoCloseSuffix = (row: LiteLiveRow): string | null => {
   if (row.segment !== "boost" || row.leverageNum <= 1) return null;
   if (row.autoCloseState === "none") return null;
-  if (row.autoCloseState === "level" && row.autoClosePrice != null) {
-    return `auto-close ≈${cents(row.autoClosePrice)}`;
-  }
-  return "auto-close —";
+  if (row.autoClosePrice == null) return null;
+  return `auto-close ≈${cents(row.autoClosePrice)}`;
 };
 
 
@@ -169,10 +167,8 @@ export const LiveRow = ({
   const autoCloseSecondLine = (row: LiteLiveRow): string | null => {
     if (row.segment !== "boost" || row.leverageNum <= 1) return null;
     if (row.autoCloseState === "none") return null;
-    if (row.autoCloseState === "level" && row.autoClosePrice != null) {
-      return `· auto-close ≈${cents(row.autoClosePrice)}`;
-    }
-    return "· auto-close —";
+    if (row.autoClosePrice == null) return null;
+    return `· auto-close ≈${cents(row.autoClosePrice)}`;
   };
   const mergedCol = [
     `If it wins → ${money(row.ifWins)}`,
