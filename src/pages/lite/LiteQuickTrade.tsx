@@ -5,7 +5,7 @@ import { RoundTape } from "@/components/lite/shared/RoundTape";
 // Execution reuses the existing spot order panel / service.
 // ============================================================
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Info, Loader2, Star } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
@@ -83,6 +83,10 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const isMobile = useIsMobile();
+  const routerLocation = useLocation();
+  // Back goes home to wherever the reader came from (portfolio keeps its spot).
+  const backHref =
+    (routerLocation.state as { from?: string } | null)?.from ?? "/events";
   const seconds = useSecondTick();
   const { user } = useAuth();
   const { toggle: toggleWatch, isWatched } = useWatchlist();
@@ -548,7 +552,7 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
           titleHidden={!scrolledOut}
           showLogo={false}
           showBack
-          backTo="/events"
+          backTo={backHref}
           rightContent={<div className="flex items-center gap-1 -mr-2">{WatchStar}</div>}
         />
         <div className="px-4 py-4">
