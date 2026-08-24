@@ -381,6 +381,103 @@ export const LiteApiPage = ({ isMobile }: P) => (
   </LitePage>
 );
 
+const PORTFOLIO_MOBILE_CASES: SectionCase[] = [
+  {
+    key: "portfolio-lite-chrome",
+    label: "Tabs · voucher 发丝行 · 双段 chips",
+    note: "开场 chrome。voucher 发丝行只在 count > 0 时渲染（第二条 count=0 什么都不画）；chips 计数可为 0，两态可直接点击切换。",
+  },
+  {
+    key: "portfolio-lite-kpi-mobile",
+    label: "KPI 卡 · 移动（Live 正 / Live 负 / 零态 / Settled 2 卡）",
+    note: "移动端一律 2 列。零态走 isZeroMoney：$0.00 不带符号、不上色。",
+  },
+  {
+    key: "portfolio-lite-gauge-states",
+    label: "Boost check 仪表三态",
+    note: "Healthy <80 / Getting tight ≥80 / Auto-close soon ≥95。",
+  },
+  {
+    key: "portfolio-lite-live-cards",
+    label: "持仓卡全状态 + 挂单行两态",
+    note: "状态字段：segment（boost/standard）、isVoucher、autoCloseState（level/none/missing）、hot（现价距 auto-close ≤10%，整句转红且卡描边红）。无 auto-close 价格时只显示 If it wins 主句；有价格才追加 auto-close ≈{cents}。零盈亏行走 isZeroMoney 显 muted $0.00。挂单虚线行 orders=[] 时不渲染。",
+  },
+  {
+    key: "portfolio-lite-settled",
+    label: "Settled 列表",
+    note: "月份分组、remark 三态（none / auto_close 红备注 / cashout「cashed out early」）、isSeries 聚合行、net 绝对值 < $0.005 的零结果行显 muted $0.00、按月懒加载。",
+  },
+  {
+    key: "portfolio-lite-series-mobile-page",
+    label: "系列详情 · 移动独立整页",
+    note: "移动端选中 series 时是自己的一页：MobileHeader variant=inner + 返回 /portfolio?tab=settled，无 brand 头、无 tabs、无 KPI、无 chips。",
+  },
+  {
+    key: "portfolio-lite-empty",
+    label: "空态",
+    note: "Live 段空态（No live calls yet + Browse events）与 Settled 空态（Nothing settled yet）。",
+  },
+  {
+    key: "portfolio-lite-auth-gate",
+    label: "未登录门 LiteAuthGate",
+    note: "signed-out：内容层 blur(3px)/opacity .7 垫底 + Lynx 图 + Sign in / Create account。移动端弹 AuthSheet，桌面弹 AuthDialog。",
+  },
+  {
+    key: "portfolio-lite-error",
+    label: "详情页错误边界",
+    note: "PortfolioErrorBoundary：详情视图抛错时降级为 Something went wrong + Back to settled，不白屏。",
+  },
+];
+
+const PORTFOLIO_DESKTOP_CASES: SectionCase[] = [
+  {
+    key: "portfolio-lite-kpi-desktop",
+    label: "KPI 卡 · 桌面（Live 3 卡 · Settled 3 卡 + RECORD）",
+    note: "桌面 Live 是三卡（PROFIT 独立成卡），Settled 第三卡为 RECORD 7W 5L / wins · losses。3 列 KPI 只在桌面宽度成立。",
+  },
+  {
+    key: "portfolio-lite-gauge-bar",
+    label: "Boost check 条（桌面）",
+    note: "桌面行内仪表条，同一套三态阈值。",
+  },
+  {
+    key: "portfolio-lite-desktop-rows",
+    label: "桌面行式网格（含 voucher 行 / 热行 / 零盈亏行）",
+    note: "列模板 minmax(0,1fr) 110px 96px 104px 100px 150px 170px；热行 inset 左轨。AUTO-CLOSE / IF WINS 列统一为 If it wins → $X 主句，有 auto-close 价格时才追加第二段。",
+  },
+  {
+    key: "portfolio-lite-detail-won",
+    label: "单仓结算详情 · settlement + won",
+    note: "v1.17 §4b：桌面 back 链接 + 标题行 + meta + KPI 三卡 + DETAILS/ACTIVITY 双卡；移动纵列。Payout = max(0, Cost + PnL − Fees)。",
+  },
+  {
+    key: "portfolio-lite-detail-autoclosed",
+    label: "单仓结算详情 · auto_close",
+    note: "§4c：眉线 CLOSED、Closed at 25¢ · auto-closed 整值红、时间行 label Closed、Payout $0.00 → 副行 nothing returned。",
+  },
+  {
+    key: "portfolio-lite-detail-cashout",
+    label: "单仓结算详情 · cashout",
+    note: "closeReason='cashout'：Closed at 48¢ · cashed out early，时间行 label Closed，outcomeWon 不参与文案。",
+  },
+  {
+    key: "portfolio-lite-detail-lost",
+    label: "单仓结算详情 · settlement + lost",
+    note: "closeReason='settlement' 且 outcomeWon=false：Settled at $0.00 · Up lost，Payout $0.00 → nothing returned。",
+  },
+  {
+    key: "portfolio-lite-series-detail",
+    label: "系列结算详情",
+    note: "§4d：SERIES · WON x OF n 眉线、Rounds/Cost/Fees/Payout 明细、每轮一行可点进单轮详情（auto-closed 轮追加红字）。Net = Payout − Cost。",
+  },
+  {
+    key: "portfolio-lite-series-extremes",
+    label: "系列两极 + Standard/Boost 口径",
+    note: "全胜（WON 2 OF 2，净正）/ 全败（WON 0 OF 2，Payout $0.00）/ Boost 非日轮（isDailyRounds=false，segmentLabel=Boost）。",
+  },
+];
+
+
 export const LitePortfolioPage = ({ isMobile }: P) => (
   <LitePage
     id="lite-portfolio"
