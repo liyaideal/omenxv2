@@ -101,15 +101,17 @@ export default function LitePortfolio() {
     if (pendingScroll.current == null || p.isLoading) return;
     const y = pendingScroll.current;
     pendingScroll.current = null;
-    // The list keeps growing for a few frames after data lands, so retry until
-    // the document is tall enough (or we run out of patience).
+    // The list keeps growing for a few frames after data lands, and the browser
+    // may also apply its own history scroll restoration, so keep re-asserting
+    // our offset for a short window.
     let tries = 0;
     const tick = () => {
       window.scrollTo(0, y);
       tries += 1;
-      if (Math.abs(window.scrollY - y) > 2 && tries < 40) requestAnimationFrame(tick);
+      if (tries < 45) requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
+
   }, [p.isLoading]);
 
 

@@ -4,6 +4,7 @@
 // Legacy lite entries (/portfolio/settlements, /portfolio/airdrops) redirect
 // into the new structure.
 // ============================================================
+import { useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { useSurface } from "@/contexts/SurfaceContext";
 import Portfolio from "./Portfolio";
@@ -12,9 +13,18 @@ import PortfolioAirdrops from "./PortfolioAirdrops";
 import SettlementDetail from "./SettlementDetail";
 import LitePortfolio from "./lite/LitePortfolio";
 import LiteSettlementDetail from "./lite/LiteSettlementDetail";
+import { takePortfolioReturnSurface } from "@/lib/portfolioReturn";
 
 export const PortfolioRoute = () => {
-  const { surface } = useSurface();
+  const { surface, setSurface } = useSurface();
+
+  // Coming back from a Pro terminal that was opened from the Lite portfolio
+  // (the "orders waiting to fill" row): return the reader to Lite.
+  useEffect(() => {
+    const back = takePortfolioReturnSurface();
+    if (back === "lite" && surface !== "lite") setSurface("lite");
+  }, [surface, setSurface]);
+
   return surface === "lite" ? <LitePortfolio /> : <Portfolio />;
 };
 
