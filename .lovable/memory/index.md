@@ -46,6 +46,7 @@
 - [Account risk UI](mem://features/account-risk-ui-implementation) — Persistent sidebar and mobile drawer for account risk
 - [Account risk model](mem://features/account-risk-model) — 4-tier risk classification and margin formulas
 - [Portfolio risk integration](mem://features/portfolio-risk-integration) — Syncing portfolio metrics with global risk model
+- [Portfolio auto-close column](mem://features/portfolio-auto-close-column) — AUTO-CLOSE / IF WINS column copy rules for Lite live rows/cards
 - [Position option linkage](mem://technical/position-option-linkage) — Using option_id as primary key for prices
 - [Event sparkline architecture](mem://style/event-sparkline-architecture) — Bezier curves and dynamic scaling for charts
 - [Typography system](mem://components/typography-library-system) — Semantic font-mono and font-sans rules
