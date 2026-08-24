@@ -404,7 +404,7 @@ export const LitePortfolioPage = ({ isMobile }: P) => (
       <DeviceFrame previewKey="portfolio-lite-live-cards" device="mobile" minHeight={640} />
     </SubSection>
 
-    <SubSection title="桌面行式网格" description="列模板 minmax(0,1fr) 110px 96px 104px 100px 150px 170px；热行 inset 左轨。AUTO-CLOSE / IF WINS 列统一为 If wins → $X 主句 + 可选 auto-close 第二段。">
+    <SubSection title="桌面行式网格" description="列模板 minmax(0,1fr) 110px 96px 104px 100px 150px 170px；热行 inset 左轨。AUTO-CLOSE / IF WINS 列统一为 If it wins → $X 主句 + 可选 auto-close 第二段。">
       <DeviceFrame previewKey="portfolio-lite-desktop-rows" device="desktop" minHeight={260} />
     </SubSection>
 
