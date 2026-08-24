@@ -400,7 +400,7 @@ export const LitePortfolioPage = ({ isMobile }: P) => (
       <DeviceFrame previewKey="portfolio-lite-gauge-bar" device="desktop" minHeight={120} />
     </SubSection>
 
-    <SubSection title="持仓卡：常规 / 热卡 / voucher 仓 / Standard + 挂单虚线行" description="热卡=现价距 auto-close ≤10%，整句转红且卡描边红。">
+    <SubSection title="持仓卡：常规 / 热卡 / 安全 Boost / 缺失态 / voucher 仓 / Standard + 挂单虚线行" description="热卡=现价距 auto-close ≤10%，整句转红且卡描边红；安全 Boost 只显示 If wins 主句；缺失态追加 auto-close — 第二段。">
       <DeviceFrame previewKey="portfolio-lite-live-cards" device="mobile" minHeight={640} />
     </SubSection>
 
