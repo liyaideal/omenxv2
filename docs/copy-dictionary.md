@@ -94,6 +94,18 @@ positives. Chip words come from the sibling event's `side_labels`.
 
 ---
 
+## Portfolio (Lite)
+
+| Canonical | Meaning | Banned variants |
+|---|---|---|
+| **If {side} wins you get $X** | Mobile live-card payout sentence | — |
+| **If {side} wins → $X** | Desktop live-row payout column | — |
+| **Auto-closes if price hits {c}¢** | Mobile auto-close suffix when a level exists | Liquidation, stop out |
+| **auto-close ≈{c}¢** | Desktop auto-close suffix when a level exists | Liq. Price, stop |
+| **auto-close —** | Missing/degenerate auto-close estimate placeholder | — |
+
+---
+
 ## Accounts (CPO ruling 2026-08-06)
 
 | Canonical | Meaning | Banned variants |
