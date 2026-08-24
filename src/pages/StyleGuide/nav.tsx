@@ -38,8 +38,9 @@ const s = (id: string, label: string, Comp: ComponentType<P>): SectionEntry => (
 });
 
 /* ---------------- Lite — one node per page ---------------- */
-const litePages = () => import("./sections/pages/litePages");
-const lp = (name: string) => lz(litePages, name);
+/** One file per page node — never a barrel: a barrel drags every section chunk in. */
+const lp = (file: string, name = file) =>
+  lz(() => import(`./sections/pages/${file}.tsx`), name);
 
 /* ---------------- Foundations / Legacy / Archive ---------------- */
 const sec = (file: string, name: string) =>
@@ -84,10 +85,10 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
       s("lite-vouchers", "Vouchers ✅", lp("LiteVouchersPage")),
       s("lite-api", "API / Developers ✅", lp("LiteApiPage")),
       s("lite-portfolio", "Portfolio ✅", lp("LitePortfolioPage")),
-      s("lite-leaderboard", "Leaderboard ⏳", lp("LiteLeaderboardPage")),
-      s("lite-settings", "Settings ⏳", lp("LiteSettingsPage")),
-      s("lite-insights", "Insights ⏳", lp("LiteInsightsPage")),
-      s("lite-content", "内容页 ⏳", lp("LiteContentPage")),
+      s("lite-leaderboard", "Leaderboard ⏳", lp("LiteStubPages", "LiteLeaderboardPage")),
+      s("lite-settings", "Settings ⏳", lp("LiteStubPages", "LiteSettingsPage")),
+      s("lite-insights", "Insights ⏳", lp("LiteStubPages", "LiteInsightsPage")),
+      s("lite-content", "内容页 ⏳", lp("LiteStubPages", "LiteContentPage")),
     ],
   },
   {

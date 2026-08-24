@@ -32,7 +32,7 @@ import {
 import { PortfolioErrorBoundary } from "@/components/portfolio/lite/PortfolioErrorBoundary";
 import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
 import { MobileHeader } from "@/components/MobileHeader";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /** Fixture dates stay relative so settleLabel() output never goes stale. */
 const inDays = (d: number, hour = 16) => {
@@ -626,5 +626,95 @@ export const SeriesMobilePagePreview = () => (
     <div className="pt-4">
       <SeriesDetailMobile vm={seriesVm} actions={{ onViewEvent: () => {} }} />
     </div>
+  </div>
+);
+
+/* ============ Boost check · Details 展开件（移动抽屉 / 桌面 Popover） ============
+ * 生产件 DetailsDrawer / DetailsPopover 不对外导出，展开态只能由「点 Details ›」
+ * 触发 —— 这里挂真 BoostCheckCard / BoostCheckBar，再在挂载后程序化点一次同一个
+ * 按钮，展示的就是生产的展开态本体，没有任何手抄。
+ */
+const AutoOpenDetails = ({
+  children,
+  minHeight,
+}: {
+  children: React.ReactNode;
+  minHeight: number;
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const btn = Array.from(ref.current?.querySelectorAll("button") ?? []).find(
+        (b) => b.textContent?.trim().startsWith("Details"),
+      );
+      (btn as HTMLButtonElement | undefined)?.click();
+    }, 120);
+    return () => clearTimeout(t);
+  }, []);
+  return (
+    <div ref={ref} className="bg-background p-4" style={{ minHeight }}>
+      {children}
+    </div>
+  );
+};
+
+/** Mobile: Details › 打开 MobileDrawer（底部抽屉）。 */
+export const PortfolioDetailsDrawerPreview = () => (
+  <AutoOpenDetails minHeight={420}>
+    <BoostCheckCard data={gauge(86)} />
+  </AutoOpenDetails>
+);
+
+/** Desktop: 同一个 Details › 打开 320px 锚定 Popover，绝不是底部抽屉。 */
+export const PortfolioDetailsPopoverPreview = () => (
+  <AutoOpenDetails minHeight={420}>
+    <BoostCheckBar data={gauge(86)} />
+  </AutoOpenDetails>
+);
+
+/* ---------------- 桌面挂单行（折叠 / 展开两态） ---------------- */
+const pendingOrders = [
+  { id: "o1", event: "Bitcoin above $70,000", eventId: "demo-event", size: "120", price: "41¢" },
+  { id: "o2", event: "Arsenal to beat Liverpool", eventId: "demo-arsenal", size: "80", price: "36¢" },
+];
+
+const AutoExpand = ({ children }: { children: React.ReactNode }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const t = setTimeout(() => ref.current?.querySelector("button")?.click(), 120);
+    return () => clearTimeout(t);
+  }, []);
+  return <div ref={ref}>{children}</div>;
+};
+
+export const PortfolioPendingDesktopPreview = () => (
+  <div className="space-y-4 bg-background p-4">
+    <div>
+      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">折叠态</p>
+      <PendingOrdersRow orders={pendingOrders} />
+    </div>
+    <div>
+      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">展开态（逐单行 · 点击跳 Pro）</p>
+      <AutoExpand>
+        <PendingOrdersRow orders={pendingOrders} />
+      </AutoExpand>
+    </div>
+    <div>
+      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">orders = []</p>
+      <PendingOrdersRow orders={[]} />
+      <p className="pt-1 text-[11px] text-[#6B7280]">↑ 组件 return null，桌面同样不占高度。</p>
+    </div>
+  </div>
+);
+
+/* ---------------- Settled 月份懒加载控件 ---------------- */
+export const PortfolioSettledLoadMorePreview = () => (
+  <div className="bg-background pb-4">
+    <SettledList
+      groups={[
+        ...groups,
+        { key: "2026-06", label: "JUNE 2026", rows: [settled({ title: "US CPI above 3%", metaParts: ["Yes", "Jun 12"], net: 12 })] },
+      ]}
+    />
   </div>
 );
