@@ -168,14 +168,14 @@ export const LiveRow = ({
   const hot = row.hot;
   const autoCloseSecondLine = (row: LiteLiveRow): string | null => {
     if (row.segment !== "boost" || row.leverageNum <= 1) return null;
+    if (row.autoCloseState === "none") return null;
     if (row.autoCloseState === "level" && row.autoClosePrice != null) {
       return `· auto-close ≈${cents(row.autoClosePrice)}`;
     }
-    if (row.autoCloseState === "missing") return "· auto-close —";
-    return null;
+    return "· auto-close —";
   };
   const mergedCol = [
-    `If ${row.sideWord} wins → ${money(row.ifWins)}`,
+    `If it wins → ${money(row.ifWins)}`,
     autoCloseSecondLine(row),
   ].filter(Boolean).join(" ");
 
