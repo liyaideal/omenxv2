@@ -14,6 +14,7 @@ import { useSettlementDetail } from "@/hooks/useSettlementDetail";
 import { useSettlements } from "@/hooks/useSettlements";
 import { optionSideWord } from "@/lib/liteSideName";
 import { liteTradePath, segmentFromProductLine } from "@/lib/liteTradePath";
+import { fromState } from "@/lib/portfolioReturn";
 import {
   SettlementDetailDesktop,
   SettlementDetailMobile,
