@@ -16,11 +16,20 @@
 - `near` observer 在触发挂载后即 `disconnect()`，不再持续观察。
 - 保留高度上报（postMessage）与占位骨架逻辑不变。
 
-## 关于性能
+## 性能：展示方案整体重做（一节一 iframe）
 
-上一轮已把 registry 改成按 key 动态 import，每个 iframe 只拉自己那组 chunk，同组共享缓存；`near` 300px 也限制了并发冷启。因此取消卸载后，常驻 iframe 只是空闲 React root，滚动开销可接受，换来的是不再重复 boot。
+只做 mount-once 不够——真正的成本是 **iframe 数量**：Portfolio 一节就有 10+ 个 iframe，每个都是一个独立 React root + 独立 HTTP 文档 + 独立 chunk 解析。常驻不卸载只是把「反复 boot」换成「一次性 boot 很多个」，首次滚过去依然卡。
 
-如果之后发现整页常驻 iframe 过多导致内存压力，再考虑「卸载但保留已测高度 + 仅对超远距离的 section 生效」的折中，本轮不做。
+重做方案：**iframe 的粒度从「一个 case」提升到「一个 section × 一种设备」**。
+
+- 新增批量预览路由参数：`/style-guide/preview?c=key1,key2,key3&labels=...`，在同一个文档里按顺序纵向渲染多个 case，每个 case 上方带一条小标题分隔线。一个 React root 承载整节内容。
+- 新增 `SectionFrame`（与现有 `DeviceFrame` 同目录）：接收一组 `{ key, label }` 与设备（desktop / mobile 375），渲染**一个** iframe，沿用现有 postMessage 高度上报。
+- Portfolio 一节由 10+ iframe 降到 **2 个**（desktop 一个、mobile 一个），或在同一 section 内用设备切换器只保留 1 个。全站 iframe 数量下降一个数量级。
+- 保留 mount-once：`near` 300px 挂载后 `disconnect()`，删除 `far` 卸载逻辑。数量降下来之后，常驻不再是问题。
+- 保留 iframe 隔离本身——它仍是 `md:` 断点为真的唯一手段；同 chunk 的 case 现在天然共享一次模块求值。
+
+迁移策略：`DeviceFrame` / `DualDevicePreview` 保留不动（其他章节仍在用），先只把 Portfolio 这一节切到 `SectionFrame` 验证效果，确认后再逐节迁移。
+
 
 ## 技术改动清单
 
