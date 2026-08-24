@@ -385,7 +385,7 @@ export const LitePortfolioPage = ({ isMobile }: P) => (
     title="Portfolio"
     route="/portfolio · /portfolio?tab=settled · /portfolio/settlement/:id"
     status="done"
-    note="2026-08-19 改版：Live / Settled 两 tab（Rewards 开场 tab 制式），KPI 卡、voucher 发丝行、Boost/Standard 双段 chips、Boost check 仪表、持仓卡 / 桌面行式网格、结算月份分组与系列聚合行。AUTO-CLOSE / IF WINS 列统一显示 If wins 主句，Boost 有 auto-close 时追加第二段（level / none / missing 三态）。以下全部挂载生产组件（fixture 数据驱动状态），非手抄。"
+    note="2026-08-19 改版：Live / Settled 两 tab（Rewards 开场 tab 制式），KPI 卡、voucher 发丝行、Boost/Standard 双段 chips、Boost check 仪表、持仓卡 / 桌面行式网格、结算月份分组与系列聚合行。AUTO-CLOSE / IF WINS 列统一显示 If it wins 主句，Boost 有 auto-close 时追加第二段。以下全部挂载生产组件（fixture 数据驱动状态），非手抄。"
   >
     <SubSection title="Tabs · voucher 发丝行 · 双段 chips" description="开场 chrome，两态 chips 可直接点击切换。">
       <DeviceFrame previewKey="portfolio-lite-chrome" device="mobile" minHeight={220} />
@@ -400,11 +400,11 @@ export const LitePortfolioPage = ({ isMobile }: P) => (
       <DeviceFrame previewKey="portfolio-lite-gauge-bar" device="desktop" minHeight={120} />
     </SubSection>
 
-    <SubSection title="持仓卡：常规 / 热卡 / 安全 Boost / 缺失态 / voucher 仓 / Standard + 挂单虚线行" description="热卡=现价距 auto-close ≤10%，整句转红且卡描边红；安全 Boost 只显示 If wins 主句；缺失态追加 auto-close — 第二段。">
+    <SubSection title="持仓卡：常规 / 热卡 / 安全 Boost / 缺失态 / voucher 仓 / Standard + 挂单虚线行" description="热卡=现价距 auto-close ≤10%，整句转红且卡描边红；无 auto-close 时只显示 If it wins 主句；有 auto-close 时追加 auto-close 第二段（≈{cents} 或 —）。">
       <DeviceFrame previewKey="portfolio-lite-live-cards" device="mobile" minHeight={640} />
     </SubSection>
 
-    <SubSection title="桌面行式网格" description="列模板 minmax(0,1fr) 110px 96px 104px 100px 150px 170px；热行 inset 左轨。AUTO-CLOSE / IF WINS 列统一为 If wins → $X 主句 + 可选 auto-close 第二段。">
+    <SubSection title="桌面行式网格" description="列模板 minmax(0,1fr) 110px 96px 104px 100px 150px 170px；热行 inset 左轨。AUTO-CLOSE / IF WINS 列统一为 If it wins → $X 主句 + 可选 auto-close 第二段。">
       <DeviceFrame previewKey="portfolio-lite-desktop-rows" device="desktop" minHeight={260} />
     </SubSection>
 
