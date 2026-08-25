@@ -1104,6 +1104,7 @@ export default function Wallet() {
           onWithdraw={() => navigate("/withdraw")}
           onTransfer={() => openTransfer("to_spot")}
           compact
+          equityNote={isLite ? "does not include open trade profit" : undefined}
         />
 
         <section className="space-y-3">
