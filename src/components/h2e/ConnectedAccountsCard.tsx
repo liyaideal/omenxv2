@@ -442,10 +442,10 @@ export const ConnectedAccountsCard = () => {
                 <li>Position notional value <span className="text-foreground font-medium">≥ $20</span> on Polymarket</li>
                 <li>Position held for at least <span className="text-foreground font-medium">1 day</span></li>
                 <li>Matching OmenX event has <span className="text-foreground font-medium">≥ 24 hours</span> until resolution</li>
-                <li>Each qualifying position receives a <span className="text-foreground font-medium">$10 free hedge</span> on the counter side</li>
+                <li>Each qualifying position receives a <span className="text-foreground font-medium">$10 hedge</span> on the counter side</li>
                 <li>Up to <span className="text-foreground font-medium">3 active airdrops</span> per account at a time</li>
                 <li>Airdrops expire in 72 hours if not activated</li>
-                <li>Max <span className="text-foreground font-medium">$500 lifetime earnings</span> per linked account</li>
+                <li>Max <span className="text-foreground font-medium">$100 lifetime earnings</span> per account</li>
               </ul>
             </div>
           </div>
