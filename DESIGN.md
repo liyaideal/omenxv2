@@ -1604,3 +1604,27 @@ Registered in `/style-guide` → **Lite · Calendar** → *Calendar · desktop f
 **2026-08-17 资金流移动端整治** — /deposit /withdraw 判定为全屏流（§5 新判据）；账户/地址选择器收编 MobileDrawer，新增地址改为抽屉内二步（去嵌套）；提交型抽屉统一 `MobileDrawerActions` Cancel+主按钮；Withdraw 主 CTA sticky；充值地址 §6 着色；style-guide 新增 10 键。
 
 **2026-08-17 Mobile Header System v1** — 7 ad-hoc headers retired, 56px unified, A/B variants, sentence-case titles.
+
+## Wallet Lite R1（2026-08-25，LOCKED）
+
+### Auth gate by surface
+`/wallet` 未登录时按 surface 分叉：**Lite → `LiteAuthGate`**（模糊底层 + LynxFigure + `btn-primary` Sign in + 描边 Create account），**Pro → `AuthGateOverlay`**（原样，不动）。两者样式互不借用。
+
+### Saved address row
+| 端 | 行尾操作 | 菜单容器 |
+|---|---|---|
+| Desktop | Copy 图标 + `⋯` | Popover `w-[210px] p-1 bg-[#12151A] border-[#1D2026] rounded-xl`，`align=end side=bottom` |
+| Mobile | 仅 `⋯` | `MobileDrawer`，行高 `py-[15px]`，发丝分隔 `#1D2026` |
+
+菜单项固定顺序：`Set as default`（仅非默认）→ `Copy address`（仅 mobile）→ `Delete address`（`#FF5C5C`）。默认地址永不出现 `Set as default`。行内不放删除/设默认按钮。
+
+### 账户徽标单一真相
+STANDARD / BOOST 的颜色只在 `src/lib/productLineBadge.tsx` 定义（`spot` = primary 系，`futures` = accent/volt 系）。任何页面禁止就地覆写 badge 配色。
+
+### Transaction row（追加 §8）
+Desktop 行右侧为**固定列 cluster**：status 图标 → 徽标列 `w-[78px]` 右对齐 → 金额列 `w-[120px]` 右对齐 → chevron `w-4` **恒定占位**（无 chevron 也留空槽）。占位槽为强制项——缺失会导致可展开行与普通行金额右缘错位。
+
+Icon 映射为穷尽表，兜底 icon 必须中性（`Wallet` + `text-muted-foreground`），**禁止**让未知类型落进红色 `TrendingDown`。`bonus` = 绿色 `Gift`，`fee` = 红色 `Receipt`。
+
+### Changelog
+**2026-08-25 Wallet Lite R1** — /wallet 未登录门按 surface 分叉；Lite 登录三步视觉重做；地址 `⋯` 菜单（Popover / Drawer）；账户徽标收口 productLineBadge；流水行去类型药丸 + 固定列对齐 + icon 全类型映射；style-guide 新增 `Wallet Lite R1 · 状态字典` 节（16 键）。

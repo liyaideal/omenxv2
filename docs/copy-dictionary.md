@@ -202,3 +202,22 @@ All Portfolio "settles / settled at" strings come from
 **已废弃（禁用）：`cashed out early`**（2026-08-24）。用户只关心 win / loss 与金额；cashout 在 Settled 列表行与详情结果行上与 settlement 完全一致，仅保留眉线 CLOSED 与价格行 label `Closed at` 的口径差异。
 
 Never render "liquidated" or "stopped out" — banned Lite jargon.
+
+---
+
+## Wallet (`/wallet`, 2026-08-25)
+
+| Canonical | Meaning | Banned variants |
+|---|---|---|
+| **Sign in to view your wallet** | Lite auth-gate title on `/wallet` | Login required, Sign in to continue |
+| **Deposit, withdraw and move funds between your accounts by signing in.** | Lite auth-gate description | — |
+| **Saved addresses** | Address-book section title | My wallets, Addresses, Withdrawal addresses |
+| **Default** | Badge on the primary saved address | Primary, Main |
+| **Set as default** | Menu action promoting an address | Make primary, Set primary |
+| **Copy address** | Menu action (mobile drawer only) | Copy, Copy wallet |
+| **Delete address** | Destructive menu action | Remove, Delete wallet |
+| **Transfer to Boost / Transfer to Standard** | Outgoing transfer leg description | Transfer · Standard → Boost |
+| **Transfer from Boost / Transfer from Standard** | Incoming transfer leg description | Transfer · Boost → Standard |
+| **does not include open trade profit** | Lite equity note under Total equity | excludes unrealized PnL |
+| **does not include unrealized PnL** | Pro equity note (default) | — |
+| **Trading fee** | `fee` transaction description | Fees, Commission |
