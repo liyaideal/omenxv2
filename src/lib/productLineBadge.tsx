@@ -14,8 +14,8 @@ import { cn } from "@/lib/utils";
 export type ProductLine = "spot" | "futures";
 
 export const PRODUCT_LINE_BADGE_CLASSES: Record<ProductLine, string> = {
-  spot: "border-blue-500/30 bg-blue-500/10 text-blue-400",
-  futures: "border-primary/30 bg-primary/10 text-primary",
+  spot: "border-primary/30 bg-primary/10 text-primary",
+  futures: "border-accent/40 bg-accent/15 text-accent",
 };
 
 export const PRODUCT_LINE_LABELS: Record<ProductLine, string> = {
