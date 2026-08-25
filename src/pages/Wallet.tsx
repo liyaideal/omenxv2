@@ -60,12 +60,6 @@ import { TransferDrawer } from "@/components/wallet/TransferDrawer";
 import { MaintenanceNoticeBanner } from "@/components/wallet/MaintenanceNoticeBanner";
 import { computeTotalEquity, formatEquityUsd } from "@/lib/equity";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -247,6 +241,40 @@ const AccountCardShell = ({
     {children}
   </div>
 );
+
+/**
+ * Standard (spot) available-balance popover — same Popover grammar as the
+ * Boost card's AvailableBalanceTooltip: one definition line + Portfolio link.
+ */
+const StandardAvailableTooltip = () => {
+  const navigate = useNavigate();
+  const { surface } = useSurface();
+  const isLite = surface === "lite";
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button className="text-muted-foreground hover:text-foreground transition-colors">
+          <Info className="w-3 h-3" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-64 p-3" side="top" align="center">
+        <div className="space-y-2">
+          <p className="text-xs">
+            {isLite
+              ? "Cash you can trade or withdraw. Doesn't include open trade profit — money spent on shares sits in your positions."
+              : "Cash you can trade or withdraw. Doesn't include unrealized PnL — money spent on shares sits in your positions."}
+          </p>
+          <button
+            onClick={() => navigate('/portfolio')}
+            className="w-full mt-2 text-xs text-primary hover:underline text-left"
+          >
+            View positions in Portfolio →
+          </button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+};
 
 export const SpotAccountCard = ({
   balance,
