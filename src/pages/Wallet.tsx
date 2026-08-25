@@ -610,7 +610,7 @@ export default function Wallet() {
 
       const { data, error } = await supabase
         .from("trades")
-        .select("id, event_name, option_label, pnl, created_at, closed_at, status")
+        .select("id, event_name, option_label, pnl, created_at, closed_at, status, product_line")
         .eq("user_id", user.id)
         .eq("status", "Closed")
         .not("pnl", "is", null)
@@ -661,6 +661,8 @@ export default function Wallet() {
     date: trade.closed_at ? new Date(trade.closed_at).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' }) : new Date(trade.created_at).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' }),
     timestamp: trade.closed_at ? new Date(trade.closed_at).getTime() : new Date(trade.created_at).getTime(),
     status: 'completed' as TransactionStatus,
+    // trades.product_line: 'futures' → BOOST, anything else ('spot') → STANDARD
+    account: ((trade as { product_line?: string }).product_line === 'futures' ? 'futures' : 'spot') as 'spot' | 'futures',
   }));
 
   const fundTransactions: Transaction[] = walletTransactions.map((tx) => ({
@@ -673,9 +675,9 @@ export default function Wallet() {
     txHash: tx.tx_hash,
     network: tx.network,
     status: (tx.status || 'completed') as TransactionStatus,
-    account: ((tx as { account?: string }).account === 'spot' || (tx as { account?: string }).account === 'futures')
-      ? ((tx as { account: 'spot' | 'futures' }).account)
-      : null,
+    // Every row must carry an account badge; legacy rows without `account`
+    // fall back to Standard (spot), where funding movements land by default.
+    account: ((tx as { account?: string }).account === 'futures' ? 'futures' : 'spot') as 'spot' | 'futures',
   }));
 
   const transactions: Transaction[] = [...tradeTransactions, ...fundTransactions]
