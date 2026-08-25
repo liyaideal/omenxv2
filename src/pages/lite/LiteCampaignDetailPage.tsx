@@ -7,6 +7,7 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { CampaignKeyVisual } from "@/components/campaigns/CampaignKeyVisual";
+import H2eCampaignDetailPage from "./H2eCampaignDetailPage";
 import { GrantTaskRow } from "@/components/campaigns/GrantTaskRow";
 import { SignInPromptCard } from "@/components/campaigns/SignInPromptCard";
 import { KolBandDesktop, KolBandMobile } from "@/components/campaigns/KolBand";
@@ -19,7 +20,10 @@ import { formatDateRange, useCampaignViews } from "@/hooks/useCampaigns";
 
 export default function LiteCampaignDetailPage() {
   const { campaignId } = useParams();
+  // H2E is a platform program, not a campaigns-table row — it owns its own page.
+  if (campaignId === "h2e") return <H2eCampaignDetailPage />;
   const navigate = useNavigate();
+
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const { views, isLoading, refresh } = useCampaignViews();

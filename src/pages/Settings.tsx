@@ -35,7 +35,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { GoogleIcon } from "@/components/icons/GoogleIcon";
 import { TelegramIcon } from "@/components/icons/TelegramIcon";
 import { Wallet } from "lucide-react";
-import { ConnectedAccountsCard } from "@/components/settings/ConnectedAccountsCard";
 import { AccountSecurityCard } from "@/components/settings/AccountSecurityCard";
 import { WithdrawalVerificationCard } from "@/components/settings/WithdrawalVerificationCard";
 
@@ -377,7 +376,6 @@ const Settings = () => {
           <UsernameCard />
           <EmailCard />
           <LinkedAccountCard />
-          <ConnectedAccountsCard />
           <AccountSecurityCard />
           <WithdrawalVerificationCard />
           
@@ -542,7 +540,6 @@ const Settings = () => {
           <UsernameCard />
           <EmailCard />
           <LinkedAccountCard />
-          <ConnectedAccountsCard />
           <AccountSecurityCard />
           <WithdrawalVerificationCard />
           

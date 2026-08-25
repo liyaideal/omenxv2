@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useWithdraw } from '@/hooks/useWithdraw';
 import { useWallets } from '@/hooks/useWallets';
-import { useH2eRewardsSummary } from '@/hooks/useH2eRewardsSummary';
 import { LabelText, MonoText } from '@/components/typography';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -32,7 +31,6 @@ export const WalletWithdraw = ({ onDone, demoAvailableBalance }: WalletWithdrawP
   const navigate = useNavigate();
   const submitBar = useWithdrawSubmit();
   const { wallets } = useWallets();
-  const h2e = useH2eRewardsSummary();
   const { account: withdrawAccount, setAccount: setWithdrawAccount } = useAccountPreference('withdraw');
   const effectiveAccount = withdrawAccount ?? 'futures';
   const {
@@ -47,10 +45,9 @@ export const WalletWithdraw = ({ onDone, demoAvailableBalance }: WalletWithdrawP
     getWithdrawMinimum,
   } = useWithdraw(effectiveAccount);
 
-  // H2E lock only applies to Futures Account (rewards live there).
-  const availableBalance = demoAvailableBalance ?? (effectiveAccount === 'futures'
-    ? Math.max(0, rawAvailableBalance - h2e.lockedAmount)
-    : rawAvailableBalance);
+  // Wallet money is always real, withdrawable money — no campaign lock is
+  // subtracted here any more (H2E moved to /rewards/campaign/h2e).
+  const availableBalance = demoAvailableBalance ?? rawAvailableBalance;
 
   const [amount, setAmount] = useState('');
   const [selectedAddress, setSelectedAddress] = useState('');
