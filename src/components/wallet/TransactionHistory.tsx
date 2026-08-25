@@ -234,6 +234,7 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
       case 'platform_credit': return <WalletIcon className="w-5 h-5 text-trading-green" />;
       case 'trade_profit': return <TrendingUp className="w-5 h-5 text-trading-green" />;
       case 'trade_loss': return <TrendingDown className="w-5 h-5 text-trading-red" />;
+      // Pro-only tx types; not surfaced on Lite
       case 'cross_chain_in': return <ArrowLeftRight className="w-5 h-5 text-blue-400" />;
       case 'cross_chain_out': return <ArrowLeftRight className="w-5 h-5 text-orange-400" />;
       case 'fiat_buy': return <Banknote className="w-5 h-5 text-purple-400" />;
@@ -249,6 +250,7 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
     switch (tx.type) {
       case 'deposit': case 'platform_credit': case 'trade_profit': return 'bg-trading-green/20';
       case 'withdraw': case 'trade_loss': return 'bg-trading-red/20';
+      // Pro-only tx types; not surfaced on Lite
       case 'cross_chain_in': return 'bg-blue-500/20';
       case 'cross_chain_out': return 'bg-orange-500/20';
       case 'fiat_buy': return 'bg-purple-500/20';
