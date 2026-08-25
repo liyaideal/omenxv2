@@ -167,7 +167,7 @@ export const HeroEquityCard = ({
           {hidden ? "••••••" : `$${formatEquityUsd(equity)}`}
         </div>
         <div className="text-[13px] text-muted-foreground mt-2.5">
-          Boost + Standard · does not include unrealized PnL
+          Boost + Standard · {equityNote}
         </div>
       </div>
 
