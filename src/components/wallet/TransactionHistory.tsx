@@ -403,15 +403,7 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
                         <div className="text-xs text-muted-foreground">{tx.date}</div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span className="min-w-[64px] flex justify-end">
-                        <span className={cn(
-                          "inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap",
-                          ACCOUNT_BADGE_CONFIG[tx.account || 'spot'].className
-                        )}>
-                          {ACCOUNT_BADGE_CONFIG[tx.account || 'spot'].label}
-                        </span>
-                      </span>
+                    <div className="flex items-center gap-3 shrink-0">
                       {tx.status && tx.status !== 'completed' && (
                         <StatusIcon className={cn(
                           "w-3.5 h-3.5 shrink-0",
@@ -419,12 +411,22 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
                           tx.status === 'processing' && "animate-spin"
                         )} />
                       )}
-                      <span className={cn(
-                        "text-sm font-semibold font-mono",
-                        tx.amount >= 0 ? "text-trading-green" : "text-trading-red"
-                      )}>
-                        {tx.amount >= 0 ? "+" : ""}${formatCurrency(Math.abs(tx.amount))}
-                      </span>
+                      <div className="w-[78px] flex justify-end">
+                        <span className={cn(
+                          "inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap",
+                          ACCOUNT_BADGE_CONFIG[tx.account || 'spot'].className
+                        )}>
+                          {ACCOUNT_BADGE_CONFIG[tx.account || 'spot'].label}
+                        </span>
+                      </div>
+                      <div className="w-[120px] text-right">
+                        <span className={cn(
+                          "text-sm font-semibold font-mono",
+                          tx.amount >= 0 ? "text-trading-green" : "text-trading-red"
+                        )}>
+                          {tx.amount >= 0 ? "+" : ""}${formatCurrency(Math.abs(tx.amount))}
+                        </span>
+                      </div>
                       {showExpandable && (
                         <ChevronDown className={cn(
                           "w-4 h-4 text-muted-foreground transition-transform",
