@@ -163,6 +163,14 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
       description = description.replace(/trial (balance|bonus)/gi, 'Platform credit');
     }
     
+    // Directional wording for the two transfer legs
+    if (tx.type === 'transfer_to_futures') {
+      return tx.account === 'futures' ? 'Transfer from Standard' : 'Transfer to Boost';
+    }
+    if (tx.type === 'transfer_to_spot') {
+      return tx.account === 'spot' ? 'Transfer from Boost' : 'Transfer to Standard';
+    }
+
     return description;
   };
 
