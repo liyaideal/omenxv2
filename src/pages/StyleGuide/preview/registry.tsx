@@ -28,6 +28,7 @@ const wallet = () => import("./walletPreviews");
 const settlements = () => import("./settlementPreviews");
 const rewards = () => import("./rewardsPreviews");
 const funding = () => import("./fundingPreviews");
+const walletLite = () => import("./walletLitePreviews");
 
 export const previewRegistry: Record<string, Loader> = {
   /* -------- Mobile header system -------- */
@@ -131,6 +132,24 @@ export const previewRegistry: Record<string, Loader> = {
   "wallet-equity-hovercard": pick(wallet, "EquityHoverCardPreview"),
   "wallet-tx-history": pick(wallet, "TransactionHistoryPreview"),
   "wallet-account-badge-legend": pick(wallet, "AccountBadgeLegendPreview"),
+
+  /* -------- Wallet Lite R1 (batches 1-3) -------- */
+  "wallet-lite-gate-lite": pick(walletLite, "WalletGateLitePreview"),
+  "wallet-lite-gate-pro": pick(walletLite, "WalletGateProPreview"),
+  "wallet-lite-auth-login-desktop": pick(walletLite, "AuthLiteLoginDesktopPreview"),
+  "wallet-lite-auth-create-desktop": pick(walletLite, "AuthLiteCreateWalletDesktopPreview"),
+  "wallet-lite-auth-profile-desktop": pick(walletLite, "AuthLiteCompleteProfileDesktopPreview"),
+  "wallet-lite-auth-login-mobile": pick(walletLite, "AuthLiteLoginMobilePreview"),
+  "wallet-lite-auth-create-mobile": pick(walletLite, "AuthLiteCreateWalletMobilePreview"),
+  "wallet-lite-auth-profile-mobile": pick(walletLite, "AuthLiteCompleteProfileMobilePreview"),
+  "wallet-lite-address-rows-desktop": pick(walletLite, "SavedAddressRowsDesktopPreview"),
+  "wallet-lite-address-rows-mobile": pick(walletLite, "SavedAddressRowsMobilePreview"),
+  "wallet-lite-address-actions": pick(walletLite, "SavedAddressActionsDrawerPreview"),
+  "wallet-lite-address-actions-default": pick(walletLite, "SavedAddressActionsDrawerDefaultPreview"),
+  "wallet-lite-product-badges": pick(walletLite, "ProductLineBadgePairPreview"),
+  "wallet-lite-tx-icon-matrix": pick(walletLite, "TxIconMatrixPreview"),
+  "wallet-lite-hero-note-lite": pick(walletLite, "HeroEquityNoteLitePreview"),
+  "wallet-lite-hero-note-pro": pick(walletLite, "HeroEquityNoteProPreview"),
 
   /* -------- Settlements -------- */
   "settlement-row-futures-win-desktop": pick(settlements, "SettlementFuturesWinDesktopPreview"),
