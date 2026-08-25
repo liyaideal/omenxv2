@@ -7,6 +7,7 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { CampaignKeyVisual } from "@/components/campaigns/CampaignKeyVisual";
+import H2eCampaignDetailPage from "./H2eCampaignDetailPage";
 import { GrantTaskRow } from "@/components/campaigns/GrantTaskRow";
 import { SignInPromptCard } from "@/components/campaigns/SignInPromptCard";
 import { KolBandDesktop, KolBandMobile } from "@/components/campaigns/KolBand";

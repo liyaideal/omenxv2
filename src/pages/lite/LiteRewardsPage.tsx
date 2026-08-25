@@ -14,6 +14,7 @@ import { EmptyState } from "@/components/states";
 import { VouchersBody } from "@/components/vouchers/VouchersBody";
 import { PointsRetiredNotice } from "@/components/campaigns/PointsRetiredNotice";
 import { RewardsFinePrint } from "@/components/campaigns/RewardsFinePrint";
+import { H2eCampaignCard } from "@/components/h2e/H2eCampaignCard";
 import { useNavigate } from "react-router-dom";
 
 const Tabs = ({
@@ -91,6 +92,8 @@ export default function LiteRewardsPage() {
         <div className="space-y-5">
           {/* Desktop keeps the notice above the grid; mobile pushes it below the cards. */}
           {!isMobile && <PointsRetiredNotice />}
+
+          <H2eCampaignCard />
 
           {isLoading ? (
             <div className="grid gap-4 md:grid-cols-2">
