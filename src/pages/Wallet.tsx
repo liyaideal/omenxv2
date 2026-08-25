@@ -243,6 +243,61 @@ const AccountCardShell = ({
 );
 
 /**
+ * Boost (futures) available-balance popover. Module-scope on purpose: defining
+ * it inside the Wallet component gave it a fresh component identity on every
+ * re-render, which remounted the Popover and closed it after ~600ms.
+ */
+const AvailableBalanceTooltip = ({ marginInUse, unrealizedPnL }: { marginInUse: number; unrealizedPnL: number }) => {
+  const navigate = useNavigate();
+  const isMobile = useIsMobile();
+  const { surface } = useSurface();
+  const isLite = surface === "lite";
+
+  const content = (
+    <div className="space-y-2">
+      <p className="text-xs">
+        {isLite
+          ? "Cash you can trade or withdraw. Doesn't include open trade profit."
+          : "Cash you can trade or withdraw. Doesn't include unrealized PnL."}
+      </p>
+      {marginInUse > 0 && (
+        <div className="pt-2 border-t border-border/50 space-y-1">
+          <div className="flex justify-between text-xs">
+            <span className="text-muted-foreground">In use by open positions:</span>
+            <span className="font-mono text-trading-yellow">${formatCurrency(marginInUse)}</span>
+          </div>
+          <div className="flex justify-between text-xs">
+            <span className="text-muted-foreground">{isLite ? "Open trade profit:" : "Unrealized P&L:"}</span>
+            <span className={`font-mono ${unrealizedPnL >= 0 ? 'text-trading-green' : 'text-trading-red'}`}>
+              {unrealizedPnL >= 0 ? '+' : ''}${formatCurrency(unrealizedPnL)}
+            </span>
+          </div>
+        </div>
+      )}
+      <button
+        onClick={() => navigate('/portfolio')}
+        className="w-full mt-2 text-xs text-primary hover:underline text-left"
+      >
+        View positions in Portfolio →
+      </button>
+    </div>
+  );
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button className="text-muted-foreground hover:text-foreground transition-colors">
+          <Info className="w-3 h-3" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-64 p-3" side="top" align={isMobile ? "start" : "center"}>
+        {content}
+      </PopoverContent>
+    </Popover>
+  );
+};
+
+/**
  * Standard (spot) available-balance popover — same Popover grammar as the
  * Boost card's AvailableBalanceTooltip: one definition line + Portfolio link.
  */
