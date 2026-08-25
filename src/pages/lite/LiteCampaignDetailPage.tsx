@@ -20,7 +20,10 @@ import { formatDateRange, useCampaignViews } from "@/hooks/useCampaigns";
 
 export default function LiteCampaignDetailPage() {
   const { campaignId } = useParams();
+  // H2E is a platform program, not a campaigns-table row — it owns its own page.
+  if (campaignId === "h2e") return <H2eCampaignDetailPage />;
   const navigate = useNavigate();
+
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const { views, isLoading, refresh } = useCampaignViews();
