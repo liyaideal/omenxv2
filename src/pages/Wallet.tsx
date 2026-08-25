@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { useSurface } from "@/contexts/SurfaceContext";
 import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
@@ -654,38 +654,6 @@ export default function Wallet() {
     } else {
       toast.error(result.error || "Failed to update default address");
     }
-  };
-
-  // Info Tooltip Component
-  const InfoTooltip = ({ text }: { text: string }) => {
-    if (isMobile) {
-      return (
-        <Popover>
-          <PopoverTrigger asChild>
-            <button className="text-muted-foreground hover:text-foreground transition-colors">
-              <Info className="w-3 h-3" />
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-56 p-3 text-xs" side="top" align="center">
-            <p>{text}</p>
-          </PopoverContent>
-        </Popover>
-      );
-    }
-    return (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button className="text-muted-foreground hover:text-foreground transition-colors">
-              <Info className="w-3 h-3" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="top" className="max-w-[200px]">
-            <p>{text}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    );
   };
 
   // Available Balance Popover
