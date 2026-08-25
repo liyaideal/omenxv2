@@ -355,7 +355,7 @@ export const ConnectedAccountsCard = () => {
           <div>
             <h3 className="font-semibold mb-1">Connected Accounts</h3>
             <p className="text-xs text-muted-foreground">
-              Link external prediction market wallets to receive H2E airdrops
+              Link external prediction market wallets to receive hedge airdrops
             </p>
           </div>
         </div>
