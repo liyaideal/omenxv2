@@ -5,8 +5,7 @@
  * preview/walletLitePreviews.tsx). No hand-copied markup, no sections barrel
  * import — this file rides the lazily-loaded LiteWalletPage chunk.
  */
-import { SubSection } from "../components";
-import { SectionWrapper } from "../components/SectionWrapper";
+import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { SectionFrame, type SectionCase } from "../components/SectionFrame";
 
 const GATE_CASES: SectionCase[] = [

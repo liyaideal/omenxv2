@@ -1,6 +1,7 @@
 import { LitePage } from "./shell";
 import { WalletSection } from "../WalletSection";
 import { DepositWithdrawSection } from "../DepositWithdrawSection";
+import { WalletLiteR1Section } from "../WalletLiteR1Section";
 
 type P = { isMobile: boolean };
 
@@ -14,5 +15,6 @@ export const LiteWalletPage = ({ isMobile }: P) => (
   >
     <WalletSection isMobile={isMobile} />
     <DepositWithdrawSection isMobile={isMobile} />
+    <WalletLiteR1Section isMobile={isMobile} />
   </LitePage>
 );
