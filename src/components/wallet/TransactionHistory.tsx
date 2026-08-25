@@ -399,13 +399,6 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
                           <span className="text-sm font-medium truncate">
                             {formatDescription(tx)}
                           </span>
-                          {tx.status && tx.status !== 'completed' && (
-                            <StatusIcon className={cn(
-                              "w-3.5 h-3.5 shrink-0",
-                              statusConfig.color,
-                              tx.status === 'processing' && "animate-spin"
-                            )} />
-                          )}
                         </div>
                         <div className="text-xs text-muted-foreground">{tx.date}</div>
                       </div>
