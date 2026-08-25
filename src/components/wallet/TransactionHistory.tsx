@@ -114,6 +114,7 @@ const TYPE_BADGE_CONFIG: Record<TransactionType, { label: string; className: str
   trade_profit: { label: 'Trade P&L', className: 'border-trading-green/30 bg-trading-green/10 text-trading-green' },
   trade_loss: { label: 'Trade P&L', className: 'border-trading-red/30 bg-trading-red/10 text-trading-red' },
   platform_credit: { label: 'Credit', className: 'border-trading-green/30 bg-trading-green/10 text-trading-green' },
+  // Pro-only tx types; not surfaced on Lite
   cross_chain_in: { label: 'Cross-Chain In', className: 'border-blue-500/30 bg-blue-500/10 text-blue-400' },
   cross_chain_out: { label: 'Cross-Chain Out', className: 'border-orange-500/30 bg-orange-500/10 text-orange-400' },
   fiat_buy: { label: 'Fiat Buy', className: 'border-purple-500/30 bg-purple-500/10 text-purple-400' },
