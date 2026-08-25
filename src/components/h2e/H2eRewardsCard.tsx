@@ -123,7 +123,7 @@ export const H2eRewardsCard = ({
                         {isStarter ? `Starter unlock +$${h2e.starterUnlock}` : `${tier.percent}% unlock`}
                       </div>
                       <div className="font-mono text-[10px] text-muted-foreground">
-                        {isStarter ? "Free, independent of H2E" : `$${(tier.volume / 1000).toFixed(0)}K volume`}
+                        {isStarter ? "Included — independent of this program" : `$${(tier.volume / 1000).toFixed(0)}K volume`}
                       </div>
                     </div>
                     <span className={`text-[10px] ${isStarter ? "text-trading-green" : isReached ? "text-primary" : isNext ? "text-foreground" : "text-muted-foreground"}`}>

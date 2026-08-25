@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile } from "./useUserProfile";
 import { useAirdropPositions } from "./useAirdropPositions";
 
-const H2E_EARNINGS_CAP = 500;
+const H2E_EARNINGS_CAP = 100;
 const H2E_STARTER_UNLOCK = 5;
 const H2E_UNLOCK_TIERS = [
   { volume: 0, percent: 0 },
