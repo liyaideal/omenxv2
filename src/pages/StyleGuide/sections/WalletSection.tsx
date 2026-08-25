@@ -23,7 +23,7 @@ import {
   MAINTENANCE_NOTICE_DEMO_SETS,
 } from "@/components/wallet/MaintenanceNoticeBanner";
 import { cn } from "@/lib/utils";
-import { H2eRewardsCard } from "@/pages/Wallet";
+import { H2eRewardsCard } from "@/components/h2e/H2eRewardsCard";
 import type { H2eRewardsSummary } from "@/hooks/useH2eRewardsSummary";
 
 type MaintenancePreset = "single" | "multiple" | "withNote" | "empty";
@@ -212,7 +212,7 @@ export const WalletSection = ({ isMobile }: WalletSectionProps) => {
         <SubSection title="Band 1 Total Equity + Band 2 dual account cards" platform="shared">
           <DualDevicePreview
             previewKey="wallet-equity-bands"
-            label="Total Equity hero band + Standard / Boost cards (Trial Bonus sunset — Boost card carries three rows: Available / Withdrawable / H2E Locked, plus the “Boost up to N×” footnote)"
+            label="Total Equity hero band + Standard / Boost cards (unified body: Available (USDC) cap + tooltip, big number, one-line footnote)"
             minHeight={340}
           />
         </SubSection>

@@ -78,14 +78,11 @@ export const WalletEquityBandsPreview = () => {
           <SpotAccountCard balance={DEMO.spot} hidden={hidden} onTransfer={noop} compact />
           <FuturesAccountCard
             balance={DEMO.balance}
-            withdrawable={7_920.42}
-            locked={800}
             hidden={hidden}
             onTransfer={noop}
             marginInUse={1_240}
             unrealizedPnL={86.4}
             AvailableTooltip={DemoAvailableTooltip}
-            InfoTip={DemoInfoTip}
             boostMax={10}
             compact
           />
@@ -108,14 +105,11 @@ export const WalletEquityBandsPreview = () => {
         <SpotAccountCard balance={DEMO.spot} hidden={hidden} onTransfer={noop} />
         <FuturesAccountCard
           balance={DEMO.balance}
-          withdrawable={7_920.42}
-          locked={800}
           hidden={hidden}
           onTransfer={noop}
           marginInUse={1_240}
           unrealizedPnL={86.4}
           AvailableTooltip={DemoAvailableTooltip}
-          InfoTip={DemoInfoTip}
           boostMax={10}
         />
       </section>
