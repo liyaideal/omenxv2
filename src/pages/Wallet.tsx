@@ -675,9 +675,9 @@ export default function Wallet() {
     txHash: tx.tx_hash,
     network: tx.network,
     status: (tx.status || 'completed') as TransactionStatus,
-    account: ((tx as { account?: string }).account === 'spot' || (tx as { account?: string }).account === 'futures')
-      ? ((tx as { account: 'spot' | 'futures' }).account)
-      : null,
+    // Every row must carry an account badge; legacy rows without `account`
+    // fall back to Standard (spot), where funding movements land by default.
+    account: ((tx as { account?: string }).account === 'futures' ? 'futures' : 'spot') as 'spot' | 'futures',
   }));
 
   const transactions: Transaction[] = [...tradeTransactions, ...fundTransactions]
