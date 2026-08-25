@@ -427,12 +427,14 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
                           {tx.amount >= 0 ? "+" : ""}${formatCurrency(Math.abs(tx.amount))}
                         </span>
                       </div>
-                      {showExpandable && (
-                        <ChevronDown className={cn(
-                          "w-4 h-4 text-muted-foreground transition-transform",
-                          isExpanded && "rotate-180"
-                        )} />
-                      )}
+                      <div className="w-4 flex items-center justify-center shrink-0">
+                        {showExpandable && (
+                          <ChevronDown className={cn(
+                            "w-4 h-4 text-muted-foreground transition-transform",
+                            isExpanded && "rotate-180"
+                          )} />
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
