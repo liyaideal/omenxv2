@@ -37,7 +37,7 @@ export const H2eRewardsCard = ({
         <div className="flex items-center justify-between text-xs">
           <span className="text-muted-foreground">Withdrawal unlock progress</span>
           <span className="font-mono font-semibold">
-            ${h2e.volumeCompleted.toLocaleString()} / ${(h2e.nextTierVolume ?? h2e.volumeRequired).toLocaleString()}
+            ${Math.round(h2e.volumeCompleted).toLocaleString()} / ${Math.round(h2e.nextTierVolume ?? h2e.volumeRequired).toLocaleString()}
           </span>
         </div>
         <div className="hidden pt-3 sm:block">
@@ -87,8 +87,8 @@ export const H2eRewardsCard = ({
             <div className="rounded-md border border-primary/20 bg-primary/10 px-3 py-2">
               <div className="text-[10px] uppercase text-muted-foreground">Next unlock</div>
               <div className="mt-0.5 flex items-center justify-between text-xs">
-                <span className="font-medium">{h2e.nextTierPercent}% at ${(h2e.nextTierVolume ?? h2e.volumeRequired).toLocaleString()}</span>
-                <span className="font-mono text-primary">${h2e.volumeToNextTier.toLocaleString()} left</span>
+                <span className="font-medium">{h2e.nextTierPercent}% at ${Math.round(h2e.nextTierVolume ?? h2e.volumeRequired).toLocaleString()}</span>
+                <span className="font-mono text-primary">${Math.round(h2e.volumeToNextTier).toLocaleString()} left</span>
               </div>
             </div>
           )}
@@ -123,7 +123,7 @@ export const H2eRewardsCard = ({
                         {isStarter ? `Starter unlock +$${h2e.starterUnlock}` : `${tier.percent}% unlock`}
                       </div>
                       <div className="font-mono text-[10px] text-muted-foreground">
-                        {isStarter ? "Free, independent of H2E" : `$${(tier.volume / 1000).toFixed(0)}K volume`}
+                        {isStarter ? "Included — independent of this program" : `$${(tier.volume / 1000).toFixed(0)}K volume`}
                       </div>
                     </div>
                     <span className={`text-[10px] ${isStarter ? "text-trading-green" : isReached ? "text-primary" : isNext ? "text-foreground" : "text-muted-foreground"}`}>
@@ -144,11 +144,11 @@ export const H2eRewardsCard = ({
           <p className="text-[10px] text-trading-green">Fully unlocked — rewards are withdrawable</p>
         ) : (
           <p className="text-[10px] text-muted-foreground">
-            Trade ${h2e.volumeToNextTier.toLocaleString()} more to unlock {h2e.nextTierPercent}%
+            Trade ${Math.round(h2e.volumeToNextTier).toLocaleString()} more to unlock {h2e.nextTierPercent}%
           </p>
         )}
         <p className="text-[10px] text-muted-foreground">
-          Current unlocked: {h2e.unlockedPercent}% · Full unlock at ${h2e.volumeRequired.toLocaleString()}
+          Current unlocked: {h2e.unlockedPercent}% · Full unlock at ${Math.round(h2e.volumeRequired).toLocaleString()}
         </p>
       </div>
 

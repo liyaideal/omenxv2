@@ -23,6 +23,8 @@ import {
   MobileDrawerActions,
 } from "@/components/ui/mobile-drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { AuthDialog } from "@/components/auth/AuthDialog";
+import { AuthSheet } from "@/components/auth/AuthSheet";
 
 const PLATFORMS = [
   {
@@ -59,6 +61,7 @@ export const ConnectedAccountsCard = () => {
   const [walletAddress, setWalletAddress] = useState("");
   const [connectionStep, setConnectionStep] = useState<"detect" | "signing" | "verifying">("detect");
   const [isDetectingWallet, setIsDetectingWallet] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
 
   const resetDialog = () => {
     setWalletAddress("");
@@ -68,6 +71,12 @@ export const ConnectedAccountsCard = () => {
   };
 
   const handleOpenConnect = (platformId: string) => {
+    // Signed-out guests never reach the connect modal — they get the same auth
+    // surface as SignInPromptCard's "Log In" button on this page.
+    if (!user) {
+      setAuthOpen(true);
+      return;
+    }
     setSelectedPlatform(platformId);
     setConnectDialogOpen(true);
   };
@@ -453,6 +462,12 @@ export const ConnectedAccountsCard = () => {
       </div>
 
       {renderConnectModal()}
+
+      {isMobile ? (
+        <AuthSheet open={authOpen} onOpenChange={setAuthOpen} />
+      ) : (
+        <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
+      )}
     </>
   );
 };
