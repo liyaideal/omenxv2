@@ -16,6 +16,8 @@ import {
   ChevronRight,
   ArrowLeftRight,
   Banknote,
+  Gift,
+  Receipt,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -54,6 +56,8 @@ export type TransactionType =
   | 'trade_profit'
   | 'trade_loss'
   | 'platform_credit'
+  | 'bonus'
+  | 'fee'
   | 'cross_chain_in'
   | 'cross_chain_out'
   | 'fiat_buy'
@@ -100,6 +104,8 @@ const TYPE_LABELS: Record<TransactionType, string> = {
   trade_profit: 'Trade Profits',
   trade_loss: 'Trade Losses',
   platform_credit: 'Platform Credits',
+  bonus: 'Rewards & Vouchers',
+  fee: 'Fees',
   cross_chain_in: 'Cross-Chain In',
   cross_chain_out: 'Cross-Chain Out',
   fiat_buy: 'Fiat Buy',
@@ -114,6 +120,8 @@ const TYPE_BADGE_CONFIG: Record<TransactionType, { label: string; className: str
   trade_profit: { label: 'Trade P&L', className: 'border-trading-green/30 bg-trading-green/10 text-trading-green' },
   trade_loss: { label: 'Trade P&L', className: 'border-trading-red/30 bg-trading-red/10 text-trading-red' },
   platform_credit: { label: 'Credit', className: 'border-trading-green/30 bg-trading-green/10 text-trading-green' },
+  bonus: { label: 'Reward', className: 'border-trading-green/30 bg-trading-green/10 text-trading-green' },
+  fee: { label: 'Fee', className: 'border-trading-red/30 bg-trading-red/10 text-trading-red' },
   // Pro-only tx types; not surfaced on Lite
   cross_chain_in: { label: 'Cross-Chain In', className: 'border-blue-500/30 bg-blue-500/10 text-blue-400' },
   cross_chain_out: { label: 'Cross-Chain Out', className: 'border-orange-500/30 bg-orange-500/10 text-orange-400' },
@@ -242,6 +250,8 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
       case 'platform_credit': return <WalletIcon className="w-5 h-5 text-trading-green" />;
       case 'trade_profit': return <TrendingUp className="w-5 h-5 text-trading-green" />;
       case 'trade_loss': return <TrendingDown className="w-5 h-5 text-trading-red" />;
+      case 'bonus': return <Gift className="w-5 h-5 text-trading-green" />;
+      case 'fee': return <Receipt className="w-5 h-5 text-trading-red" />;
       // Pro-only tx types; not surfaced on Lite
       case 'cross_chain_in': return <ArrowLeftRight className="w-5 h-5 text-blue-400" />;
       case 'cross_chain_out': return <ArrowLeftRight className="w-5 h-5 text-orange-400" />;
@@ -250,14 +260,14 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
       case 'transfer_to_spot':
       case 'transfer_to_futures':
         return <ArrowLeftRight className="w-5 h-5 text-primary" />;
-      default: return <TrendingDown className="w-5 h-5 text-trading-red" />;
+      default: return <WalletIcon className="w-5 h-5 text-muted-foreground" />;
     }
   };
 
   const getTransactionBgColor = (tx: Transaction) => {
     switch (tx.type) {
-      case 'deposit': case 'platform_credit': case 'trade_profit': return 'bg-trading-green/20';
-      case 'withdraw': case 'trade_loss': return 'bg-trading-red/20';
+      case 'deposit': case 'platform_credit': case 'trade_profit': case 'bonus': return 'bg-trading-green/20';
+      case 'withdraw': case 'trade_loss': case 'fee': return 'bg-trading-red/20';
       // Pro-only tx types; not surfaced on Lite
       case 'cross_chain_in': return 'bg-blue-500/20';
       case 'cross_chain_out': return 'bg-orange-500/20';
