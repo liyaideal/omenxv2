@@ -684,51 +684,7 @@ export default function Wallet() {
     }
   };
 
-  // Available Balance Popover
-  const AvailableBalanceTooltip = ({ marginInUse, unrealizedPnL }: { marginInUse: number; unrealizedPnL: number }) => {
-    const content = (
-      <div className="space-y-2">
-        <p className="text-xs">
-          {isLite
-            ? "Cash you can trade or withdraw. Doesn't include open trade profit."
-            : "Cash you can trade or withdraw. Doesn't include unrealized PnL."}
-        </p>
-        {marginInUse > 0 && (
-          <div className="pt-2 border-t border-border/50 space-y-1">
-            <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground">In use by open positions:</span>
-              <span className="font-mono text-trading-yellow">${formatCurrency(marginInUse)}</span>
-            </div>
-            <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground">{isLite ? "Open trade profit:" : "Unrealized P&L:"}</span>
-              <span className={`font-mono ${unrealizedPnL >= 0 ? 'text-trading-green' : 'text-trading-red'}`}>
-                {unrealizedPnL >= 0 ? '+' : ''}${formatCurrency(unrealizedPnL)}
-              </span>
-            </div>
-          </div>
-        )}
-        <button
-          onClick={() => navigate('/portfolio')}
-          className="w-full mt-2 text-xs text-primary hover:underline text-left"
-        >
-          View positions in Portfolio →
-        </button>
-      </div>
-    );
-
-    return (
-      <Popover>
-        <PopoverTrigger asChild>
-          <button className="text-muted-foreground hover:text-foreground transition-colors">
-            <Info className="w-3 h-3" />
-          </button>
-        </PopoverTrigger>
-        <PopoverContent className="w-64 p-3" side="top" align={isMobile ? "start" : "center"}>
-          {content}
-        </PopoverContent>
-      </Popover>
-    );
-  };
+  // Available Balance Popover — hoisted to module scope (see AvailableBalanceTooltip below).
 
   // BalanceCard removed (dual-account 2b): mobile now uses the same Band 1 Total Equity
   // + dual-account cards structure as desktop. See docs/changelog/2026-07-21-dual-account-wallet-ui.md §2.
