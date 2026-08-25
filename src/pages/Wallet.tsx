@@ -945,6 +945,7 @@ export default function Wallet() {
             onDeposit={() => setDepositDialogOpen(true)}
             onWithdraw={() => setWithdrawDialogOpen(true)}
             onTransfer={() => openTransfer("to_spot")}
+            equityNote={isLite ? "does not include open trade profit" : undefined}
           />
 
           {/* Band 2 · Flat dark account cards with capsule tags (Signal DNA) */}
