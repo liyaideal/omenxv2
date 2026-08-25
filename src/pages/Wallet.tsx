@@ -692,6 +692,7 @@ export default function Wallet() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [walletToDelete, setWalletToDelete] = useState<{ id: string; label: string } | null>(null);
   const [copiedWalletId, setCopiedWalletId] = useState<string | null>(null);
+  const [actionsWallet, setActionsWallet] = useState<typeof wallets[0] | null>(null);
 
   const totalEquity = computeTotalEquity({ spotBalance, balance });
   const openTransfer = (dir: "to_spot" | "to_futures" = "to_spot") => {
