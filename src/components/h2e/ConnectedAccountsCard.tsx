@@ -23,6 +23,8 @@ import {
   MobileDrawerActions,
 } from "@/components/ui/mobile-drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { AuthDialog } from "@/components/auth/AuthDialog";
+import { AuthSheet } from "@/components/auth/AuthSheet";
 
 const PLATFORMS = [
   {
@@ -460,6 +462,12 @@ export const ConnectedAccountsCard = () => {
       </div>
 
       {renderConnectModal()}
+
+      {isMobile ? (
+        <AuthSheet open={authOpen} onOpenChange={setAuthOpen} />
+      ) : (
+        <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
+      )}
     </>
   );
 };
