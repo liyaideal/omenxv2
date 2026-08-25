@@ -509,7 +509,7 @@ export const AuthContent = ({
         {/* Value points */}
         <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-0">
           {[
-            "Back events with USDC on Base",
+            "Trade markets with USDC on Base",
             "No seed phrase, no gas — sign in and go",
             "Cash out to your own address any time",
           ].map((line) => (
