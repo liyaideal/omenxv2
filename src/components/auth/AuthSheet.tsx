@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
+import { SheetTitle } from "@/components/ui/sheet";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Logo } from "@/components/Logo";
 import { AuthContent } from "./AuthContent";
 import { useAuth, type AuthStep } from "@/hooks/useAuth";
@@ -47,6 +49,11 @@ export const AuthSheet = ({ open, onOpenChange }: AuthSheetProps) => {
       height="max-h-[85vh]"
       hideCloseButton
     >
+      {/* a11y: Radix requires a Title inside the sheet content. Visually hidden — zero visual change. */}
+      <VisuallyHidden>
+        <SheetTitle>Sign in</SheetTitle>
+      </VisuallyHidden>
+
       {/* Logo header */}
       <div className="flex justify-center mb-4">
         <Logo size="lg" />
