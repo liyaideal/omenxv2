@@ -242,6 +242,9 @@ const AccountCardShell = ({
   </div>
 );
 
+const formatCurrency = (value: number) =>
+  value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
 /**
  * Boost (futures) available-balance popover. Module-scope on purpose: defining
  * it inside the Wallet component gave it a fresh component identity on every
@@ -701,9 +704,6 @@ export default function Wallet() {
   };
   
 
-  const formatCurrency = (value: number) => {
-    return value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  };
 
   const handleCopyWallet = (walletId: string, address: string) => {
     navigator.clipboard.writeText(address);
