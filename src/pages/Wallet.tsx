@@ -1259,30 +1259,16 @@ export default function Wallet() {
 
       {/* Saved-address actions (mobile) */}
       <MobileDrawer open={!!actionsWallet} onOpenChange={(o) => !o && setActionsWallet(null)} hideCloseButton>
-        <div className="text-xs text-muted-foreground px-1.5 pb-1">{actionsWallet?.label} · {actionsWallet?.address}</div>
-        <div className="flex flex-col">
-          {actionsWallet && !actionsWallet.isPrimary && (
-            <button
-              onClick={() => { handleSetPrimaryWallet(actionsWallet.id); setActionsWallet(null); }}
-              className="flex items-center gap-3 py-[15px] border-b border-[#1D2026] text-[15px] text-[#F2F3F5]"
-            >
-              <Star className="w-[18px] h-[18px]" /> Set as default
-            </button>
-          )}
-          <button
-            onClick={() => { if (actionsWallet) handleCopyWallet(actionsWallet.id, actionsWallet.fullAddress); setActionsWallet(null); }}
-            className="flex items-center gap-3 py-[15px] border-b border-[#1D2026] text-[15px] text-[#F2F3F5]"
-          >
-            <Copy className="w-[18px] h-[18px]" /> Copy address
-          </button>
-          <button
-            onClick={() => { if (actionsWallet) handleDeleteWallet({ id: actionsWallet.id, label: actionsWallet.label }); setActionsWallet(null); }}
-            className="flex items-center gap-3 py-[15px] text-[15px] text-[#FF5C5C]"
-          >
-            <Trash2 className="w-[18px] h-[18px]" /> Delete address
-          </button>
-        </div>
+        {actionsWallet && (
+          <SavedAddressActionsList
+            wallet={actionsWallet}
+            onSetPrimary={() => { handleSetPrimaryWallet(actionsWallet.id); setActionsWallet(null); }}
+            onCopy={() => { handleCopyWallet(actionsWallet.id, actionsWallet.fullAddress); setActionsWallet(null); }}
+            onDelete={() => { handleDeleteWallet({ id: actionsWallet.id, label: actionsWallet.label }); setActionsWallet(null); }}
+          />
+        )}
       </MobileDrawer>
+
 
     </div>
   );
