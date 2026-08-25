@@ -610,7 +610,7 @@ export default function Wallet() {
 
       const { data, error } = await supabase
         .from("trades")
-        .select("id, event_name, option_label, pnl, created_at, closed_at, status")
+        .select("id, event_name, option_label, pnl, created_at, closed_at, status, product_line")
         .eq("user_id", user.id)
         .eq("status", "Closed")
         .not("pnl", "is", null)
@@ -661,6 +661,8 @@ export default function Wallet() {
     date: trade.closed_at ? new Date(trade.closed_at).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' }) : new Date(trade.created_at).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' }),
     timestamp: trade.closed_at ? new Date(trade.closed_at).getTime() : new Date(trade.created_at).getTime(),
     status: 'completed' as TransactionStatus,
+    // trades.product_line: 'futures' → BOOST, anything else ('spot') → STANDARD
+    account: ((trade as { product_line?: string }).product_line === 'futures' ? 'futures' : 'spot') as 'spot' | 'futures',
   }));
 
   const fundTransactions: Transaction[] = walletTransactions.map((tx) => ({
