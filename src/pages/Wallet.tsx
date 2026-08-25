@@ -20,6 +20,7 @@ import {
   Eye,
   EyeOff,
   ArrowLeftRight,
+  MoreHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -113,6 +114,7 @@ export const HeroEquityCard = ({
   onWithdraw,
   onTransfer,
   compact = false,
+  equityNote = "does not include unrealized PnL",
 }: {
   equity: number;
   hidden: boolean;
@@ -121,6 +123,7 @@ export const HeroEquityCard = ({
   onWithdraw: () => void;
   onTransfer: () => void;
   compact?: boolean;
+  equityNote?: string;
 }) => (
   <section
     className={cn(
@@ -164,7 +167,7 @@ export const HeroEquityCard = ({
           {hidden ? "••••••" : `$${formatEquityUsd(equity)}`}
         </div>
         <div className="text-[13px] text-muted-foreground mt-2.5">
-          Boost + Standard · does not include unrealized PnL
+          Boost + Standard · {equityNote}
         </div>
       </div>
 
@@ -689,6 +692,7 @@ export default function Wallet() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [walletToDelete, setWalletToDelete] = useState<{ id: string; label: string } | null>(null);
   const [copiedWalletId, setCopiedWalletId] = useState<string | null>(null);
+  const [actionsWallet, setActionsWallet] = useState<typeof wallets[0] | null>(null);
 
   const totalEquity = computeTotalEquity({ spotBalance, balance });
   const openTransfer = (dir: "to_spot" | "to_futures" = "to_spot") => {
@@ -832,17 +836,52 @@ export default function Wallet() {
           <ColoredAddress address={wallet.address} />
         </div>
       </div>
-      <button
-        onClick={() => handleCopyWallet(wallet.id, wallet.fullAddress)}
-        className="text-muted-foreground hover:text-white transition-colors shrink-0"
-        aria-label="Copy address"
-      >
-        {copiedWalletId === wallet.id ? (
-          <Check className="w-3.5 h-3.5 text-trading-green" />
-        ) : (
-          <Copy className="w-3.5 h-3.5" />
-        )}
-      </button>
+      {isMobile ? (
+        <button
+          onClick={() => setActionsWallet(wallet)}
+          className="text-muted-foreground hover:text-white transition-colors shrink-0"
+          aria-label="More actions"
+        >
+          <MoreHorizontal className="w-3.5 h-3.5" />
+        </button>
+      ) : (
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => handleCopyWallet(wallet.id, wallet.fullAddress)}
+            className="text-muted-foreground hover:text-white transition-colors shrink-0"
+            aria-label="Copy address"
+          >
+            {copiedWalletId === wallet.id ? (
+              <Check className="w-3.5 h-3.5 text-trading-green" />
+            ) : (
+              <Copy className="w-3.5 h-3.5" />
+            )}
+          </button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="text-muted-foreground hover:text-white transition-colors shrink-0" aria-label="More actions">
+                <MoreHorizontal className="w-3.5 h-3.5" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="end" side="bottom" className="w-[210px] p-1 bg-[#12151A] border-[#1D2026] rounded-xl">
+              {!wallet.isPrimary && (
+                <button
+                  onClick={() => handleSetPrimaryWallet(wallet.id)}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13.5px] text-[#F2F3F5] hover:bg-white/5 transition-colors"
+                >
+                  <Star className="w-4 h-4" /> Set as default
+                </button>
+              )}
+              <button
+                onClick={() => handleDeleteWallet({ id: wallet.id, label: wallet.label })}
+                className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13.5px] text-[#FF5C5C] hover:bg-[rgba(255,92,92,0.1)] transition-colors"
+              >
+                <Trash2 className="w-4 h-4" /> Delete address
+              </button>
+            </PopoverContent>
+          </Popover>
+        </div>
+      )}
     </div>
   );
 
@@ -906,6 +945,7 @@ export default function Wallet() {
             onDeposit={() => setDepositDialogOpen(true)}
             onWithdraw={() => setWithdrawDialogOpen(true)}
             onTransfer={() => openTransfer("to_spot")}
+            equityNote={isLite ? "does not include open trade profit" : undefined}
           />
 
           {/* Band 2 · Flat dark account cards with capsule tags (Signal DNA) */}
@@ -1064,6 +1104,7 @@ export default function Wallet() {
           onWithdraw={() => navigate("/withdraw")}
           onTransfer={() => openTransfer("to_spot")}
           compact
+          equityNote={isLite ? "does not include open trade profit" : undefined}
         />
 
         <section className="space-y-3">
@@ -1128,6 +1169,33 @@ export default function Wallet() {
         label={walletToDelete?.label}
         onConfirm={handleConfirmDelete}
       />
+
+      {/* Saved-address actions (mobile) */}
+      <MobileDrawer open={!!actionsWallet} onOpenChange={(o) => !o && setActionsWallet(null)} hideCloseButton>
+        <div className="text-xs text-muted-foreground px-1.5 pb-1">{actionsWallet?.label} · {actionsWallet?.address}</div>
+        <div className="flex flex-col">
+          {actionsWallet && !actionsWallet.isPrimary && (
+            <button
+              onClick={() => { handleSetPrimaryWallet(actionsWallet.id); setActionsWallet(null); }}
+              className="flex items-center gap-3 py-[15px] border-b border-[#1D2026] text-[15px] text-[#F2F3F5]"
+            >
+              <Star className="w-[18px] h-[18px]" /> Set as default
+            </button>
+          )}
+          <button
+            onClick={() => { if (actionsWallet) handleCopyWallet(actionsWallet.id, actionsWallet.fullAddress); setActionsWallet(null); }}
+            className="flex items-center gap-3 py-[15px] border-b border-[#1D2026] text-[15px] text-[#F2F3F5]"
+          >
+            <Copy className="w-[18px] h-[18px]" /> Copy address
+          </button>
+          <button
+            onClick={() => { if (actionsWallet) handleDeleteWallet({ id: actionsWallet.id, label: actionsWallet.label }); setActionsWallet(null); }}
+            className="flex items-center gap-3 py-[15px] text-[15px] text-[#FF5C5C]"
+          >
+            <Trash2 className="w-[18px] h-[18px]" /> Delete address
+          </button>
+        </div>
+      </MobileDrawer>
 
     </div>
   );
