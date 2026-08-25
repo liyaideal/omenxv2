@@ -114,6 +114,7 @@ export const HeroEquityCard = ({
   onWithdraw,
   onTransfer,
   compact = false,
+  equityNote = "does not include unrealized PnL",
 }: {
   equity: number;
   hidden: boolean;
@@ -122,6 +123,7 @@ export const HeroEquityCard = ({
   onWithdraw: () => void;
   onTransfer: () => void;
   compact?: boolean;
+  equityNote?: string;
 }) => (
   <section
     className={cn(
