@@ -821,71 +821,18 @@ export default function Wallet() {
 
   // Clean saved-address row (Signal DNA): hairline-separated row, no avatar, no inline delete/set-default.
   const AddressRow = ({ wallet, isLast }: { wallet: typeof wallets[0]; isLast: boolean }) => (
-    <div className={cn("flex items-center justify-between gap-3 py-3", !isLast && "border-b border-[#1D2026]")}>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold truncate">{wallet.label}</span>
-          {wallet.isPrimary && (
-            <span
-              className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase"
-              style={{ backgroundColor: 'rgba(207,255,74,0.16)', color: '#DCFF6A' }}
-            >
-              Default
-            </span>
-          )}
-        </div>
-        <div className="mt-0.5">
-          <ColoredAddress address={wallet.address} />
-        </div>
-      </div>
-      {isMobile ? (
-        <button
-          onClick={() => setActionsWallet(wallet)}
-          className="text-muted-foreground hover:text-white transition-colors shrink-0"
-          aria-label="More actions"
-        >
-          <MoreHorizontal className="w-3.5 h-3.5" />
-        </button>
-      ) : (
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => handleCopyWallet(wallet.id, wallet.fullAddress)}
-            className="text-muted-foreground hover:text-white transition-colors shrink-0"
-            aria-label="Copy address"
-          >
-            {copiedWalletId === wallet.id ? (
-              <Check className="w-3.5 h-3.5 text-trading-green" />
-            ) : (
-              <Copy className="w-3.5 h-3.5" />
-            )}
-          </button>
-          <Popover>
-            <PopoverTrigger asChild>
-              <button className="text-muted-foreground hover:text-white transition-colors shrink-0" aria-label="More actions">
-                <MoreHorizontal className="w-3.5 h-3.5" />
-              </button>
-            </PopoverTrigger>
-            <PopoverContent align="end" side="bottom" className="w-[210px] p-1 bg-[#12151A] border-[#1D2026] rounded-xl">
-              {!wallet.isPrimary && (
-                <button
-                  onClick={() => handleSetPrimaryWallet(wallet.id)}
-                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13.5px] text-[#F2F3F5] hover:bg-white/5 transition-colors"
-                >
-                  <Star className="w-4 h-4" /> Set as default
-                </button>
-              )}
-              <button
-                onClick={() => handleDeleteWallet({ id: wallet.id, label: wallet.label })}
-                className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13.5px] text-[#FF5C5C] hover:bg-[rgba(255,92,92,0.1)] transition-colors"
-              >
-                <Trash2 className="w-4 h-4" /> Delete address
-              </button>
-            </PopoverContent>
-          </Popover>
-        </div>
-      )}
-    </div>
+    <SavedAddressRowView
+      wallet={wallet}
+      isLast={isLast}
+      isMobile={isMobile}
+      copied={copiedWalletId === wallet.id}
+      onOpenActions={() => setActionsWallet(wallet)}
+      onCopy={() => handleCopyWallet(wallet.id, wallet.fullAddress)}
+      onSetPrimary={() => handleSetPrimaryWallet(wallet.id)}
+      onDelete={() => handleDeleteWallet({ id: wallet.id, label: wallet.label })}
+    />
   );
+
 
   // Saved Addresses List Component (mobile) — clean Signal DNA rows.
   const SavedAddressesList = () => (
