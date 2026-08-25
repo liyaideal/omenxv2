@@ -835,17 +835,52 @@ export default function Wallet() {
           <ColoredAddress address={wallet.address} />
         </div>
       </div>
-      <button
-        onClick={() => handleCopyWallet(wallet.id, wallet.fullAddress)}
-        className="text-muted-foreground hover:text-white transition-colors shrink-0"
-        aria-label="Copy address"
-      >
-        {copiedWalletId === wallet.id ? (
-          <Check className="w-3.5 h-3.5 text-trading-green" />
-        ) : (
-          <Copy className="w-3.5 h-3.5" />
-        )}
-      </button>
+      {isMobile ? (
+        <button
+          onClick={() => setActionsWallet(wallet)}
+          className="text-muted-foreground hover:text-white transition-colors shrink-0"
+          aria-label="More actions"
+        >
+          <MoreHorizontal className="w-3.5 h-3.5" />
+        </button>
+      ) : (
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => handleCopyWallet(wallet.id, wallet.fullAddress)}
+            className="text-muted-foreground hover:text-white transition-colors shrink-0"
+            aria-label="Copy address"
+          >
+            {copiedWalletId === wallet.id ? (
+              <Check className="w-3.5 h-3.5 text-trading-green" />
+            ) : (
+              <Copy className="w-3.5 h-3.5" />
+            )}
+          </button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="text-muted-foreground hover:text-white transition-colors shrink-0" aria-label="More actions">
+                <MoreHorizontal className="w-3.5 h-3.5" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="end" side="bottom" className="w-[210px] p-1 bg-[#12151A] border-[#1D2026] rounded-xl">
+              {!wallet.isPrimary && (
+                <button
+                  onClick={() => handleSetPrimaryWallet(wallet.id)}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13.5px] text-[#F2F3F5] hover:bg-white/5 transition-colors"
+                >
+                  <Star className="w-4 h-4" /> Set as default
+                </button>
+              )}
+              <button
+                onClick={() => handleDeleteWallet({ id: wallet.id, label: wallet.label })}
+                className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13.5px] text-[#FF5C5C] hover:bg-[rgba(255,92,92,0.1)] transition-colors"
+              >
+                <Trash2 className="w-4 h-4" /> Delete address
+              </button>
+            </PopoverContent>
+          </Popover>
+        </div>
+      )}
     </div>
   );
 
