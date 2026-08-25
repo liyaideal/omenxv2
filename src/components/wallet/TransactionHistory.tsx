@@ -362,22 +362,12 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
                     <div className="flex items-start justify-between gap-2 mt-1 pl-[52px]">
                       <div className="flex items-center flex-wrap gap-1.5 text-xs text-muted-foreground min-w-0">
                         <span>{tx.date}</span>
-                        {tx.account && (
-                          <span className={cn(
-                            "inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap",
-                            ACCOUNT_BADGE_CONFIG[tx.account].className
-                          )}>
-                            {ACCOUNT_BADGE_CONFIG[tx.account].label}
-                          </span>
-                        )}
-                        {['cross_chain_in', 'cross_chain_out', 'fiat_buy', 'fiat_sell', 'transfer_to_spot', 'transfer_to_futures'].includes(tx.type) && (
-                          <span className={cn(
-                            "inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap",
-                            TYPE_BADGE_CONFIG[tx.type].className
-                          )}>
-                            {TYPE_BADGE_CONFIG[tx.type].label}
-                          </span>
-                        )}
+                        <span className={cn(
+                          "inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap",
+                          ACCOUNT_BADGE_CONFIG[tx.account || 'spot'].className
+                        )}>
+                          {ACCOUNT_BADGE_CONFIG[tx.account || 'spot'].label}
+                        </span>
                         {tx.status && tx.status !== 'completed' && (
                           <StatusIcon className={cn(
                             "w-3.5 h-3.5 shrink-0",
@@ -409,22 +399,6 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
                           <span className="text-sm font-medium truncate">
                             {formatDescription(tx)}
                           </span>
-                          {tx.account && (
-                            <span className={cn(
-                              "inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap",
-                              ACCOUNT_BADGE_CONFIG[tx.account].className
-                            )}>
-                              {ACCOUNT_BADGE_CONFIG[tx.account].label}
-                            </span>
-                          )}
-                          {['cross_chain_in', 'cross_chain_out', 'fiat_buy', 'fiat_sell', 'transfer_to_spot', 'transfer_to_futures'].includes(tx.type) && (
-                            <span className={cn(
-                              "inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap",
-                              TYPE_BADGE_CONFIG[tx.type].className
-                            )}>
-                              {TYPE_BADGE_CONFIG[tx.type].label}
-                            </span>
-                          )}
                           {tx.status && tx.status !== 'completed' && (
                             <StatusIcon className={cn(
                               "w-3.5 h-3.5 shrink-0",
@@ -437,6 +411,14 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
+                      <span className="min-w-[64px] flex justify-end">
+                        <span className={cn(
+                          "inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap",
+                          ACCOUNT_BADGE_CONFIG[tx.account || 'spot'].className
+                        )}>
+                          {ACCOUNT_BADGE_CONFIG[tx.account || 'spot'].label}
+                        </span>
+                      </span>
                       <span className={cn(
                         "text-sm font-semibold font-mono",
                         tx.amount >= 0 ? "text-trading-green" : "text-trading-red"
