@@ -412,6 +412,13 @@ export const TransactionHistory = ({ transactions, className }: TransactionHisto
                           {ACCOUNT_BADGE_CONFIG[tx.account || 'spot'].label}
                         </span>
                       </span>
+                      {tx.status && tx.status !== 'completed' && (
+                        <StatusIcon className={cn(
+                          "w-3.5 h-3.5 shrink-0",
+                          statusConfig.color,
+                          tx.status === 'processing' && "animate-spin"
+                        )} />
+                      )}
                       <span className={cn(
                         "text-sm font-semibold font-mono",
                         tx.amount >= 0 ? "text-trading-green" : "text-trading-red"
