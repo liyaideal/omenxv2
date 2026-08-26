@@ -1985,6 +1985,7 @@ export type Database = {
       roll_crypto_quick_rounds: { Args: never; Returns: Json }
       roll_daily_hk_stock_events: { Args: never; Returns: number }
       roll_daily_stock_events: { Args: never; Returns: number }
+      roll_demo_positions: { Args: never; Returns: Json }
       roll_sports_matches: { Args: never; Returns: Json }
       settle_prior_stock_session: {
         Args: { _subtype: string }
