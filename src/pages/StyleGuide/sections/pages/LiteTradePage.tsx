@@ -2,6 +2,7 @@ import { SubSection, DualDevicePreview } from "../../components";
 import { LitePage } from "./shell";
 import { LiteSection } from "../LiteSection";
 import { LiteSpotSection } from "../LiteSpotSection";
+import { AutoCloseTradeCases } from "./AutoCloseTradeCases";
 
 type P = { isMobile: boolean };
 
@@ -15,6 +16,8 @@ export const LiteTradePage = ({ isMobile }: P) => (
   >
     <LiteSection isMobile={isMobile} part="trade" />
     <LiteSpotSection isMobile={isMobile} />
+
+    <AutoCloseTradeCases />
 
     <section className="scroll-mt-20">
       <div className="mb-4 border-b border-border pb-2">

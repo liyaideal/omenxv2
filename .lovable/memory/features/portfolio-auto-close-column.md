@@ -23,8 +23,15 @@ shows a transient placeholder. The value has exactly two states:
 
 ## Surface copy
 
-- Order panel: `None · enter an amount` before an amount is typed; otherwise the two states.
+- Order panel: `None · enter an amount` before an amount is typed; `None · loss capped`
+  for the none state; `≈ {c}¢` for a level, with a red `· close to entry` suffix when hot.
+  `Est. auto-close ⓘ` always carries the helper line `Moves with your other positions`.
+  The partial-net row `Est. auto-close (new position)` uses the same grammar.
+- Trade-page position card: `None` + sub-line `Loss capped at your stake`; a level renders
+  `≈ {c}¢` with no sub-line, or red `≈ {c}¢` + red `Close to current price` when hot.
 - Portfolio mobile card: `If it wins you get $X · auto-close ≈{c}¢` or `… · no auto-close, loss capped`.
-- Portfolio desktop row: `If it wins → $X · auto-close ≈{c}¢` or `… · auto-close none`; `none` is inline lowercase and its tooltip is `No auto-close within this market's price range — your loss is capped at what you put in.`.
+- Portfolio desktop row: `If it wins → $X · auto-close ≈{c}¢` or `… · auto-close none`; `none` is inline lowercase (#4d5560) and its tooltip is `No auto-close within this market's price range — your loss is capped at what you put in.`.
 - Hot state turns the payout sentence / auto-close value red.
 - Standard (non-Boost) spot rows carry no auto-close field. Pro side unchanged.
+- Style-guide coverage: `autoclose-*` preview keys (AC-P1…AC-T5), fixture-driven; production never passes `fixture`.
+

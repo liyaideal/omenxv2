@@ -253,6 +253,17 @@ const PORTFOLIO_MOBILE_CASES: SectionCase[] = [
     ],
   },
 
+  {
+    key: "autoclose-mobile-cards",
+    label: "AC-P3 · 移动卡 · 三态句式",
+    note: "auto-close 字段常驻，值只有两态。三张卡逐字对照 mock7 v2 §2：level / hot（红描边 + 红句）/ none。",
+    spec: [
+      { state: "level", when: "segment === 'boost' && autoClose.kind === 'level' && hot === false", visual: "句尾 `If it wins you get $1,670.00 · auto-close ≈2¢`", source: "LiveCards.LiveCard" },
+      { state: "hot", when: "hot === true（|mark − level| / mark ≤ 10%）", visual: "整卡红描边 + 红句 `If it wins you get $259.00 · auto-close ≈89¢`", source: "isAutoCloseHot" },
+      { state: "none", when: "autoClose.kind === 'none'（含 boost ≤ 1）", visual: "`If it wins you get $464.00 · no auto-close, loss capped`", source: "estimateAutoClosePrice" },
+      { state: "加载中", when: "数据未到达", visual: "骨架占位，不是值语法", source: "useLitePortfolio.isLoading" },
+    ],
+  },
 ];
 
 const PORTFOLIO_DESKTOP_CASES: SectionCase[] = [
@@ -392,7 +403,27 @@ const PORTFOLIO_DESKTOP_CASES: SectionCase[] = [
       { state: "待激活空投", when: "airdrop.status === 'pending'", visual: "不进 portfolio —— 仍住 /rewards/campaign/h2e 的 Airdropped positions 模块；激活开仓后才作为 airdropTag='airdrop' 的 Live 行出现", source: "DESIGN §运营工具仓位归属" },
     ],
   },
+  {
+    key: "autoclose-desktop-rows",
+    label: "AC-P1 · 桌面行 · 三态同列（level / hot / none · 含 1×）",
+    note: "四行逐字对照 mock7 v2 §1：① Fed decision in September?（2× Boost）② NVIDIA $4T（5× Boost, hot）③ Lakers 2026 NBA Finals?（2× Boost, none）④ Which film tops the 2026 worldwide box office?（1× Boost, none）。日期为相对 fixture，避免 settleLabel 过期。",
+    spec: [
+      { state: "level", when: "segment === 'boost' && autoClose.kind === 'level' && hot === false", visual: "`If it wins → $1,670.00 · auto-close ≈2¢`", source: "LiveCards.LiveRow" },
+      { state: "hot", when: "hot === true", visual: "整行红轨（inset 左边框）+ 红字 `· auto-close ≈89¢`", source: "isAutoCloseHot" },
+      { state: "none", when: "autoClose.kind === 'none'", visual: "`· auto-close none`，none 为内联灰 #4d5560 小写，悬停 tooltip 全句", source: "estimateAutoClosePrice" },
+      { state: "none · 1× Boost", when: "leverageNum === 1（boost ≤ 1 恒 none）", visual: "同 none 分支；无借贷敞口，亏损封顶本金", source: "autoClosePrice boost ≤ 1" },
+    ],
+  },
+  {
+    key: "autoclose-standard-row",
+    label: "AC-P2 · Standard 行 · 无 auto-close 段",
+    note: "Standard 段不携带该字段：列内只有 `If it wins → $X`，不追加 auto-close 段（不是显示 None）。",
+    spec: [
+      { state: "Standard", when: "segment === 'standard'", visual: "该列只有 `If it wins → $316.00`", source: "LiveCards.LiveRow" },
+    ],
+  },
 ];
+
 
 const READ_ME =
   "怎么读这一节：所有状态都由 useLitePortfolio 派生的字段驱动（segment / isVoucher / autoCloseState / hot / closeReason / isSeries / isZeroMoney）。每个 case 下方的表给出「触发条件 → 视觉结果 → 字段来源」，条件都是可判定表达式，可直接照抄进实现；表里没有列出的组合视为不存在，不要自行发挥。";

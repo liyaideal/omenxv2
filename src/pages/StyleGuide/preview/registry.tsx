@@ -30,6 +30,7 @@ const rewards = () => import("./rewardsPreviews");
 const funding = () => import("./fundingPreviews");
 const walletLite = () => import("./walletLitePreviews");
 const h2e = () => import("./h2ePreviews");
+const autoClose = () => import("./autoClosePreviews");
 
 export const previewRegistry: Record<string, Loader> = {
   /* -------- Mobile header system -------- */
@@ -76,6 +77,16 @@ export const previewRegistry: Record<string, Loader> = {
 
   "portfolio-lite-airdrop-tag-rows": pick(portfolio, "PortfolioAirdropTagRowsPreview"),
   "portfolio-lite-airdrop-tag-cards": pick(portfolio, "PortfolioAirdropTagCardsPreview"),
+
+  /* -------- Auto-close (two-state value grammar) -------- */
+  "autoclose-desktop-rows": pick(autoClose, "AutoCloseDesktopRowsPreview"),
+  "autoclose-standard-row": pick(autoClose, "AutoCloseStandardRowPreview"),
+  "autoclose-mobile-cards": pick(autoClose, "AutoCloseMobileCardsPreview"),
+  "autoclose-position-none": pick(autoClose, "AutoClosePositionNonePreview"),
+  "autoclose-position-hot": pick(autoClose, "AutoClosePositionHotPreview"),
+  "autoclose-position-level": pick(autoClose, "AutoClosePositionLevelPreview"),
+  "autoclose-order-panel-states": pick(autoClose, "AutoCloseOrderPanelStatesPreview"),
+  "autoclose-order-panel-partial-net": pick(autoClose, "AutoCloseOrderPanelPartialNetPreview"),
 
   /* -------- H2E campaign -------- */
   "h2e-card-s0": pick(h2e, "H2eCardS0Preview"),

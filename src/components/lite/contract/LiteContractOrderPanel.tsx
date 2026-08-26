@@ -21,6 +21,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import { executeTrade } from "@/services/tradingService";
 import { estimateAutoClosePrice, formatCents, isAutoCloseHot } from "@/lib/autoClosePrice";
+import type { AutoCloseResult } from "@/lib/autoClosePrice";
 
 import { LiteBoostSelector } from "./LiteBoostSelector";
 import {
@@ -90,6 +91,9 @@ export interface LiteContractOrderPanelProps {
   blockNotice?: string | null;
   onFilled?: () => void;
   onRequestAuth: () => void;
+  /** Style-guide only: overrides the computed auto-close results. Never passed in production. */
+  fixture?: { autoClose?: AutoCloseResult; remainderAutoClose?: AutoCloseResult };
+
 }
 
 export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
@@ -126,6 +130,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
     blockNotice,
     onFilled,
     onRequestAuth,
+    fixture,
   } = props;
 
   const { user } = useAuth();
@@ -166,7 +171,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   const remainderMarginEst = effBoost > 0 ? (remainderQty * sidePrice) / effBoost : 0;
   const remainderFee = remainderMarginEst * effBoost * FEE_RATE;
 
-  const autoClose = useMemo(
+  const autoCloseComputed = useMemo(
     () =>
       estimateAutoClosePrice({
         entryPrice: sidePrice,
@@ -188,7 +193,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   // Reinforcement: when the order flips (partial net), the freshly opened leg
   // stands on the remainder's margin alone — disclose ITS auto-close, not the
   // full-order one.
-  const remainderAutoClose = useMemo(
+  const remainderAutoCloseComputed = useMemo(
     () =>
       isPartialNet
         ? estimateAutoClosePrice({
@@ -216,6 +221,12 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
       risk,
     ],
   );
+
+
+  // Style-guide fixtures replace the solved values; production never passes them.
+  const autoClose = fixture?.autoClose ?? autoCloseComputed;
+  const remainderAutoClose = fixture?.remainderAutoClose ?? remainderAutoCloseComputed;
+
 
   const handleSubmit = useCallback(async () => {
     if (!user) return onRequestAuth();

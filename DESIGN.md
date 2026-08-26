@@ -1657,3 +1657,14 @@ portfolio 里不允许出现「无来源标的试玩仓位」——没有标就�
 - 种子仓位 / 事件引用必须由滚动引擎维持指向活事件：`roll_demo_positions()`，cron `roll-demo-positions` 每日 05:20 UTC。
 - 客户端 mock 引用的实体必须运行时自愈（`repointMocksToLiveEvents`），不得渲染指向已结算/已消失事件的行。
 - 演示数据不得污染记账：`mock-` 前缀行永不计入收益口径。
+
+## §Addendum 2026-08-26 · Auto-close 字段常驻 + 两态值语法（LOCKED）
+
+- **字段常驻**：Lite 全部 Boost 面（下单面板 Returns 块、交易页持仓条、Portfolio 桌面行 / 移动卡）永远渲染 auto-close 字段，不因无解而卸载。
+- **值只有两态**：`≈X¢`（level）或 `None`（none）。
+- **瞬态不进值语法**：零单 = `None · enter an amount`；数据加载中 = 骨架占位（不是文字）；`equity ≤ 0` 钳到现价、恒红。
+- **hot**：`|mark − level| / mark ≤ 10%` → 红态；副词 `Close to current price`（持仓条）/ `close to entry`（下单面板）。
+- **Standard 段无此字段**（不是显示 None，是整段不渲染）。
+- **求解器 side-aware**：long 解在现价下方、short 解在现价上方，出域 → none；`boost ≤ 1` 恒 none。单一真相源 `src/lib/autoClosePrice.ts` 的 `estimateAutoClosePrice`。
+- **常驻说明**：`Moves with your other positions` 随字段常驻。`None at this balance` 全站退役。
+- Pro 侧本轮不动（挂账④，另轮统一到同一求解器）。
