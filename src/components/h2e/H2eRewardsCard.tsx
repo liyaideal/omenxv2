@@ -1,12 +1,48 @@
-import { Gift } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
+import { Loader2 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useConnectedAccounts } from "@/hooks/useConnectedAccounts";
 import type { H2eRewardsSummary } from "@/hooks/useH2eRewardsSummary";
 
 /**
- * H2E Rewards card — pure presentational, props-driven.
- * Extracted verbatim out of the Wallet component (same JSX) so /style-guide
- * can mount the real card instead of a replica. /wallet keeps rendering it.
+ * H2E "Your progress" card — pure presentational apart from the journey-stage
+ * lookup (stage is computed in-component so guests can render it too).
+ * Rendered on /rewards/campaign/h2e and mirrored in /style-guide.
  */
+
+const MicroLabel = ({ children }: { children: React.ReactNode }) => (
+  <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6B7280]">{children}</div>
+);
+
+const GuideNode = ({
+  title,
+  sub,
+  state,
+  subNode,
+}: {
+  title: string;
+  sub?: string;
+  state: "done" | "next" | "todo";
+  subNode?: React.ReactNode;
+}) => (
+  <div className="flex flex-col items-start text-left">
+    <span
+      className={`relative h-5 w-5 rounded-full border-2 bg-[#131519] transition-all duration-300 ${
+        state === "done"
+          ? "border-trading-green"
+          : state === "next"
+            ? "border-primary shadow-[0_0_0_4px_hsl(var(--primary)/0.12)]"
+            : "border-border"
+      }`}
+    >
+      {state === "next" && <span className="absolute -inset-1 rounded-full border border-primary/60 animate-scale-in" />}
+    </span>
+    <div className={`mt-2 text-[11px] font-semibold ${state === "todo" ? "text-muted-foreground" : "text-foreground"}`}>
+      {title}
+    </div>
+    {subNode ?? (sub && <div className="text-[10px] text-[#6B7280]">{sub}</div>)}
+  </div>
+);
+
 export const H2eRewardsCard = ({
   h2e,
   showUnlockToast = false,
@@ -14,22 +50,87 @@ export const H2eRewardsCard = ({
   h2e: H2eRewardsSummary;
   showUnlockToast?: boolean;
 }) => {
+  const { user } = useAuth();
+  const { activeAccounts } = useConnectedAccounts();
+  const stage = !user ? "S0" : h2e.totalEarned > 0 ? "S3" : activeAccounts.length > 0 ? "S2" : "S1";
+  const acct = activeAccounts[0];
+  const scanning = activeAccounts.some((a) => a.scanStatus === "scanning");
 
-  
+  const shell = "rounded-[16px] border border-[#1D2026] bg-[#131519] p-4 md:p-[18px]";
+
+  if (stage === "S0" || stage === "S1") {
+    return (
+      <div className={`${shell} space-y-4`}>
+        <MicroLabel>Your progress</MicroLabel>
+        <div className="grid grid-cols-3 gap-3">
+          <GuideNode
+            state="next"
+            title={stage === "S0" ? "Sign in and connect your wallet" : "Connect wallet"}
+            sub="Link your Polymarket wallet above"
+          />
+          <GuideNode state="todo" title="Receive airdrops" sub="Qualifying positions get a $10 counter-side hedge" />
+          <GuideNode state="todo" title="Trade to unlock" sub="Earnings unlock for withdrawal by volume tiers" />
+        </div>
+      </div>
+    );
+  }
+
+  if (stage === "S2") {
+    return (
+      <div className={`${shell} space-y-4`}>
+        <MicroLabel>Your progress</MicroLabel>
+        <div className="grid grid-cols-3 gap-3">
+          <GuideNode
+            state="done"
+            title="Wallet connected"
+            subNode={<div className="font-mono text-[10px] text-[#6B7280]">{acct?.displayAddress}</div>}
+          />
+          <GuideNode
+            state="next"
+            title="Receive airdrops"
+            subNode={
+              scanning ? (
+                <div className="flex items-center gap-1.5 text-[10px] text-[#6B7280]">
+                  <Loader2 className="h-3 w-3 animate-spin text-primary" /> Scanning positions…
+                </div>
+              ) : (acct?.airdropsReceived ?? 0) > 0 ? (
+                <div className="text-[10px] text-[#6B7280]">
+                  {acct?.positionsDetected} positions scanned · {acct?.airdropsReceived} airdrops active
+                </div>
+              ) : (
+                <div className="text-[10px] text-[#6B7280]">
+                  No qualifying positions yet — positions ≥ $20 held a day qualify
+                </div>
+              )
+            }
+          />
+          <GuideNode state="todo" title="Trade to unlock" sub="Starts once earnings land" />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 space-y-4">
-      <div className="flex items-center gap-2">
-        <Gift className="w-4 h-4 text-primary" />
-        <span className="font-semibold text-sm">Hedge Airdrop Rewards</span>
+    <div className={`${shell} space-y-4`}>
+      <div className="flex items-center justify-between gap-3">
+        <MicroLabel>Your progress</MicroLabel>
+        <span className="text-[11px] text-[#6B7280]">
+          <span className="text-[#4ADE80]">✓ Connected</span> · <span className="text-[#4ADE80]">✓ Airdrops</span> ·{" "}
+          <span className="text-[#33D6FF] font-semibold">Trade to unlock</span>
+        </span>
       </div>
 
       {/* Earnings cap */}
       <div className="space-y-1.5">
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">Earned / Cap</span>
-          <span className="font-mono font-semibold">${h2e.totalEarned.toFixed(2)} / ${h2e.earningsCap}</span>
+        <div className="flex items-center justify-between">
+          <span className="text-[12px] text-[#9AA1AC]">Earned / Cap</span>
+          <span className="font-display text-[12.5px] font-semibold tabular-nums text-[#F2F3F5]">
+            ${h2e.totalEarned.toFixed(2)} / ${h2e.earningsCap}
+          </span>
         </div>
-        <Progress value={h2e.earningsPercent} className="h-1.5" />
+        <div className="h-[5px] w-full overflow-hidden rounded-[3px] bg-[#1A1D22]">
+          <div className="h-full rounded-[3px] bg-[#33D6FF]" style={{ width: `${h2e.earningsPercent}%` }} />
+        </div>
       </div>
 
       {/* Volume unlock */}
@@ -56,7 +157,7 @@ export const H2eRewardsCard = ({
                 return (
                   <div key={tier.volume} className="flex flex-col items-center text-center">
                     <span
-                      className={`relative z-10 h-6 w-6 rounded-full border-2 bg-background transition-all duration-300 ${
+                      className={`relative z-10 h-6 w-6 rounded-full border-2 bg-[#131519] transition-all duration-300 ${
                         isStarter
                           ? "border-trading-green/60"
                           : isReached
@@ -82,7 +183,7 @@ export const H2eRewardsCard = ({
             </div>
           </div>
         </div>
-        <div className="space-y-2 rounded-lg border border-border/40 bg-muted/10 p-3 sm:hidden">
+        <div className="space-y-2 rounded-lg border border-[#1D2026] bg-[#0F1114] p-3 sm:hidden">
           {!h2e.isFullyUnlocked && (
             <div className="rounded-md border border-primary/20 bg-primary/10 px-3 py-2">
               <div className="text-[10px] uppercase text-muted-foreground">Next unlock</div>
@@ -103,7 +204,7 @@ export const H2eRewardsCard = ({
                 <div key={tier.volume} className="relative flex gap-3 pb-2 last:pb-0">
                   {!isLast && <div className={`absolute left-[7px] top-5 h-[calc(100%-12px)] w-px ${isReached ? "bg-primary/60" : "bg-border/70"}`} />}
                   <span
-                    className={`relative mt-1 h-3.5 w-3.5 flex-shrink-0 rounded-full border-2 bg-background transition-all duration-300 ${
+                    className={`relative mt-1 h-3.5 w-3.5 flex-shrink-0 rounded-full border-2 bg-[#131519] transition-all duration-300 ${
                       isStarter
                         ? "border-trading-green/60"
                         : isReached
@@ -155,7 +256,7 @@ export const H2eRewardsCard = ({
       {/* Recent settlements */}
       {h2e.settlements.length > 0 && (
         <div className="space-y-2 pt-2 border-t border-border/30">
-          <span className="text-xs text-muted-foreground">Recent Settlements</span>
+          <MicroLabel>Recent settlements</MicroLabel>
           {h2e.settlements.slice(0, 3).map((s) => (
             <div key={s.id} className="flex items-center justify-between text-xs">
               <div className="truncate max-w-[60%]">

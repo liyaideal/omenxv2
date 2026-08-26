@@ -105,6 +105,7 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
       s("empty-states", "Empty states", sec("EmptyStatesSection", "EmptyStatesSection")),
       s("mobile-patterns", "Mobile patterns", MobilePatternsNode),
       s("identity", "User identity", sec("UserIdentitySection", "UserIdentitySection")),
+      s("message-center", "Message Center（Backlog）", sec("MessageCenterSection", "MessageCenterSection")),
     ],
   },
   {

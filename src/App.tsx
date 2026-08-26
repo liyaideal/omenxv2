@@ -56,7 +56,6 @@ import NotFound from "./pages/NotFound";
 import { useIsMobile } from "./hooks/use-mobile";
 import { RealtimePricesProvider } from "./contexts/RealtimePricesContext";
 import { SurfaceProvider, useSurface } from "./contexts/SurfaceContext";
-import { AirdropNotificationToast } from "./components/AirdropNotificationToast";
 import { SportsLauncher } from "./components/SportsLauncher";
 import { useOrderSimulation } from "./hooks/useOrderSimulation";
 
@@ -179,7 +178,6 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <OrderSimulationRunner />
-          <AirdropNotificationToast />
           <CampaignAttribution />
           <Routes>
             {/* Full-width landing pages (rendered outside max-w-md mobile shell) */}

@@ -350,11 +350,11 @@ export const ConnectedAccountsCard = () => {
 
   return (
     <>
-      <div className="trading-card p-4 md:p-6">
+      <div className="rounded-[16px] border border-[#1D2026] bg-[#131519] p-4 md:p-[18px]">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h3 className="font-semibold mb-1">Connected Accounts</h3>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6B7280]">CONNECTED ACCOUNTS</div>
+            <p className="mt-1 text-[12px] text-[#9AA1AC]">
               Link external prediction market wallets to receive hedge airdrops
             </p>
           </div>
@@ -368,7 +368,7 @@ export const ConnectedAccountsCard = () => {
             return (
               <div
                 key={platform.id}
-                className="bg-muted/30 rounded-xl p-4"
+                className="rounded-[12px] border border-[#1D2026] bg-[#0F1114] p-[13px_14px]"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center overflow-hidden shrink-0 p-1.5">
@@ -403,7 +403,7 @@ export const ConnectedAccountsCard = () => {
                         <Button
                           size="sm"
                           onClick={() => handleOpenConnect(platform.id)}
-                          className="btn-primary h-8 px-3"
+                          className="rounded-[10px] bg-white text-[#0A0B0D] font-display font-bold text-[12.5px] px-3.5 h-8 hover:bg-[#E6E9EE]"
                         >
                           <Plus className="w-4 h-4 mr-1" /> Connect
                         </Button>
@@ -442,21 +442,30 @@ export const ConnectedAccountsCard = () => {
         </div>
 
         {/* Eligibility explainer */}
-        <div className="mt-4 bg-primary/5 border border-primary/10 rounded-xl p-3.5">
-          <div className="flex items-start gap-2.5">
-            <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-            <div className="space-y-1.5">
-              <p className="text-xs font-medium text-foreground">Which positions qualify for airdrops?</p>
-              <ul className="text-[11px] text-muted-foreground space-y-1 list-disc pl-3.5">
-                <li>Position notional value <span className="text-foreground font-medium">≥ $20</span> on Polymarket</li>
-                <li>Position held for at least <span className="text-foreground font-medium">1 day</span></li>
-                <li>Matching OmenX event has <span className="text-foreground font-medium">≥ 24 hours</span> until resolution</li>
-                <li>Each qualifying position receives a <span className="text-foreground font-medium">$10 hedge</span> on the counter side</li>
-                <li>Up to <span className="text-foreground font-medium">3 active airdrops</span> per account at a time</li>
-                <li>Airdrops expire in 72 hours if not activated</li>
-                <li>Max <span className="text-foreground font-medium">$100 lifetime earnings</span> per account</li>
-              </ul>
+        <div className="mt-4 rounded-[12px] border border-[#1D2026] bg-[#0F1115] px-4 py-3.5">
+          <div className="flex items-center gap-1.5 text-[12px] font-semibold text-foreground">
+            <Info className="w-3.5 h-3.5 text-[#33D6FF]" /> Which positions qualify for airdrops?
+          </div>
+          <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
+            <div>
+              <div className="mb-1.5 text-[9px] font-bold uppercase tracking-[0.14em] text-[#6B7280]">Qualifies</div>
+              <div className="grid grid-cols-[52px_1fr] items-baseline gap-x-2.5 gap-y-1 text-[11px] text-[#9AA1AC]">
+                <span className="font-display text-[12px] font-semibold text-[#F2F3F5]">&ge; $20</span><span>position notional on Polymarket</span>
+                <span className="font-display text-[12px] font-semibold text-[#F2F3F5]">&ge; 1 day</span><span>position held</span>
+                <span className="font-display text-[12px] font-semibold text-[#F2F3F5]">&ge; 24h</span><span>until the matching OmenX event resolves</span>
+              </div>
             </div>
+            <div>
+              <div className="mb-1.5 text-[9px] font-bold uppercase tracking-[0.14em] text-[#6B7280]">Limits</div>
+              <div className="grid grid-cols-[52px_1fr] items-baseline gap-x-2.5 gap-y-1 text-[11px] text-[#9AA1AC]">
+                <span className="font-display text-[12px] font-semibold text-[#F2F3F5]">3</span><span>active airdrops at a time</span>
+                <span className="font-display text-[12px] font-semibold text-[#F2F3F5]">72h</span><span>to activate, or the airdrop expires</span>
+                <span className="font-display text-[12px] font-semibold text-[#F2F3F5]">$100</span><span>lifetime earnings per account</span>
+              </div>
+            </div>
+          </div>
+          <div className="mt-3 border-t border-[#1D2026] pt-2.5 text-[12px] text-[#C9CED6]">
+            Each qualifying position receives a <span className="font-display font-semibold text-[#33D6FF]">$10 hedge</span> on the counter side.
           </div>
         </div>
       </div>
