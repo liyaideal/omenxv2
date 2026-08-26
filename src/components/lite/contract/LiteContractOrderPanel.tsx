@@ -90,6 +90,9 @@ export interface LiteContractOrderPanelProps {
   blockNotice?: string | null;
   onFilled?: () => void;
   onRequestAuth: () => void;
+  /** Style-guide only: overrides the computed auto-close results. Never passed in production. */
+  fixture?: { autoClose?: AutoCloseResult; remainderAutoClose?: AutoCloseResult };
+
 }
 
 export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
