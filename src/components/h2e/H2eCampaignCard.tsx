@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useH2eRewardsSummary } from "@/hooks/useH2eRewardsSummary";
 import { useConnectedAccounts } from "@/hooks/useConnectedAccounts";
+import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Step = ({ label, state }: { label: string; state: "done" | "active" | "todo" }) => (
@@ -27,12 +28,16 @@ export const H2eCampaignCard = () => {
   const stage = !user ? "S0" : h2e.totalEarned > 0 ? "S3" : activeAccounts.length > 0 ? "S2" : "S1";
   const acct = activeAccounts[0];
   const scanning = activeAccounts.some((a) => a.scanStatus === "scanning");
+  const { airdrops } = useAirdropPositions();
+  const liveAirdropCount = airdrops.filter(
+    (a) => a.source !== "voucher" && (a.status === "pending" || a.status === "activated"),
+  ).length;
   const capPct = Math.min((h2e.totalEarned / h2e.earningsCap) * 100, 100);
 
   const s2Meta = scanning
     ? "Scanning positions…"
-    : acct && acct.airdropsReceived > 0
-      ? `${acct.positionsDetected} positions scanned · ${acct.airdropsReceived} airdrops active — earnings land when hedges settle.`
+    : liveAirdropCount > 0
+      ? `${acct?.positionsDetected} positions scanned · ${liveAirdropCount} ${liveAirdropCount === 1 ? "airdrop" : "airdrops"} active — earnings land when hedges settle.`
       : "No qualifying positions yet — positions ≥ $20 held a day qualify.";
 
   return (

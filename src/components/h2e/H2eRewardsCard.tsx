@@ -1,6 +1,7 @@
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useConnectedAccounts } from "@/hooks/useConnectedAccounts";
+import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import type { H2eRewardsSummary } from "@/hooks/useH2eRewardsSummary";
 
 /**
@@ -53,6 +54,11 @@ export const H2eRewardsCard = ({
   const { user } = useAuth();
   const { activeAccounts } = useConnectedAccounts();
   const stage = !user ? "S0" : h2e.totalEarned > 0 ? "S3" : activeAccounts.length > 0 ? "S2" : "S1";
+  const connected = activeAccounts.length > 0;
+  const { airdrops } = useAirdropPositions();
+  const liveAirdropCount = airdrops.filter(
+    (a) => a.source !== "voucher" && (a.status === "pending" || a.status === "activated"),
+  ).length;
   const acct = activeAccounts[0];
   const scanning = activeAccounts.some((a) => a.scanStatus === "scanning");
 

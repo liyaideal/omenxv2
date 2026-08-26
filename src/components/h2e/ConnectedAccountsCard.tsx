@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useConnectedAccounts } from "@/hooks/useConnectedAccounts";
+import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { buildSignMessage, EIP712_DOMAIN, EIP712_TYPES } from "@/lib/eip712";
 import { toast } from "sonner";
@@ -55,6 +56,15 @@ export const ConnectedAccountsCard = () => {
     isDisconnecting,
     isDemoMode,
   } = useConnectedAccounts();
+
+  // Live airdrop count — single source of truth shared with the Airdropped
+  // positions module (pending + activated, H2E sources only). The per-account
+  // `airdropsReceived` demo constant must never be displayed.
+  const { airdrops } = useAirdropPositions();
+  const liveAirdropCount = airdrops.filter(
+    (a) => a.source !== "voucher" && (a.status === "pending" || a.status === "activated"),
+  ).length;
+
 
   const [connectDialogOpen, setConnectDialogOpen] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
@@ -435,7 +445,7 @@ export const ConnectedAccountsCard = () => {
                             }
                             className="hover:underline"
                           >
-                            Airdrops: <span className="text-trading-green font-medium">{account.airdropsReceived}</span>
+                            Airdrops: <span className="text-trading-green font-medium">{liveAirdropCount}</span>
                           </button>
                         </div>
                       )}
