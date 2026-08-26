@@ -221,22 +221,25 @@ export const LiveRow = ({
         {signedMoney(row.profit)}
       </div>
       <div className="pr-3 text-[12px]" style={{ color: hot ? RED : "#6B7280" }}>
-        {`If it wins → ${money(row.ifWins)}`}
+        If it wins → {money(row.ifWins)}
         {row.segment === "boost" && (
-          row.autoClose.kind === "level" ? (
-            <> {`· auto-close ≈${cents(row.autoClose.price)}`}</>
-          ) : (
-            <TooltipProvider delayDuration={150}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span> · no auto-close</span>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-[220px] text-[12px]">
-                  Your balance covers this call all the way — the most you can lose is what you put in.
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )
+          <>
+            {" · auto-close "}
+            {row.autoClose.kind === "level" ? (
+              <>≈{cents(row.autoClose.price)}</>
+            ) : (
+              <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="cursor-default text-[#4d5560]">none</span>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-[240px] text-xs">
+                    No auto-close within this market's price range — your loss is capped at what you put in.
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </>
         )}
       </div>
 
