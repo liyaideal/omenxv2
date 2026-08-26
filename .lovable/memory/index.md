@@ -46,6 +46,8 @@
 - [Account risk UI](mem://features/account-risk-ui-implementation) — Persistent sidebar and mobile drawer for account risk
 - [Account risk model](mem://features/account-risk-model) — 4-tier risk classification and margin formulas
 - [Portfolio risk integration](mem://features/portfolio-risk-integration) — Syncing portfolio metrics with global risk model
+- [H2E airdropped positions](mem://features/h2e/airdropped-positions) — Airdropped positions 模块渲染条件/行态/source 过滤/徽标口径、portfolio 行标枚举、H2E earnings 口径（排除 voucher 与 mock-、cap $100）
+- [Demo rolling engine](mem://workflow/demo-rolling-engine) — roll_demo_positions() 四步 + cron 05:20 UTC、演示号名单、futures/spot 事件池规则、tiered 入账触发器与 mock 自愈
 - [Portfolio auto-close column](mem://features/portfolio-auto-close-column) — AUTO-CLOSE / IF WINS column copy rules for Lite live rows/cards
 - [Position option linkage](mem://technical/position-option-linkage) — Using option_id as primary key for prices
 - [Event sparkline architecture](mem://style/event-sparkline-architecture) — Bezier curves and dynamic scaling for charts
