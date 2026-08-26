@@ -20,7 +20,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import { executeTrade } from "@/services/tradingService";
-import { estimateAutoClosePrice, formatCents } from "@/lib/autoClosePrice";
+import { estimateAutoClosePrice, formatCents, isAutoCloseHot } from "@/lib/autoClosePrice";
 
 import { LiteBoostSelector } from "./LiteBoostSelector";
 import {
@@ -325,14 +325,18 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
       ? "bg-gradient-to-r from-yes to-[#5FE0FF] text-[#04222c] hover:brightness-105"
       : "bg-gradient-to-r from-no to-[#E4FF88] text-[#1a2408] hover:brightness-105";
 
-  // The Est. auto-close row always occupies its slot — a null estimate means
-  // "cushioned", not "unknown", so we say so instead of unmounting the row.
-  const autoCloseText =
+  // Two-state grammar: a price or "None". Empty amount = a zero order —
+  // truthfully un-closable — with a nudge to type an amount.
+  const autoCloseRow =
     amountNum <= 0
-      ? "None · enter an amount"
-      : autoClose.kind === "level"
-        ? `≈ ${formatCents(autoClose.price)}`
-        : "None";
+      ? { text: "None", sub: "enter an amount", hot: false }
+      : effBoost <= 1 || autoClose.kind === "none"
+        ? { text: "None", sub: "loss capped", hot: false }
+        : {
+            text: `≈ ${formatCents(autoClose.price)}`,
+            sub: isAutoCloseHot(autoClose, sidePrice) ? "close to entry" : undefined,
+            hot: isAutoCloseHot(autoClose, sidePrice),
+          };
 
   const nettingNotice =
     isNetting
@@ -488,9 +492,9 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
                     Est. auto-close (new position)
                   </span>
                   <span className="font-mono font-semibold text-muted-foreground">
-                    {remainderAutoClose != null && remainderAutoClose.kind === "level"
-                      ? `≈ ${formatCents(remainderAutoClose.price)}`
-                      : "None"}
+                    {effBoost <= 1 || remainderAutoClose == null || remainderAutoClose.kind === "none"
+                      ? "None · loss capped"
+                      : `≈ ${formatCents(remainderAutoClose.price)}`}
                   </span>
                 </div>
               </>
@@ -524,8 +528,18 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
               Moves with your other positions
             </div>
           </div>
-          <span className="font-mono font-semibold text-muted-foreground">
-            {autoCloseText}
+          <span
+            className={cn(
+              "font-mono font-semibold",
+              autoCloseRow.hot ? "text-trading-red" : "text-muted-foreground",
+            )}
+          >
+            {autoCloseRow.text}
+            {autoCloseRow.sub && (
+              <span className={cn("font-normal", autoCloseRow.hot ? "text-trading-red" : "text-muted-foreground/70")}>
+                {" · "}{autoCloseRow.sub}
+              </span>
+            )}
           </span>
         </div>
       </div>
