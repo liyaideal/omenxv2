@@ -132,39 +132,25 @@ export const useLitePortfolio = () => {
 
       // Auto-close: account-level solve with THIS position excluded from the
       // snapshot (mode 'existing' — margin added back, own PnL excluded).
-      let autoCloseState: LiteLiveRow["autoCloseState"] = "none";
-      let safeAutoClose: number | null = null;
-      if (segment === "boost" && p.leverageNum > 1) {
-        if (risk.equity <= 0) {
-          autoCloseState = "missing";
-        } else {
-          const raw = estimateAutoClosePrice({
-            entryPrice: p.entryPriceNum,
-            boost: p.leverageNum,
-            amount: cost,
-            fee: 0,
-            quantity: p.sizeNum,
-            hasOtherPositions: true,
-            imTotalOther: Math.max(risk.imTotal - cost, 0),
-            totalAssets: risk.totalAssets + cost,
-            unrealizedPnLOther: risk.unrealizedPnL - profit,
-            mode: "existing",
-          });
-          if (raw == null) {
-            autoCloseState = "missing";
-          } else if (raw > 0 && raw < priceNow) {
-            autoCloseState = "level";
-            safeAutoClose = raw;
-          } else {
-            autoCloseState = "none";
-          }
-        }
+      // Two-state grammar: every Boost row gets a result (1× included → none).
+      let autoClose: AutoCloseResult = { kind: "none" };
+      if (segment === "boost") {
+        autoClose = estimateAutoClosePrice({
+          entryPrice: p.entryPriceNum,
+          side: p.type,
+          markPrice: priceNow,
+          boost: p.leverageNum,
+          amount: cost,
+          fee: 0,
+          quantity: p.sizeNum,
+          hasOtherPositions: true,
+          imTotalOther: Math.max(risk.imTotal - cost, 0),
+          totalAssets: risk.totalAssets + cost,
+          unrealizedPnLOther: risk.unrealizedPnL - profit,
+          mode: "existing",
+        });
       }
-
-      const hot =
-        safeAutoClose != null && priceNow > 0
-          ? Math.abs(priceNow - safeAutoClose) / priceNow <= 0.1
-          : false;
+      const hot = isAutoCloseHot(autoClose, priceNow);
 
       return {
         id: p.id,
