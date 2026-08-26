@@ -120,45 +120,16 @@ Deno.serve(async (req) => {
       return json({ error: `Failed to update voucher: ${vUpdErr.message}` }, 500)
     }
 
-    // 6) Credit voucher_earnings pool (NOT trial_balance / wallet).
-    //    Users must hit the 50k USDC trading volume gate and then call
-    //    claim-voucher-earnings to move the pool into wallet.balance.
-    // payout_mode='instant' vouchers are paid straight to the Standard balance by
-    // the pay_instant_voucher_settlement() trigger on airdrop_positions — they must
-    // NOT also accrue to the tiered pending pool.
-    const isInstant = voucher?.payout_mode === 'instant'
-    if (creditedPnl > 0 && !isInstant) {
-      const { data: pool } = await admin
-        .from('voucher_earnings')
-        .select('id, pending_amount')
-        .eq('user_id', user.id)
-        .maybeSingle()
+    // 6) Voucher earnings accrual is handled entirely in Postgres:
+    //    - payout_mode='instant' → trg_pay_instant_voucher_settlement() credits
+    //      the Standard balance.
+    //    - payout_mode='tiered'  → trg_credit_tiered_voucher_settlement() adds
+    //      the settled PnL to voucher_earnings.pending_amount and writes the
+    //      voucher_earnings_ledger row, latched by tiered_credited_at.
+    //    Both fire on the status→'settled' update above, so this endpoint must
+    //    NOT write to voucher_earnings / voucher_earnings_ledger itself —
+    //    doing so would double-count the same settlement.
 
-      if (pool) {
-        await admin
-          .from('voucher_earnings')
-          .update({
-            pending_amount: Number(pool.pending_amount ?? 0) + creditedPnl,
-            last_settled_at: nowIso,
-          })
-          .eq('id', pool.id)
-      } else {
-        await admin.from('voucher_earnings').insert({
-          user_id: user.id,
-          pending_amount: creditedPnl,
-          lifetime_credited: 0,
-          last_settled_at: nowIso,
-        })
-      }
-
-      await admin.from('voucher_earnings_ledger').insert({
-        user_id: user.id,
-        type: 'accrual',
-        amount: creditedPnl,
-        airdrop_position_id: pos.id,
-        description: `Voucher position settled (${reason})`,
-      })
-    }
 
     return json({
       success: true,
