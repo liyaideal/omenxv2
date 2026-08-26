@@ -135,7 +135,7 @@ const MOCK_AIRDROPS_WELCOME: AirdropPosition[] = [
 
 // Pick mock by demo account email — anything else gets the legacy "matched" set
 const pickMockByEmail = (email: string | null | undefined): AirdropPosition[] => {
-  if (email === "demo.welcome@omenx.dev") return MOCK_AIRDROPS_WELCOME;
+  if (email === "demo.welcome@omenx.dev" || email === "mia.reyes@gmail.com") return MOCK_AIRDROPS_WELCOME;
   return MOCK_AIRDROPS_MATCHED;
 };
 
