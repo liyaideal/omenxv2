@@ -637,14 +637,14 @@ const InReviewOrderPanelDemo = ({ variant }: { variant: "desktop" | "mobile" }) 
 };
 
 
-/** The auto-close cell never disappears — these are its four texts. */
+/** The auto-close cell never disappears — the value has exactly two states. */
 const AutoCloseStates = () => (
   <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
     {[
-      ["No amount yet", "—"],
+      ["No amount yet", "None · enter an amount"],
       ["Boost 1× (none)", "None"],
       ["Boost 5× estimate", "≈ 41¢"],
-      ["Cushioned account", "None at this balance"],
+      ["Cushioned account", "None"],
     ].map(([l, v]) => (
       <div key={l} className="rounded-lg border border-border bg-muted/20 p-3">
         <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
@@ -691,13 +691,13 @@ const PositionStates = () => {
         <Cell label="Boost 1× · auto-close None">
           <LitePositionCard {...common} boost={1} nowWorth={131} profit={11} autoCloseText="None" />
         </Cell>
-        <Cell label="Cushioned · None at this balance">
+        <Cell label="Cushioned · None">
           <LitePositionCard
             {...common}
             boost={3}
             nowWorth={118.2}
             profit={-1.8}
-            autoCloseText="None at this balance"
+            autoCloseText="None"
           />
         </Cell>
       </Grid>

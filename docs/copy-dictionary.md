@@ -100,7 +100,11 @@ positives. Chip words come from the sibling event's `side_labels`.
 |---|---|---|
 | **If it wins you get $X** | Mobile live-card payout sentence | — |
 | **If it wins → $X** | Desktop live-row payout column | — |
-| **auto-close ≈{c}¢** | Auto-close suffix when a real price exists (Boost only) | Liquidation, stop out, Liq. Price |
+| **auto-close ≈{c}¢** | Auto-close value, level state (Boost only) | Liquidation, stop out, Liq. Price |
+| **None** | Auto-close value, none state — field is always present, never blank | `None at this balance` (retired), `—` |
+| **None · enter an amount** | Auto-close value in the order panel before an amount is typed | `—` |
+| **no auto-close** | Desktop portfolio row suffix for a Boost row with no level (tooltip explains) | `auto-close —` |
+| **no auto-close, loss capped** | Mobile portfolio card suffix for a Boost row with no level | — |
 
 ---
 

@@ -48,7 +48,7 @@
 - [Portfolio risk integration](mem://features/portfolio-risk-integration) — Syncing portfolio metrics with global risk model
 - [H2E airdropped positions](mem://features/h2e/airdropped-positions) — Airdropped positions 模块渲染条件/行态/source 过滤/徽标口径、portfolio 行标枚举、H2E earnings 口径（排除 voucher 与 mock-、cap $100）
 - [Demo rolling engine](mem://workflow/demo-rolling-engine) — roll_demo_positions() 四步 + cron 05:20 UTC、演示号名单、futures/spot 事件池规则、tiered 入账触发器与 mock 自愈
-- [Portfolio auto-close column](mem://features/portfolio-auto-close-column) — AUTO-CLOSE / IF WINS column copy rules for Lite live rows/cards
+- [Auto-close two-state grammar](mem://features/portfolio-auto-close-column) — 字段常驻；值两态 ≈X¢ / None；side-aware 求解器；"None at this balance" 已退役
 - [Position option linkage](mem://technical/position-option-linkage) — Using option_id as primary key for prices
 - [Event sparkline architecture](mem://style/event-sparkline-architecture) — Bezier curves and dynamic scaling for charts
 - [Typography system](mem://components/typography-library-system) — Semantic font-mono and font-sans rules
