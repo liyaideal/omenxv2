@@ -720,3 +720,41 @@ export const PortfolioSettledLoadMorePreview = () => (
     />
   </div>
 );
+
+/* ---------------- Live 行标枚举（airdropTag） ---------------- */
+// none / voucher（volt "Voucher"）/ airdrop（pulse #33D6FF "Airdrop"）。
+// matched 与 welcome_gift 两种来源共用同一个 "Airdrop" 标，不再细分。
+const airdropTagRow: LiteLiveRow = {
+  ...base,
+  id: "demo-airdrop",
+  eventName: "Fed cuts rates in June",
+  categoryLabel: "Macro",
+  settlesAt: inDays(3),
+  isVoucher: false,
+  airdropTag: "airdrop",
+  leverageNum: 1,
+  segment: "standard",
+  autoClosePrice: null,
+  autoCloseState: "none",
+  cost: 10,
+  nowWorth: 13.2,
+  profit: 3.2,
+  ifWins: 25,
+};
+
+export const PortfolioAirdropTagRowsPreview = () => (
+  <div className="bg-background py-4">
+    <LiveRowHeader />
+    <LiveRow row={{ ...base, id: "tag-none", airdropTag: "none", isVoucher: false }} />
+    <LiveRow row={voucherRow} />
+    <LiveRow row={airdropTagRow} />
+  </div>
+);
+
+export const PortfolioAirdropTagCardsPreview = () => (
+  <div className="flex flex-col gap-2 bg-background p-4">
+    <LiveCard row={{ ...base, id: "tag-none-m", airdropTag: "none", isVoucher: false }} />
+    <LiveCard row={voucherRow} />
+    <LiveCard row={airdropTagRow} />
+  </div>
+);

@@ -221,3 +221,29 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | **does not include open trade profit** | Lite equity note under Total equity | excludes unrealized PnL |
 | **does not include unrealized PnL** | Pro equity note (default) | — |
 | **Trading fee** | `fee` transaction description | Fees, Commission |
+
+---
+
+## H2E — Airdropped positions (`/rewards/campaign/h2e`, 2026-08-26)
+
+模块题头、行态与说明句一律逐字使用下表；改字前先改这张表。
+
+| Canonical | 出现位置 / 规则 |
+|---|---|
+| **Airdropped positions** | 模块题头（micro label，题头右侧数字 = pending + activated） |
+| **Hedge positions we airdropped against your Polymarket exposure. Activate within 72h or they expire.** | 模块题头下说明句，逐字 |
+| **Activate in {h}h {m}m** | pending 行倒计时（`#FFD666`，h/m 均向下取整；≤0 时降级为 `Expiring…`） |
+| **Activate** | pending 行主按钮；进行中 `Activating…` |
+| **Live · {±$pnl}** | activated 行（volt 圆点 + volt 文案，负号用 `−`） |
+| **View in portfolio ›** | activated 行右侧 pulse 链接 |
+| **Expired** | expired 行右侧灰字；整行 `opacity-55`，不计入徽标 |
+| **Settled airdrops move to Recent settlements below. Airdrop profit stays locked here until you unlock it by trading.** | 模块底部 fine print，逐字 |
+| **Matched: {externalEventName} — {side} @ {price}¢ on Polymarket** | `source === 'matched'` 的副本行 |
+| **Welcome gift — no matching OmenX event for your positions, so we sent one on us** | `source === 'welcome_gift'` 的副本行 |
+| **Wallet not connected** | S3 头部横条未连接分支（`#FFD666`），不得省略该项 |
+| **Airdrop** | portfolio Live 行来源标（pulse `#33D6FF`；matched 与 welcome_gift 同标） |
+| **Voucher** | portfolio Live 行来源标（volt `#CFFF4A`） |
+
+单复数规则：`{n} airdrop(s) active` —— `n === 1` 写 `1 airdrop active`，其余写 `{n} airdrops active`；
+完整句为 `{positions} positions scanned · {n} airdrop(s) active — earnings land when hedges settle.`。
+无合格仓位时整句换成 `No qualifying positions yet — positions ≥ $20 held a day qualify.`。

@@ -1628,3 +1628,32 @@ Icon 映射为穷尽表，兜底 icon 必须中性（`Wallet` + `text-muted-fore
 
 ### Changelog
 **2026-08-25 Wallet Lite R1** — /wallet 未登录门按 surface 分叉；Lite 登录三步视觉重做；地址 `⋯` 菜单（Popover / Drawer）；账户徽标收口 productLineBadge；流水行去类型药丸 + 固定列对齐 + icon 全类型映射；style-guide 新增 `Wallet Lite R1 · 状态字典` 节（16 键）。
+
+## §Addendum 2026-08-26 · 运营工具仓位 / 真值渲染 / 计数真相源 / 演示数据（LOCKED）
+
+归档自 H2E 迁移 + 空投可见性 + 状态一致性 + 演示滚动引擎四轮。四条规则全站适用，不限 H2E。
+
+### A. 运营工具仓位归属语法
+运营工具（voucher / H2E airdrop）送出的试玩仓位按生命周期分居三处，任何新工具沿用同一语法：
+
+| 阶段 | 住哪儿 | 说明 |
+|---|---|---|
+| 待动作（pending / granted） | 工具自己的页面 | 例：`/rewards/campaign/h2e` 的 Airdropped positions、`/rewards` 的 Vouchers tab。portfolio 不显示 |
+| 已激活 / 已开仓 | `/portfolio` Live | 必须带来源标：Voucher = volt `#CFFF4A`，Airdrop = pulse `#33D6FF` |
+| 已结算（settled） | 工具自己的 settlements 面 | 例：H2E 的 Recent settlements。同一条不得在两处重复计数 |
+
+portfolio 里不允许出现「无来源标的试玩仓位」——没有标就说明它是自费仓。
+
+### B. 状态横条 / checklist 逐项真值渲染
+禁止用单一聚合条件反推多项勾选（反例：`totalEarned > 0` 就把 Connected / Airdrops 两项一起写死打勾）。
+每一项的勾选状态由它自己的字段判定；判定为假时渲染它自己的失败态（例：未连接 → `#FFD666` `Wallet not connected`），不得隐藏该项。
+
+### C. 计数单一真相源
+同一实体的数量在任意两处展示，必须来自同一个 hook / 查询。
+本轮教训：`airdropsReceived`（演示常量）与 `liveAirdropCount`（`useAirdropPositions` 派生）曾在卡片与详情页给出两个数。现统一为
+`airdrops.filter(a => a.source !== 'voucher' && (a.status === 'pending' || a.status === 'activated')).length`。
+
+### D. 演示数据即产品面
+- 种子仓位 / 事件引用必须由滚动引擎维持指向活事件：`roll_demo_positions()`，cron `roll-demo-positions` 每日 05:20 UTC。
+- 客户端 mock 引用的实体必须运行时自愈（`repointMocksToLiveEvents`），不得渲染指向已结算/已消失事件的行。
+- 演示数据不得污染记账：`mock-` 前缀行永不计入收益口径。

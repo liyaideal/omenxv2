@@ -83,6 +83,7 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
       s("lite-wallet", "Wallet ✅", lp("LiteWalletPage")),
       s("lite-rewards", "Rewards ✅", lp("LiteRewardsPage")),
       s("lite-vouchers", "Vouchers ✅", lp("LiteVouchersPage")),
+      s("lite-h2e", "H2E Campaign ✅", lp("LiteH2ePage")),
       s("lite-api", "API / Developers ✅", lp("LiteApiPage")),
       s("lite-portfolio", "Portfolio ✅", lp("LitePortfolioPage")),
       s("lite-leaderboard", "Leaderboard ⏳", lp("LiteStubPages", "LiteLeaderboardPage")),
