@@ -221,8 +221,25 @@ export const LiveRow = ({
         {signedMoney(row.profit)}
       </div>
       <div className="pr-3 text-[12px]" style={{ color: hot ? RED : "#6B7280" }}>
-        {mergedCol}
+        {`If it wins → ${money(row.ifWins)}`}
+        {row.segment === "boost" && (
+          row.autoClose.kind === "level" ? (
+            <> {`· auto-close ≈${cents(row.autoClose.price)}`}</>
+          ) : (
+            <TooltipProvider delayDuration={150}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span> · no auto-close</span>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-[220px] text-[12px]">
+                  Your balance covers this call all the way — the most you can lose is what you put in.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )
+        )}
       </div>
+
       <div className="flex items-center justify-end">
         <button
           type="button"
