@@ -33,7 +33,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { parseSideLabels } from "@/lib/eventUtils";
 import { boostSuffix, legSideLabel, liteSideName } from "@/lib/liteSideName";
-import { formatCents, estimateAutoClosePrice, isAutoCloseHot, type AutoCloseResult } from "@/lib/autoClosePrice";
+import { formatCents, estimateAutoClosePrice, isAutoCloseHot } from "@/lib/autoClosePrice";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import type { Tables } from "@/integrations/supabase/types";
 import {
@@ -723,11 +723,20 @@ const LiteContractTrade = () => {
       mode: "existing",
     });
 
-  /** Two-state value grammar: "≈ X¢" or "None". */
-  const autoCloseDisplayFor = (r: AutoCloseResult | null): string =>
-    r != null && r.kind === "level" ? `≈ ${formatCents(r.price)}` : "None";
+  // Two-state display: "≈ X¢" (hot → red + note) or "None · loss capped".
+  const autoCloseDisplayFor = (p: (typeof positions)[number]) => {
+    const r = autoCloseFor(p);
+    if (r.kind === "none")
+      return { text: "None", sub: "Loss capped at your stake", hot: false };
+    const hot = isAutoCloseHot(r, p.markPriceNum);
+    return {
+      text: `≈ ${formatCents(r.price)}`,
+      sub: hot ? "Close to current price" : undefined,
+      hot,
+    };
+  };
 
-  const heldAutoClose = heldPos != null ? autoCloseFor(heldPos) : null;
+  const heldAutoClose = heldPos != null ? autoCloseDisplayFor(heldPos) : null;
 
 
   const WatchStar = (
@@ -864,8 +873,9 @@ const LiteContractTrade = () => {
       putIn={heldPos.marginNum}
       nowWorth={heldNowWorth}
       profit={heldPnlNum}
-      autoCloseText={autoCloseDisplayFor(heldAutoClose)}
-      autoCloseHot={heldAutoClose != null && isAutoCloseHot(heldAutoClose, heldPos.markPriceNum)}
+      autoCloseText={heldAutoClose?.text ?? "None"}
+      autoCloseSub={heldAutoClose?.sub}
+      autoCloseHot={heldAutoClose?.hot}
       compact={!!isMobile}
       cashOutDisabledText={inReview ? IN_REVIEW_HOLD_LINE : undefined}
       onCashOut={() => setCashOutOpen(true)}
@@ -935,7 +945,7 @@ const LiteContractTrade = () => {
       <div className="space-y-3">
         {multiHeld.map((p) => {
           const isYesLeg = !legIsNo(p);
-          const ac = autoCloseFor(p);
+          const ac = autoCloseDisplayFor(p);
           // Side-labelled legs (fixture lines) are named by their side label
           // alone; generic multi options keep "{option} · Yes|No". 1× adds
           // no Boost suffix.
@@ -956,8 +966,9 @@ const LiteContractTrade = () => {
               putIn={p.marginNum}
               nowWorth={p.marginNum + p.pnlNum}
               profit={p.pnlNum}
-              autoCloseText={autoCloseDisplayFor(ac)}
-              autoCloseHot={ac != null && isAutoCloseHot(ac, p.markPriceNum)}
+              autoCloseText={ac.text}
+              autoCloseSub={ac.sub}
+              autoCloseHot={ac.hot}
               compact={!!isMobile}
               cashOutDisabledText={inReview ? IN_REVIEW_HOLD_LINE : undefined}
               onCashOut={() => setCashOutId(p.id)}
