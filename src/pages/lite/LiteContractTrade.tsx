@@ -33,7 +33,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { parseSideLabels } from "@/lib/eventUtils";
 import { boostSuffix, legSideLabel, liteSideName } from "@/lib/liteSideName";
-import { formatCents, estimateAutoClosePrice } from "@/lib/autoClosePrice";
+import { formatCents, estimateAutoClosePrice, isAutoCloseHot, type AutoCloseResult } from "@/lib/autoClosePrice";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import type { Tables } from "@/integrations/supabase/types";
 import {
@@ -864,15 +864,8 @@ const LiteContractTrade = () => {
       putIn={heldPos.marginNum}
       nowWorth={heldNowWorth}
       profit={heldPnlNum}
-      autoCloseText={
-        heldPos.leverageNum <= 1
-          ? "None"
-          : heldAutoClose != null
-            ? `≈ ${formatCents(heldAutoClose)}`
-            : isMobile
-              ? "None"
-              : "None at this balance"
-      }
+      autoCloseText={autoCloseDisplayFor(heldAutoClose)}
+      autoCloseHot={heldAutoClose != null && isAutoCloseHot(heldAutoClose, heldPos.markPriceNum)}
       compact={!!isMobile}
       cashOutDisabledText={inReview ? IN_REVIEW_HOLD_LINE : undefined}
       onCashOut={() => setCashOutOpen(true)}
@@ -963,15 +956,8 @@ const LiteContractTrade = () => {
               putIn={p.marginNum}
               nowWorth={p.marginNum + p.pnlNum}
               profit={p.pnlNum}
-              autoCloseText={
-                p.leverageNum <= 1
-                  ? "None"
-                  : ac != null
-                    ? `≈ ${formatCents(ac)}`
-                    : isMobile
-                      ? "None"
-                      : "None at this balance"
-              }
+              autoCloseText={autoCloseDisplayFor(ac)}
+              autoCloseHot={ac != null && isAutoCloseHot(ac, p.markPriceNum)}
               compact={!!isMobile}
               cashOutDisabledText={inReview ? IN_REVIEW_HOLD_LINE : undefined}
               onCashOut={() => setCashOutId(p.id)}
