@@ -1,29 +1,30 @@
 ---
-name: Portfolio auto-close / if-wins column
-description: Rules for the AUTO-CLOSE / IF WINS column in Lite Portfolio live rows and cards.
+name: Auto-close field — two-state value grammar
+description: Auto-close is a permanent field across Lite Boost surfaces; its value has exactly two states (a price or None).
 type: feature
 ---
 
-# Portfolio auto-close / if-wins column
+# Auto-close field — two-state value grammar
 
-## Mobile card sentence
+The field is always rendered on Lite Boost surfaces. It never unmounts and never
+shows a transient placeholder. The value has exactly two states:
 
-- Standard / no auto-close: `If it wins you get $X`
-- Boost with auto-close price: `If it wins you get $X · auto-close ≈{c}¢`
-- Boost without auto-close price: `If it wins you get $X` (no suffix)
+- `≈{c}¢` — a solved level (`AutoCloseResult.kind === "level"`).
+- `None` — no level (`kind === "none"`): 1× position, cushioned account, or missing data.
 
-## Desktop row merged column
+`None at this balance` is retired site-wide.
 
-- Standard / no auto-close: `If it wins → $X`
-- Boost with auto-close price: `If it wins → $X · auto-close ≈{c}¢`
-- Boost without auto-close price: `If it wins → $X` (no suffix)
+## Solver (`src/lib/autoClosePrice.ts`)
 
-## Hot state
+- Side-aware: long levels sit BELOW the mark, short levels ABOVE it.
+- Account-level (cross-collateralised), never the isolated-margin helper.
+- Returns `AutoCloseResult`, never `null`.
+- `isAutoCloseHot(result, mark)` — true when within 10% of the mark.
 
-When the current price is within 10% of the auto-close level, the entire payout sentence turns red (`RED`).
+## Surface copy
 
-## Data guards
-
-- Only Boost rows (`segment === "boost"` and `leverageNum > 1`) are eligible for an auto-close suffix.
-- `autoCloseState === "none"` suppresses the suffix entirely.
-- `autoClosePrice == null` suppresses the suffix; do not render a placeholder such as `auto-close —`.
+- Order panel: `None · enter an amount` before an amount is typed; otherwise the two states.
+- Portfolio mobile card: `If it wins you get $X · auto-close ≈{c}¢` or `… · no auto-close, loss capped`.
+- Portfolio desktop row: `If it wins → $X · auto-close ≈{c}¢` or `… · no auto-close` with a tooltip.
+- Hot state turns the payout sentence / auto-close value red.
+- Standard (non-Boost) spot rows carry no auto-close field. Pro side unchanged.
