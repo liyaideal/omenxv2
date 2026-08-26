@@ -1022,6 +1022,7 @@ export type Database = {
           redeemed_side: string | null
           source_entry_id: string | null
           status: string
+          tiered_credited_at: string | null
           updated_at: string
           user_id: string
         }
@@ -1047,6 +1048,7 @@ export type Database = {
           redeemed_side?: string | null
           source_entry_id?: string | null
           status?: string
+          tiered_credited_at?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1072,6 +1074,7 @@ export type Database = {
           redeemed_side?: string | null
           source_entry_id?: string | null
           status?: string
+          tiered_credited_at?: string | null
           updated_at?: string
           user_id?: string
         }
