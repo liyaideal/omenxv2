@@ -274,13 +274,14 @@ export const useAirdropPositions = () => {
         if (!hasScanComplete) return storedAirdrops;
 
         const cached = queryClient.getQueryData<AirdropPosition[]>(queryKey);
-        const demoAirdrops = cached && cached.length > 0
+        const baseRows = cached && cached.length > 0
           ? cached.filter((a) => !storedIds.has(a.id) && a.source !== "voucher")
-          : (() => {
-              const stored = loadDemoAirdrops(user.id, email);
-              saveDemoAirdrops(user.id, stored);
-              return stored.filter((a) => !storedIds.has(a.id));
-            })();
+          : loadDemoAirdrops(user.id, email).filter((a) => !storedIds.has(a.id));
+
+        // Self-healing: templates and yesterday's snapshot both get re-pointed
+        // at live events, then persisted back to localStorage.
+        const demoAirdrops = await repointMocksToLiveEvents(baseRows);
+        saveDemoAirdrops(user.id, demoAirdrops);
 
         return [...storedAirdrops, ...demoAirdrops];
       }
