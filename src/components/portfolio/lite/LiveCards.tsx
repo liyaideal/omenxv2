@@ -58,7 +58,9 @@ export const LiveCard = ({
   const sentence =
     row.segment === "standard"
       ? winSentence(row)
-      : [winSentence(row), autoCloseSuffix(row)].filter(Boolean).join(" · ");
+      : row.autoClose.kind === "level"
+        ? `${winSentence(row)} · auto-close ≈${cents(row.autoClose.price)}`
+        : `${winSentence(row)} · no auto-close, loss capped`;
 
   return (
     <div
