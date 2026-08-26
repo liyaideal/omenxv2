@@ -93,23 +93,15 @@ export default function LiteRewardsPage() {
           {/* Desktop keeps the notice above the grid; mobile pushes it below the cards. */}
           {!isMobile && <PointsRetiredNotice />}
 
-          <H2eCampaignCard />
-
           {isLoading ? (
             <div className="grid gap-4 md:grid-cols-2">
               {[0, 1].map((i) => (
                 <div key={i} className="h-[300px] animate-pulse rounded-[14px] bg-[#0F1114]" />
               ))}
             </div>
-          ) : active.length === 0 ? (
-            <EmptyState
-              variant="module"
-              bordered={false}
-              title="No campaigns running"
-              description="New campaigns show up here as they go live."
-            />
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
+              <H2eCampaignCard />
               {active.map((v) => (
                 <CampaignCard key={v.campaign.id} view={v} signedOut={signedOut} />
               ))}
