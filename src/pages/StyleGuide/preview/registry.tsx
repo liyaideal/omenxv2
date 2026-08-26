@@ -78,11 +78,26 @@ export const previewRegistry: Record<string, Loader> = {
   "portfolio-lite-airdrop-tag-cards": pick(portfolio, "PortfolioAirdropTagCardsPreview"),
 
   /* -------- H2E campaign -------- */
-  "h2e-campaign-card": pick(h2e, "H2eCampaignCardPreview"),
-  "h2e-connected-accounts": pick(h2e, "H2eConnectedAccountsPreview"),
-  "h2e-airdropped-positions": pick(h2e, "H2eAirdroppedPositionsPreview"),
-  "h2e-rewards-card": pick(h2e, "H2eRewardsCardPreview"),
+  "h2e-card-s0": pick(h2e, "H2eCardS0Preview"),
+  "h2e-card-s1": pick(h2e, "H2eCardS1Preview"),
+  "h2e-card-s2-scanning": pick(h2e, "H2eCardS2ScanningPreview"),
+  "h2e-card-s2-plural": pick(h2e, "H2eCardS2PluralPreview"),
+  "h2e-card-s2-singular": pick(h2e, "H2eCardS2SingularPreview"),
+  "h2e-card-s2-none": pick(h2e, "H2eCardS2NonePreview"),
+  "h2e-card-s3": pick(h2e, "H2eCardS3Preview"),
+  "h2e-conn-disconnected": pick(h2e, "H2eConnectedDisconnectedPreview"),
+  "h2e-conn-linked": pick(h2e, "H2eConnectedLinkedPreview"),
+  "h2e-airdrops-all": pick(h2e, "H2eAirdropsAllStatesPreview"),
+  "h2e-airdrops-welcome": pick(h2e, "H2eAirdropsWelcomePreview"),
+  "h2e-airdrops-mobile": pick(h2e, "H2eAirdropsMobilePreview"),
+  "h2e-rewards-s1": pick(h2e, "H2eRewardsS1Preview"),
+  "h2e-rewards-s2": pick(h2e, "H2eRewardsS2Preview"),
+  "h2e-rewards-s2-scanning": pick(h2e, "H2eRewardsS2ScanningPreview"),
+  "h2e-rewards-s2-none": pick(h2e, "H2eRewardsS2NonePreview"),
+  "h2e-rewards-s3": pick(h2e, "H2eRewardsS3Preview"),
+  "h2e-rewards-s3-disconnected": pick(h2e, "H2eRewardsS3DisconnectedPreview"),
   "h2e-aside-signed-out": pick(h2e, "H2eAsideSignedOutPreview"),
+
 
   /* -------- Lite events -------- */
   "lite-events-loading": pick(liteEvents, "LiteEventsLoadingPreview"),

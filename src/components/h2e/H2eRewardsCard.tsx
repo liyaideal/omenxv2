@@ -44,23 +44,81 @@ const GuideNode = ({
   </div>
 );
 
+/** Presentation-only override used by /style-guide. Absent = zero behaviour change. */
+export type H2eRewardsCardFixture = {
+  stage: "S0" | "S1" | "S2" | "S3";
+  connected?: boolean;
+  scanning?: boolean;
+  positionsDetected?: number;
+  liveAirdropCount?: number;
+  totalEarned?: number;
+  earningsCap?: number;
+  creditedToWallet?: number;
+  stillLocked?: number;
+  totalVolume?: number;
+  unlockedPercent?: number;
+  nextTierPercent?: number;
+  nextTierVolume?: number;
+  isFullyUnlocked?: boolean;
+  settlements?: { name: string; trigger: "Event Resolved" | "Source Closed"; amount: number }[];
+};
+
 export const H2eRewardsCard = ({
   h2e,
   showUnlockToast = false,
+  fixture,
 }: {
   h2e: H2eRewardsSummary;
   showUnlockToast?: boolean;
+  fixture?: H2eRewardsCardFixture;
 }) => {
   const { user } = useAuth();
   const { activeAccounts } = useConnectedAccounts();
-  const stage = !user ? "S0" : h2e.totalEarned > 0 ? "S3" : activeAccounts.length > 0 ? "S2" : "S1";
-  const connected = activeAccounts.length > 0;
   const { airdrops } = useAirdropPositions();
-  const liveAirdropCount = airdrops.filter(
-    (a) => a.source !== "voucher" && (a.status === "pending" || a.status === "activated"),
-  ).length;
-  const acct = activeAccounts[0];
-  const scanning = activeAccounts.some((a) => a.scanStatus === "scanning");
+
+  const sm: H2eRewardsSummary = fixture
+    ? {
+        ...h2e,
+        totalEarned: fixture.totalEarned ?? h2e.totalEarned,
+        earningsCap: fixture.earningsCap ?? h2e.earningsCap,
+        earningsPercent: Math.min(
+          ((fixture.totalEarned ?? h2e.totalEarned) / (fixture.earningsCap ?? h2e.earningsCap)) * 100,
+          100,
+        ),
+        unlockedAmount: fixture.creditedToWallet ?? h2e.unlockedAmount,
+        lockedAmount: fixture.stillLocked ?? h2e.lockedAmount,
+        volumeCompleted: fixture.totalVolume ?? h2e.volumeCompleted,
+        unlockedPercent: fixture.unlockedPercent ?? h2e.unlockedPercent,
+        nextTierPercent: fixture.nextTierPercent ?? h2e.nextTierPercent,
+        nextTierVolume: fixture.nextTierVolume ?? h2e.nextTierVolume,
+        isFullyUnlocked: fixture.isFullyUnlocked ?? h2e.isFullyUnlocked,
+        volumeToNextTier: Math.max(
+          0,
+          (fixture.nextTierVolume ?? h2e.nextTierVolume ?? 0) - (fixture.totalVolume ?? h2e.volumeCompleted),
+        ),
+        settlements:
+          fixture.settlements?.map((x, i) => ({
+            id: `fixture-settlement-${i}`,
+            eventName: x.name,
+            pnl: x.amount,
+            trigger: x.trigger,
+            settledAt: new Date().toISOString(),
+          })) ?? h2e.settlements,
+      }
+    : h2e;
+
+  const liveStage = !user ? "S0" : sm.totalEarned > 0 ? "S3" : activeAccounts.length > 0 ? "S2" : "S1";
+  const stage = fixture?.stage ?? liveStage;
+  const connected = fixture ? !!fixture.connected : activeAccounts.length > 0;
+  const liveAirdropCount = fixture
+    ? (fixture.liveAirdropCount ?? 0)
+    : airdrops.filter((a) => a.source !== "voucher" && (a.status === "pending" || a.status === "activated"))
+        .length;
+  const liveAcct = activeAccounts[0];
+  const acct = fixture
+    ? { displayAddress: "0x742d...bD18", positionsDetected: fixture.positionsDetected ?? 0 }
+    : liveAcct;
+  const scanning = fixture ? !!fixture.scanning : activeAccounts.some((a) => a.scanStatus === "scanning");
 
   const shell = "rounded-[16px] border border-[#1D2026] bg-[#131519] p-4 md:p-[18px]";
 
@@ -137,11 +195,11 @@ export const H2eRewardsCard = ({
         <div className="flex items-center justify-between">
           <span className="text-[12px] text-[#9AA1AC]">Earned / Cap</span>
           <span className="font-display text-[12.5px] font-semibold tabular-nums text-[#F2F3F5]">
-            ${h2e.totalEarned.toFixed(2)} / ${h2e.earningsCap}
+            ${sm.totalEarned.toFixed(2)} / ${sm.earningsCap}
           </span>
         </div>
         <div className="h-[5px] w-full overflow-hidden rounded-[3px] bg-[#1A1D22]">
-          <div className="h-full rounded-[3px] bg-[#33D6FF]" style={{ width: `${h2e.earningsPercent}%` }} />
+          <div className="h-full rounded-[3px] bg-[#33D6FF]" style={{ width: `${sm.earningsPercent}%` }} />
         </div>
       </div>
 
@@ -150,7 +208,7 @@ export const H2eRewardsCard = ({
         <div className="flex items-center justify-between text-xs">
           <span className="text-muted-foreground">Withdrawal unlock progress</span>
           <span className="font-mono font-semibold">
-            ${Math.round(h2e.volumeCompleted).toLocaleString()} / ${Math.round(h2e.nextTierVolume ?? h2e.volumeRequired).toLocaleString()}
+            ${Math.round(sm.volumeCompleted).toLocaleString()} / ${Math.round(sm.nextTierVolume ?? sm.volumeRequired).toLocaleString()}
           </span>
         </div>
         <div className="hidden pt-3 sm:block">
@@ -158,12 +216,12 @@ export const H2eRewardsCard = ({
             <div className="absolute left-1 right-1 top-3 h-px bg-border/70" />
             <div
               className="absolute left-1 top-3 h-px bg-primary transition-all duration-500"
-              style={{ width: `${Math.min((h2e.volumeCompleted / h2e.volumeRequired) * 100, 100)}%` }}
+              style={{ width: `${Math.min((sm.volumeCompleted / sm.volumeRequired) * 100, 100)}%` }}
             />
             <div className="relative grid grid-cols-6 gap-3">
-              {h2e.unlockTiers.map((tier) => {
-                const isReached = h2e.volumeCompleted >= tier.volume;
-                const isNext = h2e.nextTierVolume === tier.volume;
+              {sm.unlockTiers.map((tier) => {
+                const isReached = sm.volumeCompleted >= tier.volume;
+                const isNext = sm.nextTierVolume === tier.volume;
                 const isStarter = tier.volume === 0;
 
                 return (
@@ -179,12 +237,12 @@ export const H2eRewardsCard = ({
                               : "border-border"
                       }`}
                     >
-                      {!isStarter && isReached && showUnlockToast && tier.percent === h2e.unlockedPercent && (
+                      {!isStarter && isReached && showUnlockToast && tier.percent === sm.unlockedPercent && (
                         <span className="absolute -inset-1 rounded-full border border-primary/60 animate-scale-in" />
                       )}
                     </span>
                     <span className={`mt-2 font-mono text-[11px] font-semibold ${isStarter ? "text-trading-green" : isReached || isNext ? "text-foreground" : "text-muted-foreground"}`}>
-                      {isStarter ? `+$${h2e.starterUnlock}` : `${tier.percent}%`}
+                      {isStarter ? `+$${sm.starterUnlock}` : `${tier.percent}%`}
                     </span>
                     <span className="font-mono text-[10px] text-muted-foreground">
                       {isStarter ? "Starter" : `$${(tier.volume / 1000).toFixed(0)}K`}
@@ -196,20 +254,20 @@ export const H2eRewardsCard = ({
           </div>
         </div>
         <div className="space-y-2 rounded-lg border border-[#1D2026] bg-[#0F1114] p-3 sm:hidden">
-          {!h2e.isFullyUnlocked && (
+          {!sm.isFullyUnlocked && (
             <div className="rounded-md border border-primary/20 bg-primary/10 px-3 py-2">
               <div className="text-[10px] uppercase text-muted-foreground">Next unlock</div>
               <div className="mt-0.5 flex items-center justify-between text-xs">
-                <span className="font-medium">{h2e.nextTierPercent}% at ${Math.round(h2e.nextTierVolume ?? h2e.volumeRequired).toLocaleString()}</span>
-                <span className="font-mono text-primary">${Math.round(h2e.volumeToNextTier).toLocaleString()} left</span>
+                <span className="font-medium">{sm.nextTierPercent}% at ${Math.round(sm.nextTierVolume ?? sm.volumeRequired).toLocaleString()}</span>
+                <span className="font-mono text-primary">${Math.round(sm.volumeToNextTier).toLocaleString()} left</span>
               </div>
             </div>
           )}
           <div className="space-y-0.5">
-            {h2e.unlockTiers.map((tier, index) => {
-              const isReached = h2e.volumeCompleted >= tier.volume;
-              const isNext = h2e.nextTierVolume === tier.volume;
-              const isLast = index === h2e.unlockTiers.length - 1;
+            {sm.unlockTiers.map((tier, index) => {
+              const isReached = sm.volumeCompleted >= tier.volume;
+              const isNext = sm.nextTierVolume === tier.volume;
+              const isLast = index === sm.unlockTiers.length - 1;
               const isStarter = tier.volume === 0;
 
               return (
@@ -226,14 +284,14 @@ export const H2eRewardsCard = ({
                             : "border-border"
                     }`}
                   >
-                    {!isStarter && isReached && showUnlockToast && tier.percent === h2e.unlockedPercent && (
+                    {!isStarter && isReached && showUnlockToast && tier.percent === sm.unlockedPercent && (
                       <span className="absolute -inset-1 rounded-full border border-primary/60 animate-scale-in" />
                     )}
                   </span>
                   <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
                     <div>
                       <div className={`text-xs font-medium ${isStarter ? "text-trading-green" : isReached || isNext ? "text-foreground" : "text-muted-foreground"}`}>
-                        {isStarter ? `Starter unlock +$${h2e.starterUnlock}` : `${tier.percent}% unlock`}
+                        {isStarter ? `Starter unlock +$${sm.starterUnlock}` : `${tier.percent}% unlock`}
                       </div>
                       <div className="font-mono text-[10px] text-muted-foreground">
                         {isStarter ? "Included — independent of this program" : `$${(tier.volume / 1000).toFixed(0)}K volume`}
@@ -250,26 +308,26 @@ export const H2eRewardsCard = ({
         </div>
         {showUnlockToast && (
           <div className="sm:hidden animate-fade-in rounded-lg border border-primary/30 bg-primary/10 px-2.5 py-2 text-[11px] font-medium text-primary">
-            已解锁{h2e.unlockedPercent}%
+            已解锁{sm.unlockedPercent}%
           </div>
         )}
-        {h2e.isFullyUnlocked ? (
+        {sm.isFullyUnlocked ? (
           <p className="text-[10px] text-trading-green">Fully unlocked — rewards are withdrawable</p>
         ) : (
           <p className="text-[10px] text-muted-foreground">
-            Trade ${Math.round(h2e.volumeToNextTier).toLocaleString()} more to unlock {h2e.nextTierPercent}%
+            Trade ${Math.round(sm.volumeToNextTier).toLocaleString()} more to unlock {sm.nextTierPercent}%
           </p>
         )}
         <p className="text-[10px] text-muted-foreground">
-          Current unlocked: {h2e.unlockedPercent}% · Full unlock at ${Math.round(h2e.volumeRequired).toLocaleString()}
+          Current unlocked: {sm.unlockedPercent}% · Full unlock at ${Math.round(sm.volumeRequired).toLocaleString()}
         </p>
       </div>
 
       {/* Recent settlements */}
-      {h2e.settlements.length > 0 && (
+      {sm.settlements.length > 0 && (
         <div className="space-y-2 pt-2 border-t border-border/30">
           <MicroLabel>Recent settlements</MicroLabel>
-          {h2e.settlements.slice(0, 3).map((s) => (
+          {sm.settlements.slice(0, 3).map((s) => (
             <div key={s.id} className="flex items-center justify-between text-xs">
               <div className="truncate max-w-[60%]">
                 <span className="text-foreground">{s.eventName}</span>

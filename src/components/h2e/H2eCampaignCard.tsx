@@ -5,6 +5,23 @@ import { useConnectedAccounts } from "@/hooks/useConnectedAccounts";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { useIsMobile } from "@/hooks/use-mobile";
 
+/**
+ * Optional presentation-only override used by /style-guide.
+ * When absent the component behaves exactly as before (hooks drive everything).
+ */
+export type H2eCampaignCardFixture = {
+  stage: "S0" | "S1" | "S2" | "S3";
+  scanning?: boolean;
+  positionsDetected?: number;
+  liveAirdropCount?: number;
+  totalEarned?: number;
+  earningsCap?: number;
+  unlockedPercent?: number;
+  nextTierPercent?: number;
+  nextTierVolume?: number;
+  isFullyUnlocked?: boolean;
+};
+
 const Step = ({ label, state }: { label: string; state: "done" | "active" | "todo" }) => (
   <span
     className="text-[11.5px]"
@@ -19,31 +36,47 @@ const Step = ({ label, state }: { label: string; state: "done" | "active" | "tod
 
 const Sep = () => <span className="text-[11.5px] text-[#3a4048]">→</span>;
 
-export const H2eCampaignCard = () => {
+export const H2eCampaignCard = ({ fixture }: { fixture?: H2eCampaignCardFixture }) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const h2e = useH2eRewardsSummary();
   const { activeAccounts } = useConnectedAccounts();
-  const stage = !user ? "S0" : h2e.totalEarned > 0 ? "S3" : activeAccounts.length > 0 ? "S2" : "S1";
-  const acct = activeAccounts[0];
-  const scanning = activeAccounts.some((a) => a.scanStatus === "scanning");
   const { airdrops } = useAirdropPositions();
-  const liveAirdropCount = airdrops.filter(
+
+  const liveStage = !user ? "S0" : h2e.totalEarned > 0 ? "S3" : activeAccounts.length > 0 ? "S2" : "S1";
+  const acct = activeAccounts[0];
+  const liveAirdropsAll = airdrops.filter(
     (a) => a.source !== "voucher" && (a.status === "pending" || a.status === "activated"),
   ).length;
-  const capPct = Math.min((h2e.totalEarned / h2e.earningsCap) * 100, 100);
+
+  const stage = fixture?.stage ?? liveStage;
+  const scanning = fixture ? !!fixture.scanning : activeAccounts.some((a) => a.scanStatus === "scanning");
+  const positionsDetected = fixture ? fixture.positionsDetected : acct?.positionsDetected;
+  const liveAirdropCount = fixture ? (fixture.liveAirdropCount ?? 0) : liveAirdropsAll;
+  const totalEarned = fixture?.totalEarned ?? h2e.totalEarned;
+  const earningsCap = fixture?.earningsCap ?? h2e.earningsCap;
+  const unlockedPercent = fixture?.unlockedPercent ?? h2e.unlockedPercent;
+  const nextTierPercent = fixture?.nextTierPercent ?? h2e.nextTierPercent;
+  const nextTierVolume = fixture ? fixture.nextTierVolume : h2e.nextTierVolume;
+  const isFullyUnlocked = fixture?.isFullyUnlocked ?? h2e.isFullyUnlocked;
+  const fallbackVolume = fixture ? (fixture.nextTierVolume ?? 0) : h2e.volumeRequired;
+
+  const capPct = Math.min((totalEarned / earningsCap) * 100, 100);
 
   const s2Meta = scanning
     ? "Scanning positions…"
     : liveAirdropCount > 0
-      ? `${acct?.positionsDetected} positions scanned · ${liveAirdropCount} ${liveAirdropCount === 1 ? "airdrop" : "airdrops"} active — earnings land when hedges settle.`
+      ? `${positionsDetected} positions scanned · ${liveAirdropCount} ${liveAirdropCount === 1 ? "airdrop" : "airdrops"} active — earnings land when hedges settle.`
       : "No qualifying positions yet — positions ≥ $20 held a day qualify.";
 
   return (
     <button
       type="button"
-      onClick={() => navigate("/rewards/campaign/h2e")}
+      onClick={() => {
+        if (fixture) return;
+        navigate("/rewards/campaign/h2e");
+      }}
       className="w-full overflow-hidden rounded-[14px] border border-[#1D2026] bg-[#0F1114] text-left transition-colors hover:border-[#2B2F38]"
     >
       <div
@@ -70,7 +103,7 @@ export const H2eCampaignCard = () => {
             <div className="flex items-center justify-between text-[12px]">
               <span className="text-[#9AA1AC]">Earned / Cap</span>
               <span className="font-display text-[12.5px] font-semibold tabular-nums text-[#F2F3F5]">
-                ${h2e.totalEarned.toFixed(2)} / ${h2e.earningsCap}
+                ${totalEarned.toFixed(2)} / ${earningsCap}
               </span>
             </div>
             <div className="h-[5px] w-full overflow-hidden rounded-[3px] bg-[#1A1D22]">
@@ -79,9 +112,9 @@ export const H2eCampaignCard = () => {
             <div className="flex items-center justify-between text-[12px]">
               <span className="text-[#9AA1AC]">Withdrawal unlock</span>
               <span className="font-display text-[12.5px] font-semibold tabular-nums text-[#33D6FF]">
-                {h2e.isFullyUnlocked
+                {isFullyUnlocked
                   ? "100% — fully unlocked"
-                  : `${h2e.unlockedPercent}% · next ${h2e.nextTierPercent}% at $${((h2e.nextTierVolume ?? h2e.volumeRequired) / 1000).toFixed(0)}K`}
+                  : `${unlockedPercent}% · next ${nextTierPercent}% at $${((nextTierVolume ?? fallbackVolume) / 1000).toFixed(0)}K`}
               </span>
             </div>
           </>
@@ -96,7 +129,7 @@ export const H2eCampaignCard = () => {
           </div>
         )}
         <div className="text-[12px] text-[#9AA1AC]">
-          Rewards up to <span className="font-display font-semibold tabular-nums text-[#33D6FF]">${h2e.earningsCap} USDC in airdrops</span>
+          Rewards up to <span className="font-display font-semibold tabular-nums text-[#33D6FF]">${earningsCap} USDC in airdrops</span>
         </div>
         <div className="text-[11px] text-[#6B7280]">
           {stage === "S0" && "Hedge Polymarket positions — settled losses return as USDC airdrops. Sign in to track yours."}

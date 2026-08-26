@@ -44,7 +44,15 @@ const PLATFORMS = [
   },
 ];
 
-export const ConnectedAccountsCard = () => {
+/** Presentation-only override used by /style-guide. Absent = zero behaviour change. */
+export type ConnectedAccountsFixture = {
+  connected: boolean;
+  address?: string;
+  positionsDetected?: number;
+  liveAirdropCount?: number;
+};
+
+export const ConnectedAccountsCard = ({ fixture }: { fixture?: ConnectedAccountsFixture }) => {
   const isMobile = useIsMobile();
   const { user } = useUserProfile();
   const {
@@ -61,9 +69,10 @@ export const ConnectedAccountsCard = () => {
   // positions module (pending + activated, H2E sources only). The per-account
   // `airdropsReceived` demo constant must never be displayed.
   const { airdrops } = useAirdropPositions();
-  const liveAirdropCount = airdrops.filter(
-    (a) => a.source !== "voucher" && (a.status === "pending" || a.status === "activated"),
-  ).length;
+  const liveAirdropCount = fixture
+    ? (fixture.liveAirdropCount ?? 0)
+    : airdrops.filter((a) => a.source !== "voucher" && (a.status === "pending" || a.status === "activated"))
+        .length;
 
 
   const [connectDialogOpen, setConnectDialogOpen] = useState(false);
@@ -81,6 +90,7 @@ export const ConnectedAccountsCard = () => {
   };
 
   const handleOpenConnect = (platformId: string) => {
+    if (fixture) return;
     // Signed-out guests never reach the connect modal — they get the same auth
     // surface as SignInPromptCard's "Log In" button on this page.
     if (!user) {
@@ -225,6 +235,7 @@ export const ConnectedAccountsCard = () => {
   };
 
   const handleDisconnect = async (accountId: string) => {
+    if (fixture) return;
     try {
       await disconnect(accountId);
       toast.success("Account disconnected");
@@ -234,8 +245,24 @@ export const ConnectedAccountsCard = () => {
   };
 
   // Find active account for each platform
-  const getAccountForPlatform = (platformId: string) =>
-    activeAccounts.find((a) => a.platform === platformId);
+  const getAccountForPlatform = (platformId: string) => {
+    if (fixture) {
+      if (!fixture.connected || platformId !== "polymarket") return undefined;
+      return {
+        id: "fixture-account",
+        platform: "polymarket",
+        walletAddress: fixture.address ?? "0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18",
+        displayAddress: fixture.address ?? "0x742d...bD18",
+        status: "active",
+        verifiedAt: null,
+        createdAt: new Date().toISOString(),
+        positionsDetected: fixture.positionsDetected ?? 0,
+        airdropsReceived: 0,
+        scanStatus: "complete" as const,
+      };
+    }
+    return activeAccounts.find((a) => a.platform === platformId);
+  };
 
   const addressDetected = isValidAddress(walletAddress);
   const isProcessingConnection = connectionStep === "signing" || connectionStep === "verifying";
@@ -439,7 +466,7 @@ export const ConnectedAccountsCard = () => {
                           <button
                             type="button"
                             onClick={() =>
-                              document
+                              fixture ? undefined : document
                                 .getElementById("airdropped-positions")
                                 ?.scrollIntoView({ behavior: "smooth", block: "start" })
                             }

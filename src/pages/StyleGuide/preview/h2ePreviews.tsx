@@ -1,13 +1,9 @@
 // ============================================================
-// H2E campaign previews — PRODUCTION components only.
+// H2E campaign previews — PRODUCTION components + optional fixture props.
 //
-// Honest limitation (recorded, not worked around): every H2E module reads its
-// stage from hooks (useAuth / useConnectedAccounts / useAirdropPositions) and
-// exposes no props for them. The preview iframe has no session, so the LIVE
-// render below is always the guest (S0) branch. Injecting S1/S2/S3 would mean
-// adding fixture props to shipped components — out of scope for an archive
-// round. Every non-S0 state is therefore documented in the case spec tables in
-// sections/pages/LiteH2ePage.tsx, which are the normative source.
+// Every state below is a REAL render of the shipped component; the fixture
+// prop is presentation-only (absent = production behaviour, unchanged).
+// Dates are always relative helpers, never frozen literals.
 // ============================================================
 import { H2eCampaignCard } from "@/components/h2e/H2eCampaignCard";
 import { ConnectedAccountsCard } from "@/components/h2e/ConnectedAccountsCard";
@@ -15,9 +11,12 @@ import { AirdroppedPositionsCard } from "@/components/h2e/AirdroppedPositionsCar
 import { H2eRewardsCard } from "@/components/h2e/H2eRewardsCard";
 import { SignInPromptCard } from "@/components/campaigns/SignInPromptCard";
 import type { H2eRewardsSummary } from "@/hooks/useH2eRewardsSummary";
+import type { AirdropPosition } from "@/hooks/useAirdropPositions";
 
 /** Fixture dates stay relative — never a frozen literal. */
-const day = 86_400_000;
+const hour = 3_600_000;
+const day = 24 * hour;
+const inHours = (h: number, m = 0) => new Date(Date.now() + h * hour + m * 60_000 + 30_000).toISOString();
 const inDays = (d: number) => new Date(Date.now() + d * day).toISOString();
 
 const TIERS = [
@@ -32,26 +31,23 @@ const TIERS = [
 /** Fake summary — no real account numbers ever land in the style guide. */
 export const h2eFixture = (over: Partial<H2eRewardsSummary> = {}): H2eRewardsSummary => ({
   frozenBalance: 11,
-  volumeCompleted: 12_400,
-  isUnlocked: true,
+  volumeCompleted: 5_653,
+  isUnlocked: false,
   isFullyUnlocked: false,
-  unlockedPercent: 10,
-  unlockedAmount: 1.1,
-  lockedAmount: 9.9,
-  nextTierVolume: 50_000,
-  nextTierPercent: 25,
-  volumeToNextTier: 37_600,
+  unlockedPercent: 0,
+  unlockedAmount: 0,
+  lockedAmount: 11,
+  nextTierVolume: 10_000,
+  nextTierPercent: 10,
+  volumeToNextTier: 4_347,
   unlockTiers: TIERS,
   starterUnlock: 5,
   totalEarned: 11,
   earningsCap: 100,
   volumeRequired: 400_000,
-  volumePercent: 3.1,
+  volumePercent: 1.4,
   earningsPercent: 11,
-  settlements: [
-    { id: "fx-1", eventName: "Fed cuts rates in June", pnl: 6.5, trigger: "EVENT_RESOLVED", settledAt: inDays(-2) },
-    { id: "fx-2", eventName: "Bitcoin above $70,000", pnl: 4.5, trigger: "AUTO_CLOSE", settledAt: inDays(-5) },
-  ],
+  settlements: [],
   ...over,
 });
 
@@ -59,42 +55,267 @@ const Frame = ({ children }: { children: React.ReactNode }) => (
   <div className="bg-background p-4">{children}</div>
 );
 
-const Nothing = ({ what }: { what: string }) => (
-  <div className="rounded-[12px] border border-dashed border-[#1D2026] p-4 text-[11px] text-[#6B7280]">
-    {what}
-  </div>
-);
-
-/* ------------------------- grid card ------------------------- */
-
-export const H2eCampaignCardPreview = () => (
+const Card = ({ children }: { children: React.ReactNode }) => (
   <Frame>
-    <div className="max-w-[420px]">
-      <H2eCampaignCard />
-    </div>
+    <div className="max-w-[420px]">{children}</div>
   </Frame>
 );
 
-/* ---------------------- detail modules ----------------------- */
+/* ------------------------- 01–07 · grid card ------------------------- */
 
-export const H2eConnectedAccountsPreview = () => (
+export const H2eCardS0Preview = () => (
+  <Card>
+    <H2eCampaignCard fixture={{ stage: "S0" }} />
+  </Card>
+);
+
+export const H2eCardS1Preview = () => (
+  <Card>
+    <H2eCampaignCard fixture={{ stage: "S1" }} />
+  </Card>
+);
+
+export const H2eCardS2ScanningPreview = () => (
+  <Card>
+    <H2eCampaignCard fixture={{ stage: "S2", scanning: true, positionsDetected: 3 }} />
+  </Card>
+);
+
+export const H2eCardS2PluralPreview = () => (
+  <Card>
+    <H2eCampaignCard fixture={{ stage: "S2", positionsDetected: 3, liveAirdropCount: 2 }} />
+  </Card>
+);
+
+export const H2eCardS2SingularPreview = () => (
+  <Card>
+    <H2eCampaignCard fixture={{ stage: "S2", positionsDetected: 3, liveAirdropCount: 1 }} />
+  </Card>
+);
+
+export const H2eCardS2NonePreview = () => (
+  <Card>
+    <H2eCampaignCard fixture={{ stage: "S2", positionsDetected: 0, liveAirdropCount: 0 }} />
+  </Card>
+);
+
+export const H2eCardS3Preview = () => (
+  <Card>
+    <H2eCampaignCard
+      fixture={{
+        stage: "S3",
+        totalEarned: 11,
+        earningsCap: 100,
+        unlockedPercent: 0,
+        nextTierPercent: 10,
+        nextTierVolume: 10_000,
+        isFullyUnlocked: false,
+      }}
+    />
+  </Card>
+);
+
+/* --------------------- 08–09 · connected accounts -------------------- */
+
+export const H2eConnectedDisconnectedPreview = () => (
   <Frame>
-    <ConnectedAccountsCard />
+    <ConnectedAccountsCard fixture={{ connected: false }} />
   </Frame>
 );
 
-export const H2eAirdroppedPositionsPreview = () => (
+export const H2eConnectedLinkedPreview = () => (
   <Frame>
-    <AirdroppedPositionsCard />
-    <Nothing what="↑ 生产组件已挂载。游客 / 未连接 / 扫描中 / 零行 时组件 return null —— 上方什么都不画，这就是渲染条件表的第一行。" />
+    <ConnectedAccountsCard
+      fixture={{ connected: true, address: "0x742d...bD18", positionsDetected: 3, liveAirdropCount: 2 }}
+    />
   </Frame>
 );
 
-export const H2eRewardsCardPreview = () => (
+/* -------------------- 10–12 · airdropped positions ------------------- */
+
+const matched = (
+  over: Partial<AirdropPosition> & Pick<AirdropPosition, "id" | "counterEventName">,
+): AirdropPosition => ({
+  source: "matched",
+  externalEventName: null,
+  externalSide: null,
+  externalPrice: null,
+  counterEventId: "fixture-event",
+  counterOptionLabel: "Yes",
+  counterSide: "long",
+  counterPrice: 0.5,
+  airdropValue: 10,
+  status: "pending",
+  expiresAt: inHours(47, 12),
+  activatedAt: null,
+  createdAt: inDays(-1),
+  ...over,
+});
+
+const AIRDROP_ROWS: AirdropPosition[] = [
+  matched({
+    id: "fx-fed",
+    counterEventName: "Fed Interest Rate Decision June 2026",
+    counterOptionLabel: "Hold Steady",
+    counterSide: "long",
+    counterPrice: 0.55,
+    externalEventName: "Fed rate cut in June 2026?",
+    externalSide: "Yes",
+    externalPrice: 0.45,
+    status: "pending",
+    expiresAt: inHours(47, 12),
+  }),
+  matched({
+    id: "fx-btc",
+    counterEventName: "BTC End of Q1 2026 Price",
+    counterOptionLabel: "Below $120,000",
+    counterSide: "short",
+    counterPrice: 0.38,
+    externalEventName: "Will Bitcoin reach $120k by March 2026?",
+    externalSide: "Yes",
+    externalPrice: 0.62,
+    status: "activated",
+    activatedAt: inHours(-6),
+  }),
+  matched({
+    id: "fx-eth",
+    counterEventName: "ETH Price Prediction April 2026",
+    counterOptionLabel: "Above $5,000",
+    counterSide: "long",
+    counterPrice: 0.28,
+    externalEventName: "ETH above $5,000 by April 2026?",
+    externalSide: "No",
+    externalPrice: 0.72,
+    status: "expired",
+    expiresAt: inHours(-3),
+  }),
+  matched({
+    id: "fx-cpi",
+    counterEventName: "US CPI Report March 2026",
+    counterOptionLabel: "Above 3.0%",
+    counterSide: "short",
+    counterPrice: 0.41,
+    externalEventName: "US CPI above 3% in March 2026?",
+    externalSide: "Yes",
+    externalPrice: 0.59,
+    status: "expired",
+    expiresAt: inHours(-20),
+  }),
+];
+
+const WELCOME_ROW: AirdropPosition = matched({
+  id: "fx-welcome",
+  source: "welcome_gift",
+  counterEventName: "ETH Price Prediction April 2026",
+  counterOptionLabel: "Above $5,000",
+  counterSide: "long",
+  counterPrice: 0.42,
+  externalEventName: null,
+  externalSide: null,
+  externalPrice: null,
+  status: "pending",
+  expiresAt: inHours(35, 40),
+});
+
+export const H2eAirdropsAllStatesPreview = () => (
   <Frame>
-    <H2eRewardsCard h2e={h2eFixture()} />
+    <AirdroppedPositionsCard fixture={{ rows: AIRDROP_ROWS }} />
   </Frame>
 );
+
+export const H2eAirdropsWelcomePreview = () => (
+  <Frame>
+    <AirdroppedPositionsCard fixture={{ rows: [WELCOME_ROW] }} />
+  </Frame>
+);
+
+export const H2eAirdropsMobilePreview = () => (
+  <Frame>
+    <AirdroppedPositionsCard fixture={{ rows: [AIRDROP_ROWS[0], AIRDROP_ROWS[1], AIRDROP_ROWS[2]] }} />
+  </Frame>
+);
+
+/* ----------------------- 13–18 · progress card ----------------------- */
+
+const SETTLEMENTS = [
+  { name: "ETH above $5,000 by April", trigger: "Event Resolved" as const, amount: 6.2 },
+  { name: "Fed rate decision — hold steady", trigger: "Source Closed" as const, amount: 4.8 },
+];
+
+export const H2eRewardsS1Preview = () => (
+  <Frame>
+    <H2eRewardsCard h2e={h2eFixture()} fixture={{ stage: "S1" }} />
+  </Frame>
+);
+
+export const H2eRewardsS2Preview = () => (
+  <Frame>
+    <H2eRewardsCard
+      h2e={h2eFixture()}
+      fixture={{ stage: "S2", connected: true, positionsDetected: 3, liveAirdropCount: 2 }}
+    />
+  </Frame>
+);
+
+export const H2eRewardsS2ScanningPreview = () => (
+  <Frame>
+    <H2eRewardsCard
+      h2e={h2eFixture()}
+      fixture={{ stage: "S2", connected: true, scanning: true, positionsDetected: 3 }}
+    />
+  </Frame>
+);
+
+export const H2eRewardsS2NonePreview = () => (
+  <Frame>
+    <H2eRewardsCard
+      h2e={h2eFixture()}
+      fixture={{ stage: "S2", connected: true, positionsDetected: 0, liveAirdropCount: 0 }}
+    />
+  </Frame>
+);
+
+export const H2eRewardsS3Preview = () => (
+  <Frame>
+    <H2eRewardsCard
+      h2e={h2eFixture()}
+      fixture={{
+        stage: "S3",
+        connected: true,
+        liveAirdropCount: 2,
+        totalEarned: 11,
+        earningsCap: 100,
+        totalVolume: 5_653,
+        unlockedPercent: 0,
+        nextTierPercent: 10,
+        nextTierVolume: 10_000,
+        settlements: SETTLEMENTS,
+      }}
+    />
+  </Frame>
+);
+
+export const H2eRewardsS3DisconnectedPreview = () => (
+  <Frame>
+    <H2eRewardsCard
+      h2e={h2eFixture()}
+      fixture={{
+        stage: "S3",
+        connected: false,
+        liveAirdropCount: 0,
+        totalEarned: 11,
+        earningsCap: 100,
+        totalVolume: 5_653,
+        unlockedPercent: 0,
+        nextTierPercent: 10,
+        nextTierVolume: 10_000,
+        settlements: SETTLEMENTS,
+      }}
+    />
+  </Frame>
+);
+
+/* --------------------------- aside (guest) --------------------------- */
 
 export const H2eAsideSignedOutPreview = () => (
   <Frame>
