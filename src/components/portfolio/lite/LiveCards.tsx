@@ -164,16 +164,8 @@ export const LiveRow = ({
 }) => {
   const goToMarket = useGoToMarket();
   const hot = row.hot;
-  const autoCloseSecondLine = (row: LiteLiveRow): string | null => {
-    if (row.segment !== "boost" || row.leverageNum <= 1) return null;
-    if (row.autoCloseState === "none") return null;
-    if (row.autoClosePrice == null) return null;
-    return `· auto-close ≈${cents(row.autoClosePrice)}`;
-  };
-  const mergedCol = [
-    `If it wins → ${money(row.ifWins)}`,
-    autoCloseSecondLine(row),
-  ].filter(Boolean).join(" ");
+
+
 
   return (
     <div
