@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.roll_demo_positions() FROM PUBLIC, anon, authenticated;
