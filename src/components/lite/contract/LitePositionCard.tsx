@@ -33,6 +33,8 @@ export const LitePositionCard = ({
   nowWorth,
   profit,
   autoCloseText,
+  autoCloseSub,
+  autoCloseHot = false,
   compact = false,
   cashOutDisabledText,
   onCashOut,
@@ -59,6 +61,8 @@ export const LitePositionCard = ({
       <PosCell
         label={compact ? "Auto-close" : "Est. auto-close"}
         value={autoCloseText}
+        sub={autoCloseSub}
+        tone={autoCloseHot ? "down" : undefined}
       />
     </div>
     <div className="mt-3 border-t border-border pt-3">
@@ -91,10 +95,12 @@ const PosCell = ({
   label,
   value,
   tone,
+  sub,
 }: {
   label: string;
   value: string;
   tone?: "up" | "down";
+  sub?: string;
 }) => (
   <div>
     <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
@@ -110,6 +116,7 @@ const PosCell = ({
     >
       {value}
     </div>
+    {sub && <div className="text-[10px] text-muted-foreground">{sub}</div>}
   </div>
 );
 
