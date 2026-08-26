@@ -21,6 +21,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import { executeTrade } from "@/services/tradingService";
 import { estimateAutoClosePrice, formatCents } from "@/lib/autoClosePrice";
+
 import { LiteBoostSelector } from "./LiteBoostSelector";
 import {
   Tooltip,
@@ -169,6 +170,8 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
     () =>
       estimateAutoClosePrice({
         entryPrice: sidePrice,
+        side: noAsSell && side === "no" ? "short" : "long",
+        markPrice: sidePrice,
         boost: effBoost,
         amount: amountNum,
         fee,
@@ -190,6 +193,8 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
       isPartialNet
         ? estimateAutoClosePrice({
             entryPrice: sidePrice,
+            side: noAsSell && side === "no" ? "short" : "long",
+            markPrice: sidePrice,
             boost: effBoost,
             amount: remainderMarginEst,
             fee: remainderFee,
@@ -324,12 +329,10 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   // "cushioned", not "unknown", so we say so instead of unmounting the row.
   const autoCloseText =
     amountNum <= 0
-      ? "—"
-      : effBoost <= 1
-        ? "None"
-        : autoClose != null
-          ? `≈ ${formatCents(autoClose)}`
-          : "None at this balance";
+      ? "None · enter an amount"
+      : autoClose.kind === "level"
+        ? `≈ ${formatCents(autoClose.price)}`
+        : "None";
 
   const nettingNotice =
     isNetting
@@ -485,11 +488,9 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
                     Est. auto-close (new position)
                   </span>
                   <span className="font-mono font-semibold text-muted-foreground">
-                    {effBoost <= 1
-                      ? "None"
-                      : remainderAutoClose != null
-                        ? `≈ ${formatCents(remainderAutoClose)}`
-                        : "None at this balance"}
+                    {remainderAutoClose != null && remainderAutoClose.kind === "level"
+                      ? `≈ ${formatCents(remainderAutoClose.price)}`
+                      : "None"}
                   </span>
                 </div>
               </>
