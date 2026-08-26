@@ -44,10 +44,8 @@ export interface LiteLiveRow {
   sizeNum: number;
   /** Payout if this leg wins (shares × $1). */
   ifWins: number;
-  /** Estimated account-level auto-close price (Boost only, >1×). */
-  autoClosePrice: number | null;
-  /** Whether an auto-close level exists, is absent, or data is missing. */
-  autoCloseState: "level" | "none" | "missing";
+  /** Account-level auto-close for Boost rows — two-state grammar: a price or none. */
+  autoClose: AutoCloseResult;
   /** Price is within 10% of the auto-close price. */
   hot: boolean;
   tradePath: string;
