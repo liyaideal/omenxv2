@@ -64,8 +64,12 @@ export const useH2eRewardsSummary = (): H2eRewardsSummary => {
   const { user } = useUserProfile();
   const { settledAirdrops } = useAirdropPositions();
 
+  // H2E cap counts matched + welcome_gift airdrops only — voucher earnings
+  // live in their own pool and must never leak into this program.
+  const h2eAirdrops = settledAirdrops.filter((a) => a.source !== "voucher");
+
   // In demo mode, compute from settled airdrops
-  const totalEarned = settledAirdrops.reduce((sum, a) => {
+  const totalEarned = h2eAirdrops.reduce((sum, a) => {
     const pnl = a.settledPnl ?? 0;
     return sum + (pnl > 0 ? pnl : 0);
   }, 0);
@@ -99,7 +103,7 @@ export const useH2eRewardsSummary = (): H2eRewardsSummary => {
   const isFullyUnlocked = unlockedPercent >= 100;
   const isUnlocked = unlockedPercent > 0;
 
-  const settlements = settledAirdrops
+  const settlements = h2eAirdrops
     .filter((a) => a.settledAt)
     .map((a) => ({
       id: a.id,

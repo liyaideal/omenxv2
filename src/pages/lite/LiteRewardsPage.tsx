@@ -10,7 +10,6 @@ import { SignInPromptCard } from "@/components/campaigns/SignInPromptCard";
 import { EndedCampaignsArchive } from "@/components/campaigns/EndedCampaignsArchive";
 import { useCampaignViews } from "@/hooks/useCampaigns";
 import { useAuth } from "@/hooks/useAuth";
-import { EmptyState } from "@/components/states";
 import { VouchersBody } from "@/components/vouchers/VouchersBody";
 import { PointsRetiredNotice } from "@/components/campaigns/PointsRetiredNotice";
 import { RewardsFinePrint } from "@/components/campaigns/RewardsFinePrint";

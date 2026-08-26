@@ -80,7 +80,7 @@ export default function H2eCampaignDetailPage() {
         <div className="flex flex-col gap-[10px]">
           <h1 className="font-display text-[22px] font-bold leading-[28px] text-[#F2F3F5]">Hedge Airdrop Rewards</h1>
           <div className="font-display text-[12px] leading-[16px] tabular-nums text-[#9AA1AC]">
-            Always valid · Official OmenX platform program
+            Always valid
           </div>
           <div className="flex flex-wrap items-center gap-2">{heroChip("6px 12px", "12px")}</div>
         </div>
@@ -102,7 +102,7 @@ export default function H2eCampaignDetailPage() {
         <div className="mx-auto flex w-full max-w-[1248px] flex-col gap-[12px]">
           <h1 className="font-display text-[36px] font-bold leading-tight text-[#F2F3F5]">Hedge Airdrop Rewards</h1>
           <div className="font-display text-[12.5px] tabular-nums text-[#C9CED6]">
-            Always valid · Official OmenX platform program
+            Always valid
           </div>
           <div className="flex flex-wrap items-center gap-2">{heroChip("7px 13px", "12.5px")}</div>
         </div>
