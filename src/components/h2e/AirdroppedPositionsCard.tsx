@@ -32,7 +32,10 @@ const sourceLine = (a: AirdropPosition): string | null => {
   return null;
 };
 
-export const AirdroppedPositionsCard = () => {
+/** Presentation-only override used by /style-guide. Absent = zero behaviour change. */
+export type AirdroppedPositionsFixture = { rows: AirdropPosition[] };
+
+export const AirdroppedPositionsCard = ({ fixture }: { fixture?: AirdroppedPositionsFixture }) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { user } = useUserProfile();
@@ -46,17 +49,18 @@ export const AirdroppedPositionsCard = () => {
   // pending → activated → expired；settled 与 voucher 永不出现在本模块
   const rows = useMemo(() => {
     const order: Record<string, number> = { pending: 0, activated: 1, expired: 2 };
-    return airdrops
+    return (fixture?.rows ?? airdrops)
       .filter((a) => a.source !== "voucher")
       .filter((a) => a.status === "pending" || a.status === "activated" || a.status === "expired")
       .sort((a, b) => (order[a.status] ?? 3) - (order[b.status] ?? 3));
-  }, [airdrops]);
+  }, [airdrops, fixture]);
 
   // 徽标只数 pending + activated（与 Connected accounts 行 "Airdrops: n" 同口径）
   const activeCount = rows.filter((r) => r.status !== "expired").length;
 
-  // S0 游客 / S1 未绑定 / 扫描中 / 零行 → 不渲染
-  if (!user || activeAccounts.length === 0 || !hasScanComplete || rows.length === 0) return null;
+  // S0 游客 / S1 未绑定 / 扫描中 / 零行 → 不渲染（fixture 模式跳过全部守卫）
+  if (!fixture && (!user || activeAccounts.length === 0 || !hasScanComplete || rows.length === 0)) return null;
+
 
   const livePnl = (a: AirdropPosition): number => {
     const qty = Math.max(1, Math.round(a.airdropValue / Math.max(a.counterPrice, 0.0001)));
@@ -73,6 +77,7 @@ export const AirdroppedPositionsCard = () => {
   };
 
   const handleActivate = async (id: string) => {
+    if (fixture) return;
     setBusyId(id);
     try {
       await activateAirdrop(id);
@@ -145,7 +150,10 @@ export const AirdroppedPositionsCard = () => {
               </span>
               <button
                 type="button"
-                onClick={() => navigate("/portfolio")}
+                onClick={() => {
+                  if (fixture) return;
+                  navigate("/portfolio");
+                }}
                 className="font-display text-[11.5px] font-semibold text-[#33D6FF] hover:underline"
               >
                 View in portfolio ›
