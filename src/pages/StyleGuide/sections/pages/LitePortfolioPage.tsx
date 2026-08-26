@@ -241,6 +241,18 @@ const PORTFOLIO_MOBILE_CASES: SectionCase[] = [
       },
     ],
   },
+  {
+    key: "portfolio-lite-airdrop-tag-cards",
+    label: "Live 行标枚举 · 移动 LiveCard（none / Voucher / Airdrop）",
+    note: "行标枚举 airdropTag：来源标只有三种取值，matched 与 welcome_gift 两种空投来源共用同一个 pulse `Airdrop` 标，不再细分来源。示例三行依次为 none / voucher / airdrop。",
+    spec: [
+      { state: "无标", when: "airdropTag === 'none'", visual: "meta 行尾不追加任何来源标（不画占位）", source: "useLitePortfolio.airdropTag" },
+      { state: "Voucher 标", when: "airdropTag === 'voucher'（airdropSource === 'voucher'）", visual: "meta 行尾 volt #CFFF4A 文案 `Voucher`", source: "LiveCards VOLT" },
+      { state: "Airdrop 标", when: "airdropTag === 'airdrop'（airdropSource ∈ {matched, welcome_gift}）", visual: "meta 行尾 pulse #33D6FF 文案 `Airdrop`", source: "LiveCards PULSE" },
+      { state: "待激活空投", when: "airdrop.status === 'pending'", visual: "不进 portfolio —— 仍住 /rewards/campaign/h2e 的 Airdropped positions 模块；激活开仓后才作为 airdropTag='airdrop' 的 Live 行出现", source: "DESIGN §运营工具仓位归属" },
+    ],
+  },
+
 ];
 
 const PORTFOLIO_DESKTOP_CASES: SectionCase[] = [
@@ -379,6 +391,18 @@ export const LitePortfolioPage = ({ isMobile }: P) => (
     id="lite-portfolio"
     title="Portfolio"
     route="/portfolio · /portfolio?tab=settled · /portfolio/settlement/:id"
+  {
+    key: "portfolio-lite-airdrop-tag-rows",
+    label: "Live 行标枚举 · 桌面 LiveRow（none / Voucher / Airdrop）",
+    note: "行标枚举 airdropTag：来源标只有三种取值，matched 与 welcome_gift 两种空投来源共用同一个 pulse `Airdrop` 标，不再细分来源。示例三行依次为 none / voucher / airdrop。",
+    spec: [
+      { state: "无标", when: "airdropTag === 'none'", visual: "meta 行尾不追加任何来源标（不画占位）", source: "useLitePortfolio.airdropTag" },
+      { state: "Voucher 标", when: "airdropTag === 'voucher'（airdropSource === 'voucher'）", visual: "meta 行尾 volt #CFFF4A 文案 `Voucher`", source: "LiveCards VOLT" },
+      { state: "Airdrop 标", when: "airdropTag === 'airdrop'（airdropSource ∈ {matched, welcome_gift}）", visual: "meta 行尾 pulse #33D6FF 文案 `Airdrop`", source: "LiveCards PULSE" },
+      { state: "待激活空投", when: "airdrop.status === 'pending'", visual: "不进 portfolio —— 仍住 /rewards/campaign/h2e 的 Airdropped positions 模块；激活开仓后才作为 airdropTag='airdrop' 的 Live 行出现", source: "DESIGN §运营工具仓位归属" },
+    ],
+  },
+
     status="done"
     note="2026-08-19 改版：Live / Settled 两 tab（Rewards 开场 tab 制式），KPI 卡、voucher 发丝行、Boost/Standard 双段 chips、Boost check 仪表、持仓卡 / 桌面行式网格、结算月份分组与系列聚合行。以下全部挂载生产组件（fixture 数据驱动状态），非手抄。"
   >
