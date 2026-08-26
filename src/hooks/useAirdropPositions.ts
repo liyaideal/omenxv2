@@ -37,7 +37,10 @@ export interface AirdropPosition {
 const QUERY_KEY = ["airdrop-positions"];
 const DEMO_AIRDROPS_STORAGE_KEY_PREFIX = "omenx-demo-airdrop-positions:";
 
-// Mock data for the "Matched user" demo account — all matched, no welcome_gift
+// Mock data for the "Matched user" demo account — all matched, no welcome_gift.
+// NOTE: presentation-only demo rows. Never include a `settled` row here —
+// settled earnings must come from stored (Supabase-seeded) rows only, or they
+// would pollute real H2E accounting (the $17.50 bug).
 const MOCK_AIRDROPS_MATCHED: AirdropPosition[] = [
   {
     id: "mock-airdrop-1",
@@ -89,26 +92,6 @@ const MOCK_AIRDROPS_MATCHED: AirdropPosition[] = [
     expiresAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     activatedAt: null,
     createdAt: new Date(Date.now() - 96 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "mock-airdrop-4",
-    source: "matched",
-    externalEventName: "SOL above $300 by May 2026?",
-    externalSide: "Yes",
-    externalPrice: 0.55,
-    counterEventName: "SOL Price Prediction May 2026",
-    counterEventId: "sol-300-2026",
-    counterOptionLabel: "Below $300",
-    counterSide: "short",
-    counterPrice: 0.45,
-    airdropValue: 10,
-    status: "settled",
-    expiresAt: new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString(),
-    activatedAt: new Date(Date.now() - 120 * 60 * 60 * 1000).toISOString(),
-    createdAt: new Date(Date.now() - 168 * 60 * 60 * 1000).toISOString(),
-    settlementTrigger: "event_resolved",
-    settledPnl: 6.50,
-    settledAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
   },
 ];
 

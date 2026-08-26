@@ -9,6 +9,7 @@ import { SignInPromptCard } from "@/components/campaigns/SignInPromptCard";
 import { RewardsFinePrint } from "@/components/campaigns/RewardsFinePrint";
 import { CampaignRulesDisclosure } from "@/components/campaigns/CampaignRulesDisclosure";
 import { ConnectedAccountsCard } from "@/components/h2e/ConnectedAccountsCard";
+import { AirdroppedPositionsCard } from "@/components/h2e/AirdroppedPositionsCard";
 import { H2eRewardsCard } from "@/components/h2e/H2eRewardsCard";
 import { useAuth } from "@/hooks/useAuth";
 import { useH2eRewardsSummary } from "@/hooks/useH2eRewardsSummary";
@@ -189,6 +190,7 @@ export default function H2eCampaignDetailPage() {
   const leftColumn = (
     <>
       <ConnectedAccountsCard />
+      <AirdroppedPositionsCard />
       <H2eRewardsCard h2e={h2e} />
       <CampaignRulesDisclosure heading="Campaign rules" paragraphs={H2E_RULES} />
     </>

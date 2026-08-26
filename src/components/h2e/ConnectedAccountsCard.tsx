@@ -426,7 +426,17 @@ export const ConnectedAccountsCard = () => {
                       ) : (
                         <div className="flex items-center gap-3 text-xs text-muted-foreground">
                           <span>Positions: <span className="text-foreground font-medium">{account.positionsDetected}</span></span>
-                          <span>Airdrops: <span className="text-trading-green font-medium">{account.airdropsReceived}</span></span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              document
+                                .getElementById("airdropped-positions")
+                                ?.scrollIntoView({ behavior: "smooth", block: "start" })
+                            }
+                            className="hover:underline"
+                          >
+                            Airdrops: <span className="text-trading-green font-medium">{account.airdropsReceived}</span>
+                          </button>
                         </div>
                       )}
                     </div>

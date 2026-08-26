@@ -66,7 +66,11 @@ export const useH2eRewardsSummary = (): H2eRewardsSummary => {
 
   // H2E cap counts matched + welcome_gift airdrops only — voucher earnings
   // live in their own pool and must never leak into this program.
-  const h2eAirdrops = settledAirdrops.filter((a) => a.source !== "voucher");
+  // Demo mock rows (id "mock-…") are presentation-only and never count either:
+  // real settled earnings always come from stored (Supabase-seeded) rows.
+  const h2eAirdrops = settledAirdrops.filter(
+    (a) => a.source !== "voucher" && !a.id.startsWith("mock-"),
+  );
 
   // In demo mode, compute from settled airdrops
   const totalEarned = h2eAirdrops.reduce((sum, a) => {
