@@ -105,6 +105,12 @@ positives. Chip words come from the sibling event's `side_labels`.
 | **None · enter an amount** | Auto-close value in the order panel before an amount is typed | `—` |
 | **auto-close none** | Desktop portfolio row suffix for a Boost row with no level; `none` is inline lowercase and the tooltip reads `No auto-close within this market's price range — your loss is capped at what you put in.` | `no auto-close`, `auto-close —` |
 | **no auto-close, loss capped** | Mobile portfolio card suffix for a Boost row with no level | — |
+| **≈ {c}¢** | Auto-close value, level state on the trade surfaces (order panel row + position card). The `≈` is never dropped | `{c}¢`, `= {c}¢` |
+| **None · loss capped** | Auto-close value, none state in the order panel (and the `Est. auto-close (new position)` partial-net row) | `None at this balance` (retired) |
+| **Loss capped at your stake** | Sub-line under a `None` value on the trade-page position card | — |
+| **Close to current price** / **close to entry** | Hot adverb (|mark − level| / mark ≤ 10%) — position-card sub-line / order-panel suffix, both rendered red | `near liquidation`, `close to liq` |
+| **Moves with your other positions** | Permanent helper line beside `Est. auto-close ⓘ`; renders with the field, never conditionally | — |
+| ~~None at this balance~~ | RETIRED site-wide — never reintroduce | — |
 
 ---
 
