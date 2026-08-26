@@ -14,6 +14,10 @@ interface Props {
   nowWorth: number;
   profit: number;
   autoCloseText: string;
+  /** Optional sub-line under the auto-close value. */
+  autoCloseSub?: string;
+  /** Price is within 10% of the auto-close level — render the value in red. */
+  autoCloseHot?: boolean;
   compact?: boolean;
   /** When set, the Cash out button is disabled and shows this note instead. */
   cashOutDisabledText?: string;
