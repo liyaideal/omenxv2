@@ -15,7 +15,7 @@ import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import { usePositionVouchers } from "@/hooks/usePositionVouchers";
 import { getCategoryInfo } from "@/lib/categoryUtils";
 import { legSideLabel, liteSideName, boostSuffix, optionSideWord } from "@/lib/liteSideName";
-import { estimateAutoClosePrice } from "@/lib/autoClosePrice";
+import { estimateAutoClosePrice, isAutoCloseHot, type AutoCloseResult } from "@/lib/autoClosePrice";
 import { monthGroupLabel, monthKey, settledDayLabel } from "@/lib/settleLabel";
 import type { SeriesDetailVM, SeriesRoundVM } from "@/components/portfolio/lite/SeriesDetailView";
 import { liteTradePath } from "@/lib/liteTradePath";
