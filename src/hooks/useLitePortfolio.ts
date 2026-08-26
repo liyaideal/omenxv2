@@ -38,6 +38,8 @@ export interface LiteLiveRow {
   profit: number;
   leverageNum: number;
   isVoucher: boolean;
+  /** Row tag: "voucher" → Voucher (volt), matched/welcome_gift → "airdrop" → Airdrop (pulse), else "none". */
+  airdropTag: "none" | "voucher" | "airdrop";
   segment: LiteSegment;
   sizeNum: number;
   /** Payout if this leg wins (shares × $1). */
@@ -183,6 +185,12 @@ export const useLitePortfolio = () => {
         profit,
         leverageNum: p.leverageNum,
         isVoucher: p.airdropSource === "voucher",
+        airdropTag:
+          p.airdropSource === "voucher"
+            ? "voucher"
+            : p.airdropSource === "matched" || p.airdropSource === "welcome_gift"
+              ? "airdrop"
+              : "none",
         segment,
         sizeNum: p.sizeNum,
         ifWins: p.sizeNum,

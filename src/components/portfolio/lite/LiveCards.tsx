@@ -26,6 +26,8 @@ const useGoToMarket = () => {
   };
 };
 
+const PULSE = "#33D6FF";
+
 const cents = (p: number) => `${Math.round(p * 100)}¢`;
 
 const chipText = (row: LiteLiveRow) => `${row.sideWord} ${cents(row.priceNow)}`;
@@ -88,10 +90,12 @@ export const LiveCard = ({
 
       <div className="mt-1 text-[11.5px] text-[#6B7280]">
         {metaLine(row).join(" · ")}
-        {row.isVoucher && (
+        {row.airdropTag !== "none" && (
           <>
             {" · "}
-            <span style={{ color: VOLT }}>Voucher</span>
+            <span style={{ color: row.airdropTag === "voucher" ? VOLT : PULSE }}>
+              {row.airdropTag === "voucher" ? "Voucher" : "Airdrop"}
+            </span>
           </>
         )}
       </div>
@@ -193,10 +197,12 @@ export const LiveRow = ({
         <div className="truncate text-[13.5px] font-semibold text-[#F2F3F5]">{row.eventName}</div>
         <div className="truncate text-[11px] text-[#6B7280]">
           {metaLine(row).join(" · ")}
-          {row.isVoucher && (
+          {row.airdropTag !== "none" && (
             <>
               {" · "}
-              <span style={{ color: VOLT }}>Voucher</span>
+              <span style={{ color: row.airdropTag === "voucher" ? VOLT : PULSE }}>
+                {row.airdropTag === "voucher" ? "Voucher" : "Airdrop"}
+              </span>
             </>
           )}
         </div>
