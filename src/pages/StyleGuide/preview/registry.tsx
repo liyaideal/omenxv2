@@ -29,6 +29,7 @@ const settlements = () => import("./settlementPreviews");
 const rewards = () => import("./rewardsPreviews");
 const funding = () => import("./fundingPreviews");
 const walletLite = () => import("./walletLitePreviews");
+const h2e = () => import("./h2ePreviews");
 
 export const previewRegistry: Record<string, Loader> = {
   /* -------- Mobile header system -------- */
@@ -72,6 +73,16 @@ export const previewRegistry: Record<string, Loader> = {
   "portfolio-lite-series-detail": pick(portfolio, "SettlementSeriesDetailPreview"),
   "portfolio-lite-series-extremes": pick(portfolio, "SettlementSeriesExtremesPreview"),
   "portfolio-lite-series-mobile-page": pick(portfolio, "SeriesMobilePagePreview"),
+
+  "portfolio-lite-airdrop-tag-rows": pick(portfolio, "PortfolioAirdropTagRowsPreview"),
+  "portfolio-lite-airdrop-tag-cards": pick(portfolio, "PortfolioAirdropTagCardsPreview"),
+
+  /* -------- H2E campaign -------- */
+  "h2e-campaign-card": pick(h2e, "H2eCampaignCardPreview"),
+  "h2e-connected-accounts": pick(h2e, "H2eConnectedAccountsPreview"),
+  "h2e-airdropped-positions": pick(h2e, "H2eAirdroppedPositionsPreview"),
+  "h2e-rewards-card": pick(h2e, "H2eRewardsCardPreview"),
+  "h2e-aside-signed-out": pick(h2e, "H2eAsideSignedOutPreview"),
 
   /* -------- Lite events -------- */
   "lite-events-loading": pick(liteEvents, "LiteEventsLoadingPreview"),
