@@ -381,16 +381,6 @@ const PORTFOLIO_DESKTOP_CASES: SectionCase[] = [
       { state: "非日轮", when: "isDailyRounds === false", visual: "轮次文案改为按日期而非 Day n；segmentLabel 显示 Boost", source: "isDailyRounds" },
     ],
   },
-];
-
-const READ_ME =
-  "怎么读这一节：所有状态都由 useLitePortfolio 派生的字段驱动（segment / isVoucher / autoCloseState / hot / closeReason / isSeries / isZeroMoney）。每个 case 下方的表给出「触发条件 → 视觉结果 → 字段来源」，条件都是可判定表达式，可直接照抄进实现；表里没有列出的组合视为不存在，不要自行发挥。";
-
-export const LitePortfolioPage = ({ isMobile }: P) => (
-  <LitePage
-    id="lite-portfolio"
-    title="Portfolio"
-    route="/portfolio · /portfolio?tab=settled · /portfolio/settlement/:id"
   {
     key: "portfolio-lite-airdrop-tag-rows",
     label: "Live 行标枚举 · 桌面 LiveRow（none / Voucher / Airdrop）",
@@ -402,6 +392,16 @@ export const LitePortfolioPage = ({ isMobile }: P) => (
       { state: "待激活空投", when: "airdrop.status === 'pending'", visual: "不进 portfolio —— 仍住 /rewards/campaign/h2e 的 Airdropped positions 模块；激活开仓后才作为 airdropTag='airdrop' 的 Live 行出现", source: "DESIGN §运营工具仓位归属" },
     ],
   },
+];
+
+const READ_ME =
+  "怎么读这一节：所有状态都由 useLitePortfolio 派生的字段驱动（segment / isVoucher / autoCloseState / hot / closeReason / isSeries / isZeroMoney）。每个 case 下方的表给出「触发条件 → 视觉结果 → 字段来源」，条件都是可判定表达式，可直接照抄进实现；表里没有列出的组合视为不存在，不要自行发挥。";
+
+export const LitePortfolioPage = ({ isMobile }: P) => (
+  <LitePage
+    id="lite-portfolio"
+    title="Portfolio"
+    route="/portfolio · /portfolio?tab=settled · /portfolio/settlement/:id"
 
     status="done"
     note="2026-08-19 改版：Live / Settled 两 tab（Rewards 开场 tab 制式），KPI 卡、voucher 发丝行、Boost/Standard 双段 chips、Boost check 仪表、持仓卡 / 桌面行式网格、结算月份分组与系列聚合行。以下全部挂载生产组件（fixture 数据驱动状态），非手抄。"
