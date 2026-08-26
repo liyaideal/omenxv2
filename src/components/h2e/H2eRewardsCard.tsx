@@ -99,9 +99,10 @@ export const H2eRewardsCard = ({
                 <div className="flex items-center gap-1.5 text-[10px] text-[#6B7280]">
                   <Loader2 className="h-3 w-3 animate-spin text-primary" /> Scanning positions…
                 </div>
-              ) : (acct?.airdropsReceived ?? 0) > 0 ? (
+              ) : liveAirdropCount > 0 ? (
                 <div className="text-[10px] text-[#6B7280]">
-                  {acct?.positionsDetected} positions scanned · {acct?.airdropsReceived} airdrops active
+                  {acct?.positionsDetected} positions scanned · {liveAirdropCount}{" "}
+                  {liveAirdropCount === 1 ? "airdrop" : "airdrops"} active
                 </div>
               ) : (
                 <div className="text-[10px] text-[#6B7280]">
@@ -121,7 +122,12 @@ export const H2eRewardsCard = ({
       <div className="flex items-center justify-between gap-3">
         <MicroLabel>Your progress</MicroLabel>
         <span className="text-[11px] text-[#6B7280]">
-          <span className="text-[#4ADE80]">✓ Connected</span> · <span className="text-[#4ADE80]">✓ Airdrops</span> ·{" "}
+          {connected ? (
+            <span className="text-[#4ADE80]">✓ Connected</span>
+          ) : (
+            <span className="text-[#FFD666]">Wallet not connected</span>
+          )}{" "}
+          · <span className="text-[#4ADE80]">✓ Airdrops</span> ·{" "}
           <span className="text-[#33D6FF] font-semibold">Trade to unlock</span>
         </span>
       </div>
