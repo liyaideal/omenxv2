@@ -219,7 +219,9 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
       remainderFee,
       remainderQty,
       risk,
+    ],
   );
+
 
   // Style-guide fixtures replace the solved values; production never passes them.
   const autoClose = fixture?.autoClose ?? autoCloseComputed;
