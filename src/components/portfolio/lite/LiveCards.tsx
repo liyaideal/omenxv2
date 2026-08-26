@@ -43,12 +43,6 @@ const metaLine = (row: LiteLiveRow) => {
 const winSentence = (row: LiteLiveRow) =>
   `If it wins you get ${money(row.ifWins)}`;
 
-const autoCloseSuffix = (row: LiteLiveRow): string | null => {
-  if (row.segment !== "boost" || row.leverageNum <= 1) return null;
-  if (row.autoCloseState === "none") return null;
-  if (row.autoClosePrice == null) return null;
-  return `auto-close ≈${cents(row.autoClosePrice)}`;
-};
 
 
 /* ----------------------------- mobile card ----------------------------- */
