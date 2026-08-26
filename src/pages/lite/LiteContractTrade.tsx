@@ -705,6 +705,8 @@ const LiteContractTrade = () => {
   const autoCloseFor = (p: (typeof positions)[number]) =>
     estimateAutoClosePrice({
       entryPrice: p.entryPriceNum,
+      side: p.type,
+      markPrice: p.markPriceNum,
       boost: p.leverageNum,
       amount: p.marginNum,
       fee: 0,
@@ -721,7 +723,12 @@ const LiteContractTrade = () => {
       mode: "existing",
     });
 
+  /** Two-state value grammar: "≈ X¢" or "None". */
+  const autoCloseDisplayFor = (r: AutoCloseResult | null): string =>
+    r != null && r.kind === "level" ? `≈ ${formatCents(r.price)}` : "None";
+
   const heldAutoClose = heldPos != null ? autoCloseFor(heldPos) : null;
+
 
   const WatchStar = (
     <MobileHeaderIconButton
