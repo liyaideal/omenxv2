@@ -219,8 +219,12 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
       remainderFee,
       remainderQty,
       risk,
-    ],
   );
+
+  // Style-guide fixtures replace the solved values; production never passes them.
+  const autoClose = fixture?.autoClose ?? autoCloseComputed;
+  const remainderAutoClose = fixture?.remainderAutoClose ?? remainderAutoCloseComputed;
+
 
   const handleSubmit = useCallback(async () => {
     if (!user) return onRequestAuth();
