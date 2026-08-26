@@ -25,6 +25,6 @@ shows a transient placeholder. The value has exactly two states:
 
 - Order panel: `None · enter an amount` before an amount is typed; otherwise the two states.
 - Portfolio mobile card: `If it wins you get $X · auto-close ≈{c}¢` or `… · no auto-close, loss capped`.
-- Portfolio desktop row: `If it wins → $X · auto-close ≈{c}¢` or `… · no auto-close` with a tooltip.
+- Portfolio desktop row: `If it wins → $X · auto-close ≈{c}¢` or `… · auto-close none`; `none` is inline lowercase and its tooltip is `No auto-close within this market's price range — your loss is capped at what you put in.`.
 - Hot state turns the payout sentence / auto-close value red.
 - Standard (non-Boost) spot rows carry no auto-close field. Pro side unchanged.
