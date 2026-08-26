@@ -144,6 +144,44 @@ const saveDemoAirdrops = (userId: string, airdrops: AirdropPosition[]) => {
   window.localStorage.setItem(getDemoStorageKey(userId), JSON.stringify(airdrops));
 };
 
+/**
+ * Re-point demo mock airdrops at REAL live events so every row resolves to a
+ * tradable page. Only counter fields change — id/source/status/value/external
+ * lines stay from the template. Rows whose counter event is still live are
+ * left untouched.
+ */
+const repointMocksToLiveEvents = async (
+  rows: AirdropPosition[],
+): Promise<AirdropPosition[]> => {
+  const { data: events } = await supabase
+    .from("events")
+    .select("id, name, end_date, is_resolved, product_lines, event_options(id, label, price)")
+    .eq("is_resolved", false)
+    .gt("end_date", new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString())
+    .contains("product_lines", ["futures"])
+    .limit(12);
+  const pool = (events ?? []).filter((e: any) => (e.event_options ?? []).length > 0);
+  if (pool.length === 0) return rows;
+  const liveIds = new Set(pool.map((e: any) => e.id));
+  let cursor = 0;
+  return rows.map((row) => {
+    if (row.source === "voucher") return row;
+    if (row.counterEventId && liveIds.has(row.counterEventId)) return row;
+    const ev: any = pool[cursor % pool.length];
+    cursor += 1;
+    const opt: any = ev.event_options[0];
+    const price = Math.min(0.97, Math.max(0.03, Number(opt.price) || 0.5));
+    return {
+      ...row,
+      counterEventId: ev.id,
+      counterEventName: ev.name,
+      counterOptionLabel: opt.label,
+      counterPrice: price,
+      optionId: opt.id ?? null,
+    };
+  });
+};
+
 export const useAirdropPositions = () => {
   const { user, email } = useUserProfile();
   const { activeAccounts, isDemoMode } = useConnectedAccounts();
