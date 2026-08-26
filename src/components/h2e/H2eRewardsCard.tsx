@@ -1,6 +1,7 @@
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useConnectedAccounts } from "@/hooks/useConnectedAccounts";
+import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import type { H2eRewardsSummary } from "@/hooks/useH2eRewardsSummary";
 
 /**
@@ -53,6 +54,11 @@ export const H2eRewardsCard = ({
   const { user } = useAuth();
   const { activeAccounts } = useConnectedAccounts();
   const stage = !user ? "S0" : h2e.totalEarned > 0 ? "S3" : activeAccounts.length > 0 ? "S2" : "S1";
+  const connected = activeAccounts.length > 0;
+  const { airdrops } = useAirdropPositions();
+  const liveAirdropCount = airdrops.filter(
+    (a) => a.source !== "voucher" && (a.status === "pending" || a.status === "activated"),
+  ).length;
   const acct = activeAccounts[0];
   const scanning = activeAccounts.some((a) => a.scanStatus === "scanning");
 
@@ -93,9 +99,10 @@ export const H2eRewardsCard = ({
                 <div className="flex items-center gap-1.5 text-[10px] text-[#6B7280]">
                   <Loader2 className="h-3 w-3 animate-spin text-primary" /> Scanning positions…
                 </div>
-              ) : (acct?.airdropsReceived ?? 0) > 0 ? (
+              ) : liveAirdropCount > 0 ? (
                 <div className="text-[10px] text-[#6B7280]">
-                  {acct?.positionsDetected} positions scanned · {acct?.airdropsReceived} airdrops active
+                  {acct?.positionsDetected} positions scanned · {liveAirdropCount}{" "}
+                  {liveAirdropCount === 1 ? "airdrop" : "airdrops"} active
                 </div>
               ) : (
                 <div className="text-[10px] text-[#6B7280]">
@@ -115,7 +122,12 @@ export const H2eRewardsCard = ({
       <div className="flex items-center justify-between gap-3">
         <MicroLabel>Your progress</MicroLabel>
         <span className="text-[11px] text-[#6B7280]">
-          <span className="text-[#4ADE80]">✓ Connected</span> · <span className="text-[#4ADE80]">✓ Airdrops</span> ·{" "}
+          {connected ? (
+            <span className="text-[#4ADE80]">✓ Connected</span>
+          ) : (
+            <span className="text-[#FFD666]">Wallet not connected</span>
+          )}{" "}
+          · <span className="text-[#4ADE80]">✓ Airdrops</span> ·{" "}
           <span className="text-[#33D6FF] font-semibold">Trade to unlock</span>
         </span>
       </div>
