@@ -31,6 +31,8 @@ const funding = () => import("./fundingPreviews");
 const walletLite = () => import("./walletLitePreviews");
 const h2e = () => import("./h2ePreviews");
 const autoClose = () => import("./autoClosePreviews");
+const auth = () => import("./authPreviews");
+
 
 export const previewRegistry: Record<string, Loader> = {
   /* -------- Mobile header system -------- */
