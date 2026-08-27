@@ -461,8 +461,6 @@ export const Ev8Preview = () => (
 
 /* ---------------- sports fixture (deterministic) ---------------- */
 
-const DAY = 86_400_000;
-
 /** Kickoff anchored to a day offset at a fixed local hour. */
 const kick = (dayOffset: number, hour: number, minute = 0): Date => {
   const d = new Date();
