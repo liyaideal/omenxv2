@@ -13,6 +13,13 @@ interface SurfaceContextValue {
 
 const SurfaceContext = createContext<SurfaceContextValue | undefined>(undefined);
 
+/** Style-guide only: forces a fixed surface for isolated previews. Never used in production. */
+export const FixedSurfaceProvider = ({ surface, children }: { surface: Surface; children: ReactNode }) => (
+  <SurfaceContext.Provider value={{ surface, setSurface: () => undefined, toggle: () => undefined }}>
+    {children}
+  </SurfaceContext.Provider>
+);
+
 const LS_KEY = "omenx_surface";
 
 const readInitial = (): Surface => {

@@ -14,6 +14,7 @@ import { GoogleAccountChooser } from "@/components/auth/GoogleAccountChooser";
 import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { Logo } from "@/components/Logo";
+import { FixedSurfaceProvider } from "@/contexts/SurfaceContext";
 import type { AuthStep } from "@/hooks/useAuth";
 
 type Fixture = React.ComponentProps<typeof AuthContent>["fixture"];
@@ -85,29 +86,21 @@ export const AuthLoginTelegramTabPreview = () => (
 );
 export const AuthLoginLoadingPreview = () => <DesktopShell step="login" loading />;
 export const AuthLoginMobilePreview = () => <MobileShell step="login" />;
-export const AuthLoginMobileWalletPreview = () => (
-  <MobileShell step="login" fixture={{ authMethod: "wallet" }} />
+export const AuthLoginProPreview = () => (
+  <FixedSurfaceProvider surface="pro">
+    <DesktopShell step="login" />
+  </FixedSurfaceProvider>
 );
 
 /* ---------------- AU-W · createWallet step ---------------- */
 
 export const AuthCreateWalletDesktopPreview = () => <DesktopShell step="createWallet" />;
 export const AuthCreateWalletMobilePreview = () => <MobileShell step="createWallet" />;
-export const AuthCreateWalletBarePreview = () => {
-  const [s, setS] = useState<AuthStep>("createWallet");
-  const [isLoading, setIsLoading] = useState(false);
-  return (
-    <div className="mx-auto w-full max-w-md rounded-xl border border-border/50 bg-background p-6">
-      <AuthContent
-        step={s}
-        setStep={setS}
-        isLoading={isLoading}
-        setIsLoading={setIsLoading}
-        variant="desktop"
-      />
-    </div>
-  );
-};
+export const AuthCreateWalletProPreview = () => (
+  <FixedSurfaceProvider surface="pro">
+    <DesktopShell step="createWallet" />
+  </FixedSurfaceProvider>
+);
 
 /* ---------------- AU-P · completeProfile step ---------------- */
 
@@ -119,15 +112,21 @@ export const AuthProfileEmailErrorPreview = () => (
   />
 );
 export const AuthProfileReferralOpenPreview = () => (
-  <DesktopShell step="completeProfile" fixture={{ showReferralInput: true }} />
+  <DesktopShell step="completeProfile" fixture={{ referralOpen: true }} />
 );
 export const AuthProfileReferralFilledPreview = () => (
   <DesktopShell
     step="completeProfile"
-    fixture={{ showReferralInput: true, referralCode: "ABCDEF" }}
+    fixture={{ referralOpen: true, referralCode: "ABCDEF" }}
   />
 );
+export const AuthProfileLoadingPreview = () => <DesktopShell step="completeProfile" loading />;
 export const AuthProfileMobilePreview = () => <MobileShell step="completeProfile" />;
+export const AuthProfileProPreview = () => (
+  <FixedSurfaceProvider surface="pro">
+    <DesktopShell step="completeProfile" />
+  </FixedSurfaceProvider>
+);
 
 /* ---------------- AU-G · auth gates ---------------- */
 
@@ -157,6 +156,12 @@ export const AuthGateLitePortfolioPreview = () => (
   </LiteAuthGate>
 );
 
+export const AuthGateLiteSignedInPreview = () => (
+  <LiteAuthGate forceSignedIn>
+    <GateUnderlay />
+  </LiteAuthGate>
+);
+
 export const AuthGateProPreview = () => (
   <AuthGateOverlay
     title="Sign in to view your wallet"
@@ -166,15 +171,6 @@ export const AuthGateProPreview = () => (
   </AuthGateOverlay>
 );
 
-export const AuthGateProCompactPreview = () => (
-  <AuthGateOverlay
-    compact
-    title="Sign in to trade"
-    description="Log in to place an order."
-  >
-    <GateUnderlay />
-  </AuthGateOverlay>
-);
 
 /* ---------------- AU-D · Google account chooser ---------------- */
 

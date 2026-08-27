@@ -49,17 +49,8 @@ export const DepositWithdrawSection = ({ isMobile }: DepositWithdrawSectionProps
               <span className="text-sm text-muted-foreground">Spec</span>
             </div>
             {[
-              ["Section title (Swap, Confirm)", "text-base font-semibold (16px)"],
-              ["Card label (From / To)", "text-sm text-muted-foreground (14px)"],
               ["Amount input", "text-2xl font-mono (24px)"],
-              ["Token selector text", "text-sm font-medium (14px)"],
-              ["Chain name in selector", "text-xs text-muted-foreground (12px)"],
-              ["Quote detail label", "text-xs text-muted-foreground (12px)"],
-              ["Quote detail value", "text-xs font-mono (12px)"],
-              ["Review detail label", "text-sm text-muted-foreground (14px)"],
-              ["Review detail value", "text-sm font-mono (14px)"],
               ["CTA button", "text-sm font-semibold (14px)"],
-              ["Powered by footer", "text-[10px] text-muted-foreground"],
               ["Balance display", "text-xs font-mono"],
               ["Wallet address", "text-xs font-mono"],
               ["Status step label", "text-sm (14px)"],
@@ -75,13 +66,7 @@ export const DepositWithdrawSection = ({ isMobile }: DepositWithdrawSectionProps
       </Card>
 
       <CodePreview code={`// Amount input — always text-2xl font-mono
-<Input className="text-2xl font-mono bg-transparent border-none" />
-
-// Quote row — xs for inline, sm for review
-<div className="flex justify-between text-xs text-muted-foreground">
-  <span>Rate</span>
-  <span className="font-mono">1 ETH = 3500.00 USDC</span>
-</div>`} />
+<Input className="text-2xl font-mono bg-transparent border-none" />`} />
     </SubSection>
 
     {/* ── Swap Card Layout ── */}

@@ -18,17 +18,20 @@ export const LiteAuthGate = ({
   description = "Track your live calls and settled results by signing in to your account.",
   /** Docs-only: force the signed-out overlay in /style-guide. Never set in product. */
   forceSignedOut = false,
+  /** Docs-only: force children through in /style-guide. Never set in product. */
+  forceSignedIn = false,
 }: {
   children: React.ReactNode;
   title?: string;
   description?: string;
   forceSignedOut?: boolean;
+  forceSignedIn?: boolean;
 }) => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
   const [authOpen, setAuthOpen] = useState(false);
 
-  if (user && !forceSignedOut) return <>{children}</>;
+  if (forceSignedIn || (user && !forceSignedOut)) return <>{children}</>;
 
 
   return (

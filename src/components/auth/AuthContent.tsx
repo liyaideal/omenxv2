@@ -43,7 +43,7 @@ interface AuthContentProps {
   fixture?: {
     authMethod?: "wallet" | "google" | "telegram";
     emailError?: string;
-    showReferralInput?: boolean;
+    referralOpen?: boolean;
     referralCode?: string;
     googleChooserOpen?: boolean;
   };
@@ -67,7 +67,7 @@ export const AuthContent = ({
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [referralCode, setReferralCode] = useState(fixture?.referralCode ?? "");
-  const [showReferralInput, setShowReferralInput] = useState(fixture?.showReferralInput ?? false);
+  const [showReferralInput, setShowReferralInput] = useState(fixture?.referralOpen ?? false);
   const [emailError, setEmailError] = useState(fixture?.emailError ?? "");
   const [googleChooserOpen, setGoogleChooserOpen] = useState(fixture?.googleChooserOpen ?? false);
 
@@ -618,7 +618,7 @@ export const AuthContent = ({
 
   // Complete Profile Step
   if (step === "completeProfile") {
-    const hasPrefilledReferral = !!searchParams.get("ref");
+    const hasPrefilledReferral = !!searchParams.get("ref") || !!fixture?.referralCode;
 
     return (
       <div className="space-y-4">
