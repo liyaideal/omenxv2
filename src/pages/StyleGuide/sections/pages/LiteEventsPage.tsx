@@ -1,14 +1,14 @@
 import { LitePage } from "./shell";
-import { LiteSection } from "../LiteSection";
-import { LiteAllStageSection } from "../LiteAllStageSection";
-import { LiteVerticalViewsSection } from "../LiteVerticalViewsSection";
-import { LiteCalendarSection } from "../LiteCalendarSection";
-import { LiteFinalTouchesSection } from "../LiteFinalTouchesSection";
-import { EventArtSection } from "../EventArtSection";
 import { EventsStatesSection } from "../EventsStatesSection";
 
 type P = { isMobile: boolean };
 
+/**
+ * Events 列表页 = EV-1 … EV-27（含 EV-9e），共 28 case。
+ * M1b 已把旧六节（LiteSection part=events / LiteAllStage / LiteVerticalViews /
+ * LiteCalendar / LiteFinalTouches / EventArt）并账删除挂载；逐条去向见
+ * EventsStatesSection 末尾的「并账清单」。EventArt 的美术方向规范迁入 Foundations。
+ */
 export const LiteEventsPage = ({ isMobile }: P) => (
   <LitePage
     id="lite-events"
@@ -23,18 +23,5 @@ export const LiteEventsPage = ({ isMobile }: P) => (
     </div>
 
     <EventsStatesSection />
-
-    <div className="border-t-2 border-dashed border-[#FF8A3D]/50 pt-5">
-      <div className="text-[13px] font-semibold uppercase tracking-wider text-[#FF8A3D]">
-        ── 以下为旧版节（M1b 并账后删除） ──
-      </div>
-    </div>
-
-    <LiteSection isMobile={isMobile} part="events" />
-    <LiteAllStageSection />
-    <LiteVerticalViewsSection />
-    <LiteCalendarSection />
-    <LiteFinalTouchesSection />
-    <EventArtSection isMobile={isMobile} />
   </LitePage>
 );

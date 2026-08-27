@@ -4,6 +4,8 @@ description: Two-track badge system (Ends soon / New / Trending + Boost) on Lite
 type: design
 ---
 
+> 2026-08-28：Intraday 独立 tab 已恢复（08-03 band amendment 的 chip 移除条目已被超越）。
+
 # Lite list badges v2 + live sort (LOCKED 2026-07-31)
 
 Config-like thresholds live ONLY in `src/lib/liteListBadges.ts` → `LITE_LIST_CONFIG`.

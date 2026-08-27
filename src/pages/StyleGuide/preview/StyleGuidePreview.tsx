@@ -52,22 +52,46 @@ const StyleGuidePreview = () => {
   const [params] = useSearchParams();
   const raw = params.get("c") ?? "";
   const key = raw;
+  // Frame id — desktop and mobile frames of one section share the same `c=`,
+  // so height messages MUST be addressed per frame or the two cross-talk.
+  const fid = params.get("fid") ?? raw;
   const ref = useRef<HTMLDivElement>(null);
 
   const keys = useMemo(() => raw.split(",").map((k) => k.trim()).filter(Boolean), [raw]);
   const labels = useMemo(() => (params.get("l") ?? "").split("|"), [params]);
 
+  // Auto-height: measure the CONTENT wrapper, never documentElement.
+  // documentElement.scrollHeight is floored by the iframe's own height, so it
+  // can only ratchet upward — content that shrinks (or is shorter than the
+  // parent's placeholder minHeight) would leave a permanent blank band.
   useEffect(() => {
-    if (!ref.current) return;
+    const el = ref.current;
+    if (!el) return;
+    let raf = 0;
     const post = () => {
-      const h = document.documentElement.scrollHeight;
-      window.parent?.postMessage({ __styleGuidePreview: true, key, height: h }, "*");
+      const h = Math.ceil(el.getBoundingClientRect().height);
+      if (h <= 0) return;
+      window.parent?.postMessage({ __styleGuidePreview: true, key, fid, height: h }, "*");
     };
-    post();
-    const ro = new ResizeObserver(post);
-    ro.observe(document.documentElement);
-    return () => ro.disconnect();
-  }, [key]);
+    const schedule = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(post);
+    };
+    schedule();
+    const ro = new ResizeObserver(schedule);
+    ro.observe(el);
+    // Late layout shifts (fonts, lazy chunks, images) after first paint.
+    const t1 = window.setTimeout(schedule, 300);
+    const t2 = window.setTimeout(schedule, 1200);
+    window.addEventListener("load", schedule);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+      window.removeEventListener("load", schedule);
+    };
+  }, [key, fid]);
 
   return (
     <div ref={ref} className="min-h-0 bg-background text-foreground p-4 space-y-8">

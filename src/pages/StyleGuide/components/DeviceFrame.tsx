@@ -27,13 +27,16 @@ export const DeviceFrame = ({
 }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const holderRef = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState(minHeight);
+  // `minHeight` is a loading placeholder only — the reported document height wins.
+  const [reported, setReported] = useState<number | null>(null);
+  const height = reported ?? minHeight;
   // Mount-once: an iframe boots a React root, so it is mounted lazily on
   // approach (300px) — but never unmounted again. Tearing it down on scroll
   // made already-loaded modules re-boot every time the user scrolled back,
   // which reads as "the section keeps reloading".
   const [mounted, setMounted] = useState(false);
   const width = DEVICE_WIDTH[device];
+  const fid = `${device}::${previewKey}`;
 
   useEffect(() => {
     const el = holderRef.current;
@@ -60,12 +63,12 @@ export const DeviceFrame = ({
     const onMsg = (e: MessageEvent) => {
       const d = e.data;
       if (!d || !d.__styleGuidePreview) return;
-      if (d.key !== previewKey) return;
-      setHeight(Math.max(minHeight, d.height + 16));
+      if (d.fid !== fid) return;
+      setReported(Math.max(48, Math.ceil(d.height) + 4));
     };
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [previewKey, minHeight]);
+  }, [fid]);
 
   return (
     <div className="rounded-lg border border-border/40 bg-background/40 p-3 overflow-x-auto">
@@ -74,7 +77,7 @@ export const DeviceFrame = ({
           <iframe
             ref={iframeRef}
             title={`preview-${previewKey}-${device}`}
-            src={`/style-guide/preview?c=${encodeURIComponent(previewKey)}`}
+            src={`/style-guide/preview?c=${encodeURIComponent(previewKey)}&fid=${encodeURIComponent(fid)}`}
             loading="lazy"
             className="w-full block border-0 rounded-md bg-background"
             style={{ height }}

@@ -51,12 +51,18 @@ export const SectionFrame = ({
   minHeight?: number;
 }) => {
   const holderRef = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState(minHeight);
+  // `minHeight` is ONLY a loading placeholder. Once the iframe reports its real
+  // document height we follow it exactly — otherwise a case shorter than the
+  // hand-guessed estimate leaves a blank band (and the errors accumulate down
+  // the page).
+  const [reported, setReported] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
+  const height = reported ?? minHeight;
 
   const keyParam = cases.map((c) => c.key).join(",");
   const labelParam = cases.map((c) => c.label).join("|");
   const width = device === "mobile" ? 375 : null;
+  const fid = `${device}::${keyParam}`;
 
   useEffect(() => {
     const el = holderRef.current;
@@ -82,14 +88,14 @@ export const SectionFrame = ({
     const onMsg = (e: MessageEvent) => {
       const d = e.data;
       if (!d || !d.__styleGuidePreview) return;
-      if (d.key !== keyParam) return;
-      setHeight(Math.max(minHeight, d.height + 16));
+      if (d.fid !== fid) return;
+      setReported(Math.max(48, Math.ceil(d.height) + 4));
     };
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [keyParam, minHeight]);
+  }, [fid]);
 
-  const src = `/style-guide/preview?c=${encodeURIComponent(keyParam)}&l=${encodeURIComponent(labelParam)}`;
+  const src = `/style-guide/preview?c=${encodeURIComponent(keyParam)}&l=${encodeURIComponent(labelParam)}&fid=${encodeURIComponent(fid)}`;
 
   return (
     <div className="space-y-3">
