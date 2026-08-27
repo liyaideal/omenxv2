@@ -308,19 +308,8 @@ const LiteEventsPage = () => {
         }
       >
         {/* Intro strip — plain-language, no trader jargon; display treatment */}
-        <div className={cn(!isMobile && "flex items-start justify-between gap-5")}>
-          <div>
-            <h1
-              className="font-display font-bold tracking-tight text-foreground"
-              style={{ fontSize: "clamp(28px, 4vw, 40px)", lineHeight: 1.05 }}
-            >
-              What do you think happens next?
-            </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Pick a topic. Tap Yes or No. That's it.
-            </p>
-          </div>
-        </div>
+        <LiteEventsGreeting isMobile={!!isMobile} />
+
 
         {/* Filter row — mobile keeps the control row in every view (watchlist
             included), desktop still swaps it for the watchlist status line. */}
