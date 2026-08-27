@@ -297,7 +297,10 @@ export const TransactionHistory = ({ transactions, className, fixture }: Transac
   };
 
   const toggleExpand = (id: string) => {
-    setExpandedIds((prev) => prev.includes(id) ? prev.filter((value) => value !== id) : [...prev, id]);
+    setExpandedIds((prev) => {
+      if (!fixture?.initialExpandedIds) return prev.includes(id) ? [] : [id];
+      return prev.includes(id) ? prev.filter((value) => value !== id) : [...prev, id];
+    });
   };
 
   // Check if a transaction has extra details worth showing
