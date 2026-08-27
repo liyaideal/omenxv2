@@ -4,6 +4,8 @@ description: All intraday events live only in the orange Intraday band on the Li
 type: design
 ---
 
+> 2026-08-28：生产已演进——Intraday 有独立 topic tab；band 为每 tile 独立 dial；stocks 子带为 Stocks closing today 行集（session tabs 在 LiteIntradayView）。本文其余仍有效。
+
 # Lite intraday band (LOCKED 2026-08-03)
 
 ## Doctrine

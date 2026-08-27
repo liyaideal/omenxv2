@@ -411,6 +411,210 @@ const Footnotes = () => (
   </div>
 );
 
+/* ---------------- ⑤ Calendar 视图（EV-19 / EV-20）---------------- */
+
+const CALENDAR_CASES: SectionCase[] = [
+  {
+    key: "events-ev19",
+    label: "EV-19 · Calendar · Week（LiteCalendarView）",
+    note:
+      "Calendar 是 Events 页的一个 view state，不是独立路由。fixture 事件集用相对日偏移（今天 +0 … +6），确定性注入；intraday 提示卡为静态文案。并账：旧「Lite · Calendar」节的 as-built 基线与 docs/design-contracts/calendar-asbuilt-notes.md 附录仍为唯一像素契约。",
+    spec: [
+      {
+        state: "Week（默认）",
+        when: 'mode === "week"',
+        visual:
+          "“What's coming up?” + Day/Week 切换（Week 激活）+ intraday 提示卡（“Crypto rounds never stop — trade Intraday anytime” / “Rolling 5m to 1D rounds have no fixed date…” / “Open Intraday →”）+ 七列日期 + SPORTS / INTRADAY / GENERAL 三类 mini-card（含本地时间）",
+        source: "LiteCalendarView initialMode='week' · buildWeekColumns",
+      },
+      {
+        state: "单列溢出",
+        when: "该日 items.length > WEEK_TICKET_CAP(4)",
+        visual: "列内只渲染前 4 张 ticket，其余折成 “+N” 计数行",
+        source: "WEEK_TICKET_CAP",
+      },
+      {
+        state: "空日",
+        when: "该日 items.length === 0",
+        visual: "列体留空，仅保留日期头",
+        source: "buildCalendarItems",
+      },
+    ],
+  },
+  {
+    key: "events-ev20",
+    label: "EV-20 · Calendar · Day（LiteCalendarView）",
+    spec: [
+      {
+        state: "Day",
+        when: 'mode === "day"',
+        visual: "单日时间轴形态：SpineRow 时间脊 + 当日 ticket 按 localTime 排布",
+        source: "LiteCalendarView initialMode='day' · SpineRow",
+      },
+      {
+        state: "Day · 空日",
+        when: "当日 items.length === 0",
+        visual: "站内 EmptyState 件（不是自绘空白）",
+        source: "EmptyState (src/components/states)",
+      },
+    ],
+  },
+];
+
+/* ---------------- ⑥ Watchlist（EV-21 … EV-23）---------------- */
+
+const WATCHLIST_CASES: SectionCase[] = [
+  {
+    key: "events-ev21",
+    label: "EV-21 · Watchlist · 未登录（入口态）",
+    note:
+      "未登录点击 Watchlist 不进入视图，而是 setAuthOpen(true) 拉起登录弹层；弹层本体收录在「登录 / 注册」页（AU-* 系列），此处不重复。",
+    spec: [
+      {
+        state: "guest 入口",
+        when: "!user",
+        visual: "Watchlist 胶囊常亮可点，计数为空；点击后拉起登录弹层，视图不切换",
+        source: "LiteEventsPage onWatchlist → setAuthOpen(true)",
+      },
+    ],
+  },
+  {
+    key: "events-ev22",
+    label: "EV-22 · Watchlist · 空（EmptyState）",
+    spec: [
+      {
+        state: "登录 0 收藏",
+        when: "user && watchlist.length === 0",
+        visual:
+          "“Nothing starred yet” / “Tap the ★ on any market and it'll show up here.” / 「See all markets」回列表",
+        source: "EmptyState variant='page'",
+      },
+    ],
+  },
+  {
+    key: "events-ev23",
+    label: "EV-23 · Watchlist · 有内容（LiteEventCard FROZEN）",
+    note: "卡片本体 FROZEN，此处只摆放。",
+    spec: [
+      {
+        state: "有收藏",
+        when: "user && watchlist.length > 0",
+        visual: "FROZEN 卡网格，形态与主列表一致",
+        source: "LiteEventCard",
+      },
+      {
+        state: "排序例外",
+        when: "view === 'watchlist'",
+        visual:
+          "保持用户收藏顺序，**不套 sortLiteLiveList**（主列表的 trending/ends-soon 排序在此不生效）",
+        source: "LiteEventsPage watchlist 分支",
+      },
+    ],
+  },
+];
+
+/* ---------------- ⑦ 加载骨架与空态（EV-24 … EV-26）---------------- */
+
+const LOADING_CASES: SectionCase[] = [
+  {
+    key: "lite-events-loading",
+    label: "EV-24 · 列表首载骨架（LiteEventsSkeletons）",
+    note:
+      "registry key 沿用既有 `lite-events-loading`（旧深链兼容），编号改挂 EV-24。并账自旧「Lite · Loading」子节。",
+    spec: [
+      {
+        state: "首载",
+        when: "hook loading === true && 无缓存数据",
+        visual:
+          "All stage（intraday + sports）+ 目录骨架；桌面网格 / 移动列表两形态；色块只用 #171A1F / #15181C，与终态逐模块同尺寸（CLS≈0）",
+        source: "LiteAllStageSkeleton / LiteMarketGridSkeleton / LiteMarketListSkeleton",
+      },
+      {
+        state: "有缓存",
+        when: "切 tab / 返回且已有缓存",
+        visual: "直接渲染真内容，不闪骨架；各模块独立判断 loading，先到先实底",
+        source: "LiteEventsPage 渐进点亮",
+      },
+      {
+        state: "品类 rail",
+        when: "恒真",
+        visual: "静态内容，首载即实底，不骨架",
+        source: "LiteEventsFilterRow",
+      },
+    ],
+  },
+  {
+    key: "lite-events-loading-catalogue",
+    label: "EV-25 · 目录首载骨架（LiteEventsSkeletons）",
+    note: "registry key 沿用既有 `lite-events-loading-catalogue`，编号改挂 EV-25。",
+    spec: [
+      {
+        state: "sector / watchlist 首载",
+        when: "sector !== 'all' && loading === true",
+        visual: "只渲染目录骨架，无 stage 骨架",
+        source: "LiteMarketGridSkeleton / LiteMarketListSkeleton",
+      },
+    ],
+  },
+  {
+    key: "events-ev26",
+    label: "EV-26 · sector 空态（EmptyState）",
+    spec: [
+      {
+        state: "该 sector 0 活事件",
+        when: "sector !== 'all' && list.length === 0 && !loading",
+        visual:
+          "“No open markets here right now” / “New markets land in this topic as they open. Check back soon.” / 「See all markets」",
+        source: "EmptyState variant='page'",
+      },
+    ],
+  },
+];
+
+/* ---------------- ⑧ 页尾（EV-27）---------------- */
+
+const FOOTER_CASES: SectionCase[] = [
+  {
+    key: "events-ev27",
+    label: "EV-27 · 页尾 Pro 切换条",
+    spec: [
+      {
+        state: "静态",
+        when: "恒真（列表视图页尾，Calendar / Watchlist 视图同样保留）",
+        visual:
+          "“Want charts and advanced trading tools? Switch to Pro mode” — 后半句为链接态",
+        source: "LiteEventsPage 页尾",
+      },
+    ],
+  },
+];
+
+/* ---------------- 并账清单（旧六节 → EV-case）---------------- */
+
+const Ledger = () => (
+  <div className="space-y-3">
+    <Table
+      title="并账清单 · 旧六节逐条去向（M1b 删除挂载，section 文件保留仓库）"
+      head={["原文位置", "去向"]}
+      rows={[
+        ["LiteSection part=events · “Loading — 首载模块骨架”", "并入 EV-24 / EV-25 spec + note（触发规则、渐进点亮、色值、CLS 全文照搬）"],
+        ["LiteSection part=events · “Category pill · Sports live pulse”", "并入 EV-2 / EV-3（筛选行 case，live pulse 判定 useSportsMatches().rows.some(m => m.live)）"],
+        ["LiteSection part=events · “Markets list”（卡 + badge 矩阵 + sort 注记）", "并入 EV-11 … EV-18 与附注表 A/B/C/D"],
+        ["LiteAllStageSection · Chip tiers / Category row / IntradayStageCard / SportsStageCard / Coin tile plot / Category view 7A·7B / Sports sub-nav 13A", "并入 EV-2 … EV-10；其中 7A/7B 与 sub-nav 13A 已被生产超越（Intraday 为独立 topic tab，Sports 子维度行随之改造），依据 memory lite-intraday-band 2026-08-28 注记与 lite-list-badges-and-sort 2026-08-28 注记，随节消亡"],
+        ["LiteVerticalViewsSection · Crypto view / Finance view", "已被生产超越：category-as-view 装配层不再存在（topic tab + band 结构取代），依据同上两条 memory 注记，随节消亡；其内 Last8Strip / DirectionButton 规范保留在 EV-5 … EV-8"],
+        ["LiteCalendarSection · Chrome & controls 入口 chips", "并入 EV-19 note（Watchlist / Calendar 右对齐、互斥、Calendar 非品类故激活填白）"],
+        ["LiteCalendarSection · Closes soon badge", "并入 EV-16（近截止徽标，24h 内停止交易，仅灰描边不上色）"],
+        ["LiteCalendarSection · desktop frames / mobile frames", "并入 EV-19（Week）+ EV-20（Day / 空日）；as-built 像素契约仍指向 docs/design-contracts/calendar-asbuilt-notes.md"],
+        ["LiteFinalTouchesSection · Editor's picks", "已被生产超越：/ 列表页当前不渲染 Editor's picks 模块，随节消亡"],
+        ["LiteFinalTouchesSection · Mobile events page (390)", "并入 EV-5 / EV-9 / EV-9e 的 mobile 帧（无活赛 → “Nothing playing now”；两 session 全关 → 日历文案行）"],
+        ["LiteFinalTouchesSection · Mobile category row 控件簇", "并入 EV-2（右端固定 Watchlist 计数 chip 与 Calendar chip，不随滚动）"],
+        ["LiteFinalTouchesSection · Boost · in-place filter", "并入 EV-4（Boost 为筛选非品类，就地过滤当前列表，不新增路由）"],
+        ["EventArtSection · 美术方向规范", "原文移入 Foundations 组（EventArtSection 挂载点改到 Foundations），Events 页不再挂"],
+      ]}
+    />
+  </div>
+);
+
 /* ---------------- section ---------------- */
 
 const Pair = ({
@@ -433,8 +637,8 @@ const Pair = ({
 export const EventsStatesSection = () => (
   <SectionWrapper
     id="events-states"
-    title="Events 列表 · 状态字典（EV-1 … EV-18，含 EV-9e）"
-    description="分区①页头与筛选行 · ②Intraday band · ③Sports band · ④卡片网格。每个 case 双帧（desktop 1280 / mobile 375），fixture 只注数据与状态，且一律确定性注入（禁止运行时 fetch）。"
+    title="Events 列表 · 状态字典（EV-1 … EV-27，含 EV-9e · 共 28 case）"
+    description="分区①页头与筛选行 · ②Intraday band · ③Sports band · ④卡片网格 · ⑤Calendar · ⑥Watchlist · ⑦加载与空态 · ⑧页尾。每个 case 双帧（desktop 1280 / mobile 375），fixture 只注数据与状态，且一律确定性注入（禁止运行时 fetch）。"
   >
     <div className="space-y-12">
       <SubSection title="① 页头与筛选行（EV-1 … EV-4）">
@@ -453,6 +657,25 @@ export const EventsStatesSection = () => (
         <Pair cases={CARD_CASES} desktopMin={900} mobileMin={1200} />
         <div className="mt-8">
           <Footnotes />
+        </div>
+      </SubSection>
+
+      <SubSection title="⑤ Calendar 视图（EV-19 / EV-20）">
+        <Pair cases={CALENDAR_CASES} desktopMin={860} mobileMin={900} />
+      </SubSection>
+
+      <SubSection title="⑥ Watchlist（EV-21 … EV-23）">
+        <Pair cases={WATCHLIST_CASES} desktopMin={620} mobileMin={780} />
+      </SubSection>
+
+      <SubSection title="⑦ 加载骨架与空态（EV-24 … EV-26）">
+        <Pair cases={LOADING_CASES} desktopMin={900} mobileMin={1000} />
+      </SubSection>
+
+      <SubSection title="⑧ 页尾（EV-27）">
+        <Pair cases={FOOTER_CASES} desktopMin={160} mobileMin={160} />
+        <div className="mt-8">
+          <Ledger />
         </div>
       </SubSection>
     </div>

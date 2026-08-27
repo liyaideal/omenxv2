@@ -27,6 +27,9 @@ import {
   type Timeframe,
 } from "@/components/lite/intraday/intradayData";
 import { buildDayStrip, type SportsMatch } from "@/components/lite/sports/sportsData";
+import { LiteCalendarView } from "@/components/lite/calendar/LiteCalendarView";
+import { WatchlistChip, CalendarChip } from "@/components/lite/LiteListControls";
+import { EmptyState } from "@/components/states";
 
 /* ---------------- shared shells ---------------- */
 
@@ -822,5 +825,204 @@ export const Ev18Preview = () => (
       <Card market={MULTI()} />
       <Card market={BOOSTED()} boostMax={5} />
     </Grid>
+  </Stage>
+);
+
+/* ============================================================
+ * M1b · 分区⑤ Calendar / ⑥ Watchlist / ⑦ 加载与空态 / ⑧ 页尾
+ * 同 M1a 总则：全部 fixture 确定性注入，禁止运行时 fetch。
+ * ============================================================ */
+
+/** Day-offset expiry so the week strip never rots. */
+const atDay = (dayOffset: number, hour: number, minute = 0): Date => {
+  const d = new Date();
+  d.setDate(d.getDate() + dayOffset);
+  d.setHours(hour, minute, 0, 0);
+  return d;
+};
+
+const calEvent = (o: {
+  id: string;
+  name: string;
+  category: string;
+  at: Date;
+  children?: EventRow["children"];
+}): EventRow => ({
+  ...eventFixture({ id: o.id, name: o.name, category: o.category, settlesInH: 1 }),
+  expiry: o.at,
+  children: o.children ?? [child("yes", "Yes", 0.55), child("no", "No", 0.45)],
+});
+
+/** General + sports + intraday all land in the same week window. */
+const CALENDAR_EVENTS: EventRow[] = [
+  calEvent({
+    id: "sg-cal-cpi",
+    name: "Will August CPI come in above 3%?",
+    category: "macro",
+    at: atDay(0, 14, 30),
+  }),
+  calEvent({
+    id: "sg-cal-fed",
+    name: "Will the Fed cut rates in September?",
+    category: "macro",
+    at: atDay(1, 20, 0),
+  }),
+  calEvent({
+    id: "sg-cal-btc",
+    name: "Will BTC close above $120K this week?",
+    category: "crypto",
+    at: atDay(2, 23, 59),
+  }),
+  calEvent({
+    id: "sg-cal-oscar",
+    name: "Who wins the 2026 Best Picture?",
+    category: "entertainment",
+    at: atDay(3, 22, 0),
+    children: [
+      child("a", "Dune: Part Three", 0.41),
+      child("b", "The Brutalist II", 0.27),
+      child("c", "Anora", 0.18),
+      child("d", "Sinners", 0.14),
+    ],
+  }),
+  calEvent({
+    id: "sg-cal-elec",
+    name: "Will the midterm turnout beat 2022?",
+    category: "politics",
+    at: atDay(4, 19, 0),
+  }),
+  calEvent({
+    id: "sg-cal-nvda",
+    name: "Will NVDA beat earnings expectations?",
+    category: "tech",
+    at: atDay(5, 21, 30),
+  }),
+  calEvent({
+    id: "sg-cal-eth",
+    name: "Will ETH flip $5K before the month ends?",
+    category: "crypto",
+    at: atDay(6, 23, 0),
+  }),
+];
+
+/** Stocks rows for the calendar's intraday standing row (relative to today). */
+const CALENDAR_STOCKS: StockEventRow[] = US_ROWS.map((r, i) => ({
+  ...r,
+  start_date: atDay(0, 9, 30).toISOString(),
+  end_date: atDay(0, 16, 0).toISOString(),
+  id: `${r.id}-cal-${i}`,
+}));
+
+const CalendarDemo = ({ mode }: { mode: "day" | "week" }) => {
+  const isMobile = useIsMobile();
+  return (
+    <Stage>
+      <LiteCalendarView
+        events={CALENDAR_EVENTS}
+        matches={SPORTS_FIXTURE}
+        stocks={CALENDAR_STOCKS}
+        sector="all"
+        isMobile={!!isMobile}
+        onBackToList={() => undefined}
+        onOpenIntraday={() => undefined}
+        initialMode={mode}
+      />
+    </Stage>
+  );
+};
+
+export const Ev19Preview = () => <CalendarDemo mode="week" />;
+export const Ev20Preview = () => <CalendarDemo mode="day" />;
+
+/* ---------------- ⑥ Watchlist ---------------- */
+
+/** Guest entry state — the chip pair as it sits at the end of the filter row. */
+export const Ev21Preview = () => {
+  const isMobile = useIsMobile();
+  if (isMobile) {
+    return (
+      <Stage>
+        <MobileCategoryRow
+          categories={MOBILE_CATEGORIES}
+          value="all"
+          onSelect={() => undefined}
+          watchlistActive={false}
+          watchlistCount={0}
+          onWatchlist={() => undefined}
+          calendarActive={false}
+          onCalendar={() => undefined}
+          boostActive={false}
+          onBoost={() => undefined}
+        />
+      </Stage>
+    );
+  }
+  return (
+    <Stage>
+      <div className="flex items-center justify-end gap-2">
+        <WatchlistChip active={false} count={0} showLabel onClick={() => undefined} />
+        <CalendarChip active={false} onClick={() => undefined} />
+      </div>
+    </Stage>
+  );
+};
+
+export const Ev22Preview = () => (
+  <Stage>
+    <EmptyState
+      variant="page"
+      title="Nothing starred yet"
+      description="Tap the ★ on any market and it'll show up here."
+      actionLabel="See all markets"
+      onAction={() => undefined}
+    />
+  </Stage>
+);
+
+/** Starred set keeps the user's own order — sortLiteLiveList is NOT applied. */
+const WATCHLIST_FIXTURE: EventRow[] = [
+  MULTI(),
+  BINARY(),
+  BOOSTED(),
+];
+
+export const Ev23Preview = () => (
+  <Stage>
+    <Grid>
+      {WATCHLIST_FIXTURE.map((m) => (
+        <Card key={m.id} market={m} />
+      ))}
+    </Grid>
+  </Stage>
+);
+
+/* ---------------- ⑦ 空态 ---------------- */
+
+export const Ev26Preview = () => (
+  <Stage>
+    <EmptyState
+      variant="page"
+      title="No open markets here right now"
+      description="New markets land in this topic as they open. Check back soon."
+      actionLabel="See all markets"
+      onAction={() => undefined}
+    />
+  </Stage>
+);
+
+/* ---------------- ⑧ 页尾 Pro 切换条 ---------------- */
+
+export const Ev27Preview = () => (
+  <Stage>
+    <div className="mt-auto pt-6 text-center text-xs text-muted-foreground">
+      Want charts and advanced trading tools?{" "}
+      <button
+        type="button"
+        onClick={() => undefined}
+        className="text-primary underline underline-offset-2 hover:text-primary/80"
+      >
+        Switch to Pro mode
+      </button>
+    </div>
   </Stage>
 );

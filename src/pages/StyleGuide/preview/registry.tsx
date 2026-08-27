@@ -56,6 +56,17 @@ export const previewRegistry: Record<string, Loader> = {
   "events-ev16": pick(events, "Ev16Preview"),
   "events-ev17": pick(events, "Ev17Preview"),
   "events-ev18": pick(events, "Ev18Preview"),
+  /* -------- Events 列表（M1b 分区⑤–⑧）--------
+     EV-24 / EV-25 reuse the shipped skeleton keys below
+     (`lite-events-loading` / `lite-events-loading-catalogue`) — kept as-is so
+     old deep links stay valid; the Events page references them by new number. */
+  "events-ev19": pick(events, "Ev19Preview"),
+  "events-ev20": pick(events, "Ev20Preview"),
+  "events-ev21": pick(events, "Ev21Preview"),
+  "events-ev22": pick(events, "Ev22Preview"),
+  "events-ev23": pick(events, "Ev23Preview"),
+  "events-ev26": pick(events, "Ev26Preview"),
+  "events-ev27": pick(events, "Ev27Preview"),
 
   /* -------- Mobile header system -------- */
   "mobile-header-brand-top": pick(mobileHeader, "HeaderBrandTopPreview"),

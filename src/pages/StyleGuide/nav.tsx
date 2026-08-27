@@ -92,6 +92,8 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
       s("empty-states", "Empty states", sec("EmptyStatesSection", "EmptyStatesSection")),
       s("mobile-patterns", "Mobile patterns", MobilePatternsNode),
       s("identity", "User identity", sec("UserIdentitySection", "UserIdentitySection")),
+      // M1b: 从 Events 页并账迁入 —— 美术方向是全站规范，不属于单页状态字典。
+      s("event-art", "Event 美术方向", sec("EventArtSection", "EventArtSection")),
       s("message-center", "Message Center（Backlog）", sec("MessageCenterSection", "MessageCenterSection")),
     ],
   },
@@ -120,7 +122,6 @@ export const SECTION_ALIASES: Record<string, string> = {
   "lite-verticals": "lite-events",
   "lite-calendar": "lite-events",
   "lite-final-touches": "lite-events",
-  "event-art": "lite-events",
   "lite-spot": "lite-trade",
   wallet: "lite-wallet",
   deposit: "lite-wallet",
