@@ -201,8 +201,9 @@ const HeroDemo = ({ note }: { note?: string }) => {
       onTransfer={noop}
       equityNote={note}
     />
-
+  );
 };
+
 
 export const HeroEquityNoteLitePreview = () => <HeroDemo note="does not include open trade profit" />;
 
