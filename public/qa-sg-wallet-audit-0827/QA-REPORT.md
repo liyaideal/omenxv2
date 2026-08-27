@@ -2,7 +2,7 @@
 
 ## Summary
 
-- New cases captured: **35/35** (W-1…W-16 + 19 AU cases).
+- New cases captured: **36/36** (W-1…W-16 = 16 + AU-L1…AU-D1 = 20).
 - Deleted modules verified absent: **9/9**.
 - Fixture redline: production `/wallet` signed-out page and real Sign In dialog captured separately.
 - TypeScript: `tsgo --noEmit -p tsconfig.app.json` passed with 0 errors.
@@ -38,6 +38,7 @@
 - **AU-P2 — PASS:** actual `MAINNET Back Wallet created — complete your profile to start Final step Complete your profile Username Optional Public display name 0/20 Email Address * Please enter a valid email address Have a referral code? Start trading →`; appendix-required strings matched.
 - **AU-P3 — PASS:** actual `MAINNET Back Wallet created — complete your profile to start Final step Complete your profile Username Optional Public display name 0/20 Email Address * For notifications and account recovery Have a referral code? You and your inviter will both earn bonus points! Start trading →`; appendix-required strings matched.
 - **AU-P4 — PASS:** actual `MAINNET Back Wallet created — complete your profile to start Final step Complete your profile Username Optional Public display name 0/20 Email Address * For notifications and account recovery Invited by a friend ABCDEF You and your inviter will both earn bonus points! Start trading →`; appendix-required strings matched.
+- **AU-P5 — PASS:** actual `MAINNET Back Wallet created — complete your profile to start Final step Complete your profile Username Optional Public display name 0/20 Email Address * For notifications and account recovery Have a referral code?` + CTA 内 Loader2 自旋、按钮 disabled（无文字）；appendix-required state matched. Screenshot: `AU-P5-auth-profile-loading.png`.
 - **AU-P6 — PASS:** actual `MAINNET Back Wallet created — complete your profile to start Final step Complete your profile Username Optional Public display name 0/20 Email Address * For notifications and account recovery Have a referral code? Start trading →`; appendix-required strings matched.
 - **AU-P7 — PASS:** actual `MAINNET Back Wallet created! Complete your profile to start Final Step Complete Your Profile Username Optional Public display name 0/20 Email Address * For notifications and account recovery Have a referral code? Start Trading Now`; appendix-required strings matched.
 - **AU-G1 — PASS:** actual `Sign in to view your wallet Deposit, withdraw and move funds between your accounts by signing in. Sign in Create account`; appendix-required strings matched.
