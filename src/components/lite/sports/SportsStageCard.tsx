@@ -257,14 +257,20 @@ export const SportsStageCard = ({
   matches,
   variant = "stage",
   onOpenAll,
+  initialBucket,
 }: {
   matches: SportsMatch[];
   /** "stage" = right column of the All view. "full" = Sports category view. */
   variant?: "stage" | "full";
   onOpenAll?: () => void;
+  /**
+   * Style-guide only — opening day-rail bucket id. Production never passes
+   * it, so the rail keeps opening on "all" exactly as before.
+   */
+  initialBucket?: string;
 }) => {
   const navigate = useNavigate();
-  const [bucket, setBucket] = useState("all");
+  const [bucket, setBucket] = useState(initialBucket ?? "all");
 
   const allLive = useMemo(() => matches.filter((m) => m.live), [matches]);
   const days: DayBucket[] = useMemo(() => buildDayStrip(matches), [matches]);

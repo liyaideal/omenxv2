@@ -281,14 +281,17 @@ const MajorCoinCard = ({
   currentFor,
   historyFor,
   tickSeconds,
+  initialTf,
 }: {
   coin: Coin;
   currentFor: Map<string, QuickEvent>;
   historyFor: Map<string, ("up" | "down")[]>;
   tickSeconds: number;
+  /** Style-guide only — opening dial window. Unset = production "5m". */
+  initialTf?: Timeframe;
 }) => {
   const navigate = useNavigate();
-  const [tf, setTf] = useState<Timeframe>("5m");
+  const [tf, setTf] = useState<Timeframe>(initialTf ?? "5m");
   const meta = COIN_META[coin];
   const event = currentFor.get(`${coin}-${tf}`) ?? null;
   const history = historyFor.get(`${coin}-${tf}`) ?? [];
@@ -503,6 +506,7 @@ export const IntradayStageCard = ({
   tickSeconds,
   onOpenIntraday,
   sessionNow,
+  initialTf,
 }: {
   currentFor: Map<string, QuickEvent>;
   historyFor: Map<string, ("up" | "down")[]>;
@@ -515,8 +519,14 @@ export const IntradayStageCard = ({
    * real wall clock exactly as before.
    */
   sessionNow?: Date;
+  /**
+   * Style-guide only — opening dial window for the module dial and for each
+   * coin-major card. Production never passes it, so the dials keep opening
+   * on "5m" exactly as before.
+   */
+  initialTf?: Timeframe;
 }) => {
-  const [tf, setTf] = useState<Timeframe>("5m");
+  const [tf, setTf] = useState<Timeframe>(initialTf ?? "5m");
 
   // ONE shared selector for every surface — the All stage, the Intraday view
   // and the Finance view group the same feed with the same session rules.
@@ -654,6 +664,7 @@ export const IntradayStageCard = ({
               currentFor={currentFor}
               historyFor={historyFor}
               tickSeconds={tickSeconds}
+              initialTf={initialTf}
             />
           ))}
         </div>
