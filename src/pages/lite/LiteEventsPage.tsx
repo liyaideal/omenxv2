@@ -13,8 +13,9 @@ import { useCategoryBoostConfigs } from "@/hooks/useCategoryBoostConfigs";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { cn } from "@/lib/utils";
 import { LiteEventCard } from "@/components/lite/LiteEventCard";
-import { TraitChip, WatchlistChip } from "@/components/lite/LiteListControls";
+import { WatchlistChip } from "@/components/lite/LiteListControls";
 import { CalendarChip } from "@/components/lite/LiteListControls";
+
 import {
   LiteEventsFilterRow,
   LiteEventsGreeting,
@@ -267,9 +268,6 @@ const LiteEventsPage = () => {
     });
   };
 
-  const traitChips = (
-    <TraitChip kind="boost" active={boostOnly} onClick={() => setBoostOnly((v) => !v)} />
-  );
 
   const watchlistStatusLine = (
     <div className="flex items-center gap-2" style={{ marginTop: 12, fontSize: 13 }}>
