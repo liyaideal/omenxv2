@@ -33,3 +33,15 @@ type: preference
    `Desktop · right rail` / `Mobile · bottom drawer` / `Desktop & Mobile · same component`。
 2. **Where things live 表格**放在 section 顶部：组件名 | desktop 位置 | mobile 位置 | 由什么打开 | demo 状态数。
 3. **移动端挂载形态**必须放进 375px 带边框的 frame（标注 `375px · mobile`）。
+
+## 2026-08-27 · Lite-only 收敛（CPO 指示）
+1. **style-guide 只服务 Lite**：不再保留 Pro 对照 case。已删 `auth-login-pro` /
+   `auth-create-pro` / `auth-profile-pro` / `auth-gate-pro` / `wallet-lite-hero-note-pro`
+   五个 key；「登录 / 注册」页 case 数 = 16。
+2. **三个 Pro 导航节下架（不删文件）**：「Trading (Pro 终端)」「Trading header playground」
+   「Spot (Pro 现货)」从 `nav.tsx` 移除导航与挂载，section/preview 文件全部保留，
+   待 Pro 线恢复时再归位。Transparency / API 等共用节不动。
+3. **Settlements · 4B spot display** 整节撤出 Wallet 页，目前无任何挂载页；
+   `settlementPreviews.tsx` 与 `settlement-*` / `resolved-market-card-spot` /
+   `market-search-row-spot` / `product-line-badge-legend` registry key 保留。
+4. Wallet 页尾序：… → Recovery → Maintenance（Settlements 节消失）。
