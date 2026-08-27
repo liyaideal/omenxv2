@@ -151,13 +151,14 @@ const ACCOUNT_BADGE_CONFIG: Record<TransactionAccount, { label: string; classNam
   futures: { label: PRODUCT_LINE_LABELS.futures, className: PRODUCT_LINE_BADGE_CLASSES.futures },
 };
 
-export const TransactionHistory = ({ transactions, className }: TransactionHistoryProps) => {
+export const TransactionHistory = ({ transactions, className, fixture }: TransactionHistoryProps) => {
   type PillFilter = 'all' | 'deposit' | 'withdraw' | 'trade';
-  const [pillFilter, setPillFilter] = useState<PillFilter>('all');
+  const [pillFilter, setPillFilter] = useState<PillFilter>(fixture?.initialFilter ?? 'all');
   const isMobile = useIsMobile();
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 10;
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(fixture?.initialExpandedId ?? null);
+
 
   
 
