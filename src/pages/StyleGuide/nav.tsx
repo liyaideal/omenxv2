@@ -81,6 +81,7 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
       s("lite-events", "Events 列表 ✅", lp("LiteEventsPage")),
       s("lite-trade", "交易页 ✅", lp("LiteTradePage")),
       s("lite-wallet", "Wallet ✅", lp("LiteWalletPage")),
+      s("auth", "登录 / 注册 ✅", lp("AuthPage")),
       s("lite-rewards", "Rewards ✅", lp("LiteRewardsPage")),
       s("lite-vouchers", "Vouchers ✅", lp("LiteVouchersPage")),
       s("lite-h2e", "H2E Campaign ✅", lp("LiteH2ePage")),

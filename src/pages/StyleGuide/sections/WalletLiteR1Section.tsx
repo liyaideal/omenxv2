@@ -218,6 +218,189 @@ const HERO_CASES: SectionCase[] = [
   },
 ];
 
+/* ---- 2026-08-27 audit round · W-1 … W-16 ---- */
+
+const PENDING_CASES: SectionCase[] = [
+  {
+    key: "wallet-lite-pending-desktop",
+    label: "W-1 · PendingConfirmations · desktop",
+    note: "只在存在 pending/processing 链上交易时渲染；确认数达标后整块消失。",
+    spec: [
+      {
+        state: "confirming",
+        when: "status ∈ {pending, processing} 且 confirmations < required",
+        visual: "进度条 6/15 + 链名 Base + 金额 $800 + tx hash 截断可点",
+        source: "PendingConfirmations.tsx",
+      },
+    ],
+  },
+  {
+    key: "wallet-lite-pending-mobile",
+    label: "W-2 · PendingConfirmations · mobile",
+    spec: [
+      { state: "confirming · mobile", when: "isMobile", visual: "同内容，单列堆叠", source: "PendingConfirmations.tsx" },
+    ],
+  },
+];
+
+const TX_EMPTY_CASES: SectionCase[] = [
+  {
+    key: "wallet-lite-tx-empty",
+    label: "W-3 · 交易流水 · 空",
+    spec: [
+      { state: "empty", when: "transactions.length === 0", visual: "站点统一 EmptyState（无筛选 pill 行）", source: "TransactionHistory.tsx" },
+    ],
+  },
+  {
+    key: "wallet-lite-tx-empty-filtered",
+    label: "W-4 · 交易流水 · 筛选后为空",
+    spec: [
+      {
+        state: "empty-filtered",
+        when: "filter !== 'all' 且该筛选下无行",
+        visual: "保留 pill 行，正文为「该筛选下暂无记录」语气的空态",
+        source: "TransactionHistory.tsx filter 分支",
+      },
+    ],
+  },
+];
+
+const TX_STATE_CASES: SectionCase[] = [
+  {
+    key: "wallet-lite-tx-status-matrix",
+    label: "W-6 · 交易流水 · 五种 status",
+    spec: [
+      { state: "pending", when: "status === 'pending'", visual: "Clock 图标 + 中性徽标", source: "TransactionHistory statusMap" },
+      { state: "processing", when: "status === 'processing'", visual: "Loader 图标 + 中性徽标", source: "TransactionHistory statusMap" },
+      { state: "completed", when: "status === 'completed'", visual: "无 status 图标（默认成功态）", source: "TransactionHistory statusMap" },
+      { state: "failed", when: "status === 'failed'", visual: "红色 failed 徽标", source: "TransactionHistory statusMap" },
+      { state: "rejected", when: "status === 'rejected'", visual: "红色 rejected 徽标", source: "TransactionHistory statusMap" },
+    ],
+  },
+  {
+    key: "wallet-lite-tx-unknown-type",
+    label: "W-7 · 交易流水 · 未知 type 兜底",
+    spec: [
+      {
+        state: "unknown",
+        when: "type 不在映射表内",
+        visual: "Wallet 图标 · text-muted-foreground · bg-muted/20，金额按正负取色，绝不套用红色亏损语义",
+        source: "getTransactionIcon 兜底",
+      },
+    ],
+  },
+  {
+    key: "wallet-lite-tx-expanded",
+    label: "W-8 · 交易流水 · 展开详情",
+    spec: [
+      {
+        state: "expanded",
+        when: "点击带 chevron 的行",
+        visual: "展开区显示 network / fee / tx hash（Base → basescan.org 外链）",
+        source: "TransactionHistory 展开层 + EXPLORER_URLS",
+      },
+    ],
+  },
+  {
+    key: "wallet-lite-tx-pro-only",
+    label: "W-9 · 交易流水 · Pro 专属四类型",
+    note: "cross_chain_in / cross_chain_out / fiat_buy / fiat_sell 只在 Pro 资金动线产生，Lite 不会新增，但历史行仍要正确渲染。",
+    spec: [
+      { state: "cross_chain_in", when: "type === 'cross_chain_in'", visual: "跨链入账，展开显示 source → dest 链与币种", source: "TransactionHistory.tsx" },
+      { state: "cross_chain_out", when: "type === 'cross_chain_out'", visual: "跨链出账，金额为负", source: "TransactionHistory.tsx" },
+      { state: "fiat_buy", when: "type === 'fiat_buy'", visual: "法币买入 USDC（Banxa）", source: "TransactionHistory.tsx" },
+      { state: "fiat_sell", when: "type === 'fiat_sell'", visual: "法币卖出 USDC，金额为负", source: "TransactionHistory.tsx" },
+    ],
+  },
+];
+
+const ADDRESS_EMPTY_CASES: SectionCase[] = [
+  {
+    key: "wallet-lite-addresses-empty",
+    label: "W-10 · Saved addresses · 空态",
+    spec: [
+      {
+        state: "empty",
+        when: "wallets.length === 0",
+        visual: "计数显示 0 addresses；虚线 Add address 按钮常驻；下方站点统一 EmptyState",
+        source: "Wallet.tsx Saved addresses 卡",
+      },
+    ],
+  },
+];
+
+const HERO_HIDDEN_CASES: SectionCase[] = [
+  {
+    key: "wallet-lite-hero-hidden",
+    label: "W-11 · HeroEquityCard · 金额隐藏",
+    spec: [
+      {
+        state: "hidden",
+        when: "hidden === true（点击眼睛）",
+        visual: "金额替换为掩码字符，副行说明保留，EyeOff 图标",
+        source: "HeroEquityCard hidden",
+      },
+    ],
+  },
+];
+
+const DEPOSIT_DIALOG_CASES: SectionCase[] = [
+  {
+    key: "wallet-lite-deposit-dialog-checklist",
+    label: "W-12 · Deposit 弹窗 · 风险清单（未确认）",
+    note: "弹窗外壳（标题栏 / To: Standard Account 面包屑 / 三 tab 栏）为 docs 复刻，tab 内容为生产组件。",
+    spec: [
+      {
+        state: "checklist",
+        when: "demoAcknowledged === false",
+        visual: "逐条勾选的入金须知，全部勾完才露出地址",
+        source: "WalletDeposit.tsx",
+      },
+    ],
+  },
+  {
+    key: "wallet-lite-deposit-dialog-address",
+    label: "W-13 · Deposit 弹窗 · 地址态",
+    spec: [
+      {
+        state: "address",
+        when: "demoAcknowledged === true",
+        visual: "二维码 + 链上地址（ColoredAddress）+ Copy；最小入金与到账说明",
+        source: "WalletDeposit.tsx",
+      },
+    ],
+  },
+  {
+    key: "wallet-lite-deposit-dialog-fiat",
+    label: "W-14 · Deposit 弹窗 · Fiat tab",
+    spec: [
+      { state: "fiat", when: "tab === 'fiat'", visual: "法币金额输入 + 报价行 + Banxa 跳转 CTA", source: "BuyWithFiat.tsx" },
+    ],
+  },
+  {
+    key: "wallet-lite-deposit-dialog-wallet",
+    label: "W-15 · Deposit 弹窗 · Wallet（跨链）tab",
+    spec: [
+      { state: "crosschain", when: "tab === 'crosschain'", visual: "来源链 / 币种选择 + 金额 + 报价明细", source: "CrossChainDeposit.tsx" },
+    ],
+  },
+];
+
+const WITHDRAW_CASES: SectionCase[] = [
+  {
+    key: "wallet-lite-withdraw-desktop",
+    label: "W-16 · Withdraw · desktop 表单",
+    spec: [
+      {
+        state: "form",
+        when: "/withdraw desktop",
+        visual: "地址选择 + 金额（Max）+ 手续费与到账金额明细 + 主 CTA",
+        source: "WalletWithdraw.tsx",
+      },
+    ],
+  },
+];
+
 export const WalletLiteR1Section = ({ isMobile }: { isMobile: boolean }) => (
   <SectionWrapper
     id="wallet-lite-r1"
@@ -250,6 +433,36 @@ export const WalletLiteR1Section = ({ isMobile }: { isMobile: boolean }) => (
 
     <SubSection title="6 · HeroEquityCard equityNote" platform="shared">
       <SectionFrame cases={HERO_CASES} device="desktop" minHeight={320} />
+    </SubSection>
+
+    <SubSection title="7 · 待确认链上交易（W-1 / W-2）" platform="shared">
+      <SectionFrame cases={[PENDING_CASES[0]]} device="desktop" minHeight={280} />
+      <div className="mt-3">
+        <SectionFrame cases={[PENDING_CASES[1]]} device="mobile" minHeight={300} />
+      </div>
+    </SubSection>
+
+    <SubSection title="8 · 交易流水空态（W-3 / W-4）" platform="shared">
+      <SectionFrame cases={TX_EMPTY_CASES} device={isMobile ? "mobile" : "desktop"} minHeight={320} />
+    </SubSection>
+
+    <SubSection title="9 · 交易流水 status / 兜底 / 展开 / Pro 类型（W-6 … W-9）" platform="shared">
+      <SectionFrame cases={TX_STATE_CASES} device="desktop" minHeight={420} />
+    </SubSection>
+
+    <SubSection title="10 · Saved addresses 空态 + Hero 隐藏（W-10 / W-11）" platform="shared">
+      <SectionFrame cases={ADDRESS_EMPTY_CASES} device="desktop" minHeight={300} />
+      <div className="mt-3">
+        <SectionFrame cases={HERO_HIDDEN_CASES} device="desktop" minHeight={240} />
+      </div>
+    </SubSection>
+
+    <SubSection title="11 · Deposit 弹窗四态（W-12 … W-15）" platform="desktop">
+      <SectionFrame cases={DEPOSIT_DIALOG_CASES} device="desktop" minHeight={620} />
+    </SubSection>
+
+    <SubSection title="12 · Withdraw desktop 表单（W-16）" platform="desktop">
+      <SectionFrame cases={WITHDRAW_CASES} device="desktop" minHeight={520} />
     </SubSection>
   </SectionWrapper>
 );
