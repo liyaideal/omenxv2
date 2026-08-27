@@ -51,10 +51,8 @@ import { LiteSportsView } from "@/components/lite/categoryviews/LiteSportsView";
 import { LiteCryptoView } from "@/components/lite/categoryviews/LiteCryptoView";
 import { LiteFinanceView } from "@/components/lite/categoryviews/LiteFinanceView";
 import { useSurface } from "@/contexts/SurfaceContext";
-import { CategoryPill } from "@/components/lite/CategoryPill";
 import {
   SECTOR_CATEGORIES,
-  TOP_CATEGORIES,
   categoryMatchesTop,
   topCategoryForKey,
   topCategoryOrder,
