@@ -13,8 +13,14 @@ import { useCategoryBoostConfigs } from "@/hooks/useCategoryBoostConfigs";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { cn } from "@/lib/utils";
 import { LiteEventCard } from "@/components/lite/LiteEventCard";
-import { TraitChip, WatchlistChip } from "@/components/lite/LiteListControls";
+import { WatchlistChip } from "@/components/lite/LiteListControls";
 import { CalendarChip } from "@/components/lite/LiteListControls";
+
+import {
+  LiteEventsFilterRow,
+  LiteEventsGreeting,
+} from "@/components/lite/LiteEventsHeader";
+
 import { LiteCalendarView } from "@/components/lite/calendar/LiteCalendarView";
 import { EmptyState } from "@/components/states";
 import { sortLiteLiveList, trendingThreshold } from "@/lib/liteListBadges";
@@ -45,10 +51,8 @@ import { LiteSportsView } from "@/components/lite/categoryviews/LiteSportsView";
 import { LiteCryptoView } from "@/components/lite/categoryviews/LiteCryptoView";
 import { LiteFinanceView } from "@/components/lite/categoryviews/LiteFinanceView";
 import { useSurface } from "@/contexts/SurfaceContext";
-import { CategoryPill } from "@/components/lite/CategoryPill";
 import {
   SECTOR_CATEGORIES,
-  TOP_CATEGORIES,
   categoryMatchesTop,
   topCategoryForKey,
   topCategoryOrder,
@@ -262,9 +266,6 @@ const LiteEventsPage = () => {
     });
   };
 
-  const traitChips = (
-    <TraitChip kind="boost" active={boostOnly} onClick={() => setBoostOnly((v) => !v)} />
-  );
 
   const watchlistStatusLine = (
     <div className="flex items-center gap-2" style={{ marginTop: 12, fontSize: 13 }}>
@@ -308,19 +309,8 @@ const LiteEventsPage = () => {
         }
       >
         {/* Intro strip — plain-language, no trader jargon; display treatment */}
-        <div className={cn(!isMobile && "flex items-start justify-between gap-5")}>
-          <div>
-            <h1
-              className="font-display font-bold tracking-tight text-foreground"
-              style={{ fontSize: "clamp(28px, 4vw, 40px)", lineHeight: 1.05 }}
-            >
-              What do you think happens next?
-            </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Pick a topic. Tap Yes or No. That's it.
-            </p>
-          </div>
-        </div>
+        <LiteEventsGreeting isMobile={!!isMobile} />
+
 
         {/* Filter row — mobile keeps the control row in every view (watchlist
             included), desktop still swaps it for the watchlist status line. */}
@@ -373,48 +363,22 @@ const LiteEventsPage = () => {
             {isWatchlistView && !calendarOn && watchlistStatusLine}
           </div>
         ) : (
-          <div className="flex flex-wrap items-center gap-2" style={{ marginTop: 16 }}>
-            {TOP_CATEGORIES.filter(
-              (c) =>
-                c.id === "all" ||
-                c.id === "intraday" ||
-                (c.id === "sports" ? sportsMatches.length > 0 : sectorCounts.get(c.id)),
-            ).map((c) => (
-              <CategoryPill
-                key={c.id}
-                label={c.label}
-                dot={c.dot}
-                active={c.id === sector}
-                live={c.id === "sports" && sportsLive}
-                onClick={() => setSector(c.id)}
-              />
-            ))}
-            {/* Boost composes in place with every category view (Intraday,
-                Sports, Crypto, Finance) — only the calendar lens opts out. */}
-            {!calendarOn && (
-              <>
-                <span
-                  aria-hidden
-                  style={{ width: 1, height: 22, background: "#1D2026", margin: "0 5px" }}
-                />
-                {traitChips}
-              </>
-            )}
-            {/* View lenses live at the right end of the category row. */}
-            <div className="ml-auto flex shrink-0 items-center gap-2">
-              <WatchlistChip
-                active={isWatchlistView}
-                count={watchlist.size}
-                showLabel
-                onClick={handleWatchlistClick}
-              />
-              <CalendarChip
-                active={calendarOn}
-                onClick={handleCalendarClick}
-              />
-            </div>
-          </div>
+          <LiteEventsFilterRow
+            sector={sector}
+            onSelectSector={setSector}
+            sectorCounts={sectorCounts}
+            sportsCount={sportsMatches.length}
+            sportsLive={sportsLive}
+            calendarOn={calendarOn}
+            boostOnly={boostOnly}
+            onToggleBoost={() => setBoostOnly((v) => !v)}
+            watchlistActive={isWatchlistView}
+            watchlistCount={watchlist.size}
+            onWatchlist={handleWatchlistClick}
+            onCalendar={handleCalendarClick}
+          />
         )}
+
 
         {/* Calendar lens — replaces the page body in place. */}
         {calendarOn && (
