@@ -153,7 +153,8 @@ const SPORTS_CASES: SectionCase[] = [
   {
     key: "events-ev9e",
     label: "EV-9e · Sports band · 空态（SportsStageCard / MobileSportsModule）",
-    note: "fixture 空行集（联赛间歇期）。",
+    note:
+      "fixture 空行集（联赛间歇期）。移动端 MobileSportsModule 在无比赛时整块不渲染（生产行为），故 375 帧为空。",
     spec: [
       {
         state: "空态",
