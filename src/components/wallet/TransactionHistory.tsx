@@ -98,6 +98,7 @@ interface TransactionHistoryProps {
   fixture?: {
     initialFilter?: 'all' | 'deposit' | 'withdraw' | 'trade';
     initialExpandedId?: string;
+    initialExpandedIds?: string[];
   };
 }
 
@@ -157,7 +158,9 @@ export const TransactionHistory = ({ transactions, className, fixture }: Transac
   const isMobile = useIsMobile();
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 10;
-  const [expandedId, setExpandedId] = useState<string | null>(fixture?.initialExpandedId ?? null);
+  const [expandedIds, setExpandedIds] = useState<string[]>(
+    fixture?.initialExpandedIds ?? (fixture?.initialExpandedId ? [fixture.initialExpandedId] : []),
+  );
 
 
   
@@ -294,7 +297,7 @@ export const TransactionHistory = ({ transactions, className, fixture }: Transac
   };
 
   const toggleExpand = (id: string) => {
-    setExpandedId(prev => prev === id ? null : id);
+    setExpandedIds((prev) => prev.includes(id) ? prev.filter((value) => value !== id) : [...prev, id]);
   };
 
   // Check if a transaction has extra details worth showing
@@ -348,7 +351,7 @@ export const TransactionHistory = ({ transactions, className, fixture }: Transac
             const explorerUrl = getExplorerUrl(tx.network, tx.txHash || '');
             const statusConfig = STATUS_CONFIG[tx.status || 'completed'];
             const StatusIcon = statusConfig.icon;
-            const isExpanded = expandedId === tx.id;
+            const isExpanded = expandedIds.includes(tx.id);
             const showExpandable = hasDetails(tx);
             
             return (

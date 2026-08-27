@@ -288,6 +288,7 @@ export const HeroEquityNoteProPreview = () => <HeroDemo />;
 /* ---------------- W-1 / W-2 · Pending confirmations ---------------- */
 
 const PENDING_FIXTURE = {
+  estimatedTimeLabel: "~45s left",
   rows: [
     {
       id: "pc1",
@@ -358,7 +359,7 @@ const STATUS_TXS: Transaction[] = [
 
 export const TxStatusMatrixPreview = () => (
   <div className="rounded-2xl border border-border/40 bg-card">
-    <TransactionHistory transactions={STATUS_TXS} />
+    <TransactionHistory transactions={STATUS_TXS} fixture={{ initialExpandedIds: STATUS_TXS.map((tx) => tx.id) }} />
   </div>
 );
 
@@ -507,7 +508,7 @@ export const DepositDialogChecklistPreview = () => (
 
 export const DepositDialogAddressPreview = () => (
   <DepositBodyShell tab="wallet">
-    <WalletDeposit demoAcknowledged account="spot" />
+    <WalletDeposit demoAcknowledged account="spot" onDone={noop} />
   </DepositBodyShell>
 );
 

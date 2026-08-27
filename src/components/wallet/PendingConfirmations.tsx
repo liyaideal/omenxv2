@@ -40,7 +40,7 @@ interface PendingConfirmationsProps {
    * state can be photographed. Never set in product code — when omitted the
    * component behaves exactly as before.
    */
-  fixture?: { rows: PendingTransaction[] };
+  fixture?: { rows: PendingTransaction[]; estimatedTimeLabel?: string };
 }
 
 export const PendingConfirmations = ({ className, fixture }: PendingConfirmationsProps) => {
@@ -145,7 +145,7 @@ export const PendingConfirmations = ({ className, fixture }: PendingConfirmation
                     </span>
                   </div>
                   <div className="text-xs text-muted-foreground mt-0.5">
-                    {tx.network || 'Unknown Network'} · {formatTimeAgo(tx.created_at)} · est. {getEstimatedTimeRemaining(confirmations, required, tx.network)}
+                     {tx.network || 'Unknown Network'} · {formatTimeAgo(tx.created_at)} · est. {fixture?.estimatedTimeLabel ?? getEstimatedTimeRemaining(confirmations, required, tx.network)}
                   </div>
                 </div>
                 <div className="text-right flex-shrink-0">
