@@ -186,7 +186,7 @@ const HERO_CASES: SectionCase[] = [
 
 const PENDING_CASES: SectionCase[] = [
   {
-    key: "wallet-lite-pending-desktop",
+    key: "wallet-lite-pending-confirmations",
     label: "W-1 · PendingConfirmations · desktop",
     note: "只在存在 pending/processing 链上交易时渲染；确认数达标后整块消失。",
     spec: [
@@ -199,7 +199,7 @@ const PENDING_CASES: SectionCase[] = [
     ],
   },
   {
-    key: "wallet-lite-pending-mobile",
+    key: "wallet-lite-pending-confirmations-mobile",
     label: "W-2 · PendingConfirmations · mobile",
     spec: [
       { state: "confirming · mobile", when: "isMobile", visual: "同内容，单列堆叠", source: "PendingConfirmations.tsx" },
@@ -231,7 +231,7 @@ const TX_EMPTY_CASES: SectionCase[] = [
 
 const TX_STATE_CASES: SectionCase[] = [
   {
-    key: "wallet-lite-tx-status-matrix",
+    key: "wallet-lite-tx-status-column",
     label: "W-6 · 交易流水 · 五种 status",
     spec: [
       { state: "pending", when: "status === 'pending'", visual: "Clock 图标 + 中性徽标", source: "TransactionHistory statusMap" },

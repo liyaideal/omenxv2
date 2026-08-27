@@ -173,14 +173,6 @@ export const previewRegistry: Record<string, Loader> = {
   "wallet-account-badge-legend": pick(wallet, "AccountBadgeLegendPreview"),
 
   /* -------- Wallet Lite R1 (batches 1-3) -------- */
-  "wallet-lite-gate-lite": pick(walletLite, "WalletGateLitePreview"),
-  "wallet-lite-gate-pro": pick(walletLite, "WalletGateProPreview"),
-  "wallet-lite-auth-login-desktop": pick(walletLite, "AuthLiteLoginDesktopPreview"),
-  "wallet-lite-auth-create-desktop": pick(walletLite, "AuthLiteCreateWalletDesktopPreview"),
-  "wallet-lite-auth-profile-desktop": pick(walletLite, "AuthLiteCompleteProfileDesktopPreview"),
-  "wallet-lite-auth-login-mobile": pick(walletLite, "AuthLiteLoginMobilePreview"),
-  "wallet-lite-auth-create-mobile": pick(walletLite, "AuthLiteCreateWalletMobilePreview"),
-  "wallet-lite-auth-profile-mobile": pick(walletLite, "AuthLiteCompleteProfileMobilePreview"),
   "wallet-lite-address-rows-desktop": pick(walletLite, "SavedAddressRowsDesktopPreview"),
   "wallet-lite-address-rows-mobile": pick(walletLite, "SavedAddressRowsMobilePreview"),
   "wallet-lite-address-actions": pick(walletLite, "SavedAddressActionsDrawerPreview"),
@@ -191,12 +183,12 @@ export const previewRegistry: Record<string, Loader> = {
   "wallet-lite-hero-note-pro": pick(walletLite, "HeroEquityNoteProPreview"),
 
   /* -------- Wallet audit round (2026-08-27) · W-1 … W-16 -------- */
-  "wallet-lite-pending-desktop": pick(walletLite, "PendingConfirmationsDesktopPreview"),
-  "wallet-lite-pending-mobile": pick(walletLite, "PendingConfirmationsMobilePreview"),
+  "wallet-lite-pending-confirmations": pick(walletLite, "PendingConfirmationsDesktopPreview"),
+  "wallet-lite-pending-confirmations-mobile": pick(walletLite, "PendingConfirmationsMobilePreview"),
   "wallet-lite-tx-empty": pick(walletLite, "TxEmptyPreview"),
   "wallet-lite-tx-empty-filtered": pick(walletLite, "TxEmptyFilteredPreview"),
   "wallet-lite-tx-transfer-legs": pick(walletLite, "TxTransferLegsPreview"),
-  "wallet-lite-tx-status-matrix": pick(walletLite, "TxStatusMatrixPreview"),
+  "wallet-lite-tx-status-column": pick(walletLite, "TxStatusMatrixPreview"),
   "wallet-lite-tx-unknown-type": pick(walletLite, "TxUnknownTypePreview"),
   "wallet-lite-tx-expanded": pick(walletLite, "TxExpandedDetailPreview"),
   "wallet-lite-tx-pro-only-types": pick(walletLite, "TxProOnlyTypesPreview"),
@@ -219,6 +211,7 @@ export const previewRegistry: Record<string, Loader> = {
   "auth-create-mobile": pick(auth, "AuthCreateWalletMobilePreview"),
   "auth-create-pro": pick(auth, "AuthCreateWalletProPreview"),
   "auth-profile-default": pick(auth, "AuthProfileDefaultPreview"),
+  "auth-profile-loading": pick(auth, "AuthProfileLoadingPreview"),
   "auth-profile-email-error": pick(auth, "AuthProfileEmailErrorPreview"),
   "auth-profile-referral-open": pick(auth, "AuthProfileReferralOpenPreview"),
   "auth-profile-referral-prefilled": pick(auth, "AuthProfileReferralPrefilledPreview"),

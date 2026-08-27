@@ -1,7 +1,7 @@
 /**
  * 登录 / 注册 — the auth layer as its own page node (2026-08-27 audit round).
  *
- * 19 cases, every one a production component mounted with display-only fixture
+ * 20 cases, every one a production component mounted with display-only fixture
  * props (see preview/authPreviews.tsx). Truth Rule §16.1.1 — no hand-copied markup.
  */
 import { LitePage } from "./shell";
@@ -177,6 +177,18 @@ const PROFILE_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "auth-profile-loading",
+    label: "AU-P5 · completeProfile · 提交 loading",
+    spec: [
+      {
+        state: "loading",
+        when: "isLoading === true",
+        visual: "CTA 内 Loader2 自旋 + disabled",
+        source: "AuthContent isLoading",
+      },
+    ],
+  },
+  {
     key: "auth-profile-mobile",
     label: "AU-P6 · completeProfile · mobile",
     spec: [
@@ -264,7 +276,7 @@ export const AuthPage = ({ isMobile }: { isMobile: boolean }) => (
     title="登录 / 注册"
     route="AuthDialog（desktop）· AuthSheet（mobile）· 未登录门"
     status="done"
-    note="三步流程（login → createWallet → completeProfile）、两种未登录门与 Google 账号选择弹层，共 19 个真实渲染 case。"
+    note="三步流程（login → createWallet → completeProfile）、两种未登录门与 Google 账号选择弹层，共 20 个真实渲染 case。"
   >
     <SectionWrapper
       id="auth-cases"
@@ -288,9 +300,9 @@ export const AuthPage = ({ isMobile }: { isMobile: boolean }) => (
       </SubSection>
 
       <SubSection title="3 · completeProfile" platform="shared">
-        <SectionFrame cases={[...PROFILE_CASES.slice(0, 4), PROFILE_CASES[5]]} device="desktop" minHeight={620} />
+        <SectionFrame cases={[...PROFILE_CASES.slice(0, 5), PROFILE_CASES[6]]} device="desktop" minHeight={620} />
         <div className="mt-3">
-          <SectionFrame cases={[PROFILE_CASES[4]]} device="mobile" minHeight={620} />
+          <SectionFrame cases={[PROFILE_CASES[5]]} device="mobile" minHeight={620} />
         </div>
       </SubSection>
 
