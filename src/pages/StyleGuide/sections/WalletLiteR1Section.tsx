@@ -268,7 +268,7 @@ const TX_STATE_CASES: SectionCase[] = [
   {
     key: "wallet-lite-tx-pro-only-types",
     label: "W-9 · 交易流水 · Pro 专属四类型",
-    note: "cross_chain_in / cross_chain_out / fiat_buy / fiat_sell 只在 Pro 资金动线产生，Lite 不会新增，但历史行仍要正确渲染。",
+    note: "Lite 面不出现——但 Lite Fiat 入金上线后 fiat_buy 是否进 Lite 流水待拍板",
     spec: [
       { state: "cross_chain_in", when: "type === 'cross_chain_in'", visual: "跨链入账，展开显示 source → dest 链与币种", source: "TransactionHistory.tsx" },
       { state: "cross_chain_out", when: "type === 'cross_chain_out'", visual: "跨链出账，金额为负", source: "TransactionHistory.tsx" },
@@ -372,57 +372,59 @@ export const WalletLiteR1Section = ({ isMobile }: { isMobile: boolean }) => (
     platform="shared"
     description="2026-08 Wallet Lite 改版三批：批1 未登录门（登录弹层三步已迁往「登录 / 注册」节）/ 批2 地址 ⋯ 菜单 + 账户徽标配色 + Hero 文案 / 批3 流水行清理 + 列对齐 + icon 全类型映射。"
   >
-    <SubSection title="3 · Saved addresses ⋯ 菜单 · desktop" platform="desktop">
-      <SectionFrame cases={ADDRESS_DESKTOP_CASES} device="desktop" minHeight={200} />
-    </SubSection>
-
-    <SubSection title="3 · Saved addresses ⋯ 菜单 · mobile" platform="mobile">
-      <SectionFrame cases={ADDRESS_MOBILE_CASES} device="mobile" minHeight={380} />
-    </SubSection>
-
-    <SubSection title="4 · 账户徽标（单一真相）" platform="shared">
-      <SectionFrame cases={BADGE_CASES} device="desktop" minHeight={120} />
-    </SubSection>
-
-    <SubSection title="5 · 交易流水行 · 全类型 icon 映射" platform="shared">
-      <SectionFrame cases={[TX_CASES[0]]} device="desktop" minHeight={620} />
+    <SubSection title="1 · HeroEquityCard" platform="shared">
+      <SectionFrame cases={HERO_CASES} device="desktop" minHeight={320} />
       <div className="mt-3">
-        <SectionFrame cases={[TX_CASES[1]]} device="mobile" minHeight={620} />
+        <SectionFrame cases={HERO_HIDDEN_CASES} device="desktop" minHeight={240} />
       </div>
     </SubSection>
 
-    <SubSection title="6 · HeroEquityCard equityNote" platform="shared">
-      <SectionFrame cases={HERO_CASES} device="desktop" minHeight={320} />
+    <SubSection title="2 · 双账户卡" platform="shared">
+      <SectionFrame cases={[{ key: "wallet-equity-bands", label: "Standard / Boost 双账户卡" }]} device="desktop" minHeight={340} />
     </SubSection>
 
-    <SubSection title="7 · 待确认链上交易（W-1 / W-2）" platform="shared">
+    <SubSection title="3 · Transfer 三态" platform="shared">
+      <SectionFrame cases={[
+        { key: "wallet-transfer-normal", label: "Normal · Boost → Standard" },
+        { key: "wallet-transfer-insufficient", label: "Insufficient balance" },
+        { key: "wallet-transfer-zero", label: "Amount 0 · disabled" },
+      ]} device="desktop" minHeight={460} />
+    </SubSection>
+
+    <SubSection title="4 · PendingConfirmations（W-1 / W-2）" platform="shared">
       <SectionFrame cases={[PENDING_CASES[0]]} device="desktop" minHeight={280} />
       <div className="mt-3">
         <SectionFrame cases={[PENDING_CASES[1]]} device="mobile" minHeight={300} />
       </div>
     </SubSection>
 
-    <SubSection title="8 · 交易流水空态（W-3 / W-4）" platform="shared">
-      <SectionFrame cases={TX_EMPTY_CASES} device={isMobile ? "mobile" : "desktop"} minHeight={320} />
+    <SubSection title="5 · 交易流水" platform="shared">
+      <SectionFrame cases={[TX_CASES[0], TX_CASES[1], ...TX_EMPTY_CASES, ...TX_STATE_CASES]} device={isMobile ? "mobile" : "desktop"} minHeight={620} />
     </SubSection>
 
-    <SubSection title="9 · 交易流水 status / 兜底 / 展开 / Pro 类型（W-6 … W-9）" platform="shared">
-      <SectionFrame cases={TX_STATE_CASES} device="desktop" minHeight={420} />
-    </SubSection>
-
-    <SubSection title="10 · Saved addresses 空态 + Hero 隐藏（W-10 / W-11）" platform="shared">
-      <SectionFrame cases={ADDRESS_EMPTY_CASES} device="desktop" minHeight={300} />
+    <SubSection title="6 · Saved addresses" platform="shared">
+      <SectionFrame cases={ADDRESS_DESKTOP_CASES} device="desktop" minHeight={200} />
       <div className="mt-3">
-        <SectionFrame cases={HERO_HIDDEN_CASES} device="desktop" minHeight={240} />
+        <SectionFrame cases={ADDRESS_MOBILE_CASES} device="mobile" minHeight={380} />
+      </div>
+      <div className="mt-3">
+        <SectionFrame cases={ADDRESS_EMPTY_CASES} device="desktop" minHeight={300} />
       </div>
     </SubSection>
 
-    <SubSection title="11 · Deposit 弹窗四态（W-12 … W-15）" platform="desktop">
-      <SectionFrame cases={DEPOSIT_DIALOG_CASES} device="desktop" minHeight={620} />
+    <SubSection title="账户徽标（单一真相）" platform="shared">
+      <SectionFrame cases={BADGE_CASES} device="desktop" minHeight={120} />
     </SubSection>
 
-    <SubSection title="12 · Withdraw desktop 表单（W-16）" platform="desktop">
-      <SectionFrame cases={WITHDRAW_CASES} device="desktop" minHeight={520} />
+    <SubSection title="交易流水空态（W-3 / W-4）" platform="shared">
+      <SectionFrame cases={TX_EMPTY_CASES} device={isMobile ? "mobile" : "desktop"} minHeight={320} />
+    </SubSection>
+
+    <SubSection title="7 · Deposit & Withdraw（W-12 … W-16）" platform="desktop">
+      <SectionFrame cases={DEPOSIT_DIALOG_CASES} device="desktop" minHeight={620} />
+      <div className="mt-3">
+        <SectionFrame cases={WITHDRAW_CASES} device="desktop" minHeight={520} />
+      </div>
     </SubSection>
   </SectionWrapper>
 );

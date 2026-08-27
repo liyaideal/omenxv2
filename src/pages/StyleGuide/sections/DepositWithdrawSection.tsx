@@ -2,10 +2,8 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowDown } from "lucide-react";
-import { SectionWrapper, SubSection, LegacyNotice } from "../components/SectionWrapper";
+import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
-import { cn } from "@/lib/utils";
 import { RecoveryStatusTimeline, RecoveryStatusBadge } from "@/components/recovery/RecoveryStatusTimeline";
 import { WithdrawVerifyDialog } from "@/components/withdraw/WithdrawVerifyDialog";
 import { DeviceFrame } from "../components/DeviceFrame";
@@ -37,6 +35,23 @@ export const DepositWithdrawSection = ({ isMobile }: DepositWithdrawSectionProps
     title="Deposit & Withdraw"
     description="Design system for all deposit, withdrawal, and cross-chain bridging components. Consistent typography, chain logos, and layout patterns."
   >
+    <SubSection title="Funding assets">
+      <Card>
+        <CardContent className="grid gap-3 pt-6 sm:grid-cols-3">
+          {[
+            ["/chain-logos/base.svg", "Base", "Network: Base（唯一入金网络）"],
+            ["/token-logos/usdc.svg", "USDC", "Token: USDC"],
+            ["/brand-logos/banxa.png", "Banxa", "Fiat on-ramp: Banxa（Deposit → Fiat tab）"],
+          ].map(([src, alt, text]) => (
+            <div key={text} className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 p-3">
+              <img src={src} alt={alt} className="h-8 w-8 rounded-full object-contain" />
+              <span className="text-xs text-foreground">{text}</span>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    </SubSection>
+
     {/* ── Typography Standards ── */}
     <SubSection title="Typography Standards" description="Consistent font sizing across all deposit/withdraw flows.">
       <Card>

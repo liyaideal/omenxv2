@@ -387,7 +387,7 @@ export const TxExpandedDetailPreview = () => (
           network: "Base",
           account: "spot",
           status: "processing",
-          fee: 0.35,
+          fee: 0.5,
           txHash: "0x8f2a91b3e4c7a0d5f6b8e9a1c2d3f4a5b6c4d0719a8b7c6d5e4f3a2b1c0d9e8f",
         }),
       ]}
