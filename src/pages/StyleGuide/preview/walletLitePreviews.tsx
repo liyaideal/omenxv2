@@ -9,10 +9,22 @@
  * Fixtures use relative dates (hoursAgo) so the docs never go stale.
  */
 import { useState } from "react";
+import { ChevronRight, HelpCircle, Plus, X } from "lucide-react";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
 import { AuthContent } from "@/components/auth/AuthContent";
 import { ProductLineBadge } from "@/lib/productLineBadge";
+import { EmptyState } from "@/components/states";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { WalletDeposit } from "@/components/deposit/WalletDeposit";
+import { CrossChainDeposit } from "@/components/deposit/CrossChainDeposit";
+import { BuyWithFiat } from "@/components/deposit/BuyWithFiat";
+import { WalletWithdraw } from "@/components/withdraw/WalletWithdraw";
+import { WithdrawSubmitProvider } from "@/components/withdraw/WithdrawSubmitContext";
+import {
+  PendingConfirmations,
+  type PendingTransaction,
+} from "@/components/wallet/PendingConfirmations";
 import {
   HeroEquityCard,
   SavedAddressRowView,
@@ -25,6 +37,7 @@ import {
   type TransactionType,
 } from "@/components/wallet/TransactionHistory";
 import type { AuthStep } from "@/hooks/useAuth";
+
 
 const hoursAgo = (h: number) => new Date(Date.now() - h * 3600_000);
 
