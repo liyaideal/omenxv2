@@ -3,6 +3,8 @@ name: home-feed-architecture
 description: Home feed 3-tier visual hierarchy, same-kind degradation, and useHomeFeed scoring formulas
 type: feature
 ---
+2026-08-27：Lite 首页已收敛为 / = Events 列表，本文档描述的 home feed 已退役，仅作历史参考；style-guide Home 节已下架。
+
 # Home Feed Architecture
 
 Home is a priority-sorted single-column information stream. All ordering lives in `useHomeFeed`; `HomeFeed.tsx` is a pure renderer mapping `kind` → Card.

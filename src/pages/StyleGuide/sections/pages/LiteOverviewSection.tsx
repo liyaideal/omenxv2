@@ -4,7 +4,6 @@ type P = { isMobile: boolean };
 
 
 const PAGES: Array<{ id: string; page: string; route: string; status: RevampStatus }> = [
-  { id: "lite-home", page: "Home", route: "/", status: "done" },
   { id: "lite-events", page: "Events 列表", route: "/events", status: "done" },
   { id: "lite-trade", page: "交易页（合约 + 现货 + 结算态）", route: "/trade · /spot", status: "done" },
   { id: "lite-wallet", page: "Wallet", route: "/wallet · /deposit · /withdraw · /wallet/recovery", status: "done" },
