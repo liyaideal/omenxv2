@@ -35,6 +35,18 @@ interface AuthContentProps {
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
   variant?: "desktop" | "mobile";
+  /**
+   * Style-guide only (docs fixture). Seeds initial local state so a static
+   * state can be photographed. Never set in product code — when omitted the
+   * component behaves exactly as before.
+   */
+  fixture?: {
+    authMethod?: "wallet" | "google" | "telegram";
+    emailError?: string;
+    showReferralInput?: boolean;
+    referralCode?: string;
+    googleChooserOpen?: boolean;
+  };
 }
 
 export const AuthContent = ({ 
@@ -43,20 +55,22 @@ export const AuthContent = ({
   onSuccess, 
   isLoading, 
   setIsLoading,
-  variant = "desktop" 
+  variant = "desktop",
+  fixture,
 }: AuthContentProps) => {
   const queryClient = useQueryClient();
   const { surface } = useSurface();
   const isLite = surface === "lite";
   const [searchParams] = useSearchParams();
   const { profile, username: profileUsername, email: profileEmail } = useUserProfile();
-  const [authMethod, setAuthMethod] = useState<"wallet" | "google" | "telegram">("google");
+  const [authMethod, setAuthMethod] = useState<"wallet" | "google" | "telegram">(fixture?.authMethod ?? "google");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-  const [referralCode, setReferralCode] = useState("");
-  const [showReferralInput, setShowReferralInput] = useState(false);
-  const [emailError, setEmailError] = useState("");
-  const [googleChooserOpen, setGoogleChooserOpen] = useState(false);
+  const [referralCode, setReferralCode] = useState(fixture?.referralCode ?? "");
+  const [showReferralInput, setShowReferralInput] = useState(fixture?.showReferralInput ?? false);
+  const [emailError, setEmailError] = useState(fixture?.emailError ?? "");
+  const [googleChooserOpen, setGoogleChooserOpen] = useState(fixture?.googleChooserOpen ?? false);
+
 
   // Check for referral code in URL on mount
   useEffect(() => {

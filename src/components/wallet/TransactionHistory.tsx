@@ -48,7 +48,9 @@ const EXPLORER_URLS: Record<string, string> = {
   'Bitcoin': 'https://blockchair.com/bitcoin/transaction/',
   'Solana': 'https://solscan.io/tx/',
   'Tron (TRC20)': 'https://tronscan.org/#/transaction/',
+  'Base': 'https://basescan.org/tx/',
 };
+
 
 export type TransactionType =
   | 'deposit'
@@ -88,7 +90,17 @@ export interface Transaction {
 interface TransactionHistoryProps {
   transactions: Transaction[];
   className?: string;
+  /**
+   * Style-guide only (docs fixture). Seeds the initial pill filter / expanded
+   * row so a static state can be photographed. Never set in product code —
+   * when omitted the component behaves exactly as before.
+   */
+  fixture?: {
+    initialFilter?: 'all' | 'deposit' | 'withdraw' | 'trade';
+    initialExpandedId?: string;
+  };
 }
+
 
 const STATUS_CONFIG: Record<TransactionStatus, { icon: React.ElementType; color: string; label: string }> = {
   pending: { icon: Clock, color: 'text-trading-yellow', label: 'Pending Review' },
@@ -139,13 +151,14 @@ const ACCOUNT_BADGE_CONFIG: Record<TransactionAccount, { label: string; classNam
   futures: { label: PRODUCT_LINE_LABELS.futures, className: PRODUCT_LINE_BADGE_CLASSES.futures },
 };
 
-export const TransactionHistory = ({ transactions, className }: TransactionHistoryProps) => {
+export const TransactionHistory = ({ transactions, className, fixture }: TransactionHistoryProps) => {
   type PillFilter = 'all' | 'deposit' | 'withdraw' | 'trade';
-  const [pillFilter, setPillFilter] = useState<PillFilter>('all');
+  const [pillFilter, setPillFilter] = useState<PillFilter>(fixture?.initialFilter ?? 'all');
   const isMobile = useIsMobile();
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 10;
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(fixture?.initialExpandedId ?? null);
+
 
   
 
