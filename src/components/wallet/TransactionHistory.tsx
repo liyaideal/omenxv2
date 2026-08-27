@@ -90,7 +90,17 @@ export interface Transaction {
 interface TransactionHistoryProps {
   transactions: Transaction[];
   className?: string;
+  /**
+   * Style-guide only (docs fixture). Seeds the initial pill filter / expanded
+   * row so a static state can be photographed. Never set in product code —
+   * when omitted the component behaves exactly as before.
+   */
+  fixture?: {
+    initialFilter?: 'all' | 'deposit' | 'withdraw' | 'trade';
+    initialExpandedId?: string;
+  };
 }
+
 
 const STATUS_CONFIG: Record<TransactionStatus, { icon: React.ElementType; color: string; label: string }> = {
   pending: { icon: Clock, color: 'text-trading-yellow', label: 'Pending Review' },
