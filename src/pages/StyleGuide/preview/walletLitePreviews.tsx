@@ -2,7 +2,7 @@
  * Wallet Lite R1 previews — archive round (batches 1–3).
  *
  * Truth Rule (§16.1.1): every demo below mounts the PRODUCTION component with
- * fixture props — LiteAuthGate / AuthGateOverlay / AuthContent / HeroEquityCard /
+ * fixture props — HeroEquityCard /
  * SavedAddressRowView / SavedAddressActionsList / ProductLineBadge /
  * TransactionHistory. No hand-copied markup.
  *
@@ -10,9 +10,6 @@
  */
 import { useState } from "react";
 import { ChevronRight, HelpCircle, Plus, X } from "lucide-react";
-import { AuthGateOverlay } from "@/components/AuthGateOverlay";
-import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
-import { AuthContent } from "@/components/auth/AuthContent";
 import { ProductLineBadge } from "@/lib/productLineBadge";
 import { EmptyState } from "@/components/states";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -36,78 +33,9 @@ import {
   type Transaction,
   type TransactionType,
 } from "@/components/wallet/TransactionHistory";
-import type { AuthStep } from "@/hooks/useAuth";
 
 
 const hoursAgo = (h: number) => new Date(Date.now() - h * 3600_000);
-
-/* ---------------- 1 · Wallet auth gate (Lite vs Pro) ---------------- */
-
-const GateUnderlay = () => (
-  <div className="space-y-3 p-4">
-    <div className="h-24 rounded-[18px] border border-border bg-card" />
-    <div className="grid grid-cols-2 gap-3">
-      <div className="h-28 rounded-xl border border-border bg-card" />
-      <div className="h-28 rounded-xl border border-border bg-card" />
-    </div>
-  </div>
-);
-
-export const WalletGateLitePreview = () => (
-  <LiteAuthGate
-    forceSignedOut
-    title="Sign in to view your wallet"
-    description="Deposit, withdraw and move funds between your accounts by signing in."
-  >
-    <GateUnderlay />
-  </LiteAuthGate>
-);
-
-export const WalletGateProPreview = () => (
-  <AuthGateOverlay
-    title="Sign in to view your wallet"
-    description="Manage your funds and saved addresses by signing in."
-  >
-    <GateUnderlay />
-  </AuthGateOverlay>
-);
-
-/* ---------------- 2 · Lite auth layer — three steps ---------------- */
-
-const AuthShell = ({
-  step,
-  variant,
-}: {
-  step: AuthStep;
-  variant: "desktop" | "mobile";
-}) => {
-  const [s, setS] = useState<AuthStep>(step);
-  const [loading, setLoading] = useState(false);
-  return (
-    <div
-      className={
-        variant === "mobile"
-          ? "mx-auto w-full max-w-[375px] rounded-t-3xl border border-border bg-background px-5 pt-4 pb-6"
-          : "mx-auto w-full max-w-md rounded-xl border border-border/50 bg-background p-6"
-      }
-    >
-      <AuthContent
-        step={s}
-        setStep={setS}
-        isLoading={loading}
-        setIsLoading={setLoading}
-        variant={variant}
-      />
-    </div>
-  );
-};
-
-export const AuthLiteLoginDesktopPreview = () => <AuthShell step="login" variant="desktop" />;
-export const AuthLiteCreateWalletDesktopPreview = () => <AuthShell step="createWallet" variant="desktop" />;
-export const AuthLiteCompleteProfileDesktopPreview = () => <AuthShell step="completeProfile" variant="desktop" />;
-export const AuthLiteLoginMobilePreview = () => <AuthShell step="login" variant="mobile" />;
-export const AuthLiteCreateWalletMobilePreview = () => <AuthShell step="createWallet" variant="mobile" />;
-export const AuthLiteCompleteProfileMobilePreview = () => <AuthShell step="completeProfile" variant="mobile" />;
 
 /* ---------------- 3 · Saved addresses ⋯ menu ---------------- */
 
