@@ -2,7 +2,8 @@
 
 ## Summary
 
-- New cases captured: **36/36** (W-1…W-16 = 16 + AU-L1…AU-D1 = 20).
+- New cases captured: **32/32** (W-1…W-16 = 16 + AU-L1…AU-D1 = 16).
+- 2026-08-27: style-guide 收敛为 Lite-only（CPO 指示），Pro 对照 case 与 Pro 导航节下架，Settlements·4B 撤出 Wallet 页
 - Deleted modules verified absent: **9/9**.
 - Fixture redline: production `/wallet` signed-out page and real Sign In dialog captured separately.
 - TypeScript: `tsgo --noEmit -p tsconfig.app.json` passed with 0 errors.
@@ -30,20 +31,16 @@
 - **AU-L3 — PASS:** actual `MAINNET Trade what happens next Intraday crypto, stock and sports markets — settled in USDC. Wallet Google Telegram Sign in with Telegram Sign in with Telegram Fast & secure Telegram authentication OR New to OMENX? Your account is created the first time you sign in. By continuing, you agree to our Terms of Service and Privacy Policy`; appendix-required strings matched.
 - **AU-L4 — PASS:** actual `MAINNET Trade what happens next Intraday crypto, stock and sports markets — settled in USDC. Wallet Google Telegram Quick sign-in with Google Sign in with Google No wallet needed · Ready in seconds OR New to OMENX? Your account is created the first time you sign in. By continuing, you agree to our Terms of Service and Privacy Policy`; appendix-required strings matched.
 - **AU-L5 — PASS:** actual `MAINNET Trade what happens next Intraday crypto, stock and sports markets — settled in USDC. Wallet Google Telegram Quick sign-in with Google Sign in with Google No wallet needed · Ready in seconds OR New to OMENX? Your account is created the first time you sign in. By continuing, you agree to our Terms of Service and Privacy Policy`; appendix-required strings matched.
-- **AU-L6 — PASS:** actual `MAINNET Predict the Future, Profit from Certainty Trade crypto, politics, sports & more like futures Predict. Trade. Profit. Up to 100x Leverage · Pro Trading Tools Wallet Google Telegram Quick sign-in with Google Sign in with Google Instant access · No wallet needed · Start trading in seconds OR New to OMENX? Authorization creates your account automatically Predict. Trade. Profit. · Start Trading Now By continuing, you agree to our Terms of Service and Privacy Policy`; appendix-required strings matched.
 - **AU-W1 — PASS:** actual `MAINNET Back Create your wallet A USDC wallet on Base, set up for you in one tap. Trade markets with USDC on Base No seed phrase, no gas — sign in and go Cash out to your own address any time Success! Cloudflare Privacy · Terms Create wallet`; appendix-required strings matched.
 - **AU-W2 — PASS:** actual `MAINNET Back Create your wallet A USDC wallet on Base, set up for you in one tap. Trade markets with USDC on Base No seed phrase, no gas — sign in and go Cash out to your own address any time Success! Cloudflare Privacy · Terms Create wallet`; appendix-required strings matched.
-- **AU-W3 — PASS:** actual `MAINNET Back Create Your Trading Wallet Start trading events with real funds Pro Trading Platform Up to 100x leverage on events Real-time market data Zero Risk Full Trading Live Data Security Verified Verified Create Wallet & Start Trading`; appendix-required strings matched.
 - **AU-P1 — PASS:** actual `MAINNET Back Wallet created — complete your profile to start Final step Complete your profile Username Optional Public display name 0/20 Email Address * For notifications and account recovery Have a referral code? Start trading →`; appendix-required strings matched.
 - **AU-P2 — PASS:** actual `MAINNET Back Wallet created — complete your profile to start Final step Complete your profile Username Optional Public display name 0/20 Email Address * Please enter a valid email address Have a referral code? Start trading →`; appendix-required strings matched.
 - **AU-P3 — PASS:** actual `MAINNET Back Wallet created — complete your profile to start Final step Complete your profile Username Optional Public display name 0/20 Email Address * For notifications and account recovery Have a referral code? You and your inviter will both earn bonus points! Start trading →`; appendix-required strings matched.
 - **AU-P4 — PASS:** actual `MAINNET Back Wallet created — complete your profile to start Final step Complete your profile Username Optional Public display name 0/20 Email Address * For notifications and account recovery Invited by a friend ABCDEF You and your inviter will both earn bonus points! Start trading →`; appendix-required strings matched.
 - **AU-P5 — PASS:** actual `MAINNET Back Wallet created — complete your profile to start Final step Complete your profile Username Optional Public display name 0/20 Email Address * For notifications and account recovery Have a referral code?` + CTA 内 Loader2 自旋、按钮 disabled（无文字）；appendix-required state matched. Screenshot: `AU-P5-auth-profile-loading.png`.
 - **AU-P6 — PASS:** actual `MAINNET Back Wallet created — complete your profile to start Final step Complete your profile Username Optional Public display name 0/20 Email Address * For notifications and account recovery Have a referral code? Start trading →`; appendix-required strings matched.
-- **AU-P7 — PASS:** actual `MAINNET Back Wallet created! Complete your profile to start Final Step Complete Your Profile Username Optional Public display name 0/20 Email Address * For notifications and account recovery Have a referral code? Start Trading Now`; appendix-required strings matched.
 - **AU-G1 — PASS:** actual `Sign in to view your wallet Deposit, withdraw and move funds between your accounts by signing in. Sign in Create account`; appendix-required strings matched.
 - **AU-G2 — PASS:** actual ``; appendix-required strings matched.
-- **AU-G3 — PASS:** actual `Sign in to view your wallet Manage your funds and saved addresses by signing in. Log In Sign Up`; appendix-required strings matched.
 - **AU-D1 — PASS:** actual `Choose an account Choose an account to continue to OMENX Alex Carter alex.carter@gmail.com Mia Reyes mia.reyes@gmail.com Use another account To continue, Google will share your name, email address, language preference and profile picture with OMENX. Close`; appendix-required strings matched.
 
 ## Deleted-module cancellation

@@ -168,18 +168,6 @@ const HERO_CASES: SectionCase[] = [
       },
     ],
   },
-  {
-    key: "wallet-lite-hero-note-pro",
-    label: "HeroEquityCard · equityNote · Pro（默认值）",
-    spec: [
-      {
-        state: "Pro",
-        when: "equityNote 未传 → 默认 'does not include unrealized PnL'",
-        visual: "副行 'Boost + Standard · does not include unrealized PnL'",
-        source: "HeroEquityCard 默认参数",
-      },
-    ],
-  },
 ];
 
 /* ---- 2026-08-27 audit round · W-1 … W-16 ---- */

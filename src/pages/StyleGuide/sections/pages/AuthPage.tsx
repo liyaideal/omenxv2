@@ -1,7 +1,7 @@
 /**
  * 登录 / 注册 — the auth layer as its own page node (2026-08-27 audit round).
  *
- * 20 cases, every one a production component mounted with display-only fixture
+ * 16 cases, every one a production component mounted with display-only fixture
  * props (see preview/authPreviews.tsx). Truth Rule §16.1.1 — no hand-copied markup.
  */
 import { LitePage } from "./shell";
@@ -74,18 +74,6 @@ const LOGIN_MOBILE: SectionCase[] = [
       },
     ],
   },
-  {
-    key: "auth-login-pro",
-    label: "AU-L6 · login · Pro",
-    spec: [
-      {
-        state: "login · Pro",
-        when: "surface === 'pro'",
-        visual: "'Predict the Future, Profit from Certainty' + 蓝 banner（零改动对照）",
-        source: "AuthContent.tsx Pro 分支",
-      },
-    ],
-  },
 ];
 
 const CREATE_CASES: SectionCase[] = [
@@ -98,18 +86,6 @@ const CREATE_CASES: SectionCase[] = [
         when: "step === 'createWallet'",
         visual: "三行 volt 勾价值点 + Turnstile 占位块 + btn-primary 'Create wallet'",
         source: "AuthContent.tsx isLite 分支",
-      },
-    ],
-  },
-  {
-    key: "auth-create-pro",
-    label: "AU-W3 · createWallet · Pro",
-    spec: [
-      {
-        state: "createWallet · Pro",
-        when: "surface === 'pro'",
-        visual: "Pro 版式零改动",
-        source: "AuthContent.tsx Pro 分支",
       },
     ],
   },
@@ -200,18 +176,6 @@ const PROFILE_CASES: SectionCase[] = [
       },
     ],
   },
-  {
-    key: "auth-profile-pro",
-    label: "AU-P7 · completeProfile · Pro",
-    spec: [
-      {
-        state: "completeProfile · Pro",
-        when: "surface === 'pro'",
-        visual: "Pro 绿系横幅零改动",
-        source: "AuthContent.tsx Pro 分支",
-      },
-    ],
-  },
 ];
 
 const GATE_CASES: SectionCase[] = [
@@ -240,18 +204,6 @@ const GATE_CASES: SectionCase[] = [
       },
     ],
   },
-  {
-    key: "auth-gate-pro",
-    label: "AU-G3 · AuthGateOverlay · Pro 默认",
-    spec: [
-      {
-        state: "Pro gate",
-        when: "surface === 'pro' && !user",
-        visual: "圆形 LogIn 图标 + 标题 + 描述 + Log In（outline）/ Sign Up（primary）",
-        source: "AuthGateOverlay.tsx",
-      },
-    ],
-  },
 ];
 
 const DIALOG_CASES: SectionCase[] = [
@@ -276,7 +228,7 @@ export const AuthPage = ({ isMobile }: { isMobile: boolean }) => (
     title="登录 / 注册"
     route="AuthDialog（desktop）· AuthSheet（mobile）· 未登录门"
     status="done"
-    note="三步流程（login → createWallet → completeProfile）、两种未登录门与 Google 账号选择弹层，共 20 个真实渲染 case。"
+    note="三步流程（login → createWallet → completeProfile）、两种未登录门与 Google 账号选择弹层，共 16 个真实渲染 case。"
   >
     <SectionWrapper
       id="auth-cases"
@@ -293,14 +245,14 @@ export const AuthPage = ({ isMobile }: { isMobile: boolean }) => (
       </SubSection>
 
       <SubSection title="2 · createWallet" platform="shared">
-        <SectionFrame cases={[CREATE_CASES[0], CREATE_CASES[2]]} device="desktop" minHeight={560} />
+        <SectionFrame cases={[CREATE_CASES[0]]} device="desktop" minHeight={560} />
         <div className="mt-3">
           <SectionFrame cases={[CREATE_CASES[1]]} device="mobile" minHeight={560} />
         </div>
       </SubSection>
 
       <SubSection title="3 · completeProfile" platform="shared">
-        <SectionFrame cases={[...PROFILE_CASES.slice(0, 5), PROFILE_CASES[6]]} device="desktop" minHeight={620} />
+        <SectionFrame cases={PROFILE_CASES.slice(0, 5)} device="desktop" minHeight={620} />
         <div className="mt-3">
           <SectionFrame cases={[PROFILE_CASES[5]]} device="mobile" minHeight={620} />
         </div>

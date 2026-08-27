@@ -206,7 +206,6 @@ const HeroDemo = ({ note }: { note?: string }) => {
 };
 
 export const HeroEquityNoteLitePreview = () => <HeroDemo note="does not include open trade profit" />;
-export const HeroEquityNoteProPreview = () => <HeroDemo />;
 
 /* ============================================================
  * Wallet audit round (2026-08-27) · W-1 … W-16
