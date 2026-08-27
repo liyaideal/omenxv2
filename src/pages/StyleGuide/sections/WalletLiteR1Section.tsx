@@ -10,7 +10,7 @@ import { SectionFrame, type SectionCase } from "../components/SectionFrame";
 
 const GATE_CASES: SectionCase[] = [
   {
-    key: "wallet-lite-gate-lite",
+    key: "auth-gate-lite-wallet",
     label: "未登录门 · Lite",
     note: "/wallet 未登录时按 surface 分叉。Lite 走 LiteAuthGate（模糊底层 + lynx + 双 CTA），wallet 专属 title / description。",
     spec: [
@@ -30,7 +30,7 @@ const GATE_CASES: SectionCase[] = [
     ],
   },
   {
-    key: "wallet-lite-gate-pro",
+    key: "auth-gate-pro",
     label: "未登录门 · Pro（本轮未改）",
     spec: [
       {
@@ -39,105 +39,6 @@ const GATE_CASES: SectionCase[] = [
         visual:
           "AuthGateOverlay 原样：'Sign in to view your wallet' / 'Manage your funds and saved addresses by signing in.'",
         source: "WalletAuthGate (src/pages/Wallet.tsx)",
-      },
-    ],
-  },
-];
-
-const AUTH_DESKTOP_CASES: SectionCase[] = [
-  {
-    key: "wallet-lite-auth-login-desktop",
-    label: "AuthContent · login · isLite · desktop（AuthDialog 内）",
-    spec: [
-      {
-        state: "login · lite",
-        when: "step === 'login' && surface === 'lite'",
-        visual:
-          "lynx 图 /lynx-auth-placeholder.png + 'Trade what happens next' + 'Intraday crypto, stock and sports markets — settled in USDC.'；tab active = bg-[#F2F3F5] text-[#090A0C]",
-        source: "AuthContent.tsx isLite 分支",
-      },
-      {
-        state: "login · pro",
-        when: "step === 'login' && surface === 'pro'",
-        visual: "原 Pro 版式（本轮零改动）",
-        source: "AuthContent.tsx",
-      },
-    ],
-  },
-  {
-    key: "wallet-lite-auth-create-desktop",
-    label: "AuthContent · createWallet · isLite · desktop",
-    spec: [
-      {
-        state: "createWallet · lite",
-        when: "step === 'createWallet' && surface === 'lite'",
-        visual: "三行 volt 勾价值点 + Cloudflare Turnstile 占位块 + btn-primary 'Create wallet'",
-        source: "AuthContent.tsx isLite 分支",
-      },
-      {
-        state: "loading",
-        when: "isLoading === true",
-        visual: "主按钮内 Loader2 自旋，按钮禁用",
-        source: "AuthContent isLoading",
-      },
-    ],
-  },
-  {
-    key: "wallet-lite-auth-profile-desktop",
-    label: "AuthContent · completeProfile · isLite · desktop",
-    spec: [
-      {
-        state: "completeProfile · lite",
-        when: "step === 'completeProfile' && surface === 'lite'",
-        visual:
-          "volt 横幅 + bg-muted/30 rounded-lg 卡片（username / email）+ btn-primary 'Start trading →'",
-        source: "AuthContent.tsx isLite 分支",
-      },
-      {
-        state: "email 非法",
-        when: "emailError !== ''",
-        visual: "email 输入下方红色错误行，提交拦截",
-        source: "AuthContent emailError",
-      },
-    ],
-  },
-];
-
-const AUTH_MOBILE_CASES: SectionCase[] = [
-  {
-    key: "wallet-lite-auth-login-mobile",
-    label: "AuthContent · login · isLite · mobile（AuthSheet 内）",
-    note: "AuthSheet = MobileDrawer；a11y 补了 VisuallyHidden SheetTitle 'Sign in'，视觉零变化。",
-    spec: [
-      {
-        state: "login · lite · mobile",
-        when: "step === 'login' && surface === 'lite' && variant === 'mobile'",
-        visual: "同 desktop 文案与 tab 配色，容器为底部抽屉（max-h-[85vh]，无关闭按钮）",
-        source: "AuthSheet.tsx + AuthContent.tsx",
-      },
-    ],
-  },
-  {
-    key: "wallet-lite-auth-create-mobile",
-    label: "AuthContent · createWallet · isLite · mobile",
-    spec: [
-      {
-        state: "createWallet · lite · mobile",
-        when: "step === 'createWallet' && variant === 'mobile'",
-        visual: "三行 volt 勾 + Turnstile 占位块（静态，非真实校验）",
-        source: "AuthContent.tsx",
-      },
-    ],
-  },
-  {
-    key: "wallet-lite-auth-profile-mobile",
-    label: "AuthContent · completeProfile · isLite · mobile",
-    spec: [
-      {
-        state: "completeProfile · lite · mobile",
-        when: "step === 'completeProfile' && variant === 'mobile'",
-        visual: "volt 横幅 + bg-muted/30 卡片 + btn-primary 'Start trading →'",
-        source: "AuthContent.tsx",
       },
     ],
   },
@@ -259,8 +160,8 @@ const TX_CASES: SectionCase[] = [
     spec: TX_ICON_SPEC,
   },
   {
-    key: "wallet-lite-tx-icon-matrix",
-    label: "交易流水 · transfer 方向文案",
+    key: "wallet-lite-tx-transfer-legs",
+    label: "交易流水 · transfer 方向文案（四腿）",
     spec: [
       {
         state: "Transfer from Standard",
@@ -322,18 +223,10 @@ export const WalletLiteR1Section = ({ isMobile }: { isMobile: boolean }) => (
     id="wallet-lite-r1"
     title="Wallet Lite R1 · 状态字典"
     platform="shared"
-    description="2026-08 Wallet Lite 改版三批：批1 未登录门 + Lite 登录弹层三步 / 批2 地址 ⋯ 菜单 + 账户徽标配色 + Hero 文案 / 批3 流水行清理 + 列对齐 + icon 全类型映射。"
+    description="2026-08 Wallet Lite 改版三批：批1 未登录门（登录弹层三步已迁往「登录 / 注册」节）/ 批2 地址 ⋯ 菜单 + 账户徽标配色 + Hero 文案 / 批3 流水行清理 + 列对齐 + icon 全类型映射。"
   >
     <SubSection title="1 · 未登录门（Lite vs Pro）" platform="shared">
       <SectionFrame cases={GATE_CASES} device={isMobile ? "mobile" : "desktop"} minHeight={460} />
-    </SubSection>
-
-    <SubSection title="2 · Lite 登录弹层三步 · desktop（AuthDialog）" platform="desktop">
-      <SectionFrame cases={AUTH_DESKTOP_CASES} device="desktop" minHeight={640} />
-    </SubSection>
-
-    <SubSection title="2 · Lite 登录弹层三步 · mobile（AuthSheet）" platform="mobile">
-      <SectionFrame cases={AUTH_MOBILE_CASES} device="mobile" minHeight={640} />
     </SubSection>
 
     <SubSection title="3 · Saved addresses ⋯ 菜单 · desktop" platform="desktop">
