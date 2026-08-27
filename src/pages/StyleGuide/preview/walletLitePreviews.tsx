@@ -234,7 +234,7 @@ const mk = (
     type,
     amount,
     description,
-    date: d.toISOString(),
+    date: d.toLocaleString(undefined, { dateStyle: "short", timeStyle: "short" }),
     timestamp: d.getTime(),
     status: "completed",
     ...extra,
