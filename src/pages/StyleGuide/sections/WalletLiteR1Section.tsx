@@ -38,6 +38,8 @@ const ADDRESS_DESKTOP_CASES: SectionCase[] = [
         visual: "w-[210px] p-1 bg-[#12151A] border-[#1D2026] rounded-xl，align=end side=bottom",
         source: "SavedAddressRowView",
       },
+    ],
+  },
 ];
 
 const ADDRESS_MOBILE_CASES: SectionCase[] = [
@@ -51,6 +53,8 @@ const ADDRESS_MOBILE_CASES: SectionCase[] = [
         visual: "行尾只有 ⋯，无独立 Copy 按钮（Copy 移进抽屉）",
         source: "SavedAddressRowView",
       },
+    ],
+  },
   {
     key: "wallet-lite-address-actions",
     label: "⋯ MobileDrawer · 非默认地址",
@@ -61,6 +65,8 @@ const ADDRESS_MOBILE_CASES: SectionCase[] = [
         visual: "Set as default / Copy address / Delete address（红），发丝分隔",
         source: "SavedAddressActionsList (src/pages/Wallet.tsx)",
       },
+    ],
+  },
   {
     key: "wallet-lite-address-actions-default",
     label: "⋯ MobileDrawer · 默认地址",
@@ -71,6 +77,8 @@ const ADDRESS_MOBILE_CASES: SectionCase[] = [
         visual: "只有 Copy address / Delete address —— Set as default 不渲染",
         source: "SavedAddressActionsList",
       },
+    ],
+  },
 ];
 
 const BADGE_CASES: SectionCase[] = [
@@ -91,6 +99,8 @@ const BADGE_CASES: SectionCase[] = [
         visual: "border-accent/40 bg-accent/15 text-accent，文字 BOOST",
         source: "PRODUCT_LINE_BADGE_CLASSES.futures",
       },
+    ],
+  },
 ];
 
 const TX_ICON_SPEC = [
@@ -141,6 +151,8 @@ const TX_CASES: SectionCase[] = [
         visual: "描述 'Transfer to Standard'",
         source: "Wallet.tsx 交易映射",
       },
+    ],
+  },
 ];
 
 const HERO_CASES: SectionCase[] = [
@@ -172,6 +184,8 @@ const PENDING_CASES: SectionCase[] = [
         visual: "进度条 6/15 + 链名 Base + 金额 $800 + tx hash 截断可点",
         source: "PendingConfirmations.tsx",
       },
+    ],
+  },
   {
     key: "wallet-lite-pending-confirmations-mobile",
     label: "W-2 · PendingConfirmations · mobile",
@@ -199,6 +213,8 @@ const TX_EMPTY_CASES: SectionCase[] = [
         visual: "保留 pill 行，正文为「该筛选下暂无记录」语气的空态",
         source: "TransactionHistory.tsx filter 分支",
       },
+    ],
+  },
 ];
 
 const TX_STATE_CASES: SectionCase[] = [
@@ -223,6 +239,8 @@ const TX_STATE_CASES: SectionCase[] = [
         visual: "Wallet 图标 · text-muted-foreground · bg-muted/20，金额按正负取色，绝不套用红色亏损语义",
         source: "getTransactionIcon 兜底",
       },
+    ],
+  },
   {
     key: "wallet-lite-tx-expanded",
     label: "W-8 · 交易流水 · 展开详情",
@@ -233,6 +251,8 @@ const TX_STATE_CASES: SectionCase[] = [
         visual: "展开区显示 network / fee / tx hash（Base → basescan.org 外链）",
         source: "TransactionHistory 展开层 + EXPLORER_URLS",
       },
+    ],
+  },
   {
     key: "wallet-lite-tx-pro-only-types",
     label: "W-9 · 交易流水 · Pro 专属四类型",
@@ -257,6 +277,8 @@ const ADDRESS_EMPTY_CASES: SectionCase[] = [
         visual: "计数显示 0 addresses；虚线 Add address 按钮常驻；下方站点统一 EmptyState",
         source: "Wallet.tsx Saved addresses 卡",
       },
+    ],
+  },
 ];
 
 const HERO_HIDDEN_CASES: SectionCase[] = [
@@ -270,6 +292,8 @@ const HERO_HIDDEN_CASES: SectionCase[] = [
         visual: "金额替换为掩码字符，副行说明保留，EyeOff 图标",
         source: "HeroEquityCard hidden",
       },
+    ],
+  },
 ];
 
 const DEPOSIT_DIALOG_CASES: SectionCase[] = [
@@ -284,6 +308,8 @@ const DEPOSIT_DIALOG_CASES: SectionCase[] = [
         visual: "逐条勾选的入金须知，全部勾完才露出地址",
         source: "WalletDeposit.tsx",
       },
+    ],
+  },
   {
     key: "wallet-deposit-dialog-address",
     label: "W-13 · Deposit 弹窗 · 地址态",
@@ -294,6 +320,8 @@ const DEPOSIT_DIALOG_CASES: SectionCase[] = [
         visual: "二维码 + 链上地址（ColoredAddress）+ Copy；最小入金与到账说明",
         source: "WalletDeposit.tsx",
       },
+    ],
+  },
   {
     key: "wallet-deposit-dialog-fiat",
     label: "W-14 · Deposit 弹窗 · Fiat tab",
@@ -321,6 +349,8 @@ const WITHDRAW_CASES: SectionCase[] = [
         visual: "地址选择 + 金额（Max）+ 手续费与到账金额明细 + 主 CTA",
         source: "WalletWithdraw.tsx",
       },
+    ],
+  },
 ];
 
 export const WalletLiteR1Section = ({ isMobile }: { isMobile: boolean }) => (
