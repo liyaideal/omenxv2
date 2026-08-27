@@ -20,7 +20,7 @@ const EXPLORER_URLS: Record<string, string> = {
   'Solana': 'https://solscan.io/tx/',
 };
 
-interface PendingTransaction {
+export interface PendingTransaction {
   id: string;
   type: string;
   amount: number;
