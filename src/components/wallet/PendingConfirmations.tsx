@@ -115,7 +115,7 @@ export const PendingConfirmations = ({ className, fixture }: PendingConfirmation
   }
 
   return (
-    <div className={cn("rounded-[18px] border border-border bg-card p-[22px_22px_18px]", className)}>
+    <div className={cn("rounded-[18px] border border-border bg-card p-4 md:p-[22px_22px_18px]", className)}>
       <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-4">
         Pending confirmations
       </div>
@@ -129,31 +129,62 @@ export const PendingConfirmations = ({ className, fixture }: PendingConfirmation
             const confirmations = tx.confirmations;
             const required = tx.required_confirmations;
             const progress = Math.min((confirmations / required) * 100, 100);
+            const meta = `${tx.network || 'Unknown Network'} · ${formatTimeAgo(tx.created_at)} · est. ${fixture?.estimatedTimeLabel ?? getEstimatedTimeRemaining(confirmations, required, tx.network)}`;
             return (
-              <div key={tx.id} className="flex items-center gap-3.5">
-                <div className="w-9 h-9 rounded-xl grid place-items-center flex-shrink-0" style={{ background: 'rgba(51,214,255,0.12)', color: '#7FE4FF' }}>
-                  <ArrowDown className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2.5 flex-wrap">
-                    <span className="font-mono font-bold text-sm tabular-nums" style={{ color: '#DCFF6A' }}>
+              <div key={tx.id}>
+                {/* Mobile — two-layer row (icon + title + amount, then meta / progress at pl-[52px]) */}
+                <div className="md:hidden">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-9 h-9 rounded-xl grid place-items-center flex-shrink-0" style={{ background: 'rgba(51,214,255,0.12)', color: '#7FE4FF' }}>
+                      <ArrowDown className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0 flex items-center gap-2">
+                      <span className="text-sm font-semibold">Deposit</span>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-[0.08em] flex-shrink-0" style={{ background: 'rgba(51,214,255,0.14)', color: '#7FE4FF' }}>
+                        Confirming
+                      </span>
+                    </div>
+                    <span className="font-mono font-bold text-sm tabular-nums flex-shrink-0" style={{ color: '#DCFF6A' }}>
                       +${formatAmount(tx.amount)}
                     </span>
-                    <span className="text-sm font-semibold">Deposit</span>
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.08em]" style={{ background: 'rgba(51,214,255,0.14)', color: '#7FE4FF' }}>
-                      Confirming
-                    </span>
                   </div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                     {tx.network || 'Unknown Network'} · {formatTimeAgo(tx.created_at)} · est. {fixture?.estimatedTimeLabel ?? getEstimatedTimeRemaining(confirmations, required, tx.network)}
+                  <div className="pl-[52px] mt-1 space-y-1.5">
+                    <div className="text-xs text-muted-foreground">{meta}</div>
+                    <div className="font-mono text-xs font-semibold tabular-nums" style={{ color: '#C9CED6' }}>
+                      {confirmations}/{required} blocks
+                    </div>
+                    <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: '#1D2026' }}>
+                      <div className="h-full rounded-full" style={{ width: `${progress}%`, background: 'linear-gradient(90deg,#013281,#33D6FF)' }} />
+                    </div>
                   </div>
                 </div>
-                <div className="text-right flex-shrink-0">
-                  <div className="font-mono text-xs font-semibold tabular-nums" style={{ color: '#C9CED6' }}>
-                    {confirmations}/{required} blocks
+
+                {/* Desktop — unchanged single-line row */}
+                <div className="hidden md:flex items-center gap-3.5">
+                  <div className="w-9 h-9 rounded-xl grid place-items-center flex-shrink-0" style={{ background: 'rgba(51,214,255,0.12)', color: '#7FE4FF' }}>
+                    <ArrowDown className="w-4 h-4" />
                   </div>
-                  <div className="w-[110px] h-1 rounded-full mt-1.5 overflow-hidden" style={{ background: '#1D2026' }}>
-                    <div className="h-full rounded-full" style={{ width: `${progress}%`, background: 'linear-gradient(90deg,#013281,#33D6FF)' }} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                      <span className="font-mono font-bold text-sm tabular-nums" style={{ color: '#DCFF6A' }}>
+                        +${formatAmount(tx.amount)}
+                      </span>
+                      <span className="text-sm font-semibold">Deposit</span>
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.08em]" style={{ background: 'rgba(51,214,255,0.14)', color: '#7FE4FF' }}>
+                        Confirming
+                      </span>
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      {meta}
+                    </div>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <div className="font-mono text-xs font-semibold tabular-nums" style={{ color: '#C9CED6' }}>
+                      {confirmations}/{required} blocks
+                    </div>
+                    <div className="w-[110px] h-1 rounded-full mt-1.5 overflow-hidden" style={{ background: '#1D2026' }}>
+                      <div className="h-full rounded-full" style={{ width: `${progress}%`, background: 'linear-gradient(90deg,#013281,#33D6FF)' }} />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -161,6 +192,7 @@ export const PendingConfirmations = ({ className, fixture }: PendingConfirmation
           })}
         </div>
       )}
+
       <div className="mt-3.5 pt-3 border-t border-border">
         <Link
           to="/wallet/recovery"
