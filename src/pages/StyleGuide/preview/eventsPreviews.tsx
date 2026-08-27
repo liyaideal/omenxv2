@@ -20,7 +20,6 @@ import { MobileSportsModule } from "@/components/lite/mobile/MobileSportsModule"
 import {
   type StockEventRow,
   type Timeframe,
-  useIntradayStocks,
   useQuickRounds,
   useSecondTick,
 } from "@/components/lite/intraday/intradayData";
