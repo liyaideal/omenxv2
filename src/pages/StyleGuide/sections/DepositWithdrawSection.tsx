@@ -2,10 +2,8 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowDown } from "lucide-react";
-import { SectionWrapper, SubSection, LegacyNotice } from "../components/SectionWrapper";
+import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
-import { cn } from "@/lib/utils";
 import { RecoveryStatusTimeline, RecoveryStatusBadge } from "@/components/recovery/RecoveryStatusTimeline";
 import { WithdrawVerifyDialog } from "@/components/withdraw/WithdrawVerifyDialog";
 import { DeviceFrame } from "../components/DeviceFrame";
@@ -37,7 +35,22 @@ export const DepositWithdrawSection = ({ isMobile }: DepositWithdrawSectionProps
     title="Deposit & Withdraw"
     description="Design system for all deposit, withdrawal, and cross-chain bridging components. Consistent typography, chain logos, and layout patterns."
   >
-    {/* ── Chain & Token Logos ── */}
+    <SubSection title="Funding assets">
+      <Card>
+        <CardContent className="grid gap-3 pt-6 sm:grid-cols-3">
+          {[
+            ["/chain-logos/base.svg", "Base", "Network: Base（唯一入金网络）"],
+            ["/token-logos/usdc.svg", "USDC", "Token: USDC"],
+            ["/brand-logos/banxa.png", "Banxa", "Fiat on-ramp: Banxa（Deposit → Fiat tab）"],
+          ].map(([src, alt, text]) => (
+            <div key={text} className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 p-3">
+              <img src={src} alt={alt} className="h-8 w-8 rounded-full object-contain" />
+              <span className="text-xs text-foreground">{text}</span>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    </SubSection>
 
     {/* ── Typography Standards ── */}
     <SubSection title="Typography Standards" description="Consistent font sizing across all deposit/withdraw flows.">
@@ -49,17 +62,8 @@ export const DepositWithdrawSection = ({ isMobile }: DepositWithdrawSectionProps
               <span className="text-sm text-muted-foreground">Spec</span>
             </div>
             {[
-              ["Section title (Swap, Confirm)", "text-base font-semibold (16px)"],
-              ["Card label (From / To)", "text-sm text-muted-foreground (14px)"],
               ["Amount input", "text-2xl font-mono (24px)"],
-              ["Token selector text", "text-sm font-medium (14px)"],
-              ["Chain name in selector", "text-xs text-muted-foreground (12px)"],
-              ["Quote detail label", "text-xs text-muted-foreground (12px)"],
-              ["Quote detail value", "text-xs font-mono (12px)"],
-              ["Review detail label", "text-sm text-muted-foreground (14px)"],
-              ["Review detail value", "text-sm font-mono (14px)"],
               ["CTA button", "text-sm font-semibold (14px)"],
-              ["Powered by footer", "text-[10px] text-muted-foreground"],
               ["Balance display", "text-xs font-mono"],
               ["Wallet address", "text-xs font-mono"],
               ["Status step label", "text-sm (14px)"],
@@ -75,22 +79,8 @@ export const DepositWithdrawSection = ({ isMobile }: DepositWithdrawSectionProps
       </Card>
 
       <CodePreview code={`// Amount input — always text-2xl font-mono
-<Input className="text-2xl font-mono bg-transparent border-none" />
-
-// Quote row — xs for inline, sm for review
-<div className="flex justify-between text-xs text-muted-foreground">
-  <span>Rate</span>
-  <span className="font-mono">1 ETH = 3500.00 USDC</span>
-</div>`} />
+<Input className="text-2xl font-mono bg-transparent border-none" />`} />
     </SubSection>
-
-    {/* ── Swap Card Layout ── */}
-
-    {/* ── Quote Details ── */}
-
-    {/* ── Status Flow ── */}
-
-    {/* ── Powered By Footer ── */}
 
     {/* ── Recovery Request Status ── */}
     <SubSection

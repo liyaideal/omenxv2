@@ -75,14 +75,14 @@ const LOGIN_MOBILE: SectionCase[] = [
     ],
   },
   {
-    key: "auth-login-mobile-wallet",
-    label: "AU-L6 · login · Wallet tab · mobile",
+    key: "auth-login-pro",
+    label: "AU-L6 · login · Pro",
     spec: [
       {
-        state: "wallet · mobile",
-        when: "variant === 'mobile' && authMethod === 'wallet'",
-        visual: "抽屉内钱包入口",
-        source: "AuthContent.tsx",
+        state: "login · Pro",
+        when: "surface === 'pro'",
+        visual: "'Predict the Future, Profit from Certainty' + 蓝 banner（零改动对照）",
+        source: "AuthContent.tsx Pro 分支",
       },
     ],
   },
@@ -102,20 +102,20 @@ const CREATE_CASES: SectionCase[] = [
     ],
   },
   {
-    key: "auth-create-bare",
-    label: "AU-W2 · createWallet · 无 Logo 头（嵌入宿主时）",
+    key: "auth-create-pro",
+    label: "AU-W3 · createWallet · Pro",
     spec: [
       {
-        state: "bare",
-        when: "宿主自带头部，AuthContent 单独挂载",
-        visual: "与 AU-W1 内容一致，只是不渲染 Logo 头",
-        source: "AuthContent.tsx",
+        state: "createWallet · Pro",
+        when: "surface === 'pro'",
+        visual: "Pro 版式零改动",
+        source: "AuthContent.tsx Pro 分支",
       },
     ],
   },
   {
     key: "auth-create-mobile",
-    label: "AU-W3 · createWallet · mobile",
+    label: "AU-W2 · createWallet · mobile",
     spec: [
       {
         state: "createWallet · mobile",
@@ -165,7 +165,7 @@ const PROFILE_CASES: SectionCase[] = [
     ],
   },
   {
-    key: "auth-profile-referral-filled",
+    key: "auth-profile-referral-prefilled",
     label: "AU-P4 · completeProfile · 推荐码已填（6 位）",
     spec: [
       {
@@ -178,7 +178,7 @@ const PROFILE_CASES: SectionCase[] = [
   },
   {
     key: "auth-profile-mobile",
-    label: "AU-P5 · completeProfile · mobile",
+    label: "AU-P6 · completeProfile · mobile",
     spec: [
       {
         state: "completeProfile · mobile",
@@ -188,12 +188,24 @@ const PROFILE_CASES: SectionCase[] = [
       },
     ],
   },
+  {
+    key: "auth-profile-pro",
+    label: "AU-P7 · completeProfile · Pro",
+    spec: [
+      {
+        state: "completeProfile · Pro",
+        when: "surface === 'pro'",
+        visual: "Pro 绿系横幅零改动",
+        source: "AuthContent.tsx Pro 分支",
+      },
+    ],
+  },
 ];
 
 const GATE_CASES: SectionCase[] = [
   {
-    key: "auth-gate-lite-wallet",
-    label: "AU-G1 · LiteAuthGate · wallet 文案",
+    key: "auth-gate-lite-out",
+    label: "AU-G1 · LiteAuthGate · signed-out",
     spec: [
       {
         state: "Lite gate",
@@ -205,14 +217,14 @@ const GATE_CASES: SectionCase[] = [
     ],
   },
   {
-    key: "auth-gate-lite-portfolio",
-    label: "AU-G2 · LiteAuthGate · portfolio 默认文案",
+    key: "auth-gate-lite-in",
+    label: "AU-G2 · LiteAuthGate · signed-in 透传",
     spec: [
       {
-        state: "默认文案",
-        when: "title / description 未传",
-        visual: "'Sign in to view your portfolio' + 'Track your live calls and settled results…'",
-        source: "LiteAuthGate 默认参数",
+        state: "signed in",
+        when: "forceSignedIn === true",
+        visual: "children 原样、零覆盖层（真渲染）",
+        source: "LiteAuthGate forceSignedIn fixture",
       },
     ],
   },
@@ -228,30 +240,18 @@ const GATE_CASES: SectionCase[] = [
       },
     ],
   },
-  {
-    key: "auth-gate-pro-compact",
-    label: "AU-G4 · AuthGateOverlay · compact",
-    spec: [
-      {
-        state: "compact",
-        when: "compact === true",
-        visual: "图标 40px、标题 text-sm、按钮 size=sm，用于窄面板",
-        source: "AuthGateOverlay compact",
-      },
-    ],
-  },
 ];
 
 const DIALOG_CASES: SectionCase[] = [
   {
-    key: "auth-google-chooser",
+    key: "auth-demo-google-chooser",
     label: "AU-D1 · GoogleAccountChooser（账号选择弹层）",
-    note: "previewOnly：只渲染，不发起真实 OAuth。",
+    note: "DEMO ONLY · 演示设施，不入产品规范",
     spec: [
       {
         state: "chooser open",
         when: "googleChooserOpen === true",
-        visual: "固定演示账号行 + 'Use another account' 行",
+        visual: "'Choose an account / to continue to OMENX' + Alex Carter / Mia Reyes / Use another account",
         source: "GoogleAccountChooser.tsx",
       },
     ],
@@ -281,16 +281,16 @@ export const AuthPage = ({ isMobile }: { isMobile: boolean }) => (
       </SubSection>
 
       <SubSection title="2 · createWallet" platform="shared">
-        <SectionFrame cases={CREATE_CASES.slice(0, 2)} device="desktop" minHeight={560} />
+        <SectionFrame cases={[CREATE_CASES[0], CREATE_CASES[2]]} device="desktop" minHeight={560} />
         <div className="mt-3">
-          <SectionFrame cases={CREATE_CASES.slice(2)} device="mobile" minHeight={560} />
+          <SectionFrame cases={[CREATE_CASES[1]]} device="mobile" minHeight={560} />
         </div>
       </SubSection>
 
       <SubSection title="3 · completeProfile" platform="shared">
-        <SectionFrame cases={PROFILE_CASES.slice(0, 4)} device="desktop" minHeight={620} />
+        <SectionFrame cases={[...PROFILE_CASES.slice(0, 4), PROFILE_CASES[5]]} device="desktop" minHeight={620} />
         <div className="mt-3">
-          <SectionFrame cases={PROFILE_CASES.slice(4)} device="mobile" minHeight={620} />
+          <SectionFrame cases={[PROFILE_CASES[4]]} device="mobile" minHeight={620} />
         </div>
       </SubSection>
 

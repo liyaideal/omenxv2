@@ -35,15 +35,11 @@ interface AuthContentProps {
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
   variant?: "desktop" | "mobile";
-  /**
-   * Style-guide only (docs fixture). Seeds initial local state so a static
-   * state can be photographed. Never set in product code — when omitted the
-   * component behaves exactly as before.
-   */
+  /** Style-guide only: seeds internal UI state. Never passed in production. */
   fixture?: {
     authMethod?: "wallet" | "google" | "telegram";
     emailError?: string;
-    showReferralInput?: boolean;
+    referralOpen?: boolean;
     referralCode?: string;
     googleChooserOpen?: boolean;
   };
@@ -67,7 +63,7 @@ export const AuthContent = ({
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [referralCode, setReferralCode] = useState(fixture?.referralCode ?? "");
-  const [showReferralInput, setShowReferralInput] = useState(fixture?.showReferralInput ?? false);
+  const [showReferralInput, setShowReferralInput] = useState(fixture?.referralOpen ?? false);
   const [emailError, setEmailError] = useState(fixture?.emailError ?? "");
   const [googleChooserOpen, setGoogleChooserOpen] = useState(fixture?.googleChooserOpen ?? false);
 
@@ -618,7 +614,7 @@ export const AuthContent = ({
 
   // Complete Profile Step
   if (step === "completeProfile") {
-    const hasPrefilledReferral = !!searchParams.get("ref");
+    const hasPrefilledReferral = !!searchParams.get("ref") || !!fixture?.referralCode;
 
     return (
       <div className="space-y-4">

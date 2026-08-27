@@ -288,6 +288,7 @@ export const HeroEquityNoteProPreview = () => <HeroDemo />;
 /* ---------------- W-1 / W-2 · Pending confirmations ---------------- */
 
 const PENDING_FIXTURE = {
+  estimatedTimeLabel: "~45s left",
   rows: [
     {
       id: "pc1",
@@ -325,8 +326,8 @@ export const TxEmptyPreview = () => (
 export const TxEmptyFilteredPreview = () => (
   <div className="rounded-2xl border border-border/40 bg-card p-4">
     <TransactionHistory
-      transactions={[mk("3", "trade_profit", 42.18, "Settled: BTC ≥ $150k · Won", { account: "futures" })]}
-      fixture={{ initialFilter: "withdraw" }}
+      transactions={[mk("3", "deposit", 42.18, "USDC deposit · Base", { account: "spot" })]}
+      fixture={{ initialFilter: "trade" }}
     />
   </div>
 );
@@ -349,16 +350,16 @@ export const TxTransferLegsPreview = () => (
 /* ---------------- W-6 · Status — all five ---------------- */
 
 const STATUS_TXS: Transaction[] = [
-  mk("1", "deposit", 250, "USDC deposit · Base", { network: "Base", account: "spot", status: "pending" }),
-  mk("2", "deposit", 250, "USDC deposit · Base", { network: "Base", account: "spot", status: "processing" }),
-  mk("3", "deposit", 250, "USDC deposit · Base", { network: "Base", account: "spot", status: "completed" }),
+  mk("1", "withdraw", -250, "USDC withdraw · Base", { network: "Base", account: "futures", status: "pending" }),
+  mk("2", "withdraw", -250, "USDC withdraw · Base", { network: "Base", account: "futures", status: "processing" }),
+  mk("3", "withdraw", -250, "USDC withdraw · Base", { network: "Base", account: "futures", status: "completed" }),
   mk("4", "withdraw", -250, "USDC withdraw · Base", { network: "Base", account: "futures", status: "failed" }),
   mk("5", "withdraw", -250, "USDC withdraw · Base", { network: "Base", account: "futures", status: "rejected" }),
 ];
 
 export const TxStatusMatrixPreview = () => (
   <div className="rounded-2xl border border-border/40 bg-card">
-    <TransactionHistory transactions={STATUS_TXS} />
+    <TransactionHistory transactions={STATUS_TXS} fixture={{ initialExpandedIds: STATUS_TXS.map((tx) => tx.id) }} />
   </div>
 );
 
@@ -368,7 +369,7 @@ export const TxUnknownTypePreview = () => (
   <div className="rounded-2xl border border-border/40 bg-card">
     <TransactionHistory
       transactions={[
-        mk("1", "future_type_not_yet_mapped" as TransactionType, 12.5, "Unmapped ledger entry", {
+        mk("1", "mystery" as TransactionType, 12.5, "Unmapped ledger entry", {
           account: "spot",
         }),
       ]}
@@ -507,7 +508,7 @@ export const DepositDialogChecklistPreview = () => (
 
 export const DepositDialogAddressPreview = () => (
   <DepositBodyShell tab="wallet">
-    <WalletDeposit demoAcknowledged account="spot" />
+    <WalletDeposit demoAcknowledged account="spot" onDone={noop} />
   </DepositBodyShell>
 );
 
