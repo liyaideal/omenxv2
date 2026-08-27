@@ -3,6 +3,7 @@ name: home-page-purpose
 description: Home v3 — sportsbook-inspired layout. Greeting + search + Tournaments rail + Top Events with LIVE switch + D-class HomeMatchCard.
 type: feature
 ---
+2026-08-27：Lite 首页已收敛为 / = Events 列表，本文档描述的 home feed 已退役，仅作历史参考；style-guide Home 节已下架。
 
 ## Home is a conversion funnel, not a dashboard
 

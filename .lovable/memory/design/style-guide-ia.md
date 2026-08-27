@@ -44,4 +44,6 @@ type: preference
 3. **Settlements · 4B spot display** 整节撤出 Wallet 页，目前无任何挂载页；
    `settlementPreviews.tsx` 与 `settlement-*` / `resolved-market-card-spot` /
    `market-search-row-spot` / `product-line-badge-legend` registry key 保留。
-4. Wallet 页尾序：… → Recovery → Maintenance（Settlements 节消失）。
+4. **Home 节下架（Lite 无 Home 页，/ = Events 列表）**：`lite-home` 导航与总览挂载已移除；
+   `LiteHomePage.tsx` / `MobileHomeSection.tsx` 等文件及 registry key 保留不删。
+5. Wallet 页尾序：… → Recovery → Maintenance（Settlements 节消失）。

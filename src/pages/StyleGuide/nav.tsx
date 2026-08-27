@@ -63,7 +63,6 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
     label: "Lite — 按页面",
     sections: [
       s("lite-overview", "改版进度总览", lp("LiteOverviewSection")),
-      s("lite-home", "Home ✅", lp("LiteHomePage")),
       s("lite-events", "Events 列表 ✅", lp("LiteEventsPage")),
       s("lite-trade", "交易页 ✅", lp("LiteTradePage")),
       s("lite-wallet", "Wallet ✅", lp("LiteWalletPage")),
@@ -116,8 +115,6 @@ export const ALL_SECTIONS: SectionEntry[] = STYLE_GUIDE_GROUPS.flatMap((g) => g.
 /** Legacy hash/tab ids kept alive so old deep links still resolve. */
 export const SECTION_ALIASES: Record<string, string> = {
   // pre-restructure ids → the page node that absorbed them
-  home: "lite-home",
-  "mobile-home": "lite-home",
   lite: "lite-trade",
   "lite-all-stage": "lite-events",
   "lite-verticals": "lite-events",
