@@ -18,12 +18,15 @@ import { MobileIntradayModule } from "@/components/lite/mobile/MobileIntradayMod
 import { SportsStageCard } from "@/components/lite/sports/SportsStageCard";
 import { MobileSportsModule } from "@/components/lite/mobile/MobileSportsModule";
 import {
+  COINS,
+  type Coin,
+  type QuickEvent,
   type StockEventRow,
+  TF_SECONDS,
+  TIMEFRAMES,
   type Timeframe,
-  useQuickRounds,
-  useSecondTick,
 } from "@/components/lite/intraday/intradayData";
-import { buildDayStrip, useSportsMatches } from "@/components/lite/sports/sportsData";
+import { buildDayStrip, type SportsMatch } from "@/components/lite/sports/sportsData";
 
 /* ---------------- shared shells ---------------- */
 
@@ -284,6 +287,74 @@ export const Ev4Preview = () => (
   </Stage>
 );
 
+/* ---------------- intraday fixture (deterministic) ---------------- */
+
+/**
+ * Style-guide rule: page-group cases are fixture-driven — never a runtime
+ * fetch. The band takes its rounds as props in production too, so the guide
+ * feeds it a frozen snapshot of live data instead of calling useQuickRounds.
+ * Countdowns are fixture start values (they tick while the case is open, but
+ * every open starts from the same remaining time).
+ */
+const COIN_FIXTURE: Record<Coin, { base: number; up: number; hist: string }> = {
+  btc: { base: 111_240.5, up: 0.54, hist: "uuduuudu" },
+  eth: { base: 4_182.3, up: 0.51, hist: "duuduudd" },
+  sol: { base: 214.6, up: 0.47, hist: "udduuddu" },
+};
+
+/** Remaining time on the open round of each window, in seconds. */
+const TF_REMAINING: Record<Timeframe, number> = {
+  "5m": 192,
+  "15m": 520,
+  "1h": 2_465,
+  "4h": 7_980,
+  "1d": 26_760,
+};
+
+const quickFixture = (): {
+  currentFor: Map<string, QuickEvent>;
+  historyFor: Map<string, ("up" | "down")[]>;
+} => {
+  const currentFor = new Map<string, QuickEvent>();
+  const historyFor = new Map<string, ("up" | "down")[]>();
+  const now = Date.now();
+  for (const coin of COINS) {
+    const cfg = COIN_FIXTURE[coin];
+    for (const { id: tf } of TIMEFRAMES) {
+      const key = `${coin}-${tf}`;
+      const end = now + TF_REMAINING[tf] * 1000;
+      const start = end - TF_SECONDS[tf] * 1000;
+      currentFor.set(key, {
+        // Static id → static seed → identical derived price on every open.
+        id: `crypto-${coin}-updown-${tf}-1`,
+        name: `${coin.toUpperCase()} ${tf} round`,
+        coin,
+        tf,
+        period: "1",
+        base_price: cfg.base,
+        start_date: new Date(start).toISOString(),
+        end_date: new Date(end).toISOString(),
+        volume: 184_000,
+        is_resolved: false,
+        options: [
+          { id: `${key}-up`, label: "Up", price: cfg.up, is_winner: null },
+          { id: `${key}-down`, label: "Down", price: 1 - cfg.up, is_winner: null },
+        ],
+      });
+      historyFor.set(
+        key,
+        cfg.hist.split("").map((c) => (c === "u" ? "up" : "down")),
+      );
+    }
+  }
+  return { currentFor, historyFor };
+};
+
+const QUICK_FIXTURE = quickFixture();
+
+/** Frozen second-tick fed to the band so prices/countdowns are static. */
+const FIXTURE_TICK = 0;
+
 /* ---------------- ② Intraday band ---------------- */
 
 const US_ROWS: StockEventRow[] = [
@@ -337,8 +408,10 @@ const BandDemo = ({
   initialTf?: Timeframe;
 }) => {
   const isMobile = useIsMobile();
-  const tickSeconds = useSecondTick();
-  const { currentFor, historyFor } = useQuickRounds(true);
+  // Fixture tick: the derived tile price is a function of the second tick, so
+  // a live tick would make the case render differently on every open.
+  const tickSeconds = FIXTURE_TICK;
+  const { currentFor, historyFor } = QUICK_FIXTURE;
   const [tf, setTf] = useState<Timeframe>(initialTf ?? "15m");
 
   if (isMobile) {
@@ -391,11 +464,260 @@ export const Ev8Preview = () => (
   </Stage>
 );
 
+/* ---------------- sports fixture (deterministic) ---------------- */
+
+/** Kickoff anchored to a day offset at a fixed local hour. */
+const kick = (dayOffset: number, hour: number, minute = 0): Date => {
+  const d = new Date();
+  d.setDate(d.getDate() + dayOffset);
+  d.setHours(hour, minute, 0, 0);
+  return d;
+};
+
+const opt = (id: string, label: string, price: number) => ({ id, label, price });
+
+const match = (m: {
+  id: string;
+  league: string;
+  home: string;
+  away: string;
+  homeAbbr: string;
+  awayAbbr: string;
+  kickoff: Date;
+  options: { id: string; label: string; price: number }[];
+  live?: { minute: number; score: string; phase?: string };
+}): SportsMatch => ({
+  id: m.id,
+  name: `${m.home} v ${m.away}`,
+  league: m.league,
+  home: m.home,
+  away: m.away,
+  homeAbbr: m.homeAbbr,
+  awayAbbr: m.awayAbbr,
+  format: m.options.length === 3 ? "1x2" : "h2h",
+  kickoff: m.kickoff,
+  endDate: new Date(m.kickoff.getTime() + 2 * 3_600_000),
+  live: !!m.live,
+  minute: m.live?.minute ?? null,
+  phase: m.live?.phase ?? null,
+  score: m.live?.score ?? null,
+  volume: 420_000,
+  options: m.options,
+});
+
+const threeWay = (h: string, a: string, p: [number, number, number], id: string) => [
+  opt(`${id}-h`, h, p[0]),
+  opt(`${id}-d`, "Draw", p[1]),
+  opt(`${id}-a`, a, p[2]),
+];
+
+/**
+ * 17 upcoming matches (day-rail ALL 17) + 1 live block. Kickoffs are relative
+ * to the current day so the strip never rots; counts per day are fixed.
+ */
+const SPORTS_FIXTURE: SportsMatch[] = [
+  match({
+    id: "sg-sp-live",
+    league: "Premier League",
+    home: "Arsenal",
+    away: "Chelsea",
+    homeAbbr: "ARS",
+    awayAbbr: "CHE",
+    kickoff: new Date(Date.now() - 33 * 60_000),
+    live: { minute: 33, score: "1 – 0", phase: "1st half" },
+    options: threeWay("Arsenal", "Chelsea", [0.58, 0.24, 0.18], "sg-sp-live"),
+  }),
+  // today · 4
+  match({
+    id: "sg-sp-juv",
+    league: "Serie A",
+    home: "Juventus",
+    away: "Napoli",
+    homeAbbr: "JUV",
+    awayAbbr: "NAP",
+    kickoff: kick(0, 20, 45),
+    options: threeWay("Juventus", "Napoli", [0.4, 0.31, 0.3], "sg-sp-juv"),
+  }),
+  match({
+    id: "sg-sp-kc",
+    league: "NFL",
+    home: "Chiefs",
+    away: "Bills",
+    homeAbbr: "KC",
+    awayAbbr: "BUF",
+    kickoff: kick(0, 21, 20),
+    options: [opt("sg-sp-kc-h", "Chiefs", 0.23), opt("sg-sp-kc-a", "Bills", 0.77)],
+  }),
+  match({
+    id: "sg-sp-rma",
+    league: "La Liga",
+    home: "Real Madrid",
+    away: "Sevilla",
+    homeAbbr: "RMA",
+    awayAbbr: "SEV",
+    kickoff: kick(0, 22, 0),
+    options: threeWay("Real Madrid", "Sevilla", [0.66, 0.2, 0.14], "sg-sp-rma"),
+  }),
+  match({
+    id: "sg-sp-lal",
+    league: "NBA",
+    home: "Lakers",
+    away: "Celtics",
+    homeAbbr: "LAL",
+    awayAbbr: "BOS",
+    kickoff: kick(0, 23, 30),
+    options: [opt("sg-sp-lal-h", "Lakers", 0.46), opt("sg-sp-lal-a", "Celtics", 0.54)],
+  }),
+  // +1 · 5
+  match({
+    id: "sg-sp-bay",
+    league: "Bundesliga",
+    home: "Bayern",
+    away: "Dortmund",
+    homeAbbr: "BAY",
+    awayAbbr: "BVB",
+    kickoff: kick(1, 18, 30),
+    options: threeWay("Bayern", "Dortmund", [0.55, 0.24, 0.21], "sg-sp-bay"),
+  }),
+  match({
+    id: "sg-sp-psg",
+    league: "Ligue 1",
+    home: "PSG",
+    away: "Marseille",
+    homeAbbr: "PSG",
+    awayAbbr: "OM",
+    kickoff: kick(1, 20, 0),
+    options: threeWay("PSG", "Marseille", [0.62, 0.22, 0.16], "sg-sp-psg"),
+  }),
+  match({
+    id: "sg-sp-mci",
+    league: "Premier League",
+    home: "Man City",
+    away: "Liverpool",
+    homeAbbr: "MCI",
+    awayAbbr: "LIV",
+    kickoff: kick(1, 21, 0),
+    options: threeWay("Man City", "Liverpool", [0.44, 0.26, 0.3], "sg-sp-mci"),
+  }),
+  match({
+    id: "sg-sp-gsw",
+    league: "NBA",
+    home: "Warriors",
+    away: "Nuggets",
+    homeAbbr: "GSW",
+    awayAbbr: "DEN",
+    kickoff: kick(1, 22, 30),
+    options: [opt("sg-sp-gsw-h", "Warriors", 0.51), opt("sg-sp-gsw-a", "Nuggets", 0.49)],
+  }),
+  match({
+    id: "sg-sp-phi",
+    league: "NFL",
+    home: "Eagles",
+    away: "Cowboys",
+    homeAbbr: "PHI",
+    awayAbbr: "DAL",
+    kickoff: kick(1, 23, 15),
+    options: [opt("sg-sp-phi-h", "Eagles", 0.58), opt("sg-sp-phi-a", "Cowboys", 0.42)],
+  }),
+  // +2 · 2
+  match({
+    id: "sg-sp-int",
+    league: "Serie A",
+    home: "Inter",
+    away: "Milan",
+    homeAbbr: "INT",
+    awayAbbr: "MIL",
+    kickoff: kick(2, 20, 45),
+    options: threeWay("Inter", "Milan", [0.47, 0.27, 0.26], "sg-sp-int"),
+  }),
+  match({
+    id: "sg-sp-mia",
+    league: "MLS",
+    home: "Inter Miami",
+    away: "LAFC",
+    homeAbbr: "MIA",
+    awayAbbr: "LAF",
+    kickoff: kick(2, 23, 0),
+    options: threeWay("Inter Miami", "LAFC", [0.5, 0.25, 0.25], "sg-sp-mia"),
+  }),
+  // +3 · 3
+  match({
+    id: "sg-sp-atl",
+    league: "La Liga",
+    home: "Atletico",
+    away: "Barcelona",
+    homeAbbr: "ATM",
+    awayAbbr: "BAR",
+    kickoff: kick(3, 21, 0),
+    options: threeWay("Atletico", "Barcelona", [0.33, 0.26, 0.41], "sg-sp-atl"),
+  }),
+  match({
+    id: "sg-sp-tot",
+    league: "Premier League",
+    home: "Tottenham",
+    away: "Newcastle",
+    homeAbbr: "TOT",
+    awayAbbr: "NEW",
+    kickoff: kick(3, 18, 0),
+    options: threeWay("Tottenham", "Newcastle", [0.49, 0.25, 0.26], "sg-sp-tot"),
+  }),
+  match({
+    id: "sg-sp-mem",
+    league: "NBA",
+    home: "Grizzlies",
+    away: "Suns",
+    homeAbbr: "MEM",
+    awayAbbr: "PHX",
+    kickoff: kick(3, 23, 30),
+    options: [opt("sg-sp-mem-h", "Grizzlies", 0.55), opt("sg-sp-mem-a", "Suns", 0.45)],
+  }),
+  // +4 · 2
+  match({
+    id: "sg-sp-lei",
+    league: "Premier League",
+    home: "Leicester",
+    away: "Everton",
+    homeAbbr: "LEI",
+    awayAbbr: "EVE",
+    kickoff: kick(4, 19, 30),
+    options: threeWay("Leicester", "Everton", [0.38, 0.29, 0.33], "sg-sp-lei"),
+  }),
+  match({
+    id: "sg-sp-sfo",
+    league: "NFL",
+    home: "49ers",
+    away: "Seahawks",
+    homeAbbr: "SF",
+    awayAbbr: "SEA",
+    kickoff: kick(4, 22, 0),
+    options: [opt("sg-sp-sfo-h", "49ers", 0.64), opt("sg-sp-sfo-a", "Seahawks", 0.36)],
+  }),
+  // +5 · 1
+  match({
+    id: "sg-sp-por",
+    league: "Primeira Liga",
+    home: "Porto",
+    away: "Benfica",
+    homeAbbr: "POR",
+    awayAbbr: "SLB",
+    kickoff: kick(5, 20, 15),
+    options: threeWay("Porto", "Benfica", [0.42, 0.28, 0.3], "sg-sp-por"),
+  }),
+];
+
+/** League break — no fixtures at all. */
+const EMPTY_SPORTS_FIXTURE: SportsMatch[] = [];
+
 /* ---------------- ③ Sports band ---------------- */
 
-const SportsDemo = ({ pickDay = false }: { pickDay?: boolean }) => {
+const SportsDemo = ({
+  pickDay = false,
+  matches = SPORTS_FIXTURE,
+}: {
+  pickDay?: boolean;
+  matches?: SportsMatch[];
+}) => {
   const isMobile = useIsMobile();
-  const { rows: matches } = useSportsMatches();
   const bucket = useMemo(() => {
     if (!pickDay) return undefined;
     const strip = buildDayStrip(matches);
@@ -418,6 +740,12 @@ const SportsDemo = ({ pickDay = false }: { pickDay?: boolean }) => {
 export const Ev9Preview = () => (
   <Stage>
     <SportsDemo />
+  </Stage>
+);
+
+export const Ev9ePreview = () => (
+  <Stage>
+    <SportsDemo matches={EMPTY_SPORTS_FIXTURE} />
   </Stage>
 );
 

@@ -78,7 +78,7 @@ const INTRADAY_CASES: SectionCase[] = [
     key: "events-ev5",
     label: "EV-5 · band 默认 · 三 coin tile（IntradayStageCard / MobileIntradayModule）",
     note:
-      "真数据（滚动引擎恒有活轮）。LOCKED 容器：1px rgba(255,138,61,.18) / 3px #FF8A3D 左轨。",
+      "fixture 确定性数据（BTC/ETH/SOL 三窗口全档快照）；倒计时为 fixture 起始值，不依赖运行时 fetch。LOCKED 容器：1px rgba(255,138,61,.18) / 3px #FF8A3D 左轨。",
     spec: [
       {
         state: "默认",
@@ -138,7 +138,8 @@ const SPORTS_CASES: SectionCase[] = [
   {
     key: "events-ev9",
     label: "EV-9 · Sports 默认（SportsStageCard / MobileSportsModule）",
-    note: "真数据（滚动引擎恒有比赛）。",
+    note:
+      "fixture 确定性数据（17 场未开赛 + 1 场进行中），日期用相对偏移防腐烂；不依赖运行时 fetch。",
     spec: [
       {
         state: "默认",
@@ -146,6 +147,21 @@ const SPORTS_CASES: SectionCase[] = [
         visual:
           "“SPORTS · MATCH WINNERS / Who wins the match?” + 7 日 day-rail（ALL n / FRI 28 n …）+ 三向 row（Juventus/Draw/Napoli 型）+ 两向 row（KC/BUF 型）",
         source: "SportsStageCard · useSportsMatches",
+      },
+    ],
+  },
+  {
+    key: "events-ev9e",
+    label: "EV-9e · Sports band · 空态（SportsStageCard / MobileSportsModule）",
+    note:
+      "fixture 空行集（联赛间歇期）。移动端 MobileSportsModule 在无比赛时整块不渲染（生产行为），故 375 帧为空。",
+    spec: [
+      {
+        state: "空态",
+        when: "matches.length === 0",
+        visual:
+          "day-rail 只剩 “ALL 0” 单钮 + “No matches on this day” + 底部 “All days mixed · newest kickoff first” / “No further kickoffs scheduled” / “All 0 matches →”",
+        source: "SportsStageCard 空行集分支",
       },
     ],
   },
@@ -417,8 +433,8 @@ const Pair = ({
 export const EventsStatesSection = () => (
   <SectionWrapper
     id="events-states"
-    title="Events 列表 · 状态字典（EV-1 … EV-18）"
-    description="分区①页头与筛选行 · ②Intraday band · ③Sports band · ④卡片网格。每个 case 双帧（desktop 1280 / mobile 375），fixture 只注数据与状态。"
+    title="Events 列表 · 状态字典（EV-1 … EV-18，含 EV-9e）"
+    description="分区①页头与筛选行 · ②Intraday band · ③Sports band · ④卡片网格。每个 case 双帧（desktop 1280 / mobile 375），fixture 只注数据与状态，且一律确定性注入（禁止运行时 fetch）。"
   >
     <div className="space-y-12">
       <SubSection title="① 页头与筛选行（EV-1 … EV-4）">
@@ -429,7 +445,7 @@ export const EventsStatesSection = () => (
         <Pair cases={INTRADAY_CASES} desktopMin={760} mobileMin={860} />
       </SubSection>
 
-      <SubSection title="③ Sports band（EV-9 / EV-10）">
+      <SubSection title="③ Sports band（EV-9 / EV-9e / EV-10）">
         <Pair cases={SPORTS_CASES} desktopMin={620} mobileMin={720} />
       </SubSection>
 
