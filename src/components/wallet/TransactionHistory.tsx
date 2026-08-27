@@ -48,7 +48,9 @@ const EXPLORER_URLS: Record<string, string> = {
   'Bitcoin': 'https://blockchair.com/bitcoin/transaction/',
   'Solana': 'https://solscan.io/tx/',
   'Tron (TRC20)': 'https://tronscan.org/#/transaction/',
+  'Base': 'https://basescan.org/tx/',
 };
+
 
 export type TransactionType =
   | 'deposit'
