@@ -35,13 +35,19 @@ interface PendingTransaction {
 
 interface PendingConfirmationsProps {
   className?: string;
+  /**
+   * Style-guide only (docs fixture). Replaces the fetched rows so a static
+   * state can be photographed. Never set in product code — when omitted the
+   * component behaves exactly as before.
+   */
+  fixture?: { rows: PendingTransaction[] };
 }
 
-export const PendingConfirmations = ({ className }: PendingConfirmationsProps) => {
+export const PendingConfirmations = ({ className, fixture }: PendingConfirmationsProps) => {
   const { user } = useAuth();
 
   // Fetch pending/processing transactions with real confirmations data
-  const { data: pendingTransactions = [], isLoading } = useQuery({
+  const { data: fetchedTransactions = [], isLoading: isFetching } = useQuery({
     queryKey: ['pending-confirmations', user?.id],
     queryFn: async () => {
       if (!user) return [];
@@ -65,9 +71,13 @@ export const PendingConfirmations = ({ className }: PendingConfirmationsProps) =
         required_confirmations: tx.required_confirmations ?? CONFIRMATION_BLOCKS,
       })) as PendingTransaction[];
     },
-    enabled: !!user,
+    enabled: !!user && !fixture,
     refetchInterval: 5000, // Refresh every 5 seconds to get latest confirmations
   });
+
+  const pendingTransactions = fixture?.rows ?? fetchedTransactions;
+  const isLoading = fixture ? false : isFetching;
+
 
   const getEstimatedTimeRemaining = (current: number, required: number, network: string | null): string => {
     const remaining = required - current;
