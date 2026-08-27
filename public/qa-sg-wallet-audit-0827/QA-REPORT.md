@@ -4,55 +4,63 @@
 
 - New cases captured: **35/35** (W-1…W-16 + 19 AU cases).
 - Deleted modules verified absent: **9/9**.
-- Fixture redline: production `/wallet` signed-out page and its real Sign In dialog captured separately.
+- Fixture redline: production `/wallet` signed-out page and real Sign In dialog captured separately.
 - TypeScript: `tsgo --noEmit -p tsconfig.app.json` passed with 0 errors.
 
 ## Case copy comparison
 
-- **W-1 — PASS:** expected `+$800.00 · Base · ~45s left · 6/15 blocks`; actual render contains the same required strings.
-- **W-2 — PASS:** expected `+$800.00 · Base · ~45s left · 6/15 blocks`; actual render contains the same required strings.
-- **W-3 — PASS:** expected `No recent activity`; actual render contains the same required strings.
-- **W-4 — FAIL:** expected `Withdrawals · No withdrawal activity`; actual render contains the same required strings.
-- **W-5 — PASS:** expected `Transfer from Standard · Transfer to Boost · Transfer from Boost · Transfer to Standard`; actual render contains the same required strings.
-- **W-6 — PASS:** expected `Status Pending · Status Processing · Status Completed · Status Failed · Status Rejected`; actual render contains the same required strings.
-- **W-7 — PASS:** expected `Unmapped ledger entry · +$12.50`; actual render contains the same required strings.
-- **W-8 — FAIL:** expected `Network Base · Fee $0.50 · Transaction Hash`; actual render contains the same required strings.
-- **W-9 — FAIL:** expected `Cross-chain deposit · Cross-chain withdrawal · Buy USDC with fiat · Sell USDC to fiat`; actual render contains the same required strings.
-- **W-10 — PASS:** expected `0 addresses · Add address · No saved addresses`; actual render contains the same required strings.
-- **W-11 — FAIL:** expected `••••••••`; actual render contains the same required strings.
-- **W-12 — FAIL:** expected `Only send USDC · I understand`; actual render contains the same required strings.
-- **W-13 — PASS:** expected `USDC deposit address (Base) · Copy address · Done`; actual render contains the same required strings.
-- **W-14 — PASS:** expected `Min 20 / Max 5,000 USD · Credit / Debit Card · Bank Transfer · Apple Pay · Banxa`; actual render contains the same required strings.
-- **W-15 — FAIL:** expected `From Ethereum · To Base · Socket · Get Quote`; actual render contains the same required strings.
-- **W-16 — FAIL:** expected `Available · Saved addresses · Amount · Withdraw`; actual render contains the same required strings.
-- **AU-L1 — PASS:** expected `Trade what happens next · Sign in with Google`; actual render contains the same required strings.
-- **AU-L2 — PASS:** expected `Connect your Web3 wallet · Connect Wallet`; actual render contains the same required strings.
-- **AU-L3 — PASS:** expected `Sign in with Telegram · Fast & secure Telegram authentication`; actual render contains the same required strings.
-- **AU-L4 — PASS:** expected `Trade what happens next`; actual render contains the same required strings.
-- **AU-L5 — PASS:** expected `Trade what happens next · Sign in with Google`; actual render contains the same required strings.
-- **AU-L6 — FAIL:** expected `Sign in to OmenX · Sign in with Google`; actual render contains the same required strings.
-- **AU-W1 — FAIL:** expected `Secure & self-custodial · Create wallet`; actual render contains the same required strings.
-- **AU-W2 — FAIL:** expected `Secure & self-custodial · Create wallet`; actual render contains the same required strings.
-- **AU-W3 — FAIL:** expected `Create your wallet · Create wallet`; actual render contains the same required strings.
-- **AU-P1 — PASS:** expected `Final step · Complete your profile · Start trading →`; actual render contains the same required strings.
-- **AU-P2 — PASS:** expected `Please enter a valid email address`; actual render contains the same required strings.
-- **AU-P3 — FAIL:** expected `Invited by a friend`; actual render contains the same required strings.
-- **AU-P4 — PASS:** expected `ABCDEF · bonus points`; actual render contains the same required strings.
-- **AU-P6 — PASS:** expected `Final step · Start trading →`; actual render contains the same required strings.
-- **AU-P7 — FAIL:** expected `Complete Your Profile · Complete Profile`; actual render contains the same required strings.
-- **AU-G1 — PASS:** expected `Sign in to view your wallet · Sign in · Create account`; actual render contains the same required strings.
-- **AU-G2 — FAIL:** expected `SIGNED-IN CONTENT`; actual render contains the same required strings.
-- **AU-G3 — PASS:** expected `Sign in to view your wallet · Log In · Sign Up`; actual render contains the same required strings.
-- **AU-D1 — PASS:** expected `Choose an account · Use another account`; actual render contains the same required strings.
+- **W-1 — PASS:** actual `PENDING CONFIRMATIONS +$800.00 Deposit CONFIRMING Base · 3 min ago · est. ~45s left 6/15 blocks Sent to the wrong network? Request recovery`; appendix-required strings matched.
+- **W-2 — PASS:** actual `PENDING CONFIRMATIONS +$800.00 Deposit CONFIRMING Base · 3 min ago · est. ~45s left 6/15 blocks Sent to the wrong network? Request recovery`; appendix-required strings matched.
+- **W-3 — PASS:** actual `TRANSACTION HISTORY All Deposits Withdrawals Trades No recent activity Deposits, withdrawals and trades land here as they happen.`; appendix-required strings matched.
+- **W-4 — PASS:** actual `TRANSACTION HISTORY All Deposits Withdrawals Trades No transactions match your filters Clear the filters to see the full history. Clear filters`; appendix-required strings matched.
+- **W-5 — PASS:** actual `TRANSACTION HISTORY All Deposits Withdrawals Trades Transfer from Standard 8/27/26, 3:55 AM BOOST +$500.00 Transfer to Boost 8/27/26, 2:55 AM STANDARD $500.00 Transfer from Boost 8/27/26, 1:55 AM STANDARD +$250.00 Transfer to Standard 8/27/26, 12:55 AM BOOST $250.00`; appendix-required strings matched.
+- **W-6 — PASS:** actual `TRANSACTION HISTORY All Deposits Withdrawals Trades USDC withdraw · Base 8/27/26, 3:55 AM BOOST $250.00 Status Pending Review Network Base USDC withdraw · Base 8/27/26, 2:55 AM BOOST $250.00 Status Processing Network Base USDC withdraw · Base 8/27/26, 1:55 AM BOOST $250.00 Status Completed Network Base USDC withdraw · Base 8/27/26, 12:55 AM BOOST $250.00 Status Failed Network Base USDC withdraw · Base 8/26/26, 11:55 PM BOOST $250.00 Status Rejected Network Base`; appendix-required strings matched.
+- **W-7 — PASS:** actual `TRANSACTION HISTORY All Deposits Withdrawals Trades Unmapped ledger entry 8/27/26, 3:55 AM STANDARD +$12.50`; appendix-required strings matched.
+- **W-8 — PASS:** actual `TRANSACTION HISTORY All Deposits Withdrawals Trades USDC deposit · Base 8/27/26, 3:55 AM STANDARD +$800.00 Status Processing Network Base Fee $0.35 Transaction 0x8f2a...0d9e8f`; appendix-required strings matched.
+- **W-9 — PASS:** actual `TRANSACTION HISTORY All Deposits Withdrawals Trades Bridged in from Arbitrum 8/27/26, 3:55 AM STANDARD +$1,000.00 Bridged out to Polygon 8/27/26, 2:55 AM STANDARD $400.00 Bought USDC with USD · Banxa 8/27/26, 1:55 AM STANDARD +$300.00 Sold USDC for USD · Banxa 8/27/26, 12:55 AM STANDARD $150.00`; appendix-required strings matched.
+- **W-10 — PASS:** actual `SAVED ADDRESSES 0 addresses Add address No saved addresses Save addresses for quick deposits and withdrawals.`; appendix-required strings matched.
+- **W-11 — PASS:** actual `EST. TOTAL EQUITY •••••• Boost + Standard · does not include open trade profit Deposit Withdraw Transfer ⇄`; appendix-required strings matched.
+- **W-12 — PASS:** actual `Deposit To: Standard Account Address Wallet Fiat Only send USDC on Base network. Sending other tokens or using a different network may result in permanent loss of funds. I am sending USDC (not USDT, ETH, BNB, or any other token) I am using the Base network (not Ethereum, BSC, Polygon, Arbitrum, or any other chain) I have double-checked the deposit address below before sending Confirm all items above to continue`; appendix-required strings matched.
+- **W-13 — PASS:** actual `Deposit To: Standard Account Address Wallet Fiat Only send USDC on Base network. Sending other tokens or using a different network may result in permanent loss of funds. USDC deposit address (Base) 0x742d35Cc6634C0532925a3b844Bc9e7595f5B3E1 Copy address Network Base Token USDC Fee 0 USDC Confirmations 12 Processing time < 2 minutes Done`; appendix-required strings matched.
+- **W-14 — PASS:** actual `Deposit To: Standard Account Address Wallet Fiat You pay Min 20 / Max 5,000 USD 🇺🇸 USD You receive on Base 0.00 USDC Payment method Credit / Debit Card Bank Transfer Apple Pay Fees Enter amount to see fees Continue to Payment Powered by Banxa • Limits and fees vary by region and payment method. View Banxa limits`; appendix-required strings matched.
+- **W-15 — PASS:** actual `Deposit To: Standard Account Address Wallet Fiat Swap Connect Wallet From Ethereum USDC To OmenX Wallet 0.00 USDC Base Powered by SOCKET`; appendix-required strings matched.
+- **W-16 — FAIL:** missing `You’ll Receive`; actual `USDC Base Network From account Boost Account Available: 8720.42 USDC Withdrawal Address Select withdrawal address Amount MAX USDC Available: 8720.42 USDC Min 20 USDC Network Fee 1 USDC Minimum 20 USDC You'll Receive 0.00 USDC Important: Only Base network addresses are supported. Sending to an incompatible address may result in permanent loss. Withdraw`.
+- **AU-L1 — PASS:** actual `MAINNET Trade what happens next Intraday crypto, stock and sports markets — settled in USDC. Wallet Google Telegram Quick sign-in with Google Sign in with Google No wallet needed · Ready in seconds OR New to OMENX? Your account is created the first time you sign in. By continuing, you agree to our Terms of Service and Privacy Policy`; appendix-required strings matched.
+- **AU-L2 — PASS:** actual `MAINNET Trade what happens next Intraday crypto, stock and sports markets — settled in USDC. Wallet Google Telegram Connect your Web3 wallet Connect Wallet Supports MetaMask, WalletConnect & more OR New to OMENX? Your account is created the first time you sign in. By continuing, you agree to our Terms of Service and Privacy Policy`; appendix-required strings matched.
+- **AU-L3 — PASS:** actual `MAINNET Trade what happens next Intraday crypto, stock and sports markets — settled in USDC. Wallet Google Telegram Sign in with Telegram Sign in with Telegram Fast & secure Telegram authentication OR New to OMENX? Your account is created the first time you sign in. By continuing, you agree to our Terms of Service and Privacy Policy`; appendix-required strings matched.
+- **AU-L4 — PASS:** actual `MAINNET Trade what happens next Intraday crypto, stock and sports markets — settled in USDC. Wallet Google Telegram Quick sign-in with Google Sign in with Google No wallet needed · Ready in seconds OR New to OMENX? Your account is created the first time you sign in. By continuing, you agree to our Terms of Service and Privacy Policy`; appendix-required strings matched.
+- **AU-L5 — PASS:** actual `MAINNET Trade what happens next Intraday crypto, stock and sports markets — settled in USDC. Wallet Google Telegram Quick sign-in with Google Sign in with Google No wallet needed · Ready in seconds OR New to OMENX? Your account is created the first time you sign in. By continuing, you agree to our Terms of Service and Privacy Policy`; appendix-required strings matched.
+- **AU-L6 — PASS:** actual `MAINNET Predict the Future, Profit from Certainty Trade crypto, politics, sports & more like futures Predict. Trade. Profit. Up to 100x Leverage · Pro Trading Tools Wallet Google Telegram Quick sign-in with Google Sign in with Google Instant access · No wallet needed · Start trading in seconds OR New to OMENX? Authorization creates your account automatically Predict. Trade. Profit. · Start Trading Now By continuing, you agree to our Terms of Service and Privacy Policy`; appendix-required strings matched.
+- **AU-W1 — PASS:** actual `MAINNET Back Create your wallet A USDC wallet on Base, set up for you in one tap. Trade markets with USDC on Base No seed phrase, no gas — sign in and go Cash out to your own address any time Success! Cloudflare Privacy · Terms Create wallet`; appendix-required strings matched.
+- **AU-W2 — PASS:** actual `MAINNET Back Create your wallet A USDC wallet on Base, set up for you in one tap. Trade markets with USDC on Base No seed phrase, no gas — sign in and go Cash out to your own address any time Success! Cloudflare Privacy · Terms Create wallet`; appendix-required strings matched.
+- **AU-W3 — PASS:** actual `MAINNET Back Create Your Trading Wallet Start trading events with real funds Pro Trading Platform Up to 100x leverage on events Real-time market data Zero Risk Full Trading Live Data Security Verified Verified Create Wallet & Start Trading`; appendix-required strings matched.
+- **AU-P1 — PASS:** actual `MAINNET Back Wallet created — complete your profile to start Final step Complete your profile Username Optional Public display name 0/20 Email Address * For notifications and account recovery Have a referral code? Start trading →`; appendix-required strings matched.
+- **AU-P2 — PASS:** actual `MAINNET Back Wallet created — complete your profile to start Final step Complete your profile Username Optional Public display name 0/20 Email Address * Please enter a valid email address Have a referral code? Start trading →`; appendix-required strings matched.
+- **AU-P3 — PASS:** actual `MAINNET Back Wallet created — complete your profile to start Final step Complete your profile Username Optional Public display name 0/20 Email Address * For notifications and account recovery Have a referral code? You and your inviter will both earn bonus points! Start trading →`; appendix-required strings matched.
+- **AU-P4 — PASS:** actual `MAINNET Back Wallet created — complete your profile to start Final step Complete your profile Username Optional Public display name 0/20 Email Address * For notifications and account recovery Invited by a friend ABCDEF You and your inviter will both earn bonus points! Start trading →`; appendix-required strings matched.
+- **AU-P6 — PASS:** actual `MAINNET Back Wallet created — complete your profile to start Final step Complete your profile Username Optional Public display name 0/20 Email Address * For notifications and account recovery Have a referral code? Start trading →`; appendix-required strings matched.
+- **AU-P7 — PASS:** actual `MAINNET Back Wallet created! Complete your profile to start Final Step Complete Your Profile Username Optional Public display name 0/20 Email Address * For notifications and account recovery Have a referral code? Start Trading Now`; appendix-required strings matched.
+- **AU-G1 — PASS:** actual `Sign in to view your wallet Deposit, withdraw and move funds between your accounts by signing in. Sign in Create account`; appendix-required strings matched.
+- **AU-G2 — PASS:** actual ``; appendix-required strings matched.
+- **AU-G3 — PASS:** actual `Sign in to view your wallet Manage your funds and saved addresses by signing in. Log In Sign Up`; appendix-required strings matched.
+- **AU-D1 — PASS:** actual `Choose an account Choose an account to continue to OMENX Alex Carter alex.carter@gmail.com Mia Reyes mia.reyes@gmail.com Use another account To continue, Google will share your name, email address, language preference and profile picture with OMENX. Close`; appendix-required strings matched.
 
 ## Deleted-module cancellation
 
-Full Wallet page scroll evidence: `wallet-page-01.png` through `wallet-page-16.png`. DOM text search returned zero occurrences for: H2E Unlock Playground; Transaction Status Badges; Stepper / Progress Timeline; Blockchain Explorer Links; Chain & Token Logos; SOCKET; Powered By Footer; Swap Card Pattern; Quote Details Row / Status Flow (the latter two were one legacy block).
+- **A1 — PASS:** `H2E Unlock Playground` has 0 matching Style Guide module headings.
+- **A2 — PASS:** `Transaction Status Badges` has 0 matching Style Guide module headings.
+- **A3 — PASS:** `Stepper / Progress Timeline` has 0 matching Style Guide module headings.
+- **A4 — PASS:** `Blockchain Explorer Links` has 0 matching Style Guide module headings.
+- **A5 — PASS:** `Chain & Token Logos` has 0 matching Style Guide module headings.
+- **A6 — PASS:** `SOCKET 品牌卡` has 0 matching Style Guide module headings.
+- **A7 — PASS:** `Powered By Footer` has 0 matching Style Guide module headings.
+- **A8 — PASS:** `Swap Card Pattern` has 0 matching Style Guide module headings.
+- **A9 — PASS:** `Quote Details Row / Status Flow` has 0 matching Style Guide module headings.
 
-Retained section order observed: Maintenance Notice → Dual-Account · 2b → Settlements · 4B spot display → Deposit & Withdraw → Wallet Lite R1 · 状态字典.
+Final order observed: Wallet Lite R1 starts with HeroEquityCard → 双账户卡 → Transfer 三态 → PendingConfirmations → 交易流水 → Saved addresses → Deposit & Withdraw; Recovery follows in Deposit & Withdraw; Maintenance and Settlements 4B close the page.
 
 ## Fixture redline
 
 - `fixture-redline-wallet-signed-out.png`: production `/wallet`, signed-out gate.
-- `fixture-redline-auth-dialog.png`: real login dialog after clicking Sign in.
-- Fixtures are only used by isolated Style Guide previews; product gate/dialog behavior remains live.
+- `fixture-redline-auth-dialog.png`: real login dialog opened from Sign in.
+- Fixtures remain isolated to Style Guide previews; product behavior is unchanged.
