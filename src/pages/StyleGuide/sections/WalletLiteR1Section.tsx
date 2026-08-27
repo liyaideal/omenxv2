@@ -8,42 +8,6 @@
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { SectionFrame, type SectionCase } from "../components/SectionFrame";
 
-const GATE_CASES: SectionCase[] = [
-  {
-    key: "auth-gate-lite-wallet",
-    label: "未登录门 · Lite",
-    note: "/wallet 未登录时按 surface 分叉。Lite 走 LiteAuthGate（模糊底层 + lynx + 双 CTA），wallet 专属 title / description。",
-    spec: [
-      {
-        state: "Lite gate",
-        when: "surface === 'lite' && !user",
-        visual:
-          "LiteAuthGate：底层 blur-[3px] opacity-70，覆盖层 LynxFigure 100 + 'Sign in to view your wallet' + 'Deposit, withdraw and move funds between your accounts by signing in.' + btn-primary Sign in / 描边 Create account",
-        source: "WalletAuthGate (src/pages/Wallet.tsx)",
-      },
-      {
-        state: "signed in",
-        when: "user !== null",
-        visual: "children 原样透出，无覆盖层",
-        source: "LiteAuthGate",
-      },
-    ],
-  },
-  {
-    key: "auth-gate-pro",
-    label: "未登录门 · Pro（本轮未改）",
-    spec: [
-      {
-        state: "Pro gate",
-        when: "surface === 'pro' && !user",
-        visual:
-          "AuthGateOverlay 原样：'Sign in to view your wallet' / 'Manage your funds and saved addresses by signing in.'",
-        source: "WalletAuthGate (src/pages/Wallet.tsx)",
-      },
-    ],
-  },
-];
-
 const ADDRESS_DESKTOP_CASES: SectionCase[] = [
   {
     key: "wallet-lite-address-rows-desktop",
@@ -408,10 +372,6 @@ export const WalletLiteR1Section = ({ isMobile }: { isMobile: boolean }) => (
     platform="shared"
     description="2026-08 Wallet Lite 改版三批：批1 未登录门（登录弹层三步已迁往「登录 / 注册」节）/ 批2 地址 ⋯ 菜单 + 账户徽标配色 + Hero 文案 / 批3 流水行清理 + 列对齐 + icon 全类型映射。"
   >
-    <SubSection title="1 · 未登录门（Lite vs Pro）" platform="shared">
-      <SectionFrame cases={GATE_CASES} device={isMobile ? "mobile" : "desktop"} minHeight={460} />
-    </SubSection>
-
     <SubSection title="3 · Saved addresses ⋯ 菜单 · desktop" platform="desktop">
       <SectionFrame cases={ADDRESS_DESKTOP_CASES} device="desktop" minHeight={200} />
     </SubSection>

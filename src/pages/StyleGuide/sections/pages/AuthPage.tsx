@@ -177,18 +177,6 @@ const PROFILE_CASES: SectionCase[] = [
     ],
   },
   {
-    key: "auth-profile-loading",
-    label: "AU-P5 · completeProfile · loading",
-    spec: [
-      {
-        state: "loading",
-        when: "isLoading === true",
-        visual: "CTA Loader2 + disabled",
-        source: "AuthContent isLoading",
-      },
-    ],
-  },
-  {
     key: "auth-profile-mobile",
     label: "AU-P6 · completeProfile · mobile",
     spec: [
@@ -300,9 +288,9 @@ export const AuthPage = ({ isMobile }: { isMobile: boolean }) => (
       </SubSection>
 
       <SubSection title="3 · completeProfile" platform="shared">
-        <SectionFrame cases={[...PROFILE_CASES.slice(0, 5), PROFILE_CASES[6]]} device="desktop" minHeight={620} />
+        <SectionFrame cases={[...PROFILE_CASES.slice(0, 4), PROFILE_CASES[5]]} device="desktop" minHeight={620} />
         <div className="mt-3">
-          <SectionFrame cases={[PROFILE_CASES[5]]} device="mobile" minHeight={620} />
+          <SectionFrame cases={[PROFILE_CASES[4]]} device="mobile" minHeight={620} />
         </div>
       </SubSection>
 

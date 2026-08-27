@@ -120,7 +120,6 @@ export const AuthProfileReferralFilledPreview = () => (
     fixture={{ referralOpen: true, referralCode: "ABCDEF" }}
   />
 );
-export const AuthProfileLoadingPreview = () => <DesktopShell step="completeProfile" loading />;
 export const AuthProfileMobilePreview = () => <MobileShell step="completeProfile" />;
 export const AuthProfileProPreview = () => (
   <FixedSurfaceProvider surface="pro">

@@ -222,7 +222,6 @@ export const previewRegistry: Record<string, Loader> = {
   "auth-profile-email-error": pick(auth, "AuthProfileEmailErrorPreview"),
   "auth-profile-referral-open": pick(auth, "AuthProfileReferralOpenPreview"),
   "auth-profile-referral-filled": pick(auth, "AuthProfileReferralFilledPreview"),
-  "auth-profile-loading": pick(auth, "AuthProfileLoadingPreview"),
   "auth-profile-mobile": pick(auth, "AuthProfileMobilePreview"),
   "auth-profile-pro": pick(auth, "AuthProfileProPreview"),
   "auth-gate-lite-out": pick(auth, "AuthGateLiteWalletPreview"),

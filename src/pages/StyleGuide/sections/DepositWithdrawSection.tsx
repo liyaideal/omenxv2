@@ -37,8 +37,6 @@ export const DepositWithdrawSection = ({ isMobile }: DepositWithdrawSectionProps
     title="Deposit & Withdraw"
     description="Design system for all deposit, withdrawal, and cross-chain bridging components. Consistent typography, chain logos, and layout patterns."
   >
-    {/* ── Chain & Token Logos ── */}
-
     {/* ── Typography Standards ── */}
     <SubSection title="Typography Standards" description="Consistent font sizing across all deposit/withdraw flows.">
       <Card>
@@ -68,14 +66,6 @@ export const DepositWithdrawSection = ({ isMobile }: DepositWithdrawSectionProps
       <CodePreview code={`// Amount input — always text-2xl font-mono
 <Input className="text-2xl font-mono bg-transparent border-none" />`} />
     </SubSection>
-
-    {/* ── Swap Card Layout ── */}
-
-    {/* ── Quote Details ── */}
-
-    {/* ── Status Flow ── */}
-
-    {/* ── Powered By Footer ── */}
 
     {/* ── Recovery Request Status ── */}
     <SubSection
