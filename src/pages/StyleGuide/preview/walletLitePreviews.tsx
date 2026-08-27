@@ -9,6 +9,7 @@
  * Fixtures use relative dates (hoursAgo) so the docs never go stale.
  */
 import { useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { ChevronRight, HelpCircle, Plus, X } from "lucide-react";
 import { ProductLineBadge } from "@/lib/productLineBadge";
 import { EmptyState } from "@/components/states";
@@ -191,6 +192,9 @@ export const TxIconMatrixPreview = () => (
 
 const HeroDemo = ({ note }: { note?: string }) => {
   const [hidden, setHidden] = useState(false);
+  // Mirrors production wiring (Wallet.tsx:977): mobile form is driven by the
+  // compact prop fed from useIsMobile(), not CSS breakpoints.
+  const isMobile = useIsMobile();
   return (
     <HeroEquityCard
       equity={10_004.95}
@@ -200,6 +204,7 @@ const HeroDemo = ({ note }: { note?: string }) => {
       onWithdraw={noop}
       onTransfer={noop}
       equityNote={note}
+      compact={isMobile}
     />
   );
 };
@@ -376,6 +381,8 @@ export const SavedAddressesEmptyPreview = () => (
 
 export const HeroEquityHiddenPreview = () => {
   const [hidden, setHidden] = useState(true);
+  // Same production wiring as HeroDemo: compact follows useIsMobile().
+  const isMobile = useIsMobile();
   return (
     <HeroEquityCard
       equity={10_004.95}
@@ -385,6 +392,7 @@ export const HeroEquityHiddenPreview = () => {
       onWithdraw={noop}
       onTransfer={noop}
       equityNote="does not include open trade profit"
+      compact={isMobile}
     />
 
   );
