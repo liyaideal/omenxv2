@@ -32,9 +32,30 @@ const walletLite = () => import("./walletLitePreviews");
 const h2e = () => import("./h2ePreviews");
 const autoClose = () => import("./autoClosePreviews");
 const auth = () => import("./authPreviews");
+const events = () => import("./eventsPreviews");
 
 
 export const previewRegistry: Record<string, Loader> = {
+  /* -------- Events 列表（M1a 分区①–④）-------- */
+  "events-ev1": pick(events, "Ev1Preview"),
+  "events-ev2": pick(events, "Ev2Preview"),
+  "events-ev3": pick(events, "Ev3Preview"),
+  "events-ev4": pick(events, "Ev4Preview"),
+  "events-ev5": pick(events, "Ev5Preview"),
+  "events-ev6": pick(events, "Ev6Preview"),
+  "events-ev7": pick(events, "Ev7Preview"),
+  "events-ev8": pick(events, "Ev8Preview"),
+  "events-ev9": pick(events, "Ev9Preview"),
+  "events-ev10": pick(events, "Ev10Preview"),
+  "events-ev11": pick(events, "Ev11Preview"),
+  "events-ev12": pick(events, "Ev12Preview"),
+  "events-ev13": pick(events, "Ev13Preview"),
+  "events-ev14": pick(events, "Ev14Preview"),
+  "events-ev15": pick(events, "Ev15Preview"),
+  "events-ev16": pick(events, "Ev16Preview"),
+  "events-ev17": pick(events, "Ev17Preview"),
+  "events-ev18": pick(events, "Ev18Preview"),
+
   /* -------- Mobile header system -------- */
   "mobile-header-brand-top": pick(mobileHeader, "HeaderBrandTopPreview"),
   "mobile-header-brand-scrolled": pick(mobileHeader, "HeaderBrandScrolledPreview"),
