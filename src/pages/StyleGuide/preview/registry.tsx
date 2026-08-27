@@ -180,7 +180,6 @@ export const previewRegistry: Record<string, Loader> = {
   "wallet-lite-product-badges": pick(walletLite, "ProductLineBadgePairPreview"),
   "wallet-lite-tx-icon-matrix": pick(walletLite, "TxIconMatrixPreview"),
   "wallet-lite-hero-note-lite": pick(walletLite, "HeroEquityNoteLitePreview"),
-  "wallet-lite-hero-note-pro": pick(walletLite, "HeroEquityNoteProPreview"),
 
   /* -------- Wallet audit round (2026-08-27) · W-1 … W-16 -------- */
   "wallet-lite-pending-confirmations": pick(walletLite, "PendingConfirmationsDesktopPreview"),
@@ -206,20 +205,16 @@ export const previewRegistry: Record<string, Loader> = {
   "auth-login-telegram": pick(auth, "AuthLoginTelegramTabPreview"),
   "auth-login-loading": pick(auth, "AuthLoginLoadingPreview"),
   "auth-login-mobile": pick(auth, "AuthLoginMobilePreview"),
-  "auth-login-pro": pick(auth, "AuthLoginProPreview"),
   "auth-create-desktop": pick(auth, "AuthCreateWalletDesktopPreview"),
   "auth-create-mobile": pick(auth, "AuthCreateWalletMobilePreview"),
-  "auth-create-pro": pick(auth, "AuthCreateWalletProPreview"),
   "auth-profile-default": pick(auth, "AuthProfileDefaultPreview"),
   "auth-profile-loading": pick(auth, "AuthProfileLoadingPreview"),
   "auth-profile-email-error": pick(auth, "AuthProfileEmailErrorPreview"),
   "auth-profile-referral-open": pick(auth, "AuthProfileReferralOpenPreview"),
   "auth-profile-referral-prefilled": pick(auth, "AuthProfileReferralPrefilledPreview"),
   "auth-profile-mobile": pick(auth, "AuthProfileMobilePreview"),
-  "auth-profile-pro": pick(auth, "AuthProfileProPreview"),
   "auth-gate-lite-out": pick(auth, "AuthGateLiteWalletPreview"),
   "auth-gate-lite-in": pick(auth, "AuthGateLiteSignedInPreview"),
-  "auth-gate-pro": pick(auth, "AuthGateProPreview"),
   "auth-demo-google-chooser": pick(auth, "AuthGoogleChooserPreview"),
 
 
