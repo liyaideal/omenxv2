@@ -385,8 +385,8 @@ export const HeroEquityHiddenPreview = () => {
       onWithdraw={noop}
       onTransfer={noop}
       equityNote="does not include open trade profit"
-      compact
     />
+
   );
 };
 
