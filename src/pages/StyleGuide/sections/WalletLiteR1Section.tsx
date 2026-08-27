@@ -189,10 +189,17 @@ const PENDING_CASES: SectionCase[] = [
   {
     key: "wallet-lite-pending-confirmations-mobile",
     label: "W-2 · PendingConfirmations · mobile",
+    note: "移动端为两层行式（非桌面单行自适应）：上层 icon + Deposit + Confirming chip + 右对齐金额；下层 pl-[52px] 依次为 meta、blocks 计数、满宽进度条。卡片内边距 p-4。",
     spec: [
-      { state: "confirming · mobile", when: "isMobile", visual: "同内容，单列堆叠", source: "PendingConfirmations.tsx" },
+      {
+        state: "confirming · mobile",
+        when: "viewport < 768px（md: 断点，DOM 内 md:hidden 分支）",
+        visual: "两层行：金额右对齐，meta / 6/15 blocks / 满宽进度条左对齐到 pl-[52px]",
+        source: "PendingConfirmations.tsx",
+      },
     ],
   },
+
 ];
 
 const TX_EMPTY_CASES: SectionCase[] = [
