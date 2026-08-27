@@ -57,20 +57,6 @@ const MobilePatternsNode = ({ isMobile }: P) => (
   </>
 );
 
-const TradingHeaderPlaygroundNode = lazy(async () => {
-  const [{ SectionWrapper }, { TradingHeaderPlayground }] = await Promise.all([
-    import("./components/SectionWrapper"),
-    import("./components/TradingHeaderPlayground"),
-  ]);
-  return {
-    default: () => (
-      <SectionWrapper id="trading-header" title="Trading header playground" platform="shared">
-        <TradingHeaderPlayground />
-      </SectionWrapper>
-    ),
-  };
-});
-
 export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
   {
     id: "lite",
@@ -114,9 +100,6 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
     id: "legacy",
     label: "Legacy — 未改版存量",
     sections: [
-      s("trading", "Trading (Pro 终端)", sec("TradingSection", "TradingSection")),
-      s("trading-header", "Trading header playground", TradingHeaderPlaygroundNode),
-      s("spot", "Spot (Pro 现货)", sec("SpotSection", "SpotSection")),
       s("transparency", "Transparency", sec("TransparencySection", "TransparencySection")),
       s("worldcup", "World Cup (legacy)", sec("WorldCupSection", "WorldCupSection")),
     ],

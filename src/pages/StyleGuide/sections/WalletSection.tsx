@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { SectionWrapper, SubSection } from "../components/SectionWrapper";
-import { DualDevicePreview } from "../components/DeviceFrame";
+import { SectionWrapper } from "../components/SectionWrapper";
 import {
   MaintenanceNoticeBannerView,
   MAINTENANCE_NOTICE_DEMO_SETS,
@@ -72,78 +71,6 @@ export const WalletSection = ({ isMobile: _isMobile }: WalletSectionProps) => {
         </Card>
       </SectionWrapper>
 
-      {/* Settlements · Round 4B spot display alignment — real components mounted here
-          so /style-guide actually shows the 3-way kind classifier and the SPOT badge
-          appearances registered under settlement-row-* / product-line-badge-legend /
-          resolved-market-card-spot / market-search-row-spot. */}
-      <SectionWrapper
-        id="settlements-4b"
-        title="Settlements · 4B spot display"
-        platform="shared"
-        description="3 settlement rows (futures win, spot settled, spot intraday close) desktop+mobile, ResolvedMarketCard SPOT variant, search results row with SPOT badge, and the product-line badge legend."
-      >
-        <SubSection title="Settlement rows — desktop (real SettlementRowDesktop)" platform="shared">
-          <div className="grid grid-cols-1 gap-3">
-            <DualDevicePreview
-              previewKey="settlement-row-futures-win-desktop"
-              label="Futures · settled · Win — leverage chip + Win badge"
-              minHeight={140}
-            />
-            <DualDevicePreview
-              previewKey="settlement-row-spot-settled-desktop"
-              label="Spot · settled — SPOT badge + $1/$0 exit + Win badge"
-              minHeight={140}
-            />
-            <DualDevicePreview
-              previewKey="settlement-row-spot-closed-desktop"
-              label="Spot · intraday close — no Win/Loss chip, PnL is the only signal"
-              minHeight={140}
-            />
-          </div>
-        </SubSection>
-
-        <SubSection title="Settlement rows — mobile (real SettlementRowMobile)" platform="shared">
-          <div className="grid grid-cols-1 gap-3">
-            <DualDevicePreview
-              previewKey="settlement-row-futures-win-mobile"
-              label="Futures · settled · Win"
-              minHeight={220}
-            />
-            <DualDevicePreview
-              previewKey="settlement-row-spot-settled-mobile"
-              label="Spot · settled"
-              minHeight={220}
-            />
-            <DualDevicePreview
-              previewKey="settlement-row-spot-closed-mobile"
-              label="Spot · intraday close"
-              minHeight={220}
-            />
-          </div>
-        </SubSection>
-
-        <SubSection title="SPOT badge on cross-surface cards" platform="shared">
-          <DualDevicePreview
-            previewKey="resolved-market-card-spot"
-            label="ResolvedMarketCard · spot variant (real component)"
-            minHeight={220}
-          />
-          <div className="mt-3">
-            <DualDevicePreview
-              previewKey="market-search-row-spot"
-              label="Search / Watchlist result row · spot variant (real MarketCardB)"
-              minHeight={220}
-            />
-          </div>
-          <div className="mt-3">
-            <DualDevicePreview
-              previewKey="product-line-badge-legend"
-              label="Product-line badge legend"
-              minHeight={140}
-            />
-          </div>
-        </SubSection>
-      </SectionWrapper>
 
     </div>
   );

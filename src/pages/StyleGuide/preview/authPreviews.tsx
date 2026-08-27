@@ -2,7 +2,7 @@
  * Login / Registration previews (2026-08-27 audit round).
  *
  * Truth Rule (§16.1.1): every case mounts the PRODUCTION component
- * (AuthContent / LiteAuthGate / AuthGateOverlay / GoogleAccountChooser) with
+ * (AuthContent / LiteAuthGate / GoogleAccountChooser) with
  * display-only fixture props. No hand-copied markup.
  *
  * Preview surface falls back to "lite" (see PreviewApp) — these are the Lite
