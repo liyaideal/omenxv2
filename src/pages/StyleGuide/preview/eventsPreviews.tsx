@@ -25,7 +25,6 @@ import {
   TF_SECONDS,
   TIMEFRAMES,
   type Timeframe,
-  useSecondTick,
 } from "@/components/lite/intraday/intradayData";
 import { buildDayStrip, type SportsMatch } from "@/components/lite/sports/sportsData";
 
@@ -326,11 +325,12 @@ const quickFixture = (): {
       const end = now + TF_REMAINING[tf] * 1000;
       const start = end - TF_SECONDS[tf] * 1000;
       currentFor.set(key, {
-        id: `crypto-${coin}-updown-${tf}-${Math.floor(start / 1000)}`,
+        // Static id → static seed → identical derived price on every open.
+        id: `crypto-${coin}-updown-${tf}-1`,
         name: `${coin.toUpperCase()} ${tf} round`,
         coin,
         tf,
-        period: String(Math.floor(start / 1000)),
+        period: "1",
         base_price: cfg.base,
         start_date: new Date(start).toISOString(),
         end_date: new Date(end).toISOString(),
@@ -351,6 +351,9 @@ const quickFixture = (): {
 };
 
 const QUICK_FIXTURE = quickFixture();
+
+/** Frozen second-tick fed to the band so prices/countdowns are static. */
+const FIXTURE_TICK = 0;
 
 /* ---------------- ② Intraday band ---------------- */
 
@@ -405,7 +408,9 @@ const BandDemo = ({
   initialTf?: Timeframe;
 }) => {
   const isMobile = useIsMobile();
-  const tickSeconds = useSecondTick();
+  // Fixture tick: the derived tile price is a function of the second tick, so
+  // a live tick would make the case render differently on every open.
+  const tickSeconds = FIXTURE_TICK;
   const { currentFor, historyFor } = QUICK_FIXTURE;
   const [tf, setTf] = useState<Timeframe>(initialTf ?? "15m");
 
