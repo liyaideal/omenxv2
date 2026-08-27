@@ -14,27 +14,6 @@ interface DepositWithdrawSectionProps {
   isMobile: boolean;
 }
 
-const CHAIN_LOGOS = [
-  { name: "Ethereum", src: "/chain-logos/ethereum.svg" },
-  { name: "Arbitrum", src: "/chain-logos/arbitrum.svg" },
-  { name: "BNB Chain", src: "/chain-logos/bnb.svg" },
-  { name: "Polygon", src: "/chain-logos/polygon.svg" },
-  { name: "Base", src: "/chain-logos/base.svg" },
-  { name: "Solana", src: "/chain-logos/solana.svg" },
-  { name: "Bitcoin", src: "/chain-logos/bitcoin.svg" },
-  { name: "Avalanche", src: "/chain-logos/avalanche.svg" },
-  { name: "Tron", src: "/chain-logos/tron.svg" },
-];
-
-const TOKEN_LOGOS = [
-  { name: "USDC", src: "/token-logos/usdc.svg" },
-  { name: "USDT", src: "/token-logos/usdt.svg" },
-];
-
-const BRAND_LOGOS = [
-  { name: "Banxa", src: "/brand-logos/banxa.png" },
-  { name: "SOCKET", src: "" },
-];
 
 const FUNDING_DEMOS: { key: string; title: string; caption: string; minHeight?: number }[] = [
   { key: "wallet-deposit-to-screen", title: "Deposit · step 0 “Deposit to”", caption: "Production mount: src/pages/Deposit.tsx pre-screen (AccountPickerRows).", minHeight: 260 },
