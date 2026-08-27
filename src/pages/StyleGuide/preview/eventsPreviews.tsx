@@ -120,6 +120,11 @@ const child = (id: string, label: string, price: number) => ({
   fundingRate: 0,
 });
 
+/**
+ * Card fixtures hang off the REAL clock, not the frozen one: LiteEventCard is
+ * a FROZEN component and derives its badges from Date.now() internally, so a
+ * frozen expiry would render every card as "Settled".
+ */
 const eventFixture = (o: {
   id: string;
   name: string;
@@ -152,8 +157,8 @@ const eventFixture = (o: {
   volume24h: o.vol24h ?? 180_000,
   totalVolume: o.volume ?? 1_240_000,
   openInterest: 0,
-  expiry: new Date(FROZEN_NOW + o.settlesInH * H),
-  createdAt: frozenIso(-(o.createdAgoH ?? 96) * H),
+  expiry: new Date(Date.now() + o.settlesInH * H),
+  createdAt: new Date(Date.now() - (o.createdAgoH ?? 96) * H).toISOString(),
   isNew: false,
   isClosingSoon: false,
   topMarket: { label: "Yes" },
@@ -162,14 +167,14 @@ const eventFixture = (o: {
     o.children ?? [child("yes", "Yes", 0.62), child("no", "No", 0.38)],
 });
 
-const BINARY = eventFixture({
+const BINARY = () => eventFixture({
   id: "sg-ev-binary",
   name: "Will the Fed cut rates in September?",
   category: "macro",
   settlesInH: 96,
 });
 
-const MULTI = eventFixture({
+const MULTI = () => eventFixture({
   id: "sg-ev-multi",
   name: "Who wins the 2026 Best Picture?",
   category: "entertainment",
@@ -182,14 +187,14 @@ const MULTI = eventFixture({
   ],
 });
 
-const ENDS_SOON = eventFixture({
+const ENDS_SOON = () => eventFixture({
   id: "sg-ev-ends-soon",
   name: "Will ETH close above $4K today?",
   category: "crypto",
   settlesInH: 3 + 12 / 60,
 });
 
-const NEW_EVENT = eventFixture({
+const NEW_EVENT = () => eventFixture({
   id: "sg-ev-new",
   name: "Will the next iPhone ship a foldable?",
   category: "tech",
@@ -197,7 +202,7 @@ const NEW_EVENT = eventFixture({
   createdAgoH: 3,
 });
 
-const TRENDING = eventFixture({
+const TRENDING = () => eventFixture({
   id: "sg-ev-trending",
   name: "Who takes the box office crown this weekend?",
   category: "entertainment",
@@ -205,7 +210,7 @@ const TRENDING = eventFixture({
   vol24h: 4_800_000,
 });
 
-const BOOSTED = eventFixture({
+const BOOSTED = () => eventFixture({
   id: "sg-ev-boost",
   name: "Will BTC close above $70K this week?",
   category: "crypto",
@@ -213,7 +218,7 @@ const BOOSTED = eventFixture({
 });
 
 /** Real daily up/down slug → the shipped intraday detector recognises it. */
-const INTRADAY_TRENDING = eventFixture({
+const INTRADAY_TRENDING = () => eventFixture({
   id: "us-hood-updown-20260803",
   name: "Robinhood (HOOD) — will it close higher today?",
   category: "stocks",
@@ -272,8 +277,8 @@ export const Ev4Preview = () => (
     <div className="flex flex-col gap-4">
       <FilterRowDemo initialBoost />
       <Grid>
-        <Card market={BOOSTED} boostMax={5} />
-        <Card market={BINARY} boostMax={2} />
+        <Card market={BOOSTED()} boostMax={5} />
+        <Card market={BINARY()} boostMax={2} />
       </Grid>
     </div>
   </Stage>
@@ -427,7 +432,7 @@ export const Ev10Preview = () => (
 export const Ev11Preview = () => (
   <Stage>
     <Grid>
-      <Card market={BINARY} />
+      <Card market={BINARY()} />
     </Grid>
   </Stage>
 );
@@ -435,7 +440,7 @@ export const Ev11Preview = () => (
 export const Ev12Preview = () => (
   <Stage>
     <Grid>
-      <Card market={MULTI} />
+      <Card market={MULTI()} />
     </Grid>
   </Stage>
 );
@@ -443,7 +448,7 @@ export const Ev12Preview = () => (
 export const Ev13Preview = () => (
   <Stage>
     <Grid>
-      <Card market={ENDS_SOON} />
+      <Card market={ENDS_SOON()} />
     </Grid>
   </Stage>
 );
@@ -451,7 +456,7 @@ export const Ev13Preview = () => (
 export const Ev14Preview = () => (
   <Stage>
     <Grid>
-      <Card market={NEW_EVENT} />
+      <Card market={NEW_EVENT()} />
     </Grid>
   </Stage>
 );
@@ -459,7 +464,7 @@ export const Ev14Preview = () => (
 export const Ev15Preview = () => (
   <Stage>
     <Grid>
-      <Card market={TRENDING} cutoff={1_000_000} />
+      <Card market={TRENDING()} cutoff={1_000_000} />
     </Grid>
   </Stage>
 );
@@ -467,7 +472,7 @@ export const Ev15Preview = () => (
 export const Ev16Preview = () => (
   <Stage>
     <Grid>
-      <Card market={BOOSTED} boostMax={5} />
+      <Card market={BOOSTED()} boostMax={5} />
     </Grid>
   </Stage>
 );
@@ -475,9 +480,9 @@ export const Ev16Preview = () => (
 export const Ev17Preview = () => (
   <Stage>
     <Grid>
-      <Card market={ENDS_SOON} boostMax={5} />
-      <Card market={TRENDING} boostMax={3} cutoff={1_000_000} />
-      <Card market={INTRADAY_TRENDING} boostMax={5} cutoff={1_000_000} />
+      <Card market={ENDS_SOON()} boostMax={5} />
+      <Card market={TRENDING()} boostMax={3} cutoff={1_000_000} />
+      <Card market={INTRADAY_TRENDING()} boostMax={5} cutoff={1_000_000} />
     </Grid>
   </Stage>
 );
@@ -485,9 +490,9 @@ export const Ev17Preview = () => (
 export const Ev18Preview = () => (
   <Stage>
     <Grid>
-      <Card market={BINARY} />
-      <Card market={MULTI} />
-      <Card market={BOOSTED} boostMax={5} />
+      <Card market={BINARY()} />
+      <Card market={MULTI()} />
+      <Card market={BOOSTED()} boostMax={5} />
     </Grid>
   </Stage>
 );
