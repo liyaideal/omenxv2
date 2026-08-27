@@ -20,8 +20,6 @@ const LOGIN_DESKTOP: SectionCase[] = [
         visual: "Google 按钮为主 CTA；tab active = bg-[#F2F3F5] text-[#090A0C]",
         source: "AuthContent.tsx isLite 分支",
       },
-    ],
-  },
   {
     key: "auth-login-wallet",
     label: "AU-L2 · login · Wallet tab · desktop",
@@ -32,8 +30,6 @@ const LOGIN_DESKTOP: SectionCase[] = [
         visual: "钱包签名入口替换 Google 按钮，其余版式不变",
         source: "AuthContent.tsx authMethod 分支",
       },
-    ],
-  },
   {
     key: "auth-login-telegram",
     label: "AU-L3 · login · Telegram tab · desktop",
@@ -44,8 +40,6 @@ const LOGIN_DESKTOP: SectionCase[] = [
         visual: "Telegram 入口按钮",
         source: "AuthContent.tsx authMethod 分支",
       },
-    ],
-  },
   {
     key: "auth-login-loading",
     label: "AU-L4 · login · isLoading",
@@ -56,8 +50,6 @@ const LOGIN_DESKTOP: SectionCase[] = [
         visual: "主 CTA 内 Loader2 自旋并禁用；其余控件不可点",
         source: "AuthContent isLoading",
       },
-    ],
-  },
 ];
 
 const LOGIN_MOBILE: SectionCase[] = [
@@ -72,8 +64,6 @@ const LOGIN_MOBILE: SectionCase[] = [
         visual: "同 desktop 文案，容器为底部抽屉，顶部 grabber + Logo",
         source: "AuthSheet.tsx + AuthContent.tsx",
       },
-    ],
-  },
     ],
   },
 ];
@@ -91,8 +81,6 @@ const CREATE_CASES: SectionCase[] = [
       },
     ],
   },
-    ],
-  },
   {
     key: "auth-create-mobile",
     label: "AU-W2 · createWallet · mobile",
@@ -103,8 +91,6 @@ const CREATE_CASES: SectionCase[] = [
         visual: "三行 volt 勾 + Turnstile 占位块（静态，非真实校验）",
         source: "AuthContent.tsx",
       },
-    ],
-  },
 ];
 
 const PROFILE_CASES: SectionCase[] = [
@@ -118,8 +104,6 @@ const PROFILE_CASES: SectionCase[] = [
         visual: "volt 横幅 + bg-muted/30 rounded-lg 卡片（username / email）+ btn-primary 'Start trading →'",
         source: "AuthContent.tsx isLite 分支",
       },
-    ],
-  },
   {
     key: "auth-profile-email-error",
     label: "AU-P2 · completeProfile · email 非法",
@@ -130,8 +114,6 @@ const PROFILE_CASES: SectionCase[] = [
         visual: "email 输入下方红色错误行，提交拦截",
         source: "AuthContent emailError",
       },
-    ],
-  },
   {
     key: "auth-profile-referral-open",
     label: "AU-P3 · completeProfile · 推荐码输入展开（空）",
@@ -142,8 +124,6 @@ const PROFILE_CASES: SectionCase[] = [
         visual: "折叠链接展开为输入框，placeholder 态",
         source: "AuthContent showReferralInput",
       },
-    ],
-  },
   {
     key: "auth-profile-referral-prefilled",
     label: "AU-P4 · completeProfile · 推荐码已填（6 位）",
@@ -154,8 +134,6 @@ const PROFILE_CASES: SectionCase[] = [
         visual: "6 位大写字母数字码，font-mono",
         source: "AuthContent referralCode",
       },
-    ],
-  },
   {
     key: "auth-profile-loading",
     label: "AU-P5 · completeProfile · 提交 loading",
@@ -166,8 +144,6 @@ const PROFILE_CASES: SectionCase[] = [
         visual: "CTA 内 Loader2 自旋 + disabled",
         source: "AuthContent isLoading",
       },
-    ],
-  },
   {
     key: "auth-profile-mobile",
     label: "AU-P6 · completeProfile · mobile",
@@ -178,8 +154,6 @@ const PROFILE_CASES: SectionCase[] = [
         visual: "抽屉内同版式",
         source: "AuthContent.tsx",
       },
-    ],
-  },
     ],
   },
 ];
@@ -196,8 +170,6 @@ const GATE_CASES: SectionCase[] = [
           "底层 blur-[3px] opacity-70；覆盖层 LynxFigure 100 + 标题 + 描述 + btn-primary Sign in / 描边 Create account",
         source: "LiteAuthGate.tsx",
       },
-    ],
-  },
   {
     key: "auth-gate-lite-in",
     label: "AU-G2 · LiteAuthGate · signed-in 透传",
@@ -208,8 +180,6 @@ const GATE_CASES: SectionCase[] = [
         visual: "children 原样、零覆盖层（真渲染）",
         source: "LiteAuthGate forceSignedIn fixture",
       },
-    ],
-  },
     ],
   },
 ];
@@ -226,8 +196,6 @@ const DIALOG_CASES: SectionCase[] = [
         visual: "'Choose an account / to continue to OMENX' + Alex Carter / Mia Reyes / Use another account",
         source: "GoogleAccountChooser.tsx",
       },
-    ],
-  },
 ];
 
 export const AuthPage = ({ isMobile }: { isMobile: boolean }) => (
