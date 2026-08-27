@@ -367,12 +367,13 @@ export const WalletLiteR1Section = ({ isMobile }: { isMobile: boolean }) => (
     platform="shared"
     description="2026-08 Wallet Lite 改版三批：批1 未登录门（登录弹层三步已迁往「登录 / 注册」节）/ 批2 地址 ⋯ 菜单 + 账户徽标配色 + Hero 文案 / 批3 流水行清理 + 列对齐 + icon 全类型映射。"
   >
-    <SubSection title="1 · HeroEquityCard" platform="shared">
-      <SectionFrame cases={HERO_CASES} device="desktop" minHeight={320} />
+    <SubSection title="1 · HeroEquityCard">
+      <SectionFrame cases={[...HERO_CASES, ...HERO_HIDDEN_CASES]} device="desktop" minHeight={520} />
       <div className="mt-3">
-        <SectionFrame cases={HERO_HIDDEN_CASES} device="desktop" minHeight={240} />
+        <SectionFrame cases={[...HERO_CASES, ...HERO_HIDDEN_CASES]} device="mobile" minHeight={560} />
       </div>
     </SubSection>
+
 
     <SubSection title="2 · 双账户卡" platform="shared">
       <SectionFrame cases={[{ key: "wallet-equity-bands", label: "Standard / Boost 双账户卡" }]} device="desktop" minHeight={340} />
