@@ -416,10 +416,6 @@ export const WalletLiteR1Section = ({ isMobile }: { isMobile: boolean }) => (
       <SectionFrame cases={BADGE_CASES} device="desktop" minHeight={120} />
     </SubSection>
 
-    <SubSection title="交易流水空态（W-3 / W-4）" platform="shared">
-      <SectionFrame cases={TX_EMPTY_CASES} device={isMobile ? "mobile" : "desktop"} minHeight={320} />
-    </SubSection>
-
     <SubSection title="7 · Deposit & Withdraw（W-12 … W-16）" platform="desktop">
       <SectionFrame cases={DEPOSIT_DIALOG_CASES} device="desktop" minHeight={620} />
       <div className="mt-3">

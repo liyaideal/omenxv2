@@ -13,8 +13,8 @@ export const LiteWalletPage = ({ isMobile }: P) => (
     status="done"
     note="Dual-account（Boost / Standard）余额与转账、交易历史，以及充值 / 提现动线。"
   >
-    <WalletSection isMobile={isMobile} />
-    <DepositWithdrawSection isMobile={isMobile} />
     <WalletLiteR1Section isMobile={isMobile} />
+    <DepositWithdrawSection isMobile={isMobile} />
+    <WalletSection isMobile={isMobile} />
   </LitePage>
 );

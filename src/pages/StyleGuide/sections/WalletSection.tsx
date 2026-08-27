@@ -20,7 +20,7 @@ interface WalletSectionProps {
   isMobile: boolean;
 }
 
-export const WalletSection = ({ isMobile }: WalletSectionProps) => {
+export const WalletSection = ({ isMobile: _isMobile }: WalletSectionProps) => {
   const [maintenancePreset, setMaintenancePreset] = useState<MaintenancePreset>("single");
   const maintenanceNotices = MAINTENANCE_NOTICE_DEMO_SETS[maintenancePreset];
 
