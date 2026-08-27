@@ -266,7 +266,7 @@ const TX_STATE_CASES: SectionCase[] = [
     ],
   },
   {
-    key: "wallet-lite-tx-pro-only",
+    key: "wallet-lite-tx-pro-only-types",
     label: "W-9 · 交易流水 · Pro 专属四类型",
     note: "cross_chain_in / cross_chain_out / fiat_buy / fiat_sell 只在 Pro 资金动线产生，Lite 不会新增，但历史行仍要正确渲染。",
     spec: [
@@ -280,7 +280,7 @@ const TX_STATE_CASES: SectionCase[] = [
 
 const ADDRESS_EMPTY_CASES: SectionCase[] = [
   {
-    key: "wallet-lite-addresses-empty",
+    key: "wallet-lite-address-empty",
     label: "W-10 · Saved addresses · 空态",
     spec: [
       {
@@ -310,7 +310,7 @@ const HERO_HIDDEN_CASES: SectionCase[] = [
 
 const DEPOSIT_DIALOG_CASES: SectionCase[] = [
   {
-    key: "wallet-lite-deposit-dialog-checklist",
+    key: "wallet-deposit-dialog-checklist",
     label: "W-12 · Deposit 弹窗 · 风险清单（未确认）",
     note: "弹窗外壳（标题栏 / To: Standard Account 面包屑 / 三 tab 栏）为 docs 复刻，tab 内容为生产组件。",
     spec: [
@@ -323,7 +323,7 @@ const DEPOSIT_DIALOG_CASES: SectionCase[] = [
     ],
   },
   {
-    key: "wallet-lite-deposit-dialog-address",
+    key: "wallet-deposit-dialog-address",
     label: "W-13 · Deposit 弹窗 · 地址态",
     spec: [
       {
@@ -335,14 +335,14 @@ const DEPOSIT_DIALOG_CASES: SectionCase[] = [
     ],
   },
   {
-    key: "wallet-lite-deposit-dialog-fiat",
+    key: "wallet-deposit-dialog-fiat",
     label: "W-14 · Deposit 弹窗 · Fiat tab",
     spec: [
       { state: "fiat", when: "tab === 'fiat'", visual: "法币金额输入 + 报价行 + Banxa 跳转 CTA", source: "BuyWithFiat.tsx" },
     ],
   },
   {
-    key: "wallet-lite-deposit-dialog-wallet",
+    key: "wallet-deposit-dialog-wallet-tab",
     label: "W-15 · Deposit 弹窗 · Wallet（跨链）tab",
     spec: [
       { state: "crosschain", when: "tab === 'crosschain'", visual: "来源链 / 币种选择 + 金额 + 报价明细", source: "CrossChainDeposit.tsx" },
@@ -352,7 +352,7 @@ const DEPOSIT_DIALOG_CASES: SectionCase[] = [
 
 const WITHDRAW_CASES: SectionCase[] = [
   {
-    key: "wallet-lite-withdraw-desktop",
+    key: "wallet-withdraw-desktop-form",
     label: "W-16 · Withdraw · desktop 表单",
     spec: [
       {

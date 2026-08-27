@@ -114,7 +114,7 @@ export const AuthProfileEmailErrorPreview = () => (
 export const AuthProfileReferralOpenPreview = () => (
   <DesktopShell step="completeProfile" fixture={{ referralOpen: true }} />
 );
-export const AuthProfileReferralFilledPreview = () => (
+export const AuthProfileReferralPrefilledPreview = () => (
   <DesktopShell
     step="completeProfile"
     fixture={{ referralOpen: true, referralCode: "ABCDEF" }}

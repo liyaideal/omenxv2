@@ -165,7 +165,7 @@ const PROFILE_CASES: SectionCase[] = [
     ],
   },
   {
-    key: "auth-profile-referral-filled",
+    key: "auth-profile-referral-prefilled",
     label: "AU-P4 · completeProfile · 推荐码已填（6 位）",
     spec: [
       {

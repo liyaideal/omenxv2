@@ -35,11 +35,7 @@ interface AuthContentProps {
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
   variant?: "desktop" | "mobile";
-  /**
-   * Style-guide only (docs fixture). Seeds initial local state so a static
-   * state can be photographed. Never set in product code — when omitted the
-   * component behaves exactly as before.
-   */
+  /** Style-guide only: seeds internal UI state. Never passed in production. */
   fixture?: {
     authMethod?: "wallet" | "google" | "telegram";
     emailError?: string;
