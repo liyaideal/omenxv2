@@ -12,9 +12,7 @@ import { useState } from "react";
 import { AuthContent } from "@/components/auth/AuthContent";
 import { GoogleAccountChooser } from "@/components/auth/GoogleAccountChooser";
 import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
-import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { Logo } from "@/components/Logo";
-import { FixedSurfaceProvider } from "@/contexts/SurfaceContext";
 import type { AuthStep } from "@/hooks/useAuth";
 
 type Fixture = React.ComponentProps<typeof AuthContent>["fixture"];
@@ -86,21 +84,11 @@ export const AuthLoginTelegramTabPreview = () => (
 );
 export const AuthLoginLoadingPreview = () => <DesktopShell step="login" loading />;
 export const AuthLoginMobilePreview = () => <MobileShell step="login" />;
-export const AuthLoginProPreview = () => (
-  <FixedSurfaceProvider surface="pro">
-    <DesktopShell step="login" />
-  </FixedSurfaceProvider>
-);
 
 /* ---------------- AU-W · createWallet step ---------------- */
 
 export const AuthCreateWalletDesktopPreview = () => <DesktopShell step="createWallet" />;
 export const AuthCreateWalletMobilePreview = () => <MobileShell step="createWallet" />;
-export const AuthCreateWalletProPreview = () => (
-  <FixedSurfaceProvider surface="pro">
-    <DesktopShell step="createWallet" />
-  </FixedSurfaceProvider>
-);
 
 /* ---------------- AU-P · completeProfile step ---------------- */
 
@@ -124,11 +112,6 @@ export const AuthProfileLoadingPreview = () => (
   <DesktopShell step="completeProfile" loading />
 );
 export const AuthProfileMobilePreview = () => <MobileShell step="completeProfile" />;
-export const AuthProfileProPreview = () => (
-  <FixedSurfaceProvider surface="pro">
-    <DesktopShell step="completeProfile" />
-  </FixedSurfaceProvider>
-);
 
 /* ---------------- AU-G · auth gates ---------------- */
 
@@ -164,14 +147,6 @@ export const AuthGateLiteSignedInPreview = () => (
   </LiteAuthGate>
 );
 
-export const AuthGateProPreview = () => (
-  <AuthGateOverlay
-    title="Sign in to view your wallet"
-    description="Manage your funds and saved addresses by signing in."
-  >
-    <GateUnderlay />
-  </AuthGateOverlay>
-);
 
 
 /* ---------------- AU-D · Google account chooser ---------------- */
