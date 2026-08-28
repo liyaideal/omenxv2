@@ -1,5 +1,5 @@
 /**
- * /trade（合约与多市场）· 状态字典（M2a · TR-1 … TR-16）。
+ * /trade（合约与多市场）· 状态字典（M2b · mock11 终版编号 TR-1 … TR-24）。
  *
  * 每个 case = 生产组件 + SectionFrame 双帧（desktop 1280 在上 / mobile 375 在下）。
  * fixture 只注数据与状态；不新增视觉方案，不手抄生产 JSX。
@@ -7,7 +7,7 @@
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { SectionFrame, type SectionCase } from "../components/SectionFrame";
 
-/* ---------------- ① 页头与市场语境 ---------------- */
+/* ---------------- ① 页头与市场语境（TR-1…TR-4） ---------------- */
 
 const HEAD_CASES: SectionCase[] = [
   {
@@ -52,7 +52,7 @@ const HEAD_CASES: SectionCase[] = [
   },
 ];
 
-/* ---------------- ② 下单面板 ---------------- */
+/* ---------------- ② 下单面板（TR-5…TR-9） ---------------- */
 
 const PANEL_CASES: SectionCase[] = [
   {
@@ -91,108 +91,195 @@ const PANEL_CASES: SectionCase[] = [
       { state: "blocked", when: "blocked === true（closed / in review / settled）", visual: "CTA 文案换成 blockedReason 且禁用", source: "blocked / blockedReason" },
     ],
   },
+  {
+    key: "trade-tr9",
+    label: "TR-9 · 下单面板 · netting 句 + partial net",
+    note:
+      "逐字：`Buying Yes cashes out your No first.`（nettingScopeLabel 为空 → 无 “on this market” 后缀）。fixture：heldSideLabel=`No` / heldQty=40 / heldCurrentValue=$20 / 本单 $50 · 5× → 余量腿另起，auto-close 行的值引用 **AC-T5**（`fixture.remainderAutoClose = { kind: "none" }`），两案同一组数值。",
+    spec: [
+      { state: "netting", when: 'heldSideLabel != null && heldSideLabel !== sideLabel', visual: "CTA 上方出现 `Buying {side} cashes out your {held} first.`", source: "LiteContractOrderPanel.nettingNotice" },
+      { state: "全额对冲", when: "quantity <= heldQty", visual: "只显示 cash-out 回收额，不开新腿", source: "qtyNet / getBack" },
+      { state: "partial net", when: "quantity > heldQty > 0", visual: "回收行 + 余量腿行（余量的 Est. auto-close 独立披露，非全单值）", source: "isPartialNet / remainderAutoClose" },
+      { state: "无 heldQty", when: "heldQty == null", visual: "只出句子不出数字（引擎按份额净额，无份额则不估）", source: "canEstimateNet" },
+    ],
+  },
 ];
 
-/* ---------------- ③ 持仓与侧栏 ---------------- */
+/* ---------------- ③ 持仓（TR-10…TR-12） ---------------- */
 
 const POSITION_CASES: SectionCase[] = [
   {
-    key: "trade-tr9",
-    label: "TR-9 · 交易页持仓条 · 单仓 / multiHeld 多仓（LitePositionCard）",
-    note: "左：binary 单仓（5× Boost，hot auto-close）；右：多市场每条腿一张卡。auto-close 列三态见 AC-T1…T3。",
+    key: "trade-tr10",
+    label: "TR-10 · 交易页持仓条 · 单仓（LitePositionCard）",
+    note: "binary 单仓，5× Boost + hot auto-close。auto-close 列三态见 AC-T1…T3。",
     spec: [
       { state: "单仓", when: "heldPos != null && !boardMode", visual: "一张卡：side 标签 + PUT IN / NOW WORTH / PROFIT / EST. AUTO-CLOSE + Cash out", source: "LiteContractTrade.YourPosition" },
-      { state: "多仓", when: "boardMode && multiHeld.length > 0", visual: "每条腿一张卡；标题为 side-label 或 `{option} · Yes|No`，1× 不加 Boost 后缀", source: "LiteContractTrade.MultiPositions" },
+      { state: "hot", when: "价格逼近 auto-close 位", visual: "auto-close 值 trading-red + `Close to current price`", source: "autoCloseHot" },
       { state: "In review", when: "inReview === true", visual: "Cash out 禁用并显示 IN_REVIEW_HOLD_LINE", source: "cashOutDisabledText" },
-      { state: "移动紧凑", when: "isMobile", visual: "compact 排版", source: "compact prop" },
+      { state: "移动紧凑", when: "isMobile", visual: "列标题 `Est. auto-close` → `Auto-close`", source: "compact prop" },
     ],
   },
   {
-    key: "trade-tr10",
-    label: "TR-10 · More markets 侧栏 rail（TradeMoreMarkets）",
+    key: "trade-tr11",
+    label: "TR-11 · 交易页持仓条 · multiHeld 多仓列表",
+    spec: [
+      { state: "多仓", when: "boardMode && multiHeld.length > 0", visual: "每条腿一张卡，纵向堆叠；标题为 side-label 或 `{option} · Yes|No`", source: "LiteContractTrade.MultiPositions" },
+      { state: "1× 腿", when: "boost === 1", visual: "标题不加 `1× Boost` 后缀（全站铁律）", source: "LitePositionCard boost>1 分支" },
+      { state: "亏损腿", when: "profit < 0", visual: "PROFIT 走 trading-red 且前缀为 −", source: "PosCell tone" },
+    ],
+  },
+  {
+    key: "trade-tr12",
+    label: "TR-12 · 交易页持仓条 · voucher 来源仓",
+    note:
+      "voucher 来源无法从既有 props 推出 → 新增 **fixture-only 纯展示 prop `voucherTag`**（生产从不传）。徽标沿用 Portfolio 的 Volt 口径 `Voucher`（#CFFF4A），不新造视觉。",
+    spec: [
+      { state: "voucher 仓", when: "position.source === voucher（生产由 vouchers 关联判定）", visual: "side 标签后追加 ` · Voucher`（Volt）", source: "LitePositionCard.voucherTag（fixture-only）" },
+      { state: "普通仓", when: "非 voucher", visual: "无徽标，其余排版一致", source: "同上" },
+    ],
+  },
+];
+
+/* ---------------- ④ 侧栏与账本（TR-13 / TR-14） ---------------- */
+
+const RAIL_CASES: SectionCase[] = [
+  {
+    key: "trade-tr13",
+    label: "TR-13 · More markets 侧栏 rail（TradeMoreMarkets）",
     spec: [
       { state: "有兄弟市场", when: "more.length > 0", visual: "题名 + Yes% + chevron，整行点击进 `/trade?event={id}`", source: "LiteContractTrade.MoreMarkets" },
       { state: "空", when: "more.length === 0", visual: "EmptyState `No other markets right now` / `New markets show up here as they open.`", source: "EmptyState variant=module" },
       { state: "已结算事件", when: "resolved === true", visual: "标题改为 `Still live`", source: "MoreMarkets title" },
     ],
   },
+  {
+    key: "trade-tr14",
+    label: "TR-14 · market activity 账本（有行态 + 空态两帧）",
+    note:
+      "同一 case 内两帧：上=有行，下=空态。空态逐字 `No activity yet` / `Trades on this market show up here as people buy in.`",
+    spec: [
+      { state: "有行", when: "rows.length > 0", visual: "行句式 `5m · Bought Yes · Jeonbuk · 1× · $121`；时间/动作/上下文/金额四列固定序", source: "LiteMarketActivity ROW_GRID" },
+      { state: "空态", when: "rows.length === 0", visual: "`No activity yet` + `Trades on this market show up here as people buy in.`", source: "EmptyState variant=module" },
+      { state: "binary 上下文", when: "showOptionLabel === false", visual: "上下文列只出 boost，不出 option 名（页面本身就是市场）", source: "context 分支" },
+    ],
+  },
 ];
 
-/* ---------------- ④ 多市场与 game lines ---------------- */
+/* ---------------- ⑤ 终态与中间态（TR-15…TR-19） ---------------- */
+
+const TAIL_CASES: SectionCase[] = [
+  {
+    key: "trade-tr15",
+    label: "TR-15 · settled 终态 · 未持有（LiteOutcomeCard）",
+    note:
+      "逐字：`You didn't hold this market.` + summary 句 + CTA `Browse live markets →`。",
+    spec: [
+      { state: "resolved", when: "event.is_resolved === true", visual: "下单面板整体撤下，页顶换成结果卡；移动底栏 CTA 变 `View in Portfolio →`", source: "LiteContractTrade resolved 分支" },
+      { state: "未持有", when: "heldPos == null", visual: "虚线框 `You didn't hold this market.` + Browse CTA", source: "LiteOutcomeCard 非 holding 分支" },
+      { state: "无赔率历史", when: "!isMulti && oddsHistory.length < 2 && base_price == null", visual: "图表模块整体隐藏，绝不补合成数据", source: "hideSettledChart" },
+    ],
+  },
+  {
+    key: "trade-tr16",
+    label: "TR-16 · settled 终态 · 持仓派彩（LiteOutcomeCard.holding）",
+    note:
+      "派彩句式逐字（生产 LiteOutcomeCard holding 分支）：`Settled` + 结果两行 `Yes $1.00` / `No $0.00`；`Your result` + side 徽标 + `5× Boost` 徽标；三格 `You put in` / `Paid out` / `Profit`；尾行 `Settled from Nasdaq · see evidence`。生产 /trade 不传 resultLine，故无附加说明句。",
+    spec: [
+      { state: "持有获胜腿", when: "heldPos != null && 胜方", visual: "Your result 三格 + Profit 走 trading-green", source: "LiteOutcomeCard.holding" },
+      { state: "Boost 徽标", when: "holding.boost > 1", visual: "Volt→Pulse 渐变 `5× Boost` 胶囊；1× 不渲染", source: "holding.boost 分支" },
+      { state: "有来源", when: "source_name != null", visual: "`Settled from {source} · see evidence ↗`", source: "sourceName / sourceUrl" },
+    ],
+  },
+  {
+    key: "trade-tr17",
+    label: "TR-17 · HOW IT SETTLED 证明卡（HowItSettled）",
+    note:
+      "上帧逐字两句：`Resolved YES. Winning shares pay $1 each, credited automatically at settlement.` + `Settled by the OmenX team from the official result.`（后者是 sourceName 为空时的生产兜底句）。下帧为有数值判据 + 有来源的形态。",
+    spec: [
+      { state: "无来源", when: "sourceName == null", visual: "结尾句 `Settled by the OmenX team from the official result.`", source: "HowItSettled 兜底分支" },
+      { state: "有数值判据", when: "base_price != null && close_price != null", visual: "Needed / Actual 两行 + `Settled from {source} · Official result ↗`", source: "HowItSettled.criterion" },
+      { state: "引擎词改写", when: "summary 含 `Not Up`", visual: "改写为 `didn't go up`", source: "consumerText()" },
+    ],
+  },
+  {
+    key: "trade-tr18",
+    label: "TR-18 · In review · result pending（InReviewCard + 面板 blocked）",
+    note:
+      "逐字：徽标 `In review`；`Result is under review. Payout once confirmed.`；持仓时追加 `Cash out is paused while the result is under review.`；`Result comes from Nasdaq official close.`；面板 CTA 变 `In review` 且禁用。",
+    spec: [
+      { state: "in review", when: "!is_resolved && lifecycle_status === 'REVIEW'（end_date 已过）", visual: "规则位换成橙轴 InReviewCard，面板 blocked", source: "LiteContractTrade.inReview" },
+      { state: "持有", when: "heldPos != null || multiHeld.length > 0", visual: "追加 cash-out 暂停句；持仓卡 Cash out 禁用", source: "holding prop / cashOutDisabledText" },
+      { state: "blockedReason", when: "inReview === true", visual: "CTA 文案 = IN_REVIEW_BADGE（`In review`）", source: "blockedReason 分支" },
+    ],
+  },
+  {
+    key: "trade-tr19",
+    label: "TR-19 · 交易页 loading 骨架",
+    spec: [
+      { state: "loading", when: "loading === true（事件与选项未到达）", visual: "整屏居中 Loader2 旋转，无内容占位", source: "LiteContractTrade loading 分支" },
+      { state: "无 event 参数", when: "!eventId", visual: "重定向 /events（不是死链）", source: "Navigate to /events" },
+      { state: "查无事件", when: "notFound || !event", visual: "ExpiredEventFallback", source: "ExpiredEventFallback" },
+    ],
+  },
+];
+
+/* ---------------- ⑥ 多市场与 game lines（TR-20…TR-23） ---------------- */
 
 const MULTI_CASES: SectionCase[] = [
   {
-    key: "trade-sports-lines-default",
-    label: "TR-11 · sports 多市场组 · WINNER 组（LiteMarketBoard + LiteBoardGroupHeader）",
-    note:
-      "复用既有 key `trade-sports-lines-default`（fixture 队伍为 Arsenal / Draw / Liverpool 47/26/27，与 mock 里 Ulsan 19 / Draw 23 / Jeonbuk 58 只是队名与数值不同，结构与状态完全一致；沿用既有 fixture 以免同一 key 两份数据）。",
+    key: "trade-tr20",
+    label: "TR-20 · sports 多市场组 · WINNER 组（LiteBoardGroupHeader + LiteMarketBoard）",
     spec: [
       { state: "组标题", when: "event.options.length > 1", visual: "`WINNER / REGULATION TIME` + ⓘ 释义", source: "LiteBoardGroupHeader" },
-      { state: "行未选中", when: "selectedId !== option.id", visual: "每行：题名 + CHANCE% + Yes¢ / No¢ 双 chip", source: "LiteMarketBoard" },
+      { state: "行未选中", when: "selectedId !== option.id", visual: "每行：题名 + CHANCE% + Yes¢ / No¢ 双 chip（Ulsan 19 / Draw 23 / Jeonbuk 58）", source: "LiteMarketBoard" },
       { state: "行选中", when: "selectedId === option.id", visual: "行下方手风琴展开 `YES · CHANCE OVER TIME` 图（Sample data）", source: "LiteBoardChart" },
       { state: "行已结算", when: "option.settled", visual: "该行沉到板底并标出结果", source: "ordered / outcomeYes" },
     ],
   },
   {
-    key: "trade-sports-lines-handicap-selected",
-    label: "TR-12a · line scrubber · HANDICAP（LiteLineScrubber）",
-    note: "尺面 −2.5 / −1.5 / +1.5 / +2.5；行题 `ARS +1.5 covers`，chip 为两侧 side label。",
+    key: "trade-tr21",
+    label: "TR-21 · 两把尺 · HANDICAP + TOTAL GOALS（LiteLineScrubber）",
+    note: "HANDICAP −2.5 / −1.5 / +1.5 / +2.5，行题 `ULS +1.5 covers`；TOTAL 0.5…4.5，行题 `Over 2.5 goals`。",
     spec: [
       { state: "选中一档", when: "value === line", visual: "尺上该档高亮，行价格与图随之切换", source: "LiteLineScrubber value" },
       { state: "换档保持选中", when: "切换后同侧兄弟事件存在", visual: "选中跳到新兄弟的 option id，手风琴图不收起", source: "LiteContractTrade.changeLine" },
-      { state: "持有该腿", when: "multiHeld 命中该 fixture 事件", visual: "行内 held 标记 + 下方持仓卡（1× 无 Boost 后缀）", source: "BoardOption.heldSideLabel" },
+      { state: "compact 窗口", when: "compact === true（移动帧）", visual: "只显示 4 档窗口，可横向滚动到边缘", source: "LiteLineScrubber compact" },
     ],
   },
   {
-    key: "line-scrubber",
-    label: "TR-12b · line scrubber · TOTAL GOALS 与边缘窗口",
+    key: "trade-tr22",
+    label: "TR-22 · sports 进行中比赛（kickoff 已过）",
+    note:
+      "偏差回报：生产 /trade **不渲染分钟 / 比分 / phase**——live 脉冲与比分只存在于 /events 的 SportsStageCard。交易页对「进行中」的唯一真身是 freeze_time（= kickoff）已过 → blocked，CTA 文案 `Closed`。本 case 照生产真身收录，不新造 live 头。",
     spec: [
-      { state: "TOTAL 尺", when: "values = [0.5…4.5]", visual: "行题 `Over 2.5 goals` + Over/Under chip", source: "LiteLineScrubber format" },
-      { state: "compact 窗口", when: "compact === true", visual: "只显示 4 档窗口，可横向滚动到边缘", source: "LiteLineScrubber compact" },
+      { state: "kickoff 已过", when: "freeze_time <= now && !is_resolved", visual: "板照常可读，下单面板 CTA `Closed` 且禁用", source: "pastFreeze / blockedReason" },
+      { state: "板仍可浏览", when: "任何未结算态", visual: "组标题 + 行 + 手风琴图不受 blocked 影响", source: "LiteMarketBoard" },
+      { state: "分钟/比分", when: "—", visual: "交易页不渲染（见上方偏差回报）", source: "SportsStageCard（/events 侧）" },
     ],
   },
   {
-    key: "trade-tr16",
-    label: "TR-16 · 多市场事件通用形态（非 sports · box office）",
-    note: "与 sports 板同构，差异仅在组标签：非 fixture 事件没有 Winner / Handicap / Total 分组头，只有一块 LiteMarketBoard。",
+    key: "trade-tr23",
+    label: "TR-23 · 非 sports 多市场板（LiteMarketBoard · showChart）",
     spec: [
-      { state: "多选项板", when: "event.options.length > 2 && !hasLines", visual: "单块 board，行 = 选项，Yes/No 双 chip，选中行内嵌图", source: "LiteContractTrade.MarketBoard" },
-      { state: "移动端", when: "isMobile", visual: "board 紧凑态；上方另有 LiteCrowdOverview 汇总条", source: "compact / LiteCrowdOverview" },
+      { state: "通用多市场", when: "isMulti && !hasLines", visual: "eyebrow `· 4 markets` + 单板四行 + 选中行手风琴图", source: "LiteContractTrade.MarketBoard" },
+      { state: "行内 Yes/No", when: "任意行", visual: "每行两个 chip，点击即绑定订单侧", source: "onSelect / onRowSelect" },
     ],
   },
 ];
 
-/* ---------------- ⑤ 账本、终态与加载 ---------------- */
+/* ---------------- ⑦ Boost 全档（TR-24） ---------------- */
 
-const TAIL_CASES: SectionCase[] = [
+const BOOST_CASES: SectionCase[] = [
   {
-    key: "trade-tr13",
-    label: "TR-13 · Market activity feed（LiteMarketActivity）",
-    note: "行句式逐字：`5m · Bought Yes · Jeonbuk · 1× · $121`（时间 / 动作 / 语境 / 金额四列栅格，无前导 side chip）。",
+    key: "trade-tr24",
+    label: "TR-24 · Boost selector 全档态（1× / 2× / 5× / 10× / 20× + Custom 展开）",
+    note:
+      "Where things live：档位行始终在 HOW MUCH 与 Returns 之间；Custom 胶囊固定为行尾第 6 位；托盘就地展开在同一张卡内，绝不弹二级 dialog / drawer。",
     spec: [
-      { state: "有成交", when: "rows.length > 0", visual: "至多 maxRows 行（桌面 8 / 移动 4）", source: "LiteMarketActivity maxRows" },
-      { state: "多市场语境", when: "showOptionLabel === true", visual: "语境列前置 option 名", source: "showOptionLabel" },
-      { state: "Boost 徽标", when: "boost > 1", visual: "语境列出现 `5×`；1× 不渲染倍数", source: "boostSuffix 规则" },
-      { state: "空", when: "rows.length === 0", visual: "EmptyState `No activity yet` / `Trades on this market show up here as people buy in.`", source: "EmptyState" },
-    ],
-  },
-  {
-    key: "trade-tr14",
-    label: "TR-14 · 已结算事件 · 交易页终态（LiteOutcomeCard + HowItSettled）",
-    spec: [
-      { state: "resolved", when: "event.is_resolved === true", visual: "下单面板整体撤下，页顶换成结果卡；移动底栏 CTA 变 `View in Portfolio →`", source: "LiteContractTrade resolved 分支" },
-      { state: "持有", when: "heldPos != null", visual: "结果卡多出 Your result（put in / paid out / profit）", source: "LiteOutcomeCard.holding" },
-      { state: "有数值判据", when: "base_price != null && close_price != null", visual: "HowItSettled 渲染 Needed / Actual 两行 + 来源链接", source: "HowItSettled.criterion" },
-      { state: "无赔率历史", when: "!isMulti && oddsHistory.length < 2 && base_price == null", visual: "图表模块整体隐藏，绝不补合成数据", source: "hideSettledChart" },
-    ],
-  },
-  {
-    key: "trade-tr15",
-    label: "TR-15 · 交易页 loading 骨架",
-    spec: [
-      { state: "loading", when: "loading === true（事件与选项未到达）", visual: "整屏居中 Loader2 旋转，无内容占位", source: "LiteContractTrade loading 分支" },
-      { state: "无 event 参数", when: "!eventId", visual: "重定向 /events（不是死链）", source: "Navigate to /events" },
-      { state: "查无事件", when: "notFound || !event", visual: "ExpiredEventFallback", source: "ExpiredEventFallback" },
+      { state: "档位选中", when: "value === tier", visual: "Volt→Pulse 渐变底 + 内描边，数字走 yes 轴", source: "LiteBoostSelector.SELECTED_STYLE" },
+      { state: "1× 基线", when: "value < 2", visual: "托盘输入为空 + 占位区间，滑杆停在 2×", source: "atBaseline / trayValue" },
+      { state: "Custom 展开", when: "fixture.boostTrayOpen（生产为点击）", visual: "行下就地展开输入 + 滑杆，Custom 胶囊显示 `7×`", source: "defaultTrayOpen / isCustom" },
+      { state: "上限提示", when: "任何状态", visual: "行右上 `Up to 20×`", source: "maxBoost" },
     ],
   },
 ];
@@ -215,27 +302,35 @@ const Pair = ({
 export const TradeStatesSection = () => (
   <SectionWrapper
     id="trade-states"
-    title="/trade · 合约与多市场 · 状态字典（TR-1 … TR-16）"
-    description="16 个 case，全部挂生产组件 + fixture 确定性数据。TR-11 / TR-12 复用既有 sports lines preview key。"
+    title="/trade · 合约与多市场 · 状态字典（TR-1 … TR-24）"
+    description="24 个 case，全部挂生产组件 + fixture 确定性数据（禁运行时 fetch，日期一律相对偏移）。fixture-only props 共三个：LiteContractOrderPanel.fixture（boostTrayOpen / remainderAutoClose）与 LitePositionCard.voucherTag。"
   >
     <SubSection title="① 页头与市场语境（TR-1 … TR-4）">
       <Pair cases={HEAD_CASES} desktopMin={420} mobileMin={480} />
     </SubSection>
 
-    <SubSection title="② 下单面板（TR-5 … TR-8）">
+    <SubSection title="② 下单面板（TR-5 … TR-9）">
       <Pair cases={PANEL_CASES} desktopMin={900} mobileMin={1000} />
     </SubSection>
 
-    <SubSection title="③ 持仓与侧栏（TR-9 / TR-10）">
-      <Pair cases={POSITION_CASES} desktopMin={520} mobileMin={640} />
+    <SubSection title="③ 持仓（TR-10 … TR-12）">
+      <Pair cases={POSITION_CASES} desktopMin={420} mobileMin={520} />
     </SubSection>
 
-    <SubSection title="④ 多市场与 game lines（TR-11 / TR-12 / TR-16）">
-      <Pair cases={MULTI_CASES} desktopMin={900} mobileMin={1000} />
+    <SubSection title="④ 侧栏与账本（TR-13 / TR-14）">
+      <Pair cases={RAIL_CASES} desktopMin={520} mobileMin={620} />
     </SubSection>
 
-    <SubSection title="⑤ 账本、终态与加载（TR-13 … TR-15）">
-      <Pair cases={TAIL_CASES} desktopMin={700} mobileMin={820} />
+    <SubSection title="⑤ 终态与中间态（TR-15 … TR-19）">
+      <Pair cases={TAIL_CASES} desktopMin={640} mobileMin={760} />
+    </SubSection>
+
+    <SubSection title="⑥ 多市场与 game lines（TR-20 … TR-23）">
+      <Pair cases={MULTI_CASES} desktopMin={780} mobileMin={900} />
+    </SubSection>
+
+    <SubSection title="⑦ Boost 全档（TR-24）">
+      <Pair cases={BOOST_CASES} desktopMin={1200} mobileMin={1400} />
     </SubSection>
   </SectionWrapper>
 );
