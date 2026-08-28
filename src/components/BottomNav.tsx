@@ -338,6 +338,16 @@ export const BottomNav = () => {
             }}
           />
 
+          {/* Surface switch — same semantics as the desktop user menu item. */}
+          <MobileDrawerListItem
+            icon={isLite ? Layers : Sparkles}
+            label={isLite ? "Switch to Pro mode" : "Switch to Simple mode"}
+            onClick={() => {
+              setProfileSheetOpen(false);
+              toggle();
+            }}
+          />
+
           <MobileDrawerListItem
             icon={HelpCircle}
             label="Help & Support"
@@ -346,6 +356,7 @@ export const BottomNav = () => {
               window.open("https://discord.gg/qXssm2crf9", "_blank", "noopener,noreferrer");
             }}
           />
+
           <MobileDrawerListItem
             icon={Lightbulb}
             label="Insights"
