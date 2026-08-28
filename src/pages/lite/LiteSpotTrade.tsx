@@ -543,42 +543,17 @@ const LiteSpotTrade = () => {
   );
 
   const MoreStocks = (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <div className="mb-3 text-sm font-medium">More stocks closing today</div>
-      {otherStocks.length === 0 ? (
-        <EmptyState
-          variant="module"
-          bordered={false}
-          title="No other markets right now"
-          description="More stocks open here at the start of each trading day."
-          className="px-0 py-1"
-        />
-      ) : (
-        <ul className="space-y-1">
-          {otherStocks.map((s) => (
-            <li key={s.id}>
-              <button
-                type="button"
-                onClick={() => navigate(`/spot?event=${s.id}`)}
-                className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition-colors hover:bg-muted/40"
-              >
-                <span className="flex h-7 w-9 items-center justify-center rounded bg-muted/50 font-mono text-[10px] font-semibold">
-                  {s.ticker}
-                </span>
-                <span className="flex-1 truncate text-xs">
-                  {STOCK_NAME[s.ticker] ?? s.ticker} — close higher?
-                </span>
-                <span className="font-mono text-xs font-semibold text-yes">
-                  {s.upPct}%
-                </span>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+    <SpotSideRailStocks
+      rows={otherStocks.map((s) => ({
+        key: s.id,
+        ticker: s.ticker,
+        label: `${STOCK_NAME[s.ticker] ?? s.ticker} — close higher?`,
+        upPct: s.upPct,
+        onClick: () => navigate(`/spot?event=${s.id}`),
+      }))}
+    />
   );
+
 
   // ============ Layouts ============
   // Settled outcome. Winner comes from the DB flag when present; otherwise we
