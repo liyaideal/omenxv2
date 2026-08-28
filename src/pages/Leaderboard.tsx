@@ -1258,7 +1258,7 @@ export default function Leaderboard() {
         {currentUser && !isCurrentUserInTopThree && (
           <MyRankBar user={currentUser} sortType={sortType} onClick={scrollToCurrentUser} />
         )}
-        <div style={{ paddingBottom: "var(--bottom-nav-h, 76px)" }}>
+        <div className="bg-card/50" style={{ paddingBottom: "var(--bottom-nav-h, 76px)" }}>
           <SeoFooter />
         </div>
 
