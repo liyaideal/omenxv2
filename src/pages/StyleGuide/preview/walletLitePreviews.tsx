@@ -173,8 +173,10 @@ const mk = (
 const ICON_MATRIX_TXS: Transaction[] = [
   mk("1", "deposit", 1000, "USDC deposit · Base", { network: "Base", account: "spot" }),
   mk("2", "withdraw", 200, "USDC withdraw · Base", { network: "Base", account: "futures", status: "processing" }),
-  mk("3", "trade_profit", 42.18, "Settled: BTC ≥ $150k · Won", { account: "futures" }),
-  mk("4", "trade_loss", -18.4, "Settled: Bitcoin · Up · Lost", { account: "futures" }),
+  // E1b · icon follows net sign, not type: a positive trade_loss shows the green up icon.
+  mk("3", "trade_loss", 42.18, "Settled: BTC ≥ $150k · Lost", { account: "futures" }),
+  // E1b · a negative trade_profit shows the red down icon.
+  mk("4", "trade_profit", -18.4, "Settled: Bitcoin · Up · Won", { account: "futures" }),
   mk("5", "platform_credit", 25, "Platform credit", { account: "spot" }),
   mk("6", "bonus", 10, "Trial position voucher TPV-DEMO-S1", { account: "spot" }),
   mk("7", "fee", 1.25, "Trading fee", { account: "futures" }),
