@@ -177,6 +177,8 @@ const LiteSpotTrade = () => {
   const [resumeBuy, setResumeBuy] = useState(false);
   const [refetchTick, setRefetchTick] = useState(0);
   const [cashOutOpen, setCashOutOpen] = useState(false);
+  // Cash-out share card lives on the page: a full close unmounts the flow.
+  const [shareSnap, setShareSnap] = useState<CashOutShareSnapshot | null>(null);
 
   // Fetch event
   useEffect(() => {
