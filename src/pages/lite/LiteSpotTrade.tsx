@@ -376,8 +376,9 @@ const LiteSpotTrade = () => {
       </div>
     );
   }
-  // Bare /spot (no event param) is not a dead link — send users to the market list.
-  if (!eventId) return <Navigate to="/events" replace />;
+  // Bare /spot (no event param) is not a dead link — send users to the market
+  // list at `/` (Lite's only list surface; the Pro list stays unreachable).
+  if (!eventId) return <Navigate to="/" replace />;
   if (notFound || !event || !yesOpt || !noOpt) {
     return <ExpiredEventFallback eventId={eventId} />;
   }
