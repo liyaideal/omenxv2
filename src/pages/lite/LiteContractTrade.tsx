@@ -55,7 +55,11 @@ import {
 } from "@/components/lite/contract/LiteTradeBlocks";
 
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
-import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
+import {
+  LiteCashOutFlow,
+  type CashOutShareSnapshot,
+} from "@/components/lite/contract/LiteCashOutFlow";
+import { LiteCashOutShareCard } from "@/components/lite/share/LiteShareFlow";
 import {
   LiteMarketActivity,
   useMarketActivityRows,
