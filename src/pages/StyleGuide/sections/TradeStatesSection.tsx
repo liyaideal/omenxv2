@@ -111,7 +111,7 @@ const POSITION_CASES: SectionCase[] = [
   {
     key: "trade-tr10",
     label: "TR-10 · 交易页持仓条 · 单仓（LitePositionCard）",
-    note: "binary 单仓，5× Boost + hot auto-close。auto-close 列三态见 AC-T1…T3。",
+    note: "binary 单仓，5× Boost + hot auto-close。sideLabel 只传 `Yes` —— `· 5× Boost` 后缀由 LitePositionCard 依 boost prop 自加，生产接线即如此，手写会渲染成两次。auto-close 列三态见 AC-T1…T3。",
     spec: [
       { state: "单仓", when: "heldPos != null && !boardMode", visual: "一张卡：side 标签 + PUT IN / NOW WORTH / PROFIT / EST. AUTO-CLOSE + Cash out", source: "LiteContractTrade.YourPosition" },
       { state: "hot", when: "价格逼近 auto-close 位", visual: "auto-close 值 trading-red + `Close to current price`", source: "autoCloseHot" },
@@ -210,6 +210,7 @@ const TAIL_CASES: SectionCase[] = [
       { state: "in review", when: "!is_resolved && lifecycle_status === 'REVIEW'（end_date 已过）", visual: "规则位换成橙轴 InReviewCard，面板 blocked", source: "LiteContractTrade.inReview" },
       { state: "持有", when: "heldPos != null || multiHeld.length > 0", visual: "追加 cash-out 暂停句；持仓卡 Cash out 禁用", source: "holding prop / cashOutDisabledText" },
       { state: "blockedReason", when: "inReview === true", visual: "CTA 文案 = IN_REVIEW_BADGE（`In review`）", source: "blockedReason 分支" },
+      { state: "倒计时", when: "已过期（remaining ms <= 0）", visual: "面板头钳为 `00:00:00`，绝不显示剩余时间", source: "formatClockCountdown" },
     ],
   },
   {
@@ -255,6 +256,7 @@ const MULTI_CASES: SectionCase[] = [
       { state: "kickoff 已过", when: "freeze_time <= now && !is_resolved", visual: "板照常可读，下单面板 CTA `Closed` 且禁用", source: "pastFreeze / blockedReason" },
       { state: "板仍可浏览", when: "任何未结算态", visual: "组标题 + 行 + 手风琴图不受 blocked 影响", source: "LiteMarketBoard" },
       { state: "分钟/比分", when: "—", visual: "交易页不渲染（见上方偏差回报）", source: "SportsStageCard（/events 侧）" },
+      { state: "倒计时", when: "kickoff 已过（remaining ms <= 0）", visual: "面板头钳为 `00:00:00`", source: "formatClockCountdown" },
     ],
   },
   {
