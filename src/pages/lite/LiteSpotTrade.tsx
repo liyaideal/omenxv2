@@ -59,7 +59,11 @@ import {
   useTradeCountdown,
 } from "@/components/lite/intraday/intradayData";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
-import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
+import {
+  LiteCashOutFlow,
+  type CashOutShareSnapshot,
+} from "@/components/lite/contract/LiteCashOutFlow";
+import { LiteCashOutShareCard } from "@/components/lite/share/LiteShareFlow";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
 import { HowItSettled } from "@/components/lite/trade/HowItSettled";
 import { InReviewCard, IN_REVIEW_HOLD_LINE } from "@/components/lite/trade/InReviewCard";
