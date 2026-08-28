@@ -4,7 +4,7 @@ import { EventsStatesSection } from "../EventsStatesSection";
 type P = { isMobile: boolean };
 
 /**
- * Events 列表页 = EV-1 … EV-27（含 EV-9e），共 28 case。
+ * Events 列表页 = EV-1 … EV-26（含 EV-9e），共 27 case。
  * M1b 已把旧六节（LiteSection part=events / LiteAllStage / LiteVerticalViews /
  * LiteCalendar / LiteFinalTouches / EventArt）并账删除挂载；逐条去向见
  * EventsStatesSection 末尾的「并账清单」。EventArt 的美术方向规范迁入 Foundations。
