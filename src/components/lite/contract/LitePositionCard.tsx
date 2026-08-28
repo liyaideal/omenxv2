@@ -60,7 +60,12 @@ export const LitePositionCard = ({
         </span>
       )}
     </div>
-    <div className="grid grid-cols-4 gap-2 border-t border-border pt-3 text-xs">
+    <div
+      className={cn(
+        "grid gap-2 border-t border-border pt-3 text-xs",
+        compact ? "grid-cols-2" : "grid-cols-4",
+      )}
+    >
       <PosCell label="Put in" value={`$${putIn.toFixed(2)}`} />
       <PosCell label="Now worth" value={`$${nowWorth.toFixed(2)}`} />
       <PosCell
