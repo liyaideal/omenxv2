@@ -1258,9 +1258,10 @@ export default function Leaderboard() {
         {currentUser && !isCurrentUserInTopThree && (
           <MyRankBar user={currentUser} sortType={sortType} onClick={scrollToCurrentUser} />
         )}
-        <div style={{ marginBottom: "var(--bottom-nav-h, 76px)" }}>
+        <div style={{ paddingBottom: "var(--bottom-nav-h, 76px)" }}>
           <SeoFooter />
         </div>
+
         <BottomNav />
         
         {/* Auth Sheet for non-logged in users */}
