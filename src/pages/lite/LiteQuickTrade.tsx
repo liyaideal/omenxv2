@@ -275,75 +275,25 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
 
   // ---------- blocks ----------
   const Head = (
-    <div>
-      <div style={{ ...MICRO, fontSize: 10.5 }}>Crypto · Intraday</div>
-      <div className="mt-2 flex items-center gap-[10px]">
-        <AssetAvatar symbol={meta.ticker} kind="crypto" size={34} />
-        <h1
-          ref={headingRef as unknown as React.Ref<HTMLHeadingElement>}
-          className="font-display font-bold leading-[1.05] tracking-[-0.02em]"
-          style={{ fontSize: isMobile ? 24 : 32 }}
-        >
-          {event.name}
-        </h1>
-      </div>
-      <div
-        className="font-display mt-2 flex flex-wrap items-center gap-x-[10px]"
-        style={{ fontSize: 12.5, color: "#9AA1AC" }}
-      >
-        <span style={{ color: "#F2F3F5", fontWeight: 700 }}>
-          {price != null
-            ? `$${price.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
-            : "—"}
-        </span>
-        <span style={{ color: "#6B7280" }}>·</span>
-        <span style={{ color: pctColor(pct) }}>
-          {pct >= 0 ? "▲ +" : "▼ "}
-          {pct.toFixed(2)}% today
-        </span>
-        <span style={{ color: "#6B7280" }}>·</span>
-        <span>Vol {compactUsd(event.volume)}</span>
-      </div>
-    </div>
+    <SpotCryptoHead
+      ticker={meta.ticker}
+      title={event.name}
+      headingRef={headingRef as unknown as React.Ref<HTMLHeadingElement>}
+      isMobile={!!isMobile}
+      price={price}
+      pct={pct}
+      volText={compactUsd(event.volume)}
+    />
   );
 
   const RoundSwitcher = (
-    <div style={{ marginTop: 16 }}>
-      <div style={MICRO}>Round</div>
-      <div
-        className="mt-1.5 inline-flex items-center"
-        style={{
-          background: "#101216",
-          border: "1px solid #2B2F38",
-          borderRadius: 11,
-          padding: 3,
-          gap: 2,
-        }}
-      >
-        {TIMEFRAMES.map((t) => {
-          const active = t.id === tf;
-          return (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => switchTf(t.id)}
-              className="font-display transition-colors"
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                padding: "5px 13px",
-                borderRadius: 8,
-                background: active ? "#FFFFFF" : "transparent",
-                color: active ? "#0A0B0D" : "#9AA1AC",
-              }}
-            >
-              {t.label}
-            </button>
-          );
-        })}
-      </div>
-    </div>
+    <SpotRoundSwitcher
+      items={TIMEFRAMES}
+      activeId={tf}
+      onSelect={(id) => switchTf(id as Timeframe)}
+    />
   );
+
 
   const Tape = (
     <RoundTape
