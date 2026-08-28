@@ -1322,7 +1322,7 @@ const LiteContractTrade = () => {
   if (isMobile) {
     return (
       <TooltipProvider>
-        <div className="min-h-screen bg-background pb-32">
+        <div className="flex min-h-screen flex-col bg-background">
           <MobileHeader
             title={event.name}
             titleHidden={!scrolledOut}
@@ -1367,7 +1367,9 @@ const LiteContractTrade = () => {
             )}
           </div>
 
-          <SeoFooter />
+          <div style={{ marginBottom: "96px" }}>
+            <SeoFooter />
+          </div>
 
           {!boardMode && (
           <div
@@ -1468,7 +1470,7 @@ const LiteContractTrade = () => {
   // -------- Desktop --------
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-background">
+      <div className="flex min-h-screen flex-col bg-background">
         <EventsDesktopHeader />
         <div
           className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-6 lg:px-6"
