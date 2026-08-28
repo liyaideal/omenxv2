@@ -414,39 +414,18 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   );
 
   const PickCard = (
-    <div
-      style={{
-        background: "#131519",
-        border: "1px solid rgba(255,255,255,.06)",
-        borderRadius: 15,
-        padding: 14,
-      }}
-    >
-      <div style={MICRO}>Your pick · {tf.toUpperCase()} round</div>
-      <div className="font-display" style={{ fontSize: 14.5, fontWeight: 700, marginTop: 6 }}>
-        {meta.ticker} higher than ${openText} at {settlesAt}?
-      </div>
-      {/* Side selection uses the ONE shared SideButton (compact density). */}
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        <SideButton
-          active={side === "yes"}
-          tone="yes"
-          label="Up"
-          price={upPrice}
-          size="compact"
-          onClick={() => setSide("yes")}
-        />
-        <SideButton
-          active={side === "no"}
-          tone="no"
-          label="Down"
-          price={downPrice}
-          size="compact"
-          onClick={() => setSide("no")}
-        />
-      </div>
-    </div>
+    <SpotPickCard
+      microText={`Your pick · ${tf.toUpperCase()} round`}
+      question={`${meta.ticker} higher than $${openText} at ${settlesAt}?`}
+      yesLabel="Up"
+      noLabel="Down"
+      yesPrice={upPrice}
+      noPrice={downPrice}
+      side={side}
+      onSideChange={setSide}
+    />
   );
+
 
   const CashOut = heldPos ? (
     <LiteCashOutFlow
