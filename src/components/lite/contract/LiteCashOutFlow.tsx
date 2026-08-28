@@ -25,6 +25,15 @@ export interface CashOutShareContext {
   productLine: "futures" | "spot";
 }
 
+/** This realisation, frozen at confirm time. */
+export interface CashOutShareSnapshot {
+  pnl: number;
+  pnlPercent: number;
+  leftAmount: number;
+  rightAmount: number;
+  context: CashOutShareContext;
+}
+
 interface Props {
   open: boolean;
   onOpenChange: (o: boolean) => void;
