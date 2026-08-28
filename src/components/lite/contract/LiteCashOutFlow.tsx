@@ -46,6 +46,11 @@ interface Props {
    * position close does not do. When absent, close/partialClose is used.
    */
   onConfirmCashOut?: (qty: number, fraction: number) => Promise<void>;
+  /**
+   * When supplied, a successful cash-out auto-opens the Lite share card with a
+   * snapshot of THIS realisation (never re-read from refreshed positions).
+   */
+  shareContext?: CashOutShareContext;
 }
 
 export const LiteCashOutFlow = ({
@@ -61,10 +66,17 @@ export const LiteCashOutFlow = ({
   defaultPct = 100,
   forceBusy = false,
   onConfirmCashOut,
+  shareContext,
 }: Props) => {
   const { closePosition, partialClosePosition } = usePositions();
   const [pct, setPct] = useState(defaultPct);
   const [busy, setBusy] = useState(false);
+  const [shareSnap, setShareSnap] = useState<{
+    pnl: number;
+    pnlPercent: number;
+    leftAmount: number;
+    rightAmount: number;
+  } | null>(null);
 
   useEffect(() => {
     if (open) setPct(defaultPct);
@@ -91,6 +103,17 @@ export const LiteCashOutFlow = ({
         await partialClosePosition(positionId, positionIndex, qty);
       }
       toast.success(`Cashed out ≈ $${payout.toFixed(2)}`);
+      // Snapshot the realisation BEFORE positions refresh.
+      if (shareContext) {
+        const costPart = fraction * shareContext.putIn;
+        const pnl = payout - costPart;
+        setShareSnap({
+          pnl,
+          pnlPercent: costPart > 0 ? (pnl / costPart) * 100 : 0,
+          leftAmount: costPart,
+          rightAmount: payout,
+        });
+      }
       onOpenChange(false);
       onDone();
     } catch (err) {
@@ -99,6 +122,24 @@ export const LiteCashOutFlow = ({
       setBusy(false);
     }
   };
+
+  const shareLayer =
+    shareContext && shareSnap ? (
+      <LiteShareFlow
+        open
+        onOpenChange={(o) => !o && setShareSnap(null)}
+        state="cashed"
+        eventId={shareContext.eventId}
+        eventName={shareContext.eventName}
+        sideLine={shareContext.sideLine}
+        pnl={shareSnap.pnl}
+        pnlPercent={shareSnap.pnlPercent}
+        leftAmount={shareSnap.leftAmount}
+        rightAmount={shareSnap.rightAmount}
+        segment={shareContext.productLine === "spot" ? "standard" : "boost"}
+        dateISO={new Date().toISOString()}
+      />
+    ) : null;
 
   const body = (
     <div className="space-y-4">
