@@ -11,8 +11,19 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { MobileDrawer, MobileDrawerActions } from "@/components/ui/mobile-drawer";
 import { usePositions } from "@/hooks/usePositions";
+import { LiteShareFlow } from "@/components/lite/share/LiteShareFlow";
 
 const CHIPS = [25, 50, 100];
+
+/** Everything the share card needs that the cash-out flow can't derive. */
+export interface CashOutShareContext {
+  eventId: string;
+  eventName: string;
+  sideLine: string;
+  boost: number;
+  putIn: number;
+  productLine: "futures" | "spot";
+}
 
 interface Props {
   open: boolean;
