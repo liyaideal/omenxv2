@@ -89,10 +89,15 @@ const TransparencyPage = () => {
 
   if (!user) {
     return (
-      <LoginPrompt
-        title="Sign in to access Transparency Audit"
-        description="Verify your assets, trades, and liquidations on-chain."
-      />
+      <div className="flex min-h-screen flex-col bg-background">
+        <LoginPrompt
+          title="Sign in to access Transparency Audit"
+          description="Verify your assets, trades, and liquidations on-chain."
+        />
+        <div style={{ marginBottom: isMobile ? "var(--bottom-nav-h, 76px)" : undefined }}>
+          <SeoFooter />
+        </div>
+      </div>
     );
   }
 
@@ -116,9 +121,12 @@ const TransparencyPage = () => {
 
     if (isMobile) {
       return (
-        <div className="min-h-screen bg-background pb-24">
+        <div className="flex min-h-screen flex-col bg-background">
           <MobileHeader title={title} showLogo={false} showBack={true} />
-          <div className="px-4 py-6">{scenarioContent}</div>
+          <div className="flex-1 px-4 py-6">{scenarioContent}</div>
+          <div style={{ marginBottom: "var(--bottom-nav-h, 76px)" }}>
+            <SeoFooter />
+          </div>
           <BottomNav />
         </div>
       );

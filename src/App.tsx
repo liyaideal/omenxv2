@@ -72,7 +72,11 @@ const ResponsiveLayout = ({ children }: { children: React.ReactNode }) => {
   const isMobile = useIsMobile();
   
   if (isMobile) {
-    return <div className="max-w-md mx-auto min-h-screen bg-background">{children}</div>;
+    return (
+      <div className="max-w-md mx-auto min-h-screen bg-background [&_footer]:relative [&_footer]:left-1/2 [&_footer]:w-screen [&_footer]:-translate-x-1/2">
+        {children}
+      </div>
+    );
   }
   
   return <div className="min-h-screen bg-background">{children}</div>;
