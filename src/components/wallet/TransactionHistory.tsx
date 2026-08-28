@@ -273,12 +273,18 @@ export const TransactionHistory = ({ transactions, className, fixture }: Transac
   };
 
   const getTransactionIcon = (tx: Transaction) => {
+    // E1b · trade_profit / trade_loss rows follow the NET AMOUNT SIGN for both
+    // the icon and its background. The type only drives the source note.
+    if (tx.type === 'trade_profit' || tx.type === 'trade_loss') {
+      return tx.amount >= 0
+        ? <TrendingUp className="w-5 h-5 text-trading-green" />
+        : <TrendingDown className="w-5 h-5 text-trading-red" />;
+    }
+
     switch (tx.type) {
       case 'deposit': return <ArrowDownLeft className="w-5 h-5 text-trading-green" />;
       case 'withdraw': return <ArrowUpRight className="w-5 h-5 text-trading-red" />;
       case 'platform_credit': return <WalletIcon className="w-5 h-5 text-trading-green" />;
-      case 'trade_profit': return <TrendingUp className="w-5 h-5 text-trading-green" />;
-      case 'trade_loss': return <TrendingDown className="w-5 h-5 text-trading-red" />;
       case 'bonus': return <Gift className="w-5 h-5 text-trading-green" />;
       case 'fee': return <Receipt className="w-5 h-5 text-trading-red" />;
       // Pro-only tx types; not surfaced on Lite
@@ -296,9 +302,14 @@ export const TransactionHistory = ({ transactions, className, fixture }: Transac
   };
 
   const getTransactionBgColor = (tx: Transaction) => {
+    // E1b · trade_profit / trade_loss background also follows the net sign.
+    if (tx.type === 'trade_profit' || tx.type === 'trade_loss') {
+      return tx.amount >= 0 ? 'bg-trading-green/20' : 'bg-trading-red/20';
+    }
+
     switch (tx.type) {
-      case 'deposit': case 'platform_credit': case 'trade_profit': case 'bonus': return 'bg-trading-green/20';
-      case 'withdraw': case 'trade_loss': case 'fee': return 'bg-trading-red/20';
+      case 'deposit': case 'platform_credit': case 'bonus': return 'bg-trading-green/20';
+      case 'withdraw': case 'fee': return 'bg-trading-red/20';
       // Pro-only tx types; not surfaced on Lite
       case 'cross_chain_in': return 'bg-blue-500/20';
       case 'cross_chain_out': return 'bg-orange-500/20';
