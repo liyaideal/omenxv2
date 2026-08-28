@@ -742,6 +742,7 @@ const LiteSpotTrade = () => {
                 {YourPosition}
                 {MarketActivity}
                 {CashOut}
+                <LiteCashOutShareCard snap={shareSnap} onClose={() => setShareSnap(null)} />
                 <button
                   type="button"
                   onClick={() => navigate("/events")}
@@ -855,6 +856,7 @@ const LiteSpotTrade = () => {
             {!resolved && YourPosition}
             {MarketActivity}
             {!resolved && CashOut}
+            <LiteCashOutShareCard snap={shareSnap} onClose={() => setShareSnap(null)} />
           </div>
           <aside className="space-y-4">
             {resolved ? (
