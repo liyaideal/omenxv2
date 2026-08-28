@@ -306,32 +306,47 @@ export const SpotStatesSection = () => (
   <SectionWrapper
     id="spot-states"
     title="/spot · 现货轮 · 状态字典（SP-1 … SP-16）"
-    description="crypto 快轮与 stocks 日内共用同一骨架，差异只在模块增删。本节 11 个 case 已用生产组件 + fixture 落案；SP-1 / SP-2 / SP-9 / SP-15 / SP-16 因目标区块仍是页面内联 JSX、在「生产零改动」前提下既不能挂载也不许手抄，列入缺口表待批抽件。生产代码本单零改动。"
+    description="crypto 快轮与 stocks 日内共用同一骨架，差异只在模块增删。16 个 case 全部用生产组件 + fixture 落案（M2d 抽出 SpotHeadBlocks.tsx 后，原 5 个缺口 SP-1 / SP-2 / SP-9 / SP-15 / SP-16 已补齐，缺口表撤除）。抽件为零视觉搬移，生产页渲染未变。"
   >
-    <SubSection title="① 轮次历史带（SP-3 / SP-4）">
+    <SubSection title="① 页头（SP-1 / SP-2）">
+      <Pair cases={HEAD_CASES} desktopMin={420} mobileMin={520} />
+    </SubSection>
+
+    <SubSection title="② 轮次历史带（SP-3 / SP-4）">
       <Pair cases={TAPE_CASES} desktopMin={320} mobileMin={360} />
     </SubSection>
 
-    <SubSection title="② 行情与图表（SP-5 … SP-8）">
+    <SubSection title="③ 行情与图表（SP-5 … SP-8）">
       <Pair cases={MARKET_CASES} desktopMin={1100} mobileMin={1300} />
     </SubSection>
 
-    <SubSection title="③ 下单与持仓（SP-10 … SP-13）">
-      <Pair cases={ORDER_CASES} desktopMin={1400} mobileMin={1600} />
+    <SubSection title="④ 下单与持仓（SP-9 … SP-13）">
+      <Pair cases={ORDER_CASES} desktopMin={1600} mobileMin={1800} />
     </SubSection>
 
-    <SubSection title="④ 结算衔接（SP-14）">
+    <SubSection title="⑤ 结算衔接（SP-14）">
       <Pair cases={SETTLE_CASES} desktopMin={420} mobileMin={480} />
     </SubSection>
 
-    <SubSection title="⑤ 缺口与附注">
+    <SubSection title="⑥ 侧栏与抽屉（SP-15 / SP-16）">
+      <Pair cases={RAIL_CASES} desktopMin={520} mobileMin={560} />
+      <div className="mt-4 space-y-3">
+        <div className="text-[11px] text-muted-foreground">
+          SP-16 仅移动：抽屉头只在 MobileDrawer 内出现，桌面帧不予渲染。
+        </div>
+        <SectionFrame cases={DRAWER_CASES} device="mobile" minHeight={220} />
+      </div>
+    </SubSection>
+
+    <SubSection title="⑦ 附注">
       <Gaps />
     </SubSection>
 
-    <SubSection title="⑥ 并账清单（M2c 旧三节删除）">
+    <SubSection title="⑧ 并账清单（M2c 旧三节删除）">
       <Ledger />
     </SubSection>
   </SectionWrapper>
 );
+
 
 export default SpotStatesSection;
