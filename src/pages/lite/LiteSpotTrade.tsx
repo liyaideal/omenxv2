@@ -518,7 +518,7 @@ const LiteSpotTrade = () => {
             : noLabel
         } · Standard`,
         boost: 1,
-        putIn: heldPos.entryPrice * heldPos.sizeNum,
+        putIn: (parseFloat(String(heldPos.entryPrice).replace(/[^0-9.]/g, "")) || 0) * heldPos.sizeNum,
         productLine: "spot",
       }}
       onShareSnapshot={setShareSnap}
