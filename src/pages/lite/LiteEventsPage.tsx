@@ -617,26 +617,13 @@ const LiteEventsPage = () => {
             trendingCutoff={trendingCutoff}
           />
         )}
+        </div>
+      </div>
 
-        {/* Pro escape hatch — plain-language, no big CTA. */}
-        <div className="mt-auto pt-6 text-center text-xs text-muted-foreground">
-          Want charts and advanced trading tools?{" "}
-          <button
-            type="button"
-            onClick={() => {
-              // Switch surfaces in place (context + localStorage + profile),
-              // then land on the Pro events page — no /settings detour.
-              setSurface("pro");
-              navigate("/events");
-            }}
-            className="text-primary underline underline-offset-2 hover:text-primary/80"
-          >
-            Switch to Pro mode
-          </button>
-        </div>
-        </div>
+      <div style={isMobile ? { marginBottom: "calc(var(--bottom-nav-h, 76px) + env(safe-area-inset-bottom))" } : undefined}>
         <SeoFooter />
       </div>
+
 
       <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
       {isMobile && <BottomNav />}
