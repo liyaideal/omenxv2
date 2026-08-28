@@ -509,6 +509,19 @@ const LiteSpotTrade = () => {
           ? yesLabel
           : noLabel
       }
+      shareContext={{
+        eventId: event.id,
+        eventName: event.name,
+        sideLine: `${
+          heldPos.option.trim().toLowerCase() === (yesOpt.label || "").trim().toLowerCase()
+            ? yesLabel
+            : noLabel
+        } · Standard`,
+        boost: 1,
+        putIn: heldPos.entryPrice * heldPos.sizeNum,
+        productLine: "spot",
+      }}
+      onShareSnapshot={setShareSnap}
       onConfirmCashOut={handleSpotCashOut}
       onDone={() => setRefetchTick((n) => n + 1)}
     />
