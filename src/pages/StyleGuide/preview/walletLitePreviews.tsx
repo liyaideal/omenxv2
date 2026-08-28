@@ -174,7 +174,7 @@ const ICON_MATRIX_TXS: Transaction[] = [
   mk("1", "deposit", 1000, "USDC deposit · Base", { network: "Base", account: "spot" }),
   mk("2", "withdraw", 200, "USDC withdraw · Base", { network: "Base", account: "futures", status: "processing" }),
   mk("3", "trade_profit", 42.18, "Settled: BTC ≥ $150k · Won", { account: "futures" }),
-  mk("4", "trade_loss", 18.4, "Settled: Bitcoin · Up · Lost", { account: "futures" }),
+  mk("4", "trade_loss", -18.4, "Settled: Bitcoin · Up · Lost", { account: "futures" }),
   mk("5", "platform_credit", 25, "Platform credit", { account: "spot" }),
   mk("6", "bonus", 10, "Trial position voucher TPV-DEMO-S1", { account: "spot" }),
   mk("7", "fee", 1.25, "Trading fee", { account: "futures" }),
@@ -467,4 +467,19 @@ export const WithdrawFormDesktopPreview = () => (
       <WalletWithdraw demoAvailableBalance={8720.42} />
     </div>
   </WithdrawSubmitProvider>
+);
+
+/* ---------------- W-17 · fiat_buy row + net-sign verdict ---------------- */
+// E1/E4 (2026-08-28): win/lose wording follows the NET AMOUNT SIGN, never the
+// tx type; fiat_buy is a funding-in row and reads like a crypto deposit.
+const FIAT_AND_SIGN_TXS: Transaction[] = [
+  mk("1", "fiat_buy", 250, "Bought USDC with USD · Banxa", { account: "spot" }),
+  mk("2", "trade_loss", 28.87, "Settled: Solana — up or down? · Up · Lost", { account: "spot" }),
+  mk("3", "trade_profit", -12.4, "Settled: Ethereum — up or down? · Up · Won", { account: "spot" }),
+];
+
+export const TxFiatBuyPreview = () => (
+  <div className="rounded-2xl border border-border/40 bg-card">
+    <TransactionHistory transactions={FIAT_AND_SIGN_TXS} />
+  </div>
 );

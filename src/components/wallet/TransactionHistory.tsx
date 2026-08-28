@@ -186,7 +186,17 @@ export const TransactionHistory = ({ transactions, className, fixture }: Transac
     if (tx.type === 'platform_credit') {
       description = description.replace(/trial (balance|bonus)/gi, 'Platform credit');
     }
-    
+
+    // E1 · win/lose is decided by the NET AMOUNT SIGN, never by the tx type.
+    // Legacy rows carry a "· Won" / "· Lost" suffix written from the type at
+    // settlement time; historical mismatches (type=trade_loss with a positive
+    // net) must not render "Lost". Rewrite the trailing verdict word from the
+    // sign so the row, its amount colour and its wording always agree.
+    if (tx.type === 'trade_profit' || tx.type === 'trade_loss') {
+      const verdict = tx.amount >= 0 ? 'Won' : 'Lost';
+      description = description.replace(/(·|-|—)\s*(won|lost)\s*$/i, `· ${verdict}`);
+    }
+
     // Directional wording for the two transfer legs
     if (tx.type === 'transfer_to_futures') {
       return tx.account === 'futures' ? 'Transfer from Standard' : 'Transfer to Boost';
@@ -194,6 +204,7 @@ export const TransactionHistory = ({ transactions, className, fixture }: Transac
     if (tx.type === 'transfer_to_spot') {
       return tx.account === 'spot' ? 'Transfer from Boost' : 'Transfer to Standard';
     }
+
 
     return description;
   };
@@ -215,7 +226,9 @@ export const TransactionHistory = ({ transactions, className, fixture }: Transac
   // Apply pill filter
   const filteredTransactions = transactions.filter(tx => {
     if (pillFilter === 'all') return true;
-    if (pillFilter === 'deposit') return tx.type === 'deposit';
+    // E4 · fiat_buy is a funding-in row on Lite — it belongs under Deposits.
+    if (pillFilter === 'deposit') return tx.type === 'deposit' || tx.type === 'fiat_buy';
+
     if (pillFilter === 'withdraw') return tx.type === 'withdraw';
     if (pillFilter === 'trade') return tx.type === 'trade_profit' || tx.type === 'trade_loss';
     return true;
@@ -271,8 +284,10 @@ export const TransactionHistory = ({ transactions, className, fixture }: Transac
       // Pro-only tx types; not surfaced on Lite
       case 'cross_chain_in': return <ArrowLeftRight className="w-5 h-5 text-blue-400" />;
       case 'cross_chain_out': return <ArrowLeftRight className="w-5 h-5 text-orange-400" />;
-      case 'fiat_buy': return <Banknote className="w-5 h-5 text-purple-400" />;
+      // E4 · fiat_buy renders isomorphic to a crypto deposit row (green in-arrow).
+      case 'fiat_buy': return <ArrowDownLeft className="w-5 h-5 text-trading-green" />;
       case 'fiat_sell': return <Banknote className="w-5 h-5 text-pink-400" />;
+
       case 'transfer_to_spot':
       case 'transfer_to_futures':
         return <ArrowLeftRight className="w-5 h-5 text-primary" />;
@@ -287,7 +302,7 @@ export const TransactionHistory = ({ transactions, className, fixture }: Transac
       // Pro-only tx types; not surfaced on Lite
       case 'cross_chain_in': return 'bg-blue-500/20';
       case 'cross_chain_out': return 'bg-orange-500/20';
-      case 'fiat_buy': return 'bg-purple-500/20';
+      case 'fiat_buy': return 'bg-trading-green/20';
       case 'fiat_sell': return 'bg-pink-500/20';
       case 'transfer_to_spot':
       case 'transfer_to_futures':
@@ -384,7 +399,7 @@ export const TransactionHistory = ({ transactions, className, fixture }: Transac
                         "text-sm font-semibold font-mono shrink-0 text-right",
                         tx.amount >= 0 ? "text-trading-green" : "text-trading-red"
                       )}>
-                        {tx.amount >= 0 ? "+" : ""}${formatCurrency(Math.abs(tx.amount))}
+                        {tx.amount >= 0 ? "+" : "−"}${formatCurrency(Math.abs(tx.amount))}
                       </span>
                     </div>
                     {/* Row 2: date + badge + status icon (aligned to description) */}
@@ -453,7 +468,7 @@ export const TransactionHistory = ({ transactions, className, fixture }: Transac
                           "text-sm font-semibold font-mono",
                           tx.amount >= 0 ? "text-trading-green" : "text-trading-red"
                         )}>
-                          {tx.amount >= 0 ? "+" : ""}${formatCurrency(Math.abs(tx.amount))}
+                          {tx.amount >= 0 ? "+" : "−"}${formatCurrency(Math.abs(tx.amount))}
                         </span>
                       </div>
                       <div className="w-4 flex items-center justify-center shrink-0">
