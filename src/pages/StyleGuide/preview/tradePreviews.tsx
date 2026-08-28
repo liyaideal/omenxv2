@@ -95,6 +95,7 @@ const Panel = ({
   heldCurrentValue,
   heldQty,
   remainderAutoCloseNone,
+  countdown = "02:14:09",
 }: {
   side0?: "yes" | "no";
   amount0?: string;
@@ -108,6 +109,8 @@ const Panel = ({
   heldCurrentValue?: number | null;
   heldQty?: number | null;
   remainderAutoCloseNone?: boolean;
+  /** 生产 formatClockCountdown(ms<=0) 钳为 00:00:00 —— 已过期事件必须传这个。 */
+  countdown?: string;
 }) => {
   const isMobile = useIsMobile();
   const [side, setSide] = useState<"yes" | "no">(side0);
@@ -137,7 +140,7 @@ const Panel = ({
         boostEnabled
         boostMax={20}
         boostTiers={[1, 2, 5, 10, 20]}
-        countdownText="02:14:09"
+        countdownText={countdown}
         variant={isMobile ? "mobile" : "desktop"}
         heldSideLabel={heldSideLabel}
         heldCurrentValue={heldCurrentValue}
@@ -184,7 +187,7 @@ export const Tr10Preview = () => {
   return (
     <Frame>
       <LitePositionCard
-        sideLabel="Yes · 5× Boost"
+        sideLabel="Yes"
         isYes
         boost={5}
         putIn={48.41}
@@ -353,7 +356,7 @@ export const Tr17Preview = () => (
 export const Tr18Preview = () => (
   <div className="space-y-4 bg-background p-4">
     <InReviewCard sourceName="Nasdaq official close" holding />
-    <Panel amount0="" blocked blockedReason={IN_REVIEW_BADGE} />
+    <Panel amount0="" blocked blockedReason={IN_REVIEW_BADGE} countdown="00:00:00" />
   </div>
 );
 
@@ -513,7 +516,7 @@ export const Tr22Preview = () => {
         compact={!!isMobile}
         hideHeader
       />
-      <Panel amount0="" blocked blockedReason="Closed" />
+      <Panel amount0="" blocked blockedReason="Closed" countdown="00:00:00" />
     </div>
   );
 };
