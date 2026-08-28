@@ -95,7 +95,7 @@ const PANEL_CASES: SectionCase[] = [
     key: "trade-tr9",
     label: "TR-9 · 下单面板 · netting 句 + partial net",
     note:
-      "逐字：`Buying Yes cashes out your No first.`（nettingScopeLabel 为空 → 无 “on this market” 后缀）。fixture：heldSideLabel=`No` / heldQty=40 / heldCurrentValue=$20 / 本单 $50 · 5× → 余量腿另起，auto-close 行的值引用 **AC-T5**（`fixture.remainderAutoClose = { kind: "none" }`），两案同一组数值。",
+      "逐字：`Buying Yes cashes out your No first.`（nettingScopeLabel 为空 → 无 “on this market” 后缀）。fixture：heldSideLabel=`No` / heldQty=40 / heldCurrentValue=$20 / 本单 $50 · 5× → 余量腿另起，auto-close 行的值引用 **AC-T5**（remainderAutoClose = none），两案同一组数值。",
     spec: [
       { state: "netting", when: 'heldSideLabel != null && heldSideLabel !== sideLabel', visual: "CTA 上方出现 `Buying {side} cashes out your {held} first.`", source: "LiteContractOrderPanel.nettingNotice" },
       { state: "全额对冲", when: "quantity <= heldQty", visual: "只显示 cash-out 回收额，不开新腿", source: "qtyNet / getBack" },
