@@ -45,6 +45,12 @@ import {
 } from "@/lib/portfolioReturn";
 import { PortfolioErrorBoundary } from "@/components/portfolio/lite/PortfolioErrorBoundary";
 import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
+import {
+  LiteManualShareCard,
+  type LiteManualShareSnap,
+} from "@/components/lite/share/LiteShareFlow";
+import { useAuth } from "@/hooks/useAuth";
+import type { LiteLiveRow } from "@/hooks/useLitePortfolio";
 
 
 const EmptyLive = () => {
@@ -81,6 +87,23 @@ export default function LitePortfolio() {
   }, [segment]);
 
   const p = useLitePortfolio();
+  const { user } = useAuth();
+  const [manualShare, setManualShare] = useState<LiteManualShareSnap | null>(null);
+
+  // Live row share — same-source figures, frozen at click time.
+  const shareRow = (r: LiteLiveRow) =>
+    setManualShare({
+      state: "live",
+      eventId: r.eventId ?? "",
+      eventName: r.eventName,
+      sideLine: r.sideWord,
+      pnl: r.profit,
+      pnlPercent: r.cost > 0 ? (r.profit / r.cost) * 100 : 0,
+      leftAmount: r.cost,
+      rightAmount: r.nowWorth,
+      segment: r.segment,
+    });
+
 
   const setTab = (v: "live" | "settled") => {
     const next = new URLSearchParams(params);
@@ -273,7 +296,12 @@ export default function LitePortfolio() {
       ) : isMobile ? (
         <div className="flex flex-col gap-2 px-4 lg:px-0 pb-4 pt-3">
           {rows.map((r) => (
-            <LiveCard key={r.id} row={r} onCashOut={() => navigate(r.tradePath)} />
+            <LiveCard
+              key={r.id}
+              row={r}
+              onCashOut={() => navigate(r.tradePath)}
+              onShare={user ? shareRow : undefined}
+            />
           ))}
           {segment === "boost" && <PendingOrdersRow orders={p.pendingOrders} />}
         </div>
@@ -281,7 +309,12 @@ export default function LitePortfolio() {
         <div className="pb-6 pt-3">
           <LiveRowHeader />
           {rows.map((r) => (
-            <LiveRow key={r.id} row={r} onCashOut={() => navigate(r.tradePath)} />
+            <LiveRow
+              key={r.id}
+              row={r}
+              onCashOut={() => navigate(r.tradePath)}
+              onShare={user ? shareRow : undefined}
+            />
           ))}
           {segment === "boost" && (
             <div className="px-4 lg:px-0 pt-3">
@@ -323,6 +356,7 @@ export default function LitePortfolio() {
         </div>
       )}
       {tab === "live" ? liveBody : settledBody}
+      <LiteManualShareCard snap={manualShare} onClose={() => setManualShare(null)} />
     </>
   );
 

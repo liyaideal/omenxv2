@@ -3,7 +3,9 @@
 // page and the style guide mount the very same component.
 // Mobile layout is the frozen 2026-08-19 stack; desktop is CPO v1.17 §4b.
 // ============================================================
+import { Share2 } from "lucide-react";
 import { KpiCard, KpiGrid, GREEN, RED, money, signedMoney } from "./parts";
+
 import { settledDayLabel, settledStampLabel } from "@/lib/settleLabel";
 import {
   centsLabel,
@@ -45,7 +47,10 @@ export interface SettlementDetailActions {
   onBack?: () => void;
   backLabel?: string;
   onViewEvent?: () => void;
+  /** Pure-display share entry (SH-b §3.3). */
+  onShare?: () => void;
 }
+
 
 const HAIRLINE = "1px solid rgba(28,31,38,.8)";
 
@@ -212,25 +217,40 @@ export const DetailCard = ({ title, children }: { title: string; children: React
 export const DetailTitleRow = ({
   title,
   onViewEvent,
+  onShare,
 }: {
   title: string;
   onViewEvent?: () => void;
+  onShare?: () => void;
 }) => (
   <div className="mt-3 flex items-center justify-between gap-4">
     <h1 className="text-[22px] font-bold text-[#F2F3F5]" style={{ letterSpacing: "-0.2px" }}>
       {title}
     </h1>
-    {onViewEvent && (
-      <button
-        type="button"
-        onClick={onViewEvent}
-        className="shrink-0 text-[13px] font-semibold text-primary"
-      >
-        View event ›
-      </button>
-    )}
+    <div className="flex shrink-0 items-center gap-3">
+      {onShare && (
+        <button
+          type="button"
+          onClick={onShare}
+          className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-3 text-[13px] font-semibold text-foreground hover:bg-muted/50"
+        >
+          <Share2 className="h-3.5 w-3.5" />
+          Share
+        </button>
+      )}
+      {onViewEvent && (
+        <button
+          type="button"
+          onClick={onViewEvent}
+          className="shrink-0 text-[13px] font-semibold text-primary"
+        >
+          View event ›
+        </button>
+      )}
+    </div>
   </div>
 );
+
 
 export const SettlementDetailDesktop = ({
   vm,
@@ -246,7 +266,12 @@ export const SettlementDetailDesktop = ({
 
   return (
     <div className="bg-background">
-      <DetailTitleRow title={vm.eventName} onViewEvent={actions?.onViewEvent} />
+      <DetailTitleRow
+        title={vm.eventName}
+        onViewEvent={actions?.onViewEvent}
+        onShare={actions?.onShare}
+      />
+
       <div className="mt-1 text-[12.5px] text-[#6B7280]">
         {vm.closeReason === "settlement" ? "Settled" : "Closed"} {settledStampLabel(vm.closedAt)}
       </div>

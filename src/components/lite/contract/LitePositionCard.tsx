@@ -5,6 +5,7 @@
 // (yes/no) only for the side identity in the header.
 // ============================================================
 import { cn } from "@/lib/utils";
+import { ShareIconButton } from "@/components/lite/share/ShareIconButton";
 
 interface Props {
   sideLabel: string;
@@ -25,6 +26,8 @@ interface Props {
    *  Production never passes this — pure display, no logic attached. */
   voucherTag?: boolean;
   onCashOut: () => void;
+  /** Pure-display share entry (SH-b §1). Omitted = zero DOM change. */
+  onShare?: () => void;
 
 }
 
@@ -42,10 +45,10 @@ export const LitePositionCard = ({
   cashOutDisabledText,
   voucherTag = false,
   onCashOut,
-}: Props) => (
-
-  <div className="rounded-2xl border border-border bg-card p-4">
-    <div className="mb-3 text-sm font-semibold">
+  onShare,
+}: Props) => {
+  const heading = (
+    <>
       <span className={isYes ? "text-yes" : "text-no"}>{sideLabel}</span>
       {boost > 1 && (
         <span className="text-foreground">
@@ -59,7 +62,20 @@ export const LitePositionCard = ({
           <span style={{ color: "#CFFF4A" }}>Voucher</span>
         </span>
       )}
-    </div>
+    </>
+  );
+
+  return (
+  <div className="rounded-2xl border border-border bg-card p-4">
+    {onShare ? (
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <div className="text-sm font-semibold">{heading}</div>
+        <ShareIconButton onClick={onShare} />
+      </div>
+    ) : (
+      <div className="mb-3 text-sm font-semibold">{heading}</div>
+    )}
+
     <div
       className={cn(
         "grid gap-2 border-t border-border pt-3 text-xs",
@@ -104,7 +120,9 @@ export const LitePositionCard = ({
     </div>
 
   </div>
-);
+  );
+};
+
 
 const PosCell = ({
   label,

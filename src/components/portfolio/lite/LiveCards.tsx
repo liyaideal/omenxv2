@@ -15,6 +15,8 @@ import { settleLabel } from "@/lib/settleLabel";
 import { boostSuffix } from "@/lib/liteSideName";
 import type { LiteLiveRow } from "@/hooks/useLitePortfolio";
 import { VOLT, RED, money, signedMoney, livePnlColor } from "./parts";
+import { ShareIconButton } from "@/components/lite/share/ShareIconButton";
+
 
 /** Navigate into a market while remembering where the reader was. */
 const useGoToMarket = () => {
@@ -49,10 +51,14 @@ const winSentence = (row: LiteLiveRow) =>
 export const LiveCard = ({
   row,
   onCashOut,
+  onShare,
 }: {
   row: LiteLiveRow;
   onCashOut?: (row: LiteLiveRow) => void;
+  /** Pure-display share entry (SH-b §3). Omitted = zero DOM change. */
+  onShare?: (row: LiteLiveRow) => void;
 }) => {
+
   const goToMarket = useGoToMarket();
   const hot = row.hot;
   const sentence =
@@ -81,8 +87,10 @@ export const LiveCard = ({
         >
           {chipText(row)}
         </span>
+        {onShare && <ShareIconButton onClick={() => onShare(row)} />}
 
       </div>
+
 
       <div className="mt-1 text-[11.5px] text-[#6B7280]">
         {metaLine(row).join(" · ")}
@@ -158,10 +166,14 @@ export const LiveRowHeader = () => (
 export const LiveRow = ({
   row,
   onCashOut,
+  onShare,
 }: {
   row: LiteLiveRow;
   onCashOut?: (row: LiteLiveRow) => void;
+  /** Pure-display share entry (SH-b §3). Omitted = zero DOM change. */
+  onShare?: (row: LiteLiveRow) => void;
 }) => {
+
   const goToMarket = useGoToMarket();
   const hot = row.hot;
 
@@ -243,7 +255,9 @@ export const LiveRow = ({
         )}
       </div>
 
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-end gap-2">
+        {onShare && <ShareIconButton onClick={() => onShare(row)} />}
+
         <button
           type="button"
           onClick={(e) => {

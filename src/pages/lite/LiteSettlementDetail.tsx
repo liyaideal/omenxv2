@@ -5,6 +5,7 @@
 // Mobile: MobileHeader + BottomNav. Desktop: site header + standard container,
 // no bottom nav.
 // ============================================================
+import { Share2 } from "lucide-react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { MobileHeader } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
@@ -21,6 +22,13 @@ import {
   type SettlementDetailVM,
 } from "@/components/portfolio/lite/SettlementDetailView";
 import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
+import {
+  LiteManualShareCard,
+  type LiteManualShareSnap,
+} from "@/components/lite/share/LiteShareFlow";
+import { MobileHeaderIconButton } from "@/components/MobileHeader";
+import { useAuth } from "@/hooks/useAuth";
+import { useState } from "react";
 
 export default function LiteSettlementDetail() {
   const { settlementId } = useParams();
@@ -30,6 +38,8 @@ export default function LiteSettlementDetail() {
   const fromSeries = params.get("series");
   const { data: s, isLoading } = useSettlementDetail({ settlementId });
   const { data: settlements = [] } = useSettlements();
+  const { user } = useAuth();
+  const [manualShare, setManualShare] = useState<LiteManualShareSnap | null>(null);
 
   // Always a determinate target — history-based back would bounce between this
   // page and the trade page reached via "View event".
@@ -89,6 +99,22 @@ export default function LiteSettlementDetail() {
     })),
   };
 
+  const shareSnap: LiteManualShareSnap = {
+    state: "settled",
+    eventId: s.eventId ?? "",
+    eventName: s.event,
+    sideLine: optionSideWord(s.option, s.sideLabels),
+    pnl: s.pnl,
+    pnlPercent: s.margin > 0 ? (s.pnl / s.margin) * 100 : 0,
+    leftAmount: s.margin,
+    rightAmount: Math.max(0, s.margin + s.pnl - fees),
+    segment: segmentFromProductLine(s.productLine),
+    dateISO: s.settledAt,
+    settlementId: settlementId ?? null,
+  };
+
+  const openShare = () => setManualShare(shareSnap);
+
   const actions = {
     backLabel: fromSeries ? "Back to series" : "Back to settled",
     onBack: () => navigate(backTo),
@@ -105,15 +131,29 @@ export default function LiteSettlementDetail() {
             ),
           )
       : undefined,
+    onShare: user ? openShare : undefined,
   };
 
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background pb-24">
-        <MobileHeader variant="inner" title={s.event} showBack backTo={backTo} />
+        <MobileHeader
+          variant="inner"
+          title={s.event}
+          showBack
+          backTo={backTo}
+          rightContent={
+            user ? (
+              <MobileHeaderIconButton aria-label="Share" onClick={openShare}>
+                <Share2 className="h-[18px] w-[18px]" />
+              </MobileHeaderIconButton>
+            ) : undefined
+          }
+        />
         <LiteAuthGate>
           <SettlementDetailMobile vm={vm} actions={actions} />
         </LiteAuthGate>
+        <LiteManualShareCard snap={manualShare} onClose={() => setManualShare(null)} />
         <BottomNav />
       </div>
     );
@@ -126,6 +166,7 @@ export default function LiteSettlementDetail() {
         <LiteAuthGate>
           <SettlementDetailDesktop vm={vm} actions={actions} />
         </LiteAuthGate>
+        <LiteManualShareCard snap={manualShare} onClose={() => setManualShare(null)} />
       </div>
     </div>
   );

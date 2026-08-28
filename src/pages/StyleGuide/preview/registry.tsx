@@ -35,6 +35,7 @@ const auth = () => import("./authPreviews");
 const events = () => import("./eventsPreviews");
 const trade = () => import("./tradePreviews");
 const spot = () => import("./spotPreviews");
+const share = () => import("./sharePreviews");
 
 
 export const previewRegistry: Record<string, Loader> = {
@@ -194,6 +195,16 @@ export const previewRegistry: Record<string, Loader> = {
   "spot-sp14": pick(spot, "Sp14Preview"),
   "spot-sp15": pick(spot, "Sp15Preview"),
   "spot-sp16": pick(spot, "Sp16Preview"),
+
+  /* -------- Share 晒单（SH-b · SH-1…SH-8）-------- */
+  "share-sh1": pick(share, "Sh1Preview"),
+  "share-sh2": pick(share, "Sh2Preview"),
+  "share-sh3": pick(share, "Sh3Preview"),
+  "share-sh4": pick(share, "Sh4Preview"),
+  "share-sh5": pick(share, "Sh5Preview"),
+  "share-sh6": pick(share, "Sh6Preview"),
+  "share-sh7": pick(share, "Sh7Preview"),
+  "share-sh8": pick(share, "Sh8Preview"),
 
   /* -------- Sports game lines（旧节复用，M2c 并账时清理）-------- */
   "trade-sports-lines-default": pick(sportsLines, "SportsLinesDefaultPreview"),

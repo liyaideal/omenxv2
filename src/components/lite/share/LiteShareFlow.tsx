@@ -115,3 +115,32 @@ export const LiteCashOutShareCard = ({
     />
   );
 };
+
+/** Snapshot handed up by a manual entry point (position card, outcome card,
+ *  portfolio row, settlement detail). Frozen at click time. */
+export interface LiteManualShareSnap {
+  state: LitePnlPosterState;
+  eventId: string;
+  eventName: string;
+  sideLine: string;
+  pnl: number;
+  pnlPercent: number;
+  leftAmount: number;
+  rightAmount: number;
+  segment: LiteTradeSegment;
+  dateISO?: string;
+  settlementId?: string | null;
+}
+
+/** Page-level host for the manual (icon/button) share entry points. */
+export const LiteManualShareCard = ({
+  snap,
+  onClose,
+}: {
+  snap: LiteManualShareSnap | null;
+  onClose: () => void;
+}) => {
+  if (!snap) return null;
+  return <LiteShareFlow open onOpenChange={(o) => !o && onClose()} {...snap} />;
+};
+

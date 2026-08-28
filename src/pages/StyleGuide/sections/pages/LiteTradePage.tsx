@@ -2,6 +2,7 @@ import { LitePage } from "./shell";
 import { TradeStatesSection } from "../TradeStatesSection";
 import { SpotStatesSection } from "../SpotStatesSection";
 import { AutoCloseTradeCases } from "./AutoCloseTradeCases";
+import { ShareCases } from "./ShareCases";
 
 type P = { isMobile: boolean };
 
@@ -30,5 +31,7 @@ export const LiteTradePage = (_props: P) => (
     <SpotStatesSection />
 
     <AutoCloseTradeCases />
+
+    <ShareCases />
   </LitePage>
 );
