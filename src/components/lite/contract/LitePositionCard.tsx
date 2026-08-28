@@ -21,6 +21,9 @@ interface Props {
   compact?: boolean;
   /** When set, the Cash out button is disabled and shows this note instead. */
   cashOutDisabledText?: string;
+  /** Style-guide fixture only (TR-12): mark the leg as voucher-funded.
+   *  Production never passes this — pure display, no logic attached. */
+  voucherTag?: boolean;
   onCashOut: () => void;
 
 }
@@ -37,6 +40,7 @@ export const LitePositionCard = ({
   autoCloseHot = false,
   compact = false,
   cashOutDisabledText,
+  voucherTag = false,
   onCashOut,
 }: Props) => (
 
@@ -47,6 +51,12 @@ export const LitePositionCard = ({
         <span className="text-foreground">
           {" · "}
           <span className="font-mono">{boost}×</span> Boost
+        </span>
+      )}
+      {voucherTag && (
+        <span className="text-foreground">
+          {" · "}
+          <span style={{ color: "#CFFF4A" }}>Voucher</span>
         </span>
       )}
     </div>
