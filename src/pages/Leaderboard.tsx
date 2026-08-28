@@ -22,6 +22,7 @@ import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader"
 import { QRCodeSVG } from "qrcode.react";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { AuthDialog } from "@/components/auth/AuthDialog";
+import { SeoFooter } from "@/components/seo/SeoFooter";
 
 type SortType = "pnl" | "roi" | "volume";
 type PeriodType = "daily" | "7d" | "30d" | "180d";
@@ -1257,6 +1258,9 @@ export default function Leaderboard() {
         {currentUser && !isCurrentUserInTopThree && (
           <MyRankBar user={currentUser} sortType={sortType} onClick={scrollToCurrentUser} />
         )}
+        <div style={{ marginBottom: "var(--bottom-nav-h, 76px)" }}>
+          <SeoFooter />
+        </div>
         <BottomNav />
         
         {/* Auth Sheet for non-logged in users */}
@@ -1306,6 +1310,8 @@ export default function Leaderboard() {
           <MyRankBar user={currentUser} sortType={sortType} onClick={scrollToCurrentUser} />
         )}
       </div>
+
+      <SeoFooter />
 
       {/* Auth Dialog/Sheet for non-logged in users */}
       {isMobile ? (

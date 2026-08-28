@@ -51,6 +51,7 @@ import {
 } from "@/components/lite/share/LiteShareFlow";
 import { useAuth } from "@/hooks/useAuth";
 import type { LiteLiveRow } from "@/hooks/useLitePortfolio";
+import { SeoFooter } from "@/components/seo/SeoFooter";
 
 
 const EmptyLive = () => {
@@ -385,6 +386,7 @@ export default function LitePortfolio() {
       <div className="min-h-screen bg-background pb-24">
         <MobileHeader variant="brand" />
         <LiteAuthGate>{content}</LiteAuthGate>
+        <SeoFooter />
         <BottomNav />
       </div>
     );
@@ -396,6 +398,7 @@ export default function LitePortfolio() {
       <div className="mx-auto w-full max-w-7xl px-4 py-6 lg:px-6">
         <LiteAuthGate>{content}</LiteAuthGate>
       </div>
+      <SeoFooter />
     </div>
   );
 }

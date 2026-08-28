@@ -83,7 +83,8 @@ const HedgeLanding = () => {
         <HedgeFinalCTA />
       </main>
 
-      <div className="bg-background text-foreground">
+      {/* Extra tail keeps the entity + copyright lines clear of the mobile floating CTA. */}
+      <div className="bg-background text-foreground pb-28 md:pb-0">
         <SeoFooter />
       </div>
       <HedgeMobileFloatingCTA triggerRef={heroRef} />

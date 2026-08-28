@@ -15,6 +15,7 @@ import { PointsRetiredNotice } from "@/components/campaigns/PointsRetiredNotice"
 import { RewardsFinePrint } from "@/components/campaigns/RewardsFinePrint";
 import { H2eCampaignCard } from "@/components/h2e/H2eCampaignCard";
 import { useNavigate } from "react-router-dom";
+import { SeoFooter } from "@/components/seo/SeoFooter";
 
 const Tabs = ({
   value,
@@ -141,6 +142,7 @@ export default function LiteRewardsPage() {
           <MobileHeader title="Rewards" showLogo={false} showBack flushBottom />
         )}
         <main className={mobileRedeeming ? "" : "px-4 py-4"}>{body}</main>
+        {!mobileRedeeming && <SeoFooter />}
         {/* Redeem is a focused full-screen task: nav retires, the header ‹ owns the exit. */}
         {!mobileRedeeming && <BottomNav />}
       </div>
@@ -151,6 +153,7 @@ export default function LiteRewardsPage() {
     <div className="min-h-screen bg-background">
       <EventsDesktopHeader />
       <main className="mx-auto w-full max-w-7xl px-4 py-8 lg:px-6">{body}</main>
+      <SeoFooter />
     </div>
   );
 }
