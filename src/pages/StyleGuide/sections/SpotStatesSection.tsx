@@ -48,7 +48,38 @@ const Table = ({
   </div>
 );
 
-/* ---------------- ① 轮次历史带（SP-3 / SP-4） ---------------- */
+/* ---------------- ① 页头（SP-1 / SP-2） ---------------- */
+
+const HEAD_CASES: SectionCase[] = [
+  {
+    key: "spot-sp1",
+    label: "SP-1 · crypto 快轮页头（SpotCryptoHead + SpotRoundSwitcher）",
+    note:
+      "逐字 eyebrow `CRYPTO · INTRADAY`（CSS 大写）；34px 圆形 AssetAvatar + 题面；数据行 `$61,712.40 · ▲ +0.23% today · Vol $184.2K`。第二行 ROUND 档位盘逐字 `ROUND` + 5m / 15m / 1h / 4h / 1D，激活档白底黑字。第二帧为跌态（ETH −1.42%）。",
+    spec: [
+      { state: "涨", when: "pct >= 0", visual: "`▲ +N.NN% today`，色走 pctColor 正向", source: "SpotCryptoHead" },
+      { state: "跌", when: "pct < 0", visual: "`▼ -N.NN% today`，色走 pctColor 负向", source: "同上" },
+      { state: "无价", when: "price === null", visual: "价格位渲染 `—`", source: "price prop" },
+      { state: "标题字号", when: "useIsMobile()", visual: "mobile 24px / desktop 32px", source: "isMobile prop" },
+      { state: "档位激活", when: "item.id === activeId", visual: "白底 #FFFFFF + 文字 #0A0B0D，其余透明底 #9AA1AC", source: "SpotRoundSwitcher" },
+    ],
+  },
+  {
+    key: "spot-sp2",
+    label: "SP-2 · stocks 日内页头（SpotStockHead · 有价 / 无价两态）",
+    note:
+      "页头三件逐字：eyebrow `Stocks · Daily up / down`（10px tracking .18em uppercase）、题面 `Will Alibaba close higher today?`、数据行 `HK$118.40 · ▲ +0.86% today · Price to beat HK$117.40 · Vol $41.2M`。桌面右侧挂 watchlist 星，移动帧不挂（页面把星移进 MobileHeader）。",
+    spec: [
+      { state: "有基准价", when: "basePrice != null && showPriceReadout", visual: "现价 + %today + `Price to beat` 三段齐出", source: "LiteSpotTrade 派生" },
+      { state: "盘前无读数", when: "basePrice == null || !showPriceReadout", visual: "只剩 `Vol`，其余段落整段不渲染（第二帧）", source: "priceText / pctToday null" },
+      { state: "涨跌色", when: "pctToday >= 0 / < 0", visual: "text-trading-green / text-trading-red，箭头 ▲ / ▼", source: "SpotStockHead" },
+      { state: "星位", when: "!isMobile", visual: "rightSlot 渲染 watchlist 星；移动为 null", source: "rightSlot prop" },
+    ],
+  },
+];
+
+/* ---------------- ② 轮次历史带（SP-3 / SP-4） ---------------- */
+
 
 const TAPE_CASES: SectionCase[] = [
   {
