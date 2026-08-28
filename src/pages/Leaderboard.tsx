@@ -1192,7 +1192,7 @@ export default function Leaderboard() {
       </div>
 
       {/* Rest of Leaderboard - seamless continuation */}
-      <div className="px-4 pb-24 md:pb-8 max-w-2xl mx-auto">
+      <div className="px-4 pb-8 max-w-2xl mx-auto">
         {/* Subtle divider */}
         <div className="flex items-center justify-center gap-3 mb-3 pt-2">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border/30 to-transparent" />
