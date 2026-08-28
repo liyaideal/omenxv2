@@ -32,9 +32,10 @@ import { useHeadingScrolledOut } from "@/hooks/useHeadingScrolledOut";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { parseSideLabels } from "@/lib/eventUtils";
-import { boostSuffix, legSideLabel, liteSideName } from "@/lib/liteSideName";
+import { boostSuffix, legSideLabel, liteSideName, optionSideWord } from "@/lib/liteSideName";
 import { formatCents, estimateAutoClosePrice, isAutoCloseHot } from "@/lib/autoClosePrice";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
+import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import type { Tables } from "@/integrations/supabase/types";
 import {
   LiteContractChart,
@@ -227,6 +228,9 @@ const LiteContractTrade = () => {
   const pricesCtx = useRealtimePricesOptional();
   const { getConfig, isLoading: boostLoading } = useCategoryBoostConfigs();
   const risk = useRealtimeRiskMetrics();
+  // Same truth source as /portfolio: unsettled cards read the live mark, the
+  // stored DB mark_price / pnl are only a fallback.
+  const { getRealtimeMarkPrice, calculateRealtimePnL } = useRealtimePositionsPnL();
 
   const [event, setEvent] = useState<EventRow | null>(null);
   const [loading, setLoading] = useState(true);
@@ -482,10 +486,23 @@ const LiteContractTrade = () => {
     for (const s of siblings) m.set(s.name, s);
     return m;
   }, [event, siblings]);
-  const hasSideLabels = (eventName: string) =>
-    !!parseSideLabels(legEventByName.get(eventName)?.side_labels);
-  const legSideWord = (p: { event: string; option: string; type: "long" | "short" }) =>
-    legSideLabel(legEventByName.get(p.event) ?? null, legIsNo(p) ? "no" : "yes");
+  const legSideLabels = (eventName: string) =>
+    parseSideLabels(legEventByName.get(eventName)?.side_labels);
+  const hasSideLabels = (eventName: string) => !!legSideLabels(eventName);
+  // Side-labelled legs (fixture lines, up/down) are bought under their REAL
+  // option label, so the side word comes from the label — never from
+  // long/short, which would render the opposite side.
+  const legSideWord = (p: { event: string; option: string; type: "long" | "short" }) => {
+    const sl = legSideLabels(p.event);
+    if (sl) return optionSideWord(p.option, sl);
+    return legSideLabel(legEventByName.get(p.event) ?? null, legIsNo(p) ? "no" : "yes");
+  };
+  const legIsNoSide = (p: { event: string; option: string; type: "long" | "short" }) => {
+    const sl = legSideLabels(p.event);
+    if (sl) return optionSideWord(p.option, sl) === liteSideName(sl.no);
+    return legIsNo(p);
+  };
+
 
   const openBuy = useCallback(
     (s: Side) => {
@@ -532,7 +549,7 @@ const LiteContractTrade = () => {
       yesPrice: pricesCtx?.getPrice(o.id) ?? Number(o.price),
       settled: o.final_price != null,
       outcomeYes: !!o.is_winner,
-      heldSide: held ? (legIsNo(held) ? "no" : "yes") : null,
+      heldSide: held ? (legIsNoSide(held) ? "no" : "yes") : null,
       heldSideLabel: held ? legSideWord(held) : null,
     };
   });
@@ -583,7 +600,7 @@ const LiteContractTrade = () => {
       yesPrice: pricesCtx?.getPrice(y.id) ?? Number(y.price),
       settled: y.final_price != null,
       outcomeYes: !!y.is_winner,
-      heldSide: held ? (legIsNo(held) ? "no" : "yes") : null,
+      heldSide: held ? (legIsNoSide(held) ? "no" : "yes") : null,
       heldSideLabel: held ? legSideWord(held) : null,
       yesChipLabel: yl,
       noChipLabel: nl,
@@ -715,9 +732,34 @@ const LiteContractTrade = () => {
     heldPos != null &&
     heldPos.option.trim().toLowerCase() === yesOpt.label.trim().toLowerCase();
 
+  // Live display values for an UNSETTLED leg — realtime mark first, DB
+  // mark_price / pnl only as a fallback. Same source as /portfolio, so the
+  // two surfaces can never disagree.
+  const liveValues = (p: (typeof positions)[number]) => {
+    const rt = calculateRealtimePnL({
+      event: p.event,
+      option: p.option,
+      optionId: p.optionId,
+      type: p.type,
+      entryPrice: p.entryPrice,
+      size: p.size,
+      margin: p.margin,
+    });
+    const pnl = rt.hasRealtimePrice ? rt.pnl : p.pnlNum;
+    return {
+      mark:
+        getRealtimeMarkPrice({ event: p.event, option: p.option, optionId: p.optionId }) ??
+        p.markPriceNum,
+      pnl,
+      nowWorth: p.marginNum + pnl,
+    };
+  };
+
   // Signed numeric PnL — never reverse-parsed from the formatted string
   // (`pnl` drops the minus sign via Math.abs).
-  const heldPnlNum = heldPos ? heldPos.pnlNum : 0;
+  const heldLive = heldPos ? liveValues(heldPos) : null;
+  const heldPnlNum = heldLive ? heldLive.pnl : 0;
+
 
   // Shared for the binary held leg and for every multi-market leg.
   const autoCloseFor = (p: (typeof positions)[number]) =>
@@ -980,7 +1022,8 @@ const LiteContractTrade = () => {
     boardMode && multiHeld.length > 0 ? (
       <div className="space-y-3">
         {multiHeld.map((p) => {
-          const isYesLeg = !legIsNo(p);
+          const isYesLeg = !legIsNoSide(p);
+          const lv = liveValues(p);
           const ac = autoCloseDisplayFor(p);
           // Side-labelled legs (fixture lines) are named by their side label
           // alone; generic multi options keep "{option} · Yes|No". 1× adds
@@ -1000,8 +1043,8 @@ const LiteContractTrade = () => {
               isYes={isYesLeg}
               boost={1}
               putIn={p.marginNum}
-              nowWorth={p.marginNum + p.pnlNum}
-              profit={p.pnlNum}
+              nowWorth={lv.nowWorth}
+              profit={lv.pnl}
               autoCloseText={ac.text}
               autoCloseSub={ac.sub}
               autoCloseHot={ac.hot}
@@ -1016,10 +1059,10 @@ const LiteContractTrade = () => {
                         eventId: event.id,
                         eventName: event.name,
                         sideLine: title,
-                        pnl: p.pnlNum,
-                        pnlPercent: p.marginNum > 0 ? (p.pnlNum / p.marginNum) * 100 : 0,
+                        pnl: lv.pnl,
+                        pnlPercent: p.marginNum > 0 ? (lv.pnl / p.marginNum) * 100 : 0,
                         leftAmount: p.marginNum,
-                        rightAmount: p.marginNum + p.pnlNum,
+                        rightAmount: lv.nowWorth,
                         segment: "boost",
                       })
                   : undefined
@@ -1037,7 +1080,7 @@ const LiteContractTrade = () => {
       isMobile={!!isMobile}
       positionId={cashOutTarget.id}
       positionIndex={positions.findIndex((p) => p.id === cashOutTarget.id)}
-      currentValue={cashOutTarget.marginNum + cashOutTarget.pnlNum}
+      currentValue={liveValues(cashOutTarget).nowWorth}
       sizeNum={cashOutTarget.sizeNum}
       sideLabel={
         hasSideLabels(cashOutTarget.event)
@@ -1214,9 +1257,7 @@ const LiteContractTrade = () => {
         marketContextLabel: selOpt.label,
         blockNotice: null,
         heldSideLabel: heldOnSelected ? (heldOnSelectedIsNo ? "No" : "Yes") : null,
-        heldCurrentValue: heldOnSelected
-          ? heldOnSelected.marginNum + heldOnSelected.pnlNum
-          : null,
+        heldCurrentValue: heldOnSelected ? liveValues(heldOnSelected).nowWorth : null,
         heldQty: heldOnSelected ? heldOnSelected.sizeNum : null,
         nettingScopeLabel: "on this market",
       } as const)
@@ -1241,7 +1282,6 @@ const LiteContractTrade = () => {
     const s = splitBinary(selectedLineEvent);
     if (!s.yesOpt || !s.noOpt) return null;
     const held = multiHeld.find((p) => p.event === selectedLineEvent.name) || null;
-    const heldIsNo = held ? legIsNo(held) : false;
     return {
       ...binaryPanelProps,
       eventName: selectedLineEvent.name,
@@ -1258,8 +1298,8 @@ const LiteContractTrade = () => {
       marketContextLabel: `${event.name} · ${selectedLineGroup} · ${
         side === "yes" ? s.yesLabel : s.noLabel
       }`,
-      heldSideLabel: held ? (heldIsNo ? s.noLabel : s.yesLabel) : null,
-      heldCurrentValue: held ? held.marginNum + held.pnlNum : null,
+      heldSideLabel: held ? legSideWord(held) : null,
+      heldCurrentValue: held ? liveValues(held).nowWorth : null,
       heldQty: held ? held.sizeNum : null,
       nettingScopeLabel: "on this market",
     } as const;

@@ -18,6 +18,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { executeSpotTrade } from "@/services/tradingService";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useRealtimePricesOptional } from "@/contexts/RealtimePricesContext";
+import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
@@ -163,6 +164,8 @@ const LiteSpotTrade = () => {
   const { isWatched, toggle } = useWatchlist();
   const { headingRef, scrolledOut } = useHeadingScrolledOut();
   const pricesCtx = useRealtimePricesOptional();
+  // Same truth source as /portfolio for unsettled display values.
+  const { getRealtimeMarkPrice, calculateRealtimePnL, formatPnL } = useRealtimePositionsPnL();
 
   const [event, setEvent] = useState<EventRow | null>(null);
   const [loading, setLoading] = useState(true);
@@ -292,6 +295,32 @@ const LiteSpotTrade = () => {
     );
   }, [positions, event]);
   const heldPos = heldIndex >= 0 ? positions[heldIndex] : null;
+
+  // Live display values for the UNSETTLED spot leg — realtime mark first,
+  // stored DB mark_price / pnl only as a fallback (matches /portfolio).
+  const heldLive = (() => {
+    if (!heldPos) return null;
+    const key = { event: heldPos.event, option: heldPos.option, optionId: heldPos.optionId };
+    const rt = calculateRealtimePnL({
+      ...key,
+      type: heldPos.type,
+      entryPrice: heldPos.entryPrice,
+      size: heldPos.size,
+      margin: heldPos.margin,
+    });
+    const mark = getRealtimeMarkPrice(key) ?? heldPos.markPriceNum;
+    const pnl = rt.hasRealtimePrice ? rt.pnl : heldPos.pnlNum;
+    const pnlPercent =
+      heldPos.marginNum > 0 ? (pnl / heldPos.marginNum) * 100 : 0;
+    const f = formatPnL(pnl, pnlPercent);
+    return {
+      pnl,
+      pnlPercent,
+      pnlText: rt.hasRealtimePrice ? f.pnlStr : heldPos.pnl,
+      pnlPercentText: rt.hasRealtimePrice ? f.pnlPercentStr : heldPos.pnlPercent,
+      currentValue: mark * heldPos.sizeNum,
+    };
+  })();
 
   // Watchlist star
   const starred = event ? isWatched(event.id) : false;
@@ -495,9 +524,9 @@ const LiteSpotTrade = () => {
           : noLabel
       }
       sizeDisplay={heldPos.sizeDisplay}
-      pnl={heldPos.pnl}
-      pnlPercent={heldPos.pnlPercent}
-      currentValue={heldPos.markPriceNum * heldPos.sizeNum}
+      pnl={heldLive!.pnlText}
+      pnlPercent={heldLive!.pnlPercentText}
+      currentValue={heldLive!.currentValue}
       avgCost={heldPos.entryPrice}
       ifWinsLabel={`If ${yesLabel} wins`}
       ifWinsValue={`$${heldPos.sizeNum.toFixed(0)}`}
@@ -516,11 +545,10 @@ const LiteSpotTrade = () => {
                     ? yesLabel
                     : noLabel
                 } · Standard`,
-                pnl: heldPos.pnlNum,
-                pnlPercent:
-                  heldPos.marginNum > 0 ? (heldPos.pnlNum / heldPos.marginNum) * 100 : 0,
+                pnl: heldLive!.pnl,
+                pnlPercent: heldLive!.pnlPercent,
                 leftAmount: heldPos.marginNum,
-                rightAmount: heldPos.markPriceNum * heldPos.sizeNum,
+                rightAmount: heldLive!.currentValue,
                 segment: "standard",
               })
           : undefined
@@ -535,7 +563,7 @@ const LiteSpotTrade = () => {
       isMobile={!!isMobile}
       positionId={heldPos.id}
       positionIndex={heldIndex}
-      currentValue={heldPos.markPriceNum * heldPos.sizeNum}
+      currentValue={heldLive!.currentValue}
       sizeNum={heldPos.sizeNum}
       sideLabel={
         heldPos.option.trim().toLowerCase() === (yesOpt.label || "").trim().toLowerCase()
