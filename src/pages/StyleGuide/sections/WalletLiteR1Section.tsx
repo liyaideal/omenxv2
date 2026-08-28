@@ -279,7 +279,7 @@ const TX_FIAT_CASES: SectionCase[] = [
   {
     key: "wallet-lite-tx-fiat-buy",
     label: "W-17 · 交易流水 · fiat_buy + 净额符号判定",
-    note: "win/lose 一律看净额符号；type 只决定图标与来源注记。",
+    note: "win/lose 与图标一律看净额符号；type 只决定来源注记。",
     spec: [
       {
         state: "fiat_buy",
@@ -290,14 +290,14 @@ const TX_FIAT_CASES: SectionCase[] = [
       {
         state: "type=trade_loss 但净额 > 0",
         when: "type === 'trade_loss' && amount >= 0",
-        visual: "金额 +$28.87 绿；描述尾词渲染为「· Won」（不再是 Lost）",
-        source: "formatDescription 尾词改写",
+        visual: "TrendingUp · text-trading-green · bg-trading-green/20；金额 +$28.87 绿；描述尾词渲染为「· Won」（不再是 Lost）",
+        source: "formatDescription 尾词改写 + getTransactionIcon",
       },
       {
         state: "type=trade_profit 但净额 < 0",
         when: "type === 'trade_profit' && amount < 0",
-        visual: "金额 −$12.40 红；描述尾词渲染为「· Lost」",
-        source: "formatDescription 尾词改写",
+        visual: "TrendingDown · text-trading-red · bg-trading-red/20；金额 −$12.40 红；描述尾词渲染为「· Lost」",
+        source: "formatDescription 尾词改写 + getTransactionIcon",
       },
     ],
   },
