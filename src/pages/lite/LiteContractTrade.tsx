@@ -235,6 +235,8 @@ const LiteContractTrade = () => {
   // held leg the cash-out sheet targets.
   const [selectedOptId, setSelectedOptId] = useState<string | null>(null);
   const [cashOutId, setCashOutId] = useState<string | null>(null);
+  // Cash-out share card lives on the page: a full close unmounts the flow.
+  const [shareSnap, setShareSnap] = useState<CashOutShareSnapshot | null>(null);
   // Only the FIRST fetch flips the full-page loader; later refetches
   // (post-fill) swap data in place so the page never unmounts.
   const isFirstLoad = useRef(true);
