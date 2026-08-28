@@ -1,3 +1,4 @@
+import { SeoFooter } from "@/components/seo/SeoFooter";
 // ============================================================
 // /spot (surface=lite) — US-stock daily up/down, odds-forward.
 // Display-layer fork of the Pro SpotTrading terminal. Reuses the
@@ -814,6 +815,8 @@ const LiteSpotTrade = () => {
             )}
           </div>
 
+          <SeoFooter />
+
           {/* Sticky bottom bar — buy pair while live, single Portfolio link once settled */}
           <div
             className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 px-4 pt-3 backdrop-blur"
@@ -935,6 +938,7 @@ const LiteSpotTrade = () => {
           </aside>
         </div>
         <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
+        <SeoFooter />
       </div>
     </TooltipProvider>
   );

@@ -1,3 +1,4 @@
+import { SeoFooter } from "@/components/seo/SeoFooter";
 import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Star } from "lucide-react";
@@ -634,6 +635,7 @@ const LiteEventsPage = () => {
           </button>
         </div>
         </div>
+        <SeoFooter />
       </div>
 
       <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />

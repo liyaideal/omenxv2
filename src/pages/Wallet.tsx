@@ -66,6 +66,7 @@ import {
 } from "@/components/ui/popover";
 import useCategoryBoostConfigs from "@/hooks/useCategoryBoostConfigs";
 import { cn } from "@/lib/utils";
+import { SeoFooter } from "@/components/seo/SeoFooter";
 
 /* ------------------------------------------------------------------
  * Signal-DNA visual primitives (Wallet page only)
@@ -908,6 +909,7 @@ export default function Wallet() {
         </main>
         </WalletAuthGate>
 
+        <SeoFooter />
 
         <DepositDialog 
           open={depositDialogOpen} 
@@ -1019,6 +1021,8 @@ export default function Wallet() {
         </button>
       </div>
       </WalletAuthGate>
+
+      <SeoFooter />
 
       <BottomNav />
 

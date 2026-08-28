@@ -182,6 +182,9 @@ export const SeoFooter = () => {
         {/* Bottom bar */}
         <div className="border-t border-border/20 mt-8 pt-6 flex flex-col items-center gap-1.5 text-center">
           <p className="text-xs text-muted-foreground">
+            OmenX is operated by Nuvion Holdings Ltd., a company incorporated in the Cayman Islands.
+          </p>
+          <p className="text-xs text-muted-foreground">
             © 2026 OmenX. All rights reserved.
           </p>
           <p className="text-xs text-muted-foreground/60">
