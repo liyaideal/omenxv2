@@ -214,6 +214,7 @@ const Pair = ({
 
 export const TradeStatesSection = () => (
   <SectionWrapper
+    id="trade-states"
     title="/trade · 合约与多市场 · 状态字典（TR-1 … TR-16）"
     description="16 个 case，全部挂生产组件 + fixture 确定性数据。TR-11 / TR-12 复用既有 sports lines preview key。"
   >
