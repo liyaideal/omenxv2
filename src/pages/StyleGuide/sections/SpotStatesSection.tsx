@@ -123,10 +123,23 @@ const MARKET_CASES: SectionCase[] = [
   },
 ];
 
-/* ---------------- ③ 下单与持仓（SP-10 … SP-13） ---------------- */
+/* ---------------- ④ 下单与持仓（SP-9 … SP-13） ---------------- */
 
 const ORDER_CASES: SectionCase[] = [
   {
+    key: "spot-sp9",
+    label: "SP-9 · YOUR PICK 卡（SpotPickCard · 两 fixture）",
+    note:
+      "chip 行文逐字单行 `Up 55¢` / `Down 45¢`（共享 SideButton size='compact'），**禁 `% say` 副标**（与 crowd bar 重复，M2c 并账清单 B 的裁定在此落案）。micro 逐字 `YOUR PICK · 15M ROUND`（CSS 大写），题面 `BTC higher than $61,569.07 at 03:45?`。",
+    spec: [
+      { state: "Up 选中", when: "side === 'yes'", visual: "Up chip 实底 #33D6FF/文字 #04222c，Down 为 12% 幽灵底", source: "SideButton active/tone" },
+      { state: "Down 选中", when: "side === 'no'", visual: "Down chip 实底 Volt，Up 转幽灵", source: "同上" },
+      { state: "价格显示", when: "任意", visual: "Math.round(price × 100) + `¢`，右对齐 font-mono", source: "SideButton" },
+      { state: "禁用副标", when: "永远", visual: "chip 内只有一行 label + 价格，无 `% say`", source: "SpotPickCard" },
+    ],
+  },
+  {
+
     key: "spot-sp10",
     label: "SP-10 · Place your order · 默认态（LiteOrderPanel · variant 随 useIsMobile）",
     note:
