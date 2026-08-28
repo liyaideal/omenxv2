@@ -48,6 +48,12 @@ import {
 } from "@/components/lite/trade/InReviewCard";
 
 import { LiteContractOrderPanel } from "@/components/lite/contract/LiteContractOrderPanel";
+import {
+  TradeHeading,
+  TradeRuleCard,
+  TradeMoreMarkets,
+} from "@/components/lite/contract/LiteTradeBlocks";
+
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
 import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
 import {
