@@ -106,8 +106,8 @@ const BADGE_CASES: SectionCase[] = [
 const TX_ICON_SPEC = [
   { state: "deposit", when: "type === 'deposit'", visual: "ArrowDownLeft · text-trading-green · 圈底 bg-trading-green/20", source: "getTransactionIcon" },
   { state: "withdraw", when: "type === 'withdraw'", visual: "ArrowUpRight · text-trading-red · bg-trading-red/20", source: "getTransactionIcon" },
-  { state: "trade_profit", when: "type === 'trade_profit'", visual: "TrendingUp · text-trading-green · bg-trading-green/20（图标仍由 type 决定）", source: "getTransactionIcon" },
-  { state: "trade_loss", when: "type === 'trade_loss'", visual: "TrendingDown · text-trading-red · bg-trading-red/20（图标仍由 type 决定）", source: "getTransactionIcon" },
+  { state: "trade_profit / trade_loss · 净额 ≥ 0", when: "type ∈ {trade_profit, trade_loss} && amount >= 0", visual: "TrendingUp · text-trading-green · bg-trading-green/20（图标随净额符号）", source: "getTransactionIcon" },
+  { state: "trade_profit / trade_loss · 净额 < 0", when: "type ∈ {trade_profit, trade_loss} && amount < 0", visual: "TrendingDown · text-trading-red · bg-trading-red/20（图标随净额符号）", source: "getTransactionIcon" },
   { state: "win 语法", when: "amount >= 0", visual: "金额 text-trading-green 带 + 号；描述尾词改写为「· Won」", source: "formatDescription + 金额列取色" },
   { state: "loss 语法", when: "amount < 0", visual: "金额 text-trading-red 带 − 号；描述尾词改写为「· Lost」", source: "formatDescription + 金额列取色" },
   { state: "platform_credit", when: "type === 'platform_credit'", visual: "Wallet · text-trading-green · bg-trading-green/20", source: "getTransactionIcon" },
@@ -279,7 +279,7 @@ const TX_FIAT_CASES: SectionCase[] = [
   {
     key: "wallet-lite-tx-fiat-buy",
     label: "W-17 · 交易流水 · fiat_buy + 净额符号判定",
-    note: "win/lose 一律看净额符号；type 只决定图标与来源注记。",
+    note: "win/lose 与图标一律看净额符号；type 只决定来源注记。",
     spec: [
       {
         state: "fiat_buy",
@@ -290,14 +290,14 @@ const TX_FIAT_CASES: SectionCase[] = [
       {
         state: "type=trade_loss 但净额 > 0",
         when: "type === 'trade_loss' && amount >= 0",
-        visual: "金额 +$28.87 绿；描述尾词渲染为「· Won」（不再是 Lost）",
-        source: "formatDescription 尾词改写",
+        visual: "TrendingUp · text-trading-green · bg-trading-green/20；金额 +$28.87 绿；描述尾词渲染为「· Won」（不再是 Lost）",
+        source: "formatDescription 尾词改写 + getTransactionIcon",
       },
       {
         state: "type=trade_profit 但净额 < 0",
         when: "type === 'trade_profit' && amount < 0",
-        visual: "金额 −$12.40 红；描述尾词渲染为「· Lost」",
-        source: "formatDescription 尾词改写",
+        visual: "TrendingDown · text-trading-red · bg-trading-red/20；金额 −$12.40 红；描述尾词渲染为「· Lost」",
+        source: "formatDescription 尾词改写 + getTransactionIcon",
       },
     ],
   },
