@@ -626,25 +626,15 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
           hideCloseButton
           className="pb-[calc(env(safe-area-inset-bottom,0px)+16px)]"
         >
-          <div className="mb-3">
-            <div className="flex items-center gap-2">
-              <span
-                className={cn(
-                  "rounded-md px-2 py-0.5 text-[11px] font-semibold",
-                  side === "yes" ? "bg-yes/14 text-yes" : "bg-no/14 text-no",
-                )}
-              >
-                {side === "yes" ? "Up" : "Down"}
-              </span>
-              <span className="text-sm font-semibold">
-                Buy {meta.ticker} {tf.toUpperCase()}
-              </span>
-            </div>
-            <div className="mt-1 text-[11px] text-muted-foreground">
-              Settles in <span className="font-mono">{countdown}</span> ·{" "}
-              {Math.round((side === "yes" ? upPrice : downPrice) * 100)}% chance
-            </div>
-          </div>
+          <SpotBuyDrawerHeader
+            isYesSide={side === "yes"}
+            sideLabel={side === "yes" ? "Up" : "Down"}
+            title={`Buy ${meta.ticker} ${tf.toUpperCase()}`}
+            leadText="Settles in"
+            countdown={countdown}
+            chancePct={Math.round((side === "yes" ? upPrice : downPrice) * 100)}
+          />
+
           <LiteOrderPanel
             {...orderPanelProps}
             variant="mobile"
