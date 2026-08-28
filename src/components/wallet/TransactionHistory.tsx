@@ -226,7 +226,9 @@ export const TransactionHistory = ({ transactions, className, fixture }: Transac
   // Apply pill filter
   const filteredTransactions = transactions.filter(tx => {
     if (pillFilter === 'all') return true;
-    if (pillFilter === 'deposit') return tx.type === 'deposit';
+    // E4 · fiat_buy is a funding-in row on Lite — it belongs under Deposits.
+    if (pillFilter === 'deposit') return tx.type === 'deposit' || tx.type === 'fiat_buy';
+
     if (pillFilter === 'withdraw') return tx.type === 'withdraw';
     if (pillFilter === 'trade') return tx.type === 'trade_profit' || tx.type === 'trade_loss';
     return true;
