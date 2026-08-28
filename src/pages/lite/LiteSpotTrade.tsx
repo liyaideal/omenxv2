@@ -524,9 +524,9 @@ const LiteSpotTrade = () => {
           : noLabel
       }
       sizeDisplay={heldPos.sizeDisplay}
-      pnl={heldPos.pnl}
-      pnlPercent={heldPos.pnlPercent}
-      currentValue={heldPos.markPriceNum * heldPos.sizeNum}
+      pnl={heldLive!.pnlText}
+      pnlPercent={heldLive!.pnlPercentText}
+      currentValue={heldLive!.currentValue}
       avgCost={heldPos.entryPrice}
       ifWinsLabel={`If ${yesLabel} wins`}
       ifWinsValue={`$${heldPos.sizeNum.toFixed(0)}`}
