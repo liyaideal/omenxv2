@@ -383,19 +383,21 @@ export default function LitePortfolio() {
     }
 
     return (
-      <div className="min-h-screen bg-background pb-24">
+      <div className="flex min-h-screen flex-col bg-background">
         <MobileHeader variant="brand" />
-        <LiteAuthGate>{content}</LiteAuthGate>
-        <SeoFooter />
+        <div className="flex-1"><LiteAuthGate>{content}</LiteAuthGate></div>
+        <div style={{ marginBottom: "var(--bottom-nav-h, 76px)" }}>
+          <SeoFooter />
+        </div>
         <BottomNav />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex min-h-screen flex-col bg-background">
       <EventsDesktopHeader />
-      <div className="mx-auto w-full max-w-7xl px-4 py-6 lg:px-6">
+      <div className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 lg:px-6">
         <LiteAuthGate>{content}</LiteAuthGate>
       </div>
       <SeoFooter />

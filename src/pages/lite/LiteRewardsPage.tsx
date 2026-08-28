@@ -130,7 +130,7 @@ export default function LiteRewardsPage() {
 
   if (isMobile) {
     return (
-      <div className={`min-h-screen bg-background ${mobileRedeeming ? "pb-0" : "pb-24"}`}>
+      <div className={`flex min-h-screen flex-col bg-background ${mobileRedeeming ? "pb-0" : ""}`}>
         {mobileRedeeming ? (
           <MobileHeader
             title="Redeem voucher"
@@ -141,8 +141,12 @@ export default function LiteRewardsPage() {
         ) : (
           <MobileHeader title="Rewards" showLogo={false} showBack flushBottom />
         )}
-        <main className={mobileRedeeming ? "" : "px-4 py-4"}>{body}</main>
-        {!mobileRedeeming && <SeoFooter />}
+        <main className={mobileRedeeming ? "flex-1" : "flex-1 px-4 py-4"}>{body}</main>
+        {!mobileRedeeming && (
+          <div style={{ marginBottom: "var(--bottom-nav-h, 76px)" }}>
+            <SeoFooter />
+          </div>
+        )}
         {/* Redeem is a focused full-screen task: nav retires, the header ‹ owns the exit. */}
         {!mobileRedeeming && <BottomNav />}
       </div>
@@ -150,9 +154,9 @@ export default function LiteRewardsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex min-h-screen flex-col bg-background">
       <EventsDesktopHeader />
-      <main className="mx-auto w-full max-w-7xl px-4 py-8 lg:px-6">{body}</main>
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 lg:px-6">{body}</main>
       <SeoFooter />
     </div>
   );
