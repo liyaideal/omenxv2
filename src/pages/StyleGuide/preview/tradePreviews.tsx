@@ -215,8 +215,11 @@ export const Tr10Preview = () => (
 
 const ACTIVITY: MarketActivityRow[] = [
   { id: "a1", isYes: true, label: "Jeonbuk", amount: 121, boost: 1, createdAt: minsAgo(5) },
-  { id: "a2", isYes: false, label: "Ulsan", amount: 64, boost: 5, createdAt: minsAgo: 0 as never },
+  { id: "a2", isYes: false, label: "Ulsan", amount: 64, boost: 5, createdAt: minsAgo(12) },
+  { id: "a3", isYes: true, label: "Draw", amount: 240, boost: 10, createdAt: minsAgo(48) },
+  { id: "a4", isYes: false, label: "Jeonbuk", amount: 18, boost: 1, createdAt: minsAgo(126) },
 ];
+
 
 export const Tr13Preview = () => (
   <Frame>
