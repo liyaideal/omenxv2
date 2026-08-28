@@ -10,28 +10,30 @@ const POSTERS: SectionCase[] = [
   {
     key: "share-sh1",
     label: "SH-1 · 海报 · live 盈",
-    note: "chip `LIVE CALL` · 徽章 `⚡ Winning!` · PnL 标签 `Profit so far` · 趣味文案 `🔥 Absolute legend!`（+128.9%）。",
+    note: "mock12 卡 A 组（+$13.89 / +28.7% / $48.41 → $62.30）。chip `LIVE CALL` · 徽章 `⚡ Winning!` · PnL 标签 `Profit so far` · 趣味文案 `✨ Well played!`（0 ≤ pnlPercent < 50 档）。",
     spec: [
       { state: "chip", when: "state === 'live'", visual: "`LIVE CALL`", source: POSTER_SOURCE },
       { state: "徽章", when: "pnl >= 0 && state === 'live'", visual: "`⚡ Winning!`", source: POSTER_SOURCE },
       { state: "PnL 标签", when: "pnl >= 0 && state === 'live'", visual: "`Profit so far`", source: POSTER_SOURCE },
-      { state: "趣味文案", when: "pnlPercent >= 100", visual: "`🔥 Absolute legend!`", source: POSTER_SOURCE },
+      { state: "趣味文案", when: "0 <= pnlPercent < 50", visual: "`✨ Well played!`（本 case 命中档）", source: POSTER_SOURCE },
     ],
   },
   {
     key: "share-sh2",
-    label: "SH-2 · 海报 · live 亏",
-    note: "chip `LIVE CALL` · 徽章 `💀 RIP` · PnL 标签 `Lost`。",
+    label: "SH-2 · 海报 · live 亏（sports 别名腿）",
+    note: "卡 C 组：sports sideLine `ULS +1.5`（V6 语法）。chip `LIVE CALL` · 徽章 `💀 RIP` · PnL 标签 `Lost` · 趣味文案 `📉 We go again!`（−50 < pnlPercent < 0 档）。",
     spec: [
+      { state: "sideLine", when: "sports 别名腿", visual: "`ULS +1.5`（不拼 Yes/No）", source: POSTER_SOURCE },
       { state: "徽章", when: "pnl < 0", visual: "`💀 RIP`", source: POSTER_SOURCE },
       { state: "PnL 标签", when: "pnl < 0", visual: "`Lost`（数值取绝对值）", source: POSTER_SOURCE },
+      { state: "趣味文案", when: "-50 < pnlPercent < 0", visual: "`📉 We go again!`（本 case 命中档）", source: POSTER_SOURCE },
       { state: "主题", when: "pnl < 0", visual: "lose 主题色（posterThemes）", source: "getThemeForResult" },
     ],
   },
   {
     key: "share-sh3",
     label: "SH-3 · 海报 · cashed 盈",
-    note: "chip = 日期 `Aug 28, 2026` · 徽章 `⚡ Winner!` · PnL 标签 `Profit`。",
+    note: "卡 A 组同数值。chip = 日期 `Aug 28, 2026` · 徽章 `⚡ Winner!` · PnL 标签 `Profit` · 趣味文案 `✨ Well played!`（+28.7%）。",
     spec: [
       { state: "chip", when: "state !== 'live'", visual: "format(dateISO, 'MMM d, yyyy')", source: POSTER_SOURCE },
       { state: "徽章", when: "pnl >= 0 && state !== 'live'", visual: "`⚡ Winner!`", source: POSTER_SOURCE },
@@ -40,27 +42,32 @@ const POSTERS: SectionCase[] = [
   {
     key: "share-sh4",
     label: "SH-4 · 海报 · cashed 亏",
-    note: "chip = 日期 · 徽章 `💀 RIP` · PnL 标签 `Lost`。",
+    note: "卡 C 组同数值（−$18.20 / −45.5% / $40.00 → $21.80）。chip = 日期 · 徽章 `💀 RIP` · PnL 标签 `Lost` · 趣味文案 `📉 We go again!`。",
     spec: [
       { state: "徽章", when: "pnl < 0", visual: "`💀 RIP`", source: POSTER_SOURCE },
+      { state: "趣味文案", when: "-50 < pnlPercent < 0", visual: "`📉 We go again!`", source: POSTER_SOURCE },
     ],
   },
   {
     key: "share-sh5",
-    label: "SH-5 · 海报 · settled 盈",
-    note: "settled 与 cashed 同语法（chip 用结算日）；数值为派彩口径。",
+    label: "SH-5 · 海报 · settled 盈（Standard 词条）",
+    note: "卡 D 组：sideLine `Up · Standard`（V7 词条）· +$48.41 / +100.0% / $48.41 → $96.82。chip 用结算日；趣味文案 `🔥 Absolute legend!`（pnlPercent ≥ 100 档）。",
     spec: [
       { state: "chip", when: "state === 'settled'", visual: "结算日期", source: POSTER_SOURCE },
+      { state: "sideLine", when: "现货 Standard 仓", visual: "`Up · Standard`", source: POSTER_SOURCE },
+      { state: "趣味文案", when: "pnlPercent >= 100", visual: "`🔥 Absolute legend!`（本 case 命中档）", source: POSTER_SOURCE },
       { state: "右值", when: "state === 'settled'", visual: "Paid out = markPrice × size", source: "LiteContractTrade.OutcomeCard" },
     ],
   },
   {
     key: "share-sh6",
     label: "SH-6 · 海报 · settled 亏（Paid out $0.00）",
-    note: "输侧派彩为 0：右值 `$0.00`，Lost = 本金 $48.41，pnlPercent = −100。",
+    note: "输侧派彩为 0：右值 `$0.00`，Lost = 本金 $40.00，pnlPercent = −100。趣味文案 `😭 That's rough buddy...`（pnlPercent ≤ −50 档）。`💰 Nice gains!` 档（50 ≤ pnlPercent < 100）阈值记录于此：六案数值组未覆盖该档，表内注明。",
     spec: [
       { state: "Paid out", when: "outcomeWon === false", visual: "`$0.00`", source: "LiteOutcomeCard.holding.paidOut" },
       { state: "Lost", when: "outcomeWon === false", visual: "= putIn", source: "LiteOutcomeCard.holding.profit" },
+      { state: "趣味文案", when: "pnlPercent <= -50", visual: "`😭 That's rough buddy...`（本 case 命中档）", source: POSTER_SOURCE },
+      { state: "趣味文案（阈值）", when: "50 <= pnlPercent < 100", visual: "`💰 Nice gains!`（无 fixture 命中，仅阈值登记）", source: POSTER_SOURCE },
     ],
   },
 ];
