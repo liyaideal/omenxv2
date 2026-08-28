@@ -26,7 +26,14 @@ import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
 import { useHeadingScrolledOut } from "@/hooks/useHeadingScrolledOut";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
-import { SideButton } from "@/components/lite/shared/SideButton";
+import {
+  SpotBuyDrawerHeader,
+  SpotCryptoHead,
+  SpotPickCard,
+  SpotRoundSwitcher,
+  SpotSideRailCrypto,
+} from "@/components/lite/trade/SpotHeadBlocks";
+
 import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
 import {
   LiteMarketActivity,
