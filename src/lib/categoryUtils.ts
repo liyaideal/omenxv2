@@ -51,8 +51,14 @@ export const getCategoryInfo = (categoryKey: string): CategoryInfo => {
     tech: { label: "Tech", hsl: CATEGORY_STYLES.Tech.hsl },
     entertainment: { label: "Entertainment", hsl: CATEGORY_STYLES.Entertainment.hsl },
     sports: { label: "Sports", hsl: CATEGORY_STYLES.Sports.hsl },
+    // DB enum keys that previously fell through to General.
+    // Labels follow the trade page (CATEGORY_LABEL) as the source of truth:
+    // `stocks` events render under Finance.
+    stocks: { label: "Finance", hsl: CATEGORY_STYLES.Finance.hsl },
+    macro: { label: "Macro", hsl: CATEGORY_STYLES.Macro.hsl },
     market: { label: "Market", hsl: CATEGORY_STYLES.Market.hsl },
     general: { label: "General", hsl: CATEGORY_STYLES.General.hsl },
+
   };
 
   const match = categoryMap[normalizedKey] || categoryMap.general;
