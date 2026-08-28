@@ -301,14 +301,10 @@ const LiteEventsPage = () => {
       <div
         className={cn(
           "mx-auto flex w-full max-w-7xl flex-1 flex-col",
-          isMobile ? "px-4 py-4" : "px-4 py-6 pb-24 lg:px-6",
+          isMobile ? "px-4 py-4" : "px-4 py-6 lg:px-6",
         )}
-        style={
-          isMobile
-            ? { paddingBottom: "calc(112px + env(safe-area-inset-bottom))" }
-            : undefined
-        }
       >
+
         {/* Intro strip — plain-language, no trader jargon; display treatment */}
         <LiteEventsGreeting isMobile={!!isMobile} />
 
