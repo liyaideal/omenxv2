@@ -381,41 +381,17 @@ const LiteSpotTrade = () => {
 
   // ============ Building blocks ============
   const QuestionBlock = (
-    <div>
-      <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-        Stocks · Daily up / down
-      </div>
-      <h1
-        ref={headingRef as unknown as React.Ref<HTMLHeadingElement>}
-        className="mt-2 font-display font-bold leading-[1.05] tracking-[-0.02em] text-foreground"
-        style={{ fontSize: "clamp(24px, 3.5vw, 34px)" }}
-      >
-        {event.name}
-      </h1>
-      <div className="mt-3 flex items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-xs text-muted-foreground">
-          {currentPrice != null && (
-            <span className="text-foreground">{formatMarketPrice(currentPrice, market)}</span>
-          )}
-          {basePrice != null && showPriceReadout && (
-            <span
-              className={cn(
-                pctToday >= 0 ? "text-trading-green" : "text-trading-red",
-              )}
-            >
-              {pctToday >= 0 ? "▲" : "▼"} {pctToday >= 0 ? "+" : ""}
-              {pctToday.toFixed(2)}% today
-            </span>
-          )}
-          {basePrice != null && (
-            <span>Price to beat {formatMarketPrice(basePrice, market)}</span>
-          )}
-          <span>Vol {volText}</span>
-        </div>
-        {!isMobile && <div className="flex-shrink-0">{WatchStar}</div>}
-      </div>
-    </div>
+    <SpotStockHead
+      title={event.name}
+      headingRef={headingRef as unknown as React.Ref<HTMLHeadingElement>}
+      priceText={currentPrice != null ? formatMarketPrice(currentPrice, market) : null}
+      pctToday={basePrice != null && showPriceReadout ? pctToday : null}
+      priceToBeatText={basePrice != null ? formatMarketPrice(basePrice, market) : null}
+      volText={volText}
+      rightSlot={!isMobile ? WatchStar : null}
+    />
   );
+
 
   const SentimentBar = (
     <SpotSentimentBar
