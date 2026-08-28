@@ -1,6 +1,6 @@
 import { SeoFooter } from "@/components/seo/SeoFooter";
 import { useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { Star } from "lucide-react";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { useMarketListData } from "@/hooks/useMarketListData";
@@ -87,7 +87,6 @@ const CardGrid = ({
 );
 
 const LiteEventsPage = () => {
-  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { events: dbEvents, isLoading } = useActiveEvents();
   const markets = useMarketListData(dbEvents);

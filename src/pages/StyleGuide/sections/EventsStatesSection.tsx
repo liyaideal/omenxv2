@@ -620,7 +620,7 @@ export const EventsStatesSection = () => (
   <SectionWrapper
     id="events-states"
     title="Events 列表 · 状态字典（EV-1 … EV-26，含 EV-9e · 共 27 case）"
-    description="分区①页头与筛选行 · ②Intraday band · ③Sports band · ④卡片网格 · ⑤Calendar · ⑥Watchlist · ⑦加载与空态 · ⑧页尾。每个 case 双帧（desktop 1280 / mobile 375），fixture 只注数据与状态，且一律确定性注入（禁止运行时 fetch）。"
+    description="分区①页头与筛选行 · ②Intraday band · ③Sports band · ④卡片网格 · ⑤Calendar · ⑥Watchlist · ⑦加载与空态。每个 case 双帧（desktop 1280 / mobile 375），fixture 只注数据与状态，且一律确定性注入（禁止运行时 fetch）。"
   >
     <div className="space-y-12">
       <SubSection title="① 页头与筛选行（EV-1 … EV-4）">
