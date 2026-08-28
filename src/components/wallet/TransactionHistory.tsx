@@ -302,7 +302,7 @@ export const TransactionHistory = ({ transactions, className, fixture }: Transac
       // Pro-only tx types; not surfaced on Lite
       case 'cross_chain_in': return 'bg-blue-500/20';
       case 'cross_chain_out': return 'bg-orange-500/20';
-      case 'fiat_buy': return 'bg-purple-500/20';
+      case 'fiat_buy': return 'bg-trading-green/20';
       case 'fiat_sell': return 'bg-pink-500/20';
       case 'transfer_to_spot':
       case 'transfer_to_futures':
