@@ -1,5 +1,5 @@
 import { useState, useEffect, type CSSProperties } from "react";
-import { Home, BarChart3, TrendingUp, User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, KeyRound, Compass, PieChart, ArrowLeftRight } from "lucide-react";
+import { Home, BarChart3, TrendingUp, User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, KeyRound, Compass, PieChart, ArrowLeftRight, Layers, Sparkles } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthSheet } from "@/components/auth/AuthSheet";
@@ -39,7 +39,7 @@ export const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { balance, spotBalance, user, username, avatarUrl, profile } = useUserProfile();
-  const { surface } = useSurface();
+  const { surface, toggle } = useSurface();
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
   const [profileSheetOpen, setProfileSheetOpen] = useState(false);
