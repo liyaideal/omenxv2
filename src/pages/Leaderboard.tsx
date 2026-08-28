@@ -1192,7 +1192,7 @@ export default function Leaderboard() {
       </div>
 
       {/* Rest of Leaderboard - seamless continuation */}
-      <div className="px-4 pb-24 md:pb-8 max-w-2xl mx-auto">
+      <div className="px-4 pb-8 max-w-2xl mx-auto">
         {/* Subtle divider */}
         <div className="flex items-center justify-center gap-3 mb-3 pt-2">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border/30 to-transparent" />
@@ -1258,9 +1258,10 @@ export default function Leaderboard() {
         {currentUser && !isCurrentUserInTopThree && (
           <MyRankBar user={currentUser} sortType={sortType} onClick={scrollToCurrentUser} />
         )}
-        <div style={{ marginBottom: "var(--bottom-nav-h, 76px)" }}>
+        <div className="bg-card/50" style={{ paddingBottom: "var(--bottom-nav-h, 76px)" }}>
           <SeoFooter />
         </div>
+
         <BottomNav />
         
         {/* Auth Sheet for non-logged in users */}

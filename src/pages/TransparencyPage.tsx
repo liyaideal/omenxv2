@@ -212,10 +212,12 @@ const TransparencyPage = () => {
 
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-background pb-24">
+      <div className="flex min-h-screen flex-col bg-background">
         <MobileHeader title="Transparency audit" showLogo={false} showBack />
-        <div className="px-4 py-6">{content}</div>
-        <SeoFooter />
+        <div className="flex-1 px-4 py-6">{content}</div>
+        <div style={{ marginBottom: "var(--bottom-nav-h, 76px)" }}>
+          <SeoFooter />
+        </div>
         <BottomNav />
       </div>
     );

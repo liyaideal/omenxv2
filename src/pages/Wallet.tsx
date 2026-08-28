@@ -962,7 +962,7 @@ export default function Wallet() {
 
   // Mobile Layout
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="flex min-h-screen flex-col bg-background">
       <MobileHeader variant="brand" showBack={false} />
 
       <WalletAuthGate isLite={isLite} maxPreviewHeight="400px">
@@ -1022,7 +1022,9 @@ export default function Wallet() {
       </div>
       </WalletAuthGate>
 
-      <SeoFooter />
+      <div style={{ marginBottom: "var(--bottom-nav-h, 76px)" }}>
+        <SeoFooter />
+      </div>
 
       <BottomNav />
 

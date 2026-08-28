@@ -1,5 +1,5 @@
 import { useState, useEffect, type CSSProperties } from "react";
-import { Home, BarChart3, TrendingUp, User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, KeyRound, Compass, PieChart, ArrowLeftRight } from "lucide-react";
+import { Home, BarChart3, TrendingUp, User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, KeyRound, Compass, PieChart, ArrowLeftRight, Layers, Sparkles } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthSheet } from "@/components/auth/AuthSheet";
@@ -39,7 +39,7 @@ export const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { balance, spotBalance, user, username, avatarUrl, profile } = useUserProfile();
-  const { surface } = useSurface();
+  const { surface, toggle } = useSurface();
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
   const [profileSheetOpen, setProfileSheetOpen] = useState(false);
@@ -338,6 +338,16 @@ export const BottomNav = () => {
             }}
           />
 
+          {/* Surface switch — same semantics as the desktop user menu item. */}
+          <MobileDrawerListItem
+            icon={isLite ? Layers : Sparkles}
+            label={isLite ? "Switch to Pro mode" : "Switch to Simple mode"}
+            onClick={() => {
+              setProfileSheetOpen(false);
+              toggle();
+            }}
+          />
+
           <MobileDrawerListItem
             icon={HelpCircle}
             label="Help & Support"
@@ -346,6 +356,7 @@ export const BottomNav = () => {
               window.open("https://discord.gg/qXssm2crf9", "_blank", "noopener,noreferrer");
             }}
           />
+
           <MobileDrawerListItem
             icon={Lightbulb}
             label="Insights"

@@ -51,7 +51,6 @@ import { LiteIntradayView } from "@/components/lite/categoryviews/LiteIntradayVi
 import { LiteSportsView } from "@/components/lite/categoryviews/LiteSportsView";
 import { LiteCryptoView } from "@/components/lite/categoryviews/LiteCryptoView";
 import { LiteFinanceView } from "@/components/lite/categoryviews/LiteFinanceView";
-import { useSurface } from "@/contexts/SurfaceContext";
 import {
   SECTOR_CATEGORIES,
   categoryMatchesTop,
@@ -89,7 +88,6 @@ const CardGrid = ({
 
 const LiteEventsPage = () => {
   const navigate = useNavigate();
-  const { setSurface } = useSurface();
   const isMobile = useIsMobile();
   const { events: dbEvents, isLoading } = useActiveEvents();
   const markets = useMarketListData(dbEvents);
@@ -301,14 +299,10 @@ const LiteEventsPage = () => {
       <div
         className={cn(
           "mx-auto flex w-full max-w-7xl flex-1 flex-col",
-          isMobile ? "px-4 py-4" : "px-4 py-6 pb-24 lg:px-6",
+          isMobile ? "px-4 py-4" : "px-4 py-6 lg:px-6",
         )}
-        style={
-          isMobile
-            ? { paddingBottom: "calc(112px + env(safe-area-inset-bottom))" }
-            : undefined
-        }
       >
+
         {/* Intro strip — plain-language, no trader jargon; display treatment */}
         <LiteEventsGreeting isMobile={!!isMobile} />
 
@@ -617,26 +611,13 @@ const LiteEventsPage = () => {
             trendingCutoff={trendingCutoff}
           />
         )}
+        </div>
+      </div>
 
-        {/* Pro escape hatch — plain-language, no big CTA. */}
-        <div className="mt-auto pt-6 text-center text-xs text-muted-foreground">
-          Want charts and advanced trading tools?{" "}
-          <button
-            type="button"
-            onClick={() => {
-              // Switch surfaces in place (context + localStorage + profile),
-              // then land on the Pro events page — no /settings detour.
-              setSurface("pro");
-              navigate("/events");
-            }}
-            className="text-primary underline underline-offset-2 hover:text-primary/80"
-          >
-            Switch to Pro mode
-          </button>
-        </div>
-        </div>
+      <div style={isMobile ? { marginBottom: "calc(var(--bottom-nav-h, 76px) + env(safe-area-inset-bottom))" } : undefined}>
         <SeoFooter />
       </div>
+
 
       <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
       {isMobile && <BottomNav />}

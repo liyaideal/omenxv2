@@ -571,24 +571,6 @@ const LOADING_CASES: SectionCase[] = [
   },
 ];
 
-/* ---------------- ⑧ 页尾（EV-27）---------------- */
-
-const FOOTER_CASES: SectionCase[] = [
-  {
-    key: "events-ev27",
-    label: "EV-27 · 页尾 Pro 切换条",
-    spec: [
-      {
-        state: "静态",
-        when: "恒真（列表视图页尾，Calendar / Watchlist 视图同样保留）",
-        visual:
-          "“Want charts and advanced trading tools? Switch to Pro mode” — 后半句为链接态",
-        source: "LiteEventsPage 页尾",
-      },
-    ],
-  },
-];
-
 /* ---------------- 并账清单（旧六节 → EV-case）---------------- */
 
 const Ledger = () => (
@@ -637,7 +619,7 @@ const Pair = ({
 export const EventsStatesSection = () => (
   <SectionWrapper
     id="events-states"
-    title="Events 列表 · 状态字典（EV-1 … EV-27，含 EV-9e · 共 28 case）"
+    title="Events 列表 · 状态字典（EV-1 … EV-26，含 EV-9e · 共 27 case）"
     description="分区①页头与筛选行 · ②Intraday band · ③Sports band · ④卡片网格 · ⑤Calendar · ⑥Watchlist · ⑦加载与空态 · ⑧页尾。每个 case 双帧（desktop 1280 / mobile 375），fixture 只注数据与状态，且一律确定性注入（禁止运行时 fetch）。"
   >
     <div className="space-y-12">
@@ -672,12 +654,9 @@ export const EventsStatesSection = () => (
         <Pair cases={LOADING_CASES} desktopMin={900} mobileMin={1000} />
       </SubSection>
 
-      <SubSection title="⑧ 页尾（EV-27）">
-        <Pair cases={FOOTER_CASES} desktopMin={160} mobileMin={160} />
-        <div className="mt-8">
-          <Ledger />
-        </div>
-      </SubSection>
+      <div className="mt-8">
+        <Ledger />
+      </div>
     </div>
   </SectionWrapper>
 );
