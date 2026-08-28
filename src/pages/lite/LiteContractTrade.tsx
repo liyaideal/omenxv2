@@ -753,32 +753,28 @@ const LiteContractTrade = () => {
   );
 
   const QuestionBlock = (
-    <div>
-      <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-        {hasLines
-          ? [
-              categoryLabel,
-              event.options.length > 1 ? "Winner" : null,
-              handicapRow ? "Handicap" : null,
-              totalRow ? `Total ${noun}` : null,
-            ]
-              .filter(Boolean)
-              .join(" · ")
-          : categoryLabel}
-        {!hasLines && isMulti && !isMobile && ` · ${event.options.length} markets`}
-      </div>
-      <div className="mt-2 flex items-start justify-between gap-3">
-        <h1
-          ref={headingRef as unknown as React.Ref<HTMLHeadingElement>}
-          className="font-display font-bold leading-[1.05] tracking-[-0.02em] text-foreground"
-          style={{ fontSize: "clamp(24px, 3.5vw, 34px)" }}
-        >
-          {event.name}
-        </h1>
-        {!isMobile && <div className="shrink-0">{WatchStar}</div>}
-      </div>
-    </div>
+    <TradeHeading
+      eyebrow={
+        <>
+          {hasLines
+            ? [
+                categoryLabel,
+                event.options.length > 1 ? "Winner" : null,
+                handicapRow ? "Handicap" : null,
+                totalRow ? `Total ${noun}` : null,
+              ]
+                .filter(Boolean)
+                .join(" · ")
+            : categoryLabel}
+          {!hasLines && isMulti && !isMobile && ` · ${event.options.length} markets`}
+        </>
+      }
+      title={event.name}
+      headingRef={headingRef as unknown as React.Ref<HTMLHeadingElement>}
+      rightSlot={!isMobile ? WatchStar : undefined}
+    />
   );
+
 
   const SentimentBar = (
     <LiteSentimentBar
