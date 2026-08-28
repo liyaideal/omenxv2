@@ -399,7 +399,7 @@ export const TransactionHistory = ({ transactions, className, fixture }: Transac
                         "text-sm font-semibold font-mono shrink-0 text-right",
                         tx.amount >= 0 ? "text-trading-green" : "text-trading-red"
                       )}>
-                        {tx.amount >= 0 ? "+" : ""}${formatCurrency(Math.abs(tx.amount))}
+                        {tx.amount >= 0 ? "+" : "−"}${formatCurrency(Math.abs(tx.amount))}
                       </span>
                     </div>
                     {/* Row 2: date + badge + status icon (aligned to description) */}
@@ -468,7 +468,7 @@ export const TransactionHistory = ({ transactions, className, fixture }: Transac
                           "text-sm font-semibold font-mono",
                           tx.amount >= 0 ? "text-trading-green" : "text-trading-red"
                         )}>
-                          {tx.amount >= 0 ? "+" : ""}${formatCurrency(Math.abs(tx.amount))}
+                          {tx.amount >= 0 ? "+" : "−"}${formatCurrency(Math.abs(tx.amount))}
                         </span>
                       </div>
                       <div className="w-4 flex items-center justify-center shrink-0">
