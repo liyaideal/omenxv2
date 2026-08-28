@@ -852,16 +852,8 @@ const LiteContractTrade = () => {
     .replace(/\s*Winning shares pay \$1[^.]*\.\s*$/i, "")
     .trim();
 
-  const RuleCard = (
-    <div className="flex gap-3 rounded-2xl border border-border bg-card p-4 text-xs">
-      <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-      <p className="text-muted-foreground">
-        {ruleBody}{" "}
-        Winning shares pay <span className="font-mono text-foreground">$1</span> each,
-        credited automatically at settlement.
-      </p>
-    </div>
-  );
+  const RuleCard = <TradeRuleCard body={ruleBody} />;
+
 
   const heldNowWorth = heldPos ? heldPos.marginNum + heldPnlNum : 0;
 
