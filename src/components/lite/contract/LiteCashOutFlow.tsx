@@ -192,28 +192,34 @@ export const LiteCashOutFlow = ({
 
   if (isMobile) {
     return (
-      <MobileDrawer open={open} onOpenChange={onOpenChange} title="Cash out">
-        {body}
-        <MobileDrawerActions>
-          <Button variant="outline" className="w-full" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          {cta}
-        </MobileDrawerActions>
-      </MobileDrawer>
+      <>
+        <MobileDrawer open={open} onOpenChange={onOpenChange} title="Cash out">
+          {body}
+          <MobileDrawerActions>
+            <Button variant="outline" className="w-full" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            {cta}
+          </MobileDrawerActions>
+        </MobileDrawer>
+        {shareLayer}
+      </>
     );
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[380px]">
-        <DialogHeader>
-          <DialogTitle>Cash out</DialogTitle>
-        </DialogHeader>
-        {body}
-        <div className="pt-2">{cta}</div>
-      </DialogContent>
-    </Dialog>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[380px]">
+          <DialogHeader>
+            <DialogTitle>Cash out</DialogTitle>
+          </DialogHeader>
+          {body}
+          <div className="pt-2">{cta}</div>
+        </DialogContent>
+      </Dialog>
+      {shareLayer}
+    </>
   );
 };
 
