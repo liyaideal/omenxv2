@@ -14,19 +14,19 @@ const FROZEN_DATE = "2026-08-28T12:00:00.000Z";
 const WIN = {
   eventName: "Will NVIDIA close above $4T market cap this quarter?",
   sideLine: "Yes · 5× Boost",
-  pnl: 62.4,
-  pnlPercent: 128.9,
+  pnl: 13.89,
+  pnlPercent: 28.7,
   leftAmount: 48.41,
-  rightAmount: 110.81,
+  rightAmount: 62.3,
 };
 
 const LOSE = {
-  eventName: "Will NVIDIA close above $4T market cap this quarter?",
-  sideLine: "No · 3× Boost",
-  pnl: -31.2,
-  pnlPercent: -64.4,
-  leftAmount: 48.41,
-  rightAmount: 17.21,
+  eventName: "Ulsan vs Jeonbuk — who wins?",
+  sideLine: "ULS +1.5",
+  pnl: -18.2,
+  pnlPercent: -45.5,
+  leftAmount: 40,
+  rightAmount: 21.8,
 };
 
 const Poster = (state: LitePnlPosterState, f: typeof WIN, over?: Partial<typeof WIN>) => (
@@ -48,9 +48,16 @@ export const Sh1Preview = () => Poster("live", WIN);
 export const Sh2Preview = () => Poster("live", LOSE);
 export const Sh3Preview = () => Poster("cashed", WIN);
 export const Sh4Preview = () => Poster("cashed", LOSE);
-export const Sh5Preview = () => Poster("settled", WIN);
+export const Sh5Preview = () =>
+  Poster("settled", WIN, {
+    eventName: "Will Alibaba close higher today?",
+    sideLine: "Up · Standard",
+    pnl: 48.41,
+    pnlPercent: 100,
+    rightAmount: 96.82,
+  });
 export const Sh6Preview = () =>
-  Poster("settled", LOSE, { pnl: -48.41, pnlPercent: -100, rightAmount: 0 });
+  Poster("settled", LOSE, { pnl: -40, pnlPercent: -100, rightAmount: 0 });
 
 /* -------------------------------- SH-7 -------------------------------- */
 
@@ -61,7 +68,7 @@ export const Sh7Preview = () => (
       onClose={() => {}}
       title="Share Your Win 🏆"
       subtitle="Show off your trading success"
-      shareText="I just won +128.9% on OMENX! 🚀"
+      shareText="I just won +28.7% on OMENX! 🚀"
       shareUrl="https://omenxv2.lovable.app/trade?event=nvda-4t"
       fileName="omenx-share"
       isDataReady={false}
@@ -84,8 +91,8 @@ const POS = {
   isYes: true,
   boost: 5,
   putIn: 48.41,
-  nowWorth: 110.81,
-  profit: 62.4,
+  nowWorth: 62.3,
+  profit: 13.89,
   autoCloseText: "≈ 62¢",
 };
 
