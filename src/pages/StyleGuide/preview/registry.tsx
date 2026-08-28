@@ -69,7 +69,6 @@ export const previewRegistry: Record<string, Loader> = {
   "events-ev22": pick(events, "Ev22Preview"),
   "events-ev23": pick(events, "Ev23Preview"),
   "events-ev26": pick(events, "Ev26Preview"),
-  "events-ev27": pick(events, "Ev27Preview"),
 
   /* -------- Mobile header system -------- */
   "mobile-header-brand-top": pick(mobileHeader, "HeaderBrandTopPreview"),

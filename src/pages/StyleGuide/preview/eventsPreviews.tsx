@@ -1010,19 +1010,3 @@ export const Ev26Preview = () => (
   </Stage>
 );
 
-/* ---------------- ⑧ 页尾 Pro 切换条 ---------------- */
-
-export const Ev27Preview = () => (
-  <Stage>
-    <div className="mt-auto pt-6 text-center text-xs text-muted-foreground">
-      Want charts and advanced trading tools?{" "}
-      <button
-        type="button"
-        onClick={() => undefined}
-        className="text-primary underline underline-offset-2 hover:text-primary/80"
-      >
-        Switch to Pro mode
-      </button>
-    </div>
-  </Stage>
-);
