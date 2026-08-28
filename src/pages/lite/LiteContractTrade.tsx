@@ -1001,39 +1001,13 @@ const LiteContractTrade = () => {
   ) : null;
 
   const MoreMarkets = (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <div className="mb-3 text-sm font-medium">
-        {resolved ? "Still live" : "More markets"}
-      </div>
-      {more.length === 0 ? (
-        <EmptyState
-          variant="module"
-          bordered={false}
-          title="No other markets right now"
-          description="New markets show up here as they open."
-          className="px-0 py-1"
-        />
-      ) : (
-        <ul className="space-y-1">
-          {more.map((m) => (
-            <li key={m.id}>
-              <button
-                type="button"
-                onClick={() => navigate(`/trade?event=${m.id}`)}
-                className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition-colors hover:bg-muted/40"
-              >
-                <span className="flex-1 truncate text-xs">{m.name}</span>
-                <span className="font-mono text-xs font-semibold text-yes">
-                  {m.yesPct}%
-                </span>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+    <TradeMoreMarkets
+      title={resolved ? "Still live" : "More markets"}
+      rows={more.map((m) => ({ id: m.id, name: m.name, yesPct: m.yesPct }))}
+      onOpen={(id) => navigate(`/trade?event=${id}`)}
+    />
   );
+
 
   const winnerOpt = event.options.find((o) => o.is_winner) || yesOpt;
   const loserOpt = event.options.find((o) => o.id !== winnerOpt.id) || noOpt;
