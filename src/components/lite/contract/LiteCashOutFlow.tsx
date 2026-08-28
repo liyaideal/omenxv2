@@ -81,16 +81,12 @@ export const LiteCashOutFlow = ({
   forceBusy = false,
   onConfirmCashOut,
   shareContext,
+  onShareSnapshot,
 }: Props) => {
   const { closePosition, partialClosePosition } = usePositions();
   const [pct, setPct] = useState(defaultPct);
   const [busy, setBusy] = useState(false);
-  const [shareSnap, setShareSnap] = useState<{
-    pnl: number;
-    pnlPercent: number;
-    leftAmount: number;
-    rightAmount: number;
-  } | null>(null);
+  const [shareSnap, setShareSnap] = useState<CashOutShareSnapshot | null>(null);
 
   useEffect(() => {
     if (open) setPct(defaultPct);
@@ -121,12 +117,16 @@ export const LiteCashOutFlow = ({
       if (shareContext) {
         const costPart = fraction * shareContext.putIn;
         const pnl = payout - costPart;
-        setShareSnap({
+        const snap: CashOutShareSnapshot = {
           pnl,
           pnlPercent: costPart > 0 ? (pnl / costPart) * 100 : 0,
           leftAmount: costPart,
           rightAmount: payout,
-        });
+          context: shareContext,
+        };
+        // A full close unmounts this flow — let the page host the card.
+        if (onShareSnapshot) onShareSnapshot(snap);
+        else setShareSnap(snap);
       }
       onOpenChange(false);
       onDone();
