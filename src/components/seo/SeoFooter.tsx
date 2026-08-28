@@ -1,28 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { useSurface } from "@/contexts/SurfaceContext";
 
-const footerLinks = {
-  Platform: [
-    { label: "Events", path: "/events" },
-    { label: "Resolved", path: "/resolved" },
-    { label: "Leaderboard", path: "/leaderboard" },
-    { label: "Insights", path: "/insights" },
-  ],
-  "Learn More": [
-    { label: "About", path: "/about" },
-    { label: "FAQ", path: "/faq" },
-    { label: "Glossary", path: "/glossary" },
-    { label: "Methodology", path: "/methodology" },
-    { label: "Developers", path: "/developers" },
-    { label: "On-Chain Transparency", path: "/settings/transparency" },
-  ],
-  Legal: [
-    { label: "Privacy Policy", path: "/privacy-policy" },
-    { label: "Terms of Service", path: "/terms-of-service" },
-  ],
-};
+type FooterLink = { label: string; path: string };
 
 const socialLinks = [
   {
@@ -45,13 +27,19 @@ const socialLinks = [
   },
 ];
 
-const FooterAccordion = ({ heading, links, navigate }: { heading: string; links: { label: string; path: string }[]; navigate: (path: string) => void }) => {
+const COLUMN_HEADING =
+  "font-display text-[13px] font-bold uppercase tracking-[0.10em] text-foreground mb-3";
+const LINK_CLASS = "text-xs text-muted-foreground hover:text-foreground transition-colors";
+const SOCIAL_CLASS =
+  "w-[34px] h-[34px] inline-flex items-center justify-center rounded-full border border-border/30 text-muted-foreground hover:text-foreground hover:border-border transition-colors";
+
+const FooterAccordion = ({ heading, links }: { heading: string; links: FooterLink[] }) => {
   const [open, setOpen] = useState(false);
   return (
     <div className="border-b border-border/20">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between py-3 text-sm font-semibold text-foreground"
+        className="w-full flex items-center justify-between py-3 font-display text-[13px] font-bold uppercase tracking-[0.10em] text-foreground"
       >
         {heading}
         <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
@@ -60,12 +48,9 @@ const FooterAccordion = ({ heading, links, navigate }: { heading: string; links:
         <ul className="space-y-2">
           {links.map((link) => (
             <li key={link.path}>
-              <button
-                onClick={() => navigate(link.path)}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
+              <Link to={link.path} className={LINK_CLASS}>
                 {link.label}
-              </button>
+              </Link>
             </li>
           ))}
         </ul>
@@ -75,108 +60,119 @@ const FooterAccordion = ({ heading, links, navigate }: { heading: string; links:
 };
 
 export const SeoFooter = () => {
-  const navigate = useNavigate();
+  const { surface } = useSurface();
+  const isLite = surface === "lite";
+
+  const platformLinks: FooterLink[] = [
+    { label: "Events", path: "/events" },
+    // Lite has no Resolved page — the route bounces back to /events, so keep it Pro-only.
+    ...(isLite ? [] : [{ label: "Resolved", path: "/resolved" }]),
+    { label: "Leaderboard", path: "/leaderboard" },
+    { label: "Insights", path: "/insights" },
+  ];
+
+  const columns: { heading: string; links: FooterLink[] }[] = [
+    { heading: "Platform", links: platformLinks },
+    {
+      heading: "Learn",
+      links: [
+        { label: "About", path: "/about" },
+        { label: "FAQ", path: "/faq" },
+        { label: "Glossary", path: "/glossary" },
+        { label: "Methodology", path: "/methodology" },
+      ],
+    },
+    {
+      heading: "Resources",
+      links: [
+        { label: "Developers", path: "/developers" },
+        { label: "On-Chain Transparency", path: "/settings/transparency" },
+      ],
+    },
+    {
+      heading: "Legal",
+      links: [
+        { label: "Privacy Policy", path: "/privacy-policy" },
+        { label: "Terms of Service", path: "/terms-of-service" },
+      ],
+    },
+  ];
+
+  const socialRow = (
+    <div className="flex items-center gap-3">
+      {socialLinks.map((s) => (
+        <a
+          key={s.label}
+          href={s.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={s.label}
+          className={SOCIAL_CLASS}
+        >
+          {s.icon}
+        </a>
+      ))}
+    </div>
+  );
 
   return (
     <footer className="border-t border-border/30 bg-card/50 mt-auto">
       <div className="max-w-7xl mx-auto px-6 py-10">
         {/* Desktop layout */}
-        <div className="hidden md:grid grid-cols-5 gap-8">
-          {/* Brand */}
-          <div>
-            <button onClick={() => navigate("/")} className="mb-3">
-              <Logo size="xl" />
-            </button>
-            <p className="text-xs text-muted-foreground leading-relaxed max-w-[200px]">
+        <div className="hidden md:grid grid-cols-12 gap-8">
+          {/* Brand + Connect */}
+          <div className="col-span-4">
+            <Link to="/" className="inline-block mb-3">
+              <Logo size="xl" showMainnetBadge={false} />
+            </Link>
+            <p className="text-xs text-muted-foreground leading-relaxed max-w-[240px]">
               Trade on real-world event outcomes with transparent pricing and instant settlement.
             </p>
+            <div className="mt-4">{socialRow}</div>
+            <a href="mailto:support@omenx.com" className={`${LINK_CLASS} mt-3 inline-block`}>
+              support@omenx.com
+            </a>
           </div>
 
           {/* Link columns */}
-          {Object.entries(footerLinks).map(([heading, links]) => (
-            <div key={heading}>
-              <h4 className="text-sm font-semibold text-foreground mb-3">{heading}</h4>
+          {columns.map((col) => (
+            <div key={col.heading} className="col-span-2">
+              <h4 className={COLUMN_HEADING}>{col.heading}</h4>
               <ul className="space-y-2">
-                {links.map((link) => (
+                {col.links.map((link) => (
                   <li key={link.path}>
-                    <button
-                      onClick={() => navigate(link.path)}
-                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                    >
+                    <Link to={link.path} className={LINK_CLASS}>
                       {link.label}
-                    </button>
+                    </Link>
                   </li>
                 ))}
               </ul>
             </div>
           ))}
-
-          {/* Connect column */}
-          <div>
-            <h4 className="text-sm font-semibold text-foreground mb-3">Connect</h4>
-            <div className="flex items-center gap-3 mb-3">
-              {socialLinks.map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={s.label}
-                  className="p-2 rounded-lg bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                >
-                  {s.icon}
-                </a>
-              ))}
-            </div>
-            <a
-              href="mailto:support@omenx.com"
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              support@omenx.com
-            </a>
-          </div>
         </div>
 
         {/* Mobile layout */}
         <div className="md:hidden">
           {/* Brand */}
           <div className="mb-6">
-            <button onClick={() => navigate("/")} className="mb-2">
-              <Logo size="lg" />
-            </button>
+            <Link to="/" className="inline-block mb-2">
+              <Logo size="lg" showMainnetBadge={false} />
+            </Link>
             <p className="text-xs text-muted-foreground leading-relaxed">
               Trade on real-world event outcomes with transparent pricing and instant settlement.
             </p>
-          </div>
-
-          {/* Accordion links */}
-          {Object.entries(footerLinks).map(([heading, links]) => (
-            <FooterAccordion key={heading} heading={heading} links={links} navigate={navigate} />
-          ))}
-
-          {/* Connect - always visible */}
-          <div className="pt-4">
-            <div className="flex items-center gap-4">
-              {socialLinks.map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={s.label}
-                  className="p-2 rounded-lg bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                >
-                  {s.icon}
-                </a>
-              ))}
-              <a
-                href="mailto:support@omenx.com"
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
+            <div className="mt-4 flex items-center gap-4">
+              {socialRow}
+              <a href="mailto:support@omenx.com" className={LINK_CLASS}>
                 support@omenx.com
               </a>
             </div>
           </div>
+
+          {/* Accordion links */}
+          {columns.map((col) => (
+            <FooterAccordion key={col.heading} heading={col.heading} links={col.links} />
+          ))}
         </div>
 
         {/* Bottom bar */}
