@@ -43,7 +43,7 @@ const HEAD_CASES: SectionCase[] = [
     key: "trade-tr4",
     label: "TR-4 · settle note（TradeRuleCard）",
     note:
-      "逐字：`Settles on the NVDA closing market cap reported by the exchange on the last trading day of the quarter. Winning shares pay $1 each, credited automatically at settlement.`",
+      "逐字：`Settles on the NVDA closing market cap on the last trading day of the quarter. Winning shares pay $1 each, credited automatically at settlement.`",
     spec: [
       { state: "有 rules", when: "event.rules || event.description", visual: "ⓘ + 规则句 + 固定尾句 `Winning shares pay $1 each, credited automatically at settlement.`", source: "LiteContractTrade.ruleBody" },
       { state: "无 rules 兜底", when: "两者皆空", visual: "`Pays $1 a share to the winning side when this market resolves.` + 同尾句", source: "同上" },

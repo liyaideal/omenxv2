@@ -32,7 +32,7 @@ import { InReviewCard, IN_REVIEW_BADGE } from "@/components/lite/trade/InReviewC
 
 const TITLE = "Will NVIDIA close above $4T market cap this quarter?";
 const RULE_BODY =
-  "Settles on the NVDA closing market cap reported by the exchange on the last trading day of the quarter.";
+  "Settles on the NVDA closing market cap on the last trading day of the quarter.";
 
 const minsAgo = (m: number) => new Date(Date.now() - m * 60_000).toISOString();
 
