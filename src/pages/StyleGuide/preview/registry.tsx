@@ -34,6 +34,7 @@ const autoClose = () => import("./autoClosePreviews");
 const auth = () => import("./authPreviews");
 const events = () => import("./eventsPreviews");
 const trade = () => import("./tradePreviews");
+const spot = () => import("./spotPreviews");
 
 
 export const previewRegistry: Record<string, Loader> = {
@@ -175,6 +176,19 @@ export const previewRegistry: Record<string, Loader> = {
   "trade-tr22": pick(trade, "Tr22Preview"),
   "trade-tr23": pick(trade, "Tr23Preview"),
   "trade-tr24": pick(trade, "Tr24Preview"),
+
+  /* -------- Spot 现货轮（M2c · SP-1…SP-16；缺口 SP-1/2/9/15/16 见 SpotStatesSection）-------- */
+  "spot-sp3": pick(spot, "Sp3Preview"),
+  "spot-sp4": pick(spot, "Sp4Preview"),
+  "spot-sp5": pick(spot, "Sp5Preview"),
+  "spot-sp6": pick(spot, "Sp6Preview"),
+  "spot-sp7": pick(spot, "Sp7Preview"),
+  "spot-sp8": pick(spot, "Sp8Preview"),
+  "spot-sp10": pick(spot, "Sp10Preview"),
+  "spot-sp11": pick(spot, "Sp11Preview"),
+  "spot-sp12": pick(spot, "Sp12Preview"),
+  "spot-sp13": pick(spot, "Sp13Preview"),
+  "spot-sp14": pick(spot, "Sp14Preview"),
 
   /* -------- Sports game lines（旧节复用，M2c 并账时清理）-------- */
   "trade-sports-lines-default": pick(sportsLines, "SportsLinesDefaultPreview"),
