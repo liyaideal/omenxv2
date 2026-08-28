@@ -1003,6 +1003,22 @@ const LiteContractTrade = () => {
           ? legSideWord(cashOutTarget)
           : `${baseOptionLabel(cashOutTarget.option)} · ${legSideWord(cashOutTarget)}`
       }
+      shareContext={{
+        eventId: event.id,
+        eventName: event.name,
+        sideLine: [
+          hasSideLabels(cashOutTarget.event)
+            ? legSideWord(cashOutTarget)
+            : `${baseOptionLabel(cashOutTarget.option)} · ${legSideWord(cashOutTarget)}`,
+          boostSuffix(cashOutTarget.leverageNum),
+        ]
+          .filter(Boolean)
+          .join(" · "),
+        boost: cashOutTarget.leverageNum,
+        putIn: cashOutTarget.marginNum,
+        productLine: "futures",
+      }}
+      onShareSnapshot={setShareSnap}
       onDone={() => {
         setCashOutId(null);
         setRefetchTick((n) => n + 1);
