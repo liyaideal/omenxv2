@@ -55,7 +55,11 @@ import {
 } from "@/components/lite/contract/LiteTradeBlocks";
 
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
-import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
+import {
+  LiteCashOutFlow,
+  type CashOutShareSnapshot,
+} from "@/components/lite/contract/LiteCashOutFlow";
+import { LiteCashOutShareCard } from "@/components/lite/share/LiteShareFlow";
 import {
   LiteMarketActivity,
   useMarketActivityRows,
@@ -235,6 +239,8 @@ const LiteContractTrade = () => {
   // held leg the cash-out sheet targets.
   const [selectedOptId, setSelectedOptId] = useState<string | null>(null);
   const [cashOutId, setCashOutId] = useState<string | null>(null);
+  // Cash-out share card lives on the page: a full close unmounts the flow.
+  const [shareSnap, setShareSnap] = useState<CashOutShareSnapshot | null>(null);
   // Only the FIRST fetch flips the full-page loader; later refetches
   // (post-fill) swap data in place so the page never unmounts.
   const isFirstLoad = useRef(true);
@@ -886,6 +892,17 @@ const LiteContractTrade = () => {
       currentValue={heldNowWorth}
       sizeNum={heldPos.sizeNum}
       sideLabel={heldIsYes ? yesLabel : noLabel}
+      shareContext={{
+        eventId: event.id,
+        eventName: event.name,
+        sideLine: [heldIsYes ? yesLabel : noLabel, boostSuffix(heldPos.leverageNum)]
+          .filter(Boolean)
+          .join(" · "),
+        boost: heldPos.leverageNum,
+        putIn: heldPos.marginNum,
+        productLine: "futures",
+      }}
+      onShareSnapshot={setShareSnap}
       onDone={() => {
         setRefetchTick((n) => n + 1);
         refetchPositions();
@@ -986,6 +1003,22 @@ const LiteContractTrade = () => {
           ? legSideWord(cashOutTarget)
           : `${baseOptionLabel(cashOutTarget.option)} · ${legSideWord(cashOutTarget)}`
       }
+      shareContext={{
+        eventId: event.id,
+        eventName: event.name,
+        sideLine: [
+          hasSideLabels(cashOutTarget.event)
+            ? legSideWord(cashOutTarget)
+            : `${baseOptionLabel(cashOutTarget.option)} · ${legSideWord(cashOutTarget)}`,
+          boostSuffix(cashOutTarget.leverageNum),
+        ]
+          .filter(Boolean)
+          .join(" · "),
+        boost: cashOutTarget.leverageNum,
+        putIn: cashOutTarget.marginNum,
+        productLine: "futures",
+      }}
+      onShareSnapshot={setShareSnap}
       onDone={() => {
         setCashOutId(null);
         setRefetchTick((n) => n + 1);
@@ -1317,6 +1350,7 @@ const LiteContractTrade = () => {
           />
           {CashOut}
           {MultiCashOut}
+          <LiteCashOutShareCard snap={shareSnap} onClose={() => setShareSnap(null)} />
         </div>
       </TooltipProvider>
     );
@@ -1379,6 +1413,7 @@ const LiteContractTrade = () => {
         <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
         {CashOut}
         {MultiCashOut}
+        <LiteCashOutShareCard snap={shareSnap} onClose={() => setShareSnap(null)} />
       </div>
     </TooltipProvider>
   );

@@ -203,10 +203,11 @@ export const ShareModal = ({
           <button
             onClick={handleNativeShare}
             disabled={isGenerating}
-            className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+            style={{ backgroundColor: '#CFFF4A', color: '#0a0c14' }}
+            className="w-full flex items-center justify-center gap-2 p-3 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             <Send className="w-4 h-4" />
-            <span className="text-sm font-medium">More Options</span>
+            <span className="text-sm font-semibold">More Options</span>
           </button>
         )}
       </div>

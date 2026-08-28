@@ -11,8 +11,28 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { MobileDrawer, MobileDrawerActions } from "@/components/ui/mobile-drawer";
 import { usePositions } from "@/hooks/usePositions";
+import { LiteShareFlow } from "@/components/lite/share/LiteShareFlow";
 
 const CHIPS = [25, 50, 100];
+
+/** Everything the share card needs that the cash-out flow can't derive. */
+export interface CashOutShareContext {
+  eventId: string;
+  eventName: string;
+  sideLine: string;
+  boost: number;
+  putIn: number;
+  productLine: "futures" | "spot";
+}
+
+/** This realisation, frozen at confirm time. */
+export interface CashOutShareSnapshot {
+  pnl: number;
+  pnlPercent: number;
+  leftAmount: number;
+  rightAmount: number;
+  context: CashOutShareContext;
+}
 
 interface Props {
   open: boolean;
@@ -35,6 +55,16 @@ interface Props {
    * position close does not do. When absent, close/partialClose is used.
    */
   onConfirmCashOut?: (qty: number, fraction: number) => Promise<void>;
+  /**
+   * When supplied, a successful cash-out auto-opens the Lite share card with a
+   * snapshot of THIS realisation (never re-read from refreshed positions).
+   */
+  shareContext?: CashOutShareContext;
+  /**
+   * When the page can outlive this flow (a full close unmounts it), the page
+   * hosts the share card instead: the snapshot is handed up and rendered there.
+   */
+  onShareSnapshot?: (snap: CashOutShareSnapshot) => void;
 }
 
 export const LiteCashOutFlow = ({
@@ -50,10 +80,13 @@ export const LiteCashOutFlow = ({
   defaultPct = 100,
   forceBusy = false,
   onConfirmCashOut,
+  shareContext,
+  onShareSnapshot,
 }: Props) => {
   const { closePosition, partialClosePosition } = usePositions();
   const [pct, setPct] = useState(defaultPct);
   const [busy, setBusy] = useState(false);
+  const [shareSnap, setShareSnap] = useState<CashOutShareSnapshot | null>(null);
 
   useEffect(() => {
     if (open) setPct(defaultPct);
@@ -80,6 +113,21 @@ export const LiteCashOutFlow = ({
         await partialClosePosition(positionId, positionIndex, qty);
       }
       toast.success(`Cashed out ≈ $${payout.toFixed(2)}`);
+      // Snapshot the realisation BEFORE positions refresh.
+      if (shareContext) {
+        const costPart = fraction * shareContext.putIn;
+        const pnl = payout - costPart;
+        const snap: CashOutShareSnapshot = {
+          pnl,
+          pnlPercent: costPart > 0 ? (pnl / costPart) * 100 : 0,
+          leftAmount: costPart,
+          rightAmount: payout,
+          context: shareContext,
+        };
+        // A full close unmounts this flow — let the page host the card.
+        if (onShareSnapshot) onShareSnapshot(snap);
+        else setShareSnap(snap);
+      }
       onOpenChange(false);
       onDone();
     } catch (err) {
@@ -88,6 +136,24 @@ export const LiteCashOutFlow = ({
       setBusy(false);
     }
   };
+
+  const shareLayer =
+    shareContext && shareSnap ? (
+      <LiteShareFlow
+        open
+        onOpenChange={(o) => !o && setShareSnap(null)}
+        state="cashed"
+        eventId={shareContext.eventId}
+        eventName={shareContext.eventName}
+        sideLine={shareContext.sideLine}
+        pnl={shareSnap.pnl}
+        pnlPercent={shareSnap.pnlPercent}
+        leftAmount={shareSnap.leftAmount}
+        rightAmount={shareSnap.rightAmount}
+        segment={shareContext.productLine === "spot" ? "standard" : "boost"}
+        dateISO={new Date().toISOString()}
+      />
+    ) : null;
 
   const body = (
     <div className="space-y-4">
@@ -140,28 +206,34 @@ export const LiteCashOutFlow = ({
 
   if (isMobile) {
     return (
-      <MobileDrawer open={open} onOpenChange={onOpenChange} title="Cash out">
-        {body}
-        <MobileDrawerActions>
-          <Button variant="outline" className="w-full" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          {cta}
-        </MobileDrawerActions>
-      </MobileDrawer>
+      <>
+        <MobileDrawer open={open} onOpenChange={onOpenChange} title="Cash out">
+          {body}
+          <MobileDrawerActions>
+            <Button variant="outline" className="w-full" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            {cta}
+          </MobileDrawerActions>
+        </MobileDrawer>
+        {shareLayer}
+      </>
     );
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[380px]">
-        <DialogHeader>
-          <DialogTitle>Cash out</DialogTitle>
-        </DialogHeader>
-        {body}
-        <div className="pt-2">{cta}</div>
-      </DialogContent>
-    </Dialog>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[380px]">
+          <DialogHeader>
+            <DialogTitle>Cash out</DialogTitle>
+          </DialogHeader>
+          {body}
+          <div className="pt-2">{cta}</div>
+        </DialogContent>
+      </Dialog>
+      {shareLayer}
+    </>
   );
 };
 
