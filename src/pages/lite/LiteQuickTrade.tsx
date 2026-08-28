@@ -39,7 +39,7 @@ import {
   LiteMarketActivity,
   useMarketActivityRows,
 } from "@/components/lite/contract/LiteMarketActivity";
-import { AssetAvatar } from "@/components/lite/AssetAvatar";
+
 import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
 import {
   SpotSentimentBar,
