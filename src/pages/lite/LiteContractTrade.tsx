@@ -1350,6 +1350,7 @@ const LiteContractTrade = () => {
           />
           {CashOut}
           {MultiCashOut}
+          <LiteCashOutShareCard snap={shareSnap} onClose={() => setShareSnap(null)} />
         </div>
       </TooltipProvider>
     );
