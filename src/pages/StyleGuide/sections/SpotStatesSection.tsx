@@ -181,46 +181,41 @@ const SETTLE_CASES: SectionCase[] = [
   },
 ];
 
-/* ---------------- 缺口表与并账表 ---------------- */
+/* ---------------- ⑥ 侧栏与抽屉（SP-15 / SP-16） ---------------- */
+
+const RAIL_CASES: SectionCase[] = [
+  {
+    key: "spot-sp15",
+    label: "SP-15 · 右栏 rail 两变体（SpotSideRailCrypto / SpotSideRailStocks + 空态）",
+    note:
+      "逐字标题：`Also live now`（crypto）与 `More stocks closing today`（stocks）。crypto 行 = 30px 圆形 AssetAvatar + `Ethereum · 15M round` + 右侧 `Up 50%`（#33D6FF）；stocks 行 = ticker 方牌 + `Alibaba — close higher?` + `54%` + ChevronRight。rows 由 props 注入，useOtherStocks fetch 留在页面侧。",
+    spec: [
+      { state: "crypto 有行", when: "rows.length > 0", visual: "Also live now 卡 + 每行 Up N%（Pulse Blue）", source: "SpotSideRailCrypto" },
+      { state: "crypto 空", when: "rows.length === 0", visual: "整卡不渲染（返回 null），不留空壳", source: "SpotSideRailCrypto" },
+      { state: "stocks 有行", when: "rows.length > 0", visual: "ul 行列表，Up% 走 text-yes", source: "SpotSideRailStocks" },
+      { state: "stocks 空", when: "rows.length === 0", visual: "卡壳保留 + EmptyState `No other markets right now` / `More stocks open here at the start of each trading day.`", source: "EmptyState variant=module" },
+    ],
+  },
+];
+
+const DRAWER_CASES: SectionCase[] = [
+  {
+    key: "spot-sp16",
+    label: "SP-16 · 移动 buy-drawer 抽屉头（SpotBuyDrawerHeader · 仅移动）",
+    note:
+      "逐字：side 徽标 `Up` / `Down` + 标题 `Buy BTC 15M`（crypto）或 `Buy 9988.HK`（stocks），第二行 `Settles in 02:41 · 55% chance`（crypto）/ `Closes in 04:12:37 · 46% chance`（stocks）。抽屉正文 = LiteOrderPanel variant=mobile，已由 SP-10…12 的 375 帧覆盖，本 case 只演头部。",
+    spec: [
+      { state: "Up 侧", when: "isYesSide === true", visual: "徽标 bg-yes/14 text-yes", source: "SpotBuyDrawerHeader" },
+      { state: "Down 侧", when: "isYesSide === false", visual: "徽标 bg-no/14 text-no", source: "同上" },
+      { state: "lead 文案", when: "crypto 轮 / stocks 日内", visual: "`Settles in` / `Closes in` 由页面注入，组件不判定", source: "leadText prop" },
+    ],
+  },
+];
+
+/* ---------------- 附注与并账表 ---------------- */
 
 const Gaps = () => (
   <div className="space-y-3">
-    <Table
-      title="缺口回报 · 无法在「生产零改动」前提下挂载的 5 个 case"
-      head={["case", "目标区块", "为什么注不进", "解法（待批）"]}
-      rows={[
-        [
-          "SP-1 页头 crypto 轮",
-          "LiteQuickTrade 顶部 coin 头 + 现价 + 今日% + Vol + ROUND 档位盘",
-          "整块是页面组件内联 JSX（依赖 useQuickRounds / useSecondTick / COIN_META 局部状态），没有导出组件",
-          "照 LiteTradeBlocks 的先例抽出 SpotHeadBlocks.tsx（纯展示、props 化），属生产改动，需单独批",
-        ],
-        [
-          "SP-2 页头 stocks 日内",
-          "LiteSpotTrade QuestionBlock：`STOCKS · DAILY UP/DOWN` + `Price to beat` + `TODAY 09:30–16:00`",
-          "同上，内联 JSX 且与 usStockSessions 派生量耦合",
-          "同上，并入 SpotHeadBlocks.tsx",
-        ],
-        [
-          "SP-9 YOUR PICK 卡",
-          "LiteQuickTrade 的 per-round 提问卡（题面 + Up/Down chips）",
-          "卡壳内联；只有内部的 SideButton 是共享件",
-          "抽 SpotPickCard（题面 + 两 chip），或维持旧 LiteSpotSection 的等价演示直至抽件",
-        ],
-        [
-          "SP-15 右栏 rail 两变体",
-          "`Also live now`（crypto）/ `More stocks closing today`（stocks）",
-          "两处各自内联，且 stocks 侧数据来自页面内 useOtherStocks（运行时 fetch）",
-          "抽 SpotSideRail（rows 由 props 注入），数据留在页面侧",
-        ],
-        [
-          "SP-16 移动 buy-drawer 头",
-          "MobileDrawer 内的抽屉头（side 徽标 + `Buy {ticker} {tf}` + 剩余时间 · 概率）",
-          "抽屉头内联在页面 JSX 中；抽屉正文（LiteOrderPanel variant=mobile）已由 SP-10…12 的 375 帧覆盖",
-          "抽 SpotBuyDrawerHeader；在此之前 SP-10…12 的移动帧即抽屉正文真身",
-        ],
-      ]}
-    />
     <Table
       title="附注 · 轮次池与 loading 判定"
       head={["项", "结论"]}
@@ -233,10 +228,15 @@ const Gaps = () => (
           "loading 骨架（SP-17 判定）",
           "不新增 SP-17。LiteSpotTrade 与 LiteQuickTrade 的首载态都不是分块骨架，而是整屏居中 Loader2 —— 与合约页 TR-19 同一实现，故复用 TR-19，不另立 case。",
         ],
+        [
+          "M2d 抽件（缺口表撤除）",
+          "SpotHeadBlocks.tsx 抽出 SpotCryptoHead / SpotRoundSwitcher / SpotStockHead / SpotPickCard / SpotSideRailCrypto / SpotSideRailStocks / SpotBuyDrawerHeader，纯搬移 + props 化；派生量（useQuickRounds / useSecondTick / usStockSessions / useOtherStocks）留在页面侧。SP-1 / SP-2 / SP-9 / SP-15 / SP-16 据此落案，原缺口表删除。",
+        ],
       ]}
     />
   </div>
 );
+
 
 const Ledger = () => (
   <div className="space-y-3">
