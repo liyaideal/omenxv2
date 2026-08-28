@@ -1131,7 +1131,7 @@ Active（`MarketCard`）和 Resolved（`ResolvedEventCard`）移动端卡片 **�
 
 ## 16.5 全站统一 Footer 规范（Site-wide Footer）
 
-所有内容页、营销页、详情页（包括但不限于 `/hedge`、`/about`、`/faq`、`/transparency`、`/glossary`、`/methodology`、`/developers`、`/privacy-policy`、`/terms-of-service`）**必须** 使用统一的 `<SeoFooter />` 组件，禁止任何页面创建自定义 footer。
+所有内容页、营销页、详情页与 Lite 公开页（`/`、`/events`、`/trade`、`/spot`、`/portfolio`、`/wallet`、`/rewards`、`/leaderboard`、`/settings/transparency`、`/hedge`、`/about`、`/faq`、`/glossary`、`/methodology`、`/developers`、`/privacy-policy`、`/terms-of-service`）**必须** 使用统一的 `<SeoFooter />` 组件，禁止任何页面创建自定义 footer。`/style-guide` 与 redeem 全屏态不挂。
 
 ### 唯一 Footer 组件
 
@@ -1142,29 +1142,37 @@ Active（`MarketCard`）和 Resolved（`ResolvedEventCard`）移动端卡片 **�
 | 容器样式 | `border-t border-border/30 bg-card/50 mt-auto` |
 | 内容容器 | `max-w-7xl mx-auto px-6 py-10` |
 
-### 桌面端布局（5 列网格）
+### 栏位结构（桌面 12 栅格）
 
 ```
-┌──────────┬──────────┬──────────┬──────────┬──────────┐
-│  Brand   │ Platform │  Learn   │  Legal   │ Connect  │
-│ Logo XL  │  Events  │   More   │ Privacy  │  X / DC  │
-│ + Desc   │ Resolved │ About …  │ Terms    │ Email    │
-└──────────┴──────────┴──────────┴──────────┴──────────┘
+┌──────────────────┬──────────┬──────────┬───────────┬────────┐
+│ Brand (col-4)    │ Platform │  Learn   │ Resources │ Legal  │
+│ Logo(无徽章)     │  col-2   │  col-2   │   col-2   │ col-2  │
+│ tagline / 社交   │          │          │           │        │
+│ pill / email     │          │          │           │        │
+└──────────────────┴──────────┴──────────┴───────────┴────────┘
 ```
 
-| 列 | 内容 |
-|----|------|
-| Brand | `<Logo size="xl" />` + 60 字以内描述（`max-w-[200px] text-xs text-muted-foreground`） |
-| Platform | Events / Resolved / Leaderboard / Insights |
-| Learn More | About / FAQ / Glossary / Methodology / On-Chain Transparency |
+| 栏位 | 内容 |
+|------|------|
+| Brand | `<Logo size="xl" showMainnetBadge={false} />` + tagline + 社交 pill（X / Discord）+ `support@omenx.com`（Connect 已并入品牌区，不再独立成列） |
+| Platform | Events / Leaderboard / Insights；**Resolved 仅 Pro 面渲染**（Lite 无 Resolved 页） |
+| Learn | About / FAQ / Glossary / Methodology |
+| Resources | Developers / On-Chain Transparency |
 | Legal | Privacy Policy / Terms of Service |
-| Connect | X + Discord 图标 + `support@omenx.com` |
+
+### 视觉语法
+
+| 元素 | 规范 |
+|------|------|
+| 栏标题 | `font-display text-[13px] font-bold uppercase tracking-[0.10em] text-foreground` |
+| 链接 | `text-xs text-muted-foreground hover:text-foreground transition-colors` |
+| 社交按钮 | pill 描边 `w-[34px] h-[34px] rounded-full border border-border/30`，hover 提亮描边与图标 |
 
 ### 移动端布局
 
-- Brand 区始终常驻（顶部）
-- 链接列折叠为手风琴（Accordion，`<FooterAccordion />`），点击展开
-- Connect 区（社交图标 + Email）始终展示，不折叠
+- Brand 区始终常驻（顶部），社交 pill + email 不折叠
+- 链接列折叠为手风琴（`<FooterAccordion />`）
 
 ### 官方账号清单（不允许任何页面自定义）
 
@@ -1174,21 +1182,37 @@ Active（`MarketCard`）和 Resolved（`ResolvedEventCard`）移动端卡片 **�
 | Discord | `https://discord.gg/qXssm2crf9` |
 | Email | `support@omenx.com` |
 
-### 底部栏
+### 底栏三行（牌照合规 FROZEN）
 
 ```
+OmenX is operated by Nuvion Holdings Ltd., a company incorporated in the Cayman Islands.
 © 2026 OmenX. All rights reserved.
 For informational purposes only. Not financial advice. Trading involves risk of loss.
 ```
 
-样式：`border-t border-border/20 mt-8 pt-6 flex flex-col items-center gap-1.5 text-center`
+**牌照合规 FROZEN：文案与行序不经 CPO 批准不得改动。** 实体声明行为普通可见 HTML 文本，与 © 行同级 `text-xs text-muted-foreground`（不得降透明度、不得折叠、不得懒渲染）。容器样式 `border-t border-border/20 mt-8 pt-6 flex flex-col items-center gap-1.5 text-center`。
+
+### 技术注记
+
+- 内链一律使用 react-router `<Link to>`（真锚点，SEO 可抓取）；禁止 `button + navigate`。
+- 移动壳 `App.tsx` 的 `max-w-md mx-auto` 会限宽子元素，壳上对 footer 做了 `w-screen` breakout（`[&_footer]:relative [&_footer]:left-1/2 [&_footer]:w-screen [&_footer]:-translate-x-1/2`）。因此 **footer 必须挂在页面根级**，让位间距（BottomNav / sticky bar）放在 footer 外层 wrapper 上，wrapper 不得带水平 padding/margin。
+
+### 附注 · 切面（Lite / Pro）入口口径
+
+| 场景 | 入口 |
+|------|------|
+| Guest | 只见 Lite，零 Pro 入口（有意决策，footer 不再放 Switch to Pro） |
+| 登录 · 桌面 | 头像下拉内切换 |
+| 登录 · 移动 | BottomNav「Me」抽屉，位于 Settings 与 Help 之间 |
+| Pro → Lite | 镜像行保留 |
 
 ### 禁止
 
 - ❌ 任何页面创建自定义 `<Footer>` / `<XxxFooter>` 组件
-- ❌ 在 footer 中使用未列入官方账号的社交链接（例如 `x.com/omenxfi`、Telegram 个人账号等）
-- ❌ 跳过版权行或风险提示行
-- ❌ 修改 5 列结构（必须 Brand + Platform + Learn More + Legal + Connect）
+- ❌ 在 footer 中使用未列入官方账号的社交链接
+- ❌ 跳过或改写底栏三行中的任意一行
+- ❌ 在 Lite 面渲染 Resolved 链接，或在 footer 放 Switch to Pro
+- ❌ 把 footer 挂进带水平 padding / max-width 的容器里
 
 ---
 
