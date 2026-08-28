@@ -40,6 +40,7 @@ export const LitePositionCard = ({
   autoCloseHot = false,
   compact = false,
   cashOutDisabledText,
+  voucherTag = false,
   onCashOut,
 }: Props) => (
 
@@ -50,6 +51,12 @@ export const LitePositionCard = ({
         <span className="text-foreground">
           {" · "}
           <span className="font-mono">{boost}×</span> Boost
+        </span>
+      )}
+      {voucherTag && (
+        <span className="text-foreground">
+          {" · "}
+          <span style={{ color: "#CFFF4A" }}>Voucher</span>
         </span>
       )}
     </div>
