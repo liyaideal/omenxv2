@@ -173,7 +173,7 @@ const TAIL_CASES: SectionCase[] = [
     key: "trade-tr15",
     label: "TR-15 · settled 终态 · 未持有（LiteOutcomeCard）",
     note:
-      "逐字：`You didn't hold this market.` + summary 句 + CTA `Browse live markets →`。",
+      "逐字：`You didn't hold this market.` + summary 句 + CTA `Browse live markets →`。终态页的 Market activity 若无历史成交行则整个模块不渲染（见 TR-14 settled 空态行）。",
     spec: [
       { state: "resolved", when: "event.is_resolved === true", visual: "下单面板整体撤下，页顶换成结果卡；移动底栏 CTA 变 `View in Portfolio →`", source: "LiteContractTrade resolved 分支" },
       { state: "未持有", when: "heldPos == null", visual: "虚线框 `You didn't hold this market.` + Browse CTA", source: "LiteOutcomeCard 非 holding 分支" },
