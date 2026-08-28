@@ -588,14 +588,17 @@ const LiteSpotTrade = () => {
     />
   ) : null;
 
-  const MarketActivity = (
-    <LiteMarketActivity
-      rows={activity}
-      yesLabel={yesLabel}
-      noLabel={noLabel}
-      maxRows={isMobile ? 4 : 8}
-    />
-  );
+  // Settled + empty ledger → drop the module entirely (no one can buy in any
+  // more). Settled pages with historic rows keep it.
+  const MarketActivity =
+    resolved && activity.length === 0 ? null : (
+      <LiteMarketActivity
+        rows={activity}
+        yesLabel={yesLabel}
+        noLabel={noLabel}
+        maxRows={isMobile ? 4 : 8}
+      />
+    );
 
   const MoreStocks = (
     <SpotSideRailStocks
