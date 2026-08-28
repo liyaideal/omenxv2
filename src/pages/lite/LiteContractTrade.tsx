@@ -886,6 +886,17 @@ const LiteContractTrade = () => {
       currentValue={heldNowWorth}
       sizeNum={heldPos.sizeNum}
       sideLabel={heldIsYes ? yesLabel : noLabel}
+      shareContext={{
+        eventId: event.id,
+        eventName: event.name,
+        sideLine: [heldIsYes ? yesLabel : noLabel, boostSuffix(heldPos.leverageNum)]
+          .filter(Boolean)
+          .join(" · "),
+        boost: heldPos.leverageNum,
+        putIn: heldPos.marginNum,
+        productLine: "futures",
+      }}
+      onShareSnapshot={setShareSnap}
       onDone={() => {
         setRefetchTick((n) => n + 1);
         refetchPositions();
