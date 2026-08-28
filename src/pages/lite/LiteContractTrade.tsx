@@ -1413,6 +1413,7 @@ const LiteContractTrade = () => {
         <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
         {CashOut}
         {MultiCashOut}
+        <LiteCashOutShareCard snap={shareSnap} onClose={() => setShareSnap(null)} />
       </div>
     </TooltipProvider>
   );
