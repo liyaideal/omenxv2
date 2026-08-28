@@ -284,8 +284,10 @@ export const TransactionHistory = ({ transactions, className, fixture }: Transac
       // Pro-only tx types; not surfaced on Lite
       case 'cross_chain_in': return <ArrowLeftRight className="w-5 h-5 text-blue-400" />;
       case 'cross_chain_out': return <ArrowLeftRight className="w-5 h-5 text-orange-400" />;
-      case 'fiat_buy': return <Banknote className="w-5 h-5 text-purple-400" />;
+      // E4 · fiat_buy renders isomorphic to a crypto deposit row (green in-arrow).
+      case 'fiat_buy': return <ArrowDownLeft className="w-5 h-5 text-trading-green" />;
       case 'fiat_sell': return <Banknote className="w-5 h-5 text-pink-400" />;
+
       case 'transfer_to_spot':
       case 'transfer_to_futures':
         return <ArrowLeftRight className="w-5 h-5 text-primary" />;
