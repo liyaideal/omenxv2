@@ -484,36 +484,22 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
     />
   );
 
-  const AlsoLiveNow =
-    alsoLive.length === 0 ? null : (
-      <div className="rounded-2xl border border-border bg-card p-4">
-        <div className="mb-3 text-sm font-medium">Also live now</div>
-        <div className="space-y-2">
-          {alsoLive.map(({ coin: c, ev }) => {
-            const o = upOptionOf(ev);
-            const p = o ? Math.round(o.price * 100) : 50;
-            return (
-              <button
-                key={c}
-                type="button"
-                onClick={() =>
-                  navigate(`/spot?event=${encodeURIComponent(ev!.id)}`, { replace: true })
-                }
-                className="flex w-full items-center gap-2 rounded-lg px-1 py-1.5 text-left hover:bg-muted/40"
-              >
-                <AssetAvatar symbol={COIN_META[c].ticker} kind="crypto" size={30} />
-                <span className="flex-1 text-xs text-foreground">
-                  {COIN_META[c].name} · {tf.toUpperCase()} round
-                </span>
-                <span className="font-display text-xs font-bold" style={{ color: "#33D6FF" }}>
-                  Up {p}%
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    );
+  const AlsoLiveNow = (
+    <SpotSideRailCrypto
+      rows={alsoLive.map(({ coin: c, ev }) => {
+        const o = upOptionOf(ev);
+        return {
+          key: c,
+          symbol: COIN_META[c].ticker,
+          label: `${COIN_META[c].name} · ${tf.toUpperCase()} round`,
+          upPct: o ? Math.round(o.price * 100) : 50,
+          onClick: () =>
+            navigate(`/spot?event=${encodeURIComponent(ev!.id)}`, { replace: true }),
+        };
+      })}
+    />
+  );
+
 
   const heldIsUp = heldPos ? heldPos.optionId === up.id : false;
   const Position = heldPos ? (
