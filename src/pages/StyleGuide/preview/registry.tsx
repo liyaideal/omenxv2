@@ -150,7 +150,7 @@ export const previewRegistry: Record<string, Loader> = {
   "lite-events-loading": pick(liteEvents, "LiteEventsLoadingPreview"),
   "lite-events-loading-catalogue": pick(liteEvents, "LiteEventsCatalogueLoadingPreview"),
 
-  /* -------- Trade 交易页（M2a TR-1…TR-16）-------- */
+  /* -------- Trade 交易页（M2b · mock11 终版 TR-1…TR-24）-------- */
   "trade-tr1": pick(trade, "Tr1Preview"),
   "trade-tr2": pick(trade, "Tr2Preview"),
   "trade-tr3": pick(trade, "Tr3Preview"),
@@ -161,12 +161,22 @@ export const previewRegistry: Record<string, Loader> = {
   "trade-tr8": pick(trade, "Tr8Preview"),
   "trade-tr9": pick(trade, "Tr9Preview"),
   "trade-tr10": pick(trade, "Tr10Preview"),
+  "trade-tr11": pick(trade, "Tr11Preview"),
+  "trade-tr12": pick(trade, "Tr12Preview"),
   "trade-tr13": pick(trade, "Tr13Preview"),
   "trade-tr14": pick(trade, "Tr14Preview"),
   "trade-tr15": pick(trade, "Tr15Preview"),
   "trade-tr16": pick(trade, "Tr16Preview"),
+  "trade-tr17": pick(trade, "Tr17Preview"),
+  "trade-tr18": pick(trade, "Tr18Preview"),
+  "trade-tr19": pick(trade, "Tr19Preview"),
+  "trade-tr20": pick(trade, "Tr20Preview"),
+  "trade-tr21": pick(trade, "Tr21Preview"),
+  "trade-tr22": pick(trade, "Tr22Preview"),
+  "trade-tr23": pick(trade, "Tr23Preview"),
+  "trade-tr24": pick(trade, "Tr24Preview"),
 
-  /* -------- Sports game lines（TR-11 / TR-12 复用）-------- */
+  /* -------- Sports game lines（旧节复用，M2c 并账时清理）-------- */
   "trade-sports-lines-default": pick(sportsLines, "SportsLinesDefaultPreview"),
   "trade-sports-lines-handicap-selected": pick(sportsLines, "SportsLinesHandicapSelectedPreview"),
   "trade-sports-lines-scrubbed": pick(sportsLines, "SportsLinesScrubbedPreview"),
