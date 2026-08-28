@@ -32,9 +32,13 @@ export const CATEGORY_STYLES = {
   // Blue - Sports & competitions
   Sports: { class: "bg-blue-500/20 text-blue-400", hsl: "210 90% 55%", variant: "sports" as const, cardBg: "/card-bg/sports.jpg" },
   
+  // Teal - Macro / economy (DB enum `macro`; trade page labels it "Macro")
+  Macro: { class: "bg-teal-500/20 text-teal-400", hsl: "172 75% 45%", variant: "general" as const, cardBg: null },
+  
   // Gray - Generic/fallback
   Market: { class: "bg-muted text-foreground", hsl: "222 25% 55%", variant: "general" as const, cardBg: null },
   General: { class: "bg-muted text-foreground", hsl: "222 25% 55%", variant: "general" as const, cardBg: null },
+
 } as const;
 
 export type CategoryType = keyof typeof CATEGORY_STYLES;
