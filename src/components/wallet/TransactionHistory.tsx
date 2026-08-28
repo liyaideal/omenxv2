@@ -186,7 +186,17 @@ export const TransactionHistory = ({ transactions, className, fixture }: Transac
     if (tx.type === 'platform_credit') {
       description = description.replace(/trial (balance|bonus)/gi, 'Platform credit');
     }
-    
+
+    // E1 · win/lose is decided by the NET AMOUNT SIGN, never by the tx type.
+    // Legacy rows carry a "· Won" / "· Lost" suffix written from the type at
+    // settlement time; historical mismatches (type=trade_loss with a positive
+    // net) must not render "Lost". Rewrite the trailing verdict word from the
+    // sign so the row, its amount colour and its wording always agree.
+    if (tx.type === 'trade_profit' || tx.type === 'trade_loss') {
+      const verdict = tx.amount >= 0 ? 'Won' : 'Lost';
+      description = description.replace(/(·|-|—)\s*(won|lost)\s*$/i, `· ${verdict}`);
+    }
+
     // Directional wording for the two transfer legs
     if (tx.type === 'transfer_to_futures') {
       return tx.account === 'futures' ? 'Transfer from Standard' : 'Transfer to Boost';
@@ -194,6 +204,7 @@ export const TransactionHistory = ({ transactions, className, fixture }: Transac
     if (tx.type === 'transfer_to_spot') {
       return tx.account === 'spot' ? 'Transfer from Boost' : 'Transfer to Standard';
     }
+
 
     return description;
   };
