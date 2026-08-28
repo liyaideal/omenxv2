@@ -26,13 +26,20 @@ import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
 import { useHeadingScrolledOut } from "@/hooks/useHeadingScrolledOut";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
-import { SideButton } from "@/components/lite/shared/SideButton";
+import {
+  SpotBuyDrawerHeader,
+  SpotCryptoHead,
+  SpotPickCard,
+  SpotRoundSwitcher,
+  SpotSideRailCrypto,
+} from "@/components/lite/trade/SpotHeadBlocks";
+
 import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
 import {
   LiteMarketActivity,
   useMarketActivityRows,
 } from "@/components/lite/contract/LiteMarketActivity";
-import { AssetAvatar } from "@/components/lite/AssetAvatar";
+
 import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
 import {
   SpotSentimentBar,
@@ -56,16 +63,10 @@ import {
   useSecondTick,
 } from "@/components/lite/intraday/intradayData";
 import { cn } from "@/lib/utils";
-import { pctColor } from "@/components/lite/shared/primitives";
 
 type Side = "yes" | "no";
 
-const MICRO: React.CSSProperties = {
-  fontSize: 9.5,
-  letterSpacing: ".1em",
-  textTransform: "uppercase",
-  color: "#6B7280",
-};
+
 
 const utcHHMM = (d: Date) =>
   new Intl.DateTimeFormat("en-GB", {
@@ -275,75 +276,25 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
 
   // ---------- blocks ----------
   const Head = (
-    <div>
-      <div style={{ ...MICRO, fontSize: 10.5 }}>Crypto · Intraday</div>
-      <div className="mt-2 flex items-center gap-[10px]">
-        <AssetAvatar symbol={meta.ticker} kind="crypto" size={34} />
-        <h1
-          ref={headingRef as unknown as React.Ref<HTMLHeadingElement>}
-          className="font-display font-bold leading-[1.05] tracking-[-0.02em]"
-          style={{ fontSize: isMobile ? 24 : 32 }}
-        >
-          {event.name}
-        </h1>
-      </div>
-      <div
-        className="font-display mt-2 flex flex-wrap items-center gap-x-[10px]"
-        style={{ fontSize: 12.5, color: "#9AA1AC" }}
-      >
-        <span style={{ color: "#F2F3F5", fontWeight: 700 }}>
-          {price != null
-            ? `$${price.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
-            : "—"}
-        </span>
-        <span style={{ color: "#6B7280" }}>·</span>
-        <span style={{ color: pctColor(pct) }}>
-          {pct >= 0 ? "▲ +" : "▼ "}
-          {pct.toFixed(2)}% today
-        </span>
-        <span style={{ color: "#6B7280" }}>·</span>
-        <span>Vol {compactUsd(event.volume)}</span>
-      </div>
-    </div>
+    <SpotCryptoHead
+      ticker={meta.ticker}
+      title={event.name}
+      headingRef={headingRef as unknown as React.Ref<HTMLHeadingElement>}
+      isMobile={!!isMobile}
+      price={price}
+      pct={pct}
+      volText={compactUsd(event.volume)}
+    />
   );
 
   const RoundSwitcher = (
-    <div style={{ marginTop: 16 }}>
-      <div style={MICRO}>Round</div>
-      <div
-        className="mt-1.5 inline-flex items-center"
-        style={{
-          background: "#101216",
-          border: "1px solid #2B2F38",
-          borderRadius: 11,
-          padding: 3,
-          gap: 2,
-        }}
-      >
-        {TIMEFRAMES.map((t) => {
-          const active = t.id === tf;
-          return (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => switchTf(t.id)}
-              className="font-display transition-colors"
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                padding: "5px 13px",
-                borderRadius: 8,
-                background: active ? "#FFFFFF" : "transparent",
-                color: active ? "#0A0B0D" : "#9AA1AC",
-              }}
-            >
-              {t.label}
-            </button>
-          );
-        })}
-      </div>
-    </div>
+    <SpotRoundSwitcher
+      items={TIMEFRAMES}
+      activeId={tf}
+      onSelect={(id) => switchTf(id as Timeframe)}
+    />
   );
+
 
   const Tape = (
     <RoundTape
@@ -414,39 +365,18 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   );
 
   const PickCard = (
-    <div
-      style={{
-        background: "#131519",
-        border: "1px solid rgba(255,255,255,.06)",
-        borderRadius: 15,
-        padding: 14,
-      }}
-    >
-      <div style={MICRO}>Your pick · {tf.toUpperCase()} round</div>
-      <div className="font-display" style={{ fontSize: 14.5, fontWeight: 700, marginTop: 6 }}>
-        {meta.ticker} higher than ${openText} at {settlesAt}?
-      </div>
-      {/* Side selection uses the ONE shared SideButton (compact density). */}
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        <SideButton
-          active={side === "yes"}
-          tone="yes"
-          label="Up"
-          price={upPrice}
-          size="compact"
-          onClick={() => setSide("yes")}
-        />
-        <SideButton
-          active={side === "no"}
-          tone="no"
-          label="Down"
-          price={downPrice}
-          size="compact"
-          onClick={() => setSide("no")}
-        />
-      </div>
-    </div>
+    <SpotPickCard
+      microText={`Your pick · ${tf.toUpperCase()} round`}
+      question={`${meta.ticker} higher than $${openText} at ${settlesAt}?`}
+      yesLabel="Up"
+      noLabel="Down"
+      yesPrice={upPrice}
+      noPrice={downPrice}
+      side={side}
+      onSideChange={setSide}
+    />
   );
+
 
   const CashOut = heldPos ? (
     <LiteCashOutFlow
@@ -484,36 +414,22 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
     />
   );
 
-  const AlsoLiveNow =
-    alsoLive.length === 0 ? null : (
-      <div className="rounded-2xl border border-border bg-card p-4">
-        <div className="mb-3 text-sm font-medium">Also live now</div>
-        <div className="space-y-2">
-          {alsoLive.map(({ coin: c, ev }) => {
-            const o = upOptionOf(ev);
-            const p = o ? Math.round(o.price * 100) : 50;
-            return (
-              <button
-                key={c}
-                type="button"
-                onClick={() =>
-                  navigate(`/spot?event=${encodeURIComponent(ev!.id)}`, { replace: true })
-                }
-                className="flex w-full items-center gap-2 rounded-lg px-1 py-1.5 text-left hover:bg-muted/40"
-              >
-                <AssetAvatar symbol={COIN_META[c].ticker} kind="crypto" size={30} />
-                <span className="flex-1 text-xs text-foreground">
-                  {COIN_META[c].name} · {tf.toUpperCase()} round
-                </span>
-                <span className="font-display text-xs font-bold" style={{ color: "#33D6FF" }}>
-                  Up {p}%
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    );
+  const AlsoLiveNow = (
+    <SpotSideRailCrypto
+      rows={alsoLive.map(({ coin: c, ev }) => {
+        const o = upOptionOf(ev);
+        return {
+          key: c,
+          symbol: COIN_META[c].ticker,
+          label: `${COIN_META[c].name} · ${tf.toUpperCase()} round`,
+          upPct: o ? Math.round(o.price * 100) : 50,
+          onClick: () =>
+            navigate(`/spot?event=${encodeURIComponent(ev!.id)}`, { replace: true }),
+        };
+      })}
+    />
+  );
+
 
   const heldIsUp = heldPos ? heldPos.optionId === up.id : false;
   const Position = heldPos ? (
@@ -626,25 +542,15 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
           hideCloseButton
           className="pb-[calc(env(safe-area-inset-bottom,0px)+16px)]"
         >
-          <div className="mb-3">
-            <div className="flex items-center gap-2">
-              <span
-                className={cn(
-                  "rounded-md px-2 py-0.5 text-[11px] font-semibold",
-                  side === "yes" ? "bg-yes/14 text-yes" : "bg-no/14 text-no",
-                )}
-              >
-                {side === "yes" ? "Up" : "Down"}
-              </span>
-              <span className="text-sm font-semibold">
-                Buy {meta.ticker} {tf.toUpperCase()}
-              </span>
-            </div>
-            <div className="mt-1 text-[11px] text-muted-foreground">
-              Settles in <span className="font-mono">{countdown}</span> ·{" "}
-              {Math.round((side === "yes" ? upPrice : downPrice) * 100)}% chance
-            </div>
-          </div>
+          <SpotBuyDrawerHeader
+            isYesSide={side === "yes"}
+            sideLabel={side === "yes" ? "Up" : "Down"}
+            title={`Buy ${meta.ticker} ${tf.toUpperCase()}`}
+            leadText="Settles in"
+            countdown={countdown}
+            chancePct={Math.round((side === "yes" ? upPrice : downPrice) * 100)}
+          />
+
           <LiteOrderPanel
             {...orderPanelProps}
             variant="mobile"

@@ -48,7 +48,38 @@ const Table = ({
   </div>
 );
 
-/* ---------------- ① 轮次历史带（SP-3 / SP-4） ---------------- */
+/* ---------------- ① 页头（SP-1 / SP-2） ---------------- */
+
+const HEAD_CASES: SectionCase[] = [
+  {
+    key: "spot-sp1",
+    label: "SP-1 · crypto 快轮页头（SpotCryptoHead + SpotRoundSwitcher）",
+    note:
+      "逐字 eyebrow `CRYPTO · INTRADAY`（CSS 大写）；34px 圆形 AssetAvatar + 题面；数据行 `$61,712.40 · ▲ +0.23% today · Vol $184.2K`。第二行 ROUND 档位盘逐字 `ROUND` + 5m / 15m / 1h / 4h / 1D，激活档白底黑字。第二帧为跌态（ETH −1.42%）。",
+    spec: [
+      { state: "涨", when: "pct >= 0", visual: "`▲ +N.NN% today`，色走 pctColor 正向", source: "SpotCryptoHead" },
+      { state: "跌", when: "pct < 0", visual: "`▼ -N.NN% today`，色走 pctColor 负向", source: "同上" },
+      { state: "无价", when: "price === null", visual: "价格位渲染 `—`", source: "price prop" },
+      { state: "标题字号", when: "useIsMobile()", visual: "mobile 24px / desktop 32px", source: "isMobile prop" },
+      { state: "档位激活", when: "item.id === activeId", visual: "白底 #FFFFFF + 文字 #0A0B0D，其余透明底 #9AA1AC", source: "SpotRoundSwitcher" },
+    ],
+  },
+  {
+    key: "spot-sp2",
+    label: "SP-2 · stocks 日内页头（SpotStockHead · 有价 / 无价两态）",
+    note:
+      "页头三件逐字：eyebrow `Stocks · Daily up / down`（10px tracking .18em uppercase）、题面 `Will Alibaba close higher today?`、数据行 `HK$118.40 · ▲ +0.86% today · Price to beat HK$117.40 · Vol $41.2M`。桌面右侧挂 watchlist 星，移动帧不挂（页面把星移进 MobileHeader）。",
+    spec: [
+      { state: "有基准价", when: "basePrice != null && showPriceReadout", visual: "现价 + %today + `Price to beat` 三段齐出", source: "LiteSpotTrade 派生" },
+      { state: "盘前无读数", when: "basePrice == null || !showPriceReadout", visual: "只剩 `Vol`，其余段落整段不渲染（第二帧）", source: "priceText / pctToday null" },
+      { state: "涨跌色", when: "pctToday >= 0 / < 0", visual: "text-trading-green / text-trading-red，箭头 ▲ / ▼", source: "SpotStockHead" },
+      { state: "星位", when: "!isMobile", visual: "rightSlot 渲染 watchlist 星；移动为 null", source: "rightSlot prop" },
+    ],
+  },
+];
+
+/* ---------------- ② 轮次历史带（SP-3 / SP-4） ---------------- */
+
 
 const TAPE_CASES: SectionCase[] = [
   {
@@ -123,10 +154,23 @@ const MARKET_CASES: SectionCase[] = [
   },
 ];
 
-/* ---------------- ③ 下单与持仓（SP-10 … SP-13） ---------------- */
+/* ---------------- ④ 下单与持仓（SP-9 … SP-13） ---------------- */
 
 const ORDER_CASES: SectionCase[] = [
   {
+    key: "spot-sp9",
+    label: "SP-9 · YOUR PICK 卡（SpotPickCard · 两 fixture）",
+    note:
+      "chip 行文逐字单行 `Up 55¢` / `Down 45¢`（共享 SideButton size='compact'），**禁 `% say` 副标**（与 crowd bar 重复，M2c 并账清单 B 的裁定在此落案）。micro 逐字 `YOUR PICK · 15M ROUND`（CSS 大写），题面 `BTC higher than $61,569.07 at 03:45?`。",
+    spec: [
+      { state: "Up 选中", when: "side === 'yes'", visual: "Up chip 实底 #33D6FF/文字 #04222c，Down 为 12% 幽灵底", source: "SideButton active/tone" },
+      { state: "Down 选中", when: "side === 'no'", visual: "Down chip 实底 Volt，Up 转幽灵", source: "同上" },
+      { state: "价格显示", when: "任意", visual: "Math.round(price × 100) + `¢`，右对齐 font-mono", source: "SideButton" },
+      { state: "禁用副标", when: "永远", visual: "chip 内只有一行 label + 价格，无 `% say`", source: "SpotPickCard" },
+    ],
+  },
+  {
+
     key: "spot-sp10",
     label: "SP-10 · Place your order · 默认态（LiteOrderPanel · variant 随 useIsMobile）",
     note:
@@ -181,46 +225,41 @@ const SETTLE_CASES: SectionCase[] = [
   },
 ];
 
-/* ---------------- 缺口表与并账表 ---------------- */
+/* ---------------- ⑥ 侧栏与抽屉（SP-15 / SP-16） ---------------- */
+
+const RAIL_CASES: SectionCase[] = [
+  {
+    key: "spot-sp15",
+    label: "SP-15 · 右栏 rail 两变体（SpotSideRailCrypto / SpotSideRailStocks + 空态）",
+    note:
+      "逐字标题：`Also live now`（crypto）与 `More stocks closing today`（stocks）。crypto 行 = 30px 圆形 AssetAvatar + `Ethereum · 15M round` + 右侧 `Up 50%`（#33D6FF）；stocks 行 = ticker 方牌 + `Alibaba — close higher?` + `54%` + ChevronRight。rows 由 props 注入，useOtherStocks fetch 留在页面侧。",
+    spec: [
+      { state: "crypto 有行", when: "rows.length > 0", visual: "Also live now 卡 + 每行 Up N%（Pulse Blue）", source: "SpotSideRailCrypto" },
+      { state: "crypto 空", when: "rows.length === 0", visual: "整卡不渲染（返回 null），不留空壳", source: "SpotSideRailCrypto" },
+      { state: "stocks 有行", when: "rows.length > 0", visual: "ul 行列表，Up% 走 text-yes", source: "SpotSideRailStocks" },
+      { state: "stocks 空", when: "rows.length === 0", visual: "卡壳保留 + EmptyState `No other markets right now` / `More stocks open here at the start of each trading day.`", source: "EmptyState variant=module" },
+    ],
+  },
+];
+
+const DRAWER_CASES: SectionCase[] = [
+  {
+    key: "spot-sp16",
+    label: "SP-16 · 移动 buy-drawer 抽屉头（SpotBuyDrawerHeader · 仅移动）",
+    note:
+      "逐字：side 徽标 `Up` / `Down` + 标题 `Buy BTC 15M`（crypto）或 `Buy 9988.HK`（stocks），第二行 `Settles in 02:41 · 55% chance`（crypto）/ `Closes in 04:12:37 · 46% chance`（stocks）。抽屉正文 = LiteOrderPanel variant=mobile，已由 SP-10…12 的 375 帧覆盖，本 case 只演头部。",
+    spec: [
+      { state: "Up 侧", when: "isYesSide === true", visual: "徽标 bg-yes/14 text-yes", source: "SpotBuyDrawerHeader" },
+      { state: "Down 侧", when: "isYesSide === false", visual: "徽标 bg-no/14 text-no", source: "同上" },
+      { state: "lead 文案", when: "crypto 轮 / stocks 日内", visual: "`Settles in` / `Closes in` 由页面注入，组件不判定", source: "leadText prop" },
+    ],
+  },
+];
+
+/* ---------------- 附注与并账表 ---------------- */
 
 const Gaps = () => (
   <div className="space-y-3">
-    <Table
-      title="缺口回报 · 无法在「生产零改动」前提下挂载的 5 个 case"
-      head={["case", "目标区块", "为什么注不进", "解法（待批）"]}
-      rows={[
-        [
-          "SP-1 页头 crypto 轮",
-          "LiteQuickTrade 顶部 coin 头 + 现价 + 今日% + Vol + ROUND 档位盘",
-          "整块是页面组件内联 JSX（依赖 useQuickRounds / useSecondTick / COIN_META 局部状态），没有导出组件",
-          "照 LiteTradeBlocks 的先例抽出 SpotHeadBlocks.tsx（纯展示、props 化），属生产改动，需单独批",
-        ],
-        [
-          "SP-2 页头 stocks 日内",
-          "LiteSpotTrade QuestionBlock：`STOCKS · DAILY UP/DOWN` + `Price to beat` + `TODAY 09:30–16:00`",
-          "同上，内联 JSX 且与 usStockSessions 派生量耦合",
-          "同上，并入 SpotHeadBlocks.tsx",
-        ],
-        [
-          "SP-9 YOUR PICK 卡",
-          "LiteQuickTrade 的 per-round 提问卡（题面 + Up/Down chips）",
-          "卡壳内联；只有内部的 SideButton 是共享件",
-          "抽 SpotPickCard（题面 + 两 chip），或维持旧 LiteSpotSection 的等价演示直至抽件",
-        ],
-        [
-          "SP-15 右栏 rail 两变体",
-          "`Also live now`（crypto）/ `More stocks closing today`（stocks）",
-          "两处各自内联，且 stocks 侧数据来自页面内 useOtherStocks（运行时 fetch）",
-          "抽 SpotSideRail（rows 由 props 注入），数据留在页面侧",
-        ],
-        [
-          "SP-16 移动 buy-drawer 头",
-          "MobileDrawer 内的抽屉头（side 徽标 + `Buy {ticker} {tf}` + 剩余时间 · 概率）",
-          "抽屉头内联在页面 JSX 中；抽屉正文（LiteOrderPanel variant=mobile）已由 SP-10…12 的 375 帧覆盖",
-          "抽 SpotBuyDrawerHeader；在此之前 SP-10…12 的移动帧即抽屉正文真身",
-        ],
-      ]}
-    />
     <Table
       title="附注 · 轮次池与 loading 判定"
       head={["项", "结论"]}
@@ -233,10 +272,15 @@ const Gaps = () => (
           "loading 骨架（SP-17 判定）",
           "不新增 SP-17。LiteSpotTrade 与 LiteQuickTrade 的首载态都不是分块骨架，而是整屏居中 Loader2 —— 与合约页 TR-19 同一实现，故复用 TR-19，不另立 case。",
         ],
+        [
+          "M2d 抽件（缺口表撤除）",
+          "SpotHeadBlocks.tsx 抽出 SpotCryptoHead / SpotRoundSwitcher / SpotStockHead / SpotPickCard / SpotSideRailCrypto / SpotSideRailStocks / SpotBuyDrawerHeader，纯搬移 + props 化；派生量（useQuickRounds / useSecondTick / usStockSessions / useOtherStocks）留在页面侧。SP-1 / SP-2 / SP-9 / SP-15 / SP-16 据此落案，原缺口表删除。",
+        ],
       ]}
     />
   </div>
 );
+
 
 const Ledger = () => (
   <div className="space-y-3">
@@ -306,32 +350,47 @@ export const SpotStatesSection = () => (
   <SectionWrapper
     id="spot-states"
     title="/spot · 现货轮 · 状态字典（SP-1 … SP-16）"
-    description="crypto 快轮与 stocks 日内共用同一骨架，差异只在模块增删。本节 11 个 case 已用生产组件 + fixture 落案；SP-1 / SP-2 / SP-9 / SP-15 / SP-16 因目标区块仍是页面内联 JSX、在「生产零改动」前提下既不能挂载也不许手抄，列入缺口表待批抽件。生产代码本单零改动。"
+    description="crypto 快轮与 stocks 日内共用同一骨架，差异只在模块增删。16 个 case 全部用生产组件 + fixture 落案（M2d 抽出 SpotHeadBlocks.tsx 后，原 5 个缺口 SP-1 / SP-2 / SP-9 / SP-15 / SP-16 已补齐，缺口表撤除）。抽件为零视觉搬移，生产页渲染未变。"
   >
-    <SubSection title="① 轮次历史带（SP-3 / SP-4）">
+    <SubSection title="① 页头（SP-1 / SP-2）">
+      <Pair cases={HEAD_CASES} desktopMin={420} mobileMin={520} />
+    </SubSection>
+
+    <SubSection title="② 轮次历史带（SP-3 / SP-4）">
       <Pair cases={TAPE_CASES} desktopMin={320} mobileMin={360} />
     </SubSection>
 
-    <SubSection title="② 行情与图表（SP-5 … SP-8）">
+    <SubSection title="③ 行情与图表（SP-5 … SP-8）">
       <Pair cases={MARKET_CASES} desktopMin={1100} mobileMin={1300} />
     </SubSection>
 
-    <SubSection title="③ 下单与持仓（SP-10 … SP-13）">
-      <Pair cases={ORDER_CASES} desktopMin={1400} mobileMin={1600} />
+    <SubSection title="④ 下单与持仓（SP-9 … SP-13）">
+      <Pair cases={ORDER_CASES} desktopMin={1600} mobileMin={1800} />
     </SubSection>
 
-    <SubSection title="④ 结算衔接（SP-14）">
+    <SubSection title="⑤ 结算衔接（SP-14）">
       <Pair cases={SETTLE_CASES} desktopMin={420} mobileMin={480} />
     </SubSection>
 
-    <SubSection title="⑤ 缺口与附注">
+    <SubSection title="⑥ 侧栏与抽屉（SP-15 / SP-16）">
+      <Pair cases={RAIL_CASES} desktopMin={520} mobileMin={560} />
+      <div className="mt-4 space-y-3">
+        <div className="text-[11px] text-muted-foreground">
+          SP-16 仅移动：抽屉头只在 MobileDrawer 内出现，桌面帧不予渲染。
+        </div>
+        <SectionFrame cases={DRAWER_CASES} device="mobile" minHeight={220} />
+      </div>
+    </SubSection>
+
+    <SubSection title="⑦ 附注">
       <Gaps />
     </SubSection>
 
-    <SubSection title="⑥ 并账清单（M2c 旧三节删除）">
+    <SubSection title="⑧ 并账清单（M2c 旧三节删除）">
       <Ledger />
     </SubSection>
   </SectionWrapper>
 );
+
 
 export default SpotStatesSection;

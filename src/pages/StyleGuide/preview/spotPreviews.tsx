@@ -279,3 +279,163 @@ export const Sp13Preview = () => (
     />
   </Frame>
 );
+
+/* ------------------- SP-1 / SP-2 页头（SpotHeadBlocks） ------------------- */
+
+import { Star } from "lucide-react";
+import { MobileHeaderIconButton } from "@/components/MobileHeader";
+import {
+  SpotBuyDrawerHeader,
+  SpotCryptoHead,
+  SpotPickCard,
+  SpotRoundSwitcher,
+  SpotSideRailCrypto,
+  SpotSideRailStocks,
+  SpotStockHead,
+} from "@/components/lite/trade/SpotHeadBlocks";
+
+const TF_ITEMS = [
+  { id: "5m", label: "5m" },
+  { id: "15m", label: "15m" },
+  { id: "1h", label: "1h" },
+  { id: "4h", label: "4h" },
+  { id: "1d", label: "1D" },
+] as const;
+
+/** SP-1 · crypto 快轮页头（coin 头 + 现价 + 今日% + Vol + ROUND 档位盘）。 */
+export const Sp1Preview = () => {
+  const isMobile = useIsMobile();
+  const [tf, setTf] = useState("15m");
+  return (
+    <Frame>
+      <SpotCryptoHead
+        ticker="BTC"
+        title="Bitcoin — up or down?"
+        isMobile={!!isMobile}
+        price={61712.4}
+        pct={0.23}
+        volText="$184.2K"
+      />
+      <SpotRoundSwitcher items={TF_ITEMS} activeId={tf} onSelect={setTf} />
+      <div className="pt-2">
+        <SpotCryptoHead
+          ticker="ETH"
+          title="Ethereum — up or down?"
+          isMobile={!!isMobile}
+          price={2984.11}
+          pct={-1.42}
+          volText="$61.8K"
+        />
+      </div>
+    </Frame>
+  );
+};
+
+/** SP-2 · stocks 日内页头（`Stocks · Daily up / down` + 现价 + 今日% + Price to beat + Vol）。 */
+export const Sp2Preview = () => {
+  const isMobile = useIsMobile();
+  const star = (
+    <MobileHeaderIconButton aria-label="Watchlist">
+      <Star className="h-5 w-5" strokeWidth={1.5} />
+    </MobileHeaderIconButton>
+  );
+  return (
+    <Frame>
+      <SpotStockHead
+        title="Will Alibaba close higher today?"
+        priceText="HK$118.40"
+        pctToday={0.86}
+        priceToBeatText="HK$117.40"
+        volText="$41.2M"
+        rightSlot={!isMobile ? star : null}
+      />
+      <div className="pt-2">
+        <SpotStockHead
+          title="Will Tesla close higher today?"
+          priceText={null}
+          pctToday={null}
+          priceToBeatText={null}
+          volText="$38.6M"
+          rightSlot={!isMobile ? star : null}
+        />
+      </div>
+    </Frame>
+  );
+};
+
+/* ---------------------------- SP-9 YOUR PICK ---------------------------- */
+
+/** SP-9 · YOUR PICK 卡（题面 + 共享 SideButton compact chips，禁 `% say` 副标）。 */
+export const Sp9Preview = () => {
+  const [side, setSide] = useState<"yes" | "no">("yes");
+  return (
+    <Frame>
+      <SpotPickCard
+        microText="Your pick · 15M round"
+        question="BTC higher than $61,569.07 at 03:45?"
+        yesLabel="Up"
+        noLabel="Down"
+        yesPrice={0.55}
+        noPrice={0.45}
+        side={side}
+        onSideChange={setSide}
+      />
+      <SpotPickCard
+        microText="Your pick · 1D round"
+        question="ETH higher than $2,980.00 at 00:00?"
+        yesLabel="Up"
+        noLabel="Down"
+        yesPrice={0.49}
+        noPrice={0.51}
+        side="no"
+        onSideChange={() => undefined}
+      />
+    </Frame>
+  );
+};
+
+/* ----------------------------- SP-15 side rail --------------------------- */
+
+/** SP-15 · 右栏 rail 两变体（`Also live now` / `More stocks closing today` + 空态）。 */
+export const Sp15Preview = () => (
+  <Frame>
+    <SpotSideRailCrypto
+      rows={[
+        { key: "eth", symbol: "ETH", label: "Ethereum · 15M round", upPct: 50, onClick: () => undefined },
+        { key: "sol", symbol: "SOL", label: "Solana · 15M round", upPct: 56, onClick: () => undefined },
+      ]}
+    />
+    <SpotSideRailStocks
+      rows={[
+        { key: "a", ticker: "9988.HK", label: "Alibaba — close higher?", upPct: 54, onClick: () => undefined },
+        { key: "b", ticker: "0700.HK", label: "Tencent — close higher?", upPct: 47, onClick: () => undefined },
+        { key: "c", ticker: "TSLA", label: "Tesla — close higher?", upPct: 61, onClick: () => undefined },
+      ]}
+    />
+    <SpotSideRailStocks rows={[]} />
+  </Frame>
+);
+
+/* ------------------------- SP-16 buy-drawer header ----------------------- */
+
+/** SP-16 · 移动 buy-drawer 抽屉头（仅移动）。 */
+export const Sp16Preview = () => (
+  <Frame>
+    <SpotBuyDrawerHeader
+      isYesSide
+      sideLabel="Up"
+      title="Buy BTC 15M"
+      leadText="Settles in"
+      countdown="02:41"
+      chancePct={55}
+    />
+    <SpotBuyDrawerHeader
+      isYesSide={false}
+      sideLabel="Down"
+      title="Buy 9988.HK"
+      leadText="Closes in"
+      countdown="04:12:37"
+      chancePct={46}
+    />
+  </Frame>
+);

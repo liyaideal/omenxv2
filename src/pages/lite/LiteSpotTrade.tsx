@@ -9,7 +9,7 @@
 // ============================================================
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { ChevronRight, Info, Loader2, Star } from "lucide-react";
+import { Info, Loader2, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -68,7 +68,6 @@ import {
   useTodayEventId,
 } from "@/components/lite/shared/pastDays";
 import { RoundTape, type TapeCurrentSlot } from "@/components/lite/shared/RoundTape";
-import { EmptyState } from "@/components/states";
 import {
   LiteMarketActivity,
   useMarketActivityRows,
@@ -78,6 +77,12 @@ import {
   SpotSettlementRail,
   SpotYourPosition,
 } from "@/components/lite/trade/SpotBlocks";
+import {
+  SpotBuyDrawerHeader,
+  SpotSideRailStocks,
+  SpotStockHead,
+} from "@/components/lite/trade/SpotHeadBlocks";
+
 
 type EventRow = Tables<"events"> & { options: Tables<"event_options">[] };
 type Side = "yes" | "no";
@@ -381,41 +386,17 @@ const LiteSpotTrade = () => {
 
   // ============ Building blocks ============
   const QuestionBlock = (
-    <div>
-      <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-        Stocks · Daily up / down
-      </div>
-      <h1
-        ref={headingRef as unknown as React.Ref<HTMLHeadingElement>}
-        className="mt-2 font-display font-bold leading-[1.05] tracking-[-0.02em] text-foreground"
-        style={{ fontSize: "clamp(24px, 3.5vw, 34px)" }}
-      >
-        {event.name}
-      </h1>
-      <div className="mt-3 flex items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-xs text-muted-foreground">
-          {currentPrice != null && (
-            <span className="text-foreground">{formatMarketPrice(currentPrice, market)}</span>
-          )}
-          {basePrice != null && showPriceReadout && (
-            <span
-              className={cn(
-                pctToday >= 0 ? "text-trading-green" : "text-trading-red",
-              )}
-            >
-              {pctToday >= 0 ? "▲" : "▼"} {pctToday >= 0 ? "+" : ""}
-              {pctToday.toFixed(2)}% today
-            </span>
-          )}
-          {basePrice != null && (
-            <span>Price to beat {formatMarketPrice(basePrice, market)}</span>
-          )}
-          <span>Vol {volText}</span>
-        </div>
-        {!isMobile && <div className="flex-shrink-0">{WatchStar}</div>}
-      </div>
-    </div>
+    <SpotStockHead
+      title={event.name}
+      headingRef={headingRef as unknown as React.Ref<HTMLHeadingElement>}
+      priceText={currentPrice != null ? formatMarketPrice(currentPrice, market) : null}
+      pctToday={basePrice != null && showPriceReadout ? pctToday : null}
+      priceToBeatText={basePrice != null ? formatMarketPrice(basePrice, market) : null}
+      volText={volText}
+      rightSlot={!isMobile ? WatchStar : null}
+    />
   );
+
 
   const SentimentBar = (
     <SpotSentimentBar
@@ -543,42 +524,17 @@ const LiteSpotTrade = () => {
   );
 
   const MoreStocks = (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <div className="mb-3 text-sm font-medium">More stocks closing today</div>
-      {otherStocks.length === 0 ? (
-        <EmptyState
-          variant="module"
-          bordered={false}
-          title="No other markets right now"
-          description="More stocks open here at the start of each trading day."
-          className="px-0 py-1"
-        />
-      ) : (
-        <ul className="space-y-1">
-          {otherStocks.map((s) => (
-            <li key={s.id}>
-              <button
-                type="button"
-                onClick={() => navigate(`/spot?event=${s.id}`)}
-                className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition-colors hover:bg-muted/40"
-              >
-                <span className="flex h-7 w-9 items-center justify-center rounded bg-muted/50 font-mono text-[10px] font-semibold">
-                  {s.ticker}
-                </span>
-                <span className="flex-1 truncate text-xs">
-                  {STOCK_NAME[s.ticker] ?? s.ticker} — close higher?
-                </span>
-                <span className="font-mono text-xs font-semibold text-yes">
-                  {s.upPct}%
-                </span>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+    <SpotSideRailStocks
+      rows={otherStocks.map((s) => ({
+        key: s.id,
+        ticker: s.ticker,
+        label: `${STOCK_NAME[s.ticker] ?? s.ticker} — close higher?`,
+        upPct: s.upPct,
+        onClick: () => navigate(`/spot?event=${s.id}`),
+      }))}
+    />
   );
+
 
   // ============ Layouts ============
   // Settled outcome. Winner comes from the DB flag when present; otherwise we
@@ -825,23 +781,15 @@ const LiteSpotTrade = () => {
             // itself stays untouched) so the drawer hugs its content.
             className="pb-[calc(env(safe-area-inset-bottom,0px)+16px)]"
           >
-            <div className="mb-3">
-              <div className="flex items-center gap-2">
-                <span
-                  className={cn(
-                    "rounded-md px-2 py-0.5 text-[11px] font-semibold",
-                    side === "yes" ? "bg-yes/14 text-yes" : "bg-no/14 text-no",
-                  )}
-                >
-                  {side === "yes" ? yesLabel : noLabel}
-                </span>
-                <span className="text-sm font-semibold">Buy {ticker}</span>
-              </div>
-              <div className="mt-1 text-[11px] text-muted-foreground">
-                Closes in <span className="font-mono">{countdown}</span> ·{" "}
-                {Math.round((side === "yes" ? yesLive : noLive) * 100)}% chance
-              </div>
-            </div>
+            <SpotBuyDrawerHeader
+              isYesSide={side === "yes"}
+              sideLabel={side === "yes" ? yesLabel : noLabel}
+              title={`Buy ${ticker}`}
+              leadText="Closes in"
+              countdown={countdown}
+              chancePct={Math.round((side === "yes" ? yesLive : noLive) * 100)}
+            />
+
             <LiteOrderPanel
               {...orderPanelProps}
               variant="mobile"
