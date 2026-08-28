@@ -51,6 +51,11 @@ interface Props {
    * snapshot of THIS realisation (never re-read from refreshed positions).
    */
   shareContext?: CashOutShareContext;
+  /**
+   * When the page can outlive this flow (a full close unmounts it), the page
+   * hosts the share card instead: the snapshot is handed up and rendered there.
+   */
+  onShareSnapshot?: (snap: CashOutShareSnapshot) => void;
 }
 
 export const LiteCashOutFlow = ({
