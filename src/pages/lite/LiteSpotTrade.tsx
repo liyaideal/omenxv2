@@ -545,11 +545,10 @@ const LiteSpotTrade = () => {
                     ? yesLabel
                     : noLabel
                 } · Standard`,
-                pnl: heldPos.pnlNum,
-                pnlPercent:
-                  heldPos.marginNum > 0 ? (heldPos.pnlNum / heldPos.marginNum) * 100 : 0,
+                pnl: heldLive!.pnl,
+                pnlPercent: heldLive!.pnlPercent,
                 leftAmount: heldPos.marginNum,
-                rightAmount: heldPos.markPriceNum * heldPos.sizeNum,
+                rightAmount: heldLive!.currentValue,
                 segment: "standard",
               })
           : undefined
