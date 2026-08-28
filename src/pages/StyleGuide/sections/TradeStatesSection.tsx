@@ -161,6 +161,7 @@ const RAIL_CASES: SectionCase[] = [
       { state: "有行", when: "rows.length > 0", visual: "行句式 `5m · Bought Yes · Jeonbuk · 1× · $121`；时间/动作/上下文/金额四列固定序", source: "LiteMarketActivity ROW_GRID" },
       { state: "空态", when: "rows.length === 0", visual: "`No activity yet` + `Trades on this market show up here as people buy in.`", source: "EmptyState variant=module" },
       { state: "binary 上下文", when: "showOptionLabel === false", visual: "上下文列只出 boost，不出 option 名（页面本身就是市场）", source: "context 分支" },
+      { state: "settled 空态", when: "resolved === true && rows.length === 0", visual: "模块整体不渲染（已结算市场不会再有人买入，空态文案语境错误）；settled 但有历史成交行时照常渲染", source: "LiteContractTrade / LiteSpotTrade MarketActivity" },
     ],
   },
 ];
@@ -172,7 +173,7 @@ const TAIL_CASES: SectionCase[] = [
     key: "trade-tr15",
     label: "TR-15 · settled 终态 · 未持有（LiteOutcomeCard）",
     note:
-      "逐字：`You didn't hold this market.` + summary 句 + CTA `Browse live markets →`。",
+      "逐字：`You didn't hold this market.` + summary 句 + CTA `Browse live markets →`。终态页的 Market activity 若无历史成交行则整个模块不渲染（见 TR-14 settled 空态行）。",
     spec: [
       { state: "resolved", when: "event.is_resolved === true", visual: "下单面板整体撤下，页顶换成结果卡；移动底栏 CTA 变 `View in Portfolio →`", source: "LiteContractTrade resolved 分支" },
       { state: "未持有", when: "heldPos == null", visual: "虚线框 `You didn't hold this market.` + Browse CTA", source: "LiteOutcomeCard 非 holding 分支" },

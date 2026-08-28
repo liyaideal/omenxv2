@@ -609,43 +609,6 @@ export const IntradayStageCard = ({
             </div>
           )}
         </div>
-        {sessionOpen ? (
-          <span className="flex flex-col items-end gap-[5px]">
-            <span
-              className="flex items-center justify-center"
-              style={{
-                width: 72,
-                height: 72,
-                borderRadius: 14,
-                border: "1px dashed #2B3038",
-                background:
-                  "repeating-linear-gradient(135deg,#15181D 0 10px,#111418 10px 20px)",
-              }}
-            >
-              <span
-                style={{
-                  fontSize: 9,
-                  letterSpacing: "0.2em",
-                  textTransform: "uppercase",
-                  color: "#4B5563",
-                  fontWeight: 700,
-                }}
-              >
-                art
-              </span>
-            </span>
-            <span
-              style={{
-                fontSize: 10,
-                color: "#4B5563",
-                maxWidth: 150,
-                textAlign: "right",
-              }}
-            >
-              Art slot 1 · Bonix bust, header corner only
-            </span>
-          </span>
-        ) : null}
       </div>
 
       {/* Coins */}

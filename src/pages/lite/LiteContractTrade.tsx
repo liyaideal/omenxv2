@@ -977,15 +977,19 @@ const LiteContractTrade = () => {
     />
   ) : null;
 
-  const MarketActivity = (
-    <LiteMarketActivity
-      rows={activity}
-      yesLabel={yesLabel}
-      noLabel={noLabel}
-      maxRows={isMobile ? 4 : 8}
-      showOptionLabel={isMulti}
-    />
-  );
+  // A settled market will never see another buy — an empty ledger has no
+  // context to offer, so the whole module drops out. Settled markets WITH
+  // historic rows keep it (the history is informative).
+  const MarketActivity =
+    resolved && activity.length === 0 ? null : (
+      <LiteMarketActivity
+        rows={activity}
+        yesLabel={yesLabel}
+        noLabel={noLabel}
+        maxRows={isMobile ? 4 : 8}
+        showOptionLabel={isMulti}
+      />
+    );
 
   // ---- Mobile multi: meta chip row (sits ABOVE the title) ----
   const MultiMetaRow = (

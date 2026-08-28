@@ -376,8 +376,9 @@ const LiteSpotTrade = () => {
       </div>
     );
   }
-  // Bare /spot (no event param) is not a dead link — send users to the market list.
-  if (!eventId) return <Navigate to="/events" replace />;
+  // Bare /spot (no event param) is not a dead link — send users to the market
+  // list at `/` (Lite's only list surface; the Pro list stays unreachable).
+  if (!eventId) return <Navigate to="/" replace />;
   if (notFound || !event || !yesOpt || !noOpt) {
     return <ExpiredEventFallback eventId={eventId} />;
   }
@@ -588,14 +589,17 @@ const LiteSpotTrade = () => {
     />
   ) : null;
 
-  const MarketActivity = (
-    <LiteMarketActivity
-      rows={activity}
-      yesLabel={yesLabel}
-      noLabel={noLabel}
-      maxRows={isMobile ? 4 : 8}
-    />
-  );
+  // Settled + empty ledger → drop the module entirely (no one can buy in any
+  // more). Settled pages with historic rows keep it.
+  const MarketActivity =
+    resolved && activity.length === 0 ? null : (
+      <LiteMarketActivity
+        rows={activity}
+        yesLabel={yesLabel}
+        noLabel={noLabel}
+        maxRows={isMobile ? 4 : 8}
+      />
+    );
 
   const MoreStocks = (
     <SpotSideRailStocks
