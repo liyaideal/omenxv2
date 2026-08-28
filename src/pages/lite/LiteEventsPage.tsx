@@ -51,7 +51,6 @@ import { LiteIntradayView } from "@/components/lite/categoryviews/LiteIntradayVi
 import { LiteSportsView } from "@/components/lite/categoryviews/LiteSportsView";
 import { LiteCryptoView } from "@/components/lite/categoryviews/LiteCryptoView";
 import { LiteFinanceView } from "@/components/lite/categoryviews/LiteFinanceView";
-import { useSurface } from "@/contexts/SurfaceContext";
 import {
   SECTOR_CATEGORIES,
   categoryMatchesTop,
@@ -89,7 +88,6 @@ const CardGrid = ({
 
 const LiteEventsPage = () => {
   const navigate = useNavigate();
-  const { setSurface } = useSurface();
   const isMobile = useIsMobile();
   const { events: dbEvents, isLoading } = useActiveEvents();
   const markets = useMarketListData(dbEvents);
