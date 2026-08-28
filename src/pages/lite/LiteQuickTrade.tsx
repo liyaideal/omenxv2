@@ -63,16 +63,10 @@ import {
   useSecondTick,
 } from "@/components/lite/intraday/intradayData";
 import { cn } from "@/lib/utils";
-import { pctColor } from "@/components/lite/shared/primitives";
 
 type Side = "yes" | "no";
 
-const MICRO: React.CSSProperties = {
-  fontSize: 9.5,
-  letterSpacing: ".1em",
-  textTransform: "uppercase",
-  color: "#6B7280",
-};
+
 
 const utcHHMM = (d: Date) =>
   new Intl.DateTimeFormat("en-GB", {
