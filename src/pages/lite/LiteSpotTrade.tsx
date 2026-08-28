@@ -78,6 +78,12 @@ import {
   SpotSettlementRail,
   SpotYourPosition,
 } from "@/components/lite/trade/SpotBlocks";
+import {
+  SpotBuyDrawerHeader,
+  SpotSideRailStocks,
+  SpotStockHead,
+} from "@/components/lite/trade/SpotHeadBlocks";
+
 
 type EventRow = Tables<"events"> & { options: Tables<"event_options">[] };
 type Side = "yes" | "no";
