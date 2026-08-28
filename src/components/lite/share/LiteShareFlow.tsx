@@ -2,7 +2,7 @@
 // Thin wrapper: existing ShareModal + LitePnlPoster. Signed-in only —
 // guest demo positions never get a share card (red line).
 // ============================================================
-import { ShareModal } from "@/components/share/ShareModal";
+import { ShareModal } from "@/components/ShareModal";
 import { LitePnlPoster, LitePnlPosterState } from "./LitePnlPoster";
 import { useAuth } from "@/hooks/useAuth";
 import { useReferral } from "@/hooks/useReferral";
