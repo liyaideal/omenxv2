@@ -9,7 +9,7 @@
 // ============================================================
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { ChevronRight, Info, Loader2, Star } from "lucide-react";
+import { Info, Loader2, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -68,7 +68,6 @@ import {
   useTodayEventId,
 } from "@/components/lite/shared/pastDays";
 import { RoundTape, type TapeCurrentSlot } from "@/components/lite/shared/RoundTape";
-import { EmptyState } from "@/components/states";
 import {
   LiteMarketActivity,
   useMarketActivityRows,
