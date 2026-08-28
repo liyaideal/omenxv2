@@ -85,3 +85,33 @@ export const LiteShareFlow = ({
 };
 
 export default LiteShareFlow;
+
+/**
+ * Page-level host for a cash-out snapshot handed up by LiteCashOutFlow
+ * (a full close unmounts that flow, so the card must live on the page).
+ */
+export const LiteCashOutShareCard = ({
+  snap,
+  onClose,
+}: {
+  snap: import("@/components/lite/contract/LiteCashOutFlow").CashOutShareSnapshot | null;
+  onClose: () => void;
+}) => {
+  if (!snap) return null;
+  return (
+    <LiteShareFlow
+      open
+      onOpenChange={(o) => !o && onClose()}
+      state="cashed"
+      eventId={snap.context.eventId}
+      eventName={snap.context.eventName}
+      sideLine={snap.context.sideLine}
+      pnl={snap.pnl}
+      pnlPercent={snap.pnlPercent}
+      leftAmount={snap.leftAmount}
+      rightAmount={snap.rightAmount}
+      segment={snap.context.productLine === "spot" ? "standard" : "boost"}
+      dateISO={new Date().toISOString()}
+    />
+  );
+};
