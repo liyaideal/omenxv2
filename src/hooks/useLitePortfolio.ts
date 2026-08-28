@@ -5,7 +5,8 @@
 // settled rows (month groups + series aggregation) and the segment counts.
 // Pro portfolio keeps its own code path and is untouched.
 // ============================================================
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { usePositions } from "@/hooks/usePositions";
 import { useOrders } from "@/hooks/useOrders";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
@@ -83,17 +84,65 @@ export const useLitePortfolio = () => {
   const risk = useRealtimeRiskMetrics();
   const { grantedVouchers } = usePositionVouchers();
 
-  const eventByName = useMemo(() => {
+  // `useActiveEvents` hides sports fixture siblings (handicap / total lines),
+  // so a leg opened on a line market finds no event and loses its metadata.
+  // Fetch those by name — no sibling filter — and merge them in.
+  const baseEventByName = useMemo(() => {
     const m = new Map<string, any>();
     for (const ev of events) if (!m.has(ev.name)) m.set(ev.name, ev);
     return m;
   }, [events]);
 
+  const missingNames = useMemo(() => {
+    const s = new Set<string>();
+    for (const p of positions) if (!baseEventByName.has(p.event)) s.add(p.event);
+    return Array.from(s).sort();
+  }, [positions, baseEventByName]);
+
+  const missingKey = missingNames.join("\u0000");
+  const [extraEvents, setExtraEvents] = useState<any[]>([]);
+  useEffect(() => {
+    const names = missingKey ? missingKey.split("\u0000") : [];
+    if (names.length === 0) {
+      setExtraEvents((cur) => (cur.length === 0 ? cur : []));
+      return;
+    }
+    let alive = true;
+    (async () => {
+      const { data } = await supabase.from("events").select("*").in("name", names);
+      if (alive) setExtraEvents((data as any[]) || []);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [missingKey]);
+
+  const eventByName = useMemo(() => {
+    const m = new Map<string, any>(baseEventByName);
+    for (const ev of extraEvents) if (!m.has(ev.name)) m.set(ev.name, ev);
+    return m;
+  }, [baseEventByName, extraEvents]);
+
   const eventNameById = useMemo(() => {
     const m = new Map<string, string>();
     for (const ev of events) m.set(String(ev.id), ev.name);
+    for (const ev of extraEvents) m.set(String(ev.id), ev.name);
     return m;
-  }, [events]);
+  }, [events, extraEvents]);
+
+  /**
+   * A fixture line leg (handicap / total) lives on a sibling event; deep-link
+   * straight to its fixture board with the line preselected so the trade page
+   * does not have to bounce through a redirect.
+   */
+  const tradePathFor = (ev: any, segment: LiteSegment): string => {
+    const meta = (ev?.metadata as { market_type?: string; fixture_id?: string } | null) || {};
+    if (ev && meta.market_type && meta.market_type !== "winner" && meta.fixture_id && meta.fixture_id !== ev.id) {
+      return `/trade?event=${meta.fixture_id}&line=${ev.id}`;
+    }
+    return liteTradePath(ev?.id ?? null, segment);
+  };
+
 
   /**
    * Series keys are STABLE EVENT IDS. Legacy links used the raw event name
@@ -180,7 +229,7 @@ export const useLitePortfolio = () => {
         ifWins: p.sizeNum,
         autoClose,
         hot,
-        tradePath: liteTradePath(ev?.id ?? null, segment),
+        tradePath: tradePathFor(ev, segment),
       };
     });
   }, [positions, eventByName, calculateRealtimePnL, getRealtimeMarkPrice, risk]);
