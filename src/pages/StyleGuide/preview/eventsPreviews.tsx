@@ -491,7 +491,7 @@ const match = (m: {
   live?: { minute: number; score: string; phase?: string };
 }): SportsMatch => ({
   id: m.id,
-  name: `${m.home} v ${m.away}`,
+  name: `${m.home} vs ${m.away}`,
   league: m.league,
   home: m.home,
   away: m.away,

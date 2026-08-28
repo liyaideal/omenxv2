@@ -233,7 +233,7 @@ const UpcomingRow = ({
             className="truncate"
             style={{ fontSize: 13, color: "#fff", fontWeight: 600 }}
           >
-            {match.home} v {match.away}
+            {match.home} vs {match.away}
           </span>
           <span
             style={{

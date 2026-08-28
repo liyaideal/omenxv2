@@ -166,3 +166,5 @@
 - [No demo entries in product](mem://workflow/no-demo-entries-in-product) — 产品页禁 demo 入口；demo 数据只挂演示账号，禁污染真实用户与公共统计
 - [Campaign progress driver](mem://features/campaign-progress-driver) — 服务端触发器口径：什么算数、从何时起算、scope 命中、待研发事件源
 - [Style Guide spec tables](mem://design/style-guide-spec-tables) — 每个 style-guide case 必须配触发条件表（可判定表达式）；桌面 frame 禁含移动端组件
+- [Win/lose 净额口径](mem://design/win-lose-net-amount) — 全站输赢文案/配色/图标看净额符号；fiat_buy 进流水；sports 命名 vs；settled 空账本不渲染；实时 PnL 单一真相源
+- [Lite 晒单分享架构](mem://features/lite-share-architecture) — LitePnlPoster 三态海报 + LiteShareFlow 登录门 + 平仓自动弹 + 四处入口 + compact 2×2
