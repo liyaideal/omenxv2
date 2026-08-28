@@ -563,7 +563,7 @@ const LiteSpotTrade = () => {
       isMobile={!!isMobile}
       positionId={heldPos.id}
       positionIndex={heldIndex}
-      currentValue={heldPos.markPriceNum * heldPos.sizeNum}
+      currentValue={heldLive!.currentValue}
       sizeNum={heldPos.sizeNum}
       sideLabel={
         heldPos.option.trim().toLowerCase() === (yesOpt.label || "").trim().toLowerCase()
