@@ -92,7 +92,12 @@ export interface LiteContractOrderPanelProps {
   onFilled?: () => void;
   onRequestAuth: () => void;
   /** Style-guide only: overrides the computed auto-close results. Never passed in production. */
-  fixture?: { autoClose?: AutoCloseResult; remainderAutoClose?: AutoCloseResult };
+  fixture?: {
+    autoClose?: AutoCloseResult;
+    remainderAutoClose?: AutoCloseResult;
+    /** Render the Boost "Custom" tray already expanded (TR-7). */
+    boostTrayOpen?: boolean;
+  };
 
 }
 
@@ -469,6 +474,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
           value={boost}
           onChange={onBoostChange}
           variant={variant}
+          defaultTrayOpen={fixture?.boostTrayOpen}
         />
       ) : null}
 
