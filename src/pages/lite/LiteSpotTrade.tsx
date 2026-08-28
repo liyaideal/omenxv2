@@ -63,7 +63,11 @@ import {
   LiteCashOutFlow,
   type CashOutShareSnapshot,
 } from "@/components/lite/contract/LiteCashOutFlow";
-import { LiteCashOutShareCard } from "@/components/lite/share/LiteShareFlow";
+import {
+  LiteCashOutShareCard,
+  LiteManualShareCard,
+  type LiteManualShareSnap,
+} from "@/components/lite/share/LiteShareFlow";
 import { LiteOutcomeCard } from "@/components/lite/LiteOutcomeCard";
 import { HowItSettled } from "@/components/lite/trade/HowItSettled";
 import { InReviewCard, IN_REVIEW_HOLD_LINE } from "@/components/lite/trade/InReviewCard";
@@ -179,6 +183,7 @@ const LiteSpotTrade = () => {
   const [cashOutOpen, setCashOutOpen] = useState(false);
   // Cash-out share card lives on the page: a full close unmounts the flow.
   const [shareSnap, setShareSnap] = useState<CashOutShareSnapshot | null>(null);
+  const [manualShare, setManualShare] = useState<LiteManualShareSnap | null>(null);
 
   // Fetch event
   useEffect(() => {
@@ -498,6 +503,28 @@ const LiteSpotTrade = () => {
       ifWinsValue={`$${heldPos.sizeNum.toFixed(0)}`}
       cashOutDisabledText={inReview ? IN_REVIEW_HOLD_LINE : undefined}
       onCashOut={() => setCashOutOpen(true)}
+      onShare={
+        user
+          ? () =>
+              setManualShare({
+                state: "live",
+                eventId: event.id,
+                eventName: event.name,
+                sideLine: `${
+                  heldPos.option.trim().toLowerCase() ===
+                  (yesOpt.label || "").trim().toLowerCase()
+                    ? yesLabel
+                    : noLabel
+                } · Standard`,
+                pnl: heldPos.pnlNum,
+                pnlPercent:
+                  heldPos.marginNum > 0 ? (heldPos.pnlNum / heldPos.marginNum) * 100 : 0,
+                leftAmount: heldPos.marginNum,
+                rightAmount: heldPos.markPriceNum * heldPos.sizeNum,
+                segment: "standard",
+              })
+          : undefined
+      }
     />
   ) : null;
 
@@ -743,6 +770,7 @@ const LiteSpotTrade = () => {
                 {MarketActivity}
                 {CashOut}
                 <LiteCashOutShareCard snap={shareSnap} onClose={() => setShareSnap(null)} />
+            <LiteManualShareCard snap={manualShare} onClose={() => setManualShare(null)} />
                 <button
                   type="button"
                   onClick={() => navigate("/events")}
@@ -857,6 +885,7 @@ const LiteSpotTrade = () => {
             {MarketActivity}
             {!resolved && CashOut}
             <LiteCashOutShareCard snap={shareSnap} onClose={() => setShareSnap(null)} />
+            <LiteManualShareCard snap={manualShare} onClose={() => setManualShare(null)} />
           </div>
           <aside className="space-y-4">
             {resolved ? (

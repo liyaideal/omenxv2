@@ -4,6 +4,8 @@
 // Markup/classes are byte-identical to the stock page originals.
 // ============================================================
 import { cn } from "@/lib/utils";
+import { ShareIconButton } from "@/components/lite/share/ShareIconButton";
+
 
 // -------- "What the crowd thinks" split bar --------
 export const SpotSentimentBar = ({
@@ -167,6 +169,7 @@ export const SpotYourPosition = ({
   ifWinsValue,
   cashOutDisabledText,
   onCashOut,
+  onShare,
 }: {
   sideLabel: string;
   isYesSide: boolean;
@@ -180,6 +183,8 @@ export const SpotYourPosition = ({
   /** When set, Cash out is disabled and this note renders below it. */
   cashOutDisabledText?: string;
   onCashOut: () => void;
+  /** Pure-display share entry (SH-b §1). Omitted = zero DOM change. */
+  onShare?: () => void;
 }) => (
   <div className="rounded-2xl border border-border bg-card p-4">
     <div className="mb-3 flex items-start justify-between gap-2">
@@ -202,7 +207,9 @@ export const SpotYourPosition = ({
           {pnl.startsWith("-") ? "▼" : "▲"} {pnl} / {pnlPercent}
         </span>
       </div>
+      {onShare && <ShareIconButton onClick={onShare} />}
     </div>
+
     <div className="grid grid-cols-4 gap-2 border-t border-border pt-3 text-xs">
       <PosCell label="Current value" value={`$${currentValue.toFixed(2)}`} />
       <PosCell label="Avg cost" value={avgCost} />

@@ -59,7 +59,11 @@ import {
   LiteCashOutFlow,
   type CashOutShareSnapshot,
 } from "@/components/lite/contract/LiteCashOutFlow";
-import { LiteCashOutShareCard } from "@/components/lite/share/LiteShareFlow";
+import {
+  LiteCashOutShareCard,
+  LiteManualShareCard,
+  type LiteManualShareSnap,
+} from "@/components/lite/share/LiteShareFlow";
 import {
   LiteMarketActivity,
   useMarketActivityRows,
@@ -241,6 +245,8 @@ const LiteContractTrade = () => {
   const [cashOutId, setCashOutId] = useState<string | null>(null);
   // Cash-out share card lives on the page: a full close unmounts the flow.
   const [shareSnap, setShareSnap] = useState<CashOutShareSnapshot | null>(null);
+  // Manual share entries (position card / outcome card) — frozen at click time.
+  const [manualShare, setManualShare] = useState<LiteManualShareSnap | null>(null);
   // Only the FIRST fetch flips the full-page loader; later refetches
   // (post-fill) swap data in place so the page never unmounts.
   const isFirstLoad = useRef(true);
@@ -879,6 +885,25 @@ const LiteContractTrade = () => {
       compact={!!isMobile}
       cashOutDisabledText={inReview ? IN_REVIEW_HOLD_LINE : undefined}
       onCashOut={() => setCashOutOpen(true)}
+      onShare={
+        user
+          ? () =>
+              setManualShare({
+                state: "live",
+                eventId: event.id,
+                eventName: event.name,
+                sideLine: [heldIsYes ? yesLabel : noLabel, boostSuffix(heldPos.leverageNum)]
+                  .filter(Boolean)
+                  .join(" · "),
+                pnl: heldPnlNum,
+                pnlPercent:
+                  heldPos.marginNum > 0 ? (heldPnlNum / heldPos.marginNum) * 100 : 0,
+                leftAmount: heldPos.marginNum,
+                rightAmount: heldNowWorth,
+                segment: "boost",
+              })
+          : undefined
+      }
     />
   ) : null;
 
@@ -983,6 +1008,22 @@ const LiteContractTrade = () => {
               compact={!!isMobile}
               cashOutDisabledText={inReview ? IN_REVIEW_HOLD_LINE : undefined}
               onCashOut={() => setCashOutId(p.id)}
+              onShare={
+                user
+                  ? () =>
+                      setManualShare({
+                        state: "live",
+                        eventId: event.id,
+                        eventName: event.name,
+                        sideLine: title,
+                        pnl: p.pnlNum,
+                        pnlPercent: p.marginNum > 0 ? (p.pnlNum / p.marginNum) * 100 : 0,
+                        leftAmount: p.marginNum,
+                        rightAmount: p.marginNum + p.pnlNum,
+                        segment: "boost",
+                      })
+                  : undefined
+              }
             />
           );
         })}
@@ -1073,6 +1114,26 @@ const LiteContractTrade = () => {
               profit: heldPos.pnlNum,
             }
           : null
+      }
+      onShare={
+        user && heldPos
+          ? () =>
+              setManualShare({
+                state: "settled",
+                eventId: event.id,
+                eventName: event.name,
+                sideLine: [heldIsYes ? yesLabel : noLabel, boostSuffix(heldPos.leverageNum)]
+                  .filter(Boolean)
+                  .join(" · "),
+                pnl: heldPos.pnlNum,
+                pnlPercent:
+                  heldPos.marginNum > 0 ? (heldPos.pnlNum / heldPos.marginNum) * 100 : 0,
+                leftAmount: heldPos.marginNum,
+                rightAmount: heldPos.markPriceNum * heldPos.sizeNum,
+                segment: "boost",
+                dateISO: event.settled_at ?? undefined,
+              })
+          : undefined
       }
       onBrowse={() => navigate("/events")}
     />
@@ -1351,6 +1412,7 @@ const LiteContractTrade = () => {
           {CashOut}
           {MultiCashOut}
           <LiteCashOutShareCard snap={shareSnap} onClose={() => setShareSnap(null)} />
+          <LiteManualShareCard snap={manualShare} onClose={() => setManualShare(null)} />
         </div>
       </TooltipProvider>
     );
@@ -1414,6 +1476,7 @@ const LiteContractTrade = () => {
         {CashOut}
         {MultiCashOut}
         <LiteCashOutShareCard snap={shareSnap} onClose={() => setShareSnap(null)} />
+          <LiteManualShareCard snap={manualShare} onClose={() => setManualShare(null)} />
       </div>
     </TooltipProvider>
   );
