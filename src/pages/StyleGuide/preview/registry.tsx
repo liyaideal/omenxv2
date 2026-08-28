@@ -33,6 +33,7 @@ const h2e = () => import("./h2ePreviews");
 const autoClose = () => import("./autoClosePreviews");
 const auth = () => import("./authPreviews");
 const events = () => import("./eventsPreviews");
+const trade = () => import("./tradePreviews");
 
 
 export const previewRegistry: Record<string, Loader> = {
@@ -149,7 +150,23 @@ export const previewRegistry: Record<string, Loader> = {
   "lite-events-loading": pick(liteEvents, "LiteEventsLoadingPreview"),
   "lite-events-loading-catalogue": pick(liteEvents, "LiteEventsCatalogueLoadingPreview"),
 
-  /* -------- Sports game lines -------- */
+  /* -------- Trade 交易页（M2a TR-1…TR-16）-------- */
+  "trade-tr1": pick(trade, "Tr1Preview"),
+  "trade-tr2": pick(trade, "Tr2Preview"),
+  "trade-tr3": pick(trade, "Tr3Preview"),
+  "trade-tr4": pick(trade, "Tr4Preview"),
+  "trade-tr5": pick(trade, "Tr5Preview"),
+  "trade-tr6": pick(trade, "Tr6Preview"),
+  "trade-tr7": pick(trade, "Tr7Preview"),
+  "trade-tr8": pick(trade, "Tr8Preview"),
+  "trade-tr9": pick(trade, "Tr9Preview"),
+  "trade-tr10": pick(trade, "Tr10Preview"),
+  "trade-tr13": pick(trade, "Tr13Preview"),
+  "trade-tr14": pick(trade, "Tr14Preview"),
+  "trade-tr15": pick(trade, "Tr15Preview"),
+  "trade-tr16": pick(trade, "Tr16Preview"),
+
+  /* -------- Sports game lines（TR-11 / TR-12 复用）-------- */
   "trade-sports-lines-default": pick(sportsLines, "SportsLinesDefaultPreview"),
   "trade-sports-lines-handicap-selected": pick(sportsLines, "SportsLinesHandicapSelectedPreview"),
   "trade-sports-lines-scrubbed": pick(sportsLines, "SportsLinesScrubbedPreview"),
