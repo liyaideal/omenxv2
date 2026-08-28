@@ -106,8 +106,10 @@ const BADGE_CASES: SectionCase[] = [
 const TX_ICON_SPEC = [
   { state: "deposit", when: "type === 'deposit'", visual: "ArrowDownLeft · text-trading-green · 圈底 bg-trading-green/20", source: "getTransactionIcon" },
   { state: "withdraw", when: "type === 'withdraw'", visual: "ArrowUpRight · text-trading-red · bg-trading-red/20", source: "getTransactionIcon" },
-  { state: "trade_profit", when: "type === 'trade_profit'", visual: "TrendingUp · text-trading-green · bg-trading-green/20", source: "getTransactionIcon" },
-  { state: "trade_loss", when: "type === 'trade_loss'", visual: "TrendingDown · text-trading-red · bg-trading-red/20", source: "getTransactionIcon" },
+  { state: "trade_profit", when: "type === 'trade_profit'", visual: "TrendingUp · text-trading-green · bg-trading-green/20（图标仍由 type 决定）", source: "getTransactionIcon" },
+  { state: "trade_loss", when: "type === 'trade_loss'", visual: "TrendingDown · text-trading-red · bg-trading-red/20（图标仍由 type 决定）", source: "getTransactionIcon" },
+  { state: "win 语法", when: "amount >= 0", visual: "金额 text-trading-green 带 + 号；描述尾词改写为「· Won」", source: "formatDescription + 金额列取色" },
+  { state: "loss 语法", when: "amount < 0", visual: "金额 text-trading-red 带 − 号；描述尾词改写为「· Lost」", source: "formatDescription + 金额列取色" },
   { state: "platform_credit", when: "type === 'platform_credit'", visual: "Wallet · text-trading-green · bg-trading-green/20", source: "getTransactionIcon" },
   { state: "bonus", when: "type === 'bonus'", visual: "Gift · text-trading-green · bg-trading-green/20", source: "getTransactionIcon" },
   { state: "fee", when: "type === 'fee'", visual: "Receipt · text-trading-red · bg-trading-red/20", source: "getTransactionIcon" },
@@ -263,12 +265,40 @@ const TX_STATE_CASES: SectionCase[] = [
   {
     key: "wallet-lite-tx-pro-only-types",
     label: "W-9 · 交易流水 · Pro 专属四类型",
-    note: "Lite 面不出现——但 Lite Fiat 入金上线后 fiat_buy 是否进 Lite 流水待拍板",
+    note: "Lite 面只留 cross_chain_* 与 fiat_sell；fiat_buy 已于 2026-08-28 进 Lite 流水，见 W-17。",
     spec: [
       { state: "cross_chain_in", when: "type === 'cross_chain_in'", visual: "跨链入账，展开显示 source → dest 链与币种", source: "TransactionHistory.tsx" },
       { state: "cross_chain_out", when: "type === 'cross_chain_out'", visual: "跨链出账，金额为负", source: "TransactionHistory.tsx" },
-      { state: "fiat_buy", when: "type === 'fiat_buy'", visual: "法币买入 USDC（Banxa）", source: "TransactionHistory.tsx" },
+      { state: "fiat_buy", when: "type === 'fiat_buy'", visual: "见 W-17：与 crypto deposit 同构（ArrowDownLeft 绿 · bg-trading-green/20）", source: "TransactionHistory.tsx" },
       { state: "fiat_sell", when: "type === 'fiat_sell'", visual: "法币卖出 USDC，金额为负", source: "TransactionHistory.tsx" },
+    ],
+  },
+];
+
+const TX_FIAT_CASES: SectionCase[] = [
+  {
+    key: "wallet-lite-tx-fiat-buy",
+    label: "W-17 · 交易流水 · fiat_buy + 净额符号判定",
+    note: "win/lose 一律看净额符号；type 只决定图标与来源注记。",
+    spec: [
+      {
+        state: "fiat_buy",
+        when: "type === 'fiat_buy'",
+        visual: "ArrowDownLeft · text-trading-green · bg-trading-green/20；金额 +$250.00 绿；来源注记来自描述通道字段（Banxa）；Deposits 筛选包含此行",
+        source: "TransactionHistory getTransactionIcon / pillFilter",
+      },
+      {
+        state: "type=trade_loss 但净额 > 0",
+        when: "type === 'trade_loss' && amount >= 0",
+        visual: "金额 +$28.87 绿；描述尾词渲染为「· Won」（不再是 Lost）",
+        source: "formatDescription 尾词改写",
+      },
+      {
+        state: "type=trade_profit 但净额 < 0",
+        when: "type === 'trade_profit' && amount < 0",
+        visual: "金额 −$12.40 红；描述尾词渲染为「· Lost」",
+        source: "formatDescription 尾词改写",
+      },
     ],
   },
 ];
@@ -395,7 +425,7 @@ export const WalletLiteR1Section = ({ isMobile }: { isMobile: boolean }) => (
     </SubSection>
 
     <SubSection title="5 · 交易流水" platform="shared">
-      <SectionFrame cases={[TX_CASES[0], TX_CASES[1], ...TX_EMPTY_CASES, ...TX_STATE_CASES]} device={isMobile ? "mobile" : "desktop"} minHeight={620} />
+      <SectionFrame cases={[TX_CASES[0], TX_CASES[1], ...TX_EMPTY_CASES, ...TX_STATE_CASES, ...TX_FIAT_CASES]} device={isMobile ? "mobile" : "desktop"} minHeight={620} />
     </SubSection>
 
     <SubSection title="6 · Saved addresses" platform="shared">

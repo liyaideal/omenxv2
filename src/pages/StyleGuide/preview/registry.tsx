@@ -288,6 +288,7 @@ export const previewRegistry: Record<string, Loader> = {
   "wallet-deposit-dialog-fiat": pick(walletLite, "DepositDialogFiatPreview"),
   "wallet-deposit-dialog-wallet-tab": pick(walletLite, "DepositDialogWalletTabPreview"),
   "wallet-withdraw-desktop-form": pick(walletLite, "WithdrawFormDesktopPreview"),
+  "wallet-lite-tx-fiat-buy": pick(walletLite, "TxFiatBuyPreview"),
 
   /* -------- Login / Registration (2026-08-27) · AU-* -------- */
   "auth-login-google": pick(auth, "AuthLoginGoogleDefaultPreview"),
