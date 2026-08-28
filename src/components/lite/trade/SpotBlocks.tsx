@@ -6,7 +6,6 @@
 import { cn } from "@/lib/utils";
 import { ShareIconButton } from "@/components/lite/share/ShareIconButton";
 
-
 // -------- "What the crowd thinks" split bar --------
 export const SpotSentimentBar = ({
   yesLabel,

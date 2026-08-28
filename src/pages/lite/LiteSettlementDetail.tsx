@@ -7,7 +7,7 @@
 // ============================================================
 import { Share2 } from "lucide-react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { MobileHeader } from "@/components/MobileHeader";
+import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -26,7 +26,6 @@ import {
   LiteManualShareCard,
   type LiteManualShareSnap,
 } from "@/components/lite/share/LiteShareFlow";
-import { MobileHeaderIconButton } from "@/components/MobileHeader";
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 

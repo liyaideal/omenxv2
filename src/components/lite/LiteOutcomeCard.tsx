@@ -215,9 +215,39 @@ export const LiteOutcomeCard = ({
           {resultLine && (
             <p className="mt-3 text-xs text-muted-foreground">{resultLine}</p>
           )}
-          <div className="mt-3 flex items-start justify-between gap-3">
-            {sourceName ? (
-              <div className="text-[11px] text-muted-foreground">
+          {onShare ? (
+            <div className="mt-3 flex items-start justify-between gap-3">
+              {sourceName ? (
+                <div className="text-[11px] text-muted-foreground">
+                  Settled from {sourceName} ·{" "}
+                  {sourceUrl ? (
+                    <a
+                      href={sourceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-0.5 underline underline-offset-2 hover:text-foreground"
+                    >
+                      see evidence <ArrowUpRight className="h-3 w-3" />
+                    </a>
+                  ) : (
+                    <span>see evidence</span>
+                  )}
+                </div>
+              ) : (
+                <span />
+              )}
+              <button
+                type="button"
+                onClick={onShare}
+                className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-border px-3 text-xs font-semibold text-foreground hover:bg-muted/50"
+              >
+                <Share2 className="h-3.5 w-3.5" />
+                Share
+              </button>
+            </div>
+          ) : (
+            sourceName && (
+              <div className="mt-3 text-[11px] text-muted-foreground">
                 Settled from {sourceName} ·{" "}
                 {sourceUrl ? (
                   <a
@@ -232,20 +262,8 @@ export const LiteOutcomeCard = ({
                   <span>see evidence</span>
                 )}
               </div>
-            ) : (
-              <span />
-            )}
-            {onShare && (
-              <button
-                type="button"
-                onClick={onShare}
-                className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-border px-3 text-xs font-semibold text-foreground hover:bg-muted/50"
-              >
-                <Share2 className="h-3.5 w-3.5" />
-                Share
-              </button>
-            )}
-          </div>
+            )
+          )}
         </div>
 
       ) : (
