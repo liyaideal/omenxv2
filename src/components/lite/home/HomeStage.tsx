@@ -69,7 +69,7 @@ export const HomeStage = ({
 
   if (isMobile) {
     return (
-      <div className="flex flex-col" style={{ gap: 18, marginTop: 18 }}>
+      <div className="flex flex-col" style={{ gap: 18, marginTop: 10 }}>
         {crypto}
         {stocks}
         {sports}
@@ -84,7 +84,7 @@ export const HomeStage = ({
       style={{
         gridTemplateColumns: "repeat(12, minmax(0, 1fr))",
         gap: 24,
-        marginTop: 28,
+        marginTop: 16,
       }}
     >
       <div className="flex flex-col" style={{ gridColumn: "span 8" }}>
