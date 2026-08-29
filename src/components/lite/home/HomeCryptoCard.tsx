@@ -285,11 +285,11 @@ export const HomeCryptoCard = ({
   const btc = eventFor("btc");
 
   return (
-    <HomeCard style={{ padding: isMobile ? "18px 16px" : "26px 30px" }}>
+    <HomeCard style={{ padding: isMobile ? "16px" : "26px 30px" }}>
       <HomeEyebrow color={ORANGE}>● Intraday · Rolling rounds</HomeEyebrow>
       <div
         className={isMobile ? "flex flex-col" : "flex items-center"}
-        style={{ gap: isMobile ? 12 : 20, marginTop: 12 }}
+        style={{ gap: isMobile ? 10 : 20, marginTop: isMobile ? 10 : 12 }}
       >
         <HomeQuestion size={isMobile ? 20 : 26}>Will the price go up?</HomeQuestion>
         <span className={isMobile ? "" : "ml-auto flex-none"}>
@@ -312,22 +312,24 @@ export const HomeCryptoCard = ({
           </span>
         </span>
       </div>
-      <div style={{ marginTop: 8, fontSize: 14, color: "#98A1AD" }}>
+      <div style={{ marginTop: 8, fontSize: isMobile ? 13 : 14, color: "#98A1AD" }}>
         One clock for all three coins.
       </div>
 
       {isMobile ? (
-        <div className="flex flex-col" style={{ gap: 12, marginTop: 16 }}>
+        <div className="flex flex-col" style={{ gap: 10, marginTop: 14 }}>
           <MainTile
             event={btc}
             history={historyFor.get(`btc-${tf}`) ?? []}
             tickSeconds={tickSeconds}
+            compact
           />
-          <div className="grid" style={{ gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 12 }}>
+          <div className="grid" style={{ gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 10 }}>
             <CompactTile coin="eth" event={eventFor("eth")} tickSeconds={tickSeconds} compact />
             <CompactTile coin="sol" event={eventFor("sol")} tickSeconds={tickSeconds} compact />
           </div>
         </div>
+
       ) : (
         <div
           className="grid items-stretch"
