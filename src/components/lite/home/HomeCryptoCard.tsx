@@ -109,7 +109,7 @@ const MainTile = ({
         >
           {base != null ? `Round open ${fmtUsd(base)}` : "Round open —"}
         </span>
-        <span className="ml-auto">
+        <span className="ml-auto whitespace-nowrap">
           <Last8Strip history={history} variant="strip" dot={11} />
         </span>
       </div>
@@ -165,28 +165,46 @@ const CompactTile = ({
         background: "#191D24",
         border: "1px solid rgba(148,163,184,0.12)",
         borderRadius: 16,
-        padding: "16px 18px",
+        padding: compact ? "12px 12px" : "16px 18px",
       }}
     >
-      <div className="flex items-center" style={{ gap: 9 }}>
-        <AssetAvatar symbol={meta.ticker} kind="crypto" size={26} />
-        <span style={{ fontWeight: 700, fontSize: 15, color: "#fff" }}>{meta.ticker}</span>
-        <span
-          className="font-display"
+      <div className="flex items-center" style={{ gap: compact ? 7 : 9 }}>
+        <AssetAvatar symbol={meta.ticker} kind="crypto" size={compact ? 22 : 26} />
+        <span style={{ fontWeight: 700, fontSize: compact ? 13.5 : 15, color: "#fff" }}>
+          {meta.ticker}
+        </span>
+        {!compact && (
+          <span
+            className="font-display"
+            style={{
+              fontSize: 16,
+              fontWeight: 700,
+              marginLeft: 6,
+              color: "#fff",
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            {price != null ? fmtUsd(price) : "—"}
+          </span>
+        )}
+        <span className="ml-auto">
+          <PctChange value={pct} size={compact ? 11 : 12} weight={600} />
+        </span>
+      </div>
+      {compact && (
+        <div
+          className="font-display truncate"
           style={{
-            fontSize: 16,
+            marginTop: 6,
+            fontSize: 15,
             fontWeight: 700,
-            marginLeft: 6,
             color: "#fff",
             fontVariantNumeric: "tabular-nums",
           }}
         >
           {price != null ? fmtUsd(price) : "—"}
-        </span>
-        <span className="ml-auto">
-          <PctChange value={pct} size={12} weight={600} />
-        </span>
-      </div>
+        </div>
+      )}
       <div className="flex flex-1 flex-col" style={{ margin: "12px 0", minHeight: 62 }}>
         {event && base != null && price != null ? (
           <RoundPlot
@@ -270,7 +288,7 @@ export const HomeCryptoCard = ({
             history={historyFor.get(`btc-${tf}`) ?? []}
             tickSeconds={tickSeconds}
           />
-          <div className="grid" style={{ gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div className="grid" style={{ gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 12 }}>
             <CompactTile coin="eth" event={eventFor("eth")} tickSeconds={tickSeconds} />
             <CompactTile coin="sol" event={eventFor("sol")} tickSeconds={tickSeconds} />
           </div>
