@@ -58,17 +58,100 @@ import {
 
 // Pill visual language lives in the shared CategoryPill module (v3 sizing).
 
+/**
+ * Catalogue identity card (HP-1b) — the first cell of the "All" catalogue grid.
+ * Non-interactive brand card; NOT a market, never counted in "n open".
+ */
+const CatalogueIdentityCard = ({ isMobile }: { isMobile: boolean }) => (
+  <div
+    aria-hidden
+    style={{
+      position: "relative",
+      background: "#131519",
+      border: "1px solid #1d2026",
+      borderRadius: 16,
+      overflow: "hidden",
+    }}
+  >
+    <img
+      src={isMobile ? "/assets/mobile/will-it-happen.png" : "/assets/desktop/will-it-happen.png"}
+      alt=""
+      style={{
+        position: "absolute",
+        left: 0,
+        right: 0,
+        top: 0,
+        width: "100%",
+        objectFit: "cover",
+        pointerEvents: "none",
+      }}
+    />
+    <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.2)" }} />
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        background:
+          "linear-gradient(to bottom, rgba(24,24,27,0.3) 0%, rgba(24,24,27,0.65) 50%, #18181b 100%)",
+      }}
+    />
+    <div
+      style={{
+        position: "relative",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "flex-end",
+        height: "100%",
+        padding: "37px 16px 32px 18px",
+        boxSizing: "border-box",
+      }}
+    >
+      <div
+        className="font-display"
+        style={{
+          fontWeight: 700,
+          fontSize: 40,
+          lineHeight: "39px",
+          letterSpacing: "-0.52px",
+          color: "#fff",
+        }}
+      >
+        Will it
+        <br />
+        happen?
+      </div>
+      <div
+        className="font-sans"
+        style={{
+          fontSize: 13,
+          lineHeight: "19.5px",
+          color: "#9AA1AC",
+          marginTop: 16,
+          maxWidth: 279,
+        }}
+      >
+        Buy Yes or No on real-world outcomes.
+        <br />
+        Winning shares pay <span style={{ color: "#fff" }}>$1</span>.
+      </div>
+    </div>
+  </div>
+);
+
 /** Shared card grid — used flat and inside Boost category groups. */
 const CardGrid = ({
   items,
   getBoostConfig,
   trendingCutoff,
+  leadingSlot,
 }: {
   items: ReturnType<typeof useMarketListData>;
   getBoostConfig: (category: string) => { enabled: boolean; maxBoost: number };
   trendingCutoff: number;
+  leadingSlot?: React.ReactNode;
 }) => (
   <div className={cn("grid gap-[18px]", "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>
+    {leadingSlot}
     {items.map((market, i) => {
       const cfg = getBoostConfig(market.category);
       return (
@@ -543,24 +626,24 @@ const LiteEventsPage = () => {
         {/* Card grid */}
         <div className="mt-6 flex flex-1 flex-col gap-6">
         {!calendarOn && (isStageView || isMobileStage) && (
-          <div className="flex items-start justify-between" style={{ padding: "6px 2px 0" }}>
-            <div className="flex flex-col gap-[7px]">
-              <span
-                className="font-display"
-                style={{
-                  fontWeight: 700,
-                  fontSize: 26,
-                  color: "#fff",
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                Will it happen?
-              </span>
-              <span style={{ fontSize: 13, color: "#9AA1AC" }}>
-                Buy Yes or No on real-world outcomes. Winning shares pay $1.
-              </span>
-            </div>
-            <span style={{ fontSize: 12, color: "#6B7280" }}>
+          <div className="flex items-center" style={{ padding: "6px 2px 0" }}>
+            <span
+              className="font-display"
+              style={{
+                fontWeight: 700,
+                fontSize: 15,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                color: "#fff",
+              }}
+            >
+              All Markets
+            </span>
+            <span style={{ color: "#6B7280", marginLeft: 8, fontSize: 15 }}>›</span>
+            <span
+              className="font-mono"
+              style={{ marginLeft: "auto", color: "#6B7280", fontSize: 12 }}
+            >
               {filtered.length} open
             </span>
           </div>
