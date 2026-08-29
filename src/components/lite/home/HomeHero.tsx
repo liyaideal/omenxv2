@@ -42,8 +42,8 @@ export const HomeHero = ({ isMobile }: { isMobile: boolean }) => {
         className="relative mx-auto w-full max-w-7xl"
         style={
           isMobile
-            ? { padding: "20px 16px 22px" }
-            : { padding: "30px 24px 34px" }
+            ? { padding: "14px 16px 16px" }
+            : { padding: "20px 24px 24px" }
         }
       >
         <span
