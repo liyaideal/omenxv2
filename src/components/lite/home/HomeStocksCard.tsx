@@ -204,6 +204,9 @@ export const HomeStocksCard = ({
 
   const rows = tab === "us" ? us : hk;
   const total = us.length + hk.length;
+  const MOBILE_ROWS = 5;
+  const visibleRows = isMobile && !expanded ? rows.slice(0, MOBILE_ROWS) : rows;
+
 
   const settleLine = useMemo(() => {
     if (tab === "hk") return "HK settles at close 16:00 HKT";
