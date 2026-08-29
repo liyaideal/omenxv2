@@ -144,10 +144,12 @@ const CompactTile = ({
   coin,
   event,
   tickSeconds,
+  compact = false,
 }: {
   coin: Coin;
   event: QuickEvent | null;
   tickSeconds: number;
+  compact?: boolean;
 }) => {
   const navigate = useNavigate();
   const meta = COIN_META[coin];
@@ -218,14 +220,17 @@ const CompactTile = ({
           <ChartSkeleton height={72} />
         )}
       </div>
-      <div className="grid" style={{ gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 8 }}>
+      <div
+        className="grid"
+        style={{ gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: compact ? 6 : 8 }}
+      >
         <DirectionButton
           label="Up"
           price={up ? up.price : 0.5}
           tone="up"
           minHeight={38}
-          labelSize={13.5}
-          priceSize={13.5}
+          labelSize={compact ? 12 : 13.5}
+          priceSize={compact ? 12 : 13.5}
           onClick={go("up")}
         />
         <DirectionButton
@@ -289,8 +294,8 @@ export const HomeCryptoCard = ({
             tickSeconds={tickSeconds}
           />
           <div className="grid" style={{ gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 12 }}>
-            <CompactTile coin="eth" event={eventFor("eth")} tickSeconds={tickSeconds} />
-            <CompactTile coin="sol" event={eventFor("sol")} tickSeconds={tickSeconds} />
+            <CompactTile coin="eth" event={eventFor("eth")} tickSeconds={tickSeconds} compact />
+            <CompactTile coin="sol" event={eventFor("sol")} tickSeconds={tickSeconds} compact />
           </div>
         </div>
       ) : (
