@@ -17,10 +17,7 @@ import { LiteEventCard } from "@/components/lite/LiteEventCard";
 import { WatchlistChip } from "@/components/lite/LiteListControls";
 import { CalendarChip } from "@/components/lite/LiteListControls";
 
-import {
-  LiteEventsFilterRow,
-  LiteEventsGreeting,
-} from "@/components/lite/LiteEventsHeader";
+import { LiteEventsFilterRow } from "@/components/lite/LiteEventsHeader";
 
 import { LiteCalendarView } from "@/components/lite/calendar/LiteCalendarView";
 import { EmptyState } from "@/components/states";
@@ -32,18 +29,19 @@ import {
   useQuickRounds,
   useSecondTick,
 } from "@/components/lite/intraday/intradayData";
-import { LiteAllStage } from "@/components/lite/allstage/LiteAllStage";
+import { HomeTape, buildTapeItems } from "@/components/lite/home/HomeTape";
+import { HomeHero } from "@/components/lite/home/HomeHero";
+import { HomeStage } from "@/components/lite/home/HomeStage";
 import {
   LiteAllStageSkeleton,
   LiteMarketGridSkeleton,
   LiteMarketListSkeleton,
   LiteMobileStageSkeleton,
 } from "@/components/lite/skeletons/LiteEventsSkeletons";
-import { LiteMobileAllStage } from "@/components/lite/mobile/LiteMobileAllStage";
+import { SPORTS_SUBTYPE } from "@/components/lite/sports/sportsData";
 import { MobileCategoryRow } from "@/components/lite/mobile/MobileCategoryRow";
 import { MobileIntradayModule } from "@/components/lite/mobile/MobileIntradayModule";
 import { MobileSportsModule } from "@/components/lite/mobile/MobileSportsModule";
-import { EditorPicksModule } from "@/components/lite/picks/EditorPicksModule";
 import { useEditorPicks } from "@/components/lite/picks/editorialPicks";
 import { SportsStageCard } from "@/components/lite/sports/SportsStageCard";
 import { useSportsMatches } from "@/components/lite/sports/sportsData";
@@ -104,7 +102,9 @@ const LiteEventsPage = () => {
     () =>
       markets.filter(
         (m) =>
-          (m.category || "").toLowerCase() !== "sports" &&
+          // Only the winner-result fixtures live in the Sports module — every
+          // other sports-derived market belongs in the catalogue (HP-1 §3.6).
+          (m.eventSubtype || "") !== SPORTS_SUBTYPE &&
           !INTRADAY_SUBTYPES.includes(
             (m.eventSubtype || "") as (typeof INTRADAY_SUBTYPES)[number],
           ),
@@ -155,13 +155,8 @@ const LiteEventsPage = () => {
   const [scrollToEngine, setScrollToEngine] = useState(0);
 
   // Stage data — desktop only, and only for the views that render it.
-  const stageActive =
-    calendarOn ||
-    (!isMobile && (isStageView || isIntradayView)) ||
-    isMobileStage ||
-    isMobileIntraday ||
-    isCryptoView ||
-    isFinanceView;
+  // The quote tape rides the same two streams, so they stay on in every view.
+  const stageActive = true;
   const tickSeconds = useSecondTick();
   const { currentFor, historyFor, loading: roundsLoading } = useQuickRounds(stageActive);
   const { rows: stockRows, loading: stocksLoading } = useIntradayStocks(stageActive);
@@ -264,6 +259,13 @@ const LiteEventsPage = () => {
     });
   };
 
+
+  const tapeItems = useMemo(
+    () => buildTapeItems(currentFor, mobileTf, stockRows, tickSeconds),
+    [currentFor, mobileTf, stockRows, tickSeconds],
+  );
+  const tapeLoading =
+    (roundsLoading && currentFor.size === 0) || (stocksLoading && stockRows.length === 0);
 
   const watchlistStatusLine = (
     <div className="flex items-center gap-2" style={{ marginTop: 12, fontSize: 13 }}>
@@ -416,13 +418,17 @@ const LiteEventsPage = () => {
         {/* Desktop "All stage" — category-as-view. */}
         {!calendarOn && isStageView && stageFirstLoad && <LiteAllStageSkeleton />}
         {!calendarOn && isStageView && !stageFirstLoad && (
-          <LiteAllStage
+          <HomeStage
             currentFor={currentFor}
             historyFor={historyFor}
             stockRows={stockRows}
+            stocksLoading={stocksLoading}
             matches={sportsMatches}
+            picks={editorPicks}
+            tf={mobileTf}
+            onSelectTf={setMobileTf}
             tickSeconds={tickSeconds}
-            onOpenIntraday={() => setSector("intraday")}
+            isMobile={false}
             onOpenSports={() => setSector("sports")}
           />
         )}
@@ -488,15 +494,17 @@ const LiteEventsPage = () => {
         {/* Mobile "All" stage (contract 11B/11C) — Intraday · Sports · Picks. */}
         {isMobileStage && stageFirstLoad && <LiteMobileStageSkeleton />}
         {isMobileStage && !stageFirstLoad && (
-          <LiteMobileAllStage
+          <HomeStage
             currentFor={currentFor}
             historyFor={historyFor}
             stockRows={stockRows}
+            stocksLoading={stocksLoading}
             matches={sportsMatches}
+            picks={editorPicks}
             tf={mobileTf}
             onSelectTf={setMobileTf}
             tickSeconds={tickSeconds}
-            onOpenIntraday={() => setSector("intraday")}
+            isMobile
             onOpenSports={() => setSector("sports")}
           />
         )}
@@ -529,13 +537,6 @@ const LiteEventsPage = () => {
               boostEnabled={sportsBoostEnabled}
               onOpenAll={() => setSector("sports")}
             />
-          </div>
-        )}
-
-        {/* Editor's picks — desktop All view, between Sports and the catalogue. */}
-        {!calendarOn && isStageView && editorPicks.length > 0 && picksUpdatedAt && (
-          <div style={{ marginTop: 24 }}>
-            <EditorPicksModule picks={editorPicks} updatedAt={picksUpdatedAt} />
           </div>
         )}
 
