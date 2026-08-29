@@ -83,15 +83,24 @@ const StockRow = ({
       }
       className={`flex items-center ${clickable ? "cursor-pointer" : ""}`}
       style={{
-        gap: 13,
-        padding: "8px 0",
+        gap: isMobile ? 10 : 13,
+        padding: isMobile ? "7px 0" : "8px 0",
         borderBottom: "1px solid rgba(148,163,184,0.07)",
       }}
     >
-      <AssetAvatar symbol={ticker} kind="equity" size={28} />
-      <span style={{ fontWeight: 700, fontSize: 15, color: "#fff", width: isMobile ? undefined : 62 }}>
+      <AssetAvatar symbol={ticker} kind="equity" size={isMobile ? 26 : 28} />
+      <span
+        className="truncate"
+        style={{
+          fontWeight: 700,
+          fontSize: isMobile ? 14 : 15,
+          color: "#fff",
+          width: isMobile ? undefined : 62,
+        }}
+      >
         {ticker}
       </span>
+
       {state === "stale" ? (
         <span
           className="animate-pulse"
