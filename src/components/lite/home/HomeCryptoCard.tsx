@@ -231,6 +231,7 @@ const CompactTile = ({
           minHeight={38}
           labelSize={compact ? 12 : 13.5}
           priceSize={compact ? 12 : 13.5}
+          gap={8}
           onClick={go("up")}
         />
         <DirectionButton
@@ -240,6 +241,7 @@ const CompactTile = ({
           minHeight={38}
           labelSize={compact ? 12 : 13.5}
           priceSize={compact ? 12 : 13.5}
+          gap={8}
           onClick={go("down")}
         />
       </div>
