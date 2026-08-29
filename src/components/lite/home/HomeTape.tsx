@@ -135,9 +135,9 @@ export const HomeTape = ({
     const measure = () => {
       const r = railRef.current?.scrollWidth ?? 0;
       if (r === 0) return;
-      // Constant linear speed: ~22 px/s. scrollWidth is the duplicated rail,
-      // so one visible loop is half that distance.
-      const seconds = Math.max(20, r / 44);
+      // Constant linear speed: ~30 px/s. scrollWidth is the duplicated rail,
+      // so one visible loop is half that distance (~45 s per loop).
+      const seconds = Math.max(20, r / 60);
       setDuration(seconds);
     };
     measure();
