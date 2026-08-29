@@ -184,6 +184,8 @@ export const HomeStocksCard = ({
   loading: boolean;
 }) => {
   const [tab, setTab] = useState<TabId>("us");
+  const [expanded, setExpanded] = useState(false);
+
 
   const { us, hk } = useMemo(() => {
     const dedupe = (rows: StockEventRow[]) => {
