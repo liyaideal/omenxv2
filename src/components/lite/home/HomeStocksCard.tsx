@@ -278,10 +278,10 @@ export const HomeStocksCard = ({
 
       <div
         className="flex flex-1 flex-col"
-        style={{ justifyContent: "space-evenly", marginTop: 4 }}
+        style={{ justifyContent: isMobile ? "flex-start" : "space-evenly", marginTop: 4 }}
       >
         {loading && rows.length === 0
-          ? Array.from({ length: 10 }).map((_, i) => (
+          ? Array.from({ length: isMobile ? 5 : 10 }).map((_, i) => (
               <div
                 key={i}
                 className="animate-pulse"
@@ -293,7 +293,7 @@ export const HomeStocksCard = ({
                 }}
               />
             ))
-          : rows.map((row) => (
+          : visibleRows.map((row) => (
               <StockRow
                 key={row.id}
                 row={row}
@@ -302,6 +302,17 @@ export const HomeStocksCard = ({
               />
             ))}
       </div>
+      {isMobile && rows.length > MOBILE_ROWS && (
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          className="font-display w-full"
+          style={{ marginTop: 12, fontSize: 13, color: CYAN, textAlign: "left" }}
+        >
+          {expanded ? "Show less" : `Show all ${rows.length} →`}
+        </button>
+      )}
+
     </HomeCard>
   );
 };
