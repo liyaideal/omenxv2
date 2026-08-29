@@ -287,6 +287,70 @@ const LiteEventsPage = () => {
     </div>
   );
 
+  /* Chips band content — semantics unchanged, only the container moved. */
+  const chipsRow =
+    isWatchlistView && !calendarOn && !isMobile ? (
+      <div className="flex items-center gap-2" style={{ marginTop: 16 }}>
+        <div className="min-w-0 flex-1">{watchlistStatusLine}</div>
+        <div className="flex shrink-0 items-center gap-2">
+          <WatchlistChip
+            active
+            count={watchlist.size}
+            showLabel
+            onClick={handleWatchlistClick}
+          />
+          <CalendarChip active={calendarOn} onClick={handleCalendarClick} />
+        </div>
+      </div>
+    ) : isMobile ? (
+      <div className="flex flex-col" style={{ marginTop: 12, gap: 10 }}>
+        <MobileCategoryRow
+          categories={[
+            { id: "all", label: "All" },
+            { id: "intraday", label: "Intraday", dot: "#FF8A3D" },
+            ...(sportsMatches.length
+              ? [
+                  {
+                    id: "sports",
+                    label: "Sports",
+                    dot: "#FF3B4E",
+                    pulse: sportsMatches.some((m) => m.live),
+                  },
+                ]
+              : []),
+            ...availableSectors.map((s) => ({ id: s.id, label: s.label })),
+          ]}
+          value={sector}
+          onSelect={setSector}
+          watchlistActive={isWatchlistView}
+          watchlistCount={watchlist.size}
+          onWatchlist={handleWatchlistClick}
+          calendarActive={calendarOn}
+          onCalendar={handleCalendarClick}
+          boostActive={boostOnly}
+          onBoost={() => setBoostOnly((v) => !v)}
+        />
+        {isWatchlistView && !calendarOn && watchlistStatusLine}
+      </div>
+    ) : (
+      <LiteEventsFilterRow
+        sector={sector}
+        onSelectSector={setSector}
+        sectorCounts={sectorCounts}
+        sportsCount={sportsMatches.length}
+        sportsLive={sportsLive}
+        calendarOn={calendarOn}
+        boostOnly={boostOnly}
+        onToggleBoost={() => setBoostOnly((v) => !v)}
+        watchlistActive={isWatchlistView}
+        watchlistCount={watchlist.size}
+        onWatchlist={handleWatchlistClick}
+        onCalendar={handleCalendarClick}
+      />
+    );
+
+
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {isMobile ? (
