@@ -238,8 +238,8 @@ const CompactTile = ({
           price={down ? down.price : 0.5}
           tone="down"
           minHeight={38}
-          labelSize={13.5}
-          priceSize={13.5}
+          labelSize={compact ? 12 : 13.5}
+          priceSize={compact ? 12 : 13.5}
           onClick={go("down")}
         />
       </div>
