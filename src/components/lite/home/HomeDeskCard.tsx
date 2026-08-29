@@ -23,8 +23,11 @@ const PickRow = ({ pick, index }: { pick: EditorPick; index: number }) => {
           {String(index + 1).padStart(2, "0")}
         </span>
         <div className="min-w-0 flex-1">
-          <div style={{ fontWeight: 700, fontSize: 15.5, color: "#fff" }}>{pick.name}</div>
+          <div className="truncate" style={{ fontWeight: 700, fontSize: 15.5, color: "#fff" }}>
+            {pick.name}
+          </div>
           <div
+            className="line-clamp-2"
             style={{
               fontSize: 13,
               marginTop: 4,
@@ -34,6 +37,7 @@ const PickRow = ({ pick, index }: { pick: EditorPick; index: number }) => {
           >
             “{pick.note}”
           </div>
+
           <div className="flex items-center" style={{ gap: 8, marginTop: 10 }}>
             {multi ? (
               <>
