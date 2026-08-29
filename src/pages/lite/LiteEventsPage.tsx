@@ -1,5 +1,5 @@
 import { SeoFooter } from "@/components/seo/SeoFooter";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Star } from "lucide-react";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
