@@ -472,7 +472,7 @@ const LiteEventsPage = () => {
       <div
         className={cn(
           "mx-auto flex w-full max-w-7xl flex-1 flex-col",
-          isMobile ? "px-4 py-4" : "px-4 py-6 lg:px-6",
+          isMobile ? "px-4 pt-3 pb-4" : "px-4 pt-4 pb-6 lg:px-6",
         )}
       >
 
