@@ -17,10 +17,7 @@ import { LiteEventCard } from "@/components/lite/LiteEventCard";
 import { WatchlistChip } from "@/components/lite/LiteListControls";
 import { CalendarChip } from "@/components/lite/LiteListControls";
 
-import {
-  LiteEventsFilterRow,
-  LiteEventsGreeting,
-} from "@/components/lite/LiteEventsHeader";
+import { LiteEventsFilterRow } from "@/components/lite/LiteEventsHeader";
 
 import { LiteCalendarView } from "@/components/lite/calendar/LiteCalendarView";
 import { EmptyState } from "@/components/states";
@@ -32,18 +29,19 @@ import {
   useQuickRounds,
   useSecondTick,
 } from "@/components/lite/intraday/intradayData";
-import { LiteAllStage } from "@/components/lite/allstage/LiteAllStage";
+import { HomeTape, buildTapeItems } from "@/components/lite/home/HomeTape";
+import { HomeHero } from "@/components/lite/home/HomeHero";
+import { HomeStage } from "@/components/lite/home/HomeStage";
 import {
   LiteAllStageSkeleton,
   LiteMarketGridSkeleton,
   LiteMarketListSkeleton,
   LiteMobileStageSkeleton,
 } from "@/components/lite/skeletons/LiteEventsSkeletons";
-import { LiteMobileAllStage } from "@/components/lite/mobile/LiteMobileAllStage";
+import { SPORTS_SUBTYPE } from "@/components/lite/sports/sportsData";
 import { MobileCategoryRow } from "@/components/lite/mobile/MobileCategoryRow";
 import { MobileIntradayModule } from "@/components/lite/mobile/MobileIntradayModule";
 import { MobileSportsModule } from "@/components/lite/mobile/MobileSportsModule";
-import { EditorPicksModule } from "@/components/lite/picks/EditorPicksModule";
 import { useEditorPicks } from "@/components/lite/picks/editorialPicks";
 import { SportsStageCard } from "@/components/lite/sports/SportsStageCard";
 import { useSportsMatches } from "@/components/lite/sports/sportsData";
@@ -104,7 +102,9 @@ const LiteEventsPage = () => {
     () =>
       markets.filter(
         (m) =>
-          (m.category || "").toLowerCase() !== "sports" &&
+          // Only the winner-result fixtures live in the Sports module — every
+          // other sports-derived market belongs in the catalogue (HP-1 §3.6).
+          (m.eventSubtype || "") !== SPORTS_SUBTYPE &&
           !INTRADAY_SUBTYPES.includes(
             (m.eventSubtype || "") as (typeof INTRADAY_SUBTYPES)[number],
           ),
@@ -155,13 +155,8 @@ const LiteEventsPage = () => {
   const [scrollToEngine, setScrollToEngine] = useState(0);
 
   // Stage data — desktop only, and only for the views that render it.
-  const stageActive =
-    calendarOn ||
-    (!isMobile && (isStageView || isIntradayView)) ||
-    isMobileStage ||
-    isMobileIntraday ||
-    isCryptoView ||
-    isFinanceView;
+  // The quote tape rides the same two streams, so they stay on in every view.
+  const stageActive = true;
   const tickSeconds = useSecondTick();
   const { currentFor, historyFor, loading: roundsLoading } = useQuickRounds(stageActive);
   const { rows: stockRows, loading: stocksLoading } = useIntradayStocks(stageActive);
@@ -181,7 +176,7 @@ const LiteEventsPage = () => {
     () => sportsMatches.some((m) => m.live),
     [sportsMatches],
   );
-  const { picks: editorPicks, updatedAt: picksUpdatedAt } = useEditorPicks();
+  const { picks: editorPicks } = useEditorPicks();
   // Sports matches carry no per-event boost row — the category config is the
   // same predicate the card grid uses (enabled + at least 2x).
   const sportsBoostEnabled = useMemo(() => {
@@ -265,6 +260,13 @@ const LiteEventsPage = () => {
   };
 
 
+  const tapeItems = useMemo(
+    () => buildTapeItems(currentFor, mobileTf, stockRows, tickSeconds),
+    [currentFor, mobileTf, stockRows, tickSeconds],
+  );
+  const tapeLoading =
+    (roundsLoading && currentFor.size === 0) || (stocksLoading && stockRows.length === 0);
+
   const watchlistStatusLine = (
     <div className="flex items-center gap-2" style={{ marginTop: 12, fontSize: 13 }}>
       <Star
@@ -287,6 +289,70 @@ const LiteEventsPage = () => {
     </div>
   );
 
+  /* Chips band content — semantics unchanged, only the container moved. */
+  const chipsRow =
+    isWatchlistView && !calendarOn && !isMobile ? (
+      <div className="flex items-center gap-2" style={{ marginTop: 16 }}>
+        <div className="min-w-0 flex-1">{watchlistStatusLine}</div>
+        <div className="flex shrink-0 items-center gap-2">
+          <WatchlistChip
+            active
+            count={watchlist.size}
+            showLabel
+            onClick={handleWatchlistClick}
+          />
+          <CalendarChip active={calendarOn} onClick={handleCalendarClick} />
+        </div>
+      </div>
+    ) : isMobile ? (
+      <div className="flex flex-col" style={{ marginTop: 12, gap: 10 }}>
+        <MobileCategoryRow
+          categories={[
+            { id: "all", label: "All" },
+            { id: "intraday", label: "Intraday", dot: "#FF8A3D" },
+            ...(sportsMatches.length
+              ? [
+                  {
+                    id: "sports",
+                    label: "Sports",
+                    dot: "#FF3B4E",
+                    pulse: sportsMatches.some((m) => m.live),
+                  },
+                ]
+              : []),
+            ...availableSectors.map((s) => ({ id: s.id, label: s.label })),
+          ]}
+          value={sector}
+          onSelect={setSector}
+          watchlistActive={isWatchlistView}
+          watchlistCount={watchlist.size}
+          onWatchlist={handleWatchlistClick}
+          calendarActive={calendarOn}
+          onCalendar={handleCalendarClick}
+          boostActive={boostOnly}
+          onBoost={() => setBoostOnly((v) => !v)}
+        />
+        {isWatchlistView && !calendarOn && watchlistStatusLine}
+      </div>
+    ) : (
+      <LiteEventsFilterRow
+        sector={sector}
+        onSelectSector={setSector}
+        sectorCounts={sectorCounts}
+        sportsCount={sportsMatches.length}
+        sportsLive={sportsLive}
+        calendarOn={calendarOn}
+        boostOnly={boostOnly}
+        onToggleBoost={() => setBoostOnly((v) => !v)}
+        watchlistActive={isWatchlistView}
+        watchlistCount={watchlist.size}
+        onWatchlist={handleWatchlistClick}
+        onCalendar={handleCalendarClick}
+      />
+    );
+
+
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {isMobile ? (
@@ -295,6 +361,31 @@ const LiteEventsPage = () => {
         <EventsDesktopHeader />
       )}
 
+      {/* Quote tape — fed by the page's own crypto + equity streams. */}
+      <HomeTape items={tapeItems} loading={tapeLoading} isMobile={!!isMobile} />
+
+      {/* Hero — replaces the old greeting strip (HP-1). */}
+      <HomeHero isMobile={!!isMobile} />
+
+      {/* Chips band — same controls, now on a full-bleed dark rail. */}
+      <div
+        style={{
+          background: "#08090D",
+          borderTop: "1px solid rgba(148,163,184,0.08)",
+          borderBottom: "1px solid rgba(148,163,184,0.08)",
+        }}
+      >
+        <div
+          className={cn(
+            "mx-auto w-full max-w-7xl",
+            isMobile ? "px-4" : "px-4 lg:px-6",
+          )}
+          style={{ paddingTop: 8, paddingBottom: 8 }}
+        >
+          {chipsRow}
+        </div>
+      </div>
+
       <div
         className={cn(
           "mx-auto flex w-full max-w-7xl flex-1 flex-col",
@@ -302,76 +393,7 @@ const LiteEventsPage = () => {
         )}
       >
 
-        {/* Intro strip — plain-language, no trader jargon; display treatment */}
-        <LiteEventsGreeting isMobile={!!isMobile} />
 
-
-        {/* Filter row — mobile keeps the control row in every view (watchlist
-            included), desktop still swaps it for the watchlist status line. */}
-        {isWatchlistView && !calendarOn && !isMobile ? (
-          (
-            <div className="flex items-center gap-2" style={{ marginTop: 16 }}>
-              <div className="min-w-0 flex-1">{watchlistStatusLine}</div>
-              <div className="flex shrink-0 items-center gap-2">
-                <WatchlistChip
-                  active
-                  count={watchlist.size}
-                  showLabel
-                  onClick={handleWatchlistClick}
-                />
-                <CalendarChip
-                  active={calendarOn}
-                  onClick={handleCalendarClick}
-                />
-              </div>
-            </div>
-          )
-        ) : isMobile ? (
-          <div className="flex flex-col" style={{ marginTop: 12, gap: 10 }}>
-            <MobileCategoryRow
-              categories={[
-                { id: "all", label: "All" },
-                { id: "intraday", label: "Intraday", dot: "#FF8A3D" },
-                ...(sportsMatches.length
-                  ? [
-                      {
-                        id: "sports",
-                        label: "Sports",
-                        dot: "#FF3B4E",
-                        pulse: sportsMatches.some((m) => m.live),
-                      },
-                    ]
-                  : []),
-                ...availableSectors.map((s) => ({ id: s.id, label: s.label })),
-              ]}
-              value={sector}
-              onSelect={setSector}
-              watchlistActive={isWatchlistView}
-              watchlistCount={watchlist.size}
-              onWatchlist={handleWatchlistClick}
-              calendarActive={calendarOn}
-              onCalendar={handleCalendarClick}
-              boostActive={boostOnly}
-              onBoost={() => setBoostOnly((v) => !v)}
-            />
-            {isWatchlistView && !calendarOn && watchlistStatusLine}
-          </div>
-        ) : (
-          <LiteEventsFilterRow
-            sector={sector}
-            onSelectSector={setSector}
-            sectorCounts={sectorCounts}
-            sportsCount={sportsMatches.length}
-            sportsLive={sportsLive}
-            calendarOn={calendarOn}
-            boostOnly={boostOnly}
-            onToggleBoost={() => setBoostOnly((v) => !v)}
-            watchlistActive={isWatchlistView}
-            watchlistCount={watchlist.size}
-            onWatchlist={handleWatchlistClick}
-            onCalendar={handleCalendarClick}
-          />
-        )}
 
 
         {/* Calendar lens — replaces the page body in place. */}
@@ -396,13 +418,17 @@ const LiteEventsPage = () => {
         {/* Desktop "All stage" — category-as-view. */}
         {!calendarOn && isStageView && stageFirstLoad && <LiteAllStageSkeleton />}
         {!calendarOn && isStageView && !stageFirstLoad && (
-          <LiteAllStage
+          <HomeStage
             currentFor={currentFor}
             historyFor={historyFor}
             stockRows={stockRows}
+            stocksLoading={stocksLoading}
             matches={sportsMatches}
+            picks={editorPicks}
+            tf={mobileTf}
+            onSelectTf={setMobileTf}
             tickSeconds={tickSeconds}
-            onOpenIntraday={() => setSector("intraday")}
+            isMobile={false}
             onOpenSports={() => setSector("sports")}
           />
         )}
@@ -468,15 +494,17 @@ const LiteEventsPage = () => {
         {/* Mobile "All" stage (contract 11B/11C) — Intraday · Sports · Picks. */}
         {isMobileStage && stageFirstLoad && <LiteMobileStageSkeleton />}
         {isMobileStage && !stageFirstLoad && (
-          <LiteMobileAllStage
+          <HomeStage
             currentFor={currentFor}
             historyFor={historyFor}
             stockRows={stockRows}
+            stocksLoading={stocksLoading}
             matches={sportsMatches}
+            picks={editorPicks}
             tf={mobileTf}
             onSelectTf={setMobileTf}
             tickSeconds={tickSeconds}
-            onOpenIntraday={() => setSector("intraday")}
+            isMobile
             onOpenSports={() => setSector("sports")}
           />
         )}
@@ -509,13 +537,6 @@ const LiteEventsPage = () => {
               boostEnabled={sportsBoostEnabled}
               onOpenAll={() => setSector("sports")}
             />
-          </div>
-        )}
-
-        {/* Editor's picks — desktop All view, between Sports and the catalogue. */}
-        {!calendarOn && isStageView && editorPicks.length > 0 && picksUpdatedAt && (
-          <div style={{ marginTop: 24 }}>
-            <EditorPicksModule picks={editorPicks} updatedAt={picksUpdatedAt} />
           </div>
         )}
 

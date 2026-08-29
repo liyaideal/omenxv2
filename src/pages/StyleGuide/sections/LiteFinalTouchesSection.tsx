@@ -98,6 +98,7 @@ const pick = (
   noPrice: 1 - yes,
   yesOptionId: `pick-${i}-yes`,
   noOptionId: `pick-${i}-no`,
+  optionCount: 2,
 });
 
 const PICKS: EditorPick[] = [

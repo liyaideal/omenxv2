@@ -734,3 +734,15 @@
 .lite-cal-tile:hover {
   border-color: #23262d;
 }
+
+/* ── Home tape (HP-1) — marquee only when the rail overflows ──── */
+@keyframes lite-tape-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.lite-tape-rail {
+  animation: lite-tape-scroll 38s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lite-tape-rail { animation: none; }
+}
