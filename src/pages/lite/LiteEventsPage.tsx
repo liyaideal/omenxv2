@@ -176,7 +176,7 @@ const LiteEventsPage = () => {
     () => sportsMatches.some((m) => m.live),
     [sportsMatches],
   );
-  const { picks: editorPicks, updatedAt: picksUpdatedAt } = useEditorPicks();
+  const { picks: editorPicks } = useEditorPicks();
   // Sports matches carry no per-event boost row — the category config is the
   // same predicate the card grid uses (enabled + at least 2x).
   const sportsBoostEnabled = useMemo(() => {
