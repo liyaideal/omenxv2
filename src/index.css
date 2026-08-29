@@ -741,7 +741,7 @@
   to { transform: translateX(-50%); }
 }
 .lite-tape-rail {
-  animation: lite-tape-scroll 38s linear infinite;
+  animation: lite-tape-scroll var(--duration, 38s) linear infinite;
 }
 @media (prefers-reduced-motion: reduce) {
   .lite-tape-rail { animation: none; }
