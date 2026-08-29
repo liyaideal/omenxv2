@@ -231,6 +231,7 @@ const CompactTile = ({
           minHeight={38}
           labelSize={compact ? 12 : 13.5}
           priceSize={compact ? 12 : 13.5}
+          gap={8}
           onClick={go("up")}
         />
         <DirectionButton
@@ -240,6 +241,7 @@ const CompactTile = ({
           minHeight={38}
           labelSize={compact ? 12 : 13.5}
           priceSize={compact ? 12 : 13.5}
+          gap={8}
           onClick={go("down")}
         />
       </div>
@@ -276,7 +278,18 @@ export const HomeCryptoCard = ({
         <span className={isMobile ? "" : "ml-auto flex-none"}>
           <span className="flex items-center" style={{ gap: 16 }}>
             {!isMobile && (
-              <span style={{ fontSize: 14, color: "#98A1AD" }}>Round length</span>
+              <span
+                className="font-mono"
+                style={{
+                  fontSize: 10,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  color: "#6B7280",
+                  fontWeight: 700,
+                }}
+              >
+                ROUND
+              </span>
             )}
             <RoundDial value={tf} onSelect={onSelectTf} />
           </span>
