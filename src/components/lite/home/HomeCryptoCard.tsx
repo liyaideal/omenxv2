@@ -47,10 +47,12 @@ const MainTile = ({
   event,
   history,
   tickSeconds,
+  compact = false,
 }: {
   event: QuickEvent | null;
   history: ("up" | "down")[];
   tickSeconds: number;
+  compact?: boolean;
 }) => {
   const navigate = useNavigate();
   const { up, down, base, upOdds, price, pct } = useNumbers(event, tickSeconds);
@@ -59,6 +61,7 @@ const MainTile = ({
     if (!event) return;
     navigate(`/spot?event=${encodeURIComponent(event.id)}${side ? `&side=${side}` : ""}`);
   };
+  const chartHeight = compact ? 132 : 176;
 
   return (
     <div
@@ -67,50 +70,58 @@ const MainTile = ({
         background: "#191D24",
         border: "1px solid rgba(148,163,184,0.12)",
         borderRadius: 16,
-        padding: "22px 24px",
+        padding: compact ? "14px 14px" : "22px 24px",
       }}
     >
       <div className="flex items-center" style={{ gap: 10 }}>
-        <AssetAvatar symbol="BTC" kind="crypto" size={34} />
-        <span style={{ fontWeight: 700, fontSize: 18, color: "#fff" }}>BTC</span>
+        <AssetAvatar symbol="BTC" kind="crypto" size={compact ? 30 : 34} />
+        <span style={{ fontWeight: 700, fontSize: compact ? 16 : 18, color: "#fff" }}>BTC</span>
         <span className="ml-auto">
-          <PctChange value={pct} size={13.5} weight={600} />
+          <PctChange value={pct} size={compact ? 12.5 : 13.5} weight={600} />
         </span>
       </div>
       <div
         className="font-display"
         style={{
-          fontSize: 34,
+          fontSize: compact ? 26 : 34,
           fontWeight: 700,
-          marginTop: 10,
+          marginTop: compact ? 6 : 10,
           color: "#fff",
           fontVariantNumeric: "tabular-nums",
         }}
       >
         {price != null ? fmtUsd(price) : "—"}
       </div>
-      <div style={{ marginTop: 14 }}>
+      <div style={{ marginTop: compact ? 10 : 14 }}>
         {event && base != null && price != null ? (
           <RoundPlot
             eventId={event.id}
             basePrice={base}
             currentPrice={price}
             upOdds={upOdds}
-            height={176}
+            height={chartHeight}
           />
         ) : (
-          <ChartSkeleton height={176} />
+          <ChartSkeleton height={chartHeight} />
         )}
       </div>
-      <div className="flex items-center" style={{ margin: "11px 2px 13px" }}>
+      <div
+        className="flex flex-wrap items-center"
+        style={{ margin: "10px 2px 12px", gap: 8, rowGap: 6 }}
+      >
         <span
           className="font-display"
-          style={{ fontSize: 12, color: "#98A1AD", fontVariantNumeric: "tabular-nums" }}
+          style={{
+            fontSize: 12,
+            color: "#98A1AD",
+            fontVariantNumeric: "tabular-nums",
+            whiteSpace: "nowrap",
+          }}
         >
           {base != null ? `Round open ${fmtUsd(base)}` : "Round open —"}
         </span>
         <span className="ml-auto whitespace-nowrap">
-          <Last8Strip history={history} variant="strip" dot={11} />
+          <Last8Strip history={history} variant="strip" dot={compact ? 10 : 11} />
         </span>
       </div>
       <div
@@ -121,24 +132,27 @@ const MainTile = ({
           label="Up"
           price={up ? up.price : 0.5}
           tone="up"
-          minHeight={44}
+          minHeight={compact ? 46 : 44}
           labelSize={14.5}
           priceSize={14.5}
+          gap={8}
           onClick={go("up")}
         />
         <DirectionButton
           label="Down"
           price={down ? down.price : 0.5}
           tone="down"
-          minHeight={44}
+          minHeight={compact ? 46 : 44}
           labelSize={14.5}
           priceSize={14.5}
+          gap={8}
           onClick={go("down")}
         />
       </div>
     </div>
   );
 };
+
 
 const CompactTile = ({
   coin,
@@ -228,22 +242,28 @@ const CompactTile = ({
           label="Up"
           price={up ? up.price : 0.5}
           tone="up"
-          minHeight={38}
-          labelSize={compact ? 12 : 13.5}
-          priceSize={compact ? 12 : 13.5}
-          gap={8}
+          layout={compact ? "stacked" : "split"}
+          minHeight={compact ? 44 : 38}
+          labelSize={compact ? 11 : 13.5}
+          priceSize={compact ? 13.5 : 13.5}
+          gap={compact ? 1 : 8}
+          padding={compact ? "0 8px" : undefined}
           onClick={go("up")}
         />
         <DirectionButton
           label="Down"
           price={down ? down.price : 0.5}
           tone="down"
-          minHeight={38}
-          labelSize={compact ? 12 : 13.5}
-          priceSize={compact ? 12 : 13.5}
-          gap={8}
+          layout={compact ? "stacked" : "split"}
+          minHeight={compact ? 44 : 38}
+          labelSize={compact ? 11 : 13.5}
+          priceSize={compact ? 13.5 : 13.5}
+          gap={compact ? 1 : 8}
+          padding={compact ? "0 8px" : undefined}
           onClick={go("down")}
         />
+
+
       </div>
     </div>
   );
@@ -268,11 +288,11 @@ export const HomeCryptoCard = ({
   const btc = eventFor("btc");
 
   return (
-    <HomeCard style={{ padding: isMobile ? "18px 16px" : "26px 30px" }}>
+    <HomeCard style={{ padding: isMobile ? "16px" : "26px 30px" }}>
       <HomeEyebrow color={ORANGE}>● Intraday · Rolling rounds</HomeEyebrow>
       <div
         className={isMobile ? "flex flex-col" : "flex items-center"}
-        style={{ gap: isMobile ? 12 : 20, marginTop: 12 }}
+        style={{ gap: isMobile ? 10 : 20, marginTop: isMobile ? 10 : 12 }}
       >
         <HomeQuestion size={isMobile ? 20 : 26}>Will the price go up?</HomeQuestion>
         <span className={isMobile ? "" : "ml-auto flex-none"}>
@@ -295,22 +315,24 @@ export const HomeCryptoCard = ({
           </span>
         </span>
       </div>
-      <div style={{ marginTop: 8, fontSize: 14, color: "#98A1AD" }}>
+      <div style={{ marginTop: 8, fontSize: isMobile ? 13 : 14, color: "#98A1AD" }}>
         One clock for all three coins.
       </div>
 
       {isMobile ? (
-        <div className="flex flex-col" style={{ gap: 12, marginTop: 16 }}>
+        <div className="flex flex-col" style={{ gap: 10, marginTop: 14 }}>
           <MainTile
             event={btc}
             history={historyFor.get(`btc-${tf}`) ?? []}
             tickSeconds={tickSeconds}
+            compact
           />
-          <div className="grid" style={{ gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 12 }}>
+          <div className="grid" style={{ gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 10 }}>
             <CompactTile coin="eth" event={eventFor("eth")} tickSeconds={tickSeconds} compact />
             <CompactTile coin="sol" event={eventFor("sol")} tickSeconds={tickSeconds} compact />
           </div>
         </div>
+
       ) : (
         <div
           className="grid items-stretch"

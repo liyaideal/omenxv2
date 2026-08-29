@@ -83,15 +83,24 @@ const StockRow = ({
       }
       className={`flex items-center ${clickable ? "cursor-pointer" : ""}`}
       style={{
-        gap: 13,
-        padding: "8px 0",
+        gap: isMobile ? 10 : 13,
+        padding: isMobile ? "7px 0" : "8px 0",
         borderBottom: "1px solid rgba(148,163,184,0.07)",
       }}
     >
-      <AssetAvatar symbol={ticker} kind="equity" size={28} />
-      <span style={{ fontWeight: 700, fontSize: 15, color: "#fff", width: isMobile ? undefined : 62 }}>
+      <AssetAvatar symbol={ticker} kind="equity" size={isMobile ? 26 : 28} />
+      <span
+        className="truncate"
+        style={{
+          fontWeight: 700,
+          fontSize: isMobile ? 14 : 15,
+          color: "#fff",
+          width: isMobile ? undefined : 62,
+        }}
+      >
         {ticker}
       </span>
+
       {state === "stale" ? (
         <span
           className="animate-pulse"
@@ -175,6 +184,8 @@ export const HomeStocksCard = ({
   loading: boolean;
 }) => {
   const [tab, setTab] = useState<TabId>("us");
+  const [expanded, setExpanded] = useState(false);
+
 
   const { us, hk } = useMemo(() => {
     const dedupe = (rows: StockEventRow[]) => {
@@ -193,6 +204,9 @@ export const HomeStocksCard = ({
 
   const rows = tab === "us" ? us : hk;
   const total = us.length + hk.length;
+  const MOBILE_ROWS = 5;
+  const visibleRows = isMobile && !expanded ? rows.slice(0, MOBILE_ROWS) : rows;
+
 
   const settleLine = useMemo(() => {
     if (tab === "hk") return "HK settles at close 16:00 HKT";
@@ -267,10 +281,10 @@ export const HomeStocksCard = ({
 
       <div
         className="flex flex-1 flex-col"
-        style={{ justifyContent: "space-evenly", marginTop: 4 }}
+        style={{ justifyContent: isMobile ? "flex-start" : "space-evenly", marginTop: 4 }}
       >
         {loading && rows.length === 0
-          ? Array.from({ length: 10 }).map((_, i) => (
+          ? Array.from({ length: isMobile ? 5 : 10 }).map((_, i) => (
               <div
                 key={i}
                 className="animate-pulse"
@@ -282,7 +296,7 @@ export const HomeStocksCard = ({
                 }}
               />
             ))
-          : rows.map((row) => (
+          : visibleRows.map((row) => (
               <StockRow
                 key={row.id}
                 row={row}
@@ -291,6 +305,17 @@ export const HomeStocksCard = ({
               />
             ))}
       </div>
+      {isMobile && rows.length > MOBILE_ROWS && (
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          className="font-display w-full"
+          style={{ marginTop: 12, fontSize: 13, color: CYAN, textAlign: "left" }}
+        >
+          {expanded ? "Show less" : `Show all ${rows.length} →`}
+        </button>
+      )}
+
     </HomeCard>
   );
 };

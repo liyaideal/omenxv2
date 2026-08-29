@@ -69,7 +69,7 @@ export const HomeStage = ({
 
   if (isMobile) {
     return (
-      <div className="flex flex-col" style={{ gap: 18, marginTop: 10 }}>
+      <div className="flex flex-col" style={{ gap: 14, marginTop: 10 }}>
         {crypto}
         {stocks}
         {sports}
@@ -77,6 +77,7 @@ export const HomeStage = ({
       </div>
     );
   }
+
 
   return (
     <div

@@ -133,13 +133,16 @@ export const DirectionButton = ({
       gap: gap ?? (layout === "centered" ? 5 : undefined),
     }}
   >
-    <span style={{ fontSize: labelSize, fontWeight: labelWeight }}>{label}</span>
+    <span className="min-w-0 truncate" style={{ fontSize: labelSize, fontWeight: labelWeight }}>
+      {label}
+    </span>
     <span
-      className="font-display"
+      className="font-display flex-none"
       style={{ fontSize: priceSize, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}
     >
       {Math.round(price * 100)}¢
     </span>
+
   </button>
 );
 
