@@ -40,6 +40,8 @@ export interface EditorPick {
   noPrice: number;
   yesOptionId: string | null;
   noOptionId: string | null;
+  /** Total outcome count — >2 marks a multi-market pick. */
+  optionCount: number;
 }
 
 interface RawEditorial {
@@ -140,6 +142,7 @@ export const toEditorPick = (row: RawRow): EditorPick | null => {
     noPrice: no ? no.price : Math.max(0, Math.min(1, 1 - yesPrice)),
     yesOptionId: yes?.id ?? null,
     noOptionId: no?.id ?? null,
+    optionCount: opts.length,
   };
 };
 
