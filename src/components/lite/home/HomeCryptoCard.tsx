@@ -242,22 +242,25 @@ const CompactTile = ({
           label="Up"
           price={up ? up.price : 0.5}
           tone="up"
-          minHeight={38}
-          labelSize={compact ? 12 : 13.5}
-          priceSize={compact ? 12 : 13.5}
+          minHeight={compact ? 42 : 38}
+          labelSize={compact ? 12.5 : 13.5}
+          priceSize={compact ? 12.5 : 13.5}
           gap={8}
+          padding={compact ? "0 10px" : undefined}
           onClick={go("up")}
         />
         <DirectionButton
           label="Down"
           price={down ? down.price : 0.5}
           tone="down"
-          minHeight={38}
-          labelSize={compact ? 12 : 13.5}
-          priceSize={compact ? 12 : 13.5}
+          minHeight={compact ? 42 : 38}
+          labelSize={compact ? 12.5 : 13.5}
+          priceSize={compact ? 12.5 : 13.5}
           gap={8}
+          padding={compact ? "0 10px" : undefined}
           onClick={go("down")}
         />
+
       </div>
     </div>
   );
