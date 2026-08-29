@@ -128,15 +128,17 @@ export const HomeTape = ({
   isMobile: boolean;
 }) => {
   const navigate = useNavigate();
-  const wrapRef = useRef<HTMLDivElement | null>(null);
   const railRef = useRef<HTMLDivElement | null>(null);
-  const [scroll, setScroll] = useState(false);
+  const [duration, setDuration] = useState(38);
 
   useEffect(() => {
     const measure = () => {
-      const w = wrapRef.current?.clientWidth ?? 0;
       const r = railRef.current?.scrollWidth ?? 0;
-      setScroll(r > w + 4);
+      if (r === 0) return;
+      // Constant linear speed: ~22 px/s. scrollWidth is the duplicated rail,
+      // so one visible loop is half that distance.
+      const seconds = Math.max(20, r / 44);
+      setDuration(seconds);
     };
     measure();
     window.addEventListener("resize", measure);
@@ -157,7 +159,6 @@ export const HomeTape = ({
 
   return (
     <div
-      ref={wrapRef}
       className="w-full overflow-hidden"
       style={{
         height: isMobile ? 40 : 42,
@@ -172,11 +173,15 @@ export const HomeTape = ({
       >
         <div
           ref={railRef}
-          className={scroll ? "lite-tape-rail flex items-center" : "flex items-center"}
-          style={{ gap: isMobile ? 24 : 40, minWidth: scroll ? "max-content" : undefined }}
+          className="lite-tape-rail flex items-center"
+          style={{
+            gap: isMobile ? 24 : 40,
+            minWidth: "max-content",
+            ["--duration" as string]: `${duration}s`,
+          }}
         >
           {cells(false)}
-          {scroll && cells(true)}
+          {cells(true)}
         </div>
       </div>
     </div>
