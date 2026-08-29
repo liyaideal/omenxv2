@@ -295,6 +295,31 @@ const LiteEventsPage = () => {
         <EventsDesktopHeader />
       )}
 
+      {/* Quote tape — fed by the page's own crypto + equity streams. */}
+      <HomeTape items={tapeItems} loading={tapeLoading} isMobile={!!isMobile} />
+
+      {/* Hero — replaces the old greeting strip (HP-1). */}
+      <HomeHero isMobile={!!isMobile} />
+
+      {/* Chips band — same controls, now on a full-bleed dark rail. */}
+      <div
+        style={{
+          background: "#08090D",
+          borderTop: "1px solid rgba(148,163,184,0.08)",
+          borderBottom: "1px solid rgba(148,163,184,0.08)",
+        }}
+      >
+        <div
+          className={cn(
+            "mx-auto w-full max-w-7xl",
+            isMobile ? "px-4" : "px-4 lg:px-6",
+          )}
+          style={{ paddingTop: 8, paddingBottom: 8 }}
+        >
+          {chipsRow}
+        </div>
+      </div>
+
       <div
         className={cn(
           "mx-auto flex w-full max-w-7xl flex-1 flex-col",
@@ -302,8 +327,6 @@ const LiteEventsPage = () => {
         )}
       >
 
-        {/* Intro strip — plain-language, no trader jargon; display treatment */}
-        <LiteEventsGreeting isMobile={!!isMobile} />
 
 
         {/* Filter row — mobile keeps the control row in every view (watchlist
