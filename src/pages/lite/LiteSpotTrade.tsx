@@ -816,6 +816,7 @@ const LiteSpotTrade = () => {
           />
           <div className="space-y-4 px-4 py-4">
             {QuestionBlock}
+            {SessionBanner}
             {resolved ? (
               <>
                 {OutcomeCard}
@@ -955,6 +956,7 @@ const LiteSpotTrade = () => {
         >
           <div className="space-y-5">
             {QuestionBlock}
+            {SessionBanner}
             {PastDays}
             {SentimentBar}
             {Chart}
