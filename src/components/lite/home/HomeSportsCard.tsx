@@ -316,7 +316,7 @@ export const HomeSportsCard = ({
       {pinned.map((m) => (
         <LiveCard key={m.id} m={m} onOpen={open} />
       ))}
-      {overflowLive.map((m) => (
+      {liveRows.map((m) => (
         <UpcomingRow key={m.id} m={m} live onOpen={open} />
       ))}
       {rows.map((m) => (
