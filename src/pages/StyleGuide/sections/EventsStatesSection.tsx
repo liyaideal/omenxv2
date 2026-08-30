@@ -112,7 +112,7 @@ const INTRADAY_CASES: SectionCase[] = [
     key: "events-ev7",
     label: "EV-7 · Stocks 卡 · live（HomeStocksCard · ST-1）",
     note:
-      "session 三态用 nowOverride 冻结（周三 11:00 本地）；生产不传该 prop = 实时钟，行为零变化。",
+      "session 三态用 nowOverride 冻结（周三 11:00 本地）；生产不传该 prop = 实时钟，行为零变化。fixture 含 US 10 + HK 6 两组行集（HK tab 计数不为 0）；US 基准价按各标的真实量级（AAPL 232.85，不再与 META 量级错配）。",
     spec: [
       {
         state: "live",
@@ -592,6 +592,20 @@ const STAGE_CASES: SectionCase[] = [
           "Last close 参考价（不跳动、无 “% today”）+ “NEXT SESSION · Opens 09:30”；Up/Down 可下单",
         source: "HomeStocksCard preSession 分支",
       },
+      {
+        state: "preSession · 移动行内 meta",
+        when: "isMobile && phase === \"preSession\"",
+        visual:
+          "行内第二行不再写 session，改为公司名行（ticker 上 / 公司名下，来自 STOCK_NAME）；价格上方小字 “Last close”，无 “% today”；session 信息只在模块头 “●” 状态行出现",
+        source: "MobileStockRow（HomeStocksCard 移动分支）/ STOCK_NAME",
+      },
+      {
+        state: "模块头 ● 状态行 · 六组合逐字",
+        when: "tab ∈ {us, hk} × phase ∈ {live, settling, preSession}",
+        visual:
+          "US live “US settles at close 16:00” / US settling “Settled · next session in mm:ss” / US preSession “Next session · US opens 09:30”；HK live “HK settles at close 16:00 HKT” / HK settling “Settled · next session in mm:ss” / HK preSession “Next session · HK opens 09:30 HKT”",
+        source: "HomeStocksCard settleLine（移动端渲染在 ● 行，桌面渲染在标题行右端）",
+      },
     ],
   },
   {
@@ -628,8 +642,9 @@ const STAGE_CASES: SectionCase[] = [
       {
         state: "展开",
         when: "点 Show all",
-        visual: "全行展开；每行两层 meta（标的+价在上，session+钮在下）",
-        source: "HomeStocksCard 移动分支",
+        visual:
+          "全行展开；每行为两层卡片——上层 40px logo + ticker/公司名 + 价格（preSession 加 “Last close” 小字，live/settling 加 ±%），下层整幅动作区（live/preSession 为 Up/Down 对，settling 为 “Closed ↑/↓” + 禁用 “Next session in mm:ss”，无价为 “Unavailable”）；行内不出现 session 文案",
+        source: "MobileStockRow（HomeStocksCard 移动分支）",
       },
     ],
   },
@@ -725,13 +740,22 @@ const STAGE_CASES: SectionCase[] = [
   {
     key: "events-ev35",
     label: "EV-35 · 目录身份卡（CatalogueIdentityCard · HP-1b）",
-    note: "网格首格；不可点、aria-hidden，不计入 open 数。",
+    note:
+      "桌面：网格首格身份卡，不可点、aria-hidden、不计入 open 数。移动（HP-3）：身份卡与板头一并撤下，改由 110 高全宽横幅 CatalogueMobileBanner 吸收两者。",
     spec: [
       {
-        state: "stage 视图首格",
-        when: 'sector === "all" && !watchlist',
-        visual: "will-it-happen 插画（桌面/移动各取各资源）+ “Buy Yes or No…” 身份文案",
+        state: "stage 视图首格（桌面）",
+        when: 'sector === "all" && !watchlist && !isMobile',
+        visual:
+          "网格首格身份卡：will-it-happen 插画（/assets/desktop/will-it-happen.png）+ “Buy Yes or No…” 身份文案；ALL MARKETS › 板头照常在网格上方",
         source: "CatalogueIdentityCard (LiteEventsPage)",
+      },
+      {
+        state: "stage 视图横幅（移动）",
+        when: 'sector === "all" && !watchlist && isMobile',
+        visual:
+          "全宽 110 高横幅（radius 16 / bg #131519 / 边 #1d2026）吸收板头与身份卡：左侧 “Will it happen?”（font-display 700 / 24 / lh 25）+ “Buy Yes or No on real-world outcomes. Winning shares pay $1.”，左下 mono “{n} open”；右侧 62% 宽 /assets/mobile/will-it-happen.png（object-fit cover / right center）+ 覆盖其上的左向渐变（#131519 → 透明）。移动不再渲染 ALL MARKETS › 与身份卡。",
+        source: "CatalogueMobileBanner (LiteEventsPage)",
       },
     ],
   },
@@ -873,6 +897,10 @@ const CryptoGeometry = () => (
       ["BTC 主 tile", "7fr", "图表 176（移动 compact 132）", "图表定高", "不延伸", "padding 22×24（compact 14×14）"],
       ["ETH/SOL 副 tile", "5fr 列内堆叠", "图表 72", "图表定高", "不延伸", "padding 16×18（compact 12×12），网格 gap 8（compact 6）"],
       ["Up/Down 钮", "flex 均分", "主 tile minHeight 44（compact 46）/ 副 tile 38（compact 44）", "定高", "不延伸", "label 左 / 价右，gap ≥ 8，窄宽不粘连"],
+      ["移动三卡纵排（HP-3）", "单列 100%", "每卡名义高 ≈208（含 40 头 + 72 图 + 24 Last8 + 44 钮 + 间距）", "否，内容自然高", "纵向随三卡固定条数（BTC/ETH/SOL），不随数据增长", "卡间 gap 10；三卡版式完全一致，废除 BTC 主 + ETH/SOL 双列"],
+      ["移动卡 · CLOSES 钟", "行内 auto", "行高 14", "—", "不延伸", "橙 #FF8A3D mono 大写 “CLOSES” + mm:ss，tabular-nums，与三卡同源时钟"],
+      ["移动卡 · RoundPlot", "100%", "72", "定高", "不延伸", "与桌面副 tile 同高，零 CLS"],
+      ["移动卡 · Up/Down 钮", "flex 均分（gap 8）", "44", "定高", "不延伸", "label 左 / 价右两端对齐，窄宽不粘连"],
     ]}
   />
 );
@@ -907,6 +935,8 @@ const SportsGeometry = () => (
       ["Monogram", "30×30", "30", "定高", "—", "第二枚 marginLeft −9 重叠"],
       ["OddsButton 行", "flex", "内容自然高", "—", "水平", "gap 8，marginTop 12"],
       ["footer 计数行", "100%", "内容自然高", "—", "不延伸", "marginTop 16；“N more this week” / “All N matches →”"],
+      ["移动 kickoff 左列（HP-3）", "固定列宽 44", "行内自然高", "—", "不延伸", "上 = 本地 kickoff 时间（mono tabular-nums），下 = TODAY / TMRW / 三字母 weekday（大写，#6B7280）"],
+      ["移动 stacked 赔率钮（HP-3）", "flex 均分（gap 8）", "minHeight 46（两行内容）", "定高", "不延伸", "名上价下居中：第一行队名（live 用缩写码，upcoming 用全名，超长省略），第二行价格；桌面维持 label 左 / 价右单行"],
 
 
     ]}
@@ -923,6 +953,21 @@ const DeskGeometry = () => (
       ["pick 行", "100%", "内容自然高", "否", "不延伸", "padding 15×0 + 底分隔线 1px；序号列 gap 14"],
       ["note 行", "行内", "单行", "—", "不延伸", "斜体 “{note}”，超长截断不换段"],
       ["行内钮组", "flex", "内容自然高", "—", "水平", "gap 8，marginTop 10"],
+    ]}
+  />
+);
+
+const CatalogueHeadGeometry = () => (
+  <Table
+    title="EV-34 / EV-35 几何表 · 目录带头（CatalogueHeaderRow / CatalogueIdentityCard / CatalogueMobileBanner）"
+    head={GEO_HEAD}
+    rows={[
+      ["板头行（桌面）", "100%", "内容自然高", "—", "不延伸", "padding 6×2×0；“ALL MARKETS ›” font-display 700 / 15 / 0.10em + 右端 mono 12 “{n} open”"],
+      ["身份卡（桌面）", "网格首格 = 一张卡宽", "与同排卡等高", "跟随网格行高", "不延伸", "不可点 / aria-hidden / 不计入 open 数"],
+      ["移动横幅（HP-3）", "全宽 100%（容器 px-4 内）", "110", "定高", "不延伸", "radius 16 / bg #131519 / 边 1px #1d2026；吸收板头 + 身份卡，二者移动端不再渲染"],
+      ["横幅文案块", "maxWidth 250", "100%（padding 12×14，space-between）", "—", "不延伸", "标题 24/25，副行 11.5/16 #9AA1AC，底部 mono 11 #6B7280 “{n} open”"],
+      ["横幅插画", "62% 宽，右对齐", "100%（110）", "定高", "不延伸", "/assets/mobile/will-it-happen.png，object-fit cover / right center，pointer-events none"],
+      ["横幅渐变", "inset 0", "—", "—", "—", "linear-gradient(to right, #131519 0%, rgba(19,21,25,0.92) 46%, rgba(19,21,25,0.15) 100%) 覆盖插画左侧保证文案可读"],
     ]}
   />
 );
@@ -1196,6 +1241,9 @@ export const EventsStatesSection = () => (
           desktopMin={900}
           mobileMin={1200}
         />
+        <div className="mt-6">
+          <CatalogueHeadGeometry />
+        </div>
         <div className="mt-8">
           <Footnotes />
         </div>
