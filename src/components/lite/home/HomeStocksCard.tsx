@@ -532,12 +532,14 @@ export const HomeStocksCard = ({
     >
       <div className="flex items-baseline" style={{ gap: 14 }}>
         <HomeEyebrow color={CYAN}>Stocks · Closing today</HomeEyebrow>
-        <span
-          className="font-display ml-auto"
-          style={{ color: MUTED, fontSize: 13, fontVariantNumeric: "tabular-nums" }}
-        >
-          {total} stocks · {settleLine}
-        </span>
+        {!isMobile && (
+          <span
+            className="font-display ml-auto"
+            style={{ color: MUTED, fontSize: 13, fontVariantNumeric: "tabular-nums" }}
+          >
+            {total} stocks · {settleLine}
+          </span>
+        )}
       </div>
       <div
         className={isMobile ? "flex flex-col" : "flex items-center"}
