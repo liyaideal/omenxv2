@@ -12,15 +12,21 @@ import { SectionFrame, type SectionCase } from "../components/SectionFrame";
 const HEADER_CASES: SectionCase[] = [
   {
     key: "events-ev1",
-    label: "EV-1 · 页头 greeting（LiteEventsGreeting）",
-    note: "静态开场，无数据依赖；生产由 LiteEventsPage 直接渲染同一组件。",
+    label: "EV-1 · Hero（HomeHero · HP-1）",
+    note: "静态开场，无数据依赖；插画走 /assets/desktop|mobile/hero-lynx.png，桌面移动各取各的资源。",
     spec: [
       {
-        state: "静态",
-        when: "恒真（无状态分支）",
+        state: "桌面",
+        when: "useIsMobile() === false",
         visual:
-          "标题 “What do you think happens next?” + 副行 “Pick a topic. Tap Yes or No. That's it.”",
-        source: "LiteEventsGreeting (src/components/lite/LiteEventsHeader.tsx)",
+          "● LIVE MARKETS 药丸 + “What do you think happens next?” + 副行 “Pick a topic. Tap Yes or No. That's it.” + 右侧 lynx 插画",
+        source: "HomeHero (src/components/lite/home/HomeHero.tsx)",
+      },
+      {
+        state: "移动",
+        when: "useIsMobile() === true",
+        visual: "标题降级、插画换 mobile 资源；<390px 插画隐藏、留白收紧",
+        source: "HomeHero isMobile",
       },
     ],
   },
@@ -76,57 +82,57 @@ const HEADER_CASES: SectionCase[] = [
 const INTRADAY_CASES: SectionCase[] = [
   {
     key: "events-ev5",
-    label: "EV-5 · band 默认 · 三 coin tile（IntradayStageCard / MobileIntradayModule）",
+    label: "EV-5 · Crypto 卡默认（HomeCryptoCard · HP-1）",
     note:
-      "fixture 确定性数据（BTC/ETH/SOL 三窗口全档快照）；倒计时为 fixture 起始值，不依赖运行时 fetch。LOCKED 容器：1px rgba(255,138,61,.18) / 3px #FF8A3D 左轨。",
+      "fixture 冻结：tickSeconds=41（派生价恒定）、BTC/ETH/SOL 全档快照、倒计时由固定占比反推；禁运行时 fetch。",
     spec: [
       {
         state: "默认",
-        when: "currentFor 有活轮 && stockRows 无开放 session",
+        when: "currentFor 有活轮",
         visual:
-          "“INTRADAY · ROLLING ROUNDS / Will the price go up?” + BTC/ETH/SOL tile：AssetAvatar + 现价 + CLOSES 倒计时 + 每 tile 独立 dial [5m 15m 1h 4h 1D] + round open 虚线基线 + ±% + LAST 8 + Up/Down 分币 chips",
-        source: "IntradayStageCard · useQuickRounds(true)",
+          "“● Intraday · Rolling rounds” + 卡右上模块级 ROUND dial [5m 15m 1h 4h 1D] + BTC 主 tile（现价 / 基线 / LAST 8 / Up·Down 钮）+ ETH·SOL 紧凑列",
+        source: "HomeCryptoCard · useQuickRounds",
       },
     ],
   },
   {
     key: "events-ev6",
-    label: "EV-6 · tile · dial 选中非默认窗口（IntradayStageCard）",
-    note: "dial 为 per-tile 状态；fixture 只注初始窗口 initialTf=\"1h\"，不传即生产默认 5m。",
+    label: "EV-6 · ROUND dial 选中 1h（HomeCryptoCard）",
+    note: "dial 为模块级状态：三 tile 同步换档（不是 per-tile）。",
     spec: [
       {
-        state: "非默认窗口",
+        state: "非默认档",
         when: 'tf === "1h"（fixture initialTf）',
-        visual: "同一 tile 的时钟 / 价格 / 基线随窗口切换，dial 高亮移到 1h",
-        source: "IntradayStageCard initialTf → MajorCoinCard tf state",
+        visual: "三 tile 的倒计时 / 基线 / 赔率同时切到 1h，dial 高亮移到 1h",
+        source: "HomeCryptoCard tf state",
       },
     ],
   },
   {
     key: "events-ev7",
-    label: "EV-7 · stocks 子带 · 有 session（IntradayStageCard）",
+    label: "EV-7 · Stocks 卡 · live（HomeStocksCard · ST-1）",
     note:
-      "偏差说明：生产 band 的股票子带渲染的是「Stocks closing today」列表 + 该 session 的收盘倒计时；mock10 写的 US/HK session tabs 位于品类视图 LiteIntradayView，band 内不存在该控件，本 case 如实呈现生产形态。",
+      "session 三态用 nowOverride 冻结（周三 11:00 本地）；生产不传该 prop = 实时钟，行为零变化。",
     spec: [
       {
-        state: "有开放 session",
-        when: "groupStockRows(stockRows, sessionNow).sessionMarket != null",
-        visual:
-          "币 tile 收窄为紧凑态 + “Stocks closing today” 行集，行 → /spot?event=…&side=…",
-        source: "IntradayStageCard · groupStockRows",
+        state: "live",
+        when: 'getStockSessionState(market).phase === "live"',
+        visual: "实时价 + 当日 ±% + Closes in 倒计时；Up/Down 钮可点",
+        source: "HomeStocksCard / StockRow",
       },
     ],
   },
   {
     key: "events-ev8",
-    label: "EV-8 · stocks 子带 · 空 session（IntradayStageCard）",
+    label: "EV-8 · Stocks 卡 · settling（HomeStocksCard · ST-1）",
+    note: "nowOverride = 周三 16:22 → 收盘后 22 分，settling 窗口共 60 分。",
     spec: [
       {
-        state: "无活 session",
-        when: "sessionOpen === false",
+        state: "settling",
+        when: "now < lastCloseAt + 60min",
         visual:
-          "底部两句：“Stocks return when the next session opens” + “Open Intraday →”",
-        source: "IntradayStageCard footer",
+          "Closed ↑/↓ + 收盘价；模块头 “Settled · next session in 38:00”；Up/Down 钮禁用",
+        source: "HomeStocksCard settling 分支",
       },
     ],
   },
@@ -137,7 +143,7 @@ const INTRADAY_CASES: SectionCase[] = [
 const SPORTS_CASES: SectionCase[] = [
   {
     key: "events-ev9",
-    label: "EV-9 · Sports 默认（SportsStageCard / MobileSportsModule）",
+    label: "EV-9 · Sports 卡默认（HomeSportsCard · HP-1）",
     note:
       "fixture 确定性数据（17 场未开赛 + 1 场进行中），日期用相对偏移防腐烂；不依赖运行时 fetch。",
     spec: [
@@ -152,7 +158,7 @@ const SPORTS_CASES: SectionCase[] = [
   },
   {
     key: "events-ev9e",
-    label: "EV-9e · Sports band · 空态（SportsStageCard / MobileSportsModule）",
+    label: "EV-9e · Sports 卡空态（HomeSportsCard · matches=0 → 整卡 null）",
     note:
       "fixture 空行集（联赛间歇期）。移动端 MobileSportsModule 在无比赛时整块不渲染（生产行为），故 375 帧为空。",
     spec: [
@@ -167,7 +173,7 @@ const SPORTS_CASES: SectionCase[] = [
   },
   {
     key: "events-ev10",
-    label: "EV-10 · day-rail 选中某日（SportsStageCard）",
+    label: "EV-10 · day-rail 过滤（HomeSportsCard）",
     note: "fixture 只注初始 bucket（buildDayStrip 首个非 all 日），不传即生产默认 all。",
     spec: [
       {
@@ -517,7 +523,7 @@ const WATCHLIST_CASES: SectionCase[] = [
 
 const LOADING_CASES: SectionCase[] = [
   {
-    key: "lite-events-loading",
+    key: "events-ev24",
     label: "EV-24 · 列表首载骨架（LiteEventsSkeletons）",
     note:
       "registry key 沿用既有 `lite-events-loading`（旧深链兼容），编号改挂 EV-24。并账自旧「Lite · Loading」子节。",
@@ -544,7 +550,7 @@ const LOADING_CASES: SectionCase[] = [
     ],
   },
   {
-    key: "lite-events-loading-catalogue",
+    key: "events-ev25",
     label: "EV-25 · 目录首载骨架（LiteEventsSkeletons）",
     note: "registry key 沿用既有 `lite-events-loading-catalogue`，编号改挂 EV-25。",
     spec: [
@@ -566,6 +572,164 @@ const LOADING_CASES: SectionCase[] = [
         visual:
           "“No open markets here right now” / “New markets land in this topic as they open. Check back soon.” / 「See all markets」",
         source: "EmptyState variant='page'",
+      },
+    ],
+  },
+];
+
+/* ---------------- ⑧ 主页 stage 与目录带（EV-27 … EV-35 · HP-1 / ST-1）---------------- */
+
+const STAGE_CASES: SectionCase[] = [
+  {
+    key: "events-ev27",
+    label: "EV-27 · Stocks 卡 · preSession（HomeStocksCard · ST-1）",
+    note: "nowOverride = 周日 14:00 → 三态机跳周末，下一开盘为周一 09:30。",
+    spec: [
+      {
+        state: "preSession",
+        when: "settling 结束 && now < nextOpenAt",
+        visual:
+          "Last close 参考价（不跳动、无 “% today”）+ “NEXT SESSION · Opens 09:30”；Up/Down 可下单",
+        source: "HomeStocksCard preSession 分支",
+      },
+    ],
+  },
+  {
+    key: "events-ev28",
+    label: "EV-28 · US / HK tab 独立（HomeStocksCard）",
+    note:
+      "同一冻结时刻：US 处 preSession（周日），HK 依交易所本地日历自判 → 两 tab 的行集、模块头文案、货币格式互不串。",
+    spec: [
+      {
+        state: "US tab",
+        when: 'tab === "us"',
+        visual: "US 行集 + $ 格式 + US 日历派生的 session 文案",
+        source: "HomeStocksCard tab / US_STOCK_MARKET",
+      },
+      {
+        state: "HK tab",
+        when: 'tab === "hk"',
+        visual: "HK 行集 + HK$ 格式 + HK 日历派生的 session 文案（与 US 可不同态）",
+        source: "HomeStocksCard tab / HK_STOCK_MARKET",
+      },
+    ],
+  },
+  {
+    key: "events-ev29",
+    label: "EV-29 · Stocks 移动形态（HomeStocksCard isMobile）",
+    note: "移动帧才是本 case 的主体；桌面帧为对照。",
+    spec: [
+      {
+        state: "折叠",
+        when: "isMobile && !expanded",
+        visual: "先 5 行 + “Show all 10 →”",
+        source: "HomeStocksCard 移动分支",
+      },
+      {
+        state: "展开",
+        when: "点 Show all",
+        visual: "全行展开；每行两层 meta（标的+价在上，session+钮在下）",
+        source: "HomeStocksCard 移动分支",
+      },
+    ],
+  },
+  {
+    key: "events-ev30",
+    label: "EV-30 · Stocks 骨架 / 单行失败（HomeStocksCard）",
+    spec: [
+      {
+        state: "骨架",
+        when: "loading === true && rows.length === 0",
+        visual: "行位骨架条（#171A1F / #15181C），与终态同尺寸",
+        source: "HomeStocksCard loading 分支",
+      },
+      {
+        state: "单行失败",
+        when: "row.base_price == null",
+        visual: "该行降级为无价读数，其余行照常渲染（不整卡塌陷）",
+        source: "StockRow 缺价分支",
+      },
+    ],
+  },
+  {
+    key: "events-ev31",
+    label: "EV-31 · Sports 预算封顶（HomeSportsCard · 6 场同时 live）",
+    note: "复现 08-30 线上溢出：LIVE 置顶最多 3 条，其余降级进普通行并计入 “N more”。",
+    spec: [
+      {
+        state: "live 溢出",
+        when: "live.length > LIVE_MAX(3)",
+        visual: "置顶 3 条 LIVE + 降级行 + 底部 “N more this week →”",
+        source: "HomeSportsCard budget = max(2, 5 - live) + extraRows",
+      },
+    ],
+  },
+  {
+    key: "events-ev32",
+    label: "EV-32 · Editor's Desk（HomeDeskCard）",
+    spec: [
+      {
+        state: "有 picks",
+        when: "picks.length > 0（最多 MAX_PICKS=3）",
+        visual: "“✦ Editor's Desk / What's worth watching” + 每条 note 截断 + Yes/No 价",
+        source: "HomeDeskCard",
+      },
+      {
+        state: "无 picks",
+        when: "picks.length === 0",
+        visual: "整卡不渲染；Sports 卡以 extraRows=2 补位保持双列齐平",
+        source: "HomeDeskCard 早退 / HomeSportsCard extraRows",
+      },
+    ],
+  },
+  {
+    key: "events-ev33",
+    label: "EV-33 · 行情 tape（HomeTape · HP-1c 恒滚）",
+    note: "恒定线速 ~30px/s（duration = scrollWidth / 60，下限 20s）；prefers-reduced-motion 静止。",
+    spec: [
+      {
+        state: "常态",
+        when: "items.length > 0",
+        visual: "双份拼接无缝循环，涨绿跌红，点击进 /spot",
+        source: "HomeTape",
+      },
+      {
+        state: "加载",
+        when: "loading === true",
+        visual: "骨架条（桌面 42 / 移动 40）",
+        source: "HomeTapeSkeleton",
+      },
+      {
+        state: "空",
+        when: "items.length === 0",
+        visual: "整条 null，不占位",
+        source: "HomeTape 早退",
+      },
+    ],
+  },
+  {
+    key: "events-ev34",
+    label: "EV-34 · 目录板头（CatalogueHeaderRow · HP-1b）",
+    spec: [
+      {
+        state: "stage 视图",
+        when: 'sector === "all" && !watchlist',
+        visual:
+          "“ALL MARKETS ›”（font-display 700 / 15px / 0.10em 大写）+ 右端 mono “{n} open”，n = filtered.length",
+        source: "CatalogueHeaderRow (LiteEventsPage)",
+      },
+    ],
+  },
+  {
+    key: "events-ev35",
+    label: "EV-35 · 目录身份卡（CatalogueIdentityCard · HP-1b）",
+    note: "网格首格；不可点、aria-hidden，不计入 open 数。",
+    spec: [
+      {
+        state: "stage 视图首格",
+        when: 'sector === "all" && !watchlist',
+        visual: "will-it-happen 插画（桌面/移动各取各资源）+ “Buy Yes or No…” 身份文案",
+        source: "CatalogueIdentityCard (LiteEventsPage)",
       },
     ],
   },
@@ -619,19 +783,19 @@ const Pair = ({
 export const EventsStatesSection = () => (
   <SectionWrapper
     id="events-states"
-    title="Events 列表 · 状态字典（EV-1 … EV-26，含 EV-9e · 共 27 case）"
-    description="分区①页头与筛选行 · ②Intraday band · ③Sports band · ④卡片网格 · ⑤Calendar · ⑥Watchlist · ⑦加载与空态。每个 case 双帧（desktop 1280 / mobile 375），fixture 只注数据与状态，且一律确定性注入（禁止运行时 fetch）。"
+    title="Events 列表 · 状态字典（EV-1 … EV-35，含 EV-9e · 共 36 case）"
+    description="分区①Hero 与筛选行 · ②Crypto/Stocks 卡 · ③Sports 卡 · ④卡片网格 · ⑤Calendar · ⑥Watchlist · ⑦加载与空态 · ⑧主页 stage 与目录带（HP-1 / ST-1）。每个 case 双帧（desktop 1280 / mobile 375），fixture 只注数据与状态，且一律确定性注入（禁止运行时 fetch）。"
   >
     <div className="space-y-12">
-      <SubSection title="① 页头与筛选行（EV-1 … EV-4）">
+      <SubSection title="① Hero 与筛选行（EV-1 … EV-4）">
         <Pair cases={HEADER_CASES} desktopMin={420} mobileMin={480} />
       </SubSection>
 
-      <SubSection title="② Intraday band（EV-5 … EV-8）">
+      <SubSection title="② Crypto / Stocks 卡（EV-5 … EV-8 · HP-1 / ST-1）">
         <Pair cases={INTRADAY_CASES} desktopMin={760} mobileMin={860} />
       </SubSection>
 
-      <SubSection title="③ Sports band（EV-9 / EV-9e / EV-10）">
+      <SubSection title="③ Sports 卡（EV-9 / EV-9e / EV-10）">
         <Pair cases={SPORTS_CASES} desktopMin={620} mobileMin={720} />
       </SubSection>
 
@@ -652,6 +816,10 @@ export const EventsStatesSection = () => (
 
       <SubSection title="⑦ 加载骨架与空态（EV-24 … EV-26）">
         <Pair cases={LOADING_CASES} desktopMin={900} mobileMin={1000} />
+      </SubSection>
+
+      <SubSection title="⑧ 主页 stage 与目录带（EV-27 … EV-35 · HP-1 / ST-1）">
+        <Pair cases={STAGE_CASES} desktopMin={760} mobileMin={900} />
       </SubSection>
 
       <div className="mt-8">
