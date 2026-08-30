@@ -158,6 +158,8 @@ const StockRow = ({
             minHeight={38}
             labelSize={13.5}
             priceSize={13.5}
+
+            gap={8}
             onClick={go("up")}
           />
           <DirectionButton
@@ -167,6 +169,8 @@ const StockRow = ({
             minHeight={38}
             labelSize={13.5}
             priceSize={13.5}
+
+            gap={8}
             onClick={go("down")}
           />
         </>
@@ -214,6 +218,8 @@ const StockRow = ({
               minHeight={38}
               labelSize={13.5}
               priceSize={13.5}
+
+              gap={8}
               onClick={go("up")}
             />
             <DirectionButton
@@ -223,6 +229,8 @@ const StockRow = ({
               minHeight={38}
               labelSize={13.5}
               priceSize={13.5}
+
+              gap={8}
               onClick={go("down")}
             />
           </span>
