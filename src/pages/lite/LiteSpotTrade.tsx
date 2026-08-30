@@ -255,9 +255,17 @@ const LiteSpotTrade = () => {
   const lifecycle = getDisplayLifecycle(dbLifecycle);
   const blockedByState = isOrderingBlocked(dbLifecycle);
   const blockedByTime = isPastFreeze(freezeAt, endDate);
-  const blocked = blockedByState || blockedByTime;
+  // ST-1 · stocks trading-session state machine (Lite only; Pro spot is
+  // deliberately NOT synced to this behaviour).
+  const isStockEvent = /STOCK_DAILY_UPDOWN/.test(event?.event_subtype || "");
+  const stockSession = isStockEvent ? getStockSessionState(market) : null;
+  const settlingWindow = !resolved && stockSession?.phase === "settling";
+  const preSessionWindow = !resolved && stockSession?.phase === "preSession";
+  const blocked = blockedByState || blockedByTime || !!settlingWindow;
   const blockedReason =
-    getBlockedReason(dbLifecycle) || (blockedByTime ? "Closing soon" : "");
+    getBlockedReason(dbLifecycle) ||
+    (settlingWindow ? "Settled" : blockedByTime ? "Closing soon" : "");
+
 
   // Ticker + display
   const ticker = event ? deriveTickerFromEvent(event.id, event.name) : "STOCK";
