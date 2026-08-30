@@ -214,7 +214,7 @@ const hkRow = (
 
 /** 10 US rows (name-roll matches production) + 6 HK rows. */
 const US_ROWS: StockEventRow[] = [
-  usRow("AAPL", 583.37, 0.52, 1),
+  usRow("AAPL", 232.85, 0.52, 1),
   usRow("NVDA", 182.45, 0.47, 2),
   usRow("TSLA", 268.3, 0.55, 3),
   usRow("MSFT", 445.2, 0.49, 4),
