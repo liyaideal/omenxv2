@@ -118,12 +118,13 @@ const StockRow = ({
         {ticker}
       </span>
 
-      {state === "stale" ? (
+      {mobileMeta ? null : state === "stale" ? (
         <span
           className="animate-pulse"
           style={{ width: 78, height: 14, borderRadius: 6, background: "#191D24" }}
         />
       ) : state === "preSession" ? (
+
         <span
           className="font-display min-w-0 truncate"
           style={{
