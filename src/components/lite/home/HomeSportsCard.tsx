@@ -45,35 +45,43 @@ const OddsButton = ({
   label,
   price,
   onClick,
+  stacked,
 }: {
   label: string;
   price: number;
   onClick: (e: React.MouseEvent) => void;
+  /** HP-3 mobile: team name over price so 375px never truncates. */
+  stacked?: boolean;
 }) => (
   <button
     type="button"
     onClick={onClick}
-    className="flex min-w-0 flex-1 items-center justify-between"
+    className={
+      stacked
+        ? "flex min-w-0 flex-1 flex-col items-center justify-center"
+        : "flex min-w-0 flex-1 items-center justify-between"
+    }
     style={{
       border: "1px solid rgba(148,163,184,0.2)",
       background: "#191D24",
       color: "#DBE2EA",
       borderRadius: 12,
-      padding: "10px 12px",
-      fontSize: 13.5,
+      padding: stacked ? "7px 6px" : "10px 12px",
+      fontSize: stacked ? 12.5 : 13.5,
       fontWeight: 700,
-      gap: 8,
+      gap: stacked ? 2 : 8,
     }}
   >
-    <span className="truncate">{label}</span>
+    <span className="w-full truncate text-center">{label}</span>
     <span
-      className="font-display flex-none"
-      style={{ color: CYAN, fontVariantNumeric: "tabular-nums" }}
+      className="font-mono flex-none"
+      style={{ color: CYAN, fontVariantNumeric: "tabular-nums", fontSize: stacked ? 13 : undefined }}
     >
       {Math.round(price * 100)}¢
     </span>
   </button>
 );
+
 
 const abbrFor = (m: SportsMatch, label: string) => {
   const n = label.trim().toLowerCase();
