@@ -18,8 +18,10 @@ import { deriveTickerFromEvent } from "@/components/SpotStatsHeader";
 import {
   formatLocalTime,
   formatMarketPrice,
-  getMarketSession,
+  formatMinuteCountdown,
+  getStockSessionState,
   resolveStockMarket,
+  type StockSessionPhase,
 } from "@/lib/usStockSessions";
 import { CYAN, HomeCard, HomeEyebrow, HomeQuestion, LIME, MUTED } from "./homeShell";
 
@@ -40,6 +42,10 @@ const DISABLED: React.CSSProperties = {
   whiteSpace: "nowrap",
 };
 
+/** Deterministic frozen close for the session that just ended (DEMO-STATE). */
+const frozenClose = (base: number, seed: number) =>
+  base * (1 + ((seed % 200) - 100) / 10000);
+
 const StockRow = ({
   row,
   tickSeconds,
@@ -52,22 +58,29 @@ const StockRow = ({
   const navigate = useNavigate();
   const ticker = deriveTickerFromEvent(row.id, row.name);
   const market = resolveStockMarket(row);
-  const session = getMarketSession(market);
+  const session = getStockSessionState(market);
   const base = row.base_price;
   const seed = seedFromId(row.id);
-  const price =
+  const livePrice =
     base != null ? base * (1 + Math.sin(tickSeconds / 3 + (seed % 7)) * 0.009) : null;
+
+  const phase: StockSessionPhase = session.phase;
+  const state: StockSessionPhase | "stale" = base == null ? "stale" : phase;
+
+  const price =
+    state === "live"
+      ? livePrice
+      : base != null
+        ? frozenClose(base, seed)
+        : null;
   const pct = base && price ? ((price - base) / base) * 100 : 0;
-  const ended = !!row.end_date && new Date(row.end_date).getTime() <= Date.now();
-  const state: "trading" | "pre" | "closed" | "stale" =
-    base == null ? "stale" : ended || !session.open ? (ended ? "closed" : "pre") : "trading";
 
   const go = (side?: "up" | "down") => (e: React.MouseEvent) => {
     e.stopPropagation();
     navigate(`/spot?event=${encodeURIComponent(row.id)}${side ? `&side=${side}` : ""}`);
   };
 
-  const clickable = state === "trading";
+  const clickable = state !== "stale";
 
   return (
     <div
@@ -106,6 +119,18 @@ const StockRow = ({
           className="animate-pulse"
           style={{ width: 78, height: 14, borderRadius: 6, background: "#191D24" }}
         />
+      ) : state === "preSession" ? (
+        <span
+          className="font-display truncate"
+          style={{
+            fontSize: 13,
+            fontWeight: 600,
+            color: MUTED,
+            fontVariantNumeric: "tabular-nums",
+          }}
+        >
+          Last close {price != null ? formatMarketPrice(price, market) : "—"}
+        </span>
       ) : (
         <>
           <span
@@ -124,7 +149,7 @@ const StockRow = ({
         </>
       )}
       <span className="flex-1" />
-      {state === "trading" ? (
+      {state === "live" ? (
         <>
           <DirectionButton
             label="Up"
@@ -145,11 +170,8 @@ const StockRow = ({
             onClick={go("down")}
           />
         </>
-      ) : state === "pre" ? (
-        <span style={DISABLED}>Opens in {formatLocalTime(session.nextOpenAt)}</span>
-      ) : state === "closed" ? (
+      ) : state === "settling" ? (
         <>
-          <span style={DISABLED}>Closed</span>
           <span
             className="font-display"
             style={{
@@ -164,6 +186,44 @@ const StockRow = ({
           >
             Closed {pct >= 0 ? "↑" : "↓"}
           </span>
+          <span style={{ ...DISABLED, fontVariantNumeric: "tabular-nums" }}>
+            Next session in{" "}
+            {session.settlingEndsAt ? formatMinuteCountdown(session.settlingEndsAt) : "00:00"}
+          </span>
+        </>
+      ) : state === "preSession" ? (
+        <>
+          {!isMobile && (
+            <span
+              className="font-mono"
+              style={{
+                fontSize: 11,
+                letterSpacing: "0.06em",
+                color: MUTED,
+                whiteSpace: "nowrap",
+              }}
+            >
+              NEXT SESSION · opens {formatLocalTime(session.nextOpenAt)}
+            </span>
+          )}
+          <DirectionButton
+            label="Up"
+            price={row.upPrice}
+            tone="up"
+            minHeight={38}
+            labelSize={13.5}
+            priceSize={13.5}
+            onClick={go("up")}
+          />
+          <DirectionButton
+            label="Down"
+            price={row.downPrice}
+            tone="down"
+            minHeight={38}
+            labelSize={13.5}
+            priceSize={13.5}
+            onClick={go("down")}
+          />
         </>
       ) : (
         <span style={DISABLED}>Unavailable</span>
@@ -171,6 +231,7 @@ const StockRow = ({
     </div>
   );
 };
+
 
 export const HomeStocksCard = ({
   stockRows,
