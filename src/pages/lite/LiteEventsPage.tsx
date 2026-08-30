@@ -214,8 +214,7 @@ export const CatalogueMobileBanner = ({ openCount }: { openCount: number }) => (
     </div>
   </div>
 );
-
-
+/**
  * Catalogue board head (HP-1b) — "ALL MARKETS ›" + live open count.
  * Extracted verbatim from the page body (SG-HP) so EV-34 can mount the
  * production element instead of hand-copied markup. Zero visual change.
