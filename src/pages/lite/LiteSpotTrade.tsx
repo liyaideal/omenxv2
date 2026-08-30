@@ -450,6 +450,39 @@ const LiteSpotTrade = () => {
     />
   );
 
+  // ST-1 · session banner. settling = result of the session that just ended +
+  // countdown to the next one; preSession = the next session is on sale.
+  const SessionBanner =
+    settlingWindow && stockSession ? (
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-muted/30 px-3 py-2.5">
+        <span className="text-sm font-semibold text-foreground">
+          Closed {pctToday >= 0 ? "↑" : "↓"}
+        </span>
+        {currentPrice != null && (
+          <span className="font-mono text-sm text-foreground">
+            {formatMarketPrice(currentPrice, market)}
+          </span>
+        )}
+        <span className="ml-auto font-mono text-xs text-muted-foreground">
+          Next session in{" "}
+          {stockSession.settlingEndsAt
+            ? formatMinuteCountdown(stockSession.settlingEndsAt)
+            : "00:00"}
+        </span>
+      </div>
+    ) : preSessionWindow && stockSession ? (
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-muted/30 px-3 py-2.5">
+        <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-primary">
+          Next session
+        </span>
+        <span className="ml-auto font-mono text-xs text-muted-foreground">
+          Opens {formatLocalTime(stockSession.nextOpenAt)}
+        </span>
+      </div>
+    ) : null;
+
+
+
 
   const SentimentBar = (
     <SpotSentimentBar
