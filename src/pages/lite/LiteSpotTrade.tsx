@@ -478,7 +478,11 @@ const LiteSpotTrade = () => {
         <span className="ml-auto font-mono text-xs text-muted-foreground">
           Opens {formatLocalTime(stockSession.nextOpenAt)}
         </span>
+        <span className="w-full text-[11px] text-muted-foreground">
+          Chart shows the last session for reference.
+        </span>
       </div>
+
     ) : null;
 
 
