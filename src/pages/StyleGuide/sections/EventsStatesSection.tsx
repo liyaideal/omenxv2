@@ -643,7 +643,7 @@ const STAGE_CASES: SectionCase[] = [
         state: "展开",
         when: "点 Show all",
         visual:
-          "全行展开；每行为两层卡片——上层 40px logo + ticker/公司名 + 价格（preSession 加 “Last close” 小字，live/settling 加 ±%），下层整幅动作区（live/preSession 为 Up/Down 对，settling 为 “Closed ↑/↓” + 禁用 “Next session in mm:ss”，无价为 “Unavailable”）；行内不出现 session 文案",
+          "全行展开；每行为两层卡片——上层 40px logo + ticker/公司名 + 价格（preSession 加 “Last close” 小字，live/settling 加 ±%），下层整幅动作区（live/preSession 为 Up/Down 对：grid 2 列均分、gap 10、minHeight 44、label 左 / 价右两端对齐、内部 gap ≥ 8，与 HomeCryptoCard 移动 round 卡一致；settling 为 “Closed ↑/↓” + 禁用 “Next session in mm:ss”，无价为 “Unavailable”）；行内不出现 session 文案",
         source: "MobileStockRow（HomeStocksCard 移动分支）",
       },
     ],
@@ -915,9 +915,11 @@ const StocksGeometry = () => (
       ["行集容器", "100%", "flex-1", "否", "space-evenly 均布（移动 flex-start）", "行距伸缩吸收残差，行高不定死"],
       ["行", "100%", "内容自然高", "否", "不延伸", "padding 8×0（移动 7×0）"],
       ["行数", "US 10 / HK 6", "—", "定额", "不随数据增长", "移动 5 行 + “Show all 10 →” 折叠"],
-      ["Up/Down 钮 · 禁用钮", "内容宽", "minHeight 38", "定高", "不延伸", "settling 文案 tabular-nums，桌面 13.5 / 移动 12"],
+      ["桌面行 · Up/Down 钮", "内容宽", "minHeight 38", "定高", "不延伸", "label 左 / 价右，gap 8，padding 0 14"],
+      ["移动行 · Up/Down 钮", "grid 均分（gap 10）", "minHeight 44", "定高", "不延伸", "与 HomeCryptoCard 移动 round 卡一致：label 左 / 价右两端对齐，内部 gap ≥ 8，窄宽不粘连"],
+      ["移动行 · settling 禁用钮", "内容宽", "minHeight 34", "定高", "不延伸", "“Closed ↑/↓” 徽章 + “Next session in mm:ss” 禁用条，文案 tabular-nums，fontSize 12"],
       ["骨架行", "100%", "38（margin 8×0）", "定高", "不延伸", "桌面 10 条 / 移动 5 条，等高不塌陷"],
-      ["settleLine 模块头", "ml-auto 右对齐", "行内 fontSize 桌面 13.5 / 移动 12", "—", "不延伸", "行内 settle 文案；标题行同排右端"],
+      ["settleLine 模块头", "ml-auto 右对齐", "行内 fontSize 桌面 13.5 / 移动 12", "—", "不延伸", "行内 settle 文案；标题行同排右端（移动渲染在 ● 状态行）"],
     ]}
   />
 );
