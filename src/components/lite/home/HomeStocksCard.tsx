@@ -206,25 +206,28 @@ const StockRow = ({
               NEXT SESSION · opens {formatLocalTime(session.nextOpenAt)}
             </span>
           )}
-          <DirectionButton
-            label="Up"
-            price={row.upPrice}
-            tone="up"
-            minHeight={38}
-            labelSize={13.5}
-            priceSize={13.5}
-            onClick={go("up")}
-          />
-          <DirectionButton
-            label="Down"
-            price={row.downPrice}
-            tone="down"
-            minHeight={38}
-            labelSize={13.5}
-            priceSize={13.5}
-            onClick={go("down")}
-          />
+          <span className="flex flex-none" style={{ gap: isMobile ? 8 : 13 }}>
+            <DirectionButton
+              label="Up"
+              price={row.upPrice}
+              tone="up"
+              minHeight={38}
+              labelSize={13.5}
+              priceSize={13.5}
+              onClick={go("up")}
+            />
+            <DirectionButton
+              label="Down"
+              price={row.downPrice}
+              tone="down"
+              minHeight={38}
+              labelSize={13.5}
+              priceSize={13.5}
+              onClick={go("down")}
+            />
+          </span>
         </>
+
       ) : (
         <span style={DISABLED}>Unavailable</span>
       )}
