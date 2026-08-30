@@ -536,6 +536,10 @@ export const HomeStocksCard = ({
             {total} stocks · {settleLine}
           </span>
         )}
+        {isMobile && (
+          /* HP-3 · reserved slot for the lynx candle illustration (art TBD). */
+          <span aria-hidden className="ml-auto flex-none" style={{ width: 56, height: 40 }} />
+        )}
       </div>
       <div
         className={isMobile ? "flex flex-col" : "flex items-center"}
@@ -544,6 +548,28 @@ export const HomeStocksCard = ({
         <HomeQuestion size={isMobile ? 18 : 22}>
           Will it finish higher than it opened?
         </HomeQuestion>
+        {isMobile && (
+          <>
+            <div style={{ fontSize: 13, color: MUTED, marginTop: -2 }}>
+              One round per trading day. It settles at the closing bell — winning shares pay
+              $1, losing shares pay $0.
+            </div>
+            <div
+              className="font-display flex items-center"
+              style={{
+                gap: 6,
+                fontSize: 12.5,
+                color: MUTED,
+                fontVariantNumeric: "tabular-nums",
+                marginTop: -2,
+              }}
+            >
+              <span style={{ color: CYAN }}>●</span>
+              {settleLine}
+            </div>
+          </>
+        )}
+
         <span className={isMobile ? "" : "ml-auto"}>
           <span
             className="flex w-fit"
