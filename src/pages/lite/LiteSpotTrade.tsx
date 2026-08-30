@@ -60,6 +60,7 @@ import LiteQuickTrade from "@/pages/lite/LiteQuickTrade";
 import {
   formatClockCountdown,
   parseQuickId,
+  seedFromId,
   useSecondTick,
   useTradeCountdown,
 } from "@/components/lite/intraday/intradayData";
@@ -294,6 +295,12 @@ const LiteSpotTrade = () => {
   const pctToday = basePrice && currentPrice ? ((currentPrice - basePrice) / basePrice) * 100 : 0;
   // Settled events without a recorded close show no price / % figures.
   const showPriceReadout = currentPrice != null;
+  // ST-1d · pre-session reference price. Frozen (never ticks) and derived with
+  // the SAME rule as the homepage HomeStocksCard pre-session row.
+  const lastSessionClose =
+    preSessionWindow && basePrice != null
+      ? basePrice * (1 + ((seedFromId(event?.id ?? "") % 200) - 100) / 10000)
+      : null;
 
   // Sentiment %s
   const upPct = Math.max(1, Math.min(99, Math.round(yesLive * 100)));
@@ -444,6 +451,9 @@ const LiteSpotTrade = () => {
       headingRef={headingRef as unknown as React.Ref<HTMLHeadingElement>}
       priceText={currentPrice != null ? formatMarketPrice(currentPrice, market) : null}
       pctToday={basePrice != null && showPriceReadout ? pctToday : null}
+      lastCloseText={
+        lastSessionClose != null ? formatMarketPrice(lastSessionClose, market) : null
+      }
       priceToBeatText={basePrice != null ? formatMarketPrice(basePrice, market) : null}
       volText={volText}
       rightSlot={!isMobile ? WatchStar : null}
@@ -508,6 +518,7 @@ const LiteSpotTrade = () => {
       downLabel={noLabel}
       endDate={event?.end_date}
       currency={market.currency}
+      todayChipLabel={preSessionWindow ? "Last session" : undefined}
     />
   );
 
