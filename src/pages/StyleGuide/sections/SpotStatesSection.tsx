@@ -68,13 +68,14 @@ const HEAD_CASES: SectionCase[] = [
     key: "spot-sp2",
     label: "SP-2 · stocks 日内页头（SpotStockHead · 有价 / 无价两态）",
     note:
-      "页头三件逐字：eyebrow `Stocks · Daily up / down`（10px tracking .18em uppercase）、题面 `Will Alibaba close higher today?`、数据行 `HK$118.40 · ▲ +0.86% today · Price to beat HK$117.40 · Vol $41.2M`。桌面右侧挂 watchlist 星，移动帧不挂（页面把星移进 MobileHeader）。",
+      "页头三件逐字：eyebrow `Stocks · Daily up / down`（10px tracking .18em uppercase）、题面、数据行。ST-1 三态取值口径：live 取实时价 + %today；preSession 取上一时段收盘价（与主页 HomeStocksCard preSession 行同一派生），muted、冻结、无 %；settling 由 SessionBanner 承担，页头维持 live 末帧形态。桌面右侧挂 watchlist 星，移动帧不挂（页面把星移进 MobileHeader）。",
     spec: [
-      { state: "有基准价", when: "basePrice != null && showPriceReadout", visual: "现价 + %today + `Price to beat` 三段齐出", source: "LiteSpotTrade 派生" },
-      { state: "盘前无读数", when: "basePrice == null || !showPriceReadout", visual: "只剩 `Vol`，其余段落整段不渲染（第二帧）", source: "priceText / pctToday null" },
-      { state: "涨跌色", when: "pctToday >= 0 / < 0", visual: "text-trading-green / text-trading-red，箭头 ▲ / ▼", source: "SpotStockHead" },
-      { state: "星位", when: "!isMobile", visual: "rightSlot 渲染 watchlist 星；移动为 null", source: "rightSlot prop" },
+      { state: "live", when: 'phase==="live" && basePrice!=null', visual: "现价 + ▲/▼ %today + `Price to beat` 三段齐出", source: "SpotStockHead" },
+      { state: "preSession", when: 'phase==="preSession"', visual: "`Last close {价}` muted、无%、价格冻结；chip 显示 `Last session`", source: "本单改动二" },
+      { state: "settling", when: 'phase==="settling"', visual: "页头维持 live 末帧形态，状态由 SessionBanner 承担（本行为注记行）", source: "SessionBanner" },
+      { state: "无价", when: "basePrice==null || !showPriceReadout", visual: "只剩 `Vol`，其余段整段不渲染", source: "priceText / pctToday null" },
     ],
+
   },
 ];
 
