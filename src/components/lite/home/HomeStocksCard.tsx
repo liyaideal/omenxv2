@@ -14,7 +14,7 @@ import {
   US_STOCK_SUBTYPE,
   seedFromId,
 } from "@/components/lite/intraday/intradayData";
-import { deriveTickerFromEvent } from "@/components/SpotStatsHeader";
+import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader";
 import {
   formatLocalTime,
   formatMarketPrice,
@@ -46,6 +46,172 @@ const DISABLED: React.CSSProperties = {
 const frozenClose = (base: number, seed: number) =>
   base * (1 + ((seed % 200) - 100) / 10000);
 
+/**
+ * HP-3 · mobile stock row — a rounded row card: 40px logo, ticker over
+ * company name, price over %, and the compact Up / Down pair. Session meta
+ * is market-level and lives in the module head, never in the row.
+ */
+const MobileStockRow = ({
+  row,
+  tickSeconds,
+  nowOverride,
+}: {
+  row: StockEventRow;
+  tickSeconds: number;
+  nowOverride?: Date;
+}) => {
+  const navigate = useNavigate();
+  const ticker = deriveTickerFromEvent(row.id, row.name);
+  const company = STOCK_NAME[ticker] ?? ticker;
+  const market = resolveStockMarket(row);
+  const session = getStockSessionState(market, nowOverride);
+  const base = row.base_price;
+  const seed = seedFromId(row.id);
+  const livePrice =
+    base != null ? base * (1 + Math.sin(tickSeconds / 3 + (seed % 7)) * 0.009) : null;
+  const phase: StockSessionPhase = session.phase;
+  const state: StockSessionPhase | "stale" = base == null ? "stale" : phase;
+  const price =
+    state === "live" ? livePrice : base != null ? frozenClose(base, seed) : null;
+  const pct = base && price ? ((price - base) / base) * 100 : 0;
+  const priceText = price != null ? formatMarketPrice(price, market) : "—";
+
+  const go = (side?: "up" | "down") => (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/spot?event=${encodeURIComponent(row.id)}${side ? `&side=${side}` : ""}`);
+  };
+  const clickable = state !== "stale";
+
+  const pair = (
+    <span className="flex flex-none" style={{ gap: 6 }}>
+      <DirectionButton
+        label="Up"
+        price={row.upPrice}
+        tone="up"
+        layout="centered"
+        minHeight={34}
+        radius={10}
+        labelSize={11.5}
+        priceSize={11.5}
+        gap={5}
+        padding="0 9px"
+        onClick={go("up")}
+      />
+      <DirectionButton
+        label="Down"
+        price={row.downPrice}
+        tone="down"
+        layout="centered"
+        minHeight={34}
+        radius={10}
+        labelSize={11.5}
+        priceSize={11.5}
+        gap={5}
+        padding="0 9px"
+        onClick={go("down")}
+      />
+    </span>
+  );
+
+  return (
+    <div
+      role={clickable ? "button" : undefined}
+      tabIndex={clickable ? 0 : undefined}
+      onClick={clickable ? go() : undefined}
+      onKeyDown={
+        clickable
+          ? (e) => {
+              if (e.key === "Enter") navigate(`/spot?event=${encodeURIComponent(row.id)}`);
+            }
+          : undefined
+      }
+      className={`flex flex-col ${clickable ? "cursor-pointer" : ""}`}
+      style={{
+        gap: 9,
+        padding: "10px 12px 11px",
+        marginBottom: 8,
+        borderRadius: 14,
+        background: "#191D24",
+        border: "1px solid rgba(148,163,184,0.10)",
+      }}
+    >
+      <div className="flex items-center" style={{ gap: 10 }}>
+        <AssetAvatar symbol={ticker} kind="equity" size={40} />
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="truncate" style={{ fontWeight: 700, fontSize: 15, color: "#fff" }}>
+            {ticker}
+          </span>
+          <span className="truncate" style={{ fontSize: 12, color: MUTED }}>
+            {company}
+          </span>
+        </span>
+        <span className="flex flex-none flex-col items-end">
+          {state === "preSession" && (
+            <span style={{ fontSize: 10, color: MUTED }}>Last close</span>
+          )}
+          <span
+            className="font-display"
+            style={{
+              fontSize: 15,
+              fontWeight: 700,
+              color: state === "preSession" ? MUTED : "#F2F3F5",
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            {state === "stale" ? "—" : priceText}
+          </span>
+          {(state === "live" || state === "settling") && (
+            <PctChange value={pct} size={11.5} weight={600} />
+          )}
+        </span>
+      </div>
+      {state === "live" || state === "preSession" ? (
+        pair
+      ) : state === "settling" ? (
+        <span className="flex items-center" style={{ gap: 8 }}>
+          <span
+            className="font-display flex-none"
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              color: pct >= 0 ? CYAN : LIME,
+              border: `1px solid ${pct >= 0 ? "rgba(51,214,255,.45)" : "rgba(207,255,74,.45)"}`,
+              borderRadius: 999,
+              padding: "3px 10px",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Closed {pct >= 0 ? "↑" : "↓"}
+          </span>
+          <span
+            className="flex flex-1 items-center justify-center"
+            style={{
+              ...DISABLED,
+              minHeight: 34,
+              borderRadius: 10,
+              fontSize: 12,
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            Next session in{" "}
+            {session.settlingEndsAt
+              ? formatMinuteCountdown(session.settlingEndsAt, nowOverride)
+              : "00:00"}
+          </span>
+        </span>
+      ) : (
+        <span
+          className="flex items-center justify-center"
+          style={{ ...DISABLED, minHeight: 34, borderRadius: 10, fontSize: 12 }}
+        >
+          Unavailable
+        </span>
+      )}
+    </div>
+  );
+};
+
+
 const StockRow = ({
   row,
   tickSeconds,
@@ -59,6 +225,8 @@ const StockRow = ({
   nowOverride?: Date;
 }) => {
   const navigate = useNavigate();
+  if (isMobile)
+    return <MobileStockRow row={row} tickSeconds={tickSeconds} nowOverride={nowOverride} />;
   const ticker = deriveTickerFromEvent(row.id, row.name);
   const market = resolveStockMarket(row);
   const session = getStockSessionState(market, nowOverride);
@@ -372,6 +540,10 @@ export const HomeStocksCard = ({
             {total} stocks · {settleLine}
           </span>
         )}
+        {isMobile && (
+          /* HP-3 · reserved slot for the lynx candle illustration (art TBD). */
+          <span aria-hidden className="ml-auto flex-none" style={{ width: 56, height: 40 }} />
+        )}
       </div>
       <div
         className={isMobile ? "flex flex-col" : "flex items-center"}
@@ -380,6 +552,28 @@ export const HomeStocksCard = ({
         <HomeQuestion size={isMobile ? 18 : 22}>
           Will it finish higher than it opened?
         </HomeQuestion>
+        {isMobile && (
+          <>
+            <div style={{ fontSize: 13, color: MUTED, marginTop: -2 }}>
+              One round per trading day. It settles at the closing bell — winning shares pay
+              $1, losing shares pay $0.
+            </div>
+            <div
+              className="font-display flex items-center"
+              style={{
+                gap: 6,
+                fontSize: 12.5,
+                color: MUTED,
+                fontVariantNumeric: "tabular-nums",
+                marginTop: -2,
+              }}
+            >
+              <span style={{ color: CYAN }}>●</span>
+              {settleLine}
+            </div>
+          </>
+        )}
+
         <span className={isMobile ? "" : "ml-auto"}>
           <span
             className="flex w-fit"

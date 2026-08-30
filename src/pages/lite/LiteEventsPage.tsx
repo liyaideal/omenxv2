@@ -139,6 +139,82 @@ export const CatalogueIdentityCard = ({ isMobile }: { isMobile: boolean }) => (
 );
 
 /**
+ * HP-3 · mobile catalogue banner — absorbs the board head and the square
+ * identity card into one 110-high full-width banner. Mobile only.
+ */
+export const CatalogueMobileBanner = ({ openCount }: { openCount: number }) => (
+  <div
+    aria-hidden
+    style={{
+      position: "relative",
+      height: 110,
+      borderRadius: 16,
+      overflow: "hidden",
+      background: "#131519",
+      border: "1px solid #1d2026",
+    }}
+  >
+    <img
+      src="/assets/mobile/will-it-happen.png"
+      alt=""
+      style={{
+        position: "absolute",
+        right: 0,
+        top: 0,
+        height: "100%",
+        width: "62%",
+        objectFit: "cover",
+        objectPosition: "right center",
+        pointerEvents: "none",
+      }}
+    />
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        background:
+          "linear-gradient(to right, #131519 0%, rgba(19,21,25,0.92) 46%, rgba(19,21,25,0.15) 100%)",
+      }}
+    />
+    <div
+      style={{
+        position: "relative",
+        height: "100%",
+        padding: "12px 14px",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        maxWidth: 250,
+      }}
+    >
+      <div>
+        <div
+          className="font-display"
+          style={{
+            fontWeight: 700,
+            fontSize: 24,
+            lineHeight: "25px",
+            letterSpacing: "-0.4px",
+            color: "#fff",
+          }}
+        >
+          Will it happen?
+        </div>
+        <div
+          className="font-sans"
+          style={{ fontSize: 11.5, lineHeight: "16px", color: "#9AA1AC", marginTop: 5 }}
+        >
+          Buy Yes or No on real-world outcomes. Winning shares pay{" "}
+          <span style={{ color: "#fff" }}>$1</span>.
+        </div>
+      </div>
+      <div className="font-mono" style={{ fontSize: 11, color: "#6B7280" }}>
+        {openCount} open
+      </div>
+    </div>
+  </div>
+);
+/**
  * Catalogue board head (HP-1b) — "ALL MARKETS ›" + live open count.
  * Extracted verbatim from the page body (SG-HP) so EV-34 can mount the
  * production element instead of hand-copied markup. Zero visual change.
@@ -654,9 +730,13 @@ const LiteEventsPage = () => {
 
         {/* Card grid */}
         <div className="mt-6 flex flex-1 flex-col gap-6">
-        {!calendarOn && (isStageView || isMobileStage) && (
-          <CatalogueHeaderRow openCount={filtered.length} />
-        )}
+        {!calendarOn &&
+          (isStageView || isMobileStage) &&
+          (isMobile ? (
+            <CatalogueMobileBanner openCount={filtered.length} />
+          ) : (
+            <CatalogueHeaderRow openCount={filtered.length} />
+          ))}
         {calendarOn ? null : isCryptoView ||
           isFinanceView ||
           isIntradayView ||
@@ -722,7 +802,7 @@ const LiteEventsPage = () => {
             getBoostConfig={getBoostConfig}
             trendingCutoff={trendingCutoff}
             leadingSlot={
-              (isStageView || isMobileStage) && !isWatchlistView ? (
+              !isMobile && (isStageView || isMobileStage) && !isWatchlistView ? (
                 <CatalogueIdentityCard isMobile={isMobile} />
               ) : undefined
             }

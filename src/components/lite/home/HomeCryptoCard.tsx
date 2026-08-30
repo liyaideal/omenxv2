@@ -15,6 +15,7 @@ import {
   Timeframe,
   derivedPrice,
   downOptionOf,
+  formatCountdown,
   seedFromId,
   upOptionOf,
 } from "@/components/lite/intraday/intradayData";
@@ -269,6 +270,146 @@ const CompactTile = ({
   );
 };
 
+/**
+ * HP-3 · mobile round card — BTC / ETH / SOL share ONE layout: head
+ * (avatar + `TICKER · {tf} round` + price + %) with an orange CLOSES clock,
+ * chart, Last 8 strip, then the Up / Down pair.
+ */
+const MobileRoundCard = ({
+  coin,
+  event,
+  history,
+  tf,
+  tickSeconds,
+}: {
+  coin: Coin;
+  event: QuickEvent | null;
+  history: ("up" | "down")[];
+  tf: Timeframe;
+  tickSeconds: number;
+}) => {
+  const navigate = useNavigate();
+  const meta = COIN_META[coin];
+  const { up, down, base, upOdds, price, pct } = useNumbers(event, tickSeconds);
+  const go = (side?: "up" | "down") => (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!event) return;
+    navigate(`/spot?event=${encodeURIComponent(event.id)}${side ? `&side=${side}` : ""}`);
+  };
+  const closesIn = event?.end_date
+    ? formatCountdown(new Date(event.end_date).getTime() - Date.now())
+    : "--:--";
+  const tfLabel = tf === "1d" ? "1d" : tf;
+
+  return (
+    <div
+      className="flex flex-col"
+      style={{
+        background: "#191D24",
+        border: "1px solid rgba(148,163,184,0.12)",
+        borderRadius: 16,
+        padding: "14px",
+      }}
+    >
+      <div className="flex items-start" style={{ gap: 10 }}>
+        <AssetAvatar symbol={meta.ticker} kind="crypto" size={30} />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-baseline" style={{ gap: 6 }}>
+            <span style={{ fontWeight: 700, fontSize: 15, color: "#fff" }}>{meta.ticker}</span>
+            <span style={{ fontSize: 11.5, color: "#98A1AD" }}>· {tfLabel} round</span>
+          </div>
+          <div className="flex items-baseline" style={{ gap: 8, marginTop: 3 }}>
+            <span
+              className="font-display"
+              style={{
+                fontSize: 18,
+                fontWeight: 700,
+                color: "#fff",
+                fontVariantNumeric: "tabular-nums",
+              }}
+            >
+              {price != null ? fmtUsd(price) : "—"}
+            </span>
+            <PctChange value={pct} size={12} weight={600} />
+          </div>
+        </div>
+        <div className="flex flex-none flex-col items-end">
+          <span
+            className="font-mono"
+            style={{
+              fontSize: 9.5,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: ORANGE,
+              fontWeight: 700,
+            }}
+          >
+            Closes
+          </span>
+          <span
+            className="font-mono"
+            style={{
+              fontSize: 13,
+              fontWeight: 700,
+              color: ORANGE,
+              marginTop: 2,
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            {closesIn}
+          </span>
+        </div>
+      </div>
+
+      <div style={{ marginTop: 10 }}>
+        {event && base != null && price != null ? (
+          <RoundPlot
+            eventId={event.id}
+            basePrice={base}
+            currentPrice={price}
+            upOdds={upOdds}
+            height={110}
+          />
+        ) : (
+          <ChartSkeleton height={110} />
+        )}
+      </div>
+
+      <div className="flex items-center" style={{ marginTop: 10 }}>
+        <span className="ml-auto whitespace-nowrap">
+          <Last8Strip history={history} variant="strip" dot={10} />
+        </span>
+      </div>
+
+      <div
+        className="grid"
+        style={{ gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 10, marginTop: 10 }}
+      >
+        <DirectionButton
+          label="Up"
+          price={up ? up.price : 0.5}
+          tone="up"
+          minHeight={44}
+          labelSize={14.5}
+          priceSize={14.5}
+          gap={8}
+          onClick={go("up")}
+        />
+        <DirectionButton
+          label="Down"
+          price={down ? down.price : 0.5}
+          tone="down"
+          minHeight={44}
+          labelSize={14.5}
+          priceSize={14.5}
+          gap={8}
+          onClick={go("down")}
+        />
+      </div>
+    </div>
+  );
+};
+
 export const HomeCryptoCard = ({
   currentFor,
   historyFor,
@@ -316,22 +457,26 @@ export const HomeCryptoCard = ({
         </span>
       </div>
       <div style={{ marginTop: 8, fontSize: isMobile ? 13 : 14, color: "#98A1AD" }}>
-        One clock for all three coins.
+        {isMobile
+          ? "Pick Up or Down before the clock hits zero. Winning shares pay $1, losing shares pay $0."
+          : "One clock for all three coins."}
       </div>
 
       {isMobile ? (
         <div className="flex flex-col" style={{ gap: 10, marginTop: 14 }}>
-          <MainTile
-            event={btc}
-            history={historyFor.get(`btc-${tf}`) ?? []}
-            tickSeconds={tickSeconds}
-            compact
-          />
-          <div className="grid" style={{ gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 10 }}>
-            <CompactTile coin="eth" event={eventFor("eth")} tickSeconds={tickSeconds} compact />
-            <CompactTile coin="sol" event={eventFor("sol")} tickSeconds={tickSeconds} compact />
-          </div>
+          {(["btc", "eth", "sol"] as Coin[]).map((coin) => (
+            <MobileRoundCard
+              key={coin}
+              coin={coin}
+              event={eventFor(coin)}
+              history={historyFor.get(`${coin}-${tf}`) ?? []}
+              tf={tf}
+              tickSeconds={tickSeconds}
+            />
+          ))}
         </div>
+
+
 
       ) : (
         <div

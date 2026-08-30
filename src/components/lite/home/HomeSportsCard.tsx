@@ -45,35 +45,43 @@ const OddsButton = ({
   label,
   price,
   onClick,
+  stacked,
 }: {
   label: string;
   price: number;
   onClick: (e: React.MouseEvent) => void;
+  /** HP-3 mobile: team name over price so 375px never truncates. */
+  stacked?: boolean;
 }) => (
   <button
     type="button"
     onClick={onClick}
-    className="flex min-w-0 flex-1 items-center justify-between"
+    className={
+      stacked
+        ? "flex min-w-0 flex-1 flex-col items-center justify-center"
+        : "flex min-w-0 flex-1 items-center justify-between"
+    }
     style={{
       border: "1px solid rgba(148,163,184,0.2)",
       background: "#191D24",
       color: "#DBE2EA",
       borderRadius: 12,
-      padding: "10px 12px",
-      fontSize: 13.5,
+      padding: stacked ? "7px 6px" : "10px 12px",
+      fontSize: stacked ? 12.5 : 13.5,
       fontWeight: 700,
-      gap: 8,
+      gap: stacked ? 2 : 8,
     }}
   >
-    <span className="truncate">{label}</span>
+    <span className="w-full truncate text-center">{label}</span>
     <span
-      className="font-display flex-none"
-      style={{ color: CYAN, fontVariantNumeric: "tabular-nums" }}
+      className="font-mono flex-none"
+      style={{ color: CYAN, fontVariantNumeric: "tabular-nums", fontSize: stacked ? 13 : undefined }}
     >
       {Math.round(price * 100)}¢
     </span>
   </button>
 );
+
 
 const abbrFor = (m: SportsMatch, label: string) => {
   const n = label.trim().toLowerCase();
@@ -95,7 +103,15 @@ const MatchTitle = ({ m, live }: { m: SportsMatch; live: boolean }) => (
   </div>
 );
 
-const LiveCard = ({ m, onOpen }: { m: SportsMatch; onOpen: (id: string, o?: string) => void }) => (
+const LiveCard = ({
+  m,
+  onOpen,
+  isMobile,
+}: {
+  m: SportsMatch;
+  onOpen: (id: string, o?: string) => void;
+  isMobile?: boolean;
+}) => (
   <div
     style={{
       marginTop: 12,
@@ -148,6 +164,7 @@ const LiveCard = ({ m, onOpen }: { m: SportsMatch; onOpen: (id: string, o?: stri
           key={o.id}
           label={abbrFor(m, o.label)}
           price={o.price}
+          stacked={isMobile}
           onClick={(e) => {
             e.stopPropagation();
             onOpen(m.id, o.id);
@@ -158,7 +175,8 @@ const LiveCard = ({ m, onOpen }: { m: SportsMatch; onOpen: (id: string, o?: stri
   </div>
 );
 
-const UpcomingRow = ({
+/** HP-3 · mobile upcoming card row: kickoff column, then teams + stacked odds. */
+const MobileUpcomingCard = ({
   m,
   live,
   onOpen,
@@ -168,6 +186,102 @@ const UpcomingRow = ({
   onOpen: (id: string, o?: string) => void;
 }) => {
   const k = kickoffLabel(m.kickoff);
+  return (
+    <div
+      style={{
+        marginTop: 10,
+        padding: 12,
+        borderRadius: 14,
+        background: "#191D24",
+        border: "1px solid rgba(148,163,184,0.10)",
+      }}
+    >
+      <div className="flex items-center" style={{ gap: 10 }}>
+        <span className="flex flex-none flex-col items-center" style={{ width: 52 }}>
+          <span
+            className="font-display"
+            style={{
+              fontSize: 15,
+              fontWeight: 700,
+              color: "#fff",
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            {k.time || "TBD"}
+          </span>
+          <span
+            className="font-display"
+            style={{
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: MUTED,
+              marginTop: 2,
+            }}
+          >
+            {k.day}
+          </span>
+        </span>
+        <span className="flex flex-none">
+          <Monogram abbr={m.homeAbbr || m.home} />
+          <Monogram abbr={m.awayAbbr || m.away} overlap />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div
+            className="truncate"
+            style={{ fontWeight: 700, fontSize: 14.5, color: "#fff" }}
+          >
+            {`${m.home || m.name} vs ${m.away}`}
+          </div>
+          <div
+            className="font-display flex items-center truncate"
+            style={{
+              color: MUTED,
+              fontSize: 10.5,
+              letterSpacing: "0.16em",
+              textTransform: "uppercase",
+              fontWeight: 700,
+              marginTop: 3,
+              gap: 6,
+            }}
+          >
+            {live && <span style={{ color: LIVE_GREEN }}>●</span>}
+            {m.league}
+          </div>
+        </div>
+      </div>
+      <div className="flex" style={{ gap: 8, marginTop: 10 }}>
+        {m.options.map((o) => (
+          <OddsButton
+            key={o.id}
+            label={o.label}
+            price={o.price}
+            stacked
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpen(m.id, o.id);
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const UpcomingRow = ({
+  m,
+  live,
+  onOpen,
+  isMobile,
+}: {
+  m: SportsMatch;
+  live?: boolean;
+  onOpen: (id: string, o?: string) => void;
+  isMobile?: boolean;
+}) => {
+  const k = kickoffLabel(m.kickoff);
+  if (isMobile) return <MobileUpcomingCard m={m} live={live} onOpen={onOpen} />;
   return (
     <div style={{ padding: "16px 0", borderBottom: "1px solid rgba(148,163,184,0.09)" }}>
       <div className="flex items-center" style={{ gap: 12 }}>
@@ -210,6 +324,7 @@ const UpcomingRow = ({
     </div>
   );
 };
+
 
 export const HomeSportsCard = ({
   matches,
@@ -314,13 +429,13 @@ export const HomeSportsCard = ({
       </div>
 
       {pinned.map((m) => (
-        <LiveCard key={m.id} m={m} onOpen={open} />
+        <LiveCard key={m.id} m={m} onOpen={open} isMobile={isMobile} />
       ))}
       {liveRows.map((m) => (
-        <UpcomingRow key={m.id} m={m} live onOpen={open} />
+        <UpcomingRow key={m.id} m={m} live onOpen={open} isMobile={isMobile} />
       ))}
       {rows.map((m) => (
-        <UpcomingRow key={m.id} m={m} onOpen={open} />
+        <UpcomingRow key={m.id} m={m} onOpen={open} isMobile={isMobile} />
       ))}
 
       <div className="flex items-center" style={{ marginTop: 16 }}>
