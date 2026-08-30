@@ -255,6 +255,41 @@ const DRAWER_CASES: SectionCase[] = [
       { state: "lead 文案", when: "crypto 轮 / stocks 日内", visual: "`Settles in` / `Closes in` 由页面注入，组件不判定", source: "leadText prop" },
     ],
   },
+
+];
+
+/* ---------------- ⑦ 交易时段 banner（SP-17 / SP-18 · ST-1） ---------------- */
+
+const SESSION_CASES: SectionCase[] = [
+  {
+    key: "spot-sp17",
+    label: "SP-17 · SessionBanner · settling + 禁单（SpotSessionBanner + LiteOrderPanel）",
+    note:
+      "nowOverride 冻结在收盘后 15 分（settling 窗口 60 分）→ 倒计时恒为 45:00。生产不传 nowOverride = 实时钟，行为零变化。",
+    spec: [
+      {
+        state: "settling",
+        when: 'getStockSessionState(market).phase === "settling"',
+        visual:
+          "`Closed ↑` + 收盘价 + 右端 `Next session in 45:00`；下单键禁用并显示 `Settled`；倒计时 `00:00:00`",
+        source: "SpotSessionBanner settling 分支 / LiteOrderPanel blocked",
+      },
+    ],
+  },
+  {
+    key: "spot-sp18",
+    label: "SP-18 · SessionBanner · preSession（SpotSessionBanner + LiteOrderPanel）",
+    note: "nowOverride 冻结在周日 → 三态机跳周末，下一开盘为周一 09:30；下单可用。",
+    spec: [
+      {
+        state: "preSession",
+        when: "settling 结束 && now < nextOpenAt",
+        visual:
+          "`NEXT SESSION` + 右端 `Opens 09:30` + 次行 `Chart shows the last session for reference.`；下单键可用",
+        source: "SpotSessionBanner preSession 分支",
+      },
+    ],
+  },
 ];
 
 /* ---------------- 附注与并账表 ---------------- */
@@ -350,7 +385,7 @@ const Pair = ({
 export const SpotStatesSection = () => (
   <SectionWrapper
     id="spot-states"
-    title="/spot · 现货轮 · 状态字典（SP-1 … SP-16）"
+    title="/spot · 现货轮 · 状态字典（SP-1 … SP-18）"
     description="crypto 快轮与 stocks 日内共用同一骨架，差异只在模块增删。16 个 case 全部用生产组件 + fixture 落案（M2d 抽出 SpotHeadBlocks.tsx 后，原 5 个缺口 SP-1 / SP-2 / SP-9 / SP-15 / SP-16 已补齐，缺口表撤除）。抽件为零视觉搬移，生产页渲染未变。"
   >
     <SubSection title="① 页头（SP-1 / SP-2）">
@@ -383,11 +418,15 @@ export const SpotStatesSection = () => (
       </div>
     </SubSection>
 
-    <SubSection title="⑦ 附注">
+    <SubSection title="⑦ 交易时段 banner（SP-17 / SP-18 · ST-1）">
+      <Pair cases={SESSION_CASES} desktopMin={620} mobileMin={720} />
+    </SubSection>
+
+    <SubSection title="⑧ 附注">
       <Gaps />
     </SubSection>
 
-    <SubSection title="⑧ 并账清单（M2c 旧三节删除）">
+    <SubSection title="⑨ 并账清单（M2c 旧三节删除）">
       <Ledger />
     </SubSection>
   </SectionWrapper>

@@ -1692,3 +1692,10 @@ portfolio 里不允许出现「无来源标的试玩仓位」——没有标就�
 - **求解器 side-aware**：long 解在现价下方、short 解在现价上方，出域 → none；`boost ≤ 1` 恒 none。单一真相源 `src/lib/autoClosePrice.ts` 的 `estimateAutoClosePrice`。
 - **常驻说明**：`Moves with your other positions` 随字段常驻。`None at this balance` 全站退役。
 - Pro 侧本轮不动（挂账④，另轮统一到同一求解器）。
+
+### §7.9 Style-guide 规则 9 · 时间态 case 必须冻结钟（SG-HP）
+任何依赖交易时段/倒计时的 style-guide case，必须用组件的 `nowOverride?: Date`
+把时钟冻结在**交易所时区**的固定 wall-clock（不是查看者本地时区），
+否则同一 case 在不同时刻/时区渲染出不同态。生产侧一律不传该 prop = 实时钟，
+行为零变化。当前实现：`HomeStocksCard` / `StockRow` / `SpotSessionBanner`。
+Don't：用 `new Date()` 本地偏移伪造 session 态；用 `Date.now()` 派生可变文案。

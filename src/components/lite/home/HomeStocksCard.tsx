@@ -50,15 +50,18 @@ const StockRow = ({
   row,
   tickSeconds,
   isMobile,
+  nowOverride,
 }: {
   row: StockEventRow;
   tickSeconds: number;
   isMobile: boolean;
+  /** Style-guide fixture only. Absent → live clock (production behaviour). */
+  nowOverride?: Date;
 }) => {
   const navigate = useNavigate();
   const ticker = deriveTickerFromEvent(row.id, row.name);
   const market = resolveStockMarket(row);
-  const session = getStockSessionState(market);
+  const session = getStockSessionState(market, nowOverride);
   const base = row.base_price;
   const seed = seedFromId(row.id);
   const livePrice =
@@ -206,7 +209,9 @@ const StockRow = ({
             }}
           >
             Next session in{" "}
-            {session.settlingEndsAt ? formatMinuteCountdown(session.settlingEndsAt) : "00:00"}
+            {session.settlingEndsAt
+              ? formatMinuteCountdown(session.settlingEndsAt, nowOverride)
+              : "00:00"}
           </span>
         </>
       ) : state === "preSession" ? (
@@ -293,11 +298,14 @@ export const HomeStocksCard = ({
   tickSeconds,
   isMobile,
   loading,
+  nowOverride,
 }: {
   stockRows: StockEventRow[];
   tickSeconds: number;
   isMobile: boolean;
   loading: boolean;
+  /** Style-guide fixture only. Absent → live clock (production behaviour). */
+  nowOverride?: Date;
 }) => {
   const [tab, setTab] = useState<TabId>("us");
   const [expanded, setExpanded] = useState(false);
@@ -327,10 +335,12 @@ export const HomeStocksCard = ({
   const settleLine = useMemo(() => {
     const sample = (tab === "hk" ? hk : us)[0];
     const market = resolveStockMarket(sample ?? { id: tab === "hk" ? "hk-" : "us-" });
-    const session = getStockSessionState(market);
+    const session = getStockSessionState(market, nowOverride);
     if (session.phase === "settling") {
       return `Settled · next session in ${
-        session.settlingEndsAt ? formatMinuteCountdown(session.settlingEndsAt) : "00:00"
+        session.settlingEndsAt
+          ? formatMinuteCountdown(session.settlingEndsAt, nowOverride)
+          : "00:00"
       }`;
     }
     if (session.phase === "preSession") {
@@ -342,7 +352,7 @@ export const HomeStocksCard = ({
       ? "HK settles at close 16:00 HKT"
       : `US settles at close ${formatLocalTime(session.closeAt ?? session.nextOpenAt)}`;
     // tickSeconds keeps the settling countdown live.
-  }, [tab, us, hk, tickSeconds]);
+  }, [tab, us, hk, tickSeconds, nowOverride]);
 
 
   if (!loading && total === 0) return null;
@@ -430,6 +440,7 @@ export const HomeStocksCard = ({
                 row={row}
                 tickSeconds={tickSeconds}
                 isMobile={isMobile}
+                nowOverride={nowOverride}
               />
             ))}
       </div>
