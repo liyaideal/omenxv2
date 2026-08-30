@@ -46,6 +46,168 @@ const DISABLED: React.CSSProperties = {
 const frozenClose = (base: number, seed: number) =>
   base * (1 + ((seed % 200) - 100) / 10000);
 
+/**
+ * HP-3 · mobile stock row — a rounded row card: 40px logo, ticker over
+ * company name, price over %, and the compact Up / Down pair. Session meta
+ * is market-level and lives in the module head, never in the row.
+ */
+const MobileStockRow = ({
+  row,
+  tickSeconds,
+  nowOverride,
+}: {
+  row: StockEventRow;
+  tickSeconds: number;
+  nowOverride?: Date;
+}) => {
+  const navigate = useNavigate();
+  const ticker = deriveTickerFromEvent(row.id, row.name);
+  const company = STOCK_NAME[ticker] ?? ticker;
+  const market = resolveStockMarket(row);
+  const session = getStockSessionState(market, nowOverride);
+  const base = row.base_price;
+  const seed = seedFromId(row.id);
+  const livePrice =
+    base != null ? base * (1 + Math.sin(tickSeconds / 3 + (seed % 7)) * 0.009) : null;
+  const phase: StockSessionPhase = session.phase;
+  const state: StockSessionPhase | "stale" = base == null ? "stale" : phase;
+  const price =
+    state === "live" ? livePrice : base != null ? frozenClose(base, seed) : null;
+  const pct = base && price ? ((price - base) / base) * 100 : 0;
+  const priceText = price != null ? formatMarketPrice(price, market) : "—";
+
+  const go = (side?: "up" | "down") => (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/spot?event=${encodeURIComponent(row.id)}${side ? `&side=${side}` : ""}`);
+  };
+  const clickable = state !== "stale";
+
+  const pair = (
+    <span className="flex flex-none" style={{ gap: 6 }}>
+      <DirectionButton
+        label="Up"
+        price={row.upPrice}
+        tone="up"
+        layout="centered"
+        minHeight={34}
+        radius={10}
+        labelSize={11.5}
+        priceSize={11.5}
+        gap={5}
+        padding="0 9px"
+        onClick={go("up")}
+      />
+      <DirectionButton
+        label="Down"
+        price={row.downPrice}
+        tone="down"
+        layout="centered"
+        minHeight={34}
+        radius={10}
+        labelSize={11.5}
+        priceSize={11.5}
+        gap={5}
+        padding="0 9px"
+        onClick={go("down")}
+      />
+    </span>
+  );
+
+  return (
+    <div
+      role={clickable ? "button" : undefined}
+      tabIndex={clickable ? 0 : undefined}
+      onClick={clickable ? go() : undefined}
+      onKeyDown={
+        clickable
+          ? (e) => {
+              if (e.key === "Enter") navigate(`/spot?event=${encodeURIComponent(row.id)}`);
+            }
+          : undefined
+      }
+      className={`flex items-center ${clickable ? "cursor-pointer" : ""}`}
+      style={{
+        gap: 9,
+        minHeight: 60,
+        padding: "10px",
+        marginBottom: 8,
+        borderRadius: 14,
+        background: "#191D24",
+        border: "1px solid rgba(148,163,184,0.10)",
+      }}
+    >
+      <AssetAvatar symbol={ticker} kind="equity" size={40} />
+      <span className="flex min-w-0 flex-col">
+        <span
+          className="truncate"
+          style={{ fontWeight: 700, fontSize: 15, color: "#fff" }}
+        >
+          {ticker}
+        </span>
+        <span className="truncate" style={{ fontSize: 12, color: MUTED }}>
+          {company}
+        </span>
+      </span>
+      <span className="ml-auto flex flex-none flex-col items-end">
+        {state === "preSession" && (
+          <span style={{ fontSize: 10, color: MUTED }}>Last close</span>
+        )}
+        <span
+          className="font-display"
+          style={{
+            fontSize: 14,
+            fontWeight: 700,
+            color: state === "preSession" ? MUTED : "#F2F3F5",
+            fontVariantNumeric: "tabular-nums",
+          }}
+        >
+          {state === "stale" ? "—" : priceText}
+        </span>
+        {(state === "live" || state === "settling") && (
+          <PctChange value={pct} size={11.5} weight={600} />
+        )}
+      </span>
+      {state === "live" || state === "preSession" ? (
+        pair
+      ) : state === "settling" ? (
+        <span className="flex flex-none flex-col items-end" style={{ gap: 4 }}>
+          <span
+            className="font-display"
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              color: pct >= 0 ? CYAN : LIME,
+              border: `1px solid ${pct >= 0 ? "rgba(51,214,255,.45)" : "rgba(207,255,74,.45)"}`,
+              borderRadius: 999,
+              padding: "2px 8px",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Closed {pct >= 0 ? "↑" : "↓"}
+          </span>
+          <span
+            style={{
+              ...DISABLED,
+              minHeight: 26,
+              padding: "0 9px",
+              borderRadius: 10,
+              fontSize: 11,
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            Next session in{" "}
+            {session.settlingEndsAt
+              ? formatMinuteCountdown(session.settlingEndsAt, nowOverride)
+              : "00:00"}
+          </span>
+        </span>
+      ) : (
+        <span style={{ ...DISABLED, minHeight: 30, fontSize: 12 }}>Unavailable</span>
+      )}
+    </div>
+  );
+};
+
 const StockRow = ({
   row,
   tickSeconds,
