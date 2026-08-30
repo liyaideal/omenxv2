@@ -64,15 +64,43 @@ function yyyymmdd(d: Date): string {
   return `${y}${m}${day}`;
 }
 
-/** Next weekday (Mon–Fri) after the given UTC date. */
-function nextTradingDay(from: Date): Date {
+// ST-1d · trading-day calendar. Same rule as the front-end state machine in
+// src/lib/usStockSessions.ts (`isTradingDay`): weekends are closed and the
+// per-market holiday list (currently an empty hook) is skipped. Each market
+// keeps its own calendar; only the US line is seeded here.
+const MARKET_HOLIDAYS: Record<string, string[]> = {
+  us: [],
+  hk: [],
+};
+
+function isoDate(d: Date): string {
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${
+    String(d.getUTCDate()).padStart(2, "0")
+  }`;
+}
+
+function isTradingDay(marketKey: string, d: Date): boolean {
+  const dow = d.getUTCDay();
+  if (dow === 0 || dow === 6) return false;
+  return !(MARKET_HOLIDAYS[marketKey] ?? []).includes(isoDate(d));
+}
+
+/** Next trading day strictly after `from` (skips weekends + holidays). */
+function nextTradingDay(marketKey: string, from: Date): Date {
   const d = new Date(from);
   d.setUTCDate(d.getUTCDate() + 1);
-  while (d.getUTCDay() === 0 || d.getUTCDay() === 6) {
-    d.setUTCDate(d.getUTCDate() + 1);
-  }
+  while (!isTradingDay(marketKey, d)) d.setUTCDate(d.getUTCDate() + 1);
   return d;
 }
+
+/** Previous trading day strictly before `from` (skips weekends + holidays). */
+function prevTradingDay(marketKey: string, from: Date): Date {
+  const d = new Date(from);
+  d.setUTCDate(d.getUTCDate() - 1);
+  while (!isTradingDay(marketKey, d)) d.setUTCDate(d.getUTCDate() - 1);
+  return d;
+}
+
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
