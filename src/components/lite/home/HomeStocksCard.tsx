@@ -270,13 +270,25 @@ export const HomeStocksCard = ({
 
 
   const settleLine = useMemo(() => {
-    if (tab === "hk") return "HK settles at close 16:00 HKT";
-    const sample = us[0];
-    if (!sample) return "US settles at close";
-    const session = getMarketSession(resolveStockMarket(sample));
-    const at = session.closeAt ?? session.nextOpenAt;
-    return `US settles at close ${formatLocalTime(at)}`;
-  }, [tab, us]);
+    const sample = (tab === "hk" ? hk : us)[0];
+    const market = resolveStockMarket(sample ?? { id: tab === "hk" ? "hk-" : "us-" });
+    const session = getStockSessionState(market);
+    if (session.phase === "settling") {
+      return `Settled · next session in ${
+        session.settlingEndsAt ? formatMinuteCountdown(session.settlingEndsAt) : "00:00"
+      }`;
+    }
+    if (session.phase === "preSession") {
+      return tab === "hk"
+        ? "Next session · HK opens 09:30 HKT"
+        : `Next session · US opens ${formatLocalTime(session.nextOpenAt)}`;
+    }
+    return tab === "hk"
+      ? "HK settles at close 16:00 HKT"
+      : `US settles at close ${formatLocalTime(session.closeAt ?? session.nextOpenAt)}`;
+    // tickSeconds keeps the settling countdown live.
+  }, [tab, us, hk, tickSeconds]);
+
 
   if (!loading && total === 0) return null;
 
