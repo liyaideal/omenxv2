@@ -487,6 +487,139 @@ export const getMarketSession = (
 };
 
 // -----------------------------------------------------------------
+// ST-1 · Stocks trading-session state machine (US / HK, one enum).
+//
+//   live        regular session in progress — the current session's
+//               market is tradable.
+//   settling    close → close + SETTLING_MINUTES. Nothing tradable;
+//               the session that just ended is being settled.
+//   preSession  close + SETTLING_MINUTES → next opening bell. The NEXT
+//               session's market is open for trading.
+//
+// Weekends/holidays: Friday close + 1h rolls straight into a preSession
+// that spans the weekend and points at Monday's opening bell.
+// `MARKET_HOLIDAYS` is the (currently minimal) calendar hook — exchange
+// local ISO dates listed here are skipped by the session walker.
+// -----------------------------------------------------------------
+
+/** Minutes of no-trade settlement window right after the cash close. */
+export const SETTLING_MINUTES = 60;
+
+/** Exchange-local YYYY-MM-DD closure dates, per market key. */
+export const MARKET_HOLIDAYS: Record<string, string[]> = {
+  us: [],
+  hk: [],
+  kr: [],
+};
+
+export type StockSessionPhase = "live" | "settling" | "preSession";
+
+export interface StockSessionState {
+  market: StockMarket;
+  phase: StockSessionPhase;
+  /** Close instant of the session in progress (phase === "live"). */
+  closeAt: Date | null;
+  /** Close instant of the session that just ended (settling / preSession). */
+  lastCloseAt: Date | null;
+  /** Instant the settling window ends and the next market opens for orders. */
+  settlingEndsAt: Date | null;
+  /** Opening bell of the next regular session. */
+  nextOpenAt: Date;
+  /** Convenience: are new orders accepted right now? */
+  tradable: boolean;
+}
+
+const zonedDateKey = (d: Date, tz: string): string => {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: tz,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(d);
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  return `${get("year")}-${get("month")}-${get("day")}`;
+};
+
+/** Trading day? (weekday and not on the market's holiday list) */
+const isTradingDay = (market: StockMarket, at: Date): boolean => {
+  const { dow } = zonedClock(at, market.tz);
+  if (dow === 0 || dow === 6) return false;
+  return !(MARKET_HOLIDAYS[market.key] ?? []).includes(
+    zonedDateKey(at, market.tz),
+  );
+};
+
+/**
+ * Session phase for a market, derived from the exchange wall clock.
+ * DEMO-STATE: production drives this from the backend state machine.
+ */
+export const getStockSessionState = (
+  market: StockMarket,
+  now: Date = new Date(),
+): StockSessionState => {
+  const { minutes } = zonedClock(now, market.tz);
+  const openMin = market.openMinutes ?? SESSION_OPEN_MIN;
+  const closeMin = market.closeMinutes ?? SESSION_CLOSE_MIN;
+  const today = isTradingDay(market, now);
+
+  const at = (dayOffset: number, minOfDay: number) =>
+    new Date(now.getTime() + (dayOffset * DAY_MIN + (minOfDay - minutes)) * MIN_MS);
+
+  // Next opening bell: today when the bell hasn't rung yet, else walk forward.
+  let fwd = today && minutes < openMin ? 0 : 1;
+  while (!isTradingDay(market, at(fwd, openMin))) fwd += 1;
+  const nextOpenAt = at(fwd, openMin);
+
+  // Most recent close: today when the bell has already rung, else walk back.
+  let back = today && minutes >= closeMin ? 0 : -1;
+  while (!isTradingDay(market, at(back, closeMin))) back -= 1;
+  const lastCloseAt = at(back, closeMin);
+
+  if (today && minutes >= openMin && minutes < closeMin) {
+    return {
+      market,
+      phase: "live",
+      closeAt: at(0, closeMin),
+      lastCloseAt: null,
+      settlingEndsAt: null,
+      nextOpenAt,
+      tradable: true,
+    };
+  }
+
+  const settlingEndsAt = new Date(lastCloseAt.getTime() + SETTLING_MINUTES * MIN_MS);
+  if (now < settlingEndsAt) {
+    return {
+      market,
+      phase: "settling",
+      closeAt: null,
+      lastCloseAt,
+      settlingEndsAt,
+      nextOpenAt,
+      tradable: false,
+    };
+  }
+
+  return {
+    market,
+    phase: "preSession",
+    closeAt: null,
+    lastCloseAt,
+    settlingEndsAt,
+    nextOpenAt,
+    tradable: true,
+  };
+};
+
+/** mm:ss countdown to an instant (clamped at 00:00). */
+export const formatMinuteCountdown = (target: Date, now: Date = new Date()): string => {
+  const s = Math.max(0, Math.floor((target.getTime() - now.getTime()) / 1000));
+  return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+};
+
+
+
+// -----------------------------------------------------------------
 // Viewer-local clock rendering (全站时间口径 R1-R3).
 // R1: every clock shown to a user renders in the viewer's own zone with
 //     no timezone suffix. R2: venue nouns ("HK close", "US session") stay.
