@@ -131,8 +131,10 @@ Deno.serve(async (req) => {
   ));
   const freeze = new Date(close.getTime() - 5 * 60_000);
   const settlement = new Date(close.getTime() + 15 * 60_000);
-  // Trading window starts at T-1 cash close (previous day 20:00Z).
-  const openStart = new Date(close.getTime() - 24 * 3600_000);
+  // ST-1: the next session goes on sale one hour after the previous cash
+  // close (T-1 20:00Z + 1h). The one no-trade hour per day is the settling
+  // window of the session that just ended.
+  const openStart = new Date(close.getTime() - 23 * 3600_000);
 
   const humanDate = target.toLocaleDateString("en-US", {
     weekday: "long", month: "short", day: "numeric", year: "numeric",
