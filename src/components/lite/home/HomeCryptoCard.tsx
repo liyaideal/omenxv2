@@ -457,22 +457,26 @@ export const HomeCryptoCard = ({
         </span>
       </div>
       <div style={{ marginTop: 8, fontSize: isMobile ? 13 : 14, color: "#98A1AD" }}>
-        One clock for all three coins.
+        {isMobile
+          ? "Pick Up or Down before the clock hits zero. Winning shares pay $1, losing shares pay $0."
+          : "One clock for all three coins."}
       </div>
 
       {isMobile ? (
         <div className="flex flex-col" style={{ gap: 10, marginTop: 14 }}>
-          <MainTile
-            event={btc}
-            history={historyFor.get(`btc-${tf}`) ?? []}
-            tickSeconds={tickSeconds}
-            compact
-          />
-          <div className="grid" style={{ gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 10 }}>
-            <CompactTile coin="eth" event={eventFor("eth")} tickSeconds={tickSeconds} compact />
-            <CompactTile coin="sol" event={eventFor("sol")} tickSeconds={tickSeconds} compact />
-          </div>
+          {(["btc", "eth", "sol"] as Coin[]).map((coin) => (
+            <MobileRoundCard
+              key={coin}
+              coin={coin}
+              event={eventFor(coin)}
+              history={historyFor.get(`${coin}-${tf}`) ?? []}
+              tf={tf}
+              tickSeconds={tickSeconds}
+            />
+          ))}
         </div>
+
+
 
       ) : (
         <div
