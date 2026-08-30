@@ -81,6 +81,9 @@ const StockRow = ({
   };
 
   const clickable = state !== "stale";
+  // Mobile keeps the two-layer row grammar used across Lite lists: the
+  // session meta (Last close / result) drops to a second line.
+  const mobileMeta = isMobile && (state === "preSession" || state === "settling");
 
   return (
     <div
@@ -94,13 +97,14 @@ const StockRow = ({
             }
           : undefined
       }
-      className={`flex items-center ${clickable ? "cursor-pointer" : ""}`}
+      className={`flex flex-col ${clickable ? "cursor-pointer" : ""}`}
       style={{
-        gap: isMobile ? 10 : 13,
         padding: isMobile ? "7px 0" : "8px 0",
         borderBottom: "1px solid rgba(148,163,184,0.07)",
       }}
     >
+      <div className="flex items-center" style={{ gap: isMobile ? 10 : 13 }}>
+
       <AssetAvatar symbol={ticker} kind="equity" size={isMobile ? 26 : 28} />
       <span
         className="flex-none"
