@@ -589,7 +589,7 @@ const STAGE_CASES: SectionCase[] = [
         state: "preSession",
         when: "settling 结束 && now < nextOpenAt",
         visual:
-          "Last close 参考价（不跳动、无 “% today”）+ “NEXT SESSION · Opens 09:30”；Up/Down 可下单",
+          "Last close 参考价（不跳动、无 “% today”）+ “NEXT SESSION · opens 21:30”（US 示例，查看者本地钟）；Up/Down 可下单",
         source: "HomeStocksCard preSession 分支",
       },
       {
@@ -603,7 +603,7 @@ const STAGE_CASES: SectionCase[] = [
         state: "模块头 ● 状态行 · 六组合逐字",
         when: "tab ∈ {us, hk} × phase ∈ {live, settling, preSession}",
         visual:
-          "US live “US settles at close 16:00” / US settling “Settled · next session in mm:ss” / US preSession “Next session · US opens 09:30”；HK live “HK settles at close 16:00 HKT” / HK settling “Settled · next session in mm:ss” / HK preSession “Next session · HK opens 09:30 HKT”",
+          "US live “US settles at close 04:00” / US settling “Settled · next session in mm:ss” / US preSession “Next session · US opens 21:30”；HK live “HK settles at close 16:00 HKT” / HK settling “Settled · next session in mm:ss” / HK preSession “Next session · HK opens 09:30 HKT”。注记：US 两句走 formatLocalTime（查看者本地钟，示例为 UTC+8），随查看者时区变化；HK 两句为硬编码字符串，固定 HKT 交易所时刻",
         source: "HomeStocksCard settleLine（移动端渲染在 ● 行，桌面渲染在标题行右端）",
       },
     ],
