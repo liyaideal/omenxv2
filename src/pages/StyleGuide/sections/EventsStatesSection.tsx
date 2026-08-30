@@ -957,6 +957,21 @@ const DeskGeometry = () => (
   />
 );
 
+const CatalogueHeadGeometry = () => (
+  <Table
+    title="EV-34 / EV-35 几何表 · 目录带头（CatalogueHeaderRow / CatalogueIdentityCard / CatalogueMobileBanner）"
+    head={GEO_HEAD}
+    rows={[
+      ["板头行（桌面）", "100%", "内容自然高", "—", "不延伸", "padding 6×2×0；“ALL MARKETS ›” font-display 700 / 15 / 0.10em + 右端 mono 12 “{n} open”"],
+      ["身份卡（桌面）", "网格首格 = 一张卡宽", "与同排卡等高", "跟随网格行高", "不延伸", "不可点 / aria-hidden / 不计入 open 数"],
+      ["移动横幅（HP-3）", "全宽 100%（容器 px-4 内）", "110", "定高", "不延伸", "radius 16 / bg #131519 / 边 1px #1d2026；吸收板头 + 身份卡，二者移动端不再渲染"],
+      ["横幅文案块", "maxWidth 250", "100%（padding 12×14，space-between）", "—", "不延伸", "标题 24/25，副行 11.5/16 #9AA1AC，底部 mono 11 #6B7280 “{n} open”"],
+      ["横幅插画", "62% 宽，右对齐", "100%（110）", "定高", "不延伸", "/assets/mobile/will-it-happen.png，object-fit cover / right center，pointer-events none"],
+      ["横幅渐变", "inset 0", "—", "—", "—", "linear-gradient(to right, #131519 0%, rgba(19,21,25,0.92) 46%, rgba(19,21,25,0.15) 100%) 覆盖插画左侧保证文案可读"],
+    ]}
+  />
+);
+
 /* ---------------- 附注表 E / F / G（Stocks 分区尾）---------------- */
 
 const StocksFootnotes = () => (
@@ -1226,6 +1241,9 @@ export const EventsStatesSection = () => (
           desktopMin={900}
           mobileMin={1200}
         />
+        <div className="mt-6">
+          <CatalogueHeadGeometry />
+        </div>
         <div className="mt-8">
           <Footnotes />
         </div>
