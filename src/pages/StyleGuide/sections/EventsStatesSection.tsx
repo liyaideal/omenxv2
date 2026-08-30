@@ -899,7 +899,7 @@ const SportsGeometry = () => (
     title="EV-9 / EV-31 几何表 · Sports 卡（HomeSportsCard）——预算封顶，禁数据驱动增高"
     head={GEO_HEAD}
     rows={[
-      ["HomeCard", "右栏 span 4 满宽", "内容自然高", "否，行数预算封顶", "上限 = LIVE_MAX 3 + max(2, 5 − live) + extraRows", "超出折进 “N more this week”"],
+      ["HomeCard", "右栏 span 4 满宽", "内容自然高", "否，行数预算封顶", "恒 = LiveCard ≤3 + 行数 ≤ max(2, 5 − pinned) + extraRows（降级 live 优先占行）", "含溢出 live 在内一律折进 “N more this week”"],
       ["卡 padding", "桌面 26×28 / 移动 18×16", "—", "—", "—", "—"],
       ["day strip", "100%", "内容自然高", "—", "水平", "gap 6，marginTop 桌面 18 / 移动 14；pill padding 桌面 7×8 / 移动 6×12"],
       ["LiveCard", "100%", "内容自然高", "否，条数 ≤ LIVE_MAX 3", "不延伸", "padding 14×14×16，marginTop 12"],
@@ -907,14 +907,7 @@ const SportsGeometry = () => (
       ["Monogram", "30×30", "30", "定高", "—", "第二枚 marginLeft −9 重叠"],
       ["OddsButton 行", "flex", "内容自然高", "—", "水平", "gap 8，marginTop 12"],
       ["footer 计数行", "100%", "内容自然高", "—", "不延伸", "marginTop 16；“N more this week” / “All N matches →”"],
-      [
-        "6-live vs 3-live 实测（挂账）",
-        "—",
-        "EV-31（6 live）卡高 1083.75 / 同 fixture 仅留 3 live 卡高 954.5",
-        "—",
-        "—",
-        "不等高：溢出 live 不被丢弃而是降级为普通行渲染（overflowLive 占预算，rows = max(0, budget − overflowLive)），故 6-live 总行数 6、3-live 总行数 5。SG-HP 验收剧本「两者等高」与现行 HomeSportsCard 实现不符，按实现落案，等高改由 CPO 决定是否改逻辑。",
-      ],
+
 
     ]}
   />
