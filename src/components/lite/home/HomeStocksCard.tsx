@@ -338,7 +338,9 @@ export const HomeStocksCard = ({
     const session = getStockSessionState(market, nowOverride);
     if (session.phase === "settling") {
       return `Settled · next session in ${
-        session.settlingEndsAt ? formatMinuteCountdown(session.settlingEndsAt) : "00:00"
+        session.settlingEndsAt
+          ? formatMinuteCountdown(session.settlingEndsAt, nowOverride)
+          : "00:00"
       }`;
     }
     if (session.phase === "preSession") {
