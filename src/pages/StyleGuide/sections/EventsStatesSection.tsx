@@ -835,6 +835,13 @@ const StageGeometry = () => (
       <code>editorialPicks.ts</code>（MAX_PICKS = 3）、<code>LiteEventsPage.tsx</code>
       （max-w-7xl、px-4 lg:px-6）。
     </div>
+    <div className="text-[11px] leading-relaxed text-muted-foreground/80">
+      指纹例外（0830 验收实测，连刷 5 次）：EV-1…EV-35 / SP-1…SP-18 共 112 帧中 111
+      帧 DOM 指纹恒定；唯 <code>EV-13</code> 因目录卡倒计时按真实钟走分钟位（
+      <code>Ends 3h 11m → 3h 12m</code>）在跨分钟时变一位。该行由 FROZEN 的
+      <code>LiteEventCard</code> 渲染、不接 <code>nowOverride</code>，本轮不改动，按分钟粒度例外挂账。
+    </div>
+
   </div>
 );
 
