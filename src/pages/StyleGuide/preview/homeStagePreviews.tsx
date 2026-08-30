@@ -443,10 +443,6 @@ export const Ev9ePreview = () => <SportsDemo matches={[]} />;
 export const Ev10Preview = () => <SportsDemo matches={SPORTS.slice(1, 12)} />;
 /** EV-31 · 6 场 live 堆叠：预算封顶自证（LIVE ≤3 置顶 + 降级行 + N more）。 */
 export const Ev31Preview = () => <SportsDemo matches={SPORTS_MANY_LIVE} />;
-/** QA-TMP */
-export const Ev31ThreePreview = () => (
-  <SportsDemo matches={[...SPORTS_MANY_LIVE.slice(0, 3), ...SPORTS_MANY_LIVE.slice(6)]} />
-);
 
 /* ------------------------------ desk fixture ----------------------------- */
 
