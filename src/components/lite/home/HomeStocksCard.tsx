@@ -14,7 +14,7 @@ import {
   US_STOCK_SUBTYPE,
   seedFromId,
 } from "@/components/lite/intraday/intradayData";
-import { deriveTickerFromEvent } from "@/components/SpotStatsHeader";
+import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader";
 import {
   formatLocalTime,
   formatMarketPrice,
