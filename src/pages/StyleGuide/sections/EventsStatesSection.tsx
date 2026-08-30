@@ -735,10 +735,283 @@ const STAGE_CASES: SectionCase[] = [
   },
 ];
 
+/* ---------------- 规则 9 · 版式几何契约（DESIGN.md §7.9）---------------- */
+
+const GEO_HEAD = ["元素", "宽", "高", "定高?", "延伸方向与上限", "溢出处置"];
+
+/** 页级「版式几何总表」——SG-HP 附录 F2 原表，数值 = 代码常量。 */
+const StageGeometry = () => (
+  <div className="space-y-2">
+    <Table
+      title="版式几何总表 · 主页 stage（SG-HP 附录 F2 原文；数值 = 代码常量，无「大约」）"
+      head={GEO_HEAD}
+      rows={[
+        [
+          "页内容容器",
+          "max 1280（max-w-7xl），gutter 移动 16 / 桌面 16→24（px-4 lg:px-6）",
+          "—",
+          "—",
+          "纵向随内容",
+          "—",
+        ],
+        [
+          "行情 tape",
+          "全出血 100%",
+          "桌面 42 / 移动 40",
+          "定高",
+          "不延伸",
+          "内容超宽 = 恒滚，永不折行",
+        ],
+        [
+          "stage 栅格（桌面）",
+          "12 列，gap 24，marginTop 16",
+          "两列 items-stretch 底部平齐",
+          "—",
+          "整体随两列中较高者",
+          "—",
+        ],
+        [
+          "左栏（span 8）· Crypto 卡",
+          "栅格 8/12",
+          "内容自然高（flex:none）",
+          "定高（不参与吸收）",
+          "不延伸",
+          "—",
+        ],
+        [
+          "左栏 · Stocks 卡",
+          "同上，与 Crypto 间距 24",
+          "flex:1 吸收左栏剩余全部高度",
+          "否——全页唯一弹性吸收者",
+          "向下延伸至与右栏底平齐",
+          "行集 space-evenly 均布行距；行数固定（US 10 / HK 6），行高不定死、行距伸缩",
+        ],
+        [
+          "右栏（span 4）· Sports 卡",
+          "栅格 4/12，栏内 gap 24",
+          "内容自然高 = 全页高度主",
+          "否，但行数预算封顶",
+          "上限 = LiveCard ≤3 + 降级行与未开赛行合计 ≤ max(2, 5−live) + extraRows",
+          "超出折进 “N more this week” 计数行——数据再多也不再向下延伸",
+        ],
+        [
+          "右栏 · Editor's Desk 卡",
+          "同上",
+          "内容自然高",
+          "否，条数定额 ≤3",
+          "不超 3 条",
+          "picks=0 → 整卡不渲染，Sports extraRows=2 扩容补位调平",
+        ],
+        [
+          "左右调平机制",
+          "平衡靠行数预算而非组件拉伸",
+          "右栏用预算参数（LIVE_MAX=3、基础预算 5、extraRows=2）控高",
+          "—",
+          "左栏 stocks 用行距伸缩吸收残差",
+          "任何一侧禁止「数据驱动无限增高」",
+        ],
+        [
+          "移动（App 壳 max-w 448）",
+          "单列，gap 14",
+          "全部自然高",
+          "—",
+          "无对齐契约",
+          "stocks 5 行 + “Show all 10 →” 折叠；sports 同一预算公式；desk 同额",
+        ],
+        [
+          "移动 stage 起始",
+          "单列容器 px-4",
+          "marginTop 10",
+          "—",
+          "纵向随内容",
+          "—",
+        ],
+      ]}
+    />
+    <div className="text-[11px] leading-relaxed text-muted-foreground/80">
+      来源常量：<code>HomeStage.tsx</code>（gap 24 / marginTop 16 / span 8·4 / 移动 gap 14
+      marginTop 10）、<code>HomeTape.tsx</code>（height 42 / 40）、
+      <code>HomeSportsCard.tsx</code>（LIVE_MAX = 3、budget = max(2, 5 − pinned) + extraRows）、
+      <code>editorialPicks.ts</code>（MAX_PICKS = 3）、<code>LiteEventsPage.tsx</code>
+      （max-w-7xl、px-4 lg:px-6）。
+    </div>
+  </div>
+);
+
+const TapeGeometry = () => (
+  <Table
+    title="EV-33 几何表 · 行情 tape（HomeTape）"
+    head={GEO_HEAD}
+    rows={[
+      ["tape 轨道", "全出血 100%", "桌面 42 / 移动 40", "定高", "不延伸", "overflow hidden，单行永不折行"],
+      ["cell 间距", "内容宽（auto）", "行内 = 轨道高", "跟随轨道", "水平", "gap 桌面 40 / 移动 24"],
+      ["轨道内缩", "paddingLeft/Right 桌面 24 / 移动 16", "—", "—", "—", "—"],
+      ["cell 内部", "auto", "—", "—", "水平", "gap 8，fontSize 13，tabular-nums"],
+      ["骨架条", "100%", "桌面 42 / 移动 40", "定高", "不延伸", "与终态等高，零 CLS"],
+      ["滚动", "双份 cells 拼接", "—", "—", "translateX(−50%) 无缝", "--duration = scrollWidth / 60（≈30px/s），下限 20s"],
+    ]}
+  />
+);
+
+const CryptoGeometry = () => (
+  <Table
+    title="EV-5 几何表 · Crypto 卡（HomeCryptoCard）"
+    head={GEO_HEAD}
+    rows={[
+      ["HomeCard", "左栏 span 8 满宽", "内容自然高（flex:none）", "定高（不吸收）", "不延伸", "radius 20 / 边 1px rgba(148,163,184,0.14)"],
+      ["卡 padding", "桌面 26×30 / 移动 16", "—", "—", "—", "—"],
+      ["内部栅格", "7fr : 5fr，gap 16，marginTop 20", "两列", "—", "随较高列", "移动改单列 + 2 列副 tile 网格 gap 10"],
+      ["BTC 主 tile", "7fr", "图表 176（移动 compact 132）", "图表定高", "不延伸", "padding 22×24（compact 14×14）"],
+      ["ETH/SOL 副 tile", "5fr 列内堆叠", "图表 72", "图表定高", "不延伸", "padding 16×18（compact 12×12），网格 gap 8（compact 6）"],
+      ["Up/Down 钮", "flex 均分", "主 tile minHeight 44（compact 46）/ 副 tile 38（compact 44）", "定高", "不延伸", "label 左 / 价右，gap ≥ 8，窄宽不粘连"],
+    ]}
+  />
+);
+
+const StocksGeometry = () => (
+  <Table
+    title="EV-7 几何表 · Stocks 卡（HomeStocksCard）——全页唯一弹性吸收者"
+    head={GEO_HEAD}
+    rows={[
+      ["HomeCard", "左栏 span 8 满宽", "flex:1 吸收左栏残差", "否", "向下延伸至与右栏底平齐", "radius 20 / 边 1px"],
+      ["卡 padding", "桌面 22×28 / 移动 18×16", "—", "—", "—", "—"],
+      ["行集容器", "100%", "flex-1", "否", "space-evenly 均布（移动 flex-start）", "行距伸缩吸收残差，行高不定死"],
+      ["行", "100%", "内容自然高", "否", "不延伸", "padding 8×0（移动 7×0）"],
+      ["行数", "US 10 / HK 6", "—", "定额", "不随数据增长", "移动 5 行 + “Show all 10 →” 折叠"],
+      ["Up/Down 钮 · 禁用钮", "内容宽", "minHeight 38", "定高", "不延伸", "settling 文案 tabular-nums，桌面 13.5 / 移动 12"],
+      ["骨架行", "100%", "38（margin 8×0）", "定高", "不延伸", "桌面 10 条 / 移动 5 条，等高不塌陷"],
+      ["settleLine 模块头", "ml-auto 右对齐", "行内 fontSize 桌面 13.5 / 移动 12", "—", "不延伸", "行内 settle 文案；标题行同排右端"],
+    ]}
+  />
+);
+
+const SportsGeometry = () => (
+  <Table
+    title="EV-9 / EV-31 几何表 · Sports 卡（HomeSportsCard）——预算封顶，禁数据驱动增高"
+    head={GEO_HEAD}
+    rows={[
+      ["HomeCard", "右栏 span 4 满宽", "内容自然高", "否，行数预算封顶", "上限 = LIVE_MAX 3 + max(2, 5 − live) + extraRows", "超出折进 “N more this week”"],
+      ["卡 padding", "桌面 26×28 / 移动 18×16", "—", "—", "—", "—"],
+      ["day strip", "100%", "内容自然高", "—", "水平", "gap 6，marginTop 桌面 18 / 移动 14；pill padding 桌面 7×8 / 移动 6×12"],
+      ["LiveCard", "100%", "内容自然高", "否，条数 ≤ LIVE_MAX 3", "不延伸", "padding 14×14×16，marginTop 12"],
+      ["UpcomingRow", "100%", "内容自然高", "否，受预算钳制", "不延伸", "padding 16×0 + 底分隔线 1px"],
+      ["Monogram", "30×30", "30", "定高", "—", "第二枚 marginLeft −9 重叠"],
+      ["OddsButton 行", "flex", "内容自然高", "—", "水平", "gap 8，marginTop 12"],
+      ["footer 计数行", "100%", "内容自然高", "—", "不延伸", "marginTop 16；“N more this week” / “All N matches →”"],
+      [
+        "6-live vs 3-live 实测（挂账）",
+        "—",
+        "EV-31（6 live）卡高 1083.75 / 同 fixture 仅留 3 live 卡高 954.5",
+        "—",
+        "—",
+        "不等高：溢出 live 不被丢弃而是降级为普通行渲染（overflowLive 占预算，rows = max(0, budget − overflowLive)），故 6-live 总行数 6、3-live 总行数 5。SG-HP 验收剧本「两者等高」与现行 HomeSportsCard 实现不符，按实现落案，等高改由 CPO 决定是否改逻辑。",
+      ],
+
+    ]}
+  />
+);
+
+const DeskGeometry = () => (
+  <Table
+    title="EV-32 几何表 · Editor's Desk（HomeDeskCard）"
+    head={GEO_HEAD}
+    rows={[
+      ["HomeCard", "右栏 span 4 满宽", "内容自然高", "否，条数定额 ≤ MAX_PICKS 3", "不超 3 条", "picks=0 → 整卡 null，Sports extraRows=2 补位"],
+      ["卡 padding", "桌面 26×28 / 移动 18×16", "—", "—", "—", "—"],
+      ["pick 行", "100%", "内容自然高", "否", "不延伸", "padding 15×0 + 底分隔线 1px；序号列 gap 14"],
+      ["note 行", "行内", "单行", "—", "不延伸", "斜体 “{note}”，超长截断不换段"],
+      ["行内钮组", "flex", "内容自然高", "—", "水平", "gap 8，marginTop 10"],
+    ]}
+  />
+);
+
+/* ---------------- 附注表 E / F / G（Stocks 分区尾）---------------- */
+
+const StocksFootnotes = () => (
+  <div className="space-y-6">
+    <Table
+      title="E · session 状态机（来源 src/lib/usStockSessions.ts · getStockSessionState）"
+      head={["态", "判定（交易所 wall clock）", "US 窗口", "HK 窗口", "tradable"]}
+      rows={[
+        [
+          "live",
+          "交易日 && open ≤ now < close",
+          "09:30–16:00 ET",
+          "09:30–16:00 HKT",
+          "true（当前时段 market）",
+        ],
+        [
+          "settling",
+          "now < lastClose + SETTLING_MINUTES(60)",
+          "16:00–17:00 ET",
+          "16:00–17:00 HKT",
+          "false",
+        ],
+        [
+          "preSession",
+          "lastClose + 60min ≤ now < 下一开盘钟",
+          "17:00 ET → 次开盘 09:30",
+          "17:00 HKT → 次开盘 09:30",
+          "true（下一时段 market）",
+        ],
+        [
+          "周末 / 假日顺延",
+          "isTradingDay() 逐日前后走查（dow 0/6 或命中 MARKET_HOLIDAYS 即跳过）",
+          "周五 16:00 + 1h → preSession 跨周末指向周一 09:30",
+          "同 US 规则",
+          "preSession = true",
+        ],
+        [
+          "MARKET_HOLIDAYS 挂账",
+          "`{ us: [], hk: [], kr: [] }` 当前为空表",
+          "交易所假日尚未灌入，节假日会误判为交易日",
+          "同左",
+          "挂账：待交易所日历接入",
+        ],
+      ]}
+    />
+    <Table
+      title="F · settleLine 6 组合矩阵（HomeStocksCard settleLine · 仅桌面渲染，移动不渲染此行）"
+      head={["态", "US 逐字", "HK 逐字"]}
+      rows={[
+        [
+          "live",
+          "US settles at close 04:00（`US settles at close ${formatLocalTime(closeAt)}`，查看者本地钟）",
+          "HK settles at close 16:00 HKT（常量文案）",
+        ],
+        [
+          "settling",
+          "Settled · next session in mm:ss",
+          "Settled · next session in mm:ss（US/HK 同一句，不带市场名）",
+        ],
+        [
+          "preSession",
+          "Next session · US opens 21:30（`US opens ${formatLocalTime(nextOpenAt)}`，查看者本地钟）",
+          "Next session · HK opens 09:30 HKT（常量文案）",
+        ],
+      ]}
+    />
+    <Table
+      title="G · 词条引用与 Pro 边界"
+      head={["项", "内容"]}
+      rows={[
+        [
+          "词条来源",
+          "docs/copy-dictionary.md「Stocks · 交易时段（ST-1）」区为唯一词条源，此处不重抄全文",
+        ],
+        [
+          "Pro spot 不接三态",
+          "有意决策：ST-1 三态只落 Lite（HomeStocksCard / LiteSpotTrade）；Pro `SpotTrading.tsx` 保持既有生命周期口径，本轮零改动",
+        ],
+      ]}
+    />
+  </div>
+);
+
 /* ---------------- 并账清单（旧六节 → EV-case）---------------- */
 
 const Ledger = () => (
-  <div className="space-y-3">
+  <div className="space-y-6">
     <Table
       title="并账清单 · 旧六节逐条去向（M1b 删除挂载，section 文件保留仓库）"
       head={["原文位置", "去向"]}
@@ -746,16 +1019,49 @@ const Ledger = () => (
         ["LiteSection part=events · “Loading — 首载模块骨架”", "并入 EV-24 / EV-25 spec + note（触发规则、渐进点亮、色值、CLS 全文照搬）"],
         ["LiteSection part=events · “Category pill · Sports live pulse”", "并入 EV-2 / EV-3（筛选行 case，live pulse 判定 useSportsMatches().rows.some(m => m.live)）"],
         ["LiteSection part=events · “Markets list”（卡 + badge 矩阵 + sort 注记）", "并入 EV-11 … EV-18 与附注表 A/B/C/D"],
-        ["LiteAllStageSection · Chip tiers / Category row / IntradayStageCard / SportsStageCard / Coin tile plot / Category view 7A·7B / Sports sub-nav 13A", "并入 EV-2 … EV-10；其中 7A/7B 与 sub-nav 13A 已被生产超越（Intraday 为独立 topic tab，Sports 子维度行随之改造），依据 memory lite-intraday-band 2026-08-28 注记与 lite-list-badges-and-sort 2026-08-28 注记，随节消亡"],
-        ["LiteVerticalViewsSection · Crypto view / Finance view", "已被生产超越：category-as-view 装配层不再存在（topic tab + band 结构取代），依据同上两条 memory 注记，随节消亡；其内 Last8Strip / DirectionButton 规范保留在 EV-5 … EV-8"],
+        ["LiteAllStageSection · Chip tiers / Category row / IntradayStageCard / SportsStageCard / Coin tile plot / Category view 7A·7B / Sports sub-nav 13A", "并入 EV-2 … EV-10；其中 sub-nav 13A 已被生产超越，随节消亡；7A/7B 见下方 memory 更正注记②"],
+        ["LiteVerticalViewsSection · Crypto view / Finance view", "装配层 category-as-view 不再是 Events 页结构（topic tab + band 取代）；组件本身仍存续，见 memory 更正注记②；其内 Last8Strip / DirectionButton 规范保留在 EV-5 … EV-8"],
         ["LiteCalendarSection · Chrome & controls 入口 chips", "并入 EV-19 note（Watchlist / Calendar 右对齐、互斥、Calendar 非品类故激活填白）"],
         ["LiteCalendarSection · Closes soon badge", "并入 EV-16（近截止徽标，24h 内停止交易，仅灰描边不上色）"],
         ["LiteCalendarSection · desktop frames / mobile frames", "并入 EV-19（Week）+ EV-20（Day / 空日）；as-built 像素契约仍指向 docs/design-contracts/calendar-asbuilt-notes.md"],
-        ["LiteFinalTouchesSection · Editor's picks", "已被生产超越：/ 列表页当前不渲染 Editor's picks 模块，随节消亡"],
+        ["LiteFinalTouchesSection · Editor's picks", "该「随节消亡」判定已被 HP-1 反超，见 memory 更正注记①（现落 EV-32）"],
         ["LiteFinalTouchesSection · Mobile events page (390)", "并入 EV-5 / EV-9 / EV-9e 的 mobile 帧（无活赛 → “Nothing playing now”；两 session 全关 → 日历文案行）"],
         ["LiteFinalTouchesSection · Mobile category row 控件簇", "并入 EV-2（右端固定 Watchlist 计数 chip 与 Calendar chip，不随滚动）"],
         ["LiteFinalTouchesSection · Boost · in-place filter", "并入 EV-4（Boost 为筛选非品类，就地过滤当前列表，不新增路由）"],
         ["EventArtSection · 美术方向规范", "原文移入 Foundations 组（EventArtSection 挂载点改到 Foundations），Events 页不再挂"],
+      ]}
+    />
+    <Table
+      title="重写列账表 · 同号重写 case 的旧 spec 去向（SG-HP 第 5 条）"
+      head={["case", "旧 spec 原文位置", "去向 / 消亡依据"]}
+      rows={[
+        ["EV-1", "EventsStatesSection HEADER_CASES «EV-1 · 页头（LiteEventsHeader）» — 站内 logo 行 + 标题 “Markets” 三行结构", "去向：整条被 HP-1 生产超越——生产页头改 HomeHero（LIVE MARKETS 药丸 + lynx 插画）。旧 spec 消亡依据：HomeHero 上线后 LiteEventsHeader 不再渲染标题块"],
+        ["EV-4", "HEADER_CASES «EV-4 · Boost ON» — 仅描述“Boost 胶囊激活 + 网格只剩 Boost 事件”", "去向：并入本轮 EV-4（新增 sector=all 分组头 / sector+Boost 扁平网格 / 身份卡与板头不渲染三条）。旧 spec 未消亡，被扩写"],
+        ["EV-5", "INTRADAY_CASES «EV-5 · Intraday band 默认（IntradayStageCard）» — 三 tile 横排 + per-tile dial", "去向：被 HP-1 生产超越——IntradayStageCard 不再挂主页，改 HomeCryptoCard（7fr:5fr + 模块级 dial）"],
+        ["EV-6", "INTRADAY_CASES «EV-6 · per-tile 档位切换» — 每个 tile 各自 dial", "去向：消亡（生产改模块级 dial，三 tile 同步）；差异写进本轮 EV-6 note"],
+        ["EV-7", "INTRADAY_CASES «EV-7 · Stocks 行（FinanceStageCard）» — 单一 live 形态，无 session 概念", "去向：被 ST-1 三态超越，重写为 live 态 case；settling / preSession 另立 EV-8 / EV-27"],
+        ["EV-8", "INTRADAY_CASES «EV-8 · Stocks 收盘» — “Closed” 静态文案，无倒计时", "去向：重写为 settling 态（60 分窗口 + mm:ss 倒计时 + Closed ↑/↓ 徽章）"],
+        ["EV-9", "SPORTS_CASES «EV-9 · Sports band 默认（SportsStageCard）» — 三向 / 两向 row 描述", "去向：被 HP-1 生产超越——改 HomeSportsCard（day strip + LiveCard + UpcomingRow + footer 计数行）"],
+        ["EV-9e", "SPORTS_CASES «EV-9e · Sports 空态» — “day-rail 只剩 ALL 0 + No matches on this day”", "去向：行为反转——HomeSportsCard 空行集**整卡不渲染（null）**；旧空态文案随 SportsStageCard 消亡"],
+        ["EV-10", "SPORTS_CASES «EV-10 · day-rail 过滤（SportsStageCard）»", "去向：同 EV-9，承接件换 HomeSportsCard，判定与行集规则原样保留"],
+        ["EV-24", "LOADING_CASES «EV-24 · 首载骨架（LiteAllStageSkeleton）» — 只覆盖 stage 骨架", "去向：重写触发式为 stageFirstLoad =（rounds 空&&loading）||（stocks 空&&loading）|| sportsFirstLoad，并追加 tape 骨架条；“有缓存不闪骨架 / 渐进点亮”原文保留"],
+        ["EV-25", "LOADING_CASES «EV-25 · 目录骨架» — 未与 stage 骨架区分触发式", "去向：重写为 eventsFirstLoad 独立触发（只渲目录骨架，stage 已点亮）"],
+      ]}
+    />
+    <Table
+      title="memory 更正注记（SG-HP 第 5 条 a / b）"
+      head={["注记", "原记载", "更正"]}
+      rows={[
+        [
+          "① Editor's picks",
+          "M1b 并账记「LiteFinalTouchesSection · Editor's picks 随节消亡（/ 列表页当前不渲染）」",
+          "已被 HP-1 反超：生产主页现渲染 Editor's Desk（HomeDeskCard，MAX_PICKS=3），本轮落案 EV-32。原「随节消亡」判定作废",
+        ],
+        [
+          "② 7A / 7B category-as-view",
+          "M1b 并账记「category-as-view 装配层不再存在，随节消亡」",
+          "厘清：装配层作为 **Events 页结构** 已消亡，但组件以 LiteIntradayView / LiteSportsView / LiteCryptoView / LiteFinanceView 在品类路由下继续存续；本轮不为其立新 case，仅更正表述",
+        ],
       ]}
     />
   </div>
@@ -780,46 +1086,137 @@ const Pair = ({
   </>
 );
 
+/* 分区按生产模块序装配；case 编号与 key 一个都不改。 */
+const ALL_CASES: SectionCase[] = [
+  ...HEADER_CASES,
+  ...INTRADAY_CASES,
+  ...SPORTS_CASES,
+  ...CARD_CASES,
+  ...CALENDAR_CASES,
+  ...WATCHLIST_CASES,
+  ...LOADING_CASES,
+  ...STAGE_CASES,
+];
+
+const byKey = (...keys: string[]): SectionCase[] =>
+  keys.map((k) => {
+    const hit = ALL_CASES.find((c) => c.key === k);
+    if (!hit) throw new Error(`EventsStatesSection: unknown case key ${k}`);
+    return hit;
+  });
+
 export const EventsStatesSection = () => (
   <SectionWrapper
     id="events-states"
-    title="Events 列表 · 状态字典（EV-1 … EV-35，含 EV-9e · 共 36 case）"
-    description="分区①Hero 与筛选行 · ②Crypto/Stocks 卡 · ③Sports 卡 · ④卡片网格 · ⑤Calendar · ⑥Watchlist · ⑦加载与空态 · ⑧主页 stage 与目录带（HP-1 / ST-1）。每个 case 双帧（desktop 1280 / mobile 375），fixture 只注数据与状态，且一律确定性注入（禁止运行时 fetch）。"
+    title="Events 列表 · 状态字典（EV-1…EV-35（含 EV-9e）· 共 36 case）"
+    description="分区序 = 生产模块序：①行情 tape · ②Hero · ③筛选行 · ④Crypto · ⑤Stocks 三态 · ⑥Sports · ⑦Editor's Desk · ⑧目录（板头/身份卡/网格）· ⑨Calendar · ⑩Watchlist · ⑪骨架与空态。每个 case 双帧（desktop 1280 / mobile 375），fixture 只注数据与状态，且一律确定性注入（禁止运行时 fetch）。"
   >
     <div className="space-y-12">
-      <SubSection title="① Hero 与筛选行（EV-1 … EV-4）">
-        <Pair cases={HEADER_CASES} desktopMin={420} mobileMin={480} />
+      <StageGeometry />
+
+      <SubSection title="① 行情 tape（EV-33）">
+        <Pair cases={byKey("events-ev33")} desktopMin={320} mobileMin={320} />
+        <div className="mt-6">
+          <TapeGeometry />
+        </div>
       </SubSection>
 
-      <SubSection title="② Crypto / Stocks 卡（EV-5 … EV-8 · HP-1 / ST-1）">
-        <Pair cases={INTRADAY_CASES} desktopMin={760} mobileMin={860} />
+      <SubSection title="② Hero（EV-1）">
+        <Pair cases={byKey("events-ev1")} desktopMin={420} mobileMin={480} />
       </SubSection>
 
-      <SubSection title="③ Sports 卡（EV-9 / EV-9e / EV-10）">
-        <Pair cases={SPORTS_CASES} desktopMin={620} mobileMin={720} />
+      <SubSection title="③ 筛选行（EV-2 … EV-4）">
+        <Pair
+          cases={byKey("events-ev2", "events-ev3", "events-ev4")}
+          desktopMin={420}
+          mobileMin={480}
+        />
       </SubSection>
 
-      <SubSection title="④ 卡片网格（EV-11 … EV-18 · LiteEventCard FROZEN）">
-        <Pair cases={CARD_CASES} desktopMin={900} mobileMin={1200} />
+      <SubSection title="④ Crypto 卡（EV-5 / EV-6）">
+        <Pair cases={byKey("events-ev5", "events-ev6")} desktopMin={760} mobileMin={860} />
+        <div className="mt-6">
+          <CryptoGeometry />
+        </div>
+      </SubSection>
+
+      <SubSection title="⑤ Stocks 三态（EV-7 / EV-8 / EV-27 … EV-30 · ST-1）">
+        <Pair
+          cases={byKey(
+            "events-ev7",
+            "events-ev8",
+            "events-ev27",
+            "events-ev28",
+            "events-ev29",
+            "events-ev30",
+          )}
+          desktopMin={760}
+          mobileMin={900}
+        />
+        <div className="mt-6 space-y-6">
+          <StocksGeometry />
+          <StocksFootnotes />
+        </div>
+      </SubSection>
+
+      <SubSection title="⑥ Sports 卡（EV-9 / EV-9e / EV-10 / EV-31）">
+        <Pair
+          cases={byKey("events-ev9", "events-ev9e", "events-ev10", "events-ev31")}
+          desktopMin={620}
+          mobileMin={720}
+        />
+        <div className="mt-6">
+          <SportsGeometry />
+        </div>
+      </SubSection>
+
+      <SubSection title="⑦ Editor's Desk（EV-32）">
+        <Pair cases={byKey("events-ev32")} desktopMin={420} mobileMin={480} />
+        <div className="mt-6">
+          <DeskGeometry />
+        </div>
+      </SubSection>
+
+      <SubSection title="⑧ 目录：板头 / 身份卡 / 卡片网格（EV-34 / EV-35 + EV-11 … EV-18 · LiteEventCard FROZEN）">
+        <Pair
+          cases={byKey(
+            "events-ev34",
+            "events-ev35",
+            "events-ev11",
+            "events-ev12",
+            "events-ev13",
+            "events-ev14",
+            "events-ev15",
+            "events-ev16",
+            "events-ev17",
+            "events-ev18",
+          )}
+          desktopMin={900}
+          mobileMin={1200}
+        />
         <div className="mt-8">
           <Footnotes />
         </div>
       </SubSection>
 
-      <SubSection title="⑤ Calendar 视图（EV-19 / EV-20）">
-        <Pair cases={CALENDAR_CASES} desktopMin={860} mobileMin={900} />
+      <SubSection title="⑨ Calendar 视图（EV-19 / EV-20）">
+        <Pair cases={byKey("events-ev19", "events-ev20")} desktopMin={860} mobileMin={900} />
       </SubSection>
 
-      <SubSection title="⑥ Watchlist（EV-21 … EV-23）">
-        <Pair cases={WATCHLIST_CASES} desktopMin={620} mobileMin={780} />
+      <SubSection title="⑩ Watchlist（EV-21 … EV-23）">
+        <Pair
+          cases={byKey("events-ev21", "events-ev22", "events-ev23")}
+          desktopMin={620}
+          mobileMin={780}
+        />
       </SubSection>
 
-      <SubSection title="⑦ 加载骨架与空态（EV-24 … EV-26）">
-        <Pair cases={LOADING_CASES} desktopMin={900} mobileMin={1000} />
-      </SubSection>
-
-      <SubSection title="⑧ 主页 stage 与目录带（EV-27 … EV-35 · HP-1 / ST-1）">
-        <Pair cases={STAGE_CASES} desktopMin={760} mobileMin={900} />
+      <SubSection title="⑪ 骨架与空态（EV-24 … EV-26）">
+        <Pair
+          cases={byKey("events-ev24", "events-ev25", "events-ev26")}
+          desktopMin={900}
+          mobileMin={1000}
+        />
       </SubSection>
 
       <div className="mt-8">

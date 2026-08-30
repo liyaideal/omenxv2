@@ -279,17 +279,31 @@ const SESSION_CASES: SectionCase[] = [
   {
     key: "spot-sp18",
     label: "SP-18 · SessionBanner · preSession（SpotSessionBanner + LiteOrderPanel）",
-    note: "nowOverride 冻结在周日 → 三态机跳周末，下一开盘为周一 09:30；下单可用。",
+    note:
+      "双帧以 **US 事件**（US_STOCK_MARKET）为准：nowOverride 冻结在周日 14:00 ET → 三态机跳周末，nextOpenAt = 周一 09:30 ET；下单可用，单据归属下一时段 market。开盘钟点由 formatLocalTime 按**查看者本地时区**渲染（全站时间口径 R1，不带时区标）：UTC+8 查看者读到 `Opens 21:30`。HK 事件形态见下方 spec 行。",
     spec: [
       {
-        state: "preSession",
-        when: "settling 结束 && now < nextOpenAt",
+        state: "preSession · US（双帧渲染的就是这一行）",
+        when: 'market.key === "us" && settling 结束 && now < nextOpenAt',
         visual:
-          "`NEXT SESSION` + 右端 `Opens 09:30` + 次行 `Chart shows the last session for reference.`；下单键可用",
-        source: "SpotSessionBanner preSession 分支",
+          "`NEXT SESSION`（青）+ 右端 `Opens 21:30`（09:30 ET 在 UTC+8 查看者本地钟的读数）+ 次行 `Chart shows the last session for reference.`；下单键可用",
+        source: "SpotSessionBanner preSession 分支 · formatLocalTime(session.nextOpenAt)",
+      },
+      {
+        state: "preSession · HK（spec 行，不另立帧）",
+        when: 'market.key === "hk" && settling 结束 && now < nextOpenAt',
+        visual: "同一分支，右端读 `Opens 09:30`（09:30 HKT 在 UTC+8 查看者本地钟的读数）",
+        source: "SpotSessionBanner preSession 分支 · HK_STOCK_MARKET",
+      },
+      {
+        state: "图表参照态",
+        when: "phase === \"preSession\"",
+        visual: "LiteStockChart 走灰线参照态，渲染上一时段收盘曲线，不跳实时价",
+        source: "LiteStockChart lastCloseText / Last session",
       },
     ],
   },
+
 ];
 
 /* ---------------- 附注与并账表 ---------------- */
