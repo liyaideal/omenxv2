@@ -211,7 +211,9 @@ export const LiteStockChart = ({
         </div>
         <div className="hidden gap-1 text-[11px] text-muted-foreground sm:flex">
           <span className="rounded bg-muted/40 px-2 py-0.5">1H</span>
-          <span className="rounded bg-foreground/10 px-2 py-0.5 text-foreground">Today</span>
+          <span className="rounded bg-foreground/10 px-2 py-0.5 text-foreground">
+            {todayChipLabel ?? "Today"}
+          </span>
           <span className="rounded bg-muted/40 px-2 py-0.5">1W</span>
         </div>
       </div>
