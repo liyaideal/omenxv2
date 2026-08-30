@@ -1693,7 +1693,17 @@ portfolio 里不允许出现「无来源标的试玩仓位」——没有标就�
 - **常驻说明**：`Moves with your other positions` 随字段常驻。`None at this balance` 全站退役。
 - Pro 侧本轮不动（挂账④，另轮统一到同一求解器）。
 
-### §7.9 Style-guide 规则 9 · 时间态 case 必须冻结钟（SG-HP）
+### §7.9 Style-guide 规则 9 · 版式几何契约（SG-HP 总则第 9 条原文）
+
+> 版式几何契约——凡参与列对齐/高度分配的布局承重模块，case 必须附几何表，
+> 列固定为「元素 → 宽 → 高 → 定高? → 延伸方向与上限 → 溢出处置」；
+> 页级另立版式几何总表挂在该页定位行之下。
+
+落地：`/style-guide` lite-events 页定位行下挂「版式几何总表」（SG-HP 附录 F2 原表）；
+模块几何表挂 EV-33（tape）/ EV-5（crypto）/ EV-7（stocks）/ EV-9·EV-31（sports）/ EV-32（desk）。
+数值一律抄代码常量，禁止写「大约」。
+
+### §7.10 Style-guide 规则 10 · 时间态 case 必须冻结钟（SG-HP）
 任何依赖交易时段/倒计时的 style-guide case，必须用组件的 `nowOverride?: Date`
 把时钟冻结在**交易所时区**的固定 wall-clock（不是查看者本地时区），
 否则同一 case 在不同时刻/时区渲染出不同态。生产侧一律不传该 prop = 实时钟，
