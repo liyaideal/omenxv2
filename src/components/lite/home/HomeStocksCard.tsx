@@ -221,6 +221,8 @@ const StockRow = ({
   nowOverride?: Date;
 }) => {
   const navigate = useNavigate();
+  if (isMobile)
+    return <MobileStockRow row={row} tickSeconds={tickSeconds} nowOverride={nowOverride} />;
   const ticker = deriveTickerFromEvent(row.id, row.name);
   const market = resolveStockMarket(row);
   const session = getStockSessionState(market, nowOverride);
