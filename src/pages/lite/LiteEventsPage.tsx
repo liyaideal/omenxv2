@@ -802,7 +802,7 @@ const LiteEventsPage = () => {
             getBoostConfig={getBoostConfig}
             trendingCutoff={trendingCutoff}
             leadingSlot={
-              (isStageView || isMobileStage) && !isWatchlistView ? (
+              !isMobile && (isStageView || isMobileStage) && !isWatchlistView ? (
                 <CatalogueIdentityCard isMobile={isMobile} />
               ) : undefined
             }
