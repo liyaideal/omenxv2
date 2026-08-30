@@ -246,10 +246,10 @@ export const HomeSportsCard = ({
   if (weekTotal === 0 && live.length === 0) return null;
 
   const pinned = live.slice(0, LIVE_MAX);
-  const overflowLive = live.slice(LIVE_MAX);
   const budget = Math.max(2, 5 - pinned.length) + extraRows;
-  const rows = upcoming.slice(0, Math.max(0, budget - overflowLive.length));
-  const shown = pinned.length + overflowLive.length + rows.length;
+  const liveRows = live.slice(LIVE_MAX, LIVE_MAX + budget);
+  const rows = upcoming.slice(0, Math.max(0, budget - liveRows.length));
+  const shown = pinned.length + liveRows.length + rows.length;
   const more = Math.max(0, weekTotal + live.length - shown);
 
   const open = (id: string, option?: string) =>
@@ -316,7 +316,7 @@ export const HomeSportsCard = ({
       {pinned.map((m) => (
         <LiveCard key={m.id} m={m} onOpen={open} />
       ))}
-      {overflowLive.map((m) => (
+      {liveRows.map((m) => (
         <UpcomingRow key={m.id} m={m} live onOpen={open} />
       ))}
       {rows.map((m) => (
