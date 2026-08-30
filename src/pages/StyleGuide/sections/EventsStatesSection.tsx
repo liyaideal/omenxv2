@@ -740,13 +740,22 @@ const STAGE_CASES: SectionCase[] = [
   {
     key: "events-ev35",
     label: "EV-35 · 目录身份卡（CatalogueIdentityCard · HP-1b）",
-    note: "网格首格；不可点、aria-hidden，不计入 open 数。",
+    note:
+      "桌面：网格首格身份卡，不可点、aria-hidden、不计入 open 数。移动（HP-3）：身份卡与板头一并撤下，改由 110 高全宽横幅 CatalogueMobileBanner 吸收两者。",
     spec: [
       {
-        state: "stage 视图首格",
-        when: 'sector === "all" && !watchlist',
-        visual: "will-it-happen 插画（桌面/移动各取各资源）+ “Buy Yes or No…” 身份文案",
+        state: "stage 视图首格（桌面）",
+        when: 'sector === "all" && !watchlist && !isMobile',
+        visual:
+          "网格首格身份卡：will-it-happen 插画（/assets/desktop/will-it-happen.png）+ “Buy Yes or No…” 身份文案；ALL MARKETS › 板头照常在网格上方",
         source: "CatalogueIdentityCard (LiteEventsPage)",
+      },
+      {
+        state: "stage 视图横幅（移动）",
+        when: 'sector === "all" && !watchlist && isMobile',
+        visual:
+          "全宽 110 高横幅（radius 16 / bg #131519 / 边 #1d2026）吸收板头与身份卡：左侧 “Will it happen?”（font-display 700 / 24 / lh 25）+ “Buy Yes or No on real-world outcomes. Winning shares pay $1.”，左下 mono “{n} open”；右侧 62% 宽 /assets/mobile/will-it-happen.png（object-fit cover / right center）+ 覆盖其上的左向渐变（#131519 → 透明）。移动不再渲染 ALL MARKETS › 与身份卡。",
+        source: "CatalogueMobileBanner (LiteEventsPage)",
       },
     ],
   },
@@ -888,6 +897,10 @@ const CryptoGeometry = () => (
       ["BTC 主 tile", "7fr", "图表 176（移动 compact 132）", "图表定高", "不延伸", "padding 22×24（compact 14×14）"],
       ["ETH/SOL 副 tile", "5fr 列内堆叠", "图表 72", "图表定高", "不延伸", "padding 16×18（compact 12×12），网格 gap 8（compact 6）"],
       ["Up/Down 钮", "flex 均分", "主 tile minHeight 44（compact 46）/ 副 tile 38（compact 44）", "定高", "不延伸", "label 左 / 价右，gap ≥ 8，窄宽不粘连"],
+      ["移动三卡纵排（HP-3）", "单列 100%", "每卡名义高 ≈208（含 40 头 + 72 图 + 24 Last8 + 44 钮 + 间距）", "否，内容自然高", "纵向随三卡固定条数（BTC/ETH/SOL），不随数据增长", "卡间 gap 10；三卡版式完全一致，废除 BTC 主 + ETH/SOL 双列"],
+      ["移动卡 · CLOSES 钟", "行内 auto", "行高 14", "—", "不延伸", "橙 #FF8A3D mono 大写 “CLOSES” + mm:ss，tabular-nums，与三卡同源时钟"],
+      ["移动卡 · RoundPlot", "100%", "72", "定高", "不延伸", "与桌面副 tile 同高，零 CLS"],
+      ["移动卡 · Up/Down 钮", "flex 均分（gap 8）", "44", "定高", "不延伸", "label 左 / 价右两端对齐，窄宽不粘连"],
     ]}
   />
 );
@@ -922,6 +935,8 @@ const SportsGeometry = () => (
       ["Monogram", "30×30", "30", "定高", "—", "第二枚 marginLeft −9 重叠"],
       ["OddsButton 行", "flex", "内容自然高", "—", "水平", "gap 8，marginTop 12"],
       ["footer 计数行", "100%", "内容自然高", "—", "不延伸", "marginTop 16；“N more this week” / “All N matches →”"],
+      ["移动 kickoff 左列（HP-3）", "固定列宽 44", "行内自然高", "—", "不延伸", "上 = 本地 kickoff 时间（mono tabular-nums），下 = TODAY / TMRW / 三字母 weekday（大写，#6B7280）"],
+      ["移动 stacked 赔率钮（HP-3）", "flex 均分（gap 8）", "minHeight 46（两行内容）", "定高", "不延伸", "名上价下居中：第一行队名（live 用缩写码，upcoming 用全名，超长省略），第二行价格；桌面维持 label 左 / 价右单行"],
 
 
     ]}
