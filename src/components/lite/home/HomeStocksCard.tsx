@@ -532,18 +532,12 @@ export const HomeStocksCard = ({
     >
       <div className="flex items-baseline" style={{ gap: 14 }}>
         <HomeEyebrow color={CYAN}>Stocks · Closing today</HomeEyebrow>
-        {!isMobile && (
-          <span
-            className="font-display ml-auto"
-            style={{ color: MUTED, fontSize: 13, fontVariantNumeric: "tabular-nums" }}
-          >
-            {total} stocks · {settleLine}
-          </span>
-        )}
-        {isMobile && (
-          /* HP-3 · reserved slot for the lynx candle illustration (art TBD). */
-          <span aria-hidden className="ml-auto flex-none" style={{ width: 56, height: 40 }} />
-        )}
+        <span
+          className="font-display ml-auto"
+          style={{ color: MUTED, fontSize: 13, fontVariantNumeric: "tabular-nums" }}
+        >
+          {total} stocks · {settleLine}
+        </span>
       </div>
       <div
         className={isMobile ? "flex flex-col" : "flex items-center"}
