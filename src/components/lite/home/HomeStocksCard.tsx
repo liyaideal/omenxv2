@@ -103,7 +103,7 @@ const StockRow = ({
     >
       <AssetAvatar symbol={ticker} kind="equity" size={isMobile ? 26 : 28} />
       <span
-        className="truncate"
+        className="flex-none"
         style={{
           fontWeight: 700,
           fontSize: isMobile ? 14 : 15,
@@ -121,9 +121,9 @@ const StockRow = ({
         />
       ) : state === "preSession" ? (
         <span
-          className="font-display truncate"
+          className="font-display min-w-0 truncate"
           style={{
-            fontSize: 13,
+            fontSize: isMobile ? 11.5 : 13,
             fontWeight: 600,
             color: MUTED,
             fontVariantNumeric: "tabular-nums",
@@ -132,6 +132,7 @@ const StockRow = ({
           Last close {price != null ? formatMarketPrice(price, market) : "—"}
         </span>
       ) : (
+
         <>
           <span
             className="font-display"
