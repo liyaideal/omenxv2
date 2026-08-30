@@ -429,13 +429,13 @@ export const HomeSportsCard = ({
       </div>
 
       {pinned.map((m) => (
-        <LiveCard key={m.id} m={m} onOpen={open} />
+        <LiveCard key={m.id} m={m} onOpen={open} isMobile={isMobile} />
       ))}
       {liveRows.map((m) => (
-        <UpcomingRow key={m.id} m={m} live onOpen={open} />
+        <UpcomingRow key={m.id} m={m} live onOpen={open} isMobile={isMobile} />
       ))}
       {rows.map((m) => (
-        <UpcomingRow key={m.id} m={m} onOpen={open} />
+        <UpcomingRow key={m.id} m={m} onOpen={open} isMobile={isMobile} />
       ))}
 
       <div className="flex items-center" style={{ marginTop: 16 }}>
