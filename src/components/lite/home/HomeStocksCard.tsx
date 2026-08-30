@@ -182,21 +182,29 @@ const StockRow = ({
         </>
       ) : state === "settling" ? (
         <>
+          {!mobileMeta && (
+            <span
+              className="font-display"
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: pct >= 0 ? CYAN : LIME,
+                border: `1px solid ${pct >= 0 ? "rgba(51,214,255,.45)" : "rgba(207,255,74,.45)"}`,
+                borderRadius: 999,
+                padding: "3px 10px",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Closed {pct >= 0 ? "↑" : "↓"}
+            </span>
+          )}
           <span
-            className="font-display"
             style={{
-              fontSize: 12,
-              fontWeight: 700,
-              color: pct >= 0 ? CYAN : LIME,
-              border: `1px solid ${pct >= 0 ? "rgba(51,214,255,.45)" : "rgba(207,255,74,.45)"}`,
-              borderRadius: 999,
-              padding: "3px 10px",
-              whiteSpace: "nowrap",
+              ...DISABLED,
+              fontVariantNumeric: "tabular-nums",
+              fontSize: isMobile ? 12 : 13.5,
             }}
           >
-            Closed {pct >= 0 ? "↑" : "↓"}
-          </span>
-          <span style={{ ...DISABLED, fontVariantNumeric: "tabular-nums" }}>
             Next session in{" "}
             {session.settlingEndsAt ? formatMinuteCountdown(session.settlingEndsAt) : "00:00"}
           </span>
@@ -224,7 +232,6 @@ const StockRow = ({
               minHeight={38}
               labelSize={13.5}
               priceSize={13.5}
-
               gap={8}
               onClick={go("up")}
             />
@@ -235,18 +242,49 @@ const StockRow = ({
               minHeight={38}
               labelSize={13.5}
               priceSize={13.5}
-
               gap={8}
               onClick={go("down")}
             />
           </span>
         </>
-
       ) : (
         <span style={DISABLED}>Unavailable</span>
       )}
+      </div>
+
+      {mobileMeta && (
+        <div
+          className="font-mono flex items-center"
+          style={{
+            gap: 6,
+            marginTop: 5,
+            paddingLeft: 36,
+            fontSize: 11,
+            letterSpacing: "0.04em",
+            color: MUTED,
+          }}
+        >
+          {state === "settling" ? (
+            <>
+              <span style={{ color: pct >= 0 ? CYAN : LIME, fontWeight: 700 }}>
+                Closed {pct >= 0 ? "↑" : "↓"}
+              </span>
+              <span>{price != null ? formatMarketPrice(price, market) : "—"}</span>
+            </>
+          ) : (
+            <>
+              <span>
+                Last close {price != null ? formatMarketPrice(price, market) : "—"}
+              </span>
+              <span>·</span>
+              <span>NEXT SESSION · opens {formatLocalTime(session.nextOpenAt)}</span>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
+
 };
 
 
