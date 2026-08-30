@@ -43,6 +43,11 @@ interface Props {
   downLabel?: string;
   /** Market currency prefix for stock-axis labels ("$" | "HK$"). */
   currency?: string;
+  /**
+   * ST-1d · label for the day timeframe chip. Pre-session pages show
+   * `Last session` (copy only — the chip's behaviour is unchanged).
+   */
+  todayChipLabel?: string;
   className?: string;
 }
 
@@ -114,6 +119,7 @@ export const LiteStockChart = ({
   upLabel = "Up",
   downLabel = "Down",
   currency = "$",
+  todayChipLabel,
   className,
 }: Props) => {
   const [tab, setTab] = useState<Tab>("stock");
