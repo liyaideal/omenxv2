@@ -83,34 +83,33 @@ const MobileStockRow = ({
   const clickable = state !== "stale";
 
   const pair = (
-    <span className="flex flex-none" style={{ gap: 6 }}>
+    <div
+      className="grid"
+      style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}
+    >
       <DirectionButton
         label="Up"
         price={row.upPrice}
         tone="up"
-        layout="centered"
-        minHeight={34}
-        radius={10}
-        labelSize={11.5}
-        priceSize={11.5}
-        gap={5}
-        padding="0 9px"
+        minHeight={44}
+        radius={12}
+        labelSize={14.5}
+        priceSize={14.5}
+        gap={8}
         onClick={go("up")}
       />
       <DirectionButton
         label="Down"
         price={row.downPrice}
         tone="down"
-        layout="centered"
-        minHeight={34}
-        radius={10}
-        labelSize={11.5}
-        priceSize={11.5}
-        gap={5}
-        padding="0 9px"
+        minHeight={44}
+        radius={12}
+        labelSize={14.5}
+        priceSize={14.5}
+        gap={8}
         onClick={go("down")}
       />
-    </span>
+    </div>
   );
 
   return (
