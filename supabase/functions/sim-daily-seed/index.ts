@@ -112,13 +112,13 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
-  // Weekend skip (DEMO: ignores US holidays).
+  // Non-trading-day skip (weekend + MARKET_HOLIDAYS hook, US calendar).
   const today = new Date();
-  const dow = today.getUTCDay();
-  if (dow === 6 || dow === 0) {
-    return new Response(JSON.stringify({ success: true, skipped: "weekend" }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+  if (!isTradingDay("us", today)) {
+    return new Response(
+      JSON.stringify({ success: true, skipped: "non-trading-day" }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
   }
 
   const result: {
@@ -145,8 +145,8 @@ Deno.serve(async (req) => {
     result.errors.push({ step: "sim-settle-spot", error: String(e) });
   }
 
-  // 2) Seed next trading day's events.
-  const target = nextTradingDay(today);
+  // 2) Seed next TRADING day's events (never a Saturday/Sunday/holiday).
+  const target = nextTradingDay("us", today);
   const dateStr = yyyymmdd(target);
   result.seededDate = dateStr;
 
@@ -159,10 +159,18 @@ Deno.serve(async (req) => {
   ));
   const freeze = new Date(close.getTime() - 5 * 60_000);
   const settlement = new Date(close.getTime() + 15 * 60_000);
-  // ST-1: the next session goes on sale one hour after the previous cash
-  // close (T-1 20:00Z + 1h). The one no-trade hour per day is the settling
-  // window of the session that just ended.
-  const openStart = new Date(close.getTime() - 23 * 3600_000);
+  // ST-1d: the session goes on sale one hour after the PREVIOUS TRADING
+  // DAY's cash close. Consecutive weekdays → close − 23h (unchanged); across
+  // a weekend/holiday the window stretches, so Friday close + 1h already
+  // lists Monday's market.
+  const prevClose = new Date(Date.UTC(
+    prevTradingDay("us", target).getUTCFullYear(),
+    prevTradingDay("us", target).getUTCMonth(),
+    prevTradingDay("us", target).getUTCDate(),
+    20, 0, 0,
+  ));
+  const openStart = new Date(prevClose.getTime() + 3600_000);
+
 
   const humanDate = target.toLocaleDateString("en-US", {
     weekday: "long", month: "short", day: "numeric", year: "numeric",
