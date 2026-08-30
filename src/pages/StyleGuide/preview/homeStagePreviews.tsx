@@ -63,23 +63,54 @@ const TICK = 41;
  * VIEWER's own zone, so the phase a case demonstrates never depends on when
  * the page is opened. Times are chosen against each market's local calendar.
  */
-const atLocal = (dow: number, h: number, m = 0): Date => {
-  // Nearest date with the requested weekday, at a fixed local time.
-  const d = new Date();
-  d.setHours(h, m, 0, 0);
-  const delta = (dow - d.getDay() + 7) % 7;
-  d.setDate(d.getDate() + delta);
-  return d;
+const tzOffsetMinutes = (d: Date, tz: string): number => {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: tz,
+    hour12: false,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).formatToParts(d);
+  const g = (t: string) => Number(parts.find((x) => x.type === t)?.value ?? 0);
+  const asUtc = Date.UTC(g("year"), g("month") - 1, g("day"), g("hour") % 24, g("minute"));
+  return (asUtc - d.getTime()) / 60_000;
 };
 
-/** US live: Wednesday 11:00 local (inside 09:30–16:00). */
-export const NOW_US_LIVE = atLocal(3, 11, 0);
-/** US settling: Wednesday 16:22 → 38:00 left of the 60-minute settling window. */
-export const NOW_US_SETTLING = atLocal(3, 16, 22);
-/** US pre-session: Sunday 14:00 → next open is Monday 09:30 (weekend rule). */
-export const NOW_US_PRESESSION = atLocal(0, 14, 0);
-/** SP-17: close + 15 min → 45:00 left. */
-export const NOW_SPOT_SETTLING = atLocal(3, 16, 15);
+/** Fixed exchange wall-clock instant on the next given weekday. */
+const atMarketClock = (tz: string, dow: number, h: number, m = 0): Date => {
+  const base = Date.now();
+  for (let i = 0; i < 8; i += 1) {
+    const cand = new Date(base + i * 86_400_000);
+    const off = tzOffsetMinutes(cand, tz);
+    const local = new Date(cand.getTime() + off * 60_000);
+    if (local.getUTCDay() === dow) {
+      return new Date(
+        Date.UTC(
+          local.getUTCFullYear(),
+          local.getUTCMonth(),
+          local.getUTCDate(),
+          h,
+          m,
+        ) -
+          off * 60_000,
+      );
+    }
+  }
+  return new Date(base);
+};
+
+const US_TZ = US_STOCK_MARKET.tz;
+
+/** US live: Wednesday 11:00 ET (inside 09:30–16:00). */
+export const NOW_US_LIVE = atMarketClock(US_TZ, 3, 11, 0);
+/** US settling: Wednesday 16:22 ET → 38:00 left of the 60-minute window. */
+export const NOW_US_SETTLING = atMarketClock(US_TZ, 3, 16, 22);
+/** US pre-session: Sunday 14:00 ET → next open is Monday 09:30 (weekend rule). */
+export const NOW_US_PRESESSION = atMarketClock(US_TZ, 0, 14, 0);
+/** SP-17: close + 15 min ET → 45:00 left. */
+export const NOW_SPOT_SETTLING = atMarketClock(US_TZ, 3, 16, 15);
 
 /* --------------------------- crypto fixtures ----------------------------- */
 
