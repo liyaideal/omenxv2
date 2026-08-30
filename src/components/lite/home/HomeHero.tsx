@@ -22,26 +22,14 @@ export const HomeHero = ({ isMobile }: { isMobile: boolean }) => {
     "radial-gradient(120% 160% at 30% 0%, #12141d 0%, #0a0c12 55%, #0a0a10 100%)";
 
   if (isMobile) {
-    const bandHeight = narrow ? 118 : 152;
+    // HP-3: centred type stack over a narrow lynx keyboard band (≈90px).
+    const bandHeight = narrow ? 78 : 90;
     return (
       <div className="relative w-full overflow-hidden" style={{ background }}>
-        <div className="relative w-full" style={{ height: bandHeight }}>
-          <img
-            src="/assets/mobile/hero-lynx.png"
-            alt=""
-            aria-hidden
-            className="pointer-events-none absolute inset-0 h-full w-full select-none"
-            style={{ objectFit: "cover", objectPosition: "center 30%" }}
-          />
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-0"
-            style={{
-              height: 72,
-              background: "linear-gradient(to bottom, rgba(10,10,16,0) 0%, #0a0a10 100%)",
-            }}
-          />
-        </div>
-        <div className="relative" style={{ padding: "0 16px 16px" }}>
+        <div
+          className="relative flex flex-col items-center text-center"
+          style={{ padding: "16px 16px 14px" }}
+        >
           <span
             className="font-display inline-flex items-center"
             style={{
@@ -63,7 +51,7 @@ export const HomeHero = ({ isMobile }: { isMobile: boolean }) => {
               fontSize: 27,
               lineHeight: 1.14,
               letterSpacing: "-0.02em",
-              marginTop: 10,
+              marginTop: 12,
             }}
           >
             What do you think <span style={{ color: LIME }}>happens next</span>?
@@ -72,9 +60,19 @@ export const HomeHero = ({ isMobile }: { isMobile: boolean }) => {
             Pick a topic. Tap Yes or No. That's it.
           </p>
         </div>
+        <div className="relative w-full" style={{ height: bandHeight }}>
+          <img
+            src="/assets/mobile/hero-lynx.png"
+            alt=""
+            aria-hidden
+            className="pointer-events-none absolute inset-0 h-full w-full select-none"
+            style={{ objectFit: "cover", objectPosition: "center 55%" }}
+          />
+        </div>
       </div>
     );
   }
+
 
   return (
     <div className="relative w-full overflow-hidden" style={{ background }}>
