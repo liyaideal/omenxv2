@@ -261,8 +261,13 @@ const StocksDemo = ({
   );
 };
 
-/** EV-7 · stocks live 态（实时价 + 当日% + Up/Down 可点）。 */
-export const Ev7Preview = () => <StocksDemo rows={US_ROWS} now={NOW_US_LIVE} />;
+/**
+ * EV-7 · stocks live 态（实时价 + 当日% + Up/Down 可点）。
+ * 行集含 US + HK 两组，HK tab 计数不再为 0（fixture 修账 HP-3 §6.2）。
+ */
+export const Ev7Preview = () => (
+  <StocksDemo rows={[...US_ROWS, ...HK_ROWS]} now={NOW_US_LIVE} />
+);
 /** EV-8 · stocks settling 态（Closed 徽章 + Next session in 38:00 禁用钮）。 */
 export const Ev8Preview = () => <StocksDemo rows={US_ROWS} now={NOW_US_SETTLING} />;
 /** EV-27 · stocks preSession 态（Last close + NEXT SESSION · opens，可下单）。 */
