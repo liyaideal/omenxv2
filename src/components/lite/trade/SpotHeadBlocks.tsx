@@ -134,6 +134,7 @@ export const SpotStockHead = ({
   headingRef,
   priceText,
   pctToday,
+  lastCloseText,
   priceToBeatText,
   volText,
   rightSlot,
@@ -142,6 +143,11 @@ export const SpotStockHead = ({
   headingRef?: Ref<HTMLHeadingElement>;
   /** formatted current price — omitted when null */
   priceText?: string | null;
+  /**
+   * ST-1d · pre-session reference price. When set, the price/%-today pair is
+   * replaced by a muted, frozen `Last close {price}` segment.
+   */
+  lastCloseText?: string | null;
   /** % move — omitted when null */
   pctToday?: number | null;
   /** formatted `Price to beat` value — omitted when null */
@@ -163,8 +169,11 @@ export const SpotStockHead = ({
     </h1>
     <div className="mt-3 flex items-center justify-between gap-3">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-xs text-muted-foreground">
-        {priceText != null && <span className="text-foreground">{priceText}</span>}
-        {pctToday != null && (
+        {lastCloseText != null && <span>Last close {lastCloseText}</span>}
+        {lastCloseText == null && priceText != null && (
+          <span className="text-foreground">{priceText}</span>
+        )}
+        {lastCloseText == null && pctToday != null && (
           <span
             className={cn(pctToday >= 0 ? "text-trading-green" : "text-trading-red")}
           >

@@ -64,15 +64,43 @@ function yyyymmdd(d: Date): string {
   return `${y}${m}${day}`;
 }
 
-/** Next weekday (Mon–Fri) after the given UTC date. */
-function nextTradingDay(from: Date): Date {
+// ST-1d · trading-day calendar. Same rule as the front-end state machine in
+// src/lib/usStockSessions.ts (`isTradingDay`): weekends are closed and the
+// per-market holiday list (currently an empty hook) is skipped. Each market
+// keeps its own calendar; only the US line is seeded here.
+const MARKET_HOLIDAYS: Record<string, string[]> = {
+  us: [],
+  hk: [],
+};
+
+function isoDate(d: Date): string {
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${
+    String(d.getUTCDate()).padStart(2, "0")
+  }`;
+}
+
+function isTradingDay(marketKey: string, d: Date): boolean {
+  const dow = d.getUTCDay();
+  if (dow === 0 || dow === 6) return false;
+  return !(MARKET_HOLIDAYS[marketKey] ?? []).includes(isoDate(d));
+}
+
+/** Next trading day strictly after `from` (skips weekends + holidays). */
+function nextTradingDay(marketKey: string, from: Date): Date {
   const d = new Date(from);
   d.setUTCDate(d.getUTCDate() + 1);
-  while (d.getUTCDay() === 0 || d.getUTCDay() === 6) {
-    d.setUTCDate(d.getUTCDate() + 1);
-  }
+  while (!isTradingDay(marketKey, d)) d.setUTCDate(d.getUTCDate() + 1);
   return d;
 }
+
+/** Previous trading day strictly before `from` (skips weekends + holidays). */
+function prevTradingDay(marketKey: string, from: Date): Date {
+  const d = new Date(from);
+  d.setUTCDate(d.getUTCDate() - 1);
+  while (!isTradingDay(marketKey, d)) d.setUTCDate(d.getUTCDate() - 1);
+  return d;
+}
+
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -84,13 +112,13 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
-  // Weekend skip (DEMO: ignores US holidays).
+  // Non-trading-day skip (weekend + MARKET_HOLIDAYS hook, US calendar).
   const today = new Date();
-  const dow = today.getUTCDay();
-  if (dow === 6 || dow === 0) {
-    return new Response(JSON.stringify({ success: true, skipped: "weekend" }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+  if (!isTradingDay("us", today)) {
+    return new Response(
+      JSON.stringify({ success: true, skipped: "non-trading-day" }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
   }
 
   const result: {
@@ -117,8 +145,8 @@ Deno.serve(async (req) => {
     result.errors.push({ step: "sim-settle-spot", error: String(e) });
   }
 
-  // 2) Seed next trading day's events.
-  const target = nextTradingDay(today);
+  // 2) Seed next TRADING day's events (never a Saturday/Sunday/holiday).
+  const target = nextTradingDay("us", today);
   const dateStr = yyyymmdd(target);
   result.seededDate = dateStr;
 
@@ -131,10 +159,19 @@ Deno.serve(async (req) => {
   ));
   const freeze = new Date(close.getTime() - 5 * 60_000);
   const settlement = new Date(close.getTime() + 15 * 60_000);
-  // ST-1: the next session goes on sale one hour after the previous cash
-  // close (T-1 20:00Z + 1h). The one no-trade hour per day is the settling
-  // window of the session that just ended.
-  const openStart = new Date(close.getTime() - 23 * 3600_000);
+  // ST-1d: the session goes on sale one hour after the PREVIOUS TRADING
+  // DAY's cash close. Consecutive weekdays → close − 23h (unchanged); across
+  // a weekend/holiday the window stretches, so Friday close + 1h already
+  // lists Monday's market.
+  const prevDay = prevTradingDay("us", target);
+  const prevClose = new Date(Date.UTC(
+    prevDay.getUTCFullYear(),
+    prevDay.getUTCMonth(),
+    prevDay.getUTCDate(),
+    20, 0, 0,
+  ));
+  const openStart = new Date(prevClose.getTime() + 3600_000);
+
 
   const humanDate = target.toLocaleDateString("en-US", {
     weekday: "long", month: "short", day: "numeric", year: "numeric",
