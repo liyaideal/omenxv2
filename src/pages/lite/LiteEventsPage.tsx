@@ -62,7 +62,7 @@ import {
  * Catalogue identity card (HP-1b) — the first cell of the "All" catalogue grid.
  * Non-interactive brand card; NOT a market, never counted in "n open".
  */
-const CatalogueIdentityCard = ({ isMobile }: { isMobile: boolean }) => (
+export const CatalogueIdentityCard = ({ isMobile }: { isMobile: boolean }) => (
   <div
     aria-hidden
     style={{
@@ -135,6 +135,35 @@ const CatalogueIdentityCard = ({ isMobile }: { isMobile: boolean }) => (
         Winning shares pay <span style={{ color: "#fff" }}>$1</span>.
       </div>
     </div>
+  </div>
+);
+
+/**
+ * Catalogue board head (HP-1b) — "ALL MARKETS ›" + live open count.
+ * Extracted verbatim from the page body (SG-HP) so EV-34 can mount the
+ * production element instead of hand-copied markup. Zero visual change.
+ */
+export const CatalogueHeaderRow = ({ openCount }: { openCount: number }) => (
+  <div className="flex items-center" style={{ padding: "6px 2px 0" }}>
+    <span
+      className="font-display"
+      style={{
+        fontWeight: 700,
+        fontSize: 15,
+        letterSpacing: "0.1em",
+        textTransform: "uppercase",
+        color: "#fff",
+      }}
+    >
+      All Markets
+    </span>
+    <span style={{ color: "#6B7280", marginLeft: 8, fontSize: 15 }}>›</span>
+    <span
+      className="font-mono"
+      style={{ marginLeft: "auto", color: "#6B7280", fontSize: 12 }}
+    >
+      {openCount} open
+    </span>
   </div>
 );
 
@@ -626,27 +655,7 @@ const LiteEventsPage = () => {
         {/* Card grid */}
         <div className="mt-6 flex flex-1 flex-col gap-6">
         {!calendarOn && (isStageView || isMobileStage) && (
-          <div className="flex items-center" style={{ padding: "6px 2px 0" }}>
-            <span
-              className="font-display"
-              style={{
-                fontWeight: 700,
-                fontSize: 15,
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
-                color: "#fff",
-              }}
-            >
-              All Markets
-            </span>
-            <span style={{ color: "#6B7280", marginLeft: 8, fontSize: 15 }}>›</span>
-            <span
-              className="font-mono"
-              style={{ marginLeft: "auto", color: "#6B7280", fontSize: 12 }}
-            >
-              {filtered.length} open
-            </span>
-          </div>
+          <CatalogueHeaderRow openCount={filtered.length} />
         )}
         {calendarOn ? null : isCryptoView ||
           isFinanceView ||
