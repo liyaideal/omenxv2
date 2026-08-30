@@ -56,6 +56,7 @@ import {
 import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader";
 import type { Tables } from "@/integrations/supabase/types";
 import { LiteStockChart } from "@/components/lite/trade/LiteStockChart";
+import { SpotSessionBanner } from "@/components/lite/trade/SpotSessionBanner";
 import LiteQuickTrade from "@/pages/lite/LiteQuickTrade";
 import {
   formatClockCountdown,
