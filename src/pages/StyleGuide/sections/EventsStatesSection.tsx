@@ -654,13 +654,15 @@ const STAGE_CASES: SectionCase[] = [
   {
     key: "events-ev31",
     label: "EV-31 · Sports 预算封顶（HomeSportsCard · 6 场同时 live）",
-    note: "复现 08-30 线上溢出：LIVE 置顶最多 3 条，其余降级进普通行并计入 “N more”。",
+    note: "硬封顶：置顶 LiveCard ≤3，降级 live 与 upcoming 共用同一行数预算，超出（含 live）一律折进 “N more this week”。模块高度不随 live 数增长。",
     spec: [
       {
         state: "live 溢出",
         when: "live.length > LIVE_MAX(3)",
-        visual: "置顶 3 条 LIVE + 降级行 + 底部 “N more this week →”",
-        source: "HomeSportsCard budget = max(2, 5 - live) + extraRows",
+        visual:
+          "置顶 3 条 LIVE + 降级 live 行（绿点）优先占预算 + 剩余预算填 upcoming + 底部 “N more this week →”",
+        source:
+          "HomeSportsCard：budget = max(2, 5 − pinned) + extraRows；liveRows = live.slice(3, 3 + budget)；rows = upcoming.slice(0, budget − liveRows)",
       },
     ],
   },
