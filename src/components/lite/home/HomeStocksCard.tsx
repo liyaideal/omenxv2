@@ -125,73 +125,71 @@ const MobileStockRow = ({
             }
           : undefined
       }
-      className={`flex items-center ${clickable ? "cursor-pointer" : ""}`}
+      className={`flex flex-col ${clickable ? "cursor-pointer" : ""}`}
       style={{
         gap: 9,
-        minHeight: 60,
-        padding: "10px",
+        padding: "10px 12px 11px",
         marginBottom: 8,
         borderRadius: 14,
         background: "#191D24",
         border: "1px solid rgba(148,163,184,0.10)",
       }}
     >
-      <AssetAvatar symbol={ticker} kind="equity" size={40} />
-      <span className="flex min-w-0 flex-col">
-        <span
-          className="truncate"
-          style={{ fontWeight: 700, fontSize: 15, color: "#fff" }}
-        >
-          {ticker}
+      <div className="flex items-center" style={{ gap: 10 }}>
+        <AssetAvatar symbol={ticker} kind="equity" size={40} />
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="truncate" style={{ fontWeight: 700, fontSize: 15, color: "#fff" }}>
+            {ticker}
+          </span>
+          <span className="truncate" style={{ fontSize: 12, color: MUTED }}>
+            {company}
+          </span>
         </span>
-        <span className="truncate" style={{ fontSize: 12, color: MUTED }}>
-          {company}
+        <span className="flex flex-none flex-col items-end">
+          {state === "preSession" && (
+            <span style={{ fontSize: 10, color: MUTED }}>Last close</span>
+          )}
+          <span
+            className="font-display"
+            style={{
+              fontSize: 15,
+              fontWeight: 700,
+              color: state === "preSession" ? MUTED : "#F2F3F5",
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            {state === "stale" ? "—" : priceText}
+          </span>
+          {(state === "live" || state === "settling") && (
+            <PctChange value={pct} size={11.5} weight={600} />
+          )}
         </span>
-      </span>
-      <span className="ml-auto flex flex-none flex-col items-end">
-        {state === "preSession" && (
-          <span style={{ fontSize: 10, color: MUTED }}>Last close</span>
-        )}
-        <span
-          className="font-display"
-          style={{
-            fontSize: 14,
-            fontWeight: 700,
-            color: state === "preSession" ? MUTED : "#F2F3F5",
-            fontVariantNumeric: "tabular-nums",
-          }}
-        >
-          {state === "stale" ? "—" : priceText}
-        </span>
-        {(state === "live" || state === "settling") && (
-          <PctChange value={pct} size={11.5} weight={600} />
-        )}
-      </span>
+      </div>
       {state === "live" || state === "preSession" ? (
         pair
       ) : state === "settling" ? (
-        <span className="flex flex-none flex-col items-end" style={{ gap: 4 }}>
+        <span className="flex items-center" style={{ gap: 8 }}>
           <span
-            className="font-display"
+            className="font-display flex-none"
             style={{
               fontSize: 11,
               fontWeight: 700,
               color: pct >= 0 ? CYAN : LIME,
               border: `1px solid ${pct >= 0 ? "rgba(51,214,255,.45)" : "rgba(207,255,74,.45)"}`,
               borderRadius: 999,
-              padding: "2px 8px",
+              padding: "3px 10px",
               whiteSpace: "nowrap",
             }}
           >
             Closed {pct >= 0 ? "↑" : "↓"}
           </span>
           <span
+            className="flex flex-1 items-center justify-center"
             style={{
               ...DISABLED,
-              minHeight: 26,
-              padding: "0 9px",
+              minHeight: 34,
               borderRadius: 10,
-              fontSize: 11,
+              fontSize: 12,
               fontVariantNumeric: "tabular-nums",
             }}
           >
@@ -202,11 +200,17 @@ const MobileStockRow = ({
           </span>
         </span>
       ) : (
-        <span style={{ ...DISABLED, minHeight: 30, fontSize: 12 }}>Unavailable</span>
+        <span
+          className="flex items-center justify-center"
+          style={{ ...DISABLED, minHeight: 34, borderRadius: 10, fontSize: 12 }}
+        >
+          Unavailable
+        </span>
       )}
     </div>
   );
 };
+
 
 const StockRow = ({
   row,
