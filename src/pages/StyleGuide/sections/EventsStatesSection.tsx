@@ -112,7 +112,7 @@ const INTRADAY_CASES: SectionCase[] = [
     key: "events-ev7",
     label: "EV-7 · Stocks 卡 · live（HomeStocksCard · ST-1）",
     note:
-      "session 三态用 nowOverride 冻结（周三 11:00 本地）；生产不传该 prop = 实时钟，行为零变化。",
+      "session 三态用 nowOverride 冻结（周三 11:00 本地）；生产不传该 prop = 实时钟，行为零变化。fixture 含 US 10 + HK 6 两组行集（HK tab 计数不为 0）；US 基准价按各标的真实量级（AAPL 232.85，不再与 META 量级错配）。",
     spec: [
       {
         state: "live",
@@ -592,6 +592,20 @@ const STAGE_CASES: SectionCase[] = [
           "Last close 参考价（不跳动、无 “% today”）+ “NEXT SESSION · Opens 09:30”；Up/Down 可下单",
         source: "HomeStocksCard preSession 分支",
       },
+      {
+        state: "preSession · 移动行内 meta",
+        when: "isMobile && phase === \"preSession\"",
+        visual:
+          "行内第二行不再写 session，改为公司名行（ticker 上 / 公司名下，来自 STOCK_NAME）；价格上方小字 “Last close”，无 “% today”；session 信息只在模块头 “●” 状态行出现",
+        source: "MobileStockRow（HomeStocksCard 移动分支）/ STOCK_NAME",
+      },
+      {
+        state: "模块头 ● 状态行 · 六组合逐字",
+        when: "tab ∈ {us, hk} × phase ∈ {live, settling, preSession}",
+        visual:
+          "US live “US settles at close 16:00” / US settling “Settled · next session in mm:ss” / US preSession “Next session · US opens 09:30”；HK live “HK settles at close 16:00 HKT” / HK settling “Settled · next session in mm:ss” / HK preSession “Next session · HK opens 09:30 HKT”",
+        source: "HomeStocksCard settleLine（移动端渲染在 ● 行，桌面渲染在标题行右端）",
+      },
     ],
   },
   {
@@ -628,8 +642,9 @@ const STAGE_CASES: SectionCase[] = [
       {
         state: "展开",
         when: "点 Show all",
-        visual: "全行展开；每行两层 meta（标的+价在上，session+钮在下）",
-        source: "HomeStocksCard 移动分支",
+        visual:
+          "全行展开；每行为两层卡片——上层 40px logo + ticker/公司名 + 价格（preSession 加 “Last close” 小字，live/settling 加 ±%），下层整幅动作区（live/preSession 为 Up/Down 对，settling 为 “Closed ↑/↓” + 禁用 “Next session in mm:ss”，无价为 “Unavailable”）；行内不出现 session 文案",
+        source: "MobileStockRow（HomeStocksCard 移动分支）",
       },
     ],
   },
