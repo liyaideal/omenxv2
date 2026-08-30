@@ -730,9 +730,13 @@ const LiteEventsPage = () => {
 
         {/* Card grid */}
         <div className="mt-6 flex flex-1 flex-col gap-6">
-        {!calendarOn && (isStageView || isMobileStage) && (
-          <CatalogueHeaderRow openCount={filtered.length} />
-        )}
+        {!calendarOn &&
+          (isStageView || isMobileStage) &&
+          (isMobile ? (
+            <CatalogueMobileBanner openCount={filtered.length} />
+          ) : (
+            <CatalogueHeaderRow openCount={filtered.length} />
+          ))}
         {calendarOn ? null : isCryptoView ||
           isFinanceView ||
           isIntradayView ||
