@@ -40,6 +40,9 @@ import {
   formatMarketPrice,
   resolveStockMarket,
   getMarketSession,
+  getStockSessionState,
+  formatMinuteCountdown,
+
   formatLocalStamp,
   formatLocalTime,
   formatLocalDate,
@@ -255,9 +258,17 @@ const LiteSpotTrade = () => {
   const lifecycle = getDisplayLifecycle(dbLifecycle);
   const blockedByState = isOrderingBlocked(dbLifecycle);
   const blockedByTime = isPastFreeze(freezeAt, endDate);
-  const blocked = blockedByState || blockedByTime;
+  // ST-1 · stocks trading-session state machine (Lite only; Pro spot is
+  // deliberately NOT synced to this behaviour).
+  const isStockEvent = /STOCK_DAILY_UPDOWN/.test(event?.event_subtype || "");
+  const stockSession = isStockEvent ? getStockSessionState(market) : null;
+  const settlingWindow = !resolved && stockSession?.phase === "settling";
+  const preSessionWindow = !resolved && stockSession?.phase === "preSession";
+  const blocked = blockedByState || blockedByTime || !!settlingWindow;
   const blockedReason =
-    getBlockedReason(dbLifecycle) || (blockedByTime ? "Closing soon" : "");
+    getBlockedReason(dbLifecycle) ||
+    (settlingWindow ? "Settled" : blockedByTime ? "Closing soon" : "");
+
 
   // Ticker + display
   const ticker = event ? deriveTickerFromEvent(event.id, event.name) : "STOCK";
@@ -438,6 +449,43 @@ const LiteSpotTrade = () => {
       rightSlot={!isMobile ? WatchStar : null}
     />
   );
+
+  // ST-1 · session banner. settling = result of the session that just ended +
+  // countdown to the next one; preSession = the next session is on sale.
+  const SessionBanner =
+    settlingWindow && stockSession ? (
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-muted/30 px-3 py-2.5">
+        <span className="text-sm font-semibold text-foreground">
+          Closed {pctToday >= 0 ? "↑" : "↓"}
+        </span>
+        {currentPrice != null && (
+          <span className="font-mono text-sm text-foreground">
+            {formatMarketPrice(currentPrice, market)}
+          </span>
+        )}
+        <span className="ml-auto font-mono text-xs text-muted-foreground">
+          Next session in{" "}
+          {stockSession.settlingEndsAt
+            ? formatMinuteCountdown(stockSession.settlingEndsAt)
+            : "00:00"}
+        </span>
+      </div>
+    ) : preSessionWindow && stockSession ? (
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-muted/30 px-3 py-2.5">
+        <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-primary">
+          Next session
+        </span>
+        <span className="ml-auto font-mono text-xs text-muted-foreground">
+          Opens {formatLocalTime(stockSession.nextOpenAt)}
+        </span>
+        <span className="w-full text-[11px] text-muted-foreground">
+          Chart shows the last session for reference.
+        </span>
+      </div>
+
+    ) : null;
+
+
 
 
   const SentimentBar = (
@@ -772,6 +820,7 @@ const LiteSpotTrade = () => {
           />
           <div className="space-y-4 px-4 py-4">
             {QuestionBlock}
+            {SessionBanner}
             {resolved ? (
               <>
                 {OutcomeCard}
@@ -911,6 +960,7 @@ const LiteSpotTrade = () => {
         >
           <div className="space-y-5">
             {QuestionBlock}
+            {SessionBanner}
             {PastDays}
             {SentimentBar}
             {Chart}

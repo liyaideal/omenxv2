@@ -18,8 +18,10 @@ import { deriveTickerFromEvent } from "@/components/SpotStatsHeader";
 import {
   formatLocalTime,
   formatMarketPrice,
-  getMarketSession,
+  formatMinuteCountdown,
+  getStockSessionState,
   resolveStockMarket,
+  type StockSessionPhase,
 } from "@/lib/usStockSessions";
 import { CYAN, HomeCard, HomeEyebrow, HomeQuestion, LIME, MUTED } from "./homeShell";
 
@@ -40,6 +42,10 @@ const DISABLED: React.CSSProperties = {
   whiteSpace: "nowrap",
 };
 
+/** Deterministic frozen close for the session that just ended (DEMO-STATE). */
+const frozenClose = (base: number, seed: number) =>
+  base * (1 + ((seed % 200) - 100) / 10000);
+
 const StockRow = ({
   row,
   tickSeconds,
@@ -52,22 +58,32 @@ const StockRow = ({
   const navigate = useNavigate();
   const ticker = deriveTickerFromEvent(row.id, row.name);
   const market = resolveStockMarket(row);
-  const session = getMarketSession(market);
+  const session = getStockSessionState(market);
   const base = row.base_price;
   const seed = seedFromId(row.id);
-  const price =
+  const livePrice =
     base != null ? base * (1 + Math.sin(tickSeconds / 3 + (seed % 7)) * 0.009) : null;
+
+  const phase: StockSessionPhase = session.phase;
+  const state: StockSessionPhase | "stale" = base == null ? "stale" : phase;
+
+  const price =
+    state === "live"
+      ? livePrice
+      : base != null
+        ? frozenClose(base, seed)
+        : null;
   const pct = base && price ? ((price - base) / base) * 100 : 0;
-  const ended = !!row.end_date && new Date(row.end_date).getTime() <= Date.now();
-  const state: "trading" | "pre" | "closed" | "stale" =
-    base == null ? "stale" : ended || !session.open ? (ended ? "closed" : "pre") : "trading";
 
   const go = (side?: "up" | "down") => (e: React.MouseEvent) => {
     e.stopPropagation();
     navigate(`/spot?event=${encodeURIComponent(row.id)}${side ? `&side=${side}` : ""}`);
   };
 
-  const clickable = state === "trading";
+  const clickable = state !== "stale";
+  // Mobile keeps the two-layer row grammar used across Lite lists: the
+  // session meta (Last close / result) drops to a second line.
+  const mobileMeta = isMobile && (state === "preSession" || state === "settling");
 
   return (
     <div
@@ -81,16 +97,17 @@ const StockRow = ({
             }
           : undefined
       }
-      className={`flex items-center ${clickable ? "cursor-pointer" : ""}`}
+      className={`flex flex-col ${clickable ? "cursor-pointer" : ""}`}
       style={{
-        gap: isMobile ? 10 : 13,
         padding: isMobile ? "7px 0" : "8px 0",
         borderBottom: "1px solid rgba(148,163,184,0.07)",
       }}
     >
+      <div className="flex items-center" style={{ gap: isMobile ? 10 : 13 }}>
+
       <AssetAvatar symbol={ticker} kind="equity" size={isMobile ? 26 : 28} />
       <span
-        className="truncate"
+        className="flex-none"
         style={{
           fontWeight: 700,
           fontSize: isMobile ? 14 : 15,
@@ -101,12 +118,26 @@ const StockRow = ({
         {ticker}
       </span>
 
-      {state === "stale" ? (
+      {mobileMeta ? null : state === "stale" ? (
         <span
           className="animate-pulse"
           style={{ width: 78, height: 14, borderRadius: 6, background: "#191D24" }}
         />
+      ) : state === "preSession" ? (
+
+        <span
+          className="font-display min-w-0 truncate"
+          style={{
+            fontSize: isMobile ? 11.5 : 13,
+            fontWeight: 600,
+            color: MUTED,
+            fontVariantNumeric: "tabular-nums",
+          }}
+        >
+          Last close {price != null ? formatMarketPrice(price, market) : "—"}
+        </span>
       ) : (
+
         <>
           <span
             className="font-display"
@@ -124,7 +155,7 @@ const StockRow = ({
         </>
       )}
       <span className="flex-1" />
-      {state === "trading" ? (
+      {state === "live" ? (
         <>
           <DirectionButton
             label="Up"
@@ -133,6 +164,8 @@ const StockRow = ({
             minHeight={38}
             labelSize={13.5}
             priceSize={13.5}
+
+            gap={8}
             onClick={go("up")}
           />
           <DirectionButton
@@ -142,35 +175,118 @@ const StockRow = ({
             minHeight={38}
             labelSize={13.5}
             priceSize={13.5}
+
+            gap={8}
             onClick={go("down")}
           />
         </>
-      ) : state === "pre" ? (
-        <span style={DISABLED}>Opens in {formatLocalTime(session.nextOpenAt)}</span>
-      ) : state === "closed" ? (
+      ) : state === "settling" ? (
         <>
-          <span style={DISABLED}>Closed</span>
+          {!mobileMeta && (
+            <span
+              className="font-display"
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: pct >= 0 ? CYAN : LIME,
+                border: `1px solid ${pct >= 0 ? "rgba(51,214,255,.45)" : "rgba(207,255,74,.45)"}`,
+                borderRadius: 999,
+                padding: "3px 10px",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Closed {pct >= 0 ? "↑" : "↓"}
+            </span>
+          )}
           <span
-            className="font-display"
             style={{
-              fontSize: 12,
-              fontWeight: 700,
-              color: pct >= 0 ? CYAN : LIME,
-              border: `1px solid ${pct >= 0 ? "rgba(51,214,255,.45)" : "rgba(207,255,74,.45)"}`,
-              borderRadius: 999,
-              padding: "3px 10px",
-              whiteSpace: "nowrap",
+              ...DISABLED,
+              fontVariantNumeric: "tabular-nums",
+              fontSize: isMobile ? 12 : 13.5,
             }}
           >
-            Closed {pct >= 0 ? "↑" : "↓"}
+            Next session in{" "}
+            {session.settlingEndsAt ? formatMinuteCountdown(session.settlingEndsAt) : "00:00"}
+          </span>
+        </>
+      ) : state === "preSession" ? (
+        <>
+          {!isMobile && (
+            <span
+              className="font-mono"
+              style={{
+                fontSize: 11,
+                letterSpacing: "0.06em",
+                color: MUTED,
+                whiteSpace: "nowrap",
+              }}
+            >
+              NEXT SESSION · opens {formatLocalTime(session.nextOpenAt)}
+            </span>
+          )}
+          <span className="flex flex-none" style={{ gap: isMobile ? 8 : 13 }}>
+            <DirectionButton
+              label="Up"
+              price={row.upPrice}
+              tone="up"
+              minHeight={38}
+              labelSize={13.5}
+              priceSize={13.5}
+              gap={8}
+              onClick={go("up")}
+            />
+            <DirectionButton
+              label="Down"
+              price={row.downPrice}
+              tone="down"
+              minHeight={38}
+              labelSize={13.5}
+              priceSize={13.5}
+              gap={8}
+              onClick={go("down")}
+            />
           </span>
         </>
       ) : (
         <span style={DISABLED}>Unavailable</span>
       )}
+      </div>
+
+      {mobileMeta && (
+        <div
+          className="font-mono flex items-center"
+          style={{
+            gap: 6,
+            marginTop: 5,
+            paddingLeft: 36,
+            fontSize: 11,
+            letterSpacing: "0.04em",
+            color: MUTED,
+          }}
+        >
+          {state === "settling" ? (
+            <>
+              <span style={{ color: pct >= 0 ? CYAN : LIME, fontWeight: 700 }}>
+                Closed {pct >= 0 ? "↑" : "↓"}
+              </span>
+              <span>{price != null ? formatMarketPrice(price, market) : "—"}</span>
+            </>
+          ) : (
+            <>
+              <span>
+                Last close {price != null ? formatMarketPrice(price, market) : "—"}
+              </span>
+              <span>·</span>
+              <span>NEXT SESSION · opens {formatLocalTime(session.nextOpenAt)}</span>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
+
 };
+
 
 export const HomeStocksCard = ({
   stockRows,
@@ -209,13 +325,25 @@ export const HomeStocksCard = ({
 
 
   const settleLine = useMemo(() => {
-    if (tab === "hk") return "HK settles at close 16:00 HKT";
-    const sample = us[0];
-    if (!sample) return "US settles at close";
-    const session = getMarketSession(resolveStockMarket(sample));
-    const at = session.closeAt ?? session.nextOpenAt;
-    return `US settles at close ${formatLocalTime(at)}`;
-  }, [tab, us]);
+    const sample = (tab === "hk" ? hk : us)[0];
+    const market = resolveStockMarket(sample ?? { id: tab === "hk" ? "hk-" : "us-" });
+    const session = getStockSessionState(market);
+    if (session.phase === "settling") {
+      return `Settled · next session in ${
+        session.settlingEndsAt ? formatMinuteCountdown(session.settlingEndsAt) : "00:00"
+      }`;
+    }
+    if (session.phase === "preSession") {
+      return tab === "hk"
+        ? "Next session · HK opens 09:30 HKT"
+        : `Next session · US opens ${formatLocalTime(session.nextOpenAt)}`;
+    }
+    return tab === "hk"
+      ? "HK settles at close 16:00 HKT"
+      : `US settles at close ${formatLocalTime(session.closeAt ?? session.nextOpenAt)}`;
+    // tickSeconds keeps the settling countdown live.
+  }, [tab, us, hk, tickSeconds]);
+
 
   if (!loading && total === 0) return null;
 

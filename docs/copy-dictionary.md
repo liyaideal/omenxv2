@@ -257,3 +257,12 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 单复数规则：`{n} airdrop(s) active` —— `n === 1` 写 `1 airdrop active`，其余写 `{n} airdrops active`；
 完整句为 `{positions} positions scanned · {n} airdrop(s) active — earnings land when hedges settle.`。
 无合格仓位时整句换成 `No qualifying positions yet — positions ≥ $20 held a day qualify.`。
+
+## Stocks · 交易时段（ST-1）
+
+| Canonical | 出现位置 / 规则 |
+|---|---|
+| **Next session** | 下一交易时段唯一用词。行尾标 `NEXT SESSION · opens {HH:MM}`；模块头 `Next session · US opens {HH:MM}` / `Next session · HK opens 09:30 HKT`；结算空窗按钮 `Next session in {mm:ss}`。禁用 `Pre-market` / `After hours` / `Tomorrow's session`，禁止外显内部状态名 `preSession`。 |
+| **Settled** | 结算空窗（收盘后 1 小时）模块头用词：`Settled · next session in {mm:ss}`。禁止外显 `Settling`。 |
+| **Closed ↑ / Closed ↓** | 仅结算空窗的结果徽章（客观结果色：↑ pulse、↓ volt，非盈亏语义）。`Closed` 不作它用。 |
+| **Last close {price}** | preSession 参照价前缀，整列 muted，且不显示涨跌%。禁用 `Prev close` / `Yesterday`。 |
