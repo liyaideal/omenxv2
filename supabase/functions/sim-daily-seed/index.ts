@@ -163,10 +163,11 @@ Deno.serve(async (req) => {
   // DAY's cash close. Consecutive weekdays → close − 23h (unchanged); across
   // a weekend/holiday the window stretches, so Friday close + 1h already
   // lists Monday's market.
+  const prevDay = prevTradingDay("us", target);
   const prevClose = new Date(Date.UTC(
-    prevTradingDay("us", target).getUTCFullYear(),
-    prevTradingDay("us", target).getUTCMonth(),
-    prevTradingDay("us", target).getUTCDate(),
+    prevDay.getUTCFullYear(),
+    prevDay.getUTCMonth(),
+    prevDay.getUTCDate(),
     20, 0, 0,
   ));
   const openStart = new Date(prevClose.getTime() + 3600_000);
