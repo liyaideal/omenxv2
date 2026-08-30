@@ -643,7 +643,7 @@ const STAGE_CASES: SectionCase[] = [
         state: "展开",
         when: "点 Show all",
         visual:
-          "全行展开；每行为两层卡片——上层 40px logo + ticker/公司名 + 价格（preSession 加 “Last close” 小字，live/settling 加 ±%），下层整幅动作区（live/preSession 为 Up/Down 对，settling 为 “Closed ↑/↓” + 禁用 “Next session in mm:ss”，无价为 “Unavailable”）；行内不出现 session 文案",
+          "全行展开；每行为两层卡片——上层 40px logo + ticker/公司名 + 价格（preSession 加 “Last close” 小字，live/settling 加 ±%），下层整幅动作区（live/preSession 为 Up/Down 对：grid 2 列均分、gap 10、minHeight 44、label 左 / 价右两端对齐、内部 gap ≥ 8，与 HomeCryptoCard 移动 round 卡一致；settling 为 “Closed ↑/↓” + 禁用 “Next session in mm:ss”，无价为 “Unavailable”）；行内不出现 session 文案",
         source: "MobileStockRow（HomeStocksCard 移动分支）",
       },
     ],
