@@ -33,6 +33,7 @@ const h2e = () => import("./h2ePreviews");
 const autoClose = () => import("./autoClosePreviews");
 const auth = () => import("./authPreviews");
 const events = () => import("./eventsPreviews");
+const homeStage = () => import("./homeStagePreviews");
 const trade = () => import("./tradePreviews");
 const spot = () => import("./spotPreviews");
 const share = () => import("./sharePreviews");
@@ -40,17 +41,17 @@ const share = () => import("./sharePreviews");
 
 export const previewRegistry: Record<string, Loader> = {
   /* -------- Events 列表（M1a 分区①–④）-------- */
-  "events-ev1": pick(events, "Ev1Preview"),
+  "events-ev1": pick(homeStage, "Ev1Preview"),
   "events-ev2": pick(events, "Ev2Preview"),
   "events-ev3": pick(events, "Ev3Preview"),
   "events-ev4": pick(events, "Ev4Preview"),
-  "events-ev5": pick(events, "Ev5Preview"),
-  "events-ev6": pick(events, "Ev6Preview"),
-  "events-ev7": pick(events, "Ev7Preview"),
-  "events-ev8": pick(events, "Ev8Preview"),
-  "events-ev9": pick(events, "Ev9Preview"),
-  "events-ev9e": pick(events, "Ev9ePreview"),
-  "events-ev10": pick(events, "Ev10Preview"),
+  "events-ev5": pick(homeStage, "Ev5Preview"),
+  "events-ev6": pick(homeStage, "Ev6Preview"),
+  "events-ev7": pick(homeStage, "Ev7Preview"),
+  "events-ev8": pick(homeStage, "Ev8Preview"),
+  "events-ev9": pick(homeStage, "Ev9Preview"),
+  "events-ev9e": pick(homeStage, "Ev9ePreview"),
+  "events-ev10": pick(homeStage, "Ev10Preview"),
   "events-ev11": pick(events, "Ev11Preview"),
   "events-ev12": pick(events, "Ev12Preview"),
   "events-ev13": pick(events, "Ev13Preview"),
@@ -68,7 +69,18 @@ export const previewRegistry: Record<string, Loader> = {
   "events-ev21": pick(events, "Ev21Preview"),
   "events-ev22": pick(events, "Ev22Preview"),
   "events-ev23": pick(events, "Ev23Preview"),
+  "events-ev24": pick(homeStage, "Ev24Preview"),
+  "events-ev25": pick(homeStage, "Ev25Preview"),
   "events-ev26": pick(events, "Ev26Preview"),
+  "events-ev27": pick(homeStage, "Ev27Preview"),
+  "events-ev28": pick(homeStage, "Ev28Preview"),
+  "events-ev29": pick(homeStage, "Ev29Preview"),
+  "events-ev30": pick(homeStage, "Ev30Preview"),
+  "events-ev31": pick(homeStage, "Ev31Preview"),
+  "events-ev32": pick(homeStage, "Ev32Preview"),
+  "events-ev33": pick(homeStage, "Ev33Preview"),
+  "events-ev34": pick(homeStage, "Ev34Preview"),
+  "events-ev35": pick(homeStage, "Ev35Preview"),
 
   /* -------- Mobile header system -------- */
   "mobile-header-brand-top": pick(mobileHeader, "HeaderBrandTopPreview"),
@@ -194,6 +206,8 @@ export const previewRegistry: Record<string, Loader> = {
   "spot-sp14": pick(spot, "Sp14Preview"),
   "spot-sp15": pick(spot, "Sp15Preview"),
   "spot-sp16": pick(spot, "Sp16Preview"),
+  "spot-sp17": pick(homeStage, "Sp17Preview"),
+  "spot-sp18": pick(homeStage, "Sp18Preview"),
 
   /* -------- Share 晒单（SH-b · SH-1…SH-8）-------- */
   "share-sh1": pick(share, "Sh1Preview"),
