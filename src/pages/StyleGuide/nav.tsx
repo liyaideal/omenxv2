@@ -49,7 +49,7 @@ const sec = (file: string, name: string) =>
 
 const MobilePatternsSection = lz(() => import("./sections/MobilePatternsSection"), "MobilePatternsSection");
 const LiteSection = lazy(async () => ({
-  default: (await import("./sections/LiteSection")).LiteSection as ComponentType<any>,
+  default: (await retryChunkImport(() => import("./sections/LiteSection"))).LiteSection as ComponentType<any>,
 }));
 const MobilePatternsNode = ({ isMobile }: P) => (
   <>
