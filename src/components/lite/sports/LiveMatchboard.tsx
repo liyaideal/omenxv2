@@ -305,27 +305,6 @@ const Matrix = ({ m }: { m: Model }) => {
   const colHighlight = (n: number) =>
     (m.status === "live" || m.status === "break") && n === m.idx;
 
-  const esportsCell = (n: number) => {
-    const r = m.results[n - 1];
-    const now = colHighlight(n);
-    if (!r)
-      return (
-        <div key={`c${n}`} style={cellStyle("mut", now)}>
-          ·
-        </div>
-      );
-    return (
-      <>
-        <div
-          key={`h${n}`}
-          style={cellStyle(r.home > r.away ? "w" : r.home < r.away ? "l" : "base", now)}
-        >
-          {r.home}
-        </div>
-      </>
-    );
-  };
-
   const rowCells = (side: "home" | "away") =>
     Array.from({ length: m.total }, (_, i) => {
       const n = i + 1;
