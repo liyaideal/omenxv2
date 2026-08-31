@@ -831,6 +831,14 @@ const LiteContractTrade = () => {
     />
   );
 
+  // Sports fixtures only — every other event renders byte-identical DOM.
+  const Matchboard =
+    event.event_subtype === "SPORTS_MATCH" ? (
+      <LiveMatchboard event={event as unknown as Parameters<typeof LiveMatchboard>[0]["event"]} />
+    ) : null;
+
+
+
 
   const SentimentBar = (
     <LiteSentimentBar
