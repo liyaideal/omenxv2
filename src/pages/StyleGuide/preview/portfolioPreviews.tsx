@@ -35,7 +35,7 @@ import {
 import { PortfolioErrorBoundary } from "@/components/portfolio/lite/PortfolioErrorBoundary";
 import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
 import { MobileHeader } from "@/components/MobileHeader";
-import { settledDayLabel } from "@/lib/settleLabel";
+import { settledDayLabel, monthGroupLabel, monthKey } from "@/lib/settleLabel";
 import { useEffect, useRef, useState } from "react";
 
 /** Fixture dates stay relative so settleLabel() output never goes stale. */
