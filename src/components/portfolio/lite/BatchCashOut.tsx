@@ -116,7 +116,11 @@ const Actions = ({
     <Button variant="outline" className="h-11 flex-1" onClick={onCancel} disabled={!!closingLabel}>
       Cancel
     </Button>
-    <Button className="h-11 flex-1" onClick={onConfirm} disabled={!!closingLabel}>
+    <Button
+      className="h-11 flex-1 bg-trading-red text-white hover:bg-trading-red/90"
+      onClick={onConfirm}
+      disabled={!!closingLabel}
+    >
       {closingLabel ?? "Cash out"}
     </Button>
   </>
@@ -146,7 +150,7 @@ export const BatchCashOutConfirm = ({
         title={`Cash out ${rows.length} positions`}
       >
         <ConfirmBody rows={rows} />
-        <MobileDrawerActions className="mt-4">
+        <MobileDrawerActions className="flex gap-2 space-y-0">
           <Actions onCancel={cancel} onConfirm={onConfirm} closingLabel={closingLabel} />
         </MobileDrawerActions>
       </MobileDrawer>
