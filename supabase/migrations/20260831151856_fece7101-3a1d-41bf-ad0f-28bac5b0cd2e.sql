@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.tick_demo_showcase() TO postgres, service_role;
