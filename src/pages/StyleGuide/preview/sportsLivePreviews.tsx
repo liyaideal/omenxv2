@@ -243,7 +243,24 @@ export const S2Preview = stage("loading");
 export const S3Preview = stage("buffering");
 export const S4Preview = stage("paused");
 export const S5Preview = stage("blocked");
-export const S6Preview = stage("prekick");
+// S6's kickoff must live in the real future — the frozen NOW is in the past,
+// which collapsed the copy to "in 0m". 2h 14m matches the approved canvas.
+export const S6Preview = () => (
+  <Frame>
+    <LiveStage
+      event={{
+        ...stageEvent,
+        metadata: {
+          ...cs2Base,
+          kickoff_at: new Date(Date.now() + 134 * 60_000).toISOString(),
+          segment_index: 2,
+          stream_url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+        },
+      }}
+      fixture="prekick"
+    />
+  </Frame>
+);
 export const S7Preview = stage("error");
 export const S8Preview = stage("forbidden");
 export const S9Preview = stage("finished");
