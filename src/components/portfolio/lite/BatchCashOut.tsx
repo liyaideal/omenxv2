@@ -28,10 +28,12 @@ export const SelectToolbar = ({
     <button type="button" onClick={onSelectAll} className="font-semibold text-[#33D6FF]">
       Select all
     </button>
-    <button type="button" onClick={onClear} className="text-[#6B7280]">
+    {/* Narrow screens: Clear / count yield to the action bar's count so the
+        toolbar fits inline next to the segment chips at 390px. */}
+    <button type="button" onClick={onClear} className="hidden sm:inline text-[#6B7280]">
       Clear
     </button>
-    <span className="font-mono text-[#6B7280]">{count} selected</span>
+    <span className="hidden sm:inline font-mono text-[#6B7280]">{count} selected</span>
     <button type="button" onClick={onCancel} className="text-[#C7CCD4]">
       Cancel
     </button>
