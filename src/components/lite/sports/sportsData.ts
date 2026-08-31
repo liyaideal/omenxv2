@@ -46,10 +46,21 @@ interface RawMeta {
   score?: string | null;
   /** Sports game lines — every market of one match shares this id. */
   fixture_id?: string;
-  market_type?: "winner" | "handicap" | "total";
+  market_type?: "winner" | "handicap" | "total" | "mapwin" | "method" | "distance";
   /** Handicap = home-team perspective, signed. Total = positive. */
   line?: number;
   sport?: string;
+  /** `main` fixture body vs `seg` segment sibling. Absent ⇒ `main`. */
+  family?: "main" | "seg";
+  /** Static SPORT_SEGMENTS lookup key. Never derive this from `league`. */
+  segments_key?: string;
+  /** 1-based index of the segment currently in play. */
+  segment_index?: number | null;
+  /** One `{home,away}` or `null` per segment. */
+  segment_results?: ({ home: number; away: number } | null)[] | null;
+  /** UFC round clock, seconds remaining. */
+  clock?: number | null;
+  stream_url?: string | null;
 }
 
 export type FixtureMeta = RawMeta;
@@ -57,6 +68,35 @@ export type FixtureMeta = RawMeta;
 /** Reads the sports metadata blob off any events row. */
 export const fixtureMeta = (e: { metadata?: unknown } | null | undefined): FixtureMeta =>
   ((e?.metadata as FixtureMeta | null) || {}) as FixtureMeta;
+
+/**
+ * Single source of truth for "is this fixture in play".
+ * `metadata.live` is engine debug output and is never read by the UI.
+ */
+export const isFixtureLive = (
+  e:
+    | {
+        start_date?: string | null;
+        end_date?: string | null;
+        is_resolved?: boolean | null;
+        metadata?: unknown;
+      }
+    | null
+    | undefined,
+  now: number = Date.now(),
+): boolean => {
+  if (!e || e.is_resolved) return false;
+  const meta = fixtureMeta(e);
+  const kickoff = meta.kickoff_at
+    ? new Date(meta.kickoff_at).getTime()
+    : e.start_date
+      ? new Date(e.start_date).getTime()
+      : NaN;
+  const end = e.end_date ? new Date(e.end_date).getTime() : NaN;
+  if (!Number.isFinite(kickoff) || !Number.isFinite(end)) return false;
+  return kickoff <= now && now < end;
+};
+
 
 /**
  * Handicap / Total siblings are only reachable through their fixture board,
