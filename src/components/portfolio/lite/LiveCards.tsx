@@ -86,7 +86,6 @@ export const LiveCard = ({
   /** Pure-display share entry (SH-b §3). Omitted = zero DOM change. */
   onShare?: (row: LiteLiveRow) => void;
 } & LiveSelectProps) => {
-}) => {
 
   const goToMarket = useGoToMarket();
   const hot = row.hot;
