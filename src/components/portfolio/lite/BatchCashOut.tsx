@@ -10,7 +10,7 @@ import type { LiteLiveRow } from "@/hooks/useLitePortfolio";
 import { money, signedMoney, livePnlColor } from "./parts";
 
 /* ------------------------- selection toolbar ------------------------- */
-/** Sits between the KPI block and the list when select mode is on. */
+/** Sits inline on the right of the segment-chips row when select mode is on. */
 export const SelectToolbar = ({
   count,
   total,
@@ -24,15 +24,17 @@ export const SelectToolbar = ({
   onClear: () => void;
   onCancel: () => void;
 }) => (
-  <div className="flex items-center gap-3 px-4 lg:px-0 pb-1 pt-2 text-[12.5px]">
+  <div className="flex items-center gap-3 py-[7px] text-[12.5px]">
     <button type="button" onClick={onSelectAll} className="font-semibold text-[#33D6FF]">
       Select all
     </button>
-    <button type="button" onClick={onClear} className="text-[#6B7280]">
+    {/* Narrow screens: Clear / count yield to the action bar's count so the
+        toolbar fits inline next to the segment chips at 390px. */}
+    <button type="button" onClick={onClear} className="hidden sm:inline text-[#6B7280]">
       Clear
     </button>
-    <span className="font-mono text-[#6B7280]">{count} selected</span>
-    <button type="button" onClick={onCancel} className="ml-auto text-[#C7CCD4]">
+    <span className="hidden sm:inline font-mono text-[#6B7280]">{count} selected</span>
+    <button type="button" onClick={onCancel} className="text-[#C7CCD4]">
       Cancel
     </button>
   </div>
