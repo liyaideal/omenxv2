@@ -96,8 +96,13 @@ export const previewRegistry: Record<string, Loader> = {
 
   /* -------- Portfolio (Lite) -------- */
   "portfolio-lite-chrome": pick(portfolio, "PortfolioChromePreview"),
+  "portfolio-lite-voucher-hairline": pick(portfolio, "PortfolioVoucherHairlinePreview"),
+  "portfolio-lite-select-entry": pick(portfolio, "PortfolioSelectEntryPreview"),
   "portfolio-lite-kpi-mobile": pick(portfolio, "PortfolioKpiMobilePreview"),
   "portfolio-lite-kpi-desktop": pick(portfolio, "PortfolioKpiDesktopPreview"),
+  "portfolio-lite-kpi-settled": pick(portfolio, "PortfolioKpiSettledPreview"),
+  "portfolio-lite-kpi-settled-mobile": pick(portfolio, "PortfolioKpiSettledMobilePreview"),
+
   "portfolio-lite-gauge-states": pick(portfolio, "PortfolioGaugeStatesPreview"),
   "portfolio-lite-gauge-bar": pick(portfolio, "PortfolioGaugeBarPreview"),
   "portfolio-lite-live-cards": pick(portfolio, "PortfolioLiveCardsPreview"),

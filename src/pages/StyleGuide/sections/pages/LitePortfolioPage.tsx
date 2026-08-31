@@ -1,85 +1,12 @@
 import { SubSection } from "../../components";
 import { SectionFrame, type SectionCase } from "../../components/SectionFrame";
+import { PortfolioStatesSection } from "../PortfolioStatesSection";
 import { LitePage } from "./shell";
+
 
 type P = { isMobile: boolean };
 
 const PORTFOLIO_MOBILE_CASES: SectionCase[] = [
-  {
-    key: "portfolio-lite-chrome",
-    label: "Tabs · voucher 发丝行 · 双段 chips",
-    note: "开场 chrome：Live / Settled 两 tab + voucher 发丝行 + Boost/Standard 双段 chips。",
-    spec: [
-      {
-        state: "voucher 发丝行 · 显示",
-        when: "voucherCount > 0",
-        visual: "tabs 下一条 volt 发丝行，文案带券数",
-        source: "VoucherHairline",
-      },
-      {
-        state: "voucher 发丝行 · 隐藏",
-        when: "voucherCount === 0",
-        visual: "整行不渲染（不是占位空行）",
-        source: "VoucherHairline",
-      },
-      {
-        state: "chips 有计数",
-        when: "boostLive.length > 0 || standardLive.length > 0",
-        visual: "chip 文案后跟计数；选中 chip volt 底",
-        source: "SegmentChips",
-      },
-      {
-        state: "chips 计数为 0",
-        when: "对应 segment 数组为空",
-        visual: "chip 仍渲染并可点，计数显示 0",
-        source: "SegmentChips",
-      },
-      {
-        state: "首载 loading",
-        when: "isLoading === true（positionsLoading || settledLoading）",
-        visual: "生产无专门加载视觉：chrome（tabs / KPI / chips）照常渲染，列表区按空数组渲染，数据到达后就地填充；isLoading 只用于抑制滚动恢复。骨架屏为待实现项，不要按 LiteEventsPage 的骨架去实现",
-        source: "useLitePortfolio.isLoading · LitePortfolio",
-      },
-    ],
-  },
-  {
-    key: "portfolio-lite-kpi-mobile",
-    label: "KPI 卡 · 移动（Live 正 / Live 负 / 零态 / Settled 2 卡）",
-    note: "移动端一律 2 列；3 列口径只在桌面成立（见桌面 frame）。KPI 永远是全账户口径，segment chips 不影响它。",
-    spec: [
-      { state: "Live 盈利", when: "profitTotal > 0.005", visual: "PROFIT 值 +$X，volt/green 色", source: "useLitePortfolio.kpi" },
-      { state: "Live 亏损", when: "profitTotal < −0.005", visual: "PROFIT 值 −$X，红色", source: "useLitePortfolio.kpi" },
-      {
-        state: "零态",
-        when: "Math.abs(value) < 0.005（isZeroMoney）",
-        visual: "$0.00，不带 +/− 符号、不上色（muted）",
-        source: "isZeroMoney",
-      },
-      { state: "Settled 移动 2 卡", when: "tab === 'settled' && 移动宽度", visual: "WIN RATE / NET PROFIT 两卡", source: "LitePortfolio" },
-    ],
-  },
-  {
-    key: "portfolio-lite-gauge-states",
-    label: "Boost check 仪表三态",
-    note: "口径：riskRatio = imTotal / equity × 100，账户级跨仓（不是单仓）；untilAutoClose = equity − imTotal。仪表只在账户存在 Boost 持仓时渲染，Standard-only 账户完全不画。",
-    spec: [
-      { state: "Healthy", when: "riskRatio < 80", visual: "绿字 Healthy + 绿色进度条", source: "boostState()" },
-      { state: "Getting tight", when: "80 ≤ riskRatio < 95", visual: "琥珀字 Getting tight + 琥珀条", source: "boostState()" },
-      { state: "Auto-close soon", when: "riskRatio ≥ 95", visual: "红字 Auto-close soon + 红条", source: "boostState()" },
-      { state: "不渲染", when: "boostLive.length === 0", visual: "整张 Boost check 卡不出现", source: "LitePortfolio" },
-    ],
-  },
-  {
-    key: "portfolio-lite-details-drawer",
-    label: "Boost check · Details 展开（移动 MobileDrawer）",
-    note: "对等表（v1.14 §5）：同一个 `Details ›` 触发器，移动端开 MobileDrawer（底部抽屉、title=Boost check），桌面端开 320px 锚定 Popover。两端内容三行完全一致，只有承载壳不同。demo 里挂载后自动点了一次 Details ›，展示的就是生产展开态本体。",
-    spec: [
-      { state: "折叠（默认）", when: "open === false", visual: "只有仪表卡；右下 `Details ›` 灰字按钮", source: "BoostCheckCard" },
-      { state: "展开", when: "点击 `Details ›` → open === true", visual: "MobileDrawer 自底升起，title `Boost check` + 说明句 + 三行：Equity / Used by Boost calls / Until auto-close starts", source: "DetailsDrawer" },
-      { state: "三行取值", when: "始终", visual: "Equity=equity；Used by Boost calls=imTotal；Until auto-close starts=max(equity − imTotal, 0)，整数金额不带小数（$310）", source: "moneyAuto" },
-      { state: "端差异", when: "isMobile === true", visual: "移动是抽屉；桌面同一按钮改开 Popover（见桌面 frame）。移动端绝不出现 Popover", source: "DESIGN §5" },
-    ],
-  },
   {
     key: "portfolio-lite-live-cards",
     label: "持仓卡全状态 + 挂单行两态",
@@ -297,36 +224,6 @@ const PORTFOLIO_MOBILE_CASES: SectionCase[] = [
 
 const PORTFOLIO_DESKTOP_CASES: SectionCase[] = [
   {
-    key: "portfolio-lite-kpi-desktop",
-    label: "KPI 卡 · 桌面（Live 3 卡 · Settled 3 卡 + RECORD）",
-    note: "3 列 KPI 只在桌面宽度成立，移动端强制 2 列（见移动 frame）。",
-    spec: [
-      { state: "Live 桌面", when: "tab === 'live' && ≥ md", visual: "COST / NOW WORTH / PROFIT 三卡", source: "LitePortfolio" },
-      { state: "Settled 桌面", when: "tab === 'settled' && ≥ md", visual: "WIN RATE / NET PROFIT / RECORD 三卡，RECORD 格式 `7W 5L`", source: "LitePortfolio" },
-      { state: "零态", when: "Math.abs(value) < 0.005", visual: "muted $0.00，无符号", source: "isZeroMoney" },
-    ],
-  },
-  {
-    key: "portfolio-lite-gauge-bar",
-    label: "Boost check 条（桌面）",
-    note: "与移动仪表同一套阈值与口径，只是排布为行内条。",
-    spec: [
-      { state: "Healthy", when: "riskRatio < 80", visual: "绿条", source: "boostState()" },
-      { state: "Getting tight", when: "80 ≤ riskRatio < 95", visual: "琥珀条", source: "boostState()" },
-      { state: "Auto-close soon", when: "riskRatio ≥ 95", visual: "红条", source: "boostState()" },
-    ],
-  },
-  {
-    key: "portfolio-lite-details-popover",
-    label: "Boost check · Details 展开（桌面 Popover 320px）",
-    note: "移动端对等件是 MobileDrawer（见移动 frame）。桌面绝不用底部抽屉。demo 里挂载后自动点了一次 Details ›。",
-    spec: [
-      { state: "折叠（默认）", when: "Popover 未打开", visual: "条右端 `Details ›` 灰字按钮", source: "BoostCheckBar" },
-      { state: "展开", when: "点击 `Details ›`", visual: "align=end 锚定 Popover，宽 320px、圆角 12px、bg #12151A、border #1D2026、p-16px；标题 Boost check + 说明句 + 三行数值", source: "DetailsPopover" },
-      { state: "三行取值", when: "始终", visual: "与移动抽屉同源同值：Equity / Used by Boost calls / Until auto-close starts", source: "moneyAuto" },
-    ],
-  },
-  {
     key: "portfolio-lite-desktop-rows",
     label: "桌面行式网格（含 voucher 行 / 热行 / 零盈亏行）",
     note: "列模板：minmax(0,1fr) minmax(110px,200px) 96px 104px 100px 150px 170px。",
@@ -457,22 +354,9 @@ const PORTFOLIO_DESKTOP_CASES: SectionCase[] = [
 ];
 
 
-const READ_ME =
-  "怎么读这一节：所有状态都由 useLitePortfolio 派生的字段驱动（segment / isVoucher / autoCloseState / hot / closeReason / isSeries / isZeroMoney）。每个 case 下方的表给出「触发条件 → 视觉结果 → 字段来源」，条件都是可判定表达式，可直接照抄进实现；表里没有列出的组合视为不存在，不要自行发挥。";
-
-export const LitePortfolioPage = ({ isMobile }: P) => (
-  <LitePage
-    id="lite-portfolio"
-    title="Portfolio"
-    route="/portfolio · /portfolio?tab=settled · /portfolio/settlement/:id"
-
-    status="done"
-    note="2026-08-19 改版：Live / Settled 两 tab（Rewards 开场 tab 制式），KPI 卡、voucher 发丝行、Boost/Standard 双段 chips、Boost check 仪表、持仓卡 / 桌面行式网格、结算月份分组与系列聚合行。以下全部挂载生产组件（fixture 数据驱动状态），非手抄。"
-  >
-    <div className="rounded-lg border border-border/40 bg-muted/10 p-3 text-[11px] leading-relaxed text-muted-foreground">
-      {READ_ME}
-    </div>
-
+const PortfolioLegacyCases = () => (
+  <>
+    {/* ── 以下为旧版节（并账后删除）── */}
     <SubSection
       title="移动端全状态（375 · 单 iframe）"
       description="整节移动端案例合并在一个 375px iframe 里按顺序纵向排列，每段上方有 label 分隔线；下方按 case 给出触发条件表。本 frame 内只有移动端组件。"
@@ -486,5 +370,34 @@ export const LitePortfolioPage = ({ isMobile }: P) => (
     >
       <SectionFrame device="desktop" minHeight={900} cases={PORTFOLIO_DESKTOP_CASES} />
     </SubSection>
+  </>
+);
+
+export const LitePortfolioPage = ({ isMobile }: P) => (
+  <LitePage
+    id="lite-portfolio"
+    title="Portfolio"
+    route="/portfolio · /portfolio?tab=settled · /portfolio/settlement/:id"
+    status="done"
+    note="本页 = 产品页 /portfolio 的状态字典 · 样式与布局看生产页，状态与判定看本页。"
+  >
+    <div className="space-y-1 rounded-lg border border-[#CFFF4A]/30 bg-[#CFFF4A]/5 px-3 py-2 text-[12px] text-foreground">
+      <div>
+        本页 = 产品页 <code className="font-mono">/portfolio</code> 的状态字典 ·
+        样式与布局 → 生产页；状态与判定 → 本页
+      </div>
+      <div>
+        字段名 / 文案 / 公式 / 术语 → <code className="font-mono">docs/copy-dictionary.md</code>（顶部有 Lite 术语对照表）
+      </div>
+      <div>
+        流程 / 口径 / 前后端分工 → <code className="font-mono">docs/delivery/lite-portfolio-spec-v2.md</code>
+      </div>
+    </div>
+
+    <PortfolioStatesSection />
+
+    {/* ── 以下为旧版节（并账后删除）── */}
+    <PortfolioLegacyCases />
   </LitePage>
 );
+

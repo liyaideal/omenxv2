@@ -13,7 +13,9 @@ import {
   VoucherHairline,
   PortfolioTabs,
   VOLT,
+  GREEN,
   RED,
+
   money,
   signedMoney,
 } from "@/components/portfolio/lite/parts";
@@ -183,10 +185,13 @@ export const PortfolioGaugeStatesPreview = () => (
 );
 
 export const PortfolioGaugeBarPreview = () => (
-  <div className="bg-background p-4">
+  <div className="space-y-3 bg-background p-4">
+    <BoostCheckBar data={gauge(42)} />
     <BoostCheckBar data={gauge(86)} />
+    <BoostCheckBar data={gauge(97)} />
   </div>
 );
+
 
 export const PortfolioLiveCardsPreview = () => (
   <div className="flex flex-col gap-2 bg-background p-4">
@@ -307,6 +312,7 @@ export const PortfolioKpiDesktopPreview = () => (
   </div>
 );
 
+/** PF-1 · tabs + 双段 chips 本体（券发丝行拆去 PF-2，Select 入口拆去 PF-3）。 */
 export const PortfolioChromePreview = () => {
   const [tab, setTab] = useState<"live" | "settled">("live");
   const [seg, setSeg] = useState<"boost" | "standard">("boost");
@@ -316,21 +322,138 @@ export const PortfolioChromePreview = () => {
       <div className="px-4 pt-3">
         <PortfolioTabs value={tab} onChange={setTab} />
       </div>
-      <VoucherHairline count={2} />
-      {/* count=0 renders nothing — the hairline is conditional chrome. */}
-      <VoucherHairline count={0} />
       <div className="px-4">
         <SegmentChips value={seg} onChange={setSeg} boostCount={6} standardCount={1} />
       </div>
       <div className="px-4 pb-4">
         <SegmentChips value={seg2} onChange={setSeg2} boostCount={0} standardCount={0} />
         <p className="pt-2 text-[11px] text-[#6B7280]">
-          ↑ 计数为 0 的 chips（两段都空时仍可切换）。上方 voucher 发丝行只有 count &gt; 0 才渲染。
+          ↑ 计数为 0 的 chips（两段都空时仍可切换、不禁用）。
         </p>
       </div>
     </div>
   );
 };
+
+/** PF-2 · 券发丝行三态（count>1 / count===1 / count<=0 整行 return null）。 */
+export const PortfolioVoucherHairlinePreview = () => (
+  <div className="space-y-3 bg-background py-3">
+    <VoucherHairline count={2} />
+    <VoucherHairline count={1} />
+    {/* count<=0 renders nothing at all — no placeholder, no border. */}
+    <VoucherHairline count={0} />
+    <p className="px-4 text-[11px] text-[#6B7280]">↑ 第三行是 count=0：整行 return null，不占位。</p>
+  </div>
+);
+
+/**
+ * PF-3 · Select 入口与选择工具条。
+ * 入口在生产里仍是 LitePortfolio.tsx 内的裸 <button>（尚未提取成组件），此处
+ * 按生产那段 JSX 的类名与文案逐字渲染；工具条挂真 SelectToolbar。
+ */
+export const PortfolioSelectEntryPreview = () => {
+  const [seg, setSeg] = useState<"boost" | "standard">("boost");
+  const [seg2, setSeg2] = useState<"boost" | "standard">("boost");
+  return (
+    <div className="space-y-4 bg-background p-4">
+      <div>
+        <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">
+          入口可见（tab=live · rows&gt;0 · !selectMode）
+        </p>
+        <div className="flex items-center justify-between gap-3">
+          <SegmentChips value={seg} onChange={setSeg} boostCount={6} standardCount={1} />
+          <button type="button" className="py-[7px] text-[12.5px] font-semibold text-[#33D6FF]">
+            Select
+          </button>
+        </div>
+      </div>
+      <div>
+        <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">
+          入口隐藏（rows=0 或 tab=settled）
+        </p>
+        <div className="flex items-center justify-between gap-3">
+          <SegmentChips value={seg} onChange={setSeg} boostCount={0} standardCount={0} />
+        </div>
+      </div>
+      <div>
+        <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">
+          选择模式工具条（selectMode === true）
+        </p>
+        <div className="flex items-center justify-between gap-3">
+          <SegmentChips value={seg2} onChange={setSeg2} boostCount={6} standardCount={1} />
+          <SelectToolbar
+            count={2}
+            total={6}
+            onSelectAll={() => {}}
+            onClear={() => {}}
+            onCancel={() => {}}
+          />
+        </div>
+        <p className="pt-2 text-[11px] text-[#6B7280]">
+          ↑ 窄屏（&lt; sm）时 Clear 与 N selected 隐藏，只留 Select all + Cancel。
+        </p>
+      </div>
+    </div>
+  );
+};
+
+/** PF-5 · Settled KPI 桌面三卡（数值照生产实测）。 */
+export const PortfolioKpiSettledPreview = () => (
+  <div className="space-y-4 bg-background p-4">
+    <div>
+      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Settled · 桌面 3 卡</p>
+      <KpiGrid cols={3}>
+        <KpiCard label="WIN RATE" value="39%" sub="19 of 49" />
+        <KpiCard label="NET PROFIT" value={signedMoney(3777.81)} sub="49 settled" subColor={GREEN} />
+        <KpiCard label="RECORD" value="19W 30L" sub="wins · losses" />
+      </KpiGrid>
+    </div>
+    <div>
+      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Settled · NET 为负</p>
+      <KpiGrid cols={3}>
+        <KpiCard label="WIN RATE" value="39%" sub="19 of 49" />
+        <KpiCard label="NET PROFIT" value={signedMoney(-3777.81)} sub="49 settled" subColor={RED} />
+        <KpiCard label="RECORD" value="19W 30L" sub="wins · losses" />
+      </KpiGrid>
+    </div>
+    <div>
+      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Settled · 零战绩</p>
+      <KpiGrid cols={3}>
+        <KpiCard label="WIN RATE" value="0%" sub="0 of 0" />
+        <KpiCard label="NET PROFIT" value={money(0)} sub="0 settled" />
+        <KpiCard label="RECORD" value="0W 0L" sub="wins · losses" />
+      </KpiGrid>
+    </div>
+  </div>
+);
+
+/** PF-5 · Settled KPI 移动两卡（RECORD 桌面独有，移动帧不渲染）。 */
+export const PortfolioKpiSettledMobilePreview = () => (
+  <div className="space-y-4 bg-background p-4">
+    <div>
+      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Settled · 移动 2 卡</p>
+      <KpiGrid cols={2}>
+        <KpiCard label="WIN RATE" value="39%" sub="19 of 49" />
+        <KpiCard label="NET PROFIT" value={signedMoney(3777.81)} sub="49 settled" subColor={GREEN} />
+      </KpiGrid>
+    </div>
+    <div>
+      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Settled · NET 为负</p>
+      <KpiGrid cols={2}>
+        <KpiCard label="WIN RATE" value="39%" sub="19 of 49" />
+        <KpiCard label="NET PROFIT" value={signedMoney(-3777.81)} sub="49 settled" subColor={RED} />
+      </KpiGrid>
+    </div>
+    <div>
+      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Settled · 零战绩</p>
+      <KpiGrid cols={2}>
+        <KpiCard label="WIN RATE" value="0%" sub="0 of 0" />
+        <KpiCard label="NET PROFIT" value={money(0)} sub="0 settled" />
+      </KpiGrid>
+    </div>
+  </div>
+);
+
 
 const settled = (o: Partial<LiteSettledRow>): LiteSettledRow => ({
   id: Math.random().toString(36).slice(2),
