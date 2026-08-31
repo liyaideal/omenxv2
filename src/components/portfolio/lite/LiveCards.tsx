@@ -321,19 +321,21 @@ export const LiveRow = ({
       </div>
 
       <div className="flex items-center justify-end gap-2">
-        {onShare && <ShareIconButton onClick={() => onShare(row)} />}
+        {!selectMode && onShare && <ShareIconButton onClick={() => onShare(row)} />}
 
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onCashOut?.(row);
-          }}
-          className="h-8 whitespace-nowrap rounded-[8px] px-3 text-[12.5px] font-semibold text-[#F2F3F5]"
-          style={{ border: "1px solid #2A2F38" }}
-        >
-          Cash out
-        </button>
+        {!selectMode && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onCashOut?.(row);
+            }}
+            className="h-8 whitespace-nowrap rounded-[8px] px-3 text-[12.5px] font-semibold text-[#F2F3F5]"
+            style={{ border: "1px solid #2A2F38" }}
+          >
+            Cash out
+          </button>
+        )}
       </div>
     </div>
   );
