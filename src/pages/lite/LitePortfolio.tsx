@@ -30,6 +30,13 @@ import {
   LiveRowHeader,
   PendingOrdersRow,
 } from "@/components/portfolio/lite/LiveCards";
+import {
+  SelectToolbar,
+  BatchActionBar,
+  BatchCashOutConfirm,
+} from "@/components/portfolio/lite/BatchCashOut";
+import { usePositions } from "@/hooks/usePositions";
+import { toast } from "sonner";
 import { SettledList } from "@/components/portfolio/lite/SettledList";
 import {
   SeriesDetailDesktop,
@@ -89,7 +96,14 @@ export default function LitePortfolio() {
 
   const p = useLitePortfolio();
   const { user } = useAuth();
+  const { positions, closePosition, refetch } = usePositions();
   const [manualShare, setManualShare] = useState<LiteManualShareSnap | null>(null);
+
+  /* --------------------- batch cash-out selection --------------------- */
+  const [selectMode, setSelectMode] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [closingLabel, setClosingLabel] = useState<string | null>(null);
 
   // Live row share — same-source figures, frozen at click time.
   const shareRow = (r: LiteLiveRow) =>
@@ -166,6 +180,49 @@ export default function LitePortfolio() {
   );
 
   const rows = segment === "boost" ? p.boostLive : p.standardLive;
+
+  // Leaving the live tab or switching segments drops the selection.
+  useEffect(() => {
+    setSelectMode(false);
+    setSelected(new Set());
+    setConfirmOpen(false);
+    setClosingLabel(null);
+  }, [tab, segment]);
+
+  const selectedRows = rows.filter((r) => selected.has(r.id));
+  const toggleRow = (r: LiteLiveRow) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(r.id)) next.delete(r.id);
+      else next.add(r.id);
+      return next;
+    });
+
+  const closeBatch = async () => {
+    const targets = selectedRows;
+    let failed = 0;
+    for (let i = 0; i < targets.length; i++) {
+      setClosingLabel(`Closing ${i + 1} / ${targets.length}…`);
+      const idx = positions.findIndex((pos) => pos.id === targets[i].id);
+      try {
+        await closePosition(targets[i].id, idx);
+      } catch {
+        failed += 1;
+      }
+    }
+    setClosingLabel(null);
+    setConfirmOpen(false);
+    setSelectMode(false);
+    setSelected(new Set());
+    await refetch?.();
+    if (failed === 0) {
+      toast.success(`Cashed out ${targets.length} ${targets.length === 1 ? "position" : "positions"}`);
+    } else if (failed < targets.length) {
+      toast.error(`Cashed out ${targets.length - failed} of ${targets.length} — ${failed} failed, still open below`);
+    } else {
+      toast.error("Couldn't cash out — please try again");
+    }
+  };
 
 
 
@@ -294,35 +351,81 @@ export default function LitePortfolio() {
 
       {rows.length === 0 ? (
         <EmptyLive />
-      ) : isMobile ? (
-        <div className="flex flex-col gap-2 px-4 lg:px-0 pb-4 pt-3">
-          {rows.map((r) => (
-            <LiveCard
-              key={r.id}
-              row={r}
-              onCashOut={() => navigate(r.tradePath)}
-              onShare={user ? shareRow : undefined}
-            />
-          ))}
-          {segment === "boost" && <PendingOrdersRow orders={p.pendingOrders} />}
-        </div>
       ) : (
-        <div className="pb-6 pt-3">
-          <LiveRowHeader />
-          {rows.map((r) => (
-            <LiveRow
-              key={r.id}
-              row={r}
-              onCashOut={() => navigate(r.tradePath)}
-              onShare={user ? shareRow : undefined}
+        <>
+          {/* Batch cash-out: entry point or selection toolbar */}
+          {selectMode ? (
+            <SelectToolbar
+              count={selectedRows.length}
+              total={rows.length}
+              onSelectAll={() => setSelected(new Set(rows.map((r) => r.id)))}
+              onClear={() => setSelected(new Set())}
+              onCancel={() => {
+                setSelectMode(false);
+                setSelected(new Set());
+              }}
             />
-          ))}
-          {segment === "boost" && (
-            <div className="px-4 lg:px-0 pt-3">
-              <PendingOrdersRow orders={p.pendingOrders} />
+          ) : (
+            <div className="flex justify-end px-4 lg:px-0 pt-2">
+              <button
+                type="button"
+                onClick={() => setSelectMode(true)}
+                className="text-[12.5px] font-semibold text-[#33D6FF]"
+              >
+                Select
+              </button>
             </div>
           )}
-        </div>
+
+          {isMobile ? (
+            <div className="flex flex-col gap-2 px-4 lg:px-0 pb-4 pt-3">
+              {rows.map((r) => (
+                <LiveCard
+                  key={r.id}
+                  row={r}
+                  onCashOut={() => navigate(r.tradePath)}
+                  onShare={user ? shareRow : undefined}
+                  selectMode={selectMode}
+                  selected={selected.has(r.id)}
+                  onToggleSelect={toggleRow}
+                />
+              ))}
+              {segment === "boost" && <PendingOrdersRow orders={p.pendingOrders} />}
+            </div>
+          ) : (
+            <div className="pb-6 pt-3">
+              <LiveRowHeader selectMode={selectMode} />
+              {rows.map((r) => (
+                <LiveRow
+                  key={r.id}
+                  row={r}
+                  onCashOut={() => navigate(r.tradePath)}
+                  onShare={user ? shareRow : undefined}
+                  selectMode={selectMode}
+                  selected={selected.has(r.id)}
+                  onToggleSelect={toggleRow}
+                />
+              ))}
+              {segment === "boost" && (
+                <div className="px-4 lg:px-0 pt-3">
+                  <PendingOrdersRow orders={p.pendingOrders} />
+                </div>
+              )}
+            </div>
+          )}
+
+          {selectMode && (
+            <BatchActionBar rows={selectedRows} onCashOut={() => setConfirmOpen(true)} />
+          )}
+          <BatchCashOutConfirm
+            open={confirmOpen}
+            onOpenChange={setConfirmOpen}
+            rows={selectedRows}
+            isMobile={!!isMobile}
+            closingLabel={closingLabel}
+            onConfirm={closeBatch}
+          />
+        </>
       )}
     </>
   );

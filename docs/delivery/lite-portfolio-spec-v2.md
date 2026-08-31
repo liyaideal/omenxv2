@@ -135,8 +135,11 @@ preview key 定义在 `src/pages/StyleGuide/sections/pages/LitePortfolioPage.tsx
 | 持仓卡全状态（移动） | `portfolio-lite-live-cards` |
 | 桌面行式网格 / 桌面挂单行 | `portfolio-lite-desktop-rows` / `portfolio-lite-pending-desktop` |
 | Settled 列表 / 加载更多 / 月份折叠 | `portfolio-lite-settled` / `portfolio-lite-settled-loadmore` / `portfolio-lite-settled-collapse` |
+| Live 多选批量平仓（移动 + 桌面同一状态机） | `portfolio-lite-live-select` |
 
 > Settled 列表行为补充（移动端 + 桌面端同一组件 `SettledList`）：月份组头是可点击按钮，点击折叠/展开该月全部行，组头带行数计数 `(N)` 与 ChevronDown 方向指示；默认全部展开，折叠状态不持久化（切 tab / 刷新恢复展开）；`Load earlier months` 追加的月份默认展开。
+
+> Live 批量平仓（`LiveCards.tsx` + `BatchCashOut.tsx`，移动 / 桌面共用）：列表右上角 `Select` 进入选择模式 → 行内出现圆形勾选点、单行 `Cash out` 与分享按钮隐藏、点击整卡 / 整行改为切换选中（选中态 Pulse 描边 + 淡蓝底，hot 行保持红轴优先）；工具条提供 `Select all` / `Clear` / `N selected` / `Cancel`；有选中时底部吸底动作条显示 `N selected · Now worth $X · Profit ±$Y` 与主按钮 `Cash out N`。确认层桌面 Dialog / 移动 MobileDrawer（标题 `Cash out N positions`，逐行 `{event} · {side} · {now worth}`，合计 `You get about`，免责 `Prices move while we close — the final amount can differ slightly.`）；确认后**串行**逐仓 `usePositions.closePosition(positionId, index)`，按钮显示 `Closing i / N…`，结束后汇总 toast（全成 `Cashed out N positions` / 部分失败 `Cashed out K of N — M failed, still open below` / 全败 `Couldn't cash out — please try again`）。选择状态不持久化，切 tab / 切 segment / 完成后即清空；单行 Cash out 跳市场页的行为不变。Pro portfolio 不涉及。
 | 单仓结算详情 · 移动（won / auto_close / cashout / lost） | `portfolio-lite-detail-won-mobile` / `portfolio-lite-detail-autoclosed-mobile` / `portfolio-lite-detail-cashout-mobile` / `portfolio-lite-detail-lost-mobile` |
 | 单仓结算详情 · 桌面（won / auto_close / cashout / lost） | `portfolio-lite-detail-won` / `portfolio-lite-detail-autoclosed` / `portfolio-lite-detail-cashout` / `portfolio-lite-detail-lost` |
 | 系列详情（移动整页 / 桌面 / 两极） | `portfolio-lite-series-mobile-page` / `portfolio-lite-series-detail` / `portfolio-lite-series-extremes` |

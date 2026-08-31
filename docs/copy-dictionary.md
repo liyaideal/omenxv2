@@ -21,7 +21,9 @@ Single source of truth for user-visible field names across the app.
 | 合约账户 / Futures account | **Boost Account**（Portfolio `Boost · N` 段含 1× 持仓） | Accounts |
 | 现货账户 / Spot account | **Standard Account** | Accounts |
 | 限价单 / Limit order | Lite 不支持下单；`n orders waiting to fill · placed in Pro` 只读入口 | Portfolio (Lite) 节 |
-| 平仓 / Close position | **Cash out**（portfolio 点击 → 跳该市场页完成） | Verb ruling |
+| 平仓 / Close position | **Cash out**（portfolio 单仓点击 → 跳该市场页完成；live 列表 `Select` 模式支持多选 / `Select all` 批量直接平仓） | Verb ruling |
+| 批量平仓入口 / 工具条 | **Select**（进入选择模式）→ **Select all** / **Clear** / **Cancel**，选中计数 `N selected` | Portfolio (Lite) live 列表 |
+| 批量平仓动作 / 确认 | **Cash out N**（动作条按钮）；确认层标题 `Cash out N positions`，列表逐行 `{event} · {side} · {now worth}`，合计行 `You get about`，免责 `Prices move while we close — the final amount can differ slightly.`，进度 `Closing i / N…` | Portfolio (Lite) live 列表 |
 | 本金 / Margin（金额） | **Put in**（交易页）/ **Cost**（portfolio） | Lite banned words |
 | 市值 / Notional | **Now worth** = `max(0, cost + profit)` | Portfolio (Lite) 节 |
 | 多轮同名事件 / 回合 | **Series**（≥2 条已结算记录聚合）/ **Round**（其中每一条）；日内事件写 `daily rounds` | Portfolio (Lite) 节 Series 行 |

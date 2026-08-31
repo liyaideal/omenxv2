@@ -18,6 +18,7 @@ import {
   signedMoney,
 } from "@/components/portfolio/lite/parts";
 import { LiveCard, LiveRow, LiveRowHeader, PendingOrdersRow } from "@/components/portfolio/lite/LiveCards";
+import { SelectToolbar, BatchCashOutConfirm } from "@/components/portfolio/lite/BatchCashOut";
 import { SettledList } from "@/components/portfolio/lite/SettledList";
 import {
   SettlementDetailDesktop,
@@ -767,3 +768,68 @@ export const PortfolioAirdropTagCardsPreview = () => (
     <LiveCard row={airdropTagRow} />
   </div>
 );
+
+/* --------------------- live batch cash-out select --------------------- */
+export const PortfolioLiveSelectPreview = () => {
+  const fixtureRows: LiteLiveRow[] = [base, hotRow, standardRow];
+  const [selected, setSelected] = useState<Set<string>>(new Set([base.id]));
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const toggle = (r: LiteLiveRow) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(r.id)) next.delete(r.id);
+      else next.add(r.id);
+      return next;
+    });
+  const selectedRows = fixtureRows.filter((r) => selected.has(r.id));
+  return (
+    <div className="bg-background pb-4">
+      <p className="px-4 pt-3 text-[11px] text-[#6B7280]">
+        Select 模式交互预览：点卡片切换选中，动作条实时汇总；确认层仅演示 UI，不真实平仓。
+      </p>
+      <SelectToolbar
+        count={selectedRows.length}
+        total={fixtureRows.length}
+        onSelectAll={() => setSelected(new Set(fixtureRows.map((r) => r.id)))}
+        onClear={() => setSelected(new Set())}
+        onCancel={() => setSelected(new Set())}
+      />
+      <div className="flex flex-col gap-2 px-4 pt-3">
+        {fixtureRows.map((r) => (
+          <LiveCard
+            key={r.id}
+            row={r}
+            selectMode
+            selected={selected.has(r.id)}
+            onToggleSelect={toggle}
+          />
+        ))}
+      </div>
+      <div className="px-4 pt-3">
+        <div className="flex items-center gap-3 rounded-[12px] border border-[#2A2F38] bg-[#12151A]/95 px-4 py-3">
+          <div className="min-w-0 flex-1">
+            <div className="text-[12.5px] font-semibold text-[#F2F3F5]">
+              {selectedRows.length} selected
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => selectedRows.length > 0 && setConfirmOpen(true)}
+            className="h-10 rounded-[10px] bg-primary px-5 text-[13px] font-semibold text-primary-foreground disabled:opacity-40"
+            disabled={selectedRows.length === 0}
+          >
+            Cash out {selectedRows.length}
+          </button>
+        </div>
+      </div>
+      <BatchCashOutConfirm
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        rows={selectedRows}
+        isMobile={true}
+        closingLabel={null}
+        onConfirm={() => setConfirmOpen(false)}
+      />
+    </div>
+  );
+};

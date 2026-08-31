@@ -46,19 +46,46 @@ const metaLine = (row: LiteLiveRow) => {
 const winSentence = (row: LiteLiveRow) =>
   `If it wins you get ${money(row.ifWins)}`;
 
+/* --------------------------- selection bits --------------------------- */
+/** Round checkbox used in batch cash-out select mode. */
+const CheckDot = ({ selected }: { selected: boolean }) => (
+  <span
+    aria-hidden
+    className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full"
+    style={{
+      border: selected ? "1.5px solid #33D6FF" : "1.5px solid #2A2F38",
+      background: selected ? "#33D6FF" : "transparent",
+    }}
+  >
+    {selected && (
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+        <path d="M2 5.2L4.2 7.2L8 3" stroke="#0B0D10" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    )}
+  </span>
+);
 
+/** Optional batch-cash-out selection props. When omitted, cards/rows render exactly as before. */
+export interface LiveSelectProps {
+  selectMode?: boolean;
+  selected?: boolean;
+  onToggleSelect?: (row: LiteLiveRow) => void;
+}
 
 /* ----------------------------- mobile card ----------------------------- */
 export const LiveCard = ({
   row,
   onCashOut,
   onShare,
+  selectMode,
+  selected,
+  onToggleSelect,
 }: {
   row: LiteLiveRow;
   onCashOut?: (row: LiteLiveRow) => void;
   /** Pure-display share entry (SH-b §3). Omitted = zero DOM change. */
   onShare?: (row: LiteLiveRow) => void;
-}) => {
+} & LiveSelectProps) => {
 
   const goToMarket = useGoToMarket();
   const hot = row.hot;
@@ -69,16 +96,26 @@ export const LiveCard = ({
         ? `${winSentence(row)} · auto-close ≈${cents(row.autoClose.price)}`
         : `${winSentence(row)} · no auto-close, loss capped`;
 
+  const activate = () =>
+    selectMode ? onToggleSelect?.(row) : goToMarket(row.tradePath);
+
   return (
     <div
       role="button"
       tabIndex={0}
-      onClick={() => goToMarket(row.tradePath)}
-      onKeyDown={(e) => e.key === "Enter" && goToMarket(row.tradePath)}
+      onClick={activate}
+      onKeyDown={(e) => e.key === "Enter" && activate()}
       className="rounded-[12px] bg-[#12151A] p-3.5 text-left"
-      style={hot ? { border: "1px solid rgba(255,92,92,.55)" } : undefined}
+      style={
+        hot
+          ? { border: "1px solid rgba(255,92,92,.55)" }
+          : selectMode && selected
+            ? { border: "1px solid rgba(51,214,255,.45)", background: "rgba(51,214,255,.04)" }
+            : undefined
+      }
     >
       <div className="flex items-start gap-2">
+        {selectMode && <CheckDot selected={!!selected} />}
         <div className="flex-1 text-[14.5px] font-semibold leading-[1.35] text-[#F2F3F5]">
           {row.eventName}
         </div>
@@ -136,17 +173,19 @@ export const LiveCard = ({
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          onCashOut?.(row);
-        }}
-        className="mt-3 h-10 w-full rounded-[10px] text-[13px] font-semibold text-[#F2F3F5]"
-        style={{ border: "1px solid #2A2F38" }}
-      >
-        Cash out
-      </button>
+      {!selectMode && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onCashOut?.(row);
+          }}
+          className="mt-3 h-10 w-full rounded-[10px] text-[13px] font-semibold text-[#F2F3F5]"
+          style={{ border: "1px solid #2A2F38" }}
+        >
+          Cash out
+        </button>
+      )}
     </div>
   );
 };
@@ -154,11 +193,15 @@ export const LiveCard = ({
 /* ---------------------------- desktop rows ---------------------------- */
 export const DESKTOP_GRID = "minmax(0,1fr) minmax(110px,200px) 96px 104px 100px 150px 170px";
 
-export const LiveRowHeader = () => (
+const gridFor = (selectMode?: boolean) =>
+  selectMode ? `28px ${DESKTOP_GRID}` : DESKTOP_GRID;
+
+export const LiveRowHeader = ({ selectMode }: { selectMode?: boolean }) => (
   <div
     className="grid px-4 py-2 text-[10px] text-[#6B7280]"
-    style={{ gridTemplateColumns: DESKTOP_GRID, letterSpacing: "1.1px" }}
+    style={{ gridTemplateColumns: gridFor(selectMode), letterSpacing: "1.1px" }}
   >
+    {selectMode && <span />}
     <span>CALL</span>
     <span>SIDE</span>
     <span>COST</span>
@@ -173,32 +216,45 @@ export const LiveRow = ({
   row,
   onCashOut,
   onShare,
+  selectMode,
+  selected,
+  onToggleSelect,
 }: {
   row: LiteLiveRow;
   onCashOut?: (row: LiteLiveRow) => void;
   /** Pure-display share entry (SH-b §3). Omitted = zero DOM change. */
   onShare?: (row: LiteLiveRow) => void;
-}) => {
+} & LiveSelectProps) => {
 
   const goToMarket = useGoToMarket();
   const hot = row.hot;
 
-
+  const activate = () =>
+    selectMode ? onToggleSelect?.(row) : goToMarket(row.tradePath);
 
   return (
     <div
       role="button"
       tabIndex={0}
-      onClick={() => goToMarket(row.tradePath)}
-      onKeyDown={(e) => e.key === "Enter" && goToMarket(row.tradePath)}
+      onClick={activate}
+      onKeyDown={(e) => e.key === "Enter" && activate()}
       className="grid items-center px-4 py-[13px] text-left"
       style={{
-        gridTemplateColumns: DESKTOP_GRID,
+        gridTemplateColumns: gridFor(selectMode),
         borderTop: "1px solid #1A1E24",
-        boxShadow: hot ? "inset 3px 0 0 rgba(255,92,92,.7)" : undefined,
-        background: hot ? "rgba(255,92,92,.04)" : undefined,
+        boxShadow: hot
+          ? "inset 3px 0 0 rgba(255,92,92,.7)"
+          : selectMode && selected
+            ? "inset 3px 0 0 rgba(51,214,255,.7)"
+            : undefined,
+        background: hot
+          ? "rgba(255,92,92,.04)"
+          : selectMode && selected
+            ? "rgba(51,214,255,.04)"
+            : undefined,
       }}
     >
+      {selectMode && <CheckDot selected={!!selected} />}
       <div className="min-w-0 pr-3">
         <div className="truncate text-[13.5px] font-semibold text-[#F2F3F5]">{row.eventName}</div>
         <div className="truncate text-[11px] text-[#6B7280]">
@@ -265,19 +321,21 @@ export const LiveRow = ({
       </div>
 
       <div className="flex items-center justify-end gap-2">
-        {onShare && <ShareIconButton onClick={() => onShare(row)} />}
+        {!selectMode && onShare && <ShareIconButton onClick={() => onShare(row)} />}
 
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onCashOut?.(row);
-          }}
-          className="h-8 whitespace-nowrap rounded-[8px] px-3 text-[12.5px] font-semibold text-[#F2F3F5]"
-          style={{ border: "1px solid #2A2F38" }}
-        >
-          Cash out
-        </button>
+        {!selectMode && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onCashOut?.(row);
+            }}
+            className="h-8 whitespace-nowrap rounded-[8px] px-3 text-[12.5px] font-semibold text-[#F2F3F5]"
+            style={{ border: "1px solid #2A2F38" }}
+          >
+            Cash out
+          </button>
+        )}
       </div>
     </div>
   );
