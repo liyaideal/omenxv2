@@ -109,5 +109,5 @@ description: 给研发交付一份功能/迭代说明文档时使用。输出中
 2. 对实质性 commit 用 `git show --stat` 看改动文件，跳过 "Changes" 这种空 commit
 3. 按主题聚合（不要按 commit 时间线写），形成章节
 4. 用骨架写第一版，自检表格密度是否够、是否有大段代码、是否覆盖三视角
-5. 按「输出位置（铁律）」写入 `docs/delivery/`，同轮登记 INDEX / STATUS，artifact 标签交付仓库内那份
+5. 写入仓库 `docs/delivery/{feature-slug}-v{N}.md`，同轮登记 `docs/changelog/INDEX.md`（与 `STATUS.md`，若有待实施项）；`ls docs/delivery/` 核实后再用 artifact 标签展示仓库内的那份。`/mnt/documents/` 只作草稿。
 6. 测试视角自检：拿交易口径各问一次——爆仓在哪、强平价在哪、杠杆倍数、限价单、Margin 面板、时区、这个标签什么意思——每个问题必须在 §0 或 copy-dictionary 一跳内找到答案；找不到就补，不许交付。
