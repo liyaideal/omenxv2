@@ -24,7 +24,7 @@ export const SelectToolbar = ({
   onClear: () => void;
   onCancel: () => void;
 }) => (
-  <div className="flex items-center gap-3 px-4 lg:px-0 pb-1 pt-2 text-[12.5px]">
+  <div className="flex items-center gap-3 py-[7px] text-[12.5px]">
     <button type="button" onClick={onSelectAll} className="font-semibold text-[#33D6FF]">
       Select all
     </button>
@@ -32,7 +32,7 @@ export const SelectToolbar = ({
       Clear
     </button>
     <span className="font-mono text-[#6B7280]">{count} selected</span>
-    <button type="button" onClick={onCancel} className="ml-auto text-[#C7CCD4]">
+    <button type="button" onClick={onCancel} className="text-[#C7CCD4]">
       Cancel
     </button>
   </div>
