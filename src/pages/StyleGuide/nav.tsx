@@ -30,7 +30,7 @@ type P = { isMobile: boolean };
 
 /** Lazy-load a named export as a section component. */
 const lz = (loader: () => Promise<Record<string, unknown>>, name: string) =>
-  lazy(async () => ({ default: (await loader())[name] as ComponentType<P> }));
+  lazy(async () => ({ default: (await retryChunkImport(loader))[name] as ComponentType<P> }));
 
 const s = (id: string, label: string, Comp: ComponentType<P>): SectionEntry => ({
   id,
