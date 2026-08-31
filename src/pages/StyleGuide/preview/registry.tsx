@@ -111,6 +111,7 @@ export const previewRegistry: Record<string, Loader> = {
   "portfolio-lite-details-popover": pick(portfolio, "PortfolioDetailsPopoverPreview"),
   "portfolio-lite-pending-desktop": pick(portfolio, "PortfolioPendingDesktopPreview"),
   "portfolio-lite-settled-loadmore": pick(portfolio, "PortfolioSettledLoadMorePreview"),
+  "portfolio-lite-settled-collapse": pick(portfolio, "PortfolioSettledListPreview"),
   "portfolio-lite-error": pick(portfolio, "PortfolioErrorBoundaryPreview"),
   "portfolio-lite-detail-won": pick(portfolio, "SettlementDetailWonPreview"),
   "portfolio-lite-detail-autoclosed": pick(portfolio, "SettlementDetailAutoClosedPreview"),
