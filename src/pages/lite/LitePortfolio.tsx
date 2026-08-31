@@ -353,30 +353,6 @@ export default function LitePortfolio() {
         <EmptyLive />
       ) : (
         <>
-          {/* Batch cash-out: entry point or selection toolbar */}
-          {selectMode ? (
-            <SelectToolbar
-              count={selectedRows.length}
-              total={rows.length}
-              onSelectAll={() => setSelected(new Set(rows.map((r) => r.id)))}
-              onClear={() => setSelected(new Set())}
-              onCancel={() => {
-                setSelectMode(false);
-                setSelected(new Set());
-              }}
-            />
-          ) : (
-            <div className="flex justify-end px-4 lg:px-0 pt-2">
-              <button
-                type="button"
-                onClick={() => setSelectMode(true)}
-                className="text-[12.5px] font-semibold text-[#33D6FF]"
-              >
-                Select
-              </button>
-            </div>
-          )}
-
           {isMobile ? (
             <div className="flex flex-col gap-2 px-4 lg:px-0 pb-4 pt-3">
               {rows.map((r) => (
