@@ -526,11 +526,11 @@ const detailBase: SettlementDetailVM = {
   leverage: 2,
   sideWord: "Up",
   outcomeWon: true,
-  openedAt: "2026-07-28T09:12:00Z",
-  closedAt: "2026-08-01T14:00:00Z",
+  openedAt: daysAgoAt(34, 9, 12),
+  closedAt: daysAgoAt(30, 14),
   trades: [
-    { id: "t1", time: "2026-07-28T09:12:00Z", action: "Open", total: 80, price: 0.33 },
-    { id: "t2", time: "2026-07-30T11:40:00Z", action: "Add", total: 40, price: 0.36 },
+    { id: "t1", time: daysAgoAt(34, 9, 12), action: "Open", total: 80, price: 0.33 },
+    { id: "t2", time: daysAgoAt(32, 11, 40), action: "Add", total: 40, price: 0.36 },
   ],
 };
 
@@ -547,11 +547,11 @@ const detailAutoClosed: SettlementDetailVM = {
   leverage: 3,
   sideWord: "Yes",
   outcomeWon: false,
-  openedAt: "2026-08-09T10:00:00Z",
-  closedAt: "2026-08-12T16:45:00Z",
+  openedAt: daysAgoAt(22, 10),
+  closedAt: daysAgoAt(19, 16, 45),
   trades: [
-    { id: "t1", time: "2026-08-09T10:00:00Z", action: "Open", total: 30, price: 0.6 },
-    { id: "t2", time: "2026-08-10T12:00:00Z", action: "Add", total: 30, price: 0.6 },
+    { id: "t1", time: daysAgoAt(22, 10), action: "Open", total: 30, price: 0.6 },
+    { id: "t2", time: daysAgoAt(21, 12), action: "Add", total: 30, price: 0.6 },
   ],
 };
 
@@ -568,9 +568,9 @@ const detailCashout: SettlementDetailVM = {
   leverage: 2,
   sideWord: "ARS +1.5",
   outcomeWon: false,
-  openedAt: "2026-08-11T18:00:00Z",
-  closedAt: "2026-08-12T20:10:00Z",
-  trades: [{ id: "t1", time: "2026-08-11T18:00:00Z", action: "Open", total: 150, price: 0.37 }],
+  openedAt: daysAgoAt(20, 18),
+  closedAt: daysAgoAt(19, 20, 10),
+  trades: [{ id: "t1", time: daysAgoAt(20, 18), action: "Open", total: 150, price: 0.37 }],
 };
 
 const detailLost: SettlementDetailVM = {
@@ -586,9 +586,9 @@ const detailLost: SettlementDetailVM = {
   leverage: 1,
   sideWord: "Up",
   outcomeWon: false,
-  openedAt: "2026-08-14T01:40:00Z",
-  closedAt: "2026-08-14T08:00:00Z",
-  trades: [{ id: "t1", time: "2026-08-14T01:40:00Z", action: "Open", total: 100, price: 0.42 }],
+  openedAt: daysAgoAt(17, 1, 40),
+  closedAt: daysAgoAt(17, 8),
+  trades: [{ id: "t1", time: daysAgoAt(17, 1, 40), action: "Open", total: 100, price: 0.42 }],
 };
 
 const seriesVm: SeriesDetailVM = {
@@ -597,9 +597,9 @@ const seriesVm: SeriesDetailVM = {
   isDailyRounds: true,
   segmentLabel: "Standard",
   rounds: [
-    { id: "r3", closedAt: "2026-08-14T12:20:00Z", sideWord: "Up", autoClosed: false, net: -15.15 },
-    { id: "r2", closedAt: "2026-08-13T12:20:00Z", sideWord: "Up", autoClosed: false, net: 17.85 },
-    { id: "r1", closedAt: "2026-08-12T12:20:00Z", sideWord: "Up", autoClosed: true, net: -15.15 },
+    { id: "r3", closedAt: daysAgoAt(17, 12, 20), sideWord: "Up", autoClosed: false, net: -15.15 },
+    { id: "r2", closedAt: daysAgoAt(18, 12, 20), sideWord: "Up", autoClosed: false, net: 17.85 },
+    { id: "r1", closedAt: daysAgoAt(19, 12, 20), sideWord: "Up", autoClosed: true, net: -15.15 },
   ],
   cost: 45,
   fees: 0.45,
@@ -612,8 +612,8 @@ const seriesAllWon: SeriesDetailVM = {
   ...seriesVm,
   seriesName: "Bitcoin — up or down?",
   rounds: [
-    { id: "w2", closedAt: "2026-08-14T12:20:00Z", sideWord: "Up", autoClosed: false, net: 18.4 },
-    { id: "w1", closedAt: "2026-08-13T12:20:00Z", sideWord: "Up", autoClosed: false, net: 21.1 },
+    { id: "w2", closedAt: daysAgoAt(17, 12, 20), sideWord: "Up", autoClosed: false, net: 18.4 },
+    { id: "w1", closedAt: daysAgoAt(18, 12, 20), sideWord: "Up", autoClosed: false, net: 21.1 },
   ],
   cost: 30,
   fees: 0.3,
@@ -626,8 +626,8 @@ const seriesAllLost: SeriesDetailVM = {
   ...seriesVm,
   seriesName: "Solana — up or down?",
   rounds: [
-    { id: "l2", closedAt: "2026-08-14T12:20:00Z", sideWord: "Down", autoClosed: true, net: -15 },
-    { id: "l1", closedAt: "2026-08-13T12:20:00Z", sideWord: "Down", autoClosed: false, net: -15 },
+    { id: "l2", closedAt: daysAgoAt(17, 12, 20), sideWord: "Down", autoClosed: true, net: -15 },
+    { id: "l1", closedAt: daysAgoAt(18, 12, 20), sideWord: "Down", autoClosed: false, net: -15 },
   ],
   cost: 30,
   fees: 0.3,
@@ -642,8 +642,8 @@ const seriesBoostWeekly: SeriesDetailVM = {
   isDailyRounds: false,
   segmentLabel: "Boost",
   rounds: [
-    { id: "b2", closedAt: "2026-08-12T20:00:00Z", sideWord: "ARS +1.5", autoClosed: false, net: 24 },
-    { id: "b1", closedAt: "2026-08-05T20:00:00Z", sideWord: "ARS -0.5", autoClosed: false, net: -12 },
+    { id: "b2", closedAt: daysAgoAt(19, 20), sideWord: "ARS +1.5", autoClosed: false, net: 24 },
+    { id: "b1", closedAt: daysAgoAt(26, 20), sideWord: "ARS -0.5", autoClosed: false, net: -12 },
   ],
   cost: 60,
   fees: 0.6,
@@ -789,7 +789,7 @@ export const PortfolioSettledLoadMorePreview = () => (
     <SettledList
       groups={[
         ...groups,
-        { key: "2026-06", label: "JUNE 2026", rows: [settled({ title: "US CPI above 3%", metaParts: ["Yes", "Jun 12"], net: 12 })] },
+        ...groupByMonth([settled({ daysAgo: 75, title: "US CPI above 3%", metaHead: ["Yes"], net: 12 })]),
       ]}
     />
   </div>
