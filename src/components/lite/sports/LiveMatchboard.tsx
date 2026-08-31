@@ -693,9 +693,9 @@ export const LiveMatchboard = ({ event }: { event: MatchboardEvent }) => {
   if (isMobile) {
     return (
       <div ref={sentinel}>
-        <MobileBar m={m} height={62} />
+        <MobileBar m={m} sticky={false} />
         {m.sealed && (m.status === "live" || m.status === "break") ? (
-          <div className="mt-1" style={{ fontSize: 10.5, color: "#6B727C" }}>
+          <div style={{ marginTop: 8, fontSize: 10.5, color: "#6B727C" }}>
             Scorecards sealed until the decision
           </div>
         ) : null}
@@ -704,7 +704,7 @@ export const LiveMatchboard = ({ event }: { event: MatchboardEvent }) => {
             className="fixed left-0 right-0 z-30"
             style={{ top: "var(--mobile-header-h)" }}
           >
-            <MobileBar m={m} height={45} />
+            <MobileBar m={m} sticky />
           </div>
         ) : null}
       </div>
