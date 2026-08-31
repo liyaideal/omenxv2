@@ -209,13 +209,6 @@ export const PortfolioKpiMobilePreview = () => (
         <KpiCard label="NOW WORTH" value={money(0)} sub={`${signedMoney(0)} · +0.0%`} />
       </KpiGrid>
     </div>
-    <div>
-      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Settled · 移动 2 卡</p>
-      <KpiGrid cols={2}>
-        <KpiCard label="WIN RATE" value="58%" sub="7 of 12" />
-        <KpiCard label="NET PROFIT" value={signedMoney(214)} sub="12 settled" subColor={VOLT} />
-      </KpiGrid>
-    </div>
   </div>
 );
 
