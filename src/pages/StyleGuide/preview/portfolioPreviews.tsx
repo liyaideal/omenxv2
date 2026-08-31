@@ -886,3 +886,309 @@ export const PortfolioLiveSelectPreview = () => {
     </div>
   );
 };
+
+/* ============================================================
+   Ⓔ 区补齐 · PF-9 / PF-11 / PF-12 / PF-14 / PF-15 移动挂单
+   全部挂生产 LiveCard / LiveRow / PendingOrdersRow，只换 fixture。
+   ============================================================ */
+
+/** PF-9 · SIDE chip 六态（二元 / 多选 / 别名 · 长文截断）。 */
+const sideChipRows: LiteLiveRow[] = [
+  { ...base, id: "pf9-bin-yes", eventName: "Bitcoin above $70,000", side: "yes", sideWord: "Yes", optionName: null, priceNow: 0.73 },
+  { ...base, id: "pf9-bin-no", eventName: "ETH above $4,000 today", side: "no", sideWord: "No", optionName: null, priceNow: 0.58 },
+  { ...base, id: "pf9-multi-yes", eventName: "Fed decision in September", categoryLabel: "Finance", side: "yes", sideWord: "Yes", optionName: "25 bps hike", priceNow: 0.05 },
+  { ...base, id: "pf9-multi-no", eventName: "Which film tops the 2026 worldwide box office?", categoryLabel: "Social", side: "no", sideWord: "No", optionName: "Avengers: Doomsday", priceNow: 0.09 },
+  { ...base, id: "pf9-alias", eventName: "Argentina vs Brazil", categoryLabel: "Soccer", side: "yes", sideWord: "ARS +1.5", optionName: null, priceNow: 0.87 },
+  { ...base, id: "pf9-alias-long", eventName: "Borussia Dortmund vs Bayern", categoryLabel: "Soccer", side: "no", sideWord: "Borussia Dortmund +1.5 asian handicap", optionName: null, priceNow: 0.44 },
+];
+
+export const PortfolioSideChipPreview = () => (
+  <div className="bg-background py-4">
+    <LiveRowHeader />
+    {sideChipRows.map((r) => (
+      <LiveRow key={r.id} row={r} />
+    ))}
+  </div>
+);
+
+export const PortfolioSideChipMobilePreview = () => (
+  <div className="flex flex-col gap-2 bg-background p-4">
+    {sideChipRows.map((r) => (
+      <LiveCard key={r.id} row={r} />
+    ))}
+  </div>
+);
+
+/** PF-11 · hot 只由 auto-close 距离决定，与盈亏正负无关。 */
+const hotRows: LiteLiveRow[] = [
+  { ...base, id: "pf11-normal", eventName: "Bitcoin above $70,000", hot: false, profit: -18.4, nowWorth: 101.6, autoClose: { kind: "level" as const, price: 0.12 } },
+  { ...base, id: "pf11-hot-loss", eventName: "NVIDIA closes above $190", categoryLabel: "Stocks", hot: true, profit: -42.1, nowWorth: 77.9, autoClose: { kind: "level" as const, price: 0.35 } },
+  { ...base, id: "pf11-hot-win", eventName: "Arsenal to beat Liverpool", categoryLabel: "Soccer", hot: true, profit: 26.4, nowWorth: 146.4, autoClose: { kind: "level" as const, price: 0.35 } },
+];
+
+export const PortfolioHotPreview = () => (
+  <div className="bg-background py-4">
+    <LiveRowHeader />
+    {hotRows.map((r) => (
+      <LiveRow key={r.id} row={r} />
+    ))}
+  </div>
+);
+
+export const PortfolioHotMobilePreview = () => (
+  <div className="flex flex-col gap-2 bg-background p-4">
+    {hotRows.map((r) => (
+      <LiveCard key={r.id} row={r} />
+    ))}
+  </div>
+);
+
+/** PF-12 · Standard 段：meta 无 Boost 后缀，句子无 auto-close 段。 */
+const standardRows: LiteLiveRow[] = [
+  {
+    ...base,
+    id: "pf12-up",
+    eventName: "Tencent (0700.HK) — will it close higher today?",
+    categoryLabel: "Stocks",
+    settlesAt: inDays(0, 16),
+    segment: "standard",
+    leverageNum: 1,
+    autoClose: { kind: "none" as const },
+    side: "yes",
+    sideWord: "Up",
+    optionName: null,
+    priceNow: 0.53,
+    cost: 200,
+    nowWorth: 214,
+    profit: 14,
+    ifWins: 380,
+    tradePath: "/spot",
+  },
+  {
+    ...base,
+    id: "pf12-down",
+    eventName: "9988.HK closes up today",
+    categoryLabel: "Stocks",
+    settlesAt: inDays(0, 16),
+    segment: "standard",
+    leverageNum: 1,
+    autoClose: { kind: "none" as const },
+    side: "no",
+    sideWord: "Down",
+    optionName: null,
+    priceNow: 0.47,
+    cost: 250,
+    nowWorth: 232,
+    profit: -18,
+    ifWins: 500,
+    tradePath: "/spot",
+  },
+];
+
+export const PortfolioStandardLivePreview = () => (
+  <div className="bg-background py-4">
+    <LiveRowHeader />
+    {standardRows.map((r) => (
+      <LiveRow key={r.id} row={r} />
+    ))}
+  </div>
+);
+
+export const PortfolioStandardLiveMobilePreview = () => (
+  <div className="flex flex-col gap-2 bg-background p-4">
+    {standardRows.map((r) => (
+      <LiveCard key={r.id} row={r} />
+    ))}
+  </div>
+);
+
+/** PF-14 · settleLabel() 三分支 + 缺失分支。 */
+const settlesRows: LiteLiveRow[] = [
+  { ...base, id: "pf14-today", eventName: "Bitcoin above $70,000", settlesAt: inDays(0, 16) },
+  { ...base, id: "pf14-sameyear", eventName: "Fed cuts in September", categoryLabel: "Finance", settlesAt: inDays(21, 4, 30) },
+  { ...base, id: "pf14-crossyear", eventName: "Who wins the 2027 Super Bowl?", categoryLabel: "Social", settlesAt: inDays(400, 12) },
+  { ...base, id: "pf14-missing", eventName: "Will Apple announce a foldable iPhone?", categoryLabel: "Tech", settlesAt: null },
+];
+
+export const PortfolioSettlesTimePreview = () => (
+  <div className="bg-background py-4">
+    <LiveRowHeader />
+    {settlesRows.map((r) => (
+      <LiveRow key={r.id} row={r} />
+    ))}
+  </div>
+);
+
+export const PortfolioSettlesTimeMobilePreview = () => (
+  <div className="flex flex-col gap-2 bg-background p-4">
+    {settlesRows.map((r) => (
+      <LiveCard key={r.id} row={r} />
+    ))}
+  </div>
+);
+
+/** PF-15 移动帧 · 与桌面同一个 PendingOrdersRow。 */
+export const PortfolioPendingMobilePreview = () => (
+  <div className="space-y-4 bg-background p-4">
+    <div>
+      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">折叠态</p>
+      <PendingOrdersRow orders={pendingOrders} />
+    </div>
+    <div>
+      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">展开态（逐单行 · 点击跳 Pro）</p>
+      <AutoExpand>
+        <PendingOrdersRow orders={pendingOrders} />
+      </AutoExpand>
+    </div>
+    <div>
+      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">orders = []</p>
+      <PendingOrdersRow orders={[]} />
+      <p className="pt-1 text-[11px] text-[#6B7280]">↑ 组件 return null，移动端同样不占高度。</p>
+    </div>
+  </div>
+);
+
+/* ============================================================
+   Ⓕ 区 · 批量平仓 PF-16 桌面 / PF-17 动作条 / PF-18 确认层两态
+   ============================================================ */
+
+const batchRows: LiteLiveRow[] = [
+  { ...base, id: "pf-batch-1", eventName: "Bitcoin above $70,000", nowWorth: 158.4, profit: 38.4 },
+  { ...base, id: "pf-batch-2", eventName: "ETH above $4,000 today", nowWorth: 77.9, profit: -42.1, side: "no", sideWord: "No" },
+  { ...base, id: "pf-batch-3", eventName: "Arsenal to beat Liverpool", categoryLabel: "Soccer", sideWord: "ARS +1.5", nowWorth: 146.4, profit: 26.4 },
+  { ...base, id: "pf-batch-4", eventName: "NVIDIA closes above $190", categoryLabel: "Stocks", nowWorth: 181.5, profit: 61.5 },
+  { ...base, id: "pf-batch-5", eventName: "US CPI above 3% in September", categoryLabel: "Finance", nowWorth: 120, profit: 0 },
+];
+
+/** PF-16 桌面帧 · 选择模式下的行式网格（勾选列 + 单行按钮隐藏）。 */
+export const PortfolioLiveSelectDesktopPreview = () => {
+  const [selected, setSelected] = useState<Set<string>>(new Set(["pf-batch-1", "pf-batch-3"]));
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const toggle = (r: LiteLiveRow) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(r.id)) next.delete(r.id);
+      else next.add(r.id);
+      return next;
+    });
+  const rows = batchRows.slice(0, 3);
+  const selectedRows = rows.filter((r) => selected.has(r.id));
+  return (
+    <div className="bg-background pb-4">
+      <div className="flex items-center justify-between gap-3 px-4 pt-3">
+        <SegmentChips value="boost" onChange={() => {}} boostCount={3} standardCount={1} />
+        <SelectToolbar
+          count={selectedRows.length}
+          total={rows.length}
+          onSelectAll={() => setSelected(new Set(rows.map((r) => r.id)))}
+          onClear={() => setSelected(new Set())}
+          onCancel={() => setSelected(new Set())}
+        />
+      </div>
+      <div className="pt-3">
+        <LiveRowHeader selectMode />
+        {rows.map((r) => (
+          <LiveRow
+            key={r.id}
+            row={r}
+            selectMode
+            selected={selected.has(r.id)}
+            onToggleSelect={toggle}
+          />
+        ))}
+      </div>
+      {selectedRows.length > 0 && <div className="h-[76px]" aria-hidden="true" />}
+      <BatchActionBar rows={selectedRows} onCashOut={() => setConfirmOpen(true)} />
+      <BatchCashOutConfirm
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        rows={selectedRows}
+        isMobile={false}
+        closingLabel={null}
+        onConfirm={() => setConfirmOpen(false)}
+      />
+    </div>
+  );
+};
+
+/** PF-17 · 吸底动作条本体（N=1 / N=3；N=0 不渲染）。 */
+const BarStack = () => (
+  <>
+    <div className="space-y-2 px-4 pt-3 text-[11px] text-[#6B7280]">
+      <p>N = 0 → BatchActionBar return null（下方无任何 chrome）。</p>
+      <BatchActionBar rows={[]} onCashOut={() => {}} />
+      <p>N = 1 / N = 3 见帧底吸底条（两条叠加仅为字典陈列）。</p>
+    </div>
+    <div className="h-[160px]" aria-hidden="true" />
+    <div className="pb-[76px]">
+      <BatchActionBar rows={batchRows.slice(0, 1)} onCashOut={() => {}} />
+    </div>
+    <BatchActionBar rows={batchRows.slice(0, 3)} onCashOut={() => {}} />
+  </>
+);
+
+export const PortfolioBatchBarPreview = () => (
+  <div className="bg-background pb-4">
+    <BarStack />
+  </div>
+);
+
+export const PortfolioBatchBarMobilePreview = () => (
+  <div className="bg-background pb-4">
+    <BarStack />
+  </div>
+);
+
+/** PF-18 · 确认层空闲态（桌面 Dialog / 移动 MobileDrawer）。 */
+export const PortfolioBatchConfirmPreview = () => (
+  <div className="min-h-[520px] bg-background p-4">
+    <BatchCashOutConfirm
+      open
+      onOpenChange={() => {}}
+      rows={batchRows}
+      isMobile={false}
+      closingLabel={null}
+      onConfirm={() => {}}
+    />
+  </div>
+);
+
+export const PortfolioBatchConfirmMobilePreview = () => (
+  <div className="min-h-[520px] bg-background p-4">
+    <BatchCashOutConfirm
+      open
+      onOpenChange={() => {}}
+      rows={batchRows}
+      isMobile
+      closingLabel={null}
+      onConfirm={() => {}}
+    />
+  </div>
+);
+
+/** PF-18 · 确认层执行中（两个按钮均禁用，主按钮显示进度）。 */
+export const PortfolioBatchClosingPreview = () => (
+  <div className="min-h-[520px] bg-background p-4">
+    <BatchCashOutConfirm
+      open
+      onOpenChange={() => {}}
+      rows={batchRows}
+      isMobile={false}
+      closingLabel="Closing 2 / 5…"
+      onConfirm={() => {}}
+    />
+  </div>
+);
+
+export const PortfolioBatchClosingMobilePreview = () => (
+  <div className="min-h-[520px] bg-background p-4">
+    <BatchCashOutConfirm
+      open
+      onOpenChange={() => {}}
+      rows={batchRows}
+      isMobile
+      closingLabel="Closing 2 / 5…"
+      onConfirm={() => {}}
+    />
+  </div>
+);
