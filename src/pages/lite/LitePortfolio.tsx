@@ -31,6 +31,7 @@ import {
   PendingOrdersRow,
 } from "@/components/portfolio/lite/LiveCards";
 import {
+  SelectEntry,
   SelectToolbar,
   BatchActionBar,
   BatchCashOutConfirm,
@@ -452,13 +453,7 @@ export default function LitePortfolio() {
                 }}
               />
             ) : (
-              <button
-                type="button"
-                onClick={() => setSelectMode(true)}
-                className="py-[7px] text-[12.5px] font-semibold text-[#33D6FF]"
-              >
-                Select
-              </button>
+              <SelectEntry onEnter={() => setSelectMode(true)} />
             ))}
         </div>
       )}

@@ -76,7 +76,7 @@ const CHROME_CASES: SectionCase[] = [
   {
     key: "portfolio-lite-select-entry",
     label: "PF-3 · Select 入口与选择工具条（SelectEntry · SelectToolbar）",
-    note: "Select 与 SelectToolbar 在 chips 行右侧互斥占位：未进入选择模式时是 Select 文字按钮，进入后整块换成工具条。（Select 入口下一单提取为 SelectEntry 组件后本 case 改挂真件）",
+    note: "Select 与 SelectToolbar 在 chips 行右侧互斥占位：未进入选择模式时是 Select 文字按钮，进入后整块换成工具条。",
     spec: [
       {
         state: "入口可见",

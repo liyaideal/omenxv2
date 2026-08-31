@@ -20,7 +20,7 @@ import {
   signedMoney,
 } from "@/components/portfolio/lite/parts";
 import { LiveCard, LiveRow, LiveRowHeader, PendingOrdersRow } from "@/components/portfolio/lite/LiveCards";
-import { SelectToolbar, BatchActionBar, BatchCashOutConfirm } from "@/components/portfolio/lite/BatchCashOut";
+import { SelectEntry, SelectToolbar, BatchActionBar, BatchCashOutConfirm } from "@/components/portfolio/lite/BatchCashOut";
 import { SettledList } from "@/components/portfolio/lite/SettledList";
 import {
   SettlementDetailDesktop,
@@ -346,11 +346,7 @@ export const PortfolioVoucherHairlinePreview = () => (
   </div>
 );
 
-/**
- * PF-3 · Select 入口与选择工具条。
- * 入口在生产里仍是 LitePortfolio.tsx 内的裸 <button>（尚未提取成组件），此处
- * 按生产那段 JSX 的类名与文案逐字渲染；工具条挂真 SelectToolbar。
- */
+/** PF-3 · Select 入口与选择工具条（挂真 SelectEntry + 真 SelectToolbar）。 */
 export const PortfolioSelectEntryPreview = () => {
   const [seg, setSeg] = useState<"boost" | "standard">("boost");
   const [seg2, setSeg2] = useState<"boost" | "standard">("boost");
@@ -362,9 +358,7 @@ export const PortfolioSelectEntryPreview = () => {
         </p>
         <div className="flex items-center justify-between gap-3">
           <SegmentChips value={seg} onChange={setSeg} boostCount={6} standardCount={1} />
-          <button type="button" className="py-[7px] text-[12.5px] font-semibold text-[#33D6FF]">
-            Select
-          </button>
+          <SelectEntry onEnter={() => {}} />
         </div>
       </div>
       <div>
