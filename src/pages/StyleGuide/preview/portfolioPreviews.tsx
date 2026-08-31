@@ -370,63 +370,88 @@ export const PortfolioKpiSettledMobilePreview = () => (
 );
 
 
-const settled = (o: Partial<LiteSettledRow>): LiteSettledRow => ({
-  id: Math.random().toString(36).slice(2),
-  title: "Bitcoin above $70,000 on Aug 1",
-  metaParts: ["Up", "2× Boost", "Aug 1"],
-  remark: "none",
-  net: 235,
-  segment: "boost",
-  closedAt: "2026-08-01T14:00:00Z",
-  isSeries: false,
-  won: true,
-  ...o,
-});
+/* Settled fixtures — every date is relative to "now" so the dictionary never
+   rots, and every visible date string is derived through the production
+   helpers (settledDayLabel / monthGroupLabel / monthKey) rather than typed. */
+let settledSeq = 0;
+const settled = (
+  o: Partial<LiteSettledRow> & { daysAgo?: number; metaHead?: string[]; metaTail?: string[] },
+): LiteSettledRow => {
+  const { daysAgo = 16, metaHead = ["Up", "2× Boost"], metaTail = [], ...rest } = o;
+  const closedAt = daysAgoAt(daysAgo, 14);
+  return {
+    id: `pf-settled-${++settledSeq}`,
+    title: "Bitcoin above $70,000",
+    metaParts: [...metaHead, settledDayLabel(closedAt), ...metaTail],
+    remark: "none",
+    net: 235,
+    segment: "boost",
+    closedAt,
+    isSeries: false,
+    won: true,
+    ...rest,
+  };
+};
 
-const groups: LiteMonthGroup[] = [
-  {
-    key: "2026-08",
-    label: "AUGUST 2026",
-    rows: [
-      settled({}),
-      settled({
-        title: "ETH above $4,000 today",
-        metaParts: ["Up", "3× Boost", "Aug 9", "auto-closed"],
-        remark: "auto_close",
-        net: -88,
-        won: false,
-      }),
-      settled({
-        title: "Arsenal to beat Liverpool",
-        metaParts: ["ARS +1.5", "Aug 12"],
-        remark: "cashout",
-        net: 42.5,
-      }),
-      settled({
-        title: "9988.HK closes up",
-        metaParts: ["Series", "won 1 of 3", "Aug 14"],
-        remark: "none",
-        net: -31,
-        isSeries: true,
-        seriesId: "9988.HK%20closes%20up",
-        won: false,
-      }),
-      settled({
-        title: "US jobs report beats forecast",
-        metaParts: ["Yes", "Aug 15"],
-        remark: "none",
-        net: 0.002,
-        segment: "standard",
-        won: true,
-      }),
-    ],
-  },
-  {
-    key: "2026-07",
-    label: "JULY 2026",
-    rows: [settled({ title: "US CPI above 3%", metaParts: ["Yes", "Jul 22"], net: 96 })],
-  },
-];
+/** Group by real month so the group header can never disagree with its rows. */
+const groupByMonth = (rows: LiteSettledRow[]): LiteMonthGroup[] => {
+  const order: string[] = [];
+  const map = new Map<string, LiteSettledRow[]>();
+  rows.forEach((r) => {
+    const k = monthKey(r.closedAt);
+    if (!map.has(k)) {
+      map.set(k, []);
+      order.push(k);
+    }
+    map.get(k)!.push(r);
+  });
+  return order.map((key) => ({
+    key,
+    label: monthGroupLabel(map.get(key)![0].closedAt),
+    rows: map.get(key)!,
+  }));
+};
+
+const groups: LiteMonthGroup[] = groupByMonth([
+  settled({ daysAgo: 16 }),
+  settled({
+    daysAgo: 19,
+    title: "ETH above $4,000 today",
+    metaHead: ["Up", "3× Boost"],
+    metaTail: ["auto-closed"],
+    remark: "auto_close",
+    net: -88,
+    won: false,
+  }),
+  settled({
+    daysAgo: 22,
+    title: "Arsenal to beat Liverpool",
+    metaHead: ["ARS +1.5"],
+    remark: "cashout",
+    net: 42.5,
+  }),
+  settled({
+    daysAgo: 25,
+    title: "9988.HK closes up",
+    metaHead: ["Series", "won 1 of 3"],
+    remark: "none",
+    net: -31,
+    isSeries: true,
+    seriesId: "9988.HK%20closes%20up",
+    won: false,
+  }),
+  settled({
+    daysAgo: 28,
+    title: "US jobs report beats forecast",
+    metaHead: ["Yes"],
+    remark: "none",
+    net: 0.002,
+    segment: "standard",
+    won: true,
+  }),
+  settled({ daysAgo: 45, title: "US CPI above 3%", metaHead: ["Yes"], net: 96 }),
+]);
+
 
 export const PortfolioSettledListPreview = () => (
   <div className="bg-background pb-4">
