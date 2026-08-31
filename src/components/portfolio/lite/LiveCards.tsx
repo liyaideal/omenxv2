@@ -193,11 +193,15 @@ export const LiveCard = ({
 /* ---------------------------- desktop rows ---------------------------- */
 export const DESKTOP_GRID = "minmax(0,1fr) minmax(110px,200px) 96px 104px 100px 150px 170px";
 
-export const LiveRowHeader = () => (
+const gridFor = (selectMode?: boolean) =>
+  selectMode ? `28px ${DESKTOP_GRID}` : DESKTOP_GRID;
+
+export const LiveRowHeader = ({ selectMode }: { selectMode?: boolean }) => (
   <div
     className="grid px-4 py-2 text-[10px] text-[#6B7280]"
-    style={{ gridTemplateColumns: DESKTOP_GRID, letterSpacing: "1.1px" }}
+    style={{ gridTemplateColumns: gridFor(selectMode), letterSpacing: "1.1px" }}
   >
+    {selectMode && <span />}
     <span>CALL</span>
     <span>SIDE</span>
     <span>COST</span>
@@ -212,32 +216,45 @@ export const LiveRow = ({
   row,
   onCashOut,
   onShare,
+  selectMode,
+  selected,
+  onToggleSelect,
 }: {
   row: LiteLiveRow;
   onCashOut?: (row: LiteLiveRow) => void;
   /** Pure-display share entry (SH-b §3). Omitted = zero DOM change. */
   onShare?: (row: LiteLiveRow) => void;
-}) => {
+} & LiveSelectProps) => {
 
   const goToMarket = useGoToMarket();
   const hot = row.hot;
 
-
+  const activate = () =>
+    selectMode ? onToggleSelect?.(row) : goToMarket(row.tradePath);
 
   return (
     <div
       role="button"
       tabIndex={0}
-      onClick={() => goToMarket(row.tradePath)}
-      onKeyDown={(e) => e.key === "Enter" && goToMarket(row.tradePath)}
+      onClick={activate}
+      onKeyDown={(e) => e.key === "Enter" && activate()}
       className="grid items-center px-4 py-[13px] text-left"
       style={{
-        gridTemplateColumns: DESKTOP_GRID,
+        gridTemplateColumns: gridFor(selectMode),
         borderTop: "1px solid #1A1E24",
-        boxShadow: hot ? "inset 3px 0 0 rgba(255,92,92,.7)" : undefined,
-        background: hot ? "rgba(255,92,92,.04)" : undefined,
+        boxShadow: hot
+          ? "inset 3px 0 0 rgba(255,92,92,.7)"
+          : selectMode && selected
+            ? "inset 3px 0 0 rgba(51,214,255,.7)"
+            : undefined,
+        background: hot
+          ? "rgba(255,92,92,.04)"
+          : selectMode && selected
+            ? "rgba(51,214,255,.04)"
+            : undefined,
       }}
     >
+      {selectMode && <CheckDot selected={!!selected} />}
       <div className="min-w-0 pr-3">
         <div className="truncate text-[13.5px] font-semibold text-[#F2F3F5]">{row.eventName}</div>
         <div className="truncate text-[11px] text-[#6B7280]">
