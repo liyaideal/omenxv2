@@ -390,6 +390,11 @@ export default function LitePortfolio() {
             </div>
           )}
 
+          {selectMode && selectedRows.length > 0 && (
+            // Spacer matching the fixed BatchActionBar height so the bar never
+            // covers the last list row when scrolled to the end.
+            <div className="h-[76px]" aria-hidden="true" />
+          )}
           {selectMode && (
             <BatchActionBar rows={selectedRows} onCashOut={() => setConfirmOpen(true)} />
           )}

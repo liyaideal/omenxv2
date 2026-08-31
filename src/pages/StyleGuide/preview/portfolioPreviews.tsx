@@ -18,7 +18,7 @@ import {
   signedMoney,
 } from "@/components/portfolio/lite/parts";
 import { LiveCard, LiveRow, LiveRowHeader, PendingOrdersRow } from "@/components/portfolio/lite/LiveCards";
-import { SelectToolbar, BatchCashOutConfirm } from "@/components/portfolio/lite/BatchCashOut";
+import { SelectToolbar, BatchActionBar, BatchCashOutConfirm } from "@/components/portfolio/lite/BatchCashOut";
 import { SettledList } from "@/components/portfolio/lite/SettledList";
 import {
   SettlementDetailDesktop,
@@ -808,23 +808,10 @@ export const PortfolioLiveSelectPreview = () => {
           />
         ))}
       </div>
-      <div className="px-4 pt-3">
-        <div className="flex items-center gap-3 rounded-[12px] border border-[#2A2F38] bg-[#12151A]/95 px-4 py-3">
-          <div className="min-w-0 flex-1">
-            <div className="text-[12.5px] font-semibold text-[#F2F3F5]">
-              {selectedRows.length} selected
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => selectedRows.length > 0 && setConfirmOpen(true)}
-            className="h-10 rounded-[10px] bg-primary px-5 text-[13px] font-semibold text-primary-foreground disabled:opacity-40"
-            disabled={selectedRows.length === 0}
-          >
-            Cash out {selectedRows.length}
-          </button>
-        </div>
-      </div>
+      {/* Spacer matching the fixed BatchActionBar height so it never covers
+          the last card; the bar itself pins to the bottom of this frame. */}
+      {selectedRows.length > 0 && <div className="h-[76px]" aria-hidden="true" />}
+      <BatchActionBar rows={selectedRows} onCashOut={() => setConfirmOpen(true)} />
       <BatchCashOutConfirm
         open={confirmOpen}
         onOpenChange={setConfirmOpen}

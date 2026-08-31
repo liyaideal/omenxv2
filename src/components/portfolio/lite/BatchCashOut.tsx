@@ -52,8 +52,9 @@ export const BatchActionBar = ({
   const worth = rows.reduce((s, r) => s + r.nowWorth, 0);
   const profit = rows.reduce((s, r) => s + r.profit, 0);
   return (
-    <div className="sticky bottom-[76px] lg:bottom-4 z-30 px-4 lg:px-0 pb-2">
-      <div className="flex items-center gap-3 rounded-[12px] border border-[#2A2F38] bg-[#12151A]/95 px-4 py-3 backdrop-blur">
+    <div className="fixed inset-x-0 bottom-[76px] lg:bottom-4 z-30">
+      <div className="mx-auto flex w-full max-w-7xl items-center gap-3 px-4 lg:px-6">
+        <div className="flex flex-1 items-center gap-3 rounded-[12px] border border-[#2A2F38] bg-[#12151A]/95 px-4 py-3 backdrop-blur">
         <div className="min-w-0 flex-1">
           <div className="text-[12.5px] font-semibold text-[#F2F3F5]">
             {rows.length} selected
@@ -66,6 +67,7 @@ export const BatchActionBar = ({
         <Button className="h-10 rounded-[10px] px-5" onClick={onCashOut}>
           Cash out {rows.length}
         </Button>
+        </div>
       </div>
     </div>
   );
