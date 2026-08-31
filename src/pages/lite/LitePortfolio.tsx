@@ -96,7 +96,14 @@ export default function LitePortfolio() {
 
   const p = useLitePortfolio();
   const { user } = useAuth();
+  const { positions, closePosition, refetch } = usePositions();
   const [manualShare, setManualShare] = useState<LiteManualShareSnap | null>(null);
+
+  /* --------------------- batch cash-out selection --------------------- */
+  const [selectMode, setSelectMode] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [closingLabel, setClosingLabel] = useState<string | null>(null);
 
   // Live row share — same-source figures, frozen at click time.
   const shareRow = (r: LiteLiveRow) =>
