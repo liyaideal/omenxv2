@@ -129,7 +129,9 @@ const buildModel = (event: MatchboardEvent, now: number): Model => {
         ? isMma
           ? `${league} · Between rounds`
           : `${league} · Map ${idx} starting`
-        : league;
+        : status === "upcoming" && isMma && total > 0
+          ? `${league} · ${total} rounds`
+          : league;
 
   const scoreText = `${homeMaps}–${awayMaps}`;
   const rightValue =
@@ -311,14 +313,19 @@ const Matrix = ({ m }: { m: Model }) => {
       const now = colHighlight(n);
       if (m.isMma) {
         if (m.status === "settled") {
-          const played = m.idx != null && n <= m.idx;
-          if (!played)
+          if (m.idx == null || m.winnerHome == null)
             return (
-              <div key={n} style={cellStyle("l", false)}>
+              <div key={n} style={cellStyle("mut", false)}>
+                ·
+              </div>
+            );
+          if (n > m.idx)
+            return (
+              <div key={n} style={cellStyle("mut", false)}>
                 —
               </div>
             );
-          if (m.winnerHome == null)
+          if (n < m.idx)
             return (
               <div key={n} style={cellStyle("mut", false)}>
                 ·
@@ -379,7 +386,7 @@ const Matrix = ({ m }: { m: Model }) => {
         lineHeight: 1,
         textAlign: "right",
         fontVariantNumeric: "tabular-nums",
-        color: dim ? "#5B6270" : "#E7ECF2",
+        color: dim ? "#5B6270" : "#fff",
       }}
     >
       {v}
@@ -455,15 +462,7 @@ const Matrix = ({ m }: { m: Model }) => {
       <div style={{ display: "grid", alignItems: "center", gridTemplateColumns: cols.join(" ") }}>
         <div style={headStyle(false)} />
         {m.showTotals ? (
-          <div
-            style={{
-              ...headStyle(false),
-              fontSize: 9,
-              justifyContent: "flex-end",
-              textAlign: "right",
-              display: "flex",
-            }}
-          >
+          <div style={{ ...headStyle(false), fontSize: 9 }}>
             {m.spec?.unit === "round" ? "rounds" : "maps"}
           </div>
         ) : null}
