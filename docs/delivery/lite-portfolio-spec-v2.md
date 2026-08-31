@@ -134,7 +134,9 @@ preview key 定义在 `src/pages/StyleGuide/sections/pages/LitePortfolioPage.tsx
 | Boost check Details（移动抽屉 / 桌面 Popover） | `portfolio-lite-details-drawer` / `portfolio-lite-details-popover` |
 | 持仓卡全状态（移动） | `portfolio-lite-live-cards` |
 | 桌面行式网格 / 桌面挂单行 | `portfolio-lite-desktop-rows` / `portfolio-lite-pending-desktop` |
-| Settled 列表 / 加载更多 | `portfolio-lite-settled` / `portfolio-lite-settled-loadmore` |
+| Settled 列表 / 加载更多 / 月份折叠 | `portfolio-lite-settled` / `portfolio-lite-settled-loadmore` / `portfolio-lite-settled-collapse` |
+
+> Settled 列表行为补充（移动端 + 桌面端同一组件 `SettledList`）：月份组头是可点击按钮，点击折叠/展开该月全部行，组头带行数计数 `(N)` 与 ChevronDown 方向指示；默认全部展开，折叠状态不持久化（切 tab / 刷新恢复展开）；`Load earlier months` 追加的月份默认展开。
 | 单仓结算详情 · 移动（won / auto_close / cashout / lost） | `portfolio-lite-detail-won-mobile` / `portfolio-lite-detail-autoclosed-mobile` / `portfolio-lite-detail-cashout-mobile` / `portfolio-lite-detail-lost-mobile` |
 | 单仓结算详情 · 桌面（won / auto_close / cashout / lost） | `portfolio-lite-detail-won` / `portfolio-lite-detail-autoclosed` / `portfolio-lite-detail-cashout` / `portfolio-lite-detail-lost` |
 | 系列详情（移动整页 / 桌面 / 两极） | `portfolio-lite-series-mobile-page` / `portfolio-lite-series-detail` / `portfolio-lite-series-extremes` |
