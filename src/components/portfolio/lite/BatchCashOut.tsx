@@ -67,6 +67,7 @@ export const BatchActionBar = ({
         <Button className="h-10 rounded-[10px] px-5" onClick={onCashOut}>
           Cash out {rows.length}
         </Button>
+        </div>
       </div>
     </div>
   );
