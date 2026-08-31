@@ -30,7 +30,11 @@ const readMuted = (): boolean => {
 };
 
 export const useHlsVideo = (src: string | null | undefined, enabled: boolean) => {
-  const ref = useRef<HTMLVideoElement | null>(null);
+  // A callback ref, not useRef: the <video> is conditionally rendered, and a
+  // ref mutation does not re-run effects. Holding the element in state makes
+  // "the element mounted" an actual dependency.
+  const [el, setEl] = useState<HTMLVideoElement | null>(null);
+  const ref = useCallback((node: HTMLVideoElement | null) => setEl(node), []);
   const [state, setState] = useState<VideoState>("idle");
   const [muted, setMutedState] = useState<boolean>(readMuted);
   const bufferTimer = useRef<number | null>(null);
@@ -50,12 +54,12 @@ export const useHlsVideo = (src: string | null | undefined, enabled: boolean) =>
     } catch {
       /* ignore */
     }
-    if (ref.current) ref.current.muted = next;
-  }, []);
+    if (el) el.muted = next;
+  }, [el]);
 
   /** Manual play, for the "tap to play" and "resume" affordances. */
   const play = useCallback(() => {
-    const v = ref.current;
+    const v = el;
     if (!v) return;
     // Resuming always jumps to the live edge — never replay stale buffer.
     try {
@@ -67,15 +71,15 @@ export const useHlsVideo = (src: string | null | undefined, enabled: boolean) =>
       () => setState("playing"),
       () => setState("blocked"),
     );
-  }, []);
+  }, [el]);
 
   const pause = useCallback(() => {
-    ref.current?.pause();
+    el?.pause();
     setState("paused");
-  }, []);
+  }, [el]);
 
   useEffect(() => {
-    const v = ref.current;
+    const v = el;
     if (!v || !src || !enabled) {
       setState("idle");
       return;
@@ -153,7 +157,7 @@ export const useHlsVideo = (src: string | null | undefined, enabled: boolean) =>
       v.load();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [src, enabled]);
+  }, [el, src, enabled]);
 
   return { ref, state, muted, setMuted, play, pause };
 };
