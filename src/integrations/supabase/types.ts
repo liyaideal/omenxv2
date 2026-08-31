@@ -2010,6 +2010,7 @@ export type Database = {
         Args: { p_fixture_id: string }
         Returns: Record<string, unknown>
       }
+      tick_live_matches: { Args: never; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
