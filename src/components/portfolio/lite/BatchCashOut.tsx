@@ -10,7 +10,7 @@ import type { LiteLiveRow } from "@/hooks/useLitePortfolio";
 import { money, signedMoney, livePnlColor } from "./parts";
 
 /* ------------------------- selection toolbar ------------------------- */
-/** Sits between the KPI block and the list when select mode is on. */
+/** Sits inline on the right of the segment-chips row when select mode is on. */
 export const SelectToolbar = ({
   count,
   total,
