@@ -304,3 +304,38 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | **Settled** | 结算空窗（收盘后 1 小时）模块头用词：`Settled · next session in {mm:ss}`。禁止外显 `Settling`。 |
 | **Closed ↑ / Closed ↓** | 仅结算空窗的结果徽章（客观结果色：↑ pulse、↓ volt，非盈亏语义）。`Closed` 不作它用。 |
 | **Last close {price}** | preSession 参照价前缀，整列 muted，且不显示涨跌%。禁用 `Prev close` / `Yesterday`。 |
+
+## Home (`/`, Lite)
+
+首页 = `/` 与 `/events` 同一 `LiteEventsPage`。完整交付口径见 `docs/delivery/lite-home-v1.md`。
+股票三态四条词条已在上方「Stocks · 交易时段（ST-1）」节，本节不重复，引用即可。
+
+| Canonical | 出现位置 | 规则 |
+|---|---|---|
+| **`{SYMBOL} {price} {±x.xx%}`** | 顶部行情 tape 单元（`HomeTape.tsx`） | 一个 cell 三段：symbol 粗体 `#F2F3F5`、price `#C9CED6`、涨跌%走盈亏色。cell 顺序固定 BTC→ETH→SOL→NVDA→TSLA→AAPL→MSFT→META，缺数据静默跳过、不留占位；全缺整条不渲染。 |
+| **● Live markets** | hero 徽标（桌面 / 移动同字） | 全大写由 `textTransform` 呈现，源串保持 `● Live markets`。禁用 `Live now` / `Open markets`。 |
+| **What do you think happens next?** | hero h1（桌面 44px / 移动 27px） | `happens next` 走 LIME 高亮，问号在高亮外。逐字不可改。 |
+| **Pick a topic. Tap Yes or No. That's it.** | hero 副标题 | 三句式逐字不可改；禁止改成 `Buy Yes or No`。 |
+| **● Intraday · Rolling rounds** | Crypto 卡 eyebrow | 与目录 chips 的 `Intraday` 同源词。 |
+| **Will the price go up?** | Crypto 卡问题句 | 问句形态；禁用 `Up or down?`。 |
+| **ROUND** | Crypto 卡 dial 标签 | 时长选择器唯一用词（模块级，三卡同步）。禁用 `Round length` / `Timeframe` / `Interval`。 |
+| **Round open {price}** | Crypto tile 参照价 | 无开盘价时 `Round open —`。禁用 `Open price` / `Start price`。 |
+| **Closes {mm:ss}** | Crypto 卡右上倒计时（橙 `#FF8A3D`） | `Closes` 标为小字全大写呈现，下一行走 `mm:ss`（长于 1 小时按 `formatCountdown()`）。禁用 `Ends in` / `Time left`。 |
+| **Last 8** | Crypto tile 历史点阵（`Last8Strip` 默认 label） | 恒补满 8 格；未开轮为空格。禁用 `History` / `Recent`。 |
+| **Stocks · Closing today** | Stocks 卡 eyebrow | 逐字；禁用 `Daily stocks` / `Today's close`。 |
+| **Will it finish higher than it opened?** | Stocks 卡问题句 | 逐字；禁用含 Up/Down 的缩写句。 |
+| **{n} stocks · {settleLine}** | Stocks 卡头右端（桌面） | `settleLine` 六组合见「Stocks · 交易时段（ST-1）」节。移动端改渲染成单独一行 `● {settleLine}`。 |
+| **Show all {n} →** / **Show less** | Stocks 卡移动端展开器 | 默认显示 5 行；`{n}` = 当前 tab 全部行数。展开器只切换本卡行数，不跳页。 |
+| **Unavailable** | Stocks 行第四态（数据缺失）禁用条 | 与 `Closed` / `Next session` 互斥；不显示价格与涨跌%。 |
+| **● Sports · Match winners** | Sports 卡 eyebrow | 逐字。 |
+| **Who wins the match?** | Sports 卡问题句 | 逐字；禁用 ` v `，对阵一律 ` vs `。 |
+| **TODAY** / **{WEEKDAY} {D}** | Sports 日期胶囊（`buildDayStrip`） | 当日写 `TODAY`，其余写三字母星期缩写全大写 + 日号，如 `MON 31`。星期由查看者本地时间派生。 |
+| **{n} more this week** | Sports 卡溢出计数 | 含被降级与被折叠的 live 场次；卡内条数封顶后剩余全部计入该句。 |
+| **All {n} matches →** | Sports 卡底部入口 | 页内切到 sports 品类，不离开 `/`。 |
+| **✦ Editor's Desk** | Editor's Desk 卡 eyebrow | 逐字（含 `✦`）。 |
+| **What's worth watching** | Editor's Desk 问题句 | 无问号，逐字。 |
+| **+{n} markets →** | Editor's Desk 多市场入口 | `n = optionCount − 1`。 |
+| **All Markets ›** | 目录板头（桌面） | 源串 `All Markets`，由 `textTransform: uppercase` 呈现为 `ALL MARKETS`，`›` 为独立字符。右端配 `{n} open`。 |
+| **{n} open** | 目录板头 / 目录身份卡右端 | 等宽字体，仅数字 + `open`。禁用 `{n} markets open`。 |
+| **Will it happen?** | 目录身份卡 / 移动目录横幅标题 | 逐字。 |
+| **Buy Yes or No on real-world outcomes. Winning shares pay $1.** | 目录身份卡副句 | `$1` 走白色高亮；逐字不可改。 |
