@@ -237,22 +237,6 @@ export const PortfolioKpiDesktopPreview = () => (
         <KpiCard label="PROFIT" value={signedMoney(-41.6)} sub="-13.4%" subColor={RED} />
       </KpiGrid>
     </div>
-    <div>
-      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Settled · 桌面 3 卡</p>
-      <KpiGrid cols={3}>
-        <KpiCard label="WIN RATE" value="58%" sub="7 of 12" />
-        <KpiCard label="NET PROFIT" value={signedMoney(214)} sub="12 settled" subColor={VOLT} />
-        <KpiCard label="RECORD" value="7W 5L" sub="wins · losses" />
-      </KpiGrid>
-    </div>
-    <div>
-      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Settled · 零态</p>
-      <KpiGrid cols={3}>
-        <KpiCard label="WIN RATE" value="0%" sub="0 of 0" />
-        <KpiCard label="NET PROFIT" value={signedMoney(0)} sub="0 settled" />
-        <KpiCard label="RECORD" value="0W 0L" sub="wins · losses" />
-      </KpiGrid>
-    </div>
   </div>
 );
 
