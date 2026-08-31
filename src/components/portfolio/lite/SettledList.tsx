@@ -1,9 +1,12 @@
 // ============================================================
 // Lite /portfolio Settled list — month groups, lazy month loading,
 // series aggregate rows. Literal spec (工单 §4).
+// Month group headers are collapsible (mobile + desktop share this
+// component): tap/click the header to hide or show that month's rows.
 // ============================================================
 import { forwardRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ChevronDown } from "lucide-react";
 import { savePortfolioScroll } from "@/lib/portfolioReturn";
 import type { LiteMonthGroup, LiteSettledRow } from "@/hooks/useLitePortfolio";
 import { RED, signedMoney, pnlColor } from "./parts";
@@ -60,6 +63,16 @@ SettledRow.displayName = "SettledRow";
 
 export const SettledList = ({ groups }: { groups: LiteMonthGroup[] }) => {
   const [visible, setVisible] = useState(2);
+  // Collapsed month keys. Default: every group expanded; not persisted.
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const toggle = (key: string) =>
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+
   if (groups.length === 0) {
     return (
       <div className="py-14 text-center text-[13px] text-[#6B7280]">Nothing settled yet</div>
@@ -67,19 +80,37 @@ export const SettledList = ({ groups }: { groups: LiteMonthGroup[] }) => {
   }
   return (
     <div>
-      {groups.slice(0, visible).map((g) => (
-        <div key={g.key}>
-          <div
-            className="px-4 pb-1.5 pt-4 text-[10px] font-bold text-[#6B7280]"
-            style={{ letterSpacing: "1.4px" }}
-          >
-            {g.label}
+      {groups.slice(0, visible).map((g) => {
+        const isCollapsed = collapsed.has(g.key);
+        return (
+          <div key={g.key}>
+            <button
+              type="button"
+              onClick={() => toggle(g.key)}
+              aria-expanded={!isCollapsed}
+              className="flex w-full items-center gap-1.5 px-4 pb-1.5 pt-4 text-left"
+            >
+              <span
+                className="text-[10px] font-bold text-[#6B7280]"
+                style={{ letterSpacing: "1.4px" }}
+              >
+                {g.label}
+              </span>
+              <span className="font-mono text-[10px] text-[#6B7280]/60">
+                ({g.rows.length})
+              </span>
+              <ChevronDown
+                className={`ml-auto h-3.5 w-3.5 text-[#6B7280] transition-transform duration-200 ${
+                  isCollapsed ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+            {!isCollapsed && g.rows.map((r) => (
+              <SettledRow key={r.id} row={r} />
+            ))}
           </div>
-          {g.rows.map((r) => (
-            <SettledRow key={r.id} row={r} />
-          ))}
-        </div>
-      ))}
+        );
+      })}
       {visible < groups.length && (
         <button
           type="button"
