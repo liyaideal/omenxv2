@@ -410,6 +410,7 @@ const Matrix = ({ m }: { m: Model }) => {
           display: "flex",
           alignItems: "center",
           gap: 12,
+          lineHeight: 1.2,
           padding: "11px 16px 9px",
           borderBottom: "1px solid #16191F",
         }}
