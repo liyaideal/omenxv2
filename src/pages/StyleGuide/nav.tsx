@@ -12,6 +12,7 @@
 // Never import the `./sections` barrel here — it defeats the splitting.
 // ============================================================
 import { lazy, type ComponentType } from "react";
+import { retryChunkImport } from "@/lib/lazyWithRetry";
 
 export interface SectionEntry {
   id: string;
@@ -29,7 +30,7 @@ type P = { isMobile: boolean };
 
 /** Lazy-load a named export as a section component. */
 const lz = (loader: () => Promise<Record<string, unknown>>, name: string) =>
-  lazy(async () => ({ default: (await loader())[name] as ComponentType<P> }));
+  lazy(async () => ({ default: (await retryChunkImport(loader))[name] as ComponentType<P> }));
 
 const s = (id: string, label: string, Comp: ComponentType<P>): SectionEntry => ({
   id,
@@ -48,7 +49,7 @@ const sec = (file: string, name: string) =>
 
 const MobilePatternsSection = lz(() => import("./sections/MobilePatternsSection"), "MobilePatternsSection");
 const LiteSection = lazy(async () => ({
-  default: (await import("./sections/LiteSection")).LiteSection as ComponentType<any>,
+  default: (await retryChunkImport(() => import("./sections/LiteSection"))).LiteSection as ComponentType<any>,
 }));
 const MobilePatternsNode = ({ isMobile }: P) => (
   <>
