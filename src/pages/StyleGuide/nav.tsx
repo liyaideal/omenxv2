@@ -12,6 +12,7 @@
 // Never import the `./sections` barrel here — it defeats the splitting.
 // ============================================================
 import { lazy, type ComponentType } from "react";
+import { retryChunkImport } from "@/lib/lazyWithRetry";
 
 export interface SectionEntry {
   id: string;
