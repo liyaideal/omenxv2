@@ -17,6 +17,17 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-08-31 — Portfolio（Lite）交付说明 v2（DOC-1）
+
+源文档：[../delivery/lite-portfolio-spec-v2.md](../delivery/lite-portfolio-spec-v2.md)
+
+| # | 需求条目 | 参考位置 | Status | QA 测试要点 | Notes |
+|---|---|---|---|---|---|
+| 1 | 异步态（skeleton / error / retry） | §11 | ⬜ | 首屏加载、请求失败、重试后恢复 | 文档标注为待实现项 |
+| 2 | Settled 分页与规模上限 | §12 | ⬜ | 大量结算行的加载更多行为 | 粒度待产品 + 后端拍板（§19） |
+| 3 | Live 行 SIDE chip 颜色规则 | §19 | ⬜ | — | 待 CPO 拍板，勿实现 |
+| 4 | 多选市场 No 腿 chip 文案 | §19 | ⬜ | — | 待 CPO 拍板，勿实现 |
+
 ## 2026-07-22 — 现货展示对齐（轮次 4B）
 
 源文档：[2026-07-22-spot-display-alignment.md](./2026-07-22-spot-display-alignment.md)
