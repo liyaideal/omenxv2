@@ -46,18 +46,46 @@ const metaLine = (row: LiteLiveRow) => {
 const winSentence = (row: LiteLiveRow) =>
   `If it wins you get ${money(row.ifWins)}`;
 
+/* --------------------------- selection bits --------------------------- */
+/** Round checkbox used in batch cash-out select mode. */
+const CheckDot = ({ selected }: { selected: boolean }) => (
+  <span
+    aria-hidden
+    className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full"
+    style={{
+      border: selected ? "1.5px solid #33D6FF" : "1.5px solid #2A2F38",
+      background: selected ? "#33D6FF" : "transparent",
+    }}
+  >
+    {selected && (
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+        <path d="M2 5.2L4.2 7.2L8 3" stroke="#0B0D10" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    )}
+  </span>
+);
 
+/** Optional batch-cash-out selection props. When omitted, cards/rows render exactly as before. */
+export interface LiveSelectProps {
+  selectMode?: boolean;
+  selected?: boolean;
+  onToggleSelect?: (row: LiteLiveRow) => void;
+}
 
 /* ----------------------------- mobile card ----------------------------- */
 export const LiveCard = ({
   row,
   onCashOut,
   onShare,
+  selectMode,
+  selected,
+  onToggleSelect,
 }: {
   row: LiteLiveRow;
   onCashOut?: (row: LiteLiveRow) => void;
   /** Pure-display share entry (SH-b §3). Omitted = zero DOM change. */
   onShare?: (row: LiteLiveRow) => void;
+} & LiveSelectProps) => {
 }) => {
 
   const goToMarket = useGoToMarket();
