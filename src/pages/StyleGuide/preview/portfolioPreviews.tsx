@@ -785,15 +785,18 @@ export const PortfolioLiveSelectPreview = () => {
   return (
     <div className="bg-background pb-4">
       <p className="px-4 pt-3 text-[11px] text-[#6B7280]">
-        Select 模式交互预览：点卡片切换选中，动作条实时汇总；确认层仅演示 UI，不真实平仓。
+        Select 模式交互预览：工具条内联在 Boost/Standard chips 行右侧；点卡片切换选中，动作条实时汇总；确认层仅演示 UI，不真实平仓。
       </p>
-      <SelectToolbar
-        count={selectedRows.length}
-        total={fixtureRows.length}
-        onSelectAll={() => setSelected(new Set(fixtureRows.map((r) => r.id)))}
-        onClear={() => setSelected(new Set())}
-        onCancel={() => setSelected(new Set())}
-      />
+      <div className="flex items-center justify-between gap-3 px-4 pt-3">
+        <SegmentChips value="standard" onChange={() => {}} boostCount={2} standardCount={1} />
+        <SelectToolbar
+          count={selectedRows.length}
+          total={fixtureRows.length}
+          onSelectAll={() => setSelected(new Set(fixtureRows.map((r) => r.id)))}
+          onClear={() => setSelected(new Set())}
+          onCancel={() => setSelected(new Set())}
+        />
+      </div>
       <div className="flex flex-col gap-2 px-4 pt-3">
         {fixtureRows.map((r) => (
           <LiveCard
