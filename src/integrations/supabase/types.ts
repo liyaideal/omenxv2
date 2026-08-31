@@ -2010,6 +2010,7 @@ export type Database = {
         Args: { p_fixture_id: string }
         Returns: Record<string, unknown>
       }
+      tick_demo_showcase: { Args: never; Returns: Json }
       tick_live_matches: { Args: never; Returns: Json }
     }
     Enums: {
