@@ -173,17 +173,19 @@ export const LiveCard = ({
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          onCashOut?.(row);
-        }}
-        className="mt-3 h-10 w-full rounded-[10px] text-[13px] font-semibold text-[#F2F3F5]"
-        style={{ border: "1px solid #2A2F38" }}
-      >
-        Cash out
-      </button>
+      {!selectMode && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onCashOut?.(row);
+          }}
+          className="mt-3 h-10 w-full rounded-[10px] text-[13px] font-semibold text-[#F2F3F5]"
+          style={{ border: "1px solid #2A2F38" }}
+        >
+          Cash out
+        </button>
+      )}
     </div>
   );
 };
