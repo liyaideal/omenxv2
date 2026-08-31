@@ -97,7 +97,7 @@ export default function LitePortfolio() {
       state: "live",
       eventId: r.eventId ?? "",
       eventName: r.eventName,
-      sideLine: r.sideWord,
+      sideLine: r.optionName ? `${r.optionName} · ${r.sideWord}` : r.sideWord,
       pnl: r.profit,
       pnlPercent: r.cost > 0 ? (r.profit / r.cost) * 100 : 0,
       leftAmount: r.cost,

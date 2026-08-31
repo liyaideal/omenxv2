@@ -101,7 +101,7 @@ export const GlobalStandardsSection = (_: { isMobile: boolean }) => (
 
       <SubSection
         title="3. Chip 法则"
-        description="chip 是无底色的中性标签（label-chip：muted 文字，无填充）。唯一豁免是 SideButton 这类选择控件——它是方向控件，可带方向色底（Pulse Blue #33D6FF / Volt #CFFF4A）。不得为了强调给普通 chip 上底色。"
+        description="chip 是无底色的中性标签（label-chip：muted 文字，无填充）。唯一豁免是 SideButton 这类选择控件——它是方向控件，可带方向色底（Pulse Blue #33D6FF / Volt #CFFF4A）。不得为了强调给普通 chip 上底色。第二豁免：持仓标识 chip（portfolio SIDE chip）按 DESIGN §2 持仓标识条款走方向轴底色。"
       >
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-md px-2 py-0.5 text-[11px] text-muted-foreground">Desktop · right rail</span>

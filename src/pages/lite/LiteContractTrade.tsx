@@ -32,7 +32,7 @@ import { useHeadingScrolledOut } from "@/hooks/useHeadingScrolledOut";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { parseSideLabels } from "@/lib/eventUtils";
-import { boostSuffix, legSideLabel, liteSideName, optionSideWord } from "@/lib/liteSideName";
+import { boostSuffix, legSideLabel, liteSideName, optionSideWord, resolveLegSide } from "@/lib/liteSideName";
 import { formatCents, estimateAutoClosePrice, isAutoCloseHot } from "@/lib/autoClosePrice";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
@@ -493,16 +493,10 @@ const LiteContractTrade = () => {
   // Side-labelled legs (fixture lines, up/down) are bought under their REAL
   // option label, so the side word comes from the label — never from
   // long/short, which would render the opposite side.
-  const legSideWord = (p: { event: string; option: string; type: "long" | "short" }) => {
-    const sl = legSideLabels(p.event);
-    if (sl) return optionSideWord(p.option, sl);
-    return legSideLabel(legEventByName.get(p.event) ?? null, legIsNo(p) ? "no" : "yes");
-  };
-  const legIsNoSide = (p: { event: string; option: string; type: "long" | "short" }) => {
-    const sl = legSideLabels(p.event);
-    if (sl) return optionSideWord(p.option, sl) === liteSideName(sl.no);
-    return legIsNo(p);
-  };
+  const legSideWord = (p: { event: string; option: string; type: "long" | "short" }) =>
+    resolveLegSide(p, legEventByName.get(p.event) ?? null).sideWord;
+  const legIsNoSide = (p: { event: string; option: string; type: "long" | "short" }) =>
+    resolveLegSide(p, legEventByName.get(p.event) ?? null).side === "no";
 
 
   const openBuy = useCallback(
@@ -731,7 +725,7 @@ const LiteContractTrade = () => {
 
   const heldIsYes =
     heldPos != null &&
-    heldPos.option.trim().toLowerCase() === yesOpt.label.trim().toLowerCase();
+    resolveLegSide({ option: heldPos.option, type: heldPos.type }, { side_labels: sideLabels }).side === "yes";
 
   // Live display values for an UNSETTLED leg — realtime mark first, DB
   // mark_price / pnl only as a fallback. Same source as /portfolio, so the

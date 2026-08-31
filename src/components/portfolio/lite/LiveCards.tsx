@@ -33,6 +33,7 @@ const PULSE = "#33D6FF";
 const cents = (p: number) => `${Math.round(p * 100)}¢`;
 
 const chipText = (row: LiteLiveRow) => `${row.sideWord} ${cents(row.priceNow)}`;
+const chipBg = (row: LiteLiveRow) => (row.side === "yes" ? PULSE : VOLT);
 
 const metaLine = (row: LiteLiveRow) => {
   const parts = [row.categoryLabel];
@@ -81,12 +82,17 @@ export const LiveCard = ({
         <div className="flex-1 text-[14.5px] font-semibold leading-[1.35] text-[#F2F3F5]">
           {row.eventName}
         </div>
-        <span
-          className="max-w-[45%] shrink-0 truncate whitespace-nowrap rounded-[8px] px-[9px] py-1 font-mono text-[12px] font-bold"
-          style={{ background: VOLT, color: "#0B0D10" }}
-        >
-          {chipText(row)}
-        </span>
+        <div className="flex max-w-[45%] shrink-0 flex-col items-end gap-1">
+          <span
+            className="max-w-full truncate whitespace-nowrap rounded-[8px] px-[9px] py-1 font-mono text-[12px] font-bold"
+            style={{ background: chipBg(row), color: "#0B0D10" }}
+          >
+            {chipText(row)}
+          </span>
+          {row.optionName && (
+            <span className="text-right text-[11.5px] leading-[1.25] text-[#E5E7EB]">{row.optionName}</span>
+          )}
+        </div>
         {onShare && <ShareIconButton onClick={() => onShare(row)} />}
 
       </div>
@@ -207,13 +213,13 @@ export const LiveRow = ({
           )}
         </div>
       </div>
-      <div className="min-w-0 pr-2">
+      <div className="flex min-w-0 flex-col items-start gap-1 pr-2">
         <TooltipProvider delayDuration={150}>
           <Tooltip>
             <TooltipTrigger asChild>
               <span
                 className="inline-block max-w-full truncate whitespace-nowrap rounded-[8px] px-[9px] py-1 align-middle font-mono text-[12px] font-bold"
-                style={{ background: VOLT, color: "#0B0D10" }}
+                style={{ background: chipBg(row), color: "#0B0D10" }}
               >
                 {chipText(row)}
               </span>
@@ -223,6 +229,9 @@ export const LiveRow = ({
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
+        {row.optionName && (
+          <span className="max-w-full truncate text-[11.5px] leading-[1.25] text-[#E5E7EB]">{row.optionName}</span>
+        )}
       </div>
       <div className="font-mono text-[13px] font-semibold text-[#F2F3F5]">{money(row.cost)}</div>
       <div className="font-mono text-[13px] font-semibold text-[#F2F3F5]">{money(row.nowWorth)}</div>
