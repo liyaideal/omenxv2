@@ -89,36 +89,6 @@ const hotRow: LiteLiveRow = {
   nowWorth: 77.9,
 };
 
-const safeBoostRow: LiteLiveRow = {
-  ...base,
-  id: "demo-safe",
-  eventName: "Fed cuts in September",
-  categoryLabel: "Finance",
-  settlesAt: inDays(5, 16),
-  sideWord: "Yes",
-  priceNow: 0.55,
-  autoClose: { kind: "none" as const },
-  hot: false,
-  profit: 22,
-  nowWorth: 142,
-  cost: 120,
-};
-
-const missingBoostRow: LiteLiveRow = {
-  ...base,
-  id: "demo-missing",
-  eventName: "BTC ETF approved this week",
-  categoryLabel: "Crypto",
-  settlesAt: inDays(3, 16),
-  sideWord: "Yes",
-  priceNow: 0.42,
-  autoClose: { kind: "none" as const },
-  hot: false,
-  profit: 8,
-  nowWorth: 108,
-  cost: 100,
-  ifWins: 250,
-};
 
 const voucherRow: LiteLiveRow = {
   ...base,
