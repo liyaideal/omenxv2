@@ -163,7 +163,7 @@ const PORTFOLIO_MOBILE_CASES: SectionCase[] = [
       { state: "非选择模式（默认）", when: "selectMode === false", visual: "行 DOM 与原来完全一致（无勾选列）；`Select`（12.5px Pulse）入口在 chips 行右侧", source: "LiveCards / LitePortfolio" },
       { state: "选择模式 · 未选中", when: "selectMode && !selected", visual: "行首圆形空勾选点（18px，#2A2F38 描边）；单行 Cash out 与分享隐藏；点击整行 = 选中", source: "CheckDot / LiveCard / LiveRow" },
       { state: "选择模式 · 已选中", when: "selectMode && selected", visual: "勾选点 Pulse 填充打勾；行 Pulse 描边/左竖条 + 淡蓝底（hot 行红轴优先）", source: "LiveCard / LiveRow" },
-      { state: "工具条", when: "selectMode", visual: "内联 chips 行右侧：`Select all`（Pulse）/ `Clear` / `N selected`（font-mono）/ `Cancel`", source: "SelectToolbar" },
+      { state: "工具条", when: "selectMode", visual: "内联 chips 行右侧：`Select all`（Pulse）/ `Clear` / `N selected`（font-mono）/ `Cancel`；<sm 窄屏隐藏 `Clear` 与计数（计数由动作条承担），只留 `Select all` / `Cancel`", source: "SelectToolbar" },
       { state: "动作条（N≥1）", when: "selectedRows.length > 0", visual: "吸底圆角条：`N selected` + `Now worth $X · Profit ±$Y` + 主按钮 `Cash out N`；N=0 不渲染", source: "BatchActionBar" },
       { state: "确认层", when: "点击动作条按钮", visual: "桌面 Dialog / 移动 MobileDrawer，标题 `Cash out N positions`，逐行 `{event} · {side} · {now worth}` + `You get about` 合计 + 免责句", source: "BatchCashOutConfirm" },
       { state: "执行中", when: "确认后串行 closePosition", visual: "主按钮禁点并显示 `Closing i / N…`，Cancel 禁用", source: "LitePortfolio.closeBatch" },
