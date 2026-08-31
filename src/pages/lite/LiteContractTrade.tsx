@@ -73,6 +73,7 @@ import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
 import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
 import { LiteMarketBoard, type BoardOption } from "@/components/lite/multi/LiteMarketBoard";
 import { LiteLineScrubber } from "@/components/lite/multi/LiteLineScrubber";
+import { LiveMatchboard } from "@/components/lite/sports/LiveMatchboard";
 import {
   fixtureMeta,
   formatSignedLine,
@@ -1328,6 +1329,7 @@ const LiteContractTrade = () => {
           <div className="space-y-4 px-4 py-4">
             {isMulti && !resolved && MultiMetaRow}
             {QuestionBlock}
+            {Matchboard}
             {resolved ? (
               <>
                 {OutcomeCard}
@@ -1472,6 +1474,7 @@ const LiteContractTrade = () => {
         >
           <div className="space-y-5">
             {QuestionBlock}
+            {Matchboard}
             {resolved ? (
               <>
                 {boardMode ? BoardModule : SentimentBar}
