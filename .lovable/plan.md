@@ -1,8 +1,10 @@
-# Settled 列表按月份折叠（移动端 Lite /portfolio）
+# Settled 列表按月份折叠（移动端 + 桌面端）
 
 Lite /portfolio?tab=settled 的月份分组头（如 `AUGUST 2026`）目前只是静态标签。改为可点击折叠/展开该月下的行。
 
-**适用范围：这是移动端 Lite Portfolio 的 settled 列表组件（`SettledList`），折叠功能就是为移动端加的**；桌面 Pro 的 settled/resolved 页面不受影响。Lite 页面在桌面窄屏预览时同样渲染该组件，行为一致。
+**覆盖两端**：`/portfolio` 的 settled 列表由 `SettledList` 单一组件渲染，**移动端和桌面端（宽屏）共用同一实现**（`LitePortfolio.tsx:330` 不分 viewport）。因此在 `SettledList` 加折叠，两端同时生效，样式按现有 token 自适应。
+
+**范围说明**：Pro surface 的 /portfolio settled 是平铺表格、**没有月份分组**，不属于本单；如需 Pro 也分组折叠请另行说明。
 
 ## 改动
 
@@ -23,11 +25,11 @@ Lite /portfolio?tab=settled 的月份分组头（如 `AUGUST 2026`）目前只�
 - `docs/delivery/lite-portfolio-spec-v2.md`：Settled 章节补一句月份组可折叠的行为描述（如该文档有此行为清单）。
 
 ## 不做
-- 不改桌面端 Pro settled 表（ResolvedPage / 其他页面不涉及）。
+- 不改 Pro surface 的 Portfolio / PortfolioSettlements / ResolvedPage。
 - 不改 `useLitePortfolio` 数据结构（`monthGroups` 分组逻辑复用）。
 - 不持久化折叠状态（切 tab / 刷新后恢复全展开）。
 - 不碰 Rewards 冻结画布与 LiteEventCard。
 
 ## 验证
 - `npx tsgo --noEmit -p tsconfig.app.json` 通过。
-- 预览切到移动设备视口，打开 /style-guide portfolio settled 预览，点击月份头截图确认折叠/展开；生产 /portfolio 需登录态，若未注入会话则在 Style Guide 验证。
+- Playwright 分别以移动端视口和桌面视口打开 /style-guide portfolio settled 预览，点击月份头截图确认折叠/展开两端一致；生产 /portfolio 需登录态，若未注入会话则在 Style Guide 验证。
