@@ -35,15 +35,19 @@ import {
 import { PortfolioErrorBoundary } from "@/components/portfolio/lite/PortfolioErrorBoundary";
 import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
 import { MobileHeader } from "@/components/MobileHeader";
+import { settledDayLabel } from "@/lib/settleLabel";
 import { useEffect, useRef, useState } from "react";
 
 /** Fixture dates stay relative so settleLabel() output never goes stale. */
-const inDays = (d: number, hour = 16) => {
+const inDays = (d: number, hour = 16, min = 0) => {
   const t = new Date();
   t.setDate(t.getDate() + d);
-  t.setHours(hour, 0, 0, 0);
+  t.setHours(hour, min, 0, 0);
   return t.toISOString();
 };
+
+/** Same thing, expressed backwards — "N days ago at hh:mm". */
+const daysAgoAt = (daysAgo: number, hour = 12, min = 0) => inDays(-daysAgo, hour, min);
 
 const base: LiteLiveRow = {
   id: "demo-1",
