@@ -73,6 +73,7 @@ import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
 import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
 import { LiteMarketBoard, type BoardOption } from "@/components/lite/multi/LiteMarketBoard";
 import { LiteLineScrubber } from "@/components/lite/multi/LiteLineScrubber";
+import { LiveMatchboard } from "@/components/lite/sports/LiveMatchboard";
 import {
   fixtureMeta,
   formatSignedLine,
@@ -830,6 +831,14 @@ const LiteContractTrade = () => {
     />
   );
 
+  // Sports fixtures only — every other event renders byte-identical DOM.
+  const Matchboard =
+    event.event_subtype === "SPORTS_MATCH" ? (
+      <LiveMatchboard event={event as unknown as Parameters<typeof LiveMatchboard>[0]["event"]} />
+    ) : null;
+
+
+
 
   const SentimentBar = (
     <LiteSentimentBar
@@ -1328,6 +1337,7 @@ const LiteContractTrade = () => {
           <div className="space-y-4 px-4 py-4">
             {isMulti && !resolved && MultiMetaRow}
             {QuestionBlock}
+            {Matchboard}
             {resolved ? (
               <>
                 {OutcomeCard}
@@ -1472,6 +1482,7 @@ const LiteContractTrade = () => {
         >
           <div className="space-y-5">
             {QuestionBlock}
+            {Matchboard}
             {resolved ? (
               <>
                 {boardMode ? BoardModule : SentimentBar}
