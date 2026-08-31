@@ -391,13 +391,13 @@ export const HomeSportsCard = ({
               key={d.id}
               type="button"
               onClick={() => setBucket(d.id)}
-              className={isMobile ? "flex-none text-center" : "min-w-0 flex-1 text-center"}
+              className="flex-none text-center"
               style={{
                 background: active ? "#FFFFFF" : "transparent",
                 border: active ? "1px solid #FFFFFF" : "1px solid rgba(148,163,184,0.16)",
                 color: active ? "#0B0D11" : "#DBE2EA",
                 borderRadius: 10,
-                padding: isMobile ? "6px 12px" : "7px 8px",
+                padding: isMobile ? "6px 12px" : "7px 14px",
               }}
             >
 
