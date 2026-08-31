@@ -122,27 +122,6 @@ const standardRow: LiteLiveRow = {
   tradePath: "/spot",
 };
 
-/** Flat position — exercises isZeroMoney() (muted, unsigned $0.00). */
-const noBinaryRow: LiteLiveRow = { ...base, id: "demo-no-binary", eventName: "Will Apple announce a foldable iPhone before 2027?", categoryLabel: "Tech", settlesAt: inDays(40, 23), sideWord: "No", side: "no", optionName: null, priceNow: 0.54, cost: 22, nowWorth: 36.3, profit: 14.3, leverageNum: 5, ifWins: 110, autoClose: { kind: "level", price: 0.71 }, hot: false };
-const multiYesRow: LiteLiveRow = { ...base, id: "demo-multi-yes", eventName: "Who wins the 2026 F1 drivers' championship?", categoryLabel: "Social", settlesAt: inDays(97, 18), sideWord: "Yes", side: "yes", optionName: "Lando Norris", priceNow: 0.16, cost: 3, nowWorth: 3, profit: 0, leverageNum: 1, ifWins: 18.75, autoClose: { kind: "none" }, hot: false };
-const multiNoRow: LiteLiveRow = { ...multiYesRow, id: "demo-multi-no", sideWord: "No", side: "no", optionName: "Charles Leclerc", priceNow: 0.67, ifWins: 4.48 };
-
-const flatRow: LiteLiveRow = {
-  ...base,
-  id: "demo-flat",
-  eventName: "US CPI above 3% in September",
-  categoryLabel: "Finance",
-  settlesAt: inDays(6, 16),
-  sideWord: "Yes",
-  segment: "standard",
-  leverageNum: 1,
-  autoClose: { kind: "none" as const },
-  cost: 100,
-  profit: 0,
-  nowWorth: 100,
-  ifWins: 210,
-};
-
 const gauge = (riskRatio: number) => ({
   riskRatio,
   equity: 1240,
@@ -166,43 +145,34 @@ export const PortfolioGaugeBarPreview = () => (
   </div>
 );
 
+/* -------- PF-8 · Live 常规态（盈利 / 亏损 / 零盈亏 · 1×–5× 倍数梯度）-------- */
+const pf8Rows: LiteLiveRow[] = [
+  { ...base, id: "pf8-win", eventName: "Bitcoin above $70,000", profit: 38.4, nowWorth: 158.4, leverageNum: 2 },
+  { ...base, id: "pf8-loss", eventName: "ETH above $4,000 today", profit: -42.1, nowWorth: 77.9, leverageNum: 2 },
+  { ...base, id: "pf8-zero", eventName: "US CPI above 3% in September", categoryLabel: "Finance", settlesAt: inDays(6, 16), profit: 0, nowWorth: 120, leverageNum: 2 },
+  { ...base, id: "pf8-2x", eventName: "Fed cuts in September", categoryLabel: "Finance", settlesAt: inDays(5, 16), profit: 22, nowWorth: 142, leverageNum: 2 },
+  { ...base, id: "pf8-4x", eventName: "NVIDIA closes above $190", categoryLabel: "Stocks", settlesAt: inDays(1, 16), profit: 61.5, nowWorth: 181.5, leverageNum: 4 },
+  { ...base, id: "pf8-5x", eventName: "Solana above $260 this week", categoryLabel: "Crypto", settlesAt: inDays(4, 16), profit: -12.75, nowWorth: 107.25, leverageNum: 5 },
+  { ...base, id: "pf8-1x", eventName: "Arsenal to beat Liverpool", categoryLabel: "Soccer", settlesAt: inDays(0, 22), profit: 6.2, nowWorth: 126.2, leverageNum: 1, autoClose: { kind: "none" as const } },
+];
 
 export const PortfolioLiveCardsPreview = () => (
   <div className="flex flex-col gap-2 bg-background p-4">
-    <LiveCard row={base} />
-    <LiveCard row={hotRow} />
-    <LiveCard row={noBinaryRow} />
-    <LiveCard row={multiYesRow} />
-    <LiveCard row={multiNoRow} />
-    <LiveCard row={safeBoostRow} />
-    <LiveCard row={missingBoostRow} />
-    <LiveCard row={voucherRow} />
-    <LiveCard row={standardRow} />
-    <LiveCard row={flatRow} />
-    <PendingOrdersRow orders={[{ id: "o1", event: "BTC above $70,000", size: "120", price: "41¢" }]} />
-    {/* Empty orders → the dashed row renders nothing at all. */}
-    <PendingOrdersRow orders={[]} />
-    <p className="text-[11px] text-[#6B7280]">
-      ↑ 最后一行是 orders=[] 的挂单行：不渲染任何 chrome。
-    </p>
+    {pf8Rows.map((r) => (
+      <LiveCard key={r.id} row={r} />
+    ))}
   </div>
 );
 
 export const PortfolioDesktopRowsPreview = () => (
   <div className="bg-background py-4">
     <LiveRowHeader />
-    <LiveRow row={base} />
-    <LiveRow row={hotRow} />
-    <LiveRow row={noBinaryRow} />
-    <LiveRow row={multiYesRow} />
-    <LiveRow row={multiNoRow} />
-    <LiveRow row={safeBoostRow} />
-    <LiveRow row={missingBoostRow} />
-    <LiveRow row={voucherRow} />
-    <LiveRow row={standardRow} />
-    <LiveRow row={flatRow} />
+    {pf8Rows.map((r) => (
+      <LiveRow key={r.id} row={r} />
+    ))}
   </div>
 );
+
 
 /* ------------------------------- KPI ------------------------------- */
 
