@@ -304,7 +304,7 @@ chips 的内容、顺序、回调逐字节不变（`chipsRow` 变量整体复用
 - ST-1 例外：HK 文案硬编码 `HKT`（`HK settles at close 16:00 HKT` / `Next session · HK opens 09:30 HKT`），US 随查看者时区由 `formatLocalTime(session.closeAt / session.nextOpenAt)` 推导。详见 `docs/copy-dictionary.md` §「Stocks · 交易时段（ST-1）」与 `/style-guide` Foundations §5。
 - 倒计时与时长不涉时区：`formatMinuteCountdown()` 输出 `mm:ss`（`usStockSessions.ts:615`），crypto 卡 `CLOSES` 用 `formatCountdown()`。
 - 三态每秒 tick 重算：`useSecondTick()` 驱动 `tickSeconds`，`getStockSessionState()` 每次重算，态间自动翻转无需刷新，只切换受影响字段。
-- Sports 日期胶囊：`TODAY` / `{WEEKDAY} {D}`（`buildDayStrip`，`sportsData.ts:246-249`），weekday 由本地时间派生。
+- Sports 日期胶囊：`TODAY` / `{WEEKDAY} {D}`（`buildDayStrip`，`sportsData.ts:248-249`），weekday 由本地时间派生。
 
 ## 9. 实时刷新口径
 
@@ -313,7 +313,7 @@ chips 的内容、顺序、回调逐字节不变（`chipsRow` 变量整体复用
 | tape 循环动画 | `--duration = max(20, scrollWidth / 60)` 秒，`linear infinite`，`translateX(0 → −50%)` | `HomeTape.tsx`；`.lite-tape-rail` / `@keyframes lite-tape-scroll`（`src/index.css:739-748`），`prefers-reduced-motion: reduce → animation: none` |
 | crypto 快轮 | 20s 轮询 + 到期看门狗（1s 检查 `end_date <= now` 触发一次重取） | `intradayData.ts:128` / `:137` |
 | sports | 30s | `sportsData.ts:119` |
-| stocks 状态机 | 1s tick（`useSecondTick`） | `intradayData.ts:406` |
+| stocks 状态机 | 1s tick（`useSecondTick`） | `intradayData.ts:403` |
 | 目录 `useActiveEvents` | 挂载一次，无轮询 | `src/hooks/useActiveEvents.ts` |
 
 行为细节以 `docs/delivery/lite-behavior-appendix.md` §3 为准。
