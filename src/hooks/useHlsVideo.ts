@@ -66,9 +66,15 @@ export const useHlsVideo = (src: string | null | undefined, enabled: boolean) =>
   const play = useCallback(() => {
     const v = el;
     if (!v) return;
-    // Resuming always jumps to the live edge — never replay stale buffer.
+    // Resuming a live stream must jump to the live edge — replaying stale
+    // buffer while the order book is real-time is how someone trades on a
+    // picture from a minute ago. But only a true live stream has an infinite
+    // duration; seeking to the end of a finite (VOD) playlist lands on the
+    // last frame and stalls there.
     try {
-      if (v.seekable.length) v.currentTime = v.seekable.end(v.seekable.length - 1);
+      if (v.duration === Infinity && v.seekable.length) {
+        v.currentTime = v.seekable.end(v.seekable.length - 1);
+      }
     } catch {
       /* ignore */
     }

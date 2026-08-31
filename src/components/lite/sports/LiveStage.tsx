@@ -326,11 +326,12 @@ export const LiveStage = ({
       {isMobile && !fixture && collapsed ? null : (
         <StageShell isMobile={isMobile} dark={dark}>
           {!fixture && wantVideo ? (
-            <video
-              ref={ref}
-              playsInline
-              muted={muted}
-              style={{
+          <video
+            ref={ref}
+            playsInline
+            loop
+            muted={muted}
+            style={{
                 position: "absolute",
                 inset: 0,
                 width: "100%",
