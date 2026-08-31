@@ -75,15 +75,15 @@ export const BatchActionBar = ({
 const ConfirmBody = ({ rows }: { rows: LiteLiveRow[] }) => {
   const total = rows.reduce((s, r) => s + r.nowWorth, 0);
   return (
-    <>
-      <div className="rounded-lg border bg-muted/30 p-3">
-        <div className="flex flex-col divide-y divide-border/50">
+    <div className="space-y-4">
+      <div className="rounded-lg border border-border bg-muted/30 p-3">
+        <div className="flex flex-col space-y-1.5">
           {rows.map((r) => (
-            <div key={r.id} className="flex items-center gap-2 py-2 text-xs first:pt-0 last:pb-0">
+            <div key={r.id} className="flex items-center gap-2 text-xs">
               <span className="min-w-0 flex-1 truncate font-medium text-foreground">
                 {r.eventName}
               </span>
-              <span className="shrink-0 font-mono text-[#6B7280]">{r.sideWord}</span>
+              <span className="shrink-0 font-mono text-muted-foreground">{r.sideWord}</span>
               <span className="shrink-0 font-mono font-semibold text-foreground">
                 {money(r.nowWorth)}
               </span>
@@ -91,14 +91,14 @@ const ConfirmBody = ({ rows }: { rows: LiteLiveRow[] }) => {
           ))}
         </div>
         <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 text-xs">
-          <span className="text-[#6B7280]">You get about</span>
-          <span className="font-mono font-bold text-foreground">{money(total)}</span>
+          <span className="text-muted-foreground">You get about</span>
+          <span className="text-right font-mono font-bold text-foreground">{money(total)}</span>
         </div>
       </div>
-      <p className="mt-2 text-xs text-[#6B7280]">
+      <p className="text-xs text-muted-foreground">
         Prices move while we close — the final amount can differ slightly.
       </p>
-    </>
+    </div>
   );
 };
 
@@ -116,7 +116,11 @@ const Actions = ({
     <Button variant="outline" className="h-11 flex-1" onClick={onCancel} disabled={!!closingLabel}>
       Cancel
     </Button>
-    <Button className="h-11 flex-1" onClick={onConfirm} disabled={!!closingLabel}>
+    <Button
+      className="h-11 flex-1 bg-trading-red text-white hover:bg-trading-red/90"
+      onClick={onConfirm}
+      disabled={!!closingLabel}
+    >
       {closingLabel ?? "Cash out"}
     </Button>
   </>
@@ -146,7 +150,7 @@ export const BatchCashOutConfirm = ({
         title={`Cash out ${rows.length} positions`}
       >
         <ConfirmBody rows={rows} />
-        <MobileDrawerActions className="mt-4">
+        <MobileDrawerActions className="flex gap-2 space-y-0">
           <Actions onCancel={cancel} onConfirm={onConfirm} closingLabel={closingLabel} />
         </MobileDrawerActions>
       </MobileDrawer>
