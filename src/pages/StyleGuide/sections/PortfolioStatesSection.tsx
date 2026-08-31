@@ -319,7 +319,251 @@ const BOOST_CASES: SectionCase[] = [
   },
 ];
 
-const ALL_CASES: SectionCase[] = [...CHROME_CASES, ...KPI_CASES, ...BOOST_CASES];
+/* ---------------- Ⓓ Live 列表（PF-8 … PF-14） ---------------- */
+
+const LIVE_BASE_SPEC = [
+  { state: "盈利行", when: "profit > 0.005", visual: "PROFIT 列 volt #CFFF4A，带 `+` 号", source: "livePnlColor()" },
+  { state: "亏损行", when: "profit < -0.005", visual: "PROFIT 列 red #FF5C5C，带 `−` 号", source: "livePnlColor()" },
+  { state: "零盈亏行", when: "Math.abs(profit) < 0.005", visual: "PROFIT 列 muted `$0.00`，不带符号", source: "isZeroMoney()" },
+  { state: "Boost 后缀", when: "leverageNum > 1", visual: "meta 行追加 `{n}× Boost`（整数不带 .0，加权倍数保留一位小数）", source: "boostSuffix()" },
+  { state: "1× 不显示 Boost", when: "leverageNum <= 1", visual: "meta 行不追加任何 Boost 段（1× 在 Lite 等于「没开 Boost」）", source: "boostSuffix()" },
+  { state: "进入市场", when: "selectMode === false 时点击整行 / 整卡", visual: "savePortfolioScroll() 后 navigate(row.tradePath)，返回时回到原滚动位", source: "useGoToMarket()" },
+  { state: "单行 Cash out", when: "点击行内 Cash out", visual: "无确认层：stopPropagation 后交由 onCashOut，进入该市场交易页平仓", source: "LitePortfolio onCashOut" },
+];
+
+const LIVE_CASES: SectionCase[] = [
+  {
+    key: "portfolio-lite-desktop-rows",
+    label: "PF-8 · Live 常规态（LiveRow · LiveCard）",
+    note: "桌面列模板固定 `minmax(0,1fr) minmax(110px,200px) 96px 104px 100px 150px 170px`；移动为同一份数据的卡片形态。七行覆盖盈利 / 亏损 / 零盈亏与 1×–5× 倍数梯度，红只由 hot 决定（见 PF-11），与盈亏正负无关。",
+    spec: LIVE_BASE_SPEC,
+  },
+  {
+    key: "portfolio-lite-live-cards",
+    label: "PF-8 · Live 常规态（LiveRow · LiveCard）",
+    note: "移动卡：标题 14.5px/600、chip 右上、三宫格 COST / NOW WORTH / PROFIT、末行整宽 Cash out（h-40）。",
+    spec: LIVE_BASE_SPEC,
+  },
+  {
+    key: "portfolio-lite-side-chip",
+    label: "PF-9 · SIDE chip 与选项名（resolveLegSide）",
+    note: "方向轴唯一口径：chip 底色只认 side（yes=Pulse #33D6FF / no=Volt #CFFF4A），文案只认 sideWord。`type === 'short'` 恒翻转 side。多选腿才在 chip 下方补第二行选项名。",
+    spec: [
+      { state: "二元 Yes 腿", when: "resolveLegSide().side === 'yes' && optionName === null", visual: "chip 底 #33D6FF 黑字 `Yes {c}¢`，无第二行", source: "resolveLegSide()" },
+      { state: "二元 No 腿", when: "resolveLegSide().side === 'no' && optionName === null", visual: "chip 底 #CFFF4A 黑字 `No {c}¢`，无第二行", source: "resolveLegSide()" },
+      { state: "多选 Yes 腿", when: "optionName != null && side === 'yes'", visual: "chip `Yes {c}¢` + 第二行 11.5px #E5E7EB 选项名（桌面左对齐 / 移动右对齐）", source: "resolveLegSide().optionName" },
+      { state: "多选 No 腿", when: "optionName != null && side === 'no'", visual: "chip `No {c}¢`（Volt）+ 第二行选项名", source: "resolveLegSide().optionName" },
+      { state: "别名腿（side_labels）", when: "事件带 side_labels 且腿命中别名", visual: "chip 文案即别名（`ARS +1.5` / `Up` / `$55K–$65K`），optionName 为 null 无第二行", source: "legSideLabel()" },
+      { state: "chip 溢出", when: "sideWord 宽度超过列宽", visual: "chip 单行 truncate，hover 出 tooltip 显示全文（移动端只截断不出 tooltip）", source: "LiveRow Tooltip" },
+    ],
+  },
+  {
+    key: "autoclose-desktop-rows",
+    label: "PF-10 · auto-close 值语法（两态 · 常驻字段）",
+    note: "Boost 段该字段常驻，值只有两态：有价 `≈{c}¢`，无价 `none`（灰 #4d5560 + hover 全句）。不存在 `—` 占位、不存在第三态。",
+    spec: [
+      { state: "level", when: "segment === 'boost' && autoClose.kind === 'level'", visual: "`If it wins → $X · auto-close ≈{c}¢`", source: "estimateAutoClosePrice()" },
+      { state: "none", when: "autoClose.kind === 'none'", visual: "`· auto-close none`，none 为内联灰 #4d5560，hover tooltip 全句「亏损封顶本金」", source: "estimateAutoClosePrice()" },
+      { state: "none · 1× Boost", when: "leverageNum === 1", visual: "恒 none 分支：无借贷敞口", source: "autoClosePrice boost ≤ 1" },
+      { state: "移动卡句式", when: "移动帧", visual: "level → `… · auto-close ≈{c}¢`；none → `… · no auto-close, loss capped`", source: "LiveCards.LiveCard" },
+    ],
+  },
+  {
+    key: "autoclose-standard-row",
+    label: "PF-10 · Standard 段不携带 auto-close",
+    note: "Standard 不是「auto-close = none」，而是整段不存在：列内只有 `If it wins → $X`。",
+    spec: [
+      { state: "Standard", when: "segment === 'standard'", visual: "该列只有 `If it wins → $X`，不追加任何 auto-close 段", source: "LiveCards.LiveRow" },
+    ],
+  },
+  {
+    key: "autoclose-mobile-cards",
+    label: "PF-10 · auto-close 值语法（移动卡三行）",
+    note: "三张卡逐字对照 mock7 v2 §2：level / hot（红描边 + 红句）/ none。",
+    spec: [
+      { state: "level", when: "segment === 'boost' && autoClose.kind === 'level' && hot === false", visual: "句尾 `· auto-close ≈{c}¢`，整句 #6B7280", source: "LiveCards.LiveCard" },
+      { state: "hot", when: "hot === true", visual: "整卡红描边 rgba(255,92,92,.55) + 整句 RED", source: "isAutoCloseHot" },
+      { state: "none", when: "autoClose.kind === 'none'", visual: "`· no auto-close, loss capped`", source: "estimateAutoClosePrice()" },
+    ],
+  },
+  {
+    key: "portfolio-lite-hot",
+    label: "PF-11 · hot 行（红只有这一个来源）",
+    note: "hot 与盈亏正负完全无关：亏损但离 auto-close 还远的行不红，盈利但贴近 auto-close 的行也会红。三行依次为「亏损不红 / 亏损且红 / 盈利且红」。",
+    spec: [
+      { state: "不红", when: "hot === false", visual: "桌面无左轨无底色；移动无描边；句子 #6B7280", source: "useLitePortfolio.hot" },
+      { state: "hot 行（桌面）", when: "autoClosePrice != null && Math.abs(priceNow − autoClosePrice) / priceNow <= 0.10", visual: "inset 3px 0 0 rgba(255,92,92,.7) 左轨 + rgba(255,92,92,.04) 底 + 该列整句 RED", source: "isAutoCloseHot" },
+      { state: "hot 行（移动）", when: "同上", visual: "整卡 1px solid rgba(255,92,92,.55) 描边 + 整句 RED", source: "isAutoCloseHot" },
+      { state: "hot 与盈利并存", when: "hot === true && profit > 0", visual: "行仍红；PROFIT 列仍按 livePnlColor 走 volt —— 红轨与绿/volt 数值同时存在是合法的", source: "livePnlColor() 与 hot 互不干涉" },
+    ],
+  },
+  {
+    key: "portfolio-lite-standard-live",
+    label: "PF-12 · Standard 段 Live 行",
+    note: "Standard 段没有 Boost 后缀、没有 auto-close 段；up/down 股票腿的 sideWord 走 Up / Down 别名，不写 Yes / No。",
+    spec: [
+      { state: "无 Boost 后缀", when: "segment === 'standard'（leverageNum === 1）", visual: "meta 行只有 `{category} · settles {…}`", source: "boostSuffix()" },
+      { state: "无 auto-close 段", when: "segment === 'standard'", visual: "只有 `If it wins → $X`", source: "LiveCards.LiveRow" },
+      { state: "Up 腿", when: "side === 'yes' 且事件 side_labels.yes === 'Up'", visual: "chip 底 #33D6FF 文案 `Up {c}¢`", source: "legSideLabel()" },
+      { state: "Down 腿", when: "side === 'no' 且 side_labels.no 为 `Not Up`", visual: "chip 底 #CFFF4A 文案 `Down {c}¢`（`Not Up` 在 Lite 恒改写为 `Down`）", source: "liteSideName()" },
+    ],
+  },
+  {
+    key: "portfolio-lite-airdrop-tag-rows",
+    label: "PF-13 · 来源标枚举（airdropTag）",
+    note: "来源标只有三种取值；matched 与 welcome_gift 两种空投来源共用同一个 pulse `Airdrop` 标，不再细分来源。示例三行依次为 none / voucher / airdrop。",
+    spec: [
+      { state: "无标", when: "airdropTag === 'none'", visual: "meta 行尾不追加任何来源标（不画占位）", source: "useLitePortfolio.airdropTag" },
+      { state: "Voucher 标", when: "airdropTag === 'voucher'", visual: "meta 行尾 volt #CFFF4A 文案 `Voucher`", source: "LiveCards VOLT" },
+      { state: "Airdrop 标", when: "airdropTag === 'airdrop'（airdropSource ∈ {matched, welcome_gift}）", visual: "meta 行尾 pulse #33D6FF 文案 `Airdrop`", source: "LiveCards PULSE" },
+      { state: "待激活空投", when: "airdrop.status === 'pending'", visual: "不进 portfolio —— 仍住 /rewards/campaign/h2e 的 Airdropped positions 模块", source: "DESIGN §运营工具仓位归属" },
+    ],
+  },
+  {
+    key: "portfolio-lite-airdrop-tag-cards",
+    label: "PF-13 · 来源标枚举（移动卡）",
+    note: "与桌面同一枚举，标追加在 meta 行尾。",
+    spec: [
+      { state: "无标", when: "airdropTag === 'none'", visual: "meta 行尾无追加", source: "useLitePortfolio.airdropTag" },
+      { state: "Voucher 标", when: "airdropTag === 'voucher'", visual: "volt #CFFF4A `Voucher`", source: "LiveCards VOLT" },
+      { state: "Airdrop 标", when: "airdropTag === 'airdrop'", visual: "pulse #33D6FF `Airdrop`", source: "LiveCards PULSE" },
+    ],
+  },
+  {
+    key: "portfolio-lite-settles-time",
+    label: "PF-14 · settles 时间三分支 + 缺失",
+    note: "全站唯一时间口径 settleLabel()：24 小时制、用户本地时区、不带时区后缀。调用方只负责前缀动词 `settles`。",
+    spec: [
+      { state: "今天", when: "settlesAt 与 now 同年同月同日", visual: "`settles today 16:00`", source: "settleLabel()" },
+      { state: "同年异日", when: "settlesAt.getFullYear() === now.getFullYear() 且非同日", visual: "`settles Sep 5 04:30`（月 日 + 钟点）", source: "settleLabel()" },
+      { state: "跨年", when: "settlesAt.getFullYear() !== now.getFullYear()", visual: "`settles Sep 7, 2027`（不带钟点）", source: "settleLabel()" },
+      { state: "缺失", when: "settlesAt == null", visual: "meta 行不出现 settles 段（不画 `—` 占位）", source: "LiveCards.metaLine" },
+    ],
+  },
+];
+
+/* ---------------- Ⓔ 挂单行（PF-15） ---------------- */
+
+const PENDING_SPEC = [
+  { state: "折叠（默认）", when: "orders.length > 0 && open === false", visual: "1px dashed #2A2F38 虚线行 `n orders waiting to fill · placed in Pro` + 右侧 ›", source: "PendingOrdersRow" },
+  { state: "展开", when: "点击折叠行 → open === true", visual: "行下逐单展开：左事件名 truncate、右 `size @ price` 等宽字 + ›，hover 底 rgba(255,255,255,.04)", source: "PendingOrdersRow" },
+  { state: "点单跳 Pro", when: "点击任一单行", visual: "savePortfolioScroll() → savePortfolioReturnSurface('lite') → setSurface('pro') → /trade?event={eventId}；改单/撤单只在 Pro 存在", source: "PendingOrdersRow.openInPro" },
+  { state: "单数 / 复数", when: "orders.length === 1 / > 1", visual: "`1 order waiting to fill` / `{n} orders waiting to fill`", source: "PendingOrdersRow 三元" },
+  { state: "无单", when: "orders.length === 0", visual: "组件 return null，两端都不占高度", source: "PendingOrdersRow" },
+  { state: "Standard 段", when: "segment === 'standard'", visual: "整个挂单行不渲染（只有 Boost 段挂）", source: "LitePortfolio" },
+];
+
+const PENDING_CASES: SectionCase[] = [
+  {
+    key: "portfolio-lite-pending-desktop",
+    label: "PF-15 · 挂单行两态（PendingOrdersRow · 桌面）",
+    note: "桌面与移动共用同一个组件；桌面挂在行式网格下方（px-4 pt-3），且只在 Boost 段渲染。展开态是生产实态，不是移动独有。",
+    spec: PENDING_SPEC,
+  },
+  {
+    key: "portfolio-lite-pending-mobile",
+    label: "PF-15 · 挂单行两态（PendingOrdersRow · 移动）",
+    note: "同一个组件、同一套文案；移动端挂在卡片列表末尾。",
+    spec: PENDING_SPEC,
+  },
+];
+
+/* ---------------- Ⓕ 批量平仓（PF-16 … PF-18） ---------------- */
+
+const SELECT_SPEC = [
+  { state: "非选择模式", when: "selectMode === false", visual: "行 / 卡 DOM 与常规态完全一致（无勾选列）；入口是 chips 行右侧的 `Select`（见 PF-3）", source: "LiveCards / LitePortfolio" },
+  { state: "未选中", when: "selectMode && !selected", visual: "行首 18px 圆形空勾选点（1.5px #2A2F38 描边）；单行 Cash out 与分享按钮隐藏；点击整行 = 选中", source: "CheckDot" },
+  { state: "已选中", when: "selectMode && selected", visual: "勾选点 #33D6FF 填充 + 黑勾；桌面 inset 3px 0 0 rgba(51,214,255,.7) 左轨 + rgba(51,214,255,.04) 底，移动 1px rgba(51,214,255,.45) 描边", source: "LiveRow / LiveCard" },
+  { state: "hot 行优先级", when: "selectMode && selected && hot", visual: "红轨优先：hot 分支先命中，选中态的蓝轨不覆盖红轨", source: "LiveRow style 三元顺序" },
+  { state: "列模板变化", when: "selectMode === true", visual: "桌面网格前置 28px 勾选列（`28px ${DESKTOP_GRID}`），表头同步前置空列", source: "gridFor()" },
+  { state: "工具条", when: "selectMode", visual: "内联 chips 行右侧：`Select all`（Pulse）/ `Clear` / `N selected`（font-mono）/ `Cancel`；<sm 窄屏隐藏 `Clear` 与计数，只留 `Select all` / `Cancel`", source: "SelectToolbar" },
+];
+
+const BATCH_CASES: SectionCase[] = [
+  {
+    key: "portfolio-lite-live-select-desktop",
+    label: "PF-16 · 选择模式（桌面行式网格）",
+    note: "选择状态不持久化：切 tab / 切 segment / 完成后即清空。",
+    spec: SELECT_SPEC,
+  },
+  {
+    key: "portfolio-lite-live-select",
+    label: "PF-16 · 选择模式（移动卡列表）",
+    note: "移动端点整卡切换选中；单卡 Cash out 在选择模式下隐藏，避免与批量动作冲突。",
+    spec: SELECT_SPEC,
+  },
+  {
+    key: "portfolio-lite-batch-bar",
+    label: "PF-17 · 吸底动作条（BatchActionBar）",
+    note: "动作条是 fixed 贴底，不随列表滚动；页面流内同时渲染 h-[76px] 占位，防止遮住最后一行。",
+    spec: [
+      { state: "不渲染", when: "rows.length === 0", visual: "组件 return null：无占位、无空条", source: "BatchActionBar" },
+      { state: "渲染", when: "rows.length > 0", visual: "圆角条 #12151A/95 + backdrop-blur + 1px #2A2F38；内层 max-w-7xl px-4 lg:px-6 与页容器对齐", source: "BatchActionBar" },
+      { state: "定位（移动）", when: "移动端", visual: "bottom-[84px] —— 钉在 BottomNav（实测 77px 含 1px border）上方，留 7px 呼吸缝", source: "BatchActionBar" },
+      { state: "定位（桌面）", when: "lg 断点及以上", visual: "lg:bottom-4", source: "BatchActionBar" },
+      { state: "汇总数值", when: "始终", visual: "`N selected` + `Now worth $X · Profit ±$Y`（Profit 走 livePnlColor）", source: "BatchActionBar reduce" },
+      { state: "主按钮", when: "始终", visual: "shadcn Button h-10 rounded-[10px] px-5，文案 `Cash out N`", source: "BatchActionBar" },
+    ],
+  },
+  {
+    key: "portfolio-lite-batch-confirm",
+    label: "PF-18 · 确认层空闲态（桌面 Dialog）",
+    note: "确认层遵 DESIGN §5.1：桌面 Dialog（sm:max-w-[420px]）/ 移动 MobileDrawer，正文与按钮两端共用同一套 ConfirmBody / Actions。",
+    spec: [
+      { state: "标题", when: "始终", visual: "`Cash out N positions`", source: "BatchCashOutConfirm" },
+      { state: "明细卡", when: "始终", visual: "`rounded-lg border bg-muted/30 p-3`，内行距 space-y-1.5，逐行 `{event}`（truncate）· `{sideWord}`（font-mono muted）· `{now worth}`（font-mono 粗）", source: "ConfirmBody" },
+      { state: "合计行", when: "始终", visual: "上 1px border-border/50 分隔，左 `You get about`（muted）右合计（font-mono bold）", source: "ConfirmBody" },
+      { state: "免责句", when: "始终", visual: "`Prices move while we close — the final amount can differ slightly.`（text-xs muted）", source: "ConfirmBody" },
+      { state: "按钮", when: "提交型 + 不可逆", visual: "Cancel（outline h-11 flex-1）+ `Cash out`（destructive `bg-trading-red text-white hover:bg-trading-red/90` h-11 flex-1）", source: "Actions" },
+    ],
+  },
+  {
+    key: "portfolio-lite-batch-confirm-mobile",
+    label: "PF-18 · 确认层空闲态（移动 MobileDrawer）",
+    note: "移动端按钮区必须是 `MobileDrawerActions className=\"flex gap-2 space-y-0\"`，与桌面共用同一个 Actions 组件。",
+    spec: [
+      { state: "容器", when: "isMobile === true", visual: "MobileDrawer + title `Cash out N positions`；正文与桌面逐字相同", source: "BatchCashOutConfirm" },
+      { state: "按钮区", when: "始终", visual: "MobileDrawerActions 横排 gap-2，Cancel 与红色 Cash out 各占一半", source: "MobileDrawerActions" },
+    ],
+  },
+  {
+    key: "portfolio-lite-batch-closing",
+    label: "PF-18 · 确认层执行中（桌面）",
+    note: "串行逐仓平仓，进度写在主按钮上；两个按钮同时禁用，不可中途取消。",
+    spec: [
+      { state: "执行中", when: "closingLabel !== null", visual: "主按钮文案换成 `Closing i / N…` 并 disabled；Cancel 同步 disabled", source: "Actions closingLabel" },
+      { state: "全部成功", when: "失败数 === 0", visual: "关闭确认层 + toast `Cashed out N positions`", source: "LitePortfolio.closeBatch" },
+      { state: "部分失败", when: "0 < 失败数 < N", visual: "toast `Cashed out K of N — M failed, still open below`，失败仓保留在列表", source: "LitePortfolio.closeBatch" },
+      { state: "全部失败", when: "失败数 === N", visual: "toast `Couldn't cash out — please try again`，选择状态保留", source: "LitePortfolio.closeBatch" },
+    ],
+  },
+  {
+    key: "portfolio-lite-batch-closing-mobile",
+    label: "PF-18 · 确认层执行中（移动）",
+    note: "与桌面同一套禁用与进度规则。",
+    spec: [
+      { state: "执行中", when: "closingLabel !== null", visual: "抽屉内主按钮 `Closing i / N…` disabled，Cancel disabled", source: "Actions closingLabel" },
+    ],
+  },
+  {
+    key: "portfolio-lite-batch-bar-mobile",
+    label: "PF-17 · 吸底动作条（移动）",
+    note: "同一个组件；移动端定位 bottom-[84px]。",
+    spec: [
+      { state: "不渲染", when: "rows.length === 0", visual: "组件 return null", source: "BatchActionBar" },
+      { state: "渲染", when: "rows.length > 0", visual: "贴底圆角条 + `Cash out N` 主按钮", source: "BatchActionBar" },
+    ],
+  },
+];
+
+const ALL_CASES: SectionCase[] = [
+  ...CHROME_CASES,
+  ...KPI_CASES,
+  ...BOOST_CASES,
+  ...LIVE_CASES,
+  ...PENDING_CASES,
+  ...BATCH_CASES,
+];
 
 const byKey = (...keys: string[]): SectionCase[] =>
   keys.map((k) => {
