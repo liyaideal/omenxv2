@@ -490,100 +490,162 @@ const Matrix = ({ m }: { m: Model }) => {
 };
 
 // ---------- mobile degraded strip ----------
+// 1:1 于定稿画布 SpecMobile 的 .deg / .sticky 条。
+// 内联 62 高（含 1px 边框），sticky 45 高，比分字号 18 → 16。
 
 const CellTrack = ({ m }: { m: Model }) => {
-  if (!m.spec) return null;
+  if (!m.spec || m.total <= 0) return null;
   const thr = m.spec.decisiveThreshold;
   return (
-    <div style={{ display: "flex", gap: 2, height: 3 }}>
+    <div
+      style={{
+        position: "absolute",
+        left: 0,
+        right: 0,
+        bottom: 0,
+        height: 3,
+        display: "flex",
+        gap: 2,
+      }}
+    >
       {Array.from({ length: m.total }, (_, i) => {
         const n = i + 1;
         const r = m.results[n - 1];
         const done = m.idx == null ? !!r : n < m.idx;
         const now = (m.status === "live" || m.status === "break") && n === m.idx;
         const pct =
-          now && r && thr ? Math.max(0, Math.min(1, Math.max(r.home, r.away) / thr)) : 0;
+          now && r && thr
+            ? Math.max(0, Math.min(1, Math.max(r.home, r.away) / thr))
+            : 0;
+        if (now)
+          return (
+            <div key={n} style={{ flex: 1, height: 3, display: "flex" }}>
+              <div style={{ flexGrow: pct, background: "#FF8A3D" }} />
+              <div style={{ flexGrow: 1 - pct, background: "#191D23" }} />
+            </div>
+          );
         return (
-          <div key={n} style={{ flex: 1, height: 3, background: done ? "#39414B" : "#191D23" }}>
-            {now ? (
-              <div style={{ width: `${pct * 100}%`, height: 3, background: "#FF8A3D" }} />
-            ) : null}
-          </div>
+          <div
+            key={n}
+            style={{ flex: 1, height: 3, background: done ? "#39414B" : "#191D23" }}
+          />
         );
       })}
     </div>
   );
 };
 
-const MobileBar = ({ m, height }: { m: Model; height: number }) => {
-  const segLabel = m.idx != null && m.spec ? m.spec.label(m.idx) : "";
-  const primary = m.isMma ? `${m.home} vs ${m.away}` : m.scoreText;
-  return (
-    <div
-      className="w-full"
-      style={{
-        height,
+/** 姓氏（UFC 用）：取最后一个空格后的词。 */
+const lastName = (full: string) => {
+  const t = (full || "").trim().split(/\s+/);
+  return t[t.length - 1] || "";
+};
+
+const MobileBar = ({ m, sticky }: { m: Model; sticky: boolean }) => {
+  const scSize = sticky ? 16 : 18;
+  const segLabel =
+    m.idx == null || !m.spec
+      ? ""
+      : m.isMma
+        ? `R${m.idx}`
+        : sticky
+          ? `M${m.idx}`
+          : `MAP ${m.idx}`;
+
+  const shellBase = {
+    position: "relative" as const,
+    display: "flex",
+    alignItems: "center",
+    gap: 9,
+    padding: "0 12px",
+    overflow: "hidden",
+    ...(m.status === "settled" ? { opacity: 0.6 } : null),
+  };
+  const shell = sticky
+    ? {
+        ...shellBase,
+        height: 45,
+        background: "#0E1116",
+        borderBottom: "1px solid #1D2026",
+      }
+    : {
+        ...shellBase,
+        height: 62,
         border: "1px solid #1D2026",
         borderRadius: 12,
-        background: "linear-gradient(168deg,#171C24 0%,#0D1014 100%)",
-        overflow: "hidden",
-        display: "flex",
-        flexDirection: "column",
-        ...(m.status === "settled" ? { opacity: 0.6 } : null),
+        background: "linear-gradient(168deg,#171C24,#0D1014)",
+      };
+
+  const ab = (text: string) => (
+    <span
+      className="truncate"
+      style={
+        m.isMma
+          ? { fontSize: 11, letterSpacing: ".03em", color: "#C9D1DA", fontWeight: 600 }
+          : { fontSize: 9.5, letterSpacing: ".14em", color: "#C9D1DA", fontWeight: 600 }
+      }
+    >
+      {text}
+    </span>
+  );
+  const sc = (v: number) => (
+    <span
+      style={{
+        fontFamily: MONO,
+        fontSize: scSize,
+        fontWeight: 700,
+        lineHeight: 1,
+        fontVariantNumeric: "tabular-nums",
+        color: "#fff",
       }}
     >
+      {v}
+    </span>
+  );
+  const dash = (text: string) => (
+    <span style={{ fontFamily: MONO, fontSize: 12, color: "#3D444C" }}>{text}</span>
+  );
+
+  return (
+    <div className="w-full" style={shell}>
       <Blink />
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          padding: "0 12px",
-          minWidth: 0,
-        }}
-      >
-        {m.status === "live" ? (
-          <LivePill label="LIVE" />
-        ) : m.status === "break" ? (
-          <LivePill label="BREAK" />
-        ) : m.status === "upcoming" ? (
-          <QuietPill label="UPCOMING" />
-        ) : m.status === "settled" ? (
-          <QuietPill label="SETTLED" />
-        ) : (
-          <QuietPill label="FINISHED" />
-        )}
-        <span
-          className="truncate"
-          style={{
-            fontFamily: MONO,
-            fontSize: 14,
-            fontWeight: 700,
-            color: "#C9D1DA",
-            fontVariantNumeric: "tabular-nums",
-          }}
-        >
-          {primary}
-        </span>
-        <span style={{ flexGrow: 1 }} />
-        {segLabel ? (
-          <span
-            style={{
-              fontSize: 9.5,
-              letterSpacing: ".14em",
-              textTransform: "uppercase",
-              color: "#4A525C",
-              fontWeight: 600,
-            }}
-          >
-            {segLabel}
-          </span>
-        ) : null}
+      {m.status === "live" ? (
+        <LivePill label="LIVE" />
+      ) : m.status === "break" ? (
+        <LivePill label="BREAK" />
+      ) : m.status === "upcoming" ? (
+        <QuietPill label="UPCOMING" />
+      ) : m.status === "settled" ? (
+        <QuietPill label="SETTLED" />
+      ) : (
+        <QuietPill label="FINISHED" />
+      )}
+
+      {m.isMma ? (
+        <>
+          {ab(lastName(m.home))}
+          {dash("vs")}
+          {ab(lastName(m.away))}
+        </>
+      ) : (
+        <>
+          {ab(m.meta.home_abbr || m.home)}
+          {sc(m.homeMaps)}
+          {dash("–")}
+          {sc(m.awayMaps)}
+          {ab(m.meta.away_abbr || m.away)}
+        </>
+      )}
+
+      <span style={{ flexGrow: 1 }} />
+      {segLabel ? (
+        <span style={{ fontFamily: MONO, fontSize: 11, color: "#8B929B" }}>{segLabel}</span>
+      ) : null}
+      {m.rightValue ? (
         <span
           style={{
             fontFamily: MONO,
-            fontSize: 14,
+            fontSize: 12,
             fontWeight: 700,
             color: m.isMma && m.status === "live" ? "#FF8A3D" : "#C9D1DA",
             fontVariantNumeric: "tabular-nums",
@@ -591,7 +653,7 @@ const MobileBar = ({ m, height }: { m: Model; height: number }) => {
         >
           {m.rightValue}
         </span>
-      </div>
+      ) : null}
       <CellTrack m={m} />
     </div>
   );
