@@ -450,13 +450,35 @@ export default function LitePortfolio() {
         <VoucherHairline count={p.claimableVouchers} />
       </div>
       {!series && (
-        <div className="px-4 lg:px-0 pt-3">
+        <div className="flex items-center justify-between gap-3 px-4 lg:px-0 pt-3">
           <SegmentChips
             value={segment}
             onChange={setSegment}
             boostCount={tab === "live" ? p.boostLive.length : p.settledCounts.boost}
             standardCount={tab === "live" ? p.standardLive.length : p.settledCounts.standard}
           />
+          {tab === "live" &&
+            rows.length > 0 &&
+            (selectMode ? (
+              <SelectToolbar
+                count={selectedRows.length}
+                total={rows.length}
+                onSelectAll={() => setSelected(new Set(rows.map((r) => r.id)))}
+                onClear={() => setSelected(new Set())}
+                onCancel={() => {
+                  setSelectMode(false);
+                  setSelected(new Set());
+                }}
+              />
+            ) : (
+              <button
+                type="button"
+                onClick={() => setSelectMode(true)}
+                className="py-[7px] text-[12.5px] font-semibold text-[#33D6FF]"
+              >
+                Select
+              </button>
+            ))}
         </div>
       )}
       {tab === "live" ? liveBody : settledBody}
