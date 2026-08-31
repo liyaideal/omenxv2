@@ -197,7 +197,7 @@ tape 不自带数据源：crypto 用快轮流、equity 用日收盘股票事件�
 3. `HomeHero`：文字栈在上、lynx 横带在下（90 / <390 时 78）
 4. chips 通栏条（`px-4`）
 5. `HomeStage` 单列 `gap 14 / marginTop 10`：
-   - `HomeCryptoCard`：三张同版式 round 卡纵排（`gap 10`），每卡头右侧橙色 `CLOSES` + `mm:ss`
+   - `HomeCryptoCard`：三张同版式 round 卡纵排（`gap 10`），每卡头右侧橙色 `Closes` 标 + `mm:ss` 倒计时（`Closes` 由 `textTransform: uppercase` 呈现为大写）
    - `HomeStocksCard`：行卡默认 5 行（`MOBILE_ROWS = 5`）+ `Show all {n} →` / `Show less`
    - `HomeSportsCard`：day-strip + LiveCard + 移动 kickoff 左列卡片行 + stacked 赔率钮
    - `HomeDeskCard`
@@ -302,7 +302,7 @@ chips 的内容、顺序、回调逐字节不变（`chipsRow` 变量整体复用
 
 - 全站 R1–R3（`usStockSessions.ts` 注释）：R1 每个展示给用户的钟点用查看者本地时区、**无时区后缀**（`formatLocalTime`，24h）；R2 场所名词（`HK close` / `US session`）保留；R3 星期词从同一本地时间戳再派生（`formatLocalStamp` / `formatLocalDate`）。
 - ST-1 例外：HK 文案硬编码 `HKT`（`HK settles at close 16:00 HKT` / `Next session · HK opens 09:30 HKT`），US 随查看者时区由 `formatLocalTime(session.closeAt / session.nextOpenAt)` 推导。详见 `docs/copy-dictionary.md` §「Stocks · 交易时段（ST-1）」与 `/style-guide` Foundations §5。
-- 倒计时与时长不涉时区：`formatMinuteCountdown()` 输出 `mm:ss`（`usStockSessions.ts:615`），crypto 卡 `CLOSES` 用 `formatCountdown()`。
+- 倒计时与时长不涉时区：`formatMinuteCountdown()` 输出 `mm:ss`（`usStockSessions.ts:615`），crypto 卡 `Closes` 用 `formatCountdown()`。
 - 三态每秒 tick 重算：`useSecondTick()` 驱动 `tickSeconds`，`getStockSessionState()` 每次重算，态间自动翻转无需刷新，只切换受影响字段。
 - Sports 日期胶囊：`TODAY` / `{WEEKDAY} {D}`（`buildDayStrip`，`sportsData.ts:248-249`），weekday 由本地时间派生。
 
