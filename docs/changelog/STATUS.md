@@ -17,6 +17,18 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-08-31 — Lite 主页（Home / Events 列表）交付说明 v1（DOC-2）
+
+源文档：[../delivery/lite-home-v1.md](../delivery/lite-home-v1.md)
+
+| # | 需求条目 | 参考位置 | Status | QA 测试要点 | Notes |
+|---|---|---|---|---|---|
+| 1 | `MARKET_HOLIDAYS` 填入 US / HK 休市日历 | §2.a · §12-1 | ⬜ | 休市日整天走 preSession，`opens` 指向下一交易日 | 等 CPO 给日历，勿自行编表 |
+| 2 | `live` / `settling` 两态真实时钟窗口取证 | §2.b · §12-2 | ⬜ | 盘中与收盘后 60 分钟内各截一次双端 | 首轮取证时段恰为 preSession |
+| 3 | `picks = 0` 空态与盘中收盘瞬间翻转实测 | §2.f · §12-3 | ⬜ | Desk 整卡消失且 Sports 补 2 行；态间无需刷新 | |
+| 4 | preSession 下单归属端到端验证 | §2.a · §12-4 | ⬜ | 下单落到下一时段 market，非当前已收盘轮 | |
+| 5 | 真平台残留退役词 `Not up` 清理 | §6 · §12-5 | ⬜ | 全站扫描无 `Not up` | 一律写 `Down` |
+
 ## 2026-08-31 — Portfolio（Lite）交付说明 v2（DOC-1）
 
 源文档：[../delivery/lite-portfolio-spec-v2.md](../delivery/lite-portfolio-spec-v2.md)
