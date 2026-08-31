@@ -35,15 +35,19 @@ import {
 import { PortfolioErrorBoundary } from "@/components/portfolio/lite/PortfolioErrorBoundary";
 import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
 import { MobileHeader } from "@/components/MobileHeader";
+import { settledDayLabel, monthGroupLabel, monthKey } from "@/lib/settleLabel";
 import { useEffect, useRef, useState } from "react";
 
 /** Fixture dates stay relative so settleLabel() output never goes stale. */
-const inDays = (d: number, hour = 16) => {
+const inDays = (d: number, hour = 16, min = 0) => {
   const t = new Date();
   t.setDate(t.getDate() + d);
-  t.setHours(hour, 0, 0, 0);
+  t.setHours(hour, min, 0, 0);
   return t.toISOString();
 };
+
+/** Same thing, expressed backwards — "N days ago at hh:mm". */
+const daysAgoAt = (daysAgo: number, hour = 12, min = 0) => inDays(-daysAgo, hour, min);
 
 const base: LiteLiveRow = {
   id: "demo-1",
@@ -85,36 +89,6 @@ const hotRow: LiteLiveRow = {
   nowWorth: 77.9,
 };
 
-const safeBoostRow: LiteLiveRow = {
-  ...base,
-  id: "demo-safe",
-  eventName: "Fed cuts in September",
-  categoryLabel: "Finance",
-  settlesAt: inDays(5, 16),
-  sideWord: "Yes",
-  priceNow: 0.55,
-  autoClose: { kind: "none" as const },
-  hot: false,
-  profit: 22,
-  nowWorth: 142,
-  cost: 120,
-};
-
-const missingBoostRow: LiteLiveRow = {
-  ...base,
-  id: "demo-missing",
-  eventName: "BTC ETF approved this week",
-  categoryLabel: "Crypto",
-  settlesAt: inDays(3, 16),
-  sideWord: "Yes",
-  priceNow: 0.42,
-  autoClose: { kind: "none" as const },
-  hot: false,
-  profit: 8,
-  nowWorth: 108,
-  cost: 100,
-  ifWins: 250,
-};
 
 const voucherRow: LiteLiveRow = {
   ...base,
@@ -148,27 +122,6 @@ const standardRow: LiteLiveRow = {
   tradePath: "/spot",
 };
 
-/** Flat position — exercises isZeroMoney() (muted, unsigned $0.00). */
-const noBinaryRow: LiteLiveRow = { ...base, id: "demo-no-binary", eventName: "Will Apple announce a foldable iPhone before 2027?", categoryLabel: "Tech", settlesAt: inDays(40, 23), sideWord: "No", side: "no", optionName: null, priceNow: 0.54, cost: 22, nowWorth: 36.3, profit: 14.3, leverageNum: 5, ifWins: 110, autoClose: { kind: "level", price: 0.71 }, hot: false };
-const multiYesRow: LiteLiveRow = { ...base, id: "demo-multi-yes", eventName: "Who wins the 2026 F1 drivers' championship?", categoryLabel: "Social", settlesAt: inDays(97, 18), sideWord: "Yes", side: "yes", optionName: "Lando Norris", priceNow: 0.16, cost: 3, nowWorth: 3, profit: 0, leverageNum: 1, ifWins: 18.75, autoClose: { kind: "none" }, hot: false };
-const multiNoRow: LiteLiveRow = { ...multiYesRow, id: "demo-multi-no", sideWord: "No", side: "no", optionName: "Charles Leclerc", priceNow: 0.67, ifWins: 4.48 };
-
-const flatRow: LiteLiveRow = {
-  ...base,
-  id: "demo-flat",
-  eventName: "US CPI above 3% in September",
-  categoryLabel: "Finance",
-  settlesAt: inDays(6, 16),
-  sideWord: "Yes",
-  segment: "standard",
-  leverageNum: 1,
-  autoClose: { kind: "none" as const },
-  cost: 100,
-  profit: 0,
-  nowWorth: 100,
-  ifWins: 210,
-};
-
 const gauge = (riskRatio: number) => ({
   riskRatio,
   equity: 1240,
@@ -192,43 +145,34 @@ export const PortfolioGaugeBarPreview = () => (
   </div>
 );
 
+/* -------- PF-8 · Live 常规态（盈利 / 亏损 / 零盈亏 · 1×–5× 倍数梯度）-------- */
+const pf8Rows: LiteLiveRow[] = [
+  { ...base, id: "pf8-win", eventName: "Bitcoin above $70,000", profit: 38.4, nowWorth: 158.4, leverageNum: 2 },
+  { ...base, id: "pf8-loss", eventName: "ETH above $4,000 today", profit: -42.1, nowWorth: 77.9, leverageNum: 2 },
+  { ...base, id: "pf8-zero", eventName: "US CPI above 3% in September", categoryLabel: "Finance", settlesAt: inDays(6, 16), profit: 0, nowWorth: 120, leverageNum: 2 },
+  { ...base, id: "pf8-2x", eventName: "Fed cuts in September", categoryLabel: "Finance", settlesAt: inDays(5, 16), profit: 22, nowWorth: 142, leverageNum: 2 },
+  { ...base, id: "pf8-4x", eventName: "NVIDIA closes above $190", categoryLabel: "Stocks", settlesAt: inDays(1, 16), profit: 61.5, nowWorth: 181.5, leverageNum: 4 },
+  { ...base, id: "pf8-5x", eventName: "Solana above $260 this week", categoryLabel: "Crypto", settlesAt: inDays(4, 16), profit: -12.75, nowWorth: 107.25, leverageNum: 5 },
+  { ...base, id: "pf8-1x", eventName: "Arsenal to beat Liverpool", categoryLabel: "Soccer", settlesAt: inDays(0, 22), profit: 6.2, nowWorth: 126.2, leverageNum: 1, autoClose: { kind: "none" as const } },
+];
 
 export const PortfolioLiveCardsPreview = () => (
   <div className="flex flex-col gap-2 bg-background p-4">
-    <LiveCard row={base} />
-    <LiveCard row={hotRow} />
-    <LiveCard row={noBinaryRow} />
-    <LiveCard row={multiYesRow} />
-    <LiveCard row={multiNoRow} />
-    <LiveCard row={safeBoostRow} />
-    <LiveCard row={missingBoostRow} />
-    <LiveCard row={voucherRow} />
-    <LiveCard row={standardRow} />
-    <LiveCard row={flatRow} />
-    <PendingOrdersRow orders={[{ id: "o1", event: "BTC above $70,000", size: "120", price: "41¢" }]} />
-    {/* Empty orders → the dashed row renders nothing at all. */}
-    <PendingOrdersRow orders={[]} />
-    <p className="text-[11px] text-[#6B7280]">
-      ↑ 最后一行是 orders=[] 的挂单行：不渲染任何 chrome。
-    </p>
+    {pf8Rows.map((r) => (
+      <LiveCard key={r.id} row={r} />
+    ))}
   </div>
 );
 
 export const PortfolioDesktopRowsPreview = () => (
   <div className="bg-background py-4">
     <LiveRowHeader />
-    <LiveRow row={base} />
-    <LiveRow row={hotRow} />
-    <LiveRow row={noBinaryRow} />
-    <LiveRow row={multiYesRow} />
-    <LiveRow row={multiNoRow} />
-    <LiveRow row={safeBoostRow} />
-    <LiveRow row={missingBoostRow} />
-    <LiveRow row={voucherRow} />
-    <LiveRow row={standardRow} />
-    <LiveRow row={flatRow} />
+    {pf8Rows.map((r) => (
+      <LiveRow key={r.id} row={r} />
+    ))}
   </div>
 );
+
 
 /* ------------------------------- KPI ------------------------------- */
 
@@ -265,13 +209,6 @@ export const PortfolioKpiMobilePreview = () => (
         <KpiCard label="NOW WORTH" value={money(0)} sub={`${signedMoney(0)} · +0.0%`} />
       </KpiGrid>
     </div>
-    <div>
-      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Settled · 移动 2 卡</p>
-      <KpiGrid cols={2}>
-        <KpiCard label="WIN RATE" value="58%" sub="7 of 12" />
-        <KpiCard label="NET PROFIT" value={signedMoney(214)} sub="12 settled" subColor={VOLT} />
-      </KpiGrid>
-    </div>
   </div>
 );
 
@@ -291,22 +228,6 @@ export const PortfolioKpiDesktopPreview = () => (
         <KpiCard label="COST" value={money(310)} sub="2 calls" />
         <KpiCard label="NOW WORTH" value={money(268.4)} />
         <KpiCard label="PROFIT" value={signedMoney(-41.6)} sub="-13.4%" subColor={RED} />
-      </KpiGrid>
-    </div>
-    <div>
-      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Settled · 桌面 3 卡</p>
-      <KpiGrid cols={3}>
-        <KpiCard label="WIN RATE" value="58%" sub="7 of 12" />
-        <KpiCard label="NET PROFIT" value={signedMoney(214)} sub="12 settled" subColor={VOLT} />
-        <KpiCard label="RECORD" value="7W 5L" sub="wins · losses" />
-      </KpiGrid>
-    </div>
-    <div>
-      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">Settled · 零态</p>
-      <KpiGrid cols={3}>
-        <KpiCard label="WIN RATE" value="0%" sub="0 of 0" />
-        <KpiCard label="NET PROFIT" value={signedMoney(0)} sub="0 settled" />
-        <KpiCard label="RECORD" value="0W 0L" sub="wins · losses" />
       </KpiGrid>
     </div>
   </div>
@@ -449,63 +370,88 @@ export const PortfolioKpiSettledMobilePreview = () => (
 );
 
 
-const settled = (o: Partial<LiteSettledRow>): LiteSettledRow => ({
-  id: Math.random().toString(36).slice(2),
-  title: "Bitcoin above $70,000 on Aug 1",
-  metaParts: ["Up", "2× Boost", "Aug 1"],
-  remark: "none",
-  net: 235,
-  segment: "boost",
-  closedAt: "2026-08-01T14:00:00Z",
-  isSeries: false,
-  won: true,
-  ...o,
-});
+/* Settled fixtures — every date is relative to "now" so the dictionary never
+   rots, and every visible date string is derived through the production
+   helpers (settledDayLabel / monthGroupLabel / monthKey) rather than typed. */
+let settledSeq = 0;
+const settled = (
+  o: Partial<LiteSettledRow> & { daysAgo?: number; metaHead?: string[]; metaTail?: string[] },
+): LiteSettledRow => {
+  const { daysAgo = 16, metaHead = ["Up", "2× Boost"], metaTail = [], ...rest } = o;
+  const closedAt = daysAgoAt(daysAgo, 14);
+  return {
+    id: `pf-settled-${++settledSeq}`,
+    title: "Bitcoin above $70,000",
+    metaParts: [...metaHead, settledDayLabel(closedAt), ...metaTail],
+    remark: "none",
+    net: 235,
+    segment: "boost",
+    closedAt,
+    isSeries: false,
+    won: true,
+    ...rest,
+  };
+};
 
-const groups: LiteMonthGroup[] = [
-  {
-    key: "2026-08",
-    label: "AUGUST 2026",
-    rows: [
-      settled({}),
-      settled({
-        title: "ETH above $4,000 today",
-        metaParts: ["Up", "3× Boost", "Aug 9", "auto-closed"],
-        remark: "auto_close",
-        net: -88,
-        won: false,
-      }),
-      settled({
-        title: "Arsenal to beat Liverpool",
-        metaParts: ["ARS +1.5", "Aug 12"],
-        remark: "cashout",
-        net: 42.5,
-      }),
-      settled({
-        title: "9988.HK closes up",
-        metaParts: ["Series", "won 1 of 3", "Aug 14"],
-        remark: "none",
-        net: -31,
-        isSeries: true,
-        seriesId: "9988.HK%20closes%20up",
-        won: false,
-      }),
-      settled({
-        title: "US jobs report beats forecast",
-        metaParts: ["Yes", "Aug 15"],
-        remark: "none",
-        net: 0.002,
-        segment: "standard",
-        won: true,
-      }),
-    ],
-  },
-  {
-    key: "2026-07",
-    label: "JULY 2026",
-    rows: [settled({ title: "US CPI above 3%", metaParts: ["Yes", "Jul 22"], net: 96 })],
-  },
-];
+/** Group by real month so the group header can never disagree with its rows. */
+const groupByMonth = (rows: LiteSettledRow[]): LiteMonthGroup[] => {
+  const order: string[] = [];
+  const map = new Map<string, LiteSettledRow[]>();
+  rows.forEach((r) => {
+    const k = monthKey(r.closedAt);
+    if (!map.has(k)) {
+      map.set(k, []);
+      order.push(k);
+    }
+    map.get(k)!.push(r);
+  });
+  return order.map((key) => ({
+    key,
+    label: monthGroupLabel(map.get(key)![0].closedAt),
+    rows: map.get(key)!,
+  }));
+};
+
+const groups: LiteMonthGroup[] = groupByMonth([
+  settled({ daysAgo: 16 }),
+  settled({
+    daysAgo: 19,
+    title: "ETH above $4,000 today",
+    metaHead: ["Up", "3× Boost"],
+    metaTail: ["auto-closed"],
+    remark: "auto_close",
+    net: -88,
+    won: false,
+  }),
+  settled({
+    daysAgo: 22,
+    title: "Arsenal to beat Liverpool",
+    metaHead: ["ARS +1.5"],
+    remark: "cashout",
+    net: 42.5,
+  }),
+  settled({
+    daysAgo: 25,
+    title: "9988.HK closes up",
+    metaHead: ["Series", "won 1 of 3"],
+    remark: "none",
+    net: -31,
+    isSeries: true,
+    seriesId: "9988.HK%20closes%20up",
+    won: false,
+  }),
+  settled({
+    daysAgo: 28,
+    title: "US jobs report beats forecast",
+    metaHead: ["Yes"],
+    remark: "none",
+    net: 0.002,
+    segment: "standard",
+    won: true,
+  }),
+  settled({ daysAgo: 45, title: "US CPI above 3%", metaHead: ["Yes"], net: 96 }),
+]);
+
 
 export const PortfolioSettledListPreview = () => (
   <div className="bg-background pb-4">
@@ -580,11 +526,11 @@ const detailBase: SettlementDetailVM = {
   leverage: 2,
   sideWord: "Up",
   outcomeWon: true,
-  openedAt: "2026-07-28T09:12:00Z",
-  closedAt: "2026-08-01T14:00:00Z",
+  openedAt: daysAgoAt(34, 9, 12),
+  closedAt: daysAgoAt(30, 14),
   trades: [
-    { id: "t1", time: "2026-07-28T09:12:00Z", action: "Open", total: 80, price: 0.33 },
-    { id: "t2", time: "2026-07-30T11:40:00Z", action: "Add", total: 40, price: 0.36 },
+    { id: "t1", time: daysAgoAt(34, 9, 12), action: "Open", total: 80, price: 0.33 },
+    { id: "t2", time: daysAgoAt(32, 11, 40), action: "Add", total: 40, price: 0.36 },
   ],
 };
 
@@ -601,11 +547,11 @@ const detailAutoClosed: SettlementDetailVM = {
   leverage: 3,
   sideWord: "Yes",
   outcomeWon: false,
-  openedAt: "2026-08-09T10:00:00Z",
-  closedAt: "2026-08-12T16:45:00Z",
+  openedAt: daysAgoAt(22, 10),
+  closedAt: daysAgoAt(19, 16, 45),
   trades: [
-    { id: "t1", time: "2026-08-09T10:00:00Z", action: "Open", total: 30, price: 0.6 },
-    { id: "t2", time: "2026-08-10T12:00:00Z", action: "Add", total: 30, price: 0.6 },
+    { id: "t1", time: daysAgoAt(22, 10), action: "Open", total: 30, price: 0.6 },
+    { id: "t2", time: daysAgoAt(21, 12), action: "Add", total: 30, price: 0.6 },
   ],
 };
 
@@ -622,9 +568,9 @@ const detailCashout: SettlementDetailVM = {
   leverage: 2,
   sideWord: "ARS +1.5",
   outcomeWon: false,
-  openedAt: "2026-08-11T18:00:00Z",
-  closedAt: "2026-08-12T20:10:00Z",
-  trades: [{ id: "t1", time: "2026-08-11T18:00:00Z", action: "Open", total: 150, price: 0.37 }],
+  openedAt: daysAgoAt(20, 18),
+  closedAt: daysAgoAt(19, 20, 10),
+  trades: [{ id: "t1", time: daysAgoAt(20, 18), action: "Open", total: 150, price: 0.37 }],
 };
 
 const detailLost: SettlementDetailVM = {
@@ -640,9 +586,9 @@ const detailLost: SettlementDetailVM = {
   leverage: 1,
   sideWord: "Up",
   outcomeWon: false,
-  openedAt: "2026-08-14T01:40:00Z",
-  closedAt: "2026-08-14T08:00:00Z",
-  trades: [{ id: "t1", time: "2026-08-14T01:40:00Z", action: "Open", total: 100, price: 0.42 }],
+  openedAt: daysAgoAt(17, 1, 40),
+  closedAt: daysAgoAt(17, 8),
+  trades: [{ id: "t1", time: daysAgoAt(17, 1, 40), action: "Open", total: 100, price: 0.42 }],
 };
 
 const seriesVm: SeriesDetailVM = {
@@ -651,9 +597,9 @@ const seriesVm: SeriesDetailVM = {
   isDailyRounds: true,
   segmentLabel: "Standard",
   rounds: [
-    { id: "r3", closedAt: "2026-08-14T12:20:00Z", sideWord: "Up", autoClosed: false, net: -15.15 },
-    { id: "r2", closedAt: "2026-08-13T12:20:00Z", sideWord: "Up", autoClosed: false, net: 17.85 },
-    { id: "r1", closedAt: "2026-08-12T12:20:00Z", sideWord: "Up", autoClosed: true, net: -15.15 },
+    { id: "r3", closedAt: daysAgoAt(17, 12, 20), sideWord: "Up", autoClosed: false, net: -15.15 },
+    { id: "r2", closedAt: daysAgoAt(18, 12, 20), sideWord: "Up", autoClosed: false, net: 17.85 },
+    { id: "r1", closedAt: daysAgoAt(19, 12, 20), sideWord: "Up", autoClosed: true, net: -15.15 },
   ],
   cost: 45,
   fees: 0.45,
@@ -666,8 +612,8 @@ const seriesAllWon: SeriesDetailVM = {
   ...seriesVm,
   seriesName: "Bitcoin — up or down?",
   rounds: [
-    { id: "w2", closedAt: "2026-08-14T12:20:00Z", sideWord: "Up", autoClosed: false, net: 18.4 },
-    { id: "w1", closedAt: "2026-08-13T12:20:00Z", sideWord: "Up", autoClosed: false, net: 21.1 },
+    { id: "w2", closedAt: daysAgoAt(17, 12, 20), sideWord: "Up", autoClosed: false, net: 18.4 },
+    { id: "w1", closedAt: daysAgoAt(18, 12, 20), sideWord: "Up", autoClosed: false, net: 21.1 },
   ],
   cost: 30,
   fees: 0.3,
@@ -680,8 +626,8 @@ const seriesAllLost: SeriesDetailVM = {
   ...seriesVm,
   seriesName: "Solana — up or down?",
   rounds: [
-    { id: "l2", closedAt: "2026-08-14T12:20:00Z", sideWord: "Down", autoClosed: true, net: -15 },
-    { id: "l1", closedAt: "2026-08-13T12:20:00Z", sideWord: "Down", autoClosed: false, net: -15 },
+    { id: "l2", closedAt: daysAgoAt(17, 12, 20), sideWord: "Down", autoClosed: true, net: -15 },
+    { id: "l1", closedAt: daysAgoAt(18, 12, 20), sideWord: "Down", autoClosed: false, net: -15 },
   ],
   cost: 30,
   fees: 0.3,
@@ -696,8 +642,8 @@ const seriesBoostWeekly: SeriesDetailVM = {
   isDailyRounds: false,
   segmentLabel: "Boost",
   rounds: [
-    { id: "b2", closedAt: "2026-08-12T20:00:00Z", sideWord: "ARS +1.5", autoClosed: false, net: 24 },
-    { id: "b1", closedAt: "2026-08-05T20:00:00Z", sideWord: "ARS -0.5", autoClosed: false, net: -12 },
+    { id: "b2", closedAt: daysAgoAt(19, 20), sideWord: "ARS +1.5", autoClosed: false, net: 24 },
+    { id: "b1", closedAt: daysAgoAt(26, 20), sideWord: "ARS -0.5", autoClosed: false, net: -12 },
   ],
   cost: 60,
   fees: 0.6,
@@ -843,7 +789,7 @@ export const PortfolioSettledLoadMorePreview = () => (
     <SettledList
       groups={[
         ...groups,
-        { key: "2026-06", label: "JUNE 2026", rows: [settled({ title: "US CPI above 3%", metaParts: ["Yes", "Jun 12"], net: 12 })] },
+        ...groupByMonth([settled({ daysAgo: 75, title: "US CPI above 3%", metaHead: ["Yes"], net: 12 })]),
       ]}
     />
   </div>
@@ -940,3 +886,309 @@ export const PortfolioLiveSelectPreview = () => {
     </div>
   );
 };
+
+/* ============================================================
+   Ⓔ 区补齐 · PF-9 / PF-11 / PF-12 / PF-14 / PF-15 移动挂单
+   全部挂生产 LiveCard / LiveRow / PendingOrdersRow，只换 fixture。
+   ============================================================ */
+
+/** PF-9 · SIDE chip 六态（二元 / 多选 / 别名 · 长文截断）。 */
+const sideChipRows: LiteLiveRow[] = [
+  { ...base, id: "pf9-bin-yes", eventName: "Bitcoin above $70,000", side: "yes", sideWord: "Yes", optionName: null, priceNow: 0.73 },
+  { ...base, id: "pf9-bin-no", eventName: "ETH above $4,000 today", side: "no", sideWord: "No", optionName: null, priceNow: 0.58 },
+  { ...base, id: "pf9-multi-yes", eventName: "Fed decision in September", categoryLabel: "Finance", side: "yes", sideWord: "Yes", optionName: "25 bps hike", priceNow: 0.05 },
+  { ...base, id: "pf9-multi-no", eventName: "Which film tops the 2026 worldwide box office?", categoryLabel: "Social", side: "no", sideWord: "No", optionName: "Avengers: Doomsday", priceNow: 0.09 },
+  { ...base, id: "pf9-alias", eventName: "Argentina vs Brazil", categoryLabel: "Soccer", side: "yes", sideWord: "ARS +1.5", optionName: null, priceNow: 0.87 },
+  { ...base, id: "pf9-alias-long", eventName: "Borussia Dortmund vs Bayern", categoryLabel: "Soccer", side: "no", sideWord: "Borussia Dortmund +1.5 asian handicap", optionName: null, priceNow: 0.44 },
+];
+
+export const PortfolioSideChipPreview = () => (
+  <div className="bg-background py-4">
+    <LiveRowHeader />
+    {sideChipRows.map((r) => (
+      <LiveRow key={r.id} row={r} />
+    ))}
+  </div>
+);
+
+export const PortfolioSideChipMobilePreview = () => (
+  <div className="flex flex-col gap-2 bg-background p-4">
+    {sideChipRows.map((r) => (
+      <LiveCard key={r.id} row={r} />
+    ))}
+  </div>
+);
+
+/** PF-11 · hot 只由 auto-close 距离决定，与盈亏正负无关。 */
+const hotRows: LiteLiveRow[] = [
+  { ...base, id: "pf11-normal", eventName: "Bitcoin above $70,000", hot: false, profit: -18.4, nowWorth: 101.6, autoClose: { kind: "level" as const, price: 0.12 } },
+  { ...base, id: "pf11-hot-loss", eventName: "NVIDIA closes above $190", categoryLabel: "Stocks", hot: true, profit: -42.1, nowWorth: 77.9, autoClose: { kind: "level" as const, price: 0.35 } },
+  { ...base, id: "pf11-hot-win", eventName: "Arsenal to beat Liverpool", categoryLabel: "Soccer", hot: true, profit: 26.4, nowWorth: 146.4, autoClose: { kind: "level" as const, price: 0.35 } },
+];
+
+export const PortfolioHotPreview = () => (
+  <div className="bg-background py-4">
+    <LiveRowHeader />
+    {hotRows.map((r) => (
+      <LiveRow key={r.id} row={r} />
+    ))}
+  </div>
+);
+
+export const PortfolioHotMobilePreview = () => (
+  <div className="flex flex-col gap-2 bg-background p-4">
+    {hotRows.map((r) => (
+      <LiveCard key={r.id} row={r} />
+    ))}
+  </div>
+);
+
+/** PF-12 · Standard 段：meta 无 Boost 后缀，句子无 auto-close 段。 */
+const standardRows: LiteLiveRow[] = [
+  {
+    ...base,
+    id: "pf12-up",
+    eventName: "Tencent (0700.HK) — will it close higher today?",
+    categoryLabel: "Stocks",
+    settlesAt: inDays(0, 16),
+    segment: "standard",
+    leverageNum: 1,
+    autoClose: { kind: "none" as const },
+    side: "yes",
+    sideWord: "Up",
+    optionName: null,
+    priceNow: 0.53,
+    cost: 200,
+    nowWorth: 214,
+    profit: 14,
+    ifWins: 380,
+    tradePath: "/spot",
+  },
+  {
+    ...base,
+    id: "pf12-down",
+    eventName: "9988.HK closes up today",
+    categoryLabel: "Stocks",
+    settlesAt: inDays(0, 16),
+    segment: "standard",
+    leverageNum: 1,
+    autoClose: { kind: "none" as const },
+    side: "no",
+    sideWord: "Down",
+    optionName: null,
+    priceNow: 0.47,
+    cost: 250,
+    nowWorth: 232,
+    profit: -18,
+    ifWins: 500,
+    tradePath: "/spot",
+  },
+];
+
+export const PortfolioStandardLivePreview = () => (
+  <div className="bg-background py-4">
+    <LiveRowHeader />
+    {standardRows.map((r) => (
+      <LiveRow key={r.id} row={r} />
+    ))}
+  </div>
+);
+
+export const PortfolioStandardLiveMobilePreview = () => (
+  <div className="flex flex-col gap-2 bg-background p-4">
+    {standardRows.map((r) => (
+      <LiveCard key={r.id} row={r} />
+    ))}
+  </div>
+);
+
+/** PF-14 · settleLabel() 三分支 + 缺失分支。 */
+const settlesRows: LiteLiveRow[] = [
+  { ...base, id: "pf14-today", eventName: "Bitcoin above $70,000", settlesAt: inDays(0, 16) },
+  { ...base, id: "pf14-sameyear", eventName: "Fed cuts in September", categoryLabel: "Finance", settlesAt: inDays(21, 4, 30) },
+  { ...base, id: "pf14-crossyear", eventName: "Who wins the 2027 Super Bowl?", categoryLabel: "Social", settlesAt: inDays(400, 12) },
+  { ...base, id: "pf14-missing", eventName: "Will Apple announce a foldable iPhone?", categoryLabel: "Tech", settlesAt: null },
+];
+
+export const PortfolioSettlesTimePreview = () => (
+  <div className="bg-background py-4">
+    <LiveRowHeader />
+    {settlesRows.map((r) => (
+      <LiveRow key={r.id} row={r} />
+    ))}
+  </div>
+);
+
+export const PortfolioSettlesTimeMobilePreview = () => (
+  <div className="flex flex-col gap-2 bg-background p-4">
+    {settlesRows.map((r) => (
+      <LiveCard key={r.id} row={r} />
+    ))}
+  </div>
+);
+
+/** PF-15 移动帧 · 与桌面同一个 PendingOrdersRow。 */
+export const PortfolioPendingMobilePreview = () => (
+  <div className="space-y-4 bg-background p-4">
+    <div>
+      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">折叠态</p>
+      <PendingOrdersRow orders={pendingOrders} />
+    </div>
+    <div>
+      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">展开态（逐单行 · 点击跳 Pro）</p>
+      <AutoExpand>
+        <PendingOrdersRow orders={pendingOrders} />
+      </AutoExpand>
+    </div>
+    <div>
+      <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">orders = []</p>
+      <PendingOrdersRow orders={[]} />
+      <p className="pt-1 text-[11px] text-[#6B7280]">↑ 组件 return null，移动端同样不占高度。</p>
+    </div>
+  </div>
+);
+
+/* ============================================================
+   Ⓕ 区 · 批量平仓 PF-16 桌面 / PF-17 动作条 / PF-18 确认层两态
+   ============================================================ */
+
+const batchRows: LiteLiveRow[] = [
+  { ...base, id: "pf-batch-1", eventName: "Bitcoin above $70,000", nowWorth: 158.4, profit: 38.4 },
+  { ...base, id: "pf-batch-2", eventName: "ETH above $4,000 today", nowWorth: 77.9, profit: -42.1, side: "no", sideWord: "No" },
+  { ...base, id: "pf-batch-3", eventName: "Arsenal to beat Liverpool", categoryLabel: "Soccer", sideWord: "ARS +1.5", nowWorth: 146.4, profit: 26.4 },
+  { ...base, id: "pf-batch-4", eventName: "NVIDIA closes above $190", categoryLabel: "Stocks", nowWorth: 181.5, profit: 61.5 },
+  { ...base, id: "pf-batch-5", eventName: "US CPI above 3% in September", categoryLabel: "Finance", nowWorth: 120, profit: 0 },
+];
+
+/** PF-16 桌面帧 · 选择模式下的行式网格（勾选列 + 单行按钮隐藏）。 */
+export const PortfolioLiveSelectDesktopPreview = () => {
+  const [selected, setSelected] = useState<Set<string>>(new Set(["pf-batch-1", "pf-batch-3"]));
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const toggle = (r: LiteLiveRow) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(r.id)) next.delete(r.id);
+      else next.add(r.id);
+      return next;
+    });
+  const rows = batchRows.slice(0, 3);
+  const selectedRows = rows.filter((r) => selected.has(r.id));
+  return (
+    <div className="bg-background pb-4">
+      <div className="flex items-center justify-between gap-3 px-4 pt-3">
+        <SegmentChips value="boost" onChange={() => {}} boostCount={3} standardCount={1} />
+        <SelectToolbar
+          count={selectedRows.length}
+          total={rows.length}
+          onSelectAll={() => setSelected(new Set(rows.map((r) => r.id)))}
+          onClear={() => setSelected(new Set())}
+          onCancel={() => setSelected(new Set())}
+        />
+      </div>
+      <div className="pt-3">
+        <LiveRowHeader selectMode />
+        {rows.map((r) => (
+          <LiveRow
+            key={r.id}
+            row={r}
+            selectMode
+            selected={selected.has(r.id)}
+            onToggleSelect={toggle}
+          />
+        ))}
+      </div>
+      {selectedRows.length > 0 && <div className="h-[76px]" aria-hidden="true" />}
+      <BatchActionBar rows={selectedRows} onCashOut={() => setConfirmOpen(true)} />
+      <BatchCashOutConfirm
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        rows={selectedRows}
+        isMobile={false}
+        closingLabel={null}
+        onConfirm={() => setConfirmOpen(false)}
+      />
+    </div>
+  );
+};
+
+/** PF-17 · 吸底动作条本体（N=1 / N=3；N=0 不渲染）。 */
+const BarStack = () => (
+  <>
+    <div className="space-y-2 px-4 pt-3 text-[11px] text-[#6B7280]">
+      <p>N = 0 → BatchActionBar return null（下方无任何 chrome）。</p>
+      <BatchActionBar rows={[]} onCashOut={() => {}} />
+      <p>N = 1 / N = 3 见帧底吸底条（两条叠加仅为字典陈列）。</p>
+    </div>
+    <div className="h-[160px]" aria-hidden="true" />
+    <div className="pb-[76px]">
+      <BatchActionBar rows={batchRows.slice(0, 1)} onCashOut={() => {}} />
+    </div>
+    <BatchActionBar rows={batchRows.slice(0, 3)} onCashOut={() => {}} />
+  </>
+);
+
+export const PortfolioBatchBarPreview = () => (
+  <div className="bg-background pb-4">
+    <BarStack />
+  </div>
+);
+
+export const PortfolioBatchBarMobilePreview = () => (
+  <div className="bg-background pb-4">
+    <BarStack />
+  </div>
+);
+
+/** PF-18 · 确认层空闲态（桌面 Dialog / 移动 MobileDrawer）。 */
+export const PortfolioBatchConfirmPreview = () => (
+  <div className="min-h-[520px] bg-background p-4">
+    <BatchCashOutConfirm
+      open
+      onOpenChange={() => {}}
+      rows={batchRows}
+      isMobile={false}
+      closingLabel={null}
+      onConfirm={() => {}}
+    />
+  </div>
+);
+
+export const PortfolioBatchConfirmMobilePreview = () => (
+  <div className="min-h-[520px] bg-background p-4">
+    <BatchCashOutConfirm
+      open
+      onOpenChange={() => {}}
+      rows={batchRows}
+      isMobile
+      closingLabel={null}
+      onConfirm={() => {}}
+    />
+  </div>
+);
+
+/** PF-18 · 确认层执行中（两个按钮均禁用，主按钮显示进度）。 */
+export const PortfolioBatchClosingPreview = () => (
+  <div className="min-h-[520px] bg-background p-4">
+    <BatchCashOutConfirm
+      open
+      onOpenChange={() => {}}
+      rows={batchRows}
+      isMobile={false}
+      closingLabel="Closing 2 / 5…"
+      onConfirm={() => {}}
+    />
+  </div>
+);
+
+export const PortfolioBatchClosingMobilePreview = () => (
+  <div className="min-h-[520px] bg-background p-4">
+    <BatchCashOutConfirm
+      open
+      onOpenChange={() => {}}
+      rows={batchRows}
+      isMobile
+      closingLabel="Closing 2 / 5…"
+      onConfirm={() => {}}
+    />
+  </div>
+);

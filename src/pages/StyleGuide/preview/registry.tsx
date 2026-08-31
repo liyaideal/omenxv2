@@ -134,6 +134,24 @@ export const previewRegistry: Record<string, Loader> = {
   "portfolio-lite-airdrop-tag-rows": pick(portfolio, "PortfolioAirdropTagRowsPreview"),
   "portfolio-lite-airdrop-tag-cards": pick(portfolio, "PortfolioAirdropTagCardsPreview"),
 
+  /* -------- Portfolio 状态字典 Ⓓ–Ⓕ（M6a-② · PF-9…PF-18）-------- */
+  "portfolio-lite-side-chip": pick(portfolio, "PortfolioSideChipPreview"),
+  "portfolio-lite-side-chip-mobile": pick(portfolio, "PortfolioSideChipMobilePreview"),
+  "portfolio-lite-hot": pick(portfolio, "PortfolioHotPreview"),
+  "portfolio-lite-hot-mobile": pick(portfolio, "PortfolioHotMobilePreview"),
+  "portfolio-lite-standard-live": pick(portfolio, "PortfolioStandardLivePreview"),
+  "portfolio-lite-standard-live-mobile": pick(portfolio, "PortfolioStandardLiveMobilePreview"),
+  "portfolio-lite-settles-time": pick(portfolio, "PortfolioSettlesTimePreview"),
+  "portfolio-lite-settles-time-mobile": pick(portfolio, "PortfolioSettlesTimeMobilePreview"),
+  "portfolio-lite-pending-mobile": pick(portfolio, "PortfolioPendingMobilePreview"),
+  "portfolio-lite-live-select-desktop": pick(portfolio, "PortfolioLiveSelectDesktopPreview"),
+  "portfolio-lite-batch-bar": pick(portfolio, "PortfolioBatchBarPreview"),
+  "portfolio-lite-batch-bar-mobile": pick(portfolio, "PortfolioBatchBarMobilePreview"),
+  "portfolio-lite-batch-confirm": pick(portfolio, "PortfolioBatchConfirmPreview"),
+  "portfolio-lite-batch-confirm-mobile": pick(portfolio, "PortfolioBatchConfirmMobilePreview"),
+  "portfolio-lite-batch-closing": pick(portfolio, "PortfolioBatchClosingPreview"),
+  "portfolio-lite-batch-closing-mobile": pick(portfolio, "PortfolioBatchClosingMobilePreview"),
+
   /* -------- Auto-close (two-state value grammar) -------- */
   "autoclose-desktop-rows": pick(autoClose, "AutoCloseDesktopRowsPreview"),
   "autoclose-standard-row": pick(autoClose, "AutoCloseStandardRowPreview"),
