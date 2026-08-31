@@ -8,6 +8,27 @@ Single source of truth for user-visible field names across the app.
 - Code-level field names (e.g. `redeemableCapPct`, `maxHoldingHours`) stay in `camelCase` and are **not** governed by this doc — only the user-facing strings are.
 - Before adding or renaming any user-facing field, **check this file first**. If the term is not here, add it before shipping.
 
+## Lite 术语对照表（Lite ↔ 交易口径）
+
+测试 / 研发 / 运营用交易口径提问时先查这张表；改 Lite 用词前先改这里。
+
+| 交易口径（禁止出现在 Lite UI） | Lite 用户可见词 | 规则出处 |
+|---|---|---|
+| 杠杆 / Leverage | **Boost**（`2× Boost`；1× 不显示） | Lite banned words；`boostSuffix()` |
+| 强平 / 爆仓 / Liquidation / stopped out | **auto-close**（settled 备注 `auto-closed`；`close_reason = auto_close`） | Close-reason remarks |
+| 强平价 / Liq. Price | **auto-close ≈{c}¢**（账户级；两态：价或 none） | Portfolio (Lite) 节；docs/delivery/autoclose-v1.md §2–4 |
+| Margin ratio / Margin call 面板 / 风险度 | **Boost check**（Healthy / Getting tight / Auto-close soon） | Portfolio (Lite) 节 Boost check 行 |
+| 合约账户 / Futures account | **Boost Account**（Portfolio `Boost · N` 段含 1× 持仓） | Accounts |
+| 现货账户 / Spot account | **Standard Account** | Accounts |
+| 限价单 / Limit order | Lite 不支持下单；`n orders waiting to fill · placed in Pro` 只读入口 | Portfolio (Lite) 节 |
+| 平仓 / Close position | **Cash out**（portfolio 点击 → 跳该市场页完成） | Verb ruling |
+| 本金 / Margin（金额） | **Put in**（交易页）/ **Cost**（portfolio） | Lite banned words |
+| 市值 / Notional | **Now worth** = `max(0, cost + profit)` | Portfolio (Lite) 节 |
+| 多轮同名事件 / 回合 | **Series**（≥2 条已结算记录聚合）/ **Round**（其中每一条）；日内事件写 `daily rounds` | Portfolio (Lite) 节 Series 行 |
+| 试玩仓 / 赠送仓 | **Voucher**（volt）/ **Airdrop**（pulse，含 welcome gift） | H2E 节；DESIGN.md Addendum 2026-08-26 A |
+| 时区 / UTC / ET / HKT | 不显示。用户本地 24h，无时区后缀 | Settlement time wording 节 |
+
+
 ---
 
 ## Vouchers (`/vouchers`)
@@ -111,6 +132,10 @@ positives. Chip words come from the sibling event's `side_labels`.
 | **Close to current price** / **close to entry** | Hot adverb (|mark − level| / mark ≤ 10%) — position-card sub-line / order-panel suffix, both rendered red | `near liquidation`, `close to liq` |
 | **Moves with your other positions** | Permanent helper line beside `Est. auto-close ⓘ`; renders with the field, never conditionally | — |
 | ~~None at this balance~~ | RETIRED site-wide — never reintroduce | — |
+| **Boost check** | 账户级仪表：`riskRatio = imTotal / equity × 100`；**Healthy** `< 80` / **Getting tight** `80 ≤ r < 95` / **Auto-close soon** `≥ 95`；仅 Boost 段且 `boostLive.length > 0` 渲染；`Details ›` 默认折叠（移动 MobileDrawer / 桌面 320px Popover），三行 Equity / Used by Boost calls / Until auto-close starts = `max(equity − imTotal, 0)` | Margin ratio, Margin call, Risk level, Health factor |
+| **Boost · N / Standard · N** | 段 chips。`Boost` 段 = Boost Account（`productLine !== 'spot'`）全部持仓，**含 1×**；1× 行不显示倍数且 auto-close 恒 `none`（无借贷敞口）。`Standard` 段 = `productLine === 'spot'`。N = Live tab 为持仓数、Settled tab 为结算行数 | Futures · N, Spot · N, Leveraged |
+| **Series / Round** | **Series** = 同一事件名下 ≥2 条已结算记录聚合成的一行（`useLitePortfolio.settledRows`，`items.length > 1`），点进系列详情；**Round** = 系列中的每一条结算记录；一轮结束 = 该条 `close_reason` 落定（settlement / auto_close / cashout 任一）。详情 `Rounds` 行仅当事件 `event_subtype ∈ INTRADAY_SUBTYPES` 写 `{n} · daily rounds`，否则只写 `{n}` | Streak, Multi-round bet, Parlay |
+| **If it wins → $X / If it wins you get $X** 中的 X | = `ifWins = sizeNum`（每股结算 $1） | Max payout, Potential win |
 
 ---
 
@@ -160,6 +185,8 @@ nouns Spot/Futures are exempt).
 |---|---|---|
 | **Spread(s) / Totals / 1X2 / O/U** | Bookmaker jargon for the sports game-line groups. | Handicap · Total goals · Over/Under · Winner |
 | **Props** | Internal taxonomy bucket name only (`PROPS_BUCKET` in `src/lib/taxonomy.ts`) — the non-intraday event catalogue of a vertical. Same class as the Moneyline ban. | Question-style section titles: "Will it happen?", "Who wins the match?" |
+| **Margin call / Margin ratio / Health factor** | 风险面板的交易所叫法 | Boost check |
+| **Liquidated / Stopped out / Stop-out** | 强平的交易所叫法 | auto-closed |
 
 Pro escape-hatch line (updated 2026-08-06, byte-identical from now on):
 "Want charts and advanced trading tools? Switch to Pro mode".
@@ -189,6 +216,17 @@ All Portfolio "settles / settled at" strings come from
 
 24h user-local time, **no timezone suffix**. The verb is added by the caller
 (`settles Aug 21 16:00`). Sports `kickoffLabel` is a separate rule, unchanged.
+
+同文件其余三个函数（同一 24h 用户本地、无时区后缀规则，精度按位置有意不同）：
+
+| 函数 | 用在哪 | 输出 |
+|---|---|---|
+| `settledDayLabel()` | Settled 列表行 meta、系列详情 First round / Last settled、轮次行 | `Aug 12`；跨年 `Aug 12, 2025`（**只到日，不带钟点**） |
+| `settledStampLabel()` | 结算详情 Placed / Settled / Closed 时间行 | `Aug 1, 2026 · 14:00` |
+| `monthGroupLabel()` | Settled 列表月份分组头 | `AUGUST 2026` |
+
+Live 带钟点、Settled 列表只到日、详情带年份与钟点——三种精度是设计意图，不是不一致。
+
 
 ### CLOSED vs SETTLED（结算详情眉线，2026-08-21）
 
