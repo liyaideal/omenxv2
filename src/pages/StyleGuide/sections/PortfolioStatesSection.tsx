@@ -598,8 +598,8 @@ const READ_ME =
 export const PortfolioStatesSection = () => (
   <SectionWrapper
     id="portfolio-states"
-    title="Portfolio · 状态字典（PF-1…PF-7 · Ⓐ–Ⓒ 区）"
-    description="分区序 = 生产模块序：Ⓐ页面外壳 · ⒷKPI · ⒸBoost check（ⒹLive 列表 · Ⓔ挂单行 · Ⓕ批量平仓下一单接入）。每个 case 双帧（desktop 1280 / mobile 375），同一编号两帧各挂各端生产真组件；fixture 只注数据与状态，一律确定性注入（禁止运行时 fetch、禁止绝对日期、禁止随机 id）。"
+    title="Portfolio · 状态字典（PF-1…PF-18 · Ⓐ–Ⓕ 区）"
+    description="分区序 = 生产模块序：Ⓐ页面外壳 · ⒷKPI · ⒸBoost check · ⒹLive 列表 · Ⓔ挂单行 · Ⓕ批量平仓（PF-19 起的结算/详情/空态仍在下方旧节，M6b 并账）。每个 case 双帧（desktop 1280 / mobile 375），同一编号两帧各挂各端生产真组件；fixture 只注数据与状态，一律确定性注入（禁止运行时 fetch、禁止绝对日期、禁止随机 id）。"
   >
     <div className="space-y-12">
       <div className="rounded-lg border border-border/40 bg-muted/10 p-3 text-[11px] leading-relaxed text-muted-foreground">
@@ -633,6 +633,60 @@ export const PortfolioStatesSection = () => (
           mobileCases={byKey("portfolio-lite-gauge-states", "portfolio-lite-details-drawer")}
           desktopMin={720}
           mobileMin={860}
+        />
+      </SubSection>
+
+      <SubSection title="Ⓓ Live 列表（PF-8 … PF-14）">
+        <Pair
+          cases={byKey(
+            "portfolio-lite-desktop-rows",
+            "portfolio-lite-side-chip",
+            "autoclose-desktop-rows",
+            "autoclose-standard-row",
+            "portfolio-lite-hot",
+            "portfolio-lite-standard-live",
+            "portfolio-lite-airdrop-tag-rows",
+            "portfolio-lite-settles-time",
+          )}
+          mobileCases={byKey(
+            "portfolio-lite-live-cards",
+            "portfolio-lite-side-chip-mobile",
+            "autoclose-mobile-cards",
+            "portfolio-lite-hot-mobile",
+            "portfolio-lite-standard-live-mobile",
+            "portfolio-lite-airdrop-tag-cards",
+            "portfolio-lite-settles-time-mobile",
+          )}
+          desktopMin={900}
+          mobileMin={1000}
+        />
+      </SubSection>
+
+      <SubSection title="Ⓔ 挂单行（PF-15）">
+        <Pair
+          cases={byKey("portfolio-lite-pending-desktop")}
+          mobileCases={byKey("portfolio-lite-pending-mobile")}
+          desktopMin={420}
+          mobileMin={460}
+        />
+      </SubSection>
+
+      <SubSection title="Ⓕ 批量平仓（PF-16 … PF-18）">
+        <Pair
+          cases={byKey(
+            "portfolio-lite-live-select-desktop",
+            "portfolio-lite-batch-bar",
+            "portfolio-lite-batch-confirm",
+            "portfolio-lite-batch-closing",
+          )}
+          mobileCases={byKey(
+            "portfolio-lite-live-select",
+            "portfolio-lite-batch-bar-mobile",
+            "portfolio-lite-batch-confirm-mobile",
+            "portfolio-lite-batch-closing-mobile",
+          )}
+          desktopMin={900}
+          mobileMin={900}
         />
       </SubSection>
     </div>
