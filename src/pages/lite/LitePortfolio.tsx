@@ -351,35 +351,81 @@ export default function LitePortfolio() {
 
       {rows.length === 0 ? (
         <EmptyLive />
-      ) : isMobile ? (
-        <div className="flex flex-col gap-2 px-4 lg:px-0 pb-4 pt-3">
-          {rows.map((r) => (
-            <LiveCard
-              key={r.id}
-              row={r}
-              onCashOut={() => navigate(r.tradePath)}
-              onShare={user ? shareRow : undefined}
-            />
-          ))}
-          {segment === "boost" && <PendingOrdersRow orders={p.pendingOrders} />}
-        </div>
       ) : (
-        <div className="pb-6 pt-3">
-          <LiveRowHeader />
-          {rows.map((r) => (
-            <LiveRow
-              key={r.id}
-              row={r}
-              onCashOut={() => navigate(r.tradePath)}
-              onShare={user ? shareRow : undefined}
+        <>
+          {/* Batch cash-out: entry point or selection toolbar */}
+          {selectMode ? (
+            <SelectToolbar
+              count={selectedRows.length}
+              total={rows.length}
+              onSelectAll={() => setSelected(new Set(rows.map((r) => r.id)))}
+              onClear={() => setSelected(new Set())}
+              onCancel={() => {
+                setSelectMode(false);
+                setSelected(new Set());
+              }}
             />
-          ))}
-          {segment === "boost" && (
-            <div className="px-4 lg:px-0 pt-3">
-              <PendingOrdersRow orders={p.pendingOrders} />
+          ) : (
+            <div className="flex justify-end px-4 lg:px-0 pt-2">
+              <button
+                type="button"
+                onClick={() => setSelectMode(true)}
+                className="text-[12.5px] font-semibold text-[#33D6FF]"
+              >
+                Select
+              </button>
             </div>
           )}
-        </div>
+
+          {isMobile ? (
+            <div className="flex flex-col gap-2 px-4 lg:px-0 pb-4 pt-3">
+              {rows.map((r) => (
+                <LiveCard
+                  key={r.id}
+                  row={r}
+                  onCashOut={() => navigate(r.tradePath)}
+                  onShare={user ? shareRow : undefined}
+                  selectMode={selectMode}
+                  selected={selected.has(r.id)}
+                  onToggleSelect={toggleRow}
+                />
+              ))}
+              {segment === "boost" && <PendingOrdersRow orders={p.pendingOrders} />}
+            </div>
+          ) : (
+            <div className="pb-6 pt-3">
+              <LiveRowHeader selectMode={selectMode} />
+              {rows.map((r) => (
+                <LiveRow
+                  key={r.id}
+                  row={r}
+                  onCashOut={() => navigate(r.tradePath)}
+                  onShare={user ? shareRow : undefined}
+                  selectMode={selectMode}
+                  selected={selected.has(r.id)}
+                  onToggleSelect={toggleRow}
+                />
+              ))}
+              {segment === "boost" && (
+                <div className="px-4 lg:px-0 pt-3">
+                  <PendingOrdersRow orders={p.pendingOrders} />
+                </div>
+              )}
+            </div>
+          )}
+
+          {selectMode && (
+            <BatchActionBar rows={selectedRows} onCashOut={() => setConfirmOpen(true)} />
+          )}
+          <BatchCashOutConfirm
+            open={confirmOpen}
+            onOpenChange={setConfirmOpen}
+            rows={selectedRows}
+            isMobile={!!isMobile}
+            closingLabel={closingLabel}
+            onConfirm={closeBatch}
+          />
+        </>
       )}
     </>
   );
