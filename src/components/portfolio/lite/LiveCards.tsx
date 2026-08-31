@@ -96,16 +96,26 @@ export const LiveCard = ({
         ? `${winSentence(row)} · auto-close ≈${cents(row.autoClose.price)}`
         : `${winSentence(row)} · no auto-close, loss capped`;
 
+  const activate = () =>
+    selectMode ? onToggleSelect?.(row) : goToMarket(row.tradePath);
+
   return (
     <div
       role="button"
       tabIndex={0}
-      onClick={() => goToMarket(row.tradePath)}
-      onKeyDown={(e) => e.key === "Enter" && goToMarket(row.tradePath)}
+      onClick={activate}
+      onKeyDown={(e) => e.key === "Enter" && activate()}
       className="rounded-[12px] bg-[#12151A] p-3.5 text-left"
-      style={hot ? { border: "1px solid rgba(255,92,92,.55)" } : undefined}
+      style={
+        hot
+          ? { border: "1px solid rgba(255,92,92,.55)" }
+          : selectMode && selected
+            ? { border: "1px solid rgba(51,214,255,.45)", background: "rgba(51,214,255,.04)" }
+            : undefined
+      }
     >
       <div className="flex items-start gap-2">
+        {selectMode && <CheckDot selected={!!selected} />}
         <div className="flex-1 text-[14.5px] font-semibold leading-[1.35] text-[#F2F3F5]">
           {row.eventName}
         </div>
