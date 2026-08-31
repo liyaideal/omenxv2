@@ -1,8 +1,15 @@
 // ============================================================
 // useHlsVideo — attaches an HLS source to a <video>.
 // Safari plays .m3u8 natively; everywhere else uses hls.js.
-// Reports the exact playback state the LiveStage design needs:
-// loading / playing / buffering / paused / blocked / error / forbidden.
+//
+// State discipline: the <video> element is the ONLY source of
+// truth. Every listener just calls sync(), which reads the
+// element and derives the state. Nothing — not a resolved
+// play() promise, not a late timer — ever writes a state
+// directly, because an async callback that fires after the
+// user has moved on will otherwise stamp a stale state over
+// a newer one. That race is what put the UI and the element
+// out of step in the first place.
 // ============================================================
 import { useCallback, useEffect, useRef, useState } from "react";
 import Hls from "hls.js";
@@ -37,27 +44,25 @@ export const useHlsVideo = (src: string | null | undefined, enabled: boolean) =>
   const ref = useCallback((node: HTMLVideoElement | null) => setEl(node), []);
   const [state, setState] = useState<VideoState>("idle");
   const [muted, setMutedState] = useState<boolean>(readMuted);
-  const bufferTimer = useRef<number | null>(null);
-  const stallTimer = useRef<number | null>(null);
 
-  const clearTimers = () => {
-    if (bufferTimer.current) window.clearTimeout(bufferTimer.current);
-    if (stallTimer.current) window.clearTimeout(stallTimer.current);
-    bufferTimer.current = null;
-    stallTimer.current = null;
-  };
+  // Facts the element cannot tell us on its own.
+  const blockedRef = useRef(false); // autoplay was refused, no user gesture yet
+  const fatalRef = useRef<null | "error" | "forbidden">(null);
+  const notReadySince = useRef<number | null>(null);
 
-  const setMuted = useCallback((next: boolean) => {
-    setMutedState(next);
-    try {
-      localStorage.setItem(MUTE_KEY, next ? "1" : "0");
-    } catch {
-      /* ignore */
-    }
-    if (el) el.muted = next;
-  }, [el]);
+  const setMuted = useCallback(
+    (next: boolean) => {
+      setMutedState(next);
+      try {
+        localStorage.setItem(MUTE_KEY, next ? "1" : "0");
+      } catch {
+        /* ignore */
+      }
+      if (el) el.muted = next;
+    },
+    [el],
+  );
 
-  /** Manual play, for the "tap to play" and "resume" affordances. */
   const play = useCallback(() => {
     const v = el;
     if (!v) return;
@@ -67,18 +72,20 @@ export const useHlsVideo = (src: string | null | undefined, enabled: boolean) =>
     } catch {
       /* ignore */
     }
+    // Deliberately no setState here: the element will emit play/playing/pause
+    // and sync() will read the truth from it.
     v.play().then(
-      () => setState("playing"),
       () => {
-        clearTimers();
-        setState("blocked");
+        blockedRef.current = false;
+      },
+      () => {
+        blockedRef.current = true;
       },
     );
   }, [el]);
 
   const pause = useCallback(() => {
     el?.pause();
-    setState("paused");
   }, [el]);
 
   useEffect(() => {
@@ -89,62 +96,77 @@ export const useHlsVideo = (src: string | null | undefined, enabled: boolean) =>
     }
     let hls: Hls | null = null;
     let alive = true;
-    setState("loading");
+    let graceTimer: number | null = null;
+
+    blockedRef.current = false;
+    fatalRef.current = null;
+    notReadySince.current = null;
     v.muted = muted;
 
-    // The element's own properties are the source of truth. Events only
-    // trigger a re-read: a stalled-then-recovered stream does not always
-    // re-fire `playing`, and a late timer must never overwrite a state
-    // the element has already moved past.
-    const settle = () => {
-      clearTimers();
-      if (v.paused) return;
-      if (alive) setState("playing");
+    /** Derive the state from the element. The only place setState is called. */
+    const sync = () => {
+      if (!alive) return;
+      if (fatalRef.current) {
+        setState(fatalRef.current);
+        return;
+      }
+      if (v.error) {
+        setState("error");
+        return;
+      }
+      if (v.paused) {
+        notReadySince.current = null;
+        // Never played yet + autoplay refused = "tap to play", not "paused".
+        setState(blockedRef.current ? "blocked" : v.readyState === 0 ? "loading" : "paused");
+        return;
+      }
+      if (v.readyState >= 3) {
+        notReadySince.current = null;
+        setState("playing");
+        return;
+      }
+      // Playing but short of data. Give it a grace window before saying so:
+      // a hiccup must not flash a spinner over a picture that is already back.
+      const t = Date.now();
+      if (notReadySince.current == null) notReadySince.current = t;
+      const waited = t - notReadySince.current;
+      if (waited >= STALL_FAIL_MS) setState("error");
+      else if (waited >= BUFFER_GRACE_MS) setState("buffering");
+      else setState((s) => (s === "idle" ? "loading" : s));
     };
 
-    const onWaiting = () => {
-      if (bufferTimer.current) window.clearTimeout(bufferTimer.current);
-      // Only surface buffering after a grace window, and only if the element
-      // still lacks data by then — a short hiccup must not flash a spinner
-      // over a picture that is already back.
-      bufferTimer.current = window.setTimeout(() => {
-        if (alive && !v.paused && v.readyState < 3) setState("buffering");
-      }, BUFFER_GRACE_MS);
-      if (stallTimer.current) window.clearTimeout(stallTimer.current);
-      stallTimer.current = window.setTimeout(() => {
-        if (alive && !v.paused && v.readyState < 3) setState("error");
-      }, STALL_FAIL_MS);
-    };
-    const onPlaying = () => settle();
-    const onTimeUpdate = () => {
-      if (!v.paused && v.readyState >= 3) settle();
-    };
-    const onPause = () => {
-      clearTimers();
-      if (alive && !v.ended) setState("paused");
-    };
-    const onError = () => {
-      clearTimers();
-      if (alive) setState("error");
-    };
+    // A repeating poll, not one-shot timers: it re-reads the element rather
+    // than firing a decision made 1.5s ago, so it can never land stale.
+    graceTimer = window.setInterval(sync, 500);
 
-    v.addEventListener("waiting", onWaiting);
-    v.addEventListener("stalled", onWaiting);
-    v.addEventListener("playing", onPlaying);
-    v.addEventListener("timeupdate", onTimeUpdate);
-    v.addEventListener("pause", onPause);
-    v.addEventListener("error", onError);
+    const events = [
+      "loadstart",
+      "loadedmetadata",
+      "canplay",
+      "play",
+      "playing",
+      "pause",
+      "waiting",
+      "stalled",
+      "timeupdate",
+      "ended",
+      "error",
+    ];
+    events.forEach((e) => v.addEventListener(e, sync));
 
     const attempt = () =>
       v.play().then(
         () => {
-          if (alive) settle();
+          blockedRef.current = false;
+          sync();
         },
         () => {
-          clearTimers();
-          if (alive) setState("blocked");
+          blockedRef.current = true;
+          sync();
         },
       );
+
+    setState("loading");
 
     if (v.canPlayType("application/vnd.apple.mpegurl")) {
       v.src = src;
@@ -156,24 +178,20 @@ export const useHlsVideo = (src: string | null | undefined, enabled: boolean) =>
       hls.on(Hls.Events.MANIFEST_PARSED, attempt);
       hls.on(Hls.Events.ERROR, (_e, data) => {
         if (!data.fatal) return;
-        clearTimers();
         // A 403 on the manifest is how a geo-blocked source announces itself.
         const status = (data.response as { code?: number } | undefined)?.code;
-        if (alive) setState(status === 403 ? "forbidden" : "error");
+        fatalRef.current = status === 403 ? "forbidden" : "error";
+        sync();
       });
     } else {
-      setState("error");
+      fatalRef.current = "error";
+      sync();
     }
 
     return () => {
       alive = false;
-      clearTimers();
-      v.removeEventListener("waiting", onWaiting);
-      v.removeEventListener("stalled", onWaiting);
-      v.removeEventListener("playing", onPlaying);
-      v.removeEventListener("timeupdate", onTimeUpdate);
-      v.removeEventListener("pause", onPause);
-      v.removeEventListener("error", onError);
+      if (graceTimer) window.clearInterval(graceTimer);
+      events.forEach((e) => v.removeEventListener(e, sync));
       if (hls) hls.destroy();
       v.removeAttribute("src");
       v.load();
