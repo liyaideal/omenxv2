@@ -37,9 +37,31 @@ const homeStage = () => import("./homeStagePreviews");
 const trade = () => import("./tradePreviews");
 const spot = () => import("./spotPreviews");
 const share = () => import("./sharePreviews");
+const sportsLive = () => import("./sportsLivePreviews");
 
 
 export const previewRegistry: Record<string, Loader> = {
+  /* -------- Lite Sports · Live（SP-L3a）-------- */
+  "sports-live-m1": pick(sportsLive, "M1Preview"),
+  "sports-live-m2": pick(sportsLive, "M2Preview"),
+  "sports-live-m3": pick(sportsLive, "M3Preview"),
+  "sports-live-m4": pick(sportsLive, "M4Preview"),
+  "sports-live-m5": pick(sportsLive, "M5Preview"),
+  "sports-live-m6": pick(sportsLive, "M6Preview"),
+  "sports-live-u1": pick(sportsLive, "U1Preview"),
+  "sports-live-u2": pick(sportsLive, "U2Preview"),
+  "sports-live-u3": pick(sportsLive, "U3Preview"),
+  "sports-live-u4": pick(sportsLive, "U4Preview"),
+  "sports-stage-s1": pick(sportsLive, "S1Preview"),
+  "sports-stage-s2": pick(sportsLive, "S2Preview"),
+  "sports-stage-s3": pick(sportsLive, "S3Preview"),
+  "sports-stage-s4": pick(sportsLive, "S4Preview"),
+  "sports-stage-s5": pick(sportsLive, "S5Preview"),
+  "sports-stage-s6": pick(sportsLive, "S6Preview"),
+  "sports-stage-s7": pick(sportsLive, "S7Preview"),
+  "sports-stage-s8": pick(sportsLive, "S8Preview"),
+  "sports-stage-s9": pick(sportsLive, "S9Preview"),
+
   /* -------- Events 列表（M1a 分区①–④）-------- */
   "events-ev1": pick(homeStage, "Ev1Preview"),
   "events-ev2": pick(events, "Ev2Preview"),
