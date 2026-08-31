@@ -10,6 +10,17 @@ import type { LiteLiveRow } from "@/hooks/useLitePortfolio";
 import { money, signedMoney, livePnlColor } from "./parts";
 
 /* ------------------------- selection toolbar ------------------------- */
+/** chips 行右端的选择模式入口。与 SelectToolbar 互斥占位。 */
+export const SelectEntry = ({ onEnter }: { onEnter: () => void }) => (
+  <button
+    type="button"
+    onClick={onEnter}
+    className="py-[7px] text-[12.5px] font-semibold text-[#33D6FF]"
+  >
+    Select
+  </button>
+);
+
 /** Sits inline on the right of the segment-chips row when select mode is on. */
 export const SelectToolbar = ({
   count,
