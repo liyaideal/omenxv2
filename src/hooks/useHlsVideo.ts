@@ -69,7 +69,10 @@ export const useHlsVideo = (src: string | null | undefined, enabled: boolean) =>
     }
     v.play().then(
       () => setState("playing"),
-      () => setState("blocked"),
+      () => {
+        clearTimers();
+        setState("blocked");
+      },
     );
   }, [el]);
 
@@ -89,23 +92,35 @@ export const useHlsVideo = (src: string | null | undefined, enabled: boolean) =>
     setState("loading");
     v.muted = muted;
 
+    // The element's own properties are the source of truth. Events only
+    // trigger a re-read: a stalled-then-recovered stream does not always
+    // re-fire `playing`, and a late timer must never overwrite a state
+    // the element has already moved past.
+    const settle = () => {
+      clearTimers();
+      if (v.paused) return;
+      if (alive) setState("playing");
+    };
+
     const onWaiting = () => {
       if (bufferTimer.current) window.clearTimeout(bufferTimer.current);
-      // Only surface buffering after a grace window, so short hiccups
-      // do not flash a spinner over a picture that is already there.
+      // Only surface buffering after a grace window, and only if the element
+      // still lacks data by then — a short hiccup must not flash a spinner
+      // over a picture that is already back.
       bufferTimer.current = window.setTimeout(() => {
-        if (alive) setState("buffering");
+        if (alive && !v.paused && v.readyState < 3) setState("buffering");
       }, BUFFER_GRACE_MS);
       if (stallTimer.current) window.clearTimeout(stallTimer.current);
       stallTimer.current = window.setTimeout(() => {
-        if (alive) setState("error");
+        if (alive && !v.paused && v.readyState < 3) setState("error");
       }, STALL_FAIL_MS);
     };
-    const onPlaying = () => {
-      clearTimers();
-      if (alive) setState("playing");
+    const onPlaying = () => settle();
+    const onTimeUpdate = () => {
+      if (!v.paused && v.readyState >= 3) settle();
     };
     const onPause = () => {
+      clearTimers();
       if (alive && !v.ended) setState("paused");
     };
     const onError = () => {
@@ -116,13 +131,19 @@ export const useHlsVideo = (src: string | null | undefined, enabled: boolean) =>
     v.addEventListener("waiting", onWaiting);
     v.addEventListener("stalled", onWaiting);
     v.addEventListener("playing", onPlaying);
+    v.addEventListener("timeupdate", onTimeUpdate);
     v.addEventListener("pause", onPause);
     v.addEventListener("error", onError);
 
     const attempt = () =>
       v.play().then(
-        () => alive && setState("playing"),
-        () => alive && setState("blocked"),
+        () => {
+          if (alive) settle();
+        },
+        () => {
+          clearTimers();
+          if (alive) setState("blocked");
+        },
       );
 
     if (v.canPlayType("application/vnd.apple.mpegurl")) {
@@ -150,6 +171,7 @@ export const useHlsVideo = (src: string | null | undefined, enabled: boolean) =>
       v.removeEventListener("waiting", onWaiting);
       v.removeEventListener("stalled", onWaiting);
       v.removeEventListener("playing", onPlaying);
+      v.removeEventListener("timeupdate", onTimeUpdate);
       v.removeEventListener("pause", onPause);
       v.removeEventListener("error", onError);
       if (hls) hls.destroy();
