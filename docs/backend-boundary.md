@@ -179,3 +179,9 @@
 - 平台将拆分 **Pro / 小白（Lite）** 两个版本：同一引擎，不同前端 surface
 - 产品线将从合约扩展到**现货**：events/positions 层将增加 `product_line` 维度
 - Sports 子站将接入本演示引擎（替换其纯 mock 状态）
+
+## 2026-08-31 · 充值路由偏好（CPO 拍板）
+- 充值地址：每用户每链**一个**，不按账户分地址。
+- 「Deposit to」（Standard / Boost）选择必须落服务端（用户级充值路由偏好，可改，记住上次）；前端 `useAccountPreference` 的 localStorage 只是缓存，不是真相源。
+- 到账（入账任务）按该偏好记入 `spot_balance` 或 `balance`；用户未做过选择时的默认账户 = Boost Account。
+- 当前后端只支持合约账户充提，与 2026-07-21 双账户 2b §4 拍板不符，列为 P0 待实现。

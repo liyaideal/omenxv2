@@ -49,6 +49,8 @@ const base: LiteLiveRow = {
   categoryLabel: "Crypto",
   settlesAt: inDays(2),
   sideWord: "Up",
+  side: "yes",
+  optionName: null,
   priceNow: 0.38,
   cost: 120,
   nowWorth: 158.4,
@@ -71,6 +73,8 @@ const hotRow: LiteLiveRow = {
   categoryLabel: "Soccer",
   settlesAt: inDays(0, 22),
   sideWord: "ARS +1.5",
+  side: "no",
+  optionName: null,
   priceNow: 0.36,
   autoClose: { kind: "level" as const, price: 0.35 },
   hot: true,
@@ -142,6 +146,10 @@ const standardRow: LiteLiveRow = {
 };
 
 /** Flat position — exercises isZeroMoney() (muted, unsigned $0.00). */
+const noBinaryRow: LiteLiveRow = { ...base, id: "demo-no-binary", eventName: "Will Apple announce a foldable iPhone before 2027?", categoryLabel: "Tech", settlesAt: inDays(40, 23), sideWord: "No", side: "no", optionName: null, priceNow: 0.54, cost: 22, nowWorth: 36.3, profit: 14.3, leverageNum: 5, ifWins: 110, autoClose: { kind: "level", price: 0.71 }, hot: false };
+const multiYesRow: LiteLiveRow = { ...base, id: "demo-multi-yes", eventName: "Who wins the 2026 F1 drivers' championship?", categoryLabel: "Social", settlesAt: inDays(97, 18), sideWord: "Yes", side: "yes", optionName: "Lando Norris", priceNow: 0.16, cost: 3, nowWorth: 3, profit: 0, leverageNum: 1, ifWins: 18.75, autoClose: { kind: "none" }, hot: false };
+const multiNoRow: LiteLiveRow = { ...multiYesRow, id: "demo-multi-no", sideWord: "No", side: "no", optionName: "Charles Leclerc", priceNow: 0.67, ifWins: 4.48 };
+
 const flatRow: LiteLiveRow = {
   ...base,
   id: "demo-flat",
@@ -183,6 +191,9 @@ export const PortfolioLiveCardsPreview = () => (
   <div className="flex flex-col gap-2 bg-background p-4">
     <LiveCard row={base} />
     <LiveCard row={hotRow} />
+    <LiveCard row={noBinaryRow} />
+    <LiveCard row={multiYesRow} />
+    <LiveCard row={multiNoRow} />
     <LiveCard row={safeBoostRow} />
     <LiveCard row={missingBoostRow} />
     <LiveCard row={voucherRow} />
@@ -202,6 +213,9 @@ export const PortfolioDesktopRowsPreview = () => (
     <LiveRowHeader />
     <LiveRow row={base} />
     <LiveRow row={hotRow} />
+    <LiveRow row={noBinaryRow} />
+    <LiveRow row={multiYesRow} />
+    <LiveRow row={multiNoRow} />
     <LiveRow row={safeBoostRow} />
     <LiveRow row={missingBoostRow} />
     <LiveRow row={voucherRow} />

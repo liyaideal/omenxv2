@@ -3,6 +3,7 @@
 > 这份文档讲 Lite 的 Portfolio 页（网址 `/portfolio`，含 Settled 页签和结算详情页）怎么运转，给实现它的研发和测试看。样式看生产页，每个模块什么时候变成什么样看 `/style-guide`，本文只写这两处看不到的：路由与流程、数据口径、返回机制、边界。
 > 适用 Lite 面；Pro 的 Portfolio 是另一套代码，本文不涉及。
 > 这是第 2 版：§1–§9 与第 1 版相同，新增 §10–§19（前后端分工、异步态、分页、实时、时区、权限、埋点、无障碍、QA、待决策）；2026-08-31 又按 auto-close 现行口径修订了 §4 / §8 / §9 / §14 / §18。研发以本版为准，第 1 版作废。
+> 2026-08-31 修订：SIDE chip 方向轴规则已定（§8）。
 
 ## 0. 读者须知
 
@@ -161,6 +162,7 @@ preview key 定义在 `src/pages/StyleGuide/sections/pages/LitePortfolioPage.tsx
 | cashed out early | **已废弃**，全站不再出现；提前平仓与正常结算在用户侧文案一致，只有价格行 label 区分 `Closed at` / `Settled price` |
 | 战绩格式 | `12W 15L` |
 | 杠杆 | `1×` 一律不写「1× Boost」（`boostSuffix()` 返回空）；但 1× 行仍属 Boost 段并携带 auto-close 字段（值恒 none） |
+| SIDE chip | 见 copy-dictionary「SIDE chip」行：底色随方向（Yes/Up 蓝 / No/Down volt），多选腿选项名置于 chip 下一行；side 词来源 resolveLegSide()，short 视为 No |
 | Lite 禁词 | Margin / Liquidation / Funding / Leverage / Long / Short / Order book / Limit（详见 `docs/copy-dictionary.md`） |
 
 ## 9. 涉及文件
@@ -316,8 +318,6 @@ preview key 定义在 `src/pages/StyleGuide/sections/pages/LitePortfolioPage.tsx
 | 错误态是否需要 Retry 之外的降级（如显示缓存快照） | 产品 |
 | 埋点平台与事件命名前缀 | 数据 |
 | 仓位数量上限与超限表现 | 产品 + 后端 |
-| Live 行 SIDE chip 的颜色规则（现行硬编码 volt，与 DESIGN §2 market axis 的作用域关系未定）——**待 CPO 拍板，勿实现** | CPO |
-| 多选市场 No 腿的 chip 文案（现行 `displayOption` 不带 No，与 Yes 腿同形）——**待 CPO 拍板，勿实现** | CPO |
 
 ## 20. 未变更 / 不做
 

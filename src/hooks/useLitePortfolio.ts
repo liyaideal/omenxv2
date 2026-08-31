@@ -15,7 +15,7 @@ import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import { usePositionVouchers } from "@/hooks/usePositionVouchers";
 import { getCategoryInfo } from "@/lib/categoryUtils";
-import { legSideLabel, liteSideName, boostSuffix, optionSideWord } from "@/lib/liteSideName";
+import { legSideLabel, liteSideName, boostSuffix, optionSideWord, resolveLegSide, legTitle } from "@/lib/liteSideName";
 import { estimateAutoClosePrice, isAutoCloseHot, type AutoCloseResult } from "@/lib/autoClosePrice";
 import { monthGroupLabel, monthKey, settledDayLabel } from "@/lib/settleLabel";
 import type { SeriesDetailVM, SeriesRoundVM } from "@/components/portfolio/lite/SeriesDetailView";
@@ -33,6 +33,10 @@ export interface LiteLiveRow {
   settlesAt: string | null;
   /** The word this leg is called (team name / Up / Yes). */
   sideWord: string;
+  /** Which side this leg backs — drives the SIDE chip colour. */
+  side: "yes" | "no";
+  /** Generic multi-option legs only: the option the side is on; rendered under the chip. */
+  optionName: string | null;
   priceNow: number;
   cost: number;
   nowWorth: number;
@@ -173,11 +177,8 @@ export const useLitePortfolio = () => {
       const profit = rt.hasRealtimePrice ? rt.pnl : p.pnlNum;
       const cost = p.marginNum;
 
-      const optLower = p.option.trim().toLowerCase();
-      const sideWord =
-        optLower === "yes" || optLower === "no"
-          ? legSideLabel(ev, optLower as "yes" | "no")
-          : liteSideName(p.displayOption ?? p.option);
+      const legInfo = resolveLegSide({ option: p.option, type: p.type }, ev);
+      const sideWord = legInfo.sideWord;
 
       // Auto-close: account-level solve with THIS position excluded from the
       // snapshot (mode 'existing' — margin added back, own PnL excluded).
@@ -208,6 +209,8 @@ export const useLitePortfolio = () => {
         categoryLabel: getCategoryInfo(ev?.category ?? "general").label,
         settlesAt: ev?.end_date ?? null,
         sideWord,
+        side: legInfo.side,
+        optionName: legInfo.optionName,
         priceNow,
         cost,
         // NOW WORTH is recoverable value, never negative: a position whose loss
@@ -291,7 +294,7 @@ export const useLitePortfolio = () => {
       }
 
       const s = items[0];
-      const sideWord = optionSideWord(s.option, s.sideLabels);
+      const sideWord = legTitle(resolveLegSide({ option: s.option, type: s.side }, { side_labels: s.sideLabels }));
       const boost = boostSuffix(s.leverageNum);
       const meta = [sideWord];
       if (boost) meta.push(boost);
@@ -364,7 +367,7 @@ export const useLitePortfolio = () => {
     const rounds: SeriesRoundVM[] = items.map((s) => ({
       id: s.id,
       closedAt: s.closedAt,
-      sideWord: optionSideWord(s.option, s.sideLabels),
+      sideWord: legTitle(resolveLegSide({ option: s.option, type: s.side }, { side_labels: s.sideLabels })),
       autoClosed: s.closeReason === "auto_close",
       net: s.pnlValue - s.fees,
     }));

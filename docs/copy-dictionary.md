@@ -132,6 +132,7 @@ positives. Chip words come from the sibling event's `side_labels`.
 | **Close to current price** / **close to entry** | Hot adverb (|mark − level| / mark ≤ 10%) — position-card sub-line / order-panel suffix, both rendered red | `near liquidation`, `close to liq` |
 | **Moves with your other positions** | Permanent helper line beside `Est. auto-close ⓘ`; renders with the field, never conditionally | — |
 | ~~None at this balance~~ | RETIRED site-wide — never reintroduce | — |
+| **SIDE chip** | `{sideWord} {c}¢`；底色随方向：Yes/Up `#33D6FF` / No/Down `#CFFF4A`，黑字；`{c}¢` 为该腿自身轴 mark 价（No 腿 = 1 − yes）。多选腿 chip 只写 `Yes` / `No`，选项名另起一行置于 chip 下（`Charles Leclerc`）；side 词与方向来源 `resolveLegSide()`，`short` 视为 No | 全 volt chip、`Long`/`Short`、选项名塞进 chip |
 | **Boost check** | 账户级仪表：`riskRatio = imTotal / equity × 100`；**Healthy** `< 80` / **Getting tight** `80 ≤ r < 95` / **Auto-close soon** `≥ 95`；仅 Boost 段且 `boostLive.length > 0` 渲染；`Details ›` 默认折叠（移动 MobileDrawer / 桌面 320px Popover），三行 Equity / Used by Boost calls / Until auto-close starts = `max(equity − imTotal, 0)` | Margin ratio, Margin call, Risk level, Health factor |
 | **Boost · N / Standard · N** | 段 chips。`Boost` 段 = Boost Account（`productLine !== 'spot'`）全部持仓，**含 1×**；1× 行不显示倍数且 auto-close 恒 `none`（无借贷敞口）。`Standard` 段 = `productLine === 'spot'`。N = Live tab 为持仓数、Settled tab 为结算行数 | Futures · N, Spot · N, Leveraged |
 | **Series / Round** | **Series** = 同一事件名下 ≥2 条已结算记录聚合成的一行（`useLitePortfolio.settledRows`，`items.length > 1`），点进系列详情；**Round** = 系列中的每一条结算记录；一轮结束 = 该条 `close_reason` 落定（settlement / auto_close / cashout 任一）。详情 `Rounds` 行仅当事件 `event_subtype ∈ INTRADAY_SUBTYPES` 写 `{n} · daily rounds`，否则只写 `{n}` | Streak, Multi-round bet, Parlay |
@@ -269,6 +270,7 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | **does not include open trade profit** | Lite equity note under Total equity | excludes unrealized PnL |
 | **does not include unrealized PnL** | Pro equity note (default) | — |
 | **Trading fee** | `fee` transaction description | Fees, Commission |
+| **Deposit to · 账户选择** | 充值前的「Deposit to」选账户屏保留；用户的选择必须**持久化到服务端**作为该用户的充值路由偏好，链上到账任务按该偏好记入 Standard / Boost 账户；单一充值地址，不按账户分地址 | 仅存 localStorage、按账户分两个地址 |
 
 ---
 

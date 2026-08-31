@@ -13,7 +13,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSettlementDetail } from "@/hooks/useSettlementDetail";
 import { useSettlements } from "@/hooks/useSettlements";
-import { optionSideWord } from "@/lib/liteSideName";
+import { resolveLegSide, legTitle } from "@/lib/liteSideName";
 import { liteTradePath, segmentFromProductLine } from "@/lib/liteTradePath";
 import { fromState } from "@/lib/portfolioReturn";
 import {
@@ -85,7 +85,7 @@ export default function LiteSettlementDetail() {
     avgPrice: s.entryPrice,
     exitPrice: s.exitPrice,
     leverage: s.leverage,
-    sideWord: optionSideWord(s.option, s.sideLabels),
+    sideWord: legTitle(resolveLegSide({ option: s.option, type: s.side }, { side_labels: s.sideLabels })),
     outcomeWon: s.outcomeWon,
     openedAt: s.openedAt,
     closedAt: s.settledAt,
@@ -102,7 +102,7 @@ export default function LiteSettlementDetail() {
     state: "settled",
     eventId: s.eventId ?? "",
     eventName: s.event,
-    sideLine: optionSideWord(s.option, s.sideLabels),
+    sideLine: legTitle(resolveLegSide({ option: s.option, type: s.side }, { side_labels: s.sideLabels })),
     pnl: s.pnl,
     pnlPercent: s.margin > 0 ? (s.pnl / s.margin) * 100 : 0,
     leftAmount: s.margin,

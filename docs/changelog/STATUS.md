@@ -17,6 +17,17 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-08-31 — 持仓 side 标识方向轴统一（PF-SIDE-1）
+
+源文档：[../delivery/lite-portfolio-spec-v2.md](../delivery/lite-portfolio-spec-v2.md) §8 · DESIGN.md §2
+
+| # | 需求条目 | 参考位置 | Status | QA 测试要点 | Notes |
+|---|---|---|---|---|---|
+| 1 | `resolveLegSide()` 单一来源 helper | `src/lib/liteSideName.ts` | ⬜ | 七条恒等式单测通过 | |
+| 2 | portfolio SIDE chip 按方向变色 + 多选腿选项名第二行 | `LiveCards.tsx` | ⬜ | Yes 腿 rgb(51,214,255) / No 腿 rgb(207,255,74) | |
+| 3 | 交易页 `heldIsYes` 改走 helper（修 legacy short-on-Yes） | `LiteContractTrade.tsx` | ⬜ | Apple foldable 持仓卡标题 `No · 5× Boost` | |
+| 4 | settled 行 / 系列轮次 / 结算详情 side 词同源 | `useLitePortfolio.ts` · `LiteSettlementDetail.tsx` | ⬜ | 多选腿显示 `选项名 · No` | |
+
 ## 2026-08-31 — Lite 主页（Home / Events 列表）交付说明 v1（DOC-2）
 
 源文档：[../delivery/lite-home-v1.md](../delivery/lite-home-v1.md)
@@ -37,8 +48,8 @@
 |---|---|---|---|---|---|
 | 1 | 异步态（skeleton / error / retry） | §11 | ⬜ | 首屏加载、请求失败、重试后恢复 | 文档标注为待实现项 |
 | 2 | Settled 分页与规模上限 | §12 | ⬜ | 大量结算行的加载更多行为 | 粒度待产品 + 后端拍板（§19） |
-| 3 | Live 行 SIDE chip 颜色规则 | §19 | ⬜ | — | 待 CPO 拍板，勿实现 |
-| 4 | 多选市场 No 腿 chip 文案 | §19 | ⬜ | — | 待 CPO 拍板，勿实现 |
+| 3 | Live 行 SIDE chip 颜色规则 | §19 | ✅ | — | PF-SIDE-1 已实装 |
+| 4 | 多选市场 No 腿 chip 文案 | §19 | ✅ | — | PF-SIDE-1 已实装 |
 
 ## 2026-07-22 — 现货展示对齐（轮次 4B）
 

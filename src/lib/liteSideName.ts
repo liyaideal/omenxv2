@@ -1,3 +1,5 @@
+import { parseSideLabels } from "@/lib/eventUtils";
+
 /**
  * Lite-only display mapping for the negative side of a daily up/down stock event.
  * DB side_labels may say "Not Up" for the no side; consumer-facing Lite copy
@@ -54,3 +56,68 @@ export function optionSideWord(
   }
   return liteSideName(raw);
 }
+
+export type LegSide = "yes" | "no";
+export interface LegLike {
+  option: string;
+  type: "long" | "short";
+}
+export interface LegSideInfo {
+  /** Which side of the market this leg backs. */
+  side: LegSide;
+  /** The word the side is called on Lite: alias (Up / Down / ARS +1.5 / Dodgers) or Yes / No. */
+  sideWord: string;
+  /** Generic multi-option legs only — the option the side is on ("Charles Leclerc"). null for binary / side-labelled legs. */
+  optionName: string | null;
+}
+
+const NO_PREFIX = "No: ";
+export const baseOptionLabel = (option: string) =>
+  option.startsWith(NO_PREFIX) ? option.slice(NO_PREFIX.length) : option;
+
+/**
+ * THE single source of truth for "which side does this leg back, and what is it called".
+ * Rules (CPO 2026-08-31):
+ *  - binary Yes/No option  → side = (option is No) XOR (type is short); word = legSideLabel alias or Yes/No
+ *  - side-labelled option  → side = (label is the No alias) XOR short; word = alias
+ *  - generic multi option  → side = legacy "No: " prefix XOR short; word = Yes/No; optionName = option
+ * `type === 'short'` ALWAYS flips the side — a short on Yes is a No leg.
+ */
+export function resolveLegSide(
+  leg: LegLike,
+  event: { side_labels?: unknown } | null | undefined,
+): LegSideInfo {
+  const sl = parseSideLabels(event?.side_labels);
+  const base = baseOptionLabel(leg.option).trim();
+  const lower = base.toLowerCase();
+  const flip = leg.type === "short";
+
+  if (lower === "yes" || lower === "no") {
+    const isNo = (lower === "no") !== flip;
+    return {
+      side: isNo ? "no" : "yes",
+      sideWord: legSideLabel(event, isNo ? "no" : "yes"),
+      optionName: null,
+    };
+  }
+
+  if (sl && (liteSideName(base) === liteSideName(sl.yes) || liteSideName(base) === liteSideName(sl.no))) {
+    const isNo = (liteSideName(base) === liteSideName(sl.no)) !== flip;
+    return {
+      side: isNo ? "no" : "yes",
+      sideWord: liteSideName(isNo ? sl.no : sl.yes),
+      optionName: null,
+    };
+  }
+
+  const isNo = leg.option.startsWith(NO_PREFIX) !== flip;
+  return {
+    side: isNo ? "no" : "yes",
+    sideWord: isNo ? "No" : "Yes",
+    optionName: liteSideName(base),
+  };
+}
+
+/** Trade-page / settled grammar: "Charles Leclerc · No" for multi legs, bare word otherwise. */
+export const legTitle = (info: LegSideInfo) =>
+  info.optionName ? `${info.optionName} · ${info.sideWord}` : info.sideWord;

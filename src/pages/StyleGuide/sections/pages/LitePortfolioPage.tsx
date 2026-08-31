@@ -117,6 +117,9 @@ const PORTFOLIO_MOBILE_CASES: SectionCase[] = [
       { state: "settles 时间 · 跨年", when: "settlesAt.getFullYear() !== now.getFullYear()", visual: "`settles Jan 12, 2027`（不带钟点）", source: "settleLabel()" },
       { state: "settles 缺失", when: "settlesAt == null", visual: "meta 行不出现 settles 段（不画 `—` 占位）", source: "LiveCards.metaLine" },
       { state: "Cash out 点击", when: "点击卡内 Cash out 按钮", visual: "无确认弹层、无中间态：直接 navigate(row.tradePath) 进入该市场交易页；平仓在交易页完成", source: "LitePortfolio onCashOut" },
+      { state: "SIDE chip · Yes/Up 腿", when: "row.side === 'yes'", visual: "chip 底 #33D6FF（Pulse Blue）黑字；文案 `{sideWord} {c}¢`", source: "resolveLegSide().side · DESIGN §2 Market Axis" },
+      { state: "SIDE chip · No/Down 腿", when: "row.side === 'no'（含 type==='short' 翻转）", visual: "chip 底 #CFFF4A（Volt）黑字", source: "resolveLegSide().side · DESIGN §2 Market Axis" },
+      { state: "多选腿 · 选项名第二行", when: "row.optionName != null", visual: "chip 正下方 11.5px #E5E7EB 选项名（桌面左对齐 / 移动右对齐），二元与别名腿无此行", source: "resolveLegSide().optionName" },
     ],
   },
   {
@@ -317,6 +320,9 @@ const PORTFOLIO_DESKTOP_CASES: SectionCase[] = [
       { state: "voucher 行", when: "isVoucher === true", visual: "CALL 列 meta 尾部 volt `Voucher`", source: "airdropSource" },
       { state: "零盈亏行", when: "Math.abs(profit) < 0.005", visual: "PROFIT 列 muted $0.00", source: "isZeroMoney" },
       { state: "Side chip 溢出", when: "sideWord 过长", visual: "chip truncate + hover tooltip 显示全文", source: "LiveRow" },
+      { state: "SIDE chip · Yes/Up 腿", when: "row.side === 'yes'", visual: "chip 底 #33D6FF（Pulse Blue）黑字；文案 `{sideWord} {c}¢`", source: "resolveLegSide().side · DESIGN §2 Market Axis" },
+      { state: "SIDE chip · No/Down 腿", when: "row.side === 'no'（含 type==='short' 翻转）", visual: "chip 底 #CFFF4A（Volt）黑字", source: "resolveLegSide().side · DESIGN §2 Market Axis" },
+      { state: "多选腿 · 选项名第二行", when: "row.optionName != null", visual: "chip 正下方 11.5px #E5E7EB 选项名（桌面左对齐 / 移动右对齐），二元与别名腿无此行", source: "resolveLegSide().optionName" },
     ],
   },
   {
