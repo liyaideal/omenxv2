@@ -183,10 +183,13 @@ export const PortfolioGaugeStatesPreview = () => (
 );
 
 export const PortfolioGaugeBarPreview = () => (
-  <div className="bg-background p-4">
+  <div className="space-y-3 bg-background p-4">
+    <BoostCheckBar data={gauge(42)} />
     <BoostCheckBar data={gauge(86)} />
+    <BoostCheckBar data={gauge(97)} />
   </div>
 );
+
 
 export const PortfolioLiveCardsPreview = () => (
   <div className="flex flex-col gap-2 bg-background p-4">
