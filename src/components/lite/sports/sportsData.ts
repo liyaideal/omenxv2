@@ -187,14 +187,10 @@ export const useSportsMatches = () => {
             ? new Date(e.start_date)
             : null;
         const endDate = e.end_date ? new Date(e.end_date) : null;
-        // In play = the clock says so. A match that has kicked off and has
-        // not reached its end time is live regardless of the metadata flag.
-        const now = Date.now();
-        const isLive =
-          !!kickoff &&
-          kickoff.getTime() <= now &&
-          !!endDate &&
-          endDate.getTime() > now;
+        // In play = the clock says so (single source of truth: isFixtureLive).
+        // `metadata.live` is engine debug output and is never read here.
+        const isLive = isFixtureLive(e as Parameters<typeof isFixtureLive>[0]);
+
         const opts = ((e.event_options || []) as {
           id: string;
           label: string;
