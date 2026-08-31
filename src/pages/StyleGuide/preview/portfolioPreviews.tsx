@@ -391,6 +391,9 @@ const groups: LiteMonthGroup[] = [
 
 export const PortfolioSettledListPreview = () => (
   <div className="bg-background pb-4">
+    <p className="px-4 pt-3 text-[11px] text-[#6B7280]">
+      月份组头可点击折叠/展开（默认全展开）。试试点击 AUGUST 2026。
+    </p>
     <SettledList groups={groups} />
   </div>
 );

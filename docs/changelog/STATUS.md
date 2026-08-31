@@ -17,6 +17,16 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-08-31 — Settled 列表按月份折叠（移动端 + 桌面端）
+
+源文档：[../delivery/lite-portfolio-spec-v2.md](../delivery/lite-portfolio-spec-v2.md) §10 · 计划 `settled-列表按月份折叠-移动端-桌面端-2026-08-31`
+
+| # | 需求条目 | 参考位置 | Status | QA 测试要点 | Notes |
+|---|---|---|---|---|---|
+| 1 | 月份组头可点击折叠/展开该月行（默认全展开，不持久化） | `src/components/portfolio/lite/SettledList.tsx` | ✅ | 点击组头 `aria-expanded` 切换，行移出/回到 DOM；计数 `(N)` + ChevronDown 方向 | Lite 移动端/桌面端共用同组件 |
+| 2 | Style Guide spec + 交互预览 | `portfolio-lite-settled-collapse` | ✅ | 预览内点击 AUGUST 2026 可折叠 | |
+| 3 | Pro 端确认不波及 | `src/pages/Portfolio.tsx` | ✅ | Pro settled 表无月份分组，无需改动 | |
+
 ## 2026-08-31 — 持仓 side 标识方向轴统一（PF-SIDE-1）
 
 源文档：[../delivery/lite-portfolio-spec-v2.md](../delivery/lite-portfolio-spec-v2.md) §8 · DESIGN.md §2

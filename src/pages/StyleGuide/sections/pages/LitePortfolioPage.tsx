@@ -146,6 +146,16 @@ const PORTFOLIO_MOBILE_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "portfolio-lite-settled-collapse",
+    label: "Settled 月份折叠（移动端 + 桌面端共用）",
+    note: "月份组头是可点击按钮：点一下折叠该月全部行，再点展开。默认全部展开；折叠状态不持久化，切 tab / 刷新后恢复。",
+    spec: [
+      { state: "月份展开（默认）", when: "collapsed 不含该 g.key", visual: "组头标签 + 行数计数 `(N)`（font-mono #6B7280/60）+ 右侧 ChevronDown 朝下，组内行正常渲染", source: "SettledList" },
+      { state: "月份折叠", when: "点击组头 → collapsed 加入 g.key", visual: "ChevronDown 旋转 180°（transition 200ms），组内行完全移出 DOM；组头仍可点击", source: "SettledList" },
+      { state: "懒加载新增月份", when: "Load earlier months 追加的组", visual: "默认展开，不继承折叠状态", source: "SettledList" },
+    ],
+  },
+  {
     key: "portfolio-lite-detail-won-mobile",
     label: "单仓结算详情 · 移动（settlement + won）",
     note: "移动端为纵列：概览 → Side/Avg price/Shares/Settled price/Cost/Fees/Payout/Placed/Settled → ACTIVITY。",
