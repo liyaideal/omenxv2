@@ -4,6 +4,7 @@
 > 「长什么样」看生产 `/portfolio`（移动 + 桌面）；「每个模块的每个状态什么时候出现」看 `/style-guide` → Lite Pages → Portfolio，那里每个 case 都带触发条件表。
 > 适用范围：Lite surface。Pro portfolio 是独立代码路径，本次不动。
 > v2 相对 v1：§1–§9 未改，新增 §10–§19（前后端分工、异步态、分页与规模、实时口径、时区、权限、埋点、无障碍、QA checklist、待决策项）；研发以本文档为准，v1 作废。
+> 2026-08-31 修订：§4 / §8 / §9 / §14 按 `docs/delivery/autoclose-v1.md` 与 copy-dictionary 现行口径对齐；其余原文未动。
 
 ## 0. 读者须知
 
@@ -101,9 +102,9 @@ Settled 行 ─单仓─> /portfolio/settlement/:id
 | `profit` | 真实 pnl，可为负 |
 | `profitPercent` | `profit / cost × 100`，`cost = 0` 时为 0 |
 | `ifWins` | 份额数（shares × $1） |
-| `autoClosePrice` | 账户级求解，**排除本仓**（margin 加回、自身 pnl 剔除，mode `existing`）；仅 Boost 且 `leverage > 1` |
-| `autoCloseState` | `level`（解出且 `0 < raw < priceNow`）/ `none` / `missing`（equity ≤ 0 或解不出） |
-| `hot` | `|priceNow − autoClosePrice| / priceNow ≤ 0.10` |
+| `autoClose` | 账户级求解，**排除本仓**（margin 加回、自身 pnl 剔除，mode `existing`）；**所有 Boost 段行都有结果，含 1×**（1× 恒 none）。返回 `AutoCloseResult`：`{kind:'level', price}` 或 `{kind:'none'}`，不返回 null（见 `docs/delivery/autoclose-v1.md` §3） |
+| `autoClose.kind` | 两态：`level`（解出且在合法域：long `0 < p < mark`，short `mark < p < 1`）/ `none`（boost ≤ 1、解出域、数据缺失）。**没有第三态 `missing`**（旧口径已废） |
+| `hot` | `isAutoCloseHot(autoClose, priceNow)`：`kind === 'level'` 且 `|priceNow − price| / priceNow ≤ 0.10` |
 | `riskRatio` | `imTotal / equity × 100`（账户级，跨仓） |
 | `untilAutoClose` | `max(equity − imTotal, 0)` |
 | Settled `payout` | `max(0, cost + net)` |
@@ -157,11 +158,11 @@ preview key 定义在 `src/pages/StyleGuide/sections/pages/LitePortfolioPage.tsx
 | 项 | 规则 |
 |---|---|
 | 收益句 | `If it wins you get $X`（移动）/ `If it wins → $X`（桌面）。**不重复 side**，side 已在上方 meta |
-| auto-close 后缀 | 仅当 `autoCloseState === 'level'` 且有价格时追加 ` · auto-close ≈{cents}`；无价一律不显示后缀 |
+| auto-close 字段 | Boost 段常驻，值两态：桌面行 `· auto-close ≈{c}¢` / `· auto-close none`（none 内联灰 `#4d5560` + tooltip `No auto-close within this market's price range — your loss is capped at what you put in.`）；移动卡 `· auto-close ≈{c}¢` / `· no auto-close, loss capped`。Standard 段不带该字段。hot 时整句红 |
 | auto-closed | 强制了结保留可见备注（列表 meta + 详情结果行，红色） |
 | cashed out early | **已废弃**，全站不再出现；提前平仓与正常结算在用户侧文案一致，只有价格行 label 区分 `Closed at` / `Settled price` |
 | 战绩格式 | `12W 15L` |
-| 杠杆 | `1×` 一律不写「1× Boost」 |
+| 杠杆 | `1×` 一律不写「1× Boost」（`boostSuffix()` 返回空）；但 1× 行仍属 Boost 段并携带 auto-close 字段（值恒 none） |
 | Lite 禁词 | Margin / Liquidation / Funding / Leverage / Long / Short / Order book / Limit（详见 `docs/copy-dictionary.md`） |
 
 ## 9. 涉及文件
@@ -177,7 +178,7 @@ preview key 定义在 `src/pages/StyleGuide/sections/pages/LitePortfolioPage.tsx
 - `src/components/portfolio/lite/`：`parts.tsx`（KPI / chips / 仪表）、`LiveCards.tsx`、`SettledList.tsx`、`SettlementDetailView.tsx`、`SeriesDetailView.tsx`、`LiteAuthGate.tsx`、`PortfolioErrorBoundary.tsx`
 
 **文档**
-- `src/pages/StyleGuide/sections/pages/litePages.tsx`（状态需求表）、`docs/copy-dictionary.md`
+- `src/pages/StyleGuide/sections/pages/LitePortfolioPage.tsx`（状态字典）、`docs/copy-dictionary.md`
 
 ## 10. 前后端分工
 
@@ -240,7 +241,7 @@ preview key 定义在 `src/pages/StyleGuide/sections/pages/LitePortfolioPage.tsx
 |---|---|
 | 时区 | 全部**用户本地时间**，不带时区后缀。`settleLabel` / `settledDayLabel` / `monthGroupLabel` 均用本地 `getFullYear/getMonth/getDate` 切天与切月 |
 | 后果声明 | 跨时区用户看到的「结算日」与「月分组」可能不同，这是既定口径，不做 UTC 归一 |
-| 时间格式 | 24 小时制；同日 `today 16:00`，同年 `Aug 21 16:00`，跨年 `Jan 12, 2027`（无时钟） |
+| 时间格式 | 24 小时制。Live：`settleLabel()` 同日 `today 16:00` / 同年 `Aug 21 16:00` / 跨年 `Jan 12, 2027`；Settled 列表行：`settledDayLabel()` 只到日 `Aug 12`；结算详情时间行：`settledStampLabel()` `Aug 1, 2026 · 14:00`；月分组头 `monthGroupLabel()` `AUGUST 2026`。三种精度是设计意图 |
 | 金额 | USD，两位小数；`|value| < 0.005` → muted `$0.00`（不带正负号） |
 | 价格 | 分位显示 `48¢`（四舍五入到整分） |
 | 多币种 | 不在本期范围，全站 USD |
@@ -304,7 +305,7 @@ preview key 定义在 `src/pages/StyleGuide/sections/pages/LitePortfolioPage.tsx
 
 **数值与文案**
 - [ ] 亏损超本金的仓 NOW WORTH 显示 `$0.00`，PROFIT 仍显示真实负值
-- [ ] 无 auto-close 价时不出现 `auto-close` 后缀
+- [ ] Boost 段每行都有 auto-close 字段：有价 `≈{c}¢`，无价桌面 `none` / 移动 `no auto-close, loss capped`；Standard 段无此字段
 - [ ] 全站无 `cashed out early`、无 `1× Boost`
 
 ## 19. 待决策项
