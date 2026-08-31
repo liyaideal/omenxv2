@@ -457,22 +457,9 @@ const PORTFOLIO_DESKTOP_CASES: SectionCase[] = [
 ];
 
 
-const READ_ME =
-  "怎么读这一节：所有状态都由 useLitePortfolio 派生的字段驱动（segment / isVoucher / autoCloseState / hot / closeReason / isSeries / isZeroMoney）。每个 case 下方的表给出「触发条件 → 视觉结果 → 字段来源」，条件都是可判定表达式，可直接照抄进实现；表里没有列出的组合视为不存在，不要自行发挥。";
-
-export const LitePortfolioPage = ({ isMobile }: P) => (
-  <LitePage
-    id="lite-portfolio"
-    title="Portfolio"
-    route="/portfolio · /portfolio?tab=settled · /portfolio/settlement/:id"
-
-    status="done"
-    note="2026-08-19 改版：Live / Settled 两 tab（Rewards 开场 tab 制式），KPI 卡、voucher 发丝行、Boost/Standard 双段 chips、Boost check 仪表、持仓卡 / 桌面行式网格、结算月份分组与系列聚合行。以下全部挂载生产组件（fixture 数据驱动状态），非手抄。"
-  >
-    <div className="rounded-lg border border-border/40 bg-muted/10 p-3 text-[11px] leading-relaxed text-muted-foreground">
-      {READ_ME}
-    </div>
-
+const PortfolioLegacyCases = () => (
+  <>
+    {/* ── 以下为旧版节（并账后删除）── */}
     <SubSection
       title="移动端全状态（375 · 单 iframe）"
       description="整节移动端案例合并在一个 375px iframe 里按顺序纵向排列，每段上方有 label 分隔线；下方按 case 给出触发条件表。本 frame 内只有移动端组件。"
@@ -486,5 +473,34 @@ export const LitePortfolioPage = ({ isMobile }: P) => (
     >
       <SectionFrame device="desktop" minHeight={900} cases={PORTFOLIO_DESKTOP_CASES} />
     </SubSection>
+  </>
+);
+
+export const LitePortfolioPage = ({ isMobile }: P) => (
+  <LitePage
+    id="lite-portfolio"
+    title="Portfolio"
+    route="/portfolio · /portfolio?tab=settled · /portfolio/settlement/:id"
+    status="done"
+    note="本页 = 产品页 /portfolio 的状态字典 · 样式与布局看生产页，状态与判定看本页。"
+  >
+    <div className="space-y-1 rounded-lg border border-[#CFFF4A]/30 bg-[#CFFF4A]/5 px-3 py-2 text-[12px] text-foreground">
+      <div>
+        本页 = 产品页 <code className="font-mono">/portfolio</code> 的状态字典 ·
+        样式与布局 → 生产页；状态与判定 → 本页
+      </div>
+      <div>
+        字段名 / 文案 / 公式 / 术语 → <code className="font-mono">docs/copy-dictionary.md</code>（顶部有 Lite 术语对照表）
+      </div>
+      <div>
+        流程 / 口径 / 前后端分工 → <code className="font-mono">docs/delivery/lite-portfolio-spec-v2.md</code>
+      </div>
+    </div>
+
+    <PortfolioStatesSection />
+
+    {/* ── 以下为旧版节（并账后删除）── */}
+    <PortfolioLegacyCases />
   </LitePage>
 );
+
