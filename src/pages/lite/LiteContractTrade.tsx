@@ -74,6 +74,7 @@ import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
 import { LiteMarketBoard, type BoardOption } from "@/components/lite/multi/LiteMarketBoard";
 import { LiteLineScrubber } from "@/components/lite/multi/LiteLineScrubber";
 import { LiveMatchboard } from "@/components/lite/sports/LiveMatchboard";
+import { LiveStage } from "@/components/lite/sports/LiveStage";
 import {
   fixtureMeta,
   formatSignedLine,
@@ -832,6 +833,11 @@ const LiteContractTrade = () => {
   );
 
   // Sports fixtures only — every other event renders byte-identical DOM.
+  const Stage =
+    event.event_subtype === "SPORTS_MATCH" ? (
+      <LiveStage event={event as unknown as Parameters<typeof LiveStage>[0]["event"]} />
+    ) : null;
+
   const Matchboard =
     event.event_subtype === "SPORTS_MATCH" ? (
       <LiveMatchboard event={event as unknown as Parameters<typeof LiveMatchboard>[0]["event"]} />
@@ -1337,6 +1343,7 @@ const LiteContractTrade = () => {
           <div className="space-y-4 px-4 py-4">
             {isMulti && !resolved && MultiMetaRow}
             {QuestionBlock}
+            {Stage}
             {Matchboard}
             {resolved ? (
               <>
@@ -1482,6 +1489,7 @@ const LiteContractTrade = () => {
         >
           <div className="space-y-5">
             {QuestionBlock}
+            {Stage}
             {Matchboard}
             {resolved ? (
               <>

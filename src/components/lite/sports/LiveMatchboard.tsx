@@ -662,7 +662,13 @@ const MobileBar = ({ m, sticky }: { m: Model; sticky: boolean }) => {
 
 // ---------- entry ----------
 
-export const LiveMatchboard = ({ event }: { event: MatchboardEvent }) => {
+export const LiveMatchboard = ({
+  event,
+  fixtureNow,
+}: {
+  event: MatchboardEvent;
+  fixtureNow?: number;
+}) => {
   const isMobile = useIsMobile();
   const [tick, setTick] = useState(0);
   const sentinel = useRef<HTMLDivElement | null>(null);
@@ -674,9 +680,9 @@ export const LiveMatchboard = ({ event }: { event: MatchboardEvent }) => {
   }, []);
 
   const m = useMemo(
-    () => buildModel(event, Date.now()),
+    () => buildModel(event, fixtureNow ?? Date.now()),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [event, tick],
+    [event, tick, fixtureNow],
   );
 
   useEffect(() => {
