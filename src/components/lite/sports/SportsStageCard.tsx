@@ -136,7 +136,7 @@ const LiveBlock = ({
         {match.phase ? ` · ${match.phase}` : ""}
       </span>
       <span className="flex flex-none items-center gap-[5px]">
-        <LivePulse size={5} color="#FF3B4E" />
+        <LivePulse size={5} color="#FF8A3D" />
         <span
           style={{
             fontSize: 12,
@@ -370,7 +370,7 @@ export const SportsStageCard = ({
           className="flex items-center gap-[9px]"
           style={{ padding: "0 18px 9px" }}
         >
-          <LivePulse size={6} color="#FF3B4E" />
+          <LivePulse size={6} color="#FF8A3D" />
           <span
             style={{
               fontSize: 10,
