@@ -11,6 +11,8 @@
 ```
 docs/
 ├── README.md                    ← 你正在看的文件
+├── delivery/                    ← 功能/页面级交付说明（研发实施依据）
+├── copy-dictionary.md           ← 用户可见字段名 / 文案 / 公式 / 术语对照 唯一来源
 └── changelog/                   ← 每次需求/迭代的交付说明
     ├── INDEX.md                 ← 按时间倒序的全量索引
     └── YYYY-MM-DD-{slug}.md     ← 单次交付文档
@@ -25,6 +27,16 @@ docs/
 | `.lovable/memory/` | Lovable agent 的项目记忆（核心规则、feature 决策），可作参考 |
 
 ---
+
+## 查什么去哪儿
+
+| 想知道 | 去哪 |
+|---|---|
+| 这个模块长什么样 | 生产页（omenxv2.lovable.app/<route>） |
+| 什么时候变成什么样 / 有哪些状态 | `/style-guide` → Lite → 对应页面的状态字典（每个 case 带「状态 / 触发条件 / 视觉 / 数据来源」表） |
+| 字段名、文案、公式、时间口径、Lite 词对应的交易口径 | `docs/copy-dictionary.md`（顶部「Lite 术语对照表」） |
+| 流程、路由、前后端分工、边界与不做的事 | `docs/delivery/<页面>.md` 的对应章节 |
+| 颜色轴、chip、overlay 等设计法则 | `DESIGN.md` |
 
 ## 研发使用方式
 
