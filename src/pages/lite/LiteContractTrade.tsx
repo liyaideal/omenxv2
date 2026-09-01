@@ -87,6 +87,7 @@ import {
 import {
   useMatchboardModel,
   type MatchboardEvent,
+  type Model,
 } from "@/components/lite/sports/matchboardModel";
 import { LiteBoardGroupHeader as GroupHeader } from "@/components/lite/multi/LiteBoardGroupHeader";
 
