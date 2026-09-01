@@ -77,6 +77,10 @@ SELL / Reduce / Close actions never visually compete with an outcome color.
 
 **持仓标识（2026-08-31 LOCKED）**：凡表达"你持有哪一边"的标识——交易页持仓卡标题、portfolio Live SIDE chip、settled 行 / 系列轮次 / 结算详情 / 分享卡的 side 词——颜色一律走本轴：Yes/Up = `--yes`（#33D6FF），No/Down = `--no`（#CFFF4A）。容器形态可不同（交易页文字色、portfolio 填充 chip 黑字），颜色语义必须相同。side 词与方向只允许一个来源 `resolveLegSide()`（`src/lib/liteSideName.ts`）：`type === 'short'` 一律视为 No；多选腿 chip 只放 `Yes|No {c}¢`，选项名以 11.5px #E5E7EB 置于 chip 正下方同一格；二元与别名腿无第二行。Chip 法则对此 chip 豁免。
 
+第三条轴（体育「正在进行」橙 `#FF8A3D`）见文末 `§Addendum 2026-09-01`：它既不是金额轴也不是选边轴，且与这两条互不侵占。
+
+
+
 ### Borders
 
 | Token | HSL | Usage |
@@ -1713,7 +1717,7 @@ portfolio 里不允许出现「无来源标的试玩仓位」——没有标就�
 行为零变化。当前实现：`HomeStocksCard` / `StockRow` / `SpotSessionBanner`。
 Don't：用 `new Date()` 本地偏移伪造 session 态；用 `Date.now()` 派生可变文案。
 
-### 体育「进行中」轴（`#FF8A3D`）· 作用域
+## §Addendum 2026-09-01 · 体育「进行中」轴（`#FF8A3D`）· 作用域（LOCKED）
 
 站内除了 MONEY 轴（盈亏、涨跌）与 MARKET 轴（选边 Yes/No）之外，体育模块另有第三条轴：**橙 `#FF8A3D`，只表达「这件事正在发生」**，墨色 `#2A1200`。
 
