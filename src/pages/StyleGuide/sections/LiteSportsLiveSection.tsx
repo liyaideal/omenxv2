@@ -298,10 +298,12 @@ const MINI_CASES: SectionCase[] = [
   {
     key: "sports-mini-c3",
     label: "C3 · 全屏底栏（S10）",
+    note:
+      '页面级 CSS 全屏（`position: fixed; inset: 0; z-index: 60`），不是 Fullscreen API —— 应用跑在没有 allow="fullscreen" 的 iframe 里时 `requestFullscreen()` 会以 `Permissions check failed` 被拒，控件会在最常被点的地方变成死键。ESC 退出，全屏期间锁 body 滚动，`<video>` 元素不重挂。',
     spec: [
       {
         state: "fullscreen",
-        when: "wrapper.requestFullscreen()",
+        when: "isFullscreen === true（点桌面内联右下全屏键，或迷你条上的全屏键）",
         visual:
           "左上完整比分串；底栏左延迟披露、右两枚 Series winner 芯片（#33D6FF / #CFFF4A）",
         source: "LiveStage chrome === full",
