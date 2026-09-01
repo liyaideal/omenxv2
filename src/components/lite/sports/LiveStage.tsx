@@ -396,17 +396,8 @@ export const LiveStage = ({
   };
 
   const slotRef = useRef<HTMLDivElement | null>(null);
-  // The slot mounts later than the first commit (the stage returns null until
-  // `isMobile` resolves and the fixture's stream_url has loaded), so the
-  // observer must be armed by the node itself, not by an unrelated dep list.
-  const [slotNode, setSlotNode] = useState<HTMLDivElement | null>(null);
-  const setSlot = useCallback((node: HTMLDivElement | null) => {
-    slotRef.current = node;
-    setSlotNode(node);
-  }, []);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const [inlineVisible, setInlineVisible] = useState(true);
-
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [slotH, setSlotH] = useState(0);
   const [pos, setPos] = useState<{ left: number; top: number }>({ left: EDGE, top: 0 });
@@ -430,17 +421,16 @@ export const LiveStage = ({
     setPos(clampPos(restored ?? { left: 16, top: window.innerHeight - MINI_H - 16 }));
   }, []);
 
-  // Is the inline slot on screen? Both breakpoints observe it. Keyed on the
-  // node so it rebuilds only when the observed element actually changes.
+  // Is the inline slot on screen? Both breakpoints observe it.
   useEffect(() => {
-    if (!slotNode) return;
+    const el = slotRef.current;
+    if (!el) return;
     const io = new IntersectionObserver(([e]) => setInlineVisible(e.isIntersecting), {
       threshold: 0,
     });
-    io.observe(slotNode);
+    io.observe(el);
     return () => io.disconnect();
-  }, [slotNode]);
-
+  }, [isMobile, collapsed]);
 
   // Page-level fullscreen, not the Fullscreen API. The API is refused
   // whenever the app runs inside an iframe without allow="fullscreen"
@@ -1009,9 +999,9 @@ export const LiveStage = ({
   return (
     <div>
       {isMobile && !fixture && collapsed ? (
-        <div ref={setSlot} />
+        <div ref={slotRef} />
       ) : (
-        <div ref={setSlot} style={mode === "mini" && !preview ? { height: slotH } : undefined}>
+        <div ref={slotRef} style={mode === "mini" && !preview ? { height: slotH } : undefined}>
           {stage}
         </div>
       )}
