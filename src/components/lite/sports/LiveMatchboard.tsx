@@ -9,6 +9,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SPORT_SEGMENTS, type SegmentSpec } from "@/lib/sportSegments";
 import { fixtureMeta, isFixtureLive, type FixtureMeta } from "./sportsData";
+import { setLiveStageState, useShowWatchKey } from "./liveStageStore";
 
 const MONO = "'Space Grotesk', ui-monospace, SFMono-Regular, monospace";
 
@@ -293,7 +294,7 @@ const headStyle = (on: boolean) => ({
 
 // ---------- desktop matrix ----------
 
-const Matrix = ({ m }: { m: Model }) => {
+const Matrix = ({ m, showWatch }: { m: Model; showWatch: boolean }) => {
   const settled = m.status === "settled";
   const cols = m.spec
     ? [
@@ -436,6 +437,29 @@ const Matrix = ({ m }: { m: Model }) => {
           {m.ctx}
         </span>
         <span style={{ flexGrow: 1 }} />
+        {showWatch ? (
+          <button
+            type="button"
+            onClick={() => setLiveStageState({ miniDismissed: false })}
+            className="inline-flex items-center"
+            style={{
+              gap: 6,
+              border: "1px solid #262B33",
+              background: "#14181E",
+              borderRadius: 8,
+              padding: "5px 9px",
+              color: "#C9D1DA",
+              fontSize: 11,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            <svg viewBox="0 0 24 24" style={{ width: 11, height: 11, fill: "currentColor", stroke: "none", display: "block" }}>
+              <path d="M7 4v16l13-8z" />
+            </svg>
+            Watch
+          </button>
+        ) : null}
         {m.sealed && (m.status === "live" || m.status === "break") ? (
           <span style={{ fontSize: 10.5, color: "#6B727C" }}>
             Scorecards sealed until the decision
@@ -665,11 +689,16 @@ const MobileBar = ({ m, sticky }: { m: Model; sticky: boolean }) => {
 export const LiveMatchboard = ({
   event,
   fixtureNow,
+  forceWatchKey,
 }: {
   event: MatchboardEvent;
   fixtureNow?: number;
+  /** Style-guide only. Absent ⇒ production behaviour, byte-identical. */
+  forceWatchKey?: boolean;
 }) => {
   const isMobile = useIsMobile();
+  const storeWatch = useShowWatchKey(event.id);
+  const showWatch = forceWatchKey ?? storeWatch;
   const [tick, setTick] = useState(0);
   const sentinel = useRef<HTMLDivElement | null>(null);
   const [stuck, setStuck] = useState(false);
@@ -718,7 +747,7 @@ export const LiveMatchboard = ({
     );
   }
 
-  return <Matrix m={m} />;
+  return <Matrix m={m} showWatch={showWatch} />;
 };
 
 export default LiveMatchboard;
