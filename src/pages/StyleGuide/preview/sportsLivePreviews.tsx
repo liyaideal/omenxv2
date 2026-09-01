@@ -334,6 +334,8 @@ export const C4Preview = () => (
       forceWatchKey
       event={board("sg-cs2-watch", {
         ...cs2Base,
+        home: "NAVI",
+        away: "FaZe",
         segment_index: 2,
         segment_results: [{ home: 13, away: 8 }, { home: 9, away: 7 }, null],
       })}

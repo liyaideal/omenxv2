@@ -403,6 +403,7 @@ export const LiveStage = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [slotH, setSlotH] = useState(0);
   const [pos, setPos] = useState<{ left: number; top: number }>({ left: EDGE, top: 0 });
+  const [fsBlocked, setFsBlocked] = useState(false);
   const store = useLiveStageState();
   const dismissed = store.miniDismissed;
 
@@ -581,14 +582,25 @@ export const LiveStage = ({
   const chrome: "inline" | "mini" | "full" = fullscreen ? "full" : mode;
 
   const enterFullscreen = () => {
-    wrapperRef.current?.requestFullscreen?.();
+    const el = wrapperRef.current;
+    if (!el?.requestFullscreen) {
+      setFsBlocked(true);
+      return;
+    }
+    // A refused request is normal, not exceptional: a restrictive iframe, an
+    // enterprise policy, or an OS that only fullscreens <video> itself. Catch
+    // it, and stop offering a control this environment will not honour.
+    el.requestFullscreen().catch(() => setFsBlocked(true));
+  };
+  const exitFullscreen = () => {
+    if (document.fullscreenElement) document.exitFullscreen?.().catch(() => undefined);
   };
   const backToStage = () => {
     slotRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
   const closeMini = () => setLiveStageState({ miniDismissed: true });
   const pickSide = () => {
-    if (document.fullscreenElement) document.exitFullscreen();
+    exitFullscreen();
     const anchor =
       document.getElementById("lite-odds-anchor") ?? (slotRef.current as Element | null);
     window.setTimeout(() => anchor?.scrollIntoView({ behavior: "smooth", block: "center" }), 80);
@@ -703,25 +715,27 @@ export const LiveStage = ({
           </svg>
           Back to stage
         </button>
-        <button
-          type="button"
-          aria-label="Fullscreen"
-          onClick={enterFullscreen}
-          style={{
-            width: 30,
-            height: 30,
-            borderRadius: 8,
-            display: "grid",
-            placeItems: "center",
-            color: "#8B929B",
-            background: "transparent",
-            border: "none",
-            padding: 0,
-            cursor: "pointer",
-          }}
-        >
-          <Ic d={EXPAND_D} size={14} />
-        </button>
+        {!fsBlocked ? (
+          <button
+            type="button"
+            aria-label="Fullscreen"
+            onClick={enterFullscreen}
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: 8,
+              display: "grid",
+              placeItems: "center",
+              color: "#8B929B",
+              background: "transparent",
+              border: "none",
+              padding: 0,
+              cursor: "pointer",
+            }}
+          >
+            <Ic d={EXPAND_D} size={14} />
+          </button>
+        ) : null}
         <button
           type="button"
           aria-label="Close mini player"
@@ -884,7 +898,7 @@ export const LiveStage = ({
             <Glass mono>{fullCapsule}</Glass>
           </div>
           <div style={{ position: "absolute", right: 16, top: 16, zIndex: 2 }}>
-            <RoundBtn label="Exit fullscreen" onClick={() => document.exitFullscreen?.()}>
+            <RoundBtn label="Exit fullscreen" onClick={exitFullscreen}>
               <Ic d={CLOSE_D} size={13} />
             </RoundBtn>
           </div>
@@ -969,9 +983,11 @@ export const LiveStage = ({
           >
             {delayPill}
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <RoundBtn label="Fullscreen" onClick={enterFullscreen}>
-                <Ic d={EXPAND_D} size={13} />
-              </RoundBtn>
+              {!fsBlocked ? (
+                <RoundBtn label="Fullscreen" onClick={enterFullscreen}>
+                  <Ic d={EXPAND_D} size={13} />
+                </RoundBtn>
+              ) : null}
               <MuteBtn muted={muted} onClick={() => setMuted(!muted)} />
             </div>
           </div>
