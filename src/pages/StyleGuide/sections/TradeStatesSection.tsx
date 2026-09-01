@@ -268,6 +268,32 @@ const MULTI_CASES: SectionCase[] = [
       { state: "行内 Yes/No", when: "任意行", visual: "每行两个 chip，点击即绑定订单侧", source: "onSelect / onRowSelect" },
     ],
   },
+  {
+    key: "trade-tr25",
+    label: "TR-25 · sports 分段板 · CS2 BO3（Series lines + Map 1/2/3）",
+    note:
+      "分组由生产函数 groupSegmentedMarkets() 算出；BO3 = 4 组 10 行。fixture 取 segment_index: 2，因此同帧覆盖三种分组注记：Map 1 已打完（终比分）、Map 2 进行中（LIVE + 现比分）、Map 3 未开打。每组让分尺的档位状态互相独立。",
+    spec: [
+      { state: "Series lines 组", when: "sport === \"esports\" && segments_key 命中 SPORT_SEGMENTS", visual: "组头 `SERIES LINES / {HOME} VS {AWAY} · {联赛} · BO3` + Match winner / Map {当前段} winner / Map handicap / Total maps 四行", source: "groupSegmentedMarkets → grp-series" },
+      { state: "当前段 mapwin 唯一", when: "currentSegment != null", visual: "Series lines 组里只出一条 mapwin 行，题名跟随当前段", source: "series.mapwin（id 后缀 -mapwin-{n}）" },
+      { state: "分段组 · 已打完", when: "results[n-1] != null && n < idx", visual: "组头 `MAP {n}` + 右侧终比分注记", source: "segmentAnnotation(n)" },
+      { state: "分段组 · 进行中", when: "n === idx && status === \"live\"", visual: "组头 `MAP {n}` + LIVE 药丸 + 现比分注记", source: "segmentAnnotation(n) / AnnotLivePill" },
+      { state: "分段组 · 未开打", when: "results[n-1] == null && n > idx", visual: "组头 `MAP {n}` + `NOT PLAYED YET`", source: "segmentAnnotation(n)" },
+      { state: "让分尺各组独立", when: "segLines[grp-seg-1] !== segLines[grp-seg-2]", visual: "改 Map 1 的档位，Map 2 / Map 3 的档位与行题不动", source: "LiteContractTrade.segLines（按 group.key 分键）" },
+    ],
+  },
+  {
+    key: "trade-tr26",
+    label: "TR-26 · sports 分段板 · MMA（Fight lines + Method）",
+    note:
+      "MMA 没有分段组：SPORT_SEGMENTS 的 decisiveThreshold 为 null，回合不计分，因此只有 grp-fight 与 grp-method 两组共 5 行。退款口径句落在 TradeRuleCard，不在组头。",
+    spec: [
+      { state: "Fight lines 组", when: "sport === \"mma\"", visual: "组头 `FIGHT LINES / {赛事} · 5 ROUNDS` + Fight winner + Total rounds 两行", source: "groupSegmentedMarkets → grp-fight" },
+      { state: "Method 组", when: "method/distance 兄弟存在", visual: "组头 `METHOD / HOW THE FIGHT ENDS` + Goes the distance / Won by KO/TKO / Won by submission 三行", source: "groupSegmentedMarkets → grp-method" },
+      { state: "退款口径", when: "segGroups.some(g => g.key === \"grp-method\")", visual: "规则卡追加 `A draw or No Contest voids the Method markets — those stakes are refunded in full.`", source: "LiteContractTrade.methodRefundLine" },
+      { state: "无分段组", when: "spec.decisiveThreshold === null", visual: "不渲染任何 `MAP n` / `ROUND n` 分组头", source: "groupSegmentedMarkets（mma 分支不产 seg 组）" },
+    ],
+  },
 ];
 
 /* ---------------- ⑦ Boost 全档（TR-24） ---------------- */
