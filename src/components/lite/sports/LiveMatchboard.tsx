@@ -5,7 +5,7 @@
 //         in-segment value) with a cell track along the bottom edge.
 // Display-only. Reads events.metadata; writes nothing.
 // ============================================================
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   buildModel,
