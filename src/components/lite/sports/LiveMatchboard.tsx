@@ -547,20 +547,15 @@ export const LiveMatchboard = ({
   const isMobile = useIsMobile();
   const storeWatch = useShowWatchKey(event.id);
   const showWatch = forceWatchKey ?? storeWatch;
-  const [tick, setTick] = useState(0);
   const sentinel = useRef<HTMLDivElement | null>(null);
   const [stuck, setStuck] = useState(false);
 
-  useEffect(() => {
-    const t = setInterval(() => setTick((n) => n + 1), 30_000);
-    return () => clearInterval(t);
-  }, []);
-
+  const live = useMatchboardModel(event);
   const m = useMemo(
-    () => buildModel(event, fixtureNow ?? Date.now()),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [event, tick, fixtureNow],
+    () => (fixtureNow != null ? buildModel(event, fixtureNow) : live),
+    [event, fixtureNow, live],
   );
+
 
   useEffect(() => {
     const el = sentinel.current;
