@@ -608,17 +608,30 @@ export const LiveStage = ({
   };
 
   const wrapperStyle: React.CSSProperties = fullscreen
-    ? {
-        position: "relative",
-        width: "100%",
-        height: preview ? undefined : "100%",
-        border: preview ? "1px solid #1D2026" : "none",
-        borderRadius: preview ? 12 : 0,
-        overflow: "hidden",
-        background: "#000",
-        display: "flex",
-        flexDirection: "column",
-      }
+    ? preview
+      ? {
+          position: "relative",
+          width: "100%",
+          border: "1px solid #1D2026",
+          borderRadius: 12,
+          overflow: "hidden",
+          background: "#000",
+          display: "flex",
+          flexDirection: "column",
+        }
+      : {
+          position: "fixed",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          borderRadius: 0,
+          border: "none",
+          overflow: "hidden",
+          background: "#000",
+          display: "flex",
+          flexDirection: "column",
+          zIndex: 60,
+        }
     : mode === "mini"
       ? {
           position: preview ? "relative" : "fixed",
