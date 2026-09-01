@@ -17,7 +17,7 @@ const cs2Base = {
   away: "FaZe Clan",
   home_abbr: "NAVI",
   away_abbr: "FAZE",
-  segments_key: "CS2 · BO3",
+  segments_key: "IEM Cologne · BO3",
 };
 
 const ufcBase = {
@@ -50,6 +50,7 @@ export const M1Preview = () => (
   <Frame>
     <LiveMatchboard
       fixtureNow={NOW}
+      fixtureSticky={false}
       event={board("sg-cs2-m1", {
         ...cs2Base,
         segment_index: 2,
@@ -63,6 +64,7 @@ export const M2Preview = () => (
   <Frame>
     <LiveMatchboard
       fixtureNow={NOW}
+      fixtureSticky={false}
       event={board(
         "sg-cs2-m2",
         {
@@ -81,6 +83,7 @@ export const M3Preview = () => (
   <Frame>
     <LiveMatchboard
       fixtureNow={NOW}
+      fixtureSticky={false}
       event={board("sg-cs2-m3", {
         ...cs2Base,
         segment_index: 2,
@@ -94,6 +97,7 @@ export const M4Preview = () => (
   <Frame>
     <LiveMatchboard
       fixtureNow={NOW}
+      fixtureSticky={false}
       event={board(
         "sg-cs2-m4",
         {
@@ -115,6 +119,7 @@ export const M5Preview = () => (
   <Frame>
     <LiveMatchboard
       fixtureNow={NOW}
+      fixtureSticky={false}
       event={board(
         "sg-cs2-m5",
         {
@@ -136,6 +141,7 @@ export const M6Preview = () => (
   <Frame>
     <LiveMatchboard
       fixtureNow={NOW}
+      fixtureSticky={false}
       event={board("sg-cs2-m6", {
         ...cs2Base,
         segments_key: undefined,
@@ -150,6 +156,7 @@ export const U1Preview = () => (
   <Frame>
     <LiveMatchboard
       fixtureNow={NOW}
+      fixtureSticky={false}
       event={board("sg-ufc-u1", {
         ...ufcBase,
         segment_index: 3,
@@ -165,6 +172,7 @@ export const U2Preview = () => (
   <Frame>
     <LiveMatchboard
       fixtureNow={NOW}
+      fixtureSticky={false}
       event={board("sg-ufc-u2", {
         ...ufcBase,
         segment_index: 3,
@@ -180,6 +188,7 @@ export const U3Preview = () => (
   <Frame>
     <LiveMatchboard
       fixtureNow={NOW}
+      fixtureSticky={false}
       event={board(
         "sg-ufc-u3",
         {
@@ -199,6 +208,7 @@ export const U4Preview = () => (
   <Frame>
     <LiveMatchboard
       fixtureNow={NOW}
+      fixtureSticky={false}
       event={board(
         "sg-ufc-u4",
         {
@@ -331,6 +341,7 @@ export const C4Preview = () => (
   <Frame>
     <LiveMatchboard
       fixtureNow={NOW}
+      fixtureSticky={false}
       forceWatchKey
       event={board("sg-cs2-watch", {
         ...cs2Base,
@@ -338,6 +349,21 @@ export const C4Preview = () => (
         away: "FaZe",
         segment_index: 2,
         segment_results: [{ home: 13, away: 8 }, { home: 9, away: 7 }, null],
+      })}
+    />
+  </Frame>
+);
+
+/** M7 — mobile sticky bar, forced on. Must own its frame (position: fixed). */
+export const M7Preview = () => (
+  <Frame>
+    <LiveMatchboard
+      fixtureNow={NOW}
+      fixtureSticky={true}
+      event={board("sg-cs2-m7", {
+        ...cs2Base,
+        segment_index: 2,
+        segment_results: [{ home: 13, away: 8 }, { home: 6, away: 4 }, null],
       })}
     />
   </Frame>
