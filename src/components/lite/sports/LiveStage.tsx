@@ -403,7 +403,6 @@ export const LiveStage = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [slotH, setSlotH] = useState(0);
   const [pos, setPos] = useState<{ left: number; top: number }>({ left: EDGE, top: 0 });
-  const [fsBlocked, setFsBlocked] = useState(false);
   const store = useLiveStageState();
   const dismissed = store.miniDismissed;
 
@@ -435,13 +434,29 @@ export const LiveStage = ({
     return () => io.disconnect();
   }, [isMobile, collapsed]);
 
-  // Fullscreen is read off the document, never off the callback that asked
-  // for it — the element is the truth.
+  // Page-level fullscreen, not the Fullscreen API. The API is refused
+  // whenever the app runs inside an iframe without allow="fullscreen"
+  // (the Lovable editor preview, most embeds), which would make this
+  // control silently dead exactly where people first try it. A fixed
+  // overlay works everywhere and keeps the same <video> element, so the
+  // picture never reloads on the way in or out.
+  const enterFullscreen = () => setIsFullscreen(true);
+  const exitFullscreen = () => setIsFullscreen(false);
+
+  // ESC exits; the page behind must not scroll while the overlay is up.
   useEffect(() => {
-    const onFs = () => setIsFullscreen(document.fullscreenElement === wrapperRef.current);
-    document.addEventListener("fullscreenchange", onFs);
-    return () => document.removeEventListener("fullscreenchange", onFs);
-  }, []);
+    if (!isFullscreen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsFullscreen(false);
+    };
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [isFullscreen]);
 
   const hasSource = !!src && live;
   useEffect(() => {
@@ -581,20 +596,6 @@ export const LiveStage = ({
 
   const chrome: "inline" | "mini" | "full" = fullscreen ? "full" : mode;
 
-  const enterFullscreen = () => {
-    const el = wrapperRef.current;
-    if (!el?.requestFullscreen) {
-      setFsBlocked(true);
-      return;
-    }
-    // A refused request is normal, not exceptional: a restrictive iframe, an
-    // enterprise policy, or an OS that only fullscreens <video> itself. Catch
-    // it, and stop offering a control this environment will not honour.
-    el.requestFullscreen().catch(() => setFsBlocked(true));
-  };
-  const exitFullscreen = () => {
-    if (document.fullscreenElement) document.exitFullscreen?.().catch(() => undefined);
-  };
   const backToStage = () => {
     slotRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
@@ -607,17 +608,30 @@ export const LiveStage = ({
   };
 
   const wrapperStyle: React.CSSProperties = fullscreen
-    ? {
-        position: "relative",
-        width: "100%",
-        height: preview ? undefined : "100%",
-        border: preview ? "1px solid #1D2026" : "none",
-        borderRadius: preview ? 12 : 0,
-        overflow: "hidden",
-        background: "#000",
-        display: "flex",
-        flexDirection: "column",
-      }
+    ? preview
+      ? {
+          position: "relative",
+          width: "100%",
+          border: "1px solid #1D2026",
+          borderRadius: 12,
+          overflow: "hidden",
+          background: "#000",
+          display: "flex",
+          flexDirection: "column",
+        }
+      : {
+          position: "fixed",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          borderRadius: 0,
+          border: "none",
+          overflow: "hidden",
+          background: "#000",
+          display: "flex",
+          flexDirection: "column",
+          zIndex: 60,
+        }
     : mode === "mini"
       ? {
           position: preview ? "relative" : "fixed",
@@ -715,27 +729,25 @@ export const LiveStage = ({
           </svg>
           Back to stage
         </button>
-        {!fsBlocked ? (
-          <button
-            type="button"
-            aria-label="Fullscreen"
-            onClick={enterFullscreen}
-            style={{
-              width: 30,
-              height: 30,
-              borderRadius: 8,
-              display: "grid",
-              placeItems: "center",
-              color: "#8B929B",
-              background: "transparent",
-              border: "none",
-              padding: 0,
-              cursor: "pointer",
-            }}
-          >
-            <Ic d={EXPAND_D} size={14} />
-          </button>
-        ) : null}
+        <button
+          type="button"
+          aria-label="Fullscreen"
+          onClick={enterFullscreen}
+          style={{
+            width: 30,
+            height: 30,
+            borderRadius: 8,
+            display: "grid",
+            placeItems: "center",
+            color: "#8B929B",
+            background: "transparent",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+          }}
+        >
+          <Ic d={EXPAND_D} size={14} />
+        </button>
         <button
           type="button"
           aria-label="Close mini player"
@@ -983,11 +995,9 @@ export const LiveStage = ({
           >
             {delayPill}
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              {!fsBlocked ? (
-                <RoundBtn label="Fullscreen" onClick={enterFullscreen}>
-                  <Ic d={EXPAND_D} size={13} />
-                </RoundBtn>
-              ) : null}
+              <RoundBtn label="Fullscreen" onClick={enterFullscreen}>
+                <Ic d={EXPAND_D} size={13} />
+              </RoundBtn>
               <MuteBtn muted={muted} onClick={() => setMuted(!muted)} />
             </div>
           </div>
