@@ -473,14 +473,18 @@ const lastName = (full: string) => {
 
 const MobileBar = ({ m, sticky }: { m: Model; sticky: boolean }) => {
   const scSize = sticky ? 16 : 18;
+  // 列头缩写本来就是为窄空间设计的，非地图类项目直接用它（1H/2H、Q4、S3、G4）。
+  // CS2 与 UFC 保持原样：CS2 内联仍是长写 `MAP n`、吸顶 `Mn`，UFC 仍是 `Rn`。
   const segLabel =
     m.idx == null || !m.spec
       ? ""
       : m.isMma
         ? `R${m.idx}`
-        : sticky
-          ? `M${m.idx}`
-          : `MAP ${m.idx}`;
+        : m.spec.unit === "map"
+          ? sticky
+            ? `M${m.idx}`
+            : `MAP ${m.idx}`
+          : m.spec.label(m.idx);
 
   const shellBase = {
     position: "relative" as const,
