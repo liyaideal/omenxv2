@@ -527,8 +527,6 @@ const MobileBar = ({ m, sticky }: { m: Model; sticky: boolean }) => {
       className="truncate"
       style={{
         minWidth: 0,
-        // 未开赛条里没有比分块，队名应尽量完整显示（右侧 Starts in … 已 nowrap）。
-        ...(m.status === "upcoming" ? { maxWidth: "30%" } : null),
         ...(m.isMma
           ? { fontSize: 11, letterSpacing: ".03em", color: "#C9D1DA", fontWeight: 600 }
           : { fontSize: 9.5, letterSpacing: ".14em", color: "#C9D1DA", fontWeight: 600 }),
@@ -537,6 +535,7 @@ const MobileBar = ({ m, sticky }: { m: Model; sticky: boolean }) => {
       {text}
     </span>
   );
+
 
 
   const sc = (v: number) => (
