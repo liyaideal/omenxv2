@@ -4,6 +4,8 @@
 // ============================================================
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { SPORT_SEGMENTS } from "@/lib/sportSegments";
+
 
 export const SPORTS_SUBTYPE = "SPORTS_MATCH";
 
