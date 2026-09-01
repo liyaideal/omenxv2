@@ -206,5 +206,44 @@ export const useMatchboardModel = (event: MatchboardEvent): Model => {
     () => clockNow,
     () => clockNow,
   );
-  return useMemo(() => buildModel(event, now), [event, now]);
+  // Parents re-render with a fresh `event` object literal on every price tick.
+  // Memoising on the object identity would hand every consumer a new model each
+  // render; memoise on the fields `buildModel` actually reads instead.
+  const {
+    id,
+    name,
+    is_resolved: isResolved,
+    start_date: startDate,
+    end_date: endDate,
+    winning_option_id: winningOptionId,
+    event_subtype: eventSubtype,
+    metadata,
+  } = event;
+  return useMemo(
+    () =>
+      buildModel(
+        {
+          id,
+          name,
+          is_resolved: isResolved,
+          start_date: startDate,
+          end_date: endDate,
+          winning_option_id: winningOptionId,
+          event_subtype: eventSubtype,
+          metadata,
+        },
+        now,
+      ),
+    [
+      id,
+      name,
+      isResolved,
+      startDate,
+      endDate,
+      winningOptionId,
+      eventSubtype,
+      metadata,
+      now,
+    ],
+  );
 };

@@ -5,7 +5,7 @@
 //         in-segment value) with a cell track along the bottom edge.
 // Display-only. Reads events.metadata; writes nothing.
 // ============================================================
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   buildModel,
@@ -547,8 +547,9 @@ export const LiveMatchboard = ({
   const isMobile = useIsMobile();
   const storeWatch = useShowWatchKey(event.id);
   const showWatch = forceWatchKey ?? storeWatch;
-  const sentinel = useRef<HTMLDivElement | null>(null);
+  const [sentinel, setSentinel] = useState<HTMLDivElement | null>(null);
   const [stuck, setStuck] = useState(false);
+
 
   const live = useMatchboardModel(event);
   const m = useMemo(
@@ -557,21 +558,22 @@ export const LiveMatchboard = ({
   );
 
 
+  // Armed by the node itself: the sentinel only mounts once `isMobile`
+  // resolves, so a dep list of unrelated values can miss it entirely.
   useEffect(() => {
-    const el = sentinel.current;
-    if (!el || !isMobile) return;
+    if (!sentinel) return;
     const io = new IntersectionObserver(([e]) => setStuck(!e.isIntersecting), {
       threshold: 0,
     });
-    io.observe(el);
+    io.observe(sentinel);
     return () => io.disconnect();
-  }, [isMobile]);
+  }, [sentinel]);
 
   if (isMobile === undefined) return null;
 
   if (isMobile) {
     return (
-      <div ref={sentinel}>
+      <div ref={setSentinel}>
         <MobileBar m={m} sticky={false} />
         {m.sealed && (m.status === "live" || m.status === "break") ? (
           <div style={{ marginTop: 8, fontSize: 10.5, color: "#6B727C" }}>
