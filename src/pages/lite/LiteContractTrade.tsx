@@ -530,6 +530,16 @@ const LiteContractTrade = () => {
   // One line state per group: Map 1's handicap is independent of Map 2's.
   const [segLines, setSegLines] = useState<Record<string, number>>({});
 
+  // Scoreboard column head → segment group. Silent no-op when the group
+  // isn't on the page.
+  const scrollToSegment = useCallback((n: number) => {
+    const el = document.getElementById(`grp-seg-${n}`);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  const hasSegmentGroups = segGroups.some((g) => g.segmentIndex != null);
+
 
 
 
