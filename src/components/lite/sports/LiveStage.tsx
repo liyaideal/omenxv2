@@ -545,11 +545,8 @@ export const LiveStage = ({
     !fixture && !!src && live && !collapsed && !(dismissed && !inlineVisible);
   const { ref, state, muted, setMuted, play, pause } = useHlsVideo(src, wantVideo);
 
-  const [, force] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => force((n) => n + 1), 30_000);
-    return () => clearInterval(t);
-  }, []);
+  const model = useMatchboardModel(event as unknown as MatchboardEvent);
+
 
   if (isMobile === undefined) return null;
   // S9 — the broadcast is over. The stage leaves; the matchboard stays.
