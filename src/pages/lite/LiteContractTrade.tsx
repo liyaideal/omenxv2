@@ -370,7 +370,9 @@ const LiteContractTrade = () => {
   const meta = fixtureMeta(event);
   const siblings = useFixtureSiblings(meta.fixture_id ?? null, refetchTick);
   const groups = useMemo(() => groupFixtureMarkets(siblings), [siblings]);
-  const hasLines = groups.handicap.length > 0 || groups.total.length > 0;
+  const hasLines =
+    groups.handicap.length > 0 || groups.total.length > 0;
+
   const handicapLines = useMemo(
     () => groups.handicap.map((e) => fixtureMeta(e).line ?? 0),
     [groups.handicap],
