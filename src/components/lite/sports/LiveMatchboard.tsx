@@ -264,11 +264,14 @@ const Matrix = ({
         textAlign: "right",
         fontVariantNumeric: "tabular-nums",
         color: dim ? "#5B6270" : "#fff",
+        // 无分段矩阵时后面没有 18px 间隔列，数字会贴住卡片右边框。
+        ...(m.spec ? null : { paddingRight: 16 }),
       }}
     >
       {v}
     </div>
   );
+
 
   return (
     <div
@@ -364,10 +367,17 @@ const Matrix = ({
       <div style={{ display: "grid", alignItems: "center", gridTemplateColumns: cols.join(" ") }}>
         <div style={headStyle(false)} />
         {m.showTotals ? (
-          <div style={{ ...headStyle(false), fontSize: 9 }}>
+          <div
+            style={{
+              ...headStyle(false),
+              fontSize: 9,
+              ...(m.spec ? null : { paddingRight: 16 }),
+            }}
+          >
             {m.totalsWord}
           </div>
         ) : null}
+
         {m.spec ? <div style={headStyle(false)} /> : null}
         {m.spec
           ? Array.from({ length: m.total }, (_, i) =>
@@ -513,15 +523,20 @@ const MobileBar = ({ m, sticky }: { m: Model; sticky: boolean }) => {
   const ab = (text: string) => (
     <span
       className="truncate"
-      style={
-        m.isMma
+      style={{
+        minWidth: 0,
+        // 未开赛条里没有比分块，队名应尽量完整显示（右侧 Starts in … 已 nowrap）。
+        ...(m.status === "upcoming" ? { flexShrink: 0, maxWidth: "38%" } : null),
+        ...(m.isMma
           ? { fontSize: 11, letterSpacing: ".03em", color: "#C9D1DA", fontWeight: 600 }
-          : { fontSize: 9.5, letterSpacing: ".14em", color: "#C9D1DA", fontWeight: 600 }
-      }
+          : { fontSize: 9.5, letterSpacing: ".14em", color: "#C9D1DA", fontWeight: 600 }),
+      }}
     >
       {text}
     </span>
   );
+
+
   const sc = (v: number) => (
     <span
       style={{
@@ -555,11 +570,11 @@ const MobileBar = ({ m, sticky }: { m: Model; sticky: boolean }) => {
         <QuietPill label="FINISHED" />
       )}
 
-      {m.isMma ? (
+      {m.isMma || m.status === "upcoming" ? (
         <>
-          {ab(lastName(m.home))}
+          {ab(m.isMma ? lastName(m.home) : m.meta.home_abbr || m.home)}
           {dash("vs")}
-          {ab(lastName(m.away))}
+          {ab(m.isMma ? lastName(m.away) : m.meta.away_abbr || m.away)}
         </>
       ) : (
         <>
@@ -583,11 +598,14 @@ const MobileBar = ({ m, sticky }: { m: Model; sticky: boolean }) => {
             fontWeight: 700,
             color: m.isMma && m.status === "live" ? "#FF8A3D" : "#C9D1DA",
             fontVariantNumeric: "tabular-nums",
+            whiteSpace: "nowrap",
+            flexShrink: 0,
           }}
         >
           {m.rightValue}
         </span>
       ) : null}
+
       <CellTrack m={m} />
     </div>
   );
