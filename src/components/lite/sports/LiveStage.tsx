@@ -896,7 +896,7 @@ export const LiveStage = ({
             <Glass mono>{fullCapsule}</Glass>
           </div>
           <div style={{ position: "absolute", right: 16, top: 16, zIndex: 2 }}>
-            <RoundBtn label="Exit fullscreen" onClick={() => document.exitFullscreen?.()}>
+            <RoundBtn label="Exit fullscreen" onClick={exitFullscreen}>
               <Ic d={CLOSE_D} size={13} />
             </RoundBtn>
           </div>
