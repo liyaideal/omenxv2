@@ -4,6 +4,8 @@
 // ============================================================
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { SPORT_SEGMENTS } from "@/lib/sportSegments";
+
 
 export const SPORTS_SUBTYPE = "SPORTS_MATCH";
 
@@ -101,17 +103,26 @@ export const isFixtureLive = (
 
 
 /**
- * Handicap / Total siblings are only reachable through their fixture board,
- * never through a generic market list, ledger or watchlist.
+ * Handicap / Total / Map winner / Method / Distance siblings are only
+ * reachable through their fixture board, never through a generic market
+ * list, ledger or watchlist.
  */
 export const isFixtureSibling = (e: unknown): boolean => {
   const mt = fixtureMeta(e as { metadata?: unknown } | null).market_type;
-  return mt === "handicap" || mt === "total";
+  return (
+    mt === "handicap" ||
+    mt === "total" ||
+    mt === "mapwin" ||
+    mt === "method" ||
+    mt === "distance"
+  );
 };
 
-/** PostgREST filter equivalent of `!isFixtureSibling`. */
+/** PostgREST filter equivalent of `!isFixtureSibling`: only `null` and
+ *  `winner` pass, which already covers every sibling type. */
 export const NON_SIBLING_FILTER =
   "metadata->>market_type.is.null,metadata->>market_type.eq.winner";
+
 
 /** "+1.5" / "−1.5" — real minus sign (U+2212) for negatives. */
 export const formatSignedLine = (n: number): string => {
@@ -143,6 +154,100 @@ export const groupFixtureMarkets = <T extends { metadata?: unknown }>(
     total: of("total").sort(byLine),
   };
 };
+
+// ---- Segmented boards (esports maps / MMA rounds) ---------------------
+// Football keeps `groupFixtureMarkets` above untouched. Fixtures that carry
+// a `segments_key` render vertical groups instead: one series-level group
+// plus one group per segment (CS2), or fight lines + method (MMA).
+export interface BoardGroup<T> {
+  /** Stable DOM id: `grp-series` | `grp-seg-1` | `grp-fight` | `grp-method` */
+  key: string;
+  title: string;
+  /** 1-based segment this group settles on; null for series-level groups. */
+  segmentIndex: number | null;
+  winner: T | null;
+  mapwin: T | null;
+  handicap: T[];
+  total: T[];
+  method: T[];
+  distance: T | null;
+}
+
+const emptyGroup = <T,>(key: string, title: string, segmentIndex: number | null): BoardGroup<T> => ({
+  key,
+  title,
+  segmentIndex,
+  winner: null,
+  mapwin: null,
+  handicap: [],
+  total: [],
+  method: [],
+  distance: null,
+});
+
+const groupIsEmpty = <T,>(g: BoardGroup<T>) =>
+  !g.winner &&
+  !g.mapwin &&
+  !g.distance &&
+  g.handicap.length === 0 &&
+  g.total.length === 0 &&
+  g.method.length === 0;
+
+export const groupSegmentedMarkets = <T extends { id?: string; metadata?: unknown }>(
+  fixture: T,
+  siblings: T[],
+  currentSegment: number | null,
+): BoardGroup<T>[] => {
+  const meta = fixtureMeta(fixture);
+  const spec = meta.segments_key ? SPORT_SEGMENTS[meta.segments_key] : undefined;
+  const sport = (meta.sport || "").toLowerCase();
+  const byLine = (a: T, b: T) => (fixtureMeta(a).line ?? 0) - (fixtureMeta(b).line ?? 0);
+  const of = (t: string) => siblings.filter((e) => fixtureMeta(e).market_type === t);
+  const groups: BoardGroup<T>[] = [];
+
+  if (sport === "esports") {
+    const series = emptyGroup<T>("grp-series", "Series lines", null);
+    series.winner = fixture;
+    series.mapwin =
+      currentSegment != null
+        ? (of("mapwin").find((e) =>
+            String((e as { id?: string }).id ?? "").endsWith(`-mapwin-${currentSegment}`),
+          ) ?? null)
+        : null;
+    series.handicap = of("handicap")
+      .filter((e) => fixtureMeta(e).family === "main")
+      .sort(byLine);
+    series.total = of("total")
+      .filter((e) => fixtureMeta(e).family === "main")
+      .sort(byLine);
+    groups.push(series);
+
+    for (let n = 1; n <= (spec?.total ?? 0); n += 1) {
+      const g = emptyGroup<T>(`grp-seg-${n}`, `Map ${n}`, n);
+      const isSeg = (e: T) =>
+        fixtureMeta(e).family === "seg" && fixtureMeta(e).segment_index === n;
+      g.handicap = of("handicap").filter(isSeg).sort(byLine);
+      g.total = of("total").filter(isSeg).sort(byLine);
+      groups.push(g);
+    }
+  } else if (sport === "mma") {
+    const fight = emptyGroup<T>("grp-fight", "Fight lines", null);
+    fight.winner = fixture;
+    fight.total = of("total").sort(byLine);
+    groups.push(fight);
+
+    const method = emptyGroup<T>("grp-method", "Method", null);
+    method.method = of("method").sort((a, b) =>
+      String((a as { id?: string }).id ?? "").localeCompare(String((b as { id?: string }).id ?? "")),
+    );
+    method.distance = of("distance")[0] ?? null;
+    groups.push(method);
+  }
+
+  return groups.filter((g) => !groupIsEmpty(g));
+};
+
+
 
 /** Live matches age their own clock off the kickoff timestamp. */
 const liveMinute = (kickoff: Date | null): number | null => {
