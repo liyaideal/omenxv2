@@ -10,7 +10,16 @@ import { LiteMarketBoard, type BoardOption } from "@/components/lite/multi/LiteM
 import { LiteLineScrubber } from "@/components/lite/multi/LiteLineScrubber";
 import { LiteBoardGroupHeader } from "@/components/lite/multi/LiteBoardGroupHeader";
 import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
-import { formatSignedLine } from "@/components/lite/sports/sportsData";
+import { TradeRuleCard } from "@/components/lite/contract/LiteTradeBlocks";
+import {
+  formatSignedLine,
+  groupSegmentedMarkets,
+} from "@/components/lite/sports/sportsData";
+import {
+  buildModel,
+  type MatchboardEvent,
+} from "@/components/lite/sports/matchboardModel";
+import { boardGroupAnnotation } from "@/pages/lite/LiteContractTrade";
 
 const REG_TIP =
   "Settles on the regulation-time result. Extra time and penalties don't count.";
