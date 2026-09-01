@@ -1,162 +1,266 @@
-# Sports Live Board（电竞 / MMA 分段盘口板 + 直播舞台）— 交付说明 v1
+# 体育赛事直播与盘口 — 交付说明
 
-> 这份文档讲的是 `/trade` 上体育赛事的三块东西：顶部的记分牌、记分牌下面的直播播放器、以及再往下的盘口板。
-> 这一轮用户能看见的变化：CS2 这类分地图的赛事，盘口不再是一长条，而是按「赛列 / Map 1 / Map 2 / Map 3」竖着分组，每组右侧写明这一段打完没有、比分多少；桌面端点记分牌的列头（M1 / M2 / M3）会滚到对应那一组。
-> 足球盘口板、下单面板、记分牌本身的尺寸都没动。
-> 读法：先看 §0 查什么去哪儿，再按章节读；每个数值都标了出处代码文件。
+> **这份文档讲什么**：OmenX Lite 上「体育赛事」这一整套东西——交易页顶部的直播画面、它下面的记分牌、再往下按分段拆开的盘口板，以及首页那张会发亮的比赛卡。
+> **给谁看**：要在真平台上把这套东西实现一遍的前后端同学，以及要验它的测试。默认你没见过这个功能，从零讲起。
+> **怎么读**：先看 §0 知道各类问题该去哪儿查，再从 §1 顺着往下读。每个数值都标了出处文件，照着抄不会跑偏。
 
 ## §0 读者须知
 
-- **长什么样** → 生产页：`/trade?event=demo-live-cs2`（CS2 直播示例，7×24 常驻）、`/trade?event=demo-prekick-cs2`（即将开赛示例，常驻）、`/trade?event=ufc-321-per-ank`（MMA）、`/trade?event=sp-epl-ars-liv`（足球，两个半场形态）。
-- **什么时候变** → `/style-guide` 状态字典：直播舞台与记分牌看 `Sports · Live`（M1…M6 / U1…U4 / S1…S9 / C1…C4），分段板看 `/trade` 字典的 TR-25 / TR-26。
-- **字段 / 文案 / 公式 / 术语** → `docs/copy-dictionary.md` 的 `Sports game lines` 与 `Sports live stage` 两节 + 本文档。
-- Lite 词 ↔ 交易词的映射统一见 `docs/copy-dictionary.md` 顶部的「Lite 术语对照表」，本文档不复制。
+- **长什么样** → 直接开生产页：`/trade?event=demo-live-cs2`（CS2，7×24 常驻在直播中）、`/trade?event=demo-prekick-cs2`（7×24 常驻在待开赛）、`/trade?event=ufc-321-per-ank`（格斗）、`/trade?event=sp-epl-ars-liv`（足球）。
+- **什么时候变成什么样** → `/style-guide` 的状态字典：记分牌与直播舞台看 `Sports · Live` 节，分段盘口板看 `/trade` 字典的 TR-25 / TR-26。字典里每一态都是生产组件挂固定数据渲染出来的，不是截图。
+- **字段、文案、公式、术语** → `docs/copy-dictionary.md` 的 `Sports game lines` 与 `Sports live stage` 两节，加上本文档。
+- **颜色为什么这么用** → `DESIGN.md` 文末 `§Addendum 2026-09-01`：橙 `#FF8A3D` 是站内第三条语义轴，只表达「正在发生」，不碰金额也不碰选边。
+- Lite 用词与交易口径的对照统一见 `docs/copy-dictionary.md` 顶部的「Lite 术语对照表」，本文档不复制。
 
-## §1 兄弟事件模型
+## §1 这个特性由什么组成
 
-一场赛事在库里是 1 条主行 + N 条兄弟行，全部靠 `events.metadata` 串起来。
+一场体育赛事会出现在三个地方，两处是列表、一处是详情：
 
-| 字段 | 谁写 | 谁读 | 含义 |
-|---|---|---|---|
-| `fixture_id` | seed / 引擎 | `sportsData.groupSegmentedMarkets` | 兄弟行指回主赛事 id |
-| `market_type` | seed | 分组器、`isFixtureSibling` | `winner`（主行） / `handicap` / `total` / `mapwin` / `method` / `distance` |
-| `line` | seed | 分组器、让分尺 | 盘口档位，升序排列 |
-| `family` | seed | 分组器 | `main` = 赛列级；`seg` = 某一段内 |
-| `segment_index` | 引擎（主行）/ seed（兄弟行） | 分组器、`buildModel` | 主行 = 当前进行到第几段；兄弟行 = 这条盘口属于第几段 |
-| `segment_results` | `tick_live_matches()` / `tick_demo_showcase()` | `buildModel` | 每段比分数组，未开打为 `null` |
-| `segments_key` | seed | `SPORT_SEGMENTS` 查表 | `IEM Cologne · BO3` / `UFC · main` 等，决定段数与决胜分 |
+| 位置 | 用户看到什么 | 组件 |
+|---|---|---|
+| 首页 `/` 的 Sports 模块 | 正在打的比赛是一张亮橙边的卡，带比分和一枚 `Watch live`；还没开打但有直播源的带一枚 `Stream at kickoff` | `HomeSportsCard` |
+| 赛事列表 `/events` | 每场比赛一行，只有「谁赢」这一个市场 | `SportsStageCard` / 列表行 |
+| 交易页 `/trade?event={id}` | 从上往下三块：**直播画面 → 记分牌 → 分段盘口板** | `LiveStage` / `LiveMatchboard` / `LiteContractTrade` 的分段板 |
 
-## §2 分段板分组规则
+交易页那三块是这个特性的主体，下面 §4 §5 §6 分别讲。三块共用同一份比赛数据，**同一个数字只有一处实现**（§4 末尾的红线）。
 
-`groupSegmentedMarkets(fixture, siblings, currentSegment)`（`src/components/lite/sports/sportsData.ts`）输出 `BoardGroup[]`：
+## §2 数据契约
 
-| 组 key | 标题 | segmentIndex | 内容 |
-|---|---|---|---|
-| `grp-series` | Series lines | `null` | 主行 winner + 当前段那一条 `mapwin` + `family==='main'` 的 handicap / total |
-| `grp-seg-{n}` | `Map {n}` | `n` | `family==='seg' && segment_index===n` 的 handicap / total |
-| `grp-fight` | Fight lines | `null` | 主行 winner + `market_type==='total'` |
-| `grp-method` | Method | `null` | `market_type==='method'` 按 id 升序 + `distance` 一条 |
+一场赛事在库里是 **1 条主行 + N 条兄弟行**，全部挂在 `events.metadata` 上，用 `fixture_id` 串起来。主行是「谁赢」这个市场，兄弟行是让分、总分、地图胜负这些子市场。
 
-BO3 = 4 组 10 行：`grp-series` 4 行（winner + mapwin + handicap + total）+ 3 × `grp-seg-{n}` 各 2 行。
-`mapwin` 只渲染 `currentSegment` 指向的那一条；`currentSegment` 为 `null` 时一条都不渲染。空组（无任何行）被过滤，不渲染组头。MMA 不产分段组（`decisiveThreshold === null`，回合不计分）。
+### 2.1 比赛本身的字段（主行）
 
-## §2b 记分牌的运动形态
+| 字段 | 谁写 | 含义 |
+|---|---|---|
+| `sport` | seed | `esports` / `mma` / `soccer` / `basketball` / `tennis` / `moba`。决定记分牌形态的兜底表，见 §4。 |
+| `league` | seed | 联赛名，显示在记分牌上下文行与舞台胶囊上（`IEM Cologne`、`Premier League`） |
+| `home` / `away` | seed | 队名全称，记分牌行首 |
+| `home_abbr` / `away_abbr` | seed | 缩写，移动端窄条用（`NAVI` / `FAZE`） |
+| `format` | seed | `1x2`（有平局）/ `h2h`（无平局） |
+| `kickoff_at` | seed | 开赛时刻。缺省时退回 `events.start_date` |
+| `segments_key` | seed | 查 `SPORT_SEGMENTS` 的键，如 `IEM Cologne · BO3`、`UFC · main`。**没有这个字段不是错误**，会按 `sport` 走兜底表，见 §4 |
+| `segment_index` | 引擎 | 现在打到第几段（第几张图 / 第几回合 / 第几盘）。足球不写这个字段，按分钟推 |
+| `segment_results` | 引擎 | 每段比分的数组，`[{home,away}, null, null]`；未开打的段是 `null` |
+| `clock` | 引擎 | 秒。格斗是本回合剩余、篮球是本节剩余、MOBA 是本局已进行 |
+| `phase` | 引擎 | 格斗专用：`ROUND` / `BREAK` |
+| `stream_url` | seed / 运营 | HLS 直播源（`.m3u8`）。**为空则整个直播舞台不渲染**，记分牌照常 |
+| `server` | 引擎 | 网球专用：当前发球方，写进上下文行 |
+| `game_points` | 引擎 | 网球专用：当前这一局的比分字符串，如 `30–15` |
 
-记分牌是一套表头跑多个项目：**队伍在行，分段在列**，左边那个大数字是这个项目里市场结算依据的单位。列数、列宽、表头词、大数字怎么算、右上角显示什么，全部由 `SegmentSpec` 决定。
+`events.start_date` / `end_date` / `is_resolved` 是平台通用字段，状态机靠它们，见 §3。
 
-规格从两张表里取，优先级：先按赛事的 `metadata.segments_key` 查 `SPORT_SEGMENTS`；查不到再按 `metadata.sport` 查 `SPORT_FALLBACK`。**两张都查不到才退化**成「只有队名列 + 一个总数列」的形态（字典 M6 就是这一态）。有兜底表的意义是：新开一个足球联赛不必往 `SPORT_SEGMENTS` 加一行。
+### 2.2 兄弟行的字段
 
-| 项目 | 取自 | 分段单位 | 列头 | 列宽 | 大数字表头词 | 大数字怎么算 | 右上角 |
+| 字段 | 含义 |
+|---|---|
+| `fixture_id` | 指回主赛事的 id |
+| `market_type` | `winner`（主行自己）/ `handicap` / `total` / `mapwin` / `method` / `distance` |
+| `line` | 盘口档位，升序排列（让分 `−3.5`、总分 `22.5`） |
+| `family` | `main` = 整场级别的盘口；`seg` = 只结算某一段的盘口 |
+| `segment_index` | `family === 'seg'` 时，这条盘口属于第几段 |
+
+**可见性边界（重要）**：`handicap` / `total` / `mapwin` / `method` / `distance` 这五类兄弟行**永远不出现在**赛事列表、More markets 侧栏、账本、自选、结算台——它们只能从赛事详情页的盘口板进入。代码里由 `isFixtureSibling()` 与 `NON_SIBLING_FILTER`（只放行 `market_type` 为空或 `winner`）两处共同保证。一场比赛底下挂十几条子市场，全放进列表会把列表淹掉。
+
+## §3 赛事状态机
+
+记分牌、舞台、盘口板、下单面板全都读同一个状态。判定顺序**从上往下，第一条命中即止**：
+
+| 状态 | 判定 | 用户看到 |
+|---|---|---|
+| `settled` 已结算 | `events.is_resolved === true` | 整块 60% 透明，右上灰色 `SETTLED`，比分定格 |
+| `break` 段间 | 见下方细则 | 橙色 `BREAK` 药丸，上下文行写下一段要开始了，右上是 `—` |
+| `live` 进行中 | `kickoff <= now && now < end_date && !is_resolved` | 橙色 `LIVE` 药丸（圆点在闪），当前段那一列高亮 |
+| `upcoming` 未开赛 | `kickoff > now` | 灰色 `UPCOMING`，右上 `Starts in 2h 14m` |
+| `finished` 已结束待核对 | 以上都不是（打完了但还没结算） | 灰色 `FINISHED`，右上橙边徽标 `In review · result pending` |
+
+`break` 的细则按项目分叉：格斗看 `phase === 'BREAK'`；CS2 这类分地图的，看「已经进到第二段及以后，但当前段还没有比分」；足球和 MOBA **永远不进** `break`——足球的中场休息本版没做，MOBA 的当前局在打完前本来就没有比分，套通用规则会被误判成段间。
+
+**一条铁律**：判断「是不是正在打」只认上表的时钟条件（代码里是 `isFixtureLive()`）。`metadata` 里那个 `live` 字段是引擎的调试输出，**界面永远不读它**。
+
+## §4 记分牌
+
+### 4.1 为什么是矩阵，不是一条比分
+
+**队伍在行，分段在列。** 一条比分只能告诉你 3–0，告诉不了你是哪三局赢的、赢得险不险。矩阵一眼全在：第三节 25:29 被追平这种信息，看总分 98:92 是看不出来的。左边那个大数字，是这个项目里**市场结算依据的那个单位**——CS2 是地图数，足球是进球数，格斗没有这个数字是规则如此，不是数据缺失。
+
+### 4.2 六种运动形态
+
+列数、列宽、表头词、大数字怎么算、右上角显示什么，全部由 `SegmentSpec` 决定（`src/lib/sportSegments.ts`）。规格从两张表里取，**先按 `segments_key` 查 `SPORT_SEGMENTS`，查不到再按 `sport` 查 `SPORT_FALLBACK`**，两张都查不到才退化成「只有队名 + 一个总数列」。有兜底表的意义是：新开一个足球联赛不必去改表。
+
+| 项目 | 规格取自 | 分段单位 | 列头 | 列宽 | 大数字表头词 | 大数字怎么算 | 右上角 |
 |---|---|---|---|---|---|---|---|
-| CS2 BO3 / BO5 | `SPORT_SEGMENTS["IEM Cologne · BO3" / "· BO5"]` | 地图 | `M1` `M2` `M3`… | 62 | `maps` | 赢下的地图数（段内达到 13 回合才算打完） | 当前图比分 |
-| UFC 主赛 / 前战 | `SPORT_SEGMENTS["UFC · main" / "· prelim"]` | 回合 | `R1`…`R5` | 48 | 不渲染总数列 | —— | 回合钟 `2:30` |
+| CS2 BO3 / BO5 | `SPORT_SEGMENTS["IEM Cologne · BO3" / "· BO5"]` | 地图 | `M1` `M2` `M3`… | 62 | `maps` | 赢下的地图数（段内打到 13 回合才算打完） | 当前图比分 |
+| 格斗 主赛 / 前战 | `SPORT_SEGMENTS["UFC · main" / "· prelim"]` | 回合 | `R1`…`R5` | 48 | 不渲染总数列 | —— | 回合钟 `2:30` |
 | 足球 | `SPORT_FALLBACK.soccer` | 半场 | `1H` `2H` | 70 | `goals` | 两个半场进球**相加** | 比赛分钟 `63′` |
 | 篮球 | `SPORT_FALLBACK.basketball` | 节 | `Q1`…`Q4`（+ `OT`） | 54 | `pts` | 各节得分**相加** | 节内剩余钟 `3:41` |
 | 网球 | `SPORT_FALLBACK.tennis` | 盘 | `S1` `S2` `S3` | 62 | `sets` | 赢下的盘数 | 当前局比分 `30–15` |
 | LOL · Dota | `SPORT_FALLBACK.moba` | 局 | `G1`…`G5` | 48 | `games` | 赢下的局数 | 当前局已进行时长 `24:10` |
 
-两条容易踩的口径：
+### 4.3 四条容易踩的口径
 
-1. **大数字有两种算法**。CS2 是「赢下的段数」（`totalsRule: "won"`），足球是「各段值相加」（`totalsRule: "sum"`）。拿 CS2 的算法去看足球会得出 1–0 应该显示成「赢了 1 个半场」，那是错的。
-2. **足球的当前半场是推出来的**，不是库里的字段。足球赛事没有 `metadata.segment_index`，开赛超过 45 分钟即判为下半场。因此足球不进 `BREAK` 态——中场休息本轮没做。
-3. **格子里写什么由 `SegmentSpec.cell` 决定**。默认 `"score"`（写该段的数字：CS2 的回合分、足球的进球、篮球的节得分、网球的局数）；MOBA 是 `"winloss"`——一局没有可比的分数，所以已打完的格写 `W` / `L`、当前局写橙 `●`、未打写 `·`，**不写人头**：人头落后照样能赢，摆出来是骗人。UFC 走的是组件里既有的 MMA 分支，优先级在 `cell` 之上。
-4. **"这一段算不算打完"有两套判据**。有决胜分的（CS2 = 13 回合）按 `max(home, away) >= decisiveThreshold`；没有决胜分的（网球盘、MOBA 局）按"不是当前段就算打完"。UFC 两条都不命中——它的 `segment_results` 全是 `null`，且不渲染总数列。
+1. **大数字有两种算法。** 「赢下的段数」（CS2 的地图、网球的盘、MOBA 的局）和「各段值相加」（足球的进球、篮球的得分）。拿前者去看足球，会得出 1–0 应该显示成「赢了 1 个半场」，那是错的。
+2. **足球的当前半场是推出来的。** 足球赛事没有 `segment_index`，开赛超过 45 分钟即判为下半场。
+3. **格子里写什么，分两种。** 默认写该段的数字（CS2 的回合分、足球的进球、篮球的节得分、网球的局数）。MOBA 写 `W` / `L`——一局没有可比的分数，当前局写橙 `●`，未打写 `·`。**不要摆人头数**：人头 8–11 落后照样能赢，摆出来是骗人。格斗最特殊：打过但未公布的回合写 `·`，结束那一回合写 `W` / `L`，其后的回合写 `—`；结算前所有回合都是 `·`，因为裁判分是封存的。
+4. **「这一段算不算打完」有两套判据。** 有决胜分的按「达到决胜分」（CS2 = 13 回合）；没有决胜分的（网球的盘、MOBA 的局）按「不是当前段就算打完」。
 
-加时列：`spec.overtime` 为真且 `segment_results` 长度超过 `spec.total` 时，右边按数据长度追加列，第五列列头 `OT`、第六列起 `2OT` / `3OT`。目前只有篮球开启。
+**加时列**：允许加时的项目（目前只有篮球），当比分数组长度超过固定段数时，右边按数据长度追加列，第五列写 `OT`，第六列起写 `2OT` / `3OT`。
 
-篮球 / 网球 / LOL·Dota 三种形态**已实现**，但这三类赛事目前不入库，因此**只能在 `/style-guide` 的 `Sports · Live` Ⓐ‴ 子节（B1 / B2 / T1 / G1）看到，生产页上没有**。这是当前的既定状态（CPO 2026-09-01 确认可接受）：形态先行，等有真实赛事源再补种子数据。
+### 4.4 三种运动只在字典里可见
 
-## §3 分组头注记三态
+篮球、网球、LOL·Dota 三种形态**已经实现**，但这三类赛事目前不入库，所以**只能在 `/style-guide` 的 `Sports · Live` 里看到，生产页上没有**。这是有意为之的既定状态（CPO 确认可接受）：形态先行，等有真实赛事源再补数据。
 
-| 态 | 判定表达式 | 渲染 |
+### 4.5 红线：同一个数字只能有一处实现
+
+比分、当前是第几段、这一段打完没有——这些数字**只能**从 `useMatchboardModel(event)` 读。记分牌、舞台上的胶囊、盘口板分组头的注记，三处读的是同一份。任何地方第二次自己算一遍比分，都是缺陷。
+
+## §5 直播画面
+
+### 5.1 它什么时候在，什么时候不在
+
+- **有 `stream_url` 且比赛正在进行** → 舞台渲染，视频挂上。
+- **没有源，或比赛已结束 / 已结算** → **整块不渲染**（不是显示一个空壳），记分牌留在原位往上顶。
+- **移动端用户手动收起** → 视频元素被卸载，不是隐藏——隐藏的视频照样在烧流量。
+
+### 5.2 三种形态，同一个视频元素
+
+内联舞台、右下迷你窗、全屏，是**同一个 `<video>` 元素换位置**，不是卸载重挂。页面上任何时刻只有一个 video；滚动时画面不会重新缓冲。
+
+| 形态 | 出现条件 | 样子 |
 |---|---|---|
-| 已打完 | `results[n-1] != null && max(home,away) >= decisiveThreshold` | `Final 13–8` |
-| 进行中 | `n === model.idx && (status === "live" \|\| status === "break")` | LIVE 药丸 + 现比分（橙 `#FF8A3D`） |
-| 未开打 | 以上都不成立 | `Not played yet` |
+| 内联舞台 | 默认 | 16:9，左上 `LIVE` 药丸 + 联赛名，右上当前段胶囊（`Map 2`），右下延迟披露 + 全屏键 + 静音键 |
+| 迷你窗 | 桌面 + 有源 + 正在直播 + 舞台滚出视口 + 用户没关掉它 | 固定 300×229（把手 20 + 画面 169 + 操作条 40），可拖动、松手吸到左右边缘，位置记在本地 |
+| 全屏 | 点内联或迷你窗上的全屏键 | 铺满页面，左上完整比分串，底栏左侧延迟披露、右侧两枚选边芯片可直接跳到下单区 |
 
-约束（红线）：注记**只能**由 `boardGroupAnnotation(model, key, segmentIndex)` 产出，`model` 来自 `useMatchboardModel(fixture)`。生产页与 style-guide 共用这**一份**实现（导出自 `src/pages/lite/LiteContractTrade.tsx`）。任何第二处自算比分都是缺陷。
+用户关掉迷你窗之后，**记分牌顶栏会出现一枚 `Watch` 键**把它叫回来——否则画面就找不回来了。
 
-## §4 兄弟事件的可见性边界
+### 5.3 两个必须照抄的实现决定
 
-`isFixtureSibling()` 覆盖 `handicap` / `total` / `mapwin` / `method` / `distance`；`NON_SIBLING_FILTER` 只放行 `market_type` 为 `null` 或 `winner` 的行。因此这五类兄弟行**永远**不出现在 `/events` 列表、More markets、账本、自选、结算台——它们只能从盘口板进入。
+- **全屏是页面级 CSS 铺满**（固定定位铺满视口），**不是浏览器的 Fullscreen API**。原因：应用跑在没有全屏授权的 iframe 里时，`requestFullscreen()` 会被直接拒绝，那个按钮就在最常被点的地方变成死键。代价是全屏时浏览器地址栏还在，这是已知且接受的。`Esc` 退出，全屏期间锁住页面滚动。
+- **判断「这是直播还是点播」看视频时长是不是无限**。点播源会给出有限时长，因此不会被误判。这个判定决定了要不要在恢复播放时跳回直播边缘。
 
-## §5 直播播放器
+### 5.4 九种画面状态
 
-- 真直播判定：`useHlsVideo` 读 `video.duration === Infinity`（点播源会给有限值，因此不会被误判为直播）。
-- 九态 S1…S9 见 style-guide `Sports · Live`，覆盖加载 / 缓冲 / 断流 / 无源 / 结束等。
-- 迷你播放器固定 300×229，滚动出舞台后自动接管，`<video>` 元素**不重挂**（页面上始终只有一个 `video`）。
-- 全屏是**页面级 CSS 全屏**（`position: fixed; inset: 0; z-index: 60`），**不是** Fullscreen API：预览 iframe 会以 `Permissions check failed` 拒绝 `requestFullscreen()`。ESC 退出，全屏期间锁 `body` 滚动。
+播放中、加载中、缓冲中、已暂停、被浏览器拦住自动播放、开赛前、断流、地区限制、已结束。每一种的中央控件与提示文案见 `/style-guide` 的 `Sports · Live`，那里九态各有一帧实渲。
 
-## §6 滚动联动
+## §6 分段盘口板
 
-桌面记分牌列头在存在分段组时渲染为 `<button>`，点击 → `document.getElementById("grp-seg-{n}").scrollIntoView({ behavior: "smooth", block: "start" })`。让位量来自 `LiteBoardGroupHeader` 的 `scrollMarginTop: calc(var(--mobile-header-h, 56px) + 56px)` = 112px；实测点击 M2 后 `grp-seg-2` 的 `top` = 112.0px。目标组不存在时静默 no-op。UFC 与足球没有分段组，列头保持 `<div>`，零变化。
+### 6.1 分组规则
 
-移动端不做跳转（明写不做，不是漏掉）：移动记分牌是降级横条，没有列矩阵；`CellTrack` 单元高 3px，做成可点击命中区低于 44px 触达底线。不为此新造移动端跳转控件。
+一场 CS2 比赛的盘口不再是一长条，而是竖着分组：
 
-## §7 常驻演示夹具（运维必读）
-
-| 赛事 | 作用 |
+| 组 | 里面是什么 |
 |---|---|
-| `demo-live-cs2` | 7×24 直播中示例 |
-| `demo-prekick-cs2` | 7×24 待开赛示例 |
+| **Series lines** | 整场胜负 + 当前这张图的胜负 + 整场级别的让分与总分 |
+| **Map 1 / Map 2 / Map 3** | 只结算这一张图的让分与总分 |
+| **Fight lines**（格斗） | 胜者 + 总回合数 |
+| **Method**（格斗） | 打满、KO/TKO、降服 |
 
-- 这两条主行**故意不带 `metadata.family`**，所以 `tick_live_matches()` 的 WHERE 选不中它们，不会被常规引擎结算。
-- `tick_demo_showcase()` 每 5 分钟跑一次：推进比分、换段结算、然后**先结算再立刻重开**，并把 `start_date` 重置为 `now()`——因为 `settle_spot_event()` 按 `pos.created_at >= ev.start_date` 圈仓，不重置会把上一轮的仓位算进来。
-- 换段时会连 36 条 sibling 的 `metadata.score` 一起清空。
+一场 BO3 = **4 组 10 行**。地图胜负只渲染当前那一张（不会三张一起出现）。没有任何行的空组不渲染组头。格斗不产生分段组，因为回合不单独计分。
 
-## §8 已知数据缺口台账（等真实赛事源）
+**每一组的让分档位互相独立**：改 Map 1 的档位，Map 2 / Map 3 不动。
+
+### 6.2 组头右侧的三种注记
+
+| 情况 | 显示 |
+|---|---|
+| 这一段打完了 | `Final 13–8` |
+| 这一段正在打 | 橙色 `LIVE` 药丸 + 当前比分 |
+| 还没开打 | `Not played yet` |
+
+注记只能由一处实现产出，读的是 §4.5 那份共享数据。
+
+### 6.3 点记分牌列头跳到对应分组（桌面）
+
+有分段组时，桌面记分牌的列头是可点的按钮，点 `M2` 平滑滚到 `Map 2` 分组，组头停在距窗口顶 112 像素处（避开吸顶栏）。没有分段组的项目（格斗、足球），列头就是普通文本，不可点。目标组不存在时静默不动作。
+
+**移动端不做这个跳转**，是明确决定不是遗漏：移动记分牌是一条降级横条，没有列矩阵可点；底边那道分段轨每格只有 3 像素高，做成可点区域远低于 44 像素的触达底线。
+
+## §7 移动端形态
+
+移动端不是把桌面缩小，是另一套：
+
+- **直播画面**下方有一条「收起 / 展开」，收起状态记在本地，下次进来还是收着的。
+- **记分牌降级成一条横条**（高 62）：结算单位的比分 + 当前段 + 段内的值，底边一道细轨表示分段进度。滚过它之后**吸顶**（高 45，比分字号从 18 缩到 16），吸在全站头部下方。
+- **段签按项目变形**：足球 `2H`、篮球 `Q4`、网球 `S3`、MOBA `G4`；CS2 内联写 `MAP 2`、吸顶缩写 `M2`；格斗写 `R3`。
+- **矩阵在移动端不出现**。
+
+## §8 首页与列表
+
+- **首页 Sports 模块**：正在打的比赛是一张**橙色描边**的卡，带比分（中间是短横 `–`，等宽数字对齐）和一枚**实心橙** `Watch live` 芯片，点进去直达带直播的交易页。还没开打但有直播源的比赛，带一枚**描边**的 `Stream at kickoff`。实心表示「现在能点」，描边表示「只是状态」。
+- **赛事列表 `/events`**：每场比赛只出现「谁赢」一行。子市场不外泄，见 §2.2。
+
+## §9 常驻演示赛事（运维必读）
+
+| 赛事 id | 作用 |
+|---|---|
+| `demo-live-cs2` | 永远处在「直播中」 |
+| `demo-prekick-cs2` | 永远处在「即将开赛」 |
+
+它们的存在是为了让研发和测试任何时候都有一个活的例子可看，不必等真实赛程。两条实现细节，改引擎时别踩：
+
+- 这两条主行**故意不带 `family` 字段**，所以常规结算引擎的筛选条件选不中它们，不会被正常结算掉。
+- 维持它们的定时任务每 5 分钟跑一次：推进比分、换段、然后**先结算再立刻重开**，并把开赛时间重置为当前时刻——因为结算函数是按「下单时间晚于开赛时间」圈仓的，不重置会把上一轮的仓位算进来。换段时会把所有子市场上的旧比分一并清空。
+
+## §10 已知数据缺口
+
+这些都是**已知且接受**的状态，不是 bug，报之前先对一下这张表：
 
 | 缺口 | 现状 |
 |---|---|
-| 地图名 | 组头只有 `Map 1` / `Map 2` / `Map 3`，无 `Map 2 · Mirage`；不编造 |
-| UFC 结算结果上下文 | 无 `Won by KO/TKO · R2 3:41` 行 |
-| 移动降级条 | FINISHED / SETTLED 态没有 `In review` 徽标 |
-| 移动降级条 | 结算后仍显示 `MAP 3` 段签 |
-| 足球半场比分 | 库里 `segment_results` 为空，`1H` / `2H` 两格恒为 `·`，`goals` 大数字恒为 0；等真实赛事源 |
-| 足球中场休息 | 不进 `BREAK` 态，本轮未做 |
-| 移动端全屏 | 移动内联舞台右下只有静音键，**没有全屏入口**（桌面内联右下与迷你条上才有）；是否要补待定 |
-| 篮球 / 网球 / MOBA 赛事 | 形态已实现，库里无此三类赛事，只在 style-guide 可见（CPO 已确认可接受） |
-| 移动条进度轨 | 底边当前段进度轨按 `decisiveThreshold` 算填充，无决胜分的项目（足球 / 网球 / MOBA）填充恒为 0；未处理 |
+| 地图名 | 组头只有 `Map 1` / `Map 2`，没有 `Map 2 · Mirage`；没有数据就不编 |
+| 格斗结算结果 | 没有 `Won by KO/TKO · R2 3:41` 这一行 |
+| 足球半场比分 | 库里没有半场数据，两个半场格恒为 `·`，`goals` 恒为 0 |
+| 足球中场休息 | 不进段间态，本版未做 |
+| 篮球 / 网球 / MOBA | 形态已实现，库里无此三类赛事，只在字典可见（已确认可接受） |
+| 移动端全屏 | 移动内联舞台只有静音键，没有全屏入口 |
+| 移动条进度轨 | 无决胜分的项目（足球 / 网球 / MOBA）填充恒为 0 |
+| 移动条结算后 | 已结束 / 已结算态没有 `In review` 徽标，段签也不清空 |
 
-## §9 状态索引
+## §11 状态索引
 
-| 模块 | style-guide case |
+想看某一态长什么样，去 `/style-guide` 对应的 case：
+
+| 模块 | 位置 |
 |---|---|
-| CS2 分段板（Series lines + Map 1/2/3） | `/trade` 字典 TR-25 |
-| MMA 分段板（Fight lines + Method） | `/trade` 字典 TR-26 |
-| 记分牌 | `Sports · Live` M1…M6 |
-| 待开赛 | `Sports · Live` U1…U4 |
-| 直播舞台九态 | `Sports · Live` S1…S9 |
-| 迷你窗 / 全屏 | `Sports · Live` C1…C4 |
-| 足球记分牌（进行中 / 未开赛） | `Sports · Live` F1 / F2 |
-| 移动 sticky 记分条 | `Sports · Live` M7 |
-| 表外赛事退化 | `Sports · Live` M6 |
-| 篮球记分牌（进行中 / 加时） | `Sports · Live` B1 / B2 |
-| 网球记分牌（三层比分） | `Sports · Live` T1 |
-| LOL·Dota 记分牌（W/L 格） | `Sports · Live` G1 |
-| 移动条段签按项目变形 | 见 §2b；F1 = `2H`、B1 = `Q4`、T1 = `S3`、G1 = `G4`、CS2 = `MAP n`/`Mn`、UFC = `Rn` |
+| 记分牌 · CS2 五态（进行中 / 未开赛 / 段间 / 待核对 / 已结算） | `Sports · Live` M1…M5 |
+| 记分牌 · 表外赛事退化 | `Sports · Live` M6 |
+| 记分牌 · 移动吸顶条 | `Sports · Live` M7 |
+| 记分牌 · 格斗四态 | `Sports · Live` U1…U4 |
+| 记分牌 · 足球（进行中 / 未开赛） | `Sports · Live` F1 / F2 |
+| 记分牌 · 篮球（进行中 / 加时） | `Sports · Live` B1 / B2 |
+| 记分牌 · 网球 | `Sports · Live` T1 |
+| 记分牌 · LOL·Dota | `Sports · Live` G1 |
+| 直播画面九态 | `Sports · Live` S1…S9 |
+| 迷你窗 / 全屏 / Watch 键 | `Sports · Live` C1…C4 |
+| 分段盘口板 · CS2 | `/trade` 字典 TR-25 |
+| 分段盘口板 · 格斗 | `/trade` 字典 TR-26 |
 
-## §10 涉及文件
+## §12 涉及文件
 
 **前端**
-- `src/components/lite/sports/LiveMatchboard.tsx`（列头 `onSegmentSelect`）
-- `src/components/lite/sports/matchboardModel.ts`（共享模型 + 共享时钟）
-- `src/components/lite/sports/LiveStage.tsx` / `src/hooks/useHlsVideo.ts`
-- `src/components/lite/sports/sportsData.ts`（`groupSegmentedMarkets` / `isFixtureSibling`）
-- `src/components/lite/multi/LiteBoardGroupHeader.tsx`（`anchorId` / `annotation`）
-- `src/pages/lite/LiteContractTrade.tsx`（分段板渲染 + 注记单一实现 + 滚动联动）
-- `src/pages/StyleGuide/preview/sportsLinesPreviews.tsx`、`preview/registry.tsx`、`sections/TradeStatesSection.tsx`
-- `src/lib/sportSegments.ts`（`SegmentSpec` / `SPORT_SEGMENTS` / `SPORT_FALLBACK`）
+- `src/lib/sportSegments.ts` — 运动形态规格表（`SegmentSpec` / `SPORT_SEGMENTS` / `SPORT_FALLBACK`）
+- `src/components/lite/sports/matchboardModel.ts` — 比赛数据的唯一来源（状态机 + 比分 + 全站共享的 30 秒时钟）
+- `src/components/lite/sports/LiveMatchboard.tsx` — 记分牌（桌面矩阵 + 移动横条）
+- `src/components/lite/sports/LiveStage.tsx` + `src/hooks/useHlsVideo.ts` — 直播画面与播放器
+- `src/components/lite/sports/liveStageStore.ts` — 舞台与记分牌之间的跨组件状态（`Watch` 键）
+- `src/components/lite/sports/sportsData.ts` — 赛事读取、分组、可见性边界
+- `src/components/lite/multi/LiteBoardGroupHeader.tsx` — 盘口分组头
+- `src/pages/lite/LiteContractTrade.tsx` — 交易页装配（分段板 + 注记 + 滚动联动）
+- `src/components/lite/home/HomeSportsCard.tsx` — 首页比赛卡
 
 **数据库**
-- `tick_live_matches()` / `tick_demo_showcase()` / `roll_sports_matches()`
-- `src/lib/sportSegments.ts`（`SPORT_SEGMENTS` 静态表）
+- `roll_sports_matches()` — 赛程滚动
+- `tick_live_matches()` — 正常赛事推进与结算
+- `tick_demo_showcase()` — 两条常驻演示赛事的维持
 
-## §11 未变更项
+## §13 不在本特性范围内
 
-- 足球盘口板（Winner / Handicap / Total goals）：桌面 828 宽 / 移动 343 宽、组头高 15.25、x = 24 / 16，与本轮前一致。
-- 记分牌几何：桌面 828 × 138.4（live 态）未动。
-- 下单面板、Boost 档位、账本、`HomeSportsCard` 未动。
+下面这些和体育功能同页出现，但不属于这套东西，改动时不要牵连：
 
-> 修订：2026-09-01 补足球两个半场形态（SP-L4d）、字典 F1 / F2 / M7、§2b 运动形态表。
-> 修订：2026-09-01 补篮球 / 网球 / LOL·Dota 三种形态（SP-L4f）、字典 B1 / B2 / T1 / G1、移动条段签按项目取列头缩写（SP-L4f-FIX）。
+- 下单面板、Boost 档位、持仓卡、Market activity 账本——体育赛事复用平台通用件，没有专属分支。
+- 足球的盘口板（整场胜负 / 让分 / 总进球三组）走的是通用多市场板，不走分段分组。
+- Portfolio、Wallet、Rewards 各页。
+
+---
+
+**真平台复刻建议顺序**：先把 §2 的数据契约和 §3 的状态机对齐，这两块决定其余一切；再做 §4 记分牌（形态表照抄，先只开你有数据的项目）；再做 §6 盘口板分组；直播画面（§5）可以最后做，它对其余部分没有依赖——没有 `stream_url` 时整块不渲染，其余功能完全不受影响。
