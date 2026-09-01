@@ -982,11 +982,9 @@ export const LiveStage = ({
           >
             {delayPill}
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              {!fsBlocked ? (
-                <RoundBtn label="Fullscreen" onClick={enterFullscreen}>
-                  <Ic d={EXPAND_D} size={13} />
-                </RoundBtn>
-              ) : null}
+              <RoundBtn label="Fullscreen" onClick={enterFullscreen}>
+                <Ic d={EXPAND_D} size={13} />
+              </RoundBtn>
               <MuteBtn muted={muted} onClick={() => setMuted(!muted)} />
             </div>
           </div>
