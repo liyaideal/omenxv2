@@ -138,6 +138,27 @@ const BOARD_CASES: SectionCase[] = [
       { state: "字典强制", when: "fixtureSticky === true（生产从不传）", visual: "同上，且不依赖滚动", source: "fixtureSticky（fixture-only）" },
     ],
   },
+  {
+    key: "sports-live-f1",
+    label: "F1 · 足球 · 两个半场（进行中，下半场 63′）",
+    note:
+      "足球库里没有 segments_key，走 SPORT_FALLBACK.soccer；当前半场由分钟推（>45 即 2H）。大数字是两个半场进球之和（totalsRule: \"sum\"），不是赢下的段数；totals 表头词是 goals，不是 maps。右上是比赛分钟 63′，不是段内比分。",
+    spec: [
+      { state: "两列半场", when: "spec.unit === \"half\"", visual: "列头 `1H` `2H`，列宽 70px，格子是该半场进的球", source: "SPORT_FALLBACK.soccer" },
+      { state: "当前半场", when: "n === idx", visual: "该列顶部一条橙线 + 极淡橙底（全牌唯一的当前位标记）", source: "headStyle(on) / cellStyle(now)" },
+      { state: "大数字", when: "totalsRule === \"sum\"", visual: "各半场进球相加，表头词 `goals`", source: "buildModel totals" },
+      { state: "右上分钟", when: "rightValue === \"minute\" && status === \"live\"", visual: "`63′`（U+2032），钳在 1…90", source: "buildModel rightValue" },
+      { state: "无中场态", when: "spec.unit === \"half\"", visual: "不进 BREAK；中场休息本轮不做", source: "buildModel inBreak" },
+    ],
+  },
+  {
+    key: "sports-live-f2",
+    label: "F2 · 足球 · 未开赛",
+    spec: [
+      { state: "未开赛", when: "kickoff > now && !is_resolved", visual: "UPCOMING 药丸 + 联赛 + `Starts in {…}`，goals 0 / 0，两列全是点", source: "buildModel status/upcoming" },
+      { state: "无当前列", when: "idx == null", visual: "没有任何一列高亮", source: "colHighlight" },
+    ],
+  },
 ];
 
 const STAGE_CASES: SectionCase[] = [
