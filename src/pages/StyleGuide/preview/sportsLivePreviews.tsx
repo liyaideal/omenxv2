@@ -367,3 +367,53 @@ export const M7Preview = () => (
     />
   </Frame>
 );
+
+/* ---------------- F · soccer (SPORT_FALLBACK.soccer) ---------------- */
+
+const soccerBase = {
+  sport: "soccer",
+  league: "Ligue 1",
+  home: "Paris Saint-Germain",
+  away: "Marseille",
+  home_abbr: "PSG",
+  away_abbr: "OM",
+  format: "1x2",
+};
+
+/** F1 — live second half, 63′. */
+export const F1Preview = () => (
+  <Frame>
+    <LiveMatchboard
+      fixtureNow={NOW}
+      fixtureSticky={false}
+      event={board(
+        "sg-soccer-f1",
+        {
+          ...soccerBase,
+          kickoff_at: at(-63),
+          segment_results: [{ home: 1, away: 0 }, { home: 0, away: 0 }],
+        },
+        { start_date: at(-63), end_date: at(50) },
+      )}
+    />
+  </Frame>
+);
+
+/** F2 — upcoming. */
+export const F2Preview = () => (
+  <Frame>
+    <LiveMatchboard
+      fixtureNow={NOW}
+      fixtureSticky={false}
+      event={board(
+        "sg-soccer-f2",
+        {
+          ...soccerBase,
+          kickoff_at: at(120),
+          segment_results: [null, null],
+        },
+        { start_date: at(120), end_date: at(230) },
+      )}
+    />
+  </Frame>
+);
