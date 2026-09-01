@@ -141,7 +141,15 @@ const headStyle = (on: boolean) => ({
 
 // ---------- desktop matrix ----------
 
-const Matrix = ({ m, showWatch }: { m: Model; showWatch: boolean }) => {
+const Matrix = ({
+  m,
+  showWatch,
+  onSegmentSelect,
+}: {
+  m: Model;
+  showWatch: boolean;
+  onSegmentSelect?: (segment: number) => void;
+}) => {
   const settled = m.status === "settled";
   const cols = m.spec
     ? [
