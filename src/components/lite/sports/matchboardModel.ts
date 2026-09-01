@@ -5,7 +5,7 @@
 // headers) must read them from here, never recompute locally.
 // ============================================================
 import { useMemo, useSyncExternalStore } from "react";
-import { SPORT_SEGMENTS, type SegmentSpec } from "@/lib/sportSegments";
+import { SPORT_SEGMENTS, SPORT_FALLBACK, type SegmentSpec } from "@/lib/sportSegments";
 import { fixtureMeta, isFixtureLive, type FixtureMeta } from "./sportsData";
 
 export interface MatchboardEvent {
