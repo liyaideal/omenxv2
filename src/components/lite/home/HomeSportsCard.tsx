@@ -93,7 +93,6 @@ const abbrFor = (m: SportsMatch, label: string) => {
 
 const MatchTitle = ({ m, live }: { m: SportsMatch; live: boolean }) => (
   <div
-    className="truncate"
     style={{ fontWeight: 700, fontSize: 15.5, color: "#fff" }}
   >
     {live && m.score ? (
