@@ -428,6 +428,29 @@ const LiteContractTrade = () => {
     [groups.total, totalLine],
   );
 
+  // ---- Segmented fixtures (esports maps / MMA rounds) ----
+  // Every score / tally shown next to a group header comes from the shared
+  // matchboard model — never recomputed here.
+  const matchModel = useMatchboardModel(
+    (event as unknown as MatchboardEvent) ?? EMPTY_FIXTURE,
+  );
+  const segGroups = useMemo(
+    () =>
+      event && meta.segments_key
+        ? groupSegmentedMarkets(
+            event as EventRow,
+            siblings,
+            matchModel.idx ?? null,
+          )
+        : [],
+    [event, meta.segments_key, siblings, matchModel.idx],
+  );
+  const hasSegGroups = segGroups.length > 0;
+  // One line state per group: Map 1's handicap is independent of Map 2's.
+  const [segLines, setSegLines] = useState<Record<string, number>>({});
+
+
+
   // Settled charts read real odds history — never synthesised data.
   const [history, setHistory] = useState<Record<string, number[]>>({});
   useEffect(() => {
