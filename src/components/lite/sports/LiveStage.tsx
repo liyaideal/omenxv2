@@ -430,16 +430,17 @@ export const LiveStage = ({
     setPos(clampPos(restored ?? { left: 16, top: window.innerHeight - MINI_H - 16 }));
   }, []);
 
-  // Is the inline slot on screen? Both breakpoints observe it.
+  // Is the inline slot on screen? Both breakpoints observe it. Keyed on the
+  // node so it rebuilds only when the observed element actually changes.
   useEffect(() => {
-    const el = slotRef.current;
-    if (!el) return;
+    if (!slotNode) return;
     const io = new IntersectionObserver(([e]) => setInlineVisible(e.isIntersecting), {
       threshold: 0,
     });
-    io.observe(el);
+    io.observe(slotNode);
     return () => io.disconnect();
-  }, [isMobile, collapsed]);
+  }, [slotNode]);
+
 
   // Page-level fullscreen, not the Fullscreen API. The API is refused
   // whenever the app runs inside an iframe without allow="fullscreen"
