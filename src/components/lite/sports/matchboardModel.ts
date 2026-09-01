@@ -46,6 +46,8 @@ export interface Model {
   winnerHome: boolean | null;
   current: SegResult | null;
   scoreText: string;
+  totalsWord: string;
+  colWidth: number;
 }
 
 const pad = (n: number) => String(n).padStart(2, "0");
