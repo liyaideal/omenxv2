@@ -341,7 +341,6 @@ export const C4Preview = () => (
   <Frame>
     <LiveMatchboard
       fixtureNow={NOW}
-      fixtureSticky={false}
       forceWatchKey
       event={board("sg-cs2-watch", {
         ...cs2Base,
