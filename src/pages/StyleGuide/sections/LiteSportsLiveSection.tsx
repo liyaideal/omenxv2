@@ -167,9 +167,9 @@ const STAGE_CASES: SectionCase[] = [
   {
     key: "sports-stage-s1",
     label: "S1 · playing",
-    note: "本轮播控只有静音一枚；画中画 / 全屏 / 迷你播放器推迟到 SP-L3b。",
-    spec: [
-      {
+    note:
+      "播控按端分叉：桌面内联舞台右下是「延迟披露 + 全屏键 + 静音键」，移动内联舞台右下只有静音键（移动端目前没有全屏入口）。迷你窗与全屏见 C1 / C3。",
+    spec: [{
         state: "playing",
         when: 'useHlsVideo state === "playing"',
         visual: "中央暂停键（桌面 56 / 移动 44），右下延迟说明 + 28×28 静音键",
