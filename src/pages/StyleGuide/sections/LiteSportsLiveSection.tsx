@@ -69,10 +69,12 @@ const BOARD_CASES: SectionCase[] = [
   {
     key: "sports-live-m6",
     label: "M6 · 表外赛事退化",
+    note:
+      "本案是 esports 且 segments_key 查不到表 —— esports 没有 SPORT_FALLBACK 兜底，所以退化。足球查不到表但有兜底，走的是 F1 / F2，不会退化到这一态。",
     spec: [
       {
         state: "no spec",
-        when: "SPORT_SEGMENTS[segments_key] === undefined",
+        when: "SPORT_SEGMENTS[segments_key] === undefined && SPORT_FALLBACK[sport] === undefined",
         visual: "只剩队名列与 maps 总数列，分段矩阵整块不渲染",
         source: "buildModel spec === undefined",
       },
@@ -165,9 +167,9 @@ const STAGE_CASES: SectionCase[] = [
   {
     key: "sports-stage-s1",
     label: "S1 · playing",
-    note: "本轮播控只有静音一枚；画中画 / 全屏 / 迷你播放器推迟到 SP-L3b。",
-    spec: [
-      {
+    note:
+      "播控按端分叉：桌面内联舞台右下是「延迟披露 + 全屏键 + 静音键」，移动内联舞台右下只有静音键（移动端目前没有全屏入口）。迷你窗与全屏见 C1 / C3。",
+    spec: [{
         state: "playing",
         when: 'useHlsVideo state === "playing"',
         visual: "中央暂停键（桌面 56 / 移动 44），右下延迟说明 + 28×28 静音键",
@@ -296,10 +298,12 @@ const MINI_CASES: SectionCase[] = [
   {
     key: "sports-mini-c3",
     label: "C3 · 全屏底栏（S10）",
+    note:
+      '页面级 CSS 全屏（`position: fixed; inset: 0; z-index: 60`），不是 Fullscreen API —— 应用跑在没有 allow="fullscreen" 的 iframe 里时 `requestFullscreen()` 会以 `Permissions check failed` 被拒，控件会在最常被点的地方变成死键。ESC 退出，全屏期间锁 body 滚动，`<video>` 元素不重挂。',
     spec: [
       {
         state: "fullscreen",
-        when: "wrapper.requestFullscreen()",
+        when: "isFullscreen === true（点桌面内联右下全屏键，或迷你条上的全屏键）",
         visual:
           "左上完整比分串；底栏左延迟披露、右两枚 Series winner 芯片（#33D6FF / #CFFF4A）",
         source: "LiveStage chrome === full",
@@ -360,6 +364,10 @@ export const LiteSportsLiveSection = () => (
 
       <SubSection title="Ⓐ′ LiveMatchboard · M7（移动 sticky 记分条，独占一帧）">
         <Pair cases={byKey(BOARD_CASES, "sports-live-m7")} min={420} />
+      </SubSection>
+
+      <SubSection title="Ⓐ″ LiveMatchboard · 足球（F1 / F2）">
+        <Pair cases={byKey(BOARD_CASES, "sports-live-f1", "sports-live-f2")} min={900} />
       </SubSection>
 
       <SubSection title="Ⓑ LiveStage（S1 … S9）">
