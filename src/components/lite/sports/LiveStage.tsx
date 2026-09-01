@@ -1,18 +1,32 @@
 // ============================================================
 // LiveStage — the live video surface above the matchboard.
-// Nine states (S1–S9) per the approved canvas. No score lives
-// here: the matchboard below owns it, and one number must not
-// have two renderers.
-// Collapsed / unmounted means the <video> is gone, not hidden —
+// Nine states (S1–S9) per the approved canvas, plus the mini
+// player (SP-L3b) and fullscreen. No score lives here: the
+// matchboard below owns it, and one number must not have two
+// renderers — the mini/fullscreen capsules read the very same
+// metadata the matchboard reads.
+//
+// Implementation note: inline / mini / fullscreen are the SAME
+// wrapper node moving, not three mounts. Re-mounting the
+// <video> would re-buffer on every scroll. Only the wrapper's
+// position, size and chrome change.
+// Collapsed / dismissed means the <video> is gone, not hidden —
 // a hidden video keeps burning bandwidth.
 // ============================================================
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useHlsVideo } from "@/hooks/useHlsVideo";
+import { SPORT_SEGMENTS } from "@/lib/sportSegments";
 import { fixtureMeta, isFixtureLive } from "./sportsData";
+import { setLiveStageState, useLiveStageState } from "./liveStageStore";
 
 const MONO = "'Space Grotesk', ui-monospace, SFMono-Regular, monospace";
 const COLLAPSE_KEY = "omenx.lite.stage.collapsed";
+const POS_KEY = "omenx.lite.mini.pos";
+
+const MINI_W = 300;
+const MINI_H = 229;
+const EDGE = 8;
 
 export interface StageEvent {
   id: string;
@@ -34,20 +48,20 @@ export type StageFixture =
   | "forbidden"
   | "finished";
 
-const Pill = ({ small }: { small?: boolean }) => (
+const Pill = ({ small, tiny }: { small?: boolean; tiny?: boolean }) => (
   <span
     className="inline-flex items-center"
     style={{
-      gap: small ? 5 : 6,
+      gap: tiny ? 4 : small ? 5 : 6,
       background: "#FF8A3D",
       borderRadius: 999,
-      padding: small ? "3px 7px" : "3px 8px",
+      padding: tiny ? "2px 6px" : small ? "3px 7px" : "3px 8px",
     }}
   >
     <i
       style={{
-        width: small ? 4 : 5,
-        height: small ? 4 : 5,
+        width: tiny ? 4 : small ? 4 : 5,
+        height: tiny ? 4 : small ? 4 : 5,
         borderRadius: 999,
         background: "#2A1200",
         display: "block",
@@ -57,9 +71,9 @@ const Pill = ({ small }: { small?: boolean }) => (
     />
     <b
       style={{
-        fontSize: small ? 9 : 9.5,
+        fontSize: tiny ? 8.5 : small ? 9 : 9.5,
         fontWeight: 700,
-        letterSpacing: small ? ".14em" : ".16em",
+        letterSpacing: tiny ? ".12em" : small ? ".14em" : ".16em",
         color: "#2A1200",
         lineHeight: 1.2,
       }}
@@ -69,7 +83,15 @@ const Pill = ({ small }: { small?: boolean }) => (
   </span>
 );
 
-const Glass = ({ children, mono }: { children: React.ReactNode; mono?: boolean }) => (
+const Glass = ({
+  children,
+  mono,
+  tiny,
+}: {
+  children: React.ReactNode;
+  mono?: boolean;
+  tiny?: boolean;
+}) => (
   <span
     className="inline-flex items-center"
     style={{
@@ -78,14 +100,26 @@ const Glass = ({ children, mono }: { children: React.ReactNode; mono?: boolean }
       border: "1px solid rgba(255,255,255,.14)",
       backdropFilter: "blur(6px)",
       borderRadius: 999,
-      padding: "4px 9px",
+      padding: tiny ? "2px 7px" : "4px 9px",
     }}
   >
     <span
       style={
         mono
-          ? { fontFamily: MONO, fontSize: 12, fontWeight: 600, color: "#fff", fontVariantNumeric: "tabular-nums" }
-          : { fontSize: 10, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(255,255,255,.72)", fontWeight: 600 }
+          ? {
+              fontFamily: MONO,
+              fontSize: tiny ? 10 : 12,
+              fontWeight: 600,
+              color: "#fff",
+              fontVariantNumeric: "tabular-nums",
+            }
+          : {
+              fontSize: tiny ? 10 : 10,
+              letterSpacing: ".14em",
+              textTransform: "uppercase",
+              color: "rgba(255,255,255,.72)",
+              fontWeight: 600,
+            }
       }
     >
       {children}
@@ -205,11 +239,21 @@ const Fail = ({ title, sub }: { title: string; sub: string }) => (
   </div>
 );
 
-const MuteBtn = ({ muted, onClick, small }: { muted: boolean; onClick: () => void; small?: boolean }) => (
+const RoundBtn = ({
+  label,
+  onClick,
+  small,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  small?: boolean;
+  children: React.ReactNode;
+}) => (
   <button
     type="button"
     onClick={onClick}
-    aria-label={muted ? "Unmute" : "Mute"}
+    aria-label={label}
     style={{
       width: small ? 24 : 28,
       height: small ? 24 : 28,
@@ -223,6 +267,42 @@ const MuteBtn = ({ muted, onClick, small }: { muted: boolean; onClick: () => voi
       cursor: "pointer",
     }}
   >
+    {children}
+  </button>
+);
+
+const Ic = ({ d, size }: { d: string; size: number }) => (
+  <svg
+    viewBox="0 0 24 24"
+    style={{
+      width: size,
+      height: size,
+      stroke: "currentColor",
+      fill: "none",
+      strokeWidth: 1.7,
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+      display: "block",
+    }}
+  >
+    <path d={d} />
+  </svg>
+);
+
+const EXPAND_D =
+  "M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3";
+const CLOSE_D = "M18 6 6 18M6 6l12 12";
+
+const MuteBtn = ({
+  muted,
+  onClick,
+  small,
+}: {
+  muted: boolean;
+  onClick: () => void;
+  small?: boolean;
+}) => (
+  <RoundBtn label={muted ? "Unmute" : "Mute"} onClick={onClick} small={small}>
     <svg
       viewBox="0 0 24 24"
       style={{
@@ -239,7 +319,7 @@ const MuteBtn = ({ muted, onClick, small }: { muted: boolean; onClick: () => voi
       <path d="M11 5 6 9H2v6h4l5 4z" />
       {muted ? <path d="m22 9-6 6M16 9l6 6" /> : <path d="M16 8a5 5 0 0 1 0 8M19 5a9 9 0 0 1 0 14" />}
     </svg>
-  </button>
+  </RoundBtn>
 );
 
 /** "2h 14m" / "5d 4h" — the tail of "Stream starts at kickoff · in …". */
@@ -253,12 +333,36 @@ const untilText = (ms: number): string => {
   return `in ${m}m`;
 };
 
+const pad = (n: number) => String(n).padStart(2, "0");
+const clockText = (raw: number | null | undefined): string => {
+  const s = Math.max(0, Math.min(300, Number(raw ?? 0)));
+  return `${Math.floor(s / 60)}:${pad(s % 60)}`;
+};
+
+const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+
+const clampPos = (p: { left: number; top: number }) => ({
+  left: clamp(p.left, EDGE, Math.max(EDGE, window.innerWidth - MINI_W - EDGE)),
+  top: clamp(p.top, EDGE, Math.max(EDGE, window.innerHeight - MINI_H - EDGE)),
+});
+
 export const LiveStage = ({
   event,
   fixture,
+  forceMode,
+  yesLabel,
+  noLabel,
+  yesPrice,
+  noPrice,
 }: {
   event: StageEvent;
   fixture?: StageFixture;
+  /** Style-guide only. Absent ⇒ production behaviour, byte-identical. */
+  forceMode?: "inline" | "mini" | "fullscreen";
+  yesLabel?: string;
+  noLabel?: string;
+  yesPrice?: number;
+  noPrice?: number;
 }) => {
   const isMobile = useIsMobile();
   const meta = fixtureMeta(event);
@@ -293,9 +397,136 @@ export const LiveStage = ({
     });
   };
 
-  // The video only attaches while the stage is actually on screen and
-  // the match is in play. Everything else unmounts it.
-  const wantVideo = !fixture && !!src && live && !collapsed;
+  const slotRef = useRef<HTMLDivElement | null>(null);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const [inlineVisible, setInlineVisible] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [slotH, setSlotH] = useState(0);
+  const [pos, setPos] = useState<{ left: number; top: number }>({ left: EDGE, top: 0 });
+  const store = useLiveStageState();
+  const dismissed = store.miniDismissed;
+
+  // Restore the last drag position, re-clamped to the current viewport.
+  useEffect(() => {
+    let restored: { left: number; top: number } | null = null;
+    try {
+      const raw = localStorage.getItem(POS_KEY);
+      if (raw) {
+        const p = JSON.parse(raw) as { left?: number; top?: number };
+        if (typeof p.left === "number" && typeof p.top === "number") {
+          restored = { left: p.left, top: p.top };
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+    setPos(clampPos(restored ?? { left: 16, top: window.innerHeight - MINI_H - 16 }));
+  }, []);
+
+  // Is the inline slot on screen? Both breakpoints observe it.
+  useEffect(() => {
+    const el = slotRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setInlineVisible(e.isIntersecting), {
+      threshold: 0,
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [isMobile, collapsed]);
+
+  // Fullscreen is read off the document, never off the callback that asked
+  // for it — the element is the truth.
+  useEffect(() => {
+    const onFs = () => setIsFullscreen(document.fullscreenElement === wrapperRef.current);
+    document.addEventListener("fullscreenchange", onFs);
+    return () => document.removeEventListener("fullscreenchange", onFs);
+  }, []);
+
+  const hasSource = !!src && live;
+  useEffect(() => {
+    setLiveStageState({ fixtureId: event.id, hasSource, inlineVisible });
+  }, [event.id, hasSource, inlineVisible]);
+
+  useEffect(
+    () => () => {
+      setLiveStageState({ fixtureId: null, hasSource: false, inlineVisible: true });
+    },
+    [],
+  );
+
+  const wantMini =
+    !forceMode &&
+    !fixture &&
+    isMobile === false &&
+    hasSource &&
+    !inlineVisible &&
+    !dismissed &&
+    !isFullscreen;
+  const mode: "inline" | "mini" = forceMode
+    ? forceMode === "mini"
+      ? "mini"
+      : "inline"
+    : wantMini
+      ? "mini"
+      : "inline";
+  const fullscreen = forceMode === "fullscreen" || isFullscreen;
+  const preview = !!forceMode;
+
+  // Freeze the slot height before the wrapper leaves the flow.
+  useLayoutEffect(() => {
+    if (mode === "inline" && wrapperRef.current) {
+      const h = wrapperRef.current.getBoundingClientRect().height;
+      if (h > 0) setSlotH(h);
+    }
+  }, [mode, isMobile, collapsed, fullscreen]);
+
+  // ---- mini drag: only the grip starts it ----
+  const dragRef = useRef<{ dx: number; dy: number } | null>(null);
+  const onGripDown = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (preview) return;
+      const rect = wrapperRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      dragRef.current = { dx: e.clientX - rect.left, dy: e.clientY - rect.top };
+      e.currentTarget.setPointerCapture(e.pointerId);
+    },
+    [preview],
+  );
+  const onGripMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    const d = dragRef.current;
+    if (!d) return;
+    setPos(clampPos({ left: e.clientX - d.dx, top: e.clientY - d.dy }));
+  }, []);
+  const onGripUp = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!dragRef.current) return;
+      dragRef.current = null;
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      } catch {
+        /* ignore */
+      }
+      setPos((p) => {
+        const center = p.left + MINI_W / 2;
+        const snapped = clampPos({
+          left: center < window.innerWidth / 2 ? EDGE : window.innerWidth - MINI_W - EDGE,
+          top: p.top,
+        });
+        try {
+          localStorage.setItem(POS_KEY, JSON.stringify(snapped));
+        } catch {
+          /* ignore */
+        }
+        return snapped;
+      });
+    },
+    [],
+  );
+
+  // The video only attaches while the stage is reachable and the match is in
+  // play. A dismissed mini player with the stage off screen unmounts it.
+  const wantVideo =
+    !fixture && !!src && live && !collapsed && !(dismissed && !inlineVisible);
   const { ref, state, muted, setMuted, play, pause } = useHlsVideo(src, wantVideo);
 
   const [, force] = useState(0);
@@ -318,63 +549,364 @@ export const LiveStage = ({
 
   const prekick = fixture ? fixture === "prekick" : !live && Number.isFinite(kickoff) && kickoff > now;
   const s: string = fixture ?? (prekick ? "prekick" : state);
-
   const dark = s === "prekick" || s === "error" || s === "forbidden";
 
-  return (
-    <div>
-      {isMobile && !fixture && collapsed ? null : (
-        <StageShell isMobile={isMobile} dark={dark}>
-          {!fixture && wantVideo ? (
-          <video
-            ref={ref}
-            playsInline
-            loop
-            muted={muted}
+  // ---- score facts, read from the same metadata the matchboard reads ----
+  const isMma = (meta.sport || "").toLowerCase() === "mma";
+  const spec = meta.segments_key ? SPORT_SEGMENTS[meta.segments_key] : undefined;
+  const idx = meta.segment_index ?? null;
+  const segRes = idx != null ? ((meta.segment_results || [])[idx - 1] ?? null) : null;
+  const unitWord = spec?.unit === "round" ? "Round" : "Map";
+  const segValue = isMma
+    ? clockText(meta.clock)
+    : segRes
+      ? `${segRes.home}\u2013${segRes.away}`
+      : "\u2014";
+  const miniCapsule =
+    idx != null ? `${isMma ? "R" : "M"}${idx} \u00b7 ${segValue}` : "";
+  let homeSeg = 0;
+  let awaySeg = 0;
+  (meta.segment_results || []).forEach((r) => {
+    if (!r || spec?.decisiveThreshold == null) return;
+    if (Math.max(r.home, r.away) < spec.decisiveThreshold) return;
+    if (r.home > r.away) homeSeg += 1;
+    else if (r.away > r.home) awaySeg += 1;
+  });
+  const home = meta.home || "";
+  const away = meta.away || "";
+  const fullCapsule = isMma
+    ? `${home} vs ${away}${idx != null ? ` \u00b7 ${unitWord} ${idx}` : ""} \u00b7 ${segValue}`
+    : `${home} ${homeSeg}\u2013${awaySeg} ${away}${idx != null ? ` \u00b7 ${unitWord} ${idx}` : ""} \u00b7 ${segValue}`;
+
+  const chrome: "inline" | "mini" | "full" = fullscreen ? "full" : mode;
+
+  const enterFullscreen = () => {
+    wrapperRef.current?.requestFullscreen?.();
+  };
+  const backToStage = () => {
+    slotRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+  const closeMini = () => setLiveStageState({ miniDismissed: true });
+  const pickSide = () => {
+    if (document.fullscreenElement) document.exitFullscreen();
+    const anchor =
+      document.getElementById("lite-odds-anchor") ?? (slotRef.current as Element | null);
+    window.setTimeout(() => anchor?.scrollIntoView({ behavior: "smooth", block: "center" }), 80);
+  };
+
+  const wrapperStyle: React.CSSProperties = fullscreen
+    ? {
+        position: "relative",
+        width: "100%",
+        height: preview ? undefined : "100%",
+        border: preview ? "1px solid #1D2026" : "none",
+        borderRadius: preview ? 12 : 0,
+        overflow: "hidden",
+        background: "#000",
+        display: "flex",
+        flexDirection: "column",
+      }
+    : mode === "mini"
+      ? {
+          position: preview ? "relative" : "fixed",
+          left: preview ? undefined : pos.left,
+          top: preview ? undefined : pos.top,
+          width: MINI_W,
+          border: "1px solid #1D2026",
+          borderRadius: 12,
+          overflow: "hidden",
+          background: "rgba(6,7,9,.96)",
+          boxShadow: "0 18px 48px rgba(0,0,0,.6)",
+          zIndex: 40,
+        }
+      : {
+          position: "relative",
+          border: "1px solid #1D2026",
+          borderRadius: 12,
+          overflow: "hidden",
+          background: "#000",
+        };
+
+  const grip =
+    chrome === "mini" ? (
+      <div
+        onPointerDown={onGripDown}
+        onPointerMove={onGripMove}
+        onPointerUp={onGripUp}
+        onPointerCancel={onGripUp}
+        style={{
+          height: 20,
+          background: "rgba(255,255,255,.03)",
+          borderBottom: "1px solid rgba(255,255,255,.05)",
+          display: "grid",
+          placeItems: "center",
+          color: "#4C535C",
+          fontSize: 10,
+          letterSpacing: ".3em",
+          cursor: "grab",
+          touchAction: "none",
+        }}
+      >
+        ···
+      </div>
+    ) : null;
+
+  const minibar =
+    chrome === "mini" ? (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          padding: "8px 9px",
+          borderTop: "1px solid rgba(255,255,255,.06)",
+        }}
+      >
+        <button
+          type="button"
+          onClick={backToStage}
+          style={{
+            flexGrow: 1,
+            height: 30,
+            borderRadius: 8,
+            background: "#1B1E24",
+            border: "1px solid #1D2026",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+            fontSize: 11.5,
+            fontWeight: 600,
+            color: "#D7DDE4",
+            cursor: "pointer",
+          }}
+        >
+          <svg
+            viewBox="0 0 24 24"
             style={{
+              width: 12,
+              height: 12,
+              stroke: "currentColor",
+              fill: "none",
+              strokeWidth: 1.7,
+              strokeLinecap: "round",
+              strokeLinejoin: "round",
+              display: "block",
+            }}
+          >
+            <path d="M12 19V5M5 12l7-7 7 7" />
+          </svg>
+          Back to stage
+        </button>
+        <button
+          type="button"
+          aria-label="Fullscreen"
+          onClick={enterFullscreen}
+          style={{
+            width: 30,
+            height: 30,
+            borderRadius: 8,
+            display: "grid",
+            placeItems: "center",
+            color: "#8B929B",
+            background: "transparent",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+          }}
+        >
+          <Ic d={EXPAND_D} size={14} />
+        </button>
+        <button
+          type="button"
+          aria-label="Close mini player"
+          onClick={closeMini}
+          style={{
+            width: 30,
+            height: 30,
+            borderRadius: 8,
+            display: "grid",
+            placeItems: "center",
+            color: "#8B929B",
+            background: "transparent",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+          }}
+        >
+          <Ic d={CLOSE_D} size={14} />
+        </button>
+      </div>
+    ) : null;
+
+  const chip = (label: string, price: number | undefined, yes: boolean) => (
+    <button
+      type="button"
+      onClick={pickSide}
+      className="transition-opacity hover:opacity-80"
+      style={{
+        fontFamily: MONO,
+        fontSize: 12,
+        fontWeight: 700,
+        borderRadius: 7,
+        padding: "6px 10px",
+        minWidth: 120,
+        display: "flex",
+        justifyContent: "space-between",
+        gap: 8,
+        border: "none",
+        cursor: "pointer",
+        background: yes ? "rgba(51,214,255,.12)" : "rgba(207,255,74,.1)",
+        color: yes ? "#33D6FF" : "#CFFF4A",
+      }}
+    >
+      <span>{label}</span>
+      <span>{price == null ? "—" : `${Math.round(price * 100)}¢`}</span>
+    </button>
+  );
+
+  const delayPill = (
+    <span
+      className="inline-flex items-center"
+      style={{
+        gap: 6,
+        background: "rgba(0,0,0,.45)",
+        border: "1px solid rgba(255,255,255,.1)",
+        borderRadius: 6,
+        padding: "3px 7px",
+        fontSize: 9.5,
+        letterSpacing: ".1em",
+        textTransform: "uppercase",
+        color: "rgba(255,255,255,.6)",
+      }}
+    >
+      Stream is delayed. Prices are not.
+    </span>
+  );
+
+  const stage = (
+    <StageShell
+      isMobile={isMobile}
+      dark={dark}
+      innerRef={wrapperRef}
+      style={wrapperStyle}
+      className={
+        fullscreen || mode === "mini" ? "" : isMobile ? "w-full" : "w-full max-w-[828px]"
+      }
+      fullscreen={fullscreen && !preview}
+      before={grip}
+      after={minibar}
+    >
+      {!fixture && wantVideo ? (
+        <video
+          ref={ref}
+          playsInline
+          loop
+          muted={muted}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: fullscreen ? "contain" : "cover",
+            zIndex: 1,
+          }}
+        />
+      ) : null}
+
+      {!dark && chrome === "inline" ? (
+        <>
+          <div
+            style={{
+              position: "absolute",
+              left: isMobile ? 10 : 16,
+              top: isMobile ? 10 : 16,
+              display: "flex",
+              gap: 8,
+              alignItems: "center",
+              zIndex: 2,
+            }}
+          >
+            <Pill small={isMobile} />
+            {!isMobile && meta.league ? <Glass>{meta.league}</Glass> : null}
+          </div>
+          {idx != null ? (
+            <div
+              style={{
                 position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                zIndex: 1,
+                right: isMobile ? 10 : 16,
+                top: isMobile ? 10 : 16,
+                zIndex: 2,
               }}
-            />
+            >
+              <Glass mono>
+                {unitWord} {idx}
+              </Glass>
+            </div>
           ) : null}
+        </>
+      ) : null}
 
-          {!dark ? (
-            <>
-              <div
-                style={{
-                  position: "absolute",
-                  left: isMobile ? 10 : 16,
-                  top: isMobile ? 10 : 16,
-                  display: "flex",
-                  gap: 8,
-                  alignItems: "center",
-                  zIndex: 2,
-                }}
-              >
-                <Pill small={isMobile} />
-                {!isMobile && meta.league ? <Glass>{meta.league}</Glass> : null}
-              </div>
-              {meta.segment_index != null ? (
-                <div
-                  style={{
-                    position: "absolute",
-                    right: isMobile ? 10 : 16,
-                    top: isMobile ? 10 : 16,
-                    zIndex: 2,
-                  }}
-                >
-                  <Glass mono>
-                    {(meta.segments_key || "").startsWith("UFC") ? "Round" : "Map"} {meta.segment_index}
-                  </Glass>
-                </div>
-              ) : null}
-            </>
+      {!dark && chrome === "mini" ? (
+        <>
+          <div style={{ position: "absolute", left: 8, top: 8, zIndex: 2 }}>
+            <Pill tiny />
+          </div>
+          {miniCapsule ? (
+            <div style={{ position: "absolute", right: 8, top: 8, zIndex: 2 }}>
+              <Glass mono tiny>
+                {miniCapsule}
+              </Glass>
+            </div>
           ) : null}
+        </>
+      ) : null}
 
+      {chrome === "full" ? (
+        <>
+          <div
+            style={{
+              position: "absolute",
+              left: 16,
+              top: 16,
+              zIndex: 2,
+              display: "flex",
+              gap: 8,
+              alignItems: "center",
+            }}
+          >
+            <Pill />
+            <Glass mono>{fullCapsule}</Glass>
+          </div>
+          <div style={{ position: "absolute", right: 16, top: 16, zIndex: 2 }}>
+            <RoundBtn label="Exit fullscreen" onClick={() => document.exitFullscreen?.()}>
+              <Ic d={CLOSE_D} size={13} />
+            </RoundBtn>
+          </div>
+          <div
+            style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 2,
+              padding: "14px 16px",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              background: "linear-gradient(to top,rgba(0,0,0,.85),transparent)",
+            }}
+          >
+            {delayPill}
+            <span style={{ flexGrow: 1 }} />
+            {chip(yesLabel || home || "Yes", yesPrice, true)}
+            {chip(noLabel || away || "No", noPrice, false)}
+          </div>
+        </>
+      ) : null}
+
+      {chrome === "inline" ? (
+        <>
           {s === "loading" ? <Ring size={34} /> : null}
           {s === "buffering" ? (
             <>
@@ -409,51 +941,51 @@ export const LiveStage = ({
           {s === "forbidden" ? (
             <Fail title="Not available in your region" sub="Scores keep updating below" />
           ) : null}
+        </>
+      ) : null}
 
-          {!dark ? (
-            isMobile ? (
-              <div style={{ position: "absolute", right: 10, bottom: 10, zIndex: 2 }}>
-                <MuteBtn small muted={muted} onClick={() => setMuted(!muted)} />
-              </div>
-            ) : (
-              <div
-                style={{
-                  position: "absolute",
-                  right: 16,
-                  bottom: 16,
-                  zIndex: 2,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "flex-end",
-                  gap: 8,
-                }}
-              >
-                <span
-                  className="inline-flex items-center"
-                  style={{
-                    gap: 6,
-                    background: "rgba(0,0,0,.45)",
-                    border: "1px solid rgba(255,255,255,.1)",
-                    borderRadius: 6,
-                    padding: "3px 7px",
-                    fontSize: 9.5,
-                    letterSpacing: ".1em",
-                    textTransform: "uppercase",
-                    color: "rgba(255,255,255,.6)",
-                  }}
-                >
-                  Stream is delayed. Prices are not.
-                </span>
-                <MuteBtn muted={muted} onClick={() => setMuted(!muted)} />
-              </div>
-            )
-          ) : null}
-        </StageShell>
+      {!dark && chrome === "inline" ? (
+        isMobile ? (
+          <div style={{ position: "absolute", right: 10, bottom: 10, zIndex: 2 }}>
+            <MuteBtn small muted={muted} onClick={() => setMuted(!muted)} />
+          </div>
+        ) : (
+          <div
+            style={{
+              position: "absolute",
+              right: 16,
+              bottom: 16,
+              zIndex: 2,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-end",
+              gap: 8,
+            }}
+          >
+            {delayPill}
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <RoundBtn label="Fullscreen" onClick={enterFullscreen}>
+                <Ic d={EXPAND_D} size={13} />
+              </RoundBtn>
+              <MuteBtn muted={muted} onClick={() => setMuted(!muted)} />
+            </div>
+          </div>
+        )
+      ) : null}
+    </StageShell>
+  );
+
+  return (
+    <div>
+      {isMobile && !fixture && collapsed ? (
+        <div ref={slotRef} />
+      ) : (
+        <div ref={slotRef} style={mode === "mini" && !preview ? { height: slotH } : undefined}>
+          {stage}
+        </div>
       )}
 
-      {isMobile && !fixture ? (
-        <FoldToggle collapsed={collapsed} onClick={toggle} />
-      ) : null}
+      {isMobile && !fixture ? <FoldToggle collapsed={collapsed} onClick={toggle} /> : null}
     </div>
   );
 };
@@ -462,27 +994,43 @@ const StageShell = ({
   isMobile,
   dark,
   children,
+  innerRef,
+  style,
+  className,
+  before,
+  after,
+  fullscreen,
 }: {
   isMobile: boolean;
   dark?: boolean;
   children: React.ReactNode;
+  innerRef?: React.Ref<HTMLDivElement>;
+  style?: React.CSSProperties;
+  className?: string;
+  before?: React.ReactNode;
+  after?: React.ReactNode;
+  fullscreen?: boolean;
 }) => (
   <div
-    className={isMobile ? "w-full" : "w-full max-w-[828px]"}
-    style={{
-      position: "relative",
-      border: "1px solid #1D2026",
-      borderRadius: 12,
-      overflow: "hidden",
-      background: "#000",
-    }}
+    ref={innerRef}
+    className={className ?? (isMobile ? "w-full" : "w-full max-w-[828px]")}
+    style={
+      style ?? {
+        position: "relative",
+        border: "1px solid #1D2026",
+        borderRadius: 12,
+        overflow: "hidden",
+        background: "#000",
+      }
+    }
   >
     <style>{`@keyframes stage-bl{0%,100%{opacity:1}50%{opacity:.25}}@keyframes stage-sp{to{transform:translate(-50%,-50%) rotate(360deg)}}`}</style>
+    {before}
     <div
       style={{
         position: "relative",
         width: "100%",
-        aspectRatio: "16/9",
+        ...(fullscreen ? { flexGrow: 1, minHeight: 0 } : { aspectRatio: "16/9" }),
         background: dark
           ? "#0C0F13"
           : "radial-gradient(120% 90% at 50% 25%,#1b2530 0%,#0e141b 48%,#05080b 100%)",
@@ -502,6 +1050,7 @@ const StageShell = ({
         />
       ) : null}
     </div>
+    {after}
   </div>
 );
 
