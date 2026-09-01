@@ -366,6 +366,10 @@ export const LiteSportsLiveSection = () => (
         <Pair cases={byKey(BOARD_CASES, "sports-live-m7")} min={420} />
       </SubSection>
 
+      <SubSection title="Ⓐ″ LiveMatchboard · 足球（F1 / F2）">
+        <Pair cases={byKey(BOARD_CASES, "sports-live-f1", "sports-live-f2")} min={900} />
+      </SubSection>
+
       <SubSection title="Ⓑ LiveStage（S1 … S9）">
         <Pair
           cases={byKey(
