@@ -1014,16 +1014,19 @@ const LiteContractTrade = () => {
     <TradeHeading
       eyebrow={
         <>
-          {hasLines
-            ? [
-                categoryLabel,
-                event.options.length > 1 ? "Winner" : null,
-                handicapRow ? "Handicap" : null,
-                totalRow ? `Total ${noun}` : null,
-              ]
-                .filter(Boolean)
-                .join(" · ")
-            : categoryLabel}
+          {hasSegGroups
+            ? [categoryLabel, ...segGroups.map((g) => g.title)].join(" · ")
+            : hasLines
+              ? [
+                  categoryLabel,
+                  event.options.length > 1 ? "Winner" : null,
+                  handicapRow ? "Handicap" : null,
+                  totalRow ? `Total ${noun}` : null,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")
+              : categoryLabel}
+
           {!hasLines && isMulti && !isMobile && ` · ${event.options.length} markets`}
         </>
       }
