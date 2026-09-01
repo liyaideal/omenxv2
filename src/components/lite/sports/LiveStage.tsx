@@ -661,7 +661,9 @@ export const LiveStage = ({
           display: "flex",
           alignItems: "center",
           gap: 8,
-          padding: "8px 9px",
+          height: 40,
+          padding: "0 9px",
+          boxSizing: "border-box",
           borderTop: "1px solid rgba(255,255,255,.06)",
         }}
       >
