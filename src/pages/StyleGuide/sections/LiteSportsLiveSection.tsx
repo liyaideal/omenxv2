@@ -127,6 +127,17 @@ const BOARD_CASES: SectionCase[] = [
       },
     ],
   },
+  {
+    key: "sports-live-m7",
+    label: "M7 · 移动 sticky 记分条（滚过内联条后吸顶）",
+    note:
+      "生产里由 IntersectionObserver 决定：内联条滚出视口才吸顶，吸顶后高 45（内联 62），比分字号 18 → 16。字典用 fixture-only prop `fixtureSticky` 强制常显；它是 viewport 级 position:fixed，因此必须独占一帧——多个 case 同帧会全部叠在同一位置。",
+    spec: [
+      { state: "未吸顶", when: "sentinel.isIntersecting === true", visual: "只有内联 62 高的条，无 fixed 层", source: "LiveMatchboard.stuck" },
+      { state: "已吸顶", when: "sentinel.isIntersecting === false", visual: "内联条保留占位，另有一条 45 高的条 fixed 在 `top: var(--mobile-header-h)`", source: "LiveMatchboard 移动分支" },
+      { state: "字典强制", when: "fixtureSticky === true（生产从不传）", visual: "同上，且不依赖滚动", source: "fixtureSticky（fixture-only）" },
+    ],
+  },
 ];
 
 const STAGE_CASES: SectionCase[] = [
@@ -324,6 +335,10 @@ export const LiteSportsLiveSection = () => (
           )}
           min={1400}
         />
+      </SubSection>
+
+      <SubSection title="Ⓐ′ LiveMatchboard · M7（移动 sticky 记分条，独占一帧）">
+        <Pair cases={byKey(BOARD_CASES, "sports-live-m7")} min={420} />
       </SubSection>
 
       <SubSection title="Ⓑ LiveStage（S1 … S9）">
