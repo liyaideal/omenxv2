@@ -305,7 +305,7 @@ const Pair = ({
 export const TradeStatesSection = () => (
   <SectionWrapper
     id="trade-states"
-    title="/trade · 合约与多市场 · 状态字典（TR-1 … TR-24）"
+    title="/trade · 合约与多市场 · 状态字典（TR-1 … TR-26）"
     description="24 个 case，全部挂生产组件 + fixture 确定性数据（禁运行时 fetch，日期一律相对偏移）。fixture-only props 共三个：LiteContractOrderPanel.fixture（boostTrayOpen / remainderAutoClose）与 LitePositionCard.voucherTag。"
   >
     <SubSection title="① 页头与市场语境（TR-1 … TR-4）">
@@ -328,8 +328,8 @@ export const TradeStatesSection = () => (
       <Pair cases={TAIL_CASES} desktopMin={640} mobileMin={760} />
     </SubSection>
 
-    <SubSection title="⑥ 多市场与 game lines（TR-20 … TR-23）">
-      <Pair cases={MULTI_CASES} desktopMin={780} mobileMin={900} />
+    <SubSection title="⑥ 多市场与 game lines（TR-20 … TR-26）">
+      <Pair cases={MULTI_CASES} desktopMin={1400} mobileMin={1700} />
     </SubSection>
 
     <SubSection title="⑦ Boost 全档（TR-24）">
