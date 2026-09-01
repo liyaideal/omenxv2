@@ -46,6 +46,7 @@ export interface Model {
   winnerHome: boolean | null;
   current: SegResult | null;
   scoreText: string;
+  cellMode: "score" | "winloss";
   totalsWord: string;
   colWidth: number;
 }
@@ -55,6 +56,12 @@ const pad = (n: number) => String(n).padStart(2, "0");
 /** `m:ss`, clamped to [0,300]. */
 export const clockText = (raw: number | null | undefined): string => {
   const s = Math.max(0, Math.min(300, Number(raw ?? 0)));
+  return `${Math.floor(s / 60)}:${pad(s % 60)}`;
+};
+
+/** "24:10" — 已进行时长，无上限（对比 clockText 钳在 300 秒）。 */
+export const elapsedText = (raw: number | null | undefined): string => {
+  const s = Math.max(0, Math.floor(Number(raw ?? 0)));
   return `${Math.floor(s / 60)}:${pad(s % 60)}`;
 };
 
@@ -76,8 +83,11 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
     (meta.segments_key ? SPORT_SEGMENTS[meta.segments_key] : undefined) ??
     SPORT_FALLBACK[(meta.sport || "").toLowerCase()];
   const isMma = (meta.sport || "").toLowerCase() === "mma";
-  const total = spec?.total ?? 0;
   const raw = (meta.segment_results || []) as (SegResult | null)[];
+  // 篮球打加时：段数被数据撑开（overtime 为 false 的项目一律用 baseTotal，行为不变）。
+  const baseTotal = spec?.total ?? 0;
+  const total =
+    spec?.overtime && raw.length > baseTotal ? raw.length : baseTotal;
   const results: (SegResult | null)[] = Array.from(
     { length: total },
     (_, i) => raw[i] ?? null,
@@ -120,10 +130,13 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
 
   // Decided segments only. `decisiveThreshold` = null (UFC) means the
   // segment carries no published score, so nothing is counted.
+  // UFC 零变化：它的 `segment_results` 全是 `null`，第一行就返回 false；
+  // 且它 `totalsWord: null`，根本不渲染总数列。
   const decided = (r: SegResult | null, n: number) => {
     if (!r) return false;
-    if (spec?.decisiveThreshold == null) return false;
-    return Math.max(r.home, r.away) >= spec.decisiveThreshold;
+    if (spec?.decisiveThreshold != null) return Math.max(r.home, r.away) >= spec.decisiveThreshold;
+    // 无决胜分的项目（网球盘、MOBA 局）：不是当前段就算打完。
+    return idx == null || n !== idx;
   };
   let homeMaps = 0;
   let awayMaps = 0;
@@ -142,9 +155,14 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
 
   const league = meta.league || "";
   const segName = (n: number) => spec?.segName(n) ?? `Map ${n}`;
+  // `server` / `game_points` 尚未入库（RawMeta 未声明），这里做局部读取。
+  const metaBag = meta as unknown as Record<string, unknown>;
+  const server = typeof metaBag.server === "string" ? metaBag.server : null;
+  const gamePoints =
+    typeof metaBag.game_points === "string" ? metaBag.game_points : null;
   const ctx =
     status === "live" && idx != null
-      ? `${league} · ${segName(idx)}`
+      ? `${league} · ${segName(idx)}${spec?.unit === "set" && server ? ` · ${server} serving` : ""}`
       : status === "break" && idx != null
         ? isMma
           ? `${league} · Between rounds`
@@ -163,6 +181,10 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
         : status === "live"
           ? spec?.rightValue === "minute" && Number.isFinite(kickoff)
             ? minuteText
+            : spec?.rightValue === "points"
+            ? (gamePoints ?? "—")
+            : spec?.rightValue === "elapsed"
+            ? elapsedText(meta.clock)
             : isMma
               ? clockText(meta.clock)
               : current
@@ -175,7 +197,7 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
     spec,
     status,
     isMma,
-    showTotals: !isMma,
+    showTotals: spec ? spec.totalsWord !== null : !isMma,
     total,
     results,
     idx,
@@ -192,7 +214,8 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
       : null,
     current,
     scoreText,
-    totalsWord: spec?.totalsWord ?? "maps",
+    cellMode: spec?.cell ?? "score",
+    totalsWord: spec ? (spec.totalsWord ?? "") : "maps",
     colWidth: spec?.colWidth ?? 62,
   };
 };
