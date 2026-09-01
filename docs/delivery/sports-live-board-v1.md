@@ -51,13 +51,20 @@ BO3 = 4 组 10 行：`grp-series` 4 行（winner + mapwin + handicap + total）+
 | CS2 BO3 / BO5 | `SPORT_SEGMENTS["IEM Cologne · BO3" / "· BO5"]` | 地图 | `M1` `M2` `M3`… | 62 | `maps` | 赢下的地图数（段内达到 13 回合才算打完） | 当前图比分 |
 | UFC 主赛 / 前战 | `SPORT_SEGMENTS["UFC · main" / "· prelim"]` | 回合 | `R1`…`R5` | 48 | 不渲染总数列 | —— | 回合钟 `2:30` |
 | 足球 | `SPORT_FALLBACK.soccer` | 半场 | `1H` `2H` | 70 | `goals` | 两个半场进球**相加** | 比赛分钟 `63′` |
+| 篮球 | `SPORT_FALLBACK.basketball` | 节 | `Q1`…`Q4`（+ `OT`） | 54 | `pts` | 各节得分**相加** | 节内剩余钟 `3:41` |
+| 网球 | `SPORT_FALLBACK.tennis` | 盘 | `S1` `S2` `S3` | 62 | `sets` | 赢下的盘数 | 当前局比分 `30–15` |
+| LOL · Dota | `SPORT_FALLBACK.moba` | 局 | `G1`…`G5` | 48 | `games` | 赢下的局数 | 当前局已进行时长 `24:10` |
 
 两条容易踩的口径：
 
 1. **大数字有两种算法**。CS2 是「赢下的段数」（`totalsRule: "won"`），足球是「各段值相加」（`totalsRule: "sum"`）。拿 CS2 的算法去看足球会得出 1–0 应该显示成「赢了 1 个半场」，那是错的。
 2. **足球的当前半场是推出来的**，不是库里的字段。足球赛事没有 `metadata.segment_index`，开赛超过 45 分钟即判为下半场。因此足球不进 `BREAK` 态——中场休息本轮没做。
+3. **格子里写什么由 `SegmentSpec.cell` 决定**。默认 `"score"`（写该段的数字：CS2 的回合分、足球的进球、篮球的节得分、网球的局数）；MOBA 是 `"winloss"`——一局没有可比的分数，所以已打完的格写 `W` / `L`、当前局写橙 `●`、未打写 `·`，**不写人头**：人头落后照样能赢，摆出来是骗人。UFC 走的是组件里既有的 MMA 分支，优先级在 `cell` 之上。
+4. **"这一段算不算打完"有两套判据**。有决胜分的（CS2 = 13 回合）按 `max(home, away) >= decisiveThreshold`；没有决胜分的（网球盘、MOBA 局）按"不是当前段就算打完"。UFC 两条都不命中——它的 `segment_results` 全是 `null`，且不渲染总数列。
 
-设计画布上还画了**篮球（四节 + OT，单位 `pts`）、网球（盘/局/分三层，单位 `sets`）、LOL·Dota（局，格子写 W/L，单位 `games`）**三个项目，本轮**未实现**：它们的赛事目前不入库，实现前会掉进退化态。
+加时列：`spec.overtime` 为真且 `segment_results` 长度超过 `spec.total` 时，右边按数据长度追加列，第五列列头 `OT`、第六列起 `2OT` / `3OT`。目前只有篮球开启。
+
+篮球 / 网球 / LOL·Dota 三种形态**已实现**，但这三类赛事目前不入库，因此**只能在 `/style-guide` 的 `Sports · Live` Ⓐ‴ 子节（B1 / B2 / T1 / G1）看到，生产页上没有**。这是当前的既定状态（CPO 2026-09-01 确认可接受）：形态先行，等有真实赛事源再补种子数据。
 
 ## §3 分组头注记三态
 
@@ -108,7 +115,8 @@ BO3 = 4 组 10 行：`grp-series` 4 行（winner + mapwin + handicap + total）+
 | 足球半场比分 | 库里 `segment_results` 为空，`1H` / `2H` 两格恒为 `·`，`goals` 大数字恒为 0；等真实赛事源 |
 | 足球中场休息 | 不进 `BREAK` 态，本轮未做 |
 | 移动端全屏 | 移动内联舞台右下只有静音键，**没有全屏入口**（桌面内联右下与迷你条上才有）；是否要补待定 |
-| 篮球 / 网球 / LOL·Dota | 画布已定形态，未实现 |
+| 篮球 / 网球 / MOBA 赛事 | 形态已实现，库里无此三类赛事，只在 style-guide 可见（CPO 已确认可接受） |
+| 移动条进度轨 | 底边当前段进度轨按 `decisiveThreshold` 算填充，无决胜分的项目（足球 / 网球 / MOBA）填充恒为 0；未处理 |
 
 ## §9 状态索引
 
@@ -123,6 +131,10 @@ BO3 = 4 组 10 行：`grp-series` 4 行（winner + mapwin + handicap + total）+
 | 足球记分牌（进行中 / 未开赛） | `Sports · Live` F1 / F2 |
 | 移动 sticky 记分条 | `Sports · Live` M7 |
 | 表外赛事退化 | `Sports · Live` M6 |
+| 篮球记分牌（进行中 / 加时） | `Sports · Live` B1 / B2 |
+| 网球记分牌（三层比分） | `Sports · Live` T1 |
+| LOL·Dota 记分牌（W/L 格） | `Sports · Live` G1 |
+| 移动条段签按项目变形 | 见 §2b；F1 = `2H`、B1 = `Q4`、T1 = `S3`、G1 = `G4`、CS2 = `MAP n`/`Mn`、UFC = `Rn` |
 
 ## §10 涉及文件
 
@@ -147,3 +159,4 @@ BO3 = 4 组 10 行：`grp-series` 4 行（winner + mapwin + handicap + total）+
 - 下单面板、Boost 档位、账本、`HomeSportsCard` 未动。
 
 > 修订：2026-09-01 补足球两个半场形态（SP-L4d）、字典 F1 / F2 / M7、§2b 运动形态表。
+> 修订：2026-09-01 补篮球 / 网球 / LOL·Dota 三种形态（SP-L4f）、字典 B1 / B2 / T1 / G1、移动条段签按项目取列头缩写（SP-L4f-FIX）。

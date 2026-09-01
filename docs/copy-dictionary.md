@@ -101,6 +101,19 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | **1H** / **2H** | 足球记分牌的半场列头 | H1/H2, First half（列头位不写全称） |
 | **1st half** / **2nd half** | 上下文行里的半场全称（`Ligue 1 · 2nd half`） | 1H/2H（上下文行不用缩写）, Half 1 |
 | **63′** | 足球记分牌右上角的比赛分钟，撇号是 U+2032 PRIME | 63', 63 min, 63:00 |
+| **pts** | 篮球记分牌总数列表头词（各节相加） | points, PTS., Score |
+| **sets** | 网球记分牌总数列表头词（赢下的盘数） | Sets won, S |
+| **games** | MOBA 记分牌总数列表头词（赢下的局数） | Maps, Wins, Rounds |
+| **Q1** / **Q2** / **Q3** / **Q4** | 篮球的节次列头 | 1Q, Quarter 1, P1 |
+| **OT** / **2OT** | 篮球加时列头（第五列起） | Overtime, EXT, ET |
+| **S1** / **S2** / **S3** | 网球的盘次列头 | Set 1（列头位不写全称）, 1S |
+| **G1** … **G5** | MOBA 的局次列头 | Game 1（列头位不写全称）, M1 |
+| **Set {n}** / **Game {n}** | 上下文行里的段落全称（`ATP Rome · Set 3`） | S3 / G4（上下文行不用缩写） |
+| **{选手} serving** | 网球上下文行的发球方后缀（`· Alcaraz serving`） | Serve: X, on serve |
+| **30–15** | 网球右上角的当前局比分，减号是 U+2013 EN DASH | 30-15（ASCII 连字符）, 30:15 |
+| **24:10** | MOBA 右上角的当前局已进行时长，无上限 | 24m, 24'10, +24:10 |
+| **W** / **L** | MOBA 已打完那一局的格子内容 | Win/Loss, 1/0, ✓/✗ |
+| **●** | MOBA 当前局的格子内容，橙 `#FF8A3D` | LIVE, ▶, 圆点用其他颜色 |
 
 ---
 
@@ -132,12 +145,14 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | **Live（进行中）** | 已开赛、未到结束、未结算 | `isFixtureLive()`，即 `kickoff <= now && now < end_date && !is_resolved`；**`metadata.live` 是引擎调试输出，UI 永不读取** | `sportsData.isFixtureLive` |
 | **运动形态（SegmentSpec）** | 一个项目的记分牌长什么样：分几段、列头怎么写、大数字算什么 | `SPORT_SEGMENTS[segments_key] ?? SPORT_FALLBACK[sport]`；两个都查不到即退化 | `src/lib/sportSegments.ts` |
 | **大数字口径（totalsRule）** | 左边那个大数字是相加还是数段数 | `"sum"` = 各段值相加（足球进球）；`"won"` = 赢下的段数（CS2 地图） | `matchboardModel.buildModel` |
+| **格子口径（cell）** | 分段格里写数字还是写胜负 | `"score"` = 该段的数字；`"winloss"` = `W`/`L`（MOBA，一局没有可比分数）；UFC 走组件既有的 MMA 分支，优先级在本字段之上 | `src/lib/sportSegments.ts` |
 
 ### helper 家族（`matchboardModel.ts`，成对入典）
 
 | 函数 | 输出格式 | 单位 / 边界 |
 |---|---|---|
 | `clockText(raw)` | `m:ss`（如 `1:07`） | 秒；`null`/`undefined` → `0:00`；钳在 `[0, 300]` |
+| `elapsedText(raw)` | `m:ss`（如 `24:10`） | 秒；**无上限**（对比 `clockText` 钳在 `[0, 300]`）；`null`/`undefined` → `0:00`；负数钳为 0 |
 | `startsIn(kickoff, now)` | `Starts in 5d 4h` / `Starts in 2h 14m` / `Starts in 9m` | 分钟粒度；负数钳为 0 → `Starts in 0m`；`d > 0` 只出 `d/h`，否则 `h > 0` 出 `h/m`，否则只出 `m` |
 
 Signed lines always use a real minus sign (U+2212) for negatives and `+` for
