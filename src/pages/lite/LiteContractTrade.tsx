@@ -103,6 +103,9 @@ type Side = "yes" | "no";
 // the two sides stay distinguishable in positions / history. Display layer
 // only — tradingService is untouched.
 const NO_PREFIX = "No: ";
+/** Placeholder so the shared matchboard hook can run before the event loads. */
+const EMPTY_FIXTURE = { id: "", name: "" } as MatchboardEvent;
+
 const baseOptionLabel = (positionOption: string) =>
   positionOption.startsWith(NO_PREFIX) ? positionOption.slice(NO_PREFIX.length) : positionOption;
 const positionIsNo = (positionOption: string) => positionOption.startsWith(NO_PREFIX);
