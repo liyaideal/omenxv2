@@ -500,11 +500,13 @@ const MobileBar = ({ m, sticky }: { m: Model; sticky: boolean }) => {
     position: "relative" as const,
     display: "flex",
     alignItems: "center",
-    gap: 9,
+    // 未开赛条要同时容下两个完整队名与 `Starts in …`，间距收紧 2px。
+    gap: m.status === "upcoming" ? 7 : 9,
     padding: "0 12px",
     overflow: "hidden",
     ...(m.status === "settled" ? { opacity: 0.6 } : null),
   };
+
   const shell = sticky
     ? {
         ...shellBase,
