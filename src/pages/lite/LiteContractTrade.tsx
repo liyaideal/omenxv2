@@ -1128,7 +1128,15 @@ const LiteContractTrade = () => {
     .replace(/\s*Winning shares pay \$1[^.]*\.\s*$/i, "")
     .trim();
 
-  const RuleCard = <TradeRuleCard body={ruleBody} />;
+  // MMA method / distance markets have no 50-50 exit in a binary model, so
+  // the refund rule must be stated on the rule card, not implied.
+  const methodRefundLine =
+    segGroups.some((g) => g.key === "grp-method")
+      ? " A draw or No Contest voids the Method markets — those stakes are refunded in full."
+      : "";
+
+  const RuleCard = <TradeRuleCard body={`${ruleBody}${methodRefundLine}`} />;
+
 
 
   const heldNowWorth = heldPos ? heldPos.marginNum + heldPnlNum : 0;
