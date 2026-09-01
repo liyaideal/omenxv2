@@ -1072,7 +1072,10 @@ const LiteContractTrade = () => {
 
   const Matchboard =
     event.event_subtype === "SPORTS_MATCH" ? (
-      <LiveMatchboard event={event as unknown as Parameters<typeof LiveMatchboard>[0]["event"]} />
+      <LiveMatchboard
+        event={event as unknown as Parameters<typeof LiveMatchboard>[0]["event"]}
+        onSegmentSelect={hasSegmentGroups ? scrollToSegment : undefined}
+      />
     ) : null;
 
 
