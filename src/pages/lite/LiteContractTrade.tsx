@@ -835,7 +835,13 @@ const LiteContractTrade = () => {
   // Sports fixtures only — every other event renders byte-identical DOM.
   const Stage =
     event.event_subtype === "SPORTS_MATCH" ? (
-      <LiveStage event={event as unknown as Parameters<typeof LiveStage>[0]["event"]} />
+      <LiveStage
+        event={event as unknown as Parameters<typeof LiveStage>[0]["event"]}
+        yesLabel={yesLabel}
+        noLabel={noLabel}
+        yesPrice={yesLive}
+        noPrice={noLive}
+      />
     ) : null;
 
   const Matchboard =
@@ -1518,7 +1524,7 @@ const LiteContractTrade = () => {
               </>
             )}
           </div>
-          <aside className="space-y-4">
+          <aside id="lite-odds-anchor" className="space-y-4">
             {resolved ? (
               OutcomeCard
             ) : (

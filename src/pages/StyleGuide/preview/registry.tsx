@@ -61,6 +61,10 @@ export const previewRegistry: Record<string, Loader> = {
   "sports-stage-s7": pick(sportsLive, "S7Preview"),
   "sports-stage-s8": pick(sportsLive, "S8Preview"),
   "sports-stage-s9": pick(sportsLive, "S9Preview"),
+  "sports-mini-c1": pick(sportsLive, "C1Preview"),
+  "sports-mini-c2": pick(sportsLive, "C2Preview"),
+  "sports-mini-c3": pick(sportsLive, "C3Preview"),
+  "sports-mini-c4": pick(sportsLive, "C4Preview"),
 
   /* -------- Events 列表（M1a 分区①–④）-------- */
   "events-ev1": pick(homeStage, "Ev1Preview"),
