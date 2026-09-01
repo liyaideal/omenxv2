@@ -181,6 +181,8 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
         : status === "live"
           ? spec?.rightValue === "minute" && Number.isFinite(kickoff)
             ? minuteText
+            : spec?.rightValue === "clock" && !isMma
+            ? clockText(meta.clock)
             : spec?.rightValue === "points"
             ? (gamePoints ?? "—")
             : spec?.rightValue === "elapsed"
