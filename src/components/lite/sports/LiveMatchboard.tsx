@@ -462,7 +462,7 @@ const Matrix = ({ m, showWatch }: { m: Model; showWatch: boolean }) => {
           </button>
         ) : null}
         {m.sealed && (m.status === "live" || m.status === "break") ? (
-          <span style={{ fontSize: 10.5, color: "#6B727C" }}>
+          <span className="min-w-0 truncate" style={{ fontSize: 10.5, color: "#6B727C" }}>
             Scorecards sealed until the decision
           </span>
         ) : null}
