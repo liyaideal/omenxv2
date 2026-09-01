@@ -758,8 +758,173 @@ const LiteContractTrade = () => {
     </div>
   );
 
-  const BoardModule = hasLines ? FixtureBoard : MarketBoard;
+  // ---- Segmented board (esports maps / MMA rounds) --------------------
+  // Same row component as the football board; only the grouping differs.
+  const isMmaFixture = (meta.sport || "").toLowerCase() === "mma";
+  const soloBoard = (row: BoardOption | null) =>
+    row ? (
+      <LiteMarketBoard
+        options={[row]}
+        volumeText={volumeText}
+        selectedId={selectedOptId === row.id ? row.id : null}
+        selectedSide={side}
+        onSelect={selectMarket}
+        onRowSelect={selectMarketRow}
+        onDeselect={() => setSelectedOptId(null)}
+        compact={!!isMobile}
+        showChart
+        hideHeader
+      />
+    ) : null;
+
+  const activeInGroup = (key: string, list: EventRow[]): EventRow | null => {
+    if (list.length === 0) return null;
+    const v = segLines[key];
+    return (
+      (v != null ? list.find((e) => fixtureMeta(e).line === v) : null) ||
+      list[Math.floor(list.length / 2)] ||
+      null
+    );
+  };
+  const setGroupLine = (key: string) => (v: number) =>
+    setSegLines((m) => ({ ...m, [key]: v }));
+
+  const segEntries = segGroups.map((g) => ({
+    g,
+    h: activeInGroup(`${g.key}:h`, g.handicap),
+    t: activeInGroup(`${g.key}:t`, g.total),
+  }));
+
+  const ANNOT_STYLE: React.CSSProperties = {
+    fontFamily: "'Space Grotesk', monospace",
+    fontSize: 9.5,
+    letterSpacing: ".06em",
+    textTransform: "uppercase",
+    color: "#6B727C",
+  };
+  const AnnotLivePill = () => (
+    <span
+      className="inline-flex items-center"
+      style={{ gap: 6, background: "#FF8A3D", borderRadius: 999, padding: "3px 8px" }}
+    >
+      <style>{`@keyframes gh-bl{0%,100%{opacity:1}50%{opacity:.25}}`}</style>
+      <i
+        style={{
+          width: 5,
+          height: 5,
+          borderRadius: 999,
+          background: "#2A1200",
+          display: "block",
+          fontStyle: "normal",
+          animation: "gh-bl 1.6s ease-in-out infinite",
+        }}
+      />
+      <b style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: ".16em", color: "#2A1200" }}>
+        LIVE
+      </b>
+    </span>
+  );
+
+  // Segment status — read straight off the shared matchboard model.
+  const segmentAnnotation = (n: number): React.ReactNode => {
+    const r = matchModel.results[n - 1] ?? null;
+    const th = matchModel.spec?.decisiveThreshold ?? null;
+    if (r && th != null && Math.max(r.home, r.away) >= th)
+      return <span style={ANNOT_STYLE}>{`Final ${r.home}–${r.away}`}</span>;
+    if (n === matchModel.idx && (matchModel.status === "live" || matchModel.status === "break"))
+      return (
+        <span className="inline-flex items-center" style={{ gap: 8 }}>
+          <AnnotLivePill />
+          <span style={{ ...ANNOT_STYLE, color: "#FF8A3D" }}>
+            {matchModel.current
+              ? `${matchModel.current.home}–${matchModel.current.away}`
+              : "—"}
+          </span>
+        </span>
+      );
+    return <span style={ANNOT_STYLE}>Not played yet</span>;
+  };
+
+  const groupAnnotation = (key: string, segmentIndex: number | null): React.ReactNode => {
+    if (segmentIndex != null) return segmentAnnotation(segmentIndex);
+    if (key === "grp-series")
+      return (
+        <span style={ANNOT_STYLE}>
+          {`${matchModel.home} vs ${matchModel.away} · ${matchModel.meta.league || ""}`}
+        </span>
+      );
+    if (key === "grp-fight")
+      return (
+        <span style={ANNOT_STYLE}>
+          {`${matchModel.meta.league || ""} · ${matchModel.total} rounds`}
+        </span>
+      );
+    return <span style={ANNOT_STYLE}>How the fight ends</span>;
+  };
+
+  const SegmentedBoard = (
+    <div className="space-y-2">
+      {!isMobile && (
+        // Mobile already carries the crowd caption in LiteCrowdOverview.
+        <div className="flex items-end justify-between gap-3">
+          <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+            What the crowd thinks
+          </div>
+          <div className="shrink-0 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+            {volumeText}
+          </div>
+        </div>
+      )}
+      {segEntries.map(({ g, h, t }) => {
+        const series = g.key === "grp-series";
+        const hcpLabel = (l: number) =>
+          `${series ? "Map" : "Rounds"} handicap · ${homeAbbr} ${formatSignedLine(l)}`;
+        const totLabel = (l: number) => `${series ? "Total maps" : "Total rounds"} · over ${l}`;
+        return (
+          <div key={g.key} className="space-y-2">
+            <GroupHeader
+              title={g.title}
+              anchorId={g.key}
+              annotation={groupAnnotation(g.key, g.segmentIndex)}
+            />
+            {g.winner &&
+              soloBoard(
+                lineRow(g.winner, () => (isMmaFixture ? "Fight winner" : "Match winner")),
+              )}
+            {g.mapwin &&
+              soloBoard(lineRow(g.mapwin, () => `Map ${matchModel.idx} winner`))}
+            {g.distance && soloBoard(lineRow(g.distance, () => g.distance!.name))}
+            {g.method.map((m) => (
+              <div key={m.id}>{soloBoard(lineRow(m, () => m.name))}</div>
+            ))}
+            {h &&
+              lineGroupBoard(
+                lineRow(h, hcpLabel),
+                g.handicap.map((e) => fixtureMeta(e).line ?? 0),
+                fixtureMeta(h).line ?? 0,
+                changeLine(g.handicap, h, setGroupLine(`${g.key}:h`)),
+              )}
+            {t &&
+              lineGroupBoard(
+                lineRow(t, totLabel),
+                g.total.map((e) => fixtureMeta(e).line ?? 0),
+                fixtureMeta(t).line ?? 0,
+                changeLine(g.total, t, setGroupLine(`${g.key}:t`)),
+                (n) => String(n),
+              )}
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  const BoardModule = hasSegGroups
+    ? SegmentedBoard
+    : hasLines
+      ? FixtureBoard
+      : MarketBoard;
   const boardMode = isMulti || hasLines;
+
 
   const heldIsYes =
     heldPos != null &&
