@@ -403,7 +403,6 @@ export const LiveStage = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [slotH, setSlotH] = useState(0);
   const [pos, setPos] = useState<{ left: number; top: number }>({ left: EDGE, top: 0 });
-  const [fsBlocked, setFsBlocked] = useState(false);
   const store = useLiveStageState();
   const dismissed = store.miniDismissed;
 
@@ -435,13 +434,29 @@ export const LiveStage = ({
     return () => io.disconnect();
   }, [isMobile, collapsed]);
 
-  // Fullscreen is read off the document, never off the callback that asked
-  // for it — the element is the truth.
+  // Page-level fullscreen, not the Fullscreen API. The API is refused
+  // whenever the app runs inside an iframe without allow="fullscreen"
+  // (the Lovable editor preview, most embeds), which would make this
+  // control silently dead exactly where people first try it. A fixed
+  // overlay works everywhere and keeps the same <video> element, so the
+  // picture never reloads on the way in or out.
+  const enterFullscreen = () => setIsFullscreen(true);
+  const exitFullscreen = () => setIsFullscreen(false);
+
+  // ESC exits; the page behind must not scroll while the overlay is up.
   useEffect(() => {
-    const onFs = () => setIsFullscreen(document.fullscreenElement === wrapperRef.current);
-    document.addEventListener("fullscreenchange", onFs);
-    return () => document.removeEventListener("fullscreenchange", onFs);
-  }, []);
+    if (!isFullscreen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsFullscreen(false);
+    };
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [isFullscreen]);
 
   const hasSource = !!src && live;
   useEffect(() => {
@@ -581,20 +596,6 @@ export const LiveStage = ({
 
   const chrome: "inline" | "mini" | "full" = fullscreen ? "full" : mode;
 
-  const enterFullscreen = () => {
-    const el = wrapperRef.current;
-    if (!el?.requestFullscreen) {
-      setFsBlocked(true);
-      return;
-    }
-    // A refused request is normal, not exceptional: a restrictive iframe, an
-    // enterprise policy, or an OS that only fullscreens <video> itself. Catch
-    // it, and stop offering a control this environment will not honour.
-    el.requestFullscreen().catch(() => setFsBlocked(true));
-  };
-  const exitFullscreen = () => {
-    if (document.fullscreenElement) document.exitFullscreen?.().catch(() => undefined);
-  };
   const backToStage = () => {
     slotRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
