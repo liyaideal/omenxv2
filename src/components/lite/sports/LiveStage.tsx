@@ -612,6 +612,9 @@ export const LiveStage = ({
           left: preview ? undefined : pos.left,
           top: preview ? undefined : pos.top,
           width: MINI_W,
+          height: MINI_H,
+          display: "flex",
+          flexDirection: "column",
           border: "1px solid #1D2026",
           borderRadius: 12,
           overflow: "hidden",
@@ -793,7 +796,7 @@ export const LiveStage = ({
       className={
         fullscreen || mode === "mini" ? "" : isMobile ? "w-full" : "w-full max-w-[828px]"
       }
-      fullscreen={fullscreen && !preview}
+      fill={mode === "mini" || (fullscreen && !preview)}
       before={grip}
       after={minibar}
     >
@@ -999,7 +1002,7 @@ const StageShell = ({
   className,
   before,
   after,
-  fullscreen,
+  fill,
 }: {
   isMobile: boolean;
   dark?: boolean;
@@ -1009,7 +1012,7 @@ const StageShell = ({
   className?: string;
   before?: React.ReactNode;
   after?: React.ReactNode;
-  fullscreen?: boolean;
+  fill?: boolean;
 }) => (
   <div
     ref={innerRef}
@@ -1030,7 +1033,7 @@ const StageShell = ({
       style={{
         position: "relative",
         width: "100%",
-        ...(fullscreen ? { flexGrow: 1, minHeight: 0 } : { aspectRatio: "16/9" }),
+        ...(fill ? { flexGrow: 1, minHeight: 0 } : { aspectRatio: "16/9" }),
         background: dark
           ? "#0C0F13"
           : "radial-gradient(120% 90% at 50% 25%,#1b2530 0%,#0e141b 48%,#05080b 100%)",
