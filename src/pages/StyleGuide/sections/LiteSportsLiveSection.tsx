@@ -69,10 +69,12 @@ const BOARD_CASES: SectionCase[] = [
   {
     key: "sports-live-m6",
     label: "M6 · 表外赛事退化",
+    note:
+      "本案是 esports 且 segments_key 查不到表 —— esports 没有 SPORT_FALLBACK 兜底，所以退化。足球查不到表但有兜底，走的是 F1 / F2，不会退化到这一态。",
     spec: [
       {
         state: "no spec",
-        when: "SPORT_SEGMENTS[segments_key] === undefined",
+        when: "SPORT_SEGMENTS[segments_key] === undefined && SPORT_FALLBACK[sport] === undefined",
         visual: "只剩队名列与 maps 总数列，分段矩阵整块不渲染",
         source: "buildModel spec === undefined",
       },
