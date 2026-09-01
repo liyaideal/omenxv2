@@ -807,7 +807,6 @@ const LiteContractTrade = () => {
       className="inline-flex items-center"
       style={{ gap: 6, background: "#FF8A3D", borderRadius: 999, padding: "3px 8px" }}
     >
-      <style>{`@keyframes gh-bl{0%,100%{opacity:1}50%{opacity:.25}}`}</style>
       <i
         style={{
           width: 5,
@@ -864,6 +863,7 @@ const LiteContractTrade = () => {
 
   const SegmentedBoard = (
     <div className="space-y-2">
+      <style>{`@keyframes gh-bl{0%,100%{opacity:1}50%{opacity:.25}}`}</style>
       {!isMobile && (
         // Mobile already carries the crowd caption in LiteCrowdOverview.
         <div className="flex items-end justify-between gap-3">
