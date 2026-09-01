@@ -161,6 +161,51 @@ const BOARD_CASES: SectionCase[] = [
       { state: "无当前列", when: "idx == null", visual: "没有任何一列高亮", source: "colHighlight" },
     ],
   },
+  {
+    key: "sports-live-b1",
+    label: "B1 · 篮球 · 四节（进行中，Q4）",
+    note:
+      "四节 line score。大数字是各节相加（totalsRule: \"sum\"），右上是节内剩余钟。每节比分是真信息——第三节 25:29 被追平，光看 98:92 看不出来。",
+    spec: [
+      { state: "四列节次", when: "SPORT_FALLBACK.basketball && segment_results.length === 4", visual: "列头 `Q1` … `Q4`，列宽 54px，表头词 `pts`", source: "SPORT_FALLBACK.basketball" },
+      { state: "大数字", when: "spec.totalsRule === \"sum\"", visual: "各节相加：98 / 92", source: "buildModel totals" },
+      { state: "右上剩余钟", when: "spec.rightValue === \"clock\" && status === \"live\"", visual: "`3:41`", source: "clockText(meta.clock)" },
+    ],
+  },
+  {
+    key: "sports-live-b2",
+    label: "B2 · 篮球 · 加时（追加 OT 列）",
+    note:
+      "打加时时段数被数据撑开：segment_results 长度超过 spec.total 且 spec.overtime 为真，右边追加一列 OT（第六列起为 2OT、3OT）。",
+    spec: [
+      { state: "加时列", when: "spec.overtime === true && segment_results.length > spec.total", visual: "第五列列头 `OT`，大数字 109 / 101", source: "buildModel total" },
+      { state: "无加时", when: "segment_results.length <= spec.total", visual: "只有 Q1…Q4 四列（见 B1）", source: "buildModel baseTotal" },
+    ],
+  },
+  {
+    key: "sports-live-t1",
+    label: "T1 · 网球 · 三盘（Set 3，Alcaraz 发球）",
+    note:
+      "三层比分各归各位：盘进大数字（市场结算看盘）、局进格子、分进右上角钟位。发球方写在上下文行。盘没有决胜分，因此\"不是当前段就算打完\"。",
+    spec: [
+      { state: "三列盘次", when: "SPORT_FALLBACK.tennis", visual: "列头 `S1` `S2` `S3`，列宽 62px，表头词 `sets`", source: "SPORT_FALLBACK.tennis" },
+      { state: "大数字", when: "spec.totalsRule === \"won\" && spec.decisiveThreshold === null", visual: "赢下的盘数各 1（当前盘不计）", source: "buildModel decided()" },
+      { state: "发球方", when: "spec.unit === \"set\" && meta.server != null", visual: "上下文行追加 ` · Alcaraz serving`", source: "buildModel ctx" },
+      { state: "右上局分", when: "spec.rightValue === \"points\"", visual: "`30–15`（U+2013）", source: "meta.game_points" },
+    ],
+  },
+  {
+    key: "sports-live-g1",
+    label: "G1 · LOL·Dota · 五局（Game 4）",
+    note:
+      "一局没有可比的分数，所以格子写 W / L，不写人头——人头落后照样能赢，摆出来是骗人。当前局无时间上限，右上只给已进行时长（elapsedText，无 300 秒钳位）。",
+    spec: [
+      { state: "五列局次", when: "SPORT_FALLBACK.moba", visual: "列头 `G1` … `G5`，列宽 48px，表头词 `games`", source: "SPORT_FALLBACK.moba" },
+      { state: "W / L 格", when: "spec.cell === \"winloss\" && n !== idx && results[n-1] != null", visual: "写 `W` / `L`，不写比分", source: "Matrix rowCells winloss 分支" },
+      { state: "当前局", when: "n === idx", visual: "橙 `●`（#FF8A3D）", source: "Matrix rowCells winloss 分支" },
+      { state: "右上已进行时长", when: "spec.rightValue === \"elapsed\"", visual: "`24:10`，无 300 秒钳位", source: "elapsedText(meta.clock)" },
+    ],
+  },
 ];
 
 const STAGE_CASES: SectionCase[] = [
@@ -368,6 +413,10 @@ export const LiteSportsLiveSection = () => (
 
       <SubSection title="Ⓐ″ LiveMatchboard · 足球（F1 / F2）">
         <Pair cases={byKey(BOARD_CASES, "sports-live-f1", "sports-live-f2")} min={900} />
+      </SubSection>
+
+      <SubSection title="Ⓐ‴ LiveMatchboard · 篮球 / 网球 / LOL·Dota（B1 / B2 / T1 / G1）">
+        <Pair cases={byKey(BOARD_CASES, "sports-live-b1", "sports-live-b2", "sports-live-t1", "sports-live-g1")} min={1600} />
       </SubSection>
 
       <SubSection title="Ⓑ LiveStage（S1 … S9）">

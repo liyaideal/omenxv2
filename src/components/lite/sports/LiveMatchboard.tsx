@@ -167,6 +167,27 @@ const Matrix = ({
     Array.from({ length: m.total }, (_, i) => {
       const n = i + 1;
       const now = colHighlight(n);
+      if (m.cellMode === "winloss") {
+        const r = m.results[n - 1];
+        if (now)
+          return (
+            <div key={n} style={{ ...cellStyle("base", true), color: "#FF8A3D" }}>
+              ●
+            </div>
+          );
+        if (!r)
+          return (
+            <div key={n} style={cellStyle("mut", false)}>
+              ·
+            </div>
+          );
+        const won = side === "home" ? r.home > r.away : r.away > r.home;
+        return (
+          <div key={n} style={cellStyle(won ? "w" : "l", false)}>
+            {won ? "W" : "L"}
+          </div>
+        );
+      }
       if (m.isMma) {
         if (m.status === "settled") {
           if (m.idx == null || m.winnerHome == null)

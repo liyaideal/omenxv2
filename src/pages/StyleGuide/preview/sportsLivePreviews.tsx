@@ -417,3 +417,134 @@ export const F2Preview = () => (
     />
   </Frame>
 );
+
+/* ---------------- B / T / G · 篮球 / 网球 / LOL·Dota ---------------- */
+
+const basketBase = {
+  sport: "basketball",
+  league: "NBA",
+  home: "LA Lakers",
+  away: "Golden State",
+  home_abbr: "LAL",
+  away_abbr: "GSW",
+};
+
+const tennisBase = {
+  sport: "tennis",
+  league: "ATP Rome",
+  home: "C. Alcaraz",
+  away: "J. Sinner",
+  home_abbr: "ALC",
+  away_abbr: "SIN",
+};
+
+const mobaBase = {
+  sport: "moba",
+  league: "LCK Playoffs",
+  home: "T1",
+  away: "Gen.G",
+  home_abbr: "T1",
+  away_abbr: "GEN",
+};
+
+/** B1 — 篮球进行中（Q4）。 */
+export const B1Preview = () => (
+  <Frame>
+    <LiveMatchboard
+      fixtureNow={NOW}
+      fixtureSticky={false}
+      event={board(
+        "sg-nba-b1",
+        {
+          ...basketBase,
+          segment_index: 4,
+          clock: 221,
+          segment_results: [
+            { home: 28, away: 24 },
+            { home: 22, away: 21 },
+            { home: 25, away: 29 },
+            { home: 23, away: 18 },
+          ],
+        },
+        { start_date: at(-100), end_date: at(30) },
+      )}
+    />
+  </Frame>
+);
+
+/** B2 — 篮球加时，第五列 OT。 */
+export const B2Preview = () => (
+  <Frame>
+    <LiveMatchboard
+      fixtureNow={NOW}
+      fixtureSticky={false}
+      event={board(
+        "sg-nba-b2",
+        {
+          ...basketBase,
+          segment_index: 5,
+          clock: 180,
+          segment_results: [
+            { home: 28, away: 24 },
+            { home: 22, away: 21 },
+            { home: 25, away: 29 },
+            { home: 23, away: 18 },
+            { home: 11, away: 9 },
+          ],
+        },
+        { start_date: at(-100), end_date: at(30) },
+      )}
+    />
+  </Frame>
+);
+
+/** T1 — 网球 Set 3，Alcaraz 发球。 */
+export const T1Preview = () => (
+  <Frame>
+    <LiveMatchboard
+      fixtureNow={NOW}
+      fixtureSticky={false}
+      event={board(
+        "sg-atp-t1",
+        {
+          ...tennisBase,
+          segment_index: 3,
+          segment_results: [
+            { home: 6, away: 3 },
+            { home: 4, away: 6 },
+            { home: 2, away: 1 },
+          ],
+          server: "Alcaraz",
+          game_points: "30\u201315",
+        },
+        { start_date: at(-100), end_date: at(60) },
+      )}
+    />
+  </Frame>
+);
+
+/** G1 — LOL·Dota Game 4。 */
+export const G1Preview = () => (
+  <Frame>
+    <LiveMatchboard
+      fixtureNow={NOW}
+      fixtureSticky={false}
+      event={board(
+        "sg-lck-g1",
+        {
+          ...mobaBase,
+          segment_index: 4,
+          clock: 1450,
+          segment_results: [
+            { home: 1, away: 0 },
+            { home: 0, away: 1 },
+            { home: 1, away: 0 },
+            null,
+            null,
+          ],
+        },
+        { start_date: at(-100), end_date: at(120) },
+      )}
+    />
+  </Frame>
+);
