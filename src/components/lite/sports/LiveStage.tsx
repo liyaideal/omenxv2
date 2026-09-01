@@ -334,11 +334,8 @@ const untilText = (ms: number): string => {
   return `in ${m}m`;
 };
 
-const pad = (n: number) => String(n).padStart(2, "0");
-const clockText = (raw: number | null | undefined): string => {
-  const s = Math.max(0, Math.min(300, Number(raw ?? 0)));
-  return `${Math.floor(s / 60)}:${pad(s % 60)}`;
-};
+
+
 
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 
