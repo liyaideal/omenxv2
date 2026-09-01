@@ -621,7 +621,7 @@ export const LiveMatchboard = ({
             Scorecards sealed until the decision
           </div>
         ) : null}
-        {stuck ? (
+        {(fixtureSticky ?? stuck) ? (
           <div
             className="fixed left-0 right-0 z-30"
             style={{ top: "var(--mobile-header-h)" }}
