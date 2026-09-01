@@ -156,7 +156,7 @@ const Matrix = ({
         "1fr",
         ...(m.showTotals ? ["62px"] : []),
         "18px",
-        ...Array.from({ length: m.total }, () => (m.isMma ? "48px" : "62px")),
+        ...Array.from({ length: m.total }, () => `${m.colWidth}px`),
       ]
     : ["1fr", ...(m.showTotals ? ["62px"] : [])];
 
@@ -344,7 +344,7 @@ const Matrix = ({
         <div style={headStyle(false)} />
         {m.showTotals ? (
           <div style={{ ...headStyle(false), fontSize: 9 }}>
-            {m.spec?.unit === "round" ? "rounds" : "maps"}
+            {m.totalsWord}
           </div>
         ) : null}
         {m.spec ? <div style={headStyle(false)} /> : null}

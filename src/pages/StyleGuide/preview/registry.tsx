@@ -53,6 +53,8 @@ export const previewRegistry: Record<string, Loader> = {
   "sports-live-u2": pick(sportsLive, "U2Preview"),
   "sports-live-u3": pick(sportsLive, "U3Preview"),
   "sports-live-u4": pick(sportsLive, "U4Preview"),
+  "sports-live-f1": pick(sportsLive, "F1Preview"),
+  "sports-live-f2": pick(sportsLive, "F2Preview"),
   "sports-stage-s1": pick(sportsLive, "S1Preview"),
   "sports-stage-s2": pick(sportsLive, "S2Preview"),
   "sports-stage-s3": pick(sportsLive, "S3Preview"),
