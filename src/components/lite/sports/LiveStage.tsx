@@ -715,25 +715,27 @@ export const LiveStage = ({
           </svg>
           Back to stage
         </button>
-        <button
-          type="button"
-          aria-label="Fullscreen"
-          onClick={enterFullscreen}
-          style={{
-            width: 30,
-            height: 30,
-            borderRadius: 8,
-            display: "grid",
-            placeItems: "center",
-            color: "#8B929B",
-            background: "transparent",
-            border: "none",
-            padding: 0,
-            cursor: "pointer",
-          }}
-        >
-          <Ic d={EXPAND_D} size={14} />
-        </button>
+        {!fsBlocked ? (
+          <button
+            type="button"
+            aria-label="Fullscreen"
+            onClick={enterFullscreen}
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: 8,
+              display: "grid",
+              placeItems: "center",
+              color: "#8B929B",
+              background: "transparent",
+              border: "none",
+              padding: 0,
+              cursor: "pointer",
+            }}
+          >
+            <Ic d={EXPAND_D} size={14} />
+          </button>
+        ) : null}
         <button
           type="button"
           aria-label="Close mini player"
