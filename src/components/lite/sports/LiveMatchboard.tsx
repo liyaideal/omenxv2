@@ -574,11 +574,14 @@ export const LiveMatchboard = ({
   event,
   fixtureNow,
   forceWatchKey,
+  onSegmentSelect,
 }: {
   event: MatchboardEvent;
   fixtureNow?: number;
   /** Style-guide only. Absent ⇒ production behaviour, byte-identical. */
   forceWatchKey?: boolean;
+  /** Desktop only. Absent ⇒ column heads stay inert `<div>`s. */
+  onSegmentSelect?: (segment: number) => void;
 }) => {
   const isMobile = useIsMobile();
   const storeWatch = useShowWatchKey(event.id);
