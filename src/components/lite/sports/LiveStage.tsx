@@ -16,9 +16,10 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useHlsVideo } from "@/hooks/useHlsVideo";
-import { SPORT_SEGMENTS } from "@/lib/sportSegments";
 import { fixtureMeta, isFixtureLive } from "./sportsData";
+import { useMatchboardModel, type MatchboardEvent } from "./matchboardModel";
 import { setLiveStageState, useLiveStageState } from "./liveStageStore";
+
 
 const MONO = "'Space Grotesk', ui-monospace, SFMono-Regular, monospace";
 const COLLAPSE_KEY = "omenx.lite.stage.collapsed";
