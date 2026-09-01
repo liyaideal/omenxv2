@@ -575,6 +575,7 @@ export const LiveMatchboard = ({
   fixtureNow,
   forceWatchKey,
   onSegmentSelect,
+  fixtureSticky,
 }: {
   event: MatchboardEvent;
   fixtureNow?: number;
@@ -582,6 +583,9 @@ export const LiveMatchboard = ({
   forceWatchKey?: boolean;
   /** Desktop only. Absent ⇒ column heads stay inert `<div>`s. */
   onSegmentSelect?: (segment: number) => void;
+  /** Style-guide only. `false` = never render the sticky layer,
+   *  `true` = always render it. Absent ⇒ production IntersectionObserver. */
+  fixtureSticky?: boolean;
 }) => {
   const isMobile = useIsMobile();
   const storeWatch = useShowWatchKey(event.id);
@@ -617,7 +621,7 @@ export const LiveMatchboard = ({
             Scorecards sealed until the decision
           </div>
         ) : null}
-        {stuck ? (
+        {(fixtureSticky ?? stuck) ? (
           <div
             className="fixed left-0 right-0 z-30"
             style={{ top: "var(--mobile-header-h)" }}
