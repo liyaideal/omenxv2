@@ -23,6 +23,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
+import { SeoFooter } from "@/components/seo/SeoFooter";
 import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
 import { useHeadingScrolledOut } from "@/hooks/useHeadingScrolledOut";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
@@ -487,6 +488,10 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
           </div>
         </div>
 
+        <div style={{ marginBottom: "96px" }}>
+          <SeoFooter />
+        </div>
+
         <div
           className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 px-4 pt-3 backdrop-blur"
           style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0) + 12px)" }}
@@ -609,6 +614,7 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
         </aside>
       </div>
       <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
+      <SeoFooter />
     </div>
   );
 };

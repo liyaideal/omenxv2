@@ -1138,7 +1138,7 @@ Active（`MarketCard`）和 Resolved（`ResolvedEventCard`）移动端卡片 **�
 
 ## 16.5 全站统一 Footer 规范（Site-wide Footer）
 
-所有内容页、营销页、详情页与 Lite 公开页（`/`、`/events`、`/trade`、`/spot`、`/portfolio`、`/wallet`、`/rewards`、`/leaderboard`、`/settings/transparency`、`/hedge`、`/about`、`/faq`、`/glossary`、`/methodology`、`/developers`、`/privacy-policy`、`/terms-of-service`）**必须** 使用统一的 `<SeoFooter />` 组件，禁止任何页面创建自定义 footer。`/style-guide` 与 redeem 全屏态不挂。
+所有**未登录用户可达的页面**——Lite 公开页（`/`、`/events`、`/trade`、`/spot`（含加密快轮）、`/portfolio`、`/wallet`、`/rewards`、`/leaderboard`、`/settings/transparency`）、内容页（`/about`、`/faq`、`/glossary`、`/methodology`、`/developers`、`/privacy-policy`、`/terms-of-service`）与营销页（`/hedge`）——**必须**使用统一的 `<SeoFooter />` 组件，禁止任何页面创建自定义 footer。Pro 面页面对未登录用户不可达（guest 只见 Lite 面），不在牌照合规的强制覆盖范围内；`/style-guide` 与 redeem 全屏态明确不挂。
 
 ### 唯一 Footer 组件
 
