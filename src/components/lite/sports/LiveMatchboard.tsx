@@ -349,11 +349,39 @@ const Matrix = ({
         ) : null}
         {m.spec ? <div style={headStyle(false)} /> : null}
         {m.spec
-          ? Array.from({ length: m.total }, (_, i) => (
-              <div key={`hd${i}`} style={headStyle(colHighlight(i + 1))}>
-                {m.spec?.label(i + 1)}
-              </div>
-            ))
+          ? Array.from({ length: m.total }, (_, i) =>
+              onSegmentSelect ? (
+                <button
+                  key={`hd${i}`}
+                  type="button"
+                  onClick={() => onSegmentSelect(i + 1)}
+                  style={{
+                    ...headStyle(colHighlight(i + 1)),
+                    border: 0,
+                    padding: 0,
+                    background: colHighlight(i + 1)
+                      ? "rgba(255,138,61,.07)"
+                      : "transparent",
+                    cursor: "pointer",
+                    transition: "background .12s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "rgba(255,138,61,.16)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = colHighlight(i + 1)
+                      ? "rgba(255,138,61,.07)"
+                      : "transparent";
+                  }}
+                >
+                  {m.spec?.label(i + 1)}
+                </button>
+              ) : (
+                <div key={`hd${i}`} style={headStyle(colHighlight(i + 1))}>
+                  {m.spec?.label(i + 1)}
+                </div>
+              ),
+            )
           : null}
 
         {teamCell(m.home, false)}
