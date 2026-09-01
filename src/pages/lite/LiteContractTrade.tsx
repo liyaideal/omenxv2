@@ -448,8 +448,10 @@ const LiteContractTrade = () => {
     [event, meta.segments_key, siblings, matchModel.idx],
   );
   const hasSegGroups = segGroups.length > 0;
+  const hasLines = hasLineGroups || hasSegGroups;
   // One line state per group: Map 1's handicap is independent of Map 2's.
   const [segLines, setSegLines] = useState<Record<string, number>>({});
+
 
 
 
