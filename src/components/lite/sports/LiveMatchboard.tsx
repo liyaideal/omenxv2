@@ -547,8 +547,9 @@ export const LiveMatchboard = ({
   const isMobile = useIsMobile();
   const storeWatch = useShowWatchKey(event.id);
   const showWatch = forceWatchKey ?? storeWatch;
-  const sentinel = useRef<HTMLDivElement | null>(null);
+  const [sentinel, setSentinel] = useState<HTMLDivElement | null>(null);
   const [stuck, setStuck] = useState(false);
+
 
   const live = useMatchboardModel(event);
   const m = useMemo(
