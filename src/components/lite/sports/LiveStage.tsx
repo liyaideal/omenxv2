@@ -403,6 +403,7 @@ export const LiveStage = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [slotH, setSlotH] = useState(0);
   const [pos, setPos] = useState<{ left: number; top: number }>({ left: EDGE, top: 0 });
+  const [fsBlocked, setFsBlocked] = useState(false);
   const store = useLiveStageState();
   const dismissed = store.miniDismissed;
 
