@@ -7,171 +7,18 @@
 // ============================================================
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { SPORT_SEGMENTS, type SegmentSpec } from "@/lib/sportSegments";
-import { fixtureMeta, isFixtureLive, type FixtureMeta } from "./sportsData";
+import {
+  buildModel,
+  useMatchboardModel,
+  type MatchboardEvent,
+  type Model,
+} from "./matchboardModel";
 import { setLiveStageState, useShowWatchKey } from "./liveStageStore";
 
 const MONO = "'Space Grotesk', ui-monospace, SFMono-Regular, monospace";
 
-export interface MatchboardEvent {
-  id: string;
-  name: string;
-  is_resolved?: boolean | null;
-  start_date?: string | null;
-  end_date?: string | null;
-  winning_option_id?: string | null;
-  event_subtype?: string | null;
-  metadata?: unknown;
-}
+export type { MatchboardEvent } from "./matchboardModel";
 
-type Status = "live" | "break" | "upcoming" | "finished" | "settled";
-
-interface SegResult {
-  home: number;
-  away: number;
-}
-
-interface Model {
-  meta: FixtureMeta;
-  spec: SegmentSpec | undefined;
-  status: Status;
-  isMma: boolean;
-  showTotals: boolean;
-  total: number;
-  results: (SegResult | null)[];
-  idx: number | null;
-  home: string;
-  away: string;
-  homeMaps: number;
-  awayMaps: number;
-  ctx: string;
-  rightValue: string;
-  sealed: boolean;
-  clockText: string;
-  winnerHome: boolean | null;
-  current: SegResult | null;
-  scoreText: string;
-}
-
-const pad = (n: number) => String(n).padStart(2, "0");
-
-/** `m:ss`, clamped to [0,300]. */
-const clockText = (raw: number | null | undefined): string => {
-  const s = Math.max(0, Math.min(300, Number(raw ?? 0)));
-  return `${Math.floor(s / 60)}:${pad(s % 60)}`;
-};
-
-/** "Starts in 2h 14m" / "Starts in 5d 4h". */
-const startsIn = (kickoff: number, now: number): string => {
-  const ms = Math.max(0, kickoff - now);
-  const mins = Math.floor(ms / 60_000);
-  const d = Math.floor(mins / 1440);
-  const h = Math.floor((mins % 1440) / 60);
-  const m = mins % 60;
-  if (d > 0) return `Starts in ${d}d ${h}h`;
-  if (h > 0) return `Starts in ${h}h ${m}m`;
-  return `Starts in ${m}m`;
-};
-
-const buildModel = (event: MatchboardEvent, now: number): Model => {
-  const meta = fixtureMeta(event);
-  const spec = meta.segments_key ? SPORT_SEGMENTS[meta.segments_key] : undefined;
-  const isMma = (meta.sport || "").toLowerCase() === "mma";
-  const total = spec?.total ?? 0;
-  const raw = (meta.segment_results || []) as (SegResult | null)[];
-  const results: (SegResult | null)[] = Array.from(
-    { length: total },
-    (_, i) => raw[i] ?? null,
-  );
-  const idx = meta.segment_index ?? null;
-  const live = isFixtureLive(event, now);
-  const kickoff = meta.kickoff_at
-    ? new Date(meta.kickoff_at).getTime()
-    : event.start_date
-      ? new Date(event.start_date).getTime()
-      : NaN;
-
-  const current = idx != null ? (results[idx - 1] ?? null) : null;
-  const inBreak = isMma
-    ? live && meta.phase === "BREAK"
-    : live && idx != null && idx > 1 && current == null;
-
-  const status: Status = event.is_resolved
-    ? "settled"
-    : live
-      ? inBreak
-        ? "break"
-        : "live"
-      : Number.isFinite(kickoff) && kickoff > now
-        ? "upcoming"
-        : "finished";
-
-  // Decided segments only. `decisiveThreshold` = null (UFC) means the
-  // segment carries no published score, so nothing is counted.
-  const decided = (r: SegResult | null, n: number) => {
-    if (!r) return false;
-    if (spec?.decisiveThreshold == null) return false;
-    return Math.max(r.home, r.away) >= spec.decisiveThreshold;
-  };
-  let homeMaps = 0;
-  let awayMaps = 0;
-  results.forEach((r, i) => {
-    if (!decided(r, i + 1) || !r) return;
-    if (r.home > r.away) homeMaps += 1;
-    else if (r.away > r.home) awayMaps += 1;
-  });
-
-  const league = meta.league || "";
-  const unitWord = spec?.unit === "round" ? "Round" : "Map";
-  const ctx =
-    status === "live" && idx != null
-      ? `${league} · ${unitWord} ${idx}`
-      : status === "break" && idx != null
-        ? isMma
-          ? `${league} · Between rounds`
-          : `${league} · Map ${idx} starting`
-        : status === "upcoming" && isMma && total > 0
-          ? `${league} · ${total} rounds`
-          : league;
-
-  const scoreText = `${homeMaps}–${awayMaps}`;
-  const rightValue =
-    status === "upcoming" && Number.isFinite(kickoff)
-      ? startsIn(kickoff, now)
-      : status === "break"
-        ? "—"
-        : status === "live"
-          ? isMma
-            ? clockText(meta.clock)
-            : current
-              ? `${current.home}–${current.away}`
-              : "—"
-          : "";
-
-  return {
-    meta,
-    spec,
-    status,
-    isMma,
-    showTotals: !isMma,
-    total,
-    results,
-    idx,
-    home: meta.home || "",
-    away: meta.away || "",
-    homeMaps,
-    awayMaps,
-    ctx,
-    rightValue,
-    sealed: isMma,
-    clockText: clockText(meta.clock),
-    winnerHome: event.winning_option_id
-      ? event.winning_option_id.endsWith("-o1")
-      : null,
-    current,
-    scoreText,
-  };
-};
 
 // ---------- shared atoms ----------
 
