@@ -1712,3 +1712,19 @@ portfolio 里不允许出现「无来源标的试玩仓位」——没有标就�
 否则同一 case 在不同时刻/时区渲染出不同态。生产侧一律不传该 prop = 实时钟，
 行为零变化。当前实现：`HomeStocksCard` / `StockRow` / `SpotSessionBanner`。
 Don't：用 `new Date()` 本地偏移伪造 session 态；用 `Date.now()` 派生可变文案。
+
+### 体育「进行中」轴（`#FF8A3D`）· 作用域
+
+站内除了 MONEY 轴（盈亏、涨跌）与 MARKET 轴（选边 Yes/No）之外，体育模块另有第三条轴：**橙 `#FF8A3D`，只表达「这件事正在发生」**，墨色 `#2A1200`。
+
+**作用域**（只允许出现在这些地方）：
+- `LiveMatchboard` 的 `LIVE` / `BREAK` 药丸
+- `LiveMatchboard` 当前分段那一列的列头（`inset 0 2px 0 #FF8A3D`）与格子底色（`rgba(255,138,61,.07)`）
+- 分段盘口板分组头的 `LIVE` 注记药丸与其比分
+- `LiveStage` 舞台 / 迷你窗 / 全屏的 `LIVE` 药丸、加载与缓冲转圈的顶色、`blocked` 态的橙底播放键
+- `HomeSportsCard` 的 live 卡边框、`LIVE` 药丸与 `Watch live` 芯片
+- 移动降级记分条底边的当前段进度轨
+
+**禁令**：这条轴**不表达任何金额、盈亏或选边**。橙色永远不许出现在下单按钮、价格芯片、持仓卡的盈亏数字、或任何 Yes/No 选边控件上；反过来，`--yes` 蓝与 `--no` volt 也不许用来表示「正在进行」。三条轴同屏时靠位置区分：橙在状态位（药丸、列头、注记），蓝/volt 在选边位（芯片、按钮），绿/红在金额位。
+
+**同期成文的结构规则**：分段盘口板的分组头（`LiteBoardGroupHeader`）左侧是组名、右侧是注记；注记三态为「已打完 → `Final {比分}`」「进行中 → 橙药丸 + 现比分」「未开打 → `Not played yet`」，且**只能**由 `boardGroupAnnotation()` 一处产出。记分牌的运动形态（列数、列宽、表头词、大数字口径）由 `SegmentSpec` 决定，见 `docs/delivery/sports-live-board-v1.md` §2b。
