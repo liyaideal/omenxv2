@@ -1485,18 +1485,31 @@ const LiteContractTrade = () => {
     : null;
 
   // ---- Game lines: the rail binds to the selected sibling event ----
-  const selectedLineEvent =
-    hasLines && selectedOptId
+  // Derived from the rendered groups — never a hard-coded trio.
+  const segSelectable: { ev: EventRow; group: string }[] = segEntries.flatMap(
+    ({ g, h, t }) =>
+      [g.mapwin, h, t, g.distance, ...g.method]
+        .filter((e): e is EventRow => !!e)
+        .map((ev) => ({ ev, group: g.title })),
+  );
+  const selectedSeg = selectedOptId
+    ? segSelectable.find((r) => r.ev.options.some((o) => o.id === selectedOptId)) || null
+    : null;
+  const selectedLineEvent = hasSegGroups
+    ? (selectedSeg?.ev ?? null)
+    : hasLines && selectedOptId
       ? [activeHandicap, activeTotal].find(
           (ev) => !!ev && ev.options.some((o) => o.id === selectedOptId),
         ) || null
       : null;
-  const selectedLineGroup =
-    selectedLineEvent && selectedLineEvent.id === activeHandicap?.id
+  const selectedLineGroup = hasSegGroups
+    ? (selectedSeg?.group ?? null)
+    : selectedLineEvent && selectedLineEvent.id === activeHandicap?.id
       ? "Handicap"
       : selectedLineEvent
         ? `Total ${noun}`
         : null;
+
 
   const linePanelProps = (() => {
     if (!selectedLineEvent) return null;
