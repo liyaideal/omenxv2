@@ -264,3 +264,79 @@ export const S6Preview = () => (
 export const S7Preview = stage("error");
 export const S8Preview = stage("forbidden");
 export const S9Preview = stage("finished");
+
+/* ---------------- C · mini player / fullscreen / Watch key ---------------- */
+
+const miniEvent = (metadata: Record<string, unknown>) => ({
+  id: "sg-mini",
+  start_date: at(-60),
+  end_date: at(120),
+  metadata: { ...metadata, stream_url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
+});
+
+/** C1 — CS2 mini player: segment capsule carries `M2 · 9–7`. */
+export const C1Preview = () => (
+  <Frame>
+    <LiveStage
+      forceMode="mini"
+      fixture="playing"
+      event={miniEvent({
+        ...cs2Base,
+        segment_index: 2,
+        segment_results: [{ home: 13, away: 8 }, { home: 9, away: 7 }, null],
+      })}
+    />
+  </Frame>
+);
+
+/** C2 — UFC mini player: no per-round score exists, the capsule shows the clock. */
+export const C2Preview = () => (
+  <Frame>
+    <LiveStage
+      forceMode="mini"
+      fixture="playing"
+      event={miniEvent({
+        ...ufcBase,
+        segment_index: 3,
+        segment_results: [null, null, null, null, null],
+        clock: 135,
+      })}
+    />
+  </Frame>
+);
+
+/** C3 — fullscreen chrome: score string on top, delay pill + two chips below. */
+export const C3Preview = () => (
+  <Frame>
+    <LiveStage
+      forceMode="fullscreen"
+      fixture="playing"
+      yesLabel="Spirit"
+      noLabel="MOUZ"
+      yesPrice={0.62}
+      noPrice={0.38}
+      event={miniEvent({
+        ...cs2Base,
+        home: "Spirit",
+        away: "MOUZ",
+        segment_index: 2,
+        segment_results: [{ home: 13, away: 8 }, { home: 9, away: 7 }, null],
+      })}
+    />
+  </Frame>
+);
+
+/** C4 — matchboard header with the Watch key. */
+export const C4Preview = () => (
+  <Frame>
+    <LiveMatchboard
+      fixtureNow={NOW}
+      forceWatchKey
+      event={board("sg-cs2-watch", {
+        ...cs2Base,
+        segment_index: 2,
+        segment_results: [{ home: 13, away: 8 }, { home: 9, away: 7 }, null],
+      })}
+    />
+  </Frame>
+);

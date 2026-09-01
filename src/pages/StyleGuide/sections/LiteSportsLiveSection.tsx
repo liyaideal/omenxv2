@@ -235,6 +235,59 @@ const STAGE_CASES: SectionCase[] = [
   },
 ];
 
+const MINI_CASES: SectionCase[] = [
+  {
+    key: "sports-mini-c1",
+    label: "C1 · 迷你窗（CS2 播放中）",
+    note: "同一个 <video> 换位置，不卸载重挂；舞台离开视口才出现，移动端不出现。",
+    spec: [
+      {
+        state: "mini",
+        when: "有源 && live && 占位离开视口 && 未关闭 && 非全屏 && 桌面",
+        visual: "300×229：把手 20 + 画面 169 + 动作条 40；右上胶囊 `M2 · 9–7`",
+        source: "LiveStage mode === mini",
+      },
+    ],
+  },
+  {
+    key: "sports-mini-c2",
+    label: "C2 · 迷你窗（UFC 无比分）",
+    spec: [
+      {
+        state: "mini · mma",
+        when: 'sport === "mma"',
+        visual: "胶囊写 `R3 · 2:15`（回合钟），不写比分",
+        source: "metadata.clock",
+      },
+    ],
+  },
+  {
+    key: "sports-mini-c3",
+    label: "C3 · 全屏底栏（S10）",
+    spec: [
+      {
+        state: "fullscreen",
+        when: "wrapper.requestFullscreen()",
+        visual:
+          "左上完整比分串；底栏左延迟披露、右两枚 Series winner 芯片（#33D6FF / #CFFF4A）",
+        source: "LiveStage chrome === full",
+      },
+    ],
+  },
+  {
+    key: "sports-mini-c4",
+    label: "C4 · 记分牌 Watch 键（S11）",
+    spec: [
+      {
+        state: "watch",
+        when: "hasSource && !inlineVisible && miniDismissed",
+        visual: "顶栏 spacer 之后、状态徽标之前一枚 `▶ Watch` 键",
+        source: "useShowWatchKey(event.id)",
+      },
+    ],
+  },
+];
+
 const Pair = ({ cases, min }: { cases: SectionCase[]; min?: number }) => (
   <>
     <SectionFrame cases={cases} device="desktop" minHeight={min ?? 520} />
@@ -288,6 +341,19 @@ export const LiteSportsLiveSection = () => (
             "sports-stage-s9",
           )}
           min={2600}
+        />
+      </SubSection>
+
+      <SubSection title="Ⓒ LiveMiniPlayer / 全屏 / Watch 键">
+        <Pair
+          cases={byKey(
+            MINI_CASES,
+            "sports-mini-c1",
+            "sports-mini-c2",
+            "sports-mini-c3",
+            "sports-mini-c4",
+          )}
+          min={1200}
         />
       </SubSection>
     </div>
