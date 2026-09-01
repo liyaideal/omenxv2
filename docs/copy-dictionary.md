@@ -96,6 +96,11 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | **Not played yet** | Group annotation for a segment that hasn't started | Upcoming map, TBD |
 | **How the fight ends** | Group annotation on the Method head | Finish method, Result type |
 | **A draw or No Contest voids the Method markets — those stakes are refunded in full.** | Method refund clause, rendered in `TradeRuleCard` | Void = refund, Draw no bet |
+| **goals** | 足球记分牌总数列表头词（两个半场相加） | Score, Total, GLS |
+| **maps** | 电竞记分牌总数列表头词（赢下的地图数） | Games, Wins |
+| **1H** / **2H** | 足球记分牌的半场列头 | H1/H2, First half（列头位不写全称） |
+| **1st half** / **2nd half** | 上下文行里的半场全称（`Ligue 1 · 2nd half`） | 1H/2H（上下文行不用缩写）, Half 1 |
+| **63′** | 足球记分牌右上角的比赛分钟，撇号是 U+2032 PRIME | 63', 63 min, 63:00 |
 
 ---
 
@@ -125,6 +130,8 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | **Current segment（当前段）** | 正在打的那一段 | `useMatchboardModel(event).idx` | `matchboardModel.buildModel` |
 | **Decisive threshold（分段决胜分）** | 一段打到多少分算结束 | `SPORT_SEGMENTS[segments_key].decisiveThreshold`；CS2 = 13，MMA = `null`（回合不计分） | `src/lib/sportSegments.ts` |
 | **Live（进行中）** | 已开赛、未到结束、未结算 | `isFixtureLive()`，即 `kickoff <= now && now < end_date && !is_resolved`；**`metadata.live` 是引擎调试输出，UI 永不读取** | `sportsData.isFixtureLive` |
+| **运动形态（SegmentSpec）** | 一个项目的记分牌长什么样：分几段、列头怎么写、大数字算什么 | `SPORT_SEGMENTS[segments_key] ?? SPORT_FALLBACK[sport]`；两个都查不到即退化 | `src/lib/sportSegments.ts` |
+| **大数字口径（totalsRule）** | 左边那个大数字是相加还是数段数 | `"sum"` = 各段值相加（足球进球）；`"won"` = 赢下的段数（CS2 地图） | `matchboardModel.buildModel` |
 
 ### helper 家族（`matchboardModel.ts`，成对入典）
 

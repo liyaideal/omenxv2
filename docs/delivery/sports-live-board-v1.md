@@ -7,7 +7,7 @@
 
 ## §0 读者须知
 
-- **长什么样** → 生产页：`/trade?event=demo-live-cs2`（CS2 直播示例，7×24 常驻）、`/trade?event=demo-prekick-cs2`（即将开赛示例，常驻）、`/trade?event=ufc-321-per-ank`（MMA）、`/trade?event=sp-epl-ars-liv`（足球对照组）。
+- **长什么样** → 生产页：`/trade?event=demo-live-cs2`（CS2 直播示例，7×24 常驻）、`/trade?event=demo-prekick-cs2`（即将开赛示例，常驻）、`/trade?event=ufc-321-per-ank`（MMA）、`/trade?event=sp-epl-ars-liv`（足球，两个半场形态）。
 - **什么时候变** → `/style-guide` 状态字典：直播舞台与记分牌看 `Sports · Live`（M1…M6 / U1…U4 / S1…S9 / C1…C4），分段板看 `/trade` 字典的 TR-25 / TR-26。
 - **字段 / 文案 / 公式 / 术语** → `docs/copy-dictionary.md` 的 `Sports game lines` 与 `Sports live stage` 两节 + 本文档。
 - Lite 词 ↔ 交易词的映射统一见 `docs/copy-dictionary.md` 顶部的「Lite 术语对照表」，本文档不复制。
@@ -39,6 +39,25 @@
 
 BO3 = 4 组 10 行：`grp-series` 4 行（winner + mapwin + handicap + total）+ 3 × `grp-seg-{n}` 各 2 行。
 `mapwin` 只渲染 `currentSegment` 指向的那一条；`currentSegment` 为 `null` 时一条都不渲染。空组（无任何行）被过滤，不渲染组头。MMA 不产分段组（`decisiveThreshold === null`，回合不计分）。
+
+## §2b 记分牌的运动形态
+
+记分牌是一套表头跑多个项目：**队伍在行，分段在列**，左边那个大数字是这个项目里市场结算依据的单位。列数、列宽、表头词、大数字怎么算、右上角显示什么，全部由 `SegmentSpec` 决定。
+
+规格从两张表里取，优先级：先按赛事的 `metadata.segments_key` 查 `SPORT_SEGMENTS`；查不到再按 `metadata.sport` 查 `SPORT_FALLBACK`。**两张都查不到才退化**成「只有队名列 + 一个总数列」的形态（字典 M6 就是这一态）。有兜底表的意义是：新开一个足球联赛不必往 `SPORT_SEGMENTS` 加一行。
+
+| 项目 | 取自 | 分段单位 | 列头 | 列宽 | 大数字表头词 | 大数字怎么算 | 右上角 |
+|---|---|---|---|---|---|---|---|
+| CS2 BO3 / BO5 | `SPORT_SEGMENTS["IEM Cologne · BO3" / "· BO5"]` | 地图 | `M1` `M2` `M3`… | 62 | `maps` | 赢下的地图数（段内达到 13 回合才算打完） | 当前图比分 |
+| UFC 主赛 / 前战 | `SPORT_SEGMENTS["UFC · main" / "· prelim"]` | 回合 | `R1`…`R5` | 48 | 不渲染总数列 | —— | 回合钟 `2:30` |
+| 足球 | `SPORT_FALLBACK.soccer` | 半场 | `1H` `2H` | 70 | `goals` | 两个半场进球**相加** | 比赛分钟 `63′` |
+
+两条容易踩的口径：
+
+1. **大数字有两种算法**。CS2 是「赢下的段数」（`totalsRule: "won"`），足球是「各段值相加」（`totalsRule: "sum"`）。拿 CS2 的算法去看足球会得出 1–0 应该显示成「赢了 1 个半场」，那是错的。
+2. **足球的当前半场是推出来的**，不是库里的字段。足球赛事没有 `metadata.segment_index`，开赛超过 45 分钟即判为下半场。因此足球不进 `BREAK` 态——中场休息本轮没做。
+
+设计画布上还画了**篮球（四节 + OT，单位 `pts`）、网球（盘/局/分三层，单位 `sets`）、LOL·Dota（局，格子写 W/L，单位 `games`）**三个项目，本轮**未实现**：它们的赛事目前不入库，实现前会掉进退化态。
 
 ## §3 分组头注记三态
 
@@ -86,6 +105,10 @@ BO3 = 4 组 10 行：`grp-series` 4 行（winner + mapwin + handicap + total）+
 | UFC 结算结果上下文 | 无 `Won by KO/TKO · R2 3:41` 行 |
 | 移动降级条 | FINISHED / SETTLED 态没有 `In review` 徽标 |
 | 移动降级条 | 结算后仍显示 `MAP 3` 段签 |
+| 足球半场比分 | 库里 `segment_results` 为空，`1H` / `2H` 两格恒为 `·`，`goals` 大数字恒为 0；等真实赛事源 |
+| 足球中场休息 | 不进 `BREAK` 态，本轮未做 |
+| 移动端全屏 | 移动内联舞台右下只有静音键，**没有全屏入口**（桌面内联右下与迷你条上才有）；是否要补待定 |
+| 篮球 / 网球 / LOL·Dota | 画布已定形态，未实现 |
 
 ## §9 状态索引
 
@@ -97,6 +120,9 @@ BO3 = 4 组 10 行：`grp-series` 4 行（winner + mapwin + handicap + total）+
 | 待开赛 | `Sports · Live` U1…U4 |
 | 直播舞台九态 | `Sports · Live` S1…S9 |
 | 迷你窗 / 全屏 | `Sports · Live` C1…C4 |
+| 足球记分牌（进行中 / 未开赛） | `Sports · Live` F1 / F2 |
+| 移动 sticky 记分条 | `Sports · Live` M7 |
+| 表外赛事退化 | `Sports · Live` M6 |
 
 ## §10 涉及文件
 
@@ -108,6 +134,7 @@ BO3 = 4 组 10 行：`grp-series` 4 行（winner + mapwin + handicap + total）+
 - `src/components/lite/multi/LiteBoardGroupHeader.tsx`（`anchorId` / `annotation`）
 - `src/pages/lite/LiteContractTrade.tsx`（分段板渲染 + 注记单一实现 + 滚动联动）
 - `src/pages/StyleGuide/preview/sportsLinesPreviews.tsx`、`preview/registry.tsx`、`sections/TradeStatesSection.tsx`
+- `src/lib/sportSegments.ts`（`SegmentSpec` / `SPORT_SEGMENTS` / `SPORT_FALLBACK`）
 
 **数据库**
 - `tick_live_matches()` / `tick_demo_showcase()` / `roll_sports_matches()`
@@ -118,3 +145,5 @@ BO3 = 4 组 10 行：`grp-series` 4 行（winner + mapwin + handicap + total）+
 - 足球盘口板（Winner / Handicap / Total goals）：桌面 828 宽 / 移动 343 宽、组头高 15.25、x = 24 / 16，与本轮前一致。
 - 记分牌几何：桌面 828 × 138.4（live 态）未动。
 - 下单面板、Boost 档位、账本、`HomeSportsCard` 未动。
+
+> 修订：2026-09-01 补足球两个半场形态（SP-L4d）、字典 F1 / F2 / M7、§2b 运动形态表。
