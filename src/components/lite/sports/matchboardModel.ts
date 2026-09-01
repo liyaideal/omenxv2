@@ -72,7 +72,9 @@ export const startsIn = (kickoff: number, now: number): string => {
 
 export const buildModel = (event: MatchboardEvent, now: number): Model => {
   const meta = fixtureMeta(event);
-  const spec = meta.segments_key ? SPORT_SEGMENTS[meta.segments_key] : undefined;
+  const spec =
+    (meta.segments_key ? SPORT_SEGMENTS[meta.segments_key] : undefined) ??
+    SPORT_FALLBACK[(meta.sport || "").toLowerCase()];
   const isMma = (meta.sport || "").toLowerCase() === "mma";
   const total = spec?.total ?? 0;
   const raw = (meta.segment_results || []) as (SegResult | null)[];
@@ -80,7 +82,6 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
     { length: total },
     (_, i) => raw[i] ?? null,
   );
-  const idx = meta.segment_index ?? null;
   const live = isFixtureLive(event, now);
   const kickoff = meta.kickoff_at
     ? new Date(meta.kickoff_at).getTime()
@@ -88,10 +89,24 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
       ? new Date(event.start_date).getTime()
       : NaN;
 
+  // Soccer carries no `metadata.segment_index`; the current half is inferred
+  // from the elapsed minute (>45 ⇒ 2H).
+  const rawIdx = meta.segment_index ?? null;
+  const idx =
+    rawIdx != null
+      ? rawIdx
+      : spec?.unit === "half" && live && Number.isFinite(kickoff)
+        ? Math.min(2, Math.floor((now - kickoff) / 60_000) > 45 ? 2 : 1)
+        : null;
+
   const current = idx != null ? (results[idx - 1] ?? null) : null;
-  const inBreak = isMma
-    ? live && meta.phase === "BREAK"
-    : live && idx != null && idx > 1 && current == null;
+  // Half-time is out of scope this round: a `half` fixture never enters BREAK.
+  const inBreak =
+    spec?.unit === "half"
+      ? false
+      : isMma
+        ? live && meta.phase === "BREAK"
+        : live && idx != null && idx > 1 && current == null;
 
   const status: Status = event.is_resolved
     ? "settled"
@@ -112,17 +127,24 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
   };
   let homeMaps = 0;
   let awayMaps = 0;
-  results.forEach((r, i) => {
-    if (!decided(r, i + 1) || !r) return;
-    if (r.home > r.away) homeMaps += 1;
-    else if (r.away > r.home) awayMaps += 1;
-  });
+  if (spec?.totalsRule === "sum") {
+    results.forEach((r) => {
+      homeMaps += r?.home ?? 0;
+      awayMaps += r?.away ?? 0;
+    });
+  } else {
+    results.forEach((r, i) => {
+      if (!decided(r, i + 1) || !r) return;
+      if (r.home > r.away) homeMaps += 1;
+      else if (r.away > r.home) awayMaps += 1;
+    });
+  }
 
   const league = meta.league || "";
-  const unitWord = spec?.unit === "round" ? "Round" : "Map";
+  const segName = (n: number) => spec?.segName(n) ?? `Map ${n}`;
   const ctx =
     status === "live" && idx != null
-      ? `${league} · ${unitWord} ${idx}`
+      ? `${league} · ${segName(idx)}`
       : status === "break" && idx != null
         ? isMma
           ? `${league} · Between rounds`
@@ -132,17 +154,20 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
           : league;
 
   const scoreText = `${homeMaps}–${awayMaps}`;
+  const minuteText = `${Math.max(1, Math.min(90, Math.floor((now - kickoff) / 60_000)))}′`;
   const rightValue =
     status === "upcoming" && Number.isFinite(kickoff)
       ? startsIn(kickoff, now)
       : status === "break"
         ? "—"
         : status === "live"
-          ? isMma
-            ? clockText(meta.clock)
-            : current
-              ? `${current.home}–${current.away}`
-              : "—"
+          ? spec?.rightValue === "minute" && Number.isFinite(kickoff)
+            ? minuteText
+            : isMma
+              ? clockText(meta.clock)
+              : current
+                ? `${current.home}–${current.away}`
+                : "—"
           : "";
 
   return {
@@ -167,6 +192,8 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
       : null,
     current,
     scoreText,
+    totalsWord: spec?.totalsWord ?? "maps",
+    colWidth: spec?.colWidth ?? 62,
   };
 };
 
