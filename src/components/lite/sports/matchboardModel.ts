@@ -112,7 +112,10 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
   const current = idx != null ? (results[idx - 1] ?? null) : null;
   // Half-time is out of scope this round: a `half` fixture never enters BREAK.
   const inBreak =
-    spec?.unit === "half"
+    // MOBA：当前局在打完前没有可写的比分，`current == null` 不代表间歇。
+    spec?.cell === "winloss"
+      ? false
+      : spec?.unit === "half"
       ? false
       : isMma
         ? live && meta.phase === "BREAK"
