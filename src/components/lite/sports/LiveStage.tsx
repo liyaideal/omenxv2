@@ -771,17 +771,19 @@ export const LiveStage = ({
         fontWeight: 700,
         borderRadius: 7,
         padding: "6px 10px",
-        minWidth: 120,
+        minWidth: 0,
+        flex: "0 1 120px",
         display: "flex",
         justifyContent: "space-between",
         gap: 8,
         border: "none",
         cursor: "pointer",
+        whiteSpace: "nowrap",
         background: yes ? "rgba(51,214,255,.12)" : "rgba(207,255,74,.1)",
         color: yes ? "#33D6FF" : "#CFFF4A",
       }}
     >
-      <span>{label}</span>
+      <span className="truncate">{label}</span>
       <span>{price == null ? "—" : `${Math.round(price * 100)}¢`}</span>
     </button>
   );
@@ -799,11 +801,14 @@ export const LiveStage = ({
         letterSpacing: ".1em",
         textTransform: "uppercase",
         color: "rgba(255,255,255,.6)",
+        whiteSpace: "nowrap",
+        flexShrink: 0,
       }}
     >
       Stream is delayed. Prices are not.
     </span>
   );
+
 
   const stage = (
     <StageShell
@@ -914,15 +919,18 @@ export const LiveStage = ({
               padding: "14px 16px",
               display: "flex",
               alignItems: "center",
+              flexWrap: "wrap",
               gap: 10,
+              rowGap: 10,
               background: "linear-gradient(to top,rgba(0,0,0,.85),transparent)",
             }}
           >
             {delayPill}
-            <span style={{ flexGrow: 1 }} />
+            <span style={{ flex: "1 0 0", minWidth: 0 }} />
             {chip(yesLabel || home || "Yes", yesPrice, true)}
             {chip(noLabel || away || "No", noPrice, false)}
           </div>
+
         </>
       ) : null}
 
