@@ -629,7 +629,7 @@ export const LiveMatchboard = ({
     );
   }
 
-  return <Matrix m={m} showWatch={showWatch} />;
+  return <Matrix m={m} showWatch={showWatch} onSegmentSelect={onSegmentSelect} />;
 };
 
 export default LiveMatchboard;
