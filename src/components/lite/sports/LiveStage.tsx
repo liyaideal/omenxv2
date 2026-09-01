@@ -396,8 +396,17 @@ export const LiveStage = ({
   };
 
   const slotRef = useRef<HTMLDivElement | null>(null);
+  // The slot mounts later than the first commit (the stage returns null until
+  // `isMobile` resolves and the fixture's stream_url has loaded), so the
+  // observer must be armed by the node itself, not by an unrelated dep list.
+  const [slotNode, setSlotNode] = useState<HTMLDivElement | null>(null);
+  const setSlot = useCallback((node: HTMLDivElement | null) => {
+    slotRef.current = node;
+    setSlotNode(node);
+  }, []);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const [inlineVisible, setInlineVisible] = useState(true);
+
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [slotH, setSlotH] = useState(0);
   const [pos, setPos] = useState<{ left: number; top: number }>({ left: EDGE, top: 0 });
