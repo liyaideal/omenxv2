@@ -16,9 +16,10 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useHlsVideo } from "@/hooks/useHlsVideo";
-import { SPORT_SEGMENTS } from "@/lib/sportSegments";
 import { fixtureMeta, isFixtureLive } from "./sportsData";
+import { useMatchboardModel, type MatchboardEvent } from "./matchboardModel";
 import { setLiveStageState, useLiveStageState } from "./liveStageStore";
+
 
 const MONO = "'Space Grotesk', ui-monospace, SFMono-Regular, monospace";
 const COLLAPSE_KEY = "omenx.lite.stage.collapsed";
@@ -333,11 +334,8 @@ const untilText = (ms: number): string => {
   return `in ${m}m`;
 };
 
-const pad = (n: number) => String(n).padStart(2, "0");
-const clockText = (raw: number | null | undefined): string => {
-  const s = Math.max(0, Math.min(300, Number(raw ?? 0)));
-  return `${Math.floor(s / 60)}:${pad(s % 60)}`;
-};
+
+
 
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 
@@ -545,11 +543,8 @@ export const LiveStage = ({
     !fixture && !!src && live && !collapsed && !(dismissed && !inlineVisible);
   const { ref, state, muted, setMuted, play, pause } = useHlsVideo(src, wantVideo);
 
-  const [, force] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => force((n) => n + 1), 30_000);
-    return () => clearInterval(t);
-  }, []);
+  const model = useMatchboardModel(event as unknown as MatchboardEvent);
+
 
   if (isMobile === undefined) return null;
   // S9 — the broadcast is over. The stage leaves; the matchboard stays.
@@ -567,32 +562,27 @@ export const LiveStage = ({
   const s: string = fixture ?? (prekick ? "prekick" : state);
   const dark = s === "prekick" || s === "error" || s === "forbidden";
 
-  // ---- score facts, read from the same metadata the matchboard reads ----
-  const isMma = (meta.sport || "").toLowerCase() === "mma";
-  const spec = meta.segments_key ? SPORT_SEGMENTS[meta.segments_key] : undefined;
-  const idx = meta.segment_index ?? null;
-  const segRes = idx != null ? ((meta.segment_results || [])[idx - 1] ?? null) : null;
+  // ---- score facts, read from the shared matchboard model ----
+  const isMma = model.isMma;
+  const spec = model.spec;
+  const idx = model.idx;
+  const segRes = model.current;
   const unitWord = spec?.unit === "round" ? "Round" : "Map";
   const segValue = isMma
-    ? clockText(meta.clock)
+    ? model.clockText
     : segRes
       ? `${segRes.home}\u2013${segRes.away}`
       : "\u2014";
   const miniCapsule =
     idx != null ? `${isMma ? "R" : "M"}${idx} \u00b7 ${segValue}` : "";
-  let homeSeg = 0;
-  let awaySeg = 0;
-  (meta.segment_results || []).forEach((r) => {
-    if (!r || spec?.decisiveThreshold == null) return;
-    if (Math.max(r.home, r.away) < spec.decisiveThreshold) return;
-    if (r.home > r.away) homeSeg += 1;
-    else if (r.away > r.home) awaySeg += 1;
-  });
+  const homeSeg = model.homeMaps;
+  const awaySeg = model.awayMaps;
   const home = meta.home || "";
   const away = meta.away || "";
   const fullCapsule = isMma
     ? `${home} vs ${away}${idx != null ? ` \u00b7 ${unitWord} ${idx}` : ""} \u00b7 ${segValue}`
     : `${home} ${homeSeg}\u2013${awaySeg} ${away}${idx != null ? ` \u00b7 ${unitWord} ${idx}` : ""} \u00b7 ${segValue}`;
+
 
   const chrome: "inline" | "mini" | "full" = fullscreen ? "full" : mode;
 
