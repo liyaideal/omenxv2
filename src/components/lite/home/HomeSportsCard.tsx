@@ -10,9 +10,116 @@ import {
   kickoffLabel,
   matchesInBucket,
 } from "@/components/lite/sports/sportsData";
-import { HomeCard, HomeEyebrow, HomeQuestion, LIVE_GREEN, MUTED } from "./homeShell";
+import { HomeCard, HomeEyebrow, HomeQuestion, MUTED, ORANGE } from "./homeShell";
 
 const CYAN = "#33D6FF";
+const INK = "#2A1200";
+
+/** 9px play triangle used by the Watch live / Stream at kickoff chips. */
+const PlayTriangle = () => (
+  <svg
+    viewBox="0 0 24 24"
+    width={9}
+    height={9}
+    fill="currentColor"
+    style={{ display: "block", flex: "none" }}
+  >
+    <path d="M7 4v16l13-8z" />
+  </svg>
+);
+
+/** Solid = actionable. Desktop live-card chip (meta row, stream only). */
+const WatchLiveChip = ({ onClick }: { onClick: (e: React.MouseEvent) => void }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="font-display"
+    style={{
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 5,
+      fontSize: 10,
+      fontWeight: 700,
+      letterSpacing: ".04em",
+      borderRadius: 999,
+      padding: "2px 9px",
+      background: ORANGE,
+      color: INK,
+      border: "none",
+      flex: "none",
+    }}
+  >
+    <PlayTriangle />
+    Watch live
+  </button>
+);
+
+/** Outlined = status, not actionable. Pre-kickoff rows with a stream. */
+const StreamAtKickoffChip = () => (
+  <span
+    className="font-display"
+    style={{
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 5,
+      fontSize: 10,
+      fontWeight: 700,
+      letterSpacing: ".04em",
+      borderRadius: 999,
+      padding: "1px 8px",
+      border: "1px solid rgba(148,163,184,.26)",
+      color: MUTED,
+      flex: "none",
+    }}
+  >
+    <PlayTriangle />
+    Stream at kickoff
+  </span>
+);
+
+/**
+ * Mobile corner stream button. Visual circle stays the spec size; a
+ * transparent inset:-8 child expands the touch area to ~44x44 without
+ * changing the measured or painted geometry.
+ */
+const MobileCornerStreamButton = ({
+  size,
+  solid,
+  label,
+  onClick,
+}: {
+  size: number;
+  solid: boolean;
+  label: string;
+  onClick: (e: React.MouseEvent) => void;
+}) => (
+  <button
+    type="button"
+    aria-label={label}
+    onClick={onClick}
+    style={{
+      position: "absolute",
+      right: 10,
+      top: 10,
+      width: size,
+      height: size,
+      borderRadius: 999,
+      background: solid ? ORANGE : "transparent",
+      border: solid ? "none" : "1px solid rgba(148,163,184,.3)",
+      color: solid ? INK : MUTED,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 0,
+    }}
+  >
+    <span style={{ position: "absolute", inset: -8 }} />
+    <PlayTriangle />
+  </button>
+);
+
+/** metadata.score is stored as "1-0"; the canvas wants "1 – 0" (en dash). */
+const prettyScore = (s: string) => s.split(/\s*[-–]\s*/).join(" – ");
 const LIVE_MAX = 3;
 
 const hashHue = (s: string) => {
@@ -97,7 +204,7 @@ const MatchTitle = ({ m, live }: { m: SportsMatch; live: boolean }) => (
   >
     {live && m.score ? (
       <>
-        {m.home} <span className="font-display">{m.score}</span> {m.away}
+        {m.home} <span className="font-display">{prettyScore(m.score)}</span> {m.away}
       </>
     ) : (
       `${m.home || m.name} vs ${m.away}`
@@ -117,12 +224,24 @@ const LiveCard = ({
   <div
     style={{
       marginTop: 12,
-      padding: "14px 14px 16px",
-      border: `1px solid rgba(74,222,128,0.35)`,
-      background: "rgba(74,222,128,0.05)",
+      padding: isMobile ? "14px 36px 16px 14px" : "14px 14px 16px",
+      border: `1px solid rgba(255,138,61,.35)`,
+      background: "rgba(255,138,61,.05)",
       borderRadius: 14,
+      position: "relative",
     }}
   >
+    {isMobile && m.streamUrl ? (
+      <MobileCornerStreamButton
+        size={28}
+        solid
+        label="Watch live"
+        onClick={(e) => {
+          e.stopPropagation();
+          onOpen(m.id);
+        }}
+      />
+    ) : null}
     <div className="flex items-center" style={{ gap: 12 }}>
       <span className="flex flex-none">
         <Monogram abbr={m.homeAbbr || m.home} />
@@ -130,15 +249,19 @@ const LiveCard = ({
       </span>
       <div className="min-w-0">
         <MatchTitle m={m} live />
-        <div className="flex items-center" style={{ gap: 8, marginTop: 4 }}>
+        <div
+          className="flex items-center"
+          style={{ gap: 8, marginTop: 4, flexWrap: "nowrap", minWidth: 0 }}
+        >
           <span
-            className="font-display"
+            className="font-display truncate"
             style={{
               color: MUTED,
               fontSize: 10.5,
               letterSpacing: "0.18em",
               textTransform: "uppercase",
               fontWeight: 700,
+              minWidth: 0,
             }}
           >
             {m.league}
@@ -146,17 +269,26 @@ const LiveCard = ({
           <span
             className="font-display"
             style={{
-              color: LIVE_GREEN,
+              color: ORANGE,
               fontSize: 10,
               fontWeight: 700,
-              border: "1px solid rgba(74,222,128,0.45)",
+              border: "1px solid rgba(255,138,61,.45)",
               borderRadius: 999,
               padding: "1px 8px",
-              background: "rgba(74,222,128,0.1)",
+              background: "rgba(255,138,61,.1)",
+              flex: "none",
             }}
           >
             ● LIVE{m.minute != null ? ` ${m.minute}'` : ""}
           </span>
+          {!isMobile && m.streamUrl ? (
+            <WatchLiveChip
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpen(m.id);
+              }}
+            />
+          ) : null}
         </div>
       </div>
     </div>
@@ -192,12 +324,24 @@ const MobileUpcomingCard = ({
     <div
       style={{
         marginTop: 10,
-        padding: 12,
+        padding: m.streamUrl ? "12px 34px 12px 12px" : 12,
         borderRadius: 14,
         background: "#191D24",
         border: "1px solid rgba(148,163,184,0.10)",
+        position: "relative",
       }}
     >
+      {m.streamUrl ? (
+        <MobileCornerStreamButton
+          size={26}
+          solid={false}
+          label="Stream at kickoff"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpen(m.id);
+          }}
+        />
+      ) : null}
       <div className="flex items-center" style={{ gap: 10 }}>
         <span className="flex flex-none flex-col items-center" style={{ width: 52 }}>
           <span
@@ -248,7 +392,7 @@ const MobileUpcomingCard = ({
               gap: 6,
             }}
           >
-            {live && <span style={{ color: LIVE_GREEN }}>●</span>}
+            {live && <span style={{ color: ORANGE }}>●</span>}
             {m.league}
           </div>
         </div>
@@ -305,8 +449,9 @@ const UpcomingRow = ({
               gap: 6,
             }}
           >
-            {live && <span style={{ color: LIVE_GREEN }}>●</span>}
+            {live && <span style={{ color: ORANGE }}>●</span>}
             {m.league} · {k.day} {k.time}
+            {m.streamUrl ? <StreamAtKickoffChip /> : null}
           </div>
         </div>
       </div>

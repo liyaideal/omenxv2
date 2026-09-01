@@ -28,6 +28,8 @@ export interface SportsMatch {
   minute: number | null;
   phase: string | null;
   score: string | null;
+  /** metadata.stream_url — non-empty means the match has a watchable stream. */
+  streamUrl?: string | null;
   volume: number;
   options: SportsOption[];
 }
@@ -212,8 +214,9 @@ export const useSportsMatches = () => {
           live: isLive,
           minute: isLive ? liveMinute(kickoff) : null,
           phase: meta.phase ?? null,
-          score: meta.score ?? null,
-          volume: Number((e as { volume?: number | string | null }).volume ?? 0),
+           score: meta.score ?? null,
+           streamUrl: meta.stream_url ?? null,
+           volume: Number((e as { volume?: number | string | null }).volume ?? 0),
           options: opts,
         };
       });

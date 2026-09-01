@@ -7,7 +7,6 @@ import { CSSProperties, ReactNode } from "react";
 export const ORANGE = "#FF8A3D";
 export const CYAN = "#33D6FF";
 export const LIME = "#CFFF4A";
-export const LIVE_GREEN = "#4ADE80";
 export const MUTED = "#98A1AD";
 
 export const HomeCard = ({
