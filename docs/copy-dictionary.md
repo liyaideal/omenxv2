@@ -82,6 +82,56 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | **Over {line}** / **Under {line}** | The two sides of a total | O 2.5, U 2.5 |
 | **covers** | Verb for a handicap row (`ARS +1.5 covers`) | beats the spread |
 | **Regulation time** | Settlement window note on every group header | Full time only, 90 mins |
+| **Series lines** | Series-level group head on segmented boards (`groupSegmentedMarkets` → `grp-series`) | Match lines, Outright |
+| **Fight lines** | Fight-level group head on MMA boards (`grp-fight`) | Bout lines, Main lines |
+| **Method** | Group head for how the fight ends (`grp-method`) | Method of victory, Finish type |
+| **Map {n}** | Segment group head on esports boards (`grp-seg-{n}`) | Game {n}, Round {n} |
+| **Map {n} winner** | Series-lines row for the current map | Map winner, Current map |
+| **Rounds handicap** | Segment-level handicap row | Round spread, Rounds line |
+| **Total rounds** | Segment-level total row, and the MMA fight total | Total maps rounds, O/U rounds |
+| **Total maps** | Series-level total row | Map total, Maps O/U |
+| **Goes the distance** | Method row: the fight reaches the final bell | Decision, Full distance |
+| **Won by KO/TKO** | Method row | KO, Knockout win |
+| **Won by submission** | Method row | Sub, Tap out |
+| **Not played yet** | Group annotation for a segment that hasn't started | Upcoming map, TBD |
+| **How the fight ends** | Group annotation on the Method head | Finish method, Result type |
+| **A draw or No Contest voids the Method markets — those stakes are refunded in full.** | Method refund clause, rendered in `TradeRuleCard` | Void = refund, Draw no bet |
+
+---
+
+## Sports live stage (`/trade` 直播舞台，2026-09-01)
+
+| Canonical | 出现位置 / 规则 |
+|---|---|
+| **LIVE** | `LiveMatchboard.LivePill` — 段进行中，橙 `#FF8A3D` 实心 |
+| **BREAK** | `LiveMatchboard.LivePill` — 段间休息 |
+| **UPCOMING** | `LiveMatchboard.QuietPill` — 未开赛 |
+| **FINISHED** | `LiveMatchboard.QuietPill` — 打完未结算 |
+| **SETTLED** | `LiveMatchboard.QuietPill` — 已结算 |
+| **In review · result pending** | `LiveMatchboard.ReviewBadge` — FINISHED 态桌面右侧 |
+| **Scorecards sealed until the decision** | `LiveMatchboard` — MMA 专用，live / break 态 |
+| **Watch** | `LiveMatchboard` 顶栏按钮，唤回被收起的舞台 |
+| **Watch live** | `HomeSportsCard` 实心橙芯片，有流的 live 卡 |
+| **Stream at kickoff** | `HomeSportsCard` 描边芯片，赛前有流 |
+| **Back to stage** | `LiveStage` 迷你窗回舞台 |
+| 比分分隔符 | en dash `–`（U+2013），Space Grotesk + `tabular-nums` |
+
+### 概念
+
+| 概念 | 是什么 | 判定表达式 | 出处 |
+|---|---|---|---|
+| **Series（赛列）** | 整场比赛这个层级的盘口 | `metadata.family === "main"` | `sportsData.groupSegmentedMarkets` |
+| **Segment（分段）** | CS2 的 map / MMA 的 round | `metadata.family === "seg" && metadata.segment_index === n` | `sportsData.groupSegmentedMarkets` |
+| **Current segment（当前段）** | 正在打的那一段 | `useMatchboardModel(event).idx` | `matchboardModel.buildModel` |
+| **Decisive threshold（分段决胜分）** | 一段打到多少分算结束 | `SPORT_SEGMENTS[segments_key].decisiveThreshold`；CS2 = 13，MMA = `null`（回合不计分） | `src/lib/sportSegments.ts` |
+| **Live（进行中）** | 已开赛、未到结束、未结算 | `isFixtureLive()`，即 `kickoff <= now && now < end_date && !is_resolved`；**`metadata.live` 是引擎调试输出，UI 永不读取** | `sportsData.isFixtureLive` |
+
+### helper 家族（`matchboardModel.ts`，成对入典）
+
+| 函数 | 输出格式 | 单位 / 边界 |
+|---|---|---|
+| `clockText(raw)` | `m:ss`（如 `1:07`） | 秒；`null`/`undefined` → `0:00`；钳在 `[0, 300]` |
+| `startsIn(kickoff, now)` | `Starts in 5d 4h` / `Starts in 2h 14m` / `Starts in 9m` | 分钟粒度；负数钳为 0 → `Starts in 0m`；`d > 0` 只出 `d/h`，否则 `h > 0` 出 `h/m`，否则只出 `m` |
 
 Signed lines always use a real minus sign (U+2212) for negatives and `+` for
 positives. Chip words come from the sibling event's `side_labels`.

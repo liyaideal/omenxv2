@@ -87,6 +87,7 @@ import {
 import {
   useMatchboardModel,
   type MatchboardEvent,
+  type Model,
 } from "@/components/lite/sports/matchboardModel";
 import { LiteBoardGroupHeader as GroupHeader } from "@/components/lite/multi/LiteBoardGroupHeader";
 
@@ -105,6 +106,80 @@ type Side = "yes" | "no";
 const NO_PREFIX = "No: ";
 /** Placeholder so the shared matchboard hook can run before the event loads. */
 const EMPTY_FIXTURE = { id: "", name: "" } as MatchboardEvent;
+
+// ---- Board group annotations ----------------------------------------
+// Exported so the style-guide dictionary renders the SAME implementation.
+// Every number here is read off the shared matchboard model — never
+// recomputed. There must be exactly one copy of this logic.
+export const ANNOT_STYLE: React.CSSProperties = {
+  fontFamily: "'Space Grotesk', monospace",
+  fontSize: 9.5,
+  letterSpacing: ".06em",
+  textTransform: "uppercase",
+  color: "#6B727C",
+};
+
+export const AnnotLivePill = () => (
+  <span
+    className="inline-flex items-center"
+    style={{ gap: 6, background: "#FF8A3D", borderRadius: 999, padding: "3px 8px" }}
+  >
+    <i
+      style={{
+        width: 5,
+        height: 5,
+        borderRadius: 999,
+        background: "#2A1200",
+        display: "block",
+        fontStyle: "normal",
+        animation: "gh-bl 1.6s ease-in-out infinite",
+      }}
+    />
+    <b style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: ".16em", color: "#2A1200" }}>
+      LIVE
+    </b>
+  </span>
+);
+
+/** Segment status — read straight off the shared matchboard model. */
+export const segmentAnnotation = (model: Model, n: number): React.ReactNode => {
+  const r = model.results[n - 1] ?? null;
+  const th = model.spec?.decisiveThreshold ?? null;
+  if (r && th != null && Math.max(r.home, r.away) >= th)
+    return <span style={ANNOT_STYLE}>{`Final ${r.home}–${r.away}`}</span>;
+  if (n === model.idx && (model.status === "live" || model.status === "break"))
+    return (
+      <span className="inline-flex items-center" style={{ gap: 8 }}>
+        <AnnotLivePill />
+        <span style={{ ...ANNOT_STYLE, color: "#FF8A3D" }}>
+          {model.current ? `${model.current.home}–${model.current.away}` : "—"}
+        </span>
+      </span>
+    );
+  return <span style={ANNOT_STYLE}>Not played yet</span>;
+};
+
+export const boardGroupAnnotation = (
+  model: Model,
+  key: string,
+  segmentIndex: number | null,
+): React.ReactNode => {
+  if (segmentIndex != null) return segmentAnnotation(model, segmentIndex);
+  if (key === "grp-series")
+    return (
+      <span style={ANNOT_STYLE}>
+        {`${model.home} vs ${model.away} · ${model.meta.league || ""}`}
+      </span>
+    );
+  if (key === "grp-fight")
+    return (
+      <span style={ANNOT_STYLE}>
+        {`${model.meta.league || ""} · ${model.total} rounds`}
+      </span>
+    );
+  return <span style={ANNOT_STYLE}>How the fight ends</span>;
+};
+
 
 const baseOptionLabel = (positionOption: string) =>
   positionOption.startsWith(NO_PREFIX) ? positionOption.slice(NO_PREFIX.length) : positionOption;
@@ -455,6 +530,16 @@ const LiteContractTrade = () => {
   // One line state per group: Map 1's handicap is independent of Map 2's.
   const [segLines, setSegLines] = useState<Record<string, number>>({});
 
+  // Scoreboard column head → segment group. Silent no-op when the group
+  // isn't on the page.
+  const scrollToSegment = useCallback((n: number) => {
+    const el = document.getElementById(`grp-seg-${n}`);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  const hasSegmentGroups = segGroups.some((g) => g.segmentIndex != null);
+
 
 
 
@@ -795,71 +880,8 @@ const LiteContractTrade = () => {
     t: activeInGroup(`${g.key}:t`, g.total),
   }));
 
-  const ANNOT_STYLE: React.CSSProperties = {
-    fontFamily: "'Space Grotesk', monospace",
-    fontSize: 9.5,
-    letterSpacing: ".06em",
-    textTransform: "uppercase",
-    color: "#6B727C",
-  };
-  const AnnotLivePill = () => (
-    <span
-      className="inline-flex items-center"
-      style={{ gap: 6, background: "#FF8A3D", borderRadius: 999, padding: "3px 8px" }}
-    >
-      <i
-        style={{
-          width: 5,
-          height: 5,
-          borderRadius: 999,
-          background: "#2A1200",
-          display: "block",
-          fontStyle: "normal",
-          animation: "gh-bl 1.6s ease-in-out infinite",
-        }}
-      />
-      <b style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: ".16em", color: "#2A1200" }}>
-        LIVE
-      </b>
-    </span>
-  );
-
-  // Segment status — read straight off the shared matchboard model.
-  const segmentAnnotation = (n: number): React.ReactNode => {
-    const r = matchModel.results[n - 1] ?? null;
-    const th = matchModel.spec?.decisiveThreshold ?? null;
-    if (r && th != null && Math.max(r.home, r.away) >= th)
-      return <span style={ANNOT_STYLE}>{`Final ${r.home}–${r.away}`}</span>;
-    if (n === matchModel.idx && (matchModel.status === "live" || matchModel.status === "break"))
-      return (
-        <span className="inline-flex items-center" style={{ gap: 8 }}>
-          <AnnotLivePill />
-          <span style={{ ...ANNOT_STYLE, color: "#FF8A3D" }}>
-            {matchModel.current
-              ? `${matchModel.current.home}–${matchModel.current.away}`
-              : "—"}
-          </span>
-        </span>
-      );
-    return <span style={ANNOT_STYLE}>Not played yet</span>;
-  };
-
-  const groupAnnotation = (key: string, segmentIndex: number | null): React.ReactNode => {
-    if (segmentIndex != null) return segmentAnnotation(segmentIndex);
-    if (key === "grp-series")
-      return (
-        <span style={ANNOT_STYLE}>
-          {`${matchModel.home} vs ${matchModel.away} · ${matchModel.meta.league || ""}`}
-        </span>
-      );
-    if (key === "grp-fight")
-      return (
-        <span style={ANNOT_STYLE}>
-          {`${matchModel.meta.league || ""} · ${matchModel.total} rounds`}
-        </span>
-      );
-    return <span style={ANNOT_STYLE}>How the fight ends</span>;
-  };
+  const groupAnnotation = (key: string, segmentIndex: number | null): React.ReactNode =>
+    boardGroupAnnotation(matchModel, key, segmentIndex);
 
   const SegmentedBoard = (
     <div className="space-y-2">
@@ -1050,7 +1072,10 @@ const LiteContractTrade = () => {
 
   const Matchboard =
     event.event_subtype === "SPORTS_MATCH" ? (
-      <LiveMatchboard event={event as unknown as Parameters<typeof LiveMatchboard>[0]["event"]} />
+      <LiveMatchboard
+        event={event as unknown as Parameters<typeof LiveMatchboard>[0]["event"]}
+        onSegmentSelect={hasSegmentGroups ? scrollToSegment : undefined}
+      />
     ) : null;
 
 

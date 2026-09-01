@@ -277,6 +277,8 @@ export const previewRegistry: Record<string, Loader> = {
   "trade-sports-lines-single-line": pick(sportsLines, "SportsLinesSingleLinePreview"),
   "trade-sports-lines-settled": pick(sportsLines, "SportsLinesSettledPreview"),
   "line-scrubber": pick(sportsLines, "LineScrubberPreview"),
+  "trade-tr25": pick(sportsLines, "SportsSegmentedCs2Preview"),
+  "trade-tr26": pick(sportsLines, "SportsSegmentedMmaPreview"),
 
   /* -------- Vouchers v2 -------- */
   "vouchers2-rows": pick(vouchers2, "Vouchers2RowsPreview"),
