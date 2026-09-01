@@ -426,6 +426,7 @@ const Matrix = ({ m, showWatch }: { m: Model; showWatch: boolean }) => {
           <QuietPill label="FINISHED" />
         )}
         <span
+          className="min-w-0 truncate"
           style={{
             fontSize: 10,
             letterSpacing: ".15em",
