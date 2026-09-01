@@ -101,17 +101,26 @@ export const isFixtureLive = (
 
 
 /**
- * Handicap / Total siblings are only reachable through their fixture board,
- * never through a generic market list, ledger or watchlist.
+ * Handicap / Total / Map winner / Method / Distance siblings are only
+ * reachable through their fixture board, never through a generic market
+ * list, ledger or watchlist.
  */
 export const isFixtureSibling = (e: unknown): boolean => {
   const mt = fixtureMeta(e as { metadata?: unknown } | null).market_type;
-  return mt === "handicap" || mt === "total";
+  return (
+    mt === "handicap" ||
+    mt === "total" ||
+    mt === "mapwin" ||
+    mt === "method" ||
+    mt === "distance"
+  );
 };
 
-/** PostgREST filter equivalent of `!isFixtureSibling`. */
+/** PostgREST filter equivalent of `!isFixtureSibling`: only `null` and
+ *  `winner` pass, which already covers every sibling type. */
 export const NON_SIBLING_FILTER =
   "metadata->>market_type.is.null,metadata->>market_type.eq.winner";
+
 
 /** "+1.5" / "−1.5" — real minus sign (U+2212) for negatives. */
 export const formatSignedLine = (n: number): string => {
