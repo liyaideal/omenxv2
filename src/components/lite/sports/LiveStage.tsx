@@ -1009,9 +1009,9 @@ export const LiveStage = ({
   return (
     <div>
       {isMobile && !fixture && collapsed ? (
-        <div ref={slotRef} />
+        <div ref={setSlot} />
       ) : (
-        <div ref={slotRef} style={mode === "mini" && !preview ? { height: slotH } : undefined}>
+        <div ref={setSlot} style={mode === "mini" && !preview ? { height: slotH } : undefined}>
           {stage}
         </div>
       )}
