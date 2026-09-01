@@ -582,14 +582,25 @@ export const LiveStage = ({
   const chrome: "inline" | "mini" | "full" = fullscreen ? "full" : mode;
 
   const enterFullscreen = () => {
-    wrapperRef.current?.requestFullscreen?.();
+    const el = wrapperRef.current;
+    if (!el?.requestFullscreen) {
+      setFsBlocked(true);
+      return;
+    }
+    // A refused request is normal, not exceptional: a restrictive iframe, an
+    // enterprise policy, or an OS that only fullscreens <video> itself. Catch
+    // it, and stop offering a control this environment will not honour.
+    el.requestFullscreen().catch(() => setFsBlocked(true));
+  };
+  const exitFullscreen = () => {
+    if (document.fullscreenElement) document.exitFullscreen?.().catch(() => undefined);
   };
   const backToStage = () => {
     slotRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
   const closeMini = () => setLiveStageState({ miniDismissed: true });
   const pickSide = () => {
-    if (document.fullscreenElement) document.exitFullscreen();
+    exitFullscreen();
     const anchor =
       document.getElementById("lite-odds-anchor") ?? (slotRef.current as Element | null);
     window.setTimeout(() => anchor?.scrollIntoView({ behavior: "smooth", block: "center" }), 80);
