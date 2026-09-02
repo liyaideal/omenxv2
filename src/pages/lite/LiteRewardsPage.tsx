@@ -12,6 +12,7 @@ import { useCampaignViews } from "@/hooks/useCampaigns";
 import { useAuth } from "@/hooks/useAuth";
 import { VouchersBody } from "@/components/vouchers/VouchersBody";
 import { PointsRetiredNotice } from "@/components/campaigns/PointsRetiredNotice";
+import { CampaignGridSkeleton } from "@/components/campaigns/CampaignGridSkeleton";
 import { RewardsFinePrint } from "@/components/campaigns/RewardsFinePrint";
 import { H2eCampaignCard } from "@/components/h2e/H2eCampaignCard";
 import { useNavigate } from "react-router-dom";
@@ -94,11 +95,7 @@ export default function LiteRewardsPage() {
           {!isMobile && <PointsRetiredNotice />}
 
           {isLoading ? (
-            <div className="grid gap-4 md:grid-cols-2">
-              {[0, 1].map((i) => (
-                <div key={i} className="h-[300px] animate-pulse rounded-[14px] bg-[#0F1114]" />
-              ))}
-            </div>
+            <CampaignGridSkeleton />
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
               <H2eCampaignCard />

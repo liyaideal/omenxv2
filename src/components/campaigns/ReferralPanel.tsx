@@ -7,6 +7,7 @@ import { useReferral, type Referral } from "@/hooks/useReferral";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EmptyState } from "@/components/states";
 import { ClaimButton, TaskRowShell } from "./TaskRowShell";
+import { showClaimSuccessToast } from "./ClaimSuccessToastBody";
 
 const PANEL = "rounded-[16px] border border-[#1D2026] bg-[#131519] p-4 md:p-[18px]";
 const CAP = "text-[10px] font-bold uppercase tracking-[0.14em] text-[#6B7280]";
@@ -27,7 +28,13 @@ const STEPS = [
   { step: "Step 3", text: `You get a $${REFERRAL_VOUCHER} Trial Position Voucher`, volt: true },
 ];
 
-export const ReferralPanel = () => {
+/** Pure-display fixture for style-guide/preview use. Omit in production — behavior and visuals are unchanged. */
+export interface ReferralPanelFixture {
+  referralCode: string;
+  referrals: Referral[];
+}
+
+export const ReferralPanel = ({ fixture }: { fixture?: ReferralPanelFixture }) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { referralCode, referrals, isLoading } = useReferral();
@@ -35,9 +42,11 @@ export const ReferralPanel = () => {
   const [claiming, setClaiming] = useState<string | null>(null);
   const [claimed, setClaimed] = useState<string[]>([]);
 
-  const link = referralCode ? `omenx.io/r/${referralCode}` : "";
+  const link = (fixture ? fixture.referralCode : referralCode)
+    ? `omenx.io/r/${fixture ? fixture.referralCode : referralCode}`
+    : "";
 
-  const rows = referrals ?? [];
+  const rows = fixture ? fixture.referrals : referrals ?? [];
   const qualified = rows.filter((r) => r.status === "qualified" || r.status === "rewarded");
   const vouchersEarned = rows.filter(
     (r) => r.status === "rewarded" || claimed.includes(r.id),
@@ -45,6 +54,7 @@ export const ReferralPanel = () => {
   const claimable = rows.filter((r) => r.status === "qualified" && !claimed.includes(r.id)).length;
 
   const copy = async () => {
+    if (fixture) return; // display-only fixture: interactions are inert
     try {
       await navigator.clipboard.writeText(`https://${link}`);
       setCopied(true);
@@ -55,6 +65,7 @@ export const ReferralPanel = () => {
   };
 
   const claim = async (referralId: string) => {
+    if (fixture) return; // display-only fixture: interactions are inert
     setClaiming(referralId);
     const { data, error } = await supabase.functions.invoke("claim-referral-voucher", {
       body: { referralId },
@@ -65,10 +76,7 @@ export const ReferralPanel = () => {
       return;
     }
     setClaimed((prev) => [...prev, referralId]);
-    toast.success("Voucher sent to Position Vouchers", {
-      description: "Open vouchers to reveal it.",
-      action: { label: "Open", onClick: () => navigate("/vouchers") },
-    });
+    showClaimSuccessToast(() => navigate("/vouchers"));
   };
 
   const inviteRow = (r: Referral) => {
@@ -122,7 +130,7 @@ export const ReferralPanel = () => {
           className="flex min-h-[44px] flex-1 items-center overflow-hidden rounded-[12px] px-3 font-display text-[14px] text-[#F2F3F5]"
           style={{ background: "#0F1114", border: "1px solid #2B2F38" }}
         >
-          <span className="truncate">{isLoading ? "…" : link}</span>
+          <span className="truncate">{(fixture ? false : isLoading) ? "…" : link}</span>
         </div>
         <ClaimButton fullWidth={isMobile} onClick={copy} disabled={!link}>
           {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
@@ -154,7 +162,7 @@ export const ReferralPanel = () => {
         </span>
       </div>
 
-      {isLoading ? (
+      {(fixture ? false : isLoading) ? (
         <div className="h-[76px] animate-pulse rounded-[14px] bg-[#0F1114]" />
       ) : rows.length === 0 ? (
         <EmptyState
