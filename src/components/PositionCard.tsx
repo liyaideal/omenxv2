@@ -353,6 +353,8 @@ export const PositionCard = ({
               }
               faceValue={fullPosition?.voucherFaceValue ?? (parseFloat(margin.replace(/[$,]/g, "")) || 0)}
               redeemableCap={fullPosition?.voucherRedeemableCap ?? null}
+              redeemableCapPct={fullPosition?.voucherRedeemableCapPct ?? null}
+              payoutMode={fullPosition?.voucherPayoutMode ?? null}
               isClosing={isClosing}
               onConfirm={handleCloseVoucher}
             />

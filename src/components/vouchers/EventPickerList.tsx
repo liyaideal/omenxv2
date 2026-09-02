@@ -101,7 +101,7 @@ const checkEligibility = (
 
 /* --------------------------------- chrome -------------------------------- */
 
-const Chip = ({
+export const Chip = ({
   active,
   onClick,
   children,
@@ -131,7 +131,35 @@ const Chip = ({
   </button>
 );
 
+/**
+ * Caption head row (single-line caption + magnifier toggle). Pure lift-out of
+ * the previously inline JSX — identical DOM, classes and inline styles.
+ */
+export const PickerCaptionRow = ({
+  searchOpen,
+  onToggleSearch,
+}: {
+  searchOpen: boolean;
+  onToggleSearch: () => void;
+}) => (
+  <div className="flex items-center justify-between gap-[10px]">
+    <span style={{ fontSize: 12, color: "#9AA1AC", lineHeight: 1.4 }}>
+      Pick a market — one voucher opens one trial position
+    </span>
+    <button
+      type="button"
+      aria-label="Search markets"
+      onClick={onToggleSearch}
+      className="flex-none flex items-center justify-center"
+      style={{ width: 44, height: 44, marginRight: -10, color: searchOpen ? VT.ink : "#9AA1AC" }}
+    >
+      <Search className="w-[17px] h-[17px]" />
+    </button>
+  </div>
+);
+
 /* --------------------------------- list ---------------------------------- */
+
 
 interface EventPickerListProps {
   voucher: PositionVoucher;
@@ -202,20 +230,8 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
 
   return (
     <div className="flex flex-col gap-[12px]">
-      <div className="flex items-center justify-between gap-[10px]">
-        <span style={{ fontSize: 12, color: "#9AA1AC", lineHeight: 1.4 }}>
-          Pick a market — one voucher opens one trial position
-        </span>
-        <button
-          type="button"
-          aria-label="Search markets"
-          onClick={() => setSearchOpen((o) => !o)}
-          className="flex-none flex items-center justify-center"
-          style={{ width: 44, height: 44, marginRight: -10, color: searchOpen ? VT.ink : "#9AA1AC" }}
-        >
-          <Search className="w-[17px] h-[17px]" />
-        </button>
-      </div>
+      <PickerCaptionRow searchOpen={searchOpen} onToggleSearch={() => setSearchOpen((o) => !o)} />
+
 
       {searchOpen && (
         <PickerSearchBar value={query} onChange={setQuery} mobile={isMobile} />

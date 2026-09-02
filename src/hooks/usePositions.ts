@@ -36,8 +36,13 @@ export interface UnifiedPosition {
   airdropSource?: AirdropSource;
   /** Voucher face value (USD). Voucher source only. */
   voucherFaceValue?: number;
-  /** Voucher profit cap (USD). Voucher source only; null → no cap stored, falls back to faceValue × 0.5. */
+  /** Voucher profit cap (USD). Voucher source only; null → no cap stored, falls back to faceValue × redeemableCapPct. */
   voucherRedeemableCap?: number | null;
+  /** Voucher redeemable_cap_pct. Voucher source only; null → fallback 0.5 (current DB default). */
+  voucherRedeemableCapPct?: number | null;
+  /** Voucher payout mode. Voucher source only; drives the close-panel payout sentence. */
+  voucherPayoutMode?: "instant" | "tiered" | null;
+
   // Funding fee fields (raw numbers for math; UI formats as needed)
   fundingAccrued: number;     // Net cumulative funding paid (positive = user paid)
   lastFundingAt: string | null;
@@ -177,6 +182,9 @@ const convertAirdropPosition = (airdrop: AirdropPosition): UnifiedPosition => {
     airdropSource: airdrop.source,
     voucherFaceValue: isVoucher ? airdrop.airdropValue : undefined,
     voucherRedeemableCap: isVoucher ? airdrop.redeemableCap ?? null : undefined,
+    voucherRedeemableCapPct: isVoucher ? airdrop.redeemableCapPct ?? null : undefined,
+    voucherPayoutMode: isVoucher ? airdrop.payoutMode ?? null : undefined,
+
     fundingAccrued: 0,
     lastFundingAt: null,
     entryPriceNum: airdrop.counterPrice,

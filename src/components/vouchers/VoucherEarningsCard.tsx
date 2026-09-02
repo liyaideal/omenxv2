@@ -8,6 +8,15 @@ import { VT, money, compactMoney } from "./voucherTokens";
  * Desktop = two cells (1fr / 392px) inside one #131519 r16 shell, single
  * hairline between, zero glow. Mobile stacks the tier cell underneath.
  */
+export interface VoucherEarningsFixture {
+  pending: number;
+  lifetimeCredited: number;
+  volume: number;
+  depositTotal?: number;
+  loading?: boolean;
+  claiming?: boolean;
+}
+
 interface Props {
   /** Optional override (for /style-guide playground). */
   data?: {
@@ -16,6 +25,12 @@ interface Props {
     volume: number;
     depositTotal?: number;
   };
+  /**
+   * Pure-presentation fixture. When provided the live hook is disabled — no
+   * supabase query, no realtime subscriptions — and the Claim button is inert.
+   * Omitting it keeps production behaviour byte-for-byte unchanged.
+   */
+  fixture?: VoucherEarningsFixture;
   /** Summary strip counts. */
   stats?: {
     readyCount: number;
@@ -38,19 +53,21 @@ const Caps = ({ children, color = VT.muted, size = 10, ls = ".14em" }: { childre
   </span>
 );
 
-export const VoucherEarningsCard = ({ data, stats, mobile, onRedeemPrompt }: Props = {}) => {
-  const live = useVoucherEarnings();
-  const pending = data?.pending ?? live.pending;
-  const lifetimeCredited = data?.lifetimeCredited ?? live.lifetimeCredited;
-  const volume = data?.volume ?? live.volume;
-  const depositTotal = data?.depositTotal ?? live.depositTotal;
-  const loading = data ? false : live.loading;
-  const claiming = live.claiming;
+export const VoucherEarningsCard = ({ data, fixture, stats, mobile, onRedeemPrompt }: Props = {}) => {
+  const live = useVoucherEarnings({ enabled: !fixture });
+  const source = fixture ?? data;
+  const pending = source?.pending ?? live.pending;
+  const lifetimeCredited = source?.lifetimeCredited ?? live.lifetimeCredited;
+  const volume = source?.volume ?? live.volume;
+  const depositTotal = source?.depositTotal ?? live.depositTotal;
+  const loading = fixture ? !!fixture.loading : data ? false : live.loading;
+  const claiming = fixture ? !!fixture.claiming : live.claiming;
 
-  const tierState = data
+  const tierState = source
     ? deriveVoucherTierState(volume, pending, lifetimeCredited, depositTotal)
     : live.tierState;
-  const canClaim = data ? tierState.claimable > 0 : live.canClaim;
+  const canClaim = source ? tierState.claimable > 0 : live.canClaim;
+
   const { current, next, claimable, nextProgress } = tierState;
 
   const topTier = VOUCHER_TIERS[VOUCHER_TIERS.length - 1];
@@ -210,8 +227,9 @@ export const VoucherEarningsCard = ({ data, stats, mobile, onRedeemPrompt }: Pro
       {canClaim ? (
         <button
           type="button"
-          onClick={live.claim}
-          disabled={claiming || !!data}
+          onClick={fixture ? undefined : live.claim}
+          disabled={claiming || !!source}
+
           className="font-display w-full rounded-[10px] mt-auto"
           style={{
             minHeight: 44,

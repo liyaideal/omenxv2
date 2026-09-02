@@ -11,6 +11,10 @@ export interface CloseVoucherContentProps {
   markPrice: number;
   faceValue: number;
   redeemableCap?: number | null;
+  /** Voucher redeemable_cap_pct; when absent falls back to 0.5 (current DB default). */
+  redeemableCapPct?: number | null;
+  /** Voucher payout mode; when absent treated as `tiered` (pending-balance route). */
+  payoutMode?: "instant" | "tiered" | null;
   onConfirm: () => void | Promise<void>;
   onCancel?: () => void;
   isClosing?: boolean;
@@ -21,13 +25,16 @@ export interface CloseVoucherContentProps {
 const fmtUsd = (n: number) =>
   `${n < 0 ? "-" : ""}$${Math.abs(n).toFixed(2)}`;
 
+/** Fallback cap ratio when the voucher carries no redeemable_cap_pct (DB default today). */
+const DEFAULT_CAP_PCT = 0.5;
+
 /**
  * Shared body for the Close Voucher Position confirmation dialog/drawer.
  * Mirrors the canonical math in supabase/functions/close-trial-position:
  *   contracts = faceValue × 5 / entry
  *   rawPnl    = (mark − entry) × contracts × sideSign
  *   credit    = clamp(rawPnl, 0, cap)
- *   cap       = redeemableCap ?? faceValue × 0.5
+ *   cap       = redeemableCap ?? faceValue × redeemableCapPct
  */
 export const CloseVoucherContent = ({
   optionLabel,
@@ -36,6 +43,8 @@ export const CloseVoucherContent = ({
   markPrice,
   faceValue,
   redeemableCap,
+  redeemableCapPct,
+  payoutMode,
   onConfirm,
   onCancel,
   isClosing = false,
@@ -45,8 +54,11 @@ export const CloseVoucherContent = ({
   const contracts = (faceValue * VOUCHER_LEVERAGE) / safeEntry;
   const sideSign = side === "short" ? -1 : 1;
   const rawPnl = (markPrice - entryPrice) * contracts * sideSign;
-  const cap = redeemableCap != null ? redeemableCap : faceValue * 0.5;
+  const capPct = redeemableCapPct != null ? redeemableCapPct : DEFAULT_CAP_PCT;
+  const cap = redeemableCap != null ? redeemableCap : faceValue * capPct;
   const credit = Math.max(0, Math.min(rawPnl, cap));
+  const isInstant = payoutMode === "instant";
+
 
   const isDrawer = variant === "drawer";
 
@@ -118,7 +130,7 @@ export const CloseVoucherContent = ({
           <span className="font-mono">${cap.toFixed(2)}</span>
         </div>
         <div className="flex items-center justify-between text-sm font-medium pt-1 border-t border-border/40 mt-1">
-          <span>Credited to voucher earnings pool</span>
+          <span>{isInstant ? "Credited to your wallet" : "Added to pending balance"}</span>
           <span className={`font-mono ${credit > 0 ? "text-trading-green" : "text-muted-foreground"}`}>
             +${credit.toFixed(2)}
           </span>
@@ -126,10 +138,11 @@ export const CloseVoucherContent = ({
       </div>
 
       <p className="text-xs text-muted-foreground leading-relaxed">
-        Profits accrue to your voucher earnings pool. Claim to wallet once your lifetime
-        filled-trades volume reaches 50,000 USDC. Losses are floored at $0 — your wallet
-        is never debited.
+        {isInstant
+          ? "Profit goes straight to your wallet on settlement. Losses are floored at $0 — your wallet is never debited."
+          : "Profit lands in your pending balance, unlocked by volume. Losses are floored at $0 — your wallet is never debited."}
       </p>
+
 
       {isDrawer ? (
         <MobileDrawerActions>

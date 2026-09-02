@@ -1365,6 +1365,8 @@ export default function DesktopTrading() {
                               }
                               faceValue={position.voucherFaceValue ?? position.marginNum}
                               redeemableCap={position.voucherRedeemableCap ?? null}
+                              redeemableCapPct={position.voucherRedeemableCapPct ?? null}
+                              payoutMode={position.voucherPayoutMode ?? null}
                               isClosing={isClosing}
                               onConfirm={() => closePosition(position.id, index)}
                             >
