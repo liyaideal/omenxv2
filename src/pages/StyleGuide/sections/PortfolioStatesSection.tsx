@@ -556,14 +556,31 @@ const BATCH_CASES: SectionCase[] = [
   },
 ];
 
+/**
+ * Ⓓ 区移动帧镜像：与桌面 case 同一份 spec，只换 preview key 与 label 后缀。
+ */
+const LIVE_MOBILE_MIRRORS: SectionCase[] = (
+  [
+    ["portfolio-lite-side-chip", "portfolio-lite-side-chip-mobile"],
+    ["portfolio-lite-hot", "portfolio-lite-hot-mobile"],
+    ["portfolio-lite-standard-live", "portfolio-lite-standard-live-mobile"],
+    ["portfolio-lite-settles-time", "portfolio-lite-settles-time-mobile"],
+  ] as const
+).map(([from, key]) => {
+  const base = LIVE_CASES.find((c) => c.key === from)!;
+  return { ...base, key, label: `${base.label}（移动）` };
+});
+
 const ALL_CASES: SectionCase[] = [
   ...CHROME_CASES,
   ...KPI_CASES,
   ...BOOST_CASES,
   ...LIVE_CASES,
+  ...LIVE_MOBILE_MIRRORS,
   ...PENDING_CASES,
   ...BATCH_CASES,
 ];
+
 
 const byKey = (...keys: string[]): SectionCase[] =>
   keys.map((k) => {
