@@ -44,16 +44,23 @@ export interface PickedOption {
  * Multi-option rows with the mock's collapse rule: 3+ options show only the
  * first two, the rest fold behind "Show N more options". A picked option that
  * lives in the folded tail is promoted into the visible pair.
+ *
+ * `defaultExpanded` exists only so the style-guide can render the expanded
+ * branch as a controlled fixture (no synthetic clicks). Production never
+ * passes it — the default is the collapsed branch, byte-identical to before.
  */
 export const MultiOptionRows = ({
   rows,
+  defaultExpanded = false,
 }: {
   rows: Array<React.ComponentProps<typeof PickerOptionRow> & { key: string; picked: boolean }>;
+  defaultExpanded?: boolean;
 }) => {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(defaultExpanded);
   if (rows.length <= 2) {
     return <>{rows.map(({ key, picked: _p, ...props }) => <PickerOptionRow key={key} {...props} />)}</>;
   }
+
   let visible = rows;
   if (!expanded) {
     visible = rows.slice(0, 2);

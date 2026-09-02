@@ -130,11 +130,13 @@ export const CloseVoucherContent = ({
           <span className="font-mono">${cap.toFixed(2)}</span>
         </div>
         <div className="flex items-center justify-between text-sm font-medium pt-1 border-t border-border/40 mt-1">
-          <span>{isInstant ? "Credited to your wallet" : "Added to pending balance"}</span>
+          {/* Wording is the dictionary canonical pair, shared with VoucherHistoryArchive. */}
+          <span>{isInstant ? "Credited to wallet" : "Added to pending"}</span>
           <span className={`font-mono ${credit > 0 ? "text-trading-green" : "text-muted-foreground"}`}>
             +${credit.toFixed(2)}
           </span>
         </div>
+
       </div>
 
       <p className="text-xs text-muted-foreground leading-relaxed">

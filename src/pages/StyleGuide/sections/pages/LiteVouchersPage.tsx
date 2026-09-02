@@ -1,10 +1,9 @@
 import { LitePage } from "./shell";
 import { VouchersStatesSection } from "../VouchersStatesSection";
-import { Vouchers2Section } from "../Vouchers2Section";
 
 type P = { isMobile: boolean };
 
-export const LiteVouchersPage = ({ isMobile }: P) => (
+export const LiteVouchersPage = (_props: P) => (
   <LitePage
     id="lite-vouchers"
     title="Vouchers"
@@ -26,19 +25,5 @@ export const LiteVouchersPage = ({ isMobile }: P) => (
     </div>
 
     <VouchersStatesSection />
-
-    {/* ------------------------------------------------------------------ */}
-    {/* 旧节（Vouchers2Section）· 一字未改 · 待 VC-8…17 在 M4b 并账后删除      */}
-    {/* ------------------------------------------------------------------ */}
-    <div className="mt-12 space-y-1 rounded-lg border border-[#F0B429]/40 bg-[#F0B429]/10 px-3 py-2 text-[12px] text-foreground">
-      <div>
-        ⚠️ 以下为旧节，尚未并入 VC 编号字典。与上方状态字典冲突时，<strong>以上方为准</strong>。
-      </div>
-      <div>并账计划：VC-8…VC-17（Ⓒ 兑换台 / Ⓓ 市场选择器 / Ⓔ 合规）在 M4b 落地后，本节整体删除。</div>
-    </div>
-
-    <div className="space-y-12">
-      <Vouchers2Section isMobile={isMobile} />
-    </div>
   </LitePage>
 );

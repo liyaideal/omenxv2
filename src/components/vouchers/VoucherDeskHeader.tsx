@@ -14,11 +14,16 @@ export const VoucherDeskHeader = ({
   voucher,
   sourceLabel,
   compact,
+  stubDefaultOpen,
 }: {
   voucher: PositionVoucher;
   sourceLabel?: string | null;
   compact?: boolean;
+  /** Style-guide only: renders the compact stub already expanded (controlled
+   *  fixture instead of a synthetic click). Production never passes it. */
+  stubDefaultOpen?: boolean;
 }) => {
+
   const cap = voucher.faceValue * voucher.redeemableCapPct;
   const payout = voucher.payoutMode === "instant" ? "Instant" : "Tiered by volume";
 
@@ -59,7 +64,7 @@ export const VoucherDeskHeader = ({
   );
 
   if (compact) {
-    return <VoucherStub voucher={voucher} sourceLabel={sourceLabel} />;
+    return <VoucherStub voucher={voucher} sourceLabel={sourceLabel} defaultOpen={stubDefaultOpen} />;
   }
 
   return (
@@ -106,11 +111,13 @@ export const VoucherDeskHeader = ({
 const VoucherStub = ({
   voucher,
   sourceLabel,
+  defaultOpen = false,
 }: {
   voucher: PositionVoucher;
   sourceLabel?: string | null;
+  defaultOpen?: boolean;
 }) => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const cap = voucher.faceValue * voucher.redeemableCapPct;
   const instant = voucher.payoutMode === "instant";
   const terms = [
