@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { parseSideLabels } from "@/lib/eventUtils";
+import { orphanSpotSideLabels } from "@/lib/orphanSpotSideLabels";
 
 export type SettlementKind = "settled" | "closed";
 export type SettlementProductLine = "futures" | "spot";
