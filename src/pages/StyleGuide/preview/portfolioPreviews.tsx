@@ -1165,3 +1165,245 @@ export const PortfolioBatchClosingMobilePreview = () => (
     />
   </div>
 );
+
+/* ================= Ⓖ–Ⓚ · PF-19…PF-38 新增 case ================= */
+
+/** PF-20 单仓结算行 — settlement / auto_close / cashout / close_reason=null / 零结果。 */
+export const PortfolioSettledRowPreview = () => (
+  <div className="bg-background pb-4">
+    <SettledRow row={settled({ daysAgo: 3, net: 235 })} />
+    <SettledRow
+      row={settled({
+        daysAgo: 4,
+        title: "ETH above $4,000 today",
+        metaHead: ["Up", "3× Boost"],
+        metaTail: ["auto-closed"],
+        remark: "auto_close",
+        net: -88,
+        won: false,
+      })}
+    />
+    <SettledRow
+      row={settled({
+        daysAgo: 5,
+        title: "Arsenal to beat Liverpool",
+        metaHead: ["ARS +1.5"],
+        remark: "cashout",
+        net: 42.5,
+      })}
+    />
+    <SettledRow
+      row={settled({
+        daysAgo: 6,
+        title: "TSLA closes up",
+        metaHead: ["Up"],
+        remark: "none",
+        segment: "standard",
+        net: 18.4,
+      })}
+    />
+    <SettledRow
+      row={settled({
+        daysAgo: 7,
+        title: "US jobs report beats forecast",
+        metaHead: ["Yes"],
+        remark: "none",
+        net: 0.002,
+        won: true,
+      })}
+    />
+  </div>
+);
+
+/** PF-21 系列聚合行 — 全胜 / 部分 / 全败，点进系列详情。 */
+export const PortfolioSeriesRowPreview = () => (
+  <div className="bg-background pb-4">
+    <SettledRow
+      row={settled({
+        daysAgo: 3,
+        title: "Bitcoin — up or down?",
+        metaHead: ["Series", "won 2 of 2"],
+        net: 39.5,
+        isSeries: true,
+        seriesId: "bitcoin-up-or-down",
+      })}
+    />
+    <SettledRow
+      row={settled({
+        daysAgo: 4,
+        title: "Ethereum — up or down?",
+        metaHead: ["Series", "won 1 of 3"],
+        net: -12.45,
+        isSeries: true,
+        seriesId: "ethereum-up-or-down",
+        won: false,
+      })}
+    />
+    <SettledRow
+      row={settled({
+        daysAgo: 5,
+        title: "Solana — up or down?",
+        metaHead: ["Series", "won 0 of 2"],
+        net: -30,
+        isSeries: true,
+        seriesId: "solana-up-or-down",
+        won: false,
+      })}
+    />
+  </div>
+);
+
+/** PF-22 Standard 段 settled 行 — Up / Down / Series，永不带杠杆后缀。 */
+export const PortfolioStandardSettledPreview = () => (
+  <div className="bg-background pb-4">
+    <SettledRow
+      row={settled({ daysAgo: 1, title: "TSLA closes up", metaHead: ["Up"], segment: "standard", net: 22.4 })}
+    />
+    <SettledRow
+      row={settled({
+        daysAgo: 4,
+        title: "9988.HK closes up",
+        metaHead: ["Down"],
+        segment: "standard",
+        net: -13.6,
+        won: false,
+      })}
+    />
+    <SettledRow
+      row={settled({
+        daysAgo: 6,
+        title: "AAPL — up or down?",
+        metaHead: ["Series", "won 2 of 5"],
+        segment: "standard",
+        net: -8.2,
+        isSeries: true,
+        seriesId: "aapl-up-or-down",
+        won: false,
+      })}
+    />
+  </div>
+);
+
+/** PF-28 Standard/spot 单仓详情 — Up/Down 词轴 + ACTIVITY 无成交。 */
+const detailStandard: SettlementDetailVM = {
+  ...detailBase,
+  eventName: "TSLA closes up",
+  closeReason: "settlement",
+  net: 22.4,
+  cost: 100,
+  fees: 0.8,
+  shares: 260,
+  avgPrice: 0.38,
+  exitPrice: 1,
+  leverage: 1,
+  sideWord: "Up",
+  outcomeWon: true,
+  openedAt: daysAgoAt(6, 9, 35),
+  closedAt: daysAgoAt(5, 21),
+  trades: [],
+};
+
+export const SettlementDetailStandardPreview = () => {
+  const isMobile = useIsMobile();
+  return (
+    <div className="bg-background p-4">
+      {isMobile ? (
+        <SettlementDetailMobile vm={detailStandard} actions={{ onViewEvent: () => {} }} />
+      ) : (
+        <SettlementDetailDesktop vm={detailStandard} actions={{ onViewEvent: () => {} }} />
+      )}
+    </div>
+  );
+};
+
+/** PF-30 轮次行 — 正 / 负 / auto-closed 三种，都可点进该轮单仓详情。 */
+export const SettlementSeriesRoundPreview = () => {
+  const isMobile = useIsMobile();
+  const vm: SeriesDetailVM = {
+    ...seriesVm,
+    rounds: [
+      { id: "r3", closedAt: daysAgoAt(3, 12, 20), sideWord: "Up", autoClosed: false, net: 17.85 },
+      { id: "r2", closedAt: daysAgoAt(4, 12, 20), sideWord: "Down", autoClosed: false, net: -15.15 },
+      { id: "r1", closedAt: daysAgoAt(5, 12, 20), sideWord: "Up", autoClosed: true, net: -15.15 },
+    ],
+  };
+  return (
+    <div className="bg-background p-4">
+      {isMobile ? (
+        <SeriesDetailMobile vm={vm} actions={{ onViewEvent: () => {} }} />
+      ) : (
+        <SeriesDetailDesktop vm={vm} actions={{ onViewEvent: () => {} }} />
+      )}
+    </div>
+  );
+};
+
+/** PF-32 Standard 系列详情 — Series · Standard，DETAILS `N · daily rounds`。 */
+export const SettlementSeriesStandardPreview = () => {
+  const isMobile = useIsMobile();
+  const vm: SeriesDetailVM = {
+    ...seriesVm,
+    seriesName: "TSLA — up or down?",
+    segmentLabel: "Standard",
+    isDailyRounds: true,
+    rounds: [
+      { id: "s3", closedAt: daysAgoAt(3, 21), sideWord: "Up", autoClosed: false, net: 12.2 },
+      { id: "s2", closedAt: daysAgoAt(4, 21), sideWord: "Down", autoClosed: false, net: -10 },
+      { id: "s1", closedAt: daysAgoAt(5, 21), sideWord: "Up", autoClosed: false, net: 6.4 },
+    ],
+    cost: 60,
+    fees: 0.6,
+    payout: 68.6,
+    net: 8.6,
+    wins: 2,
+  };
+  return (
+    <div className="bg-background p-4">
+      {isMobile ? (
+        <SeriesDetailMobile vm={vm} actions={{ onViewEvent: () => {} }} />
+      ) : (
+        <SeriesDetailDesktop vm={vm} actions={{ onViewEvent: () => {} }} />
+      )}
+    </div>
+  );
+};
+
+/** PF-35 首载骨架 — tabs / chips 是实底 chrome，不骨架。 */
+export const PortfolioLoadingPreview = () => {
+  const isMobile = useIsMobile();
+  return (
+    <div className="bg-background pb-4">
+      <PortfolioTabs tab="live" onTab={() => {}} />
+      <PortfolioSkeleton cols={isMobile ? 2 : 3} part="kpi" />
+      <div className="px-4 pt-3">
+        <SegmentChips seg="boost" onSeg={() => {}} />
+      </div>
+      <PortfolioSkeleton cols={isMobile ? 2 : 3} part="rows" />
+    </div>
+  );
+};
+
+/** PF-36 列表请求失败 — KPI 三值 `—`，列表区一句话 + Retry。 */
+export const PortfolioFetchErrorPreview = () => {
+  const isMobile = useIsMobile();
+  return (
+    <div className="bg-background pb-4">
+      <PortfolioTabs tab="live" onTab={() => {}} />
+      <div className="px-4 pt-3.5">
+        <KpiGrid cols={isMobile ? 2 : 3}>
+          <KpiCard label="COST" value="—" />
+          <KpiCard label="NOW WORTH" value="—" />
+          {!isMobile && <KpiCard label="PROFIT" value="—" />}
+        </KpiGrid>
+      </div>
+      <PortfolioFetchError onRetry={() => {}} />
+    </div>
+  );
+};
+
+/** PF-37 详情 Not found — id 不存在与越权 id 渲染逐字相同。 */
+export const SettlementDetailNotFoundPreview = () => (
+  <div className="bg-background p-4">
+    <PortfolioNotFound />
+  </div>
+);
