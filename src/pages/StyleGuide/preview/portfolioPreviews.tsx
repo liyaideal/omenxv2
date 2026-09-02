@@ -33,10 +33,18 @@ import {
   type SeriesDetailVM,
 } from "@/components/portfolio/lite/SeriesDetailView";
 import { PortfolioErrorBoundary } from "@/components/portfolio/lite/PortfolioErrorBoundary";
+import {
+  PortfolioSkeleton,
+  PortfolioFetchError,
+  PortfolioNotFound,
+  PortfolioEmptyLive,
+} from "@/components/portfolio/lite/PortfolioAsyncStates";
+import { SettledRow } from "@/components/portfolio/lite/SettledList";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
 import { MobileHeader } from "@/components/MobileHeader";
 import { settledDayLabel, monthGroupLabel, monthKey } from "@/lib/settleLabel";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 /** Fixture dates stay relative so settleLabel() output never goes stale. */
 const inDays = (d: number, hour = 16, min = 0) => {
@@ -464,7 +472,7 @@ export const PortfolioSettledListPreview = () => (
 
 export const PortfolioEmptyStatesPreview = () => (
   <div className="space-y-6 bg-background p-4">
-    <div className="py-10 text-center text-[13px] text-[#6B7280]">No live calls yet</div>
+    <PortfolioEmptyLive />
     <SettledList groups={[]} />
   </div>
 );
@@ -493,7 +501,9 @@ export const PortfolioAuthGateSignedOutPreview = () => (
 /** Signed-in /portfolio — the gate passes children straight through. */
 export const PortfolioAuthGateSignedInPreview = () => (
   <div className="bg-background">
-    <AuthGateBody />
+    <LiteAuthGate forceSignedIn>
+      <AuthGateBody />
+    </LiteAuthGate>
   </div>
 );
 
@@ -710,42 +720,18 @@ export const SeriesMobilePagePreview = () => (
  * 触发 —— 这里挂真 BoostCheckCard / BoostCheckBar，再在挂载后程序化点一次同一个
  * 按钮，展示的就是生产的展开态本体，没有任何手抄。
  */
-const AutoOpenDetails = ({
-  children,
-  minHeight,
-}: {
-  children: React.ReactNode;
-  minHeight: number;
-}) => {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const t = setTimeout(() => {
-      const btn = Array.from(ref.current?.querySelectorAll("button") ?? []).find(
-        (b) => b.textContent?.trim().startsWith("Details"),
-      );
-      (btn as HTMLButtonElement | undefined)?.click();
-    }, 120);
-    return () => clearTimeout(t);
-  }, []);
-  return (
-    <div ref={ref} className="bg-background p-4" style={{ minHeight }}>
-      {children}
-    </div>
-  );
-};
-
 /** Mobile: Details › 打开 MobileDrawer（底部抽屉）。 */
 export const PortfolioDetailsDrawerPreview = () => (
-  <AutoOpenDetails minHeight={420}>
-    <BoostCheckCard data={gauge(86)} />
-  </AutoOpenDetails>
+  <div className="bg-background p-4" style={{ minHeight: 420 }}>
+    <BoostCheckCard data={gauge(86)} defaultOpen />
+  </div>
 );
 
 /** Desktop: 同一个 Details › 打开 320px 锚定 Popover，绝不是底部抽屉。 */
 export const PortfolioDetailsPopoverPreview = () => (
-  <AutoOpenDetails minHeight={420}>
-    <BoostCheckBar data={gauge(86)} />
-  </AutoOpenDetails>
+  <div className="bg-background p-4" style={{ minHeight: 420 }}>
+    <BoostCheckBar data={gauge(86)} defaultOpen />
+  </div>
 );
 
 /* ---------------- 桌面挂单行（折叠 / 展开两态） ---------------- */
@@ -753,15 +739,6 @@ const pendingOrders = [
   { id: "o1", event: "Bitcoin above $70,000", eventId: "demo-event", size: "120", price: "41¢" },
   { id: "o2", event: "Arsenal to beat Liverpool", eventId: "demo-arsenal", size: "80", price: "36¢" },
 ];
-
-const AutoExpand = ({ children }: { children: React.ReactNode }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const t = setTimeout(() => ref.current?.querySelector("button")?.click(), 120);
-    return () => clearTimeout(t);
-  }, []);
-  return <div ref={ref}>{children}</div>;
-};
 
 export const PortfolioPendingDesktopPreview = () => (
   <div className="space-y-4 bg-background p-4">
@@ -771,9 +748,7 @@ export const PortfolioPendingDesktopPreview = () => (
     </div>
     <div>
       <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">展开态（逐单行 · 点击跳 Pro）</p>
-      <AutoExpand>
-        <PendingOrdersRow orders={pendingOrders} />
-      </AutoExpand>
+      <PendingOrdersRow orders={pendingOrders} defaultOpen />
     </div>
     <div>
       <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">orders = []</p>
@@ -1036,9 +1011,7 @@ export const PortfolioPendingMobilePreview = () => (
     </div>
     <div>
       <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">展开态（逐单行 · 点击跳 Pro）</p>
-      <AutoExpand>
-        <PendingOrdersRow orders={pendingOrders} />
-      </AutoExpand>
+      <PendingOrdersRow orders={pendingOrders} defaultOpen />
     </div>
     <div>
       <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">orders = []</p>
@@ -1190,5 +1163,247 @@ export const PortfolioBatchClosingMobilePreview = () => (
       closingLabel="Closing 2 / 5…"
       onConfirm={() => {}}
     />
+  </div>
+);
+
+/* ================= Ⓖ–Ⓚ · PF-19…PF-38 新增 case ================= */
+
+/** PF-20 单仓结算行 — settlement / auto_close / cashout / close_reason=null / 零结果。 */
+export const PortfolioSettledRowPreview = () => (
+  <div className="bg-background pb-4">
+    <SettledRow row={settled({ daysAgo: 3, net: 235 })} />
+    <SettledRow
+      row={settled({
+        daysAgo: 4,
+        title: "ETH above $4,000 today",
+        metaHead: ["Up", "3× Boost"],
+        metaTail: ["auto-closed"],
+        remark: "auto_close",
+        net: -88,
+        won: false,
+      })}
+    />
+    <SettledRow
+      row={settled({
+        daysAgo: 5,
+        title: "Arsenal to beat Liverpool",
+        metaHead: ["ARS +1.5"],
+        remark: "cashout",
+        net: 42.5,
+      })}
+    />
+    <SettledRow
+      row={settled({
+        daysAgo: 6,
+        title: "TSLA closes up",
+        metaHead: ["Up"],
+        remark: "none",
+        segment: "standard",
+        net: 18.4,
+      })}
+    />
+    <SettledRow
+      row={settled({
+        daysAgo: 7,
+        title: "US jobs report beats forecast",
+        metaHead: ["Yes"],
+        remark: "none",
+        net: 0.002,
+        won: true,
+      })}
+    />
+  </div>
+);
+
+/** PF-21 系列聚合行 — 全胜 / 部分 / 全败，点进系列详情。 */
+export const PortfolioSeriesRowPreview = () => (
+  <div className="bg-background pb-4">
+    <SettledRow
+      row={settled({
+        daysAgo: 3,
+        title: "Bitcoin — up or down?",
+        metaHead: ["Series", "won 2 of 2"],
+        net: 39.5,
+        isSeries: true,
+        seriesId: "bitcoin-up-or-down",
+      })}
+    />
+    <SettledRow
+      row={settled({
+        daysAgo: 4,
+        title: "Ethereum — up or down?",
+        metaHead: ["Series", "won 1 of 3"],
+        net: -12.45,
+        isSeries: true,
+        seriesId: "ethereum-up-or-down",
+        won: false,
+      })}
+    />
+    <SettledRow
+      row={settled({
+        daysAgo: 5,
+        title: "Solana — up or down?",
+        metaHead: ["Series", "won 0 of 2"],
+        net: -30,
+        isSeries: true,
+        seriesId: "solana-up-or-down",
+        won: false,
+      })}
+    />
+  </div>
+);
+
+/** PF-22 Standard 段 settled 行 — Up / Down / Series，永不带杠杆后缀。 */
+export const PortfolioStandardSettledPreview = () => (
+  <div className="bg-background pb-4">
+    <SettledRow
+      row={settled({ daysAgo: 1, title: "TSLA closes up", metaHead: ["Up"], segment: "standard", net: 22.4 })}
+    />
+    <SettledRow
+      row={settled({
+        daysAgo: 4,
+        title: "9988.HK closes up",
+        metaHead: ["Down"],
+        segment: "standard",
+        net: -13.6,
+        won: false,
+      })}
+    />
+    <SettledRow
+      row={settled({
+        daysAgo: 6,
+        title: "AAPL — up or down?",
+        metaHead: ["Series", "won 2 of 5"],
+        segment: "standard",
+        net: -8.2,
+        isSeries: true,
+        seriesId: "aapl-up-or-down",
+        won: false,
+      })}
+    />
+  </div>
+);
+
+/** PF-28 Standard/spot 单仓详情 — Up/Down 词轴 + ACTIVITY 无成交。 */
+const detailStandard: SettlementDetailVM = {
+  ...detailBase,
+  eventName: "TSLA closes up",
+  closeReason: "settlement",
+  net: 22.4,
+  cost: 100,
+  fees: 0.8,
+  shares: 260,
+  avgPrice: 0.38,
+  exitPrice: 1,
+  leverage: 1,
+  sideWord: "Up",
+  outcomeWon: true,
+  openedAt: daysAgoAt(6, 9, 35),
+  closedAt: daysAgoAt(5, 21),
+  trades: [],
+};
+
+export const SettlementDetailStandardPreview = () => {
+  const isMobile = useIsMobile();
+  return (
+    <div className="bg-background p-4">
+      {isMobile ? (
+        <SettlementDetailMobile vm={detailStandard} actions={{ onViewEvent: () => {} }} />
+      ) : (
+        <SettlementDetailDesktop vm={detailStandard} actions={{ onViewEvent: () => {} }} />
+      )}
+    </div>
+  );
+};
+
+/** PF-30 轮次行 — 正 / 负 / auto-closed 三种，都可点进该轮单仓详情。 */
+export const SettlementSeriesRoundPreview = () => {
+  const isMobile = useIsMobile();
+  const vm: SeriesDetailVM = {
+    ...seriesVm,
+    rounds: [
+      { id: "r3", closedAt: daysAgoAt(3, 12, 20), sideWord: "Up", autoClosed: false, net: 17.85 },
+      { id: "r2", closedAt: daysAgoAt(4, 12, 20), sideWord: "Down", autoClosed: false, net: -15.15 },
+      { id: "r1", closedAt: daysAgoAt(5, 12, 20), sideWord: "Up", autoClosed: true, net: -15.15 },
+    ],
+  };
+  return (
+    <div className="bg-background p-4">
+      {isMobile ? (
+        <SeriesDetailMobile vm={vm} actions={{ onViewEvent: () => {} }} />
+      ) : (
+        <SeriesDetailDesktop vm={vm} actions={{ onViewEvent: () => {} }} />
+      )}
+    </div>
+  );
+};
+
+/** PF-32 Standard 系列详情 — Series · Standard，DETAILS `N · daily rounds`。 */
+export const SettlementSeriesStandardPreview = () => {
+  const isMobile = useIsMobile();
+  const vm: SeriesDetailVM = {
+    ...seriesVm,
+    seriesName: "TSLA — up or down?",
+    segmentLabel: "Standard",
+    isDailyRounds: true,
+    rounds: [
+      { id: "s3", closedAt: daysAgoAt(3, 21), sideWord: "Up", autoClosed: false, net: 12.2 },
+      { id: "s2", closedAt: daysAgoAt(4, 21), sideWord: "Down", autoClosed: false, net: -10 },
+      { id: "s1", closedAt: daysAgoAt(5, 21), sideWord: "Up", autoClosed: false, net: 6.4 },
+    ],
+    cost: 60,
+    fees: 0.6,
+    payout: 68.6,
+    net: 8.6,
+    wins: 2,
+  };
+  return (
+    <div className="bg-background p-4">
+      {isMobile ? (
+        <SeriesDetailMobile vm={vm} actions={{ onViewEvent: () => {} }} />
+      ) : (
+        <SeriesDetailDesktop vm={vm} actions={{ onViewEvent: () => {} }} />
+      )}
+    </div>
+  );
+};
+
+/** PF-35 首载骨架 — tabs / chips 是实底 chrome，不骨架。 */
+export const PortfolioLoadingPreview = () => {
+  const isMobile = useIsMobile();
+  return (
+    <div className="bg-background pb-4">
+      <PortfolioTabs value="live" onChange={() => {}} />
+      <PortfolioSkeleton cols={isMobile ? 2 : 3} part="kpi" />
+      <div className="px-4 pt-3">
+        <SegmentChips value="boost" onChange={() => {}} boostCount={3} standardCount={2} />
+      </div>
+      <PortfolioSkeleton cols={isMobile ? 2 : 3} part="rows" />
+    </div>
+  );
+};
+
+/** PF-36 列表请求失败 — KPI 三值 `—`，列表区一句话 + Retry。 */
+export const PortfolioFetchErrorPreview = () => {
+  const isMobile = useIsMobile();
+  return (
+    <div className="bg-background pb-4">
+      <PortfolioTabs value="live" onChange={() => {}} />
+      <div className="px-4 pt-3.5">
+        <KpiGrid cols={isMobile ? 2 : 3}>
+          <KpiCard label="COST" value="—" />
+          <KpiCard label="NOW WORTH" value="—" />
+          {!isMobile && <KpiCard label="PROFIT" value="—" />}
+        </KpiGrid>
+      </div>
+      <PortfolioFetchError onRetry={() => {}} />
+    </div>
+  );
+};
+
+/** PF-37 详情 Not found — id 不存在与越权 id 渲染逐字相同。 */
+export const SettlementDetailNotFoundPreview = () => (
+  <div className="bg-background p-4">
+    <PortfolioNotFound />
   </div>
 );

@@ -250,8 +250,15 @@ const DetailsDrawer = ({
 );
 
 /** Desktop overlay parity (DESIGN §5): anchored Popover, never a bottom sheet. */
-const DetailsPopover = ({ data }: { data: BoostCheckData }) => (
-  <Popover>
+const DetailsPopover = ({
+  data,
+  defaultOpen,
+}: {
+  data: BoostCheckData;
+  /** Docs-only: open on mount in /style-guide. Never set in product. */
+  defaultOpen?: boolean;
+}) => (
+  <Popover defaultOpen={defaultOpen}>
     <PopoverTrigger asChild>
       <button type="button" className="text-[12px] text-[#6B7280]">
         Details ›
@@ -276,8 +283,15 @@ const DetailsPopover = ({ data }: { data: BoostCheckData }) => (
 );
 
 /** Mobile card form — section head of the Boost segment. */
-export const BoostCheckCard = ({ data }: { data: BoostCheckData }) => {
-  const [open, setOpen] = useState(false);
+export const BoostCheckCard = ({
+  data,
+  defaultOpen = false,
+}: {
+  data: BoostCheckData;
+  /** Docs-only: open the Details drawer on mount. Never set in product. */
+  defaultOpen?: boolean;
+}) => {
+  const [open, setOpen] = useState(defaultOpen);
   const st = boostState(data.riskRatio);
   const fill = Math.min(Math.max(data.riskRatio, 0), 100);
   return (
@@ -313,7 +327,14 @@ export const BoostCheckCard = ({ data }: { data: BoostCheckData }) => {
 };
 
 /** Desktop bar form. */
-export const BoostCheckBar = ({ data }: { data: BoostCheckData }) => {
+export const BoostCheckBar = ({
+  data,
+  defaultOpen,
+}: {
+  data: BoostCheckData;
+  /** Docs-only: open the Details popover on mount. Never set in product. */
+  defaultOpen?: boolean;
+}) => {
   const st = boostState(data.riskRatio);
   const fill = Math.min(Math.max(data.riskRatio, 0), 100);
   return (
@@ -331,7 +352,7 @@ export const BoostCheckBar = ({ data }: { data: BoostCheckData }) => {
           <span className="font-mono font-bold text-[#F2F3F5]">{moneyAuto(data.untilAutoClose)}</span>{" "}
           until auto-close starts · shared across Boost calls
         </span>
-      <DetailsPopover data={data} />
+      <DetailsPopover data={data} defaultOpen={defaultOpen} />
     </div>
   );
 };

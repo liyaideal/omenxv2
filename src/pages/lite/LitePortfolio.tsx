@@ -60,24 +60,13 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import type { LiteLiveRow } from "@/hooks/useLitePortfolio";
 import { SeoFooter } from "@/components/seo/SeoFooter";
+import {
+  PortfolioSkeleton,
+  PortfolioFetchError,
+  KPI_DASH,
+  PortfolioEmptyLive as EmptyLive,
+} from "@/components/portfolio/lite/PortfolioAsyncStates";
 
-
-const EmptyLive = () => {
-  const navigate = useNavigate();
-  return (
-    <div className="flex flex-col items-center gap-3 py-14">
-      <p className="text-[13px] text-[#6B7280]">No live calls yet</p>
-      <button
-        type="button"
-        onClick={() => navigate("/events")}
-        className="h-10 rounded-[10px] px-4 text-[13px] font-semibold text-[#F2F3F5]"
-        style={{ border: "1px solid #2A2F38" }}
-      >
-        Browse events
-      </button>
-    </div>
-  );
-};
 
 export default function LitePortfolio() {
   const isMobile = useIsMobile();
@@ -228,16 +217,22 @@ export default function LitePortfolio() {
 
 
   /* ------------------------------ blocks ------------------------------ */
+  // A failed list request renders `—` everywhere a money value would go —
+  // never a fake $0.00 zero state.
+  const dash = p.isError;
+  // First fetch with nothing cached. A background refresh keeps the real body.
+  const firstLoad = p.isLoading && !p.hasData && !p.isError;
+
   const liveKpiMobile = (
     <KpiGrid cols={2}>
       <KpiCard
         label="COST"
-        value={money(p.liveKpi.cost)}
+        value={dash ? KPI_DASH : money(p.liveKpi.cost)}
         sub={`${p.liveKpi.count} ${p.liveKpi.count === 1 ? "call" : "calls"}`}
       />
       <KpiCard
         label="NOW WORTH"
-        value={money(p.liveKpi.nowWorth)}
+        value={dash ? KPI_DASH : money(p.liveKpi.nowWorth)}
         sub={`${signedMoney(p.liveKpi.profit)} · ${p.liveKpi.profit >= 0 ? "+" : ""}${p.liveKpi.profitPercent.toFixed(1)}%`}
         subColor={p.liveKpi.profit >= 0 ? VOLT : RED}
       />
@@ -248,13 +243,13 @@ export default function LitePortfolio() {
     <KpiGrid cols={3}>
       <KpiCard
         label="COST"
-        value={money(p.liveKpi.cost)}
+        value={dash ? KPI_DASH : money(p.liveKpi.cost)}
         sub={`${p.liveKpi.count} ${p.liveKpi.count === 1 ? "call" : "calls"}`}
       />
-      <KpiCard label="NOW WORTH" value={money(p.liveKpi.nowWorth)} />
+      <KpiCard label="NOW WORTH" value={dash ? KPI_DASH : money(p.liveKpi.nowWorth)} />
       <KpiCard
         label="PROFIT"
-        value={signedMoney(p.liveKpi.profit)}
+        value={dash ? KPI_DASH : signedMoney(p.liveKpi.profit)}
         sub={`${p.liveKpi.profit >= 0 ? "+" : ""}${p.liveKpi.profitPercent.toFixed(1)}%`}
         subColor={p.liveKpi.profit >= 0 ? VOLT : RED}
       />
@@ -265,12 +260,12 @@ export default function LitePortfolio() {
     <KpiGrid cols={2}>
       <KpiCard
         label="WIN RATE"
-        value={`${p.settledKpi.winRate}%`}
+        value={dash ? KPI_DASH : `${p.settledKpi.winRate}%`}
         sub={`${p.settledKpi.wins} of ${p.settledKpi.total}`}
       />
       <KpiCard
         label="NET PROFIT"
-        value={signedMoney(p.settledKpi.net)}
+        value={dash ? KPI_DASH : signedMoney(p.settledKpi.net)}
         sub={`${p.settledKpi.total} settled`}
         subColor={p.settledKpi.net >= 0 ? VOLT : RED}
       />
@@ -281,18 +276,18 @@ export default function LitePortfolio() {
     <KpiGrid cols={3}>
       <KpiCard
         label="WIN RATE"
-        value={`${p.settledKpi.winRate}%`}
+        value={dash ? KPI_DASH : `${p.settledKpi.winRate}%`}
         sub={`${p.settledKpi.wins} of ${p.settledKpi.total}`}
       />
       <KpiCard
         label="NET PROFIT"
-        value={signedMoney(p.settledKpi.net)}
+        value={dash ? KPI_DASH : signedMoney(p.settledKpi.net)}
         sub={`${p.settledKpi.total} settled`}
         subColor={p.settledKpi.net >= 0 ? VOLT : RED}
       />
       <KpiCard
         label="RECORD"
-        value={`${p.settledKpi.wins}W ${p.settledKpi.losses}L`}
+        value={dash ? KPI_DASH : `${p.settledKpi.wins}W ${p.settledKpi.losses}L`}
         sub="wins · losses"
       />
     </KpiGrid>
@@ -419,15 +414,19 @@ export default function LitePortfolio() {
       <div className="px-4 lg:px-0">
         <PortfolioTabs value={tab} onChange={setTab} sticky={isMobile} />
       </div>
-      <div className="px-4 lg:px-0 pb-1 pt-3.5">
-        {tab === "live"
-          ? isMobile
-            ? liveKpiMobile
-            : liveKpiDesktop
-          : isMobile
-            ? settledKpiMobile
-            : settledKpiDesktop}
-      </div>
+      {firstLoad ? (
+        <PortfolioSkeleton cols={isMobile ? 2 : 3} part="kpi" />
+      ) : (
+        <div className="px-4 lg:px-0 pb-1 pt-3.5">
+          {tab === "live"
+            ? isMobile
+              ? liveKpiMobile
+              : liveKpiDesktop
+            : isMobile
+              ? settledKpiMobile
+              : settledKpiDesktop}
+        </div>
+      )}
       <div className="pt-3">
         <VoucherHairline count={p.claimableVouchers} />
       </div>
@@ -457,7 +456,15 @@ export default function LitePortfolio() {
             ))}
         </div>
       )}
-      {tab === "live" ? liveBody : settledBody}
+      {firstLoad ? (
+        <PortfolioSkeleton cols={isMobile ? 2 : 3} part="rows" />
+      ) : p.isError ? (
+        <PortfolioFetchError onRetry={p.refetchLists} />
+      ) : tab === "live" ? (
+        liveBody
+      ) : (
+        settledBody
+      )}
       <LiteManualShareCard snap={manualShare} onClose={() => setManualShare(null)} />
     </>
   );

@@ -121,31 +121,55 @@ Settled 行 ─单仓─> /portfolio/settlement/:id
 | 系列 key | 稳定 `eventId`。旧链接可能传 event name（标题含 `%` 会坏），进入后一跳内 canonical 化为 id 并 `replace` URL |
 | 段位记忆 | 无历史记忆时，Boost 为空且 Standard 有行则默认 Standard |
 
-## 6. 状态索引（模块 → /style-guide case 编号）
+## 6. 状态索引（PF 编号 → preview key）
 
-去 `/style-guide` → Lite → Portfolio；每个 case 下方都有「状态 / 触发条件 / 视觉结果 / 数据来源」四列表。本表只索引，不复述状态。
-preview key 定义在 `src/pages/StyleGuide/sections/pages/LitePortfolioPage.tsx`。
+去 `/style-guide` → Lite → Portfolio；每个 case 下方都有「状态 / 触发条件 / 视觉结果 / 数据来源」四列表，页尾另有附注表 A–F（分段口径 / auto-close / 版式几何 / 时间口径 / 颜色轴 / 并账列账）。本表只索引，不复述状态。
+case 定义在 `src/pages/StyleGuide/sections/PortfolioStatesSection.tsx`，preview 实现在 `src/pages/StyleGuide/preview/portfolioPreviews.tsx`。同一编号双帧成对：desktop 1280 帧在上、mobile 375 帧在下，各挂各端生产真组件。
 
-| 模块 | preview key |
+| PF 编号 | preview key |
 |---|---|
-| Tabs / 券发丝行 / 双段 chips | `portfolio-lite-chrome` |
-| KPI 卡 · 移动 / 桌面 | `portfolio-lite-kpi-mobile` / `portfolio-lite-kpi-desktop` |
-| Boost check 仪表三态 / 桌面条 | `portfolio-lite-gauge-states` / `portfolio-lite-gauge-bar` |
-| Boost check Details（移动抽屉 / 桌面 Popover） | `portfolio-lite-details-drawer` / `portfolio-lite-details-popover` |
-| 持仓卡全状态（移动） | `portfolio-lite-live-cards` |
-| 桌面行式网格 / 桌面挂单行 | `portfolio-lite-desktop-rows` / `portfolio-lite-pending-desktop` |
-| Settled 列表 / 加载更多 / 月份折叠 | `portfolio-lite-settled` / `portfolio-lite-settled-loadmore` / `portfolio-lite-settled-collapse` |
-| Live 多选批量平仓（移动 + 桌面同一状态机） | `portfolio-lite-live-select` |
+| PF-1 Tabs 与双段 chips | `portfolio-lite-chrome` |
+| PF-2 券发丝行 | `portfolio-lite-voucher-hairline` |
+| PF-3 Select 入口与选择工具条 | `portfolio-lite-select-entry` |
+| PF-4 Live KPI 卡 | `portfolio-lite-kpi-desktop` / `portfolio-lite-kpi-mobile` |
+| PF-5 Settled KPI 卡 | `portfolio-lite-kpi-settled` / `portfolio-lite-kpi-settled-mobile` |
+| PF-6 Boost check 三态 | `portfolio-lite-gauge-bar` / `portfolio-lite-gauge-states` |
+| PF-7 Boost check Details 展开 | `portfolio-lite-details-popover` / `portfolio-lite-details-drawer` |
+| PF-8 Live 常规态 | `portfolio-lite-desktop-rows` / `portfolio-lite-live-cards` |
+| PF-9 SIDE chip 与选项名 | `portfolio-lite-side-chip` / `portfolio-lite-side-chip-mobile` |
+| PF-10 auto-close 值语法 | `autoclose-desktop-rows` / `autoclose-mobile-cards` / `autoclose-standard-row` |
+| PF-11 hot 行 | `portfolio-lite-hot` / `portfolio-lite-hot-mobile` |
+| PF-12 Standard 段 Live 行 | `portfolio-lite-standard-live` / `portfolio-lite-standard-live-mobile` |
+| PF-13 来源标枚举 | `portfolio-lite-airdrop-tag-rows` / `portfolio-lite-airdrop-tag-cards` |
+| PF-14 settles 时间三分支 + 缺失 | `portfolio-lite-settles-time` / `portfolio-lite-settles-time-mobile` |
+| PF-15 挂单行两态 | `portfolio-lite-pending-desktop` / `portfolio-lite-pending-mobile` |
+| PF-16 选择模式 | `portfolio-lite-live-select-desktop` / `portfolio-lite-live-select` |
+| PF-17 吸底动作条 | `portfolio-lite-batch-bar` / `portfolio-lite-batch-bar-mobile` |
+| PF-18 确认层（空闲 / 执行中） | `portfolio-lite-batch-confirm` / `portfolio-lite-batch-confirm-mobile` / `portfolio-lite-batch-closing` / `portfolio-lite-batch-closing-mobile` |
+| PF-19 Settled 月份分组与折叠 | `portfolio-lite-settled`（旧 key `portfolio-lite-settled-collapse` 指同一组件） |
+| PF-20 单仓结算行 | `portfolio-lite-settled-row` |
+| PF-21 系列聚合行 | `portfolio-lite-series-row` |
+| PF-22 Standard 段 settled 行 | `portfolio-lite-standard-settled` |
+| PF-23 月份懒加载 | `portfolio-lite-settled-loadmore` |
+| PF-24 详情 · won | `portfolio-lite-detail-won` / `portfolio-lite-detail-won-mobile` |
+| PF-25 详情 · lost | `portfolio-lite-detail-lost` / `portfolio-lite-detail-lost-mobile` |
+| PF-26 详情 · auto_close | `portfolio-lite-detail-autoclosed` / `portfolio-lite-detail-autoclosed-mobile` |
+| PF-27 详情 · cashout | `portfolio-lite-detail-cashout` / `portfolio-lite-detail-cashout-mobile` |
+| PF-28 详情 · Standard / spot | `portfolio-lite-detail-standard` |
+| PF-29 系列详情主体 | `portfolio-lite-series-detail` / `portfolio-lite-series-mobile-page` |
+| PF-30 轮次行 | `portfolio-lite-series-round` |
+| PF-31 系列两极 + Standard/Boost 口径 | `portfolio-lite-series-extremes` |
+| PF-32 Standard 系列详情 | `portfolio-lite-series-standard` |
+| PF-33 空态 | `portfolio-lite-empty` |
+| PF-34 未登录门（未登录 / 已登录穿透） | `portfolio-lite-auth-gate-out` / `portfolio-lite-auth-gate-in` |
+| PF-35 Loading 骨架 | `portfolio-lite-loading` |
+| PF-36 请求失败 | `portfolio-lite-fetch-error` |
+| PF-37 详情 Not found | `portfolio-lite-detail-notfound` |
+| PF-38 渲染崩溃 | `portfolio-lite-error` |
 
 > Settled 列表行为补充（移动端 + 桌面端同一组件 `SettledList`）：月份组头是可点击按钮，点击折叠/展开该月全部行，组头带行数计数 `(N)` 与 ChevronDown 方向指示；默认全部展开，折叠状态不持久化（切 tab / 刷新恢复展开）；`Load earlier months` 追加的月份默认展开。
 
 > Live 批量平仓（`LiveCards.tsx` + `BatchCashOut.tsx`，移动 / 桌面共用）：Boost/Standard chips 行右侧 `Select` 进入选择模式（不单独占行）→ 行内出现圆形勾选点、单行 `Cash out` 与分享按钮隐藏、点击整卡 / 整行改为切换选中（选中态 Pulse 描边 + 淡蓝底，hot 行保持红轴优先）；工具条（同样内联在 chips 行右侧）提供 `Select all` / `Clear` / `N selected` / `Cancel`（<sm 窄屏只留 `Select all` / `Cancel`，计数由动作条承担）；有选中时动作条 `fixed` 恒定贴底（移动端钉在 BottomNav（实测 77px 高，含 1px border）上方 `bottom-[84px]`（留 7px 呼吸缝），桌面 `lg:bottom-4`，内层 `max-w-7xl px-4 lg:px-6` 与页容器对齐；页面流内渲染 `h-[76px]` 占位防止遮住末行）显示 `N selected · Now worth $X · Profit ±$Y` 与主按钮 `Cash out N`。确认层桌面 Dialog / 移动 MobileDrawer（按 DESIGN.md §5.1：标题 `Cash out N positions`；正文根 `space-y-4`；卡片 `rounded-lg border border-border bg-muted/30 p-3`、卡内行距 `space-y-1.5`；逐行 `{event} · {side} · {now worth}`（value `text-xs font-mono`），合计 `You get about`（value `font-mono text-right`），免责 `Prices move while we close — the final amount can differ slightly.`；灰色一律 `text-muted-foreground`；footer 移动端 `MobileDrawerActions className="flex gap-2 space-y-0"`，Cancel(outline `h-11 flex-1`) + 主按钮 `Cash out`（不可逆 → destructive 红 `bg-trading-red text-white hover:bg-trading-red/90`，`h-11 flex-1`），桌面 Dialog 共用同一按钮组）；确认后**串行**逐仓 `usePositions.closePosition(positionId, index)`，按钮显示 `Closing i / N…`，结束后汇总 toast（全成 `Cashed out N positions` / 部分失败 `Cashed out K of N — M failed, still open below` / 全败 `Couldn't cash out — please try again`）。选择状态不持久化，切 tab / 切 segment / 完成后即清空；单行 Cash out 跳市场页的行为不变。Pro portfolio 不涉及。
-| 单仓结算详情 · 移动（won / auto_close / cashout / lost） | `portfolio-lite-detail-won-mobile` / `portfolio-lite-detail-autoclosed-mobile` / `portfolio-lite-detail-cashout-mobile` / `portfolio-lite-detail-lost-mobile` |
-| 单仓结算详情 · 桌面（won / auto_close / cashout / lost） | `portfolio-lite-detail-won` / `portfolio-lite-detail-autoclosed` / `portfolio-lite-detail-cashout` / `portfolio-lite-detail-lost` |
-| 系列详情（移动整页 / 桌面 / 两极） | `portfolio-lite-series-mobile-page` / `portfolio-lite-series-detail` / `portfolio-lite-series-extremes` |
-| 来源标（voucher / airdrop） | `portfolio-lite-airdrop-tag-cards` / `portfolio-lite-airdrop-tag-rows` |
-| auto-close 两态（移动卡 / 桌面行 / Standard 行） | `autoclose-mobile-cards` / `autoclose-desktop-rows` / `autoclose-standard-row` |
-| 空态 / 未登录门 / 已登录门 / 错误边界 | `portfolio-lite-empty` / `portfolio-lite-auth-gate-out` / `portfolio-lite-auth-gate-in` / `portfolio-lite-error` |
 
 ## 7. 会话状态（sessionStorage）
 
@@ -209,17 +233,19 @@ preview key 定义在 `src/pages/StyleGuide/sections/pages/LitePortfolioPage.tsx
 | `hot` / KPI / `profitPercent` | 纯派生 |
 | 月分组 / series 聚合 | 当前前端做；数据量大时建议下沉（见 §12） |
 
-## 11. 异步态（待实现项）
+## 11. 异步态（已实装）
 
-现状：Lite portfolio **没有骨架屏**，`isLoading` 只用于滚动复位；请求失败无 UI，`PortfolioErrorBoundary` 只兜渲染崩溃。落地时需补齐三态。
+三态已落地在 `src/components/portfolio/lite/PortfolioAsyncStates.tsx`，由 `useLitePortfolio` 的 `isLoading` / `hasData` / `isError` / `refetchLists` 驱动。
 
-| 态 | 触发 | 要求 |
+| 态 | 触发 | 表现 |
 |---|---|---|
-| Loading | 首次拉取未返回 | 骨架屏，色板复用 LiteEventsPage：底 `#171A1F`、块 `#15181C`；KPI 2/3 卡 + 3 行列表占位；tabs 与 chips 直接渲染不占位 |
-| Error | 请求失败（非渲染异常） | 列表区替换为错误文案 + Retry 按钮；KPI 显示 `—` 而非 `$0.00` |
-| Empty | 请求成功但无数据 | 现有 `No live calls yet` + Browse events；Settled 空态同理 |
-| 渲染崩溃 | 组件抛错 | `PortfolioErrorBoundary`，带 reset 回列表 |
-| 详情 Not found | id 不存在 / 无权限 | 现有文案 + 返回按钮；需补 Retry |
+| Loading | `isLoading && !hasData && !isError`（首次拉取且无缓存；缓存直渲、后续刷新不闪骨架） | `PortfolioSkeleton`：KPI 占位卡桌面 3 / 移动 2 + 列表行占位 3 行；底 `#171A1F`、块 `#15181C`、根节点单一 `animate-pulse`；tabs 与 Boost/Standard chips 是静态 chrome，首载即实底可点、不骨架 |
+| Error | `isError`（列表请求失败，非渲染异常） | `PortfolioFetchError`：`Couldn't load your positions.`（text-sm muted）+ 描边按钮 `Retry`（重新发起拉取）；KPI 三值渲染 `—`，不渲染 `$0.00` 假零态 |
+| Empty | 请求成功但无数据 | `PortfolioEmptyLive`：`No live calls yet` + `Browse events`；Settled 空态 `Nothing settled yet`（无按钮） |
+| 详情 Not found | id 不存在 **或** 属于他人（越权） | `PortfolioNotFound`：`Position not found` + `It may have been removed, or the link is wrong.` + `Back to settled`（回 `/portfolio?tab=settled`）。两种情况渲染逐字相同，不泄露他人 event 名与金额 |
+| 渲染崩溃 | 组件抛错 | `PortfolioErrorBoundary`：`Something went wrong` + `Back to settled` |
+
+状态字典：PF-33 / PF-35 / PF-36 / PF-37 / PF-38。
 
 ## 12. 规模与分页（待实现项）
 
@@ -323,6 +349,8 @@ preview key 定义在 `src/pages/StyleGuide/sections/pages/LitePortfolioPage.tsx
 | 错误态是否需要 Retry 之外的降级（如显示缓存快照） | 产品 |
 | 埋点平台与事件命名前缀 | 数据 |
 | 仓位数量上限与超限表现 | 产品 + 后端 |
+
+**给真平台前端的提醒（已知缺口，合并一条）**：DB 存量 5 行退役词 `Not Up`（显示层恒改写为 `Down`）+ 结算展示词应随仓位存档、不依赖事件行存活 —— 本仓库以 `src/lib/orphanSpotSideLabels.ts` 兜底事件行已被清理的存量现货结算仓（三条同时满足才兜底：`product_line === 'spot'`、join 不到 events 行、`option_label ∈ {Up, Down, Not Up}`）。
 
 ## 20. 未变更 / 不做
 

@@ -571,6 +571,365 @@ const LIVE_MOBILE_MIRRORS: SectionCase[] = (
   return { ...base, key, label: `${base.label}（移动）` };
 });
 
+/* ---------------- Ⓖ Settled 列表（PF-19 … PF-23） ---------------- */
+
+const SETTLED_CASES: SectionCase[] = [
+  {
+    key: "portfolio-lite-settled",
+    label: "PF-19 · 月份分组（SettledList）",
+    note: "组头是按钮：点一下折叠该月全部行，再点展开。默认全部展开；折叠状态不持久化，切 tab / 刷新后恢复。旧 key portfolio-lite-settled-collapse 指同一组件，保留可深链。",
+    spec: [
+      { state: "组头", when: "groups[i]", visual: "`AUGUST 2026 (11)` — 月份大写 + 行数计数（font-mono #6B7280/60）+ 右侧 ChevronDown", source: "monthGroupLabel()" },
+      { state: "月份展开（默认）", when: "collapsed 不含 g.key", visual: "Chevron 朝下，组内行正常渲染", source: "SettledList collapsed" },
+      { state: "月份折叠", when: "点击组头 → collapsed 加入 g.key", visual: "Chevron 旋转 180°（transition 200ms），组内行完全移出 DOM；组头仍可点击", source: "SettledList collapsed" },
+      { state: "折叠不持久化", when: "重新挂载", visual: "collapsed 重置为空集，全部展开", source: "useState(new Set())" },
+      { state: "懒加载新增组", when: "Load earlier months 追加的组", visual: "默认展开，不继承折叠状态", source: "SettledList visible" },
+    ],
+  },
+  {
+    key: "portfolio-lite-settled-collapse",
+    label: "PF-19b · 月份折叠（与 PF-19 同组件，旧 key 保留）",
+    spec: [
+      { state: "折叠 / 展开", when: "点击组头", visual: "同 PF-19", source: "SettledList" },
+    ],
+  },
+  {
+    key: "portfolio-lite-settled-row",
+    label: "PF-20 · 单仓结算行（SettledRow）",
+    note: "备注只有 auto-closed 一种。提前平仓（cashout）与到期结算渲染完全一致，不做任何可见标注。",
+    spec: [
+      { state: "settlement", when: 'closeReason === "settlement"', visual: "meta 行无备注，正常结算行", source: "resolvedGrouping" },
+      { state: "auto_close", when: 'closeReason === "auto_close"', visual: "meta 行末追加红字 `auto-closed`（RED）", source: "row.remark" },
+      { state: "cashout", when: 'closeReason === "cashout"', visual: "与 settlement 完全一致，无备注（`cashed out early` 已废弃）", source: "row.remark" },
+      { state: "close_reason = null", when: "close_reason IS NULL（现货平仓路径，DB 存量 39 行）", visual: "无备注，与 settlement 同渲染", source: "resolvedGrouping 默认分支" },
+      { state: "零结果行", when: "Math.abs(net) < 0.005", visual: "muted `$0.00`，不带 + / − 符号", source: "isZeroMoney" },
+    ],
+  },
+  {
+    key: "portfolio-lite-series-row",
+    label: "PF-21 · 系列聚合行（SeriesRow）",
+    spec: [
+      { state: "系列行", when: "isSeries === true", visual: "标题 = 系列名，meta `Series · won X of N · {日期}`", source: "row.isSeries / metaParts" },
+      { state: "全胜", when: "wins === rounds", visual: "`won 2 of 2`，净额绿", source: "useLitePortfolio 聚合" },
+      { state: "全败", when: "wins === 0", visual: "`won 0 of 2`，净额红", source: "useLitePortfolio 聚合" },
+      { state: "点击去向", when: "点击整行", visual: "进 `/portfolio?tab=settled&series={seriesId}`，不是单仓详情", source: "SettledRow onClick" },
+    ],
+  },
+  {
+    key: "portfolio-lite-standard-settled",
+    label: "PF-22 · Standard 段 settled 行",
+    note: "Standard = 现货（product_line === 'spot'），词轴是 Up / Down，永不出现杠杆后缀。",
+    spec: [
+      { state: "Up 行", when: 'segment === "standard" && sideWord === "Up"', visual: "`Up · Aug 31`", source: "copy-dictionary §Portfolio (Lite)" },
+      { state: "Down 行", when: 'segment === "standard" && sideWord === "Down"', visual: "`Down · Aug 28`", source: "copy-dictionary §Portfolio (Lite)" },
+      { state: "Standard 系列行", when: 'segment === "standard" && isSeries', visual: "`Series · won 2 of 5`", source: "copy-dictionary §Series / Round" },
+      { state: "无杠杆后缀", when: "始终", visual: "meta 里不出现 `N× Boost`", source: "copy-dictionary §Portfolio (Lite)" },
+    ],
+  },
+  {
+    key: "portfolio-lite-settled-loadmore",
+    label: "PF-23 · 月份懒加载（Load earlier months）",
+    note: "有可见控件：首屏只渲染最近 2 个月份组，其余靠按钮逐次追加 2 组。不是滚动自动加载，也没有 spinner。",
+    spec: [
+      { state: "首屏", when: "visible = 2（初始）", visual: "只渲染 groups.slice(0,2)，其余月份完全不在 DOM", source: "SettledList visible" },
+      { state: "按钮显示", when: "visible < groups.length", visual: "列表底部整宽描边按钮 `Load earlier months`（h-40px、#2A3F38 描边）", source: "SettledList" },
+      { state: "点击追加", when: "点击按钮 → visible += 2", visual: "再追加 2 个月份组，无 loading 态（数据已在本地）", source: "SettledList" },
+      { state: "按钮隐藏", when: "visible ≥ groups.length", visual: "按钮不渲染，列表到底", source: "SettledList" },
+    ],
+  },
+];
+
+/* ---------------- Ⓗ 单仓结算详情（PF-24 … PF-28） ---------------- */
+
+const DETAIL_CASES: SectionCase[] = [
+  {
+    key: "portfolio-lite-detail-won",
+    label: "PF-24 · 详情 · won",
+    note: "桌面 = back 链接 + 标题行 + meta + KPI 三卡 + DETAILS / ACTIVITY 双卡；移动 = 纵列。",
+    spec: [
+      { state: "won", when: 'closeReason === "settlement" && outcomeWon === true', visual: "眉线 SETTLED；RESULT `+$X` 绿，副行 `Won · Up settled at $1.00`", source: "SettlementDetailVM" },
+      { state: "Payout 公式", when: "始终", visual: "Payout = max(0, Cost + PnL − Fees)，副行 `after $F fees`", source: "settlementCopy.payoutOf()" },
+      { state: "View event", when: "eventId != null", visual: "右上 `View event ›`，带 fromState 返回本详情页", source: "portfolioReturn" },
+    ],
+  },
+  {
+    key: "portfolio-lite-detail-lost",
+    label: "PF-25 · 详情 · lost",
+    spec: [
+      { state: "lost", when: 'closeReason === "settlement" && outcomeWon === false', visual: "`Settled at $0.00 · Up lost`", source: "outcomeWon" },
+      { state: "零回收", when: "payout === 0", visual: "Payout `$0.00` → 副行 `nothing returned`", source: "settlementCopy" },
+    ],
+  },
+  {
+    key: "portfolio-lite-detail-autoclosed",
+    label: "PF-26 · 详情 · auto_close",
+    spec: [
+      { state: "auto_close", when: 'closeReason === "auto_close"', visual: "眉线 CLOSED；`Closed at 25¢ · auto-closed` 整值红", source: "closeReason" },
+      { state: "时间行 label", when: 'closeReason !== "settlement"', visual: "时间行 label 为 `Closed`（不是 Settled）", source: "settlementCopy.exitTimeLabel()" },
+      { state: "零回收", when: "payout === 0", visual: "Payout `$0.00` → `nothing returned`", source: "settlementCopy" },
+    ],
+  },
+  {
+    key: "portfolio-lite-detail-cashout",
+    label: "PF-27 · 详情 · cashout",
+    spec: [
+      { state: "cashout", when: 'closeReason === "cashout"', visual: "`Closed at 48¢`（无备注）；结果行只有 Won / Lost；时间行 label `Closed`；提前平仓不做任何可见标注", source: "closeReason" },
+    ],
+  },
+  {
+    key: "portfolio-lite-detail-standard",
+    label: "PF-28 · 详情 · Standard / spot",
+    note: "现货仓的展示词轴走 Up / Down。事件行已被清理的存量孤儿仓由 orphanSpotSideLabels() 兜底，绝不出现 `Up · Yes` 双方向词。",
+    spec: [
+      { state: "词轴", when: 'productLine === "spot"', visual: "Side 行与结果行只出现 Up / Down（`Not Up` 由展示层恒改写为 Down）", source: "orphanSpotSideLabels() / liteSideName()" },
+      { state: "持仓行", when: "始终", visual: "`N shares @ Xc avg`", source: "SettlementDetailVM shares / avgPrice" },
+      { state: "ACTIVITY 无成交（桌面）", when: "trades.length === 0 && !isMobile", visual: "ACTIVITY 卡渲染 `No fills recorded`", source: "SettlementDetailDesktop" },
+      { state: "ACTIVITY 无成交（移动）", when: "trades.length === 0 && isMobile", visual: "移动纵列整块 ACTIVITY 不渲染（不留空卡）", source: "SettlementDetailMobile" },
+    ],
+  },
+];
+
+const DETAIL_MOBILE_MIRRORS: SectionCase[] = (
+  [
+    ["portfolio-lite-detail-won", "portfolio-lite-detail-won-mobile"],
+    ["portfolio-lite-detail-lost", "portfolio-lite-detail-lost-mobile"],
+    ["portfolio-lite-detail-autoclosed", "portfolio-lite-detail-autoclosed-mobile"],
+    ["portfolio-lite-detail-cashout", "portfolio-lite-detail-cashout-mobile"],
+  ] as const
+).map(([from, key]) => {
+  const base = DETAIL_CASES.find((c) => c.key === from)!;
+  return { ...base, key, label: `${base.label}（移动）` };
+});
+
+/* ---------------- Ⓘ 系列结算详情（PF-29 … PF-32） ---------------- */
+
+const SERIES_CASES: SectionCase[] = [
+  {
+    key: "portfolio-lite-series-detail",
+    label: "PF-29 · 系列详情主体",
+    note: "桌面是内嵌面板；移动是自己的一页（见同编号移动帧）。Net = Payout − Cost（费后）。",
+    spec: [
+      { state: "眉线", when: "始终", visual: "`SERIES · WON {wins} OF {rounds.length}`", source: "SeriesDetailVM" },
+      { state: "KPI 三卡", when: "始终", visual: "NET · COST · PAYOUT，Net = Payout − Cost（费后）", source: "SeriesDetailVM" },
+      { state: "DETAILS", when: "始终", visual: "四行：段位 / 轮数 / Cost / Fees", source: "SeriesDetailView" },
+      { state: "ROUNDS", when: "rounds[]", visual: "逐轮一行，倒序", source: "SeriesDetailVM rounds" },
+    ],
+  },
+  {
+    key: "portfolio-lite-series-mobile-page",
+    label: "PF-29 · 系列详情主体（移动独立整页）",
+    spec: [
+      { state: "移动系列页", when: "isMobile && searchParams.series != null", visual: "MobileHeader variant='inner' + 返回 `/portfolio?tab=settled`；无 brand 头 / tabs / KPI / chips", source: "LitePortfolio" },
+    ],
+  },
+  {
+    key: "portfolio-lite-series-round",
+    label: "PF-30 · 轮次行",
+    spec: [
+      { state: "盈利轮", when: "round.net > 0", visual: "净额绿，行首 `{日期} {side}`", source: "SeriesDetailVM rounds" },
+      { state: "亏损轮", when: "round.net < 0", visual: "净额红", source: "SeriesDetailVM rounds" },
+      { state: "auto-closed 轮", when: "round.autoClosed === true", visual: "该行追加红字 `auto-closed`", source: "round.autoClosed" },
+      { state: "点击", when: "点击轮次行", visual: "进该轮的单仓结算详情", source: "SeriesDetailActions" },
+    ],
+  },
+  {
+    key: "portfolio-lite-series-extremes",
+    label: "PF-31 · 系列两极 + Standard/Boost 口径",
+    spec: [
+      { state: "全胜", when: "wins === rounds.length", visual: "`WON 2 OF 2`，Net 正", source: "SeriesDetailVM" },
+      { state: "全败", when: "wins === 0", visual: "`WON 0 OF 2`，Payout `$0.00`", source: "SeriesDetailVM" },
+      { state: "非日轮", when: "isDailyRounds === false", visual: "轮次文案按日期而非 `Day n`；segmentLabel 显示 Boost", source: "isDailyRounds" },
+    ],
+  },
+  {
+    key: "portfolio-lite-series-standard",
+    label: "PF-32 · Standard 系列详情",
+    note: "眉线 `Series · N rounds` 与 DETAILS `N · daily rounds` 是两种写法，都是设计意图，不是漂移。",
+    spec: [
+      { state: "段位", when: 'segmentLabel === "Standard"', visual: "`Series · Standard`", source: "copy-dictionary §Series / Round" },
+      { state: "DETAILS 轮数", when: "isDailyRounds === true", visual: "`N · daily rounds`", source: "copy-dictionary §Series / Round" },
+      { state: "轮次词轴", when: 'productLine === "spot"', visual: "轮次行 side 只出现 Up / Down", source: "liteSideName()" },
+    ],
+  },
+];
+
+/* ---------------- Ⓚ 空态 / 门禁 / 异步 / 错误（PF-33 … PF-38） ---------------- */
+
+const STATE_CASES: SectionCase[] = [
+  {
+    key: "portfolio-lite-empty",
+    label: "PF-33 · 空态",
+    note: "两个空态都是生产实渲（Live 空态已提取为 PortfolioEmptyLive），不是手抄 div。",
+    spec: [
+      { state: "Live 空", when: "live.length === 0 && !isLoading && !isError", visual: "`No live calls yet` + 描边按钮 `Browse events`（去 /events）", source: "PortfolioEmptyLive" },
+      { state: "Settled 空", when: "settled.length === 0 && !isLoading && !isError", visual: "`Nothing settled yet`，无按钮", source: "SettledList groups.length === 0" },
+    ],
+  },
+  {
+    key: "portfolio-lite-auth-gate-out",
+    label: "PF-34 · 未登录门（LiteAuthGate）· 未登录",
+    note: "门高度锁定：移动 min/maxHeight 420px，桌面 400px，避免大片空白模糊区。",
+    spec: [
+      { state: "未登录", when: "user === null", visual: "children 层 blur-[3px] + opacity-70 + pointer-events-none；上覆 bg-background/40 遮罩：Lynx 100px + 标题 `Sign in to view your portfolio` + 描述 + Sign in（btn-primary）/ Create account（描边 pill）", source: "useAuth().user" },
+      { state: "点击任一 CTA", when: "authOpen === true", visual: "isMobile → AuthSheet；!isMobile → AuthDialog。两个按钮打开同一个入口", source: "useIsMobile()" },
+    ],
+  },
+  {
+    key: "portfolio-lite-auth-gate-in",
+    label: "PF-34b · 未登录门 · 已登录（穿透）",
+    note: "本 case 挂真 LiteAuthGate（forceSignedIn fixture），不是 AuthGateBody 平替。",
+    spec: [
+      { state: "已登录", when: "user !== null", visual: "门直接 return children：无模糊、无遮罩、无高度锁定", source: "useAuth().user" },
+    ],
+  },
+  {
+    key: "portfolio-lite-loading",
+    label: "PF-35 · Loading 骨架（PortfolioSkeleton）",
+    note: "只在首次拉取且无缓存时出现；缓存直渲、后续刷新不闪骨架（对齐 LiteEventsPage 的模块级门）。",
+    spec: [
+      { state: "触发", when: "isLoading && !hasData && !isError", visual: "KPI 占位卡（桌面 3 / 移动 2）+ 列表行占位 3 行", source: "useLitePortfolio isLoading / hasData" },
+      { state: "静态 chrome", when: "始终", visual: "tabs 与 Boost/Standard chips 首载即实底可点，不骨架", source: "LitePortfolio" },
+      { state: "色板", when: "始终", visual: "占位卡底 #171A1F、块 #15181C、根节点单一 `animate-pulse`", source: "PortfolioAsyncStates" },
+      { state: "尺寸", when: "始终", visual: "与终态逐模块同尺寸（KpiCard rounded-[12px] px-[14px] py-[12px]，行 py-[13px] + 发丝底线）", source: "PortfolioSkeleton" },
+    ],
+  },
+  {
+    key: "portfolio-lite-fetch-error",
+    label: "PF-36 · 请求失败（PortfolioFetchError）",
+    spec: [
+      { state: "列表区", when: "isError === true", visual: "`Couldn't load your positions.`（text-sm muted）+ 描边按钮 `Retry`（重新发起拉取）", source: "PortfolioFetchError" },
+      { state: "KPI", when: "isError === true", visual: "三值一律渲染 `—`（muted），不渲染 `$0.00` 假零态", source: "KPI_DASH" },
+    ],
+  },
+  {
+    key: "portfolio-lite-detail-notfound",
+    label: "PF-37 · 详情 Not found",
+    spec: [
+      { state: "id 不存在", when: "detail === null", visual: "标题 `Position not found` + 副行 `It may have been removed, or the link is wrong.` + 按钮 `Back to settled`（回 /portfolio?tab=settled）", source: "PortfolioNotFound" },
+      { state: "越权 id", when: "该 id 属于他人", visual: "与「不存在」渲染逐字相同，不泄露他人 event 名与金额", source: "useSettlementDetail（查询按 user 作用域）" },
+    ],
+  },
+  {
+    key: "portfolio-lite-error",
+    label: "PF-38 · 渲染崩溃（PortfolioErrorBoundary）",
+    spec: [
+      { state: "详情子树抛错", when: "详情子树 throw", visual: "降级为 `Something went wrong` + `Back to settled`，不白屏", source: "PortfolioErrorBoundary" },
+    ],
+  },
+];
+
+/* ---------------- 附注表 A–F ---------------- */
+
+type Row = string[];
+const Annex = ({ title, head, rows }: { title: string; head: Row; rows: Row[] }) => (
+  <div className="rounded-lg border border-border/40 bg-muted/5 p-3">
+    <div className="pb-2 text-[12px] font-semibold text-foreground">{title}</div>
+    <div className="overflow-x-auto">
+      <table className="w-full text-left text-[11px] leading-relaxed text-muted-foreground">
+        <thead>
+          <tr>
+            {head.map((h) => (
+              <th key={h} className="border-b border-border/40 pb-1 pr-3 font-semibold text-foreground/80">
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r, i) => (
+            <tr key={i}>
+              {r.map((c, j) => (
+                <td key={j} className="border-b border-border/20 py-1 pr-3 align-top">
+                  {c}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+);
+
+const AnnexTables = () => (
+  <div className="space-y-4">
+    <Annex
+      title="A · 分段口径表（来源：useLitePortfolio segment）"
+      head={["维度", "Boost", "Standard", "来源"]}
+      rows={[
+        ["判定", "productLine !== 'spot'（含 1×）", "productLine === 'spot'", "useLitePortfolio"],
+        ["词轴", "Yes / No / 盘口词（ARS +1.5）", "Up / Down", "copy-dictionary §Portfolio (Lite)"],
+        ["杠杆后缀", "`N× Boost`（1× 不渲染后缀）", "永不渲染", "LiveCards / SettledRow"],
+        ["Boost check", "渲染（跨 Boost 仓共享）", "不渲染", "parts.BoostCheck*"],
+        ["auto-close", "有 level 时渲染估算", "不渲染", "autoclose-v1 §2"],
+      ]}
+    />
+    <Annex
+      title="B · auto-close 口径表（来源：autoclose-v1 §2）"
+      head={["情形", "渲染", "来源"]}
+      rows={[
+        ["autoClose.kind === 'level'", "渲染 auto-close 估算行/列", "autoclose-v1 §2"],
+        ["autoClose.kind === 'none'", "该处留空，不写 missing、不写 —", "autoclose-v1 §2"],
+        ["leverage === 1×", "恒为 none", "autoclose-v1 §2"],
+        ["双端文案", "桌面列口径与移动行口径各自成句，两套写法都是设计意图", "autoclose-v1 §2"],
+        ["Standard 段", "整块不渲染", "autoclose-v1 §2"],
+      ]}
+    />
+    <Annex
+      title="C · 版式几何表（来源：DESIGN §7.9）"
+      head={["项", "值", "来源"]}
+      rows={[
+        ["桌面行列模板", "LiveRowHeader 与 LiveRow 共用同一列模板", "DESIGN §7.9"],
+        ["KPI 网格", "桌面 3 列 gap-3 / 移动 2 列 gap-2", "parts.KpiGrid"],
+        ["批量动作条高度", "桌面 84px / 移动 76px", "DESIGN §7.9"],
+        ["未登录门高", "移动 420px / 桌面 400px（min = max）", "LiteAuthGate"],
+        ["Details Popover 宽", "320px（桌面锚定；移动是 MobileDrawer）", "parts.DetailsPopover"],
+        ["移动判据", "视口 < 768px；样式字典移动帧固定 375px", "useIsMobile()"],
+      ]}
+    />
+    <Annex
+      title="D · 时间口径表（来源：copy-dictionary §Settlement time wording）"
+      head={["函数", "精度", "用在哪", "来源"]}
+      rows={[
+        ["settleLabel()", "live 行到小时", "Live 列表 settles 文案", "settleLabel.ts"],
+        ["settledDayLabel()", "到天", "Settled 行 meta 日期", "settleLabel.ts"],
+        ["settledStampLabel()", "到分钟", "详情时间行", "settleLabel.ts"],
+        ["monthGroupLabel()", "到月", "Settled 月份组头", "settleLabel.ts"],
+        ["口径差异", "四者精度不同是设计意图，不要统一", "—", "copy-dictionary"],
+      ]}
+    />
+    <Annex
+      title="E · 颜色轴表（来源：DESIGN §2 Market Axis）"
+      head={["元素", "色轴", "说明", "来源"]}
+      rows={[
+        ["SIDE chip", "market axis（Pulse Blue / Volt）", "方向轴，与盈亏无关", "DESIGN §2"],
+        ["净额 / PnL", "trading-green / trading-red", "盈亏轴", "DESIGN §2"],
+        ["hot 标", "红", "热度标记，与盈亏无关", "DESIGN §2"],
+        ["auto-closed 备注", "RED", "风控事实陈述，非盈亏色", "SettledList RED"],
+      ]}
+    />
+    <Annex
+      title="F · 并账列账表（旧节原文 → 去向）"
+      head={["旧节原文位置", "去向"]}
+      rows={[
+        ["READ_ME 灰框 · 字段派生说明", "本节顶「怎么读这一节」"],
+        ["READ_ME 灰框 · 「表里没有列出的组合视为不存在」", "升格进节顶三行定位行"],
+        ["两个旧 SubSection 的单 iframe 纵排说明", "删除（双帧成对后不再成立）"],
+        ["portfolio-lite-settled 的 5 条 spec", "PF-19（分组/折叠）+ PF-20（行状态）+ PF-21（系列行）"],
+        ["portfolio-lite-settled-loadmore 的 4 条 spec", "PF-23（含 h-40px / #2A3F38 字面）"],
+        ["portfolio-lite-settled-collapse 的 3 条 spec", "PF-19（旧 key 保留为 PF-19b）"],
+        ["4 条 detail-*-mobile spec", "PF-24…PF-27 的移动帧（key 全部保留）"],
+        ["4 条 detail-* 桌面 spec", "PF-24…PF-27 桌面帧"],
+        ["portfolio-lite-series-detail / -extremes / -mobile-page", "PF-29 / PF-31（-mobile-page 为 PF-29 移动帧）"],
+        ["portfolio-lite-empty 的 2 条 spec", "PF-33"],
+        ["portfolio-lite-auth-gate-out / -in 的 3 条 spec", "PF-34 / PF-34b"],
+        ["门高 420 / 400 几何值", "附注表 C"],
+        ["portfolio-lite-error 的 1 条 spec", "PF-38"],
+      ]}
+    />
+  </div>
+);
+
 const ALL_CASES: SectionCase[] = [
   ...CHROME_CASES,
   ...KPI_CASES,
@@ -579,6 +938,11 @@ const ALL_CASES: SectionCase[] = [
   ...LIVE_MOBILE_MIRRORS,
   ...PENDING_CASES,
   ...BATCH_CASES,
+  ...SETTLED_CASES,
+  ...DETAIL_CASES,
+  ...DETAIL_MOBILE_MIRRORS,
+  ...SERIES_CASES,
+  ...STATE_CASES,
 ];
 
 
@@ -610,13 +974,13 @@ const Pair = ({
 );
 
 const READ_ME =
-  "怎么读这一节：所有状态都由 useLitePortfolio 派生的字段驱动（segment / isVoucher / autoCloseState / hot / closeReason / isSeries / isZeroMoney）。每个 case 下方的表给出「触发条件 → 视觉结果 → 字段来源」，条件都是可判定表达式，可直接照抄进实现；表里没有列出的组合视为不存在，不要自行发挥。";
+  "怎么读这一节：所有状态都由 useLitePortfolio 派生的字段驱动（segment / isVoucher / autoCloseState / hot / closeReason / isSeries / isZeroMoney）。每个 case 下方的表给出「触发条件 → 视觉结果 → 字段来源」，条件都是可判定表达式，可直接照抄进实现。";
 
 export const PortfolioStatesSection = () => (
   <SectionWrapper
     id="portfolio-states"
-    title="Portfolio · 状态字典（PF-1…PF-18 · Ⓐ–Ⓕ 区）"
-    description="分区序 = 生产模块序：Ⓐ页面外壳 · ⒷKPI · ⒸBoost check · ⒹLive 列表 · Ⓔ挂单行 · Ⓕ批量平仓（PF-19 起的结算/详情/空态仍在下方旧节，M6b 并账）。每个 case 双帧（desktop 1280 / mobile 375），同一编号两帧各挂各端生产真组件；fixture 只注数据与状态，一律确定性注入（禁止运行时 fetch、禁止绝对日期、禁止随机 id）。"
+    title="Portfolio · 状态字典（PF-1…PF-38 · Ⓐ–Ⓚ 区）"
+    description="分区序 = 生产模块序：Ⓐ页面外壳 · ⒷKPI · ⒸBoost check · ⒹLive 列表 · Ⓔ挂单行 · Ⓕ批量平仓 · ⒼSettled 列表 · Ⓗ单仓结算详情 · Ⓘ系列结算详情 · Ⓚ空态/门禁/异步/错误。每个 case 双帧（desktop 1280 / mobile 375），同一编号两帧各挂各端生产真组件；fixture 只注数据与状态，一律确定性注入（禁止运行时 fetch、禁止绝对日期、禁止随机 id）。表里没有列出的组合视为不存在，不要自行发挥。"
   >
     <div className="space-y-12">
       <div className="rounded-lg border border-border/40 bg-muted/10 p-3 text-[11px] leading-relaxed text-muted-foreground">
@@ -705,6 +1069,80 @@ export const PortfolioStatesSection = () => (
           desktopMin={900}
           mobileMin={900}
         />
+      </SubSection>
+
+      <SubSection title="Ⓖ Settled 列表（PF-19 … PF-23）">
+        <Pair
+          cases={byKey(
+            "portfolio-lite-settled",
+            "portfolio-lite-settled-row",
+            "portfolio-lite-series-row",
+            "portfolio-lite-standard-settled",
+            "portfolio-lite-settled-loadmore",
+          )}
+          desktopMin={900}
+          mobileMin={900}
+        />
+      </SubSection>
+
+      <SubSection title="Ⓗ 单仓结算详情（PF-24 … PF-28）">
+        <Pair
+          cases={byKey(
+            "portfolio-lite-detail-won",
+            "portfolio-lite-detail-lost",
+            "portfolio-lite-detail-autoclosed",
+            "portfolio-lite-detail-cashout",
+            "portfolio-lite-detail-standard",
+          )}
+          mobileCases={byKey(
+            "portfolio-lite-detail-won-mobile",
+            "portfolio-lite-detail-lost-mobile",
+            "portfolio-lite-detail-autoclosed-mobile",
+            "portfolio-lite-detail-cashout-mobile",
+            "portfolio-lite-detail-standard",
+          )}
+          desktopMin={1000}
+          mobileMin={1200}
+        />
+      </SubSection>
+
+      <SubSection title="Ⓘ 系列结算详情（PF-29 … PF-32）">
+        <Pair
+          cases={byKey(
+            "portfolio-lite-series-detail",
+            "portfolio-lite-series-round",
+            "portfolio-lite-series-extremes",
+            "portfolio-lite-series-standard",
+          )}
+          mobileCases={byKey(
+            "portfolio-lite-series-mobile-page",
+            "portfolio-lite-series-round",
+            "portfolio-lite-series-extremes",
+            "portfolio-lite-series-standard",
+          )}
+          desktopMin={1000}
+          mobileMin={1100}
+        />
+      </SubSection>
+
+      <SubSection title="Ⓚ 空态 / 门禁 / 异步 / 错误（PF-33 … PF-38）">
+        <Pair
+          cases={byKey(
+            "portfolio-lite-empty",
+            "portfolio-lite-auth-gate-out",
+            "portfolio-lite-auth-gate-in",
+            "portfolio-lite-loading",
+            "portfolio-lite-fetch-error",
+            "portfolio-lite-detail-notfound",
+            "portfolio-lite-error",
+          )}
+          desktopMin={1000}
+          mobileMin={1100}
+        />
+      </SubSection>
+
+      <SubSection title="附注表 A–F" description="几何值、口径与并账去向集中在这里，正文 case 表不再重复。">
+        <AnnexTables />
       </SubSection>
     </div>
   </SectionWrapper>
