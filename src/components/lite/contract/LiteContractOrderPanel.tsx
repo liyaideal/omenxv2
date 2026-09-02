@@ -422,10 +422,16 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
               value={amount}
               onChange={(e) => onAmountChange(e.target.value)}
               placeholder="0"
-              className="w-full bg-transparent font-mono text-2xl font-bold text-foreground outline-none placeholder:text-muted-foreground/40"
+              className="min-w-0 flex-1 bg-transparent font-mono text-2xl font-bold text-foreground outline-none placeholder:text-muted-foreground/40"
             />
+            {effBoost > 1 && amountNum > 0 && (
+              <span className="shrink-0 font-mono text-[11px] font-semibold text-muted-foreground">
+                = {money(amountNum * effBoost)} position
+              </span>
+            )}
           </div>
         </div>
+
         <div className="grid grid-cols-5 gap-1.5">
           {PRESETS.map((p) => {
             const active = amountNum === p;
