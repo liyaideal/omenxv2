@@ -18,7 +18,8 @@ import { H2eCampaignCard } from "@/components/h2e/H2eCampaignCard";
 import { useNavigate } from "react-router-dom";
 import { SeoFooter } from "@/components/seo/SeoFooter";
 
-const Tabs = ({
+/** Exported for the style-guide state dictionary (RW-1). Behaviour unchanged. */
+export const Tabs = ({
   value,
   onChange,
   sticky,

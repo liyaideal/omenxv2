@@ -411,6 +411,11 @@ export const previewRegistry: Record<string, Loader> = {
   "market-search-row-spot": pick(settlements, "MarketSearchRowSpotPreview"),
 
   /* -------- Rewards / Campaigns -------- */
+  /* -------- Rewards 状态字典（M3a-② · RW-1…RW-6）新增 key -------- */
+  "rewards-lite-tabs": pick(rewards, "RewardsTabsPreview"),
+  "rewards-lite-redeem-shell": pick(rewards, "RewardsRedeemShellPreview"),
+  "rewards-grid-loading": pick(rewards, "CampaignGridLoadingPreview"),
+
   "rewards-campaign-cards": pick(rewards, "CampaignCardStatesPreview"),
   "rewards-grant-rows": pick(rewards, "GrantTaskRowStatesPreview"),
   "rewards-kol-band": pick(rewards, "KolBandPreview"),
