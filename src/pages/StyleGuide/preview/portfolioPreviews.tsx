@@ -33,6 +33,14 @@ import {
   type SeriesDetailVM,
 } from "@/components/portfolio/lite/SeriesDetailView";
 import { PortfolioErrorBoundary } from "@/components/portfolio/lite/PortfolioErrorBoundary";
+import {
+  PortfolioSkeleton,
+  PortfolioFetchError,
+  PortfolioNotFound,
+  PortfolioEmptyLive,
+} from "@/components/portfolio/lite/PortfolioAsyncStates";
+import { SettledRow } from "@/components/portfolio/lite/SettledList";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
 import { MobileHeader } from "@/components/MobileHeader";
 import { settledDayLabel, monthGroupLabel, monthKey } from "@/lib/settleLabel";
@@ -464,7 +472,7 @@ export const PortfolioSettledListPreview = () => (
 
 export const PortfolioEmptyStatesPreview = () => (
   <div className="space-y-6 bg-background p-4">
-    <div className="py-10 text-center text-[13px] text-[#6B7280]">No live calls yet</div>
+    <PortfolioEmptyLive />
     <SettledList groups={[]} />
   </div>
 );
@@ -493,7 +501,9 @@ export const PortfolioAuthGateSignedOutPreview = () => (
 /** Signed-in /portfolio — the gate passes children straight through. */
 export const PortfolioAuthGateSignedInPreview = () => (
   <div className="bg-background">
-    <AuthGateBody />
+    <LiteAuthGate forceSignedIn>
+      <AuthGateBody />
+    </LiteAuthGate>
   </div>
 );
 
@@ -710,42 +720,18 @@ export const SeriesMobilePagePreview = () => (
  * 触发 —— 这里挂真 BoostCheckCard / BoostCheckBar，再在挂载后程序化点一次同一个
  * 按钮，展示的就是生产的展开态本体，没有任何手抄。
  */
-const AutoOpenDetails = ({
-  children,
-  minHeight,
-}: {
-  children: React.ReactNode;
-  minHeight: number;
-}) => {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const t = setTimeout(() => {
-      const btn = Array.from(ref.current?.querySelectorAll("button") ?? []).find(
-        (b) => b.textContent?.trim().startsWith("Details"),
-      );
-      (btn as HTMLButtonElement | undefined)?.click();
-    }, 120);
-    return () => clearTimeout(t);
-  }, []);
-  return (
-    <div ref={ref} className="bg-background p-4" style={{ minHeight }}>
-      {children}
-    </div>
-  );
-};
-
 /** Mobile: Details › 打开 MobileDrawer（底部抽屉）。 */
 export const PortfolioDetailsDrawerPreview = () => (
-  <AutoOpenDetails minHeight={420}>
-    <BoostCheckCard data={gauge(86)} />
-  </AutoOpenDetails>
+  <div className="bg-background p-4" style={{ minHeight: 420 }}>
+    <BoostCheckCard data={gauge(86)} defaultOpen />
+  </div>
 );
 
 /** Desktop: 同一个 Details › 打开 320px 锚定 Popover，绝不是底部抽屉。 */
 export const PortfolioDetailsPopoverPreview = () => (
-  <AutoOpenDetails minHeight={420}>
-    <BoostCheckBar data={gauge(86)} />
-  </AutoOpenDetails>
+  <div className="bg-background p-4" style={{ minHeight: 420 }}>
+    <BoostCheckBar data={gauge(86)} defaultOpen />
+  </div>
 );
 
 /* ---------------- 桌面挂单行（折叠 / 展开两态） ---------------- */
@@ -753,15 +739,6 @@ const pendingOrders = [
   { id: "o1", event: "Bitcoin above $70,000", eventId: "demo-event", size: "120", price: "41¢" },
   { id: "o2", event: "Arsenal to beat Liverpool", eventId: "demo-arsenal", size: "80", price: "36¢" },
 ];
-
-const AutoExpand = ({ children }: { children: React.ReactNode }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const t = setTimeout(() => ref.current?.querySelector("button")?.click(), 120);
-    return () => clearTimeout(t);
-  }, []);
-  return <div ref={ref}>{children}</div>;
-};
 
 export const PortfolioPendingDesktopPreview = () => (
   <div className="space-y-4 bg-background p-4">
@@ -771,9 +748,7 @@ export const PortfolioPendingDesktopPreview = () => (
     </div>
     <div>
       <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">展开态（逐单行 · 点击跳 Pro）</p>
-      <AutoExpand>
-        <PendingOrdersRow orders={pendingOrders} />
-      </AutoExpand>
+      <PendingOrdersRow orders={pendingOrders} defaultOpen />
     </div>
     <div>
       <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">orders = []</p>
@@ -1036,9 +1011,7 @@ export const PortfolioPendingMobilePreview = () => (
     </div>
     <div>
       <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">展开态（逐单行 · 点击跳 Pro）</p>
-      <AutoExpand>
-        <PendingOrdersRow orders={pendingOrders} />
-      </AutoExpand>
+      <PendingOrdersRow orders={pendingOrders} defaultOpen />
     </div>
     <div>
       <p className="pb-1.5 text-[11px] uppercase tracking-wide text-[#6B7280]">orders = []</p>
