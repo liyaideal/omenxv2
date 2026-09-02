@@ -17,6 +17,22 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-09-02 — Rewards 状态字典收官（M3a / M3b）
+
+来源：[Rewards（Lite）交付说明 v1](../delivery/lite-rewards-spec-v1.md)
+
+| # | 项 | 归属 | Status | Notes |
+|---|---|---|---|---|
+| RW-A | 五处内联 → 具名组件提取（零视觉）：`CampaignGridSkeleton` / `CampaignDetailSkeleton` / `CampaignUnavailable` / `CampaignRewardsCard` / `showClaimSuccessToast` | FE | ✅ | M3a-① |
+| RW-B | `ReferralPanel` 增加 `fixture` 惰性展示 prop（生产不传，行为不变） | FE | ✅ | M3a-① |
+| RW-C | `CampaignRulesDisclosure` 增加 `defaultOpen`（字典展开态用，生产不传） | FE | ✅ | M3b |
+| RW-D | 字典 Ⓐ Ⓑ 区落地（RW-1…6） | FE | ✅ | M3a-② |
+| RW-E | 字典 Ⓒ Ⓓ Ⓔ 区落地（RW-7…18） | FE | ✅ | M3b |
+| RW-F | 旧 `RewardsSection` / `RewardsMobileSection` 撤下 + 并账表 | FE | ✅ | 规范文字逐条并入 RW 编号 |
+| RW-G | 交付文档 + INDEX + copy-dictionary 回写 | Doc | ✅ | 本轮 |
+| RW-H | `campaign_entries.rules.details` 由运营为每个在跑活动补齐长文规则 | 运营 | ⬜ | 缺 details 时 RW-9 整块不渲染 |
+| RW-I | `tasks` / `user_tasks` 两张退役表的清理（确认无引用后下线） | BE | ⬜ | Rewards 侧已不读 |
+
 ## 2026-09-02 — Portfolio 状态字典收官（M6b）+ 异步三态实装
 
 源文档：[../delivery/lite-portfolio-spec-v2.md](../delivery/lite-portfolio-spec-v2.md) §11 · 状态字典 PF-1…PF-38

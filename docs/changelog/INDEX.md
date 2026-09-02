@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-09-02 | [Rewards（Lite）交付说明 v1](../delivery/lite-rewards-spec-v1.md) | M3a/M3b：Rewards 状态字典 RW-1…18 全区落地（Ⓐ 页面壳 / Ⓑ Campaigns 网格 / Ⓒ 活动详情 / Ⓓ Referral / Ⓔ 合规），五处内联→具名组件零视觉提取，`ReferralPanel` 加 `fixture` 惰性展示口径，`CampaignRulesDisclosure` 加 `defaultOpen`，旧 `RewardsSection` / `RewardsMobileSection` 两节撤下并逐条并账 |
 | 2026-09-02 | [Lite 下单输入语义 v1](../delivery/lite-order-input-v1.md) | Lite 输入语义定稿为 margin（notional = 输入 × Boost），金额框加派生行 `= $30.00 position`，附真平台 notional→margin 逐项对齐表 |
 
 | 2026-09-02 | [Auto-close 交付说明 v1](../delivery/autoclose-v1.md) | AC-TT1 · auto-close 统一解释 tooltip：全站唯一实现 `AutoCloseTooltipBody`（静态文案不插值，`≈ 62¢` 为冻结示例值），五处落点接线（面板 ⓘ 换内容 / Your call 卡新增 ⓘ / Portfolio 桌面行 level+none 两态值片段虚线触发 / 移动卡不挂），两句定制旧文案删除；值语法与 hot 判定零改动 |

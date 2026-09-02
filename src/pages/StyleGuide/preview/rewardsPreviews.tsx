@@ -17,6 +17,10 @@ import { RewardsFinePrint } from "@/components/campaigns/RewardsFinePrint";
 import { CampaignRulesDisclosure } from "@/components/campaigns/CampaignRulesDisclosure";
 import { IneligibleEntryToastBody } from "@/components/campaigns/IneligibleEntryToast";
 import { CampaignGridSkeleton } from "@/components/campaigns/CampaignGridSkeleton";
+import { CampaignDetailSkeleton } from "@/components/campaigns/CampaignDetailSkeleton";
+import { CampaignUnavailable } from "@/components/campaigns/CampaignUnavailable";
+import { CampaignRewardsCard } from "@/components/campaigns/CampaignRewardsCard";
+import type { Referral } from "@/hooks/useReferral";
 import { MobileHeader } from "@/components/MobileHeader";
 import { Tabs } from "@/pages/lite/LiteRewardsPage";
 import type { Campaign, CampaignEntry, CampaignTaskDef, CampaignView, GrantStatus } from "@/hooks/useCampaigns";
@@ -461,3 +465,254 @@ export const GrantTaskRowBoardPreview = () => (
     ))}
   </div>
 );
+
+/* ================= M3b · Ⓒ 详情 / Ⓓ Referral / Ⓔ 合规 ================= */
+
+/* ---------------- RW-7 · Hero（CampaignKeyVisual + KolBand） ----------------
+ * 详情页 hero 仍是 LiteCampaignDetailPage 内联组合（M3a-① 未提取），这里按生产
+ * 同一组合挂真组件：CampaignKeyVisual + KolBandDesktop/Mobile + 同一批 pill。
+ * 两端 ratio / scrim / 字号不同 → Desktop / Mobile 双导出，禁运行时 useIsMobile。 */
+
+const HERO_SCRIM_MOBILE =
+  "linear-gradient(180deg, rgba(10,11,13,0.0) 0%, rgba(10,11,13,0.45) 20%, rgba(10,11,13,0.85) 55%, rgba(10,11,13,0.98) 100%)";
+const HERO_SCRIM_DESKTOP =
+  "linear-gradient(180deg,rgba(10,11,13,0) 0%,rgba(10,11,13,.72) 46%,rgba(10,11,13,.94) 100%)";
+
+const EndedPill = () => (
+  <span
+    className="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.06em]"
+    style={{ background: "#242830", color: "#C9CED6" }}
+  >
+    Ended
+  </span>
+);
+
+const RewardPills = ({ voucher, usdc, desktop }: { voucher: number; usdc: number; desktop?: boolean }) => (
+  <>
+    {voucher > 0 && (
+      <span
+        className={`shrink-0 whitespace-nowrap rounded-full font-display font-bold ${desktop ? "text-[12.5px]" : "text-[12px]"}`}
+        style={{
+          background: "#131519",
+          border: "1px solid #1D2026",
+          color: "#CFFF4A",
+          padding: desktop ? "7px 13px" : "6px 12px",
+        }}
+      >
+        ${voucher} Trial Position Voucher
+      </span>
+    )}
+    {usdc > 0 && (
+      <span
+        className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full font-display font-bold ${desktop ? "text-[12.5px]" : "text-[12px]"}`}
+        style={{
+          background: "#131519",
+          border: "1px solid #1D2026",
+          color: "#33D6FF",
+          padding: desktop ? "7px 13px" : "6px 12px",
+        }}
+      >
+        ${usdc} USDC
+      </span>
+    )}
+  </>
+);
+
+const HeroDesktop = ({ view, special, frozen }: { view: CampaignView; special?: boolean; frozen?: boolean }) => (
+  <CampaignKeyVisual
+    src={view.entry.branding.key_visual_url}
+    accent={view.accent}
+    ratio="1232 / 300"
+    className="rounded-[14px]"
+    scrim={HERO_SCRIM_DESKTOP}
+    scrimHeight="190px"
+  >
+    <div />
+    <div className="mx-auto flex w-full max-w-[1248px] flex-col gap-[12px]">
+      {special && <KolBandDesktop kolName="Lao Wang" avatar={laowangAvatar.url} />}
+      <h1 className="font-display text-[36px] font-bold leading-tight text-[#F2F3F5]">{view.campaign.name}</h1>
+      <div className="font-display text-[12.5px] tabular-nums text-[#C9CED6]">
+        Aug 1 – Aug 31{view.daysLeft !== null && ` · ${view.daysLeft} days left`} ·{" "}
+        {view.joined.toLocaleString()} joined{frozen && " · Ended"}
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <RewardPills voucher={view.rewardVoucherUpTo} usdc={view.rewardUsdcUpTo} desktop />
+        {frozen && <EndedPill />}
+      </div>
+    </div>
+  </CampaignKeyVisual>
+);
+
+const HeroMobile = ({ view, special, frozen }: { view: CampaignView; special?: boolean; frozen?: boolean }) => (
+  <CampaignKeyVisual
+    src={view.entry.branding.key_visual_url}
+    accent={view.accent}
+    ratio="16 / 9.5"
+    className="rounded-[14px]"
+    scrim={HERO_SCRIM_MOBILE}
+  >
+    <div />
+    <div className="flex flex-col gap-[10px]">
+      {special && <KolBandMobile kolName="Lao Wang" avatar={laowangAvatar.url} />}
+      <h1 className="font-display text-[22px] font-bold leading-[28px] text-[#F2F3F5]">{view.campaign.name}</h1>
+      <div className="font-display text-[12px] leading-[16px] tabular-nums text-[#9AA1AC]">
+        Aug 1 – Aug 31{view.daysLeft !== null && ` · ${view.daysLeft}d left`} · {view.joined.toLocaleString()} joined
+        {frozen && " · Ended"}
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <RewardPills voucher={view.rewardVoucherUpTo} usdc={view.rewardUsdcUpTo} />
+        {frozen && <EndedPill />}
+      </div>
+    </div>
+  </CampaignKeyVisual>
+);
+
+const FROZEN_HERO = makeView(
+  { phase: "ended", daysLeft: null, tasksDone: 3, tasksTotal: 3, claimableCount: 0, voucherClaimed: 18 },
+  { id: "camp-frozen", name: "July Warm-up", startsAt: iso(-40), endsAt: iso(-8) },
+);
+
+export const CampaignHeroDesktopPreview = () => (
+  <div className="space-y-4 p-3">
+    <HeroDesktop view={LIVE_PUBLIC} />
+    <HeroDesktop view={KOL_SPECIAL} special />
+    <HeroDesktop view={FROZEN_HERO} frozen />
+  </div>
+);
+
+export const CampaignHeroMobilePreview = () => (
+  <div className="space-y-4 p-3">
+    <HeroMobile view={LIVE_PUBLIC} />
+    <HeroMobile view={KOL_SPECIAL} special />
+    <HeroMobile view={FROZEN_HERO} frozen />
+  </div>
+);
+
+/* ---------------- RW-8 · GrantTaskRow 九分支（全量板） ---------------- */
+const CONNECT_TASK: CampaignTaskDef = {
+  task_key: "connect_polymarket",
+  name: "Connect a Polymarket wallet",
+  reward: { voucher: 5 },
+};
+
+export const GrantTaskRowNineStatesPreview = () => (
+  <div className="space-y-2.5 rounded-2xl bg-[#0A0B0D] p-4">
+    <GrantTaskRow task={ROW_TASK} status="not_started" signedOut onClaim={() => {}} />
+    <GrantTaskRow task={ROW_TASK} status="not_started" onClaim={() => {}} />
+    <GrantTaskRow task={CONNECT_TASK} status="not_started" onClaim={() => {}} />
+    <GrantTaskRow task={ROW_TASK} status="in_progress" progressValue={180} onClaim={() => {}} />
+    <GrantTaskRow task={ROW_TASK} status="claimable" onClaim={() => {}} />
+    <GrantTaskRow task={ROW_TASK} status="claimable" isClaiming onClaim={() => {}} />
+    <GrantTaskRow task={USDC_TASK} status="claimable" onClaim={() => {}} />
+    <GrantTaskRow task={ROW_TASK} status="claimed" onClaim={() => {}} />
+    <GrantTaskRow task={ROW_TASK} status="not_eligible" onClaim={() => {}} />
+    <GrantTaskRow task={ROW_TASK} status="claimable" frozen onClaim={() => {}} />
+  </div>
+);
+
+/* ---------------- RW-9 · CampaignRulesDisclosure（受控展开） ---------------- */
+export const CampaignRulesStatesPreview = () => (
+  <div className="space-y-3 p-3">
+    <p className="text-[11px] text-[#6B7280]">收起（默认）</p>
+    <CampaignRulesDisclosure paragraphs={RULE_PARAGRAPHS} />
+    <p className="text-[11px] text-[#6B7280]">展开（点条头即为此态）</p>
+    <CampaignRulesDisclosure paragraphs={RULE_PARAGRAPHS} defaultOpen />
+    <p className="text-[11px] text-[#6B7280]">rules.details 无内容 → 整块不渲染（下方为空）</p>
+    <CampaignRulesDisclosure paragraphs={[]} />
+  </div>
+);
+
+/* ---------------- RW-10 · Your rewards here（CampaignRewardsCard 真件） ---------------- */
+const CARD_BOTH = makeView({ voucherClaimed: 10, usdcClaimed: 2 });
+const CARD_VOUCHER_ONLY = makeView(
+  { entry: makeEntry({ id: "entry-v" }), rewardUsdcUpTo: 0, usdcClaimed: 0, voucherClaimed: 10 },
+  { id: "camp-v", name: "Voucher-only campaign" },
+);
+const CARD_USDC_ONLY = makeView(
+  { entry: makeEntry({ id: "entry-u" }), rewardVoucherUpTo: 0, voucherClaimed: 0, rewardUsdcUpTo: 8, usdcClaimed: 3 },
+  { id: "camp-u", name: "USDC-only campaign" },
+);
+const CARD_FROZEN = makeView(
+  { phase: "ended", voucherClaimed: 18, usdcClaimed: 2, daysLeft: null },
+  { id: "camp-fz", name: "July Warm-up" },
+);
+
+const RewardsCardSet = ({ isMobile }: { isMobile: boolean }) => (
+  <div className={isMobile ? "space-y-4 p-3" : "grid gap-4 p-3 md:grid-cols-2"}>
+    <CampaignRewardsCard view={CARD_BOTH} isMobile={isMobile} isSpecial={false} kolName="Partner" avatar={undefined} frozen={false} />
+    <CampaignRewardsCard view={KOL_SPECIAL} isMobile={isMobile} isSpecial kolName="Lao Wang" avatar={laowangAvatar.url} frozen={false} />
+    <CampaignRewardsCard view={CARD_VOUCHER_ONLY} isMobile={isMobile} isSpecial={false} kolName="Partner" avatar={undefined} frozen={false} />
+    <CampaignRewardsCard view={CARD_USDC_ONLY} isMobile={isMobile} isSpecial={false} kolName="Partner" avatar={undefined} frozen={false} />
+    <CampaignRewardsCard view={CARD_FROZEN} isMobile={isMobile} isSpecial={false} kolName="Partner" avatar={undefined} frozen />
+  </div>
+);
+
+export const CampaignRewardsCardDesktopPreview = () => <RewardsCardSet isMobile={false} />;
+export const CampaignRewardsCardMobilePreview = () => <RewardsCardSet isMobile />;
+
+/* ---------------- RW-11 · 详情异步二态 ---------------- */
+export const CampaignDetailLoadingPreview = () => (
+  <div className="p-3">
+    <CampaignDetailSkeleton />
+  </div>
+);
+
+export const CampaignDetailUnavailablePreview = () => (
+  <div className="p-3">
+    <CampaignUnavailable />
+  </div>
+);
+
+/* ---------------- RW-12 · claim 成功反馈（静态 body，不真弹 toast） ---------------- */
+export const ClaimSuccessToastPreview = () => (
+  <div className="space-y-2 p-4">
+    <div className="mx-auto w-full max-w-[420px] rounded-[12px] border border-[#1D2026] bg-[#131519] p-4">
+      <div className="text-[13px] font-semibold text-[#F2F3F5]">Voucher sent to Position Vouchers</div>
+      <div className="mt-1 text-[12px] text-[#9AA1AC]">Open vouchers to reveal it.</div>
+      <div className="mt-3">
+        <span className="inline-flex min-h-[32px] items-center rounded-[8px] bg-white px-3 font-display text-[12px] font-bold text-[#0A0B0D]">
+          Open
+        </span>
+      </div>
+    </div>
+    <p className="text-center text-[11px] leading-4 text-muted-foreground">
+      静态还原 <code className="text-[11px] text-foreground">showClaimSuccessToast()</code> 的 sonner body（title /
+      description / action），campaign claim 与 referral claim 共用同一调用。
+    </p>
+  </div>
+);
+
+/* ---------------- Ⓓ Referral · fixture 驱动（禁 live hook 数据） ---------------- */
+const ref = (
+  id: string,
+  status: Referral["status"],
+  volume: number,
+  email: string,
+  offset: number,
+): Referral => ({
+  id,
+  referrer_id: "u-self",
+  referee_id: `u-${id}`,
+  referral_code: "OMX7K2",
+  level: 1,
+  status,
+  qualified_at: status === "pending" ? null : iso(offset + 1),
+  rewarded_at: status === "rewarded" ? iso(offset + 2) : null,
+  points_awarded: null,
+  created_at: iso(offset),
+  metadata: { masked_email: email, volume },
+});
+
+const REF_ROWS: Referral[] = [
+  ref("r1", "pending", 42, "a***n@omenx.io", -9),
+  ref("r2", "qualified", 100, "b***t@omenx.io", -7),
+  ref("r3", "rewarded", 240, "c***m@omenx.io", -5),
+];
+
+const REF_FIXTURE = { referralCode: "OMX7K2", referrals: REF_ROWS };
+const REF_EMPTY = { referralCode: "OMX7K2", referrals: [] as Referral[] };
+
+/** RW-14/15/16 都挂同一件生产 ReferralPanel，只换 fixture；面板自身的端分叉由 iframe 宽度解析。 */
+export const ReferralInvitePreview = () => <ReferralPanel fixture={REF_EMPTY} />;
+export const ReferralRowsPreview = () => <ReferralPanel fixture={REF_FIXTURE} />;
+export const ReferralOverviewPreview = () => <ReferralPanel fixture={REF_FIXTURE} />;
