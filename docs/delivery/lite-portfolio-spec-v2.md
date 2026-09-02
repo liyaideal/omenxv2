@@ -233,17 +233,19 @@ case 定义在 `src/pages/StyleGuide/sections/PortfolioStatesSection.tsx`，prev
 | `hot` / KPI / `profitPercent` | 纯派生 |
 | 月分组 / series 聚合 | 当前前端做；数据量大时建议下沉（见 §12） |
 
-## 11. 异步态（待实现项）
+## 11. 异步态（已实装）
 
-现状：Lite portfolio **没有骨架屏**，`isLoading` 只用于滚动复位；请求失败无 UI，`PortfolioErrorBoundary` 只兜渲染崩溃。落地时需补齐三态。
+三态已落地在 `src/components/portfolio/lite/PortfolioAsyncStates.tsx`，由 `useLitePortfolio` 的 `isLoading` / `hasData` / `isError` / `refetchLists` 驱动。
 
-| 态 | 触发 | 要求 |
+| 态 | 触发 | 表现 |
 |---|---|---|
-| Loading | 首次拉取未返回 | 骨架屏，色板复用 LiteEventsPage：底 `#171A1F`、块 `#15181C`；KPI 2/3 卡 + 3 行列表占位；tabs 与 chips 直接渲染不占位 |
-| Error | 请求失败（非渲染异常） | 列表区替换为错误文案 + Retry 按钮；KPI 显示 `—` 而非 `$0.00` |
-| Empty | 请求成功但无数据 | 现有 `No live calls yet` + Browse events；Settled 空态同理 |
-| 渲染崩溃 | 组件抛错 | `PortfolioErrorBoundary`，带 reset 回列表 |
-| 详情 Not found | id 不存在 / 无权限 | 现有文案 + 返回按钮；需补 Retry |
+| Loading | `isLoading && !hasData && !isError`（首次拉取且无缓存；缓存直渲、后续刷新不闪骨架） | `PortfolioSkeleton`：KPI 占位卡桌面 3 / 移动 2 + 列表行占位 3 行；底 `#171A1F`、块 `#15181C`、根节点单一 `animate-pulse`；tabs 与 Boost/Standard chips 是静态 chrome，首载即实底可点、不骨架 |
+| Error | `isError`（列表请求失败，非渲染异常） | `PortfolioFetchError`：`Couldn't load your positions.`（text-sm muted）+ 描边按钮 `Retry`（重新发起拉取）；KPI 三值渲染 `—`，不渲染 `$0.00` 假零态 |
+| Empty | 请求成功但无数据 | `PortfolioEmptyLive`：`No live calls yet` + `Browse events`；Settled 空态 `Nothing settled yet`（无按钮） |
+| 详情 Not found | id 不存在 **或** 属于他人（越权） | `PortfolioNotFound`：`Position not found` + `It may have been removed, or the link is wrong.` + `Back to settled`（回 `/portfolio?tab=settled`）。两种情况渲染逐字相同，不泄露他人 event 名与金额 |
+| 渲染崩溃 | 组件抛错 | `PortfolioErrorBoundary`：`Something went wrong` + `Back to settled` |
+
+状态字典：PF-33 / PF-35 / PF-36 / PF-37 / PF-38。
 
 ## 12. 规模与分页（待实现项）
 
@@ -347,6 +349,8 @@ case 定义在 `src/pages/StyleGuide/sections/PortfolioStatesSection.tsx`，prev
 | 错误态是否需要 Retry 之外的降级（如显示缓存快照） | 产品 |
 | 埋点平台与事件命名前缀 | 数据 |
 | 仓位数量上限与超限表现 | 产品 + 后端 |
+
+**给真平台前端的提醒（已知缺口，合并一条）**：DB 存量 5 行退役词 `Not Up`（显示层恒改写为 `Down`）+ 结算展示词应随仓位存档、不依赖事件行存活 —— 本仓库以 `src/lib/orphanSpotSideLabels.ts` 兜底事件行已被清理的存量现货结算仓（三条同时满足才兜底：`product_line === 'spot'`、join 不到 events 行、`option_label ∈ {Up, Down, Not Up}`）。
 
 ## 20. 未变更 / 不做
 
