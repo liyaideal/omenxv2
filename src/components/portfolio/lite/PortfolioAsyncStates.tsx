@@ -66,20 +66,31 @@ const RowSkel = () => (
  * First-load placeholder for the /portfolio body: KPI grid (desktop 3 /
  * mobile 2) + three list rows. Tabs and chips are NOT part of it.
  */
-export const PortfolioSkeleton = ({ cols = 3 }: { cols?: 2 | 3 }) => (
+export const PortfolioSkeleton = ({
+  cols = 3,
+  part = "all",
+}: {
+  cols?: 2 | 3;
+  /** The page renders the two halves around the static chips row. */
+  part?: "all" | "kpi" | "rows";
+}) => (
   <div className="animate-pulse" aria-busy="true" aria-label="Loading your positions">
-    <div className="px-4 lg:px-0 pb-1 pt-3.5">
-      <div className={cols === 2 ? "grid grid-cols-2 gap-2" : "grid grid-cols-3 gap-3"}>
-        {Array.from({ length: cols }).map((_, i) => (
-          <KpiSkel key={i} />
+    {part !== "rows" && (
+      <div className="px-4 lg:px-0 pb-1 pt-3.5">
+        <div className={cols === 2 ? "grid grid-cols-2 gap-2" : "grid grid-cols-3 gap-3"}>
+          {Array.from({ length: cols }).map((_, i) => (
+            <KpiSkel key={i} />
+          ))}
+        </div>
+      </div>
+    )}
+    {part !== "kpi" && (
+      <div className="pt-3">
+        {[0, 1, 2].map((i) => (
+          <RowSkel key={i} />
         ))}
       </div>
-    </div>
-    <div className="pt-3">
-      {[0, 1, 2].map((i) => (
-        <RowSkel key={i} />
-      ))}
-    </div>
+    )}
   </div>
 );
 
