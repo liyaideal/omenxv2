@@ -302,20 +302,22 @@ export const LiveRow = ({
         {row.segment === "boost" && (
           <>
             {" · auto-close "}
-            {row.autoClose.kind === "level" ? (
-              <>≈{cents(row.autoClose.price)}</>
-            ) : (
-              <TooltipProvider delayDuration={150}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="cursor-default text-[#4d5560]">none</span>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-[240px] text-xs">
-                    No auto-close within this market's price range — your loss is capped at what you put in.
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
+            <TooltipProvider delayDuration={150}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  {row.autoClose.kind === "level" ? (
+                    <span className="cursor-help border-b border-dotted border-[#4d5560]">
+                      ≈{cents(row.autoClose.price)}
+                    </span>
+                  ) : (
+                    <span className="cursor-help border-b border-dotted border-[#4d5560] text-[#4d5560]">none</span>
+                  )}
+                </TooltipTrigger>
+                <TooltipContent side="top" className="p-3">
+                  <AutoCloseTooltipBody />
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </>
         )}
       </div>
