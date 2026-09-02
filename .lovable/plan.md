@@ -38,12 +38,28 @@ portfolio-lite-batch-closing         (PF-18)  Dialog open    → fixed inset-0 �
 
 这样每个 `fixed` 遮罩/吸底条各自相对自己那一帧的视口，互不遮挡；case key、label、spec 表、注释一字不改，编号与文档口径不变。
 
+## 同轮补 Ⓖ Settled 的移动 key
+
+现状：Ⓖ 的 `Pair` 没传 `mobileCases`，移动帧复用桌面 key；且 `SettledList.tsx` 内部零端分叉（无 `useIsMobile`、无 `lg:` / `md:` 断点），两端渲染本就同构。
+
+改法（对齐 PF-24…27 的双 key 模式）：在 `registry.tsx` 为 Ⓖ 的 5 个 case 各注册一个 `-mobile` key，指向**同一个 preview 组件**（不新建 preview 函数）：
+
+```text
+portfolio-lite-settled-mobile
+portfolio-lite-settled-row-mobile
+portfolio-lite-series-row-mobile
+portfolio-lite-standard-settled-mobile
+portfolio-lite-settled-loadmore-mobile
+```
+
+`PortfolioStatesSection.tsx` 里 Ⓖ 的 `Pair` 加 `mobileCases`，label 沿用原编号加后缀「（移动）」，spec 表同一份（用现有的 mirror 复制方式，不重写 spec）。同时在 PF-19 的 note 里加一句：SettledList 无端分叉，移动 key 只是 375px 实测帧，视觉与桌面一致。
+
+`docs/delivery/lite-portfolio-spec-v2.md` §6 对应 5 行补上新 mobile key。
+
 ## 验收
 
 1. Ⓕ 段桌面/移动各 4 组帧，PF-16 的行网格、PF-17 的两条吸底条、PF-18 的两个确认层各自可见，无整帧暗色遮罩、无大片空白。
-2. registry key 数量不变，preview 文件零改动。
-3. 其余 Ⓐ–Ⓚ 段渲染不变。
+2. Ⓖ 段移动帧走 5 个新 mobile key，桌面 key 一字未改；registry key 净增 5，preview 文件零改动。
+3. `docs/delivery/lite-portfolio-spec-v2.md` §6 五行已补 key；typecheck 通过。
+4. 其余 Ⓐ–Ⓚ 段渲染不变。
 
-## 顺带发现（本轮不做，等你确认）
-
-Ⓖ Settled 段的移动帧没有传 `mobileCases`，移动帧渲染的仍是桌面 case（帧内文本与桌面完全一致）。要不要同轮补移动 key，请示下。
