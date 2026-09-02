@@ -54,6 +54,7 @@ export const ReferralPanel = ({ fixture }: { fixture?: ReferralPanelFixture }) =
   const claimable = rows.filter((r) => r.status === "qualified" && !claimed.includes(r.id)).length;
 
   const copy = async () => {
+    if (fixture) return; // display-only fixture: interactions are inert
     try {
       await navigator.clipboard.writeText(`https://${link}`);
       setCopied(true);
@@ -64,6 +65,7 @@ export const ReferralPanel = ({ fixture }: { fixture?: ReferralPanelFixture }) =
   };
 
   const claim = async (referralId: string) => {
+    if (fixture) return; // display-only fixture: interactions are inert
     setClaiming(referralId);
     const { data, error } = await supabase.functions.invoke("claim-referral-voucher", {
       body: { referralId },
@@ -74,10 +76,7 @@ export const ReferralPanel = ({ fixture }: { fixture?: ReferralPanelFixture }) =
       return;
     }
     setClaimed((prev) => [...prev, referralId]);
-    toast.success("Voucher sent to Position Vouchers", {
-      description: "Open vouchers to reveal it.",
-      action: { label: "Open", onClick: () => navigate("/vouchers") },
-    });
+    showClaimSuccessToast(() => navigate("/vouchers"));
   };
 
   const inviteRow = (r: Referral) => {
