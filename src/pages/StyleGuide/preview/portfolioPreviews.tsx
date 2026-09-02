@@ -1373,10 +1373,10 @@ export const PortfolioLoadingPreview = () => {
   const isMobile = useIsMobile();
   return (
     <div className="bg-background pb-4">
-      <PortfolioTabs tab="live" onTab={() => {}} />
+      <PortfolioTabs value="live" onChange={() => {}} />
       <PortfolioSkeleton cols={isMobile ? 2 : 3} part="kpi" />
       <div className="px-4 pt-3">
-        <SegmentChips seg="boost" onSeg={() => {}} />
+        <SegmentChips value="boost" onChange={() => {}} boostCount={3} standardCount={2} />
       </div>
       <PortfolioSkeleton cols={isMobile ? 2 : 3} part="rows" />
     </div>
@@ -1388,7 +1388,7 @@ export const PortfolioFetchErrorPreview = () => {
   const isMobile = useIsMobile();
   return (
     <div className="bg-background pb-4">
-      <PortfolioTabs tab="live" onTab={() => {}} />
+      <PortfolioTabs value="live" onChange={() => {}} />
       <div className="px-4 pt-3.5">
         <KpiGrid cols={isMobile ? 2 : 3}>
           <KpiCard label="COST" value="—" />
