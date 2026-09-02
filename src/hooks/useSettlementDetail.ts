@@ -110,9 +110,11 @@ export const useSettlementDetail = ({ settlementId, eventName }: UseSettlementDe
         .limit(1)
         .maybeSingle();
 
+      // 事件行缺失（eventData 为 null）才允许兜底；有行但无 side_labels
+      // 不属于孤儿腿，维持现状。
       const sideLabels = orphanSpotSideLabels(
         position.product_line,
-        parseSideLabels((eventData as any)?.side_labels),
+        eventData ? parseSideLabels((eventData as any).side_labels) ?? null : undefined,
         position.option_label,
       );
 

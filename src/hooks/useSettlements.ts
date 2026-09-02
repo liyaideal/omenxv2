@@ -147,9 +147,13 @@ export const useSettlements = () => {
           entryPriceNum: entry,
           sizeNum: size,
           leverageNum,
+          // 事件行缺失（labelsByName 无此 name）才允许兜底；有行但无
+          // side_labels 不属于孤儿腿，维持现状。
           sideLabels: orphanSpotSideLabels(
             row.product_line,
-            labelsByName.get(row.event_name),
+            labelsByName.has(row.event_name)
+              ? labelsByName.get(row.event_name) ?? null
+              : undefined,
             row.option_label,
           ),
         };
