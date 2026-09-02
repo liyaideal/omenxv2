@@ -577,7 +577,7 @@ const SETTLED_CASES: SectionCase[] = [
   {
     key: "portfolio-lite-settled",
     label: "PF-19 · 月份分组（SettledList）",
-    note: "组头是按钮：点一下折叠该月全部行，再点展开。默认全部展开；折叠状态不持久化，切 tab / 刷新后恢复。旧 key portfolio-lite-settled-collapse 指同一组件，保留可深链。",
+    note: "组头是按钮：点一下折叠该月全部行，再点展开。默认全部展开；折叠状态不持久化，切 tab / 刷新后恢复。旧 key portfolio-lite-settled-collapse 指同一组件，保留可深链。SettledList 无端分叉（无 useIsMobile、无断点类），移动 key 只是 375px 实测帧，视觉与桌面一致。",
     spec: [
       { state: "组头", when: "groups[i]", visual: "`AUGUST 2026 (11)` — 月份大写 + 行数计数（font-mono #6B7280/60）+ 右侧 ChevronDown", source: "monthGroupLabel()" },
       { state: "月份展开（默认）", when: "collapsed 不含 g.key", visual: "Chevron 朝下，组内行正常渲染", source: "SettledList collapsed" },
@@ -638,6 +638,16 @@ const SETTLED_CASES: SectionCase[] = [
     ],
   },
 ];
+
+/**
+ * Ⓖ 区移动帧镜像：SettledList / SettledRow 内部零端分叉（无 useIsMobile、无断点类），
+ * 所以 mobile key 指向同一个 preview 组件，只为在真实 375px 视口下实测。
+ */
+const SETTLED_MOBILE_MIRRORS: SectionCase[] = SETTLED_CASES.filter(
+  (c) => c.key !== "portfolio-lite-settled-collapse",
+).map((base) => ({ ...base, key: `${base.key}-mobile`, label: `${base.label}（移动）` }));
+
+
 
 /* ---------------- Ⓗ 单仓结算详情（PF-24 … PF-28） ---------------- */
 
