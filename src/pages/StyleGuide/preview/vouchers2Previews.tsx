@@ -25,7 +25,7 @@ import { VoucherEarningsCard } from "@/components/vouchers/VoucherEarningsCard";
 import { VoucherHistoryArchive } from "@/components/vouchers/VoucherHistoryArchive";
 import { VoucherDeskHeader } from "@/components/vouchers/VoucherDeskHeader";
 import { RedeemSummaryBar } from "@/components/vouchers/RedeemSummaryBar";
-import { VT } from "@/components/vouchers/voucherTokens";
+import { VT, shortDate } from "@/components/vouchers/voucherTokens";
 import { MultiOptionRows } from "@/components/vouchers/EventPickerList";
 import {
   EventPickerCard,
@@ -107,6 +107,7 @@ const Frame = ({ children, label }: { children: React.ReactNode; label?: string 
 type RowState =
   | "ready"
   | "soldOut"
+  | "claiming"
   | "activeTiered"
   | "activeInstant"
   | "selected";
@@ -123,10 +124,25 @@ export const Vouchers2RowsPreview = () => {
             mobile={isMobile}
             faceValue={10}
             sourceLine="From August Kickoff"
-            metaLine={<>Claim by Aug 18 · 653/1000 left today</>}
+            metaLine={<>Claim by {shortDate(daysFromNow(14))} · 653/1000 left today</>}
             action={<RowPrimaryButton mobile={isMobile}>Claim</RowPrimaryButton>}
           />
         );
+      case "claiming":
+        return (
+          <VoucherRow
+            mobile={isMobile}
+            faceValue={10}
+            sourceLine="From August Kickoff"
+            metaLine={<>Claim by {shortDate(daysFromNow(14))} · 653/1000 left today</>}
+            action={
+              <RowPrimaryButton mobile={isMobile} disabled>
+                Claiming…
+              </RowPrimaryButton>
+            }
+          />
+        );
+
       case "soldOut":
         return (
           <VoucherRow
@@ -135,7 +151,7 @@ export const Vouchers2RowsPreview = () => {
             sourceLine="From World Cup Kickoff"
             metaLine={
               <>
-                Claim by Aug 18 ·{" "}
+                Claim by {shortDate(daysFromNow(14))} ·{" "}
                 <span style={{ color: VT.red }}>Sold out today — resets in 8h 12m</span>
               </>
             }
@@ -189,9 +205,11 @@ export const Vouchers2RowsPreview = () => {
         options={[
           { id: "ready", label: "Ready to claim" },
           { id: "soldOut", label: "Sold out (pool)" },
+          { id: "claiming", label: "Claiming…" },
           { id: "activeTiered", label: "Active · tiered" },
           { id: "activeInstant", label: "Active · instant" },
           { id: "selected", label: "Selected (desk loaded)" },
+
         ]}
       />
       <Frame label={isMobile ? "375 — action stacks to 44px" : "Desktop row"}>{row}</Frame>
@@ -203,20 +221,25 @@ export const Vouchers2RowsPreview = () => {
   );
 };
 
-/* ----------------------- 2. Earnings hero — 3 states ---------------------- */
+/* ----------------------- 2. Earnings hero — 5 states ---------------------- */
+/* Mounted through the `fixture` prop (M4a-①): the live hook is disabled, so the
+   dictionary iframe issues zero supabase queries and mounts zero realtime
+   subscriptions; the Claim button is inert. */
 
-type HeroState = "claimable" | "locked" | "zero";
+type HeroState = "claimable" | "locked" | "zero" | "loading" | "claiming";
 
 export const Vouchers2EarningsPreview = () => {
   const isMobile = useIsMobile();
   const [state, setState] = useState<HeroState>("claimable");
 
-  const data =
-    state === "claimable"
-      ? { pending: 18.4, lifetimeCredited: 4, volume: 12_400, depositTotal: 250 }
-      : state === "locked"
-        ? { pending: 12.5, lifetimeCredited: 2, volume: 120, depositTotal: 0 }
-        : { pending: 0, lifetimeCredited: 6, volume: 3_200, depositTotal: 50 };
+  const base =
+    state === "locked"
+      ? { pending: 12.5, lifetimeCredited: 2, volume: 120, depositTotal: 0 }
+      : state === "zero"
+        ? { pending: 0, lifetimeCredited: 6, volume: 3_200, depositTotal: 50 }
+        : { pending: 18.4, lifetimeCredited: 4, volume: 12_400, depositTotal: 250 };
+
+  const fixture = { ...base, loading: state === "loading", claiming: state === "claiming" };
 
   const stats =
     state === "zero"
@@ -232,10 +255,12 @@ export const Vouchers2EarningsPreview = () => {
           { id: "claimable", label: "Claimable (T3)" },
           { id: "locked", label: "Locked (T0 · cap reached)" },
           { id: "zero", label: "Pending $0" },
+          { id: "loading", label: "Loading" },
+          { id: "claiming", label: "Claiming…" },
         ]}
       />
       <Frame>
-        <VoucherEarningsCard data={data} stats={stats} mobile={isMobile} onRedeemPrompt={() => {}} />
+        <VoucherEarningsCard fixture={fixture} stats={stats} mobile={isMobile} onRedeemPrompt={() => {}} />
       </Frame>
       <p className="text-[11px] leading-relaxed text-muted-foreground">
         Tier rail carries the volume ladder underneath each segment (T0 $0 · T1 $10 dep · T2 $1k · T3 $10k ·
@@ -247,14 +272,18 @@ export const Vouchers2EarningsPreview = () => {
 
 /* ------------------- 3. History archive — collapsed / open ---------------- */
 
+/** Frozen relative offsets — no bare Date.now() arithmetic inside fixtures. */
+const daysAgoAt = (d: number) => new Date(Date.now() - d * 864e5).toISOString();
+const daysFromNow = (d: number) => new Date(Date.now() + d * 864e5).toISOString();
+
 const HISTORY: PositionVoucher[] = [
   v2({
     id: "h1",
     faceValue: 15,
     status: "settled",
     payoutMode: "instant",
-    redeemedEventName: "Will BTC close above $70k on Aug 9?",
-    redeemedAt: new Date(Date.now() - 2 * 864e5).toISOString(),
+    redeemedEventName: "Will BTC close above $70k?",
+    redeemedAt: daysAgoAt(2),
     redeemedAirdropStatus: "settled",
     redeemedSettledPnl: 9.6,
   }),
@@ -263,8 +292,8 @@ const HISTORY: PositionVoucher[] = [
     faceValue: 10,
     status: "settled",
     payoutMode: "tiered",
-    redeemedEventName: "NVDA up or down — Aug 8",
-    redeemedAt: new Date(Date.now() - 3 * 864e5).toISOString(),
+    redeemedEventName: "NVDA up or down",
+    redeemedAt: daysAgoAt(3),
     redeemedAirdropStatus: "settled",
     redeemedSettledPnl: 4.25,
   }),
@@ -274,11 +303,21 @@ const HISTORY: PositionVoucher[] = [
     status: "settled",
     payoutMode: "tiered",
     redeemedEventName: "Man City vs Arsenal",
-    redeemedAt: new Date(Date.now() - 5 * 864e5).toISOString(),
+    redeemedAt: daysAgoAt(5),
     redeemedAirdropStatus: "settled",
     redeemedSettledPnl: 0,
   }),
-  v2({ id: "h4", faceValue: 5, status: "expired", claimedAt: new Date().toISOString() }),
+  v2({
+    id: "h6",
+    faceValue: 10,
+    status: "redeemed",
+    payoutMode: "tiered",
+    redeemedEventName: "Fed cuts in September?",
+    redeemedAt: daysAgoAt(1),
+    redeemedAirdropStatus: "open",
+    redeemedSettledPnl: null,
+  }),
+  v2({ id: "h4", faceValue: 5, status: "expired", claimedAt: daysAgoAt(8) }),
   v2({ id: "h5", faceValue: 5, status: "expired", claimedAt: null }),
 ];
 
@@ -289,11 +328,12 @@ export const Vouchers2ArchivePreview = () => (
     </Frame>
     <p className="text-[11px] leading-relaxed text-muted-foreground">
       Right column captions: instant win → “Credited to wallet”, tiered win → “Added to pending”, loss →
-      neutral $0.00 + “Voucher lost · nothing owed”. Expired rows carry the reason in the meta line
-      (“Claimed, not redeemed” vs “Unclaimed”).
+      neutral $0.00 + “Voucher lost · nothing owed”, unsettled redeemed → “Open”. Expired rows carry the
+      reason in the meta line (“Claimed, not redeemed” vs “Unclaimed”).
     </p>
   </div>
 );
+
 
 /* ------------------------- 4. Market picker (live) ------------------------ */
 /* Mounts the real presentational pieces extracted from EventPickerList:

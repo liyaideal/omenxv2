@@ -22,6 +22,8 @@ const portfolio = () => import("./portfolioPreviews");
 const liteEvents = () => import("./liteEventsPreviews");
 const sportsLines = () => import("./sportsLinesPreviews");
 const vouchers2 = () => import("./vouchers2Previews");
+const vouchersDict = () => import("./vouchersDictPreviews");
+
 const vouchers1 = () => import("./voucherPreviews");
 const api = () => import("./apiPreviews");
 const wallet = () => import("./walletPreviews");
@@ -311,6 +313,13 @@ export const previewRegistry: Record<string, Loader> = {
   "vouchers2-picker": pick(vouchers2, "Vouchers2PickerPreview"),
   "vouchers2-desk": pick(vouchers2, "Vouchers2DeskPreview"),
   "vouchers2-mobile-flow": pick(vouchers2, "Vouchers2MobileFlowPreview"),
+
+  /* -------- Vouchers · 状态字典（M4a-②）-------- */
+  "vouchers-body-layout": pick(vouchersDict, "VouchersBodyLayoutPreview"),
+  "vouchers-body-layout-mobile": pick(vouchersDict, "VouchersBodyLayoutMobilePreview"),
+  "vouchers-empty": pick(vouchersDict, "VouchersEmptyPreview"),
+  "vouchers-async": pick(vouchersDict, "VouchersAsyncPreview"),
+
 
   /* -------- Vouchers (still-serving components) -------- */
   "voucher-banner": pick(vouchers1, "BannerPreview"),
