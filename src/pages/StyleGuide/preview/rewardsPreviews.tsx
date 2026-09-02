@@ -20,6 +20,8 @@ import { CampaignGridSkeleton } from "@/components/campaigns/CampaignGridSkeleto
 import { CampaignDetailSkeleton } from "@/components/campaigns/CampaignDetailSkeleton";
 import { CampaignUnavailable } from "@/components/campaigns/CampaignUnavailable";
 import { CampaignRewardsCard } from "@/components/campaigns/CampaignRewardsCard";
+import { ClaimSuccessToastBody } from "@/components/campaigns/ClaimSuccessToastBody";
+import { formatDateRange } from "@/hooks/useCampaigns";
 import type { Referral } from "@/hooks/useReferral";
 import { MobileHeader } from "@/components/MobileHeader";
 import { Tabs } from "@/pages/lite/LiteRewardsPage";
@@ -532,7 +534,8 @@ const HeroDesktop = ({ view, special, frozen }: { view: CampaignView; special?: 
       {special && <KolBandDesktop kolName="Lao Wang" avatar={laowangAvatar.url} />}
       <h1 className="font-display text-[36px] font-bold leading-tight text-[#F2F3F5]">{view.campaign.name}</h1>
       <div className="font-display text-[12.5px] tabular-nums text-[#C9CED6]">
-        Aug 1 – Aug 31{view.daysLeft !== null && ` · ${view.daysLeft} days left`} ·{" "}
+        {view.phase === "always-on" ? "Always valid" : formatDateRange(view.campaign.startsAt, view.campaign.endsAt)}
+        {view.daysLeft !== null && ` · ${view.daysLeft} days left`} ·{" "}
         {view.joined.toLocaleString()} joined{frozen && " · Ended"}
       </div>
       <div className="flex flex-wrap items-center gap-2">
@@ -556,7 +559,8 @@ const HeroMobile = ({ view, special, frozen }: { view: CampaignView; special?: b
       {special && <KolBandMobile kolName="Lao Wang" avatar={laowangAvatar.url} />}
       <h1 className="font-display text-[22px] font-bold leading-[28px] text-[#F2F3F5]">{view.campaign.name}</h1>
       <div className="font-display text-[12px] leading-[16px] tabular-nums text-[#9AA1AC]">
-        Aug 1 – Aug 31{view.daysLeft !== null && ` · ${view.daysLeft}d left`} · {view.joined.toLocaleString()} joined
+        {view.phase === "always-on" ? "Always valid" : formatDateRange(view.campaign.startsAt, view.campaign.endsAt)}
+        {view.daysLeft !== null && ` · ${view.daysLeft}d left`} · {view.joined.toLocaleString()} joined
         {frozen && " · Ended"}
       </div>
       <div className="flex flex-wrap items-center gap-2">
