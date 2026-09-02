@@ -44,7 +44,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
 import { MobileHeader } from "@/components/MobileHeader";
 import { settledDayLabel, monthGroupLabel, monthKey } from "@/lib/settleLabel";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 /** Fixture dates stay relative so settleLabel() output never goes stale. */
 const inDays = (d: number, hour = 16, min = 0) => {
