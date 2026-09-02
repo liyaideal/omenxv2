@@ -180,7 +180,9 @@ export const VouchersEmptyPreview = () => (
 /* -------------------------- VC-3 · async two states ----------------------- */
 
 export const VouchersAsyncPreview = () => (
-  <div className="flex flex-col gap-[16px]">
+  // `animate-none` freezes the skeleton shimmer so repeated dictionary captures
+  // are byte-identical. Production keeps the pulse.
+  <div className="flex flex-col gap-[16px] [&_*]:!animate-none">
     <LoadingState label="Loading vouchers…" variant="skeleton" skeletonRows={3} />
     <ErrorState
       title="Couldn't load vouchers"
@@ -189,6 +191,7 @@ export const VouchersAsyncPreview = () => (
     />
   </div>
 );
+
 
 /* ==========================================================================
  * M4b · Ⓒ Redeem picker (VC-9 … VC-12) + Ⓓ Desk & confirm (VC-14 … VC-16)
