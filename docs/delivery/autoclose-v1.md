@@ -15,6 +15,30 @@ Boost 仓位的「预计自动平仓价」在 Lite 各面口径此前不一致�
 | 瞬态（不进值语法） | 零单 `None · enter an amount`；加载中骨架 | `amountNum <= 0`；数据未到达 |
 | hot 修饰 | 值转 trading-red + 副词 | `|mark − level| / mark ≤ 10%` |
 
+## 2b. 统一解释 tooltip（AC-TT1）
+
+全站唯一实现 `src/components/lite/shared/AutoCloseTooltipBody.tsx`，五处落点引用同一段静态文案，不按状态定制；**不插值，`≈ 62¢` 为冻结示例值**。值语法与 hot 判定零改动——只动解释层。
+
+文案全文（CPO 已批，逐字冻结）：
+
+> **Auto-close** — If your account runs low, Boost calls are closed automatically at this price to protect your remaining balance.
+>
+> `≈ 62¢` — The estimated auto-close price for this call. It's worked out across your whole account, so it shifts as your other positions move.
+>
+> `None` — This call can't be auto-closed — it's 1× (nothing borrowed), or prices only move between 0¢ and 100¢ and the line can't be reached. The most you can lose is what you put in.
+
+触发器规格：
+
+| 落点 | 触发器 | TooltipContent |
+|---|---|---|
+| 下单面板（桌面卡 + 移动 drawer 体） | 既有 `ⓘ`，partial-net 行共用本 ⓘ | `className="p-3"` 包 `<AutoCloseTooltipBody />` |
+| Your call 卡（4 列与 compact 2 列） | label 右侧新增 `<Info className="w-3 h-3 cursor-help" />`（经 `PosCell.labelExtra`） | 同上 |
+| Portfolio 桌面行 level | 值片段 `≈{c}¢` 加 `cursor-help border-b border-dotted border-[#4d5560]` | `side="top"` + `p-3` 包 `<AutoCloseTooltipBody />` |
+| Portfolio 桌面行 none | `none` 由 `cursor-default` 改为同款虚线下划线触发 | 同上 |
+| Portfolio 移动卡 | 无（句尾 `· no auto-close, loss capped` 原样，零新增 DOM） | — |
+
+已删除两句定制文案：面板旧文 `An estimate of the price…`、桌面行旧文 `No auto-close within this market's price range…`。副行 `Moves with your other positions` 保留（无 hover 时的兜底教育层）。移动端 tooltip 为 tap 触发（shadcn 默认行为），不得用 Dialog。
+
 ## 3. 求解器契约（`src/lib/autoClosePrice.ts`）
 
 | 项 | 约定 |
@@ -29,14 +53,16 @@ Boost 仓位的「预计自动平仓价」在 Lite 各面口径此前不一致�
 
 ## 4. 面 × 态矩阵
 
-| 面 | level | hot | none | 瞬态 | Standard |
-|---|---|---|---|---|---|
-| 下单面板 Returns 行 | `≈ {c}¢` | 红 `≈ {c}¢ · close to entry` | `None · loss capped` | 零单 `None · enter an amount`；加载骨架 | 无此行 |
-| 下单面板 partial-net 行 | `≈ {c}¢` | 红 | `None · loss capped` | 零单 `None` | — |
-| 交易页持仓条 | `≈ {c}¢`（无副行） | 红 + `Close to current price` | `None` + `Loss capped at your stake` | 加载骨架 | 无此列 |
-| Portfolio 桌面行 | `· auto-close ≈{c}¢` | 整行红轨 + 红字 | `· auto-close none`（内联小写 `#4d5560` + tooltip 全句） | 加载骨架 | 不追加该段 |
-| Portfolio 移动卡 | 句尾 `· auto-close ≈{c}¢` | 红描边 + 红句 | `· no auto-close, loss capped` | 加载骨架 | 不追加 |
-| Pro | 本轮不动 | — | — | — | — |
+| 面 | level | hot | none | 瞬态 | Standard | tooltip（AC-TT1） |
+|---|---|---|---|---|---|---|
+| 下单面板 Returns 行 | `≈ {c}¢` | 红 `≈ {c}¢ · close to entry` | `None · loss capped` | 零单 `None · enter an amount`；加载骨架 | 无此行 | 既有 `ⓘ`，内容换统一组件（partial-net 行共用本 ⓘ） |
+| 下单面板 partial-net 行 | `≈ {c}¢` | 红 | `None · loss capped` | 零单 `None` | — | 同上（共用主行 ⓘ） |
+| 交易页持仓条 | `≈ {c}¢`（无副行） | 红 + `Close to current price` | `None` + `Loss capped at your stake` | 加载骨架 | 无此列 | label 右侧新增 `ⓘ`（4 列与 compact 2 列都有） |
+| Portfolio 桌面行 | `· auto-close ≈{c}¢` | 整行红轨 + 红字 | `· auto-close none`（内联小写 `#4d5560`） | 加载骨架 | 不追加该段 | level 与 none 两态值片段虚线下划线触发统一组件 |
+| Portfolio 移动卡 | 句尾 `· auto-close ≈{c}¢` | 红描边 + 红句 | `· no auto-close, loss capped` | 加载骨架 | 不追加 | 无 |
+| Pro | 本轮不动 | — | — | — | — | — |
+
+tooltip 统一全文与触发器规格见 §2b。
 
 `Est. auto-close ⓘ` 旁的 `Moves with your other positions` 随字段常驻。
 

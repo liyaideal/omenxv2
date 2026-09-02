@@ -4,8 +4,12 @@
 // MONEY axis (trading-green/red) is used for profit only; MARKET axis
 // (yes/no) only for the side identity in the header.
 // ============================================================
+import type { ReactNode } from "react";
+import { Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ShareIconButton } from "@/components/lite/share/ShareIconButton";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { AutoCloseTooltipBody } from "@/components/lite/shared/AutoCloseTooltipBody";
 
 interface Props {
   sideLabel: string;
@@ -94,6 +98,18 @@ export const LitePositionCard = ({
         value={autoCloseText}
         sub={autoCloseSub}
         tone={autoCloseHot ? "down" : undefined}
+        labelExtra={
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button type="button" aria-label="About auto-close">
+                <Info className="w-3 h-3 cursor-help" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent className="p-3">
+              <AutoCloseTooltipBody />
+            </TooltipContent>
+          </Tooltip>
+        }
       />
     </div>
     <div className="mt-3 border-t border-border pt-3">
@@ -129,14 +145,20 @@ const PosCell = ({
   value,
   tone,
   sub,
+  labelExtra,
 }: {
   label: string;
   value: string;
   tone?: "up" | "down";
   sub?: string;
+  /** Optional node rendered right after the label (e.g. explainer tooltip). */
+  labelExtra?: ReactNode;
 }) => (
   <div>
-    <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+    <div className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+      {label}
+      {labelExtra}
+    </div>
     <div
       className={cn(
         "font-mono text-sm font-semibold",

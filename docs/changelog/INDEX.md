@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-09-02 | [Auto-close 交付说明 v1](../delivery/autoclose-v1.md) | AC-TT1 · auto-close 统一解释 tooltip：全站唯一实现 `AutoCloseTooltipBody`（静态文案不插值，`≈ 62¢` 为冻结示例值），五处落点接线（面板 ⓘ 换内容 / Your call 卡新增 ⓘ / Portfolio 桌面行 level+none 两态值片段虚线触发 / 移动卡不挂），两句定制旧文案删除；值语法与 hot 判定零改动 |
 | 2026-09-02 | [Portfolio（Lite）交付说明 v2](../delivery/lite-portfolio-spec-v2.md) | M6b：Portfolio 状态字典 PF-1…38 收官（Ⓖ–Ⓚ 区 + 附注表 A–F + 删旧节并账），异步三态（骨架 / 请求失败 / 详情 Not found）实装，孤儿现货结算仓 side 词兜底 |
 | 2026-09-01 | [合规 Footer 交付说明](../delivery/footer-compliance-v1.md) | 牌照合规 Footer 的完整交付口径：底栏三行 FROZEN 的文案与样式约束（实体声明行与 © 行同级、免责行可降一档）、栏位结构与移动端手风琴（收起不摘 DOM 以保住真锚点）、按「未登录可达」判定的挂载覆盖面与两处明确不挂、移动壳通栏 breakout 与三种让位写法、Lite/Pro 的 Resolved 差异与切面入口口径、七步可复现验收、四条已知不一致；同轮补挂加密快轮页缺失的 footer，并把 DESIGN.md §16.5 的页面清单改按「未登录可达」表述 |
 | 2026-09-01 | [Sports Live Board 交付说明 v1](../delivery/sports-live-board-v1.md) | SP-L4f/4f-FIX/4g：记分牌补齐篮球（四节 + 数据撑开的 OT 列，`pts`，各节相加，右上节内剩余钟）、网球（三盘，`sets`，盘进大数字 / 局进格子 / 分 `30–15` 进钟位，上下文行带发球方）、LOL·Dota（五局，`games`，格子写 `W`/`L`、当前局橙 `●`，右上 `elapsedText` 无钳位）；`SegmentSpec` 扩 `cell` / `overtime`，UFC `totalsWord` 改 `null` 由它决定是否渲染总数列；移动条段签改为按项目取列头缩写（`2H` / `Q4` / `S3` / `G4`，CS2 与 UFC 原样）；字典新增 Ⓐ‴ 子节 B1 / B2 / T1 / G1；三类赛事不入库，仅 style-guide 可见（CPO 已确认可接受） |

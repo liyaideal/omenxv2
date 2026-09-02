@@ -54,6 +54,7 @@ const CASES: SectionCase[] = [
 ];
 
 const SOLVER_ROWS: [string, string][] = [
+  ["tooltip 全文", 'AC-TT1 统一解释层：唯一实现 AutoCloseTooltipBody（静态文案不插值，"≈ 62¢" 为冻结示例值）——面板 ⓘ / Your call 卡 label ⓘ / Portfolio 桌面行 level+none 值片段虚线触发；移动卡无触发；上述 case 走生产组件自动带上，不新增 case'],
   ["返回", '{ kind: "level", price } | { kind: "none" }——值只有两态，瞬态不进值语法'],
   ["long 解", "p = entry − (equityOther + assets − imAfter) / qty；合法域 0 < p < markPrice；出域 → none"],
   ["short 解", "p = entry + (…)/qty（方向取反）；合法域 markPrice < p < 1；出域 → none"],
