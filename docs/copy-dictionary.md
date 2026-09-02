@@ -196,7 +196,7 @@ Lite 合约下单面板 `/trade` 的「How much」输入框语义已定稿，规
 
 | 项 | 口径 |
 |---|---|
-| 输入 | = margin = 用户掏的钱 = 面板 `Max loss · what you pay`，切 Boost 恒不变 |
+| 输入 | = margin = 用户掏的钱 = 面板 `Max loss · what you put in`，切 Boost 恒不变 |
 | 仓位规模 | `notional = 输入 × Boost` |
 | 份数 | `qty = 输入 × Boost ÷ 价格` |
 | 手续费 | `fee = 输入 × Boost × 费率` |

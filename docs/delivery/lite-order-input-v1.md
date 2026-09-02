@@ -52,7 +52,7 @@ Pro 侧输入语义是交易所惯例的 notional / 数量，两面各自 canoni
 
 | 字段 | 改输入时 | 切 Boost 时 |
 |---|---|---|
-| Max loss · what you pay | 跟随输入 | **不动**，恒 = 输入 |
+| Max loss · what you put in | 跟随输入 | **不动**，恒 = 输入 |
 | 赢了拿回 win | 线性跟随输入 | 线性放大（3× = 1× 的三倍） |
 | Est. auto-close | 重算 | 重算；1× 恒为 `None` |
 | 输入框派生行 | 重算，`A = 0` 时消失 | 重算，切回 1× 时消失 |
