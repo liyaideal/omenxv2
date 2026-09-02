@@ -155,11 +155,11 @@ case 定义在 `src/pages/StyleGuide/sections/PortfolioStatesSection.tsx`，prev
 | PF-25 详情 · lost | `portfolio-lite-detail-lost` / `portfolio-lite-detail-lost-mobile` |
 | PF-26 详情 · auto_close | `portfolio-lite-detail-autoclosed` / `portfolio-lite-detail-autoclosed-mobile` |
 | PF-27 详情 · cashout | `portfolio-lite-detail-cashout` / `portfolio-lite-detail-cashout-mobile` |
-| PF-28 详情 · Standard / spot | `portfolio-lite-detail-standard` |
+| PF-28 详情 · Standard / spot | `portfolio-lite-detail-standard` / `portfolio-lite-detail-standard-mobile` |
 | PF-29 系列详情主体 | `portfolio-lite-series-detail` / `portfolio-lite-series-mobile-page` |
-| PF-30 轮次行 | `portfolio-lite-series-round` |
+| PF-30 轮次行 | `portfolio-lite-series-round` / `portfolio-lite-series-round-mobile` |
 | PF-31 系列两极 + Standard/Boost 口径 | `portfolio-lite-series-extremes` |
-| PF-32 Standard 系列详情 | `portfolio-lite-series-standard` |
+| PF-32 Standard 系列详情 | `portfolio-lite-series-standard` / `portfolio-lite-series-standard-mobile` |
 | PF-33 空态 | `portfolio-lite-empty` |
 | PF-34 未登录门（未登录 / 已登录穿透） | `portfolio-lite-auth-gate-out` / `portfolio-lite-auth-gate-in` |
 | PF-35 Loading 骨架 | `portfolio-lite-loading` |

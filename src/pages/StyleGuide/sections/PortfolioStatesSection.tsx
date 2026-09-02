@@ -954,6 +954,7 @@ const ALL_CASES: SectionCase[] = [
   ...DETAIL_CASES,
   ...DETAIL_MOBILE_MIRRORS,
   ...SERIES_CASES,
+  ...SERIES_MOBILE_MIRRORS,
   ...STATE_CASES,
 ];
 
@@ -1111,7 +1112,7 @@ export const PortfolioStatesSection = () => (
             "portfolio-lite-detail-lost-mobile",
             "portfolio-lite-detail-autoclosed-mobile",
             "portfolio-lite-detail-cashout-mobile",
-            "portfolio-lite-detail-standard",
+            "portfolio-lite-detail-standard-mobile",
           )}
           desktopMin={1000}
           mobileMin={1200}
@@ -1128,9 +1129,9 @@ export const PortfolioStatesSection = () => (
           )}
           mobileCases={byKey(
             "portfolio-lite-series-mobile-page",
-            "portfolio-lite-series-round",
+            "portfolio-lite-series-round-mobile",
             "portfolio-lite-series-extremes",
-            "portfolio-lite-series-standard",
+            "portfolio-lite-series-standard-mobile",
           )}
           desktopMin={1000}
           mobileMin={1100}
