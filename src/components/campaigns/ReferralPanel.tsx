@@ -130,7 +130,7 @@ export const ReferralPanel = ({ fixture }: { fixture?: ReferralPanelFixture }) =
           className="flex min-h-[44px] flex-1 items-center overflow-hidden rounded-[12px] px-3 font-display text-[14px] text-[#F2F3F5]"
           style={{ background: "#0F1114", border: "1px solid #2B2F38" }}
         >
-          <span className="truncate">{isLoading ? "…" : link}</span>
+          <span className="truncate">{(fixture ? false : isLoading) ? "…" : link}</span>
         </div>
         <ClaimButton fullWidth={isMobile} onClick={copy} disabled={!link}>
           {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
@@ -162,7 +162,7 @@ export const ReferralPanel = ({ fixture }: { fixture?: ReferralPanelFixture }) =
         </span>
       </div>
 
-      {isLoading ? (
+      {(fixture ? false : isLoading) ? (
         <div className="h-[76px] animate-pulse rounded-[14px] bg-[#0F1114]" />
       ) : rows.length === 0 ? (
         <EmptyState
