@@ -343,8 +343,15 @@ export const LiveRow = ({
 
 
 /* ------------------------- pending Pro orders ------------------------- */
-export const PendingOrdersRow = ({ orders }: { orders: any[] }) => {
-  const [open, setOpen] = useState(false);
+export const PendingOrdersRow = ({
+  orders,
+  defaultOpen = false,
+}: {
+  orders: any[];
+  /** Docs-only: start expanded in /style-guide. Never set in product. */
+  defaultOpen?: boolean;
+}) => {
+  const [open, setOpen] = useState(defaultOpen);
   const navigate = useNavigate();
   const { setSurface } = useSurface();
   if (orders.length === 0) return null;
