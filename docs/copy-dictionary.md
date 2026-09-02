@@ -81,15 +81,14 @@ Single source of truth for user-visible field names across the app.
 | **Voucher code** | 8-char alphanumeric voucher ID | Code, code, Voucher |
 | **Expires in** | Countdown to voucher expiry | Expiry, Time left, Ends in |
 | **Price band** | Allowed entry price range | Price Band, Entry range |
-| **To claim** | Section / badge for `granted` vouchers awaiting user claim | Unclaimed, Pending vouchers |
-| **Tap to claim** | CTA chip on granted voucher cards | Claim now, Activate |
-| **Claim voucher** | Primary button on granted voucher (full card) | Activate voucher, Get voucher |
-| **Available** | Section for `claimed` vouchers ready to redeem (within 7-day window) | Ready, Claimed vouchers |
+| **Ready to claim** | Section / badge for `granted` vouchers awaiting user claim | Unclaimed, Pending vouchers |
+| **Claim voucher** | Primary button / chip on granted voucher cards（旧词 `Tap to claim` 已退役） | Activate voucher, Get voucher |
+| **Active** | Section for `claimed` vouchers ready to redeem (within 7-day window)（旧词 `Available` 已退役） | Ready, Claimed vouchers |
 | **Redeem voucher** | Primary button on claimed voucher | Use voucher, Open position |
 | **Claim window 7 days** | Window between claim and forced expiry | 7-day expiry, Use within 7 days |
 | **Left today** | Remaining quota in today's daily pool, format `X / Y left today` | Available today, X remaining, In stock |
 | **Resets in {Xh Ym}** | Countdown to next UTC midnight pool reset | Refreshes in, Next batch, Back in |
-| **Sold out today** | Pool exhausted state for current UTC day, paired with `· resets in {Xh Ym}` | Out of stock, Gone, Empty pool |
+| **Sold out today** | Pool exhausted state for current UTC day, paired with `— resets in {Xh Ym}` | Out of stock, Gone, Empty pool |
 | **Sold out** | Disabled CTA label when pool exhausted | Unavailable, Closed |
 | **Credited to wallet** | Payout destination line for `payout_mode = 'instant'`（`CloseVoucherContent` 与 `VoucherHistoryArchive` 同词） | Credited to your wallet, Paid to wallet, Instant payout |
 | **Added to pending** | Payout destination line for tiered vouchers（同上两处同词） | Added to pending balance, Goes to pending, Pending credit |
@@ -108,7 +107,7 @@ Single source of truth for user-visible field names across the app.
 |---|---|---|
 | **Volume tier** | Section label for the T1–T4 ladder | Tier progress, Volume gate |
 | **Filled volume** | Cumulative `trades.amount` where `status='Filled'` | Trading volume, Total volume |
-| **T1 / T2 / T3 / T4** | Tier labels with caps `$5,000 / $15,000 / $50,000 / $150,000` → `$25 / $100 / $500 / Unlimited` lifetime claim | Tier 1, Level 1, Gold/Silver |
+| **T0 / T1 / T2 / T3 / T4** | Tier labels with lifetime claim caps `$2 / $5 / $10 / $20 / $50` and unlocks `No req. / $10 deposit / $1K vol / $10K vol / $50K vol` | Tier 1, Level 1, Gold/Silver |
 | **Claim $X to wallet** | Primary button when claimable > 0 | Claim to balance, Withdraw earnings |
 | **Tier cap claimed — reach next tier** | Button label when current-tier cap is exhausted | Cap reached, Locked |
 | **Trade more to unlock** | Button label when below T1 or no claimable | Volume required, Locked |
