@@ -33,6 +33,44 @@ Single source of truth for user-visible field names across the app.
 
 ---
 
+## Rewards / Campaigns (`/rewards`, `/rewards/campaign/:id`, 2026-09-02)
+
+状态字典：`/style-guide` → Lite → Rewards（RW-1…18）。规格：`docs/delivery/lite-rewards-spec-v1.md`。
+
+| Canonical | Meaning | Banned variants |
+|---|---|---|
+| **Campaigns / Vouchers / Referral** | `/rewards` 三个分页标签，顺序固定 | Activities, Promos, Invites |
+| **Live** | 活动进行中徽标（volt） | Active, Ongoing, Running |
+| **Always on** | `ends_at === null` 活动的徽标；日期行写 `Always valid` | Evergreen, No end date, Permanent |
+| **Starts {MMM d}** | upcoming 活动徽标 | Coming soon, Upcoming on |
+| **Ended** | 已结束活动徽标；详情页进入 frozen 只读态 | Closed, Finished, Expired |
+| **{N} joined** | 参与人数，千分位；来源 `seed_base + 实际参与` | N participants, N players |
+| **Trial Position Voucher** | 券类奖励的完整名称（chip 写 `$10 Trial Position Voucher`） | Trial voucher, Free position, Bonus voucher |
+| **USDC** | 现金类奖励币种，色 `#33D6FF`；券色 `#CFFF4A` | Cash, Dollars, Balance |
+| **Claim voucher** | 券任务达标后的白底主按钮 | Get reward, Redeem, Collect |
+| **Credited to Standard after review** | USDC 任务达标后的纯文字状态（无按钮） | Paid out, Pending payout |
+| **Claimed** | 已领取任务行状态 | Done, Collected |
+| **Not eligible** | 该奖励不归属当前用户（虚线灰行） | Ineligible, Locked, Unavailable |
+| **Sign in to start** | 未登录时任务行动作位统一文案 | Log in to continue, Sign up first |
+| **Campaign rules** | 详情页长文规则折叠条标题（44px 行） | Terms, Details, Rules & terms |
+| **Your rewards here** | 详情页奖励卡标题 | Your rewards, Rewards summary |
+| **Vouchers / USDC / Available** | 奖励卡三格指标（已得券 / 已得 USDC / 仍可领） | Earned, Total, Remaining |
+| **Open Vouchers → / Open Wallet →** | 奖励卡两个跳转按钮，有值的一侧为主按钮 | View vouchers, Go to wallet |
+| **Host** | 官方活动的归属条：`Official OmenX campaign — open to everyone` | Organizer, Provider |
+| **Joined via {KOL}** | 通过专属链接绑定后的 Entry 条（橙 `#FF8A3D`） | Invited by, Referred by |
+| **Exclusive entry** | KOL 专属入口标识行 | Special entry, Private link |
+| **Voucher sent to Position Vouchers** | claim 成功 toast 标题；描述 `Open vouchers to reveal it.`，动作 `Open` | Reward claimed, Success |
+| **This campaign is no longer available.** | 详情页取不到 view 时的空态正文 | Not found, Campaign missing |
+| **Invite a friend** | Referral 邀请卡标题 | Refer a friend, Share link |
+| **Your invites** | Referral 邀请列表标题 | Invited friends, Referrals |
+| **In progress / Claimed** | 邀请行两个终态词；`qualified` 行显示 `$5 voucher` + `Claim voucher` | Pending, Waiting, Complete |
+
+**合规铁律**：任何出现 USDC 金额的页面，有且只有一条完整 fine print（`RewardsFinePrint`，11.5px `#6B7280`），金额旁**禁止**行内写 "not guaranteed"。
+
+**已退役**：Points（积分）体系全部词汇不得复用；`/rewards` 只保留一条可关闭的退役提示。
+
+---
+
 ## Vouchers (`/vouchers`)
 
 | Canonical | Meaning | Banned variants |
