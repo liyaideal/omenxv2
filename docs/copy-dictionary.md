@@ -209,8 +209,12 @@ positives. Chip words come from the sibling event's `side_labels`.
 | **SIDE chip** | `{sideWord} {c}¢`；底色随方向：Yes/Up `#33D6FF` / No/Down `#CFFF4A`，黑字；`{c}¢` 为该腿自身轴 mark 价（No 腿 = 1 − yes）。多选腿 chip 只写 `Yes` / `No`，选项名另起一行置于 chip 下（`Charles Leclerc`）；side 词与方向来源 `resolveLegSide()`，`short` 视为 No | 全 volt chip、`Long`/`Short`、选项名塞进 chip |
 | **Boost check** | 账户级仪表：`riskRatio = imTotal / equity × 100`；**Healthy** `< 80` / **Getting tight** `80 ≤ r < 95` / **Auto-close soon** `≥ 95`；仅 Boost 段且 `boostLive.length > 0` 渲染；`Details ›` 默认折叠（移动 MobileDrawer / 桌面 320px Popover），三行 Equity / Used by Boost calls / Until auto-close starts = `max(equity − imTotal, 0)` | Margin ratio, Margin call, Risk level, Health factor |
 | **Boost · N / Standard · N** | 段 chips。`Boost` 段 = Boost Account（`productLine !== 'spot'`）全部持仓，**含 1×**；1× 行不显示倍数且 auto-close 恒 `none`（无借贷敞口）。`Standard` 段 = `productLine === 'spot'`。N = Live tab 为持仓数、Settled tab 为结算行数 | Futures · N, Spot · N, Leveraged |
-| **Series / Round** | **Series** = 同一事件名下 ≥2 条已结算记录聚合成的一行（`useLitePortfolio.settledRows`，`items.length > 1`），点进系列详情；**Round** = 系列中的每一条结算记录；一轮结束 = 该条 `close_reason` 落定（settlement / auto_close / cashout 任一）。详情 `Rounds` 行仅当事件 `event_subtype ∈ INTRADAY_SUBTYPES` 写 `{n} · daily rounds`，否则只写 `{n}` | Streak, Multi-round bet, Parlay |
+| **Series / Round** | **Series** = 同一事件名下 ≥2 条已结算记录聚合成的一行（`useLitePortfolio.settledRows`，`items.length > 1`），点进系列详情；**Round** = 系列中的每一条结算记录；一轮结束 = 该条 `close_reason` 落定（settlement / auto_close / cashout 任一）。详情 `Rounds` 行仅当事件 `event_subtype ∈ INTRADAY_SUBTYPES` 写 `{n} · daily rounds`，否则只写 `{n}`。系列详情两种写法都是设计意图、不得互相替换：**眉线** `Series · {n} rounds`（列表 / 详情头，只报轮数）与 **DETAILS 行** `{n} · daily rounds`（明细行，报轮数 + 该系列是日内轮次） | Streak, Multi-round bet, Parlay |
 | **If it wins → $X / If it wins you get $X** 中的 X | = `ifWins = sizeNum`（每股结算 $1） | Max payout, Potential win |
+| **Up / Down**（Standard 段词轴） | Standard 段（`productLine === 'spot'`）的 side 词一律走事件 `side_labels` 别名 `Up` / `Down`，不写 `Yes` / `No`，不带杠杆后缀；有别名只显别名，无别名才回落 Yes/No（唯一来源 `resolveLegSide()`）。退役词 `Not Up` 在显示层恒改写为 `Down`（`liteSideName`）；事件行已被清理的存量现货结算仓由 `src/lib/orphanSpotSideLabels.ts` 兜底补 `side_labels` | `Up · Yes`、`Down · No`、`Not Up` |
+| **Couldn't load your positions.** | Portfolio 列表请求失败文案，配描边按钮 `Retry`；同屏 KPI 三值渲染 `—`，不得渲染 `$0.00` | `Failed to load`, `Error`, `$0.00` 假零态 |
+| **Position not found** / **It may have been removed, or the link is wrong.** | 结算详情 Not found 态标题 + 副行，按钮 `Back to settled`；id 不存在与越权访问渲染逐字相同，不泄露他人 event 名与金额 | `No access`, `Forbidden`, `404` |
+| **（骨架无文案）** | Loading 态只渲染占位块（底 `#171A1F` / 块 `#15181C` / `animate-pulse`），不写 `Loading…`；tabs 与 Boost/Standard chips 首载即实底可点、不骨架 | `Loading…`, spinner |
 
 ---
 
