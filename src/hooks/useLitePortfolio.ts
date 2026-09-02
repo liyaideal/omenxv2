@@ -420,6 +420,14 @@ export const useLitePortfolio = () => {
 
   return {
     isLoading: positionsLoading || settledLoading,
+    /** A list request failed — the page must not render a fake $0.00 KPI. */
+    isError: positionsError || settledError,
+    /** Cache already has something to paint: skip the first-load skeleton. */
+    hasData: positions.length > 0 || settlements.length > 0,
+    refetchLists: () => {
+      refetchPositions?.();
+      refetchSettlements?.();
+    },
     live,
     boostLive,
     standardLive,
