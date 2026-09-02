@@ -683,7 +683,8 @@ const DETAIL_CASES: SectionCase[] = [
     spec: [
       { state: "词轴", when: 'productLine === "spot"', visual: "Side 行与结果行只出现 Up / Down（`Not Up` 由展示层恒改写为 Down）", source: "orphanSpotSideLabels() / liteSideName()" },
       { state: "持仓行", when: "始终", visual: "`N shares @ Xc avg`", source: "SettlementDetailVM shares / avgPrice" },
-      { state: "ACTIVITY 无成交", when: "trades.length === 0", visual: "ACTIVITY 卡渲染 `No fills recorded`", source: "SettlementDetailView" },
+      { state: "ACTIVITY 无成交（桌面）", when: "trades.length === 0 && !isMobile", visual: "ACTIVITY 卡渲染 `No fills recorded`", source: "SettlementDetailDesktop" },
+      { state: "ACTIVITY 无成交（移动）", when: "trades.length === 0 && isMobile", visual: "移动纵列整块 ACTIVITY 不渲染（不留空卡）", source: "SettlementDetailMobile" },
     ],
   },
 ];
