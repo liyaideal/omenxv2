@@ -13,7 +13,13 @@ interface VoucherEarningsState {
   claiming: boolean;
 }
 
-export function useVoucherEarnings() {
+/**
+ * @param options.enabled  default true. Pass false to run the hook in a purely
+ *   inert shape (no supabase queries, no realtime subscriptions) — used by
+ *   fixture-driven previews. Signature stays backwards compatible.
+ */
+export function useVoucherEarnings(options?: { enabled?: boolean }) {
+  const enabled = options?.enabled !== false;
   const { user } = useAuth();
   const [state, setState] = useState<VoucherEarningsState>({
     pending: 0,
@@ -25,11 +31,13 @@ export function useVoucherEarnings() {
   });
 
   const refresh = useCallback(async () => {
+    if (!enabled) return;
     if (!user) {
       setState((s) => ({ ...s, pending: 0, lifetimeCredited: 0, volume: 0, depositTotal: 0, loading: false }));
       return;
     }
     setState((s) => ({ ...s, loading: true }));
+
 
     const [{ data: pool }, { data: trades }, { data: deposits }] = await Promise.all([
       supabase
@@ -67,14 +75,16 @@ export function useVoucherEarnings() {
       loading: false,
       claiming: false,
     });
-  }, [user]);
+  }, [user, enabled]);
 
   useEffect(() => {
     refresh();
   }, [refresh]);
 
   useEffect(() => {
+    if (!enabled) return;
     if (!user) return;
+
     const channel = supabase
       .channel(`voucher-earnings-${user.id}`)
       .on(
@@ -96,7 +106,7 @@ export function useVoucherEarnings() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, refresh]);
+  }, [user, refresh, enabled]);
 
   const tierState = useMemo(
     () => deriveVoucherTierState(state.volume, state.pending, state.lifetimeCredited, state.depositTotal),

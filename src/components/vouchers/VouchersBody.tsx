@@ -30,6 +30,29 @@ const SectionHead = ({ dot, label, count, tone }: { dot?: boolean; label: string
 );
 
 /**
+ * Desk placeholder shown when no voucher is selected. Pure lift-out of the
+ * previously inline JSX — identical DOM, classes and inline styles.
+ */
+export const VoucherDeskEmpty = () => (
+  <div style={{ padding: 16 }}>
+    <div
+      className="flex flex-col items-center justify-center gap-[10px] text-center rounded-[12px]"
+      style={{ height: 300, background: VT.surfaceDeep, border: `1px solid ${VT.line}`, padding: "0 40px" }}
+    >
+      <span className="font-display" style={{ fontSize: 15, fontWeight: 700, color: VT.ink }}>
+        Pick a voucher to redeem
+      </span>
+      <span style={{ fontSize: 12, color: VT.ink3, lineHeight: 1.6, maxWidth: 360 }}>
+        Choose one on the left and the market picker opens here. Your own balance is never used — the voucher
+        funds the trial position.
+      </span>
+    </div>
+  </div>
+);
+
+
+
+/**
  * Vouchers surface — mounted inside the /rewards "Vouchers" tab.
  * Frozen spec: OmenX Lite Vouchers v2 Final (hero, row family, archive,
  * redeem desk, mobile redeem screen).
@@ -239,20 +262,8 @@ export const VouchersBody = () => {
           <RedeemVoucherContent voucher={selected} variant="inline" sourceLabel={selected.sourceLabel} />
         </>
       ) : (
-        <div style={{ padding: 16 }}>
-          <div
-            className="flex flex-col items-center justify-center gap-[10px] text-center rounded-[12px]"
-            style={{ height: 300, background: VT.surfaceDeep, border: `1px solid ${VT.line}`, padding: "0 40px" }}
-          >
-            <span className="font-display" style={{ fontSize: 15, fontWeight: 700, color: VT.ink }}>
-              Pick a voucher to redeem
-            </span>
-            <span style={{ fontSize: 12, color: VT.ink3, lineHeight: 1.6, maxWidth: 360 }}>
-              Choose one on the left and the market picker opens here. Your own balance is never used — the voucher
-              funds the trial position.
-            </span>
-          </div>
-        </div>
+        <VoucherDeskEmpty />
+
       )}
     </div>
   );

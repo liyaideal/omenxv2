@@ -23,6 +23,11 @@ export interface AirdropPosition {
   airdropValue: number;
   /** Per-position profit cap (voucher source only). null = no cap / legacy rules. */
   redeemableCap?: number | null;
+  /** Voucher's redeemable_cap_pct (voucher source only) — cap fallback basis. */
+  redeemableCapPct?: number | null;
+  /** Voucher's payout_mode (voucher source only) — drives the close-panel copy. */
+  payoutMode?: "instant" | "tiered" | null;
+
   /** Resolved event_options.id (voucher source) — enables realtime mark price lookup. */
   optionId?: string | null;
   status: string;
@@ -244,20 +249,34 @@ export const useAirdropPositions = () => {
     const rows = (data as any[] | null) ?? [];
     if (rows.length === 0) return [];
 
-    // Enrich with redeemed_option_id from position_vouchers (no FK, so manual lookup)
+    return enrichWithVoucherMeta(rows);
+  };
+
+  /**
+   * Enrich airdrop rows with their linked position_vouchers metadata
+   * (redeemed_option_id, payout_mode, redeemable_cap_pct). No FK, so manual
+   * lookup by redeemed_airdrop_position_id.
+   */
+  const enrichWithVoucherMeta = async (rows: any[]): Promise<AirdropPosition[]> => {
     const ids = rows.map((r) => r.id);
     const { data: vouchers } = await supabase
       .from("position_vouchers")
-      .select("redeemed_airdrop_position_id, redeemed_option_id")
+      .select("redeemed_airdrop_position_id, redeemed_option_id, payout_mode, redeemable_cap_pct")
       .in("redeemed_airdrop_position_id", ids);
-    const optionIdByAirdrop = new Map<string, string | null>(
-      (vouchers ?? []).map((v: any) => [v.redeemed_airdrop_position_id, v.redeemed_option_id ?? null]),
+    const byAirdrop = new Map<string, any>(
+      (vouchers ?? []).map((v: any) => [v.redeemed_airdrop_position_id, v]),
     );
 
-    return rows.map((row) => ({
-      ...mapRow(row),
-      optionId: optionIdByAirdrop.get(row.id) ?? null,
-    }));
+    return rows.map((row) => {
+      const v = byAirdrop.get(row.id);
+      return {
+        ...mapRow(row),
+        optionId: v?.redeemed_option_id ?? null,
+        payoutMode: v?.payout_mode === "instant" ? "instant" : v ? "tiered" : null,
+        redeemableCapPct: v?.redeemable_cap_pct != null ? Number(v.redeemable_cap_pct) : null,
+      };
+    });
+
   };
 
   const { data: airdrops = [], isLoading, isError, refetch } = useQuery({
@@ -299,7 +318,12 @@ export const useAirdropPositions = () => {
         return [];
       }
 
-      return (data as any[] | null)?.map(mapRow) ?? [];
+      const rows = (data as any[] | null) ?? [];
+      if (rows.length === 0) return [];
+      // Same voucher metadata enrichment as the demo path — the close panel
+      // needs payout_mode / redeemable_cap_pct for real users too.
+      return enrichWithVoucherMeta(rows);
+
     },
     enabled: isDemoMode || !!user,
   });

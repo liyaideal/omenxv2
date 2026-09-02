@@ -66,7 +66,7 @@ const mapRow = (row: any): PositionVoucher => ({
 });
 
 export const usePositionVouchers = () => {
-  const { user } = useUserProfile();
+  const { user, email, username } = useUserProfile();
   const queryClient = useQueryClient();
   const [isRedeeming, setIsRedeeming] = useState(false);
 
@@ -140,15 +140,18 @@ export const usePositionVouchers = () => {
       return mapped;
     },
   });
-  // Demo expired vouchers — visible to every user so the "expired" state is
-  // discoverable even before any real voucher exists. Two flavours:
+  // Demo expired vouchers — scoped to the fixed demo account alex_carter only
+  // (identified by profile email/username, same pattern as pickMockByEmail in
+  // useAirdropPositions). Real users never see them. Two flavours:
   //   1) granted → expired (never claimed)
   //   2) claimed → expired (claimed but not redeemed within 7 days)
   // These are read-only: ExpiredSection has no interactions, and their ids
   // are never passed to claim/redeem edge functions.
+  const isDemoAlex = email === "alex.carter@gmail.com" || username === "alex_carter";
   const DAY = 24 * 60 * 60 * 1000;
   const now = Date.now();
-  const demoExpired: PositionVoucher[] = [
+  const demoExpired: PositionVoucher[] = !isDemoAlex ? [] : [
+
     {
       id: "demo-expired-unclaimed",
       code: "VCH-7K2P9X",
