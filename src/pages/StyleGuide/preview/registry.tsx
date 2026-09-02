@@ -417,18 +417,29 @@ export const previewRegistry: Record<string, Loader> = {
   "rewards-grid-loading": pick(rewards, "CampaignGridLoadingPreview"),
 
   "rewards-campaign-cards": pick(rewards, "CampaignCardStatesPreview"),
-  "rewards-grant-rows": pick(rewards, "GrantTaskRowStatesPreview"),
+  "rewards-grant-rows": pick(rewards, "GrantTaskRowNineStatesPreview"),
   "rewards-kol-band": pick(rewards, "KolBandPreview"),
   "rewards-ended-archive": pick(rewards, "EndedArchivePreview"),
   "rewards-ended-detail": pick(rewards, "EndedCampaignDetailPreview"),
   "rewards-points-notice": pick(rewards, "PointsRetiredNoticePreview"),
   "rewards-signin-prompt": pick(rewards, "SignInPromptPreview"),
-  "rewards-referral-panels": pick(rewards, "ReferralPanelPreview"),
+  "rewards-referral-panels": pick(rewards, "ReferralOverviewPreview"),
   "rewards-fine-print": pick(rewards, "RewardsFinePrintPreview"),
-  "rewards-campaign-rules": pick(rewards, "CampaignRulesDisclosurePreview"),
+  "rewards-campaign-rules": pick(rewards, "CampaignRulesStatesPreview"),
   "rewards-ineligible-redirect": pick(rewards, "CampaignIneligibleRedirectPreview"),
   "rewards-taskrow-playground": pick(rewards, "GrantTaskRowPlaygroundPreview"),
   "rewards-taskrow-board": pick(rewards, "GrantTaskRowBoardPreview"),
+
+  /* -------- Rewards 状态字典（M3b · RW-7…RW-18）新增 key -------- */
+  "rewards-campaign-hero": pick(rewards, "CampaignHeroDesktopPreview"),
+  "rewards-campaign-hero-mobile": pick(rewards, "CampaignHeroMobilePreview"),
+  "rewards-rewards-card": pick(rewards, "CampaignRewardsCardDesktopPreview"),
+  "rewards-rewards-card-mobile": pick(rewards, "CampaignRewardsCardMobilePreview"),
+  "rewards-detail-loading": pick(rewards, "CampaignDetailLoadingPreview"),
+  "rewards-detail-unavailable": pick(rewards, "CampaignDetailUnavailablePreview"),
+  "rewards-claim-toast": pick(rewards, "ClaimSuccessToastPreview"),
+  "rewards-referral-invite": pick(rewards, "ReferralInvitePreview"),
+  "rewards-referral-rows": pick(rewards, "ReferralRowsPreview"),
 
   /* -------- Funding flows -------- */
   "wallet-deposit-to-screen": pick(funding, "DepositToScreenPreview"),

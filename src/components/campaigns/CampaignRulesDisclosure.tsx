@@ -4,14 +4,16 @@ import { ChevronDown } from "lucide-react";
 interface CampaignRulesDisclosureProps {
   paragraphs: string[];
   heading?: string;
+  /** Style-guide only: render the expanded state directly (production omits it). */
+  defaultOpen?: boolean;
 }
 
 /**
  * Read-only campaign rules, authored in campaign_entries.rules.details.
  * Collapsed to a single 44px line; expands in place to the long-form body.
  */
-export const CampaignRulesDisclosure = ({ paragraphs, heading }: CampaignRulesDisclosureProps) => {
-  const [open, setOpen] = useState(false);
+export const CampaignRulesDisclosure = ({ paragraphs, heading, defaultOpen }: CampaignRulesDisclosureProps) => {
+  const [open, setOpen] = useState(!!defaultOpen);
   if (!paragraphs.length) return null;
 
   return (
