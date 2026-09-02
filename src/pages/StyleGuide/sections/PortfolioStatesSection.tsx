@@ -695,6 +695,7 @@ const DETAIL_MOBILE_MIRRORS: SectionCase[] = (
     ["portfolio-lite-detail-lost", "portfolio-lite-detail-lost-mobile"],
     ["portfolio-lite-detail-autoclosed", "portfolio-lite-detail-autoclosed-mobile"],
     ["portfolio-lite-detail-cashout", "portfolio-lite-detail-cashout-mobile"],
+    ["portfolio-lite-detail-standard", "portfolio-lite-detail-standard-mobile"],
   ] as const
 ).map(([from, key]) => {
   const base = DETAIL_CASES.find((c) => c.key === from)!;
