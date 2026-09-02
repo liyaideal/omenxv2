@@ -94,6 +94,27 @@ export const PortfolioSkeleton = ({
   </div>
 );
 
+/**
+ * Live tab empty state. Lives here (not inline in the page) so the style guide
+ * mounts the same production render instead of a hand-copied div.
+ */
+export const PortfolioEmptyLive = () => {
+  const navigate = useNavigate();
+  return (
+    <div className="flex flex-col items-center gap-3 py-14">
+      <p className="text-[13px] text-[#6B7280]">No live calls yet</p>
+      <button
+        type="button"
+        onClick={() => navigate("/events")}
+        className="h-10 rounded-[10px] px-4 text-[13px] font-semibold text-[#F2F3F5]"
+        style={{ border: "1px solid #2A2F38" }}
+      >
+        Browse events
+      </button>
+    </div>
+  );
+};
+
 /** Placeholder KPI value when the request failed — never a fake zero. */
 export const KPI_DASH = "—";
 

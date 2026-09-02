@@ -64,25 +64,9 @@ import {
   PortfolioSkeleton,
   PortfolioFetchError,
   KPI_DASH,
+  PortfolioEmptyLive as EmptyLive,
 } from "@/components/portfolio/lite/PortfolioAsyncStates";
 
-
-const EmptyLive = () => {
-  const navigate = useNavigate();
-  return (
-    <div className="flex flex-col items-center gap-3 py-14">
-      <p className="text-[13px] text-[#6B7280]">No live calls yet</p>
-      <button
-        type="button"
-        onClick={() => navigate("/events")}
-        className="h-10 rounded-[10px] px-4 text-[13px] font-semibold text-[#F2F3F5]"
-        style={{ border: "1px solid #2A2F38" }}
-      >
-        Browse events
-      </button>
-    </div>
-  );
-};
 
 export default function LitePortfolio() {
   const isMobile = useIsMobile();
