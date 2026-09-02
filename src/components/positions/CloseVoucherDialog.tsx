@@ -18,6 +18,8 @@ interface CloseVoucherDialogProps {
   markPrice: number;
   faceValue: number;
   redeemableCap?: number | null;
+  redeemableCapPct?: number | null;
+  payoutMode?: "instant" | "tiered" | null;
   onConfirm: () => void | Promise<void>;
   isClosing?: boolean;
 }
@@ -31,6 +33,8 @@ export const CloseVoucherDialog = ({
   markPrice,
   faceValue,
   redeemableCap,
+  redeemableCapPct,
+  payoutMode,
   onConfirm,
   isClosing = false,
 }: CloseVoucherDialogProps) => {
@@ -57,6 +61,8 @@ export const CloseVoucherDialog = ({
           markPrice={markPrice}
           faceValue={faceValue}
           redeemableCap={redeemableCap}
+          redeemableCapPct={redeemableCapPct}
+          payoutMode={payoutMode}
           onConfirm={handleConfirm}
           onCancel={() => setOpen(false)}
           isClosing={isClosing}

@@ -11,6 +11,8 @@ interface CloseVoucherDrawerProps {
   markPrice: number;
   faceValue: number;
   redeemableCap?: number | null;
+  redeemableCapPct?: number | null;
+  payoutMode?: "instant" | "tiered" | null;
   onConfirm: () => void | Promise<void>;
   isClosing?: boolean;
 }
@@ -25,6 +27,8 @@ export const CloseVoucherDrawer = ({
   markPrice,
   faceValue,
   redeemableCap,
+  redeemableCapPct,
+  payoutMode,
   onConfirm,
   isClosing = false,
 }: CloseVoucherDrawerProps) => {
@@ -48,6 +52,8 @@ export const CloseVoucherDrawer = ({
         markPrice={markPrice}
         faceValue={faceValue}
         redeemableCap={redeemableCap}
+        redeemableCapPct={redeemableCapPct}
+        payoutMode={payoutMode}
         onConfirm={handleConfirm}
         onCancel={() => onOpenChange(false)}
         isClosing={isClosing}
