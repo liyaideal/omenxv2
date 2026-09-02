@@ -80,10 +80,20 @@ export interface LiteMonthGroup {
 const cents = (p: number) => `${Math.round(p * 100)}¢`;
 
 export const useLitePortfolio = () => {
-  const { positions, isLoading: positionsLoading } = usePositions();
+  const {
+    positions,
+    isLoading: positionsLoading,
+    isError: positionsError,
+    refetch: refetchPositions,
+  } = usePositions();
   const { orders } = useOrders();
   const { events } = useActiveEvents();
-  const { data: settlements = [], isLoading: settledLoading } = useSettlements();
+  const {
+    data: settlements = [],
+    isLoading: settledLoading,
+    isError: settledError,
+    refetch: refetchSettlements,
+  } = useSettlements();
   const { getRealtimeMarkPrice, calculateRealtimePnL } = useRealtimePositionsPnL();
   const risk = useRealtimeRiskMetrics();
   const { grantedVouchers } = usePositionVouchers();
