@@ -855,7 +855,7 @@ const LEDGER: { from: string; to: string }[] = [
   { from: "RewardsSection 节描述（奖励双色 / 合规「金额旁禁 inline not guaranteed」）", to: "RW-7 奖励 pill 两行 + RW-18 「禁 inline」行" },
   { from: "1. CampaignCard — four phases + fallback", to: "RW-4 spec 十行（phase 四相 / special / signedOut / claimableCount / 无主视觉 / 画幅 / 移动 meta）" },
   { from: "2. GrantTaskRow — every state", to: "RW-8 spec 十三行（九分支 + CTA 推断表 + 两端列宽）" },
-  { from: "3. KOL brand band（桌面实心胶囊 34px / 移动单行 22px 无解释句）", to: "RW-7b spec 两行；hero 内位置写进 RW-7「special hero」行" },
+  { from: "3. KOL brand band（桌面实心胶囊 34px / 移动单行 22px 无解释句）", to: "保留为 RW-7b 独立 case（隶属 RW-7 hero 组）；hero 内位置写进 RW-7「special hero」行" },
   { from: "4. Ended campaigns archive（96×54 / 72×40）", to: "RW-6 spec「行版式 · 桌面 / 移动」两行" },
   { from: "4b. Ended campaign detail — frozen settled view", to: "页内撤下（`rewards-ended-detail` 走运行时 fetch，违 fixture 确定性）；key 保留 registry。frozen 覆盖由 RW-7「frozen」/ RW-8「frozen」/ RW-10「frozen 隐藏 Still available」三行承接" },
   { from: "5. Points retirement notice（桌面网格上 / 移动卡片下）", to: "RW-3 spec「位置 · 桌面 / 移动」两行" },

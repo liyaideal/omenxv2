@@ -20,6 +20,8 @@ import { CampaignGridSkeleton } from "@/components/campaigns/CampaignGridSkeleto
 import { CampaignDetailSkeleton } from "@/components/campaigns/CampaignDetailSkeleton";
 import { CampaignUnavailable } from "@/components/campaigns/CampaignUnavailable";
 import { CampaignRewardsCard } from "@/components/campaigns/CampaignRewardsCard";
+import { ClaimSuccessToastBody } from "@/components/campaigns/ClaimSuccessToastBody";
+import { formatDateRange } from "@/hooks/useCampaigns";
 import type { Referral } from "@/hooks/useReferral";
 import { MobileHeader } from "@/components/MobileHeader";
 import { Tabs } from "@/pages/lite/LiteRewardsPage";
@@ -271,17 +273,6 @@ const USDC_TASK: CampaignTaskDef = {
   reward: { usdc: 5 },
 };
 
-export const GrantTaskRowStatesPreview = () => (
-  <div className="space-y-2.5">
-    <GrantTaskRow task={ROW_TASK} status="not_started" onClaim={() => {}} />
-    <GrantTaskRow task={ROW_TASK} status="in_progress" progressValue={180} onClaim={() => {}} />
-    <GrantTaskRow task={ROW_TASK} status="claimable" onClaim={() => {}} />
-    <GrantTaskRow task={ROW_TASK} status="claimed" onClaim={() => {}} />
-    <GrantTaskRow task={ROW_TASK} status="not_eligible" onClaim={() => {}} />
-    <GrantTaskRow task={ROW_TASK} status="not_started" signedOut onClaim={() => {}} />
-    <GrantTaskRow task={USDC_TASK} status="claimable" onClaim={() => {}} />
-  </div>
-);
 
 /* ---------------- KOL brand band (desktop + mobile hero, as shipped) ---------------- */
 export const KolBandPreview = () => (
@@ -532,7 +523,8 @@ const HeroDesktop = ({ view, special, frozen }: { view: CampaignView; special?: 
       {special && <KolBandDesktop kolName="Lao Wang" avatar={laowangAvatar.url} />}
       <h1 className="font-display text-[36px] font-bold leading-tight text-[#F2F3F5]">{view.campaign.name}</h1>
       <div className="font-display text-[12.5px] tabular-nums text-[#C9CED6]">
-        Aug 1 – Aug 31{view.daysLeft !== null && ` · ${view.daysLeft} days left`} ·{" "}
+        {view.phase === "always-on" ? "Always valid" : formatDateRange(view.campaign.startsAt, view.campaign.endsAt)}
+        {view.daysLeft !== null && ` · ${view.daysLeft} days left`} ·{" "}
         {view.joined.toLocaleString()} joined{frozen && " · Ended"}
       </div>
       <div className="flex flex-wrap items-center gap-2">
@@ -556,7 +548,8 @@ const HeroMobile = ({ view, special, frozen }: { view: CampaignView; special?: b
       {special && <KolBandMobile kolName="Lao Wang" avatar={laowangAvatar.url} />}
       <h1 className="font-display text-[22px] font-bold leading-[28px] text-[#F2F3F5]">{view.campaign.name}</h1>
       <div className="font-display text-[12px] leading-[16px] tabular-nums text-[#9AA1AC]">
-        Aug 1 – Aug 31{view.daysLeft !== null && ` · ${view.daysLeft}d left`} · {view.joined.toLocaleString()} joined
+        {view.phase === "always-on" ? "Always valid" : formatDateRange(view.campaign.startsAt, view.campaign.endsAt)}
+        {view.daysLeft !== null && ` · ${view.daysLeft}d left`} · {view.joined.toLocaleString()} joined
         {frozen && " · Ended"}
       </div>
       <div className="flex flex-wrap items-center gap-2">
@@ -663,21 +656,16 @@ export const CampaignDetailUnavailablePreview = () => (
   </div>
 );
 
-/* ---------------- RW-12 · claim 成功反馈（静态 body，不真弹 toast） ---------------- */
+/* ---------------- RW-12 · claim 成功反馈（静态挂真件 body，不真弹 toast） ---------------- */
 export const ClaimSuccessToastPreview = () => (
   <div className="space-y-2 p-4">
     <div className="mx-auto w-full max-w-[420px] rounded-[12px] border border-[#1D2026] bg-[#131519] p-4">
-      <div className="text-[13px] font-semibold text-[#F2F3F5]">Voucher sent to Position Vouchers</div>
-      <div className="mt-1 text-[12px] text-[#9AA1AC]">Open vouchers to reveal it.</div>
-      <div className="mt-3">
-        <span className="inline-flex min-h-[32px] items-center rounded-[8px] bg-white px-3 font-display text-[12px] font-bold text-[#0A0B0D]">
-          Open
-        </span>
-      </div>
+      <ClaimSuccessToastBody onOpen={() => {}} />
     </div>
     <p className="text-center text-[11px] leading-4 text-muted-foreground">
-      静态还原 <code className="text-[11px] text-foreground">showClaimSuccessToast()</code> 的 sonner body（title /
-      description / action），campaign claim 与 referral claim 共用同一调用。
+      静态渲染 <code className="text-[11px] text-foreground">ClaimSuccessToastBody</code>（与{" "}
+      <code className="text-[11px] text-foreground">showClaimSuccessToast()</code> 共用同一 copy 常量），campaign
+      claim 与 referral claim 共用同一调用。
     </p>
   </div>
 );

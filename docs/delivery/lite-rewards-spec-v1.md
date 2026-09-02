@@ -82,6 +82,10 @@
 
 活动任务 claim 走 `claim-campaign-grant`，邀请 claim 走 `claim-referral-voucher`。成功后两处共用同一条成功提示：标题 `Voucher sent to Position Vouchers`，描述 `Open vouchers to reveal it.`，动作 `Open` → `/vouchers`。失败走 `toast.error`，文案取服务端 `error`，缺省 `Could not claim this reward`。
 
+## 5. Admin 端：无
+
+Rewards 的活动配置（campaigns / campaign_entries）当前全部由运营直接在数据库维护，产品内没有 Admin 界面；本节占位，后续若上后台再补。
+
 ## 6. 已废弃
 
 | 项 | 说明 |
