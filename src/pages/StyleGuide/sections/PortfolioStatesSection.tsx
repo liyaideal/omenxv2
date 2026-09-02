@@ -577,7 +577,7 @@ const SETTLED_CASES: SectionCase[] = [
   {
     key: "portfolio-lite-settled",
     label: "PF-19 · 月份分组（SettledList）",
-    note: "组头是按钮：点一下折叠该月全部行，再点展开。默认全部展开；折叠状态不持久化，切 tab / 刷新后恢复。旧 key portfolio-lite-settled-collapse 指同一组件，保留可深链。",
+    note: "组头是按钮：点一下折叠该月全部行，再点展开。默认全部展开；折叠状态不持久化，切 tab / 刷新后恢复。旧 key portfolio-lite-settled-collapse 指同一组件，保留可深链。SettledList 无端分叉（无 useIsMobile、无断点类），移动 key 只是 375px 实测帧，视觉与桌面一致。",
     spec: [
       { state: "组头", when: "groups[i]", visual: "`AUGUST 2026 (11)` — 月份大写 + 行数计数（font-mono #6B7280/60）+ 右侧 ChevronDown", source: "monthGroupLabel()" },
       { state: "月份展开（默认）", when: "collapsed 不含 g.key", visual: "Chevron 朝下，组内行正常渲染", source: "SettledList collapsed" },
@@ -638,6 +638,16 @@ const SETTLED_CASES: SectionCase[] = [
     ],
   },
 ];
+
+/**
+ * Ⓖ 区移动帧镜像：SettledList / SettledRow 内部零端分叉（无 useIsMobile、无断点类），
+ * 所以 mobile key 指向同一个 preview 组件，只为在真实 375px 视口下实测。
+ */
+const SETTLED_MOBILE_MIRRORS: SectionCase[] = SETTLED_CASES.filter(
+  (c) => c.key !== "portfolio-lite-settled-collapse",
+).map((base) => ({ ...base, key: `${base.key}-mobile`, label: `${base.label}（移动）` }));
+
+
 
 /* ---------------- Ⓗ 单仓结算详情（PF-24 … PF-28） ---------------- */
 
@@ -951,6 +961,8 @@ const ALL_CASES: SectionCase[] = [
   ...PENDING_CASES,
   ...BATCH_CASES,
   ...SETTLED_CASES,
+  ...SETTLED_MOBILE_MIRRORS,
+
   ...DETAIL_CASES,
   ...DETAIL_MOBILE_MIRRORS,
   ...SERIES_CASES,
@@ -1065,23 +1077,38 @@ export const PortfolioStatesSection = () => (
         />
       </SubSection>
 
+      {/*
+        Ⓕ 每个 case 单独成帧：PF-17 的 BatchActionBar 是 `fixed`，PF-18 的 Dialog /
+        MobileDrawer 带全屏遮罩，`fixed` 相对的是整个 iframe 文档视口。批在同一帧里
+        时遮罩会盖住上方所有 case（看起来像没加载），所以这里一个 case 一帧。
+      */}
       <SubSection title="Ⓕ 批量平仓（PF-16 … PF-18）">
-        <Pair
-          cases={byKey(
-            "portfolio-lite-live-select-desktop",
-            "portfolio-lite-batch-bar",
-            "portfolio-lite-batch-confirm",
-            "portfolio-lite-batch-closing",
-          )}
-          mobileCases={byKey(
-            "portfolio-lite-live-select",
-            "portfolio-lite-batch-bar-mobile",
-            "portfolio-lite-batch-confirm-mobile",
-            "portfolio-lite-batch-closing-mobile",
-          )}
-          desktopMin={900}
-          mobileMin={900}
-        />
+        <div className="space-y-8">
+          <Pair
+            cases={byKey("portfolio-lite-live-select-desktop")}
+            mobileCases={byKey("portfolio-lite-live-select")}
+            desktopMin={520}
+            mobileMin={520}
+          />
+          <Pair
+            cases={byKey("portfolio-lite-batch-bar")}
+            mobileCases={byKey("portfolio-lite-batch-bar-mobile")}
+            desktopMin={380}
+            mobileMin={380}
+          />
+          <Pair
+            cases={byKey("portfolio-lite-batch-confirm")}
+            mobileCases={byKey("portfolio-lite-batch-confirm-mobile")}
+            desktopMin={560}
+            mobileMin={560}
+          />
+          <Pair
+            cases={byKey("portfolio-lite-batch-closing")}
+            mobileCases={byKey("portfolio-lite-batch-closing-mobile")}
+            desktopMin={560}
+            mobileMin={560}
+          />
+        </div>
       </SubSection>
 
       <SubSection title="Ⓖ Settled 列表（PF-19 … PF-23）">
@@ -1093,10 +1120,18 @@ export const PortfolioStatesSection = () => (
             "portfolio-lite-standard-settled",
             "portfolio-lite-settled-loadmore",
           )}
+          mobileCases={byKey(
+            "portfolio-lite-settled-mobile",
+            "portfolio-lite-settled-row-mobile",
+            "portfolio-lite-series-row-mobile",
+            "portfolio-lite-standard-settled-mobile",
+            "portfolio-lite-settled-loadmore-mobile",
+          )}
           desktopMin={900}
           mobileMin={900}
         />
       </SubSection>
+
 
       <SubSection title="Ⓗ 单仓结算详情（PF-24 … PF-28）">
         <Pair
