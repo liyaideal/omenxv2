@@ -1303,70 +1303,69 @@ const detailStandard: SettlementDetailVM = {
   trades: [],
 };
 
-export const SettlementDetailStandardPreview = () => {
-  const isMobile = useIsMobile();
-  return (
-    <div className="bg-background p-4">
-      {isMobile ? (
-        <SettlementDetailMobile vm={detailStandard} actions={{ onViewEvent: () => {} }} />
-      ) : (
-        <SettlementDetailDesktop vm={detailStandard} actions={{ onViewEvent: () => {} }} />
-      )}
-    </div>
-  );
-};
+export const SettlementDetailStandardPreview = () => (
+  <div className="bg-background p-4">
+    <SettlementDetailDesktop vm={detailStandard} actions={{ onViewEvent: () => {} }} />
+  </div>
+);
+
+export const SettlementDetailStandardMobilePreview = () => (
+  <div className="bg-background p-4">
+    <SettlementDetailMobile vm={detailStandard} actions={{ onViewEvent: () => {} }} />
+  </div>
+);
 
 /** PF-30 轮次行 — 正 / 负 / auto-closed 三种，都可点进该轮单仓详情。 */
-export const SettlementSeriesRoundPreview = () => {
-  const isMobile = useIsMobile();
-  const vm: SeriesDetailVM = {
-    ...seriesVm,
-    rounds: [
-      { id: "r3", closedAt: daysAgoAt(3, 12, 20), sideWord: "Up", autoClosed: false, net: 17.85 },
-      { id: "r2", closedAt: daysAgoAt(4, 12, 20), sideWord: "Down", autoClosed: false, net: -15.15 },
-      { id: "r1", closedAt: daysAgoAt(5, 12, 20), sideWord: "Up", autoClosed: true, net: -15.15 },
-    ],
-  };
-  return (
-    <div className="bg-background p-4">
-      {isMobile ? (
-        <SeriesDetailMobile vm={vm} actions={{ onViewEvent: () => {} }} />
-      ) : (
-        <SeriesDetailDesktop vm={vm} actions={{ onViewEvent: () => {} }} />
-      )}
-    </div>
-  );
+const seriesRoundVm: SeriesDetailVM = {
+  ...seriesVm,
+  rounds: [
+    { id: "r3", closedAt: daysAgoAt(3, 12, 20), sideWord: "Up", autoClosed: false, net: 17.85 },
+    { id: "r2", closedAt: daysAgoAt(4, 12, 20), sideWord: "Down", autoClosed: false, net: -15.15 },
+    { id: "r1", closedAt: daysAgoAt(5, 12, 20), sideWord: "Up", autoClosed: true, net: -15.15 },
+  ],
 };
 
+export const SettlementSeriesRoundPreview = () => (
+  <div className="bg-background p-4">
+    <SeriesDetailDesktop vm={seriesRoundVm} actions={{ onViewEvent: () => {} }} />
+  </div>
+);
+
+export const SettlementSeriesRoundMobilePreview = () => (
+  <div className="bg-background p-4">
+    <SeriesDetailMobile vm={seriesRoundVm} actions={{ onViewEvent: () => {} }} />
+  </div>
+);
+
 /** PF-32 Standard 系列详情 — Series · Standard，DETAILS `N · daily rounds`。 */
-export const SettlementSeriesStandardPreview = () => {
-  const isMobile = useIsMobile();
-  const vm: SeriesDetailVM = {
-    ...seriesVm,
-    seriesName: "TSLA — up or down?",
-    segmentLabel: "Standard",
-    isDailyRounds: true,
-    rounds: [
-      { id: "s3", closedAt: daysAgoAt(3, 21), sideWord: "Up", autoClosed: false, net: 12.2 },
-      { id: "s2", closedAt: daysAgoAt(4, 21), sideWord: "Down", autoClosed: false, net: -10 },
-      { id: "s1", closedAt: daysAgoAt(5, 21), sideWord: "Up", autoClosed: false, net: 6.4 },
-    ],
-    cost: 60,
-    fees: 0.6,
-    payout: 68.6,
-    net: 8.6,
-    wins: 2,
-  };
-  return (
-    <div className="bg-background p-4">
-      {isMobile ? (
-        <SeriesDetailMobile vm={vm} actions={{ onViewEvent: () => {} }} />
-      ) : (
-        <SeriesDetailDesktop vm={vm} actions={{ onViewEvent: () => {} }} />
-      )}
-    </div>
-  );
+const seriesStandardVm: SeriesDetailVM = {
+  ...seriesVm,
+  seriesName: "TSLA — up or down?",
+  segmentLabel: "Standard",
+  isDailyRounds: true,
+  rounds: [
+    { id: "s3", closedAt: daysAgoAt(3, 21), sideWord: "Up", autoClosed: false, net: 12.2 },
+    { id: "s2", closedAt: daysAgoAt(4, 21), sideWord: "Down", autoClosed: false, net: -10 },
+    { id: "s1", closedAt: daysAgoAt(5, 21), sideWord: "Up", autoClosed: false, net: 6.4 },
+  ],
+  cost: 60,
+  fees: 0.6,
+  payout: 68.6,
+  net: 8.6,
+  wins: 2,
 };
+
+export const SettlementSeriesStandardPreview = () => (
+  <div className="bg-background p-4">
+    <SeriesDetailDesktop vm={seriesStandardVm} actions={{ onViewEvent: () => {} }} />
+  </div>
+);
+
+export const SettlementSeriesStandardMobilePreview = () => (
+  <div className="bg-background p-4">
+    <SeriesDetailMobile vm={seriesStandardVm} actions={{ onViewEvent: () => {} }} />
+  </div>
+);
 
 /** PF-35 首载骨架 — tabs / chips 是实底 chrome，不骨架。 */
 export const PortfolioLoadingPreview = () => {
