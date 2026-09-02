@@ -146,11 +146,11 @@ case 定义在 `src/pages/StyleGuide/sections/PortfolioStatesSection.tsx`，prev
 | PF-16 选择模式 | `portfolio-lite-live-select-desktop` / `portfolio-lite-live-select` |
 | PF-17 吸底动作条 | `portfolio-lite-batch-bar` / `portfolio-lite-batch-bar-mobile` |
 | PF-18 确认层（空闲 / 执行中） | `portfolio-lite-batch-confirm` / `portfolio-lite-batch-confirm-mobile` / `portfolio-lite-batch-closing` / `portfolio-lite-batch-closing-mobile` |
-| PF-19 Settled 月份分组与折叠 | `portfolio-lite-settled`（旧 key `portfolio-lite-settled-collapse` 指同一组件） |
-| PF-20 单仓结算行 | `portfolio-lite-settled-row` |
-| PF-21 系列聚合行 | `portfolio-lite-series-row` |
-| PF-22 Standard 段 settled 行 | `portfolio-lite-standard-settled` |
-| PF-23 月份懒加载 | `portfolio-lite-settled-loadmore` |
+| PF-19 Settled 月份分组与折叠 | `portfolio-lite-settled` / `portfolio-lite-settled-mobile`（旧 key `portfolio-lite-settled-collapse` 指同一组件） |
+| PF-20 单仓结算行 | `portfolio-lite-settled-row` / `portfolio-lite-settled-row-mobile` |
+| PF-21 系列聚合行 | `portfolio-lite-series-row` / `portfolio-lite-series-row-mobile` |
+| PF-22 Standard 段 settled 行 | `portfolio-lite-standard-settled` / `portfolio-lite-standard-settled-mobile` |
+| PF-23 月份懒加载 | `portfolio-lite-settled-loadmore` / `portfolio-lite-settled-loadmore-mobile` |
 | PF-24 详情 · won | `portfolio-lite-detail-won` / `portfolio-lite-detail-won-mobile` |
 | PF-25 详情 · lost | `portfolio-lite-detail-lost` / `portfolio-lite-detail-lost-mobile` |
 | PF-26 详情 · auto_close | `portfolio-lite-detail-autoclosed` / `portfolio-lite-detail-autoclosed-mobile` |
