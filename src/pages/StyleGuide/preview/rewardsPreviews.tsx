@@ -273,17 +273,6 @@ const USDC_TASK: CampaignTaskDef = {
   reward: { usdc: 5 },
 };
 
-export const GrantTaskRowStatesPreview = () => (
-  <div className="space-y-2.5">
-    <GrantTaskRow task={ROW_TASK} status="not_started" onClaim={() => {}} />
-    <GrantTaskRow task={ROW_TASK} status="in_progress" progressValue={180} onClaim={() => {}} />
-    <GrantTaskRow task={ROW_TASK} status="claimable" onClaim={() => {}} />
-    <GrantTaskRow task={ROW_TASK} status="claimed" onClaim={() => {}} />
-    <GrantTaskRow task={ROW_TASK} status="not_eligible" onClaim={() => {}} />
-    <GrantTaskRow task={ROW_TASK} status="not_started" signedOut onClaim={() => {}} />
-    <GrantTaskRow task={USDC_TASK} status="claimable" onClaim={() => {}} />
-  </div>
-);
 
 /* ---------------- KOL brand band (desktop + mobile hero, as shipped) ---------------- */
 export const KolBandPreview = () => (
