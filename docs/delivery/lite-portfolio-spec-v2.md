@@ -186,7 +186,7 @@ case 定义在 `src/pages/StyleGuide/sections/PortfolioStatesSection.tsx`，prev
 | 项 | 规则 |
 |---|---|
 | 收益句 | `If it wins you get $X`（移动）/ `If it wins → $X`（桌面）。**不重复 side**，side 已在上方 meta |
-| auto-close 字段 | Boost 段常驻，值两态：桌面行 `· auto-close ≈{c}¢` / `· auto-close none`（none 内联灰 `#4d5560` + tooltip `No auto-close within this market's price range — your loss is capped at what you put in.`）；移动卡 `· auto-close ≈{c}¢` / `· no auto-close, loss capped`。Standard 段不带该字段。hot 时整句红 |
+| auto-close 字段 | Boost 段常驻，值两态：桌面行 `· auto-close ≈{c}¢` / `· auto-close none`（none 内联灰 `#4d5560`，level 与 none 两态值片段虚线下划线触发全站统一 tooltip——见 autoclose-v1.md §2b）；移动卡 `· auto-close ≈{c}¢` / `· no auto-close, loss capped`。Standard 段不带该字段。hot 时整句红 |
 | auto-closed | 强制了结保留可见备注（列表 meta + 详情结果行，红色） |
 | cashed out early | **已废弃**，全站不再出现；提前平仓与正常结算在用户侧文案一致，只有价格行 label 区分 `Closed at` / `Settled price` |
 | 战绩格式 | `12W 15L` |
