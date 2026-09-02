@@ -22,6 +22,7 @@ import {
   type SettlementDetailVM,
 } from "@/components/portfolio/lite/SettlementDetailView";
 import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
+import { PortfolioNotFound } from "@/components/portfolio/lite/PortfolioAsyncStates";
 import {
   LiteManualShareCard,
   type LiteManualShareSnap,
@@ -47,10 +48,13 @@ export default function LiteSettlementDetail() {
     : "/portfolio?tab=settled";
 
   if (isLoading || !s) {
-    const body = (
-      <div className="px-4 py-10 text-center text-[13px] text-[#6B7280]">
-        {isLoading ? "Loading…" : "Not found"}
-      </div>
+    // Missing id and somebody else's id render IDENTICALLY — the detail query
+    // is already scoped to the signed-in user, so an out-of-scope id lands here
+    // and never leaks the other reader's event name or money.
+    const body = isLoading ? (
+      <div className="px-4 py-10 text-center text-[13px] text-[#6B7280]">Loading…</div>
+    ) : (
+      <PortfolioNotFound />
     );
     return isMobile ? (
       <div className="min-h-screen bg-background pb-24">
