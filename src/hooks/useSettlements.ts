@@ -147,7 +147,11 @@ export const useSettlements = () => {
           entryPriceNum: entry,
           sizeNum: size,
           leverageNum,
-          sideLabels: labelsByName.get(row.event_name),
+          sideLabels: orphanSpotSideLabels(
+            row.product_line,
+            labelsByName.get(row.event_name),
+            row.option_label,
+          ),
         };
       });
     },

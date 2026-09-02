@@ -110,7 +110,11 @@ export const useSettlementDetail = ({ settlementId, eventName }: UseSettlementDe
         .limit(1)
         .maybeSingle();
 
-      const sideLabels = parseSideLabels((eventData as any)?.side_labels);
+      const sideLabels = orphanSpotSideLabels(
+        position.product_line,
+        parseSideLabels((eventData as any)?.side_labels),
+        position.option_label,
+      );
 
       // REAL price history only — no synthesis. When the option has no stored
       // series the detail page renders without a chart.
