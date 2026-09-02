@@ -663,21 +663,16 @@ export const CampaignDetailUnavailablePreview = () => (
   </div>
 );
 
-/* ---------------- RW-12 · claim 成功反馈（静态 body，不真弹 toast） ---------------- */
+/* ---------------- RW-12 · claim 成功反馈（静态挂真件 body，不真弹 toast） ---------------- */
 export const ClaimSuccessToastPreview = () => (
   <div className="space-y-2 p-4">
     <div className="mx-auto w-full max-w-[420px] rounded-[12px] border border-[#1D2026] bg-[#131519] p-4">
-      <div className="text-[13px] font-semibold text-[#F2F3F5]">Voucher sent to Position Vouchers</div>
-      <div className="mt-1 text-[12px] text-[#9AA1AC]">Open vouchers to reveal it.</div>
-      <div className="mt-3">
-        <span className="inline-flex min-h-[32px] items-center rounded-[8px] bg-white px-3 font-display text-[12px] font-bold text-[#0A0B0D]">
-          Open
-        </span>
-      </div>
+      <ClaimSuccessToastBody onOpen={() => {}} />
     </div>
     <p className="text-center text-[11px] leading-4 text-muted-foreground">
-      静态还原 <code className="text-[11px] text-foreground">showClaimSuccessToast()</code> 的 sonner body（title /
-      description / action），campaign claim 与 referral claim 共用同一调用。
+      静态渲染 <code className="text-[11px] text-foreground">ClaimSuccessToastBody</code>（与{" "}
+      <code className="text-[11px] text-foreground">showClaimSuccessToast()</code> 共用同一 copy 常量），campaign
+      claim 与 referral claim 共用同一调用。
     </p>
   </div>
 );
