@@ -29,6 +29,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { AutoCloseTooltipBody } from "@/components/lite/shared/AutoCloseTooltipBody";
 
 type Side = "yes" | "no";
 
@@ -535,9 +536,8 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
                     <Info className="h-3 w-3 text-muted-foreground" />
                   </button>
                 </TooltipTrigger>
-                <TooltipContent className="max-w-[240px] text-xs">
-                  An estimate of the price at which this call would be closed
-                  automatically. It shifts as your other positions move.
+                <TooltipContent className="p-3">
+                  <AutoCloseTooltipBody />
                 </TooltipContent>
               </Tooltip>
             </span>
