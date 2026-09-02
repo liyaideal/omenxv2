@@ -198,7 +198,7 @@ positives. Chip words come from the sibling event's `side_labels`.
 | **auto-close ≈{c}¢** | Auto-close value, level state (Boost only) | Liquidation, stop out, Liq. Price |
 | **None** | Auto-close value, none state — field is always present, never blank | `None at this balance` (retired), `—` |
 | **None · enter an amount** | Auto-close value in the order panel before an amount is typed | `—` |
-| **auto-close none** | Desktop portfolio row suffix for a Boost row with no level; `none` is inline lowercase and the tooltip reads `No auto-close within this market's price range — your loss is capped at what you put in.` | `no auto-close`, `auto-close —` |
+| **auto-close none** | Desktop portfolio row suffix for a Boost row with no level; `none` is inline lowercase with a dotted underline that opens the shared auto-close tooltip (see 「Auto-close tooltip（全站唯一）」) | `no auto-close`, `auto-close —` |
 | **no auto-close, loss capped** | Mobile portfolio card suffix for a Boost row with no level | — |
 | **≈ {c}¢** | Auto-close value, level state on the trade surfaces (order panel row + position card). The `≈` is never dropped | `{c}¢`, `= {c}¢` |
 | **None · loss capped** | Auto-close value, none state in the order panel (and the `Est. auto-close (new position)` partial-net row) | `None at this balance` (retired) |
