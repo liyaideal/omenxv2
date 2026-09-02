@@ -80,7 +80,9 @@ const PANEL_CASES: SectionCase[] = [
     spec: [
       { state: "tray 展开", when: "fixture.boostTrayOpen === true（生产为用户点击 Custom）", visual: "档位行下方展开输入托盘", source: "LiteBoostSelector.defaultTrayOpen" },
       { state: "自定义值", when: "!tiers.includes(value)", visual: "Custom 胶囊改显 `{value}×` 并高亮", source: "LiteBoostSelector.isCustom" },
+      { state: "派生行渲染条件", when: "effBoost > 1 && amountNum > 0", visual: "金额输入框内右侧同基线挂 `= {$输入×Boost} position`（本 case 为 `= $175.00 position`）；1× 或空输入时零 DOM；恒中性灰，不进方向/盈亏色轴", source: "LiteContractOrderPanel 金额输入块" },
     ],
+
   },
   {
     key: "trade-tr8",

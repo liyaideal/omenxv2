@@ -6,6 +6,8 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-09-02 | [Lite 下单输入语义 v1](../delivery/lite-order-input-v1.md) | Lite 输入语义定稿为 margin（notional = 输入 × Boost），金额框加派生行 `= $30.00 position`，附真平台 notional→margin 逐项对齐表 |
+
 | 2026-09-02 | [Auto-close 交付说明 v1](../delivery/autoclose-v1.md) | AC-TT1 · auto-close 统一解释 tooltip：全站唯一实现 `AutoCloseTooltipBody`（静态文案不插值，`≈ 62¢` 为冻结示例值），五处落点接线（面板 ⓘ 换内容 / Your call 卡新增 ⓘ / Portfolio 桌面行 level+none 两态值片段虚线触发 / 移动卡不挂），两句定制旧文案删除；值语法与 hot 判定零改动 |
 | 2026-09-02 | [Portfolio（Lite）交付说明 v2](../delivery/lite-portfolio-spec-v2.md) | M6b：Portfolio 状态字典 PF-1…38 收官（Ⓖ–Ⓚ 区 + 附注表 A–F + 删旧节并账），异步三态（骨架 / 请求失败 / 详情 Not found）实装，孤儿现货结算仓 side 词兜底 |
 | 2026-09-01 | [合规 Footer 交付说明](../delivery/footer-compliance-v1.md) | 牌照合规 Footer 的完整交付口径：底栏三行 FROZEN 的文案与样式约束（实体声明行与 © 行同级、免责行可降一档）、栏位结构与移动端手风琴（收起不摘 DOM 以保住真锚点）、按「未登录可达」判定的挂载覆盖面与两处明确不挂、移动壳通栏 breakout 与三种让位写法、Lite/Pro 的 Resolved 差异与切面入口口径、七步可复现验收、四条已知不一致；同轮补挂加密快轮页缺失的 footer，并把 DESIGN.md §16.5 的页面清单改按「未登录可达」表述 |

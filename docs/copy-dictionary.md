@@ -189,6 +189,26 @@ positives. Chip words come from the sibling event's `side_labels`.
 
 ---
 
+## How much 输入语义（Lite）
+
+Lite 合约下单面板 `/trade` 的「How much」输入框语义已定稿，规格全文见
+`docs/delivery/lite-order-input-v1.md`。
+
+| 项 | 口径 |
+|---|---|
+| 输入 | = margin = 用户掏的钱 = 面板 `Max loss · what you pay`，切 Boost 恒不变 |
+| 仓位规模 | `notional = 输入 × Boost` |
+| 份数 | `qty = 输入 × Boost ÷ 价格` |
+| 手续费 | `fee = 输入 × Boost × 费率` |
+| 派生行 | 逐字 `= {money(输入 × Boost)} position`（例：`= $30.00 position`），仅 `Boost > 1 且 输入 > 0` 时渲染，恒中性灰 |
+| Max 按钮 / $10–$100 预设 | 均为 margin 值，不乘 Boost |
+
+Pro 侧输入语义为 notional / 数量，两面各自 canonical，不互相迁移。
+`margin` / `leverage` 等词只出现在文档，禁止进入 Lite UI。
+
+---
+
+
 ## Portfolio (Lite)
 
 | Canonical | Meaning | Banned variants |
