@@ -25,13 +25,16 @@
 
 | status | 含义 | 触发方 | UI 归桶 |
 |---|---|---|---|
-| `granted` | 已发放，等用户点一下认领 | 后端发放（活动 / 邀请 / 运营） | To claim |
-| `claimed` | 已认领，进入 7 天使用窗口 | 用户 `Tap to claim` | Available |
-| `redeemed` | 已换成仓位，仓位存续中 | 用户在兑换台确认 | 历史档案 |
-| `settled` | 仓位已结算，收益已入账 | 结算触发器 | 历史档案 |
-| `expired` | 认领后 7 天未使用 | 定时任务 | 历史档案 |
-| `revoked` | 运营撤销（已退役，不再新增） | 运营 | 历史档案 |
-| `lost` | 仓位结算为亏损，nothing owed | 结算触发器 | 历史档案 |
+| `granted` | 已发放，等用户点一下认领 | 后端发放（活动 / 邀请 / 运营） | Ready to claim |
+| `issued` | 已生成但尚未推送给用户（DB 现 0 行，预留） | 后端 | Ready to claim |
+| `claimed` | 已认领，进入 7 天使用窗口 | 用户 `Claim voucher` | Active |
+| `redeemed` | 已换成仓位，仓位存续中 | 用户在兑换台确认 | History |
+| `settled` | 仓位已结算，收益已入账 | 结算触发器 | History |
+| `expired` | 认领后 7 天未使用 | 定时任务 | History |
+| `revoked` | 运营撤销（已退役，不再新增） | 运营 | History |
+
+`lost` 不是 status 枚举，是 `VoucherHistoryArchive` 里结算亏损行的 caption（VC-7）。
+
 
 ### 2.2 双收益模式（三口径）
 
@@ -47,7 +50,7 @@
 
 | 规则 | 口径 |
 |---|---|
-| 每日限量池 | 三档配置，按 UTC 日重置；耗尽显示 `Sold out today · resets in {Xh Ym}` |
+| 每日限量池 | 三档配置，按 UTC 日重置；耗尽显示 `Sold out today — resets in {Xh Ym}` |
 | event 级一券锁 | 同一 event 已用过券 → 该卡 `opacity .5` + Lock +「Voucher already used」 |
 | 收益上限 | `Max profit = faceValue × redeemable_cap_pct`（现值 0.5），恒显券固定上限，不随所选选项实算 |
 | 入场价格带 | 仅 20¢–80¢ 之间的选项可选；无合格选项 = 等待态，不是失败态 |
@@ -67,11 +70,11 @@ RLS：三张用户表均按 `auth.uid()` 限定行；池表对 `authenticated` �
 
 ### 4.1 Vouchers tab 内体
 
-模块顺序：`VoucherEarningsCard`（收益 + 档位轨）→ `To claim` 分组 → `Available` 分组 → `VoucherHistoryArchive`。零券时整段替换为空态。异步三态：skeleton / 错误卡 + Retry / 内容。
+模块顺序：`VoucherEarningsCard`（收益 + 档位轨）→ `Ready to claim` 分组 → `Active` 分组 → `VoucherHistoryArchive`。零券时整段替换为空态。异步三态：skeleton / 错误卡 + Retry / 内容。
 
 ### 4.2 认领
 
-granted 券行显示 `Tap to claim`；点击后 `status → claimed`，进入 7 天窗口，行移入 `Available` 分组。
+granted 券行显示 `Claim voucher`；点击后 `status → claimed`，进入 7 天窗口，行移入 `Active` 分组。
 
 ### 4.3 兑换
 
@@ -134,6 +137,6 @@ granted 券行显示 `Tap to claim`；点击后 `status → claimed`，进入 7 
 
 ## 9. 未变更项
 
-- 券发放规则、每日限量额度、档位金额（T1 $5k→$25 / T2 $15k→$100 / T3 $50k→$500 / T4 $150k→Unlimited）全部照旧。
+- 券发放规则、每日限量额度、档位金额（T0 $2 / T1 $5 / T2 $10 / T3 $20 / T4 $50；解锁条件 No req. / $10 deposit / $1K vol / $10K vol / $50K vol，与 `src/lib/voucherTiers.ts` 一致）全部照旧。
 - `/rewards` 三个 tab 的顺序与 Campaigns / Referral 两个 tab 的内容未动。
 - 生产页版式零改动：本轮生产文件的改动只有可选 prop（`defaultExpanded` / `stubDefaultOpen` / `fixture`）与一处落点文案对齐词典。移动版式为 CPO 亲定，实现以生产代码为唯一事实。
