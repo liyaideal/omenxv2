@@ -10,6 +10,7 @@ import {
   savePortfolioScroll,
 } from "@/lib/portfolioReturn";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { AutoCloseTooltipBody } from "@/components/lite/shared/AutoCloseTooltipBody";
 import { useSurface } from "@/contexts/SurfaceContext";
 import { settleLabel } from "@/lib/settleLabel";
 import { boostSuffix } from "@/lib/liteSideName";
