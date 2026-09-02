@@ -739,7 +739,7 @@ const SERIES_CASES: SectionCase[] = [
     spec: [
       { state: "全胜", when: "wins === rounds.length", visual: "`WON 2 OF 2`，Net 正", source: "SeriesDetailVM" },
       { state: "全败", when: "wins === 0", visual: "`WON 0 OF 2`，Payout `$0.00`", source: "SeriesDetailVM" },
-      { state: "非日轮", when: "isDailyRounds === false", visual: "轮次文案按日期而非 `Day n`；segmentLabel 显示 Boost", source: "isDailyRounds" },
+      { state: "非日轮", when: "isDailyRounds === false（桌面独有）", visual: "轮次文案按日期而非 `Day n`；segmentLabel 显示 Boost", source: "isDailyRounds" },
     ],
   },
   {
@@ -750,9 +750,20 @@ const SERIES_CASES: SectionCase[] = [
       { state: "段位", when: 'segmentLabel === "Standard"', visual: "`Series · Standard`", source: "copy-dictionary §Series / Round" },
       { state: "DETAILS 轮数", when: "isDailyRounds === true", visual: "`N · daily rounds`", source: "copy-dictionary §Series / Round" },
       { state: "轮次词轴", when: 'productLine === "spot"', visual: "轮次行 side 只出现 Up / Down", source: "liteSideName()" },
+      { state: "Type 行（桌面独有）", when: "视口 ≥ lg 的 SeriesDetailDesktop", visual: "DETAILS 首行 `Type · Series · Standard`，COST 卡副行 `{n} rounds · Standard`；**移动端生产不渲染该标识**", source: "SeriesDetailView.tsx segmentLabel" },
     ],
   },
 ];
+
+const SERIES_MOBILE_MIRRORS: SectionCase[] = (
+  [
+    ["portfolio-lite-series-round", "portfolio-lite-series-round-mobile"],
+    ["portfolio-lite-series-standard", "portfolio-lite-series-standard-mobile"],
+  ] as const
+).map(([from, key]) => {
+  const base = SERIES_CASES.find((c) => c.key === from)!;
+  return { ...base, key, label: `${base.label}（移动）` };
+});
 
 /* ---------------- Ⓚ 空态 / 门禁 / 异步 / 错误（PF-33 … PF-38） ---------------- */
 
