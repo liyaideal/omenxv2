@@ -19,7 +19,7 @@ import { RewardsFinePrint } from "@/components/campaigns/RewardsFinePrint";
 import { CampaignRulesDisclosure } from "@/components/campaigns/CampaignRulesDisclosure";
 import { softBindPublicEntry } from "@/components/campaigns/CampaignAttribution";
 import { useAuth } from "@/hooks/useAuth";
-import omenxLogo from "@/assets/omenx-logo.svg";
+
 import { formatDateRange, useCampaignViews } from "@/hooks/useCampaigns";
 
 export default function LiteCampaignDetailPage() {

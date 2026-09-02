@@ -7,6 +7,7 @@ import { useReferral, type Referral } from "@/hooks/useReferral";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EmptyState } from "@/components/states";
 import { ClaimButton, TaskRowShell } from "./TaskRowShell";
+import { showClaimSuccessToast } from "./ClaimSuccessToastBody";
 
 const PANEL = "rounded-[16px] border border-[#1D2026] bg-[#131519] p-4 md:p-[18px]";
 const CAP = "text-[10px] font-bold uppercase tracking-[0.14em] text-[#6B7280]";
@@ -27,7 +28,13 @@ const STEPS = [
   { step: "Step 3", text: `You get a $${REFERRAL_VOUCHER} Trial Position Voucher`, volt: true },
 ];
 
-export const ReferralPanel = () => {
+/** Pure-display fixture for style-guide/preview use. Omit in production — behavior and visuals are unchanged. */
+export interface ReferralPanelFixture {
+  referralCode: string;
+  referrals: Referral[];
+}
+
+export const ReferralPanel = ({ fixture }: { fixture?: ReferralPanelFixture }) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { referralCode, referrals, isLoading } = useReferral();
@@ -35,9 +42,11 @@ export const ReferralPanel = () => {
   const [claiming, setClaiming] = useState<string | null>(null);
   const [claimed, setClaimed] = useState<string[]>([]);
 
-  const link = referralCode ? `omenx.io/r/${referralCode}` : "";
+  const link = (fixture ? fixture.referralCode : referralCode)
+    ? `omenx.io/r/${fixture ? fixture.referralCode : referralCode}`
+    : "";
 
-  const rows = referrals ?? [];
+  const rows = fixture ? fixture.referrals : referrals ?? [];
   const qualified = rows.filter((r) => r.status === "qualified" || r.status === "rewarded");
   const vouchersEarned = rows.filter(
     (r) => r.status === "rewarded" || claimed.includes(r.id),
