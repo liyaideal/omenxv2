@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { parseSideLabels } from "@/lib/eventUtils";
+import { orphanSpotSideLabels } from "@/lib/orphanSpotSideLabels";
 
 export type SettlementKind = "settled" | "closed";
 export type SettlementProductLine = "futures" | "spot";
@@ -146,7 +147,15 @@ export const useSettlements = () => {
           entryPriceNum: entry,
           sizeNum: size,
           leverageNum,
-          sideLabels: labelsByName.get(row.event_name),
+          // 事件行缺失（labelsByName 无此 name）才允许兜底；有行但无
+          // side_labels 不属于孤儿腿，维持现状。
+          sideLabels: orphanSpotSideLabels(
+            row.product_line,
+            labelsByName.has(row.event_name)
+              ? labelsByName.get(row.event_name) ?? null
+              : undefined,
+            row.option_label,
+          ),
         };
       });
     },

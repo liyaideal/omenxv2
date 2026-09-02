@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { parseSideLabels } from "@/lib/eventUtils";
+import { orphanSpotSideLabels } from "@/lib/orphanSpotSideLabels";
 
 export interface TradeRecord {
   id: string;
@@ -109,7 +110,13 @@ export const useSettlementDetail = ({ settlementId, eventName }: UseSettlementDe
         .limit(1)
         .maybeSingle();
 
-      const sideLabels = parseSideLabels((eventData as any)?.side_labels);
+      // 事件行缺失（eventData 为 null）才允许兜底；有行但无 side_labels
+      // 不属于孤儿腿，维持现状。
+      const sideLabels = orphanSpotSideLabels(
+        position.product_line,
+        eventData ? parseSideLabels((eventData as any).side_labels) ?? null : undefined,
+        position.option_label,
+      );
 
       // REAL price history only — no synthesis. When the option has no stored
       // series the detail page renders without a chart.
