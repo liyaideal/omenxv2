@@ -19,7 +19,11 @@ import { LoadingState, ErrorState } from "@/components/states";
 const FINE_PRINT =
   "USDC amounts are estimates and not guaranteed. A Trial Position Voucher opens a trial position — the profit is yours, the voucher itself is not withdrawable.";
 
-const SectionHead = ({ dot, label, count, tone }: { dot?: boolean; label: string; count: number; tone: "volt" | "neutral" }) => (
+/**
+ * Section head of a voucher bucket ("Ready to claim" / "Active").
+ * Named export is a pure lift-out — identical DOM, classes and inline styles.
+ */
+export const VoucherSectionHead = ({ dot, label, count, tone }: { dot?: boolean; label: string; count: number; tone: "volt" | "neutral" }) => (
   <div className="flex items-center gap-[7px]">
     {dot && <span className="rounded-full" style={{ width: 7, height: 7, background: VT.volt }} />}
     <span className="font-display" style={{ fontSize: 13, fontWeight: 700, color: VT.ink }}>{label}</span>
@@ -28,6 +32,9 @@ const SectionHead = ({ dot, label, count, tone }: { dot?: boolean; label: string
     </span>
   </div>
 );
+
+const SectionHead = VoucherSectionHead;
+
 
 /**
  * Desk placeholder shown when no voucher is selected. Pure lift-out of the
@@ -50,6 +57,22 @@ export const VoucherDeskEmpty = () => (
   </div>
 );
 
+/**
+ * "No vouchers yet" list empty state (Ready + Active both empty). Pure lift-out
+ * of the previously inline JSX — identical DOM, classes and inline styles.
+ * History still renders underneath it when archive rows exist.
+ */
+export const VouchersListEmpty = () => (
+  <div
+    className="rounded-[12px] flex flex-col items-center gap-[8px] text-center"
+    style={{ background: VT.surfaceDeep, border: `1px solid ${VT.line}`, padding: "34px 24px" }}
+  >
+    <span className="font-display" style={{ fontSize: 14, fontWeight: 700, color: VT.ink }}>No vouchers yet</span>
+    <span style={{ fontSize: 11.5, color: VT.ink3, lineHeight: 1.6, maxWidth: 280 }}>
+      Vouchers you earn from campaigns and referrals land here, ready to open a trial position.
+    </span>
+  </div>
+);
 
 
 /**
@@ -237,17 +260,8 @@ export const VouchersBody = () => {
         </>
       )}
 
-      {grantedVouchers.length === 0 && activeVouchers.length === 0 && (
-        <div
-          className="rounded-[12px] flex flex-col items-center gap-[8px] text-center"
-          style={{ background: VT.surfaceDeep, border: `1px solid ${VT.line}`, padding: "34px 24px" }}
-        >
-          <span className="font-display" style={{ fontSize: 14, fontWeight: 700, color: VT.ink }}>No vouchers yet</span>
-          <span style={{ fontSize: 11.5, color: VT.ink3, lineHeight: 1.6, maxWidth: 280 }}>
-            Vouchers you earn from campaigns and referrals land here, ready to open a trial position.
-          </span>
-        </div>
-      )}
+      {grantedVouchers.length === 0 && activeVouchers.length === 0 && <VouchersListEmpty />}
+
 
       <VoucherHistoryArchive items={history} />
     </div>
