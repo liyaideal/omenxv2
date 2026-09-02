@@ -17,6 +17,17 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-09-02 — Portfolio 状态字典收官（M6b）+ 异步三态实装
+
+源文档：[../delivery/lite-portfolio-spec-v2.md](../delivery/lite-portfolio-spec-v2.md) §11 · 状态字典 PF-1…PF-38
+
+| # | 需求条目 | 参考位置 | Status | QA 测试要点 | Notes |
+|---|---|---|---|---|---|
+| 1 | `PortfolioSkeleton`：首次拉取且无缓存才出骨架 | `src/components/portfolio/lite/PortfolioAsyncStates.tsx` | ⬜ | 冷启动出骨架；带缓存刷新与后台 refetch 不闪骨架；tabs / chips 首载即实底可点 | 色板 底 `#171A1F` / 块 `#15181C` |
+| 2 | `PortfolioFetchError`：列表失败文案 + Retry，KPI 显示 `—` | 同上 | ⬜ | 断网后列表区出 `Couldn't load your positions.` + Retry；KPI 三值 `—`，绝不出现 `$0.00` | Retry 走 `refetchLists()` |
+| 3 | 详情 Not found：不存在与越权同渲染 | `src/pages/lite/LiteSettlementDetail.tsx` | ⬜ | 用他人 settlement id 打开，渲染与随机 id 逐字相同，不泄露 event 名与金额 | `PortfolioNotFound` |
+| 4 | `orphanSpotSideLabels()` 兜底存量孤儿现货结算仓 | `src/lib/orphanSpotSideLabels.ts` | ⬜ | 事件行被清理的现货结算仓在列表 / 详情四处只显示 `Up`，无 `· Yes` | 真平台应让结算展示词随仓位存档 |
+
 ## 2026-08-31 — Settled 列表按月份折叠（移动端 + 桌面端）
 
 源文档：[../delivery/lite-portfolio-spec-v2.md](../delivery/lite-portfolio-spec-v2.md) §10 · 计划 `settled-列表按月份折叠-移动端-桌面端-2026-08-31`
