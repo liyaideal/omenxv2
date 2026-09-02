@@ -17,6 +17,17 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-09-02 — Vouchers 状态字典收官（M4a / M4b）
+
+来源：[Vouchers（Lite）交付说明 v1](../delivery/lite-vouchers-spec-v1.md)
+
+| # | 项 | 归属 | Status | Notes |
+|---|---|---|---|---|
+| VC-A | `VoucherEarningsCard` fixture 通道语义：传 fixture = 不发请求 / 不订阅 / Claim 按钮 inert | FE | ⬜ | QA：字典帧断网后仍渲染，点 Claim 无网络请求 |
+| VC-B | demo 假券账号门：`demoExpired` 只对 `alex_carter` 注入 | FE | ⬜ | QA：换任意其他账号，历史档案里不出现该券 |
+| VC-C | Close 面板双模式文案：instant `Credited to wallet` / tiered `Added to pending`，与 History 行同词 | FE | ⬜ | QA：两种 payout_mode 各开一仓平仓，比对两处措辞一致 |
+| VC-D | instant 触发器口径：结算自动入 Standard，幂等 | BE | ⬜ | QA：重复触发同一结算，钱包只加一次 |
+
 ## 2026-09-02 — Rewards 状态字典收官（M3a / M3b）
 
 来源：[Rewards（Lite）交付说明 v1](../delivery/lite-rewards-spec-v1.md)
