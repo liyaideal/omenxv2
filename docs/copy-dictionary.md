@@ -91,6 +91,16 @@ Single source of truth for user-visible field names across the app.
 | **Resets in {Xh Ym}** | Countdown to next UTC midnight pool reset | Refreshes in, Next batch, Back in |
 | **Sold out today** | Pool exhausted state for current UTC day, paired with `· resets in {Xh Ym}` | Out of stock, Gone, Empty pool |
 | **Sold out** | Disabled CTA label when pool exhausted | Unavailable, Closed |
+| **Credited to wallet** | Payout destination line for `payout_mode = 'instant'`（`CloseVoucherContent` 与 `VoucherHistoryArchive` 同词） | Credited to your wallet, Paid to wallet, Instant payout |
+| **Added to pending** | Payout destination line for tiered vouchers（同上两处同词） | Added to pending balance, Goes to pending, Pending credit |
+| **USDC pending** | `VoucherEarningsCard` 主数值下的口径标签 | Pending USDC, Unclaimed |
+| **Ready to claim** | Voucher earnings 可提取状态说明 | Claimable now, Available to claim |
+| **Voucher lost · nothing owed** | `lost` 券在历史档案里的结果行 | Lost, Expired worthless, No payout |
+| **Voucher already used** | event 级一券锁在选择器卡上的 Lock 文案 | Already redeemed, Used |
+| **BOOST / STANDARD** | 选择器卡的产品线 LineBadge（Lite 术语） | Futures, Spot, Perp, Leverage |
+| **Show N more options** | 多选项折叠展开触发 | See more, More outcomes |
+| **Confirm & open position** | 兑换摘要条主按钮（进行中 `Redeeming…`） | Redeem now, Open trade |
+| **Pick a voucher to redeem** | 桌面兑换台空态 | Select a voucher, No voucher selected |
 
 ### Voucher earnings tiers (`VoucherEarningsCard`)
 
