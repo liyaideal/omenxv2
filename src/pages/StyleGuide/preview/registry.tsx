@@ -320,6 +320,19 @@ export const previewRegistry: Record<string, Loader> = {
   "vouchers-empty": pick(vouchersDict, "VouchersEmptyPreview"),
   "vouchers-async": pick(vouchersDict, "VouchersAsyncPreview"),
 
+  /* -------- Vouchers · 状态字典（M4b · Ⓒ picker + Ⓓ desk）-------- */
+  "vouchers-picker-direction": pick(vouchersDict, "VouchersPickerDirectionPreview"),
+  "vouchers-picker-fold": pick(vouchersDict, "VouchersPickerFoldPreview"),
+  "vouchers-picker-states": pick(vouchersDict, "VouchersPickerStatesPreview"),
+  "vouchers-picker-chrome": pick(vouchersDict, "VouchersPickerChromePreview"),
+  "vouchers-desk-header": pick(vouchersDict, "VouchersDeskHeaderPreview"),
+  "vouchers-meta-cells": pick(vouchersDict, "VouchersMetaCellsPreview"),
+  "vouchers-summary-bar": pick(vouchersDict, "VouchersSummaryBarPreview"),
+  "vouchers-summary-bar-mobile": pick(vouchersDict, "VouchersSummaryBarMobilePreview"),
+  "vouchers-desk-empty": pick(vouchersDict, "VouchersDeskEmptyPreview"),
+
+
+
 
   /* -------- Vouchers (still-serving components) -------- */
   "voucher-banner": pick(vouchers1, "BannerPreview"),

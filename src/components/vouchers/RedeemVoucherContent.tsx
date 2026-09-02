@@ -7,6 +7,47 @@ import { VoucherDeskHeader } from "./VoucherDeskHeader";
 import { VT } from "./voucherTokens";
 import { RedeemSummaryBar } from "./RedeemSummaryBar";
 
+/**
+ * The three derived cells under the picker once an outcome is picked.
+ * Pure lift-out of the previously inline JSX — identical DOM, classes and
+ * inline styles. Named export so the state dictionary mounts the real thing.
+ *
+ *   Entry      = round(price × 100)¢
+ *   Size       = faceValue ÷ price, rounded to whole shares
+ *   Max profit = faceValue × redeemableCapPct  (the voucher's fixed ceiling —
+ *                it never re-computes per option)
+ */
+export const RedeemMetaCells = ({
+  price,
+  size,
+  cap,
+}: {
+  price: number;
+  size: number;
+  cap: number;
+}) => (
+  <div className="grid gap-[10px]" style={{ gridTemplateColumns: "repeat(3,minmax(0,1fr))" }}>
+    {[
+      { label: "Entry", value: `${Math.round(price * 100)}¢`, color: VT.ink },
+      { label: "Size", value: `${size.toFixed(0)} shares`, color: VT.ink },
+      { label: "Max profit", value: `$${cap.toFixed(2)}`, color: VT.volt },
+    ].map((c) => (
+      <div
+        key={c.label}
+        className="rounded-[10px] flex flex-col gap-[4px]"
+        style={{ background: VT.surfaceInset, border: `1px solid ${VT.line}`, padding: "11px 13px" }}
+      >
+        <span className="font-display uppercase" style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: ".12em", color: VT.muted }}>
+          {c.label}
+        </span>
+        <span className="font-display tabular-nums" style={{ fontSize: 16, fontWeight: 700, color: c.color }}>
+          {c.value}
+        </span>
+      </div>
+    ))}
+  </div>
+);
+
 interface RedeemVoucherContentProps {
   voucher: PositionVoucher;
   onClose?: () => void;
@@ -60,26 +101,7 @@ export const RedeemVoucherContent = ({
   };
 
   const metaCells = picked && (
-    <div className="grid gap-[10px]" style={{ gridTemplateColumns: "repeat(3,minmax(0,1fr))" }}>
-      {[
-        { label: "Entry", value: `${Math.round(picked.price * 100)}¢`, color: VT.ink },
-        { label: "Size", value: `${size.toFixed(0)} shares`, color: VT.ink },
-        { label: "Max profit", value: `$${cap.toFixed(2)}`, color: VT.volt },
-      ].map((c) => (
-        <div
-          key={c.label}
-          className="rounded-[10px] flex flex-col gap-[4px]"
-          style={{ background: VT.surfaceInset, border: `1px solid ${VT.line}`, padding: "11px 13px" }}
-        >
-          <span className="font-display uppercase" style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: ".12em", color: VT.muted }}>
-            {c.label}
-          </span>
-          <span className="font-display tabular-nums" style={{ fontSize: 16, fontWeight: 700, color: c.color }}>
-            {c.value}
-          </span>
-        </div>
-      ))}
-    </div>
+    <RedeemMetaCells price={picked.price} size={size} cap={cap} />
   );
 
   const picker = (
