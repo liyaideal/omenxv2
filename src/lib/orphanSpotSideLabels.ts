@@ -10,13 +10,15 @@
 //   'Not Up'      → { yes: 'Up', no: 'Not Up' }（Not Up 由展示层 liteSideName
 //                    既有规则改写为 Down，这里不做二次改写）
 // 不满足三条的孤儿腿不兜底，维持现状渲染。
+// sideLabels 语义：undefined = 事件行缺失（可兜底）；null = 有事件行但无
+// side_labels（非孤儿腿，原样透传为 undefined）；对象 = 原样透传。
 export function orphanSpotSideLabels(
   productLine: unknown,
-  sideLabels: { yes: string; no: string } | undefined,
+  sideLabels: { yes: string; no: string } | null | undefined,
   optionLabel: unknown,
 ): { yes: string; no: string } | undefined {
-  if (productLine !== "spot") return sideLabels;
-  if (sideLabels !== undefined) return sideLabels;
+  if (productLine !== "spot") return sideLabels ?? undefined;
+  if (sideLabels !== undefined) return sideLabels ?? undefined;
   const opt = typeof optionLabel === "string" ? optionLabel.trim() : "";
   if (opt === "Up" || opt === "Down") return { yes: "Up", no: "Down" };
   if (opt === "Not Up") return { yes: "Up", no: "Not Up" };
