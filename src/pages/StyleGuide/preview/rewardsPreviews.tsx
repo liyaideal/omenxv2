@@ -16,6 +16,9 @@ import { PointsRetiredNoticeCard } from "@/components/campaigns/PointsRetiredNot
 import { RewardsFinePrint } from "@/components/campaigns/RewardsFinePrint";
 import { CampaignRulesDisclosure } from "@/components/campaigns/CampaignRulesDisclosure";
 import { IneligibleEntryToastBody } from "@/components/campaigns/IneligibleEntryToast";
+import { CampaignGridSkeleton } from "@/components/campaigns/CampaignGridSkeleton";
+import { MobileHeader } from "@/components/MobileHeader";
+import { Tabs } from "@/pages/lite/LiteRewardsPage";
 import type { Campaign, CampaignEntry, CampaignTaskDef, CampaignView, GrantStatus } from "@/hooks/useCampaigns";
 import kvWorldCup from "@/assets/campaigns/kv-worldcup.jpg.asset.json";
 import kvLaowang from "@/assets/campaigns/kv-laowang.jpg.asset.json";
@@ -184,6 +187,25 @@ const ENDED = [
   ),
 ];
 
+const ENDED_CARD = makeView(
+  {
+    entry: makeEntry({ id: "entry-ended-card", branding: { key_visual_url: kvStarter.url, accent: "#C9CED6" } }),
+    phase: "ended",
+    daysLeft: null,
+    tasksDone: 3,
+    tasksTotal: 3,
+    claimableCount: 0,
+    voucherClaimed: 18,
+    accent: "#C9CED6",
+  },
+  { id: "camp-6", name: "July Warm-up", startsAt: iso(-40), endsAt: iso(-8) },
+);
+
+const TWO_CLAIMABLE = makeView(
+  { claimableCount: 2, tasksDone: 2, tasksTotal: 3, voucherClaimed: 0 },
+  { id: "camp-7", name: "Two rewards waiting" },
+);
+
 const Grid = ({ children }: { children: React.ReactNode }) => (
   <div className="grid gap-4 md:grid-cols-2">{children}</div>
 );
@@ -195,9 +217,46 @@ export const CampaignCardStatesPreview = () => (
     <CampaignCard view={KOL_SPECIAL} />
     <CampaignCard view={EVERGREEN} />
     <CampaignCard view={UPCOMING} />
+    <CampaignCard view={ENDED_CARD} />
     <CampaignCard view={NO_ART} />
+    <CampaignCard view={TWO_CLAIMABLE} />
     <CampaignCard view={LIVE_PUBLIC} signedOut />
   </Grid>
+);
+
+/* ---------------- RW-1 · Tabs 三分页（production Tabs, pure export） ---------------- */
+export const RewardsTabsPreview = () => (
+  <div className="space-y-5 p-4">
+    {(["campaigns", "vouchers", "referral"] as const).map((t) => (
+      <div key={t} className="space-y-1.5">
+        <p className="text-[11px] text-[#6B7280]">tab === "{t}"</p>
+        <Tabs value={t} onChange={() => {}} />
+      </div>
+    ))}
+    <div className="space-y-1.5">
+      <p className="text-[11px] text-[#6B7280]">sticky（移动 · top-[var(--mobile-header-h)]）</p>
+      <Tabs value="campaigns" sticky onChange={() => {}} />
+    </div>
+  </div>
+);
+
+/* ---------------- RW-2 · 移动 redeem 全屏壳（mobile only） ---------------- */
+export const RewardsRedeemShellPreview = () => (
+  <div className="min-h-[220px] bg-background">
+    <MobileHeader title="Redeem voucher" showBack showLogo={false} backTo="/rewards?tab=vouchers" />
+    <div className="px-4 py-4 text-[11.5px] leading-5 text-[#6B7280]">
+      载壳态：无 tabs 条、无 BottomNav，MobileHeader 的 ‹ 是唯一出口。
+      券内体与兑换流程属于 Vouchers 字典（M4），本 case 只锁壳。
+    </div>
+  </div>
+);
+
+/* ---------------- RW-5 · Campaigns 网格 loading 骨架 ---------------- */
+export const CampaignGridLoadingPreview = () => (
+  <div className="space-y-5 p-4">
+    <Tabs value="campaigns" onChange={() => {}} />
+    <CampaignGridSkeleton />
+  </div>
 );
 
 /* ---------------- Grant task rows ---------------- */
@@ -269,8 +328,20 @@ export const EndedCampaignDetailPreview = () => (
 );
 
 /* ---------------- Points retirement notice (as shipped on /rewards) ---------------- */
+/**
+ * RW-3 — position fork is CSS-only (order utilities), never useIsMobile:
+ * desktop renders the notice ABOVE the grid, mobile BELOW the cards.
+ */
 export const PointsRetiredNoticePreview = () => (
-  <PointsRetiredNoticeCard onOpenVouchers={() => {}} onDismiss={() => {}} />
+  <div className="flex flex-col gap-4 p-4">
+    <div className="order-2 md:order-1">
+      <PointsRetiredNoticeCard onOpenVouchers={() => {}} onDismiss={() => {}} />
+    </div>
+    <div className="order-1 grid gap-4 md:order-2 md:grid-cols-2">
+      <CampaignCard view={LIVE_PUBLIC} />
+      <CampaignCard view={EVERGREEN} />
+    </div>
+  </div>
 );
 
 export const SignInPromptPreview = () => (
