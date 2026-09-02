@@ -206,6 +206,18 @@ positives. Chip words come from the sibling event's `side_labels`.
 | **Close to current price** / **close to entry** | Hot adverb (|mark − level| / mark ≤ 10%) — position-card sub-line / order-panel suffix, both rendered red | `near liquidation`, `close to liq` |
 | **Moves with your other positions** | Permanent helper line beside `Est. auto-close ⓘ`; renders with the field, never conditionally | — |
 | ~~None at this balance~~ | RETIRED site-wide — never reintroduce | — |
+
+### Auto-close tooltip（全站唯一）
+
+唯一实现：`src/components/lite/shared/AutoCloseTooltipBody.tsx`（AC-TT1，CPO 已批）。五处引用：① 下单面板 `Est. auto-close ⓘ`（`LiteContractOrderPanel`，桌面卡与移动 drawer 体共用，partial-net 行共用本 ⓘ）② 交易页 Your call 卡 `Est. auto-close` / compact `Auto-close` 格 label 右侧 ⓘ（`LitePositionCard`）③ Portfolio 桌面行 level 值片段（虚线下划线触发）④ Portfolio 桌面行 none 值片段（同款触发）⑤ —— 移动卡零触发（第五处为「不挂」裁定）。**静态文案不插值，`≈ 62¢` 为冻结示例值，不是 live 数据**。全文：
+
+> **Auto-close** — If your account runs low, Boost calls are closed automatically at this price to protect your remaining balance.
+>
+> `≈ 62¢` — The estimated auto-close price for this call. It's worked out across your whole account, so it shifts as your other positions move.
+>
+> `None` — This call can't be auto-closed — it's 1× (nothing borrowed), or prices only move between 0¢ and 100¢ and the line can't be reached. The most you can lose is what you put in.
+
+已删除定制文案（禁止回引）：`An estimate of the price at which this call would be closed automatically. It shifts as your other positions move.`；`No auto-close within this market's price range — your loss is capped at what you put in.`
 | **SIDE chip** | `{sideWord} {c}¢`；底色随方向：Yes/Up `#33D6FF` / No/Down `#CFFF4A`，黑字；`{c}¢` 为该腿自身轴 mark 价（No 腿 = 1 − yes）。多选腿 chip 只写 `Yes` / `No`，选项名另起一行置于 chip 下（`Charles Leclerc`）；side 词与方向来源 `resolveLegSide()`，`short` 视为 No | 全 volt chip、`Long`/`Short`、选项名塞进 chip |
 | **Boost check** | 账户级仪表：`riskRatio = imTotal / equity × 100`；**Healthy** `< 80` / **Getting tight** `80 ≤ r < 95` / **Auto-close soon** `≥ 95`；仅 Boost 段且 `boostLive.length > 0` 渲染；`Details ›` 默认折叠（移动 MobileDrawer / 桌面 320px Popover），三行 Equity / Used by Boost calls / Until auto-close starts = `max(equity − imTotal, 0)` | Margin ratio, Margin call, Risk level, Health factor |
 | **Boost · N / Standard · N** | 段 chips。`Boost` 段 = Boost Account（`productLine !== 'spot'`）全部持仓，**含 1×**；1× 行不显示倍数且 auto-close 恒 `none`（无借贷敞口）。`Standard` 段 = `productLine === 'spot'`。N = Live tab 为持仓数、Settled tab 为结算行数 | Futures · N, Spot · N, Leveraged |
