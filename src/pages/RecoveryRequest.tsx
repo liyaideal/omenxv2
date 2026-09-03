@@ -82,14 +82,12 @@ export default function RecoveryRequestPage() {
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h2 className={isMobile ? 'text-sm font-semibold' : 'text-base font-semibold'}>Your requests</h2>
-        <Button
-          size="sm"
-          onClick={() => setShowForm(true)}
-          className={isMobile ? 'h-8 rounded-lg' : 'h-9 rounded-lg'}
-        >
-          <Plus className="w-3.5 h-3.5 mr-1" />
-          New request
-        </Button>
+        {isMobile && (
+          <Button size="sm" onClick={() => setShowForm(true)} className="h-8 rounded-lg">
+            <Plus className="w-3.5 h-3.5 mr-1" />
+            New request
+          </Button>
+        )}
       </div>
 
       {list.isLoading ? (
