@@ -339,7 +339,7 @@ const RECOVERY_ROWS = [
   { id: "rq-3", amount: 76, token: "SOL", network: "Solana", status: "rejected" as const, date: "Aug 09, 2026" },
 ];
 
-/** W-31 · list（chrome 复刻；RecoveryStatusBadge 为生产件）· loading / empty / rows */
+/** W-31 · list（chrome 复刻；RecoveryEmptyState / RecoveryStatusBadge 为生产件）· loading / empty / rows */
 export const RecoveryListPreview = () => (
   <div className="space-y-6 p-4 [&_*]:!animate-none">
     <div className="space-y-3">
