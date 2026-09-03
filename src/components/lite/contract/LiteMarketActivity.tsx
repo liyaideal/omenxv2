@@ -192,6 +192,7 @@ export const LiteMarketActivity = ({
         variant="module"
         bordered={false}
         title="No activity yet"
+        illustrationSrc="/assets/desktop/empty-no-boost.png"
         description="Trades on this market show up here as people buy in."
         className="px-0 py-2"
       />

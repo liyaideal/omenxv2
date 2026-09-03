@@ -232,6 +232,7 @@ export const LiteFinanceView = ({
         <EmptyState
           variant="page"
           title="Nothing boosted here yet — check back soon."
+          illustrationSrc={isMobile ? "/assets/mobile/empty-no-boost.png" : "/assets/desktop/empty-no-boost.png"}
         />
       )}
 

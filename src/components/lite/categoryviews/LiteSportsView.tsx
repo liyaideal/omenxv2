@@ -468,6 +468,7 @@ export const LiteSportsView = ({
         <EmptyState
           variant="page"
           title="Nothing boosted here yet — check back soon."
+          illustrationSrc="/assets/desktop/empty-no-boost.png"
         />
       )}
 

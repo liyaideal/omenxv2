@@ -1,4 +1,4 @@
-import { AlertTriangle, RotateCw } from "lucide-react";
+import { RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -31,7 +31,12 @@ export const ErrorState = ({
         className,
       )}
     >
-      <AlertTriangle className="w-8 h-8 text-destructive/70" />
+      <img
+        src="/assets/desktop/empty-error.png"
+        alt=""
+        aria-hidden
+        className="pointer-events-none select-none w-[72px] h-auto mx-auto"
+      />
       <div className="mt-3 text-sm font-semibold text-foreground">{title}</div>
       {description && (
         <p className="mt-1 max-w-sm text-xs text-muted-foreground">{description}</p>

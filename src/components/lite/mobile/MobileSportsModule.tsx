@@ -383,6 +383,7 @@ export const MobileSportsModule = ({
         <EmptyState
           variant="page"
           title="Nothing boosted here yet — check back soon."
+          illustrationSrc="/assets/mobile/empty-no-boost.png"
         />
       ) : (
         <>

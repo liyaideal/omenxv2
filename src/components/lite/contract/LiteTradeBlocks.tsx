@@ -71,6 +71,7 @@ export const TradeMoreMarkets = ({
         variant="module"
         bordered={false}
         title="No other markets right now"
+        illustrationSrc="/assets/desktop/empty-no-boost.png"
         description="New markets show up here as they open."
         className="px-0 py-1"
       />
