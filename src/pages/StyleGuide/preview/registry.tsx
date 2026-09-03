@@ -36,7 +36,9 @@ const autoClose = () => import("./autoClosePreviews");
 const auth = () => import("./authPreviews");
 const events = () => import("./eventsPreviews");
 const homeStage = () => import("./homeStagePreviews");
+const brandAssets = () => import("@/pages/StyleGuide/sections/BrandAssetsSection");
 const trade = () => import("./tradePreviews");
+
 const spot = () => import("./spotPreviews");
 const share = () => import("./sharePreviews");
 const sportsLive = () => import("./sportsLivePreviews");
