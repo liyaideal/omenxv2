@@ -67,6 +67,8 @@ import {
 import useCategoryBoostConfigs from "@/hooks/useCategoryBoostConfigs";
 import { cn } from "@/lib/utils";
 import { SeoFooter } from "@/components/seo/SeoFooter";
+import heroThread from "@/assets/wallet/hero-thread.webp";
+import lynxEmptyAddresses from "@/assets/wallet/lynx-empty-addresses.png";
 
 /* ------------------------------------------------------------------
  * Signal-DNA visual primitives (Wallet page only)
@@ -122,12 +124,14 @@ export const HeroEquityCard = ({
       compact ? "p-5" : "p-[34px_36px]",
     )}
   >
-    <XMotif
-      className={
-        compact
-          ? "-right-[30px] -top-[40px] h-[220px] w-[260px]"
-          : "-right-[30px] -top-[40px] h-[260px] w-[300px]"
-      }
+    <img
+      src={heroThread}
+      alt=""
+      aria-hidden
+      onError={(e) => {
+        (e.currentTarget as HTMLImageElement).style.display = "none";
+      }}
+      className="pointer-events-none select-none absolute inset-0 z-0 h-full w-full object-cover object-right"
     />
     <div
       className={cn(
@@ -813,6 +817,7 @@ export default function Wallet() {
               variant="module"
               bordered={false}
               title="No saved addresses"
+              illustrationSrc={lynxEmptyAddresses}
               description="Save addresses for quick deposits and withdrawals."
               className="px-0 py-2"
             />
@@ -915,6 +920,8 @@ export default function Wallet() {
                         variant="module"
                         bordered={false}
                         title="No saved addresses"
+                        illustrationSrc={lynxEmptyAddresses}
+              illustrationSrc={lynxEmptyAddresses}
                         description="Save addresses for quick deposits and withdrawals."
                         className="px-0 py-2"
                       />

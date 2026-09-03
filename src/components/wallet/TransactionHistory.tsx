@@ -35,6 +35,7 @@ import { useRealtimeTransactions } from '@/hooks/useRealtimeTransactions';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PRODUCT_LINE_BADGE_CLASSES, PRODUCT_LINE_LABELS } from '@/lib/productLineBadge';
 import { EmptyState } from '@/components/states';
+import lynxEmptyActivity from '@/assets/wallet/lynx-empty-activity.png';
 
 
 // Network explorer URLs for txHash links
@@ -373,6 +374,7 @@ export const TransactionHistory = ({ transactions = [], className, fixture }: Tr
       {filteredTransactions.length === 0 ? (
         <EmptyState
           title={hasActiveFilters ? 'No transactions match your filters' : 'No recent activity'}
+          illustrationSrc={hasActiveFilters ? undefined : lynxEmptyActivity}
           description={
             hasActiveFilters
               ? 'Clear the filters to see the full history.'
