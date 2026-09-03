@@ -405,6 +405,68 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
       </SectionWrapper>
 
 
+      {/* =========================== */}
+      {/* DESKTOP SUBPAGE HEADER v1   */}
+      {/* =========================== */}
+      <SectionWrapper
+        id="foundations-dsh-header"
+        title="Desktop Subpage Header (DSH v1)"
+        platform="desktop"
+        description="桌面专用件（src/components/layout/DesktopSubpageHeader.tsx）——单端件，省移动帧。56px 高、下缘 #1D2026、返回钮定稿 B（36×36 描边方钮）、页名 Archivo 17px/600 sentence case、右槽 ≤1 主动作、无副题位。来源：DESIGN.md §10。"
+      >
+        <Card className="trading-card mb-6 border-primary/30">
+          <CardHeader>
+            <CardTitle className="text-lg">应用判定表</CardTitle>
+            <CardDescription>
+              返回件经 A ghost / B 描边方钮 / C 胶囊含父级名 / D 浅底填充 四案比稿，CPO 2026-09-03 定 B。
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-2 text-muted-foreground font-medium">父级位置</th>
+                    <th className="text-left py-2 text-muted-foreground font-medium">是否挂 DSH</th>
+                    <th className="text-left py-2 text-muted-foreground font-medium">范式</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/50">
+                  <tr>
+                    <td className="py-2 text-muted-foreground">父级在桌面顶栏导航（portfolio 详情、活动详情等内容详情页）</td>
+                    <td className="py-2 font-medium">不挂</td>
+                    <td className="py-2 text-muted-foreground">标题进首卡 / hero</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-muted-foreground">父级不在顶栏（/wallet/recovery 及 :id、未来同类深层页）</td>
+                    <td className="py-2 font-medium">必挂</td>
+                    <td className="py-2 text-muted-foreground">DSH v1 + 22px 到首块内容</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="trading-card">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">右槽有动作 / 右槽空（1280 帧 · 桌面专用）</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <DeviceFrame previewKey="foundations-dsh-header" device="desktop" minHeight={260} />
+          </CardContent>
+        </Card>
+
+        <CodePreview
+          className="mt-6"
+          code={`<DesktopSubpageHeader title="Recovery" onBack={() => navigate('/wallet')}>
+  <Button size="sm" className="h-9 rounded-lg">New request</Button>
+</DesktopSubpageHeader>
+
+<DesktopSubpageHeader title="Request detail" onBack={() => navigate('/wallet/recovery')} />`}
+        />
+      </SectionWrapper>
+
       {/* Mobile UI Patterns */}
       <SectionWrapper
         id="mobile-patterns"
