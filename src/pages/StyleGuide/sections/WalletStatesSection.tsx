@@ -513,6 +513,218 @@ const AUTH_GATE_CASES: SectionCase[] = [
   },
 ];
 
+
+/* ---- 2026-09-03 · M7b 收官轮：Ⓓ 充值流 / Ⓔ 提现流 / Ⓖ Recovery 与服务件 ---- */
+
+const DEPOSIT_FLOW_CASES: SectionCase[] = [
+  {
+    key: "wallet-deposit-to-screen",
+    label: "W-21 · Deposit-to 前屏（DepositToScreen）",
+    note: "账户选择记忆现为 localStorage（useAccountPreference）；服务端化已于 08-31 拍板转研发，见 lite-wallet-spec-v1.md §6。",
+    spec: [
+      { state: "未选择", when: "selected === null", visual: "两张账户行（Standard / Boost）均未高亮，页面不进入下一步", source: "AccountPickerRows（src/components/wallet/AccountPicker.tsx）" },
+      { state: "已选择", when: "selected === 'spot' | 'futures'", visual: "选中行描边高亮 + 勾选态，进入 Address tab", source: "Deposit.tsx 前屏" },
+    ],
+  },
+  {
+    key: "wallet-deposit-checklist",
+    label: "W-22 · 充值确认清单（DepositChecklist）",
+    note: "两态同帧：未全勾（CTA 锁）与全勾放行（露出地址）见 W-23。",
+    spec: [
+      { state: "未全勾", when: "acknowledged === false（三项复选未全部勾选）", visual: "三条风险须知 + disabled 继续按钮，地址与二维码不渲染", source: "WalletDeposit.tsx" },
+      { state: "全勾放行", when: "三项全部勾选", visual: "清单收起，切换为地址态（W-23）", source: "WalletDeposit.tsx" },
+    ],
+  },
+  {
+    key: "wallet-deposit-address",
+    label: "W-23 · 充值地址与 QR（DepositAddress）",
+    note: "帧接 fixtureAddress（固定演示地址 0x8f2a91…c4d071），不调用 get-deposit-address 边缘函数 —— 该 case 零网络请求。",
+    spec: [
+      { state: "Network", when: "恒显", visual: "Base（演示值）", source: "WalletDeposit.tsx InfoRow" },
+      { state: "Token", when: "恒显", visual: "USDC（演示值）", source: "WalletDeposit.tsx InfoRow" },
+      { state: "Fee", when: "恒显", visual: "0（演示值）", source: "WalletDeposit.tsx InfoRow" },
+      { state: "确认数", when: "恒显", visual: "12 confirmations（演示值）", source: "types/deposit.ts confirmationBlocks" },
+      { state: "地址区", when: "fixtureAddress 提供或 EF 返回", visual: "QR + §6 ColoredAddress + Copy；文案 Only send USDC on Base network.", source: "WalletDeposit.tsx" },
+    ],
+  },
+  {
+    key: "wallet-deposit-dialog-wallet-tab",
+    label: "W-24 · 跨链充值 tab（CrossChainDeposit）",
+    note: "bridge 为真业务（仅 deposit，withdraw 不支持）；本前端流程为演示语义，接真 bridge 归研发。",
+    spec: [
+      { state: "选链", when: "step === 'swap'", visual: "来源链 / 币种选择 + 金额输入；Bridge Fee 行为中性灰 Varies by route", source: "CrossChainDeposit.tsx" },
+      { state: "报价", when: "amount > 0", visual: "报价明细行（到账估算 / 路由 / 滑点设置入口）", source: "CrossChainDeposit.tsx" },
+      { state: "review", when: "点击继续后的确认步", visual: "确认页 + 假进度阶段（本字典按静态步帧解读，不做动画取证）", source: "CrossChainDeposit.tsx processingStage" },
+    ],
+  },
+  {
+    key: "wallet-deposit-dialog-fiat",
+    label: "W-14 · Deposit 弹窗 · Fiat tab（已退役，仅存档深链）",
+    note: "fiat_* 随 Banxa 弃用退役（2026-09-03），Fiat tab 入口已从 /deposit 与 DepositDialog 移除；BuyWithFiat.tsx 保留在仓库，MoonPay 轮重启前不再展示。",
+  },
+];
+
+const WITHDRAW_FLOW_CASES: SectionCase[] = [
+  {
+    key: "wallet-withdraw-form",
+    label: "W-25 · 提现表单全态（WithdrawForm）· mobile",
+    note: "接 fixtureWallets（1 条 Base primary + 1 条 Tron 非 Base），零 supabase 请求。金额相关分支（insufficient / invalid / MAX）由组件内部 state 驱动，本轮无 docs 通道可外部注入，故只出初始 / 地址预填帧；分支判定逐条列在下表。",
+    spec: [
+      { state: "初始", when: "amount === '' 且未选地址", visual: "地址行为占位，CTA disabled", source: "WalletWithdraw.tsx" },
+      { state: "选中地址", when: "primary 且 network === 'Base'", visual: "自动预填 primary 地址（非 Base primary 不预填）", source: "WalletWithdraw.tsx（09-03 Base-only）" },
+      { state: "insufficient（含 fee）", when: "amount + fee > sourceBalance", visual: "红字 Insufficient balance (including fee)，CTA disabled", source: "useWithdraw.validateWithdrawal" },
+      { state: "invalid address", when: "地址非 0x + 40 hex", visual: "红字 Invalid wallet address", source: "useWithdraw.validateWithdrawal（Base-only）" },
+      { state: "MAX", when: "点击 Max", visual: "金额填入 availableBalance，明细行同步 fee / You'll receive", source: "WalletWithdraw.tsx" },
+      { state: "限额（演示值，真值待运营定）", when: "恒显于明细/校验", visual: "min 20 / max 10,000 / 日限 50,000 / fee 1", source: "useWithdraw.ts DEFAULT_LIMITS + getWithdrawFee" },
+    ],
+  },
+  {
+    key: "wallet-withdraw-desktop-form",
+    label: "W-16 · Withdraw · desktop 表单（同 W-25 判定）",
+    note: "桌面帧同样接 fixtureWallets；判定表见 W-25，不重复。",
+  },
+  {
+    key: "wallet-withdraw-address-drawer",
+    label: "W-26 · 地址选择（WithdrawAddressSelect · list + 空态）",
+    spec: [
+      { state: "Base 地址行", when: "wallet.network 含 'base'", visual: "可点击选中，行尾勾选态", source: "WithdrawAddressSelect.tsx" },
+      { state: "非 Base 地址行 · disabled", when: "!wallet.network.toLowerCase().includes('base')", visual: "整行 disabled，caption 逐字 `Base only — this address can't receive withdrawals`", source: "WithdrawAddressSelect.tsx（09-03 Base-only）" },
+      { state: "空态", when: "wallets.length === 0", visual: "只剩 Add new address 行", source: "WithdrawAddressSelect.tsx" },
+    ],
+  },
+  {
+    key: "wallet-withdraw-address-add",
+    label: "W-26b · 新增地址（同抽屉 add step）",
+    spec: [
+      { state: "network 固定", when: "恒显", visual: "Network 固定 Base，无选择器", source: "AddAddressFields / EMPTY_FORM.network = 'Base'（09-03）" },
+    ],
+  },
+  {
+    key: "wallet-withdraw-verify",
+    label: "W-27a · 提现验证 · email OTP",
+    note: "demo 码 111111 属切真开关（src/lib/demoOtp.ts），接真验证码归研发，见 lite-wallet-spec-v1.md §4。",
+    spec: [
+      { state: "email_otp", when: "profile.withdraw_2fa_mode 含 email 且 profile.email 非空", visual: "邮箱 OTP 输入 + 重发倒计时", source: "WithdrawVerifyDialog.tsx（fixtureMode='email_otp'）" },
+    ],
+  },
+  {
+    key: "wallet-withdraw-verify-bind-email",
+    label: "W-27b · 提现验证 · 绑定邮箱",
+    spec: [
+      { state: "bind_email", when: "模式含 email 且 profile.email 为空", visual: "先绑定邮箱再发码", source: "WithdrawVerifyDialog.tsx（fixtureMode='bind_email'）" },
+    ],
+  },
+  {
+    key: "wallet-withdraw-verify-totp",
+    label: "W-27c · 提现验证 · TOTP",
+    spec: [
+      { state: "totp", when: "模式含 totp 且 totp_enabled === true", visual: "6 位验证器码输入", source: "WithdrawVerifyDialog.tsx（fixtureMode='totp'）" },
+    ],
+  },
+  {
+    key: "wallet-withdraw-verify-bind-totp",
+    label: "W-27d · 提现验证 · 绑定验证器",
+    note: "演示密钥固定为 OMENXDEMOSECRET234567（demoSecret prop），生产路径仍走随机生成。",
+    spec: [
+      { state: "bind_totp", when: "模式含 totp 且 totp_enabled === false", visual: "二维码 + base32 密钥 + 首次验证输入", source: "WithdrawVerifyDialog.tsx（fixtureMode='bind_totp'）" },
+    ],
+  },
+  {
+    key: "wallet-withdraw-status",
+    label: "W-28 · 提现状态追踪（WithdrawStatusTracker）",
+    note: "failed 帧的句子「Your funds have been unfrozen and returned to your available balance.」当前无冻结实现——资金边界见 docs/delivery/lite-wallet-spec-v1.md §3。",
+    spec: [
+      { state: "processing", when: "status ∈ {REQUESTED, APPROVED, SENT}", visual: "四步进度条推进到当前步", source: "WithdrawStatusTracker STATUS_STEPS" },
+      { state: "done", when: "status === 'CONFIRMED'", visual: "全绿完成态 + tx 链接 basescan.org/tx/{txHash}", source: "WithdrawStatusTracker" },
+      { state: "failed", when: "status ∈ {FAILED, REJECTED}", visual: "红色 XCircle + 失败说明 + 解冻返还句", source: "WithdrawStatusTracker" },
+    ],
+  },
+  {
+    key: "wallet-withdraw-sticky-bar",
+    label: "W-29 · 提现 sticky 栏（StickyWithdrawBar）",
+    spec: [
+      { state: "disabled", when: "state.disabled === true && loading === false", visual: "整条 CTA 置灰不可点", source: "WithdrawSubmitContext.state" },
+      { state: "可提交", when: "state.disabled === false", visual: "primary 实心 Withdraw", source: "WithdrawSubmitContext.state" },
+      { state: "提交中", when: "state.loading === true", visual: "Loader2 + Processing...", source: "StickyWithdrawBar.tsx" },
+      { state: "贴底偏移", when: "offsetBottomNav === true（生产 /withdraw）", visual: "bottom / marginBottom 取 var(--bottom-nav-h, 76px) + safe-area", source: "StickyWithdrawBar.tsx（DESIGN.md §5）" },
+    ],
+  },
+];
+
+const RECOVERY_CASES: SectionCase[] = [
+  {
+    key: "wallet-recovery-intro",
+    label: "W-30 · Recovery 入口与表单（RecoveryRequest）",
+    note: "intro 卡与 Sign in required 为 chrome 复刻（文案与生产一致，卡片本体写在 src/pages/RecoveryRequest.tsx 内未导出）；表单为生产 RecoveryForm。",
+    spec: [
+      { state: "intro", when: "恒显于 /wallet/recovery", visual: "10% flat fee / 3–7 business days 两枚 Pill + 「A flat 10% recovery fee applies」段", source: "RecoveryRequest.tsx intro" },
+      { state: "表单校验", when: "字段未通过 zod schema", visual: "字段下红字（Enter a valid transaction hash / Amount must be greater than 0 等）", source: "RecoveryForm.tsx schema" },
+      { state: "Sign in required", when: "!user", visual: "黄色 AlertTriangle + Sign in required + 说明句，不渲染表单", source: "RecoveryRequest.tsx 未登录分支" },
+    ],
+  },
+  {
+    key: "wallet-recovery-list",
+    label: "W-31 · Recovery 列表（RecoveryList）",
+    note: "行 chrome 为复刻，状态徽标为生产 RecoveryStatusBadge。",
+    spec: [
+      { state: "loading", when: "list.isLoading", visual: "居中 Loader2", source: "RecoveryRequest.tsx" },
+      { state: "空态", when: "requests.length === 0", visual: "Inbox 图标 + `No recovery requests yet` + 副句", source: "RecoveryRequest.tsx" },
+      { state: "行态", when: "requests.length > 0", visual: "金额 font-mono + token on network + 状态徽标 + 日期 + chevron", source: "RecoveryRequest.tsx" },
+    ],
+  },
+  {
+    key: "wallet-recovery-detail-submitted",
+    label: "W-32a · Recovery 详情 · submitted",
+    note: "quoted_at / accepted_at 为 schema 残留字段，UI 无任何渲染（3 态机于 05-20 定稿）。",
+    spec: [
+      { state: "submitted", when: "status === 'submitted'", visual: "时间线停在第 1 步 + 「typically takes 3–7 business days」+ Estimated payout 卡（10% 费自洽）", source: "RecoveryStatusTimeline / RecoveryRequestDetail.tsx" },
+    ],
+  },
+  {
+    key: "wallet-recovery-detail-completed",
+    label: "W-32b · Recovery 详情 · completed",
+    spec: [
+      { state: "completed", when: "status === 'completed'", visual: "绿色 Funds credited 卡（Credited to balance +$108.00 / Internal ref）+ Message from OmenX 管理员留言", source: "RecoveryRequestDetail.tsx payoutCard + adminCard" },
+    ],
+  },
+  {
+    key: "wallet-recovery-detail-rejected",
+    label: "W-32c · Recovery 详情 · rejected",
+    spec: [
+      { state: "rejected", when: "status === 'rejected'", visual: "红框 Request rejected；payout 卡不渲染；仅 Message from OmenX", source: "RecoveryStatusTimeline rejected 分支" },
+    ],
+  },
+  {
+    key: "wallet-maintenance-notice",
+    label: "W-33 · 维护横幅（MaintenanceNotice）",
+    note: "自 WalletSection 整节收编；数据源 src/config/maintenanceNotices.ts，恢复服务时删除条目即可（不做「已恢复」横幅）。",
+    spec: [
+      { state: "single", when: "active.length === 1", visual: "黄框单条：Network maintenance · BASE_ETH + 说明句", source: "MaintenanceNoticeBannerView" },
+      { state: "multiple", when: "active.length > 1", visual: "多条纵向堆叠 space-y-2", source: "MaintenanceNoticeBannerView" },
+      { state: "withNote", when: "notice.note 非空", visual: "说明句下追加第二行灰字备注", source: "NoticeRow" },
+      { state: "empty（隐藏）", when: "active.length === 0", visual: "整块 return null，/wallet 该位零高度", source: "MaintenanceNoticeBannerView" },
+    ],
+  },
+];
+
+const MERGE_LEDGER: { from: string; to: string }[] = [
+  { from: "DepositWithdrawSection · Funding flows 10 帧 · wallet-deposit-to-screen", to: "Ⓓ W-21" },
+  { from: "DepositWithdrawSection · wallet-deposit-checklist", to: "Ⓓ W-22" },
+  { from: "DepositWithdrawSection · wallet-deposit-address", to: "Ⓓ W-23" },
+  { from: "DepositWithdrawSection · wallet-withdraw-form", to: "Ⓔ W-25" },
+  { from: "DepositWithdrawSection · wallet-withdraw-address-drawer", to: "Ⓔ W-26" },
+  { from: "DepositWithdrawSection · wallet-withdraw-address-add", to: "Ⓔ W-26b" },
+  { from: "DepositWithdrawSection · wallet-withdraw-verify", to: "Ⓔ W-27a（并新增 W-27b/c/d 四模式静态帧）" },
+  { from: "DepositWithdrawSection · wallet-withdraw-status", to: "Ⓔ W-28" },
+  { from: "DepositWithdrawSection · wallet-account-picker", to: "Ⓔ 账户选择（沿用原 key，归 Ⓔ 区）" },
+  { from: "DepositWithdrawSection · wallet-address-delete", to: "Ⓕ 地址簿" },
+  { from: "DepositWithdrawSection · Recovery Request Status（Badge + 三条 Timeline）", to: "Ⓖ W-32a/b/c" },
+  { from: "DepositWithdrawSection · Withdraw Verification（运行时 live 弹窗按钮）", to: "Ⓔ W-27 四帧静态化（不再挂 live 按钮）" },
+  { from: "WalletSection · Maintenance Notice（4 preset 切换器）", to: "Ⓖ W-33（4 preset 拆静态分帧）" },
+  { from: "DepositWithdrawSection · Funding assets 手抄卡（Base / USDC / Banxa）", to: "退场（Banxa 已退役；Base/USDC 口径见 lite-wallet-spec-v1.md §1）" },
+  { from: "DepositWithdrawSection · Typography Standards 手抄表", to: "退场 → 移交 lite-wallet-spec-v1.md §9（6 条：Amount input / CTA button / Balance display / Wallet address / Status step label / Result amount）" },
+];
+
 export const WalletStatesSection = ({ isMobile }: { isMobile: boolean }) => (
   <SectionWrapper
     id="wallet-lite-r1"
@@ -578,12 +790,42 @@ export const WalletStatesSection = ({ isMobile }: { isMobile: boolean }) => (
       </div>
     </SubSection>
 
-    <SubSection title="Ⓓ 充值流（M7b 填充）" platform="desktop">
-      <SectionFrame cases={DEPOSIT_DIALOG_CASES} device="desktop" minHeight={620} />
+    <SubSection title="Ⓓ 充值流" platform="shared">
+      <SectionFrame cases={[DEPOSIT_FLOW_CASES[0], DEPOSIT_FLOW_CASES[1], DEPOSIT_FLOW_CASES[2]]} device="mobile" minHeight={900} />
+      <div className="mt-3">
+        <SectionFrame cases={DEPOSIT_DIALOG_CASES.slice(0, 2)} device="desktop" minHeight={620} />
+      </div>
+      <div className="mt-3">
+        <SectionFrame cases={[DEPOSIT_FLOW_CASES[3]]} device="desktop" minHeight={640} />
+      </div>
+      <div className="mt-3">
+        <SectionFrame cases={[DEPOSIT_FLOW_CASES[4]]} device="desktop" minHeight={520} />
+      </div>
     </SubSection>
 
-    <SubSection title="Ⓔ 提现流（M7b 填充）" platform="desktop">
-      <SectionFrame cases={WITHDRAW_CASES} device="desktop" minHeight={520} />
+    <SubSection title="Ⓔ 提现流" platform="shared">
+      <SectionFrame cases={[WITHDRAW_FLOW_CASES[0]]} device="mobile" minHeight={820} />
+      <div className="mt-3">
+        <SectionFrame cases={[WITHDRAW_FLOW_CASES[1]]} device="desktop" minHeight={620} />
+      </div>
+      <div className="mt-3">
+        <SectionFrame cases={[WITHDRAW_FLOW_CASES[2], WITHDRAW_FLOW_CASES[3]]} device="mobile" minHeight={900} />
+      </div>
+      <div className="mt-3">
+        <SectionFrame cases={WITHDRAW_FLOW_CASES.slice(4, 8)} device="mobile" minHeight={1200} />
+      </div>
+      <div className="mt-3">
+        <SectionFrame cases={WITHDRAW_FLOW_CASES.slice(4, 8)} device="desktop" minHeight={1200} />
+      </div>
+      <div className="mt-3">
+        <SectionFrame cases={[WITHDRAW_FLOW_CASES[8]]} device="mobile" minHeight={760} />
+      </div>
+      <div className="mt-3">
+        <SectionFrame cases={[WITHDRAW_FLOW_CASES[9]]} device="mobile" minHeight={340} />
+      </div>
+      <div className="mt-3">
+        <SectionFrame cases={[{ key: "wallet-account-picker", label: "Ⓔ · 账户选择抽屉（From account）" }]} device="mobile" minHeight={340} />
+      </div>
     </SubSection>
 
     <SubSection title="Ⓕ 地址簿" platform="shared">
@@ -594,12 +836,73 @@ export const WalletStatesSection = ({ isMobile }: { isMobile: boolean }) => (
       <div className="mt-3">
         <SectionFrame cases={ADDRESS_EMPTY_CASES} device="desktop" minHeight={300} />
       </div>
-    </SubSection>
-
-    <SubSection title="Ⓖ Recovery 与服务件（M7b 填充）" platform="shared">
-      <div className="rounded-lg border border-dashed border-border/60 px-3 py-4 text-[12px] text-muted-foreground">
-        空壳：/wallet/recovery 表单三态、WithdrawVerifyDialog 四模式、WithdrawStatusTracker —— M7b 填充。
+      <div className="mt-3">
+        <SectionFrame
+          cases={[
+            {
+              key: "wallet-address-delete",
+              label: "Ⓕ · 删除地址确认抽屉",
+              spec: [
+                {
+                  state: "确认删除",
+                  when: "点击 ⋯ → Delete address",
+                  visual: "MobileDrawerStatus + MobileDrawerActions（Cancel / 红色 Delete）",
+                  source: "DeleteAddressDrawer.tsx",
+                },
+                {
+                  state: "新增地址网络",
+                  when: "Add address（抽屉 add step / 桌面 AddAddressDialog）",
+                  visual: "network 固定 Base，无选择器",
+                  source: "09-03 Base-only 收敛（EMPTY_FORM.network = 'Base'）",
+                },
+              ],
+            },
+          ]}
+          device="mobile"
+          minHeight={380}
+        />
       </div>
     </SubSection>
+
+    <SubSection title="Ⓖ Recovery 与服务件" platform="shared">
+      <SectionFrame cases={[RECOVERY_CASES[0]]} device="desktop" minHeight={1100} />
+      <div className="mt-3">
+        <SectionFrame cases={[RECOVERY_CASES[1]]} device="desktop" minHeight={760} />
+      </div>
+      <div className="mt-3">
+        <SectionFrame cases={[RECOVERY_CASES[1]]} device="mobile" minHeight={860} />
+      </div>
+      <div className="mt-3">
+        <SectionFrame cases={RECOVERY_CASES.slice(2, 5)} device="desktop" minHeight={1400} />
+      </div>
+      <div className="mt-3">
+        <SectionFrame cases={RECOVERY_CASES.slice(2, 5)} device="mobile" minHeight={1600} />
+      </div>
+      <div className="mt-3">
+        <SectionFrame cases={[RECOVERY_CASES[5]]} device="desktop" minHeight={560} />
+      </div>
+    </SubSection>
+
+    <SubSection title="并账列账表（旧节 → 本节）" platform="shared">
+      <div className="overflow-x-auto rounded-md border border-border/40">
+        <table className="w-full min-w-[640px] border-collapse text-left text-[11px]">
+          <thead>
+            <tr className="bg-muted/20 text-[10px] uppercase tracking-wider text-muted-foreground/70">
+              <th className="px-2 py-1.5 font-medium">原文位置</th>
+              <th className="px-2 py-1.5 font-medium">去向</th>
+            </tr>
+          </thead>
+          <tbody>
+            {MERGE_LEDGER.map((r) => (
+              <tr key={r.from} className="border-t border-border/30 align-top">
+                <td className="px-2 py-1.5 font-mono text-[10.5px] text-muted-foreground">{r.from}</td>
+                <td className="px-2 py-1.5 text-muted-foreground">{r.to}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </SubSection>
+
   </SectionWrapper>
 );
