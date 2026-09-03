@@ -30,6 +30,7 @@ import {
 } from "@/components/recovery/RecoveryStatusTimeline";
 import { AlertTriangle, ChevronRight, Inbox, Info, Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import lynxEmptyRecovery from "@/assets/wallet/lynx-empty-recovery.png";
 import type { Wallet as SavedWallet } from "@/hooks/useWallets";
 import type { WithdrawRecord, WithdrawStatus } from "@/types/withdraw";
 import type { TokenConfig } from "@/types/deposit";
