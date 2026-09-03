@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, ChevronRight, Loader2, Plus, Info } from 'lucide-react';
-import { DesktopBackLink } from '@/components/ui/desktop-back-link';
+import { DesktopSubpageHeader } from '@/components/layout/DesktopSubpageHeader';
 import { useAuth } from '@/hooks/useAuth';
 import { useRecoveryRequests } from '@/hooks/useRecoveryRequests';
 import { RecoveryStatusBadge } from '@/components/recovery/RecoveryStatusTimeline';
