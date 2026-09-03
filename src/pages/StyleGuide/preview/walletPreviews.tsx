@@ -175,11 +175,13 @@ export const EquityHoverCardPreview = () => (
 
 /* ---------- TransactionHistory account badges + transfer icon row ---------- */
 
-const now = Date.now();
+// Docs fixtures use relative offsets (repo hoursAgo pattern) so the rendered
+// text is identical whenever the preview is opened.
+const hoursAgo = (h: number) => new Date(Date.now() - h * 3600_000);
 const mkTx = (t: Partial<Transaction> & { id: string; type: Transaction["type"]; amount: number }): Transaction => ({
   description: "",
-  date: new Date(now - 3600_000).toISOString(),
-  timestamp: now - 3600_000,
+  date: hoursAgo(1).toISOString(),
+  timestamp: hoursAgo(1).getTime(),
   status: "completed",
   ...t,
 });
