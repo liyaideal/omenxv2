@@ -17,6 +17,19 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-09-03 — Wallet 状态字典收官（M7a / M7b）
+
+来源：[Wallet（Lite）交付说明 v1](../delivery/lite-wallet-spec-v1.md)
+
+| # | 项 | 归属 | Status | Notes |
+|---|---|---|---|---|
+| W-A | 提现冻结/解冻账务：失败态文案已写「funds have been unfrozen and returned」，账务未实现 | BE | ⬜ | QA：提现失败后可用余额应恢复且只恢复一次 |
+| W-B | 提现限额换真值（现为演示：min 20 / max 10,000 / 日限 50,000 / fee 1） | BE + 运营 | ⬜ | 见 `src/hooks/useWithdraw.ts` |
+| W-C | Deposit-to 账户偏好服务端化（现 localStorage），链上到账按偏好记 Standard / Boost | BE | ⬜ | 单一充值地址，不按账户分地址 |
+| W-D | 提现验证接真 OTP / TOTP（现 demo 码 111111） | BE | ⬜ | 演示密钥 OMENXDEMOSECRET234567 仅字典用 |
+| W-E | 跨链充值接真 bridge 报价与路由（手续费行现为中性 `Varies by route`） | BE | ⬜ | 仅充值方向，提现不支持跨链 |
+| W-F | Recovery 人工处理 SLA 3–7 business days + 固定 10% 费 | 运营 | ⬜ | 3 态机，无自动化 |
+
 ## 2026-09-02 — Vouchers 状态字典收官（M4a / M4b）
 
 来源：[Vouchers（Lite）交付说明 v1](../delivery/lite-vouchers-spec-v1.md)
