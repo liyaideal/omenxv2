@@ -442,7 +442,7 @@ const LAYOUT_CASES: SectionCase[] = [
     key: "wallet-page-layout",
     label: "W-18 · Wallet 组合层（WalletPageLayout）",
     note:
-      "桌面为三段：Hero（满宽）→ 双账户卡 grid-cols-2 → 12 栅格 8（流水 / recovery 文字链）+ 4（Saved addresses）。生产 /wallet 无 MAINNET chip；顶部同位置为 MaintenanceNoticeBanner，MAINTENANCE_NOTICES 为空数组时整块不渲染（本帧即空态）。",
+      "桌面为三段：Hero（满宽）→ 双账户卡 grid-cols-2 → 12 栅格 8（流水 / recovery 文字链）+ 4（Saved addresses）。帧内 recovery 文字链为 chrome 复刻，文案与生产一致。",
     spec: [
       {
         state: "Total equity",
@@ -455,6 +455,12 @@ const LAYOUT_CASES: SectionCase[] = [
         when: "恒显",
         visual: "Standard $482.95 / Boost $15,402.28；桌面 grid-cols-2、移动纵排 space-y-3",
         source: "SpotAccountCard / FuturesAccountCard（src/pages/Wallet.tsx）",
+      },
+      {
+        state: "Mainnet chip",
+        when: "恒显",
+        visual: "Mainnet 文字 + 绿色 pulse 点；属 header chrome（不随 wallet body 滚动），不属 wallet 组合层",
+        source: "MainnetBadge via Logo（showMainnetBadge 默认 true）→ EventsDesktopHeader / MobileHeader brand",
       },
       {
         state: "维护公告位",
