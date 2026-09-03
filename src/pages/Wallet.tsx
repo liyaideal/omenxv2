@@ -420,7 +420,7 @@ export const FuturesAccountCard = ({
 
 
 /** Surface-aware wallet auth gate: Lite → LiteAuthGate, Pro → AuthGateOverlay (unchanged). */
-const WalletAuthGate = ({
+export const WalletAuthGate = ({
   isLite,
   maxPreviewHeight,
   children,
