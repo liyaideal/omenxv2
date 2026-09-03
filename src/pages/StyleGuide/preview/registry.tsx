@@ -119,7 +119,11 @@ export const previewRegistry: Record<string, Loader> = {
   "events-ev34": pick(homeStage, "Ev34Preview"),
   "events-ev35": pick(homeStage, "Ev35Preview"),
 
+  /* -------- Foundations · Brand assets -------- */
+  "foundations-brand-assets": pick(brandAssets, "BrandAssetsPreview"),
+
   /* -------- Mobile header system -------- */
+
   "mobile-header-brand-top": pick(mobileHeader, "HeaderBrandTopPreview"),
   "mobile-header-brand-scrolled": pick(mobileHeader, "HeaderBrandScrolledPreview"),
   "mobile-header-brand-control": pick(mobileHeader, "HeaderBrandControlPreview"),
