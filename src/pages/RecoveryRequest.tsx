@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, ChevronRight, Loader2, Plus, Inbox, Info } from 'lucide-react';
+import { AlertTriangle, ChevronRight, Loader2, Plus, Info } from 'lucide-react';
 import { DesktopBackLink } from '@/components/ui/desktop-back-link';
 import { useAuth } from '@/hooks/useAuth';
 import { useRecoveryRequests } from '@/hooks/useRecoveryRequests';
@@ -98,7 +98,6 @@ export default function RecoveryRequestPage() {
         </div>
       ) : requests.length === 0 ? (
         <div className="rounded-xl border border-border/60 bg-card/40 p-10 text-center space-y-2">
-          <Inbox className="w-8 h-8 text-muted-foreground/60 mx-auto" />
           <img
             src={lynxEmptyRecovery}
             alt=""
