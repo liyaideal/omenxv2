@@ -13,6 +13,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { ChevronRight, HelpCircle, Plus, X } from "lucide-react";
 import { ProductLineBadge } from "@/lib/productLineBadge";
 import { EmptyState } from "@/components/states";
+import lynxEmptyAddresses from "@/assets/wallet/lynx-empty-addresses.png";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { WalletDeposit } from "@/components/deposit/WalletDeposit";
 import { CrossChainDeposit } from "@/components/deposit/CrossChainDeposit";
