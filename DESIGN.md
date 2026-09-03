@@ -899,6 +899,32 @@ The right slot takes **either ≤2 `MobileHeaderIconButton`s or exactly 1 compac
 - `MobileHeaderIconButton` is exported from `@/components/MobileHeader` — import it, never re-draw it.
 - Pro surface only: `EventsPage` / `ResolvedPage` keep `MobileStatusDropdown` as their compact control (Lite has no equivalent).
 
+### Desktop Subpage Header (DSH v1) — 2026-09-03
+
+Desktop-only component: `src/components/layout/DesktopSubpageHeader.tsx`. Mobile is untouched (MobileHeader B stays authoritative).
+
+| Part | Literal |
+|------|---------|
+| Bar | 56px high, `border-b border-[#1D2026]`, `flex items-center gap-[10px]` |
+| Back button (定稿 B) | `button` 36×36, `border border-[#262A31] rounded-[10px]`, lucide `ArrowLeft` 18px `text-[#A8AEB6]`; hover `border-[#2E333B]` + arrow `text-[#E8EAED]`; `aria-label="Back"` |
+| Page name | Archivo (`font-sans`) 17px/600 sentence case, `text-foreground` — same word as the mobile MobileHeader title for that route |
+| Right slot | `children`, ≤1 primary action, may be empty; `flex-1` spacer between name and slot |
+| Subtitle | None — explanatory copy belongs in the opening card |
+| Gap to content | 22px |
+
+#### 应用判定表
+
+| 父级位置 | 是否挂 DSH | 范式 |
+|---------|-----------|------|
+| 父级在桌面顶栏导航（portfolio 详情、活动详情等内容详情页） | 不挂 | 标题进首卡 / hero |
+| 父级不在顶栏（`/wallet/recovery` 及 `:id`、未来同类深层页） | 必挂 | DSH v1 |
+
+裁定记录：返回件经 A ghost / B 描边方钮 / C 胶囊含父级名 / D 浅底填充 四案比稿，CPO 2026-09-03 定 B。
+
+#### EmptyState `illustrationSrc`（挂账）
+
+`EmptyState` 的可选 `illustrationSrc` 传入时**替换**默认插画/图标位（不是叠加），不传则零变化。资产统一登记于 style-guide Foundations「Brand assets · IP 插画」节。
+
 ### Preset D · Home Equity Hero Spec (`<HomeEquityHero>`)
 
 **唯一使用页面：`/` (MobileHome)。其他页面严禁复用此组件。**
