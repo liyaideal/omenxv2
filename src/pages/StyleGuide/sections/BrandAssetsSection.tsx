@@ -174,7 +174,7 @@ const HOME: AssetRow[] = [
     path: "public/assets/desktop/empty-error.png",
     size: "160 × 220",
     format: "PNG",
-    usage: "未接线（备用：错误态）",
+    usage: "ErrorState 组件错误态插画（全站）",
     added: "2026-08-29",
   },
   {
@@ -182,7 +182,7 @@ const HOME: AssetRow[] = [
     path: "public/assets/desktop/empty-no-boost.png",
     size: "348 × 220",
     format: "PNG",
-    usage: "未接线（备用：无 Boost 持仓空态）",
+    usage: "Boost 空 + 通用暂无市场空态（EV-19/20/26、TR-13/14、SP-15、品类视图×5、Crypto 目录空）",
     added: "2026-08-29",
   },
   {
@@ -190,7 +190,7 @@ const HOME: AssetRow[] = [
     path: "public/assets/desktop/empty-no-starred-event.png",
     size: "300 × 310",
     format: "PNG",
-    usage: "未接线（备用：Watchlist 空态）",
+    usage: "Watchlist 空态（EV-22）",
     added: "2026-08-29",
   },
   {
@@ -206,7 +206,7 @@ const HOME: AssetRow[] = [
     path: "public/assets/mobile/empty-error.png",
     size: "160 × 220",
     format: "PNG",
-    usage: "未接线（备用：移动同款）",
+    usage: "ErrorState 组件错误态插画（全站，移动同款）",
     added: "2026-08-29",
   },
   {
@@ -214,7 +214,7 @@ const HOME: AssetRow[] = [
     path: "public/assets/mobile/empty-no-boost.png",
     size: "348 × 220",
     format: "PNG",
-    usage: "未接线（备用：移动同款）",
+    usage: "Boost 空 + 通用暂无市场空态（移动同款：EV-19/20/26、品类视图、Crypto 目录空）",
     added: "2026-08-29",
   },
   {
@@ -222,7 +222,7 @@ const HOME: AssetRow[] = [
     path: "public/assets/mobile/empty-no-starred-event.png",
     size: "300 × 310",
     format: "PNG",
-    usage: "未接线（备用：移动同款）",
+    usage: "Watchlist 空态（EV-22，移动同款）",
     added: "2026-08-29",
   },
   {
