@@ -1,3 +1,5 @@
+> 注记（2026-09-03）：本文内容已全量并入 docs/delivery/lite-wallet-spec-v1.md（Wallet 整体交付文档），本文件仅作历史底账保留，不再维护。
+
 # Trial Bonus 全面下线 — 交付说明
 
 > 本轮将 `profiles.trial_balance` 从代码路径中全面移除。列本身保留，由产品侧另行清零/drop。Position Voucher / voucher_earnings / 体验仓（`close-trial-position`）全链路零改动。
