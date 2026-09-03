@@ -676,7 +676,7 @@ const RECOVERY_CASES: SectionCase[] = [
     note: "行 chrome 为复刻；空态为生产 RecoveryEmptyState，状态徽标为生产 RecoveryStatusBadge。",
     spec: [
       { state: "loading", when: "list.isLoading", visual: "居中 Loader2", source: "RecoveryRequest.tsx" },
-      { state: "空态", when: "requests.length === 0", visual: "Inbox 图标 + lynx 插画（渲染宽 96）+ `No recovery requests yet` + 副句", source: "RecoveryRequest.tsx" },
+      { state: "空态", when: "requests.length === 0", visual: "lynx 插画（渲染宽 96）+ `No recovery requests yet` + 副句，无默认图标", source: "RecoveryEmptyState.tsx" },
       { state: "插画资产", when: "同上", visual: "src/assets/wallet/lynx-empty-recovery.png（330×330 PNG）", source: "Foundations › Brand assets · IP 插画" },
       { state: "行态", when: "requests.length > 0", visual: "金额 font-mono + token on network + 状态徽标 + 日期 + chevron", source: "RecoveryRequest.tsx" },
     ],
