@@ -17,6 +17,8 @@ interface WithdrawAddressSelectDialogProps {
   onClose: () => void;
   selectedAddress: string;
   onSelectAddress: (address: string) => void;
+  /** Style-guide only: render a fixed address list instead of the live one. */
+  fixtureWallets?: ReturnType<typeof useWallets>['wallets'];
 }
 
 export const WithdrawAddressSelectDialog = ({
@@ -24,8 +26,10 @@ export const WithdrawAddressSelectDialog = ({
   onClose,
   selectedAddress,
   onSelectAddress,
+  fixtureWallets,
 }: WithdrawAddressSelectDialogProps) => {
-  const { wallets } = useWallets();
+  const live = useWallets();
+  const wallets = fixtureWallets ?? live.wallets;
   const [addOpen, setAddOpen] = useState(false);
 
   return (

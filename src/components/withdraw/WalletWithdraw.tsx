@@ -358,6 +358,7 @@ export const WalletWithdraw = ({ onDone, demoAvailableBalance, fixtureWallets }:
         />
       ) : (
         <WithdrawAddressSelectDialog
+          fixtureWallets={fixtureWallets}
           open={showAddressSelect}
           onClose={() => setShowAddressSelect(false)}
           selectedAddress={selectedAddress}

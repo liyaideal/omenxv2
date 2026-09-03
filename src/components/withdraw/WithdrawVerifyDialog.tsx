@@ -27,6 +27,9 @@ import {
   verifyDemoOtp,
 } from "@/lib/demoOtp";
 
+/** Fixture-only fallback: shown when a style-guide frame mounts email_otp without a session. */
+const DEMO_MASKED_EMAIL = "alex.c***@gmail.com";
+
 type StepKind = "bind_email" | "email_otp" | "bind_totp" | "totp";
 
 interface WithdrawVerifyDialogProps {
@@ -195,7 +198,9 @@ export const WithdrawVerifyDialog = ({
           <OtpPanel
             icon={<Mail className="w-7 h-7 text-primary" />}
             title="Verify by email"
-            description={`Enter the 6-digit code sent to ${maskEmail(email!)}`}
+            description={`Enter the 6-digit code sent to ${
+              email ? maskEmail(email) : DEMO_MASKED_EMAIL
+            }`}
             code={code}
             onCodeChange={setCode}
           />
