@@ -159,9 +159,9 @@ export const WithdrawVerifyDialog = ({
 
   // For bind_totp inside this dialog: simplified single-screen (secret + code)
   const totpSecret = useMemo(
-    () => (currentStep === "bind_totp" ? generateDemoTotpSecret() : ""),
+    () => (currentStep === "bind_totp" ? (demoSecret ?? generateDemoTotpSecret()) : ""),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentStep, stepIdx, open]
+    [currentStep, stepIdx, open, demoSecret]
   );
 
   const handleConfirmBindTotp = async () => {
