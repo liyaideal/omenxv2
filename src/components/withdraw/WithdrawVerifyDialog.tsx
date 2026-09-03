@@ -34,6 +34,13 @@ interface WithdrawVerifyDialogProps {
   onOpenChange: (open: boolean) => void;
   /** Called once all required steps pass. Parent should then submit the withdrawal. */
   onVerified: () => void | Promise<void>;
+  /**
+   * Style-guide only (docs fixture). Forces a single step regardless of the
+   * live profile. Omitted in product code → behaviour identical to before.
+   */
+  fixtureMode?: StepKind;
+  /** Style-guide only: deterministic demo secret for the bind_totp step. */
+  demoSecret?: string;
 }
 
 /**
@@ -44,6 +51,8 @@ export const WithdrawVerifyDialog = ({
   open,
   onOpenChange,
   onVerified,
+  fixtureMode,
+  demoSecret,
 }: WithdrawVerifyDialogProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
@@ -55,6 +64,7 @@ export const WithdrawVerifyDialog = ({
 
   // Build the step queue based on mode + current bindings.
   const steps: StepKind[] = useMemo(() => {
+    if (fixtureMode) return [fixtureMode];
     const list: StepKind[] = [];
     if (mode === "email" || mode === "both") {
       list.push(hasEmail ? "email_otp" : "bind_email");
@@ -63,7 +73,7 @@ export const WithdrawVerifyDialog = ({
       list.push(totpEnabled ? "totp" : "bind_totp");
     }
     return list;
-  }, [mode, hasEmail, totpEnabled]);
+  }, [fixtureMode, mode, hasEmail, totpEnabled]);
 
   const [stepIdx, setStepIdx] = useState(0);
   const [code, setCode] = useState("");
