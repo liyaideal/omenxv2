@@ -19,7 +19,10 @@ interface AuthGateOverlayProps {
   compact?: boolean;
   /** Max height for the blurred preview area (e.g. "320px"). Prevents large empty blurred areas on full-page gates. */
   maxPreviewHeight?: string;
+  /** Docs-only: force the signed-out overlay in /style-guide. Never set in product. */
+  forceSignedOut?: boolean;
 }
+
 
 /**
  * AuthGateOverlay – a reusable overlay that appears on top of
@@ -40,15 +43,18 @@ export const AuthGateOverlay = ({
   blur = true,
   compact = false,
   maxPreviewHeight,
+  forceSignedOut = false,
 }: AuthGateOverlayProps) => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
   const [authOpen, setAuthOpen] = useState(false);
 
   // Authenticated – render children directly
-  if (user) {
+  if (user && !forceSignedOut) {
     return <>{children}</>;
   }
+
+
 
   return (
     <div className="relative isolate overflow-hidden" style={maxPreviewHeight ? { maxHeight: maxPreviewHeight } : undefined}>

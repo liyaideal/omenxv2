@@ -402,6 +402,13 @@ export const previewRegistry: Record<string, Loader> = {
   "wallet-withdraw-desktop-form": pick(walletLite, "WithdrawFormDesktopPreview"),
   "wallet-lite-tx-fiat-buy": pick(walletLite, "TxFiatBuyPreview"),
 
+  /* -------- Wallet dictionary migration (2026-09-03) · W-18 / W-19 -------- */
+  "wallet-page-layout": pick(walletLite, "WalletPageLayoutDesktopPreview"),
+  "wallet-page-layout-mobile": pick(walletLite, "WalletPageLayoutMobilePreview"),
+  "wallet-auth-gate": pick(walletLite, "WalletAuthGatePreview"),
+
+
+
   /* -------- Login / Registration (2026-08-27) · AU-* -------- */
   "auth-login-google": pick(auth, "AuthLoginGoogleDefaultPreview"),
   "auth-login-wallet": pick(auth, "AuthLoginWalletTabPreview"),

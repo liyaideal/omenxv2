@@ -7,19 +7,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { CONFIRMATION_BLOCKS, ESTIMATED_BLOCK_TIME_SECONDS } from '@/types/deposit';
 
-// Network explorer URLs
-const EXPLORER_URLS: Record<string, string> = {
-  'Ethereum': 'https://etherscan.io/tx/',
-  'BNB Smart Chain (BEP20)': 'https://bscscan.com/tx/',
-  'BSC (BNB Smart Chain)': 'https://bscscan.com/tx/',
-  'Polygon': 'https://polygonscan.com/tx/',
-  'Arbitrum One': 'https://arbiscan.io/tx/',
-  'Optimism': 'https://optimistic.etherscan.io/tx/',
-  'Avalanche C-Chain': 'https://snowtrace.io/tx/',
-  'Bitcoin Network': 'https://blockchair.com/bitcoin/transaction/',
-  'Solana': 'https://solscan.io/tx/',
-};
-
 export interface PendingTransaction {
   id: string;
   type: string;
