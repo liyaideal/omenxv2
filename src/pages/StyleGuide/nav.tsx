@@ -96,6 +96,8 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
       s("identity", "User identity", sec("UserIdentitySection", "UserIdentitySection")),
       // M1b: 从 Events 页并账迁入 —— 美术方向是全站规范，不属于单页状态字典。
       s("event-art", "Event 美术方向", sec("EventArtSection", "EventArtSection")),
+      // R-W3: 品牌/IP 素材台账 —— 静态登记，只增不删。
+      s("foundations-brand-assets", "Brand assets · IP 插画", sec("BrandAssetsSection", "BrandAssetsSection")),
       s("message-center", "Message Center（Backlog）", sec("MessageCenterSection", "MessageCenterSection")),
     ],
   },
