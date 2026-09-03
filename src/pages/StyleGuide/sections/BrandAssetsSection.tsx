@@ -3,7 +3,9 @@
 // 零运行时 fetch、零日期函数：入仓日期一律写死字面量。
 // 只增不删：资产被替换时保留旧行并打 LEGACY 徽标。
 // ============================================================
+import { useIsMobile } from "@/hooks/use-mobile";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
+
 
 /* ---- 真实 import：缩略图必须渲染仓库里的那一枚，禁止手抄路径字符串当展示 ---- */
 import heroThread from "@/assets/wallet/hero-thread.webp";
@@ -561,3 +563,13 @@ export const BrandAssetsSection = ({ isMobile }: Props) => (
     </div>
   </SectionWrapper>
 );
+
+/**
+ * Zero-visual preview export for the Style Guide iframe.
+ * Mirrors the production section and respects the iframe viewport.
+ */
+export const BrandAssetsPreview = () => {
+  const isMobile = useIsMobile();
+  return <BrandAssetsSection isMobile={isMobile} />;
+};
+

@@ -36,7 +36,9 @@ const autoClose = () => import("./autoClosePreviews");
 const auth = () => import("./authPreviews");
 const events = () => import("./eventsPreviews");
 const homeStage = () => import("./homeStagePreviews");
+const brandAssets = () => import("@/pages/StyleGuide/sections/BrandAssetsSection");
 const trade = () => import("./tradePreviews");
+
 const spot = () => import("./spotPreviews");
 const share = () => import("./sharePreviews");
 const sportsLive = () => import("./sportsLivePreviews");
@@ -117,7 +119,11 @@ export const previewRegistry: Record<string, Loader> = {
   "events-ev34": pick(homeStage, "Ev34Preview"),
   "events-ev35": pick(homeStage, "Ev35Preview"),
 
+  /* -------- Foundations · Brand assets -------- */
+  "foundations-brand-assets": pick(brandAssets, "BrandAssetsPreview"),
+
   /* -------- Mobile header system -------- */
+
   "mobile-header-brand-top": pick(mobileHeader, "HeaderBrandTopPreview"),
   "mobile-header-brand-scrolled": pick(mobileHeader, "HeaderBrandScrolledPreview"),
   "mobile-header-brand-control": pick(mobileHeader, "HeaderBrandControlPreview"),
