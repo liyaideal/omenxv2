@@ -563,3 +563,13 @@ export const BrandAssetsSection = ({ isMobile }: Props) => (
     </div>
   </SectionWrapper>
 );
+
+/**
+ * Zero-visual preview export for the Style Guide iframe.
+ * Mirrors the production section and respects the iframe viewport.
+ */
+export const BrandAssetsPreview = () => {
+  const isMobile = useIsMobile();
+  return <BrandAssetsSection isMobile={isMobile} />;
+};
+
