@@ -5,7 +5,7 @@ import { TransferDrawer } from '@/components/wallet/TransferDrawer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useWithdraw } from '@/hooks/useWithdraw';
-import { useWallets, type Wallet } from '@/hooks/useWallets';
+import { useWallets, type Wallet as SavedWallet } from '@/hooks/useWallets';
 import { LabelText, MonoText } from '@/components/typography';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -29,7 +29,7 @@ interface WalletWithdrawProps {
    * for the rendered list and no supabase request is issued for it.
    * Omitted in product code → behaviour identical to before.
    */
-  fixtureWallets?: Wallet[];
+  fixtureWallets?: SavedWallet[];
 }
 
 export const WalletWithdraw = ({ onDone, demoAvailableBalance, fixtureWallets }: WalletWithdrawProps) => {
