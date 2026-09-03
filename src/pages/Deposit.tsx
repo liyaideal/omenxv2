@@ -8,7 +8,6 @@ import { MobileHeader } from '@/components/MobileHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WalletDeposit } from '@/components/deposit/WalletDeposit';
 import { CrossChainDeposit } from '@/components/deposit/CrossChainDeposit';
-import { BuyWithFiat } from '@/components/deposit/BuyWithFiat';
 
 import { AccountPicker, AccountPickerRows, type AccountKind } from '@/components/wallet/AccountPicker';
 import { useAccountPreference, ACCOUNT_LABEL } from '@/hooks/useAccountPreference';
@@ -86,10 +85,9 @@ export default function Deposit() {
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1">
             <div className="px-4 pt-3 bg-background">
-              <TabsList className="w-full grid grid-cols-3 h-10">
+              <TabsList className="w-full grid grid-cols-2 h-10">
                 <TabsTrigger value="wallet" className="text-xs">Address</TabsTrigger>
                 <TabsTrigger value="crosschain" className="text-xs">Wallet</TabsTrigger>
-                <TabsTrigger value="fiat" className="text-xs">Fiat</TabsTrigger>
               </TabsList>
             </div>
 
@@ -99,9 +97,6 @@ export default function Deposit() {
               </TabsContent>
               <TabsContent value="crosschain" className="mt-0">
                 <CrossChainDeposit account={account} />
-              </TabsContent>
-              <TabsContent value="fiat" className="mt-0">
-                <BuyWithFiat account={account} />
               </TabsContent>
             </main>
           </Tabs>

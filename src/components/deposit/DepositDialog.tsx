@@ -9,7 +9,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WalletDeposit } from './WalletDeposit';
 import { CrossChainDeposit } from './CrossChainDeposit';
-import { BuyWithFiat } from './BuyWithFiat';
 import { AccountPickerRows, type AccountKind } from '@/components/wallet/AccountPicker';
 import { useAccountPreference, ACCOUNT_LABEL } from '@/hooks/useAccountPreference';
 
@@ -89,10 +88,9 @@ export const DepositDialog = ({ open, onOpenChange }: DepositDialogProps) => {
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
               <div className="px-4 pt-3 flex-shrink-0">
-                <TabsList className="w-full grid grid-cols-3 h-9">
+                <TabsList className="w-full grid grid-cols-2 h-9">
                   <TabsTrigger value="wallet" className="text-xs">Address</TabsTrigger>
                   <TabsTrigger value="crosschain" className="text-xs">Wallet</TabsTrigger>
-                  <TabsTrigger value="fiat" className="text-xs">Fiat</TabsTrigger>
                 </TabsList>
               </div>
 
@@ -102,9 +100,6 @@ export const DepositDialog = ({ open, onOpenChange }: DepositDialogProps) => {
                 </TabsContent>
                 <TabsContent value="crosschain" className="mt-0">
                   <CrossChainDeposit account={account} />
-                </TabsContent>
-                <TabsContent value="fiat" className="mt-0">
-                  <BuyWithFiat account={account} />
                 </TabsContent>
               </div>
             </Tabs>

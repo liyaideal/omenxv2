@@ -1,3 +1,4 @@
+// Banxa deprecated 2026-09-03 — Fiat on-ramp will return as a MoonPay flow (separate round). Tab hidden, do not delete.
 import { useState } from 'react';
 import { CreditCard, Building2, Smartphone, Loader2, Check, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
