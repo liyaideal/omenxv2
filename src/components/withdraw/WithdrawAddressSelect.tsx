@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Check, Plus } from 'lucide-react';
-import { useWallets } from '@/hooks/useWallets';
+import { useWallets, type Wallet } from '@/hooks/useWallets';
 import { Button } from '@/components/ui/button';
 import { MonoText } from '@/components/typography';
 import { cn } from '@/lib/utils';
@@ -22,9 +22,16 @@ interface WithdrawAddressSelectProps {
   onSelectAddress: (address: string) => void;
   /** Seeds the internal step — style-guide only; production callers omit it. */
   initialStep?: 'list' | 'add';
+  /**
+   * Style-guide only (docs fixture). When provided the component renders this
+   * list and never calls useWallets — no supabase request is issued.
+   * Omitted in product code → behaviour identical to before.
+   */
+  fixtureWallets?: Wallet[];
 }
 
-const EMPTY_FORM: AddAddressValues = { label: '', address: '', network: '' };
+// Base-only (2026-09-03): the add step always saves on Base.
+const EMPTY_FORM: AddAddressValues = { label: '', address: '', network: 'Base' };
 
 /**
  * Mobile withdrawal-address picker (DESIGN.md §5).
@@ -37,8 +44,11 @@ export const WithdrawAddressSelect = ({
   selectedAddress,
   onSelectAddress,
   initialStep = 'list',
+  fixtureWallets,
 }: WithdrawAddressSelectProps) => {
-  const { wallets, addWallet } = useWallets();
+  const live = useWallets();
+  const wallets = fixtureWallets ?? live.wallets;
+  const { addWallet } = live;
   const [step, setStep] = useState<'list' | 'add'>(initialStep);
   const [form, setForm] = useState<AddAddressValues>(EMPTY_FORM);
   const [isSaving, setIsSaving] = useState(false);
@@ -81,13 +91,18 @@ export const WithdrawAddressSelect = ({
     >
       {step === 'list' ? (
         <MobileDrawerList className="pb-6">
-          {wallets.map((wallet) => (
+          {wallets.map((wallet) => {
+            const isBase = wallet.network.toLowerCase().includes('base');
+            return (
             <button
               key={wallet.id}
-              onClick={() => onSelectAddress(wallet.fullAddress)}
+              disabled={!isBase}
+              onClick={() => isBase && onSelectAddress(wallet.fullAddress)}
               className={cn(
                 'w-full flex items-center justify-between p-4 rounded-xl transition-colors',
-                selectedAddress === wallet.fullAddress
+                !isBase
+                  ? 'bg-muted/20 border border-transparent opacity-50 cursor-not-allowed'
+                  : selectedAddress === wallet.fullAddress
                   ? 'bg-primary/10 border border-primary'
                   : 'bg-muted/30 border border-transparent hover:bg-muted/50'
               )}
@@ -108,13 +123,19 @@ export const WithdrawAddressSelect = ({
                   <MonoText className="text-sm text-muted-foreground truncate block">
                     {wallet.address}
                   </MonoText>
+                  {!isBase && (
+                    <span className="block text-xs text-muted-foreground mt-0.5">
+                      Base only — this address can't receive withdrawals
+                    </span>
+                  )}
                 </div>
               </div>
-              {selectedAddress === wallet.fullAddress && (
+              {isBase && selectedAddress === wallet.fullAddress && (
                 <Check className="w-5 h-5 text-primary shrink-0" />
               )}
             </button>
-          ))}
+            );
+          })}
 
           <button
             onClick={() => setStep('add')}

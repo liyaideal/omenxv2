@@ -419,8 +419,21 @@ export const FuturesAccountCard = ({
 };
 
 
+/**
+ * Inert blurred under-layer for the /deposit and /withdraw guest gate.
+ * Pure presentational shapes — never fetches an address or renders a form.
+ */
+export const WalletGatePlaceholder = () => (
+  <div className="p-4 space-y-3" aria-hidden="true">
+    <div className="h-24 rounded-xl bg-muted/30" />
+    <div className="h-10 rounded-lg bg-muted/20" />
+    <div className="h-40 rounded-xl bg-muted/30" />
+    <div className="h-10 rounded-lg bg-muted/20" />
+  </div>
+);
+
 /** Surface-aware wallet auth gate: Lite → LiteAuthGate, Pro → AuthGateOverlay (unchanged). */
-const WalletAuthGate = ({
+export const WalletAuthGate = ({
   isLite,
   maxPreviewHeight,
   children,

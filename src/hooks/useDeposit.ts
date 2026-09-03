@@ -35,7 +35,12 @@ const MOCK_PENDING_CLAIMS: DepositRecord[] = [
   },
 ];
 
-export const useDeposit = (token?: SupportedToken) => {
+export const useDeposit = (
+  token?: SupportedToken,
+  /** Style-guide only: `enabled: false` skips every network query. */
+  options?: { enabled?: boolean },
+) => {
+  const queriesEnabled = options?.enabled !== false;
   const queryClient = useQueryClient();
   const { user } = useUserProfile();
   const [selectedToken, setSelectedToken] = useState<SupportedToken>(token || 'USDT');
@@ -64,7 +69,7 @@ export const useDeposit = (token?: SupportedToken) => {
       
       return response.data;
     },
-    enabled: !!user,
+    enabled: !!user && queriesEnabled,
     staleTime: 30000,
   });
 
@@ -97,7 +102,7 @@ export const useDeposit = (token?: SupportedToken) => {
       // TODO: Replace with actual chain-service API call
       return MOCK_PENDING_CLAIMS;
     },
-    enabled: !!user,
+    enabled: !!user && queriesEnabled,
     refetchInterval: 30000,
   });
 
@@ -112,7 +117,7 @@ export const useDeposit = (token?: SupportedToken) => {
       // Mock: Return empty for now
       return [] as DepositRecord[];
     },
-    enabled: !!user,
+    enabled: !!user && queriesEnabled,
     refetchInterval: 10000, // Refresh every 10 seconds for status updates
   });
 

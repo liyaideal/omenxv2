@@ -275,7 +275,7 @@ export const CrossChainDeposit = ({ account: _account }: CrossChainDepositProps 
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>Bridge Fee</span>
-              <span className="font-mono text-trading-green">Free</span>
+              <span className="font-mono text-muted-foreground">Varies by route</span>
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>Est. Gas</span>
@@ -343,7 +343,7 @@ export const CrossChainDeposit = ({ account: _account }: CrossChainDepositProps 
         <div className="p-3 rounded-lg border border-border/30 space-y-2">
           <div className="flex justify-between text-sm"><span className="text-muted-foreground">Min. USDC</span><span className="font-mono">{(estimatedReceive * (1 - (slippage === -1 ? 0.5 : slippage) / 100)).toFixed(2)} USDC</span></div>
           <div className="flex justify-between text-sm"><span className="text-muted-foreground">Exchange Rate</span><span className="font-mono">1 {fromToken} = {mockRate.toFixed(2)} USDC</span></div>
-          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Bridge Fee</span><span className="font-mono text-trading-green">Free</span></div>
+          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Bridge Fee</span><span className="font-mono text-muted-foreground">Varies by route</span></div>
           <div className="flex justify-between text-sm"><span className="text-muted-foreground">Est. Gas</span><span className="font-mono">~${gasFee.toFixed(2)}</span></div>
           <div className="flex justify-between text-sm"><span className="text-muted-foreground">Swap Slippage</span><span className="font-mono">{slippage === -1 ? '0.5% ~ Suggested' : `${slippage}%`}</span></div>
         </div>

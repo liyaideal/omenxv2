@@ -60,9 +60,15 @@ interface WalletDepositProps {
   account?: 'spot' | 'futures';
   /** Style-guide only: force the acknowledged/unacknowledged branch. */
   demoAcknowledged?: boolean;
+  /**
+   * Style-guide only (docs fixture). When provided, the get-deposit-address
+   * edge function is never called and this literal address is rendered.
+   * Omitted in product code → behaviour identical to before.
+   */
+  fixtureAddress?: string;
 }
 
-export const WalletDeposit = ({ onDone, account: _account, demoAcknowledged }: WalletDepositProps) => {
+export const WalletDeposit = ({ onDone, account: _account, demoAcknowledged, fixtureAddress }: WalletDepositProps) => {
   const isMobile = useIsMobile();
   const { user } = useUserProfile();
   const [copied, setCopied] = useState(false);
@@ -71,7 +77,7 @@ export const WalletDeposit = ({ onDone, account: _account, demoAcknowledged }: W
     getCurrentAddress,
     generateNewAddress,
     isGeneratingAddress,
-  } = useDeposit('USDC');
+  } = useDeposit('USDC', { enabled: fixtureAddress === undefined });
 
   const warningAckKey = useMemo(() => {
     if (!user?.id) return WARNING_ACK_KEY;
@@ -89,7 +95,7 @@ export const WalletDeposit = ({ onDone, account: _account, demoAcknowledged }: W
     setWarningAcknowledged(window.localStorage.getItem(warningAckKey) === 'true');
   }, [warningAckKey, demoAcknowledged]);
 
-  const custodyAddress = getCurrentAddress();
+  const custodyAddress = fixtureAddress ?? getCurrentAddress();
 
   const handleCopyAddress = async () => {
     await navigator.clipboard.writeText(custodyAddress);

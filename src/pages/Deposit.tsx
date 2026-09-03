@@ -8,16 +8,20 @@ import { MobileHeader } from '@/components/MobileHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WalletDeposit } from '@/components/deposit/WalletDeposit';
 import { CrossChainDeposit } from '@/components/deposit/CrossChainDeposit';
-import { BuyWithFiat } from '@/components/deposit/BuyWithFiat';
 
 import { AccountPicker, AccountPickerRows, type AccountKind } from '@/components/wallet/AccountPicker';
 import { useAccountPreference, ACCOUNT_LABEL } from '@/hooks/useAccountPreference';
+import { useAuth } from '@/hooks/useAuth';
+import { useSurface } from '@/contexts/SurfaceContext';
+import { WalletAuthGate, WalletGatePlaceholder } from '@/pages/Wallet';
 
 export default function Deposit() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState('wallet');
   const { account, setAccount } = useAccountPreference('deposit');
+  const { user } = useAuth();
+  const { surface } = useSurface();
   const [pickerOpen, setPickerOpen] = useState(false);
   
   // On desktop, redirect to wallet page
@@ -30,6 +34,21 @@ export default function Deposit() {
   // Don't render on desktop or during initial load
   if (isMobile === undefined || isMobile === false) {
     return null;
+  }
+
+  // Guest gate — same door as /wallet. No deposit address is rendered.
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <MobileHeader title="Deposit" showBack showLogo={false} />
+        <main className="flex-1 overflow-auto pb-24">
+          <WalletAuthGate isLite={surface === 'lite'}>
+            <WalletGatePlaceholder />
+          </WalletAuthGate>
+        </main>
+        <BottomNav />
+      </div>
+    );
   }
 
   return (
@@ -66,10 +85,9 @@ export default function Deposit() {
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1">
             <div className="px-4 pt-3 bg-background">
-              <TabsList className="w-full grid grid-cols-3 h-10">
+              <TabsList className="w-full grid grid-cols-2 h-10">
                 <TabsTrigger value="wallet" className="text-xs">Address</TabsTrigger>
                 <TabsTrigger value="crosschain" className="text-xs">Wallet</TabsTrigger>
-                <TabsTrigger value="fiat" className="text-xs">Fiat</TabsTrigger>
               </TabsList>
             </div>
 
@@ -79,9 +97,6 @@ export default function Deposit() {
               </TabsContent>
               <TabsContent value="crosschain" className="mt-0">
                 <CrossChainDeposit account={account} />
-              </TabsContent>
-              <TabsContent value="fiat" className="mt-0">
-                <BuyWithFiat account={account} />
               </TabsContent>
             </main>
           </Tabs>

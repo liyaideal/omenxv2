@@ -8,7 +8,7 @@ import { toast } from 'sonner';
  * Hook to subscribe to real-time transaction updates.
  * Automatically refreshes the transactions query when changes occur.
  */
-export const useRealtimeTransactions = () => {
+export const useRealtimeTransactions = (enabled: boolean = true) => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
@@ -61,6 +61,7 @@ export const useRealtimeTransactions = () => {
   }, []);
 
   useEffect(() => {
+    if (!enabled) return;
     if (!user?.id) return;
 
     // Subscribe to changes on the transactions table for the current user
@@ -125,5 +126,5 @@ export const useRealtimeTransactions = () => {
       console.log('[Realtime] Unsubscribing from transactions channel');
       supabase.removeChannel(channel);
     };
-  }, [user?.id, queryClient, showStatusNotification]);
+  }, [enabled, user?.id, queryClient, showStatusNotification]);
 };

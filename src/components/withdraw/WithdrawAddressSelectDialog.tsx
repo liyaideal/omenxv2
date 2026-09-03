@@ -54,13 +54,17 @@ export const WithdrawAddressSelectDialog = ({
               <>
                 {wallets.map((wallet) => {
                   const isSelected = wallet.fullAddress === selectedAddress;
+                  const isBase = wallet.network.toLowerCase().includes('base');
                   return (
                     <button
                       key={wallet.id}
-                      onClick={() => onSelectAddress(wallet.fullAddress)}
+                      disabled={!isBase}
+                      onClick={() => isBase && onSelectAddress(wallet.fullAddress)}
                       className={cn(
                         "w-full flex items-center justify-between p-3 rounded-lg border transition-colors",
-                        isSelected
+                        !isBase
+                          ? "border-border/50 opacity-50 cursor-not-allowed"
+                          : isSelected
                           ? "border-primary bg-primary/5"
                           : "border-border/50 hover:bg-muted/50"
                       )}
@@ -81,9 +85,14 @@ export const WithdrawAddressSelectDialog = ({
                           <MonoText className="text-xs text-muted-foreground">
                             {wallet.address}
                           </MonoText>
+                          {!isBase && (
+                            <span className="block text-[11px] text-muted-foreground mt-0.5">
+                              Base only — this address can't receive withdrawals
+                            </span>
+                          )}
                         </div>
                       </div>
-                      {isSelected && (
+                      {isBase && isSelected && (
                         <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                           <Check className="w-3 h-3 text-primary-foreground" />
                         </div>

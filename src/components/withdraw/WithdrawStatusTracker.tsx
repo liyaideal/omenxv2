@@ -167,7 +167,7 @@ export const WithdrawStatusTracker = ({ withdrawal, token, onDone }: WithdrawSta
         <div className="p-4 bg-muted/20 rounded-xl">
           <LabelText size="sm" muted className="mb-2 block">Transaction Hash</LabelText>
           <a
-            href={`https://bscscan.com/tx/${withdrawal.txHash}`}
+            href={`https://basescan.org/tx/${withdrawal.txHash}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 text-primary hover:underline"

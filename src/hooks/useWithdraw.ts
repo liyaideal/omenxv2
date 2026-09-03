@@ -177,21 +177,10 @@ export const useWithdraw = (account: 'spot' | 'futures' = 'futures') => {
       return 'Please select a withdrawal address';
     }
 
-    // Basic per-network address validation. Saved addresses are pre-validated
-    // when added in Address Book, so we only run a loose sanity check here.
+    // Base-only (2026-09-03): withdrawals settle on Base, so the only
+    // accepted format is an EVM 0x + 40 hex address.
     const addr = data.toAddress.trim();
-    const network = (data.network || '').toLowerCase();
-    const isEvm = /^0x[a-fA-F0-9]{40}$/.test(addr);
-    const isSolana = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(addr);
-    const isTron = /^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(addr);
-    const isBtc = /^(bc1[a-z0-9]{25,62}|[13][a-km-zA-HJ-NP-Z1-9]{25,34})$/.test(addr);
-    const looksValid =
-      network === 'solana' || network === 'sol' ? isSolana :
-      network === 'tron' || network === 'trx' ? isTron :
-      network === 'bitcoin' || network === 'btc' ? isBtc :
-      network ? isEvm :
-      // Unknown network — accept any plausible address
-      (isEvm || isSolana || isTron || isBtc);
+    const looksValid = /^0x[a-fA-F0-9]{40}$/.test(addr);
 
     if (!looksValid) {
       return 'Invalid wallet address';

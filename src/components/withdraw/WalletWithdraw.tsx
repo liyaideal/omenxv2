@@ -5,7 +5,7 @@ import { TransferDrawer } from '@/components/wallet/TransferDrawer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useWithdraw } from '@/hooks/useWithdraw';
-import { useWallets } from '@/hooks/useWallets';
+import { useWallets, type Wallet as SavedWallet } from '@/hooks/useWallets';
 import { LabelText, MonoText } from '@/components/typography';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -24,13 +24,20 @@ interface WalletWithdrawProps {
   onDone?: () => void;
   /** Style-guide only: mock the source-account balance. */
   demoAvailableBalance?: number;
+  /**
+   * Style-guide only (docs fixture). When provided, useWallets is not consulted
+   * for the rendered list and no supabase request is issued for it.
+   * Omitted in product code → behaviour identical to before.
+   */
+  fixtureWallets?: SavedWallet[];
 }
 
-export const WalletWithdraw = ({ onDone, demoAvailableBalance }: WalletWithdrawProps) => {
+export const WalletWithdraw = ({ onDone, demoAvailableBalance, fixtureWallets }: WalletWithdrawProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const submitBar = useWithdrawSubmit();
-  const { wallets } = useWallets();
+  const liveWallets = useWallets();
+  const wallets = fixtureWallets ?? liveWallets.wallets;
   const { account: withdrawAccount, setAccount: setWithdrawAccount } = useAccountPreference('withdraw');
   const effectiveAccount = withdrawAccount ?? 'futures';
   const {
@@ -339,6 +346,7 @@ export const WalletWithdraw = ({ onDone, demoAvailableBalance }: WalletWithdrawP
       {/* Address Selection */}
       {isMobile ? (
         <WithdrawAddressSelect
+          fixtureWallets={fixtureWallets}
           open={showAddressSelect}
           onClose={() => setShowAddressSelect(false)}
           selectedAddress={selectedAddress}
