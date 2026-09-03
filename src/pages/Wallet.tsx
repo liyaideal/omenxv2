@@ -171,12 +171,12 @@ export const HeroEquityCard = ({
           <Button className={cn("h-11 rounded-full font-semibold", HERO_CTA_GRADIENT)} onClick={onDeposit}>
             Deposit
           </Button>
-          <Button variant="outline" className="h-11" onClick={onWithdraw}>
+          <Button variant="outline" className="h-11 rounded-full bg-secondary" onClick={onWithdraw}>
             Withdraw
           </Button>
           <Button
             variant="ghost"
-            className="col-span-2 h-11 border border-border/50"
+            className="col-span-2 h-11 rounded-full bg-secondary border border-border/50"
             onClick={onTransfer}
           >
             Transfer <span className="ml-1.5 text-muted-foreground">⇄</span>
@@ -187,12 +187,12 @@ export const HeroEquityCard = ({
           <Button className={cn("h-auto py-3 px-[22px] rounded-full font-semibold text-sm", HERO_CTA_GRADIENT)} onClick={onDeposit}>
             Deposit
           </Button>
-          <Button variant="outline" className="h-auto py-3 px-[22px] rounded-full font-semibold text-sm" onClick={onWithdraw}>
+          <Button variant="outline" className="h-auto py-3 px-[22px] rounded-full bg-secondary font-semibold text-sm" onClick={onWithdraw}>
             Withdraw
           </Button>
           <Button
             variant="ghost"
-            className="h-auto py-3 px-[22px] rounded-full font-semibold text-sm text-[#C9CED6] hover:text-foreground"
+            className="h-auto py-3 px-[22px] rounded-full bg-secondary font-semibold text-sm text-[#C9CED6] hover:text-foreground"
             onClick={onTransfer}
           >
             Transfer <span className="ml-1.5 text-muted-foreground">⇄</span>
