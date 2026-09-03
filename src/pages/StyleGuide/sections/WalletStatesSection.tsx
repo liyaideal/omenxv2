@@ -520,7 +520,7 @@ const DEPOSIT_FLOW_CASES: SectionCase[] = [
   {
     key: "wallet-deposit-to-screen",
     label: "W-21 · Deposit-to 前屏（DepositToScreen）",
-    note: "账户选择记忆现为 localStorage（useAccountPreference）；服务端化已于 08-31 拍板转研发，见 lite-wallet-spec-v1.md §6。",
+    note: "账户选择记忆现为 localStorage（useAccountPreference）；服务端化已于 08-31 拍板转研发，见 lite-wallet-spec-v1.md §3。",
     spec: [
       { state: "未选择", when: "selected === null", visual: "两张账户行（Standard / Boost）均未高亮，页面不进入下一步", source: "AccountPickerRows（src/components/wallet/AccountPicker.tsx）" },
       { state: "已选择", when: "selected === 'spot' | 'futures'", visual: "选中行描边高亮 + 勾选态，进入 Address tab", source: "Deposit.tsx 前屏" },
@@ -602,9 +602,9 @@ const WITHDRAW_FLOW_CASES: SectionCase[] = [
   {
     key: "wallet-withdraw-verify",
     label: "W-27a · 提现验证 · email OTP",
-    note: "demo 码 111111 属切真开关（src/lib/demoOtp.ts），接真验证码归研发，见 lite-wallet-spec-v1.md §4。",
+    note: "demo 码 111111 属切真开关（src/lib/demoOtp.ts），接真验证码归研发，见 lite-wallet-spec-v1.md §3。",
     spec: [
-      { state: "email_otp", when: "profile.withdraw_2fa_mode 含 email 且 profile.email 非空", visual: "邮箱 OTP 输入 + 重发倒计时", source: "WithdrawVerifyDialog.tsx（fixtureMode='email_otp'）" },
+      { state: "email_otp", when: "profile.withdraw_2fa_mode 含 email 且 profile.email 非空", visual: "邮箱 OTP 输入", source: "WithdrawVerifyDialog.tsx（fixtureMode='email_otp'）" },
     ],
   },
   {

@@ -39,7 +39,7 @@ import type { TokenConfig } from "@/types/deposit";
 /** Fixed demo deposit address — no get-deposit-address edge-function call. */
 const FIXTURE_DEPOSIT_ADDRESS = "0x8f2a91b3e4c7a0d5f6b8e9a1c2d3f4a5b6c4d071";
 
-const FIXTURE_WALLETS: SavedWallet[] = [
+export const FIXTURE_WALLETS: SavedWallet[] = [
   {
     id: "fx-base",
     label: "Main wallet",

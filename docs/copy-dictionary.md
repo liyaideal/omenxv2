@@ -436,6 +436,15 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | **No recovery requests yet** | Recovery 列表空态 | No requests |
 | **Network maintenance** | 维护横幅题头（后接网络名，如 `· BASE_ETH`） | Maintenance notice, Service suspended |
 | **Withdraw** | 提现 sticky CTA；提交中为 `Processing...` | Confirm withdrawal, Send |
+| **I am sending USDC (not USDT, ETH, BNB, or any other token)** | 充值确认清单第 1 句（`WalletDeposit` checklist，逐字） | I'm sending USDC |
+| **I am using the Base network (not Ethereum, BSC, Polygon, Arbitrum, or any other chain)** | 充值确认清单第 2 句（逐字） | I'm on Base |
+| **I have double-checked the deposit address below before sending** | 充值确认清单第 3 句（逐字） | Address checked |
+| **Pending confirmations** | `PendingConfirmations` 区块题头 | Pending deposits, Awaiting confirmations |
+| **Confirming** | 单笔待确认充值的状态词 | Pending, In progress |
+| **{c}/{r} blocks** | 确认进度（如 `6/12 blocks`） | 6 of 12 confirmations, 6/12 confs |
+| **A flat 10% recovery fee applies** | `/wallet/recovery` 说明段费率句（逐字） | 10% fee charged, Service fee 10% |
+| **10% flat fee** | Recovery 说明 pill | 10% fee |
+| **3–7 business days** | Recovery 处理时长 pill（en dash） | 3-7 business days, 3 to 7 days |
 
 ---
 

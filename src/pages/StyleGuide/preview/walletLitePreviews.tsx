@@ -36,6 +36,7 @@ import {
   type SavedAddressView,
 } from "@/pages/Wallet";
 import {
+import { FIXTURE_WALLETS } from "./fundingPreviews";
   TransactionHistory,
   type Transaction,
   type TransactionType,
@@ -489,7 +490,7 @@ export const DepositDialogWalletTabPreview = () => (
 export const WithdrawFormDesktopPreview = () => (
   <WithdrawSubmitProvider>
     <div className="mx-auto w-full max-w-[560px] rounded-xl border border-border/50 bg-background p-4">
-      <WalletWithdraw demoAvailableBalance={8720.42} />
+      <WalletWithdraw demoAvailableBalance={8720.42} fixtureWallets={FIXTURE_WALLETS} />
     </div>
   </WithdrawSubmitProvider>
 );

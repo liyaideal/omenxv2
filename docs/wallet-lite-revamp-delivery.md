@@ -1,6 +1,8 @@
+> 本文档已被 docs/delivery/lite-wallet-spec-v1.md 取代（2026-09-03），仅存档，请勿以本文档为准。
+
 # Wallet Lite 改版（Wallet Lite R1）— 交付说明 v1
 
-> 本文档覆盖 2026-08 Wallet Lite 改版三批改动：批1 未登录门 + Lite 登录弹层、批2 地址操作 + 配色 + 文案、批3 交易流水整理。研发 / QA 以本文档为准。Pro surface 本轮零改动；认证逻辑本轮零改动，仅改视觉与文案外壳。
+> 本文档覆盖 2026-08 Wallet Lite 改版三批改动：批1 未登录门 + Lite 登录弹层、批2 地址操作 + 配色 + 文案、批3 交易流水整理（存档记录，现行口径以 docs/delivery/lite-wallet-spec-v1.md 为准）。Pro surface 本轮零改动；认证逻辑本轮零改动，仅改视觉与文案外壳。
 
 ## 1. 功能目标
 
@@ -70,6 +72,8 @@
 金额本身的涨绿跌红、排序、分页、筛选未改。
 
 ## 6. Style Guide
+
+（已废弃，现行索引见 lite-wallet-spec-v1.md §7）
 
 `/style-guide` → **Lite · Wallet** → `Wallet Lite R1 · 状态字典`，6 个子节共 16 个 preview 键，每个 case 附「状态 / 触发条件 / 视觉结果 / 数据来源」表。demo 全部挂生产组件 + fixture props。
 
