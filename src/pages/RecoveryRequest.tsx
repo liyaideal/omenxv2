@@ -170,17 +170,17 @@ export default function RecoveryRequestPage() {
       <div className="min-h-screen bg-background flex flex-col">
         <EventsDesktopHeader />
         <main className="flex-1">
-          <div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
-            <div>
-              <DesktopBackLink label="Wallet" onClick={() => navigate('/wallet')} className="mb-3" />
-              <h1 className="text-2xl font-semibold">Recovery requests</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Submit and track wrong-chain deposit recoveries.
-              </p>
+          <div className="max-w-3xl mx-auto px-6 pt-8 pb-8">
+            <DesktopSubpageHeader title="Recovery" onBack={() => navigate('/wallet')}>
+              <Button size="sm" onClick={() => setShowForm(true)} className="h-9 rounded-lg">
+                <Plus className="w-3.5 h-3.5 mr-1" />
+                New request
+              </Button>
+            </DesktopSubpageHeader>
+            <div className="mt-[22px] space-y-6">
+              {intro}
+              {showForm ? formSection : listSection}
             </div>
-
-            {intro}
-            {showForm ? formSection : listSection}
           </div>
         </main>
       </div>
