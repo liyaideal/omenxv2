@@ -11,6 +11,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { EventsDesktopHeader } from '@/components/EventsDesktopHeader';
 import { BottomNav } from '@/components/BottomNav';
 import { MobileHeader } from '@/components/MobileHeader';
+import lynxEmptyRecovery from '@/assets/wallet/lynx-empty-recovery.png';
 
 export default function RecoveryRequestPage() {
   const navigate = useNavigate();
