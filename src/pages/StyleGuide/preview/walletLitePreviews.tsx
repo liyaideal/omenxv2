@@ -35,8 +35,8 @@ import {
   SavedAddressActionsList,
   type SavedAddressView,
 } from "@/pages/Wallet";
-import {
 import { FIXTURE_WALLETS } from "./fundingPreviews";
+import {
   TransactionHistory,
   type Transaction,
   type TransactionType,
