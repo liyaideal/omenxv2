@@ -11,7 +11,6 @@
  */
 import { useEffect, useState } from "react";
 import { WalletDeposit } from "@/components/deposit/WalletDeposit";
-import { CrossChainDeposit } from "@/components/deposit/CrossChainDeposit";
 import { WalletWithdraw } from "@/components/withdraw/WalletWithdraw";
 import { WithdrawAddressSelect } from "@/components/withdraw/WithdrawAddressSelect";
 import { WithdrawVerifyDialog } from "@/components/withdraw/WithdrawVerifyDialog";
@@ -117,14 +116,6 @@ export const DepositAddressPreview = () => (
   <WalletDeposit demoAcknowledged account="spot" fixtureAddress={FIXTURE_DEPOSIT_ADDRESS} />
 );
 
-/* ---------- W-24 · cross-chain deposit tab (frozen entry frame) ---------- */
-
-export const CrossChainDepositPreview = () => (
-  <div className="[&_*]:!animate-none">
-    <CrossChainDeposit account="spot" />
-  </div>
-);
-
 /* ---------- W-25 · WalletWithdraw + sticky CTA ---------- */
 
 export const WithdrawFormPreview = () => (
@@ -160,9 +151,16 @@ const AddressDrawerDemo = ({
   );
 };
 
-export const WithdrawAddressDrawerPreview = () => <AddressDrawerDemo />;
+export const WithdrawAddressDrawerPreview = () => (
+  <div className="space-y-4">
+    <AddressDrawerDemo />
+    <div className="px-4 text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
+      空态（wallets.length === 0）
+    </div>
+    <AddressDrawerDemo wallets={[]} />
+  </div>
+);
 export const WithdrawAddressAddStepPreview = () => <AddressDrawerDemo startOnAdd />;
-export const WithdrawAddressEmptyPreview = () => <AddressDrawerDemo wallets={[]} />;
 
 /* ---------- W-27 · Withdraw verification · four modes ---------- */
 
