@@ -428,6 +428,14 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | **does not include unrealized PnL** | Pro equity note (default) | — |
 | **Trading fee** | `fee` transaction description | Fees, Commission |
 | **Deposit to · 账户选择** | 充值前的「Deposit to」选账户屏保留；用户的选择必须**持久化到服务端**作为该用户的充值路由偏好，链上到账任务按该偏好记入 Standard / Boost 账户；单一充值地址，不按账户分地址 | 仅存 localStorage、按账户分两个地址 |
+| **Varies by route** | 跨链充值 Bridge fee 行的中性说明（不写死数值） | Free, 0.1%, Est. fee |
+| **Base only — this address can't receive withdrawals** | 提现地址列表里非 Base 行的 disabled caption（逐字） | Unsupported network, Base network only |
+| **Only send USDC on Base network.** | 充值地址页风险句 | Only send USDC, Base only |
+| **Sent funds to the wrong network? Request recovery →** | `/wallet` 底部 recovery 文字链 | Wrong network? Recover funds |
+| **Sign in required** | `/wallet/recovery` 未登录标题 | Login required |
+| **No recovery requests yet** | Recovery 列表空态 | No requests |
+| **Network maintenance** | 维护横幅题头（后接网络名，如 `· BASE_ETH`） | Maintenance notice, Service suspended |
+| **Withdraw** | 提现 sticky CTA；提交中为 `Processing...` | Confirm withdrawal, Send |
 
 ---
 

@@ -246,7 +246,10 @@ const PENDING_FIXTURE = {
       status: "processing",
       network: "Base",
       tx_hash: "0x8f2a91b3e4c7a0d5f6b8e9a1c2d3f4a5b6c4d0719a8b7c6d5e4f3a2b1c0d9e8f",
-      created_at: hoursAgo(0.05).toISOString(),
+      // M7b · FIX-3: formatTimeAgo renders "x min ago", so the row must be a
+      // FIXED OFFSET FROM RENDER TIME (not from DAY_ANCHOR) — otherwise the
+      // same fixture reads "3 min ago" in the morning and "7 h ago" at night.
+      created_at: new Date(Date.now() - 8 * 60_000).toISOString(),
       confirmations: 6,
       required_confirmations: 15,
     },
