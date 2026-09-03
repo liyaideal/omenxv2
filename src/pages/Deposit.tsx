@@ -12,12 +12,17 @@ import { BuyWithFiat } from '@/components/deposit/BuyWithFiat';
 
 import { AccountPicker, AccountPickerRows, type AccountKind } from '@/components/wallet/AccountPicker';
 import { useAccountPreference, ACCOUNT_LABEL } from '@/hooks/useAccountPreference';
+import { useAuth } from '@/hooks/useAuth';
+import { useSurface } from '@/contexts/SurfaceContext';
+import { WalletAuthGate, WalletGatePlaceholder } from '@/pages/Wallet';
 
 export default function Deposit() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState('wallet');
   const { account, setAccount } = useAccountPreference('deposit');
+  const { user } = useAuth();
+  const { surface } = useSurface();
   const [pickerOpen, setPickerOpen] = useState(false);
   
   // On desktop, redirect to wallet page
@@ -30,6 +35,21 @@ export default function Deposit() {
   // Don't render on desktop or during initial load
   if (isMobile === undefined || isMobile === false) {
     return null;
+  }
+
+  // Guest gate — same door as /wallet. No deposit address is rendered.
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <MobileHeader title="Deposit" showBack showLogo={false} />
+        <main className="flex-1 overflow-auto pb-24">
+          <WalletAuthGate isLite={surface === 'lite'}>
+            <WalletGatePlaceholder />
+          </WalletAuthGate>
+        </main>
+        <BottomNav />
+      </div>
+    );
   }
 
   return (
