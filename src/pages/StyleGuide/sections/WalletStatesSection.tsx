@@ -254,7 +254,8 @@ const TX_EMPTY_CASES: SectionCase[] = [
     key: "wallet-lite-tx-empty",
     label: "W-3 · 交易流水 · 空",
     spec: [
-      { state: "empty", when: "transactions.length === 0", visual: "站点统一 EmptyState（无筛选 pill 行）", source: "TransactionHistory.tsx" },
+      { state: "empty", when: "transactions.length === 0", visual: "站点统一 EmptyState（无筛选 pill 行）+ lynx 插画", source: "TransactionHistory.tsx" },
+      { state: "插画资产", when: "同上", visual: "src/assets/wallet/lynx-empty-activity.png（330×330 PNG）", source: "Foundations › Brand assets · IP 插画" },
     ],
   },
   {
@@ -358,6 +359,12 @@ const ADDRESS_EMPTY_CASES: SectionCase[] = [
         when: "wallets.length === 0",
         visual: "计数显示 0 addresses；虚线 Add address 按钮常驻；下方站点统一 EmptyState",
         source: "Wallet.tsx Saved addresses 卡",
+      },
+      {
+        state: "插画资产",
+        when: "同上",
+        visual: "src/assets/wallet/lynx-empty-addresses.png（330×330 PNG）",
+        source: "Foundations › Brand assets · IP 插画",
       },
     ],
   },
@@ -668,7 +675,8 @@ const RECOVERY_CASES: SectionCase[] = [
     note: "行 chrome 为复刻，状态徽标为生产 RecoveryStatusBadge。",
     spec: [
       { state: "loading", when: "list.isLoading", visual: "居中 Loader2", source: "RecoveryRequest.tsx" },
-      { state: "空态", when: "requests.length === 0", visual: "Inbox 图标 + `No recovery requests yet` + 副句", source: "RecoveryRequest.tsx" },
+      { state: "空态", when: "requests.length === 0", visual: "Inbox 图标 + lynx 插画（渲染宽 96）+ `No recovery requests yet` + 副句", source: "RecoveryRequest.tsx" },
+      { state: "插画资产", when: "同上", visual: "src/assets/wallet/lynx-empty-recovery.png（330×330 PNG）", source: "Foundations › Brand assets · IP 插画" },
       { state: "行态", when: "requests.length > 0", visual: "金额 font-mono + token on network + 状态徽标 + 日期 + chevron", source: "RecoveryRequest.tsx" },
     ],
   },
