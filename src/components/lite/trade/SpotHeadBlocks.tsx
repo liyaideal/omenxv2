@@ -308,6 +308,7 @@ export const SpotSideRailStocks = ({ rows }: { rows: SpotRailStockRow[] }) => (
         variant="module"
         bordered={false}
         title="No other markets right now"
+        illustrationSrc="/assets/desktop/empty-no-boost.png"
         description="More stocks open here at the start of each trading day."
         className="px-0 py-1"
       />

@@ -477,6 +477,7 @@ export const LiteCalendarView = ({
         {weekTotal === 0 && openNow.length === 0 && (
           <EmptyState
             title="Nothing scheduled this week"
+            illustrationSrc={isMobile ? "/assets/mobile/empty-no-boost.png" : "/assets/desktop/empty-no-boost.png"}
             description="Pick another week, or browse every open market from the list."
             actionLabel="Back to all markets"
             onAction={onBackToList}
@@ -641,6 +642,7 @@ export const LiteCalendarView = ({
       ) : dayItems.length === 0 && dayOpen.length === 0 ? (
         <EmptyState
           title="Nothing scheduled this day"
+          illustrationSrc={isMobile ? "/assets/mobile/empty-no-boost.png" : "/assets/desktop/empty-no-boost.png"}
           description={
             nextItem
               ? `${weekTotal} markets decide this week — the next one is ${stepperLabel(

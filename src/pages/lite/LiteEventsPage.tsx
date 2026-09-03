@@ -753,6 +753,7 @@ const LiteEventsPage = () => {
           <EmptyState
             variant="page"
             title="Nothing starred yet"
+            illustrationSrc={isMobile ? "/assets/mobile/empty-no-starred-event.png" : "/assets/desktop/empty-no-starred-event.png"}
             description="Tap the ★ on any market and it'll show up here."
             actionLabel="See all markets"
             onAction={resetAll}
@@ -761,6 +762,7 @@ const LiteEventsPage = () => {
           <EmptyState
             variant="page"
             title="No open markets here right now"
+            illustrationSrc={isMobile ? "/assets/mobile/empty-no-boost.png" : "/assets/desktop/empty-no-boost.png"}
             description="New markets land in this topic as they open. Check back soon."
             actionLabel="See all markets"
             onAction={resetAll}

@@ -186,11 +186,13 @@ export const LiteCryptoView = ({
             <EmptyState
               variant="page"
               title="Nothing boosted here yet — check back soon."
+              illustrationSrc={isMobile ? "/assets/mobile/empty-no-boost.png" : "/assets/desktop/empty-no-boost.png"}
             />
           ) : (
           <EmptyState
             variant="page"
             title="No open markets for this coin"
+            illustrationSrc={isMobile ? "/assets/mobile/empty-no-boost.png" : "/assets/desktop/empty-no-boost.png"}
             description="New crypto markets land here as they open. Check back soon."
             actionLabel="See all coins"
             onAction={() => setCoin("all")}
