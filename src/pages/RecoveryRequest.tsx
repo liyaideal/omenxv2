@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, ChevronRight, Loader2, Plus, Info } from 'lucide-react';
-import { DesktopBackLink } from '@/components/ui/desktop-back-link';
+import { DesktopSubpageHeader } from '@/components/layout/DesktopSubpageHeader';
 import { useAuth } from '@/hooks/useAuth';
 import { useRecoveryRequests } from '@/hooks/useRecoveryRequests';
 import { RecoveryStatusBadge } from '@/components/recovery/RecoveryStatusTimeline';
@@ -82,14 +82,12 @@ export default function RecoveryRequestPage() {
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h2 className={isMobile ? 'text-sm font-semibold' : 'text-base font-semibold'}>Your requests</h2>
-        <Button
-          size="sm"
-          onClick={() => setShowForm(true)}
-          className={isMobile ? 'h-8 rounded-lg' : 'h-9 rounded-lg'}
-        >
-          <Plus className="w-3.5 h-3.5 mr-1" />
-          New request
-        </Button>
+        {isMobile && (
+          <Button size="sm" onClick={() => setShowForm(true)} className="h-8 rounded-lg">
+            <Plus className="w-3.5 h-3.5 mr-1" />
+            New request
+          </Button>
+        )}
       </div>
 
       {list.isLoading ? (
@@ -172,17 +170,17 @@ export default function RecoveryRequestPage() {
       <div className="min-h-screen bg-background flex flex-col">
         <EventsDesktopHeader />
         <main className="flex-1">
-          <div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
-            <div>
-              <DesktopBackLink label="Wallet" onClick={() => navigate('/wallet')} className="mb-3" />
-              <h1 className="text-2xl font-semibold">Recovery requests</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Submit and track wrong-chain deposit recoveries.
-              </p>
+          <div className="max-w-3xl mx-auto px-6 pt-8 pb-8">
+            <DesktopSubpageHeader title="Recovery" onBack={() => navigate('/wallet')}>
+              <Button size="sm" onClick={() => setShowForm(true)} className="h-9 rounded-lg">
+                <Plus className="w-3.5 h-3.5 mr-1" />
+                New request
+              </Button>
+            </DesktopSubpageHeader>
+            <div className="mt-[22px] space-y-6">
+              {intro}
+              {showForm ? formSection : listSection}
             </div>
-
-            {intro}
-            {showForm ? formSection : listSection}
           </div>
         </main>
       </div>

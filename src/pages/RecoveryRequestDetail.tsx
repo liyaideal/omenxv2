@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { Copy, Loader2, ExternalLink } from 'lucide-react';
-import { DesktopBackLink } from '@/components/ui/desktop-back-link';
+import { DesktopSubpageHeader } from '@/components/layout/DesktopSubpageHeader';
 import { toast } from 'sonner';
 import { useRecoveryRequest } from '@/hooks/useRecoveryRequests';
 import { RecoveryStatusTimeline, RecoveryStatusBadge } from '@/components/recovery/RecoveryStatusTimeline';
@@ -176,21 +176,10 @@ export default function RecoveryRequestDetailPage() {
   if (!isMobile) {
     return renderShell(
       <main className="flex-1">
-        <div className="max-w-5xl mx-auto px-6 py-8 space-y-6">
-          <div>
-            <DesktopBackLink label="Recovery requests" onClick={back} className="mb-3" />
-            <div className="flex items-center justify-between gap-4 flex-wrap">
-              <div>
-                <h1 className="text-2xl font-semibold">Recovery request</h1>
-                <p className="text-sm text-muted-foreground mt-1 font-mono">
-                  #{req.id.slice(0, 8)}
-                </p>
-              </div>
-              <RecoveryStatusBadge status={req.status} />
-            </div>
-          </div>
+        <div className="max-w-5xl mx-auto px-6 pt-8 pb-8">
+          <DesktopSubpageHeader title="Request detail" onBack={back} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 items-start">
+          <div className="mt-[22px] grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 items-start">
             <div className="space-y-6">
               {statusCard}
               {payoutCard}

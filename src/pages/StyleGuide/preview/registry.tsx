@@ -18,6 +18,7 @@ const pick =
     (await loader())[name] as ComponentType;
 
 const mobileHeader = () => import("./mobileHeaderPreviews");
+const dshHeader = () => import("./dshHeaderPreviews");
 const portfolio = () => import("./portfolioPreviews");
 const liteEvents = () => import("./liteEventsPreviews");
 const sportsLines = () => import("./sportsLinesPreviews");
@@ -121,6 +122,9 @@ export const previewRegistry: Record<string, Loader> = {
 
   /* -------- Foundations · Brand assets -------- */
   "foundations-brand-assets": pick(brandAssets, "BrandAssetsPreview"),
+
+  /* -------- Foundations · Desktop Subpage Header (DSH v1) -------- */
+  "foundations-dsh-header": pick(dshHeader, "DshHeaderPreview"),
 
   /* -------- Mobile header system -------- */
 
