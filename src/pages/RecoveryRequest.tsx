@@ -11,7 +11,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { EventsDesktopHeader } from '@/components/EventsDesktopHeader';
 import { BottomNav } from '@/components/BottomNav';
 import { MobileHeader } from '@/components/MobileHeader';
-import lynxEmptyRecovery from '@/assets/wallet/lynx-empty-recovery.png';
+import { RecoveryEmptyState } from '@/components/wallet/RecoveryEmptyState';
 
 export default function RecoveryRequestPage() {
   const navigate = useNavigate();
@@ -95,22 +95,7 @@ export default function RecoveryRequestPage() {
           <Loader2 className="w-5 h-5 animate-spin mx-auto text-muted-foreground" />
         </div>
       ) : requests.length === 0 ? (
-        <div className="rounded-xl border border-border/60 bg-card/40 p-10 text-center space-y-2">
-          <img
-            src={lynxEmptyRecovery}
-            alt=""
-            aria-hidden
-            draggable={false}
-            onError={(e) => {
-              (e.currentTarget as HTMLImageElement).style.display = 'none';
-            }}
-            className="mx-auto w-24 h-24 object-contain pointer-events-none select-none"
-          />
-          <div className="text-sm font-medium">No recovery requests yet</div>
-          <div className="text-xs text-muted-foreground">
-            Submit a request if a deposit was sent to the wrong network.
-          </div>
-        </div>
+        <RecoveryEmptyState />
       ) : (
         <div className="space-y-2">
           {requests.map((r) => (

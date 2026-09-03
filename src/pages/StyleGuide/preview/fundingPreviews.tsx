@@ -28,9 +28,9 @@ import {
   RecoveryStatusBadge,
   RecoveryStatusTimeline,
 } from "@/components/recovery/RecoveryStatusTimeline";
-import { AlertTriangle, ChevronRight, Inbox, Info, Loader2, Plus } from "lucide-react";
+import { AlertTriangle, ChevronRight, Info, Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import lynxEmptyRecovery from "@/assets/wallet/lynx-empty-recovery.png";
+import { RecoveryEmptyState } from "@/components/wallet/RecoveryEmptyState";
 import type { Wallet as SavedWallet } from "@/hooks/useWallets";
 import type { WithdrawRecord, WithdrawStatus } from "@/types/withdraw";
 import type { TokenConfig } from "@/types/deposit";
@@ -339,13 +339,13 @@ const RECOVERY_ROWS = [
   { id: "rq-3", amount: 76, token: "SOL", network: "Solana", status: "rejected" as const, date: "Aug 09, 2026" },
 ];
 
-/** W-31 · list（chrome 复刻；RecoveryStatusBadge 为生产件）· loading / empty / rows */
+/** W-31 · list（chrome 复刻；RecoveryEmptyState / RecoveryStatusBadge 为生产件）· loading / empty / rows */
 export const RecoveryListPreview = () => (
   <div className="space-y-6 p-4 [&_*]:!animate-none">
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h2 className="text-base font-semibold">Your requests</h2>
-        <Button size="sm" className="h-9 rounded-lg">
+        <Button size="sm" className="h-8 rounded-lg">
           <Plus className="w-3.5 h-3.5 mr-1" />
           New request
         </Button>
@@ -355,20 +355,8 @@ export const RecoveryListPreview = () => (
       </div>
     </div>
 
-    <div className="rounded-xl border border-border/60 bg-card/40 p-10 text-center space-y-2">
-      <Inbox className="w-8 h-8 text-muted-foreground/60 mx-auto" />
-      <img
-        src={lynxEmptyRecovery}
-        alt=""
-        aria-hidden
-        draggable={false}
-        className="mx-auto w-24 h-24 object-contain pointer-events-none select-none"
-      />
-      <div className="text-sm font-medium">No recovery requests yet</div>
-      <div className="text-xs text-muted-foreground">
-        Submit a request if a deposit was sent to the wrong network.
-      </div>
-    </div>
+    <RecoveryEmptyState />
+
 
     <div className="space-y-2">
       {RECOVERY_ROWS.map((r) => (
