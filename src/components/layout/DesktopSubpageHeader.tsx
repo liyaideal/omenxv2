@@ -39,7 +39,7 @@ export const DesktopSubpageHeader = ({
     >
       <ArrowLeft className="w-[18px] h-[18px] text-[#A8AEB6] transition-colors group-hover:text-[#E8EAED]" />
     </button>
-    <h1 className="font-display text-[17px] font-semibold text-foreground truncate">
+    <h1 className="font-sans text-[17px] font-semibold text-foreground truncate">
       {title}
     </h1>
     <div className="flex-1" />
