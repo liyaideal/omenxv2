@@ -673,7 +673,7 @@ const RECOVERY_CASES: SectionCase[] = [
   {
     key: "wallet-recovery-list",
     label: "W-31 · Recovery 列表（RecoveryList）",
-    note: "行 chrome 为复刻，状态徽标为生产 RecoveryStatusBadge。",
+    note: "行 chrome 为复刻；空态为生产 RecoveryEmptyState，状态徽标为生产 RecoveryStatusBadge。",
     spec: [
       { state: "loading", when: "list.isLoading", visual: "居中 Loader2", source: "RecoveryRequest.tsx" },
       { state: "空态", when: "requests.length === 0", visual: "Inbox 图标 + lynx 插画（渲染宽 96）+ `No recovery requests yet` + 副句", source: "RecoveryRequest.tsx" },
