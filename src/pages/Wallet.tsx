@@ -68,6 +68,7 @@ import useCategoryBoostConfigs from "@/hooks/useCategoryBoostConfigs";
 import { cn } from "@/lib/utils";
 import { SeoFooter } from "@/components/seo/SeoFooter";
 import heroThread from "@/assets/wallet/hero-thread.webp";
+import heroThreadMobileBg from "@/assets/wallet/hero-thread-mobile-bg.png";
 import lynxEmptyAddresses from "@/assets/wallet/lynx-empty-addresses.png";
 
 /* ------------------------------------------------------------------
@@ -124,15 +125,59 @@ export const HeroEquityCard = ({
       compact ? "p-5" : "p-[34px_36px]",
     )}
   >
-    <img
-      src={heroThread}
-      alt=""
-      aria-hidden
-      onError={(e) => {
-        (e.currentTarget as HTMLImageElement).style.display = "none";
-      }}
-      className="pointer-events-none select-none absolute inset-0 z-0 h-full w-full object-cover object-right"
-    />
+    {compact ? (
+      <>
+        <img
+          src={heroThreadMobileBg}
+          alt=""
+          aria-hidden
+          onError={(e) => {
+            (e.currentTarget as HTMLImageElement).style.display = "none";
+          }}
+          className="pointer-events-none select-none absolute z-0"
+          style={{
+            width: "165.25%",
+            height: "229.3%",
+            left: "-3.57%",
+            top: "-62.63%",
+          }}
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-0"
+          style={{
+            background:
+              "linear-gradient(270deg, rgba(9,9,15,0.21) 4.16%, rgba(9,9,15,0.7) 40.89%, rgba(9,9,15,0.7) 56.63%)",
+          }}
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-0"
+          style={{
+            mixBlendMode: "color",
+            background:
+              "linear-gradient(90deg, rgba(0,0,0,0.3) 36.67%, rgba(207,255,74,0.3) 51.7%, rgba(51,214,255,0.3) 77.68%, rgba(0,0,0,0.3) 101.3%)",
+          }}
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-0"
+          style={{
+            background: "linear-gradient(to bottom, rgba(6,6,6,0) 0%, #000 100%)",
+          }}
+        />
+      </>
+    ) : (
+      <img
+        src={heroThread}
+        alt=""
+        aria-hidden
+        onError={(e) => {
+          (e.currentTarget as HTMLImageElement).style.display = "none";
+        }}
+        className="pointer-events-none select-none absolute inset-0 z-0 h-full w-full object-cover object-right"
+      />
+    )}
     <div
       className={cn(
         "relative flex gap-6",
