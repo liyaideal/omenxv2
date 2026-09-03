@@ -92,7 +92,10 @@ export const EmptyState = ({
       src={illustrationSrc}
       alt=""
       aria-hidden
-      className="pointer-events-none select-none w-24 h-auto"
+      className={cn(
+        "pointer-events-none select-none h-auto",
+        isPage ? "w-[150px]" : isModule ? "w-16" : "w-[110px]",
+      )}
     />
   ) : resolvedMascot === "none" ? null : resolvedMascot === "mark" ? (
       <LynxMark size={isModule ? 40 : 64} strokeWidth={isModule ? 3.4 : 2.6} />
