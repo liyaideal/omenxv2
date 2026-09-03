@@ -23,8 +23,14 @@ import {
   PendingConfirmations,
   type PendingTransaction,
 } from "@/components/wallet/PendingConfirmations";
+import { MaintenanceNoticeBanner } from "@/components/wallet/MaintenanceNoticeBanner";
 import {
+  AvailableBalanceTooltip,
+  FuturesAccountCard,
   HeroEquityCard,
+  SpotAccountCard,
+  WalletAuthGate,
+  WalletGatePlaceholder,
   SavedAddressRowView,
   SavedAddressActionsList,
   type SavedAddressView,
@@ -36,7 +42,15 @@ import {
 } from "@/components/wallet/TransactionHistory";
 
 
-const hoursAgo = (h: number) => new Date(Date.now() - h * 3600_000);
+// Relative offsets anchored to *today's* UTC midnight: the docs never go stale,
+// yet the rendered text is identical no matter when within the day it is opened
+// (a raw Date.now() anchor would re-render a new minute on every screenshot).
+const DAY_ANCHOR = (() => {
+  const d = new Date();
+  d.setUTCHours(12, 0, 0, 0);
+  return d.getTime();
+})();
+const hoursAgo = (h: number) => new Date(DAY_ANCHOR - h * 3600_000);
 
 /* ---------------- 3 · Saved addresses ⋯ menu ---------------- */
 
@@ -186,7 +200,7 @@ const ICON_MATRIX_TXS: Transaction[] = [
 
 export const TxIconMatrixPreview = () => (
   <div className="rounded-2xl border border-border/40 bg-card">
-    <TransactionHistory transactions={ICON_MATRIX_TXS} />
+    <TransactionHistory fixture={{ transactions: ICON_MATRIX_TXS }} />
   </div>
 );
 
@@ -253,15 +267,17 @@ export const PendingConfirmationsMobilePreview = () => (
 
 export const TxEmptyPreview = () => (
   <div className="rounded-2xl border border-border/40 bg-card p-4">
-    <TransactionHistory transactions={[]} />
+    <TransactionHistory fixture={{ transactions: [] }} />
   </div>
 );
 
 export const TxEmptyFilteredPreview = () => (
   <div className="rounded-2xl border border-border/40 bg-card p-4">
     <TransactionHistory
-      transactions={[mk("3", "deposit", 42.18, "USDC deposit · Base", { account: "spot" })]}
-      fixture={{ initialFilter: "trade" }}
+      fixture={{
+        transactions: [mk("3", "deposit", 42.18, "USDC deposit · Base", { account: "spot" })],
+        initialFilter: "trade",
+      }}
     />
   </div>
 );
@@ -277,7 +293,7 @@ const TRANSFER_LEG_TXS: Transaction[] = [
 
 export const TxTransferLegsPreview = () => (
   <div className="rounded-2xl border border-border/40 bg-card">
-    <TransactionHistory transactions={TRANSFER_LEG_TXS} />
+    <TransactionHistory fixture={{ transactions: TRANSFER_LEG_TXS }} />
   </div>
 );
 
@@ -293,7 +309,7 @@ const STATUS_TXS: Transaction[] = [
 
 export const TxStatusMatrixPreview = () => (
   <div className="rounded-2xl border border-border/40 bg-card">
-    <TransactionHistory transactions={STATUS_TXS} fixture={{ initialExpandedIds: STATUS_TXS.map((tx) => tx.id) }} />
+    <TransactionHistory fixture={{ transactions: STATUS_TXS, initialExpandedIds: STATUS_TXS.map((tx) => tx.id) }} />
   </div>
 );
 
@@ -302,11 +318,13 @@ export const TxStatusMatrixPreview = () => (
 export const TxUnknownTypePreview = () => (
   <div className="rounded-2xl border border-border/40 bg-card">
     <TransactionHistory
-      transactions={[
-        mk("1", "mystery" as TransactionType, 12.5, "Unmapped ledger entry", {
-          account: "spot",
-        }),
-      ]}
+      fixture={{
+        transactions: [
+          mk("1", "mystery" as TransactionType, 12.5, "Unmapped ledger entry", {
+            account: "spot",
+          }),
+        ],
+      }}
     />
   </div>
 );
@@ -316,16 +334,18 @@ export const TxUnknownTypePreview = () => (
 export const TxExpandedDetailPreview = () => (
   <div className="rounded-2xl border border-border/40 bg-card">
     <TransactionHistory
-      transactions={[
-        mk("1", "deposit", 800, "USDC deposit · Base", {
-          network: "Base",
-          account: "spot",
-          status: "processing",
-          fee: 0.35,
-          txHash: "0x8f2a91b3e4c7a0d5f6b8e9a1c2d3f4a5b6c4d0719a8b7c6d5e4f3a2b1c0d9e8f",
-        }),
-      ]}
-      fixture={{ initialExpandedId: "1" }}
+      fixture={{
+        transactions: [
+          mk("1", "deposit", 800, "USDC deposit · Base", {
+            network: "Base",
+            account: "spot",
+            status: "processing",
+            fee: 0.35,
+            txHash: "0x8f2a91b3e4c7a0d5f6b8e9a1c2d3f4a5b6c4d0719a8b7c6d5e4f3a2b1c0d9e8f",
+          }),
+        ],
+        initialExpandedId: "1",
+      }}
     />
   </div>
 );
@@ -351,7 +371,7 @@ const PRO_ONLY_TXS: Transaction[] = [
 
 export const TxProOnlyTypesPreview = () => (
   <div className="rounded-2xl border border-border/40 bg-card">
-    <TransactionHistory transactions={PRO_ONLY_TXS} />
+    <TransactionHistory fixture={{ transactions: PRO_ONLY_TXS }} />
   </div>
 );
 
@@ -482,6 +502,153 @@ const FIAT_AND_SIGN_TXS: Transaction[] = [
 
 export const TxFiatBuyPreview = () => (
   <div className="rounded-2xl border border-border/40 bg-card">
-    <TransactionHistory transactions={FIAT_AND_SIGN_TXS} />
+    <TransactionHistory fixture={{ transactions: FIAT_AND_SIGN_TXS }} />
+  </div>
+);
+
+/* ============================================================
+ * M7a-② · Ⓐ 组合层与登录门（W-18 / W-19）
+ * 全部挂生产导出 + 静态 fixture：无 fetch、无 Date.now、无随机。
+ * ============================================================ */
+
+const LAYOUT_FIXTURE = { equity: 15_885.23, spot: 482.95, futures: 15_402.28 };
+
+const LAYOUT_TXS: Transaction[] = [
+  mk("2", "deposit", 1000, "USDC deposit · Base", { network: "Base", account: "spot" }),
+  mk("6", "transfer_to_futures", 500, "Transfer to Boost", { account: "spot" }),
+  mk("9", "trade_profit", 128.4, "Settled: Bitcoin · Up · Won", { account: "futures" }),
+];
+
+const RecoveryLink = () => (
+  <button
+    type="button"
+    className="text-[11px] text-muted-foreground underline underline-offset-2 hover:text-foreground"
+  >
+    Sent funds to the wrong network? Request recovery →
+  </button>
+);
+
+const SavedAddressesPanel = ({ compact = false }: { compact?: boolean }) => (
+  <div className={compact ? "trading-card p-4" : "trading-card p-6"}>
+    <div className="flex items-center justify-between mb-2">
+      <h2 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+        Saved addresses
+      </h2>
+      <span className="text-xs text-muted-foreground">2 addresses</span>
+    </div>
+    <SavedAddressRowView
+      wallet={ADDR_DEFAULT}
+      isLast={false}
+      isMobile={compact}
+      copied={false}
+      onOpenActions={noop}
+      onCopy={noop}
+      onSetPrimary={noop}
+      onDelete={noop}
+    />
+    <SavedAddressRowView
+      wallet={ADDR_SECONDARY}
+      isLast
+      isMobile={compact}
+      copied={false}
+      onOpenActions={noop}
+      onCopy={noop}
+      onSetPrimary={noop}
+      onDelete={noop}
+    />
+  </div>
+);
+
+export const WalletPageLayoutDesktopPreview = () => (
+  <div className="mx-auto w-full max-w-7xl space-y-[18px] px-4 py-6">
+    <MaintenanceNoticeBanner className="mb-2" />
+    <HeroEquityCard
+      equity={LAYOUT_FIXTURE.equity}
+      hidden={false}
+      onToggleHidden={noop}
+      onDeposit={noop}
+      onWithdraw={noop}
+      onTransfer={noop}
+      equityNote="does not include open trade profit"
+    />
+    <section className="grid grid-cols-2 gap-6">
+      <SpotAccountCard balance={LAYOUT_FIXTURE.spot} hidden={false} onTransfer={noop} />
+      <FuturesAccountCard
+        balance={LAYOUT_FIXTURE.futures}
+        hidden={false}
+        onTransfer={noop}
+        marginInUse={1_240}
+        unrealizedPnL={86.12}
+        AvailableTooltip={AvailableBalanceTooltip}
+        boostMax={20}
+      />
+    </section>
+    <div className="grid grid-cols-12 gap-6">
+      <div className="col-span-8 space-y-6">
+        <div className="trading-card p-6">
+          <TransactionHistory fixture={{ transactions: LAYOUT_TXS }} />
+        </div>
+        <RecoveryLink />
+      </div>
+      <div className="col-span-4 space-y-6">
+        <SavedAddressesPanel />
+      </div>
+    </div>
+  </div>
+);
+
+export const WalletPageLayoutMobilePreview = () => (
+  <div className="space-y-4 px-4 py-6">
+    <MaintenanceNoticeBanner />
+    <HeroEquityCard
+      equity={LAYOUT_FIXTURE.equity}
+      hidden={false}
+      onToggleHidden={noop}
+      onDeposit={noop}
+      onWithdraw={noop}
+      onTransfer={noop}
+      compact
+      equityNote="does not include open trade profit"
+    />
+    <section className="space-y-3">
+      <SpotAccountCard balance={LAYOUT_FIXTURE.spot} hidden={false} onTransfer={noop} compact />
+      <FuturesAccountCard
+        balance={LAYOUT_FIXTURE.futures}
+        hidden={false}
+        onTransfer={noop}
+        marginInUse={1_240}
+        unrealizedPnL={86.12}
+        AvailableTooltip={AvailableBalanceTooltip}
+        boostMax={20}
+        compact
+      />
+    </section>
+    <SavedAddressesPanel compact />
+    <div className="trading-card p-4">
+      <TransactionHistory fixture={{ transactions: LAYOUT_TXS }} />
+    </div>
+    <RecoveryLink />
+  </div>
+);
+
+/** W-19 · 三路由同门：Lite 形态（上）+ Pro 形态（下），fixture 强制 guest。 */
+export const WalletAuthGatePreview = () => (
+  <div className="space-y-6 p-4">
+    <div>
+      <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+        Lite · LiteAuthGate
+      </div>
+      <WalletAuthGate isLite forceSignedOut>
+        <WalletGatePlaceholder />
+      </WalletAuthGate>
+    </div>
+    <div>
+      <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+        Pro · AuthGateOverlay
+      </div>
+      <WalletAuthGate isLite={false} maxPreviewHeight="400px" forceSignedOut>
+        <WalletGatePlaceholder />
+      </WalletAuthGate>
+    </div>
   </div>
 );

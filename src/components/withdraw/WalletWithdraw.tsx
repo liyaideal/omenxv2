@@ -69,7 +69,11 @@ export const WalletWithdraw = ({ onDone, demoAvailableBalance, fixtureWallets }:
   const netAmount = calculateNetAmount('USDC', amount);
 
   useEffect(() => {
-    const primaryWallet = wallets.find(w => w.isPrimary);
+    // Base-only (2026-09-03): only a Base primary address may be pre-filled,
+    // matching the disabled rule in the address picker.
+    const primaryWallet = wallets.find(
+      w => w.isPrimary && (w.network ?? '').trim().toLowerCase() === 'base',
+    );
     if (primaryWallet && !selectedAddress) {
       setSelectedAddress(primaryWallet.fullAddress);
     }

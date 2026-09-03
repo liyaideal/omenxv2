@@ -38,6 +38,7 @@ import { EmptyState } from '@/components/states';
 
 
 // Network explorer URLs for txHash links
+// Historical networks only — new withdrawals are Base-only (2026-09-03).
 const EXPLORER_URLS: Record<string, string> = {
   'Ethereum': 'https://etherscan.io/tx/',
   'BNB Smart Chain (BEP20)': 'https://bscscan.com/tx/',

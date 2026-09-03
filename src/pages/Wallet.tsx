@@ -251,7 +251,7 @@ const formatCurrency = (value: number) =>
  * it inside the Wallet component gave it a fresh component identity on every
  * re-render, which remounted the Popover and closed it after ~600ms.
  */
-const AvailableBalanceTooltip = ({ marginInUse, unrealizedPnL }: { marginInUse: number; unrealizedPnL: number }) => {
+export const AvailableBalanceTooltip = ({ marginInUse, unrealizedPnL }: { marginInUse: number; unrealizedPnL: number }) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { surface } = useSurface();
@@ -437,15 +437,19 @@ export const WalletAuthGate = ({
   isLite,
   maxPreviewHeight,
   children,
+  /** Docs-only: force the signed-out overlay in /style-guide. Never set in product. */
+  forceSignedOut = false,
 }: {
   isLite: boolean;
   maxPreviewHeight?: string;
   children: React.ReactNode;
+  forceSignedOut?: boolean;
 }) =>
   isLite ? (
     <LiteAuthGate
       title="Sign in to view your wallet"
       description="Deposit, withdraw and move funds between your accounts by signing in."
+      forceSignedOut={forceSignedOut}
     >
       {children}
     </LiteAuthGate>
@@ -454,10 +458,12 @@ export const WalletAuthGate = ({
       title="Sign in to view your wallet"
       description="Manage your funds and saved addresses by signing in."
       maxPreviewHeight={maxPreviewHeight}
+      forceSignedOut={forceSignedOut}
     >
       {children}
     </AuthGateOverlay>
   );
+
 
 /**
  * Saved-address presentational pieces. Extracted verbatim from the /wallet
