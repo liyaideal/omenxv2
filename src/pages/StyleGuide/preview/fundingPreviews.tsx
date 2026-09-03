@@ -28,7 +28,7 @@ import {
   RecoveryStatusBadge,
   RecoveryStatusTimeline,
 } from "@/components/recovery/RecoveryStatusTimeline";
-import { AlertTriangle, ChevronRight, Inbox, Info, Loader2, Plus } from "lucide-react";
+import { AlertTriangle, ChevronRight, Info, Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RecoveryEmptyState } from "@/components/wallet/RecoveryEmptyState";
 import type { Wallet as SavedWallet } from "@/hooks/useWallets";
