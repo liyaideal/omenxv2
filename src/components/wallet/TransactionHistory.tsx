@@ -88,7 +88,7 @@ export interface Transaction {
 }
 
 interface TransactionHistoryProps {
-  transactions: Transaction[];
+  transactions?: Transaction[];
   className?: string;
   /**
    * Style-guide only (docs fixture). Seeds the initial pill filter / expanded
@@ -96,6 +96,11 @@ interface TransactionHistoryProps {
    * when omitted the component behaves exactly as before.
    */
   fixture?: {
+    /**
+     * Deterministic rows. When present the component renders these instead of
+     * the caller's live list and skips the realtime subscription entirely.
+     */
+    transactions?: Transaction[];
     initialFilter?: 'all' | 'deposit' | 'withdraw' | 'trade';
     initialExpandedId?: string;
     initialExpandedIds?: string[];
@@ -152,7 +157,8 @@ const ACCOUNT_BADGE_CONFIG: Record<TransactionAccount, { label: string; classNam
   futures: { label: PRODUCT_LINE_LABELS.futures, className: PRODUCT_LINE_BADGE_CLASSES.futures },
 };
 
-export const TransactionHistory = ({ transactions, className, fixture }: TransactionHistoryProps) => {
+export const TransactionHistory = ({ transactions = [], className, fixture }: TransactionHistoryProps) => {
+  const rows = fixture?.transactions ?? transactions;
   type PillFilter = 'all' | 'deposit' | 'withdraw' | 'trade';
   const [pillFilter, setPillFilter] = useState<PillFilter>(fixture?.initialFilter ?? 'all');
   const isMobile = useIsMobile();
@@ -166,7 +172,7 @@ export const TransactionHistory = ({ transactions, className, fixture }: Transac
   
 
   // Subscribe to real-time transaction updates
-  useRealtimeTransactions();
+  useRealtimeTransactions(!fixture?.transactions);
 
   const formatCurrency = (value: number) => {
     return value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -224,7 +230,7 @@ export const TransactionHistory = ({ transactions, className, fixture }: Transac
   const clearFilters = () => setPillFilter('all');
 
   // Apply pill filter
-  const filteredTransactions = transactions.filter(tx => {
+  const filteredTransactions = rows.filter(tx => {
     if (pillFilter === 'all') return true;
     // E4 · fiat_buy is a funding-in row on Lite — it belongs under Deposits.
     if (pillFilter === 'deposit') return tx.type === 'deposit' || tx.type === 'fiat_buy';
