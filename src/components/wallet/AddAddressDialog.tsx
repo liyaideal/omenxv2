@@ -78,16 +78,11 @@ export const AddAddressFields = ({
     </div>
     <div className="space-y-2">
       <Label>Network</Label>
-      <Select value={values.network} onValueChange={(v) => onChange({ ...values, network: v })}>
-        <SelectTrigger>
-          <SelectValue placeholder="Select network" />
-        </SelectTrigger>
-        <SelectContent>
-          {NETWORKS.map((net) => (
-            <SelectItem key={net} value={net}>{net}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      {/* Base-only (2026-09-03): network is fixed, no selector. */}
+      <div className="flex h-10 items-center gap-2 rounded-md border border-input bg-muted/30 px-3 text-sm">
+        <img src="/chain-logos/base.svg" alt="Base" className="h-4 w-4" />
+        <span className="font-medium">Base</span>
+      </div>
     </div>
   </div>
 );
