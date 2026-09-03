@@ -966,7 +966,6 @@ export default function Wallet() {
                         bordered={false}
                         title="No saved addresses"
                         illustrationSrc={lynxEmptyAddresses}
-              illustrationSrc={lynxEmptyAddresses}
                         description="Save addresses for quick deposits and withdrawals."
                         className="px-0 py-2"
                       />
