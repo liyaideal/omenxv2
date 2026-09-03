@@ -28,6 +28,8 @@ export interface EmptyStateProps {
   action?: ReactNode;
   /** Deprecated — mascot replaces per-instance icons. Accepted, not rendered. */
   icon?: LucideIcon;
+  /** Optional decorative illustration; replaces the default mascot art at this call site. */
+  illustrationSrc?: string;
   /** Suppress the dashed border (e.g. inside an already bordered card). */
   bordered?: boolean;
   className?: string;
@@ -60,6 +62,7 @@ export const EmptyState = ({
   onAction,
   href,
   action,
+  illustrationSrc,
   bordered = true,
   className,
 }: EmptyStateProps) => {
@@ -84,8 +87,14 @@ export const EmptyState = ({
           )
       : null);
 
-  const art =
-    resolvedMascot === "none" ? null : resolvedMascot === "mark" ? (
+  const art = illustrationSrc ? (
+    <img
+      src={illustrationSrc}
+      alt=""
+      aria-hidden
+      className="pointer-events-none select-none w-24 h-auto"
+    />
+  ) : resolvedMascot === "none" ? null : resolvedMascot === "mark" ? (
       <LynxMark size={isModule ? 40 : 64} strokeWidth={isModule ? 3.4 : 2.6} />
     ) : isPage ? (
       <LynxFigure size={150} />
