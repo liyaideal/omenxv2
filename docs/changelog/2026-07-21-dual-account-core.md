@@ -1,3 +1,5 @@
+> 注记（2026-09-03）：本文内容已全量并入 docs/delivery/lite-wallet-spec-v1.md（Wallet 整体交付文档），本文件仅作历史底账保留，不再维护。
+
 # 双账户改造 · 轮次 2a：资金内核（Dual-Account Core）— 交付说明
 
 > 本轮（2a）只做资金内核：schema、划转函数、现货链路余额源切换、风控口径。

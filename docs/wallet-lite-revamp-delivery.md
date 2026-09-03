@@ -1,3 +1,5 @@
+> 注记（2026-09-03）：本文内容已全量并入 docs/delivery/lite-wallet-spec-v1.md（Wallet 整体交付文档），本文件仅作历史底账保留，不再维护。
+
 > 本文档已被 docs/delivery/lite-wallet-spec-v1.md 取代（2026-09-03），仅存档，请勿以本文档为准。
 
 # Wallet Lite 改版（Wallet Lite R1）— 交付说明 v1

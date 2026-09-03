@@ -1,3 +1,5 @@
+> 注记（2026-09-03）：本文内容已全量并入 docs/delivery/lite-wallet-spec-v1.md（Wallet 整体交付文档），本文件仅作历史底账保留，不再维护。
+
 # 双账户改造 · 轮次 2b：钱包 UI（Dual-Account Wallet UI）— 交付说明
 
 > 承接 2a 资金内核（`spot_balance` / `sim-transfer` / 现货余额源切换已交付）。
