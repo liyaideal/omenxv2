@@ -481,6 +481,19 @@ export const previewRegistry: Record<string, Loader> = {
   "wallet-withdraw-status": pick(funding, "WithdrawStatusPreview"),
   "wallet-account-picker": pick(funding, "AccountPickerDrawerPreview"),
   "wallet-address-delete": pick(funding, "AddressDeleteDrawerPreview"),
+
+  /* -------- M7b · Wallet 字典收官（ⒺⒼ 新增 key）-------- */
+  "wallet-withdraw-verify-bind-email": pick(funding, "WithdrawVerifyBindEmailPreview"),
+  "wallet-withdraw-verify-totp": pick(funding, "WithdrawVerifyTotpPreview"),
+  "wallet-withdraw-verify-bind-totp": pick(funding, "WithdrawVerifyBindTotpPreview"),
+  "wallet-withdraw-sticky-bar": pick(funding, "StickyWithdrawBarPreview"),
+  "wallet-recovery-intro": pick(funding, "RecoveryIntroPreview"),
+  "wallet-recovery-list": pick(funding, "RecoveryListPreview"),
+  "wallet-recovery-detail-submitted": pick(funding, "RecoveryDetailSubmittedPreview"),
+  "wallet-recovery-detail-completed": pick(funding, "RecoveryDetailCompletedPreview"),
+  "wallet-recovery-detail-rejected": pick(funding, "RecoveryDetailRejectedPreview"),
+  "wallet-maintenance-notice": pick(funding, "MaintenanceNoticePreview"),
 };
+
 
 export type PreviewKey = keyof typeof previewRegistry;
