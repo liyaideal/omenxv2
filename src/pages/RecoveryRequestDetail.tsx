@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { Copy, Loader2, ExternalLink } from 'lucide-react';
-import { DesktopBackLink } from '@/components/ui/desktop-back-link';
+import { DesktopSubpageHeader } from '@/components/layout/DesktopSubpageHeader';
 import { toast } from 'sonner';
 import { useRecoveryRequest } from '@/hooks/useRecoveryRequests';
 import { RecoveryStatusTimeline, RecoveryStatusBadge } from '@/components/recovery/RecoveryStatusTimeline';
