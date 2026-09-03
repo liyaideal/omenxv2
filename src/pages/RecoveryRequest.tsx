@@ -170,7 +170,7 @@ export default function RecoveryRequestPage() {
       <div className="min-h-screen bg-background flex flex-col">
         <EventsDesktopHeader />
         <main className="flex-1">
-          <div className="max-w-3xl mx-auto px-6 pt-8 pb-8">
+          <div className="mx-auto w-full max-w-7xl px-4 py-10 lg:px-6">
             <DesktopSubpageHeader title="Recovery" onBack={() => navigate('/wallet')}>
               <Button size="sm" onClick={() => setShowForm(true)} className="h-9 rounded-lg">
                 <Plus className="w-3.5 h-3.5 mr-1" />

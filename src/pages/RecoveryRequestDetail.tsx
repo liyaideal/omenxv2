@@ -176,7 +176,7 @@ export default function RecoveryRequestDetailPage() {
   if (!isMobile) {
     return renderShell(
       <main className="flex-1">
-        <div className="max-w-5xl mx-auto px-6 pt-8 pb-8">
+        <div className="mx-auto w-full max-w-7xl px-4 py-10 lg:px-6">
           <DesktopSubpageHeader title="Request detail" onBack={back} />
 
           <div className="mt-[22px] grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 items-start">
