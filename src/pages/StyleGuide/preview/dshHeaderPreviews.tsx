@@ -9,7 +9,7 @@ const Body = ({ children }: { children: React.ReactNode }) => (
 );
 
 /** Right slot filled — /wallet/recovery ships this exact shape. */
-export const DshWithActionPreview = () => (
+const DshWithActionFrame = () => (
   <div className="bg-background pt-6">
     <div className="max-w-3xl mx-auto px-6">
       <DesktopSubpageHeader title="Recovery" onBack={() => {}}>
@@ -24,11 +24,20 @@ export const DshWithActionPreview = () => (
 );
 
 /** Right slot empty — /wallet/recovery/:id. */
-export const DshEmptySlotPreview = () => (
+const DshEmptySlotFrame = () => (
   <div className="bg-background pt-6">
     <div className="max-w-5xl mx-auto px-6">
       <DesktopSubpageHeader title="Request detail" onBack={() => {}} />
     </div>
     <Body>No subtitle slot — explanatory copy belongs in the opening card.</Body>
+  </div>
+);
+
+/** Both frames — desktop-only component, so no mobile frame is provided. */
+export const DshHeaderPreview = () => (
+  <div className="bg-background pb-6">
+    <DshWithActionFrame />
+    <div className="mt-6 border-t border-border/60" />
+    <DshEmptySlotFrame />
   </div>
 );

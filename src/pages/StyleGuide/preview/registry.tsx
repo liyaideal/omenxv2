@@ -124,8 +124,7 @@ export const previewRegistry: Record<string, Loader> = {
   "foundations-brand-assets": pick(brandAssets, "BrandAssetsPreview"),
 
   /* -------- Foundations · Desktop Subpage Header (DSH v1) -------- */
-  "foundations-dsh-header": pick(dshHeader, "DshWithActionPreview"),
-  "foundations-dsh-header-empty": pick(dshHeader, "DshEmptySlotPreview"),
+  "foundations-dsh-header": pick(dshHeader, "DshHeaderPreview"),
 
   /* -------- Mobile header system -------- */
 
