@@ -3,13 +3,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -103,13 +96,14 @@ export const AddAddressDialog = ({
   const { addWallet } = useWallets();
   const [newLabel, setNewLabel] = useState("");
   const [newAddress, setNewAddress] = useState("");
-  const [newNetwork, setNewNetwork] = useState("");
+  // Base-only (2026-09-03): fixed network, no selector.
+  const [newNetwork, setNewNetwork] = useState("Base");
   const [isAdding, setIsAdding] = useState(false);
 
   const reset = () => {
     setNewLabel("");
     setNewAddress("");
-    setNewNetwork("");
+    setNewNetwork("Base");
   };
 
   const handleClose = (isOpen: boolean) => {

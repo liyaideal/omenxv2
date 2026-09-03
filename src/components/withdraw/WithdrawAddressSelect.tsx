@@ -24,7 +24,8 @@ interface WithdrawAddressSelectProps {
   initialStep?: 'list' | 'add';
 }
 
-const EMPTY_FORM: AddAddressValues = { label: '', address: '', network: '' };
+// Base-only (2026-09-03): the add step always saves on Base.
+const EMPTY_FORM: AddAddressValues = { label: '', address: '', network: 'Base' };
 
 /**
  * Mobile withdrawal-address picker (DESIGN.md §5).
