@@ -374,7 +374,7 @@ export const TransactionHistory = ({ transactions = [], className, fixture }: Tr
       {filteredTransactions.length === 0 ? (
         <EmptyState
           title={hasActiveFilters ? 'No transactions match your filters' : 'No recent activity'}
-          illustrationSrc={hasActiveFilters ? undefined : lynxEmptyActivity}
+          illustrationSrc={lynxEmptyActivity}
           description={
             hasActiveFilters
               ? 'Clear the filters to see the full history.'

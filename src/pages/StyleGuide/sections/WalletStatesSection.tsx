@@ -265,9 +265,10 @@ const TX_EMPTY_CASES: SectionCase[] = [
       {
         state: "empty-filtered",
         when: "filter !== 'all' 且该筛选下无行",
-        visual: "保留 pill 行，正文为「该筛选下暂无记录」语气的空态",
+        visual: "保留 pill 行，正文为「该筛选下暂无记录」语气的空态；插画同 W-3",
         source: "TransactionHistory.tsx filter 分支",
       },
+      { state: "插画资产", when: "同上", visual: "src/assets/wallet/lynx-empty-activity.png（330×330 PNG）", source: "Foundations › Brand assets · IP 插画" },
     ],
   },
 ];
