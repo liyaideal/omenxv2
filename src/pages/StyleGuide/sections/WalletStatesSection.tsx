@@ -91,13 +91,13 @@ const BADGE_CASES: SectionCase[] = [
         state: "STANDARD",
         when: "line === 'spot'",
         visual: "border-primary/30 bg-primary/10 text-primary，文字 STANDARD",
-        source: "PRODUCT_LINE_BADGE_CLASSES.spot",
+        source: "PRODUCT_LINE_BADGE_CLASSES.spot；数据来源 transactions.account 枚举（'spot'）",
       },
       {
         state: "BOOST",
         when: "line === 'futures'",
         visual: "border-accent/40 bg-accent/15 text-accent，文字 BOOST",
-        source: "PRODUCT_LINE_BADGE_CLASSES.futures",
+        source: "PRODUCT_LINE_BADGE_CLASSES.futures；数据来源 transactions.account 枚举（'futures'）",
       },
     ],
   },
@@ -157,6 +157,45 @@ const TX_CASES: SectionCase[] = [
   },
 ];
 
+const TRANSFER_CASES: SectionCase[] = [
+  {
+    key: "wallet-transfer-normal",
+    label: "Transfer · Normal（Boost → Standard）",
+    spec: [
+      {
+        state: "normal",
+        when: "0 < amount ≤ 来源账户可用余额",
+        visual: "主 CTA 可点，明细行显示转出 / 转入账户与到账金额",
+        source: "TransferForm；提交走 supabase/functions/sim-transfer",
+      },
+    ],
+  },
+  {
+    key: "wallet-transfer-insufficient",
+    label: "Transfer · Insufficient balance",
+    spec: [
+      {
+        state: "insufficient",
+        when: "amount > 来源账户可用余额（客户端余额比对）；服务端二次判定为 sim-transfer 400 `Insufficient {fromKey} balance`",
+        visual: "输入框下红字提示，主 CTA disabled",
+        source: "TransferForm 客户端比对 + supabase/functions/sim-transfer",
+      },
+    ],
+  },
+  {
+    key: "wallet-transfer-zero",
+    label: "Transfer · Amount 0 · disabled",
+    spec: [
+      {
+        state: "zero",
+        when: "amount ≤ 0（含空输入）",
+        visual: "无错误文案，主 CTA disabled",
+        source: "TransferForm 提交门",
+      },
+    ],
+  },
+];
+
 const HERO_CASES: SectionCase[] = [
   {
     key: "wallet-lite-hero-note-lite",
@@ -166,7 +205,13 @@ const HERO_CASES: SectionCase[] = [
         state: "Lite",
         when: "surface === 'lite' → equityNote='does not include open trade profit'",
         visual: "副行 'Boost + Standard · does not include open trade profit'",
-        source: "Wallet.tsx equityNote={isLite ? … : undefined}",
+        source: "Wallet.tsx equityNote={isLite ? … : undefined}；句子登记于 docs/copy-dictionary.md §Wallet",
+      },
+      {
+        state: "equity 数值",
+        when: "hidden === false",
+        visual: "font-mono 主数，两位小数",
+        source: "computeTotalEquity = spot_balance + balance（src/lib/equity.ts）",
       },
     ],
   },
@@ -264,8 +309,8 @@ const TX_STATE_CASES: SectionCase[] = [
   },
   {
     key: "wallet-lite-tx-pro-only-types",
-    label: "W-9 · 交易流水 · Pro 专属四类型",
-    note: "Lite 面只留 cross_chain_* 与 fiat_sell；fiat_buy 已于 2026-08-28 进 Lite 流水，见 W-17。",
+    label: "W-20 · 平台入账与跨链行（TxRowPlatformTypes）",
+    note: "fiat_* 类型随 Banxa 弃用退役（2026-09-03），MoonPay 轮重启前不再展示。cross-chain 为真业务（bridge 仅支持 deposit）。",
     spec: [
       { state: "cross_chain_in", when: "type === 'cross_chain_in'", visual: "跨链入账，展开显示 source → dest 链与币种", source: "TransactionHistory.tsx" },
       { state: "cross_chain_out", when: "type === 'cross_chain_out'", visual: "跨链出账，金额为负", source: "TransactionHistory.tsx" },
@@ -327,7 +372,7 @@ const HERO_HIDDEN_CASES: SectionCase[] = [
         state: "hidden",
         when: "hidden === true（点击眼睛）",
         visual: "金额替换为掩码字符，副行说明保留，EyeOff 图标",
-        source: "HeroEquityCard hidden",
+        source: "HeroEquityCard hidden（Wallet.tsx equityHidden 本地态，不落库）",
       },
     ],
   },
@@ -390,45 +435,152 @@ const WITHDRAW_CASES: SectionCase[] = [
   },
 ];
 
-export const WalletLiteR1Section = ({ isMobile }: { isMobile: boolean }) => (
+/* ---- 2026-09-03 · M7a-② 迁移轮：Ⓐ 组合层与登录门 ---- */
+
+const LAYOUT_CASES: SectionCase[] = [
+  {
+    key: "wallet-page-layout",
+    label: "W-18 · Wallet 组合层（WalletPageLayout）",
+    note:
+      "桌面为三段：Hero（满宽）→ 双账户卡 grid-cols-2 → 12 栅格 8（流水 / recovery 文字链）+ 4（Saved addresses）。生产 /wallet 无 MAINNET chip；顶部同位置为 MaintenanceNoticeBanner，MAINTENANCE_NOTICES 为空数组时整块不渲染（本帧即空态）。",
+    spec: [
+      {
+        state: "Total equity",
+        when: "恒显",
+        visual: "Hero 主数 $15,885.23 + 副行 'Boost + Standard · does not include open trade profit'",
+        source: "computeTotalEquity = spot_balance + balance（src/lib/equity.ts）",
+      },
+      {
+        state: "双账户卡",
+        when: "恒显",
+        visual: "Standard $482.95 / Boost $15,402.28；桌面 grid-cols-2、移动纵排 space-y-3",
+        source: "SpotAccountCard / FuturesAccountCard（src/pages/Wallet.tsx）",
+      },
+      {
+        state: "维护公告位",
+        when: "MAINTENANCE_NOTICES 中存在 startAt ≤ now < endAt 的条目",
+        visual: "Hero 上方整宽公告条；无生效条目时该位零高度",
+        source: "MaintenanceNoticeBanner + src/config/maintenanceNotices.ts",
+      },
+      {
+        state: "recovery 文字链",
+        when: "恒显（与 PendingConfirmations 是否渲染无关）",
+        visual: "桌面在 8 栏底部、移动在流水卡下方：`Sent funds to the wrong network? Request recovery →`",
+        source: "Wallet.tsx → navigate('/wallet/recovery')",
+      },
+      {
+        state: "栅格",
+        when: "desktop（>= 768px）",
+        visual: "grid grid-cols-12 gap-6，主列 col-span-8、侧列 col-span-4",
+        source: "Wallet.tsx Band 3",
+      },
+    ],
+  },
+];
+
+const AUTH_GATE_CASES: SectionCase[] = [
+  {
+    key: "wallet-auth-gate",
+    label: "W-19 · 登录门（WalletAuthGate）",
+    note:
+      "/wallet · /deposit · /withdraw 三路由自 2026-09-03 起同门；guest 底层一律为 WalletGatePlaceholder 占位灰块，不挂任何真实余额 / 地址 / 表单组件。两帧由 forceSignedOut fixture 强制 guest 形态，不依赖运行时 auth 状态。",
+    spec: [
+      {
+        state: "Lite 门",
+        when: "surface === 'lite' && !user",
+        visual: "LiteAuthGate 形态：占位灰块 + 居中标题 'Sign in to view your wallet' + 说明 + 登录 CTA",
+        source: "WalletAuthGate（src/pages/Wallet.tsx）→ LiteAuthGate",
+      },
+      {
+        state: "Pro 门",
+        when: "surface === 'pro' && !user",
+        visual: "AuthGateOverlay 形态：底层模糊 + Log In / Sign Up 双按钮；maxPreviewHeight 400px 截断预览区",
+        source: "WalletAuthGate → AuthGateOverlay",
+      },
+      {
+        state: "已登录",
+        when: "user !== null",
+        visual: "门整体不渲染，children 原样透传",
+        source: "AuthGateOverlay / LiteAuthGate 早返回",
+      },
+    ],
+  },
+];
+
+export const WalletStatesSection = ({ isMobile }: { isMobile: boolean }) => (
   <SectionWrapper
     id="wallet-lite-r1"
-    title="Wallet Lite R1 · 状态字典"
+    title="Wallet · 状态字典"
     platform="shared"
-    description="2026-08 Wallet Lite 改版三批：批1 未登录门（登录弹层三步已迁往「登录 / 注册」节）/ 批2 地址 ⋯ 菜单 + 账户徽标配色 + Hero 文案 / 批3 流水行清理 + 列对齐 + icon 全类型映射。"
+    description="Wallet 字典唯一主节：组合层与 Hero / 账户与 Transfer / 流水与 pending / 充值流 / 提现流 / 地址簿 / Recovery 与服务件。"
   >
-    <SubSection title="1 · HeroEquityCard">
-      <SectionFrame cases={[...HERO_CASES, ...HERO_HIDDEN_CASES]} device="desktop" minHeight={520} />
+    <div className="space-y-1 rounded-lg border border-[#CFFF4A]/30 bg-[#CFFF4A]/5 px-3 py-2 text-[12px] text-foreground">
+      <div>
+        本页 = 产品页 <code className="font-mono">/wallet · /deposit · /withdraw · /wallet/recovery</code> 的状态字典。
+      </div>
+      <div>样式与布局 → 生产页；状态与判定 → 本页。</div>
+      <div>
+        字段名 / 文案 / 公式 / 术语 → <code className="font-mono">docs/copy-dictionary.md</code>（顶部有 Lite 术语对照表）+{" "}
+        <code className="font-mono">docs/delivery/lite-wallet-spec-v1.md</code>（M7b 入库）。
+      </div>
+    </div>
+
+    <SubSection title="Ⓐ 组合层与 Hero" platform="shared">
+      <SectionFrame cases={LAYOUT_CASES} device="desktop" minHeight={900} />
+      <div className="mt-3">
+        <SectionFrame
+          cases={[{ ...LAYOUT_CASES[0], key: "wallet-page-layout-mobile", label: "W-18 · Wallet 组合层 · mobile" }]}
+          device="mobile"
+          minHeight={900}
+        />
+      </div>
+      <div className="mt-3">
+        <SectionFrame cases={AUTH_GATE_CASES} device="desktop" minHeight={720} />
+      </div>
+      <div className="mt-3">
+        <SectionFrame cases={AUTH_GATE_CASES} device="mobile" minHeight={720} />
+      </div>
+      <div className="mt-3">
+        <SectionFrame cases={[...HERO_CASES, ...HERO_HIDDEN_CASES]} device="desktop" minHeight={520} />
+      </div>
       <div className="mt-3">
         <SectionFrame cases={[...HERO_CASES, ...HERO_HIDDEN_CASES]} device="mobile" minHeight={560} />
       </div>
     </SubSection>
 
-
-    <SubSection title="2 · 双账户卡" platform="shared">
+    <SubSection title="Ⓑ 账户与 Transfer" platform="shared">
       <SectionFrame cases={[{ key: "wallet-equity-bands", label: "Standard / Boost 双账户卡" }]} device="desktop" minHeight={340} />
+      <div className="mt-3">
+        <SectionFrame cases={TRANSFER_CASES} device="desktop" minHeight={460} />
+      </div>
+      <div className="mt-3">
+        <SectionFrame cases={BADGE_CASES} device="desktop" minHeight={140} />
+      </div>
     </SubSection>
 
-    <SubSection title="3 · Transfer 三态" platform="shared">
-      <SectionFrame cases={[
-        { key: "wallet-transfer-normal", label: "Normal · Boost → Standard" },
-        { key: "wallet-transfer-insufficient", label: "Insufficient balance" },
-        { key: "wallet-transfer-zero", label: "Amount 0 · disabled" },
-      ]} device="desktop" minHeight={460} />
-    </SubSection>
-
-    <SubSection title="4 · PendingConfirmations（W-1 / W-2）" platform="shared">
+    <SubSection title="Ⓒ 流水与 pending" platform="shared">
       <SectionFrame cases={[PENDING_CASES[0]]} device="desktop" minHeight={280} />
       <div className="mt-3">
         <SectionFrame cases={[PENDING_CASES[1]]} device="mobile" minHeight={300} />
       </div>
+      <div className="mt-3">
+        <SectionFrame
+          cases={[TX_CASES[0], TX_CASES[1], ...TX_EMPTY_CASES, ...TX_STATE_CASES, ...TX_FIAT_CASES]}
+          device={isMobile ? "mobile" : "desktop"}
+          minHeight={620}
+        />
+      </div>
     </SubSection>
 
-    <SubSection title="5 · 交易流水" platform="shared">
-      <SectionFrame cases={[TX_CASES[0], TX_CASES[1], ...TX_EMPTY_CASES, ...TX_STATE_CASES, ...TX_FIAT_CASES]} device={isMobile ? "mobile" : "desktop"} minHeight={620} />
+    <SubSection title="Ⓓ 充值流（M7b 填充）" platform="desktop">
+      <SectionFrame cases={DEPOSIT_DIALOG_CASES} device="desktop" minHeight={620} />
     </SubSection>
 
-    <SubSection title="6 · Saved addresses" platform="shared">
+    <SubSection title="Ⓔ 提现流（M7b 填充）" platform="desktop">
+      <SectionFrame cases={WITHDRAW_CASES} device="desktop" minHeight={520} />
+    </SubSection>
+
+    <SubSection title="Ⓕ 地址簿" platform="shared">
       <SectionFrame cases={ADDRESS_DESKTOP_CASES} device="desktop" minHeight={200} />
       <div className="mt-3">
         <SectionFrame cases={ADDRESS_MOBILE_CASES} device="mobile" minHeight={380} />
@@ -438,14 +590,9 @@ export const WalletLiteR1Section = ({ isMobile }: { isMobile: boolean }) => (
       </div>
     </SubSection>
 
-    <SubSection title="账户徽标（单一真相）" platform="shared">
-      <SectionFrame cases={BADGE_CASES} device="desktop" minHeight={120} />
-    </SubSection>
-
-    <SubSection title="7 · Deposit & Withdraw（W-12 … W-16）" platform="desktop">
-      <SectionFrame cases={DEPOSIT_DIALOG_CASES} device="desktop" minHeight={620} />
-      <div className="mt-3">
-        <SectionFrame cases={WITHDRAW_CASES} device="desktop" minHeight={520} />
+    <SubSection title="Ⓖ Recovery 与服务件（M7b 填充）" platform="shared">
+      <div className="rounded-lg border border-dashed border-border/60 px-3 py-4 text-[12px] text-muted-foreground">
+        空壳：/wallet/recovery 表单三态、WithdrawVerifyDialog 四模式、WithdrawStatusTracker —— M7b 填充。
       </div>
     </SubSection>
   </SectionWrapper>
