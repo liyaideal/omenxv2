@@ -67,6 +67,8 @@ import {
 import useCategoryBoostConfigs from "@/hooks/useCategoryBoostConfigs";
 import { cn } from "@/lib/utils";
 import { SeoFooter } from "@/components/seo/SeoFooter";
+import heroThread from "@/assets/wallet/hero-thread.webp";
+import lynxEmptyAddresses from "@/assets/wallet/lynx-empty-addresses.png";
 
 /* ------------------------------------------------------------------
  * Signal-DNA visual primitives (Wallet page only)
@@ -122,12 +124,14 @@ export const HeroEquityCard = ({
       compact ? "p-5" : "p-[34px_36px]",
     )}
   >
-    <XMotif
-      className={
-        compact
-          ? "-right-[30px] -top-[40px] h-[220px] w-[260px]"
-          : "-right-[30px] -top-[40px] h-[260px] w-[300px]"
-      }
+    <img
+      src={heroThread}
+      alt=""
+      aria-hidden
+      onError={(e) => {
+        (e.currentTarget as HTMLImageElement).style.display = "none";
+      }}
+      className="pointer-events-none select-none absolute inset-0 z-0 h-full w-full object-cover object-right"
     />
     <div
       className={cn(
@@ -167,12 +171,12 @@ export const HeroEquityCard = ({
           <Button className={cn("h-11 rounded-full font-semibold", HERO_CTA_GRADIENT)} onClick={onDeposit}>
             Deposit
           </Button>
-          <Button variant="outline" className="h-11" onClick={onWithdraw}>
+          <Button variant="outline" className="h-11 rounded-full bg-secondary" onClick={onWithdraw}>
             Withdraw
           </Button>
           <Button
             variant="ghost"
-            className="col-span-2 h-11 border border-border/50"
+            className="col-span-2 h-11 rounded-full bg-secondary border border-border/50"
             onClick={onTransfer}
           >
             Transfer <span className="ml-1.5 text-muted-foreground">⇄</span>
@@ -183,12 +187,12 @@ export const HeroEquityCard = ({
           <Button className={cn("h-auto py-3 px-[22px] rounded-full font-semibold text-sm", HERO_CTA_GRADIENT)} onClick={onDeposit}>
             Deposit
           </Button>
-          <Button variant="outline" className="h-auto py-3 px-[22px] rounded-full font-semibold text-sm" onClick={onWithdraw}>
+          <Button variant="outline" className="h-auto py-3 px-[22px] rounded-full bg-secondary font-semibold text-sm" onClick={onWithdraw}>
             Withdraw
           </Button>
           <Button
             variant="ghost"
-            className="h-auto py-3 px-[22px] rounded-full font-semibold text-sm text-[#C9CED6] hover:text-foreground"
+            className="h-auto py-3 px-[22px] rounded-full bg-secondary font-semibold text-sm text-[#C9CED6] hover:text-foreground"
             onClick={onTransfer}
           >
             Transfer <span className="ml-1.5 text-muted-foreground">⇄</span>
@@ -813,6 +817,7 @@ export default function Wallet() {
               variant="module"
               bordered={false}
               title="No saved addresses"
+              illustrationSrc={lynxEmptyAddresses}
               description="Save addresses for quick deposits and withdrawals."
               className="px-0 py-2"
             />
@@ -915,6 +920,8 @@ export default function Wallet() {
                         variant="module"
                         bordered={false}
                         title="No saved addresses"
+                        illustrationSrc={lynxEmptyAddresses}
+              illustrationSrc={lynxEmptyAddresses}
                         description="Save addresses for quick deposits and withdrawals."
                         className="px-0 py-2"
                       />
