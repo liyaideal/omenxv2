@@ -1,5 +1,5 @@
 // ============================================================
-// Lite portfolio auth gate (CPO v1.18).
+// Global Lite guest auth gate.
 // Signed-in → children pass through untouched. Signed-out → blurred
 // under-layer + EmptyState-grammar overlay (lynx + btn-primary + pill).
 // Never reuse AuthGateOverlay styling here.
