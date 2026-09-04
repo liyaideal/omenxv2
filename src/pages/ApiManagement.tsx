@@ -5,7 +5,7 @@ import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { Button } from "@/components/ui/button";
-import { AuthGateOverlay } from "@/components/AuthGateOverlay";
+import { LiteAuthGate } from "@/components/auth/LiteAuthGate";
 import { toast } from "sonner";
 import { EmptyState, LoadingState, ErrorState } from "@/components/states";
 import { useApiKeys, useTierEligibility, type ApiKey } from "@/hooks/useApiKeys";
