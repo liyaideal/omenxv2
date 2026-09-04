@@ -347,7 +347,7 @@ export const AuthContent = ({
         )}
 
         {/* Auth Method Tabs */}
-        <div className="flex bg-muted/50 rounded-xl p-1 gap-1">
+        <div className={isLite ? "flex bg-[#14161A] rounded-[12px] p-[4px] gap-[4px] h-[48px]" : "flex bg-muted/50 rounded-xl p-1 gap-1"}>
           {[
             { id: "wallet" as const, label: "Wallet" },
             { id: "google" as const, label: "Google" },
@@ -356,14 +356,17 @@ export const AuthContent = ({
             <button
               key={method.id}
               onClick={() => setAuthMethod(method.id)}
-              className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all ${
+              className={`${isLite ? "flex-1 h-[40px] rounded-[10px] text-[14px] font-medium transition-all" : "flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all"} ${
                 authMethod === method.id
                   ? isLite
                     ? "bg-[#F2F3F5] text-[#090A0C] shadow-sm"
                     : "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  : isLite
+                    ? "text-[#9CA2AB]"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               }`}
             >
+
               {method.label}
             </button>
           ))}
