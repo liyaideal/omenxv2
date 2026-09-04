@@ -10,7 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { AuthSheet } from "@/components/auth/AuthSheet";
-import { LynxFigure } from "@/components/brand/LynxFigure";
+
 
 export const LiteAuthGate = ({
   children,
@@ -49,27 +49,28 @@ export const LiteAuthGate = ({
       <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/40">
         <div className="text-center max-w-[340px] px-4">
           <div className="flex justify-center">
-            <LynxFigure size={100} />
+            <img
+              src={isMobile ? "/assets/mobile/auth-gate-lynx.png" : "/assets/desktop/auth-gate-lynx.png"}
+              alt=""
+              aria-hidden
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).style.display = "none";
+              }}
+              className="pointer-events-none select-none w-[120px] h-[120px] object-contain"
+            />
           </div>
-          <h2
-            className={`font-display font-semibold tracking-tight text-foreground mt-[18px] ${
-              isMobile ? "text-[18px]" : "text-[19px]"
-            }`}
-          >
+          <h2 className="font-display font-semibold text-[19px] tracking-[-0.475px] text-white text-center mt-[18px]">
             {title}
           </h2>
-          <p
-            className={`font-sans text-muted-foreground leading-relaxed mt-2 max-w-[320px] mx-auto ${
-              isMobile ? "text-[13px]" : "text-[13.5px]"
-            }`}
-          >
+          <p className="text-[13.5px] leading-[1.625] text-[#9CA2AB] text-center max-w-[320px] mx-auto pt-[8px]">
             {description}
           </p>
-          <div className="mt-[22px] flex items-center justify-center gap-3">
+          <div className="pt-[22px] flex items-center justify-center gap-[12px]">
             <button
               type="button"
               onClick={() => setAuthOpen(true)}
-              className="btn-primary inline-flex items-center gap-2 text-sm"
+              style={{ backgroundImage: "linear-gradient(147deg, #D5FF4D 7.7%, #33D6FF 92.3%)" }}
+              className="inline-flex items-center gap-2 rounded-[12px] px-[24px] py-[12px] font-semibold text-[14px] text-[#090A0B] drop-shadow-[0_4px_7.5px_rgba(51,214,255,0.3)]"
             >
               <LogIn className="h-4 w-4" />
               Sign in
@@ -77,12 +78,13 @@ export const LiteAuthGate = ({
             <button
               type="button"
               onClick={() => setAuthOpen(true)}
-              className="inline-flex items-center rounded-full border-[1.5px] border-border bg-transparent text-foreground/80 transition-colors hover:text-foreground px-[18px] py-2 text-[13px]"
+              className="inline-flex items-center justify-center h-[44px] rounded-[12px] px-[18px] border-[1.5px] border-[#1C1F26] bg-transparent text-[13px] text-white/80 transition-colors hover:text-white"
             >
               Create account
             </button>
           </div>
         </div>
+
       </div>
 
       {isMobile ? (
