@@ -49,6 +49,49 @@ export default function RecoveryRequestPage() {
     </div>
   );
 
+  // ---- Signed-out: global LiteAuthGate over static intro + skeleton ----
+  if (!user) {
+    const gateBody = (
+      <LiteAuthGate
+        title="Sign in to view your recovery requests"
+        description="Submit or view your recovery requests by signing in to your account."
+      >
+        {intro}
+        <div className="space-y-3 mt-6">
+          <h2 className={isMobile ? 'text-sm font-semibold' : 'text-base font-semibold'}>Your requests</h2>
+          <div className="space-y-2">
+            <div className="h-[74px] rounded-xl border bg-muted/30" />
+            <div className="h-[74px] rounded-xl border bg-muted/30" />
+            <div className="h-[74px] rounded-xl border bg-muted/30" />
+          </div>
+        </div>
+      </LiteAuthGate>
+    );
+
+    if (isMobile) {
+      return (
+        <div className="min-h-screen bg-background flex flex-col">
+          <MobileHeader title="Recovery" showBack showLogo={false} />
+          <main className="flex-1 overflow-auto pb-24">
+            <div className="px-4 mt-5">{gateBody}</div>
+          </main>
+          <BottomNav />
+        </div>
+      );
+    }
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <EventsDesktopHeader />
+        <main className="flex-1">
+          <div className="mx-auto w-full max-w-7xl px-4 py-10 lg:px-6">
+            <DesktopSubpageHeader title="Recovery" onBack={() => navigate('/wallet')} />
+            <div className="mt-[22px]">{gateBody}</div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   const listSection = (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
