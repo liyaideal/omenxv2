@@ -306,17 +306,22 @@ export const AuthContent = ({
         {isLite ? (
           <div>
             <img
-              src="/lynx-auth-placeholder.png"
-              alt="OMENX lynx"
-              className="w-[72px] h-auto mx-auto mb-1 drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
+              src="/assets/desktop/auth-wizard-lynx.png"
+              alt=""
+              aria-hidden
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).style.display = "none";
+              }}
+              className="pointer-events-none select-none w-[120px] h-[120px] object-contain mx-auto mb-1"
             />
-            <h2 className="font-display text-[20px] font-semibold tracking-tight text-foreground text-center">
+            <h2 className="font-display text-[17px] font-bold tracking-[-0.34px] text-white text-center">
               Trade what happens next
             </h2>
-            <p className="text-[13px] text-muted-foreground text-center mt-1.5 leading-snug">
+            <p className="text-[12px] text-[#9CA2AB] text-center mt-1.5 leading-snug">
               Intraday crypto, stock and sports markets — settled in USDC.
             </p>
           </div>
+
         ) : (
           <>
             <div className="text-center space-y-1">
