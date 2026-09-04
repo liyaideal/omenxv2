@@ -359,7 +359,10 @@ export const AuthPage = ({ isMobile }: { isMobile: boolean }) => (
       </SubSection>
 
       <SubSection title="4 · 未登录门" platform="shared">
-        <SectionFrame cases={GATE_CASES} device={isMobile ? "mobile" : "desktop"} minHeight={460} />
+        <SectionFrame cases={GATE_CASES} device="desktop" minHeight={520} />
+        <div className="mt-3">
+          <SectionFrame cases={GATE_CASES} device="mobile" minHeight={640} />
+        </div>
       </SubSection>
 
       <SubSection title="5 · Google 账号选择弹层" platform="shared">
