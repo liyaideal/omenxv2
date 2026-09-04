@@ -306,17 +306,22 @@ export const AuthContent = ({
         {isLite ? (
           <div>
             <img
-              src="/lynx-auth-placeholder.png"
-              alt="OMENX lynx"
-              className="w-[72px] h-auto mx-auto mb-1 drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
+              src="/assets/desktop/auth-wizard-lynx.png"
+              alt=""
+              aria-hidden
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).style.display = "none";
+              }}
+              className="pointer-events-none select-none w-[120px] h-[120px] object-contain mx-auto mb-1"
             />
-            <h2 className="font-display text-[20px] font-semibold tracking-tight text-foreground text-center">
+            <h2 className="font-display text-[17px] font-bold tracking-[-0.34px] text-white text-center">
               Trade what happens next
             </h2>
-            <p className="text-[13px] text-muted-foreground text-center mt-1.5 leading-snug">
+            <p className="text-[12px] text-[#9CA2AB] text-center mt-1.5 leading-snug">
               Intraday crypto, stock and sports markets — settled in USDC.
             </p>
           </div>
+
         ) : (
           <>
             <div className="text-center space-y-1">
@@ -342,7 +347,7 @@ export const AuthContent = ({
         )}
 
         {/* Auth Method Tabs */}
-        <div className="flex bg-muted/50 rounded-xl p-1 gap-1">
+        <div className={isLite ? "flex bg-[#14161A] rounded-[12px] p-[4px] gap-[4px] h-[48px]" : "flex bg-muted/50 rounded-xl p-1 gap-1"}>
           {[
             { id: "wallet" as const, label: "Wallet" },
             { id: "google" as const, label: "Google" },
@@ -351,14 +356,17 @@ export const AuthContent = ({
             <button
               key={method.id}
               onClick={() => setAuthMethod(method.id)}
-              className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all ${
+              className={`${isLite ? "flex-1 h-[40px] rounded-[10px] text-[14px] font-medium transition-all" : "flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all"} ${
                 authMethod === method.id
                   ? isLite
                     ? "bg-[#F2F3F5] text-[#090A0C] shadow-sm"
                     : "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  : isLite
+                    ? "text-[#9CA2AB]"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               }`}
             >
+
               {method.label}
             </button>
           ))}
@@ -368,11 +376,11 @@ export const AuthContent = ({
         <div className="space-y-3">
           {authMethod === "google" && (
             <>
-              <p className="text-sm text-muted-foreground">Quick sign-in with Google</p>
+              <p className={isLite ? "text-[12px] text-[#9CA2AB]" : "text-sm text-muted-foreground"}>Quick sign-in with Google</p>
               <Button
                 onClick={() => setGoogleChooserOpen(true)}
                 disabled={isLoading}
-                className="w-full h-12 bg-card hover:bg-card-hover border border-border text-foreground text-sm"
+                className={isLite ? "w-full h-[48px] rounded-[12px] bg-[#14161A] hover:bg-[#14161A] border border-[#23262D] text-white text-[14px]" : "w-full h-12 bg-card hover:bg-card-hover border border-border text-foreground text-sm"}
               >
                 {isLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin mr-2" />
@@ -386,7 +394,7 @@ export const AuthContent = ({
                 )}
                 Sign in with Google
               </Button>
-              <p className="text-xs text-muted-foreground text-center">
+              <p className={isLite ? "text-[12px] text-[#6B7280] text-center" : "text-xs text-muted-foreground text-center"}>
                 {isLite ? "No wallet needed · Ready in seconds" : "Instant access · No wallet needed · Start trading in seconds"}
               </p>
             </>
@@ -394,11 +402,11 @@ export const AuthContent = ({
 
           {authMethod === "wallet" && (
             <>
-              <p className="text-sm text-muted-foreground">Connect your Web3 wallet</p>
+              <p className={isLite ? "text-[12px] text-[#9CA2AB]" : "text-sm text-muted-foreground"}>Connect your Web3 wallet</p>
               <Button
                 onClick={() => handleDemoLogin("wallet")}
                 disabled={isLoading}
-                className="w-full h-12 bg-card hover:bg-card-hover border border-border text-foreground text-sm"
+                className={isLite ? "w-full h-[48px] rounded-[12px] bg-[#14161A] hover:bg-[#14161A] border border-[#23262D] text-white text-[14px]" : "w-full h-12 bg-card hover:bg-card-hover border border-border text-foreground text-sm"}
               >
                 {isLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin mr-2" />
@@ -407,7 +415,7 @@ export const AuthContent = ({
                 )}
                 Connect Wallet
               </Button>
-              <p className="text-xs text-muted-foreground text-center">
+              <p className={isLite ? "text-[12px] text-[#6B7280] text-center" : "text-xs text-muted-foreground text-center"}>
                 Supports MetaMask, WalletConnect & more
               </p>
             </>
@@ -415,11 +423,11 @@ export const AuthContent = ({
 
           {authMethod === "telegram" && (
             <>
-              <p className="text-sm text-muted-foreground">Sign in with Telegram</p>
+              <p className={isLite ? "text-[12px] text-[#9CA2AB]" : "text-sm text-muted-foreground"}>Sign in with Telegram</p>
               <Button
                 onClick={() => handleDemoLogin("telegram")}
                 disabled={isLoading}
-                className="w-full h-12 bg-card hover:bg-card-hover border border-border text-foreground text-sm"
+                className={isLite ? "w-full h-[48px] rounded-[12px] bg-[#14161A] hover:bg-[#14161A] border border-[#23262D] text-white text-[14px]" : "w-full h-12 bg-card hover:bg-card-hover border border-border text-foreground text-sm"}
               >
                 {isLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin mr-2" />
@@ -430,7 +438,7 @@ export const AuthContent = ({
                 )}
                 Sign in with Telegram
               </Button>
-              <p className="text-xs text-muted-foreground text-center">
+              <p className={isLite ? "text-[12px] text-[#6B7280] text-center" : "text-xs text-muted-foreground text-center"}>
                 Fast & secure Telegram authentication
               </p>
             </>
@@ -439,15 +447,15 @@ export const AuthContent = ({
 
         {/* Divider with OR */}
         <div className="flex items-center gap-3">
-          <div className="flex-1 h-px bg-border/50" />
-          <span className="text-xs text-muted-foreground">OR</span>
-          <div className="flex-1 h-px bg-border/50" />
+          <div className={isLite ? "flex-1 h-px bg-[#23262D]" : "flex-1 h-px bg-border/50"} />
+          <span className={isLite ? "text-[12px] text-[#9CA2AB]" : "text-xs text-muted-foreground"}>OR</span>
+          <div className={isLite ? "flex-1 h-px bg-[#23262D]" : "flex-1 h-px bg-border/50"} />
         </div>
 
         {/* Info text */}
         <div className="text-center space-y-2">
           {isLite ? (
-            <p className="text-sm text-foreground">
+            <p className="text-[12px] text-white text-center">
               New to OMENX? Your account is created the first time you sign in.
             </p>
           ) : (
@@ -465,11 +473,11 @@ export const AuthContent = ({
 
 
         {/* Terms */}
-        <p className="text-xs text-muted-foreground text-center">
+        <p className={isLite ? "text-[12px] text-[#9CA2AB] text-center" : "text-xs text-muted-foreground text-center"}>
           By continuing, you agree to our{" "}
-          <span className="text-primary hover:underline cursor-pointer">Terms of Service</span>
+          <span className={isLite ? "text-[#33D6FF] hover:underline cursor-pointer" : "text-primary hover:underline cursor-pointer"}>Terms of Service</span>
           {" "}and{" "}
-          <span className="text-primary hover:underline cursor-pointer">Privacy Policy</span>
+          <span className={isLite ? "text-[#33D6FF] hover:underline cursor-pointer" : "text-primary hover:underline cursor-pointer"}>Privacy Policy</span>
         </p>
 
         {/* Google account chooser (fixed identities + "use another account") */}
