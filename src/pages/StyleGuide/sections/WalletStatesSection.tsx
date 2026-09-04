@@ -667,7 +667,7 @@ const RECOVERY_CASES: SectionCase[] = [
     spec: [
       { state: "intro", when: "恒显于 /wallet/recovery", visual: "10% flat fee / 3–7 business days 两枚 Pill + 「A flat 10% recovery fee applies」段", source: "RecoveryRequest.tsx intro" },
       { state: "表单校验", when: "字段未通过 zod schema", visual: "字段下红字（Enter a valid transaction hash / Amount must be greater than 0 等）", source: "RecoveryForm.tsx schema" },
-      { state: "Sign in required", when: "!user", visual: "黄色 AlertTriangle + Sign in required + 说明句，不渲染表单", source: "RecoveryRequest.tsx 未登录分支" },
+      { state: "未登录门", when: "!user", visual: "全局 LiteAuthGate：开门 lynx 插画 + 'Sign in to view your recovery requests' + 说明句 + 渐变 Sign in / 描边 Create account，blur 底层为 intro 卡 + Your requests 灰块骨架", source: "RecoveryRequest.tsx 未登录分支 → src/components/auth/LiteAuthGate" },
     ],
   },
   {

@@ -52,7 +52,7 @@ import {
   takePortfolioScroll,
 } from "@/lib/portfolioReturn";
 import { PortfolioErrorBoundary } from "@/components/portfolio/lite/PortfolioErrorBoundary";
-import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
+import { LiteAuthGate } from "@/components/auth/LiteAuthGate";
 import {
   LiteManualShareCard,
   type LiteManualShareSnap,

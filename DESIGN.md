@@ -921,6 +921,10 @@ Desktop-only component: `src/components/layout/DesktopSubpageHeader.tsx`. Mobile
 
 裁定记录：返回件经 A ghost / B 描边方钮 / C 胶囊含父级名 / D 浅底填充 四案比稿，CPO 2026-09-03 定 B。
 
+### Guest gate（Lite 未登录门）— 2026-09-04
+
+Lite 面全屏未登录门统一使用全局组件 src/components/auth/LiteAuthGate（开门 lynx 插画 + 标题 + 描述 + 渐变 Sign in 胶囊 + 描边 Create account），页面只传 title/description 两个文案 props，禁止自造门样式；AuthGateOverlay 仅限 Pro 面。行内登录提示（SignInPromptCard 类）是另一形态，不适用本规则。
+
 #### EmptyState `illustrationSrc`（挂账）
 
 `EmptyState` 的可选 `illustrationSrc` 传入时**替换**默认插画/图标位（不是叠加），不传则零变化。资产统一登记于 style-guide Foundations「Brand assets · IP 插画」节。

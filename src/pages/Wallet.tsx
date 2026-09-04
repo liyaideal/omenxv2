@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { useSurface } from "@/contexts/SurfaceContext";
-import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
+import { LiteAuthGate } from "@/components/auth/LiteAuthGate";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {

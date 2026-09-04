@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, ChevronRight, Loader2, Plus, Info } from 'lucide-react';
+import { ChevronRight, Loader2, Plus, Info } from 'lucide-react';
 import { DesktopSubpageHeader } from '@/components/layout/DesktopSubpageHeader';
+import { LiteAuthGate } from '@/components/auth/LiteAuthGate';
 import { useAuth } from '@/hooks/useAuth';
 import { useRecoveryRequests } from '@/hooks/useRecoveryRequests';
 import { RecoveryStatusBadge } from '@/components/recovery/RecoveryStatusTimeline';
@@ -23,36 +24,6 @@ export default function RecoveryRequestPage() {
   const requests = list.data ?? [];
 
   if (isMobile === undefined) return null;
-
-  // ---- Signed-out ----
-  if (!user) {
-    const signInPrompt = (
-      <div className="flex-1 flex items-center justify-center p-6 text-center">
-        <div className="space-y-3 max-w-sm">
-          <AlertTriangle className="w-10 h-10 text-trading-yellow mx-auto" />
-          <h2 className="text-lg font-semibold">Sign in required</h2>
-          <p className="text-sm text-muted-foreground">
-            Please sign in to submit or view your recovery requests.
-          </p>
-        </div>
-      </div>
-    );
-
-    if (isMobile) {
-      return (
-        <div className="min-h-screen bg-background flex flex-col">
-          <MobileHeader title="Recovery" showBack showLogo={false} />
-          {signInPrompt}
-        </div>
-      );
-    }
-    return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <EventsDesktopHeader />
-        {signInPrompt}
-      </div>
-    );
-  }
 
   // ---- Intro / list section (shared content data) ----
   const intro = (
@@ -77,6 +48,49 @@ export default function RecoveryRequestPage() {
       </div>
     </div>
   );
+
+  // ---- Signed-out: global LiteAuthGate over static intro + skeleton ----
+  if (!user) {
+    const gateBody = (
+      <LiteAuthGate
+        title="Sign in to view your recovery requests"
+        description="Submit or view your recovery requests by signing in to your account."
+      >
+        {intro}
+        <div className="space-y-3 mt-6">
+          <h2 className={isMobile ? 'text-sm font-semibold' : 'text-base font-semibold'}>Your requests</h2>
+          <div className="space-y-2">
+            <div className="h-[74px] rounded-xl border bg-muted/30" />
+            <div className="h-[74px] rounded-xl border bg-muted/30" />
+            <div className="h-[74px] rounded-xl border bg-muted/30" />
+          </div>
+        </div>
+      </LiteAuthGate>
+    );
+
+    if (isMobile) {
+      return (
+        <div className="min-h-screen bg-background flex flex-col">
+          <MobileHeader title="Recovery" showBack showLogo={false} />
+          <main className="flex-1 overflow-auto pb-24">
+            <div className="px-4 mt-5">{gateBody}</div>
+          </main>
+          <BottomNav />
+        </div>
+      );
+    }
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <EventsDesktopHeader />
+        <main className="flex-1">
+          <div className="mx-auto w-full max-w-7xl px-4 py-10 lg:px-6">
+            <DesktopSubpageHeader title="Recovery" onBack={() => navigate('/wallet')} />
+            <div className="mt-[22px]">{gateBody}</div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   const listSection = (
     <div className="space-y-3">

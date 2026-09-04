@@ -1,6 +1,8 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { Copy, Loader2, ExternalLink } from 'lucide-react';
 import { DesktopSubpageHeader } from '@/components/layout/DesktopSubpageHeader';
+import { LiteAuthGate } from '@/components/auth/LiteAuthGate';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { useRecoveryRequest } from '@/hooks/useRecoveryRequests';
 import { RecoveryStatusTimeline, RecoveryStatusBadge } from '@/components/recovery/RecoveryStatusTimeline';
@@ -15,6 +17,7 @@ export default function RecoveryRequestDetailPage() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { id } = useParams();
+  const { user } = useAuth();
   const { data: req, isLoading } = useRecoveryRequest(id);
 
   if (isMobile === undefined) return null;
@@ -38,6 +41,34 @@ export default function RecoveryRequestDetailPage() {
       </div>
     );
   };
+
+  // ---- Signed-out: global LiteAuthGate over gray skeleton (no data fetch) ----
+  if (!user) {
+    const gate = (
+      <LiteAuthGate
+        title="Sign in to view your recovery requests"
+        description="Submit or view your recovery requests by signing in to your account."
+      >
+        <div className="space-y-4">
+          <div className="h-[140px] rounded-xl border bg-muted/30" />
+          <div className="h-[110px] rounded-xl border bg-muted/30" />
+          <div className="h-[180px] rounded-xl border bg-muted/30" />
+        </div>
+      </LiteAuthGate>
+    );
+    return renderShell(
+      isMobile ? (
+        <main className="flex-1 overflow-auto pb-24 px-4 py-5">{gate}</main>
+      ) : (
+        <main className="flex-1">
+          <div className="mx-auto w-full max-w-7xl px-4 py-10 lg:px-6">
+            <DesktopSubpageHeader title="Request detail" onBack={back} />
+            <div className="mt-[22px]">{gate}</div>
+          </div>
+        </main>
+      ),
+    );
+  }
 
   if (isLoading) {
     return renderShell(

@@ -5,7 +5,7 @@ import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
 import { Button } from "@/components/ui/button";
-import { AuthGateOverlay } from "@/components/AuthGateOverlay";
+import { LiteAuthGate } from "@/components/auth/LiteAuthGate";
 import { toast } from "sonner";
 import { EmptyState, LoadingState, ErrorState } from "@/components/states";
 import { useApiKeys, useTierEligibility, type ApiKey } from "@/hooks/useApiKeys";
@@ -93,25 +93,23 @@ const ApiManagement = () => {
       {isMobile ? (
         <>
           <MobileHeader title="Keys & access" showLogo={false} showBack />
-          <AuthGateOverlay
+          <LiteAuthGate
             title="Sign in to manage API keys"
             description="Create and revoke signed keys for programmatic access after signing in."
-            maxPreviewHeight="600px"
           >
             <div className="px-4 py-6 pb-24 max-w-7xl mx-auto">{content}</div>
-          </AuthGateOverlay>
+          </LiteAuthGate>
           <BottomNav />
         </>
       ) : (
         <>
           <EventsDesktopHeader />
-          <AuthGateOverlay
+          <LiteAuthGate
             title="Sign in to manage API keys"
             description="Create and revoke signed keys for programmatic access after signing in."
-            maxPreviewHeight="600px"
           >
             <main className="max-w-7xl mx-auto w-full px-4 py-10 lg:px-6">{content}</main>
-          </AuthGateOverlay>
+          </LiteAuthGate>
         </>
       )}
 
