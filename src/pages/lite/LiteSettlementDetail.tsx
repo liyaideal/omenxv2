@@ -21,7 +21,7 @@ import {
   SettlementDetailMobile,
   type SettlementDetailVM,
 } from "@/components/portfolio/lite/SettlementDetailView";
-import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
+import { LiteAuthGate } from "@/components/auth/LiteAuthGate";
 import { PortfolioNotFound } from "@/components/portfolio/lite/PortfolioAsyncStates";
 import {
   LiteManualShareCard,

@@ -41,7 +41,7 @@ import {
 } from "@/components/portfolio/lite/PortfolioAsyncStates";
 import { SettledRow } from "@/components/portfolio/lite/SettledList";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
+import { LiteAuthGate } from "@/components/auth/LiteAuthGate";
 import { MobileHeader } from "@/components/MobileHeader";
 import { settledDayLabel, monthGroupLabel, monthKey } from "@/lib/settleLabel";
 import { useState } from "react";

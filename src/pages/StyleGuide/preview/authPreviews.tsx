@@ -11,7 +11,7 @@
 import { useState } from "react";
 import { AuthContent } from "@/components/auth/AuthContent";
 import { GoogleAccountChooser } from "@/components/auth/GoogleAccountChooser";
-import { LiteAuthGate } from "@/components/portfolio/lite/LiteAuthGate";
+import { LiteAuthGate } from "@/components/auth/LiteAuthGate";
 import { Logo } from "@/components/Logo";
 import type { AuthStep } from "@/hooks/useAuth";
 
