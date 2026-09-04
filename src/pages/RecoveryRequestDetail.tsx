@@ -1,6 +1,8 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { Copy, Loader2, ExternalLink } from 'lucide-react';
 import { DesktopSubpageHeader } from '@/components/layout/DesktopSubpageHeader';
+import { LiteAuthGate } from '@/components/auth/LiteAuthGate';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { useRecoveryRequest } from '@/hooks/useRecoveryRequests';
 import { RecoveryStatusTimeline, RecoveryStatusBadge } from '@/components/recovery/RecoveryStatusTimeline';
