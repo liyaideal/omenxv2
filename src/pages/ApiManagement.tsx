@@ -93,25 +93,23 @@ const ApiManagement = () => {
       {isMobile ? (
         <>
           <MobileHeader title="Keys & access" showLogo={false} showBack />
-          <AuthGateOverlay
+          <LiteAuthGate
             title="Sign in to manage API keys"
             description="Create and revoke signed keys for programmatic access after signing in."
-            maxPreviewHeight="600px"
           >
             <div className="px-4 py-6 pb-24 max-w-7xl mx-auto">{content}</div>
-          </AuthGateOverlay>
+          </LiteAuthGate>
           <BottomNav />
         </>
       ) : (
         <>
           <EventsDesktopHeader />
-          <AuthGateOverlay
+          <LiteAuthGate
             title="Sign in to manage API keys"
             description="Create and revoke signed keys for programmatic access after signing in."
-            maxPreviewHeight="600px"
           >
             <main className="max-w-7xl mx-auto w-full px-4 py-10 lg:px-6">{content}</main>
-          </AuthGateOverlay>
+          </LiteAuthGate>
         </>
       )}
 
