@@ -10,13 +10,17 @@ import { useAuthFlowStore } from "@/stores/useAuthFlowStore";
 interface AuthSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** style-guide 专用：锁定初始 step，并跳过 user 登录态驱动的 step 切换。不传 = 生产行为逐字不变。 */
+  previewStep?: AuthStep;
+  /** style-guide 专用：透传给 AuthContent 的纯展示 fixture。不传 = 生产行为逐字不变。 */
+  previewFixture?: React.ComponentProps<typeof AuthContent>["fixture"] & { isLoading?: boolean };
 }
 
-export const AuthSheet = ({ open, onOpenChange }: AuthSheetProps) => {
+export const AuthSheet = ({ open, onOpenChange, previewStep, previewFixture }: AuthSheetProps) => {
   const { user } = useAuth();
   const setAuthFlowOpen = useAuthFlowStore((state) => state.setIsOpen);
-  const [step, setStep] = useState<AuthStep>("login");
-  const [isLoading, setIsLoading] = useState(false);
+  const [step, setStep] = useState<AuthStep>(previewStep ?? "login");
+  const [isLoading, setIsLoading] = useState(previewFixture?.isLoading ?? false);
 
   useEffect(() => {
     setAuthFlowOpen(open);
@@ -25,10 +29,11 @@ export const AuthSheet = ({ open, onOpenChange }: AuthSheetProps) => {
 
   // Move to wallet creation step when user logs in
   useEffect(() => {
+    if (previewStep) return;
     if (user && open) {
       setStep("createWallet");
     }
-  }, [user, open]);
+  }, [user, open, previewStep]);
 
   const handleSuccess = () => {
     onOpenChange(false);
@@ -67,6 +72,7 @@ export const AuthSheet = ({ open, onOpenChange }: AuthSheetProps) => {
           isLoading={isLoading}
           setIsLoading={setIsLoading}
           variant="mobile"
+          fixture={previewFixture}
         />
       </div>
     </MobileDrawer>

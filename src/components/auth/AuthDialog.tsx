@@ -14,14 +14,18 @@ interface AuthDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   defaultTab?: "signin" | "signup";
+  /** style-guide 专用：锁定初始 step，并跳过 user 登录态驱动的 step 切换。不传 = 生产行为逐字不变。 */
+  previewStep?: AuthStep;
+  /** style-guide 专用：透传给 AuthContent 的纯展示 fixture。不传 = 生产行为逐字不变。 */
+  previewFixture?: React.ComponentProps<typeof AuthContent>["fixture"] & { isLoading?: boolean };
 }
 
-export const AuthDialog = ({ open, onOpenChange, defaultTab = "signin" }: AuthDialogProps) => {
+export const AuthDialog = ({ open, onOpenChange, defaultTab = "signin", previewStep, previewFixture }: AuthDialogProps) => {
   const { user } = useAuth();
   const setAuthFlowOpen = useAuthFlowStore((state) => state.setIsOpen);
   // "signup" and "signin" both start at login step (auth flow is unified)
-  const [step, setStep] = useState<AuthStep>("login");
-  const [isLoading, setIsLoading] = useState(false);
+  const [step, setStep] = useState<AuthStep>(previewStep ?? "login");
+  const [isLoading, setIsLoading] = useState(previewFixture?.isLoading ?? false);
 
   useEffect(() => {
     setAuthFlowOpen(open);
@@ -30,11 +34,12 @@ export const AuthDialog = ({ open, onOpenChange, defaultTab = "signin" }: AuthDi
 
   // Close dialog when user logs in
   useEffect(() => {
+    if (previewStep) return;
     if (user && open) {
       // User just logged in, move to wallet creation step
       setStep("createWallet");
     }
-  }, [user, open]);
+  }, [user, open, previewStep]);
 
   const handleSuccess = () => {
     onOpenChange(false);
@@ -69,6 +74,7 @@ export const AuthDialog = ({ open, onOpenChange, defaultTab = "signin" }: AuthDi
             isLoading={isLoading}
             setIsLoading={setIsLoading}
             variant="desktop"
+            fixture={previewFixture}
           />
         </div>
       </DialogContent>

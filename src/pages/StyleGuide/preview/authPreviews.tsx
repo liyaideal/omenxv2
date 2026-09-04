@@ -1,117 +1,81 @@
 /**
- * Login / Registration previews (2026-08-27 audit round).
+ * Login / Registration previews (2026-09-04 「半活体」根治轮).
  *
- * Truth Rule (§16.1.1): every case mounts the PRODUCTION component
- * (AuthContent / LiteAuthGate / GoogleAccountChooser) with
- * display-only fixture props. No hand-copied markup.
+ * Truth Rule (§16.1.1): every case mounts the PRODUCTION chrome itself —
+ * AuthDialog (desktop Dialog) / AuthSheet (mobile Drawer) / LiteAuthGate /
+ * GoogleAccountChooser — with display-only fixture props. No hand-copied
+ * shell markup. The only hand-written elements are zero-visual positioning
+ * spacers (position + height only) that give Radix's `fixed inset-0` overlay
+ * a measurable height inside the preview iframe.
  *
  * Preview surface falls back to "lite" (see PreviewApp) — these are the Lite
  * faces of the auth layer.
  */
-import { useState } from "react";
-import { AuthContent } from "@/components/auth/AuthContent";
+import { AuthDialog } from "@/components/auth/AuthDialog";
+import { AuthSheet } from "@/components/auth/AuthSheet";
 import { GoogleAccountChooser } from "@/components/auth/GoogleAccountChooser";
 import { LiteAuthGate } from "@/components/auth/LiteAuthGate";
-import { Logo } from "@/components/Logo";
 import type { AuthStep } from "@/hooks/useAuth";
 
-type Fixture = React.ComponentProps<typeof AuthContent>["fixture"];
+type PreviewFixture = React.ComponentProps<typeof AuthDialog>["previewFixture"];
 
 const noop = () => undefined;
 
-/* ---------------- shells: the real dialog / drawer chrome ---------------- */
+/* ---------------- production chrome mounts ---------------- */
 
-const DesktopShell = ({
-  step,
-  fixture,
-  loading = false,
-}: {
-  step: AuthStep;
-  fixture?: Fixture;
-  loading?: boolean;
-}) => {
-  const [s, setS] = useState<AuthStep>(step);
-  const [isLoading, setIsLoading] = useState(loading);
-  return (
-    <div className="mx-auto w-full max-w-md rounded-xl border border-border/50 bg-background overflow-hidden">
-      <div className="h-[2px] bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
-      <div className="p-6">
-        <div className="flex justify-center mb-5">
-          <Logo size="lg" />
-        </div>
-        <AuthContent
-          step={s}
-          setStep={setS}
-          isLoading={isLoading}
-          setIsLoading={setIsLoading}
-          variant="desktop"
-          fixture={fixture}
-        />
-      </div>
-    </div>
-  );
-};
+const DesktopCase = ({ step = "login" as AuthStep, fixture }: { step?: AuthStep; fixture?: PreviewFixture }) => (
+  <div className="relative" style={{ height: 720 }}>
+    <AuthDialog open onOpenChange={noop} previewStep={step} previewFixture={fixture} />
+  </div>
+);
 
-const MobileShell = ({ step, fixture }: { step: AuthStep; fixture?: Fixture }) => {
-  const [s, setS] = useState<AuthStep>(step);
-  const [isLoading, setIsLoading] = useState(false);
-  return (
-    <div className="mx-auto w-full max-w-[375px] rounded-t-3xl border border-border bg-background px-5 pt-4 pb-6">
-      <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted-foreground/30" />
-      <div className="flex justify-center mb-4">
-        <Logo size="lg" />
-      </div>
-      <AuthContent
-        step={s}
-        setStep={setS}
-        isLoading={isLoading}
-        setIsLoading={setIsLoading}
-        variant="mobile"
-        fixture={fixture}
-      />
-    </div>
-  );
-};
+const MobileCase = ({ step = "login" as AuthStep, fixture }: { step?: AuthStep; fixture?: PreviewFixture }) => (
+  <div className="relative" style={{ height: 812 }}>
+    <AuthSheet open onOpenChange={noop} previewStep={step} previewFixture={fixture} />
+  </div>
+);
 
 /* ---------------- AU-L · login step ---------------- */
 
-export const AuthLoginGoogleDefaultPreview = () => <DesktopShell step="login" />;
+export const AuthLoginGoogleDefaultPreview = () => <DesktopCase step="login" />;
 export const AuthLoginWalletTabPreview = () => (
-  <DesktopShell step="login" fixture={{ authMethod: "wallet" }} />
+  <DesktopCase step="login" fixture={{ authMethod: "wallet" }} />
 );
 export const AuthLoginTelegramTabPreview = () => (
-  <DesktopShell step="login" fixture={{ authMethod: "telegram" }} />
+  <DesktopCase step="login" fixture={{ authMethod: "telegram" }} />
 );
-export const AuthLoginLoadingPreview = () => <DesktopShell step="login" loading />;
-export const AuthLoginMobilePreview = () => <MobileShell step="login" />;
+export const AuthLoginLoadingPreview = () => (
+  <DesktopCase step="login" fixture={{ isLoading: true }} />
+);
+export const AuthLoginMobilePreview = () => <MobileCase step="login" />;
 
 /* ---------------- AU-W · createWallet step ---------------- */
 
-export const AuthCreateWalletDesktopPreview = () => <DesktopShell step="createWallet" />;
-export const AuthCreateWalletMobilePreview = () => <MobileShell step="createWallet" />;
+export const AuthCreateWalletDesktopPreview = () => <DesktopCase step="createWallet" />;
+export const AuthCreateWalletMobilePreview = () => <MobileCase step="createWallet" />;
 
 /* ---------------- AU-P · completeProfile step ---------------- */
 
-export const AuthProfileDefaultPreview = () => <DesktopShell step="completeProfile" />;
+export const AuthProfileDefaultPreview = () => <DesktopCase step="completeProfile" />;
 export const AuthProfileEmailErrorPreview = () => (
-  <DesktopShell
+  <DesktopCase
     step="completeProfile"
     fixture={{ emailError: "Please enter a valid email address" }}
   />
 );
 export const AuthProfileReferralOpenPreview = () => (
-  <DesktopShell step="completeProfile" fixture={{ referralOpen: true }} />
+  <DesktopCase step="completeProfile" fixture={{ referralOpen: true }} />
 );
 export const AuthProfileReferralPrefilledPreview = () => (
-  <DesktopShell
+  <DesktopCase
     step="completeProfile"
     fixture={{ referralOpen: true, referralCode: "ABCDEF" }}
   />
 );
 export const AuthProfileLoadingPreview = () => (
-  <DesktopShell step="completeProfile" loading />
+  <DesktopCase step="completeProfile" fixture={{ isLoading: true }} />
 );
-export const AuthProfileMobilePreview = () => <MobileShell step="completeProfile" />;
+export const AuthProfileMobilePreview = () => <MobileCase step="completeProfile" />;
 
 /* ---------------- AU-G · auth gates ---------------- */
 
@@ -146,8 +110,6 @@ export const AuthGateLiteSignedInPreview = () => (
     <GateUnderlay />
   </LiteAuthGate>
 );
-
-
 
 /* ---------------- AU-D · Google account chooser ---------------- */
 
