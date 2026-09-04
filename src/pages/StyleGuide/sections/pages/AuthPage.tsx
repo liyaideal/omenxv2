@@ -326,25 +326,35 @@ export const AuthPage = ({ isMobile }: { isMobile: boolean }) => (
       platform="shared"
       description="每个 case 都挂载生产组件（AuthContent / LiteAuthGate / AuthGateOverlay / GoogleAccountChooser），仅以 fixture prop 设定初始态。"
     >
+      {/* 每个 case 一帧：AuthDialog / AuthSheet 是生产 Radix 弹层，portal 到 document.body
+          并 fixed 居中；同一 iframe 内多挂会互相重叠，故按 case 拆帧。 */}
       <SubSection title="1 · login · desktop" platform="desktop">
-        <SectionFrame cases={LOGIN_DESKTOP} device="desktop" minHeight={640} />
+        {LOGIN_DESKTOP.map((c, i) => (
+          <div key={c.key} className={i ? "mt-3" : undefined}>
+            <SectionFrame cases={[c]} device="desktop" minHeight={720} />
+          </div>
+        ))}
       </SubSection>
 
       <SubSection title="1 · login · mobile" platform="mobile">
-        <SectionFrame cases={LOGIN_MOBILE} device="mobile" minHeight={640} />
+        <SectionFrame cases={LOGIN_MOBILE} device="mobile" minHeight={812} />
       </SubSection>
 
       <SubSection title="2 · createWallet" platform="shared">
-        <SectionFrame cases={[CREATE_CASES[0]]} device="desktop" minHeight={560} />
+        <SectionFrame cases={[CREATE_CASES[0]]} device="desktop" minHeight={720} />
         <div className="mt-3">
-          <SectionFrame cases={[CREATE_CASES[1]]} device="mobile" minHeight={560} />
+          <SectionFrame cases={[CREATE_CASES[1]]} device="mobile" minHeight={812} />
         </div>
       </SubSection>
 
       <SubSection title="3 · completeProfile" platform="shared">
-        <SectionFrame cases={PROFILE_CASES.slice(0, 5)} device="desktop" minHeight={620} />
+        {PROFILE_CASES.slice(0, 5).map((c, i) => (
+          <div key={c.key} className={i ? "mt-3" : undefined}>
+            <SectionFrame cases={[c]} device="desktop" minHeight={720} />
+          </div>
+        ))}
         <div className="mt-3">
-          <SectionFrame cases={[PROFILE_CASES[5]]} device="mobile" minHeight={620} />
+          <SectionFrame cases={[PROFILE_CASES[5]]} device="mobile" minHeight={812} />
         </div>
       </SubSection>
 

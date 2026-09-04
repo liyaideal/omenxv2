@@ -47,3 +47,20 @@ type: preference
 4. **Home 节下架（Lite 无 Home 页，/ = Events 列表）**：`lite-home` 导航与总览挂载已移除；
    `LiteHomePage.tsx` / `MobileHomeSection.tsx` 等文件及 registry key 保留不删。
 5. Wallet 页尾序：… → Recovery → Maintenance（Settlements 节消失）。
+
+## 铁律 · 禁止「半活体」（2026-09-04 立，事故：登录弹窗 teal 渐变顶改了三次字典都没跟）
+
+「半活体」= preview 挂了生产的**内容**组件，却自己手写了外面那层**容器 / 弹窗 / 抽屉 / 卡片 / 面板外壳**。
+后果：改内容会自动同步，改外壳永远不同步——比整块手抄更隐蔽，因为 import 一眼看过去是"合格"的。
+
+1. preview 文件里**不许出现任何带视觉样式的手写元素**（rounded / border / bg / shadow / ring / max-w-[ / 内联 background、borderRadius、boxShadow）。
+   唯一豁免：只有 position 与高宽数字、零视觉样式的定位占位 div。
+2. 模块在生产里长在哪个 chrome 里，字典就挂哪个 chrome 本体（Dialog 挂 Dialog、Drawer 挂 Drawer），不许挂内容层了事。
+3. 生产件没导出、挂不上 → **先做零视觉变化的 export 提取，再回填字典**；不许"因为挂不上所以手写一个"。
+4. 只允许给生产组件加**纯展示的可选 prop**（preview* / fixture 类），不传时渲染必须逐像素不变；不许为了 demo 重构生产组件。
+5. **改动传导（本条对所有改动生效，包括人直接下的样式指令）**：任何改到 `src/components/**` 或 `src/pages/**` 视觉/结构的一轮，必须同轮
+   grep `src/pages/StyleGuide/preview/**` 与 `src/pages/StyleGuide/sections/**` 找该组件的引用：
+   - 字典挂的是本体 → 自动跟随，回报里写明"字典自动跟随，无需改动"；
+   - 字典手写了它的外壳 → **同轮换壳**，或明确报告冲突并说明为什么本轮做不了。
+   **不许沉默跳过。**
+6. 每次动 style-guide 的轮次收尾必须跑 `npm run sg:audit`，把输出贴进回报。
