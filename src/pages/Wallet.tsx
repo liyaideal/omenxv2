@@ -663,7 +663,7 @@ export default function Wallet() {
   const isLite = surface === "lite";
   const { balance, spotBalance, user } = useUserProfile();
   const { imTotal, unrealizedPnL, hasPositions } = useRealtimeRiskMetrics();
-  const { maxBoost } = useCategoryBoostConfigs();
+  const { maxBoost, boostCategories } = useCategoryBoostConfigs();
   const { 
     wallets, 
     isLoading: walletsLoading, 
@@ -912,6 +912,7 @@ export default function Wallet() {
               unrealizedPnL={unrealizedPnL}
               AvailableTooltip={AvailableBalanceTooltip}
               boostMax={maxBoost}
+              boostCategories={boostCategories}
             />
           </section>
 
@@ -1069,6 +1070,7 @@ export default function Wallet() {
             unrealizedPnL={unrealizedPnL}
             AvailableTooltip={AvailableBalanceTooltip}
             boostMax={maxBoost}
+            boostCategories={boostCategories}
             compact
           />
         </section>
