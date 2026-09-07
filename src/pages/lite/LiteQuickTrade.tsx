@@ -213,6 +213,12 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   }, [positions, event]);
   const heldPos = heldIndex >= 0 ? positions[heldIndex] : null;
 
+  // Shared share-poster inputs: the auto cash-out card and the manual entry
+  // MUST read from this one computation (same source as LiteSpotTrade).
+  const heldIsUp = heldPos ? heldPos.optionId === up?.id : false;
+  const tfLabel = TIMEFRAMES.find((t) => t.id === tf)?.label ?? tf;
+  const sideLine = `${heldIsUp ? "Up" : "Down"} · ${tfLabel} round`;
+
   const handleCashOut = useCallback(
     async (qty: number) => {
       if (!user || !event || !heldPos) throw new Error("Sign in to cash out");
