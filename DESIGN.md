@@ -1788,3 +1788,32 @@ Figma `omenx_lite` 文件 `409:5651` / `409:4323` 两组 connect 稿存在两处
 
 **6 · 字典**
 本组件的 style-guide case（`auth-login-google` / `auth-login-mobile` 等 AU-* 键）挂的是生产件 `AuthDialog` / `AuthSheet` 本体，皮肤改动自动跟随，**禁止在 preview 里手写外壳复刻**。
+
+## §Addendum 2026-09-07 · Lite 分享海报（LOCKED）
+
+**适用范围**：`src/components/lite/share/LitePnlPoster.tsx`。Pro 的 `SettlementPoster` 与共享骨架 `src/components/share/SharePosterLayout.tsx`、主题表 `src/lib/posterStyles.ts` 均**不在本规范内，也不受本规范影响**。
+
+**1 · 自包含，不走共享骨架**
+Lite 海报不再使用 `SharePosterLayout`。原因：设计把骨架整个换掉了（OMENX 字标从顶部搬到页脚、页脚去掉卡片底与描边、顶部改为用户行），而那个骨架与 Pro 海报共用，改它会连坐 Pro。Lite 海报本就是 100% inline style，独立成件零风险。**后续任何人不得把 Lite 海报"合并回"共享骨架。**
+
+**2 · 色轴具名例外（CPO 2026-09-07 拍板）**
+分享海报上表示**盈利**的一切（大数字、ROI、右侧金额格、side line、CTA、页脚强调色）统一使用 volt `#CFFF4A`；亏损侧仍用红 `#EF4444`。
+这是对 `§Addendum 2026-09-01` 三条语义色轴中「MONEY 绿/红 = 金额位」的**唯一具名例外，且只限分享海报这一个物料面**。理由：海报是对外传播物料而非交易界面，单一数字 + 正负号 + Profit/Lost 标签，不存在误读涨跌的风险；volt 是品牌锤，绿色晒单图无法与同类产品区分。**站内任何交易界面不得据此把金额位改成 volt。**
+
+**3 · 字体**
+正文走 `system-ui, -apple-system, sans-serif`（在 Apple 设备上即设计稿所用的 SF Pro）。数字走 `'Courier New', Courier, monospace` —— 与设计稿的 Cousine 度量兼容且双平台自带。
+**禁止为海报引入任何网络字体**：导出走 `html-to-image` 且 `skipFonts: true`，网络字体会让导出图 fallback 成另一种字体，导致预览与出图不一致。
+
+**4 · 艺术底素材**
+赢 / 输各一张烘好的 PNG：`src/assets/share/poster-art-win.png`（山猫举望远镜坐酒桶）、`src/assets/share/poster-art-lose.png`（山猫仰面躺倒），均 796×842（= 设计画布 398×421 的 2 倍，正好匹配导出的 `pixelRatio: 2`）。
+**这两张图已经把压暗渐变和 60% 透明度烘进像素与 alpha 里**。代码侧只负责：底色渐变（赢 volt→蓝 18%、输 红→蓝 18%，均压在纯黑上）、两团纯色高斯光晕、以及把图 `object-fit: cover / object-position: top center` 铺满卡面。
+**禁止用 CSS 渐变叠加去复刻艺术底或压暗层**；素材只能由设计导出入仓，不得由代码生成或重组。
+
+**5 · 图层顺序**
+自下而上：底色渐变 → 艺术底 `<img>` → 左下光晕（仅赢版）→ 内容 → 右上光晕。**右上光晕压在内容之上**，这是设计稿的层序，不要"修正"成压在内容之下。
+
+**6 · 设计稿已知缺陷（不采纳，勿按稿改）**
+Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① Google/Telegram 无关，此处为示例文案与生产逻辑阈值不符（稿在 +28.7% 上写「🔥 Absolute legend!」、在 −11.3% 上写「😭 That's rough buddy...」，而生产的 `funLine` 阈值判定分别产出「✨ Well played!」「📉 We go again!」）——**以生产逻辑为准，阈值不许动**；② 登录按钮图标在变体间尺寸不一致（与本页无关，见 Auth 附录）；③ **页脚 OMENX 字标被非等比压扁**（稿为 118×12.5，字标真实比例是 118×24）。字标一律等比，海报页脚固定 `height: 18px`（约 89px 宽），与 Auth 弹窗品牌行同档位。
+
+**7 · 字典**
+`share-sh1 … sh6` 六个 key 挂的是生产件 `LitePnlPoster` 本体，改动自动跟随，**禁止在 preview 里手写海报复刻**。
