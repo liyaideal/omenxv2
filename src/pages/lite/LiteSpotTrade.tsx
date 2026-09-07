@@ -336,8 +336,8 @@ const LiteSpotTrade = () => {
     return {
       pnl,
       pnlPercent,
-      pnlText: rt.hasRealtimePrice ? f.pnlStr : heldPos.pnl,
-      pnlPercentText: rt.hasRealtimePrice ? f.pnlPercentStr : heldPos.pnlPercent,
+      pnlText: f.pnlStr,
+      pnlPercentText: f.pnlPercentStr,
       currentValue: mark * heldPos.sizeNum,
     };
   })();
