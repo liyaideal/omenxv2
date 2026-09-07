@@ -1,8 +1,12 @@
-import { useState, useRef, useEffect, ReactNode } from "react";
+import { useState, useRef, useEffect, useLayoutEffect, ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { X, Download, Copy, Send, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import * as htmlToImage from "html-to-image";
+
+/** 海报出图基准宽度。被截图的节点永远按这个宽度布局，导出尺寸与视口无关。 */
+const POSTER_CAPTURE_WIDTH = 400;
+
 interface ShareModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -31,6 +35,9 @@ export const ShareModal = ({
   const [imageBlob, setImageBlob] = useState<Blob | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const previewBoxRef = useRef<HTMLDivElement>(null);
+  const [posterScale, setPosterScale] = useState(1);
+  const [scaledHeight, setScaledHeight] = useState<number | undefined>(undefined);
 
   // Generate image when modal opens
   const generateImage = async () => {
@@ -63,6 +70,29 @@ export const ShareModal = ({
       return () => clearTimeout(timer);
     }
   }, [isOpen, isDataReady]);
+
+  // 预览缩放：只缩外面这层，被截图的节点保持 400px 布局。
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+    const measure = () => {
+      const box = previewBoxRef.current;
+      const card = cardRef.current;
+      if (!box || !card) return;
+      const available = box.clientWidth;
+      const next = available > 0 ? Math.min(1, available / POSTER_CAPTURE_WIDTH) : 1;
+      setPosterScale(next);
+      setScaledHeight(card.offsetHeight * next);
+    };
+    measure();
+    const card = cardRef.current;
+    const ro = card ? new ResizeObserver(measure) : null;
+    if (ro && card) ro.observe(card);
+    window.addEventListener("resize", measure);
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -143,18 +173,19 @@ export const ShareModal = ({
         <h3 className="text-lg font-bold text-foreground mb-1">{title}</h3>
         <p className="text-sm text-muted-foreground mb-4">{subtitle}</p>
 
-        {/* Card Preview - scales down on smaller screens */}
-        <div className="relative mb-4 overflow-hidden rounded-2xl">
-          <div 
-            ref={cardRef}
+        {/* Card Preview — 缩放层与被截图节点分离：
+            被截图的 cardRef 永远待在 400px 宽的盒子里，导出尺寸与视口无关；
+            窄屏只把外面这层等比缩小，不改变海报自身布局。 */}
+        <div
+          ref={previewBoxRef}
+          className="relative mb-4 overflow-hidden rounded-2xl"
+          style={{ height: scaledHeight }}
+        >
+          <div
             className="origin-top-left"
-            style={{
-              transform: 'scale(var(--poster-scale, 1))',
-              // CSS custom property set by container query would be ideal, 
-              // but for now we use a fixed scale that works on mobile
-            }}
+            style={{ width: `${POSTER_CAPTURE_WIDTH}px`, transform: `scale(${posterScale})` }}
           >
-            {children}
+            <div ref={cardRef}>{children}</div>
           </div>
           {isGenerating && (
             <div className="absolute inset-0 bg-background/80 flex items-center justify-center rounded-2xl">
