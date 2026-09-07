@@ -53,6 +53,7 @@ export const AuthSheet = ({ open, onOpenChange, previewStep, previewFixture }: A
       onOpenChange={handleOpenChange}
       height="max-h-[85vh]"
       hideCloseButton
+      className="border-t border-[#23262D] [background-image:linear-gradient(180deg,#012A35_0px,#012A35_48px,#0A0B0D_136px)] pb-[calc(16px_+_env(safe-area-inset-bottom))]"
     >
       {/* a11y: Radix requires a Title inside the sheet content. Visually hidden — zero visual change. */}
       <VisuallyHidden>
@@ -60,8 +61,8 @@ export const AuthSheet = ({ open, onOpenChange, previewStep, previewFixture }: A
       </VisuallyHidden>
 
       {/* Logo header */}
-      <div className="flex justify-center mb-4">
-        <Logo size="lg" />
+      <div className="flex justify-center mb-3">
+        <Logo size="md" />
       </div>
 
       <div className="overflow-y-auto">
