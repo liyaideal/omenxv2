@@ -35,7 +35,15 @@ import {
   SpotSideRailCrypto,
 } from "@/components/lite/trade/SpotHeadBlocks";
 
-import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
+import {
+  LiteCashOutFlow,
+  type CashOutShareSnapshot,
+} from "@/components/lite/contract/LiteCashOutFlow";
+import {
+  LiteCashOutShareCard,
+  LiteManualShareCard,
+  type LiteManualShareSnap,
+} from "@/components/lite/share/LiteShareFlow";
 import {
   LiteMarketActivity,
   useMarketActivityRows,
@@ -108,6 +116,8 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   const [authOpen, setAuthOpen] = useState(false);
   const [resumeBuy, setResumeBuy] = useState(false);
   const [cashOutOpen, setCashOutOpen] = useState(false);
+  const [shareSnap, setShareSnap] = useState<CashOutShareSnapshot | null>(null);
+  const [manualShare, setManualShare] = useState<LiteManualShareSnap | null>(null);
 
   const event = currentFor.get(`${coin}-${tf}`) ?? null;
   const history = historyFor.get(`${coin}-${tf}`) ?? [];
@@ -202,6 +212,12 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
     );
   }, [positions, event]);
   const heldPos = heldIndex >= 0 ? positions[heldIndex] : null;
+
+  // Shared share-poster inputs: the auto cash-out card and the manual entry
+  // MUST read from this one computation (same source as LiteSpotTrade).
+  const heldIsUp = heldPos ? heldPos.optionId === up?.id : false;
+  const tfLabel = TIMEFRAMES.find((t) => t.id === tf)?.label ?? tf;
+  const sideLine = `${heldIsUp ? "Up" : "Down"} · ${tfLabel} round`;
 
   const handleCashOut = useCallback(
     async (qty: number) => {
@@ -389,6 +405,15 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
       currentValue={heldPos.markPriceNum * heldPos.sizeNum}
       sizeNum={heldPos.sizeNum}
       sideLabel={heldPos.option}
+      shareContext={{
+        eventId: event.id,
+        eventName: event.name,
+        sideLine,
+        boost: 1,
+        putIn: (parseFloat(String(heldPos.entryPrice).replace(/[^0-9.]/g, "")) || 0) * heldPos.sizeNum,
+        productLine: "spot",
+      }}
+      onShareSnapshot={setShareSnap}
       onConfirmCashOut={handleCashOut}
       onDone={() => setRefetchTick((n) => n + 1)}
     />
@@ -432,7 +457,6 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   );
 
 
-  const heldIsUp = heldPos ? heldPos.optionId === up.id : false;
   const Position = heldPos ? (
     <SpotYourPosition
       isYesSide={heldIsUp}
@@ -445,6 +469,23 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
       ifWinsLabel={heldIsUp ? "If Up wins" : "If Down wins"}
       ifWinsValue={`$${heldPos.sizeNum.toFixed(0)}`}
       onCashOut={() => setCashOutOpen(true)}
+      onShare={
+        user
+          ? () =>
+              setManualShare({
+                state: "live",
+                eventId: event.id,
+                eventName: event.name,
+                sideLine,
+                pnl: heldPos.pnlNum,
+                pnlPercent:
+                  heldPos.marginNum > 0 ? (heldPos.pnlNum / heldPos.marginNum) * 100 : 0,
+                leftAmount: heldPos.marginNum,
+                rightAmount: heldPos.markPriceNum * heldPos.sizeNum,
+                segment: "standard",
+              })
+          : undefined
+      }
     />
   ) : null;
 
@@ -485,6 +526,8 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
             {MarketActivity}
             {AlsoLiveNow}
             {CashOut}
+            <LiteCashOutShareCard snap={shareSnap} onClose={() => setShareSnap(null)} />
+            <LiteManualShareCard snap={manualShare} onClose={() => setManualShare(null)} />
           </div>
         </div>
 
@@ -600,6 +643,8 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
             {Position}
             {MarketActivity}
             {CashOut}
+            <LiteCashOutShareCard snap={shareSnap} onClose={() => setShareSnap(null)} />
+            <LiteManualShareCard snap={manualShare} onClose={() => setManualShare(null)} />
           </div>
         </div>
         <aside className="space-y-4">

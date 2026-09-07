@@ -353,6 +353,7 @@ and stay as-is — they are a different noun from the selector label.
 | **⚡ Winner!** | 已平仓 / 已结算且盈利时的状态药丸 | Won, Winner badge |
 | **💀 RIP** | 亏损时的状态药丸（三种形态通用） | Lost, Rekt |
 | **Referral** | 海报页脚邀请码前缀 | Invite code, Promo code |
+| **Up · 15m round**（快速回合方向行） | 快速回合（intraday）海报上事件名下面的方向行：方向（`Up` / `Down`）+ ` · ` + 轮次时长 + ` round`，例 `Up · 15m round` / `Down · 1D round`。时长取值只有五个：5m / 15m / 1h / 4h / 1D，与交易页轮次切换器的标签逐字一致 | Up · Standard（日线现货的写法，两者不能混）, Up · 15M ROUND（时长不改大小写）, 15m round（缺方向） |
 | **Join & trade like a pro!** | 盈利海报页脚号召语 | Trade like a pro, Join now |
 | **Join & do better than me 😅** | 亏损海报页脚号召语 | Do better than me |
 | **Save** | 分享弹窗：把海报下载成图片 | Download, Save image |
