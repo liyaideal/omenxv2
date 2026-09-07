@@ -448,7 +448,6 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   );
 
 
-  const heldIsUp = heldPos ? heldPos.optionId === up.id : false;
   const Position = heldPos ? (
     <SpotYourPosition
       isYesSide={heldIsUp}
