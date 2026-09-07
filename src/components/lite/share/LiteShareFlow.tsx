@@ -8,8 +8,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useReferral } from "@/hooks/useReferral";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { liteTradePath, LiteTradeSegment } from "@/lib/liteTradePath";
+import { SITE_URL } from "@/lib/site";
 
-const ORIGIN = "https://omenxv2.lovable.app";
+const ORIGIN = SITE_URL;
 
 export interface LiteShareFlowProps {
   open: boolean;

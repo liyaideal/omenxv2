@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { SITE_URL } from "@/lib/site";
 
 export interface ReferralCode {
   id: string;
@@ -98,7 +99,7 @@ export const useReferral = () => {
   const getReferralLink = () => {
     if (!referralCode) return '';
     // Use the published domain for all referral links
-    return `https://omenx.lovable.app?ref=${referralCode.code}`;
+    return `${SITE_URL}?ref=${referralCode.code}`;
   };
 
   // Copy referral link

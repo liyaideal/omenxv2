@@ -9,6 +9,7 @@ import { QRCodeSVG } from "qrcode.react";
 import omenxLogo from "@/assets/omenx-logo.svg";
 import posterArtWin from "@/assets/share/poster-art-win.png";
 import posterArtLose from "@/assets/share/poster-art-lose.png";
+import { SITE_URL } from "@/lib/site";
 
 export type LitePnlPosterState = "live" | "cashed" | "settled";
 
@@ -476,7 +477,7 @@ export const LitePnlPoster = forwardRef<HTMLDivElement, LitePnlPosterProps>(
             >
               <div style={{ padding: "6px", background: "#ffffff", borderRadius: "8px", lineHeight: 0 }}>
                 <QRCodeSVG
-                  value={`https://omenx.lovable.app?ref=${referralCode}`}
+                  value={`${SITE_URL}?ref=${referralCode}`}
                   size={48}
                   level="M"
                   includeMargin={false}
