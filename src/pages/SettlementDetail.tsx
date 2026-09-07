@@ -18,6 +18,7 @@ import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { getBinaryOutcome } from "@/lib/eventUtils";
 import { ProductLineBadge } from "@/lib/productLineBadge";
 import { format, formatDistanceStrict } from "date-fns";
+import { SITE_URL } from "@/lib/site";
 
 export default function SettlementDetail() {
   const { settlementId } = useParams();
@@ -484,7 +485,7 @@ export default function SettlementDetail() {
         title={isWin ? "Share Your Win 🏆" : "Share Your Trade"}
         subtitle={isWin ? "Show off your trading success" : "We go again next time!"}
         shareText={`I just ${isWin ? "won" : "lost"} ${settlement.pnlPercent >= 0 ? "+" : ""}${settlement.pnlPercent.toFixed(1)}% on OMENX! ${isWin ? "🚀" : "💀"}`}
-        shareUrl={`https://omenx.com/settlement/${settlementId}`}
+        shareUrl={`${SITE_URL}/settlement/${settlementId}`}
         fileName={`omenx-settlement-${settlementId}`}
         isDataReady={!isProfileLoading && !!profile}
       >

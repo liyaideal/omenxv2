@@ -2,6 +2,7 @@ import { forwardRef } from 'react';
 import { format } from 'date-fns';
 import { SharePosterLayout } from './SharePosterLayout';
 import { posterThemes, posterColors, getThemeForResult } from '@/lib/posterStyles';
+import { SITE_URL } from '@/lib/site';
 
 interface SettlementPosterProps {
   // Event info
@@ -71,7 +72,7 @@ export const SettlementPoster = forwardRef<HTMLDivElement, SettlementPosterProps
         ref={ref}
         theme={theme}
         date={settledDate}
-        qrValue="https://omenx.com"
+        qrValue={SITE_URL}
         referralCode={referralCode}
         ctaText={isWin ? 'Join & trade like a pro!' : 'Join & do better than me 😅'}
       >

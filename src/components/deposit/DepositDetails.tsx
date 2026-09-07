@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { FullAddressSheet } from './FullAddressSheet';
 import { ShareModal } from '@/components/ShareModal';
 import { SharePosterContent } from './SharePosterContent';
+import { SITE_URL } from '@/lib/site';
 
 interface DepositDetailsProps {
   token: TokenConfig;
@@ -171,7 +172,7 @@ export const DepositDetails = ({ token }: DepositDetailsProps) => {
         title="Share Address"
         subtitle="Share this deposit address with others"
         shareText={`Deposit ${token.symbol} to my OMENX wallet on ${token.network}`}
-        shareUrl={`https://omenx.com/deposit?token=${token.symbol}`}
+        shareUrl={`${SITE_URL}/deposit?token=${token.symbol}`}
         fileName={`omenx-deposit-${token.symbol.toLowerCase()}`}
       >
         <SharePosterContent 
