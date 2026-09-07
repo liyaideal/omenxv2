@@ -9,7 +9,7 @@
 | 想知道 | 去哪 |
 |---|---|
 | 长什么样 | 生产页：任意持仓卡 / 结算详情的分享入口 |
-| 有哪些状态、什么时候变 | `/style-guide` → Lite → Share 状态字典（`share-sh1` … `share-sh8`） |
+| 有哪些状态、什么时候变 | `/style-guide` → Lite → **分享 / Share**（`share-sh1` … `share-sh8`） |
 | 字段名、文案、公式、术语 | `docs/copy-dictionary.md`（含顶部「Lite 术语对照表」与「Share / 晒单」节） |
 | 颜色轴、圆角、弹窗法则 | `DESIGN.md`（分享海报另见其中「Lite 分享海报」附录小节） |
 
@@ -141,7 +141,7 @@
 
 ## §7 状态索引
 
-只索引，不复述。全部在 `/style-guide` → Lite → Share：
+只索引，不复述。全部在 `/style-guide` → Lite → **分享 / Share**：
 
 | Case | 演示什么 |
 |---|---|

@@ -74,6 +74,7 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
       s("lite-api", "API / Developers ✅", lp("LiteApiPage")),
       s("lite-sports-live", "Sports · Live ✅", sec("LiteSportsLiveSection", "LiteSportsLiveSection")),
       s("lite-portfolio", "Portfolio ✅", lp("LitePortfolioPage")),
+      s("lite-share", "分享 / Share ✅", lp("ShareCases")),
       s("lite-leaderboard", "Leaderboard ⏳", lp("LiteStubPages", "LiteLeaderboardPage")),
       s("lite-settings", "Settings ⏳", lp("LiteStubPages", "LiteSettingsPage")),
       s("lite-insights", "Insights ⏳", lp("LiteStubPages", "LiteInsightsPage")),
