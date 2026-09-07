@@ -427,6 +427,7 @@ export const FuturesAccountCard = ({
   AvailableTooltip,
   compact = false,
   boostMax,
+  boostCategories = [],
 }: {
   balance: number;
   hidden: boolean;
@@ -436,8 +437,10 @@ export const FuturesAccountCard = ({
   AvailableTooltip: React.ComponentType<{ marginInUse: number; unrealizedPnL: number }>;
   compact?: boolean;
   boostMax?: number;
+  boostCategories?: string[];
 }) => {
   const mask = (v: number) => (hidden ? "••••" : `$${formatEquityUsd(v)}`);
+  const line = formatCategoryLine(boostCategories ?? []);
   return (
     <AccountCardShell
       tag="Boost"
@@ -459,7 +462,10 @@ export const FuturesAccountCard = ({
         {mask(balance)}
       </div>
       <p className="text-[11px] text-muted-foreground mt-3.5 leading-relaxed">
-        Put in a little to control a bigger trade{boostMax && boostMax > 1 ? ` — Boost up to ${boostMax}×` : ""}.
+        {line && <><span className="text-foreground font-medium">For {line}.</span>{" "}</>}
+        {boostMax && boostMax > 1
+          ? `Put in $100, trade like $${(100 * boostMax).toLocaleString("en-US")} — up to ${boostMax}×.`
+          : "Buy and sell shares at full price."}
       </p>
     </AccountCardShell>
   );
