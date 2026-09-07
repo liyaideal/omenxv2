@@ -44,7 +44,7 @@ export const LiteShareFlow = ({
 }: LiteShareFlowProps) => {
   const { user } = useAuth();
   const { referralCode } = useReferral();
-  const { username, avatarUrl } = useUserProfile();
+  const { username, avatarUrl, isLoading: isProfileLoading } = useUserProfile();
 
   // Guests never share.
   if (!user) return null;
@@ -66,6 +66,7 @@ export const LiteShareFlow = ({
       shareText={shareText}
       shareUrl={shareUrl}
       fileName="omenx-share"
+      isDataReady={!isProfileLoading && !!referralCode}
     >
       <LitePnlPoster
         state={state}

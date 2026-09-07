@@ -1,8 +1,12 @@
-import { useState, useRef, useEffect, ReactNode } from "react";
+import { useState, useRef, useEffect, useLayoutEffect, ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { X, Download, Copy, Send, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import * as htmlToImage from "html-to-image";
+
+/** 海报出图基准宽度。被截图的节点永远按这个宽度布局，导出尺寸与视口无关。 */
+const POSTER_CAPTURE_WIDTH = 400;
+
 interface ShareModalProps {
   isOpen: boolean;
   onClose: () => void;
