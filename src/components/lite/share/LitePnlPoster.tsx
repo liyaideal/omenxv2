@@ -120,7 +120,7 @@ export const LitePnlPoster = forwardRef<HTMLDivElement, LitePnlPosterProps>(
         style={{
           position: "relative",
           width: "400px",
-          maxWidth: "100%",
+          
           boxSizing: "border-box",
           borderRadius: "16px",
           overflow: "hidden",
