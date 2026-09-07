@@ -35,7 +35,15 @@ import {
   SpotSideRailCrypto,
 } from "@/components/lite/trade/SpotHeadBlocks";
 
-import { LiteCashOutFlow } from "@/components/lite/contract/LiteCashOutFlow";
+import {
+  LiteCashOutFlow,
+  type CashOutShareSnapshot,
+} from "@/components/lite/contract/LiteCashOutFlow";
+import {
+  LiteCashOutShareCard,
+  LiteManualShareCard,
+  type LiteManualShareSnap,
+} from "@/components/lite/share/LiteShareFlow";
 import {
   LiteMarketActivity,
   useMarketActivityRows,
@@ -108,6 +116,8 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   const [authOpen, setAuthOpen] = useState(false);
   const [resumeBuy, setResumeBuy] = useState(false);
   const [cashOutOpen, setCashOutOpen] = useState(false);
+  const [shareSnap, setShareSnap] = useState<CashOutShareSnapshot | null>(null);
+  const [manualShare, setManualShare] = useState<LiteManualShareSnap | null>(null);
 
   const event = currentFor.get(`${coin}-${tf}`) ?? null;
   const history = historyFor.get(`${coin}-${tf}`) ?? [];
