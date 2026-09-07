@@ -13,6 +13,8 @@ import heroThreadMobile from "@/assets/wallet/hero-thread-mobile.png";
 import lynxEmptyActivity from "@/assets/wallet/lynx-empty-activity.png";
 import lynxEmptyAddresses from "@/assets/wallet/lynx-empty-addresses.png";
 import lynxEmptyRecovery from "@/assets/wallet/lynx-empty-recovery.png";
+import posterArtWin from "@/assets/share/poster-art-win.png";
+import posterArtLose from "@/assets/share/poster-art-lose.png";
 import omenxLogo from "@/assets/omenx-logo.svg";
 import hedgeEntryBanner from "@/assets/hedge-entry-banner.png";
 import hedgeEntryBannerMobile from "@/assets/hedge-entry-banner-mobile.png";
