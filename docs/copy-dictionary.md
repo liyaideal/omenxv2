@@ -333,6 +333,43 @@ and stay as-is — they are a different noun from the selector label.
 
 ---
 
+## Share / 晒单（Lite）
+
+> 状态字典：`/style-guide` → Lite → Share（`share-sh1` … `share-sh8`）。规格文档：`docs/delivery/lite-share-v1.md`。
+
+| Canonical | Meaning | Banned variants |
+|---|---|---|
+| **Share Your Win 🏆** | 盈利时分享弹窗标题 | Share your profit, Flex your win |
+| **Share Your Trade** | 亏损时分享弹窗标题 | Share your loss |
+| **LIVE CALL** | 海报右上角标签：这笔还开着、价格还在动 | Open position, Live position |
+| **Profit so far** | 进行中且盈利时的盈亏区标题（强调未落袋） | Unrealized PnL, Current profit |
+| **Profit** | 已平仓 / 已结算且盈利时的盈亏区标题 | Realized PnL, Total profit |
+| **Lost** | 亏损时的盈亏区标题（三种形态通用） | Loss, PnL |
+| **Put in** | 海报左侧金额格：这笔投入的本金 | Cost, Stake, Amount in |
+| **Now worth** | 进行中形态右侧金额格：按当前价格折算的价值 | Current value, Market value |
+| **Cashed out** | 已平仓形态右侧金额格：主动平仓拿回的金额 | Sold for, Exit amount |
+| **Paid out** | 已结算形态右侧金额格：结算发放的金额 | Settled amount, Payout amount |
+| **⚡ Winning!** | 进行中且盈利时用户名下方的状态药丸 | In profit, Up |
+| **⚡ Winner!** | 已平仓 / 已结算且盈利时的状态药丸 | Won, Winner badge |
+| **💀 RIP** | 亏损时的状态药丸（三种形态通用） | Lost, Rekt |
+| **Referral** | 海报页脚邀请码前缀 | Invite code, Promo code |
+| **Join & trade like a pro!** | 盈利海报页脚号召语 | Trade like a pro, Join now |
+| **Join & do better than me 😅** | 亏损海报页脚号召语 | Do better than me |
+| **Save** | 分享弹窗：把海报下载成图片 | Download, Save image |
+| **Copy Link** | 分享弹窗：复制分享链接 | Copy URL, Share link |
+| **More Options** | 分享弹窗：调起系统原生分享面板 | Share via, Native share |
+
+**概念定义（研发按此判定）**
+
+| 概念 | 一句话定义 | 判定 |
+|---|---|---|
+| 进行中（live） | 仓位还开着，海报上的价值会随行情变 | 仓位未平仓且事件未结算 |
+| 已平仓（cashed） | 用户主动离场，金额已落袋 | 用户执行过平仓 |
+| 已结算（settled） | 事件出结果由系统结算 | 事件已结算 |
+| 盈亏方向 | 决定海报配色、插画、药丸与号召语 | 金额 ≥ 0 为盈，否则为亏；与形态无关 |
+
+---
+
 ## Lite banned words
 
 Trader jargon is banned in rendered Lite copy: **Margin, Liquidation, Funding,
