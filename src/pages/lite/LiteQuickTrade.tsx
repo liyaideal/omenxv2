@@ -489,9 +489,9 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
       isYesSide={heldIsUp}
       sideLabel={heldIsUp ? "Up" : "Down"}
       sizeDisplay={heldPos.sizeDisplay}
-      pnl={heldPos.pnl}
-      pnlPercent={heldPos.pnlPercent}
-      currentValue={heldPos.markPriceNum * heldPos.sizeNum}
+      pnl={heldLive!.pnlText}
+      pnlPercent={heldLive!.pnlPercentText}
+      currentValue={heldLive!.currentValue}
       avgCost={heldPos.entryPrice}
       ifWinsLabel={heldIsUp ? "If Up wins" : "If Down wins"}
       ifWinsValue={`$${heldPos.sizeNum.toFixed(0)}`}
@@ -504,11 +504,10 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
                 eventId: event.id,
                 eventName: event.name,
                 sideLine,
-                pnl: heldPos.pnlNum,
-                pnlPercent:
-                  heldPos.marginNum > 0 ? (heldPos.pnlNum / heldPos.marginNum) * 100 : 0,
+                pnl: heldLive!.pnl,
+                pnlPercent: heldLive!.pnlPercent,
                 leftAmount: heldPos.marginNum,
-                rightAmount: heldPos.markPriceNum * heldPos.sizeNum,
+                rightAmount: heldLive!.currentValue,
                 segment: "standard",
               })
           : undefined
