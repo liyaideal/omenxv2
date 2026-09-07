@@ -220,6 +220,32 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   const tfLabel = TIMEFRAMES.find((t) => t.id === tf)?.label ?? tf;
   const sideLine = `${heldIsUp ? "Up" : "Down"} · ${tfLabel} round`;
 
+  // Live display values for the unsettled spot leg — realtime mark first,
+  // stored DB mark_price / pnl only as a fallback (matches /portfolio).
+  const { getRealtimeMarkPrice, calculateRealtimePnL, formatPnL } = useRealtimePositionsPnL();
+  const heldLive = (() => {
+    if (!heldPos) return null;
+    const key = { event: heldPos.event, option: heldPos.option, optionId: heldPos.optionId };
+    const rt = calculateRealtimePnL({
+      ...key,
+      type: heldPos.type,
+      entryPrice: heldPos.entryPrice,
+      size: heldPos.size,
+      margin: heldPos.margin,
+    });
+    const mark = getRealtimeMarkPrice(key) ?? heldPos.markPriceNum;
+    const pnl = rt.hasRealtimePrice ? rt.pnl : heldPos.pnlNum;
+    const pnlPercent = heldPos.marginNum > 0 ? (pnl / heldPos.marginNum) * 100 : 0;
+    const f = formatPnL(pnl, pnlPercent);
+    return {
+      pnl,
+      pnlPercent,
+      pnlText: rt.hasRealtimePrice ? f.pnlStr : heldPos.pnl,
+      pnlPercentText: rt.hasRealtimePrice ? f.pnlPercentStr : heldPos.pnlPercent,
+      currentValue: mark * heldPos.sizeNum,
+    };
+  })();
+
   const handleCashOut = useCallback(
     async (qty: number) => {
       if (!user || !event || !heldPos) throw new Error("Sign in to cash out");
