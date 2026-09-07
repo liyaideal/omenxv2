@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-09-07 | [分享 / 晒单（Lite）交付说明 v1](../delivery/lite-share-v1.md) | 分享功能首份交付说明：七处入口、三种海报形态（进行中/已平仓/已结算）、文案与调侃语规则、出图四条硬约束、状态字典 share-sh1…sh8；含 7 条已知缺口，其中邀请码异步竞态与域名硬编码两条为上线前必处理项 |
 | 2026-09-03 | [Wallet（Lite）交付说明 v1](../delivery/lite-wallet-spec-v1.md) | M7a/M7b：Wallet 状态字典 W-1…W-33 全区落地（组合层 / 账户 / 流水 / 充值流 / 提现流 / 地址簿 / Recovery 与服务件），旧 `DepositWithdrawSection` 与 `WalletSection` 页内退场并逐条并账；生产侧收敛为 USDC on Base 单资产单网络（Fiat 入口退役、提现地址 Base-only、跨链手续费改 `Varies by route`、`/deposit` `/withdraw` guest gate） |
 | 2026-09-02 | [Vouchers（Lite）交付说明 v1](../delivery/lite-vouchers-spec-v1.md) | M4a/M4b：Vouchers 状态字典 VC-1…17 全区落地（组合层 / 券行 / picker / desk / 服务件），旧 Vouchers2Section 页内退场并逐条并账，Close 面板落点文案对齐词典 |
 | 2026-09-02 | [Rewards（Lite）交付说明 v1](../delivery/lite-rewards-spec-v1.md) | M3a/M3b：Rewards 状态字典 RW-1…18 全区落地（Ⓐ 页面壳 / Ⓑ Campaigns 网格 / Ⓒ 活动详情 / Ⓓ Referral / Ⓔ 合规），五处内联→具名组件零视觉提取，`ReferralPanel` 加 `fixture` 惰性展示口径，`CampaignRulesDisclosure` 加 `defaultOpen`，旧 `RewardsSection` / `RewardsMobileSection` 两节撤下并逐条并账 |
