@@ -1755,3 +1755,36 @@ Don't：用 `new Date()` 本地偏移伪造 session 态；用 `Date.now()` 派�
 **禁令**：这条轴**不表达任何金额、盈亏或选边**。橙色永远不许出现在下单按钮、价格芯片、持仓卡的盈亏数字、或任何 Yes/No 选边控件上；反过来，`--yes` 蓝与 `--no` volt 也不许用来表示「正在进行」。三条轴同屏时靠位置区分：橙在状态位（药丸、列头、注记），蓝/volt 在选边位（芯片、按钮），绿/红在金额位。
 
 **同期成文的结构规则**：分段盘口板的分组头（`LiteBoardGroupHeader`）左侧是组名、右侧是注记；注记三态为「已打完 → `Final {比分}`」「进行中 → 橙药丸 + 现比分」「未开打 → `Not played yet`」，且**只能**由 `boardGroupAnnotation()` 一处产出。记分牌的运动形态（列数、列宽、表头词、大数字口径）由 `SegmentSpec` 决定，见 `docs/delivery/sports-live-board-v1.md` §2b。
+
+## §Addendum 2026-09-07 · Auth 弹窗（登录/注册）双端规范（LOCKED）
+
+**适用范围**：`src/components/auth/AuthDialog.tsx`（桌面）、`AuthSheet.tsx`（移动）、`AuthContent.tsx` 的 `login` 步骤。`createWallet` / `completeProfile` 两步不在本规范内。
+
+**1 · 外壳（移动端）**
+移动端登录弹窗的外壳**沿用全站抽屉语言，不做浮动卡**：
+- 全出血（`inset-x-0`，无左右外边距），顶圆角 `rounded-t-3xl`（24px）。
+- 关闭方式只有拖拽条（grabber）+ 点遮罩，**不加关闭 ×**。禁止同时出现两个关闭件。
+- 品牌皮肤照设计稿：顶边 1px `#23262D`；背景 `[background-image:linear-gradient(180deg,#012A35_0px,#012A35_48px,#0A0B0D_136px)]`。
+- 渐变停靠点必须用 **px 不用百分比** —— 抽屉高度随内容变，百分比会把品牌色带拉长。
+- 底部内边距在本组件上覆盖为 `pb-[calc(16px_+_env(safe-area-inset-bottom))]`。共享件 `sheet.tsx` 的 `side=bottom` 全局 `pb-24` **不动**（全站十几个抽屉在用）。
+
+**2 · 外壳（桌面）**
+`sm:max-w-md`（448）、圆角 16、边框 1px `#23262D`、内容区内边距 24、背景 `linear-gradient(180deg,#012A35 12.85%,#0A0B0D 21%,#0A0B0D)`。
+
+**3 · 内容（login 步骤）**
+| 项 | 移动 | 桌面 |
+| --- | --- | --- |
+| 块间距 | 12（`space-y-3`） | 16（`space-y-4`） |
+| Logo | `size="md"`（20px），下方留白 12 | `size="lg"`（24px），下方留白 12 |
+| IP 插画（巫师山猫） | 100×100 | 120×120 |
+| 插画 → 标题 | 0 | 0 |
+| 标题 → 副标题 | 12 | 12 |
+
+**4 · 标题字体例外（CPO 2026-09-07 拍板）**
+登录弹窗主标题 "Trade what happens next" 使用 **Space Grotesk Bold 17 / 行高 25.5 / 字距 −0.34**（`font-display`）。这是对品牌裁定 §2-4「标题走 Archivo，Space Grotesk 只管数字/display 不扩权」的**唯一具名例外**，因生产已上线且与设计稿一致，故追认。其他页面标题不得据此扩用 Space Grotesk。
+
+**5 · 设计稿已知缺陷（不采纳，勿按稿改）**
+Figma `omenx_lite` 文件 `409:5651` / `409:4323` 两组 connect 稿存在两处自身错误：① Google 页签下的按钮文案误写成 "Sign in with Telegram"（图标却是 Google）；② 登录按钮图标在三个变体里分别画成 12 / 14 / 18px，自相矛盾。生产以现状为准：文案 `Sign in with Google` / `Connect Wallet` / `Sign in with Telegram`，图标统一 `w-5 h-5`。
+
+**6 · 字典**
+本组件的 style-guide case（`auth-login-google` / `auth-login-mobile` 等 AU-* 键）挂的是生产件 `AuthDialog` / `AuthSheet` 本体，皮肤改动自动跟随，**禁止在 preview 里手写外壳复刻**。
