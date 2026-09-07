@@ -11,6 +11,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { usePositions } from "@/hooks/usePositions";
+import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { executeSpotTrade } from "@/services/tradingService";
 import { AuthDialog } from "@/components/auth/AuthDialog";
@@ -219,6 +220,32 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   const tfLabel = TIMEFRAMES.find((t) => t.id === tf)?.label ?? tf;
   const sideLine = `${heldIsUp ? "Up" : "Down"} · ${tfLabel} round`;
 
+  // Live display values for the unsettled spot leg — realtime mark first,
+  // stored DB mark_price / pnl only as a fallback (matches /portfolio).
+  const { getRealtimeMarkPrice, calculateRealtimePnL, formatPnL } = useRealtimePositionsPnL();
+  const heldLive = (() => {
+    if (!heldPos) return null;
+    const key = { event: heldPos.event, option: heldPos.option, optionId: heldPos.optionId };
+    const rt = calculateRealtimePnL({
+      ...key,
+      type: heldPos.type,
+      entryPrice: heldPos.entryPrice,
+      size: heldPos.size,
+      margin: heldPos.margin,
+    });
+    const mark = getRealtimeMarkPrice(key) ?? heldPos.markPriceNum;
+    const pnl = rt.hasRealtimePrice ? rt.pnl : heldPos.pnlNum;
+    const pnlPercent = heldPos.marginNum > 0 ? (pnl / heldPos.marginNum) * 100 : 0;
+    const f = formatPnL(pnl, pnlPercent);
+    return {
+      pnl,
+      pnlPercent,
+      pnlText: rt.hasRealtimePrice ? f.pnlStr : heldPos.pnl,
+      pnlPercentText: rt.hasRealtimePrice ? f.pnlPercentStr : heldPos.pnlPercent,
+      currentValue: mark * heldPos.sizeNum,
+    };
+  })();
+
   const handleCashOut = useCallback(
     async (qty: number) => {
       if (!user || !event || !heldPos) throw new Error("Sign in to cash out");
@@ -402,7 +429,7 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
       isMobile={!!isMobile}
       positionId={heldPos.id}
       positionIndex={heldIndex}
-      currentValue={heldPos.markPriceNum * heldPos.sizeNum}
+      currentValue={heldLive!.currentValue}
       sizeNum={heldPos.sizeNum}
       sideLabel={heldPos.option}
       shareContext={{
@@ -462,9 +489,9 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
       isYesSide={heldIsUp}
       sideLabel={heldIsUp ? "Up" : "Down"}
       sizeDisplay={heldPos.sizeDisplay}
-      pnl={heldPos.pnl}
-      pnlPercent={heldPos.pnlPercent}
-      currentValue={heldPos.markPriceNum * heldPos.sizeNum}
+      pnl={heldLive!.pnlText}
+      pnlPercent={heldLive!.pnlPercentText}
+      currentValue={heldLive!.currentValue}
       avgCost={heldPos.entryPrice}
       ifWinsLabel={heldIsUp ? "If Up wins" : "If Down wins"}
       ifWinsValue={`$${heldPos.sizeNum.toFixed(0)}`}
@@ -477,11 +504,10 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
                 eventId: event.id,
                 eventName: event.name,
                 sideLine,
-                pnl: heldPos.pnlNum,
-                pnlPercent:
-                  heldPos.marginNum > 0 ? (heldPos.pnlNum / heldPos.marginNum) * 100 : 0,
+                pnl: heldLive!.pnl,
+                pnlPercent: heldLive!.pnlPercent,
                 leftAmount: heldPos.marginNum,
-                rightAmount: heldPos.markPriceNum * heldPos.sizeNum,
+                rightAmount: heldLive!.currentValue,
                 segment: "standard",
               })
           : undefined
