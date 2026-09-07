@@ -102,7 +102,7 @@ export const ShareCases = ({ isMobile: _isMobile }: { isMobile: boolean }) => (
     title="分享 / Share"
     route="/trade · /spot · /portfolio · 结算详情"
     status="done"
-    note="Lite 晒单卡 LitePnlPoster 三态 × 盈亏两向 + 弹窗本体 + 入口态样张。海报出图口径 400px 恒定（双帧同卡，不随断点缩放）。卡上严禁出现 Leverage/杠杆字样与 voucher 徽标；guest 永不晒单（LiteShareFlow 在 !user 时返回 null）。"
+    note="Lite 晒单卡 LitePnlPoster 三态 × 盈亏两向 + 弹窗本体 + 入口态样张。海报出图口径 400px 恒定（双帧同卡，不随断点缩放）。卡上严禁出现 Leverage/杠杆字样与 voucher 徽标；guest 永不晒单（LiteShareFlow 在 !user 时返回 null）。方向行按产品线三种写法（代码实态）：合约页 `Yes · 3× Boost`（`[side, boostSuffix(leverage)].filter(Boolean).join(" · ")`，1× 时只有方向词无后缀）、日线现货 `Up · Standard`、快速回合 `Up · 15m round`（时长 5m/15m/1h/4h/1D，与轮次切换器标签一致）。"
   >
     <SubSection
       title="SH-1…SH-6 · 海报三态 × 盈亏"
