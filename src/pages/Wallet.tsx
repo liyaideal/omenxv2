@@ -264,6 +264,31 @@ const formatCurrency = (value: number) =>
   value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 /**
+ * Business lines tradable on the Standard (spot) account.
+ * TODO(backend): there is no server-side source for spot category availability yet —
+ * `category_boost_configs` only covers Boost. Replace this constant with real data
+ * when the spot side gets one. The Boost card already reads live config.
+ */
+const STANDARD_CATEGORIES = ["stocks"];
+
+const CATEGORY_LABELS: Record<string, string> = {
+  stocks: "stocks",
+  crypto: "crypto",
+  sports: "sports",
+  macro: "macro",
+  politics: "politics",
+};
+
+/** ["sports","crypto"] → "sports and crypto"; caps at 3 then falls back to "more". */
+const formatCategoryLine = (categories: string[]): string => {
+  const names = categories.map((c) => CATEGORY_LABELS[c] ?? c);
+  if (names.length === 0) return "";
+  if (names.length === 1) return names[0];
+  if (names.length > 3) return `${names.slice(0, 2).join(", ")} and more`;
+  return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+};
+
+/**
  * Boost (futures) available-balance popover. Module-scope on purpose: defining
  * it inside the Wallet component gave it a fresh component identity on every
  * re-render, which remounted the Popover and closed it after ~600ms.
