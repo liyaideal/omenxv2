@@ -545,6 +545,7 @@ const LEGACY_MOTION: AssetRow[] = [
 
 const ALL_GROUPS: Array<[string, AssetRow[]]> = [
   ["Ⓐ Wallet（R-W2 / R-W3）", WALLET],
+  ["Ⓖ 分享海报（R-SH1）", SHARE],
   ["Ⓑ 品牌标识", BRAND],
   ["Ⓒ 首页 / Events / Auth lynx 插画", HOME],
   ["Ⓓ Rewards campaign KV", CAMPAIGN],
