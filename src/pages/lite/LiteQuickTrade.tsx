@@ -405,6 +405,15 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
       currentValue={heldPos.markPriceNum * heldPos.sizeNum}
       sizeNum={heldPos.sizeNum}
       sideLabel={heldPos.option}
+      shareContext={{
+        eventId: event.id,
+        eventName: event.name,
+        sideLine,
+        boost: 1,
+        putIn: (parseFloat(String(heldPos.entryPrice).replace(/[^0-9.]/g, "")) || 0) * heldPos.sizeNum,
+        productLine: "spot",
+      }}
+      onShareSnapshot={setShareSnap}
       onConfirmCashOut={handleCashOut}
       onDone={() => setRefetchTick((n) => n + 1)}
     />
@@ -460,6 +469,23 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
       ifWinsLabel={heldIsUp ? "If Up wins" : "If Down wins"}
       ifWinsValue={`$${heldPos.sizeNum.toFixed(0)}`}
       onCashOut={() => setCashOutOpen(true)}
+      onShare={
+        user
+          ? () =>
+              setManualShare({
+                state: "live",
+                eventId: event.id,
+                eventName: event.name,
+                sideLine,
+                pnl: heldPos.pnlNum,
+                pnlPercent:
+                  heldPos.marginNum > 0 ? (heldPos.pnlNum / heldPos.marginNum) * 100 : 0,
+                leftAmount: heldPos.marginNum,
+                rightAmount: heldPos.markPriceNum * heldPos.sizeNum,
+                segment: "standard",
+              })
+          : undefined
+      }
     />
   ) : null;
 
