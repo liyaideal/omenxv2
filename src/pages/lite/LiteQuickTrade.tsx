@@ -526,6 +526,8 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
             {MarketActivity}
             {AlsoLiveNow}
             {CashOut}
+            <LiteCashOutShareCard snap={shareSnap} onClose={() => setShareSnap(null)} />
+            <LiteManualShareCard snap={manualShare} onClose={() => setManualShare(null)} />
           </div>
         </div>
 
@@ -641,6 +643,8 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
             {Position}
             {MarketActivity}
             {CashOut}
+            <LiteCashOutShareCard snap={shareSnap} onClose={() => setShareSnap(null)} />
+            <LiteManualShareCard snap={manualShare} onClose={() => setManualShare(null)} />
           </div>
         </div>
         <aside className="space-y-4">
