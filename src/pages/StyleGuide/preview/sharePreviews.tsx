@@ -37,6 +37,7 @@ const Poster = (state: LitePnlPosterState, f: typeof WIN, over?: Partial<typeof 
       {...over}
       dateISO={FROZEN_DATE}
       username="alex_carter"
+      avatarUrl="https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=sophia&backgroundColor=d1d4f9"
       referralCode="ALEX01"
     />
   </div>
@@ -78,6 +79,7 @@ export const Sh7Preview = () => (
         {...WIN}
         dateISO={FROZEN_DATE}
         username="alex_carter"
+        avatarUrl="https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=sophia&backgroundColor=d1d4f9"
         referralCode="ALEX01"
       />
     </ShareModal>
