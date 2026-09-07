@@ -456,7 +456,7 @@ export const LitePnlPoster = forwardRef<HTMLDivElement, LitePnlPosterProps>(
               </div>
               <div style={{ flex: 1 }} />
               <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                <img src={omenxLogo} alt="OMENX" style={{ height: "13px", width: "auto", alignSelf: "flex-start" }} />
+                <img src={omenxLogo} alt="OMENX" style={{ height: "18px", width: "auto", alignSelf: "flex-start" }} />
                 <span style={{ fontSize: "12px", fontWeight: 500, lineHeight: "18px", color: t.accent }}>
                   {isWin ? "Join & trade like a pro!" : "Join & do better than me 😅"}
                 </span>
