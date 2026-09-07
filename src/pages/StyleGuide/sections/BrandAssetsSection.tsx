@@ -13,6 +13,8 @@ import heroThreadMobile from "@/assets/wallet/hero-thread-mobile.png";
 import lynxEmptyActivity from "@/assets/wallet/lynx-empty-activity.png";
 import lynxEmptyAddresses from "@/assets/wallet/lynx-empty-addresses.png";
 import lynxEmptyRecovery from "@/assets/wallet/lynx-empty-recovery.png";
+import posterArtWin from "@/assets/share/poster-art-win.png";
+import posterArtLose from "@/assets/share/poster-art-lose.png";
 import omenxLogo from "@/assets/omenx-logo.svg";
 import hedgeEntryBanner from "@/assets/hedge-entry-banner.png";
 import hedgeEntryBannerMobile from "@/assets/hedge-entry-banner-mobile.png";
@@ -96,6 +98,26 @@ const WALLET: AssetRow[] = [
     format: "PNG",
     usage: "/wallet/recovery 列表空态（No recovery requests yet）",
     added: "2026-09-03",
+  },
+];
+
+/* ---------------- Ⓖ 分享海报（R-SH1 本轮入仓） ---------------- */
+const SHARE: AssetRow[] = [
+  {
+    src: posterArtWin,
+    path: "src/assets/share/poster-art-win.png",
+    size: "796 × 842",
+    format: "PNG",
+    usage: "Lite 分享海报盈利版艺术底（LitePnlPoster · pnl ≥ 0，SH-1/3/5）",
+    added: "2026-09-07",
+  },
+  {
+    src: posterArtLose,
+    path: "src/assets/share/poster-art-lose.png",
+    size: "796 × 842",
+    format: "PNG",
+    usage: "Lite 分享海报亏损版艺术底（LitePnlPoster · pnl < 0，SH-2/4/6）",
+    added: "2026-09-07",
   },
 ];
 
@@ -523,6 +545,7 @@ const LEGACY_MOTION: AssetRow[] = [
 
 const ALL_GROUPS: Array<[string, AssetRow[]]> = [
   ["Ⓐ Wallet（R-W2 / R-W3）", WALLET],
+  ["Ⓖ 分享海报（R-SH1）", SHARE],
   ["Ⓑ 品牌标识", BRAND],
   ["Ⓒ 首页 / Events / Auth lynx 插画", HOME],
   ["Ⓓ Rewards campaign KV", CAMPAIGN],
