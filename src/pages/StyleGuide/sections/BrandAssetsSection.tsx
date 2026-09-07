@@ -101,6 +101,26 @@ const WALLET: AssetRow[] = [
   },
 ];
 
+/* ---------------- Ⓖ 分享海报（R-SH1 本轮入仓） ---------------- */
+const SHARE: AssetRow[] = [
+  {
+    src: posterArtWin,
+    path: "src/assets/share/poster-art-win.png",
+    size: "796 × 842",
+    format: "PNG",
+    usage: "Lite 分享海报盈利版艺术底（LitePnlPoster · pnl ≥ 0，SH-1/3/5）",
+    added: "2026-09-07",
+  },
+  {
+    src: posterArtLose,
+    path: "src/assets/share/poster-art-lose.png",
+    size: "796 × 842",
+    format: "PNG",
+    usage: "Lite 分享海报亏损版艺术底（LitePnlPoster · pnl < 0，SH-2/4/6）",
+    added: "2026-09-07",
+  },
+];
+
 /* ---------------- Ⓑ 品牌标识 ---------------- */
 const BRAND: AssetRow[] = [
   {
