@@ -297,11 +297,12 @@ export const AuthContent = ({
 
   const isMobile = variant === "mobile";
   const containerClass = isMobile ? "space-y-5" : "space-y-6";
+  const loginStackClass = isMobile ? "space-y-3" : "space-y-4";
 
   // Login Step
   if (step === "login") {
     return (
-      <div className={containerClass}>
+      <div className={loginStackClass}>
         {/* Headlines */}
         {isLite ? (
           <div>
@@ -312,12 +313,12 @@ export const AuthContent = ({
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).style.display = "none";
               }}
-              className="pointer-events-none select-none w-[120px] h-[120px] object-contain mx-auto mb-1"
+              className={`pointer-events-none select-none ${isMobile ? "w-[100px] h-[100px]" : "w-[120px] h-[120px]"} object-contain mx-auto`}
             />
             <h2 className="font-display text-[17px] font-bold tracking-[-0.34px] text-white text-center">
               Trade what happens next
             </h2>
-            <p className="text-[12px] text-[#9CA2AB] text-center mt-1.5 leading-snug">
+            <p className="text-[12px] text-[#9CA2AB] text-center mt-3 leading-snug">
               Intraday crypto, stock and sports markets — settled in USDC.
             </p>
           </div>
@@ -373,7 +374,7 @@ export const AuthContent = ({
         </div>
 
         {/* Auth Content */}
-        <div className="space-y-3">
+        <div className={isMobile ? "space-y-3" : "space-y-4"}>
           {authMethod === "google" && (
             <>
               <p className={isLite ? "text-[12px] text-[#9CA2AB]" : "text-sm text-muted-foreground"}>Quick sign-in with Google</p>
