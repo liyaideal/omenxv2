@@ -272,16 +272,28 @@ const formatCurrency = (value: number) =>
 const STANDARD_CATEGORIES = ["stocks"];
 
 const CATEGORY_LABELS: Record<string, string> = {
-  stocks: "stocks",
-  crypto: "crypto",
   sports: "sports",
+  crypto: "crypto",
   macro: "macro",
   politics: "politics",
+  social: "social",
+  stocks: "stocks",
 };
 
-/** ["sports","crypto"] → "sports and crypto"; caps at 3 then falls back to "more". */
+/**
+ * Display order for business lines — by product prominence, never alphabetical.
+ * Unknown categories keep their incoming order and go last.
+ */
+const CATEGORY_ORDER = ["sports", "crypto", "macro", "stocks", "politics", "social"];
+
+/** ["macro","sports","crypto"] → "sports, crypto and macro"; caps at 3 then "and more". */
 const formatCategoryLine = (categories: string[]): string => {
-  const names = categories.map((c) => CATEGORY_LABELS[c] ?? c);
+  const ranked = [...categories].sort((a, b) => {
+    const ia = CATEGORY_ORDER.indexOf(a);
+    const ib = CATEGORY_ORDER.indexOf(b);
+    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+  });
+  const names = ranked.map((c) => CATEGORY_LABELS[c] ?? c);
   if (names.length === 0) return "";
   if (names.length === 1) return names[0];
   if (names.length > 3) return `${names.slice(0, 2).join(", ")} and more`;
