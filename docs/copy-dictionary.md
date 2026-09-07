@@ -482,6 +482,12 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | **A flat 10% recovery fee applies** | `/wallet/recovery` 说明段费率句（逐字） | 10% fee charged, Service fee 10% |
 | **10% flat fee** | Recovery 说明 pill | 10% fee |
 | **3–7 business days** | Recovery 处理时长 pill（en dash） | 3-7 business days, 3 to 7 days |
+| **For {categories}.** | 两张账户卡底注的前半句，业务线；Boost 侧取 `category_boost_configs` 中 enabled 的品类，Standard 侧暂为常量（`STANDARD_CATEGORIES`） | — |
+| **Put in $100, buy $100 of shares.** | Standard 卡底注后半句 | — |
+| **Put in $100, trade like ${100 × maxBoost} — up to {maxBoost}×.** | Boost 卡底注后半句，金额随配置计算；maxBoost < 2 时整句退回 `Buy and sell shares at full price.` | — |
+| **Losses are amplified too, and a bad move can auto-close your position.** | Boost 卡 Available 弹层风险句（Lite）；Pro 分支为 `Losses are amplified too, and positions can be liquidated.` | — |
+
+已取代（2026-09-07，底注改版）：~~Buy and sell shares at full price.~~（Standard 卡旧底注，现仅作 Boost 全关时的回退句）、~~Put in a little to control a bigger trade — Boost up to {N}×~~（Boost 卡旧底注）。
 
 ---
 
