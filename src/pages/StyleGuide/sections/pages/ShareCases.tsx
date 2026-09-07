@@ -1,6 +1,7 @@
 // ============================================================
 // 晒单分享 — SH-1…SH-8（SH-b §4）。海报出图口径 400px 恒定，双帧同卡。
 // ============================================================
+import { LitePage } from "./shell";
 import { SubSection } from "../../components";
 import { SectionFrame, type SectionCase } from "../../components/SectionFrame";
 
@@ -95,17 +96,14 @@ const HOSTS: SectionCase[] = [
   },
 ];
 
-export const ShareCases = () => (
-  <section className="scroll-mt-20">
-    <div className="mb-4 border-b border-border pb-2">
-      <h2 className="text-xl font-semibold text-foreground">分享（SH-1…SH-8）</h2>
-    </div>
-    <p className="mb-6 max-w-3xl text-sm text-muted-foreground">
-      Lite 晒单卡 <code>LitePnlPoster</code> 三态 × 盈亏两向 + 弹窗本体 + 入口态样张。
-      海报出图口径 400px 恒定（双帧同卡，不随断点缩放）。卡上严禁出现 Leverage/杠杆字样与 voucher 徽标；
-      guest 永不晒单（<code>LiteShareFlow</code> 在 <code>!user</code> 时返回 null）。
-    </p>
-
+export const ShareCases = ({ isMobile: _isMobile }: { isMobile: boolean }) => (
+  <LitePage
+    id="lite-share"
+    title="分享 / Share"
+    route="/trade · /spot · /portfolio · 结算详情"
+    status="done"
+    note="Lite 晒单卡 LitePnlPoster 三态 × 盈亏两向 + 弹窗本体 + 入口态样张。海报出图口径 400px 恒定（双帧同卡，不随断点缩放）。卡上严禁出现 Leverage/杠杆字样与 voucher 徽标；guest 永不晒单（LiteShareFlow 在 !user 时返回 null）。"
+  >
     <SubSection
       title="SH-1…SH-6 · 海报三态 × 盈亏"
       description="固定 400px；chip / 徽章 / PnL 标签 / 趣味文案阈值全部见每个 case 的 spec 表。"
@@ -125,7 +123,7 @@ export const ShareCases = () => (
         <SectionFrame device="mobile" minHeight={620} cases={HOSTS} />
       </div>
     </SubSection>
-  </section>
+  </LitePage>
 );
 
 export default ShareCases;
