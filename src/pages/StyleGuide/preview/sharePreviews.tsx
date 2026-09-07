@@ -31,16 +31,18 @@ const LOSE = {
 };
 
 const Poster = (state: LitePnlPosterState, f: typeof WIN, over?: Partial<typeof WIN>) => (
-  <div className="flex justify-center bg-background p-4">
-    <LitePnlPoster
-      state={state}
-      {...f}
-      {...over}
-      dateISO={FROZEN_DATE}
-      username="alex_carter"
-      avatarUrl="https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=sophia&backgroundColor=d1d4f9"
-      referralCode="ALEX01"
-    />
+  <div className="bg-background p-4">
+    <PosterScaleFrame>
+      <LitePnlPoster
+        state={state}
+        {...f}
+        {...over}
+        dateISO={FROZEN_DATE}
+        username="alex_carter"
+        avatarUrl="https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=sophia&backgroundColor=d1d4f9"
+        referralCode="ALEX01"
+      />
+    </PosterScaleFrame>
   </div>
 );
 
