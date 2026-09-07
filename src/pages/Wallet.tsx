@@ -303,8 +303,8 @@ export const AvailableBalanceTooltip = ({ marginInUse, unrealizedPnL }: { margin
     <div className="space-y-2">
       <p className="text-xs">
         {isLite
-          ? "Cash you can trade or withdraw. Doesn't include open trade profit."
-          : "Cash you can trade or withdraw. Doesn't include unrealized PnL."}
+          ? "Cash you can trade or withdraw. Doesn't include open trade profit. Losses are amplified too, and a bad move can auto-close your position."
+          : "Cash you can trade or withdraw. Doesn't include unrealized PnL. Losses are amplified too, and positions can be liquidated."}
       </p>
       {marginInUse > 0 && (
         <div className="pt-2 border-t border-border/50 space-y-1">
@@ -408,7 +408,12 @@ export const SpotAccountCard = ({
       {hidden ? "••••" : `$${formatEquityUsd(balance)}`}
     </div>
     <p className="text-[11px] text-muted-foreground mt-3.5 leading-relaxed">
-      Buy and sell shares at full price.
+      {formatCategoryLine(STANDARD_CATEGORIES) && (
+        <>
+          <span className="text-foreground font-medium">For {formatCategoryLine(STANDARD_CATEGORIES)}.</span>{" "}
+        </>
+      )}
+      Put in $100, buy $100 of shares.
     </p>
   </AccountCardShell>
 );
