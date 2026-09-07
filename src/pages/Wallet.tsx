@@ -264,6 +264,31 @@ const formatCurrency = (value: number) =>
   value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 /**
+ * Business lines tradable on the Standard (spot) account.
+ * TODO(backend): there is no server-side source for spot category availability yet —
+ * `category_boost_configs` only covers Boost. Replace this constant with real data
+ * when the spot side gets one. The Boost card already reads live config.
+ */
+const STANDARD_CATEGORIES = ["stocks"];
+
+const CATEGORY_LABELS: Record<string, string> = {
+  stocks: "stocks",
+  crypto: "crypto",
+  sports: "sports",
+  macro: "macro",
+  politics: "politics",
+};
+
+/** ["sports","crypto"] → "sports and crypto"; caps at 3 then falls back to "more". */
+const formatCategoryLine = (categories: string[]): string => {
+  const names = categories.map((c) => CATEGORY_LABELS[c] ?? c);
+  if (names.length === 0) return "";
+  if (names.length === 1) return names[0];
+  if (names.length > 3) return `${names.slice(0, 2).join(", ")} and more`;
+  return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+};
+
+/**
  * Boost (futures) available-balance popover. Module-scope on purpose: defining
  * it inside the Wallet component gave it a fresh component identity on every
  * re-render, which remounted the Popover and closed it after ~600ms.
@@ -278,8 +303,8 @@ export const AvailableBalanceTooltip = ({ marginInUse, unrealizedPnL }: { margin
     <div className="space-y-2">
       <p className="text-xs">
         {isLite
-          ? "Cash you can trade or withdraw. Doesn't include open trade profit."
-          : "Cash you can trade or withdraw. Doesn't include unrealized PnL."}
+          ? "Cash you can trade or withdraw. Doesn't include open trade profit. Losses are amplified too, and a bad move can auto-close your position."
+          : "Cash you can trade or withdraw. Doesn't include unrealized PnL. Losses are amplified too, and positions can be liquidated."}
       </p>
       {marginInUse > 0 && (
         <div className="pt-2 border-t border-border/50 space-y-1">
@@ -383,7 +408,12 @@ export const SpotAccountCard = ({
       {hidden ? "••••" : `$${formatEquityUsd(balance)}`}
     </div>
     <p className="text-[11px] text-muted-foreground mt-3.5 leading-relaxed">
-      Buy and sell shares at full price.
+      {formatCategoryLine(STANDARD_CATEGORIES) && (
+        <>
+          <span className="text-foreground font-medium">For {formatCategoryLine(STANDARD_CATEGORIES)}.</span>{" "}
+        </>
+      )}
+      Put in $100, buy $100 of shares.
     </p>
   </AccountCardShell>
 );
@@ -397,6 +427,7 @@ export const FuturesAccountCard = ({
   AvailableTooltip,
   compact = false,
   boostMax,
+  boostCategories = [],
 }: {
   balance: number;
   hidden: boolean;
@@ -406,8 +437,10 @@ export const FuturesAccountCard = ({
   AvailableTooltip: React.ComponentType<{ marginInUse: number; unrealizedPnL: number }>;
   compact?: boolean;
   boostMax?: number;
+  boostCategories?: string[];
 }) => {
   const mask = (v: number) => (hidden ? "••••" : `$${formatEquityUsd(v)}`);
+  const line = formatCategoryLine(boostCategories ?? []);
   return (
     <AccountCardShell
       tag="Boost"
@@ -429,7 +462,10 @@ export const FuturesAccountCard = ({
         {mask(balance)}
       </div>
       <p className="text-[11px] text-muted-foreground mt-3.5 leading-relaxed">
-        Put in a little to control a bigger trade{boostMax && boostMax > 1 ? ` — Boost up to ${boostMax}×` : ""}.
+        {line && <><span className="text-foreground font-medium">For {line}.</span>{" "}</>}
+        {boostMax && boostMax > 1
+          ? `Put in $100, trade like $${(100 * boostMax).toLocaleString("en-US")} — up to ${boostMax}×.`
+          : "Buy and sell shares at full price."}
       </p>
     </AccountCardShell>
   );
@@ -627,7 +663,7 @@ export default function Wallet() {
   const isLite = surface === "lite";
   const { balance, spotBalance, user } = useUserProfile();
   const { imTotal, unrealizedPnL, hasPositions } = useRealtimeRiskMetrics();
-  const { maxBoost } = useCategoryBoostConfigs();
+  const { maxBoost, boostCategories } = useCategoryBoostConfigs();
   const { 
     wallets, 
     isLoading: walletsLoading, 
@@ -876,6 +912,7 @@ export default function Wallet() {
               unrealizedPnL={unrealizedPnL}
               AvailableTooltip={AvailableBalanceTooltip}
               boostMax={maxBoost}
+              boostCategories={boostCategories}
             />
           </section>
 
@@ -1033,6 +1070,7 @@ export default function Wallet() {
             unrealizedPnL={unrealizedPnL}
             AvailableTooltip={AvailableBalanceTooltip}
             boostMax={maxBoost}
+            boostCategories={boostCategories}
             compact
           />
         </section>

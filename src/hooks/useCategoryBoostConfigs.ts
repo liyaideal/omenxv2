@@ -87,7 +87,17 @@ export const useCategoryBoostConfigs = () => {
     return vals.length ? Math.max(...vals) : 1;
   }, [map]);
 
-  return { getConfig, isLoading, maxBoost };
+  /** Categories that actually have Boost enabled — drives the Boost card's business-line copy. */
+  const boostCategories = useMemo(
+    () =>
+      Object.entries(map)
+        .filter(([, c]) => c.enabled)
+        .map(([k]) => k)
+        .sort(),
+    [map],
+  );
+
+  return { getConfig, isLoading, maxBoost, boostCategories };
 };
 
 export default useCategoryBoostConfigs;
