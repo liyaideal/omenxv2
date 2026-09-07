@@ -6,6 +6,7 @@
 import { ShareModal } from "@/components/ShareModal";
 import { LitePnlPoster, type LitePnlPosterState } from "@/components/lite/share/LitePnlPoster";
 import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
+import { PosterScaleFrame } from "@/components/share/PosterScaleFrame";
 
 /* ------------------------------ fixtures ------------------------------ */
 
