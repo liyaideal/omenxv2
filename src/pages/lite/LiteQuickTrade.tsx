@@ -11,6 +11,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { usePositions } from "@/hooks/usePositions";
+import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { executeSpotTrade } from "@/services/tradingService";
 import { AuthDialog } from "@/components/auth/AuthDialog";
