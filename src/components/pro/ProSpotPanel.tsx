@@ -309,6 +309,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
           side={p.side}
           label={p.ctaLabel}
           potentialWin={(isSell ? p.sellReceive : p.maxWin).toFixed(2)}
+          winPrefix={isSell ? "You receive" : "To win"}
           onClick={p.onSubmit}
           disabled={p.ctaDisabled}
           loading={p.submitting}
@@ -417,6 +418,7 @@ export const ProSpotOrderPreview = (p: ProSpotOrderPreviewProps) => {
             label={p.ctaLabel}
             potentialWin={(isSell ? p.sellReceive : p.maxWin).toFixed(2)}
             loading={p.submitting}
+            winPrefix={isSell ? "You receive" : "To win"}
             onClick={p.onConfirm}
             positionSide={isSell ? undefined : p.isYesSelected ? "yes" : "no"}
           />

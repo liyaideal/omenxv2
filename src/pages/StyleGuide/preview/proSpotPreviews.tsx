@@ -65,14 +65,14 @@ const PanelFixture = (f: Fixture) => {
         orderType={orderType}
         onOrderTypeChange={setOrderType}
         yesLabel="Up"
-        noLabel="Not Up"
+        noLabel="Down"
         yesPrice={0.4649}
         noPrice={0.5351}
         isYesSelected={isYes}
         onSelectOutcome={(w) => setIsYes(w === "yes")}
         heldYesQty={heldYesQty}
         heldNoQty={heldNoQty}
-        outcomeLabel={isYes ? "Up" : "Not Up"}
+        outcomeLabel={isYes ? "Up" : "Down"}
         available={f.available ?? 500}
         heldQty={heldQty}
         spotBalance={f.available ?? 500}
@@ -96,7 +96,7 @@ const PanelFixture = (f: Fixture) => {
         settleEtOnly="20:15"
         tickInvalid={false}
         willBePending={f.willBePending ?? false}
-        ctaLabel={f.ctaLabel ?? `${side === "sell" ? "Sell" : "Buy"} ${isYes ? "Up" : "Not Up"}`}
+        ctaLabel={f.ctaLabel ?? `${side === "sell" ? "Sell" : "Buy"} ${isYes ? "Up" : "Down"}`}
         ctaDisabled={f.ctaDisabled ?? false}
         submitting={false}
         onSubmit={() => undefined}

@@ -17,6 +17,16 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-09-09 — 现货 Pro 交易页 v1（[文档](../delivery/spot-pro-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| SP-A | 现货费率 V4（taker 15bps + 5% 赢利佣金）与结算入账 | ✅ | |
+| SP-B | 共享 Pro 骨架 `ProTerminalLayout` / `ProBottomTabs` / `OrderTypeDropdown` / `BinarySideToggle` | ✅ | `DesktopTrading` 改走骨架，逐像素比对无位移 |
+| SP-C | Pro `/spot` 下单面板重做（Buy/Sell 页签、订单类型下拉、单个方向切换、无 Max loss、Standard Account、订单预览） | ✅ | |
+| SP-D | `/style-guide` Pro Spot 八个 case + Spot 节换挂生产件 | ✅ | sg:audit TOTAL 317 |
+| SP-E | 文档 / 字典 / DESIGN 同步 | ✅ | |
+
 ## 2026-09-09 — Pro 交易页费率 V4 清理（[文档](../delivery/pro-trade-v4-cleanup-v1.md)）
 
 | # | 项 | Status | Notes |

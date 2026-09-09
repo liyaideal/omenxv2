@@ -6,6 +6,8 @@ import {
   type SessionProfile,
 } from "@/lib/usStockSessions";
 import { SpotStatsHeader } from "@/components/SpotStatsHeader";
+import { ProSpotHeader } from "@/components/pro/ProSpotHeader";
+import { TradeSubmitButton } from "@/components/trading/TradeSubmitButton";
 import { SectionWrapper, LegacyNotice } from "../components/SectionWrapper";
 import { PositionDetailContent } from "@/components/positions/PositionDetailContent";
 import type { UnifiedPosition } from "@/hooks/usePositions";
@@ -29,37 +31,27 @@ export const SpotSection = ({ isMobile }: Props) => {
         title="Spot terminal chrome"
         description="LOCKED per DESIGN.md §7: Left = identity + status badges + single countdown row (Trading ends in X · until HH:MM · ⓘ schedule). Right = Volume · Base ({priorDate} close) · {TICKER} price %. NO second time row, NO Yes-price stat, NO 中文 characters in the header — every clock renders viewer-local with no timezone suffix (全站时间口径 R1)."
       >
-        <div className="rounded-lg border border-border/50 overflow-hidden bg-background">
-          <header className="flex items-center gap-4 px-4 py-2 border-b border-border/30">
-            <button className="w-9 h-9 rounded-full bg-muted/50 flex items-center justify-center">
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground/5 border border-border/60 font-mono text-[11px] font-semibold">AAP</div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold truncate">Will AAPL close higher today? (Jul 15)</span>
-                  <Badge variant="outline" className="text-[10px]">SPOT</Badge>
-                  <Badge variant="outline" className={`text-[10px] border ${LIFECYCLE_BADGE.TRADING.className}`}>Trading</Badge>
-                </div>
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
-                  <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full" />
-                  <span>Trading ends in</span>
-                  <span className="font-mono font-medium text-foreground">09:23:56</span>
-                  <span>·</span>
-                  <span className="font-mono">until 15:55</span>
-                  <Info className="w-3 h-3 opacity-70" />
-                </div>
-              </div>
-            </div>
-            <div className="ml-auto flex items-center gap-6 text-xs">
-              <Stat label="Volume" value="$802K" />
-              <Stat label="Base (Jul 14 close)" value="$231.10" />
-              <Stat label="AAPL" value="$231.08" valueClass="text-trading-red" hint="−0.01% · after-hrs" />
-            </div>
-            <Star className="w-5 h-5 text-trading-yellow fill-trading-yellow ml-2" />
-          </header>
-        </div>
+        <ProSpotHeader
+          ticker="AAPL"
+          eventName="Will AAPL close higher today? (Jul 15)"
+          lifecycleBadge={{ label: LIFECYCLE_BADGE.TRADING.label, className: LIFECYCLE_BADGE.TRADING.className }}
+          countdown={{ text: "09:23:56", urgency: "muted" }}
+          freezeEtOnly="15:55"
+          closeEtOnly="16:00"
+          settleEtOnly="16:15"
+          closingSoon={false}
+          volumeText="$802K"
+          priorCloseDateLabel="Jul 14"
+          basePriceText="$231.10"
+          lastLabel="AAPL"
+          lastPriceText="$231.08"
+          lastIsUp={false}
+          lastHint="−0.01% · after-hrs"
+          watched
+          onToggleWatch={() => undefined}
+          onBack={() => undefined}
+          previewSignedIn
+        />
       </SectionWrapper>
 
       {/* Spot stats header (mobile / embedded variant) */}
@@ -110,21 +102,13 @@ export const SpotSection = ({ isMobile }: Props) => {
       <SectionWrapper
         id="spot-cta"
         title="Trade CTA — semantic colour only"
-        description="Buy Up → trading-green. Buy Not Up → trading-red. NEVER primary/purple. Text follows selected outcome + Buy/Sell."
+        description="生产件 TradeSubmitButton。颜色以 DESIGN.md §2 的市场轴 token 为准（§7 旧描述已被 §2 取代）：Buy 跟随所选 outcome 的 yes/no 渐变，Sell 统一红色渐变；永远不用 primary/purple。副文案 Buy 为 To win $X，Sell 为 You receive $X。"
       >
         <div className="grid gap-3 md:grid-cols-4">
-          <button className="h-11 rounded-lg font-semibold text-sm bg-trading-green hover:bg-trading-green/90 text-trading-green-foreground">
-            Buy Up · To win $126 →
-          </button>
-          <button className="h-11 rounded-lg font-semibold text-sm bg-trading-red hover:bg-trading-red/90 text-foreground">
-            Buy Not Up · To win $180 →
-          </button>
-          <button className="h-11 rounded-lg font-semibold text-sm bg-trading-green hover:bg-trading-green/90 text-trading-green-foreground">
-            Sell Up
-          </button>
-          <button className="h-11 rounded-lg font-semibold text-sm bg-trading-red hover:bg-trading-red/90 text-foreground">
-            Sell Not Up
-          </button>
+          <TradeSubmitButton side="buy" label="Buy Up" potentialWin="126.00" positionSide="yes" onClick={() => undefined} />
+          <TradeSubmitButton side="buy" label="Buy Down" potentialWin="180.00" positionSide="no" onClick={() => undefined} />
+          <TradeSubmitButton side="sell" label="Sell Up" potentialWin="64.00" winPrefix="You receive" onClick={() => undefined} />
+          <TradeSubmitButton side="sell" label="Sell Down" potentialWin="52.00" winPrefix="You receive" onClick={() => undefined} />
         </div>
       </SectionWrapper>
 
@@ -186,13 +170,13 @@ export const SpotSection = ({ isMobile }: Props) => {
       >
         <div className="grid gap-3 md:grid-cols-3 text-xs">
           <NetPosStep n={1} title="Start" body="Hold +10 sh Up @ $0.42" tone="green" />
-          <NetPosStep n={2} title="Buy 6 Not Up @ $0.55" body="Reduces Up by 6 sh at implied $0.45. Realized PnL = (0.45 − 0.42) × 6 = +$0.18." tone="yellow" />
-          <NetPosStep n={3} title="Result" body="Net +4 sh Up · no Not Up leg." tone="green" />
+          <NetPosStep n={2} title="Buy 6 Down @ $0.55" body="Reduces Up by 6 sh at implied $0.45. Realized PnL = (0.45 − 0.42) × 6 = +$0.18." tone="yellow" />
+          <NetPosStep n={3} title="Result" body="Net +4 sh Up · no Down leg." tone="green" />
         </div>
         <div className="mt-3 grid gap-3 md:grid-cols-3 text-xs">
           <NetPosStep n={1} title="Start" body="Hold +10 sh Up @ $0.42" tone="green" />
-          <NetPosStep n={2} title="Buy 15 Not Up @ $0.55" body="Closes Up fully (+$0.30 realized), opens +5 sh Not Up @ $0.55." tone="yellow" />
-          <NetPosStep n={3} title="Result" body="Net +5 sh Not Up · no Up leg." tone="red" />
+          <NetPosStep n={2} title="Buy 15 Down @ $0.55" body="Closes Up fully (+$0.30 realized), opens +5 sh Down @ $0.55." tone="yellow" />
+          <NetPosStep n={3} title="Result" body="Net +5 sh Down · no Up leg." tone="red" />
         </div>
       </SectionWrapper>
 
@@ -339,7 +323,7 @@ const MOCK_FUTURES_POSITION: UnifiedPosition = {
 
 const SAMPLE_ORDERS = [
   { market: "TSLA · Up (Jul 15)", side: "buy", type: "Limit", limit: "$0.42", qty: "500", reserved: "$210.00", status: "Pending" },
-  { market: "NVDA · Not Up (Jul 15)", side: "sell", type: "Limit", limit: "$0.61", qty: "300", reserved: "—", status: "Pending" },
+  { market: "NVDA · Down (Jul 15)", side: "sell", type: "Limit", limit: "$0.61", qty: "300", reserved: "—", status: "Pending" },
   { market: "AAPL · Up (Jul 15)", side: "buy", type: "Limit", limit: "$0.55", qty: "200", reserved: "$110.00", status: "Filled" },
 ];
 

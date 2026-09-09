@@ -1834,3 +1834,21 @@ Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① 
 - 挂载点：桌面页头 ×3、移动贴底栏 ×2、移动浮钮 ×1，见交付说明 `docs/delivery/surface-switch-v1.md` §3；新增挂载点须先改该表。
 
 **字典**：`/style-guide` → Foundations → `Surface switch · Lite / Pro`（`foundations-surface-switch`，SS-1…SS-5），挂生产件本体。
+
+
+## §Addendum 2026-09-09 · Pro 现货终端面板（LOCKED，取代 §7 关于现货 CTA 的旧描述）
+
+**共享骨架**：所有 Pro 桌面终端（合约 `/trade`、现货 `/spot`）的外壳必须来自 `src/components/pro/`：`ProTerminalLayout`（页头 / 图表 / 订单簿 280px / 底部页签 / 右栏 280px）、`ProBottomTabs`、`OrderTypeDropdown`、`BinarySideToggle`。页面只提供内容，不得再各写一套栅格；新增 Pro 终端一律从这四件长出来。
+
+**§14 现货下单面板解剖（自上而下，顺序不可换）**
+1. `Buy` / `Sell` —— **文字页签**，不是分段按钮、不是彩色按钮；未选态 `text-muted-foreground`。
+2. 订单类型 —— 右对齐 `OrderTypeDropdown`（Market / Limit），不用页签。
+3. 方向 —— **有且只有一个** `BinarySideToggle`（Up / Down 带价）。Sell 且该侧无持仓 → 该档 `opacity-40 pointer-events-none`，档内数字换 `0 sh`。
+4. 滑点 chip —— 中性态（`bg-muted/50`），**禁止**用方向色或盈亏色。
+5. 摘要 —— **不许有 Max loss 行**；净利只走 `netWin()`，ⓘ 挂共用 `WinTooltipBody`。
+6. CTA —— 生产件 `TradeSubmitButton`；Buy 跟随所选 outcome 的 yes/no 渐变，Sell 恒 trading-red 渐变；副文案 Buy `To win $X`、Sell `You receive $X`（`winPrefix`）。永不 primary/purple。
+7. 账户 —— `Standard Account`（Available (USDC) / In orders / Open positions）。
+
+**词轴**：Standard 段负向词恒为 `Down`；`Not Up` 退役，只允许留在 DB。
+
+**字典**：`/style-guide` → Pro Spot，八个 key 全挂生产件本体；Spot 节的终端顶栏挂 `ProSpotHeader`，CTA 例子挂 `TradeSubmitButton`，禁止手抄。

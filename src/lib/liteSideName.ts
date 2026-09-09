@@ -1,7 +1,8 @@
 import { parseSideLabels } from "@/lib/eventUtils";
 
 /**
- * Lite-only display mapping for the negative side of a daily up/down stock event.
+ * Display mapping for the negative side of a daily up/down stock event.
+ * Used by Lite AND by the Pro /spot terminal (Standard 段词轴).
  * DB side_labels may say "Not Up" for the no side; consumer-facing Lite copy
  * should show "Down" (Polymarket-style up/down). Affirmative side is unchanged.
  */

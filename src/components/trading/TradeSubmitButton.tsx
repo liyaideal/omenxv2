@@ -18,6 +18,11 @@ interface TradeSubmitButtonProps {
    * so a "close" action never visually competes with the outcome color.
    */
   positionSide?: "yes" | "no";
+  /**
+   * Secondary readout prefix. Defaults to "To win"; Sell intents pass
+   * "You receive". Purely a label — no layout change.
+   */
+  winPrefix?: string;
 }
 
 /**
@@ -36,6 +41,7 @@ export const TradeSubmitButton = ({
   size = "md",
   className,
   positionSide,
+  winPrefix = "To win",
 }: TradeSubmitButtonProps) => {
   const isBuy = side === "buy";
   const sizeClasses =
@@ -86,7 +92,7 @@ export const TradeSubmitButton = ({
           </span>
           <span className="flex items-center gap-1.5 shrink-0 opacity-90">
             <span className={cn("font-mono tracking-tight", winClass)}>
-              To win <span className="font-semibold">${win}</span>
+              {winPrefix} <span className="font-semibold">${win}</span>
             </span>
             <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
           </span>

@@ -58,12 +58,27 @@
 
 ## 4. 用户端流程
 
-### 4.1 Pro `/spot` 下单面板
-- 摘要行改为 `Cost / To win / Max loss / Fee (0.15%)`；`To win` 为净利，ⓘ 挂共用 `WinTooltipBody`。
-- `Max loss` 现在含手续费（`cost + fee`）。
-- CTA 副文案由 `· Max win $X →` 改为 `· To win $X →`（两位小数）。
-- 账户面板与余额提示由 `Spot Account` 改为 `Standard Account`；说明句改为 `Standard and Boost accounts are funded separately…`。
-- 双档 Yes/No 切换器抽成共享件 `src/components/pro/BinarySideToggle.tsx`，视觉逐像素不变。
+### 4.1 Pro `/spot` 下单面板（SP-1-FIX1 重做）
+
+面板结构自上而下（生产件 `src/components/pro/ProSpotPanel.tsx`）：
+
+| 区 | 内容 |
+|---|---|
+| 顶栏 | `Trade` + `SPOT` 徽标 |
+| 意图 | `Buy` / `Sell` 文字页签（不是分段按钮），右侧 `OrderTypeDropdown`（Market / Limit） |
+| 方向 | 单个 `BinarySideToggle`（Up / Down 两档带价）。Sell 且该侧无持仓时该档禁用（`opacity-40 pointer-events-none`），档内文字换成 `0 sh` |
+| 余额 | Buy 显示 `Available (USDC)`；Sell 显示持仓 `· N sh {outcome}` |
+| 输入 | Limit 时多一行限价输入；金额输入 + 0/25/50/75/100% 滑杆 |
+| 滑点 | 仅 Market。chip 为中性态，不用方向色 |
+| 摘要 | Buy：`Cost / Est. fill / Shares / To win ⓘ / Fee (0.15%)`；Sell：`Shares / Est. fill / Proceeds / Fee (0.15%)`。**无 Max loss 行** |
+| CTA | 生产件 `TradeSubmitButton`。Buy 副文案 `To win $X`，Sell 副文案 `You receive $X`（新增可选 prop `winPrefix`，不传时逐像素不变） |
+| 账户 | `Standard Account`：Available (USDC) / In orders / Open positions |
+
+下单前弹 `Order Preview` 对话框（生产件 `ProSpotOrderPreview`），两张卡：订单摘要 + 费用与净利。
+
+顶栏（`ProSpotHeader`）从页面抽成生产件，class 逐字未改，字典直接挂它，不再手抄。
+
+方向词：`Not Up` 已退役，Pro 现货与 Lite 共用 `liteSideName()` 改写为 `Down`。
 
 ### 4.2 Lite 简版现货面板
 - 删除 `Max loss · what you pay` 与 `You get if right` 两行；Returns 区恒为一行 `If you're right, you win` + ⓘ。
@@ -84,7 +99,8 @@
 
 ## 6. 涉及文件
 
-前端：`src/services/tradingService.ts`、`src/pages/SpotTrading.tsx`、`src/components/lite/trade/LiteOrderPanel.tsx`、`src/components/pro/BinarySideToggle.tsx`（新建）
+前端（Part A）：`src/services/tradingService.ts`、`src/pages/SpotTrading.tsx`、`src/components/lite/trade/LiteOrderPanel.tsx`、`src/components/pro/BinarySideToggle.tsx`（新建）
+前端（Part B / SP-1-FIX1）：`src/components/pro/ProTerminalLayout.tsx`、`ProBottomTabs.tsx`、`OrderTypeDropdown.tsx`、`ProSpotPanel.tsx`、`ProSpotHeader.tsx`（均新建）、`src/pages/DesktopTrading.tsx`（改走共享骨架，逐像素不变）、`src/pages/SpotTrading.tsx`、`src/components/trading/TradeSubmitButton.tsx`（新增可选 `winPrefix`）、`src/lib/liteSideName.ts`（注释）、`src/pages/StyleGuide/preview/proSpotPreviews.tsx`、`sections/ProSpotSection.tsx`、`sections/SpotSection.tsx`、`preview/registry.tsx`、`nav.tsx`
 后端：`supabase/functions/sim-settle-spot/index.ts`
 数据库：本轮 migration 重写 `public.settle_spot_event`
 
@@ -94,11 +110,18 @@ Pro 现货**移动端分支**、合约页（Lite / Pro）、`CandlestickChart` /
 
 ## 8. 本轮未做（留 SP-2）
 
-- `src/components/pro/` 只落了 `BinarySideToggle`；`ProTerminalLayout` / `ProBottomTabs` / `OrderTypeDropdown` 三件与 `DesktopTrading` 的逐像素抽取未做——合约终端外壳改动风险高于本轮收益，且与费率口径无关，单独一轮做更安全。
-- `/style-guide` Pro Spot 新增 case 未加（本轮无新增可视状态：改的是既有行的数值与文案，字典挂的是生产组件本体，自动跟随）。
-- Pro 现货移动端重设计（用户明确划出范围外）。
+- Pro 现货**移动端**重设计（用户明确划出范围外）。移动端仍走同一份 `ProSpotPanel`，行为与桌面一致。
+- 移动端 `ProTerminalLayout` 版本（该骨架目前只服务桌面终端）。
 
-## 9. 真平台核对项
+## 9. 状态字典
+
+`/style-guide` → Pro Spot 节，八个 registry key，全部挂生产组件本体：
+
+`pro-spot-panel-buy-market`、`pro-spot-panel-buy-limit`、`pro-spot-panel-sell-held`、`pro-spot-panel-sell-none`、`pro-spot-panel-insufficient`、`pro-spot-panel-pending-limit`、`pro-spot-preview-dialog`、`pro-terminal-skeleton`。
+
+Spot 节原先手抄的终端顶栏已换成生产件 `ProSpotHeader`，CTA 例子换成生产件 `TradeSubmitButton`。
+
+## 10. 真平台核对项
 
 1. 现货 taker 15 bps 只在买入侧收，卖出零费——请确认真平台同口径。
 2. 赢利佣金基数为「已实现盈利 − 已分摊开仓费」，亏损不收。
