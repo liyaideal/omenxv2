@@ -238,7 +238,8 @@ export const TransactionHistory = ({ transactions = [], className, fixture }: Tr
     if (pillFilter === 'deposit') return tx.type === 'deposit' || tx.type === 'fiat_buy';
 
     if (pillFilter === 'withdraw') return tx.type === 'withdraw';
-    if (pillFilter === 'trade') return tx.type === 'trade_profit' || tx.type === 'trade_loss';
+    if (pillFilter === 'trade')
+      return tx.type === 'trade_profit' || tx.type === 'trade_loss' || tx.type === 'fee';
     return true;
   });
 

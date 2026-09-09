@@ -30,10 +30,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { AutoCloseTooltipBody } from "@/components/lite/shared/AutoCloseTooltipBody";
+import { WinTooltipBody } from "@/components/lite/shared/WinTooltipBody";
+import { supabase } from "@/integrations/supabase/client";
 
 type Side = "yes" | "no";
 
-import { FUTURES_FEE_RATE } from "@/services/tradingService";
+import { FUTURES_FEE_RATE, netWin } from "@/services/tradingService";
 
 const FEE_RATE = FUTURES_FEE_RATE;
 const PRESETS = [10, 25, 50, 100];
@@ -162,6 +164,8 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   const fee = notional * FEE_RATE;
   const quantity = sidePrice > 0 ? notional / sidePrice : 0;
   const potentialWin = (1 - sidePrice) * quantity;
+  // RT-1: every displayed win is NET of the winning commission (single helper).
+  const potentialWinNet = netWin(potentialWin, fee);
 
   // Netting display math — mirrors the engine, which nets by SHARE QUANTITY
   // (qtyToNet = min(orderQty, oppositeQty)). A dollar-for-dollar model diverges
@@ -176,6 +180,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   const isPartialNet = canEstimateNet && remainderQty > 0;
   const remainderMarginEst = effBoost > 0 ? (remainderQty * sidePrice) / effBoost : 0;
   const remainderFee = remainderMarginEst * effBoost * FEE_RATE;
+  const remainderWinNet = netWin(remainderWin, remainderFee);
 
   const autoCloseComputed = useMemo(
     () =>
@@ -290,6 +295,24 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
         await addBalance(res.balanceDelta);
       }
 
+      // RT-1: leave a Wallet-visible ledger row for the entry fee. Fire and
+      // forget — the order stands even if this call fails.
+      if ((res.intent === "open" || res.intent === "add") && feeSnapshot > 0) {
+        void supabase.functions
+          .invoke("record-transaction", {
+            body: {
+              type: "fee",
+              amount: -feeSnapshot,
+              account: "futures",
+              status: "completed",
+              description: `Trading fee · ${sideLabel} · ${eventName}`,
+            },
+          })
+          .catch(() => {});
+      }
+
+
+
       if (res.intent === "reduce" || res.intent === "close") {
         toast.success(
           res.balanceDelta > 0
@@ -347,13 +370,15 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   const autoCloseRow =
     amountNum <= 0
       ? { text: "None", sub: "enter an amount", hot: false }
-      : effBoost <= 1 || autoClose.kind === "none"
-        ? { text: "None", sub: "loss capped", hot: false }
-        : {
-            text: `≈ ${formatCents(autoClose.price)}`,
-            sub: isAutoCloseHot(autoClose, sidePrice) ? "close to entry" : undefined,
-            hot: isAutoCloseHot(autoClose, sidePrice),
-          };
+      : effBoost <= 1
+        ? { text: "None", sub: "nothing borrowed", hot: false }
+        : autoClose.kind === "none"
+          ? { text: "None", sub: "can't be reached", hot: false }
+          : {
+              text: `≈ ${formatCents(autoClose.price)}`,
+              sub: isAutoCloseHot(autoClose, sidePrice) ? "close to entry" : undefined,
+              hot: isAutoCloseHot(autoClose, sidePrice),
+            };
 
   const nettingNotice =
     isNetting
@@ -487,15 +512,9 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
 
       {/* Returns */}
       <div className="space-y-1.5 rounded-xl border border-border bg-muted/20 p-3 text-xs">
-        <div className="flex items-center justify-between px-2">
-          <span className="text-muted-foreground">Max loss · what you put in</span>
-          <span className="font-mono font-semibold text-foreground">
-            {money(amountNum)}
-          </span>
-        </div>
         {canEstimateNet ? (
           <>
-            <div className="mt-0.5 flex items-center justify-between border-t border-border/60 px-2 pt-1.5">
+            <div className="flex items-center justify-between px-2">
               <span className="text-xs text-muted-foreground">You'll get back ≈</span>
               <span className="font-mono text-lg font-semibold text-foreground">
                 {money(getBack)}
@@ -508,7 +527,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
                     Then if the rest is right, you win
                   </span>
                   <span className="font-mono font-semibold text-foreground">
-                    {money(remainderWin)}
+                    {money(remainderWinNet)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between px-2 pt-0.5">
@@ -517,7 +536,9 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
                   </span>
                   <span className="font-mono font-semibold text-muted-foreground">
                     {effBoost <= 1 || remainderAutoClose == null || remainderAutoClose.kind === "none"
-                      ? "None · loss capped"
+                      ? effBoost <= 1
+                        ? "None · nothing borrowed"
+                        : "None · can't be reached"
                       : `≈ ${formatCents(remainderAutoClose.price)}`}
                   </span>
                 </div>
@@ -525,10 +546,22 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
             )}
           </>
         ) : (
-          <div className="mt-0.5 flex items-center justify-between border-t border-border/60 px-2 pt-1.5">
-            <span className="text-xs text-muted-foreground">If you're right, you win</span>
+          <div className="flex items-center justify-between px-2">
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+              If you're right, you win
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button type="button" aria-label="About what you win">
+                    <Info className="h-3 w-3 text-muted-foreground" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="p-3">
+                  <WinTooltipBody />
+                </TooltipContent>
+              </Tooltip>
+            </span>
             <span className="font-mono text-lg font-semibold text-foreground">
-              {money(potentialWin)}
+              {money(potentialWinNet)}
             </span>
           </div>
         )}
@@ -591,7 +624,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
           )}
         </span>
         {!blocked && (
-          <span className="font-mono text-sm">{money(potentialWin)} →</span>
+          <span className="font-mono text-sm">{money(potentialWinNet)} →</span>
         )}
       </button>
       <p className="text-center text-[10px] text-muted-foreground/70">

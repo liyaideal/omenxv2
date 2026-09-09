@@ -28,8 +28,7 @@ export const AutoCloseTooltipBody = () => (
       </span>
       <p className="text-muted-foreground">
         This call can't be auto-closed — it's 1× (nothing borrowed), or prices
-        only move between 0¢ and 100¢ and the line can't be reached. The most
-        you can lose is what you put in.
+        only move between 0¢ and 100¢ and the line can't be reached.
       </p>
     </div>
   </div>

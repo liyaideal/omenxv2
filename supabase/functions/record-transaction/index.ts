@@ -8,6 +8,7 @@ const corsHeaders = {
 };
 
 const ALLOWED_TYPES = new Set([
+  "fee",
   "deposit",
   "withdraw",
   "card_deposit",
