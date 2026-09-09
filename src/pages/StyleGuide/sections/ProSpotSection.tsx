@@ -93,7 +93,7 @@ const PANEL_CASES: SectionCase[] = [
       {
         state: "Pending 提示",
         when: "willBePending && !tickInvalid",
-        visual: "黄色 10px 提示说明会挂为 Pending 并占用预留资金；CTA 文案变 `Place limit · Buy Up`",
+        visual: "黄色 10px 提示说明会挂为 Pending 并占用预留资金，金额为 cost + fee（含手续费）；CTA 文案变 `Place limit · Buy Up`",
         source: "ProSpotPanel.willBePending",
       },
     ],
@@ -104,7 +104,7 @@ const DIALOG_CASES: SectionCase[] = [
   {
     key: "pro-spot-preview-dialog",
     label: "SP-B7 · Order preview 弹窗（ProSpotOrderPreview）",
-    note: "与合约终端同一 Dialog 框架：事件名 + outcome chip + 两张 rounded-lg border-border/50 bg-muted/20 p-3 卡片 + TradeSubmitButton size=\"lg\"。不出现杠杆 / 保证金 / 强平 / Position impact。",
+    note: "与合约终端同一 Dialog 框架：事件名 + outcome chip + 两张 rounded-lg border-border/50 bg-muted/20 p-3 卡片 + TradeSubmitButton size=\"lg\"。不出现杠杆 / 保证金 / 强平 / Position impact。两个入口：面板 CTA，以及 Positions 行的 `Close`（预置 Sell · 该 outcome · Market · 全量精确份额，直接开这个弹窗）。",
     spec: [
       {
         state: "Buy 预览",
