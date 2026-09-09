@@ -180,7 +180,7 @@ export const PositionDetailContent = ({
                 <Info className="w-3 h-3 cursor-help" />
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-xs text-xs">
-                Net PnL = Price PnL − Funding accrued. Closing now would also incur an estimated trading fee.
+                Net PnL = Price PnL. Closing now would also incur an estimated trading fee.
               </TooltipContent>
             </Tooltip>
           </div>
@@ -201,20 +201,6 @@ export const PositionDetailContent = ({
               )}
             >
               {pricePnl >= 0 ? "+" : "−"}${Math.abs(pricePnl).toFixed(2)}
-            </span>
-
-            <span className="text-muted-foreground">Funding paid</span>
-            <span
-              className={cn(
-                "font-mono text-right",
-                fundingPaid > 0
-                  ? "text-trading-red"
-                  : fundingPaid < 0
-                  ? "text-trading-green"
-                  : "text-foreground"
-              )}
-            >
-              {fundingPaid >= 0 ? "−" : "+"}${Math.abs(fundingPaid).toFixed(4)}
             </span>
 
             <span className="text-muted-foreground">Cumulative Trading Fees</span>
