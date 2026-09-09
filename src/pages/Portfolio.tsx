@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useNavigate, useNavigationType } from "react-router-dom";
 import { ArrowUpDown, TrendingUp, TrendingDown, Wallet, BarChart3, ChevronRight, Info, AlertTriangle, Loader2, Gift, Inbox, Trophy } from "lucide-react";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { useSurface } from "@/contexts/SurfaceContext";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePositions } from "@/hooks/usePositions";
