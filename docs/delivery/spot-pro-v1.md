@@ -134,3 +134,7 @@ Spot 节原先手抄的终端顶栏已换成生产件 `ProSpotHeader`，CTA 例�
 3. **Close = 确认并平仓**：Positions 行 `Close` 现在预置 Sell · 该 outcome · Market · 全量精确份额，并**立即打开 `ProSpotOrderPreview`**；确认走与面板同一条卖出路径，成交 toast 为 `Cashed out · $X back`。部分平仓仍可在面板改 Amount。移动端分支共用同一张表，行为一致。
 4. **文案**：限价挂单提示的预留金额改为 `cost + fee`（含 0.15% 手续费）。
 5. **状态字典**：新增 `pro-spot-panel-sell-held-down`（仅持 Down、2,034.879 sh）；`pro-spot-panel-sell-held` fixture 改为小数份额。
+
+## SP-1-FIX4 (2026-09-09) — 全平吸附（full-close snap）
+
+`sharesInputValue()` 只保留 3 位小数：36.7647… 持仓的 `Close` 预填 `36.765` 会**超出持仓**被校验拒绝，向下取整又留下 0.0007 sh 永远平不掉的 dust。现在 sell 路径（面板提交与 `Close` → 预览确认共用）在 `|qty − heldQty| < 0.001` 或 `qty ≥ heldQty × 0.9995`（滑杆 100%）时吸附为**精确 heldQty** 发送给 `executeSpotTrade` / `placeSpotLimitOrder`；3 位小数字符串仅作输入展示。无引擎改动。状态字典 `pro-spot-panel-sell-held-down` 已补该规则。
