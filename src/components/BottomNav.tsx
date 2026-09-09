@@ -1,5 +1,5 @@
 import { useState, useEffect, type CSSProperties } from "react";
-import { Home, BarChart3, TrendingUp, User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, KeyRound, Compass, PieChart, ArrowLeftRight, Layers, Sparkles } from "lucide-react";
+import { User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, KeyRound, Compass, PieChart, ArrowLeftRight } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthSheet } from "@/components/auth/AuthSheet";
@@ -8,17 +8,7 @@ import { TransferDrawer } from "@/components/wallet/TransferDrawer";
 import { MobileDrawer, MobileDrawerList, MobileDrawerListItem } from "@/components/ui/mobile-drawer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { useSurface } from "@/contexts/SurfaceContext";
-import { SPORTS_LINK } from "@/lib/worldCup";
-import soccerBallAsset from "@/assets/soccer-ball.png.asset.json";
 
-
-const navItems = [
-  { icon: Home, label: "Home", path: "/", disabled: false },
-  { icon: BarChart3, label: "Events", path: "/events", disabled: false },
-  { icon: User, label: "Sports", path: "__sports__", disabled: false, featured: true, external: true },
-  { icon: TrendingUp, label: "Trade", path: "/trade", disabled: false },
-];
 
 // Lite surface: Events / Portfolio / Wallet (+ shared Me button)
 const liteNavItems = [
@@ -39,7 +29,6 @@ export const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { balance, spotBalance, user, username, avatarUrl, profile } = useUserProfile();
-  const { surface, toggle } = useSurface();
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
   const [profileSheetOpen, setProfileSheetOpen] = useState(false);
@@ -85,8 +74,6 @@ export const BottomNav = () => {
     }
     return location.pathname === path;
   };
-
-  const isLite = surface === "lite";
 
   const isLiteActive = (path: string) => {
     const p = location.pathname;
