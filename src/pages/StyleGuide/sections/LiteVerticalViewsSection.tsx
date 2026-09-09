@@ -148,7 +148,6 @@ const mockEvent = (
         volume24h: 0,
         totalVolume: 0,
         openInterest: 0,
-        fundingRate: 0,
       },
       {
         id: `${id}-no`,
@@ -163,7 +162,6 @@ const mockEvent = (
         volume24h: 0,
         totalVolume: 0,
         openInterest: 0,
-        fundingRate: 0,
       },
     ],
   }) as EventRow;

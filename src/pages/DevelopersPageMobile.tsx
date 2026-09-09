@@ -40,7 +40,7 @@ const CAPABILITIES = [
   {
     icon: Radio,
     title: "Market Data",
-    body: "Depth, tape, mark and funding over REST and WebSocket.",
+    body: "Depth, tape and mark over REST and WebSocket.",
     tag: "REST · WS",
   },
   {
@@ -96,7 +96,7 @@ const QUICKSTART = [
 ];
 
 const ENDPOINTS = [
-  { method: "GET", path: "/v1/markets", body: "List every market with mark, funding and status." },
+  { method: "GET", path: "/v1/markets", body: "List every market with mark and status." },
   { method: "GET", path: "/v1/markets/{id}/trades", body: "Recent tape for a single market." },
   { method: "POST", path: "/v1/orders/preview", body: "Dry-run an order. Returns snapshot id and fee preview." },
   { method: "POST", path: "/v1/orders", body: "Commit a previewed order. Idempotent by client_order_id." },

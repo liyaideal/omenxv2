@@ -7,7 +7,6 @@ const ENDPOINTS: Array<{ method: "GET" | "POST" | "DELETE" | "ws"; path: string 
   { method: "POST", path: "/v1/orders" },
   { method: "DELETE", path: "/v1/orders/{id}" },
   { method: "GET", path: "/v1/positions" },
-  { method: "GET", path: "/v1/account/funding" },
   { method: "ws", path: "market.snapshot" },
   { method: "ws", path: "market.book" },
   { method: "ws", path: "orders" },

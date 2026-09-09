@@ -10,7 +10,7 @@ interface Props {
  * RULE 1 — Field Label Casing
  *   • On-chain contract fields → exact camelCase as in the ABI:
  *     uid, positionSide, markPrice, size, eventId, outcomeId,
- *     makerUid, takerUid, price, fundingRate, winningOutcomeId,
+ *     makerUid, takerUid, price, fee, winningOutcomeId,
  *     oracleProof, batchId, oldRoot, newRoot
  *   • Blockchain metadata → camelCase matching Ethereum conventions:
  *     txHash, blockNumber, contract, timestamp
