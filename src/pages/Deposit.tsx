@@ -21,7 +21,6 @@ export default function Deposit() {
   const [activeTab, setActiveTab] = useState('wallet');
   const { account, setAccount } = useAccountPreference('deposit');
   const { user } = useAuth();
-  const { surface } = useSurface();
   const [pickerOpen, setPickerOpen] = useState(false);
   
   // On desktop, redirect to wallet page
@@ -42,7 +41,7 @@ export default function Deposit() {
       <div className="min-h-screen bg-background flex flex-col">
         <MobileHeader title="Deposit" showBack showLogo={false} />
         <main className="flex-1 overflow-auto pb-24">
-          <WalletAuthGate isLite={surface === 'lite'}>
+          <WalletAuthGate isLite>
             <WalletGatePlaceholder />
           </WalletAuthGate>
         </main>

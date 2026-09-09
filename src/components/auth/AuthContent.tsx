@@ -26,7 +26,6 @@ import {
 import type { AuthStep } from "@/hooks/useAuth";
 import sillyname from "sillyname";
 import { GoogleAccountChooser } from "./GoogleAccountChooser";
-import { useSurface } from "@/contexts/SurfaceContext";
 
 interface AuthContentProps {
   step: AuthStep;
@@ -55,8 +54,7 @@ export const AuthContent = ({
   fixture,
 }: AuthContentProps) => {
   const queryClient = useQueryClient();
-  const { surface } = useSurface();
-  const isLite = surface === "lite";
+  const isLite = true;
   const [searchParams] = useSearchParams();
   const { profile, username: profileUsername, email: profileEmail } = useUserProfile();
   const [authMethod, setAuthMethod] = useState<"wallet" | "google" | "telegram">(fixture?.authMethod ?? "google");
