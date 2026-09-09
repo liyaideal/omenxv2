@@ -13,7 +13,6 @@ import { LoginPrompt } from "@/components/LoginPrompt";
 import { MerkleProofVerification } from "@/components/transparency/MerkleProofVerification";
 import { TradeVerification } from "@/components/transparency/TradeVerification";
 import { LiquidationAudit } from "@/components/transparency/LiquidationAudit";
-import { FundingRateAudit } from "@/components/transparency/FundingRateAudit";
 
 
 const SCENARIOS = [
@@ -50,24 +49,12 @@ const SCENARIOS = [
     steps: ["Select position", "Fetch on-chain event", "Margin analysis", "Fairness conclusion"],
     badge: "Price Fairness",
   },
-  {
-    id: "funding-rate-audit",
-    icon: Percent,
-    iconColor: "text-purple-400",
-    iconBg: "bg-purple-400/10",
-    title: "Am I Being Overcharged?",
-    subtitle: "FundingRate Event Audit",
-    description: "Compare the funding rate applied to your position against the on-chain FundingRate event log (eventId, marketId, fundingRate) to verify no unfair fees.",
-    steps: ["Select a position", "Fetch on-chain log", "Rate comparison", "Fee verification"],
-    badge: "Fee Transparency",
-  },
 ];
 
 const SCENARIO_GRADIENTS: Record<string, string> = {
   "merkle-proof": "hsl(160 50% 15% / 0.15)",
   "trade-verification": "hsl(210 50% 15% / 0.15)",
   "liquidation-audit": "hsl(40 50% 15% / 0.15)",
-  "funding-rate-audit": "hsl(270 50% 15% / 0.15)",
   
 };
 
@@ -75,7 +62,6 @@ const SCENARIO_TITLES: Record<string, string> = {
   "merkle-proof": "Asset Verification",
   "trade-verification": "Trade Verification",
   "liquidation-audit": "Liquidation Audit",
-  "funding-rate-audit": "Funding Rate Audit",
   
 };
 
@@ -108,7 +94,6 @@ const TransparencyPage = () => {
       case "merkle-proof": return <MerkleProofVerification onBack={onBack} />;
       case "trade-verification": return <TradeVerification onBack={onBack} />;
       case "liquidation-audit": return <LiquidationAudit onBack={onBack} />;
-      case "funding-rate-audit": return <FundingRateAudit onBack={onBack} />;
       
       default: return null;
     }
