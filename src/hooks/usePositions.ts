@@ -99,6 +99,8 @@ const convertSupabasePosition = (pos: SupabasePosition): UnifiedPosition => {
     marginNum,
     leverageNum: Number(pos.leverage) || 1,
     createdAt: pos.created_at,
+    tradeId: (pos as SupabasePosition & { trade_id?: string | null }).trade_id ?? null,
+
     productLine: ((pos as any).product_line === "spot" ? "spot" : "futures"),
     _source: "supabase",
     _supabaseId: pos.id,
