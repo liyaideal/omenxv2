@@ -236,6 +236,10 @@ positives. Chip words come from the sibling event's `side_labels`.
 | **To win** | Pro CTA figure = net profit after 5% winning commission (same `netWin()` helper as Lite) | gross profit |
 | **Standard Account** | 现货账户在 Pro `/spot` 与余额提示中的名字 | Spot Account（已退役）|
 | **Fee (0.15%)** | Pro `/spot` 下单摘要手续费行 | Fee, Trading fee（该行专用写法）|
+| **Proceeds** | Pro `/spot` 卖出摘要行 = 卖出份额 × 成交价（未扣费；费另起 `Fee (0.15%)` 行） | Total, Return |
+| **You receive** | Pro `/spot` **卖出** CTA 副文案（买入侧仍为 `To win`）| To win（卖出侧禁用）|
+| ~~**Max loss**~~ | **Retired 2026-09-09 (SP-1)** — Pro `/spot` 与 Lite 下单面板都不再显示这行；净利口径由 `To win` 单行承担 | — |
+| ~~**Not Up**~~ | **Retired 2026-09-09** — Standard 段负向词一律显示 `Down`（`liteSideName()`），Pro `/spot` 与 Lite 同口径；DB `side_labels` 可继续存旧值 | — |
 | ~~**Funding Rate**~~ | **Retired 2026-09-09 (Fee System V4)** — funding is 0 by policy; no funding figure is displayed anywhere | — |
 | ~~**Next Funding**~~ | **Retired 2026-09-09** — countdown removed with the funding display | — |
 | ~~**Isolated**~~ | **Retired 2026-09-09** — cross margin is the only supported mode; the Cross/Isolated switch and the preview `Margin` / `Margin type` rows are gone | — |
