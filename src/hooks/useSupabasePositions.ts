@@ -488,17 +488,23 @@ export const useSupabasePositions = () => {
 
   // Mutation for partial / full close via qty
   const partialCloseMutation = useMutation({
-    mutationFn: partialClosePositionInDb,
+    mutationFn: async (vars: Parameters<typeof partialClosePositionInDb>[0]) => {
+      const res = await partialClosePositionInDb(vars);
+      await settleCash(res.cashBack);
+      return res;
+    },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["positions", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
-      const pnlStr = `${data.realizedPnl >= 0 ? "+" : "-"}$${Math.abs(data.realizedPnl).toFixed(2)}`;
       if (data.fullyClosed) {
-        toast.success(`Position closed · realized ${pnlStr}`);
+        toast.success(`Cashed out · ${money(data.cashBack)} back`);
       } else {
-        toast.success(`Closed ${data.closedQty} contracts · realized ${pnlStr} · ${data.remainingSize} remaining`);
+        toast.success(
+          `Cashed out · ${money(data.cashBack)} back · ${data.remainingSize} remaining`,
+        );
       }
     },
+
     onError: (error: Error) => {
       toast.error(`Failed to close position: ${error.message}`);
     },
