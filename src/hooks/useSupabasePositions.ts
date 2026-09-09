@@ -83,14 +83,22 @@ const closePositionInDb = async ({
   positionId: string;
   closePrice: number;
   pnl: number;
-}): Promise<{ marginReturned: number; fundingPaid: number; netPnl: number }> => {
+}): Promise<{
+  marginReturned: number;
+  fundingPaid: number;
+  netPnl: number;
+  cashBack: number;
+  wc: number;
+  realizedPnl: number;
+  releasedMargin: number;
+}> => {
   // 1. Top up funding to "now" before reading
   await topUpFunding(positionId);
 
   // 2. Get position details (now with up-to-date funding_accrued)
   const { data: position, error: fetchError } = await supabase
     .from("positions")
-    .select("margin, trade_id, funding_accrued")
+    .select("margin, trade_id, funding_accrued, winning_commission, event_name, option_label")
     .eq("id", positionId)
     .eq("user_id", userId)
     .single();
@@ -117,7 +125,15 @@ const closePositionInDb = async ({
   if (updateError) throw updateError;
 
   // 4. Update corresponding trade with funding snapshot
+  let allocatedEntryFee = 0;
   if (position.trade_id) {
+    const { data: trade } = await supabase
+      .from("trades")
+      .select("fee")
+      .eq("id", position.trade_id)
+      .maybeSingle();
+    allocatedEntryFee = Number(trade?.fee ?? 0) || 0;
+
     await supabase
       .from("trades")
       .update({
@@ -129,12 +145,40 @@ const closePositionInDb = async ({
       .eq("id", position.trade_id);
   }
 
+  // 5. Cash back = released margin + realized PnL − winning commission.
+  const releasedMargin = Number(position.margin) || 0;
+  const { wc, cashBack } = cashBackOnClose({
+    releasedMargin,
+    realizedPnl: netPnl,
+    allocatedEntryFee,
+  });
+
+  if (wc > 0) {
+    await supabase
+      .from("positions")
+      .update({ winning_commission: (Number(position.winning_commission) || 0) + wc })
+      .eq("id", positionId)
+      .eq("user_id", userId);
+  }
+
+  recordCloseLedger({
+    eventName: position.event_name,
+    optionLabel: position.option_label,
+    realizedPnl: netPnl,
+    wc,
+  });
+
   return {
-    marginReturned: Number(position.margin) + netPnl,
+    marginReturned: releasedMargin + netPnl,
     fundingPaid,
     netPnl,
+    cashBack,
+    wc,
+    realizedPnl: netPnl,
+    releasedMargin,
   };
 };
+
 
 // Partial close: reduce size/margin proportionally and credit realized PnL line.
 // If closeQty >= current size, fully close. Funding is prorated to the closed portion.
