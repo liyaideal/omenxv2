@@ -126,3 +126,11 @@ Spot 节原先手抄的终端顶栏已换成生产件 `ProSpotHeader`，CTA 例�
 1. 现货 taker 15 bps 只在买入侧收，卖出零费——请确认真平台同口径。
 2. 赢利佣金基数为「已实现盈利 − 已分摊开仓费」，亏损不收。
 3. 挂单冻结金额为 `cost + fee`，撤单 / 事件结算退还两者之和。
+
+## SP-1-FIX3 (2026-09-09) — 持仓侧识别 / 精确份额 / Close 直接确认
+
+1. **Held side**：`/spot` 的 `yesOpt` / `noOpt` 过去用 `find(/yes$/) || options[0]`。日内涨跌市场的 option label 是 `Up` / `Down`，正则永不命中，于是 Yes 档位被绑到数据库返回的第一行——只持有 Down 时面板会报成持有 Up。现在两条腿都先经 `side_labels` 别名解析（`isYesLabel` / `isNoLabel`），再退回顺序兜底；Positions 表 Outcome 列同样按 `optionId` 判定，两处同源。
+2. **精确份额**：`formatShares()`（最多 3 位小数、去尾零）用于 Held 行与 Shares 行；`sharesInputValue()` 用于 Amount 预填与滑杆写回。展示值不再喂给订单，`Close` 预填与卖出请求都取 `p.sizeNum` 原值。
+3. **Close = 确认并平仓**：Positions 行 `Close` 现在预置 Sell · 该 outcome · Market · 全量精确份额，并**立即打开 `ProSpotOrderPreview`**；确认走与面板同一条卖出路径，成交 toast 为 `Cashed out · $X back`。部分平仓仍可在面板改 Amount。移动端分支共用同一张表，行为一致。
+4. **文案**：限价挂单提示的预留金额改为 `cost + fee`（含 0.15% 手续费）。
+5. **状态字典**：新增 `pro-spot-panel-sell-held-down`（仅持 Down、2,034.879 sh）；`pro-spot-panel-sell-held` fixture 改为小数份额。
