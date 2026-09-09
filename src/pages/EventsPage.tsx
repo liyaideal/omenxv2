@@ -45,7 +45,6 @@ const PAGE_SIZE_MOBILE = 10;
 
 const EventsPage = () => {
   const navigate = useNavigate();
-  const { setSurface } = useSurface();
   const isMobile = useIsMobile();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
@@ -399,20 +398,6 @@ const EventsPage = () => {
           </div>
         )}
 
-        {/* Lite escape hatch — mirror of the Pro link on the Lite list */}
-        <div className="mt-auto pt-6 text-center text-xs text-muted-foreground">
-          Prefer a simpler view?{" "}
-          <button
-            type="button"
-            onClick={() => {
-              setSurface("lite");
-              navigate("/events");
-            }}
-            className="text-primary underline underline-offset-2 hover:text-primary/80"
-          >
-            Switch to Lite mode
-          </button>
-        </div>
       </main>
 
       {isMobile && <BottomNav />}
