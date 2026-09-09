@@ -75,12 +75,24 @@ export interface ProSpotPanelProps {
   onSubmit: () => void;
 }
 
+/**
+ * Share quantities are FRACTIONAL on spot. Display up to 3 dp with trailing
+ * zeros trimmed (`2,034.879`); never round a held size to an integer, because
+ * the displayed value is also what pre-fills the sell amount.
+ */
+export const formatShares = (n: number) =>
+  (Math.round(n * 1000) / 1000).toLocaleString("en-US", { maximumFractionDigits: 3 });
+
+/** Same value, but as a raw input string (no thousands separators). */
+export const sharesInputValue = (n: number) => String(Math.round(n * 1000) / 1000);
+
 const Row = ({ label, children }: { label: React.ReactNode; children: React.ReactNode }) => (
   <div className="flex justify-between">
     <span className="text-muted-foreground">{label}</span>
     <span>{children}</span>
   </div>
 );
+
 
 export const ProSpotPanel = (p: ProSpotPanelProps) => {
   const isSell = p.side === "sell";
