@@ -1,6 +1,9 @@
-// Surface switch (D6'-1 · FIX3) — trade-page-only Lite / Pro control.
+// Surface switch (D6'-1 · FIX3 / FIX4) — trade-page-only Lite / Pro control.
 // Every frame mounts the REAL src/components/surface/SurfaceSwitch.tsx.
+import { useState } from "react";
 import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
+import { LiteMarketBoard, type BoardOption } from "@/components/lite/multi/LiteMarketBoard";
+import { LiteBoardGroupHeader } from "@/components/lite/multi/LiteBoardGroupHeader";
 
 const Row = ({ children }: { children: React.ReactNode }) => (
   <div className="flex h-12 items-stretch gap-1.5 px-4 py-3">{children}</div>
