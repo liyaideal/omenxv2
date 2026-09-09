@@ -12,7 +12,6 @@ import { CrossChainDeposit } from '@/components/deposit/CrossChainDeposit';
 import { AccountPicker, AccountPickerRows, type AccountKind } from '@/components/wallet/AccountPicker';
 import { useAccountPreference, ACCOUNT_LABEL } from '@/hooks/useAccountPreference';
 import { useAuth } from '@/hooks/useAuth';
-import { useSurface } from '@/contexts/SurfaceContext';
 import { WalletAuthGate, WalletGatePlaceholder } from '@/pages/Wallet';
 
 export default function Deposit() {

@@ -7,7 +7,6 @@ import { WalletWithdraw } from '@/components/withdraw/WalletWithdraw';
 import { WithdrawSubmitProvider } from '@/components/withdraw/WithdrawSubmitContext';
 import { StickyWithdrawBar } from '@/components/withdraw/StickyWithdrawBar';
 import { useAuth } from '@/hooks/useAuth';
-import { useSurface } from '@/contexts/SurfaceContext';
 import { WalletAuthGate, WalletGatePlaceholder } from '@/pages/Wallet';
 
 export default function Withdraw() {
