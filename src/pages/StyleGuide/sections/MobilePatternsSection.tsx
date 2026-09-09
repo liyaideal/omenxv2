@@ -45,6 +45,19 @@ const SURFACE_SWITCH_CASES: SectionCase[] = [
         source: "SurfaceSwitch dock 分支",
       },
       {
+        state: "SS-6 左下角浮钮 · 多市场页",
+        when: 'isMobile && boardMode（页面没有 sticky buy bar）',
+        visual:
+          "46×44 方钮 fixed 左下（left 12 / bottom 14 + safe-area），bg-card/90 backdrop-blur-sm border-border shadow-lg；列表容器补 pb-16（64px）；任何 drawer / bottom sheet / cash-out 打开时隐藏",
+        source: 'SurfaceSwitch size="float"',
+      },
+      {
+        state: "挂载规则（唯一一条）",
+        when: "移动 Lite 交易页",
+        visual: "有贴底栏 → 栏内 dock；无贴底栏 → 左下角 float；两者绝不同时出现",
+        source: "LiteContractTrade boardMode 判定",
+      },
+      {
         state: "尺寸 header / compact",
         when: 'size === "header" / size === "compact"',
         visual: "段 h-[22px] px-2.5 11px / h-[20px] px-2 10.5px",

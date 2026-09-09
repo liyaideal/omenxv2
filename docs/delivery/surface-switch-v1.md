@@ -41,6 +41,8 @@
 
 移动端页头（MobileHeader / MobileTradingLayout 右槽）**不挂**该控件，已恢复 D6′-1 之前的样子；`/trade/order` 不挂。
 
+移动 Lite 多市场页无贴底栏 → 同一颗方钮改为左下角浮钮（fixed，left 12 / bottom 14 + safe-area），列表底部留 64px。浮钮在任何抽屉 / 底部弹层 / 平仓流打开时隐藏，关闭后恢复；同一页永不同时出现贴底方钮与浮钮。
+
 ## 4. 路由收敛
 
 | 路由 | 旧 | 新 |
