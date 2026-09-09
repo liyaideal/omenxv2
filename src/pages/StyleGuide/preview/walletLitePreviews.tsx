@@ -196,6 +196,7 @@ const ICON_MATRIX_TXS: Transaction[] = [
   mk("5", "platform_credit", 25, "Platform credit", { account: "spot" }),
   mk("6", "bonus", 10, "Trial position voucher TPV-DEMO-S1", { account: "spot" }),
   mk("7", "fee", 1.25, "Trading fee", { account: "futures" }),
+  mk("10", "winning_commission", -2.1, "Winning commission · 5% · Up · BTC ≥ $150k", { account: "futures" }),
   mk("8", "transfer_to_futures", 500, "Transfer to Boost", { account: "spot" }),
   mk("9", "transfer_to_spot", 250, "Transfer from Boost", { account: "spot" }),
 ];

@@ -2,10 +2,50 @@ import { useEffect, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useUserProfile } from "./useUserProfile";
+import { cashBackOnClose } from "@/services/tradingService";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 
 export type SupabasePosition = Tables<"positions">;
+
+/** Cash-back ledger rows (fire-and-forget, exactly like the order panel's fee row). */
+const recordCloseLedger = (args: {
+  eventName: string;
+  optionLabel: string;
+  realizedPnl: number;
+  wc: number;
+}) => {
+  void supabase.functions
+    .invoke("record-transaction", {
+      body: {
+        type: args.realizedPnl >= 0 ? "trade_profit" : "trade_loss",
+        amount: args.realizedPnl,
+        account: "futures",
+        status: "completed",
+        description: `Cashed out: ${args.eventName} · ${args.optionLabel} · ${
+          args.realizedPnl >= 0 ? "Won" : "Lost"
+        }`,
+      },
+    })
+    .catch(() => {});
+  if (args.wc > 0) {
+    void supabase.functions
+      .invoke("record-transaction", {
+        body: {
+          type: "winning_commission",
+          amount: -args.wc,
+          account: "futures",
+          status: "completed",
+          description: `Winning commission · 5% · ${args.optionLabel} · ${args.eventName}`,
+        },
+      })
+      .catch(() => {});
+  }
+};
+
+const money = (v: number) => `$${Math.abs(v).toFixed(2)}`;
+
 
 // Fetch user's open positions from Supabase
 const fetchPositions = async (userId: string): Promise<SupabasePosition[]> => {
@@ -43,14 +83,22 @@ const closePositionInDb = async ({
   positionId: string;
   closePrice: number;
   pnl: number;
-}): Promise<{ marginReturned: number; fundingPaid: number; netPnl: number }> => {
+}): Promise<{
+  marginReturned: number;
+  fundingPaid: number;
+  netPnl: number;
+  cashBack: number;
+  wc: number;
+  realizedPnl: number;
+  releasedMargin: number;
+}> => {
   // 1. Top up funding to "now" before reading
   await topUpFunding(positionId);
 
   // 2. Get position details (now with up-to-date funding_accrued)
   const { data: position, error: fetchError } = await supabase
     .from("positions")
-    .select("margin, trade_id, funding_accrued")
+    .select("margin, trade_id, funding_accrued, winning_commission, event_name, option_label")
     .eq("id", positionId)
     .eq("user_id", userId)
     .single();
@@ -77,7 +125,15 @@ const closePositionInDb = async ({
   if (updateError) throw updateError;
 
   // 4. Update corresponding trade with funding snapshot
+  let allocatedEntryFee = 0;
   if (position.trade_id) {
+    const { data: trade } = await supabase
+      .from("trades")
+      .select("fee")
+      .eq("id", position.trade_id)
+      .maybeSingle();
+    allocatedEntryFee = Number(trade?.fee ?? 0) || 0;
+
     await supabase
       .from("trades")
       .update({
@@ -89,12 +145,40 @@ const closePositionInDb = async ({
       .eq("id", position.trade_id);
   }
 
+  // 5. Cash back = released margin + realized PnL − winning commission.
+  const releasedMargin = Number(position.margin) || 0;
+  const { wc, cashBack } = cashBackOnClose({
+    releasedMargin,
+    realizedPnl: netPnl,
+    allocatedEntryFee,
+  });
+
+  if (wc > 0) {
+    await supabase
+      .from("positions")
+      .update({ winning_commission: (Number(position.winning_commission) || 0) + wc })
+      .eq("id", positionId)
+      .eq("user_id", userId);
+  }
+
+  recordCloseLedger({
+    eventName: position.event_name,
+    optionLabel: position.option_label,
+    realizedPnl: netPnl,
+    wc,
+  });
+
   return {
-    marginReturned: Number(position.margin) + netPnl,
+    marginReturned: releasedMargin + netPnl,
     fundingPaid,
     netPnl,
+    cashBack,
+    wc,
+    realizedPnl: netPnl,
+    releasedMargin,
   };
 };
+
 
 // Partial close: reduce size/margin proportionally and credit realized PnL line.
 // If closeQty >= current size, fully close. Funding is prorated to the closed portion.
@@ -108,13 +192,24 @@ const partialClosePositionInDb = async ({
   positionId: string;
   closeQty: number;
   closePrice: number;
-}): Promise<{ closedQty: number; remainingSize: number; releasedMargin: number; realizedPnl: number; fundingPaid: number; fullyClosed: boolean }> => {
+}): Promise<{
+  closedQty: number;
+  remainingSize: number;
+  releasedMargin: number;
+  realizedPnl: number;
+  fundingPaid: number;
+  fullyClosed: boolean;
+  cashBack: number;
+  wc: number;
+}> => {
   // Top up funding before slicing
   await topUpFunding(positionId);
 
   const { data: position, error: fetchError } = await supabase
     .from("positions")
-    .select("size, margin, entry_price, side, trade_id, pnl, funding_accrued")
+    .select(
+      "size, margin, entry_price, side, trade_id, pnl, funding_accrued, winning_commission, event_name, option_label",
+    )
     .eq("id", positionId)
     .eq("user_id", userId)
     .single();
@@ -137,6 +232,20 @@ const partialClosePositionInDb = async ({
   const allocatedFunding = currentFunding * ratio;
   const realizedPnl = priceRealized - allocatedFunding;
 
+  // Entry fee attributable to the closed slice (pro-rata).
+  let entryFeeWhole = 0;
+  if (position.trade_id) {
+    const { data: trade } = await supabase
+      .from("trades")
+      .select("fee")
+      .eq("id", position.trade_id)
+      .maybeSingle();
+    entryFeeWhole = Number(trade?.fee ?? 0) || 0;
+  }
+  const allocatedEntryFee = entryFeeWhole * ratio;
+  const { wc, cashBack } = cashBackOnClose({ releasedMargin, realizedPnl, allocatedEntryFee });
+  const accumulatedWc = (Number(position.winning_commission) || 0) + wc;
+
   // Full close path
   if (qty >= currentSize) {
     const { error: updateError } = await supabase
@@ -145,6 +254,7 @@ const partialClosePositionInDb = async ({
         status: "Closed",
         mark_price: closePrice,
         pnl: realizedPnl,
+        winning_commission: accumulatedWc,
         closed_at: new Date().toISOString(),
       })
       .eq("id", positionId)
@@ -163,6 +273,13 @@ const partialClosePositionInDb = async ({
         .eq("id", position.trade_id);
     }
 
+    recordCloseLedger({
+      eventName: position.event_name,
+      optionLabel: position.option_label,
+      realizedPnl,
+      wc,
+    });
+
     return {
       closedQty: qty,
       remainingSize: 0,
@@ -170,6 +287,8 @@ const partialClosePositionInDb = async ({
       realizedPnl,
       fundingPaid: currentFunding,
       fullyClosed: true,
+      cashBack,
+      wc,
     };
   }
 
@@ -187,11 +306,19 @@ const partialClosePositionInDb = async ({
       margin: newMargin,
       mark_price: closePrice,
       pnl: accumulatedPnl,
+      winning_commission: accumulatedWc,
       funding_accrued: remainingFunding,
     })
     .eq("id", positionId)
     .eq("user_id", userId);
   if (updateError) throw updateError;
+
+  recordCloseLedger({
+    eventName: position.event_name,
+    optionLabel: position.option_label,
+    realizedPnl,
+    wc,
+  });
 
   return {
     closedQty: qty,
@@ -200,8 +327,11 @@ const partialClosePositionInDb = async ({
     realizedPnl,
     fundingPaid: allocatedFunding,
     fullyClosed: false,
+    cashBack,
+    wc,
   };
 };
+
 
 // Update TP/SL in Supabase
 const updateTpSlInDb = async ({
@@ -236,6 +366,19 @@ const updateTpSlInDb = async ({
 export const useSupabasePositions = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { addBalance, deductBalance } = useUserProfile();
+
+  // Cash leg — the money must land in the same mutation as the row flip.
+  const settleCash = useCallback(
+    async (cashBack: number) => {
+      if (cashBack >= 0) {
+        if (cashBack > 0) await addBalance(cashBack);
+      } else {
+        await deductBalance(Math.abs(cashBack));
+      }
+    },
+    [addBalance, deductBalance],
+  );
 
   // Query for fetching positions
   const {
@@ -253,16 +396,21 @@ export const useSupabasePositions = () => {
 
   // Mutation for closing position
   const closePositionMutation = useMutation({
-    mutationFn: closePositionInDb,
+    mutationFn: async (vars: Parameters<typeof closePositionInDb>[0]) => {
+      const res = await closePositionInDb(vars);
+      await settleCash(res.cashBack);
+      return res;
+    },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["positions", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
-      toast.success(`Position closed! Margin returned: $${data.marginReturned.toFixed(2)}`);
+      toast.success(`Cashed out · ${money(data.cashBack)} back`);
     },
     onError: (error: Error) => {
       toast.error(`Failed to close position: ${error.message}`);
     },
   });
+
 
   // Mutation for updating TP/SL
   const updateTpSlMutation = useMutation({
@@ -340,17 +488,23 @@ export const useSupabasePositions = () => {
 
   // Mutation for partial / full close via qty
   const partialCloseMutation = useMutation({
-    mutationFn: partialClosePositionInDb,
+    mutationFn: async (vars: Parameters<typeof partialClosePositionInDb>[0]) => {
+      const res = await partialClosePositionInDb(vars);
+      await settleCash(res.cashBack);
+      return res;
+    },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["positions", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
-      const pnlStr = `${data.realizedPnl >= 0 ? "+" : "-"}$${Math.abs(data.realizedPnl).toFixed(2)}`;
       if (data.fullyClosed) {
-        toast.success(`Position closed · realized ${pnlStr}`);
+        toast.success(`Cashed out · ${money(data.cashBack)} back`);
       } else {
-        toast.success(`Closed ${data.closedQty} contracts · realized ${pnlStr} · ${data.remainingSize} remaining`);
+        toast.success(
+          `Cashed out · ${money(data.cashBack)} back · ${data.remainingSize} remaining`,
+        );
       }
     },
+
     onError: (error: Error) => {
       toast.error(`Failed to close position: ${error.message}`);
     },

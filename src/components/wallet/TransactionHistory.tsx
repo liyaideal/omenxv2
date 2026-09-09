@@ -18,6 +18,7 @@ import {
   Banknote,
   Gift,
   Receipt,
+  Percent,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -62,6 +63,7 @@ export type TransactionType =
   | 'platform_credit'
   | 'bonus'
   | 'fee'
+  | 'winning_commission'
   | 'cross_chain_in'
   | 'cross_chain_out'
   | 'fiat_buy'
@@ -126,6 +128,7 @@ const TYPE_LABELS: Record<TransactionType, string> = {
   platform_credit: 'Platform Credits',
   bonus: 'Rewards & Vouchers',
   fee: 'Fees',
+  winning_commission: 'Winning commission',
   cross_chain_in: 'Cross-Chain In',
   cross_chain_out: 'Cross-Chain Out',
   fiat_buy: 'Fiat Buy',
@@ -142,6 +145,7 @@ const TYPE_BADGE_CONFIG: Record<TransactionType, { label: string; className: str
   platform_credit: { label: 'Credit', className: 'border-trading-green/30 bg-trading-green/10 text-trading-green' },
   bonus: { label: 'Reward', className: 'border-trading-green/30 bg-trading-green/10 text-trading-green' },
   fee: { label: 'Fee', className: 'border-trading-red/30 bg-trading-red/10 text-trading-red' },
+  winning_commission: { label: 'Commission', className: 'border-trading-red/30 bg-trading-red/10 text-trading-red' },
   // Pro-only tx types; not surfaced on Lite
   cross_chain_in: { label: 'Cross-Chain In', className: 'border-blue-500/30 bg-blue-500/10 text-blue-400' },
   cross_chain_out: { label: 'Cross-Chain Out', className: 'border-orange-500/30 bg-orange-500/10 text-orange-400' },
@@ -239,7 +243,7 @@ export const TransactionHistory = ({ transactions = [], className, fixture }: Tr
 
     if (pillFilter === 'withdraw') return tx.type === 'withdraw';
     if (pillFilter === 'trade')
-      return tx.type === 'trade_profit' || tx.type === 'trade_loss' || tx.type === 'fee';
+      return tx.type === 'trade_profit' || tx.type === 'trade_loss' || tx.type === 'fee' || tx.type === 'winning_commission';
     return true;
   });
 
@@ -296,6 +300,7 @@ export const TransactionHistory = ({ transactions = [], className, fixture }: Tr
       case 'platform_credit': return <WalletIcon className="w-5 h-5 text-trading-green" />;
       case 'bonus': return <Gift className="w-5 h-5 text-trading-green" />;
       case 'fee': return <Receipt className="w-5 h-5 text-trading-red" />;
+      case 'winning_commission': return <Percent className="w-5 h-5 text-trading-red" />;
       // Pro-only tx types; not surfaced on Lite
       case 'cross_chain_in': return <ArrowLeftRight className="w-5 h-5 text-blue-400" />;
       case 'cross_chain_out': return <ArrowLeftRight className="w-5 h-5 text-orange-400" />;
@@ -318,7 +323,7 @@ export const TransactionHistory = ({ transactions = [], className, fixture }: Tr
 
     switch (tx.type) {
       case 'deposit': case 'platform_credit': case 'bonus': return 'bg-trading-green/20';
-      case 'withdraw': case 'fee': return 'bg-trading-red/20';
+      case 'withdraw': case 'fee': case 'winning_commission': return 'bg-trading-red/20';
       // Pro-only tx types; not surfaced on Lite
       case 'cross_chain_in': return 'bg-blue-500/20';
       case 'cross_chain_out': return 'bg-orange-500/20';

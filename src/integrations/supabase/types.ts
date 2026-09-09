@@ -1123,6 +1123,7 @@ export type Database = {
           trade_id: string | null
           updated_at: string
           user_id: string
+          winning_commission: number
         }
         Insert: {
           close_reason?: string | null
@@ -1151,6 +1152,7 @@ export type Database = {
           trade_id?: string | null
           updated_at?: string
           user_id: string
+          winning_commission?: number
         }
         Update: {
           close_reason?: string | null
@@ -1179,6 +1181,7 @@ export type Database = {
           trade_id?: string | null
           updated_at?: string
           user_id?: string
+          winning_commission?: number
         }
         Relationships: [
           {
@@ -1990,6 +1993,8 @@ export type Database = {
       roll_daily_stock_events: { Args: never; Returns: number }
       roll_demo_positions: { Args: never; Returns: Json }
       roll_sports_matches: { Args: never; Returns: Json }
+      settle_futures_event: { Args: { p_event_id: string }; Returns: number }
+      settle_futures_sweep: { Args: never; Returns: number }
       settle_prior_stock_session: {
         Args: { _subtype: string }
         Returns: number

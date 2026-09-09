@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { MobileDrawer, MobileDrawerActions } from "@/components/ui/mobile-drawer";
 import { usePositions } from "@/hooks/usePositions";
 import { LiteShareFlow } from "@/components/lite/share/LiteShareFlow";
+import { winningCommission } from "@/services/tradingService";
 
 const CHIPS = [25, 50, 100];
 
@@ -45,6 +46,14 @@ interface Props {
   sizeNum: number;
   sideLabel: string;
   onDone: () => void;
+  /**
+   * Live profit attached to this position at the current price. Supplied by
+   * Boost pages so the preview can subtract the winning commission — the
+   * number shown must equal the cash that lands.
+   */
+  pnlAtPrice?: number;
+  /** Entry fee already paid on the whole position (pro-rated with the slice). */
+  entryFee?: number;
   /** Playground-only: initial slider position (defaults to 100%). */
   defaultPct?: number;
   /** Playground-only: pin the CTA in its submitting/disabled state. */
@@ -77,6 +86,8 @@ export const LiteCashOutFlow = ({
   sizeNum,
   sideLabel,
   onDone,
+  pnlAtPrice,
+  entryFee,
   defaultPct = 100,
   forceBusy = false,
   onConfirmCashOut,
@@ -93,10 +104,12 @@ export const LiteCashOutFlow = ({
   }, [open, defaultPct]);
 
   const fraction = pct / 100;
-  const payout = useMemo(
-    () => Math.max(0, fraction * currentValue),
-    [fraction, currentValue],
-  );
+  // Preview === what lands: releasedMargin + realizedPnl − winning commission.
+  const payout = useMemo(() => {
+    const gross = fraction * currentValue;
+    const wc = winningCommission(fraction * (pnlAtPrice ?? 0), fraction * (entryFee ?? 0));
+    return Math.max(0, gross - wc);
+  }, [fraction, currentValue, pnlAtPrice, entryFee]);
 
   const confirm = async () => {
     if (busy) return;

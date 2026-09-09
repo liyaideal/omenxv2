@@ -226,6 +226,13 @@ const DEMO_TXS: Transaction[] = [
     description: "BTC ≥ $150k · resolved YES",
     account: "futures",
   }),
+  mkTx({
+    id: "t6",
+    type: "winning_commission",
+    amount: -2.1,
+    description: "Winning commission · 5% · Up · BTC ≥ $150k",
+    account: "futures",
+  }),
 ];
 
 export const TransactionHistoryPreview = () => (

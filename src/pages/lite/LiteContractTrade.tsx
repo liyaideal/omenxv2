@@ -36,6 +36,7 @@ import { boostSuffix, legSideLabel, liteSideName, optionSideWord, resolveLegSide
 import { formatCents, estimateAutoClosePrice, isAutoCloseHot } from "@/lib/autoClosePrice";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
+import { FUTURES_FEE_RATE } from "@/services/tradingService";
 import type { Tables } from "@/integrations/supabase/types";
 import {
   LiteContractChart,
@@ -1210,6 +1211,8 @@ const LiteContractTrade = () => {
       positionId={heldPos.id}
       positionIndex={heldIndex}
       currentValue={heldNowWorth}
+      pnlAtPrice={heldPnlNum}
+      entryFee={heldPos.entryPriceNum * heldPos.sizeNum * FUTURES_FEE_RATE}
       sizeNum={heldPos.sizeNum}
       sideLabel={heldIsYes ? yesLabel : noLabel}
       shareContext={{

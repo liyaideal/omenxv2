@@ -20,6 +20,7 @@ const ALLOWED_TYPES = new Set([
   "trade_loss",
   "transfer_to_spot",
   "transfer_to_futures",
+  "winning_commission",
 ]);
 
 const ALLOWED_STATUS = new Set([
