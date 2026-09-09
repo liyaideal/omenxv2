@@ -407,7 +407,7 @@ export const ProSpotOrderPreview = (p: ProSpotOrderPreviewProps) => {
             <Row label="Side">{isSell ? "Sell" : "Buy"}</Row>
             <Row label="Type">{p.orderType}</Row>
             <Row label={p.orderType === "Limit" ? "Price" : "Est. fill"}>${p.price.toFixed(4)}</Row>
-            <Row label="Shares">{p.qty.toFixed(0)}</Row>
+            <Row label="Shares">{formatShares(p.qty)}</Row>
           </div>
 
           <div className="rounded-lg border border-border/50 bg-muted/20 p-3 space-y-1.5 text-xs font-mono">
