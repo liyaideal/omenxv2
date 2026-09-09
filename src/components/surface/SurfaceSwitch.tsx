@@ -8,7 +8,7 @@
  * Visual language is the portfolio SegmentChips pill pair (parts.tsx),
  * so the control reads as an in-page segment, not as a global setting.
  */
-import { useSurface } from "@/contexts/SurfaceContext";
+import { useSurface, type Surface } from "@/contexts/SurfaceContext";
 import { useAuth } from "@/hooks/useAuth";
 
 type Size = "header" | "compact";
@@ -18,12 +18,24 @@ const PAD: Record<Size, string> = {
   compact: "px-3 py-[5px] text-[11.5px]",
 };
 
-export const SurfaceSwitch = ({ size = "header" }: { size?: Size }) => {
+export const SurfaceSwitch = ({
+  size = "header",
+  previewSignedIn,
+  previewActive,
+}: {
+  size?: Size;
+  /** style-guide only — force the signed-in branch. */
+  previewSignedIn?: boolean;
+  /** style-guide only — force which pill reads as active. */
+  previewActive?: Surface;
+}) => {
   const { surface, setSurface } = useSurface();
   const { user } = useAuth();
+  const signedIn = previewSignedIn ?? !!user;
+  const current = previewActive ?? surface;
 
   // Guests never see the switch — they always read the Lite trade page.
-  if (!user) return null;
+  if (!signedIn) return null;
 
   const items = [
     { id: "lite" as const, label: "Simple" },
@@ -33,7 +45,7 @@ export const SurfaceSwitch = ({ size = "header" }: { size?: Size }) => {
   return (
     <div className="flex items-center gap-1.5" role="group" aria-label="Trading view">
       {items.map((it) => {
-        const active = surface === it.id;
+        const active = current === it.id;
         return (
           <button
             key={it.id}

@@ -1,7 +1,6 @@
 // Surface switch (D6'-1) — trade-page-only Simple / Pro control.
 // Both frames mount the REAL src/components/surface/SurfaceSwitch.tsx.
 import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
-import { SurfaceProvider } from "@/contexts/SurfaceContext";
 
 const Row = ({ children }: { children: React.ReactNode }) => (
   <div className="flex items-center gap-3 px-4 py-3">{children}</div>
@@ -15,20 +14,16 @@ const Note = ({ children }: { children: React.ReactNode }) => (
 export const SurfaceSwitchPreview = () => (
   <div className="py-2">
     <Row>
-      <SurfaceProvider>
-        <SurfaceSwitch size="header" />
-      </SurfaceProvider>
+      <SurfaceSwitch size="header" previewSignedIn previewActive="lite" />
     </Row>
-    <Note>size="header" — desktop trade chrome. Tap a pill to see both states.</Note>
+    <Note>SS-1 · Simple active — signed in, surface === "lite".</Note>
     <Row>
-      <SurfaceProvider>
-        <SurfaceSwitch size="compact" />
-      </SurfaceProvider>
+      <SurfaceSwitch size="header" previewSignedIn previewActive="pro" />
     </Row>
-    <Note>size="compact" — mobile trade header right slot.</Note>
+    <Note>SS-2 · Pro active — signed in, surface === "pro".</Note>
     <Row>
-      <SurfaceSwitch size="header" />
+      <SurfaceSwitch size="compact" />
     </Row>
-    <Note>Guest — renders null (no pills above this line).</Note>
+    <Note>SS-3 · Guest — !user, renders null (nothing above this line).</Note>
   </div>
 );
