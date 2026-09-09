@@ -1646,7 +1646,7 @@ const LiteContractTrade = () => {
             backTo={backHref}
             rightContent={<div className="flex items-center gap-2 -mr-2">{WatchStar}</div>}
           />
-          <div className="space-y-4 px-4 py-4">
+          <div className={cn("space-y-4 px-4 py-4", boardMode && "pb-16")}>
             {isMulti && !resolved && MultiMetaRow}
             {QuestionBlock}
             {Stage}
@@ -1687,6 +1687,15 @@ const LiteContractTrade = () => {
           <div style={{ marginBottom: "96px" }}>
             <SeoFooter />
           </div>
+
+          {/* No sticky buy bar in board (multi-market) mode → the same button
+              floats bottom-left instead; hidden while any sheet/flow is open. */}
+          {boardMode &&
+            !drawerOpen &&
+            !authOpen &&
+            !cashOutOpen &&
+            !shareSnap &&
+            !manualShare && <SurfaceSwitch size="float" />}
 
           {!boardMode && (
           <div
