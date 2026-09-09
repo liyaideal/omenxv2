@@ -48,7 +48,7 @@ interface DesktopOrderBookProps {
 
 const MID_TOOLTIP_COPY = {
   futures:
-    "Mark price is derived by index price and funding rate, and reflects the fair market price. Liquidation is triggered by mark price.",
+    "Mark price is derived from the index price, and reflects the fair market price. Liquidation is triggered by mark price.",
   spot: "Mid price of the outcome share order book. Shares settle at $1 (win) or $0 (lose).",
 } as const;
 

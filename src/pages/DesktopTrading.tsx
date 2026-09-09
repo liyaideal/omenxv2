@@ -996,7 +996,7 @@ export default function DesktopTrading() {
                           </span>
                         </TooltipTrigger>
                         <TooltipContent className="max-w-[280px] p-3">
-                          <p className="text-sm">Mark price is derived by index price and funding rate, and reflects the fair market price. Liquidation is triggered by mark price.</p>
+                          <p className="text-sm">Mark price is derived from the index price, and reflects the fair market price. Liquidation is triggered by mark price.</p>
                           <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
                         </TooltipContent>
                       </Tooltip>
@@ -1305,7 +1305,7 @@ export default function DesktopTrading() {
                           <td className="px-4 py-2 text-sm font-mono text-right">{position.sizeDisplay}</td>
                           <td className="px-4 py-2 text-sm font-mono text-right">{position.entryPrice}</td>
                           <td className="px-4 py-2 text-sm font-mono text-right">{displayMarkPrice}</td>
-                          <td className="px-4 py-2 text-sm font-mono text-right" title="Estimated, ignores funding and MM buffer">{calcLiqPrice(position.entryPrice, position.leverage, position.type)}</td>
+                          <td className="px-4 py-2 text-sm font-mono text-right" title="Estimated, ignores MM buffer">{calcLiqPrice(position.entryPrice, position.leverage, position.type)}</td>
                           <td className="px-4 py-2 text-sm font-mono text-right">{position.margin}</td>
                           <td className="px-4 py-2 text-right">
                             <span className={`text-sm font-mono ${isProfitable ? "text-trading-green" : "text-trading-red"}`}>{pnlStr}</span>
