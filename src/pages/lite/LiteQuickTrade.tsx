@@ -538,7 +538,7 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
           showLogo={false}
           showBack
           backTo={backHref}
-          rightContent={<div className="flex items-center gap-2 -mr-2"><SurfaceSwitch size="compact" />{WatchStar}</div>}
+          rightContent={<div className="flex items-center gap-2 -mr-2">{WatchStar}</div>}
         />
         <div className="px-4 py-4">
           {Head}

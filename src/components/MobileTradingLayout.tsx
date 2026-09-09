@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate, useSearchParams, useNavigationType, useLocation } from "react-router-dom";
 import { Loader2, Link, Star, Share2 } from "lucide-react";
 import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
-import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
 import { OptionChips } from "@/components/OptionChips";
 import { EventSelectorSheet } from "@/components/EventSelectorSheet";
 import { EventInfoContent } from "@/components/EventInfoContent";
@@ -153,7 +152,6 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
         onTitleClick={() => setEventSheetOpen(true)}
         rightContent={
           <div className="flex items-center gap-1 -mr-2">
-            <SurfaceSwitch size="compact" />
             <MobileHeaderIconButton
               aria-label="Favorite"
               onClick={() => toggleFavorite(selectedEvent.id)}
