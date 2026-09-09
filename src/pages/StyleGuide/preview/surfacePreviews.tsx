@@ -36,6 +36,8 @@ export const SurfaceSwitchPreview = () => (
       <SurfaceSwitch size="dock" previewSignedIn previewActive="pro" />
     </Row>
     <Note>SS-5 · Dock button on a Pro trade page — label shows the destination, Lite.</Note>
+    <Note>SS-6 · Multi-market page has no sticky bar — the same button floats bottom-left.</Note>
+    <SurfaceSwitchFloatPreview />
   </div>
 );
 
