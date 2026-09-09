@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import MobileHome from "./pages/MobileHome";
 import TradingCharts from "./pages/TradingCharts";
 import TradeOrder from "./pages/TradeOrder";
 import SpotTrading from "./pages/SpotTrading";
@@ -16,10 +15,7 @@ import DesktopTrading from "./pages/DesktopTrading";
 import StyleGuide from "./pages/StyleGuide/index";
 import StyleGuidePreview from "./pages/StyleGuide/preview/StyleGuidePreview";
 
-import EventsPage from "./pages/EventsPage";
 import LiteEventsPage from "./pages/lite/LiteEventsPage";
-import ResolvedPage from "./pages/ResolvedPage";
-import ResolvedEventDetail from "./pages/ResolvedEventDetail";
 import Leaderboard from "./pages/Leaderboard";
 import {
   PortfolioRoute,
@@ -83,17 +79,10 @@ const ResponsiveLayout = ({ children }: { children: React.ReactNode }) => {
 };
 
 // Route component that shows different pages based on device
-const HomePage = () => {
-  const isMobile = useIsMobile();
-  const { surface } = useSurface();
-  if (surface === "lite") return <LiteEventsPage />;
-  return isMobile ? <MobileHome /> : <EventsPage />;
-};
+// D6'-1: outside the trade pages there is no mode any more — always Lite.
+const HomePage = () => <LiteEventsPage />;
 
-const EventsRoute = () => {
-  const { surface } = useSurface();
-  return surface === "lite" ? <LiteEventsPage /> : <EventsPage />;
-};
+const EventsRoute = () => <LiteEventsPage />;
 
 // /trade forks by surface: Lite renders the Boost contract page,
 // Pro renders the existing terminals untouched.
@@ -121,10 +110,7 @@ const SpotRoute = () => {
 
 // /resolved forks by surface. Lite has no settled browser any more — a settled
 // event's only home is its own trade page — so old links redirect there.
-const ResolvedRoute = () => {
-  const { surface } = useSurface();
-  return surface === "lite" ? <Navigate to="/events" replace /> : <ResolvedPage />;
-};
+const ResolvedRoute = () => <Navigate to="/events" replace />;
 
 /** Resolves the event's product line, then sends the reader to its trade page. */
 const LiteSettledRedirect = () => {
@@ -168,10 +154,7 @@ const LiteSettledRedirect = () => {
   return <Navigate to={to} replace />;
 };
 
-const ResolvedDetailRoute = () => {
-  const { surface } = useSurface();
-  return surface === "lite" ? <LiteSettledRedirect /> : <ResolvedEventDetail />;
-};
+const ResolvedDetailRoute = () => <LiteSettledRedirect />;
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
