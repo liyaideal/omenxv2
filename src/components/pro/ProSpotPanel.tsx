@@ -157,7 +157,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
         {isSell && (
           <div className="flex items-center justify-between text-[11px]">
             <span className="text-muted-foreground">Held</span>
-            <span className="font-mono">· {p.heldQty.toFixed(0)} sh {p.outcomeLabel}</span>
+            <span className="font-mono">· {formatShares(p.heldQty)} sh {p.outcomeLabel}</span>
           </div>
         )}
 
@@ -202,7 +202,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
             onValueChange={(val) => {
               p.onSliderChange(val);
               const raw = (p.sliderBase * val[0]) / 100;
-              p.onAmountChange(isSell ? raw.toFixed(0) : raw.toFixed(2));
+              p.onAmountChange(isSell ? sharesInputValue(raw) : raw.toFixed(2));
             }}
             max={100}
             step={1}
@@ -257,7 +257,8 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
           {isSell ? (
             <>
               <Row label="Proceeds">${p.cost.toFixed(2)}</Row>
-              <Row label="Shares">{p.qty.toFixed(0)}</Row>
+              <Row label="Shares">{formatShares(p.qty)}</Row>
+
               <Row label="Est. commission">${p.sellCommission.toFixed(2)}</Row>
               <Row label="You receive">${p.sellReceive.toFixed(2)}</Row>
             </>
@@ -269,7 +270,8 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
                   Est. fill @ {p.bestAsk.toFixed(2)}
                 </div>
               )}
-              <Row label="Shares">{p.qty.toFixed(0)}</Row>
+              <Row label="Shares">{formatShares(p.qty)}</Row>
+
               <Row
                 label={
                   <span className="inline-flex items-center gap-1">
@@ -312,7 +314,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
         {p.willBePending && !p.tickInvalid && (
           <div className="text-[10px] text-trading-yellow">
             {p.side === "buy"
-              ? `Limit below best ask $${p.bestAsk.toFixed(2)} — order will rest as Pending until touched. $${p.cost.toFixed(2)} reserved.`
+              ? `Limit below best ask $${p.bestAsk.toFixed(2)} — order will rest as Pending until touched. $${(p.cost + p.fee).toFixed(2)} reserved.`
               : `Limit above best bid $${p.bestBid.toFixed(2)} — order will rest as Pending until touched.`}
           </div>
         )}
