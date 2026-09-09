@@ -59,6 +59,12 @@ const PANEL_CASES: SectionCase[] = [
         visual: "Down tile 选中，Up tile 禁用 `0 sh`；`Held · 2,034.879 sh Down`；Amount `2034.879`；CTA `Sell Down · You receive $X`",
         source: "SpotTrading heldYesQty / heldNoQty（经 side_labels 解析 option）",
       },
+      {
+        state: "全平吸附（FIX4）",
+        when: "sell qty 与 heldQty 差 < 0.001，或 qty ≥ heldQty × 0.9995（滑杆 100%）",
+        visual: "3 位小数字符串仅作展示；下单发送精确 heldQty，全平不留 <0.001 dust，也不因四舍五入超出持仓被拒",
+        source: "SpotTrading orderQty（FIX4 snap）",
+      },
     ],
   },
 
