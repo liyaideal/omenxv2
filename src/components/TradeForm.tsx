@@ -72,7 +72,7 @@ export const TradeForm = ({
   const [slValue, setSlValue] = useState("");
 
   const available = balance;
-  const feeRate = FUTURES_FEE_RATE; // 0.1% trading fee (authoritative)
+  const feeRate = FUTURES_FEE_RATE; // 0.15% trading fee (authoritative)
   const longPrice = parseFloat(selectedPrice);
   const shortPrice = +(1 - longPrice).toFixed(4);
   // Side-specific execution price (Buy = Yes, Sell = No)
