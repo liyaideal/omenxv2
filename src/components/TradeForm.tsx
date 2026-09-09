@@ -1,4 +1,4 @@
-import { FUTURES_FEE_RATE } from "@/services/tradingService";
+import { FUTURES_FEE_RATE, netWin } from "@/services/tradingService";
 import { useState, useMemo } from "react";
 import { ChevronDown, Plus, ArrowLeftRight, ChevronUp, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -58,7 +58,6 @@ export const TradeForm = ({
     if (controlledSide === undefined) setInternalSide(next);
     onSideChange?.(next);
   };
-  const [marginType, setMarginType] = useState("Cross");
   const [leverage, setLeverage] = useState(10);
   const [orderType, setOrderType] = useState("Market");
   const [amount, setAmount] = useState("0.00");
@@ -73,7 +72,7 @@ export const TradeForm = ({
   const [slValue, setSlValue] = useState("");
 
   const available = balance;
-  const feeRate = FUTURES_FEE_RATE; // 0.1% trading fee (authoritative)
+  const feeRate = FUTURES_FEE_RATE; // 0.15% trading fee (authoritative)
   const longPrice = parseFloat(selectedPrice);
   const shortPrice = +(1 - longPrice).toFixed(4);
   // Side-specific execution price (Buy = Yes, Sell = No)
@@ -148,8 +147,8 @@ export const TradeForm = ({
     // Quantity = notional value / price
     const quantity = price > 0 ? notionalValue / price : 0;
 
-    // Potential win = (1 - price) * quantity (if outcome resolves in user's favor)
-    const potentialWin = (1 - price) * quantity;
+    // Potential win = net profit after the 5% winning commission (same helper as Lite)
+    const potentialWin = netWin((1 - price) * quantity, estimatedFee);
 
     // Estimated liquidation price - sell side moves opposite direction
     const liqPrice = price > 0
@@ -197,7 +196,6 @@ export const TradeForm = ({
     navigate("/order-preview", {
       state: {
         side,
-        marginType,
         leverage: `${leverage}x`,
         orderType,
         amount,
@@ -293,13 +291,9 @@ export const TradeForm = ({
 
 
 
-      {/* Margin & Leverage */}
+      {/* Leverage */}
       <div className="flex items-center gap-2">
-        <span className="text-xs text-muted-foreground">Margin / LVG</span>
-        <button className="flex items-center gap-1 px-2 py-1 bg-muted rounded text-xs">
-          {marginType}
-          <ChevronDown className="w-3 h-3" />
-        </button>
+        <span className="text-xs text-muted-foreground">LVG</span>
         <button className="flex items-center gap-1 px-2 py-1 bg-muted rounded text-xs">
           {leverage}x
           <ChevronDown className="w-3 h-3" />
@@ -497,6 +491,7 @@ export const TradeForm = ({
             {parseFloat(amount) > 0 ? `${displayCalculations.total} USDC` : "--"}
           </span>
         </div>
+        <div className="text-[11px] text-muted-foreground">To win shows profit after the 5% winning commission.</div>
       </div>
 
 

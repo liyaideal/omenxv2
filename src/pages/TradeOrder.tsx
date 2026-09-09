@@ -123,11 +123,6 @@ function TradeOrderContent({ selectedEvent, selectedOptionData, options, setSele
               <span className="text-muted-foreground truncate">
                 OI <span className="font-medium text-foreground">$480K</span>
               </span>
-              <span className="text-muted-foreground truncate">
-                Funding <span className="font-medium text-trading-red">-0.01%</span>
-                <span className="text-muted-foreground/50">·</span>
-                <span className="font-medium text-foreground">28m</span>
-              </span>
             </div>
           </div>
 

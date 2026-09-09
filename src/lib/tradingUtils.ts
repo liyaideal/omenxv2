@@ -58,7 +58,6 @@ export const generateTradesHistory = (basePrice: number, count: number = 20) => 
 // Stats data (can be dynamic later)
 export const tradingStats = [
   { label: "24h Volume", value: "$2.45M" },
-  { label: "Funding Rate", value: "+0.05%", isPositive: true },
 ];
 
 /**

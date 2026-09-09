@@ -17,6 +17,14 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-09-09 — Pro 交易页费率 V4 清理（[文档](../delivery/pro-trade-v4-cleanup-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| 1 | Funding 字段兼容期只许 0（接口不得返回非 0） | ⬜ | |
+| 2 | 全仓唯一，下单接口不再接受 `margin_mode` | ⬜ | |
+| 3 | Pro `To win` 与 Lite 共用 `netWin()`，同一笔单同数 | ⬜ | |
+
 ## 2026-09-09 — Surface switch（Simple / Pro）
 
 来源：[Surface switch（Simple / Pro）交付说明 v1](../delivery/surface-switch-v1.md)

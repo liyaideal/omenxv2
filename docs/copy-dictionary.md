@@ -233,6 +233,10 @@ positives. Chip words come from the sibling event's `side_labels`.
 | **Side** | `long` / `short`. Binary markets use `Yes` / `No`. Never `Buy` / `Sell` as a position side. |
 | **Available balance** | Free balance in the Boost account (`profiles.balance`) |
 | **Total equity** | `Boost + Standard available` (`balance + spot_balance`). **Retired 2026-07-21:** "Trial bonus" field — the Trial Bonus wallet feature was fully sunset before mainnet launch; do not reintroduce copy that references it. |
+| **To win** | Pro CTA figure = net profit after 5% winning commission (same `netWin()` helper as Lite) | gross profit |
+| ~~**Funding Rate**~~ | **Retired 2026-09-09 (Fee System V4)** — funding is 0 by policy; no funding figure is displayed anywhere | — |
+| ~~**Next Funding**~~ | **Retired 2026-09-09** — countdown removed with the funding display | — |
+| ~~**Isolated**~~ | **Retired 2026-09-09** — cross margin is the only supported mode; the Cross/Isolated switch and the preview `Margin` / `Margin type` rows are gone | — |
 
 ---
 

@@ -5,7 +5,7 @@ import { z } from "zod";
 const MAX_LEVERAGE = 100;
 const MIN_LEVERAGE = 1;
 /**
- * Authoritative futures (contract) trade fee rate — 0.1%.
+ * Authoritative futures (contract) trade fee rate — 0.15%.
  * Single source of truth: Pro ticket/confirm, Lite contract panel, position
  * detail display and the client-side re-validation below all read this.
  * SPOT is fee-free (SPOT_FEE_RATE = 0 in SpotTrading.tsx) — unrelated.
