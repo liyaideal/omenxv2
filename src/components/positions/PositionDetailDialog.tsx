@@ -12,7 +12,6 @@ import { UnifiedPosition } from "@/hooks/usePositions";
 interface PositionDetailDialogProps {
   position: UnifiedPosition;
   liveMarkPrice?: number;
-  fundingRatePerHour?: number;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   children?: React.ReactNode;
@@ -25,7 +24,6 @@ interface PositionDetailDialogProps {
 export const PositionDetailDialog = ({
   position,
   liveMarkPrice,
-  fundingRatePerHour,
   open,
   onOpenChange,
   children,
@@ -42,7 +40,6 @@ export const PositionDetailDialog = ({
         <PositionDetailContent
           position={position}
           liveMarkPrice={liveMarkPrice}
-          fundingRatePerHour={fundingRatePerHour}
         />
       </DialogContent>
     </Dialog>
