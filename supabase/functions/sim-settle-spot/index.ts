@@ -12,11 +12,9 @@
 //      and credits proceeds a second time. See step 2 comment for details.
 //      option updates + position `status='Open'` guard are idempotent.
 //   1) event_options: winner final_price=1 is_winner=true; loser final_price=0.
-//   2) All open spot positions on the event (matched by option_id OR by
-//      option_label as a fallback for legacy rows with NULL option_id):
-//      credit spot_balance $1/share for the winning side, $0 for losing side;
-//      close the position row (status='Closed', mark_price, pnl, closed_at).
-//   3) Insert `transactions` rows (trade_profit / trade_loss, account='spot').
+//   2) Delegate ALL position economics to public.settle_spot_event() — the
+//      single implementation of the V4 payout (proceeds − 5% winning
+//      commission on profit) and of the spot ledger rows.
 //   4) Cancel all Pending spot orders for the event and refund the reserved
 //      notional to spot_balance as a NEUTRAL `platform_credit` transaction
 //      (not `trade_profit`, so PnL analytics stay clean). Matching is
@@ -58,21 +56,12 @@ interface OptionRow {
   price: number;
 }
 
-interface PositionRow {
-  id: string;
-  user_id: string;
-  event_name: string;
-  option_id: string | null;
-  option_label: string;
-  size: number;
-  margin: number;
-}
-
 interface TradeRow {
   id: string;
   user_id: string;
   event_name: string;
   amount: number;
+  fee: number | null;
   side: string;
 }
 
@@ -169,77 +158,23 @@ Deno.serve(async (req) => {
           .eq("id", loser.id);
         if (loseOptErr) throw loseOptErr;
 
-        // 3) Close spot positions. Match by option_id (primary) OR
-        // (event_name+option_label) fallback for any residual NULL rows.
-        const { data: positions, error: posErr } = await supabase
-          .from("positions")
-          .select("id, user_id, event_name, option_id, option_label, size, margin")
-          .eq("product_line", "spot")
-          .eq("status", "Open")
-          .eq("event_name", ev.name)
-          .in("option_label", [winner.label, loser.label]);
-        if (posErr) throw posErr;
-
-        for (const p of (positions as PositionRow[]) ?? []) {
-          // DEMO-STATE (honest): credit → close is TWO independent writes
-          // (Postgres RPC transactions are not used here). If the function
-          // crashes AFTER `spot_balance += proceeds` but BEFORE the position
-          // flips to Closed, the retry re-enters this loop, sees status='Open'
-          // again, and credits proceeds a SECOND time — this window is NOT
-          // idempotent. The status='Open' guard only protects retries that
-          // succeeded in flipping the position. Acceptable in demo/testnet;
-          // production must move the credit + close into a single txn (RPC).
-          const isWin = p.option_id
-            ? p.option_id === winner.id
-            : p.option_label === winner.label;
-          const proceeds = isWin ? Number(p.size) : 0;
-          const margin = Number(p.margin);
-          const profit = proceeds - margin;
-
-          if (proceeds > 0) {
-            const { data: prof, error: profErr } = await supabase
-              .from("profiles")
-              .select("spot_balance")
-              .eq("user_id", p.user_id)
-              .maybeSingle();
-            if (profErr) throw profErr;
-            const newSpot = Number(prof?.spot_balance ?? 0) + proceeds;
-            const { error: updBalErr } = await supabase
-              .from("profiles")
-              .update({ spot_balance: newSpot })
-              .eq("user_id", p.user_id);
-            if (updBalErr) throw updBalErr;
-          }
-
-          const { error: closePosErr } = await supabase
-            .from("positions")
-            .update({
-              status: "Closed",
-              closed_at: now.toISOString(),
-              mark_price: isWin ? 1 : 0,
-              pnl: profit,
-            })
-            .eq("id", p.id)
-            .eq("status", "Open"); // idempotency guard: don't re-close
-          if (closePosErr) throw closePosErr;
-
-          const { error: txErr } = await supabase.from("transactions").insert({
-            user_id: p.user_id,
-            type: profit >= 0 ? "trade_profit" : "trade_loss",
-            amount: Math.abs(profit),
-            account: "spot",
-            description: `Settled: ${p.event_name} · ${p.option_label} · ${isWin ? "Won" : "Lost"}`,
-            status: "completed",
-          });
-          if (txErr) throw txErr;
-        }
+        // 3) Position economics are owned by ONE implementation:
+        // public.settle_spot_event(). It credits `spot_balance` with
+        // proceeds − 5% winning commission, stamps winning_commission /
+        // close_reason on the position and writes the trade_profit |
+        // trade_loss (+ winning_commission) ledger rows. Idempotent via the
+        // `status = 'Open'` guard inside the function.
+        const { error: rpcErr } = await supabase.rpc("settle_spot_event", {
+          p_event_id: ev.id,
+        });
+        if (rpcErr) throw rpcErr;
 
         // 4) Cancel & refund Pending spot orders on this event, scoped by
         // start_date so we don't hit the next day's same-name event.
         const startFloor = ev.start_date ?? new Date(now.getTime() - 48 * 3600_000).toISOString();
         const { data: pendings, error: pendErr } = await supabase
           .from("trades")
-          .select("id, user_id, event_name, amount, side")
+          .select("id, user_id, event_name, amount, fee, side")
           .eq("product_line", "spot")
           .eq("status", "Pending")
           .eq("event_name", ev.name)
@@ -250,7 +185,8 @@ Deno.serve(async (req) => {
         if (pendErr) throw pendErr;
 
         for (const t of (pendings as TradeRow[]) ?? []) {
-          const refund = t.side === "buy" ? Number(t.amount) : 0;
+          // Buy orders reserved cost + taker fee — refund both (V4).
+          const refund = t.side === "buy" ? Number(t.amount) + (Number(t.fee) || 0) : 0;
           if (refund > 0) {
             const { data: prof } = await supabase
               .from("profiles")
