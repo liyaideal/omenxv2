@@ -295,6 +295,24 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
         await addBalance(res.balanceDelta);
       }
 
+      // RT-1: leave a Wallet-visible ledger row for the entry fee. Fire and
+      // forget — the order stands even if this call fails.
+      if ((res.intent === "open" || res.intent === "add") && feeSnapshot > 0) {
+        void supabase.functions
+          .invoke("record-transaction", {
+            body: {
+              type: "fee",
+              amount: -feeSnapshot,
+              account: "futures",
+              status: "completed",
+              description: `Trading fee · ${sideLabel} · ${eventName}`,
+            },
+          })
+          .catch(() => {});
+      }
+
+
+
       if (res.intent === "reduce" || res.intent === "close") {
         toast.success(
           res.balanceDelta > 0
