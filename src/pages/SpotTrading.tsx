@@ -275,17 +275,39 @@ export default function SpotTrading() {
   const yesLabel = sideLabels?.yes ? liteSideName(sideLabels.yes) : "Up";
   const noLabel = sideLabels?.no ? liteSideName(sideLabels.no) : "Down";
 
+  // SP-1-FIX3 · Bug 1 — option labels on daily up/down markets are `Up` / `Down`,
+  // NOT `Yes` / `No`. The old `find(/yes$/) || options[0]` fallback silently bound
+  // the Yes tile to whichever row the DB returned first, so a Down-only position
+  // was reported as held on Up. Resolve both legs through `side_labels` aliases
+  // (the same mapping the Positions table uses) before falling back to order.
+  const isYesLabel = useMemo(
+    () => (label: string) =>
+      /(^|[-_ ])yes$/i.test(label) ||
+      (!!sideLabels?.yes && liteSideName(label) === liteSideName(sideLabels.yes)),
+    [sideLabels],
+  );
+  const isNoLabel = useMemo(
+    () => (label: string) =>
+      /(^|[-_ ])no$/i.test(label) ||
+      (!!sideLabels?.no && liteSideName(label) === liteSideName(sideLabels.no)),
+    [sideLabels],
+  );
+
   const yesOpt = useMemo(
-    () => event?.options.find((o) => /(^|[-_ ])yes$/i.test(o.label)) || event?.options[0],
-    [event],
+    () =>
+      event?.options.find((o) => isYesLabel(o.label)) ||
+      event?.options.find((o) => !isNoLabel(o.label)) ||
+      event?.options[0],
+    [event, isYesLabel, isNoLabel],
   );
   const noOpt = useMemo(
     () =>
-      event?.options.find((o) => /(^|[-_ ])no$/i.test(o.label)) ||
+      event?.options.find((o) => isNoLabel(o.label)) ||
       event?.options.find((o) => o.id !== yesOpt?.id) ||
       event?.options[1],
-    [event, yesOpt],
+    [event, yesOpt, isNoLabel],
   );
+
 
   const yesLive = yesOpt ? pricesCtx?.getPrice(yesOpt.id) ?? Number(yesOpt.price) : 0;
   const noLive = noOpt ? pricesCtx?.getPrice(noOpt.id) ?? Number(noOpt.price) : 0;
