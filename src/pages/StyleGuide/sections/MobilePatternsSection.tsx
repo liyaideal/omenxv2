@@ -7,35 +7,47 @@ import { CodePreview } from "../components/CodePreview";
 import { DeviceFrame } from "../components/DeviceFrame";
 import { SectionFrame, type SectionCase } from "../components/SectionFrame";
 
-/* Surface switch (D6'-1) — 三态穷尽：Simple 选中 / Pro 选中 / 游客隐藏。 */
+/* Surface switch (D6'-1 · FIX3) — 五态穷尽：页头 Lite / Pro / 游客隐藏 + 贴底方钮两向。 */
 const SURFACE_SWITCH_CASES: SectionCase[] = [
   {
     key: "foundations-surface-switch",
-    label: "SS-1…SS-3 · Simple 选中 / Pro 选中 / 游客隐藏（SurfaceSwitch）",
-    note: "aria-label=\"Trading view\"，两枚 button 带 aria-pressed；标签固定为 Simple 与 Pro，不得改写。",
+    label: "SS-1…SS-5 · 页头分段控件三态 + 贴底方钮两向（SurfaceSwitch）",
+    note: "页头件 role=\"radiogroup\" + aria-label=\"Trading view\"，两段各带 aria-checked；标签固定为 Lite 与 Pro，不得改写。贴底方钮显示的是「要去的那一边」。",
     spec: [
       {
-        state: "Simple 选中",
+        state: "SS-1 Lite 选中（header）",
         when: 'user != null && surface === "lite"',
-        visual: "Simple 胶囊白底 #FFFFFF 黑字 #0B0D10 字重 700；Pro 胶囊 #14171C 底 + 1px #262B33 + #C7CCD4",
+        visual: "外壳 h-7 rounded-lg border-border bg-muted/50 p-0.5；选中段 bg-white text-#0a0b0d，未选段 text-muted-foreground",
         source: "SurfaceSwitch surface（SurfaceContext）",
       },
       {
-        state: "Pro 选中",
+        state: "SS-2 Pro 选中（header）",
         when: 'user != null && surface === "pro"',
         visual: "同上镜像",
         source: "SurfaceSwitch surface（SurfaceContext）",
       },
       {
-        state: "游客隐藏",
+        state: "SS-3 游客隐藏",
         when: "user == null",
-        visual: "整个控件 return null，不占位",
+        visual: "整个控件 return null，不占位；贴底栏的 Buy 按钮占满整宽",
         source: "useAuth().user",
+      },
+      {
+        state: "SS-4 贴底方钮 · 在 Lite",
+        when: 'size === "dock" && surface === "lite"',
+        visual: "46px 宽方钮，rounded-[10px] border-border bg-muted/50；ArrowLeftRight 14px + 10px 粗体标签 Pro",
+        source: "SurfaceSwitch dock 分支",
+      },
+      {
+        state: "SS-5 贴底方钮 · 在 Pro",
+        when: 'size === "dock" && surface === "pro"',
+        visual: "同上，标签 Lite",
+        source: "SurfaceSwitch dock 分支",
       },
       {
         state: "尺寸 header / compact",
         when: 'size === "header" / size === "compact"',
-        visual: "px-3.5 py-[7px] 12.5px / px-3 py-[5px] 11.5px",
+        visual: "段 h-[22px] px-2.5 11px / h-[20px] px-2 10.5px",
         source: "SurfaceSwitch size prop",
       },
       {
@@ -47,6 +59,7 @@ const SURFACE_SWITCH_CASES: SectionCase[] = [
     ],
   },
 ];
+
 import { Logo } from "@/components/Logo";
 import { Check, X, AlertCircle, ChevronLeft, Loader2 } from "lucide-react";
 
