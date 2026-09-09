@@ -17,6 +17,16 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-09-09 — Lite 下单面板 Returns 区（净利）
+
+来源：[Lite 下单面板 Returns 区（净利）交付说明 v1](../delivery/lite-order-returns-v1.md)
+
+| # | 项 | 归属 | Status | Notes |
+|---|---|---|---|---|
+| RT-A | 费率改 15 bps taker + 5% winning commission，结算侧扣佣未实现（现仅前端展示净利） | BE | ⬜ | 唯一实现 `tradingService.netWin()` |
+| RT-B | Lite Boost 市价单无滑点上限，需真平台确认市价保护 | BE | ⬜ | 现货侧有 0.5% |
+| RT-C | Trading fee 流水由前端 fire-and-forget 写入，应改为引擎侧随成交落账 | BE | ⬜ | `record-transaction` type=`fee` |
+
 ## 2026-09-03 — Wallet 状态字典收官（M7a / M7b）
 
 来源：[Wallet（Lite）交付说明 v1](../delivery/lite-wallet-spec-v1.md)
