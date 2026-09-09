@@ -1235,6 +1235,7 @@ export const placeSpotLimitOrder = async (userId: string, data: SpotTradeData) =
   }
   const v = parsed.data;
   const notional = v.price * v.quantity;
+  const feeAmt = v.side === "buy" ? round2(v.fee ?? notional * SPOT_FEE_RATE) : 0;
 
   if (v.side === "sell") {
     const { data: existing } = await supabase
@@ -1264,14 +1265,15 @@ export const placeSpotLimitOrder = async (userId: string, data: SpotTradeData) =
       quantity: v.quantity,
       leverage: 1,
       margin: notional,
-      fee: 0,
+      fee: feeAmt,
       status: "Pending",
       product_line: "spot",
     })
     .select()
     .single();
   if (error) throw error;
-  return { trade, reservedAmount: v.side === "buy" ? notional : 0 };
+  // Buy reserves cost + fee; the fee is only booked to the ledger on fill.
+  return { trade, reservedAmount: v.side === "buy" ? round2(notional + feeAmt) : 0, fee: feeAmt };
 };
 
 /** Cancel a Pending spot limit order. Returns the amount to refund
@@ -1286,7 +1288,9 @@ export const cancelSpotLimitOrder = async (userId: string, tradeId: string) => {
     .maybeSingle();
   if (!trade || trade.status !== "Pending") return { refund: 0 };
   await supabase.from("trades").update({ status: "Cancelled" }).eq("id", trade.id);
-  return { refund: trade.side === "buy" ? Number(trade.amount) : 0 };
+  return {
+    refund: trade.side === "buy" ? round2(Number(trade.amount) + (Number(trade.fee) || 0)) : 0,
+  };
 };
 
 /** Fill a previously Pending spot limit order. For BUY orders the cash
@@ -1397,11 +1401,16 @@ export const fillSpotLimitOrder = async (userId: string, tradeId: string) => {
       .from("trades")
       .update({ status: "Filled", closed_at: new Date().toISOString() })
       .eq("id", trade.id);
-    // Reserved cash was `q × price`. Actual new-side spend = remainingQty × price;
+    const feePaid = Number(trade.fee) || 0;
+    if (feePaid > 0) {
+      recordSpotTx("fee", -feePaid, `Trading fee · ${trade.option_label} · ${trade.event_name}`);
+    }
+    // Reserved cash was `q × price + fee`. Actual new-side spend = remainingQty × price;
     // refund the rest (fully-reduced portion) plus the released cash from opposite.
+    // The fee was reserved at place time and is consumed here, so it is not refunded.
     const reservedRefund = (q - remainingQty) * price + releasedFromOpposite;
     return {
-      balanceDelta: reservedRefund,
+      balanceDelta: round2(reservedRefund),
       intent: (opposite && remainingQty <= 0.000001 ? "reduce" : same || opposite ? "add" : "open") as
         | "add"
         | "open"
@@ -1425,6 +1434,8 @@ export const fillSpotLimitOrder = async (userId: string, tradeId: string) => {
   const realizedPnl = (price - entryPrice) * closeQty;
   const remaining = existingSize - closeQty;
   const isClose = remaining <= 0.000001;
+  const allocFee = await allocatedSpotEntryFee(existing, closeQty);
+  const wc = round2(winningCommission(realizedPnl, allocFee));
   await supabase
     .from("positions")
     .update(
@@ -1433,6 +1444,7 @@ export const fillSpotLimitOrder = async (userId: string, tradeId: string) => {
             status: "Closed",
             mark_price: price,
             pnl: (Number(existing.pnl) || 0) + realizedPnl,
+            winning_commission: (Number(existing.winning_commission) || 0) + wc,
             closed_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           }
@@ -1441,6 +1453,7 @@ export const fillSpotLimitOrder = async (userId: string, tradeId: string) => {
             margin: existingMargin - marginReleased,
             mark_price: price,
             pnl: (Number(existing.pnl) || 0) + realizedPnl,
+            winning_commission: (Number(existing.winning_commission) || 0) + wc,
             updated_at: new Date().toISOString(),
           },
     )
@@ -1449,7 +1462,24 @@ export const fillSpotLimitOrder = async (userId: string, tradeId: string) => {
     .from("trades")
     .update({ status: "Filled", closed_at: new Date().toISOString() })
     .eq("id", trade.id);
-  return { balanceDelta: price * closeQty, intent: (isClose ? "close" : "reduce") as "close" | "reduce" };
+  recordSpotTx(
+    realizedPnl >= 0 ? "trade_profit" : "trade_loss",
+    round2(realizedPnl),
+    `Cashed out: ${trade.event_name} · ${trade.option_label} · ${realizedPnl >= 0 ? "Won" : "Lost"}`,
+  );
+  if (wc > 0) {
+    recordSpotTx(
+      "winning_commission",
+      -wc,
+      `Winning commission · 5% · ${trade.option_label} · ${trade.event_name}`,
+    );
+  }
+  return {
+    balanceDelta: round2(price * closeQty - wc),
+    intent: (isClose ? "close" : "reduce") as "close" | "reduce",
+    realizedPnl: round2(realizedPnl),
+    winningCommission: wc,
+  };
 };
 
 
