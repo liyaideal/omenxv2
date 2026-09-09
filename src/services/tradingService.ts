@@ -20,10 +20,20 @@ export const WINNING_COMMISSION_RATE = 0.05;
  * was already paid at open (the entry fee itself is NOT deducted again).
  * SINGLE implementation — every "you win" / "To win" number must go through here.
  */
+/** Winning commission charged on one position-reduction: 5 % of (realized profit − entry fee allocated to the closed part). 0 when not profitable. */
+export function winningCommission(realizedPnl: number, allocatedEntryFee: number): number {
+  return realizedPnl > 0 ? WINNING_COMMISSION_RATE * Math.max(realizedPnl - allocatedEntryFee, 0) : 0;
+}
 export function netWin(grossProfit: number, entryFee: number): number {
   if (!(grossProfit > 0)) return Math.max(0, grossProfit);
-  return grossProfit - WINNING_COMMISSION_RATE * Math.max(grossProfit - entryFee, 0);
+  return grossProfit - winningCommission(grossProfit, entryFee);
 }
+/** Cash returned to the Boost account when `closedQty` of a position is closed. */
+export function cashBackOnClose(args: { releasedMargin: number; realizedPnl: number; allocatedEntryFee: number }) {
+  const wc = winningCommission(args.realizedPnl, args.allocatedEntryFee);
+  return { wc, cashBack: args.releasedMargin + args.realizedPnl - wc };
+}
+
 const FEE_RATE = FUTURES_FEE_RATE;
 
 // Zod schema for trade data validation
