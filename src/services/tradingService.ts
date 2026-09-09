@@ -10,7 +10,20 @@ const MIN_LEVERAGE = 1;
  * detail display and the client-side re-validation below all read this.
  * SPOT is fee-free (SPOT_FEE_RATE = 0 in SpotTrading.tsx) — unrelated.
  */
-export const FUTURES_FEE_RATE = 0.001;
+/** Fee System V4 — retail taker 15 bps on economic notional. Lite market orders are always taker. */
+export const FUTURES_FEE_RATE = 0.0015;
+/** Fee System V4 — 5 % winning commission on net realized profit; 0 on losses. */
+export const WINNING_COMMISSION_RATE = 0.05;
+/**
+ * Profit the user actually keeps if the call wins, after the 5 % winning
+ * commission. The commission base is gross profit minus the entry fee that
+ * was already paid at open (the entry fee itself is NOT deducted again).
+ * SINGLE implementation — every "you win" / "To win" number must go through here.
+ */
+export function netWin(grossProfit: number, entryFee: number): number {
+  if (!(grossProfit > 0)) return Math.max(0, grossProfit);
+  return grossProfit - WINNING_COMMISSION_RATE * Math.max(grossProfit - entryFee, 0);
+}
 const FEE_RATE = FUTURES_FEE_RATE;
 
 // Zod schema for trade data validation
