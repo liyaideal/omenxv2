@@ -1256,7 +1256,7 @@ const LiteContractTrade = () => {
       positionIndex={heldIndex}
       currentValue={heldNowWorth}
       pnlAtPrice={heldPnlNum}
-      entryFee={heldPos.entryPriceNum * heldPos.sizeNum * FUTURES_FEE_RATE}
+      entryFee={entryFeeFor(heldPos)}
       sizeNum={heldPos.sizeNum}
       sideLabel={heldIsYes ? yesLabel : noLabel}
       shareContext={{
@@ -1385,6 +1385,8 @@ const LiteContractTrade = () => {
       positionId={cashOutTarget.id}
       positionIndex={positions.findIndex((p) => p.id === cashOutTarget.id)}
       currentValue={liveValues(cashOutTarget).nowWorth}
+      pnlAtPrice={liveValues(cashOutTarget).pnl}
+      entryFee={entryFeeFor(cashOutTarget)}
       sizeNum={cashOutTarget.sizeNum}
       sideLabel={
         hasSideLabels(cashOutTarget.event)
