@@ -14,7 +14,7 @@ import { ArrowLeftRight } from "lucide-react";
 import { useSurface, type Surface } from "@/contexts/SurfaceContext";
 import { useAuth } from "@/hooks/useAuth";
 
-type Size = "header" | "compact" | "dock";
+type Size = "header" | "compact" | "dock" | "float";
 
 const SEG: Record<"header" | "compact", string> = {
   header: "h-[22px] px-2.5 text-[11px]",
@@ -45,15 +45,25 @@ export const SurfaceSwitch = ({
   // Guests never see the switch — they always read the Lite trade page.
   if (!signedIn) return null;
 
-  if (size === "dock") {
+  if (size === "dock" || size === "float") {
     const other: Surface = current === "lite" ? "pro" : "lite";
     const label = other === "pro" ? "Pro" : "Lite";
+    const isFloat = size === "float";
     return (
       <button
         type="button"
         aria-label={`Switch to ${label} view`}
         onClick={() => setSurface(other)}
-        className="flex w-[46px] shrink-0 flex-col items-center justify-center gap-0.5 self-stretch rounded-[10px] border border-border bg-muted/50 text-muted-foreground transition-colors hover:text-foreground"
+        style={
+          isFloat
+            ? { left: "12px", bottom: "calc(14px + env(safe-area-inset-bottom, 0px))" }
+            : undefined
+        }
+        className={
+          isFloat
+            ? "fixed z-30 flex h-11 w-[46px] shrink-0 flex-col items-center justify-center gap-0.5 rounded-[10px] border border-border bg-card/90 text-muted-foreground shadow-lg backdrop-blur-sm transition-colors hover:text-foreground"
+            : "flex w-[46px] shrink-0 flex-col items-center justify-center gap-0.5 self-stretch rounded-[10px] border border-border bg-muted/50 text-muted-foreground transition-colors hover:text-foreground"
+        }
       >
         <ArrowLeftRight className="h-3.5 w-3.5" strokeWidth={2} />
         <span className="text-[10px] font-bold leading-none">{label}</span>
