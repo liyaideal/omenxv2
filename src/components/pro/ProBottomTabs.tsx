@@ -1,0 +1,58 @@
+// ============================================================
+// Pro terminal bottom strip (SP-1 · B1) — Positions | Orders tabs plus the
+// site-wide AuthGateOverlay. Shared by /trade and /spot so the underline
+// treatment, counts and gate copy stay in one place.
+// ============================================================
+import { ReactNode } from "react";
+import { AuthGateOverlay } from "@/components/AuthGateOverlay";
+
+export interface ProBottomTab {
+  key: string;
+  label: string;
+  count: number;
+}
+
+interface ProBottomTabsProps {
+  tabs: ProBottomTab[];
+  active: string;
+  onChange: (key: string) => void;
+  authTitle: string;
+  authDescription: string;
+  /** Scroll container classes — futures locks 460px, spot 360px. */
+  bodyClassName?: string;
+  /** Body of the active tab (the caller switches on `active`). */
+  children: ReactNode;
+}
+
+export const ProBottomTabs = ({
+  tabs,
+  active,
+  onChange,
+  authTitle,
+  authDescription,
+  bodyClassName = "max-h-[460px] overflow-y-auto overscroll-contain",
+  children,
+}: ProBottomTabsProps) => (
+  <div className="border-t border-border/30 flex-shrink-0">
+    <div className="flex items-center gap-1 px-4 border-b border-border/30 relative z-20">
+      {tabs.map((t) => (
+        <button
+          key={t.key}
+          onClick={() => onChange(t.key)}
+          className={`px-4 py-2 text-sm font-medium transition-all whitespace-nowrap ${
+            active === t.key
+              ? "text-trading-purple border-b-2 border-trading-purple"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          {t.label}
+          <span className="ml-1 text-muted-foreground">({t.count})</span>
+        </button>
+      ))}
+    </div>
+
+    <AuthGateOverlay title={authTitle} description={authDescription}>
+      <div className={bodyClassName}>{children}</div>
+    </AuthGateOverlay>
+  </div>
+);

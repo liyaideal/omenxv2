@@ -35,7 +35,6 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { CandlestickChart } from "@/components/CandlestickChart";
 import { DesktopOrderBook } from "@/components/DesktopOrderBook";
-import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import {
@@ -45,9 +44,26 @@ import {
   fillSpotLimitOrder,
   netWin,
   SPOT_FEE_RATE,
+  WINNING_COMMISSION_RATE,
 } from "@/services/tradingService";
 import { WinTooltipBody } from "@/components/lite/shared/WinTooltipBody";
-import { BinarySideToggle } from "@/components/pro/BinarySideToggle";
+import {
+  ProSpotPanel,
+  ProSpotAccountPanel,
+  ProSpotOrderPreview,
+} from "@/components/pro/ProSpotPanel";
+import { OrderTypeDropdown } from "@/components/pro/OrderTypeDropdown";
+import { ProTerminalLayout } from "@/components/pro/ProTerminalLayout";
+import { ProBottomTabs } from "@/components/pro/ProBottomTabs";
+import { TradeSubmitButton } from "@/components/trading/TradeSubmitButton";
+import { EventInfoContent } from "@/components/EventInfoContent";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { parseSideLabels } from "@/lib/eventUtils";
 import {
   getLifecycleBadge,
@@ -70,6 +86,7 @@ import {
 import { deriveTickerFromEvent } from "@/components/SpotStatsHeader";
 import { cn } from "@/lib/utils";
 import type { Tables } from "@/integrations/supabase/types";
+import type { TradingEvent } from "@/hooks/useEvents";
 
 
 type EventRow = Tables<"events"> & { options: Tables<"event_options">[] };
@@ -234,6 +251,7 @@ export default function SpotTrading() {
   const [bottomTab, setBottomTab] = useState<"Positions" | "Orders">("Positions");
   const [submitting, setSubmitting] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const pricesCtx = useRealtimePricesOptional();
 
@@ -406,10 +424,10 @@ export default function SpotTrading() {
     : marketFillPrice;
 
   const amt = parseFloat(amount) || 0;
-  const qty = effectivePrice > 0 ? amt / effectivePrice : 0;
-  const cost = effectivePrice * qty;
+  // SP-1 B2: Buy sizes in USDC, Sell sizes in SHARES.
+  const qty = side === "sell" ? amt : effectivePrice > 0 ? amt / effectivePrice : 0;
+  const cost = effectivePrice * qty; // buy cost / sell gross proceeds
   const fee = cost * SPOT_FEE_RATE;
-  const maxLoss = side === "buy" ? cost + fee : 0;
   // V4: the CTA / summary figure is the NET profit after the 5% winning
   // commission — the same `netWin()` helper Lite and Pro futures use.
   const maxWin = side === "buy" ? netWin(qty - cost, fee) : cost;
@@ -433,6 +451,21 @@ export default function SpotTrading() {
     return p ? p.sizeNum : 0;
   }, [spotPositions, selectedOption]);
 
+  // Entry price of the held leg — drives the Sell-side commission estimate.
+  const heldEntry = useMemo(() => {
+    if (!selectedOption) return 0;
+    const p = spotPositions.find((pp) => pp.optionId === selectedOption.id);
+    return p ? p.entryPriceNum : 0;
+  }, [spotPositions, selectedOption]);
+  const heldYesQty = useMemo(
+    () => (yesOpt ? spotPositions.find((p) => p.optionId === yesOpt.id)?.sizeNum ?? 0 : 0),
+    [spotPositions, yesOpt],
+  );
+  const heldNoQty = useMemo(
+    () => (noOpt ? spotPositions.find((p) => p.optionId === noOpt.id)?.sizeNum ?? 0 : 0),
+    [spotPositions, noOpt],
+  );
+
 
   // ---- Watchlist ----
   const { isWatched, toggle: toggleWatch } = useWatchlist();
@@ -441,10 +474,11 @@ export default function SpotTrading() {
   const available = spotBalance;
   useEffect(() => {
     // Keep slider in sync when user types amount manually
-    const pct = available > 0 ? Math.min(100, (amt / available) * 100) : 0;
+    const base = side === "sell" ? heldQty : available;
+    const pct = base > 0 ? Math.min(100, (amt / base) * 100) : 0;
     if (Math.abs(pct - sliderValue[0]) > 0.5) setSliderValue([pct]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [amount, available]);
+  }, [amount, available, side, heldQty]);
 
   // Reset limit price when outcome changes
   useEffect(() => {
@@ -638,275 +672,134 @@ export default function SpotTrading() {
   // -----------------------------------------------------------------
   // Reusable atoms
   // -----------------------------------------------------------------
-  const YesNoToggle = (
-    <BinarySideToggle
+  // ---- Sell-side economics (V4): 5% commission on the winning part only. ----
+  const sellProfit = Math.max(0, (effectivePrice - heldEntry) * qty);
+  const sellCommission = side === "sell" ? WINNING_COMMISSION_RATE * sellProfit : 0;
+  const sellReceive = Math.max(0, cost - sellCommission);
+
+  const isSell = side === "sell";
+  // Cash reserved by resting Pending buy limits (fee-inclusive).
+  const reservedInOrders = spotOrders
+    .filter((o) => o.status === "Pending" && o.type === "buy")
+    .reduce(
+      (acc, o) =>
+        acc + (parseFloat(o.price) || 0) * (parseFloat(o.amount) || 0) * (1 + SPOT_FEE_RATE),
+      0,
+    );
+  // Under Sell an outcome with no shares cannot be sized — grey the tile out.
+  const sliderBase = isSell ? heldQty : available;
+
+  const ctaLabel = willBePending
+    ? `Place limit · ${isSell ? "Sell" : "Buy"} ${outcomeLabel}`
+    : `${isSell ? "Sell" : "Buy"} ${outcomeLabel}`;
+  const ctaDisabled = submitting || blocked || amt <= 0 || (orderType === "Limit" && tickInvalid);
+
+  const TradePanel = (
+    <ProSpotPanel
+      side={side}
+      onSideChange={(s) => {
+        setSide(s);
+        setAmount("");
+        setSliderValue([0]);
+      }}
+      orderType={orderType}
+      onOrderTypeChange={setOrderType}
       yesLabel={yesLabel}
       noLabel={noLabel}
       yesPrice={yesLive}
       noPrice={noLive}
       isYesSelected={isYesSelected}
-      onSelect={(which) => {
-        setSide("buy");
+      onSelectOutcome={(which) => {
         const opt = which === "yes" ? yesOpt : noOpt;
         if (opt) setSelectedOptionId(opt.id);
+      }}
+      heldYesQty={heldYesQty}
+      heldNoQty={heldNoQty}
+      outcomeLabel={outcomeLabel}
+      available={available}
+      heldQty={heldQty}
+      spotBalance={spotBalance}
+      limitPrice={limitPrice}
+      onLimitPriceChange={setLimitPrice}
+      amount={amount}
+      onAmountChange={setAmount}
+      sliderValue={sliderValue}
+      onSliderChange={setSliderValue}
+      sliderBase={sliderBase}
+      slippageBps={slippageBps}
+      onSlippageChange={setSlippageBps}
+      qty={qty}
+      cost={cost}
+      fee={fee}
+      maxWin={maxWin}
+      sellCommission={sellCommission}
+      sellReceive={sellReceive}
+      bestAsk={bestAsk}
+      bestBid={bestBid}
+      settleEtOnly={settleEtOnly}
+      tickInvalid={tickInvalid}
+      willBePending={willBePending}
+      ctaLabel={blocked ? blockedReason || "Market unavailable" : ctaLabel}
+      ctaDisabled={ctaDisabled}
+      submitting={submitting}
+      onSubmit={() => setPreviewOpen(true)}
+    />
+  );
+
+  const OrderPreviewDialog = (
+    <ProSpotOrderPreview
+      open={previewOpen}
+      onOpenChange={setPreviewOpen}
+      eventName={event.name}
+      outcomeLabel={outcomeLabel}
+      side={side}
+      orderType={orderType}
+      price={effectivePrice}
+      qty={qty}
+      cost={cost}
+      fee={fee}
+      maxWin={maxWin}
+      sellCommission={sellCommission}
+      sellReceive={sellReceive}
+      ctaLabel={ctaLabel}
+      submitting={submitting}
+      isYesSelected={isYesSelected}
+      onConfirm={() => {
+        setPreviewOpen(false);
+        handleSubmit();
       }}
     />
   );
 
-  const TradePanel = (
-    <div className="flex flex-col bg-background rounded-lg border border-border/50">
-      <div className="flex items-center px-4 py-2 border-b border-border/30">
-        <span className="text-sm font-medium">Trade</span>
-        <Badge variant="outline" className="ml-2 text-[10px]">SPOT</Badge>
-      </div>
-      <div className="px-4 py-3 space-y-3">
-        {YesNoToggle}
-
-        {/* Buy / Sell */}
-        <div className="inline-flex w-full items-center gap-1 rounded-md border border-border/60 bg-muted/30 p-1">
-          {(["buy", "sell"] as const).map((s) => (
-            <button
-              key={s}
-              onClick={() => setSide(s)}
-              className={cn(
-                "flex-1 py-1.5 rounded text-xs font-medium capitalize transition",
-                side === s
-                  ? s === "buy"
-                    ? "bg-trading-green/20 text-trading-green"
-                    : "bg-trading-red/20 text-trading-red"
-                  : "text-muted-foreground",
-              )}
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-
-        {/* Available */}
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">Available (USDC)</span>
-          <span className="font-mono">{available.toFixed(2)}</span>
-        </div>
-
-        {/* Order type tabs */}
-        <div className="flex border-b border-border/30">
-          {(["Limit", "Market"] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setOrderType(t)}
-              className={cn(
-                "px-2 py-1.5 text-xs font-medium transition-all",
-                orderType === t
-                  ? "text-foreground border-b-2 border-trading-purple"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-
-        {/* Price / slippage */}
-        {orderType === "Limit" ? (
-          <div className="space-y-1">
-            <span className="text-xs text-muted-foreground">Price</span>
-            <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
-              <input
-                type="text"
-                value={limitPrice}
-                onChange={(e) => setLimitPrice(e.target.value)}
-                className="flex-1 bg-transparent outline-none font-mono text-sm"
-                placeholder="0.0000"
-                inputMode="decimal"
-              />
-              <span className="text-muted-foreground text-xs">USD</span>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Max slippage</span>
-              <span className="text-xs font-mono">{(slippageBps / 100).toFixed(2)}%</span>
-            </div>
-            <div className="flex gap-1.5">
-              {[10, 25, 50, 100].map((bps) => (
-                <button
-                  key={bps}
-                  onClick={() => setSlippageBps(bps)}
-                  className={cn(
-                    "flex-1 py-1 text-[11px] rounded transition-colors",
-                    slippageBps === bps
-                      ? "bg-trading-purple text-foreground"
-                      : "bg-muted text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  {(bps / 100).toFixed(2)}%
-                </button>
-              ))}
-            </div>
-            <p className="text-[10px] text-muted-foreground pt-0.5">
-              Market = marketable limit @ mark ± slippage cap
-            </p>
-          </div>
-        )}
-
-        {/* Amount */}
-        <div className="space-y-1">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Amount</span>
-            {side === "sell" && (
-              <span className="text-[10px] text-muted-foreground font-mono">
-                held: {heldQty.toFixed(0)} sh
-              </span>
-            )}
-          </div>
-          <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
-            <input
-              type="text"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="flex-1 bg-transparent outline-none font-mono text-sm"
-              placeholder="0.00"
-              inputMode="decimal"
-            />
-            <span className="text-muted-foreground text-xs font-medium">USDC</span>
-          </div>
-        </div>
-
-        {/* Slider */}
-        <div className="space-y-1">
-          <Slider
-            value={sliderValue}
-            onValueChange={(val) => {
-              setSliderValue(val);
-              setAmount(((available * val[0]) / 100).toFixed(2));
-            }}
-            max={100}
-            step={1}
-          />
-          <div className="flex justify-between text-[10px] text-muted-foreground">
-            {["0%", "25%", "50%", "75%", "100%"].map((l) => (
-              <span key={l}>{l}</span>
-            ))}
-          </div>
-        </div>
-
-        {/* Fee summary — spot: Cost / Max win / Max loss / Fee. NO liq. / margin. */}
-        <div className="rounded-md bg-muted/30 p-2.5 text-xs font-mono space-y-1">
-          <Row label="Cost">${cost.toFixed(2)}</Row>
-          {orderType === "Market" && (
-            <div className="flex justify-end text-[10px] text-muted-foreground -mt-1">
-              Est. fill @ {(side === "buy" ? bestAsk : bestBid).toFixed(2)}
-            </div>
-          )}
-          <Row label={
-            <span className="inline-flex items-center gap-1">
-              To win
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <HelpCircle className="w-3 h-3 text-muted-foreground cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-[220px] p-2">
-                    {side === "buy" ? (
-                      <WinTooltipBody />
-                    ) : (
-                      <p className="text-xs">Sell proceeds, credited on fill.</p>
-                    )}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </span>
-          }>
-            ${maxWin.toFixed(2)}
-          </Row>
-          <Row label="Max loss">${maxLoss.toFixed(2)}</Row>
-          <Row label="Fee (0.15%)">${fee.toFixed(2)}</Row>
-        </div>
-
-        {/* Spot account balance hint — spot funds only. */}
-        <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-          <Info className="h-3 w-3" />
-          Standard Account · ${spotBalance.toFixed(2)} available
-        </div>
-        {settleEtOnly && (
-          <div className="text-[10px] text-muted-foreground">
-            Settles &amp; credits by ~{settleEtOnly}
-          </div>
-        )}
-        {tickInvalid && orderType === "Limit" && (
-          <div className="text-[10px] text-trading-red">
-            Price must be a multiple of $0.01 (tick).
-          </div>
-        )}
-        {willBePending && !tickInvalid && (
-          <div className="text-[10px] text-trading-yellow">
-            {side === "buy"
-              ? `Limit below best ask $${bestAsk.toFixed(2)} — order will rest as Pending until touched. $${(effectivePrice * qty || 0).toFixed(2)} reserved.`
-              : `Limit above best bid $${bestBid.toFixed(2)} — order will rest as Pending until touched.`}
-          </div>
-        )}
-
-
-        {/* CTA — semantic outcome color, never primary */}
-        <button
-          disabled={submitting || blocked || amt <= 0 || tickInvalid}
-          onClick={handleSubmit}
-          className={cn(
-            "w-full h-11 rounded-lg font-semibold text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed",
-            isYesSelected
-              ? "bg-yes hover:bg-yes/90 text-yes-foreground"
-              : "bg-no hover:bg-no/90 text-no-foreground",
-          )}
-        >
-          {submitting ? (
-            <Loader2 className="h-4 w-4 animate-spin mx-auto" />
-          ) : blocked ? (
-            blockedReason || "Market unavailable"
-          ) : (
-            <>
-              {willBePending
-                ? `Place limit ${side} ${outcomeLabel}`
-                : `${side === "buy" ? "Buy" : "Sell"} ${outcomeLabel}`}
-              {side === "buy" && qty > 0 && !willBePending && (
-                <span className="opacity-80"> · To win ${maxWin.toFixed(2)} →</span>
-              )}
-
-            </>
-          )}
-        </button>
-
-      </div>
-    </div>
-  );
-
   const AccountPanel = (
-    <div className="flex flex-col bg-background rounded-lg border border-border/50">
-      <div className="flex items-center px-4 py-2 border-b border-border/30">
-        <span className="text-sm font-medium">Standard Account</span>
-      </div>
-      <div className="px-4 py-3 space-y-2 text-xs">
-        <Row label="Available (USDC)">
-          <span className="font-mono text-foreground">${spotBalance.toFixed(2)}</span>
-        </Row>
-        <Row label="Open spot positions">
-          <span className="font-mono">{spotPositions.length}</span>
-        </Row>
-        <div className="text-[10px] text-muted-foreground pt-1">
-          Standard and Boost accounts are funded separately. Transfer funds to your Standard Account to trade.
-        </div>
-      </div>
-    </div>
+    <ProSpotAccountPanel
+      available={spotBalance}
+      inOrders={reservedInOrders}
+      openPositions={spotPositions.length}
+    />
   );
+
+  // Shared event body (same component the futures terminal uses). Rules are
+  // rendered by the spot-specific block below, so they are omitted here.
+  const sharedInfoEvent: TradingEvent = {
+    id: event.id,
+    name: event.name,
+    icon: "",
+    ends: countdown.text,
+    endTime: endDate ?? new Date(),
+    period: "Daily",
+    volume: mock24hVolume(event.id),
+    description:
+      event.description || "US-stock daily up/down (spot). Winning share pays $1 at settlement.",
+    rules: [],
+    sourceUrl: event.source_url || "",
+    sourceName: event.source_name || "databento",
+    resolutionSource: event.source_name || "databento",
+  };
 
   const EventInfoPanel = (
     <div className="p-6 overflow-auto text-sm space-y-4">
-      <div>
-        <h3 className="font-semibold mb-1">{event.name}</h3>
-        <p className="text-xs text-muted-foreground">
-          {event.description || "US-stock daily up/down (spot). Winning share pays $1 at settlement."}
-        </p>
-      </div>
+      <EventInfoContent event={sharedInfoEvent} />
       <div className="grid grid-cols-2 gap-3 text-xs font-mono">
         <InfoCell label="Prior official close" value={basePrice != null ? `${cur}${basePrice.toFixed(2)}` : "—"} />
         <InfoCell label="Settles vs" value={`Prior close · flat close = ${noLabel}`} />
@@ -1002,7 +895,8 @@ export default function SpotTrading() {
                   if (yesOpt && p.optionId === yesOpt.id) setSelectedOptionId(yesOpt.id);
                   else if (noOpt && p.optionId === noOpt.id) setSelectedOptionId(noOpt.id);
                   setSide("sell");
-                  setAmount(((p.sizeNum * (parseFloat(p.markPrice.replace(/[$,]/g, "")) || 0))).toFixed(2));
+                  setBottomTab("Positions");
+                  setAmount(p.sizeNum.toFixed(0));
                 }}
                 className="text-[10px] text-primary hover:underline text-right"
               >
@@ -1072,35 +966,19 @@ export default function SpotTrading() {
 
 
   const BottomTabs = (
-    <div className="border-t border-border/30">
-      <div className="flex items-center gap-1 px-4 border-b border-border/30">
-        {(["Positions", "Orders"] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => setBottomTab(t)}
-            className={cn(
-              "px-4 py-2 text-sm font-medium transition-all",
-              bottomTab === t
-                ? "text-trading-purple border-b-2 border-trading-purple"
-                : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {t}
-            <span className="ml-1 text-muted-foreground">
-              ({t === "Positions" ? spotPositions.length : spotOrders.length})
-            </span>
-          </button>
-        ))}
-      </div>
-      <AuthGateOverlay
-        title="Sign in to view spot positions"
-        description="Log in or create an account to view your open positions and orders."
-      >
-        <div className="max-h-[360px] overflow-y-auto">
-          {bottomTab === "Positions" ? PositionsTable : OrdersTable}
-        </div>
-      </AuthGateOverlay>
-    </div>
+    <ProBottomTabs
+      tabs={[
+        { key: "Positions", label: "Positions", count: spotPositions.length },
+        { key: "Orders", label: "Orders", count: spotOrders.length },
+      ]}
+      active={bottomTab}
+      onChange={(k) => setBottomTab(k as "Positions" | "Orders")}
+      authTitle="Sign in to view spot positions"
+      authDescription="Log in or create an account to view your open positions and orders."
+      bodyClassName="max-h-[360px] overflow-y-auto"
+    >
+      {bottomTab === "Positions" ? PositionsTable : OrdersTable}
+    </ProBottomTabs>
   );
 
   // -----------------------------------------------------------------
@@ -1350,86 +1228,73 @@ export default function SpotTrading() {
         <div className="p-3">{TradePanel}</div>
 
         {BottomTabs}
+        {OrderPreviewDialog}
       </div>
     );
   }
 
   // ---- Desktop ----
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
-      {DesktopChrome}
-
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left: Chart + Bottom Positions/Orders */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-          <div className="flex items-stretch min-h-[600px] gap-1 p-1">
-            {/* Chart + Event Info */}
-            <div className="flex-1 flex flex-col min-w-0 bg-background rounded border border-border/30">
-              <div className="flex items-center gap-4 px-4 py-2 border-b border-border/30">
-                {(["Chart", "Event Info"] as const).map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => setChartTab(t)}
-                    className={cn(
-                      "text-sm font-medium transition-all",
-                      chartTab === t ? "text-foreground" : "text-muted-foreground hover:text-foreground",
-                    )}
-                  >
-                    {t}
-                  </button>
-                ))}
-                <div className="ml-auto text-xs text-muted-foreground">
-                  Prior Close {basePrice != null ? `${cur}${basePrice.toFixed(2)}` : "—"} · flat close = {noLabel}
-                </div>
-              </div>
-              {chartTab === "Chart" ? (
-                <>
-                  <div className="flex items-center gap-4 px-4 py-2 border-b border-border/30">
-                    <span className="text-2xl font-bold font-mono">{outcomePrice.toFixed(4)}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {outcomeLabel} · mark
-                    </span>
-                  </div>
-                  <div className="flex-1 min-h-0">
-                    <CandlestickChart remainingDays={1} basePrice={outcomePrice || 0.5} side={side} />
-                  </div>
-                </>
-              ) : (
-                <div className="flex-1 overflow-auto">{EventInfoPanel}</div>
-              )}
-            </div>
-
-            {/* Order Book (reuse DesktopOrderBook, LP-quoted mock data) */}
-            <div className="w-[280px] flex-shrink-0 flex flex-col bg-background rounded border border-border/30 overflow-hidden">
-              <DesktopOrderBook
-                asks={book.asks}
-                bids={book.bids}
-                currentPrice={outcomePrice.toFixed(4)}
-                priceChange={outcomePrice.toFixed(4)}
-                isPositive={indicativePct >= 0}
-                side={side}
-                variant="spot"
-                quoteMode={sessionProfile.quoteMode}
-                onPriceClick={(price) => {
-                  setLimitPrice(price);
-                  setOrderType("Limit");
-                }}
-              />
+    <ProTerminalLayout
+      chartMinHeightClass="min-h-[600px]"
+      header={DesktopChrome}
+      chart={
+        <>
+          <div className="flex items-center gap-4 px-4 py-2 border-b border-border/30">
+            {(["Chart", "Event Info"] as const).map((t) => (
+              <button
+                key={t}
+                onClick={() => setChartTab(t)}
+                className={cn(
+                  "text-sm font-medium transition-all",
+                  chartTab === t ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {t}
+              </button>
+            ))}
+            <div className="ml-auto text-xs text-muted-foreground">
+              Prior Close {basePrice != null ? `${cur}${basePrice.toFixed(2)}` : "—"} · flat close = {noLabel}
             </div>
           </div>
-
-          {BottomTabs}
-        </div>
-
-        {/* Right: Trade + Account */}
-        <div className="w-[280px] flex-shrink-0 flex flex-col gap-2 m-1 overflow-y-auto">
-          {TradePanel}
-          {AccountPanel}
-        </div>
-      </div>
-
+          {chartTab === "Chart" ? (
+            <>
+              <div className="flex items-center gap-4 px-4 py-2 border-b border-border/30">
+                <span className="text-2xl font-bold font-mono">{outcomePrice.toFixed(4)}</span>
+                <span className="text-xs text-muted-foreground">{outcomeLabel} · mark</span>
+              </div>
+              <div className="flex-1 min-h-0">
+                <CandlestickChart remainingDays={1} basePrice={outcomePrice || 0.5} side={side} />
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 overflow-auto">{EventInfoPanel}</div>
+          )}
+        </>
+      }
+      orderBook={
+        <DesktopOrderBook
+          asks={book.asks}
+          bids={book.bids}
+          currentPrice={outcomePrice.toFixed(4)}
+          priceChange={outcomePrice.toFixed(4)}
+          isPositive={indicativePct >= 0}
+          side={side}
+          variant="spot"
+          quoteMode={sessionProfile.quoteMode}
+          onPriceClick={(price) => {
+            setLimitPrice(price);
+            setOrderType("Limit");
+          }}
+        />
+      }
+      bottomTabs={BottomTabs}
+      panel={TradePanel}
+      account={AccountPanel}
+    >
+      {OrderPreviewDialog}
       <AuthDialog open={authOpen} onOpenChange={setAuthOpen} defaultTab="signup" />
-    </div>
+    </ProTerminalLayout>
   );
 }
 

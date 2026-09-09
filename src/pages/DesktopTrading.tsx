@@ -63,6 +63,8 @@ import { AuthDialog } from "@/components/auth/AuthDialog";
 import { AccountRiskIndicator } from "@/components/AccountRiskIndicator";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
+import { ProTerminalLayout } from "@/components/pro/ProTerminalLayout";
+import { ProBottomTabs } from "@/components/pro/ProBottomTabs";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { ActivateAirdropButton } from "@/components/ActivateAirdropButton";
 import { Badge } from "@/components/ui/badge";
@@ -668,8 +670,8 @@ export default function DesktopTrading() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
-      {/* Top Header */}
+    <ProTerminalLayout
+      header={<>
       <header className="flex items-center gap-4 px-4 py-2 bg-background border-b border-border/30">
         {/* Back Button - only show if navigated here */}
         {showBackButton && (
@@ -933,9 +935,9 @@ export default function DesktopTrading() {
         </button>
 
       </header>
-
-      {/* Option Chips Row — 单 market binary 不渲染（对阵信息已在标题+Yes/No 切换器表达）；多 outcome 才显示 chip 切换 */}
-      {!isBinarySingleMarket && (
+      </>}
+      subHeader={
+        !isBinarySingleMarket && (
         <div className="flex items-center gap-2 px-4 py-2 border-b border-border/30 overflow-x-auto scrollbar-hide">
           <span className="text-xs text-muted-foreground flex-shrink-0">Select Option:</span>
           {options.map((option) => (
@@ -955,16 +957,9 @@ export default function DesktopTrading() {
             </button>
           ))}
         </div>
-      )}
-
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left Section: Chart + Order Book + Positions */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-          {/* Top: Chart + Order Book (separate containers, tops aligned) */}
-          {/* min-h matches the right Trade panel natural height so OrderBook stretches and bottoms align */}
-          <div className="flex items-stretch min-h-[680px] gap-1 p-1">
-            {/* Chart Area or Event Info - separate container */}
-            <div className="flex-1 flex flex-col min-w-0 bg-background rounded border border-border/30">
+        )
+      }
+      chart={<>
               {/* Chart / Event Info Tabs */}
               <div className="flex items-center gap-4 px-4 py-2 border-b border-border/30">
                 {(["Chart", "Event Info"] as const).map((tab) => (
@@ -1011,10 +1006,8 @@ export default function DesktopTrading() {
                   <EventInfoContent event={selectedEvent} />
                 </div>
               )}
-            </div>
-
-            {/* Order Book - separate container, flex-col so child h-full stretches */}
-            <div className="w-[280px] flex-shrink-0 flex flex-col bg-background rounded border border-border/30 overflow-hidden">
+      </>}
+      orderBook={
               <DesktopOrderBook 
                 asks={orderBookData.asks}
                 bids={orderBookData.bids}
@@ -1027,33 +1020,18 @@ export default function DesktopTrading() {
                   setOrderType("Limit");
                 }}
               />
-            </div>
-          </div>
-
-          {/* Bottom: Positions Panel */}
-          <div className="border-t border-border/30 flex-shrink-0">
-            <div className="flex items-center gap-1 px-4 border-b border-border/30 relative z-20">
-              {(["Positions", "Current Orders"] as const).map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setBottomTab(tab === "Current Orders" ? "Orders" : "Positions")}
-                  className={`px-4 py-2 text-sm font-medium transition-all whitespace-nowrap ${
-                    (bottomTab === "Orders" && tab === "Current Orders") || 
-                    (bottomTab === "Positions" && tab === "Positions")
-                      ? "text-trading-purple border-b-2 border-trading-purple"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {tab}
-                  <span className="ml-1 text-muted-foreground">
-                    ({tab === "Current Orders" ? unifiedOrders.length : totalPositionCount})
-                  </span>
-                </button>
-              ))}
-            </div>
-
-            <AuthGateOverlay title="Sign in to view positions" description="Log in or create an account to view and manage your trades.">
-            <div className="max-h-[460px] overflow-y-auto overscroll-contain">
+      }
+      bottomTabs={
+        <ProBottomTabs
+          tabs={[
+            { key: "Positions", label: "Positions", count: totalPositionCount },
+            { key: "Orders", label: "Current Orders", count: unifiedOrders.length },
+          ]}
+          active={bottomTab}
+          onChange={(k) => setBottomTab(k as "Positions" | "Orders")}
+          authTitle="Sign in to view positions"
+          authDescription="Log in or create an account to view and manage your trades."
+        >
               {bottomTab === "Orders" && (
                 <table className="w-full">
                   <thead className="sticky top-0 z-10 bg-background">
@@ -1437,18 +1415,13 @@ export default function DesktopTrading() {
                 </table>
                 </>
               )}
-            </div>
-            </AuthGateOverlay>
+        </ProBottomTabs>
+      }
+      panel={
+        <div className="flex flex-col bg-background rounded-lg border border-border/50 flex-shrink-0">
+          <div className="flex items-center px-4 py-2 border-b border-border/30">
+            <span className="text-sm font-medium">Trade</span>
           </div>
-        </div>
-
-        {/* Right Section: Trade Form + Account Risk - separate containers, no internal scroll */}
-        <div className="w-[280px] flex-shrink-0 flex flex-col gap-2 m-1 overflow-y-auto">
-          {/* Trade Panel - always fully expanded, no internal scroll */}
-          <div className="flex flex-col bg-background rounded-lg border border-border/50 flex-shrink-0">
-            <div className="flex items-center px-4 py-2 border-b border-border/30">
-              <span className="text-sm font-medium">Trade</span>
-            </div>
 
             <div className="px-4 py-3 space-y-3">
             {/* Yes/No Toggle — v3 双层结构（队名 + 底部独立价格条），与 TradeForm 一致 */}
@@ -1795,15 +1768,13 @@ export default function DesktopTrading() {
             />
             </div>
           </div>
-
-          {/* Account Risk Indicator - follows Trade panel, no special height constraints */}
-          {user && (
-            <div className="bg-background rounded-lg border border-border/50 flex-shrink-0">
-              <AccountRiskIndicator variant="compact" />
-            </div>
-          )}
+      }
+      account={user && (
+        <div className="bg-background rounded-lg border border-border/50 flex-shrink-0">
+          <AccountRiskIndicator variant="compact" />
         </div>
-      </div>
+      )}
+    >
 
       {/* Order Preview Dialog */}
       <Dialog open={orderPreviewOpen} onOpenChange={setOrderPreviewOpen}>
@@ -2177,6 +2148,6 @@ export default function DesktopTrading() {
         open={depositDialogOpen}
         onOpenChange={setDepositDialogOpen}
       />
-    </div>
+    </ProTerminalLayout>
   );
 }

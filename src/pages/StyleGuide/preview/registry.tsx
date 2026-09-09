@@ -42,6 +42,7 @@ const brandAssets = () => import("@/pages/StyleGuide/sections/BrandAssetsSection
 const trade = () => import("./tradePreviews");
 
 const spot = () => import("./spotPreviews");
+const proSpot = () => import("./proSpotPreviews");
 const share = () => import("./sharePreviews");
 const sportsLive = () => import("./sportsLivePreviews");
 
@@ -279,6 +280,16 @@ export const previewRegistry: Record<string, Loader> = {
   "trade-tr24": pick(trade, "Tr24Preview"),
 
   /* -------- Spot 现货轮（M2c · SP-1…SP-16；缺口 SP-1/2/9/15/16 见 SpotStatesSection）-------- */
+  /* -------- Pro /spot terminal（SP-1 · B3）-------- */
+  "pro-spot-panel-buy-market": pick(proSpot, "ProSpotPanelBuyMarket"),
+  "pro-spot-panel-buy-limit": pick(proSpot, "ProSpotPanelBuyLimit"),
+  "pro-spot-panel-sell-held": pick(proSpot, "ProSpotPanelSellHeld"),
+  "pro-spot-panel-sell-none": pick(proSpot, "ProSpotPanelSellNone"),
+  "pro-spot-panel-insufficient": pick(proSpot, "ProSpotPanelInsufficient"),
+  "pro-spot-panel-pending-limit": pick(proSpot, "ProSpotPanelPendingLimit"),
+  "pro-spot-preview-dialog": pick(proSpot, "ProSpotPreviewDialog"),
+  "pro-terminal-skeleton": pick(proSpot, "ProTerminalSkeleton"),
+
   "spot-sp1": pick(spot, "Sp1Preview"),
   "spot-sp2": pick(spot, "Sp2Preview"),
   "spot-sp3": pick(spot, "Sp3Preview"),

@@ -13,6 +13,7 @@ export { TransparencySection } from "./TransparencySection";
 export { Vouchers2Section } from "./Vouchers2Section";
 export { WorldCupSection } from "./WorldCupSection";
 export { SpotSection } from "./SpotSection";
+export { ProSpotSection } from "./ProSpotSection";
 export { LiteSpotSection } from "./LiteSpotSection";
 export { LiteSection } from "./LiteSection";
 export { LiteAllStageSection } from "./LiteAllStageSection";
