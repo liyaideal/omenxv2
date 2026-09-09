@@ -527,8 +527,8 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
       {/* =========================== */}
       <SectionWrapper
         id="foundations-surface-switch"
-        title="Surface switch · Simple / Pro（D6'-1）"
-        description="生产件 src/components/surface/SurfaceSwitch.tsx。全站不再有模式开关——除交易页外所有页面恒为 Simple。该控件只挂交易页 chrome，且只对已登录用户渲染；点击调用 setSurface() 就地换页，不做任何跳转、URL 不变。挂载点四处：桌面 EventsDesktopHeader 右簇首位（仅 /trade /trade/order /spot）、Lite 三张交易页的 MobileHeader 右槽、Pro MobileTradingLayout 右槽、Pro DesktopTrading / SpotTrading 自绘页头。视觉沿用 Portfolio SegmentChips 胶囊对（选中 #FFFFFF/#0B0D10/700，未选 #14171C + 1px #262B33/#C7CCD4/600）。"
+        title="Surface switch · Lite / Pro（D6'-1 · FIX3）"
+        description="生产件 src/components/surface/SurfaceSwitch.tsx。全站不再有模式开关——除交易页外所有页面恒为 Lite。该控件只挂交易页 chrome，且只对已登录用户渲染；点击调用 setSurface() 就地换页，不做任何跳转、URL 不变。挂载点：桌面页头分段控件三处（EventsDesktopHeader 仅 /trade /trade/order /spot、Pro DesktopTrading、Pro SpotTrading），移动端贴底栏方钮两处（Lite 三张交易页共用的 sticky buy bar、Pro TradingCharts 贴底栏）；/trade/order 不挂。移动端页头不再出现该控件。"
       >
         <SectionFrame cases={SURFACE_SWITCH_CASES} device="desktop" minHeight={220} />
         <div className="mt-4">
