@@ -323,7 +323,7 @@ export const TransactionHistory = ({ transactions = [], className, fixture }: Tr
 
     switch (tx.type) {
       case 'deposit': case 'platform_credit': case 'bonus': return 'bg-trading-green/20';
-      case 'withdraw': case 'fee': return 'bg-trading-red/20';
+      case 'withdraw': case 'fee': case 'winning_commission': return 'bg-trading-red/20';
       // Pro-only tx types; not surfaced on Lite
       case 'cross_chain_in': return 'bg-blue-500/20';
       case 'cross_chain_out': return 'bg-orange-500/20';
