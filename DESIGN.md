@@ -1852,3 +1852,7 @@ Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① 
 **词轴**：Standard 段负向词恒为 `Down`；`Not Up` 退役，只允许留在 DB。
 
 **字典**：`/style-guide` → Pro Spot，八个 key 全挂生产件本体；Spot 节的终端顶栏挂 `ProSpotHeader`，CTA 例子挂 `TradeSubmitButton`，禁止手抄。
+
+## §Addendum 2026-09-09 · 色轴优先级澄清（SP-1-FIX2，append-only）
+
+§7 关于 toggle / CTA 的旧色描述（`选中 Yes → bg-trading-green`、`选中 No → bg-trading-red`，L639-646）**已被 §2 Market Axis 的 `--yes` / `--no` 取代**：方向档与方向色 CTA 一律用 `bg-yes` / `bg-no`，`trading-green` / `trading-red` 只留给盈亏轴。生产组件（`BinarySideToggle`、`TradeSubmitButton`）与 `/style-guide` 一律以 §2 为准。

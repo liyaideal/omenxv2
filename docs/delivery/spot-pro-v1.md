@@ -67,10 +67,10 @@
 | 顶栏 | `Trade` + `SPOT` 徽标 |
 | 意图 | `Buy` / `Sell` 文字页签（不是分段按钮），右侧 `OrderTypeDropdown`（Market / Limit） |
 | 方向 | 单个 `BinarySideToggle`（Up / Down 两档带价）。Sell 且该侧无持仓时该档禁用（`opacity-40 pointer-events-none`），档内文字换成 `0 sh` |
-| 余额 | Buy 显示 `Available (USDC)`；Sell 显示持仓 `· N sh {outcome}` |
+| 余额 | `Available (USDC)` **恒显示**；Sell 时在其下多一行 `Held · N sh {outcome}` |
 | 输入 | Limit 时多一行限价输入；金额输入 + 0/25/50/75/100% 滑杆 |
 | 滑点 | 仅 Market。chip 为中性态，不用方向色 |
-| 摘要 | Buy：`Cost / Est. fill / Shares / To win ⓘ / Fee (0.15%)`；Sell：`Shares / Est. fill / Proceeds / Fee (0.15%)`。**无 Max loss 行** |
+| 摘要 | Buy：`Cost`（Market 时下方附 `Est. fill @ X`）`/ Shares / To win ⓘ / Fee (0.15%)`；Sell：`Proceeds / Shares / Est. commission / You receive`。**无 Max loss 行**。`Est. commission` 走 `winningCommission(realizedPnl, entryPrice × qty × SPOT_FEE_RATE)`，与预览弹窗、toast、账本同一口径 |
 | CTA | 生产件 `TradeSubmitButton`。Buy 副文案 `To win $X`，Sell 副文案 `You receive $X`（新增可选 prop `winPrefix`，不传时逐像素不变） |
 | 账户 | `Standard Account`：Available (USDC) / In orders / Open positions |
 
