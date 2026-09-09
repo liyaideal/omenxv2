@@ -8,20 +8,7 @@ import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams, useNavigate, useNavigationType } from "react-router-dom";
 import { toast } from "sonner";
-import {
-  ArrowLeft,
-  Star,
-  Loader2,
-  Info,
-  ChevronDown,
-  HelpCircle,
-} from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { ArrowLeft, Star, Loader2, Info } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -31,7 +18,7 @@ import { usePositions } from "@/hooks/usePositions";
 import { useOrders } from "@/hooks/useOrders";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useRealtimePricesOptional } from "@/contexts/RealtimePricesContext";
-import { Slider } from "@/components/ui/slider";
+
 import { Badge } from "@/components/ui/badge";
 import { CandlestickChart } from "@/components/CandlestickChart";
 import { DesktopOrderBook } from "@/components/DesktopOrderBook";
@@ -43,10 +30,9 @@ import {
   cancelSpotLimitOrder,
   fillSpotLimitOrder,
   netWin,
+  winningCommission,
   SPOT_FEE_RATE,
-  WINNING_COMMISSION_RATE,
 } from "@/services/tradingService";
-import { WinTooltipBody } from "@/components/lite/shared/WinTooltipBody";
 import {
   ProSpotPanel,
   ProSpotAccountPanel,
@@ -56,15 +42,7 @@ import { liteSideName } from "@/lib/liteSideName";
 import { ProSpotHeader } from "@/components/pro/ProSpotHeader";
 import { ProTerminalLayout } from "@/components/pro/ProTerminalLayout";
 import { ProBottomTabs } from "@/components/pro/ProBottomTabs";
-import { TradeSubmitButton } from "@/components/trading/TradeSubmitButton";
 import { EventInfoContent } from "@/components/EventInfoContent";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { parseSideLabels } from "@/lib/eventUtils";
 import {
   getLifecycleBadge,
@@ -79,7 +57,7 @@ import {
   isInPreFreezeWindow,
   isPastFreeze,
   getDisplayLifecycle,
-  LP_QUOTE_MODE_BADGE,
+  
   FREEZE_MINUTES_BEFORE_CLOSE,
   type SessionProfile,
 } from "@/lib/usStockSessions";
