@@ -37,7 +37,6 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 import { computeTotalEquity, formatEquityUsd } from "@/lib/equity";
 import { TransferDialog } from "@/components/wallet/TransferDialog";
-import { useSurface } from "@/contexts/SurfaceContext";
 import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
 
 
@@ -116,7 +115,6 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const { balance, spotBalance, user, username, avatarUrl } = useUserProfile();
   const [transferOpen, setTransferOpen] = useState(false);
-  const { surface } = useSurface();
   const totalEquity = computeTotalEquity({ spotBalance, balance });
 
   const handleSignOut = async () => {
@@ -285,14 +283,12 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                   <DropdownMenuSeparator />
 
                   {/* Product & support */}
-                  {surface !== "lite" && (
-                    <DropdownMenuItem
-                      onClick={() => navigate("/settings/transparency")}
-                    >
-                      <Shield className="mr-2 h-4 w-4 text-emerald-400" />
-                      Transparency Audit
-                    </DropdownMenuItem>
-                  )}
+                  <DropdownMenuItem
+                    onClick={() => navigate("/settings/transparency")}
+                  >
+                    <Shield className="mr-2 h-4 w-4 text-emerald-400" />
+                    Transparency Audit
+                  </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() =>
                       window.open(
