@@ -43,7 +43,11 @@ import {
   placeSpotLimitOrder,
   cancelSpotLimitOrder,
   fillSpotLimitOrder,
+  netWin,
+  SPOT_FEE_RATE,
 } from "@/services/tradingService";
+import { WinTooltipBody } from "@/components/lite/shared/WinTooltipBody";
+import { BinarySideToggle } from "@/components/pro/BinarySideToggle";
 import { parseSideLabels } from "@/lib/eventUtils";
 import {
   getLifecycleBadge,
@@ -148,9 +152,8 @@ const mock24hVolume = (eventId: string) => {
   return dollars >= 1_000_000 ? `$${(dollars / 1_000_000).toFixed(2)}M` : `$${(dollars / 1000).toFixed(0)}K`;
 };
 
-// Fee = 0 for spot (see tradingService §SPOT). Explicit constant keeps the
-// summary line honest.
-const SPOT_FEE_RATE = 0;
+// Fee rate lives in tradingService (V4: 15 bps taker on every product line).
+// Imported above — never re-declared here.
 
 // ---- Countdown ----
 // Returns HH:MM:SS text plus a color bucket based on remaining time:
@@ -405,10 +408,11 @@ export default function SpotTrading() {
   const amt = parseFloat(amount) || 0;
   const qty = effectivePrice > 0 ? amt / effectivePrice : 0;
   const cost = effectivePrice * qty;
-  const maxLoss = side === "buy" ? cost : 0;
-  // 技术对接 §10.1: Max win for buy = qty × $1 − cost; for sell = proceeds (already realized).
-  const maxWin = side === "buy" ? Math.max(0, qty - cost) : cost;
   const fee = cost * SPOT_FEE_RATE;
+  const maxLoss = side === "buy" ? cost + fee : 0;
+  // V4: the CTA / summary figure is the NET profit after the 5% winning
+  // commission — the same `netWin()` helper Lite and Pro futures use.
+  const maxWin = side === "buy" ? netWin(qty - cost, fee) : cost;
 
 
   // ---- Positions / orders (spot-scoped) ----
@@ -635,64 +639,18 @@ export default function SpotTrading() {
   // Reusable atoms
   // -----------------------------------------------------------------
   const YesNoToggle = (
-    <div className="grid grid-cols-2 gap-2 p-1 bg-muted/30 rounded-lg">
-      <button
-        onClick={() => {
-          setSide("buy");
-          if (yesOpt) setSelectedOptionId(yesOpt.id);
-        }}
-        className="relative flex flex-col rounded-md overflow-hidden transition-all"
-      >
-        <div
-          className={cn(
-            "flex-1 flex items-center justify-center min-h-[24px] py-1.5 px-2 text-[11px] font-semibold leading-tight",
-            isYesSelected
-              ? "bg-yes text-yes-foreground"
-              : "bg-muted text-muted-foreground hover:bg-muted/80",
-          )}
-        >
-          {yesLabel}
-        </div>
-        <div
-          className={cn(
-            "h-[22px] flex items-center justify-center text-[11px] font-mono border-t",
-            isYesSelected
-              ? "bg-yes/85 text-yes-foreground border-black/20"
-              : "bg-muted-foreground/15 text-foreground/80 border-border/40",
-          )}
-        >
-          {yesLive.toFixed(4)}
-        </div>
-      </button>
-      <button
-        onClick={() => {
-          setSide("buy");
-          if (noOpt) setSelectedOptionId(noOpt.id);
-        }}
-        className="relative flex flex-col rounded-md overflow-hidden transition-all"
-      >
-        <div
-          className={cn(
-            "flex-1 flex items-center justify-center min-h-[24px] py-1.5 px-2 text-[11px] font-semibold leading-tight",
-            !isYesSelected
-              ? "bg-no text-no-foreground"
-              : "bg-muted text-muted-foreground hover:bg-muted/80",
-          )}
-        >
-          {noLabel}
-        </div>
-        <div
-          className={cn(
-            "h-[22px] flex items-center justify-center text-[11px] font-mono border-t",
-            !isYesSelected
-              ? "bg-no/85 text-no-foreground border-black/20"
-              : "bg-muted-foreground/15 text-foreground/80 border-border/40",
-          )}
-        >
-          {noLive.toFixed(4)}
-        </div>
-      </button>
-    </div>
+    <BinarySideToggle
+      yesLabel={yesLabel}
+      noLabel={noLabel}
+      yesPrice={yesLive}
+      noPrice={noLive}
+      isYesSelected={isYesSelected}
+      onSelect={(which) => {
+        setSide("buy");
+        const opt = which === "yes" ? yesOpt : noOpt;
+        if (opt) setSelectedOptionId(opt.id);
+      }}
+    />
   );
 
   const TradePanel = (
@@ -843,18 +801,18 @@ export default function SpotTrading() {
           )}
           <Row label={
             <span className="inline-flex items-center gap-1">
-              Max win
+              To win
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <HelpCircle className="w-3 h-3 text-muted-foreground cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-[220px] p-2">
-                    <p className="text-xs">
-                      {side === "buy"
-                        ? "qty × $1 − cost. Winning shares pay $1 at settlement."
-                        : "Sell proceeds, credited on fill."}
-                    </p>
+                    {side === "buy" ? (
+                      <WinTooltipBody />
+                    ) : (
+                      <p className="text-xs">Sell proceeds, credited on fill.</p>
+                    )}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -863,13 +821,13 @@ export default function SpotTrading() {
             ${maxWin.toFixed(2)}
           </Row>
           <Row label="Max loss">${maxLoss.toFixed(2)}</Row>
-          <Row label="Fee">${fee.toFixed(2)}</Row>
+          <Row label="Fee (0.15%)">${fee.toFixed(2)}</Row>
         </div>
 
         {/* Spot account balance hint — spot funds only. */}
         <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
           <Info className="h-3 w-3" />
-          Spot Account · ${spotBalance.toFixed(2)} available
+          Standard Account · ${spotBalance.toFixed(2)} available
         </div>
         {settleEtOnly && (
           <div className="text-[10px] text-muted-foreground">
@@ -911,7 +869,7 @@ export default function SpotTrading() {
                 ? `Place limit ${side} ${outcomeLabel}`
                 : `${side === "buy" ? "Buy" : "Sell"} ${outcomeLabel}`}
               {side === "buy" && qty > 0 && !willBePending && (
-                <span className="opacity-80"> · Max win ${maxWin.toFixed(0)} →</span>
+                <span className="opacity-80"> · To win ${maxWin.toFixed(2)} →</span>
               )}
 
             </>
@@ -925,7 +883,7 @@ export default function SpotTrading() {
   const AccountPanel = (
     <div className="flex flex-col bg-background rounded-lg border border-border/50">
       <div className="flex items-center px-4 py-2 border-b border-border/30">
-        <span className="text-sm font-medium">Spot Account</span>
+        <span className="text-sm font-medium">Standard Account</span>
       </div>
       <div className="px-4 py-3 space-y-2 text-xs">
         <Row label="Available (USDC)">
@@ -935,7 +893,7 @@ export default function SpotTrading() {
           <span className="font-mono">{spotPositions.length}</span>
         </Row>
         <div className="text-[10px] text-muted-foreground pt-1">
-          Spot and Futures accounts are funded separately. Transfer funds to your Spot Account to trade.
+          Standard and Boost accounts are funded separately. Transfer funds to your Standard Account to trade.
         </div>
       </div>
     </div>
