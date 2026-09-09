@@ -32,6 +32,8 @@ export interface ProSpotHeaderProps {
   onBack: () => void;
   /** Style-guide only: render the switch as if the visitor were signed in. */
   previewSignedIn?: boolean;
+  /** Style-guide only: force the switch state and make it inert. */
+  previewActiveSurface?: "lite" | "pro";
 }
 
 const Stat = ({
@@ -154,7 +156,11 @@ export const ProSpotHeader = (p: ProSpotHeaderProps) => (
       />
     </div>
 
-    <SurfaceSwitch size="compact" previewSignedIn={p.previewSignedIn} />
+    <SurfaceSwitch
+      size="compact"
+      previewSignedIn={p.previewSignedIn}
+      previewActive={p.previewActiveSurface}
+    />
 
     <button
       onClick={p.onToggleWatch}
