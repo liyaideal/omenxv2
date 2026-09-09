@@ -64,16 +64,8 @@ export const BottomNav = () => {
     }
   };
 
-  const isActive = (path: string) => {
-    if (path === "/trade") {
-      return location.pathname.startsWith("/trade") || location.pathname === "/order-preview";
-    }
-    if (path === "/events") {
-      // Events dropdown controls both active and resolved, so highlight Events for both
-      return location.pathname === "/events" || location.pathname.startsWith("/resolved");
-    }
-    return location.pathname === path;
-  };
+
+
 
   const isLiteActive = (path: string) => {
     const p = location.pathname;
