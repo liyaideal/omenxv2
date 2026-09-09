@@ -606,7 +606,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
           )}
         </span>
         {!blocked && (
-          <span className="font-mono text-sm">{money(potentialWin)} →</span>
+          <span className="font-mono text-sm">{money(potentialWinNet)} →</span>
         )}
       </button>
       <p className="text-center text-[10px] text-muted-foreground/70">
