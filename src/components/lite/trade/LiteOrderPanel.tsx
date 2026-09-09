@@ -15,7 +15,15 @@ import { cn } from "@/lib/utils";
 import { SideButton } from "@/components/lite/shared/SideButton";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { executeSpotTrade } from "@/services/tradingService";
+import { executeSpotTrade, netWin, SPOT_FEE_RATE } from "@/services/tradingService";
+import { WinTooltipBody } from "@/components/lite/shared/WinTooltipBody";
+import { HelpCircle } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type Side = "yes" | "no";
 
@@ -89,10 +97,14 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
     return isFinite(n) && n > 0 ? n : 0;
   }, [amount]);
 
-  // Shares user would receive at the current side price.
-  const shares = sidePrice > 0 ? Math.floor(amountNum / sidePrice) : 0;
+  // V4 fee model (SP-1 · A5): the typed amount is the TOTAL spend budget.
+  // fee = amount × 0.15 %, and the remainder buys shares, so the wallet is
+  // debited exactly `amount` (cost + fee).
+  const fee = amountNum * SPOT_FEE_RATE;
+  const shares = sidePrice > 0 ? Math.floor((amountNum - fee) / sidePrice) : 0;
   const potentialProceeds = shares; // each winning share pays $1
-  const potentialProfit = Math.max(0, potentialProceeds - amountNum);
+  // Net profit after the 5 % winning commission — the ONLY number we show.
+  const potentialWinNet = netWin(potentialProceeds - amountNum, fee);
 
   const handlePreset = useCallback(
     (v: number | "max") => {
@@ -115,7 +127,8 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
       0.9999,
       Math.max(0.0001, sidePrice * (1 + SLIPPAGE_BPS / 10_000)),
     );
-    const qtySnapshot = Math.floor(amountNum / priceSnapshot);
+    const feeSnapshot = Math.round(amountNum * SPOT_FEE_RATE * 100) / 100;
+    const qtySnapshot = Math.floor((amountNum - feeSnapshot) / priceSnapshot);
     if (qtySnapshot <= 0) return toast.error("Amount too small to buy 1 share");
 
     const optionIdSnapshot = side === "yes" ? yesOptionId : noOptionId;
@@ -130,6 +143,7 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
         side: "buy",
         price: priceSnapshot,
         quantity: qtySnapshot,
+        fee: feeSnapshot,
       });
 
       // P0 #2 — cash leg exactly as SpotTrading applies it.
@@ -237,7 +251,9 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
         <div className="grid grid-cols-5 gap-1.5">
           {PRESETS.map((p) => {
             const active = amountNum === p;
-            const winAt = sidePrice > 0 ? Math.floor(p / sidePrice) : 0;
+            const winAt = sidePrice > 0
+              ? Math.floor(netWin(Math.floor((p - p * SPOT_FEE_RATE) / sidePrice) - p, p * SPOT_FEE_RATE))
+              : 0;
             return (
               <button
                 key={p}
@@ -272,26 +288,27 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
         </div>
       </div>
 
-      {/* Payout summary */}
+      {/* Returns — single net-profit row, identical to the contract Lite panel. */}
       <div className="space-y-1.5 rounded-xl border border-border bg-muted/20 p-3 text-xs">
         <SummaryRow
-          label="Max loss · what you pay"
-          value={money(amountNum)}
-        />
-        <div
-          className={cn(
-            "flex items-center justify-between rounded-lg px-2 py-1.5",
-            side === "yes" ? "bg-yes/5 text-yes" : "bg-no/5 text-no",
-          )}
-        >
-          <span className="text-muted-foreground">
-            You get if right · {shares.toLocaleString()} × $1
-          </span>
-          <span className="font-mono font-semibold">{money(potentialProceeds)}</span>
-        </div>
-        <SummaryRow
-          label="Potential profit"
-          value={money(potentialProfit)}
+          label={
+            <span className="inline-flex items-center gap-1">
+              If you&apos;re right, you win
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button type="button" aria-label="How your winnings are calculated">
+                      <HelpCircle className="h-3 w-3 text-muted-foreground" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent className="p-2">
+                    <WinTooltipBody />
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </span>
+          }
+          value={money(potentialWinNet)}
           valueClass={side === "yes" ? "text-yes" : "text-no"}
         />
       </div>
@@ -311,7 +328,7 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
         </span>
         {!blocked && (
           <span className="text-[11px] font-medium leading-tight opacity-80">
-            To win {money(potentialProceeds)} →
+            To win {money(potentialWinNet)} →
           </span>
         )}
       </button>
@@ -333,7 +350,7 @@ const SummaryRow = ({
   value,
   valueClass,
 }: {
-  label: string;
+  label: React.ReactNode;
   value: string;
   valueClass?: string;
 }) => (
