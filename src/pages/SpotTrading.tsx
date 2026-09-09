@@ -861,7 +861,21 @@ export default function SpotTrading() {
   // -----------------------------------------------------------------
   // Positions / Orders table — no leverage / no liq. / no funding
   // -----------------------------------------------------------------
+  // SP-1-FIX3 · Bug 2 — `Close` must confirm and close, not silently pre-fill.
+  // It pre-sets the panel (Sell · that outcome · Market · full EXACT qty) AND
+  // opens the order preview dialog, which runs the same sell path on confirm.
+  const closePosition = (p: (typeof spotPositions)[number]) => {
+    if (p.optionId) setSelectedOptionId(p.optionId);
+    setSide("sell");
+    setOrderType("Market");
+    setBottomTab("Positions");
+    setAmount(sharesInputValue(p.sizeNum));
+    setSliderValue([100]);
+    setPreviewOpen(true);
+  };
+
   const PositionsTable = (
+
     <div className="text-xs">
       <div className="grid grid-cols-[1.6fr_0.7fr_0.7fr_0.7fr_0.7fr_0.9fr_0.6fr] gap-2 px-4 py-2 text-muted-foreground border-b border-border/30 sticky top-0 bg-background">
         <span>Market</span>
