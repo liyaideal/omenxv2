@@ -107,91 +107,34 @@ export const BottomNav = () => {
       className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/50 px-4 py-3 pb-6 z-[200]"
     >
       <div className="flex justify-around items-end max-w-md mx-auto">
-        {isLite
-          ? liteNavItems.map((item) => {
-              const active = isLiteActive(item.path);
-              return (
-                <button
-                  key={item.path}
-                  onClick={() => {
-                    triggerHaptic('light');
-                    if (!user && (item.path === "/portfolio" || item.path === "/wallet")) {
-                      setPendingPath(item.path);
-                      setAuthSheetOpen(true);
-                      return;
-                    }
-                    navigate(item.path, { replace: true });
-                  }}
-                  className={`flex flex-col items-center gap-1 transition-all duration-300 ${
-                    active
-                      ? "text-primary scale-110"
-                      : "text-muted-foreground scale-100 hover:scale-105"
-                  }`}
-                >
-                  <item.icon strokeWidth={1.75} className={`w-5 h-5 transition-all duration-300 ${active ? "text-primary" : ""}`} />
-                  <span className={`text-xs transition-all duration-300 ${active ? "font-semibold" : "font-medium"}`}>
-                    {item.label}
-                  </span>
-                </button>
-              );
-            })
-          : navItems.map((item) => {
-          const active = isActive(item.path);
-          const isFeatured = item.featured;
-          
-          if (isFeatured) {
-            return (
-              <button
-                key={item.path}
-                onClick={() => {
-                  triggerHaptic('medium');
-                  window.open(SPORTS_LINK, "_blank", "noopener,noreferrer");
-                }}
-                className="relative flex flex-col items-center gap-1 w-20 -mt-2"
-                aria-label="Open Sports"
-              >
-                <div className="animate-ball-bounce">
-                  <div className="relative w-10 h-10 rounded-full bg-gradient-to-b from-amber-400 to-amber-600 flex items-center justify-center drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]">
-                    <img
-                      src={soccerBallAsset.url}
-                      alt=""
-                      className="animate-ball-spin w-7 h-7 object-contain"
-                      draggable={false}
-                    />
-                    <div className="absolute inset-0 rounded-full border border-white/20 pointer-events-none" />
-                  </div>
-                </div>
-                <span className="text-[10px] font-bold tracking-wide uppercase text-amber-500">
-                  {item.label}
-                </span>
-              </button>
-            );
-          }
-          
+        {liteNavItems.map((item) => {
+          const active = isLiteActive(item.path);
           return (
             <button
               key={item.path}
               onClick={() => {
-                if (!item.disabled) {
-                  triggerHaptic('light');
-                  navigate(item.path, { replace: true });
+                triggerHaptic('light');
+                if (!user && (item.path === "/portfolio" || item.path === "/wallet")) {
+                  setPendingPath(item.path);
+                  setAuthSheetOpen(true);
+                  return;
                 }
+                navigate(item.path, { replace: true });
               }}
               className={`flex flex-col items-center gap-1 transition-all duration-300 ${
-                active 
-                  ? "text-primary scale-110" 
+                active
+                  ? "text-primary scale-110"
                   : "text-muted-foreground scale-100 hover:scale-105"
               }`}
             >
-              <item.icon className={`w-5 h-5 transition-all duration-300 ${
-                active ? "text-primary" : ""
-              }`} />
-              <span className={`text-xs transition-all duration-300 ${
-                active ? "font-semibold" : "font-medium"
-              }`}>{item.label}</span>
+              <item.icon strokeWidth={1.75} className={`w-5 h-5 transition-all duration-300 ${active ? "text-primary" : ""}`} />
+              <span className={`text-xs transition-all duration-300 ${active ? "font-semibold" : "font-medium"}`}>
+                {item.label}
+              </span>
             </button>
           );
         })}
+
 
         {/* Profile/Login button - rightmost */}
         {user ? (
@@ -338,15 +281,8 @@ export const BottomNav = () => {
             }}
           />
 
-          {/* Surface switch — same semantics as the desktop user menu item. */}
-          <MobileDrawerListItem
-            icon={isLite ? Layers : Sparkles}
-            label={isLite ? "Switch to Pro mode" : "Switch to Simple mode"}
-            onClick={() => {
-              setProfileSheetOpen(false);
-              toggle();
-            }}
-          />
+
+
 
           <MobileDrawerListItem
             icon={HelpCircle}
