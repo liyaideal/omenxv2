@@ -550,7 +550,7 @@ export default function SpotTrading() {
           optionId: selectedOption.id,
           side,
           price: effectivePrice,
-          quantity: qty,
+          quantity: orderQty,
         });
         if (side === "buy") await deductSpotBalance(effectivePrice * qty);
         toast.success(
