@@ -76,7 +76,9 @@ export default function LiteSettlementDetail() {
   // Fees on the list row are pro-rated per position; the detail hook sums the
   // whole (event, option) ledger, which over-counts on shared series ledgers.
   const listRow = settlements.find((x) => x.id === s.id);
-  const fees = listRow ? listRow.fees : s.fee;
+  const tradingFee = listRow ? listRow.tradingFee : s.fee;
+  const winningCommission = listRow ? listRow.winningCommission : s.winningCommission;
+  const fees = tradingFee + winningCommission;
 
   const vm: SettlementDetailVM = {
     eventName: s.event,
@@ -85,6 +87,8 @@ export default function LiteSettlementDetail() {
     net: s.pnl,
     cost: s.margin,
     fees,
+    tradingFee,
+    winningCommission,
     shares: s.size,
     avgPrice: s.entryPrice,
     exitPrice: s.exitPrice,
