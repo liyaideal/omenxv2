@@ -871,7 +871,7 @@ export const updateUserBalance = async (userId: string, newBalance: number) => {
 // SPOT product line (Pro / US stock daily up/down)
 // ------------------------------------------------------------
 // Spot rules (differ from futures):
-// - leverage = 1, fee = 0
+// - leverage = 1, taker fee 0.15% on the cost of every buy (V4)
 // - Buy → long position on the chosen outcome; entry price = clicked price
 // - Sell → reduces / closes an existing long spot position on the same option;
 //   short-selling is prohibited (validated below)
@@ -886,7 +886,46 @@ const SpotTradeSchema = z.object({
   side: z.enum(["buy", "sell"]),
   price: z.number().positive().max(1),
   quantity: z.number().positive().max(10_000_000),
+  fee: z.number().nonnegative().max(100_000).optional(),
 });
+
+/** Ledger row helper — spot mirrors the futures paths exactly (record-transaction edge fn). */
+const recordSpotTx = (
+  type: "fee" | "trade_profit" | "trade_loss" | "winning_commission",
+  amount: number,
+  description: string,
+) => {
+  void supabase.functions
+    .invoke("record-transaction", {
+      body: { type, amount, account: "spot", status: "completed", description },
+    })
+    .catch(() => {});
+};
+
+const round2 = (n: number) => Math.round(n * 100) / 100;
+
+/**
+ * Entry fee already paid for `closeQty` of an open spot position.
+ * Blueprint simplification: `positions` links to ONE originating trade, so the
+ * fee of that trade is spread pro-rata across the position's current size.
+ * Legacy rows (fee = 0, charged before V4) fall back to a recomputed
+ * `entry_price × size × SPOT_FEE_RATE`.
+ */
+const allocatedSpotEntryFee = async (pos: any, closeQty: number) => {
+  const size = Number(pos.size) || 0;
+  if (size <= 0) return 0;
+  let total = 0;
+  if (pos.trade_id) {
+    const { data: t } = await supabase
+      .from("trades")
+      .select("fee")
+      .eq("id", pos.trade_id)
+      .maybeSingle();
+    total = Number(t?.fee) || 0;
+  }
+  if (!total) total = Number(pos.entry_price) * size * SPOT_FEE_RATE;
+  return round2((total * closeQty) / size);
+};
 
 export interface SpotTradeData {
   eventName: string;
@@ -895,6 +934,8 @@ export interface SpotTradeData {
   side: "buy" | "sell";
   price: number;
   quantity: number;
+  /** Taker fee for this order. Defaults to `price × quantity × SPOT_FEE_RATE`. */
+  fee?: number;
 }
 
 // 技术对接 §7: SIGNED_YES_SHARE net position, one-way mode.
