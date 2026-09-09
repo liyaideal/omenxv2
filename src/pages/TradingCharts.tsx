@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Gift } from "lucide-react";
 import { MobileTradingLayout, TradingContextData } from "@/components/MobileTradingLayout";
+import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
 import { CandlestickChart } from "@/components/CandlestickChart";
 import { OrderBook } from "@/components/OrderBook";
 import { OrderCard } from "@/components/OrderCard";
@@ -299,7 +300,8 @@ function TradingChartsContent({ selectedEvent, selectedOptionData, options }: Tr
             Tap to switch view · tap again to trade
           </span>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-1.5">
+          <SurfaceSwitch size="dock" />
           <button
             onClick={() => handleSideButtonClick("buy")}
             aria-pressed={side === "buy"}

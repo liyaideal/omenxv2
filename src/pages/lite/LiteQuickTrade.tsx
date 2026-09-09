@@ -566,7 +566,8 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
           className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 px-4 pt-3 backdrop-blur"
           style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0) + 12px)" }}
         >
-          <div className="mx-auto flex max-w-md gap-2">
+          <div className="mx-auto flex max-w-md gap-1.5">
+            <SurfaceSwitch size="dock" />
             <button
               type="button"
               onClick={() => {

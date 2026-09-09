@@ -873,7 +873,8 @@ const LiteSpotTrade = () => {
                 View in Portfolio →
               </button>
             ) : (
-            <div className="mx-auto flex max-w-md gap-2">
+            <div className="mx-auto flex max-w-md gap-1.5">
+              <SurfaceSwitch size="dock" />
               <button
                 type="button"
                 onClick={() => openBuy("yes")}
