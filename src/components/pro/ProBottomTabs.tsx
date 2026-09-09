@@ -20,6 +20,8 @@ interface ProBottomTabsProps {
   authDescription: string;
   /** Scroll container classes — futures locks 460px, spot 360px. */
   bodyClassName?: string;
+  /** style-guide only — skip the sign-in gate so a skeleton frame stays legible. */
+  previewNoAuthGate?: boolean;
   /** Body of the active tab (the caller switches on `active`). */
   children: ReactNode;
 }
@@ -31,6 +33,7 @@ export const ProBottomTabs = ({
   authTitle,
   authDescription,
   bodyClassName = "max-h-[460px] overflow-y-auto overscroll-contain",
+  previewNoAuthGate,
   children,
 }: ProBottomTabsProps) => (
   <div className="border-t border-border/30 flex-shrink-0">
@@ -51,8 +54,12 @@ export const ProBottomTabs = ({
       ))}
     </div>
 
-    <AuthGateOverlay title={authTitle} description={authDescription}>
+    {previewNoAuthGate ? (
       <div className={bodyClassName}>{children}</div>
-    </AuthGateOverlay>
+    ) : (
+      <AuthGateOverlay title={authTitle} description={authDescription}>
+        <div className={bodyClassName}>{children}</div>
+      </AuthGateOverlay>
+    )}
   </div>
 );
