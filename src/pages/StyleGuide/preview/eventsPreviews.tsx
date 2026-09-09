@@ -123,7 +123,6 @@ const child = (id: string, label: string, price: number) => ({
   volume24h: 0,
   totalVolume: 0,
   openInterest: 0,
-  fundingRate: 0,
 });
 
 /**

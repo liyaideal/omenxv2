@@ -401,7 +401,7 @@ const DevelopersPage = () => {
                   <span className="text-[10px] font-mono text-muted-foreground">REST · WS</span>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Depth, tape, mark and funding. Snapshots over REST, sequence-numbered deltas over
+                  Depth, tape and mark. Snapshots over REST, sequence-numbered deltas over
                   WebSocket.
                 </p>
                 <div className="mt-1 rounded-md border border-border/50 bg-background/40 font-mono text-[10px] divide-y divide-border/40">

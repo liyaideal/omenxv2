@@ -94,7 +94,6 @@ const child = (id: string, label: string, price: number): MarketChildRow => ({
   volume24h: 0,
   totalVolume: 0,
   openInterest: 0,
-  fundingRate: 0,
 });
 
 const genericEvent = (

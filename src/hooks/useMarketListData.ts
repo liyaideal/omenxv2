@@ -20,7 +20,6 @@ export interface MarketChildRow {
   volume24h: number;
   totalVolume: number;
   openInterest: number;
-  fundingRate: number;
 }
 
 export interface EventRow {
@@ -142,7 +141,6 @@ export const useMarketListData = (events: EventWithOptions[]): EventRow[] => {
           volume24h: parseFloat(mockValue(optSeed + 2, 50000, 5000000).toFixed(0)),
           totalVolume: parseFloat(mockValue(optSeed + 20, 500000, 50000000).toFixed(0)),
           openInterest: parseFloat(mockValue(optSeed + 3, 10000, 2000000).toFixed(0)),
-          fundingRate: parseFloat(mockValue(optSeed + 4, -0.05, 0.05).toFixed(4)),
         };
       });
 
