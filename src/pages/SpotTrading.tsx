@@ -876,8 +876,13 @@ export default function SpotTrading() {
         <div className="px-4 py-8 text-center text-muted-foreground">No open spot positions.</div>
       ) : (
         spotPositions.map((p) => {
-          const isYes = /(^|[-_ ])yes$/i.test(p.option);
+          // Outcome comes from the option the position is actually on — the
+          // same resolution the trade panel uses (SP-1-FIX3 Bug 1).
+          const isYes = p.optionId
+            ? p.optionId === yesOpt?.id
+            : isYesLabel(p.option);
           const outcomeText = isYes ? yesLabel : noLabel;
+
           return (
             <div
               key={p.id}
