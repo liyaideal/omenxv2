@@ -366,6 +366,19 @@ const updateTpSlInDb = async ({
 export const useSupabasePositions = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { addBalance, deductBalance } = useUserProfile();
+
+  // Cash leg — the money must land in the same mutation as the row flip.
+  const settleCash = useCallback(
+    async (cashBack: number) => {
+      if (cashBack >= 0) {
+        if (cashBack > 0) await addBalance(cashBack);
+      } else {
+        await deductBalance(Math.abs(cashBack));
+      }
+    },
+    [addBalance, deductBalance],
+  );
 
   // Query for fetching positions
   const {
@@ -383,16 +396,21 @@ export const useSupabasePositions = () => {
 
   // Mutation for closing position
   const closePositionMutation = useMutation({
-    mutationFn: closePositionInDb,
+    mutationFn: async (vars: Parameters<typeof closePositionInDb>[0]) => {
+      const res = await closePositionInDb(vars);
+      await settleCash(res.cashBack);
+      return res;
+    },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["positions", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
-      toast.success(`Position closed! Margin returned: $${data.marginReturned.toFixed(2)}`);
+      toast.success(`Cashed out · ${money(data.cashBack)} back`);
     },
     onError: (error: Error) => {
       toast.error(`Failed to close position: ${error.message}`);
     },
   });
+
 
   // Mutation for updating TP/SL
   const updateTpSlMutation = useMutation({
