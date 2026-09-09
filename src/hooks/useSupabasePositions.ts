@@ -98,7 +98,9 @@ const closePositionInDb = async ({
   // 2. Get position details (now with up-to-date funding_accrued)
   const { data: position, error: fetchError } = await supabase
     .from("positions")
-    .select("margin, trade_id, funding_accrued, winning_commission, event_name, option_label")
+    .select(
+      "size, margin, trade_id, funding_accrued, winning_commission, event_name, option_label",
+    )
     .eq("id", positionId)
     .eq("user_id", userId)
     .single();
@@ -124,15 +126,21 @@ const closePositionInDb = async ({
 
   if (updateError) throw updateError;
 
-  // 4. Update corresponding trade with funding snapshot
+  // 4. Update corresponding trade with funding snapshot.
+  //    Entry fee is allocated by REMAINING size over the ORIGINAL filled
+  //    quantity, so a partial close followed by a full close can never
+  //    charge the same fee slice twice.
   let allocatedEntryFee = 0;
   if (position.trade_id) {
     const { data: trade } = await supabase
       .from("trades")
-      .select("fee")
+      .select("fee, quantity")
       .eq("id", position.trade_id)
       .maybeSingle();
-    allocatedEntryFee = Number(trade?.fee ?? 0) || 0;
+    const feeWhole = Number(trade?.fee ?? 0) || 0;
+    const originalQty = Number(trade?.quantity ?? 0) || 0;
+    const closedQty = Number(position.size) || 0;
+    allocatedEntryFee = originalQty > 0 ? feeWhole * (closedQty / originalQty) : feeWhole;
 
     await supabase
       .from("trades")
@@ -144,6 +152,7 @@ const closePositionInDb = async ({
       })
       .eq("id", position.trade_id);
   }
+
 
   // 5. Cash back = released margin + realized PnL − winning commission.
   const releasedMargin = Number(position.margin) || 0;
