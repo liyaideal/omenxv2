@@ -5,13 +5,15 @@ import { z } from "zod";
 const MAX_LEVERAGE = 100;
 const MIN_LEVERAGE = 1;
 /**
- * Authoritative futures (contract) trade fee rate — 0.15%.
- * Single source of truth: Pro ticket/confirm, Lite contract panel, position
- * detail display and the client-side re-validation below all read this.
- * SPOT is fee-free (SPOT_FEE_RATE = 0 in SpotTrading.tsx) — unrelated.
+ * Fee System V4 — retail taker rate, 15 bps, identical on EVERY product line.
+ * Single source of truth: Pro ticket/confirm, Lite panels, position detail
+ * display and the client-side re-validation below all read this.
  */
-/** Fee System V4 — retail taker 15 bps on economic notional. Lite market orders are always taker. */
-export const FUTURES_FEE_RATE = 0.0015;
+export const TAKER_FEE_RATE = 0.0015;
+/** Futures (contract) taker fee — same rate as spot (V4). */
+export const FUTURES_FEE_RATE = TAKER_FEE_RATE;
+/** Spot taker fee — charged on the cost of every buy (SP-1 · A1). */
+export const SPOT_FEE_RATE = TAKER_FEE_RATE;
 /** Fee System V4 — 5 % winning commission on net realized profit; 0 on losses. */
 export const WINNING_COMMISSION_RATE = 0.05;
 /**
