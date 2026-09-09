@@ -254,7 +254,18 @@ export default function SpotTrading() {
       } else {
         setEvent({ ...e, options: opts || [] });
         const list = opts || [];
-        const yes = list.find((o) => /(^|[-_ ])yes$/i.test(o.label)) || list[0];
+        // Default to the affirmative leg resolved through side_labels
+        // (`Up` / `Down` markets never carry literal Yes/No option labels).
+        const sl = parseSideLabels(e.side_labels);
+        const yes =
+          list.find(
+            (o) =>
+              /(^|[-_ ])yes$/i.test(o.label) ||
+              (!!sl?.yes && liteSideName(o.label) === liteSideName(sl.yes)),
+          ) ||
+          list.find((o) => !/(^|[-_ ])no$/i.test(o.label) && !(sl?.no && liteSideName(o.label) === liteSideName(sl.no))) ||
+          list[0];
+
         if (yes) {
           setSelectedOptionId(yes.id);
           setLimitPrice(Number(yes.price).toFixed(4));
