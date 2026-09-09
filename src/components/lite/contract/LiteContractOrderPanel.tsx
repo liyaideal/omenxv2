@@ -30,10 +30,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { AutoCloseTooltipBody } from "@/components/lite/shared/AutoCloseTooltipBody";
+import { WinTooltipBody } from "@/components/lite/shared/WinTooltipBody";
+import { supabase } from "@/integrations/supabase/client";
 
 type Side = "yes" | "no";
 
-import { FUTURES_FEE_RATE } from "@/services/tradingService";
+import { FUTURES_FEE_RATE, netWin } from "@/services/tradingService";
 
 const FEE_RATE = FUTURES_FEE_RATE;
 const PRESETS = [10, 25, 50, 100];
@@ -162,6 +164,8 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   const fee = notional * FEE_RATE;
   const quantity = sidePrice > 0 ? notional / sidePrice : 0;
   const potentialWin = (1 - sidePrice) * quantity;
+  // RT-1: every displayed win is NET of the winning commission (single helper).
+  const potentialWinNet = netWin(potentialWin, fee);
 
   // Netting display math — mirrors the engine, which nets by SHARE QUANTITY
   // (qtyToNet = min(orderQty, oppositeQty)). A dollar-for-dollar model diverges
@@ -176,6 +180,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   const isPartialNet = canEstimateNet && remainderQty > 0;
   const remainderMarginEst = effBoost > 0 ? (remainderQty * sidePrice) / effBoost : 0;
   const remainderFee = remainderMarginEst * effBoost * FEE_RATE;
+  const remainderWinNet = netWin(remainderWin, remainderFee);
 
   const autoCloseComputed = useMemo(
     () =>
