@@ -284,6 +284,7 @@ export const previewRegistry: Record<string, Loader> = {
   "pro-spot-panel-buy-market": pick(proSpot, "ProSpotPanelBuyMarket"),
   "pro-spot-panel-buy-limit": pick(proSpot, "ProSpotPanelBuyLimit"),
   "pro-spot-panel-sell-held": pick(proSpot, "ProSpotPanelSellHeld"),
+  "pro-spot-panel-sell-held-down": pick(proSpot, "ProSpotPanelSellHeldDown"),
   "pro-spot-panel-sell-none": pick(proSpot, "ProSpotPanelSellNone"),
   "pro-spot-panel-insufficient": pick(proSpot, "ProSpotPanelInsufficient"),
   "pro-spot-panel-pending-limit": pick(proSpot, "ProSpotPanelPendingLimit"),

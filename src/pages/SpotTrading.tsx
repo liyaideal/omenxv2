@@ -37,7 +37,9 @@ import {
   ProSpotPanel,
   ProSpotAccountPanel,
   ProSpotOrderPreview,
+  sharesInputValue,
 } from "@/components/pro/ProSpotPanel";
+
 import { liteSideName } from "@/lib/liteSideName";
 import { ProSpotHeader } from "@/components/pro/ProSpotHeader";
 import { ProTerminalLayout } from "@/components/pro/ProTerminalLayout";
@@ -254,7 +256,18 @@ export default function SpotTrading() {
       } else {
         setEvent({ ...e, options: opts || [] });
         const list = opts || [];
-        const yes = list.find((o) => /(^|[-_ ])yes$/i.test(o.label)) || list[0];
+        // Default to the affirmative leg resolved through side_labels
+        // (`Up` / `Down` markets never carry literal Yes/No option labels).
+        const sl = parseSideLabels(e.side_labels);
+        const yes =
+          list.find(
+            (o) =>
+              /(^|[-_ ])yes$/i.test(o.label) ||
+              (!!sl?.yes && liteSideName(o.label) === liteSideName(sl.yes)),
+          ) ||
+          list.find((o) => !/(^|[-_ ])no$/i.test(o.label) && !(sl?.no && liteSideName(o.label) === liteSideName(sl.no))) ||
+          list[0];
+
         if (yes) {
           setSelectedOptionId(yes.id);
           setLimitPrice(Number(yes.price).toFixed(4));
@@ -275,17 +288,39 @@ export default function SpotTrading() {
   const yesLabel = sideLabels?.yes ? liteSideName(sideLabels.yes) : "Up";
   const noLabel = sideLabels?.no ? liteSideName(sideLabels.no) : "Down";
 
+  // SP-1-FIX3 · Bug 1 — option labels on daily up/down markets are `Up` / `Down`,
+  // NOT `Yes` / `No`. The old `find(/yes$/) || options[0]` fallback silently bound
+  // the Yes tile to whichever row the DB returned first, so a Down-only position
+  // was reported as held on Up. Resolve both legs through `side_labels` aliases
+  // (the same mapping the Positions table uses) before falling back to order.
+  const isYesLabel = useMemo(
+    () => (label: string) =>
+      /(^|[-_ ])yes$/i.test(label) ||
+      (!!sideLabels?.yes && liteSideName(label) === liteSideName(sideLabels.yes)),
+    [sideLabels],
+  );
+  const isNoLabel = useMemo(
+    () => (label: string) =>
+      /(^|[-_ ])no$/i.test(label) ||
+      (!!sideLabels?.no && liteSideName(label) === liteSideName(sideLabels.no)),
+    [sideLabels],
+  );
+
   const yesOpt = useMemo(
-    () => event?.options.find((o) => /(^|[-_ ])yes$/i.test(o.label)) || event?.options[0],
-    [event],
+    () =>
+      event?.options.find((o) => isYesLabel(o.label)) ||
+      event?.options.find((o) => !isNoLabel(o.label)) ||
+      event?.options[0],
+    [event, isYesLabel, isNoLabel],
   );
   const noOpt = useMemo(
     () =>
-      event?.options.find((o) => /(^|[-_ ])no$/i.test(o.label)) ||
+      event?.options.find((o) => isNoLabel(o.label)) ||
       event?.options.find((o) => o.id !== yesOpt?.id) ||
       event?.options[1],
-    [event, yesOpt],
+    [event, yesOpt, isNoLabel],
   );
+
 
   const yesLive = yesOpt ? pricesCtx?.getPrice(yesOpt.id) ?? Number(yesOpt.price) : 0;
   const noLive = noOpt ? pricesCtx?.getPrice(noOpt.id) ?? Number(noOpt.price) : 0;
@@ -522,10 +557,11 @@ export default function SpotTrading() {
         if (res.balanceDelta < 0) await deductSpotBalance(-res.balanceDelta);
         else if (res.balanceDelta > 0) await addSpotBalance(res.balanceDelta);
         if (side === "sell") {
-          toast.success("Spot sell filled", {
+          toast.success(`Cashed out · $${Math.max(0, res.balanceDelta).toFixed(2)} back`, {
             description:
               "Proceeds settle to balance (demo). Production: held as event pending cash until settlement.",
           });
+
         } else {
           toast.success("Spot buy filled");
         }
@@ -828,7 +864,21 @@ export default function SpotTrading() {
   // -----------------------------------------------------------------
   // Positions / Orders table — no leverage / no liq. / no funding
   // -----------------------------------------------------------------
+  // SP-1-FIX3 · Bug 2 — `Close` must confirm and close, not silently pre-fill.
+  // It pre-sets the panel (Sell · that outcome · Market · full EXACT qty) AND
+  // opens the order preview dialog, which runs the same sell path on confirm.
+  const closePosition = (p: (typeof spotPositions)[number]) => {
+    if (p.optionId) setSelectedOptionId(p.optionId);
+    setSide("sell");
+    setOrderType("Market");
+    setBottomTab("Positions");
+    setAmount(sharesInputValue(p.sizeNum));
+    setSliderValue([100]);
+    setPreviewOpen(true);
+  };
+
   const PositionsTable = (
+
     <div className="text-xs">
       <div className="grid grid-cols-[1.6fr_0.7fr_0.7fr_0.7fr_0.7fr_0.9fr_0.6fr] gap-2 px-4 py-2 text-muted-foreground border-b border-border/30 sticky top-0 bg-background">
         <span>Market</span>
@@ -843,8 +893,13 @@ export default function SpotTrading() {
         <div className="px-4 py-8 text-center text-muted-foreground">No open spot positions.</div>
       ) : (
         spotPositions.map((p) => {
-          const isYes = /(^|[-_ ])yes$/i.test(p.option);
+          // Outcome comes from the option the position is actually on — the
+          // same resolution the trade panel uses (SP-1-FIX3 Bug 1).
+          const isYes = p.optionId
+            ? p.optionId === yesOpt?.id
+            : isYesLabel(p.option);
           const outcomeText = isYes ? yesLabel : noLabel;
+
           return (
             <div
               key={p.id}
@@ -876,17 +931,12 @@ export default function SpotTrading() {
                 {p.pnl}
               </span>
               <button
-                onClick={() => {
-                  if (yesOpt && p.optionId === yesOpt.id) setSelectedOptionId(yesOpt.id);
-                  else if (noOpt && p.optionId === noOpt.id) setSelectedOptionId(noOpt.id);
-                  setSide("sell");
-                  setBottomTab("Positions");
-                  setAmount(p.sizeNum.toFixed(0));
-                }}
+                onClick={() => closePosition(p)}
                 className="text-[10px] text-primary hover:underline text-right"
               >
                 Close
               </button>
+
             </div>
           );
         })

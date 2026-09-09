@@ -75,12 +75,24 @@ export interface ProSpotPanelProps {
   onSubmit: () => void;
 }
 
+/**
+ * Share quantities are FRACTIONAL on spot. Display up to 3 dp with trailing
+ * zeros trimmed (`2,034.879`); never round a held size to an integer, because
+ * the displayed value is also what pre-fills the sell amount.
+ */
+export const formatShares = (n: number) =>
+  (Math.round(n * 1000) / 1000).toLocaleString("en-US", { maximumFractionDigits: 3 });
+
+/** Same value, but as a raw input string (no thousands separators). */
+export const sharesInputValue = (n: number) => String(Math.round(n * 1000) / 1000);
+
 const Row = ({ label, children }: { label: React.ReactNode; children: React.ReactNode }) => (
   <div className="flex justify-between">
     <span className="text-muted-foreground">{label}</span>
     <span>{children}</span>
   </div>
 );
+
 
 export const ProSpotPanel = (p: ProSpotPanelProps) => {
   const isSell = p.side === "sell";
@@ -145,7 +157,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
         {isSell && (
           <div className="flex items-center justify-between text-[11px]">
             <span className="text-muted-foreground">Held</span>
-            <span className="font-mono">· {p.heldQty.toFixed(0)} sh {p.outcomeLabel}</span>
+            <span className="font-mono">· {formatShares(p.heldQty)} sh {p.outcomeLabel}</span>
           </div>
         )}
 
@@ -190,7 +202,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
             onValueChange={(val) => {
               p.onSliderChange(val);
               const raw = (p.sliderBase * val[0]) / 100;
-              p.onAmountChange(isSell ? raw.toFixed(0) : raw.toFixed(2));
+              p.onAmountChange(isSell ? sharesInputValue(raw) : raw.toFixed(2));
             }}
             max={100}
             step={1}
@@ -245,7 +257,8 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
           {isSell ? (
             <>
               <Row label="Proceeds">${p.cost.toFixed(2)}</Row>
-              <Row label="Shares">{p.qty.toFixed(0)}</Row>
+              <Row label="Shares">{formatShares(p.qty)}</Row>
+
               <Row label="Est. commission">${p.sellCommission.toFixed(2)}</Row>
               <Row label="You receive">${p.sellReceive.toFixed(2)}</Row>
             </>
@@ -257,7 +270,8 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
                   Est. fill @ {p.bestAsk.toFixed(2)}
                 </div>
               )}
-              <Row label="Shares">{p.qty.toFixed(0)}</Row>
+              <Row label="Shares">{formatShares(p.qty)}</Row>
+
               <Row
                 label={
                   <span className="inline-flex items-center gap-1">
@@ -300,7 +314,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
         {p.willBePending && !p.tickInvalid && (
           <div className="text-[10px] text-trading-yellow">
             {p.side === "buy"
-              ? `Limit below best ask $${p.bestAsk.toFixed(2)} — order will rest as Pending until touched. $${p.cost.toFixed(2)} reserved.`
+              ? `Limit below best ask $${p.bestAsk.toFixed(2)} — order will rest as Pending until touched. $${(p.cost + p.fee).toFixed(2)} reserved.`
               : `Limit above best bid $${p.bestBid.toFixed(2)} — order will rest as Pending until touched.`}
           </div>
         )}
@@ -393,7 +407,7 @@ export const ProSpotOrderPreview = (p: ProSpotOrderPreviewProps) => {
             <Row label="Side">{isSell ? "Sell" : "Buy"}</Row>
             <Row label="Type">{p.orderType}</Row>
             <Row label={p.orderType === "Limit" ? "Price" : "Est. fill"}>${p.price.toFixed(4)}</Row>
-            <Row label="Shares">{p.qty.toFixed(0)}</Row>
+            <Row label="Shares">{formatShares(p.qty)}</Row>
           </div>
 
           <div className="rounded-lg border border-border/50 bg-muted/20 p-3 space-y-1.5 text-xs font-mono">

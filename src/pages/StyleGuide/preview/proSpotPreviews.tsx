@@ -30,6 +30,8 @@ type Fixture = {
   willBePending?: boolean;
   ctaLabel?: string;
   ctaDisabled?: boolean;
+  /** Which outcome tile starts selected — Down-only holdings need `false`. */
+  startIsYes?: boolean;
 };
 
 /** One live panel driven by local state — the same props the page passes. */
@@ -40,7 +42,7 @@ const PanelFixture = (f: Fixture) => {
   const [limitPrice, setLimitPrice] = useState("0.4400");
   const [slider, setSlider] = useState<number[]>([25]);
   const [slippage, setSlippage] = useState(50);
-  const [isYes, setIsYes] = useState(true);
+  const [isYes, setIsYes] = useState(f.startIsYes ?? true);
 
   const price = orderType === "Limit" ? parseFloat(limitPrice) || 0.44 : isYes ? 0.4649 : 0.5351;
   const amt = parseFloat(amount) || 0;
@@ -114,9 +116,24 @@ export const ProSpotPanelBuyMarket = () => <PanelFixture />;
 /** SP-B2 · Buy · Limit — limit price input + tick rules. */
 export const ProSpotPanelBuyLimit = () => <PanelFixture orderType="Limit" />;
 
-/** SP-B3 · Sell with shares on one side — the unheld tile is greyed to 0 sh. */
+/** SP-B3 · Sell with shares on one side — the unheld tile is greyed to 0 sh.
+ *  Share sizes are FRACTIONAL: the held line and Shares row keep 3 dp. */
 export const ProSpotPanelSellHeld = () => (
-  <PanelFixture side="sell" amount="12" heldYesQty={40} heldNoQty={0} />
+  <PanelFixture side="sell" amount="40.512" heldYesQty={40.512} heldNoQty={0} />
+);
+
+/** SP-B3b · Sell a Down-only holding with a fractional size (2,034.879 sh).
+ *  Guards SP-1-FIX3 Bug 1: the held side must follow the position's option,
+ *  and no display may round the quantity that feeds the order. */
+export const ProSpotPanelSellHeldDown = () => (
+  <PanelFixture
+    side="sell"
+    startIsYes={false}
+    amount="2034.879"
+    heldYesQty={0}
+    heldNoQty={2034.879}
+    ctaLabel="Sell Down"
+  />
 );
 
 /** SP-B4 · Sell with nothing held — both tiles disabled + helper line. */
