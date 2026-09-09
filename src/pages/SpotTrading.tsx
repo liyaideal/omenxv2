@@ -468,6 +468,18 @@ export default function SpotTrading() {
     return p ? p.sizeNum : 0;
   }, [spotPositions, selectedOption]);
 
+  // SP-1-FIX4 · full-close snap. The amount input displays 3 dp, so closing a
+  // position whose exact size has more decimals (e.g. 36.7647…) pre-fills a
+  // value off by < 0.0005 — rejecting the close or leaving un-closable dust.
+  // A sell amount within rounding distance of the exact held size (or ≥ 99.95%
+  // of it, e.g. slider at 100%) is treated as a full close and sends EXACTLY
+  // `heldQty`. The 3-dp string stays display-only; the order carries full
+  // precision.
+  const orderQty =
+    side === "sell" && heldQty > 0 && (Math.abs(qty - heldQty) < 0.001 || qty >= heldQty * 0.9995)
+      ? heldQty
+      : qty;
+
   // Entry price of the held leg — drives the Sell-side commission estimate.
   const heldEntry = useMemo(() => {
     if (!selectedOption) return 0;
