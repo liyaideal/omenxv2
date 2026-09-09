@@ -566,3 +566,13 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | **{n} open** | 目录板头 / 目录身份卡右端 | 等宽字体，仅数字 + `open`。禁用 `{n} markets open`。 |
 | **Will it happen?** | 目录身份卡 / 移动目录横幅标题 | 逐字。 |
 | **Buy Yes or No on real-world outcomes. Winning shares pay $1.** | 目录身份卡副句 | `$1` 走白色高亮；逐字不可改。 |
+
+## Surface switch（交易页，2026-09-09）
+
+| 词 | 一句定义 | 判定表达式 | 出处 |
+|---|---|---|---|
+| `Simple` | 交易页的简版看法（Lite），也是全站其余页面唯一的样子 | `surface === "lite"` | `src/components/surface/SurfaceSwitch.tsx` |
+| `Pro` | 交易页的专业终端看法，仅这三条路由存在 | `surface === "pro"` | 同上 |
+| `Trading view` | 该胶囊对的无障碍名，只出现在 `aria-label`，界面上不显示 | `aria-label="Trading view"` | 同上 |
+
+禁写：`Simple mode` / `Pro mode` / `Switch to Pro mode` / `Lite` / `Advanced`（模式一词随全站模式一并退役）。
