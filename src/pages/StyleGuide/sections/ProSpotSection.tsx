@@ -40,8 +40,28 @@ const PANEL_CASES: SectionCase[] = [
         visual: "该 tile opacity-40 pointer-events-none，价格条文案变 `0 sh`；金额单位变 sh；汇总为 Proceeds / Shares / Est. commission / You receive",
         source: "ProSpotPanel.heldYesQty / heldNoQty",
       },
+      {
+        state: "份额为小数",
+        when: "heldQty 非整数（例 40.512）",
+        visual: "Held 行与 Shares 行保留最多 3 位小数并去尾零，绝不四舍五入成整数",
+        source: "ProSpotPanel.formatShares",
+      },
     ],
   },
+  {
+    key: "pro-spot-panel-sell-held-down",
+    label: "SP-B3b · Sell · 仅持有 Down（2,034.879 sh）",
+    note: "回归护栏（SP-1-FIX3 Bug 1）：持有哪一边由持仓的 option_id 决定，与 Positions 表 Outcome 列同源；Up tile 禁用显示 `0 sh`。数量全链路取精确值——Held 行、Amount 预填、滑杆 100%、校验与下单请求都是 2034.879。",
+    spec: [
+      {
+        state: "Down-only 持仓",
+        when: 'side === "sell" && heldYesQty === 0 && heldNoQty === 2034.879',
+        visual: "Down tile 选中，Up tile 禁用 `0 sh`；`Held · 2,034.879 sh Down`；Amount `2034.879`；CTA `Sell Down · You receive $X`",
+        source: "SpotTrading heldYesQty / heldNoQty（经 side_labels 解析 option）",
+      },
+    ],
+  },
+
   {
     key: "pro-spot-panel-sell-none",
     label: "SP-B4 · Sell · 无持仓",
