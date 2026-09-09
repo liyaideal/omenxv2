@@ -241,17 +241,21 @@ const partialClosePositionInDb = async ({
   const allocatedFunding = currentFunding * ratio;
   const realizedPnl = priceRealized - allocatedFunding;
 
-  // Entry fee attributable to the closed slice (pro-rata).
+  // Entry fee attributable to the closed slice: fee × closedQty / ORIGINAL
+  // filled quantity, so repeated partials never double-count the same fee.
   let entryFeeWhole = 0;
+  let originalQty = 0;
   if (position.trade_id) {
     const { data: trade } = await supabase
       .from("trades")
-      .select("fee")
+      .select("fee, quantity")
       .eq("id", position.trade_id)
       .maybeSingle();
     entryFeeWhole = Number(trade?.fee ?? 0) || 0;
+    originalQty = Number(trade?.quantity ?? 0) || 0;
   }
-  const allocatedEntryFee = entryFeeWhole * ratio;
+  const allocatedEntryFee =
+    originalQty > 0 ? entryFeeWhole * (qty / originalQty) : entryFeeWhole * ratio;
   const { wc, cashBack } = cashBackOnClose({ releasedMargin, realizedPnl, allocatedEntryFee });
   const accumulatedWc = (Number(position.winning_commission) || 0) + wc;
 
