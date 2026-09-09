@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-09-10 | [现货费率 V4 与 Pro 现货终端交付说明 v1](../delivery/spot-pro-v1.md) | 现货开收 15bps taker（仅买入）与 5% 赢利佣金；`settle_spot_event` 重写并由 `sim-settle-spot` 单一调用；Pro `/spot` 摘要改 `To win` 净利、账户改 Standard Account；Lite 现货面板 Returns 收成一行；新增共享件 `BinarySideToggle` |
 | 2026-09-09 | [Pro 交易页费率 V4 清理交付说明 v1](../delivery/pro-trade-v4-cleanup-v1.md) | 删 Funding 展示与审计页；删 Isolated 开关（全仓唯一）；fee 15bps；Pro To win 改净利与 Lite 同数 |
 | 2026-09-09 | [Surface switch（Lite / Pro）交付说明 v1](../delivery/surface-switch-v1.md) | 全站模式开关退役：除 `/trade` `/trade/order` `/spot` 外所有路由恒为 Lite；新增交易页专用 `SurfaceSwitch`（登录才渲染，四处挂载，就地切换不跳转），头像菜单 / Me 抽屉 / 底部导航 / SeoFooter 的模式痕迹全部清除；字典新增 `foundations-surface-switch`（SS-1…SS-5）；移动端为贴底栏 ⇄ 入口 |
 | 2026-09-09 | [Lite 下单面板 Returns 区（净利）交付说明 v1](../delivery/lite-order-returns-v1.md) | 删 Max loss 行；win 改净利（扣 5% winning commission）+ ⓘ 说明；auto-close None 子态改词；费率 15bps；下单写 Trading fee 流水 |

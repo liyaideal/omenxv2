@@ -234,6 +234,8 @@ positives. Chip words come from the sibling event's `side_labels`.
 | **Available balance** | Free balance in the Boost account (`profiles.balance`) |
 | **Total equity** | `Boost + Standard available` (`balance + spot_balance`). **Retired 2026-07-21:** "Trial bonus" field — the Trial Bonus wallet feature was fully sunset before mainnet launch; do not reintroduce copy that references it. |
 | **To win** | Pro CTA figure = net profit after 5% winning commission (same `netWin()` helper as Lite) | gross profit |
+| **Standard Account** | 现货账户在 Pro `/spot` 与余额提示中的名字 | Spot Account（已退役）|
+| **Fee (0.15%)** | Pro `/spot` 下单摘要手续费行 | Fee, Trading fee（该行专用写法）|
 | ~~**Funding Rate**~~ | **Retired 2026-09-09 (Fee System V4)** — funding is 0 by policy; no funding figure is displayed anywhere | — |
 | ~~**Next Funding**~~ | **Retired 2026-09-09** — countdown removed with the funding display | — |
 | ~~**Isolated**~~ | **Retired 2026-09-09** — cross margin is the only supported mode; the Cross/Isolated switch and the preview `Margin` / `Margin type` rows are gone | — |

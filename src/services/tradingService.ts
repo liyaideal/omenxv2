@@ -5,13 +5,15 @@ import { z } from "zod";
 const MAX_LEVERAGE = 100;
 const MIN_LEVERAGE = 1;
 /**
- * Authoritative futures (contract) trade fee rate — 0.15%.
- * Single source of truth: Pro ticket/confirm, Lite contract panel, position
- * detail display and the client-side re-validation below all read this.
- * SPOT is fee-free (SPOT_FEE_RATE = 0 in SpotTrading.tsx) — unrelated.
+ * Fee System V4 — retail taker rate, 15 bps, identical on EVERY product line.
+ * Single source of truth: Pro ticket/confirm, Lite panels, position detail
+ * display and the client-side re-validation below all read this.
  */
-/** Fee System V4 — retail taker 15 bps on economic notional. Lite market orders are always taker. */
-export const FUTURES_FEE_RATE = 0.0015;
+export const TAKER_FEE_RATE = 0.0015;
+/** Futures (contract) taker fee — same rate as spot (V4). */
+export const FUTURES_FEE_RATE = TAKER_FEE_RATE;
+/** Spot taker fee — charged on the cost of every buy (SP-1 · A1). */
+export const SPOT_FEE_RATE = TAKER_FEE_RATE;
 /** Fee System V4 — 5 % winning commission on net realized profit; 0 on losses. */
 export const WINNING_COMMISSION_RATE = 0.05;
 /**
@@ -869,7 +871,7 @@ export const updateUserBalance = async (userId: string, newBalance: number) => {
 // SPOT product line (Pro / US stock daily up/down)
 // ------------------------------------------------------------
 // Spot rules (differ from futures):
-// - leverage = 1, fee = 0
+// - leverage = 1, taker fee 0.15% on the cost of every buy (V4)
 // - Buy → long position on the chosen outcome; entry price = clicked price
 // - Sell → reduces / closes an existing long spot position on the same option;
 //   short-selling is prohibited (validated below)
@@ -884,7 +886,46 @@ const SpotTradeSchema = z.object({
   side: z.enum(["buy", "sell"]),
   price: z.number().positive().max(1),
   quantity: z.number().positive().max(10_000_000),
+  fee: z.number().nonnegative().max(100_000).optional(),
 });
+
+/** Ledger row helper — spot mirrors the futures paths exactly (record-transaction edge fn). */
+const recordSpotTx = (
+  type: "fee" | "trade_profit" | "trade_loss" | "winning_commission",
+  amount: number,
+  description: string,
+) => {
+  void supabase.functions
+    .invoke("record-transaction", {
+      body: { type, amount, account: "spot", status: "completed", description },
+    })
+    .catch(() => {});
+};
+
+const round2 = (n: number) => Math.round(n * 100) / 100;
+
+/**
+ * Entry fee already paid for `closeQty` of an open spot position.
+ * Blueprint simplification: `positions` links to ONE originating trade, so the
+ * fee of that trade is spread pro-rata across the position's current size.
+ * Legacy rows (fee = 0, charged before V4) fall back to a recomputed
+ * `entry_price × size × SPOT_FEE_RATE`.
+ */
+const allocatedSpotEntryFee = async (pos: any, closeQty: number) => {
+  const size = Number(pos.size) || 0;
+  if (size <= 0) return 0;
+  let total = 0;
+  if (pos.trade_id) {
+    const { data: t } = await supabase
+      .from("trades")
+      .select("fee")
+      .eq("id", pos.trade_id)
+      .maybeSingle();
+    total = Number(t?.fee) || 0;
+  }
+  if (!total) total = Number(pos.entry_price) * size * SPOT_FEE_RATE;
+  return round2((total * closeQty) / size);
+};
 
 export interface SpotTradeData {
   eventName: string;
@@ -893,6 +934,8 @@ export interface SpotTradeData {
   side: "buy" | "sell";
   price: number;
   quantity: number;
+  /** Taker fee for this order. Defaults to `price × quantity × SPOT_FEE_RATE`. */
+  fee?: number;
 }
 
 // 技术对接 §7: SIGNED_YES_SHARE net position, one-way mode.
@@ -1016,6 +1059,8 @@ export const executeSpotTrade = async (userId: string, data: SpotTradeData) => {
   }
   const v = parsed.data;
   const notional = v.price * v.quantity;
+  // V4: taker fee on the cost of the order (buy only — see SP-1 delivery doc).
+  const feeAmt = v.side === "buy" ? round2(v.fee ?? notional * SPOT_FEE_RATE) : 0;
 
   const { same, opposite } = await fetchSpotSides(userId, v.eventName, v.optionId);
 
@@ -1059,6 +1104,10 @@ export const executeSpotTrade = async (userId: string, data: SpotTradeData) => {
     const remainingSize = existingSize - closeQty;
     const isClose = remainingSize <= 0.000001;
 
+    // V4: 5% winning commission on the realized profit of the closed part.
+    const allocFee = await allocatedSpotEntryFee(same, closeQty);
+    const wc = round2(winningCommission(realizedPnl, allocFee));
+
     const { data: updatedPosition } = await supabase
       .from("positions")
       .update(
@@ -1067,6 +1116,7 @@ export const executeSpotTrade = async (userId: string, data: SpotTradeData) => {
               status: "Closed",
               mark_price: v.price,
               pnl: (Number(same.pnl) || 0) + realizedPnl,
+              winning_commission: (Number(same.winning_commission) || 0) + wc,
               closed_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
             }
@@ -1075,6 +1125,7 @@ export const executeSpotTrade = async (userId: string, data: SpotTradeData) => {
               margin: existingMargin - marginReleased,
               mark_price: v.price,
               pnl: (Number(same.pnl) || 0) + realizedPnl,
+              winning_commission: (Number(same.winning_commission) || 0) + wc,
               updated_at: new Date().toISOString(),
             },
       )
@@ -1085,11 +1136,25 @@ export const executeSpotTrade = async (userId: string, data: SpotTradeData) => {
     // DEMO-STATE: event_pending_cash 简化 — 卖出回款直接进钱包；
     // 正式版按 §7.2 应入 event_pending_cash，事件终态前不可提现。
     const proceeds = v.price * closeQty;
+    recordSpotTx(
+      realizedPnl >= 0 ? "trade_profit" : "trade_loss",
+      round2(realizedPnl),
+      `Cashed out: ${v.eventName} · ${v.optionLabel} · ${realizedPnl >= 0 ? "Won" : "Lost"}`,
+    );
+    if (wc > 0) {
+      recordSpotTx(
+        "winning_commission",
+        -wc,
+        `Winning commission · 5% · ${v.optionLabel} · ${v.eventName}`,
+      );
+    }
     return {
       trade,
       position: updatedPosition,
       intent: (isClose ? "close" : "reduce") as "close" | "reduce",
-      balanceDelta: proceeds,
+      balanceDelta: round2(proceeds - wc),
+      realizedPnl: round2(realizedPnl),
+      winningCommission: wc,
     };
   }
 
@@ -1107,7 +1172,7 @@ export const executeSpotTrade = async (userId: string, data: SpotTradeData) => {
       quantity: v.quantity,
       leverage: 1,
       margin: notional,
-      fee: 0,
+      fee: feeAmt,
       status: "Filled",
       product_line: "spot",
     })
@@ -1139,11 +1204,16 @@ export const executeSpotTrade = async (userId: string, data: SpotTradeData) => {
   // Re-derive by intent = -spentOnNewSide + releasedFromOpposite (equivalent, kept explicit for review):
   void balanceDelta;
 
+  if (feeAmt > 0) {
+    recordSpotTx("fee", -feeAmt, `Trading fee · ${v.optionLabel} · ${v.eventName}`);
+  }
+
   return {
     trade,
     position,
     intent,
-    balanceDelta: -spentOnNewSide + releasedFromOpposite,
+    balanceDelta: round2(-spentOnNewSide + releasedFromOpposite - feeAmt),
+    fee: feeAmt,
   };
 };
 
@@ -1165,6 +1235,7 @@ export const placeSpotLimitOrder = async (userId: string, data: SpotTradeData) =
   }
   const v = parsed.data;
   const notional = v.price * v.quantity;
+  const feeAmt = v.side === "buy" ? round2(v.fee ?? notional * SPOT_FEE_RATE) : 0;
 
   if (v.side === "sell") {
     const { data: existing } = await supabase
@@ -1194,14 +1265,15 @@ export const placeSpotLimitOrder = async (userId: string, data: SpotTradeData) =
       quantity: v.quantity,
       leverage: 1,
       margin: notional,
-      fee: 0,
+      fee: feeAmt,
       status: "Pending",
       product_line: "spot",
     })
     .select()
     .single();
   if (error) throw error;
-  return { trade, reservedAmount: v.side === "buy" ? notional : 0 };
+  // Buy reserves cost + fee; the fee is only booked to the ledger on fill.
+  return { trade, reservedAmount: v.side === "buy" ? round2(notional + feeAmt) : 0, fee: feeAmt };
 };
 
 /** Cancel a Pending spot limit order. Returns the amount to refund
@@ -1216,7 +1288,9 @@ export const cancelSpotLimitOrder = async (userId: string, tradeId: string) => {
     .maybeSingle();
   if (!trade || trade.status !== "Pending") return { refund: 0 };
   await supabase.from("trades").update({ status: "Cancelled" }).eq("id", trade.id);
-  return { refund: trade.side === "buy" ? Number(trade.amount) : 0 };
+  return {
+    refund: trade.side === "buy" ? round2(Number(trade.amount) + (Number(trade.fee) || 0)) : 0,
+  };
 };
 
 /** Fill a previously Pending spot limit order. For BUY orders the cash
@@ -1327,11 +1401,16 @@ export const fillSpotLimitOrder = async (userId: string, tradeId: string) => {
       .from("trades")
       .update({ status: "Filled", closed_at: new Date().toISOString() })
       .eq("id", trade.id);
-    // Reserved cash was `q × price`. Actual new-side spend = remainingQty × price;
+    const feePaid = Number(trade.fee) || 0;
+    if (feePaid > 0) {
+      recordSpotTx("fee", -feePaid, `Trading fee · ${trade.option_label} · ${trade.event_name}`);
+    }
+    // Reserved cash was `q × price + fee`. Actual new-side spend = remainingQty × price;
     // refund the rest (fully-reduced portion) plus the released cash from opposite.
+    // The fee was reserved at place time and is consumed here, so it is not refunded.
     const reservedRefund = (q - remainingQty) * price + releasedFromOpposite;
     return {
-      balanceDelta: reservedRefund,
+      balanceDelta: round2(reservedRefund),
       intent: (opposite && remainingQty <= 0.000001 ? "reduce" : same || opposite ? "add" : "open") as
         | "add"
         | "open"
@@ -1355,6 +1434,8 @@ export const fillSpotLimitOrder = async (userId: string, tradeId: string) => {
   const realizedPnl = (price - entryPrice) * closeQty;
   const remaining = existingSize - closeQty;
   const isClose = remaining <= 0.000001;
+  const allocFee = await allocatedSpotEntryFee(existing, closeQty);
+  const wc = round2(winningCommission(realizedPnl, allocFee));
   await supabase
     .from("positions")
     .update(
@@ -1363,6 +1444,7 @@ export const fillSpotLimitOrder = async (userId: string, tradeId: string) => {
             status: "Closed",
             mark_price: price,
             pnl: (Number(existing.pnl) || 0) + realizedPnl,
+            winning_commission: (Number(existing.winning_commission) || 0) + wc,
             closed_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           }
@@ -1371,6 +1453,7 @@ export const fillSpotLimitOrder = async (userId: string, tradeId: string) => {
             margin: existingMargin - marginReleased,
             mark_price: price,
             pnl: (Number(existing.pnl) || 0) + realizedPnl,
+            winning_commission: (Number(existing.winning_commission) || 0) + wc,
             updated_at: new Date().toISOString(),
           },
     )
@@ -1379,7 +1462,24 @@ export const fillSpotLimitOrder = async (userId: string, tradeId: string) => {
     .from("trades")
     .update({ status: "Filled", closed_at: new Date().toISOString() })
     .eq("id", trade.id);
-  return { balanceDelta: price * closeQty, intent: (isClose ? "close" : "reduce") as "close" | "reduce" };
+  recordSpotTx(
+    realizedPnl >= 0 ? "trade_profit" : "trade_loss",
+    round2(realizedPnl),
+    `Cashed out: ${trade.event_name} · ${trade.option_label} · ${realizedPnl >= 0 ? "Won" : "Lost"}`,
+  );
+  if (wc > 0) {
+    recordSpotTx(
+      "winning_commission",
+      -wc,
+      `Winning commission · 5% · ${trade.option_label} · ${trade.event_name}`,
+    );
+  }
+  return {
+    balanceDelta: round2(price * closeQty - wc),
+    intent: (isClose ? "close" : "reduce") as "close" | "reduce",
+    realizedPnl: round2(realizedPnl),
+    winningCommission: wc,
+  };
 };
 
 
