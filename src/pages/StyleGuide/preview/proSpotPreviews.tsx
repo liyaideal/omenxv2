@@ -164,6 +164,7 @@ const Block = ({ label }: { label: string }) => (
 export const ProTerminalSkeleton = () => (
   <div className="h-[520px]">
     <ProTerminalLayout
+      className="h-full"
       chartMinHeightClass="min-h-[280px]"
       header={
         <div className="flex h-12 items-center px-4 text-[11px] font-mono text-muted-foreground">
@@ -183,6 +184,7 @@ export const ProTerminalSkeleton = () => (
           authTitle="Sign in to view spot positions"
           authDescription="Log in or create an account to view your open positions and orders."
           bodyClassName="h-[120px]"
+          previewNoAuthGate
         >
           <Block label="bottomTabs slot" />
         </ProBottomTabs>

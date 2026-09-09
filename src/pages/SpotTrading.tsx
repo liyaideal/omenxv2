@@ -1198,12 +1198,6 @@ export default function SpotTrading() {
 // -----------------------------------------------------------------
 // Small helpers
 // -----------------------------------------------------------------
-const Row = ({ label, children }: { label: React.ReactNode; children: React.ReactNode }) => (
-  <div className="flex justify-between">
-    <span className="text-muted-foreground">{label}</span>
-    <span>{children}</span>
-  </div>
-);
 
 const InfoCell = ({ label, value }: { label: string; value: string }) => (
   <div className="rounded border border-border/40 bg-muted/20 p-2">
