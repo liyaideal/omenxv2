@@ -1822,13 +1822,14 @@ Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① 
 
 **规则**：OmenX 不再有全站外观模式。`/` `/events` `/portfolio` `/wallet` 及其余一切路由**恒为 Lite**，任何页面不得再提供模式入口（头像菜单、抽屉、设置页一律不许加回来）。
 
-**唯一例外**：`/trade`、`/trade/order`、`/spot` 三条交易路由保留 Simple / Pro 两种看法，切换只由生产件 `src/components/surface/SurfaceSwitch.tsx` 提供。
+**唯一例外**：`/trade`、`/trade/order`、`/spot` 三条交易路由保留 Lite / Pro 两种看法，切换只由生产件 `src/components/surface/SurfaceSwitch.tsx` 提供。
 
 **控件约束**
-- 标签固定 `Simple` / `Pro`，不得改写、不得翻译、不得加图标。
+- 标签固定 `Lite` / `Pro`，不得改写、不得翻译；页头件不得加图标。
 - 未登录 `return null`；不得渲染禁用态或引导登录。
 - 点击只调 `setSurface()`：就地换页，**不 navigate、URL 不变**。
-- 视觉沿用 Portfolio `SegmentChips` 胶囊对：选中 `#FFFFFF` 底 / `#0B0D10` 字 / 700；未选 `#14171C` 底 + 1px `#262B33` / `#C7CCD4` / 600。两种尺寸：`header`（`px-3.5 py-[7px]` 12.5px）与 `compact`（`px-3 py-[5px]` 11.5px）。
-- 挂载点仅四处，见交付说明 `docs/delivery/surface-switch-v1.md` §3；新增挂载点须先改该表。
+- **桌面 = 一件分段控件**：外壳 `inline-flex items-center h-7 rounded-lg border border-border bg-muted/50 p-0.5`；每段 `h-[22px] px-2.5 rounded-md text-[11px] font-semibold leading-none transition-colors duration-150`，选中 `bg-white text-[#0a0b0d]`，未选 `text-muted-foreground hover:text-foreground`；两段相邻无间隙；`role="radiogroup"` + 每段 `aria-checked`。`compact` 只缩尺寸（外壳 `h-[26px]`，段 `h-[20px] px-2` 10.5px），解剖不变。
+- **移动端 = 贴底栏方钮**（`size="dock"`）：46px 宽、与 Buy 按钮等高，`rounded-[10px] border border-border bg-muted/50 text-muted-foreground`；内容竖排 `ArrowLeftRight` 14px + 10px 粗体标签，**标签写的是目的地**（在 Lite 显示 `Pro`，在 Pro 显示 `Lite`）；`aria-label="Switch to Pro view" / "Switch to Lite view"`；游客 `null`，Buy 按钮自然占满。移动端页头一律不挂该控件。
+- 挂载点：桌面页头 ×3、移动贴底栏 ×2，见交付说明 `docs/delivery/surface-switch-v1.md` §3；新增挂载点须先改该表。
 
-**字典**：`/style-guide` → Foundations → `Surface switch · Simple / Pro`（`foundations-surface-switch`），挂生产件本体。
+**字典**：`/style-guide` → Foundations → `Surface switch · Lite / Pro`（`foundations-surface-switch`，SS-1…SS-5），挂生产件本体。
