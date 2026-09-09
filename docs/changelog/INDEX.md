@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-09-09 | [Pro 交易页费率 V4 清理交付说明 v1](../delivery/pro-trade-v4-cleanup-v1.md) | 删 Funding 展示与审计页；删 Isolated 开关（全仓唯一）；fee 15bps；Pro To win 改净利与 Lite 同数 |
 | 2026-09-09 | [Surface switch（Lite / Pro）交付说明 v1](../delivery/surface-switch-v1.md) | 全站模式开关退役：除 `/trade` `/trade/order` `/spot` 外所有路由恒为 Lite；新增交易页专用 `SurfaceSwitch`（登录才渲染，四处挂载，就地切换不跳转），头像菜单 / Me 抽屉 / 底部导航 / SeoFooter 的模式痕迹全部清除；字典新增 `foundations-surface-switch`（SS-1…SS-5）；移动端为贴底栏 ⇄ 入口 |
 | 2026-09-09 | [Lite 下单面板 Returns 区（净利）交付说明 v1](../delivery/lite-order-returns-v1.md) | 删 Max loss 行；win 改净利（扣 5% winning commission）+ ⓘ 说明；auto-close None 子态改词；费率 15bps；下单写 Trading fee 流水 |
 | 2026-09-07 | [分享 / 晒单（Lite）交付说明 v1](../delivery/lite-share-v1.md) | 分享功能首份交付说明：七处入口、三种海报形态（进行中/已平仓/已结算）、文案与调侃语规则、出图四条硬约束、状态字典 share-sh1…sh8；含 7 条已知缺口，其中邀请码异步竞态与域名硬编码两条为上线前必处理项 |
