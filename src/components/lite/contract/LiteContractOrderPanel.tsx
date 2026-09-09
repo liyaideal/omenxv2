@@ -352,13 +352,15 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   const autoCloseRow =
     amountNum <= 0
       ? { text: "None", sub: "enter an amount", hot: false }
-      : effBoost <= 1 || autoClose.kind === "none"
-        ? { text: "None", sub: "loss capped", hot: false }
-        : {
-            text: `≈ ${formatCents(autoClose.price)}`,
-            sub: isAutoCloseHot(autoClose, sidePrice) ? "close to entry" : undefined,
-            hot: isAutoCloseHot(autoClose, sidePrice),
-          };
+      : effBoost <= 1
+        ? { text: "None", sub: "nothing borrowed", hot: false }
+        : autoClose.kind === "none"
+          ? { text: "None", sub: "can't be reached", hot: false }
+          : {
+              text: `≈ ${formatCents(autoClose.price)}`,
+              sub: isAutoCloseHot(autoClose, sidePrice) ? "close to entry" : undefined,
+              hot: isAutoCloseHot(autoClose, sidePrice),
+            };
 
   const nettingNotice =
     isNetting
