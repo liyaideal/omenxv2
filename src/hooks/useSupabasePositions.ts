@@ -60,18 +60,6 @@ const fetchPositions = async (userId: string): Promise<SupabasePosition[]> => {
   return data || [];
 };
 
-// Top up funding on a single position by invoking the accrue-funding edge function.
-// Best-effort: failures are logged but don't block close.
-const topUpFunding = async (positionId: string) => {
-  try {
-    await supabase.functions.invoke("accrue-funding", {
-      body: { positionId },
-    });
-  } catch (err) {
-    console.warn("[funding] top-up failed before close", err);
-  }
-};
-
 // Close a position in Supabase
 const closePositionInDb = async ({
   userId,
@@ -92,10 +80,7 @@ const closePositionInDb = async ({
   realizedPnl: number;
   releasedMargin: number;
 }> => {
-  // 1. Top up funding to "now" before reading
-  await topUpFunding(positionId);
-
-  // 2. Get position details (now with up-to-date funding_accrued)
+  // Get position details
   const { data: position, error: fetchError } = await supabase
     .from("positions")
     .select(
@@ -108,11 +93,11 @@ const closePositionInDb = async ({
   if (fetchError) throw fetchError;
   if (!position) throw new Error("Position not found");
 
-  const fundingPaid = Number(position.funding_accrued) || 0;
-  // The incoming `pnl` arg is price-only PnL from the form. Subtract funding for net.
+  // Funding is 0 by policy (Fee System V4) — the column stays for compatibility.
+  const fundingPaid = 0;
   const netPnl = pnl - fundingPaid;
 
-  // 3. Update position status (store net realized pnl)
+  // Update position status (store net realized pnl)
   const { error: updateError } = await supabase
     .from("positions")
     .update({
@@ -211,9 +196,6 @@ const partialClosePositionInDb = async ({
   cashBack: number;
   wc: number;
 }> => {
-  // Top up funding before slicing
-  await topUpFunding(positionId);
-
   const { data: position, error: fetchError } = await supabase
     .from("positions")
     .select(
@@ -230,7 +212,8 @@ const partialClosePositionInDb = async ({
   const currentMargin = Number(position.margin);
   const entry = Number(position.entry_price);
   const side = position.side;
-  const currentFunding = Number(position.funding_accrued) || 0;
+  // Funding is 0 by policy (Fee System V4) — the column stays for compatibility.
+  const currentFunding = 0;
 
   const qty = Math.min(Math.max(1, Math.floor(closeQty)), Math.floor(currentSize));
   const priceDiff = closePrice - entry;
