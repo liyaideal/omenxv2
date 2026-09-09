@@ -8,7 +8,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Logo } from "@/components/Logo";
-import { useSurface } from "@/contexts/SurfaceContext";
 import { cn } from "@/lib/utils";
 
 /**
@@ -116,7 +115,6 @@ const useCountdown = (endTime: Date | undefined) => {
 };
 
 const LITE_ROOTS = ["/", "/events", "/portfolio", "/wallet"];
-const PRO_ROOTS = ["/", "/events", "/leaderboard", "/trade", "/portfolio"];
 
 export const MobileHeader = ({
   variant,
@@ -141,16 +139,14 @@ export const MobileHeader = ({
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const location = useLocation();
-  const { surface } = useSurface();
   const countdown = useCountdown(endTime);
   const displayTime = endTime ? countdown : subtitle;
 
   const resolvedVariant = variant ?? (showLogo && !title ? "brand" : "inner");
   const isBrand = resolvedVariant === "brand";
 
-  // Surface-aware root fallback: a bottom-nav root never shows back.
-  const roots = surface === "pro" ? PRO_ROOTS : LITE_ROOTS;
-  const isRoot = roots.includes(location.pathname);
+  // D6'-1: every non-trade page is Lite, so the roots list is fixed.
+  const isRoot = LITE_ROOTS.includes(location.pathname);
   const shouldShowBack =
     showBack !== undefined ? showBack : !isRoot && navigationType === "PUSH";
 

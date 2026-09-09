@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/tooltip";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { SeoFooter } from "@/components/seo/SeoFooter";
+import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
 import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
 import { useHeadingScrolledOut } from "@/hooks/useHeadingScrolledOut";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
@@ -537,7 +538,7 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
           showLogo={false}
           showBack
           backTo={backHref}
-          rightContent={<div className="flex items-center gap-1 -mr-2">{WatchStar}</div>}
+          rightContent={<div className="flex items-center gap-2 -mr-2"><SurfaceSwitch size="compact" />{WatchStar}</div>}
         />
         <div className="px-4 py-4">
           {Head}
