@@ -30,7 +30,12 @@ export interface SettlementDetailVM {
   /** Net result of the position (already net of nothing — pure PnL). */
   net: number;
   cost: number;
+  /** Trading fee + winning commission. */
   fees: number;
+  /** Trading fee only. */
+  tradingFee: number;
+  /** Winning commission charged on the profit (0 when the leg lost). */
+  winningCommission: number;
   shares: number;
   avgPrice: number;
   exitPrice: number;
@@ -53,6 +58,14 @@ export interface SettlementDetailActions {
 
 
 const HAIRLINE = "1px solid rgba(28,31,38,.8)";
+
+/** Breakdown of the Fees row — trading fee always, commission only when charged. */
+const FeesSubLine = ({ vm }: { vm: SettlementDetailVM }) => (
+  <div className="pt-1 text-[11px] text-[#6B7280]">
+    Trading fee {money(vm.tradingFee)}
+    {vm.winningCommission > 0 ? ` · Winning commission ${money(vm.winningCommission)}` : ""}
+  </div>
+);
 
 const Row = ({ k, v, color }: { k: string; v: string; color?: string }) => (
   <div className="flex items-center justify-between border-b border-b-[rgba(28,31,38,.8)] py-3 text-[13px] last:border-b-0">
@@ -144,6 +157,7 @@ export const SettlementDetailMobile = ({
         <Row k={exitRowLabel(vm.closeReason)} v={exitValueLine(vm)} color={exitValueColor(vm)} />
         <Row k="Cost" v={money(vm.cost)} />
         <Row k="Fees" v={money(vm.fees)} />
+        <FeesSubLine vm={vm} />
         <Row k="Payout" v={money(payout)} />
         <Row k="Placed" v={settledDayLabel(vm.openedAt)} />
         <Row
@@ -293,6 +307,7 @@ export const SettlementDetailDesktop = ({
             sub={payout === 0 ? "nothing returned" : `after ${money(vm.fees)} fees`}
           />
         </KpiGrid>
+        <FeesSubLine vm={vm} />
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-3">
