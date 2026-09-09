@@ -61,7 +61,7 @@ const PANEL_CASES: SectionCase[] = [
     note:
       "逐字：CTA `Buy Yes $0.00 →`；脚注 `Not guaranteed. You can lose everything you put in.`。Est. auto-close 行的四态见 AC-T4 专案，本 case 不重复收录。",
     spec: [
-      { state: "零单", when: "amountNum <= 0", visual: "`Make your call` + 倒计时 + Yes/No 50¢ + HOW MUCH + $10/$25/$50/$100/Max + Boost 1×…20×+Custom + Returns + CTA `Buy Yes $0.00 →`", source: "LiteContractOrderPanel" },
+      { state: "零单", when: "amountNum <= 0", visual: "`Make your call` + 倒计时 + Yes/No 50¢ + HOW MUCH + $10/$25/$50/$100/Max + Boost 1×…20×+Custom + Returns（win 净利 + ⓘ / auto-close 两行）+ CTA `Buy Yes $0.00 →`", source: "LiteContractOrderPanel" },
       { state: "未登录", when: "!user", visual: "提交改为拉起登录（onRequestAuth），面板本身不变", source: "onRequestAuth" },
       { state: "Boost 不可用", when: "boostEnabled === false", visual: "Boost 模块整块不渲染；boostLoading 时渲染等高骨架防跳位", source: "boostEnabled / boostLoading" },
     ],
@@ -80,6 +80,8 @@ const PANEL_CASES: SectionCase[] = [
     spec: [
       { state: "tray 展开", when: "fixture.boostTrayOpen === true（生产为用户点击 Custom）", visual: "档位行下方展开输入托盘", source: "LiteBoostSelector.defaultTrayOpen" },
       { state: "自定义值", when: "!tiers.includes(value)", visual: "Custom 胶囊改显 `{value}×` 并高亮", source: "LiteBoostSelector.isCustom" },
+      { state: "Returns 区", when: "always", visual: "两行：`If you're right, you win` ⓘ + 净利金额（毛利 − 5% winning commission）；`Est. auto-close` 行不变；无 Max loss 行", source: "LiteContractOrderPanel Returns block · netWin()" },
+      { state: "auto-close = None 子态", when: "effBoost <= 1 → `None · nothing borrowed`；autoClose.kind === 'none' → `None · can't be reached`", visual: "灰色 None + 子文案", source: "autoCloseRow" },
       { state: "派生行渲染条件", when: "effBoost > 1 && amountNum > 0", visual: "金额输入框内右侧同基线挂 `= {$输入×Boost} position`（本 case 为 `= $175.00 position`）；1× 或空输入时零 DOM；恒中性灰，不进方向/盈亏色轴", source: "LiteContractOrderPanel 金额输入块" },
     ],
 
