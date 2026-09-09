@@ -552,10 +552,10 @@ export default function SpotTrading() {
           price: effectivePrice,
           quantity: orderQty,
         });
-        if (side === "buy") await deductSpotBalance(effectivePrice * qty);
+        if (side === "buy") await deductSpotBalance(effectivePrice * orderQty);
         toast.success(
           side === "buy"
-            ? `Limit buy placed · $${(effectivePrice * qty).toFixed(2)} reserved`
+            ? `Limit buy placed · $${(effectivePrice * orderQty).toFixed(2)} reserved`
             : "Limit sell placed",
         );
       } else {
@@ -565,7 +565,7 @@ export default function SpotTrading() {
           optionId: selectedOption.id,
           side,
           price: effectivePrice,
-          quantity: qty,
+          quantity: orderQty,
         });
         if (res.balanceDelta < 0) await deductSpotBalance(-res.balanceDelta);
         else if (res.balanceDelta > 0) await addSpotBalance(res.balanceDelta);
