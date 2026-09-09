@@ -1,10 +1,8 @@
 import { FUTURES_FEE_RATE } from "@/services/tradingService";
 import { useMemo } from "react";
-import { TrendingUp, TrendingDown, Clock, Receipt, Info } from "lucide-react";
+import { Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UnifiedPosition } from "@/hooks/usePositions";
-import { useFundingHistory } from "@/hooks/useFundingHistory";
-import { useOptionFundingRate } from "@/hooks/useOptionFundingRate";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { getBinaryOutcome } from "@/lib/eventUtils";
 import { calcLiqPrice } from "@/lib/tradingUtils";
@@ -20,19 +18,16 @@ interface PositionDetailContentProps {
   position: UnifiedPosition;
   /** Live mark price from realtime feed (overrides position.markPriceNum if provided). */
   liveMarkPrice?: number;
-  /** Current funding rate per hour for this option (decimal, e.g. 0.0001). */
-  fundingRatePerHour?: number;
-  /** Approximate fee rate per trade (e.g. 0.001 = 0.1%). */
+  /** Approximate fee rate per trade (e.g. 0.0015 = 0.15%). */
   feeRate?: number;
 }
 
 // Use a fixed sentence-case display per design rules
-const TRADE_FEE_RATE = FUTURES_FEE_RATE; // 0.1% taker fee (shared constant)
+const TRADE_FEE_RATE = FUTURES_FEE_RATE; // 0.15% taker fee (shared constant)
 
 export const PositionDetailContent = ({
   position,
   liveMarkPrice,
-  fundingRatePerHour: fundingRatePerHourProp,
   feeRate = TRADE_FEE_RATE,
 }: PositionDetailContentProps) => {
   // Use unified realtime lookup (direct optionId + event/option fallback matching)
@@ -46,12 +41,6 @@ export const PositionDetailContent = ({
   const mark = livePrice ?? liveMarkPrice ?? position.markPriceNum;
   const sideSign = position.type === "long" ? 1 : -1;
 
-  // Pull live funding rate + next accrual from event_options when the parent
-  // didn't pass an explicit prop (covers all 3 call sites).
-  const { data: liveFunding } = useOptionFundingRate(position.optionId);
-  const fundingRatePerHour = fundingRatePerHourProp ?? liveFunding?.fundingRatePerHour ?? 0;
-  const nextFundingAt = liveFunding?.nextFundingAt ?? null;
-
   // Price PnL = (mark − entry) × size × side
   // Leverage is NOT multiplied — size already represents contracts and leverage
   // only governs margin / % return. Aligns with useRealtimePositionsPnL.
@@ -60,39 +49,14 @@ export const PositionDetailContent = ({
     return diff * position.sizeNum * sideSign;
   }, [mark, position.entryPriceNum, position.sizeNum, sideSign]);
 
-  const fundingPaid = position.fundingAccrued;
-  const netPnl = pricePnl - fundingPaid;
+  // Funding is gone in Fee System V4 — Net PnL = Price PnL.
+  const netPnl = pricePnl;
   const pnlPercent = position.marginNum > 0 ? (netPnl / position.marginNum) * 100 : 0;
 
   // Notional & fee estimates (size × price, no leverage multiplier)
   const notional = position.sizeNum * mark;
   const openFee = position.sizeNum * position.entryPriceNum * feeRate;
   const estCloseFee = notional * feeRate;
-
-  // Funding rate direction
-  const userPaysFunding = sideSign * fundingRatePerHour > 0;
-  const ratePctPerHour = (fundingRatePerHour * 100).toFixed(4);
-  const fundingPerHour = sideSign * fundingRatePerHour * notional;
-
-  // Next accrual countdown — prefer authoritative next_funding_at, fall back to
-  // lastFundingAt + 5 min (matches cron cadence).
-  const nextAccrualLabel = useMemo(() => {
-    const anchor = nextFundingAt
-      ? new Date(nextFundingAt).getTime()
-      : position.lastFundingAt
-      ? new Date(position.lastFundingAt).getTime() + 5 * 60_000
-      : null;
-    if (anchor == null) return "Within 5 min";
-    const diff = anchor - Date.now();
-    if (diff <= 0) return "Any moment";
-    const m = Math.floor(diff / 60_000);
-    const s = Math.floor((diff % 60_000) / 1000);
-    return `${m}m ${s.toString().padStart(2, "0")}s`;
-  }, [nextFundingAt, position.lastFundingAt]);
-
-  const { data: history = [] } = useFundingHistory(
-    position._source === "supabase" ? position.id : null
-  );
 
   const pnlColor = netPnl >= 0 ? "text-trading-green" : "text-trading-red";
 
