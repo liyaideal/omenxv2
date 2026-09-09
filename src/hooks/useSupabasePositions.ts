@@ -2,10 +2,50 @@ import { useEffect, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useUserProfile } from "./useUserProfile";
+import { cashBackOnClose } from "@/services/tradingService";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 
 export type SupabasePosition = Tables<"positions">;
+
+/** Cash-back ledger rows (fire-and-forget, exactly like the order panel's fee row). */
+const recordCloseLedger = (args: {
+  eventName: string;
+  optionLabel: string;
+  realizedPnl: number;
+  wc: number;
+}) => {
+  void supabase.functions
+    .invoke("record-transaction", {
+      body: {
+        type: args.realizedPnl >= 0 ? "trade_profit" : "trade_loss",
+        amount: args.realizedPnl,
+        account: "futures",
+        status: "completed",
+        description: `Cashed out: ${args.eventName} · ${args.optionLabel} · ${
+          args.realizedPnl >= 0 ? "Won" : "Lost"
+        }`,
+      },
+    })
+    .catch(() => {});
+  if (args.wc > 0) {
+    void supabase.functions
+      .invoke("record-transaction", {
+        body: {
+          type: "winning_commission",
+          amount: -args.wc,
+          account: "futures",
+          status: "completed",
+          description: `Winning commission · 5% · ${args.optionLabel} · ${args.eventName}`,
+        },
+      })
+      .catch(() => {});
+  }
+};
+
+const money = (v: number) => `$${Math.abs(v).toFixed(2)}`;
+
 
 // Fetch user's open positions from Supabase
 const fetchPositions = async (userId: string): Promise<SupabasePosition[]> => {
