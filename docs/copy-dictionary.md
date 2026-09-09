@@ -243,7 +243,10 @@ Lite 合约下单面板 `/trade` 的「How much」输入框语义已定稿，规
 
 | 项 | 口径 |
 |---|---|
-| 输入 | = margin = 用户掏的钱 = 面板 `Max loss · what you put in`，切 Boost 恒不变 |
+| 输入 | = margin = 用户掏的钱，切 Boost 恒不变（面板不再显示 Max loss 行） |
+| 赢的数字 | 净利 = 毛利 − 5% × max(毛利 − 开仓手续费, 0)，唯一实现 tradingService.netWin()；面板 win 行、CTA 同数 |
+| Winning commission | 5% 赢利佣金，只在 win 行 ⓘ 与 Wallet 流水出现，不上面板正文 |
+| auto-close None 子态 | 1× → `None · nothing borrowed`；碰不到线 → `None · can't be reached` |
 | 仓位规模 | `notional = 输入 × Boost` |
 | 份数 | `qty = 输入 × Boost ÷ 价格` |
 | 手续费 | `fee = 输入 × Boost × 费率` |
@@ -268,7 +271,8 @@ Pro 侧输入语义为 notional / 数量，两面各自 canonical，不互相迁
 | **auto-close none** | Desktop portfolio row suffix for a Boost row with no level; `none` is inline lowercase with a dotted underline that opens the shared auto-close tooltip (see 「Auto-close tooltip（全站唯一）」) | `no auto-close`, `auto-close —` |
 | **no auto-close, loss capped** | Mobile portfolio card suffix for a Boost row with no level | — |
 | **≈ {c}¢** | Auto-close value, level state on the trade surfaces (order panel row + position card). The `≈` is never dropped | `{c}¢`, `= {c}¢` |
-| **None · loss capped** | Auto-close value, none state in the order panel (and the `Est. auto-close (new position)` partial-net row) | `None at this balance` (retired) |
+| **None · nothing borrowed** | Auto-close value, none state in the order panel when Boost is 1× (and the `Est. auto-close (new position)` partial-net row) | `None · loss capped` (retired), `None at this balance` (retired) |
+| **None · can't be reached** | Auto-close value, none state in the order panel when the level can't be hit between 0¢ and 100¢ | `None · loss capped` (retired) |
 | **Loss capped at your stake** | Sub-line under a `None` value on the trade-page position card | — |
 | **Close to current price** / **close to entry** | Hot adverb (|mark − level| / mark ≤ 10%) — position-card sub-line / order-panel suffix, both rendered red | `near liquidation`, `close to liq` |
 | **Moves with your other positions** | Permanent helper line beside `Est. auto-close ⓘ`; renders with the field, never conditionally | — |
