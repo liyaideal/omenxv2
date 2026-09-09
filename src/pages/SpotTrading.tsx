@@ -557,10 +557,11 @@ export default function SpotTrading() {
         if (res.balanceDelta < 0) await deductSpotBalance(-res.balanceDelta);
         else if (res.balanceDelta > 0) await addSpotBalance(res.balanceDelta);
         if (side === "sell") {
-          toast.success("Spot sell filled", {
+          toast.success(`Cashed out · $${Math.max(0, res.balanceDelta).toFixed(2)} back`, {
             description:
               "Proceeds settle to balance (demo). Production: held as event pending cash until settlement.",
           });
+
         } else {
           toast.success("Spot buy filled");
         }
