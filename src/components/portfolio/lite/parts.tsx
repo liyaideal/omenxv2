@@ -3,7 +3,7 @@
 // chips, Boost check gauge. Literal spec values (CPO工单 2026-08-19 §3–§4);
 // these hexes are the spec, not token approximations.
 // ============================================================
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -103,7 +103,7 @@ export const KpiCard = ({
 }: {
   label: string;
   value: string;
-  sub?: string;
+  sub?: ReactNode;
   subColor?: string;
   /** Result cards colour the headline number; default stays neutral. */
   valueColor?: string;
@@ -118,7 +118,7 @@ export const KpiCard = ({
     <div className="mt-1 font-mono text-[21px] font-bold" style={{ color: valueColor ?? "#F2F3F5" }}>
       {value}
     </div>
-    {sub && (
+    {sub != null && (
       <div className="mt-0.5 font-mono text-[11px]" style={{ color: subColor ?? "#6B7280" }}>
         {sub}
       </div>
