@@ -12,7 +12,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 
 interface PositionDetailContentProps {
   position: UnifiedPosition;
@@ -117,7 +117,7 @@ export const PositionDetailContent = ({
           </div>
 
           <div className="rounded-md bg-muted/20 border border-border/60 p-2.5 text-[11px] text-muted-foreground">
-            Each winning share pays $1 at settlement. No leverage, no funding, no liquidation.
+            Each winning share pays $1 at settlement. No leverage, no liquidation.
           </div>
         </div>
       </TooltipProvider>
@@ -232,7 +232,7 @@ export const PositionDetailContent = ({
                   <Info className="w-3 h-3 cursor-help" />
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-xs text-xs">
-                  Estimated liquidation price. Ignores funding drift and maintenance-margin buffer.
+                  Estimated liquidation price. Ignores maintenance-margin buffer.
                 </TooltipContent>
               </Tooltip>
             </span>
