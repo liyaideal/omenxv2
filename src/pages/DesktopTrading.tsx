@@ -57,7 +57,7 @@ import { useEventSideLabelsLookup, resolveBinarySideLabel } from "@/hooks/useEve
 
 
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { executeTrade, FUTURES_FEE_RATE } from "@/services/tradingService";
+import { executeTrade, FUTURES_FEE_RATE, netWin } from "@/services/tradingService";
 import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { AccountRiskIndicator } from "@/components/AccountRiskIndicator";
@@ -199,8 +199,6 @@ export default function DesktopTrading() {
   
   // Trade form state
   const [side, setSide] = useState<"buy" | "sell">("buy");
-  const [marginType, setMarginType] = useState<"Cross" | "Isolated">("Cross");
-  const [marginDropdownOpen, setMarginDropdownOpen] = useState(false);
   const [leverage, setLeverage] = useState(10);
   const [orderType, setOrderType] = useState<"Limit" | "Market">("Market");
   const [limitPrice, setLimitPrice] = useState("");
@@ -416,8 +414,8 @@ export default function DesktopTrading() {
     // Quantity = notional value / price
     const quantity = price > 0 ? notionalValue / price : 0;
 
-    // Potential win = (1 - price) * quantity (if outcome resolves in user's favor)
-    const potentialWin = (1 - price) * quantity;
+    // Potential win = net profit after the 5% winning commission (same helper as Lite)
+    const potentialWin = netWin((1 - price) * quantity, estimatedFee);
 
     // Estimated liquidation price - sell side moves opposite direction
     const liqPrice = price > 0
@@ -520,7 +518,6 @@ export default function DesktopTrading() {
     { label: "Event", value: selectedEvent?.name || "" },
     { label: "Option", value: previewOptionLabel, highlight: isBinarySingleMarket ? previewSideColor : undefined },
     ...(isBinarySingleMarket ? [] : [{ label: "Side", value: previewSideLabel, highlight: previewSideColor }]),
-    { label: "Margin type", value: marginType },
     { label: "Type", value: orderType },
     { label: "Order Price", value: `${sidePrice.toFixed(4)} USDC` },
     { label: "Order Cost", value: `${amount} USDC` },
@@ -531,16 +528,15 @@ export default function DesktopTrading() {
     { label: "Margin required", value: `${displayCalculations.marginRequired} USDC` },
     { label: "TP/SL", value: tpsl ? `TP: ${tpValue ? tpslCalculations.tpPrice : '--'} / SL: ${slValue ? tpslCalculations.slPrice : '--'}` : "--" },
     { label: "Estimated Liq. Price", value: `${orderCalculations.liqPrice} USDC` },
-  ], [selectedEvent, previewOptionLabel, isBinarySingleMarket, previewSideLabel, previewSideColor, marginType, orderType, amount, leverage, tpsl, tpValue, slValue, tpslCalculations, orderCalculations, displayCalculations, orderIntent.kind, orderIntent.openingNotional, sidePrice]);
+  ], [selectedEvent, previewOptionLabel, isBinarySingleMarket, previewSideLabel, previewSideColor, orderType, amount, leverage, tpsl, tpValue, slValue, tpslCalculations, orderCalculations, displayCalculations, orderIntent.kind, orderIntent.openingNotional, sidePrice]);
 
   const isReducingOrder = orderIntent.kind === "reduce" || orderIntent.kind === "close";
   const formattedIntent = orderIntent.kind.replace(/-/g, " ");
   const previewTradeFields = useMemo(() => [
     { label: "Type", value: orderType },
-    { label: "Margin", value: marginType },
     { label: "Leverage", value: `${leverage}X` },
     { label: "Price", value: `${sidePrice.toFixed(4)} USDC` },
-  ], [orderType, marginType, leverage, sidePrice]);
+  ], [orderType, leverage, sidePrice]);
   const previewNotionalFields = useMemo(() => [
     { label: "Order cost", value: `${amount} USDC` },
     { label: "Traded notional", value: `${displayCalculations.notionalValue} USDC` },
@@ -917,14 +913,6 @@ export default function DesktopTrading() {
           <div>
             <div className="text-muted-foreground">OI</div>
             <div className="font-mono font-medium">$480K</div>
-          </div>
-          <div>
-            <div className="text-muted-foreground">Funding Rate</div>
-            <div className="font-mono font-medium text-trading-green">+0.05%</div>
-          </div>
-          <div>
-            <div className="text-muted-foreground">Next Funding</div>
-            <div className="font-mono font-medium">28min</div>
           </div>
         </div>
         
@@ -1533,39 +1521,6 @@ export default function DesktopTrading() {
             </div>
 
 
-            {/* Margin Mode */}
-            <div className="flex items-center justify-between relative">
-              <span className="text-xs text-muted-foreground">Margin Mode</span>
-              <button 
-                onClick={() => setMarginDropdownOpen(!marginDropdownOpen)}
-                className="flex items-center gap-1 px-3 py-1.5 bg-muted rounded text-xs"
-              >
-                {marginType}
-                <ChevronDown className="w-3 h-3" />
-              </button>
-              
-              {/* Margin Mode Dropdown */}
-              {marginDropdownOpen && (
-                <div className="absolute right-0 top-full mt-1 z-50 bg-background border border-border rounded-lg shadow-lg min-w-[140px]">
-                  <button
-                    onClick={() => {
-                      setMarginType("Cross");
-                      setMarginDropdownOpen(false);
-                    }}
-                    className={`w-full px-3 py-2 text-left text-xs hover:bg-muted transition-colors ${
-                      marginType === "Cross" ? "text-trading-purple" : "text-foreground"
-                    }`}
-                  >
-                    Cross
-                  </button>
-                  <div className="px-3 py-2 text-xs text-muted-foreground cursor-not-allowed flex items-center justify-between">
-                    <span>Isolated</span>
-                    <span className="text-[10px] px-1.5 py-0.5 bg-muted rounded">Not Supported</span>
-                  </div>
-                </div>
-              )}
-            </div>
-
             {/* Leverage */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -1814,6 +1769,7 @@ export default function DesktopTrading() {
                   {parseFloat(amount) > 0 ? `${displayCalculations.total} USDC` : "--"}
                 </span>
               </div>
+              <div className="text-[11px] text-muted-foreground">To win shows profit after the 5% winning commission.</div>
             </div>
 
             {/* Submit Button */}
