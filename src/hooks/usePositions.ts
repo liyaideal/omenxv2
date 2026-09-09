@@ -53,6 +53,9 @@ export interface UnifiedPosition {
   marginNum: number;
   leverageNum: number;
   createdAt: string;
+  /** Originating trades row id (Supabase positions only) — used to read the fee actually paid. */
+  tradeId?: string | null;
+
   /** Product line — 'futures' (default) or 'spot'. Spot positions hide leverage/liq/funding. */
   productLine: "futures" | "spot";
   // Original source for mutations
@@ -96,6 +99,8 @@ const convertSupabasePosition = (pos: SupabasePosition): UnifiedPosition => {
     marginNum,
     leverageNum: Number(pos.leverage) || 1,
     createdAt: pos.created_at,
+    tradeId: (pos as SupabasePosition & { trade_id?: string | null }).trade_id ?? null,
+
     productLine: ((pos as any).product_line === "spot" ? "spot" : "futures"),
     _source: "supabase",
     _supabaseId: pos.id,
