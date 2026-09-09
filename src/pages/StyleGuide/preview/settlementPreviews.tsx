@@ -33,6 +33,9 @@ const mkRow = (over: Partial<SettlementListItem>): SettlementListItem => ({
   closeReason: "settlement",
   cost: 131.1,
   fees: 1.31,
+  tradingFee: 1.31,
+  winningCommission: 0,
+
   exitPriceNum: 1,
   entryPriceNum: 0.54,
   sizeNum: 120,
