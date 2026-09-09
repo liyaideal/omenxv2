@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react"; // v2
+import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
 import { useNavigate, useNavigationType, useSearchParams, useLocation } from "react-router-dom";
 import { ChevronDown, ChevronUp, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X, Pencil, AlertTriangle, ArrowLeft, Loader2, Gift, Lock } from "lucide-react";
 import { ExternalHedgeLinks } from "@/components/ExternalHedgeLinks";
@@ -927,6 +928,8 @@ export default function DesktopTrading() {
           </div>
         </div>
         
+        <SurfaceSwitch size="compact" />
+
         {/* Favorite Star - Far right */}
         <button 
           onClick={(e) => toggleFavorite(selectedEvent.id, e)}
