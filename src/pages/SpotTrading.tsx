@@ -37,7 +37,9 @@ import {
   ProSpotPanel,
   ProSpotAccountPanel,
   ProSpotOrderPreview,
+  sharesInputValue,
 } from "@/components/pro/ProSpotPanel";
+
 import { liteSideName } from "@/lib/liteSideName";
 import { ProSpotHeader } from "@/components/pro/ProSpotHeader";
 import { ProTerminalLayout } from "@/components/pro/ProTerminalLayout";
