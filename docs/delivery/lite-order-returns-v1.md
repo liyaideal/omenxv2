@@ -69,3 +69,16 @@ auto-close 的 `None` 子文案三态逐字：`None · enter an amount`（未输
 - TR-7 fixture（$25 · 7× · 50¢）win 行显示 `$166.26`。
 - 1× 下单：auto-close 显示 `None · nothing borrowed`；未输入金额时显示 `None · enter an amount`。
 - 演示号下单后，`/wallet` 流水出现一条 `Fees` 行（`Fee` 徽章、Receipt 图标、负数金额），在「All」与「Trades」两个筛选下都能看到。
+
+
+## 6. R2 · 平仓/结算现金回流（2026-09）
+
+- 平仓与结算都走同一口径：`cashBack = releasedMargin + realizedPnl − winningCommission`，
+  `winningCommission = 5% × max(realizedPnl − allocatedEntryFee, 0)`（亏损为 0）。
+  单一实现在 `src/services/tradingService.ts`：`winningCommission()` / `netWin()` / `cashBackOnClose()`。
+- 客户端平仓（`useSupabasePositions`）在同一 mutation 内写库 + 记 `profiles.balance`，
+  toast 改为 `Cashed out · $X back`；并 fire-and-forget 写 `trade_profit`/`trade_loss` 与 `winning_commission` 流水。
+- 合约结算由 `public.settle_futures_event()` / `settle_futures_sweep()`（5 分钟 cron 对账）完成，逻辑与客户端一致，按 `Open` 幂等。
+- Cash-out 面板预览金额已减佣金，所见即到账（`pnlAtPrice` / `entryFee` 两个新 prop）。
+- Wallet 历史新增 `winning_commission` 行（Percent 图标、红色、归入 Trades 筛选）；
+  结算详情 Fees 行下新增副行拆分 Trading fee / Winning commission。
