@@ -45,8 +45,6 @@ export const TradingHeaderPlayground = () => {
   
   // Stats Settings
   const [volume24h, setVolume24h] = useState("$2.45M");
-  const [fundingRate, setFundingRate] = useState("+0.05%");
-  const [nextFunding, setNextFunding] = useState("28min");
   
   // UI State
   const [showBackButton, setShowBackButton] = useState(true);
@@ -67,8 +65,6 @@ export const TradingHeaderPlayground = () => {
     setHigh24h("$4,352.10");
     setLow24h("$4,156.80");
     setVolume24h("$2.45M");
-    setFundingRate("+0.05%");
-    setNextFunding("28min");
     setShowBackButton(true);
     setIsFavorite(false);
     setSelectedOptionIndex(0);
@@ -207,16 +203,6 @@ export const TradingHeaderPlayground = () => {
               <div>
                 <div className="text-muted-foreground">24h Volume</div>
                 <div className="font-mono font-medium">{volume24h}</div>
-              </div>
-              <div>
-                <div className="text-muted-foreground">Funding Rate</div>
-                <div className={`font-mono font-medium ${fundingRate.startsWith('+') ? 'text-trading-green' : fundingRate.startsWith('-') ? 'text-trading-red' : ''}`}>
-                  {fundingRate}
-                </div>
-              </div>
-              <div>
-                <div className="text-muted-foreground">Next Funding</div>
-                <div className="font-mono font-medium">{nextFunding}</div>
               </div>
               <button 
                 className="p-2 rounded-md hover:bg-muted/50 transition-colors"
@@ -397,23 +383,6 @@ export const TradingHeaderPlayground = () => {
               />
             </div>
             
-            <div className="space-y-2">
-              <Label className="text-xs">Funding Rate</Label>
-              <Input 
-                value={fundingRate} 
-                onChange={(e) => setFundingRate(e.target.value)}
-                className="h-8 text-sm font-mono"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label className="text-xs">Next Funding</Label>
-              <Input 
-                value={nextFunding} 
-                onChange={(e) => setNextFunding(e.target.value)}
-                className="h-8 text-sm font-mono"
-              />
-            </div>
           </div>
         </div>
 
@@ -456,7 +425,7 @@ export const TradingHeaderPlayground = () => {
               <tr>
                 <td className="py-2 font-medium">Stats Row</td>
                 <td className="py-2 font-mono text-primary">text-xs + font-mono</td>
-                <td className="py-2 text-muted-foreground">Volume, Funding Rate, Next Funding</td>
+                <td className="py-2 text-muted-foreground">24h Volume (Funding removed in Fee System V4)</td>
               </tr>
               <tr>
                 <td className="py-2 font-medium">Favorite Star</td>

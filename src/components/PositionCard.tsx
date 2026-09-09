@@ -292,7 +292,7 @@ export const PositionCard = ({
           </div>
         </div>
 
-        {/* Liquidation price — estimated, ignores funding/MM buffer */}
+        {/* Liquidation price — estimated, ignores MM buffer */}
         <div
           className="flex items-center justify-between mb-2"
           title="Estimated, ignores MM buffer"
