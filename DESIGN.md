@@ -1830,6 +1830,7 @@ Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① 
 - 点击只调 `setSurface()`：就地换页，**不 navigate、URL 不变**。
 - **桌面 = 一件分段控件**：外壳 `inline-flex items-center h-7 rounded-lg border border-border bg-muted/50 p-0.5`；每段 `h-[22px] px-2.5 rounded-md text-[11px] font-semibold leading-none transition-colors duration-150`，选中 `bg-white text-[#0a0b0d]`，未选 `text-muted-foreground hover:text-foreground`；两段相邻无间隙；`role="radiogroup"` + 每段 `aria-checked`。`compact` 只缩尺寸（外壳 `h-[26px]`，段 `h-[20px] px-2` 10.5px），解剖不变。
 - **移动端 = 贴底栏方钮**（`size="dock"`）：46px 宽、与 Buy 按钮等高，`rounded-[10px] border border-border bg-muted/50 text-muted-foreground`；内容竖排 `ArrowLeftRight` 14px + 10px 粗体标签，**标签写的是目的地**（在 Lite 显示 `Pro`，在 Pro 显示 `Lite`）；`aria-label="Switch to Pro view" / "Switch to Lite view"`；游客 `null`，Buy 按钮自然占满。移动端页头一律不挂该控件。
-- 挂载点：桌面页头 ×3、移动贴底栏 ×2，见交付说明 `docs/delivery/surface-switch-v1.md` §3；新增挂载点须先改该表。
+- **移动 Lite 多市场页无贴底栏 → 同一颗方钮改为左下角浮钮（fixed，left 12 / bottom 14 + safe-area），列表底部留 64px**（`size="float"`，`bg-card/90 backdrop-blur-sm border border-border shadow-lg`）；抽屉 / 底部弹层 / 平仓流打开时隐藏；同页永不同时出现 dock 与 float。
+- 挂载点：桌面页头 ×3、移动贴底栏 ×2、移动浮钮 ×1，见交付说明 `docs/delivery/surface-switch-v1.md` §3；新增挂载点须先改该表。
 
 **字典**：`/style-guide` → Foundations → `Surface switch · Lite / Pro`（`foundations-surface-switch`，SS-1…SS-5），挂生产件本体。
