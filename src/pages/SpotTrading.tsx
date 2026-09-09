@@ -677,8 +677,11 @@ export default function SpotTrading() {
   // Reusable atoms
   // -----------------------------------------------------------------
   // ---- Sell-side economics (V4): 5% commission on the winning part only. ----
-  const sellProfit = Math.max(0, (effectivePrice - heldEntry) * qty);
-  const sellCommission = side === "sell" ? WINNING_COMMISSION_RATE * sellProfit : 0;
+  // Same helper the service/ledger uses: the entry fee allocated to the shares
+  // being sold is netted out of the commission base first.
+  const sellRealizedPnl = (effectivePrice - heldEntry) * qty;
+  const sellEntryFee = heldEntry * qty * SPOT_FEE_RATE;
+  const sellCommission = side === "sell" ? winningCommission(sellRealizedPnl, sellEntryFee) : 0;
   const sellReceive = Math.max(0, cost - sellCommission);
 
   const isSell = side === "sell";
