@@ -107,8 +107,8 @@ export const SpotSection = ({ isMobile }: Props) => {
         <div className="grid gap-3 md:grid-cols-4">
           <TradeSubmitButton side="buy" label="Buy Up" potentialWin="126.00" positionSide="yes" onClick={() => undefined} />
           <TradeSubmitButton side="buy" label="Buy Not Up" potentialWin="180.00" positionSide="no" onClick={() => undefined} />
-          <TradeSubmitButton side="sell" label="Sell Up" potentialWin="64.00" onClick={() => undefined} />
-          <TradeSubmitButton side="sell" label="Sell Not Up" potentialWin="52.00" onClick={() => undefined} />
+          <TradeSubmitButton side="sell" label="Sell Up" potentialWin="64.00" winPrefix="You receive" onClick={() => undefined} />
+          <TradeSubmitButton side="sell" label="Sell Not Up" potentialWin="52.00" winPrefix="You receive" onClick={() => undefined} />
         </div>
       </SectionWrapper>
 
