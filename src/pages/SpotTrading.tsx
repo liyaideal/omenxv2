@@ -294,8 +294,9 @@ export default function SpotTrading() {
   const sideLabels = useMemo(() => parseSideLabels(event?.side_labels), [event]);
   // Standard 段词轴（copy-dictionary §Up / Down）：`Not Up` 已退役，
   // 展示层一律经 liteSideName 改写为 `Down`。
-  const yesLabel = liteSideName(sideLabels?.yes) || "Up";
-  const noLabel = liteSideName(sideLabels?.no) || "Down";
+  // liteSideName(undefined) 返回 "Down"，所以必须先判空再改写。
+  const yesLabel = sideLabels?.yes ? liteSideName(sideLabels.yes) : "Up";
+  const noLabel = sideLabels?.no ? liteSideName(sideLabels.no) : "Down";
 
   const yesOpt = useMemo(
     () => event?.options.find((o) => /(^|[-_ ])yes$/i.test(o.label)) || event?.options[0],
