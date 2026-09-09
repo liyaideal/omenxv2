@@ -54,7 +54,6 @@ import {
 } from "@/components/pro/ProSpotPanel";
 import { liteSideName } from "@/lib/liteSideName";
 import { ProSpotHeader } from "@/components/pro/ProSpotHeader";
-import { OrderTypeDropdown } from "@/components/pro/OrderTypeDropdown";
 import { ProTerminalLayout } from "@/components/pro/ProTerminalLayout";
 import { ProBottomTabs } from "@/components/pro/ProBottomTabs";
 import { TradeSubmitButton } from "@/components/trading/TradeSubmitButton";
