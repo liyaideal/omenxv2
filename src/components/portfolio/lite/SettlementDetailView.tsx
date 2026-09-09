@@ -304,10 +304,14 @@ export const SettlementDetailDesktop = ({
           <KpiCard
             label="PAYOUT"
             value={money(payout)}
-            sub={payout === 0 ? "nothing returned" : `after ${money(vm.fees)} fees`}
+            sub={
+              <>
+                {payout === 0 ? "nothing returned" : `after ${money(vm.fees)} fees`}
+                <FeesSubLine vm={vm} />
+              </>
+            }
           />
         </KpiGrid>
-        <FeesSubLine vm={vm} />
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-3">

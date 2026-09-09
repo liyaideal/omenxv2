@@ -655,7 +655,7 @@ const DETAIL_CASES: SectionCase[] = [
   {
     key: "portfolio-lite-detail-won",
     label: "PF-24 · 详情 · won",
-    note: "桌面 = back 链接 + 标题行 + meta + KPI 三卡 + DETAILS / ACTIVITY 双卡；移动 = 纵列。",
+    note: "桌面：Payout 卡片第二行小字；移动：Fees 行下小字",
     spec: [
       { state: "won", when: 'closeReason === "settlement" && outcomeWon === true', visual: "眉线 SETTLED；RESULT `+$X` 绿，副行 `Won · Up settled at $1.00`", source: "SettlementDetailVM" },
       { state: "Payout 公式", when: "始终", visual: "Payout = max(0, Cost + PnL − Fees)，副行 `after $F fees`", source: "settlementCopy.payoutOf()" },
