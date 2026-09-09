@@ -35,8 +35,12 @@ export interface SettlementListItem {
   closeReason: SettlementCloseReason;
   /** Cash put in. */
   cost: number;
-  /** Trading fees attributable to this position (pro-rated by cost on shared ledgers). */
+  /** All fees attributable to this position: trading fee + winning commission. */
   fees: number;
+  /** Trading fee only (pro-rated by cost on shared ledgers). */
+  tradingFee: number;
+  /** Winning commission actually charged when the position closed / settled. */
+  winningCommission: number;
   exitPriceNum: number;
   entryPriceNum: number;
   sizeNum: number;
@@ -119,7 +123,9 @@ export const useSettlements = () => {
         const pairKey = `${row.event_name}::${row.option_label}`;
         const pairFee = feeByPair.get(pairKey) ?? 0;
         const pairCost = costByPair.get(pairKey) ?? 0;
-        const fees = pairCost > 0 ? (pairFee * cost) / pairCost : pairFee;
+        const tradingFee = pairCost > 0 ? (pairFee * cost) / pairCost : pairFee;
+        const winningCommission = Number(row.winning_commission) || 0;
+        const fees = tradingFee + winningCommission;
         const isWin = pnl > 0;
         const pnlPercent = cost > 0 ? (pnl / cost) * 100 : 0;
 
@@ -143,6 +149,8 @@ export const useSettlements = () => {
           closeReason,
           cost,
           fees,
+          tradingFee,
+          winningCommission,
           exitPriceNum: exit,
           entryPriceNum: entry,
           sizeNum: size,

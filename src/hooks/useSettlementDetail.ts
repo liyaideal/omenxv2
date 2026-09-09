@@ -29,6 +29,8 @@ export interface SettlementData {
   leverage: number;
   margin: number;
   fee: number;
+  /** Winning commission actually charged on this position (5 % of net profit). */
+  winningCommission: number;
   pnl: number;
   pnlPercent: number;
   settledAt: string;
@@ -175,6 +177,7 @@ export const useSettlementDetail = ({ settlementId, eventName }: UseSettlementDe
         leverage: Number(position.leverage) || 1,
         margin,
         fee,
+        winningCommission: Number((position as any).winning_commission) || 0,
         pnl,
         pnlPercent,
         settledAt: position.closed_at ?? position.updated_at,
