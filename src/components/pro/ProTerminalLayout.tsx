@@ -34,6 +34,8 @@ interface ProTerminalLayoutProps {
    * book bottom aligns with the taller trade panel; spot locks 600px.
    */
   chartMinHeightClass?: string;
+  /** Root sizing override — pages keep `h-screen`, previews pass `h-full`. */
+  className?: string;
   /** Dialogs, sheets and other page-level overlays. */
   children?: ReactNode;
 }
@@ -47,9 +49,10 @@ export const ProTerminalLayout = ({
   panel,
   account,
   chartMinHeightClass = "min-h-[680px]",
+  className = "h-screen",
   children,
 }: ProTerminalLayoutProps) => (
-  <div className="h-screen flex flex-col bg-background overflow-hidden">
+  <div className={`${className} flex flex-col bg-background overflow-hidden`}>
     {header}
     {subHeader}
 

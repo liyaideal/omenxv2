@@ -37,10 +37,13 @@ export const SurfaceSwitch = ({
   /** style-guide only — force which segment reads as active. */
   previewActive?: Surface;
 }) => {
-  const { surface, setSurface } = useSurface();
+  const { surface, setSurface: applySurface } = useSurface();
   const { user } = useAuth();
   const signedIn = previewSignedIn ?? !!user;
   const current = previewActive ?? surface;
+  // style-guide instances are inert: clicking a forced-state control must
+  // never write the reader's preferred_surface.
+  const setSurface = previewActive ? () => undefined : applySurface;
 
   // Guests never see the switch — they always read the Lite trade page.
   if (!signedIn) return null;

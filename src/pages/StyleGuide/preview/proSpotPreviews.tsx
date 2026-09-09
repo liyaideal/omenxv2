@@ -12,6 +12,7 @@ import {
 import type { ProOrderType } from "@/components/pro/OrderTypeDropdown";
 import { ProTerminalLayout } from "@/components/pro/ProTerminalLayout";
 import { ProBottomTabs } from "@/components/pro/ProBottomTabs";
+import { winningCommission, SPOT_FEE_RATE } from "@/services/tradingService";
 
 const Rail = ({ children }: { children: React.ReactNode }) => (
   <div className="p-2" style={{ width: 280 }}>
@@ -48,7 +49,9 @@ const PanelFixture = (f: Fixture) => {
   const fee = cost * 0.0015;
   const grossWin = Math.max(0, qty - cost);
   const maxWin = Math.max(0, grossWin * 0.95 - fee);
-  const sellCommission = side === "sell" ? Math.max(0, (price - 0.38) * qty) * 0.05 : 0;
+  // Same helper as the page/ledger: entry fee is netted out of the base first.
+  const sellCommission =
+    side === "sell" ? winningCommission((price - 0.38) * qty, 0.38 * qty * SPOT_FEE_RATE) : 0;
 
   const heldYesQty = f.heldYesQty ?? 0;
   const heldNoQty = f.heldNoQty ?? 0;
@@ -164,6 +167,7 @@ const Block = ({ label }: { label: string }) => (
 export const ProTerminalSkeleton = () => (
   <div className="h-[520px]">
     <ProTerminalLayout
+      className="h-full"
       chartMinHeightClass="min-h-[280px]"
       header={
         <div className="flex h-12 items-center px-4 text-[11px] font-mono text-muted-foreground">
@@ -183,6 +187,7 @@ export const ProTerminalSkeleton = () => (
           authTitle="Sign in to view spot positions"
           authDescription="Log in or create an account to view your open positions and orders."
           bodyClassName="h-[120px]"
+          previewNoAuthGate
         >
           <Block label="bottomTabs slot" />
         </ProBottomTabs>

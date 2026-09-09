@@ -65,6 +65,7 @@ import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { ProTerminalLayout } from "@/components/pro/ProTerminalLayout";
 import { ProBottomTabs } from "@/components/pro/ProBottomTabs";
+import { BinarySideToggle } from "@/components/pro/BinarySideToggle";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { ActivateAirdropButton } from "@/components/ActivateAirdropButton";
 import { Badge } from "@/components/ui/badge";
@@ -1424,74 +1425,29 @@ export default function DesktopTrading() {
           </div>
 
             <div className="px-4 py-3 space-y-3">
-            {/* Yes/No Toggle — v3 双层结构（队名 + 底部独立价格条），与 TradeForm 一致 */}
-            <div className="grid grid-cols-2 gap-2 p-1 bg-muted/30 rounded-lg">
-              <button
-                onClick={() => {
+            {/* Yes/No Toggle — 共享生产件 BinarySideToggle（SP-1-FIX2）。 */}
+            <BinarySideToggle
+              yesLabel={binaryLabels.yes}
+              noLabel={binaryLabels.no}
+              yesPrice={yesPrice}
+              noPrice={noPrice}
+              isYesSelected={isYesSelected}
+              activeDot
+              onSelect={(which) => {
+                if (which === "yes") {
                   setSide("buy");
                   if (isBinarySingleMarket && yesNoOptions.yes) {
                     setSelectedOption(yesNoOptions.yes.id);
                   }
-                }}
-                className="relative flex flex-col h-full rounded-md overflow-hidden transition-all"
-              >
-                <div
-                  className={`relative flex-1 flex items-center justify-center min-h-[24px] py-1.5 px-2 text-[11px] font-semibold leading-tight line-clamp-2 text-center transition-colors ${
-                    isYesSelected
-                      ? "bg-yes text-yes-foreground"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
-                  }`}
-                >
-                  {binaryLabels.yes}
-                  {isYesSelected && (
-                    <span className="absolute top-1 right-1 w-1 h-1 rounded-full bg-current shadow-[0_0_4px_currentColor]" />
-                  )}
-                </div>
-                <div
-                  className={`h-[22px] flex items-center justify-center text-[11px] font-mono border-t ${
-                    isYesSelected
-                      ? "bg-yes/85 text-yes-foreground border-black/20"
-                      : "bg-muted-foreground/15 text-foreground/80 border-border/40"
-                  }`}
-                >
-                  {yesPrice.toFixed(4)}
-                </div>
-              </button>
-              <button
-                onClick={() => {
-                  if (isBinarySingleMarket && yesNoOptions.no) {
-                    // binary 模式：Buy No 是 No 端的 long 仓位
-                    setSide("buy");
-                    setSelectedOption(yesNoOptions.no.id);
-                  } else {
-                    setSide("sell");
-                  }
-                }}
-                className="relative flex flex-col h-full rounded-md overflow-hidden transition-all"
-              >
-                <div
-                  className={`relative flex-1 flex items-center justify-center min-h-[24px] py-1.5 px-2 text-[11px] font-semibold leading-tight line-clamp-2 text-center transition-colors ${
-                    !isYesSelected
-                      ? "bg-no text-no-foreground"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
-                  }`}
-                >
-                  {binaryLabels.no}
-                  {!isYesSelected && (
-                    <span className="absolute top-1 right-1 w-1 h-1 rounded-full bg-current shadow-[0_0_4px_currentColor]" />
-                  )}
-                </div>
-                <div
-                  className={`h-[22px] flex items-center justify-center text-[11px] font-mono border-t ${
-                    !isYesSelected
-                      ? "bg-no/85 text-no-foreground border-black/20"
-                      : "bg-muted-foreground/15 text-foreground/80 border-border/40"
-                  }`}
-                >
-                  {noPrice.toFixed(4)}
-                </div>
-              </button>
-            </div>
+                } else if (isBinarySingleMarket && yesNoOptions.no) {
+                  // binary 模式：Buy No 是 No 端的 long 仓位
+                  setSide("buy");
+                  setSelectedOption(yesNoOptions.no.id);
+                } else {
+                  setSide("sell");
+                }
+              }}
+            />
 
 
             {/* Leverage */}

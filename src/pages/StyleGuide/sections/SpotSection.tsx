@@ -51,6 +51,7 @@ export const SpotSection = ({ isMobile }: Props) => {
           onToggleWatch={() => undefined}
           onBack={() => undefined}
           previewSignedIn
+          previewActiveSurface="pro"
         />
       </SectionWrapper>
 

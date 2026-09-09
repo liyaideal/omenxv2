@@ -103,10 +103,16 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
     ],
   },
   {
+    id: "pro",
+    label: "Pro — 交易终端",
+    sections: [
+      s("pro-spot", "Pro 现货终端 ✅", sec("ProSpotSection", "ProSpotSection")),
+    ],
+  },
+  {
     id: "legacy",
     label: "Legacy — 未改版存量",
     sections: [
-      s("pro-spot", "Pro 现货终端 ✅", sec("ProSpotSection", "ProSpotSection")),
       s("transparency", "Transparency", sec("TransparencySection", "TransparencySection")),
       s("worldcup", "World Cup (legacy)", sec("WorldCupSection", "WorldCupSection")),
     ],
