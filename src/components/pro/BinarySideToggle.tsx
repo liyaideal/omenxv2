@@ -16,6 +16,13 @@ interface BinarySideToggleProps {
   onSelect: (side: "yes" | "no") => void;
   /** Price decimals. Spot books quote to 4dp, futures to 2dp. */
   decimals?: number;
+  /** Futures terminal shows a small glow dot on the active tile. */
+  activeDot?: boolean;
+  /** Greys out a tile and blocks interaction (Sell with nothing to sell). */
+  disabledSide?: "yes" | "no" | "both";
+  /** Overrides the bottom bar text (e.g. `0 sh` on an unheld side). */
+  yesBarText?: string;
+  noBarText?: string;
   className?: string;
 }
 
@@ -27,29 +34,39 @@ export const BinarySideToggle = ({
   isYesSelected,
   onSelect,
   decimals = 4,
+  activeDot = false,
+  disabledSide,
+  yesBarText,
+  noBarText,
   className,
 }: BinarySideToggleProps) => {
   const Segment = ({
     label,
-    price,
+    barText,
     active,
     tone,
+    disabled,
     onClick,
   }: {
     label: string;
-    price: number;
+    barText: string;
     active: boolean;
     tone: "yes" | "no";
+    disabled: boolean;
     onClick: () => void;
   }) => (
     <button
       onClick={onClick}
       aria-pressed={active}
-      className="relative flex flex-col rounded-md overflow-hidden transition-all"
+      disabled={disabled}
+      className={cn(
+        "relative flex flex-col h-full rounded-md overflow-hidden transition-all",
+        disabled && "opacity-40 pointer-events-none",
+      )}
     >
       <div
         className={cn(
-          "flex-1 flex items-center justify-center min-h-[24px] py-1.5 px-2 text-[11px] font-semibold leading-tight",
+          "relative flex-1 flex items-center justify-center min-h-[24px] py-1.5 px-2 text-[11px] font-semibold leading-tight line-clamp-2 text-center transition-colors",
           active
             ? tone === "yes"
               ? "bg-yes text-yes-foreground"
@@ -58,6 +75,9 @@ export const BinarySideToggle = ({
         )}
       >
         {label}
+        {activeDot && active && (
+          <span className="absolute top-1 right-1 w-1 h-1 rounded-full bg-current shadow-[0_0_4px_currentColor]" />
+        )}
       </div>
       <div
         className={cn(
@@ -69,7 +89,7 @@ export const BinarySideToggle = ({
             : "bg-muted-foreground/15 text-foreground/80 border-border/40",
         )}
       >
-        {price.toFixed(decimals)}
+        {barText}
       </div>
     </button>
   );
@@ -78,16 +98,18 @@ export const BinarySideToggle = ({
     <div className={cn("grid grid-cols-2 gap-2 p-1 bg-muted/30 rounded-lg", className)}>
       <Segment
         label={yesLabel}
-        price={yesPrice}
+        barText={yesBarText ?? yesPrice.toFixed(decimals)}
         active={isYesSelected}
         tone="yes"
+        disabled={disabledSide === "yes" || disabledSide === "both"}
         onClick={() => onSelect("yes")}
       />
       <Segment
         label={noLabel}
-        price={noPrice}
+        barText={noBarText ?? noPrice.toFixed(decimals)}
         active={!isYesSelected}
         tone="no"
+        disabled={disabledSide === "no" || disabledSide === "both"}
         onClick={() => onSelect("no")}
       />
     </div>
