@@ -5,7 +5,6 @@ import { UnifiedPosition } from "@/hooks/usePositions";
 interface PositionDetailDrawerProps {
   position: UnifiedPosition;
   liveMarkPrice?: number;
-  fundingRatePerHour?: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -17,7 +16,6 @@ interface PositionDetailDrawerProps {
 export const PositionDetailDrawer = ({
   position,
   liveMarkPrice,
-  fundingRatePerHour,
   open,
   onOpenChange,
 }: PositionDetailDrawerProps) => {
@@ -30,7 +28,6 @@ export const PositionDetailDrawer = ({
       <PositionDetailContent
         position={position}
         liveMarkPrice={liveMarkPrice}
-        fundingRatePerHour={fundingRatePerHour}
       />
     </MobileDrawer>
   );

@@ -138,9 +138,7 @@ function TradingChartsContent({ selectedEvent, selectedOptionData, options }: Tr
           {tradingStats.map((stat) => (
             <div key={stat.label} className="flex items-center gap-2 text-right justify-end">
               <span className="text-[10px] text-muted-foreground">{stat.label}</span>
-              <span className={`font-mono text-xs font-semibold ${
-                stat.isPositive ? "text-trading-green" : "text-foreground"
-              }`}>
+              <span className="font-mono text-xs font-semibold text-foreground">
                 {stat.value}
               </span>
             </div>

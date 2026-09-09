@@ -33,7 +33,7 @@ interface PositionCardProps {
   // Identity for close mutations (passed by parent list)
   positionId?: string;
   positionIndex?: number;
-  // Full unified position (enables detail drawer with funding data)
+  // Full unified position (enables the detail drawer)
   position?: UnifiedPosition;
 }
 
@@ -292,10 +292,10 @@ export const PositionCard = ({
           </div>
         </div>
 
-        {/* Liquidation price — estimated, ignores funding/MM buffer */}
+        {/* Liquidation price — estimated, ignores MM buffer */}
         <div
           className="flex items-center justify-between mb-2"
-          title="Estimated, ignores funding and MM buffer"
+          title="Estimated, ignores MM buffer"
         >
           <span className="text-[10px] text-muted-foreground">{TRADING_TERMS.LIQ_PRICE}</span>
           <span className="font-mono text-xs text-trading-red">

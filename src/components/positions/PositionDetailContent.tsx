@@ -1,10 +1,8 @@
 import { FUTURES_FEE_RATE } from "@/services/tradingService";
 import { useMemo } from "react";
-import { TrendingUp, TrendingDown, Clock, Receipt, Info } from "lucide-react";
+import { Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UnifiedPosition } from "@/hooks/usePositions";
-import { useFundingHistory } from "@/hooks/useFundingHistory";
-import { useOptionFundingRate } from "@/hooks/useOptionFundingRate";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { getBinaryOutcome } from "@/lib/eventUtils";
 import { calcLiqPrice } from "@/lib/tradingUtils";
@@ -14,25 +12,22 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 
 interface PositionDetailContentProps {
   position: UnifiedPosition;
   /** Live mark price from realtime feed (overrides position.markPriceNum if provided). */
   liveMarkPrice?: number;
-  /** Current funding rate per hour for this option (decimal, e.g. 0.0001). */
-  fundingRatePerHour?: number;
-  /** Approximate fee rate per trade (e.g. 0.001 = 0.1%). */
+  /** Approximate fee rate per trade (e.g. 0.0015 = 0.15%). */
   feeRate?: number;
 }
 
 // Use a fixed sentence-case display per design rules
-const TRADE_FEE_RATE = FUTURES_FEE_RATE; // 0.1% taker fee (shared constant)
+const TRADE_FEE_RATE = FUTURES_FEE_RATE; // 0.15% taker fee (shared constant)
 
 export const PositionDetailContent = ({
   position,
   liveMarkPrice,
-  fundingRatePerHour: fundingRatePerHourProp,
   feeRate = TRADE_FEE_RATE,
 }: PositionDetailContentProps) => {
   // Use unified realtime lookup (direct optionId + event/option fallback matching)
@@ -46,12 +41,6 @@ export const PositionDetailContent = ({
   const mark = livePrice ?? liveMarkPrice ?? position.markPriceNum;
   const sideSign = position.type === "long" ? 1 : -1;
 
-  // Pull live funding rate + next accrual from event_options when the parent
-  // didn't pass an explicit prop (covers all 3 call sites).
-  const { data: liveFunding } = useOptionFundingRate(position.optionId);
-  const fundingRatePerHour = fundingRatePerHourProp ?? liveFunding?.fundingRatePerHour ?? 0;
-  const nextFundingAt = liveFunding?.nextFundingAt ?? null;
-
   // Price PnL = (mark − entry) × size × side
   // Leverage is NOT multiplied — size already represents contracts and leverage
   // only governs margin / % return. Aligns with useRealtimePositionsPnL.
@@ -60,39 +49,14 @@ export const PositionDetailContent = ({
     return diff * position.sizeNum * sideSign;
   }, [mark, position.entryPriceNum, position.sizeNum, sideSign]);
 
-  const fundingPaid = position.fundingAccrued;
-  const netPnl = pricePnl - fundingPaid;
+  // Funding is gone in Fee System V4 — Net PnL = Price PnL.
+  const netPnl = pricePnl;
   const pnlPercent = position.marginNum > 0 ? (netPnl / position.marginNum) * 100 : 0;
 
   // Notional & fee estimates (size × price, no leverage multiplier)
   const notional = position.sizeNum * mark;
   const openFee = position.sizeNum * position.entryPriceNum * feeRate;
   const estCloseFee = notional * feeRate;
-
-  // Funding rate direction
-  const userPaysFunding = sideSign * fundingRatePerHour > 0;
-  const ratePctPerHour = (fundingRatePerHour * 100).toFixed(4);
-  const fundingPerHour = sideSign * fundingRatePerHour * notional;
-
-  // Next accrual countdown — prefer authoritative next_funding_at, fall back to
-  // lastFundingAt + 5 min (matches cron cadence).
-  const nextAccrualLabel = useMemo(() => {
-    const anchor = nextFundingAt
-      ? new Date(nextFundingAt).getTime()
-      : position.lastFundingAt
-      ? new Date(position.lastFundingAt).getTime() + 5 * 60_000
-      : null;
-    if (anchor == null) return "Within 5 min";
-    const diff = anchor - Date.now();
-    if (diff <= 0) return "Any moment";
-    const m = Math.floor(diff / 60_000);
-    const s = Math.floor((diff % 60_000) / 1000);
-    return `${m}m ${s.toString().padStart(2, "0")}s`;
-  }, [nextFundingAt, position.lastFundingAt]);
-
-  const { data: history = [] } = useFundingHistory(
-    position._source === "supabase" ? position.id : null
-  );
 
   const pnlColor = netPnl >= 0 ? "text-trading-green" : "text-trading-red";
 
@@ -153,7 +117,7 @@ export const PositionDetailContent = ({
           </div>
 
           <div className="rounded-md bg-muted/20 border border-border/60 p-2.5 text-[11px] text-muted-foreground">
-            Each winning share pays $1 at settlement. No leverage, no funding, no liquidation.
+            Each winning share pays $1 at settlement. No leverage, no liquidation.
           </div>
         </div>
       </TooltipProvider>
@@ -216,7 +180,7 @@ export const PositionDetailContent = ({
                 <Info className="w-3 h-3 cursor-help" />
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-xs text-xs">
-                Net PnL = Price PnL − Funding accrued. Closing now would also incur an estimated trading fee.
+                Net PnL = Price PnL. Closing now would also incur an estimated trading fee.
               </TooltipContent>
             </Tooltip>
           </div>
@@ -237,20 +201,6 @@ export const PositionDetailContent = ({
               )}
             >
               {pricePnl >= 0 ? "+" : "−"}${Math.abs(pricePnl).toFixed(2)}
-            </span>
-
-            <span className="text-muted-foreground">Funding paid</span>
-            <span
-              className={cn(
-                "font-mono text-right",
-                fundingPaid > 0
-                  ? "text-trading-red"
-                  : fundingPaid < 0
-                  ? "text-trading-green"
-                  : "text-foreground"
-              )}
-            >
-              {fundingPaid >= 0 ? "−" : "+"}${Math.abs(fundingPaid).toFixed(4)}
             </span>
 
             <span className="text-muted-foreground">Cumulative Trading Fees</span>
@@ -282,7 +232,7 @@ export const PositionDetailContent = ({
                   <Info className="w-3 h-3 cursor-help" />
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-xs text-xs">
-                  Estimated liquidation price. Ignores funding drift and maintenance-margin buffer.
+                  Estimated liquidation price. Ignores maintenance-margin buffer.
                 </TooltipContent>
               </Tooltip>
             </span>
@@ -296,97 +246,6 @@ export const PositionDetailContent = ({
             <span className="text-muted-foreground">Notional</span>
             <span className="font-mono text-right">${notional.toFixed(2)}</span>
           </div>
-        </div>
-
-        {/* ============ Funding section ============ */}
-        <div className="space-y-2">
-          <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
-            <Receipt className="w-3 h-3" /> Funding
-          </div>
-          <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5 text-xs">
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Current rate / hour</span>
-              <span
-                className={cn(
-                  "font-mono inline-flex items-center gap-1",
-                  userPaysFunding ? "text-trading-red" : "text-trading-green"
-                )}
-              >
-                {userPaysFunding ? (
-                  <TrendingDown className="w-3 h-3" />
-                ) : (
-                  <TrendingUp className="w-3 h-3" />
-                )}
-                {fundingRatePerHour >= 0 ? "+" : ""}
-                {ratePctPerHour}%
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">
-                {userPaysFunding ? "You pay / hour" : "You receive / hour"}
-              </span>
-              <span className="font-mono">
-                ≈ ${Math.abs(fundingPerHour).toFixed(4)}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground inline-flex items-center gap-1">
-                <Clock className="w-3 h-3" /> Next accrual
-              </span>
-              <span className="font-mono text-muted-foreground">{nextAccrualLabel}</span>
-            </div>
-          </div>
-
-          {/* History */}
-          {history.length > 0 && (
-            <details className="text-xs">
-              <summary className="cursor-pointer text-muted-foreground hover:text-foreground select-none py-1">
-                View funding charges ({history.length})
-              </summary>
-              <ScrollArea className="max-h-48 mt-1 rounded-md border border-border">
-                <table className="w-full text-xs">
-                  <thead className="text-muted-foreground bg-muted/30">
-                    <tr>
-                      <th className="text-left font-normal px-2 py-1">Time</th>
-                      <th className="text-right font-normal px-2 py-1">Rate</th>
-                      <th className="text-right font-normal px-2 py-1">Amount</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {history.map((h) => (
-                      <tr key={h.id} className="border-t border-border">
-                        <td className="px-2 py-1 text-muted-foreground">
-                          {new Date(h.created_at).toLocaleString(undefined, {
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </td>
-                        <td className="px-2 py-1 text-right font-mono">
-                          {h.applied_rate >= 0 ? "+" : ""}
-                          {(h.applied_rate * 100).toFixed(4)}%
-                        </td>
-                        <td
-                          className={cn(
-                            "px-2 py-1 text-right font-mono",
-                            h.amount > 0
-                              ? "text-trading-red"
-                              : h.amount < 0
-                              ? "text-trading-green"
-                              : ""
-                          )}
-                        >
-                          {h.amount >= 0 ? "−" : "+"}$
-                          {Math.abs(h.amount).toFixed(4)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </ScrollArea>
-            </details>
-          )}
         </div>
       </div>
     </TooltipProvider>
