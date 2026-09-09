@@ -52,6 +52,7 @@ import {
   ProSpotAccountPanel,
   ProSpotOrderPreview,
 } from "@/components/pro/ProSpotPanel";
+import { ProSpotHeader } from "@/components/pro/ProSpotHeader";
 import { OrderTypeDropdown } from "@/components/pro/OrderTypeDropdown";
 import { ProTerminalLayout } from "@/components/pro/ProTerminalLayout";
 import { ProBottomTabs } from "@/components/pro/ProBottomTabs";
@@ -987,118 +988,30 @@ export default function SpotTrading() {
   // from DesktopTrading so /spot feels like a trading terminal.
   // -----------------------------------------------------------------
   const DesktopChrome = (
-    <header className="flex items-center gap-4 px-4 py-2 bg-background border-b border-border/30">
-      <button
-        onClick={() => (showBack ? navigate(-1) : navigate("/events?pl=spot"))}
-        className="w-9 h-9 rounded-full bg-muted/50 flex items-center justify-center hover:bg-muted flex-shrink-0"
-        aria-label="Back"
-      >
-        <ArrowLeft className="w-5 h-5 text-foreground" />
-      </button>
-
-      <div className="flex items-center gap-3 min-w-0">
-        <div className={cn(
-          "flex h-9 items-center justify-center rounded-full bg-foreground/5 border border-border/60 font-mono font-semibold flex-shrink-0 px-2",
-          ticker.length <= 3 ? "text-[11px] w-9" : ticker.length <= 4 ? "text-[10px] min-w-9" : "text-[9px] min-w-9",
-        )}>
-          {ticker}
-        </div>
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-foreground truncate">{event.name}</span>
-            <Badge variant="outline" className="text-[10px]">SPOT</Badge>
-            <Badge variant="outline" className={cn("text-[10px] border", badge.className)}>
-              {badge.label}
-            </Badge>
-          </div>
-          <div className="mt-0.5">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <span className={cn(
-                "w-1.5 h-1.5 rounded-full",
-                countdown.urgency === "red" && "bg-trading-red animate-pulse",
-                countdown.urgency === "yellow" && "bg-trading-yellow",
-                countdown.urgency === "muted" && "bg-muted-foreground",
-              )} />
-              <span>Trading ends in</span>
-              <span className={cn(
-                "font-mono font-medium",
-                countdown.urgency === "red" && "text-trading-red animate-pulse",
-                countdown.urgency === "yellow" && "text-trading-yellow",
-                countdown.urgency === "muted" && "text-foreground",
-              )}>{countdown.text}</span>
-              {freezeEtOnly && (
-                <>
-                  <span>·</span>
-                  <span className="font-mono">until {freezeEtOnly}</span>
-                </>
-              )}
-              {closingSoon && lifecycle === "TRADING" && (
-                <span
-                  className="px-1.5 py-0.5 rounded bg-trading-yellow/15 text-trading-yellow text-[10px] font-medium"
-                  title="Trading remains open until 5 minutes before close."
-                >
-                  Closing soon
-                </span>
-              )}
-              <TooltipProvider><Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    className="p-0.5 text-muted-foreground hover:text-foreground"
-                    aria-label="Schedule details"
-                  >
-                    <Info className="w-3 h-3" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" align="start" className="text-xs max-w-[280px]">
-                  <div className="space-y-1">
-                    <div><span className="text-muted-foreground">Opens:</span> after prior close (extended trading)</div>
-                    <div><span className="text-muted-foreground">Trading ends:</span> {freezeEtOnly ?? "—"}</div>
-                    <div><span className="text-muted-foreground">Official close:</span> {closeEtOnly ?? "—"} (settlement price)</div>
-                    <div><span className="text-muted-foreground">Credits by:</span> ~{settleEtOnly ?? "—"}</div>
-                  </div>
-                </TooltipContent>
-              </Tooltip></TooltipProvider>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Right stats — spot-specific. NO index / funding / OI / Yes price. */}
-      <div className="ml-auto flex items-center gap-6 text-xs">
-        <StatItem label="Volume" value={mock24hVolume(event.id)} />
-        <StatItem
-          label={`Base (${priorCloseDateLabel} close)`}
-          value={basePrice != null ? `${cur}${basePrice.toFixed(2)}` : "—"}
-        />
-        <StatItem
-          label={ticker || "Last"}
-          value={indicative != null ? `${cur}${indicative.toFixed(2)}` : "—"}
-          valueClass={indicativePct >= 0 ? "text-trading-green" : "text-trading-red"}
-          hint={indicative != null
-            ? `${indicativePct >= 0 ? "+" : ""}${indicativePct.toFixed(2)}%${sessionTag ? ` · ${sessionTag}` : ""}`
-            : undefined}
-        />
-      </div>
-
-
-      <SurfaceSwitch size="compact" />
-
-      <button
-        onClick={() => toggleWatch(event.id)}
-        className="p-2 rounded-md hover:bg-muted/50 transition-colors flex-shrink-0"
-        aria-label="Toggle watchlist"
-      >
-        <Star
-          className={cn(
-            "w-5 h-5 transition-colors",
-            isWatched(event.id)
-              ? "text-trading-yellow fill-trading-yellow"
-              : "text-muted-foreground hover:text-trading-yellow",
-          )}
-        />
-      </button>
-    </header>
+    <ProSpotHeader
+      ticker={ticker}
+      eventName={event.name}
+      lifecycleBadge={{ label: badge.label, className: badge.className }}
+      countdown={{ text: countdown.text, urgency: countdown.urgency as "red" | "yellow" | "muted" }}
+      freezeEtOnly={freezeEtOnly}
+      closeEtOnly={closeEtOnly}
+      settleEtOnly={settleEtOnly}
+      closingSoon={closingSoon && lifecycle === "TRADING"}
+      volumeText={mock24hVolume(event.id)}
+      priorCloseDateLabel={priorCloseDateLabel}
+      basePriceText={basePrice != null ? `${cur}${basePrice.toFixed(2)}` : "—"}
+      lastLabel={ticker || "Last"}
+      lastPriceText={indicative != null ? `${cur}${indicative.toFixed(2)}` : "—"}
+      lastIsUp={indicativePct >= 0}
+      lastHint={
+        indicative != null
+          ? `${indicativePct >= 0 ? "+" : ""}${indicativePct.toFixed(2)}%${sessionTag ? ` · ${sessionTag}` : ""}`
+          : undefined
+      }
+      watched={isWatched(event.id)}
+      onToggleWatch={() => toggleWatch(event.id)}
+      onBack={() => (showBack ? navigate(-1) : navigate("/events?pl=spot"))}
+    />
   );
 
   // -----------------------------------------------------------------
