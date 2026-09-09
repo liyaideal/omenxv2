@@ -914,17 +914,12 @@ export default function SpotTrading() {
                 {p.pnl}
               </span>
               <button
-                onClick={() => {
-                  if (yesOpt && p.optionId === yesOpt.id) setSelectedOptionId(yesOpt.id);
-                  else if (noOpt && p.optionId === noOpt.id) setSelectedOptionId(noOpt.id);
-                  setSide("sell");
-                  setBottomTab("Positions");
-                  setAmount(p.sizeNum.toFixed(0));
-                }}
+                onClick={() => closePosition(p)}
                 className="text-[10px] text-primary hover:underline text-right"
               >
                 Close
               </button>
+
             </div>
           );
         })
