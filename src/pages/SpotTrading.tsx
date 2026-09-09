@@ -535,7 +535,8 @@ export default function SpotTrading() {
     if (orderType === "Limit" && tickInvalid)
       return toast.error("Limit price must be a multiple of $0.01.");
     // 技术对接 §7: 净仓方向校验 — sell 只在持有同侧净仓时允许。
-    if (side === "sell" && qty > heldQty + 1e-6)
+    // orderQty 已经过 FIX4 全平吸附，精确等于 heldQty 时必通过。
+    if (side === "sell" && orderQty > heldQty + 1e-9)
       return toast.error("You don't hold enough of this outcome to sell. Buy the opposite side to reduce instead.");
     if (side === "buy" && amt > spotBalance) return toast.error("Insufficient balance.");
 
