@@ -5,6 +5,48 @@ import { Badge } from "@/components/ui/badge";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
 import { DeviceFrame } from "../components/DeviceFrame";
+import { SectionFrame, type SectionCase } from "../components/SectionFrame";
+
+/* Surface switch (D6'-1) — 三态穷尽：Simple 选中 / Pro 选中 / 游客隐藏。 */
+const SURFACE_SWITCH_CASES: SectionCase[] = [
+  {
+    key: "foundations-surface-switch",
+    label: "SS-1…SS-3 · Simple 选中 / Pro 选中 / 游客隐藏（SurfaceSwitch）",
+    note: "aria-label=\"Trading view\"，两枚 button 带 aria-pressed；标签固定为 Simple 与 Pro，不得改写。",
+    spec: [
+      {
+        state: "Simple 选中",
+        when: 'user != null && surface === "lite"',
+        visual: "Simple 胶囊白底 #FFFFFF 黑字 #0B0D10 字重 700；Pro 胶囊 #14171C 底 + 1px #262B33 + #C7CCD4",
+        source: "SurfaceSwitch surface（SurfaceContext）",
+      },
+      {
+        state: "Pro 选中",
+        when: 'user != null && surface === "pro"',
+        visual: "同上镜像",
+        source: "SurfaceSwitch surface（SurfaceContext）",
+      },
+      {
+        state: "游客隐藏",
+        when: "user == null",
+        visual: "整个控件 return null，不占位",
+        source: "useAuth().user",
+      },
+      {
+        state: "尺寸 header / compact",
+        when: 'size === "header" / size === "compact"',
+        visual: "px-3.5 py-[7px] 12.5px / px-3 py-[5px] 11.5px",
+        source: "SurfaceSwitch size prop",
+      },
+      {
+        state: "点击切换",
+        when: "onClick",
+        visual: "setSurface(id) 就地换页，URL 不变、不 navigate；写入 localStorage 与 profiles.preferred_surface",
+        source: "SurfaceContext setSurface",
+      },
+    ],
+  },
+];
 import { Logo } from "@/components/Logo";
 import { Check, X, AlertCircle, ChevronLeft, Loader2 } from "lucide-react";
 
@@ -465,6 +507,20 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
 
 <DesktopSubpageHeader title="Request detail" onBack={() => navigate('/wallet/recovery')} />`}
         />
+      </SectionWrapper>
+
+      {/* =========================== */}
+      {/* SURFACE SWITCH (D6'-1)      */}
+      {/* =========================== */}
+      <SectionWrapper
+        id="foundations-surface-switch"
+        title="Surface switch · Simple / Pro（D6'-1）"
+        description="生产件 src/components/surface/SurfaceSwitch.tsx。全站不再有模式开关——除交易页外所有页面恒为 Simple。该控件只挂交易页 chrome，且只对已登录用户渲染；点击调用 setSurface() 就地换页，不做任何跳转、URL 不变。挂载点四处：桌面 EventsDesktopHeader 右簇首位（仅 /trade /trade/order /spot）、Lite 三张交易页的 MobileHeader 右槽、Pro MobileTradingLayout 右槽、Pro DesktopTrading / SpotTrading 自绘页头。视觉沿用 Portfolio SegmentChips 胶囊对（选中 #FFFFFF/#0B0D10/700，未选 #14171C + 1px #262B33/#C7CCD4/600）。"
+      >
+        <SectionFrame cases={SURFACE_SWITCH_CASES} device="desktop" minHeight={220} />
+        <div className="mt-4">
+          <SectionFrame cases={SURFACE_SWITCH_CASES} device="mobile" minHeight={220} />
+        </div>
       </SectionWrapper>
 
       {/* Mobile UI Patterns */}

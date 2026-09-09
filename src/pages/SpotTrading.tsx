@@ -4,6 +4,7 @@
 // futures-only surfaces stripped out. It MUST NOT render the
 // site-wide navigation header (see DESIGN.md §14 anti-patterns).
 // ============================================================
+import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams, useNavigate, useNavigationType } from "react-router-dom";
 import { toast } from "sonner";
@@ -1245,6 +1246,8 @@ export default function SpotTrading() {
       </div>
 
 
+      <SurfaceSwitch size="compact" />
+
       <button
         onClick={() => toggleWatch(event.id)}
         className="p-2 rounded-md hover:bg-muted/50 transition-colors flex-shrink-0"
@@ -1324,6 +1327,7 @@ export default function SpotTrading() {
           </Popover>
         </div>
       </div>
+      <SurfaceSwitch size="compact" />
       <button onClick={() => toggleWatch(event.id)} className="p-1.5 flex-shrink-0">
         <Star
           className={cn(

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
-import { useSurface } from "@/contexts/SurfaceContext";
 import { LiteAuthGate } from "@/components/auth/LiteAuthGate";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -308,8 +307,7 @@ const formatCategoryLine = (categories: string[]): string => {
 export const AvailableBalanceTooltip = ({ marginInUse, unrealizedPnL }: { marginInUse: number; unrealizedPnL: number }) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { surface } = useSurface();
-  const isLite = surface === "lite";
+  const isLite = true;
 
   const content = (
     <div className="space-y-2">
@@ -361,8 +359,7 @@ export const AvailableBalanceTooltip = ({ marginInUse, unrealizedPnL }: { margin
  */
 const StandardAvailableTooltip = () => {
   const navigate = useNavigate();
-  const { surface } = useSurface();
-  const isLite = surface === "lite";
+  const isLite = true;
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -671,8 +668,7 @@ export const SavedAddressActionsList = ({
 export default function Wallet() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { surface } = useSurface();
-  const isLite = surface === "lite";
+  const isLite = true;
   const { balance, spotBalance, user } = useUserProfile();
   const { imTotal, unrealizedPnL, hasPositions } = useRealtimeRiskMetrics();
   const { maxBoost, boostCategories } = useCategoryBoostConfigs();

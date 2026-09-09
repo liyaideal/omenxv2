@@ -1817,3 +1817,18 @@ Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① 
 
 **7 · 字典**
 `share-sh1 … sh6` 六个 key 挂的是生产件 `LitePnlPoster` 本体，改动自动跟随，**禁止在 preview 里手写海报复刻**。
+
+## §Addendum 2026-09-09 · Surface switch 只活在交易页（LOCKED）
+
+**规则**：OmenX 不再有全站外观模式。`/` `/events` `/portfolio` `/wallet` 及其余一切路由**恒为 Lite**，任何页面不得再提供模式入口（头像菜单、抽屉、设置页一律不许加回来）。
+
+**唯一例外**：`/trade`、`/trade/order`、`/spot` 三条交易路由保留 Simple / Pro 两种看法，切换只由生产件 `src/components/surface/SurfaceSwitch.tsx` 提供。
+
+**控件约束**
+- 标签固定 `Simple` / `Pro`，不得改写、不得翻译、不得加图标。
+- 未登录 `return null`；不得渲染禁用态或引导登录。
+- 点击只调 `setSurface()`：就地换页，**不 navigate、URL 不变**。
+- 视觉沿用 Portfolio `SegmentChips` 胶囊对：选中 `#FFFFFF` 底 / `#0B0D10` 字 / 700；未选 `#14171C` 底 + 1px `#262B33` / `#C7CCD4` / 600。两种尺寸：`header`（`px-3.5 py-[7px]` 12.5px）与 `compact`（`px-3 py-[5px]` 11.5px）。
+- 挂载点仅四处，见交付说明 `docs/delivery/surface-switch-v1.md` §3；新增挂载点须先改该表。
+
+**字典**：`/style-guide` → Foundations → `Surface switch · Simple / Pro`（`foundations-surface-switch`），挂生产件本体。

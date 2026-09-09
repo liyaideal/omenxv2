@@ -27,6 +27,7 @@ import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
+import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
 import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
 import { useHeadingScrolledOut } from "@/hooks/useHeadingScrolledOut";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -1643,7 +1644,7 @@ const LiteContractTrade = () => {
             showLogo={false}
             showBack={true}
             backTo={backHref}
-            rightContent={<div className="flex items-center gap-1 -mr-2">{WatchStar}</div>}
+            rightContent={<div className="flex items-center gap-2 -mr-2"><SurfaceSwitch size="compact" />{WatchStar}</div>}
           />
           <div className="space-y-4 px-4 py-4">
             {isMulti && !resolved && MultiMetaRow}

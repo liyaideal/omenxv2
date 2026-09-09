@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Clock, ArrowLeft, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useSurface } from "@/contexts/SurfaceContext";
 
 interface ExpiredEventFallbackProps {
   eventId: string;
@@ -9,8 +8,7 @@ interface ExpiredEventFallbackProps {
 
 export function ExpiredEventFallback({ eventId }: ExpiredEventFallbackProps) {
   const navigate = useNavigate();
-  const { surface } = useSurface();
-  const isLite = surface === "lite";
+  const isLite = true;
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-6">

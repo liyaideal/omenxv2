@@ -19,6 +19,7 @@ const pick =
 
 const mobileHeader = () => import("./mobileHeaderPreviews");
 const dshHeader = () => import("./dshHeaderPreviews");
+const surfaceSwitch = () => import("./surfacePreviews");
 const portfolio = () => import("./portfolioPreviews");
 const liteEvents = () => import("./liteEventsPreviews");
 const sportsLines = () => import("./sportsLinesPreviews");
@@ -125,6 +126,7 @@ export const previewRegistry: Record<string, Loader> = {
 
   /* -------- Foundations · Desktop Subpage Header (DSH v1) -------- */
   "foundations-dsh-header": pick(dshHeader, "DshHeaderPreview"),
+  "foundations-surface-switch": pick(surfaceSwitch, "SurfaceSwitchPreview"),
 
   /* -------- Mobile header system -------- */
 

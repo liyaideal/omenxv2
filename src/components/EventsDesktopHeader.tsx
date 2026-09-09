@@ -16,7 +16,6 @@ import {
   KeyRound,
   ArrowLeftRight,
 } from "lucide-react";
-import { Sparkles, Layers } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,6 +38,7 @@ import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/h
 import { computeTotalEquity, formatEquityUsd } from "@/lib/equity";
 import { TransferDialog } from "@/components/wallet/TransferDialog";
 import { useSurface } from "@/contexts/SurfaceContext";
+import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
 
 
 // Main nav (4 items). Resolved is now an Events page tab; Leaderboard is a
@@ -109,33 +109,6 @@ export const EquityHoverCardBody = ({
   );
 };
 
-// Simple mode ↔ Pro mode toggle inside the user dropdown. Persists via
-// SurfaceContext (localStorage + best-effort profiles.preferred_surface).
-const SurfaceToggleMenuItem = () => {
-  const { surface, toggle } = useSurface();
-  const isLite = surface === "lite";
-  return (
-    <DropdownMenuItem
-      onSelect={(e) => {
-        e.preventDefault();
-        toggle();
-      }}
-    >
-      {isLite ? (
-        <Layers className="mr-2 h-4 w-4 text-primary" />
-      ) : (
-        <Sparkles className="mr-2 h-4 w-4 text-primary" />
-      )}
-      <span className="flex-1">
-        {isLite ? "Switch to Pro mode" : "Switch to Simple mode"}
-      </span>
-      <span className="ml-2 text-[10px] uppercase tracking-wide text-muted-foreground">
-        {isLite ? "Simple" : "Pro"}
-      </span>
-    </DropdownMenuItem>
-  );
-};
-
 export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -157,6 +130,10 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
   };
 
   const currentPath = location.pathname;
+  const isTradeRoute =
+    currentPath === "/trade" ||
+    currentPath === "/trade/order" ||
+    currentPath === "/spot";
 
   return (
     <header
@@ -206,6 +183,8 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
 
         {/* Right: Custom Content + Equity + Profile */}
         <div className="flex min-w-0 items-center gap-2 xl:gap-4">
+          {/* Trade-page-only Simple/Pro control (D6'-1). No site-wide mode. */}
+          {isTradeRoute && <SurfaceSwitch size="header" />}
           {rightContent}
 
           {user ? (
@@ -274,7 +253,6 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
                     Settings
                   </DropdownMenuItem>
-                  <SurfaceToggleMenuItem />
                   <DropdownMenuSub>
                     <DropdownMenuSubTrigger>
                       <Globe className="mr-2 h-4 w-4 text-muted-foreground" />

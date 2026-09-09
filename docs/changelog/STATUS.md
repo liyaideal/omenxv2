@@ -17,6 +17,16 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-09-09 — Surface switch（Simple / Pro）
+
+来源：[Surface switch（Simple / Pro）交付说明 v1](../delivery/surface-switch-v1.md)
+
+| # | 项 | 归属 | Status | Notes |
+|---|---|---|---|---|
+| 1 | 交易页四处挂载点回归（桌面页头 / Lite 移动页头 / Pro 移动终端 / Pro 桌面终端） | QA | ⬜ | 登录态显示、游客隐藏 |
+| 2 | 非交易页恒 Lite 抽查（`/`、`/events`、`/portfolio`、`/wallet`、`/resolved` 重定向） | QA | ⬜ | 页面上不得再有任何模式入口 |
+| 3 | 切换持久化（localStorage + `profiles.preferred_surface`） | 研发 | ⬜ | 切换不得改变 URL |
+
 ## 2026-09-09 — Lite 下单面板 Returns 区（净利）
 
 来源：[Lite 下单面板 Returns 区（净利）交付说明 v1](../delivery/lite-order-returns-v1.md)

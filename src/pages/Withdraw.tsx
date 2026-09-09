@@ -7,14 +7,12 @@ import { WalletWithdraw } from '@/components/withdraw/WalletWithdraw';
 import { WithdrawSubmitProvider } from '@/components/withdraw/WithdrawSubmitContext';
 import { StickyWithdrawBar } from '@/components/withdraw/StickyWithdrawBar';
 import { useAuth } from '@/hooks/useAuth';
-import { useSurface } from '@/contexts/SurfaceContext';
 import { WalletAuthGate, WalletGatePlaceholder } from '@/pages/Wallet';
 
 export default function Withdraw() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { user } = useAuth();
-  const { surface } = useSurface();
 
   useEffect(() => {
     if (isMobile !== undefined && isMobile === false) {
@@ -30,7 +28,7 @@ export default function Withdraw() {
       <div className="min-h-screen bg-background flex flex-col">
         <MobileHeader title="Withdraw" showBack showLogo={false} />
         <main className="flex-1 overflow-auto pb-24">
-          <WalletAuthGate isLite={surface === 'lite'}>
+          <WalletAuthGate isLite>
             <WalletGatePlaceholder />
           </WalletAuthGate>
         </main>

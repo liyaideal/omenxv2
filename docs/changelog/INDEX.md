@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-09-09 | [Surface switch（Simple / Pro）交付说明 v1](../delivery/surface-switch-v1.md) | 全站模式开关退役：除 `/trade` `/trade/order` `/spot` 外所有路由恒为 Lite；新增交易页专用 `SurfaceSwitch`（登录才渲染，四处挂载，就地切换不跳转），头像菜单 / Me 抽屉 / 底部导航 / SeoFooter 的模式痕迹全部清除；字典新增 `foundations-surface-switch`（SS-1…SS-3） |
 | 2026-09-09 | [Lite 下单面板 Returns 区（净利）交付说明 v1](../delivery/lite-order-returns-v1.md) | 删 Max loss 行；win 改净利（扣 5% winning commission）+ ⓘ 说明；auto-close None 子态改词；费率 15bps；下单写 Trading fee 流水 |
 | 2026-09-07 | [分享 / 晒单（Lite）交付说明 v1](../delivery/lite-share-v1.md) | 分享功能首份交付说明：七处入口、三种海报形态（进行中/已平仓/已结算）、文案与调侃语规则、出图四条硬约束、状态字典 share-sh1…sh8；含 7 条已知缺口，其中邀请码异步竞态与域名硬编码两条为上线前必处理项 |
 | 2026-09-03 | [Wallet（Lite）交付说明 v1](../delivery/lite-wallet-spec-v1.md) | M7a/M7b：Wallet 状态字典 W-1…W-33 全区落地（组合层 / 账户 / 流水 / 充值流 / 提现流 / 地址簿 / Recovery 与服务件），旧 `DepositWithdrawSection` 与 `WalletSection` 页内退场并逐条并账；生产侧收敛为 USDC on Base 单资产单网络（Fiat 入口退役、提现地址 Base-only、跨链手续费改 `Varies by route`、`/deposit` `/withdraw` guest gate） |

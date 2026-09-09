@@ -7,10 +7,6 @@
 import { useEffect } from "react";
 import { Navigate, useNavigationType } from "react-router-dom";
 import { useSurface } from "@/contexts/SurfaceContext";
-import Portfolio from "./Portfolio";
-import PortfolioSettlements from "./PortfolioSettlements";
-import PortfolioAirdrops from "./PortfolioAirdrops";
-import SettlementDetail from "./SettlementDetail";
 import LitePortfolio from "./lite/LitePortfolio";
 import LiteSettlementDetail from "./lite/LiteSettlementDetail";
 import { takePortfolioReturnSurface } from "@/lib/portfolioReturn";
@@ -29,24 +25,14 @@ export const PortfolioRoute = () => {
     if (back === "lite" && surface !== "lite") setSurface("lite");
   }, [navigationType, surface, setSurface]);
 
-  return surface === "lite" ? <LitePortfolio /> : <Portfolio />;
+  // D6'-1: /portfolio is Lite-only — the mode lives on the trade page now.
+  return <LitePortfolio />;
 };
 
-export const PortfolioSettlementsRoute = () => {
-  const { surface } = useSurface();
-  return surface === "lite" ? (
-    <Navigate to="/portfolio?tab=settled" replace />
-  ) : (
-    <PortfolioSettlements />
-  );
-};
+export const PortfolioSettlementsRoute = () => (
+  <Navigate to="/portfolio?tab=settled" replace />
+);
 
-export const PortfolioAirdropsRoute = () => {
-  const { surface } = useSurface();
-  return surface === "lite" ? <Navigate to="/portfolio" replace /> : <PortfolioAirdrops />;
-};
+export const PortfolioAirdropsRoute = () => <Navigate to="/portfolio" replace />;
 
-export const SettlementDetailRoute = () => {
-  const { surface } = useSurface();
-  return surface === "lite" ? <LiteSettlementDetail /> : <SettlementDetail />;
-};
+export const SettlementDetailRoute = () => <LiteSettlementDetail />;

@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import { Logo } from "@/components/Logo";
-import { useSurface } from "@/contexts/SurfaceContext";
 
 type FooterLink = { label: string; path: string };
 
@@ -60,13 +59,9 @@ const FooterAccordion = ({ heading, links }: { heading: string; links: FooterLin
 };
 
 export const SeoFooter = () => {
-  const { surface } = useSurface();
-  const isLite = surface === "lite";
-
+  // D6'-1: no Resolved page any more — /resolved bounces back to /events.
   const platformLinks: FooterLink[] = [
     { label: "Events", path: "/events" },
-    // Lite has no Resolved page — the route bounces back to /events, so keep it Pro-only.
-    ...(isLite ? [] : [{ label: "Resolved", path: "/resolved" }]),
     { label: "Leaderboard", path: "/leaderboard" },
     { label: "Insights", path: "/insights" },
   ];
