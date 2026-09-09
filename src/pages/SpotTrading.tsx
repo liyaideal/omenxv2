@@ -880,6 +880,8 @@ export default function SpotTrading() {
   // SP-1-FIX3 · Bug 2 — `Close` must confirm and close, not silently pre-fill.
   // It pre-sets the panel (Sell · that outcome · Market · full EXACT qty) AND
   // opens the order preview dialog, which runs the same sell path on confirm.
+  // FIX4: the 3-dp string is display-only — `orderQty` snaps to the exact
+  // `p.sizeNum` (heldQty) at submit, so the order always carries full precision.
   const closePosition = (p: (typeof spotPositions)[number]) => {
     if (p.optionId) setSelectedOptionId(p.optionId);
     setSide("sell");
