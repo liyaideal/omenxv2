@@ -468,6 +468,18 @@ export default function SpotTrading() {
     return p ? p.sizeNum : 0;
   }, [spotPositions, selectedOption]);
 
+  // SP-1-FIX4 · full-close snap. The amount input displays 3 dp, so closing a
+  // position whose exact size has more decimals (e.g. 36.7647…) pre-fills a
+  // value off by < 0.0005 — rejecting the close or leaving un-closable dust.
+  // A sell amount within rounding distance of the exact held size (or ≥ 99.95%
+  // of it, e.g. slider at 100%) is treated as a full close and sends EXACTLY
+  // `heldQty`. The 3-dp string stays display-only; the order carries full
+  // precision.
+  const orderQty =
+    side === "sell" && heldQty > 0 && (Math.abs(qty - heldQty) < 0.001 || qty >= heldQty * 0.9995)
+      ? heldQty
+      : qty;
+
   // Entry price of the held leg — drives the Sell-side commission estimate.
   const heldEntry = useMemo(() => {
     if (!selectedOption) return 0;
@@ -523,7 +535,8 @@ export default function SpotTrading() {
     if (orderType === "Limit" && tickInvalid)
       return toast.error("Limit price must be a multiple of $0.01.");
     // 技术对接 §7: 净仓方向校验 — sell 只在持有同侧净仓时允许。
-    if (side === "sell" && qty > heldQty + 1e-6)
+    // orderQty 已经过 FIX4 全平吸附，精确等于 heldQty 时必通过。
+    if (side === "sell" && orderQty > heldQty + 1e-9)
       return toast.error("You don't hold enough of this outcome to sell. Buy the opposite side to reduce instead.");
     if (side === "buy" && amt > spotBalance) return toast.error("Insufficient balance.");
 
@@ -537,12 +550,12 @@ export default function SpotTrading() {
           optionId: selectedOption.id,
           side,
           price: effectivePrice,
-          quantity: qty,
+          quantity: orderQty,
         });
-        if (side === "buy") await deductSpotBalance(effectivePrice * qty);
+        if (side === "buy") await deductSpotBalance(effectivePrice * orderQty);
         toast.success(
           side === "buy"
-            ? `Limit buy placed · $${(effectivePrice * qty).toFixed(2)} reserved`
+            ? `Limit buy placed · $${(effectivePrice * orderQty).toFixed(2)} reserved`
             : "Limit sell placed",
         );
       } else {
@@ -552,7 +565,7 @@ export default function SpotTrading() {
           optionId: selectedOption.id,
           side,
           price: effectivePrice,
-          quantity: qty,
+          quantity: orderQty,
         });
         if (res.balanceDelta < 0) await deductSpotBalance(-res.balanceDelta);
         else if (res.balanceDelta > 0) await addSpotBalance(res.balanceDelta);
@@ -867,6 +880,8 @@ export default function SpotTrading() {
   // SP-1-FIX3 · Bug 2 — `Close` must confirm and close, not silently pre-fill.
   // It pre-sets the panel (Sell · that outcome · Market · full EXACT qty) AND
   // opens the order preview dialog, which runs the same sell path on confirm.
+  // FIX4: the 3-dp string is display-only — `orderQty` snaps to the exact
+  // `p.sizeNum` (heldQty) at submit, so the order always carries full precision.
   const closePosition = (p: (typeof spotPositions)[number]) => {
     if (p.optionId) setSelectedOptionId(p.optionId);
     setSide("sell");
