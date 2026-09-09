@@ -443,6 +443,50 @@ const LiteContractTrade = () => {
     [positions, heldPos],
   );
 
+  // Entry fee actually PAID — historic fills were charged at 0.10 %, so
+  // recomputing at today's rate over-states the fee. Read trades.fee by
+  // trade_id and only fall back to the recomputed value while it loads.
+  const feeTradeIds = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          positions
+            .filter((p) => p.productLine === "futures" && p.event === event?.name)
+            .map((p) => p.tradeId)
+            .filter((id): id is string => !!id),
+        ),
+      ).sort(),
+    [positions, event?.name],
+  );
+  const [tradeFees, setTradeFees] = useState<Record<string, number>>({});
+  const feeKey = feeTradeIds.join(",");
+  useEffect(() => {
+    if (!feeTradeIds.length) return;
+    let cancelled = false;
+    void supabase
+      .from("trades")
+      .select("id, fee")
+      .in("id", feeTradeIds)
+      .then(({ data }) => {
+        if (cancelled || !data) return;
+        setTradeFees((prev) => {
+          const next = { ...prev };
+          for (const t of data) next[t.id] = Number(t.fee) || 0;
+          return next;
+        });
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [feeKey]);
+  const entryFeeFor = (p: (typeof positions)[number]) => {
+    const paid = p.tradeId ? tradeFees[p.tradeId] : undefined;
+    return paid ?? p.entryPriceNum * p.sizeNum * FUTURES_FEE_RATE;
+  };
+
+
+
   const isMulti = (event?.options.length ?? 0) > 2;
 
   // ---- Sports game lines: sibling markets of the same fixture ----
