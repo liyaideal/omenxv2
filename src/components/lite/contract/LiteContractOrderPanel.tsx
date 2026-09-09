@@ -494,15 +494,9 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
 
       {/* Returns */}
       <div className="space-y-1.5 rounded-xl border border-border bg-muted/20 p-3 text-xs">
-        <div className="flex items-center justify-between px-2">
-          <span className="text-muted-foreground">Max loss · what you put in</span>
-          <span className="font-mono font-semibold text-foreground">
-            {money(amountNum)}
-          </span>
-        </div>
         {canEstimateNet ? (
           <>
-            <div className="mt-0.5 flex items-center justify-between border-t border-border/60 px-2 pt-1.5">
+            <div className="flex items-center justify-between px-2">
               <span className="text-xs text-muted-foreground">You'll get back ≈</span>
               <span className="font-mono text-lg font-semibold text-foreground">
                 {money(getBack)}
@@ -515,7 +509,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
                     Then if the rest is right, you win
                   </span>
                   <span className="font-mono font-semibold text-foreground">
-                    {money(remainderWin)}
+                    {money(remainderWinNet)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between px-2 pt-0.5">
@@ -524,7 +518,9 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
                   </span>
                   <span className="font-mono font-semibold text-muted-foreground">
                     {effBoost <= 1 || remainderAutoClose == null || remainderAutoClose.kind === "none"
-                      ? "None · loss capped"
+                      ? effBoost <= 1
+                        ? "None · nothing borrowed"
+                        : "None · can't be reached"
                       : `≈ ${formatCents(remainderAutoClose.price)}`}
                   </span>
                 </div>
@@ -532,10 +528,22 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
             )}
           </>
         ) : (
-          <div className="mt-0.5 flex items-center justify-between border-t border-border/60 px-2 pt-1.5">
-            <span className="text-xs text-muted-foreground">If you're right, you win</span>
+          <div className="flex items-center justify-between px-2">
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+              If you're right, you win
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button type="button" aria-label="About what you win">
+                    <Info className="h-3 w-3 text-muted-foreground" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="p-3">
+                  <WinTooltipBody />
+                </TooltipContent>
+              </Tooltip>
+            </span>
             <span className="font-mono text-lg font-semibold text-foreground">
-              {money(potentialWin)}
+              {money(potentialWinNet)}
             </span>
           </div>
         )}
