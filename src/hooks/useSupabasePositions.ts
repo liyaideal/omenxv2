@@ -192,13 +192,24 @@ const partialClosePositionInDb = async ({
   positionId: string;
   closeQty: number;
   closePrice: number;
-}): Promise<{ closedQty: number; remainingSize: number; releasedMargin: number; realizedPnl: number; fundingPaid: number; fullyClosed: boolean }> => {
+}): Promise<{
+  closedQty: number;
+  remainingSize: number;
+  releasedMargin: number;
+  realizedPnl: number;
+  fundingPaid: number;
+  fullyClosed: boolean;
+  cashBack: number;
+  wc: number;
+}> => {
   // Top up funding before slicing
   await topUpFunding(positionId);
 
   const { data: position, error: fetchError } = await supabase
     .from("positions")
-    .select("size, margin, entry_price, side, trade_id, pnl, funding_accrued")
+    .select(
+      "size, margin, entry_price, side, trade_id, pnl, funding_accrued, winning_commission, event_name, option_label",
+    )
     .eq("id", positionId)
     .eq("user_id", userId)
     .single();
@@ -221,6 +232,20 @@ const partialClosePositionInDb = async ({
   const allocatedFunding = currentFunding * ratio;
   const realizedPnl = priceRealized - allocatedFunding;
 
+  // Entry fee attributable to the closed slice (pro-rata).
+  let entryFeeWhole = 0;
+  if (position.trade_id) {
+    const { data: trade } = await supabase
+      .from("trades")
+      .select("fee")
+      .eq("id", position.trade_id)
+      .maybeSingle();
+    entryFeeWhole = Number(trade?.fee ?? 0) || 0;
+  }
+  const allocatedEntryFee = entryFeeWhole * ratio;
+  const { wc, cashBack } = cashBackOnClose({ releasedMargin, realizedPnl, allocatedEntryFee });
+  const accumulatedWc = (Number(position.winning_commission) || 0) + wc;
+
   // Full close path
   if (qty >= currentSize) {
     const { error: updateError } = await supabase
@@ -229,6 +254,7 @@ const partialClosePositionInDb = async ({
         status: "Closed",
         mark_price: closePrice,
         pnl: realizedPnl,
+        winning_commission: accumulatedWc,
         closed_at: new Date().toISOString(),
       })
       .eq("id", positionId)
@@ -247,6 +273,13 @@ const partialClosePositionInDb = async ({
         .eq("id", position.trade_id);
     }
 
+    recordCloseLedger({
+      eventName: position.event_name,
+      optionLabel: position.option_label,
+      realizedPnl,
+      wc,
+    });
+
     return {
       closedQty: qty,
       remainingSize: 0,
@@ -254,6 +287,8 @@ const partialClosePositionInDb = async ({
       realizedPnl,
       fundingPaid: currentFunding,
       fullyClosed: true,
+      cashBack,
+      wc,
     };
   }
 
@@ -271,11 +306,19 @@ const partialClosePositionInDb = async ({
       margin: newMargin,
       mark_price: closePrice,
       pnl: accumulatedPnl,
+      winning_commission: accumulatedWc,
       funding_accrued: remainingFunding,
     })
     .eq("id", positionId)
     .eq("user_id", userId);
   if (updateError) throw updateError;
+
+  recordCloseLedger({
+    eventName: position.event_name,
+    optionLabel: position.option_label,
+    realizedPnl,
+    wc,
+  });
 
   return {
     closedQty: qty,
@@ -284,8 +327,11 @@ const partialClosePositionInDb = async ({
     realizedPnl,
     fundingPaid: allocatedFunding,
     fullyClosed: false,
+    cashBack,
+    wc,
   };
 };
+
 
 // Update TP/SL in Supabase
 const updateTpSlInDb = async ({
