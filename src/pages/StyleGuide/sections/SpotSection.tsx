@@ -106,9 +106,9 @@ export const SpotSection = ({ isMobile }: Props) => {
       >
         <div className="grid gap-3 md:grid-cols-4">
           <TradeSubmitButton side="buy" label="Buy Up" potentialWin="126.00" positionSide="yes" onClick={() => undefined} />
-          <TradeSubmitButton side="buy" label="Buy Not Up" potentialWin="180.00" positionSide="no" onClick={() => undefined} />
+          <TradeSubmitButton side="buy" label="Buy Down" potentialWin="180.00" positionSide="no" onClick={() => undefined} />
           <TradeSubmitButton side="sell" label="Sell Up" potentialWin="64.00" winPrefix="You receive" onClick={() => undefined} />
-          <TradeSubmitButton side="sell" label="Sell Not Up" potentialWin="52.00" winPrefix="You receive" onClick={() => undefined} />
+          <TradeSubmitButton side="sell" label="Sell Down" potentialWin="52.00" winPrefix="You receive" onClick={() => undefined} />
         </div>
       </SectionWrapper>
 
@@ -170,13 +170,13 @@ export const SpotSection = ({ isMobile }: Props) => {
       >
         <div className="grid gap-3 md:grid-cols-3 text-xs">
           <NetPosStep n={1} title="Start" body="Hold +10 sh Up @ $0.42" tone="green" />
-          <NetPosStep n={2} title="Buy 6 Not Up @ $0.55" body="Reduces Up by 6 sh at implied $0.45. Realized PnL = (0.45 − 0.42) × 6 = +$0.18." tone="yellow" />
-          <NetPosStep n={3} title="Result" body="Net +4 sh Up · no Not Up leg." tone="green" />
+          <NetPosStep n={2} title="Buy 6 Down @ $0.55" body="Reduces Up by 6 sh at implied $0.45. Realized PnL = (0.45 − 0.42) × 6 = +$0.18." tone="yellow" />
+          <NetPosStep n={3} title="Result" body="Net +4 sh Up · no Down leg." tone="green" />
         </div>
         <div className="mt-3 grid gap-3 md:grid-cols-3 text-xs">
           <NetPosStep n={1} title="Start" body="Hold +10 sh Up @ $0.42" tone="green" />
-          <NetPosStep n={2} title="Buy 15 Not Up @ $0.55" body="Closes Up fully (+$0.30 realized), opens +5 sh Not Up @ $0.55." tone="yellow" />
-          <NetPosStep n={3} title="Result" body="Net +5 sh Not Up · no Up leg." tone="red" />
+          <NetPosStep n={2} title="Buy 15 Down @ $0.55" body="Closes Up fully (+$0.30 realized), opens +5 sh Down @ $0.55." tone="yellow" />
+          <NetPosStep n={3} title="Result" body="Net +5 sh Down · no Up leg." tone="red" />
         </div>
       </SectionWrapper>
 
@@ -323,7 +323,7 @@ const MOCK_FUTURES_POSITION: UnifiedPosition = {
 
 const SAMPLE_ORDERS = [
   { market: "TSLA · Up (Jul 15)", side: "buy", type: "Limit", limit: "$0.42", qty: "500", reserved: "$210.00", status: "Pending" },
-  { market: "NVDA · Not Up (Jul 15)", side: "sell", type: "Limit", limit: "$0.61", qty: "300", reserved: "—", status: "Pending" },
+  { market: "NVDA · Down (Jul 15)", side: "sell", type: "Limit", limit: "$0.61", qty: "300", reserved: "—", status: "Pending" },
   { market: "AAPL · Up (Jul 15)", side: "buy", type: "Limit", limit: "$0.55", qty: "200", reserved: "$110.00", status: "Filled" },
 ];
 

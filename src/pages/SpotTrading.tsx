@@ -52,6 +52,7 @@ import {
   ProSpotAccountPanel,
   ProSpotOrderPreview,
 } from "@/components/pro/ProSpotPanel";
+import { liteSideName } from "@/lib/liteSideName";
 import { ProSpotHeader } from "@/components/pro/ProSpotHeader";
 import { OrderTypeDropdown } from "@/components/pro/OrderTypeDropdown";
 import { ProTerminalLayout } from "@/components/pro/ProTerminalLayout";
@@ -291,8 +292,10 @@ export default function SpotTrading() {
 
   // ---- Derived ----
   const sideLabels = useMemo(() => parseSideLabels(event?.side_labels), [event]);
-  const yesLabel = sideLabels?.yes || "Up";
-  const noLabel = sideLabels?.no || "Not Up";
+  // Standard 段词轴（copy-dictionary §Up / Down）：`Not Up` 已退役，
+  // 展示层一律经 liteSideName 改写为 `Down`。
+  const yesLabel = liteSideName(sideLabels?.yes) || "Up";
+  const noLabel = liteSideName(sideLabels?.no) || "Down";
 
   const yesOpt = useMemo(
     () => event?.options.find((o) => /(^|[-_ ])yes$/i.test(o.label)) || event?.options[0],
