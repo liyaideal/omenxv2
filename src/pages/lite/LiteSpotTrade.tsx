@@ -807,7 +807,7 @@ const LiteSpotTrade = () => {
             showLogo={false}
             showBack={true}
             backTo={backHref}
-            rightContent={<div className="flex items-center gap-2 -mr-2"><SurfaceSwitch size="compact" />{WatchStar}</div>}
+            rightContent={<div className="flex items-center gap-2 -mr-2">{WatchStar}</div>}
           />
           <div className="space-y-4 px-4 py-4">
             {QuestionBlock}
@@ -873,7 +873,8 @@ const LiteSpotTrade = () => {
                 View in Portfolio →
               </button>
             ) : (
-            <div className="mx-auto flex max-w-md gap-2">
+            <div className="mx-auto flex max-w-md gap-1.5">
+              <SurfaceSwitch size="dock" />
               <button
                 type="button"
                 onClick={() => openBuy("yes")}

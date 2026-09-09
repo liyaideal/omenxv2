@@ -571,8 +571,10 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 
 | 词 | 一句定义 | 判定表达式 | 出处 |
 |---|---|---|---|
-| `Simple` | 交易页的简版看法（Lite），也是全站其余页面唯一的样子 | `surface === "lite"` | `src/components/surface/SurfaceSwitch.tsx` |
+| **Lite** / **Pro** | Trade-page view switch segments | Simple, Basic, Advanced, Simple mode / Pro mode (retired) |
+| `Lite` | 交易页的简版看法，也是全站其余页面唯一的样子 | `surface === "lite"` | `src/components/surface/SurfaceSwitch.tsx` |
 | `Pro` | 交易页的专业终端看法，仅这三条路由存在 | `surface === "pro"` | 同上 |
-| `Trading view` | 该胶囊对的无障碍名，只出现在 `aria-label`，界面上不显示 | `aria-label="Trading view"` | 同上 |
+| `Trading view` | 页头分段控件的无障碍名，只出现在 `aria-label`，界面上不显示 | `aria-label="Trading view"` | 同上 |
+| `Switch to Pro view` / `Switch to Lite view` | 移动端贴底方钮的无障碍名，界面上只显示目的地标签 | `size === "dock"` | 同上 |
 
-禁写：`Simple mode` / `Pro mode` / `Switch to Pro mode` / `Lite` / `Advanced`（模式一词随全站模式一并退役）。
+禁写：`Simple` / `Simple mode` / `Simple view` / `Switch to Simple` / `Pro mode` / `Basic` / `Advanced`（模式一词随全站模式一并退役）。

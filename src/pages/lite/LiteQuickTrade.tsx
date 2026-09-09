@@ -538,7 +538,7 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
           showLogo={false}
           showBack
           backTo={backHref}
-          rightContent={<div className="flex items-center gap-2 -mr-2"><SurfaceSwitch size="compact" />{WatchStar}</div>}
+          rightContent={<div className="flex items-center gap-2 -mr-2">{WatchStar}</div>}
         />
         <div className="px-4 py-4">
           {Head}
@@ -566,7 +566,8 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
           className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 px-4 pt-3 backdrop-blur"
           style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0) + 12px)" }}
         >
-          <div className="mx-auto flex max-w-md gap-2">
+          <div className="mx-auto flex max-w-md gap-1.5">
+            <SurfaceSwitch size="dock" />
             <button
               type="button"
               onClick={() => {
