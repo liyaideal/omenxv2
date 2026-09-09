@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useNavigate, useNavigationType } from "react-router-dom";
 import { ArrowUpDown, TrendingUp, TrendingDown, Wallet, BarChart3, ChevronRight, Info, AlertTriangle, Loader2, Gift, Inbox, Trophy } from "lucide-react";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { useSurface } from "@/contexts/SurfaceContext";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePositions } from "@/hooks/usePositions";
@@ -211,8 +211,6 @@ export default function Portfolio() {
     return m;
   }, [activeEventsForLookup]);
 
-  const { surface } = useSurface();
-
   // Resolve a position's event id: prefer option_id → event_options.event_id,
   // otherwise fall back to a name lookup against events.
   const resolveEventId = async (
@@ -257,14 +255,12 @@ export default function Portfolio() {
       navigate("/spot");
       return;
     }
-    // Lite surface: the Lite contract page is driven purely by ?event=<id>, so
-    // resolve an event id before navigating (optionId first, event name second).
-    if (surface === "lite") {
-      const eid = await resolveEventId(target.optionId, target.event);
-      if (eid) {
-        navigate(`/trade?event=${eid}`);
-        return;
-      }
+    // D6'-1: the contract page is driven purely by ?event=<id>, so resolve an
+    // event id before navigating (optionId first, event name second).
+    const eid = await resolveEventId(target.optionId, target.event);
+    if (eid) {
+      navigate(`/trade?event=${eid}`);
+      return;
     }
     // Futures destination filters spot out — recompute the highlight index
     // against the destination's futures-only ordering by matching position id.
