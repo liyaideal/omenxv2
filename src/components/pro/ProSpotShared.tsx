@@ -14,7 +14,6 @@ import {
   ProSpotOrderPreview,
 } from "@/components/pro/ProSpotPanel";
 import { ProBottomTabs } from "@/components/pro/ProBottomTabs";
-import { toast } from "sonner";
 import { mock24hVolume, type SpotTerminal } from "@/hooks/useSpotTerminal";
 import type { TradingEvent } from "@/hooks/useEvents";
 
@@ -107,24 +106,9 @@ const InfoCell = ({ label, value }: { label: string; value: string }) => (
 export const SpotEventInfoPanel = ({ t }: { t: SpotTerminal }) => {
   const event = t.event;
   if (!event) return null;
-  const sharedInfoEvent: TradingEvent = {
-    id: event.id,
-    name: event.name,
-    icon: "",
-    ends: t.countdown.text,
-    endTime: t.endDate ?? new Date(),
-    period: "Daily",
-    volume: mock24hVolume(event.id),
-    description:
-      event.description || "US-stock daily up/down (spot). Winning share pays $1 at settlement.",
-    rules: [],
-    sourceUrl: event.source_url || "",
-    sourceName: event.source_name || "databento",
-    resolutionSource: event.source_name || "databento",
-  };
   return (
     <div className="p-6 overflow-auto text-sm space-y-4">
-      <EventInfoContent event={sharedInfoEvent} />
+      <EventInfoContent event={spotHeaderEvent(t)} />
       <div className="grid grid-cols-2 gap-3 text-xs font-mono">
         <InfoCell
           label="Prior official close"
@@ -197,8 +181,8 @@ export const SpotPositionsTable = ({
                     className={cn(
                       "px-1.5 py-0.5 rounded text-[10px] font-medium",
                       isYes
-                        ? "bg-trading-green/20 text-trading-green"
-                        : "bg-trading-red/20 text-trading-red",
+                        ? "bg-yes/15 text-yes"
+                        : "bg-no/15 text-no",
                     )}
                   >
                     {isYes ? t.yesLabel : t.noLabel}
@@ -275,8 +259,8 @@ export const SpotPositionsTable = ({
                 className={cn(
                   "px-1.5 py-0.5 rounded text-[10px] font-medium w-fit",
                   isYes
-                    ? "bg-trading-green/20 text-trading-green"
-                    : "bg-trading-red/20 text-trading-red",
+                    ? "bg-yes/15 text-yes"
+                    : "bg-no/15 text-no",
                 )}
               >
                 {outcomeText}
@@ -453,33 +437,50 @@ export const SpotBottomTabs = ({
   </ProBottomTabs>
 );
 
-/** Guard helper shared by the mobile pages. */
-export const spotBlockedToast = (t: SpotTerminal) =>
-  toast.error(t.blockedReason || "Market unavailable");
-
 // -----------------------------------------------------------------
 // SP-2 · mobile helpers
 // -----------------------------------------------------------------
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Info } from "lucide-react";
-import { mock24hVolume as mockVol } from "@/hooks/useSpotTerminal";
+import { Info, Star, Share2 } from "lucide-react";
+import { MobileHeaderIconButton } from "@/components/MobileHeader";
 
 /** Adapter: the raw spot event row → the shared `TradingEvent` header shape. */
-export const spotHeaderEvent = (t: SpotTerminal): TradingEvent => ({
-  id: t.event!.id,
-  name: t.event!.name,
-  icon: "",
-  ends: t.countdown.text,
-  endTime: t.endDate ?? new Date(),
-  period: "Daily",
-  volume: mockVol(t.event!.id),
-  description:
-    t.event!.description || "US-stock daily up/down (spot). Winning share pays $1 at settlement.",
-  rules: [],
-  sourceUrl: t.event!.source_url || "",
-  sourceName: t.event!.source_name || "databento",
-  resolutionSource: t.event!.source_name || "databento",
-});
+export const spotHeaderEvent = (t: SpotTerminal): TradingEvent => {
+  const event = t.event!;
+  return {
+    id: event.id,
+    name: event.name,
+    icon: "",
+    ends: t.countdown.text,
+    endTime: t.endDate ?? new Date(),
+    period: "Daily",
+    volume: mock24hVolume(event.id),
+    description:
+      event.description || "US-stock daily up/down (spot). Winning share pays $1 at settlement.",
+    rules: [],
+    sourceUrl: event.source_url || "",
+    sourceName: event.source_name || "databento",
+    resolutionSource: event.source_name || "databento",
+  };
+};
+
+/** SP-2-FIX1: one header action cluster for BOTH spot pages (DB watchlist star). */
+export const SpotHeaderActions = ({ t }: { t: SpotTerminal }) => (
+  <div className="flex items-center gap-1 -mr-2">
+    <MobileHeaderIconButton aria-label="Favorite" onClick={() => t.toggleWatch(t.event!.id)}>
+      <Star
+        className={cn("w-5 h-5", t.isWatched(t.event!.id) ? "text-trading-yellow fill-trading-yellow" : "")}
+        strokeWidth={1.5}
+      />
+    </MobileHeaderIconButton>
+    <MobileHeaderIconButton
+      aria-label="Share"
+      onClick={() => navigator.clipboard?.writeText(window.location.href)}
+    >
+      <Share2 className="w-5 h-5" strokeWidth={1.5} />
+    </MobileHeaderIconButton>
+  </div>
+);
 
 /** Schedule ⓘ shown inline in the mobile header stats row. */
 export const SpotScheduleInfo = ({ t }: { t: SpotTerminal }) => (
@@ -536,5 +537,44 @@ export const SpotMobileMarkLine = ({ t }: { t: SpotTerminal }) => (
   <div className="flex items-baseline gap-2 px-3 pb-2">
     <span className="text-2xl font-bold font-mono">{t.outcomePrice.toFixed(4)}</span>
     <span className="text-[11px] text-muted-foreground">{t.outcomeLabel} · mark</span>
+  </div>
+);
+
+/** SP-2 · 120px mini order book rendered beside the mobile panel. */
+export const SpotMiniOrderBook = ({
+  asks,
+  bids,
+  price,
+}: {
+  asks: { price: string; amount: string }[];
+  bids: { price: string; amount: string }[];
+  price: number;
+}) => (
+  <div className="w-[120px] flex-shrink-0 border-l border-border/30">
+    <div className="px-1.5 py-1.5">
+      <div className="grid grid-cols-2 text-[9px] text-muted-foreground mb-1">
+        <span>Price</span>
+        <span className="text-right">Amount</span>
+      </div>
+    </div>
+    <div className="overflow-y-auto scrollbar-hide">
+      {asks.slice(0, 8).map((ask, index) => (
+        <div key={`ask-${index}`} className="flex justify-between px-1.5 py-0.5 text-[10px]">
+          <span className="price-red">{ask.price}</span>
+          <span className="text-muted-foreground font-mono">{ask.amount}</span>
+        </div>
+      ))}
+    </div>
+    <div className="px-1.5 py-1.5 text-center">
+      <span className="text-sm font-bold font-mono">{price.toFixed(4)}</span>
+    </div>
+    <div className="overflow-y-auto scrollbar-hide">
+      {bids.slice(0, 8).map((bid, index) => (
+        <div key={`bid-${index}`} className="flex justify-between px-1.5 py-0.5 text-[10px]">
+          <span className="price-green">{bid.price}</span>
+          <span className="text-muted-foreground font-mono">{bid.amount}</span>
+        </div>
+      ))}
+    </div>
   </div>
 );

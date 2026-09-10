@@ -194,13 +194,19 @@ const MOBILE_CASES: SectionCase[] = [
   },
   {
     key: "pro-spot-mobile-dock",
-    label: "SP-M5 · Sticky dock 三态",
+    label: "SP-M5 · Sticky dock 四态",
     spec: [
       {
         state: "default / 选中一边 / frozen",
         when: "selected === null | 'yes' | blocked",
         visual: "第一次点选中（描边 + 箭头），第二次跳 /spot/order；frozen 全禁用",
         source: "ProSpotMobileDock",
+      },
+      {
+        state: "Lite/Pro 在最前",
+        when: "showSurfaceSwitch（生产默认）",
+        visual: "SurfaceSwitch size=\"dock\" 是这一行的第一个子元素，两个方向键仍平分剩余宽度",
+        source: "ProSpotMobileDock（预览用 surfaceSwitchPreview 置为惰性）",
       },
     ],
   },

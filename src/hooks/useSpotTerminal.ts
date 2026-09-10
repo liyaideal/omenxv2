@@ -506,8 +506,8 @@ export function useSpotTerminal() {
       setSliderValue([0]);
       refetchPositions();
       refetchOrders();
-    } catch (err: any) {
-      toast.error(err?.message || "Trade failed");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Trade failed");
     } finally {
       setSubmitting(false);
     }
@@ -521,9 +521,9 @@ export function useSpotTerminal() {
       if (res.refund > 0) await addSpotBalance(res.refund);
       toast.success(res.refund > 0 ? `Order cancelled · $${res.refund.toFixed(2)} refunded` : "Order cancelled");
       refetchOrders();
-    } catch (err: any) {
+    } catch (err: unknown) {
       await cancelOrder(o.id);
-      toast.error(err?.message || "Cancel failed");
+      toast.error(err instanceof Error ? err.message : "Cancel failed");
     }
   };
 

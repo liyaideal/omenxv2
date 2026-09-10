@@ -55,6 +55,11 @@ interface MobileHeaderProps {
   titleHidden?: boolean;
   /** SP-2: small badge rendered right after the title (e.g. SPOT). */
   titleBadge?: ReactNode;
+  /**
+   * SP-2-FIX1: pre-formatted countdown text owned by the caller. When set the
+   * header runs no clock of its own (perp keeps the internal `endTime` clock).
+   */
+  countdownText?: string;
   /** SP-2: countdown row wording. Defaults to the locked `Ends in`. */
   countdownLabel?: string;
   /** SP-2: 3-tier urgency colour for the countdown row. Defaults to red. */
@@ -145,6 +150,7 @@ export const MobileHeader = ({
   onTitleClick,
   titleHidden = false,
   titleBadge,
+  countdownText,
   countdownLabel = "Ends in",
   countdownUrgency = "red",
   statsExtra,
@@ -153,8 +159,10 @@ export const MobileHeader = ({
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const location = useLocation();
-  const countdown = useCountdown(endTime);
-  const displayTime = endTime ? countdown : subtitle;
+  // SP-2-FIX1: only one clock — the internal one is skipped when the caller
+  // supplies `countdownText`.
+  const countdown = useCountdown(countdownText === undefined ? endTime : undefined);
+  const displayTime = countdownText ?? (endTime ? countdown : subtitle);
 
   const resolvedVariant = variant ?? (showLogo && !title ? "brand" : "inner");
   const isBrand = resolvedVariant === "brand";
