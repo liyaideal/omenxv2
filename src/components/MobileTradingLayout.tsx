@@ -379,8 +379,8 @@ function PerpTradingLayout({
           )
         }
         optionChips={
-          // 单 market binary 不渲染（对阵信息已在标题+Yes/No 切换器表达）
-          !isSingleMarketBinary(options) ? (
+          // 市场 chip 行 = 多 market 专属；binary（含队名/盘口/Up-Down 别名）不渲染
+          !isSingleMarketBinary(options, selectedEvent) ? (
             <OptionChips
               options={options}
               selectedId={selectedOption}

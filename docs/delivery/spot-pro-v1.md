@@ -190,3 +190,9 @@ Spot 节原先手抄的终端顶栏已换成生产件 `ProSpotHeader`，CTA 例�
 - price block、默认 1H 图表、四位盘口、trade-history 动画状态、Orders / Positions cards、空态与 dock 文案逐块对齐 `TradingCharts`。
 - 唯一保留差异：32px spot stats strip、页头 `SPOT` badge、spot dock safe-area padding。
 - spot 方向 pill 遵守 DESIGN §2 的 `--yes` / `--no`；合约 price block 的旧 green/red pill 留待后续单独对齐，未在本轮改动参考页。
+
+### SP-2-FIX7 (2026-09-10) — 市场 chip 行只属于多 market
+
+- `/spot` 移动 Charts 撤掉 FIX6 加的 `OptionChips`（现货事件恒为 Up/Down binary）；`MobileTradingLayout` 的 `optionChips` prop 保留，供未来真正的多 market 现货使用。
+- 根因修复：`isSingleMarketBinary(options, event)` 新增可选 event 参数，通过 `side_labels` 别名、Up/Down、`X vs Y` 对阵名识别别名 binary。合约移动端与桌面端 chip 行改用该判定，Chiefs/Bills 类事件不再出现 chips；≥3 outcome 事件（含 1X2 Draw）继续显示 chips。
+- Dock 与合约一致：binary 只显示 outcome 名（`Up` / `Down`），价格不进 dock。

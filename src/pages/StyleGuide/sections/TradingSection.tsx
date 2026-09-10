@@ -149,7 +149,7 @@ const style = CATEGORY_STYLES[category];
         id="option-chips"
         title="Option Chips"
         platform="shared"
-        description="Selection chips for event options with price display"
+        description="Selection chips for event options with price display — multi-market events only; binary events (Yes/No under any alias) never show chips"
       >
         <Card className="trading-card">
           <CardHeader>

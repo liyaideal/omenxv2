@@ -384,6 +384,11 @@ export default function DesktopTrading() {
 
   // Binary single-market 检测：折叠顶部 chip 行、Yes/No 按钮直连 option 切换
   const isBinarySingleMarket = useMemo(() => isSingleMarketBinary(options), [options]);
+  // chip 行 = 多 market 专属：别名 binary（队名/盘口/Up-Down）同样不显示
+  const hasMarketChips = useMemo(
+    () => !isSingleMarketBinary(options, selectedEvent),
+    [options, selectedEvent],
+  );
   const binaryLabels = useMemo(() => getBinarySideLabels(selectedEvent), [selectedEvent]);
   const yesNoOptions = useMemo(() => getYesNoOptions(options), [options]);
   const lookupSideLabels = useEventSideLabelsLookup();
@@ -941,7 +946,7 @@ export default function DesktopTrading() {
       </header>
       </>}
       subHeader={
-        !isBinarySingleMarket && (
+        hasMarketChips && (
         <div className="flex items-center gap-2 px-4 py-2 border-b border-border/30 overflow-x-auto scrollbar-hide">
           <span className="text-xs text-muted-foreground flex-shrink-0">Select Option:</span>
           {options.map((option) => (
