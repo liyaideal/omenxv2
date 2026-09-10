@@ -21,6 +21,8 @@ export interface ProSpotMobileDockProps {
   blockedReason?: string | null;
   /** Style Guide fixture switch — hides the Lite/Pro control in previews. */
   showSurfaceSwitch?: boolean;
+  /** Style Guide only: render the Lite/Pro control inert (same pattern as the foundations key). */
+  surfaceSwitchPreview?: { signedIn: boolean; active: "lite" | "pro" };
   className?: string;
 }
 
@@ -35,6 +37,7 @@ export const ProSpotMobileDock = ({
   blocked = false,
   blockedReason,
   showSurfaceSwitch = true,
+  surfaceSwitchPreview,
   className,
 }: ProSpotMobileDockProps) => (
   <div
@@ -53,7 +56,13 @@ export const ProSpotMobileDock = ({
       <span className="opacity-70">Tap a side to trade</span>
     </div>
     <div className="flex gap-1.5">
-      {showSurfaceSwitch && <SurfaceSwitch size="dock" />}
+      {showSurfaceSwitch && (
+        <SurfaceSwitch
+          size="dock"
+          previewSignedIn={surfaceSwitchPreview?.signedIn}
+          previewActive={surfaceSwitchPreview?.active}
+        />
+      )}
       <button
         onClick={() => onTap("yes")}
         disabled={blocked}

@@ -2,7 +2,7 @@
 // components: src/components/pro/ProSpotPanel.tsx, ProTerminalLayout,
 // ProBottomTabs. Fixture props only; no auth gate, no data fetching, so each
 // key renders standalone for a signed-out visitor.
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import {
   ProSpotPanel,
   ProSpotAccountPanel,
@@ -32,6 +32,8 @@ type Fixture = {
   ctaDisabled?: boolean;
   /** Which outcome tile starts selected — Down-only holdings need `false`. */
   startIsYes?: boolean;
+  /** Drop the 280px desktop rail — the mobile /spot/order body owns the width. */
+  bare?: boolean;
 };
 
 /** One live panel driven by local state — the same props the page passes. */
@@ -59,8 +61,10 @@ const PanelFixture = (f: Fixture) => {
   const heldNoQty = f.heldNoQty ?? 0;
   const heldQty = isYes ? heldYesQty : heldNoQty;
 
+  const Shell = f.bare ? Fragment : Rail;
+
   return (
-    <Rail>
+    <Shell>
       <ProSpotPanel
         side={side}
         onSideChange={(s) => {
@@ -106,7 +110,7 @@ const PanelFixture = (f: Fixture) => {
         submitting={false}
         onSubmit={() => undefined}
       />
-    </Rail>
+    </Shell>
   );
 };
 
@@ -231,6 +235,7 @@ export const ProTerminalSkeleton = () => (
 import {
   SpotMobileStatsStrip,
   SpotMobileMarkLine,
+  SpotMiniOrderBook,
 } from "@/components/pro/ProSpotShared";
 import { ProSpotMobileDock } from "@/components/pro/ProSpotMobileDock";
 import { CandlestickChart } from "@/components/CandlestickChart";
@@ -330,18 +335,41 @@ export const ProSpotMobileChartsFrozen = () => {
   );
 };
 
-/** SP-2 · /spot/order — Buy tab (same ProSpotPanel as desktop, 375 px). */
-export const ProSpotMobileOrderBuy = () => (
+const BOOK_ASKS = [
+  { price: "0.4720", amount: "1,204" },
+  { price: "0.4710", amount: "860" },
+  { price: "0.4700", amount: "2,410" },
+  { price: "0.4680", amount: "540" },
+  { price: "0.4670", amount: "1,905" },
+  { price: "0.4660", amount: "720" },
+];
+const BOOK_BIDS = [
+  { price: "0.4640", amount: "980" },
+  { price: "0.4630", amount: "1,510" },
+  { price: "0.4620", amount: "430" },
+  { price: "0.4600", amount: "2,220" },
+  { price: "0.4580", amount: "615" },
+  { price: "0.4560", amount: "1,140" },
+];
+
+/** The real `/spot/order` body: flex-1 panel + the production 120px mini book. */
+const OrderBodyFixture = (f: Fixture) => (
   <Phone>
-    <PanelFixture />
+    <div className="flex">
+      <div className="flex-1 min-w-0">
+        <PanelFixture {...f} bare />
+      </div>
+      <SpotMiniOrderBook asks={BOOK_ASKS} bids={BOOK_BIDS} price={0.4649} />
+    </div>
   </Phone>
 );
 
+/** SP-2 · /spot/order — Buy tab (same ProSpotPanel as desktop, 375 px). */
+export const ProSpotMobileOrderBuy = () => <OrderBodyFixture />;
+
 /** SP-2 · /spot/order — Sell tab with a Down-only holding. */
 export const ProSpotMobileOrderSellHeld = () => (
-  <Phone>
-    <PanelFixture side="sell" heldNoQty={2034.879} startIsYes={false} amount="2034.879" />
-  </Phone>
+  <OrderBodyFixture side="sell" heldNoQty={2034.879} startIsYes={false} amount="2034.879" />
 );
 
 /** SP-2 · the sticky dock alone: default / side selected / frozen. */
@@ -351,7 +379,8 @@ export const ProSpotMobileDockStates = () => (
       { k: "default", selected: null as "yes" | "no" | null, blocked: false },
       { k: "up selected", selected: "yes" as const, blocked: false },
       { k: "frozen", selected: null as "yes" | "no" | null, blocked: true },
-    ].map((s) => (
+      { k: "lite/pro switch first", selected: null as "yes" | "no" | null, blocked: false, sw: true },
+    ].map((s: { k: string; selected: "yes" | "no" | null; blocked: boolean; sw?: boolean }) => (
       <div key={s.k}>
         <div className="px-3 pb-1 text-[10px] uppercase tracking-wide text-muted-foreground">{s.k}</div>
         <div className="relative h-[92px]">
@@ -365,7 +394,8 @@ export const ProSpotMobileDockStates = () => (
             onTap={() => undefined}
             blocked={s.blocked}
             blockedReason="Market frozen"
-            showSurfaceSwitch={false}
+            showSurfaceSwitch={!!s.sw}
+            surfaceSwitchPreview={{ signedIn: true, active: "pro" }}
             className="absolute"
           />
         </div>
