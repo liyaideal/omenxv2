@@ -797,7 +797,11 @@ export default function SpotTrading() {
       ctaLabel={blocked ? blockedReason || "Market unavailable" : ctaLabel}
       ctaDisabled={ctaDisabled}
       submitting={submitting}
-      onSubmit={() => setPreviewOpen(true)}
+      onSubmit={() => {
+        // FIX5: blocked (lifecycle or past freeze_time) → preview cannot open.
+        if (blocked) return toast.error(blockedReason || "Market unavailable");
+        setPreviewOpen(true);
+      }}
     />
   );
 
