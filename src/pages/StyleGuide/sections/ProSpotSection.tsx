@@ -151,7 +151,7 @@ const MOBILE_CASES: SectionCase[] = [
       {
         state: "Charts 默认",
         when: "isMobile && surface === pro && !blocked",
-        visual: "OptionChips → 32px strip → price/change/Mark Price/24h Volume → 450px 图表 → contract-class cards → dock（Lite/Pro + Up / Down）",
+        visual: "32px strip → price/change/Mark Price/24h Volume → 450px 图表 → contract-class cards → dock（Lite/Pro + Up / Down）；无市场 chip 行",
         source: "SpotMobileStatsStrip / SpotMobileMarkLine / ProSpotMobileDock",
       },
     ],
