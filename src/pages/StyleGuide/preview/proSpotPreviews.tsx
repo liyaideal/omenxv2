@@ -15,6 +15,7 @@ import { ProBottomTabs } from "@/components/pro/ProBottomTabs";
 import { winningCommission, SPOT_FEE_RATE } from "@/services/tradingService";
 import { OptionChips } from "@/components/OptionChips";
 import { CandlestickChart } from "@/components/CandlestickChart";
+import { DesktopOrderBook } from "@/components/DesktopOrderBook";
 import { ProSpotMobileDock } from "@/components/pro/ProSpotMobileDock";
 import {
   SpotMobileMarkLine,
@@ -264,6 +265,29 @@ export const ProBottomTabsGuest = () => (
     >
       <Block label="bottomTabs slot" />
     </ProBottomTabs>
+  </div>
+);
+
+/** SP-J · Thin spot book: three real levels plus fixed blank slots per side. */
+export const ProSpotBookThin = () => (
+  <div className="h-[560px] w-[280px]">
+    <DesktopOrderBook
+      variant="spot"
+      quoteMode="CONSERVATIVE"
+      currentPrice="0.4649"
+      priceChange="0.4649"
+      isPositive
+      asks={[
+        { price: "0.4700", amount: "420", total: "420" },
+        { price: "0.4800", amount: "310", total: "730" },
+        { price: "0.4900", amount: "205", total: "935" },
+      ]}
+      bids={[
+        { price: "0.4600", amount: "380", total: "380" },
+        { price: "0.4500", amount: "265", total: "645" },
+        { price: "0.4400", amount: "190", total: "835" },
+      ]}
+    />
   </div>
 );
 

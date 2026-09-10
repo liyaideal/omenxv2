@@ -1,3 +1,12 @@
+## Addendum 2026-09-10 · Pro 桌面终端对等（SP-3-DT1）
+
+- Header 每页最多一个 lifecycle badge；产品线名不占第二枚 badge。
+- Chart 与 order-book 的 tab row 只放 tabs，状态与控制进入各自内容行。
+- 同一数字在同一页面只出现一次；Base / Prior Close 只属于 chart price block 的 subline。
+- Order summary 使用带分隔线的 flat list，禁止 inset box。
+- 两个终端的 selection chips 统一使用中性 `bg-muted`，不得使用方向轴或 `trading-purple` 作为选择态。
+- Order-book 深度槽固定为 contract 每侧 12、spot 每侧 10；不足时补无内容空槽，禁止虚构价格。
+
 # OmenX Design System
 
 > Machine-readable design spec. Consult before every UI change.

@@ -8,12 +8,12 @@ const PANEL_CASES: SectionCase[] = [
   {
     key: "pro-spot-panel-buy-market",
     label: "SP-B1 · Buy · Market（ProSpotPanel）",
-    note: "面板唯一整宽选择器是 BinarySideToggle；Buy/Sell 为文字页签，订单类型收进右上角下拉。滑点 chip 选中态为中性 bg-foreground text-background，禁止 trading-purple。",
+    note: "面板唯一整宽选择器是 BinarySideToggle；Buy/Sell 为文字页签，订单类型收进右上角下拉。滑点 chip 选中态为中性 bg-muted text-foreground font-medium，禁止 trading-purple。",
     spec: [
       {
         state: "Buy · Market",
         when: 'side === "buy" && orderType === "Market"',
-        visual: "汇总为 Cost / Est. fill @ x.xx / Shares / To win ⓘ / Fee (0.15%)，无 Max loss",
+        visual: "汇总为 Cost / Est. fill @ x.xx / Shares / Fee (0.15%) / To win ⓘ，末行用上边线强调，无 Max loss",
         source: "ProSpotPanel props（SpotTrading 计算）",
       },
     ],
@@ -257,6 +257,22 @@ const SKELETON_CASES: SectionCase[] = [
   },
 ];
 
+const BOOK_CASES: SectionCase[] = [
+  {
+    key: "pro-spot-book-thin",
+    label: "SP-J · Spot 薄深度订单簿（10 + 10 固定槽）",
+    note: "生产 DesktopOrderBook variant=spot。fixture 每侧仅 3 档；asks 顶部与 bids 底部使用无文字、无深度条、无 hover 的空槽补齐，不制造价格。",
+    spec: [
+      {
+        state: "Thin book · CONSERVATIVE",
+        when: "spot aggregated levels < 10",
+        visual: "tab 行只含 tabs；CONSERVATIVE 在 tick row 左侧；10 asks + mark row + 10 bids 固定位置；mark 行显示黄色 ⚑",
+        source: "DesktopOrderBook variant=spot / quoteMode",
+      },
+    ],
+  },
+];
+
 interface Props {
   isMobile: boolean;
 }
@@ -269,6 +285,14 @@ export const ProSpotSection = (_: Props) => (
       description="生产件 src/components/pro/ProSpotPanel.tsx。方案 A：Buy/Sell 文字页签 + 订单类型下拉在同一行，整宽选择器只有 BinarySideToggle；汇总区不再有 Max loss，盈利口径统一为扣除 5% winning commission 后的 To win。"
     >
       <SectionFrame cases={PANEL_CASES} device="desktop" minHeight={520} />
+    </SectionWrapper>
+
+    <SectionWrapper
+      id="pro-spot-book"
+      title="Pro /spot 桌面订单簿（SP-3-DT1）"
+      description="Spot 固定每侧 10 槽；薄深度只补空行，不补虚构价格。"
+    >
+      <SectionFrame cases={BOOK_CASES} device="desktop" minHeight={600} />
     </SectionWrapper>
 
     <SectionWrapper

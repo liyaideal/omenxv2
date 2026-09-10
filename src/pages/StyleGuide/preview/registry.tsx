@@ -292,6 +292,7 @@ export const previewRegistry: Record<string, Loader> = {
   "pro-spot-preview-dialog": pick(proSpot, "ProSpotPreviewDialog"),
   "pro-terminal-skeleton": pick(proSpot, "ProTerminalSkeleton"),
   "pro-bottom-tabs-guest": pick(proSpot, "ProBottomTabsGuest"),
+  "pro-spot-book-thin": pick(proSpot, "ProSpotBookThin"),
 
   /* -------- Pro /spot mobile（SP-2）-------- */
   "pro-spot-mobile-charts": pick(proSpot, "ProSpotMobileCharts"),
