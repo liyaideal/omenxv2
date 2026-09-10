@@ -6,7 +6,7 @@
 // Presentational only: every number is computed by the page and passed in.
 // ============================================================
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, HelpCircle, Info } from "lucide-react";
+import { ChevronDown, HelpCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
