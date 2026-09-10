@@ -26,6 +26,66 @@ interface BinarySideToggleProps {
   className?: string;
 }
 
+// FIX5: `Segment` lives at module scope. Declaring it inside the component made
+// it a brand-new component type on every render, so React unmounted/remounted
+// both <button>s each render and a click could land between mousedown and
+// mouseup. Markup and classes are unchanged.
+const Segment = ({
+  label,
+  barText,
+  active,
+  tone,
+  disabled,
+  activeDot,
+  onClick,
+}: {
+  label: string;
+  barText: string;
+  active: boolean;
+  tone: "yes" | "no";
+  disabled: boolean;
+  activeDot: boolean;
+  onClick: () => void;
+}) => (
+  <button
+    onClick={onClick}
+    aria-pressed={active}
+    disabled={disabled}
+    className={cn(
+      "relative flex flex-col h-full rounded-md overflow-hidden transition-all",
+      disabled && "opacity-40 pointer-events-none",
+    )}
+  >
+    <div
+      className={cn(
+        "relative flex-1 flex items-center justify-center min-h-[24px] py-1.5 px-2 text-[11px] font-semibold leading-tight line-clamp-2 text-center transition-colors",
+        active
+          ? tone === "yes"
+            ? "bg-yes text-yes-foreground"
+            : "bg-no text-no-foreground"
+          : "bg-muted text-muted-foreground hover:bg-muted/80",
+      )}
+    >
+      {label}
+      {activeDot && active && (
+        <span className="absolute top-1 right-1 w-1 h-1 rounded-full bg-current shadow-[0_0_4px_currentColor]" />
+      )}
+    </div>
+    <div
+      className={cn(
+        "h-[22px] flex items-center justify-center text-[11px] font-mono border-t",
+        active
+          ? tone === "yes"
+            ? "bg-yes/85 text-yes-foreground border-black/20"
+            : "bg-no/85 text-no-foreground border-black/20"
+          : "bg-muted-foreground/15 text-foreground/80 border-border/40",
+      )}
+    >
+      {barText}
+    </div>
+  </button>
+);
+
 export const BinarySideToggle = ({
   yesLabel,
   noLabel,
@@ -40,60 +100,6 @@ export const BinarySideToggle = ({
   noBarText,
   className,
 }: BinarySideToggleProps) => {
-  const Segment = ({
-    label,
-    barText,
-    active,
-    tone,
-    disabled,
-    onClick,
-  }: {
-    label: string;
-    barText: string;
-    active: boolean;
-    tone: "yes" | "no";
-    disabled: boolean;
-    onClick: () => void;
-  }) => (
-    <button
-      onClick={onClick}
-      aria-pressed={active}
-      disabled={disabled}
-      className={cn(
-        "relative flex flex-col h-full rounded-md overflow-hidden transition-all",
-        disabled && "opacity-40 pointer-events-none",
-      )}
-    >
-      <div
-        className={cn(
-          "relative flex-1 flex items-center justify-center min-h-[24px] py-1.5 px-2 text-[11px] font-semibold leading-tight line-clamp-2 text-center transition-colors",
-          active
-            ? tone === "yes"
-              ? "bg-yes text-yes-foreground"
-              : "bg-no text-no-foreground"
-            : "bg-muted text-muted-foreground hover:bg-muted/80",
-        )}
-      >
-        {label}
-        {activeDot && active && (
-          <span className="absolute top-1 right-1 w-1 h-1 rounded-full bg-current shadow-[0_0_4px_currentColor]" />
-        )}
-      </div>
-      <div
-        className={cn(
-          "h-[22px] flex items-center justify-center text-[11px] font-mono border-t",
-          active
-            ? tone === "yes"
-              ? "bg-yes/85 text-yes-foreground border-black/20"
-              : "bg-no/85 text-no-foreground border-black/20"
-            : "bg-muted-foreground/15 text-foreground/80 border-border/40",
-        )}
-      >
-        {barText}
-      </div>
-    </button>
-  );
-
   return (
     <div className={cn("grid grid-cols-2 gap-2 p-1 bg-muted/30 rounded-lg", className)}>
       <Segment
