@@ -530,3 +530,11 @@ export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => (
     </div>
   </div>
 );
+
+/** Mark line above the mobile chart. */
+export const SpotMobileMarkLine = ({ t }: { t: SpotTerminal }) => (
+  <div className="flex items-baseline gap-2 px-3 pb-2">
+    <span className="text-2xl font-bold font-mono">{t.outcomePrice.toFixed(4)}</span>
+    <span className="text-[11px] text-muted-foreground">{t.outcomeLabel} · mark</span>
+  </div>
+);
