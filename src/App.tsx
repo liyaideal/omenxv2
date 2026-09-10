@@ -8,6 +8,9 @@ import { supabase } from "@/integrations/supabase/client";
 import TradingCharts from "./pages/TradingCharts";
 import TradeOrder from "./pages/TradeOrder";
 import SpotTrading from "./pages/SpotTrading";
+import SpotTradingCharts from "./pages/SpotTradingCharts";
+import SpotTradeOrder from "./pages/SpotTradeOrder";
+
 import LiteContractTrade from "./pages/lite/LiteContractTrade";
 import LiteSpotTrade from "./pages/lite/LiteSpotTrade";
 import OrderPreview from "./pages/OrderPreview";
