@@ -72,7 +72,7 @@ function SpotChartsBody({ t }: { t: SpotTerminal }) {
       <SpotMobileMarkLine t={t} />
 
 
-      <div className="h-[280px] border-b border-border/30">
+      <div className="h-[280px] w-full min-w-0 overflow-hidden border-b border-border/30">
         <CandlestickChart remainingDays={1} basePrice={t.outcomePrice || 0.5} side={t.side} />
       </div>
 
