@@ -456,3 +456,77 @@ export const SpotBottomTabs = ({
 /** Guard helper shared by the mobile pages. */
 export const spotBlockedToast = (t: SpotTerminal) =>
   toast.error(t.blockedReason || "Market unavailable");
+
+// -----------------------------------------------------------------
+// SP-2 · mobile helpers
+// -----------------------------------------------------------------
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Info } from "lucide-react";
+import { mock24hVolume as mockVol } from "@/hooks/useSpotTerminal";
+
+/** Adapter: the raw spot event row → the shared `TradingEvent` header shape. */
+export const spotHeaderEvent = (t: SpotTerminal): TradingEvent => ({
+  id: t.event!.id,
+  name: t.event!.name,
+  icon: "",
+  ends: t.countdown.text,
+  endTime: t.endDate ?? new Date(),
+  period: "Daily",
+  volume: mockVol(t.event!.id),
+  description:
+    t.event!.description || "US-stock daily up/down (spot). Winning share pays $1 at settlement.",
+  rules: [],
+  sourceUrl: t.event!.source_url || "",
+  sourceName: t.event!.source_name || "databento",
+  resolutionSource: t.event!.source_name || "databento",
+});
+
+/** Schedule ⓘ shown inline in the mobile header stats row. */
+export const SpotScheduleInfo = ({ t }: { t: SpotTerminal }) => (
+  <Popover>
+    <PopoverTrigger asChild>
+      <button type="button" className="p-0.5 text-muted-foreground" aria-label="Schedule details">
+        <Info className="w-3.5 h-3.5" />
+      </button>
+    </PopoverTrigger>
+    <PopoverContent side="bottom" align="center" className="text-[11px] max-w-[280px] p-2">
+      <div className="space-y-1">
+        <div><span className="text-muted-foreground">Opens:</span> after prior close (extended trading)</div>
+        <div><span className="text-muted-foreground">Trading ends:</span> {t.freezeEtOnly ?? "—"}</div>
+        <div><span className="text-muted-foreground">Official close:</span> {t.closeEtOnly ?? "—"} (settlement price)</div>
+        <div><span className="text-muted-foreground">Credits by:</span> ~{t.settleEtOnly ?? "—"}</div>
+      </div>
+    </PopoverContent>
+  </Popover>
+);
+
+/** 32 px two-cell stats strip — SP-2 mobile spot exception to the perp grid. */
+export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => (
+  <div className="mx-3 my-2 h-8 flex items-center rounded-md border border-border/40 bg-card">
+    <div className="flex-1 min-w-0 flex items-center gap-1.5 px-2">
+      <span className="text-[10px] uppercase tracking-wide text-muted-foreground">Base</span>
+      <span className="text-[12px] font-mono truncate">
+        {t.basePrice != null ? `${t.cur}${t.basePrice.toFixed(2)}` : "—"}
+      </span>
+    </div>
+    <div className="w-px h-5 bg-border/40" />
+    <div className="flex-1 min-w-0 flex items-center gap-1.5 px-2">
+      <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{t.ticker || "Last"}</span>
+      <span className="text-[12px] font-mono truncate">
+        {t.indicative != null ? `${t.cur}${t.indicative.toFixed(2)}` : "—"}
+      </span>
+      {t.indicative != null && (
+        <span
+          className={cn(
+            "text-[12px] font-mono",
+            t.indicativePct >= 0 ? "text-trading-green" : "text-trading-red",
+          )}
+        >
+          {t.indicativePct >= 0 ? "+" : ""}
+          {t.indicativePct.toFixed(2)}%
+          {t.sessionTag ? ` · ${t.sessionTag}` : ""}
+        </span>
+      )}
+    </div>
+  </div>
+);
