@@ -78,9 +78,25 @@ export const ProSpotHeader = (p: ProSpotHeaderProps) => (
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           <span className="font-semibold text-foreground truncate">{p.eventName}</span>
-          <Badge variant="outline" className={cn("text-[10px] border", p.lifecycleBadge.className)}>
-            {p.lifecycleBadge.label}
-          </Badge>
+          {p.lifecycleBadge &&
+            (p.lifecycleBadge.tooltip ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="outline" className={cn("text-[10px] border", p.lifecycleBadge.className)}>
+                      {p.lifecycleBadge.label}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="text-xs max-w-[280px]">
+                    {p.lifecycleBadge.tooltip}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : (
+              <Badge variant="outline" className={cn("text-[10px] border", p.lifecycleBadge.className)}>
+                {p.lifecycleBadge.label}
+              </Badge>
+            ))}
         </div>
         <div className="mt-0.5">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
