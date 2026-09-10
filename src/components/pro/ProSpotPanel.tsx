@@ -88,6 +88,10 @@ export const formatShares = (n: number) =>
 /** Same value, but as a raw input string (no thousands separators). */
 export const sharesInputValue = (n: number) => String(Math.round(n * 1000) / 1000);
 
+/** SP-2-FIX2: money with thousands separators, always 2 dp (`1,073.14`). */
+const money2 = (n: number) =>
+  n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
 const Row = ({ label, children }: { label: React.ReactNode; children: React.ReactNode }) => (
   <div className="flex justify-between">
     <span className="text-muted-foreground">{label}</span>
