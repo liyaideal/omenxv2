@@ -198,6 +198,8 @@ const App = () => (
               <Route path="/trade" element={<TradingPage />} />
               <Route path="/trade/order" element={<TradeOrderPage />} />
               <Route path="/spot" element={<SpotRoute />} />
+              <Route path="/spot/order" element={<SpotOrderRoute />} />
+
               <Route path="/order-preview" element={<OrderPreview />} />
               <Route path="/events" element={<EventsRoute />} />
               <Route path="/resolved" element={<ResolvedRoute />} />
