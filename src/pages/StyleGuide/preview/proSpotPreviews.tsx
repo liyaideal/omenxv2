@@ -260,6 +260,7 @@ export const ProBottomTabsGuest = () => (
       authTitle="Sign in to view spot positions"
       authDescription="Track your open positions and orders by signing in to your account."
       bodyClassName="h-[120px]"
+      previewForceSignedOut
     >
       <Block label="bottomTabs slot" />
     </ProBottomTabs>

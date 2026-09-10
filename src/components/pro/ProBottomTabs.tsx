@@ -22,6 +22,8 @@ interface ProBottomTabsProps {
   bodyClassName?: string;
   /** style-guide only — skip the sign-in gate so a skeleton frame stays legible. */
   previewNoAuthGate?: boolean;
+  /** style-guide only — force the signed-out panel gate so a reviewer can see it. */
+  previewForceSignedOut?: boolean;
   /** Body of the active tab (the caller switches on `active`). */
   children: ReactNode;
 }
@@ -34,6 +36,7 @@ export const ProBottomTabs = ({
   authDescription,
   bodyClassName = "max-h-[460px] overflow-y-auto overscroll-contain",
   previewNoAuthGate,
+  previewForceSignedOut,
   children,
 }: ProBottomTabsProps) => (
   <div className="border-t border-border/30 flex-shrink-0">
@@ -57,7 +60,7 @@ export const ProBottomTabs = ({
     {previewNoAuthGate ? (
       <div className={bodyClassName}>{children}</div>
     ) : (
-      <LiteAuthGate variant="panel" title={authTitle} description={authDescription}>
+      <LiteAuthGate variant="panel" title={authTitle} description={authDescription} forceSignedOut={previewForceSignedOut}>
         <div className={bodyClassName}>{children}</div>
       </LiteAuthGate>
     )}
