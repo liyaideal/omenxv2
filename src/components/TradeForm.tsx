@@ -384,8 +384,9 @@ export const TradeForm = ({
                   </div>
                 </button>
                 <button
+                  disabled={noDisabled}
                   onClick={() => (binaryMode ? binaryMode.onSelectNo() : setSide("sell"))}
-                  className="relative flex flex-col h-full rounded-md overflow-hidden transition-all duration-200"
+                  className={`relative flex flex-col h-full rounded-md overflow-hidden transition-all duration-200 ${noDisabled ? "opacity-40 pointer-events-none" : ""}`}
                 >
                   <div
                     className={`relative flex-1 flex items-center justify-center min-h-[24px] py-1.5 px-2 ${
