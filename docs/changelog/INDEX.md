@@ -62,3 +62,4 @@
 - **废弃**：在该行末尾标注"（已废弃）"，文件不删除
 
 > 维护规则同步在 `.lovable/memory/index.md` Core 中，Lovable agent 每次产出交付文档会自动按此约定更新本索引。
+- 2026-09-10 · SP-2 Pro 现货移动端重建 + 冻结巡检 — [docs/delivery/spot-pro-v1.md § SP-2]

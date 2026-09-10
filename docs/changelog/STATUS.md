@@ -554,3 +554,6 @@
 - 2026-08-31 · 批量平仓确认抽屉排版合规（DESIGN.md §5.1）— `BatchCashOutConfirm` 正文根 `space-y-4`、卡内行距 `space-y-1.5`（去掉 divide-y/py-2）、硬编码 `#6B7280` 全改 `text-muted-foreground`；footer 改 `MobileDrawerActions className="flex gap-2 space-y-0"`；主按钮 `Cash out` 按不可逆操作改 destructive 红 `bg-trading-red text-white hover:bg-trading-red/90`（桌面 Dialog 共用同一 Actions，同样生效）。逻辑 / 文案 / 数据不动。
 - 2026-08-31 · Live 列表多选 + 全选批量平仓
 - 2026-08-31 · Select 入口并入 chips 行 — Live 列表的 `Select` 入口与选择模式工具条（Select all / Clear / N selected / Cancel）从独立一行移到 Boost/Standard chips 同行右侧，净省一行纵向空间；`SelectToolbar` 去除自带外距改为行内使用。批量平仓执行逻辑、确认层、动作条不变；settled tab 的 chips 行不受影响。
+- 2026-09-10 · SP-F 冻结巡检 — `freeze_expired_events()` + `freeze-sweep` cron（每 5 分钟），过期事件自动进 `FROZEN`；首跑翻转 0 行。
+- 2026-09-10 · SP-G Pro 现货移动端 — `/spot` 移动 Charts 视图 + 新 `/spot/order` 下单子页，长在合约 Pro 移动骨架上；32px 单条统计 strip、sticky dock（含 Lite/Pro dock 开关）、封锁态；`SpotTrading.tsx` 收敛为桌面专用。
+- 2026-09-10 · SP-H 现货终端逻辑抽取 — `useSpotTerminal.ts` 成为桌面与移动共用的唯一逻辑源，FIX3/FIX4/FIX5 行为不变。
