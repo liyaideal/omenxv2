@@ -333,7 +333,6 @@ export function useSpotTerminal() {
   const indicative = useIndicativeLast(basePrice, event?.id || "");
   const indicativePct = basePrice && indicative ? ((indicative - basePrice) / basePrice) * 100 : 0;
 
-  const market = resolveStockMarket(event);
   const cur = market.currency;
   const settleEtOnly = settleAt ? formatLocalTime(settleAt) : null;
   const freezeEtOnly = freezeAt ? formatLocalTime(freezeAt) : null;
