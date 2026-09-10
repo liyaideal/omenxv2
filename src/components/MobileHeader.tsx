@@ -53,7 +53,16 @@ interface MobileHeaderProps {
   onTitleClick?: () => void;
   /** Keeps the title mounted but transparent (scroll-aware trade headers). */
   titleHidden?: boolean;
+  /** SP-2: small badge rendered right after the title (e.g. SPOT). */
+  titleBadge?: ReactNode;
+  /** SP-2: countdown row wording. Defaults to the locked `Ends in`. */
+  countdownLabel?: string;
+  /** SP-2: 3-tier urgency colour for the countdown row. Defaults to red. */
+  countdownUrgency?: "muted" | "yellow" | "red";
+  /** SP-2: extra inline content in the stats row (e.g. the schedule ⓘ). */
+  statsExtra?: ReactNode;
 }
+
 
 /** Right-slot icon button standard. Last one in the slot gets -mr-2 via wrapper. */
 export const MobileHeaderIconButton = ({
