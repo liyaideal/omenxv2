@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { AuthGateOverlay } from "@/components/AuthGateOverlay";
+import { LiteAuthGate } from "@/components/auth/LiteAuthGate";
 import { ChevronDown, Gift } from "lucide-react";
 import { MobileTradingLayout, TradingContextData } from "@/components/MobileTradingLayout";
 import { TradeForm } from "@/components/TradeForm";
@@ -235,7 +235,7 @@ function TradeOrderContent({ selectedEvent, selectedOptionData, options, setSele
         })}
       </div>
 
-      <AuthGateOverlay title="Sign in to view positions" description="Log in or create an account to view and manage your trades." compact>
+      <LiteAuthGate variant="panel" title="Sign in to view positions" description="Track and manage your trades by signing in to your account.">
       <div className="px-4 py-3 space-y-3">
         {bottomTab === "Orders" && (
           ordersLoading ? (
@@ -297,7 +297,7 @@ function TradeOrderContent({ selectedEvent, selectedOptionData, options, setSele
           </>
         )}
       </div>
-      </AuthGateOverlay>
+      </LiteAuthGate>
     </div>
   );
 }

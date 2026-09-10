@@ -7,7 +7,7 @@
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { MobileTradingLayout } from "@/components/MobileTradingLayout";
-import { AuthGateOverlay } from "@/components/AuthGateOverlay";
+import { LiteAuthGate } from "@/components/auth/LiteAuthGate";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import {
@@ -64,17 +64,17 @@ function SpotOrderBody({ t }: { t: SpotTerminal }) {
         })}
       </div>
 
-      <AuthGateOverlay
+      <LiteAuthGate
+        variant="panel"
         title="Sign in to view spot positions"
-        description="Log in or create an account to view your open positions and orders."
-        compact
+        description="Track your open positions and orders by signing in to your account."
       >
         {tab === "Orders" ? (
           <SpotOrdersTable t={t} variant="mobile" />
         ) : (
           <SpotPositionsTable t={t} variant="mobile" />
         )}
-      </AuthGateOverlay>
+      </LiteAuthGate>
 
       <SpotOrderPreviewDialog t={t} />
       <AuthDialog open={t.authOpen} onOpenChange={t.setAuthOpen} defaultTab="signup" />

@@ -57,9 +57,9 @@ export const ProBottomTabs = ({
     {previewNoAuthGate ? (
       <div className={bodyClassName}>{children}</div>
     ) : (
-      <AuthGateOverlay title={authTitle} description={authDescription}>
+      <LiteAuthGate variant="panel" title={authTitle} description={authDescription}>
         <div className={bodyClassName}>{children}</div>
-      </AuthGateOverlay>
+      </LiteAuthGate>
     )}
   </div>
 );
