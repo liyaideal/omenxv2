@@ -54,7 +54,8 @@ export default function SpotTrading() {
     <ProSpotHeader
       ticker={t.ticker}
       eventName={event.name}
-      lifecycleBadge={{ label: t.badge.label, className: t.badge.className }}
+      lifecycleBadge={t.badge}
+      marketKey={t.marketKey}
       countdown={{ text: t.countdown.text, urgency: t.countdown.urgency as "red" | "yellow" | "muted" }}
       freezeEtOnly={t.freezeEtOnly}
       closeEtOnly={t.closeEtOnly}

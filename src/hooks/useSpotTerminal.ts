@@ -303,9 +303,22 @@ export function useSpotTerminal() {
   const countdownTarget = freezeAt ?? endDate;
   const countdown = useSpotCountdown(countdownTarget);
 
+  const market = resolveStockMarket(event);
   const dbLifecycle = event?.lifecycle_status || "TRADING";
-  const lifecycle = getDisplayLifecycle(dbLifecycle);
-  const badge = getLifecycleBadge(lifecycle);
+  const lifecycle = getDisplayLifecycle(dbLifecycle, market);
+  const baseBadge = getLifecycleBadge(lifecycle);
+  // SP-3-DT2 · normal trading shows NO badge (parity with /trade).
+  const showBadge = lifecycle !== "TRADING";
+  const badge = showBadge
+    ? {
+        label: lifecycle === "EXTENDED_TRADING" ? "Extended hours" : baseBadge.label,
+        className: baseBadge.className,
+        tooltip:
+          lifecycle === "EXTENDED_TRADING"
+            ? "Pre-market / after-hours session — liquidity is thinner and spreads are wider."
+            : undefined,
+      }
+    : null;
   // FIX5: time also blocks trading.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const isFrozenByTime = useMemo(() => isPastFreeze(freezeAt, endDate), [freezeAt, endDate, countdown]);
@@ -320,7 +333,6 @@ export function useSpotTerminal() {
   const indicative = useIndicativeLast(basePrice, event?.id || "");
   const indicativePct = basePrice && indicative ? ((indicative - basePrice) / basePrice) * 100 : 0;
 
-  const market = resolveStockMarket(event);
   const cur = market.currency;
   const settleEtOnly = settleAt ? formatLocalTime(settleAt) : null;
   const freezeEtOnly = freezeAt ? formatLocalTime(freezeAt) : null;
@@ -344,12 +356,13 @@ export function useSpotTerminal() {
   }, [endDate, market.tz]);
 
   const sessionTag = useMemo(() => {
-    const s = getCurrentSession();
+    if (market.key === "crypto") return null;
+    const s = getCurrentSession(market);
     if (s.session === "PRE_MARKET") return "pre-mkt";
     if (s.session === "EXTENDED_AFTER_HOURS" || s.session === "OVERNIGHT") return "after-hrs";
     return null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [countdown.text]);
+  }, [countdown.text, market]);
 
   // Tick 0.01 validation (技术对接 §10.1).
   const tickInvalid = useMemo(() => {
@@ -366,7 +379,8 @@ export function useSpotTerminal() {
     const t = setInterval(() => setSessionTick((n) => n + 1), 60_000);
     return () => clearInterval(t);
   }, []);
-  const sessionProfile = useMemo(() => getCurrentSession(), [sessionTick]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const sessionProfile = useMemo(() => getCurrentSession(market), [sessionTick, market]);
   const sessionDateKey = new Intl.DateTimeFormat("en-CA", {
     timeZone: market.tz,
     year: "numeric",
@@ -718,6 +732,7 @@ export function useSpotTerminal() {
 
     // market data
     market,
+    marketKey: market.key,
     cur,
     ticker,
     basePrice,

@@ -14,12 +14,14 @@ import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
 export interface ProSpotHeaderProps {
   ticker: string;
   eventName: string;
-  lifecycleBadge: { label: string; className: string };
+  lifecycleBadge: { label: string; className: string; tooltip?: string } | null;
   countdown: { text: string; urgency: "red" | "yellow" | "muted" };
   freezeEtOnly?: string | null;
   closeEtOnly?: string | null;
   settleEtOnly?: string | null;
   closingSoon: boolean;
+  /** SP-3-DT2 — crypto events use 24/7 schedule copy (no stock session lines). */
+  marketKey?: string;
   volumeText: string;
   lastLabel: string;
   lastPriceText: string;
@@ -76,9 +78,25 @@ export const ProSpotHeader = (p: ProSpotHeaderProps) => (
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           <span className="font-semibold text-foreground truncate">{p.eventName}</span>
-          <Badge variant="outline" className={cn("text-[10px] border", p.lifecycleBadge.className)}>
-            {p.lifecycleBadge.label}
-          </Badge>
+          {p.lifecycleBadge &&
+            (p.lifecycleBadge.tooltip ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="outline" className={cn("text-[10px] border", p.lifecycleBadge.className)}>
+                      {p.lifecycleBadge.label}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="text-xs max-w-[280px]">
+                    {p.lifecycleBadge.tooltip}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : (
+              <Badge variant="outline" className={cn("text-[10px] border", p.lifecycleBadge.className)}>
+                {p.lifecycleBadge.label}
+              </Badge>
+            ))}
         </div>
         <div className="mt-0.5">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -127,12 +145,19 @@ export const ProSpotHeader = (p: ProSpotHeaderProps) => (
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" align="start" className="text-xs max-w-[280px]">
-                  <div className="space-y-1">
-                    <div><span className="text-muted-foreground">Opens:</span> after prior close (extended trading)</div>
-                    <div><span className="text-muted-foreground">Trading ends:</span> {p.freezeEtOnly ?? "—"}</div>
-                    <div><span className="text-muted-foreground">Official close:</span> {p.closeEtOnly ?? "—"} (settlement price)</div>
-                    <div><span className="text-muted-foreground">Credits by:</span> ~{p.settleEtOnly ?? "—"}</div>
-                  </div>
+                  {p.marketKey === "crypto" ? (
+                    <div className="space-y-1">
+                      <div><span className="text-muted-foreground">Trading ends:</span> {p.freezeEtOnly ?? "—"}</div>
+                      <div><span className="text-muted-foreground">Settles:</span> ~{p.settleEtOnly ?? "—"}</div>
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      <div><span className="text-muted-foreground">Opens:</span> after prior close (extended trading)</div>
+                      <div><span className="text-muted-foreground">Trading ends:</span> {p.freezeEtOnly ?? "—"}</div>
+                      <div><span className="text-muted-foreground">Official close:</span> {p.closeEtOnly ?? "—"} (settlement price)</div>
+                      <div><span className="text-muted-foreground">Credits by:</span> ~{p.settleEtOnly ?? "—"}</div>
+                    </div>
+                  )}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

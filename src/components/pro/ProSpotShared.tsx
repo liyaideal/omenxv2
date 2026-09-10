@@ -504,12 +504,19 @@ export const SpotScheduleInfo = ({ t }: { t: SpotTerminal }) => (
       </button>
     </PopoverTrigger>
     <PopoverContent side="bottom" align="center" className="text-[11px] max-w-[280px] p-2">
-      <div className="space-y-1">
-        <div><span className="text-muted-foreground">Opens:</span> after prior close (extended trading)</div>
-        <div><span className="text-muted-foreground">Trading ends:</span> {t.freezeEtOnly ?? "—"}</div>
-        <div><span className="text-muted-foreground">Official close:</span> {t.closeEtOnly ?? "—"} (settlement price)</div>
-        <div><span className="text-muted-foreground">Credits by:</span> ~{t.settleEtOnly ?? "—"}</div>
-      </div>
+      {t.marketKey === "crypto" ? (
+        <div className="space-y-1">
+          <div><span className="text-muted-foreground">Trading ends:</span> {t.freezeEtOnly ?? "—"}</div>
+          <div><span className="text-muted-foreground">Settles:</span> ~{t.settleEtOnly ?? "—"}</div>
+        </div>
+      ) : (
+        <div className="space-y-1">
+          <div><span className="text-muted-foreground">Opens:</span> after prior close (extended trading)</div>
+          <div><span className="text-muted-foreground">Trading ends:</span> {t.freezeEtOnly ?? "—"}</div>
+          <div><span className="text-muted-foreground">Official close:</span> {t.closeEtOnly ?? "—"} (settlement price)</div>
+          <div><span className="text-muted-foreground">Credits by:</span> ~{t.settleEtOnly ?? "—"}</div>
+        </div>
+      )}
     </PopoverContent>
   </Popover>
 );

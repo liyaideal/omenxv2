@@ -61,6 +61,8 @@
     /* ===== TRADING SEMANTIC COLORS ===== */
     /* Gain - Volt Green */
     --trading-green: 74 100% 65%;
+    /* SP-3-CTA · dark ink on volt green (white failed contrast). */
+    --trading-green-foreground: 220 12% 4%;
     --trading-green-muted: 74 60% 30%;
     --trading-green-bg: 74 50% 9%;
     --trading-green-glow: 74 100% 65%;
