@@ -379,7 +379,8 @@ export function useSpotTerminal() {
     const t = setInterval(() => setSessionTick((n) => n + 1), 60_000);
     return () => clearInterval(t);
   }, []);
-  const sessionProfile = useMemo(() => getCurrentSession(), [sessionTick]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const sessionProfile = useMemo(() => getCurrentSession(market), [sessionTick, market]);
   const sessionDateKey = new Intl.DateTimeFormat("en-CA", {
     timeZone: market.tz,
     year: "numeric",
