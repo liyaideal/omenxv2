@@ -23,6 +23,12 @@ interface TradeSubmitButtonProps {
    * "You receive". Purely a label — no layout change.
    */
   winPrefix?: string;
+  /**
+   * SP-2-FIX2: `"row"` (default, contract Pro unchanged) keeps label and
+   * readout on one line. `"stacked"` puts the readout on a second line so
+   * neither string can ever be truncated at 360 px.
+   */
+  layout?: "row" | "stacked";
 }
 
 /**
