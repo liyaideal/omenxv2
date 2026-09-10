@@ -169,22 +169,32 @@ const useCountdown = (endTime: Date | null): { text: string; urgency: CountdownU
     if (!endTime) return;
     const tick = () => {
       const diff = endTime.getTime() - Date.now();
+      let next: { text: string; urgency: CountdownUrgency; diffMs: number };
       if (diff <= 0) {
-        setState({ text: "00:00:00", urgency: "red", diffMs: 0 });
-        return;
+        next = { text: "00:00:00", urgency: "red", diffMs: 0 };
+      } else {
+        const h = Math.floor(diff / 3_600_000);
+        const m = Math.floor((diff % 3_600_000) / 60_000);
+        const s = Math.floor((diff % 60_000) / 1_000);
+        const text = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+        const urgency: CountdownUrgency =
+          diff <= 15 * 60_000 ? "red" : diff <= 60 * 60_000 ? "yellow" : "muted";
+        next = { text, urgency, diffMs: diff };
       }
-      const h = Math.floor(diff / 3_600_000);
-      const m = Math.floor((diff % 3_600_000) / 60_000);
-      const s = Math.floor((diff % 60_000) / 1_000);
-      const text = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-      const urgency: CountdownUrgency =
-        diff <= 15 * 60_000 ? "red" : diff <= 60 * 60_000 ? "yellow" : "muted";
-      setState({ text, urgency, diffMs: diff });
+      // Never push a fresh object when nothing changed — the expired branch
+      // used to re-render forever once the effect re-ran per render.
+      setState((prev) =>
+        prev.text === next.text && prev.urgency === next.urgency && prev.diffMs === next.diffMs
+          ? prev
+          : next,
+      );
     };
     tick();
     const t = setInterval(tick, 1000);
     return () => clearInterval(t);
-  }, [endTime]);
+    // Key on the timestamp so a caller-recreated Date cannot restart the effect.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [endTime?.getTime()]);
   return state;
 };
 
