@@ -244,7 +244,7 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = 
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full w-full min-w-0 flex flex-col overflow-hidden">
       {/* Timeframe selector */}
       <div className="flex items-center justify-between px-4 py-2 flex-shrink-0">
         <div className="flex items-center">
@@ -276,9 +276,9 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = 
 
       {/* Price Chart */}
       <div className="relative flex-1 min-h-0">
-        <div className="flex h-full">
+        <div className="flex h-full min-w-0">
           {/* Chart area */}
-          <div className="flex-1 relative">
+          <div className="flex-1 min-w-0 relative">
             <svg 
               width="100%"
               height="100%"
@@ -491,7 +491,7 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = 
           </div>
 
           {/* Y-axis labels (right side) */}
-          <div className="flex flex-col justify-between text-[10px] text-muted-foreground font-mono pl-2 w-12 text-right">
+          <div className="flex flex-col justify-between text-[10px] text-muted-foreground font-mono pl-2 w-12 shrink-0 text-right">
             {priceLabels.map((label, i) => (
               <span key={i}>{label.toFixed(4)}</span>
             ))}

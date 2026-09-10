@@ -290,7 +290,7 @@ const MobileChartsFrame = ({ width, terminal }: { width?: number; terminal?: Par
     <Phone width={width}>
       <SpotMobileStatsStrip t={t} />
       <SpotMobileMarkLine t={t} />
-      <div style={{ height: 280 }}>
+      <div className="w-full min-w-0 overflow-hidden" style={{ height: 280 }}>
         <CandlestickChart remainingDays={1} basePrice={0.4916} side="buy" />
       </div>
       <div className="relative mt-4 h-[92px]">

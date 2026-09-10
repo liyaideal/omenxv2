@@ -89,7 +89,7 @@ export const formatShares = (n: number) =>
 export const sharesInputValue = (n: number) => String(Math.round(n * 1000) / 1000);
 
 /** SP-2-FIX2: money with thousands separators, always 2 dp (`1,073.14`). */
-const money2 = (n: number) =>
+export const money2 = (n: number) =>
   n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const Row = ({ label, children }: { label: React.ReactNode; children: React.ReactNode }) => (
@@ -158,7 +158,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
         {/* Balance / holdings */}
         <div className="flex items-center justify-between text-[11px]">
           <span className="text-muted-foreground">Available (USDC)</span>
-          <span className="font-mono">{p.available.toFixed(2)}</span>
+          <span className="font-mono">{money2(p.available)}</span>
         </div>
         {isSell && (
           <div className="flex items-center justify-between text-[11px]">
@@ -262,15 +262,15 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
         <div className="rounded-md bg-muted/30 p-2.5 text-[11px] font-mono space-y-1">
           {isSell ? (
             <>
-              <Row label="Proceeds">${p.cost.toFixed(2)}</Row>
+              <Row label="Proceeds">${money2(p.cost)}</Row>
               <Row label="Shares">{formatShares(p.qty)}</Row>
 
-              <Row label="Est. commission">${p.sellCommission.toFixed(2)}</Row>
-              <Row label="You receive">${p.sellReceive.toFixed(2)}</Row>
+              <Row label="Est. commission">${money2(p.sellCommission)}</Row>
+              <Row label="You receive">${money2(p.sellReceive)}</Row>
             </>
           ) : (
             <>
-              <Row label="Cost">${p.cost.toFixed(2)}</Row>
+              <Row label="Cost">${money2(p.cost)}</Row>
               {p.orderType === "Market" && (
                 <div className="flex justify-end text-[10px] text-muted-foreground -mt-1">
                   Est. fill @ {p.bestAsk.toFixed(2)}
@@ -295,9 +295,9 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
                   </span>
                 }
               >
-                ${p.maxWin.toFixed(2)}
+                ${money2(p.maxWin)}
               </Row>
-              <Row label="Fee (0.15%)">${p.fee.toFixed(2)}</Row>
+              <Row label="Fee (0.15%)">${money2(p.fee)}</Row>
             </>
           )}
         </div>
@@ -305,7 +305,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
         {/* Spot account balance hint — spot funds only. */}
         <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
           <Info className="h-3 w-3" />
-          Standard Account · ${p.spotBalance.toFixed(2)} available
+          Standard Account · ${money2(p.spotBalance)} available
         </div>
         {p.settleEtOnly && (
           <div className="text-[10px] text-muted-foreground">
@@ -320,7 +320,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
         {p.willBePending && !p.tickInvalid && (
           <div className="text-[10px] text-trading-yellow">
             {p.side === "buy"
-              ? `Limit below best ask $${p.bestAsk.toFixed(2)} — order will rest as Pending until touched. $${(p.cost + p.fee).toFixed(2)} reserved.`
+              ? `Limit below best ask $${p.bestAsk.toFixed(2)} — order will rest as Pending until touched. $${money2(p.cost + p.fee)} reserved.`
               : `Limit above best bid $${p.bestBid.toFixed(2)} — order will rest as Pending until touched.`}
           </div>
         )}
@@ -355,10 +355,10 @@ export const ProSpotAccountPanel = ({ available, inOrders, openPositions }: ProS
     </div>
     <div className="px-4 py-3 space-y-2 text-xs">
       <Row label="Available (USDC)">
-        <span className="font-mono text-foreground">${available.toFixed(2)}</span>
+        <span className="font-mono text-foreground">${money2(available)}</span>
       </Row>
       <Row label="In orders">
-        <span className="font-mono">${inOrders.toFixed(2)}</span>
+        <span className="font-mono">${money2(inOrders)}</span>
       </Row>
       <Row label="Open positions">
         <span className="font-mono">{openPositions}</span>
@@ -420,15 +420,15 @@ export const ProSpotOrderPreview = (p: ProSpotOrderPreviewProps) => {
           <div className="rounded-lg border border-border/50 bg-muted/20 p-3 space-y-1.5 text-xs font-mono">
             {isSell ? (
               <>
-                <Row label="Proceeds">${p.cost.toFixed(2)}</Row>
-                <Row label="Est. commission">${p.sellCommission.toFixed(2)}</Row>
-                <Row label="You receive">${p.sellReceive.toFixed(2)}</Row>
+                <Row label="Proceeds">${money2(p.cost)}</Row>
+                <Row label="Est. commission">${money2(p.sellCommission)}</Row>
+                <Row label="You receive">${money2(p.sellReceive)}</Row>
               </>
             ) : (
               <>
-                <Row label="Cost">${p.cost.toFixed(2)}</Row>
-                <Row label="Fee (0.15%)">${p.fee.toFixed(2)}</Row>
-                <Row label="To win">${p.maxWin.toFixed(2)}</Row>
+                <Row label="Cost">${money2(p.cost)}</Row>
+                <Row label="Fee (0.15%)">${money2(p.fee)}</Row>
+                <Row label="To win">${money2(p.maxWin)}</Row>
               </>
             )}
           </div>
@@ -437,7 +437,7 @@ export const ProSpotOrderPreview = (p: ProSpotOrderPreviewProps) => {
             size="lg"
             side={p.side}
             label={p.ctaLabel}
-            potentialWin={(isSell ? p.sellReceive : p.maxWin).toFixed(2)}
+            potentialWin={money2(isSell ? p.sellReceive : p.maxWin)}
             loading={p.submitting}
             winPrefix={isSell ? "You receive" : "To win"}
             onClick={p.onConfirm}

@@ -13,10 +13,18 @@ import {
   ProSpotPanel,
   ProSpotAccountPanel,
   ProSpotOrderPreview,
+  money2,
+  formatShares,
 } from "@/components/pro/ProSpotPanel";
 import { ProBottomTabs } from "@/components/pro/ProBottomTabs";
 import { mock24hVolume, type SpotTerminal } from "@/hooks/useSpotTerminal";
 import type { TradingEvent } from "@/hooks/useEvents";
+
+/** SP-2-FIX4 · one money format on every Pro spot surface (`+$1,073.14`). */
+const spotPnlText = (n: number) => `${n >= 0 ? "+" : "-"}$${money2(Math.abs(n))}`;
+
+/** Order rows arrive pre-formatted (`$1,234.00`); read the number back out. */
+const num = (v: string) => Number(String(v).replace(/[^0-9.-]/g, "")) || 0;
 
 export const SpotTradePanel = ({
   t,
@@ -121,7 +129,7 @@ export const SpotEventInfoPanel = ({ t }: { t: SpotTerminal }) => {
       <div className="grid grid-cols-2 gap-3 text-xs font-mono">
         <InfoCell
           label="Prior official close"
-          value={t.basePrice != null ? `${t.cur}${t.basePrice.toFixed(2)}` : "—"}
+          value={t.basePrice != null ? `${t.cur}${money2(t.basePrice)}` : "—"}
         />
         <InfoCell label="Settles vs" value={`Prior close · flat close = ${t.noLabel}`} />
         <InfoCell label="Resolution source" value={event.source_name || "databento"} />
@@ -215,17 +223,17 @@ export const SpotPositionsTable = ({
                   </div>
                   <div>
                     <div>Size (sh)</div>
-                    <div className="font-mono text-foreground">{p.sizeDisplay}</div>
+                    <div className="font-mono text-foreground">{formatShares(p.sizeNum)}</div>
                   </div>
                   <div className="text-right">
                     <div>PnL</div>
                     <div
                       className={cn(
                         "font-mono",
-                        p.pnl.startsWith("+") ? "text-trading-green" : "text-trading-red",
+                        p.pnlNum >= 0 ? "text-trading-green" : "text-trading-red",
                       )}
                     >
-                      {p.pnl}
+                      {spotPnlText(p.pnlNum)}
                     </div>
                   </div>
                 </div>
@@ -276,14 +284,14 @@ export const SpotPositionsTable = ({
               </span>
               <span className="text-right font-mono">{p.entryPrice}</span>
               <span className="text-right font-mono">{p.markPrice}</span>
-              <span className="text-right font-mono">{p.sizeDisplay}</span>
+              <span className="text-right font-mono">{formatShares(p.sizeNum)}</span>
               <span
                 className={cn(
                   "text-right font-mono",
-                  p.pnl.startsWith("+") ? "text-trading-green" : "text-trading-red",
+                  p.pnlNum >= 0 ? "text-trading-green" : "text-trading-red",
                 )}
               >
-                {p.pnl}
+                {spotPnlText(p.pnlNum)}
               </span>
               <button
                 onClick={() => t.closePosition(p)}
@@ -347,7 +355,7 @@ export const SpotOrdersTable = ({
                   </div>
                   <div>
                     <div>Qty (sh)</div>
-                    <div className="font-mono text-foreground">{o.amount}</div>
+                    <div className="font-mono text-foreground">{formatShares(num(o.amount))}</div>
                   </div>
                   <div className="text-right">
                     <div>Status</div>
@@ -380,7 +388,7 @@ export const SpotOrdersTable = ({
         <div className="px-4 py-8 text-center text-muted-foreground">No open spot orders.</div>
       ) : (
         rows.map((o, i) => {
-          const reserved = o.type === "buy" ? o.total : "—";
+          const reserved = o.type === "buy" ? `$${money2(num(o.total))}` : "—";
           const isPending = o.status === "Pending";
           return (
             <div
@@ -393,7 +401,7 @@ export const SpotOrdersTable = ({
               </span>
               <span>{o.orderType}</span>
               <span className="text-right font-mono">{o.price}</span>
-              <span className="text-right font-mono">{o.amount}</span>
+              <span className="text-right font-mono">{formatShares(num(o.amount))}</span>
               <span className="text-right font-mono text-muted-foreground">{reserved}</span>
               <span
                 className={cn(
@@ -556,7 +564,7 @@ export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => {
     <div data-spot-stats-cell="base" className="flex-1 min-w-0 flex items-center gap-1.5 px-2">
       <span className="text-[10px] uppercase tracking-wide text-muted-foreground shrink-0">Base</span>
       <span className="text-[12px] font-mono shrink-0">
-        {t.basePrice != null ? `${t.cur}${t.basePrice.toFixed(2)}` : "—"}
+        {t.basePrice != null ? `${t.cur}${money2(t.basePrice)}` : "—"}
       </span>
       {t.indicative != null && sessionPill(t.sessionTag) && (
         <span className="shrink-0 rounded px-1 border border-border/60 text-[9px] font-semibold tracking-wide text-muted-foreground">
@@ -568,7 +576,7 @@ export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => {
     <div data-spot-stats-cell="market" className="flex-1 min-w-0 flex items-baseline gap-1 px-2">
       <span className="text-[10px] uppercase tracking-wide text-muted-foreground shrink-0">{t.ticker || "Last"}</span>
       <span className="text-[12px] font-mono shrink-0">
-        {t.indicative != null ? `${t.cur}${t.indicative.toFixed(2)}` : "—"}
+        {t.indicative != null ? `${t.cur}${money2(t.indicative)}` : "—"}
       </span>
       {t.indicative != null && showPercent && (
         <span
