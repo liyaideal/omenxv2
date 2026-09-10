@@ -356,7 +356,8 @@ export function useSpotTerminal() {
   }, [endDate, market.tz]);
 
   const sessionTag = useMemo(() => {
-    const s = getCurrentSession();
+    if (market.key === "crypto") return null;
+    const s = getCurrentSession(market);
     if (s.session === "PRE_MARKET") return "pre-mkt";
     if (s.session === "EXTENDED_AFTER_HOURS" || s.session === "OVERNIGHT") return "after-hrs";
     return null;
