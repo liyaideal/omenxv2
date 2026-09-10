@@ -20,6 +20,7 @@ import {
   SpotScheduleInfo,
   SpotHeaderActions,
   spotHeaderEvent,
+  spotMobileTitle,
 } from "@/components/pro/ProSpotShared";
 import { useSpotTerminal, type SpotTerminal } from "@/hooks/useSpotTerminal";
 import { cn } from "@/lib/utils";
@@ -98,7 +99,7 @@ export default function SpotTradeOrder() {
       activeTab="Trade"
       basePath="/spot"
       variant="spot"
-      event={spotHeaderEvent(t)}
+      event={{ ...spotHeaderEvent(t), name: spotMobileTitle(t) }}
       countdownText={t.countdown.text}
       countdownLabel="Trading ends in"
       countdownUrgency={t.countdown.urgency}

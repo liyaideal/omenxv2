@@ -24,6 +24,7 @@ import {
   SpotScheduleInfo,
   SpotHeaderActions,
   spotHeaderEvent,
+  spotMobileTitle,
 } from "@/components/pro/ProSpotShared";
 import { useSpotTerminal, type SpotTerminal } from "@/hooks/useSpotTerminal";
 import { useAnimatedTradesHistory } from "@/hooks/useAnimatedTradesHistory";
@@ -169,7 +170,7 @@ export default function SpotTradingCharts() {
       activeTab="Charts"
       basePath="/spot"
       variant="spot"
-      event={spotHeaderEvent(t)}
+      event={{ ...spotHeaderEvent(t), name: spotMobileTitle(t) }}
       countdownText={t.countdown.text}
       countdownLabel="Trading ends in"
       countdownUrgency={t.countdown.urgency}
