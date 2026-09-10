@@ -41,6 +41,57 @@ export default function OrderPreview() {
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
 
   const orderData = location.state || {};
+  // CT-1 · reduce-only limit close arriving from the mobile Sell tab.
+  const reduceOnly = !!orderData.reduceOnly;
+  const sell = orderData.sell as
+    | {
+        positionId: string;
+        option: string;
+        outcomeLabel: string;
+        leverage: number;
+        closePrice: number;
+        qty: number;
+        releasedMargin: number;
+        realizedPnl: number;
+        commission: number;
+        cashBack: number;
+        ctaLabel: string;
+      }
+    | undefined;
+
+  const handleConfirmReduceOnly = async () => {
+    if (!user) {
+      setAuthSheetOpen(true);
+      return;
+    }
+    if (!sell) return;
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase.from("trades").insert({
+        user_id: user.id,
+        event_name: orderData.event,
+        option_label: sell.option,
+        side: "sell",
+        order_type: "Limit",
+        price: sell.closePrice,
+        amount: 0,
+        quantity: sell.qty,
+        leverage: sell.leverage,
+        margin: 0,
+        fee: 0,
+        status: "Pending",
+        product_line: "futures",
+        reduce_only: true,
+      });
+      if (error) throw error;
+      toast.success("Reduce-only order placed");
+      navigate("/trade");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to place the order");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   const orderCalculations: OrderCalculations = orderData.orderCalculations || {
     notionalValue: "0.00",
     marginRequired: "0.00",
