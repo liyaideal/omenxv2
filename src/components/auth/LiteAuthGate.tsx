@@ -16,6 +16,11 @@ export const LiteAuthGate = ({
   children,
   title = "Sign in to view your portfolio",
   description = "Track your live calls and settled results by signing in to your account.",
+  /**
+   * "page" (default) = full-height blurred overlay.
+   * "panel" = compact inline card for short Pro terminal panels (≤220px, no blur).
+   */
+  variant = "page",
   /** Docs-only: force the signed-out overlay in /style-guide. Never set in product. */
   forceSignedOut = false,
   /** Docs-only: force children through in /style-guide. Never set in product. */
@@ -24,6 +29,7 @@ export const LiteAuthGate = ({
   children: React.ReactNode;
   title?: string;
   description?: string;
+  variant?: "page" | "panel";
   forceSignedOut?: boolean;
   forceSignedIn?: boolean;
 }) => {
@@ -32,6 +38,53 @@ export const LiteAuthGate = ({
   const [authOpen, setAuthOpen] = useState(false);
 
   if (forceSignedIn || (user && !forceSignedOut)) return <>{children}</>;
+
+  if (variant === "panel") {
+    return (
+      <div className="bg-card flex flex-col items-center justify-center text-center px-4 py-6 max-h-[220px]">
+        <img
+          src={isMobile ? "/assets/mobile/auth-gate-lynx.png" : "/assets/desktop/auth-gate-lynx.png"}
+          alt=""
+          aria-hidden
+          onError={(e) => {
+            (e.currentTarget as HTMLImageElement).style.display = "none";
+          }}
+          className="pointer-events-none select-none w-[72px] h-[72px] object-contain"
+        />
+        <h2 className="font-display font-semibold text-[15px] tracking-[-0.3px] text-white mt-[10px] whitespace-nowrap">
+          {title}
+        </h2>
+        <p className="text-[12px] leading-[1.5] text-[#9CA2AB] max-w-[320px] mx-auto pt-[4px] line-clamp-2">
+          {description}
+        </p>
+        <div className="pt-[12px] flex items-center justify-center gap-[10px]">
+          <button
+            type="button"
+            onClick={() => setAuthOpen(true)}
+            style={{ backgroundImage: "linear-gradient(147deg, #D5FF4D 7.7%, #33D6FF 92.3%)" }}
+            className="inline-flex items-center gap-2 rounded-[10px] px-[18px] py-[9px] font-semibold text-[13px] text-[#090A0B]"
+          >
+            <LogIn className="h-3.5 w-3.5" />
+            Sign in
+          </button>
+          <button
+            type="button"
+            onClick={() => setAuthOpen(true)}
+            className="inline-flex items-center justify-center h-[36px] rounded-[10px] px-[14px] border-[1.5px] border-[#1C1F26] bg-transparent text-[12.5px] text-white/80 transition-colors hover:text-white"
+          >
+            Create account
+          </button>
+        </div>
+
+        {isMobile ? (
+          <AuthSheet open={authOpen} onOpenChange={setAuthOpen} />
+        ) : (
+          <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
+        )}
+      </div>
+    );
+  }
+
 
 
   return (
