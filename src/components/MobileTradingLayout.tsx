@@ -11,6 +11,8 @@ import { isSingleMarketBinary } from "@/lib/eventUtils";
 import { MobileRiskIndicator } from "@/components/MobileRiskIndicator";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { useAuth } from "@/hooks/useAuth";
+import { Badge } from "@/components/ui/badge";
+
 
 // Context for sharing trading state with child components
 export interface TradingContextData {
@@ -24,21 +26,55 @@ export interface TradingContextData {
 interface MobileTradingLayoutProps {
   activeTab: "Charts" | "Trade";
   children: React.ReactNode | ((data: TradingContextData) => React.ReactNode);
+  /** SP-2: tab navigation root. `/trade` (default, perp) or `/spot`. */
+  basePath?: "/trade" | "/spot";
+  /**
+   * SP-2: `spot` drops the perp-only surfaces (risk indicator, option chips)
+   * and renders a SPOT badge after the title. Defaults to `perp`.
+   */
+  variant?: "perp" | "spot";
+  /** SP-2: bypass `useEvents` and drive the header from a supplied event. */
+  event?: TradingEvent;
+  /** SP-2: header countdown target override (spot uses freeze_time ?? end_date). */
+  endTime?: Date;
+  countdownLabel?: string;
+  countdownUrgency?: "muted" | "yellow" | "red";
+  /** SP-2: extra inline content in the header stats row (schedule ⓘ). */
+  statsExtra?: React.ReactNode;
+  /** SP-2: replaces the default Star + Share cluster in the header. */
+  headerRight?: React.ReactNode;
+  /** SP-2: replaces the body of the Event info sheet. */
+  eventInfo?: React.ReactNode;
 }
 
-export function MobileTradingLayout({ activeTab, children }: MobileTradingLayoutProps) {
+export function MobileTradingLayout({
+  activeTab,
+  children,
+  basePath = "/trade",
+  variant = "perp",
+  event: eventOverride,
+  endTime: endTimeOverride,
+  countdownLabel,
+  countdownUrgency,
+  statsExtra,
+  headerRight,
+  eventInfo,
+
+}: MobileTradingLayoutProps) {
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const eventId = searchParams.get("event") || undefined;
   const { user } = useAuth();
-  
+  const isSpot = variant === "spot";
+
   // Determine back navigation behavior:
   // - If user navigated here via PUSH (from Events, Portfolio, etc.), use browser history (navigate(-1))
   // - If user came via bottom toolbar (REPLACE/POP) or direct URL, go back to home
   // Note: location.state?.tab is used by TradeOrder to show a specific section, not for routing
   const backTo = navigationType === "PUSH" ? undefined : "/";
+
   
   const { 
     isLoading,
@@ -62,23 +98,27 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
   // Handle event selection and update URL
   const handleEventSelect = (event: TradingEvent) => {
     setSelectedEvent(event);
-    const basePath = activeTab === "Charts" ? "/trade" : "/trade/order";
-    navigate(`${basePath}?event=${event.id}`, { replace: true });
+    const target = activeTab === "Charts" ? basePath : `${basePath}/order`;
+    navigate(`${target}?event=${event.id}`, { replace: true });
     setEventSheetOpen(false);
     setSearchQuery("");
   };
 
+  // SP-2: spot supplies its own event row, so `useEvents` never gates the page.
+  const activeEvent = eventOverride ?? selectedEvent;
+
   const handleTabChange = (tab: "Charts" | "Trade") => {
     if (tab === activeTab) return;
-    if (!selectedEvent) return;
-    const path = tab === "Charts" 
-      ? `/trade?event=${selectedEvent.id}` 
-      : `/trade/order?event=${selectedEvent.id}`;
+    if (!activeEvent) return;
+    const path =
+      tab === "Charts"
+        ? `${basePath}?event=${activeEvent.id}`
+        : `${basePath}/order?event=${activeEvent.id}`;
     navigate(path);
   };
 
   // Loading state
-  if (isLoading) {
+  if (!eventOverride && isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
@@ -90,7 +130,7 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
   }
 
   // No event found — check if user provided an event ID that doesn't exist (expired/settled)
-  if (!selectedEvent) {
+  if (!activeEvent) {
     if (eventId) {
       return <ExpiredEventFallback eventId={eventId} />;
     }
@@ -112,69 +152,82 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
 
   // Create context data for children
   const contextData: TradingContextData = {
-    selectedEvent,
+    selectedEvent: activeEvent,
     selectedOption,
     selectedOptionData,
     options,
     setSelectedOption,
   };
 
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Event Selector Sheet */}
-      <EventSelectorSheet
-        open={eventSheetOpen}
-        onOpenChange={setEventSheetOpen}
-        selectedEvent={selectedEvent}
-        filteredEvents={filteredEvents}
-        favorites={favorites}
-        toggleFavorite={toggleFavorite}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        showFavoritesOnly={showFavoritesOnly}
-        toggleShowFavoritesOnly={toggleShowFavoritesOnly}
-        onEventSelect={handleEventSelect}
-      />
+      {/* Event Selector Sheet — perp only; spot pages are single-event. */}
+      {!isSpot && (
+        <EventSelectorSheet
+          open={eventSheetOpen}
+          onOpenChange={setEventSheetOpen}
+          selectedEvent={activeEvent}
+          filteredEvents={filteredEvents}
+          favorites={favorites}
+          toggleFavorite={toggleFavorite}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          showFavoritesOnly={showFavoritesOnly}
+          toggleShowFavoritesOnly={toggleShowFavoritesOnly}
+          onEventSelect={handleEventSelect}
+        />
+      )}
 
       <MobileHeader 
-        title={selectedEvent.name}
-        endTime={selectedEvent.endTime}
+        title={activeEvent.name}
+        endTime={endTimeOverride ?? activeEvent.endTime}
+        countdownLabel={countdownLabel}
+        countdownUrgency={countdownUrgency}
+        statsExtra={statsExtra}
+        titleBadge={
+          isSpot ? (
+            <Badge variant="outline" className="text-[9px] flex-shrink-0">SPOT</Badge>
+          ) : undefined
+        }
         showBack={true}
         backTo={backTo}
         showLogo={false} // Trade pages don't show logo per design spec
-        tweetCount={selectedEvent.tweetCount}
-        currentPrice={selectedEvent.currentPrice}
-        priceChange24h={selectedEvent.priceChange24h}
-        priceLabel={selectedEvent.priceLabel}
-        sourceUrl={selectedEvent.sourceUrl}
-        sourceName={selectedEvent.sourceName}
-        period={selectedEvent.period}
-        onTitleClick={() => setEventSheetOpen(true)}
+        tweetCount={isSpot ? undefined : activeEvent.tweetCount}
+        currentPrice={isSpot ? undefined : activeEvent.currentPrice}
+        priceChange24h={isSpot ? undefined : activeEvent.priceChange24h}
+        priceLabel={isSpot ? undefined : activeEvent.priceLabel}
+        sourceUrl={activeEvent.sourceUrl}
+        sourceName={activeEvent.sourceName}
+        period={activeEvent.period}
+        onTitleClick={isSpot ? undefined : () => setEventSheetOpen(true)}
         rightContent={
-          <div className="flex items-center gap-1 -mr-2">
-            <MobileHeaderIconButton
-              aria-label="Favorite"
-              onClick={() => toggleFavorite(selectedEvent.id)}
-            >
-              <Star
-                className={`w-5 h-5 ${favorites.has(selectedEvent.id) ? "text-trading-yellow fill-trading-yellow" : ""}`}
-                strokeWidth={1.5}
-              />
-            </MobileHeaderIconButton>
-            <MobileHeaderIconButton
-              aria-label="Share"
-              onClick={() => {
-                navigator.clipboard?.writeText(window.location.href);
-              }}
-            >
-              <Share2 className="w-5 h-5" strokeWidth={1.5} />
-            </MobileHeaderIconButton>
-          </div>
+          headerRight ?? (
+            <div className="flex items-center gap-1 -mr-2">
+              <MobileHeaderIconButton
+                aria-label="Favorite"
+                onClick={() => toggleFavorite(activeEvent.id)}
+              >
+                <Star
+                  className={`w-5 h-5 ${favorites.has(activeEvent.id) ? "text-trading-yellow fill-trading-yellow" : ""}`}
+                  strokeWidth={1.5}
+                />
+              </MobileHeaderIconButton>
+              <MobileHeaderIconButton
+                aria-label="Share"
+                onClick={() => {
+                  navigator.clipboard?.writeText(window.location.href);
+                }}
+              >
+                <Share2 className="w-5 h-5" strokeWidth={1.5} />
+              </MobileHeaderIconButton>
+            </div>
+          )
         }
       />
 
       {/* Option Chips — 单 market binary 不渲染（对阵信息已在标题+Yes/No 切换器表达）；多 outcome 才显示横排选择 */}
-      {!isSingleMarketBinary(options) && (
+      {!isSpot && !isSingleMarketBinary(options) && (
         <OptionChips
           options={options}
           selectedId={selectedOption}
@@ -217,13 +270,14 @@ export function MobileTradingLayout({ activeTab, children }: MobileTradingLayout
                 <SheetTitle>Event Info</SheetTitle>
               </SheetHeader>
               <div className="px-1 pb-4">
-                <EventInfoContent event={selectedEvent} />
+                {eventInfo ?? <EventInfoContent event={activeEvent} />}
               </div>
             </SheetContent>
           </Sheet>
-          {user && <MobileRiskIndicator />}
+          {!isSpot && user && <MobileRiskIndicator />}
         </div>
       </div>
+
 
       {/* Render children with context */}
       {typeof children === "function" 

@@ -8,6 +8,9 @@ import { supabase } from "@/integrations/supabase/client";
 import TradingCharts from "./pages/TradingCharts";
 import TradeOrder from "./pages/TradeOrder";
 import SpotTrading from "./pages/SpotTrading";
+import SpotTradingCharts from "./pages/SpotTradingCharts";
+import SpotTradeOrder from "./pages/SpotTradeOrder";
+
 import LiteContractTrade from "./pages/lite/LiteContractTrade";
 import LiteSpotTrade from "./pages/lite/LiteSpotTrade";
 import OrderPreview from "./pages/OrderPreview";
@@ -101,12 +104,24 @@ const TradeOrderPage = () => {
   return isMobile ? <TradeOrder /> : <DesktopTrading />;
 };
 
-// /spot forks by surface: Lite renders its own odds-forward page,
-// Pro renders the existing SpotTrading terminal untouched.
+// /spot forks by surface: Lite renders its own odds-forward page, Pro renders
+// the desktop terminal or (SP-2) the mobile Charts view.
 const SpotRoute = () => {
   const { surface } = useSurface();
-  return surface === "lite" ? <LiteSpotTrade /> : <SpotTrading />;
+  const isMobile = useIsMobile();
+  if (surface === "lite") return <LiteSpotTrade />;
+  return isMobile ? <SpotTradingCharts /> : <SpotTrading />;
 };
+
+// /spot/order — the mobile Pro order sub-page. Lite has no sub-page; desktop
+// Pro keeps everything on the one terminal.
+const SpotOrderRoute = () => {
+  const { surface } = useSurface();
+  const isMobile = useIsMobile();
+  if (surface === "lite") return <Navigate to="/spot" replace />;
+  return isMobile ? <SpotTradeOrder /> : <SpotTrading />;
+};
+
 
 // /resolved forks by surface. Lite has no settled browser any more — a settled
 // event's only home is its own trade page — so old links redirect there.
@@ -183,6 +198,8 @@ const App = () => (
               <Route path="/trade" element={<TradingPage />} />
               <Route path="/trade/order" element={<TradeOrderPage />} />
               <Route path="/spot" element={<SpotRoute />} />
+              <Route path="/spot/order" element={<SpotOrderRoute />} />
+
               <Route path="/order-preview" element={<OrderPreview />} />
               <Route path="/events" element={<EventsRoute />} />
               <Route path="/resolved" element={<ResolvedRoute />} />

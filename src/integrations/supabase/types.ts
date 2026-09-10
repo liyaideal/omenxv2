@@ -1952,6 +1952,7 @@ export type Database = {
       }
       ensure_soccer_lines: { Args: { p_fixture_id: string }; Returns: number }
       ensure_voucher_pool_today: { Args: never; Returns: undefined }
+      freeze_expired_events: { Args: never; Returns: number }
       gen_voucher_code: { Args: never; Returns: string }
       get_campaign_entry_joined: {
         Args: never
