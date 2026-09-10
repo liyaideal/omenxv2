@@ -324,8 +324,9 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
         <TradeSubmitButton
           side={p.side}
           label={p.ctaLabel}
-          potentialWin={(isSell ? p.sellReceive : p.maxWin).toFixed(2)}
+          potentialWin={money2(isSell ? p.sellReceive : p.maxWin)}
           winPrefix={isSell ? "You receive" : "To win"}
+          layout={p.ctaLayout}
           onClick={p.onSubmit}
           disabled={p.ctaDisabled}
           loading={p.submitting}
