@@ -73,7 +73,7 @@ function SpotChartsBody({ t }: { t: SpotTerminal }) {
       <SpotMobileMarkLine t={t} />
 
 
-      <div className="h-[450px] w-full min-w-0 overflow-hidden">
+      <div className="h-[450px]">
         <CandlestickChart basePrice={t.outcomePrice || 0.5} side={t.isYesSelected ? "buy" : "sell"} />
       </div>
 
