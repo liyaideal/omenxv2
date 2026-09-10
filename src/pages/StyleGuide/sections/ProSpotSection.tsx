@@ -242,6 +242,19 @@ const SKELETON_CASES: SectionCase[] = [
       },
     ],
   },
+  {
+    key: "pro-bottom-tabs-guest",
+    label: "SP-I · 未登录门（ProBottomTabs → LiteAuthGate panel）",
+    note: "SP-2-FIX8：未登录用户恒为 Lite，理论上到不了 Pro；万一到了，底部面板用站点唯一的 LiteAuthGate（panel 变体），不再有旧的 AuthGateOverlay（Log In / Sign Up）。",
+    spec: [
+      {
+        state: "未登录",
+        when: "!user",
+        visual: "bg-card 纯色（无模糊）+ 72px lynx + 单行标题 + Sign in / Create account 同排，总高 ≤ 220px",
+        source: "LiteAuthGate variant=\"panel\"",
+      },
+    ],
+  },
 ];
 
 interface Props {
