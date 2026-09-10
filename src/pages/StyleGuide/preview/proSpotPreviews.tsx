@@ -233,6 +233,7 @@ import {
   SpotMobileMarkLine,
 } from "@/components/pro/ProSpotShared";
 import { ProSpotMobileDock } from "@/components/pro/ProSpotMobileDock";
+import { CandlestickChart } from "@/components/CandlestickChart";
 import type { SpotTerminal } from "@/hooks/useSpotTerminal";
 
 /** Minimal fixture standing in for the shared spot terminal hook. */
@@ -267,9 +268,7 @@ const spotFixture = (over: Partial<SpotTerminal> = {}) =>
   }) as unknown as SpotTerminal;
 
 const Phone = ({ children }: { children: React.ReactNode }) => (
-  <div style={{ width: 375 }} className="bg-background">
-    {children}
-  </div>
+  <div style={{ width: 375 }}>{children}</div>
 );
 
 /** SP-2 · mobile Charts view — stats strip + mark line + sticky dock. */
@@ -279,8 +278,8 @@ export const ProSpotMobileCharts = () => {
     <Phone>
       <SpotMobileStatsStrip t={t} />
       <SpotMobileMarkLine t={t} />
-      <div className="h-[120px] border-y border-border/30 flex items-center justify-center text-[11px] text-muted-foreground">
-        CandlestickChart h-[280px]
+      <div style={{ height: 280 }}>
+        <CandlestickChart remainingDays={1} basePrice={0.4916} side="buy" />
       </div>
       <div className="relative mt-4 h-[92px]">
         <ProSpotMobileDock
