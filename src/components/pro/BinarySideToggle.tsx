@@ -103,18 +103,22 @@ export const BinarySideToggle = ({
   return (
     <div className={cn("grid grid-cols-2 gap-2 p-1 bg-muted/30 rounded-lg", className)}>
       <Segment
+        key="yes"
         label={yesLabel}
         barText={yesBarText ?? yesPrice.toFixed(decimals)}
         active={isYesSelected}
         tone="yes"
+        activeDot={activeDot}
         disabled={disabledSide === "yes" || disabledSide === "both"}
         onClick={() => onSelect("yes")}
       />
       <Segment
+        key="no"
         label={noLabel}
         barText={noBarText ?? noPrice.toFixed(decimals)}
         active={!isYesSelected}
         tone="no"
+        activeDot={activeDot}
         disabled={disabledSide === "no" || disabledSide === "both"}
         onClick={() => onSelect("no")}
       />
