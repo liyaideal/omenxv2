@@ -8,6 +8,7 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { MobileTradingLayout } from "@/components/MobileTradingLayout";
+import { OptionChips } from "@/components/OptionChips";
 import { CandlestickChart } from "@/components/CandlestickChart";
 import { OrderBook } from "@/components/OrderBook";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
@@ -41,8 +42,8 @@ function SpotChartsBody({ t }: { t: SpotTerminal }) {
   const sideKey = tradeSideKey(t.event!.id, "spot");
   const storedSide = useTradeSideStore((s) => s.sideByKey[sideKey]);
   const setSide = useTradeSideStore((s) => s.setSide);
-  const selected: "yes" | "no" | null =
-    storedSide === "buy" ? "yes" : storedSide === "sell" ? "no" : null;
+  const selected: "yes" | "no" =
+    storedSide === "buy" ? "yes" : storedSide === "sell" ? "no" : t.isYesSelected ? "yes" : "no";
 
   const { trades, newTradeIndex } = useAnimatedTradesHistory({
     basePrice: t.outcomePrice || 0.5,
@@ -73,7 +74,7 @@ function SpotChartsBody({ t }: { t: SpotTerminal }) {
 
 
       <div className="h-[450px] w-full min-w-0 overflow-hidden">
-        <CandlestickChart remainingDays={1} basePrice={t.outcomePrice || 0.5} side={t.side} />
+        <CandlestickChart basePrice={t.outcomePrice || 0.5} side={t.isYesSelected ? "buy" : "sell"} />
       </div>
 
       {/* Bottom tabs */}
@@ -101,13 +102,17 @@ function SpotChartsBody({ t }: { t: SpotTerminal }) {
       </div>
 
       {tab === "Order Book" && (
-        <OrderBook asks={t.book.asks} bids={t.book.bids} currentPrice={t.outcomePrice.toFixed(4)} />
+        <OrderBook
+          asks={t.book.asks.map((row) => ({ ...row, price: Number(row.price).toFixed(4) }))}
+          bids={t.book.bids.map((row) => ({ ...row, price: Number(row.price).toFixed(4) }))}
+          currentPrice={t.outcomePrice.toFixed(4)}
+        />
       )}
 
       {tab === "Trades history" && (
         <div className="px-4">
           <div className="grid grid-cols-3 text-xs text-muted-foreground py-2">
-            <span>Price (USDC)</span>
+            <span>Price (USDT)</span>
             <span className="text-center">Amount</span>
             <span className="text-right">Time</span>
           </div>
@@ -121,11 +126,21 @@ function SpotChartsBody({ t }: { t: SpotTerminal }) {
                     (trade.isBuy ? "bg-trading-green/25 animate-fade-in" : "bg-trading-red/25 animate-fade-in"),
                 )}
               >
-                <span className={cn("font-mono", trade.isBuy ? "text-trading-green" : "text-trading-red")}>
+                <span className={cn(
+                  "font-mono transition-all duration-200",
+                  trade.isBuy ? "text-trading-green" : "text-trading-red",
+                  index === newTradeIndex && "font-semibold",
+                )}>
                   {trade.price}
                 </span>
-                <span className="text-center font-mono text-muted-foreground">{trade.amount}</span>
-                <span className="text-right font-mono text-muted-foreground">{trade.time}</span>
+                <span className={cn(
+                  "text-center font-mono transition-all duration-200",
+                  index === newTradeIndex ? "text-foreground" : "text-muted-foreground",
+                )}>{trade.amount}</span>
+                <span className={cn(
+                  "text-right font-mono transition-all duration-200",
+                  index === newTradeIndex ? "text-foreground" : "text-muted-foreground",
+                )}>{trade.time}</span>
               </div>
             ))}
           </div>
@@ -177,6 +192,22 @@ export default function SpotTradingCharts() {
       statsExtra={<SpotScheduleInfo t={t} />}
       eventInfo={<SpotEventInfoPanel t={t} />}
       headerRight={<SpotHeaderActions t={t} />}
+      optionChips={t.yesOpt && t.noOpt ? (
+        <OptionChips
+          options={[
+            { id: t.yesOpt.id, label: t.yesLabel, price: t.yesLive.toFixed(4) },
+            { id: t.noOpt.id, label: t.noLabel, price: t.noLive.toFixed(4) },
+          ]}
+          selectedId={t.selectedOption?.id ?? t.yesOpt.id}
+          onSelect={(id) => {
+            t.setSelectedOptionId(id);
+            useTradeSideStore.getState().setSide(
+              tradeSideKey(t.event!.id, "spot"),
+              id === t.yesOpt?.id ? "buy" : "sell",
+            );
+          }}
+        />
+      ) : null}
     >
       <SpotChartsBody t={t} />
     </MobileTradingLayout>

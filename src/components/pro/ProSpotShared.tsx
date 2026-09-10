@@ -19,6 +19,7 @@ import {
 import { ProBottomTabs } from "@/components/pro/ProBottomTabs";
 import { mock24hVolume, type SpotTerminal } from "@/hooks/useSpotTerminal";
 import type { TradingEvent } from "@/hooks/useEvents";
+import { TRADING_TERMS } from "@/lib/tradingTerms";
 
 /** SP-2-FIX4 · one money format on every Pro spot surface (`+$1,073.14`). */
 const spotPnlText = (n: number) => `${n >= 0 ? "+" : "-"}$${money2(Math.abs(n))}`;
@@ -188,18 +189,19 @@ export const SpotPositionsTable = ({
 
   if (variant === "mobile") {
     return (
-      <div className="text-xs">
+      <div className="px-4 py-3 space-y-3">
         {rows.length === 0 ? (
-          <div className="px-4 py-8 text-center text-muted-foreground">No open spot positions.</div>
+          <div className="text-center text-muted-foreground py-4">No open positions</div>
         ) : (
           rows.map((p) => {
             const isYes = p.optionId ? p.optionId === t.yesOpt?.id : t.isYesLabel(p.option);
             return (
-              <div key={p.id} className="px-3 py-2.5 border-b border-border/20 space-y-1.5">
-                <div className="flex items-center gap-2">
+              <div key={p.id} className="bg-card rounded-xl p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
                   <span
                     className={cn(
-                      "px-1.5 py-0.5 rounded text-[10px] font-medium",
+                      "px-2 py-0.5 rounded text-xs font-semibold",
                       isYes
                         ? "bg-yes/15 text-yes"
                         : "bg-no/15 text-no",
@@ -207,38 +209,33 @@ export const SpotPositionsTable = ({
                   >
                     {isYes ? t.yesLabel : t.noLabel}
                   </span>
-                  <span className="flex-1 min-w-0 line-clamp-2">{p.event}</span>
-                  <button
-                    onClick={() => t.closePosition(p)}
-                    className="text-[11px] text-primary hover:underline flex-shrink-0"
-                  >
-                    Close
-                  </button>
+                  </div>
+                  <span className={cn("text-xs font-semibold", p.pnlNum >= 0 ? "text-trading-green" : "text-trading-red")}>{spotPnlText(p.pnlNum)}</span>
                 </div>
-                <div className="grid grid-cols-4 gap-2 text-[10px] text-muted-foreground">
+                <div className="mb-2">
+                  <h3 className="font-medium text-foreground text-sm line-clamp-2">{p.event}</h3>
+                  <p className={cn("text-xs font-medium", isYes ? "text-yes" : "text-no")}>{isYes ? t.yesLabel : t.noLabel}</p>
+                </div>
+                <div className="grid grid-cols-4 gap-2 mb-2">
                   <div>
-                    <div>Entry</div>
-                    <div className="font-mono text-foreground">{p.entryPrice}</div>
+                    <span className="text-[10px] text-muted-foreground block">Qty</span>
+                    <span className="font-mono text-xs">{formatShares(p.sizeNum)}</span>
                   </div>
                   <div>
-                    <div>Mark</div>
-                    <div className="font-mono text-foreground">{p.markPrice}</div>
+                    <span className="text-[10px] text-muted-foreground block">Entry</span>
+                    <span className="font-mono text-xs">{p.entryPrice}</span>
                   </div>
                   <div>
-                    <div>Size (sh)</div>
-                    <div className="font-mono text-foreground">{formatShares(p.sizeNum)}</div>
+                    <span className="text-[10px] text-muted-foreground block">Mark</span>
+                    <span className="font-mono text-xs">{p.markPrice}</span>
                   </div>
-                  <div className="text-right">
-                    <div>PnL</div>
-                    <div
-                      className={cn(
-                        "font-mono",
-                        p.pnlNum >= 0 ? "text-trading-green" : "text-trading-red",
-                      )}
-                    >
-                      {spotPnlText(p.pnlNum)}
-                    </div>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block">Value</span>
+                    <span className="font-mono text-xs">${money2(p.sizeNum * p.markPriceNum)}</span>
                   </div>
+                </div>
+                <div className="flex items-center justify-between pt-2 border-t border-border/30">
+                  <button onClick={() => t.closePosition(p)} className="flex-1 py-1.5 text-[10px] font-medium rounded-lg text-primary hover:bg-primary/10">Close</button>
                 </div>
               </div>
             );
@@ -321,51 +318,48 @@ export const SpotOrdersTable = ({
 
   if (variant === "mobile") {
     return (
-      <div className="text-xs">
+      <div className="px-4 py-3 space-y-3">
         {rows.length === 0 ? (
-          <div className="px-4 py-8 text-center text-muted-foreground">No open spot orders.</div>
+          <div className="text-center text-muted-foreground py-4">No open orders</div>
         ) : (
           rows.map((o, i) => {
             const isPending = o.status === "Pending";
             return (
-              <div key={o.id ?? i} className="px-3 py-2.5 border-b border-border/20 space-y-1.5">
-                <div className="flex items-center gap-2">
+              <div key={o.id ?? i} className="bg-card rounded-xl p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
                   <span
                     className={cn(
-                      "uppercase text-[10px] font-medium",
-                      o.type === "buy" ? "text-trading-green" : "text-trading-red",
+                      "px-2 py-0.5 rounded text-xs font-semibold",
+                      o.type === "buy" ? "bg-yes/15 text-yes" : "bg-no/15 text-no",
                     )}
                   >
-                    {o.type}
+                    {o.type === "buy" ? t.yesLabel : t.noLabel}
                   </span>
-                  <span className="flex-1 min-w-0 line-clamp-2">{o.event}</span>
-                  <button
-                    disabled={t.isCancelling || !isPending}
-                    onClick={() => t.handleCancelSpotOrder(o)}
-                    className="text-[11px] text-trading-red hover:underline disabled:opacity-40 disabled:no-underline flex-shrink-0"
-                  >
-                    Cancel
-                  </button>
+                  <span className="text-sm text-muted-foreground">{o.orderType}</span>
+                  </div>
+                  <span className={cn("px-2 py-0.5 rounded text-[10px] font-medium", isPending ? "bg-trading-yellow/20 text-trading-yellow" : "bg-muted text-muted-foreground")}>{o.id && t.frozenCancelledIds.has(o.id) ? "Cancelled · market frozen" : o.status}</span>
                 </div>
-                <div className="grid grid-cols-4 gap-2 text-[10px] text-muted-foreground">
+                <div className="mb-2">
+                  <h3 className="font-medium text-foreground text-sm line-clamp-2">{o.event}</h3>
+                  <p className={cn("text-xs font-medium", o.type === "buy" ? "text-yes" : "text-no")}>{o.option}</p>
+                </div>
+                <div className="grid grid-cols-3 gap-3 mb-2">
                   <div>
-                    <div>Type</div>
-                    <div className="text-foreground">{o.orderType}</div>
+                    <span className="text-[10px] text-muted-foreground block">Price</span>
+                    <span className="font-mono text-xs">{o.price}</span>
                   </div>
                   <div>
-                    <div>Limit</div>
-                    <div className="font-mono text-foreground">{o.price}</div>
+                    <span className="text-[10px] text-muted-foreground block">Amount</span>
+                    <span className="font-mono text-xs">{formatShares(num(o.amount))}</span>
                   </div>
                   <div>
-                    <div>Qty (sh)</div>
-                    <div className="font-mono text-foreground">{formatShares(num(o.amount))}</div>
+                    <span className="text-[10px] text-muted-foreground block">Total</span>
+                    <span className="font-mono text-xs">${money2(num(o.total))}</span>
                   </div>
-                  <div className="text-right">
-                    <div>Status</div>
-                    <div className={cn(isPending ? "text-trading-yellow" : "text-muted-foreground")}>
-                      {o.id && t.frozenCancelledIds.has(o.id) ? "Cancelled · market frozen" : o.status}
-                    </div>
-                  </div>
+                </div>
+                <div className="flex items-center justify-between pt-2 border-t border-border/30">
+                  <button disabled={t.isCancelling || !isPending} onClick={() => t.handleCancelSpotOrder(o)} className="flex-1 py-1.5 text-[10px] font-medium rounded-lg text-trading-red hover:bg-trading-red/10 disabled:opacity-40">Cancel</button>
                 </div>
               </div>
             );
@@ -604,15 +598,24 @@ export const SpotMobileMarkLine = ({ t }: { t: SpotTerminal }) => (
     <div>
       <div className="flex items-baseline gap-2">
         <span className="text-3xl font-bold font-mono tracking-tight">{t.outcomePrice.toFixed(4)}</span>
+        <span className={cn("text-sm font-mono", t.indicativePct >= 0 ? "text-trading-green" : "text-trading-red")}>
+          ({t.indicativePct >= 0 ? "+" : ""}{t.indicativePct.toFixed(2)}%)
+        </span>
       </div>
       <div className="text-xs text-muted-foreground font-mono mt-0.5 flex items-center gap-1.5">
-        <span>Mark price {t.outcomePrice.toFixed(4)}</span>
+        <span>{TRADING_TERMS.MARK_PRICE} {t.outcomePrice.toFixed(4)}</span>
         <span className={cn(
           "px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide",
           t.isYesSelected ? "bg-yes/15 text-yes" : "bg-no/15 text-no",
         )}>
           {t.outcomeLabel}
         </span>
+      </div>
+    </div>
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-2 text-right justify-end">
+        <span className="text-[10px] text-muted-foreground">24h Volume</span>
+        <span className="font-mono text-xs font-semibold text-foreground">{mock24hVolume(t.event?.id ?? "spot")}</span>
       </div>
     </div>
   </div>

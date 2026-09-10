@@ -14,8 +14,8 @@ export interface ProSpotMobileDockProps {
   noLabel: string;
   yesPrice: number;
   noPrice: number;
-  /** Currently selected outcome, or null when nothing is selected yet. */
-  selected: "yes" | "no" | null;
+  /** Currently selected outcome. Mobile Charts always starts with one active side. */
+  selected: "yes" | "no";
   onTap: (which: "yes" | "no") => void;
   blocked?: boolean;
   blockedReason?: string | null;
@@ -30,8 +30,6 @@ export const ProSpotMobileDock = ({
   available,
   yesLabel,
   noLabel,
-  yesPrice,
-  noPrice,
   selected,
   onTap,
   blocked = false,
@@ -53,7 +51,7 @@ export const ProSpotMobileDock = ({
         {available.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
         USDC
       </span>
-      <span className="opacity-70">Tap a side to trade</span>
+      <span className="opacity-70">Tap to switch view · tap again to trade</span>
     </div>
     <div className="flex gap-1.5">
       {showSurfaceSwitch && (
@@ -75,7 +73,7 @@ export const ProSpotMobileDock = ({
         )}
       >
         <span>
-          {blocked ? blockedReason || "Market frozen" : `Buy ${yesLabel} ${yesPrice.toFixed(4)}`}
+          {blocked ? blockedReason || "Market frozen" : yesLabel}
         </span>
         {!blocked && selected === "yes" && <ArrowRight className="w-3.5 h-3.5" />}
       </button>
@@ -91,7 +89,7 @@ export const ProSpotMobileDock = ({
         )}
       >
         <span>
-          {blocked ? blockedReason || "Market frozen" : `Buy ${noLabel} ${noPrice.toFixed(4)}`}
+          {blocked ? blockedReason || "Market frozen" : noLabel}
         </span>
         {!blocked && selected === "no" && <ArrowRight className="w-3.5 h-3.5" />}
       </button>
