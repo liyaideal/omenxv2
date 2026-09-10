@@ -422,10 +422,13 @@ export const getCurrentSession = (
 const AUTO_STATES = new Set(["TRADING", "EXTENDED_TRADING"]);
 export const getDisplayLifecycle = (
   dbLifecycle: string | null | undefined,
+  market: StockMarket = US_STOCK_MARKET,
   now: Date = new Date(),
 ): string => {
   if (!dbLifecycle) return "TRADING";
   if (!AUTO_STATES.has(dbLifecycle)) return dbLifecycle;
+  // Crypto has no extended session — the DB state is authoritative.
+  if (market.key === "crypto") return dbLifecycle;
   const mins = etMinutesOfDay(now);
   const REG_START = 9 * 60 + 30;
   return mins < REG_START ? "EXTENDED_TRADING" : "TRADING";
