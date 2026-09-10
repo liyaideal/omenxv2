@@ -107,24 +107,9 @@ const InfoCell = ({ label, value }: { label: string; value: string }) => (
 export const SpotEventInfoPanel = ({ t }: { t: SpotTerminal }) => {
   const event = t.event;
   if (!event) return null;
-  const sharedInfoEvent: TradingEvent = {
-    id: event.id,
-    name: event.name,
-    icon: "",
-    ends: t.countdown.text,
-    endTime: t.endDate ?? new Date(),
-    period: "Daily",
-    volume: mock24hVolume(event.id),
-    description:
-      event.description || "US-stock daily up/down (spot). Winning share pays $1 at settlement.",
-    rules: [],
-    sourceUrl: event.source_url || "",
-    sourceName: event.source_name || "databento",
-    resolutionSource: event.source_name || "databento",
-  };
   return (
     <div className="p-6 overflow-auto text-sm space-y-4">
-      <EventInfoContent event={sharedInfoEvent} />
+      <EventInfoContent event={spotHeaderEvent(t)} />
       <div className="grid grid-cols-2 gap-3 text-xs font-mono">
         <InfoCell
           label="Prior official close"
