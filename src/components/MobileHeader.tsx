@@ -200,7 +200,7 @@ export const MobileHeader = ({
     return <div className="w-9 -mr-2" />;
   };
 
-  const hasStats = displayTime || tweetCount !== undefined || currentPrice;
+  const hasStats = displayTime || tweetCount !== undefined || currentPrice || statsExtra;
 
   const headerStyle = {
     paddingTop: "env(safe-area-inset-top)",
