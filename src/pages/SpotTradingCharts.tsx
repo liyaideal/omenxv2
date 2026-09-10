@@ -8,7 +8,6 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { MobileTradingLayout } from "@/components/MobileTradingLayout";
-import { OptionChips } from "@/components/OptionChips";
 import { CandlestickChart } from "@/components/CandlestickChart";
 import { OrderBook } from "@/components/OrderBook";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
