@@ -501,6 +501,28 @@ export const SpotScheduleInfo = ({ t }: { t: SpotTerminal }) => (
   </Popover>
 );
 
+/**
+ * SP-2-FIX2 · session as a 9px pill instead of `· pre-mkt` prose, so nothing
+ * in the strip can ever be cut mid-word. Regular session renders nothing.
+ */
+const sessionPill = (tag?: string | null) => {
+  const s = (tag || "").toLowerCase();
+  if (s.includes("pre")) return "PRE";
+  if (s.includes("after") || s.includes("post")) return "AH";
+  return null;
+};
+
+/**
+ * SP-2-FIX2 · short mobile header title for daily up/down markets:
+ * `META · Up or down?`. The full event name lives in the Event info sheet.
+ */
+export const spotMobileTitle = (t: SpotTerminal): string => {
+  const name = t.event?.name || "";
+  if (t.ticker && /up or down/i.test(name)) return `${t.ticker} · Up or down?`;
+  if (t.ticker && /higher|lower/i.test(name)) return `${t.ticker} · Up or down?`;
+  return name;
+};
+
 /** 32 px two-cell stats strip — SP-2 mobile spot exception to the perp grid. */
 export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => (
   <div className="mx-3 my-2 h-8 flex items-center rounded-md border border-border/40 bg-card">
