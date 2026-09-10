@@ -677,8 +677,7 @@ export default function SpotTrading() {
   // this event and refund reserved cash. Tagged in `frozenCancelledIds`
   // so the Orders row renders "Cancelled · market frozen".
   const [frozenCancelledIds, setFrozenCancelledIds] = useState<Set<string>>(new Set());
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const isFrozenByTime = useMemo(() => isPastFreeze(freezeAt, endDate), [freezeAt, endDate, countdown]);
+  // `isFrozenByTime` is computed once near the lifecycle block above (FIX5).
   const shouldFreeze = lifecycle === "FROZEN" || isFrozenByTime;
 
   const freezingIdsRef = useRef<Set<string>>(new Set());
