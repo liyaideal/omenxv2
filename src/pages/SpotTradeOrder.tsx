@@ -23,7 +23,6 @@ import {
   spotMobileTitle,
 } from "@/components/pro/ProSpotShared";
 import { useSpotTerminal, type SpotTerminal } from "@/hooks/useSpotTerminal";
-import { cn } from "@/lib/utils";
 
 function SpotOrderBody({ t }: { t: SpotTerminal }) {
   const [tab, setTab] = useState<"Orders" | "Positions">("Positions");
@@ -33,7 +32,7 @@ function SpotOrderBody({ t }: { t: SpotTerminal }) {
       <div className="flex">
         {/* Left: the very same panel desktop /spot renders */}
         <div className="flex-1 min-w-0">
-          <SpotTradePanel t={t} ctaLayout="stacked" />
+          <SpotTradePanel t={t} chrome="bare" />
         </div>
 
         {/* Right: mini order book */}
@@ -48,10 +47,11 @@ function SpotOrderBody({ t }: { t: SpotTerminal }) {
             <button
               key={x}
               onClick={() => setTab(x)}
-              className={cn(
-                "py-3 mr-6 text-sm font-medium transition-all flex items-center gap-1.5",
-                tab === x ? "text-foreground border-b-2 border-foreground" : "text-muted-foreground",
-              )}
+              className={`py-2 mr-6 text-sm font-medium transition-all flex items-center gap-1.5 ${
+                tab === x
+                  ? "text-trading-purple border-b-2 border-trading-purple"
+                  : "text-muted-foreground"
+              }`}
             >
               {x}
               {count > 0 && (

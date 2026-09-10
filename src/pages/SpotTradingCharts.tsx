@@ -31,7 +31,7 @@ import { useAnimatedTradesHistory } from "@/hooks/useAnimatedTradesHistory";
 import { useTradeSideStore, tradeSideKey } from "@/stores/useTradeSideStore";
 import { cn } from "@/lib/utils";
 
-const TABS = ["Order Book", "Trades", "Orders", "Positions"] as const;
+const TABS = ["Order Book", "Trades history", "Orders", "Positions"] as const;
 
 function SpotChartsBody({ t }: { t: SpotTerminal }) {
   const navigate = useNavigate();
@@ -65,19 +65,19 @@ function SpotChartsBody({ t }: { t: SpotTerminal }) {
   );
 
   return (
-    <div className="pb-28">
+    <div className="pb-40">
       <SpotMobileStatsStrip t={t} />
 
       {/* Mark line */}
       <SpotMobileMarkLine t={t} />
 
 
-      <div className="h-[280px] w-full min-w-0 overflow-hidden border-b border-border/30">
+      <div className="h-[450px] w-full min-w-0 overflow-hidden">
         <CandlestickChart remainingDays={1} basePrice={t.outcomePrice || 0.5} side={t.side} />
       </div>
 
       {/* Bottom tabs */}
-      <div className="flex px-3 mt-2 border-b border-border/30">
+      <div className="flex px-4 mt-2 border-b border-border/30">
         {TABS.map((x) => {
           const count = x === "Orders" || x === "Positions" ? counts[x] : 0;
           return (
@@ -104,8 +104,8 @@ function SpotChartsBody({ t }: { t: SpotTerminal }) {
         <OrderBook asks={t.book.asks} bids={t.book.bids} currentPrice={t.outcomePrice.toFixed(4)} />
       )}
 
-      {tab === "Trades" && (
-        <div className="px-3">
+      {tab === "Trades history" && (
+        <div className="px-4">
           <div className="grid grid-cols-3 text-xs text-muted-foreground py-2">
             <span>Price (USDC)</span>
             <span className="text-center">Amount</span>

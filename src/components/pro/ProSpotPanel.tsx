@@ -5,7 +5,8 @@
 // with fixture props (CHK-9: no hand-copied shells in the dictionary).
 // Presentational only: every number is computed by the page and passed in.
 // ============================================================
-import { HelpCircle, Info } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ChevronDown, HelpCircle, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import {
@@ -16,6 +17,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { BinarySideToggle } from "@/components/pro/BinarySideToggle";
 import { OrderTypeDropdown, type ProOrderType } from "@/components/pro/OrderTypeDropdown";
@@ -25,6 +32,8 @@ import { WinTooltipBody } from "@/components/lite/shared/WinTooltipBody";
 export type ProSpotSide = "buy" | "sell";
 
 export interface ProSpotPanelProps {
+  /** Desktop terminal uses a card; mobile `/spot/order` grows directly from the page. */
+  chrome?: "card" | "bare";
   side: ProSpotSide;
   onSideChange: (s: ProSpotSide) => void;
   orderType: ProOrderType;
@@ -102,6 +111,10 @@ const Row = ({ label, children }: { label: React.ReactNode; children: React.Reac
 
 export const ProSpotPanel = (p: ProSpotPanelProps) => {
   const isSell = p.side === "sell";
+  const isBare = p.chrome === "bare";
+  const ctaWrapRef = useRef<HTMLDivElement>(null);
+  const ctaMeasureRef = useRef<HTMLSpanElement>(null);
+  const [autoCtaLayout, setAutoCtaLayout] = useState<"row" | "stacked">("row");
   const disabledSide: "yes" | "no" | "both" | undefined = !isSell
     ? undefined
     : p.heldYesQty <= 0 && p.heldNoQty <= 0
@@ -112,13 +125,32 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
     ? "no"
     : undefined;
 
+  useEffect(() => {
+    if (!isBare) return;
+    const wrap = ctaWrapRef.current;
+    const measure = ctaMeasureRef.current;
+    if (!wrap || !measure) return;
+    const update = () => {
+      // TradeSubmitButton row reserves a 24px gap/arrow area around this text.
+      setAutoCtaLayout(measure.scrollWidth + 24 <= wrap.clientWidth ? "row" : "stacked");
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(wrap);
+    return () => observer.disconnect();
+  }, [isBare, p.ctaLabel, p.side, p.maxWin, p.sellReceive]);
+
+  const ctaLayout = isBare ? autoCtaLayout : p.ctaLayout;
+
   return (
-    <div className="flex flex-col bg-background rounded-lg border border-border/50">
-      <div className="flex items-center px-4 py-2 border-b border-border/30">
-        <span className="text-sm font-medium">Trade</span>
-        <Badge variant="outline" className="ml-2 text-[10px]">SPOT</Badge>
-      </div>
-      <div className="px-4 py-3 space-y-3">
+    <div className={cn("flex flex-col", !isBare && "bg-background rounded-lg border border-border/50")}>
+      {!isBare && (
+        <div className="flex items-center px-4 py-2 border-b border-border/30">
+          <span className="text-sm font-medium">Trade</span>
+          <Badge variant="outline" className="ml-2 text-[10px]">SPOT</Badge>
+        </div>
+      )}
+      <div className={isBare ? "px-3 pb-2 space-y-2" : "px-4 py-3 space-y-3"}>
         {/* Intent + order type — one row, the panel's only chrome line. */}
         <div className="flex items-center border-b border-border/40 pb-1.5">
           <div className="flex items-center" style={{ gap: 14 }}>
@@ -150,18 +182,19 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
           yesBarText={isSell && p.heldYesQty <= 0 ? "0 sh" : undefined}
           noBarText={isSell && p.heldNoQty <= 0 ? "0 sh" : undefined}
           onSelect={p.onSelectOutcome}
+          activeDot={isBare}
         />
         {isSell && disabledSide === "both" && (
           <div className="text-[11px] text-muted-foreground">No shares to sell yet</div>
         )}
 
         {/* Balance / holdings */}
-        <div className="flex items-center justify-between text-[11px]">
+        <div className={cn("flex items-center justify-between", isBare ? "text-xs" : "text-[11px]")}>
           <span className="text-muted-foreground">Available (USDC)</span>
           <span className="font-mono">{money2(p.available)}</span>
         </div>
         {isSell && (
-          <div className="flex items-center justify-between text-[11px]">
+          <div className={cn("flex items-center justify-between", isBare ? "text-xs" : "text-[11px]")}>
             <span className="text-muted-foreground">Held</span>
             <span className="font-mono">{formatShares(p.heldQty)} sh · {p.outcomeLabel}</span>
           </div>
@@ -169,14 +202,14 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
 
         {/* Limit price */}
         {p.orderType === "Limit" && (
-          <div className="space-y-1">
-            <span className="text-xs text-muted-foreground">Limit price</span>
+          <div className={isBare ? "space-y-0.5" : "space-y-1"}>
+            <span className={cn("text-muted-foreground", isBare ? "text-[10px]" : "text-xs")}>Limit price</span>
             <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
               <input
                 type="text"
                 value={p.limitPrice}
                 onChange={(e) => p.onLimitPriceChange(e.target.value)}
-                className="flex-1 bg-transparent outline-none font-mono text-sm"
+                className={cn("flex-1 bg-transparent outline-none font-mono", isBare ? "text-xs" : "text-sm")}
                 placeholder="0.0000"
                 inputMode="decimal"
               />
@@ -186,14 +219,14 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
         )}
 
         {/* Amount */}
-        <div className="space-y-1">
-          <span className="text-xs text-muted-foreground">Amount</span>
+        <div className={isBare ? "space-y-0.5" : "space-y-1"}>
+          <span className={cn("text-muted-foreground", isBare ? "text-[10px]" : "text-xs")}>Amount</span>
           <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
             <input
               type="text"
               value={p.amount}
               onChange={(e) => p.onAmountChange(e.target.value)}
-              className="flex-1 bg-transparent outline-none font-mono text-sm"
+              className={cn("flex-1 bg-transparent outline-none font-mono", isBare ? "text-xs" : "text-sm")}
               placeholder="0.00"
               inputMode="decimal"
             />
@@ -213,7 +246,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
             max={100}
             step={1}
           />
-          <div className="flex justify-between text-[9px] font-mono text-muted-foreground">
+          <div className={cn("flex justify-between font-mono text-muted-foreground", isBare ? "text-[10px]" : "text-[9px]")}>
             {["0%", "25%", "50%", "75%", "100%"].map((l) => (
               <span key={l}>{l}</span>
             ))}
@@ -222,8 +255,8 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
 
         {/* Slippage — market only. Neutral chips: no market-axis hue here. */}
         {p.orderType === "Market" && (
-          <div className="space-y-1">
-            <div className="flex items-center justify-between">
+          <div className={isBare ? "" : "space-y-1"}>
+            <div className="flex items-center justify-between text-xs">
               <span className="text-xs text-muted-foreground inline-flex items-center gap-1">
                 Max slippage
                 <TooltipProvider>
@@ -237,9 +270,31 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
                   </Tooltip>
                 </TooltipProvider>
               </span>
-              <span className="text-xs font-mono">{(p.slippageBps / 100).toFixed(2)}%</span>
+              {isBare ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label="Max slippage"
+                      className="h-7 px-2 rounded-md border border-border/60 text-[11px] font-semibold inline-flex items-center gap-1 text-foreground hover:bg-muted/40 transition-colors"
+                    >
+                      {(p.slippageBps / 100).toFixed(2)}%
+                      <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="min-w-[7rem]">
+                    {[10, 25, 50, 100].map((bps) => (
+                      <DropdownMenuItem key={bps} onSelect={() => p.onSlippageChange(bps)} className="text-xs">
+                        {(bps / 100).toFixed(2)}%
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <span className="text-xs font-mono">{(p.slippageBps / 100).toFixed(2)}%</span>
+              )}
             </div>
-            <div className="grid grid-cols-4 gap-1">
+            {!isBare && <div className="grid grid-cols-4 gap-1">
               {[10, 25, 50, 100].map((bps) => (
                 <button
                   key={bps}
@@ -254,30 +309,38 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
                   {(bps / 100).toFixed(2)}%
                 </button>
               ))}
-            </div>
+            </div>}
           </div>
         )}
 
         {/* Summary */}
-        <div className="rounded-md bg-muted/30 p-2.5 text-[11px] font-mono space-y-1">
+        <div className={cn("font-mono space-y-1", isBare ? "text-xs" : "rounded-md bg-muted/30 p-2.5 text-[11px]")}>
           {isSell ? (
             <>
               <Row label="Proceeds">${money2(p.cost)}</Row>
-              <Row label="Shares">{formatShares(p.qty)}</Row>
-
+              {!isBare && <Row label="Shares">{formatShares(p.qty)}</Row>}
               <Row label="Est. commission">${money2(p.sellCommission)}</Row>
-              <Row label="You receive">${money2(p.sellReceive)}</Row>
+              <div className={cn("flex justify-between", isBare && "pt-2 border-t border-border/30 font-medium text-foreground")}>
+                <span>You receive</span>
+                <span>${money2(p.sellReceive)}</span>
+              </div>
             </>
           ) : (
             <>
               <Row label="Cost">${money2(p.cost)}</Row>
-              {p.orderType === "Market" && (
+              {!isBare && p.orderType === "Market" && (
                 <div className="flex justify-end text-[10px] text-muted-foreground -mt-1">
                   Est. fill @ {p.bestAsk.toFixed(2)}
                 </div>
               )}
-              <Row label="Shares">{formatShares(p.qty)}</Row>
-
+              {isBare && <Row label="Fee (0.15%)">${money2(p.fee)}</Row>}
+              {isBare && (
+                <div className="flex justify-between pt-2 border-t border-border/30 font-medium text-foreground">
+                  <span>Total</span>
+                  <span>${money2(p.cost + p.fee)}</span>
+                </div>
+              )}
+              {!isBare && <Row label="Shares">{formatShares(p.qty)}</Row>}
               <Row
                 label={
                   <span className="inline-flex items-center gap-1">
@@ -297,16 +360,22 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
               >
                 ${money2(p.maxWin)}
               </Row>
-              <Row label="Fee (0.15%)">${money2(p.fee)}</Row>
+              {!isBare && <Row label="Fee (0.15%)">${money2(p.fee)}</Row>}
             </>
           )}
         </div>
 
+        {isBare && (
+          <div className="text-[11px] text-muted-foreground">
+            To win shows profit after the 5% winning commission.
+          </div>
+        )}
+
         {/* Spot account balance hint — spot funds only. */}
-        <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+        {!isBare && <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
           <Info className="h-3 w-3" />
           Standard Account · ${money2(p.spotBalance)} available
-        </div>
+        </div>}
         {p.settleEtOnly && (
           <div className="text-[10px] text-muted-foreground">
             Settles &amp; credits by ~{p.settleEtOnly}
@@ -325,17 +394,25 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
           </div>
         )}
 
-        <TradeSubmitButton
-          side={p.side}
-          label={p.ctaLabel}
-          potentialWin={money2(isSell ? p.sellReceive : p.maxWin)}
-          winPrefix={isSell ? "You receive" : "To win"}
-          layout={p.ctaLayout}
-          onClick={p.onSubmit}
-          disabled={p.ctaDisabled}
-          loading={p.submitting}
-          positionSide={isSell ? undefined : p.isYesSelected ? "yes" : "no"}
-        />
+        <div ref={ctaWrapRef} data-spot-cta-layout={ctaLayout ?? "row"} className="relative min-w-0">
+          {isBare && (
+            <span ref={ctaMeasureRef} aria-hidden className="absolute invisible whitespace-nowrap text-[13px] font-semibold font-sans">
+              {p.ctaLabel} {isSell ? "You receive" : "To win"} ${money2(isSell ? p.sellReceive : p.maxWin)}
+            </span>
+          )}
+          <TradeSubmitButton
+            side={p.side}
+            label={p.ctaLabel}
+            potentialWin={money2(isSell ? p.sellReceive : p.maxWin)}
+            winPrefix={isSell ? "You receive" : "To win"}
+            layout={ctaLayout}
+            size={isBare ? "sm" : undefined}
+            onClick={p.onSubmit}
+            disabled={p.ctaDisabled}
+            loading={p.submitting}
+            positionSide={isSell ? undefined : p.isYesSelected ? "yes" : "no"}
+          />
+        </div>
       </div>
     </div>
   );
