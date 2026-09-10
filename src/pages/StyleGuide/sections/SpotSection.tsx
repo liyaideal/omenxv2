@@ -29,28 +29,78 @@ export const SpotSection = ({ isMobile }: Props) => {
       <SectionWrapper
         id="spot-terminal-chrome"
         title="Spot terminal chrome"
-        description="LOCKED per DESIGN.md §14: Left = identity + one lifecycle badge + single countdown row (Trading ends in X · until HH:MM · ⓘ schedule). Right = Volume · {TICKER} price %. Base appears only below the chart price row."
+        description="LOCKED per DESIGN.md §14: Left = identity + optional lifecycle badge + single countdown row (Trading ends in X · until HH:MM · ⓘ schedule). Right = Volume · {TICKER} price %. Base appears only below the chart price row. SP-3-DT2: normal trading shows NO badge; crypto is 24/7 (no badge, no PRE/AH, 24/7 schedule copy)."
       >
-        <ProSpotHeader
-          ticker="AAPL"
-          eventName="Will AAPL close higher today? (Jul 15)"
-          lifecycleBadge={{ label: LIFECYCLE_BADGE.TRADING.label, className: LIFECYCLE_BADGE.TRADING.className }}
-          countdown={{ text: "09:23:56", urgency: "muted" }}
-          freezeEtOnly="15:55"
-          closeEtOnly="16:00"
-          settleEtOnly="16:15"
-          closingSoon={false}
-          volumeText="$802K"
-          lastLabel="AAPL"
-          lastPriceText="$231.08"
-          lastIsUp={false}
-          lastHint="−0.01% · after-hrs"
-          watched
-          onToggleWatch={() => undefined}
-          onBack={() => undefined}
-          previewSignedIn
-          previewActiveSurface="pro"
-        />
+        <div className="space-y-3">
+          {/* (a) Regular US session — no badge */}
+          <ProSpotHeader
+            ticker="AAPL"
+            eventName="Will AAPL close higher today? (Jul 15)"
+            lifecycleBadge={null}
+            countdown={{ text: "09:23:56", urgency: "muted" }}
+            freezeEtOnly="15:55"
+            closeEtOnly="16:00"
+            settleEtOnly="16:15"
+            closingSoon={false}
+            volumeText="$802K"
+            lastLabel="AAPL"
+            lastPriceText="$231.08"
+            lastIsUp={false}
+            lastHint="−0.01%"
+            watched
+            onToggleWatch={() => undefined}
+            onBack={() => undefined}
+            previewSignedIn
+            previewActiveSurface="pro"
+          />
+          {/* (b) Extended hours — badge + tooltip */}
+          <ProSpotHeader
+            ticker="AAPL"
+            eventName="Will AAPL close higher today? (Jul 15)"
+            lifecycleBadge={{
+              label: "Extended hours",
+              className: LIFECYCLE_BADGE.EXTENDED_TRADING.className,
+              tooltip: "Pre-market / after-hours session — liquidity is thinner and spreads are wider.",
+            }}
+            countdown={{ text: "09:23:56", urgency: "muted" }}
+            freezeEtOnly="15:55"
+            closeEtOnly="16:00"
+            settleEtOnly="16:15"
+            closingSoon={false}
+            volumeText="$802K"
+            lastLabel="AAPL"
+            lastPriceText="$231.08"
+            lastIsUp={false}
+            lastHint="−0.01% · after-hrs"
+            watched
+            onToggleWatch={() => undefined}
+            onBack={() => undefined}
+            previewSignedIn
+            previewActiveSurface="pro"
+          />
+          {/* (c) Crypto 24/7 — no badge, no session pill, 24/7 schedule copy */}
+          <ProSpotHeader
+            ticker="BTC"
+            eventName="BTC up or down this round?"
+            lifecycleBadge={null}
+            marketKey="crypto"
+            countdown={{ text: "00:07:12", urgency: "red" }}
+            freezeEtOnly="14:00"
+            closeEtOnly={null}
+            settleEtOnly="14:05"
+            closingSoon={false}
+            volumeText="$3.10M"
+            lastLabel="BTC"
+            lastPriceText="$64,120.44"
+            lastIsUp
+            lastHint="+0.32%"
+            watched={false}
+            onToggleWatch={() => undefined}
+            onBack={() => undefined}
+            previewSignedIn
+            previewActiveSurface="pro"
+          />
+        </div>
       </SectionWrapper>
 
       {/* Spot stats header (mobile / embedded variant) */}
