@@ -145,12 +145,12 @@ const MOBILE_CASES: SectionCase[] = [
   {
     key: "pro-spot-mobile-charts",
     label: "SP-M1 · 移动 Charts 视图（375）",
-    note: "移动 Pro 现货长在 MobileTradingLayout variant=\"spot\" 上：无站点头、SPOT 徽章、单条倒计时行。统计区是 32px 单条 strip（SP-2 对 perp 双卡的例外），下方 mark 行 + 280px K 线，底部 sticky dock。",
+    note: "移动 Pro 现货长在 MobileTradingLayout variant=\"spot\" 上：OptionChips、price/mark、图表、tabs 与卡片逐块复用 /trade 规格；仅保留 32px spot strip、SPOT 徽章与 dock 安全区。",
     spec: [
       {
         state: "Charts 默认",
         when: "isMobile && surface === pro && !blocked",
-        visual: "32px strip（BASE / 标的价 + 涨跌 + 时段）→ 与 /trade 同 class 的 price/mark block → 450px 图表 → dock（Lite/Pro + Buy Up / Buy Down）",
+        visual: "OptionChips → 32px strip → price/change/Mark Price/24h Volume → 450px 图表 → contract-class cards → dock（Lite/Pro + Up / Down）",
         source: "SpotMobileStatsStrip / SpotMobileMarkLine / ProSpotMobileDock",
       },
     ],

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useNavigate, useSearchParams, useNavigationType } from "react-router-dom";
 import { Loader2, Link, Star, Share2 } from "lucide-react";
 import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
@@ -47,6 +47,8 @@ interface MobileTradingLayoutProps {
   headerRight?: React.ReactNode;
   /** SP-2: replaces the body of the Event info sheet. */
   eventInfo?: React.ReactNode;
+  /** Shared outcome rail rendered directly below the mobile header. */
+  optionChips?: ReactNode;
 }
 
 /**
@@ -199,6 +201,7 @@ function SpotTradingShell({
   statsExtra,
   headerRight,
   eventInfo,
+  optionChips,
 }: MobileTradingLayoutProps) {
   const navigationType = useNavigationType();
   const backTo = navigationType === "PUSH" ? undefined : "/";
@@ -217,6 +220,7 @@ function SpotTradingShell({
       statsExtra={statsExtra}
       headerRight={headerRight}
       eventInfo={eventInfo}
+      optionChips={optionChips}
       backTo={backTo}
     >
       {typeof children === "function"

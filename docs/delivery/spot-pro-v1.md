@@ -183,3 +183,10 @@ Spot 节原先手抄的终端顶栏已换成生产件 `ProSpotHeader`，CTA 例�
 - Orders / Positions tabs 与 compact 登录门对齐合约页；移动 Charts 的图表高度、页签文字/间距、底部留白与 `/trade` 对齐，32px spot stats strip 是唯一刻意差异。
 
 验证：360 / 375 / 390 三档 × `$579.08` / `$57,907.84` 两种价格，文本节点均无 `scrollWidth > clientWidth`，右格末项均未越过 cell 右边界；360 字典 fixture 固定展示 `$57,907.84` + 左格 `PRE`。
+
+### SP-2-FIX6 (2026-09-10) — `/spot` Charts 对齐 `/trade`
+
+- 页头下补生产 `OptionChips`，选择 Up / Down 同步 mark、图表与 dock；首屏始终有一侧激活。
+- price block、默认 1H 图表、四位盘口、trade-history 动画状态、Orders / Positions cards、空态与 dock 文案逐块对齐 `TradingCharts`。
+- 唯一保留差异：32px spot stats strip、页头 `SPOT` badge、spot dock safe-area padding。
+- spot 方向 pill 遵守 DESIGN §2 的 `--yes` / `--no`；合约 price block 的旧 green/red pill 留待后续单独对齐，未在本轮改动参考页。
