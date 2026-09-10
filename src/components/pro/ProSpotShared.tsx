@@ -533,15 +533,23 @@ export const spotMobileTitle = (t: SpotTerminal): string => {
 
 /** 32 px two-cell stats strip — SP-2 mobile spot exception to the perp grid. */
 export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => (
-  <div className="mx-3 my-2 h-8 flex items-center rounded-md border border-border/40 bg-card">
-    <div className="flex-1 min-w-0 flex items-center gap-1.5 px-2">
+  <div
+    data-spot-stats-strip
+    className="@container mx-3 my-2 h-8 flex items-center overflow-hidden rounded-md border border-border/40 bg-card"
+  >
+    <div data-spot-stats-cell="base" className="flex-1 min-w-0 flex items-center gap-1.5 px-2">
       <span className="text-[10px] uppercase tracking-wide text-muted-foreground shrink-0">Base</span>
       <span className="text-[12px] font-mono shrink-0">
         {t.basePrice != null ? `${t.cur}${t.basePrice.toFixed(2)}` : "—"}
       </span>
+      {t.indicative != null && sessionPill(t.sessionTag) && (
+        <span className="shrink-0 rounded px-1 border border-border/60 text-[9px] font-semibold tracking-wide text-muted-foreground">
+          {sessionPill(t.sessionTag)}
+        </span>
+      )}
     </div>
     <div className="w-px h-5 bg-border/40" />
-    <div className="flex-1 min-w-0 flex items-baseline gap-1 px-2">
+    <div data-spot-stats-cell="market" className="flex-1 min-w-0 flex items-baseline gap-1 px-2">
       <span className="text-[10px] uppercase tracking-wide text-muted-foreground shrink-0">{t.ticker || "Last"}</span>
       <span className="text-[12px] font-mono shrink-0">
         {t.indicative != null ? `${t.cur}${t.indicative.toFixed(2)}` : "—"}
@@ -549,19 +557,13 @@ export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => (
       {t.indicative != null && (
         <span
           className={cn(
-            // SP-2-FIX2: the % change is the FIRST thing to drop at ≤360px —
-            // the price and the session pill always stay.
-            "text-[12px] font-mono whitespace-nowrap shrink-0 hidden min-[360px]:inline",
+            // SP-2-FIX3: visibility follows the strip's own width, not viewport width.
+            "text-[12px] font-mono whitespace-nowrap shrink-0 hidden @[340px]:inline",
             t.indicativePct >= 0 ? "text-trading-green" : "text-trading-red",
           )}
         >
           {t.indicativePct >= 0 ? "+" : ""}
           {t.indicativePct.toFixed(2)}%
-        </span>
-      )}
-      {t.indicative != null && sessionPill(t.sessionTag) && (
-        <span className="shrink-0 rounded px-1 border border-border/60 text-[9px] font-semibold tracking-wide text-muted-foreground">
-          {sessionPill(t.sessionTag)}
         </span>
       )}
     </div>

@@ -284,8 +284,8 @@ const Phone = ({ children, width = 375 }: { children: React.ReactNode; width?: n
 );
 
 /** SP-2 · mobile Charts view — stats strip + mark line + sticky dock. */
-const MobileChartsFrame = ({ width }: { width?: number }) => {
-  const t = spotFixture();
+const MobileChartsFrame = ({ width, terminal }: { width?: number; terminal?: Partial<SpotTerminal> }) => {
+  const t = spotFixture(terminal);
   return (
     <Phone width={width}>
       <SpotMobileStatsStrip t={t} />
@@ -313,8 +313,10 @@ const MobileChartsFrame = ({ width }: { width?: number }) => {
 /** SP-2 · mobile Charts view — stats strip + mark line + sticky dock (375 px). */
 export const ProSpotMobileCharts = () => <MobileChartsFrame />;
 
-/** SP-2-FIX2 · the same frame at 360 px — nothing may truncate at this width. */
-export const ProSpotMobileCharts360 = () => <MobileChartsFrame width={360} />;
+/** SP-2-FIX3 · 360 px worst case: five-digit price + PRE pill. */
+export const ProSpotMobileCharts360 = () => (
+  <MobileChartsFrame width={360} terminal={{ indicative: 57907.84, sessionTag: "pre-mkt" }} />
+);
 
 /** SP-2 · mobile Charts view, market frozen — both dock buttons disabled. */
 export const ProSpotMobileChartsFrozen = () => {

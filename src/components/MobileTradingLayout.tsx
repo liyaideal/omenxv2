@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useSearchParams, useNavigationType, useLocation } from "react-router-dom";
+import { useNavigate, useSearchParams, useNavigationType } from "react-router-dom";
 import { Loader2, Link, Star, Share2 } from "lucide-react";
 import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
 import { OptionChips } from "@/components/OptionChips";
@@ -245,7 +245,6 @@ function PerpTradingLayout({
 }: MobileTradingLayoutProps) {
   const navigate = useNavigate();
   const navigationType = useNavigationType();
-  useLocation();
   const [searchParams] = useSearchParams();
   const eventId = searchParams.get("event") || undefined;
   const { user } = useAuth();
