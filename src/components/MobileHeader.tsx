@@ -241,10 +241,12 @@ export const MobileHeader = ({
               <h1 className="text-sm font-semibold text-foreground truncate">
                 {title}
               </h1>
+              {titleBadge}
               {onTitleClick && (
                 <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               )}
             </div>
+
           </div>
         )}
 
