@@ -17,6 +17,7 @@ import {
   SpotPositionsTable,
   SpotOrdersTable,
   SpotScheduleInfo,
+  SpotHeaderActions,
   spotHeaderEvent,
 } from "@/components/pro/ProSpotShared";
 import { useSpotTerminal, type SpotTerminal } from "@/hooks/useSpotTerminal";
@@ -123,11 +124,12 @@ export default function SpotTradeOrder() {
       basePath="/spot"
       variant="spot"
       event={spotHeaderEvent(t)}
-      endTime={t.freezeAt ?? t.endDate ?? undefined}
+      countdownText={t.countdown.text}
       countdownLabel="Trading ends in"
       countdownUrgency={t.countdown.urgency}
       statsExtra={<SpotScheduleInfo t={t} />}
       eventInfo={<SpotEventInfoPanel t={t} />}
+      headerRight={<SpotHeaderActions t={t} />}
     >
       <SpotOrderBody t={t} />
     </MobileTradingLayout>

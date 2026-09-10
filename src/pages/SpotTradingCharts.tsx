@@ -6,9 +6,8 @@
 // ============================================================
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, Star, Share2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { MobileTradingLayout } from "@/components/MobileTradingLayout";
-import { MobileHeaderIconButton } from "@/components/MobileHeader";
 import { CandlestickChart } from "@/components/CandlestickChart";
 import { OrderBook } from "@/components/OrderBook";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
@@ -23,6 +22,7 @@ import {
   SpotMobileMarkLine,
 
   SpotScheduleInfo,
+  SpotHeaderActions,
   spotHeaderEvent,
 } from "@/components/pro/ProSpotShared";
 import { useSpotTerminal, type SpotTerminal } from "@/hooks/useSpotTerminal";
@@ -170,33 +170,12 @@ export default function SpotTradingCharts() {
       basePath="/spot"
       variant="spot"
       event={spotHeaderEvent(t)}
-      endTime={t.freezeAt ?? t.endDate ?? undefined}
+      countdownText={t.countdown.text}
       countdownLabel="Trading ends in"
       countdownUrgency={t.countdown.urgency}
       statsExtra={<SpotScheduleInfo t={t} />}
       eventInfo={<SpotEventInfoPanel t={t} />}
-      headerRight={
-        <div className="flex items-center gap-1 -mr-2">
-          <MobileHeaderIconButton
-            aria-label="Favorite"
-            onClick={() => t.toggleWatch(t.event!.id)}
-          >
-            <Star
-              className={cn(
-                "w-5 h-5",
-                t.isWatched(t.event!.id) ? "text-trading-yellow fill-trading-yellow" : "",
-              )}
-              strokeWidth={1.5}
-            />
-          </MobileHeaderIconButton>
-          <MobileHeaderIconButton
-            aria-label="Share"
-            onClick={() => navigator.clipboard?.writeText(window.location.href)}
-          >
-            <Share2 className="w-5 h-5" strokeWidth={1.5} />
-          </MobileHeaderIconButton>
-        </div>
-      }
+      headerRight={<SpotHeaderActions t={t} />}
     >
       <SpotChartsBody t={t} />
     </MobileTradingLayout>
