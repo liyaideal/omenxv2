@@ -255,7 +255,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
         )}
 
         {/* Summary */}
-        <div className="rounded-md bg-muted/30 p-2.5 text-xs font-mono space-y-1">
+        <div className="rounded-md bg-muted/30 p-2.5 text-[11px] font-mono space-y-1">
           {isSell ? (
             <>
               <Row label="Proceeds">${p.cost.toFixed(2)}</Row>
