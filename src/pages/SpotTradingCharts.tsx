@@ -192,23 +192,8 @@ export default function SpotTradingCharts() {
       statsExtra={<SpotScheduleInfo t={t} />}
       eventInfo={<SpotEventInfoPanel t={t} />}
       headerRight={<SpotHeaderActions t={t} />}
-      optionChips={t.yesOpt && t.noOpt ? (
-        <OptionChips
-          options={[
-            { id: t.yesOpt.id, label: t.yesLabel, price: t.yesLive.toFixed(4) },
-            { id: t.noOpt.id, label: t.noLabel, price: t.noLive.toFixed(4) },
-          ]}
-          selectedId={t.selectedOption?.id ?? t.yesOpt.id}
-          onSelect={(id) => {
-            t.setSelectedOptionId(id);
-            t.onSideChange(id === t.yesOpt?.id ? "buy" : "sell");
-            useTradeSideStore.getState().setSide(
-              tradeSideKey(t.event!.id, "spot"),
-              id === t.yesOpt?.id ? "buy" : "sell",
-            );
-          }}
-        />
-      ) : null}
+      // SP-2-FIX7: spot 事件恒为 binary（Up/Down），不渲染市场 chip 行。
+
     >
       <SpotChartsBody t={t} />
     </MobileTradingLayout>
