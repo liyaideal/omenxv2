@@ -145,12 +145,19 @@ export const ProSpotHeader = (p: ProSpotHeaderProps) => (
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" align="start" className="text-xs max-w-[280px]">
-                  <div className="space-y-1">
-                    <div><span className="text-muted-foreground">Opens:</span> after prior close (extended trading)</div>
-                    <div><span className="text-muted-foreground">Trading ends:</span> {p.freezeEtOnly ?? "—"}</div>
-                    <div><span className="text-muted-foreground">Official close:</span> {p.closeEtOnly ?? "—"} (settlement price)</div>
-                    <div><span className="text-muted-foreground">Credits by:</span> ~{p.settleEtOnly ?? "—"}</div>
-                  </div>
+                  {p.marketKey === "crypto" ? (
+                    <div className="space-y-1">
+                      <div><span className="text-muted-foreground">Trading ends:</span> {p.freezeEtOnly ?? "—"}</div>
+                      <div><span className="text-muted-foreground">Settles:</span> ~{p.settleEtOnly ?? "—"}</div>
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      <div><span className="text-muted-foreground">Opens:</span> after prior close (extended trading)</div>
+                      <div><span className="text-muted-foreground">Trading ends:</span> {p.freezeEtOnly ?? "—"}</div>
+                      <div><span className="text-muted-foreground">Official close:</span> {p.closeEtOnly ?? "—"} (settlement price)</div>
+                      <div><span className="text-muted-foreground">Credits by:</span> ~{p.settleEtOnly ?? "—"}</div>
+                    </div>
+                  )}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
