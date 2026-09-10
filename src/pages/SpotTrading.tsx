@@ -114,7 +114,12 @@ export default function SpotTrading() {
                 </div>
               </div>
               <div className="flex-1 min-h-0">
-                <CandlestickChart remainingDays={1} basePrice={t.outcomePrice || 0.5} side={t.side} />
+                <CandlestickChart
+                  remainingDays={1}
+                  basePrice={t.outcomePrice || 0.5}
+                  side={t.side}
+                  onSeriesReady={t.seedSessionOpenMark}
+                />
               </div>
             </>
           ) : (

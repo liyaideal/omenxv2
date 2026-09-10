@@ -7,7 +7,7 @@
 // (stable dates + time-based freeze) changed during the extraction —
 // the code below is the desktop page's logic moved verbatim.
 // ============================================================
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams, useNavigate, useNavigationType } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -199,7 +199,11 @@ export function useSpotTerminal() {
   const [submitting, setSubmitting] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [sessionOpenSnapshot, setSessionOpenSnapshot] = useState<{ key: string; value: number } | null>(null);
+  const [sessionOpenSnapshot, setSessionOpenSnapshot] = useState<{
+    key: string;
+    value: number;
+    source: "mount" | "chart";
+  } | null>(null);
 
   const pricesCtx = useRealtimePricesOptional();
 
@@ -374,9 +378,16 @@ export function useSpotTerminal() {
   useEffect(() => {
     if (!selectedOption?.id || !Number.isFinite(outcomePrice) || outcomePrice <= 0) return;
     setSessionOpenSnapshot((current) =>
-      current?.key === sessionOpenKey ? current : { key: sessionOpenKey, value: outcomePrice },
+      current?.key === sessionOpenKey ? current : { key: sessionOpenKey, value: outcomePrice, source: "mount" },
     );
   }, [outcomePrice, selectedOption?.id, sessionOpenKey]);
+  const seedSessionOpenMark = useCallback((value: number) => {
+    if (!Number.isFinite(value) || value <= 0) return;
+    setSessionOpenSnapshot((current) => {
+      if (current?.key === sessionOpenKey && current.source === "chart") return current;
+      return { key: sessionOpenKey, value, source: "chart" };
+    });
+  }, [sessionOpenKey]);
 
   const book = useMemo(
     () => buildBook(outcomePrice || 0.5, (selectedOption?.id || "").length, sessionProfile),
@@ -713,6 +724,7 @@ export function useSpotTerminal() {
     indicative,
     indicativePct,
     sessionOpenMark,
+    seedSessionOpenMark,
     book,
     bestAsk,
     bestBid,
