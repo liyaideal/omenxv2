@@ -150,6 +150,7 @@ export const MobileHeader = ({
   onTitleClick,
   titleHidden = false,
   titleBadge,
+  countdownText,
   countdownLabel = "Ends in",
   countdownUrgency = "red",
   statsExtra,
@@ -158,8 +159,10 @@ export const MobileHeader = ({
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const location = useLocation();
-  const countdown = useCountdown(endTime);
-  const displayTime = endTime ? countdown : subtitle;
+  // SP-2-FIX1: only one clock — the internal one is skipped when the caller
+  // supplies `countdownText`.
+  const countdown = useCountdown(countdownText === undefined ? endTime : undefined);
+  const displayTime = countdownText ?? (endTime ? countdown : subtitle);
 
   const resolvedVariant = variant ?? (showLogo && !title ? "brand" : "inner");
   const isBrand = resolvedVariant === "brand";
