@@ -94,6 +94,14 @@ export const TradeSubmitButton = ({
           <Loader2 className="w-4 h-4 animate-spin" />
           <span className={labelClass}>{loadingText}</span>
         </span>
+      ) : stacked ? (
+        <span className="flex flex-col items-start justify-center leading-tight">
+          <span className="text-sm font-semibold whitespace-nowrap">{label}</span>
+          <span className="flex items-center gap-1 text-[11px] font-mono opacity-85 whitespace-nowrap">
+            {winPrefix} <span className="font-semibold">${win}</span>
+            <ArrowRight className="w-3 h-3" />
+          </span>
+        </span>
       ) : (
         <span className="flex items-center justify-between gap-3">
           <span className={cn("flex-1 text-left truncate", labelClass)}>
