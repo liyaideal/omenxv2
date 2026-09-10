@@ -26,6 +26,8 @@ export interface SupabaseOrder {
   created_at: string;
   updated_at: string;
   product_line?: string | null;
+  /** CT-1: futures reduce-only close order. */
+  reduce_only?: boolean | null;
 }
 
 

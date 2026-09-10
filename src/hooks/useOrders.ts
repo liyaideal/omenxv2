@@ -22,6 +22,8 @@ export interface UnifiedOrder {
   time: string;
   status: "Pending" | "Partial Filled" | "Filled" | "Cancelled";
   productLine?: string | null;
+  /** CT-1: futures reduce-only close order — never opens the opposite side. */
+  reduceOnly?: boolean;
 }
 
 
@@ -57,6 +59,7 @@ const convertSupabaseOrder = (order: SupabaseOrder): UnifiedOrder => {
     time: timeAgo,
     status: order.status as "Pending" | "Partial Filled" | "Filled" | "Cancelled",
     productLine: order.product_line ?? "futures",
+    reduceOnly: !!order.reduce_only,
   };
 };
 

@@ -1,6 +1,8 @@
 import { create } from "zustand";
 
 export type TradeSide = "buy" | "sell";
+/** CT-1: panel intent tab. Buy = open/add, Sell = reduce-only close. */
+export type TradeIntent = "buy" | "sell";
 
 interface TradeSideState {
   /**
@@ -12,6 +14,10 @@ interface TradeSideState {
   sideByKey: Record<string, TradeSide>;
   getSide: (key: string) => TradeSide;
   setSide: (key: string, side: TradeSide) => void;
+  /** CT-1: Buy · Sell intent tab, same key space as `sideByKey`. */
+  intentByKey: Record<string, TradeIntent>;
+  getIntent: (key: string) => TradeIntent;
+  setIntent: (key: string, intent: TradeIntent) => void;
 }
 
 export const useTradeSideStore = create<TradeSideState>((set, get) => ({
@@ -21,6 +27,13 @@ export const useTradeSideStore = create<TradeSideState>((set, get) => ({
     set((state) => {
       if (state.sideByKey[key] === side) return state;
       return { sideByKey: { ...state.sideByKey, [key]: side } };
+    }),
+  intentByKey: {},
+  getIntent: (key) => get().intentByKey[key] ?? "buy",
+  setIntent: (key, intent) =>
+    set((state) => {
+      if (state.intentByKey[key] === intent) return state;
+      return { intentByKey: { ...state.intentByKey, [key]: intent } };
     }),
 }));
 
