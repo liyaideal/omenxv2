@@ -24,21 +24,48 @@ export interface TradingContextData {
 interface MobileTradingLayoutProps {
   activeTab: "Charts" | "Trade";
   children: React.ReactNode | ((data: TradingContextData) => React.ReactNode);
+  /** SP-2: tab navigation root. `/trade` (default, perp) or `/spot`. */
+  basePath?: "/trade" | "/spot";
+  /**
+   * SP-2: `spot` drops the perp-only surfaces (risk indicator, option chips)
+   * and renders a SPOT badge after the title. Defaults to `perp`.
+   */
+  variant?: "perp" | "spot";
+  /** SP-2: bypass `useEvents` and drive the header from a supplied event. */
+  event?: TradingEvent;
+  /** SP-2: header countdown target override (spot uses freeze_time ?? end_date). */
+  endTime?: Date;
+  countdownLabel?: string;
+  countdownUrgency?: "muted" | "yellow" | "red";
+  /** SP-2: extra inline content in the header stats row (schedule ⓘ). */
+  statsExtra?: React.ReactNode;
 }
 
-export function MobileTradingLayout({ activeTab, children }: MobileTradingLayoutProps) {
+export function MobileTradingLayout({
+  activeTab,
+  children,
+  basePath = "/trade",
+  variant = "perp",
+  event: eventOverride,
+  endTime: endTimeOverride,
+  countdownLabel,
+  countdownUrgency,
+  statsExtra,
+}: MobileTradingLayoutProps) {
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const eventId = searchParams.get("event") || undefined;
   const { user } = useAuth();
-  
+  const isSpot = variant === "spot";
+
   // Determine back navigation behavior:
   // - If user navigated here via PUSH (from Events, Portfolio, etc.), use browser history (navigate(-1))
   // - If user came via bottom toolbar (REPLACE/POP) or direct URL, go back to home
   // Note: location.state?.tab is used by TradeOrder to show a specific section, not for routing
   const backTo = navigationType === "PUSH" ? undefined : "/";
+
   
   const { 
     isLoading,
