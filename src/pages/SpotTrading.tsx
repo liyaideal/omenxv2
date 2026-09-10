@@ -8,7 +8,7 @@
 // `SpotTradeOrder`; all state and engine logic lives in
 // `useSpotTerminal`, all render blocks in `pro/ProSpotShared`.
 // ============================================================
-import { Flag, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { CandlestickChart } from "@/components/CandlestickChart";
 import { DesktopOrderBook } from "@/components/DesktopOrderBook";
 import { AuthDialog } from "@/components/auth/AuthDialog";
@@ -25,7 +25,6 @@ import {
 } from "@/components/pro/ProSpotShared";
 import { useSpotTerminal, mock24hVolume } from "@/hooks/useSpotTerminal";
 import { cn } from "@/lib/utils";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function SpotTrading() {
   const t = useSpotTerminal();
@@ -41,6 +40,10 @@ export default function SpotTrading() {
   if (t.notFound || !t.event) return <ExpiredEventFallback eventId={t.eventId} />;
 
   const event = t.event;
+  const outcomeChangePct =
+    t.sessionOpenMark != null && t.sessionOpenMark > 0
+      ? ((t.outcomePrice - t.sessionOpenMark) / t.sessionOpenMark) * 100
+      : null;
 
   // -----------------------------------------------------------------
   // Terminal header — desktop
@@ -98,26 +101,13 @@ export default function SpotTrading() {
               <div className="px-4 py-2 border-b border-border/30">
                 <div className="flex items-center gap-4">
                   <span className="text-2xl font-bold font-mono">{t.outcomePrice.toFixed(4)}</span>
-                  {t.indicative != null ? (
-                    <span className={cn("text-sm font-mono", t.indicativePct >= 0 ? "text-trading-green" : "text-trading-red")}>
-                      {t.indicativePct >= 0 ? "+" : ""}{t.indicativePct.toFixed(2)}%
+                  {outcomeChangePct != null ? (
+                    <span className={cn("text-sm font-mono", outcomeChangePct >= 0 ? "text-trading-green" : "text-trading-red")}>
+                      {outcomeChangePct >= 0 ? "+" : ""}{outcomeChangePct.toFixed(2)}%
                     </span>
                   ) : (
                     <span className="text-sm font-mono text-muted-foreground">--</span>
                   )}
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
-                          <Flag className="w-3 h-3" /> {t.outcomePrice.toFixed(4)}
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-[280px] p-3">
-                        <p className="text-sm">Mark price reflects the fair market price of this outcome share.</p>
-                        <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
                 </div>
                 <div className="text-xs text-muted-foreground">
                   Base {t.basePrice != null ? `${t.cur}${t.basePrice.toFixed(2)}` : "—"} · {t.priorCloseDateLabel} close · flat = {t.noLabel}
@@ -139,8 +129,8 @@ export default function SpotTrading() {
           asks={t.book.asks}
           bids={t.book.bids}
           currentPrice={t.outcomePrice.toFixed(4)}
-          priceChange={t.outcomePrice.toFixed(4)}
-          isPositive={t.indicativePct >= 0}
+          markPrice={t.outcomePrice.toFixed(4)}
+          isPositive={outcomeChangePct != null && outcomeChangePct >= 0}
           side={t.side}
           variant="spot"
           quoteMode={t.sessionProfile.quoteMode}

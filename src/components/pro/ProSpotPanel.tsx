@@ -52,7 +52,6 @@ export interface ProSpotPanelProps {
   outcomeLabel: string;
   available: number;
   heldQty: number;
-  spotBalance: number;
 
   limitPrice: string;
   onLimitPriceChange: (v: string) => void;
@@ -344,7 +343,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
                 </div>
               )}
               <div className={cn("flex justify-between", !isBare && "pt-2 border-t border-border/30 font-medium text-foreground")}>
-                <span className="inline-flex items-center gap-1">
+                <span className={cn("inline-flex items-center gap-1", isBare && "text-muted-foreground")}>
                   To win
                   <TooltipProvider>
                     <Tooltip>

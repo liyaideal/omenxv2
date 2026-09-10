@@ -204,9 +204,9 @@ Spot 节原先手抄的终端顶栏已换成生产件 `ProSpotHeader`，CTA 例�
 ## SP-3-DT1 (2026-09-10) — Pro 桌面 `/spot` 与 `/trade` 视觉对等
 
 - **A · Header**：删除 SPOT 徽标与 Base stat；每个 header 最多一个生命周期徽标，右侧仅 Volume 与标的价格。
-- **B · Chart**：tab 行只放 tabs；价格块统一为 outcome price、session change 与黄色 mark；Base / prior close / flat 仅在其下方出现一次。
-- **C · Order book**：quote mode 徽标移入 tick row；spot 固定 10 asks + 10 bids，薄深度用空槽补齐且不虚构价格；mid row 同样显示黄色 mark。
-- **D · Trade panel**：标题只写 Trade；滑点 chip 使用中性色；Buy 摘要改为平铺 Cost / Shares / Fee / To win；移除重复账户提示；零金额 CTA 保持可点击，点击聚焦 Amount 并提示 `Enter an amount`。
+- **B · Chart**：tab 行只放 tabs；spot 价格块固定为 outcome price + outcome session change + Base subline，不重复显示黄色 mark。session change 以当前 session 首个 outcome mark 为基准，不使用标的 `indicativePct`。
+- **C · Order book**：quote mode 徽标移入 tick row；spot 固定 10 asks + 10 bids，薄深度用空槽补齐且不虚构价格；mid row 通过显式 `markPrice` prop 显示黄色 mark，不复用 `priceChange`。
+- **D · Trade panel**：标题只写 Trade；滑点 chip 使用中性色；Buy 摘要改为平铺 Cost / Shares / Fee / To win；移除重复账户提示；零金额 CTA 保持可点击，点击聚焦 Amount 并提示 `Enter an amount`。该 D5 规则由共享 panel 同步适用于移动 `/spot/order`。
 - **E · Contract chips**：`/trade` leverage chip 选中态改为 `bg-muted`，不再使用方向轴颜色。
 - **F · Account**：Standard Account 内层改为 compact `p-3 space-y-3`，移除标题分隔线。
 - **G · Bottom tabs**：`Orders` 改为 `Current Orders`；空态统一 `No open positions` / `No open orders` 与 contract 的 `py-6 text-sm`。
