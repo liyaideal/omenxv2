@@ -505,27 +505,31 @@ export const SpotScheduleInfo = ({ t }: { t: SpotTerminal }) => (
 export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => (
   <div className="mx-3 my-2 h-8 flex items-center rounded-md border border-border/40 bg-card">
     <div className="flex-1 min-w-0 flex items-center gap-1.5 px-2">
-      <span className="text-[10px] uppercase tracking-wide text-muted-foreground">Base</span>
-      <span className="text-[12px] font-mono truncate">
+      <span className="text-[10px] uppercase tracking-wide text-muted-foreground shrink-0">Base</span>
+      <span className="text-[12px] font-mono shrink-0">
         {t.basePrice != null ? `${t.cur}${t.basePrice.toFixed(2)}` : "—"}
       </span>
     </div>
     <div className="w-px h-5 bg-border/40" />
-    <div className="flex-1 min-w-0 flex items-center gap-1.5 overflow-hidden px-2">
-      <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{t.ticker || "Last"}</span>
-      <span className="text-[12px] font-mono truncate">
+    <div className="flex-1 min-w-0 flex items-baseline gap-1 overflow-hidden px-2">
+      <span className="text-[10px] uppercase tracking-wide text-muted-foreground shrink-0">{t.ticker || "Last"}</span>
+      <span className="text-[12px] font-mono shrink-0">
         {t.indicative != null ? `${t.cur}${t.indicative.toFixed(2)}` : "—"}
       </span>
       {t.indicative != null && (
         <span
           className={cn(
-            "text-[12px] font-mono whitespace-nowrap",
+            "text-[12px] font-mono whitespace-nowrap shrink-0",
             t.indicativePct >= 0 ? "text-trading-green" : "text-trading-red",
           )}
         >
           {t.indicativePct >= 0 ? "+" : ""}
           {t.indicativePct.toFixed(2)}%
-          {t.sessionTag ? ` · ${t.sessionTag}` : ""}
+        </span>
+      )}
+      {t.indicative != null && t.sessionTag && (
+        <span className="truncate text-[10px] text-muted-foreground hidden min-[360px]:inline">
+          · {t.sessionTag}
         </span>
       )}
     </div>
