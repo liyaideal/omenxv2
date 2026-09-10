@@ -167,11 +167,11 @@ Spot 节原先手抄的终端顶栏已换成生产件 `ProSpotHeader`，CTA 例�
 
 产品负责人：「整体各种截断实在有点丑」。本轮把 360 / 375 / 390 三档下的省略号全部消灭，规则写进 DESIGN §Addendum SP-2-FIX2。
 
-- `SpotMobileStatsStrip`：`· pre-mkt` 散文 → `PRE` / `AH` 9px 徽标；strip 内无任何 `truncate`；360px 优先丢 `+0.33%`，价格永不丢。
+- `SpotMobileStatsStrip`：`PRE` / `AH` 9px 徽标移入 Base 左格；右格只放标的、价格、涨跌。`ResizeObserver` 按 strip 自身宽度控制涨跌，仅在达到 340px 时显示，不再错误依赖浏览器 viewport；根节点 `overflow-hidden` 只作末级防护，价格与徽标永不裁切。
 - `spotMobileTitle(t)`（`ProSpotShared.tsx`）：日内涨跌盘移动页头显示 `META · Up or down?`；完整名留在 Event info。桌面页头未动。
 - `TradeSubmitButton` 新增 `layout`（默认 `"row"`）；`ProSpotPanel` / `SpotTradePanel` 新增 `ctaLayout`，只有 `/spot/order` 传 `"stacked"`。金额走千分位。
 - 面板细项：迷你盘口 `w-[104px]`、滑点四格 grid `text-[10px]`、摘要 `text-[11px]`、Held 行改为 `2,034.879 sh · Down`。
 - 移动持仓 / 挂单表事件名改 `line-clamp-2`。
 - 字典：新增 `pro-spot-mobile-charts-360`（SP-M1b）；`pro-spot-mobile-charts` 改用长名 `Meta (META) — will close higher today?`；sell-held fixture 滑块与数量对齐 100%。
 
-验证：360 / 375 / 390 三档下 5 个移动现货字典页，DOM 扫描无任何 `scrollWidth > clientWidth` 的文本节点，无页面错误。
+验证：360 / 375 / 390 三档 × `$579.08` / `$57,907.84` 两种价格，文本节点均无 `scrollWidth > clientWidth`，右格末项均未越过 cell 右边界；360 字典 fixture 固定展示 `$57,907.84` + 左格 `PRE`。

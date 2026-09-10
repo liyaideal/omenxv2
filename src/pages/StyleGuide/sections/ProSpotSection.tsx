@@ -158,12 +158,12 @@ const MOBILE_CASES: SectionCase[] = [
   {
     key: "pro-spot-mobile-charts-360",
     label: "SP-M1b · 移动 Charts 视图（360 · 无截断）",
-    note: "SP-2-FIX2：/spot 与 /spot/order 移动端除页头标题外不允许任何省略号。360px 下时段收成 PRE/AH 徽标，先舍弃 +0.33% 涨跌，价格与标的永不截断。",
+    note: "SP-2-FIX3：360px 最坏数据用 $57,907.84。PRE/AH 徽标在 Base 格；涨跌按 strip 容器宽度隐藏，价格与标的永不截断。",
     spec: [
       {
         state: "360px 极窄",
         when: "viewport < 375",
-        visual: "右格 `META $579.08 PRE`；页头标题走短名 `META · Up or down?`",
+        visual: "左格 `BASE $577.18 PRE`；右格 `META $57,907.84`；页头标题走短名 `META · Up or down?`",
         source: "SpotMobileStatsStrip / spotMobileTitle",
       },
     ],
