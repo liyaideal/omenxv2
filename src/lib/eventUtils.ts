@@ -1,7 +1,11 @@
 import type { EventOption, TradingEvent } from "@/hooks/useEvents";
-import { liteSideName } from "@/lib/liteSideName";
 
-const norm = (s: string) => liteSideName(s.trim()).trim().toLowerCase();
+// liteSideName 的同义规则（内联，避免与 liteSideName.ts 形成循环 import）
+const norm = (s: string) => {
+  const t = s.trim().toLowerCase();
+  return t === "not up" ? "down" : t;
+};
+
 
 /**
  * 判断一个事件是否为"单 market binary"：
