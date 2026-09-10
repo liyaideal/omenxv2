@@ -1480,10 +1480,10 @@ export default function DesktopTrading() {
                   <button
                     key={lev}
                     onClick={() => setLeverage(lev)}
-                    className={`flex-1 py-1 text-xs rounded transition-colors ${
+                    className={`flex-1 py-1 text-xs rounded transition-colors whitespace-nowrap ${
                       leverage === lev 
-                        ? "bg-trading-purple text-foreground" 
-                        : "bg-muted text-muted-foreground hover:text-foreground"
+                        ? "bg-muted text-foreground font-medium" 
+                        : "bg-muted/40 text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     {lev}x

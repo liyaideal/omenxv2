@@ -1892,3 +1892,12 @@ Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① 
 - 市场 chip 行（`OptionChips` / 桌面 `Select Option:` 行）= **多 market 专属**。
 - binary 事件（两端为 Yes/No，包含 `side_labels` 别名如队名、盘口、Up/Down）**永不显示 chips**；两端由 Yes/No dock 与交易面板切换器表达。
 - 判定入口统一为 `isSingleMarketBinary(options, event)`：传 event 时通过 `side_labels` 别名 / Up-Down / `X vs Y` 对阵名解析别名。
+
+## §Addendum 2026-09-10 · Pro 桌面终端对等（SP-3-DT1，append-only）
+
+- Header 每页最多一个 lifecycle badge；产品线名不占第二枚 badge。
+- Chart 与 order-book 的 tab row 只放 tabs，状态与控制进入各自内容行。
+- 同一数字在同一页面只出现一次；Base / Prior Close 只属于 chart price block 的 subline。
+- Order summary 使用带分隔线的 flat list，禁止 inset box。
+- 两个终端的 selection chips 统一使用中性 `bg-muted`，不得使用方向轴或 `trading-purple` 作为选择态。
+- Order-book 深度槽固定为 contract 每侧 12、spot 每侧 10；不足时补无内容空槽，禁止虚构价格。

@@ -8,7 +8,7 @@
 // `SpotTradeOrder`; all state and engine logic lives in
 // `useSpotTerminal`, all render blocks in `pro/ProSpotShared`.
 // ============================================================
-import { Loader2 } from "lucide-react";
+import { Flag, Loader2 } from "lucide-react";
 import { CandlestickChart } from "@/components/CandlestickChart";
 import { DesktopOrderBook } from "@/components/DesktopOrderBook";
 import { AuthDialog } from "@/components/auth/AuthDialog";
@@ -25,6 +25,7 @@ import {
 } from "@/components/pro/ProSpotShared";
 import { useSpotTerminal, mock24hVolume } from "@/hooks/useSpotTerminal";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function SpotTrading() {
   const t = useSpotTerminal();
@@ -57,8 +58,6 @@ export default function SpotTrading() {
       settleEtOnly={t.settleEtOnly}
       closingSoon={t.closingSoon && t.lifecycle === "TRADING"}
       volumeText={mock24hVolume(event.id)}
-      priorCloseDateLabel={t.priorCloseDateLabel}
-      basePriceText={t.basePrice != null ? `${t.cur}${money2(t.basePrice)}` : "—"}
       lastLabel={t.ticker || "Last"}
       lastPriceText={t.indicative != null ? `${t.cur}${money2(t.indicative)}` : "—"}
       lastIsUp={t.indicativePct >= 0}
@@ -93,15 +92,36 @@ export default function SpotTrading() {
                 {tab}
               </button>
             ))}
-            <div className="ml-auto text-xs text-muted-foreground">
-              Prior Close {t.basePrice != null ? `${t.cur}${t.basePrice.toFixed(2)}` : "—"} · flat close = {t.noLabel}
-            </div>
           </div>
           {t.chartTab === "Chart" ? (
             <>
-              <div className="flex items-center gap-4 px-4 py-2 border-b border-border/30">
-                <span className="text-2xl font-bold font-mono">{t.outcomePrice.toFixed(4)}</span>
-                <span className="text-xs text-muted-foreground">{t.outcomeLabel} · mark</span>
+              <div className="px-4 py-2 border-b border-border/30">
+                <div className="flex items-center gap-4">
+                  <span className="text-2xl font-bold font-mono">{t.outcomePrice.toFixed(4)}</span>
+                  {t.indicative != null ? (
+                    <span className={cn("text-sm font-mono", t.indicativePct >= 0 ? "text-trading-green" : "text-trading-red")}>
+                      {t.indicativePct >= 0 ? "+" : ""}{t.indicativePct.toFixed(2)}%
+                    </span>
+                  ) : (
+                    <span className="text-sm font-mono text-muted-foreground">--</span>
+                  )}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
+                          <Flag className="w-3 h-3" /> {t.outcomePrice.toFixed(4)}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[280px] p-3">
+                        <p className="text-sm">Mark price reflects the fair market price of this outcome share.</p>
+                        <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Base {t.basePrice != null ? `${t.cur}${t.basePrice.toFixed(2)}` : "—"} · {t.priorCloseDateLabel} close · flat = {t.noLabel}
+                </div>
               </div>
               <div className="flex-1 min-h-0">
                 <CandlestickChart remainingDays={1} basePrice={t.outcomePrice || 0.5} side={t.side} />

@@ -209,9 +209,14 @@ export const DesktopOrderBook = ({
     parseFloat(priceStep),
     true
   );
+  const bothAsks = variant === "spot" ? aggregatedAsks.slice(0, 10) : aggregatedAsks;
+  const bothBids = variant === "spot" ? aggregatedBids.slice(0, 10) : aggregatedBids;
+  const blankAskSlots = variant === "spot" ? Math.max(0, 10 - bothAsks.length) : 0;
+  const blankBidSlots = variant === "spot" ? Math.max(0, 10 - bothBids.length) : 0;
 
   // Mid/last price displayed in the middle of the book, also transformed
   const displayPrice = transformPrice(currentPrice);
+  const displayMark = variant === "spot" ? transformPrice(priceChange) : displayPrice;
 
   // Extended data for single-view modes (moved here to use aggregated data)
   const extendedBidsAggregated = [...aggregatedBids, ...aggregatedBids.slice(0, 8)];
@@ -298,7 +303,7 @@ export const DesktopOrderBook = ({
         <div className="flex items-center gap-4">
           <button
             onClick={() => setActiveTab("orderbook")}
-            className={`text-sm font-medium transition-all ${
+            className={`text-sm font-medium transition-all whitespace-nowrap ${
               activeTab === "orderbook" ? "text-foreground" : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -306,29 +311,13 @@ export const DesktopOrderBook = ({
           </button>
           <button
             onClick={() => setActiveTab("trades")}
-            className={`text-sm font-medium transition-all ${
+            className={`text-sm font-medium transition-all whitespace-nowrap ${
               activeTab === "trades" ? "text-foreground" : "text-muted-foreground hover:text-foreground"
             }`}
           >
             Recent Trades
           </button>
         </div>
-        {quoteModeBadge && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span
-                  className={`ml-auto px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-wide rounded border cursor-help ${quoteModeBadge.className}`}
-                >
-                  {quoteModeBadge.label}
-                </span>
-              </TooltipTrigger>
-              <TooltipContent className="max-w-[220px] p-2">
-                <p className="text-xs">{quoteModeBadge.tooltip}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
       </div>
 
       {activeTab === "orderbook" ? (
@@ -336,7 +325,7 @@ export const DesktopOrderBook = ({
           {/* Buy/Sell side is driven by parent trade form */}
 
           {/* View Toggle & Depth */}
-          <div className="flex items-center justify-between px-3 py-2">
+          <div className="flex items-center px-3 py-2">
             <div className="flex items-center gap-2">
               {/* View mode icons */}
               <button 
@@ -371,6 +360,22 @@ export const DesktopOrderBook = ({
                 </div>
               </button>
             </div>
+            {quoteModeBadge && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span
+                      className={`mr-auto ml-2 px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-wide rounded border cursor-help ${quoteModeBadge.className}`}
+                    >
+                      {quoteModeBadge.label}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-[220px] p-2">
+                    <p className="text-xs">{quoteModeBadge.tooltip}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
             <div className="relative">
               <button 
                 onClick={() => setShowStepDropdown(!showStepDropdown)}
@@ -411,8 +416,13 @@ export const DesktopOrderBook = ({
             <>
               {/* Asks (Sell orders) - reversed to show lowest ask at bottom */}
               <div className="flex-1 overflow-y-auto scrollbar-hide">
-                {[...aggregatedAsks].reverse().map((ask, index) => {
-                  const maxTotal = Math.max(...aggregatedAsks.map(a => parseInt((a.total || a.amount).replace(/,/g, ''))));
+                {Array.from({ length: blankAskSlots }, (_, index) => (
+                  <div key={`ask-blank-${index}`} aria-hidden className="relative grid grid-cols-3 text-xs px-3 py-0.5">
+                    <span>&nbsp;</span><span /><span />
+                  </div>
+                ))}
+                {[...bothAsks].reverse().map((ask, index) => {
+                  const maxTotal = Math.max(...bothAsks.map(a => parseInt((a.total || a.amount).replace(/,/g, ''))));
                   const total = parseInt((ask.total || ask.amount).replace(/,/g, ''));
                   const widthPercent = (total / maxTotal) * 100;
                   
@@ -449,29 +459,27 @@ export const DesktopOrderBook = ({
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
-                  {variant !== "spot" && (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
-                            <Flag className="w-3 h-3" /> {displayPrice}
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-[280px] p-3">
-                          <p className="text-sm">{midTooltip}</p>
-                          <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  )}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
+                          <Flag className="w-3 h-3" /> {displayMark}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[280px] p-3">
+                        <p className="text-sm">{midTooltip}</p>
+                        <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               </div>
 
 
               {/* Bids (Buy orders) */}
               <div className="flex-1 overflow-y-auto scrollbar-hide">
-                {aggregatedBids.map((bid, index) => {
-                  const maxTotal = Math.max(...aggregatedBids.map(b => parseInt((b.total || b.amount).replace(/,/g, ''))));
+                {bothBids.map((bid, index) => {
+                  const maxTotal = Math.max(...bothBids.map(b => parseInt((b.total || b.amount).replace(/,/g, ''))));
                   const total = parseInt((bid.total || bid.amount).replace(/,/g, ''));
                   const widthPercent = (total / maxTotal) * 100;
                   
@@ -491,6 +499,11 @@ export const DesktopOrderBook = ({
                     </div>
                   );
                 })}
+                {Array.from({ length: blankBidSlots }, (_, index) => (
+                  <div key={`bid-blank-${index}`} aria-hidden className="relative grid grid-cols-3 text-xs px-3 py-0.5">
+                    <span>&nbsp;</span><span /><span />
+                  </div>
+                ))}
               </div>
             </>
           )}
@@ -537,21 +550,19 @@ export const DesktopOrderBook = ({
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
-                  {variant !== "spot" && (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
-                            <Flag className="w-3 h-3" /> {displayPrice}
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-[280px] p-3">
-                          <p className="text-sm">{midTooltip}</p>
-                          <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  )}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
+                          <Flag className="w-3 h-3" /> {displayMark}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[280px] p-3">
+                        <p className="text-sm">{midTooltip}</p>
+                        <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               </div>
 
@@ -600,21 +611,19 @@ export const DesktopOrderBook = ({
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
-                  {variant !== "spot" && (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
-                            <Flag className="w-3 h-3" /> {displayPrice}
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-[280px] p-3">
-                          <p className="text-sm">{midTooltip}</p>
-                          <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  )}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
+                          <Flag className="w-3 h-3" /> {displayMark}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[280px] p-3">
+                        <p className="text-sm">{midTooltip}</p>
+                        <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               </div>
             </>

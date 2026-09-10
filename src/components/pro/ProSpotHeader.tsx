@@ -21,8 +21,6 @@ export interface ProSpotHeaderProps {
   settleEtOnly?: string | null;
   closingSoon: boolean;
   volumeText: string;
-  priorCloseDateLabel: string;
-  basePriceText: string;
   lastLabel: string;
   lastPriceText: string;
   lastIsUp: boolean;
@@ -78,7 +76,6 @@ export const ProSpotHeader = (p: ProSpotHeaderProps) => (
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           <span className="font-semibold text-foreground truncate">{p.eventName}</span>
-          <Badge variant="outline" className="text-[10px]">SPOT</Badge>
           <Badge variant="outline" className={cn("text-[10px] border", p.lifecycleBadge.className)}>
             {p.lifecycleBadge.label}
           </Badge>
@@ -147,7 +144,6 @@ export const ProSpotHeader = (p: ProSpotHeaderProps) => (
     {/* Right stats — spot-specific. NO index / funding / OI / Yes price. */}
     <div className="ml-auto flex items-center gap-6 text-xs">
       <Stat label="Volume" value={p.volumeText} />
-      <Stat label={`Base (${p.priorCloseDateLabel} close)`} value={p.basePriceText} />
       <Stat
         label={p.lastLabel}
         value={p.lastPriceText}

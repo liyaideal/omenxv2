@@ -200,3 +200,14 @@ Spot 节原先手抄的终端顶栏已换成生产件 `ProSpotHeader`，CTA 例�
 ### SP-2-FIX8 (2026-09-10) — 未登录恒 Lite，Pro 登录门统一
 
 游客不再可能进入 Pro 现货终端：`SurfaceContext` 增加 auth 监听，派生 `surface` 在确认无会话时强制 `lite`（localStorage 的 Pro 偏好保留，登录后恢复）。作为兜底，Pro 现货的两处登录门（桌面 `ProBottomTabs`、移动 `/spot/order`）与合约的 `/trade/order` 一并换成站点唯一的 `LiteAuthGate variant="panel"`，旧的 `AuthGateOverlay`（模糊底 + Log In / Sign Up）在交易面全部退场。详见 [Surface switch v1 §10](./surface-switch-v1.md)。字典新增 `pro-bottom-tabs-guest`（SP-I），sg:audit TOTAL 317。
+
+## SP-3-DT1 (2026-09-10) — Pro 桌面 `/spot` 与 `/trade` 视觉对等
+
+- **A · Header**：删除 SPOT 徽标与 Base stat；每个 header 最多一个生命周期徽标，右侧仅 Volume 与标的价格。
+- **B · Chart**：tab 行只放 tabs；价格块统一为 outcome price、session change 与黄色 mark；Base / prior close / flat 仅在其下方出现一次。
+- **C · Order book**：quote mode 徽标移入 tick row；spot 固定 10 asks + 10 bids，薄深度用空槽补齐且不虚构价格；mid row 同样显示黄色 mark。
+- **D · Trade panel**：标题只写 Trade；滑点 chip 使用中性色；Buy 摘要改为平铺 Cost / Shares / Fee / To win；移除重复账户提示；零金额 CTA 保持可点击，点击聚焦 Amount 并提示 `Enter an amount`。
+- **E · Contract chips**：`/trade` leverage chip 选中态改为 `bg-muted`，不再使用方向轴颜色。
+- **F · Account**：Standard Account 内层改为 compact `p-3 space-y-3`，移除标题分隔线。
+- **G · Bottom tabs**：`Orders` 改为 `Current Orders`；空态统一 `No open positions` / `No open orders` 与 contract 的 `py-6 text-sm`。
+- **H · Dictionary**：新增 `pro-spot-book-thin`，直接挂生产 `DesktopOrderBook variant="spot"` 的三档薄深度 fixture。
