@@ -14,6 +14,7 @@ import { DesktopOrderBook } from "@/components/DesktopOrderBook";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { ProSpotHeader } from "@/components/pro/ProSpotHeader";
+import { money2 } from "@/components/pro/ProSpotPanel";
 import { ProTerminalLayout } from "@/components/pro/ProTerminalLayout";
 import {
   SpotTradePanel,
@@ -57,9 +58,9 @@ export default function SpotTrading() {
       closingSoon={t.closingSoon && t.lifecycle === "TRADING"}
       volumeText={mock24hVolume(event.id)}
       priorCloseDateLabel={t.priorCloseDateLabel}
-      basePriceText={t.basePrice != null ? `${t.cur}${t.basePrice.toFixed(2)}` : "—"}
+      basePriceText={t.basePrice != null ? `${t.cur}${money2(t.basePrice)}` : "—"}
       lastLabel={t.ticker || "Last"}
-      lastPriceText={t.indicative != null ? `${t.cur}${t.indicative.toFixed(2)}` : "—"}
+      lastPriceText={t.indicative != null ? `${t.cur}${money2(t.indicative)}` : "—"}
       lastIsUp={t.indicativePct >= 0}
       lastHint={
         t.indicative != null
