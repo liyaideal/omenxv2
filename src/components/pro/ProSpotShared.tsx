@@ -14,7 +14,6 @@ import {
   ProSpotOrderPreview,
 } from "@/components/pro/ProSpotPanel";
 import { ProBottomTabs } from "@/components/pro/ProBottomTabs";
-import { toast } from "sonner";
 import { mock24hVolume, type SpotTerminal } from "@/hooks/useSpotTerminal";
 import type { TradingEvent } from "@/hooks/useEvents";
 
@@ -182,8 +181,8 @@ export const SpotPositionsTable = ({
                     className={cn(
                       "px-1.5 py-0.5 rounded text-[10px] font-medium",
                       isYes
-                        ? "bg-trading-green/20 text-trading-green"
-                        : "bg-trading-red/20 text-trading-red",
+                        ? "bg-yes/15 text-yes"
+                        : "bg-no/15 text-no",
                     )}
                   >
                     {isYes ? t.yesLabel : t.noLabel}
@@ -260,8 +259,8 @@ export const SpotPositionsTable = ({
                 className={cn(
                   "px-1.5 py-0.5 rounded text-[10px] font-medium w-fit",
                   isYes
-                    ? "bg-trading-green/20 text-trading-green"
-                    : "bg-trading-red/20 text-trading-red",
+                    ? "bg-yes/15 text-yes"
+                    : "bg-no/15 text-no",
                 )}
               >
                 {outcomeText}
@@ -438,33 +437,50 @@ export const SpotBottomTabs = ({
   </ProBottomTabs>
 );
 
-/** Guard helper shared by the mobile pages. */
-export const spotBlockedToast = (t: SpotTerminal) =>
-  toast.error(t.blockedReason || "Market unavailable");
-
 // -----------------------------------------------------------------
 // SP-2 · mobile helpers
 // -----------------------------------------------------------------
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Info } from "lucide-react";
-import { mock24hVolume as mockVol } from "@/hooks/useSpotTerminal";
+import { Info, Star, Share2 } from "lucide-react";
+import { MobileHeaderIconButton } from "@/components/MobileHeader";
 
 /** Adapter: the raw spot event row → the shared `TradingEvent` header shape. */
-export const spotHeaderEvent = (t: SpotTerminal): TradingEvent => ({
-  id: t.event!.id,
-  name: t.event!.name,
-  icon: "",
-  ends: t.countdown.text,
-  endTime: t.endDate ?? new Date(),
-  period: "Daily",
-  volume: mockVol(t.event!.id),
-  description:
-    t.event!.description || "US-stock daily up/down (spot). Winning share pays $1 at settlement.",
-  rules: [],
-  sourceUrl: t.event!.source_url || "",
-  sourceName: t.event!.source_name || "databento",
-  resolutionSource: t.event!.source_name || "databento",
-});
+export const spotHeaderEvent = (t: SpotTerminal): TradingEvent => {
+  const event = t.event!;
+  return {
+    id: event.id,
+    name: event.name,
+    icon: "",
+    ends: t.countdown.text,
+    endTime: t.endDate ?? new Date(),
+    period: "Daily",
+    volume: mock24hVolume(event.id),
+    description:
+      event.description || "US-stock daily up/down (spot). Winning share pays $1 at settlement.",
+    rules: [],
+    sourceUrl: event.source_url || "",
+    sourceName: event.source_name || "databento",
+    resolutionSource: event.source_name || "databento",
+  };
+};
+
+/** SP-2-FIX1: one header action cluster for BOTH spot pages (DB watchlist star). */
+export const SpotHeaderActions = ({ t }: { t: SpotTerminal }) => (
+  <div className="flex items-center gap-1 -mr-2">
+    <MobileHeaderIconButton aria-label="Favorite" onClick={() => t.toggleWatch(t.event!.id)}>
+      <Star
+        className={cn("w-5 h-5", t.isWatched(t.event!.id) ? "text-trading-yellow fill-trading-yellow" : "")}
+        strokeWidth={1.5}
+      />
+    </MobileHeaderIconButton>
+    <MobileHeaderIconButton
+      aria-label="Share"
+      onClick={() => navigator.clipboard?.writeText(window.location.href)}
+    >
+      <Share2 className="w-5 h-5" strokeWidth={1.5} />
+    </MobileHeaderIconButton>
+  </div>
+);
 
 /** Schedule ⓘ shown inline in the mobile header stats row. */
 export const SpotScheduleInfo = ({ t }: { t: SpotTerminal }) => (
