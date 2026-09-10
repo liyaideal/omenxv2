@@ -93,6 +93,19 @@ const PANEL_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "pro-spot-panel-frozen",
+    label: "SP-B8 · 市场已冻结（FIX5）",
+    note: "下单封锁 = `isOrderingBlocked(dbLifecycle) || isFrozenByTime`。过了 freeze_time / end_date 的市场即便库里还写着 EXTENDED_TRADING 也不可下单：两个 tile 仍可点选（只为看价），CTA 置灰显示原因，预览弹窗打不开，提交与 Positions 行 `Close` 均直接 toast 拦截。",
+    spec: [
+      {
+        state: "Frozen by time",
+        when: "now > freeze_time（或 end_date）",
+        visual: "CTA 置灰，文案 `Market frozen`；tile 仍可切换查看价格",
+        source: "SpotTrading blocked / blockedReason",
+      },
+    ],
+  },
+  {
     key: "pro-spot-panel-pending-limit",
     label: "SP-B6 · 限价将挂单",
     spec: [
