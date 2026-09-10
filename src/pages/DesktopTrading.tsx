@@ -403,6 +403,189 @@ export default function DesktopTrading() {
     ? selectedOption === yesNoOptions.yes?.id
     : side === "buy";
 
+  // ============================================================
+  // CT-1 · Sell tab = reduce-only close of the single netted position on the
+  // selected outcome. Never opens the opposite side; disabled when flat.
+  // ============================================================
+  const [intent, setIntent] = useState<"buy" | "sell">("buy");
+  const [sellOutcome, setSellOutcome] = useState<"yes" | "no">("yes");
+  const [sellQtyInput, setSellQtyInput] = useState("0");
+  const [sellSlider, setSellSlider] = useState([0]);
+  const [sellLimitPrice, setSellLimitPrice] = useState("");
+  const sellAmountRef = useRef<HTMLInputElement | null>(null);
+
+  const heldPositions = useMemo(() => {
+    const eventName = selectedEvent?.name;
+    const pick = (which: "yes" | "no") => {
+      if (!eventName) return null;
+      const label = isBinarySingleMarket
+        ? (which === "yes" ? yesNoOptions.yes?.label : yesNoOptions.no?.label)
+        : selectedOptionData.label;
+      if (!label) return null;
+      return (
+        positions.find(
+          (p) =>
+            p.event === eventName &&
+            p.option === label &&
+            (isBinarySingleMarket || p.type === (which === "yes" ? "long" : "short")),
+        ) ?? null
+      );
+    };
+    return { yes: pick("yes"), no: pick("no") };
+  }, [positions, selectedEvent?.name, isBinarySingleMarket, yesNoOptions.yes?.label, yesNoOptions.no?.label, selectedOptionData.label]);
+
+  const sellDisabledSide: "yes" | "no" | "both" | undefined = !heldPositions.yes && !heldPositions.no
+    ? "both"
+    : !heldPositions.yes
+    ? "yes"
+    : !heldPositions.no
+    ? "no"
+    : undefined;
+
+  // Keep the Sell tab pointed at a side that actually has a position.
+  useEffect(() => {
+    if (intent !== "sell") return;
+    if (sellOutcome === "yes" && !heldPositions.yes && heldPositions.no) setSellOutcome("no");
+    if (sellOutcome === "no" && !heldPositions.no && heldPositions.yes) setSellOutcome("yes");
+  }, [intent, sellOutcome, heldPositions.yes, heldPositions.no]);
+
+  const heldPos = sellOutcome === "yes" ? heldPositions.yes : heldPositions.no;
+  const heldSize = heldPos ? Math.floor(heldPos.sizeNum) : 0;
+  const sellOutcomeLabel = isBinarySingleMarket
+    ? (sellOutcome === "yes" ? binaryLabels.yes : binaryLabels.no)
+    : heldPos?.displayOption ?? selectedOptionData.label;
+  const sellMark = sellOutcome === "yes" ? yesPrice : noPrice;
+  const sellQtyRaw = Math.max(0, Math.floor(parseFloat(sellQtyInput) || 0));
+  // Full-close snap: within 0.5 ct of the held size closes the whole position.
+  const sellQty = heldSize > 0 ? Math.min(sellQtyRaw >= heldSize - 0.5 ? heldSize : sellQtyRaw, heldSize) : 0;
+  const sellClosePrice = orderType === "Limit" ? (parseFloat(sellLimitPrice) || sellMark) : sellMark;
+  const sellLimitPending = orderType === "Limit" && Math.abs(sellClosePrice - sellMark) > 1e-9;
+  const sellRatio = heldSize > 0 ? sellQty / heldSize : 0;
+  const sellReleasedMargin = heldPos ? heldPos.marginNum * sellRatio : 0;
+  const sellRealizedPnl = heldPos
+    ? (heldPos.type === "long" ? sellClosePrice - heldPos.entryPriceNum : heldPos.entryPriceNum - sellClosePrice) * sellQty
+    : 0;
+  const sellAllocatedEntryFee = heldPos ? heldPos.entryPriceNum * sellQty * FUTURES_FEE_RATE : 0;
+  const { wc: sellCommission, cashBack: sellCashBack } = cashBackOnClose({
+    releasedMargin: sellReleasedMargin,
+    realizedPnl: sellRealizedPnl,
+    allocatedEntryFee: sellAllocatedEntryFee,
+  });
+  const sellCtaLabel = heldSize > 0 && sellQty >= heldSize
+    ? `Close ${sellOutcomeLabel}`
+    : `Reduce ${sellOutcomeLabel}`;
+  const sellSubmitDisabled =
+    !heldPos || heldSize <= 0 || (orderType === "Limit" && !(parseFloat(sellLimitPrice || String(sellMark)) > 0));
+
+  const handleSellPreview = () => {
+    if (!user) {
+      setAuthDefaultTab("signup");
+      setAuthDialogOpen(true);
+      return;
+    }
+    if (!heldPos || heldSize <= 0) return;
+    if (sellQty <= 0) {
+      sellAmountRef.current?.focus();
+      toast.error("Enter an amount");
+      return;
+    }
+    setOrderPreviewOpen(true);
+  };
+
+  const handleConfirmSell = async () => {
+    if (!heldPos || !user || sellQty <= 0 || !selectedEvent) return;
+    setIsSubmittingOrder(true);
+    try {
+      if (orderType === "Market") {
+        const idx = positions.findIndex((p) => p.id === heldPos.id);
+        await partialClosePosition(heldPos.id!, idx, sellQty);
+        toast.success(`Closed · $${sellCashBack.toFixed(2)} back`);
+      } else {
+        const { error } = await supabase.from("trades").insert({
+          user_id: user.id,
+          event_name: selectedEvent.name,
+          option_label: heldPos.option,
+          side: "sell",
+          order_type: "Limit",
+          price: sellClosePrice,
+          amount: 0,
+          quantity: sellQty,
+          leverage: Math.round(heldPos.leverageNum) || 1,
+          margin: 0,
+          fee: 0,
+          status: "Pending",
+          product_line: "futures",
+          reduce_only: true,
+        });
+        if (error) throw error;
+        toast.success("Reduce-only order placed");
+      }
+      setOrderPreviewOpen(false);
+      setSellQtyInput("0");
+      setSellSlider([0]);
+      refetchOrders();
+      refetchPositions();
+    } catch (e) {
+      toast.error("Could not place the order");
+    } finally {
+      setIsSubmittingOrder(false);
+    }
+  };
+
+  // DEMO-STATE: touch fill for reduce-only futures limit orders. Production
+  // matching happens on the backend; the client only simulates the crossing.
+  const reduceFillingRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!user || !selectedEvent) return;
+    const markFor = (label: string) => {
+      if (yesNoOptions.yes?.label === label) return yesPrice;
+      if (yesNoOptions.no?.label === label) return noPrice;
+      return longPrice;
+    };
+    unifiedOrders
+      .filter((o) => o.id && o.reduceOnly && o.status === "Pending" && o.event === selectedEvent.name)
+      .forEach(async (o) => {
+        const id = o.id!;
+        if (reduceFillingRef.current.has(id)) return;
+        const limit = parseFloat(String(o.price).replace(/[$,]/g, "")) || 0;
+        const qty = Math.floor(parseFloat(String(o.amount).replace(/,/g, "")) || 0);
+        const idx = positions.findIndex((p) => p.event === o.event && p.option === o.option);
+        const pos = positions[idx];
+        reduceFillingRef.current.add(id);
+        try {
+          if (!pos) {
+            await cancelUnifiedOrder(id);
+            refetchOrders();
+            return;
+          }
+          const mark = markFor(o.option);
+          const touched = pos.type === "long" ? mark >= limit - 1e-9 : mark <= limit + 1e-9;
+          if (!touched) {
+            reduceFillingRef.current.delete(id);
+            return;
+          }
+          const size = Math.floor(pos.sizeNum);
+          const fillQty = Math.min(Math.max(1, qty), size);
+          const released = pos.marginNum * (fillQty / Math.max(size, 1));
+          const realized = (pos.type === "long" ? mark - pos.entryPriceNum : pos.entryPriceNum - mark) * fillQty;
+          const { cashBack } = cashBackOnClose({
+            releasedMargin: released,
+            realizedPnl: realized,
+            allocatedEntryFee: pos.entryPriceNum * fillQty * FUTURES_FEE_RATE,
+          });
+          await partialClosePosition(pos.id!, idx, fillQty);
+          await supabase.from("trades").update({ status: "Filled" }).eq("id", id);
+          toast.success(`Closed · $${cashBack.toFixed(2)} back`);
+          refetchOrders();
+          refetchPositions();
+        } catch {
+          reduceFillingRef.current.delete(id);
+        }
+      });
+  }, [unifiedOrders, positions, yesPrice, noPrice, longPrice, user, selectedEvent, yesNoOptions.yes?.label, yesNoOptions.no?.label, partialClosePosition, cancelUnifiedOrder, refetchOrders, refetchPositions]);
+
+
+
 
   // Calculate order values based on amount and leverage
   const orderCalculations = useMemo(() => {
