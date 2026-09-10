@@ -23,6 +23,9 @@ import type { TradingEvent } from "@/hooks/useEvents";
 /** SP-2-FIX4 · one money format on every Pro spot surface (`+$1,073.14`). */
 const spotPnlText = (n: number) => `${n >= 0 ? "+" : "-"}$${money2(Math.abs(n))}`;
 
+/** Order rows arrive pre-formatted (`$1,234.00`); read the number back out. */
+const num = (v: string) => Number(String(v).replace(/[^0-9.-]/g, "")) || 0;
+
 export const SpotTradePanel = ({
   t,
   ctaLayout,
@@ -352,7 +355,7 @@ export const SpotOrdersTable = ({
                   </div>
                   <div>
                     <div>Qty (sh)</div>
-                    <div className="font-mono text-foreground">{formatShares(Number(o.amount) || 0)}</div>
+                    <div className="font-mono text-foreground">{formatShares(num(o.amount))}</div>
                   </div>
                   <div className="text-right">
                     <div>Status</div>
@@ -385,7 +388,7 @@ export const SpotOrdersTable = ({
         <div className="px-4 py-8 text-center text-muted-foreground">No open spot orders.</div>
       ) : (
         rows.map((o, i) => {
-          const reserved = o.type === "buy" ? `$${money2(Number(o.total) || 0)}` : "—";
+          const reserved = o.type === "buy" ? `$${money2(num(o.total))}` : "—";
           const isPending = o.status === "Pending";
           return (
             <div
@@ -398,7 +401,7 @@ export const SpotOrdersTable = ({
               </span>
               <span>{o.orderType}</span>
               <span className="text-right font-mono">{o.price}</span>
-              <span className="text-right font-mono">{formatShares(Number(o.amount) || 0)}</span>
+              <span className="text-right font-mono">{formatShares(num(o.amount))}</span>
               <span className="text-right font-mono text-muted-foreground">{reserved}</span>
               <span
                 className={cn(
