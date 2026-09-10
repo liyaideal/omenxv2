@@ -505,14 +505,14 @@ export const SpotScheduleInfo = ({ t }: { t: SpotTerminal }) => (
 export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => (
   <div className="mx-3 my-2 h-8 flex items-center rounded-md border border-border/40 bg-card">
     <div className="flex-1 min-w-0 flex items-center gap-1.5 px-2">
-      <span className="text-[10px] uppercase tracking-wide text-muted-foreground truncate">Base</span>
+      <span className="text-[10px] uppercase tracking-wide text-muted-foreground shrink-0">Base</span>
       <span className="text-[12px] font-mono shrink-0">
         {t.basePrice != null ? `${t.cur}${t.basePrice.toFixed(2)}` : "—"}
       </span>
     </div>
     <div className="w-px h-5 bg-border/40" />
     <div className="flex-1 min-w-0 flex items-baseline gap-1 overflow-hidden px-2">
-      <span className="text-[10px] uppercase tracking-wide text-muted-foreground truncate">{t.ticker || "Last"}</span>
+      <span className="text-[10px] uppercase tracking-wide text-muted-foreground shrink-0">{t.ticker || "Last"}</span>
       <span className="text-[12px] font-mono shrink-0">
         {t.indicative != null ? `${t.cur}${t.indicative.toFixed(2)}` : "—"}
       </span>
