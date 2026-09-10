@@ -303,9 +303,22 @@ export function useSpotTerminal() {
   const countdownTarget = freezeAt ?? endDate;
   const countdown = useSpotCountdown(countdownTarget);
 
+  const market = resolveStockMarket(event);
   const dbLifecycle = event?.lifecycle_status || "TRADING";
-  const lifecycle = getDisplayLifecycle(dbLifecycle);
-  const badge = getLifecycleBadge(lifecycle);
+  const lifecycle = getDisplayLifecycle(dbLifecycle, market);
+  const baseBadge = getLifecycleBadge(lifecycle);
+  // SP-3-DT2 · normal trading shows NO badge (parity with /trade).
+  const showBadge = lifecycle !== "TRADING";
+  const badge = showBadge
+    ? {
+        label: lifecycle === "EXTENDED_TRADING" ? "Extended hours" : baseBadge.label,
+        className: baseBadge.className,
+        tooltip:
+          lifecycle === "EXTENDED_TRADING"
+            ? "Pre-market / after-hours session — liquidity is thinner and spreads are wider."
+            : undefined,
+      }
+    : null;
   // FIX5: time also blocks trading.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const isFrozenByTime = useMemo(() => isPastFreeze(freezeAt, endDate), [freezeAt, endDate, countdown]);
