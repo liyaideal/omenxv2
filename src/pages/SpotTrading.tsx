@@ -365,8 +365,16 @@ export default function SpotTrading() {
   const dbLifecycle = event?.lifecycle_status || "TRADING";
   const lifecycle = getDisplayLifecycle(dbLifecycle);
   const badge = getLifecycleBadge(lifecycle);
-  const blocked = isOrderingBlocked(dbLifecycle);
-  const blockedReason = getBlockedReason(dbLifecycle);
+  // FIX5: time also blocks trading. A market whose freeze_time / end_date has
+  // passed is not tradable even if the DB row still says EXTENDED_TRADING.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const isFrozenByTime = useMemo(() => isPastFreeze(freezeAt, endDate), [freezeAt, endDate, countdown]);
+  const blocked = isOrderingBlocked(dbLifecycle) || isFrozenByTime;
+  const blockedReason = isOrderingBlocked(dbLifecycle)
+    ? getBlockedReason(dbLifecycle)
+    : isFrozenByTime
+      ? "Market frozen"
+      : null;
 
   const basePrice = event?.base_price != null ? Number(event.base_price) : null;
   const indicative = useIndicativeLast(basePrice, event?.id || "");
