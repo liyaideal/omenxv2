@@ -1294,7 +1294,12 @@ export default function DesktopTrading() {
                               </span>
                             )}
                           </td>
-                          <td className="px-4 py-2 text-sm">{order.orderType}</td>
+                          <td className="px-4 py-2 text-sm">
+                            {order.orderType}
+                            {order.reduceOnly && (
+                              <span className="ml-1.5 text-[10px] bg-muted text-muted-foreground rounded px-1">Reduce-only</span>
+                            )}
+                          </td>
                           <td className="px-4 py-2 text-sm font-mono text-right">{order.price}</td>
                           <td className="px-4 py-2 text-sm font-mono text-right">{order.amount}</td>
                           <td className="px-4 py-2 text-sm font-mono text-right">{order.total}</td>
