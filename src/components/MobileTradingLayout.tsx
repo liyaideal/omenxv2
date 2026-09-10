@@ -153,60 +153,72 @@ export function MobileTradingLayout({
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Event Selector Sheet */}
-      <EventSelectorSheet
-        open={eventSheetOpen}
-        onOpenChange={setEventSheetOpen}
-        selectedEvent={selectedEvent}
-        filteredEvents={filteredEvents}
-        favorites={favorites}
-        toggleFavorite={toggleFavorite}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        showFavoritesOnly={showFavoritesOnly}
-        toggleShowFavoritesOnly={toggleShowFavoritesOnly}
-        onEventSelect={handleEventSelect}
-      />
+      {/* Event Selector Sheet — perp only; spot pages are single-event. */}
+      {!isSpot && (
+        <EventSelectorSheet
+          open={eventSheetOpen}
+          onOpenChange={setEventSheetOpen}
+          selectedEvent={activeEvent}
+          filteredEvents={filteredEvents}
+          favorites={favorites}
+          toggleFavorite={toggleFavorite}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          showFavoritesOnly={showFavoritesOnly}
+          toggleShowFavoritesOnly={toggleShowFavoritesOnly}
+          onEventSelect={handleEventSelect}
+        />
+      )}
 
       <MobileHeader 
-        title={selectedEvent.name}
-        endTime={selectedEvent.endTime}
+        title={activeEvent.name}
+        endTime={endTimeOverride ?? activeEvent.endTime}
+        countdownLabel={countdownLabel}
+        countdownUrgency={countdownUrgency}
+        statsExtra={statsExtra}
+        titleBadge={
+          isSpot ? (
+            <Badge variant="outline" className="text-[9px] flex-shrink-0">SPOT</Badge>
+          ) : undefined
+        }
         showBack={true}
         backTo={backTo}
         showLogo={false} // Trade pages don't show logo per design spec
-        tweetCount={selectedEvent.tweetCount}
-        currentPrice={selectedEvent.currentPrice}
-        priceChange24h={selectedEvent.priceChange24h}
-        priceLabel={selectedEvent.priceLabel}
-        sourceUrl={selectedEvent.sourceUrl}
-        sourceName={selectedEvent.sourceName}
-        period={selectedEvent.period}
-        onTitleClick={() => setEventSheetOpen(true)}
+        tweetCount={isSpot ? undefined : activeEvent.tweetCount}
+        currentPrice={isSpot ? undefined : activeEvent.currentPrice}
+        priceChange24h={isSpot ? undefined : activeEvent.priceChange24h}
+        priceLabel={isSpot ? undefined : activeEvent.priceLabel}
+        sourceUrl={activeEvent.sourceUrl}
+        sourceName={activeEvent.sourceName}
+        period={activeEvent.period}
+        onTitleClick={isSpot ? undefined : () => setEventSheetOpen(true)}
         rightContent={
-          <div className="flex items-center gap-1 -mr-2">
-            <MobileHeaderIconButton
-              aria-label="Favorite"
-              onClick={() => toggleFavorite(selectedEvent.id)}
-            >
-              <Star
-                className={`w-5 h-5 ${favorites.has(selectedEvent.id) ? "text-trading-yellow fill-trading-yellow" : ""}`}
-                strokeWidth={1.5}
-              />
-            </MobileHeaderIconButton>
-            <MobileHeaderIconButton
-              aria-label="Share"
-              onClick={() => {
-                navigator.clipboard?.writeText(window.location.href);
-              }}
-            >
-              <Share2 className="w-5 h-5" strokeWidth={1.5} />
-            </MobileHeaderIconButton>
-          </div>
+          headerRight ?? (
+            <div className="flex items-center gap-1 -mr-2">
+              <MobileHeaderIconButton
+                aria-label="Favorite"
+                onClick={() => toggleFavorite(activeEvent.id)}
+              >
+                <Star
+                  className={`w-5 h-5 ${favorites.has(activeEvent.id) ? "text-trading-yellow fill-trading-yellow" : ""}`}
+                  strokeWidth={1.5}
+                />
+              </MobileHeaderIconButton>
+              <MobileHeaderIconButton
+                aria-label="Share"
+                onClick={() => {
+                  navigator.clipboard?.writeText(window.location.href);
+                }}
+              >
+                <Share2 className="w-5 h-5" strokeWidth={1.5} />
+              </MobileHeaderIconButton>
+            </div>
+          )
         }
       />
 
       {/* Option Chips — 单 market binary 不渲染（对阵信息已在标题+Yes/No 切换器表达）；多 outcome 才显示横排选择 */}
-      {!isSingleMarketBinary(options) && (
+      {!isSpot && !isSingleMarketBinary(options) && (
         <OptionChips
           options={options}
           selectedId={selectedOption}
@@ -249,13 +261,14 @@ export function MobileTradingLayout({
                 <SheetTitle>Event Info</SheetTitle>
               </SheetHeader>
               <div className="px-1 pb-4">
-                <EventInfoContent event={selectedEvent} />
+                {eventInfo ?? <EventInfoContent event={activeEvent} />}
               </div>
             </SheetContent>
           </Sheet>
-          {user && <MobileRiskIndicator />}
+          {!isSpot && user && <MobileRiskIndicator />}
         </div>
       </div>
+
 
       {/* Render children with context */}
       {typeof children === "function" 
