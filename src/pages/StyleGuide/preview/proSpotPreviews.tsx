@@ -36,7 +36,7 @@ type Fixture = {
   bare?: boolean;
   /** Slider position that matches `amount` (fixtures must not disagree). */
   sliderPct?: number;
-  /** SP-2-FIX2: stacked CTA, as the mobile /spot/order page renders it. */
+  /** Explicit CTA layout for desktop-only fixtures; bare mode measures itself. */
   ctaLayout?: "row" | "stacked";
 };
 
@@ -70,6 +70,7 @@ const PanelFixture = (f: Fixture) => {
   return (
     <Shell>
       <ProSpotPanel
+        chrome={f.bare ? "bare" : "card"}
         side={side}
         onSideChange={(s) => {
           setSide(s);
@@ -370,7 +371,7 @@ const OrderBodyFixture = (f: Fixture) => (
   <Phone>
     <div className="flex">
       <div className="flex-1 min-w-0">
-        <PanelFixture {...f} bare ctaLayout="stacked" />
+        <PanelFixture {...f} bare />
       </div>
       <SpotMiniOrderBook asks={BOOK_ASKS} bids={BOOK_BIDS} price={0.4649} />
     </div>

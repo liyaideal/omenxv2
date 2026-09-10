@@ -1095,6 +1095,10 @@ interface HomeEquityHeroProps {
 - **Build a spot page as a "simplified" generic layout.** `/spot` = `/trade` minus the perp-only surfaces. Removed on spot: Margin Mode, Leverage, TP/SL, Funding Rate, Next Funding, Open Interest, Index Price, Liq. price, Margin req. Everything else (chart, order book, recent trades, Y/N ratio, positions/orders tabs, Account panel) is reused. Never re-implement a spot page from a bare `<main>` template.
 - **Spot terminal header information architecture is LOCKED (final spec).** Layout: **left** = back arrow + ticker badge + event name + `SPOT` badge + lifecycle badge, followed by a **single** countdown row `● Trading ends in {countdown} · until {HH:MM} ET` with a trailing ⓘ that reveals the full schedule (Opens / Trading ends / Official close / Credits by / Your time). **Right** = exactly three stats: `Volume`, `Base ({priorDate} close)`, `{TICKER} $price ±% [· pre-mkt|after-hrs]`. Don'ts: never add a second time row under the countdown (no "Settles at HH:MM ET · credits by …" strip — that info lives in Event Info and the order-confirmation summary); never surface the Yes-price outcome in header stats (Trade panel + chart already own it); never render non-English characters in the header (no `北京` chip, no Beijing timezone label — the user's local time appears only inside the ⓘ tooltip and is auto-detected from the browser); never label volume `24h Volume` (event lifecycle is intraday — just `Volume`).
 
+### Mobile Pro spot order parity (SP-2-FIX5 · LOCKED)
+
+Mobile `/spot/order` = mobile `TradeOrder` minus perp-only fields (LVG, TP/SL, Notional/Margin, Vol/OI strip). It uses the same page-grown chrome, horizontal padding, type scale, 120px inline book, tabs, and compact auth gate. The spot form must render with `ProSpotPanel chrome="bare"`: no inner card, no `Trade SPOT` heading, no grey summary box, and zero extra layout containers. Desktop `/spot` keeps `chrome="card"` unchanged.
+
 
 ---
 
@@ -1863,7 +1867,7 @@ Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① 
 
 1. **骨架**：`MobileTradingLayout` 新增 `basePath`（`/trade` | `/spot`）与 `variant`（`perp` | `spot`）。`variant="spot"` 隐藏 `OptionChips` 与 `MobileRiskIndicator`、隐藏事件切换 sheet，并在标题后加一枚 `SPOT` outline 徽章；页头单条倒计时行文案为 `Trading ends in`，三档紧急度配色同桌面。合约页保持默认值，`/trade`、`/trade/order` 逐像素不变。
 2. **统计区例外**：移动现货用**一条 32px strip**（`rounded-md border border-border/40 bg-card`，1px 竖分隔），左 `BASE $x`、右 `TICKER $x ±x.xx% · 时段`，覆盖 perp 的 grid-cols-2 双卡写法。
-3. **两页动线**：`/spot` = Charts 视图（strip → mark 行 → `CandlestickChart h-[280px]` → Order Book / Trades / Orders / Positions），`/spot/order` = 下单子页（桌面同一个 `ProSpotPanel` + 120px 迷你盘口 + Orders/Positions）。
+3. **两页动线**：`/spot` = Charts 视图（strip → mark 行 → 与 `/trade` 同高的 `CandlestickChart` → Order Book / Trades history / Orders / Positions），`/spot/order` = 下单子页（`ProSpotPanel chrome="bare"` + 120px、10+10 档盘口 + Orders/Positions）。
 4. **切换控件**：`SurfaceSwitch size="dock"` 只作为 `/spot` sticky dock 的第一个子元素；页头里没有、`/spot/order` 上没有。
 5. **底部 dock**：`fixed bottom-0 z-50` + 安全区内距，页面 `pb-28`；两段式点按（第一次选边，第二次跳 `/spot/order`）；封锁时两个按钮禁用显示 `Market frozen`。
 6. **生命周期**：新增 `freeze_expired_events()` + 每 5 分钟 `freeze-sweep` cron，过了 `freeze_time`（无则 `end_date`）的未结算事件自动进 `FROZEN`，不再挂着 `EXTENDED_TRADING` 显示 `00:00:00`。
@@ -1874,7 +1878,7 @@ Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① 
 
 - **统计 strip**：左格为 `BASE` `$577.18` + 时段徽标（`PRE` / `AH`，常规时段不渲染；`rounded px-1 border border-border/60 text-[9px] font-semibold tracking-wide text-muted-foreground`）；右格为 `META` `$57,907.84` `+0.33%`。不再出现 `· pre-mkt` 散文。`ResizeObserver` 读取 strip 自身宽度，`+0.33%` 仅在达到 340px 时显示；价格与徽标永远保留，根节点以 `overflow-hidden` 作末级防护但不得依赖裁切。strip 仍为 `h-8`。
 - **移动页头标题**：日内涨跌盘走短名 `${TICKER} · Up or down?`（`spotMobileTitle`），完整事件名在 Event info 抽屉里。桌面页头 LOCKED，不动。
-- **`/spot/order` CTA**：`TradeSubmitButton` 新增 `layout="stacked"`（默认 `"row"`，合约 Pro 逐像素不变）。stacked = `h-12`，第一行 `Sell Down`（14px semibold），第二行 `You receive $1,073.14 →`（11px，`opacity-85`），两行 `whitespace-nowrap`。金额带千分位。
-- **`/spot/order` 排布**：迷你盘口 `w-[104px]`，面板 `flex-1 min-w-0`；滑点 `grid grid-cols-4 gap-1` + `text-[10px]`；摘要区 `text-[11px]`。
+- **`/spot/order` CTA**：默认与合约页一致使用 `TradeSubmitButton size="sm" layout="row"`；生产面板按自身可用宽度测量，只有 label + readout 确实放不下时自动切 `stacked`。金额带千分位。
+- **`/spot/order` 排布**：迷你盘口 `w-[120px]`、10 asks + mid + 10 bids + `Depth 0.1`；面板 `flex-1 min-w-0`；滑点收成单行 dropdown；摘要为无底色 kv rows。
 - **Held 行**：左 `Held`，右 `2,034.879 sh · Down`（mono），无前导点。
 - **移动持仓 / 挂单卡**：事件名 `line-clamp-2` 换行，不用省略号。

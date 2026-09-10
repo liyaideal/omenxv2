@@ -174,4 +174,12 @@ Spot 节原先手抄的终端顶栏已换成生产件 `ProSpotHeader`，CTA 例�
 - 移动持仓 / 挂单表事件名改 `line-clamp-2`。
 - 字典：新增 `pro-spot-mobile-charts-360`（SP-M1b）；`pro-spot-mobile-charts` 改用长名 `Meta (META) — will close higher today?`；sell-held fixture 滑块与数量对齐 100%。
 
+### SP-2-FIX5 (2026-09-10) — `/spot/order` 对齐 `/trade/order`
+
+- 移动 `/spot/order` 使用 `ProSpotPanel chrome="bare"`：移除内层卡片、边框、背景与 `Trade SPOT` 标题；桌面 `/spot` 默认 `chrome="card"`，逐像素不变。
+- 表单采用 `TradeForm` 的 `px-3 pb-2 space-y-2`、label/value 字级与 active dot；Market 滑点收为右侧小 dropdown。
+- Buy 摘要为 Cost / Fee (0.15%) / Total / To win；Sell 为 Proceeds / Est. commission / You receive。摘要无灰底，删除重复 Standard Account 提示，结算时间紧贴 CTA 上方。
+- CTA 默认 row，只有容器实测放不下时自动 stacked；盘口恢复 120px，填满 10+10 档并带 mid 与 `Depth 0.1`。
+- Orders / Positions tabs 与 compact 登录门对齐合约页；移动 Charts 的图表高度、页签文字/间距、底部留白与 `/trade` 对齐，32px spot stats strip 是唯一刻意差异。
+
 验证：360 / 375 / 390 三档 × `$579.08` / `$57,907.84` 两种价格，文本节点均无 `scrollWidth > clientWidth`，右格末项均未越过 cell 右边界；360 字典 fixture 固定展示 `$57,907.84` + 左格 `PRE`。

@@ -150,7 +150,7 @@ const MOBILE_CASES: SectionCase[] = [
       {
         state: "Charts 默认",
         when: "isMobile && surface === pro && !blocked",
-        visual: "32px strip（BASE / 标的价 + 涨跌 + 时段）→ mark 行 → 图表 → dock（Lite/Pro + Buy Up / Buy Down）",
+        visual: "32px strip（BASE / 标的价 + 涨跌 + 时段）→ 与 /trade 同 class 的 price/mark block → 450px 图表 → dock（Lite/Pro + Buy Up / Buy Down）",
         source: "SpotMobileStatsStrip / SpotMobileMarkLine / ProSpotMobileDock",
       },
     ],
@@ -183,12 +183,12 @@ const MOBILE_CASES: SectionCase[] = [
   {
     key: "pro-spot-mobile-order-buy",
     label: "SP-M3 · /spot/order · Buy",
-    note: "下单子页复用桌面同一个 ProSpotPanel，375px 不横向溢出；此页永不出现 Lite/Pro 切换。",
+    note: "SP-2-FIX5：下单子页挂生产 ProSpotPanel chrome=\"bare\"，零额外卡片与标题；表单直接长在页面上，右侧为完整 120px / 10+10 档盘口。此页永不出现 Lite/Pro 切换。",
     spec: [
       {
         state: "Buy · Market",
         when: 'activeTab === "Trade" && side === "buy"',
-        visual: "左 flex-1 面板 + 右 120px 迷你盘口，下方 Orders | Positions",
+        visual: "左侧无卡片外壳表单 + 右 120px 迷你盘口（10 asks / mid / 10 bids / Depth 0.1）；摘要为 plain kv rows",
         source: "SpotTradePanel（ProSpotPanel）",
       },
     ],
@@ -196,11 +196,12 @@ const MOBILE_CASES: SectionCase[] = [
   {
     key: "pro-spot-mobile-order-sell-held",
     label: "SP-M4 · /spot/order · Sell（持有 Down）",
+    note: "SP-2-FIX5：与 Buy 共用 bare chrome；CTA 默认 row，只在真实测量放不下时自动 stacked。",
     spec: [
       {
         state: "Sell 全平",
         when: 'side === "sell" && heldNoQty > 0',
-        visual: "Up tile 禁用 `0 sh`；数量走 FIX4 精确吸附",
+        visual: "Up tile 禁用 `0 sh`；数量走 FIX4 精确吸附；Proceeds / Est. commission / You receive 为无底色 kv rows",
         source: "useSpotTerminal orderQty",
       },
     ],

@@ -29,12 +29,15 @@ const num = (v: string) => Number(String(v).replace(/[^0-9.-]/g, "")) || 0;
 export const SpotTradePanel = ({
   t,
   ctaLayout,
+  chrome,
 }: {
   t: SpotTerminal;
   /** SP-2-FIX2: mobile `/spot/order` stacks the CTA. Desktop stays `row`. */
   ctaLayout?: "row" | "stacked";
+  chrome?: "card" | "bare";
 }) => (
   <ProSpotPanel
+    chrome={chrome}
     ctaLayout={ctaLayout}
     side={t.side}
     onSideChange={t.onSideChange}
@@ -458,7 +461,7 @@ export const SpotBottomTabs = ({
 // SP-2 · mobile helpers
 // -----------------------------------------------------------------
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Info, Star, Share2 } from "lucide-react";
+import { ChevronDown, Info, Star, Share2 } from "lucide-react";
 import { MobileHeaderIconButton } from "@/components/MobileHeader";
 
 /** Adapter: the raw spot event row → the shared `TradingEvent` header shape. */
@@ -597,13 +600,25 @@ export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => {
 
 /** Mark line above the mobile chart. */
 export const SpotMobileMarkLine = ({ t }: { t: SpotTerminal }) => (
-  <div className="flex items-baseline gap-2 px-3 pb-2">
-    <span className="text-2xl font-bold font-mono">{t.outcomePrice.toFixed(4)}</span>
-    <span className="text-[11px] text-muted-foreground">{t.outcomeLabel} · mark</span>
+  <div className="flex items-center justify-between px-4 py-1.5 border-b border-border/20">
+    <div>
+      <div className="flex items-baseline gap-2">
+        <span className="text-3xl font-bold font-mono tracking-tight">{t.outcomePrice.toFixed(4)}</span>
+      </div>
+      <div className="text-xs text-muted-foreground font-mono mt-0.5 flex items-center gap-1.5">
+        <span>Mark price {t.outcomePrice.toFixed(4)}</span>
+        <span className={cn(
+          "px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide",
+          t.isYesSelected ? "bg-yes/15 text-yes" : "bg-no/15 text-no",
+        )}>
+          {t.outcomeLabel}
+        </span>
+      </div>
+    </div>
   </div>
 );
 
-/** SP-2-FIX2 · 104px mini order book rendered beside the mobile panel. */
+/** SP-2-FIX5 · contract-parity 120px inline order book. */
 export const SpotMiniOrderBook = ({
   asks,
   bids,
@@ -612,8 +627,21 @@ export const SpotMiniOrderBook = ({
   asks: { price: string; amount: string }[];
   bids: { price: string; amount: string }[];
   price: number;
-}) => (
-  <div className="w-[104px] flex-shrink-0 border-l border-border/30">
+}) => {
+  const fillLevels = (rows: { price: string; amount: string }[], direction: 1 | -1) => {
+    if (rows.length >= 10) return rows.slice(0, 10);
+    const filled = [...rows];
+    const fallback = rows[rows.length - 1] ?? { price: price.toFixed(4), amount: "0" };
+    while (filled.length < 10) {
+      const nextPrice = Math.min(0.9999, Math.max(0.0001, Number(fallback.price) + direction * 0.01 * (filled.length - rows.length + 1)));
+      filled.push({ price: nextPrice.toFixed(4), amount: fallback.amount });
+    }
+    return filled;
+  };
+  const displayAsks = fillLevels(asks, 1);
+  const displayBids = fillLevels(bids, -1);
+  return (
+  <div className="w-[120px] flex-shrink-0 border-l border-border/30">
     <div className="px-1.5 py-1.5">
       <div className="grid grid-cols-2 text-[9px] text-muted-foreground mb-1">
         <span>Price</span>
@@ -621,7 +649,7 @@ export const SpotMiniOrderBook = ({
       </div>
     </div>
     <div className="overflow-y-auto scrollbar-hide">
-      {asks.slice(0, 8).map((ask, index) => (
+      {displayAsks.map((ask, index) => (
         <div key={`ask-${index}`} className="flex justify-between px-1.5 py-0.5 text-[10px]">
           <span className="price-red">{ask.price}</span>
           <span className="text-muted-foreground font-mono">{ask.amount}</span>
@@ -632,12 +660,20 @@ export const SpotMiniOrderBook = ({
       <span className="text-sm font-bold font-mono">{price.toFixed(4)}</span>
     </div>
     <div className="overflow-y-auto scrollbar-hide">
-      {bids.slice(0, 8).map((bid, index) => (
+      {displayBids.map((bid, index) => (
         <div key={`bid-${index}`} className="flex justify-between px-1.5 py-0.5 text-[10px]">
           <span className="price-green">{bid.price}</span>
           <span className="text-muted-foreground font-mono">{bid.amount}</span>
         </div>
       ))}
     </div>
+    <div className="flex items-center justify-between px-1.5 py-1.5 border-t border-border/30 mt-1">
+      <span className="text-[9px] text-muted-foreground">Depth</span>
+      <button type="button" className="flex items-center gap-0.5 text-[10px]">
+        0.1
+        <ChevronDown className="w-2.5 h-2.5" />
+      </button>
+    </div>
   </div>
-);
+  );
+};
