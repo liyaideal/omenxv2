@@ -270,7 +270,7 @@ export const ProBottomTabsGuest = () => (
 
 /** SP-J · Thin spot book: three real levels plus fixed blank slots per side. */
 export const ProSpotBookThin = () => (
-  <div className="h-[560px] w-[280px]">
+  <div style={{ height: 560, width: 280 }}>
     <DesktopOrderBook
       variant="spot"
       quoteMode="CONSERVATIVE"
