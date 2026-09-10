@@ -20,6 +20,8 @@ import {
   SpotPositionsTable,
   SpotOrdersTable,
   SpotMobileStatsStrip,
+  SpotMobileMarkLine,
+
   SpotScheduleInfo,
   spotHeaderEvent,
 } from "@/components/pro/ProSpotShared";
