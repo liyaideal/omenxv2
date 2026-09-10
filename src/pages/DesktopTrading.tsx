@@ -57,7 +57,9 @@ import { useEventSideLabelsLookup, resolveBinarySideLabel } from "@/hooks/useEve
 
 
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { executeTrade, FUTURES_FEE_RATE, netWin } from "@/services/tradingService";
+import { executeTrade, FUTURES_FEE_RATE, netWin, cashBackOnClose } from "@/services/tradingService";
+import { supabase } from "@/integrations/supabase/client";
+import { OrderTypeDropdown } from "@/components/pro/OrderTypeDropdown";
 import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { AccountRiskIndicator } from "@/components/AccountRiskIndicator";
