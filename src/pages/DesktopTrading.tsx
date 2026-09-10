@@ -1740,7 +1740,7 @@ export default function DesktopTrading() {
     >
 
       {/* Order Preview Dialog */}
-      <Dialog open={orderPreviewOpen} onOpenChange={setOrderPreviewOpen}>
+      <Dialog open={orderPreviewOpen && intent === "buy"} onOpenChange={setOrderPreviewOpen}>
         <DialogContent className="sm:max-w-2xl gap-4 p-5">
           <DialogHeader>
             <DialogTitle>Order Preview</DialogTitle>
@@ -1840,7 +1840,63 @@ export default function DesktopTrading() {
         </DialogContent>
       </Dialog>
 
-      
+      {/* CT-1 · Reduce-only Sell preview */}
+      <Dialog open={orderPreviewOpen && intent === "sell"} onOpenChange={setOrderPreviewOpen}>
+        <DialogContent className="sm:max-w-md gap-4 p-5">
+          <DialogHeader>
+            <DialogTitle className="text-base">Order preview</DialogTitle>
+            <DialogDescription className="text-xs">{selectedEvent?.name}</DialogDescription>
+          </DialogHeader>
+          <div className="rounded-lg border border-border/50 bg-muted/20 p-3 space-y-2 text-xs">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-muted-foreground">Outcome</span>
+              <span className="text-foreground text-right">{sellOutcomeLabel}</span>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-muted-foreground">Type</span>
+              <span className="text-foreground text-right">{orderType} · Reduce-only</span>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-muted-foreground">Close price (mark)</span>
+              <span className="font-mono text-foreground text-right">{sellClosePrice.toFixed(4)} USDC</span>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-muted-foreground">Contracts</span>
+              <span className="font-mono text-foreground text-right">{sellQty.toLocaleString()} ct</span>
+            </div>
+          </div>
+          <div className="rounded-lg border border-border/50 bg-background p-3 space-y-2 text-xs">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-muted-foreground">Released margin</span>
+              <span className="font-mono text-foreground text-right">{sellReleasedMargin.toFixed(2)} USDC</span>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-muted-foreground">Realized PnL est.</span>
+              <span className={`font-mono text-right ${sellRealizedPnl >= 0 ? "text-trading-green" : "text-trading-red"}`}>
+                {sellRealizedPnl >= 0 ? "+" : "-"}{Math.abs(sellRealizedPnl).toFixed(2)} USDC
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-muted-foreground">Est. commission</span>
+              <span className="font-mono text-foreground text-right">{sellCommission.toFixed(2)} USDC</span>
+            </div>
+            <div className="flex items-center justify-between gap-3 pt-2 border-t border-border/30 font-medium">
+              <span className="text-foreground">You receive</span>
+              <span className="font-mono text-foreground text-right">{sellCashBack.toFixed(2)} USDC</span>
+            </div>
+          </div>
+          <TradeSubmitButton
+            side="sell"
+            label={sellCtaLabel}
+            winPrefix="You receive"
+            potentialWin={sellCashBack.toFixed(2)}
+            onClick={handleConfirmSell}
+            loading={isSubmittingOrder}
+            size="lg"
+          />
+        </DialogContent>
+      </Dialog>
+
       {/* Position TP/SL Edit Dialog */}
       <Dialog open={positionTpSlOpen} onOpenChange={setPositionTpSlOpen}>
         <DialogContent className="max-w-sm bg-card border-border">
