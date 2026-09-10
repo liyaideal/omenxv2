@@ -23,6 +23,12 @@ interface TradeSubmitButtonProps {
    * "You receive". Purely a label — no layout change.
    */
   winPrefix?: string;
+  /**
+   * SP-2-FIX2: `"row"` (default, contract Pro unchanged) keeps label and
+   * readout on one line. `"stacked"` puts the readout on a second line so
+   * neither string can ever be truncated at 360 px.
+   */
+  layout?: "row" | "stacked";
 }
 
 /**
@@ -42,10 +48,13 @@ export const TradeSubmitButton = ({
   className,
   positionSide,
   winPrefix = "To win",
+  layout = "row",
 }: TradeSubmitButtonProps) => {
   const isBuy = side === "buy";
-  const sizeClasses =
-    size === "sm" ? "py-2 px-3" : size === "lg" ? "py-3.5 px-4" : "py-2.5 px-4";
+  const stacked = layout === "stacked";
+  const sizeClasses = stacked
+    ? "h-12 px-3"
+    : size === "sm" ? "py-2 px-3" : size === "lg" ? "py-3.5 px-4" : "py-2.5 px-4";
   const labelClass =
     size === "sm" ? "text-[13px]" : "text-sm";
   const winClass =
@@ -84,6 +93,14 @@ export const TradeSubmitButton = ({
         <span className="flex items-center justify-center gap-2">
           <Loader2 className="w-4 h-4 animate-spin" />
           <span className={labelClass}>{loadingText}</span>
+        </span>
+      ) : stacked ? (
+        <span className="flex flex-col items-start justify-center leading-tight">
+          <span className="text-sm font-semibold whitespace-nowrap">{label}</span>
+          <span className="flex items-center gap-1 text-[11px] font-mono opacity-85 whitespace-nowrap">
+            {winPrefix} <span className="font-semibold">${win}</span>
+            <ArrowRight className="w-3 h-3" />
+          </span>
         </span>
       ) : (
         <span className="flex items-center justify-between gap-3">

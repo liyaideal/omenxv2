@@ -294,6 +294,7 @@ export const previewRegistry: Record<string, Loader> = {
 
   /* -------- Pro /spot mobile（SP-2）-------- */
   "pro-spot-mobile-charts": pick(proSpot, "ProSpotMobileCharts"),
+  "pro-spot-mobile-charts-360": pick(proSpot, "ProSpotMobileCharts360"),
   "pro-spot-mobile-charts-frozen": pick(proSpot, "ProSpotMobileChartsFrozen"),
   "pro-spot-mobile-order-buy": pick(proSpot, "ProSpotMobileOrderBuy"),
   "pro-spot-mobile-order-sell-held": pick(proSpot, "ProSpotMobileOrderSellHeld"),

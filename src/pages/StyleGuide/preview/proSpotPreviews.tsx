@@ -34,6 +34,10 @@ type Fixture = {
   startIsYes?: boolean;
   /** Drop the 280px desktop rail — the mobile /spot/order body owns the width. */
   bare?: boolean;
+  /** Slider position that matches `amount` (fixtures must not disagree). */
+  sliderPct?: number;
+  /** SP-2-FIX2: stacked CTA, as the mobile /spot/order page renders it. */
+  ctaLayout?: "row" | "stacked";
 };
 
 /** One live panel driven by local state — the same props the page passes. */
@@ -42,7 +46,7 @@ const PanelFixture = (f: Fixture) => {
   const [orderType, setOrderType] = useState<ProOrderType>(f.orderType ?? "Market");
   const [amount, setAmount] = useState(f.amount ?? "25.00");
   const [limitPrice, setLimitPrice] = useState("0.4400");
-  const [slider, setSlider] = useState<number[]>([25]);
+  const [slider, setSlider] = useState<number[]>([f.sliderPct ?? 25]);
   const [slippage, setSlippage] = useState(50);
   const [isYes, setIsYes] = useState(f.startIsYes ?? true);
 
@@ -108,6 +112,7 @@ const PanelFixture = (f: Fixture) => {
         ctaLabel={f.ctaLabel ?? `${side === "sell" ? "Sell" : "Buy"} ${isYes ? "Up" : "Down"}`}
         ctaDisabled={f.ctaDisabled ?? false}
         submitting={false}
+        ctaLayout={f.ctaLayout}
         onSubmit={() => undefined}
       />
     </Shell>
@@ -246,7 +251,7 @@ const spotFixture = (over: Partial<SpotTerminal> = {}) =>
   ({
     event: {
       id: "us-meta-updown-20260909",
-      name: "Meta — up or down?",
+      name: "Meta (META) — will close higher today?",
       base_price: 577.1755,
       description: "US-stock daily up/down (spot).",
       source_name: "databento",
@@ -274,15 +279,15 @@ const spotFixture = (over: Partial<SpotTerminal> = {}) =>
     ...over,
   }) as unknown as SpotTerminal;
 
-const Phone = ({ children }: { children: React.ReactNode }) => (
-  <div style={{ width: 375 }}>{children}</div>
+const Phone = ({ children, width = 375 }: { children: React.ReactNode; width?: number }) => (
+  <div style={{ width }}>{children}</div>
 );
 
 /** SP-2 · mobile Charts view — stats strip + mark line + sticky dock. */
-export const ProSpotMobileCharts = () => {
+const MobileChartsFrame = ({ width }: { width?: number }) => {
   const t = spotFixture();
   return (
-    <Phone>
+    <Phone width={width}>
       <SpotMobileStatsStrip t={t} />
       <SpotMobileMarkLine t={t} />
       <div style={{ height: 280 }}>
@@ -304,6 +309,12 @@ export const ProSpotMobileCharts = () => {
     </Phone>
   );
 };
+
+/** SP-2 · mobile Charts view — stats strip + mark line + sticky dock (375 px). */
+export const ProSpotMobileCharts = () => <MobileChartsFrame />;
+
+/** SP-2-FIX2 · the same frame at 360 px — nothing may truncate at this width. */
+export const ProSpotMobileCharts360 = () => <MobileChartsFrame width={360} />;
 
 /** SP-2 · mobile Charts view, market frozen — both dock buttons disabled. */
 export const ProSpotMobileChartsFrozen = () => {
@@ -357,7 +368,7 @@ const OrderBodyFixture = (f: Fixture) => (
   <Phone>
     <div className="flex">
       <div className="flex-1 min-w-0">
-        <PanelFixture {...f} bare />
+        <PanelFixture {...f} bare ctaLayout="stacked" />
       </div>
       <SpotMiniOrderBook asks={BOOK_ASKS} bids={BOOK_BIDS} price={0.4649} />
     </div>
@@ -369,7 +380,13 @@ export const ProSpotMobileOrderBuy = () => <OrderBodyFixture />;
 
 /** SP-2 · /spot/order — Sell tab with a Down-only holding. */
 export const ProSpotMobileOrderSellHeld = () => (
-  <OrderBodyFixture side="sell" heldNoQty={2034.879} startIsYes={false} amount="2034.879" />
+  <OrderBodyFixture
+    side="sell"
+    heldNoQty={2034.879}
+    startIsYes={false}
+    amount="2034.879"
+    sliderPct={100}
+  />
 );
 
 /** SP-2 · the sticky dock alone: default / side selected / frozen. */

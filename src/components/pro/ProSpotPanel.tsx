@@ -73,6 +73,8 @@ export interface ProSpotPanelProps {
   ctaDisabled: boolean;
   submitting: boolean;
   onSubmit: () => void;
+  /** SP-2-FIX2: mobile `/spot/order` stacks the CTA so nothing truncates. */
+  ctaLayout?: "row" | "stacked";
 }
 
 /**
@@ -85,6 +87,10 @@ export const formatShares = (n: number) =>
 
 /** Same value, but as a raw input string (no thousands separators). */
 export const sharesInputValue = (n: number) => String(Math.round(n * 1000) / 1000);
+
+/** SP-2-FIX2: money with thousands separators, always 2 dp (`1,073.14`). */
+const money2 = (n: number) =>
+  n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const Row = ({ label, children }: { label: React.ReactNode; children: React.ReactNode }) => (
   <div className="flex justify-between">
@@ -157,7 +163,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
         {isSell && (
           <div className="flex items-center justify-between text-[11px]">
             <span className="text-muted-foreground">Held</span>
-            <span className="font-mono">· {formatShares(p.heldQty)} sh {p.outcomeLabel}</span>
+            <span className="font-mono">{formatShares(p.heldQty)} sh · {p.outcomeLabel}</span>
           </div>
         )}
 
@@ -233,13 +239,13 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
               </span>
               <span className="text-xs font-mono">{(p.slippageBps / 100).toFixed(2)}%</span>
             </div>
-            <div className="flex gap-1.5">
+            <div className="grid grid-cols-4 gap-1">
               {[10, 25, 50, 100].map((bps) => (
                 <button
                   key={bps}
                   onClick={() => p.onSlippageChange(bps)}
                   className={cn(
-                    "flex-1 py-1 text-[11px] rounded transition-colors",
+                    "py-1 text-[10px] rounded transition-colors whitespace-nowrap",
                     p.slippageBps === bps
                       ? "bg-foreground text-background font-semibold"
                       : "border border-border/60 text-muted-foreground hover:text-foreground",
@@ -253,7 +259,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
         )}
 
         {/* Summary */}
-        <div className="rounded-md bg-muted/30 p-2.5 text-xs font-mono space-y-1">
+        <div className="rounded-md bg-muted/30 p-2.5 text-[11px] font-mono space-y-1">
           {isSell ? (
             <>
               <Row label="Proceeds">${p.cost.toFixed(2)}</Row>
@@ -322,8 +328,9 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
         <TradeSubmitButton
           side={p.side}
           label={p.ctaLabel}
-          potentialWin={(isSell ? p.sellReceive : p.maxWin).toFixed(2)}
+          potentialWin={money2(isSell ? p.sellReceive : p.maxWin)}
           winPrefix={isSell ? "You receive" : "To win"}
+          layout={p.ctaLayout}
           onClick={p.onSubmit}
           disabled={p.ctaDisabled}
           loading={p.submitting}

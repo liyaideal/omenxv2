@@ -1867,3 +1867,14 @@ Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① 
 4. **切换控件**：`SurfaceSwitch size="dock"` 只作为 `/spot` sticky dock 的第一个子元素；页头里没有、`/spot/order` 上没有。
 5. **底部 dock**：`fixed bottom-0 z-50` + 安全区内距，页面 `pb-28`；两段式点按（第一次选边，第二次跳 `/spot/order`）；封锁时两个按钮禁用显示 `Market frozen`。
 6. **生命周期**：新增 `freeze_expired_events()` + 每 5 分钟 `freeze-sweep` cron，过了 `freeze_time`（无则 `end_date`）的未结算事件自动进 `FROZEN`，不再挂着 `EXTENDED_TRADING` 显示 `00:00:00`。
+
+## §Addendum 2026-09-10 · SP-2-FIX2 · 移动现货零截断（append-only，补 §14）
+
+**硬规矩**：`/spot` 与 `/spot/order` 移动端，**除页头标题外，任何用户可见文字都不得以省略号截断**。元素必须按 360px 排得下；排不下就改设计（换短词、收成徽标、换第二行），**绝不加 `truncate`**。
+
+- **统计 strip**：右格为 `META` `$579.08` `+0.33%` + 时段徽标（`PRE` / `AH`，常规时段不渲染；`rounded px-1 border border-border/60 text-[9px] font-semibold tracking-wide text-muted-foreground`）。不再出现 `· pre-mkt` 散文。360px 排不下时**先丢 `+0.33%`**，价格与徽标永远保留。strip 仍为 `h-8`。
+- **移动页头标题**：日内涨跌盘走短名 `${TICKER} · Up or down?`（`spotMobileTitle`），完整事件名在 Event info 抽屉里。桌面页头 LOCKED，不动。
+- **`/spot/order` CTA**：`TradeSubmitButton` 新增 `layout="stacked"`（默认 `"row"`，合约 Pro 逐像素不变）。stacked = `h-12`，第一行 `Sell Down`（14px semibold），第二行 `You receive $1,073.14 →`（11px，`opacity-85`），两行 `whitespace-nowrap`。金额带千分位。
+- **`/spot/order` 排布**：迷你盘口 `w-[104px]`，面板 `flex-1 min-w-0`；滑点 `grid grid-cols-4 gap-1` + `text-[10px]`；摘要区 `text-[11px]`。
+- **Held 行**：左 `Held`，右 `2,034.879 sh · Down`（mono），无前导点。
+- **移动持仓 / 挂单卡**：事件名 `line-clamp-2` 换行，不用省略号。

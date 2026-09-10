@@ -162,3 +162,16 @@ Spot 节原先手抄的终端顶栏已换成生产件 `ProSpotHeader`，CTA 例�
 **字典**：新增 `pro-spot-mobile-charts`、`pro-spot-mobile-charts-frozen`、`pro-spot-mobile-order-buy`、`pro-spot-mobile-order-sell-held`、`pro-spot-mobile-dock`，全部挂生产件本体，375 DeviceFrame，登出可渲染。
 
 **不在范围**：桌面面板 / 顶栏视觉、`DesktopTrading`、Lite 各页、`tradingService` 费率逻辑。
+
+### SP-2-FIX2 (2026-09-10) — 移动现货零截断
+
+产品负责人：「整体各种截断实在有点丑」。本轮把 360 / 375 / 390 三档下的省略号全部消灭，规则写进 DESIGN §Addendum SP-2-FIX2。
+
+- `SpotMobileStatsStrip`：`· pre-mkt` 散文 → `PRE` / `AH` 9px 徽标；strip 内无任何 `truncate`；360px 优先丢 `+0.33%`，价格永不丢。
+- `spotMobileTitle(t)`（`ProSpotShared.tsx`）：日内涨跌盘移动页头显示 `META · Up or down?`；完整名留在 Event info。桌面页头未动。
+- `TradeSubmitButton` 新增 `layout`（默认 `"row"`）；`ProSpotPanel` / `SpotTradePanel` 新增 `ctaLayout`，只有 `/spot/order` 传 `"stacked"`。金额走千分位。
+- 面板细项：迷你盘口 `w-[104px]`、滑点四格 grid `text-[10px]`、摘要 `text-[11px]`、Held 行改为 `2,034.879 sh · Down`。
+- 移动持仓 / 挂单表事件名改 `line-clamp-2`。
+- 字典：新增 `pro-spot-mobile-charts-360`（SP-M1b）；`pro-spot-mobile-charts` 改用长名 `Meta (META) — will close higher today?`；sell-held fixture 滑块与数量对齐 100%。
+
+验证：360 / 375 / 390 三档下 5 个移动现货字典页，DOM 扫描无任何 `scrollWidth > clientWidth` 的文本节点，无页面错误。

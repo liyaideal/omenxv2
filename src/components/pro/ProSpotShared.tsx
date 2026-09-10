@@ -17,8 +17,16 @@ import { ProBottomTabs } from "@/components/pro/ProBottomTabs";
 import { mock24hVolume, type SpotTerminal } from "@/hooks/useSpotTerminal";
 import type { TradingEvent } from "@/hooks/useEvents";
 
-export const SpotTradePanel = ({ t }: { t: SpotTerminal }) => (
+export const SpotTradePanel = ({
+  t,
+  ctaLayout,
+}: {
+  t: SpotTerminal;
+  /** SP-2-FIX2: mobile `/spot/order` stacks the CTA. Desktop stays `row`. */
+  ctaLayout?: "row" | "stacked";
+}) => (
   <ProSpotPanel
+    ctaLayout={ctaLayout}
     side={t.side}
     onSideChange={t.onSideChange}
     orderType={t.orderType}
@@ -187,7 +195,7 @@ export const SpotPositionsTable = ({
                   >
                     {isYes ? t.yesLabel : t.noLabel}
                   </span>
-                  <span className="truncate flex-1 min-w-0">{p.event}</span>
+                  <span className="flex-1 min-w-0 line-clamp-2">{p.event}</span>
                   <button
                     onClick={() => t.closePosition(p)}
                     className="text-[11px] text-primary hover:underline flex-shrink-0"
@@ -318,7 +326,7 @@ export const SpotOrdersTable = ({
                   >
                     {o.type}
                   </span>
-                  <span className="truncate flex-1 min-w-0">{o.event}</span>
+                  <span className="flex-1 min-w-0 line-clamp-2">{o.event}</span>
                   <button
                     disabled={t.isCancelling || !isPending}
                     onClick={() => t.handleCancelSpotOrder(o)}
@@ -501,6 +509,28 @@ export const SpotScheduleInfo = ({ t }: { t: SpotTerminal }) => (
   </Popover>
 );
 
+/**
+ * SP-2-FIX2 · session as a 9px pill instead of `· pre-mkt` prose, so nothing
+ * in the strip can ever be cut mid-word. Regular session renders nothing.
+ */
+const sessionPill = (tag?: string | null) => {
+  const s = (tag || "").toLowerCase();
+  if (s.includes("pre")) return "PRE";
+  if (s.includes("after") || s.includes("post")) return "AH";
+  return null;
+};
+
+/**
+ * SP-2-FIX2 · short mobile header title for daily up/down markets:
+ * `META · Up or down?`. The full event name lives in the Event info sheet.
+ */
+export const spotMobileTitle = (t: SpotTerminal): string => {
+  const name = t.event?.name || "";
+  if (t.ticker && /up or down/i.test(name)) return `${t.ticker} · Up or down?`;
+  if (t.ticker && /higher|lower/i.test(name)) return `${t.ticker} · Up or down?`;
+  return name;
+};
+
 /** 32 px two-cell stats strip — SP-2 mobile spot exception to the perp grid. */
 export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => (
   <div className="mx-3 my-2 h-8 flex items-center rounded-md border border-border/40 bg-card">
@@ -511,7 +541,7 @@ export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => (
       </span>
     </div>
     <div className="w-px h-5 bg-border/40" />
-    <div className="flex-1 min-w-0 flex items-baseline gap-1 overflow-hidden px-2">
+    <div className="flex-1 min-w-0 flex items-baseline gap-1 px-2">
       <span className="text-[10px] uppercase tracking-wide text-muted-foreground shrink-0">{t.ticker || "Last"}</span>
       <span className="text-[12px] font-mono shrink-0">
         {t.indicative != null ? `${t.cur}${t.indicative.toFixed(2)}` : "—"}
@@ -519,7 +549,9 @@ export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => (
       {t.indicative != null && (
         <span
           className={cn(
-            "text-[12px] font-mono whitespace-nowrap shrink-0",
+            // SP-2-FIX2: the % change is the FIRST thing to drop at ≤360px —
+            // the price and the session pill always stay.
+            "text-[12px] font-mono whitespace-nowrap shrink-0 hidden min-[360px]:inline",
             t.indicativePct >= 0 ? "text-trading-green" : "text-trading-red",
           )}
         >
@@ -527,9 +559,9 @@ export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => (
           {t.indicativePct.toFixed(2)}%
         </span>
       )}
-      {t.indicative != null && t.sessionTag && (
-        <span className="truncate text-[10px] text-muted-foreground hidden min-[360px]:inline">
-          · {t.sessionTag}
+      {t.indicative != null && sessionPill(t.sessionTag) && (
+        <span className="shrink-0 rounded px-1 border border-border/60 text-[9px] font-semibold tracking-wide text-muted-foreground">
+          {sessionPill(t.sessionTag)}
         </span>
       )}
     </div>
@@ -544,7 +576,7 @@ export const SpotMobileMarkLine = ({ t }: { t: SpotTerminal }) => (
   </div>
 );
 
-/** SP-2 · 120px mini order book rendered beside the mobile panel. */
+/** SP-2-FIX2 · 104px mini order book rendered beside the mobile panel. */
 export const SpotMiniOrderBook = ({
   asks,
   bids,
@@ -554,7 +586,7 @@ export const SpotMiniOrderBook = ({
   bids: { price: string; amount: string }[];
   price: number;
 }) => (
-  <div className="w-[120px] flex-shrink-0 border-l border-border/30">
+  <div className="w-[104px] flex-shrink-0 border-l border-border/30">
     <div className="px-1.5 py-1.5">
       <div className="grid grid-cols-2 text-[9px] text-muted-foreground mb-1">
         <span>Price</span>

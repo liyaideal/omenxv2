@@ -20,6 +20,7 @@ import {
   SpotScheduleInfo,
   SpotHeaderActions,
   spotHeaderEvent,
+  spotMobileTitle,
 } from "@/components/pro/ProSpotShared";
 import { useSpotTerminal, type SpotTerminal } from "@/hooks/useSpotTerminal";
 import { cn } from "@/lib/utils";
@@ -32,7 +33,7 @@ function SpotOrderBody({ t }: { t: SpotTerminal }) {
       <div className="flex">
         {/* Left: the very same panel desktop /spot renders */}
         <div className="flex-1 min-w-0">
-          <SpotTradePanel t={t} />
+          <SpotTradePanel t={t} ctaLayout="stacked" />
         </div>
 
         {/* Right: mini order book */}
@@ -98,7 +99,7 @@ export default function SpotTradeOrder() {
       activeTab="Trade"
       basePath="/spot"
       variant="spot"
-      event={spotHeaderEvent(t)}
+      event={{ ...spotHeaderEvent(t), name: spotMobileTitle(t) }}
       countdownText={t.countdown.text}
       countdownLabel="Trading ends in"
       countdownUrgency={t.countdown.urgency}
