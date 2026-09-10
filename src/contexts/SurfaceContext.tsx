@@ -25,20 +25,47 @@ const readInitial = (): Surface => {
 };
 
 export const SurfaceProvider = ({ children }: { children: ReactNode }) => {
-  const [surface, setSurfaceState] = useState<Surface>(readInitial);
+  // The user's stored preference. Never cleared on sign-out — it comes back
+  // when they sign in again.
+  const [storedSurface, setStoredSurface] = useState<Surface>(readInitial);
+  // null = the initial session has not resolved yet.
+  const [hasSession, setHasSession] = useState<boolean | null>(null);
   const { profile } = useUserProfile();
+
+  // Auth listener — guests are always Lite (D6'-1 · FIX8).
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setHasSession(!!session);
+      if (event === "SIGNED_OUT") {
+        clearPortfolioReturnSurface();
+      }
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => setHasSession(!!session));
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Sync from profile once loaded (profile wins on first hydration)
   useEffect(() => {
     const ps = (profile as unknown as { preferred_surface?: string } | null)?.preferred_surface;
     if (ps === "lite" || ps === "pro") {
-      setSurfaceState(ps);
+      setStoredSurface(ps);
       try { localStorage.setItem(LS_KEY, ps); } catch { /* ignore */ }
     }
   }, [profile?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Derived surface: guests are forced to Lite. While the session is still
+  // unknown, a stored `pro` is honoured so signed-in users never flash Lite.
+  const surface: Surface =
+    hasSession === null
+      ? storedSurface
+      : hasSession
+        ? storedSurface
+        : "lite";
+
   const setSurface = useCallback((s: Surface) => {
-    setSurfaceState(s);
+    // Guests cannot select Pro.
+    if (hasSession === false) return;
+    setStoredSurface(s);
     try { localStorage.setItem(LS_KEY, s); } catch { /* ignore */ }
     const userId = profile?.user_id;
     if (userId) {
@@ -49,13 +76,14 @@ export const SurfaceProvider = ({ children }: { children: ReactNode }) => {
         .eq("user_id", userId)
         .then(() => undefined, () => undefined);
     }
-  }, [profile?.user_id]);
+  }, [profile?.user_id, hasSession]);
 
   const toggle = useCallback(() => {
+    if (hasSession === false) return;
     // A manual switch cancels any pending "return to Lite" intent.
     clearPortfolioReturnSurface();
     setSurface(surface === "lite" ? "pro" : "lite");
-  }, [surface, setSurface]);
+  }, [surface, setSurface, hasSession]);
 
   return (
     <SurfaceContext.Provider value={{ surface, setSurface, toggle }}>
