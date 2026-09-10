@@ -144,6 +144,11 @@ export const ProSpotPanelInsufficient = () => (
   <PanelFixture available={0} ctaLabel="Insufficient balance" ctaDisabled />
 );
 
+/** SP-B8 · Frozen market (FIX5): past freeze_time → CTA disabled with reason. */
+export const ProSpotPanelFrozen = () => (
+  <PanelFixture ctaLabel="Market frozen" ctaDisabled />
+);
+
 /** SP-B6 · Resting limit warning. */
 export const ProSpotPanelPendingLimit = () => (
   <PanelFixture orderType="Limit" willBePending ctaLabel="Place limit · Buy Up" />
