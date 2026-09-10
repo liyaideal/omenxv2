@@ -5,6 +5,7 @@
 // order preview, account panel, event info and the positions/orders
 // tables. Desktop markup is unchanged from SpotTrading.tsx.
 // ============================================================
+import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { EventInfoContent } from "@/components/EventInfoContent";
@@ -532,10 +533,25 @@ export const spotMobileTitle = (t: SpotTerminal): string => {
 };
 
 /** 32 px two-cell stats strip — SP-2 mobile spot exception to the perp grid. */
-export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => (
+export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => {
+  const stripRef = useRef<HTMLDivElement>(null);
+  const [showPercent, setShowPercent] = useState(false);
+
+  useEffect(() => {
+    const strip = stripRef.current;
+    if (!strip) return;
+    const update = () => setShowPercent(strip.getBoundingClientRect().width >= 340);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(strip);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
   <div
+    ref={stripRef}
     data-spot-stats-strip
-    className="@container mx-3 my-2 h-8 flex items-center overflow-hidden rounded-md border border-border/40 bg-card"
+    className="mx-3 my-2 h-8 flex items-center overflow-hidden rounded-md border border-border/40 bg-card"
   >
     <div data-spot-stats-cell="base" className="flex-1 min-w-0 flex items-center gap-1.5 px-2">
       <span className="text-[10px] uppercase tracking-wide text-muted-foreground shrink-0">Base</span>
@@ -554,11 +570,11 @@ export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => (
       <span className="text-[12px] font-mono shrink-0">
         {t.indicative != null ? `${t.cur}${t.indicative.toFixed(2)}` : "—"}
       </span>
-      {t.indicative != null && (
+      {t.indicative != null && showPercent && (
         <span
           className={cn(
             // SP-2-FIX3: visibility follows the strip's own width, not viewport width.
-            "text-[12px] font-mono whitespace-nowrap shrink-0 hidden @[340px]:inline",
+            "text-[12px] font-mono whitespace-nowrap shrink-0",
             t.indicativePct >= 0 ? "text-trading-green" : "text-trading-red",
           )}
         >
@@ -568,7 +584,8 @@ export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => (
       )}
     </div>
   </div>
-);
+  );
+};
 
 /** Mark line above the mobile chart. */
 export const SpotMobileMarkLine = ({ t }: { t: SpotTerminal }) => (

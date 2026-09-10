@@ -167,7 +167,7 @@ Spot 节原先手抄的终端顶栏已换成生产件 `ProSpotHeader`，CTA 例�
 
 产品负责人：「整体各种截断实在有点丑」。本轮把 360 / 375 / 390 三档下的省略号全部消灭，规则写进 DESIGN §Addendum SP-2-FIX2。
 
-- `SpotMobileStatsStrip`：`PRE` / `AH` 9px 徽标移入 Base 左格；右格只放标的、价格、涨跌。strip 是 query container，涨跌只在自身宽度达到 340px 时显示，不再错误依赖浏览器 viewport；根节点 `overflow-hidden` 只作末级防护，价格与徽标永不裁切。
+- `SpotMobileStatsStrip`：`PRE` / `AH` 9px 徽标移入 Base 左格；右格只放标的、价格、涨跌。`ResizeObserver` 按 strip 自身宽度控制涨跌，仅在达到 340px 时显示，不再错误依赖浏览器 viewport；根节点 `overflow-hidden` 只作末级防护，价格与徽标永不裁切。
 - `spotMobileTitle(t)`（`ProSpotShared.tsx`）：日内涨跌盘移动页头显示 `META · Up or down?`；完整名留在 Event info。桌面页头未动。
 - `TradeSubmitButton` 新增 `layout`（默认 `"row"`）；`ProSpotPanel` / `SpotTradePanel` 新增 `ctaLayout`，只有 `/spot/order` 传 `"stacked"`。金额走千分位。
 - 面板细项：迷你盘口 `w-[104px]`、滑点四格 grid `text-[10px]`、摘要 `text-[11px]`、Held 行改为 `2,034.879 sh · Down`。
