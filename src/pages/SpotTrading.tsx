@@ -169,22 +169,32 @@ const useCountdown = (endTime: Date | null): { text: string; urgency: CountdownU
     if (!endTime) return;
     const tick = () => {
       const diff = endTime.getTime() - Date.now();
+      let next: { text: string; urgency: CountdownUrgency; diffMs: number };
       if (diff <= 0) {
-        setState({ text: "00:00:00", urgency: "red", diffMs: 0 });
-        return;
+        next = { text: "00:00:00", urgency: "red", diffMs: 0 };
+      } else {
+        const h = Math.floor(diff / 3_600_000);
+        const m = Math.floor((diff % 3_600_000) / 60_000);
+        const s = Math.floor((diff % 60_000) / 1_000);
+        const text = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+        const urgency: CountdownUrgency =
+          diff <= 15 * 60_000 ? "red" : diff <= 60 * 60_000 ? "yellow" : "muted";
+        next = { text, urgency, diffMs: diff };
       }
-      const h = Math.floor(diff / 3_600_000);
-      const m = Math.floor((diff % 3_600_000) / 60_000);
-      const s = Math.floor((diff % 60_000) / 1_000);
-      const text = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-      const urgency: CountdownUrgency =
-        diff <= 15 * 60_000 ? "red" : diff <= 60 * 60_000 ? "yellow" : "muted";
-      setState({ text, urgency, diffMs: diff });
+      // Never push a fresh object when nothing changed — the expired branch
+      // used to re-render forever once the effect re-ran per render.
+      setState((prev) =>
+        prev.text === next.text && prev.urgency === next.urgency && prev.diffMs === next.diffMs
+          ? prev
+          : next,
+      );
     };
     tick();
     const t = setInterval(tick, 1000);
     return () => clearInterval(t);
-  }, [endTime]);
+    // Key on the timestamp so a caller-recreated Date cannot restart the effect.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [endTime?.getTime()]);
   return state;
 };
 
@@ -330,13 +340,17 @@ export default function SpotTrading() {
   const outcomeLabel = isYesSelected ? yesLabel : noLabel;
   const outcomePrice = isYesSelected ? yesLive : noLive;
 
-  const endDate = event?.end_date ? new Date(event.end_date) : null;
+  // FIX5: these three used to be `new Date(...)` per render, which restarted the
+  // countdown effect every render and span an infinite update loop. Memoise on
+  // the raw ISO strings so the Date identities are stable.
+  const endIso = event?.end_date ?? null;
+  const freezeIso = ((event as any)?.freeze_time as string | undefined) ?? null;
+  const settleIso = ((event as any)?.expected_settlement_time as string | undefined) ?? null;
+  const endDate = useMemo(() => (endIso ? new Date(endIso) : null), [endIso]);
 
   // 技术对接 §4.1/§12.2 — timing driven by events fields, not hardcoded times.
-  const freezeAt = (event as any)?.freeze_time ? new Date((event as any).freeze_time) : null;
-  const settleAt = (event as any)?.expected_settlement_time
-    ? new Date((event as any).expected_settlement_time)
-    : null;
+  const freezeAt = useMemo(() => (freezeIso ? new Date(freezeIso) : null), [freezeIso]);
+  const settleAt = useMemo(() => (settleIso ? new Date(settleIso) : null), [settleIso]);
   // Main countdown targets freeze_time (trading window ends there) instead of
   // end_date; the "settles by …" caption below carries the settlement info.
   const countdownTarget = freezeAt ?? endDate;
@@ -351,8 +365,16 @@ export default function SpotTrading() {
   const dbLifecycle = event?.lifecycle_status || "TRADING";
   const lifecycle = getDisplayLifecycle(dbLifecycle);
   const badge = getLifecycleBadge(lifecycle);
-  const blocked = isOrderingBlocked(dbLifecycle);
-  const blockedReason = getBlockedReason(dbLifecycle);
+  // FIX5: time also blocks trading. A market whose freeze_time / end_date has
+  // passed is not tradable even if the DB row still says EXTENDED_TRADING.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const isFrozenByTime = useMemo(() => isPastFreeze(freezeAt, endDate), [freezeAt, endDate, countdown]);
+  const blocked = isOrderingBlocked(dbLifecycle) || isFrozenByTime;
+  const blockedReason = isOrderingBlocked(dbLifecycle)
+    ? getBlockedReason(dbLifecycle)
+    : isFrozenByTime
+      ? "Market frozen"
+      : null;
 
   const basePrice = event?.base_price != null ? Number(event.base_price) : null;
   const indicative = useIndicativeLast(basePrice, event?.id || "");
@@ -655,8 +677,7 @@ export default function SpotTrading() {
   // this event and refund reserved cash. Tagged in `frozenCancelledIds`
   // so the Orders row renders "Cancelled · market frozen".
   const [frozenCancelledIds, setFrozenCancelledIds] = useState<Set<string>>(new Set());
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const isFrozenByTime = useMemo(() => isPastFreeze(freezeAt, endDate), [freezeAt, endDate, countdown]);
+  // `isFrozenByTime` is computed once near the lifecycle block above (FIX5).
   const shouldFreeze = lifecycle === "FROZEN" || isFrozenByTime;
 
   const freezingIdsRef = useRef<Set<string>>(new Set());
@@ -776,7 +797,11 @@ export default function SpotTrading() {
       ctaLabel={blocked ? blockedReason || "Market unavailable" : ctaLabel}
       ctaDisabled={ctaDisabled}
       submitting={submitting}
-      onSubmit={() => setPreviewOpen(true)}
+      onSubmit={() => {
+        // FIX5: blocked (lifecycle or past freeze_time) → preview cannot open.
+        if (blocked) return toast.error(blockedReason || "Market unavailable");
+        setPreviewOpen(true);
+      }}
     />
   );
 
@@ -883,6 +908,7 @@ export default function SpotTrading() {
   // FIX4: the 3-dp string is display-only — `orderQty` snaps to the exact
   // `p.sizeNum` (heldQty) at submit, so the order always carries full precision.
   const closePosition = (p: (typeof spotPositions)[number]) => {
+    if (blocked) return toast.error(blockedReason || "Market unavailable");
     if (p.optionId) setSelectedOptionId(p.optionId);
     setSide("sell");
     setOrderType("Market");

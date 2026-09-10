@@ -288,6 +288,7 @@ export const previewRegistry: Record<string, Loader> = {
   "pro-spot-panel-sell-none": pick(proSpot, "ProSpotPanelSellNone"),
   "pro-spot-panel-insufficient": pick(proSpot, "ProSpotPanelInsufficient"),
   "pro-spot-panel-pending-limit": pick(proSpot, "ProSpotPanelPendingLimit"),
+  "pro-spot-panel-frozen": pick(proSpot, "ProSpotPanelFrozen"),
   "pro-spot-preview-dialog": pick(proSpot, "ProSpotPreviewDialog"),
   "pro-terminal-skeleton": pick(proSpot, "ProTerminalSkeleton"),
 

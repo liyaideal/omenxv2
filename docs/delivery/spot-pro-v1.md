@@ -138,3 +138,10 @@ Spot 节原先手抄的终端顶栏已换成生产件 `ProSpotHeader`，CTA 例�
 ## SP-1-FIX4 (2026-09-09) — 全平吸附（full-close snap）
 
 `sharesInputValue()` 只保留 3 位小数：36.7647… 持仓的 `Close` 预填 `36.765` 会**超出持仓**被校验拒绝，向下取整又留下 0.0007 sh 永远平不掉的 dust。现在 sell 路径（面板提交与 `Close` → 预览确认共用）在 `|qty − heldQty| < 0.001` 或 `qty ≥ heldQty × 0.9995`（滑杆 100%）时吸附为**精确 heldQty** 发送给 `executeSpotTrade` / `placeSpotLimitOrder`；3 位小数字符串仅作输入展示。无引擎改动。状态字典 `pro-spot-panel-sell-held-down` 已补该规则。
+
+## SP-1-FIX5 (2026-09-10) — 渲染死循环 / Up 档点不动 / 过期仍可下单
+
+1. **渲染死循环**：`SpotTrading.tsx` 的 `endDate` / `freezeAt` / `settleAt` 过去每次渲染都 `new Date(...)`，倒计时 effect 依赖这个新对象 → 每渲染重跑 → `setState` 新对象 → 无限循环（jsdom 复现 500ms 内约 1,085 次渲染）。现在三者按 ISO 字符串 `useMemo`，倒计时 effect 依赖 `endTime?.getTime()`，`tick` 用函数式 `setState` 在值未变时返回 `prev`。`DesktopTrading.tsx` 的同名 hook 同样改为按时间戳取依赖。
+2. **Up 档点不动**：`BinarySideToggle` 的 `Segment` 原本声明在组件内部，每渲染都是新组件类型 → 两个 `<button>` 每渲染卸载重挂，光标下的按钮在 mousedown 与 mouseup 之间被替换，点击落到外层 div。现已提到模块作用域并加 `key`，DOM 结构与 class 逐字未变。
+3. **时间也封锁下单**：`blocked = isOrderingBlocked(dbLifecycle) || isFrozenByTime`，原因文案 `Market frozen`。封锁时两个 tile 仍可点选看价，CTA 置灰、预览弹窗打不开、`handleSubmit` 与 Positions 行 `Close` 直接 toast 拦截。
+4. **状态字典**：新增 `pro-spot-panel-frozen`（SP-B8）。
