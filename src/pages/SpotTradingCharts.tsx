@@ -1,0 +1,204 @@
+// ============================================================
+// /spot (mobile, Pro) — SP-2 · B2 Charts view.
+// Built on the contract Pro mobile skeleton (`MobileTradingLayout`,
+// variant="spot", basePath="/spot"): context + chart + tabs on this
+// page, the order form on the `/spot/order` sub-page.
+// ============================================================
+import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { Loader2, Star, Share2 } from "lucide-react";
+import { MobileTradingLayout } from "@/components/MobileTradingLayout";
+import { MobileHeaderIconButton } from "@/components/MobileHeader";
+import { CandlestickChart } from "@/components/CandlestickChart";
+import { OrderBook } from "@/components/OrderBook";
+import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
+import { AuthDialog } from "@/components/auth/AuthDialog";
+import { ProSpotMobileDock } from "@/components/pro/ProSpotMobileDock";
+import {
+  SpotOrderPreviewDialog,
+  SpotEventInfoPanel,
+  SpotPositionsTable,
+  SpotOrdersTable,
+  SpotMobileStatsStrip,
+  SpotScheduleInfo,
+  spotHeaderEvent,
+} from "@/components/pro/ProSpotShared";
+import { useSpotTerminal, type SpotTerminal } from "@/hooks/useSpotTerminal";
+import { useAnimatedTradesHistory } from "@/hooks/useAnimatedTradesHistory";
+import { useTradeSideStore, tradeSideKey } from "@/stores/useTradeSideStore";
+import { cn } from "@/lib/utils";
+
+const TABS = ["Order Book", "Trades", "Orders", "Positions"] as const;
+
+function SpotChartsBody({ t }: { t: SpotTerminal }) {
+  const navigate = useNavigate();
+  const [tab, setTab] = useState<(typeof TABS)[number]>("Order Book");
+
+  // Two-stage tap shares the same store the perp dock uses.
+  const sideKey = tradeSideKey(t.event!.id, "spot");
+  const storedSide = useTradeSideStore((s) => s.sideByKey[sideKey]);
+  const setSide = useTradeSideStore((s) => s.setSide);
+  const selected: "yes" | "no" | null =
+    storedSide === "buy" ? "yes" : storedSide === "sell" ? "no" : null;
+
+  const { trades, newTradeIndex } = useAnimatedTradesHistory({
+    basePrice: t.outcomePrice || 0.5,
+    initialCount: 20,
+    newTradeInterval: 1200,
+  });
+
+  const handleTap = (which: "yes" | "no") => {
+    if (selected !== which) {
+      setSide(sideKey, which === "yes" ? "buy" : "sell");
+      t.onSelectOutcome(which);
+      return;
+    }
+    navigate(`/spot/order?event=${t.event!.id}`);
+  };
+
+  const counts = useMemo(
+    () => ({ Orders: t.spotOrders.length, Positions: t.spotPositions.length }),
+    [t.spotOrders.length, t.spotPositions.length],
+  );
+
+  return (
+    <div className="pb-28">
+      <SpotMobileStatsStrip t={t} />
+
+      {/* Mark line */}
+      <div className="flex items-baseline gap-2 px-3 pb-2">
+        <span className="text-2xl font-bold font-mono">{t.outcomePrice.toFixed(4)}</span>
+        <span className="text-[11px] text-muted-foreground">{t.outcomeLabel} · mark</span>
+      </div>
+
+      <div className="h-[280px] border-b border-border/30">
+        <CandlestickChart remainingDays={1} basePrice={t.outcomePrice || 0.5} side={t.side} />
+      </div>
+
+      {/* Bottom tabs */}
+      <div className="flex px-3 mt-2 border-b border-border/30">
+        {TABS.map((x) => {
+          const count = x === "Orders" || x === "Positions" ? counts[x] : 0;
+          return (
+            <button
+              key={x}
+              onClick={() => setTab(x)}
+              className={cn(
+                "py-3 mr-4 text-sm font-medium whitespace-nowrap transition-all flex items-center gap-1.5",
+                tab === x ? "text-foreground border-b-2 border-foreground" : "text-muted-foreground",
+              )}
+            >
+              {x}
+              {count > 0 && (
+                <span className="bg-primary/20 text-primary text-[10px] font-semibold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {tab === "Order Book" && (
+        <OrderBook asks={t.book.asks} bids={t.book.bids} currentPrice={t.outcomePrice.toFixed(4)} />
+      )}
+
+      {tab === "Trades" && (
+        <div className="px-3">
+          <div className="grid grid-cols-3 text-xs text-muted-foreground py-2">
+            <span>Price (USDC)</span>
+            <span className="text-center">Amount</span>
+            <span className="text-right">Time</span>
+          </div>
+          <div className="space-y-0">
+            {trades.map((trade, index) => (
+              <div
+                key={`${trade.time}-${index}`}
+                className={cn(
+                  "grid grid-cols-3 text-xs py-1.5 transition-all duration-300",
+                  index === newTradeIndex &&
+                    (trade.isBuy ? "bg-trading-green/25 animate-fade-in" : "bg-trading-red/25 animate-fade-in"),
+                )}
+              >
+                <span className={cn("font-mono", trade.isBuy ? "text-trading-green" : "text-trading-red")}>
+                  {trade.price}
+                </span>
+                <span className="text-center font-mono text-muted-foreground">{trade.amount}</span>
+                <span className="text-right font-mono text-muted-foreground">{trade.time}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {tab === "Orders" && <SpotOrdersTable t={t} variant="mobile" />}
+      {tab === "Positions" && <SpotPositionsTable t={t} variant="mobile" />}
+
+      <ProSpotMobileDock
+        available={t.available}
+        yesLabel={t.yesLabel}
+        noLabel={t.noLabel}
+        yesPrice={t.yesLive}
+        noPrice={t.noLive}
+        selected={selected}
+        onTap={handleTap}
+        blocked={t.blocked}
+        blockedReason={t.blockedReason}
+      />
+
+      <SpotOrderPreviewDialog t={t} />
+      <AuthDialog open={t.authOpen} onOpenChange={t.setAuthOpen} defaultTab="signup" />
+    </div>
+  );
+}
+
+export default function SpotTradingCharts() {
+  const t = useSpotTerminal();
+
+  if (t.loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+  if (t.notFound || !t.event) return <ExpiredEventFallback eventId={t.eventId} />;
+
+  return (
+    <MobileTradingLayout
+      activeTab="Charts"
+      basePath="/spot"
+      variant="spot"
+      event={spotHeaderEvent(t)}
+      endTime={t.freezeAt ?? t.endDate ?? undefined}
+      countdownLabel="Trading ends in"
+      countdownUrgency={t.countdown.urgency}
+      statsExtra={<SpotScheduleInfo t={t} />}
+      eventInfo={<SpotEventInfoPanel t={t} />}
+      headerRight={
+        <div className="flex items-center gap-1 -mr-2">
+          <MobileHeaderIconButton
+            aria-label="Favorite"
+            onClick={() => t.toggleWatch(t.event!.id)}
+          >
+            <Star
+              className={cn(
+                "w-5 h-5",
+                t.isWatched(t.event!.id) ? "text-trading-yellow fill-trading-yellow" : "",
+              )}
+              strokeWidth={1.5}
+            />
+          </MobileHeaderIconButton>
+          <MobileHeaderIconButton
+            aria-label="Share"
+            onClick={() => navigator.clipboard?.writeText(window.location.href)}
+          >
+            <Share2 className="w-5 h-5" strokeWidth={1.5} />
+          </MobileHeaderIconButton>
+        </div>
+      }
+    >
+      <SpotChartsBody t={t} />
+    </MobileTradingLayout>
+  );
+}
