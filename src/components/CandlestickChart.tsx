@@ -14,6 +14,7 @@ interface CandlestickChartProps {
   remainingDays?: number; // T_remain in days
   basePrice?: number; // Base price from selected option
   side?: "buy" | "sell"; // Trade side: sell mirrors price (1 - p)
+  onSeriesReady?: (firstOpen: number) => void;
 }
 
 const TIMEFRAMES = ["1m", "5m", "15m", "1H", "4H", "1D", "ALL"] as const;
@@ -139,7 +140,7 @@ const calculateMA = (data: number[], period: number): number[] => {
   return result;
 };
 
-export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = "buy" }: CandlestickChartProps) => {
+export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = "buy", onSeriesReady }: CandlestickChartProps) => {
   const defaultTimeframe = getDefaultTimeframe(remainingDays);
   const [selectedTimeframe, setSelectedTimeframe] = useState<Timeframe>(defaultTimeframe);
   const [chartMode, setChartMode] = useState<"candle" | "line">("candle");
@@ -164,6 +165,11 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = 
     () => generateMockCandles(selectedTimeframe, effectiveBasePrice, candleCount), 
     [selectedTimeframe, effectiveBasePrice, candleCount]
   );
+  useEffect(() => {
+    const firstOpen = candles[0]?.open;
+    if (firstOpen == null) return;
+    onSeriesReady?.(firstOpen);
+  }, [candles, onSeriesReady]);
   
   // Calculate volume data
   const volumes = candles.map(c => c.volume);
