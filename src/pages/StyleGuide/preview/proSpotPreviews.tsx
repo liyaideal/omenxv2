@@ -19,6 +19,7 @@ import { ProSpotMobileDock } from "@/components/pro/ProSpotMobileDock";
 import {
   SpotMobileMarkLine,
   SpotMobileStatsStrip,
+  SpotMiniOrderBook,
   SpotOrdersTable,
   SpotPositionsTable,
 } from "@/components/pro/ProSpotShared";
@@ -248,15 +249,6 @@ export const ProTerminalSkeleton = () => (
 
 /* ---------------- SP-2 · mobile Pro spot (375 px) ---------------- */
 
-import {
-  SpotMobileStatsStrip,
-  SpotMobileMarkLine,
-  SpotMiniOrderBook,
-} from "@/components/pro/ProSpotShared";
-import { ProSpotMobileDock } from "@/components/pro/ProSpotMobileDock";
-import { CandlestickChart } from "@/components/CandlestickChart";
-import type { SpotTerminal } from "@/hooks/useSpotTerminal";
-
 /** Minimal fixture standing in for the shared spot terminal hook. */
 const spotFixture = (over: Partial<SpotTerminal> = {}) =>
   ({
@@ -329,7 +321,7 @@ const MobileChartsFrame = ({ width, terminal }: { width?: number; terminal?: Par
     closePosition: () => undefined,
     handleCancelSpotOrder: async () => undefined,
     ...terminal,
-  });
+  } as unknown as Partial<SpotTerminal>);
   return (
     <Phone width={width}>
       <OptionChips
