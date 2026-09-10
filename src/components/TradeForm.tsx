@@ -347,13 +347,17 @@ export const TradeForm = ({
             const noActive = binaryMode ? !binaryMode.isYesSelected : side === "sell";
             const yesLabel = binaryMode?.yesLabel ?? "Yes";
             const noLabel = binaryMode?.noLabel ?? "No";
-            const yesPriceVal = (binaryMode?.yesPrice ?? longPrice).toFixed(4);
-            const noPriceVal = (binaryMode?.noPrice ?? shortPrice).toFixed(4);
+            const sellMode = intent === "sell";
+            const yesDisabled = sellMode && (sellDisabledSide === "yes" || sellDisabledSide === "both");
+            const noDisabled = sellMode && (sellDisabledSide === "no" || sellDisabledSide === "both");
+            const yesPriceVal = yesDisabled ? "0 ct" : (binaryMode?.yesPrice ?? longPrice).toFixed(4);
+            const noPriceVal = noDisabled ? "0 ct" : (binaryMode?.noPrice ?? shortPrice).toFixed(4);
             return (
               <>
                 <button
+                  disabled={yesDisabled}
                   onClick={() => (binaryMode ? binaryMode.onSelectYes() : setSide("buy"))}
-                  className="relative flex flex-col h-full rounded-md overflow-hidden transition-all duration-200"
+                  className={`relative flex flex-col h-full rounded-md overflow-hidden transition-all duration-200 ${yesDisabled ? "opacity-40 pointer-events-none" : ""}`}
                 >
                   <div
                     className={`relative flex-1 flex items-center justify-center min-h-[24px] py-1.5 px-2 ${
