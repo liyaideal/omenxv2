@@ -908,6 +908,7 @@ export default function SpotTrading() {
   // FIX4: the 3-dp string is display-only — `orderQty` snaps to the exact
   // `p.sizeNum` (heldQty) at submit, so the order always carries full precision.
   const closePosition = (p: (typeof spotPositions)[number]) => {
+    if (blocked) return toast.error(blockedReason || "Market unavailable");
     if (p.optionId) setSelectedOptionId(p.optionId);
     setSide("sell");
     setOrderType("Market");
