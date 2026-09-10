@@ -510,7 +510,7 @@ export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => (
       </span>
     </div>
     <div className="w-px h-5 bg-border/40" />
-    <div className="flex-1 min-w-0 flex items-center gap-1.5 px-2">
+    <div className="flex-1 min-w-0 flex items-center gap-1.5 overflow-hidden px-2">
       <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{t.ticker || "Last"}</span>
       <span className="text-[12px] font-mono truncate">
         {t.indicative != null ? `${t.cur}${t.indicative.toFixed(2)}` : "—"}
@@ -518,7 +518,7 @@ export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => (
       {t.indicative != null && (
         <span
           className={cn(
-            "text-[12px] font-mono",
+            "text-[12px] font-mono whitespace-nowrap",
             t.indicativePct >= 0 ? "text-trading-green" : "text-trading-red",
           )}
         >
