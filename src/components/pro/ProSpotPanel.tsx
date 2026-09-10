@@ -235,13 +235,13 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
               </span>
               <span className="text-xs font-mono">{(p.slippageBps / 100).toFixed(2)}%</span>
             </div>
-            <div className="flex gap-1.5">
+            <div className="grid grid-cols-4 gap-1">
               {[10, 25, 50, 100].map((bps) => (
                 <button
                   key={bps}
                   onClick={() => p.onSlippageChange(bps)}
                   className={cn(
-                    "flex-1 py-1 text-[11px] rounded transition-colors",
+                    "py-1 text-[10px] rounded transition-colors whitespace-nowrap",
                     p.slippageBps === bps
                       ? "bg-foreground text-background font-semibold"
                       : "border border-border/60 text-muted-foreground hover:text-foreground",
