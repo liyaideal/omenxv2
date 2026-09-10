@@ -55,7 +55,6 @@ export const SpotTradePanel = ({
     outcomeLabel={t.outcomeLabel}
     available={t.available}
     heldQty={t.heldQty}
-    spotBalance={t.spotBalance}
     limitPrice={t.limitPrice}
     onLimitPriceChange={t.setLimitPrice}
     amount={t.amount}

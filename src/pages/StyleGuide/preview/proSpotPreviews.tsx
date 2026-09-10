@@ -101,7 +101,6 @@ const PanelFixture = (f: Fixture) => {
         outcomeLabel={isYes ? "Up" : "Down"}
         available={f.available ?? 500}
         heldQty={heldQty}
-        spotBalance={f.available ?? 500}
         limitPrice={limitPrice}
         onLimitPriceChange={setLimitPrice}
         amount={amount}
@@ -224,7 +223,7 @@ export const ProTerminalSkeleton = () => (
         <ProBottomTabs
           tabs={[
             { key: "Positions", label: "Positions", count: 0 },
-            { key: "Orders", label: "Orders", count: 0 },
+            { key: "Orders", label: "Current Orders", count: 0 },
           ]}
           active="Positions"
           onChange={() => undefined}
@@ -254,7 +253,7 @@ export const ProBottomTabsGuest = () => (
     <ProBottomTabs
       tabs={[
         { key: "Positions", label: "Positions", count: 0 },
-        { key: "Orders", label: "Orders", count: 0 },
+        { key: "Orders", label: "Current Orders", count: 0 },
       ]}
       active="Positions"
       onChange={() => undefined}
@@ -275,7 +274,7 @@ export const ProSpotBookThin = () => (
       variant="spot"
       quoteMode="CONSERVATIVE"
       currentPrice="0.4649"
-      priceChange="0.4649"
+      markPrice="0.4649"
       isPositive
       asks={[
         { price: "0.4700", amount: "420", total: "420" },
@@ -315,6 +314,7 @@ const spotFixture = (over: Partial<SpotTerminal> = {}) =>
     ticker: "META",
     indicative: 579.0784,
     indicativePct: 0.33,
+    sessionOpenMark: 0.4882,
     sessionTag: "pre-mkt",
     countdown: { text: "02:14:08", urgency: "muted" as const, diffMs: 8048000 },
     freezeEtOnly: "15:55",

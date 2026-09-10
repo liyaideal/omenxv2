@@ -199,6 +199,7 @@ export function useSpotTerminal() {
   const [submitting, setSubmitting] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [sessionOpenSnapshot, setSessionOpenSnapshot] = useState<{ key: string; value: number } | null>(null);
 
   const pricesCtx = useRealtimePricesOptional();
 
@@ -362,6 +363,20 @@ export function useSpotTerminal() {
     return () => clearInterval(t);
   }, []);
   const sessionProfile = useMemo(() => getCurrentSession(), [sessionTick]);
+  const sessionDateKey = new Intl.DateTimeFormat("en-CA", {
+    timeZone: market.tz,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+  const sessionOpenKey = `${eventId}:${selectedOption?.id ?? ""}:${sessionDateKey}:${sessionProfile.session}`;
+  const sessionOpenMark = sessionOpenSnapshot?.key === sessionOpenKey ? sessionOpenSnapshot.value : null;
+  useEffect(() => {
+    if (!selectedOption?.id || !Number.isFinite(outcomePrice) || outcomePrice <= 0) return;
+    setSessionOpenSnapshot((current) =>
+      current?.key === sessionOpenKey ? current : { key: sessionOpenKey, value: outcomePrice },
+    );
+  }, [outcomePrice, selectedOption?.id, sessionOpenKey]);
 
   const book = useMemo(
     () => buildBook(outcomePrice || 0.5, (selectedOption?.id || "").length, sessionProfile),
@@ -697,6 +712,7 @@ export function useSpotTerminal() {
     basePrice,
     indicative,
     indicativePct,
+    sessionOpenMark,
     book,
     bestAsk,
     bestBid,

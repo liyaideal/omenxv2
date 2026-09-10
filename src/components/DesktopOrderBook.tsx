@@ -29,6 +29,7 @@ interface DesktopOrderBookProps {
   bids: OrderBookEntry[];
   currentPrice: string;
   priceChange?: string;
+  markPrice?: string;
   isPositive?: boolean;
   onPriceClick?: (price: string) => void;
   side?: "buy" | "sell";
@@ -160,6 +161,7 @@ export const DesktopOrderBook = ({
   bids: initialBids, 
   currentPrice: initialPrice, 
   priceChange = "88,132.18",
+  markPrice,
   isPositive: initialIsPositive = false,
   onPriceClick,
   side = "buy",
@@ -216,7 +218,7 @@ export const DesktopOrderBook = ({
 
   // Mid/last price displayed in the middle of the book, also transformed
   const displayPrice = transformPrice(currentPrice);
-  const displayMark = variant === "spot" ? transformPrice(priceChange) : displayPrice;
+  const displayMark = markPrice ?? displayPrice;
 
   // Extended data for single-view modes (moved here to use aggregated data)
   const extendedBidsAggregated = [...aggregatedBids, ...aggregatedBids.slice(0, 8)];
@@ -325,7 +327,7 @@ export const DesktopOrderBook = ({
           {/* Buy/Sell side is driven by parent trade form */}
 
           {/* View Toggle & Depth */}
-          <div className="flex items-center px-3 py-2">
+          <div className="flex items-center justify-between px-3 py-2">
             <div className="flex items-center gap-2">
               {/* View mode icons */}
               <button 
@@ -359,23 +361,23 @@ export const DesktopOrderBook = ({
                   <div className="w-3 h-0.5 bg-trading-red" />
                 </div>
               </button>
+              {quoteModeBadge && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span
+                        className={`ml-2 px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-wide rounded border cursor-help ${quoteModeBadge.className}`}
+                      >
+                        {quoteModeBadge.label}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-[220px] p-2">
+                      <p className="text-xs">{quoteModeBadge.tooltip}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
             </div>
-            {quoteModeBadge && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span
-                      className={`mr-auto ml-2 px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-wide rounded border cursor-help ${quoteModeBadge.className}`}
-                    >
-                      {quoteModeBadge.label}
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-[220px] p-2">
-                    <p className="text-xs">{quoteModeBadge.tooltip}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
             <div className="relative">
               <button 
                 onClick={() => setShowStepDropdown(!showStepDropdown)}
