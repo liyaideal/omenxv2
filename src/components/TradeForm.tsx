@@ -1,10 +1,13 @@
-import { FUTURES_FEE_RATE, netWin } from "@/services/tradingService";
-import { useState, useMemo } from "react";
+import { FUTURES_FEE_RATE, netWin, cashBackOnClose } from "@/services/tradingService";
+import { useState, useMemo, useRef } from "react";
 import { ChevronDown, Plus, ArrowLeftRight, ChevronUp, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
+import { toast } from "sonner";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { usePositions } from "@/hooks/usePositions";
+import { OrderTypeDropdown, type ProOrderType } from "@/components/pro/OrderTypeDropdown";
+import { ClosePositionDialog } from "@/components/positions/ClosePositionDialog";
 
 import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
 import { TradeSubmitButton } from "@/components/trading/TradeSubmitButton";
