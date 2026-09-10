@@ -252,5 +252,14 @@ export const ProSpotSection = (_: Props) => (
     >
       <SectionFrame cases={SKELETON_CASES} device="desktop" minHeight={560} />
     </SectionWrapper>
+
+    <SectionWrapper
+      id="pro-spot-mobile"
+      title="Pro /spot 移动端（SP-2）"
+      description="移动 Pro 现货重建在合约 Pro 移动骨架上：/spot 为 Charts 视图 + sticky dock，/spot/order 为下单子页（同一个 ProSpotPanel）。"
+    >
+      <SectionFrame cases={MOBILE_CASES} device="mobile" minHeight={560} />
+    </SectionWrapper>
+
   </div>
 );
