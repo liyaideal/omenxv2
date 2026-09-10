@@ -41,6 +41,10 @@ interface MobileTradingLayoutProps {
   countdownUrgency?: "muted" | "yellow" | "red";
   /** SP-2: extra inline content in the header stats row (schedule ⓘ). */
   statsExtra?: React.ReactNode;
+  /** SP-2: replaces the default Star + Share cluster in the header. */
+  headerRight?: React.ReactNode;
+  /** SP-2: replaces the body of the Event info sheet. */
+  eventInfo?: React.ReactNode;
 }
 
 export function MobileTradingLayout({
@@ -53,6 +57,9 @@ export function MobileTradingLayout({
   countdownLabel,
   countdownUrgency,
   statsExtra,
+  headerRight,
+  eventInfo,
+
 }: MobileTradingLayoutProps) {
   const navigate = useNavigate();
   const navigationType = useNavigationType();
