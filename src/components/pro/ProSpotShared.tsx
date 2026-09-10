@@ -187,7 +187,7 @@ export const SpotPositionsTable = ({
                   >
                     {isYes ? t.yesLabel : t.noLabel}
                   </span>
-                  <span className="truncate flex-1 min-w-0">{p.event}</span>
+                  <span className="flex-1 min-w-0 line-clamp-2">{p.event}</span>
                   <button
                     onClick={() => t.closePosition(p)}
                     className="text-[11px] text-primary hover:underline flex-shrink-0"
@@ -318,7 +318,7 @@ export const SpotOrdersTable = ({
                   >
                     {o.type}
                   </span>
-                  <span className="truncate flex-1 min-w-0">{o.event}</span>
+                  <span className="flex-1 min-w-0 line-clamp-2">{o.event}</span>
                   <button
                     disabled={t.isCancelling || !isPending}
                     onClick={() => t.handleCancelSpotOrder(o)}
@@ -568,7 +568,7 @@ export const SpotMobileMarkLine = ({ t }: { t: SpotTerminal }) => (
   </div>
 );
 
-/** SP-2 · 120px mini order book rendered beside the mobile panel. */
+/** SP-2-FIX2 · 104px mini order book rendered beside the mobile panel. */
 export const SpotMiniOrderBook = ({
   asks,
   bids,
@@ -578,7 +578,7 @@ export const SpotMiniOrderBook = ({
   bids: { price: string; amount: string }[];
   price: number;
 }) => (
-  <div className="w-[120px] flex-shrink-0 border-l border-border/30">
+  <div className="w-[104px] flex-shrink-0 border-l border-border/30">
     <div className="px-1.5 py-1.5">
       <div className="grid grid-cols-2 text-[9px] text-muted-foreground mb-1">
         <span>Price</span>
