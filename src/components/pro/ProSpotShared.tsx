@@ -511,7 +511,7 @@ export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => (
       </span>
     </div>
     <div className="w-px h-5 bg-border/40" />
-    <div className="flex-1 min-w-0 flex items-baseline gap-1 overflow-hidden px-2">
+    <div className="flex-1 min-w-0 flex items-baseline gap-1 px-2">
       <span className="text-[10px] uppercase tracking-wide text-muted-foreground shrink-0">{t.ticker || "Last"}</span>
       <span className="text-[12px] font-mono shrink-0">
         {t.indicative != null ? `${t.cur}${t.indicative.toFixed(2)}` : "—"}
@@ -519,7 +519,9 @@ export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => (
       {t.indicative != null && (
         <span
           className={cn(
-            "text-[12px] font-mono whitespace-nowrap shrink-0",
+            // SP-2-FIX2: the % change is the FIRST thing to drop at ≤360px —
+            // the price and the session pill always stay.
+            "text-[12px] font-mono whitespace-nowrap shrink-0 hidden min-[360px]:inline",
             t.indicativePct >= 0 ? "text-trading-green" : "text-trading-red",
           )}
         >
@@ -527,9 +529,9 @@ export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => (
           {t.indicativePct.toFixed(2)}%
         </span>
       )}
-      {t.indicative != null && t.sessionTag && (
-        <span className="truncate text-[10px] text-muted-foreground hidden min-[360px]:inline">
-          · {t.sessionTag}
+      {t.indicative != null && sessionPill(t.sessionTag) && (
+        <span className="shrink-0 rounded px-1 border border-border/60 text-[9px] font-semibold tracking-wide text-muted-foreground">
+          {sessionPill(t.sessionTag)}
         </span>
       )}
     </div>
