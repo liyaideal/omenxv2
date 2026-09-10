@@ -16,6 +16,7 @@ import {
   SpotEventInfoPanel,
   SpotPositionsTable,
   SpotOrdersTable,
+  SpotMiniOrderBook,
   SpotScheduleInfo,
   SpotHeaderActions,
   spotHeaderEvent,
@@ -35,33 +36,7 @@ function SpotOrderBody({ t }: { t: SpotTerminal }) {
         </div>
 
         {/* Right: mini order book */}
-        <div className="w-[120px] flex-shrink-0 border-l border-border/30">
-          <div className="px-1.5 py-1.5">
-            <div className="grid grid-cols-2 text-[9px] text-muted-foreground mb-1">
-              <span>Price</span>
-              <span className="text-right">Amount</span>
-            </div>
-          </div>
-          <div className="overflow-y-auto scrollbar-hide">
-            {t.book.asks.slice(0, 8).map((ask, index) => (
-              <div key={`ask-${index}`} className="flex justify-between px-1.5 py-0.5 text-[10px]">
-                <span className="price-red">{ask.price}</span>
-                <span className="text-muted-foreground font-mono">{ask.amount}</span>
-              </div>
-            ))}
-          </div>
-          <div className="px-1.5 py-1.5 text-center">
-            <span className="text-sm font-bold font-mono">{t.outcomePrice.toFixed(4)}</span>
-          </div>
-          <div className="overflow-y-auto scrollbar-hide">
-            {t.book.bids.slice(0, 8).map((bid, index) => (
-              <div key={`bid-${index}`} className="flex justify-between px-1.5 py-0.5 text-[10px]">
-                <span className="price-green">{bid.price}</span>
-                <span className="text-muted-foreground font-mono">{bid.amount}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <SpotMiniOrderBook asks={t.book.asks} bids={t.book.bids} price={t.outcomePrice} />
       </div>
 
       {/* Orders / Positions */}

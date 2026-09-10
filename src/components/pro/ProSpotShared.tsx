@@ -539,3 +539,42 @@ export const SpotMobileMarkLine = ({ t }: { t: SpotTerminal }) => (
     <span className="text-[11px] text-muted-foreground">{t.outcomeLabel} · mark</span>
   </div>
 );
+
+/** SP-2 · 120px mini order book rendered beside the mobile panel. */
+export const SpotMiniOrderBook = ({
+  asks,
+  bids,
+  price,
+}: {
+  asks: { price: string; amount: string }[];
+  bids: { price: string; amount: string }[];
+  price: number;
+}) => (
+  <div className="w-[120px] flex-shrink-0 border-l border-border/30">
+    <div className="px-1.5 py-1.5">
+      <div className="grid grid-cols-2 text-[9px] text-muted-foreground mb-1">
+        <span>Price</span>
+        <span className="text-right">Amount</span>
+      </div>
+    </div>
+    <div className="overflow-y-auto scrollbar-hide">
+      {asks.slice(0, 8).map((ask, index) => (
+        <div key={`ask-${index}`} className="flex justify-between px-1.5 py-0.5 text-[10px]">
+          <span className="price-red">{ask.price}</span>
+          <span className="text-muted-foreground font-mono">{ask.amount}</span>
+        </div>
+      ))}
+    </div>
+    <div className="px-1.5 py-1.5 text-center">
+      <span className="text-sm font-bold font-mono">{price.toFixed(4)}</span>
+    </div>
+    <div className="overflow-y-auto scrollbar-hide">
+      {bids.slice(0, 8).map((bid, index) => (
+        <div key={`bid-${index}`} className="flex justify-between px-1.5 py-0.5 text-[10px]">
+          <span className="price-green">{bid.price}</span>
+          <span className="text-muted-foreground font-mono">{bid.amount}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+);
