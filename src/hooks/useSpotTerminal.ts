@@ -612,7 +612,7 @@ export function useSpotTerminal() {
   const ctaLabel = willBePending
     ? `Place limit · ${isSell ? "Sell" : "Buy"} ${outcomeLabel}`
     : `${isSell ? "Sell" : "Buy"} ${outcomeLabel}`;
-  const ctaDisabled = submitting || blocked || amt <= 0 || (orderType === "Limit" && tickInvalid);
+  const ctaDisabled = submitting || blocked || (orderType === "Limit" && tickInvalid);
 
   // FIX3 · Bug 2 — `Close` pre-sets the panel AND opens the order preview.
   const closePosition = (p: (typeof spotPositions)[number]) => {

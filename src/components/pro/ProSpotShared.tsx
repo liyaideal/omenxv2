@@ -257,7 +257,7 @@ export const SpotPositionsTable = ({
         <span />
       </div>
       {rows.length === 0 ? (
-        <div className="px-4 py-8 text-center text-muted-foreground">No open spot positions.</div>
+        <div className="px-4 py-6 text-sm text-center text-muted-foreground">No open positions</div>
       ) : (
         rows.map((p) => {
           const isYes = p.optionId ? p.optionId === t.yesOpt?.id : t.isYesLabel(p.option);
@@ -382,7 +382,7 @@ export const SpotOrdersTable = ({
         <span />
       </div>
       {rows.length === 0 ? (
-        <div className="px-4 py-8 text-center text-muted-foreground">No open spot orders.</div>
+        <div className="px-4 py-6 text-sm text-center text-muted-foreground">No open orders</div>
       ) : (
         rows.map((o, i) => {
           const reserved = o.type === "buy" ? `$${money2(num(o.total))}` : "—";
@@ -435,7 +435,7 @@ export const SpotBottomTabs = ({
   <ProBottomTabs
     tabs={[
       { key: "Positions", label: "Positions", count: t.spotPositions.length },
-      { key: "Orders", label: "Orders", count: t.spotOrders.length },
+      { key: "Orders", label: "Current Orders", count: t.spotOrders.length },
     ]}
     active={t.bottomTab}
     onChange={(k) => t.setBottomTab(k as "Positions" | "Orders")}

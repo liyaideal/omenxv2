@@ -7,6 +7,7 @@
 // ============================================================
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, HelpCircle, Info } from "lucide-react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import {
@@ -114,6 +115,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
   const isBare = p.chrome === "bare";
   const ctaWrapRef = useRef<HTMLDivElement>(null);
   const ctaMeasureRef = useRef<HTMLSpanElement>(null);
+  const amountInputRef = useRef<HTMLInputElement>(null);
   const [autoCtaLayout, setAutoCtaLayout] = useState<"row" | "stacked">("row");
   const disabledSide: "yes" | "no" | "both" | undefined = !isSell
     ? undefined
@@ -147,7 +149,6 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
       {!isBare && (
         <div className="flex items-center px-4 py-2 border-b border-border/30">
           <span className="text-sm font-medium">Trade</span>
-          <Badge variant="outline" className="ml-2 text-[10px]">SPOT</Badge>
         </div>
       )}
       <div className={isBare ? "px-3 pb-2 space-y-2" : "px-4 py-3 space-y-3"}>
@@ -223,6 +224,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
           <span className={cn("text-muted-foreground", isBare ? "text-[10px]" : "text-xs")}>Amount</span>
           <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
             <input
+              ref={amountInputRef}
               type="text"
               value={p.amount}
               onChange={(e) => p.onAmountChange(e.target.value)}
@@ -294,16 +296,16 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
                 <span className="text-xs font-mono">{(p.slippageBps / 100).toFixed(2)}%</span>
               )}
             </div>
-            {!isBare && <div className="grid grid-cols-4 gap-1">
+            {!isBare && <div className="flex gap-1.5">
               {[10, 25, 50, 100].map((bps) => (
                 <button
                   key={bps}
                   onClick={() => p.onSlippageChange(bps)}
                   className={cn(
-                    "py-1 text-[10px] rounded transition-colors whitespace-nowrap",
+                    "flex-1 py-1 text-xs rounded transition-colors whitespace-nowrap",
                     p.slippageBps === bps
-                      ? "bg-foreground text-background font-semibold"
-                      : "border border-border/60 text-muted-foreground hover:text-foreground",
+                      ? "bg-muted text-foreground font-medium"
+                      : "bg-muted/40 text-muted-foreground hover:text-foreground",
                   )}
                 >
                   {(bps / 100).toFixed(2)}%
@@ -314,7 +316,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
         )}
 
         {/* Summary */}
-        <div className={cn("font-mono space-y-1", isBare ? "text-xs" : "rounded-md bg-muted/30 p-2.5 text-[11px]")}>
+        <div className={cn("font-mono space-y-1", isBare ? "text-xs" : "text-xs pt-2 border-t border-border/30")}>
           {isSell ? (
             <>
               <Row label="Proceeds">${money2(p.cost)}</Row>
@@ -333,34 +335,30 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
                   Est. fill @ {p.bestAsk.toFixed(2)}
                 </div>
               )}
-              {isBare && <Row label="Fee (0.15%)">${money2(p.fee)}</Row>}
+              {!isBare && <Row label="Shares">{formatShares(p.qty)}</Row>}
+              <Row label="Fee (0.15%)">${money2(p.fee)}</Row>
               {isBare && (
                 <div className="flex justify-between pt-2 border-t border-border/30 font-medium text-foreground">
                   <span>Total</span>
                   <span>${money2(p.cost + p.fee)}</span>
                 </div>
               )}
-              {!isBare && <Row label="Shares">{formatShares(p.qty)}</Row>}
-              <Row
-                label={
-                  <span className="inline-flex items-center gap-1">
-                    To win
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <HelpCircle className="w-3 h-3 text-muted-foreground cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-[220px] p-2">
-                          <WinTooltipBody />
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </span>
-                }
-              >
-                ${money2(p.maxWin)}
-              </Row>
-              {!isBare && <Row label="Fee (0.15%)">${money2(p.fee)}</Row>}
+              <div className={cn("flex justify-between", !isBare && "pt-2 border-t border-border/30 font-medium text-foreground")}>
+                <span className="inline-flex items-center gap-1">
+                  To win
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HelpCircle className="w-3 h-3 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[220px] p-2">
+                        <WinTooltipBody />
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </span>
+                <span>${money2(p.maxWin)}</span>
+              </div>
             </>
           )}
         </div>
@@ -371,11 +369,6 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
           </div>
         )}
 
-        {/* Spot account balance hint — spot funds only. */}
-        {!isBare && <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-          <Info className="h-3 w-3" />
-          Standard Account · ${money2(p.spotBalance)} available
-        </div>}
         {p.settleEtOnly && (
           <div className="text-[10px] text-muted-foreground">
             Settles &amp; credits by ~{p.settleEtOnly}
@@ -407,7 +400,14 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
             winPrefix={isSell ? "You receive" : "To win"}
             layout={ctaLayout}
             size={isBare ? "sm" : undefined}
-            onClick={p.onSubmit}
+            onClick={() => {
+              if ((parseFloat(p.amount) || 0) <= 0) {
+                amountInputRef.current?.focus();
+                toast.error("Enter an amount");
+                return;
+              }
+              p.onSubmit();
+            }}
             disabled={p.ctaDisabled}
             loading={p.submitting}
             positionSide={isSell ? undefined : p.isYesSelected ? "yes" : "no"}
@@ -427,10 +427,8 @@ export interface ProSpotAccountPanelProps {
 /** Right-rail account card — Standard (spot) funds only. */
 export const ProSpotAccountPanel = ({ available, inOrders, openPositions }: ProSpotAccountPanelProps) => (
   <div className="flex flex-col bg-background rounded-lg border border-border/50">
-    <div className="flex items-center px-4 py-2 border-b border-border/30">
+    <div className="p-3 space-y-3 text-xs">
       <span className="text-sm font-medium">Standard Account</span>
-    </div>
-    <div className="px-4 py-3 space-y-2 text-xs">
       <Row label="Available (USDC)">
         <span className="font-mono text-foreground">${money2(available)}</span>
       </Row>

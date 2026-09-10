@@ -29,7 +29,7 @@ export const SpotSection = ({ isMobile }: Props) => {
       <SectionWrapper
         id="spot-terminal-chrome"
         title="Spot terminal chrome"
-        description="LOCKED per DESIGN.md §7: Left = identity + status badges + single countdown row (Trading ends in X · until HH:MM · ⓘ schedule). Right = Volume · Base ({priorDate} close) · {TICKER} price %. NO second time row, NO Yes-price stat, NO 中文 characters in the header — every clock renders viewer-local with no timezone suffix (全站时间口径 R1)."
+        description="LOCKED per DESIGN.md §14: Left = identity + one lifecycle badge + single countdown row (Trading ends in X · until HH:MM · ⓘ schedule). Right = Volume · {TICKER} price %. Base appears only below the chart price row."
       >
         <ProSpotHeader
           ticker="AAPL"
@@ -41,8 +41,6 @@ export const SpotSection = ({ isMobile }: Props) => {
           settleEtOnly="16:15"
           closingSoon={false}
           volumeText="$802K"
-          priorCloseDateLabel="Jul 14"
-          basePriceText="$231.10"
           lastLabel="AAPL"
           lastPriceText="$231.08"
           lastIsUp={false}
