@@ -1856,3 +1856,14 @@ Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① 
 ## §Addendum 2026-09-09 · 色轴优先级澄清（SP-1-FIX2，append-only）
 
 §7 关于 toggle / CTA 的旧色描述（`选中 Yes → bg-trading-green`、`选中 No → bg-trading-red`，L639-646）**已被 §2 Market Axis 的 `--yes` / `--no` 取代**：方向档与方向色 CTA 一律用 `bg-yes` / `bg-no`，`trading-green` / `trading-red` 只留给盈亏轴。生产组件（`BinarySideToggle`、`TradeSubmitButton`）与 `/style-guide` 一律以 §2 为准。
+
+## §Addendum 2026-09-10 · Pro SPOT 移动端（SP-2，append-only）
+
+补充 §14：移动 Pro 现货**不是**桌面终端的竖排堆叠，而是长在合约 Pro 移动骨架上的两页动线。
+
+1. **骨架**：`MobileTradingLayout` 新增 `basePath`（`/trade` | `/spot`）与 `variant`（`perp` | `spot`）。`variant="spot"` 隐藏 `OptionChips` 与 `MobileRiskIndicator`、隐藏事件切换 sheet，并在标题后加一枚 `SPOT` outline 徽章；页头单条倒计时行文案为 `Trading ends in`，三档紧急度配色同桌面。合约页保持默认值，`/trade`、`/trade/order` 逐像素不变。
+2. **统计区例外**：移动现货用**一条 32px strip**（`rounded-md border border-border/40 bg-card`，1px 竖分隔），左 `BASE $x`、右 `TICKER $x ±x.xx% · 时段`，覆盖 perp 的 grid-cols-2 双卡写法。
+3. **两页动线**：`/spot` = Charts 视图（strip → mark 行 → `CandlestickChart h-[280px]` → Order Book / Trades / Orders / Positions），`/spot/order` = 下单子页（桌面同一个 `ProSpotPanel` + 120px 迷你盘口 + Orders/Positions）。
+4. **切换控件**：`SurfaceSwitch size="dock"` 只作为 `/spot` sticky dock 的第一个子元素；页头里没有、`/spot/order` 上没有。
+5. **底部 dock**：`fixed bottom-0 z-50` + 安全区内距，页面 `pb-28`；两段式点按（第一次选边，第二次跳 `/spot/order`）；封锁时两个按钮禁用显示 `Market frozen`。
+6. **生命周期**：新增 `freeze_expired_events()` + 每 5 分钟 `freeze-sweep` cron，过了 `freeze_time`（无则 `end_date`）的未结算事件自动进 `FROZEN`，不再挂着 `EXTENDED_TRADING` 显示 `00:00:00`。

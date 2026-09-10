@@ -225,3 +225,151 @@ export const ProTerminalSkeleton = () => (
     />
   </div>
 );
+
+/* ---------------- SP-2 · mobile Pro spot (375 px) ---------------- */
+
+import {
+  SpotMobileStatsStrip,
+  SpotMobileMarkLine,
+} from "@/components/pro/ProSpotShared";
+import { ProSpotMobileDock } from "@/components/pro/ProSpotMobileDock";
+import { CandlestickChart } from "@/components/CandlestickChart";
+import type { SpotTerminal } from "@/hooks/useSpotTerminal";
+
+/** Minimal fixture standing in for the shared spot terminal hook. */
+const spotFixture = (over: Partial<SpotTerminal> = {}) =>
+  ({
+    event: {
+      id: "us-meta-updown-20260909",
+      name: "Meta — up or down?",
+      base_price: 577.1755,
+      description: "US-stock daily up/down (spot).",
+      source_name: "databento",
+      source_url: "",
+    },
+    outcomeLabel: "Up",
+    outcomePrice: 0.4916,
+    yesLabel: "Up",
+    noLabel: "Down",
+    yesLive: 0.4916,
+    noLive: 0.5084,
+    basePrice: 577.1755,
+    cur: "$",
+    ticker: "META",
+    indicative: 579.0784,
+    indicativePct: 0.33,
+    sessionTag: "pre-mkt",
+    countdown: { text: "02:14:08", urgency: "muted" as const, diffMs: 8048000 },
+    freezeEtOnly: "15:55",
+    settleEtOnly: "16:15",
+    endDate: null,
+    freezeAt: null,
+    blocked: false,
+    blockedReason: null,
+    ...over,
+  }) as unknown as SpotTerminal;
+
+const Phone = ({ children }: { children: React.ReactNode }) => (
+  <div style={{ width: 375 }}>{children}</div>
+);
+
+/** SP-2 · mobile Charts view — stats strip + mark line + sticky dock. */
+export const ProSpotMobileCharts = () => {
+  const t = spotFixture();
+  return (
+    <Phone>
+      <SpotMobileStatsStrip t={t} />
+      <SpotMobileMarkLine t={t} />
+      <div style={{ height: 280 }}>
+        <CandlestickChart remainingDays={1} basePrice={0.4916} side="buy" />
+      </div>
+      <div className="relative mt-4 h-[92px]">
+        <ProSpotMobileDock
+          available={14315.4}
+          yesLabel="Up"
+          noLabel="Down"
+          yesPrice={0.4916}
+          noPrice={0.5084}
+          selected={null}
+          onTap={() => undefined}
+          showSurfaceSwitch={false}
+          className="absolute"
+        />
+      </div>
+    </Phone>
+  );
+};
+
+/** SP-2 · mobile Charts view, market frozen — both dock buttons disabled. */
+export const ProSpotMobileChartsFrozen = () => {
+  const t = spotFixture({
+    countdown: { text: "00:00:00", urgency: "red", diffMs: 0 },
+    blocked: true,
+    blockedReason: "Market frozen",
+  } as Partial<SpotTerminal>);
+  return (
+    <Phone>
+      <SpotMobileStatsStrip t={t} />
+      <SpotMobileMarkLine t={t} />
+      <div className="relative mt-4 h-[92px]">
+        <ProSpotMobileDock
+          available={14315.4}
+          yesLabel="Up"
+          noLabel="Down"
+          yesPrice={0.4916}
+          noPrice={0.5084}
+          selected={null}
+          onTap={() => undefined}
+          blocked
+          blockedReason="Market frozen"
+          showSurfaceSwitch={false}
+          className="absolute"
+        />
+      </div>
+    </Phone>
+  );
+};
+
+/** SP-2 · /spot/order — Buy tab (same ProSpotPanel as desktop, 375 px). */
+export const ProSpotMobileOrderBuy = () => (
+  <Phone>
+    <PanelFixture />
+  </Phone>
+);
+
+/** SP-2 · /spot/order — Sell tab with a Down-only holding. */
+export const ProSpotMobileOrderSellHeld = () => (
+  <Phone>
+    <PanelFixture side="sell" heldNoQty={2034.879} startIsYes={false} amount="2034.879" />
+  </Phone>
+);
+
+/** SP-2 · the sticky dock alone: default / side selected / frozen. */
+export const ProSpotMobileDockStates = () => (
+  <div className="space-y-6" style={{ width: 375 }}>
+    {[
+      { k: "default", selected: null as "yes" | "no" | null, blocked: false },
+      { k: "up selected", selected: "yes" as const, blocked: false },
+      { k: "frozen", selected: null as "yes" | "no" | null, blocked: true },
+    ].map((s) => (
+      <div key={s.k}>
+        <div className="px-3 pb-1 text-[10px] uppercase tracking-wide text-muted-foreground">{s.k}</div>
+        <div className="relative h-[92px]">
+          <ProSpotMobileDock
+            available={14315.4}
+            yesLabel="Up"
+            noLabel="Down"
+            yesPrice={0.4916}
+            noPrice={0.5084}
+            selected={s.selected}
+            onTap={() => undefined}
+            blocked={s.blocked}
+            blockedReason="Market frozen"
+            showSurfaceSwitch={false}
+            className="absolute"
+          />
+        </div>
+      </div>
+    ))}
+  </div>
+);

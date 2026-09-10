@@ -145,3 +145,20 @@ Spot 节原先手抄的终端顶栏已换成生产件 `ProSpotHeader`，CTA 例�
 2. **Up 档点不动**：`BinarySideToggle` 的 `Segment` 原本声明在组件内部，每渲染都是新组件类型 → 两个 `<button>` 每渲染卸载重挂，光标下的按钮在 mousedown 与 mouseup 之间被替换，点击落到外层 div。现已提到模块作用域并加 `key`，DOM 结构与 class 逐字未变。
 3. **时间也封锁下单**：`blocked = isOrderingBlocked(dbLifecycle) || isFrozenByTime`，原因文案 `Market frozen`。封锁时两个 tile 仍可点选看价，CTA 置灰、预览弹窗打不开、`handleSubmit` 与 Positions 行 `Close` 直接 toast 拦截。
 4. **状态字典**：新增 `pro-spot-panel-frozen`（SP-B8）。
+
+## SP-2 (2026-09-10) — 冻结巡检 + Pro 现货移动端重建
+
+**Part A · freeze-sweep**：新增 `public.freeze_expired_events()`（幂等：`TRADING`/`EXTENDED_TRADING` 且未结算、过了 `freeze_time`，无 freeze_time 则看 `end_date` → `FROZEN`），pg_cron `freeze-sweep` `*/5 * * * *`。首次手动执行翻转 0 行。`settle_prior_stock_session` 只按 `end_date <= now()` 取未结算行，不过滤生命周期，`FROZEN` 仍会照常结算；`isOrderingBlocked` 已把 `FROZEN` 列为不可下单，文案沿用 `Market frozen`。
+
+**Part B · 移动端**
+- `src/hooks/useSpotTerminal.ts`（B5）：现货终端唯一逻辑源，桌面 `/spot`、移动 Charts、移动 order 三处共用。FIX3 / FIX4 / FIX5 行为逐字保留。
+- `src/components/pro/ProSpotShared.tsx`：共享渲染块（面板 / 预览弹窗 / 账户 / 事件信息 / 持仓与挂单表桌面与移动两态 / 底部页签 / 移动 strip / mark 行 / 日程 ⓘ / 表头事件适配）。
+- `src/components/pro/ProSpotMobileDock.tsx`：sticky dock（Lite/Pro dock 开关 + Buy Up / Buy Down 两段式点按 + 封锁态）。
+- `src/pages/SpotTradingCharts.tsx`（`/spot` 移动）、`src/pages/SpotTradeOrder.tsx`（`/spot/order` 移动）。
+- `src/pages/SpotTrading.tsx` 变成**桌面专用**，旧移动分支（MobileChrome / 内联面板 / 头部 SurfaceSwitch）删除。
+- `src/components/MobileTradingLayout.tsx` / `MobileHeader.tsx` 泛化（basePath / variant / 事件直传 / 倒计时文案与紧急度 / 标题徽章 / 页头右侧与事件信息插槽），合约页默认值不变。
+- 路由：`/spot` → Lite | 移动 Pro Charts | 桌面 Pro；新增 `/spot/order` → Lite 重定向 `/spot` | 移动 Pro 下单页 | 桌面 Pro 终端。
+
+**字典**：新增 `pro-spot-mobile-charts`、`pro-spot-mobile-charts-frozen`、`pro-spot-mobile-order-buy`、`pro-spot-mobile-order-sell-held`、`pro-spot-mobile-dock`，全部挂生产件本体，375 DeviceFrame，登出可渲染。
+
+**不在范围**：桌面面板 / 顶栏视觉、`DesktopTrading`、Lite 各页、`tradingService` 费率逻辑。
