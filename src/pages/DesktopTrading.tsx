@@ -946,7 +946,7 @@ export default function DesktopTrading() {
       </header>
       </>}
       subHeader={
-        !hasMarketChips && (
+        hasMarketChips && (
         <div className="flex items-center gap-2 px-4 py-2 border-b border-border/30 overflow-x-auto scrollbar-hide">
           <span className="text-xs text-muted-foreground flex-shrink-0">Select Option:</span>
           {options.map((option) => (
