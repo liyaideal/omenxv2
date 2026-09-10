@@ -1,0 +1,1 @@
+ALTER TABLE public.trades ADD COLUMN IF NOT EXISTS reduce_only boolean NOT NULL DEFAULT false;
