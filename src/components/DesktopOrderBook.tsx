@@ -216,7 +216,7 @@ export const DesktopOrderBook = ({
 
   // Mid/last price displayed in the middle of the book, also transformed
   const displayPrice = transformPrice(currentPrice);
-  const displayMark = transformPrice(priceChange);
+  const displayMark = variant === "spot" ? transformPrice(priceChange) : displayPrice;
 
   // Extended data for single-view modes (moved here to use aggregated data)
   const extendedBidsAggregated = [...aggregatedBids, ...aggregatedBids.slice(0, 8)];
