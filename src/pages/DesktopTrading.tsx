@@ -1506,20 +1506,6 @@ export default function DesktopTrading() {
               </div>
             </div>
 
-            {/* Order Type Tabs */}
-            <div className="flex border-b border-border/30">
-              {(["Limit", "Market"] as const).map((type) => (
-                <button
-                  key={type}
-                  onClick={() => setOrderType(type)}
-                  className={`px-2 py-1.5 text-xs font-medium transition-all ${
-                    orderType === type ? "text-foreground border-b-2 border-trading-purple" : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {type}
-                </button>
-              ))}
-            </div>
 
             {/* Price Input (for Limit orders) */}
             {orderType === "Limit" && (
