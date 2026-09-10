@@ -55,6 +55,11 @@ interface MobileHeaderProps {
   titleHidden?: boolean;
   /** SP-2: small badge rendered right after the title (e.g. SPOT). */
   titleBadge?: ReactNode;
+  /**
+   * SP-2-FIX1: pre-formatted countdown text owned by the caller. When set the
+   * header runs no clock of its own (perp keeps the internal `endTime` clock).
+   */
+  countdownText?: string;
   /** SP-2: countdown row wording. Defaults to the locked `Ends in`. */
   countdownLabel?: string;
   /** SP-2: 3-tier urgency colour for the countdown row. Defaults to red. */
