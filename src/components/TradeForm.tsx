@@ -226,8 +226,118 @@ export const TradeForm = ({
     });
   };
 
+  // ============================================================
+  // CT-1 · Sell = reduce-only close of the netted position on the selected
+  // outcome. Contracts only, integer, never opens the opposite side.
+  // ============================================================
+  const eventPositions = useMemo(
+    () => positions.filter((p) => p.event === eventName),
+    [positions, eventName],
+  );
+  const heldPos = useMemo(
+    () => eventPositions.find((p) => p.option === optionLabel) ?? null,
+    [eventPositions, optionLabel],
+  );
+  const otherSideHeld = useMemo(
+    () => eventPositions.some((p) => p.option !== optionLabel),
+    [eventPositions, optionLabel],
+  );
+  const currentIsYes = binaryMode ? binaryMode.isYesSelected : side === "buy";
+  const sellDisabledSide: "yes" | "no" | "both" | undefined = !heldPos && !otherSideHeld
+    ? "both"
+    : !heldPos
+    ? (currentIsYes ? "yes" : "no")
+    : !otherSideHeld
+    ? (currentIsYes ? "no" : "yes")
+    : undefined;
+
+  const [sellQtyInput, setSellQtyInput] = useState("0");
+  const [sellSlider, setSellSlider] = useState([0]);
+  const [sellLimitPrice, setSellLimitPrice] = useState("");
+  const sellAmountRef = useRef<HTMLInputElement | null>(null);
+
+  const heldSize = heldPos ? Math.floor(heldPos.sizeNum) : 0;
+  const sellOutcomeLabel = binaryMode
+    ? (binaryMode.isYesSelected ? binaryMode.yesLabel : binaryMode.noLabel)
+    : heldPos?.displayOption ?? optionLabel;
+  const sellMark = binaryMode
+    ? (binaryMode.isYesSelected ? binaryMode.yesPrice : binaryMode.noPrice)
+    : currentPrice;
+  const sellQtyRaw = Math.max(0, Math.floor(parseFloat(sellQtyInput) || 0));
+  const sellQty = heldSize > 0 ? Math.min(sellQtyRaw >= heldSize - 0.5 ? heldSize : sellQtyRaw, heldSize) : 0;
+  const sellClosePrice = orderType === "Limit" ? (parseFloat(sellLimitPrice) || sellMark) : sellMark;
+  const sellLimitPending = orderType === "Limit" && Math.abs(sellClosePrice - sellMark) > 1e-9;
+  const sellRatio = heldSize > 0 ? sellQty / heldSize : 0;
+  const sellReleasedMargin = heldPos ? heldPos.marginNum * sellRatio : 0;
+  const sellRealizedPnl = heldPos
+    ? (heldPos.type === "long" ? sellClosePrice - heldPos.entryPriceNum : heldPos.entryPriceNum - sellClosePrice) * sellQty
+    : 0;
+  const { wc: sellCommission, cashBack: sellCashBack } = cashBackOnClose({
+    releasedMargin: sellReleasedMargin,
+    realizedPnl: sellRealizedPnl,
+    allocatedEntryFee: heldPos ? heldPos.entryPriceNum * sellQty * FUTURES_FEE_RATE : 0,
+  });
+  const sellCtaLabel = heldSize > 0 && sellQty >= heldSize
+    ? `Close ${sellOutcomeLabel}`
+    : `Reduce ${sellOutcomeLabel}`;
+
+  const handleMarketSellConfirm = async (qty: number) => {
+    if (!heldPos?.id) return;
+    const index = positions.findIndex((p) => p.id === heldPos.id);
+    await partialClosePosition(heldPos.id, index, qty);
+    toast.success(`Closed · $${sellCashBack.toFixed(2)} back`);
+    setSellQtyInput("0");
+    setSellSlider([0]);
+  };
+
+  const handleSellPreview = () => {
+    if (!heldPos || heldSize <= 0) return;
+    if (sellQty <= 0) {
+      sellAmountRef.current?.focus();
+      toast.error("Enter an amount");
+      return;
+    }
+    navigate("/order-preview", {
+      state: {
+        reduceOnly: true,
+        event: eventName,
+        sell: {
+          positionId: heldPos.id,
+          option: heldPos.option,
+          outcomeLabel: sellOutcomeLabel,
+          leverage: Math.round(heldPos.leverageNum) || 1,
+          closePrice: sellClosePrice,
+          qty: sellQty,
+          releasedMargin: sellReleasedMargin,
+          realizedPnl: sellRealizedPnl,
+          commission: sellCommission,
+          cashBack: sellCashBack,
+          ctaLabel: sellCtaLabel,
+        },
+      },
+    });
+  };
+
   return (
     <div className="px-3 pb-2 space-y-2">
+      {/* CT-1 · Buy · Sell intent tabs + order type dropdown (mirrors /spot/order) */}
+      <div className="flex items-center gap-4">
+        {(["buy", "sell"] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setIntent(tab)}
+            className={`text-xs font-semibold capitalize pb-1 border-b-2 transition-colors ${
+              intent === tab
+                ? "text-foreground border-foreground"
+                : "text-muted-foreground border-transparent"
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
+        <OrderTypeDropdown value={orderType} onChange={setOrderType} className="ml-auto" />
+      </div>
+
       {/* Yes/No Toggle — binary 单 market 下点击切换 option（联动 K 线/订单簿），否则切换 side */}
       {/* 双层结构：上层 label（队名/Yes/No），下层独立色块价格条 */}
       <div className="space-y-1">
