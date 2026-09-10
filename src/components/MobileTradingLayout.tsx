@@ -11,6 +11,8 @@ import { isSingleMarketBinary } from "@/lib/eventUtils";
 import { MobileRiskIndicator } from "@/components/MobileRiskIndicator";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { useAuth } from "@/hooks/useAuth";
+import { Badge } from "@/components/ui/badge";
+
 
 // Context for sharing trading state with child components
 export interface TradingContextData {
