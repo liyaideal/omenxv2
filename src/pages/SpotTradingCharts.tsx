@@ -66,10 +66,8 @@ function SpotChartsBody({ t }: { t: SpotTerminal }) {
       <SpotMobileStatsStrip t={t} />
 
       {/* Mark line */}
-      <div className="flex items-baseline gap-2 px-3 pb-2">
-        <span className="text-2xl font-bold font-mono">{t.outcomePrice.toFixed(4)}</span>
-        <span className="text-[11px] text-muted-foreground">{t.outcomeLabel} · mark</span>
-      </div>
+      <SpotMobileMarkLine t={t} />
+
 
       <div className="h-[280px] border-b border-border/30">
         <CandlestickChart remainingDays={1} basePrice={t.outcomePrice || 0.5} side={t.side} />
