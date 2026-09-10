@@ -48,10 +48,13 @@ export const TradeSubmitButton = ({
   className,
   positionSide,
   winPrefix = "To win",
+  layout = "row",
 }: TradeSubmitButtonProps) => {
   const isBuy = side === "buy";
-  const sizeClasses =
-    size === "sm" ? "py-2 px-3" : size === "lg" ? "py-3.5 px-4" : "py-2.5 px-4";
+  const stacked = layout === "stacked";
+  const sizeClasses = stacked
+    ? "h-12 px-3"
+    : size === "sm" ? "py-2 px-3" : size === "lg" ? "py-3.5 px-4" : "py-2.5 px-4";
   const labelClass =
     size === "sm" ? "text-[13px]" : "text-sm";
   const winClass =
