@@ -292,6 +292,14 @@ export const previewRegistry: Record<string, Loader> = {
   "pro-spot-preview-dialog": pick(proSpot, "ProSpotPreviewDialog"),
   "pro-terminal-skeleton": pick(proSpot, "ProTerminalSkeleton"),
 
+  /* -------- Pro /spot mobile（SP-2）-------- */
+  "pro-spot-mobile-charts": pick(proSpot, "ProSpotMobileCharts"),
+  "pro-spot-mobile-charts-frozen": pick(proSpot, "ProSpotMobileChartsFrozen"),
+  "pro-spot-mobile-order-buy": pick(proSpot, "ProSpotMobileOrderBuy"),
+  "pro-spot-mobile-order-sell-held": pick(proSpot, "ProSpotMobileOrderSellHeld"),
+  "pro-spot-mobile-dock": pick(proSpot, "ProSpotMobileDockStates"),
+
+
   "spot-sp1": pick(spot, "Sp1Preview"),
   "spot-sp2": pick(spot, "Sp2Preview"),
   "spot-sp3": pick(spot, "Sp3Preview"),
