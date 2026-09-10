@@ -17,8 +17,16 @@ import { ProBottomTabs } from "@/components/pro/ProBottomTabs";
 import { mock24hVolume, type SpotTerminal } from "@/hooks/useSpotTerminal";
 import type { TradingEvent } from "@/hooks/useEvents";
 
-export const SpotTradePanel = ({ t }: { t: SpotTerminal }) => (
+export const SpotTradePanel = ({
+  t,
+  ctaLayout,
+}: {
+  t: SpotTerminal;
+  /** SP-2-FIX2: mobile `/spot/order` stacks the CTA. Desktop stays `row`. */
+  ctaLayout?: "row" | "stacked";
+}) => (
   <ProSpotPanel
+    ctaLayout={ctaLayout}
     side={t.side}
     onSideChange={t.onSideChange}
     orderType={t.orderType}

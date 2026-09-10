@@ -32,7 +32,7 @@ function SpotOrderBody({ t }: { t: SpotTerminal }) {
       <div className="flex">
         {/* Left: the very same panel desktop /spot renders */}
         <div className="flex-1 min-w-0">
-          <SpotTradePanel t={t} />
+          <SpotTradePanel t={t} ctaLayout="stacked" />
         </div>
 
         {/* Right: mini order book */}
