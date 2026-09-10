@@ -1541,6 +1541,7 @@ export type Database = {
           price: number
           product_line: string
           quantity: number
+          reduce_only: boolean
           side: string
           sl_mode: string | null
           sl_value: number | null
@@ -1566,6 +1567,7 @@ export type Database = {
           price: number
           product_line?: string
           quantity: number
+          reduce_only?: boolean
           side: string
           sl_mode?: string | null
           sl_value?: number | null
@@ -1591,6 +1593,7 @@ export type Database = {
           price?: number
           product_line?: string
           quantity?: number
+          reduce_only?: boolean
           side?: string
           sl_mode?: string | null
           sl_value?: number | null

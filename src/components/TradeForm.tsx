@@ -1,10 +1,13 @@
-import { FUTURES_FEE_RATE, netWin } from "@/services/tradingService";
-import { useState, useMemo } from "react";
+import { FUTURES_FEE_RATE, netWin, cashBackOnClose } from "@/services/tradingService";
+import { useState, useMemo, useRef } from "react";
 import { ChevronDown, Plus, ArrowLeftRight, ChevronUp, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
+import { toast } from "sonner";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { usePositions } from "@/hooks/usePositions";
+import { OrderTypeDropdown, type ProOrderType } from "@/components/pro/OrderTypeDropdown";
+import { ClosePositionDialog } from "@/components/positions/ClosePositionDialog";
 
 import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
 import { TradeSubmitButton } from "@/components/trading/TradeSubmitButton";
@@ -33,6 +36,9 @@ interface TradeFormProps {
   };
   /** binary 单 market 事件的两端别名（如体育队名），用于提交按钮等文案翻译 */
   sideLabels?: { yes: string; no: string } | null;
+  /** CT-1: Buy · Sell intent tab. Controlled by the page so it survives navigation. */
+  intent?: "buy" | "sell";
+  onIntentChange?: (next: "buy" | "sell") => void;
 }
 
 
@@ -45,10 +51,12 @@ export const TradeForm = ({
   onSideChange,
   binaryMode,
   sideLabels,
+  intent: controlledIntent,
+  onIntentChange,
 }: TradeFormProps) => {
   const navigate = useNavigate();
   const { balance } = useUserProfile();
-  const { positions } = usePositions();
+  const { positions, partialClosePosition, isClosing } = usePositions();
 
   
   
@@ -58,8 +66,14 @@ export const TradeForm = ({
     if (controlledSide === undefined) setInternalSide(next);
     onSideChange?.(next);
   };
+  const [internalIntent, setInternalIntent] = useState<"buy" | "sell">("buy");
+  const intent = controlledIntent ?? internalIntent;
+  const setIntent = (next: "buy" | "sell") => {
+    if (controlledIntent === undefined) setInternalIntent(next);
+    onIntentChange?.(next);
+  };
   const [leverage, setLeverage] = useState(10);
-  const [orderType, setOrderType] = useState("Market");
+  const [orderType, setOrderType] = useState<ProOrderType>("Market");
   const [amount, setAmount] = useState("0.00");
   const [sliderValue, setSliderValue] = useState([0]);
   const [tpsl, setTpsl] = useState(false);
@@ -212,8 +226,118 @@ export const TradeForm = ({
     });
   };
 
+  // ============================================================
+  // CT-1 · Sell = reduce-only close of the netted position on the selected
+  // outcome. Contracts only, integer, never opens the opposite side.
+  // ============================================================
+  const eventPositions = useMemo(
+    () => positions.filter((p) => p.event === eventName),
+    [positions, eventName],
+  );
+  const heldPos = useMemo(
+    () => eventPositions.find((p) => p.option === optionLabel) ?? null,
+    [eventPositions, optionLabel],
+  );
+  const otherSideHeld = useMemo(
+    () => eventPositions.some((p) => p.option !== optionLabel),
+    [eventPositions, optionLabel],
+  );
+  const currentIsYes = binaryMode ? binaryMode.isYesSelected : side === "buy";
+  const sellDisabledSide: "yes" | "no" | "both" | undefined = !heldPos && !otherSideHeld
+    ? "both"
+    : !heldPos
+    ? (currentIsYes ? "yes" : "no")
+    : !otherSideHeld
+    ? (currentIsYes ? "no" : "yes")
+    : undefined;
+
+  const [sellQtyInput, setSellQtyInput] = useState("0");
+  const [sellSlider, setSellSlider] = useState([0]);
+  const [sellLimitPrice, setSellLimitPrice] = useState("");
+  const sellAmountRef = useRef<HTMLInputElement | null>(null);
+
+  const heldSize = heldPos ? Math.floor(heldPos.sizeNum) : 0;
+  const sellOutcomeLabel = binaryMode
+    ? (binaryMode.isYesSelected ? binaryMode.yesLabel : binaryMode.noLabel)
+    : heldPos?.displayOption ?? optionLabel;
+  const sellMark = binaryMode
+    ? (binaryMode.isYesSelected ? binaryMode.yesPrice : binaryMode.noPrice)
+    : currentPrice;
+  const sellQtyRaw = Math.max(0, Math.floor(parseFloat(sellQtyInput) || 0));
+  const sellQty = heldSize > 0 ? Math.min(sellQtyRaw >= heldSize - 0.5 ? heldSize : sellQtyRaw, heldSize) : 0;
+  const sellClosePrice = orderType === "Limit" ? (parseFloat(sellLimitPrice) || sellMark) : sellMark;
+  const sellLimitPending = orderType === "Limit" && Math.abs(sellClosePrice - sellMark) > 1e-9;
+  const sellRatio = heldSize > 0 ? sellQty / heldSize : 0;
+  const sellReleasedMargin = heldPos ? heldPos.marginNum * sellRatio : 0;
+  const sellRealizedPnl = heldPos
+    ? (heldPos.type === "long" ? sellClosePrice - heldPos.entryPriceNum : heldPos.entryPriceNum - sellClosePrice) * sellQty
+    : 0;
+  const { wc: sellCommission, cashBack: sellCashBack } = cashBackOnClose({
+    releasedMargin: sellReleasedMargin,
+    realizedPnl: sellRealizedPnl,
+    allocatedEntryFee: heldPos ? heldPos.entryPriceNum * sellQty * FUTURES_FEE_RATE : 0,
+  });
+  const sellCtaLabel = heldSize > 0 && sellQty >= heldSize
+    ? `Close ${sellOutcomeLabel}`
+    : `Reduce ${sellOutcomeLabel}`;
+
+  const handleMarketSellConfirm = async (qty: number) => {
+    if (!heldPos?.id) return;
+    const index = positions.findIndex((p) => p.id === heldPos.id);
+    await partialClosePosition(heldPos.id, index, qty);
+    toast.success(`Closed · $${sellCashBack.toFixed(2)} back`);
+    setSellQtyInput("0");
+    setSellSlider([0]);
+  };
+
+  const handleSellPreview = () => {
+    if (!heldPos || heldSize <= 0) return;
+    if (sellQty <= 0) {
+      sellAmountRef.current?.focus();
+      toast.error("Enter an amount");
+      return;
+    }
+    navigate("/order-preview", {
+      state: {
+        reduceOnly: true,
+        event: eventName,
+        sell: {
+          positionId: heldPos.id,
+          option: heldPos.option,
+          outcomeLabel: sellOutcomeLabel,
+          leverage: Math.round(heldPos.leverageNum) || 1,
+          closePrice: sellClosePrice,
+          qty: sellQty,
+          releasedMargin: sellReleasedMargin,
+          realizedPnl: sellRealizedPnl,
+          commission: sellCommission,
+          cashBack: sellCashBack,
+          ctaLabel: sellCtaLabel,
+        },
+      },
+    });
+  };
+
   return (
     <div className="px-3 pb-2 space-y-2">
+      {/* CT-1 · Buy · Sell intent tabs + order type dropdown (mirrors /spot/order) */}
+      <div className="flex items-center gap-4">
+        {(["buy", "sell"] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setIntent(tab)}
+            className={`text-xs font-semibold capitalize pb-1 border-b-2 transition-colors ${
+              intent === tab
+                ? "text-foreground border-foreground"
+                : "text-muted-foreground border-transparent"
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
+        <OrderTypeDropdown value={orderType} onChange={setOrderType} className="ml-auto" />
+      </div>
+
       {/* Yes/No Toggle — binary 单 market 下点击切换 option（联动 K 线/订单簿），否则切换 side */}
       {/* 双层结构：上层 label（队名/Yes/No），下层独立色块价格条 */}
       <div className="space-y-1">
@@ -223,13 +347,17 @@ export const TradeForm = ({
             const noActive = binaryMode ? !binaryMode.isYesSelected : side === "sell";
             const yesLabel = binaryMode?.yesLabel ?? "Yes";
             const noLabel = binaryMode?.noLabel ?? "No";
-            const yesPriceVal = (binaryMode?.yesPrice ?? longPrice).toFixed(4);
-            const noPriceVal = (binaryMode?.noPrice ?? shortPrice).toFixed(4);
+            const sellMode = intent === "sell";
+            const yesDisabled = sellMode && (sellDisabledSide === "yes" || sellDisabledSide === "both");
+            const noDisabled = sellMode && (sellDisabledSide === "no" || sellDisabledSide === "both");
+            const yesPriceVal = yesDisabled ? "0 ct" : (binaryMode?.yesPrice ?? longPrice).toFixed(4);
+            const noPriceVal = noDisabled ? "0 ct" : (binaryMode?.noPrice ?? shortPrice).toFixed(4);
             return (
               <>
                 <button
+                  disabled={yesDisabled}
                   onClick={() => (binaryMode ? binaryMode.onSelectYes() : setSide("buy"))}
-                  className="relative flex flex-col h-full rounded-md overflow-hidden transition-all duration-200"
+                  className={`relative flex flex-col h-full rounded-md overflow-hidden transition-all duration-200 ${yesDisabled ? "opacity-40 pointer-events-none" : ""}`}
                 >
                   <div
                     className={`relative flex-1 flex items-center justify-center min-h-[24px] py-1.5 px-2 ${
@@ -256,8 +384,9 @@ export const TradeForm = ({
                   </div>
                 </button>
                 <button
+                  disabled={noDisabled}
                   onClick={() => (binaryMode ? binaryMode.onSelectNo() : setSide("sell"))}
-                  className="relative flex flex-col h-full rounded-md overflow-hidden transition-all duration-200"
+                  className={`relative flex flex-col h-full rounded-md overflow-hidden transition-all duration-200 ${noDisabled ? "opacity-40 pointer-events-none" : ""}`}
                 >
                   <div
                     className={`relative flex-1 flex items-center justify-center min-h-[24px] py-1.5 px-2 ${
@@ -291,6 +420,8 @@ export const TradeForm = ({
 
 
 
+      {intent === "buy" ? (
+      <>
       {/* Leverage */}
       <div className="flex items-center gap-2">
         <span className="text-xs text-muted-foreground">LVG</span>
@@ -314,14 +445,6 @@ export const TradeForm = ({
         </div>
       </div>
 
-      {/* Order Type */}
-      <div className="space-y-0.5">
-        <span className="text-[10px] text-muted-foreground">Order type</span>
-        <button className="w-full flex items-center justify-between px-2.5 py-2 bg-muted rounded-lg text-xs">
-          <span>{orderType}</span>
-          <ChevronDown className="w-3.5 h-3.5" />
-        </button>
-      </div>
 
       {/* Amount/Qty Input */}
       <div className="space-y-0.5">
@@ -518,6 +641,148 @@ export const TradeForm = ({
         size="sm"
         positionSide={binaryMode ? (binaryMode.isYesSelected ? "yes" : "no") : undefined}
       />
+      </>
+      ) : (
+      <>
+      {/* CT-1 · Sell = reduce-only close */}
+      {sellDisabledSide === "both" && (
+        <div className="text-xs text-muted-foreground">No position to close yet</div>
+      )}
+
+      {heldPos && (
+        <div className="text-[11px] text-muted-foreground">
+          Held <span className="font-mono text-foreground">{heldSize.toLocaleString()}</span> ct · {sellOutcomeLabel} ·{" "}
+          <span className="font-mono">{Math.round(heldPos.leverageNum) || 1}x</span> · entry{" "}
+          <span className="font-mono">{heldPos.entryPriceNum.toFixed(4)}</span>
+        </div>
+      )}
+
+      {/* Available Balance */}
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-muted-foreground">Available (USDC)</span>
+        <span className="font-mono text-xs">{available.toLocaleString()}</span>
+      </div>
+
+      {orderType === "Limit" && (
+        <div className="space-y-0.5">
+          <span className="text-[10px] text-muted-foreground">Close price</span>
+          <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
+            <input
+              type="text"
+              value={sellLimitPrice || sellMark.toFixed(4)}
+              onChange={(e) => setSellLimitPrice(e.target.value)}
+              className="flex-1 bg-transparent outline-none font-mono text-xs"
+              placeholder="0.0000"
+            />
+            <span className="text-muted-foreground text-[10px] font-medium">USDC</span>
+          </div>
+          {sellLimitPending && (
+            <p className="text-[10px] text-muted-foreground">
+              Limit {sellClosePrice > sellMark ? "above" : "below"} mark — order will rest as Pending until touched.
+            </p>
+          )}
+        </div>
+      )}
+
+      <div className="space-y-0.5">
+        <span className="text-[10px] text-muted-foreground">Amount</span>
+        <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
+          <input
+            ref={sellAmountRef}
+            type="text"
+            value={sellQtyInput}
+            onChange={(e) => setSellQtyInput(e.target.value.replace(/[^0-9]/g, ""))}
+            className="flex-1 bg-transparent outline-none font-mono text-xs"
+            placeholder="0"
+          />
+          <span className="text-muted-foreground text-[10px] font-medium">ct</span>
+        </div>
+      </div>
+
+      <div className="space-y-1">
+        <Slider
+          value={sellSlider}
+          onValueChange={(val) => {
+            setSellSlider(val);
+            setSellQtyInput(String(Math.round((heldSize * val[0]) / 100)));
+          }}
+          max={100}
+          step={1}
+          className="w-full"
+        />
+        <div className="flex justify-between text-[10px] text-muted-foreground">
+          {["0%", "25%", "50%", "75%", "100%"].map((label) => (
+            <span key={label}>{label}</span>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-1 text-xs">
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Close price</span>
+          <span className="text-foreground font-mono">{sellClosePrice.toFixed(4)} USDC</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Contracts</span>
+          <span className="text-foreground font-mono">{sellQty.toLocaleString()} ct</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Released margin</span>
+          <span className="text-foreground font-mono">{sellReleasedMargin.toFixed(2)} USDC</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Realized PnL est.</span>
+          <span className={`font-mono ${sellRealizedPnl >= 0 ? "text-trading-green" : "text-trading-red"}`}>
+            {sellRealizedPnl >= 0 ? "+" : "-"}{Math.abs(sellRealizedPnl).toFixed(2)} USDC
+          </span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Est. commission</span>
+          <span className="text-foreground font-mono">{sellCommission.toFixed(2)} USDC</span>
+        </div>
+        <div className="flex justify-between pt-2 border-t border-border/30">
+          <span className="font-medium text-foreground">You receive</span>
+          <span className="text-foreground font-mono font-medium">{sellCashBack.toFixed(2)} USDC</span>
+        </div>
+      </div>
+
+      {orderType === "Market" && heldPos ? (
+        <ClosePositionDialog
+          event={eventName}
+          option={sellOutcomeLabel}
+          side={heldPos.type}
+          size={heldSize}
+          entryPrice={heldPos.entryPriceNum}
+          markPrice={sellMark}
+          margin={heldPos.marginNum}
+          leverage={`${Math.round(heldPos.leverageNum) || 1}x`}
+          onConfirm={handleMarketSellConfirm}
+          isClosing={isClosing}
+        >
+          <span className="block">
+            <TradeSubmitButton
+              side="sell"
+              label={sellCtaLabel}
+              winPrefix="You receive"
+              potentialWin={sellCashBack.toFixed(2)}
+              onClick={() => {}}
+              size="sm"
+            />
+          </span>
+        </ClosePositionDialog>
+      ) : (
+        <TradeSubmitButton
+          side="sell"
+          label={sellCtaLabel}
+          winPrefix="You receive"
+          potentialWin={sellCashBack.toFixed(2)}
+          onClick={handleSellPreview}
+          disabled={!heldPos || heldSize <= 0}
+          size="sm"
+        />
+      )}
+      </>
+      )}
     </div>
   );
 };
