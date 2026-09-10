@@ -201,6 +201,7 @@ export default function SpotTradingCharts() {
           selectedId={t.selectedOption?.id ?? t.yesOpt.id}
           onSelect={(id) => {
             t.setSelectedOptionId(id);
+            t.onSideChange(id === t.yesOpt?.id ? "buy" : "sell");
             useTradeSideStore.getState().setSide(
               tradeSideKey(t.event!.id, "spot"),
               id === t.yesOpt?.id ? "buy" : "sell",

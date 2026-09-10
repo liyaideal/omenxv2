@@ -1882,3 +1882,7 @@ Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① 
 - **`/spot/order` 排布**：迷你盘口 `w-[120px]`、10 asks + mid + 10 bids + `Depth 0.1`；面板 `flex-1 min-w-0`；滑点收成单行 dropdown；摘要为无底色 kv rows。
 - **Held 行**：左 `Held`，右 `2,034.879 sh · Down`（mono），无前导点。
 - **移动持仓 / 挂单卡**：事件名 `line-clamp-2` 换行，不用省略号。
+
+## §Addendum 2026-09-10 · SP-2-FIX6 · 移动 Charts 同构（append-only，补 §14）
+
+移动 `/spot` Charts 必须与 `TradingCharts` block-for-block 同构：OptionChips、price/change/Mark Price/24h Volume、450px 图表、四页签、trade-history states、Orders/Positions cards 与 dock 文案逐项一致。仅允许三处差异：32px spot stats strip、页头 `SPOT` badge、spot dock 的 safe-area padding；方向 pill 继续遵守 §2 `--yes` / `--no`。

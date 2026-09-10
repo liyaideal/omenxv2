@@ -13,6 +13,16 @@ import type { ProOrderType } from "@/components/pro/OrderTypeDropdown";
 import { ProTerminalLayout } from "@/components/pro/ProTerminalLayout";
 import { ProBottomTabs } from "@/components/pro/ProBottomTabs";
 import { winningCommission, SPOT_FEE_RATE } from "@/services/tradingService";
+import { OptionChips } from "@/components/OptionChips";
+import { CandlestickChart } from "@/components/CandlestickChart";
+import { ProSpotMobileDock } from "@/components/pro/ProSpotMobileDock";
+import {
+  SpotMobileMarkLine,
+  SpotMobileStatsStrip,
+  SpotOrdersTable,
+  SpotPositionsTable,
+} from "@/components/pro/ProSpotShared";
+import type { SpotTerminal } from "@/hooks/useSpotTerminal";
 
 const Rail = ({ children }: { children: React.ReactNode }) => (
   <div className="p-2" style={{ width: 280 }}>
@@ -286,14 +296,57 @@ const Phone = ({ children, width = 375 }: { children: React.ReactNode; width?: n
 
 /** SP-2 · mobile Charts view — stats strip + mark line + sticky dock. */
 const MobileChartsFrame = ({ width, terminal }: { width?: number; terminal?: Partial<SpotTerminal> }) => {
-  const t = spotFixture(terminal);
+  const t = spotFixture({
+    selectedOption: { id: "sg-up" },
+    yesOpt: { id: "sg-up" },
+    noOpt: { id: "sg-down" },
+    isYesSelected: true,
+    spotPositions: [{
+      id: "sg-position",
+      event: "Meta (META) — will close higher today?",
+      option: "Up",
+      optionId: "sg-up",
+      entryPrice: "0.4620",
+      markPrice: "0.4916",
+      entryPriceNum: 0.462,
+      markPriceNum: 0.4916,
+      sizeNum: 2034.879,
+      pnlNum: 60.23,
+    }],
+    spotOrders: [{
+      id: "sg-order",
+      event: "Meta (META) — will close higher today?",
+      option: "Down",
+      type: "sell",
+      orderType: "Limit",
+      price: "0.5200",
+      amount: "250.000",
+      total: "130.00",
+      status: "Pending",
+    }],
+    frozenCancelledIds: new Set<string>(),
+    isCancelling: false,
+    closePosition: () => undefined,
+    handleCancelSpotOrder: async () => undefined,
+    ...terminal,
+  });
   return (
     <Phone width={width}>
+      <OptionChips
+        options={[
+          { id: "sg-up", label: "Up", price: "0.4916" },
+          { id: "sg-down", label: "Down", price: "0.5084" },
+        ]}
+        selectedId={t.selectedOption?.id ?? "sg-up"}
+        onSelect={() => undefined}
+      />
       <SpotMobileStatsStrip t={t} />
       <SpotMobileMarkLine t={t} />
       <div className="w-full min-w-0 overflow-hidden" style={{ height: 280 }}>
-        <CandlestickChart remainingDays={1} basePrice={0.4916} side="buy" />
+        <CandlestickChart basePrice={0.4916} side="buy" />
       </div>
+      <SpotPositionsTable t={t} variant="mobile" />
+      <SpotOrdersTable t={t} variant="mobile" />
       <div className="relative mt-4 h-[92px]">
         <ProSpotMobileDock
           available={14315.4}
@@ -301,9 +354,9 @@ const MobileChartsFrame = ({ width, terminal }: { width?: number; terminal?: Par
           noLabel="Down"
           yesPrice={0.4916}
           noPrice={0.5084}
-          selected={null}
+          selected="yes"
           onTap={() => undefined}
-          showSurfaceSwitch={false}
+          surfaceSwitchPreview={{ signedIn: true, active: "pro" }}
           className="absolute"
         />
       </div>
@@ -337,11 +390,11 @@ export const ProSpotMobileChartsFrozen = () => {
           noLabel="Down"
           yesPrice={0.4916}
           noPrice={0.5084}
-          selected={null}
+          selected="yes"
           onTap={() => undefined}
           blocked
           blockedReason="Market frozen"
-          showSurfaceSwitch={false}
+          surfaceSwitchPreview={{ signedIn: true, active: "pro" }}
           className="absolute"
         />
       </div>
