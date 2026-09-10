@@ -145,7 +145,8 @@ const MOBILE_CASES: SectionCase[] = [
   {
     key: "pro-spot-mobile-charts",
     label: "SP-M1 · 移动 Charts 视图（375）",
-    note: "移动 Pro 现货长在 MobileTradingLayout variant=\"spot\" 上：OptionChips、price/mark、图表、tabs 与卡片逐块复用 /trade 规格；仅保留 32px spot strip、SPOT 徽章与 dock 安全区。",
+    note: "移动 Pro 现货长在 MobileTradingLayout variant=\"spot\" 上：price/mark、图表、tabs 与卡片逐块复用 /trade 规格；市场 chip 行是多 market 专属，binary 事件（含 Up/Down 别名）不渲染；仅保留 32px spot strip、SPOT 徽章与 dock 安全区。",
+
     spec: [
       {
         state: "Charts 默认",

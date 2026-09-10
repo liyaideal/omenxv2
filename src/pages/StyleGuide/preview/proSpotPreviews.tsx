@@ -324,14 +324,8 @@ const MobileChartsFrame = ({ width, terminal }: { width?: number; terminal?: Par
   } as unknown as Partial<SpotTerminal>);
   return (
     <Phone width={width}>
-      <OptionChips
-        options={[
-          { id: "sg-up", label: "Up", price: "0.4916" },
-          { id: "sg-down", label: "Down", price: "0.5084" },
-        ]}
-        selectedId={t.selectedOption?.id ?? "sg-up"}
-        onSelect={() => undefined}
-      />
+      {/* SP-2-FIX7: binary 事件不渲染市场 chip 行 */}
+
       <SpotMobileStatsStrip t={t} />
       <SpotMobileMarkLine t={t} />
       <div className="w-full min-w-0 overflow-hidden" style={{ height: 280 }}>
