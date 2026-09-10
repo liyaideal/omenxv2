@@ -559,3 +559,4 @@
 - 2026-09-10 · SP-F 冻结巡检 — `freeze_expired_events()` + `freeze-sweep` cron（每 5 分钟），过期事件自动进 `FROZEN`；首跑翻转 0 行。
 - 2026-09-10 · SP-G Pro 现货移动端 — `/spot` 移动 Charts 视图 + 新 `/spot/order` 下单子页，长在合约 Pro 移动骨架上；32px 单条统计 strip、sticky dock（含 Lite/Pro dock 开关）、封锁态；`SpotTrading.tsx` 收敛为桌面专用。
 - 2026-09-10 · SP-H 现货终端逻辑抽取 — `useSpotTerminal.ts` 成为桌面与移动共用的唯一逻辑源，FIX3/FIX4/FIX5 行为不变。
+- 2026-09-10 · SP-K crypto 现货会话修正 + 绿色 CTA 对比度 — `getCurrentSession` / `getDisplayLifecycle` 改为 market-aware，crypto 走 24/7 档（NORMAL 报价、满深度、无 PRE/AH、无 extended badge、24/7 排期文案）；正常交易态不再显示 lifecycle badge；新增 `--trading-green-foreground` 深色墨水修复 volt green CTA 对比度。

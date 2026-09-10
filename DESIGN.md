@@ -1901,3 +1901,10 @@ Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① 
 - Order summary 使用带分隔线的 flat list，禁止 inset box。
 - 两个终端的 selection chips 统一使用中性 `bg-muted`，不得使用方向轴或 `trading-purple` 作为选择态。
 - Order-book 深度槽固定为 contract 每侧 12、spot 每侧 10；不足时补无内容空槽，禁止虚构价格。
+
+## §Addendum 2026-09-10 · Lifecycle badge 与 crypto 24/7 会话（SP-3-DT2，append-only）
+
+- 正常交易态（`TRADING`）**不显示** lifecycle badge，与 `/trade` 对齐；badge 只在非正常态出现（`Extended hours` / Frozen / Suspended / Settling / …）。
+- `Extended hours` badge 带 tooltip：`Pre-market / after-hours session — liquidity is thinner and spreads are wider.`
+- crypto 现货事件走 24/7 会话档（`CRYPTO_SESSION_PROFILE`）：NORMAL 报价、满深度、无 PRE/AH pill、无 extended badge、不使用美股收盘文案。
+- crypto 的 ⓘ 排期文案只有两行：`Trading ends: …` / `Settles: ~…`。

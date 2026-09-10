@@ -211,3 +211,15 @@ Spot 节原先手抄的终端顶栏已换成生产件 `ProSpotHeader`，CTA 例�
 - **F · Account**：Standard Account 内层改为 compact `p-3 space-y-3`，移除标题分隔线。
 - **G · Bottom tabs**：`Orders` 改为 `Current Orders`；空态统一 `No open positions` / `No open orders` 与 contract 的 `py-6 text-sm`。
 - **H · Dictionary**：新增 `pro-spot-book-thin`，直接挂生产 `DesktopOrderBook variant="spot"` 的三档薄深度 fixture。
+
+## SP-3-DT2 (2026-09-10) — crypto 现货不再被当成美股会话
+
+- `getCurrentSession(market?, now?)` / `getDisplayLifecycle(dbLifecycle, market?, now?)` 增加可选前置 `market` 参数（默认 `US_STOCK_MARKET`，既有调用不变）。`market.key === "crypto"` 时分别返回 `CRYPTO_SESSION_PROFILE`（`24/7`、NORMAL、8–12 档、spread/size ×1）与原始 DB lifecycle（无 09:30 ET 覆盖）。
+- `useSpotTerminal` 把 `market` 传进两处 `getCurrentSession` 与 `getDisplayLifecycle`；crypto 的 `sessionTag` 恒为 `null`（无 PRE/AH pill）；新增返回 `marketKey`。
+- Badge：`showBadge = lifecycle !== "TRADING"`，正常态返回 `null`（与 `/trade` 对齐）；`EXTENDED_TRADING` 显示 `Extended hours` + tooltip。`ProSpotHeader.lifecycleBadge` 变为可空且支持 tooltip。
+- 排期文案：`SpotScheduleInfo` 与 header ⓘ 增加 crypto 分支，只保留 `Trading ends` 与 `Settles`。
+- 字典：`spot-terminal-chrome` 陈列三态（正常无 badge / Extended hours + tooltip / crypto 24/7）。
+
+## SP-3-CTA (2026-09-10) — money 轴绿色 CTA 对比度
+
+- 新增 token `--trading-green-foreground: 220 12% 4%;`，`tailwind trading.green-foreground` 由 `--foreground`（白）改为该 token。volt green 实心底上的字改为深色墨水，与 `--no` 一致。
