@@ -420,6 +420,8 @@ export const TradeForm = ({
 
 
 
+      {intent === "buy" ? (
+      <>
       {/* Leverage */}
       <div className="flex items-center gap-2">
         <span className="text-xs text-muted-foreground">LVG</span>
@@ -443,14 +445,6 @@ export const TradeForm = ({
         </div>
       </div>
 
-      {/* Order Type */}
-      <div className="space-y-0.5">
-        <span className="text-[10px] text-muted-foreground">Order type</span>
-        <button className="w-full flex items-center justify-between px-2.5 py-2 bg-muted rounded-lg text-xs">
-          <span>{orderType}</span>
-          <ChevronDown className="w-3.5 h-3.5" />
-        </button>
-      </div>
 
       {/* Amount/Qty Input */}
       <div className="space-y-0.5">
