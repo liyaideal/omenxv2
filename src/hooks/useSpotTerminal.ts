@@ -732,6 +732,7 @@ export function useSpotTerminal() {
 
     // market data
     market,
+    marketKey: market.key,
     cur,
     ticker,
     basePrice,

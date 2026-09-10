@@ -14,12 +14,14 @@ import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
 export interface ProSpotHeaderProps {
   ticker: string;
   eventName: string;
-  lifecycleBadge: { label: string; className: string };
+  lifecycleBadge: { label: string; className: string; tooltip?: string } | null;
   countdown: { text: string; urgency: "red" | "yellow" | "muted" };
   freezeEtOnly?: string | null;
   closeEtOnly?: string | null;
   settleEtOnly?: string | null;
   closingSoon: boolean;
+  /** SP-3-DT2 — crypto events use 24/7 schedule copy (no stock session lines). */
+  marketKey?: string;
   volumeText: string;
   lastLabel: string;
   lastPriceText: string;
