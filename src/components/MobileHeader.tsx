@@ -258,11 +258,29 @@ export const MobileHeader = ({
         <div className="flex items-center justify-center gap-4 pb-1.5 pt-1.5 border-t border-border/30">
           {displayTime && (
             <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 bg-trading-red rounded-full animate-pulse" />
-              <span className="text-xs text-muted-foreground">Ends in</span>
-              <span className="text-xs text-trading-red font-mono font-medium">{displayTime}</span>
+              <span
+                className={cn(
+                  "w-1.5 h-1.5 rounded-full",
+                  countdownUrgency === "red" && "bg-trading-red animate-pulse",
+                  countdownUrgency === "yellow" && "bg-trading-yellow",
+                  countdownUrgency === "muted" && "bg-muted-foreground",
+                )}
+              />
+              <span className="text-xs text-muted-foreground">{countdownLabel}</span>
+              <span
+                className={cn(
+                  "text-xs font-mono font-medium",
+                  countdownUrgency === "red" && "text-trading-red",
+                  countdownUrgency === "yellow" && "text-trading-yellow",
+                  countdownUrgency === "muted" && "text-foreground",
+                )}
+              >
+                {displayTime}
+              </span>
             </div>
           )}
+          {statsExtra}
+
           {tweetCount !== undefined && (
             <Popover>
               <PopoverTrigger asChild>
