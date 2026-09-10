@@ -73,6 +73,8 @@ export interface ProSpotPanelProps {
   ctaDisabled: boolean;
   submitting: boolean;
   onSubmit: () => void;
+  /** SP-2-FIX2: mobile `/spot/order` stacks the CTA so nothing truncates. */
+  ctaLayout?: "row" | "stacked";
 }
 
 /**
