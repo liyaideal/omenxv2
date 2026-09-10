@@ -1432,15 +1432,47 @@ export default function DesktopTrading() {
           </div>
 
             <div className="px-4 py-3 space-y-3">
+            {/* CT-1 · Buy · Sell intent tabs + order type dropdown (mirrors the spot panel) */}
+            <div className="flex items-center gap-4">
+              {(["buy", "sell"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setIntent(tab)}
+                  className={`text-xs font-semibold capitalize pb-1 border-b-2 transition-colors ${
+                    intent === tab
+                      ? "text-foreground border-foreground"
+                      : "text-muted-foreground border-transparent hover:text-foreground"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+              <OrderTypeDropdown value={orderType} onChange={setOrderType} className="ml-auto" />
+            </div>
+
             {/* Yes/No Toggle — 共享生产件 BinarySideToggle（SP-1-FIX2）。 */}
             <BinarySideToggle
               yesLabel={binaryLabels.yes}
               noLabel={binaryLabels.no}
               yesPrice={yesPrice}
               noPrice={noPrice}
-              isYesSelected={isYesSelected}
+              isYesSelected={intent === "sell" ? sellOutcome === "yes" : isYesSelected}
               activeDot
+              disabledSide={intent === "sell" ? sellDisabledSide : undefined}
+              yesBarText={intent === "sell" && !heldPositions.yes ? "0 ct" : undefined}
+              noBarText={intent === "sell" && !heldPositions.no ? "0 ct" : undefined}
               onSelect={(which) => {
+                if (intent === "sell") {
+                  // Sell only re-targets the outcome; it never touches `side`.
+                  setSellOutcome(which);
+                  setSellQtyInput("0");
+                  setSellSlider([0]);
+                  if (isBinarySingleMarket) {
+                    const opt = which === "yes" ? yesNoOptions.yes : yesNoOptions.no;
+                    if (opt) setSelectedOption(opt.id);
+                  }
+                  return;
+                }
                 if (which === "yes") {
                   setSide("buy");
                   if (isBinarySingleMarket && yesNoOptions.yes) {
@@ -1455,6 +1487,10 @@ export default function DesktopTrading() {
                 }
               }}
             />
+
+            {intent === "buy" ? (
+            <>
+
 
 
             {/* Leverage */}
