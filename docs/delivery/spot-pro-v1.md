@@ -196,3 +196,7 @@ Spot 节原先手抄的终端顶栏已换成生产件 `ProSpotHeader`，CTA 例�
 - `/spot` 移动 Charts 撤掉 FIX6 加的 `OptionChips`（现货事件恒为 Up/Down binary）；`MobileTradingLayout` 的 `optionChips` prop 保留，供未来真正的多 market 现货使用。
 - 根因修复：`isSingleMarketBinary(options, event)` 新增可选 event 参数，通过 `side_labels` 别名、Up/Down、`X vs Y` 对阵名识别别名 binary。合约移动端与桌面端 chip 行改用该判定，Chiefs/Bills 类事件不再出现 chips；≥3 outcome 事件（含 1X2 Draw）继续显示 chips。
 - Dock 与合约一致：binary 只显示 outcome 名（`Up` / `Down`），价格不进 dock。
+
+### SP-2-FIX8 (2026-09-10) — 未登录恒 Lite，Pro 登录门统一
+
+游客不再可能进入 Pro 现货终端：`SurfaceContext` 增加 auth 监听，派生 `surface` 在确认无会话时强制 `lite`（localStorage 的 Pro 偏好保留，登录后恢复）。作为兜底，Pro 现货的两处登录门（桌面 `ProBottomTabs`、移动 `/spot/order`）与合约的 `/trade/order` 一并换成站点唯一的 `LiteAuthGate variant="panel"`，旧的 `AuthGateOverlay`（模糊底 + Log In / Sign Up）在交易面全部退场。详见 [Surface switch v1 §10](./surface-switch-v1.md)。字典新增 `pro-bottom-tabs-guest`（SP-I），sg:audit TOTAL 317。

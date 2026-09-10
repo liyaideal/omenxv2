@@ -247,6 +247,25 @@ export const ProTerminalSkeleton = () => (
   </div>
 );
 
+/** SP-I · guest gate inside ProBottomTabs — production LiteAuthGate panel variant. */
+export const ProBottomTabsGuest = () => (
+  <div className="w-full">
+    <ProBottomTabs
+      tabs={[
+        { key: "Positions", label: "Positions", count: 0 },
+        { key: "Orders", label: "Orders", count: 0 },
+      ]}
+      active="Positions"
+      onChange={() => undefined}
+      authTitle="Sign in to view spot positions"
+      authDescription="Track your open positions and orders by signing in to your account."
+      bodyClassName="h-[120px]"
+    >
+      <Block label="bottomTabs slot" />
+    </ProBottomTabs>
+  </div>
+);
+
 /* ---------------- SP-2 · mobile Pro spot (375 px) ---------------- */
 
 /** Minimal fixture standing in for the shared spot terminal hook. */

@@ -89,3 +89,15 @@
 ## 9. 未变更项
 
 交易页本身的排版、图表、下单面板、持仓卡、分享入口一律未动；`SurfaceContext` 的存储口径（localStorage + `profiles.preferred_surface`）未动；Pro 终端内部一切未动。
+
+## 10. FIX8 · 未登录强制 Lite（2026-09-10）
+
+规则：**游客恒为 Lite**，Pro 只在登录态可达。此前 `SurfaceContext` 只从 localStorage 水合，退出登录后仍停在 Pro 终端，且看到旧的 `AuthGateOverlay`（模糊底 + Log In / Sign Up）。
+
+- **auth 监听**：`SurfaceProvider` 内 `supabase.auth.getSession()` + `onAuthStateChange` 维护 `hasSession: boolean | null`（`null` = 会话未决）。`SIGNED_OUT` 时额外调用 `clearPortfolioReturnSurface()`。
+- **派生口径**：`surface = hasSession === false ? "lite" : storedSurface`。会话未决时沿用 storedSurface，避免登录用户出现 Lite→Pro 闪烁；会话确认为空后立刻回落 Lite。
+- **localStorage 不清**：`omenx_surface` 在退出登录时保留，用户再次登录即恢复 Pro 偏好；`profiles.preferred_surface` 首次水合仍然优先。
+- **游客的 `setSurface` / `toggle` 均为 no-op。**
+- 路由无需改动：`/trade`、`/trade/order`、`/spot`、`/spot/order` 四条路由与桌面分叉全部读 `useSurface().surface`，代码中已无直接读 `omenx_surface` 的地方。
+- **Pro 登录门换件**：`ProBottomTabs`、`TradeOrder`、`SpotTradeOrder` 改用站点唯一的 `LiteAuthGate`（新增 `variant="panel"`：`bg-card` 无模糊、72px lynx、单行标题、Sign in / Create account 同排、总高 ≤ 220px）。此前"Pro 面保留 `AuthGateOverlay` 原样不动"的说法作废。`src/components/AuthGateOverlay.tsx` 因 `Wallet` / `PortfolioSettlements` / style-guide 仍在引用而保留，交易面已不再使用。
+- 状态字典：Pro — 交易终端 → `pro-bottom-tabs-guest`（SP-I）。

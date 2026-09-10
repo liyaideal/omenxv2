@@ -1,10 +1,10 @@
 // ============================================================
 // Pro terminal bottom strip (SP-1 · B1) — Positions | Orders tabs plus the
-// site-wide AuthGateOverlay. Shared by /trade and /spot so the underline
-// treatment, counts and gate copy stay in one place.
+// canonical LiteAuthGate (panel variant). Shared by /trade and /spot so the
+// underline treatment, counts and gate copy stay in one place.
 // ============================================================
 import { ReactNode } from "react";
-import { AuthGateOverlay } from "@/components/AuthGateOverlay";
+import { LiteAuthGate } from "@/components/auth/LiteAuthGate";
 
 export interface ProBottomTab {
   key: string;
@@ -57,9 +57,9 @@ export const ProBottomTabs = ({
     {previewNoAuthGate ? (
       <div className={bodyClassName}>{children}</div>
     ) : (
-      <AuthGateOverlay title={authTitle} description={authDescription}>
+      <LiteAuthGate variant="panel" title={authTitle} description={authDescription}>
         <div className={bodyClassName}>{children}</div>
-      </AuthGateOverlay>
+      </LiteAuthGate>
     )}
   </div>
 );
