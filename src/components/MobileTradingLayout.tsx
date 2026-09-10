@@ -89,23 +89,27 @@ export function MobileTradingLayout({
   // Handle event selection and update URL
   const handleEventSelect = (event: TradingEvent) => {
     setSelectedEvent(event);
-    const basePath = activeTab === "Charts" ? "/trade" : "/trade/order";
-    navigate(`${basePath}?event=${event.id}`, { replace: true });
+    const target = activeTab === "Charts" ? basePath : `${basePath}/order`;
+    navigate(`${target}?event=${event.id}`, { replace: true });
     setEventSheetOpen(false);
     setSearchQuery("");
   };
 
+  // SP-2: spot supplies its own event row, so `useEvents` never gates the page.
+  const activeEvent = eventOverride ?? selectedEvent;
+
   const handleTabChange = (tab: "Charts" | "Trade") => {
     if (tab === activeTab) return;
-    if (!selectedEvent) return;
-    const path = tab === "Charts" 
-      ? `/trade?event=${selectedEvent.id}` 
-      : `/trade/order?event=${selectedEvent.id}`;
+    if (!activeEvent) return;
+    const path =
+      tab === "Charts"
+        ? `${basePath}?event=${activeEvent.id}`
+        : `${basePath}/order?event=${activeEvent.id}`;
     navigate(path);
   };
 
   // Loading state
-  if (isLoading) {
+  if (!eventOverride && isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
@@ -117,7 +121,7 @@ export function MobileTradingLayout({
   }
 
   // No event found — check if user provided an event ID that doesn't exist (expired/settled)
-  if (!selectedEvent) {
+  if (!activeEvent) {
     if (eventId) {
       return <ExpiredEventFallback eventId={eventId} />;
     }
@@ -139,12 +143,13 @@ export function MobileTradingLayout({
 
   // Create context data for children
   const contextData: TradingContextData = {
-    selectedEvent,
+    selectedEvent: activeEvent,
     selectedOption,
     selectedOptionData,
     options,
     setSelectedOption,
   };
+
 
   return (
     <div className="min-h-screen bg-background">
