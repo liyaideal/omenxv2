@@ -144,7 +144,12 @@ export const MobileHeader = ({
   period,
   onTitleClick,
   titleHidden = false,
+  titleBadge,
+  countdownLabel = "Ends in",
+  countdownUrgency = "red",
+  statsExtra,
 }: MobileHeaderProps) => {
+
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const location = useLocation();
