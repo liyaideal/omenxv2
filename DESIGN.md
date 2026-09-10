@@ -1886,3 +1886,9 @@ Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① 
 ## §Addendum 2026-09-10 · SP-2-FIX6 · 移动 Charts 同构（append-only，补 §14）
 
 移动 `/spot` Charts 必须与 `TradingCharts` block-for-block 同构：OptionChips、price/change/Mark Price/24h Volume、450px 图表、四页签、trade-history states、Orders/Positions cards 与 dock 文案逐项一致。仅允许三处差异：32px spot stats strip、页头 `SPOT` badge、spot dock 的 safe-area padding；方向 pill 继续遵守 §2 `--yes` / `--no`。
+
+## §Addendum 2026-09-10 · SP-2-FIX7 · 市场 chip 行（append-only，补 §14）
+
+- 市场 chip 行（`OptionChips` / 桌面 `Select Option:` 行）= **多 market 专属**。
+- binary 事件（两端为 Yes/No，包含 `side_labels` 别名如队名、盘口、Up/Down）**永不显示 chips**；两端由 Yes/No dock 与交易面板切换器表达。
+- 判定入口统一为 `isSingleMarketBinary(options, event)`：传 event 时通过 `side_labels` 别名 / Up-Down / `X vs Y` 对阵名解析别名。
