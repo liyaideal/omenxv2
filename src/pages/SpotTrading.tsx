@@ -340,13 +340,17 @@ export default function SpotTrading() {
   const outcomeLabel = isYesSelected ? yesLabel : noLabel;
   const outcomePrice = isYesSelected ? yesLive : noLive;
 
-  const endDate = event?.end_date ? new Date(event.end_date) : null;
+  // FIX5: these three used to be `new Date(...)` per render, which restarted the
+  // countdown effect every render and span an infinite update loop. Memoise on
+  // the raw ISO strings so the Date identities are stable.
+  const endIso = event?.end_date ?? null;
+  const freezeIso = ((event as any)?.freeze_time as string | undefined) ?? null;
+  const settleIso = ((event as any)?.expected_settlement_time as string | undefined) ?? null;
+  const endDate = useMemo(() => (endIso ? new Date(endIso) : null), [endIso]);
 
   // 技术对接 §4.1/§12.2 — timing driven by events fields, not hardcoded times.
-  const freezeAt = (event as any)?.freeze_time ? new Date((event as any).freeze_time) : null;
-  const settleAt = (event as any)?.expected_settlement_time
-    ? new Date((event as any).expected_settlement_time)
-    : null;
+  const freezeAt = useMemo(() => (freezeIso ? new Date(freezeIso) : null), [freezeIso]);
+  const settleAt = useMemo(() => (settleIso ? new Date(settleIso) : null), [settleIso]);
   // Main countdown targets freeze_time (trading window ends there) instead of
   // end_date; the "settles by …" caption below carries the settlement info.
   const countdownTarget = freezeAt ?? endDate;
