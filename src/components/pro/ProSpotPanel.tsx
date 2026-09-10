@@ -159,7 +159,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
         {isSell && (
           <div className="flex items-center justify-between text-[11px]">
             <span className="text-muted-foreground">Held</span>
-            <span className="font-mono">· {formatShares(p.heldQty)} sh {p.outcomeLabel}</span>
+            <span className="font-mono">{formatShares(p.heldQty)} sh · {p.outcomeLabel}</span>
           </div>
         )}
 
