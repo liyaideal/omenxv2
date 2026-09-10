@@ -36,6 +36,9 @@ interface TradeFormProps {
   };
   /** binary 单 market 事件的两端别名（如体育队名），用于提交按钮等文案翻译 */
   sideLabels?: { yes: string; no: string } | null;
+  /** CT-1: Buy · Sell intent tab. Controlled by the page so it survives navigation. */
+  intent?: "buy" | "sell";
+  onIntentChange?: (next: "buy" | "sell") => void;
 }
 
 
