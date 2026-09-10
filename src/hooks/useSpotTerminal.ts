@@ -362,7 +362,7 @@ export function useSpotTerminal() {
     if (s.session === "EXTENDED_AFTER_HOURS" || s.session === "OVERNIGHT") return "after-hrs";
     return null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [countdown.text]);
+  }, [countdown.text, market]);
 
   // Tick 0.01 validation (技术对接 §10.1).
   const tickInvalid = useMemo(() => {
