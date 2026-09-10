@@ -104,7 +104,10 @@ const useCountdown = (endTime: Date | undefined) => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [endTime]);
+    // Key on the timestamp, not the Date identity: a `new Date(...)` recreated
+    // by the caller on every render would otherwise re-run this effect forever.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [endTime?.getTime()]);
 
   return timeLeft;
 };
