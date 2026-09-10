@@ -641,6 +641,148 @@ export const TradeForm = ({
         size="sm"
         positionSide={binaryMode ? (binaryMode.isYesSelected ? "yes" : "no") : undefined}
       />
+      </>
+      ) : (
+      <>
+      {/* CT-1 · Sell = reduce-only close */}
+      {sellDisabledSide === "both" && (
+        <div className="text-xs text-muted-foreground">No position to close yet</div>
+      )}
+
+      {heldPos && (
+        <div className="text-[11px] text-muted-foreground">
+          Held <span className="font-mono text-foreground">{heldSize.toLocaleString()}</span> ct · {sellOutcomeLabel} ·{" "}
+          <span className="font-mono">{Math.round(heldPos.leverageNum) || 1}x</span> · entry{" "}
+          <span className="font-mono">{heldPos.entryPriceNum.toFixed(4)}</span>
+        </div>
+      )}
+
+      {/* Available Balance */}
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-muted-foreground">Available (USDC)</span>
+        <span className="font-mono text-xs">{available.toLocaleString()}</span>
+      </div>
+
+      {orderType === "Limit" && (
+        <div className="space-y-0.5">
+          <span className="text-[10px] text-muted-foreground">Close price</span>
+          <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
+            <input
+              type="text"
+              value={sellLimitPrice || sellMark.toFixed(4)}
+              onChange={(e) => setSellLimitPrice(e.target.value)}
+              className="flex-1 bg-transparent outline-none font-mono text-xs"
+              placeholder="0.0000"
+            />
+            <span className="text-muted-foreground text-[10px] font-medium">USDC</span>
+          </div>
+          {sellLimitPending && (
+            <p className="text-[10px] text-muted-foreground">
+              Limit {sellClosePrice > sellMark ? "above" : "below"} mark — order will rest as Pending until touched.
+            </p>
+          )}
+        </div>
+      )}
+
+      <div className="space-y-0.5">
+        <span className="text-[10px] text-muted-foreground">Amount</span>
+        <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
+          <input
+            ref={sellAmountRef}
+            type="text"
+            value={sellQtyInput}
+            onChange={(e) => setSellQtyInput(e.target.value.replace(/[^0-9]/g, ""))}
+            className="flex-1 bg-transparent outline-none font-mono text-xs"
+            placeholder="0"
+          />
+          <span className="text-muted-foreground text-[10px] font-medium">ct</span>
+        </div>
+      </div>
+
+      <div className="space-y-1">
+        <Slider
+          value={sellSlider}
+          onValueChange={(val) => {
+            setSellSlider(val);
+            setSellQtyInput(String(Math.round((heldSize * val[0]) / 100)));
+          }}
+          max={100}
+          step={1}
+          className="w-full"
+        />
+        <div className="flex justify-between text-[10px] text-muted-foreground">
+          {["0%", "25%", "50%", "75%", "100%"].map((label) => (
+            <span key={label}>{label}</span>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-1 text-xs">
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Close price</span>
+          <span className="text-foreground font-mono">{sellClosePrice.toFixed(4)} USDC</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Contracts</span>
+          <span className="text-foreground font-mono">{sellQty.toLocaleString()} ct</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Released margin</span>
+          <span className="text-foreground font-mono">{sellReleasedMargin.toFixed(2)} USDC</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Realized PnL est.</span>
+          <span className={`font-mono ${sellRealizedPnl >= 0 ? "text-trading-green" : "text-trading-red"}`}>
+            {sellRealizedPnl >= 0 ? "+" : "-"}{Math.abs(sellRealizedPnl).toFixed(2)} USDC
+          </span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Est. commission</span>
+          <span className="text-foreground font-mono">{sellCommission.toFixed(2)} USDC</span>
+        </div>
+        <div className="flex justify-between pt-2 border-t border-border/30">
+          <span className="font-medium text-foreground">You receive</span>
+          <span className="text-foreground font-mono font-medium">{sellCashBack.toFixed(2)} USDC</span>
+        </div>
+      </div>
+
+      {orderType === "Market" && heldPos ? (
+        <ClosePositionDialog
+          event={eventName}
+          option={sellOutcomeLabel}
+          side={heldPos.type}
+          size={heldSize}
+          entryPrice={heldPos.entryPriceNum}
+          markPrice={sellMark}
+          margin={heldPos.marginNum}
+          leverage={`${Math.round(heldPos.leverageNum) || 1}x`}
+          onConfirm={handleMarketSellConfirm}
+          isClosing={isClosing}
+        >
+          <span className="block">
+            <TradeSubmitButton
+              side="sell"
+              label={sellCtaLabel}
+              winPrefix="You receive"
+              potentialWin={sellCashBack.toFixed(2)}
+              onClick={() => {}}
+              size="sm"
+            />
+          </span>
+        </ClosePositionDialog>
+      ) : (
+        <TradeSubmitButton
+          side="sell"
+          label={sellCtaLabel}
+          winPrefix="You receive"
+          potentialWin={sellCashBack.toFixed(2)}
+          onClick={handleSellPreview}
+          disabled={!heldPos || heldSize <= 0}
+          size="sm"
+        />
+      )}
+      </>
+      )}
     </div>
   );
 };
