@@ -51,10 +51,12 @@ export const TradeForm = ({
   onSideChange,
   binaryMode,
   sideLabels,
+  intent: controlledIntent,
+  onIntentChange,
 }: TradeFormProps) => {
   const navigate = useNavigate();
   const { balance } = useUserProfile();
-  const { positions } = usePositions();
+  const { positions, partialClosePosition, isClosing } = usePositions();
 
   
   
@@ -64,8 +66,14 @@ export const TradeForm = ({
     if (controlledSide === undefined) setInternalSide(next);
     onSideChange?.(next);
   };
+  const [internalIntent, setInternalIntent] = useState<"buy" | "sell">("buy");
+  const intent = controlledIntent ?? internalIntent;
+  const setIntent = (next: "buy" | "sell") => {
+    if (controlledIntent === undefined) setInternalIntent(next);
+    onIntentChange?.(next);
+  };
   const [leverage, setLeverage] = useState(10);
-  const [orderType, setOrderType] = useState("Market");
+  const [orderType, setOrderType] = useState<ProOrderType>("Market");
   const [amount, setAmount] = useState("0.00");
   const [sliderValue, setSliderValue] = useState([0]);
   const [tpsl, setTpsl] = useState(false);
