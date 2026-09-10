@@ -141,7 +141,73 @@ const DIALOG_CASES: SectionCase[] = [
   },
 ];
 
+const MOBILE_CASES: SectionCase[] = [
+  {
+    key: "pro-spot-mobile-charts",
+    label: "SP-M1 · 移动 Charts 视图（375）",
+    note: "移动 Pro 现货长在 MobileTradingLayout variant=\"spot\" 上：无站点头、SPOT 徽章、单条倒计时行。统计区是 32px 单条 strip（SP-2 对 perp 双卡的例外），下方 mark 行 + 280px K 线，底部 sticky dock。",
+    spec: [
+      {
+        state: "Charts 默认",
+        when: "isMobile && surface === pro && !blocked",
+        visual: "32px strip（BASE / 标的价 + 涨跌 + 时段）→ mark 行 → 图表 → dock（Lite/Pro + Buy Up / Buy Down）",
+        source: "SpotMobileStatsStrip / SpotMobileMarkLine / ProSpotMobileDock",
+      },
+    ],
+  },
+  {
+    key: "pro-spot-mobile-charts-frozen",
+    label: "SP-M2 · 移动 Charts · 已冻结",
+    spec: [
+      {
+        state: "Frozen",
+        when: "blocked === true",
+        visual: "倒计时 00:00:00；两个 dock 按钮禁用，文案 `Market frozen`",
+        source: "useSpotTerminal blocked / blockedReason",
+      },
+    ],
+  },
+  {
+    key: "pro-spot-mobile-order-buy",
+    label: "SP-M3 · /spot/order · Buy",
+    note: "下单子页复用桌面同一个 ProSpotPanel，375px 不横向溢出；此页永不出现 Lite/Pro 切换。",
+    spec: [
+      {
+        state: "Buy · Market",
+        when: 'activeTab === "Trade" && side === "buy"',
+        visual: "左 flex-1 面板 + 右 120px 迷你盘口，下方 Orders | Positions",
+        source: "SpotTradePanel（ProSpotPanel）",
+      },
+    ],
+  },
+  {
+    key: "pro-spot-mobile-order-sell-held",
+    label: "SP-M4 · /spot/order · Sell（持有 Down）",
+    spec: [
+      {
+        state: "Sell 全平",
+        when: 'side === "sell" && heldNoQty > 0',
+        visual: "Up tile 禁用 `0 sh`；数量走 FIX4 精确吸附",
+        source: "useSpotTerminal orderQty",
+      },
+    ],
+  },
+  {
+    key: "pro-spot-mobile-dock",
+    label: "SP-M5 · Sticky dock 三态",
+    spec: [
+      {
+        state: "default / 选中一边 / frozen",
+        when: "selected === null | 'yes' | blocked",
+        visual: "第一次点选中（描边 + 箭头），第二次跳 /spot/order；frozen 全禁用",
+        source: "ProSpotMobileDock",
+      },
+    ],
+  },
+];
+
 const SKELETON_CASES: SectionCase[] = [
+
   {
     key: "pro-terminal-skeleton",
     label: "SP-C1 · Pro 终端骨架（ProTerminalLayout + ProBottomTabs）",
