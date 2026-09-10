@@ -374,8 +374,30 @@ const etMinutesOfDay = (d: Date = new Date()): number => {
   return h * 60 + m;
 };
 
-/** Derive the current LP session profile from the wall clock (America/New_York). */
-export const getCurrentSession = (now: Date = new Date()): SessionProfile => {
+/**
+ * SP-3-DT2 · crypto quick rounds have no exchange session — 24/7 continuous
+ * liquidity, NORMAL quoting, full depth. Never a PRE/AH profile.
+ */
+export const CRYPTO_SESSION_PROFILE: SessionProfile = {
+  session: "REGULAR",
+  label: "24/7",
+  quoteMode: "NORMAL",
+  levelsMin: 8,
+  levelsMax: 12,
+  spreadMult: 1,
+  sizeMult: 1,
+  tooltip: "Crypto trades around the clock — continuous liquidity.",
+};
+
+/**
+ * Derive the current LP session profile. Crypto markets are session-less and
+ * always return the 24/7 profile; every other market uses the ET wall clock.
+ */
+export const getCurrentSession = (
+  market: StockMarket = US_STOCK_MARKET,
+  now: Date = new Date(),
+): SessionProfile => {
+  if (market.key === "crypto") return CRYPTO_SESSION_PROFILE;
   const mins = etMinutesOfDay(now);
   const REG_START = 9 * 60 + 30; // 09:30
   const REG_END = 15 * 60 + 45; // 15:45
