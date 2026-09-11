@@ -8,6 +8,7 @@ import { usePositionsStore, Position } from "@/stores/usePositionsStore";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { usePositions } from "@/hooks/usePositions";
 import { executeTrade } from "@/services/tradingService";
+import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 
