@@ -11,6 +11,7 @@
 - **产品需求变更**：`docs/changelog/` —— 每次需求/迭代的交付说明，先看 `INDEX.md`
 - **长效设计规范**：`DESIGN.md`（产品端）、`CAMPAIGN_DESIGN.md`（活动页）
 - **协作约定**：见 `docs/README.md`
+- **改动来源（2026-09-11 起）**：产品侧改动直接提交到 `main`（提交前过 `tsc` + `vite build`），不再经 Lovable 的 AI；Lovable 只负责 preview / publish / 后端托管，push 后自动同步。AI 代理的操作规范见 `CLAUDE.md`
 
 
 ## How can I edit this code?
