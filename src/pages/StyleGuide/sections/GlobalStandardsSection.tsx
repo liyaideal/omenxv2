@@ -18,6 +18,7 @@ export const GlobalStandardsSection = (_: { isMobile: boolean }) => (
     description="开场体系 v2 · 两级 tab / chips · chip 法则 · 44px 触控。权威条文见 bible §12（docs/design-contracts/master-components.html）。"
   >
     <div className="space-y-10">
+      <p className="text-xs text-muted-foreground">Build path: GitHub direct · 2026-09-11</p>
       <SubSection
         title="1. 开场体系 v2 — 三选一"
         description="实体名才配标题；栏目页一律无 h1。PageTitle / PageHeader 已退役（见 Archive 区）。"
