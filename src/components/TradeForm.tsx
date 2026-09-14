@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { usePositions } from "@/hooks/usePositions";
+import { usePositions, type UnifiedPosition } from "@/hooks/usePositions";
 import { OrderTypeDropdown, type ProOrderType } from "@/components/pro/OrderTypeDropdown";
 import { ClosePositionDialog } from "@/components/positions/ClosePositionDialog";
 
@@ -39,6 +39,16 @@ interface TradeFormProps {
   /** CT-1: Buy · Sell intent tab. Controlled by the page so it survives navigation. */
   intent?: "buy" | "sell";
   onIntentChange?: (next: "buy" | "sell") => void;
+  /**
+   * Style-guide only (pure display fixtures). Not passed = production behaviour,
+   * zero visual change. `previewPositions` replaces the live positions query,
+   * `previewBalance` the live balance, `previewSellQty` / `previewOrderType`
+   * seed the Sell tab's initial input state.
+   */
+  previewPositions?: UnifiedPosition[];
+  previewBalance?: number;
+  previewSellQty?: number;
+  previewOrderType?: ProOrderType;
 }
 
 
@@ -53,10 +63,16 @@ export const TradeForm = ({
   sideLabels,
   intent: controlledIntent,
   onIntentChange,
+  previewPositions,
+  previewBalance,
+  previewSellQty,
+  previewOrderType,
 }: TradeFormProps) => {
   const navigate = useNavigate();
-  const { balance } = useUserProfile();
-  const { positions, partialClosePosition, isClosing } = usePositions();
+  const { balance: liveBalance } = useUserProfile();
+  const { positions: livePositions, partialClosePosition, isClosing } = usePositions();
+  const balance = previewBalance ?? liveBalance;
+  const positions = previewPositions ?? livePositions;
 
   
   
@@ -73,7 +89,7 @@ export const TradeForm = ({
     onIntentChange?.(next);
   };
   const [leverage, setLeverage] = useState(10);
-  const [orderType, setOrderType] = useState<ProOrderType>("Market");
+  const [orderType, setOrderType] = useState<ProOrderType>(previewOrderType ?? "Market");
   const [amount, setAmount] = useState("0.00");
   const [sliderValue, setSliderValue] = useState([0]);
   const [tpsl, setTpsl] = useState(false);
@@ -251,7 +267,7 @@ export const TradeForm = ({
     ? (currentIsYes ? "no" : "yes")
     : undefined;
 
-  const [sellQtyInput, setSellQtyInput] = useState("0");
+  const [sellQtyInput, setSellQtyInput] = useState(previewSellQty != null ? String(previewSellQty) : "0");
   const [sellSlider, setSellSlider] = useState([0]);
   const [sellLimitPrice, setSellLimitPrice] = useState("");
   const sellAmountRef = useRef<HTMLInputElement | null>(null);

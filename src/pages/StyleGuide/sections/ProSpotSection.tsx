@@ -141,6 +141,60 @@ const DIALOG_CASES: SectionCase[] = [
   },
 ];
 
+const TRADE_ORDER_CASES: SectionCase[] = [
+  {
+    key: "pro-trade-order-buy",
+    label: "CT-M1 · /trade/order · Buy（TradeForm）",
+    note: "合约面板顶部新增 Buy · Sell 页签 + Market/Limit 下拉（与 /spot/order 同一套 markup）。Buy 页签 = 原面板，行为未变。",
+    spec: [
+      {
+        state: "Buy · Market",
+        when: 'intent === "buy"',
+        visual: "Buy · Sell 文字页签（选中 text-foreground border-foreground）+ OrderTypeDropdown ml-auto → Yes/No 切换 → LVG → Available → Amount → 滑杆 → TP/SL → 摘要 → CTA",
+        source: "TradeForm（/trade/order）",
+      },
+    ],
+  },
+  {
+    key: "pro-trade-order-sell",
+    label: "CT-M2 · Sell · Market（持 40 ct Up 5x，全平）",
+    note: "Sell = 只减仓/平仓当前净额仓位，永不开反向。LVG 与 TP/SL 隐藏；数量单位为合约（ct），滑杆基数 = 持仓数量；CTA 红色，全平文案 Close {outcome}，部分平 Reduce {outcome}。市价 → 打开 ClosePositionDialog，走与 Positions 表 Close 同一条 partialClosePosition（含 5% 胜利佣金）。",
+    spec: [
+      {
+        state: "Sell · Market · 全平",
+        when: 'intent === "sell" && heldSize > 0 && sellQty >= heldSize',
+        visual: "Held 40 ct · Up · 5x · entry 0.6200 → Amount 40 ct → 摘要 Close price (mark) / Contracts / Released margin / Realized PnL est. / Est. commission / You receive（加粗末行）→ CTA `Close Up · You receive $X`",
+        source: "TradeForm sell branch",
+      },
+    ],
+  },
+  {
+    key: "pro-trade-order-sell-limit",
+    label: "CT-M3 · Sell · Limit（减仓 20/40）",
+    note: "限价平仓 = reduce-only 挂单：trades 行 side=sell、order_type=Limit、margin=0、fee=0、reduce_only=true，下单不动余额；DEMO-STATE touch-fill 在 mark 触及限价时走 partialClosePosition。",
+    spec: [
+      {
+        state: "Sell · Limit · 部分",
+        when: 'intent === "sell" && orderType === "Limit" && sellQty < heldSize',
+        visual: "Close price 输入框（默认 mark）→ pending 提示 `Limit above/below mark — order will rest as Pending until touched.` → CTA `Reduce Up`",
+        source: "TradeForm sell branch → /order-preview（reduce-only）",
+      },
+    ],
+  },
+  {
+    key: "pro-trade-order-sell-flat",
+    label: "CT-M4 · Sell · 空仓",
+    spec: [
+      {
+        state: "Sell · flat",
+        when: 'intent === "sell" && !heldPos && !otherSideHeld',
+        visual: "两侧 disabledSide=\"both\"，价格条显示 `0 ct`，一行 `No position to close yet`；CTA 禁用",
+        source: "TradeForm sellDisabledSide",
+      },
+    ],
+  },
+];
+
 const MOBILE_CASES: SectionCase[] = [
   {
     key: "pro-spot-mobile-charts",
@@ -317,6 +371,14 @@ export const ProSpotSection = (_: Props) => (
       description="移动 Pro 现货重建在合约 Pro 移动骨架上：/spot 为 Charts 视图 + sticky dock，/spot/order 为下单子页（同一个 ProSpotPanel）。"
     >
       <SectionFrame cases={MOBILE_CASES} device="mobile" minHeight={560} />
+    </SectionWrapper>
+
+    <SectionWrapper
+      id="pro-trade-order"
+      title="Pro /trade/order 移动下单面板（CT-1 · Buy · Sell）"
+      description="合约面板的 Buy · Sell 意图页签。Sell 只做当前净额仓位的减仓/平仓（方案 A），空仓禁用、永不开反向。桌面 /trade 面板与此同规格，但仍是页面内联 JSX，暂无法在字典挂载（见交付文档已知缺口）。"
+    >
+      <SectionFrame cases={TRADE_ORDER_CASES} device="mobile" minHeight={640} />
     </SectionWrapper>
 
   </div>

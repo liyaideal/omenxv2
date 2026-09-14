@@ -44,6 +44,7 @@ const trade = () => import("./tradePreviews");
 
 const spot = () => import("./spotPreviews");
 const proSpot = () => import("./proSpotPreviews");
+const proTrade = () => import("./proTradePreviews");
 const share = () => import("./sharePreviews");
 const sportsLive = () => import("./sportsLivePreviews");
 
@@ -294,6 +295,12 @@ export const previewRegistry: Record<string, Loader> = {
   "pro-terminal-skeleton": pick(proSpot, "ProTerminalSkeleton"),
   "pro-bottom-tabs-guest": pick(proSpot, "ProBottomTabsGuest"),
   "pro-spot-book-thin": pick(proSpot, "ProSpotBookThin"),
+
+  /* -------- Pro /trade mobile order panel（CT-1 · Buy · Sell）-------- */
+  "pro-trade-order-buy": pick(proTrade, "ProTradeOrderBuy"),
+  "pro-trade-order-sell": pick(proTrade, "ProTradeOrderSell"),
+  "pro-trade-order-sell-limit": pick(proTrade, "ProTradeOrderSellLimit"),
+  "pro-trade-order-sell-flat": pick(proTrade, "ProTradeOrderSellFlat"),
 
   /* -------- Pro /spot mobile（SP-2）-------- */
   "pro-spot-mobile-charts": pick(proSpot, "ProSpotMobileCharts"),
