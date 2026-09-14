@@ -48,6 +48,10 @@ function TradeOrderContent({ selectedEvent, selectedOptionData, options, setSele
   const side = useTradeSideStore((s) => s.sideByKey[sideKey] ?? "buy");
   const setSideInStore = useTradeSideStore((s) => s.setSide);
   const setSide = (next: "buy" | "sell") => setSideInStore(sideKey, next);
+  // CT-1 · Buy · Sell intent tab, same key space — survives /trade ↔ /trade/order hops
+  const intent = useTradeSideStore((s) => s.intentByKey[sideKey] ?? "buy");
+  const setIntentInStore = useTradeSideStore((s) => s.setIntent);
+  const setIntent = (next: "buy" | "sell") => setIntentInStore(sideKey, next);
 
   // Transform price for the order book based on side (Sell = 1 - p, asks/bids swap)
   const transformPrice = (price: string): string => {
@@ -152,6 +156,8 @@ function TradeOrderContent({ selectedEvent, selectedOptionData, options, setSele
                 optionLabel={selectedOptionData.label}
                 side={side}
                 onSideChange={setSide}
+                intent={intent}
+                onIntentChange={setIntent}
                 binaryMode={binaryMode}
                 sideLabels={isBinary ? labels : null}
               />

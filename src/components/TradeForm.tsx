@@ -284,8 +284,8 @@ export const TradeForm = ({
   const handleMarketSellConfirm = async (qty: number) => {
     if (!heldPos?.id) return;
     const index = positions.findIndex((p) => p.id === heldPos.id);
+    // The close hook toasts `Cashed out · $X back` (copy-dictionary) — no second toast here.
     await partialClosePosition(heldPos.id, index, qty);
-    toast.success(`Closed · $${sellCashBack.toFixed(2)} back`);
     setSellQtyInput("0");
     setSellSlider([0]);
   };
@@ -499,8 +499,8 @@ export const TradeForm = ({
           className="flex items-center justify-between w-full"
         >
           <div className="flex items-center gap-2">
-            <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${tpsl ? 'bg-trading-purple border-trading-purple' : 'border-muted-foreground'}`}>
-              {tpsl && <span className="text-[10px] text-foreground">✓</span>}
+            <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${tpsl ? 'bg-foreground border-foreground' : 'border-muted-foreground'}`}>
+              {tpsl && <span className="text-[10px] text-background">✓</span>}
             </div>
             <span className="text-xs text-muted-foreground">TP/SL</span>
           </div>
@@ -719,7 +719,7 @@ export const TradeForm = ({
 
       <div className="space-y-1 text-xs">
         <div className="flex justify-between">
-          <span className="text-muted-foreground">Close price</span>
+          <span className="text-muted-foreground">Close price (mark)</span>
           <span className="text-foreground font-mono">{sellClosePrice.toFixed(4)} USDC</span>
         </div>
         <div className="flex justify-between">

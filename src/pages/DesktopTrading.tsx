@@ -500,8 +500,8 @@ export default function DesktopTrading() {
     try {
       if (orderType === "Market") {
         const idx = positions.findIndex((p) => p.id === heldPos.id);
+        // The close hook toasts `Cashed out · $X back` (copy-dictionary) — no second toast here.
         await partialClosePosition(heldPos.id!, idx, sellQty);
-        toast.success(`Closed · $${sellCashBack.toFixed(2)} back`);
       } else {
         const { error } = await supabase.from("trades").insert({
           user_id: user.id,
@@ -568,16 +568,11 @@ export default function DesktopTrading() {
           }
           const size = Math.floor(pos.sizeNum);
           const fillQty = Math.min(Math.max(1, qty), size);
-          const released = pos.marginNum * (fillQty / Math.max(size, 1));
-          const realized = (pos.type === "long" ? mark - pos.entryPriceNum : pos.entryPriceNum - mark) * fillQty;
-          const { cashBack } = cashBackOnClose({
-            releasedMargin: released,
-            realizedPnl: realized,
-            allocatedEntryFee: pos.entryPriceNum * fillQty * FUTURES_FEE_RATE,
-          });
+          // Close math (released margin / realized PnL / winning commission) lives in
+          // partialClosePosition, which also toasts `Cashed out · $X back`.
           await partialClosePosition(pos.id!, idx, fillQty);
           await supabase.from("trades").update({ status: "Filled" }).eq("id", id);
-          toast.success(`Closed · $${cashBack.toFixed(2)} back`);
+          toast.success(`Limit close filled · ${fillQty} ct`);
           refetchOrders();
           refetchPositions();
         } catch {
@@ -1801,8 +1796,8 @@ export default function DesktopTrading() {
                   className="flex items-center justify-between w-full"
                 >
                   <div className="flex items-center gap-2">
-                    <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${tpsl ? 'bg-trading-purple border-trading-purple' : 'border-muted-foreground'}`}>
-                      {tpsl && <span className="text-[10px] text-foreground">✓</span>}
+                    <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${tpsl ? 'bg-foreground border-foreground' : 'border-muted-foreground'}`}>
+                      {tpsl && <span className="text-[10px] text-background">✓</span>}
                     </div>
                     <span className="text-xs text-muted-foreground">TP/SL</span>
                   </div>

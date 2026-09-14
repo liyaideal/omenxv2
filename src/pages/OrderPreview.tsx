@@ -132,7 +132,26 @@ export default function OrderPreview() {
 
   const hasSufficientFunds = balance >= effectiveTotalCost;
 
-  const orderDetails: OrderDetail[] = [
+  // CT-1 · reduce-only preview rows (mobile Limit Sell) — mirrors the Sell tab summary.
+  const reduceOnlyDetails: OrderDetail[] = sell
+    ? [
+        { label: "Event", value: eventName },
+        { label: "Position", value: `${sell.outcomeLabel} · ${sell.leverage}x` },
+        { label: "Order", value: "Limit · Reduce-only" },
+        { label: "Close price", value: sell.closePrice.toFixed(4) },
+        { label: "Contracts", value: `${sell.qty}` },
+        { label: "Released margin", value: `${sell.releasedMargin.toFixed(2)} USDC`, highlight: "green" },
+        {
+          label: "Realized PnL est.",
+          value: `${sell.realizedPnl >= 0 ? "+" : "-"}${Math.abs(sell.realizedPnl).toFixed(2)} USDC`,
+          highlight: sell.realizedPnl >= 0 ? "green" : "red",
+        },
+        { label: "Est. commission", value: `${sell.commission.toFixed(2)} USDC` },
+        { label: "You receive", value: `${sell.cashBack.toFixed(2)} USDC` },
+      ]
+    : [];
+
+  const orderDetails: OrderDetail[] = reduceOnly && sell ? reduceOnlyDetails : [
     { label: "Event", value: eventName },
     ...(isBinaryOption
       ? [{ label: "Option", value: sideDisplay, highlight: sideHighlight as "green" | "red" }]
@@ -260,15 +279,28 @@ export default function OrderPreview() {
 
       {/* Confirm Button */}
       <div className="fixed bottom-20 left-0 right-0 bg-background px-4 py-3">
-        <TradeSubmitButton
-          side={orderData.side || "buy"}
-          label={getIntentLabel(orderIntent, orderData.side || "buy", sideLabels)}
-          potentialWin={potentialWin.toLocaleString()}
-          onClick={handleConfirm}
-          loading={isSubmitting}
-          size="lg"
-          className="animate-slide-up"
-        />
+        {reduceOnly && sell ? (
+          <TradeSubmitButton
+            side="sell"
+            label={sell.ctaLabel}
+            winPrefix="You receive"
+            potentialWin={sell.cashBack.toFixed(2)}
+            onClick={handleConfirmReduceOnly}
+            loading={isSubmitting}
+            size="lg"
+            className="animate-slide-up"
+          />
+        ) : (
+          <TradeSubmitButton
+            side={orderData.side || "buy"}
+            label={getIntentLabel(orderIntent, orderData.side || "buy", sideLabels)}
+            potentialWin={potentialWin.toLocaleString()}
+            onClick={handleConfirm}
+            loading={isSubmitting}
+            size="lg"
+            className="animate-slide-up"
+          />
+        )}
       </div>
 
       {/* Auth Sheet for login */}
