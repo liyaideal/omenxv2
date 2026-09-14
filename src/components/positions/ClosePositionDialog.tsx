@@ -22,6 +22,8 @@ interface ClosePositionDialogProps {
   fullCloseOnly?: boolean;
   onConfirm: (closeQty: number) => void | Promise<void>;
   isClosing?: boolean;
+  /** Seed the quantity (Sell tab passes its Amount). Not passed = full size. */
+  initialQty?: number;
 }
 
 /**
@@ -40,6 +42,7 @@ export const ClosePositionDialog = ({
   fullCloseOnly = false,
   onConfirm,
   isClosing = false,
+  initialQty,
 }: ClosePositionDialogProps) => {
   const safeSize = Math.max(1, Math.floor(size));
   // option 已经是 display label（binary 别名或 Yes/No 或多 outcome 名），直接显示即可
@@ -71,6 +74,7 @@ export const ClosePositionDialog = ({
           onCancel={() => setOpen(false)}
           isClosing={isClosing}
           showHeader={false}
+          initialQty={initialQty}
         />
       </DialogContent>
     </Dialog>

@@ -18,6 +18,8 @@ export interface ClosePositionFormProps {
   isClosing?: boolean;
   /** Show the header (option + side + contracts). Drawer/Dialog hides it since their title already conveys context. */
   showHeader?: boolean;
+  /** Seed the quantity (e.g. from the Sell tab's Amount). Not passed = full size, as before. */
+  initialQty?: number;
 }
 
 const QUICK_RATIOS = [25, 50, 75, 100] as const;
@@ -40,13 +42,15 @@ export const ClosePositionForm = ({
   onCancel,
   isClosing = false,
   showHeader = true,
+  initialQty,
 }: ClosePositionFormProps) => {
   const safeSize = Math.max(1, Math.floor(size));
-  const [closeQty, setCloseQty] = useState<number>(safeSize);
+  const seedQty = initialQty != null && initialQty > 0 ? Math.min(safeSize, Math.floor(initialQty)) : safeSize;
+  const [closeQty, setCloseQty] = useState<number>(seedQty);
 
   useEffect(() => {
-    setCloseQty(safeSize);
-  }, [safeSize]);
+    setCloseQty(seedQty);
+  }, [seedQty]);
 
   const clampedQty = Math.min(safeSize, Math.max(1, Math.floor(closeQty || 0)));
   const ratio = safeSize > 0 ? clampedQty / safeSize : 0;

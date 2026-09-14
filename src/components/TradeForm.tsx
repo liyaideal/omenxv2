@@ -785,6 +785,7 @@ export const TradeForm = ({
           leverage={`${Math.round(heldPos.leverageNum) || 1}x`}
           onConfirm={handleMarketSellConfirm}
           isClosing={isClosing}
+          initialQty={sellQty}
         >
           <span className="block">
             <TradeSubmitButton
