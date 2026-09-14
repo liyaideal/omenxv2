@@ -1339,7 +1339,7 @@ export default function DesktopTrading() {
                           <td className="px-4 py-2 text-xs text-muted-foreground">{order.time}</td>
                           <td className="px-4 py-2 text-center">
                             <button 
-                              onClick={() => handleCancelOrderClick(index)}
+                              onClick={() => handleCancelOrderClick(index, order.id)}
                               className="px-3 py-1 text-xs text-trading-red border border-trading-red/50 rounded hover:bg-trading-red/10"
                             >
                               Cancel
