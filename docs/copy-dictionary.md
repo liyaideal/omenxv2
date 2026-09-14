@@ -247,6 +247,7 @@ positives. Chip words come from the sibling event's `side_labels`.
 | **Realized PnL est.** | `/trade` Sell 摘要行 = `(mark − entry) × 张数 × 方向`；限价按输入价估 | PnL |
 | **Est. commission** | `/trade` Sell 摘要行 = `5% × max(Realized PnL − 已分摊开仓费, 0)`，同 `cashBackOnClose()` | Fee（该行禁用）|
 | **Close {outcome} / Reduce {outcome}** | `/trade` Sell CTA：张数 = 持仓张数 → `Close`；否则 `Reduce`。判定 `sellQty >= heldSize` | Sell {outcome}, Exit |
+| **Close（订单 Side 列）** | Current Orders 表 reduce-only 行的 Side 徽标（红，`bg-trading-red/20 text-trading-red`），替代 Yes/No。判定 `trades.reduce_only = true` | Sell, No |
 | **Reduce-only** | Current Orders 表限价平仓单的类型标（`text-[10px] bg-muted`）。判定 `trades.reduce_only = true`；该单 margin 0 / fee 0，不动余额 | Close order, Sell limit |
 | **No position to close yet** | `/trade` Sell 页签空仓提示（两侧禁用）。判定 `!heldPos && !otherSideHeld` | No shares to sell yet（`/spot` 专用）|
 | **Limit close filled · N ct** | 限价平仓单成交时的附加 toast（成交本身仍弹 `Cashed out · $X back`） | — |
