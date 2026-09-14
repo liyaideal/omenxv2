@@ -1279,7 +1279,9 @@ export default function DesktopTrading() {
                             </HoverCard>
                           </td>
                           <td className="px-4 py-2">
-                            {orderOutcome ? (
+                            {order.reduceOnly ? (
+                              <span className="px-2 py-0.5 rounded text-xs font-medium bg-trading-red/20 text-trading-red">Close</span>
+                            ) : orderOutcome ? (
                               <span className="text-muted-foreground/40">—</span>
                             ) : (
                               <span className={`px-2 py-0.5 rounded text-xs font-medium ${order.type === "buy" ? "bg-trading-green/20 text-trading-green" : "bg-trading-red/20 text-trading-red"}`}>
