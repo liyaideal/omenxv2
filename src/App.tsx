@@ -45,6 +45,7 @@ import InsightsPage from "./pages/InsightsPage";
 import MethodologyPage from "./pages/MethodologyPage";
 import DevelopersPage from "./pages/DevelopersPage";
 import AffiliatePage from "./pages/AffiliatePage";
+import { ScrollToTop } from "./components/ScrollToTop";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
 import TransparencyPage from "./pages/TransparencyPage";
@@ -180,6 +181,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ScrollToTop />
           <OrderSimulationRunner />
           <CampaignAttribution />
           <Routes>
