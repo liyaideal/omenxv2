@@ -75,7 +75,8 @@ export default function OrderPreview() {
         side: "sell",
         order_type: "Limit",
         price: sell.closePrice,
-        amount: 0,
+        // trades.check_positive_amount (> 0): store the close notional, not 0.
+        amount: sell.qty * sell.closePrice,
         quantity: sell.qty,
         leverage: sell.leverage,
         margin: 0,

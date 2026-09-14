@@ -510,7 +510,8 @@ export default function DesktopTrading() {
           side: "sell",
           order_type: "Limit",
           price: sellClosePrice,
-          amount: 0,
+          // trades.check_positive_amount (> 0): store the close notional, not 0.
+          amount: sellQty * sellClosePrice,
           quantity: sellQty,
           leverage: Math.round(heldPos.leverageNum) || 1,
           margin: 0,
