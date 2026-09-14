@@ -1908,3 +1908,22 @@ Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① 
 - `Extended hours` badge 带 tooltip：`Pre-market / after-hours session — liquidity is thinner and spreads are wider.`
 - crypto 现货事件走 24/7 会话档（`CRYPTO_SESSION_PROFILE`）：NORMAL 报价、满深度、无 PRE/AH pill、无 extended badge、不使用美股收盘文案。
 - crypto 的 ⓘ 排期文案只有两行：`Trading ends: …` / `Settles: ~…`。
+
+## §Addendum 2026-09-14 · 营销页尺度 L + B2B 营销面措辞豁免（§19.4，append-only）
+
+`/affiliate` 落地时 CPO 裁定：§19.1 骨架为 `/developers`（读者是研发）设计，密度对营销受众偏小。自本条起 §19 分两档，骨架不变，尺度不同：
+
+**尺度 S（`/developers`，维持现状）**：19.1 原文——交替带、`SectionHeader` 小 h2 `text-xl` + 幽灵编号 `text-5xl`、正文 12–13px。
+
+**尺度 L（对外营销页：`/affiliate` 及此后所有面向 KOL / BD / 合作方的页面）**：
+1. **单一底色**：全页 `bg-background`，不做深浅交替带；节奏只靠顶部发丝线 `border-t border-border/30`、幽灵编号与留白（band 内距 `py-20 md:py-28`）。比底色浅一档（`bg-card`）的只允许是"对象"：账本 / 对比表这类陈列框、logo tile、照片框。
+2. **字阶**：hero h1 `font-display font-bold` 60–64px（`tracking-[-0.025em] leading-[0.98]`）；section h2 `font-display font-medium` 40px 两行；子标题 22–28px；正文 15–16px；免责小字 13px。
+3. **Section header**：mono eyebrow（`text-[11px] uppercase tracking-[0.24em] text-primary`）在上，display h2 在下，副题 16px；幽灵编号 `text-[120px] text-muted-foreground/[0.07]` 绝对定位于右上作装饰，不参与排版；header 内 CTA 放标题下方，不与幽灵编号同排。
+4. **数字为主角**：页面上的关键数值（平台指标、账本结果、倍数）用 mono bold 40–112px，`text-accent` 只给结果值，输入值与合计用 `text-foreground`。
+5. **陈列框（Exhibit）**：多层数据模块必须装框——`rounded-xl border border-border/60 bg-card`，三段式：标题条（`02.1` 编号 + 标题 + 一句说明 + 右侧 mono 标签）/ 本体 / 免责脚注条（`bg-muted/10`）。同一节内多个陈列框间距 64px。
+6. **可点性**：页内跳转链做成描边 pill（`h-9 px-4 rounded-full border border-border/70`，hover `border-primary/50 bg-primary/10`），不做纯文字。
+7. **Logo 背书**：第三方 logo 用 72px `rounded-2xl border bg-card` tile 放 40px 图（横向字标 tile 自动加宽），标签 12px mono；团队经历 logo 高 28px。
+8. **移动端**：h1 40px、h2 28px、指标 30px、正文 15px；sticky 主 CTA 在 hero 自带 CTA 滚出视口后才浮出（IntersectionObserver）。
+9. **措辞豁免**：CHK-9 / Lite 禁词表（Leverage / Cross margin / Order book …）**不适用于 B2B 营销面**——受众是合作方而非 Lite 消费者，原文保留。豁免范围仅限本档页面；Lite 产品页与 Lite 营销页（`/hedge` 等面向交易者的）不豁免。
+
+参照实现：`src/pages/AffiliatePage.tsx` / `AffiliatePageMobile.tsx`、`src/components/affiliate/*`；字典 `/style-guide#lite-affiliate`（AF-1…AF-5）。

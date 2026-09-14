@@ -28,6 +28,7 @@ const vouchersDict = () => import("./vouchersDictPreviews");
 
 const vouchers1 = () => import("./voucherPreviews");
 const api = () => import("./apiPreviews");
+const affiliate = () => import("./affiliatePreviews");
 const wallet = () => import("./walletPreviews");
 const settlements = () => import("./settlementPreviews");
 const rewards = () => import("./rewardsPreviews");
@@ -399,6 +400,14 @@ export const previewRegistry: Record<string, Loader> = {
   "wizard-shell": pick(api, "WizardShellPreview"),
   "revoke-dialog": pick(api, "RevokeDialogPreview"),
   "developers-mobile-tiers": pick(api, "DevelopersMobileTiersPreview"),
+
+  /* -------- Affiliate Program (/affiliate) -------- */
+  "affiliate-page": pick(affiliate, "AffiliatePagePreview"),
+  "affiliate-earnings-ledger": pick(affiliate, "AffiliateEarningsLedgerPreview"),
+  "affiliate-fee-base": pick(affiliate, "AffiliateFeeBasePreview"),
+  "affiliate-faq-collapsed": pick(affiliate, "AffiliateFaqCollapsedPreview"),
+  "affiliate-faq-expanded": pick(affiliate, "AffiliateFaqExpandedPreview"),
+  "affiliate-hero-art-slot": pick(affiliate, "AffiliateHeroArtPreview"),
 
   /* -------- Wallet · Dual-Account 2b -------- */
   "wallet-equity-bands": pick(wallet, "WalletEquityBandsPreview"),

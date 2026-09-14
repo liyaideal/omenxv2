@@ -11,6 +11,7 @@ const PAGES: Array<{ id: string; page: string; route: string; status: RevampStat
   { id: "lite-rewards", page: "Rewards", route: "/rewards", status: "done" },
   { id: "lite-vouchers", page: "Vouchers（并入 /rewards Tab）", route: "/rewards?tab=vouchers", status: "done" },
   { id: "lite-api", page: "API / Developers", route: "/settings/api · /developers", status: "done" },
+  { id: "lite-affiliate", page: "Affiliate Program", route: "/affiliate", status: "done" },
   { id: "lite-portfolio", page: "Portfolio", route: "/portfolio · /portfolio?tab=settled · /portfolio/settlement/:id", status: "done" },
   { id: "lite-share", page: "分享 / 晒单", route: "/trade · /spot · /portfolio · 结算详情", status: "done" },
   { id: "lite-leaderboard", page: "Leaderboard", route: "/leaderboard", status: "todo" },

@@ -81,6 +81,7 @@ export const SeoFooter = () => {
       heading: "Resources",
       links: [
         { label: "Developers", path: "/developers" },
+        { label: "Affiliate Program", path: "/affiliate" },
         { label: "On-Chain Transparency", path: "/settings/transparency" },
       ],
     },

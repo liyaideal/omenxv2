@@ -17,6 +17,17 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-09-14 — Affiliate Program 页面 v1（[文档](../delivery/affiliate-page-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| AF-A | 路由 `/affiliate` + 桌面/移动两套组件 + SeoFooter 入口 | ⬜ | 未登录可达；文案与数字来自 `affiliateContent.ts`，逐字冻结 |
+| AF-B | 收益示例 DOM 化：`EarningsLedger`（三栏 + 合计）/ `FeeBaseComparison`（6.6×） | ⬜ | 数字见文档 §3.1 / §3.2 |
+| AF-C | 视觉按 DESIGN.md §19.4 尺度 L（单一底色、字阶、陈列框、pill 跳转链、logo tile） | ⬜ | |
+| AF-D | 移动端：单列 + sticky Apply now（hero 滚出后浮出） | ⬜ | |
+| AF-E | Hero 插画资产 `affiliate-hero-lynx.png` 双端 | ⬜ | 待 CPO 提供；缺失时该位不渲染 |
+| AF-F | `/style-guide#lite-affiliate` AF-1…AF-5 | ⬜ | 蓝图侧已落 |
+
 ## 2026-09-09 — 现货 Pro 交易页 v1（[文档](../delivery/spot-pro-v1.md)）
 
 | # | 项 | Status | Notes |

@@ -72,6 +72,7 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
       s("lite-vouchers", "Vouchers ✅", lp("LiteVouchersPage")),
       s("lite-h2e", "H2E Campaign ✅", lp("LiteH2ePage")),
       s("lite-api", "API / Developers ✅", lp("LiteApiPage")),
+      s("lite-affiliate", "Affiliate Program ✅", lp("LiteAffiliatePage")),
       s("lite-sports-live", "Sports · Live ✅", sec("LiteSportsLiveSection", "LiteSportsLiveSection")),
       s("lite-portfolio", "Portfolio ✅", lp("LitePortfolioPage")),
       s("lite-share", "分享 / Share ✅", lp("ShareCases")),

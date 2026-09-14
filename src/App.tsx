@@ -44,6 +44,7 @@ import AboutPage from "./pages/AboutPage";
 import InsightsPage from "./pages/InsightsPage";
 import MethodologyPage from "./pages/MethodologyPage";
 import DevelopersPage from "./pages/DevelopersPage";
+import AffiliatePage from "./pages/AffiliatePage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
 import TransparencyPage from "./pages/TransparencyPage";
@@ -229,6 +230,7 @@ const App = () => (
               <Route path="/insights" element={<InsightsPage />} />
               <Route path="/methodology" element={<MethodologyPage />} />
               <Route path="/developers" element={<DevelopersPage />} />
+              <Route path="/affiliate" element={<AffiliatePage />} />
               <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
               <Route path="/terms-of-service" element={<TermsOfServicePage />} />
               <Route path="*" element={<NotFound />} />
