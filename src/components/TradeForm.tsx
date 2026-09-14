@@ -250,21 +250,32 @@ export const TradeForm = ({
     () => positions.filter((p) => p.event === eventName),
     [positions, eventName],
   );
-  const heldPos = useMemo(
-    () => eventPositions.find((p) => p.option === optionLabel) ?? null,
-    [eventPositions, optionLabel],
-  );
-  const otherSideHeld = useMemo(
-    () => eventPositions.some((p) => p.option !== optionLabel),
-    [eventPositions, optionLabel],
-  );
   const currentIsYes = binaryMode ? binaryMode.isYesSelected : side === "buy";
-  const sellDisabledSide: "yes" | "no" | "both" | undefined = !heldPos && !otherSideHeld
+  // Same rule as the desktop panel: on a binary event the Yes / No tiles are two
+  // options (long each); on a multi-outcome event they are the long / short leg
+  // of the selected option. Never "any other option on the event".
+  const heldYes = useMemo(
+    () => eventPositions.find((p) => (binaryMode ? p.option === optionLabel && currentIsYes : p.option === optionLabel && p.type === "long")) ?? null,
+    [eventPositions, optionLabel, binaryMode, currentIsYes],
+  );
+  const heldNo = useMemo(
+    () => eventPositions.find((p) => (binaryMode ? p.option === optionLabel && !currentIsYes : p.option === optionLabel && p.type === "short")) ?? null,
+    [eventPositions, optionLabel, binaryMode, currentIsYes],
+  );
+  const heldOtherBinary = useMemo(
+    () => (binaryMode ? eventPositions.some((p) => p.option !== optionLabel) : false),
+    [eventPositions, optionLabel, binaryMode],
+  );
+  // Binary: the non-selected tile is held iff a position exists on the other option.
+  const yesHeld = binaryMode ? (currentIsYes ? !!heldYes : heldOtherBinary) : !!heldYes;
+  const noHeld = binaryMode ? (currentIsYes ? heldOtherBinary : !!heldNo) : !!heldNo;
+  const heldPos = currentIsYes ? heldYes : heldNo;
+  const sellDisabledSide: "yes" | "no" | "both" | undefined = !yesHeld && !noHeld
     ? "both"
-    : !heldPos
-    ? (currentIsYes ? "yes" : "no")
-    : !otherSideHeld
-    ? (currentIsYes ? "no" : "yes")
+    : !yesHeld
+    ? "yes"
+    : !noHeld
+    ? "no"
     : undefined;
 
   const [sellQtyInput, setSellQtyInput] = useState(previewSellQty != null ? String(previewSellQty) : "0");
