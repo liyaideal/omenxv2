@@ -1927,3 +1927,13 @@ Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① 
 9. **措辞豁免**：CHK-9 / Lite 禁词表（Leverage / Cross margin / Order book …）**不适用于 B2B 营销面**——受众是合作方而非 Lite 消费者，原文保留。豁免范围仅限本档页面；Lite 产品页与 Lite 营销页（`/hedge` 等面向交易者的）不豁免。
 
 参照实现：`src/pages/AffiliatePage.tsx` / `AffiliatePageMobile.tsx`、`src/components/affiliate/*`；字典 `/style-guide#lite-affiliate`（AF-1…AF-5）。
+
+## §Addendum 2026-09-14 · Pro 下单面板页签行与 Sell 意图（CT-1，append-only）
+
+1. **两个 Pro 终端共用同一套面板页签行**：左侧 `Buy · Sell` 文字页签（`text-xs font-semibold capitalize pb-1 border-b-2`，选中 `text-foreground border-foreground`，未选中 `text-muted-foreground border-transparent`），右侧 `OrderTypeDropdown`（`Market | Limit`）`ml-auto`。`/trade` 与 `/spot`、桌面与手机一字不差。
+2. **订单类型一律是下拉，不再是下划线页签**；任何选择控件不得使用 `trading-purple`（含 TP/SL 勾选框：选中 `bg-foreground border-foreground`，勾为 `text-background`）。
+3. **Sell 意图 = 减仓 / 平仓，不是开空**：合约面板 Sell 页签只作用于当前结果上已持有的那一个净额仓位；空仓两侧禁用并提示 `No position to close yet`，只持一侧时另一侧禁用且价格条显示 `0 ct`。CTA 走 money 轴红（`side="sell"`），全平 `Close {outcome}`、部分 `Reduce {outcome}`，副文案 `You receive`。
+4. **Sell 摘要**与 Buy 摘要同 chrome（平铺 + 顶部分割线），行序固定：`Close price (mark)` / `Contracts` / `Released margin` / `Realized PnL est.` / `Est. commission` / `You receive`（`pt-2 border-t font-medium` 末行）。
+5. Sell 页签下不渲染杠杆、TP/SL、充值 `+`。
+
+参照实现：`src/pages/DesktopTrading.tsx`（桌面面板）、`src/components/TradeForm.tsx`（手机）、`src/pages/OrderPreview.tsx`（reduce-only 预览）；字典 `/style-guide#pro-trade-order`（CT-M1…CT-M4）。

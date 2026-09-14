@@ -237,7 +237,19 @@ positives. Chip words come from the sibling event's `side_labels`.
 | **Standard Account** | 现货账户在 Pro `/spot` 与余额提示中的名字 | Spot Account（已退役）|
 | **Fee (0.15%)** | Pro `/spot` 下单摘要手续费行 | Fee, Trading fee（该行专用写法）|
 | **Proceeds** | Pro `/spot` 卖出摘要行 = 卖出份额 × 成交价（未扣费；费另起 `Fee (0.15%)` 行） | Total, Return |
-| **You receive** | Pro `/spot` **卖出** CTA 副文案（买入侧仍为 `To win`）| To win（卖出侧禁用）|
+| **You receive** | Pro **卖出 / 平仓** CTA 副文案与摘要末行：`/spot` 卖出份额、`/trade` Sell 页签减仓 / 平仓（买入侧仍为 `To win`）| To win（卖出侧禁用）|
+| **Buy / Sell（页签）** | Pro 下单面板意图页签。`/spot`：买份额 / 卖持有份额；`/trade`：开仓 · 加仓 / 减仓 · 平仓当前净额仓位。判定 `intent === "buy" \| "sell"`，与 Yes/No 方向无关 | Open / Close, Long / Short |
+| **Held** | `/trade` Sell 页签持仓行：`Held {size} ct · {outcome} · {leverage}x · entry {price}` | Position, You hold |
+| **ct** | 合约张数单位（Sell 页签 Amount 后缀、Held 行）。整数 | contracts（行内缩写专用）, sh（现货份额专用）|
+| **Close price / Close price (mark)** | `/trade` Sell：Limit 时的价格输入框标签 `Close price`；摘要首行 `Close price (mark)` = 市价平仓按 mark、限价按输入价 | Exit price |
+| **Contracts** | `/trade` Sell 摘要行 = 本次减仓 / 平仓张数 | Size, Qty |
+| **Released margin** | `/trade` Sell 摘要行 = `持仓保证金 × 平仓张数 / 持仓张数` | Margin back, Refund |
+| **Realized PnL est.** | `/trade` Sell 摘要行 = `(mark − entry) × 张数 × 方向`；限价按输入价估 | PnL |
+| **Est. commission** | `/trade` Sell 摘要行 = `5% × max(Realized PnL − 已分摊开仓费, 0)`，同 `cashBackOnClose()` | Fee（该行禁用）|
+| **Close {outcome} / Reduce {outcome}** | `/trade` Sell CTA：张数 = 持仓张数 → `Close`；否则 `Reduce`。判定 `sellQty >= heldSize` | Sell {outcome}, Exit |
+| **Reduce-only** | Current Orders 表限价平仓单的类型标（`text-[10px] bg-muted`）。判定 `trades.reduce_only = true`；该单 margin 0 / fee 0，不动余额 | Close order, Sell limit |
+| **No position to close yet** | `/trade` Sell 页签空仓提示（两侧禁用）。判定 `!heldPos && !otherSideHeld` | No shares to sell yet（`/spot` 专用）|
+| **Limit close filled · N ct** | 限价平仓单成交时的附加 toast（成交本身仍弹 `Cashed out · $X back`） | — |
 | ~~**Max loss**~~ | **Retired 2026-09-09 (SP-1)** — Pro `/spot` 与 Lite 下单面板都不再显示这行；净利口径由 `To win` 单行承担 | — |
 | ~~**Not Up**~~ | **Retired 2026-09-09** — Standard 段负向词一律显示 `Down`（`liteSideName()`），Pro `/spot` 与 Lite 同口径；DB `side_labels` 可继续存旧值 | — |
 | ~~**Funding Rate**~~ | **Retired 2026-09-09 (Fee System V4)** — funding is 0 by policy; no funding figure is displayed anywhere | — |

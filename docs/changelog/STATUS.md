@@ -17,6 +17,18 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-09-14 — 合约 Pro 面板 Buy · Sell v1（[文档](../delivery/pro-trade-sell-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| CT-A | 面板页签行：Buy · Sell + Market/Limit 下拉，替换下划线页签（桌面 + 手机） | ⬜ | 与 `/spot` 面板同一 markup |
+| CT-B | Sell 页签：只减仓 / 平仓当前净额仓位，空仓禁用、永不反向；数量单位 ct | ⬜ | 口径见文档 §2 |
+| CT-C | 市价平仓走持仓表 Close 同一路径（保证金释放 + 已实现盈亏 − 5% 赢利佣金） | ⬜ | 蓝图 `partialClosePosition` |
+| CT-D | 限价平仓 = reduce-only 挂单（`trades.reduce_only`，margin 0 / fee 0，不动余额）+ Current Orders `Reduce-only` 标 | ⬜ | 撮合由后端；蓝图为前端 touch-fill |
+| CT-E | 手机：市价 → ClosePositionDialog；限价 → /order-preview reduce-only 预览；页签状态按事件:结果记忆 | ⬜ | |
+| CT-F | 字典 CT-M1…CT-M4（`/style-guide#pro-trade-order`） | ⬜ | 桌面面板未组件化，待 `ProContractPanel` 提取后补 |
+| CT-G | 引擎口径统一：买反向结果的自动减仓也应扣赢利佣金 | ⚠️ | 真平台按持仓表 Close 口径，见文档 §8 |
+
 ## 2026-09-14 — Affiliate Program 页面 v1（[文档](../delivery/affiliate-page-v1.md)）
 
 | # | 项 | Status | Notes |

@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-09-14 | [合约 Pro 面板 Buy · Sell（Sell = 减仓 / 平仓）交付说明 v1](../delivery/pro-trade-sell-v1.md) | `/trade` 与 `/trade/order` 面板新增 Buy · Sell 页签 + Market/Limit 下拉；Sell 只减仓 / 平仓当前净额仓位（空仓禁用、永不反向）；市价走持仓表 Close 同一路径，限价生成 reduce-only 挂单（`trades.reduce_only` 新列）；字典 CT-M1…CT-M4；桌面面板未组件化为已知缺口 |
 | 2026-09-14 | [Affiliate Program 页面（/affiliate）交付说明 v1](../delivery/affiliate-page-v1.md) | 新路由 `/affiliate`（桌面 + 移动两套组件）；六节营销结构，收益示例改为 DOM 账本 `EarningsLedger` / 对比表 `FeeBaseComparison`（数字冻结）；SeoFooter Resources 加入口；DESIGN.md §19.4 新增营销页尺度 L + B2B 措辞豁免；字典 `lite-affiliate` AF-1…AF-5；hero 插画位待资产 |
 | 2026-09-10 | [现货费率 V4 与 Pro 现货终端交付说明 v1](../delivery/spot-pro-v1.md) | 现货开收 15bps taker（仅买入）与 5% 赢利佣金；`settle_spot_event` 重写并由 `sim-settle-spot` 单一调用；Pro `/spot` 摘要改 `To win` 净利、账户改 Standard Account；Lite 现货面板 Returns 收成一行；新增共享件 `BinarySideToggle` |
 | 2026-09-09 | [Pro 交易页费率 V4 清理交付说明 v1](../delivery/pro-trade-v4-cleanup-v1.md) | 删 Funding 展示与审计页；删 Isolated 开关（全仓唯一）；fee 15bps；Pro To win 改净利与 Lite 同数 |
