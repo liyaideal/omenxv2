@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react"; // v2
+import { TransferEntry } from "@/components/pro/TransferEntry";
 import { WinTooltipBody } from "@/components/lite/shared/WinTooltipBody";
 import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
 import { useNavigate, useNavigationType, useSearchParams, useLocation } from "react-router-dom";
@@ -1722,12 +1723,7 @@ export default function DesktopTrading() {
               <span className="text-xs text-muted-foreground">Available (USDC)</span>
               <div className="flex items-center gap-2">
                 <span className="font-mono text-xs">{available.toLocaleString()}</span>
-                <button 
-                  onClick={() => setDepositDialogOpen(true)}
-                  className="w-5 h-5 bg-muted rounded-full flex items-center justify-center hover:bg-muted-foreground/30 transition-colors"
-                >
-                  <Plus className="w-3 h-3" />
-                </button>
+                <TransferEntry direction="to_futures" />
               </div>
             </div>
 
@@ -1976,7 +1972,10 @@ export default function DesktopTrading() {
             {/* Available Balance */}
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Available (USDC)</span>
-              <span className="font-mono text-xs">{available.toLocaleString()}</span>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs">{available.toLocaleString()}</span>
+                <TransferEntry direction="to_futures" />
+              </div>
             </div>
 
             {orderType === "Limit" && (

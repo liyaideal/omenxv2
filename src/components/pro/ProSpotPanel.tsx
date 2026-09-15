@@ -6,6 +6,7 @@
 // Presentational only: every number is computed by the page and passed in.
 // ============================================================
 import { useEffect, useRef, useState } from "react";
+import { TransferEntry } from "@/components/pro/TransferEntry";
 import { ChevronDown, HelpCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -191,7 +192,10 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
         {/* Balance / holdings */}
         <div className={cn("flex items-center justify-between", isBare ? "text-xs" : "text-[11px]")}>
           <span className="text-muted-foreground">Available (USDC)</span>
-          <span className="font-mono">{money2(p.available)}</span>
+          <span className="inline-flex items-center gap-2">
+            <span className="font-mono">{money2(p.available)}</span>
+            <TransferEntry direction="to_spot" mobile={isBare} />
+          </span>
         </div>
         {isSell && (
           <div className={cn("flex items-center justify-between", isBare ? "text-xs" : "text-[11px]")}>

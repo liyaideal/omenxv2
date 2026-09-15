@@ -1,8 +1,10 @@
 import { FUTURES_FEE_RATE, netWin, cashBackOnClose } from "@/services/tradingService";
+import { MobileDrawer } from "@/components/ui/mobile-drawer";
+import { TransferEntry } from "@/components/pro/TransferEntry";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { WinTooltipBody } from "@/components/lite/shared/WinTooltipBody";
 import { useState, useMemo, useRef } from "react";
-import { ChevronDown, Plus, ArrowLeftRight, ChevronUp, X, HelpCircle } from "lucide-react";
+import { ChevronDown, ArrowLeftRight, ChevronUp, X, HelpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
@@ -51,6 +53,8 @@ interface TradeFormProps {
   previewBalance?: number;
   previewSellQty?: number;
   previewOrderType?: ProOrderType;
+  /** Style-guide only: mount with the Leverage drawer open. */
+  previewLeverageOpen?: boolean;
 }
 
 
@@ -69,6 +73,7 @@ export const TradeForm = ({
   previewBalance,
   previewSellQty,
   previewOrderType,
+  previewLeverageOpen,
 }: TradeFormProps) => {
   const navigate = useNavigate();
   const { balance: liveBalance } = useUserProfile();
@@ -91,6 +96,7 @@ export const TradeForm = ({
     onIntentChange?.(next);
   };
   const [leverage, setLeverage] = useState(10);
+  const [leverageOpen, setLeverageOpen] = useState(!!previewLeverageOpen);
   const [orderType, setOrderType] = useState<ProOrderType>(previewOrderType ?? "Market");
   const [amount, setAmount] = useState("0.00");
   const [sliderValue, setSliderValue] = useState([0]);
@@ -451,26 +457,58 @@ export const TradeForm = ({
 
       {intent === "buy" ? (
       <>
-      {/* Leverage */}
-      <div className="flex items-center gap-2">
-        <span className="text-xs text-muted-foreground">LVG</span>
-        <button className="flex items-center gap-1 px-2 py-1 bg-muted rounded text-xs">
+      {/* Leverage — opens the bottom drawer (DESIGN §5: pickers on mobile are drawers) */}
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-muted-foreground">Leverage</span>
+        <button
+          type="button"
+          onClick={() => setLeverageOpen(true)}
+          className="flex items-center gap-1 px-2 py-1 bg-muted rounded text-xs font-mono"
+          aria-label="Choose leverage"
+        >
           {leverage}x
           <ChevronDown className="w-3 h-3" />
         </button>
       </div>
+      <MobileDrawer
+        open={leverageOpen}
+        onOpenChange={setLeverageOpen}
+        title="Leverage"
+        description="Applies to this order. Higher leverage means a closer auto-close price."
+      >
+        <div className="space-y-4 pb-2">
+          <div className="text-center font-mono text-3xl font-semibold">{leverage}x</div>
+          <Slider value={[leverage]} onValueChange={(v) => setLeverage(v[0])} min={1} max={10} step={1} />
+          <div className="flex gap-1.5">
+            {[1, 2, 5, 7, 10].map((lev) => (
+              <button
+                key={lev}
+                type="button"
+                onClick={() => setLeverage(lev)}
+                className={`flex-1 py-1.5 text-xs rounded transition-colors whitespace-nowrap ${
+                  leverage === lev ? "bg-muted text-foreground font-medium" : "bg-muted/40 text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {lev}x
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => setLeverageOpen(false)}
+            className="w-full h-11 rounded-lg bg-foreground text-background text-sm font-semibold"
+          >
+            Done
+          </button>
+        </div>
+      </MobileDrawer>
 
       {/* Available Balance */}
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground">Available (USDC)</span>
         <div className="flex items-center gap-2">
           <span className="font-mono text-xs">{available.toLocaleString()}</span>
-          <button 
-            onClick={() => navigate('/deposit')}
-            className="w-5 h-5 bg-muted rounded-full flex items-center justify-center hover:bg-muted-foreground/30 transition-colors"
-          >
-            <Plus className="w-3 h-3" />
-          </button>
+          <TransferEntry direction="to_futures" mobile />
         </div>
       </div>
 
@@ -706,7 +744,10 @@ export const TradeForm = ({
       {/* Available Balance */}
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground">Available (USDC)</span>
-        <span className="font-mono text-xs">{available.toLocaleString()}</span>
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-xs">{available.toLocaleString()}</span>
+          <TransferEntry direction="to_futures" mobile />
+        </div>
       </div>
 
       {orderType === "Limit" && (
