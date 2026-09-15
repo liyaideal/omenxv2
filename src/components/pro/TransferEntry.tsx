@@ -5,7 +5,6 @@
 // transfer UI. Used by the Pro contract and spot panels' `Available` row.
 // ============================================================
 import { useState } from "react";
-import { ArrowLeftRight } from "lucide-react";
 import { TransferDialog } from "@/components/wallet/TransferDialog";
 import { TransferDrawer } from "@/components/wallet/TransferDrawer";
 import type { TransferDirection } from "@/components/wallet/TransferForm";
@@ -30,12 +29,15 @@ export const TransferEntry = ({ direction, mobile = false, className }: Transfer
         aria-label="Transfer funds"
         title="Transfer funds"
         className={cn(
-          "inline-flex items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
-          mobile ? "min-h-[44px] min-w-[44px] -my-3 -mx-2" : "w-5 h-5 bg-muted hover:bg-muted-foreground/30 rounded-full",
+          // Text link, not the ⇄ glyph: the Amount row right below uses the same
+          // arrow icon for its amount/qty toggle, so two identical glyphs 40px
+          // apart would read as one control.
+          "inline-flex items-center rounded px-1 text-[11px] text-primary transition-colors hover:text-primary/80 hover:underline underline-offset-2",
+          mobile && "min-h-[44px] -my-3",
           className,
         )}
       >
-        <ArrowLeftRight className="w-3 h-3" />
+        Transfer
       </button>
       <Overlay open={open} onOpenChange={setOpen} initialDirection={direction} />
     </>

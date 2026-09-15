@@ -141,6 +141,22 @@ const DIALOG_CASES: SectionCase[] = [
   },
 ];
 
+const TRADE_ORDER_LEVERAGE_CASES: SectionCase[] = [
+  {
+    key: "pro-trade-order-leverage",
+    label: "CT-M5 · Leverage 抽屉（375）",
+    note: "手机合约面板的杠杆选择走 MobileDrawer（DESIGN §5：移动端选择器一律抽屉）。原 `LVG 10x ▾` 是没有事件的死按钮，已替换。",
+    spec: [
+      {
+        state: "Leverage 抽屉打开",
+        when: "leverageOpen",
+        visual: "标题 Leverage + 一句说明 → 大号 `10x` → Slider 1–10 → 1x/2x/5x/7x/10x 芯片（选中 bg-muted）→ Done",
+        source: "TradeForm（MobileDrawer）",
+      },
+    ],
+  },
+];
+
 const TRADE_ORDER_CASES: SectionCase[] = [
   {
     key: "pro-trade-order-buy",
@@ -178,19 +194,6 @@ const TRADE_ORDER_CASES: SectionCase[] = [
         when: 'intent === "sell" && orderType === "Limit" && sellQty < heldSize',
         visual: "Close price 输入框（默认 mark）→ pending 提示 `Limit above/below mark — order will rest as Pending until touched.` → CTA `Reduce Up`",
         source: "TradeForm sell branch → /order-preview（reduce-only）",
-      },
-    ],
-  },
-  {
-    key: "pro-trade-order-leverage",
-    label: "CT-M5 · Leverage 抽屉（375）",
-    note: "手机合约面板的杠杆选择走 MobileDrawer（DESIGN §5：移动端选择器一律抽屉）。原 `LVG 10x ▾` 是没有事件的死按钮，已替换。",
-    spec: [
-      {
-        state: "Leverage 抽屉打开",
-        when: "leverageOpen",
-        visual: "标题 Leverage + 一句说明 → 大号 `10x` → Slider 1–10 → 1x/2x/5x/7x/10x 芯片（选中 bg-muted）→ Done",
-        source: "TradeForm（MobileDrawer）",
       },
     ],
   },
@@ -392,6 +395,14 @@ export const ProSpotSection = (_: Props) => (
       description="合约面板的 Buy · Sell 意图页签。Sell 只做当前净额仓位的减仓/平仓（方案 A），空仓禁用、永不开反向。桌面 /trade 面板与此同规格，但仍是页面内联 JSX，暂无法在字典挂载（见交付文档已知缺口）。"
     >
       <SectionFrame cases={TRADE_ORDER_CASES} device="mobile" minHeight={640} />
+    </SectionWrapper>
+
+    <SectionWrapper
+      id="pro-trade-order-leverage"
+      title="Pro /trade/order · Leverage 抽屉（CT-M5）"
+      description="viewport 级 position:fixed 组件独占一帧。"
+    >
+      <SectionFrame cases={TRADE_ORDER_LEVERAGE_CASES} device="mobile" minHeight={640} />
     </SectionWrapper>
 
   </div>
