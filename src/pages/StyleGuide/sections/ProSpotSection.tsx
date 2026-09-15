@@ -37,7 +37,7 @@ const PANEL_CASES: SectionCase[] = [
       {
         state: "未持有的一边禁用",
         when: 'side === "sell" && heldNoQty <= 0',
-        visual: "该 tile opacity-40 pointer-events-none，价格条文案变 `0 sh`；金额单位变 sh；汇总为 Proceeds / Shares / Est. commission / You receive",
+        visual: "该 tile opacity-40 pointer-events-none，价格条文案变 `0 shares`；金额单位变 sh；汇总为 Proceeds / Shares / Est. commission / You receive",
         source: "ProSpotPanel.heldYesQty / heldNoQty",
       },
       {
@@ -51,12 +51,12 @@ const PANEL_CASES: SectionCase[] = [
   {
     key: "pro-spot-panel-sell-held-down",
     label: "SP-B3b · Sell · 仅持有 Down（2,034.879 sh）",
-    note: "回归护栏（SP-1-FIX3 Bug 1）：持有哪一边由持仓的 option_id 决定，与 Positions 表 Outcome 列同源；Up tile 禁用显示 `0 sh`。数量全链路取精确值——Held 行、Amount 预填、滑杆 100%、校验与下单请求都是 2034.879。",
+    note: "回归护栏（SP-1-FIX3 Bug 1）：持有哪一边由持仓的 option_id 决定，与 Positions 表 Outcome 列同源；Up tile 禁用显示 `0 shares`。数量全链路取精确值——Held 行、Amount 预填、滑杆 100%、校验与下单请求都是 2034.879。",
     spec: [
       {
         state: "Down-only 持仓",
         when: 'side === "sell" && heldYesQty === 0 && heldNoQty === 2034.879',
-        visual: "Down tile 选中，Up tile 禁用 `0 sh`；`Held · 2,034.879 sh Down`；Amount `2034.879`；CTA `Sell Down · You receive $X`",
+        visual: "Down tile 选中，Up tile 禁用 `0 shares`；`Held · 2,034.879 sh Down`；Amount `2034.879`；CTA `Sell Down · You receive $X`",
         source: "SpotTrading heldYesQty / heldNoQty（经 side_labels 解析 option）",
       },
       {
@@ -150,7 +150,7 @@ const TRADE_ORDER_CASES: SectionCase[] = [
       {
         state: "Buy · Market",
         when: 'intent === "buy"',
-        visual: "Buy · Sell 文字页签（选中 text-foreground border-foreground）+ OrderTypeDropdown ml-auto → Yes/No 切换 → LVG → Available → Amount → 滑杆 → TP/SL → 摘要 → CTA",
+        visual: "Buy · Sell 文字页签（选中 text-foreground border-foreground）+ OrderTypeDropdown ml-auto → Yes/No 切换 → Leverage 10x ▾ → Available (USDC) + ⇄ Transfer → Amount → 滑杆 → TP/SL → 摘要（Notional / Margin req. / Fee / Total / To win ⓘ）→ CTA",
         source: "TradeForm（/trade/order）",
       },
     ],
@@ -158,12 +158,12 @@ const TRADE_ORDER_CASES: SectionCase[] = [
   {
     key: "pro-trade-order-sell",
     label: "CT-M2 · Sell · Market（持 40 ct Up 5x，全平）",
-    note: "Sell = 只减仓/平仓当前净额仓位，永不开反向。LVG 与 TP/SL 隐藏；数量单位为合约（ct），滑杆基数 = 持仓数量；CTA 红色，全平文案 Close {outcome}，部分平 Reduce {outcome}。市价 → 打开 ClosePositionDialog，走与 Positions 表 Close 同一条 partialClosePosition（含 5% 胜利佣金）。",
+    note: "Sell = 只减仓/平仓当前净额仓位，永不开反向。Leverage 与 TP/SL 隐藏；数量单位为 contracts（全词，不缩写），滑杆基数 = 持仓数量；CTA 红色，全平文案 Close {outcome}，部分平 Reduce {outcome}。市价 → 打开 ClosePositionDialog，走与 Positions 表 Close 同一条 partialClosePosition（含 5% 胜利佣金）。",
     spec: [
       {
         state: "Sell · Market · 全平",
         when: 'intent === "sell" && heldSize > 0 && sellQty >= heldSize',
-        visual: "Held 40 ct · Up · 5x · entry 0.6200 → Amount 40 ct → 摘要 Close price (mark) / Contracts / Released margin / Realized PnL est. / Est. commission / You receive（加粗末行）→ CTA `Close Up · You receive $X`",
+        visual: "Held 40 contracts · Up · 5x · entry 0.6200 → Amount 40 Contracts → 摘要 Close price (mark) / Contracts / Released margin / Realized PnL est. / Est. commission / You receive（加粗末行）→ CTA `Close Up · You receive $X`",
         source: "TradeForm sell branch",
       },
     ],
@@ -182,13 +182,26 @@ const TRADE_ORDER_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "pro-trade-order-leverage",
+    label: "CT-M5 · Leverage 抽屉（375）",
+    note: "手机合约面板的杠杆选择走 MobileDrawer（DESIGN §5：移动端选择器一律抽屉）。原 `LVG 10x ▾` 是没有事件的死按钮，已替换。",
+    spec: [
+      {
+        state: "Leverage 抽屉打开",
+        when: "leverageOpen",
+        visual: "标题 Leverage + 一句说明 → 大号 `10x` → Slider 1–10 → 1x/2x/5x/7x/10x 芯片（选中 bg-muted）→ Done",
+        source: "TradeForm（MobileDrawer）",
+      },
+    ],
+  },
+  {
     key: "pro-trade-order-sell-flat",
     label: "CT-M4 · Sell · 空仓",
     spec: [
       {
         state: "Sell · flat",
         when: 'intent === "sell" && !heldPos && !otherSideHeld',
-        visual: "两侧 disabledSide=\"both\"，价格条显示 `0 ct`，一行 `No position to close yet`；CTA 禁用",
+        visual: "两侧 disabledSide=\"both\"，价格条显示 `0 contracts`，一行 `No position to close yet`；CTA 禁用",
         source: "TradeForm sellDisabledSide",
       },
     ],
@@ -256,7 +269,7 @@ const MOBILE_CASES: SectionCase[] = [
       {
         state: "Sell 全平",
         when: 'side === "sell" && heldNoQty > 0',
-        visual: "Up tile 禁用 `0 sh`；数量走 FIX4 精确吸附；Proceeds / Est. commission / You receive 为无底色 kv rows",
+        visual: "Up tile 禁用 `0 shares`；数量走 FIX4 精确吸附；Proceeds / Est. commission / You receive 为无底色 kv rows",
         source: "useSpotTerminal orderQty",
       },
     ],

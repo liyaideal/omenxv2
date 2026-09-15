@@ -28,6 +28,7 @@
 | CT-E | 手机：市价 → ClosePositionDialog；限价 → /order-preview reduce-only 预览；页签状态按事件:结果记忆 | ⬜ | |
 | CT-F | 字典 CT-M1…CT-M4（`/style-guide#pro-trade-order`） | ⬜ | 桌面面板未组件化，待 `ProContractPanel` 提取后补 |
 | CT-G | 引擎口径统一：买反向结果的自动减仓也应扣赢利佣金 | ⚠️ | 真平台按持仓表 Close 口径，见文档 §8 |
+| CT-H | CPO 复审：单位全词 contracts / shares；`To win ⓘ` 四面板统一；账户卡 Boost Account；Available 旁 ⇄ 划转；手机 Leverage 抽屉 | ⬜ | 字典 CT-M5 |
 
 ## 2026-09-14 — Affiliate Program 页面 v1（[文档](../delivery/affiliate-page-v1.md)）
 

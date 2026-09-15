@@ -62,6 +62,7 @@ type Fixture = {
   positions?: UnifiedPosition[];
   sellQty?: number;
   orderType?: ProOrderType;
+  leverageOpen?: boolean;
 };
 
 const PanelFixture = (f: Fixture) => {
@@ -90,6 +91,7 @@ const PanelFixture = (f: Fixture) => {
       previewBalance={500}
       previewSellQty={f.sellQty}
       previewOrderType={f.orderType}
+      previewLeverageOpen={f.leverageOpen}
     />
   );
 };
@@ -112,6 +114,13 @@ export const ProTradeOrderSell = () => (
 export const ProTradeOrderSellLimit = () => (
   <Phone>
     <PanelFixture intent="sell" positions={[heldUp]} sellQty={20} orderType="Limit" />
+  </Phone>
+);
+
+/** CT-M5 · Buy · Leverage drawer open (viewport-fixed overlay → own frame). */
+export const ProTradeOrderLeverage = () => (
+  <Phone>
+    <PanelFixture leverageOpen />
   </Phone>
 );
 

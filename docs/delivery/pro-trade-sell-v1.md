@@ -26,22 +26,24 @@
 | Buy 页签 | = 原面板（Yes/No 切换、杠杆、金额、TP/SL、摘要、CTA）。行为未变，包括"买反向结果时自动净额抵扣"的既有逻辑。 |
 | Sell 页签 | **只减仓 / 平仓**当前结果上已持有的仓位。空仓时两侧禁用并显示 `No position to close yet`；只持一侧时另一侧禁用并在价格条显示 `0 ct`。选边只切换结果，不改变方向。 |
 | 永不反向 | Sell 数量上限 = 持仓数量，超出即钳到持仓数量（全平）。没有"卖出超过持仓变成开空"这回事。 |
-| 单位 | 合约张数 `ct`，整数。滑杆 25 / 50 / 75 / 100% 取整；100% = 精确持仓数量。 |
+| 单位 | 合约张数，全词 `contracts`（Amount 后缀 `Contracts`），整数，不用缩写。滑杆 25 / 50 / 75 / 100% 取整；100% = 精确持仓数量。 |
 | 市价平仓 | 与持仓表 Close 按钮**同一条路径**（`partialClosePosition`）：释放对应比例保证金 + 已实现盈亏 − 赢利佣金，写账本，弹 `Cashed out · $X back`。 |
 | 限价平仓 | 生成一张 **reduce-only** 挂单：`side = sell`、`order_type = Limit`、`margin = 0`、`fee = 0`、`reduce_only = true`，**下单不动余额**。Current Orders 表该行 Side 列显示红色 `Close` 标、类型列带 `Reduce-only` 标；`amount` 列存平仓名义额（张数 × 限价，库约束要求 > 0）。撤单只改状态，无退款。mark 触及限价时按市价平仓同一条路径成交（蓝图侧为前端 touch-fill 模拟，见 §8）。 |
 | 佣金 | 赢利佣金 = `5% × max(已实现盈亏 − 已分摊开仓费, 0)`，亏损为 0。与 `pro-trade-v4-cleanup-v1.md` 同一实现 `cashBackOnClose()`。 |
-| 隐藏项 | Sell 页签下不显示杠杆、TP/SL、充值 `+`、"先平反向仓"提示。Available 保留。 |
+| 隐藏项 | Sell 页签下不显示杠杆、TP/SL、"先平反向仓"提示。Available 保留，旁边有 ⇄ 划转入口。 |
 
 ## 3. 面板结构
+
+**Buy 页签补充**：摘要末段为 `To win ⓘ` 行（tooltip 为共享说明），不再平铺说明句；手机的杠杆行写 `Leverage`，点开底部抽屉（滑杆 + 1/2/5/7/10x）；右栏账户卡叫 **Boost Account**（合约账户），与现货的 Standard Account 对应。
 
 **页签行**（桌面与手机同一套 markup，与 `/spot` 面板完全相同）：左侧 `Buy · Sell` 文字页签（选中 `text-foreground border-foreground`），右侧 `Market ▾ / Limit` 下拉（`OrderTypeDropdown`）。原来的下划线式 `Limit | Market` 页签已移除。
 
 **Sell 页签自上而下**：
 1. Yes/No 切换（`BinarySideToggle`，未持仓侧禁用）
-2. `Held {size} ct · {outcome} · {leverage}x · entry {price}` 一行
-3. Available (USDC)
+2. `Held {size} contracts · {outcome} · {leverage}x · entry {price}` 一行
+3. Available (USDC) + ⇄ 划转（开钱包同款 Transfer 弹层 / 抽屉）
 4. Limit 时：`Close price` 输入框（默认 = mark），偏离 mark 时提示 `Limit above/below mark — order will rest as Pending until touched.`
-5. Amount（`ct`）+ 滑杆
+5. Amount（后缀 `Contracts`）+ 滑杆
 6. 摘要（平铺，同 Buy 摘要 chrome）：`Close price (mark)` / `Contracts` / `Released margin` / `Realized PnL est.` / `Est. commission` / **`You receive`**（加粗末行）
 7. CTA（红色，`side="sell"`）：全平 `Close {outcome}`，部分 `Reduce {outcome}`；副文案 `You receive $X`。空仓禁用；数量为 0 时可点，点击聚焦输入框并提示 `Enter an amount`。
 
@@ -58,7 +60,7 @@
 
 ## 5. 文案（已入 copy-dictionary Trading 节）
 
-`Buy` / `Sell`（页签）· `Held` · `Close price` / `Close price (mark)` · `Contracts` · `Released margin` · `Realized PnL est.` · `Est. commission` · `You receive` · `Close {outcome}` / `Reduce {outcome}` · `Reduce-only` · `No position to close yet` · `Limit above/below mark — order will rest as Pending until touched.` · `Cashed out · $X back`（成交 toast，沿用）· `Limit close filled · N ct`（限价平仓成交附加 toast）。
+`Buy` / `Sell`（页签）· `Held` · `contracts` / `shares`（单位全词）· `Close price` / `Close price (mark)` · `Contracts` · `Released margin` · `Realized PnL est.` · `Est. commission` · `You receive` · `Close {outcome}` / `Reduce {outcome}` · `Reduce-only` · `No position to close yet` · `Limit above/below mark — order will rest as Pending until touched.` · `Cashed out · $X back`（成交 toast，沿用）· `Limit close filled · N ct`（限价平仓成交附加 toast）。
 
 ## 6. 数据
 

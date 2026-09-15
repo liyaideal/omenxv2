@@ -235,12 +235,16 @@ positives. Chip words come from the sibling event's `side_labels`.
 | **Total equity** | `Boost + Standard available` (`balance + spot_balance`). **Retired 2026-07-21:** "Trial bonus" field — the Trial Bonus wallet feature was fully sunset before mainnet launch; do not reintroduce copy that references it. |
 | **To win** | Pro CTA figure = net profit after 5% winning commission (same `netWin()` helper as Lite) | gross profit |
 | **Standard Account** | 现货账户在 Pro `/spot` 与余额提示中的名字 | Spot Account（已退役）|
+| **Boost Account** | 合约账户卡（`/trade` 右栏、手机风险指示器）标题；行内容 Margin Mode / Account Equity / Risk Ratio / Initial · Maint. Margin 不变 | Unified Trading Account（2026-09-15 退役）|
+| **To win ⓘ** | 四个 Pro 下单面板（合约桌面/手机、现货桌面/手机）摘要末段统一为 `To win` 行 + ⓘ，tooltip 用共享 `WinTooltipBody`；不再在摘要下平铺说明句 | To win shows profit after the 5% winning commission.（句子退役）|
+| **⇄ Transfer（Available 旁）** | 每个 Pro 面板 `Available (USDC)` 右侧的划转入口（`TransferEntry`），桌面开 TransferDialog、手机开 TransferDrawer；合约面板预选 to_futures，现货 to_spot。执行 08-06 裁定"每个展示出来的余额都有划转入口" | + 充值（面板内退役，充值只在 Wallet）|
+| **Leverage（手机）** | 手机合约面板杠杆行标签写全词 `Leverage`，按钮 `10x ▾` 开 MobileDrawer 选择 | LVG |
 | **Fee (0.15%)** | Pro `/spot` 下单摘要手续费行 | Fee, Trading fee（该行专用写法）|
 | **Proceeds** | Pro `/spot` 卖出摘要行 = 卖出份额 × 成交价（未扣费；费另起 `Fee (0.15%)` 行） | Total, Return |
 | **You receive** | Pro **卖出 / 平仓** CTA 副文案与摘要末行：`/spot` 卖出份额、`/trade` Sell 页签减仓 / 平仓（买入侧仍为 `To win`）| To win（卖出侧禁用）|
 | **Buy / Sell（页签）** | Pro 下单面板意图页签。`/spot`：买份额 / 卖持有份额；`/trade`：开仓 · 加仓 / 减仓 · 平仓当前净额仓位。判定 `intent === "buy" \| "sell"`，与 Yes/No 方向无关 | Open / Close, Long / Short |
-| **Held** | `/trade` Sell 页签持仓行：`Held {size} ct · {outcome} · {leverage}x · entry {price}` | Position, You hold |
-| **ct** | 合约张数单位（Sell 页签 Amount 后缀、Held 行）。整数 | contracts（行内缩写专用）, sh（现货份额专用）|
+| **Held** | `/trade` Sell 页签持仓行：`Held {size} contracts · {outcome} · {leverage}x · entry {price}`；`/spot`：`Held {qty} shares · {outcome}` | Position, You hold |
+| **contracts / shares（单位，全词）** | 合约张数 / 现货份额单位，任何位置都写全词：`Held 40 contracts`、`0 contracts`、Amount 后缀 `Contracts` / `Shares`、摘要 `Contracts` 行只放数字。**`ct` / `sh` 缩写 2026-09-15 退役** | ct, sh, cont |
 | **Close price / Close price (mark)** | `/trade` Sell：Limit 时的价格输入框标签 `Close price`；摘要首行 `Close price (mark)` = 市价平仓按 mark、限价按输入价 | Exit price |
 | **Contracts** | `/trade` Sell 摘要行 = 本次减仓 / 平仓张数 | Size, Qty |
 | **Released margin** | `/trade` Sell 摘要行 = `持仓保证金 × 平仓张数 / 持仓张数` | Margin back, Refund |

@@ -301,6 +301,7 @@ export const previewRegistry: Record<string, Loader> = {
   "pro-trade-order-sell": pick(proTrade, "ProTradeOrderSell"),
   "pro-trade-order-sell-limit": pick(proTrade, "ProTradeOrderSellLimit"),
   "pro-trade-order-sell-flat": pick(proTrade, "ProTradeOrderSellFlat"),
+  "pro-trade-order-leverage": pick(proTrade, "ProTradeOrderLeverage"),
 
   /* -------- Pro /spot mobile（SP-2）-------- */
   "pro-spot-mobile-charts": pick(proSpot, "ProSpotMobileCharts"),
