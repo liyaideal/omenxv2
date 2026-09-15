@@ -887,6 +887,7 @@ const SpotTradeSchema = z.object({
   price: z.number().positive().max(1),
   quantity: z.number().positive().max(10_000_000),
   fee: z.number().nonnegative().max(100_000).optional(),
+  orderType: z.enum(["Market", "Limit"]).optional(),
 });
 
 /** Ledger row helper — spot mirrors the futures paths exactly (record-transaction edge fn). */
@@ -936,6 +937,8 @@ export interface SpotTradeData {
   quantity: number;
   /** Taker fee for this order. Defaults to `price × quantity × SPOT_FEE_RATE`. */
   fee?: number;
+  /** How the order was entered. Immediate fills default to Market; a marketable limit passes "Limit". */
+  orderType?: "Market" | "Limit";
 }
 
 // 技术对接 §7: SIGNED_YES_SHARE net position, one-way mode.
@@ -1081,7 +1084,7 @@ export const executeSpotTrade = async (userId: string, data: SpotTradeData) => {
         event_name: v.eventName,
         option_label: v.optionLabel,
         side: "sell",
-        order_type: "Limit",
+        order_type: v.orderType ?? "Market",
         price: v.price,
         amount: notional,
         quantity: v.quantity,
@@ -1166,7 +1169,7 @@ export const executeSpotTrade = async (userId: string, data: SpotTradeData) => {
       event_name: v.eventName,
       option_label: v.optionLabel,
       side: "buy",
-      order_type: "Limit",
+      order_type: v.orderType ?? "Market",
       price: v.price,
       amount: notional,
       quantity: v.quantity,

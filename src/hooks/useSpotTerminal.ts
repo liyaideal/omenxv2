@@ -58,6 +58,9 @@ const FIRST_LEVEL_SIZE = 200;
 const SIZE_DECAY = 0.82;
 const JITTER_PCT = 0.15;
 
+/** Limit prices trade on a $0.01 tick (技术对接 §10.1) — default the input to the nearest tick, never 4dp. */
+const toTick = (price: number) => (Math.round(price * 100) / 100).toFixed(2);
+
 export const buildBook = (mid: number, seed: number, profile: SessionProfile) => {
   const rand = (i: number) => {
     const x = Math.sin(seed * 13.37 + i * 7.11) * 10000;
@@ -239,7 +242,7 @@ export function useSpotTerminal() {
 
         if (yes) {
           setSelectedOptionId(yes.id);
-          setLimitPrice(Number(yes.price).toFixed(4));
+          setLimitPrice(toTick(Number(yes.price)));
         }
       }
       setLoading(false);
@@ -485,7 +488,7 @@ export function useSpotTerminal() {
 
   // Reset limit price when outcome changes
   useEffect(() => {
-    if (outcomePrice) setLimitPrice(outcomePrice.toFixed(4));
+    if (outcomePrice) setLimitPrice(toTick(outcomePrice));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedOptionId]);
 
@@ -535,6 +538,7 @@ export function useSpotTerminal() {
           side,
           price: effectivePrice,
           quantity: orderQty,
+          orderType,
         });
         if (res.balanceDelta < 0) await deductSpotBalance(-res.balanceDelta);
         else if (res.balanceDelta > 0) await addSpotBalance(res.balanceDelta);
@@ -543,6 +547,9 @@ export function useSpotTerminal() {
             description:
               "Proceeds settle to balance (demo). Production: held as event pending cash until settlement.",
           });
+        } else if (orderType === "Limit") {
+          // Marketable limit (at or through the best ask) fills immediately — say so.
+          toast.success(`Limit buy filled immediately at $${effectivePrice.toFixed(2)}`);
         } else {
           toast.success("Spot buy filled");
         }
