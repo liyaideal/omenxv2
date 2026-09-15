@@ -15,10 +15,17 @@ export const PRODUCT_TAB_LABEL: Record<ProductTab, string> = {
   boost: "Boost",
 };
 
-/** Which tab(s) an event belongs to, from its `product_lines`. Null/empty = futures only (legacy rows). */
+/**
+ * Which tab(s) an event belongs to, from its `product_lines`.
+ * Codebase convention (EventPickerList, LiteEventCard): `spot` marks the
+ * Standard line; anything else (`futures`, legacy `contract`, null/empty) is
+ * the Boost line. A row carrying both shows on both tabs.
+ */
 export const eventOnTab = (productLines: string[] | null | undefined, tab: ProductTab): boolean => {
   const lines = productLines && productLines.length > 0 ? productLines : ["futures"];
-  return tab === "standard" ? lines.includes("spot") : lines.includes("futures");
+  const isSpot = lines.includes("spot");
+  const isBoost = lines.some((l) => l !== "spot");
+  return tab === "standard" ? isSpot : isBoost;
 };
 
 export type TerminalView = "charts" | "order";

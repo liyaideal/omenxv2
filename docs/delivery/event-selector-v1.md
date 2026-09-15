@@ -23,7 +23,7 @@
 |---|---|
 | 入口 | 桌面：标题右侧 ▾，点开在标题下方展开下拉（`/trade` 原有下拉、`/spot` 新增，同一组件）。手机：标题右侧 ▾，点开 `Select Event` 底部抽屉（`/trade` 原有、`/spot` 新增，同一组件）。 |
 | 页签 | 顶部两项 `Standard` / `Boost`，与账户卡 `Standard Account` / `Boost Account` 同一套词；不用 Spot / Futures。默认页签 = 当前终端（/spot → Standard，/trade → Boost）。关闭后重置回默认页签、清空搜索。 |
-| 列表口径 | 按事件的 `product_lines` 过滤：Standard 只列含 `spot`，Boost 只列含 `futures`（为空视为 futures）。两条线都开的事件两个页签都出现。排序沿用活跃事件默认（结束时间升序）。 |
+| 列表口径 | 按事件的 `product_lines` 过滤：Standard 只列含 `spot`，Boost 列含 `futures` / 旧值 `contract`（为空视为 futures）——与 EventPickerList / LiteEventCard 同一判定。两条线都开的事件两个页签都出现。排序沿用活跃事件默认（结束时间升序）。 |
 | 当前行 | 当前事件在自己那条线的页签里高亮（桌面 `bg-muted/30`，手机描边卡片）；切到另一页签没有高亮行。 |
 | 选中跳转 | 同页签：原行为（合约页替换 URL 不入历史）。另一页签：跳到对应终端 `/spot?event=` ↔ `/trade?event=`，手机保持当前视图（Charts → Charts，Trade → order 子页）；Lite/Pro 偏好不变。 |
 | 搜索 / 收藏 | 搜索框 + ★ 过滤在页签下方；收藏（`trading_favorites`）两页签共用、与合约页 header 的 ★ 同一份。 |
