@@ -1,4 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react"; // v2
+import { AmountUnitDropdown } from "@/components/pro/AmountUnitDropdown";
+import { useAmountModeStore } from "@/stores/useAmountModeStore";
 import { TransferEntry } from "@/components/pro/TransferEntry";
 import { WinTooltipBody } from "@/components/lite/shared/WinTooltipBody";
 import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
@@ -383,6 +385,28 @@ export default function DesktopTrading() {
   const longPrice = useMemo(() => parseFloat(selectedOptionData.price) || 0, [selectedOptionData.price]);
   const shortPrice = useMemo(() => +(1 - longPrice).toFixed(4), [longPrice]);
   const sidePrice = side === "buy" ? longPrice : shortPrice;
+
+  // QO-1 · Buy amount entered in USDC (margin) or in contracts. `amount` stays the
+  // canonical USDC margin; in units mode it is derived from the typed contracts.
+  const amountMode = useAmountModeStore((s) => s.mode);
+  const setAmountModeInStore = useAmountModeStore((s) => s.setMode);
+  const [unitsInput, setUnitsInput] = useState("");
+  const unitsPrice = sidePrice;
+  const maxUnits = unitsPrice > 0 ? Math.floor((available * leverage) / unitsPrice) : 0;
+  useEffect(() => {
+    if (amountMode !== "units") return;
+    const u = Math.max(0, Math.floor(parseFloat(unitsInput) || 0));
+    const margin = leverage > 0 ? (u * unitsPrice) / leverage : 0;
+    setAmount(margin > 0 ? margin.toFixed(2) : "0.00");
+  }, [amountMode, unitsInput, unitsPrice, leverage]);
+  const setAmountMode = (next: "usdc" | "units") => {
+    if (next === amountMode) return;
+    if (next === "units") {
+      const margin = parseFloat(amount) || 0;
+      setUnitsInput(margin > 0 && unitsPrice > 0 ? String(Math.floor((margin * leverage) / unitsPrice)) : "");
+    }
+    setAmountModeInStore(next);
+  };
 
   // Binary single-market 检测：折叠顶部 chip 行、Yes/No 按钮直连 option 切换
   const isBinarySingleMarket = useMemo(() => isSingleMarketBinary(options), [options]);
@@ -1750,12 +1774,13 @@ export default function DesktopTrading() {
               <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
                 <input
                   type="text"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
+                  value={amountMode === "units" ? unitsInput : amount}
+                  onChange={(e) => (amountMode === "units" ? setUnitsInput(e.target.value) : setAmount(e.target.value))}
                   className="flex-1 bg-transparent outline-none font-mono text-sm"
-                  placeholder="0.00"
+                  placeholder={amountMode === "units" ? "0" : "0.00"}
+                  inputMode="decimal"
                 />
-                <span className="text-muted-foreground text-xs font-medium">USDC</span>
+                <AmountUnitDropdown value={amountMode} unitLabel="Contracts" onChange={setAmountMode} />
               </div>
             </div>
 
@@ -1765,7 +1790,8 @@ export default function DesktopTrading() {
                 value={sliderValue}
                 onValueChange={(val) => {
                   setSliderValue(val);
-                  setAmount((available * val[0] / 100).toFixed(2));
+                  if (amountMode === "units") setUnitsInput(String(Math.round((maxUnits * val[0]) / 100)));
+                  else setAmount((available * val[0] / 100).toFixed(2));
                 }}
                 max={100}
                 step={1}
@@ -1879,6 +1905,12 @@ export default function DesktopTrading() {
 
             {/* Order Summary */}
             <div className="space-y-1 text-xs pt-2 border-t border-border/30">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Contracts</span>
+                <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
+                  {parseFloat(amount) > 0 ? parseInt(orderCalculations.quantity).toLocaleString() : "--"}
+                </span>
+              </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Notional val.</span>
                 <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>

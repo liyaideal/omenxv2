@@ -46,6 +46,8 @@ type Fixture = {
   startIsYes?: boolean;
   /** Drop the 280px desktop rail — the mobile /spot/order body owns the width. */
   bare?: boolean;
+  /** QO-1 · Buy tab amount unit ("units" = Shares). */
+  amountMode?: "usdc" | "units";
   /** Slider position that matches `amount` (fixtures must not disagree). */
   sliderPct?: number;
   /** Explicit CTA layout for desktop-only fixtures; bare mode measures itself. */
@@ -61,10 +63,12 @@ const PanelFixture = (f: Fixture) => {
   const [slider, setSlider] = useState<number[]>([f.sliderPct ?? 25]);
   const [slippage, setSlippage] = useState(50);
   const [isYes, setIsYes] = useState(f.startIsYes ?? true);
+  const [amountMode, setAmountMode] = useState<"usdc" | "units">(f.amountMode ?? "usdc");
+  const buyInUnits = side === "buy" && amountMode === "units";
 
   const price = orderType === "Limit" ? parseFloat(limitPrice) || 0.44 : isYes ? 0.4649 : 0.5351;
   const amt = parseFloat(amount) || 0;
-  const qty = side === "sell" ? amt : price > 0 ? amt / price : 0;
+  const qty = side === "sell" || buyInUnits ? amt : price > 0 ? amt / price : 0;
   const cost = price * qty;
   const fee = cost * 0.0015;
   const grossWin = Math.max(0, qty - cost);
@@ -105,9 +109,11 @@ const PanelFixture = (f: Fixture) => {
         onLimitPriceChange={setLimitPrice}
         amount={amount}
         onAmountChange={setAmount}
+        amountMode={amountMode}
+        onAmountModeChange={setAmountMode}
         sliderValue={slider}
         onSliderChange={setSlider}
-        sliderBase={side === "sell" ? heldQty : f.available ?? 500}
+        sliderBase={side === "sell" ? heldQty : buyInUnits ? (f.available ?? 500) / price : f.available ?? 500}
         slippageBps={slippage}
         onSlippageChange={setSlippage}
         qty={qty}
@@ -136,6 +142,8 @@ export const ProSpotPanelBuyMarket = () => <PanelFixture />;
 
 /** SP-B2 · Buy · Limit — limit price input + tick rules. */
 export const ProSpotPanelBuyLimit = () => <PanelFixture orderType="Limit" />;
+/** QO-1 · Buy · Shares mode — the Amount suffix is the unit picker, input holds shares. */
+export const ProSpotPanelBuyShares = () => <PanelFixture amountMode="units" amount="200" sliderPct={19} />;
 
 /** SP-B3 · Sell with shares on one side — the unheld tile is greyed to 0 sh.
  *  Share sizes are FRACTIONAL: the held line and Shares row keep 3 dp. */
@@ -463,6 +471,8 @@ const OrderBodyFixture = (f: Fixture) => (
 
 /** SP-2 · /spot/order — Buy tab (same ProSpotPanel as desktop, 375 px). */
 export const ProSpotMobileOrderBuy = () => <OrderBodyFixture />;
+/** QO-1 · /spot/order — Buy · Shares mode. */
+export const ProSpotMobileOrderBuyShares = () => <OrderBodyFixture amountMode="units" amount="200" sliderPct={19} />;
 
 /** SP-2 · /spot/order — Sell tab with a Down-only holding. */
 export const ProSpotMobileOrderSellHeld = () => (

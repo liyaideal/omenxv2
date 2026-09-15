@@ -31,6 +31,19 @@ const PANEL_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "pro-spot-panel-buy-shares",
+    label: "SP-B1b · Buy · Shares 模式（QO-1）",
+    note: "按数量下单：Amount 输入框的后缀本身是单位下拉 `USDC ▾ / Shares ▾`（不加独立切换图标、不加行）。Shares 模式下输入的是份额，Cost = 份额 × 预计成交价，滑杆 100% = 可用 ÷ 价格；切回 USDC 时把当前份额换算成金额带过去。模式按设备记忆，两个终端共用。Sell 页签不变。",
+    spec: [
+      {
+        state: "Buy · Shares",
+        when: 'side === "buy" && amountMode === "units"',
+        visual: "输入框 `200 · Shares ▾` → 摘要 Cost $93 / Shares 200 / Fee / To win",
+        source: "ProSpotPanel amountMode / AmountUnitDropdown",
+      },
+    ],
+  },
+  {
     key: "pro-spot-panel-sell-held",
     label: "SP-B3 · Sell · 单边持仓",
     spec: [
@@ -172,6 +185,19 @@ const TRADE_ORDER_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "pro-trade-order-buy-contracts",
+    label: "CT-M6 · Buy · Contracts 模式（QO-1）",
+    note: "合约按张数下单：后缀 `USDC ▾ / Contracts ▾`；Contracts 模式下 Notional = 张数 × 价格、Margin = Notional ÷ 杠杆，滑杆 100% = 可用 × 杠杆 ÷ 价格取整。Buy 摘要首行新增 `Contracts`，与现货的 `Shares` 行对等。",
+    spec: [
+      {
+        state: "Buy · Contracts（375）",
+        when: 'intent === "buy" && amountMode === "units"',
+        visual: "输入框 `50 · Contracts ▾` → 摘要 Contracts 50 / Notional / Margin req. / Fee / Total / To win ⓘ",
+        source: "TradeForm（amountMode，store useAmountModeStore）",
+      },
+    ],
+  },
+  {
     key: "pro-trade-order-sell",
     label: "CT-M2 · Sell · Market（持 40 ct Up 5x，全平）",
     note: "Sell = 只减仓/平仓当前净额仓位，永不开反向。Leverage 与 TP/SL 隐藏；数量单位为 contracts（全词，不缩写），滑杆基数 = 持仓数量；CTA 红色，全平文案 Close {outcome}，部分平 Reduce {outcome}。市价 → 打开 ClosePositionDialog，走与 Positions 表 Close 同一条 partialClosePosition（含 5% 胜利佣金）。",
@@ -261,6 +287,18 @@ const MOBILE_CASES: SectionCase[] = [
         when: 'activeTab === "Trade" && side === "buy"',
         visual: "左侧无卡片外壳表单 + 右 120px 迷你盘口（10 asks / mid / 10 bids / Depth 0.1）；摘要为 plain kv rows",
         source: "SpotTradePanel（ProSpotPanel）",
+      },
+    ],
+  },
+  {
+    key: "pro-spot-mobile-order-buy-shares",
+    label: "SP-M4b · /spot/order · Buy · Shares 模式（QO-1）",
+    spec: [
+      {
+        state: "Buy · Shares（375）",
+        when: 'side === "buy" && amountMode === "units"',
+        visual: "同桌面：后缀 `Shares ▾`，bare 摘要 Cost / Fee / Total / To win",
+        source: "ProSpotPanel（bare）",
       },
     ],
   },

@@ -1947,4 +1947,4 @@ Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① 
 
 参照实现：`src/pages/DesktopTrading.tsx`、`src/components/TradeForm.tsx`、`src/components/pro/ProSpotPanel.tsx`、`src/components/pro/TransferEntry.tsx`；字典 `/style-guide#pro-trade-order`（CT-M1…CT-M5）。
 5. **现货词汇**：现货终端不说 Positions / Entry / Mark / Size——底部页签 `Holdings`，表列 `Shares · Avg price · Price · Value · PnL`，空态 `No holdings yet`，行内不带 `SPOT` 标；打款行 `Payout by ~{time}`。Buy · Sell 页签状态与合约同一 store，切页保留。
-
+6. **按数量下单（QO-1）**：Buy 页签 Amount 输入框的后缀就是单位下拉（`USDC ▾ / Contracts ▾`，现货 `Shares ▾`），与 `Market ▾` 同款 DropdownMenu；不加独立切换图标、不加行、标签恒为 `Amount`。数量模式下滑杆基数改为最大可买数量；切换单位换算不清空；合约 Buy 摘要首行 `Contracts` 与现货 `Shares` 行对等。Sell 页签与 Lite 面不适用。

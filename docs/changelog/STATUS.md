@@ -17,6 +17,16 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-09-15 — Pro 下单面板按数量下单 v1（[文档](../delivery/pro-order-units-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| QO-A | Amount 后缀单位下拉 `USDC ▾ / Contracts ▾`（合约）、`USDC ▾ / Shares ▾`（现货），桌面 + 手机 | ⬜ | `AmountUnitDropdown`，无独立切换图标 |
+| QO-B | 数量模式换算：合约 Notional = 张数 × 价格、Margin = Notional ÷ 杠杆；现货 Cost = 份额 × 预计成交价；滑杆按最大可买数量 | ⬜ | 引擎不变，前端换算 |
+| QO-C | 切换单位换算不清空；模式按设备记忆、两终端共用 | ⬜ | localStorage `omenx-amount-mode` |
+| QO-D | 合约 Buy 摘要新增 `Contracts` 行 | ⬜ | 与现货 `Shares` 行对等 |
+| QO-E | 字典 SP-B1b / SP-M4b / CT-M6 | ⬜ | |
+
 ## 2026-09-14 — 合约 Pro 面板 Buy · Sell v1（[文档](../delivery/pro-trade-sell-v1.md)）
 
 | # | 项 | Status | Notes |

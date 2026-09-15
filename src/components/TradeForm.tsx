@@ -1,9 +1,11 @@
 import { FUTURES_FEE_RATE, netWin, cashBackOnClose } from "@/services/tradingService";
+import { AmountUnitDropdown } from "@/components/pro/AmountUnitDropdown";
+import { useAmountModeStore } from "@/stores/useAmountModeStore";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { TransferEntry } from "@/components/pro/TransferEntry";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { WinTooltipBody } from "@/components/lite/shared/WinTooltipBody";
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { ChevronDown, ChevronUp, X, HelpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
@@ -55,6 +57,9 @@ interface TradeFormProps {
   previewOrderType?: ProOrderType;
   /** Style-guide only: mount with the Leverage drawer open. */
   previewLeverageOpen?: boolean;
+  /** Style-guide only: force the Buy amount unit (production reads the shared store). */
+  previewAmountMode?: "usdc" | "units";
+  previewUnits?: string;
 }
 
 
@@ -74,6 +79,8 @@ export const TradeForm = ({
   previewSellQty,
   previewOrderType,
   previewLeverageOpen,
+  previewAmountMode,
+  previewUnits,
 }: TradeFormProps) => {
   const navigate = useNavigate();
   const { balance: liveBalance } = useUserProfile();
@@ -114,6 +121,29 @@ export const TradeForm = ({
   const shortPrice = +(1 - longPrice).toFixed(4);
   // Side-specific execution price (Buy = Yes, Sell = No)
   const currentPrice = side === "buy" ? longPrice : shortPrice;
+
+  // QO-1 · Buy amount entered in USDC (margin) or in contracts. `amount` stays the
+  // canonical USDC margin; in units mode it is derived from the typed contracts.
+  const storedAmountMode = useAmountModeStore((s) => s.mode);
+  const amountMode = previewAmountMode ?? storedAmountMode;
+  const setAmountModeInStore = useAmountModeStore((s) => s.setMode);
+  const [unitsInput, setUnitsInput] = useState(previewUnits ?? "");
+  const unitsPrice = currentPrice;
+  const maxUnits = unitsPrice > 0 ? Math.floor((available * leverage) / unitsPrice) : 0;
+  useEffect(() => {
+    if (amountMode !== "units") return;
+    const u = Math.max(0, Math.floor(parseFloat(unitsInput) || 0));
+    const margin = leverage > 0 ? (u * unitsPrice) / leverage : 0;
+    setAmount(margin > 0 ? margin.toFixed(2) : "0.00");
+  }, [amountMode, unitsInput, unitsPrice, leverage]);
+  const setAmountMode = (next: "usdc" | "units") => {
+    if (next === amountMode) return;
+    if (next === "units") {
+      const margin = parseFloat(amount) || 0;
+      setUnitsInput(margin > 0 && unitsPrice > 0 ? String(Math.floor((margin * leverage) / unitsPrice)) : "");
+    }
+    setAmountModeInStore(next);
+  };
 
   // Calculate TP/SL prices based on percentage
   const tpslCalculations = useMemo(() => {
@@ -518,12 +548,13 @@ export const TradeForm = ({
         <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
           <input
             type="text"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            value={amountMode === "units" ? unitsInput : amount}
+            onChange={(e) => (amountMode === "units" ? setUnitsInput(e.target.value) : setAmount(e.target.value))}
             className="flex-1 bg-transparent outline-none font-mono text-xs"
-            placeholder="0.00"
+            placeholder={amountMode === "units" ? "0" : "0.00"}
+            inputMode="decimal"
           />
-          <span className="text-muted-foreground text-[10px] font-medium">USDC</span>
+          <AmountUnitDropdown value={amountMode} unitLabel="Contracts" onChange={setAmountMode} className="text-[10px]" />
         </div>
       </div>
 
@@ -533,7 +564,8 @@ export const TradeForm = ({
           value={sliderValue}
           onValueChange={(val) => {
             setSliderValue(val);
-            setAmount((available * val[0] / 100).toFixed(2));
+            if (amountMode === "units") setUnitsInput(String(Math.round((maxUnits * val[0]) / 100)));
+            else setAmount((available * val[0] / 100).toFixed(2));
           }}
           max={100}
           step={1}
@@ -644,6 +676,12 @@ export const TradeForm = ({
 
       {/* Order Summary */}
       <div className="space-y-1 text-xs">
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Contracts</span>
+          <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
+            {parseFloat(amount) > 0 ? parseInt(orderCalculations.quantity).toLocaleString() : "--"}
+          </span>
+        </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Notional val.</span>
           <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>

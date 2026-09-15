@@ -285,6 +285,7 @@ export const previewRegistry: Record<string, Loader> = {
   /* -------- Pro /spot terminal（SP-1 · B3）-------- */
   "pro-spot-panel-buy-market": pick(proSpot, "ProSpotPanelBuyMarket"),
   "pro-spot-panel-buy-limit": pick(proSpot, "ProSpotPanelBuyLimit"),
+  "pro-spot-panel-buy-shares": pick(proSpot, "ProSpotPanelBuyShares"),
   "pro-spot-panel-sell-held": pick(proSpot, "ProSpotPanelSellHeld"),
   "pro-spot-panel-sell-held-down": pick(proSpot, "ProSpotPanelSellHeldDown"),
   "pro-spot-panel-sell-none": pick(proSpot, "ProSpotPanelSellNone"),
@@ -302,12 +303,14 @@ export const previewRegistry: Record<string, Loader> = {
   "pro-trade-order-sell-limit": pick(proTrade, "ProTradeOrderSellLimit"),
   "pro-trade-order-sell-flat": pick(proTrade, "ProTradeOrderSellFlat"),
   "pro-trade-order-leverage": pick(proTrade, "ProTradeOrderLeverage"),
+  "pro-trade-order-buy-contracts": pick(proTrade, "ProTradeOrderBuyContracts"),
 
   /* -------- Pro /spot mobile（SP-2）-------- */
   "pro-spot-mobile-charts": pick(proSpot, "ProSpotMobileCharts"),
   "pro-spot-mobile-charts-360": pick(proSpot, "ProSpotMobileCharts360"),
   "pro-spot-mobile-charts-frozen": pick(proSpot, "ProSpotMobileChartsFrozen"),
   "pro-spot-mobile-order-buy": pick(proSpot, "ProSpotMobileOrderBuy"),
+  "pro-spot-mobile-order-buy-shares": pick(proSpot, "ProSpotMobileOrderBuyShares"),
   "pro-spot-mobile-order-sell-held": pick(proSpot, "ProSpotMobileOrderSellHeld"),
   "pro-spot-mobile-dock": pick(proSpot, "ProSpotMobileDockStates"),
 

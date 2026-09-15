@@ -242,6 +242,8 @@ positives. Chip words come from the sibling event's `side_labels`.
 | **Avg price / Price（现货）** | 现货 Holdings 表的成本价 / 现价列名；`Entry` / `Mark` 是衍生品词，只留在合约 | Entry, Mark |
 | **Payout by ~{time}** | 现货面板与 Event info 的打款时间行；页头 ⓘ 里写 `Payout:`。指结算后资金到账的预计时刻，与 `Trading ends in`（停止交易倒计时）不是同一件事 | Settles & credits by, Credits by |
 | ~~**Amount ⇄ Qty 切换**~~ | **Retired 2026-09-15** — 合约面板的 amount/qty 切换从未接入计算（只改标签），已删除；两个终端一致：Buy 输 USDC，Sell 输 contracts / shares | — |
+| **USDC ▾ / Contracts ▾ / Shares ▾（Amount 后缀）** | Pro Buy 页签 Amount 输入框的单位下拉（`AmountUnitDropdown`）：合约 USDC ↔ Contracts，现货 USDC ↔ Shares。判定 `amountMode === "usdc" \| "units"`（`useAmountModeStore`，按设备记忆、两终端共用）。数量模式下合约 Notional = 张数 × 价格、Margin = Notional ÷ 杠杆；现货 Cost = 份额 × 预计成交价 | Qty 切换, ⇄ 图标 |
+| **Contracts（合约 Buy 摘要行）** | 合约 Buy 摘要首行 = 本单张数（`parseInt(quantity)`），与现货 `Shares` 行对等 | Qty, Size |
 | **Leverage（手机）** | 手机合约面板杠杆行标签写全词 `Leverage`，按钮 `10x ▾` 开 MobileDrawer 选择 | LVG |
 | **Fee (0.15%)** | Pro `/spot` 下单摘要手续费行 | Fee, Trading fee（该行专用写法）|
 | **Proceeds** | Pro `/spot` 卖出摘要行 = 卖出份额 × 成交价（未扣费；费另起 `Fee (0.15%)` 行） | Total, Return |

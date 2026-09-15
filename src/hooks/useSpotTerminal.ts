@@ -8,6 +8,7 @@
 // the code below is the desktop page's logic moved verbatim.
 // ============================================================
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useAmountModeStore } from "@/stores/useAmountModeStore";
 import { useTradeSideStore, tradeSideKey } from "@/stores/useTradeSideStore";
 import { useSearchParams, useNavigate, useNavigationType } from "react-router-dom";
 import { toast } from "sonner";
@@ -430,8 +431,11 @@ export function useSpotTerminal() {
     : marketFillPrice;
 
   const amt = parseFloat(amount) || 0;
-  // Buy sizes in USDC, Sell sizes in SHARES.
-  const qty = side === "sell" ? amt : effectivePrice > 0 ? amt / effectivePrice : 0;
+  // QO-1 · Buy sizes in USDC or (units mode) in SHARES; Sell always in SHARES.
+  const amountMode = useAmountModeStore((s) => s.mode);
+  const setAmountModeInStore = useAmountModeStore((s) => s.setMode);
+  const buyInUnits = side === "buy" && amountMode === "units";
+  const qty = side === "sell" || buyInUnits ? amt : effectivePrice > 0 ? amt / effectivePrice : 0;
   const cost = effectivePrice * qty;
   const fee = cost * SPOT_FEE_RATE;
   const maxWin = side === "buy" ? netWin(qty - cost, fee) : cost;
@@ -480,11 +484,23 @@ export function useSpotTerminal() {
   // ---- Slider ↔ amount ----
   const available = spotBalance;
   useEffect(() => {
-    const base = side === "sell" ? heldQty : available;
+    const base = side === "sell" ? heldQty : buyInUnits && effectivePrice > 0 ? available / effectivePrice : available;
     const pct = base > 0 ? Math.min(100, (amt / base) * 100) : 0;
     if (Math.abs(pct - sliderValue[0]) > 0.5) setSliderValue([pct]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [amount, available, side, heldQty]);
+  }, [amount, available, side, heldQty, buyInUnits]);
+
+  // Switching the unit converts the typed value instead of clearing it.
+  const setAmountMode = useCallback(
+    (next: "usdc" | "units") => {
+      if (next === amountMode) return;
+      if (side === "buy" && amt > 0 && effectivePrice > 0) {
+        setAmount(next === "units" ? sharesInputValue(amt / effectivePrice) : (amt * effectivePrice).toFixed(2));
+      }
+      setAmountModeInStore(next);
+    },
+    [amountMode, side, amt, effectivePrice, setAmountModeInStore],
+  );
 
   // Reset limit price when outcome changes
   useEffect(() => {
@@ -511,7 +527,7 @@ export function useSpotTerminal() {
       return toast.error("Limit price must be a multiple of $0.01.");
     if (side === "sell" && orderQty > heldQty + 1e-9)
       return toast.error("You don't hold enough of this outcome to sell. Buy the opposite side to reduce instead.");
-    if (side === "buy" && amt > spotBalance) return toast.error("Insufficient balance.");
+    if (side === "buy" && cost > spotBalance + 1e-9) return toast.error("Insufficient balance.");
 
     setSubmitting(true);
     try {
@@ -660,7 +676,7 @@ export function useSpotTerminal() {
       (acc, o) => acc + (parseFloat(o.price) || 0) * (parseFloat(o.amount) || 0) * (1 + SPOT_FEE_RATE),
       0,
     );
-  const sliderBase = isSell ? heldQty : available;
+  const sliderBase = isSell ? heldQty : buyInUnits && effectivePrice > 0 ? available / effectivePrice : available;
 
   const ctaLabel = willBePending
     ? `Place limit · ${isSell ? "Sell" : "Buy"} ${outcomeLabel}`
@@ -768,6 +784,8 @@ export function useSpotTerminal() {
     setSlippageBps,
     amount,
     setAmount,
+    amountMode,
+    setAmountMode,
     sliderValue,
     setSliderValue,
     sliderBase,

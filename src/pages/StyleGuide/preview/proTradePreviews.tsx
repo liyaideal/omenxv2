@@ -63,6 +63,8 @@ type Fixture = {
   sellQty?: number;
   orderType?: ProOrderType;
   leverageOpen?: boolean;
+  amountMode?: "usdc" | "units";
+  units?: string;
 };
 
 const PanelFixture = (f: Fixture) => {
@@ -92,6 +94,8 @@ const PanelFixture = (f: Fixture) => {
       previewSellQty={f.sellQty}
       previewOrderType={f.orderType}
       previewLeverageOpen={f.leverageOpen}
+      previewAmountMode={f.amountMode}
+      previewUnits={f.units}
     />
   );
 };
@@ -114,6 +118,13 @@ export const ProTradeOrderSell = () => (
 export const ProTradeOrderSellLimit = () => (
   <Phone>
     <PanelFixture intent="sell" positions={[heldUp]} sellQty={20} orderType="Limit" />
+  </Phone>
+);
+
+/** CT-M6 · Buy · Contracts mode — the Amount suffix is the unit picker, input holds contracts. */
+export const ProTradeOrderBuyContracts = () => (
+  <Phone>
+    <PanelFixture amountMode="units" units="50" />
   </Phone>
 );
 

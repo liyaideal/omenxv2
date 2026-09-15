@@ -6,6 +6,7 @@
 // Presentational only: every number is computed by the page and passed in.
 // ============================================================
 import { useEffect, useRef, useState } from "react";
+import { AmountUnitDropdown } from "@/components/pro/AmountUnitDropdown";
 import { TransferEntry } from "@/components/pro/TransferEntry";
 import { ChevronDown, HelpCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -58,6 +59,9 @@ export interface ProSpotPanelProps {
   onLimitPriceChange: (v: string) => void;
   amount: string;
   onAmountChange: (v: string) => void;
+  /** QO-1 · Buy tab enters USDC or shares; the unit picker is the input suffix. */
+  amountMode: "usdc" | "units";
+  onAmountModeChange: (m: "usdc" | "units") => void;
   sliderValue: number[];
   onSliderChange: (v: number[]) => void;
   /** 100% of the slider — spot balance on Buy, held shares on Sell. */
@@ -235,7 +239,11 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
               placeholder="0.00"
               inputMode="decimal"
             />
-            <span className="text-muted-foreground text-xs font-medium">{isSell ? "Shares" : "USDC"}</span>
+            {isSell ? (
+              <span className="text-muted-foreground text-xs font-medium">Shares</span>
+            ) : (
+              <AmountUnitDropdown value={p.amountMode} unitLabel="Shares" onChange={p.onAmountModeChange} />
+            )}
           </div>
         </div>
 
@@ -246,7 +254,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
             onValueChange={(val) => {
               p.onSliderChange(val);
               const raw = (p.sliderBase * val[0]) / 100;
-              p.onAmountChange(isSell ? sharesInputValue(raw) : raw.toFixed(2));
+              p.onAmountChange(isSell || p.amountMode === "units" ? sharesInputValue(raw) : raw.toFixed(2));
             }}
             max={100}
             step={1}
