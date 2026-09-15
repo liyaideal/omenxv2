@@ -230,4 +230,5 @@ Spot 节原先手抄的终端顶栏已换成生产件 `ProSpotHeader`，CTA 例�
 - `Settles & credits by ~{time}` → **`Payout by ~{time}`**（面板、Event info、页头 ⓘ `Payout:`）。含义：结算后资金到账时刻，与 `Trading ends in` 不同。
 - Buy · Sell 页签状态改存共享 store（与合约同 key 空间），`/spot` ↔ `/spot/order` 往返保留。
 - Available 旁 ⇄ 划转入口（`TransferEntry`，预选 Boost → Standard）。
+- **限价"一直失败"根因（2026-09-15）**：Limit 价格输入框默认预填 4 位小数的 mark（如 0.5589），而提交校验要求 $0.01 tick，默认值本身就过不了校验，报 `Limit price must be a multiple of $0.01`。现默认四舍五入到分（`0.56`）。另：`executeSpotTrade` 此前把所有即时成交都记成 `order_type = Limit`，市价单在库里显示为 Limit——现按真实类型记录；可成交限价单（≥ 最优卖价）即时成交时 toast `Limit buy filled immediately at $x`。
 
