@@ -165,7 +165,7 @@ export const SpotEventInfoPanel = ({ t }: { t: SpotTerminal }) => {
 
       {t.settleEtOnly && (
         <div className="text-xs text-muted-foreground">
-          Settles &amp; credits by ~{t.settleEtOnly}.
+          Payout by ~{t.settleEtOnly}.
         </div>
       )}
     </div>
@@ -190,7 +190,7 @@ export const SpotPositionsTable = ({
     return (
       <div className="px-4 py-3 space-y-3">
         {rows.length === 0 ? (
-          <div className="text-center text-muted-foreground py-4">No open positions</div>
+          <div className="text-center text-muted-foreground py-4">No holdings yet</div>
         ) : (
           rows.map((p) => {
             const isYes = p.optionId ? p.optionId === t.yesOpt?.id : t.isYesLabel(p.option);
@@ -217,15 +217,15 @@ export const SpotPositionsTable = ({
                 </div>
                 <div className="grid grid-cols-4 gap-2 mb-2">
                   <div>
-                    <span className="text-[10px] text-muted-foreground block">Qty</span>
+                    <span className="text-[10px] text-muted-foreground block">Shares</span>
                     <span className="font-mono text-xs">{formatShares(p.sizeNum)}</span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-muted-foreground block">Entry</span>
+                    <span className="text-[10px] text-muted-foreground block">Avg price</span>
                     <span className="font-mono text-xs">{p.entryPrice}</span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-muted-foreground block">Mark</span>
+                    <span className="text-[10px] text-muted-foreground block">Price</span>
                     <span className="font-mono text-xs">{p.markPrice}</span>
                   </div>
                   <div>
@@ -246,17 +246,18 @@ export const SpotPositionsTable = ({
 
   return (
     <div className="text-xs">
-      <div className="grid grid-cols-[1.6fr_0.7fr_0.7fr_0.7fr_0.7fr_0.9fr_0.6fr] gap-2 px-4 py-2 text-muted-foreground border-b border-border/30 sticky top-0 bg-background">
+      <div className="grid grid-cols-[1.5fr_0.7fr_0.7fr_0.7fr_0.6fr_0.7fr_0.8fr_0.5fr] gap-2 px-4 py-2 text-muted-foreground border-b border-border/30 sticky top-0 bg-background">
         <span>Market</span>
         <span>Outcome</span>
-        <span className="text-right">Entry</span>
-        <span className="text-right">Mark</span>
-        <span className="text-right">Size (sh)</span>
+        <span className="text-right">Shares</span>
+        <span className="text-right">Avg price</span>
+        <span className="text-right">Price</span>
+        <span className="text-right">Value</span>
         <span className="text-right">PnL</span>
         <span />
       </div>
       {rows.length === 0 ? (
-        <div className="px-4 py-6 text-sm text-center text-muted-foreground">No open positions</div>
+        <div className="px-4 py-6 text-sm text-center text-muted-foreground">No holdings yet</div>
       ) : (
         rows.map((p) => {
           const isYes = p.optionId ? p.optionId === t.yesOpt?.id : t.isYesLabel(p.option);
@@ -265,10 +266,9 @@ export const SpotPositionsTable = ({
           return (
             <div
               key={p.id}
-              className="grid grid-cols-[1.6fr_0.7fr_0.7fr_0.7fr_0.7fr_0.9fr_0.6fr] gap-2 px-4 py-2 items-center border-b border-border/20 hover:bg-muted/20"
+              className="grid grid-cols-[1.5fr_0.7fr_0.7fr_0.7fr_0.6fr_0.7fr_0.8fr_0.5fr] gap-2 px-4 py-2 items-center border-b border-border/20 hover:bg-muted/20"
             >
               <div className="flex items-center gap-2 min-w-0">
-                <Badge variant="outline" className="text-[9px]">SPOT</Badge>
                 <span className="truncate">{p.event}</span>
               </div>
               <span
@@ -281,9 +281,10 @@ export const SpotPositionsTable = ({
               >
                 {outcomeText}
               </span>
+              <span className="text-right font-mono">{formatShares(p.sizeNum)}</span>
               <span className="text-right font-mono">{p.entryPrice}</span>
               <span className="text-right font-mono">{p.markPrice}</span>
-              <span className="text-right font-mono">{formatShares(p.sizeNum)}</span>
+              <span className="text-right font-mono">${money2(p.sizeNum * p.markPriceNum)}</span>
               <span
                 className={cn(
                   "text-right font-mono",
@@ -375,7 +376,7 @@ export const SpotOrdersTable = ({
         <span>Side</span>
         <span>Type</span>
         <span className="text-right">Limit</span>
-        <span className="text-right">Qty (sh)</span>
+        <span className="text-right">Shares</span>
         <span className="text-right">Reserved</span>
         <span className="text-right">Status</span>
         <span />
@@ -433,13 +434,13 @@ export const SpotBottomTabs = ({
 }) => (
   <ProBottomTabs
     tabs={[
-      { key: "Positions", label: "Positions", count: t.spotPositions.length },
+      { key: "Positions", label: "Holdings", count: t.spotPositions.length },
       { key: "Orders", label: "Current Orders", count: t.spotOrders.length },
     ]}
     active={t.bottomTab}
     onChange={(k) => t.setBottomTab(k as "Positions" | "Orders")}
-    authTitle="Sign in to view spot positions"
-    authDescription="Log in or create an account to view your open positions and orders."
+    authTitle="Sign in to view your holdings"
+    authDescription="Track your holdings and orders by signing in to your account."
     bodyClassName={bodyClassName}
   >
     {t.bottomTab === "Positions" ? (
@@ -507,14 +508,14 @@ export const SpotScheduleInfo = ({ t }: { t: SpotTerminal }) => (
       {t.marketKey === "crypto" ? (
         <div className="space-y-1">
           <div><span className="text-muted-foreground">Trading ends:</span> {t.freezeEtOnly ?? "—"}</div>
-          <div><span className="text-muted-foreground">Settles:</span> ~{t.settleEtOnly ?? "—"}</div>
+          <div><span className="text-muted-foreground">Payout:</span> ~{t.settleEtOnly ?? "—"}</div>
         </div>
       ) : (
         <div className="space-y-1">
           <div><span className="text-muted-foreground">Opens:</span> after prior close (extended trading)</div>
           <div><span className="text-muted-foreground">Trading ends:</span> {t.freezeEtOnly ?? "—"}</div>
           <div><span className="text-muted-foreground">Official close:</span> {t.closeEtOnly ?? "—"} (settlement price)</div>
-          <div><span className="text-muted-foreground">Credits by:</span> ~{t.settleEtOnly ?? "—"}</div>
+          <div><span className="text-muted-foreground">Payout by:</span> ~{t.settleEtOnly ?? "—"}</div>
         </div>
       )}
     </PopoverContent>

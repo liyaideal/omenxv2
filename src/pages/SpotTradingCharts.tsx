@@ -31,7 +31,7 @@ import { useAnimatedTradesHistory } from "@/hooks/useAnimatedTradesHistory";
 import { useTradeSideStore, tradeSideKey } from "@/stores/useTradeSideStore";
 import { cn } from "@/lib/utils";
 
-const TABS = ["Order Book", "Trades history", "Orders", "Positions"] as const;
+const TABS = ["Order Book", "Trades history", "Orders", "Holdings"] as const;
 
 function SpotChartsBody({ t }: { t: SpotTerminal }) {
   const navigate = useNavigate();
@@ -60,7 +60,7 @@ function SpotChartsBody({ t }: { t: SpotTerminal }) {
   };
 
   const counts = useMemo(
-    () => ({ Orders: t.spotOrders.length, Positions: t.spotPositions.length }),
+    () => ({ Orders: t.spotOrders.length, Holdings: t.spotPositions.length }),
     [t.spotOrders.length, t.spotPositions.length],
   );
 
@@ -79,7 +79,7 @@ function SpotChartsBody({ t }: { t: SpotTerminal }) {
       {/* Bottom tabs */}
       <div className="flex px-4 mt-2 border-b border-border/30">
         {TABS.map((x) => {
-          const count = x === "Orders" || x === "Positions" ? counts[x] : 0;
+          const count = x === "Orders" || x === "Holdings" ? counts[x] : 0;
           return (
             <button
               key={x}
@@ -147,7 +147,7 @@ function SpotChartsBody({ t }: { t: SpotTerminal }) {
       )}
 
       {tab === "Orders" && <SpotOrdersTable t={t} variant="mobile" />}
-      {tab === "Positions" && <SpotPositionsTable t={t} variant="mobile" />}
+      {tab === "Holdings" && <SpotPositionsTable t={t} variant="mobile" />}
 
       <ProSpotMobileDock
         available={t.available}

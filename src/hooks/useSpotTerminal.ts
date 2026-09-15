@@ -8,6 +8,7 @@
 // the code below is the desktop page's logic moved verbatim.
 // ============================================================
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTradeSideStore, tradeSideKey } from "@/stores/useTradeSideStore";
 import { useSearchParams, useNavigate, useNavigationType } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -193,7 +194,6 @@ export function useSpotTerminal() {
   const [slippageBps, setSlippageBps] = useState(50);
   const [amount, setAmount] = useState("");
   const [sliderValue, setSliderValue] = useState([0]);
-  const [side, setSide] = useState<"buy" | "sell">("buy");
   const [chartTab, setChartTab] = useState<"Chart" | "Event Info">("Chart");
   const [bottomTab, setBottomTab] = useState<"Positions" | "Orders">("Positions");
   const [submitting, setSubmitting] = useState(false);
@@ -289,6 +289,12 @@ export function useSpotTerminal() {
 
   const isYesSelected = selectedOptionId === yesOpt?.id;
   const selectedOption = isYesSelected ? yesOpt : noOpt;
+  // Buy · Sell intent lives in the shared store (same key space as /trade) so it
+  // survives /spot ↔ /spot/order hops instead of resetting with this hook.
+  const intentKey = tradeSideKey(eventId, selectedOption?.id ?? "");
+  const side = useTradeSideStore((s) => s.intentByKey[intentKey] ?? "buy");
+  const setIntentInStore = useTradeSideStore((s) => s.setIntent);
+  const setSide = useCallback((next: "buy" | "sell") => setIntentInStore(intentKey, next), [intentKey, setIntentInStore]);
   const outcomeLabel = isYesSelected ? yesLabel : noLabel;
   const outcomePrice = isYesSelected ? yesLive : noLive;
 

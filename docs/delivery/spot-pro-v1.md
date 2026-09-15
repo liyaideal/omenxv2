@@ -223,3 +223,11 @@ Spot 节原先手抄的终端顶栏已换成生产件 `ProSpotHeader`，CTA 例�
 ## SP-3-CTA (2026-09-10) — money 轴绿色 CTA 对比度
 
 - 新增 token `--trading-green-foreground: 220 12% 4%;`，`tailwind trading.green-foreground` 由 `--foreground`（白）改为该 token。volt green 实心底上的字改为深色墨水，与 `--no` 一致。
+
+## 2026-09-15 复审补记（Holdings 词汇 / Payout / 页签记忆）
+
+- 底部页签 `Positions` → **`Holdings`**（桌面 + 手机 Charts 四页签 + `/spot/order`）；表列改为 `Market · Outcome · Shares · Avg price · Price · Value · PnL`，手机卡片同组字段；空态 `No holdings yet`；账户卡 `Open positions` → `Holdings`。行内 `SPOT` 标删除（那是 Portfolio 混排列表的标识，现货终端只有现货）。订单表 `Qty (sh)` → `Shares`。
+- `Settles & credits by ~{time}` → **`Payout by ~{time}`**（面板、Event info、页头 ⓘ `Payout:`）。含义：结算后资金到账时刻，与 `Trading ends in` 不同。
+- Buy · Sell 页签状态改存共享 store（与合约同 key 空间），`/spot` ↔ `/spot/order` 往返保留。
+- Available 旁 ⇄ 划转入口（`TransferEntry`，预选 Boost → Standard）。
+

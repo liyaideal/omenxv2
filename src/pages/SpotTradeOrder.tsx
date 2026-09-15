@@ -25,7 +25,7 @@ import {
 import { useSpotTerminal, type SpotTerminal } from "@/hooks/useSpotTerminal";
 
 function SpotOrderBody({ t }: { t: SpotTerminal }) {
-  const [tab, setTab] = useState<"Orders" | "Positions">("Positions");
+  const [tab, setTab] = useState<"Orders" | "Holdings">("Holdings");
 
   return (
     <div className="pb-8">
@@ -41,7 +41,7 @@ function SpotOrderBody({ t }: { t: SpotTerminal }) {
 
       {/* Orders / Positions */}
       <div className="flex px-4 mt-2 border-b border-border/30">
-        {(["Orders", "Positions"] as const).map((x) => {
+        {(["Orders", "Holdings"] as const).map((x) => {
           const count = x === "Orders" ? t.spotOrders.length : t.spotPositions.length;
           return (
             <button
@@ -66,8 +66,8 @@ function SpotOrderBody({ t }: { t: SpotTerminal }) {
 
       <LiteAuthGate
         variant="panel"
-        title="Sign in to view spot positions"
-        description="Track your open positions and orders by signing in to your account."
+        title="Sign in to view your holdings"
+        description="Track your holdings and orders by signing in to your account."
       >
         {tab === "Orders" ? (
           <SpotOrdersTable t={t} variant="mobile" />

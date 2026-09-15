@@ -1942,8 +1942,9 @@ Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① 
 
 1. **单位写全词**：`contracts` / `shares`，任何位置不用 `ct` / `sh`；Amount 输入框后缀 `Contracts` / `Shares`，摘要 `Contracts` 行只放数字。
 2. **说明句进 ⓘ**：赢利佣金说明不平铺在摘要下方；四个 Pro 面板统一 `To win ⓘ` 行，tooltip 用 `WinTooltipBody`。
-3. **余额旁必有划转**：Pro 面板 `Available (USDC)` 右侧挂 `TransferEntry`（文字 `Transfer`，不用 ⇄ 图标以免与 Amount 行的切换图标撞车），桌面 Dialog / 手机 Drawer；充值 `+` 不再出现在下单面板。
+3. **余额旁必有划转**：Pro 面板 `Available (USDC)` 右侧挂 `TransferEntry`（⇄，全站唯一划转图标；合约面板原来的 amount/qty 假切换已删，图标不再撞车），桌面 Dialog / 手机 Drawer；充值 `+` 不再出现在下单面板。
 4. **账户卡命名**：合约 = `Boost Account`，现货 = `Standard Account`；`Unified Trading Account` 退役。手机杠杆行写 `Leverage` 并以 MobileDrawer 选择，不用 `LVG`。
 
 参照实现：`src/pages/DesktopTrading.tsx`、`src/components/TradeForm.tsx`、`src/components/pro/ProSpotPanel.tsx`、`src/components/pro/TransferEntry.tsx`；字典 `/style-guide#pro-trade-order`（CT-M1…CT-M5）。
+5. **现货词汇**：现货终端不说 Positions / Entry / Mark / Size——底部页签 `Holdings`，表列 `Shares · Avg price · Price · Value · PnL`，空态 `No holdings yet`，行内不带 `SPOT` 标；打款行 `Payout by ~{time}`。Buy · Sell 页签状态与合约同一 store，切页保留。
 

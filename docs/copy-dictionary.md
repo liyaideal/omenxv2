@@ -237,7 +237,11 @@ positives. Chip words come from the sibling event's `side_labels`.
 | **Standard Account** | 现货账户在 Pro `/spot` 与余额提示中的名字 | Spot Account（已退役）|
 | **Boost Account** | 合约账户卡（`/trade` 右栏、手机风险指示器）标题；行内容 Margin Mode / Account Equity / Risk Ratio / Initial · Maint. Margin 不变 | Unified Trading Account（2026-09-15 退役）|
 | **To win ⓘ** | 四个 Pro 下单面板（合约桌面/手机、现货桌面/手机）摘要末段统一为 `To win` 行 + ⓘ，tooltip 用共享 `WinTooltipBody`；不再在摘要下平铺说明句 | To win shows profit after the 5% winning commission.（句子退役）|
-| **Transfer（Available 旁）** | 每个 Pro 面板 `Available (USDC)` 右侧的划转文字入口（`TransferEntry`，蓝色小字，不用 ⇄ 图标——Amount 行的 amount/qty 切换已占用该图标），桌面开 TransferDialog、手机开 TransferDrawer；合约面板预选 to_futures，现货 to_spot。执行 08-06 裁定"每个展示出来的余额都有划转入口" | + 充值（面板内退役，充值只在 Wallet）|
+| **⇄ Transfer（Available 旁）** | 每个 Pro 面板 `Available (USDC)` 右侧的划转入口（`TransferEntry`，⇄ 为全站唯一划转图标，与钱包 AccountBalanceLine 同款），桌面开 TransferDialog、手机开 TransferDrawer；合约面板预选 to_futures，现货 to_spot。执行 08-06 裁定"每个展示出来的余额都有划转入口" | + 充值（面板内退役，充值只在 Wallet）|
+| **Holdings** | 现货终端底部页签与账户卡行名：现货持有的是份额，不叫 Positions；列 `Market · Outcome · Shares · Avg price · Price · Value · PnL`，空态 `No holdings yet`。行内不带 `SPOT` 标（那是 Portfolio 混排列表专用） | Positions（现货侧禁用）, Size (sh), Entry, Mark（现货侧禁用）|
+| **Avg price / Price（现货）** | 现货 Holdings 表的成本价 / 现价列名；`Entry` / `Mark` 是衍生品词，只留在合约 | Entry, Mark |
+| **Payout by ~{time}** | 现货面板与 Event info 的打款时间行；页头 ⓘ 里写 `Payout:`。指结算后资金到账的预计时刻，与 `Trading ends in`（停止交易倒计时）不是同一件事 | Settles & credits by, Credits by |
+| ~~**Amount ⇄ Qty 切换**~~ | **Retired 2026-09-15** — 合约面板的 amount/qty 切换从未接入计算（只改标签），已删除；两个终端一致：Buy 输 USDC，Sell 输 contracts / shares | — |
 | **Leverage（手机）** | 手机合约面板杠杆行标签写全词 `Leverage`，按钮 `10x ▾` 开 MobileDrawer 选择 | LVG |
 | **Fee (0.15%)** | Pro `/spot` 下单摘要手续费行 | Fee, Trading fee（该行专用写法）|
 | **Proceeds** | Pro `/spot` 卖出摘要行 = 卖出份额 × 成交价（未扣费；费另起 `Fee (0.15%)` 行） | Total, Return |

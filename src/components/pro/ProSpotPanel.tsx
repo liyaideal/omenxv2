@@ -369,7 +369,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
 
         {p.settleEtOnly && (
           <div className="text-[10px] text-muted-foreground">
-            Settles &amp; credits by ~{p.settleEtOnly}
+            Payout by ~{p.settleEtOnly}
           </div>
         )}
         {p.tickInvalid && p.orderType === "Limit" && (
@@ -433,7 +433,7 @@ export const ProSpotAccountPanel = ({ available, inOrders, openPositions }: ProS
       <Row label="In orders">
         <span className="font-mono">${money2(inOrders)}</span>
       </Row>
-      <Row label="Open positions">
+      <Row label="Holdings">
         <span className="font-mono">{openPositions}</span>
       </Row>
       <div className="text-[10px] text-muted-foreground pt-1">

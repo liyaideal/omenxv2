@@ -3,7 +3,7 @@ import { TransferEntry } from "@/components/pro/TransferEntry";
 import { WinTooltipBody } from "@/components/lite/shared/WinTooltipBody";
 import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
 import { useNavigate, useNavigationType, useSearchParams, useLocation } from "react-router-dom";
-import { ChevronDown, ChevronUp, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X, Pencil, AlertTriangle, ArrowLeft, Loader2, Gift, Lock, HelpCircle } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, Star, Info, Flag, Search, ExternalLink, X, Pencil, AlertTriangle, ArrowLeft, Loader2, Gift, Lock, HelpCircle } from "lucide-react";
 import { ExternalHedgeLinks } from "@/components/ExternalHedgeLinks";
 import { EventInfoContent } from "@/components/EventInfoContent";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
@@ -219,7 +219,6 @@ export default function DesktopTrading() {
   const [slMode, setSlMode] = useState<"pct" | "price">("pct");
   const [tpValue, setTpValue] = useState("");
   const [slValue, setSlValue] = useState("");
-  const [inputMode, setInputMode] = useState<"amount" | "qty">("amount");
   const [eventDropdownOpen, setEventDropdownOpen] = useState(false);
   const [orderPreviewOpen, setOrderPreviewOpen] = useState(false);
   const [depositDialogOpen, setDepositDialogOpen] = useState(false);
@@ -1747,15 +1746,7 @@ export default function DesktopTrading() {
 
             {/* Amount/Qty Input */}
             <div className="space-y-1">
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs text-muted-foreground">{inputMode === "amount" ? "Amount" : "Qty"}</span>
-                <button 
-                  onClick={() => setInputMode(inputMode === "amount" ? "qty" : "amount")}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <ArrowLeftRight className="w-3 h-3" />
-                </button>
-              </div>
+              <span className="text-xs text-muted-foreground">Amount</span>
               <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
                 <input
                   type="text"
@@ -1764,7 +1755,7 @@ export default function DesktopTrading() {
                   className="flex-1 bg-transparent outline-none font-mono text-sm"
                   placeholder="0.00"
                 />
-                {inputMode === "amount" && <span className="text-muted-foreground text-xs font-medium">USDC</span>}
+                <span className="text-muted-foreground text-xs font-medium">USDC</span>
               </div>
             </div>
 

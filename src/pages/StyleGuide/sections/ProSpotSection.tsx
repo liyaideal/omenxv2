@@ -51,7 +51,7 @@ const PANEL_CASES: SectionCase[] = [
   {
     key: "pro-spot-panel-sell-held-down",
     label: "SP-B3b · Sell · 仅持有 Down（2,034.879 sh）",
-    note: "回归护栏（SP-1-FIX3 Bug 1）：持有哪一边由持仓的 option_id 决定，与 Positions 表 Outcome 列同源；Up tile 禁用显示 `0 shares`。数量全链路取精确值——Held 行、Amount 预填、滑杆 100%、校验与下单请求都是 2034.879。",
+    note: "回归护栏（SP-1-FIX3 Bug 1）：持有哪一边由持仓的 option_id 决定，与 Holdings 表 Outcome 列同源；Up tile 禁用显示 `0 shares`。数量全链路取精确值——Held 行、Amount 预填、滑杆 100%、校验与下单请求都是 2034.879。",
     spec: [
       {
         state: "Down-only 持仓",
@@ -95,7 +95,7 @@ const PANEL_CASES: SectionCase[] = [
   {
     key: "pro-spot-panel-frozen",
     label: "SP-B8 · 市场已冻结（FIX5）",
-    note: "下单封锁 = `isOrderingBlocked(dbLifecycle) || isFrozenByTime`。过了 freeze_time / end_date 的市场即便库里还写着 EXTENDED_TRADING 也不可下单：两个 tile 仍可点选（只为看价），CTA 置灰显示原因，预览弹窗打不开，提交与 Positions 行 `Close` 均直接 toast 拦截。",
+    note: "下单封锁 = `isOrderingBlocked(dbLifecycle) || isFrozenByTime`。过了 freeze_time / end_date 的市场即便库里还写着 EXTENDED_TRADING 也不可下单：两个 tile 仍可点选（只为看价），CTA 置灰显示原因，预览弹窗打不开，提交与 Holdings 行 `Close` 均直接 toast 拦截。",
     spec: [
       {
         state: "Frozen by time",
@@ -123,7 +123,7 @@ const DIALOG_CASES: SectionCase[] = [
   {
     key: "pro-spot-preview-dialog",
     label: "SP-B7 · Order preview 弹窗（ProSpotOrderPreview）",
-    note: "与合约终端同一 Dialog 框架：事件名 + outcome chip + 两张 rounded-lg border-border/50 bg-muted/20 p-3 卡片 + TradeSubmitButton size=\"lg\"。不出现杠杆 / 保证金 / 强平 / Position impact。两个入口：面板 CTA，以及 Positions 行的 `Close`（预置 Sell · 该 outcome · Market · 全量精确份额，直接开这个弹窗）。",
+    note: "与合约终端同一 Dialog 框架：事件名 + outcome chip + 两张 rounded-lg border-border/50 bg-muted/20 p-3 卡片 + TradeSubmitButton size=\"lg\"。不出现杠杆 / 保证金 / 强平 / Position impact。两个入口：面板 CTA，以及 Holdings 行的 `Close`（预置 Sell · 该 outcome · Market · 全量精确份额，直接开这个弹窗）。",
     spec: [
       {
         state: "Buy 预览",
@@ -215,7 +215,7 @@ const MOBILE_CASES: SectionCase[] = [
   {
     key: "pro-spot-mobile-charts",
     label: "SP-M1 · 移动 Charts 视图（375）",
-    note: "移动 Pro 现货长在 MobileTradingLayout variant=\"spot\" 上：price/mark、图表、tabs 与卡片逐块复用 /trade 规格；市场 chip 行是多 market 专属，binary 事件（含 Up/Down 别名）不渲染；仅保留 32px spot strip、SPOT 徽章与 dock 安全区。",
+    note: "移动 Pro 现货长在 MobileTradingLayout variant=\"spot\" 上：price/mark、图表、tabs 与卡片逐块复用 /trade 规格；市场 chip 行是多 market 专属，binary 事件（含 Up/Down 别名）不渲染；仅保留 32px spot strip 与 dock 安全区；底部页签为 Orders / Holdings（现货持有的是份额，不叫仓位；行内不再有 SPOT 标）。",
 
     spec: [
       {

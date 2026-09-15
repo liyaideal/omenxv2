@@ -4,7 +4,7 @@ import { TransferEntry } from "@/components/pro/TransferEntry";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { WinTooltipBody } from "@/components/lite/shared/WinTooltipBody";
 import { useState, useMemo, useRef } from "react";
-import { ChevronDown, ArrowLeftRight, ChevronUp, X, HelpCircle } from "lucide-react";
+import { ChevronDown, ChevronUp, X, HelpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
@@ -101,7 +101,6 @@ export const TradeForm = ({
   const [amount, setAmount] = useState("0.00");
   const [sliderValue, setSliderValue] = useState([0]);
   const [tpsl, setTpsl] = useState(false);
-  const [inputMode, setInputMode] = useState<"amount" | "qty">("amount");
   
   // TP/SL states
   const [tpMode, setTpMode] = useState<"pct" | "price">("pct");
@@ -515,17 +514,7 @@ export const TradeForm = ({
 
       {/* Amount/Qty Input */}
       <div className="space-y-0.5">
-        <div className="flex items-center gap-1.5">
-          <span className="text-[10px] text-muted-foreground">
-            {inputMode === "amount" ? "Amount" : "Qty"}
-          </span>
-          <button 
-            onClick={() => setInputMode(inputMode === "amount" ? "qty" : "amount")}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeftRight className="w-3 h-3" />
-          </button>
-        </div>
+        <span className="text-[10px] text-muted-foreground">Amount</span>
         <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
           <input
             type="text"
@@ -534,9 +523,7 @@ export const TradeForm = ({
             className="flex-1 bg-transparent outline-none font-mono text-xs"
             placeholder="0.00"
           />
-          {inputMode === "amount" && (
-            <span className="text-muted-foreground text-[10px] font-medium">USDC</span>
-          )}
+          <span className="text-muted-foreground text-[10px] font-medium">USDC</span>
         </div>
       </div>
 
