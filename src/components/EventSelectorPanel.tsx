@@ -54,7 +54,7 @@ const ProductTabs = ({ tab, onTabChange }: Pick<EventSelectorPanelProps, "tab" |
         aria-selected={tab === t}
         onClick={() => onTabChange(t)}
         className={cn(
-          "text-xs font-semibold pb-1.5 border-b-2 transition-colors -mb-px focus:outline-none focus-visible:ring-1 focus-visible:ring-ring rounded-sm",
+          "text-xs font-semibold pb-1.5 border-b-2 transition-colors -mb-px focus:outline-none",
           tab === t ? "text-foreground border-foreground" : "text-muted-foreground border-transparent hover:text-foreground",
         )}
       >

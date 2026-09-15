@@ -16,6 +16,7 @@ import {
   type TradingEvent,
 } from "@/hooks/useEvents";
 import { eventOnTab, type ProductTab } from "@/lib/eventSelector";
+import { mock24hVolume } from "@/hooks/useSpotTerminal";
 
 export interface UseEventSelectorOptions {
   /** Terminal the selector is mounted on — becomes the default tab. */
@@ -82,7 +83,20 @@ export const useEventSelector = ({
   const favorites = favoritesIn ?? ownFavorites;
   const toggleFavorite = toggleFavoriteIn ?? toggleOwnFavorite;
 
-  const all = useMemo(() => dbEvents.map(dbEventToTradingEvent), [dbEvents]);
+  const all = useMemo(
+    () =>
+      dbEvents.map((row) => {
+        const e = dbEventToTradingEvent(row);
+        // Spot rows carry no volume in the DB; the spot terminal shows the DEMO-STATE
+        // mock, so the picker shows the same figure instead of `$0`.
+        const bare = parseFloat((e.volume || "").replace(/[^0-9.]/g, ""));
+        if (eventOnTab(e.productLines, "standard") && !(bare > 0)) {
+          return { ...e, volume: mock24hVolume(e.id) };
+        }
+        return e;
+      }),
+    [dbEvents],
+  );
 
   const events = useMemo(() => {
     // Ended rows (end_date passed, not yet resolved) cannot be traded — keep them out of the picker.
