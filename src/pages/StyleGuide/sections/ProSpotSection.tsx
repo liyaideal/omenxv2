@@ -192,7 +192,7 @@ const EVENT_SELECTOR_CASES: SectionCase[] = [
       {
         state: "Boost · 无当前行",
         when: 'tab === "boost" && currentEventId 不在列表',
-        visual: "只列 product_lines 含 futures 的事件；收藏（★）两页签共用",
+        visual: "列 product_lines 含 futures / contract 的事件；收藏（★）两页签共用",
         source: "EventSelectorDropdown",
       },
     ],
