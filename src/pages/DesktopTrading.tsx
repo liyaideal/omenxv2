@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect, useRef } from "react"; // v2
+import { WinTooltipBody } from "@/components/lite/shared/WinTooltipBody";
 import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
 import { useNavigate, useNavigationType, useSearchParams, useLocation } from "react-router-dom";
-import { ChevronDown, ChevronUp, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X, Pencil, AlertTriangle, ArrowLeft, Loader2, Gift, Lock } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, ArrowLeftRight, Star, Info, Flag, Search, ExternalLink, X, Pencil, AlertTriangle, ArrowLeft, Loader2, Gift, Lock, HelpCircle } from "lucide-react";
 import { ExternalHedgeLinks } from "@/components/ExternalHedgeLinks";
 import { EventInfoContent } from "@/components/EventInfoContent";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
@@ -573,7 +574,7 @@ export default function DesktopTrading() {
           // partialClosePosition, which also toasts `Cashed out · $X back`.
           await partialClosePosition(pos.id!, idx, fillQty);
           await supabase.from("trades").update({ status: "Filled" }).eq("id", id);
-          toast.success(`Limit close filled · ${fillQty} ct`);
+          toast.success(`Limit close filled · ${fillQty} contracts`);
           refetchOrders();
           refetchPositions();
         } catch {
@@ -1647,8 +1648,8 @@ export default function DesktopTrading() {
               isYesSelected={intent === "sell" ? sellOutcome === "yes" : isYesSelected}
               activeDot
               disabledSide={intent === "sell" ? sellDisabledSide : undefined}
-              yesBarText={intent === "sell" && !heldPositions.yes ? "0 ct" : undefined}
-              noBarText={intent === "sell" && !heldPositions.no ? "0 ct" : undefined}
+              yesBarText={intent === "sell" && !heldPositions.yes ? "0 contracts" : undefined}
+              noBarText={intent === "sell" && !heldPositions.no ? "0 contracts" : undefined}
               onSelect={(which) => {
                 if (intent === "sell") {
                   // Sell only re-targets the outcome; it never touches `side`.
@@ -1915,7 +1916,24 @@ export default function DesktopTrading() {
                   {parseFloat(amount) > 0 ? `${displayCalculations.total} USDC` : "--"}
                 </span>
               </div>
-              <div className="text-[11px] text-muted-foreground">To win shows profit after the 5% winning commission.</div>
+              <div className="flex justify-between">
+                <span className="inline-flex items-center gap-1 text-muted-foreground">
+                  To win
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HelpCircle className="w-3 h-3 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[220px] p-2">
+                        <WinTooltipBody />
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </span>
+                <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
+                  {parseFloat(amount) > 0 ? `${parseInt(orderCalculations.potentialWin).toLocaleString()} USDC` : "--"}
+                </span>
+              </div>
             </div>
 
             {/* Submit Button */}
@@ -1949,7 +1967,7 @@ export default function DesktopTrading() {
 
             {heldPos && (
               <div className="text-[11px] text-muted-foreground">
-                Held <span className="font-mono text-foreground">{heldSize.toLocaleString()}</span> ct ·{" "}
+                Held <span className="font-mono text-foreground">{heldSize.toLocaleString()}</span> contracts ·{" "}
                 {sellOutcomeLabel} · <span className="font-mono">{Math.round(heldPos.leverageNum) || 1}x</span> · entry{" "}
                 <span className="font-mono">{heldPos.entryPriceNum.toFixed(4)}</span>
               </div>
@@ -1993,7 +2011,7 @@ export default function DesktopTrading() {
                   className="flex-1 bg-transparent outline-none font-mono text-sm"
                   placeholder="0"
                 />
-                <span className="text-muted-foreground text-xs font-medium">ct</span>
+                <span className="text-muted-foreground text-xs font-medium">Contracts</span>
               </div>
             </div>
 
@@ -2023,7 +2041,7 @@ export default function DesktopTrading() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Contracts</span>
-                <span className="text-foreground font-mono">{sellQty.toLocaleString()} ct</span>
+                <span className="text-foreground font-mono">{sellQty.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Released margin</span>
@@ -2188,7 +2206,7 @@ export default function DesktopTrading() {
             </div>
             <div className="flex items-center justify-between gap-3">
               <span className="text-muted-foreground">Contracts</span>
-              <span className="font-mono text-foreground text-right">{sellQty.toLocaleString()} ct</span>
+              <span className="font-mono text-foreground text-right">{sellQty.toLocaleString()}</span>
             </div>
           </div>
           <div className="rounded-lg border border-border/50 bg-background p-3 space-y-2 text-xs">

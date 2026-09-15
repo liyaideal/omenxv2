@@ -179,8 +179,8 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
           noPrice={p.noPrice}
           isYesSelected={p.isYesSelected}
           disabledSide={disabledSide}
-          yesBarText={isSell && p.heldYesQty <= 0 ? "0 sh" : undefined}
-          noBarText={isSell && p.heldNoQty <= 0 ? "0 sh" : undefined}
+          yesBarText={isSell && p.heldYesQty <= 0 ? "0 shares" : undefined}
+          noBarText={isSell && p.heldNoQty <= 0 ? "0 shares" : undefined}
           onSelect={p.onSelectOutcome}
           activeDot={isBare}
         />
@@ -196,7 +196,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
         {isSell && (
           <div className={cn("flex items-center justify-between", isBare ? "text-xs" : "text-[11px]")}>
             <span className="text-muted-foreground">Held</span>
-            <span className="font-mono">{formatShares(p.heldQty)} sh · {p.outcomeLabel}</span>
+            <span className="font-mono">{formatShares(p.heldQty)} shares · {p.outcomeLabel}</span>
           </div>
         )}
 
@@ -231,7 +231,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
               placeholder="0.00"
               inputMode="decimal"
             />
-            <span className="text-muted-foreground text-xs font-medium">{isSell ? "sh" : "USDC"}</span>
+            <span className="text-muted-foreground text-xs font-medium">{isSell ? "Shares" : "USDC"}</span>
           </div>
         </div>
 
@@ -362,11 +362,6 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
           )}
         </div>
 
-        {isBare && (
-          <div className="text-[11px] text-muted-foreground">
-            To win shows profit after the 5% winning commission.
-          </div>
-        )}
 
         {p.settleEtOnly && (
           <div className="text-[10px] text-muted-foreground">

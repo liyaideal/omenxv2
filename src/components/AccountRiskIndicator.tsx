@@ -48,7 +48,7 @@ export const AccountRiskIndicator = ({ variant = "compact" }: AccountRiskIndicat
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-foreground">Unified Trading Account</span>
+            <span className="text-sm font-medium text-foreground">Boost Account</span>
             <button
               onClick={() => setShowValues(!showValues)}
               className="text-muted-foreground hover:text-foreground transition-colors"

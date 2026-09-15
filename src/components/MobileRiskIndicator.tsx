@@ -79,7 +79,7 @@ function AccountRiskDrawer({ open, onOpenChange, riskMetrics }: AccountRiskDrawe
       <div className="space-y-4 pb-6">
         {/* Title with icons on the right */}
         <div className="flex items-center justify-between">
-          <span className="text-lg font-semibold text-foreground">Unified Trading Account</span>
+          <span className="text-lg font-semibold text-foreground">Boost Account</span>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowValues(!showValues)}

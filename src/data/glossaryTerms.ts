@@ -237,9 +237,9 @@ export const glossaryTerms: GlossaryTerm[] = [
     termCn: "全仓保证金",
     definitionEn: "Cross margin is a margin mode where the entire available balance in a trader's account is shared as collateral across all open positions.",
     definitionCn: "全仓保证金是一种保证金模式，账户中的全部可用余额作为所有持仓的共享抵押品。",
-    explanationEn: "In cross margin mode, unrealized profits from one position can help cover margin requirements for other positions, reducing the likelihood of liquidation on any single trade. However, it also means that a large loss on one position can affect all other positions. Cross margin is the default mode on OmenX's Unified Trading Account. It contrasts with isolated margin, where each position has its own dedicated collateral.",
+    explanationEn: "In cross margin mode, unrealized profits from one position can help cover margin requirements for other positions, reducing the likelihood of liquidation on any single trade. However, it also means that a large loss on one position can affect all other positions. Cross margin is the default mode on OmenX's Boost Account. It contrasts with isolated margin, where each position has its own dedicated collateral.",
     explanationCn: "在全仓模式下，一个仓位的浮盈可以帮助覆盖其他仓位的保证金需求，降低单笔交易被强平的可能性。但同时，一个仓位的大额亏损也会影响所有其他仓位。全仓保证金是 OmenX 统一交易账户的默认模式，与每个仓位独立分配保证金的逐仓模式相对。",
-    exampleEn: "On OmenX, Cross Margin is the default setting — your Account Equity, Risk Ratio, and Initial/Maintenance Margin are displayed in the Unified Trading Account panel.",
+    exampleEn: "On OmenX, Cross Margin is the default setting — your Account Equity, Risk Ratio, and Initial/Maintenance Margin are displayed in the Boost Account panel.",
     exampleCn: "在 OmenX 上，全仓保证金 (Cross) 是默认设置——账户权益、风险率和初始/维持保证金都在统一交易账户面板中显示。",
   },
   {

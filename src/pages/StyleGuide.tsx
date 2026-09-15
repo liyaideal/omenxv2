@@ -2357,7 +2357,7 @@ const StyleGuide = () => {
                 {/* Risk Level Display - Stack on mobile */}
                 <div className={`flex ${isMobile ? "flex-col gap-2" : "items-center justify-between"} mb-3 md:mb-4`}>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-foreground">Unified Trading Account</span>
+                    <span className="text-sm font-medium text-foreground">Boost Account</span>
                     <button
                       onClick={() => setRiskShowValues(!riskShowValues)}
                       className="text-muted-foreground hover:text-foreground transition-colors"

@@ -1,6 +1,8 @@
 import { FUTURES_FEE_RATE, netWin, cashBackOnClose } from "@/services/tradingService";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { WinTooltipBody } from "@/components/lite/shared/WinTooltipBody";
 import { useState, useMemo, useRef } from "react";
-import { ChevronDown, Plus, ArrowLeftRight, ChevronUp, X } from "lucide-react";
+import { ChevronDown, Plus, ArrowLeftRight, ChevronUp, X, HelpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
@@ -377,8 +379,8 @@ export const TradeForm = ({
             const sellMode = intent === "sell";
             const yesDisabled = sellMode && (sellDisabledSide === "yes" || sellDisabledSide === "both");
             const noDisabled = sellMode && (sellDisabledSide === "no" || sellDisabledSide === "both");
-            const yesPriceVal = yesDisabled ? "0 ct" : (binaryMode?.yesPrice ?? longPrice).toFixed(4);
-            const noPriceVal = noDisabled ? "0 ct" : (binaryMode?.noPrice ?? shortPrice).toFixed(4);
+            const yesPriceVal = yesDisabled ? "0 contracts" : (binaryMode?.yesPrice ?? longPrice).toFixed(4);
+            const noPriceVal = noDisabled ? "0 contracts" : (binaryMode?.noPrice ?? shortPrice).toFixed(4);
             return (
               <>
                 <button
@@ -641,7 +643,24 @@ export const TradeForm = ({
             {parseFloat(amount) > 0 ? `${displayCalculations.total} USDC` : "--"}
           </span>
         </div>
-        <div className="text-[11px] text-muted-foreground">To win shows profit after the 5% winning commission.</div>
+        <div className="flex justify-between">
+          <span className="inline-flex items-center gap-1 text-muted-foreground">
+            To win
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className="w-3 h-3 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-[220px] p-2">
+                  <WinTooltipBody />
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </span>
+          <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
+            {parseFloat(amount) > 0 ? `${parseInt(orderCalculations.potentialWin).toLocaleString()} USDC` : "--"}
+          </span>
+        </div>
       </div>
 
 
@@ -678,7 +697,7 @@ export const TradeForm = ({
 
       {heldPos && (
         <div className="text-[11px] text-muted-foreground">
-          Held <span className="font-mono text-foreground">{heldSize.toLocaleString()}</span> ct · {sellOutcomeLabel} ·{" "}
+          Held <span className="font-mono text-foreground">{heldSize.toLocaleString()}</span> contracts · {sellOutcomeLabel} ·{" "}
           <span className="font-mono">{Math.round(heldPos.leverageNum) || 1}x</span> · entry{" "}
           <span className="font-mono">{heldPos.entryPriceNum.toFixed(4)}</span>
         </div>
@@ -722,7 +741,7 @@ export const TradeForm = ({
             className="flex-1 bg-transparent outline-none font-mono text-xs"
             placeholder="0"
           />
-          <span className="text-muted-foreground text-[10px] font-medium">ct</span>
+          <span className="text-muted-foreground text-[10px] font-medium">Contracts</span>
         </div>
       </div>
 
@@ -751,7 +770,7 @@ export const TradeForm = ({
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Contracts</span>
-          <span className="text-foreground font-mono">{sellQty.toLocaleString()} ct</span>
+          <span className="text-foreground font-mono">{sellQty.toLocaleString()}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Released margin</span>
