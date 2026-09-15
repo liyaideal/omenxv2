@@ -170,6 +170,75 @@ const TRADE_ORDER_LEVERAGE_CASES: SectionCase[] = [
   },
 ];
 
+const EVENT_SELECTOR_CASES: SectionCase[] = [
+  {
+    key: "event-selector-standard",
+    label: "ES-D1 · Standard 页签（现货线）",
+    note: "两个终端共用一个选择器；页签 `Standard`（/spot）/ `Boost`（/trade），词与账户卡 `Standard Account / Boost Account` 同源。`Ends in` 列按剩余时间：<1m / 8m / 3h 12m / 2d 14h / 日期（≥7 天）/ Frozen（过 freeze 未到结束）；红 ≤15 分钟、黄 ≤1 小时，与终端 header 倒计时同阈。",
+    spec: [
+      {
+        state: "Standard · 当前事件高亮",
+        when: 'tab === "standard"',
+        visual: "页签行 → 搜索 + ★ → 列头 Event / Ends in / Volume → 行（当前事件 bg-muted/30）；只列 product_lines 含 spot 的事件",
+        source: "EventSelectorDropdown（EventSelectorPanel variant=dropdown）",
+      },
+    ],
+  },
+  {
+    key: "event-selector-boost",
+    label: "ES-D2 · Boost 页签（合约线）",
+    note: "从现货终端切到 Boost：没有高亮行（当前事件不在这条线）。点任一行 → `/trade?event=…`，Lite/Pro 偏好不变。两条线都开的事件两个页签都出现。",
+    spec: [
+      {
+        state: "Boost · 无当前行",
+        when: 'tab === "boost" && currentEventId 不在列表',
+        visual: "只列 product_lines 含 futures 的事件；收藏（★）两页签共用",
+        source: "EventSelectorDropdown",
+      },
+    ],
+  },
+  {
+    key: "event-selector-favorites-empty",
+    label: "ES-D3 · 收藏为空",
+    spec: [
+      {
+        state: "showFavoritesOnly && 无收藏",
+        when: "★ 过滤开、该页签下无收藏事件",
+        visual: "空态：★ 图标 + No favorites yet + View all events 链接",
+        source: "EventSelectorPanel · Empty",
+      },
+    ],
+  },
+  {
+    key: "event-selector-search-empty",
+    label: "ES-D4 · 搜索无结果",
+    spec: [
+      {
+        state: "search 无匹配",
+        when: "搜索词在该页签下无事件",
+        visual: "空态：Search 图标 + No events found + Try a different search term",
+        source: "EventSelectorPanel · Empty",
+      },
+    ],
+  },
+];
+
+const EVENT_SELECTOR_MOBILE_CASES: SectionCase[] = [
+  {
+    key: "event-selector-drawer",
+    label: "ES-M1 · Select Event 抽屉（375）",
+    note: "手机两页（/spot、/trade）标题右侧 ▾ 打开同一个 MobileDrawer；现货页标题此前不可点。header 上不再有 SPOT 标，合约页也不加 Boost 标——产品身份只在这里的页签。",
+    spec: [
+      {
+        state: "抽屉 · Standard",
+        when: "onTitleClick",
+        visual: "标题 Select Event → 页签行 → 搜索 + ★ → 卡片列表（当前事件 bg-primary/10 描边）；行内 `Ends in 8m · Volume: $803K`",
+        source: "EventSelectorSheet（MobileDrawer + EventSelectorPanel variant=drawer）",
+      },
+    ],
+  },
+];
+
 const TRADE_ORDER_CASES: SectionCase[] = [
   {
     key: "pro-trade-order-buy",
@@ -433,6 +502,22 @@ export const ProSpotSection = (_: Props) => (
       description="合约面板的 Buy · Sell 意图页签。Sell 只做当前净额仓位的减仓/平仓（方案 A），空仓禁用、永不开反向。桌面 /trade 面板与此同规格，但仍是页面内联 JSX，暂无法在字典挂载（见交付文档已知缺口）。"
     >
       <SectionFrame cases={TRADE_ORDER_CASES} device="mobile" minHeight={640} />
+    </SectionWrapper>
+
+    <SectionWrapper
+      id="event-selector"
+      title="交易终端事件选择器（ES-1 · Standard / Boost）"
+      description="桌面 /trade 与 /spot 的标题下拉共用同一组件。页签 = 产品线；`Ends in` 用相对时间，快轮事件才看得出哪局马上结束。"
+    >
+      <SectionFrame cases={EVENT_SELECTOR_CASES} device="desktop" minHeight={520} />
+    </SectionWrapper>
+
+    <SectionWrapper
+      id="event-selector-mobile"
+      title="交易终端事件选择器 · 手机抽屉（ES-M1）"
+      description="viewport 级 position:fixed 组件独占一帧。"
+    >
+      <SectionFrame cases={EVENT_SELECTOR_MOBILE_CASES} device="mobile" minHeight={640} />
     </SectionWrapper>
 
     <SectionWrapper

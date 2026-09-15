@@ -8,7 +8,13 @@
 // `SpotTradeOrder`; all state and engine logic lives in
 // `useSpotTerminal`, all render blocks in `pro/ProSpotShared`.
 // ============================================================
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
+import { EventSelectorDropdown } from "@/components/EventSelectorPanel";
+import { useEventSelector } from "@/hooks/useEventSelector";
+import { terminalPath, type ProductTab } from "@/lib/eventSelector";
+import type { TradingEvent } from "@/hooks/useEvents";
 import { CandlestickChart } from "@/components/CandlestickChart";
 import { DesktopOrderBook } from "@/components/DesktopOrderBook";
 import { AuthDialog } from "@/components/auth/AuthDialog";
@@ -28,6 +34,31 @@ import { cn } from "@/lib/utils";
 
 export default function SpotTrading() {
   const t = useSpotTerminal();
+  const navigate = useNavigate();
+
+  // ES-1: title dropdown — same selector as /trade, Standard tab default.
+  const eventSelector = useEventSelector({ terminal: "standard" });
+  const [selectorOpen, setSelectorOpen] = useState(false);
+  const selectorRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!selectorOpen) return;
+    const reset = eventSelector.reset;
+    const onDown = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest?.('[aria-haspopup="listbox"]')) return; // title button toggles itself
+      if (selectorRef.current && !selectorRef.current.contains(target)) {
+        setSelectorOpen(false);
+        reset();
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [selectorOpen, eventSelector.reset]);
+  const handleSelectorPick = (picked: TradingEvent, tab: ProductTab) => {
+    setSelectorOpen(false);
+    eventSelector.reset();
+    navigate(terminalPath(tab, picked.id, "charts"), { replace: tab === "standard" });
+  };
 
   // ---- Render guards ----
   if (t.loading) {
@@ -73,6 +104,28 @@ export default function SpotTrading() {
       watched={t.isWatched(event.id)}
       onToggleWatch={() => t.toggleWatch(event.id)}
       onBack={t.goBack}
+      onTitleClick={() => setSelectorOpen((o) => !o)}
+      selectorOpen={selectorOpen}
+      selector={
+        selectorOpen ? (
+          <div ref={selectorRef}>
+            <EventSelectorDropdown
+              tab={eventSelector.tab}
+              onTabChange={eventSelector.setTab}
+              search={eventSelector.search}
+              onSearchChange={eventSelector.setSearch}
+              showFavoritesOnly={eventSelector.showFavoritesOnly}
+              onToggleFavoritesOnly={eventSelector.toggleShowFavoritesOnly}
+              favorites={eventSelector.favorites}
+              onToggleFavorite={eventSelector.toggleFavorite}
+              events={eventSelector.events}
+              currentEventId={event.id}
+              onSelect={handleSelectorPick}
+              now={eventSelector.now}
+            />
+          </div>
+        ) : null
+      }
     />
   );
 

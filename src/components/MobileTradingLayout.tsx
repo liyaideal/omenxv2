@@ -7,11 +7,12 @@ import { EventSelectorSheet } from "@/components/EventSelectorSheet";
 import { EventInfoContent } from "@/components/EventInfoContent";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useEvents, TradingEvent, EventOption } from "@/hooks/useEvents";
+import { useEventSelector } from "@/hooks/useEventSelector";
+import { terminalPath, type ProductTab } from "@/lib/eventSelector";
 import { isSingleMarketBinary } from "@/lib/eventUtils";
 import { MobileRiskIndicator } from "@/components/MobileRiskIndicator";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { useAuth } from "@/hooks/useAuth";
-import { Badge } from "@/components/ui/badge";
 
 
 // Context for sharing trading state with child components
@@ -29,8 +30,9 @@ interface MobileTradingLayoutProps {
   /** SP-2: tab navigation root. `/trade` (default, perp) or `/spot`. */
   basePath?: "/trade" | "/spot";
   /**
-   * SP-2: `spot` drops the perp-only surfaces (risk indicator, option chips)
-   * and renders a SPOT badge after the title. Defaults to `perp`.
+   * SP-2: `spot` drops the perp-only surfaces (risk indicator, option chips).
+   * ES-1: no product badge on either terminal header — the product tab lives
+   * in the event selector. Defaults to `perp`.
    */
   variant?: "perp" | "spot";
   /** SP-2: bypass `useEvents` and drive the header from a supplied event. */
@@ -119,11 +121,6 @@ function TradingShell({
         countdownLabel={countdownLabel}
         countdownUrgency={countdownUrgency}
         statsExtra={statsExtra}
-        titleBadge={
-          isSpot ? (
-            <Badge variant="outline" className="text-[9px] flex-shrink-0">SPOT</Badge>
-          ) : undefined
-        }
         showBack={true}
         backTo={backTo}
         showLogo={false} // Trade pages don't show logo per design spec
@@ -203,11 +200,28 @@ function SpotTradingShell({
   eventInfo,
   optionChips,
 }: MobileTradingLayoutProps) {
+  const navigate = useNavigate();
   const navigationType = useNavigationType();
   const backTo = navigationType === "PUSH" ? undefined : "/";
+  // ES-1: the spot title opens the same selector as /trade (Standard tab default).
+  const selector = useEventSelector({ terminal: "standard" });
+  const [eventSheetOpen, setEventSheetOpen] = useState(false);
+  const handleEventSelect = (picked: TradingEvent, tab: ProductTab) => {
+    setEventSheetOpen(false);
+    selector.reset();
+    navigate(terminalPath(tab, picked.id, activeTab === "Charts" ? "charts" : "order"), { replace: tab === "standard" });
+  };
   if (!event) return null;
 
   return (
+    <>
+    <EventSelectorSheet
+      open={eventSheetOpen}
+      onOpenChange={(o) => { setEventSheetOpen(o); if (!o) selector.reset(); }}
+      selector={selector}
+      currentEventId={event.id}
+      onSelect={handleEventSelect}
+    />
     <TradingShell
       activeTab={activeTab}
       basePath={basePath}
@@ -222,6 +236,7 @@ function SpotTradingShell({
       eventInfo={eventInfo}
       optionChips={optionChips}
       backTo={backTo}
+      onTitleClick={() => setEventSheetOpen(true)}
     >
       {typeof children === "function"
         ? (children as (data: TradingContextData) => React.ReactNode)({
@@ -233,6 +248,7 @@ function SpotTradingShell({
           })
         : children}
     </TradingShell>
+    </>
   );
 }
 
@@ -268,22 +284,23 @@ function PerpTradingLayout({
     setSelectedEvent,
     favorites,
     toggleFavorite,
-    searchQuery,
-    setSearchQuery,
-    filteredEvents,
-    showFavoritesOnly,
-    toggleShowFavoritesOnly,
   } = useEvents(eventId);
 
+  // ES-1: one selector for both product lines; Boost is this terminal's tab.
+  const selector = useEventSelector({ terminal: "boost", favorites, toggleFavorite });
   const [eventSheetOpen, setEventSheetOpen] = useState(false);
 
-  // Handle event selection and update URL
-  const handleEventSelect = (event: TradingEvent) => {
-    setSelectedEvent(event);
-    const target = activeTab === "Charts" ? basePath : `${basePath}/order`;
-    navigate(`${target}?event=${event.id}`, { replace: true });
+  // Handle event selection and update URL (a Standard pick jumps to /spot).
+  const handleEventSelect = (event: TradingEvent, tab: ProductTab) => {
     setEventSheetOpen(false);
-    setSearchQuery("");
+    selector.reset();
+    const view = activeTab === "Charts" ? "charts" : "order";
+    if (tab === "boost") {
+      setSelectedEvent(event);
+      navigate(terminalPath("boost", event.id, view), { replace: true });
+    } else {
+      navigate(terminalPath("standard", event.id, view));
+    }
   };
 
   // Loading state
@@ -331,16 +348,10 @@ function PerpTradingLayout({
     <>
       <EventSelectorSheet
         open={eventSheetOpen}
-        onOpenChange={setEventSheetOpen}
-        selectedEvent={selectedEvent}
-        filteredEvents={filteredEvents}
-        favorites={favorites}
-        toggleFavorite={toggleFavorite}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        showFavoritesOnly={showFavoritesOnly}
-        toggleShowFavoritesOnly={toggleShowFavoritesOnly}
-        onEventSelect={handleEventSelect}
+        onOpenChange={(o) => { setEventSheetOpen(o); if (!o) selector.reset(); }}
+        selector={selector}
+        currentEventId={selectedEvent.id}
+        onSelect={handleEventSelect}
       />
 
       <TradingShell

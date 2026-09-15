@@ -5,7 +5,7 @@
 // header instead of hand-copying it (CHK-9). Zero visual change: every class
 // below is the one that shipped; the page now passes its values as props.
 // ============================================================
-import { ArrowLeft, Info, Star } from "lucide-react";
+import { ArrowLeft, ChevronDown, Info, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -34,6 +34,12 @@ export interface ProSpotHeaderProps {
   previewSignedIn?: boolean;
   /** Style-guide only: force the switch state and make it inert. */
   previewActiveSurface?: "lite" | "pro";
+  /** ES-1: title opens the event selector (chevron shown when set). */
+  onTitleClick?: () => void;
+  /** ES-1: selector open state — rotates the chevron. */
+  selectorOpen?: boolean;
+  /** ES-1: the selector dropdown, rendered under the title block. */
+  selector?: React.ReactNode;
 }
 
 const Stat = ({
@@ -75,9 +81,23 @@ export const ProSpotHeader = (p: ProSpotHeaderProps) => (
       >
         {p.ticker}
       </div>
-      <div className="min-w-0">
+      <div className="min-w-0 relative">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-foreground truncate">{p.eventName}</span>
+          {p.onTitleClick ? (
+            <button
+              onClick={p.onTitleClick}
+              className="flex items-center gap-2 min-w-0 hover:bg-muted/30 rounded-lg -ml-1 px-1 transition-colors"
+              aria-expanded={p.selectorOpen}
+              aria-haspopup="listbox"
+            >
+              <span className="font-semibold text-foreground truncate">{p.eventName}</span>
+              <ChevronDown
+                className={cn("w-4 h-4 text-muted-foreground flex-shrink-0 transition-transform", p.selectorOpen && "rotate-180")}
+              />
+            </button>
+          ) : (
+            <span className="font-semibold text-foreground truncate">{p.eventName}</span>
+          )}
           {p.lifecycleBadge &&
             (p.lifecycleBadge.tooltip ? (
               <TooltipProvider>
@@ -163,6 +183,7 @@ export const ProSpotHeader = (p: ProSpotHeaderProps) => (
             </TooltipProvider>
           </div>
         </div>
+        {p.selector}
       </div>
     </div>
 

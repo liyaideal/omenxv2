@@ -36,6 +36,8 @@ export interface DatabaseEvent {
   lifecycle_status: string | null;
   base_price: number | null;
   image_url: string | null;
+  /** ES-1: freeze window start (ISO) — orders blocked from here until end_date. */
+  freeze_time?: string | null;
 }
 
 export interface DatabaseEventOption {

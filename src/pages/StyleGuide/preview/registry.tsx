@@ -45,6 +45,7 @@ const trade = () => import("./tradePreviews");
 const spot = () => import("./spotPreviews");
 const proSpot = () => import("./proSpotPreviews");
 const proTrade = () => import("./proTradePreviews");
+const eventSelector = () => import("./eventSelectorPreviews");
 const share = () => import("./sharePreviews");
 const sportsLive = () => import("./sportsLivePreviews");
 
@@ -304,6 +305,13 @@ export const previewRegistry: Record<string, Loader> = {
   "pro-trade-order-sell-flat": pick(proTrade, "ProTradeOrderSellFlat"),
   "pro-trade-order-leverage": pick(proTrade, "ProTradeOrderLeverage"),
   "pro-trade-order-buy-contracts": pick(proTrade, "ProTradeOrderBuyContracts"),
+
+  /* -------- ES-1 · terminal event selector (both terminals) -------- */
+  "event-selector-standard": pick(eventSelector, "EventSelectorStandard"),
+  "event-selector-boost": pick(eventSelector, "EventSelectorBoost"),
+  "event-selector-favorites-empty": pick(eventSelector, "EventSelectorFavoritesEmpty"),
+  "event-selector-search-empty": pick(eventSelector, "EventSelectorSearchEmpty"),
+  "event-selector-drawer": pick(eventSelector, "EventSelectorDrawer"),
 
   /* -------- Pro /spot mobile（SP-2）-------- */
   "pro-spot-mobile-charts": pick(proSpot, "ProSpotMobileCharts"),

@@ -477,6 +477,8 @@ export const spotHeaderEvent = (t: SpotTerminal): TradingEvent => {
     sourceUrl: event.source_url || "",
     sourceName: event.source_name || "databento",
     resolutionSource: event.source_name || "databento",
+    productLines: (event.product_lines as string[] | null) ?? ["spot"],
+    freezeTime: event.freeze_time ? new Date(event.freeze_time as string) : null,
   };
 };
 

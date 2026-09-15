@@ -55,7 +55,10 @@ import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { calcLiqPrice } from "@/lib/tradingUtils";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
-import { useEvents } from "@/hooks/useEvents";
+import { useEvents, type TradingEvent } from "@/hooks/useEvents";
+import { useEventSelector } from "@/hooks/useEventSelector";
+import { EventSelectorDropdown } from "@/components/EventSelectorPanel";
+import { terminalPath, type ProductTab } from "@/lib/eventSelector";
 import { isSingleMarketBinary, getBinarySideLabels, getYesNoOptions, getBinaryOutcome } from "@/lib/eventUtils";
 import { useEventSideLabelsLookup, resolveBinarySideLabel } from "@/hooks/useEventSideLabelsLookup";
 
@@ -338,13 +341,11 @@ export default function DesktopTrading() {
     selectedOptionData,
     favorites,
     toggleFavorite: toggleFavoriteBase,
-    searchQuery: eventSearchQuery,
-    setSearchQuery: setEventSearchQuery,
-    filteredEvents,
     getEventById,
-    showFavoritesOnly,
-    toggleShowFavoritesOnly,
   } = useEvents(eventId);
+
+  // ES-1: one selector for both product lines; Boost is this terminal's tab.
+  const eventSelector = useEventSelector({ terminal: "boost", favorites, toggleFavorite: toggleFavoriteBase });
   
   const countdown = useCountdown(selectedEvent?.endTime);
 
@@ -353,6 +354,31 @@ export default function DesktopTrading() {
     setSelectedEvent(event);
     // Stay on /trade route (desktop renders here via TradingPage component)
     navigate(`/trade?event=${event.id}`, { replace: true });
+  };
+
+  // ES-1: click outside closes the dropdown (the title button toggles itself).
+  const eventDropdownRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!eventDropdownOpen) return;
+    const reset = eventSelector.reset;
+    const onDown = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest?.('[data-event-dropdown-trigger]')) return;
+      if (eventDropdownRef.current && !eventDropdownRef.current.contains(target)) {
+        setEventDropdownOpen(false);
+        reset();
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [eventDropdownOpen, eventSelector.reset]);
+
+  // ES-1: a pick on the Standard tab jumps to the spot terminal.
+  const handleSelectorPick = (event: TradingEvent, tab: ProductTab) => {
+    setEventDropdownOpen(false);
+    eventSelector.reset();
+    if (tab === "boost") handleEventSelect(event);
+    else navigate(terminalPath("standard", event.id, "charts"));
   };
 
   const toggleFavorite = (eventId: string, e: React.MouseEvent) => {
@@ -902,6 +928,9 @@ export default function DesktopTrading() {
           <button 
             onClick={() => setEventDropdownOpen(!eventDropdownOpen)}
             className="flex items-center gap-2 min-w-0 hover:bg-muted/30 rounded-lg p-1 transition-colors"
+            data-event-dropdown-trigger
+            aria-expanded={eventDropdownOpen}
+            aria-haspopup="listbox"
           >
             <div className="min-w-0">
               <div className="flex items-center gap-2">
@@ -1014,109 +1043,23 @@ export default function DesktopTrading() {
             </Popover>
           )}
 
-          {/* Event Dropdown */}
+          {/* Event Dropdown — ES-1: shared selector, Standard / Boost tabs */}
           {eventDropdownOpen && (
-            <div className="absolute left-0 top-full mt-2 z-50 bg-background border border-border rounded-lg shadow-xl w-[500px]">
-              {/* Search Input */}
-              <div className="p-3 border-b border-border/30">
-                <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2">
-                  <Search className="w-4 h-4 text-muted-foreground" />
-                  <input
-                    type="text"
-                    value={eventSearchQuery}
-                    onChange={(e) => setEventSearchQuery(e.target.value)}
-                    placeholder={showFavoritesOnly ? "Search favorites..." : "Search events..."}
-                    className="flex-1 bg-transparent outline-none text-sm"
-                  />
-                  <button
-                    onClick={toggleShowFavoritesOnly}
-                    className="p-1 rounded hover:bg-muted/50 transition-colors"
-                    title={showFavoritesOnly ? "Show all events" : "Show favorites only"}
-                  >
-                    <Star className={`w-4 h-4 transition-colors ${
-                      showFavoritesOnly 
-                        ? "text-trading-yellow fill-trading-yellow" 
-                        : "text-muted-foreground hover:text-trading-yellow"
-                    }`} />
-                  </button>
-                </div>
-                {showFavoritesOnly && (
-                  <div className="mt-2 text-xs text-trading-yellow flex items-center gap-1">
-                    <Star className="w-3 h-3 fill-trading-yellow" />
-                    Showing favorites only ({filteredEvents.length})
-                  </div>
-                )}
-              </div>
-
-              {/* Events List Header */}
-              <div className="grid grid-cols-3 text-xs text-muted-foreground px-4 py-2 border-b border-border/30">
-                <span>Event</span>
-                <span className="text-right">End Date</span>
-                <span className="text-right">Volume</span>
-              </div>
-
-              {/* Events List */}
-              <div className="max-h-[300px] overflow-y-auto">
-                {filteredEvents.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
-                    {showFavoritesOnly ? (
-                      <>
-                        <Star className="w-10 h-10 text-muted-foreground/30 mb-3" />
-                        <p className="text-sm text-muted-foreground mb-1">No favorites yet</p>
-                        <p className="text-xs text-muted-foreground/70">
-                          Click the star icon next to events to add them to your favorites
-                        </p>
-                        <button
-                          onClick={toggleShowFavoritesOnly}
-                          className="mt-3 text-xs text-primary hover:underline"
-                        >
-                          View all events
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <Search className="w-10 h-10 text-muted-foreground/30 mb-3" />
-                        <p className="text-sm text-muted-foreground">No events found</p>
-                        <p className="text-xs text-muted-foreground/70">
-                          Try a different search term
-                        </p>
-                      </>
-                    )}
-                  </div>
-                ) : (
-                  filteredEvents.map((event) => (
-                    <button
-                      key={event.id}
-                      onClick={() => {
-                        handleEventSelect(event);
-                        setEventDropdownOpen(false);
-                        setEventSearchQuery("");
-                      }}
-                      className={`w-full grid grid-cols-3 items-center px-4 py-3 text-left hover:bg-muted/50 transition-colors ${
-                        selectedEvent.id === event.id ? "bg-muted/30" : ""
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <button 
-                          onClick={(e) => toggleFavorite(event.id, e)}
-                          className="p-1.5 rounded-md hover:bg-muted/50 transition-colors"
-                        >
-                          <Star 
-                            className={`w-4 h-4 transition-colors ${
-                              favorites.has(event.id) 
-                                ? "text-trading-yellow fill-trading-yellow" 
-                                : "text-muted-foreground hover:text-trading-yellow"
-                            }`} 
-                          />
-                        </button>
-                        <span className="text-sm font-medium truncate">{event.name}</span>
-                      </div>
-                      <span className="text-xs text-muted-foreground text-right">{event.ends}</span>
-                      <span className="text-xs font-mono text-right">{event.volume}</span>
-                    </button>
-                  ))
-                )}
-              </div>
+            <div ref={eventDropdownRef}>
+              <EventSelectorDropdown
+                tab={eventSelector.tab}
+                onTabChange={eventSelector.setTab}
+                search={eventSelector.search}
+                onSearchChange={eventSelector.setSearch}
+                showFavoritesOnly={eventSelector.showFavoritesOnly}
+                onToggleFavoritesOnly={eventSelector.toggleShowFavoritesOnly}
+                favorites={eventSelector.favorites}
+                onToggleFavorite={toggleFavorite}
+                events={eventSelector.events}
+                currentEventId={selectedEvent.id}
+                onSelect={handleSelectorPick}
+                now={eventSelector.now}
+              />
             </div>
           )}
         </div>

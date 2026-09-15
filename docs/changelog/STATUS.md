@@ -17,6 +17,17 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-09-15 — 交易终端事件选择器 v1（[文档](../delivery/event-selector-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| ES-A | 选择器顶部 `Standard` / `Boost` 页签，默认 = 当前终端；按 `product_lines` 过滤，两线都开的事件两页签都出现 | ⬜ | `EventSelectorPanel` + `useEventSelector` |
+| ES-B | 跨页签选中跳到对应终端 `/spot?event=` ↔ `/trade?event=`，手机保持 Charts / order 视图；Lite/Pro 偏好不变 | ⬜ | `terminalPath` |
+| ES-C | 现货页标题可点：桌面 `ProSpotHeader` 下拉、手机抽屉（与合约页同一组件） | ⬜ | 此前现货标题不可点 |
+| ES-D | `Ends in` 相对时间：`<1m` / `8m` / `3h 12m` / `2d 14h` / 日期（≥7 天）/ `Frozen`；≤15 分钟红、≤1 小时黄；每分钟刷新 | ⬜ | `formatEndsIn` |
+| ES-E | 手机现货 header `SPOT` 标删除；合约页不加 `Boost` 标 | ⬜ | 终端 header 只留生命周期 badge |
+| ES-F | 字典 ES-D1…ES-D4（桌面）、ES-M1（手机抽屉） | ⬜ | |
+
 ## 2026-09-15 — Pro 下单面板按数量下单 v1（[文档](../delivery/pro-order-units-v1.md)）
 
 | # | 项 | Status | Notes |

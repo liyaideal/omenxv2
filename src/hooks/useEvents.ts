@@ -47,6 +47,10 @@ export interface TradingEvent {
    * 缺省时 UI fallback 到 "Yes" / "No"；底层 option.label 仍是 "Yes"/"No"。
    */
   sideLabels?: { yes: string; no: string };
+  /** ES-1: product lines the event is listed on (`spot` / `futures`); empty = futures only. */
+  productLines?: string[];
+  /** ES-1: freeze window start (orders blocked, page still viewable). */
+  freezeTime?: Date | null;
 }
 
 // Local storage keys
@@ -57,7 +61,7 @@ const STORAGE_KEYS = {
 } as const;
 
 // Helper functions for localStorage
-const getStoredFavorites = (): Set<string> => {
+export const getStoredFavorites = (): Set<string> => {
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.FAVORITES);
     if (stored) {
@@ -72,7 +76,7 @@ const getStoredFavorites = (): Set<string> => {
   return new Set();
 };
 
-const setStoredFavorites = (favorites: Set<string>): void => {
+export const setStoredFavorites = (favorites: Set<string>): void => {
   try {
     localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify([...favorites]));
   } catch (e) {
@@ -121,7 +125,7 @@ const setStoredLastOption = (eventId: string, optionId: string): void => {
 };
 
 // Convert database event to TradingEvent format
-const dbEventToTradingEvent = (event: EventWithOptions): TradingEvent => {
+export const dbEventToTradingEvent = (event: EventWithOptions): TradingEvent => {
   const endDate = event.end_date ? new Date(event.end_date) : new Date();
   const startDate = event.start_date ? new Date(event.start_date) : new Date();
   
@@ -215,6 +219,8 @@ const dbEventToTradingEvent = (event: EventWithOptions): TradingEvent => {
       priceChange24h,
       priceLabel,
       sideLabels,
+      productLines: event.product_lines && event.product_lines.length > 0 ? event.product_lines : ["futures"],
+      freezeTime: event.freeze_time ? new Date(event.freeze_time) : null,
     };
   };
 
