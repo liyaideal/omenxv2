@@ -13,6 +13,7 @@ import type { TradingEvent } from "@/hooks/useEvents";
 import { cn } from "@/lib/utils";
 import {
   formatEndsIn,
+  formatListVolume,
   PRODUCT_TABS,
   PRODUCT_TAB_LABEL,
   type EndsInUrgency,
@@ -168,7 +169,7 @@ export function EventSelectorPanel(p: EventSelectorPanelProps) {
                           {ends.frozen || ends.text === "Ended" ? "" : "Ends in "}
                           <span className={cn("font-mono", URGENCY_CLASS[ends.urgency])}>{ends.text}</span>
                         </span>
-                        <span>Volume: {event.volume}</span>
+                        <span>Volume: {formatListVolume(event.volume)}</span>
                       </div>
                     </div>
                   </button>
@@ -221,7 +222,7 @@ export function EventSelectorPanel(p: EventSelectorPanelProps) {
                   <span className="text-sm font-medium truncate">{event.name}</span>
                 </div>
                 <span className={cn("text-xs font-mono text-right", URGENCY_CLASS[ends.urgency])}>{ends.text}</span>
-                <span className="text-xs font-mono text-right">{event.volume}</span>
+                <span className="text-xs font-mono text-right">{formatListVolume(event.volume)}</span>
               </button>
             );
           })

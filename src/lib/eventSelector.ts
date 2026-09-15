@@ -95,3 +95,18 @@ export const formatEndsIn = (
     frozen: false,
   };
 };
+
+/**
+ * List-column volume. DB rows carry either a display string (`$2.45M`) or a
+ * bare number string (`642100`); the bare form is compacted the same way the
+ * spot header does (`$642K` / `$1.35M`).
+ */
+export const formatListVolume = (raw: string | null | undefined): string => {
+  if (!raw) return "—";
+  const t = raw.trim();
+  if (!/^[0-9]+(\.[0-9]+)?$/.test(t)) return t;
+  const n = parseFloat(t);
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
+  if (n >= 1000) return `$${(n / 1000).toFixed(0)}K`;
+  return `$${n.toFixed(0)}`;
+};

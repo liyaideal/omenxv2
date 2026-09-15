@@ -85,12 +85,13 @@ export const useEventSelector = ({
   const all = useMemo(() => dbEvents.map(dbEventToTradingEvent), [dbEvents]);
 
   const events = useMemo(() => {
-    let result = all.filter((e) => eventOnTab(e.productLines, tab));
+    // Ended rows (end_date passed, not yet resolved) cannot be traded — keep them out of the picker.
+    let result = all.filter((e) => eventOnTab(e.productLines, tab) && e.endTime.getTime() > now);
     if (showFavoritesOnly) result = result.filter((e) => favorites.has(e.id));
     const q = search.trim().toLowerCase();
     if (q) result = result.filter((e) => e.name.toLowerCase().includes(q));
     return result;
-  }, [all, tab, showFavoritesOnly, favorites, search]);
+  }, [all, tab, showFavoritesOnly, favorites, search, now]);
 
   const toggleShowFavoritesOnly = useCallback(() => setShowFavoritesOnly((v) => !v), []);
   const reset = useCallback(() => {
