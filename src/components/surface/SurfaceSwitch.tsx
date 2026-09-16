@@ -6,25 +6,29 @@
  * /trade/order, /spot), and only when signed in — guests get null.
  *
  * Two anatomies:
- * - `header` / `compact` — one segmented control in the desktop page header.
+ * - `header` / `compact` — one segmented control in the desktop page chrome.
+ *   SW-2 (2026-09-16): both sizes render identically and sit as the LAST
+ *   item at the right edge of the chrome on both faces (Lite site header,
+ *   Pro terminal bar), so the pill does not move when the view switches.
+ *   Hovering the control explains the other view in one line.
  * - `dock` — a square ghost button living in the mobile sticky buy bar,
  *   labelled with the DESTINATION view.
  */
 import { ArrowLeftRight } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSurface, type Surface } from "@/contexts/SurfaceContext";
 import { useAuth } from "@/hooks/useAuth";
 
 type Size = "header" | "compact" | "dock" | "float";
 
-const SEG: Record<"header" | "compact", string> = {
-  header: "h-[22px] px-2.5 text-[11px]",
-  compact: "h-[20px] px-2 text-[10.5px]",
+/** One-line explainer for the view you are NOT on (SW-2). */
+export const SURFACE_HINT: Record<Surface, string> = {
+  pro: "Pro: order book, limit orders, candlestick chart",
+  lite: "Lite: simple trading view",
 };
 
-const SHELL: Record<"header" | "compact", string> = {
-  header: "h-7",
-  compact: "h-[26px]",
-};
+const SEG = "h-[20px] px-2.5 text-[11px]";
+const SHELL = "h-[26px]";
 
 export const SurfaceSwitch = ({
   size = "header",
@@ -79,31 +83,40 @@ export const SurfaceSwitch = ({
     { id: "pro" as const, label: "Pro" },
   ];
 
+  const other: Surface = current === "lite" ? "pro" : "lite";
+
   return (
-    <div
-      role="radiogroup"
-      aria-label="Trading view"
-      className={`inline-flex items-center ${SHELL[size]} rounded-lg border border-border bg-muted/50 p-0.5`}
-    >
-      {items.map((it) => {
-        const active = current === it.id;
-        return (
-          <button
-            key={it.id}
-            type="button"
-            role="radio"
-            aria-checked={active}
-            onClick={() => setSurface(it.id)}
-            className={`${SEG[size]} rounded-md font-semibold leading-none transition-colors duration-150 ${
-              active
-                ? "bg-white text-[#0a0b0d]"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {it.label}
-          </button>
-        );
-      })}
-    </div>
+    <Tooltip delayDuration={250}>
+      <TooltipTrigger asChild>
+        <div
+          role="radiogroup"
+          aria-label="Trading view"
+          className={`inline-flex shrink-0 items-center ${SHELL} rounded-lg border border-border bg-muted/50 p-0.5`}
+        >
+          {items.map((it) => {
+            const active = current === it.id;
+            return (
+              <button
+                key={it.id}
+                type="button"
+                role="radio"
+                aria-checked={active}
+                onClick={() => setSurface(it.id)}
+                className={`${SEG} rounded-md font-semibold leading-none transition-colors duration-150 ${
+                  active
+                    ? "bg-white text-[#0a0b0d]"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {it.label}
+              </button>
+            );
+          })}
+        </div>
+      </TooltipTrigger>
+      <TooltipContent side="bottom" align="end" className="text-xs">
+        {SURFACE_HINT[other]}
+      </TooltipContent>
+    </Tooltip>
   );
 };

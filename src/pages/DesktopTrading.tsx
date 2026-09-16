@@ -1075,9 +1075,7 @@ export default function DesktopTrading() {
           </div>
         </div>
         
-        <SurfaceSwitch size="compact" />
-
-        {/* Favorite Star - Far right */}
+        {/* Favorite Star */}
         <button 
           onClick={(e) => toggleFavorite(selectedEvent.id, e)}
           className="p-2 rounded-md hover:bg-muted/50 transition-colors flex-shrink-0"
@@ -1090,6 +1088,9 @@ export default function DesktopTrading() {
             }`} 
           />
         </button>
+
+        {/* SW-2: Lite/Pro pill is the LAST item at the right edge on both faces. */}
+        <SurfaceSwitch size="compact" />
 
       </header>
       </>}

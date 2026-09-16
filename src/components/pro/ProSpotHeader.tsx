@@ -198,12 +198,6 @@ export const ProSpotHeader = (p: ProSpotHeaderProps) => (
       />
     </div>
 
-    <SurfaceSwitch
-      size="compact"
-      previewSignedIn={p.previewSignedIn}
-      previewActive={p.previewActiveSurface}
-    />
-
     <button
       onClick={p.onToggleWatch}
       className="p-2 rounded-md hover:bg-muted/50 transition-colors flex-shrink-0"
@@ -218,5 +212,12 @@ export const ProSpotHeader = (p: ProSpotHeaderProps) => (
         )}
       />
     </button>
+
+    {/* SW-2: Lite/Pro pill is the LAST item at the right edge on both faces. */}
+    <SurfaceSwitch
+      size="compact"
+      previewSignedIn={p.previewSignedIn}
+      previewActive={p.previewActiveSurface}
+    />
   </header>
 );

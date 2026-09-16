@@ -101,3 +101,14 @@
 - 路由无需改动：`/trade`、`/trade/order`、`/spot`、`/spot/order` 四条路由与桌面分叉全部读 `useSurface().surface`，代码中已无直接读 `omenx_surface` 的地方。
 - **Pro 登录门换件**：`ProBottomTabs`、`TradeOrder`、`SpotTradeOrder` 改用站点唯一的 `LiteAuthGate`（新增 `variant="panel"`：`bg-card` 无模糊、72px lynx、单行标题、Sign in / Create account 同排、总高 ≤ 220px）。此前"Pro 面保留 `AuthGateOverlay` 原样不动"的说法作废。`src/components/AuthGateOverlay.tsx` 因 `Wallet` / `PortfolioSettlements` / style-guide 仍在引用而保留，交易面已不再使用。
 - 状态字典：Pro — 交易终端 → `pro-bottom-tabs-guest`（SP-I）。
+
+## 11. SW-2 · 桌面开关归位 + 一句话说明（2026-09-16）
+
+问题：桌面 Lite 的 pill 在全站 header 中段（距右边 ~385px，夹在导航与余额之间），Pro 的 pill 在终端顶栏 ★ 左边（距右边 ~68px）；切换后 pill 横跳 300 多像素，用户感觉"不丝滑"；另外用户只看到 Lite / Pro 两个词，不知道切的是什么。
+
+- **位置**：两面 pill 都改为所在 chrome 的**最右一项**——Lite = 全站 header 右端（头像 / Sign In 之后），Pro = 终端顶栏右端（★ 之后）。切换前后 pill 停在同一角落。不改成挂在下单面板上（讨论过两版，都要么新增行、要么标题栏拥挤）。
+- **尺寸**：`header` / `compact` 两档合一：外壳 `h-[26px]`，段 `h-[20px] px-2.5 text-[11px]`。
+- **说明**：hover 整个控件出 Tooltip，只描述另一面：在 Lite 显示 `Pro: order book, limit orders, candlestick chart`；在 Pro 显示 `Lite: simple trading view`。不用 "one-tap"（与 Polymarket 功能名撞车）。手机 dock 方钮不变（标签已写明去向）。
+- **不做**：面板内"Set your own price · Pro ›"引导——每次进事件都在最重要的位置推一句，对只占少数的限价用户之外的人是打扰；先不做，等有行为数据再议。
+- 涉及文件：`SurfaceSwitch.tsx`（尺寸合一 + Tooltip + `SURFACE_HINT`）、`EventsDesktopHeader.tsx`、`DesktopTrading.tsx`、`ProSpotHeader.tsx`；字典 SS-1/SS-2 说明更新。
+

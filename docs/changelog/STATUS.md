@@ -17,6 +17,14 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-09-16 — Lite / Pro 开关归位 SW-2（[文档 §11](../delivery/surface-switch-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| SW-A | 桌面两面 pill 都为所在 chrome 最右一项（Lite 全站 header 右端 / Pro 终端顶栏右端），尺寸合一 26px | ⬜ | 切换前后不移位 |
+| SW-B | hover Tooltip 说明另一面：`Pro: order book, limit orders, candlestick chart` / `Lite: simple trading view` | ⬜ | 不用 one-tap |
+| SW-C | 字典 SS-1 / SS-2 说明更新 | ⬜ | 手机 dock 不变 |
+
 ## 2026-09-15 — 交易终端事件选择器 v1（[文档](../delivery/event-selector-v1.md)）
 
 | # | 项 | Status | Notes |

@@ -181,8 +181,6 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
 
         {/* Right: Custom Content + Equity + Profile */}
         <div className="flex min-w-0 items-center gap-2 xl:gap-4">
-          {/* Trade-page-only Simple/Pro control (D6'-1). No site-wide mode. */}
-          {isTradeRoute && <SurfaceSwitch size="header" />}
           {rightContent}
 
           {user ? (
@@ -364,6 +362,10 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
               </Button>
             </>
           )}
+          {/* Trade-page-only Lite/Pro control (D6'-1). SW-2: last item at the
+              right edge — same slot as the Pro terminal bar, so the pill does
+              not move when the view switches. Guests render nothing. */}
+          {isTradeRoute && <SurfaceSwitch size="header" />}
         </div>
       </div>
 

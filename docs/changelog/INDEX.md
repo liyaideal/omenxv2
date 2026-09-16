@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-09-16 | [Lite / Pro 开关归位 SW-2（surface-switch-v1 §11）](../delivery/surface-switch-v1.md) | 桌面两面 pill 都改为 chrome 最右一项、尺寸合一，切换时不移位；hover 一行说明另一面；不做面板内引导链接 |
 | 2026-09-15 | [交易终端事件选择器（Standard / Boost）交付说明 v1](../delivery/event-selector-v1.md) | `/trade` 与 `/spot` 桌面标题下拉、手机 `Select Event` 抽屉共用一个选择器；顶部 `Standard`（现货线）/ `Boost`（合约线）页签，按 `product_lines` 过滤，跨页签选中直接跳终端；`Ends in` 改相对时间（`8m` / `3h 12m` / `2d 14h` / 日期 / `Frozen`）；手机现货页 `SPOT` 标删除；字典 ES-D1…D4 / ES-M1 |
 | 2026-09-15 | [Pro 下单面板按数量下单（USDC / Contracts / Shares）交付说明 v1](../delivery/pro-order-units-v1.md) | Buy 页签 Amount 输入框后缀变成单位下拉 `USDC ▾ / Contracts ▾`（现货 `Shares ▾`）；数量模式下 Notional / Cost 按数量 × 价格换算、滑杆按最大可买数量；模式按设备记忆、两终端共用；合约 Buy 摘要新增 `Contracts` 行；字典 SP-B1b / SP-M4b / CT-M6 |
 | 2026-09-14 | [合约 Pro 面板 Buy · Sell（Sell = 减仓 / 平仓）交付说明 v1](../delivery/pro-trade-sell-v1.md) | `/trade` 与 `/trade/order` 面板新增 Buy · Sell 页签 + Market/Limit 下拉；Sell 只减仓 / 平仓当前净额仓位（空仓禁用、永不反向）；市价走持仓表 Close 同一路径，限价生成 reduce-only 挂单（`trades.reduce_only` 新列）；字典 CT-M1…CT-M4；桌面面板未组件化为已知缺口 |

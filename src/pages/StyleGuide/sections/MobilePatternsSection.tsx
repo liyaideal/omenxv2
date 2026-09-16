@@ -12,12 +12,12 @@ const SURFACE_SWITCH_CASES: SectionCase[] = [
   {
     key: "foundations-surface-switch",
     label: "SS-1…SS-5 · 页头分段控件三态 + 贴底方钮两向（SurfaceSwitch）",
-    note: "页头件 role=\"radiogroup\" + aria-label=\"Trading view\"，两段各带 aria-checked；标签固定为 Lite 与 Pro，不得改写。贴底方钮显示的是「要去的那一边」。",
+    note: "页头件 role=\"radiogroup\" + aria-label=\"Trading view\"，两段各带 aria-checked；标签固定为 Lite 与 Pro，不得改写。贴底方钮显示的是「要去的那一边」。SW-2（09-16）：桌面 header / compact 两档尺寸合一（外壳 h-[26px]，段 h-[20px] px-2.5 text-[11px]），且在 Lite 全站 header 与 Pro 终端顶栏都是最右一项，切换时 pill 不移位；hover 出一行说明（`Pro: order book, limit orders, candlestick chart` / `Lite: simple trading view`）。",
     spec: [
       {
         state: "SS-1 Lite 选中（header）",
         when: 'user != null && surface === "lite"',
-        visual: "外壳 h-7 rounded-lg border-border bg-muted/50 p-0.5；选中段 bg-white text-#0a0b0d，未选段 text-muted-foreground",
+        visual: "外壳 h-[26px] rounded-lg border-border bg-muted/50 p-0.5；选中段 bg-white text-#0a0b0d，未选段 text-muted-foreground；hover 整个控件出 Tooltip（说明另一面）",
         source: "SurfaceSwitch surface（SurfaceContext）",
       },
       {
