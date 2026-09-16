@@ -304,6 +304,17 @@ const MULTI_CASES: SectionCase[] = [
 
 const BOOST_CASES: SectionCase[] = [
   {
+    key: "trade-tr27",
+    label: "TR-27 · Lite → Pro 定价入口（LimitOrderHint · SW-2）",
+    note:
+      "CTA 下方、风险提示上方一行 10px 脚注 `Want to place a limit order? Pro ›`。\"limit order\" 是 Lite 禁词的批准例外（通往 Pro 的入口可点名 Pro 概念，同事件页脚 escape hatch）。只给登录且本设备从未渲染过 Pro 的读者看（localStorage `omenx_pro_visited`）；点击 = 切 Pro + 保留事件 + Pro 面板落在 `Limit`（sessionStorage `omenx_open_limit` 一次性）。手机抽屉同位。",
+    spec: [
+      { state: "显示", when: "user != null && !hasVisitedPro()", visual: "脚注行 text-[10px] muted，`Pro ›` 为 text-primary 粗体", source: "LimitOrderHint" },
+      { state: "隐藏", when: "游客 || 本设备渲染过 Pro", visual: "整行不渲染，不占位", source: "hasVisitedPro / useAuth" },
+      { state: "点击", when: "onClick", visual: "桌面：同路由切 Pro；手机：跳 /trade/order?event=；Pro 面板 orderType 初始为 Limit", source: "requestOpenLimit / consumeOpenLimit" },
+    ],
+  },
+  {
     key: "trade-tr24",
     label: "TR-24 · Boost selector 全档态（1× / 2× / 5× / 10× / 20× + Custom 展开）",
     note:

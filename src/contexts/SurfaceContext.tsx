@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
+import { markProVisited } from "@/lib/proHandoff";
 import { clearPortfolioReturnSurface } from "@/lib/portfolioReturn";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -77,6 +78,11 @@ export const SurfaceProvider = ({ children }: { children: ReactNode }) => {
         .then(() => undefined, () => undefined);
     }
   }, [profile?.user_id, hasSession]);
+
+  // SW-2: remember that this device has rendered Pro (hides the Lite doorway).
+  useEffect(() => {
+    if (surface === "pro") markProVisited();
+  }, [surface]);
 
   const toggle = useCallback(() => {
     if (hasSession === false) return;

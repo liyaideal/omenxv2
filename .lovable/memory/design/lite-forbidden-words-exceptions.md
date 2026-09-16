@@ -17,3 +17,14 @@ Byte-identical, keep as is:
 **Why:** Liya approved it explicitly. This line is the doorway *to* Pro, so naming Pro concepts is the point — it tells a Lite user exactly what they get by switching. Rewriting it into Lite vocabulary makes the escape hatch meaningless.
 
 **How to apply:** any copy audit that flags "leverage" / "order book" on `src/pages/lite/LiteEventsPage.tsx` ends there — no change.
+
+## 2. Limit-order doorway inside the Lite order panels (SW-2, 2026-09-16)
+
+Byte-identical, keep as is:
+
+> Want to place a limit order? Pro ›
+
+**Where:** `src/components/lite/shared/LimitOrderHint.tsx`, rendered under the CTA of `LiteContractOrderPanel` and `LiteOrderPanel` (desktop card + mobile drawer).
+
+**Why:** same reasoning as §1 — it is the doorway to Pro, so it names the Pro concept the reader is looking for. Liya rejected the jargon-free rewrite ("Set your own price") because it reads like haggling, not like a resting order. Only shown on devices that have never rendered Pro.
+

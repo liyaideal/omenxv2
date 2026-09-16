@@ -36,6 +36,7 @@ import { supabase } from "@/integrations/supabase/client";
 type Side = "yes" | "no";
 
 import { FUTURES_FEE_RATE, netWin } from "@/services/tradingService";
+import { LimitOrderHint } from "@/components/lite/shared/LimitOrderHint";
 
 const FEE_RATE = FUTURES_FEE_RATE;
 const PRESETS = [10, 25, 50, 100];
@@ -67,6 +68,8 @@ export interface LiteContractOrderPanelProps {
   boostTiers: number[];
   countdownText: string;
   variant: "desktop" | "mobile";
+  /** Style-guide only: force the `Want to place a limit order? Pro ›` line. */
+  previewLimitHint?: boolean;
   /** Consumer label of the side the user currently holds on this event, if
    *  any. When the selected side is the other one, the buy nets it down. */
   heldSideLabel?: string | null;
@@ -129,6 +132,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
     boostTiers,
     countdownText,
     variant,
+    previewLimitHint,
     heldSideLabel,
     heldCurrentValue,
     heldQty,
@@ -627,6 +631,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
           <span className="font-mono text-sm">{money(potentialWinNet)} →</span>
         )}
       </button>
+      <LimitOrderHint line="futures" previewForce={previewLimitHint} />
       <p className="text-center text-[10px] text-muted-foreground/70">
         {amountNum > 0
           ? `Not guaranteed. You can lose your full ${money(amountNum)}.`

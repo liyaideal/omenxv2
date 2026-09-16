@@ -96,6 +96,7 @@ const Panel = ({
   heldQty,
   remainderAutoCloseNone,
   countdown = "02:14:09",
+  limitHint,
 }: {
   side0?: "yes" | "no";
   amount0?: string;
@@ -111,6 +112,8 @@ const Panel = ({
   remainderAutoCloseNone?: boolean;
   /** 生产 formatClockCountdown(ms<=0) 钳为 00:00:00 —— 已过期事件必须传这个。 */
   countdown?: string;
+  /** SW-2：强制显示 `Want to place a limit order? Pro ›` 脚注。 */
+  limitHint?: boolean;
 }) => {
   const isMobile = useIsMobile();
   const [side, setSide] = useState<"yes" | "no">(side0);
@@ -142,6 +145,7 @@ const Panel = ({
         boostTiers={[1, 2, 5, 10, 20]}
         countdownText={countdown}
         variant={isMobile ? "mobile" : "desktop"}
+        previewLimitHint={limitHint}
         heldSideLabel={heldSideLabel}
         heldCurrentValue={heldCurrentValue}
         heldQty={heldQty}
@@ -159,6 +163,8 @@ const Panel = ({
 };
 
 export const Tr5Preview = () => <Panel />;
+/** TR-27 · Lite → Pro 定价入口脚注（SW-2）。 */
+export const Tr27Preview = () => <Panel limitHint />;
 export const Tr6Preview = () => <Panel side0="no" amount0="25" />;
 export const Tr7Preview = () => <Panel amount0="25" boost0={7} boostTrayOpen />;
 export const Tr8Preview = () => (

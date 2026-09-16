@@ -209,9 +209,12 @@ export const Sp14Preview = () => (
 const OrderPanel = ({
   side0 = "yes",
   amount0 = "",
+  limitHint,
 }: {
   side0?: "yes" | "no";
   amount0?: string;
+  /** SW-2：强制显示 `Want to place a limit order? Pro ›` 脚注。 */
+  limitHint?: boolean;
 }) => {
   const isMobile = useIsMobile();
   const [side, setSide] = useState<"yes" | "no">(side0);
@@ -236,11 +239,15 @@ const OrderPanel = ({
         amount={amount}
         onAmountChange={setAmount}
         variant={isMobile ? "mobile" : "desktop"}
+        previewLimitHint={limitHint}
         onRequestAuth={() => undefined}
       />
     </div>
   );
 };
+
+/** SP-19 · Lite → Pro 定价入口脚注（SW-2）。 */
+export const Sp19Preview = () => <OrderPanel limitHint />;
 
 /** SP-10 · Place your order 默认态（零单）。 */
 export const Sp10Preview = () => <OrderPanel />;

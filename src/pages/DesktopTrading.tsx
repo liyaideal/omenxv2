@@ -59,6 +59,7 @@ import { useEvents, type TradingEvent } from "@/hooks/useEvents";
 import { useEventSelector } from "@/hooks/useEventSelector";
 import { EventSelectorDropdown } from "@/components/EventSelectorPanel";
 import { terminalPath, type ProductTab } from "@/lib/eventSelector";
+import { consumeOpenLimit } from "@/lib/proHandoff";
 import { isSingleMarketBinary, getBinarySideLabels, getYesNoOptions, getBinaryOutcome } from "@/lib/eventUtils";
 import { useEventSideLabelsLookup, resolveBinarySideLabel } from "@/hooks/useEventSideLabelsLookup";
 
@@ -214,7 +215,7 @@ export default function DesktopTrading() {
   // Trade form state
   const [side, setSide] = useState<"buy" | "sell">("buy");
   const [leverage, setLeverage] = useState(10);
-  const [orderType, setOrderType] = useState<"Limit" | "Market">("Market");
+  const [orderType, setOrderType] = useState<"Limit" | "Market">(() => (consumeOpenLimit() ? "Limit" : "Market"));
   const [limitPrice, setLimitPrice] = useState("");
   const [amount, setAmount] = useState("0.00");
   const [sliderValue, setSliderValue] = useState([0]);

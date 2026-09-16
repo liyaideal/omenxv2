@@ -47,6 +47,7 @@ import {
 } from "@/lib/usStockSessions";
 import { deriveTickerFromEvent } from "@/components/SpotStatsHeader";
 import type { Tables } from "@/integrations/supabase/types";
+import { consumeOpenLimit } from "@/lib/proHandoff";
 
 export type SpotEventRow = Tables<"events"> & { options: Tables<"event_options">[] };
 
@@ -193,7 +194,7 @@ export function useSpotTerminal() {
   const [notFound, setNotFound] = useState(false);
 
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
-  const [orderType, setOrderType] = useState<"Limit" | "Market">("Market");
+  const [orderType, setOrderType] = useState<"Limit" | "Market">(() => (consumeOpenLimit() ? "Limit" : "Market"));
   const [limitPrice, setLimitPrice] = useState("");
   const [slippageBps, setSlippageBps] = useState(50);
   const [amount, setAmount] = useState("");

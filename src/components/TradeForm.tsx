@@ -17,6 +17,7 @@ import { ClosePositionDialog } from "@/components/positions/ClosePositionDialog"
 
 import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
 import { TradeSubmitButton } from "@/components/trading/TradeSubmitButton";
+import { consumeOpenLimit } from "@/lib/proHandoff";
 
 interface TradeFormProps {
   selectedPrice?: string;
@@ -104,7 +105,9 @@ export const TradeForm = ({
   };
   const [leverage, setLeverage] = useState(10);
   const [leverageOpen, setLeverageOpen] = useState(!!previewLeverageOpen);
-  const [orderType, setOrderType] = useState<ProOrderType>(previewOrderType ?? "Market");
+  const [orderType, setOrderType] = useState<ProOrderType>(
+    () => previewOrderType ?? (consumeOpenLimit() ? "Limit" : "Market"),
+  );
   const [amount, setAmount] = useState("0.00");
   const [sliderValue, setSliderValue] = useState([0]);
   const [tpsl, setTpsl] = useState(false);

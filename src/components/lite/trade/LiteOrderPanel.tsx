@@ -18,6 +18,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { executeSpotTrade, netWin, SPOT_FEE_RATE } from "@/services/tradingService";
 import { WinTooltipBody } from "@/components/lite/shared/WinTooltipBody";
 import { HelpCircle } from "lucide-react";
+import { LimitOrderHint } from "@/components/lite/shared/LimitOrderHint";
 import {
   Tooltip,
   TooltipContent,
@@ -49,6 +50,8 @@ export interface LiteOrderPanelProps {
   onAmountChange: (v: string) => void;
   onFilled?: () => void; // e.g. close drawer, refresh positions
   variant: "desktop" | "mobile"; // framing only
+  /** Style-guide only: force the `Want to place a limit order? Pro ›` line. */
+  previewLimitHint?: boolean;
   onRequestAuth: () => void;
 }
 
@@ -81,6 +84,7 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
     onAmountChange,
     onFilled,
     variant,
+    previewLimitHint,
     onRequestAuth,
   } = props;
 
@@ -335,6 +339,7 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
       <p className="text-center text-[10px] text-muted-foreground">
         Buys instantly at the current price (within 0.5%)
       </p>
+      <LimitOrderHint line="spot" previewForce={previewLimitHint} />
 
       {/* eventId retained for potential deep-linking; keep referenced */}
       <span className="hidden" data-event-id={eventId}>{""}</span>
