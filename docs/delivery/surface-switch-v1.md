@@ -106,7 +106,7 @@
 
 问题：桌面 Lite 的 pill 在全站 header 中段（距右边 ~385px，夹在导航与余额之间），Pro 的 pill 在终端顶栏 ★ 左边（距右边 ~68px）；切换后 pill 横跳 300 多像素，用户感觉"不丝滑"；另外用户只看到 Lite / Pro 两个词，不知道切的是什么。
 
-- **位置**：两面 pill 都改为所在 chrome 的**最右一项**——Lite = 全站 header 右端（头像 / Sign In 之后），Pro = 终端顶栏右端（★ 之后）。切换前后 pill 停在同一角落。不改成挂在下单面板上（讨论过两版，都要么新增行、要么标题栏拥挤）。
+- **位置**：两面 pill 都改为所在 chrome 的**最右一项**——Lite = 全站 header 右端（头像 / Sign In 之后），Pro = 终端顶栏右端（★ 之后）。各自贴各自页面的右边距（Lite 居中容器 24px、Pro 通铺 16px），**不追求同一像素**：两种页面骨架不同，屏幕一宽 Lite 容器居中留白变大，硬凑只在某个宽度下成立。口径是"同一角落、同一尺寸、同一句说明"。不改成挂在下单面板上（讨论过两版，都要么新增行、要么标题栏拥挤）。
 - **尺寸**：`header` / `compact` 两档合一：外壳 `h-[26px]`，段 `h-[20px] px-2.5 text-[11px]`。
 - **说明**：hover 整个控件出 Tooltip，只描述另一面：在 Lite 显示 `Pro: order book, limit orders, candlestick chart`；在 Pro 显示 `Lite: simple trading view`。不用 "one-tap"（与 Polymarket 功能名撞车）。手机 dock 方钮不变（标签已写明去向）。
 - **不做**：面板内"Set your own price · Pro ›"引导——每次进事件都在最重要的位置推一句，对只占少数的限价用户之外的人是打扰；先不做，等有行为数据再议。
