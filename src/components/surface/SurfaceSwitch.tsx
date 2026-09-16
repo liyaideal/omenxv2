@@ -34,8 +34,11 @@ export const SurfaceSwitch = ({
   size = "header",
   previewSignedIn,
   previewActive,
+  className,
 }: {
   size?: Size;
+  /** Extra classes on the desktop segmented control (e.g. right-edge nudge). */
+  className?: string;
   /** style-guide only — force the signed-in branch. */
   previewSignedIn?: boolean;
   /** style-guide only — force which segment reads as active. */
@@ -91,7 +94,7 @@ export const SurfaceSwitch = ({
         <div
           role="radiogroup"
           aria-label="Trading view"
-          className={`inline-flex shrink-0 items-center ${SHELL} rounded-lg border border-border bg-muted/50 p-0.5`}
+          className={`inline-flex shrink-0 items-center ${SHELL} rounded-lg border border-border bg-muted/50 p-0.5 ${className ?? ""}`}
         >
           {items.map((it) => {
             const active = current === it.id;

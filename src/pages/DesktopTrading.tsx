@@ -1090,7 +1090,7 @@ export default function DesktopTrading() {
         </button>
 
         {/* SW-2: Lite/Pro pill is the LAST item at the right edge on both faces. */}
-        <SurfaceSwitch size="compact" />
+        <SurfaceSwitch size="compact" className="mr-2" />
 
       </header>
       </>}
