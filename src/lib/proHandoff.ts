@@ -5,9 +5,9 @@
 // surface. The Lite "Want to place a limit order? Pro ›" line only shows
 // while it is unset: people who already know Pro exists are not nagged.
 //
-// `omenx_open_limit` — one-shot (sessionStorage) flag written by that line and
-// consumed by whichever Pro order panel mounts next, so the user lands with
-// `Limit` already selected instead of hunting for it.
+// `omenx_open_limit` — timestamp (sessionStorage) written by that line; any
+// Pro order panel mounting within 15 s opens on `Limit`, so the user lands
+// with it already selected instead of hunting for it.
 // ============================================================
 
 const VISITED_KEY = "omenx_pro_visited";
@@ -22,15 +22,18 @@ export const hasVisitedPro = (): boolean => {
 };
 
 export const requestOpenLimit = (): void => {
-  try { sessionStorage.setItem(OPEN_LIMIT_KEY, "1"); } catch { /* ignore */ }
+  try { sessionStorage.setItem(OPEN_LIMIT_KEY, String(Date.now())); } catch { /* ignore */ }
 };
 
-/** Read-and-clear. True exactly once after `requestOpenLimit()`. */
+/**
+ * True while a Lite → Pro limit handoff is fresh (15 s window). Not cleared on
+ * read: on mobile the charts view can mount before the order sub-page does,
+ * and both may legitimately ask — a time window beats a one-shot flag here.
+ */
 export const consumeOpenLimit = (): boolean => {
   try {
-    const v = sessionStorage.getItem(OPEN_LIMIT_KEY) === "1";
-    if (v) sessionStorage.removeItem(OPEN_LIMIT_KEY);
-    return v;
+    const ts = Number(sessionStorage.getItem(OPEN_LIMIT_KEY) ?? 0);
+    return ts > 0 && Date.now() - ts < 15_000;
   } catch {
     return false;
   }

@@ -111,7 +111,7 @@
 - **说明**：hover 整个控件出 Tooltip，只描述另一面：在 Lite 显示 `Pro: order book, limit orders, candlestick chart`；在 Pro 显示 `Lite: simple trading view`。不用 "one-tap"（与 Polymarket 功能名撞车）。手机 dock 方钮不变（标签已写明去向）。
 - **定价入口（LimitOrderHint）**：Lite 三种下单面板（合约 Binary / 合约多 market / 现货；桌面卡片与手机抽屉）CTA 下方一行 10px 脚注 `Want to place a limit order? Pro ›`——合约放在风险提示上方，现货放在 `Buys instantly at the current price (within 0.5%)` 之下。位置选在卡片里最安静的一行：扫面板不会撞上，真找"能不能挂单"的人会读到。"limit order" 是 Lite 禁词的批准例外（同事件页脚 escape hatch：通往 Pro 的入口可点名 Pro 概念）。否掉的版本：输入框内右侧（太抢、每次进事件都看到）、`Set your own price`（像讨价还价）、`Buys at the current price.` 前缀（看不懂、两句连着怪）。
 - **只给没进过 Pro 的设备看**：`SurfaceProvider` 在 surface 渲染为 pro 时写 localStorage `omenx_pro_visited`；有此标记或游客 → 整行不渲染。
-- **点击落在能挂单的地方**：写 sessionStorage `omenx_open_limit` → `setSurface("pro")`（手机再跳 `/trade/order` 或 `/spot/order`，带 `?event=`）；`DesktopTrading` / `TradeForm` / `useSpotTerminal` 的 `orderType` 初值 `consumeOpenLimit() ? "Limit" : "Market"`（一次性读清）。事件、market、选边由现有 URL / store 带过去。
+- **点击落在能挂单的地方**：写 sessionStorage `omenx_open_limit` → `setSurface("pro")`（手机再跳 `/trade/order` 或 `/spot/order`，带 `?event=`）；`DesktopTrading` / `TradeForm` / `useSpotTerminal` 的 `orderType` 初值 `consumeOpenLimit() ? "Limit" : "Market"`（15 s 时间窗，不清；手机 charts 视图会先于 order 子页挂载）。事件、market、选边由现有 URL / store 带过去。
 - 字典：TR-27（合约桌面 + 手机）、SP-19（现货桌面 + 手机）。
 - 涉及文件：`SurfaceSwitch.tsx`（尺寸合一 + Tooltip + `SURFACE_HINT`）、`EventsDesktopHeader.tsx`、`DesktopTrading.tsx`、`ProSpotHeader.tsx`；`lib/proHandoff.ts`、`components/lite/shared/LimitOrderHint.tsx`、`LiteContractOrderPanel.tsx`、`LiteOrderPanel.tsx`、`SurfaceContext.tsx`、`TradeForm.tsx`、`useSpotTerminal.ts`；字典 SS-1/SS-2 说明更新 + TR-27 + SP-19。
 
