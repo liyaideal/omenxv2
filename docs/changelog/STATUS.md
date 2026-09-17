@@ -17,6 +17,17 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-09-17 — Pro 终端体育市场行 SL-P（[文档](../delivery/pro-sports-lines-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| SL-A | 比赛类事件 Pro 页头下方市场行替代 Select Option 行：一芯片一组（Winner / Handicap / Total goals · maps / Map n），带 ▾ 的组点开选线 | ⬜ | `MarketLineRow` + `buildFixtureMarkets` |
+| SL-B | 选线 = 终端切到 sibling event，URL `?event=<fixture>&line=<sibling>`；手机 Charts ↔ Trade 保留 line | ⬜ | `fixtureLinePath` |
+| SL-C | 页头标题 = 比赛名，副行写当前市场（`Map handicap · AST −1.5`） | ⬜ | 桌面 + 手机 |
+| SL-D | 深链 `?event=<sibling>` 直接加载并归一 URL，不再 Event Has Ended | ⬜ | `useEvents` 覆盖 sibling |
+| SL-E | `useActiveEvents` 拆 `events` / `siblingEvents`；持仓 / 挂单表 sibling 两侧名正确；Go to this event 走 fixture&line | ⬜ | 列表 / 选择器仍不列 sibling |
+| SL-F | 字典 SL-D1…D3（桌面）+ SL-M1 / M2（手机） | ⬜ | |
+
 ## 2026-09-16 — Lite / Pro 开关归位 SW-2（[文档 §11](../delivery/surface-switch-v1.md)）
 
 | # | 项 | Status | Notes |

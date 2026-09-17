@@ -1,4 +1,4 @@
-import { NON_SIBLING_FILTER, isFixtureSibling } from "@/components/lite/sports/sportsData";
+import { isFixtureSibling } from "@/components/lite/sports/sportsData";
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Json } from "@/integrations/supabase/types";
@@ -38,6 +38,8 @@ export interface DatabaseEvent {
   image_url: string | null;
   /** ES-1: freeze window start (ISO) — orders blocked from here until end_date. */
   freeze_time?: string | null;
+  /** Sports fixture blob (`fixture_id`, `market_type`, `line`, …) — see sportsData.fixtureMeta. */
+  metadata?: Json | null;
 }
 
 export interface DatabaseEventOption {
@@ -56,7 +58,11 @@ export interface EventWithOptions extends DatabaseEvent {
 }
 
 interface UseActiveEventsReturn {
+  /** Active events minus fixture siblings — what every list / picker shows. */
   events: EventWithOptions[];
+  /** SL-P: the fixture siblings (handicap / total / mapwin / method / distance),
+   *  only reachable through their fixture's market row. */
+  siblingEvents: EventWithOptions[];
   isLoading: boolean;
   error: Error | null;
   refetch: () => Promise<void>;
@@ -64,6 +70,7 @@ interface UseActiveEventsReturn {
 
 export const useActiveEvents = (): UseActiveEventsReturn => {
   const [events, setEvents] = useState<EventWithOptions[]>([]);
+  const [siblingEvents, setSiblingEvents] = useState<EventWithOptions[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -72,29 +79,31 @@ export const useActiveEvents = (): UseActiveEventsReturn => {
       setIsLoading(true);
       setError(null);
 
-      // Fetch active events (not resolved)
+      // Fetch active events (not resolved). SL-P: siblings come along in the
+      // same query and are split off below — the Pro terminal needs them for
+      // its market row, while lists keep showing `events` only.
       const { data: eventsData, error: eventsError } = await supabase
         .from("events")
         .select("*")
         .eq("is_resolved", false)
-        // Sports fixture line siblings (handicap / total) are reachable only
-        // through their fixture board, never through generic lists.
-        .or(NON_SIBLING_FILTER)
         .order("end_date", { ascending: true });
 
       if (eventsError) {
         throw eventsError;
       }
 
-      const visibleEvents = (eventsData || []).filter((e) => !isFixtureSibling(e));
+      const allRows = eventsData || [];
+      const visibleEvents = allRows.filter((e) => !isFixtureSibling(e));
+      const siblingRows = allRows.filter((e) => isFixtureSibling(e));
 
-      if (visibleEvents.length === 0) {
+      if (allRows.length === 0) {
         setEvents([]);
+        setSiblingEvents([]);
         return;
       }
 
       // Get event IDs
-      const eventIds = visibleEvents.map((e) => e.id);
+      const eventIds = allRows.map((e) => e.id);
 
       // Fetch options for all events
       const { data: optionsData, error: optionsError } = await supabase
@@ -108,7 +117,7 @@ export const useActiveEvents = (): UseActiveEventsReturn => {
       }
 
       // Combine events with their options
-      const eventsWithOptions: EventWithOptions[] = visibleEvents.map((event) => ({
+      const withOptions = (event: (typeof allRows)[number]): EventWithOptions => ({
         ...event,
         options: (optionsData || [])
           .filter((opt) => opt.event_id === event.id)
@@ -117,9 +126,10 @@ export const useActiveEvents = (): UseActiveEventsReturn => {
             price: Number(opt.price),
             final_price: opt.final_price ? Number(opt.final_price) : null,
           })),
-      }));
+      });
 
-      setEvents(eventsWithOptions);
+      setEvents(visibleEvents.map(withOptions));
+      setSiblingEvents(siblingRows.map(withOptions));
     } catch (err) {
       console.error("Error fetching active events:", err);
       setError(err instanceof Error ? err : new Error("Failed to fetch events"));
@@ -134,6 +144,7 @@ export const useActiveEvents = (): UseActiveEventsReturn => {
 
   return {
     events,
+    siblingEvents,
     isLoading,
     error,
     refetch: fetchEvents,

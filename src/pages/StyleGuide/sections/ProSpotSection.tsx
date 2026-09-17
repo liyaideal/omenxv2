@@ -223,6 +223,55 @@ const EVENT_SELECTOR_CASES: SectionCase[] = [
   },
 ];
 
+const MARKET_ROW_CASES: SectionCase[] = [
+  {
+    key: "pro-market-row-esports",
+    label: "SL-D1 · 比赛市场行 · 电竞（当前在 Map handicap AST −1.5）",
+    note: "比赛类事件（有 fixture 兄弟事件）在 Pro 页头下方用市场行替代 `Select Option` 行：一个芯片 = 一组市场（Winner / Handicap / Total maps ｜ Map 1 / 2 / 3）。芯片 = 组名小字 + 当前线位与 Yes 侧价格；多条线的组右侧 ▾。选中芯片 `--yes` 描边（选择控件，不填充）。选一条线 = 整个终端切到那条 sibling event，URL `?event=<fixture>&line=<sibling>`。词汇沿用 Lite 组名，Spread / Totals / O/U 仍禁。",
+    spec: [
+      { state: "当前组", when: "currentId 属于该组", visual: "border-yes bg-yes/10，芯片显示当前线位 + Yes 价", source: "MarketLineRow · Chip active" },
+      { state: "非当前组（单节）", when: "组只有一节", visual: "显示默认线位（中位线）+ Yes 价，muted", source: "MarketGroup.defaultId" },
+      { state: "非当前组（分段）", when: "Map n 之类多节组", visual: "只显示组名 + ▾", source: "group.sections.length > 1" },
+      { state: "单线组", when: "lineCount === 1（Winner）", visual: "无 ▾，点击直接切到该事件", source: "hasPicker=false" },
+    ],
+  },
+  {
+    key: "pro-market-row-esports-open",
+    label: "SL-D2 · Map 1 下拉展开（分节：Map 1 winner / Rounds handicap / Total rounds）",
+    spec: [
+      { state: "下拉", when: "点带 ▾ 的芯片", visual: "DropdownMenu，每节一个小标 + 行；行 = `AST −3.5 / HER +3.5` + 两侧价格（Yes 青 / No 荧光绿）；当前行 bg-muted", source: "MarketLineRow · LineRows" },
+    ],
+  },
+  {
+    key: "pro-market-row-football",
+    label: "SL-D3 · 足球（Winner / Handicap / Total goals），当前在 Winner",
+    spec: [
+      { state: "足球", when: "fixture 无 segments_key", visual: "三个芯片；Winner 为三选一事件（主 / 平 / 客），芯片显示 Yes 侧（主队）价", source: "buildFixtureMarkets · groupFixtureMarkets" },
+    ],
+  },
+];
+
+const MARKET_ROW_MOBILE_CASES: SectionCase[] = [
+  {
+    key: "pro-market-row-mobile",
+    label: "SL-M1 · 手机市场行（375，横向滚动）",
+    note: "贴在 header 倒计时之下，Charts 与 Trade 两个子页同一根；倒计时前写当前市场（`Map handicap · AST −1.5 · Ends in`）。",
+    spec: [
+      { state: "横滚", when: "isMobile", visual: "overflow-x-auto，芯片 h-8；无 `MARKETS` 小标", source: "MarketLineRow variant=mobile" },
+    ],
+  },
+];
+
+const MARKET_ROW_DRAWER_CASES: SectionCase[] = [
+  {
+    key: "pro-market-row-mobile-drawer",
+    label: "SL-M2 · 手机线位抽屉（Handicap 组）",
+    spec: [
+      { state: "抽屉", when: "点带 ▾ 的芯片", visual: "MobileDrawer，标题 = 组名；行卡片 = 线位 + 两侧价；当前行 bg-primary/10 描边；选中即关闭并切事件", source: "MarketLineRow · MobileDrawer" },
+    ],
+  },
+];
+
 const EVENT_SELECTOR_MOBILE_CASES: SectionCase[] = [
   {
     key: "event-selector-drawer",
@@ -510,6 +559,30 @@ export const ProSpotSection = (_: Props) => (
       description="桌面 /trade 与 /spot 的标题下拉共用同一组件。页签 = 产品线；`Ends in` 用相对时间，快轮事件才看得出哪局马上结束。"
     >
       <SectionFrame cases={EVENT_SELECTOR_CASES} device="desktop" minHeight={520} />
+    </SectionWrapper>
+
+    <SectionWrapper
+      id="pro-market-row"
+      title="Pro /trade · 比赛市场行（SL-P · Winner / Handicap / Total · Map n）"
+      description="体育比赛在 Pro 终端的让分 / 大小球 / 单图市场入口。Lite 的 fixture board 在 Pro 里压成一根横向市场行；选线 = 切 sibling event。"
+    >
+      <SectionFrame cases={MARKET_ROW_CASES} device="desktop" minHeight={360} />
+    </SectionWrapper>
+
+    <SectionWrapper
+      id="pro-market-row-mobile"
+      title="Pro /trade · 比赛市场行 · 手机（SL-M1）"
+      description="header 之下横向滚动的同一根行。"
+    >
+      <SectionFrame cases={MARKET_ROW_MOBILE_CASES} device="mobile" minHeight={160} />
+    </SectionWrapper>
+
+    <SectionWrapper
+      id="pro-market-row-mobile-drawer"
+      title="Pro /trade · 比赛市场行 · 线位抽屉（SL-M2）"
+      description="viewport 级 position:fixed 组件独占一帧。"
+    >
+      <SectionFrame cases={MARKET_ROW_DRAWER_CASES} device="mobile" minHeight={560} />
     </SectionWrapper>
 
     <SectionWrapper

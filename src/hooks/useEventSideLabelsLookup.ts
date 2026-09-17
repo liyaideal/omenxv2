@@ -18,14 +18,15 @@ import { isSingleMarketBinary, parseSideLabels } from "@/lib/eventUtils";
  * re-fetching its event.
  */
 export function useEventSideLabelsLookup() {
-  const { events } = useActiveEvents();
+  const { events, siblingEvents } = useActiveEvents();
 
   return useMemo(() => {
     const byName = new Map<
       string,
       { isBinary: boolean; labels: { yes: string; no: string } | undefined }
     >();
-    for (const ev of events) {
+    // SL-P: fixture siblings (AST −1.5 / HER +1.5, Over / Under …) resolve too.
+    for (const ev of [...events, ...siblingEvents]) {
       const isBinary = isSingleMarketBinary(ev.options);
       byName.set(ev.name, {
         isBinary,
@@ -36,7 +37,7 @@ export function useEventSideLabelsLookup() {
     return (eventName: string): { isBinary: boolean; labels: { yes: string; no: string } | undefined } => {
       return byName.get(eventName) ?? { isBinary: false, labels: undefined };
     };
-  }, [events]);
+  }, [events, siblingEvents]);
 }
 
 /**

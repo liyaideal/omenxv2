@@ -46,6 +46,7 @@ const spot = () => import("./spotPreviews");
 const proSpot = () => import("./proSpotPreviews");
 const proTrade = () => import("./proTradePreviews");
 const eventSelector = () => import("./eventSelectorPreviews");
+const marketRow = () => import("./marketRowPreviews");
 const share = () => import("./sharePreviews");
 const sportsLive = () => import("./sportsLivePreviews");
 
@@ -314,6 +315,13 @@ export const previewRegistry: Record<string, Loader> = {
   "event-selector-favorites-empty": pick(eventSelector, "EventSelectorFavoritesEmpty"),
   "event-selector-search-empty": pick(eventSelector, "EventSelectorSearchEmpty"),
   "event-selector-drawer": pick(eventSelector, "EventSelectorDrawer"),
+
+  /* -------- SL-P · fixture market row (Pro terminal) -------- */
+  "pro-market-row-esports": pick(marketRow, "MarketRowEsports"),
+  "pro-market-row-esports-open": pick(marketRow, "MarketRowEsportsOpen"),
+  "pro-market-row-football": pick(marketRow, "MarketRowFootball"),
+  "pro-market-row-mobile": pick(marketRow, "MarketRowMobile"),
+  "pro-market-row-mobile-drawer": pick(marketRow, "MarketRowMobileDrawer"),
 
   /* -------- Pro /spot mobile（SP-2）-------- */
   "pro-spot-mobile-charts": pick(proSpot, "ProSpotMobileCharts"),

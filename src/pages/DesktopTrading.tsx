@@ -60,6 +60,8 @@ import { useEventSelector } from "@/hooks/useEventSelector";
 import { EventSelectorDropdown } from "@/components/EventSelectorPanel";
 import { terminalPath, type ProductTab } from "@/lib/eventSelector";
 import { consumeOpenLimit } from "@/lib/proHandoff";
+import { buildFixtureMarkets, fixtureIdOf, fixtureLinePath } from "@/lib/fixtureMarkets";
+import { MarketLineRow } from "@/components/pro/MarketLineRow";
 import { isSingleMarketBinary, getBinarySideLabels, getYesNoOptions, getBinaryOutcome } from "@/lib/eventUtils";
 import { useEventSideLabelsLookup, resolveBinarySideLabel } from "@/hooks/useEventSideLabelsLookup";
 
@@ -175,7 +177,10 @@ export default function DesktopTrading() {
   const location = useLocation();
   const locationState = location.state as LocationState | null;
   const [searchParams] = useSearchParams();
-  const eventId = searchParams.get("event") || undefined;
+  // SL-P: `?event=<fixture>&line=<sibling>` — the line, when present, is the event the terminal trades.
+  const fixtureParam = searchParams.get("event") || undefined;
+  const lineParam = searchParams.get("line") || undefined;
+  const eventId = lineParam ?? fixtureParam;
   
   // Show back button only if user navigated here (PUSH), not if they used bottom nav or direct URL
   const showBackButton = navigationType === "PUSH";
@@ -343,7 +348,32 @@ export default function DesktopTrading() {
     favorites,
     toggleFavorite: toggleFavoriteBase,
     getEventById,
+    siblings,
+    getOptionsForEvent,
   } = useEvents(eventId);
+
+  // SL-P: fixture market row (Winner / Handicap / Total … · Map n) for sports fixtures.
+  const fixtureMarkets = useMemo(
+    () => buildFixtureMarkets(selectedEvent, events, siblings, getOptionsForEvent),
+    [selectedEvent, events, siblings, getOptionsForEvent],
+  );
+  const currentLine = selectedEvent ? fixtureMarkets?.byId.get(selectedEvent.id)?.line ?? null : null;
+  // Normalise the URL: a sibling addressed directly, or without its fixture, becomes `?event=<fixture>&line=<id>`.
+  useEffect(() => {
+    if (!selectedEvent || !fixtureMarkets) return;
+    const fx = fixtureMarkets.fixture.id;
+    const isSib = selectedEvent.id !== fx;
+    const wantLine = isSib ? selectedEvent.id : undefined;
+    if (fixtureParam !== fx || (lineParam ?? undefined) !== wantLine) {
+      navigate(fixtureLinePath("/trade", fx, selectedEvent.id), { replace: true });
+    }
+  }, [selectedEvent, fixtureMarkets, fixtureParam, lineParam, navigate]);
+  const handleLineSelect = (lineId: string) => {
+    if (!fixtureMarkets) return;
+    const target = getEventById(lineId);
+    if (target) setSelectedEvent(target);
+    navigate(fixtureLinePath("/trade", fixtureMarkets.fixture.id, lineId), { replace: true });
+  };
 
   // ES-1: one selector for both product lines; Boost is this terminal's tab.
   const eventSelector = useEventSelector({ terminal: "boost", favorites, toggleFavorite: toggleFavoriteBase });
@@ -373,6 +403,14 @@ export default function DesktopTrading() {
     document.addEventListener("mousedown", onDown);
     return () => document.removeEventListener("mousedown", onDown);
   }, [eventDropdownOpen, eventSelector.reset]);
+
+  // SL-P: open any event, routing fixture siblings through `?event=<fixture>&line=<id>`.
+  const goToEvent = (event: TradingEvent) => {
+    const fx = fixtureIdOf(event);
+    setSelectedEvent(event);
+    if (fx && fx !== event.id) navigate(fixtureLinePath("/trade", fx, event.id), { replace: true });
+    else navigate(`/trade?event=${event.id}`, { replace: true });
+  };
 
   // ES-1: a pick on the Standard tab jumps to the spot terminal.
   const handleSelectorPick = (event: TradingEvent, tab: ProductTab) => {
@@ -936,12 +974,18 @@ export default function DesktopTrading() {
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-foreground truncate">
-                  {selectedEvent.name}
+                  {fixtureMarkets ? fixtureMarkets.fixture.name : selectedEvent.name}
                 </span>
                 <ChevronDown className={`w-4 h-4 text-muted-foreground flex-shrink-0 transition-transform ${eventDropdownOpen ? 'rotate-180' : ''}`} />
               </div>
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
                 <span className="w-1.5 h-1.5 bg-trading-red rounded-full animate-pulse" />
+                {currentLine && (
+                  <>
+                    <span className="text-foreground/80">{currentLine.caption}</span>
+                    <span>·</span>
+                  </>
+                )}
                 <span>Ends in</span>
                 <span className="text-trading-red font-mono font-medium">{countdown}</span>
               </div>
@@ -1096,7 +1140,14 @@ export default function DesktopTrading() {
       </header>
       </>}
       subHeader={
-        hasMarketChips && (
+        fixtureMarkets ? (
+          <MarketLineRow
+            markets={fixtureMarkets}
+            currentId={selectedEvent.id}
+            onSelect={handleLineSelect}
+            variant="desktop"
+          />
+        ) : hasMarketChips && (
         <div className="flex items-center gap-2 px-4 py-2 border-b border-border/30 overflow-x-auto scrollbar-hide">
           <span className="text-xs text-muted-foreground flex-shrink-0">Select Option:</span>
           {options.map((option) => (
@@ -1234,9 +1285,9 @@ export default function DesktopTrading() {
                                 <p className="text-sm font-medium mb-2">{order.event}</p>
                                 <button 
                                   onClick={() => {
-                                    const event = events.find(e => e.name === order.event);
+                                    const event = events.find(e => e.name === order.event) ?? siblings.find(e => e.name === order.event);
                                     if (event) {
-                                      handleEventSelect(event);
+                                      goToEvent(event);
                                       setEventDropdownOpen(false);
                                     }
                                   }}

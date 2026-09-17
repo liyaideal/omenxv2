@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useNavigate, useSearchParams, useNavigationType } from "react-router-dom";
 import { Loader2, Link, Star, Share2 } from "lucide-react";
 import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
@@ -9,6 +9,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { useEvents, TradingEvent, EventOption } from "@/hooks/useEvents";
 import { useEventSelector } from "@/hooks/useEventSelector";
 import { terminalPath, type ProductTab } from "@/lib/eventSelector";
+import { buildFixtureMarkets, fixtureLinePath } from "@/lib/fixtureMarkets";
+import { MarketLineRow } from "@/components/pro/MarketLineRow";
 import { isSingleMarketBinary } from "@/lib/eventUtils";
 import { MobileRiskIndicator } from "@/components/MobileRiskIndicator";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
@@ -105,11 +107,12 @@ function TradingShell({
 
   const handleTabChange = (tab: "Charts" | "Trade") => {
     if (tab === activeTab) return;
-    const path =
-      tab === "Charts"
-        ? `${basePath}?event=${activeEvent.id}`
-        : `${basePath}/order?event=${activeEvent.id}`;
-    navigate(path);
+    // SL-P: keep `?event=<fixture>&line=<sibling>` intact across Charts ↔ Trade.
+    const search = new URLSearchParams(window.location.search);
+    const line = search.get("line");
+    const fixture = line ? search.get("event") ?? activeEvent.id : activeEvent.id;
+    const qs = line ? `?event=${fixture}&line=${line}` : `?event=${activeEvent.id}`;
+    navigate(tab === "Charts" ? `${basePath}${qs}` : `${basePath}/order${qs}`);
   };
 
   return (
@@ -266,7 +269,10 @@ function PerpTradingLayout({
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const [searchParams] = useSearchParams();
-  const eventId = searchParams.get("event") || undefined;
+  // SL-P: `?event=<fixture>&line=<sibling>` — the line, when present, is the event the terminal trades.
+  const fixtureParam = searchParams.get("event") || undefined;
+  const lineParam = searchParams.get("line") || undefined;
+  const eventId = lineParam ?? fixtureParam;
   const { user } = useAuth();
 
   // Determine back navigation behavior:
@@ -284,7 +290,33 @@ function PerpTradingLayout({
     setSelectedEvent,
     favorites,
     toggleFavorite,
+    events,
+    siblings,
+    getEventById,
+    getOptionsForEvent,
   } = useEvents(eventId);
+
+  // SL-P: fixture market row for sports fixtures (same model as desktop).
+  const fixtureMarkets = useMemo(
+    () => buildFixtureMarkets(selectedEvent, events, siblings, getOptionsForEvent),
+    [selectedEvent, events, siblings, getOptionsForEvent],
+  );
+  const currentLine = selectedEvent ? fixtureMarkets?.byId.get(selectedEvent.id)?.line ?? null : null;
+  const orderBase = activeTab === "Charts" ? "/trade" : "/trade/order";
+  useEffect(() => {
+    if (!selectedEvent || !fixtureMarkets) return;
+    const fx = fixtureMarkets.fixture.id;
+    const wantLine = selectedEvent.id !== fx ? selectedEvent.id : undefined;
+    if (fixtureParam !== fx || (lineParam ?? undefined) !== wantLine) {
+      navigate(fixtureLinePath(orderBase, fx, selectedEvent.id), { replace: true });
+    }
+  }, [selectedEvent, fixtureMarkets, fixtureParam, lineParam, navigate, orderBase]);
+  const handleLineSelect = (lineId: string) => {
+    if (!fixtureMarkets) return;
+    const target = getEventById(lineId);
+    if (target) setSelectedEvent(target);
+    navigate(fixtureLinePath(orderBase, fixtureMarkets.fixture.id, lineId), { replace: true });
+  };
 
   // ES-1: one selector for both product lines; Boost is this terminal's tab.
   const selector = useEventSelector({ terminal: "boost", favorites, toggleFavorite });
@@ -358,9 +390,9 @@ function PerpTradingLayout({
         activeTab={activeTab}
         basePath={basePath}
         isSpot={false}
-        activeEvent={selectedEvent}
+        activeEvent={fixtureMarkets ? { ...selectedEvent, name: fixtureMarkets.fixture.name } : selectedEvent}
         endTime={endTimeOverride ?? selectedEvent.endTime}
-        countdownLabel={countdownLabel}
+        countdownLabel={currentLine ? `${currentLine.caption} · ${countdownLabel ?? "Ends in"}` : countdownLabel}
         countdownUrgency={countdownUrgency}
         statsExtra={statsExtra}
         eventInfo={eventInfo}
@@ -390,6 +422,15 @@ function PerpTradingLayout({
           )
         }
         optionChips={
+          fixtureMarkets ? (
+            // SL-P: sports fixture → market row (Winner / Handicap / Total … · Map n)
+            <MarketLineRow
+              markets={fixtureMarkets}
+              currentId={selectedEvent.id}
+              onSelect={handleLineSelect}
+              variant="mobile"
+            />
+          ) :
           // 市场 chip 行 = 多 market 专属；binary（含队名/盘口/Up-Down 别名）不渲染
           !isSingleMarketBinary(options, selectedEvent) ? (
             <OptionChips
@@ -412,6 +453,7 @@ function PerpTradingLayout({
 // Hook to access trading context from child pages
 export function useMobileTradingContext() {
   const [searchParams] = useSearchParams();
-  const eventId = searchParams.get("event") || undefined;
+  // SL-P: a fixture line is the traded event.
+  const eventId = searchParams.get("line") || searchParams.get("event") || undefined;
   return useEvents(eventId);
 }

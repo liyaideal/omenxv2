@@ -51,6 +51,8 @@ export interface TradingEvent {
   productLines?: string[];
   /** ES-1: freeze window start (orders blocked, page still viewable). */
   freezeTime?: Date | null;
+  /** SL-P: raw sports metadata (`fixture_id`, `market_type`, `line`, …). */
+  metadata?: unknown;
 }
 
 // Local storage keys
@@ -221,6 +223,7 @@ export const dbEventToTradingEvent = (event: EventWithOptions): TradingEvent => 
       sideLabels,
       productLines: event.product_lines && event.product_lines.length > 0 ? event.product_lines : ["futures"],
       freezeTime: event.freeze_time ? new Date(event.freeze_time) : null,
+      metadata: event.metadata ?? null,
     };
   };
 
@@ -238,8 +241,10 @@ interface UseEventsReturn {
   // Loading state
   isLoading: boolean;
   
-  // Event list
+  // Event list (fixture siblings excluded — lists and pickers use this)
   events: TradingEvent[];
+  /** SL-P: fixture siblings (handicap / total / …), addressable by id but never listed. */
+  siblings: TradingEvent[];
   
   // Selected event state
   selectedEvent: TradingEvent | null;
@@ -274,7 +279,7 @@ interface UseEventsReturn {
 
 export const useEvents = (initialEventId?: string): UseEventsReturn => {
   // Fetch events from database
-  const { events: dbEvents, isLoading } = useActiveEvents();
+  const { events: dbEvents, siblingEvents: dbSiblings, isLoading } = useActiveEvents();
   const pricesContext = useRealtimePricesOptional();
   
   // State
@@ -291,32 +296,36 @@ export const useEvents = (initialEventId?: string): UseEventsReturn => {
   const tradingEvents = useMemo(() => {
     return dbEvents.map(dbEventToTradingEvent);
   }, [dbEvents]);
+  const siblings = useMemo(() => dbSiblings.map(dbEventToTradingEvent), [dbSiblings]);
 
-  // Build options map with live prices
+  // Build options map with live prices (siblings included — the Pro market row
+  // trades them like any other event)
   const optionsMap = useMemo(() => {
     const map: Record<string, EventOption[]> = {};
-    dbEvents.forEach(event => {
+    [...dbEvents, ...dbSiblings].forEach(event => {
       map[event.id] = event.options.map(opt => {
         const livePrice = pricesContext?.getPrice(opt.id);
         return dbOptionToEventOption(opt, livePrice);
       });
     });
     return map;
-  }, [dbEvents, pricesContext]);
+  }, [dbEvents, dbSiblings, pricesContext]);
 
-  // Get selected event
+  // Get selected event (a sibling id resolves too — SL-P)
   const selectedEvent = useMemo(() => {
     if (!selectedEventId || tradingEvents.length === 0) {
       return tradingEvents[0] || null;
     }
-    const found = tradingEvents.find(e => e.id === selectedEventId);
+    const found =
+      tradingEvents.find(e => e.id === selectedEventId) ??
+      siblings.find(e => e.id === selectedEventId);
     // If an explicit ID was requested (e.g. from URL) but not found, return null
     // so the UI can show an "expired event" fallback
     if (!found && initialEventId) {
       return null;
     }
     return found || tradingEvents[0] || null;
-  }, [selectedEventId, tradingEvents, initialEventId]);
+  }, [selectedEventId, tradingEvents, siblings, initialEventId]);
 
   // Get options for selected event
   const options = useMemo(() => {
@@ -412,10 +421,10 @@ export const useEvents = (initialEventId?: string): UseEventsReturn => {
     return favorites.has(eventId);
   }, [favorites]);
 
-  // Get event by ID
+  // Get event by ID (siblings included)
   const getEventById = useCallback((eventId: string) => {
-    return tradingEvents.find(e => e.id === eventId);
-  }, [tradingEvents]);
+    return tradingEvents.find(e => e.id === eventId) ?? siblings.find(e => e.id === eventId);
+  }, [tradingEvents, siblings]);
 
   // Get options for any event
   const getOptionsForEvent = useCallback((eventId: string) => {
@@ -435,6 +444,7 @@ export const useEvents = (initialEventId?: string): UseEventsReturn => {
   return {
     isLoading,
     events: tradingEvents,
+    siblings,
     selectedEvent,
     setSelectedEvent: handleSetSelectedEvent,
     selectEventById,
