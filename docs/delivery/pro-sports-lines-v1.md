@@ -36,6 +36,7 @@
 - UI：`src/components/pro/MarketLineRow.tsx`（`variant="desktop" | "mobile"`，`previewOpenGroup` 字典用；Chip 必须 forwardRef——DropdownMenuTrigger asChild 靠它定位）。
 - 挂载：`DesktopTrading.tsx`（`eventId = line ?? event`、`fixtureMarkets`、URL 归一 effect、`handleLineSelect`、`goToEvent`、subHeader 分支、页头标题 / 副行）；`MobileTradingLayout.tsx`（`PerpTradingLayout` 同上、`optionChips` 分支、`countdownLabel`、`useMobileTradingContext` 读 `line`、Charts ↔ Trade 保留 `line`）。
 - 类型：`DatabaseEvent.metadata`、`TradingEvent.metadata`。
+- 别名 binary 的当前 option 固定在 Yes 端：`eventUtils.resolveYesSideOption`（字面 yes → `side_labels.yes` 别名 → id 以 `-yes` 结尾 → 第一个 option），`useEvents` 在事件切换时调用。原因：Pro 终端对队名/盘口这类别名事件没有 option 选择器，Yes/No 切换 = 买/卖当前 option；而 sibling 的 options 按 id 排序 `-no` 在 `-yes` 前，之前默认选到 No 端，两端价格和 CTA 都反了。字面 Yes/No 事件不受影响（仍可选 No 端）。
 
 ## 4. 已知边界
 

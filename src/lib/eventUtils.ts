@@ -85,6 +85,29 @@ export function parseSideLabels(raw: unknown): { yes: string; no: string } | und
 }
 
 /**
+ * 别名 binary 事件（option label 是队名/盘口而非字面 Yes/No）的 Yes 端 option。
+ * 终端的 Yes/No 切换 = 买/卖当前 option，所以当前 option 必须固定在 Yes 端，
+ * 否则两端价格与 CTA 会反（SL-P：sibling 的 options 按 id 排序时 `-no` 排在
+ * `-yes` 前面，默认就选到了 No 端）。
+ * 解析顺序：字面 yes → side_labels.yes 别名 → id 以 `-yes` 结尾 → 第一个 option。
+ * 非 binary 事件返回 undefined。
+ */
+export function resolveYesSideOption<T extends { id: string; label: string }>(
+  options: T[],
+  event?: { sideLabels?: { yes: string; no: string }; side_labels?: unknown; name?: string } | null,
+): T | undefined {
+  if (!isSingleMarketBinary(options, event)) return undefined;
+  const literal = options.find((o) => norm(o.label) === "yes");
+  if (literal) return literal;
+  const sl = event?.sideLabels ?? parseSideLabels((event as { side_labels?: unknown } | null | undefined)?.side_labels);
+  if (sl) {
+    const alias = options.find((o) => norm(o.label) === norm(sl.yes));
+    if (alias) return alias;
+  }
+  return options.find((o) => /-yes$/i.test(o.id)) ?? options[0];
+}
+
+/**
  * 把一个 option label（"Yes" / "No" / 多 outcome 名）转换成展示文案。
  * - 多 outcome 事件（options 不是 binary）→ 原 label
  * - binary + 无 sideLabels → 仍是 "Yes" / "No"

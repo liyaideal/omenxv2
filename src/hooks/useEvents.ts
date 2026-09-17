@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { useActiveEvents, EventWithOptions, DatabaseEventOption } from "@/hooks/useActiveEvents";
 import { useRealtimePricesOptional } from "@/contexts/RealtimePricesContext";
+import { resolveYesSideOption } from "@/lib/eventUtils";
 
 // Legacy types for compatibility
 export interface EventOption {
@@ -336,6 +337,15 @@ export const useEvents = (initialEventId?: string): UseEventsReturn => {
   // Initialize selected option when event changes or options load
   useEffect(() => {
     if (selectedEvent && options.length > 0) {
+      // Alias binary (team names / lines instead of literal Yes/No): the terminal
+      // has no option picker for these, its Yes/No toggle is buy/sell of the
+      // current option — so the current option is always the Yes side.
+      const isLiteralYesNo = options.some(o => o.label.trim().toLowerCase() === "yes");
+      const yesSide = isLiteralYesNo ? undefined : resolveYesSideOption(options, selectedEvent);
+      if (yesSide) {
+        setSelectedOptionState(yesSide.id);
+        return;
+      }
       const storedOption = getStoredLastOption(selectedEvent.id);
       const validOption = options.find(o => o.id === storedOption);
       if (validOption) {
