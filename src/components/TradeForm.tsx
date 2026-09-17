@@ -412,8 +412,9 @@ export const TradeForm = ({
           {(() => {
             const yesActive = binaryMode ? binaryMode.isYesSelected : side === "buy";
             const noActive = binaryMode ? !binaryMode.isYesSelected : side === "sell";
-            const yesLabel = binaryMode?.yesLabel ?? "Yes";
-            const noLabel = binaryMode?.noLabel ?? "No";
+            // SL-P2: alias binary (team names / lines) shows its side labels here too, like desktop.
+            const yesLabel = binaryMode?.yesLabel ?? sideLabels?.yes ?? "Yes";
+            const noLabel = binaryMode?.noLabel ?? sideLabels?.no ?? "No";
             const sellMode = intent === "sell";
             const yesDisabled = sellMode && (sellDisabledSide === "yes" || sellDisabledSide === "both");
             const noDisabled = sellMode && (sellDisabledSide === "no" || sellDisabledSide === "both");

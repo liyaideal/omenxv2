@@ -159,7 +159,7 @@ function TradeOrderContent({ selectedEvent, selectedOptionData, options, setSele
                 intent={intent}
                 onIntentChange={setIntent}
                 binaryMode={binaryMode}
-                sideLabels={isBinary ? labels : null}
+                sideLabels={isBinary || isSingleMarketBinary(options, selectedEvent) ? labels : null}
               />
             );
           })()}

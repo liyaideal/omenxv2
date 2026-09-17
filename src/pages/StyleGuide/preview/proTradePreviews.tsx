@@ -135,6 +135,28 @@ export const ProTradeOrderLeverage = () => (
   </Phone>
 );
 
+/** CT-M7 · alias binary (team names / lines) — no binaryMode; the Yes/No buttons read the side labels like desktop. */
+export const ProTradeOrderAlias = () => {
+  const [side, setSide] = useState<"buy" | "sell">("buy");
+  const [intent, setIntent] = useState<"buy" | "sell">("buy");
+  return (
+    <Phone>
+      <TradeForm
+        selectedPrice="0.2196"
+        eventName="Astralis vs Heroic"
+        optionLabel="AST −3.5"
+        side={side}
+        onSideChange={setSide}
+        intent={intent}
+        onIntentChange={setIntent}
+        sideLabels={{ yes: "AST −3.5", no: "HER +3.5" }}
+        previewPositions={[]}
+        previewBalance={500}
+      />
+    </Phone>
+  );
+};
+
 /** CT-M4 · Sell · flat — nothing held on either side: both sides disabled. */
 export const ProTradeOrderSellFlat = () => (
   <Phone>

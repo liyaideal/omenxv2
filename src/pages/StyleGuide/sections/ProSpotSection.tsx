@@ -310,6 +310,14 @@ const TRADE_ORDER_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "pro-trade-order-alias",
+    label: "CT-M7 · 别名 binary（队名 / 盘口）· 两钮读 side_labels（SL-P2）",
+    note: "队名 / 让球 / 大小球这类事件 option 不是字面 Yes/No，面板走 side 模式（Yes 钮 = 买当前 option，No 钮 = 卖）。两钮文案与桌面一致取 side_labels；CTA `Buy AST −3.5` / `Buy HER +3.5`。",
+    spec: [
+      { state: "别名 binary", when: "isSingleMarketBinary(options, event) 且 label 非字面 Yes/No", visual: "两钮 `AST −3.5 0.2196` / `HER +3.5 0.7804`（价格 = 当前 option 价 / 1 − 价），其余与 CT-M1 相同", source: "TradeForm（sideLabels）· TradeOrder" },
+    ],
+  },
+  {
     key: "pro-trade-order-buy-contracts",
     label: "CT-M6 · Buy · Contracts 模式（QO-1）",
     note: "合约按张数下单：后缀 `USDC ▾ / Contracts ▾`；Contracts 模式下 Notional = 张数 × 价格、Margin = Notional ÷ 杠杆，滑杆 100% = 可用 × 杠杆 ÷ 价格取整。Buy 摘要首行新增 `Contracts`，与现货的 `Shares` 行对等。",

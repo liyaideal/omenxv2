@@ -43,3 +43,4 @@
 - Winner 是三选一（足球 主 / 平 / 客）时，Winner 芯片带下拉列出三个 outcome（各一个价格）；选中 = 留在 Winner 事件、切换下单面板的 option（line id 形如 `<event>#<option>`，见 `outcomeLineId` / `parseLineId` / `currentLineId`）。市场行替换了原 `Select Option` 芯片行，所以三选一必须在这里可达。
 - 芯片价格随 `RealtimePricesContext` 刷新（与图表同源）；Lite board 的"You hold"标记未搬到市场行（Pro 用持仓表看）。
 - 现货线（`/spot`）没有 fixture 概念，不涉及。
+- 手机 Pro `/trade/order` 表单（SL-P2，Liya 09-17 批）：别名 binary 的两钮文案读 `side_labels`（`AST −3.5` / `HER +3.5`），与桌面一致；机制不变（Yes 钮 = 买当前 option，No 钮 = 卖）。字典 CT-M7。
