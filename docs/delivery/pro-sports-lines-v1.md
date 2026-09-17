@@ -44,3 +44,4 @@
 - 芯片价格随 `RealtimePricesContext` 刷新（与图表同源）；Lite board 的"You hold"标记未搬到市场行（Pro 用持仓表看）。
 - 现货线（`/spot`）没有 fixture 概念，不涉及。
 - 手机 Pro `/trade/order` 表单（SL-P2，Liya 09-17 批）：别名 binary 的两钮文案读 `side_labels`（`AST −3.5` / `HER +3.5`），与桌面一致；机制不变（Yes 钮 = 买当前 option，No 钮 = 卖）。字典 CT-M7。
+- 手机 Pro `/trade` 图表视图（SL-P2）：`Mark Price` 旁的侧别标与底部 dock 两钮同样读 `side_labels`（`TradingCharts` 用 `isSingleMarketBinary(options, selectedEvent)`）。

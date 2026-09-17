@@ -48,7 +48,7 @@ function TradingChartsContent({ selectedEvent, selectedOptionData, options }: Tr
   const setSide = useTradeSideStore((s) => s.setSide);
 
   // binary 单 market 别名（如体育队名）；非 binary 时回退 "Yes"/"No"
-  const isBinary = isSingleMarketBinary(options);
+  const isBinary = isSingleMarketBinary(options, selectedEvent);
   const sideLabels = getBinarySideLabels(selectedEvent);
   const yesLabel = isBinary ? sideLabels.yes : "Yes";
   const noLabel = isBinary ? sideLabels.no : "No";
