@@ -17,6 +17,15 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-09-17 — Pro 终端不可下单态 DK-1（[文档](../delivery/pro-order-gate-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| DK-A | 手机图表页 dock 封锁形态：开关 + 一条禁用条，原因只印一次，`tap again to trade` 隐藏 | ⬜ | `ProSpotMobileDock`，`/spot` `/trade` 同组件 |
+| DK-B | 合约线封锁条件：已结算 Settled / REVIEW In review / 过 freeze 或 end Closed（同 Lite 合约） | ⬜ | `lib/contractGate.ts` |
+| DK-C | `/trade/order` Buy / Sell CTA 与桌面 `/trade` 面板 CTA 封锁时禁用并印原因 | ⬜ | `TradeForm.blockedReason`；桌面 `DesktopTrading` |
+| DK-D | 字典 DK-M1 / DK-M2；SP-M5 冻结态更新 | ⬜ | 桌面 `/trade` 面板字典缺口随 ProContractPanel 提取补 |
+
 ## 2026-09-17 — Pro 终端体育市场行 SL-P（[文档](../delivery/pro-sports-lines-v1.md)）
 
 | # | 项 | Status | Notes |

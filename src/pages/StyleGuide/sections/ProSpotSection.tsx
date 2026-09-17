@@ -295,6 +295,18 @@ const EVENT_SELECTOR_MOBILE_CASES: SectionCase[] = [
   },
 ];
 
+const TRADE_DOCK_CASES: SectionCase[] = [
+  {
+    key: "pro-trade-mobile-dock",
+    label: "DK-M1 · /trade 手机图表页 sticky dock 五态（与 /spot 同一组件）",
+    note: "TradingCharts 自绘的 dock 已换成 ProSpotMobileDock（DK-1），两条线一个组件。封锁三种原因：Closed / In review / Settled。",
+    spec: [
+      { state: "default / No 选中", when: "selected === 'yes' | 'no'", visual: "选中一边描边 + 箭头；第二次点跳 /trade/order", source: "ProSpotMobileDock（TradingCharts）" },
+      { state: "closed / in review / settled", when: "useContractGate(event).blocked", visual: "两钮收成一条禁用条，只印一次原因；`tap again to trade` 隐藏；Lite/Pro 开关保留", source: "ProSpotMobileDock · lib/contractGate" },
+    ],
+  },
+];
+
 const TRADE_ORDER_CASES: SectionCase[] = [
   {
     key: "pro-trade-order-buy",
@@ -315,6 +327,14 @@ const TRADE_ORDER_CASES: SectionCase[] = [
     note: "队名 / 让球 / 大小球这类事件 option 不是字面 Yes/No，面板走 side 模式（Yes 钮 = 买当前 option，No 钮 = 卖）。两钮文案与桌面一致取 side_labels；CTA `Buy AST −3.5` / `Buy HER +3.5`。",
     spec: [
       { state: "别名 binary", when: "isSingleMarketBinary(options, event) 且 label 非字面 Yes/No", visual: "两钮 `AST −3.5 0.2196` / `HER +3.5 0.7804`（价格 = 当前 option 价 / 1 − 价），其余与 CT-M1 相同", source: "TradeForm（sideLabels）· TradeOrder" },
+    ],
+  },
+  {
+    key: "pro-trade-order-closed",
+    label: "DK-M2 · /trade/order · 不可下单（Closed / In review / Settled）",
+    note: "合约终端之前完全不封锁（Lite 合约页有）。DK-1 起：已结算 → Settled；lifecycle REVIEW → In review；过 freeze_time 或 end_date → Closed。Buy / Sell 两个 CTA 都禁用并印原因，与桌面 /spot 现有口径一致。",
+    spec: [
+      { state: "closed", when: "contractGate(event).blocked", visual: "CTA 60% 不透明、文案 = 原因、`To win $0` 读数保留；Sell 页签同样禁用", source: "TradeForm（blockedReason）· lib/contractGate" },
     ],
   },
   {
@@ -455,7 +475,7 @@ const MOBILE_CASES: SectionCase[] = [
       {
         state: "default / 选中一边 / frozen",
         when: "selected === null | 'yes' | blocked",
-        visual: "第一次点选中（描边 + 箭头），第二次跳 /spot/order；frozen 全禁用",
+        visual: "第一次点选中（描边 + 箭头），第二次跳 /spot/order；blocked = 两钮收成一条禁用条（bg-muted/40 灰字）只印一次原因，右上角 `tap again to trade` 隐藏，开关保留（DK-1）",
         source: "ProSpotMobileDock",
       },
       {
@@ -566,6 +586,14 @@ export const ProSpotSection = (_: Props) => (
       description="合约面板的 Buy · Sell 意图页签。Sell 只做当前净额仓位的减仓/平仓（方案 A），空仓禁用、永不开反向。桌面 /trade 面板与此同规格，但仍是页面内联 JSX，暂无法在字典挂载（见交付文档已知缺口）。"
     >
       <SectionFrame cases={TRADE_ORDER_CASES} device="mobile" minHeight={640} />
+    </SectionWrapper>
+
+    <SectionWrapper
+      id="pro-trade-mobile-dock"
+      title="Pro /trade 手机图表页 sticky dock（DK-1 · 不可下单 = 一条禁用条）"
+      description="合约手机图表页的底部 dock 改用现货同一组件 ProSpotMobileDock；不可下单时两钮收成一条灰色禁用条只印一次原因（/spot 之前把原因印了两遍）。"
+    >
+      <SectionFrame cases={TRADE_DOCK_CASES} device="mobile" minHeight={560} />
     </SectionWrapper>
 
     <SectionWrapper

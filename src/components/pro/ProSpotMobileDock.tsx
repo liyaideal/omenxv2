@@ -1,8 +1,10 @@
 // ============================================================
-// SP-2 · B2 — sticky bottom bar for the mobile Pro SPOT charts view.
-// Two-stage tap: first tap selects the outcome, second tap opens
-// `/spot/order`. The Lite/Pro switch is the first child of the row
+// SP-2 · B2 — sticky bottom bar for the mobile Pro charts views (/spot and,
+// since DK-1, /trade). Two-stage tap: first tap selects the outcome, second
+// tap opens the order page. The Lite/Pro switch is the first child of the row
 // (DESIGN §14: dock placement, never in the header).
+// DK-1: while ordering is blocked the two buttons collapse into ONE inert bar
+// that prints the reason once; the "tap again to trade" hint is hidden.
 // ============================================================
 import { ArrowRight } from "lucide-react";
 import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
@@ -12,8 +14,8 @@ export interface ProSpotMobileDockProps {
   available: number;
   yesLabel: string;
   noLabel: string;
-  yesPrice: number;
-  noPrice: number;
+  yesPrice?: number;
+  noPrice?: number;
   /** Currently selected outcome. Mobile Charts always starts with one active side. */
   selected: "yes" | "no";
   onTap: (which: "yes" | "no") => void;
@@ -51,7 +53,7 @@ export const ProSpotMobileDock = ({
         {available.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
         USDC
       </span>
-      <span className="opacity-70">Tap to switch view · tap again to trade</span>
+      {!blocked && <span className="opacity-70">Tap to switch view · tap again to trade</span>}
     </div>
     <div className="flex gap-1.5">
       {showSurfaceSwitch && (
@@ -61,10 +63,19 @@ export const ProSpotMobileDock = ({
           previewActive={surfaceSwitchPreview?.active}
         />
       )}
+      {blocked ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex-1 flex items-center justify-center rounded-lg border border-border/60 bg-muted/40 py-2.5 text-sm font-medium text-muted-foreground"
+        >
+          {blockedReason || "Market unavailable"}
+        </div>
+      ) : (
+      <>
       <button
         onClick={() => onTap("yes")}
-        disabled={blocked}
-        aria-pressed={selected === "yes"}
+                aria-pressed={selected === "yes"}
         className={cn(
           "flex-1 font-semibold rounded-lg py-2.5 text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:active:scale-100",
           selected === "yes"
@@ -72,15 +83,12 @@ export const ProSpotMobileDock = ({
             : "bg-yes/15 text-yes border border-yes/30",
         )}
       >
-        <span>
-          {blocked ? blockedReason || "Market frozen" : yesLabel}
-        </span>
-        {!blocked && selected === "yes" && <ArrowRight className="w-3.5 h-3.5" />}
+        <span>{yesLabel}</span>
+        {selected === "yes" && <ArrowRight className="w-3.5 h-3.5" />}
       </button>
       <button
         onClick={() => onTap("no")}
-        disabled={blocked}
-        aria-pressed={selected === "no"}
+                aria-pressed={selected === "no"}
         className={cn(
           "flex-1 font-semibold rounded-lg py-2.5 text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:active:scale-100",
           selected === "no"
@@ -88,11 +96,11 @@ export const ProSpotMobileDock = ({
             : "bg-no/15 text-no border border-no/30",
         )}
       >
-        <span>
-          {blocked ? blockedReason || "Market frozen" : noLabel}
-        </span>
-        {!blocked && selected === "no" && <ArrowRight className="w-3.5 h-3.5" />}
+        <span>{noLabel}</span>
+        {selected === "no" && <ArrowRight className="w-3.5 h-3.5" />}
       </button>
+      </>
+      )}
     </div>
   </div>
 );

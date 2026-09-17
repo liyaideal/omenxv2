@@ -2,7 +2,8 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Gift } from "lucide-react";
 import { MobileTradingLayout, TradingContextData } from "@/components/MobileTradingLayout";
-import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
+import { ProSpotMobileDock } from "@/components/pro/ProSpotMobileDock";
+import { useContractGate } from "@/lib/contractGate";
 import { CandlestickChart } from "@/components/CandlestickChart";
 import { OrderBook } from "@/components/OrderBook";
 import { OrderCard } from "@/components/OrderCard";
@@ -19,7 +20,6 @@ import { cn } from "@/lib/utils";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useTradeSideStore, tradeSideKey } from "@/stores/useTradeSideStore";
 import { getBinarySideLabels, isSingleMarketBinary } from "@/lib/eventUtils";
-import { ArrowRight } from "lucide-react";
 
 const bottomTabs = ["Order Book", "Trades history", "Orders", "Positions"];
 
@@ -52,6 +52,8 @@ function TradingChartsContent({ selectedEvent, selectedOptionData, options }: Tr
   const sideLabels = getBinarySideLabels(selectedEvent);
   const yesLabel = isBinary ? sideLabels.yes : "Yes";
   const noLabel = isBinary ? sideLabels.no : "No";
+  // DK-1: resolved / in review / past freeze or end → dock collapses to one bar.
+  const gate = useContractGate(selectedEvent);
 
   // Mirror price for sell perspective (Yes-only model: Sell = 1 - p)
   const longPrice = parseFloat(selectedOptionData.price);
@@ -288,46 +290,16 @@ function TradingChartsContent({ selectedEvent, selectedOptionData, options }: Tr
         </div>
       )}
 
-      {/* Bottom Action Bar — two-stage tap */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border/30 px-4 py-3 z-50">
-        <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-2">
-          <span>
-            Available {profile?.balance?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? '0.00'} USDC
-          </span>
-          <span className="opacity-70">
-            Tap to switch view · tap again to trade
-          </span>
-        </div>
-        <div className="flex gap-1.5">
-          <SurfaceSwitch size="dock" />
-          <button
-            onClick={() => handleSideButtonClick("buy")}
-            aria-pressed={side === "buy"}
-            className={cn(
-              "flex-1 font-semibold rounded-lg py-2.5 text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-1.5",
-              side === "buy"
-                ? "bg-yes text-yes-foreground shadow-[0_0_0_2px_hsl(var(--background)),0_0_0_3px_hsl(var(--yes)/0.4)]"
-                : "bg-yes/15 text-yes border border-yes/30"
-            )}
-          >
-            <span>{yesLabel}</span>
-            {side === "buy" && <ArrowRight className="w-3.5 h-3.5" />}
-          </button>
-          <button
-            onClick={() => handleSideButtonClick("sell")}
-            aria-pressed={side === "sell"}
-            className={cn(
-              "flex-1 font-semibold rounded-lg py-2.5 text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-1.5",
-              side === "sell"
-                ? "bg-no text-no-foreground shadow-[0_0_0_2px_hsl(var(--background)),0_0_0_3px_hsl(var(--no)/0.4)]"
-                : "bg-no/15 text-no border border-no/30"
-            )}
-          >
-            <span>{noLabel}</span>
-            {side === "sell" && <ArrowRight className="w-3.5 h-3.5" />}
-          </button>
-        </div>
-      </div>
+      {/* Bottom Action Bar — two-stage tap (shared with /spot; DK-1 blocked = one inert bar) */}
+      <ProSpotMobileDock
+        available={profile?.balance ?? 0}
+        yesLabel={yesLabel}
+        noLabel={noLabel}
+        selected={side === "buy" ? "yes" : "no"}
+        onTap={(which) => handleSideButtonClick(which === "yes" ? "buy" : "sell")}
+        blocked={gate.blocked}
+        blockedReason={gate.reason}
+      />
     </div>
   );
 }

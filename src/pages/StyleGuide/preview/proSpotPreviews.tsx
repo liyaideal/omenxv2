@@ -410,7 +410,7 @@ export const ProSpotMobileCharts360 = () => (
   <MobileChartsFrame width={360} terminal={{ indicative: 57907.84, sessionTag: "pre-mkt" }} />
 );
 
-/** SP-2 · mobile Charts view, market frozen — both dock buttons disabled. */
+/** SP-2 · mobile Charts view, market frozen — dock collapses to one inert bar (DK-1). */
 export const ProSpotMobileChartsFrozen = () => {
   const t = spotFixture({
     countdown: { text: "00:00:00", urgency: "red", diffMs: 0 },
@@ -485,7 +485,7 @@ export const ProSpotMobileOrderSellHeld = () => (
   />
 );
 
-/** SP-2 · the sticky dock alone: default / side selected / frozen. */
+/** SP-2 · the sticky dock alone: default / side selected / frozen (one bar, DK-1). */
 export const ProSpotMobileDockStates = () => (
   <div className="space-y-6" style={{ width: 375 }}>
     {[

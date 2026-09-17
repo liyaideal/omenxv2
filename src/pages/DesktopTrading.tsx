@@ -61,6 +61,7 @@ import { EventSelectorDropdown } from "@/components/EventSelectorPanel";
 import { terminalPath, type ProductTab } from "@/lib/eventSelector";
 import { consumeOpenLimit } from "@/lib/proHandoff";
 import { buildFixtureMarkets, currentLineId, fixtureIdOf, fixtureLinePath, parseLineId } from "@/lib/fixtureMarkets";
+import { useContractGate } from "@/lib/contractGate";
 import { MarketLineRow } from "@/components/pro/MarketLineRow";
 import { isSingleMarketBinary, getBinarySideLabels, getYesNoOptions, getBinaryOutcome } from "@/lib/eventUtils";
 import { useEventSideLabelsLookup, resolveBinarySideLabel } from "@/hooks/useEventSideLabelsLookup";
@@ -352,6 +353,9 @@ export default function DesktopTrading() {
     getOptionsForEvent,
   } = useEvents(eventId);
 
+  // DK-1: resolved / in review / past freeze or end → CTAs disabled with the reason.
+  const gate = useContractGate(selectedEvent);
+
   // SL-P: fixture market row (Winner / Handicap / Total … · Map n) for sports fixtures.
   const fixtureMarkets = useMemo(
     () => buildFixtureMarkets(selectedEvent, events, siblings, getOptionsForEvent),
@@ -580,6 +584,10 @@ export default function DesktopTrading() {
     !heldPos || heldSize <= 0 || (orderType === "Limit" && !(parseFloat(sellLimitPrice || String(sellMark)) > 0));
 
   const handleSellPreview = () => {
+    if (gate.blocked) {
+      toast.error(gate.reason);
+      return;
+    }
     if (!user) {
       setAuthDefaultTab("signup");
       setAuthDialogOpen(true);
@@ -840,6 +848,10 @@ export default function DesktopTrading() {
     if (!user) {
       setAuthDefaultTab("signup");
       setAuthDialogOpen(true);
+      return;
+    }
+    if (gate.blocked) {
+      toast.error(gate.reason);
       return;
     }
     if (orderIntent.kind === "blocked-cross-zero") {
@@ -1976,10 +1988,10 @@ export default function DesktopTrading() {
             )}
             <TradeSubmitButton
               side={side}
-              label={getIntentLabel(orderIntent, side, isBinarySingleMarket ? binaryLabels : undefined)}
+              label={gate.reason || getIntentLabel(orderIntent, side, isBinarySingleMarket ? binaryLabels : undefined)}
               potentialWin={parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
               onClick={handlePreview}
-              disabled={orderIntent.kind === "blocked-cross-zero"}
+              disabled={gate.blocked || orderIntent.kind === "blocked-cross-zero"}
               positionSide={isBinarySingleMarket ? (isYesSelected ? "yes" : "no") : undefined}
             />
             </>
@@ -2093,11 +2105,11 @@ export default function DesktopTrading() {
 
             <TradeSubmitButton
               side="sell"
-              label={sellCtaLabel}
+              label={gate.reason || sellCtaLabel}
               winPrefix="You receive"
               potentialWin={sellCashBack.toFixed(2)}
               onClick={handleSellPreview}
-              disabled={sellSubmitDisabled}
+              disabled={gate.blocked || sellSubmitDisabled}
             />
             </>
             )}

@@ -43,6 +43,8 @@ interface TradeFormProps {
   };
   /** binary 单 market 事件的两端别名（如体育队名），用于提交按钮等文案翻译 */
   sideLabels?: { yes: string; no: string } | null;
+  /** DK-1: order gating. Non-empty = both Buy and Sell CTAs disabled and print this text. */
+  blockedReason?: string | null;
   /** CT-1: Buy · Sell intent tab. Controlled by the page so it survives navigation. */
   intent?: "buy" | "sell";
   onIntentChange?: (next: "buy" | "sell") => void;
@@ -73,6 +75,7 @@ export const TradeForm = ({
   onSideChange,
   binaryMode,
   sideLabels,
+  blockedReason,
   intent: controlledIntent,
   onIntentChange,
   previewPositions,
@@ -747,10 +750,10 @@ export const TradeForm = ({
       {/* Submit Button */}
       <TradeSubmitButton
         side={side}
-        label={getIntentLabel(orderIntent, side, sideLabels)}
+        label={blockedReason || getIntentLabel(orderIntent, side, sideLabels)}
         potentialWin={parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
         onClick={handlePreview}
-        disabled={orderIntent.kind === "blocked-cross-zero"}
+        disabled={!!blockedReason || orderIntent.kind === "blocked-cross-zero"}
         size="sm"
         positionSide={binaryMode ? (binaryMode.isYesSelected ? "yes" : "no") : undefined}
       />
@@ -862,7 +865,17 @@ export const TradeForm = ({
         </div>
       </div>
 
-      {orderType === "Market" && heldPos ? (
+      {blockedReason ? (
+        <TradeSubmitButton
+          side="sell"
+          label={blockedReason}
+          winPrefix="You receive"
+          potentialWin={sellCashBack.toFixed(2)}
+          onClick={() => {}}
+          disabled
+          size="sm"
+        />
+      ) : orderType === "Market" && heldPos ? (
         <ClosePositionDialog
           event={eventName}
           option={sellOutcomeLabel}

@@ -12,6 +12,7 @@
 // ============================================================
 import { useState } from "react";
 import { TradeForm } from "@/components/TradeForm";
+import { ProSpotMobileDock } from "@/components/pro/ProSpotMobileDock";
 import type { UnifiedPosition } from "@/hooks/usePositions";
 import type { ProOrderType } from "@/components/pro/OrderTypeDropdown";
 
@@ -152,6 +153,58 @@ export const ProTradeOrderAlias = () => {
         sideLabels={{ yes: "AST −3.5", no: "HER +3.5" }}
         previewPositions={[]}
         previewBalance={500}
+      />
+    </Phone>
+  );
+};
+
+/** DK-M1 · /trade (mobile charts) sticky dock: default / side selected / closed (one inert bar). */
+export const ProTradeMobileDockStates = () => (
+  <div className="space-y-6" style={{ width: 375 }}>
+    {[
+      { k: "default (Yes selected)", selected: "yes" as const, reason: "" },
+      { k: "No selected", selected: "no" as const, reason: "" },
+      { k: "closed (past freeze / end)", selected: "yes" as const, reason: "Closed" },
+      { k: "in review", selected: "yes" as const, reason: "In review" },
+      { k: "settled", selected: "yes" as const, reason: "Settled" },
+    ].map((s) => (
+      <div key={s.k}>
+        <div className="px-3 pb-1 text-[10px] uppercase tracking-wide text-muted-foreground">{s.k}</div>
+        <div className="relative h-[92px]">
+          <ProSpotMobileDock
+            available={0}
+            yesLabel="Astralis"
+            noLabel="Heroic"
+            selected={s.selected}
+            onTap={() => undefined}
+            blocked={!!s.reason}
+            blockedReason={s.reason}
+            surfaceSwitchPreview={{ signedIn: true, active: "pro" }}
+            className="absolute"
+          />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+/** DK-M2 · /trade/order · closed — Buy CTA disabled, prints the reason. */
+export const ProTradeOrderClosed = () => {
+  const [intent, setIntent] = useState<"buy" | "sell">("buy");
+  return (
+    <Phone>
+      <TradeForm
+        selectedPrice="0.1215"
+        eventName="Astralis vs Heroic"
+        optionLabel="AST"
+        side="buy"
+        onSideChange={() => undefined}
+        intent={intent}
+        onIntentChange={setIntent}
+        sideLabels={{ yes: "Astralis", no: "Heroic" }}
+        blockedReason="Closed"
+        previewPositions={[]}
+        previewBalance={0}
       />
     </Phone>
   );

@@ -11,6 +11,7 @@ import { AirdropPositionCard } from "@/components/AirdropPositionCard";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { useOrders } from "@/hooks/useOrders";
 import { usePositions } from "@/hooks/usePositions";
+import { useContractGate } from "@/lib/contractGate";
 import { useAnimatedOrderBook } from "@/hooks/useAnimatedOrderBook";
 import { useTradeSideStore, tradeSideKey } from "@/stores/useTradeSideStore";
 
@@ -104,6 +105,9 @@ function TradeOrderContent({ selectedEvent, selectedOptionData, options, setSele
     }
   }, [highlightedPosition]);
 
+  // DK-1: resolved / in review / past freeze or end → CTAs disabled with the reason.
+  const gate = useContractGate(selectedEvent);
+
   // Use animated order book with live updates
   const orderBookData = useAnimatedOrderBook({
     basePrice: parseFloat(selectedOptionData.price),
@@ -160,6 +164,7 @@ function TradeOrderContent({ selectedEvent, selectedOptionData, options, setSele
                 onIntentChange={setIntent}
                 binaryMode={binaryMode}
                 sideLabels={isBinary || isSingleMarketBinary(options, selectedEvent) ? labels : null}
+                blockedReason={gate.reason || null}
               />
             );
           })()}

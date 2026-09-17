@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-09-17 | [Pro 终端不可下单态（冻结 / 结算）交付说明 v1](../delivery/pro-order-gate-v1.md) | 手机图表页 dock 封锁时两钮收成一条禁用条只印一次原因（`/spot` 之前印两遍）；`/trade` 整条线补上封锁（Settled / In review / Closed，与 Lite 合约同口径）：手机 dock、`/trade/order`、桌面面板 CTA 都禁用印原因；字典 DK-M1 / DK-M2、SP-M5 更新 |
 | 2026-09-17 | [Pro 终端体育市场行（让分 / 大小球 / 单图）交付说明 v1](../delivery/pro-sports-lines-v1.md) | Pro `/trade` 桌面 + 手机对 fixture 兄弟事件的兼容：页头下方市场行（Winner / Handicap / Total · Map n），选线 = 切 sibling event，URL `?event=<fixture>&line=<sibling>`；sibling 深链不再 Event Has Ended；持仓表两侧名正确；字典 SL-D1…D3 / SL-M1…M2 |
 | 2026-09-16 | [Lite / Pro 开关归位 SW-2（surface-switch-v1 §11）](../delivery/surface-switch-v1.md) | 桌面两面 pill 都改为各自 chrome 最右一项、尺寸合一；hover 一行说明另一面；Lite 三种下单面板 CTA 下方脚注 `Want to place a limit order? Pro ›`（未进过 Pro 的设备才显示，点击落 Pro 的 Limit）；字典 TR-27 / SP-19 |
 | 2026-09-15 | [交易终端事件选择器（Standard / Boost）交付说明 v1](../delivery/event-selector-v1.md) | `/trade` 与 `/spot` 桌面标题下拉、手机 `Select Event` 抽屉共用一个选择器；顶部 `Standard`（现货线）/ `Boost`（合约线）页签，按 `product_lines` 过滤，跨页签选中直接跳终端；`Ends in` 改相对时间（`8m` / `3h 12m` / `2d 14h` / 日期 / `Frozen`）；手机现货页 `SPOT` 标删除；字典 ES-D1…D4 / ES-M1 |

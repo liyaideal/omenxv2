@@ -54,6 +54,9 @@ export interface TradingEvent {
   freezeTime?: Date | null;
   /** SL-P: raw sports metadata (`fixture_id`, `market_type`, `line`, …). */
   metadata?: unknown;
+  /** DK-1: order gating inputs for the contract terminal. */
+  lifecycle?: string | null;
+  isResolved?: boolean;
 }
 
 // Local storage keys
@@ -225,6 +228,8 @@ export const dbEventToTradingEvent = (event: EventWithOptions): TradingEvent => 
       productLines: event.product_lines && event.product_lines.length > 0 ? event.product_lines : ["futures"],
       freezeTime: event.freeze_time ? new Date(event.freeze_time) : null,
       metadata: event.metadata ?? null,
+      lifecycle: event.lifecycle_status ?? null,
+      isResolved: !!event.is_resolved,
     };
   };
 
