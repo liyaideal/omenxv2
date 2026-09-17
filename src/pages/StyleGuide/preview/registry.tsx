@@ -320,6 +320,7 @@ export const previewRegistry: Record<string, Loader> = {
   "pro-market-row-esports": pick(marketRow, "MarketRowEsports"),
   "pro-market-row-esports-open": pick(marketRow, "MarketRowEsportsOpen"),
   "pro-market-row-football": pick(marketRow, "MarketRowFootball"),
+  "pro-market-row-football-open": pick(marketRow, "MarketRowFootballOpen"),
   "pro-market-row-mobile": pick(marketRow, "MarketRowMobile"),
   "pro-market-row-mobile-drawer": pick(marketRow, "MarketRowMobileDrawer"),
 

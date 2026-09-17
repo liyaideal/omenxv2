@@ -37,6 +37,8 @@ export interface MarketLine {
   caption: string;
   yes: MarketSide;
   no: MarketSide;
+  /** One outcome of a multi-way winner (Home / Draw / Away): one price, selects an option instead of switching event. */
+  single?: boolean;
 }
 
 export interface MarketSection {
@@ -80,6 +82,22 @@ const cents = (price: string) => {
 
 /** "34¢" for a decimal price string. */
 export const priceCents = cents;
+
+/**
+ * Line ids are event ids, except the outcomes of a multi-way winner
+ * (Home / Draw / Away), which are `<eventId>#<optionId>` — picking one keeps
+ * the terminal on the winner event and selects that option.
+ */
+export const outcomeLineId = (eventId: string, optionId: string) => `${eventId}#${optionId}`;
+export const parseLineId = (lineId: string): { eventId: string; optionId?: string } => {
+  const i = lineId.indexOf("#");
+  return i < 0 ? { eventId: lineId } : { eventId: lineId.slice(0, i), optionId: lineId.slice(i + 1) };
+};
+/** The row's current line for the terminal state (event + selected option). */
+export const currentLineId = (markets: FixtureMarkets | null, eventId: string, optionId: string | null | undefined): string => {
+  if (markets && optionId && markets.byId.has(outcomeLineId(eventId, optionId))) return outcomeLineId(eventId, optionId);
+  return eventId;
+};
 
 type OptionsOf = (eventId: string) => EventOption[];
 
@@ -203,7 +221,22 @@ export const buildFixtureMarkets = (
   } else {
     const fm = groupFixtureMarkets([fixture, ...sibs]);
     const noun = scoringNoun(meta);
-    push("winner", "Winner", [{ title: "Winner", lines: [lineOf(fixture, "winner", "Winner")] }], fixture.id);
+    const winnerOpts = optionsOf(fixture.id);
+    if (winnerOpts.length > 2) {
+      // Home / Draw / Away: one line per outcome, selecting an option of the winner event.
+      const lines: MarketLine[] = winnerOpts.map((o) => ({
+        id: outcomeLineId(fixture.id, o.id),
+        label: o.label,
+        short: o.label,
+        caption: "Winner",
+        yes: { label: o.label, price: o.price, optionId: o.id },
+        no: { label: "", price: "—", optionId: null },
+        single: true,
+      }));
+      push("winner", "Winner", [{ title: "Winner", lines }], lines[0].id);
+    } else {
+      push("winner", "Winner", [{ title: "Winner", lines: [lineOf(fixture, "winner", "Winner")] }], fixture.id);
+    }
     if (fm.handicap.length) push("handicap", "Handicap", [{ title: "Handicap", lines: fm.handicap.map((e) => lineOf(e, "handicap", "Handicap")) }]);
     if (fm.total.length) push("total", `Total ${noun}`, [{ title: `Total ${noun}`, lines: fm.total.map((e) => lineOf(e, "total", `Total ${noun}`)) }]);
   }

@@ -110,7 +110,7 @@ const LineRows = ({
               <span className={cn("text-xs", on ? "text-foreground" : "text-foreground/90")}>{line.label}</span>
               <span className="ml-auto flex items-center gap-2.5 font-mono text-[11px]">
                 <span className="text-yes">{priceCents(line.yes.price)}</span>
-                <span className="text-no">{priceCents(line.no.price)}</span>
+                {!line.single && <span className="text-no">{priceCents(line.no.price)}</span>}
               </span>
             </>
           );

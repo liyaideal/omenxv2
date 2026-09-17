@@ -246,7 +246,14 @@ const MARKET_ROW_CASES: SectionCase[] = [
     key: "pro-market-row-football",
     label: "SL-D3 · 足球（Winner / Handicap / Total goals），当前在 Winner",
     spec: [
-      { state: "足球", when: "fixture 无 segments_key", visual: "三个芯片；Winner 为三选一事件（主 / 平 / 客），芯片显示 Yes 侧（主队）价", source: "buildFixtureMarkets · groupFixtureMarkets" },
+      { state: "足球", when: "fixture 无 segments_key", visual: "三个芯片；Winner 为三选一事件（主 / 平 / 客），芯片显示当前 outcome（默认主队）+ 其价格，带 ▾", source: "buildFixtureMarkets · groupFixtureMarkets" },
+    ],
+  },
+  {
+    key: "pro-market-row-football-open",
+    label: "SL-D4 · 足球 Winner 下拉展开（主 / 平 / 客 三个 outcome，单价）",
+    spec: [
+      { state: "三选一", when: "Winner 有 3 个 option", visual: "每行一个 outcome + 一个价格（无 No 价）；选中 = 留在 Winner 事件、切换 option（不换事件）", source: "MarketLineRow · LineRows（line.single）" },
     ],
   },
 ];

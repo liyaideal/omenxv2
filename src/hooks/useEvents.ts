@@ -116,7 +116,7 @@ const getStoredLastOption = (eventId: string): string | null => {
   return null;
 };
 
-const setStoredLastOption = (eventId: string, optionId: string): void => {
+export const setStoredLastOption = (eventId: string, optionId: string): void => {
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.LAST_OPTION);
     const parsed = stored ? JSON.parse(stored) : {};

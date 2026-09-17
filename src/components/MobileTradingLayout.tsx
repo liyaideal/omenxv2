@@ -6,10 +6,10 @@ import { OptionChips } from "@/components/OptionChips";
 import { EventSelectorSheet } from "@/components/EventSelectorSheet";
 import { EventInfoContent } from "@/components/EventInfoContent";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { useEvents, TradingEvent, EventOption } from "@/hooks/useEvents";
+import { useEvents, setStoredLastOption, TradingEvent, EventOption } from "@/hooks/useEvents";
 import { useEventSelector } from "@/hooks/useEventSelector";
 import { terminalPath, type ProductTab } from "@/lib/eventSelector";
-import { buildFixtureMarkets, fixtureLinePath } from "@/lib/fixtureMarkets";
+import { buildFixtureMarkets, currentLineId, fixtureLinePath, parseLineId } from "@/lib/fixtureMarkets";
 import { MarketLineRow } from "@/components/pro/MarketLineRow";
 import { isSingleMarketBinary } from "@/lib/eventUtils";
 import { MobileRiskIndicator } from "@/components/MobileRiskIndicator";
@@ -301,7 +301,8 @@ function PerpTradingLayout({
     () => buildFixtureMarkets(selectedEvent, events, siblings, getOptionsForEvent),
     [selectedEvent, events, siblings, getOptionsForEvent],
   );
-  const currentLine = selectedEvent ? fixtureMarkets?.byId.get(selectedEvent.id)?.line ?? null : null;
+  const currentLineKey = selectedEvent ? currentLineId(fixtureMarkets, selectedEvent.id, selectedOption) : "";
+  const currentLine = selectedEvent ? fixtureMarkets?.byId.get(currentLineKey)?.line ?? null : null;
   const orderBase = activeTab === "Charts" ? "/trade" : "/trade/order";
   useEffect(() => {
     if (!selectedEvent || !fixtureMarkets) return;
@@ -313,9 +314,17 @@ function PerpTradingLayout({
   }, [selectedEvent, fixtureMarkets, fixtureParam, lineParam, navigate, orderBase]);
   const handleLineSelect = (lineId: string) => {
     if (!fixtureMarkets) return;
-    const target = getEventById(lineId);
+    const { eventId, optionId } = parseLineId(lineId);
+    if (optionId) {
+      setStoredLastOption(eventId, optionId);
+      if (selectedEvent?.id === eventId) {
+        setSelectedOption(optionId);
+        return;
+      }
+    }
+    const target = getEventById(eventId);
     if (target) setSelectedEvent(target);
-    navigate(fixtureLinePath(orderBase, fixtureMarkets.fixture.id, lineId), { replace: true });
+    navigate(fixtureLinePath(orderBase, fixtureMarkets.fixture.id, eventId), { replace: true });
   };
 
   // ES-1: one selector for both product lines; Boost is this terminal's tab.
@@ -426,7 +435,7 @@ function PerpTradingLayout({
             // SL-P: sports fixture → market row (Winner / Handicap / Total … · Map n)
             <MarketLineRow
               markets={fixtureMarkets}
-              currentId={selectedEvent.id}
+              currentId={currentLineKey}
               onSelect={handleLineSelect}
               variant="mobile"
             />

@@ -40,6 +40,6 @@
 
 ## 4. 已知边界
 
-- Winner 是三选一（足球 主 / 平 / 客）时芯片只显示第一个 option（主队）的价格；三个 option 的切换仍在下单面板的 option 列表里。
+- Winner 是三选一（足球 主 / 平 / 客）时，Winner 芯片带下拉列出三个 outcome（各一个价格）；选中 = 留在 Winner 事件、切换下单面板的 option（line id 形如 `<event>#<option>`，见 `outcomeLineId` / `parseLineId` / `currentLineId`）。市场行替换了原 `Select Option` 芯片行，所以三选一必须在这里可达。
 - 芯片价格随 `RealtimePricesContext` 刷新（与图表同源）；Lite board 的"You hold"标记未搬到市场行（Pro 用持仓表看）。
 - 现货线（`/spot`）没有 fixture 概念，不涉及。

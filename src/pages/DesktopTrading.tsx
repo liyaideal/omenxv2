@@ -55,12 +55,12 @@ import { TRADING_TERMS } from "@/lib/tradingTerms";
 import { calcLiqPrice } from "@/lib/tradingUtils";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
-import { useEvents, type TradingEvent } from "@/hooks/useEvents";
+import { useEvents, setStoredLastOption, type TradingEvent } from "@/hooks/useEvents";
 import { useEventSelector } from "@/hooks/useEventSelector";
 import { EventSelectorDropdown } from "@/components/EventSelectorPanel";
 import { terminalPath, type ProductTab } from "@/lib/eventSelector";
 import { consumeOpenLimit } from "@/lib/proHandoff";
-import { buildFixtureMarkets, fixtureIdOf, fixtureLinePath } from "@/lib/fixtureMarkets";
+import { buildFixtureMarkets, currentLineId, fixtureIdOf, fixtureLinePath, parseLineId } from "@/lib/fixtureMarkets";
 import { MarketLineRow } from "@/components/pro/MarketLineRow";
 import { isSingleMarketBinary, getBinarySideLabels, getYesNoOptions, getBinaryOutcome } from "@/lib/eventUtils";
 import { useEventSideLabelsLookup, resolveBinarySideLabel } from "@/hooks/useEventSideLabelsLookup";
@@ -357,7 +357,8 @@ export default function DesktopTrading() {
     () => buildFixtureMarkets(selectedEvent, events, siblings, getOptionsForEvent),
     [selectedEvent, events, siblings, getOptionsForEvent],
   );
-  const currentLine = selectedEvent ? fixtureMarkets?.byId.get(selectedEvent.id)?.line ?? null : null;
+  const currentLineKey = selectedEvent ? currentLineId(fixtureMarkets, selectedEvent.id, selectedOption) : "";
+  const currentLine = selectedEvent ? fixtureMarkets?.byId.get(currentLineKey)?.line ?? null : null;
   // Normalise the URL: a sibling addressed directly, or without its fixture, becomes `?event=<fixture>&line=<id>`.
   useEffect(() => {
     if (!selectedEvent || !fixtureMarkets) return;
@@ -370,9 +371,18 @@ export default function DesktopTrading() {
   }, [selectedEvent, fixtureMarkets, fixtureParam, lineParam, navigate]);
   const handleLineSelect = (lineId: string) => {
     if (!fixtureMarkets) return;
-    const target = getEventById(lineId);
+    const { eventId, optionId } = parseLineId(lineId);
+    if (optionId) {
+      // Multi-way winner outcome: stays on (or returns to) the winner event and selects the option.
+      setStoredLastOption(eventId, optionId);
+      if (selectedEvent?.id === eventId) {
+        setSelectedOption(optionId);
+        return;
+      }
+    }
+    const target = getEventById(eventId);
     if (target) setSelectedEvent(target);
-    navigate(fixtureLinePath("/trade", fixtureMarkets.fixture.id, lineId), { replace: true });
+    navigate(fixtureLinePath("/trade", fixtureMarkets.fixture.id, eventId), { replace: true });
   };
 
   // ES-1: one selector for both product lines; Boost is this terminal's tab.
@@ -1143,7 +1153,7 @@ export default function DesktopTrading() {
         fixtureMarkets ? (
           <MarketLineRow
             markets={fixtureMarkets}
-            currentId={selectedEvent.id}
+            currentId={currentLineKey}
             onSelect={handleLineSelect}
             variant="desktop"
           />

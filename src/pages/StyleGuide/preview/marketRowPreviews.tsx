@@ -111,7 +111,9 @@ export const MarketRowEsports = () => <Row fixture={ES_FIXTURE} siblings={ES_SIB
 /** SL-D2 · esports, Map 1 picker open (sections: winner / rounds handicap / total rounds). */
 export const MarketRowEsportsOpen = () => <Row fixture={ES_FIXTURE} siblings={ES_SIBLINGS} initial={`${FX}-m1-rhcp-m3p5`} variant="desktop" open="grp-seg-1" />;
 /** SL-D3 · football: Winner / Handicap / Total goals, on the winner. */
-export const MarketRowFootball = () => <Row fixture={FB_FIXTURE} siblings={FB_SIBLINGS} initial={FB} variant="desktop" />;
+export const MarketRowFootball = () => <Row fixture={FB_FIXTURE} siblings={FB_SIBLINGS} initial={`${FB}#${FB}-h`} variant="desktop" />;
+/** SL-D4 · football, Winner picker open (Home / Draw / Away, one price each). */
+export const MarketRowFootballOpen = () => <Row fixture={FB_FIXTURE} siblings={FB_SIBLINGS} initial={`${FB}#${FB}-d`} variant="desktop" open="winner" />;
 /** SL-M1 · mobile row (375), esports, on the series handicap line. */
 export const MarketRowMobile = () => <Row fixture={ES_FIXTURE} siblings={ES_SIBLINGS} initial={`${FX}-maphcp-m1p5`} variant="mobile" />;
 /** SL-M2 · mobile picker drawer open (viewport-fixed — own frame). */
