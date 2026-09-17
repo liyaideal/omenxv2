@@ -26,5 +26,5 @@ Byte-identical, keep as is:
 
 **Where:** `src/components/lite/shared/LimitOrderHint.tsx`, rendered under the CTA of `LiteContractOrderPanel` and `LiteOrderPanel` (desktop card + mobile drawer).
 
-**Why:** same reasoning as §1 — it is the doorway to Pro, so it names the Pro concept the reader is looking for. Liya rejected the jargon-free rewrite ("Set your own price") because it reads like haggling, not like a resting order. Only shown on devices that have never rendered Pro.
+**Why:** same reasoning as §1 — it is the doorway to Pro, so it names the Pro concept the reader is looking for. Liya rejected the jargon-free rewrite ("Set your own price") because it reads like haggling, not like a resting order. Only shown while the amount is empty and the signed-in account has never rendered Pro on this device (OR rule with the host's risk / fill line — never both).
 

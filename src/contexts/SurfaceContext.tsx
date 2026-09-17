@@ -81,8 +81,8 @@ export const SurfaceProvider = ({ children }: { children: ReactNode }) => {
 
   // SW-2: remember that this device has rendered Pro (hides the Lite doorway).
   useEffect(() => {
-    if (surface === "pro") markProVisited();
-  }, [surface]);
+    if (surface === "pro") markProVisited(profile?.user_id);
+  }, [surface, profile?.user_id]);
 
   const toggle = useCallback(() => {
     if (hasSession === false) return;

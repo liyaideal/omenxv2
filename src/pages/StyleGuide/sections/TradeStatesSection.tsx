@@ -307,11 +307,18 @@ const BOOST_CASES: SectionCase[] = [
     key: "trade-tr27",
     label: "TR-27 · Lite → Pro 定价入口（LimitOrderHint · SW-2）",
     note:
-      "CTA 下方、风险提示上方一行 10px 脚注 `Want to place a limit order? Pro ›`。\"limit order\" 是 Lite 禁词的批准例外（通往 Pro 的入口可点名 Pro 概念，同事件页脚 escape hatch）。只给登录且本设备从未渲染过 Pro 的读者看（localStorage `omenx_pro_visited`）；点击 = 切 Pro + 保留事件 + Pro 面板落在 `Limit`（sessionStorage `omenx_open_limit` 一次性）。手机抽屉同位。",
+      "CTA 下方**只有一行**脚注（OR 规则）：金额为空 → `Want to place a limit order? Pro ›`；金额 > 0 → 原来的风险句 `Not guaranteed. You can lose your full $X.`，两者永不叠两行。\"limit order\" 是 Lite 禁词的批准例外（通往 Pro 的入口可点名 Pro 概念，同事件页脚 escape hatch）。入口只给登录且**该账号**在本设备从未渲染过 Pro 的读者看（localStorage `omenx_pro_visited:<uid>`）；点击 = 切 Pro + 保留事件 + Pro 面板落在 `Limit`（sessionStorage `omenx_open_limit` 15 s 窗口）。手机抽屉同位。",
     spec: [
-      { state: "显示", when: "user != null && !hasVisitedPro()", visual: "脚注行 text-[10px] muted，`Pro ›` 为 text-primary 粗体", source: "LimitOrderHint" },
-      { state: "隐藏", when: "游客 || 本设备渲染过 Pro", visual: "整行不渲染，不占位", source: "hasVisitedPro / useAuth" },
+      { state: "入口", when: "user != null && !hasVisitedPro(user.id) && amountNum === 0", visual: "脚注行 text-[10px] muted，`Pro ›` 为 text-primary 粗体；风险句不显示", source: "LimitOrderHint" },
+      { state: "风险句", when: "amountNum > 0（不论是否满足入口条件）|| 游客 || 该账号渲染过 Pro", visual: "同一行位显示风险句，入口不渲染", source: "LimitOrderHint fallback" },
       { state: "点击", when: "onClick", visual: "桌面：同路由切 Pro；手机：跳 /trade/order?event=；Pro 面板 orderType 初始为 Limit", source: "requestOpenLimit / consumeOpenLimit" },
+    ],
+  },
+  {
+    key: "trade-tr27b",
+    label: "TR-27b · 同账号未进过 Pro · 已输入 $25 → 风险句顶替入口",
+    spec: [
+      { state: "有金额", when: "amountNum > 0", visual: "`Not guaranteed. You can lose your full $25.00.`，入口消失；清空金额入口回来", source: "LimitOrderHint amountEntered" },
     ],
   },
   {

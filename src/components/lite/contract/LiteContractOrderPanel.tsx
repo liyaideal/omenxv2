@@ -631,12 +631,19 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
           <span className="font-mono text-sm">{money(potentialWinNet)} →</span>
         )}
       </button>
-      <LimitOrderHint line="futures" previewForce={previewLimitHint} />
-      <p className="text-center text-[10px] text-muted-foreground/70">
-        {amountNum > 0
-          ? `Not guaranteed. You can lose your full ${money(amountNum)}.`
-          : "Not guaranteed. You can lose everything you put in."}
-      </p>
+      {/* SW-2 · one footnote slot: doorway while the amount is empty, risk line once money is on the table. */}
+      <LimitOrderHint
+        line="futures"
+        previewForce={previewLimitHint}
+        amountEntered={amountNum > 0}
+        fallback={
+          <p className="text-center text-[10px] text-muted-foreground/70">
+            {amountNum > 0
+              ? `Not guaranteed. You can lose your full ${money(amountNum)}.`
+              : "Not guaranteed. You can lose everything you put in."}
+          </p>
+        }
+      />
       {transferOverlay}
     </div>
   );

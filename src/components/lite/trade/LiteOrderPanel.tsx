@@ -336,10 +336,17 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
           </span>
         )}
       </button>
-      <p className="text-center text-[10px] text-muted-foreground">
-        Buys instantly at the current price (within 0.5%)
-      </p>
-      <LimitOrderHint line="spot" previewForce={previewLimitHint} />
+      {/* SW-2 · one footnote slot: doorway while the amount is empty, fill note once money is on the table. */}
+      <LimitOrderHint
+        line="spot"
+        previewForce={previewLimitHint}
+        amountEntered={amountNum > 0}
+        fallback={
+          <p className="text-center text-[10px] text-muted-foreground">
+            Buys instantly at the current price (within 0.5%)
+          </p>
+        }
+      />
 
       {/* eventId retained for potential deep-linking; keep referenced */}
       <span className="hidden" data-event-id={eventId}>{""}</span>

@@ -7,6 +7,11 @@
 // what Pro has). Shows only to signed-in readers on a device that has never
 // rendered Pro; clicking switches the surface, keeps the event, and asks the
 // Pro panel to open on `Limit`.
+//
+// OR rule (Liya, 2026-09-17): the CTA footnote slot holds ONE line. Amount
+// empty → this doorway; amount entered → the host's own line (risk sentence /
+// "Buys instantly…"). `renderFallback` is the host's line; the component
+// decides which of the two to show so they never stack.
 // ============================================================
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -21,12 +26,18 @@ export const LimitOrderHint = ({
   line,
   className,
   previewForce,
+  amountEntered,
+  fallback,
 }: {
   /** Which Pro terminal the click lands on. */
   line: "futures" | "spot";
   className?: string;
   /** Style-guide only: render regardless of session / visited state, inert. */
   previewForce?: boolean;
+  /** Host's amount > 0 — the slot then shows `fallback` instead of the doorway. */
+  amountEntered: boolean;
+  /** The host's own footnote (risk sentence / fill note), shown when the doorway is not. */
+  fallback: React.ReactNode;
 }) => {
   const { user } = useAuth();
   const { setSurface } = useSurface();
@@ -34,7 +45,8 @@ export const LimitOrderHint = ({
   const isMobile = useIsMobile();
   const [params] = useSearchParams();
 
-  if (!previewForce && (!user || hasVisitedPro())) return null;
+  const eligible = previewForce || (!!user && !hasVisitedPro(user.id));
+  if (!eligible || amountEntered) return <>{fallback}</>;
 
   const onClick = () => {
     if (previewForce) return;

@@ -165,6 +165,8 @@ const Panel = ({
 export const Tr5Preview = () => <Panel />;
 /** TR-27 · Lite → Pro 定价入口脚注（SW-2）。 */
 export const Tr27Preview = () => <Panel limitHint />;
+/** TR-27b · 同一账号未进过 Pro，但已输入金额 → 入口让位给风险句（OR 规则）。 */
+export const Tr27bPreview = () => <Panel limitHint amount0="25" />;
 export const Tr6Preview = () => <Panel side0="no" amount0="25" />;
 export const Tr7Preview = () => <Panel amount0="25" boost0={7} boostTrayOpen />;
 export const Tr8Preview = () => (

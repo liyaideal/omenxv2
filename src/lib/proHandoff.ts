@@ -1,9 +1,11 @@
 // ============================================================
 // SW-2 · Lite → Pro handoff helpers.
 //
-// `omenx_pro_visited` — set the first time this device renders the Pro
-// surface. The Lite "Want to place a limit order? Pro ›" line only shows
-// while it is unset: people who already know Pro exists are not nagged.
+// `omenx_pro_visited:<userId>` — set the first time THIS ACCOUNT renders the
+// Pro surface on this device. The Lite "Want to place a limit order? Pro ›"
+// line only shows while it is unset: people who already know Pro exists are
+// not nagged. Keyed per account (Liya, 2026-09-17): a fresh sign-up on a
+// browser that has seen Pro must still get the doorway.
 //
 // `omenx_open_limit` — timestamp (sessionStorage) written by that line; any
 // Pro order panel mounting within 15 s opens on `Limit`, so the user lands
@@ -13,12 +15,16 @@
 const VISITED_KEY = "omenx_pro_visited";
 const OPEN_LIMIT_KEY = "omenx_open_limit";
 
-export const markProVisited = (): void => {
-  try { localStorage.setItem(VISITED_KEY, "1"); } catch { /* ignore */ }
+const visitedKey = (userId: string) => `${VISITED_KEY}:${userId}`;
+
+export const markProVisited = (userId: string | null | undefined): void => {
+  if (!userId) return;
+  try { localStorage.setItem(visitedKey(userId), "1"); } catch { /* ignore */ }
 };
 
-export const hasVisitedPro = (): boolean => {
-  try { return localStorage.getItem(VISITED_KEY) === "1"; } catch { return false; }
+export const hasVisitedPro = (userId: string | null | undefined): boolean => {
+  if (!userId) return false;
+  try { return localStorage.getItem(visitedKey(userId)) === "1"; } catch { return false; }
 };
 
 export const requestOpenLimit = (): void => {

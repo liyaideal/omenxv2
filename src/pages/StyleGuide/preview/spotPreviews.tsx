@@ -248,6 +248,8 @@ const OrderPanel = ({
 
 /** SP-19 · Lite → Pro 定价入口脚注（SW-2）。 */
 export const Sp19Preview = () => <OrderPanel limitHint />;
+/** SP-19b · 已输入金额 → 入口让位给「Buys instantly…」（OR 规则）。 */
+export const Sp19bPreview = () => <OrderPanel limitHint amount0="50" />;
 
 /** SP-10 · Place your order 默认态（零单）。 */
 export const Sp10Preview = () => <OrderPanel />;

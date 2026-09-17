@@ -279,9 +279,16 @@ const SESSION_CASES: SectionCase[] = [
   {
     key: "spot-sp19",
     label: "SP-19 · Lite → Pro 定价入口（LimitOrderHint · SW-2）",
-    note: "`Buys instantly at the current price (within 0.5%)` 之下一行 `Want to place a limit order? Pro ›`；规则与 TR-27 相同，点击落 /spot（手机 /spot/order），Pro 现货面板 orderType 初始为 Limit。",
+    note: "CTA 下只有一行（OR 规则）：金额为空 → `Want to place a limit order? Pro ›`；金额 > 0 → 原句 `Buys instantly at the current price (within 0.5%)`。入口条件、点击行为与 TR-27 相同，点击落 /spot（手机 /spot/order），Pro 现货面板 orderType 初始为 Limit。",
     spec: [
-      { state: "显示 / 隐藏 / 点击", when: "同 TR-27", visual: "同 TR-27", source: "LimitOrderHint line=\"spot\"" },
+      { state: "入口 / 原句 / 点击", when: "同 TR-27", visual: "同 TR-27", source: "LimitOrderHint line=\"spot\"" },
+    ],
+  },
+  {
+    key: "spot-sp19b",
+    label: "SP-19b · 已输入 $50 → 原句顶替入口",
+    spec: [
+      { state: "有金额", when: "amountNum > 0", visual: "`Buys instantly at the current price (within 0.5%)`，入口消失", source: "LimitOrderHint amountEntered" },
     ],
   },
   {
