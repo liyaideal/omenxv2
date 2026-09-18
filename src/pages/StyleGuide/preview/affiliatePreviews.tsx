@@ -7,7 +7,8 @@ import AffiliatePage from "@/pages/AffiliatePage";
 import { EarningsLedger } from "@/components/affiliate/EarningsLedger";
 import { FeeBaseComparison } from "@/components/affiliate/FeeBaseComparison";
 import { AffiliateFaq } from "@/components/affiliate/AffiliateFaq";
-import { AffiliateHeroArt } from "@/components/affiliate/AffiliateHeroArt";
+import { AffiliateArt } from "@/components/affiliate/AffiliateArt";
+import { AffiliateDotNav } from "@/components/affiliate/AffiliateDotNav";
 
 /** Whole page, real route component — desktop frame renders desktop, 375 frame renders AffiliatePageMobile. */
 export const AffiliatePagePreview = () => <AffiliatePage />;
@@ -34,12 +35,27 @@ export const AffiliateFaqExpandedPreview = () => {
   return <AffiliateFaq defaultOpen="faq-0" size={isMobile ? "md" : "lg"} className="px-5" />;
 };
 
-/** Hero art slot — dev placeholder until the illustration lands, then the real asset. */
+/** Hero art slot — dev placeholder until the owner drops the file into src/assets/affiliate/, then the real asset. */
 export const AffiliateHeroArtPreview = () => {
   const isMobile = useIsMobile();
   return (
     <div className="p-6 flex justify-center">
-      <AffiliateHeroArt variant={isMobile ? "mobile" : "desktop"} caption="Sports / Crypto / Finance" className={isMobile ? "w-full" : "w-[420px]"} />
+      {isMobile ? (
+        <AffiliateArt name="hero-x-mobile" width={342} height={257} className="w-full" />
+      ) : (
+        <AffiliateArt name="hero-x-desktop" width={661} height={496} fit="contain" className="w-full max-w-lg" />
+      )}
     </div>
   );
 };
+
+/** Desktop dot rail — production AffiliateDotNav un-fixed for the frame (no sections mounted → 01 stays active). */
+export const AffiliateDotNavPreview = () => (
+  <div className="flex items-center gap-10 p-6">
+    <AffiliateDotNav className="relative left-0 top-0 flex translate-y-0" />
+    <p className="max-w-xs font-sans text-xs leading-5 text-muted-foreground">
+      Fixed at left:40px / vertically centred on the real page; shown only from 1400px viewport width. One row per jump link (01–06);
+      the in-view section shows its number + 7.7px cyan dot, others a 4.8px #646972 dot.
+    </p>
+  </div>
+);

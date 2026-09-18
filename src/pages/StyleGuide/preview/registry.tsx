@@ -443,6 +443,7 @@ export const previewRegistry: Record<string, Loader> = {
   "affiliate-faq-collapsed": pick(affiliate, "AffiliateFaqCollapsedPreview"),
   "affiliate-faq-expanded": pick(affiliate, "AffiliateFaqExpandedPreview"),
   "affiliate-hero-art-slot": pick(affiliate, "AffiliateHeroArtPreview"),
+  "affiliate-dot-nav": pick(affiliate, "AffiliateDotNavPreview"),
 
   /* -------- Wallet · Dual-Account 2b -------- */
   "wallet-equity-bands": pick(wallet, "WalletEquityBandsPreview"),

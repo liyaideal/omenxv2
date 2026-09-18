@@ -14,11 +14,11 @@ export const LiteAffiliatePage = (_: P) => (
     title="Affiliate Program"
     route="/affiliate"
     status="done"
-    note="对外营销页（KOL / BD 受众）。骨架走 §19（轨线 · 发丝线 · 幽灵编号 · Space Grotesk），尺度走 §19.4 L：单一底色不做交替带、display 标题 40/64px、数字为主角。文案冻结自 affiliateContent.ts，禁改写。B2B 营销面豁免 Lite 禁词（§19.4）。"
+    note="对外营销页（KOL / BD 受众）。2026-09-18 按 Figma Omenx_Affiliate 设计稿（桌面 42:11744 / 移动 46:12621）整页回流：编号并入 eyebrow、h2 56/Medium/capitalize、卡片化分区、两处暗带（数据条 / CTA）、桌面左侧固定点导航、lynx 插画位由 AffiliateArt 按文件名解析（缺文件 = 生产不渲染 / dev 虚线框）。文案冻结自 affiliateContent.ts，禁改写。B2B 营销面豁免 Lite 禁词（§19.4）。"
   >
     <SubSection
       title="AF-1 · 整页（桌面 / 375）"
-      description="真路由组件 AffiliatePage：桌面态 EventsDesktopHeader + 六节 + SeoFooter；375 态自动切 AffiliatePageMobile（MobileHeader 内页形态 · 单列 · sticky Apply now 滚过 hero 才浮出）。Hero 插画位在资产落仓前显示开发占位框。"
+      description="真路由组件 AffiliatePage：桌面态 EventsDesktopHeader + 六节 + 数据暗带 + Apply 插画带 + Veterans / Built on Base 全幅行 + CTA 暗带 + SeoFooter；375 态自动切 AffiliatePageMobile（MobileHeader 内页形态 · 24px 边距 · pill 跳转条 · sticky Apply now 滚过 hero 才浮出）。全部插画位在资产落仓前显示开发占位框。"
       platform="shared"
     >
       <DualDevicePreview previewKey="affiliate-page" label="AffiliatePage · full route" minHeight={900} />
@@ -26,7 +26,7 @@ export const LiteAffiliatePage = (_: P) => (
 
     <SubSection
       title="AF-2 · 收益账本 02.1（EarningsLedger）"
-      description="三栏共享边框账本 + 合计条；结果数 40px volt、合计 64px。375 态 stacked=true 纵向三段。数字来自 HOW_YOU_EARN（冻结）。"
+      description="三张独立卡（#14161A · r8 · p24 · 阴影 0 18 25）+ volt 合计条（bg volt/5 · ring volt/15 · 64px）；结果数 30px 白 + volt 小标。375 态 stacked=true 纵向三卡 + 渐变合计条（44px volt）。数字来自 HOW_YOU_EARN（冻结）。"
       platform="shared"
     >
       <DualDevicePreview previewKey="affiliate-earnings-ledger" label="EarningsLedger · desktop 3-col / mobile stacked" minHeight={640} />
@@ -34,7 +34,7 @@ export const LiteAffiliatePage = (_: P) => (
 
     <SubSection
       title="AF-3 · 费率对比 02.2（FeeBaseComparison）"
-      description="6.6× 头条（112px / 80px）+ 两行规格表；OmenX 行 accent 高亮。375 态每行展开为 2×2 指标格。"
+      description="卡内左右分栏：6.6× 头条（112px volt）+ 四列规格表（Space Grotesk 表头 10px · 值 18px · 总额 36px）；OmenX 行 volt/4 高亮圆角。375 态压缩成三行表（名 / “$10M · 0.40% · 50%” / 总额），OmenX 行 bg #192018、总额 16px Bold volt。"
       platform="shared"
     >
       <DualDevicePreview previewKey="affiliate-fee-base" label="FeeBaseComparison · desktop / mobile" minHeight={480} />
@@ -42,7 +42,7 @@ export const LiteAffiliatePage = (_: P) => (
 
     <SubSection
       title="AF-4 · FAQ 两态（shadcn Accordion）"
-      description="type=single collapsible；页面默认展开首条（AF-4b）。问 18px display、答 15px。"
+      description="type=single collapsible；页面默认展开首条（AF-4b）。桌面 lg：问 18/28 display、chevron 18、答 14/24 max-w 672、分隔线 foreground/10；移动 md：问 17/25.5、chevron 16、答 14/1.4、border-t/b border/40。"
       platform="shared"
     >
       <div className="grid gap-6 lg:grid-cols-2">
@@ -52,11 +52,19 @@ export const LiteAffiliatePage = (_: P) => (
     </SubSection>
 
     <SubSection
-      title="AF-5 · Hero 插画位（AffiliateHeroArt）"
-      description="资产路径 public/assets/{desktop,mobile}/affiliate-hero-lynx.png（560×560 / 343×200，透明底）。文件缺失时：生产不渲染，开发显示虚线规格框（本帧即缺失态）。"
+      title="AF-5 · 插画位（AffiliateArt · 缺资产态）"
+      description="所有插画位共用 AffiliateArt：按文件名从 src/assets/affiliate/ 解析（import.meta.glob），缺文件时生产不渲染、开发显示虚线规格框（本帧 = hero-x 缺失态）。18 个槽位的导出规格见 AffiliateArt.tsx 头注释。"
       platform="shared"
     >
-      <DualDevicePreview previewKey="affiliate-hero-art-slot" label="AffiliateHeroArt · missing-asset state" minHeight={360} />
+      <DualDevicePreview previewKey="affiliate-hero-art-slot" label="AffiliateArt · hero-x · missing-asset state" minHeight={360} />
+    </SubSection>
+
+    <SubSection
+      title="AF-6 · 桌面点导航（AffiliateDotNav）"
+      description="桌面专属：fixed left 40 / 垂直居中，≥1400px 视口才显示（1280 会压到容器）。JUMP_LINKS 六项一行一枚，IntersectionObserver 滚动联动：当前节显示编号 + 7.7px cyan 点，其余 4.8px #646972 点。字典帧里去 fixed 静态展示（无节可联动 → 恒 01）。"
+      platform="desktop"
+    >
+      <DualDevicePreview previewKey="affiliate-dot-nav" label="AffiliateDotNav · static frame" minHeight={260} />
     </SubSection>
   </LitePage>
 );
