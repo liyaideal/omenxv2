@@ -2,10 +2,23 @@ import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { SeoFooter } from "@/components/seo";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
+import { omenxLogo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
-import { ArrowDown, ArrowUpRight } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowRight,
+  ArrowUpRight,
+  CircleDollarSign,
+  Handshake,
+  Megaphone,
+  Network,
+  Users,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
 import { AffiliatePageMobile } from "./AffiliatePageMobile";
-import { AffiliateHeroArt } from "@/components/affiliate/AffiliateHeroArt";
+import { AffiliateArt } from "@/components/affiliate/AffiliateArt";
+import { AffiliateDotNav } from "@/components/affiliate/AffiliateDotNav";
 import { EarningsLedger } from "@/components/affiliate/EarningsLedger";
 import { FeeBaseComparison } from "@/components/affiliate/FeeBaseComparison";
 import { AffiliateFaq } from "@/components/affiliate/AffiliateFaq";
@@ -24,7 +37,6 @@ import {
   HERO,
   HOW_YOU_EARN,
   INSIGHTS_URL,
-  JUMP_LINKS,
   MARKETS,
   MARKETS_HEAD,
   MARKETS_NOTE,
@@ -37,130 +49,97 @@ import {
 } from "@/components/affiliate/affiliateContent";
 
 /* ------------------------------------------------------------------ */
-/* Marketing surface · scale L (DESIGN.md §19.4)                        */
-/* Skeleton = §19.1 (bleed bands, hairlines, tracks, ghost numbers).    */
-/* Scale = outward marketing: display h2 40px, body 15–16px, numbers    */
-/* as protagonists. /developers keeps scale S.                          */
+/* /affiliate · desktop — brand backflow of Figma Omenx_Affiliate       */
+/* (file p3V2cA7MbmECbwKwhXtur4, frame 42:11744, 2026-09-18).           */
+/* Copy is frozen in affiliateContent.ts; this file is the visual layer.*/
+/* Container = Lite canonical `max-w-7xl px-4 lg:px-6` → 1232 content.  */
 /* ------------------------------------------------------------------ */
 
-const dotBg =
-  "bg-[radial-gradient(circle_at_1px_1px,hsl(var(--muted-foreground)/0.15)_1px,transparent_0)] [background-size:22px_22px]";
-
+const container = "mx-auto w-full max-w-7xl px-4 lg:px-6";
 const ext = { target: "_blank", rel: "noopener noreferrer" } as const;
 
+const BENEFIT_ICONS: LucideIcon[] = [CircleDollarSign, Users, Network, Megaphone, Zap, Handshake];
+
+/** Split "Total trading volume" → ["Total", "trading volume"] (design stacks the label after the first word). */
+const splitLabel = (label: string) => {
+  const i = label.indexOf(" ");
+  return i === -1 ? [label] : [label.slice(0, i), label.slice(i + 1)];
+};
+
 const Eyebrow = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-  <span className={cn("block text-[11px] font-mono uppercase tracking-[0.24em] text-primary", className)}>{children}</span>
+  <span className={cn("block font-sans text-[11px] font-semibold uppercase leading-[15px] tracking-[2px] text-primary", className)}>
+    {children}
+  </span>
 );
 
-const SectionHeader = ({
+const PrimaryLink = ({ label, className }: { label: string; className?: string }) => (
+  <Button asChild className={cn("h-12 gap-2 rounded-md bg-primary px-6 font-sans text-sm font-semibold leading-5 text-[#04070F] shadow-[0_10px_18px_rgba(29,206,248,0.24)] hover:bg-primary/90", className)}>
+    <a href={APPLY_URL} {...ext}>
+      {label} <ArrowRight className="h-4 w-4" />
+    </a>
+  </Button>
+);
+
+const SectionHead = ({
   n,
   eyebrow,
   title,
   subtitle,
-  right,
+  children,
 }: {
   n: string;
   eyebrow: string;
   title: string[];
   subtitle?: string;
-  right?: React.ReactNode;
+  children?: React.ReactNode;
 }) => (
-  <div className="relative pb-8 mb-12 border-b border-border/30">
-    <span
-      aria-hidden
-      className="absolute right-0 -top-6 font-mono font-bold text-[120px] leading-none text-muted-foreground/[0.07] select-none pointer-events-none"
-    >
-      {n}
-    </span>
-    <div className="relative max-w-3xl">
-      <Eyebrow>{eyebrow}</Eyebrow>
-      <h2 className="mt-4 font-display font-medium tracking-[-0.015em] text-4xl lg:text-[40px] leading-[1.1] text-foreground">
-        {title.map((l) => (
-          <span key={l} className="block">
-            {l}
-          </span>
-        ))}
-      </h2>
-      {subtitle && <p className="mt-4 text-base text-muted-foreground leading-relaxed max-w-2xl">{subtitle}</p>}
-      {right && <div className="mt-7">{right}</div>}
+  <div>
+    <Eyebrow>
+      {n} · {eyebrow}
+    </Eyebrow>
+    <h2 className="pt-5 font-display text-[56px] font-medium capitalize leading-[59.9px] text-foreground">
+      {title.map((l) => (
+        <span key={l} className="block">
+          {l}
+        </span>
+      ))}
+    </h2>
+    {subtitle && <p className="max-w-[496px] pt-5 font-sans text-sm leading-6 text-muted-foreground">{subtitle}</p>}
+    {children}
+  </div>
+);
+
+/** Exhibit head: full-width illustration block with the 02.x label, title, intro and tag on top. */
+const ExhibitHead = ({
+  n,
+  title,
+  intro,
+  tag,
+  art,
+}: {
+  n: string;
+  title: string;
+  intro: string;
+  tag: string;
+  art: "earn-1-desktop" | "earn-2-desktop";
+}) => (
+  <div className="relative h-[186px] overflow-hidden">
+    <AffiliateArt name={art} width={1224} height={186} className="absolute inset-0 h-full w-full" />
+    <div className="relative flex h-full w-[938px] flex-col py-3">
+      <Eyebrow>{n}</Eyebrow>
+      <div className="mt-2.5 flex flex-1 flex-col justify-between">
+        <div>
+          <h3 className="font-display text-[30px] font-medium leading-9 text-foreground">{title}</h3>
+          <p className="mt-1.5 max-w-[448px] font-sans text-xs leading-[1.4] text-muted-foreground">{intro}</p>
+        </div>
+        <span className="font-sans text-[10px] uppercase leading-[15px] tracking-[2px] text-white/50">{tag}</span>
+      </div>
     </div>
   </div>
 );
 
-const Band = ({
-  id,
-  children,
-  className,
-}: {
-  id?: string;
-  children: React.ReactNode;
-  className?: string;
-}) => (
-  <section
-    id={id}
-    className={cn(
-      "relative w-full border-t border-border/30 scroll-mt-16",
-      "bg-background",
-      className,
-    )}
-  >
-    <div className="w-full max-w-7xl mx-auto md:border-x border-border/40 px-6 md:px-10 py-20 md:py-28">{children}</div>
-  </section>
-);
-
-const ApplyButton = ({ label, className, variant = "default" }: { label: string; className?: string; variant?: "default" | "outline" }) => (
-  <Button size="lg" variant={variant} asChild className={cn("gap-2 h-12 px-6 text-[15px]", className)}>
-    <a href={APPLY_URL} {...ext}>
-      {label} <ArrowUpRight className="w-4 h-4" />
-    </a>
-  </Button>
-);
-
-const TextLink = ({ href, children, external, className }: { href: string; children: React.ReactNode; external?: boolean; className?: string }) => (
-  <a
-    href={href}
-    {...(external ? ext : {})}
-    className={cn(
-      "inline-flex items-center gap-1.5 text-[15px] text-foreground/90 hover:text-primary transition-colors underline-offset-4 hover:underline",
-      className,
-    )}
-  >
-    {children}
-  </a>
-);
-
-/** Framed exhibit: header strip (number · title · intro · tag) + body + fine-print footer. */
-const Exhibit = ({
-  n,
-  tag,
-  title,
-  intro,
-  note,
-  children,
-}: {
-  n: string;
-  tag: string;
-  title: string;
-  intro: string;
-  note: string;
-  children: React.ReactNode;
-}) => (
-  <figure className="rounded-xl border border-border/60 bg-card overflow-hidden">
-    <figcaption className="px-7 py-6 border-b border-border/40 flex items-start justify-between gap-8">
-      <div className="max-w-2xl">
-        <span className="font-mono text-[11px] text-primary tracking-[0.18em]">{n}</span>
-        <h3 className="mt-2 font-display font-medium tracking-[-0.01em] text-2xl text-foreground">{title}</h3>
-        <p className="text-[15px] text-muted-foreground mt-2 leading-relaxed">{intro}</p>
-      </div>
-      <span className="hidden md:inline-flex shrink-0 rounded-full border border-border/70 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-        {tag}
-      </span>
-    </figcaption>
-    {children}
-    <div className="px-7 py-4 border-t border-border/40 bg-muted/10">
-      <p className="text-[13px] text-muted-foreground/80 leading-relaxed">{note}</p>
-    </div>
-  </figure>
+const Footnote = ({ children }: { children: React.ReactNode }) => (
+  <p className="mt-5 font-sans text-xs leading-5 text-[#646972]">{children}</p>
 );
 
 /* ------------------------------------------------------------------ */
@@ -169,304 +148,354 @@ const AffiliatePage = () => {
   const isMobile = useIsMobile();
   if (isMobile) return <AffiliatePageMobile />;
 
+  const accentLead = HERO.titleAccent.replace(/\s*OmenX\.?$/, "");
+
   return (
-    <div className="min-h-screen bg-background flex flex-col pb-safe">
+    <div className="flex min-h-screen flex-col bg-background pb-safe">
       <EventsDesktopHeader />
+      <AffiliateDotNav />
 
-      <main className="flex-1 w-full">
+      <main className="w-full flex-1">
         {/* ============================== HERO ============================== */}
-        <section className="relative overflow-hidden border-b border-border/40">
-          <div className={cn("absolute inset-0 opacity-40", dotBg)} />
-          <div className="absolute -top-32 -right-32 w-[640px] h-[640px] rounded-full bg-primary/[0.07] blur-[140px] pointer-events-none" />
-
-          <div className="relative w-full max-w-7xl mx-auto md:border-x border-border/40 px-6 md:px-10 pt-20 lg:pt-28 pb-16">
-            <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-12 lg:gap-16 items-center">
-              <div className="animate-fade-in">
-                <Eyebrow>{HERO.eyebrow}</Eyebrow>
-                <h1 className="mt-6 font-display font-bold text-5xl lg:text-[60px] xl:text-[64px] leading-[0.98] tracking-[-0.025em] text-foreground">
-                  {HERO.titleLines.map((l) => (
-                    <span key={l} className="block">
-                      {l}
+        <section className="relative overflow-hidden">
+          <div className={cn(container, "relative pb-10 pt-[60px]")}>
+            <AffiliateArt
+              name="hero-x-desktop"
+              width={661}
+              height={496}
+              fit="contain"
+              eager
+              className="absolute left-[601px] top-[55px] h-[496px] w-[661px]"
+            />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 bottom-0 top-[60px]"
+              style={{
+                backgroundImage:
+                  "linear-gradient(180deg, rgba(7,9,17,0) 66%, rgb(7,9,17) 100%), linear-gradient(-90deg, rgba(9,9,15,0) 17%, rgb(9,9,15) 70%)",
+              }}
+            />
+            <div className="relative w-[705px]">
+              <Eyebrow>{HERO.eyebrow}</Eyebrow>
+              <h1 className="mt-1 font-display text-[72px] font-bold capitalize leading-[84px] tracking-[-1px] text-foreground">
+                {HERO.titleLines.map((l) => (
+                  <span key={l} className="block">
+                    {l}
+                  </span>
+                ))}
+                <span className="block text-primary">
+                  {accentLead.split(" ").map((w, i) => (
+                    <span key={w} className={cn(i > 0 && "normal-case")}>
+                      {i > 0 ? " " : ""}
+                      {w}
                     </span>
-                  ))}
-                  <span className="block text-primary">{HERO.titleAccent}</span>
-                </h1>
-                <p className="mt-8 text-lg text-muted-foreground max-w-xl leading-relaxed">{HERO.intro}</p>
-                <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
-                  <ApplyButton label={HERO.primaryCta} />
-                  <TextLink href="#earnings" className="text-base">
-                    {HERO.secondaryCta} <ArrowDown className="w-4 h-4" />
-                  </TextLink>
-                </div>
-                <p className="mt-6 text-sm text-muted-foreground">{HERO.note}</p>
+                  ))}{" "}
+                  <span
+                    role="img"
+                    aria-label="OmenX"
+                    className="inline-block h-[0.57em] w-[calc(0.57em*376/76)] bg-current align-baseline"
+                    style={{ WebkitMaskImage: `url(${omenxLogo})`, maskImage: `url(${omenxLogo})`, WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat" }}
+                  />
+                </span>
+              </h1>
+              <p className="mt-2 max-w-[656px] font-sans text-lg leading-7 text-foreground/60">{HERO.intro}</p>
+              <div className="flex items-center gap-4 pt-9">
+                <PrimaryLink label={HERO.primaryCta} />
+                <a href="#earnings" className="inline-flex h-12 items-center gap-2 px-3 font-sans text-sm font-medium leading-5 text-foreground transition-colors hover:text-primary">
+                  {HERO.secondaryCta} <ArrowDown className="h-[15px] w-[15px]" />
+                </a>
               </div>
-
-              <div className="relative flex justify-end animate-fade-in" style={{ animationDelay: "75ms" }}>
-                <AffiliateHeroArt variant="desktop" caption={HERO.artCaption} className="w-full max-w-[480px]" />
-              </div>
+              <p className="pt-6 font-sans text-sm leading-4 text-[#646972]">{HERO.note}</p>
             </div>
           </div>
 
-          {/* Data banner — platform snapshot */}
-          <div className="relative border-t border-border/40">
-            <div className="w-full max-w-7xl mx-auto md:border-x border-border/40 px-6 md:px-10 py-10 grid lg:grid-cols-[1fr_auto] gap-10 items-center">
-              <div className="grid grid-cols-[auto_1fr] gap-10 items-center">
-                <p className="text-base text-foreground/90 leading-snug pl-5 relative">
-                  <span className="absolute left-0 top-0 bottom-0 w-px bg-trading-purple/50" />
-                  {HERO.bottomLine.map((l) => (
-                    <span key={l} className="block">
-                      {l}
-                    </span>
-                  ))}
+          {/* Data band — platform snapshot */}
+          <div className="border-b border-[#13151D] bg-[#05070E]">
+            <div className={cn(container, "pb-14 pt-10")}>
+              <div className="flex h-16 items-center justify-between gap-8">
+                <p className="font-display text-[30px] font-semibold leading-[1.2] text-[#F5F2EB]">
+                  <span className="block">{HERO.bottomLine[0]}</span>
+                  <span className="block">
+                    {HERO.bottomLine[1].split("new opportunity").map((part, i) => (
+                      <span key={i}>
+                        {i > 0 && <span className="text-primary">new opportunity</span>}
+                        {part}
+                      </span>
+                    ))}
+                  </span>
                 </p>
-                <div className="flex flex-wrap items-start gap-x-14 gap-y-6">
-                  {METRICS.map((s) => (
-                    <div key={s.label} className="flex flex-col">
-                      <div className="font-mono text-[44px] font-bold text-foreground leading-none tabular-nums">{s.value}</div>
-                      <div className="mt-2.5 flex gap-[3px] h-[3px]">
-                        <span className="w-5 bg-primary/70" />
-                        <span className="w-2.5 bg-primary/35" />
-                        <span className="w-1.5 bg-primary/20" />
-                      </div>
-                      <div className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground mt-2.5">{s.label}</div>
-                    </div>
-                  ))}
+                <div className="flex flex-col items-end gap-1 font-sans text-base leading-[1.2]">
+                  <span className="text-muted-foreground">{HERO.snapshotLink}</span>
+                  <a href={INSIGHTS_URL} {...ext} className="inline-flex items-center gap-1 text-[#E6E6E6] transition-colors hover:text-primary">
+                    {HERO.snapshotLabel} <ArrowUpRight className="h-5 w-5" />
+                  </a>
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground text-right leading-relaxed">
-                {HERO.snapshotLabel}
-                <br />
-                <a href={INSIGHTS_URL} {...ext} className="inline-flex items-center gap-1 text-foreground/90 hover:text-primary transition-colors">
-                  {HERO.snapshotLink} <ArrowUpRight className="w-3.5 h-3.5" />
-                </a>
-              </p>
+              <div className="mt-8 h-px w-full bg-[#13151D]" />
+              <div className="mt-8 flex items-center justify-between">
+                {METRICS.map((s) => (
+                  <div key={s.label} className="flex items-end gap-2.5">
+                    <span className="font-display text-[60px] font-bold leading-[44px] text-foreground tabular-nums">{s.value}</span>
+                    <span className="font-sans text-base uppercase leading-4 text-muted-foreground">
+                      {splitLabel(s.label).map((l) => (
+                        <span key={l} className="block">
+                          {l}
+                        </span>
+                      ))}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-
-          {/* Jump rail — replaces the original page nav */}
-          <div className="relative border-t border-border/40">
-            <nav
-              aria-label="On this page"
-              className="w-full max-w-7xl mx-auto md:border-x border-border/40 px-6 md:px-10 h-16 flex items-center gap-3 overflow-x-auto"
-            >
-              {JUMP_LINKS.map((j) => (
-                <a
-                  key={j.href}
-                  href={j.href}
-                  className="group inline-flex items-center gap-2.5 h-9 px-4 rounded-full border border-border/70 bg-background/60 font-mono text-[11px] uppercase tracking-[0.16em] text-foreground/80 hover:text-foreground hover:border-primary/50 hover:bg-primary/10 transition-colors whitespace-nowrap"
-                >
-                  <span className="text-primary/70 group-hover:text-primary transition-colors">{j.n}</span>
-                  {j.label}
-                </a>
-              ))}
-            </nav>
           </div>
         </section>
 
         {/* ========================= 01 BENEFITS ========================= */}
-        <Band id="benefits">
-          <SectionHeader n="01" eyebrow={BENEFITS_HEAD.eyebrow} title={BENEFITS_HEAD.title} subtitle={BENEFITS_HEAD.sub} />
-          <div className="border-y border-border/40">
-            <div className="grid md:grid-cols-3 md:divide-x divide-y md:divide-y-0 divide-border/40">
-              {BENEFITS.map((b, i) => (
-                <article
-                  key={b.n}
-                  className={cn("px-7 py-10 flex flex-col gap-3 min-h-[220px]", i >= 3 && "md:border-t border-border/40")}
-                >
-                  <span className="font-mono text-sm text-accent">{b.n}</span>
-                  <h3 className="mt-2 font-display font-medium tracking-[-0.01em] text-[22px] text-foreground leading-tight">{b.title}</h3>
-                  <p className="text-[15px] text-muted-foreground leading-relaxed">{b.body}</p>
-                </article>
-              ))}
+        <section id="benefits" className="scroll-mt-16">
+          <div className={cn(container, "pb-[104px] pt-10")}>
+            <SectionHead n="01" eyebrow={BENEFITS_HEAD.eyebrow} title={BENEFITS_HEAD.title} subtitle={BENEFITS_HEAD.sub} />
+            <div className="mt-14 grid grid-cols-3 gap-5">
+              {BENEFITS.map((b, i) => {
+                const Icon = BENEFIT_ICONS[i];
+                return (
+                  <article
+                    key={b.n}
+                    className="rounded-[14px] border border-border/60 bg-[linear-gradient(160deg,rgba(11,15,25,0.78)_6%,rgba(5,7,14,0.92)_94%)] px-7 pb-9 pt-8"
+                  >
+                    <div className="flex items-start justify-between">
+                      <span className="pt-3 font-display text-sm leading-5 text-primary">{b.n}</span>
+                      <span className="flex h-11 w-11 items-center justify-center rounded-md border border-primary/20 bg-primary/5 text-primary">
+                        <Icon className="h-5 w-5" strokeWidth={1.5} />
+                      </span>
+                    </div>
+                    <h3 className="pt-5 font-display text-[22px] font-medium leading-[27.5px] tracking-[-0.22px] text-foreground">{b.title}</h3>
+                    <p className="pt-3 font-sans text-sm leading-[24.4px] text-muted-foreground">{b.body}</p>
+                  </article>
+                );
+              })}
             </div>
           </div>
-        </Band>
+        </section>
 
         {/* ========================= 02 EARNINGS ========================= */}
-        <Band id="earnings">
-          <SectionHeader n="02" eyebrow={EARNINGS_HEAD.eyebrow} title={EARNINGS_HEAD.title} subtitle={EARNINGS_HEAD.sub} />
+        <section id="earnings" className="scroll-mt-16">
+          <div className={cn(container, "pb-[111px] pt-10")}>
+            <SectionHead n="02" eyebrow={EARNINGS_HEAD.eyebrow} title={EARNINGS_HEAD.title} subtitle={EARNINGS_HEAD.sub} />
 
-          {/* Two exhibits, each framed as a product object (statement / benchmark) so they read apart. */}
-          <div className="space-y-16">
-            <Exhibit n="02.1" tag="Illustrative · monthly" title={HOW_YOU_EARN.title} intro={HOW_YOU_EARN.intro} note={HOW_YOU_EARN.note}>
-              <EarningsLedger className="border-y-0" />
-            </Exhibit>
-            <Exhibit n="02.2" tag="Benchmark · same volume" title={FEE_BASE.title} intro={FEE_BASE.intro} note={FEE_BASE.note}>
-              <FeeBaseComparison className="border-y-0" />
-            </Exhibit>
+            <div className="mt-[30px]">
+              <ExhibitHead n="02.1" title={HOW_YOU_EARN.title} intro={HOW_YOU_EARN.intro} tag="Illustrative · monthly" art="earn-1-desktop" />
+              <EarningsLedger className="mt-5" />
+              <Footnote>{HOW_YOU_EARN.note}</Footnote>
+            </div>
+
+            <div className="mt-7">
+              <div className="h-px w-full bg-foreground/10" />
+              <div className="mt-[30px]">
+                <ExhibitHead n="02.2" title={FEE_BASE.title} intro={FEE_BASE.intro} tag="Illustrative · monthly" art="earn-2-desktop" />
+              </div>
+              <FeeBaseComparison className="mt-[19px]" />
+              <Footnote>{FEE_BASE.note}</Footnote>
+            </div>
           </div>
 
-          <div className="mt-14 pt-8 border-t border-border/30 flex items-center justify-between gap-6">
-            <p className="font-display text-xl text-foreground/90">{EARNINGS_END.line}</p>
-            <TextLink href={APPLY_URL} external className="text-base">
-              {EARNINGS_END.cta} <ArrowUpRight className="w-4 h-4" />
-            </TextLink>
+          {/* Apply band */}
+          <div className="relative h-[260px] overflow-hidden">
+            <AffiliateArt name="earn-band-desktop" width={1440} height={260} className="absolute inset-0 h-full w-full" />
+            <div className={cn(container, "relative pt-[52px]")}>
+              <p className="w-[390px] font-display text-[30px] font-medium capitalize leading-[1.2] tracking-[-1px] text-foreground">{EARNINGS_END.line}</p>
+              <a href={APPLY_URL} {...ext} className="mt-3 inline-flex items-center gap-2 font-sans text-[22px] leading-[21px] text-primary transition-opacity hover:opacity-80">
+                {EARNINGS_END.cta} <ArrowRight className="h-4 w-4" />
+              </a>
+            </div>
           </div>
-        </Band>
+        </section>
 
         {/* ======================== 03 HOW IT WORKS ======================== */}
-        <Band id="how-it-works">
-          <SectionHeader
-            n="03"
-            eyebrow={STEPS_HEAD.eyebrow}
-            title={STEPS_HEAD.title}
-            right={<ApplyButton label={STEPS_HEAD.cta} variant="outline" />}
-          />
-          <div className="relative border-y border-border/40">
-            <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-border via-border to-primary" />
-            <div className="grid md:grid-cols-3 md:divide-x divide-y md:divide-y-0 divide-border/40">
+        <section id="how-it-works" className="scroll-mt-16">
+          <div className={cn(container, "pb-[108px] pt-10")}>
+            <SectionHead n="03" eyebrow={STEPS_HEAD.eyebrow} title={STEPS_HEAD.title}>
+              <div className="pt-7">
+                <PrimaryLink label={STEPS_HEAD.cta} className="h-11 px-5 text-base" />
+              </div>
+            </SectionHead>
+            <div className="mt-14 grid grid-cols-3 gap-5">
               {STEPS.map((s) => (
-                <div key={s.n} className="px-7 py-10 flex flex-col">
-                  <span aria-hidden className="font-mono font-bold text-5xl leading-none text-primary/80 tabular-nums">
-                    {s.n}
-                  </span>
-                  <div className="mt-6 font-display font-medium tracking-[-0.01em] text-[22px] text-foreground leading-tight">{s.title}</div>
-                  <p className="text-[15px] text-muted-foreground mt-3 leading-relaxed">{s.body}</p>
+                <div key={s.n} className="min-h-[240px] rounded-lg bg-card p-7">
+                  <span className="font-display text-sm leading-5 text-primary">{s.n}</span>
+                  <div className="mt-12 font-display text-xl font-medium leading-7 text-foreground">{s.title}</div>
+                  <p className="mt-3 font-sans text-sm leading-6 text-muted-foreground">{s.body}</p>
                 </div>
               ))}
             </div>
           </div>
-        </Band>
+        </section>
 
         {/* =========================== 04 MARKETS =========================== */}
-        <Band id="markets">
-          <SectionHeader n="04" eyebrow={MARKETS_HEAD.eyebrow} title={MARKETS_HEAD.title} subtitle={MARKETS_HEAD.sub} />
-          <div className="border-y border-border/40">
-            <div className="grid md:grid-cols-3 md:divide-x divide-y md:divide-y-0 divide-border/40">
-              {MARKETS.map((m) => (
-                <article key={m.category} className="px-7 py-10 flex flex-col">
-                  <Eyebrow>{m.category}</Eyebrow>
-                  <h3 className="mt-4 font-display font-medium tracking-[-0.015em] text-[28px] text-foreground leading-[1.1]">
-                    {m.title.map((l) => (
-                      <span key={l} className="block">
-                        {l}
-                      </span>
-                    ))}
-                  </h3>
-                  <p className="mt-4 text-[15px] text-muted-foreground leading-relaxed">{m.body}</p>
-                  <div className="mt-auto pt-8 flex items-end gap-3">
-                    {m.logos.map((l) => (
-                      <div key={l.label} className="flex flex-col items-center gap-2.5">
-                        <div className="h-[72px] min-w-[72px] px-3 rounded-2xl border border-border/60 bg-card flex items-center justify-center">
-                          <img src={l.src} alt="" className="max-h-10 max-w-[64px] object-contain" loading="lazy" />
-                        </div>
-                        <span className="font-mono text-xs text-muted-foreground">{l.label}</span>
-                      </div>
-                    ))}
+        <section id="markets" className="scroll-mt-16">
+          <div className={cn(container, "pb-[91px] pt-10")}>
+            <SectionHead n="04" eyebrow={MARKETS_HEAD.eyebrow} title={MARKETS_HEAD.title} subtitle={MARKETS_HEAD.sub} />
+            <div className="mt-14">
+              {MARKETS.map((m, i) => {
+                const art = (["market-sports-desktop", "market-crypto-desktop", "market-finance-desktop"] as const)[i];
+                const artSize = [
+                  [616, 376],
+                  [672, 347],
+                  [672, 376],
+                ][i];
+                const imageFirst = i % 2 === 0;
+                const image = (
+                  <div className="relative">
+                    <AffiliateArt name={art} width={artSize[0]} height={artSize[1]} className="absolute inset-0 h-full w-full" />
                   </div>
-                </article>
-              ))}
-            </div>
-            <div className="border-t border-border/40 px-7 py-6 flex flex-wrap items-center justify-between gap-4">
-              <p className="text-[15px] text-muted-foreground">
-                <span className="font-semibold text-foreground">{MARKETS_NOTE.strong}</span> {MARKETS_NOTE.body}
-              </p>
-              <span className="rounded-full border border-border/70 bg-background/60 px-3.5 py-1.5 font-mono text-xs text-foreground/80">
-                {MARKETS_NOTE.chip}
-              </span>
-            </div>
-          </div>
-        </Band>
-
-        {/* ========================= 05 PARTNERSHIPS ========================= */}
-        <Band id="partners">
-          {/* Team proof */}
-          <div className="flex flex-col md:flex-row md:items-center gap-8 md:gap-16 pb-12 mb-14 border-b border-border/30">
-            <p className="font-display text-xl text-foreground/90 leading-snug shrink-0">
-              {TEAM_PROOF.line.map((l) => (
-                <span key={l} className="block">
-                  {l}
-                </span>
-              ))}
-            </p>
-            <div className="flex flex-wrap items-center gap-x-12 gap-y-5" aria-label={TEAM_PROOF.ariaLabel}>
-              {TEAM_PROOF.logos.map((l) =>
-                l.primary ? (
-                  <span key={l.alt} className="inline-flex items-center gap-3 text-foreground font-semibold text-xl">
-                    <img src={l.src} alt="" className="w-9 h-9 object-contain" loading="lazy" />
-                    {l.wordmark}
-                  </span>
-                ) : (
-                  <img key={l.alt} src={l.src} alt={l.alt} className="h-7 w-auto object-contain opacity-70 grayscale" loading="lazy" />
-                ),
-              )}
-            </div>
-          </div>
-
-          <SectionHeader n="05" eyebrow={PARTNERS_HEAD.eyebrow} title={PARTNERS_HEAD.title} />
-          <div className="grid md:grid-cols-2 gap-10">
-            {PARTNERS.map((p) => (
-              <figure key={p.title} className="flex flex-col">
-                <div className="rounded-lg border border-border/50 overflow-hidden bg-card aspect-[16/9]">
-                  <img src={p.src} alt={p.alt} className="w-full h-full object-cover" loading="lazy" />
-                </div>
-                <figcaption className="mt-6">
-                  <Eyebrow>{p.label}</Eyebrow>
-                  <h3 className="mt-3 font-display font-medium tracking-[-0.01em] text-2xl text-foreground">{p.title}</h3>
-                  <p className="mt-2 text-[15px] text-muted-foreground leading-relaxed">{p.body}</p>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-          <div className="mt-14 pt-8 border-t border-border/30 flex items-center gap-3 text-[15px] text-muted-foreground">
-            <span>{BASE_LINE.pre}</span>
-            <img src="/chain-logos/base.svg" alt="Base" className="h-6 w-6" loading="lazy" />
-            <span>{BASE_LINE.post}</span>
-          </div>
-        </Band>
-
-        {/* ============================ 06 FAQ ============================ */}
-        <Band id="faq">
-          <div className="grid lg:grid-cols-[0.4fr_0.6fr] gap-12 lg:gap-20">
-            <div>
-              <Eyebrow className="text-muted-foreground/70">{FAQ_HEAD.eyebrow}</Eyebrow>
-              <h2 className="mt-4 font-display font-medium tracking-[-0.015em] text-[40px] text-foreground">{FAQ_HEAD.title}</h2>
-              <p className="mt-4 text-base text-muted-foreground">
-                {FAQ_HEAD.help}{" "}
-                <a href={`mailto:${CONTACT_EMAIL}`} className="inline-flex items-center gap-1 text-foreground/90 hover:text-primary transition-colors">
-                  {CONTACT_EMAIL} <ArrowUpRight className="w-3.5 h-3.5" />
-                </a>
-              </p>
-            </div>
-            <AffiliateFaq size="lg" />
-          </div>
-        </Band>
-
-        {/* ============================== CTA ============================== */}
-        <section id="apply" className="relative w-full border-y border-border/40 bg-background scroll-mt-16 overflow-hidden">
-          <div className={cn("absolute inset-0 opacity-30", dotBg)} />
-          <div className="relative w-full max-w-7xl mx-auto md:border-x border-border/40 px-6 md:px-10 py-24 md:py-32">
-            <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
-              <div>
-                <Eyebrow>{APPLY.eyebrow}</Eyebrow>
-                <h3 className="mt-5 font-display font-medium tracking-[-0.02em] text-5xl lg:text-[56px] text-foreground leading-[1.02]">
-                  <span className="block">{APPLY.title}</span>
-                  <span className="block text-primary">{APPLY.titleAccent}</span>
-                </h3>
-              </div>
-              <div className="lg:pl-12 lg:border-l border-border/30">
-                <p className="text-lg text-muted-foreground max-w-md leading-relaxed">{APPLY.body}</p>
-                <div className="mt-8">
-                  <ApplyButton label={APPLY.cta} />
-                </div>
-                <p className="mt-8 text-sm text-muted-foreground">
-                  {APPLY.contactLead}
-                  <br />
-                  <a href={`mailto:${CONTACT_EMAIL}`} className="text-foreground/90 hover:text-primary transition-colors text-base">
-                    {CONTACT_EMAIL}
-                  </a>
+                );
+                const text = (
+                  <div className="flex flex-col justify-center p-12">
+                    <Eyebrow>{m.category}</Eyebrow>
+                    <h3 className="mt-5 font-display text-[30px] font-medium leading-[1.2] text-foreground">
+                      {m.title.map((l) => (
+                        <span key={l} className="block">
+                          {l}
+                        </span>
+                      ))}
+                    </h3>
+                    <p className="mt-5 max-w-[448px] font-sans text-sm leading-6 text-muted-foreground">{m.body}</p>
+                    <div className="mt-8 flex items-end gap-3">
+                      {m.logos.map((l) => (
+                        <div key={l.label} className="flex flex-col items-center">
+                          <div className="flex h-[72px] min-w-[72px] items-center justify-center rounded-2xl border border-border/60 bg-card px-3">
+                            <img src={l.src} alt="" className="max-h-10 max-w-16 object-contain" loading="lazy" />
+                          </div>
+                          <span className="mt-2.5 font-display text-xs leading-4 text-muted-foreground">{l.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+                return (
+                  <article
+                    key={m.category}
+                    className={cn(
+                      "grid grid-cols-2 overflow-hidden rounded-lg bg-[rgba(5,7,14,0.65)] shadow-[0_22px_70px_rgba(5,7,14,0.45)] ring-1 ring-foreground/5",
+                      i === 1 ? "min-h-[347px]" : "min-h-[376px]",
+                      i > 0 && "mt-8",
+                    )}
+                  >
+                    {imageFirst ? image : text}
+                    {imageFirst ? text : image}
+                  </article>
+                );
+              })}
+              <div className="mt-5 flex items-center justify-between gap-6 py-6">
+                <p className="font-sans text-[15px] leading-6 text-muted-foreground">
+                  <span className="font-semibold text-foreground">{MARKETS_NOTE.strong}</span> {MARKETS_NOTE.body}
                 </p>
+                <span className="shrink-0 rounded-full border border-accent/70 bg-accent/[0.04] px-3.5 py-1.5 font-display text-xs leading-[19.2px] text-accent/80">
+                  {MARKETS_NOTE.chip}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Team proof band */}
+          <div className="border-y border-foreground/10">
+            <div className={cn(container, "flex items-center justify-between gap-12 py-5")}>
+              <p className="py-8 font-display text-[30px] leading-[32.4px] text-foreground">
+                {TEAM_PROOF.line.map((l) => (
+                  <span key={l} className="block">
+                    {l}
+                  </span>
+                ))}
+              </p>
+              <div className="flex items-center gap-12" aria-label={TEAM_PROOF.ariaLabel}>
+                {TEAM_PROOF.logos.map((l, i) =>
+                  l.primary ? (
+                    <span key={l.alt} className="inline-flex items-center gap-1.5 font-sans text-[32.78px] font-semibold leading-[45.9px] text-[#B4B5B7]">
+                      <img src={l.src} alt="" className="h-[41px] w-[41px] object-contain" loading="lazy" />
+                      {l.wordmark}
+                    </span>
+                  ) : (
+                    <img
+                      key={l.alt}
+                      src={l.src}
+                      alt={l.alt}
+                      className={cn("w-auto object-contain opacity-70", i === 1 ? "h-11" : "h-7")}
+                      loading="lazy"
+                    />
+                  ),
+                )}
               </div>
             </div>
           </div>
         </section>
 
-        {/* Program disclaimer (kept from the original footer) */}
-        <div className="w-full border-t border-border/30">
-          <div className="w-full max-w-7xl mx-auto md:border-x border-border/40 px-6 md:px-10 py-5">
-            <p className="text-[13px] text-muted-foreground/80 leading-relaxed">{DISCLAIMER}</p>
+        {/* ========================= 05 PARTNERSHIPS ========================= */}
+        <section id="partners" className="scroll-mt-16">
+          <div className={cn(container, "pb-[112px] pt-[112px]")}>
+            <SectionHead n="05" eyebrow={PARTNERS_HEAD.eyebrow} title={PARTNERS_HEAD.title} />
+            <div className="mt-12 grid grid-cols-2 gap-5">
+              {PARTNERS.map((p) => (
+                <figure key={p.title} className="overflow-hidden rounded-lg border border-foreground/[0.06] bg-card">
+                  <img src={p.src} alt={p.alt} className="h-[340px] w-full object-cover" loading="lazy" />
+                  <figcaption className="p-[18px]">
+                    <span className="block font-sans text-[10px] font-semibold uppercase leading-[15px] tracking-[2px] text-accent">{p.label}</span>
+                    <h3 className="mt-[7px] max-w-[361px] pb-4 font-display text-[30px] leading-[1.2] text-foreground">{p.title}</h3>
+                    <p className="border-t border-border pt-2.5 font-sans text-sm leading-6 text-muted-foreground">{p.body}</p>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
           </div>
-        </div>
+
+          {/* Built on Base */}
+          <div className="border-y border-foreground/10">
+            <div className={cn(container, "flex h-[120px] items-center gap-2.5 font-display text-[30px] leading-[22.5px] text-foreground")}>
+              <span>{BASE_LINE.pre}</span>
+              <img src="/chain-logos/base.svg" alt="Base" className="h-[41px] w-[41px]" loading="lazy" />
+              <span>{BASE_LINE.post}</span>
+            </div>
+          </div>
+        </section>
+
+        {/* ============================ 06 FAQ ============================ */}
+        <section id="faq" className="scroll-mt-16">
+          <div className={cn(container, "grid grid-cols-[421px_1fr] gap-12 py-[112px]")}>
+            <div>
+              <Eyebrow>{FAQ_HEAD.eyebrow}</Eyebrow>
+              <h2 className="mt-5 font-display text-[56px] font-medium leading-[59.9px] text-foreground">{FAQ_HEAD.title}</h2>
+              <p className="mt-6 font-sans text-sm leading-5 text-muted-foreground">{FAQ_HEAD.help}</p>
+              <a href={`mailto:${CONTACT_EMAIL}`} className="mt-0.5 inline-flex items-center gap-0.5 font-sans text-sm leading-5 text-[#E6E6E7] transition-colors hover:text-primary">
+                {CONTACT_EMAIL} <ArrowUpRight className="h-3.5 w-3.5" />
+              </a>
+            </div>
+            <AffiliateFaq size="lg" />
+          </div>
+        </section>
+
+        {/* ============================== CTA ============================== */}
+        <section id="apply" className="relative scroll-mt-16 overflow-hidden bg-[#05070E]">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-[364px] h-[968px] w-[1768px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+            style={{ background: "radial-gradient(ellipse at center, rgba(29,206,248,0.16) 0%, rgba(29,206,248,0) 72%)" }}
+          />
+          <AffiliateArt name="cta-mosaic-left-desktop" width={370} height={486} fit="contain" position="left bottom" className="absolute bottom-0 left-0 h-[486px] w-[370px]" />
+          <AffiliateArt name="cta-mosaic-right-desktop" width={494} height={486} fit="contain" position="right bottom" className="absolute bottom-0 right-0 h-[486px] w-[494px]" />
+
+          <div className="relative mx-auto flex w-full max-w-7xl flex-col items-center px-12 pb-[112px] pt-10 text-center">
+            <Eyebrow className="text-[10px]">{APPLY.eyebrow}</Eyebrow>
+            <h2 className="mt-6 font-display text-[72px] font-semibold capitalize leading-[73.44px] text-foreground">
+              <span className="block">{APPLY.title}</span>
+              <span className="block text-primary">{APPLY.titleAccent}</span>
+            </h2>
+            <p className="mt-7 max-w-[576px] font-sans text-sm leading-6 text-muted-foreground">{APPLY.body}</p>
+            <PrimaryLink label={APPLY.cta} className="mt-9 px-7" />
+            <p className="mt-8 font-sans text-xs leading-4 text-[#646972]">{APPLY.contactLead}</p>
+            <a href={`mailto:${CONTACT_EMAIL}`} className="mt-2 font-sans text-sm leading-5 text-foreground transition-colors hover:text-primary">
+              {CONTACT_EMAIL}
+            </a>
+            <p className="mt-8 max-w-[420px] font-sans text-[10px] leading-5 text-[#646972]">{DISCLAIMER}</p>
+          </div>
+        </section>
       </main>
 
       <SeoFooter />

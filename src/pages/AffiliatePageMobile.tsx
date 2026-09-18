@@ -2,9 +2,21 @@ import { useEffect, useRef, useState } from "react";
 import { MobileHeader } from "@/components/MobileHeader";
 import { SeoFooter } from "@/components/seo";
 import { Button } from "@/components/ui/button";
+import { omenxLogo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
-import { ArrowDown, ArrowUpRight } from "lucide-react";
-import { AffiliateHeroArt } from "@/components/affiliate/AffiliateHeroArt";
+import {
+  ArrowDown,
+  ArrowRight,
+  ArrowUpRight,
+  CircleDollarSign,
+  Handshake,
+  Megaphone,
+  Network,
+  Users,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
+import { AffiliateArt } from "@/components/affiliate/AffiliateArt";
 import { EarningsLedger } from "@/components/affiliate/EarningsLedger";
 import { FeeBaseComparison } from "@/components/affiliate/FeeBaseComparison";
 import { AffiliateFaq } from "@/components/affiliate/AffiliateFaq";
@@ -35,76 +47,78 @@ import {
   TEAM_PROOF,
 } from "@/components/affiliate/affiliateContent";
 
+/* ------------------------------------------------------------------ */
+/* /affiliate · mobile — brand backflow of Figma Omenx_Affiliate        */
+/* (file p3V2cA7MbmECbwKwhXtur4, frame 46:12621, 390 wide, 24px gutter).*/
+/* Header stays MobileHeader variant B (DESIGN §10); the pill jump rail  */
+/* and the sticky Apply CTA are production behaviour the draft did not   */
+/* redraw and are kept as-is (CPO 2026-09-18).                           */
+/* ------------------------------------------------------------------ */
+
 const ext = { target: "_blank", rel: "noopener noreferrer" } as const;
+const BENEFIT_ICONS: LucideIcon[] = [CircleDollarSign, Users, Network, Megaphone, Zap, Handshake];
+const cardBg = "bg-[linear-gradient(169deg,rgba(11,15,25,0.78)_14%,rgba(5,7,14,0.92)_86%)]";
+
+const splitLabel = (label: string) => {
+  const i = label.indexOf(" ");
+  return i === -1 ? [label] : [label.slice(0, i), label.slice(i + 1)];
+};
 
 const Eyebrow = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-  <span className={cn("block text-[11px] font-mono uppercase tracking-[0.22em] text-primary", className)}>{children}</span>
+  <span className={cn("block font-sans text-xs font-semibold uppercase leading-[15px] tracking-[2px] text-primary", className)}>{children}</span>
 );
 
-const SectionHeader = ({ n, eyebrow, title, subtitle }: { n: string; eyebrow: string; title: string[]; subtitle?: string }) => (
-  <div className="relative pb-6 border-b border-border/30 mb-8">
-    <span
-      aria-hidden
-      className="absolute right-0 -top-3 font-mono font-bold text-[72px] leading-none text-muted-foreground/[0.07] select-none pointer-events-none"
-    >
-      {n}
-    </span>
-    <div className="relative">
-      <Eyebrow>{eyebrow}</Eyebrow>
-      <h2 className="mt-3 font-display font-medium tracking-[-0.015em] text-[28px] leading-[1.12] text-foreground">
-        {title.map((l) => (
-          <span key={l} className="block">
-            {l}
-          </span>
-        ))}
-      </h2>
-      {subtitle && <p className="text-[15px] text-muted-foreground mt-3 leading-relaxed">{subtitle}</p>}
-    </div>
+const SectionHead = ({ n, eyebrow, title, subtitle }: { n: string; eyebrow: string; title: string[]; subtitle?: string }) => (
+  <div>
+    <Eyebrow>
+      {n} · {eyebrow}
+    </Eyebrow>
+    <h2 className="pt-4 font-display text-[28px] font-bold leading-[1.2] tracking-[-0.5px] text-foreground">
+      {title.map((l) => (
+        <span key={l} className="block">
+          {l}
+        </span>
+      ))}
+    </h2>
+    {subtitle && <p className="pt-4 font-sans text-sm leading-[22px] text-muted-foreground">{subtitle}</p>}
   </div>
 );
 
-const Band = ({ id, children }: { id?: string; children: React.ReactNode }) => (
-  <section
-    id={id}
-    className={cn("w-full border-t border-border/30 px-5 py-14 scroll-mt-14 bg-background")}
-  >
+const Section = ({ id, children, className }: { id?: string; children: React.ReactNode; className?: string }) => (
+  <section id={id} className={cn("w-full border-b border-[#131720] px-6 pb-[42px] pt-3 scroll-mt-14", className)}>
     {children}
   </section>
 );
 
-const ApplyButton = ({ label, className, variant = "default" }: { label: string; className?: string; variant?: "default" | "outline" }) => (
-  <Button size="lg" variant={variant} asChild className={cn("gap-2 w-full h-12 text-[15px]", className)}>
+const PrimaryLink = ({ label, className, arrow = "right" }: { label: string; className?: string; arrow?: "right" | "up-right" }) => (
+  <Button
+    asChild
+    className={cn(
+      "h-12 gap-2 rounded-md bg-primary px-[22px] font-sans text-sm font-semibold leading-5 text-[#04070F] shadow-[0_10px_9px_rgba(29,206,248,0.24)] hover:bg-primary/90",
+      className,
+    )}
+  >
     <a href={APPLY_URL} {...ext}>
-      {label} <ArrowUpRight className="w-4 h-4" />
+      {label} {arrow === "right" ? <ArrowRight className="h-4 w-4" /> : <ArrowUpRight className="h-4 w-4" />}
     </a>
   </Button>
 );
 
-/** Framed exhibit (full-bleed on mobile): header strip + body + fine-print footer. */
-const Exhibit = ({
-  n,
-  title,
-  intro,
-  note,
-  children,
-}: {
-  n: string;
-  title: string;
-  intro: string;
-  note: string;
-  children: React.ReactNode;
-}) => (
-  <figure className="border-y border-border/60 bg-card">
-    <figcaption className="px-5 py-5 border-b border-border/40">
-      <span className="font-mono text-[11px] text-primary tracking-[0.18em]">{n}</span>
-      <h3 className="mt-2 font-display font-medium tracking-[-0.01em] text-2xl text-foreground">{title}</h3>
-      <p className="text-[15px] text-muted-foreground mt-2 leading-relaxed">{intro}</p>
-    </figcaption>
-    {children}
-    <div className="px-5 py-4 border-t border-border/40 bg-muted/10">
-      <p className="text-[13px] text-muted-foreground/80 leading-relaxed">{note}</p>
+/** Exhibit head box: illustration with the 02.x label, title, intro and tag on top. */
+const ExhibitHead = ({ n, title, intro, tag, art }: { n: string; title: string; intro: string; tag: string; art: "earn-1-mobile" | "earn-2-mobile" }) => (
+  <div className="relative h-[204px] overflow-hidden rounded-lg">
+    <AffiliateArt name={art} width={342} height={204} className="absolute inset-0 h-full w-full" />
+    <div className="relative flex h-full flex-col px-4 pt-6">
+      <Eyebrow>{n}</Eyebrow>
+      <h3 className="mt-3.5 max-w-[280px] font-display text-xl font-medium leading-7 text-foreground">{title}</h3>
+      <p className="mt-2 max-w-[324px] font-sans text-xs leading-[1.2] text-muted-foreground">{intro}</p>
+      <span className="mt-auto pb-5 font-sans text-[10px] font-semibold uppercase leading-[15px] tracking-[2px] text-white/50">{tag}</span>
     </div>
-  </figure>
+  </div>
+);
+
+const Footnote = ({ children }: { children: React.ReactNode }) => (
+  <p className="mt-3.5 font-sans text-xs leading-[15px] text-[#555D69]">{children}</p>
 );
 
 export const AffiliatePageMobile = () => {
@@ -119,82 +133,95 @@ export const AffiliatePageMobile = () => {
     return () => io.disconnect();
   }, []);
 
+  const accentLead = HERO.titleAccent.replace(/\s*OmenX\.?$/, "");
+
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="flex min-h-screen flex-col bg-background pb-24">
       <MobileHeader title="Affiliate Program" showLogo={false} showBack />
 
-      <main className="flex-1 w-full pb-24">
+      <main className="w-full flex-1">
         {/* ============================== HERO ============================== */}
-        <section ref={heroRef} className="relative border-b border-border/40 px-5 pt-10 pb-10 overflow-hidden">
-          <div className="absolute -top-16 -right-16 w-[300px] h-[300px] rounded-full bg-primary/[0.07] blur-[70px] pointer-events-none" />
+        <section ref={heroRef} className="relative overflow-hidden px-6 pb-[22px] pt-[42px]">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-[281px] top-[392px] h-[281px] w-[340px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+            style={{ background: "radial-gradient(ellipse at center, rgba(51,214,255,0.08) 0%, rgba(51,214,255,0) 70%)" }}
+          />
           <div className="relative">
-            <Eyebrow>{HERO.eyebrow}</Eyebrow>
-            <h1 className="mt-5 font-display font-bold text-[40px] leading-[1.0] tracking-[-0.025em] text-foreground">
+            <span className="block font-display text-xs uppercase leading-[16.5px] tracking-[2.42px] text-primary">{HERO.eyebrow}</span>
+            <h1 className="mt-[17px] font-display text-[40px] font-bold leading-10 tracking-[-1px] text-foreground">
               {HERO.titleLines.map((l) => (
                 <span key={l} className="block">
                   {l}
                 </span>
               ))}
-              <span className="block text-primary">{HERO.titleAccent}</span>
+              <span className="block text-primary">
+                {accentLead} <span
+                    role="img"
+                    aria-label="OmenX"
+                    className="inline-block h-[0.53em] w-[calc(0.53em*376/76)] bg-current align-baseline"
+                    style={{ WebkitMaskImage: `url(${omenxLogo})`, maskImage: `url(${omenxLogo})`, WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat" }}
+                  />
+              </span>
             </h1>
-            <p className="mt-6 text-base text-muted-foreground leading-relaxed">{HERO.intro}</p>
+            <p className="mt-6 font-sans text-base leading-[1.4] text-muted-foreground">{HERO.intro}</p>
+            <AffiliateArt name="hero-x-mobile" width={342} height={257} className="mt-2 h-[257px] w-full rounded-lg" eager />
 
-            <div className="mt-8 flex flex-col gap-3">
-              <ApplyButton label={HERO.primaryCta} />
-              <a
-                href="#earnings"
-                className="inline-flex items-center justify-center gap-1.5 text-[15px] text-foreground/90 hover:text-primary transition-colors h-11"
-              >
-                {HERO.secondaryCta} <ArrowDown className="w-4 h-4" />
+            <div className="flex flex-col gap-3 pt-8">
+              <PrimaryLink label={HERO.primaryCta} arrow="up-right" className="h-12 w-full rounded-[10px] px-8 text-[15px] font-medium leading-[22.5px] text-[#090A0B]" />
+              <a href="#earnings" className="inline-flex h-11 items-center justify-center gap-1.5 font-sans text-[15px] leading-[22.5px] text-foreground/90">
+                {HERO.secondaryCta} <ArrowDown className="h-4 w-4" />
               </a>
             </div>
-            <p className="mt-2 text-[13px] text-muted-foreground text-center">{HERO.note}</p>
-
-            <AffiliateHeroArt variant="mobile" caption={HERO.artCaption} className="mt-10" />
+            <p className="pt-2 text-center font-sans text-sm leading-[19.5px] text-muted-foreground">{HERO.note}</p>
           </div>
         </section>
 
-        {/* Data banner */}
-        <section className="border-b border-border/40 px-5 py-8">
-          <p className="relative pl-4 text-[15px] text-foreground/90 leading-snug">
-            <span className="absolute left-0 top-0 bottom-0 w-px bg-trading-purple/50" />
-            {HERO.bottomLine.map((l) => (
-              <span key={l} className="block">
-                {l}
-              </span>
-            ))}
+        {/* Data band */}
+        <section className="border-y border-[#11141D] bg-[#05070E] px-6 py-[42px]">
+          <p className="font-display text-xl font-semibold leading-[1.2] text-foreground">
+            <span className="block">{HERO.bottomLine[0]}</span>
+            <span className="block">
+              {HERO.bottomLine[1].split("new opportunity").map((part, i) => (
+                <span key={i}>
+                  {i > 0 && <span className="text-primary">new opportunity</span>}
+                  {part}
+                </span>
+              ))}
+            </span>
           </p>
-          <div className="mt-7 grid grid-cols-3 gap-x-4">
+          <div className="flex flex-col gap-1 pt-7 font-sans text-xs leading-[1.2]">
+            <span className="text-muted-foreground">{HERO.snapshotLink}</span>
+            <a href={INSIGHTS_URL} {...ext} className="inline-flex items-center gap-1 text-[#E6E6E6]">
+              {HERO.snapshotLabel} <ArrowUpRight className="h-4 w-4" />
+            </a>
+          </div>
+          <div className="mt-[25px]">
             {METRICS.map((s) => (
-              <div key={s.label} className="flex flex-col">
-                <div className="font-mono text-[30px] font-bold text-foreground leading-none tabular-nums">{s.value}</div>
-                <div className="mt-2 flex gap-[3px] h-[3px]">
-                  <span className="w-5 bg-primary/70" />
-                  <span className="w-2.5 bg-primary/35" />
-                  <span className="w-1.5 bg-primary/20" />
-                </div>
-                <div className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground mt-2 leading-tight">{s.label}</div>
+              <div key={s.label} className="flex items-end gap-3.5 border-t border-[#171A22] py-[19px]">
+                <span className="font-display text-[46px] font-bold leading-[46px] text-foreground tabular-nums">{s.value}</span>
+                <span className="pb-1 font-sans text-xs uppercase leading-[14px] text-muted-foreground">
+                  {splitLabel(s.label).map((l) => (
+                    <span key={l} className="block">
+                      {l}
+                    </span>
+                  ))}
+                </span>
               </div>
             ))}
           </div>
-          <p className="mt-6 text-[13px] text-muted-foreground">
-            {HERO.snapshotLabel}{" "}
-            <a href={INSIGHTS_URL} {...ext} className="inline-flex items-center gap-1 text-foreground/90">
-              {HERO.snapshotLink} <ArrowUpRight className="w-3 h-3" />
-            </a>
-          </p>
         </section>
 
-        {/* Jump rail */}
+        {/* Jump rail — production behaviour kept (not redrawn in the draft) */}
         <nav
           aria-label="On this page"
-          className="border-b border-border/40 h-14 flex items-center gap-2.5 px-5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex h-14 items-center gap-2.5 overflow-x-auto border-b border-[#131720] px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {JUMP_LINKS.map((j) => (
             <a
               key={j.href}
               href={j.href}
-              className="inline-flex items-center gap-2 h-9 px-3.5 rounded-full border border-border/70 bg-background/60 font-mono text-[11px] uppercase tracking-[0.14em] text-foreground/80 whitespace-nowrap active:bg-primary/10"
+              className="inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-full border border-border/70 bg-background/60 px-3.5 font-mono text-[11px] uppercase tracking-[0.14em] text-foreground/80 active:bg-primary/10"
             >
               <span className="text-primary/70">{j.n}</span>
               {j.label}
@@ -203,179 +230,189 @@ export const AffiliatePageMobile = () => {
         </nav>
 
         {/* ========================= 01 BENEFITS ========================= */}
-        <Band id="benefits">
-          <SectionHeader n="01" eyebrow={BENEFITS_HEAD.eyebrow} title={BENEFITS_HEAD.title} subtitle={BENEFITS_HEAD.sub} />
-          <div className="border-y border-border/40 divide-y divide-border/40">
-            {BENEFITS.map((b) => (
-              <article key={b.n} className="py-6 flex gap-5">
-                <span className="font-mono text-sm text-accent pt-1 w-7 shrink-0">{b.n}</span>
-                <div>
-                  <h3 className="font-display font-medium tracking-[-0.01em] text-xl text-foreground leading-tight">{b.title}</h3>
-                  <p className="text-[15px] text-muted-foreground leading-relaxed mt-2">{b.body}</p>
-                </div>
-              </article>
-            ))}
+        <Section id="benefits">
+          <SectionHead n="01" eyebrow={BENEFITS_HEAD.eyebrow} title={BENEFITS_HEAD.title} subtitle={BENEFITS_HEAD.sub} />
+          <div className="mt-[62px] grid grid-cols-1 gap-3">
+            {BENEFITS.map((b, i) => {
+              const Icon = BENEFIT_ICONS[i];
+              return (
+                <article key={b.n} className={cn("rounded-xl border border-border/60 px-[18px] pb-6 pt-5", cardBg)}>
+                  <div className="flex items-start justify-between">
+                    <span className="pt-3 font-display text-sm leading-5 text-primary">{b.n}</span>
+                    <span className="flex h-[38px] w-[38px] items-center justify-center rounded-[5px] border border-primary/20 bg-primary/5 text-primary">
+                      <Icon className="h-[17px] w-[17px]" strokeWidth={1.5} />
+                    </span>
+                  </div>
+                  <h3 className="pt-4 font-display text-lg font-medium leading-6 tracking-[-0.22px] text-foreground">{b.title}</h3>
+                  <p className="pt-2.5 font-sans text-sm leading-[22px] text-muted-foreground">{b.body}</p>
+                </article>
+              );
+            })}
           </div>
-        </Band>
+        </Section>
 
         {/* ========================= 02 EARNINGS ========================= */}
-        <Band id="earnings">
-          <SectionHeader n="02" eyebrow={EARNINGS_HEAD.eyebrow} title={EARNINGS_HEAD.title} subtitle={EARNINGS_HEAD.sub} />
-          <div className="space-y-10 -mx-5">
-            <Exhibit n="02.1" title={HOW_YOU_EARN.title} intro={HOW_YOU_EARN.intro} note={HOW_YOU_EARN.note}>
-              <EarningsLedger stacked className="border-y-0" />
-            </Exhibit>
-            <Exhibit n="02.2" title={FEE_BASE.title} intro={FEE_BASE.intro} note={FEE_BASE.note}>
-              <FeeBaseComparison stacked className="border-y-0" />
-            </Exhibit>
+        <Section id="earnings">
+          <SectionHead n="02" eyebrow={EARNINGS_HEAD.eyebrow} title={EARNINGS_HEAD.title} subtitle={EARNINGS_HEAD.sub} />
+          <div className="mt-5">
+            <ExhibitHead n="02.1" title={HOW_YOU_EARN.title} intro={HOW_YOU_EARN.intro} tag="Illustrative · monthly" art="earn-1-mobile" />
+            <EarningsLedger stacked className="mt-4" />
+            <Footnote>{HOW_YOU_EARN.note}</Footnote>
           </div>
-          <div className="mt-12 pt-6 border-t border-border/30 flex items-center justify-between gap-4">
-            <p className="font-display text-lg text-foreground/90">{EARNINGS_END.line}</p>
-            <a href={APPLY_URL} {...ext} className="inline-flex items-center gap-1 text-[15px] text-foreground/90 shrink-0">
-              {EARNINGS_END.cta} <ArrowUpRight className="w-4 h-4" />
-            </a>
+          <div className="mt-5">
+            <ExhibitHead n="02.2" title={FEE_BASE.title} intro={FEE_BASE.intro} tag="Illustrative · monthly" art="earn-2-mobile" />
+            <FeeBaseComparison stacked className="mt-3" />
+            <Footnote>{FEE_BASE.note}</Footnote>
           </div>
-        </Band>
+
+          {/* Apply band */}
+          <div className="relative mt-[38px] h-[193px] overflow-hidden rounded-xl">
+            <AffiliateArt name="earn-band-mobile" width={342} height={193} className="absolute inset-0 h-full w-full" />
+            <div className="relative px-4 pt-12">
+              <p className="font-display text-xl font-medium leading-[1.2] text-foreground">{EARNINGS_END.line}</p>
+              <a href={APPLY_URL} {...ext} className="mt-[18px] inline-flex items-center gap-2 font-sans text-[15px] leading-[21px] text-primary">
+                {EARNINGS_END.cta} <ArrowUpRight className="h-4 w-4" />
+              </a>
+            </div>
+          </div>
+        </Section>
 
         {/* ======================== 03 HOW IT WORKS ======================== */}
-        <Band id="how-it-works">
-          <SectionHeader n="03" eyebrow={STEPS_HEAD.eyebrow} title={STEPS_HEAD.title} />
-          <ol className="border-y border-border/40 divide-y divide-border/40">
+        <Section id="how-it-works">
+          <SectionHead n="03" eyebrow={STEPS_HEAD.eyebrow} title={STEPS_HEAD.title} />
+          <div className="pt-6">
+            <PrimaryLink label={STEPS_HEAD.cta} />
+          </div>
+          <ol className="mt-9 grid grid-cols-1 gap-3">
             {STEPS.map((s) => (
-              <li key={s.n} className="py-7 flex gap-5">
-                <span aria-hidden className="font-mono font-bold text-4xl leading-none text-primary/80 tabular-nums shrink-0 w-12">
-                  {s.n}
-                </span>
-                <div>
-                  <div className="font-display font-medium tracking-[-0.01em] text-xl text-foreground leading-tight">{s.title}</div>
-                  <p className="text-[15px] text-muted-foreground mt-2 leading-relaxed">{s.body}</p>
-                </div>
+              <li key={s.n} className="rounded-lg border border-[#191D24] bg-card p-6">
+                <span className="font-sans text-sm leading-[17.5px] text-primary">{s.n}</span>
+                <div className="mt-5 font-display text-[21px] font-bold leading-tight text-foreground">{s.title}</div>
+                <p className="mt-2.5 font-sans text-sm leading-[22px] text-muted-foreground">{s.body}</p>
               </li>
             ))}
           </ol>
-          <ApplyButton label={STEPS_HEAD.cta} variant="outline" className="mt-8" />
-        </Band>
+        </Section>
 
         {/* =========================== 04 MARKETS =========================== */}
-        <Band id="markets">
-          <SectionHeader n="04" eyebrow={MARKETS_HEAD.eyebrow} title={MARKETS_HEAD.title} subtitle={MARKETS_HEAD.sub} />
-          <div className="border-y border-border/40 divide-y divide-border/40 -mx-5">
-            {MARKETS.map((m) => (
-              <article key={m.category} className="px-5 py-8">
-                <Eyebrow>{m.category}</Eyebrow>
-                <h3 className="mt-3 font-display font-medium tracking-[-0.015em] text-[26px] text-foreground leading-[1.1]">
-                  {m.title.map((l) => (
-                    <span key={l} className="block">
-                      {l}
-                    </span>
-                  ))}
-                </h3>
-                <p className="mt-3 text-[15px] text-muted-foreground leading-relaxed">{m.body}</p>
-                <div className="mt-6 flex items-end gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                  {m.logos.map((l) => (
-                    <div key={l.label} className="flex flex-col items-center gap-2 shrink-0">
-                      <div className="h-16 min-w-[64px] px-3 rounded-2xl border border-border/60 bg-card flex items-center justify-center">
-                        <img src={l.src} alt="" className="max-h-9 max-w-[56px] object-contain" loading="lazy" />
-                      </div>
-                      <span className="font-mono text-xs text-muted-foreground">{l.label}</span>
+        <Section id="markets" className="border-b-0">
+          <SectionHead n="04" eyebrow={MARKETS_HEAD.eyebrow} title={MARKETS_HEAD.title} subtitle={MARKETS_HEAD.sub} />
+          <div className="mt-4 flex flex-col gap-4">
+            {MARKETS.map((m, i) => {
+              const art = (["market-sports-mobile", "market-crypto-mobile", "market-finance-mobile"] as const)[i];
+              const h = [217, 184, 199][i];
+              return (
+                <article key={m.category} className={cn("overflow-hidden rounded-xl border border-border/60", cardBg)}>
+                  <AffiliateArt name={art} width={342} height={h} className="w-full" />
+                  <div className="px-4 pb-6 pt-5">
+                    <span className="block pt-3 font-sans text-sm font-semibold uppercase leading-[22px] tracking-[2px] text-muted-foreground">{m.category}</span>
+                    <h3 className="mt-3 max-w-[324px] font-display text-[22px] font-medium leading-[26px] text-foreground">{m.title.join(" ")}</h3>
+                    <p className="mt-3 max-w-[324px] font-sans text-sm leading-[22px] text-muted-foreground">{m.body}</p>
+                    <div className="mt-[22px] flex items-end gap-2">
+                      {m.logos.map((l) => (
+                        <div key={l.label} className="flex flex-col items-center">
+                          <div className="flex h-[60px] w-[60px] items-center justify-center rounded-[13px] border border-border/60 bg-card p-2.5">
+                            <img src={l.src} alt="" className="max-h-8 max-w-[52px] object-contain" loading="lazy" />
+                          </div>
+                          <span className="mt-2.5 font-display text-[11px] leading-4 text-muted-foreground">{l.label}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </article>
-            ))}
-            <div className="px-5 py-6 flex flex-col gap-3">
-              <p className="text-[15px] text-muted-foreground">
-                <span className="font-semibold text-foreground">{MARKETS_NOTE.strong}</span> {MARKETS_NOTE.body}
-              </p>
-              <span className="self-start rounded-full border border-border/70 bg-background/60 px-3.5 py-1.5 font-mono text-xs text-foreground/80">
-                {MARKETS_NOTE.chip}
-              </span>
-            </div>
+                  </div>
+                </article>
+              );
+            })}
           </div>
-        </Band>
-
-        {/* ========================= 05 PARTNERSHIPS ========================= */}
-        <Band id="partners">
-          <div className="pb-10 mb-10 border-b border-border/30">
-            <p className="font-display text-xl text-foreground/90 leading-snug">
-              {TEAM_PROOF.line.map((l) => (
-                <span key={l} className="block">
-                  {l}
-                </span>
-              ))}
+          <div className="flex flex-col gap-2.5 pt-7">
+            <p className="font-sans text-[13px] leading-[1.2]">
+              <span className="font-semibold text-foreground">{MARKETS_NOTE.strong}</span>{" "}
+              <span className="text-muted-foreground">{MARKETS_NOTE.body}</span>
             </p>
-            <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-4" aria-label={TEAM_PROOF.ariaLabel}>
-              {TEAM_PROOF.logos.map((l) =>
+            <span className="self-start rounded-full border border-accent/70 bg-accent/[0.04] px-3.5 py-1.5 font-display text-xs leading-[19.2px] text-accent/80">
+              {MARKETS_NOTE.chip}
+            </span>
+          </div>
+
+          {/* Team proof */}
+          <div className="pt-8">
+            <p className="font-display text-lg font-medium leading-[26px] text-foreground">{TEAM_PROOF.line.join(" ")}</p>
+            <div className="mt-6 flex items-center justify-between" aria-label={TEAM_PROOF.ariaLabel}>
+              {TEAM_PROOF.logos.map((l, i) =>
                 l.primary ? (
-                  <span key={l.alt} className="inline-flex items-center gap-2.5 text-foreground font-semibold text-lg">
-                    <img src={l.src} alt="" className="w-8 h-8 object-contain" loading="lazy" />
+                  <span key={l.alt} className="inline-flex items-center gap-1 font-sans text-[15.8px] font-semibold leading-[21.5px] text-[#B4B5B7]">
+                    <img src={l.src} alt="" className="h-[21.5px] w-[21.5px] object-contain" loading="lazy" />
                     {l.wordmark}
                   </span>
                 ) : (
-                  <img key={l.alt} src={l.src} alt={l.alt} className="h-6 w-auto object-contain opacity-70 grayscale" loading="lazy" />
+                  <img key={l.alt} src={l.src} alt={l.alt} className={cn("w-auto object-contain opacity-70", i === 1 ? "h-[21.5px]" : "h-[14.4px]")} loading="lazy" />
                 ),
               )}
             </div>
           </div>
+        </Section>
 
-          <SectionHeader n="05" eyebrow={PARTNERS_HEAD.eyebrow} title={PARTNERS_HEAD.title} />
-          <div className="space-y-10">
+        {/* ========================= 05 PARTNERSHIPS ========================= */}
+        <Section id="partners" className="border-b-0">
+          <SectionHead n="05" eyebrow={PARTNERS_HEAD.eyebrow} title={PARTNERS_HEAD.title} />
+          <div className="mt-6 grid grid-cols-1 gap-3">
             {PARTNERS.map((p) => (
-              <figure key={p.title}>
-                <div className="rounded-lg border border-border/50 overflow-hidden bg-card aspect-[16/9]">
-                  <img src={p.src} alt={p.alt} className="w-full h-full object-cover" loading="lazy" />
-                </div>
-                <figcaption className="mt-4">
-                  <Eyebrow>{p.label}</Eyebrow>
-                  <h3 className="mt-2 font-display font-medium tracking-[-0.01em] text-xl text-foreground">{p.title}</h3>
-                  <p className="mt-2 text-[15px] text-muted-foreground leading-relaxed">{p.body}</p>
+              <figure key={p.title} className={cn("overflow-hidden rounded-xl border border-border/60", cardBg)}>
+                <img src={p.src} alt={p.alt} className="h-[200px] w-full object-cover" loading="lazy" />
+                <figcaption className="px-4 pb-[22px] pt-[18px]">
+                  <span className="block pt-3.5 font-sans text-sm font-semibold uppercase leading-6 tracking-[2px] text-muted-foreground">{p.label}</span>
+                  <h3 className="mt-3 font-display text-xl font-medium leading-[26px] text-foreground">{p.title}</h3>
+                  <p className="mt-3.5 font-sans text-sm leading-6 text-muted-foreground">{p.body}</p>
                 </figcaption>
               </figure>
             ))}
           </div>
-          <div className="mt-10 pt-6 border-t border-border/30 flex items-center gap-2.5 text-[15px] text-muted-foreground">
-            <span>{BASE_LINE.pre}</span>
-            <img src="/chain-logos/base.svg" alt="Base" className="h-5 w-5" loading="lazy" />
-            <span>{BASE_LINE.post}</span>
+          <div className="pt-[26px] font-display text-lg leading-6 text-foreground">
+            <span className="inline-flex items-center gap-2.5">
+              {BASE_LINE.pre}
+              <img src="/chain-logos/base.svg" alt="Base" className="h-7 w-7" loading="lazy" />
+            </span>
+            <span className="mt-2.5 block">{BASE_LINE.post}</span>
           </div>
-        </Band>
+        </Section>
 
         {/* ============================ 06 FAQ ============================ */}
-        <Band id="faq">
-          <Eyebrow className="text-muted-foreground/70">{FAQ_HEAD.eyebrow}</Eyebrow>
-          <h2 className="mt-3 font-display font-medium tracking-[-0.015em] text-[32px] text-foreground">{FAQ_HEAD.title}</h2>
-          <p className="mt-3 text-[15px] text-muted-foreground">
-            {FAQ_HEAD.help}{" "}
-            <a href={`mailto:${CONTACT_EMAIL}`} className="inline-flex items-center gap-1 text-foreground/90">
-              {CONTACT_EMAIL} <ArrowUpRight className="w-3.5 h-3.5" />
-            </a>
-          </p>
+        <Section id="faq" className="border-b-0 pt-[42px]">
+          <Eyebrow className="text-[11px]">{FAQ_HEAD.eyebrow}</Eyebrow>
+          <h2 className="mt-3 font-display text-[28px] font-bold leading-[34px] text-foreground">{FAQ_HEAD.title}</h2>
+          <p className="mt-6 font-sans text-sm leading-5 text-muted-foreground">{FAQ_HEAD.help}</p>
+          <a href={`mailto:${CONTACT_EMAIL}`} className="mt-1.5 inline-flex items-center gap-1.5 font-sans text-sm leading-[21px] text-foreground">
+            {CONTACT_EMAIL} <ArrowUpRight className="h-3.5 w-3.5" />
+          </a>
           <AffiliateFaq size="md" className="mt-8" />
-        </Band>
+        </Section>
 
         {/* ============================== CTA ============================== */}
-        <section id="apply" className="w-full border-t border-border/40 bg-background px-5 py-16 scroll-mt-14">
-          <Eyebrow>{APPLY.eyebrow}</Eyebrow>
-          <h3 className="mt-4 font-display font-medium tracking-[-0.02em] text-[36px] text-foreground leading-[1.02]">
-            <span className="block">{APPLY.title}</span>
-            <span className="block text-primary">{APPLY.titleAccent}</span>
-          </h3>
-          <p className="mt-5 text-base text-muted-foreground leading-relaxed">{APPLY.body}</p>
-          <div className="mt-8">
-            <ApplyButton label={APPLY.cta} />
+        <section id="apply" className="relative w-full scroll-mt-14 overflow-hidden bg-[#070911] px-6 pt-[21px]">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-[333px] h-[276px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+            style={{ background: "radial-gradient(ellipse at center, rgba(51,214,255,0.11) 0%, rgba(51,214,255,0) 72%)" }}
+          />
+          <AffiliateArt name="cta-mosaic-left-mobile" width={100} height={131} fit="contain" position="left top" className="absolute left-0 top-[127px] h-[131px] w-[100px]" />
+          <AffiliateArt name="cta-mosaic-right-mobile" width={134} height={131} fit="contain" position="right top" className="absolute right-0 top-[127px] h-[131px] w-[134px]" />
+          <div className="relative flex flex-col items-center text-center">
+            <Eyebrow>{APPLY.eyebrow}</Eyebrow>
+            <h2 className="mt-[22px] font-display text-[42px] font-bold leading-[48px] text-foreground">
+              <span className="block">{APPLY.title}</span>
+              <span className="block text-primary">{APPLY.titleAccent}</span>
+            </h2>
+            <p className="mt-5 pb-3.5 font-sans text-sm leading-[22px] text-muted-foreground">{APPLY.body}</p>
+            <PrimaryLink label={APPLY.cta} className="mt-6" />
+            <p className="mt-7 font-sans text-xs leading-5 text-muted-foreground">
+              {APPLY.contactLead}
+              <br />
+              <a href={`mailto:${CONTACT_EMAIL}`} className="text-foreground">
+                {CONTACT_EMAIL}
+              </a>
+            </p>
+            <p className="mt-3.5 pb-[34px] font-sans text-sm leading-[22px] text-muted-foreground">{DISCLAIMER}</p>
           </div>
-          <p className="mt-8 text-[13px] text-muted-foreground">
-            {APPLY.contactLead}
-            <br />
-            <a href={`mailto:${CONTACT_EMAIL}`} className="text-foreground/90 text-[15px]">
-              {CONTACT_EMAIL}
-            </a>
-          </p>
         </section>
-
-        <div className="w-full border-t border-border/30 px-5 py-5">
-          <p className="text-[13px] text-muted-foreground/80 leading-relaxed">{DISCLAIMER}</p>
-        </div>
       </main>
 
       <SeoFooter />
@@ -383,12 +420,12 @@ export const AffiliatePageMobile = () => {
       {/* Sticky primary CTA (mobile pattern: context on page, action pinned) */}
       <div
         className={cn(
-          "fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/95 backdrop-blur px-5 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] transition-transform duration-200",
+          "fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/95 px-6 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 backdrop-blur transition-transform duration-200",
           stickyVisible ? "translate-y-0" : "translate-y-full",
         )}
         aria-hidden={!stickyVisible}
       >
-        <ApplyButton label={APPLY.cta} />
+        <PrimaryLink label={APPLY.cta} className="w-full" />
       </div>
     </div>
   );
