@@ -71,6 +71,10 @@ export const getIntentLabel = (
   if (intent.kind === "reduce") return `Reduce ${label}`;
   if (intent.kind === "close") return `Close ${label}`;
   if (intent.kind === "blocked-cross-zero") return "Close existing position first";
+  // 别名 binary 的 No 钮 = 买对面那一方（Lite、切换钮、持仓表都这么说），
+  // CTA 跟着写 `Buy Heroic`，不写 `Sell Astralis`（底层仍是做空 Yes 端 option）。
+  const aliasBinary = !!sideLabels && lc !== "yes" && lc !== "no";
+  if (uiSide === "sell" && aliasBinary) return `Buy ${sideLabels!.no}`;
   return uiSide === "buy" ? `Buy ${label}` : `Sell ${label}`;
 };
 
