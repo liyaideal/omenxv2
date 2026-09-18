@@ -1,5 +1,7 @@
 # Affiliate Program 页面（/affiliate）— 交付说明 v1
 
+> **2026-09-18 修订**：页面视觉按设计稿（Figma Omenx_Affiliate）整体重绘，文案、数字、路由、外链、功能全部不变。本文 §2–§5、§7 已按新视觉更新；研发以生产页与 `/style-guide#lite-affiliate` 为准照做。
+
 > 本文档覆盖 `/affiliate` 新页面的全部改动：一个新路由、六个营销区块、两个数据陈列件、SeoFooter 一条新链接、DESIGN.md §19.4 新增尺度 L。**页面所有文案与数字来自已批准的 Affiliate Program 页面，逐字冻结，研发不得改写。**
 
 ## §0 读者须知
@@ -25,24 +27,23 @@
 | 桌面组件 | `src/pages/AffiliatePage.tsx`（`EventsDesktopHeader` + 内容 + `SeoFooter`） |
 | 移动组件 | `src/pages/AffiliatePageMobile.tsx`（`useIsMobile()` <768 时由桌面组件返回；`MobileHeader title="Affiliate Program" showBack`） |
 | 站内入口 | `SeoFooter` → Resources 列 → `Affiliate Program`（紧随 Developers） |
-| 页内锚点 | `#benefits` `#earnings` `#how-it-works` `#markets` `#partners` `#faq` `#apply`；hero 下方一行 pill 跳转链（01–06） |
+| 页内锚点 | `#benefits` `#earnings` `#how-it-works` `#markets` `#partners` `#faq` `#apply`；桌面：左侧固定竖排点导航（`AffiliateDotNav`，01–06，≥1400px 视口显示，滚动联动高亮当前节）；移动：数据横幅下方一行 pill 跳转链（01–06） |
 | 外链 | 申请表（Lark）`https://ljp9k446231p.jp.larksuite.com/wiki/RQgiw4cQqi4KXKkb4MQjWCncp4g`，所有 Apply 按钮同一目标，新标签打开；`mailto:affiliates@omenx.com`；Insights `https://www.omenx.com/insights` |
 
 ## 3. 页面结构（自上而下）
 
 | # | 区块 | 内容要点 | 组件 |
 |---|---|---|---|
-| Hero | 标题 + 主 CTA + 插画位 | eyebrow `OmenX Affiliate Program`；h1 三行（第三行 `Build with OmenX.` 用 primary 色）；CTA `Become an affiliate` / 文字链 `Explore the program ↓`；注 `For creators, key opinion leaders and trading networks.`；右侧插画位（见 §5） | `AffiliateHeroArt` |
-| 数据横幅 | 平台快照 | `$2.7B Total trading volume` / `17.6K Unique traders` / `730+ Active markets`；右侧 `Platform snapshot. Latest insights ↗` | 页内 |
-| 跳转链 | 页内导航 | `01 Benefits · 02 How you earn · 03 Get started · 04 Markets · 05 Partnerships · 06 FAQ` | 页内 |
-| 01 Benefits | 六条权益 | 2×3 共享边框格；每格 编号 / 标题 / 一句说明 | 页内 |
-| 02 Earnings | 两个陈列框 | **02.1** `How you earn with OmenX` 三栏账本 + 合计 `$40,000`；**02.2** `The fee base makes a difference.` 6.6× 对比表；各带免责脚注；节尾 `Build a partnership around your community. Apply now ↗` | `EarningsLedger` / `FeeBaseComparison` |
-| 03 How it works | 三步 | `01 Tell us about your audience` / `02 Build your partnership` / `03 Launch and keep growing`；标题下 `Apply to join` 描边按钮 | 页内 |
-| 04 Markets | 三类市场 | Live sports（UCL/NBA/NFL/UFC）· Intraday crypto（BTC/ETH/SOL/PONS）· Daily finance（NVDA/HOOD/SanDisk/MSTR）；底部注 `More flexibility for active traders. Cross margin and position management before settlement.` + chip `Up to 5x leverage on eligible markets` | 页内 |
-| 05 Partnerships | 团队背书 + 两张案例 | `Built by trading veterans with experience at` Binance（字标）/ Bybit / OKX / Coinbase；案例 `Crypto Banter × Football Legends`、`Part of the Base ecosystem`；`Built on [Base] One of its actively supported projects.` | 页内 |
+| Hero | 标题 + 主 CTA + 视觉位 | eyebrow `OmenX Affiliate Program`；h1 三行 72px（第三行 `Build with` + OMENX 字标，primary 色；字标是站内 logo SVG 用 CSS mask 着色）；实心 primary CTA `Become an affiliate →`（带光晕）/ 文字链 `Explore the program ↓`；注 `For creators, key opinion leaders and trading networks.`；右侧 X 视觉位（桌面 661×496，移动 342×257，见 §5） | `AffiliateArt` |
+| 数据横幅 | 平台快照（暗带 `#05070E`） | 左 `A growing platform. / A new opportunity for your community.`（`new opportunity` primary 色）；右 `Latest insights`（灰）+ `Platform snapshot. ↗`（链到 Insights）；下方三指标 60px `$2.7B` / `17.6K` / `730+`，标签两行大写 | 页内 |
+| 跳转链 | 页内导航 | `01 Benefits · 02 How you earn · 03 Get started · 04 Markets · 05 Partnerships · 06 FAQ`；桌面为固定点导航，移动为 pill 条 | `AffiliateDotNav` / 页内 |
+| 01 Benefits | 六条权益 | 3×2 渐变卡（r14）；每卡 左上编号 / 右上 44px 图标格（lucide：CircleDollarSign · Users · Network · Megaphone · Zap · Handshake）/ 标题 / 一句说明 | 页内 |
+| 02 Earnings | 两个陈列 | **02.1** 带插画的标题块（`02.1` / `How you earn with OmenX` / 一句说明 / `ILLUSTRATIVE · MONTHLY`）+ 三张账本卡 + volt 合计条 `$40,000` + 免责脚注；**02.2** 带插画的标题块 + 对比卡（`6.6×` 112px + 四列表，OmenX 行高亮）+ 免责脚注；节尾全幅插画带 `Build a partnership around your community.` + `Apply now →` | `EarningsLedger` / `FeeBaseComparison` / `AffiliateArt` |
+| 03 How it works | 三步 | 标题下实心 `Apply to join →` 按钮；三张卡 `01 Tell us about your audience` / `02 Build your partnership` / `03 Launch and keep growing` | 页内 |
+| 04 Markets | 三类市场 | 三张全宽横卡，图文左右交替（图-文 / 文-图 / 图-文），每张一幅 lynx 插画：Live sports（UCL/NBA/NFL/UFC）· Intraday crypto（BTC/ETH/SOL/PONS）· Daily finance（NVDA/HOOD/SanDisk/MSTR），logo 走 72px tile；底部注 `More flexibility for active traders. Cross margin and position management before settlement.` + volt 描边 chip `Up to 5x leverage on eligible markets`；节尾全幅带 `Built by trading veterans with experience at` + Binance（字标）/ Bybit / OKX / Coinbase | 页内 / `AffiliateArt` |
+| 05 Partnerships | 两张案例卡 + Base 行 | 图上文下卡：`Crypto Banter × Football Legends`、`Part of the Base ecosystem`（eyebrow 用 volt）；节尾全幅带 `Built on [Base] One of its actively supported projects.` | 页内 |
 | 06 FAQ | 五问 | shadcn `Accordion` single/collapsible，默认展开首条；左侧 `Questions? Our team is here to help. affiliates@omenx.com` | 页内 |
-| Apply | 结尾 CTA | `Your community. / Our next chapter.` + `Apply now` + `Prefer to get in touch directly? affiliates@omenx.com` | 页内 |
-| 免责 | 一行小字 | `Affiliate approval, eligibility and program terms apply. Leverage is available on eligible markets and amplifies gains and losses. Trading involves risk.` | 页内 |
+| Apply | 结尾 CTA（暗带 + 径向光 + 两侧照片马赛克） | 居中：`Your community. / Our next chapter.` 72px + `Apply now →` + `Prefer to get in touch directly? affiliates@omenx.com` + 免责小字 `Affiliate approval, eligibility and program terms apply. Leverage is available on eligible markets and amplifies gains and losses. Trading involves risk.`（免责并入本区，不再单独成行） | 页内 / `AffiliateArt` |
 | Footer | 全站 | `SeoFooter` | 共享件 |
 
 ### 3.1 收益账本数字（02.1，冻结）
@@ -79,10 +80,11 @@
 
 ## 4. 视觉规则（研发照做即可，不用自己判断）
 
-- 骨架：DESIGN.md §19.1（max-w-7xl 轨线、发丝线、幽灵编号、Space Grotesk display）。
-- 尺度：DESIGN.md **§19.4 尺度 L**（本轮新增）——单一底色不做交替带；h1 64px、h2 40px、正文 15–16px；数字为主角；陈列框三段式；pill 跳转链；72px logo tile。
+- 视觉以设计稿为准：Figma Omenx_Affiliate（`p3V2cA7MbmECbwKwhXtur4`，桌面 `42:11744` / 移动 `46:12621`），生产页即 1:1 落地；规则汇总在 DESIGN.md **§19.4 v2（2026-09-18 附录）**。
+- 骨架：Lite 标准容器 `max-w-7xl px-4 lg:px-6`（1232 内容宽）；编号并入 eyebrow（`01 · WHY PARTNER WITH US`）；h2 56px Space Grotesk Medium、CSS `capitalize`；不再有幽灵编号、容器竖线与节内发丝线。
+- 底色：页面 `bg-background`；两处暗带（数据横幅 `#05070E`、结尾 CTA `#05070E`）；对象卡 `bg-card`（账本卡、步骤卡、对比卡、logo tile）。
 - 色：只用 `--primary`（Pulse Blue：eyebrow、CTA、标题强调行）与 `--accent`（Volt：账本结果值、6.6×、benefit 编号）；不触碰 Yes/No 与盈亏轴。
-- 移动：单列；数据横幅三列；账本 `stacked`；市场 logo 行横滑；sticky `Apply now` 在 hero 滚出后浮出（`IntersectionObserver`）。
+- 移动：24px 边距；数据横幅三行；账本 / 对比表 `stacked`；市场卡图上文下；sticky `Apply now` 在 hero 滚出后浮出（`IntersectionObserver`）；顶栏沿用 `MobileHeader` 内页形态。
 
 ## 5. 资产
 
@@ -90,7 +92,7 @@
 |---|---|---|
 | 12 个市场 logo + 4 个交易所 logo + 2 张合作照片 | `src/assets/affiliate/*.webp`（从原页面原文件提取，未改动） | 已入仓 |
 | Base logo | `public/chain-logos/base.svg`（既有） | 复用 |
-| Hero 插画（桌面 560×560 / 移动 343×200，透明底） | `public/assets/desktop/affiliate-hero-lynx.png` / `public/assets/mobile/affiliate-hero-lynx.png` | **待 CPO 提供**；缺失时生产不渲染该位、开发显示占位框（`AffiliateHeroArt`） |
+| 插画 18 幅（hero X 视觉 ×2、收益标题块 ×4、Apply 带 ×2、市场卡 ×6、CTA 马赛克 ×4） | `src/assets/affiliate/<name>.png`，文件名与尺寸清单见 `src/components/affiliate/AffiliateArt.tsx` 头注释 | **待 CPO 从 Figma 导出**（2x、扁平化含叠加渐变、隐藏文字层）；`AffiliateArt` 按文件名解析，缺失时生产不渲染该位、开发显示虚线规格框 |
 
 ## 6. 没动什么
 
@@ -101,7 +103,7 @@
 
 ## 7. 已知缺口
 
-1. Hero 插画待资产落仓（见 §5）。
+1. 18 幅插画待资产落仓（见 §5）；CTA 马赛克含真人照片，CPO 已确认素材有权使用（2026-09-18）。
 2. 页面 `<title>` / meta description 沿用全站默认，未单独配置 SEO 元信息（原页 title 为 `OmenX Affiliate Program | Built for your community`），如需请在 `SeoPageLayout` 体系下补。
 
 ## 附：内部代号对照

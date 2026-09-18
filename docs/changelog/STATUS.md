@@ -83,6 +83,15 @@
 | SP-L | 现货 Limit 默认价按 $0.01 tick；即时成交按真实 order_type 记录；可成交限价单 toast 明示 | ⬜ | 根因见 spot-pro-v1 复审补记 |
 | CT-H | CPO 复审：单位全词 contracts / shares；`To win ⓘ` 四面板统一；账户卡 Boost Account；Available 旁 ⇄ 划转；手机 Leverage 抽屉；删假的 Amount/Qty 切换 | ⬜ | 字典 CT-M5 |
 
+## 2026-09-18 — Affiliate Program 页面 视觉修订（[文档](../delivery/affiliate-page-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| AF-G | 桌面 / 移动整页按设计稿重绘（编号并入 eyebrow、h2 56、卡片化、数据 / CTA 暗带） | ⬜ | 文案、数字、路由、外链零变化；以生产页 + 字典为准 |
+| AF-H | 桌面固定点导航 `AffiliateDotNav`（01–06，滚动联动，≥1400px 显示） | ⬜ | 移动端保留 pill 跳转条 |
+| AF-I | 插画位 `AffiliateArt`：18 幅按文件名解析，缺失时生产不渲染 | ⬜ | 资产待 CPO 导出；清单见组件头注释 |
+| AF-J | `/style-guide#lite-affiliate` AF-1…AF-6 按新视觉更新 | ⬜ | 蓝图侧已落 |
+
 ## 2026-09-14 — Affiliate Program 页面 v1（[文档](../delivery/affiliate-page-v1.md)）
 
 | # | 项 | Status | Notes |

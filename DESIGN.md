@@ -1928,6 +1928,22 @@ Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① 
 
 参照实现：`src/pages/AffiliatePage.tsx` / `AffiliatePageMobile.tsx`、`src/components/affiliate/*`；字典 `/style-guide#lite-affiliate`（AF-1…AF-5）。
 
+## §Addendum 2026-09-18 · 营销页尺度 L 按设计稿修订（§19.4 v2，append-only）
+
+`/affiliate` 于 2026-09-18 按设计稿（Figma Omenx_Affiliate `p3V2cA7MbmECbwKwhXtur4`）整页回流，CPO 拍板：设计稿即视觉真相。§19.4 第 1/3/5/6/7 条按下列改写，其余条款不变；`/developers` 仍走尺度 S 不受影响。
+
+1. **底色**（改写第 1 条）：页面仍 `bg-background`，但允许**两处暗带**——平台数据横幅与结尾 CTA 用 `#05070E`，上下以 `#13151D` / `border-foreground/10` 发丝线收边；不做全页交替带。对象卡（账本卡、步骤卡、对比卡、logo tile）用 `bg-card`；权益卡 / 移动市场卡 / 移动案例卡用渐变卡面 `linear-gradient(160deg, rgba(11,15,25,.78) 6%, rgba(5,7,14,.92) 94%)` + `border-border/60`。
+2. **Section header**（改写第 3 条）：编号并入 eyebrow —— `01 · WHY PARTNER WITH US`（Archivo SemiBold 11/15、tracking 2px、uppercase、`text-primary`）；h2 `font-display font-medium` **56px / 59.9px**、CSS `capitalize`、两行；副题 `pt-5` Archivo 14/24 `text-muted-foreground` max-w 496。**不再画幽灵编号、节内发丝线与容器竖线**；节距靠 `pt-10` + `pb-[91–112px]`。
+3. **容器**：Lite 标准 `mx-auto w-full max-w-7xl px-4 lg:px-6`（1232 内容宽 = 稿的 104 gutter），不再用 `md:px-10` 与 `md:border-x`。
+4. **陈列**（改写第 5 条）：多层数据模块不再装三段式框，改为「带插画的标题块（`02.1` eyebrow / 30px 标题 / 12px 说明 / `ILLUSTRATIVE · MONTHLY` 标签）+ 独立卡 + 脚注 12/20 `#646972`」；账本三卡 `bg-card rounded-lg p-6 shadow-[0_18px_25px_rgba(5,7,14,.58)]`，结果值 30px 白 + volt 小标，合计条 `bg-accent/5 ring-1 ring-accent/15` 64px volt；对比卡 `rounded-xl border-border/60 bg-card`，6.6× 112px volt，OmenX 行 `bg-accent/[0.04] rounded-lg`。
+5. **页内导航**（改写第 6 条）：桌面为左侧固定竖排点导航 `AffiliateDotNav`（`fixed left-10 top-1/2`，每行 28.8px，当前节显示编号 10px + 7.7px `bg-primary` 点，其余 4.8px `#646972` 点，`IntersectionObserver` 联动；**≥1400px 视口才显示**，因为 1280 时容器无 gutter 可放）；移动端保留 pill 跳转条。
+6. **Logo tile**（改写第 7 条）：桌面 72px `rounded-2xl border-border/60 bg-card px-3`，图 max 64×40，标签 Space Grotesk 12/16；移动 60px `rounded-[13px] p-2.5`，图 max 52×32；团队经历 logo 高 27.6–44px、`opacity-70`、**不灰度**（Bybit 保留品牌色）。
+7. **主 CTA**：实心 `bg-primary` `h-12 px-6 rounded-md` + `shadow-[0_10px_18px_rgba(29,206,248,0.24)]`，文 Archivo SemiBold 14 `#04070F`，尾随 `ArrowRight` 16；不再用描边变体。
+8. **插画位**：`AffiliateArt` 按文件名从 `src/assets/affiliate/` 解析（`import.meta.glob`），缺文件 = 生产不渲染、dev 虚线规格框；装饰图一律 `aria-hidden pointer-events-none select-none`，层级在文字与交互件之下。稿里定义为 DOM 元素的叠加渐变（hero overlay、CTA 径向光）用 CSS 实现，画进插画里的叠加层随扁平导出走。
+9. **字标入正文**：h1 内的 OMENX 字标用站内 `omenx-logo.svg` 作 CSS mask + `bg-current` 着色（`h-[0.57em]`，宽按 376:76），`role="img" aria-label="OmenX"`；mask 的 `url()` **必须加双引号**（Vite 内联 SVG data URI 含 `'`，不加引号生产构建会丢掉整条 mask）。
+
+参照实现：`src/pages/AffiliatePage.tsx` / `AffiliatePageMobile.tsx`、`src/components/affiliate/*`；字典 `/style-guide#lite-affiliate`（AF-1…AF-6）。
+
 ## §Addendum 2026-09-14 · Pro 下单面板页签行与 Sell 意图（CT-1，append-only）
 
 1. **两个 Pro 终端共用同一套面板页签行**：左侧 `Buy · Sell` 文字页签（`text-xs font-semibold capitalize pb-1 border-b-2`，选中 `text-foreground border-foreground`，未选中 `text-muted-foreground border-transparent`），右侧 `OrderTypeDropdown`（`Market | Limit`）`ml-auto`。`/trade` 与 `/spot`、桌面与手机一字不差。
