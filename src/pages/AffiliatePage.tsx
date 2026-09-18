@@ -194,7 +194,7 @@ const AffiliatePage = () => {
                     role="img"
                     aria-label="OmenX"
                     className="inline-block h-[0.57em] w-[calc(0.57em*376/76)] bg-current align-baseline"
-                    style={{ WebkitMaskImage: `url(${omenxLogo})`, maskImage: `url(${omenxLogo})`, WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat" }}
+                    style={{ WebkitMaskImage: `url("${omenxLogo}")`, maskImage: `url("${omenxLogo}")`, WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat" }}
                   />
                 </span>
               </h1>
