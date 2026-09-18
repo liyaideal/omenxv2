@@ -56,7 +56,7 @@
 | # | 端 | 打开 | 应该看到 | 看什么 | 我 | Liya |
 |---|---|---|---|---|---|---|
 | E1 | 桌面 | Pro `/spot?event=<现货事件>` | 图表块 = mark + session 涨跌 + Base 行；面板 `Buy · Sell` + `Market/Limit` | Limit 价格默认到分 | ✅ | |
-| E2 | 桌面 | 挂一张不可成交限价 | Pending + 预留资金；撤单退款 | | ⚠️ 见问题 1、2 | |
+| E2 | 桌面 | 挂一张不可成交限价 | Pending + 预留资金；撤单退款 | | ✅（09-18 生产复验：预留 $10.02、`In orders` $10.00、撤单退回原额） | |
 | E3 | 桌面 | 底部 tab | `Holdings` 列 `Shares · Avg price · Price · Value · PnL`；`Payout by ~{time}` | | ✅ | |
 | E4 | 手机 | `/spot` 图表页 → dock 两次点 | 第一次选边（描边 + 箭头），第二次跳 `/spot/order` | | ✅ | |
 | E5 | 两端 | 账户卡 | `Standard Account`（合约页 `Boost Account`）；余额旁 ⇄ 划转 | | ✅ | |
@@ -72,7 +72,7 @@
 | F5 | 桌面 | `/trade?event=sp-ucl-mci-int`（曼城 vs 国米） | Winner · Handicap · Total goals；点 Winner → 主 / 平 / 客三行单价；选 Draw → 芯片 `Draw · xx¢`、CTA `Buy Draw` | 三选一可达 | ✅ | |
 | F6 | 手机 | `/trade?event=demo-prekick-cs2&line=demo-prekick-cs2-m1-rhcp-m3p5` | 副行 + 横滑芯片行；`Mark Price` 旁标 `AST −3.5`；dock `AST −3.5 →` / `HER +3.5` | 不再 Yes/No | ✅ | |
 | F7 | 手机 | 同上切 Trade 页签 | line 不丢；两钮 `AST −3.5 0.22xx` / `HER +3.5 0.77xx`；CTA `Buy AST −3.5` | | ✅ | |
-| F8 | 桌面 | 持仓 HoverCard `Go to this event`（sibling 上的仓位） | 落到 `?event=<fixture>&line=<sibling>`，持仓行两侧名是 `AST −1.5` 不是 `Yes` | | ⚠️ 两侧名 ✅；`Go to this event` 不跳转，见问题 3 | |
+| F8 | 桌面 | 持仓 HoverCard `Go to this event`（sibling 上的仓位） | 落到 `?event=<fixture>&line=<sibling>`，持仓行两侧名是 `AST −1.5` 不是 `Yes` | | ✅（09-18 生产复验：持仓表 → `?event=sp-epl-ars-liv&line=…-tot-2p5`） | |
 | F9 | 桌面 | 事件选择器 | 只列比赛，不列让分线 | | ✅ | |
 
 ## G · 不可下单态（DK-1）
@@ -104,13 +104,13 @@
 
 | # | 行号 | 谁发现 | 现象 | 处理 |
 |---|---|---|---|---|
-| 1 | E2 | Claude（生产，alex_carter） | 挂 Limit 后 `Current Orders` 行 Reserved `$10.00` 正确，但账户卡 `In orders` 一直 `$0.00`。原因：`useSpotTerminal.reservedInOrders` 对 `o.price`（`"$0.1000"`）直接 `parseFloat` → 0 | ✅ 已修（`useSpotTerminal.reservedInOrders` 按 `o.total` 求和）；待复验 E2 |
-| 3 | F8 | Claude（生产） | 持仓表 HoverCard 里的 `Go to this event` 是 `href="#"` + `preventDefault`，点了不跳（挂单表那一个是好的）。SL-P 之前就如此 | ✅ 已修（持仓表 HoverCard 改 `<button>` 接 `goToEvent`）；待复验 F8 |
-| 4 | D6 | Claude（生产） | 桌面 `/trade` 持仓表列头 `Qty` / `Liq. Price` 是缩写（面板内单位词已全词）；手机 `/trade/order` 合约 Winner 事件 CTA `Buy AST` 用 option label，切换钮用 side_labels `Astralis`——两处口径不一，`demo-prekick-cs2` 的 side_labels（Astralis/Heroic）与 option label（AST/HER）本来就不同 | Liya 09-18 定：列头是 Pro 桌面持仓表，**不改**；CTA 统一读 side_labels ✅ 已修（`getIntentLabel` 别名 binary 一律走 side_labels；桌面 / 手机 Buy 与 Sell CTA 同改）；待复验 |
-| 2 | E2 | Claude（生产） | 挂单只扣了 notional `$10.00`（`deductSpotBalance(price × qty)`），撤单却退 `amount + fee = $10.02`；成交时"从预留里消费手续费"实际没预留过 → 用户每张限价单少付一次手续费、撤单多退 `$0.02` | ✅ 已修（下单扣 `placed.reservedAmount`）；待复验 E2 |
+| 1 | E2 | Claude（生产，alex_carter） | 挂 Limit 后 `Current Orders` 行 Reserved `$10.00` 正确，但账户卡 `In orders` 一直 `$0.00`。原因：`useSpotTerminal.reservedInOrders` 对 `o.price`（`"$0.1000"`）直接 `parseFloat` → 0 | ✅ 已修（`useSpotTerminal.reservedInOrders` 按 `o.total` 求和）；E2 ✅ 复验 |
+| 3 | F8 | Claude（生产） | 持仓表 HoverCard 里的 `Go to this event` 是 `href="#"` + `preventDefault`，点了不跳（挂单表那一个是好的）。SL-P 之前就如此 | ✅ 已修（持仓表 HoverCard 改 `<button>` 接 `goToEvent`）；F8 ✅ 复验 |
+| 4 | D6 | Claude（生产） | 桌面 `/trade` 持仓表列头 `Qty` / `Liq. Price` 是缩写（面板内单位词已全词）；手机 `/trade/order` 合约 Winner 事件 CTA `Buy AST` 用 option label，切换钮用 side_labels `Astralis`——两处口径不一，`demo-prekick-cs2` 的 side_labels（Astralis/Heroic）与 option label（AST/HER）本来就不同 | Liya 09-18 定：列头是 Pro 桌面持仓表，**不改**；CTA 统一读 side_labels ✅ 已修并复验（`Buy Astralis` / `Reduce Astralis`）；Liya 09-18 追加：No 钮 CTA 由 `Sell Astralis` 改 `Buy Heroic`（`52003d14`，仅文案，底层仍做空 Yes 端 option） |
+| 2 | E2 | Claude（生产） | 挂单只扣了 notional `$10.00`（`deductSpotBalance(price × qty)`），撤单却退 `amount + fee = $10.02`；成交时"从预留里消费手续费"实际没预留过 → 用户每张限价单少付一次手续费、撤单多退 `$0.02` | ✅ 已修（下单扣 `placed.reservedAmount`）；E2 ✅ 复验 |
 
 ## 进度（2026-09-18 生产域联合验收，Claude 侧 · 完成）
 
-- 生产域（alex_carter）45 行：✅ 41 行；⚠️ 2 行（E2 问题 1/2，F8 问题 3）；➖ 2 行（A7 退出登录留给 Liya；G5 要等真冻结窗口）。
+- 生产域（alex_carter）45 行：✅ 43 行（E2 / F8 修后复验通过）；➖ 2 行（A7 Liya 已验 ✅ 回 Lite；G5 要等真冻结窗口）。
 - 验收过程中在 alex_carter 上开了又平了一张 `AST −3.5` 130 contracts 的仓（D4），挂了又撤了一张 `Up @0.10` 100 shares 的现货限价单（E2）。
 - 问题 1–3 都是这次之前就有的（SP-L / 持仓表旧代码），不是本轮改出来的；修法都在一两行，等 Liya 点头一起修再复验 E2 / F8。
