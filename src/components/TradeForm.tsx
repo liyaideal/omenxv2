@@ -329,7 +329,9 @@ export const TradeForm = ({
   const heldSize = heldPos ? Math.floor(heldPos.sizeNum) : 0;
   const sellOutcomeLabel = binaryMode
     ? (binaryMode.isYesSelected ? binaryMode.yesLabel : binaryMode.noLabel)
-    : heldPos?.displayOption ?? optionLabel;
+    : sideLabels
+      ? (heldPos?.type === "short" ? sideLabels.no : sideLabels.yes) // alias binary: long = Yes side, short = No side
+      : heldPos?.displayOption ?? optionLabel;
   const sellMark = binaryMode
     ? (binaryMode.isYesSelected ? binaryMode.yesPrice : binaryMode.noPrice)
     : currentPrice;

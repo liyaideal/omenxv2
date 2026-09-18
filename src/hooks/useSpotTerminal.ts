@@ -533,7 +533,7 @@ export function useSpotTerminal() {
     setSubmitting(true);
     try {
       if (willBePending) {
-        await placeSpotLimitOrder(user.id, {
+        const placed = await placeSpotLimitOrder(user.id, {
           eventName: event!.name,
           optionLabel: selectedOption.label,
           optionId: selectedOption.id,
@@ -541,10 +541,12 @@ export function useSpotTerminal() {
           price: effectivePrice,
           quantity: orderQty,
         });
-        if (side === "buy") await deductSpotBalance(effectivePrice * orderQty);
+        // Reserve exactly what the service books (notional + fee) so cancel
+        // refunds and fill fee consumption balance out.
+        if (side === "buy") await deductSpotBalance(placed.reservedAmount);
         toast.success(
           side === "buy"
-            ? `Limit buy placed · $${(effectivePrice * orderQty).toFixed(2)} reserved`
+            ? `Limit buy placed · $${placed.reservedAmount.toFixed(2)} reserved`
             : "Limit sell placed",
         );
       } else {
@@ -671,12 +673,11 @@ export function useSpotTerminal() {
   const sellReceive = Math.max(0, cost - sellCommission);
 
   const isSell = side === "sell";
+  // Same number the Current Orders row prints as "Reserved" (`o.total` is
+  // "$10.00" — parseFloat on the "$"-prefixed price used to return 0 here).
   const reservedInOrders = spotOrders
     .filter((o) => o.status === "Pending" && o.type === "buy")
-    .reduce(
-      (acc, o) => acc + (parseFloat(o.price) || 0) * (parseFloat(o.amount) || 0) * (1 + SPOT_FEE_RATE),
-      0,
-    );
+    .reduce((acc, o) => acc + (parseFloat(String(o.total).replace(/[$,]/g, "")) || 0), 0);
   const sliderBase = isSell ? heldQty : buyInUnits && effectivePrice > 0 ? available / effectivePrice : available;
 
   const ctaLabel = willBePending

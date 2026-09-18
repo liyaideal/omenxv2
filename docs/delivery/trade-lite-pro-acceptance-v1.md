@@ -104,10 +104,10 @@
 
 | # | 行号 | 谁发现 | 现象 | 处理 |
 |---|---|---|---|---|
-| 1 | E2 | Claude（生产，alex_carter） | 挂 Limit 后 `Current Orders` 行 Reserved `$10.00` 正确，但账户卡 `In orders` 一直 `$0.00`。原因：`useSpotTerminal.reservedInOrders` 对 `o.price`（`"$0.1000"`）直接 `parseFloat` → 0 | 待修：改用行里同一个 `total`（去 `$` 再算） |
-| 3 | F8 | Claude（生产） | 持仓表 HoverCard 里的 `Go to this event` 是 `href="#"` + `preventDefault`，点了不跳（挂单表那一个是好的）。SL-P 之前就如此 | 待修：接挂单表同一个 `goToEvent`（按 event 名在 events/siblings 里找） |
-| 4 | D6 | Claude（生产） | 桌面 `/trade` 持仓表列头 `Qty` / `Liq. Price` 是缩写（面板内单位词已全词）；手机 `/trade/order` 合约 Winner 事件 CTA `Buy AST` 用 option label，切换钮用 side_labels `Astralis`——两处口径不一，`demo-prekick-cs2` 的 side_labels（Astralis/Heroic）与 option label（AST/HER）本来就不同 | 不阻塞；要不要改列头、CTA 是否统一读 side_labels，等 Liya 定 |
-| 2 | E2 | Claude（生产） | 挂单只扣了 notional `$10.00`（`deductSpotBalance(price × qty)`），撤单却退 `amount + fee = $10.02`；成交时"从预留里消费手续费"实际没预留过 → 用户每张限价单少付一次手续费、撤单多退 `$0.02` | 待修：下单扣 `res.reservedAmount`（notional + fee）与 service 口径对齐 |
+| 1 | E2 | Claude（生产，alex_carter） | 挂 Limit 后 `Current Orders` 行 Reserved `$10.00` 正确，但账户卡 `In orders` 一直 `$0.00`。原因：`useSpotTerminal.reservedInOrders` 对 `o.price`（`"$0.1000"`）直接 `parseFloat` → 0 | ✅ 已修（`useSpotTerminal.reservedInOrders` 按 `o.total` 求和）；待复验 E2 |
+| 3 | F8 | Claude（生产） | 持仓表 HoverCard 里的 `Go to this event` 是 `href="#"` + `preventDefault`，点了不跳（挂单表那一个是好的）。SL-P 之前就如此 | ✅ 已修（持仓表 HoverCard 改 `<button>` 接 `goToEvent`）；待复验 F8 |
+| 4 | D6 | Claude（生产） | 桌面 `/trade` 持仓表列头 `Qty` / `Liq. Price` 是缩写（面板内单位词已全词）；手机 `/trade/order` 合约 Winner 事件 CTA `Buy AST` 用 option label，切换钮用 side_labels `Astralis`——两处口径不一，`demo-prekick-cs2` 的 side_labels（Astralis/Heroic）与 option label（AST/HER）本来就不同 | Liya 09-18 定：列头是 Pro 桌面持仓表，**不改**；CTA 统一读 side_labels ✅ 已修（`getIntentLabel` 别名 binary 一律走 side_labels；桌面 / 手机 Buy 与 Sell CTA 同改）；待复验 |
+| 2 | E2 | Claude（生产） | 挂单只扣了 notional `$10.00`（`deductSpotBalance(price × qty)`），撤单却退 `amount + fee = $10.02`；成交时"从预留里消费手续费"实际没预留过 → 用户每张限价单少付一次手续费、撤单多退 `$0.02` | ✅ 已修（下单扣 `placed.reservedAmount`）；待复验 E2 |
 
 ## 进度（2026-09-18 生产域联合验收，Claude 侧 · 完成）
 

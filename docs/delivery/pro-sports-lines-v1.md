@@ -45,3 +45,4 @@
 - 现货线（`/spot`）没有 fixture 概念，不涉及。
 - 手机 Pro `/trade/order` 表单（SL-P2，Liya 09-17 批）：别名 binary 的两钮文案读 `side_labels`（`AST −3.5` / `HER +3.5`），与桌面一致；机制不变（Yes 钮 = 买当前 option，No 钮 = 卖）。字典 CT-M7。
 - 手机 Pro `/trade` 图表视图（SL-P2）：`Mark Price` 旁的侧别标与底部 dock 两钮同样读 `side_labels`（`TradingCharts` 用 `isSingleMarketBinary(options, selectedEvent)`）。
+- 09-18 验收修补：别名 binary 的 CTA（Buy / Reduce / Close）与切换钮同源读 `side_labels`（`positionIntent.getIntentLabel`；`demo-prekick-cs2` 的 option label `AST` ≠ side_labels `Astralis`，之前 CTA 显示 `Buy AST`）；持仓表 HoverCard `Go to this event` 接通（之前是死链，只有挂单表接了）。

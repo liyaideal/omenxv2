@@ -232,3 +232,7 @@ Spot 节原先手抄的终端顶栏已换成生产件 `ProSpotHeader`，CTA 例�
 - Available 旁 ⇄ 划转入口（`TransferEntry`，预选 Boost → Standard）。
 - **限价"一直失败"根因（2026-09-15）**：Limit 价格输入框默认预填 4 位小数的 mark（如 0.5589），而提交校验要求 $0.01 tick，默认值本身就过不了校验，报 `Limit price must be a multiple of $0.01`。现默认四舍五入到分（`0.56`）。另：`executeSpotTrade` 此前把所有即时成交都记成 `order_type = Limit`，市价单在库里显示为 Limit——现按真实类型记录；可成交限价单（≥ 最优卖价）即时成交时 toast `Limit buy filled immediately at $x`。
 
+## 09-18 验收修补（SP-L 限价单）
+
+- 账户卡 `In orders` 之前永远 `$0.00`：`reservedInOrders` 对 `"$0.1000"` 直接 `parseFloat` 得 0，现在按订单行同一个 `Reserved`（`o.total`）求和。
+- 限价买单预留改为 `notional + fee`（`placeSpotLimitOrder` 返回的 `reservedAmount`），与撤单退款、成交扣费同一口径；之前只扣 notional，撤单会多退手续费、成交实际没收到手续费。

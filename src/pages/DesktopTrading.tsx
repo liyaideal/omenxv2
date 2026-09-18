@@ -495,6 +495,8 @@ export default function DesktopTrading() {
     [options, selectedEvent],
   );
   const binaryLabels = useMemo(() => getBinarySideLabels(selectedEvent), [selectedEvent]);
+  // CTA reads side_labels whenever the Yes/No toggle does (literal or alias binary).
+  const ctaSideLabels = !hasMarketChips ? binaryLabels : undefined;
   const yesNoOptions = useMemo(() => getYesNoOptions(options), [options]);
   const lookupSideLabels = useEventSideLabelsLookup();
   const yesPrice = useMemo(
@@ -559,7 +561,9 @@ export default function DesktopTrading() {
   const heldSize = heldPos ? Math.floor(heldPos.sizeNum) : 0;
   const sellOutcomeLabel = isBinarySingleMarket
     ? (sellOutcome === "yes" ? binaryLabels.yes : binaryLabels.no)
-    : heldPos?.displayOption ?? selectedOptionData.label;
+    : ctaSideLabels
+      ? (heldPos?.type === "short" ? ctaSideLabels.no : ctaSideLabels.yes) // alias binary: long = Yes side, short = No side
+      : heldPos?.displayOption ?? selectedOptionData.label;
   const sellMark = sellOutcome === "yes" ? yesPrice : noPrice;
   const sellQtyRaw = Math.max(0, Math.floor(parseFloat(sellQtyInput) || 0));
   // Full-close snap: within 0.5 ct of the held size closes the whole position.
@@ -1487,14 +1491,17 @@ export default function DesktopTrading() {
                                     </HoverCardTrigger>
                                     <HoverCardContent className="w-72 p-3" side="bottom" align="start">
                                       <p className="text-sm font-medium mb-2">{position.event}</p>
-                                      <a
-                                        href="#"
+                                      <button
+                                        type="button"
                                         className="text-sm text-primary flex items-center gap-1.5 hover:underline"
-                                        onClick={(e) => e.preventDefault()}
+                                        onClick={() => {
+                                          const ev = events.find(e => e.name === position.event) ?? siblings.find(e => e.name === position.event);
+                                          if (ev) goToEvent(ev);
+                                        }}
                                       >
                                         <ExternalLink className="w-3.5 h-3.5" />
                                         Go to this event
-                                      </a>
+                                      </button>
                                     </HoverCardContent>
                                   </HoverCard>
                                 </td>
@@ -1988,7 +1995,7 @@ export default function DesktopTrading() {
             )}
             <TradeSubmitButton
               side={side}
-              label={gate.reason || getIntentLabel(orderIntent, side, isBinarySingleMarket ? binaryLabels : undefined)}
+              label={gate.reason || getIntentLabel(orderIntent, side, ctaSideLabels)}
               potentialWin={parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
               onClick={handlePreview}
               disabled={gate.blocked || orderIntent.kind === "blocked-cross-zero"}
@@ -2213,7 +2220,7 @@ export default function DesktopTrading() {
 
           <TradeSubmitButton
             side={side}
-            label={getIntentLabel(orderIntent, side, isBinarySingleMarket ? binaryLabels : undefined)}
+            label={getIntentLabel(orderIntent, side, ctaSideLabels)}
             potentialWin={parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
             onClick={handleConfirmOrder}
             loading={isSubmittingOrder}

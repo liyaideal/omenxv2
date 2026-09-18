@@ -56,11 +56,18 @@ export const getIntentLabel = (
   sideLabels?: { yes: string; no: string } | null,
 ) => {
   const raw = intent.canonical.optionLabel;
-  // 对 binary 单 market 的 "Yes"/"No" 做别名翻译；其他 optionLabel 原样返回
+  // binary 单 market：CTA 与 Yes/No 切换钮同源读 side_labels。
+  // 字面 "Yes"/"No" → 别名；别名 binary（option label 是 "AST" 而 side_labels 是
+  // "Astralis"）→ 当前 option 固定在 Yes 端（resolveYesSideOption），除非它就是
+  // No 端别名，否则一律 sideLabels.yes。无 sideLabels（多 outcome）→ 原 label。
   const lc = raw.trim().toLowerCase();
-  const label = sideLabels && (lc === "yes" || lc === "no")
-    ? (lc === "yes" ? sideLabels.yes : sideLabels.no)
-    : raw;
+  const label = !sideLabels
+    ? raw
+    : lc === "yes"
+      ? sideLabels.yes
+      : lc === "no" || lc === sideLabels.no.trim().toLowerCase()
+        ? sideLabels.no
+        : sideLabels.yes;
   if (intent.kind === "reduce") return `Reduce ${label}`;
   if (intent.kind === "close") return `Close ${label}`;
   if (intent.kind === "blocked-cross-zero") return "Close existing position first";
