@@ -632,6 +632,7 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | `invalid_credentials` | Email or password is incorrect. | 登录失败（两框同红，句子在 Password 下） |
 | `invalid_email` | Please enter a valid email address | 邮箱格式错（与 completeProfile 同句） |
 | `weak_password` | Use at least 8 characters. | 密码不足 8 位 |
+| `pwned_password` | This password is too easy to guess. Choose a different one. | Supabase 泄露密码库（HaveIBeenPwned）拒绝了这个密码；注册时退回表单在 Password 下显示，重置页行内显示 |
 | `email_exists` | This email is already registered. + 行内 **Sign in** | 注册时邮箱已有账号 |
 | `incorrect_code` | Incorrect code. Try again. | 验证码错或不足 6 位 |
 | `passwords_mismatch` | Passwords don't match. | `/reset-password` 两次不一致 |

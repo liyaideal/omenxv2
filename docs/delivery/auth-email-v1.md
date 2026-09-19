@@ -81,6 +81,7 @@ Email + Password → `Sign in`。成功后弹窗直接关闭，进入站内，**
 | 邮箱或密码错 | Email or password is incorrect. | signin，两个输入框同时红边，句子在 Password 下 |
 | 邮箱格式不对 | Please enter a valid email address | 所有含 Email 的表单 |
 | 密码不足 8 位 | Use at least 8 characters. | signup、/reset-password |
+| 密码在泄露库里（太常见） | This password is too easy to guess. Choose a different one. | signup（蓝图在验证码通过后才得知，退回表单显示在 Password 下）、/reset-password |
 | 邮箱已注册 | This email is already registered. **Sign in** | signup（蓝图站在验证码通过后才得知，退回表单显示；`Sign in` 一键切换） |
 | 验证码错 | Incorrect code. Try again. | verify，6 格全红 |
 | 两次密码不一致 | Passwords don't match. | /reset-password |
@@ -112,7 +113,7 @@ Email + Password → `Sign in`。成功后弹窗直接关闭，进入站内，**
 | # | 项 | 说明 |
 |---|---|---|
 | 1 | 真实邮箱验证码 | 蓝图固定 111111；正式版发 6 位验证码，5–10 分钟有效，60 秒重发 |
-| 2 | 发码前查邮箱是否已注册 | 蓝图只能在验证码通过后（尝试建号时）得知；正式版应在 `Continue` 时就拦下并显示「已注册」 |
+| 2 | 发码前查邮箱是否已注册、查密码策略 | 蓝图只能在验证码通过后（尝试建号时）得知「已注册」和「密码太常见」；正式版应在 `Continue` 时就拦下并行内显示 |
 | 3 | 重置链接的邮件投递 | 蓝图用 Supabase 默认邮件通道，能否送达取决于环境；正式版走自有邮件服务，链接一次性、1 小时有效 |
 | 4 | 改密码后的资金保护 | CEX 惯例：改密码后 24 小时禁止提现。蓝图没有提现冻结机制，所以界面上没写这句话；正式版加上并在 Password 行说明 |
 | 5 | 登录失败限速 | 蓝图依赖 Supabase 默认限速；正式版按 IP + 邮箱限速并接验证码 |

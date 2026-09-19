@@ -261,7 +261,7 @@ export const ResetPasswordShell = ({
     );
   }
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-background flex items-start justify-center px-4 py-16">
+    <div className="min-h-[calc(100vh-64px)] bg-background flex items-center justify-center px-4 py-16">
       <div className="w-full max-w-md rounded-[16px] border border-[#23262D] bg-gradient-to-b from-[#012A35] from-[12.85%] via-[#0A0B0D] via-[21%] to-[#0A0B0D] p-[24px]">
         <div className="flex justify-center mb-3">
           <Logo size="modal" />

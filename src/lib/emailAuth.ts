@@ -20,6 +20,7 @@ export type EmailAuthErrorCode =
   | "invalid_credentials"
   | "email_exists"
   | "weak_password"
+  | "pwned_password"
   | "invalid_email"
   | "rate_limited"
   | "unknown";
@@ -37,6 +38,8 @@ export const EMAIL_AUTH_COPY = {
   invalid_credentials: "Email or password is incorrect.",
   email_exists: "This email is already registered.",
   weak_password: `Use at least ${PASSWORD_MIN_LENGTH} characters.`,
+  /** Supabase "leaked password protection" (HaveIBeenPwned) rejected it. */
+  pwned_password: "This password is too easy to guess. Choose a different one.",
   invalid_email: "Please enter a valid email address",
   incorrect_code: "Incorrect code. Try again.",
   passwords_mismatch: "Passwords don't match.",
@@ -57,6 +60,9 @@ export const mapAuthError = (raw: string | undefined | null): EmailAuthFailure =
   }
   if (msg.includes("already registered") || msg.includes("already exists") || msg.includes("user_already_exists")) {
     return { ok: false, code: "email_exists", message: EMAIL_AUTH_COPY.email_exists };
+  }
+  if (msg.includes("easy to guess") || msg.includes("pwned") || msg.includes("leaked")) {
+    return { ok: false, code: "pwned_password", message: EMAIL_AUTH_COPY.pwned_password };
   }
   if (msg.includes("password") && (msg.includes("at least") || msg.includes("weak") || msg.includes("short"))) {
     return { ok: false, code: "weak_password", message: EMAIL_AUTH_COPY.weak_password };

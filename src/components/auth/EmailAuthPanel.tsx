@@ -186,6 +186,8 @@ export const EmailAuthPanel = ({
   const go = (next: EmailAuthMode) => {
     clearErrors();
     if (next !== "verify") setCode("");
+    // Never carry a typed password across sign-in / create / reset forms.
+    if (next === "signin" || next === "signup" || next === "forgot") setPassword("");
     setMode(next);
   };
 
@@ -261,6 +263,14 @@ export const EmailAuthPanel = ({
           setMode("signup");
           setCode("");
           setEmailError(res.message);
+          return;
+        }
+        if (res.code === "weak_password" || res.code === "pwned_password") {
+          // Supabase's password policy (incl. leaked-password check) runs at sign-up,
+          // i.e. after the code step in the blueprint. Send the user back to the form.
+          setMode("signup");
+          setCode("");
+          setPasswordError(res.message);
           return;
         }
         toast.error(res.message);
