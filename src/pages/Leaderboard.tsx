@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useReferral } from "@/hooks/useReferral";
 import * as htmlToImage from "html-to-image";
-import omenxLogo from "@/assets/omenx-logo.svg";
+import { omenxLogo } from "@/components/Logo";
 import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
 import { QRCodeSVG } from "qrcode.react";
 import { AuthSheet } from "@/components/auth/AuthSheet";

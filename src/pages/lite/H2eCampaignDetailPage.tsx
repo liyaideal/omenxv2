@@ -13,7 +13,7 @@ import { AirdroppedPositionsCard } from "@/components/h2e/AirdroppedPositionsCar
 import { H2eRewardsCard } from "@/components/h2e/H2eRewardsCard";
 import { useAuth } from "@/hooks/useAuth";
 import { useH2eRewardsSummary } from "@/hooks/useH2eRewardsSummary";
-import omenxLogo from "@/assets/omenx-logo.svg";
+import { omenxMark } from "@/components/Logo";
 
 const H2E_ACCENT = "linear-gradient(120deg, rgba(1,50,129,.7), rgba(51,214,255,.22) 50%, rgba(10,11,13,.3))";
 
@@ -175,7 +175,7 @@ export default function H2eCampaignDetailPage() {
           className="grid h-7 w-7 shrink-0 place-items-center overflow-hidden rounded-full text-[11px] font-bold"
           style={{ background: "#16181D", color: "#9AA1AC" }}
         >
-          <img src={omenxLogo} alt="OmenX" className="h-2.5 w-[18px] object-contain" />
+          <img src={omenxMark} alt="OmenX" className="h-3 w-auto" />
         </span>
         <div className="min-w-0">
           <div className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#6B7280]">Host</div>

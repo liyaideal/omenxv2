@@ -1,32 +1,74 @@
-import omenxLogo from "@/assets/omenx-logo.svg";
+import wordmarkWhiteGradient from "@/assets/brand/omenx-wordmark-white-gradient.svg";
+import wordmarkWhite from "@/assets/brand/omenx-wordmark-white.svg";
+import wordmarkBlackGradient from "@/assets/brand/omenx-wordmark-black-gradient.svg";
+import wordmarkBlack from "@/assets/brand/omenx-wordmark-black.svg";
+import markGradientDark from "@/assets/brand/omenx-mark-gradient-dark.svg";
+import markGradientLight from "@/assets/brand/omenx-mark-gradient-light.svg";
+import markWhite from "@/assets/brand/omenx-mark-white.svg";
+import markBlack from "@/assets/brand/omenx-mark-black.svg";
 import { cn } from "@/lib/utils";
 import { MainnetBadge } from "@/components/MainnetBadge";
 
 export type LogoSize = "sm" | "md" | "lg" | "xl";
 
+/**
+ * Brand-book placement rule (OmenX_Branding-Assets · Logo Usage):
+ * - solid black stage      → `white-gradient` (white letters + Signal X)   ← site default, we are dark-first
+ * - solid white stage      → `black-gradient`
+ * - gradient / coloured / patterned stage (art, photos, teal auth header, posters) → solid `white` or `black`
+ */
+export type LogoVariant = "white-gradient" | "white" | "black-gradient" | "black";
+
+export const wordmark: Record<LogoVariant, string> = {
+  "white-gradient": wordmarkWhiteGradient,
+  white: wordmarkWhite,
+  "black-gradient": wordmarkBlackGradient,
+  black: wordmarkBlack,
+};
+
+/** Standalone X — icons, avatars, tight cells (≤ 18px wide) where the wordmark cannot read. */
+export const mark: Record<LogoVariant, string> = {
+  "white-gradient": markGradientDark,
+  white: markWhite,
+  "black-gradient": markGradientLight,
+  black: markBlack,
+};
+
 interface LogoProps {
   size?: LogoSize;
+  variant?: LogoVariant;
   className?: string;
   showMainnetBadge?: boolean;
 }
 
-// Standard logo sizes - use these consistently across the app
+// Standard logo heights — use these consistently across the app. Wordmark ratio is 433:65 (≈ 6.66:1).
 const sizeClasses: Record<LogoSize, string> = {
-  sm: "h-4 w-auto",   // Small: for compact headers, mobile nav items
-  md: "h-5 w-auto",   // Medium: default for mobile headers (MobileHome, EventsPage)
-  lg: "h-6 w-auto",   // Large: for desktop headers
-  xl: "h-8 w-auto",   // Extra large: for landing pages, prominent branding
+  sm: "h-4 w-auto",   // Small: compact headers, mobile nav items          (≈ 107px wide)
+  md: "h-5 w-auto",   // Medium: default for mobile headers               (≈ 133px wide)
+  lg: "h-6 w-auto",   // Large: mobile brand bar, desktop sub-headers      (≈ 160px wide)
+  xl: "h-8 w-auto",   // Extra large: desktop top nav, landing, footers    (≈ 213px wide)
 };
 
-export function Logo({ size = "md", className, showMainnetBadge = true }: LogoProps) {
-  const badgeSize = size === "xl" || size === "lg" ? "md" : "sm";
+// Gap wordmark → Mainnet pill = 0.22 × logo height (brand book lockup).
+const gapClasses: Record<LogoSize, string> = {
+  sm: "gap-1",
+  md: "gap-1",
+  lg: "gap-[5px]",
+  xl: "gap-[7px]",
+};
+
+export function Logo({ size = "md", variant = "white-gradient", className, showMainnetBadge = true }: LogoProps) {
   return (
-    <span className={cn("inline-flex items-center gap-1.5", className)}>
-      <img src={omenxLogo} alt="OMENX" className={sizeClasses[size]} />
-      {showMainnetBadge && <MainnetBadge size={badgeSize} responsive={false} />}
+    <span className={cn("inline-flex items-center", gapClasses[size], className)}>
+      <img src={wordmark[variant]} alt="OMENX" className={sizeClasses[size]} />
+      {showMainnetBadge && <MainnetBadge size={size} responsive={false} />}
     </span>
   );
 }
 
-// Export the raw logo for special cases (StyleGuide documentation, etc.)
-export { omenxLogo };
+/** Default wordmark for raw <img>/mask usage (posters, masks, StyleGuide). Prefer <Logo> in UI. */
+export const omenxLogo = wordmarkWhiteGradient;
+/** Solid-white wordmark for art / photo / gradient stages (share posters). */
+export const omenxLogoSolid = wordmarkWhite;
+/** Default standalone X for tight cells. */
+export const omenxMark = markWhite;

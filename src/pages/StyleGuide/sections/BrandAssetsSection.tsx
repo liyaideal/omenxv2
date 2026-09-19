@@ -16,6 +16,7 @@ import lynxEmptyRecovery from "@/assets/wallet/lynx-empty-recovery.png";
 import posterArtWin from "@/assets/share/poster-art-win.png";
 import posterArtLose from "@/assets/share/poster-art-lose.png";
 import omenxLogo from "@/assets/omenx-logo.svg";
+import { wordmark, mark } from "@/components/Logo";
 import affEarn1D from "@/assets/affiliate/earn-1-desktop.webp";
 import affEarn1M from "@/assets/affiliate/earn-1-mobile.webp";
 import affEarn2D from "@/assets/affiliate/earn-2-desktop.webp";
@@ -149,15 +150,32 @@ const AFFILIATE: AssetRow[] = [
   { src: affMosaic, path: "src/assets/affiliate/cta-mosaic.webp", size: "2881 × 973", format: "WEBP", usage: "/affiliate 结尾 CTA 两侧照片马赛克整条（1440×486 槽，双端共用；透明度 75% 已烘进 alpha）", added: "2026-09-19" },
 ];
 
-/* ---------------- Ⓑ 品牌标识 ---------------- */
+/* ---------------- Ⓑ 品牌标识（2026-09-19 品牌书换标） ---------------- */
 const BRAND: AssetRow[] = [
+  { src: wordmark["white-gradient"], path: "src/assets/brand/omenx-wordmark-white-gradient.svg", size: "433 × 65 矢量", format: "SVG", usage: "站内默认字标（黑底）：<Logo> 默认 variant、Leaderboard、Affiliate mask、StyleGuide", added: "2026-09-19" },
+  { src: wordmark.white, path: "src/assets/brand/omenx-wordmark-white.svg", size: "433 × 65 矢量", format: "SVG", usage: "纯白字标（渐变/彩色/艺术底）：Auth 弹窗 teal 顶、分享海报（Lite/Pro）", added: "2026-09-19" },
+  { src: wordmark["black-gradient"], path: "src/assets/brand/omenx-wordmark-black-gradient.svg", size: "433 × 65 矢量", format: "SVG", usage: "白底字标（黑字 + 渐变 X）：浅色物料 / 邮件 / 打印，站内未接线（备用）", added: "2026-09-19" },
+  { src: wordmark.black, path: "src/assets/brand/omenx-wordmark-black.svg", size: "433 × 65 矢量", format: "SVG", usage: "纯黑字标（浅色花底）：站内未接线（备用）", added: "2026-09-19" },
+  { src: mark["white-gradient"], path: "src/assets/brand/omenx-mark-gradient-dark.svg", size: "201 × 149 矢量", format: "SVG", usage: "X 单标 · 黑底渐变：StyleGuide 展示，未接线（备用）", added: "2026-09-19" },
+  { src: mark.white, path: "src/assets/brand/omenx-mark-white.svg", size: "201 × 149 矢量", format: "SVG", usage: "X 单标 · 纯白：活动卡 / H2E 详情 Host 头像格（28px 圆）", added: "2026-09-19" },
+  { src: mark["black-gradient"], path: "src/assets/brand/omenx-mark-gradient-light.svg", size: "201 × 149 矢量", format: "SVG", usage: "X 单标 · 白底渐变：未接线（备用）", added: "2026-09-19" },
+  { src: mark.black, path: "src/assets/brand/omenx-mark-black.svg", size: "201 × 149 矢量", format: "SVG", usage: "X 单标 · 纯黑：未接线（备用）", added: "2026-09-19" },
+  { src: "/brand/app-icon.svg", path: "public/brand/app-icon.svg", size: "114 × 114 矢量", format: "SVG", usage: "现代浏览器 favicon（index.html rel=icon svg）", added: "2026-09-19" },
+  { src: "/brand/avatar.svg", path: "public/brand/avatar.svg", size: "317 × 317 矢量", format: "SVG", usage: "社媒头像源文件（白环 + Omen Black 底 + 渐变 X）", added: "2026-09-19" },
+  { src: "/favicon.ico", path: "public/favicon.ico", size: "16 / 32 / 48", format: "ICO", usage: "传统 favicon（由 app-icon.svg 栅格化）", added: "2026-09-19" },
+  { src: "/brand/apple-touch-icon.png", path: "public/brand/apple-touch-icon.png", size: "180 × 180", format: "PNG", usage: "iOS 添加到主屏图标", added: "2026-09-19" },
+  { src: "/brand/app-icon-192.png", path: "public/brand/app-icon-192.png", size: "192 × 192", format: "PNG", usage: "PWA / Android 图标（备用）", added: "2026-09-19" },
+  { src: "/brand/app-icon-512.png", path: "public/brand/app-icon-512.png", size: "512 × 512", format: "PNG", usage: "商店 / 高分图标（备用）", added: "2026-09-19" },
+  { src: "/brand/avatar-400.png", path: "public/brand/avatar-400.png", size: "400 × 400", format: "PNG", usage: "X / Telegram / Discord 头像上传件", added: "2026-09-19" },
+  { src: "/brand/og-image.png", path: "public/brand/og-image.png", size: "1200 × 630", format: "PNG", usage: "og:image / twitter:image（index.html）——纯矢量合成，待品牌方出带 tagline 正式版可直接替换", added: "2026-09-19" },
   {
     src: omenxLogo,
     path: "src/assets/omenx-logo.svg",
     size: "矢量",
     format: "SVG",
-    usage: "品牌主标识：Design tokens 节、Leaderboard、H2E campaign 详情",
+    usage: "旧字标（圆 O 版）：2026-09-19 全站换标后无引用，仅台账留档",
     added: "2026-07-23",
+    legacy: true,
   },
 ];
 

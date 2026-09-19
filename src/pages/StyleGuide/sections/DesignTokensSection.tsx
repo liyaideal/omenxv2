@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { SectionWrapper } from "../components/SectionWrapper";
 import { CodePreview } from "../components/CodePreview";
 import { AnimationsSection } from "./AnimationsSection";
-import omenxLogo from "@/assets/omenx-logo.svg";
+import { Logo, wordmark, mark } from "@/components/Logo";
 
 interface DesignTokensSectionProps {
   isMobile: boolean;
@@ -82,39 +82,68 @@ export const DesignTokensSection = ({ isMobile }: DesignTokensSectionProps) => {
         <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
           <Card className="trading-card">
             <CardHeader>
-              <CardTitle className="text-lg">Primary Logo (Dark BG)</CardTitle>
-              <CardDescription>Use on dark backgrounds - default usage</CardDescription>
+              <CardTitle className="text-lg">Wordmark · 4 variants (brand book 2026-09)</CardTitle>
+              <CardDescription>
+                Solid black stage → white-gradient (site default). Solid white stage → black-gradient.
+                Gradient / coloured / art stage → solid white or solid black. Never recolour, rotate, stretch or fade.
+              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-background rounded-xl p-8 flex items-center justify-center border border-border/30">
-                <img src={omenxLogo} alt="OMENX Logo" className="h-12" />
-              </div>
+            <CardContent className="space-y-3">
+              {([
+                { v: "white-gradient", stage: "bg-[#080A0F]", label: "white-gradient · dark stage (default)" },
+                { v: "black-gradient", stage: "bg-white", label: "black-gradient · white stage" },
+                { v: "white", stage: "bg-signal", label: "white · gradient / art stage" },
+                { v: "black", stage: "bg-[#E6E6E6]", label: "black · light grey / patterned stage" },
+              ] as const).map(({ v, stage, label }) => (
+                <div key={v} className="space-y-1">
+                  <div className={`${stage} rounded-xl px-8 py-6 flex items-center justify-center border border-border/30`}>
+                    <img src={wordmark[v]} alt="OMENX" className="h-8 w-auto" />
+                  </div>
+                  <div className="text-[11px] text-muted-foreground">{label}</div>
+                </div>
+              ))}
               <CodePreview
-                code={`import omenxLogo from "@/assets/omenx-logo.svg";\n\n<img src={omenxLogo} alt="OMENX Logo" className="h-12" />`}
+                code={`import { Logo } from "@/components/Logo";\n\n<Logo size="lg" />                       // white-gradient + Mainnet pill\n<Logo size="lg" variant="white" />       // coloured / art stage\n<Logo size="xl" showMainnetBadge={false} />`}
                 language="tsx"
               />
             </CardContent>
           </Card>
 
-          <Card className="trading-card">
-            <CardHeader>
-              <CardTitle className="text-lg">Logo Sizes</CardTitle>
-              <CardDescription>Recommended size variants</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {[
-                { label: "Header (h-8)", size: "h-8" },
-                { label: "Standard (h-10)", size: "h-10" },
-                { label: "Large (h-12)", size: "h-12" },
-                { label: "Hero (h-16)", size: "h-16" },
-              ].map(({ label, size }) => (
-                <div key={size} className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">{label}</span>
-                  <img src={omenxLogo} alt="OMENX" className={size} />
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            <Card className="trading-card">
+              <CardHeader>
+                <CardTitle className="text-lg">Logo sizes · with Mainnet lockup</CardTitle>
+                <CardDescription>Heights are fixed; the Mainnet pill scales from the logo height (0.88H, radius 0.30H, type 0.49H).</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {([
+                  { label: "sm · h-4 (16px)", size: "sm" },
+                  { label: "md · h-5 (20px) — mobile default", size: "md" },
+                  { label: "lg · h-6 (24px) — brand bar", size: "lg" },
+                  { label: "xl · h-8 (32px) — desktop nav / footer", size: "xl" },
+                ] as const).map(({ label, size }) => (
+                  <div key={size} className="flex items-center justify-between gap-4">
+                    <span className="text-sm text-muted-foreground">{label}</span>
+                    <Logo size={size} />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card className="trading-card">
+              <CardHeader>
+                <CardTitle className="text-lg">X mark · icon / avatar / tight cells</CardTitle>
+                <CardDescription>Use the X alone where the wordmark would drop below ~90px wide (host avatars, favicon, social).</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-wrap items-center gap-4">
+                <span className="grid h-7 w-7 place-items-center rounded-full bg-[#16181D]"><img src={mark.white} alt="OmenX" className="h-3 w-auto" /></span>
+                <span className="grid h-10 w-10 place-items-center rounded-[10px] bg-[#080A0F]"><img src={mark["white-gradient"]} alt="" className="h-5 w-auto" /></span>
+                <span className="grid h-10 w-10 place-items-center rounded-full bg-white"><img src={mark["black-gradient"]} alt="" className="h-5 w-auto" /></span>
+                <img src="/brand/app-icon.svg" alt="app icon" className="h-10 w-10" />
+                <img src="/brand/avatar.svg" alt="avatar" className="h-10 w-10" />
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </SectionWrapper>
 

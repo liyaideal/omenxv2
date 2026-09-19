@@ -1,6 +1,6 @@
 import { forwardRef, ReactNode, CSSProperties } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import omenxLogo from '@/assets/omenx-logo.svg';
+import { omenxLogoSolid as omenxLogo } from '@/components/Logo';
 import { 
   POSTER_BACKGROUND, 
   POSTER_WIDTH, 

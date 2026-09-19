@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import omenxLogo from "@/assets/omenx-logo.svg";
+import { omenxMark } from "@/components/Logo";
 import type { CampaignView } from "@/hooks/useCampaigns";
 
 export interface CampaignRewardsCardProps {
@@ -141,7 +141,7 @@ export const CampaignRewardsCard = ({
           {isSpecial ? (
             avatar ? <img src={avatar} alt="" className="h-full w-full object-cover" /> : kolName.slice(0, 1)
           ) : (
-            <img src={omenxLogo} alt="OmenX" className="h-2.5 w-[18px] object-contain" />
+            <img src={omenxMark} alt="OmenX" className="h-3 w-auto" />
           )}
         </span>
         <div className="min-w-0">

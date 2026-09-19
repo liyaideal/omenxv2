@@ -62,7 +62,7 @@ export const AuthSheet = ({ open, onOpenChange, previewStep, previewFixture }: A
 
       {/* Logo header */}
       <div className="flex justify-center mb-3">
-        <Logo size="md" />
+        <Logo size="md" variant="white" />
       </div>
 
       <div className="overflow-y-auto">

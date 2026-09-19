@@ -6,7 +6,7 @@
 import { forwardRef } from "react";
 import { format } from "date-fns";
 import { QRCodeSVG } from "qrcode.react";
-import omenxLogo from "@/assets/omenx-logo.svg";
+import { omenxLogoSolid as omenxLogo } from "@/components/Logo";
 import posterArtWin from "@/assets/share/poster-art-win.png";
 import posterArtLose from "@/assets/share/poster-art-lose.png";
 import { SITE_URL } from "@/lib/site";
