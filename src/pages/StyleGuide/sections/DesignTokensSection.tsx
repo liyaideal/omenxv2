@@ -85,7 +85,7 @@ export const DesignTokensSection = ({ isMobile }: DesignTokensSectionProps) => {
               <CardTitle className="text-lg">Wordmark · 4 variants (brand book 2026-09)</CardTitle>
               <CardDescription>
                 Solid black stage → white-gradient (site default). Solid white stage → black-gradient.
-                Gradient / coloured / art stage → solid white or solid black. Never recolour, rotate, stretch or fade.
+                Art stage (posters, illustrations) → solid white or solid black. All in-product UI — nav, brand bar, auth, footer — stays white-gradient, dark teal headers included. Never recolour, rotate, stretch or fade.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -103,7 +103,7 @@ export const DesignTokensSection = ({ isMobile }: DesignTokensSectionProps) => {
                 </div>
               ))}
               <CodePreview
-                code={`import { Logo } from "@/components/Logo";\n\n<Logo size="lg" />                       // white-gradient + Mainnet pill\n<Logo size="lg" variant="white" />       // coloured / art stage\n<Logo size="xl" showMainnetBadge={false} />`}
+                code={`import { Logo } from "@/components/Logo";\n\n<Logo size="lg" />                       // white-gradient + Mainnet pill\n<Logo size="modal" />                    // auth dialog / sheet\n<Logo size="lg" variant="white" />       // art stage only (posters)\n<Logo size="xl" showMainnetBadge={false} />`}
                 language="tsx"
               />
             </CardContent>
@@ -119,8 +119,9 @@ export const DesignTokensSection = ({ isMobile }: DesignTokensSectionProps) => {
                 {([
                   { label: "brand-bar · 15px — mobile brand bar (stage 14.75)", size: "brand-bar" },
                   { label: "sm · h-4 (16px)", size: "sm" },
-                  { label: "md · h-5 (20px) — Auth sheet", size: "md" },
-                  { label: "lg · h-6 (24px) — Auth dialog, footer", size: "lg" },
+                  { label: "modal · 17px — auth dialog / sheet (stage 17)", size: "modal" },
+                  { label: "md · h-5 (20px)", size: "md" },
+                  { label: "lg · h-6 (24px) — footer", size: "lg" },
                   { label: "nav · 26px — desktop top nav (stage 26.5)", size: "nav" },
                   { label: "xl · h-8 (32px) — landing / SEO footer", size: "xl" },
                 ] as const).map(({ label, size }) => (

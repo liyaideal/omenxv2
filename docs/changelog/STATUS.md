@@ -27,6 +27,7 @@
 | BR-D | favicon.ico + app-icon.svg + apple-touch-icon；`index.html` 三条 link | ✅ | 硬刷新才换图 |
 | BR-E | og:image / og:url / twitter:image；twitter:site → `@OmenX_Official` | ✅ | OG 图为矢量合成版，品牌方正式版同名替换 |
 | BR-H | 页面级尺寸校正：桌面 nav 26px / 手机品牌栏 15px + 页头 44px（对照 omenx_lite 稿） | ✅ | `size="nav"` / `"brand-bar"`；吸顶子栏跟随 44 |
+| BR-I | 登录弹窗 / 抽屉 logo 17px（稿 `409:4736`）；站内变体统一 white-gradient，纯白只留海报 | ✅ | `size="modal"`；Auth 两处去掉 `variant="white"` |
 | BR-F | 品牌方出带 tagline 的正式 OG 图 | ⬜ | 等设计 |
 | BR-G | 鸿蒙体（HarmonyOS Sans SC）中文字体接入 | ⬜ | 多语言轮一起定加载策略 |
 

@@ -55,9 +55,13 @@
 | 桌面顶部导航 | 字标 26.5 × 178 | `size="nav"` 26 × 173 | 22px 胶囊 | 6px |
 | 手机品牌栏（Lite 各根页） | 字标 14.75 × 99，页头 43.5 | `size="brand-bar"` 15 × 100，**页头 44px**（内页仍 56） | 17px 胶囊，字 9px 下限 | 6px |
 
+| 登录弹窗 / 手机抽屉 | 字标 17 × 114，胶囊 21，间距 8（`409:4736`，PC 稿；手机抽屉同尺寸） | `size="modal"` 17 × 113 | 21px 胶囊 | 8px |
+
 变体与徽标样式**仍按品牌书**（白字 + 渐变 X、Archivo 句首大写胶囊）——页面稿里的纯白 X 与"圆点 + 大写 MAINNET"是品牌书定稿前的旧版，Liya 拍板听品牌书。
 
-实现：`Logo.tsx` / `MainnetBadge.tsx` 各加 `nav` / `brand-bar` 两档；`MobileHeader` brand 变体行高 `h-11`，header 带 `data-mobile-header`，`index.css` 用 `:root:has(header[data-mobile-header="brand"])` 把 `--mobile-header-h` 改成 44px，Portfolio / Rewards 的吸顶子栏自动跟随（实测 `top: 44px`）。
+**变体口径（Liya 拍）**：站内所有 UI——导航、品牌栏、登录弹窗/抽屉、页脚——统一白字 + 渐变 X，暗 teal 顶也算深底；纯白只留给分享海报这类真·艺术底。之前登录弹窗用纯白是把品牌书"彩底 → 纯白"套机械了，本轮改回。
+
+实现：`Logo.tsx` / `MainnetBadge.tsx` 各加 `nav` / `brand-bar` / `modal` 三档；`MobileHeader` brand 变体行高 `h-11`，header 带 `data-mobile-header`，`index.css` 用 `:root:has(header[data-mobile-header="brand"])` 把 `--mobile-header-h` 改成 44px，Portfolio / Rewards 的吸顶子栏自动跟随（实测 `top: 44px`）。
 
 ## 6. 已知边界
 

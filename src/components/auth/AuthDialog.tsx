@@ -63,7 +63,7 @@ export const AuthDialog = ({ open, onOpenChange, defaultTab = "signin", previewS
         <div className="p-[24px]">
           {/* Logo */}
           <div className="flex justify-center mb-3">
-            <Logo size="lg" variant="white" />
+            <Logo size="modal" />
           </div>
 
 

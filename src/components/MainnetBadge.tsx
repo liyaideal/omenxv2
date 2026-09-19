@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 /** Mirrors LogoSize — the badge is sized from the logo's cap-height (brand book lockup rule). */
-export type MainnetBadgeSize = "sm" | "md" | "lg" | "xl" | "nav" | "brand-bar";
+export type MainnetBadgeSize = "sm" | "md" | "lg" | "xl" | "nav" | "brand-bar" | "modal";
 
 interface MainnetBadgeProps {
   className?: string;
@@ -25,6 +25,7 @@ const sizeClasses: Record<MainnetBadgeSize, string> = {
   // Page chrome — pill heights taken from the omenx_lite stage (22px desktop / 20px→17px mobile, type floor 9px).
   nav: "h-[22px] rounded-[7px] px-[6px] text-[12px] leading-none",        // Logo nav       (26px)
   "brand-bar": "h-[17px] rounded-[5px] px-[5px] text-[9px] leading-none", // Logo brand-bar (15px)
+  modal: "h-[21px] rounded-[7px] px-[6px] text-[13px] leading-none",       // Logo modal     (17px) — stage pill 21
 };
 
 export const MainnetBadge = ({ className, size = "sm", responsive = true }: MainnetBadgeProps) => {

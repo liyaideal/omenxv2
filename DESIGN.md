@@ -21,7 +21,7 @@ Files live in `src/assets/brand/` (vector paths verbatim from the brand book; ne
 | File | Use |
 |---|---|
 | `omenx-wordmark-white-gradient.svg` | **Site default** — white letters + Signal X, on solid dark stages |
-| `omenx-wordmark-white.svg` | Solid white — on gradient / coloured / photo / art stages (Auth teal header, share posters, hero art) |
+| `omenx-wordmark-white.svg` | Solid white — on art / photo stages only (share posters, hero art); in-product UI never uses it |
 | `omenx-wordmark-black-gradient.svg` | Black letters + gradient X — on solid white stages (emails, print, light decks) |
 | `omenx-wordmark-black.svg` | Solid black — on light patterned stages |
 | `omenx-mark-{gradient-dark,gradient-light,white,black}.svg` | Standalone X (201 × 149) — icons, avatars, cells narrower than ~90px |
@@ -845,7 +845,7 @@ flex justify-between text-xs text-muted-foreground
 | Trade pages | — | — | Logo hidden, back button only |
 | Desktop navigation | `nav` (26px, ≈173px) | default | Left side of top nav; Mainnet pill 22px, gap 6px — from omenx_lite stage `140:68990` |
 | Marketing / landing pages, SEO footer | `xl` (h-8) | default | Hero sections, footers |
-| Auth dialog / sheet (teal gradient header) | `lg` / `md` | `white` | Coloured stage → solid white |
+| Auth dialog / sheet | `modal` (17px, ≈113px) | default | Centred; Mainnet pill 21px, gap 8px — from omenx_lite stage `409:4736`. Dark teal header is still a dark stage |
 | Share posters (Lite / Pro) | 18–20px raw `<img>` | `omenxLogoSolid` | Art stage → solid white |
 | Host avatar cells, 28px circles | `h-3` raw `<img>` | `omenxMark` | X mark, never a squashed wordmark |
 
@@ -853,7 +853,7 @@ Logo rules:
 - **Never combine the Logo with a back button.**
 - Page chrome uses the two stage-measured sizes (`nav` / `brand-bar`); the generic `sm…xl` scale is for everything else. The 2026-09-19 wordmark is 35% wider than the old mark, so "same height as before" reads too big in chrome — size from the page stage, not from the old mark.
 - Always use `<Logo>` from `@/components/Logo` (or its `wordmark` / `mark` maps for raw `<img>` / CSS-mask cases — Affiliate h1 uses `omenxLogoSolid` as a mask with the 433/65 ratio)
-- Variant is chosen by the stage (§1.1); **`invert` is banned** — it turns the Signal X purple
+- **One look in-product**: every UI surface (nav, brand bar, auth dialog / sheet, footer) uses the default `white-gradient`; `white` is only for true art stages (share posters, hero illustrations). **`invert` is banned** — it turns the Signal X purple
 - Never stretch, add effects, or import the SVG file directly in a page
 
 ### Page Type Classification

@@ -14,13 +14,17 @@ import { MainnetBadge } from "@/components/MainnetBadge";
  * page-chrome sizes measured off the omenx_lite page stage (Event_All 140:68990 / event_all 203:92635):
  * the wordmark is 35% wider than the old mark, so the chrome uses a smaller height than the generic scale.
  */
-export type LogoSize = "sm" | "md" | "lg" | "xl" | "nav" | "brand-bar";
+export type LogoSize = "sm" | "md" | "lg" | "xl" | "nav" | "brand-bar" | "modal";
 
 /**
  * Brand-book placement rule (OmenX_Branding-Assets · Logo Usage):
  * - solid black stage      → `white-gradient` (white letters + Signal X)   ← site default, we are dark-first
  * - solid white stage      → `black-gradient`
- * - gradient / coloured / patterned stage (art, photos, teal auth header, posters) → solid `white` or `black`
+ * - gradient / coloured / patterned stage (art, photos, posters) → solid `white` or `black`
+ *
+ * Site rule (Liya, 2026-09-19): every in-product UI surface — nav, brand bar, auth dialog / sheet, footer —
+ * uses the default `white-gradient`, dark teal headers included; `white` is only for true art stages
+ * (share posters, hero illustrations). One logo look across the product beats a literal reading of the stage rule.
  */
 export type LogoVariant = "white-gradient" | "white" | "black-gradient" | "black";
 
@@ -54,6 +58,7 @@ const sizeClasses: Record<LogoSize, string> = {
   xl: "h-8 w-auto",   // Extra large: landing, footers                    (≈ 213px wide)
   nav: "h-[26px] w-auto",        // Desktop top nav — omenx_lite stage 26.5px  (≈ 173px wide)
   "brand-bar": "h-[15px] w-auto", // Mobile brand bar — omenx_lite stage 14.75px (≈ 100px wide)
+  modal: "h-[17px] w-auto",       // Auth dialog / sheet — omenx_lite stage 409:4736 (17 × 114)
 };
 
 // Gap wordmark → Mainnet pill = 0.22 × logo height (brand book lockup).
@@ -64,6 +69,7 @@ const gapClasses: Record<LogoSize, string> = {
   xl: "gap-[7px]",
   nav: "gap-[6px]",         // stage: 6px
   "brand-bar": "gap-[6px]", // stage: 6px
+  modal: "gap-2",           // stage: 8px
 };
 
 export function Logo({ size = "md", variant = "white-gradient", className, showMainnetBadge = true }: LogoProps) {
