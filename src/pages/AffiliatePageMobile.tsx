@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { MobileHeader } from "@/components/MobileHeader";
 import { SeoFooter } from "@/components/seo";
 import { Button } from "@/components/ui/button";
-import { omenxLogo } from "@/components/Logo";
+import { omenxLogoSolid as omenxLogo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 import {
   ArrowDown,
@@ -160,7 +160,7 @@ export const AffiliatePageMobile = () => {
                 {accentLead} <span
                     role="img"
                     aria-label="OmenX"
-                    className="inline-block h-[0.53em] w-[calc(0.53em*376/76)] bg-current align-baseline"
+                    className="inline-block h-[0.53em] w-[calc(0.53em*433/65)] bg-current align-baseline"
                     style={{ WebkitMaskImage: `url("${omenxLogo}")`, maskImage: `url("${omenxLogo}")`, WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat" }}
                   />
               </span>

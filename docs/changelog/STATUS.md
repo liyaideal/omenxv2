@@ -17,6 +17,18 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-09-19 — 全站换标 BR-1（[文档](../delivery/brand-logo-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| BR-A | 8 枚矢量资产入 `src/assets/brand/`，路径取自品牌书，不重绘 | ✅ | 蓝图已落；研发同名同路径搬即可 |
+| BR-B | `<Logo variant>` 四变体 + 四档尺寸；Mainnet 胶囊随 logo 高度 | ✅ | `Logo.tsx` / `MainnetBadge.tsx` |
+| BR-C | 7 处裸引用收口（海报 ×2 纯白 / Leaderboard ×2 / Affiliate mask 433:65 / Host 头像 ×2 → X 单标） | ✅ | `grep omenx-logo.svg src` 只剩台账 |
+| BR-D | favicon.ico + app-icon.svg + apple-touch-icon；`index.html` 三条 link | ✅ | 硬刷新才换图 |
+| BR-E | og:image / og:url / twitter:image；twitter:site → `@OmenX_Official` | ✅ | OG 图为矢量合成版，品牌方正式版同名替换 |
+| BR-F | 品牌方出带 tagline 的正式 OG 图 | ⬜ | 等设计 |
+| BR-G | 鸿蒙体（HarmonyOS Sans SC）中文字体接入 | ⬜ | 多语言轮一起定加载策略 |
+
 ## 2026-09-17 — Pro 终端不可下单态 DK-1（[文档](../delivery/pro-order-gate-v1.md)）
 
 | # | 项 | Status | Notes |

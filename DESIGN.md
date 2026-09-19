@@ -6,10 +6,33 @@
 
 ## 1. Brand Identity
 
-- **Product**: OmenX — crypto prediction market platform
-- **Theme**: Dark-first, single theme (no light mode)
-- **Primary accent**: Purple `hsl(260 60% 55%)`
-- **Personality**: Technical, precise, trustworthy — like a Bloomberg terminal for prediction markets
+Source of truth: brand book **OmenX_Branding-Assets** (Figma `Cc085WLhF9zz1wJP5iafS0`, EN section `1:4726` / ZH `1:4725`, 2026-09). This chapter is the site-side digest; token values below already match it.
+
+- **Product**: OmenX — outcome trading platform (Index-Anchored Outcome Market)
+- **Theme**: Dark-first, single theme (no light mode). Stage = Omen Black `#080A0F` ≈ our `--background` (Cinder); treated as the same colour — do not retune.
+- **Palette** (brand proportions 35 / 15 / 30 / 10 / 10): Volt Green `#CFFF4A` primary (`--accent`), Pulse Blue `#33D6FF` secondary (`--primary`), black + white neutrals, **Signal gradient** `#CFFF4A → #33D6FF` (`--brand-signal` / `bg-signal`, reserved for the logo X and rare emphasis), supporting dark green / dark blue / greys.
+- **Type**: Archivo (UI + brand copy), Archivo SemiExpanded for display headlines only; **HarmonyOS Sans SC** is the Chinese companion face — not loaded yet, decided with the i18n round.
+- **Personality**: Technical, precise, trustworthy — like a Bloomberg terminal for outcome markets
+
+### 1.1 Logo family (2026-09-19, replaces the round-O wordmark)
+
+Files live in `src/assets/brand/` (vector paths verbatim from the brand book; never redraw):
+
+| File | Use |
+|---|---|
+| `omenx-wordmark-white-gradient.svg` | **Site default** — white letters + Signal X, on solid dark stages |
+| `omenx-wordmark-white.svg` | Solid white — on gradient / coloured / photo / art stages (Auth teal header, share posters, hero art) |
+| `omenx-wordmark-black-gradient.svg` | Black letters + gradient X — on solid white stages (emails, print, light decks) |
+| `omenx-wordmark-black.svg` | Solid black — on light patterned stages |
+| `omenx-mark-{gradient-dark,gradient-light,white,black}.svg` | Standalone X (201 × 149) — icons, avatars, cells narrower than ~90px |
+| `public/brand/app-icon.svg` · `avatar.svg` · `favicon.ico` · `apple-touch-icon.png` · `og-image.png` | Favicon set / social avatar / OG card |
+
+Rules (brand book "Principles of Logo Application"):
+- Wordmark ratio is **433 : 65** (≈ 6.66 : 1) — it is 35% wider than the old mark at the same height. Size by height only (`h-*` + `w-auto`); never set both.
+- Pick the variant from the stage, never `invert`, recolour, rotate, letter-space, add effects or reduce opacity.
+- Where the wordmark would render narrower than ~90px, switch to the X mark (`mark.white` etc.), not a smaller wordmark.
+- **Mainnet lockup**: outlined Volt pill, Archivo Regular, sentence case "Mainnet", proportions from logo height H — pill 0.88H, radius 0.30H, 1px stroke, type 0.49H, pad-x 0.23H, gap 0.22H. `MainnetBadge` sizes mirror `LogoSize` 1:1; `<Logo>` wires it.
+- Sub-brand (`OMENX | SPORTS`) and partnership (`OMENX | partner`) lockups exist in the brand book but are **not in the repo yet** — open a round before using them.
 
 ---
 
@@ -816,18 +839,21 @@ flex justify-between text-xs text-muted-foreground
 
 ### Logo Usage
 
-| Context | Size | Notes |
-|---------|------|-------|
-| EventsPage / hub headers (brand bar) | `lg` (h-6) | Left-aligned, no back button |
-| Trade pages | — | Logo hidden, back button only |
-| Desktop navigation | `xl` (h-8) | Left side of top nav |
-| Marketing / landing pages | `xl` (h-8) | Hero sections, footers |
+| Context | Size | Variant | Notes |
+|---------|------|---------|-------|
+| EventsPage / hub headers (brand bar) | `lg` (h-6, ≈160px) | default | Left-aligned, no back button; + Mainnet pill 21px |
+| Trade pages | — | — | Logo hidden, back button only |
+| Desktop navigation | `xl` (h-8, ≈213px) | default | Left side of top nav; + Mainnet pill 28px |
+| Marketing / landing pages, SEO footer | `xl` (h-8) | default | Hero sections, footers |
+| Auth dialog / sheet (teal gradient header) | `lg` / `md` | `white` | Coloured stage → solid white |
+| Share posters (Lite / Pro) | 18–20px raw `<img>` | `omenxLogoSolid` | Art stage → solid white |
+| Host avatar cells, 28px circles | `h-3` raw `<img>` | `omenxMark` | X mark, never a squashed wordmark |
 
 Logo rules:
 - **Never combine the Logo with a back button.**
-- Always use `<Logo>` component from `@/components/Logo`
-- On light backgrounds: use `className="invert"` or wrap in dark container
-- Never stretch, add effects, or use raw SVG import
+- Always use `<Logo>` from `@/components/Logo` (or its `wordmark` / `mark` maps for raw `<img>` / CSS-mask cases — Affiliate h1 uses `omenxLogoSolid` as a mask with the 433/65 ratio)
+- Variant is chosen by the stage (§1.1); **`invert` is banned** — it turns the Signal X purple
+- Never stretch, add effects, or import the SVG file directly in a page
 
 ### Page Type Classification
 
@@ -1087,8 +1113,8 @@ interface HomeEquityHeroProps {
 - Use light mode colors — the app is dark-only
 - Hardcode pixel values for spacing — use Tailwind scale
 - Use emoji or generic icons for chain/token logos
-- Stretch, add effects to, or modify the OMENX logo
-- Place white logo on light backgrounds without `invert`
+- Stretch, add effects to, recolour, or modify the OMENX logo; never `invert` it — pick the stage variant (§1.1)
+- Import a logo SVG file directly in a page — go through `@/components/Logo`
 - **Render the site-wide navigation header (`EventsDesktopHeader` / `MobileHeader` w/ Logo) on a Pro trading terminal.** The Pro terminals — perp (`/trade`) and Pro spot (`/spot`, `surface === "pro"`) — are information-dense and share the full-screen terminal chrome: back arrow + event title + red-pulse countdown + right-side stat cluster + watchlist star. A Pro trading page rendered inside the standard app shell is a regression; fix it, don't ship it. **Lite trade pages are the exception:** the consumer surface (`surface === "lite"`, e.g. `LiteSpotTrade`) DOES render the standard app header — `EventsDesktopHeader` on desktop and `MobileHeader` preset B (`showBack`, no logo, ticker/name title) on mobile. Do not port the Lite header pattern back to the Pro terminals.
 
 **In-page back / breadcrumb rule:** a page that renders the standard app header (with primary nav) must NOT add an in-page back link or breadcrumb — navigation is via the header nav + native browser Back. Reserve an explicit in-page back control for (a) mobile inner pages via `MobileHeader`'s back arrow (mobile has no visible browser back), and (b) pages deliberately rendered without the app header (e.g. Pro full-screen terminals, which carry their own back arrow because they hide the nav). Rationale: on a header'd desktop page a cramped back link wastes header space and reads small; large detail pages read more confident without it.
@@ -1940,7 +1966,7 @@ Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① 
 6. **Logo tile**（改写第 7 条）：桌面 72px `rounded-2xl border-border/60 bg-card px-3`，图 max 64×40，标签 Space Grotesk 12/16；移动 60px `rounded-[13px] p-2.5`，图 max 52×32；团队经历 logo 高 27.6–44px、`opacity-70`、**不灰度**（Bybit 保留品牌色）。
 7. **主 CTA**：实心 `bg-primary` `h-12 px-6 rounded-md` + `shadow-[0_10px_18px_rgba(29,206,248,0.24)]`，文 Archivo SemiBold 14 `#04070F`，尾随 `ArrowRight` 16；不再用描边变体。
 8. **插画位**：`AffiliateArt` 按文件名从 `src/assets/affiliate/` 解析（`import.meta.glob`），缺文件 = 生产不渲染、dev 虚线规格框；装饰图一律 `aria-hidden pointer-events-none select-none`，层级在文字与交互件之下。稿里定义为 DOM 元素的叠加渐变（hero overlay、CTA 径向光）用 CSS 实现，画进插画里的叠加层随扁平导出走。
-9. **字标入正文**：h1 内的 OMENX 字标用站内 `omenx-logo.svg` 作 CSS mask + `bg-current` 着色（`h-[0.57em]`，宽按 376:76），`role="img" aria-label="OmenX"`；mask 的 `url()` **必须加双引号**（Vite 内联 SVG data URI 含 `'`，不加引号生产构建会丢掉整条 mask）。
+9. **字标入正文**：h1 内的 OMENX 字标用站内 `omenxLogoSolid`（`src/assets/brand/omenx-wordmark-white.svg`）作 CSS mask + `bg-current` 着色（`h-[0.57em]`，宽按 **433:65**——2026-09-19 换标后比例已改，旧 376:76 会把字标缩在框里），`role="img" aria-label="OmenX"`；mask 的 `url()` **必须加双引号**（Vite 内联 SVG data URI 含 `'`，不加引号生产构建会丢掉整条 mask）。
 
 参照实现：`src/pages/AffiliatePage.tsx` / `AffiliatePageMobile.tsx`、`src/components/affiliate/*`；字典 `/style-guide#lite-affiliate`（AF-1…AF-6）。
 

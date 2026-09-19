@@ -122,7 +122,7 @@ export const DesignTokensSection = ({ isMobile }: DesignTokensSectionProps) => {
                   { label: "lg · h-6 (24px) — brand bar", size: "lg" },
                   { label: "xl · h-8 (32px) — desktop nav / footer", size: "xl" },
                 ] as const).map(({ label, size }) => (
-                  <div key={size} className="flex items-center justify-between gap-4">
+                  <div key={size} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
                     <span className="text-sm text-muted-foreground">{label}</span>
                     <Logo size={size} />
                   </div>

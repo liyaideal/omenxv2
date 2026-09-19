@@ -14,7 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { OptionChips } from "@/components/OptionChips";
 import { ArrowLeft, Copy, Check, TrendingUp, TrendingDown, AlertCircle, Bell, Settings, Zap, Play, RotateCcw, Info, HelpCircle, Maximize2, X, Monitor, Smartphone, Tablet, Search, Download, ShieldCheck, AlertTriangle, Ban, Type, Clock, Loader2, ExternalLink, Star } from "lucide-react";
-import omenxLogo from "@/assets/omenx-logo.svg";
+import { omenxLogo, wordmark } from "@/components/Logo";
 import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -545,13 +545,13 @@ const StyleGuide = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <code className="text-xs bg-muted px-2 py-1 rounded font-mono flex-1 truncate">
-                    import omenxLogo from "@/assets/omenx-logo.svg"
+                    import {"{"} Logo, omenxLogo {"}"} from "@/components/Logo"
                   </code>
                   <Button 
                     variant="ghost" 
                     size="icon" 
                     className="h-7 w-7"
-                    onClick={() => copyCode('import omenxLogo from "@/assets/omenx-logo.svg"', 'logo-import')}
+                    onClick={() => copyCode('import { Logo, omenxLogo } from "@/components/Logo"', 'logo-import')}
                   >
                     {copiedCode === 'logo-import' ? <Check className="h-3.5 w-3.5 text-trading-green" /> : <Copy className="h-3.5 w-3.5" />}
                   </Button>
@@ -591,14 +591,14 @@ const StyleGuide = () => {
             <Card className="trading-card">
               <CardHeader>
                 <CardTitle className="text-lg">Light Background Usage</CardTitle>
-                <CardDescription>When used on light backgrounds, add a dark container or invert</CardDescription>
+                <CardDescription>On a solid white stage use the black-gradient wordmark (brand book) — never invert the white file</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="bg-white rounded-xl p-8 flex items-center justify-center">
-                  <img src={omenxLogo} alt="OMENX Logo" className="h-12 invert" />
+                  <img src={wordmark["black-gradient"]} alt="OMENX Logo" className="h-12" />
                 </div>
                 <p className="text-xs text-muted-foreground mt-3">
-                  Add <code className="bg-muted px-1 rounded">className="invert"</code> for light backgrounds
+                  Use <code className="bg-muted px-1 rounded">wordmark["black-gradient"]</code> (or <code className="bg-muted px-1 rounded">variant="black"</code> on patterned light stages)
                 </p>
               </CardContent>
             </Card>
@@ -619,7 +619,7 @@ const StyleGuide = () => {
                 </div>
                 <div className="flex items-start gap-2">
                   <Check className="h-4 w-4 text-trading-green mt-0.5 flex-shrink-0" />
-                  <span>Use white logo on dark backgrounds (primary usage)</span>
+                  <span>Dark stage → white-gradient (default); coloured / art stage → solid white; white stage → black-gradient</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <X className="h-4 w-4 text-trading-red mt-0.5 flex-shrink-0" />

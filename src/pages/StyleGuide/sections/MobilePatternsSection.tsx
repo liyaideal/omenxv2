@@ -161,10 +161,10 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
               <div>
                 <p className="text-xs text-muted-foreground mb-3 flex items-center gap-2">
                   <Check className="h-3 w-3 text-trading-green" />
-                  Light Background (Use invert)
+                  Light Background (black-gradient variant)
                 </p>
                 <div className="bg-white rounded-xl p-6 flex items-center justify-center border border-border">
-                  <Logo size="lg" className="invert" />
+                  <Logo size="lg" variant="black-gradient" showMainnetBadge={false} />
                 </div>
               </div>
 
@@ -193,8 +193,8 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
               </div>
             </div>
             <CodePreview 
-              code={`// On light backgrounds, use the invert class
-<Logo size="lg" className="invert" />
+              code={`// On a solid white stage use the black-gradient wordmark (never invert the white file)
+<Logo size="lg" variant="black-gradient" showMainnetBadge={false} />
 
 // Or wrap in a dark container
 <div className="bg-background rounded-lg px-4 py-2">

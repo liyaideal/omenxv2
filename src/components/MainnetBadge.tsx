@@ -16,18 +16,19 @@ interface MainnetBadgeProps {
  * height H — pill 0.88H · radius 0.30H · 1px stroke · type 0.49H · pad-x 0.23H.
  * Permanent brand signal that the platform is live on mainnet; kept after Launch Campaign ends.
  */
+// leading-none sits after text-[..] on purpose: tailwind-merge drops a leading-* that precedes a font-size class.
 const sizeClasses: Record<MainnetBadgeSize, string> = {
-  sm: "h-[14px] rounded-[4px] px-[4px] text-[9px]",   // Logo sm  (h-4 / 16px)
-  md: "h-[18px] rounded-[6px] px-[5px] text-[11px]",  // Logo md  (h-5 / 20px)
-  lg: "h-[21px] rounded-[7px] px-[6px] text-[13px]",  // Logo lg  (h-6 / 24px)
-  xl: "h-[28px] rounded-[9px] px-[7px] text-[15px]",  // Logo xl  (h-8 / 32px)
+  sm: "h-[14px] rounded-[4px] px-[4px] text-[9px] leading-none",   // Logo sm  (h-4 / 16px)
+  md: "h-[18px] rounded-[6px] px-[5px] text-[11px] leading-none",  // Logo md  (h-5 / 20px)
+  lg: "h-[21px] rounded-[7px] px-[6px] text-[13px] leading-none",  // Logo lg  (h-6 / 24px)
+  xl: "h-[28px] rounded-[9px] px-[7px] text-[15px] leading-none",  // Logo xl  (h-8 / 32px)
 };
 
 export const MainnetBadge = ({ className, size = "sm", responsive = true }: MainnetBadgeProps) => {
   return (
     <span
       className={cn(
-        "items-center whitespace-nowrap border border-accent font-sans font-normal leading-none tracking-[0.02em] text-accent",
+        "items-center whitespace-nowrap border border-accent font-sans font-normal tracking-[0.02em] text-accent",
         responsive ? "hidden sm:inline-flex" : "inline-flex",
         sizeClasses[size],
         className,
