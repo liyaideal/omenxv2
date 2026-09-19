@@ -42,6 +42,10 @@
     --accent: 74 100% 65%;
     --accent-foreground: 220 12% 4%;
 
+    /* ===== BRAND SIGNAL GRADIENT (brand book 2026-09: Volt #CFFF4A → Pulse #33D6FF) =====
+       Reserved for the logo X and a few emphasis surfaces — not a fill for cards/buttons. */
+    --brand-signal: linear-gradient(90deg, #CFFF4A 0%, #33D6FF 100%);
+
     /* ===== MUTED & SUBTLE ===== */
     --muted: 222 15% 13%;
     --muted-foreground: 214 8% 64%;

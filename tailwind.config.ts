@@ -13,6 +13,10 @@ export default {
       },
     },
     extend: {
+      backgroundImage: {
+        // Brand Signal gradient token (see index.css --brand-signal). Use `bg-signal`.
+        signal: "var(--brand-signal)",
+      },
       fontFamily: {
         sans: ['Archivo', 'sans-serif'],
         mono: ['Space Grotesk', 'monospace'],

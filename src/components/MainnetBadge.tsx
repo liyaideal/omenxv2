@@ -1,29 +1,39 @@
 import { cn } from "@/lib/utils";
 
+/** Mirrors LogoSize — the badge is sized from the logo's cap-height (brand book lockup rule). */
+export type MainnetBadgeSize = "sm" | "md" | "lg" | "xl";
+
 interface MainnetBadgeProps {
   className?: string;
-  size?: "sm" | "md";
+  size?: MainnetBadgeSize;
   /** Hide on narrow viewports to avoid header overflow. */
   responsive?: boolean;
 }
 
 /**
- * Permanent brand signal that the platform is live on mainnet.
- * Independent of activation flow — kept after Launch Campaign ends.
+ * Brand-book "Mainnet" lockup (OmenX_Branding-Assets · Logo Lockups, node 1:4921):
+ * outlined Volt pill, Archivo Regular, sentence case. Proportions against the logo
+ * height H — pill 0.88H · radius 0.30H · 1px stroke · type 0.49H · pad-x 0.23H.
+ * Permanent brand signal that the platform is live on mainnet; kept after Launch Campaign ends.
  */
+const sizeClasses: Record<MainnetBadgeSize, string> = {
+  sm: "h-[14px] rounded-[4px] px-[4px] text-[9px]",   // Logo sm  (h-4 / 16px)
+  md: "h-[18px] rounded-[6px] px-[5px] text-[11px]",  // Logo md  (h-5 / 20px)
+  lg: "h-[21px] rounded-[7px] px-[6px] text-[13px]",  // Logo lg  (h-6 / 24px)
+  xl: "h-[28px] rounded-[9px] px-[7px] text-[15px]",  // Logo xl  (h-8 / 32px)
+};
+
 export const MainnetBadge = ({ className, size = "sm", responsive = true }: MainnetBadgeProps) => {
-  const textSize = size === "md" ? "text-[10px]" : "text-[9px]";
   return (
     <span
       className={cn(
-        "items-center gap-1 rounded-sm border border-trading-green/40 bg-trading-green/10 px-1.5 py-0.5 font-mono uppercase tracking-wider text-trading-green",
+        "items-center whitespace-nowrap border border-accent font-sans font-normal leading-none tracking-[0.02em] text-accent",
         responsive ? "hidden sm:inline-flex" : "inline-flex",
-        textSize,
+        sizeClasses[size],
         className,
       )}
       aria-label="Live on mainnet"
     >
-      <span className="h-1.5 w-1.5 rounded-full bg-trading-green animate-pulse" />
       Mainnet
     </span>
   );
