@@ -592,6 +592,52 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | `PORTAL.bodyZh` | 研发注：真平台上这个按钮直接跳转到已经开发好的 Affiliate Portal（{path}）。Portal 不在本蓝图里，本弹窗只是蓝图占位，不要实现这个弹窗。 | 同上中文版，与英文并列显示 |
 | `PORTAL.close` | Got it | 说明框关闭按钮 |
 
+## Auth · Email（登录弹窗「Other email」/ `/reset-password` / Settings，2026-09-19）
+
+固定句子在 `src/lib/emailAuth.ts` 的 `EMAIL_AUTH_COPY`（唯一来源）；界面标题 / 按钮在 `src/components/auth/EmailAuthPanel.tsx`、`src/pages/ResetPassword.tsx`、`src/components/settings/AccountSecurityCard.tsx`。
+
+### 概念
+| 词 | 一句定义 | 判定表达式 | 出处 |
+|---|---|---|---|
+| email account（邮箱账号） | 用邮箱 + 密码注册的账号 | `profiles.auth_method === "email"` | `starterProfile.ts` 写入；Settings / completeProfile 读取 |
+| verify code（验证码） | 注册时发到邮箱的 6 位数字；蓝图站固定 111111 且不真发 | `code === DEMO_VERIFY_CODE` | `emailAuth.ts` |
+| reset link（重置链接） | 发到邮箱的一次性链接，落地 `/reset-password`；登录前「忘记密码」与登录后「改密码」共用 | `resetPasswordForEmail(email, { redirectTo: origin + "/reset-password" })` | `emailAuth.ts sendPasswordReset` |
+| resend cooldown | 重发 / 重置后的 60 秒禁用期 | `RESEND_COOLDOWN_SECONDS = 60` | `emailAuth.ts` |
+
+### 标题 / 按钮
+| 文案 | 何时出现 |
+|---|---|
+| **Other email** | Google 页签 `Sign in with Google` 下的描边副钮，进入邮箱通路 |
+| **Sign in with email** / Use the email and password you registered with. | email 步 · 登录表单标题 / 副标题 |
+| **Create your account** / We'll send a 6-digit code to verify your email. | email 步 · 注册表单 |
+| **Verify your email** / Enter the 6-digit code we sent to {email} | email 步 · 验证码 |
+| **Reset your password** / We'll email you a link to set a new password. | email 步 · 忘记密码 |
+| **Check your inbox** / If an account exists for {email}, we've sent a link to reset your password. | email 步 · 已发送（存在与否都显示这一句） |
+| Sign in · Continue · Verify & create account · Send reset link · Back to sign in | 各模式主 / 副按钮 |
+| Forgot password? · New to OMENX? **Create account** · Already have an account? **Sign in** · Didn't get it? **Resend code** / Resend in {n}s | 表单内链接与脚注 |
+| At least 8 characters | 密码框 hint（注册、重置页） |
+| This is the email you sign in with | completeProfile 邮箱只读时的说明（邮箱账号） |
+| **Set a new password** / for {email} · Update password | `/reset-password` 表单 |
+| **Password updated** / You're signed in. Use your new password next time. · Go to markets | `/reset-password` 成功 |
+| **This link has expired** / Reset links work once and expire after 1 hour. Request a new one from Forgot password? in the sign-in dialog, or from Settings › Account security. · Back to markets | `/reset-password` 失效 |
+| Checking your reset link… | `/reset-password` 等待会话 |
+| Email · Email & password · You signed in via Email. | Settings Linked Account 卡 |
+| Password · Change it with a link sent to your email · Change | Settings Account security · Password 行默认 |
+| Password · Reset link sent — check your inbox. · ✓ {n}s | Settings Account security · Password 行已发送 |
+| Welcome back! · Email verified — welcome to OMENX! · Code sent to {email} · Reset link sent to {email} | toast |
+
+### 错误句（`EMAIL_AUTH_COPY`，行内红字）
+| Key | 文案 | 何时出现 |
+|---|---|---|
+| `invalid_credentials` | Email or password is incorrect. | 登录失败（两框同红，句子在 Password 下） |
+| `invalid_email` | Please enter a valid email address | 邮箱格式错（与 completeProfile 同句） |
+| `weak_password` | Use at least 8 characters. | 密码不足 8 位 |
+| `email_exists` | This email is already registered. + 行内 **Sign in** | 注册时邮箱已有账号 |
+| `incorrect_code` | Incorrect code. Try again. | 验证码错或不足 6 位 |
+| `passwords_mismatch` | Passwords don't match. | `/reset-password` 两次不一致 |
+| `rate_limited` | Too many attempts. Please wait a minute and try again. | toast |
+| `unknown` | Something went wrong. Please try again. | toast |
+
 ## Home (`/`, Lite)
 
 首页 = `/` 与 `/events` 同一 `LiteEventsPage`。完整交付口径见 `docs/delivery/lite-home-v1.md`。

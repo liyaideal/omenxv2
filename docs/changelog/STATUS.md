@@ -17,6 +17,21 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-09-19 — 邮箱 + 密码登录 EM-1（[文档](../delivery/auth-email-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| EM-A | Google 页签 `Other email` 副钮 → 弹窗 `email` 步（登录 / 注册 / 验证码 / 忘记密码 / 已发送五态，行内错误句） | ✅ | 蓝图已落；`EmailAuthPanel.tsx`，文案在 `emailAuth.ts` |
+| EM-B | 注册顺序：填邮箱密码 → 验证码 → 验证通过才建号 → createWallet → completeProfile（邮箱只读） | ✅ | 蓝图验证码固定 111111 |
+| EM-C | 真实验证码 + 发码前查邮箱是否已注册 | ⬜ | 正式后端；蓝图只能在建号时得知「已注册」 |
+| EM-D | `/reset-password` 四态（loading / form / success / expired），登录前「忘记密码」与登录后「改密码」共用 | ✅ | `ResetPassword.tsx` |
+| EM-E | Settings › Account security `Password` 行（仅邮箱账号）：Change 发重置链接 → `✓ 60s` | ✅ | `AccountSecurityCard.tsx` |
+| EM-F | Settings Linked Account 显示 `Email / Email & password` | ✅ | `Settings.tsx AUTH_METHOD_INFO.email` |
+| EM-G | 服务端在账号创建时建 profile（`auth_method` / `email`） | ⬜ | 本库无 auth.users 触发器，蓝图由前端建行 |
+| EM-H | 改密码后 24 小时禁提现 | ⬜ | 蓝图无提现冻结机制，界面未写 |
+| EM-I | 登录限速（IP + 邮箱）与真实重置邮件通道 | ⬜ | 正式后端 |
+| EM-J | 品牌字体自托管 `public/fonts/`（Archivo / Space Grotesk / Bebas Neue / Anton） | ✅ | 真平台照搬目录；字体族名不变 |
+
 ## 2026-09-19 — 全站换标 BR-1（[文档](../delivery/brand-logo-v1.md)）
 
 | # | 项 | Status | Notes |

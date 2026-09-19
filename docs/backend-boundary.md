@@ -185,3 +185,14 @@
 - 「Deposit to」（Standard / Boost）选择必须落服务端（用户级充值路由偏好，可改，记住上次）；前端 `useAccountPreference` 的 localStorage 只是缓存，不是真相源。
 - 到账（入账任务）按该偏好记入 `spot_balance` 或 `balance`；用户未做过选择时的默认账户 = Boost Account。
 - 当前后端只支持合约账户充提，与 2026-07-21 双账户 2b §4 拍板不符，列为 P0 待实现。
+
+## 2026-09-19 邮箱 + 密码登录（append-only 补录）
+
+| 项 | 类别 | 说明 |
+|---|---|---|
+| Supabase Auth 邮箱密码 provider（`signInWithPassword` / `signUp`） | 🟡 | 「邮箱 + 密码可注册登录、注册须验证邮箱、密码只能经邮件链接重置」的规则照抄；账号存储与会话实现由正式架构决定 |
+| 注册验证码 `DEMO_VERIFY_CODE = 111111`（`src/lib/emailAuth.ts`） | 🔴 | 仅演示，不真发邮件；正式版发真实 6 位码，并在发码前查邮箱是否已注册 |
+| `resetPasswordForEmail` → `/reset-password`（`updateUser({ password })`） | 🟡 | 一次性、1 小时有效、登录前后共用同一落地页的规则照抄；邮件通道与令牌实现自选 |
+| 本库 `auth.users` 无 profile 触发器；profile 行由前端 `upsertStarterProfile()` 在拿到会话后创建 | 🔴 | 演示便利；正式版由服务端在账号创建时建 profile（`auth_method` / `email` / 随机用户名头像） |
+| `profiles.auth_method = "email"` | 🟡 | 「账号来源」语义是需求（决定 Settings 是否显示 Password 行、completeProfile 邮箱只读）；字段位置自选 |
+| 改密码后 24 小时禁提现 | 🟢（正式版必做，蓝图未做） | 蓝图没有提现冻结机制，界面上未写；见 `docs/delivery/auth-email-v1.md` §6 |

@@ -1994,3 +1994,30 @@ Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① 
 7. **事件选择器与产品身份（ES-1）**：两个 Pro 终端共用一个事件选择器（桌面标题下拉 / 手机 `Select Event` 抽屉，`EventSelectorPanel`），顶部 `Standard` / `Boost` 页签 = 产品线，词与账户卡同源；默认页签 = 当前终端，跨页签选中直接跳另一终端。产品身份只在这里出现：终端 header 的标题旁**不放** `SPOT` / `Boost` 之类产品 badge，只留生命周期 badge（09-10 第 1 则「最多一个 badge」）。列表的剩余时间一律相对格式（`formatEndsIn`：`<1m` / `8m` / `3h 12m` / `2d 14h` / 日期 / `Frozen`），颜色阈值与 header 倒计时一致；只显日期的 `End Date` 列退役。
 9. **Pro 终端体育市场行（SL-P，09-17）**：比赛类事件在 Pro 页头下方用一根横向市场行承接 Lite fixture board 的全部市场（Winner / Handicap / Total goals · maps ｜ Map n），一芯片一组、多线组 ▾ 下拉（手机 MobileDrawer），选线 = 切 sibling event；当前组芯片 `--yes` 描边不填充；组名沿用 Lite，Spread / Totals / O/U 禁；页头标题恒为比赛名、副行写当前市场。**任何 Lite 新市场形态上线，同轮必须给 Pro 终端一个对等入口**（本条就是漏掉对等检查的返工）。
 8. **Lite / Pro 开关归位（SW-2，09-16）**：桌面两面的开关都是所在 chrome 的最右一项（Lite 全站 header 右端、Pro 终端顶栏右端），各自贴各自页面的右边距，尺寸同一档（外壳 26px）——同一角落、不追求同一像素（两种骨架的边距本就不同）；hover 出一行说明另一面（`Pro: order book, limit orders, candlestick chart` / `Lite: simple trading view`），不用 "one-tap"。下单面板内不放切换控件；Lite 面板 CTA 下方的脚注**只有一行**：金额为空时是 Pro 入口 `Want to place a limit order? Pro ›`（`LimitOrderHint`，只给该账号未进过 Pro 时看，点击落 Pro 的 Limit），金额 > 0 时是原来的风险句 / 原句——二选一，永不叠两行；入口不放在输入框、标题栏或主区任何位置。
+
+## §Addendum 2026-09-19 · 邮箱登录（Other email）与向导步语法（LOCKED）
+
+**适用范围**：`src/components/auth/AuthContent.tsx` Google 页签、`src/components/auth/EmailAuthPanel.tsx`（弹窗 `email` 步）、`src/pages/ResetPassword.tsx`、`src/components/settings/AccountSecurityCard.tsx` Password 行。`§Addendum 2026-09-07` 的 login 步规范不变，本附录只加不改。
+
+**1 · 入口（login 步 Google 页签）**
+`Sign in with Google` 之下一颗描边副钮 `Other email`：`w-full h-[44px] rounded-[12px] border-[1.5px] border-[#1C1F26] bg-transparent text-[13px] text-white/80 hover:text-white`，Mail 图标 16px。语法 = LiteAuthGate 的 `Create account` 副钮，**不与 Google 主钮平起平坐**（不做第二颗 48px 深底按钮，不加第四个页签）。
+
+**2 · 向导步语法（既有，追认为规则）**
+弹窗内 login 之后的每一步（`email` / `createWallet` / `completeProfile`）统一：顶左 `← Back`（`flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground`，ArrowLeft 16px）→ 居中标题 `font-display text-[20px] font-semibold tracking-tight` + 副标题 `text-[13px] text-muted-foreground leading-snug` → 内容。容器 `space-y-6`（桌面）/ `space-y-5`（移动）。**这些步不显示山猫、不显示 Wallet / Google / Telegram 页签。** 禁止把 Back 放在右侧或做成帮助行的一部分。
+
+**3 · 表单件（Lite 皮，本附录首次成文）**
+- 输入框：`h-[48px] rounded-[12px] bg-[#14161A] border border-[#23262D] px-4 text-[14px] text-white placeholder:text-[#6B7280]`；focus `border-[#33D6FF]`；错误 `border-trading-red`。密码框右侧眼睛 16px `text-[#9CA2AB]`，`pr-11`。
+- 行内错误：`text-[12px] text-trading-red mt-1.5`；hint：`text-[12px] text-[#6B7280] mt-1.5`。错误一律行内，toast 只留网络 / 限速两类。
+- 6 格验证码（`input-otp` OTPInput）：格 `w-12 h-12 rounded-[12px] bg-[#14161A] border-[#23262D]`，`gap-2` 居中，当前格 `border-[#33D6FF]`，错误全格 `border-trading-red`，数字 `font-display text-[20px] font-medium`。Settings 改邮箱流程的 `InputOTP` 是同一个库，皮不同（Pro 面 shadcn 默认），互不借用。
+- 主按钮 `btn-primary w-full h-[48px] text-[14px]`；副钮同第 1 条描边语法（`Back to sign in` / `Back to markets`）。
+- 成功态图标：`w-10 h-10 rounded-full bg-[rgba(207,255,74,0.1)] border border-[rgba(207,255,74,0.3)] text-[#CFFF4A]`，Check 20px。
+- 链接：`text-[#33D6FF] hover:underline`，12px；脚注 `text-[12px] text-[#9CA2AB] text-center`。
+
+**4 · `/reset-password` 壳**
+桌面：弹窗同款壳（`max-w-md rounded-[16px] border-[#23262D]` + 09-07 附录的品牌渐变，`p-[24px]`）居中，`py-16`；移动：`MobileHeader` 内页形态（标题 `Reset password`，无返回）+ 全出血 `px-4 py-6`，无卡片边框和渐变。两端都先放 `Logo size="modal"`。
+
+**5 · Settings Password 行**
+与 Authenticator 行同骨架（`rounded-lg border bg-muted/30 p-3`，图标 20px `text-muted-foreground`，标题 `text-sm font-medium`，说明 `text-xs text-muted-foreground`，按钮 `variant="outline" size="sm" h-8`）。不加徽标，不在说明里重复邮箱地址，已发送态按钮收成 `✓ {n}s`。只对 `profiles.auth_method === "email"` 渲染。
+
+**6 · 字典**
+AU-E1…E11 / AU-R1…R6 / AU-S1…S2 挂生产件本体（`AuthDialog` / `AuthSheet` `previewStep="email"` + `fixture.emailPanel`、`ResetPasswordContent fixtureState`、`AccountSecurityCard previewEmailUser`），禁止在 preview 里手写复刻。
