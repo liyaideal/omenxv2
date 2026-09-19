@@ -9,7 +9,12 @@ import markBlack from "@/assets/brand/omenx-mark-black.svg";
 import { cn } from "@/lib/utils";
 import { MainnetBadge } from "@/components/MainnetBadge";
 
-export type LogoSize = "sm" | "md" | "lg" | "xl";
+/**
+ * `sm…xl` are the generic scale (Auth, Footer, Style-guide). `nav` / `brand-bar` are the two
+ * page-chrome sizes measured off the omenx_lite page stage (Event_All 140:68990 / event_all 203:92635):
+ * the wordmark is 35% wider than the old mark, so the chrome uses a smaller height than the generic scale.
+ */
+export type LogoSize = "sm" | "md" | "lg" | "xl" | "nav" | "brand-bar";
 
 /**
  * Brand-book placement rule (OmenX_Branding-Assets · Logo Usage):
@@ -46,7 +51,9 @@ const sizeClasses: Record<LogoSize, string> = {
   sm: "h-4 w-auto",   // Small: compact headers, mobile nav items          (≈ 107px wide)
   md: "h-5 w-auto",   // Medium: default for mobile headers               (≈ 133px wide)
   lg: "h-6 w-auto",   // Large: mobile brand bar, desktop sub-headers      (≈ 160px wide)
-  xl: "h-8 w-auto",   // Extra large: desktop top nav, landing, footers    (≈ 213px wide)
+  xl: "h-8 w-auto",   // Extra large: landing, footers                    (≈ 213px wide)
+  nav: "h-[26px] w-auto",        // Desktop top nav — omenx_lite stage 26.5px  (≈ 173px wide)
+  "brand-bar": "h-[15px] w-auto", // Mobile brand bar — omenx_lite stage 14.75px (≈ 100px wide)
 };
 
 // Gap wordmark → Mainnet pill = 0.22 × logo height (brand book lockup).
@@ -55,6 +62,8 @@ const gapClasses: Record<LogoSize, string> = {
   md: "gap-1",
   lg: "gap-[5px]",
   xl: "gap-[7px]",
+  nav: "gap-[6px]",         // stage: 6px
+  "brand-bar": "gap-[6px]", // stage: 6px
 };
 
 export function Logo({ size = "md", variant = "white-gradient", className, showMainnetBadge = true }: LogoProps) {

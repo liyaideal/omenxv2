@@ -26,6 +26,7 @@
 | BR-C | 7 处裸引用收口（海报 ×2 纯白 / Leaderboard ×2 / Affiliate mask 433:65 / Host 头像 ×2 → X 单标） | ✅ | `grep omenx-logo.svg src` 只剩台账 |
 | BR-D | favicon.ico + app-icon.svg + apple-touch-icon；`index.html` 三条 link | ✅ | 硬刷新才换图 |
 | BR-E | og:image / og:url / twitter:image；twitter:site → `@OmenX_Official` | ✅ | OG 图为矢量合成版，品牌方正式版同名替换 |
+| BR-H | 页面级尺寸校正：桌面 nav 26px / 手机品牌栏 15px + 页头 44px（对照 omenx_lite 稿） | ✅ | `size="nav"` / `"brand-bar"`；吸顶子栏跟随 44 |
 | BR-F | 品牌方出带 tagline 的正式 OG 图 | ⬜ | 等设计 |
 | BR-G | 鸿蒙体（HarmonyOS Sans SC）中文字体接入 | ⬜ | 多语言轮一起定加载策略 |
 

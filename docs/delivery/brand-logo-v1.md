@@ -46,7 +46,20 @@
 | 浏览器标签 | 黑底渐变 X 图标 | favicon 生效（可能要硬刷新） |
 | 任意分享海报（style-guide Share SH-1） | 页脚纯白字标 18px | 变体选对 |
 
-## 5. 已知边界
+## 5. 追加 · 页面级尺寸校正（2026-09-19 下午，Liya 全批 L1–L7）
+
+换标当天按品牌书"同高替换"上线后，对照 omenx_lite 页面稿（桌面 `140:68980` / 手机 `203:92708`）复量，发现设计师在页面里把 logo 压小了一档；全站的 4 档通用尺寸不动，新增两档**页面 chrome 专用尺寸**：
+
+| 位置 | 稿 | 落地 | 徽标 | 间距 |
+|---|---|---|---|---|
+| 桌面顶部导航 | 字标 26.5 × 178 | `size="nav"` 26 × 173 | 22px 胶囊 | 6px |
+| 手机品牌栏（Lite 各根页） | 字标 14.75 × 99，页头 43.5 | `size="brand-bar"` 15 × 100，**页头 44px**（内页仍 56） | 17px 胶囊，字 9px 下限 | 6px |
+
+变体与徽标样式**仍按品牌书**（白字 + 渐变 X、Archivo 句首大写胶囊）——页面稿里的纯白 X 与"圆点 + 大写 MAINNET"是品牌书定稿前的旧版，Liya 拍板听品牌书。
+
+实现：`Logo.tsx` / `MainnetBadge.tsx` 各加 `nav` / `brand-bar` 两档；`MobileHeader` brand 变体行高 `h-11`，header 带 `data-mobile-header`，`index.css` 用 `:root:has(header[data-mobile-header="brand"])` 把 `--mobile-header-h` 改成 44px，Portfolio / Rewards 的吸顶子栏自动跟随（实测 `top: 44px`）。
+
+## 6. 已知边界
 
 - OG 图是站内矢量合成版，不是品牌方排版稿；`public/brand/og-image.png` 同名替换即升级。
 - `og:image` 用绝对地址 `https://omenx.com/brand/og-image.png`——preview 域名分享出去时爬虫仍会去取正式域名的图，正式域名上线前分享卡可能空。

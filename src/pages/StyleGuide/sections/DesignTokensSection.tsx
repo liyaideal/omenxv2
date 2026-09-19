@@ -113,14 +113,16 @@ export const DesignTokensSection = ({ isMobile }: DesignTokensSectionProps) => {
             <Card className="trading-card">
               <CardHeader>
                 <CardTitle className="text-lg">Logo sizes · with Mainnet lockup</CardTitle>
-                <CardDescription>Heights are fixed; the Mainnet pill scales from the logo height (0.88H, radius 0.30H, type 0.49H).</CardDescription>
+                <CardDescription>Generic scale sm–xl (Auth, footer, decks) + two page-chrome sizes measured off the omenx_lite stage. The Mainnet pill follows each size.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {([
+                  { label: "brand-bar · 15px — mobile brand bar (stage 14.75)", size: "brand-bar" },
                   { label: "sm · h-4 (16px)", size: "sm" },
-                  { label: "md · h-5 (20px) — mobile default", size: "md" },
-                  { label: "lg · h-6 (24px) — brand bar", size: "lg" },
-                  { label: "xl · h-8 (32px) — desktop nav / footer", size: "xl" },
+                  { label: "md · h-5 (20px) — Auth sheet", size: "md" },
+                  { label: "lg · h-6 (24px) — Auth dialog, footer", size: "lg" },
+                  { label: "nav · 26px — desktop top nav (stage 26.5)", size: "nav" },
+                  { label: "xl · h-8 (32px) — landing / SEO footer", size: "xl" },
                 ] as const).map(({ label, size }) => (
                   <div key={size} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
                     <span className="text-sm text-muted-foreground">{label}</span>

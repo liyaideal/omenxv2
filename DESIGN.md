@@ -841,9 +841,9 @@ flex justify-between text-xs text-muted-foreground
 
 | Context | Size | Variant | Notes |
 |---------|------|---------|-------|
-| EventsPage / hub headers (brand bar) | `lg` (h-6, ≈160px) | default | Left-aligned, no back button; + Mainnet pill 21px |
+| Mobile brand bar (Lite roots, `MobileHeader variant="brand"`) | `brand-bar` (15px, ≈100px) | default | Left-aligned, no back button; Mainnet pill 17px, gap 6px; **bar is 44px** (inner headers stay 56px) — from omenx_lite stage `203:92635` |
 | Trade pages | — | — | Logo hidden, back button only |
-| Desktop navigation | `xl` (h-8, ≈213px) | default | Left side of top nav; + Mainnet pill 28px |
+| Desktop navigation | `nav` (26px, ≈173px) | default | Left side of top nav; Mainnet pill 22px, gap 6px — from omenx_lite stage `140:68990` |
 | Marketing / landing pages, SEO footer | `xl` (h-8) | default | Hero sections, footers |
 | Auth dialog / sheet (teal gradient header) | `lg` / `md` | `white` | Coloured stage → solid white |
 | Share posters (Lite / Pro) | 18–20px raw `<img>` | `omenxLogoSolid` | Art stage → solid white |
@@ -851,6 +851,7 @@ flex justify-between text-xs text-muted-foreground
 
 Logo rules:
 - **Never combine the Logo with a back button.**
+- Page chrome uses the two stage-measured sizes (`nav` / `brand-bar`); the generic `sm…xl` scale is for everything else. The 2026-09-19 wordmark is 35% wider than the old mark, so "same height as before" reads too big in chrome — size from the page stage, not from the old mark.
 - Always use `<Logo>` from `@/components/Logo` (or its `wordmark` / `mark` maps for raw `<img>` / CSS-mask cases — Affiliate h1 uses `omenxLogoSolid` as a mask with the 433/65 ratio)
 - Variant is chosen by the stage (§1.1); **`invert` is banned** — it turns the Signal X purple
 - Never stretch, add effects, or import the SVG file directly in a page
@@ -873,7 +874,7 @@ ONE component (`src/components/MobileHeader.tsx`), ONE height, TWO variants. No 
 | **A. Brand bar** | `variant="brand"` | Lite bottom-nav roots `/`, `/events`, `/portfolio`, `/wallet` | Logo `lg` + Mainnet badge left, no back, no title, optional right slot (≤2 icon buttons or 1 compact control), divider fades in after 8px scroll |
 | **B. Inner bar** | `variant="inner"` | every other page incl. Lite trade pages, `/rewards*`, `/settings*`, `/deposit`, `/withdraw`, `/wallet/recovery*`, `/leaderboard`, `/portfolio` sub-pages, SEO / marketing sub-pages, campaign | back 36×36 left, centered 14/600 single-line title (sentence case, ≤24 chars, ellipsis), right slot ≤2 icons or 1 compact control, divider always (or handed to a sticky sub-bar via `flushBottom`) |
 
-Height: **56px + `env(safe-area-inset-top)`** for both. The `--mobile-header-h` CSS var (also in `:root`) is what sub-bars stick to: `sticky top-[var(--mobile-header-h)] z-30`.
+Height: **56px + `env(safe-area-inset-top)`** for inner headers; **44px** for the brand bar (2026-09-19, omenx_lite stage `203:92635`). The header carries `data-mobile-header="brand|inner"` and `index.css` re-scopes the var via `:root:has(header[data-mobile-header="brand"])`, so sub-bars keep using the same token. The `--mobile-header-h` CSS var (also in `:root`) is what sub-bars stick to: `sticky top-[var(--mobile-header-h)] z-30`.
 
 Former **Preset C** (SEO / marketing sub-page) is merged into B — same chrome, and `showBack` must still be explicit because search traffic has no history stack. Former **Preset D** is Pro `/` only: the header is variant brand with Pro `headerActions`; it is not a Lite concept.
 

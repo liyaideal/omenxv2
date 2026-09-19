@@ -187,7 +187,7 @@ export const MobileHeader = ({
   }, [isBrand]);
 
   const renderLeft = () => {
-    if (isBrand && showLogo) return <Logo size="lg" showMainnetBadge />;
+    if (isBrand && showLogo) return <Logo size="brand-bar" showMainnetBadge />;
     if (shouldShowBack) {
       return (
         <button
@@ -212,7 +212,9 @@ export const MobileHeader = ({
 
   const headerStyle = {
     paddingTop: "env(safe-area-inset-top)",
-    ["--mobile-header-h" as string]: "calc(56px + env(safe-area-inset-top))",
+    // Brand bar is 44px (omenx_lite stage: 8px padding + 26.5px row); inner headers stay 56px.
+    // `data-mobile-header` lets index.css re-scope --mobile-header-h for sticky sub-bars on brand pages.
+    ["--mobile-header-h" as string]: `calc(${isBrand ? 44 : 56}px + env(safe-area-inset-top))`,
   } as CSSProperties;
 
   return (
@@ -229,9 +231,10 @@ export const MobileHeader = ({
             : "border-b border-border",
       )}
       style={headerStyle}
+      data-mobile-header={resolvedVariant}
     >
-      {/* Row 1: left slot + title + right slot — fixed 56px */}
-      <div className="flex h-14 items-center gap-2">
+      {/* Row 1: left slot + title + right slot — 44px brand bar / 56px inner header */}
+      <div className={cn("flex items-center gap-2", isBrand ? "h-11" : "h-14")}>
         <div className="flex-shrink-0">{renderLeft()}</div>
 
         {isBrand || !title ? (
