@@ -26,7 +26,7 @@
 | 路由 | `/affiliate`（Lite 公开页，未登录可达） |
 | 桌面组件 | `src/pages/AffiliatePage.tsx`（`EventsDesktopHeader` + 内容 + `SeoFooter`） |
 | 移动组件 | `src/pages/AffiliatePageMobile.tsx`（`useIsMobile()` <768 时由桌面组件返回；`MobileHeader title="Affiliate Program" showBack`） |
-| 站内入口 | 桌面顶栏主导航第三项 `Affiliate`（2026-09-19 起顶掉 Leaderboard；Leaderboard 保留在 footer Platform 列与移动端个人菜单）；`SeoFooter` → Resources 列 → `Affiliate Program`（紧随 Developers）；移动端顶栏入口待定 |
+| 站内入口 | 桌面顶栏主导航第三项 `Affiliate`（2026-09-19 起顶掉 Leaderboard；Leaderboard 保留在 footer Platform 列与移动端个人菜单）；`SeoFooter` → Resources 列 → `Affiliate Program`（紧随 Developers）；移动端：个人菜单（底栏头像弹出的列表）Rewards 之后新增 `Affiliate Program`（Handshake 图标），仅登录用户可见；未登录手机游客从 footer 进 |
 | 页内锚点 | `#benefits` `#earnings` `#how-it-works` `#markets` `#partners` `#faq` `#apply`；桌面：左侧固定竖排点导航（`AffiliateDotNav`，01–06，≥1400px 视口显示，滚动联动高亮当前节）；移动：数据横幅下方一行 pill 跳转链（01–06） |
 | 外链 | 申请表（Lark Base form）`https://ljp9k446231p.jp.larksuite.com/share/base/form/shrjpJXdxwMmRq3Y7IftqBNek2g`，所有 Apply 按钮同一目标，新标签打开（仅已登录非 affiliate 时是真链接，见 §5A）；`mailto:affiliates@omenx.com`；Insights `https://www.omenx.com/insights` |
 

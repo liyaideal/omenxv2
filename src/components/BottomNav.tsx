@@ -1,5 +1,5 @@
 import { useState, useEffect, type CSSProperties } from "react";
-import { User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, KeyRound, Compass, PieChart, ArrowLeftRight } from "lucide-react";
+import { User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, KeyRound, Compass, PieChart, ArrowLeftRight, Handshake } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthSheet } from "@/components/auth/AuthSheet";
@@ -238,6 +238,15 @@ export const BottomNav = () => {
             onClick={() => {
               setProfileSheetOpen(false);
               navigate("/rewards");
+            }}
+          />
+          {/* Affiliate Program entry (CPO 2026-09-19): mobile has no top-nav slot for it, so it lives here after Rewards. */}
+          <MobileDrawerListItem
+            icon={Handshake}
+            label="Affiliate Program"
+            onClick={() => {
+              setProfileSheetOpen(false);
+              navigate("/affiliate");
             }}
           />
           {/* Referral entry hidden until the /referral route exists (R3b-2 round 12) */}
