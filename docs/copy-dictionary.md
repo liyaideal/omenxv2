@@ -601,6 +601,7 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 |---|---|---|---|
 | email account（邮箱账号） | 用邮箱 + 密码注册的账号 | `profiles.auth_method === "email"` | `starterProfile.ts` 写入；Settings / completeProfile 读取 |
 | verify code（验证码） | 注册时发到邮箱的 6 位数字；蓝图站固定 111111 且不真发 | `code === DEMO_VERIFY_CODE` | `emailAuth.ts` |
+| email change（改登录邮箱） | 邮箱账号换登录邮箱；Supabase「安全改邮箱」开启：旧、新邮箱各收一封链接，两封都点才换 | `supabase.auth.updateUser({ email })`；等待中 `user.new_email` 有值 | `emailAuth.ts requestEmailChange`，`LinkedEmailAccountCard` |
 | reset link（重置链接） | 发到邮箱的一次性链接，落地 `/reset-password`；登录前「忘记密码」与登录后「改密码」共用 | `resetPasswordForEmail(email, { redirectTo: origin + "/reset-password" })` | `emailAuth.ts sendPasswordReset` |
 | resend cooldown | 重发 / 重置后的 60 秒禁用期 | `RESEND_COOLDOWN_SECONDS = 60` | `emailAuth.ts` |
 
@@ -624,7 +625,11 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | Email · Email & password · You signed in via Email. | Settings Linked Account 卡 |
 | Password · Change it with a link sent to your email · Change | Settings Account security · Password 行默认 |
 | Password · Reset link sent — check your inbox. · ✓ {n}s | Settings Account security · Password 行已发送 |
-| Welcome back! · Email verified — welcome to OMENX! · Code sent to {email} · Reset link sent to {email} | toast |
+| Email · Email & password · You signed in via Email. To change it, we'll send a link to both your current and your new address. · Change | Settings Linked Account 卡（邮箱账号）· 默认 |
+| Email **Pending** · Changing to {new} — open the link in both inboxes to finish. Links expire in 24 hours. · Resend / ✓ {n}s | Settings Linked Account 卡 · 改邮箱等待中 / 60s 冷却 |
+| **Change email** / We'll send a confirmation link to both your current and your new address. Open both to finish. · New email address · Cancel · Send links | Change email 弹窗 / 抽屉 · 输入 |
+| **Check both inboxes** / Open the link in each email to finish. Links expire in 24 hours. · CURRENT {old} · NEW {new} · Done | Change email 弹窗 / 抽屉 · 已发送 |
+| Welcome back! · Email verified — welcome to OMENX! · Code sent to {email} · Reset link sent to {email} · Email updated to {new} | toast |
 
 ### 错误句（`EMAIL_AUTH_COPY`，行内红字）
 | Key | 文案 | 何时出现 |
@@ -632,6 +637,7 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | `invalid_credentials` | Email or password is incorrect. | 登录失败（两框同红，句子在 Password 下） |
 | `invalid_email` | Please enter a valid email address | 邮箱格式错（与 completeProfile 同句） |
 | `weak_password` | Use at least 8 characters. | 密码不足 8 位 |
+| `same_email` | That's already your email. | Change email 输入的新邮箱与当前相同 |
 | `pwned_password` | This password is too easy to guess. Choose a different one. | Supabase 泄露密码库（HaveIBeenPwned）拒绝了这个密码；注册时退回表单在 Password 下显示，重置页行内显示 |
 | `email_exists` | This email is already registered. + 行内 **Sign in** | 注册时邮箱已有账号 |
 | `incorrect_code` | Incorrect code. Try again. | 验证码错或不足 6 位 |

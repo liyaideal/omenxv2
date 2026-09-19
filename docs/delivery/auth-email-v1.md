@@ -62,6 +62,16 @@ Email + Password → `Sign in`。成功后弹窗直接关闭，进入站内，**
 | success | 改成功 | `Password updated` + `You're signed in. Use your new password next time.` + `Go to markets`（→ `/events`） |
 | expired | 4 秒内没有会话 | `This link has expired` + 说明（一次性、1 小时）+ `Back to markets` |
 
+### 3.6 改登录邮箱（登录后，仅邮箱账号）
+
+`/settings` → Linked Account 卡 → 邮箱行右侧 `Change`（Profile 卡的 Email「Edit」对邮箱账号隐藏——那是给 Google / Wallet / Telegram 账号改联系邮箱的，邮箱账号的邮箱就是登录凭证）。
+
+1. 弹窗（桌面）/ 抽屉（手机）：输新邮箱 → `Send links`。行内错误：格式错 / 和当前一样 `That's already your email.` / 已被注册 `This email is already registered.`。
+2. 成功态 `Check both inboxes`，列出 CURRENT / NEW 两个邮箱。**旧邮箱和新邮箱各收一封确认链接，两封都点了才真正换**（Supabase「安全改邮箱」，2026-09-19 查库确认两个 token 都生成）。
+3. 卡片进入等待中：`Email` 旁 `Pending` 徽标，框里仍是旧邮箱（账号此刻还是旧邮箱），按钮 `✓ 60s` 倒计时 → `Resend`；说明 `Changing to {新} — open the link in both inboxes to finish. Links expire in 24 hours.`。刷新页面等待态还在（读 `user.new_email`）。
+4. 两封都点了 → 链接落回 `/settings` → 页面发现登录邮箱变了 → 同步 `profiles.email` → toast `Email updated to {新}` → 卡片回默认态显示新邮箱。
+5. 没有「取消」：Supabase 没有取消接口，链接 24 小时后自动作废。
+
 ## 4. 全部状态与文案（逐项）
 
 ### 4.1 email 步（弹窗内）
@@ -115,6 +125,7 @@ Email + Password → `Sign in`。成功后弹窗直接关闭，进入站内，**
 | 1 | 真实邮箱验证码 | 蓝图固定 111111；正式版发 6 位验证码，5–10 分钟有效，60 秒重发 |
 | 2 | 发码前查邮箱是否已注册、查密码策略 | 蓝图只能在验证码通过后（尝试建号时）得知「已注册」和「密码太常见」；正式版应在 `Continue` 时就拦下并行内显示 |
 | 3 | 重置链接的邮件投递 | 蓝图用 Supabase 默认邮件通道，能否送达取决于环境；正式版走自有邮件服务，链接一次性、1 小时有效 |
+| 3b | 改邮箱的邮件投递 | 同上；正式版两封确认邮件走自有通道；CEX 惯例改邮箱后 24 小时禁提现，蓝图未做、界面未写 |
 | 4 | 改密码后的资金保护 | CEX 惯例：改密码后 24 小时禁止提现。蓝图没有提现冻结机制，所以界面上没写这句话；正式版加上并在 Password 行说明 |
 | 5 | 登录失败限速 | 蓝图依赖 Supabase 默认限速；正式版按 IP + 邮箱限速并接验证码 |
 | 6 | 服务端建 profile | 见 §5 |
@@ -146,3 +157,8 @@ Google 账号选择器、Wallet / Telegram 页签、createWallet 步的内容、
 | 13 | 打开邮件链接（或登录态直接开 `/reset-password`） | `Set a new password`；两次不一致 → `Passwords don't match.`；成功 → `Password updated` |
 | 14 | 未登录直接开 `/reset-password` | 4 秒后 `This link has expired` |
 | 15 | Google / Wallet / Telegram 账号开 `/settings` | 没有 `Password` 行 |
+| 16 | 邮箱账号 `/settings` | Profile 卡没有 Email Edit；Linked Account 邮箱行右侧有 `Change` |
+| 17 | 点 Change → 输当前邮箱 → Send links | 红边 + `That's already your email.` |
+| 18 | 输别人已注册的邮箱 | `This email is already registered.` |
+| 19 | 输新邮箱 → Send links | `Check both inboxes` + CURRENT / NEW 两行；Done 后卡片出现 `Pending` 徽标 + `✓ 60s`，刷新仍在 |
+| 20 | 两个邮箱各点一次链接（需真实邮箱） | 回到 /settings，toast `Email updated to {新}`，卡片显示新邮箱、徽标消失 |

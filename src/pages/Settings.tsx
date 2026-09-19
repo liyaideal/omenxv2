@@ -36,6 +36,7 @@ import { GoogleIcon } from "@/components/icons/GoogleIcon";
 import { TelegramIcon } from "@/components/icons/TelegramIcon";
 import { Wallet } from "lucide-react";
 import { AccountSecurityCard } from "@/components/settings/AccountSecurityCard";
+import { LinkedEmailAccountCard } from "@/components/settings/LinkedEmailAccountCard";
 import { WithdrawalVerificationCard } from "@/components/settings/WithdrawalVerificationCard";
 
 const AUTH_METHOD_INFO: Record<string, { label: string; icon: React.ReactNode; color: string; description: string }> = {
@@ -179,6 +180,9 @@ const Settings = () => {
   const authMethod = profile?.auth_method || "google";
   const providerInfo = AUTH_METHOD_INFO[authMethod] || AUTH_METHOD_INFO.google;
   const providerEmail = email;
+  // Email + password accounts: the email IS the credential. Profile-card Edit
+  // (notification email) is hidden and the Linked Account card owns "Change".
+  const isEmailUser = authMethod === "email";
 
   if (profileLoading) {
     return (
@@ -375,8 +379,8 @@ const Settings = () => {
         <div className="px-4 py-6 space-y-4">
           <ProfileCard />
           <UsernameCard />
-          <EmailCard />
-          <LinkedAccountCard />
+          {!isEmailUser && <EmailCard />}
+          {isEmailUser ? <LinkedEmailAccountCard /> : <LinkedAccountCard />}
           <AccountSecurityCard />
           <WithdrawalVerificationCard />
           
@@ -539,8 +543,8 @@ const Settings = () => {
         <div className="space-y-6">
           <ProfileCard />
           <UsernameCard />
-          <EmailCard />
-          <LinkedAccountCard />
+          {!isEmailUser && <EmailCard />}
+          {isEmailUser ? <LinkedEmailAccountCard /> : <LinkedAccountCard />}
           <AccountSecurityCard />
           <WithdrawalVerificationCard />
           

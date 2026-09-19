@@ -16,6 +16,7 @@ import { AuthSheet } from "@/components/auth/AuthSheet";
 import { GoogleAccountChooser } from "@/components/auth/GoogleAccountChooser";
 import { LiteAuthGate } from "@/components/auth/LiteAuthGate";
 import { AccountSecurityCard } from "@/components/settings/AccountSecurityCard";
+import { LinkedEmailAccountCard } from "@/components/settings/LinkedEmailAccountCard";
 import { ResetPasswordContent, ResetPasswordShell } from "@/pages/ResetPassword";
 import type { AuthStep } from "@/hooks/useAuth";
 
@@ -198,5 +199,40 @@ export const SettingsSecurityEmailDefaultPreview = () => (
 export const SettingsSecurityEmailSentPreview = () => (
   <div className="p-4">
     <AccountSecurityCard previewEmailUser previewSentSeconds={42} />
+  </div>
+);
+
+/* ---------------- AU-S3…S8 · Settings › Linked Account · change login email ---------------- */
+
+const LINKED_FIXTURE = { previewEmail: "liya@omenx.com", previewNewEmail: "liya.new@omenx.com" } as const;
+
+export const SettingsLinkedEmailDefaultPreview = () => (
+  <div className="p-4">
+    <LinkedEmailAccountCard previewState="default" {...LINKED_FIXTURE} />
+  </div>
+);
+export const SettingsLinkedEmailPendingPreview = () => (
+  <div className="p-4">
+    <LinkedEmailAccountCard previewState="pending" {...LINKED_FIXTURE} />
+  </div>
+);
+export const SettingsLinkedEmailCooldownPreview = () => (
+  <div className="p-4">
+    <LinkedEmailAccountCard previewState="cooldown" {...LINKED_FIXTURE} />
+  </div>
+);
+export const SettingsChangeEmailInputPreview = () => (
+  <div className="p-4">
+    <LinkedEmailAccountCard previewState="default" previewDialog="input" previewEmail={LINKED_FIXTURE.previewEmail} />
+  </div>
+);
+export const SettingsChangeEmailErrorPreview = () => (
+  <div className="p-4">
+    <LinkedEmailAccountCard previewState="default" previewDialog="error" previewEmail={LINKED_FIXTURE.previewEmail} previewNewEmail="mia@omenx.dev" />
+  </div>
+);
+export const SettingsChangeEmailSentPreview = () => (
+  <div className="p-4">
+    <LinkedEmailAccountCard previewState="default" previewDialog="sent" {...LINKED_FIXTURE} />
   </div>
 );

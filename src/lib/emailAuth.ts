@@ -21,6 +21,7 @@ export type EmailAuthErrorCode =
   | "email_exists"
   | "weak_password"
   | "pwned_password"
+  | "same_email"
   | "invalid_email"
   | "rate_limited"
   | "unknown";
@@ -41,6 +42,7 @@ export const EMAIL_AUTH_COPY = {
   /** Supabase "leaked password protection" (HaveIBeenPwned) rejected it. */
   pwned_password: "This password is too easy to guess. Choose a different one.",
   invalid_email: "Please enter a valid email address",
+  same_email: "That's already your email.",
   incorrect_code: "Incorrect code. Try again.",
   passwords_mismatch: "Passwords don't match.",
   rate_limited: "Too many attempts. Please wait a minute and try again.",
@@ -58,7 +60,7 @@ export const mapAuthError = (raw: string | undefined | null): EmailAuthFailure =
   if (msg.includes("invalid login credentials") || msg.includes("invalid_credentials")) {
     return { ok: false, code: "invalid_credentials", message: EMAIL_AUTH_COPY.invalid_credentials };
   }
-  if (msg.includes("already registered") || msg.includes("already exists") || msg.includes("user_already_exists")) {
+  if (msg.includes("already registered") || msg.includes("already been registered") || msg.includes("already exists") || msg.includes("user_already_exists")) {
     return { ok: false, code: "email_exists", message: EMAIL_AUTH_COPY.email_exists };
   }
   if (msg.includes("easy to guess") || msg.includes("pwned") || msg.includes("leaked")) {
@@ -120,6 +122,33 @@ export const sendPasswordReset = async (email: string): Promise<EmailAuthResult>
 /** Sets a new password for the current (recovery or normal) session. */
 export const updatePassword = async (password: string): Promise<EmailAuthResult> => {
   const { error } = await supabase.auth.updateUser({ password });
+  if (error) return mapAuthError(error.message);
+  return { ok: true, data: undefined };
+};
+
+/* ---------------- Change login email (CPO 2026-09-19, plan A) ---------------- */
+
+/** Where the confirmation links land. */
+export const EMAIL_CHANGE_REDIRECT_PATH = "/settings";
+/** Supabase email-change links lapse after this many hours (shown in copy). */
+export const EMAIL_CHANGE_LINK_HOURS = 24;
+
+/**
+ * Asks Supabase to change the sign-in email. This project has "secure email
+ * change" ON (verified 2026-09-19): a link goes to BOTH the current and the new
+ * address and the swap happens only after both are opened. Until then
+ * `user.new_email` carries the pending address.
+ */
+export const requestEmailChange = async (currentEmail: string, newEmail: string): Promise<EmailAuthResult> => {
+  const next = newEmail.trim();
+  if (!isValidEmail(next)) return { ok: false, code: "invalid_email", message: EMAIL_AUTH_COPY.invalid_email };
+  if (next.toLowerCase() === currentEmail.trim().toLowerCase()) {
+    return { ok: false, code: "same_email", message: EMAIL_AUTH_COPY.same_email };
+  }
+  const { error } = await supabase.auth.updateUser(
+    { email: next },
+    { emailRedirectTo: `${window.location.origin}${EMAIL_CHANGE_REDIRECT_PATH}` },
+  );
   if (error) return mapAuthError(error.message);
   return { ok: true, data: undefined };
 };

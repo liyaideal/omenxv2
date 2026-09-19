@@ -61,11 +61,12 @@ interface EmailAuthPanelProps {
 }
 
 /* ---------- literal skin (Lite) ---------- */
-const INPUT_CLASS =
+/** Exported so Settings › Change email (same Lite field) stays literally identical. */
+export const INPUT_CLASS =
   "w-full h-[48px] rounded-[12px] bg-[#14161A] border border-[#23262D] px-4 text-[14px] text-white placeholder:text-[#6B7280] focus:outline-none focus:border-[#33D6FF] transition-colors";
-const INPUT_ERROR_CLASS = "border-trading-red focus:border-trading-red";
+export const INPUT_ERROR_CLASS = "border-trading-red focus:border-trading-red";
 const HINT_CLASS = "text-[12px] text-[#6B7280] mt-1.5";
-const ERROR_CLASS = "text-[12px] text-trading-red mt-1.5";
+export const ERROR_CLASS = "text-[12px] text-trading-red mt-1.5";
 const LINK_CLASS = "text-[#33D6FF] hover:underline cursor-pointer";
 const FOOT_CLASS = "text-[12px] text-[#9CA2AB] text-center";
 const GHOST_BUTTON_CLASS =

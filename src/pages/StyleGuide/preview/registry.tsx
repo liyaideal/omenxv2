@@ -531,6 +531,12 @@ export const previewRegistry: Record<string, Loader> = {
   "auth-reset-form-mobile": pick(auth, "AuthResetFormMobilePreview"),
   "settings-security-email-default": pick(auth, "SettingsSecurityEmailDefaultPreview"),
   "settings-security-email-sent": pick(auth, "SettingsSecurityEmailSentPreview"),
+  "settings-linked-email-default": pick(auth, "SettingsLinkedEmailDefaultPreview"),
+  "settings-linked-email-pending": pick(auth, "SettingsLinkedEmailPendingPreview"),
+  "settings-linked-email-cooldown": pick(auth, "SettingsLinkedEmailCooldownPreview"),
+  "settings-change-email-input": pick(auth, "SettingsChangeEmailInputPreview"),
+  "settings-change-email-error": pick(auth, "SettingsChangeEmailErrorPreview"),
+  "settings-change-email-sent": pick(auth, "SettingsChangeEmailSentPreview"),
 
 
   /* -------- Settlements -------- */

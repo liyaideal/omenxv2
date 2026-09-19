@@ -447,6 +447,59 @@ const RESET_MOBILE: SectionCase[] = [
   },
 ];
 
+/* ---------------- AU-S3…S8 · Settings › Linked Account · change login email ---------------- */
+
+const LINKED_CASES: SectionCase[] = [
+  {
+    key: "settings-linked-email-default",
+    label: "AU-S3 · Linked Account 卡（邮箱账号）· 默认",
+    note: "只在 profile.auth_method === 'email' 时用这张卡；其他账号仍是 Settings.tsx 里的 LinkedAccountCard。邮箱账号同时隐藏 Profile 卡的 Email Edit。",
+    spec: [
+      { state: "default", when: "!user.new_email && cooldown === 0", visual: "邮箱框右侧描边小钮 'Change'（h-8，与 Password 行同钮）；说明 'You signed in via Email. To change it, we'll send a link to both your current and your new address.'", source: "LinkedEmailAccountCard.tsx" },
+    ],
+  },
+  {
+    key: "settings-linked-email-pending",
+    label: "AU-S4 · Linked Account 卡 · 等待中（两封链接未都点）",
+    spec: [
+      { state: "pending", when: "user.new_email 有值 && cooldown === 0", visual: "'Email' 旁描边徽标 'Pending'（主色染）；邮箱框仍显示当前邮箱；按钮 'Resend'；说明 'Changing to {new} — open the link in both inboxes to finish. Links expire in 24 hours.'", source: "LinkedEmailAccountCard.tsx" },
+      { state: "done", when: "两封都点了 → user.email 变化", visual: "同步 profiles.email → toast 'Email updated to {new}' → 回 AU-S3 显示新邮箱", source: "LinkedEmailAccountCard.tsx sync effect" },
+    ],
+  },
+  {
+    key: "settings-linked-email-cooldown",
+    label: "AU-S5 · Linked Account 卡 · 刚发送（60s 冷却）",
+    spec: [
+      { state: "cooldown", when: "cooldown > 0", visual: "按钮 disabled '✓ {n}s'（与 Password 行同态），归零后 'Resend'", source: "LinkedEmailAccountCard.tsx" },
+    ],
+  },
+];
+
+const CHANGE_EMAIL_CASES: SectionCase[] = [
+  {
+    key: "settings-change-email-input",
+    label: "AU-S6 · Change email 弹窗 / 抽屉 · 输入",
+    note: "桌面 shadcn Dialog（与旧改邮箱弹窗同壳），手机 MobileDrawer；输入框是登录弹窗的 Lite 皮（48 高 / 12 圆角 / focus 青边）。",
+    spec: [
+      { state: "input", when: "mode === 'input'", visual: "标题 'Change email'；说明 'We'll send a confirmation link to both your current and your new address. Open both to finish.'；桌面 Cancel + 'Send links'，手机单个全宽 'Send links'", source: "ChangeLoginEmailDialog.tsx" },
+    ],
+  },
+  {
+    key: "settings-change-email-error",
+    label: "AU-S7 · Change email · 行内错误",
+    spec: [
+      { state: "error", when: "requestEmailChange 返回 invalid_email / same_email / email_exists", visual: "红边 + 12px 红字：'Please enter a valid email address' / 'That's already your email.' / 'This email is already registered.'；限速与未知错误才走 toast", source: "emailAuth.ts requestEmailChange" },
+    ],
+  },
+  {
+    key: "settings-change-email-sent",
+    label: "AU-S8 · Change email · 已发送",
+    spec: [
+      { state: "sent", when: "mode === 'sent'", visual: "volt 对勾 40px + 'Check both inboxes' + 'Open the link in each email to finish. Links expire in 24 hours.' + 两行列表 CURRENT / NEW（mono）；桌面主色 'Done'，手机描边全宽 'Done'", source: "ChangeLoginEmailDialog.tsx" },
+    ],
+  },
+];
+
 /* ---------------- AU-S · Settings › Account security · Password ---------------- */
 
 const SECURITY_CASES: SectionCase[] = [
@@ -556,6 +609,24 @@ export const AuthPage = ({ isMobile }: { isMobile: boolean }) => (
         <SectionFrame cases={SECURITY_CASES} device="desktop" minHeight={260} />
         <div className="mt-3">
           <SectionFrame cases={SECURITY_CASES} device="mobile" minHeight={320} />
+        </div>
+      </SubSection>
+
+      <SubSection title="9 · Settings › Linked Account · 改登录邮箱（邮箱账号）" platform="shared">
+        <SectionFrame cases={LINKED_CASES} device="desktop" minHeight={240} />
+        <div className="mt-3">
+          <SectionFrame cases={LINKED_CASES} device="mobile" minHeight={260} />
+        </div>
+      </SubSection>
+
+      <SubSection title="10 · Change email 弹窗 / 抽屉" platform="shared">
+        {CHANGE_EMAIL_CASES.map((c, i) => (
+          <div key={c.key} className={i ? "mt-3" : undefined}>
+            <SectionFrame cases={[c]} device="desktop" minHeight={480} />
+          </div>
+        ))}
+        <div className="mt-3">
+          <SectionFrame cases={CHANGE_EMAIL_CASES} device="mobile" minHeight={620} />
         </div>
       </SubSection>
     </SectionWrapper>

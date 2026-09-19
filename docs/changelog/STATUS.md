@@ -30,6 +30,7 @@
 | EM-G | 服务端在账号创建时建 profile（`auth_method` / `email`） | ⬜ | 本库无 auth.users 触发器，蓝图由前端建行 |
 | EM-H | 改密码后 24 小时禁提现 | ⬜ | 蓝图无提现冻结机制，界面未写 |
 | EM-I | 登录限速（IP + 邮箱）与真实重置邮件通道 | ⬜ | 正式后端 |
+| EM-K | 邮箱账号改登录邮箱：Linked Account `Change` → 两封确认链接（旧 + 新）→ `Pending` 徽标 / 60s / `Resend` → 两封都点后同步 profiles.email + toast；Profile 卡 Email Edit 对邮箱账号隐藏 | ✅ | `LinkedEmailAccountCard.tsx` / `ChangeLoginEmailDialog.tsx`；第 5 步需真实邮箱验（Liya 自测） |
 | EM-J | 品牌字体自托管 `public/fonts/`（Archivo / Space Grotesk / Bebas Neue / Anton） | ✅ | 真平台照搬目录；字体族名不变 |
 
 ## 2026-09-19 — 全站换标 BR-1（[文档](../delivery/brand-logo-v1.md)）
