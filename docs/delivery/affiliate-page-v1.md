@@ -26,7 +26,7 @@
 | 路由 | `/affiliate`（Lite 公开页，未登录可达） |
 | 桌面组件 | `src/pages/AffiliatePage.tsx`（`EventsDesktopHeader` + 内容 + `SeoFooter`） |
 | 移动组件 | `src/pages/AffiliatePageMobile.tsx`（`useIsMobile()` <768 时由桌面组件返回；`MobileHeader title="Affiliate Program" showBack`） |
-| 站内入口 | `SeoFooter` → Resources 列 → `Affiliate Program`（紧随 Developers） |
+| 站内入口 | 桌面顶栏主导航第三项 `Affiliate`（2026-09-19 起顶掉 Leaderboard；Leaderboard 保留在 footer Platform 列与移动端个人菜单）；`SeoFooter` → Resources 列 → `Affiliate Program`（紧随 Developers）；移动端顶栏入口待定 |
 | 页内锚点 | `#benefits` `#earnings` `#how-it-works` `#markets` `#partners` `#faq` `#apply`；桌面：左侧固定竖排点导航（`AffiliateDotNav`，01–06，≥1400px 视口显示，滚动联动高亮当前节）；移动：数据横幅下方一行 pill 跳转链（01–06） |
 | 外链 | 申请表（Lark Base form）`https://ljp9k446231p.jp.larksuite.com/share/base/form/shrjpJXdxwMmRq3Y7IftqBNek2g`，所有 Apply 按钮同一目标，新标签打开（仅已登录非 affiliate 时是真链接，见 §5A）；`mailto:affiliates@omenx.com`；Insights `https://www.omenx.com/insights` |
 
@@ -102,7 +102,7 @@
 |---|---|---|---|
 | 未登录 | `!user` | Supabase auth session | 按钮文案不变；点击打开站内登录门（桌面 `AuthDialog` / 移动 `AuthSheet`）。登录后留在本页，按钮按新状态重算文案；**不自动续做动作** |
 | 已登录 · 非 affiliate | `user && !profile.is_affiliate` | `profiles.is_affiliate`（默认 false） | 按钮是真链接 `<a target=_blank>` 指向申请表（§2 外链）；文案不变 |
-| 已登录 · affiliate | `profile.is_affiliate === true` | 同上 | 五处文案统一改为 `Open affiliate portal`；点击弹说明框（桌面 Dialog / 移动 MobileDrawer）：标题 `Affiliate portal`，正文 `Your affiliate portal lives on the OmenX platform, not in this blueprint. On the live site this button opens /affiliate/portal, where you manage links, invitees, commissions and claims.`，按钮 `Got it`。**真平台把这一步换成直接跳 portal** |
+| 已登录 · affiliate | `profile.is_affiliate === true` | 同上 | 五处文案统一改为 `Open affiliate portal`；**真平台：点击直接跳转已开发好的 Affiliate Portal（`/affiliate/portal`）**。蓝图里没有 portal，所以点击弹一个**给研发看的占位说明框**（带 `Blueprint only · dev note` 徽标，中英双语写明"直接跳 portal、不要实现这个弹窗"）——该弹窗不是产品界面，不实现 |
 | 已登录 · profile 未返回 | `user && isLoading && !profile` | — | 保持 Apply 文案，点击等待，避免文案闪两次 |
 
 真平台对应：`profiles.is_affiliate` 只是蓝图的标记位，真平台读你们 affiliate 服务的会员状态；`affiliate_since` 仅演示。演示账号：alex_carter 是 affiliate，mia_reyes 不是。

@@ -2094,8 +2094,8 @@ const DesktopNavigationSection = ({ isMobile }: { isMobile: boolean }) => {
                   </tr>
                   <tr>
                     <td className="py-2 font-medium">Nav items</td>
-                    <td className="py-2 font-mono">Events · Portfolio · Leaderboard · Insights</td>
-                    <td className="py-2 text-muted-foreground">Four peers, no featured styling. Resolved is an Events tab, not a nav item.</td>
+                    <td className="py-2 font-mono">Events · Portfolio · Affiliate · Insights</td>
+                    <td className="py-2 text-muted-foreground">Four peers, no featured styling. Resolved is an Events tab, not a nav item. Affiliate took Leaderboard's slot on 2026-09-19 (CPO); Leaderboard lives in the footer Platform column and the mobile profile menu.</td>
                   </tr>
                   <tr>
                     <td className="py-2 font-medium">Nav tab</td>

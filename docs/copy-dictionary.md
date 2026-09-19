@@ -586,8 +586,10 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | Key | 文案 | 何时出现 |
 |---|---|---|
 | `PORTAL.cta` | Open affiliate portal | affiliate 状态下五处 Apply 按钮统一文案 |
-| `PORTAL.title` | Affiliate portal | portal 说明框标题 |
-| `PORTAL.body` | Your affiliate portal lives on the OmenX platform, not in this blueprint. On the live site this button opens {path}, where you manage links, invitees, commissions and claims. | 说明框正文，`{path}` = `/affiliate/portal` |
+| `PORTAL.badge` | Blueprint only · dev note | 说明框顶部 volt 徽标——这个弹窗是给研发看的蓝图占位，不是产品界面 |
+| `PORTAL.title` | Affiliate portal | 说明框标题 |
+| `PORTAL.body` | On the live platform this button navigates straight to the existing Affiliate Portal ({path}). The portal is already built outside this blueprint, so this dialog is only a placeholder for the blueprint — do not implement it. | 说明框正文，`{path}` = `/affiliate/portal` |
+| `PORTAL.bodyZh` | 研发注：真平台上这个按钮直接跳转到已经开发好的 Affiliate Portal（{path}）。Portal 不在本蓝图里，本弹窗只是蓝图占位，不要实现这个弹窗。 | 同上中文版，与英文并列显示 |
 | `PORTAL.close` | Got it | 说明框关闭按钮 |
 
 ## Home (`/`, Lite)

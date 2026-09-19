@@ -107,6 +107,7 @@
 | AF-J | `/style-guide#lite-affiliate` AF-1…AF-6 按新视觉更新 | ⬜ | 蓝图侧已落 |
 | AF-K | Apply 按钮三态：guest → 登录门 / member → 申请表 / affiliate → `Open affiliate portal` + portal 说明框 | ⬜ | 文档 §5A；`profiles.is_affiliate` 蓝图标记位；字典 AF-7a–d |
 | AF-L | 素材全部入仓（hero 视频循环 + 10 幅插画） | ⬜ | 台账 Ⓗ 组 |
+| AF-M | 桌面顶栏主导航 Leaderboard → Affiliate（Leaderboard 留 footer + 移动个人菜单） | ⬜ | 移动端入口待 CPO 定 |
 
 ## 2026-09-14 — Affiliate Program 页面 v1（[文档](../delivery/affiliate-page-v1.md)）
 

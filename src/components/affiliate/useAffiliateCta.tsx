@@ -44,11 +44,21 @@ export const useAffiliateCta = (forceState?: AffiliateCtaState, forceOpen?: "por
   const href = state === "member" && !resolving ? APPLY_URL : undefined;
 
   const body = PORTAL.body.replace("{path}", PORTAL.path);
+  const bodyZh = PORTAL.bodyZh.replace("{path}", PORTAL.path);
+  const noteBadge = (
+    <span className="inline-flex w-fit items-center rounded-full border border-accent/40 bg-accent/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.16em] text-accent">
+      {PORTAL.badge}
+    </span>
+  );
   const overlays: ReactNode = (
     <>
       {isMobile ? <AuthSheet open={authOpen} onOpenChange={setAuthOpen} /> : <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />}
       {isMobile ? (
         <MobileDrawer open={portalOpen} onOpenChange={setPortalOpen} title={PORTAL.title} description={body}>
+          <div className="mt-3 flex flex-col gap-3">
+            {noteBadge}
+            <p className="text-sm leading-relaxed text-muted-foreground">{bodyZh}</p>
+          </div>
           <MobileDrawerActions>
             <Button className="w-full" onClick={() => setPortalOpen(false)}>
               {PORTAL.close}
@@ -58,10 +68,12 @@ export const useAffiliateCta = (forceState?: AffiliateCtaState, forceOpen?: "por
       ) : (
         <Dialog open={portalOpen} onOpenChange={setPortalOpen}>
           <DialogContent className="sm:max-w-md">
-            <DialogHeader>
+            <DialogHeader className="gap-2">
+              {noteBadge}
               <DialogTitle>{PORTAL.title}</DialogTitle>
               <DialogDescription>{body}</DialogDescription>
             </DialogHeader>
+            <p className="text-sm leading-relaxed text-muted-foreground">{bodyZh}</p>
             <DialogFooter>
               <Button onClick={() => setPortalOpen(false)}>{PORTAL.close}</Button>
             </DialogFooter>

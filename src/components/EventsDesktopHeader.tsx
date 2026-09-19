@@ -40,12 +40,13 @@ import { TransferDialog } from "@/components/wallet/TransferDialog";
 import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
 
 
-// Main nav (4 items). Resolved is now an Events page tab; Leaderboard is a
-// regular nav entry without trophy/purple-border decoration.
+// Main nav (4 items). Resolved is now an Events page tab. 2026-09-19 (CPO): Leaderboard
+// gives its slot to Affiliate — partner acquisition matters more at this stage; Leaderboard
+// stays reachable from the footer Platform column and the mobile profile menu.
 const navItems = [
   { label: "Events", path: "/events" },
   { label: "Portfolio", path: "/portfolio" },
-  { label: "Leaderboard", path: "/leaderboard" },
+  { label: "Affiliate", path: "/affiliate" },
   { label: "Insights", path: "/insights" },
 ];
 

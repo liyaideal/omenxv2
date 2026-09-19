@@ -28,12 +28,16 @@ export const APPLY_URL = "https://ljp9k446231p.jp.larksuite.com/share/base/form/
 /**
  * CTA state copy (CPO-approved 2026-09-19). The Apply CTAs share one behaviour:
  * guest → sign-in gate · member → APPLY_URL · affiliate → `PORTAL` notice.
- * The portal itself lives on the live platform, not in this blueprint.
+ * The notice is a DEV-FACING blueprint note (CPO 2026-09-19): the portal already exists on the
+ * live platform outside this blueprint, so the live button must navigate straight to it — the
+ * dialog itself is not a product screen and must not be implemented.
  */
 export const PORTAL = {
   cta: "Open affiliate portal",
+  badge: "Blueprint only · dev note",
   title: "Affiliate portal",
-  body: "Your affiliate portal lives on the OmenX platform, not in this blueprint. On the live site this button opens {path}, where you manage links, invitees, commissions and claims.",
+  body: "On the live platform this button navigates straight to the existing Affiliate Portal ({path}). The portal is already built outside this blueprint, so this dialog is only a placeholder for the blueprint — do not implement it.",
+  bodyZh: "研发注：真平台上这个按钮直接跳转到已经开发好的 Affiliate Portal（{path}）。Portal 不在本蓝图里，本弹窗只是蓝图占位，不要实现这个弹窗。",
   path: "/affiliate/portal",
   close: "Got it",
 };
