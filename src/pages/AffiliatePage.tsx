@@ -191,7 +191,7 @@ const AffiliatePageDesktop = () => {
               <p className="mt-2 max-w-[656px] font-sans text-lg leading-7 text-foreground/60">{HERO.intro}</p>
               <div className="flex items-center gap-4 pt-9">
                 <AffiliateApplyButton cta={cta} label={HERO.primaryCta} />
-                <a href="#earnings" className="inline-flex h-12 items-center gap-2 px-3 font-sans text-sm font-medium leading-5 text-foreground transition-colors hover:text-primary">
+                <a href="#benefits" className="inline-flex h-12 items-center gap-2 px-3 font-sans text-sm font-medium leading-5 text-foreground transition-colors hover:text-primary">
                   {HERO.secondaryCta} <ArrowDown className="h-[15px] w-[15px]" />
                 </a>
               </div>

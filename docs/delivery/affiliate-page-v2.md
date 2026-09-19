@@ -39,7 +39,7 @@ Lite 术语对照表在 `docs/copy-dictionary.md` 顶部；本页受众是合作
 
 | # | 区块 | 内容要点 |
 |---|---|---|
-| Hero | 标题 + 主 CTA + X 视觉 | eyebrow `OmenX Affiliate Program`；h1 三行（第三行 `Build with` + OMENX 字标，主色）；实心主色按钮 `Become an affiliate →`；文字链 `Explore the program ↓`（锚到 #earnings）；注 `For creators, key opinion leaders and trading networks.`；右侧 X 液态金属视频循环（§7） |
+| Hero | 标题 + 主 CTA + X 视觉 | eyebrow `OmenX Affiliate Program`；h1 三行（第三行 `Build with` + OMENX 字标，主色）；实心主色按钮 `Become an affiliate →`；文字链 `Explore the program ↓`（锚到 #benefits，即 01 · Why partner with us）；注 `For creators, key opinion leaders and trading networks.`；右侧 X 液态金属视频循环（§7） |
 | 数据横幅 | 平台快照（暗带） | `A growing platform. / A new opportunity for your community.`；右上 `Latest insights` + `Platform snapshot. ↗`（链到 Insights）；三指标 `$2.7B Total trading volume` / `17.6K Unique traders` / `730+ Active markets` |
 | 01 Benefits | 六张权益卡 | 编号 + 图标（lucide：CircleDollarSign · Users · Network · Megaphone · Zap · Handshake）+ 标题 + 一句说明 |
 | 02 Earnings | 两个陈列 | **02.1** 带插画的标题块 `How you earn with OmenX` + 三张账本卡 + 合计条 `$40,000` + 免责脚注；**02.2** 带插画的标题块 `The fee base makes a difference.` + 对比卡（`6.6×` + 四列表，OmenX 行高亮）+ 免责脚注；节尾全幅插画带 `Build a partnership around your community.` + `Apply now →` |

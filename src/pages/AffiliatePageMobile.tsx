@@ -157,7 +157,7 @@ export const AffiliatePageMobile = () => {
 
             <div className="flex flex-col gap-3 pt-8">
               <AffiliateApplyButton cta={cta} label={HERO.primaryCta} arrow="up-right" className="h-12 w-full rounded-[10px] px-8 text-[15px] font-medium leading-[22.5px] shadow-[0_10px_9px_rgba(29,206,248,0.24)] text-[#090A0B]" />
-              <a href="#earnings" className="inline-flex h-11 items-center justify-center gap-1.5 font-sans text-[15px] leading-[22.5px] text-foreground/90">
+              <a href="#benefits" className="inline-flex h-11 items-center justify-center gap-1.5 font-sans text-[15px] leading-[22.5px] text-foreground/90">
                 {HERO.secondaryCta} <ArrowDown className="h-4 w-4" />
               </a>
             </div>
