@@ -15,6 +15,8 @@ import { AuthDialog } from "@/components/auth/AuthDialog";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { GoogleAccountChooser } from "@/components/auth/GoogleAccountChooser";
 import { LiteAuthGate } from "@/components/auth/LiteAuthGate";
+import { AccountSecurityCard } from "@/components/settings/AccountSecurityCard";
+import { ResetPasswordContent, ResetPasswordShell } from "@/pages/ResetPassword";
 import type { AuthStep } from "@/hooks/useAuth";
 
 type PreviewFixture = React.ComponentProps<typeof AuthDialog>["previewFixture"];
@@ -122,5 +124,79 @@ export const AuthGoogleChooserPreview = () => (
       onFixedAccountSignedIn={noop}
       onUseAnotherAccount={noop}
     />
+  </div>
+);
+
+/* ---------------- AU-E · email step ("Other email" under the Google tab, 2026-09-19) ---------------- */
+
+const DEMO_EMAIL = "zhang.wei@163.com";
+
+export const AuthEmailSignInPreview = () => (
+  <DesktopCase step="email" fixture={{ emailPanel: { mode: "signin", email: DEMO_EMAIL } }} />
+);
+export const AuthEmailSignInErrorPreview = () => (
+  <DesktopCase step="email" fixture={{ emailPanel: { mode: "signin", email: DEMO_EMAIL, error: "invalid_credentials" } }} />
+);
+export const AuthEmailSignUpPreview = () => (
+  <DesktopCase step="email" fixture={{ emailPanel: { mode: "signup", email: DEMO_EMAIL } }} />
+);
+export const AuthEmailSignUpExistsPreview = () => (
+  <DesktopCase step="email" fixture={{ emailPanel: { mode: "signup", email: DEMO_EMAIL, error: "email_exists" } }} />
+);
+export const AuthEmailSignUpShortPreview = () => (
+  <DesktopCase step="email" fixture={{ emailPanel: { mode: "signup", email: DEMO_EMAIL, error: "weak_password" } }} />
+);
+export const AuthEmailVerifyPreview = () => (
+  <DesktopCase step="email" fixture={{ emailPanel: { mode: "verify", email: DEMO_EMAIL, cooldown: 42 } }} />
+);
+export const AuthEmailVerifyErrorPreview = () => (
+  <DesktopCase step="email" fixture={{ emailPanel: { mode: "verify", email: DEMO_EMAIL, error: "incorrect_code" } }} />
+);
+export const AuthEmailForgotPreview = () => (
+  <DesktopCase step="email" fixture={{ emailPanel: { mode: "forgot", email: DEMO_EMAIL } }} />
+);
+export const AuthEmailSentPreview = () => (
+  <DesktopCase step="email" fixture={{ emailPanel: { mode: "sent", email: DEMO_EMAIL } }} />
+);
+export const AuthEmailSignInMobilePreview = () => (
+  <MobileCase step="email" fixture={{ emailPanel: { mode: "signin", email: DEMO_EMAIL } }} />
+);
+export const AuthEmailVerifyMobilePreview = () => (
+  <MobileCase step="email" fixture={{ emailPanel: { mode: "verify", email: DEMO_EMAIL, cooldown: 42 } }} />
+);
+
+/* ---------------- AU-R · /reset-password (link landing) ---------------- */
+
+const ResetCase = ({
+  variant,
+  state,
+  error,
+}: {
+  variant: "desktop" | "mobile";
+  state: "form" | "success" | "expired";
+  error?: "short" | "mismatch";
+}) => (
+  <ResetPasswordShell variant={variant}>
+    <ResetPasswordContent variant={variant} fixtureState={state} fixtureError={error} fixtureEmail={DEMO_EMAIL} />
+  </ResetPasswordShell>
+);
+
+export const AuthResetFormPreview = () => <ResetCase variant="desktop" state="form" />;
+export const AuthResetMismatchPreview = () => <ResetCase variant="desktop" state="form" error="mismatch" />;
+export const AuthResetShortPreview = () => <ResetCase variant="desktop" state="form" error="short" />;
+export const AuthResetSuccessPreview = () => <ResetCase variant="desktop" state="success" />;
+export const AuthResetExpiredPreview = () => <ResetCase variant="desktop" state="expired" />;
+export const AuthResetFormMobilePreview = () => <ResetCase variant="mobile" state="form" />;
+
+/* ---------------- AU-S · Settings › Account security · Password row ---------------- */
+
+export const SettingsSecurityEmailDefaultPreview = () => (
+  <div className="p-4">
+    <AccountSecurityCard previewEmailUser />
+  </div>
+);
+export const SettingsSecurityEmailSentPreview = () => (
+  <div className="p-4">
+    <AccountSecurityCard previewEmailUser previewSentSeconds={42} />
   </div>
 );

@@ -47,6 +47,8 @@ export interface Profile {
   updated_at: string;
   withdraw_2fa_mode?: string | null;
   totp_enabled?: boolean | null;
+  /** How the account was created: "wallet" | "google" | "telegram" | "email" (null for legacy rows). */
+  auth_method?: string | null;
   /** Affiliate Program membership (blueprint flag; drives the /affiliate CTA state). */
   is_affiliate?: boolean | null;
   affiliate_since?: string | null;

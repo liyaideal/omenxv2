@@ -21,11 +21,13 @@ import {
   Gift,
   ChevronDown,
   ChevronUp,
-  Cloud
+  Cloud,
+  Mail
 } from "lucide-react";
 import type { AuthStep } from "@/hooks/useAuth";
-import sillyname from "sillyname";
 import { GoogleAccountChooser } from "./GoogleAccountChooser";
+import { EmailAuthPanel, type EmailAuthFixture } from "./EmailAuthPanel";
+import { upsertStarterProfile } from "@/lib/starterProfile";
 
 interface AuthContentProps {
   step: AuthStep;
@@ -41,6 +43,8 @@ interface AuthContentProps {
     referralOpen?: boolean;
     referralCode?: string;
     googleChooserOpen?: boolean;
+    /** step === "email" only: seeds the EmailAuthPanel mode / errors. */
+    emailPanel?: EmailAuthFixture;
   };
 }
 
@@ -57,6 +61,8 @@ export const AuthContent = ({
   const isLite = true;
   const [searchParams] = useSearchParams();
   const { profile, username: profileUsername, email: profileEmail } = useUserProfile();
+  // Email + password accounts: the email is the sign-in credential, so completeProfile shows it read-only.
+  const isEmailSignIn = profile?.auth_method === "email";
   const [authMethod, setAuthMethod] = useState<"wallet" | "google" | "telegram">(fixture?.authMethod ?? "google");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -125,48 +131,14 @@ export const AuthContent = ({
       if (data.user) {
         // Generate mock email based on auth method
         const mockEmail = generateMockEmail(method);
-        // Generate funny username using sillyname (e.g. "Fluffy Unicorn")
-        // Replace spaces with underscores to satisfy database constraint
-        const rawUsername = sillyname();
-        const mockUsername = rawUsername.replace(/ /g, '_');
-        
-        // Generate random avatar URL
-        const avatarSeeds = ['felix', 'aneka', 'sophia', 'liam', 'mia', 'oliver', 'emma', 'noah', 'ava', 'elijah'];
-        const avatarBgs = ['b6e3f4', 'c0aede', 'd1d4f9', 'ffd5dc', 'ffdfbf'];
-        const randomSeed = avatarSeeds[Math.floor(Math.random() * avatarSeeds.length)];
-        const randomBg = avatarBgs[Math.floor(Math.random() * avatarBgs.length)];
-        const avatarUrl = `https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=${randomSeed}&backgroundColor=${randomBg}`;
 
-        // Upsert profile - creates if not exists, updates only non-balance fields if exists
-        // The database trigger (handle_new_user) handles balance initialization
-        // We don't include 'balance' here to avoid overwriting trigger-set values
-        const profileData: {
-          user_id: string;
-          username: string;
-          avatar_url: string;
-          auth_method: string;
-          email?: string;
-        } = {
-          user_id: data.user.id,
-          username: mockUsername,
-          avatar_url: avatarUrl,
-          auth_method: method,
-        };
-        if (mockEmail) {
-          profileData.email = mockEmail;
-        }
-        
-        // Use insert with onConflict to only update non-balance fields
-        const { error: profileError } = await supabase
-          .from("profiles")
-          .upsert(profileData, { 
-            onConflict: 'user_id',
-            // Only update these specific columns on conflict, preserving balance
-            ignoreDuplicates: false
-          });
+        // Starter profile row (username / avatar / auth_method / email). Shared with the
+        // email sign-up path — see src/lib/starterProfile.ts. Balance columns untouched.
+        const starter = await upsertStarterProfile(data.user.id, method, mockEmail);
+        const mockUsername = starter.username;
 
-        if (profileError) {
-          console.error("Profile upsert error:", profileError);
+        if (starter.error) {
+          console.error("Profile upsert error:", starter.error);
         } else {
           // Invalidate profile cache to refresh the username
           await queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
@@ -393,6 +365,17 @@ export const AuthContent = ({
                 )}
                 Sign in with Google
               </Button>
+              {/* "Other email" — email + password entry for users who can't reach Google (CPO 2026-09-19).
+                  Secondary-button grammar = LiteAuthGate "Create account". */}
+              <button
+                type="button"
+                onClick={() => setStep("email")}
+                disabled={isLoading}
+                className="w-full h-[44px] rounded-[12px] border-[1.5px] border-[#1C1F26] bg-transparent text-[13px] text-white/80 transition-colors hover:text-white inline-flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                <Mail className="w-4 h-4" />
+                Other email
+              </button>
               <p className={isLite ? "text-[12px] text-[#6B7280] text-center" : "text-xs text-muted-foreground text-center"}>
                 {isLite ? "No wallet needed · Ready in seconds" : "Instant access · No wallet needed · Start trading in seconds"}
               </p>
@@ -493,6 +476,21 @@ export const AuthContent = ({
           }}
         />
       </div>
+    );
+  }
+
+  // Email Step ("Other email" under the Google tab)
+  if (step === "email") {
+    return (
+      <EmailAuthPanel
+        variant={variant}
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+        onBack={() => setStep("login")}
+        onSignedIn={() => onSuccess?.()}
+        onSignedUp={() => setStep("createWallet")}
+        fixture={fixture?.emailPanel}
+      />
     );
   }
 
@@ -692,17 +690,18 @@ export const AuthContent = ({
               type="email"
               placeholder="your.email@example.com"
               value={email}
+              readOnly={isEmailSignIn}
               onChange={(e) => {
                 setEmail(e.target.value);
                 if (emailError) validateEmail(e.target.value);
               }}
-              className={`h-10 bg-muted/50 border-border/50 ${emailError ? "border-trading-red focus-visible:ring-trading-red" : ""}`}
+              className={`h-10 bg-muted/50 border-border/50 ${emailError ? "border-trading-red focus-visible:ring-trading-red" : ""} ${isEmailSignIn ? "text-muted-foreground cursor-default" : ""}`}
             />
             {emailError ? (
               <p className="text-xs text-trading-red">{emailError}</p>
             ) : (
               <p className="text-xs text-muted-foreground">
-                For notifications and account recovery
+                {isEmailSignIn ? "This is the email you sign in with" : "For notifications and account recovery"}
               </p>
             )}
           </div>

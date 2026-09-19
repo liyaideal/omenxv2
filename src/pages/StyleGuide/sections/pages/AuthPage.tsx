@@ -312,13 +312,169 @@ const DIALOG_CASES: SectionCase[] = [
   },
 ];
 
+/* ---------------- AU-E · "Other email" step (CPO 2026-09-19) ---------------- */
+
+const EMAIL_DESKTOP: SectionCase[] = [
+  {
+    key: "auth-email-signin",
+    label: "AU-E1 · email · Sign in（默认）· desktop",
+    note: "入口：login 步 Google 页签 → 'Other email' 描边副钮（LiteAuthGate Create account 同语法）。本步走向导步语法：顶左 ← Back + 居中 20px 标题 + 13px 副标题；无山猫、无页签。",
+    spec: [
+      { state: "entry · Other email", when: "step === 'login' && authMethod === 'google'", visual: "Sign in with Google 之下：w-full h-[44px] rounded-[12px] border-[1.5px] border-[#1C1F26] bg-transparent text-[13px] text-white/80 hover:text-white，Mail 16px + 'Other email'；点击 setStep('email')", source: "AuthContent.tsx Google tab" },
+      { state: "signin · default", when: "step === 'email' && mode === 'signin'", visual: "标题 'Sign in with email'；副标 'Use the email and password you registered with.'；Email / Password（眼睛显隐）两输入 h-[48px] rounded-[12px] bg-[#14161A] border-[#23262D]，focus border-[#33D6FF]；右对齐 'Forgot password?'（#33D6FF 12px）；btn-primary 'Sign in'；脚注 'New to OMENX? Create account'；条款行", source: "EmailAuthPanel.tsx signin" },
+      { state: "Back", when: "signin / signup", visual: "回 login 步（onBack）；verify → signup；forgot / sent → signin", source: "EmailAuthPanel.tsx renderBack" },
+      { state: "成功", when: "signInWithPassword ok", visual: "toast 'Welcome back!' → onSuccess 直接关弹窗，不走 createWallet / completeProfile（老用户）", source: "EmailAuthPanel.tsx handleSignIn" },
+    ],
+  },
+  {
+    key: "auth-email-signin-error",
+    label: "AU-E2 · email · Sign in · 邮箱或密码错误",
+    spec: [
+      { state: "invalid_credentials", when: "Supabase 'Invalid login credentials'", visual: "两输入框 border-trading-red；Password 下行内红字 'Email or password is incorrect.'（12px text-trading-red）；不用 toast", source: "emailAuth.ts mapAuthError → EMAIL_AUTH_COPY.invalid_credentials" },
+      { state: "邮箱格式错", when: "!isValidEmail(email)", visual: "Email 下 'Please enter a valid email address'（与 completeProfile 同句）", source: "EMAIL_AUTH_COPY.invalid_email" },
+      { state: "网络等其他错误", when: "code === 'unknown' | 'rate_limited'", visual: "toast.error（唯一走 toast 的错误类）", source: "EmailAuthPanel.tsx" },
+    ],
+  },
+  {
+    key: "auth-email-signup",
+    label: "AU-E3 · email · Create account（默认）",
+    spec: [
+      { state: "signup · default", when: "mode === 'signup'", visual: "标题 'Create your account'；副标 'We'll send a 6-digit code to verify your email.'；Email + Password（hint 'At least 8 characters' 12px #6B7280）；btn-primary 'Continue'；脚注 'Already have an account? Sign in'；条款行", source: "EmailAuthPanel.tsx signup" },
+      { state: "Continue", when: "isValidEmail && password.length >= 8", visual: "不建号，只进 verify 步并起 60s 重发倒计时；账号在验证码通过后才创建", source: "EmailAuthPanel.tsx handleSignUpContinue" },
+    ],
+  },
+  {
+    key: "auth-email-signup-exists",
+    label: "AU-E4 · email · Create account · 邮箱已注册",
+    spec: [
+      { state: "email_exists", when: "signUp 返回 already registered（蓝图站只能在验证码通过后得知；真平台应在发码前查）", visual: "退回 signup 表单；Email 框红边；下行 'This email is already registered.' + 行内 'Sign in' 链接一键切换到 signin", source: "EmailAuthPanel.tsx handleVerify → email_exists" },
+    ],
+  },
+  {
+    key: "auth-email-signup-short",
+    label: "AU-E5 · email · Create account · 密码过短",
+    spec: [
+      { state: "weak_password", when: "password.length < 8", visual: "Password 框红边；hint 位置换成红字 'Use at least 8 characters.'", source: "EMAIL_AUTH_COPY.weak_password" },
+    ],
+  },
+  {
+    key: "auth-email-verify",
+    label: "AU-E6 · email · Verify your email（6 格验证码）",
+    note: "🔴 蓝图站固定验证码 111111（DEMO_VERIFY_CODE），界面不露；真平台须发真实验证码。",
+    spec: [
+      { state: "verify · default", when: "mode === 'verify'", visual: "标题 'Verify your email'；副标 'Enter the 6-digit code we sent to {email}'（邮箱白字）；OTPInput 6 格 w-12 h-12 rounded-[12px] bg-[#14161A] border-[#23262D]，active 格 border-[#33D6FF]，font-display 20px；btn-primary 'Verify & create account'；脚注 'Didn't get it? Resend in {n}s'（#6B7280）→ 0s 后 'Resend code'（#33D6FF）", source: "EmailAuthPanel.tsx verify · input-otp OTPInput" },
+      { state: "Resend", when: "cooldown === 0", visual: "重起 60s；toast 'Code sent to {email}'（蓝图站不真发）", source: "EmailAuthPanel.tsx handleResend" },
+      { state: "成功", when: "code === DEMO_VERIFY_CODE && signUp ok", visual: "upsertStarterProfile(auth_method='email', email) → toast 'Email verified — welcome to OMENX!' → setStep('createWallet')（新用户走完整 onboarding）", source: "EmailAuthPanel.tsx handleVerify" },
+    ],
+  },
+  {
+    key: "auth-email-verify-error",
+    label: "AU-E7 · email · Verify · 验证码错误",
+    spec: [
+      { state: "incorrect_code", when: "code.length !== 6 || code !== DEMO_VERIFY_CODE", visual: "6 格全部 border-trading-red；格下居中红字 'Incorrect code. Try again.'", source: "EMAIL_AUTH_COPY.incorrect_code" },
+    ],
+  },
+  {
+    key: "auth-email-forgot",
+    label: "AU-E8 · email · Reset your password（忘记密码）",
+    spec: [
+      { state: "forgot", when: "mode === 'forgot'", visual: "标题 'Reset your password'；副标 'We'll email you a link to set a new password.'；Email 一框；btn-primary 'Send reset link'；无脚注（Back 回 signin）", source: "EmailAuthPanel.tsx forgot" },
+      { state: "发送", when: "isValidEmail", visual: "resetPasswordForEmail(redirectTo = origin + '/reset-password')；不论邮箱是否存在都进 sent（不泄露账号存在性）", source: "emailAuth.ts sendPasswordReset" },
+    ],
+  },
+  {
+    key: "auth-email-sent",
+    label: "AU-E9 · email · Check your inbox（重置链接已发）",
+    spec: [
+      { state: "sent", when: "mode === 'sent'", visual: "volt 圆形 ✓（w-10 h-10 bg volt/10 border volt/30）+ 标题 'Check your inbox' + 副标 'If an account exists for {email}, we've sent a link to reset your password.'；描边副钮 'Back to sign in'", source: "EmailAuthPanel.tsx sent" },
+    ],
+  },
+];
+
+const EMAIL_MOBILE: SectionCase[] = [
+  {
+    key: "auth-email-signin-mobile",
+    label: "AU-E10 · email · Sign in · mobile",
+    spec: [{ state: "signin · mobile", when: "variant === 'mobile'", visual: "AuthSheet 抽屉内同版式，容器 space-y-5；键盘弹起靠抽屉 overflow-y-auto 滚动", source: "EmailAuthPanel.tsx" }],
+  },
+  {
+    key: "auth-email-verify-mobile",
+    label: "AU-E11 · email · Verify · mobile",
+    spec: [{ state: "verify · mobile", when: "variant === 'mobile'", visual: "6 格 48px + gap 8 = 328px，343px 内容区放得下", source: "EmailAuthPanel.tsx" }],
+  },
+];
+
+/* ---------------- AU-R · /reset-password ---------------- */
+
+const RESET_DESKTOP: SectionCase[] = [
+  {
+    key: "auth-reset-form",
+    label: "AU-R1 · /reset-password · 填写新密码 · desktop",
+    note: "邮件链接落地页。'Forgot password?' 与 Settings › Account security › Password › Change 共用这一页（一条线）。",
+    spec: [
+      { state: "loading", when: "等待 Supabase recovery session（最多 4s）", visual: "LoadingState 'Checking your reset link…'", source: "ResetPassword.tsx RECOVERY_WAIT_MS" },
+      { state: "form", when: "session 到位", visual: "弹窗同款壳（448 / rounded-[16px] / 品牌渐变）居中；Logo modal；标题 'Set a new password' + 'for {email}'；New password（hint 'At least 8 characters'）/ Confirm new password；btn-primary 'Update password'", source: "ResetPassword.tsx form" },
+      { state: "success", when: "updateUser ok", visual: "volt ✓ + 'Password updated' + 'You're signed in. Use your new password next time.'；btn-primary 'Go to markets' → /events", source: "ResetPassword.tsx success" },
+    ],
+  },
+  {
+    key: "auth-reset-mismatch",
+    label: "AU-R2 · /reset-password · 两次密码不一致",
+    spec: [{ state: "mismatch", when: "confirm !== password", visual: "Confirm 框红边 + 'Passwords don't match.'", source: "EMAIL_AUTH_COPY.passwords_mismatch" }],
+  },
+  {
+    key: "auth-reset-short",
+    label: "AU-R3 · /reset-password · 密码过短",
+    spec: [{ state: "short", when: "password.length < 8", visual: "New password 框红边 + 'Use at least 8 characters.'", source: "EMAIL_AUTH_COPY.weak_password" }],
+  },
+  {
+    key: "auth-reset-success",
+    label: "AU-R4 · /reset-password · 已更新",
+    spec: [{ state: "success", when: "state === 'success'", visual: "见 AU-R1 success 行", source: "ResetPassword.tsx" }],
+  },
+  {
+    key: "auth-reset-expired",
+    label: "AU-R5 · /reset-password · 链接失效",
+    spec: [{ state: "expired", when: "4s 内无 session", visual: "'This link has expired' + 说明（一次性、1 小时）+ 描边副钮 'Back to markets'", source: "ResetPassword.tsx expired" }],
+  },
+];
+
+const RESET_MOBILE: SectionCase[] = [
+  {
+    key: "auth-reset-form-mobile",
+    label: "AU-R6 · /reset-password · mobile",
+    spec: [{ state: "form · mobile", when: "isMobile", visual: "MobileHeader 'Reset password'（无返回）+ 全出血 px-4，无卡片边框/渐变", source: "ResetPassword.tsx ResetPasswordShell mobile" }],
+  },
+];
+
+/* ---------------- AU-S · Settings › Account security · Password ---------------- */
+
+const SECURITY_CASES: SectionCase[] = [
+  {
+    key: "settings-security-email-default",
+    label: "AU-S1 · Account security · Password 行（邮箱账号）· 默认",
+    note: "只在 profile.auth_method === 'email' 时渲染；Google / Wallet / Telegram 账号不出现这一行。",
+    spec: [
+      { state: "default", when: "isEmailUser && resetCooldown === 0", visual: "与 Authenticator 行同骨架：Lock 20px + 'Password' + 'Change it with a link sent to your email' + 描边小钮 'Change'（h-8）", source: "AccountSecurityCard.tsx" },
+      { state: "Change", when: "点击", visual: "sendPasswordReset(profile.email) → toast 'Reset link sent to {email}' → 进 sent 态 60s", source: "AccountSecurityCard.tsx handleSendReset" },
+    ],
+  },
+  {
+    key: "settings-security-email-sent",
+    label: "AU-S2 · Account security · Password 行 · 已发送",
+    spec: [
+      { state: "sent", when: "resetCooldown > 0", visual: "说明改 'Reset link sent — check your inbox.'；按钮 disabled '✓ {n}s'，倒计时归零回 'Change'", source: "AccountSecurityCard.tsx" },
+    ],
+  },
+];
+
 export const AuthPage = ({ isMobile }: { isMobile: boolean }) => (
   <LitePage
     id="auth"
     title="登录 / 注册"
     route="AuthDialog（desktop）· AuthSheet（mobile）· 未登录门"
     status="done"
-    note="三步流程（login → createWallet → completeProfile）、两种未登录门与 Google 账号选择弹层，共 16 个真实渲染 case。"
+    note="四步流程（login → email → createWallet → completeProfile）、两种未登录门、Google 账号选择弹层、/reset-password 与 Settings 密码行，共 35 个真实渲染 case。"
   >
     <SectionWrapper
       id="auth-cases"
@@ -367,6 +523,40 @@ export const AuthPage = ({ isMobile }: { isMobile: boolean }) => (
 
       <SubSection title="5 · Google 账号选择弹层" platform="shared">
         <SectionFrame cases={DIALOG_CASES} device="desktop" minHeight={520} />
+      </SubSection>
+
+      <SubSection title="6 · email · Other email（邮箱 + 密码）· desktop" platform="desktop">
+        {EMAIL_DESKTOP.map((c, i) => (
+          <div key={c.key} className={i ? "mt-3" : undefined}>
+            <SectionFrame cases={[c]} device="desktop" minHeight={720} />
+          </div>
+        ))}
+      </SubSection>
+
+      <SubSection title="6 · email · mobile" platform="mobile">
+        {EMAIL_MOBILE.map((c, i) => (
+          <div key={c.key} className={i ? "mt-3" : undefined}>
+            <SectionFrame cases={[c]} device="mobile" minHeight={812} />
+          </div>
+        ))}
+      </SubSection>
+
+      <SubSection title="7 · /reset-password（重置链接落地页）" platform="shared">
+        {RESET_DESKTOP.map((c, i) => (
+          <div key={c.key} className={i ? "mt-3" : undefined}>
+            <SectionFrame cases={[c]} device="desktop" minHeight={560} />
+          </div>
+        ))}
+        <div className="mt-3">
+          <SectionFrame cases={RESET_MOBILE} device="mobile" minHeight={640} />
+        </div>
+      </SubSection>
+
+      <SubSection title="8 · Settings › Account security · Password 行" platform="shared">
+        <SectionFrame cases={SECURITY_CASES} device="desktop" minHeight={260} />
+        <div className="mt-3">
+          <SectionFrame cases={SECURITY_CASES} device="mobile" minHeight={320} />
+        </div>
       </SubSection>
     </SectionWrapper>
   </LitePage>

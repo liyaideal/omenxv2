@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
 import { toast } from "sonner";
 
-export type AuthStep = "login" | "signup" | "createWallet" | "completeProfile";
+export type AuthStep = "login" | "signup" | "email" | "createWallet" | "completeProfile";
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);

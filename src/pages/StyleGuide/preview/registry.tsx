@@ -511,6 +511,26 @@ export const previewRegistry: Record<string, Loader> = {
   "auth-gate-lite-out": pick(auth, "AuthGateLiteWalletPreview"),
   "auth-gate-lite-in": pick(auth, "AuthGateLiteSignedInPreview"),
   "auth-demo-google-chooser": pick(auth, "AuthGoogleChooserPreview"),
+  /* -------- Email + password (2026-09-19) · AU-E / AU-R / AU-S -------- */
+  "auth-email-signin": pick(auth, "AuthEmailSignInPreview"),
+  "auth-email-signin-error": pick(auth, "AuthEmailSignInErrorPreview"),
+  "auth-email-signup": pick(auth, "AuthEmailSignUpPreview"),
+  "auth-email-signup-exists": pick(auth, "AuthEmailSignUpExistsPreview"),
+  "auth-email-signup-short": pick(auth, "AuthEmailSignUpShortPreview"),
+  "auth-email-verify": pick(auth, "AuthEmailVerifyPreview"),
+  "auth-email-verify-error": pick(auth, "AuthEmailVerifyErrorPreview"),
+  "auth-email-forgot": pick(auth, "AuthEmailForgotPreview"),
+  "auth-email-sent": pick(auth, "AuthEmailSentPreview"),
+  "auth-email-signin-mobile": pick(auth, "AuthEmailSignInMobilePreview"),
+  "auth-email-verify-mobile": pick(auth, "AuthEmailVerifyMobilePreview"),
+  "auth-reset-form": pick(auth, "AuthResetFormPreview"),
+  "auth-reset-mismatch": pick(auth, "AuthResetMismatchPreview"),
+  "auth-reset-short": pick(auth, "AuthResetShortPreview"),
+  "auth-reset-success": pick(auth, "AuthResetSuccessPreview"),
+  "auth-reset-expired": pick(auth, "AuthResetExpiredPreview"),
+  "auth-reset-form-mobile": pick(auth, "AuthResetFormMobilePreview"),
+  "settings-security-email-default": pick(auth, "SettingsSecurityEmailDefaultPreview"),
+  "settings-security-email-sent": pick(auth, "SettingsSecurityEmailSentPreview"),
 
 
   /* -------- Settlements -------- */

@@ -42,6 +42,7 @@ const AUTH_METHOD_INFO: Record<string, { label: string; icon: React.ReactNode; c
   google: { label: "Google", icon: <GoogleIcon className="w-5 h-5" />, color: "text-blue-400", description: "Google Account" },
   telegram: { label: "Telegram", icon: <TelegramIcon className="w-5 h-5" />, color: "text-sky-400", description: "Telegram Account" },
   wallet: { label: "Wallet", icon: <Wallet className="w-5 h-5 text-purple-400" />, color: "text-purple-400", description: "Web3 Wallet" },
+  email: { label: "Email", icon: <Mail className="w-5 h-5 text-primary" />, color: "text-primary", description: "Email & password" },
 };
 
 const Settings = () => {
@@ -175,7 +176,7 @@ const Settings = () => {
   const joinDate = formatDate(profile?.created_at || user?.created_at);
 
   // Auth provider info - read from profile's auth_method column
-  const authMethod = (profile as any)?.auth_method || "google";
+  const authMethod = profile?.auth_method || "google";
   const providerInfo = AUTH_METHOD_INFO[authMethod] || AUTH_METHOD_INFO.google;
   const providerEmail = email;
 

@@ -27,13 +27,16 @@ export const AuthSheet = ({ open, onOpenChange, previewStep, previewFixture }: A
     return () => setAuthFlowOpen(false);
   }, [open, setAuthFlowOpen]);
 
-  // Move to wallet creation step when user logs in
+  // A session appearing while the login step is showing = the user just signed in
+  // via an OAuth-style tab → move to wallet creation. Guarded on `step === "login"`
+  // so a refreshed `user` object never yanks a later step (email / completeProfile)
+  // back to createWallet (2026-09-19).
   useEffect(() => {
     if (previewStep) return;
-    if (user && open) {
+    if (user && open && step === "login") {
       setStep("createWallet");
     }
-  }, [user, open, previewStep]);
+  }, [user, open, step, previewStep]);
 
   const handleSuccess = () => {
     onOpenChange(false);

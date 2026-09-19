@@ -32,6 +32,7 @@ import Withdraw from "./pages/Withdraw";
 import RecoveryRequest from "./pages/RecoveryRequest";
 import RecoveryRequestDetail from "./pages/RecoveryRequestDetail";
 import Settings from "./pages/Settings";
+import ResetPassword from "./pages/ResetPassword";
 import LiteRewardsPage from "./pages/lite/LiteRewardsPage";
 import LiteCampaignDetailPage from "./pages/lite/LiteCampaignDetailPage";
 import { CampaignAttribution } from "@/components/campaigns/CampaignAttribution";
@@ -221,6 +222,7 @@ const App = () => (
               <Route path="/rewards/campaign/:campaignId" element={<LiteCampaignDetailPage />} />
               <Route path="/vouchers" element={<Vouchers />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/settings/transparency" element={<TransparencyPage />} />
               <Route path="/settings/api" element={<ApiManagement />} />
               <Route path="/style-guide" element={<StyleGuide />} />
