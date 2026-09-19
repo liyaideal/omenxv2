@@ -8,36 +8,25 @@ import { cn } from "@/lib/utils";
  * file never breaks the build: the slot renders nothing in production and a
  * dashed spec box in dev. Add the file, restart nothing — Vite picks it up.
  *
- * Export spec (2x PNG, flattened with overlay gradients, text layers hidden):
- *   hero-x-desktop        661×496   Figma 42:11785        hero-x-mobile         342×257   46:12640
- *   earn-1-desktop        1224×186  42:11949              earn-1-mobile         342×204   46:12781
- *   earn-2-desktop        1224×216  42:12109              earn-2-mobile         342×204   46:12913 box
- *   earn-band-desktop     1440×260  42:12170              earn-band-mobile      342×193   46:12954
- *   market-sports-desktop 616×376   42:12236              market-sports-mobile  340×217   46:13004
- *   market-crypto-desktop 672×347   42:12264              market-crypto-mobile  342×184   46:13056
- *   market-finance-desktop 672×376  42:12292              market-finance-mobile 342×199   46:13060
- *   cta-mosaic-left-desktop 370×486 / cta-mosaic-right-desktop 494×486   (42:12456 / 42:12462)
- *   cta-mosaic-left-mobile  100×131 / cta-mosaic-right-mobile  134×131   (46:13198)
+ * Files in repo (2026-09-19, exported by the product owner from Figma, 2x, overlay gradients baked into alpha):
+ *   earn-1-desktop  2448×372  (slot 1224×186)   earn-1-mobile  684×408 (slot 342×204)
+ *   earn-2-desktop  2448×372  (slot 1224×186)   earn-2-mobile  684×408 (slot 342×204)
+ *   earn-band-desktop 2880×518 (slot 1440×260)  earn-band-mobile 732×366 (slot 342×193)
+ *   market-sports / market-crypto / market-finance  1232×752, shared by both breakpoints (object-cover crops)
+ *   cta-mosaic  2881×973 (slot 1440×486), one strip for both edges, shared by both breakpoints
+ * The hero X visual is a video loop → see AffiliateHeroLoop.tsx.
  */
 export type AffiliateArtName =
-  | "hero-x-desktop"
-  | "hero-x-mobile"
   | "earn-1-desktop"
   | "earn-1-mobile"
   | "earn-2-desktop"
   | "earn-2-mobile"
   | "earn-band-desktop"
   | "earn-band-mobile"
-  | "market-sports-desktop"
-  | "market-sports-mobile"
-  | "market-crypto-desktop"
-  | "market-crypto-mobile"
-  | "market-finance-desktop"
-  | "market-finance-mobile"
-  | "cta-mosaic-left-desktop"
-  | "cta-mosaic-right-desktop"
-  | "cta-mosaic-left-mobile"
-  | "cta-mosaic-right-mobile";
+  | "market-sports"
+  | "market-crypto"
+  | "market-finance"
+  | "cta-mosaic";
 
 const files = import.meta.glob("../../assets/affiliate/*.{png,webp,jpg}", {
   eager: true,

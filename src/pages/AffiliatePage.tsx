@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { AffiliatePageMobile } from "./AffiliatePageMobile";
 import { AffiliateArt } from "@/components/affiliate/AffiliateArt";
+import { AffiliateHeroLoop } from "@/components/affiliate/AffiliateHeroLoop";
 import { AffiliateDotNav } from "@/components/affiliate/AffiliateDotNav";
 import { EarningsLedger } from "@/components/affiliate/EarningsLedger";
 import { FeeBaseComparison } from "@/components/affiliate/FeeBaseComparison";
@@ -159,14 +160,7 @@ const AffiliatePage = () => {
         {/* ============================== HERO ============================== */}
         <section className="relative overflow-hidden">
           <div className={cn(container, "relative pb-10 pt-[60px]")}>
-            <AffiliateArt
-              name="hero-x-desktop"
-              width={661}
-              height={496}
-              fit="contain"
-              eager
-              className="absolute left-[601px] top-[55px] h-[496px] w-[661px]"
-            />
+            <AffiliateHeroLoop variant="desktop" className="absolute left-[601px] top-[55px]" />
             <div
               aria-hidden
               className="pointer-events-none absolute inset-x-0 bottom-0 top-[60px]"
@@ -336,16 +330,11 @@ const AffiliatePage = () => {
             <SectionHead n="04" eyebrow={MARKETS_HEAD.eyebrow} title={MARKETS_HEAD.title} subtitle={MARKETS_HEAD.sub} />
             <div className="mt-14">
               {MARKETS.map((m, i) => {
-                const art = (["market-sports-desktop", "market-crypto-desktop", "market-finance-desktop"] as const)[i];
-                const artSize = [
-                  [616, 376],
-                  [672, 347],
-                  [672, 376],
-                ][i];
+                const art = (["market-sports", "market-crypto", "market-finance"] as const)[i];
                 const imageFirst = i % 2 === 0;
                 const image = (
                   <div className="relative">
-                    <AffiliateArt name={art} width={artSize[0]} height={artSize[1]} className="absolute inset-0 h-full w-full" />
+                    <AffiliateArt name={art} width={1232} height={752} className="absolute inset-0 h-full w-full" />
                   </div>
                 );
                 const text = (
@@ -478,8 +467,7 @@ const AffiliatePage = () => {
             className="pointer-events-none absolute left-1/2 top-[364px] h-[968px] w-[1768px] -translate-x-1/2 -translate-y-1/2 rounded-full"
             style={{ background: "radial-gradient(ellipse at center, rgba(29,206,248,0.16) 0%, rgba(29,206,248,0) 72%)" }}
           />
-          <AffiliateArt name="cta-mosaic-left-desktop" width={370} height={486} fit="contain" position="left bottom" className="absolute bottom-0 left-0 h-[486px] w-[370px]" />
-          <AffiliateArt name="cta-mosaic-right-desktop" width={494} height={486} fit="contain" position="right bottom" className="absolute bottom-0 right-0 h-[486px] w-[494px]" />
+          <AffiliateArt name="cta-mosaic" width={1440} height={486} fit="contain" position="center bottom" className="absolute inset-x-0 bottom-0 h-[486px] w-full" />
 
           <div className="relative mx-auto flex w-full max-w-7xl flex-col items-center px-12 pb-[112px] pt-10 text-center">
             <Eyebrow className="text-[10px]">{APPLY.eyebrow}</Eyebrow>

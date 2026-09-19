@@ -16,6 +16,17 @@ import lynxEmptyRecovery from "@/assets/wallet/lynx-empty-recovery.png";
 import posterArtWin from "@/assets/share/poster-art-win.png";
 import posterArtLose from "@/assets/share/poster-art-lose.png";
 import omenxLogo from "@/assets/omenx-logo.svg";
+import affEarn1D from "@/assets/affiliate/earn-1-desktop.webp";
+import affEarn1M from "@/assets/affiliate/earn-1-mobile.webp";
+import affEarn2D from "@/assets/affiliate/earn-2-desktop.webp";
+import affEarn2M from "@/assets/affiliate/earn-2-mobile.webp";
+import affBandD from "@/assets/affiliate/earn-band-desktop.webp";
+import affBandM from "@/assets/affiliate/earn-band-mobile.webp";
+import affMarketSports from "@/assets/affiliate/market-sports.webp";
+import affMarketCrypto from "@/assets/affiliate/market-crypto.webp";
+import affMarketFinance from "@/assets/affiliate/market-finance.webp";
+import affMosaic from "@/assets/affiliate/cta-mosaic.webp";
+import affHeroLoop from "@/assets/affiliate/hero-x-loop.mp4";
 import hedgeEntryBanner from "@/assets/hedge-entry-banner.png";
 import hedgeEntryBannerMobile from "@/assets/hedge-entry-banner-mobile.png";
 import hedgeHeroV3 from "@/assets/hedge-hero-v3.png.asset.json";
@@ -55,6 +66,8 @@ interface AssetRow {
   usage: string;
   added: string;
   legacy?: boolean;
+  /** Video asset — thumbnail renders a muted looping <video> instead of <img>. */
+  video?: boolean;
 }
 
 /* ---------------- Ⓐ Wallet（R-W2 / R-W3 本轮入仓） ---------------- */
@@ -119,6 +132,21 @@ const SHARE: AssetRow[] = [
     usage: "Lite 分享海报亏损版艺术底（LitePnlPoster · pnl < 0，SH-2/4/6）",
     added: "2026-09-07",
   },
+];
+
+/* ---------------- Ⓗ Affiliate 营销页（2026-09-19 回流入仓） ---------------- */
+const AFFILIATE: AssetRow[] = [
+  { src: affHeroLoop, path: "src/assets/affiliate/hero-x-loop.mp4", size: "858 × 638 · 9.8s", format: "MP4 (H.264)", usage: "/affiliate hero X 液态金属循环视频，双端共用（AffiliateHeroLoop · mix-blend screen）", added: "2026-09-19", video: true },
+  { src: affEarn1D, path: "src/assets/affiliate/earn-1-desktop.webp", size: "2448 × 372", format: "WEBP", usage: "/affiliate 02.1 标题块底图（桌面 1224×186 槽，渐变已烘进 alpha）", added: "2026-09-19" },
+  { src: affEarn1M, path: "src/assets/affiliate/earn-1-mobile.webp", size: "684 × 408", format: "WEBP", usage: "/affiliate 02.1 标题块底图（移动 342×204 槽）", added: "2026-09-19" },
+  { src: affEarn2D, path: "src/assets/affiliate/earn-2-desktop.webp", size: "2448 × 372", format: "WEBP", usage: "/affiliate 02.2 标题块底图（桌面 1224×186 槽）", added: "2026-09-19" },
+  { src: affEarn2M, path: "src/assets/affiliate/earn-2-mobile.webp", size: "684 × 408", format: "WEBP", usage: "/affiliate 02.2 标题块底图（移动 342×204 槽）", added: "2026-09-19" },
+  { src: affBandD, path: "src/assets/affiliate/earn-band-desktop.webp", size: "2880 × 518", format: "WEBP", usage: "/affiliate「Build a partnership」全幅带底图（桌面 1440×260 槽）", added: "2026-09-19" },
+  { src: affBandM, path: "src/assets/affiliate/earn-band-mobile.webp", size: "732 × 366", format: "WEBP", usage: "/affiliate「Build a partnership」带底图（移动 342×193 槽）", added: "2026-09-19" },
+  { src: affMarketSports, path: "src/assets/affiliate/market-sports.webp", size: "1232 × 752", format: "WEBP", usage: "/affiliate 04 Live sports 卡插画，双端共用（object-cover 裁切，边缘渐变已烘进 alpha）", added: "2026-09-19" },
+  { src: affMarketCrypto, path: "src/assets/affiliate/market-crypto.webp", size: "1232 × 752", format: "WEBP", usage: "/affiliate 04 Intraday crypto 卡插画，双端共用", added: "2026-09-19" },
+  { src: affMarketFinance, path: "src/assets/affiliate/market-finance.webp", size: "1232 × 752", format: "WEBP", usage: "/affiliate 04 Daily finance 卡插画，双端共用", added: "2026-09-19" },
+  { src: affMosaic, path: "src/assets/affiliate/cta-mosaic.webp", size: "2881 × 973", format: "WEBP", usage: "/affiliate 结尾 CTA 两侧照片马赛克整条（1440×486 槽，双端共用；透明度 75% 已烘进 alpha）", added: "2026-09-19" },
 ];
 
 /* ---------------- Ⓑ 品牌标识 ---------------- */
@@ -546,6 +574,7 @@ const LEGACY_MOTION: AssetRow[] = [
 const ALL_GROUPS: Array<[string, AssetRow[]]> = [
   ["Ⓐ Wallet（R-W2 / R-W3）", WALLET],
   ["Ⓖ 分享海报（R-SH1）", SHARE],
+  ["Ⓗ Affiliate 营销页（2026-09-19）", AFFILIATE],
   ["Ⓑ 品牌标识", BRAND],
   ["Ⓒ 首页 / Events / Auth lynx 插画", HOME],
   ["Ⓓ Rewards campaign KV", CAMPAIGN],
@@ -562,13 +591,25 @@ const LEGACY_COUNT = ALL_GROUPS.reduce(
 const AssetCard = ({ row, isMobile }: { row: AssetRow; isMobile: boolean }) => (
   <div className="flex items-start gap-3 rounded-lg border border-border/50 bg-muted/20 p-3">
     <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/40 bg-background/60">
-      <img
-        src={row.src}
-        alt=""
-        aria-hidden
-        draggable={false}
-        className="max-h-full max-w-full object-contain pointer-events-none select-none"
-      />
+      {row.video ? (
+        <video
+          src={row.src}
+          autoPlay
+          muted
+          loop
+          playsInline
+          aria-hidden
+          className="max-h-full max-w-full object-contain pointer-events-none select-none"
+        />
+      ) : (
+        <img
+          src={row.src}
+          alt=""
+          aria-hidden
+          draggable={false}
+          className="max-h-full max-w-full object-contain pointer-events-none select-none"
+        />
+      )}
     </div>
     <div className="min-w-0 flex-1 space-y-1">
       <div className="flex flex-wrap items-center gap-2">
@@ -596,7 +637,7 @@ export const BrandAssetsSection = ({ isMobile }: Props) => (
     platform="shared"
   >
     <p className="mb-5 rounded-md border border-border/50 bg-muted/20 px-3 py-2 text-xs leading-5 text-foreground/85">
-      素材入仓流程：设计导出 → CPO 上传 Lovable → 工单接线 → 本节同轮登记（只增不删）。素材找不到先来这里。
+      素材入仓流程：设计导出 → CPO 把文件放进仓库 src/assets/… → 接线 → 本节同轮登记（只增不删）。素材找不到先来这里。
     </p>
 
     <p className="mb-6 text-xs text-muted-foreground">

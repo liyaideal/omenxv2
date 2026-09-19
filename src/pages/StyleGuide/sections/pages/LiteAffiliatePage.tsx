@@ -14,11 +14,11 @@ export const LiteAffiliatePage = (_: P) => (
     title="Affiliate Program"
     route="/affiliate"
     status="done"
-    note="对外营销页（KOL / BD 受众）。2026-09-18 按 Figma Omenx_Affiliate 设计稿（桌面 42:11744 / 移动 46:12621）整页回流：编号并入 eyebrow、h2 56/Medium/capitalize、卡片化分区、两处暗带（数据条 / CTA）、桌面左侧固定点导航、lynx 插画位由 AffiliateArt 按文件名解析（缺文件 = 生产不渲染 / dev 虚线框）。文案冻结自 affiliateContent.ts，禁改写。B2B 营销面豁免 Lite 禁词（§19.4）。"
+    note="对外营销页（KOL / BD 受众）。2026-09-18 按 Figma Omenx_Affiliate 设计稿（桌面 42:11744 / 移动 46:12621）整页回流：编号并入 eyebrow、h2 56/Medium/capitalize、卡片化分区、两处暗带（数据条 / CTA）、桌面左侧固定点导航、hero 为 X 视频循环、10 幅 lynx 插画由 AffiliateArt 按文件名解析（2026-09-19 已全部入仓）。文案冻结自 affiliateContent.ts，禁改写。B2B 营销面豁免 Lite 禁词（§19.4）。"
   >
     <SubSection
       title="AF-1 · 整页（桌面 / 375）"
-      description="真路由组件 AffiliatePage：桌面态 EventsDesktopHeader + 六节 + 数据暗带 + Apply 插画带 + Veterans / Built on Base 全幅行 + CTA 暗带 + SeoFooter；375 态自动切 AffiliatePageMobile（MobileHeader 内页形态 · 24px 边距 · pill 跳转条 · sticky Apply now 滚过 hero 才浮出）。全部插画位在资产落仓前显示开发占位框。"
+      description="真路由组件 AffiliatePage：桌面态 EventsDesktopHeader + 六节 + 数据暗带 + Apply 插画带 + Veterans / Built on Base 全幅行 + CTA 暗带 + SeoFooter；375 态自动切 AffiliatePageMobile（MobileHeader 内页形态 · 24px 边距 · pill 跳转条 · sticky Apply now 滚过 hero 才浮出）。"
       platform="shared"
     >
       <DualDevicePreview previewKey="affiliate-page" label="AffiliatePage · full route" minHeight={900} />
@@ -52,11 +52,11 @@ export const LiteAffiliatePage = (_: P) => (
     </SubSection>
 
     <SubSection
-      title="AF-5 · 插画位（AffiliateArt · 缺资产态）"
-      description="所有插画位共用 AffiliateArt：按文件名从 src/assets/affiliate/ 解析（import.meta.glob），缺文件时生产不渲染、开发显示虚线规格框（本帧 = hero-x 缺失态）。18 个槽位的导出规格见 AffiliateArt.tsx 头注释。"
+      title="AF-5 · Hero 视频循环 + 插画位（AffiliateHeroLoop / AffiliateArt）"
+      description="Hero X 视觉是 9.8s MP4 循环（hero-x-loop.mp4，858×638），用 mix-blend-mode: screen 叠在页面底色上让视频自带的深蓝底消失，静音 / 自动播放 / inline / aria-hidden；桌面 661×496、移动 342×257。其余 10 幅插画共用 AffiliateArt：按文件名从 src/assets/affiliate/ 解析（import.meta.glob），缺文件时生产不渲染、开发显示虚线规格框。渐变叠加全部烘进导出图的 alpha，代码不再画渐变。台账见 Foundations「Brand assets」Ⓗ 组。"
       platform="shared"
     >
-      <DualDevicePreview previewKey="affiliate-hero-art-slot" label="AffiliateArt · hero-x · missing-asset state" minHeight={360} />
+      <DualDevicePreview previewKey="affiliate-hero-art-slot" label="AffiliateHeroLoop + AffiliateArt(earn-band-desktop)" minHeight={360} />
     </SubSection>
 
     <SubSection

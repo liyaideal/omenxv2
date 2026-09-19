@@ -8,6 +8,7 @@ import { EarningsLedger } from "@/components/affiliate/EarningsLedger";
 import { FeeBaseComparison } from "@/components/affiliate/FeeBaseComparison";
 import { AffiliateFaq } from "@/components/affiliate/AffiliateFaq";
 import { AffiliateArt } from "@/components/affiliate/AffiliateArt";
+import { AffiliateHeroLoop } from "@/components/affiliate/AffiliateHeroLoop";
 import { AffiliateDotNav } from "@/components/affiliate/AffiliateDotNav";
 
 /** Whole page, real route component — desktop frame renders desktop, 375 frame renders AffiliatePageMobile. */
@@ -35,16 +36,13 @@ export const AffiliateFaqExpandedPreview = () => {
   return <AffiliateFaq defaultOpen="faq-0" size={isMobile ? "md" : "lg"} className="px-5" />;
 };
 
-/** Hero art slot — dev placeholder until the owner drops the file into src/assets/affiliate/, then the real asset. */
+/** Hero X visual — production AffiliateHeroLoop (video loop, screen-blended) + one AffiliateArt slot. */
 export const AffiliateHeroArtPreview = () => {
   const isMobile = useIsMobile();
   return (
-    <div className="p-6 flex justify-center">
-      {isMobile ? (
-        <AffiliateArt name="hero-x-mobile" width={342} height={257} className="w-full" />
-      ) : (
-        <AffiliateArt name="hero-x-desktop" width={661} height={496} fit="contain" className="w-full max-w-lg" />
-      )}
+    <div className="p-6 flex flex-col items-center gap-6">
+      <AffiliateHeroLoop variant={isMobile ? "mobile" : "desktop"} />
+      <AffiliateArt name="earn-band-desktop" width={1440} height={260} className="w-full" />
     </div>
   );
 };

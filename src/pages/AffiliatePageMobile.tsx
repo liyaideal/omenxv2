@@ -17,6 +17,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { AffiliateArt } from "@/components/affiliate/AffiliateArt";
+import { AffiliateHeroLoop } from "@/components/affiliate/AffiliateHeroLoop";
 import { EarningsLedger } from "@/components/affiliate/EarningsLedger";
 import { FeeBaseComparison } from "@/components/affiliate/FeeBaseComparison";
 import { AffiliateFaq } from "@/components/affiliate/AffiliateFaq";
@@ -165,7 +166,7 @@ export const AffiliatePageMobile = () => {
               </span>
             </h1>
             <p className="mt-6 font-sans text-base leading-[1.4] text-muted-foreground">{HERO.intro}</p>
-            <AffiliateArt name="hero-x-mobile" width={342} height={257} className="mt-2 h-[257px] w-full rounded-lg" eager />
+            <AffiliateHeroLoop variant="mobile" className="mt-2" />
 
             <div className="flex flex-col gap-3 pt-8">
               <PrimaryLink label={HERO.primaryCta} arrow="up-right" className="h-12 w-full rounded-[10px] px-8 text-[15px] font-medium leading-[22.5px] text-[#090A0B]" />
@@ -299,11 +300,10 @@ export const AffiliatePageMobile = () => {
           <SectionHead n="04" eyebrow={MARKETS_HEAD.eyebrow} title={MARKETS_HEAD.title} subtitle={MARKETS_HEAD.sub} />
           <div className="mt-4 flex flex-col gap-4">
             {MARKETS.map((m, i) => {
-              const art = (["market-sports-mobile", "market-crypto-mobile", "market-finance-mobile"] as const)[i];
-              const h = [217, 184, 199][i];
+              const art = (["market-sports", "market-crypto", "market-finance"] as const)[i];
               return (
                 <article key={m.category} className={cn("overflow-hidden rounded-xl border border-border/60", cardBg)}>
-                  <AffiliateArt name={art} width={342} height={h} className="w-full" />
+                  <AffiliateArt name={art} width={1232} height={752} className={cn("w-full", ["h-[217px]", "h-[184px]", "h-[199px]"][i])} />
                   <div className="px-4 pb-6 pt-5">
                     <span className="block pt-3 font-sans text-sm font-semibold uppercase leading-[22px] tracking-[2px] text-muted-foreground">{m.category}</span>
                     <h3 className="mt-3 max-w-[324px] font-display text-[22px] font-medium leading-[26px] text-foreground">{m.title.join(" ")}</h3>
@@ -393,8 +393,7 @@ export const AffiliatePageMobile = () => {
             className="pointer-events-none absolute left-1/2 top-[333px] h-[276px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full"
             style={{ background: "radial-gradient(ellipse at center, rgba(51,214,255,0.11) 0%, rgba(51,214,255,0) 72%)" }}
           />
-          <AffiliateArt name="cta-mosaic-left-mobile" width={100} height={131} fit="contain" position="left top" className="absolute left-0 top-[127px] h-[131px] w-[100px]" />
-          <AffiliateArt name="cta-mosaic-right-mobile" width={134} height={131} fit="contain" position="right top" className="absolute right-0 top-[127px] h-[131px] w-[134px]" />
+          <AffiliateArt name="cta-mosaic" width={1440} height={486} fit="contain" position="center top" className="absolute inset-x-0 top-[127px] h-[131px] w-full" />
           <div className="relative flex flex-col items-center text-center">
             <Eyebrow>{APPLY.eyebrow}</Eyebrow>
             <h2 className="mt-[22px] font-display text-[42px] font-bold leading-[48px] text-foreground">
