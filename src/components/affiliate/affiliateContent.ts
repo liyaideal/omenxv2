@@ -22,7 +22,21 @@ import coinbase from "@/assets/affiliate/coinbase.webp";
 import partnerCryptoBanter from "@/assets/affiliate/partner-crypto-banter.webp";
 import partnerBaseApac from "@/assets/affiliate/partner-base-apac.webp";
 
-export const APPLY_URL = "https://ljp9k446231p.jp.larksuite.com/wiki/RQgiw4cQqi4KXKkb4MQjWCncp4g";
+/** Affiliate application form (Lark Base form, CPO 2026-09-19). Opened by every Apply CTA for signed-in non-affiliates. */
+export const APPLY_URL = "https://ljp9k446231p.jp.larksuite.com/share/base/form/shrjpJXdxwMmRq3Y7IftqBNek2g";
+
+/**
+ * CTA state copy (CPO-approved 2026-09-19). The Apply CTAs share one behaviour:
+ * guest → sign-in gate · member → APPLY_URL · affiliate → `PORTAL` notice.
+ * The portal itself lives on the live platform, not in this blueprint.
+ */
+export const PORTAL = {
+  cta: "Open affiliate portal",
+  title: "Affiliate portal",
+  body: "Your affiliate portal lives on the OmenX platform, not in this blueprint. On the live site this button opens {path}, where you manage links, invitees, commissions and claims.",
+  path: "/affiliate/portal",
+  close: "Got it",
+};
 export const CONTACT_EMAIL = "affiliates@omenx.com";
 export const INSIGHTS_URL = "https://www.omenx.com/insights";
 

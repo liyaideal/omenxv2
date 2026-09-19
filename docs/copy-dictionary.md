@@ -571,6 +571,25 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | **Closed ↑ / Closed ↓** | 仅结算空窗的结果徽章（客观结果色：↑ pulse、↓ volt，非盈亏语义）。`Closed` 不作它用。 |
 | **Last close {price}** | preSession 参照价前缀，整列 muted，且不显示涨跌%。禁用 `Prev close` / `Yesterday`。 |
 
+## Affiliate Program (`/affiliate`, 2026-09-19)
+
+页面文案冻结在 `src/components/affiliate/affiliateContent.ts`（09-14 起一字未改）。本节只登记 09-19 新增的状态文案与概念。
+
+### 概念
+| 词 | 一句定义 | 判定表达式 | 出处 |
+|---|---|---|---|
+| affiliate（会员） | 已被 OmenX 批准加入 Affiliate Program 的用户 | `profiles.is_affiliate === true` | `useAffiliateCta` |
+| member（非 affiliate 登录用户） | 已登录但未被批准的用户 | `user && !profile.is_affiliate` | 同上 |
+| guest | 未登录 | `!user` | 同上 |
+
+### 状态文案
+| Key | 文案 | 何时出现 |
+|---|---|---|
+| `PORTAL.cta` | Open affiliate portal | affiliate 状态下五处 Apply 按钮统一文案 |
+| `PORTAL.title` | Affiliate portal | portal 说明框标题 |
+| `PORTAL.body` | Your affiliate portal lives on the OmenX platform, not in this blueprint. On the live site this button opens {path}, where you manage links, invitees, commissions and claims. | 说明框正文，`{path}` = `/affiliate/portal` |
+| `PORTAL.close` | Got it | 说明框关闭按钮 |
+
 ## Home (`/`, Lite)
 
 首页 = `/` 与 `/events` 同一 `LiteEventsPage`。完整交付口径见 `docs/delivery/lite-home-v1.md`。

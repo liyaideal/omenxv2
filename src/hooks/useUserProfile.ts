@@ -47,6 +47,9 @@ export interface Profile {
   updated_at: string;
   withdraw_2fa_mode?: string | null;
   totp_enabled?: boolean | null;
+  /** Affiliate Program membership (blueprint flag; drives the /affiliate CTA state). */
+  is_affiliate?: boolean | null;
+  affiliate_since?: string | null;
   // NOTE: totp_secret intentionally NOT exposed on the client.
   // It lives in the server-only `user_security` table and is managed via the
   // `totp-manage` edge function.

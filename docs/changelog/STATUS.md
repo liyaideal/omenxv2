@@ -105,6 +105,8 @@
 | AF-H | 桌面固定点导航 `AffiliateDotNav`（01–06，滚动联动，≥1400px 显示） | ⬜ | 移动端保留 pill 跳转条 |
 | AF-I | 插画位 `AffiliateArt`：18 幅按文件名解析，缺失时生产不渲染 | ⬜ | 资产待 CPO 导出；清单见组件头注释 |
 | AF-J | `/style-guide#lite-affiliate` AF-1…AF-6 按新视觉更新 | ⬜ | 蓝图侧已落 |
+| AF-K | Apply 按钮三态：guest → 登录门 / member → 申请表 / affiliate → `Open affiliate portal` + portal 说明框 | ⬜ | 文档 §5A；`profiles.is_affiliate` 蓝图标记位；字典 AF-7a–d |
+| AF-L | 素材全部入仓（hero 视频循环 + 10 幅插画） | ⬜ | 台账 Ⓗ 组 |
 
 ## 2026-09-14 — Affiliate Program 页面 v1（[文档](../delivery/affiliate-page-v1.md)）
 

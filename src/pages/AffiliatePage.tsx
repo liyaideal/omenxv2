@@ -1,12 +1,10 @@
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { SeoFooter } from "@/components/seo";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Button } from "@/components/ui/button";
-import { omenxLogoSolid as omenxLogo } from "@/components/Logo";
+import { omenxLogoSolid } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 import {
   ArrowDown,
-  ArrowRight,
   ArrowUpRight,
   CircleDollarSign,
   Handshake,
@@ -23,9 +21,10 @@ import { AffiliateDotNav } from "@/components/affiliate/AffiliateDotNav";
 import { EarningsLedger } from "@/components/affiliate/EarningsLedger";
 import { FeeBaseComparison } from "@/components/affiliate/FeeBaseComparison";
 import { AffiliateFaq } from "@/components/affiliate/AffiliateFaq";
+import { useAffiliateCta } from "@/components/affiliate/useAffiliateCta";
+import { AffiliateApplyButton, AffiliateApplyLink } from "@/components/affiliate/AffiliateApplyCta";
 import {
   APPLY,
-  APPLY_URL,
   BASE_LINE,
   BENEFITS,
   BENEFITS_HEAD,
@@ -71,14 +70,6 @@ const Eyebrow = ({ children, className }: { children: React.ReactNode; className
   <span className={cn("block font-sans text-[11px] font-semibold uppercase leading-[15px] tracking-[2px] text-primary", className)}>
     {children}
   </span>
-);
-
-const PrimaryLink = ({ label, className }: { label: string; className?: string }) => (
-  <Button asChild className={cn("h-12 gap-2 rounded-md bg-primary px-6 font-sans text-sm font-semibold leading-5 text-[#04070F] shadow-[0_10px_18px_rgba(29,206,248,0.24)] hover:bg-primary/90", className)}>
-    <a href={APPLY_URL} {...ext}>
-      {label} <ArrowRight className="h-4 w-4" />
-    </a>
-  </Button>
 );
 
 const SectionHead = ({
@@ -148,7 +139,12 @@ const Footnote = ({ children }: { children: React.ReactNode }) => (
 const AffiliatePage = () => {
   const isMobile = useIsMobile();
   if (isMobile) return <AffiliatePageMobile />;
+  return <AffiliatePageDesktop />;
+};
 
+const AffiliatePageDesktop = () => {
+  // One CTA behaviour for all five Apply surfaces (guest gate / form / portal notice).
+  const cta = useAffiliateCta();
   const accentLead = HERO.titleAccent.replace(/\s*OmenX\.?$/, "");
 
   return (
@@ -188,13 +184,13 @@ const AffiliatePage = () => {
                     role="img"
                     aria-label="OmenX"
                     className="inline-block h-[0.57em] w-[calc(0.57em*433/65)] bg-current align-baseline"
-                    style={{ WebkitMaskImage: `url("${omenxLogo}")`, maskImage: `url("${omenxLogo}")`, WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat" }}
+                    style={{ WebkitMaskImage: `url("${omenxLogoSolid}")`, maskImage: `url("${omenxLogoSolid}")`, WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat" }}
                   />
                 </span>
               </h1>
               <p className="mt-2 max-w-[656px] font-sans text-lg leading-7 text-foreground/60">{HERO.intro}</p>
               <div className="flex items-center gap-4 pt-9">
-                <PrimaryLink label={HERO.primaryCta} />
+                <AffiliateApplyButton cta={cta} label={HERO.primaryCta} />
                 <a href="#earnings" className="inline-flex h-12 items-center gap-2 px-3 font-sans text-sm font-medium leading-5 text-foreground transition-colors hover:text-primary">
                   {HERO.secondaryCta} <ArrowDown className="h-[15px] w-[15px]" />
                 </a>
@@ -297,9 +293,7 @@ const AffiliatePage = () => {
             <AffiliateArt name="earn-band-desktop" width={1440} height={260} className="absolute inset-0 h-full w-full" />
             <div className={cn(container, "relative pt-[52px]")}>
               <p className="w-[390px] font-display text-[30px] font-medium capitalize leading-[1.2] tracking-[-1px] text-foreground">{EARNINGS_END.line}</p>
-              <a href={APPLY_URL} {...ext} className="mt-3 inline-flex items-center gap-2 font-sans text-[22px] leading-[21px] text-primary transition-opacity hover:opacity-80">
-                {EARNINGS_END.cta} <ArrowRight className="h-4 w-4" />
-              </a>
+              <AffiliateApplyLink cta={cta} label={EARNINGS_END.cta} className="mt-3 text-[22px] leading-[21px]" />
             </div>
           </div>
         </section>
@@ -309,7 +303,7 @@ const AffiliatePage = () => {
           <div className={cn(container, "pb-[108px] pt-10")}>
             <SectionHead n="03" eyebrow={STEPS_HEAD.eyebrow} title={STEPS_HEAD.title}>
               <div className="pt-7">
-                <PrimaryLink label={STEPS_HEAD.cta} className="h-11 px-5 text-base" />
+                <AffiliateApplyButton cta={cta} label={STEPS_HEAD.cta} className="h-11 px-5 text-base" />
               </div>
             </SectionHead>
             <div className="mt-14 grid grid-cols-3 gap-5">
@@ -476,7 +470,7 @@ const AffiliatePage = () => {
               <span className="block text-primary">{APPLY.titleAccent}</span>
             </h2>
             <p className="mt-7 max-w-[576px] font-sans text-sm leading-6 text-muted-foreground">{APPLY.body}</p>
-            <PrimaryLink label={APPLY.cta} className="mt-9 px-7" />
+            <AffiliateApplyButton cta={cta} label={APPLY.cta} className="mt-9 px-7" />
             <p className="mt-8 font-sans text-xs leading-4 text-[#646972]">{APPLY.contactLead}</p>
             <a href={`mailto:${CONTACT_EMAIL}`} className="mt-2 font-sans text-sm leading-5 text-foreground transition-colors hover:text-primary">
               {CONTACT_EMAIL}
@@ -487,6 +481,7 @@ const AffiliatePage = () => {
       </main>
 
       <SeoFooter />
+      {cta.overlays}
     </div>
   );
 };

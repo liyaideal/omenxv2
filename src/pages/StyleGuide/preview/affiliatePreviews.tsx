@@ -10,6 +10,9 @@ import { AffiliateFaq } from "@/components/affiliate/AffiliateFaq";
 import { AffiliateArt } from "@/components/affiliate/AffiliateArt";
 import { AffiliateHeroLoop } from "@/components/affiliate/AffiliateHeroLoop";
 import { AffiliateDotNav } from "@/components/affiliate/AffiliateDotNav";
+import { useAffiliateCta, type AffiliateCtaState } from "@/components/affiliate/useAffiliateCta";
+import { AffiliateApplyButton, AffiliateApplyLink } from "@/components/affiliate/AffiliateApplyCta";
+import { HERO, EARNINGS_END, STEPS_HEAD, APPLY } from "@/components/affiliate/affiliateContent";
 
 /** Whole page, real route component — desktop frame renders desktop, 375 frame renders AffiliatePageMobile. */
 export const AffiliatePagePreview = () => <AffiliatePage />;
@@ -57,3 +60,22 @@ export const AffiliateDotNavPreview = () => (
     </p>
   </div>
 );
+
+/** Apply CTA family in one forced state — production button/link + the real overlays (click to open them). */
+const CtaFamily = ({ state, open }: { state: AffiliateCtaState; open?: "portal" | "auth" }) => {
+  const cta = useAffiliateCta(state, open);
+  return (
+    <div className="flex flex-col items-start gap-4 p-6">
+      <AffiliateApplyButton cta={cta} label={HERO.primaryCta} />
+      <AffiliateApplyButton cta={cta} label={STEPS_HEAD.cta} className="h-11 px-5 text-base" />
+      <AffiliateApplyLink cta={cta} label={EARNINGS_END.cta} className="text-[22px] leading-[21px]" />
+      <AffiliateApplyButton cta={cta} label={APPLY.cta} className="px-7" />
+      <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">state · {state}</p>
+      {cta.overlays}
+    </div>
+  );
+};
+export const AffiliateCtaGuestPreview = () => <CtaFamily state="guest" />;
+export const AffiliateCtaMemberPreview = () => <CtaFamily state="member" />;
+export const AffiliateCtaAffiliatePreview = () => <CtaFamily state="affiliate" />;
+export const AffiliateCtaPortalNoticePreview = () => <CtaFamily state="affiliate" open="portal" />;

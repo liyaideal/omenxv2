@@ -444,6 +444,10 @@ export const previewRegistry: Record<string, Loader> = {
   "affiliate-faq-expanded": pick(affiliate, "AffiliateFaqExpandedPreview"),
   "affiliate-hero-art-slot": pick(affiliate, "AffiliateHeroArtPreview"),
   "affiliate-dot-nav": pick(affiliate, "AffiliateDotNavPreview"),
+  "affiliate-cta-guest": pick(affiliate, "AffiliateCtaGuestPreview"),
+  "affiliate-cta-member": pick(affiliate, "AffiliateCtaMemberPreview"),
+  "affiliate-cta-affiliate": pick(affiliate, "AffiliateCtaAffiliatePreview"),
+  "affiliate-cta-portal-notice": pick(affiliate, "AffiliateCtaPortalNoticePreview"),
 
   /* -------- Wallet · Dual-Account 2b -------- */
   "wallet-equity-bands": pick(wallet, "WalletEquityBandsPreview"),

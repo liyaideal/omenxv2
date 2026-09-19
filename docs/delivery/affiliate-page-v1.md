@@ -28,7 +28,7 @@
 | 移动组件 | `src/pages/AffiliatePageMobile.tsx`（`useIsMobile()` <768 时由桌面组件返回；`MobileHeader title="Affiliate Program" showBack`） |
 | 站内入口 | `SeoFooter` → Resources 列 → `Affiliate Program`（紧随 Developers） |
 | 页内锚点 | `#benefits` `#earnings` `#how-it-works` `#markets` `#partners` `#faq` `#apply`；桌面：左侧固定竖排点导航（`AffiliateDotNav`，01–06，≥1400px 视口显示，滚动联动高亮当前节）；移动：数据横幅下方一行 pill 跳转链（01–06） |
-| 外链 | 申请表（Lark）`https://ljp9k446231p.jp.larksuite.com/wiki/RQgiw4cQqi4KXKkb4MQjWCncp4g`，所有 Apply 按钮同一目标，新标签打开；`mailto:affiliates@omenx.com`；Insights `https://www.omenx.com/insights` |
+| 外链 | 申请表（Lark Base form）`https://ljp9k446231p.jp.larksuite.com/share/base/form/shrjpJXdxwMmRq3Y7IftqBNek2g`，所有 Apply 按钮同一目标，新标签打开（仅已登录非 affiliate 时是真链接，见 §5A）；`mailto:affiliates@omenx.com`；Insights `https://www.omenx.com/insights` |
 
 ## 3. 页面结构（自上而下）
 
@@ -94,6 +94,19 @@
 | Base logo | `public/chain-logos/base.svg`（既有） | 复用 |
 | 插画 18 幅（hero X 视觉 ×2、收益标题块 ×4、Apply 带 ×2、市场卡 ×6、CTA 马赛克 ×4） | `src/assets/affiliate/<name>.png`，文件名与尺寸清单见 `src/components/affiliate/AffiliateArt.tsx` 头注释 | **待 CPO 从 Figma 导出**（2x、扁平化含叠加渐变、隐藏文字层）；`AffiliateArt` 按文件名解析，缺失时生产不渲染该位、开发显示虚线规格框 |
 
+## 5A. 交互逻辑（Apply 按钮三态）
+
+页面上五处 Apply（hero `Become an affiliate`、02 节尾文字链 `Apply now`、03 `Apply to join`、结尾 CTA `Apply now`、移动端 sticky `Apply now`）**共用同一套行为**（`useAffiliateCta`），其余链接（锚点、Insights、邮件）对所有人一样，不设门。页面内容对游客完全可见。
+
+| 可见项 | 判定 | 数据来源 | 行为 |
+|---|---|---|---|
+| 未登录 | `!user` | Supabase auth session | 按钮文案不变；点击打开站内登录门（桌面 `AuthDialog` / 移动 `AuthSheet`）。登录后留在本页，按钮按新状态重算文案；**不自动续做动作** |
+| 已登录 · 非 affiliate | `user && !profile.is_affiliate` | `profiles.is_affiliate`（默认 false） | 按钮是真链接 `<a target=_blank>` 指向申请表（§2 外链）；文案不变 |
+| 已登录 · affiliate | `profile.is_affiliate === true` | 同上 | 五处文案统一改为 `Open affiliate portal`；点击弹说明框（桌面 Dialog / 移动 MobileDrawer）：标题 `Affiliate portal`，正文 `Your affiliate portal lives on the OmenX platform, not in this blueprint. On the live site this button opens /affiliate/portal, where you manage links, invitees, commissions and claims.`，按钮 `Got it`。**真平台把这一步换成直接跳 portal** |
+| 已登录 · profile 未返回 | `user && isLoading && !profile` | — | 保持 Apply 文案，点击等待，避免文案闪两次 |
+
+真平台对应：`profiles.is_affiliate` 只是蓝图的标记位，真平台读你们 affiliate 服务的会员状态；`affiliate_since` 仅演示。演示账号：alex_carter 是 affiliate，mia_reyes 不是。
+
 ## 6. 没动什么
 
 - 未新增任何后端表 / 函数 / 迁移；页面不读库。
@@ -103,7 +116,10 @@
 
 ## 7. 已知缺口
 
-1. 18 幅插画待资产落仓（见 §5）；CTA 马赛克含真人照片，CPO 已确认素材有权使用（2026-09-18）。
+1. ~~插画待资产落仓~~ 2026-09-19 已全部入仓（hero 为视频循环）；CTA 马赛克含真人照片，CPO 已确认素材有权使用。
+3. affiliate 用户登录后，站内账户菜单应有「Affiliate portal」入口——不在本页范围，真平台补。
+4. 结尾免责「program terms apply」无 Affiliate Terms 可链；真平台需挂条款页。
+5. 三种 Apply 点击（登录门 / 申请表 / portal 说明）零埋点，等产品定。
 2. 页面 `<title>` / meta description 沿用全站默认，未单独配置 SEO 元信息（原页 title 为 `OmenX Affiliate Program | Built for your community`），如需请在 `SeoPageLayout` 体系下补。
 
 ## 附：内部代号对照

@@ -1238,6 +1238,8 @@ export type Database = {
           preferred_surface: string
           spot_balance: number
           totp_enabled: boolean
+          is_affiliate: boolean
+          affiliate_since: string | null
           trial_balance: number | null
           updated_at: string
           user_id: string
@@ -1254,6 +1256,8 @@ export type Database = {
           preferred_surface?: string
           spot_balance?: number
           totp_enabled?: boolean
+          is_affiliate?: boolean
+          affiliate_since?: string | null
           trial_balance?: number | null
           updated_at?: string
           user_id: string
@@ -1270,6 +1274,8 @@ export type Database = {
           preferred_surface?: string
           spot_balance?: number
           totp_enabled?: boolean
+          is_affiliate?: boolean
+          affiliate_since?: string | null
           trial_balance?: number | null
           updated_at?: string
           user_id?: string

@@ -1,12 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { MobileHeader } from "@/components/MobileHeader";
 import { SeoFooter } from "@/components/seo";
-import { Button } from "@/components/ui/button";
-import { omenxLogoSolid as omenxLogo } from "@/components/Logo";
+import { omenxLogoSolid } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 import {
   ArrowDown,
-  ArrowRight,
   ArrowUpRight,
   CircleDollarSign,
   Handshake,
@@ -21,9 +19,10 @@ import { AffiliateHeroLoop } from "@/components/affiliate/AffiliateHeroLoop";
 import { EarningsLedger } from "@/components/affiliate/EarningsLedger";
 import { FeeBaseComparison } from "@/components/affiliate/FeeBaseComparison";
 import { AffiliateFaq } from "@/components/affiliate/AffiliateFaq";
+import { useAffiliateCta } from "@/components/affiliate/useAffiliateCta";
+import { AffiliateApplyButton, AffiliateApplyLink } from "@/components/affiliate/AffiliateApplyCta";
 import {
   APPLY,
-  APPLY_URL,
   BASE_LINE,
   BENEFITS,
   BENEFITS_HEAD,
@@ -91,20 +90,6 @@ const Section = ({ id, children, className }: { id?: string; children: React.Rea
   </section>
 );
 
-const PrimaryLink = ({ label, className, arrow = "right" }: { label: string; className?: string; arrow?: "right" | "up-right" }) => (
-  <Button
-    asChild
-    className={cn(
-      "h-12 gap-2 rounded-md bg-primary px-[22px] font-sans text-sm font-semibold leading-5 text-[#04070F] shadow-[0_10px_9px_rgba(29,206,248,0.24)] hover:bg-primary/90",
-      className,
-    )}
-  >
-    <a href={APPLY_URL} {...ext}>
-      {label} {arrow === "right" ? <ArrowRight className="h-4 w-4" /> : <ArrowUpRight className="h-4 w-4" />}
-    </a>
-  </Button>
-);
-
 /** Exhibit head box: illustration with the 02.x label, title, intro and tag on top. */
 const ExhibitHead = ({ n, title, intro, tag, art }: { n: string; title: string; intro: string; tag: string; art: "earn-1-mobile" | "earn-2-mobile" }) => (
   <div className="relative h-[204px] overflow-hidden rounded-lg">
@@ -135,6 +120,8 @@ export const AffiliatePageMobile = () => {
   }, []);
 
   const accentLead = HERO.titleAccent.replace(/\s*OmenX\.?$/, "");
+  // One CTA behaviour for all five Apply surfaces (guest gate / form / portal notice).
+  const cta = useAffiliateCta();
 
   return (
     <div className="flex min-h-screen flex-col bg-background pb-24">
@@ -161,7 +148,7 @@ export const AffiliatePageMobile = () => {
                     role="img"
                     aria-label="OmenX"
                     className="inline-block h-[0.53em] w-[calc(0.53em*433/65)] bg-current align-baseline"
-                    style={{ WebkitMaskImage: `url("${omenxLogo}")`, maskImage: `url("${omenxLogo}")`, WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat" }}
+                    style={{ WebkitMaskImage: `url("${omenxLogoSolid}")`, maskImage: `url("${omenxLogoSolid}")`, WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat" }}
                   />
               </span>
             </h1>
@@ -169,7 +156,7 @@ export const AffiliatePageMobile = () => {
             <AffiliateHeroLoop variant="mobile" className="mt-2" />
 
             <div className="flex flex-col gap-3 pt-8">
-              <PrimaryLink label={HERO.primaryCta} arrow="up-right" className="h-12 w-full rounded-[10px] px-8 text-[15px] font-medium leading-[22.5px] text-[#090A0B]" />
+              <AffiliateApplyButton cta={cta} label={HERO.primaryCta} arrow="up-right" className="h-12 w-full rounded-[10px] px-8 text-[15px] font-medium leading-[22.5px] shadow-[0_10px_9px_rgba(29,206,248,0.24)] text-[#090A0B]" />
               <a href="#earnings" className="inline-flex h-11 items-center justify-center gap-1.5 font-sans text-[15px] leading-[22.5px] text-foreground/90">
                 {HERO.secondaryCta} <ArrowDown className="h-4 w-4" />
               </a>
@@ -271,9 +258,7 @@ export const AffiliatePageMobile = () => {
             <AffiliateArt name="earn-band-mobile" width={342} height={193} className="absolute inset-0 h-full w-full" />
             <div className="relative px-4 pt-12">
               <p className="font-display text-xl font-medium leading-[1.2] text-foreground">{EARNINGS_END.line}</p>
-              <a href={APPLY_URL} {...ext} className="mt-[18px] inline-flex items-center gap-2 font-sans text-[15px] leading-[21px] text-primary">
-                {EARNINGS_END.cta} <ArrowUpRight className="h-4 w-4" />
-              </a>
+              <AffiliateApplyLink cta={cta} label={EARNINGS_END.cta} arrow="up-right" className="mt-[18px] text-[15px] leading-[21px]" />
             </div>
           </div>
         </Section>
@@ -282,7 +267,7 @@ export const AffiliatePageMobile = () => {
         <Section id="how-it-works">
           <SectionHead n="03" eyebrow={STEPS_HEAD.eyebrow} title={STEPS_HEAD.title} />
           <div className="pt-6">
-            <PrimaryLink label={STEPS_HEAD.cta} />
+            <AffiliateApplyButton cta={cta} label={STEPS_HEAD.cta} className="px-[22px] shadow-[0_10px_9px_rgba(29,206,248,0.24)]" />
           </div>
           <ol className="mt-9 grid grid-cols-1 gap-3">
             {STEPS.map((s) => (
@@ -401,7 +386,7 @@ export const AffiliatePageMobile = () => {
               <span className="block text-primary">{APPLY.titleAccent}</span>
             </h2>
             <p className="mt-5 pb-3.5 font-sans text-sm leading-[22px] text-muted-foreground">{APPLY.body}</p>
-            <PrimaryLink label={APPLY.cta} className="mt-6" />
+            <AffiliateApplyButton cta={cta} label={APPLY.cta} className="mt-6 px-[22px] shadow-[0_10px_9px_rgba(29,206,248,0.24)]" />
             <p className="mt-7 font-sans text-xs leading-5 text-muted-foreground">
               {APPLY.contactLead}
               <br />
@@ -424,8 +409,9 @@ export const AffiliatePageMobile = () => {
         )}
         aria-hidden={!stickyVisible}
       >
-        <PrimaryLink label={APPLY.cta} className="w-full" />
+        <AffiliateApplyButton cta={cta} label={APPLY.cta} className="w-full" />
       </div>
+      {cta.overlays}
     </div>
   );
 };

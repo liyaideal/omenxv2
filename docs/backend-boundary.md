@@ -74,7 +74,7 @@
 
 | 表 | 类别 | 说明 |
 |---|---|---|
-| profiles | 🟡 | `totp_enabled` / `withdraw_2fa_mode` 是需求；其余演示字段忽略 |
+| profiles | 🟡 | `totp_enabled` / `withdraw_2fa_mode` 是需求；`is_affiliate` / `affiliate_since`（2026-09-19）是 /affiliate CTA 三态的蓝图标记位，真平台读 affiliate 服务的会员状态；其余演示字段忽略 |
 | user_security | 🟢 | TOTP 秘钥独立表、客户端零可见的隔离设计照抄（见 SEC3） |
 | user_roles | 🟡 | RBAC 概念 |
 | user_watchlist | 🟡 | 自选收藏；guest localStorage 部分不实现 |
