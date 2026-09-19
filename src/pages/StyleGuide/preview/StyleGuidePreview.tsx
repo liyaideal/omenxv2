@@ -94,7 +94,11 @@ const StyleGuidePreview = () => {
   }, [key, fid]);
 
   return (
-    <div ref={ref} className="min-h-0 bg-background text-foreground p-4 space-y-8">
+    // `[&_.min-h-screen]:min-h-0`: a full-route page mounted here (e.g. affiliate-page) carries
+    // `min-h-screen` on its root. Inside the auto-sized iframe 100vh == the iframe height the parent
+    // just set from our last report, so the wrapper would grow by its padding every cycle and the
+    // frame ratchets downward forever (AF-1 bug, 2026-09-19). Neutralise it for every preview.
+    <div ref={ref} className="min-h-0 bg-background text-foreground p-4 space-y-8 [&_.min-h-screen]:min-h-0">
       {keys.length === 0 ? (
         <div className="text-sm text-muted-foreground">Missing preview key.</div>
       ) : (
