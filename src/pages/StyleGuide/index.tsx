@@ -193,8 +193,10 @@ const StyleGuideIndex = () => {
               {searchOpen && searchQuery.trim() && (
                 <div
                   className={cn(
-                    "absolute right-0 top-full z-50 mt-1.5 max-h-[60vh] overflow-y-auto rounded-xl border border-border bg-popover p-1 shadow-xl",
-                    isMobile ? "w-[calc(100vw-2rem)]" : "w-[460px]",
+                    "z-50 max-h-[60vh] overflow-y-auto rounded-xl border border-border bg-popover p-1 shadow-xl",
+                    isMobile
+                      ? "fixed inset-x-4 top-[64px]"
+                      : "absolute right-0 top-full mt-1.5 w-[460px]",
                   )}
                 >
                   {hits.length === 0 ? (
