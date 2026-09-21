@@ -477,13 +477,15 @@ export default function DesktopTrading() {
   const buyLimitPending = orderType === "Limit" && buyLimitVal > 0 && buyLimitVal < sidePrice - 1e-9;
   const execPrice = buyLimitPending ? buyLimitVal : sidePrice;
   // 交易页收尾 #4 · leverage cap follows category_boost_configs (same source as Lite Boost).
-  const { getConfig: getBoostConfig } = useCategoryBoostConfigs();
+  const { getConfig: getBoostConfig, isLoading: boostLoading } = useCategoryBoostConfigs();
   const boostCfg = getBoostConfig(selectedEvent?.category);
-  const leverageMax = Math.max(1, boostCfg.maxBoost);
+  // While the table is still loading keep the old 10× frame so the slider does
+  // not clamp to 1× and stick there once the real cap arrives.
+  const leverageMax = boostLoading ? 10 : Math.max(1, boostCfg.maxBoost);
   const leverageTiers = useMemo(() => boostTiers(leverageMax), [leverageMax]);
   useEffect(() => {
-    if (leverage > leverageMax) setLeverage(leverageMax);
-  }, [leverage, leverageMax]);
+    if (!boostLoading && leverage > leverageMax) setLeverage(leverageMax);
+  }, [boostLoading, leverage, leverageMax]);
   // 交易页收尾 #6 · RESTRICTION tier (Risk ≥ 95%) = close-only: no open / add.
   const risk = useRealtimeRiskMetrics();
   const closeOnly = risk.riskLevel === "RESTRICTION" || risk.riskLevel === "LIQUIDATION";
@@ -889,7 +891,7 @@ export default function DesktopTrading() {
   const previewTradeFields = useMemo(() => [
     { label: "Type", value: orderType },
     { label: "Leverage", value: `${leverage}X` },
-    { label: "Price", value: `${sidePrice.toFixed(4)} USDC` },
+    { label: "Price", value: `${execPrice.toFixed(4)} USDC` },
   ], [orderType, leverage, sidePrice]);
   const previewNotionalFields = useMemo(() => [
     { label: "Order cost", value: `${amount} USDC` },
