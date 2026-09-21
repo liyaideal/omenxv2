@@ -39,12 +39,12 @@
 
 | 项 | 规则 |
 |---|---|
-| 上限 | `category_boost_configs.max_leverage`（与 Lite Boost 同源）。当前库：crypto 10× · macro 5× · social 5× · sports 3×；stocks / finance / tech / politics / entertainment / economy 未开 → 1× |
+| 上限 | `category_boost_configs.max_leverage`（与 Lite Boost 同源）。当前库（Liya 09-21 定）：crypto 10× · macro / social / stocks / finance / tech / politics / entertainment / economy 5× · sports 3×；没配置的品类 → 1× |
 | 之前 | 桌面 + 手机固定 1–10×，快捷钮 1 / 2 / 5 / 7 / 10 |
 | 1× 品类 | 滑杆锁死；桌面 Leverage 行 `1x · Boost not available for this category`，手机抽屉同句；档位只剩 `1x` |
 | 档位 | `boostTiers(max)`：20 → 1 / 2 / 5 / 20，10 → 1 / 2 / 5 / 10，5 → 1 / 2 / 5，3 → 1 / 2 / 3 |
 | 切品类 | 当前杠杆 > 新上限时自动压到上限 |
-| **注意** | 演示常驻的电竞 / 足球事件是 sports → Pro 最高 3×；美股 / 科技 / 政治类合约在 Pro 只能 1×。这是"跟品类"的直接后果，要放开改表不改代码 |
+| **注意** | 演示常驻的电竞 / 足球事件是 sports → Pro 最高 3×。美股 / 科技 / 政治类原为 1×，Liya 09-21 定全部开到 5×（改表 `category_boost_configs`，Lite Boost 同步变 `Up to 5×`）。上限要再调只改表不改代码 |
 
 ### #5 `SUSPENDED` 统一 cancel only
 
