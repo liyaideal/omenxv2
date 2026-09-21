@@ -77,17 +77,28 @@ const StyleGuideIndex = () => {
     setToc([]);
     const root = mainRef.current;
     if (!root) return;
-    let raf = 0;
+    // 节流而不是防抖：有的节（如合约终端的行情行）每帧都在改 DOM，防抖永远等不到安静。
+    // 每次变动后最多 250 ms 算一次，结果没变就不 setState。
+    let timer = 0;
+    let last = "";
     const refresh = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => setToc(collectToc(root)));
+      if (timer) return;
+      timer = window.setTimeout(() => {
+        timer = 0;
+        const next = collectToc(root);
+        const sig = next.map((t) => `${t.id}|${t.codes}`).join(",");
+        if (sig !== last) {
+          last = sig;
+          setToc(next);
+        }
+      }, 250);
     };
     const mo = new MutationObserver(refresh);
     mo.observe(root, { childList: true, subtree: true, characterData: true });
     refresh();
     return () => {
       mo.disconnect();
-      cancelAnimationFrame(raf);
+      window.clearTimeout(timer);
     };
   }, [activeId]);
   const jumpTo = (id: string) => {
