@@ -37,7 +37,27 @@ export const LiteAuthGate = ({
   const isMobile = useIsMobile();
   const [authOpen, setAuthOpen] = useState(false);
 
-  if (forceSignedIn || (user && !forceSignedOut)) return <>{children}</>;
+  // The auth wizard lives OUTSIDE the signed-out branch (CPO 2026-09-21).
+  // Before, the dialog was a child of the overlay, so the moment a sign-up
+  // produced a session the gate flipped to `children` and unmounted the
+  // wizard mid-flow — new accounts never saw createWallet / completeProfile.
+  // Now the gate lets the page through and the wizard stays open until the
+  // user finishes ("Start trading") or closes it. Existing accounts still
+  // close the dialog on sign-in (AuthContent handles that).
+  const authUi = isMobile ? (
+    <AuthSheet open={authOpen} onOpenChange={setAuthOpen} />
+  ) : (
+    <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
+  );
+
+  if (forceSignedIn || (user && !forceSignedOut)) {
+    return (
+      <>
+        {children}
+        {authOpen && authUi}
+      </>
+    );
+  }
 
   if (variant === "panel") {
     return (
@@ -76,11 +96,7 @@ export const LiteAuthGate = ({
           </button>
         </div>
 
-        {isMobile ? (
-          <AuthSheet open={authOpen} onOpenChange={setAuthOpen} />
-        ) : (
-          <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
-        )}
+        {authUi}
       </div>
     );
   }
@@ -140,11 +156,7 @@ export const LiteAuthGate = ({
 
       </div>
 
-      {isMobile ? (
-        <AuthSheet open={authOpen} onOpenChange={setAuthOpen} />
-      ) : (
-        <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
-      )}
+      {authUi}
     </div>
   );
 };

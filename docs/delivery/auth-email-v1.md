@@ -134,6 +134,10 @@ Email + Password → `Sign in`。成功后弹窗直接关闭，进入站内，**
 
 `index.html` 不再从 fonts.googleapis.com 加载字体。四款字体（Archivo 400/500/600/700、Space Grotesk 400/500/600/700、Bebas Neue、Anton）的 woff2 放在 `public/fonts/`，由 `public/fonts/fonts.css` 声明，字体族名不变。原因同本功能：国内打不开 Google。真平台照搬 `public/fonts/` 目录即可。
 
+## 7b. 登录门内注册的向导（2026-09-21 修）
+
+Portfolio / Wallet 这类「登录后才能看」的门（`LiteAuthGate`）里点 Sign in 注册新号：以前验证码一过门就放行，弹窗被一起卸掉，用户看不到 Create wallet → Complete profile。现在门放行后弹窗留在页面上继续走完向导；老号登录仍是弹窗直接关。
+
 ## 8. 不在本功能范围内
 
 Google 账号选择器、Wallet / Telegram 页签、createWallet 步的内容、LiteAuthGate 未登录门、Settings 里改邮箱的流程。
@@ -161,4 +165,5 @@ Google 账号选择器、Wallet / Telegram 页签、createWallet 步的内容、
 | 17 | 点 Change → 输当前邮箱 → Send links | 红边 + `That's already your email.` |
 | 18 | 输别人已注册的邮箱 | `This email is already registered.` |
 | 19 | 输新邮箱 → Send links | `Check both inboxes` + CURRENT / NEW 两行；Done 后卡片出现 `Pending` 徽标 + `✓ 60s`，刷新仍在 |
+| 21 | 未登录开 `/portfolio` → 门里的 Sign in → Other email → 注册新号 → 111111 | 门放行、Portfolio 内容出来，弹窗继续 `Create your wallet` → `Complete your profile` → Start trading 关闭 |
 | 20 | 两个邮箱各点一次链接（需真实邮箱） | 回到 /settings，toast `Email updated to {新}`，卡片显示新邮箱、徽标消失 |
