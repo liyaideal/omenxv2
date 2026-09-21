@@ -278,6 +278,8 @@ export const previewRegistry: Record<string, Loader> = {
   "trade-tr18": pick(trade, "Tr18Preview"),
   "trade-tr27": pick(trade, "Tr27Preview"),
   "trade-tr27b": pick(trade, "Tr27bPreview"),
+  "trade-tr27c": pick(trade, "Tr27cPreview"),
+  "trade-tr28": pick(trade, "Tr28Preview"),
   "trade-tr19": pick(trade, "Tr19Preview"),
   "trade-tr20": pick(trade, "Tr20Preview"),
   "trade-tr21": pick(trade, "Tr21Preview"),
@@ -291,6 +293,7 @@ export const previewRegistry: Record<string, Loader> = {
   "pro-spot-panel-buy-limit": pick(proSpot, "ProSpotPanelBuyLimit"),
   "pro-spot-panel-buy-shares": pick(proSpot, "ProSpotPanelBuyShares"),
   "pro-spot-panel-sell-held": pick(proSpot, "ProSpotPanelSellHeld"),
+  "pro-spot-panel-sell-limit": pick(proSpot, "ProSpotPanelSellLimit"),
   "pro-spot-panel-sell-held-down": pick(proSpot, "ProSpotPanelSellHeldDown"),
   "pro-spot-panel-sell-none": pick(proSpot, "ProSpotPanelSellNone"),
   "pro-spot-panel-insufficient": pick(proSpot, "ProSpotPanelInsufficient"),
@@ -315,6 +318,20 @@ export const previewRegistry: Record<string, Loader> = {
   "pro-trade-order-sell-flat": pick(proTrade, "ProTradeOrderSellFlat"),
   "pro-trade-order-leverage": pick(proTrade, "ProTradeOrderLeverage"),
   "pro-trade-order-buy-contracts": pick(proTrade, "ProTradeOrderBuyContracts"),
+  "pro-trade-order-buy-limit": pick(proTrade, "ProTradeOrderBuyLimit"),
+  "pro-trade-order-leverage-20": pick(proTrade, "ProTradeOrderLeverage20"),
+  "pro-trade-order-leverage-locked": pick(proTrade, "ProTradeOrderLeverageLocked"),
+  "pro-trade-order-close-only": pick(proTrade, "ProTradeOrderCloseOnly"),
+  "pro-risk-chip-mobile-zero": pick(proTrade, "RiskChipZero"),
+  // CT-D · desktop /trade panel (ProContractPanel)
+  "pro-contract-panel-buy": pick(proTrade, "ProContractPanelBuy"),
+  "pro-contract-panel-buy-contracts": pick(proTrade, "ProContractPanelBuyContracts"),
+  "pro-contract-panel-buy-limit": pick(proTrade, "ProContractPanelBuyLimit"),
+  "pro-contract-panel-sell": pick(proTrade, "ProContractPanelSell"),
+  "pro-contract-panel-sell-flat": pick(proTrade, "ProContractPanelSellFlat"),
+  "pro-contract-panel-leverage-locked": pick(proTrade, "ProContractPanelLeverageLocked"),
+  "pro-contract-panel-closed": pick(proTrade, "ProContractPanelClosed"),
+  "pro-contract-panel-close-only": pick(proTrade, "ProContractPanelCloseOnly"),
 
   /* -------- ES-1 · terminal event selector (both terminals) -------- */
   "event-selector-standard": pick(eventSelector, "EventSelectorStandard"),
@@ -330,6 +347,7 @@ export const previewRegistry: Record<string, Loader> = {
   "pro-market-row-football-open": pick(marketRow, "MarketRowFootballOpen"),
   "pro-market-row-mobile": pick(marketRow, "MarketRowMobile"),
   "pro-market-row-mobile-drawer": pick(marketRow, "MarketRowMobileDrawer"),
+  "pro-market-row-mobile-drawer-winner": pick(marketRow, "MarketRowMobileDrawerWinner"),
 
   /* -------- Pro /spot mobile（SP-2）-------- */
   "pro-spot-mobile-charts": pick(proSpot, "ProSpotMobileCharts"),

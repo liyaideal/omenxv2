@@ -42,6 +42,9 @@ const FEE_RATE = FUTURES_FEE_RATE;
 const PRESETS = [10, 25, 50, 100];
 const money = (n: number) => `$${n.toFixed(2)}`;
 
+/** 交易页收尾 #6 · Lite wording for the Pro RESTRICTION tier (Risk ≥ 95%): no new exposure until a position is closed. */
+export const BOOST_LIMIT_REACHED = "Boost limit reached — close a position first";
+
 export interface LiteContractOrderPanelProps {
   eventName: string;
   yesLabel: string;

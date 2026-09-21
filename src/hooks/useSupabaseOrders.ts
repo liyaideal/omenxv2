@@ -33,7 +33,7 @@ export interface SupabaseOrder {
 
 export const useSupabaseOrders = () => {
   const { user } = useAuth();
-  const { addSpotBalance } = useUserProfile();
+  const { addSpotBalance, addBalance } = useUserProfile();
   const queryClient = useQueryClient();
 
   // Fetch pending orders (status = 'Pending' or 'Partial Filled')
@@ -93,7 +93,7 @@ export const useSupabaseOrders = () => {
       if (!user?.id) throw new Error("Not authenticated");
       const { data: order, error: fetchError } = await supabase
         .from("trades")
-        .select("id, product_line, status")
+        .select("id, product_line, status, side, order_type, reduce_only, margin, fee")
         .eq("id", orderId)
         .eq("user_id", user.id)
         .maybeSingle();
@@ -112,6 +112,13 @@ export const useSupabaseOrders = () => {
         .eq("id", orderId)
         .eq("user_id", user.id);
       if (error) throw error;
+      // 交易页收尾 #1 · a resting futures Buy · Limit reserved margin + fee at
+      // placement (executeTrade balanceDelta) — cancelling gives it back.
+      // Reduce-only closes reserved nothing. (Before this, the reserve was lost.)
+      if (order.status === "Pending" && order.order_type === "Limit" && !order.reduce_only && order.side === "buy") {
+        const refund = (Number(order.margin) || 0) + (Number(order.fee) || 0);
+        if (refund > 0) await addBalance(refund);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pending-orders", user?.id] });

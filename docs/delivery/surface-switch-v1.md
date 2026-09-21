@@ -1,12 +1,12 @@
 # Surface switch（Lite / Pro）— 交付说明 v1
 
-> 这份文档说的是交易页上那对看法切换：桌面在页头右侧是一件 `Lite` / `Pro` 分段控件，手机上则是贴在底部下单条最左边的一枚方钮（写着"要去的那一边"）。以前"简单版 / 专业版"是整站的设置，藏在头像菜单里，切了以后首页、事件页、组合页、钱包全都跟着换脸；现在整站只剩一套外观（原来的简单版），只有交易页那两页还保留两种看法，所以开关只留在交易页上，登录后才出现，点一下当场换，网址不变、页面不跳。别的页面已经没有任何地方能切换外观了。怎么读：先看 §0，再按章节看；每个状态在 `/style-guide` → Foundations → Surface switch 有对应 case。
+> 这份文档说的是交易页上那对看法切换：桌面在页头右侧是一件 `Lite` / `Pro` 分段控件，手机上则是贴在底部下单条最左边的一枚方钮（写着"要去的那一边"）。以前"简单版 / 专业版"是整站的设置，藏在头像菜单里，切了以后首页、事件页、组合页、钱包全都跟着换脸；现在整站只剩一套外观（原来的简单版），只有交易页那两页还保留两种看法，所以开关只留在交易页上，登录后才出现，点一下当场换，网址不变、页面不跳。别的页面已经没有任何地方能切换外观了。怎么读：先看 §0，再按章节看；每个状态在 `/style-guide` → Pro — 交易终端 › 两终端共用 → Surface switch（`#foundations-surface-switch` 深链仍可用）有对应 case。
 
 ## 0. 读者须知
 
 查什么去哪儿：
 - 长什么样 → 生产页 `/trade`（也见 `/trade/order`、`/spot`）
-- 什么时候变成什么样 → `/style-guide` → Foundations → `Surface switch · Lite / Pro` 状态字典（SS-1…SS-5）
+- 什么时候变成什么样 → `/style-guide` → Pro — 交易终端 › 两终端共用 → `Surface switch · Lite / Pro` 状态字典（SS-1…SS-5；`#foundations-surface-switch` 深链仍可用）
 - 字段名、文案、公式、时间口径、术语 → `docs/copy-dictionary.md` → 本文档对应章节
 - 设计法则（颜色轴、chip、overlay 对等）→ `DESIGN.md`
 提问前先按上面顺序查一遍；查不到再提，提问时写明"我查了 X 没有"。
@@ -78,7 +78,7 @@
 
 | 模块 | `/style-guide` case |
 |---|---|
-| SurfaceSwitch 页头三态 + 贴底两向 + 尺寸与点击口径 | Foundations → Surface switch（`foundations-surface-switch`，SS-1…SS-5） |
+| SurfaceSwitch 页头三态 + 贴底两向 + 尺寸与点击口径 | Pro — 交易终端 › 两终端共用 → Surface switch（`#foundations-surface-switch` 深链仍可用，SS-1…SS-5） |
 
 ## 8. 涉及文件
 

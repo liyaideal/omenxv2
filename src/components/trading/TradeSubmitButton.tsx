@@ -29,6 +29,8 @@ interface TradeSubmitButtonProps {
    * neither string can ever be truncated at 360 px.
    */
   layout?: "row" | "stacked";
+  /** 交易页收尾 #6: drop the "To win $X" readout (close-only CTA — the number would mislead). */
+  hideWin?: boolean;
 }
 
 /**
@@ -49,6 +51,7 @@ export const TradeSubmitButton = ({
   positionSide,
   winPrefix = "To win",
   layout = "row",
+  hideWin = false,
 }: TradeSubmitButtonProps) => {
   const isBuy = side === "buy";
   const stacked = layout === "stacked";
@@ -107,12 +110,14 @@ export const TradeSubmitButton = ({
           <span className={cn("flex-1 text-left truncate", labelClass)}>
             {label}
           </span>
-          <span className="flex items-center gap-1.5 shrink-0 opacity-90">
-            <span className={cn("font-mono tracking-tight", winClass)}>
-              {winPrefix} <span className="font-semibold">${win}</span>
+          {!hideWin && (
+            <span className="flex items-center gap-1.5 shrink-0 opacity-90">
+              <span className={cn("font-mono tracking-tight", winClass)}>
+                {winPrefix} <span className="font-semibold">${win}</span>
+              </span>
+              <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
             </span>
-            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-          </span>
+          )}
         </span>
       )}
     </button>

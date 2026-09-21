@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Gift } from "lucide-react";
 import { MobileTradingLayout, TradingContextData } from "@/components/MobileTradingLayout";
@@ -12,6 +12,8 @@ import { AirdropPositionCard } from "@/components/AirdropPositionCard";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { usePositions } from "@/hooks/usePositions";
 import { useOrders } from "@/hooks/useOrders";
+import { useContractLimitFills } from "@/hooks/useContractLimitFills";
+import { useAuth } from "@/hooks/useAuth";
 import { useAnimatedOrderBook } from "@/hooks/useAnimatedOrderBook";
 import { useAnimatedTradesHistory } from "@/hooks/useAnimatedTradesHistory";
 import { tradingStats } from "@/lib/tradingUtils";
@@ -32,11 +34,28 @@ interface TradingChartsContentProps {
 function TradingChartsContent({ selectedEvent, selectedOptionData, options }: TradingChartsContentProps) {
   const navigate = useNavigate();
   // /trade (mobile Charts) is futures-only — filter spot out at the hook boundary.
-  const { positions: allPositions, isLoading: positionsLoading } = usePositions();
+  const { positions: allPositions, isLoading: positionsLoading, refetch: refetchPositions } = usePositions();
   const positions = useMemo(() => allPositions.filter((p) => p.productLine !== "spot"), [allPositions]);
   const { pendingAirdrops, activateAirdrop, isActivating } = useAirdropPositions();
-  const { orders: allOrders, isLoading: ordersLoading } = useOrders();
+  const { orders: allOrders, isLoading: ordersLoading, refetch: refetchOrders } = useOrders();
   const orders = useMemo(() => allOrders.filter((o) => (o.productLine ?? "futures") !== "spot"), [allOrders]);
+  // 交易页收尾 #1 · resting Buy · Limit orders fill here too (mobile shell), mark ≤ limit.
+  const { user } = useAuth();
+  const markForLimitFill = useCallback(
+    (label: string) => {
+      const opt = options.find((o) => o.label === label);
+      return opt ? parseFloat(opt.price) || 0 : 0;
+    },
+    [options],
+  );
+  useContractLimitFills({
+    userId: user?.id,
+    eventName: selectedEvent.name,
+    orders,
+    markFor: markForLimitFill,
+    refetchOrders,
+    refetchPositions,
+  });
   const { profile } = useUserProfile();
   const totalPositionCount = positions.length + pendingAirdrops.length;
 

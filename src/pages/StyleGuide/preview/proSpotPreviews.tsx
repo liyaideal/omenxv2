@@ -150,6 +150,10 @@ export const ProSpotPanelBuyShares = () => <PanelFixture amountMode="units" amou
 export const ProSpotPanelSellHeld = () => (
   <PanelFixture side="sell" amount="40.512" heldYesQty={40.512} heldNoQty={0} />
 );
+/** SP-B2b · Sell · Limit — held shares, limit above mark: the sell rests as Pending, shares stay locked. */
+export const ProSpotPanelSellLimit = () => (
+  <PanelFixture side="sell" orderType="Limit" amount="20" heldYesQty={40.512} heldNoQty={0} />
+);
 
 /** SP-B3b · Sell a Down-only holding with a fractional size (2,034.879 sh).
  *  Guards SP-1-FIX3 Bug 1: the held side must follow the position's option,
@@ -524,7 +528,7 @@ const PF_ORDERS = [
   { id: "sg-pf-3", event: "Solana — up or down?", option: "Down", type: "sell", orderType: "Limit", price: "$0.5200", amount: "300", total: "$156.00", status: "Cancelled" },
 ];
 
-/** PF-D1 · desktop /spot Current Orders with a Partial Filled row (hover the badge). */
+/** OS-D1 · desktop /spot Current Orders with a Partial Filled row (hover the badge). */
 export const OrderStatusDesktop = () => {
   const t = spotFixture({ spotOrders: PF_ORDERS, frozenCancelledIds: new Set<string>(), isCancelling: false, handleCancelSpotOrder: async () => undefined } as unknown as Partial<SpotTerminal>);
   return (
@@ -534,7 +538,7 @@ export const OrderStatusDesktop = () => {
   );
 };
 
-/** PF-M1 · mobile order cards with a Partial Filled row (tap the badge). */
+/** OS-M1 · mobile order cards with a Partial Filled row (tap the badge). */
 export const OrderStatusMobile = () => {
   const t = spotFixture({ spotOrders: PF_ORDERS, frozenCancelledIds: new Set<string>(), isCancelling: false, handleCancelSpotOrder: async () => undefined } as unknown as Partial<SpotTerminal>);
   return (

@@ -97,6 +97,8 @@ const Panel = ({
   remainderAutoCloseNone,
   countdown = "02:14:09",
   limitHint,
+  yesLabel = "Yes",
+  noLabel = "No",
 }: {
   side0?: "yes" | "no";
   amount0?: string;
@@ -114,6 +116,9 @@ const Panel = ({
   countdown?: string;
   /** SW-2：强制显示 `Want to place a limit order? Pro ›` 脚注。 */
   limitHint?: boolean;
+  /** TR-27c：多 market 选项名。 */
+  yesLabel?: string;
+  noLabel?: string;
 }) => {
   const isMobile = useIsMobile();
   const [side, setSide] = useState<"yes" | "no">(side0);
@@ -123,8 +128,8 @@ const Panel = ({
     <div className="bg-background p-4">
       <LiteContractOrderPanel
         eventName={TITLE}
-        yesLabel="Yes"
-        noLabel="No"
+        yesLabel={yesLabel}
+        noLabel={noLabel}
         yesPrice={yesPrice}
         noPrice={Number((1 - yesPrice).toFixed(2))}
         yesOptionId="tr-yes"
@@ -167,6 +172,10 @@ export const Tr5Preview = () => <Panel />;
 export const Tr27Preview = () => <Panel limitHint />;
 /** TR-27b · 同一账号未进过 Pro，但已输入金额 → 入口让位给风险句（OR 规则）。 */
 export const Tr27bPreview = () => <Panel limitHint amount0="25" />;
+/** TR-27c · 多 market 事件（选项名非 Yes/No）同一行位的入口。 */
+export const Tr27cPreview = () => <Panel limitHint yesLabel="Charles Leclerc" noLabel="Not Leclerc" />;
+/** TR-28 · Boost limit reached（Pro RESTRICTION 档 Risk ≥ 95% 的 Lite 写法）：CTA 置灰。 */
+export const Tr28Preview = () => <Panel amount0="25" blocked blockedReason="Boost limit reached — close a position first" />;
 export const Tr6Preview = () => <Panel side0="no" amount0="25" />;
 export const Tr7Preview = () => <Panel amount0="25" boost0={7} boostTrayOpen />;
 export const Tr8Preview = () => (

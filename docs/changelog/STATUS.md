@@ -17,6 +17,21 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-09-21 — 交易页收尾 TC-1（[文档](../delivery/trade-close-out-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| TC-1 | 合约 Buy · Limit：Price 框生效、张数按限价、预留 margin + fee、限价 < 侧价挂单 / ≥ 侧价按现价成交、mark ≤ 限价按限价成交、撤单退预留 | ✅ | 蓝图 touch-fill 在前端（`useContractLimitFills`）；正式版后端撮合 |
+| TC-2 | 三选一 No 侧：CTA `Buy Not {option}`，Side 写 `Not {option}`；切换钮仍 Yes / No | ✅ | `getIntentLabel(…, multiOutcome)` |
+| TC-3 | 别名 binary No 侧全站显示别名（`Heroic`），`short` 只在后端 | ✅ | 无代码改动，字典 CT-M7 + 词典 |
+| TC-4 | Pro 杠杆上限 = `category_boost_configs.max_leverage`，档位 `boostTiers`，1× 锁死 + `Boost not available for this category` | ✅ | sports 3× / crypto 10× / macro · social 5× / 其余 1× |
+| TC-5 | `SUSPENDED` → 合约 `Suspended · cancel only`（Lite `Suspended`），撤单可点 | ✅ | `contractGate` |
+| TC-6 | Risk ≥ 95%：Pro Buy 开仓 / 加仓 `Close-only · Risk x%`；Lite `Boost limit reached — close a position first`；Equity ≤ 0 → Risk 100 | ✅ | UI 侧；服务端校验待正式后端 |
+| TC-7 | 字典 OS-D1 / OS-M1（原 PF-D1 / PF-M1，09-21 改号） → OS-D1 / OS-M1 | ✅ | preview key 不变 |
+| TC-8 | Lite `Pro ›` 入口按账号 + 设备（换设备再看一次）— 文档化 | ➖ | 不改 |
+| TC-9 | `ProContractPanel` 抽件（零视觉变化）+ 字典 CT-D1…D6 / DK-D1 / RM-D1 | ✅ | `src/components/pro/ProContractPanel.tsx` |
+| TC-10 | 字典补 CT-M8 / CT-M5b / M5c / RM-M0 / RM-M3 / SP-B2b / SL-M3 / TR-27c / TR-28；词典补 11 行；文档残留清理（IM/Equity、ct/sh、旧节点名、DESIGN LOCKED 现货页头废止注） | ✅ | |
+
 ## 2026-09-19 — 邮箱 + 密码登录 EM-1（[文档](../delivery/auth-email-v1.md)）
 
 | # | 项 | Status | Notes |
@@ -65,7 +80,7 @@
 |---|---|---|---|
 | PF-A | `OrderStatusBadge`：Partial Filled 桌面 hover / 手机点开成交明细（Fill progress + Filled / Remaining） | ⬜ | 四个挂载点同一组件 |
 | PF-B | 研发撮合需回传 filled 数量（蓝图引擎整单成交，不模拟） | ⬜ | 后端 |
-| PF-C | 字典 PF-D1 / PF-M1 | ⬜ | |
+| PF-C | 字典 OS-D1 / OS-M1（原 PF-D1 / PF-M1，09-21 改号） | ⬜ | |
 
 ## 2026-09-17 — Pro 终端不可下单态 DK-1（[文档](../delivery/pro-order-gate-v1.md)）
 

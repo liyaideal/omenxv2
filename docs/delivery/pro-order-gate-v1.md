@@ -18,7 +18,7 @@
 | 条 | 规则 |
 |---|---|
 | A 形态 | 手机图表页封锁时，dock = Lite/Pro 开关 + **一条禁用条**（`bg-muted/40` · `text-muted-foreground` · 无箭头 · 不可点）；两个 Yes/No 钮消失；右上角 `Tap to switch view · tap again to trade` 隐藏；`Available … USDC` 行保留。`/spot` 与 `/trade` 用同一个组件 `ProSpotMobileDock` |
-| B 文案 | 禁用条与下单 CTA 只印原因，不新造词。现货：`Market frozen` / `Settling` / `Settled` / `Suspended · cancel only` / `In review` / `Market unavailable`（`getBlockedReason`）。合约：`Settled`（已结算）/ `In review`（lifecycle REVIEW）/ `Closed`（过 freeze_time 或 end_date）——与 Lite 合约页相同 |
+| B 文案 | 禁用条与下单 CTA 只印原因，不新造词。现货：`Market frozen` / `Settling`（引擎内部态，UI 不外显；用户看到的是 `Market frozen` 直到 `Settled`）/ `Settled` / `Suspended · cancel only` / `In review` / `Market unavailable`（`getBlockedReason`）。合约：`Settled`（已结算）/ `In review`（lifecycle REVIEW）/ `Closed`（过 freeze_time 或 end_date）——与 Lite 合约页相同 |
 | C 条件 | `/spot`：现有判断不变（`useSpotTerminal.blocked`）。`/trade`：新增 `lib/contractGate.ts` — `is_resolved` → Settled；`lifecycle_status === "REVIEW"` → In review；`freeze_time ≤ now` 或 `end_date ≤ now` → Closed。其他 lifecycle 不封锁（同 Lite 合约） |
 | D 点击 | 禁用条不响应点击；`/trade/order` 面板 Buy / Sell 两个 CTA 禁用并印原因；桌面 `/trade` 面板 Buy / Sell CTA 同样禁用印原因（桌面 `/spot` 原本如此），`handlePreview` / `handleSellPreview` 兜底 toast |
 | E 不动 | `SUSPENDED` 仍可撤单；Lite 两页不动；引擎不动；`/spot` 的封锁条件不动 |

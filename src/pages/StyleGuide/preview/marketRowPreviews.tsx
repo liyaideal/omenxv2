@@ -122,3 +122,10 @@ export const MarketRowMobileDrawer = () => (
     <Row fixture={ES_FIXTURE} siblings={ES_SIBLINGS} initial={`${FX}-maphcp-m1p5`} variant="mobile" open="grp-series:h" />
   </div>
 );
+
+/** SL-M3 · mobile picker drawer · football Winner (Home / Draw / Away, one price each). */
+export const MarketRowMobileDrawerWinner = () => (
+  <div style={{ width: 375, height: 560 }}>
+    <Row fixture={FB_FIXTURE} siblings={FB_SIBLINGS} initial={`${FB}#${FB}-d`} variant="mobile" open="winner" />
+  </div>
+);

@@ -1486,3 +1486,91 @@ export const fillSpotLimitOrder = async (userId: string, tradeId: string) => {
 };
 
 
+
+// ------------------------------------------------------------
+// 交易页收尾 #1 · DEMO-STATE: fill a resting futures Buy · Limit order once
+// the mark touches the limit. Margin + fee were reserved at placement
+// (balanceDelta there = −(margin + fee)), so the fill moves no cash: it only
+// turns the Pending trade into an open / merged position at the LIMIT price.
+// Never nets against an opposite leg — classifyOrderIntent refuses to place a
+// resting order across zero, so an opposite leg cannot exist at placement.
+// Production matching happens on the backend; the client only simulates.
+// ------------------------------------------------------------
+export const fillContractLimitOrder = async (userId: string, tradeId: string) => {
+  const { data: trade, error } = await supabase
+    .from("trades")
+    .select("*")
+    .eq("id", tradeId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error) throw error;
+  if (!trade || trade.status !== "Pending" || trade.order_type !== "Limit" || trade.reduce_only) {
+    return { intent: "noop" as const };
+  }
+  const price = Number(trade.price);
+  const qty = Number(trade.quantity);
+  const margin = Number(trade.margin);
+  const lev = Number(trade.leverage) || 1;
+  const positionSide: "long" | "short" = trade.side === "buy" ? "long" : "short";
+
+  let resolvedOptionId: string | null = null;
+  try {
+    const { data: ev } = await supabase.from("events").select("id").eq("name", trade.event_name).maybeSingle();
+    if (ev?.id) {
+      const { data: opt } = await supabase
+        .from("event_options")
+        .select("id")
+        .eq("event_id", ev.id)
+        .eq("label", trade.option_label)
+        .maybeSingle();
+      resolvedOptionId = opt?.id ?? null;
+    }
+  } catch (_) { /* label match on the settle side still works */ }
+
+  const { data: existing } = await supabase
+    .from("positions")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("event_name", trade.event_name)
+    .eq("option_label", trade.option_label)
+    .eq("side", positionSide)
+    .eq("status", "Open")
+    .maybeSingle();
+
+  const now = new Date().toISOString();
+  if (existing) {
+    const oldSize = Number(existing.size);
+    const newSize = oldSize + qty;
+    const newMargin = Number(existing.margin) + margin;
+    const weightedEntry = (oldSize * Number(existing.entry_price) + qty * price) / newSize;
+    const existingNotional = Number(existing.margin) * Number(existing.leverage);
+    const newLeverage = newMargin > 0 ? Math.round(((existingNotional + qty * price) / newMargin) * 100) / 100 : lev;
+    await supabase
+      .from("positions")
+      .update({ size: newSize, margin: newMargin, entry_price: weightedEntry, leverage: newLeverage, mark_price: price, updated_at: now })
+      .eq("id", existing.id);
+  } else {
+    await supabase.from("positions").insert({
+      user_id: userId,
+      trade_id: trade.id,
+      event_name: trade.event_name,
+      option_label: trade.option_label,
+      option_id: resolvedOptionId,
+      side: positionSide,
+      entry_price: price,
+      mark_price: price,
+      size: qty,
+      margin,
+      leverage: lev,
+      pnl: 0,
+      pnl_percent: 0,
+      tp_value: trade.tp_value,
+      tp_mode: trade.tp_mode,
+      sl_value: trade.sl_value,
+      sl_mode: trade.sl_mode,
+      status: "Open",
+    });
+  }
+  await supabase.from("trades").update({ status: "Filled" }).eq("id", trade.id);
+  return { intent: existing ? ("add" as const) : ("open" as const) };
+};

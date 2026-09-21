@@ -17,6 +17,8 @@ import { ClosePositionDialog } from "@/components/positions/ClosePositionDialog"
 
 import { MM_RATIO } from "@/lib/autoClosePrice";
 import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
+import { useCategoryBoostConfigs, boostTiers } from "@/hooks/useCategoryBoostConfigs";
+import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import { TradeSubmitButton } from "@/components/trading/TradeSubmitButton";
 import { consumeOpenLimit } from "@/lib/proHandoff";
 
@@ -64,6 +66,12 @@ interface TradeFormProps {
   /** Style-guide only: force the Buy amount unit (production reads the shared store). */
   previewAmountMode?: "usdc" | "units";
   previewUnits?: string;
+  /** 交易页收尾 #4 · event category → leverage cap from category_boost_configs (same source as Lite Boost). */
+  eventCategory?: string | null;
+  /** Style-guide only: leverage cap / Buy · Limit price / risk tier fixtures. */
+  previewLeverageMax?: number;
+  previewLimitPrice?: string;
+  previewRiskRatio?: number;
 }
 
 
@@ -86,6 +94,10 @@ export const TradeForm = ({
   previewLeverageOpen,
   previewAmountMode,
   previewUnits,
+  eventCategory,
+  previewLeverageMax,
+  previewLimitPrice,
+  previewRiskRatio,
 }: TradeFormProps) => {
   const navigate = useNavigate();
   const { balance: liveBalance } = useUserProfile();
@@ -108,6 +120,19 @@ export const TradeForm = ({
     onIntentChange?.(next);
   };
   const [leverage, setLeverage] = useState(10);
+  // 交易页收尾 #4 · leverage cap follows the category (1 = Boost not available → locked at 1×).
+  const { getConfig: getBoostConfig } = useCategoryBoostConfigs();
+  const leverageMax = previewLeverageMax ?? Math.max(1, getBoostConfig(eventCategory).maxBoost);
+  const leverageTiers = useMemo(() => boostTiers(leverageMax), [leverageMax]);
+  useEffect(() => {
+    if (leverage > leverageMax) setLeverage(leverageMax);
+  }, [leverage, leverageMax]);
+  // 交易页收尾 #6 · RESTRICTION tier (Risk ≥ 95%) = close-only on the Buy tab.
+  const liveRisk = useRealtimeRiskMetrics();
+  const riskRatio = previewRiskRatio ?? liveRisk.riskRatio;
+  const closeOnly = riskRatio >= 95;
+  // 交易页收尾 #1 · Buy · Limit price box (real): below the side price → rests as Pending.
+  const [limitPrice, setLimitPrice] = useState(previewLimitPrice ?? "");
   const [leverageOpen, setLeverageOpen] = useState(!!previewLeverageOpen);
   const [orderType, setOrderType] = useState<ProOrderType>(
     () => previewOrderType ?? (consumeOpenLimit() ? "Limit" : "Market"),
@@ -127,7 +152,10 @@ export const TradeForm = ({
   const longPrice = parseFloat(selectedPrice);
   const shortPrice = +(1 - longPrice).toFixed(4);
   // Side-specific execution price (Buy = Yes, Sell = No)
-  const currentPrice = side === "buy" ? longPrice : shortPrice;
+  const sidePrice = side === "buy" ? longPrice : shortPrice;
+  const buyLimitVal = parseFloat(limitPrice) || 0;
+  const buyLimitPending = orderType === "Limit" && buyLimitVal > 0 && buyLimitVal < sidePrice - 1e-9;
+  const currentPrice = buyLimitPending ? buyLimitVal : sidePrice;
 
   // QO-1 · Buy amount entered in USDC (margin) or in contracts. `amount` stays the
   // canonical USDC margin; in units mode it is derived from the typed contracts.
@@ -252,6 +280,12 @@ export const TradeForm = ({
     clickedPrice: currentPrice,
     leverage,
   }), [positions, eventName, optionLabel, side, orderCalculations.quantity, currentPrice, leverage]);
+
+  const buyBlockedReason =
+    blockedReason ||
+    (closeOnly && (orderIntent.kind === "open" || orderIntent.kind === "add")
+      ? `Close-only · Risk ${Math.round(riskRatio)}%`
+      : "");
 
   const displayCalculations = useMemo(() => {
     const estimatedFee = orderIntent.tradedNotional * feeRate;
@@ -517,9 +551,12 @@ export const TradeForm = ({
       >
         <div className="space-y-4 pb-2">
           <div className="text-center font-mono text-3xl font-semibold">{leverage}x</div>
-          <Slider value={[leverage]} onValueChange={(v) => setLeverage(v[0])} min={1} max={10} step={1} />
+          {leverageMax <= 1 && (
+            <p className="text-center text-xs text-muted-foreground">Boost not available for this category</p>
+          )}
+          <Slider value={[leverage]} onValueChange={(v) => setLeverage(v[0])} min={1} max={Math.max(1, leverageMax)} step={1} disabled={leverageMax <= 1} />
           <div className="flex gap-1.5">
-            {[1, 2, 5, 7, 10].map((lev) => (
+            {leverageTiers.map((lev) => (
               <button
                 key={lev}
                 type="button"
@@ -551,6 +588,29 @@ export const TradeForm = ({
         </div>
       </div>
 
+
+      {/* 交易页收尾 #1 · Price (Limit orders) — same box as the desktop panel */}
+      {orderType === "Limit" && (
+        <div className="space-y-0.5">
+          <span className="text-[10px] text-muted-foreground">Price</span>
+          <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
+            <input
+              type="text"
+              value={limitPrice || sidePrice.toFixed(4)}
+              onChange={(e) => setLimitPrice(e.target.value)}
+              className="flex-1 bg-transparent outline-none font-mono text-xs"
+              placeholder="0.0000"
+              inputMode="decimal"
+            />
+            <span className="text-muted-foreground text-[10px]">USDC</span>
+          </div>
+          {buyLimitPending && (
+            <p className="text-[10px] text-muted-foreground">
+              Limit below mark — order will rest as Pending until touched.
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Amount/Qty Input */}
       <div className="space-y-0.5">
@@ -753,10 +813,11 @@ export const TradeForm = ({
       {/* Submit Button */}
       <TradeSubmitButton
         side={side}
-        label={blockedReason || getIntentLabel(orderIntent, side, sideLabels)}
+        label={buyBlockedReason || getIntentLabel(orderIntent, side, sideLabels, !binaryMode && !sideLabels)}
         potentialWin={parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
         onClick={handlePreview}
-        disabled={!!blockedReason || orderIntent.kind === "blocked-cross-zero"}
+        disabled={!!buyBlockedReason || orderIntent.kind === "blocked-cross-zero"}
+        hideWin={buyBlockedReason.startsWith("Close-only")}
         size="sm"
         positionSide={binaryMode ? (binaryMode.isYesSelected ? "yes" : "no") : undefined}
       />

@@ -24,7 +24,7 @@
 |---|---|
 | 仓位模型 | **一个交易对上只有一个仓位**（同一用户 + 同一结果 + 同一方向合并为一行，全仓保证金）。同向再买 = 加仓：数量相加、保证金相加、入场价按数量加权、有效杠杆重算。没有"分批""先进先出"的概念。 |
 | Buy 页签 | = 原面板（Yes/No 切换、杠杆、金额、TP/SL、摘要、CTA）。行为未变，包括"买反向结果时自动净额抵扣"的既有逻辑。 |
-| Sell 页签 | **只减仓 / 平仓**当前结果上已持有的仓位。空仓时两侧禁用并显示 `No position to close yet`；只持一侧时另一侧禁用并在价格条显示 `0 ct`。选边只切换结果，不改变方向。 |
+| Sell 页签 | **只减仓 / 平仓**当前结果上已持有的仓位。空仓时两侧禁用并显示 `No position to close yet`；只持一侧时另一侧禁用并在价格条显示 `0 contracts`。选边只切换结果，不改变方向。 |
 | 永不反向 | Sell 数量上限 = 持仓数量，超出即钳到持仓数量（全平）。没有"卖出超过持仓变成开空"这回事。 |
 | 单位 | 合约张数，全词 `contracts`（Amount 后缀 `Contracts`），整数，不用缩写。滑杆 25 / 50 / 75 / 100% 取整；100% = 精确持仓数量。 |
 | 市价平仓 | 与持仓表 Close 按钮**同一条路径**（`partialClosePosition`）：释放对应比例保证金 + 已实现盈亏 − 赢利佣金，写账本，弹 `Cashed out · $X back`。 |
@@ -60,7 +60,7 @@
 
 ## 5. 文案（已入 copy-dictionary Trading 节）
 
-`Buy` / `Sell`（页签）· `Held` · `contracts` / `shares`（单位全词）· `Close price` / `Close price (mark)` · `Contracts` · `Released margin` · `Realized PnL est.` · `Est. commission` · `You receive` · `Close {outcome}` / `Reduce {outcome}` · `Reduce-only` · `No position to close yet` · `Limit above/below mark — order will rest as Pending until touched.` · `Cashed out · $X back`（成交 toast，沿用）· `Limit close filled · N ct`（限价平仓成交附加 toast）。
+`Buy` / `Sell`（页签）· `Held` · `contracts` / `shares`（单位全词）· `Close price` / `Close price (mark)` · `Contracts` · `Released margin` · `Realized PnL est.` · `Est. commission` · `You receive` · `Close {outcome}` / `Reduce {outcome}` · `Reduce-only` · `No position to close yet` · `Limit above/below mark — order will rest as Pending until touched.` · `Cashed out · $X back`（成交 toast，沿用）· `Limit close filled · N contracts`（限价平仓成交附加 toast）。
 
 ## 6. 数据
 
@@ -71,14 +71,14 @@
 
 ## 7. 算例
 
-持仓 40 ct · Up · 5x · entry 0.6200 · 保证金 4.96，mark 0.6800，全平 40 ct：
+持仓 40 contracts · Up · 5x · entry 0.6200 · 保证金 4.96，mark 0.6800，全平 40 contracts：
 - Released margin = 4.96 × 40/40 = **4.96**
 - Realized PnL = (0.68 − 0.62) × 40 = **+2.40**
 - 已分摊开仓费 = 0.62 × 40 × 0.0015 = 0.0372
 - Est. commission = 5% × (2.40 − 0.0372) = **0.12**
 - You receive = 4.96 + 2.40 − 0.12 = **7.24**
 
-减仓 20 ct：以上各项 × 20/40（Released 2.48，PnL +1.20，佣金 0.06，You receive 3.62）。
+减仓 20 contracts：以上各项 × 20/40（Released 2.48，PnL +1.20，佣金 0.06，You receive 3.62）。
 
 ## 8. 已知缺口与蓝图说明（提缺陷前先对表）
 

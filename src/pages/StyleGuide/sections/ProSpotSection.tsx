@@ -32,6 +32,13 @@ const PANEL_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "pro-spot-panel-sell-limit",
+    label: "SP-B2b · Sell · Limit（持 40.512 shares，挂 20 shares）",
+    spec: [
+      { state: "Sell · Limit", when: 'side === "sell" && orderType === "Limit"', visual: "Limit price 输入（默认 mark）；卖出限价 > mark → Pending（份额**不锁定**：下单时校验持有 ≥ 数量，成交时再校验，不够则该单自动 Cancelled），mark 涨到 ≥ 限价时按限价成交、`Limit sell filled · $X to wallet` toast；撤单不退钱（没扣过）", source: "ProSpotPanel.orderType · useSpotTerminal（placeSpotLimitOrder / fillSpotLimitOrder）" },
+    ],
+  },
+  {
     key: "pro-spot-panel-buy-shares",
     label: "SP-B1b · Buy · Shares 模式（QO-1）",
     note: "按数量下单：Amount 输入框的后缀本身是单位下拉 `USDC ▾ / Shares ▾`（不加独立切换图标、不加行）。Shares 模式下输入的是份额，Cost = 份额 × 预计成交价，滑杆 100% = 可用 ÷ 价格；切回 USDC 时把当前份额换算成金额带过去。模式按设备记忆，两个终端共用。Sell 页签不变。",
@@ -51,7 +58,7 @@ const PANEL_CASES: SectionCase[] = [
       {
         state: "未持有的一边禁用",
         when: 'side === "sell" && heldNoQty <= 0',
-        visual: "该 tile opacity-40 pointer-events-none，价格条文案变 `0 shares`；金额单位变 sh；汇总为 Proceeds / Shares / Est. commission / You receive",
+        visual: "该 tile opacity-40 pointer-events-none，价格条文案变 `0 shares`；金额单位变 shares；汇总为 Proceeds / Shares / Est. commission / You receive",
         source: "ProSpotPanel.heldYesQty / heldNoQty",
       },
       {
@@ -64,13 +71,13 @@ const PANEL_CASES: SectionCase[] = [
   },
   {
     key: "pro-spot-panel-sell-held-down",
-    label: "SP-B3b · Sell · 仅持有 Down（2,034.879 sh）",
+    label: "SP-B3b · Sell · 仅持有 Down（2,034.879 shares）",
     note: "回归护栏（SP-1-FIX3 Bug 1）：持有哪一边由持仓的 option_id 决定，与 Holdings 表 Outcome 列同源；Up tile 禁用显示 `0 shares`。数量全链路取精确值——Held 行、Amount 预填、滑杆 100%、校验与下单请求都是 2034.879。",
     spec: [
       {
         state: "Down-only 持仓",
         when: 'side === "sell" && heldYesQty === 0 && heldNoQty === 2034.879',
-        visual: "Down tile 选中，Up tile 禁用 `0 shares`；`Held · 2,034.879 sh Down`；Amount `2034.879`；CTA `Sell Down · You receive $X`",
+        visual: "Down tile 选中，Up tile 禁用 `0 shares`；`Held · 2,034.879 shares · Down`；Amount `2034.879`；CTA `Sell Down · You receive $X`",
         source: "SpotTrading heldYesQty / heldNoQty（经 side_labels 解析 option）",
       },
       {
@@ -164,9 +171,23 @@ const TRADE_ORDER_LEVERAGE_CASES: SectionCase[] = [
       {
         state: "Leverage 抽屉打开",
         when: "leverageOpen",
-        visual: "标题 Leverage + 一句说明 → 大号 `10x` → Slider 1–10 → 1x/2x/5x/7x/10x 芯片（选中 bg-muted）→ Done",
-        source: "TradeForm（MobileDrawer）",
+        visual: "标题 Leverage + 一句说明 → 大号 `10x` → Slider 1–上限 → 档位芯片（选中 bg-muted）→ Done。上限 = 品类 `category_boost_configs.max_leverage`（与 Lite Boost 同源，crypto 10× / sports 3× / macro 5×），档位 = `boostTiers(max)`",
+        source: "TradeForm（MobileDrawer）· useCategoryBoostConfigs",
       },
+    ],
+  },
+  {
+    key: "pro-trade-order-leverage-20",
+    label: "CT-M5b · Leverage 抽屉 · 品类上限 20×（档位 1 / 2 / 5 / 20）",
+    spec: [
+      { state: "max 20", when: "getConfig(category).maxBoost === 20", visual: "Slider 1–20；芯片 1x / 2x / 5x / 20x", source: "boostTiers(20)" },
+    ],
+  },
+  {
+    key: "pro-trade-order-leverage-locked",
+    label: "CT-M5c · Leverage 抽屉 · 该品类未开 Boost（锁死 1×）",
+    spec: [
+      { state: "locked", when: "!getConfig(category).enabled（stocks / tech / politics …）", visual: "一行 `Boost not available for this category`，Slider 禁用停在 1x，芯片只有 1x", source: "TradeForm（leverageMax = 1）" },
     ],
   },
 ];
@@ -278,6 +299,13 @@ const MARKET_ROW_DRAWER_CASES: SectionCase[] = [
       { state: "抽屉", when: "点带 ▾ 的芯片", visual: "MobileDrawer，标题 = 组名；行卡片 = 线位 + 两侧价；当前行 bg-primary/10 描边；选中即关闭并切事件", source: "MarketLineRow · MobileDrawer" },
     ],
   },
+  {
+    key: "pro-market-row-mobile-drawer-winner",
+    label: "SL-M3 · 手机线位抽屉（足球 Winner 三选一：主 / 平 / 客）",
+    spec: [
+      { state: "三选一", when: "Winner 组 line.single", visual: "每行一个 outcome + 一个价格；选中留在同一事件、切 option（URL `line=<event>#<option>`）", source: "MarketLineRow · MobileDrawer（single）" },
+    ],
+  },
 ];
 
 const EVENT_SELECTOR_MOBILE_CASES: SectionCase[] = [
@@ -300,10 +328,10 @@ const TRADE_DOCK_CASES: SectionCase[] = [
   {
     key: "pro-trade-mobile-dock",
     label: "DK-M1 · /trade 手机图表页 sticky dock 五态（与 /spot 同一组件）",
-    note: "TradingCharts 自绘的 dock 已换成 ProSpotMobileDock（DK-1），两条线一个组件。封锁三种原因：Closed / In review / Settled。",
+    note: "TradingCharts 自绘的 dock 已换成 ProSpotMobileDock（DK-1），两条线一个组件。封锁四种原因：Closed / In review / Suspended · cancel only / Settled（交易页收尾 #5 起合约与现货同口径，SUSPENDED 只许撤单）。",
     spec: [
-      { state: "default / No 选中", when: "selected === 'yes' | 'no'", visual: "选中一边描边 + 箭头；第二次点跳 /trade/order", source: "ProSpotMobileDock（TradingCharts）" },
-      { state: "closed / in review / settled", when: "useContractGate(event).blocked", visual: "两钮收成一条禁用条，只印一次原因；`tap again to trade` 隐藏；Lite/Pro 开关保留", source: "ProSpotMobileDock · lib/contractGate" },
+      { state: "default / 选中一边", when: "selected === 'yes' | 'no'（首屏始终一侧激活，无超时复位）", visual: "选中一边描边 + 箭头；点另一边 = 切边，再点同一边 = 跳 /trade/order", source: "ProSpotMobileDock（TradingCharts）" },
+      { state: "closed / in review / suspended / settled", when: "useContractGate(event).blocked（isResolved → Settled；lifecycle REVIEW → In review；lifecycle SUSPENDED → Suspended · cancel only；过 freeze_time / end_date → Closed）", visual: "两钮收成一条禁用条，只印一次原因；`tap again to trade` 隐藏；Lite/Pro 开关保留", source: "ProSpotMobileDock · lib/contractGate" },
     ],
   },
 ];
@@ -311,7 +339,7 @@ const TRADE_DOCK_CASES: SectionCase[] = [
 const ORDER_STATUS_CASES: SectionCase[] = [
   {
     key: "pro-order-status-desktop",
-    label: "PF-D1 · 桌面 Current Orders 状态标：Partial Filled hover 成交明细",
+    label: "OS-D1 · 桌面 Current Orders 状态标：Partial Filled hover 成交明细",
     note: "同一个 `OrderStatusBadge` 挂在桌面 /trade 与 /spot 的 Current Orders 表。蓝图引擎限价单整单成交，Partial Filled 态生产不可达，此处给研发看规格。",
     spec: [
       { state: "Partial Filled", when: 'status === "Partial Filled"', visual: "青色标，hover 弹 `Fill progress 480 / 1,200 (40%)` + 进度条 + `Filled` / `Remaining` 两行", source: "OrderStatusBadge variant=desktop（HoverCard）" },
@@ -323,7 +351,7 @@ const ORDER_STATUS_CASES: SectionCase[] = [
 const ORDER_STATUS_MOBILE_CASES: SectionCase[] = [
   {
     key: "pro-order-status-mobile",
-    label: "PF-M1 · 手机订单卡状态标：点一下弹成交明细（合约 OrderCard + 现货卡）",
+    label: "OS-M1 · 手机订单卡状态标：点一下弹成交明细（合约 OrderCard + 现货卡）",
     spec: [
       { state: "Partial Filled · 展开", when: "点状态标", visual: "Popover 同桌面内容；再点或点外面收起", source: "OrderStatusBadge variant=mobile（Popover）" },
     ],
@@ -346,6 +374,82 @@ const RISK_MOBILE_CASES: SectionCase[] = [
       { state: "展开", when: "点页头方块", visual: "Margin Mode / Account Equity / Risk Ratio 进度条（80 / 95 / 100 刻度）/ Initial Margin $ / Maint. Margin $；不再有两条 Rate 进度条", source: "AccountRiskDrawer" },
     ],
   },
+  {
+    key: "pro-risk-chip-mobile-zero",
+    label: "RM-M0 · 零态：无 Boost 持仓 / Equity = 0",
+    spec: [
+      { state: "hasPositions === false", when: "无合约持仓（Equity 可为任意值）", visual: "方块 `Risk 0%` 绿档；抽屉 Risk Ratio 0%、IM / MM 均 $0.00", source: "useRealtimeRiskMetrics（mmTotal = 0 → riskRatio = 0）" },
+      { state: "equity ≤ 0", when: "余额 + 未实现盈亏 ≤ 0 且有持仓", visual: "riskRatio 记 100 → 红档 `Risk 100%`", source: "useRealtimeRiskMetrics" },
+    ],
+  },
+  {
+    key: "pro-trade-order-close-only",
+    label: "RM-M3 · Buy 页签 Close-only（Risk ≥ 95%）",
+    note: "DESIGN §7 RESTRICTION 档的行为落地（交易页收尾 #6）：账户 Risk Ratio ≥ 95% 时禁止开仓 / 加仓，只许减仓 / 平仓。Lite 合约卡同一条件写 `Boost limit reached — close a position first`（TR-28）。现货不受影响。",
+    spec: [
+      { state: "close-only", when: "riskLevel ∈ {RESTRICTION, LIQUIDATION} && orderIntent.kind ∈ {open, add}", visual: "Buy CTA 置灰写 `Close-only · Risk 96%`；Sell 页签与减仓不受影响", source: "TradeForm / ProContractPanel（buyBlockedReason）· useRealtimeRiskMetrics" },
+    ],
+  },
+];
+
+const CONTRACT_PANEL_CASES: SectionCase[] = [
+  {
+    key: "pro-contract-panel-buy",
+    label: "CT-D1 · 桌面 /trade 面板 · Buy · Market（ProContractPanel）",
+    note: "桌面右栏 280px 面板抽成 `ProContractPanel`（交易页收尾 #9，零视觉变化），字典挂本体。与手机 /trade/order 同规格：Buy · Sell 页签 + Market/Limit 下拉 → Yes/No 切换 → Leverage 滑杆 + 档位 → Available + ⇄ → (Price) → Amount + 单位 → 滑杆 → TP/SL → 摘要 → CTA。桌面 CTA 走 Order Preview 弹窗，手机走 /order-preview 页。",
+    spec: [
+      { state: "Buy · Market", when: 'intent === "buy"', visual: "Leverage 行 `5x` + Slider 1–上限 + 档位芯片；摘要 Contracts / Notional val. / Margin req. / Fee (est.) / Total / To win ⓘ；CTA `Buy Up · To win $X`", source: "ProContractPanel（DesktopTrading 传值）" },
+    ],
+  },
+  {
+    key: "pro-contract-panel-buy-contracts",
+    label: "CT-D2 · Buy · Contracts 模式（QO-1 桌面）",
+    spec: [
+      { state: "units", when: 'amountMode === "units"', visual: "输入框 `50 · Contracts ▾`，Margin = 张数 × 价 ÷ 杠杆", source: "ProContractPanel（AmountUnitDropdown）" },
+    ],
+  },
+  {
+    key: "pro-contract-panel-buy-limit",
+    label: "CT-D3 · Buy · Limit 低于现价 → 挂单（同 CT-M8）",
+    spec: [
+      { state: "will rest", when: 'orderType === "Limit" && limit < sidePrice', visual: "Price 框（默认现侧价，可改）+ `Limit below mark — order will rest as Pending until touched.`；Contracts 按限价算", source: "ProContractPanel（buyLimitPending）" },
+    ],
+  },
+  {
+    key: "pro-contract-panel-sell",
+    label: "CT-D4 · Sell · 持 40 Up 5×，减仓 20（同 CT-M2 / M3）",
+    spec: [
+      { state: "Sell · reduce", when: 'intent === "sell" && heldSize > 0', visual: "Held 40 contracts · Up · 5x · entry 0.6200 → Amount（Contracts）→ 滑杆 → Close price (mark) / Contracts / Released margin / Realized PnL est. / Est. commission / You receive → CTA `Reduce Up`", source: "ProContractPanel sell branch" },
+    ],
+  },
+  {
+    key: "pro-contract-panel-sell-flat",
+    label: "CT-D5 · Sell · 空仓（同 CT-M4）",
+    spec: [
+      { state: "flat", when: "!heldPositions.yes && !heldPositions.no", visual: "`No position to close yet`，两钮 `0 contracts` 40% 透明，CTA 禁用", source: "ProContractPanel（sellDisabledSide = both）" },
+    ],
+  },
+  {
+    key: "pro-contract-panel-leverage-locked",
+    label: "CT-D6 · Leverage · 该品类未开 Boost（锁死 1×）",
+    spec: [
+      { state: "locked", when: "getConfig(category).maxBoost === 1", visual: "Leverage 行 `1x · Boost not available for this category`，Slider 禁用，只剩 1x 芯片", source: "ProContractPanel（leverageMax）· useCategoryBoostConfigs" },
+    ],
+  },
+  {
+    key: "pro-contract-panel-closed",
+    label: "DK-D1 · 桌面不可下单（Closed / In review / Suspended · cancel only / Settled）",
+    spec: [
+      { state: "blocked", when: "useContractGate(event).blocked", visual: "Buy 与 Sell 的 CTA 都置灰印原因，其余表单照常", source: "ProContractPanel（buyBlockedReason / sellBlockedReason）· lib/contractGate" },
+    ],
+  },
+  {
+    key: "pro-contract-panel-close-only",
+    label: "RM-D1 · Close-only（Risk ≥ 95%）",
+    spec: [
+      { state: "close-only", when: "riskLevel ∈ {RESTRICTION, LIQUIDATION} && orderIntent.kind ∈ {open, add}", visual: "Buy CTA 置灰 `Close-only · Risk 96%`；Sell 页签照常", source: "DesktopTrading（buyBlockedReason）" },
+    ],
+  },
 ];
 
 const TRADE_ORDER_CASES: SectionCase[] = [
@@ -365,7 +469,7 @@ const TRADE_ORDER_CASES: SectionCase[] = [
   {
     key: "pro-trade-order-alias",
     label: "CT-M7 · 别名 binary（队名 / 盘口）· 两钮读 side_labels（SL-P2）",
-    note: "队名 / 让球 / 大小球这类事件 option 不是字面 Yes/No，面板走 side 模式（Yes 钮 = 买当前 option，No 钮 = 卖）。两钮文案与桌面一致取 side_labels；CTA `Buy AST −3.5` / `Buy HER +3.5`。",
+    note: "队名 / 让球 / 大小球这类事件 option 不是字面 Yes/No，面板走 side 模式：Yes 钮 = 买当前 option，No 钮 = 买对面那一方（底层做空 Yes 端 option，`short` 只在后端）。两钮文案与桌面一致取 side_labels；CTA `Buy AST −3.5` / `Buy HER +3.5`；持仓表 / Sell 页签 / 预览的 Side 全站同样显示别名（`Heroic`），永不显示 `Short`。三选一（曼城 / 平 / 国米）无别名：切换钮仍是 Yes / No，No 侧 CTA 与 Side 写 `Buy Not Draw` / `Not Draw`。",
     spec: [
       { state: "别名 binary", when: "isSingleMarketBinary(options, event) 且 label 非字面 Yes/No", visual: "两钮 `AST −3.5 0.2196` / `HER +3.5 0.7804`（价格 = 当前 option 价 / 1 − 价），其余与 CT-M1 相同", source: "TradeForm（sideLabels）· TradeOrder" },
     ],
@@ -392,8 +496,17 @@ const TRADE_ORDER_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "pro-trade-order-buy-limit",
+    label: "CT-M8 · Buy · Limit 低于现价 → 挂单（交易页收尾 #1）",
+    note: "合约 Buy · Limit 之前是摆设（价格框不生效、挂单永不成交）。现在：Price 框默认 = 当前侧价，可改；张数按限价算；下单即扣 保证金 + 手续费；限价 ≥ 现侧价 → 立即按现价成交（同市价），限价 < 现侧价 → Pending，现价跌到 ≤ 限价时自动按限价成交、entry = 限价，toast `Limit buy filled at your price`；撤单退回 保证金 + 手续费。",
+    spec: [
+      { state: "will rest", when: 'orderType === "Limit" && limit < sidePrice', visual: "Price 框下一行 `Limit below mark — order will rest as Pending until touched.`；摘要 Contracts = 金额 × 杠杆 ÷ 限价", source: "TradeForm（buyLimitPending）· useContractLimitFills · tradingService.fillContractLimitOrder" },
+      { state: "executes now", when: "limit ≥ sidePrice", visual: "无提示行，按现价成交", source: "execPrice = sidePrice" },
+    ],
+  },
+  {
     key: "pro-trade-order-sell",
-    label: "CT-M2 · Sell · Market（持 40 ct Up 5x，全平）",
+    label: "CT-M2 · Sell · Market（持 40 contracts Up 5x，全平）",
     note: "Sell = 只减仓/平仓当前净额仓位，永不开反向。Leverage 与 TP/SL 隐藏；数量单位为 contracts（全词，不缩写），滑杆基数 = 持仓数量；CTA 红色，全平文案 Close {outcome}，部分平 Reduce {outcome}。市价 → 打开 ClosePositionDialog，走与 Positions 表 Close 同一条 partialClosePosition（含 5% 胜利佣金）。",
     spec: [
       {
@@ -624,9 +737,17 @@ export const ProTradeTerminalPage = (_: Props) => (
     </SectionWrapper>
 
     <SectionWrapper
+      id="pro-contract-panel"
+      title="② 下单面板 · 桌面右栏（CT-D · DK-D1 · RM-D1）"
+      description="桌面 /trade 的 280px 下单面板本体（ProContractPanel）。Buy · Sell 页签、Sell 只减仓、Contracts 模式、Buy · Limit 挂单、品类杠杆上限、封锁与 Close-only 都在这里；手机 /trade/order 同规格见下一节。"
+    >
+      <SectionFrame cases={CONTRACT_PANEL_CASES} device="desktop" minHeight={620} />
+    </SectionWrapper>
+
+    <SectionWrapper
       id="pro-trade-order"
       title="② 下单面板 Buy · Sell · 按数量（CT-1 / QO-1 · 手机 /trade/order）"
-      description="合约面板的 Buy · Sell 意图页签。Sell 只做当前净额仓位的减仓/平仓（方案 A），空仓禁用、永不开反向。桌面 /trade 面板与此同规格，但仍是页面内联 JSX，暂无法在字典挂载（见交付文档已知缺口）。"
+      description="合约面板的 Buy · Sell 意图页签。Sell 只做当前净额仓位的减仓/平仓（方案 A），空仓禁用、永不开反向。桌面面板见上一节（同规格）。"
     >
       <SectionFrame cases={TRADE_ORDER_CASES} device="mobile" minHeight={640} />
     </SectionWrapper>

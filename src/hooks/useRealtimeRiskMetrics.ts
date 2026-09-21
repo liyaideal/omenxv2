@@ -85,7 +85,9 @@ export function useRealtimeRiskMetrics(): RiskMetrics {
     // Risk Ratio = MM / Equity (as percentage) — exchange cross-margin
     // convention (Binance / Bybit): 100% = maintenance margin exhausted →
     // liquidation. RM-1 (CPO 2026-09-21); before that it was IM / Equity.
-    const riskRatio = equity > 0 ? (mmTotal / equity) * 100 : 0;
+    // Equity wiped out while positions are open = maintenance margin exhausted
+    // (100 %, LIQUIDATION); no positions at all = 0 % (RM-M0).
+    const riskRatio = equity > 0 ? (mmTotal / equity) * 100 : mmTotal > 0 ? 100 : 0;
 
     // Determine risk level based on risk ratio thresholds
     let riskLevel: RiskLevel = "SAFE";

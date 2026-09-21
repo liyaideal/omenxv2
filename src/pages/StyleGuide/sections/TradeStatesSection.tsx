@@ -322,6 +322,22 @@ const BOOST_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "trade-tr27c",
+    label: "TR-27c · 多 market 面板（选项名非 Yes/No）· 同一行位的入口",
+    note: "Lite 三种下单面板（合约 Binary / 合约多 market / 现货）与手机抽屉共用 LimitOrderHint，行位、字号、灰度一致。入口记在 localStorage `omenx_pro_visited:<uid>`（按账号 + 按设备）：换一台设备会再看到一次，属既定口径。15 s 窗口过期后 Pro 面板落在 Market，无提示。",
+    spec: [
+      { state: "入口（多 market）", when: "同 TR-27 条件", visual: "选项名 `Charles Leclerc / Not Leclerc` 两钮，CTA 下同一行 `Want to place a limit order? Pro ›`", source: "LimitOrderHint（LiteContractOrderPanel 多 market 分支）" },
+    ],
+  },
+  {
+    key: "trade-tr28",
+    label: "TR-28 · Boost limit reached（账户 Risk ≥ 95%，Pro 的 Close-only 在 Lite 的写法）",
+    note: "与 Pro RM-D1 / RM-M3 同一条件（useRealtimeRiskMetrics.riskLevel ∈ {RESTRICTION, LIQUIDATION}）。Lite 词：不出现 Risk / Margin。手机 dock 两钮不置灰（点开抽屉后 CTA 置灰印这句），Boost check 已是 `Auto-close soon`。",
+    spec: [
+      { state: "close-only", when: "risk.riskLevel === 'RESTRICTION' || 'LIQUIDATION'", visual: "CTA 置灰 `Boost limit reached — close a position first`（优先级低于 Settled / In review / Suspended / Closed）", source: "LiteContractTrade blockedReason · BOOST_LIMIT_REACHED" },
+    ],
+  },
+  {
     key: "trade-tr24",
     label: "TR-24 · Boost selector 全档态（1× / 2× / 5× / 10× / 20× + Custom 展开）",
     note:

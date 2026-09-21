@@ -64,15 +64,15 @@
 
 | 区 | 内容 |
 |---|---|
-| 顶栏 | `Trade` + `SPOT` 徽标 |
+| 顶栏 | 标题只写 `Trade`，无 SPOT 徽标（09-15 改） |
 | 意图 | `Buy` / `Sell` 文字页签（不是分段按钮），右侧 `OrderTypeDropdown`（Market / Limit） |
-| 方向 | 单个 `BinarySideToggle`（Up / Down 两档带价）。Sell 且该侧无持仓时该档禁用（`opacity-40 pointer-events-none`），档内文字换成 `0 sh` |
-| 余额 | `Available (USDC)` **恒显示**；Sell 时在其下多一行 `Held · N sh {outcome}` |
+| 方向 | 单个 `BinarySideToggle`（Up / Down 两档带价）。Sell 且该侧无持仓时该档禁用（`opacity-40 pointer-events-none`），档内文字换成 `0 shares` |
+| 余额 | `Available (USDC)` **恒显示**；Sell 时在其下多一行 `Held · N shares {outcome}` |
 | 输入 | Limit 时多一行限价输入；金额输入 + 0/25/50/75/100% 滑杆 |
 | 滑点 | 仅 Market。chip 为中性态，不用方向色 |
 | 摘要 | Buy：`Cost`（Market 时下方附 `Est. fill @ X`）`/ Shares / To win ⓘ / Fee (0.15%)`；Sell：`Proceeds / Shares / Est. commission / You receive`。**无 Max loss 行**。`Est. commission` 走 `winningCommission(realizedPnl, entryPrice × qty × SPOT_FEE_RATE)`，与预览弹窗、toast、账本同一口径 |
 | CTA | 生产件 `TradeSubmitButton`。Buy 副文案 `To win $X`，Sell 副文案 `You receive $X`（新增可选 prop `winPrefix`，不传时逐像素不变） |
-| 账户 | `Standard Account`：Available (USDC) / In orders / Open positions |
+| 账户 | `Standard Account`：Available (USDC) / In orders / Holdings（09-15 改） |
 
 下单前弹 `Order Preview` 对话框（生产件 `ProSpotOrderPreview`），两张卡：订单摘要 + 费用与净利。
 
@@ -133,11 +133,11 @@ Spot 节原先手抄的终端顶栏已换成生产件 `ProSpotHeader`，CTA 例�
 2. **精确份额**：`formatShares()`（最多 3 位小数、去尾零）用于 Held 行与 Shares 行；`sharesInputValue()` 用于 Amount 预填与滑杆写回。展示值不再喂给订单，`Close` 预填与卖出请求都取 `p.sizeNum` 原值。
 3. **Close = 确认并平仓**：Positions 行 `Close` 现在预置 Sell · 该 outcome · Market · 全量精确份额，并**立即打开 `ProSpotOrderPreview`**；确认走与面板同一条卖出路径，成交 toast 为 `Cashed out · $X back`。部分平仓仍可在面板改 Amount。移动端分支共用同一张表，行为一致。
 4. **文案**：限价挂单提示的预留金额改为 `cost + fee`（含 0.15% 手续费）。
-5. **状态字典**：新增 `pro-spot-panel-sell-held-down`（仅持 Down、2,034.879 sh）；`pro-spot-panel-sell-held` fixture 改为小数份额。
+5. **状态字典**：新增 `pro-spot-panel-sell-held-down`（仅持 Down、2,034.879 shares）；`pro-spot-panel-sell-held` fixture 改为小数份额。
 
 ## SP-1-FIX4 (2026-09-09) — 全平吸附（full-close snap）
 
-`sharesInputValue()` 只保留 3 位小数：36.7647… 持仓的 `Close` 预填 `36.765` 会**超出持仓**被校验拒绝，向下取整又留下 0.0007 sh 永远平不掉的 dust。现在 sell 路径（面板提交与 `Close` → 预览确认共用）在 `|qty − heldQty| < 0.001` 或 `qty ≥ heldQty × 0.9995`（滑杆 100%）时吸附为**精确 heldQty** 发送给 `executeSpotTrade` / `placeSpotLimitOrder`；3 位小数字符串仅作输入展示。无引擎改动。状态字典 `pro-spot-panel-sell-held-down` 已补该规则。
+`sharesInputValue()` 只保留 3 位小数：36.7647… 持仓的 `Close` 预填 `36.765` 会**超出持仓**被校验拒绝，向下取整又留下 0.0007 shares 永远平不掉的 dust。现在 sell 路径（面板提交与 `Close` → 预览确认共用）在 `|qty − heldQty| < 0.001` 或 `qty ≥ heldQty × 0.9995`（滑杆 100%）时吸附为**精确 heldQty** 发送给 `executeSpotTrade` / `placeSpotLimitOrder`；3 位小数字符串仅作输入展示。无引擎改动。状态字典 `pro-spot-panel-sell-held-down` 已补该规则。
 
 ## SP-1-FIX5 (2026-09-10) — 渲染死循环 / Up 档点不动 / 过期仍可下单
 
@@ -170,7 +170,7 @@ Spot 节原先手抄的终端顶栏已换成生产件 `ProSpotHeader`，CTA 例�
 - `SpotMobileStatsStrip`：`PRE` / `AH` 9px 徽标移入 Base 左格；右格只放标的、价格、涨跌。`ResizeObserver` 按 strip 自身宽度控制涨跌，仅在达到 340px 时显示，不再错误依赖浏览器 viewport；根节点 `overflow-hidden` 只作末级防护，价格与徽标永不裁切。
 - `spotMobileTitle(t)`（`ProSpotShared.tsx`）：日内涨跌盘移动页头显示 `META · Up or down?`；完整名留在 Event info。桌面页头未动。
 - `TradeSubmitButton` 新增 `layout`（默认 `"row"`）；`ProSpotPanel` / `SpotTradePanel` 新增 `ctaLayout`，只有 `/spot/order` 传 `"stacked"`。金额走千分位。
-- 面板细项：迷你盘口 `w-[104px]`、滑点四格 grid `text-[10px]`、摘要 `text-[11px]`、Held 行改为 `2,034.879 sh · Down`。
+- 面板细项：迷你盘口 `w-[104px]`、滑点四格 grid `text-[10px]`、摘要 `text-[11px]`、Held 行改为 `2,034.879 shares · Down`。
 - 移动持仓 / 挂单表事件名改 `line-clamp-2`。
 - 字典：新增 `pro-spot-mobile-charts-360`（SP-M1b）；`pro-spot-mobile-charts` 改用长名 `Meta (META) — will close higher today?`；sell-held fixture 滑块与数量对齐 100%。
 

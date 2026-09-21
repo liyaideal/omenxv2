@@ -22,7 +22,7 @@
 |---|---|
 | 触发 | 当前事件属于一场比赛（自身是 Winner 且有 sibling，或自身是 sibling）→ 页头下方原来的 `Select Option` 行换成市场行；其他事件不受影响 |
 | 市场行 | `MARKETS` 小标 + 一组芯片。芯片 = 组名小字 + 当前线位与 Yes 侧价格（`HANDICAP AST −1.5 · 34¢`）。足球：`Winner / Handicap / Total goals`（Total 词按 `scoringNoun`：goals / points）；电竞：`Winner / Handicap / Total maps ｜ Map 1 / Map 2 / Map 3`（每张地图一个分段组：Map n winner / Rounds handicap / Total rounds 三节）；MMA：`Winner / Total rounds / Method`。组名沿用 Lite board，Spread / Totals / O/U 全站禁 |
-| 芯片状态 | 当前组：`--yes` 描边 + 淡青底（选择控件，不填充）；非当前单节组：显示默认线位（中位线）+ Yes 价，muted；非当前分段组：只显示组名 + ▾；单线组（Winner）无 ▾，点击直接切 |
+| 芯片状态 | 当前组：`--yes` 描边 + 淡青底（选择控件，不填充）；非当前单节组：显示默认线位（中位线）+ Yes 价，muted。中位线 = 该组第一节的线按 `line` 值升序排好后取下标 `Math.floor(lines.length / 2)`——奇数条取正中；**偶数条取偏大的那一条**（4 条取第 3 条，即下标 2），不是取中间两条的平均（`src/lib/fixtureMarkets.ts` L129 `median`、L193；排序在 `sportsData.ts` `byLine`）；非当前分段组：只显示组名 + ▾；单线组（Winner）无 ▾，点击直接切 |
 | 选线 | 多线组点开：桌面 DropdownMenu / 手机 MobileDrawer；每节一个小标，行 = `AST −3.5 / HER +3.5` + 两侧价格（Yes 青 / No 荧光绿），当前行高亮。选一条 = `setSelectedEvent(sibling)` + 导航到 `?event=<fixture>&line=<sibling>`（Winner 则去掉 `line`）；手机在 Charts / Trade 子页都保留 `line` |
 | 页头 | 标题恒为比赛名（Winner 事件的 name）；副行在 `Ends in` 前写当前市场 `Map handicap · AST −1.5`（手机写在倒计时行前） |
 | 深链归一 | Pro 收到 `?event=<sibling>`（无 line）或 `event` 与 sibling 的 fixture 不符 → `replace` 成 `?event=<fixture>&line=<sibling>`；不再 "Event Has Ended" |

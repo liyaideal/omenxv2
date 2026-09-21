@@ -4,7 +4,7 @@
 
 ## 0. 读者须知
 
-- 长什么样 → `/style-guide` →「Pro — 交易终端 › 两终端共用」→「④ 订单状态标 · 部分成交明细」：PF-D1（桌面表 hover）、PF-M1（手机卡点开）
+- 长什么样 → `/style-guide` →「Pro — 交易终端 › 两终端共用」→「④ 订单状态标 · 部分成交明细」：OS-D1（桌面表 hover）、OS-M1（手机卡点开）（原 PF-D1 / PF-M1，09-21 改号避免与 Portfolio PF- 撞前缀）
 - 生产上看不到 `Partial Filled`（见 §4），Pending / Filled / Cancelled 三态生产可见
 - Lite 面 → 不涉及
 
@@ -16,7 +16,7 @@
 | B 内容 | `Fill progress  480 / 1,200 (40%)` + 进度条 + `Filled` / `Remaining` 两行；沿用字典原「Order Status & Partial Fill」规格，不新造词 |
 | C 条件 | 只有 status = `Partial Filled` 才可展开；桌面 hover（HoverCard），手机点一下（Popover），再点或点外面收起。Pending / Filled / Cancelled 是普通标 |
 | D 数据 | 蓝图引擎照旧整单成交，不模拟部分成交；`UnifiedOrder.filledAmount / remainingAmount` 只有本地 mock 订单带，Supabase `trades` 没有已成交数量字段。研发的真撮合要给到 filled 数量 |
-| E 字典 | 原「Order Status & Partial Fill」所在的 `TradingSection` 并未挂载在 `/style-guide`（死文件，未动）；新节挂生产 `SpotOrdersTable` 两个变体，PF-D1 / PF-M1 |
+| E 字典 | 原「Order Status & Partial Fill」所在的 `TradingSection` 并未挂载在 `/style-guide`（死文件，未动）；新节挂生产 `SpotOrdersTable` 两个变体，OS-D1 / OS-M1（原 PF-D1 / PF-M1，09-21 改号） |
 
 ## 2. 实现指引
 

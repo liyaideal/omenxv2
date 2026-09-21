@@ -57,6 +57,8 @@ export interface TradingEvent {
   /** DK-1: order gating inputs for the contract terminal. */
   lifecycle?: string | null;
   isResolved?: boolean;
+  /** 交易页收尾 #4: leverage cap lookup (`category_boost_configs`). */
+  category?: string | null;
 }
 
 // Local storage keys
@@ -230,6 +232,7 @@ export const dbEventToTradingEvent = (event: EventWithOptions): TradingEvent => 
       metadata: event.metadata ?? null,
       lifecycle: event.lifecycle_status ?? null,
       isResolved: !!event.is_resolved,
+      category: event.category ?? null,
     };
   };
 

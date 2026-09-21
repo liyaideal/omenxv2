@@ -213,7 +213,7 @@ const KPI_CASES: SectionCase[] = [
 /* ---------------- Ⓒ Boost check ---------------- */
 
 const BOOST_NOTE =
-  "riskRatio = imTotal / equity × 100，账户级跨仓共享一个池子。Standard 段整行不渲染。桌面眉线带 · shared across Boost calls 后缀，移动无该后缀 —— 双端文案差异是既定口径，不是 bug。";
+  "riskRatio = mmTotal / equity × 100（RM-1，= Pro Risk Ratio），账户级跨仓共享一个池子。Standard 段整行不渲染。桌面眉线带 · shared across Boost calls 后缀，移动无该后缀 —— 双端文案差异是既定口径，不是 bug。";
 
 const BOOST_SPEC: SectionCase["spec"] = [
   { state: "Healthy", when: "riskRatio < 80", visual: "词 `Healthy`，色 #3DD68C", source: "boostState()" },
@@ -256,7 +256,7 @@ const BOOST_SPEC: SectionCase["spec"] = [
 ];
 
 const DETAILS_NOTE =
-  "桌面走锚定 Popover（DESIGN §5 对等表：桌面绝不用底部抽屉），移动走 MobileDrawer。两端内容完全相同：一句说明 + 三行取值。";
+  "桌面走锚定 Popover（DESIGN §5 对等表：桌面绝不用底部抽屉），移动走 MobileDrawer。两端内容完全相同：一句说明 + 四行取值（MM 口径，RM-1）。";
 
 const DETAILS_SPEC: SectionCase["spec"] = [
   {
@@ -285,9 +285,9 @@ const DETAILS_SPEC: SectionCase["spec"] = [
     source: "DETAILS_SENTENCE",
   },
   {
-    state: "三行取值",
+    state: "四行取值",
     when: "展开态",
-    visual: "`Equity` / `Used by Boost calls` / `Until auto-close starts`，值走 moneyAuto()",
+    visual: "`Equity` / `Used by Boost calls`（= IM）/ `Boost usage`（= Risk Ratio %，MM 口径）/ `Until auto-close starts`（= max(equity − mmTotal, 0)），金额走 moneyAuto()",
     source: "detailRows()",
   },
 ];

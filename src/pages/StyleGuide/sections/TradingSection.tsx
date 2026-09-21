@@ -1,3 +1,4 @@
+// DEAD FILE (not mounted in nav.tsx since 2026-09-21 nav reorg). Risk wording below is pre-RM-1 (IM / Equity); the live spec is ProSpotSection RM-* cases. Kept for history only.
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

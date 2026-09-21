@@ -267,7 +267,18 @@ positives. Chip words come from the sibling event's `side_labels`.
 | **Close（订单 Side 列）** | Current Orders 表 reduce-only 行的 Side 徽标（红，`bg-trading-red/20 text-trading-red`），替代 Yes/No。判定 `trades.reduce_only = true` | Sell, No |
 | **Reduce-only** | Current Orders 表限价平仓单的类型标（`text-[10px] bg-muted`）。判定 `trades.reduce_only = true`；该单 margin 0 / fee 0，不动余额 | Close order, Sell limit |
 | **No position to close yet** | `/trade` Sell 页签空仓提示（两侧禁用）。判定 `!heldPos && !otherSideHeld` | No shares to sell yet（`/spot` 专用）|
-| **Limit close filled · N ct** | 限价平仓单成交时的附加 toast（成交本身仍弹 `Cashed out · $X back`） | — |
+| **Not {option}（三选一 No 侧）** | 多选项合约事件（曼城 / 平 / 国米）某一选项的 No 侧：CTA `Buy Not Draw`、持仓表 / 预览 / Sell 页签的 Side 写 `Not Draw`；切换钮本身仍是 `Yes / No`。只用于**无 side_labels 的多选项事件**；binary 别名事件 No 侧显示别名（`Heroic`），Standard 段负向词仍是 `Down`（见 Not Up 退役行）。判定 `!isSingleMarketBinary && uiSide === "sell"`（`getIntentLabel(…, multiOutcome)`） | Sell Draw, Short, No（单独出现）|
+| **Price（合约 Buy · Limit）** | 合约 Buy 页签 `Limit` 时 Amount 上方的价格框，默认 = 当前侧价，可改。限价 < 现侧价 → 挂单（Pending），下方一行 `Limit below mark — order will rest as Pending until touched.`；限价 ≥ 现侧价 → 立即按现价成交。张数 = 金额 × 杠杆 ÷ 限价；下单即扣 保证金 + 手续费，撤单退回；现价跌到 ≤ 限价时自动按限价成交，entry = 限价，toast `Limit buy filled at your price` | Limit price（合约用 Price；现货用 Limit price）|
+| **Close-only · Risk x%** | 账户 Risk Ratio ≥ 95%（RESTRICTION / LIQUIDATION 档）时 Pro 合约 Buy 页签开仓 / 加仓 CTA 的置灰文案，`x` 取整；CTA 不再显示 `To win` 读数；Sell 页签 / 减仓 / 现货不受影响。Lite 同条件写 `Boost limit reached — close a position first` | Restricted, Margin call |
+| **Boost limit reached — close a position first** | Lite 合约下单卡在账户 Risk ≥ 95% 时的 CTA 置灰句（优先级低于 Settled / In review / Suspended / Closed）；手机 dock 两钮不置灰，抽屉里 CTA 置灰 | Close-only（Lite 禁）, Risk, Margin |
+| **Suspended / Suspended · cancel only** | `lifecycle_status = SUSPENDED`：Pro 合约与现货同口径，CTA / dock 置灰写 `Suspended · cancel only`，Current Orders 的 Cancel 仍可点；Lite 合约卡写 `Suspended` | Paused, Halted |
+| **Boost not available for this category** | 合约面板 Leverage 上限 = `category_boost_configs.max_leverage`（与 Lite Boost 同源：crypto 10× · macro 5× · social 5× · sports 3×，其余 1×）。上限 1× 时桌面 Leverage 行 `1x · Boost not available for this category`、手机抽屉同句，滑杆锁死；档位芯片 = `boostTiers(max)`（20 → 1/2/5/20，10 → 1/2/5/10，3 → 1/2/3） | Leverage disabled, Max 1x |
+| **In orders（现货账户卡）** | 现货 Standard Account 卡行：`Σ Pending 限价买单的 Reserved`（notional + fee），撤单即减 | Locked, Frozen |
+| **Reserved（现货 Current Orders 列）** | 限价买单预留金额 = 份额 × 限价 + 0.15% 手续费；卖单为 `—`（份额不锁定，成交时校验持有量，不够则该单自动 Cancelled） | Total, Cost |
+| **Tap to switch view · tap again to trade** | 手机 Pro dock 右上角的提示句：第一次点选边 / 切边，同一边再点进 `/trade/order` 或 `/spot/order`；封锁态隐藏 | — |
+| **价格格式（Pro）** | 芯片 / 市场行 / Lite 钮：整数美分 `34¢`；Pro 面板切换钮、Price 框、摘要、持仓表：四位小数 `0.2196`；美元金额两位 `$216.00`。两种写法并存是既定口径，不互换 | 0.34, 34c |
+| **Volume（选择器列表）** | `$` + 压缩数字：`< 1K` 原样、`K` 取整、`M` 两位小数（`$803K` / `$1.35M`，`formatListVolume`），事件 `volume` 字段，选择器打开时读一次不刷新 | Vol. |
+| **Limit close filled · N contracts** | 限价平仓单成交时的附加 toast（成交本身仍弹 `Cashed out · $X back`）；单位写全 `contracts`，`ct` 缩写已废止 | `ct` |
 | ~~**Max loss**~~ | **Retired 2026-09-09 (SP-1)** — Pro `/spot` 与 Lite 下单面板都不再显示这行；净利口径由 `To win` 单行承担 | — |
 | ~~**Not Up**~~ | **Retired 2026-09-09** — Standard 段负向词一律显示 `Down`（`liteSideName()`），Pro `/spot` 与 Lite 同口径；DB `side_labels` 可继续存旧值 | — |
 | ~~**Funding Rate**~~ | **Retired 2026-09-09 (Fee System V4)** — funding is 0 by policy; no funding figure is displayed anywhere | — |
@@ -330,7 +341,7 @@ Pro 侧输入语义为 notional / 数量，两面各自 canonical，不互相迁
 
 已删除定制文案（禁止回引）：`An estimate of the price at which this call would be closed automatically. It shifts as your other positions move.`；`No auto-close within this market's price range — your loss is capped at what you put in.`
 | **SIDE chip** | `{sideWord} {c}¢`；底色随方向：Yes/Up `#33D6FF` / No/Down `#CFFF4A`，黑字；`{c}¢` 为该腿自身轴 mark 价（No 腿 = 1 − yes）。多选腿 chip 只写 `Yes` / `No`，选项名另起一行置于 chip 下（`Charles Leclerc`）；side 词与方向来源 `resolveLegSide()`，`short` 视为 No | 全 volt chip、`Long`/`Short`、选项名塞进 chip |
-| **Boost check** | 账户级仪表：`riskRatio = imTotal / equity × 100`；**Healthy** `< 80` / **Getting tight** `80 ≤ r < 95` / **Auto-close soon** `≥ 95`；仅 Boost 段且 `boostLive.length > 0` 渲染；`Details ›` 默认折叠（移动 MobileDrawer / 桌面 320px Popover），三行 Equity / Used by Boost calls / Until auto-close starts = `max(equity − imTotal, 0)` | Margin ratio, Margin call, Risk level, Health factor |
+| **Boost check** | 账户级仪表：`riskRatio = mmTotal / equity × 100（= Pro Risk Ratio，MM = 50% × IM）`；**Healthy** `< 80` / **Getting tight** `80 ≤ r < 95` / **Auto-close soon** `≥ 95`；仅 Boost 段且 `boostLive.length > 0` 渲染；条上读作 `Healthy · 7%`（整数百分比）；`Details ›` 默认折叠（移动 MobileDrawer / 桌面 320px Popover），Details 抽屉四行：Equity / Used by Boost calls（= IM，锁定的保证金）/ Boost usage（= Risk Ratio %）/ Until auto-close starts = `max(equity − mmTotal, 0)` | Margin ratio, Margin call, Risk level, Health factor |
 | **Boost · N / Standard · N** | 段 chips。`Boost` 段 = Boost Account（`productLine !== 'spot'`）全部持仓，**含 1×**；1× 行不显示倍数且 auto-close 恒 `none`（无借贷敞口）。`Standard` 段 = `productLine === 'spot'`。N = Live tab 为持仓数、Settled tab 为结算行数 | Futures · N, Spot · N, Leveraged |
 | **Series / Round** | **Series** = 同一事件名下 ≥2 条已结算记录聚合成的一行（`useLitePortfolio.settledRows`，`items.length > 1`），点进系列详情；**Round** = 系列中的每一条结算记录；一轮结束 = 该条 `close_reason` 落定（settlement / auto_close / cashout 任一）。详情 `Rounds` 行仅当事件 `event_subtype ∈ INTRADAY_SUBTYPES` 写 `{n} · daily rounds`，否则只写 `{n}`。系列详情两种写法都是设计意图、不得互相替换：**眉线** `Series · {n} rounds`（列表 / 详情头，只报轮数）与 **DETAILS 行** `{n} · daily rounds`（明细行，报轮数 + 该系列是日内轮次） | Streak, Multi-round bet, Parlay |
 | **If it wins → $X / If it wins you get $X** 中的 X | = `ifWins = sizeNum`（每股结算 $1） | Max payout, Potential win |
@@ -685,7 +696,7 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 
 | 词 | 一句定义 | 判定表达式 | 出处 |
 |---|---|---|---|
-| **Lite** / **Pro** | Trade-page view switch segments | Simple, Basic, Advanced, Simple mode / Pro mode (retired) |
+| **Lite** / **Pro** | Trade-page view switch segments | `surface === "lite" \| "pro"` | 禁：Simple, Basic, Advanced, Simple mode / Pro mode (retired) |
 | `Lite` | 交易页的简版看法，也是全站其余页面唯一的样子 | `surface === "lite"` | `src/components/surface/SurfaceSwitch.tsx` |
 | `Pro` | 交易页的专业终端看法，仅这三条路由存在 | `surface === "pro"` | 同上 |
 | `Trading view` | 页头分段控件的无障碍名，只出现在 `aria-label`，界面上不显示 | `aria-label="Trading view"` | 同上 |

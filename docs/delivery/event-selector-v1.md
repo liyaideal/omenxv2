@@ -32,6 +32,17 @@
 | header 标 | 手机现货页标题旁的 `SPOT` badge 删除；合约页不加 `Boost` badge。终端 header 上只允许生命周期 badge（DESIGN 09-10 规则：最多一个）。 |
 | 不动的 | 事件列表页 `/events`、Lite 的各入口、引擎、`useEvents` 的选中态与 `trading_last_event` 记忆（现货页仍不写入）。 |
 
+### 2.1 生命周期 × 列表（2026-09-21 按代码补记）
+
+| 项 | 实际行为 | 出处 |
+|---|---|---|
+| 列 / 不列 | 数据源只取 `is_resolved = false` 的事件并剔除 fixture 兄弟行；选择器再剔掉 `end_date ≤ now` 的行。**不读 `lifecycle_status`**：TRADING / FROZEN / SUSPENDED / REVIEW / SETTLING 只要未结算且未过结束时间都会列出；已结算（`is_resolved = true`）与已过结束时间的行不列。 | `src/hooks/useActiveEvents.ts`（查询）、`src/hooks/useEventSelector.ts` L103（`endTime > now`） |
+| `Ends in` · SUSPENDED / REVIEW / SETTLING | 无专门文案：`formatEndsIn` 只看 `end_date` / `freeze_time`，这三态显示与 TRADING 相同的相对时间（`8m` / `3h 12m` / `Sep 29`）与同阈颜色。 | `src/lib/eventSelector.ts` `formatEndsIn` |
+| `Ends in` · FROZEN（`freeze_time ≤ now < end_date`） | `Frozen`，红；手机行内不带 `Ends in ` 前缀。 | `src/lib/eventSelector.ts` L74-76、`src/components/EventSelectorPanel.tsx` L169 |
+| `Ends in` · 过结束时间 | 代码里有 `Ended`（muted）分支，但该行已被 L103 过滤，用户看不到；`end_date` 为空时显示 `—`。 | `src/lib/eventSelector.ts` L71、L78 |
+| `/spot` 页头 ★ | 走 `useSpotTerminal` 的 `isWatched / toggleWatch` = `useWatchlist`（登录后读写 `user_watchlist` 表，未登录读 localStorage `trading_favorites`，点 ★ 未登录弹登录提示）。`/spot` 与手机现货壳的选择器 `useEventSelector({ terminal: "standard" })` 未传入 favorites，用的是自己那份 localStorage `trading_favorites`——登录后（本地已并入库并清空）两处 ★ **不是同一份**；上表「与合约页 header 的 ★ 同一份」只对 `/trade` 成立。 | `src/pages/SpotTrading.tsx` L40、L104-105；`src/hooks/useWatchlist.ts`；`src/components/MobileTradingLayout.tsx` L210 |
+| 手机 `/trade/order` 跨线选中现货事件 | 跳 `/spot/order?event=`（push，保持 order 视图；Boost 同线选中才 replace）。Buy/Sell 页签走共用的 `useTradeSideStore.intentByKey`，按 `${eventId}:${optionId}` 分键，新事件没有键 → 落到默认 **Buy**，不沿用；单位模式（USDC / Contracts·Shares）走 `useAmountModeStore`（`persist` 键 `omenx-amount-mode`），**两终端共用、按设备记忆**，会沿用到现货页。 | `src/components/MobileTradingLayout.tsx` L335-344；`src/stores/useTradeSideStore.ts`；`src/hooks/useSpotTerminal.ts` L297-302；`src/stores/useAmountModeStore.ts` |
+
 ## 3. 实现指引
 
 - 规则与格式：`src/lib/eventSelector.ts`（`eventOnTab` / `terminalPath` / `formatEndsIn`）。

@@ -54,6 +54,8 @@ export const getIntentLabel = (
   intent: OrderIntent,
   uiSide: "buy" | "sell",
   sideLabels?: { yes: string; no: string } | null,
+  /** 交易页收尾 #2 · multi-outcome event (3-way Winner …): the No side of an option is `Buy Not {option}`. */
+  multiOutcome = false,
 ) => {
   const raw = intent.canonical.optionLabel;
   // binary 单 market：CTA 与 Yes/No 切换钮同源读 side_labels。
@@ -75,6 +77,7 @@ export const getIntentLabel = (
   // CTA 跟着写 `Buy Heroic`，不写 `Sell Astralis`（底层仍是做空 Yes 端 option）。
   const aliasBinary = !!sideLabels && lc !== "yes" && lc !== "no";
   if (uiSide === "sell" && aliasBinary) return `Buy ${sideLabels!.no}`;
+  if (uiSide === "sell" && multiOutcome && !sideLabels) return `Buy Not ${label}`;
   return uiSide === "buy" ? `Buy ${label}` : `Sell ${label}`;
 };
 

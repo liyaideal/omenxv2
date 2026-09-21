@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from "react"; // v2
+import { useState, useMemo, useEffect, useRef, useCallback } from "react"; // v2
 import { AmountUnitDropdown } from "@/components/pro/AmountUnitDropdown";
 import { useAmountModeStore } from "@/stores/useAmountModeStore";
 import { TransferEntry } from "@/components/pro/TransferEntry";
@@ -79,6 +79,10 @@ import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
 import { ProTerminalLayout } from "@/components/pro/ProTerminalLayout";
 import { ProBottomTabs } from "@/components/pro/ProBottomTabs";
 import { BinarySideToggle } from "@/components/pro/BinarySideToggle";
+import { ProContractPanel } from "@/components/pro/ProContractPanel";
+import { useCategoryBoostConfigs, boostTiers } from "@/hooks/useCategoryBoostConfigs";
+import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
+import { useContractLimitFills } from "@/hooks/useContractLimitFills";
 import { useAirdropPositions } from "@/hooks/useAirdropPositions";
 import { ActivateAirdropButton } from "@/components/ActivateAirdropButton";
 import { Badge } from "@/components/ui/badge";
@@ -466,13 +470,30 @@ export default function DesktopTrading() {
   const longPrice = useMemo(() => parseFloat(selectedOptionData.price) || 0, [selectedOptionData.price]);
   const shortPrice = useMemo(() => +(1 - longPrice).toFixed(4), [longPrice]);
   const sidePrice = side === "buy" ? longPrice : shortPrice;
+  // 交易页收尾 #1 · Buy · Limit: the Price box is real. A limit below the side
+  // price rests as Pending (filled by useContractLimitFills when mark ≤ limit,
+  // entry = limit); a limit at/above the side price executes now at the side price.
+  const buyLimitVal = parseFloat(limitPrice) || 0;
+  const buyLimitPending = orderType === "Limit" && buyLimitVal > 0 && buyLimitVal < sidePrice - 1e-9;
+  const execPrice = buyLimitPending ? buyLimitVal : sidePrice;
+  // 交易页收尾 #4 · leverage cap follows category_boost_configs (same source as Lite Boost).
+  const { getConfig: getBoostConfig } = useCategoryBoostConfigs();
+  const boostCfg = getBoostConfig(selectedEvent?.category);
+  const leverageMax = Math.max(1, boostCfg.maxBoost);
+  const leverageTiers = useMemo(() => boostTiers(leverageMax), [leverageMax]);
+  useEffect(() => {
+    if (leverage > leverageMax) setLeverage(leverageMax);
+  }, [leverage, leverageMax]);
+  // 交易页收尾 #6 · RESTRICTION tier (Risk ≥ 95%) = close-only: no open / add.
+  const risk = useRealtimeRiskMetrics();
+  const closeOnly = risk.riskLevel === "RESTRICTION" || risk.riskLevel === "LIQUIDATION";
 
   // QO-1 · Buy amount entered in USDC (margin) or in contracts. `amount` stays the
   // canonical USDC margin; in units mode it is derived from the typed contracts.
   const amountMode = useAmountModeStore((s) => s.mode);
   const setAmountModeInStore = useAmountModeStore((s) => s.setMode);
   const [unitsInput, setUnitsInput] = useState("");
-  const unitsPrice = sidePrice;
+  const unitsPrice = execPrice;
   const maxUnits = unitsPrice > 0 ? Math.floor((available * leverage) / unitsPrice) : 0;
   useEffect(() => {
     if (amountMode !== "units") return;
@@ -649,6 +670,24 @@ export default function DesktopTrading() {
     }
   };
 
+  // 交易页收尾 #1 · resting Buy · Limit orders fill when mark ≤ limit.
+  const markForLimitFill = useCallback(
+    (label: string) => {
+      if (yesNoOptions.yes?.label === label) return yesPrice;
+      if (yesNoOptions.no?.label === label) return noPrice;
+      return longPrice;
+    },
+    [yesNoOptions.yes?.label, yesNoOptions.no?.label, yesPrice, noPrice, longPrice],
+  );
+  useContractLimitFills({
+    userId: user?.id,
+    eventName: selectedEvent?.name,
+    orders: unifiedOrders,
+    markFor: markForLimitFill,
+    refetchOrders,
+    refetchPositions,
+  });
+
   // DEMO-STATE: touch fill for reduce-only futures limit orders. Production
   // matching happens on the backend; the client only simulates the crossing.
   const reduceFillingRef = useRef<Set<string>>(new Set());
@@ -702,7 +741,7 @@ export default function DesktopTrading() {
   // Calculate order values based on amount and leverage
   const orderCalculations = useMemo(() => {
     const amountValue = parseFloat(amount) || 0;
-    const price = sidePrice;
+    const price = execPrice;
 
     // Notional value = amount * leverage
     const notionalValue = amountValue * leverage;
@@ -739,7 +778,7 @@ export default function DesktopTrading() {
       potentialWin: potentialWin.toFixed(0),
       liqPrice,
     };
-  }, [amount, leverage, sidePrice, side]);
+  }, [amount, leverage, execPrice, side]);
 
   const orderIntent = useMemo(() => classifyOrderIntent({
     positions,
@@ -747,9 +786,14 @@ export default function DesktopTrading() {
     optionLabel: selectedOptionData.label,
     side,
     quantity: parseFloat(orderCalculations.quantity) || 0,
-    clickedPrice: sidePrice,
+    clickedPrice: execPrice,
     leverage,
-  }), [positions, selectedEvent?.name, selectedOptionData.label, side, orderCalculations.quantity, sidePrice, leverage]);
+  }), [positions, selectedEvent?.name, selectedOptionData.label, side, orderCalculations.quantity, execPrice, leverage]);
+  const buyBlockedReason = gate.reason
+    ? gate.reason
+    : closeOnly && (orderIntent.kind === "open" || orderIntent.kind === "add")
+      ? `Close-only · Risk ${Math.round(risk.riskRatio)}%`
+      : "";
 
   const displayCalculations = useMemo(() => {
     const estimatedFee = orderIntent.tradedNotional * feeRate;
@@ -813,7 +857,12 @@ export default function DesktopTrading() {
   const previewOutcome: "yes" | "no" = isBinarySingleMarket
     ? (isYesSelected ? "yes" : "no")
     : (side === "buy" ? "yes" : "no");
-  const previewSideLabel = resolveBinarySideLabel(previewOutcome, isBinarySingleMarket ? binaryLabels : undefined);
+  // 交易页收尾 #2 · multi-outcome No side reads `Not {option}` (never "Short" / bare "No").
+  const previewSideLabel = isBinarySingleMarket
+    ? resolveBinarySideLabel(previewOutcome, binaryLabels)
+    : previewOutcome === "yes"
+      ? selectedOptionData.label
+      : `Not ${selectedOptionData.label}`;
   const previewSideColor: "green" | "red" = previewOutcome === "yes" ? "green" : "red";
   // 单 market binary: Option 直接显示队名/别名（previewSideLabel），不再渲染独立 Side 行/chip
   // 多 outcome: Option 显示 option 名，Side 显示 Yes/No
@@ -896,7 +945,7 @@ export default function DesktopTrading() {
         optionId: selectedOptionData.id, // Direct reference for realtime price lookup
         side: side as "buy" | "sell",
         orderType: orderType as "Market" | "Limit",
-        price: sidePrice || 0,
+        price: execPrice || 0,
         amount: parseFloat(amount) || 0,
         quantity: parseInt(orderCalculations.quantity) || 0,
         leverage: leverage,
@@ -1493,10 +1542,14 @@ export default function DesktopTrading() {
                                           : "bg-trading-red/20 text-trading-red"
                                       }`}
                                     >
-                                      {resolveBinarySideLabel(
-                                        position.type === "long" ? "yes" : "no",
-                                        lookupSideLabels(position.event).labels
-                                      )}
+                                      {lookupSideLabels(position.event).isBinary
+                                        ? resolveBinarySideLabel(
+                                            position.type === "long" ? "yes" : "no",
+                                            lookupSideLabels(position.event).labels
+                                          )
+                                        : position.type === "long"
+                                          ? (position.displayOption ?? position.option)
+                                          : `Not ${position.displayOption ?? position.option}`}
                                     </span>
                                   )}
                                 </td>
@@ -1641,464 +1694,104 @@ export default function DesktopTrading() {
         </ProBottomTabs>
       }
       panel={
-        <div className="flex flex-col bg-background rounded-lg border border-border/50 flex-shrink-0">
-          <div className="flex items-center px-4 py-2 border-b border-border/30">
-            <span className="text-sm font-medium">Trade</span>
-          </div>
-
-            <div className="px-4 py-3 space-y-3">
-            {/* CT-1 · Buy · Sell intent tabs + order type dropdown (mirrors the spot panel) */}
-            <div className="flex items-center gap-4">
-              {(["buy", "sell"] as const).map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setIntent(tab)}
-                  className={`text-xs font-semibold capitalize pb-1 border-b-2 transition-colors ${
-                    intent === tab
-                      ? "text-foreground border-foreground"
-                      : "text-muted-foreground border-transparent hover:text-foreground"
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-              <OrderTypeDropdown value={orderType} onChange={setOrderType} className="ml-auto" />
-            </div>
-
-            {/* Yes/No Toggle — 共享生产件 BinarySideToggle（SP-1-FIX2）。 */}
-            <BinarySideToggle
-              yesLabel={binaryLabels.yes}
-              noLabel={binaryLabels.no}
-              yesPrice={yesPrice}
-              noPrice={noPrice}
-              isYesSelected={intent === "sell" ? sellOutcome === "yes" : isYesSelected}
-              activeDot
-              disabledSide={intent === "sell" ? sellDisabledSide : undefined}
-              yesBarText={intent === "sell" && !heldPositions.yes ? "0 contracts" : undefined}
-              noBarText={intent === "sell" && !heldPositions.no ? "0 contracts" : undefined}
-              onSelect={(which) => {
-                if (intent === "sell") {
-                  // Sell only re-targets the outcome; it never touches `side`.
-                  setSellOutcome(which);
-                  setSellQtyInput("0");
-                  setSellSlider([0]);
-                  if (isBinarySingleMarket) {
-                    const opt = which === "yes" ? yesNoOptions.yes : yesNoOptions.no;
-                    if (opt) setSelectedOption(opt.id);
-                  }
-                  return;
-                }
-                if (which === "yes") {
-                  setSide("buy");
-                  if (isBinarySingleMarket && yesNoOptions.yes) {
-                    setSelectedOption(yesNoOptions.yes.id);
-                  }
-                } else if (isBinarySingleMarket && yesNoOptions.no) {
-                  // binary 模式：Buy No 是 No 端的 long 仓位
-                  setSide("buy");
-                  setSelectedOption(yesNoOptions.no.id);
-                } else {
-                  setSide("sell");
-                }
-              }}
-            />
-
-            {intent === "buy" ? (
-            <>
-
-
-
-            {/* Leverage */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Leverage</span>
-                <span className="text-sm font-bold text-trading-purple">{leverage}x</span>
-              </div>
-              
-              {/* Slider */}
-              <Slider
-                value={[leverage]}
-                onValueChange={(value) => setLeverage(value[0])}
-                min={1}
-                max={10}
-                step={1}
-                className="w-full"
-              />
-              
-              {/* Quick Select Buttons */}
-              <div className="flex gap-1.5">
-                {[1, 2, 5, 7, 10].map((lev) => (
-                  <button
-                    key={lev}
-                    onClick={() => setLeverage(lev)}
-                    className={`flex-1 py-1 text-xs rounded transition-colors whitespace-nowrap ${
-                      leverage === lev 
-                        ? "bg-muted text-foreground font-medium" 
-                        : "bg-muted/40 text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    {lev}x
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Available Balance */}
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Available (USDC)</span>
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-xs">{available.toLocaleString()}</span>
-                <TransferEntry direction="to_futures" />
-              </div>
-            </div>
-
-
-            {/* Price Input (for Limit orders) */}
-            {orderType === "Limit" && (
-              <div className="space-y-1">
-                <span className="text-xs text-muted-foreground">Price</span>
-                <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
-                  <input
-                    type="text"
-                    value={limitPrice || sidePrice.toFixed(4)}
-                    onChange={(e) => setLimitPrice(e.target.value)}
-                    className="flex-1 bg-transparent outline-none font-mono text-sm"
-                    placeholder="0.0000"
-                  />
-                  <span className="text-muted-foreground text-xs">USDC</span>
-                </div>
-              </div>
-            )}
-
-            {/* Amount/Qty Input */}
-            <div className="space-y-1">
-              <span className="text-xs text-muted-foreground">Amount</span>
-              <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
-                <input
-                  type="text"
-                  value={amountMode === "units" ? unitsInput : amount}
-                  onChange={(e) => (amountMode === "units" ? setUnitsInput(e.target.value) : setAmount(e.target.value))}
-                  className="flex-1 bg-transparent outline-none font-mono text-sm"
-                  placeholder={amountMode === "units" ? "0" : "0.00"}
-                  inputMode="decimal"
-                />
-                <AmountUnitDropdown value={amountMode} unitLabel="Contracts" onChange={setAmountMode} />
-              </div>
-            </div>
-
-            {/* Slider */}
-            <div className="space-y-1">
-              <Slider
-                value={sliderValue}
-                onValueChange={(val) => {
-                  setSliderValue(val);
-                  if (amountMode === "units") setUnitsInput(String(Math.round((maxUnits * val[0]) / 100)));
-                  else setAmount((available * val[0] / 100).toFixed(2));
-                }}
-                max={100}
-                step={1}
-                className="w-full"
-              />
-              <div className="flex justify-between text-[10px] text-muted-foreground">
-                {["0%", "25%", "50%", "75%", "100%"].map((label) => (
-                  <span key={label}>{label}</span>
-                ))}
-              </div>
-            </div>
-
-            {/* Options */}
-            <div className="space-y-2">
-              {/* TP/SL Section - Simple Dropdown Style */}
-              <div className="space-y-2">
-                <button 
-                  onClick={() => setTpsl(!tpsl)}
-                  className="flex items-center justify-between w-full"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${tpsl ? 'bg-foreground border-foreground' : 'border-muted-foreground'}`}>
-                      {tpsl && <span className="text-[10px] text-background">✓</span>}
-                    </div>
-                    <span className="text-xs text-muted-foreground">TP/SL</span>
-                  </div>
-                  {tpsl ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
-                </button>
-                
-                {tpsl && (
-                  <div className="space-y-2 animate-fade-in">
-                    {/* Take Profit */}
-                    <div className="space-y-1">
-                      <span className="text-xs text-trading-green">Take Profit</span>
-                      <div className="flex items-center bg-muted rounded-lg px-2.5 py-2 gap-1">
-                        <input
-                          type="text"
-                          value={tpValue}
-                          onChange={(e) => setTpValue(e.target.value)}
-                          className="flex-1 min-w-0 bg-transparent outline-none font-mono text-sm"
-                          placeholder={tpMode === "pct" ? "0" : "0.0000"}
-                        />
-                        <div className="flex bg-background/50 rounded p-0.5 shrink-0">
-                          <button
-                            onClick={() => setTpMode("pct")}
-                            className={`px-1.5 py-0.5 rounded text-[10px] transition-colors ${
-                              tpMode === "pct" ? "bg-trading-green/20 text-trading-green" : "text-muted-foreground"
-                            }`}
-                          >
-                            %
-                          </button>
-                          <button
-                            onClick={() => setTpMode("price")}
-                            className={`px-1.5 py-0.5 rounded text-[10px] transition-colors ${
-                              tpMode === "price" ? "bg-trading-green/20 text-trading-green" : "text-muted-foreground"
-                            }`}
-                          >
-                            $
-                          </button>
-                        </div>
-                      </div>
-                      {tpValue && tpMode === "pct" && (
-                        <div className="flex justify-between text-[10px] text-muted-foreground px-1">
-                          <span>Target: ${tpslCalculations.tpPrice}</span>
-                          <span className="text-trading-green">+${tpslCalculations.tpPnL}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Stop Loss */}
-                    <div className="space-y-1">
-                      <span className="text-xs text-trading-red">Stop Loss</span>
-                      <div className="flex items-center bg-muted rounded-lg px-2.5 py-2 gap-1">
-                        <input
-                          type="text"
-                          value={slValue}
-                          onChange={(e) => setSlValue(e.target.value)}
-                          className="flex-1 min-w-0 bg-transparent outline-none font-mono text-sm"
-                          placeholder={slMode === "pct" ? "0" : "0.0000"}
-                        />
-                        <div className="flex bg-background/50 rounded p-0.5 shrink-0">
-                          <button
-                            onClick={() => setSlMode("pct")}
-                            className={`px-1.5 py-0.5 rounded text-[10px] transition-colors ${
-                              slMode === "pct" ? "bg-trading-red/20 text-trading-red" : "text-muted-foreground"
-                            }`}
-                          >
-                            %
-                          </button>
-                          <button
-                            onClick={() => setSlMode("price")}
-                            className={`px-1.5 py-0.5 rounded text-[10px] transition-colors ${
-                              slMode === "price" ? "bg-trading-red/20 text-trading-red" : "text-muted-foreground"
-                            }`}
-                          >
-                            $
-                          </button>
-                        </div>
-                      </div>
-                      {slValue && slMode === "pct" && (
-                        <div className="flex justify-between text-[10px] text-muted-foreground px-1">
-                          <span>Target: ${tpslCalculations.slPrice}</span>
-                          <span className="text-trading-red">{tpslCalculations.slPnL}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Order Summary */}
-            <div className="space-y-1 text-xs pt-2 border-t border-border/30">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Contracts</span>
-                <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
-                  {parseFloat(amount) > 0 ? parseInt(orderCalculations.quantity).toLocaleString() : "--"}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Notional val.</span>
-                <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
-                  {parseFloat(amount) > 0 ? `${displayCalculations.notionalValue} USDC` : "--"}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Margin req.</span>
-                <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
-                  {parseFloat(amount) > 0 ? `${displayCalculations.marginRequired} USDC` : "--"}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Fee (est.)</span>
-                <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
-                  {parseFloat(amount) > 0 ? `${displayCalculations.estimatedFee} USDC` : "--"}
-                </span>
-              </div>
-              <div className="flex justify-between pt-2 border-t border-border/30">
-                <span className="font-medium text-foreground">Total</span>
-                <span className={parseFloat(amount) > 0 ? "text-foreground font-mono font-medium" : "text-muted-foreground"}>
-                  {parseFloat(amount) > 0 ? `${displayCalculations.total} USDC` : "--"}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="inline-flex items-center gap-1 text-muted-foreground">
-                  To win
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <HelpCircle className="w-3 h-3 text-muted-foreground cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-[220px] p-2">
-                        <WinTooltipBody />
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </span>
-                <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
-                  {parseFloat(amount) > 0 ? `${parseInt(orderCalculations.potentialWin).toLocaleString()} USDC` : "--"}
-                </span>
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            {orderIntent.kind === "blocked-cross-zero" && (
-              <div className="space-y-2 rounded-lg border border-trading-red/30 bg-trading-red/10 px-3 py-2 text-[11px] text-trading-red">
-                <p>You hold {orderIntent.existingQty.toLocaleString()} {orderIntent.existingPosition?.type} shares. Close it before opening the opposite side.</p>
-                <button
-                  type="button"
-                  onClick={() => setAmount(((orderIntent.existingQty * sidePrice) / leverage).toFixed(2))}
-                  className="text-foreground underline underline-offset-2"
-                >
-                  Close & Continue
-                </button>
-              </div>
-            )}
-            <TradeSubmitButton
-              side={side}
-              label={gate.reason || getIntentLabel(orderIntent, side, ctaSideLabels)}
-              potentialWin={parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
-              onClick={handlePreview}
-              disabled={gate.blocked || orderIntent.kind === "blocked-cross-zero"}
-              positionSide={isBinarySingleMarket ? (isYesSelected ? "yes" : "no") : undefined}
-            />
-            </>
-            ) : (
-            <>
-            {/* CT-1 · Sell = reduce-only close of the netted position */}
-            {sellDisabledSide === "both" && (
-              <div className="text-xs text-muted-foreground">No position to close yet</div>
-            )}
-
-            {heldPos && (
-              <div className="text-[11px] text-muted-foreground">
-                Held <span className="font-mono text-foreground">{heldSize.toLocaleString()}</span> contracts ·{" "}
-                {sellOutcomeLabel} · <span className="font-mono">{Math.round(heldPos.leverageNum) || 1}x</span> · entry{" "}
-                <span className="font-mono">{heldPos.entryPriceNum.toFixed(4)}</span>
-              </div>
-            )}
-
-            {/* Available Balance */}
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Available (USDC)</span>
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-xs">{available.toLocaleString()}</span>
-                <TransferEntry direction="to_futures" />
-              </div>
-            </div>
-
-            {orderType === "Limit" && (
-              <div className="space-y-1">
-                <span className="text-xs text-muted-foreground">Close price</span>
-                <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
-                  <input
-                    type="text"
-                    value={sellLimitPrice || sellMark.toFixed(4)}
-                    onChange={(e) => setSellLimitPrice(e.target.value)}
-                    className="flex-1 bg-transparent outline-none font-mono text-sm"
-                    placeholder="0.0000"
-                  />
-                  <span className="text-muted-foreground text-xs">USDC</span>
-                </div>
-                {sellLimitPending && (
-                  <p className="text-[10px] text-muted-foreground">
-                    Limit {sellClosePrice > sellMark ? "above" : "below"} mark — order will rest as Pending until touched.
-                  </p>
-                )}
-              </div>
-            )}
-
-            <div className="space-y-1">
-              <span className="text-xs text-muted-foreground">Amount</span>
-              <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
-                <input
-                  ref={sellAmountRef}
-                  type="text"
-                  value={sellQtyInput}
-                  onChange={(e) => setSellQtyInput(e.target.value.replace(/[^0-9]/g, ""))}
-                  className="flex-1 bg-transparent outline-none font-mono text-sm"
-                  placeholder="0"
-                />
-                <span className="text-muted-foreground text-xs font-medium">Contracts</span>
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <Slider
-                value={sellSlider}
-                onValueChange={(val) => {
-                  setSellSlider(val);
-                  setSellQtyInput(String(Math.round((heldSize * val[0]) / 100)));
-                }}
-                max={100}
-                step={1}
-                className="w-full"
-              />
-              <div className="flex justify-between text-[10px] text-muted-foreground">
-                {["0%", "25%", "50%", "75%", "100%"].map((label) => (
-                  <span key={label}>{label}</span>
-                ))}
-              </div>
-            </div>
-
-            {/* Sell summary */}
-            <div className="space-y-1 text-xs pt-2 border-t border-border/30">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Close price (mark)</span>
-                <span className="text-foreground font-mono">{sellClosePrice.toFixed(4)} USDC</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Contracts</span>
-                <span className="text-foreground font-mono">{sellQty.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Released margin</span>
-                <span className="text-foreground font-mono">{sellReleasedMargin.toFixed(2)} USDC</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Realized PnL est.</span>
-                <span className={`font-mono ${sellRealizedPnl >= 0 ? "text-trading-green" : "text-trading-red"}`}>
-                  {sellRealizedPnl >= 0 ? "+" : "-"}{Math.abs(sellRealizedPnl).toFixed(2)} USDC
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Est. commission</span>
-                <span className="text-foreground font-mono">{sellCommission.toFixed(2)} USDC</span>
-              </div>
-              <div className="flex justify-between pt-2 border-t border-border/30 font-medium">
-                <span className="text-foreground">You receive</span>
-                <span className="text-foreground font-mono">{sellCashBack.toFixed(2)} USDC</span>
-              </div>
-            </div>
-
-            <TradeSubmitButton
-              side="sell"
-              label={gate.reason || sellCtaLabel}
-              winPrefix="You receive"
-              potentialWin={sellCashBack.toFixed(2)}
-              onClick={handleSellPreview}
-              disabled={gate.blocked || sellSubmitDisabled}
-            />
-            </>
-            )}
-            </div>
-          </div>
+        <ProContractPanel
+          intent={intent}
+          setIntent={setIntent}
+          orderType={orderType}
+          setOrderType={setOrderType}
+          binaryLabels={binaryLabels}
+          yesPrice={yesPrice}
+          noPrice={noPrice}
+          isYesSelected={isYesSelected}
+          sellOutcome={sellOutcome}
+          sellDisabledSide={sellDisabledSide}
+          heldPositions={heldPositions}
+          onSelectSide={(which) => {
+            if (intent === "sell") {
+              // Sell only re-targets the outcome; it never touches `side`.
+              setSellOutcome(which);
+              setSellQtyInput("0");
+              setSellSlider([0]);
+              if (isBinarySingleMarket) {
+                const opt = which === "yes" ? yesNoOptions.yes : yesNoOptions.no;
+                if (opt) setSelectedOption(opt.id);
+              }
+              return;
+            }
+            if (which === "yes") {
+              setSide("buy");
+              if (isBinarySingleMarket && yesNoOptions.yes) {
+                setSelectedOption(yesNoOptions.yes.id);
+              }
+            } else if (isBinarySingleMarket && yesNoOptions.no) {
+              // binary 模式：Buy No 是 No 端的 long 仓位
+              setSide("buy");
+              setSelectedOption(yesNoOptions.no.id);
+            } else {
+              setSide("sell");
+            }
+          }}
+          side={side}
+          leverage={leverage}
+          setLeverage={setLeverage}
+          available={available}
+          limitPrice={limitPrice}
+          setLimitPrice={setLimitPrice}
+          sidePrice={sidePrice}
+          amountMode={amountMode}
+          setAmountMode={setAmountMode}
+          unitsInput={unitsInput}
+          setUnitsInput={setUnitsInput}
+          amount={amount}
+          setAmount={setAmount}
+          sliderValue={sliderValue}
+          setSliderValue={setSliderValue}
+          maxUnits={maxUnits}
+          tpsl={tpsl}
+          setTpsl={setTpsl}
+          tpValue={tpValue}
+          setTpValue={setTpValue}
+          tpMode={tpMode}
+          setTpMode={setTpMode}
+          slValue={slValue}
+          setSlValue={setSlValue}
+          slMode={slMode}
+          setSlMode={setSlMode}
+          tpslCalculations={tpslCalculations}
+          orderCalculations={orderCalculations}
+          displayCalculations={displayCalculations}
+          orderIntent={orderIntent}
+          buyBlockedReason={buyBlockedReason}
+          buyCtaLabel={getIntentLabel(orderIntent, side, ctaSideLabels, !isBinarySingleMarket)}
+          buyLimitPending={buyLimitPending}
+          leverageMax={leverageMax}
+          leverageTiers={leverageTiers}
+          onPreview={handlePreview}
+          onCloseAndContinue={() => setAmount(((orderIntent.existingQty * execPrice) / leverage).toFixed(2))}
+          isBinarySingleMarket={isBinarySingleMarket}
+          heldPos={heldPos}
+          heldSize={heldSize}
+          sellOutcomeLabel={sellOutcomeLabel}
+          sellLimitPrice={sellLimitPrice}
+          setSellLimitPrice={setSellLimitPrice}
+          sellMark={sellMark}
+          sellLimitPending={sellLimitPending}
+          sellClosePrice={sellClosePrice}
+          sellAmountRef={sellAmountRef}
+          sellQtyInput={sellQtyInput}
+          setSellQtyInput={setSellQtyInput}
+          sellSlider={sellSlider}
+          setSellSlider={setSellSlider}
+          sellQty={sellQty}
+          sellReleasedMargin={sellReleasedMargin}
+          sellRealizedPnl={sellRealizedPnl}
+          sellCommission={sellCommission}
+          sellCashBack={sellCashBack}
+          sellBlockedReason={gate.reason}
+          sellCtaLabel={sellCtaLabel}
+          sellSubmitDisabled={sellSubmitDisabled}
+          onSellPreview={handleSellPreview}
+        />
       }
       account={user && (
         <div className="bg-background rounded-lg border border-border/50 flex-shrink-0">
@@ -2197,7 +1890,7 @@ export default function DesktopTrading() {
 
           <TradeSubmitButton
             side={side}
-            label={getIntentLabel(orderIntent, side, ctaSideLabels)}
+            label={getIntentLabel(orderIntent, side, ctaSideLabels, !isBinarySingleMarket)}
             potentialWin={parseFloat(amount) > 0 ? parseInt(orderCalculations.potentialWin).toLocaleString() : "0"}
             onClick={handleConfirmOrder}
             loading={isSubmittingOrder}

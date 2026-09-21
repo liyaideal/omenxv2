@@ -38,4 +38,9 @@
 ## 4. 已知边界
 
 - 合约张数取整，滑杆拖动时四舍五入到整张；现货份额与 Sell 页签同精度（3 位小数）。
+- 合约张数的精确取整规则（2026-09-21 按代码补记，`src/pages/DesktopTrading.tsx` L497-508 与 `src/components/TradeForm.tsx` L167-178 同一份逻辑）：
+  - 手输：`u = Math.max(0, Math.floor(parseFloat(unitsInput) || 0))`——向下取整到整张，**下限是 0 不是 1**（输 `2.7` 按 2 张算，输 `0.9` / 空 / 非数字按 0 张，Margin 写回 `0.00`，走零金额 CTA 路径）；输入框本身不改写用户输入的字符串（`2.7` 仍显示 `2.7`，只是换算按 2）。输入框 `type="text" inputMode="decimal"`，不拦小数点。
+  - 最大张数：`maxUnits = Math.floor(available × leverage ÷ price)`（价格 ≤ 0 时为 0）。
+  - 滑杆：`unitsInput = String(Math.round(maxUnits × pct ÷ 100))`——四舍五入（`TradeForm.tsx` L637、`ProContractPanel.tsx` L252）。
+  - USDC → Contracts 切换：`Math.floor(margin × leverage ÷ price)`，保证金或价格 ≤ 0 时清空为 `""`。
 - 限价单在数量模式下按输入的限价换算，价格改了数量不变、金额随之变。

@@ -165,6 +165,7 @@ function TradeOrderContent({ selectedEvent, selectedOptionData, options, setSele
                 binaryMode={binaryMode}
                 sideLabels={isBinary || isSingleMarketBinary(options, selectedEvent) ? labels : null}
                 blockedReason={gate.reason || null}
+                eventCategory={selectedEvent?.category}
               />
             );
           })()}
