@@ -606,7 +606,9 @@ This prevents character confusion (e.g., `6` vs `b`, `0` vs `O`).
 
 ### Account Risk Indicator (4-Tier)
 
-Formula: `Risk Ratio = Initial Margin / Equity × 100` where `Equity = Balance + Unrealized PnL`
+Formula (RM-1, 2026-09-21): `Risk Ratio = Maintenance Margin / Equity × 100` where `Equity = Balance + Unrealized PnL` and `Maintenance Margin = 50% × Initial Margin` (`MM_RATIO`). Exchange cross-margin convention (Binance / Bybit): 100% = maintenance margin exhausted → liquidation. Before 2026-09-21 the ratio was `Initial Margin / Equity`.
+
+Derived numbers share the same MM: distance to auto-close = `Equity − MM`; Lite "Est. auto-close" solves `equity(P) = MM after trade`; per-position `Liq. Price = entry × (1 ∓ (1 − MM_RATIO) / leverage)`. `Available` for new positions stays `Equity − IM`. One metric everywhere: the mobile header chip reads `Risk x%`, the mobile drawer mirrors the desktop card (no separate IM / MM rate bars), Lite's Boost check prints the same ratio as `Healthy · 7%` and `Boost usage 7.13%` (Lite words only).
 
 | Tier | Range | Color | Behavior |
 |------|-------|-------|----------|

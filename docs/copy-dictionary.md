@@ -235,6 +235,7 @@ positives. Chip words come from the sibling event's `side_labels`.
 | **Total equity** | `Boost + Standard available` (`balance + spot_balance`). **Retired 2026-07-21:** "Trial bonus" field — the Trial Bonus wallet feature was fully sunset before mainnet launch; do not reintroduce copy that references it. |
 | **To win** | Pro CTA figure = net profit after 5% winning commission (same `netWin()` helper as Lite) | gross profit |
 | **Standard Account** | 现货账户在 Pro `/spot` 与余额提示中的名字 | Spot Account（已退役）|
+| **Boost usage** | Lite Boost check Details 里的比例行（= Pro Risk Ratio = MM / Equity）；条上 `Healthy · 7%` 取整 | Risk Ratio / Margin（Lite 禁） |
 | **Boost Account** | 合约账户卡（`/trade` 右栏、手机风险指示器）标题；行内容 Margin Mode / Account Equity / Risk Ratio / Initial · Maint. Margin 不变 | Unified Trading Account（2026-09-15 退役）|
 | **To win ⓘ** | 四个 Pro 下单面板（合约桌面/手机、现货桌面/手机）摘要末段统一为 `To win` 行 + ⓘ，tooltip 用共享 `WinTooltipBody`；不再在摘要下平铺说明句 | To win shows profit after the 5% winning commission.（句子退役）|
 | **⇄ Transfer（Available 旁）** | 每个 Pro 面板 `Available (USDC)` 右侧的划转入口（`TransferEntry`，⇄ 为全站唯一划转图标，与钱包 AccountBalanceLine 同款），桌面开 TransferDialog、手机开 TransferDrawer；合约面板预选 to_futures，现货 to_spot。执行 08-06 裁定"每个展示出来的余额都有划转入口" | + 充值（面板内退役，充值只在 Wallet）|

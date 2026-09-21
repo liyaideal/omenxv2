@@ -2,7 +2,9 @@
 // Account-level "Est. auto-close" solver for Lite Boost positions.
 //
 // Cross-collateral model (see useRealtimeRiskMetrics): the account
-// triggers when equity(P) falls to imAfter. Direction matters:
+// triggers when equity(P) falls to the MAINTENANCE margin after the trade
+// (mmAfter = MM_RATIO × imAfter, exchange convention — RM-1, CPO 2026-09-21;
+// before that the trigger was imAfter). Direction matters:
 //   long  → equity(P) = assetsAfter + pnlOther + (P − entry) × qty
 //   short → equity(P) = assetsAfter + pnlOther + (entry − P) × qty
 //
@@ -44,6 +46,9 @@ export interface AutoCloseInput {
 
 const NONE: AutoCloseResult = { kind: "none" };
 
+/** Maintenance margin as a share of initial margin — single source with useRealtimeRiskMetrics. */
+export const MM_RATIO = 0.5;
+
 export const estimateAutoClosePrice = (i: AutoCloseInput): AutoCloseResult => {
   if (!isFinite(i.entryPrice) || i.entryPrice <= 0) return NONE;
   if (!isFinite(i.quantity) || i.quantity <= 0) return NONE;
@@ -55,6 +60,7 @@ export const estimateAutoClosePrice = (i: AutoCloseInput): AutoCloseResult => {
   const assetsAfter =
     i.mode === "existing" ? i.totalAssets : i.totalAssets - i.amount - i.fee;
   const imAfter = imTotalOther + i.amount;
+  const mmAfter = imAfter * MM_RATIO;
 
   const mark = Math.min(0.99, Math.max(0.01, isFinite(i.markPrice) ? i.markPrice : i.entryPrice));
   const dir = i.side === "short" ? -1 : 1;
@@ -62,10 +68,10 @@ export const estimateAutoClosePrice = (i: AutoCloseInput): AutoCloseResult => {
   // Already at/past the trigger at the current mark → the truthful level
   // is the mark itself (the UI renders it hot).
   const equityNow = assetsAfter + pnlOther + dir * (mark - i.entryPrice) * i.quantity;
-  if (equityNow <= imAfter) return { kind: "level", price: mark };
+  if (equityNow <= mmAfter) return { kind: "level", price: mark };
 
-  // Solve equity(P) = imAfter for P, direction-aware.
-  const p = i.entryPrice + dir * ((imAfter - (assetsAfter + pnlOther)) / i.quantity);
+  // Solve equity(P) = mmAfter for P, direction-aware.
+  const p = i.entryPrice + dir * ((mmAfter - (assetsAfter + pnlOther)) / i.quantity);
   if (!isFinite(p)) return NONE;
 
   // Legal domain: the level must sit on the LOSS side of the mark and

@@ -329,6 +329,24 @@ const ORDER_STATUS_MOBILE_CASES: SectionCase[] = [
   },
 ];
 
+const RISK_MOBILE_CASES: SectionCase[] = [
+  {
+    key: "pro-risk-chip-mobile",
+    label: "RM-M1 · 手机页头风险方块 `Risk x%` 四档（同桌面 Risk Ratio = MM / Equity）",
+    note: "之前方块印的是 MM / Equity 而颜色按 IM / Equity 档位染——两个指标。RM-1 起全站一个指标：Risk Ratio = MM / Equity（DESIGN §7）。",
+    spec: [
+      { state: "SAFE / WARNING / RESTRICTION / LIQUIDATION", when: "riskRatio < 80 / 80–95 / 95–100 / ≥ 100", visual: "标签 `Risk`，数字按档位绿 / 黄 / 橙 / 红", source: "MobileRiskIndicator（previewMetrics）" },
+    ],
+  },
+  {
+    key: "pro-risk-drawer-mobile",
+    label: "RM-M2 · 手机 Boost Account 抽屉 = 桌面卡内容",
+    spec: [
+      { state: "展开", when: "点页头方块", visual: "Margin Mode / Account Equity / Risk Ratio 进度条（80 / 95 / 100 刻度）/ Initial Margin $ / Maint. Margin $；不再有两条 Rate 进度条", source: "AccountRiskDrawer" },
+    ],
+  },
+];
+
 const TRADE_ORDER_CASES: SectionCase[] = [
   {
     key: "pro-trade-order-buy",
@@ -608,6 +626,14 @@ export const ProSpotSection = (_: Props) => (
       description="合约面板的 Buy · Sell 意图页签。Sell 只做当前净额仓位的减仓/平仓（方案 A），空仓禁用、永不开反向。桌面 /trade 面板与此同规格，但仍是页面内联 JSX，暂无法在字典挂载（见交付文档已知缺口）。"
     >
       <SectionFrame cases={TRADE_ORDER_CASES} device="mobile" minHeight={640} />
+    </SectionWrapper>
+
+    <SectionWrapper
+      id="pro-risk-mobile"
+      title="手机风险指示（RM-1 · Risk Ratio = MM / Equity）"
+      description="页头方块和抽屉与桌面账户卡同一个指标、同一套行；Lite 的 Boost check 也读同一个数（见 Portfolio 节）。"
+    >
+      <SectionFrame cases={RISK_MOBILE_CASES} device="mobile" minHeight={640} />
     </SectionWrapper>
 
     <SectionWrapper

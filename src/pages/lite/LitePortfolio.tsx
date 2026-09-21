@@ -164,7 +164,7 @@ export default function LitePortfolio() {
       riskRatio: p.risk.riskRatio,
       equity: p.risk.equity,
       imTotal: p.risk.imTotal,
-      untilAutoClose: Math.max(p.risk.equity - p.risk.imTotal, 0),
+      untilAutoClose: p.risk.distanceToLiquidation, // RM-1: equity − MM
     }),
     [p.risk],
   );

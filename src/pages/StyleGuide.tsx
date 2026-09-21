@@ -2393,7 +2393,7 @@ const StyleGuide = () => {
                     )}
                   </div>
                   <div>
-                    <span className="text-[11px] md:text-xs text-muted-foreground">Risk Ratio (IM/Equity)</span>
+                    <span className="text-[11px] md:text-xs text-muted-foreground">Risk Ratio (MM/Equity)</span>
                     <p className={`${isMobile ? "text-base" : "text-lg"} font-mono font-semibold ${
                       playgroundRiskMetrics.riskLevel === "SAFE" ? "text-trading-green" :
                       playgroundRiskMetrics.riskLevel === "WARNING" ? "text-trading-yellow" :
@@ -4046,7 +4046,7 @@ toast.promise(asyncFn(), {
                     <p><strong className="text-foreground">Equity</strong> = Total Assets + Unrealized PnL (your real wealth)</p>
                     <p><strong className="text-foreground">Initial Margin (IM)</strong> = Entry threshold - determines if you can open positions</p>
                     <p><strong className="text-foreground">Maintenance Margin (MM)</strong> = Survival line - determines if you'll be liquidated (50% of IM)</p>
-                    <p><strong className="text-foreground">Risk Ratio</strong> = IM / Equity × 100% (the key risk indicator)</p>
+                    <p><strong className="text-foreground">Risk Ratio</strong> = MM / Equity × 100% (the key risk indicator)</p>
                   </div>
                 </div>
                 

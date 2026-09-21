@@ -31,14 +31,11 @@ const getRiskIcon = (level: RiskLevel) => {
 /**
  * Compact MM indicator badge that opens full account risk drawer
  */
-export function MobileRiskIndicator() {
+export function MobileRiskIndicator({ previewMetrics }: { previewMetrics?: RiskMetrics } = {}) {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const riskMetrics = useRealtimeRiskMetrics();
+  const liveMetrics = useRealtimeRiskMetrics();
+  const riskMetrics = previewMetrics ?? liveMetrics;
 
-  // MM ratio = MM / Equity
-  const mmRatio = riskMetrics.equity > 0
-    ? (riskMetrics.mmTotal / riskMetrics.equity) * 100
-    : 0;
 
   return (
     <>
@@ -47,9 +44,9 @@ export function MobileRiskIndicator() {
         onClick={() => setDrawerOpen(true)}
         className="flex flex-col items-center justify-center w-14 h-10 rounded-lg bg-muted/50 border border-border/30 hover:bg-muted transition-colors"
       >
-        <span className="text-[10px] text-muted-foreground leading-none mb-0.5">MM</span>
+        <span className="text-[10px] text-muted-foreground leading-none mb-0.5">Risk</span>
         <span className={`text-xs font-mono font-medium leading-none ${getRiskColor(riskMetrics.riskLevel)}`}>
-          {mmRatio.toFixed(2)}%
+          {riskMetrics.riskRatio.toFixed(2)}%
         </span>
       </button>
 
@@ -69,7 +66,7 @@ interface AccountRiskDrawerProps {
   riskMetrics: RiskMetrics;
 }
 
-function AccountRiskDrawer({ open, onOpenChange, riskMetrics }: AccountRiskDrawerProps) {
+export function AccountRiskDrawer({ open, onOpenChange, riskMetrics }: AccountRiskDrawerProps) {
   const [showValues, setShowValues] = useState(true);
 
   const getProgressWidth = (ratio: number) => Math.min(ratio, 100);
@@ -95,7 +92,7 @@ function AccountRiskDrawer({ open, onOpenChange, riskMetrics }: AccountRiskDrawe
               </PopoverTrigger>
               <PopoverContent side="bottom" align="end" className="w-[280px] p-3">
                 <div className="space-y-2 text-xs">
-                  <p><strong>Risk Ratio</strong> = IM / Equity</p>
+                  <p><strong>Risk Ratio</strong> = MM / Equity</p>
                   <p><strong>IM (Initial Margin):</strong> Entry threshold - determines if you can open positions.</p>
                   <p><strong>MM (Maintenance Margin):</strong> Survival line - determines if you'll be liquidated.</p>
                   <p><strong>Equity:</strong> Your real wealth - determines how much you can still lose.</p>
@@ -169,48 +166,19 @@ function AccountRiskDrawer({ open, onOpenChange, riskMetrics }: AccountRiskDrawe
           </div>
         </div>
 
-        {/* IM & MM with Rate Progress Bars */}
-        <div className="space-y-4 pt-3 border-t border-border/30">
-          {/* Initial Margin Rate */}
+        {/* IM & MM summary — same rows as the desktop card (RM-1) */}
+        <div className="grid grid-cols-2 gap-3 pt-3 border-t border-border/30">
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs text-muted-foreground">Initial Margin Rate</span>
-              <span className="text-xs font-mono text-foreground">
-                {showValues ? `$${riskMetrics.imTotal.toFixed(2)}` : "****"}
-              </span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-trading-green rounded-full transition-all duration-300"
-                  style={{ width: `${Math.min(riskMetrics.imRate, 100)}%` }}
-                />
-              </div>
-              <span className="text-sm font-mono text-trading-green min-w-[50px] text-right">
-                {showValues ? `${riskMetrics.imRate.toFixed(2)}%` : "****"}
-              </span>
-            </div>
+            <span className="text-xs text-muted-foreground">Initial Margin</span>
+            <p className="text-sm font-mono text-foreground">
+              {showValues ? `$${riskMetrics.imTotal.toFixed(2)}` : "****"}
+            </p>
           </div>
-
-          {/* Maintenance Margin Rate */}
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs text-muted-foreground">Maintenance Margin Rate</span>
-              <span className="text-xs font-mono text-foreground">
-                {showValues ? `$${riskMetrics.mmTotal.toFixed(2)}` : "****"}
-              </span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-trading-green rounded-full transition-all duration-300"
-                  style={{ width: `${Math.min(riskMetrics.mmRate, 100)}%` }}
-                />
-              </div>
-              <span className="text-sm font-mono text-trading-green min-w-[50px] text-right">
-                {showValues ? `${riskMetrics.mmRate.toFixed(2)}%` : "****"}
-              </span>
-            </div>
+            <span className="text-xs text-muted-foreground">Maint. Margin</span>
+            <p className="text-sm font-mono text-foreground">
+              {showValues ? `$${riskMetrics.mmTotal.toFixed(2)}` : "****"}
+            </p>
           </div>
         </div>
       </div>

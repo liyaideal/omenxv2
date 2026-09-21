@@ -88,7 +88,7 @@ export const RISK_STYLES: Record<RiskTier, RiskStyle> = {
   },
 };
 
-/** Map a risk ratio percentage (0–∞, IM/Equity) to its tier. */
+/** Map a risk ratio percentage (0–∞, MM/Equity) to its tier. */
 export const getRiskTier = (ratio: number): RiskTier => {
   if (ratio >= 100) return "LIQUIDATION";
   if (ratio >= 95) return "RESTRICTION";

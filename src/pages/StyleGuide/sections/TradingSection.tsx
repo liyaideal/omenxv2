@@ -182,7 +182,7 @@ const style = CATEGORY_STYLES[category];
         id="account-risk"
         title="Account Risk Indicator"
         platform="shared"
-        description="4-tier risk classification based on Risk Ratio (IM / Equity × 100)"
+        description="4-tier risk classification based on Risk Ratio (MM / Equity × 100)"
       >
         {/* Risk Model Documentation */}
         <Card className="trading-card mb-6">

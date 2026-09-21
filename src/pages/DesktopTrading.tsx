@@ -71,6 +71,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { executeTrade, FUTURES_FEE_RATE, netWin, cashBackOnClose } from "@/services/tradingService";
 import { supabase } from "@/integrations/supabase/client";
 import { OrderTypeDropdown } from "@/components/pro/OrderTypeDropdown";
+import { MM_RATIO } from "@/lib/autoClosePrice";
 import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { AccountRiskIndicator } from "@/components/AccountRiskIndicator";
@@ -724,8 +725,8 @@ export default function DesktopTrading() {
     // Estimated liquidation price - sell side moves opposite direction
     const liqPrice = price > 0
       ? (side === "buy"
-          ? price * (1 - 1 / leverage * 0.9)
-          : price * (1 + 1 / leverage * 0.9)
+          ? price * (1 - (1 - MM_RATIO) / leverage)
+          : price * (1 + (1 - MM_RATIO) / leverage)
         ).toFixed(4)
       : "0.0000";
 

@@ -219,6 +219,8 @@ export const boostState = (riskRatio: number) => {
 const detailRows = (data: BoostCheckData) => [
   { k: "Equity", v: moneyAuto(data.equity) },
   { k: "Used by Boost calls", v: moneyAuto(data.imTotal) },
+  // RM-1: same number as Pro's Risk Ratio (MM / Equity), Lite wording.
+  { k: "Boost usage", v: `${data.riskRatio.toFixed(2)}%` },
   { k: "Until auto-close starts", v: moneyAuto(data.untilAutoClose) },
 ];
 
@@ -306,6 +308,7 @@ export const BoostCheckCard = ({
           </span>
           <span className="text-[14px] font-bold" style={{ color: st.color }}>
             {st.word}
+            <span className="ml-1.5 font-mono text-[12px] font-semibold">· {Math.round(data.riskRatio)}%</span>
           </span>
         </div>
         <div className="my-2.5 h-[6px] w-full overflow-hidden rounded-full bg-[#1B1F26]">
@@ -344,6 +347,7 @@ export const BoostCheckBar = ({
         </span>
         <span className="text-[14px] font-bold" style={{ color: st.color }}>
           {st.word}
+          <span className="ml-1.5 font-mono text-[12px] font-semibold">· {Math.round(data.riskRatio)}%</span>
         </span>
         <div className="h-[6px] w-[240px] overflow-hidden rounded-full bg-[#1B1F26]">
           <div className="h-full rounded-full" style={{ width: `${fill}%`, background: st.color }} />

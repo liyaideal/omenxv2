@@ -65,7 +65,7 @@ export const AccountRiskIndicator = ({ variant = "compact" }: AccountRiskIndicat
               </TooltipTrigger>
               <TooltipContent side="left" className="max-w-[280px]">
                 <div className="space-y-2 text-xs">
-                  <p><strong>Risk Ratio</strong> = IM / Equity</p>
+                  <p><strong>Risk Ratio</strong> = MM / Equity</p>
                   <p><strong>IM (Initial Margin):</strong> Entry threshold - determines if you can open positions.</p>
                   <p><strong>MM (Maintenance Margin):</strong> Survival line - determines if you'll be liquidated.</p>
                   <p><strong>Equity:</strong> Your real wealth - determines how much you can still lose.</p>
@@ -208,7 +208,7 @@ export const AccountRiskIndicator = ({ variant = "compact" }: AccountRiskIndicat
           )}
         </div>
         <div>
-          <span className="text-xs text-muted-foreground">Risk Ratio (IM/Equity)</span>
+          <span className="text-xs text-muted-foreground">Risk Ratio (MM/Equity)</span>
           <p className={`text-lg font-mono font-semibold ${getRiskColor(riskMetrics.riskLevel)}`}>
             {showValues ? `${riskMetrics.riskRatio.toFixed(2)}%` : "****"}
           </p>

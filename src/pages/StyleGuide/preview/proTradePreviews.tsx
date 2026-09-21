@@ -13,6 +13,8 @@
 import { useState } from "react";
 import { TradeForm } from "@/components/TradeForm";
 import { ProSpotMobileDock } from "@/components/pro/ProSpotMobileDock";
+import { AccountRiskDrawer, MobileRiskIndicator } from "@/components/MobileRiskIndicator";
+import type { RiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import type { UnifiedPosition } from "@/hooks/usePositions";
 import type { ProOrderType } from "@/components/pro/OrderTypeDropdown";
 
@@ -209,6 +211,36 @@ export const ProTradeOrderClosed = () => {
     </Phone>
   );
 };
+
+/* ---- RM-1 · risk metrics fixtures (MM / Equity) ---- */
+const riskFixture = (ratio: number): RiskMetrics => {
+  const equity = 2003.46;
+  const mmTotal = (ratio / 100) * equity;
+  const imTotal = mmTotal * 2;
+  const riskLevel = ratio >= 100 ? "LIQUIDATION" : ratio >= 95 ? "RESTRICTION" : ratio >= 80 ? "WARNING" : "SAFE";
+  return {
+    totalAssets: 1586.03, totalExposure: imTotal * 8, equity, imTotal, mmTotal,
+    imRate: (imTotal / equity) * 100, mmRate: ratio, riskRatio: ratio, riskLevel,
+    availableMargin: Math.max(equity - imTotal, 0), distanceToLiquidation: Math.max(equity - mmTotal, 0),
+    unrealizedPnL: 417.43, hasPositions: true,
+  };
+};
+
+/** RM-M1 · mobile header chip `Risk x%` — four tiers. */
+export const RiskChipStates = () => (
+  <div className="flex items-center gap-3 p-4">
+    {[7.13, 84, 96, 104].map((r) => (
+      <MobileRiskIndicator key={r} previewMetrics={riskFixture(r)} />
+    ))}
+  </div>
+);
+
+/** RM-M2 · mobile account drawer — mirrors the desktop card (Risk Ratio bar + IM / MM dollars). */
+export const RiskDrawerMobile = () => (
+  <div style={{ width: 375, height: 620 }}>
+    <AccountRiskDrawer open onOpenChange={() => undefined} riskMetrics={riskFixture(7.13)} />
+  </div>
+);
 
 /** CT-M4 · Sell · flat — nothing held on either side: both sides disabled. */
 export const ProTradeOrderSellFlat = () => (

@@ -48,6 +48,17 @@
 | BR-F | 品牌方出带 tagline 的正式 OG 图 | ⬜ | 等设计 |
 | BR-G | 鸿蒙体（HarmonyOS Sans SC）中文字体接入 | ⬜ | 多语言轮一起定加载策略 |
 
+## 2026-09-21 — 风险指标 MM / Equity RM-1（[文档](../delivery/risk-ratio-mm-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| RM-A | Risk Ratio = MM / Equity，档位 80 / 95 / 100 不变；距强平 = Equity − MM | ⬜ | `useRealtimeRiskMetrics`，`MM_RATIO = 0.5` |
+| RM-B | Lite Est. auto-close 触发 = 交易后 MM；单仓 Liq. Price 系数 (1 − MM_RATIO)/杠杆 | ⬜ | `autoClosePrice` / `calcLiqPrice` / 两处预览 |
+| RM-C | 手机方块 `Risk x%`；抽屉 = 桌面卡内容 | ⬜ | `MobileRiskIndicator` |
+| RM-D | Lite Boost check `Healthy · 7%` + Details `Boost usage` | ⬜ | `portfolio/lite/parts.tsx` |
+| RM-E | 真平台强平线按 MM / Equity = 100% | ⬜ | 研发 |
+| RM-F | 字典 RM-M1 / RM-M2；DESIGN §7 | ⬜ | |
+
 ## 2026-09-21 — 订单状态标 · 部分成交明细 PF-1（[文档](../delivery/order-status-partial-fill-v1.md)）
 
 | # | 项 | Status | Notes |

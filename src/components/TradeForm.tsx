@@ -15,6 +15,7 @@ import { usePositions, type UnifiedPosition } from "@/hooks/usePositions";
 import { OrderTypeDropdown, type ProOrderType } from "@/components/pro/OrderTypeDropdown";
 import { ClosePositionDialog } from "@/components/positions/ClosePositionDialog";
 
+import { MM_RATIO } from "@/lib/autoClosePrice";
 import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
 import { TradeSubmitButton } from "@/components/trading/TradeSubmitButton";
 import { consumeOpenLimit } from "@/lib/proHandoff";
@@ -226,8 +227,8 @@ export const TradeForm = ({
     // Estimated liquidation price - sell side moves opposite direction
     const liqPrice = price > 0
       ? (side === "buy"
-          ? price * (1 - 1 / leverage * 0.9)
-          : price * (1 + 1 / leverage * 0.9)
+          ? price * (1 - (1 - MM_RATIO) / leverage)
+          : price * (1 + (1 - MM_RATIO) / leverage)
         ).toFixed(4)
       : "0.0000";
 

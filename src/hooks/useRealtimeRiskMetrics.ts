@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useSupabasePositions } from "@/hooks/useSupabasePositions";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useRealtimePositionsPnL } from "@/hooks/useRealtimePositionsPnL";
+import { MM_RATIO } from "@/lib/autoClosePrice";
 
 export type RiskLevel = "SAFE" | "WARNING" | "RESTRICTION" | "LIQUIDATION";
 
@@ -50,8 +51,8 @@ export function useRealtimeRiskMetrics(): RiskMetrics {
     // Initial Margin (IM) = sum of all position margins
     const imTotal = positions.reduce((sum, pos) => sum + (Number(pos.margin) || 0), 0);
 
-    // Maintenance Margin (MM) = 50% of IM (standard ratio)
-    const mmTotal = imTotal * 0.5;
+    // Maintenance Margin (MM) = MM_RATIO × IM (50%)
+    const mmTotal = imTotal * MM_RATIO;
 
     // Calculate realtime unrealized PnL using live prices
     const unrealizedPnL = positions.reduce((sum, pos) => {
@@ -81,8 +82,10 @@ export function useRealtimeRiskMetrics(): RiskMetrics {
     // Equity = Total Assets + Unrealized PnL
     const equity = totalAssets + unrealizedPnL;
 
-    // Risk Ratio = IM / Equity (as percentage)
-    const riskRatio = equity > 0 ? (imTotal / equity) * 100 : 0;
+    // Risk Ratio = MM / Equity (as percentage) — exchange cross-margin
+    // convention (Binance / Bybit): 100% = maintenance margin exhausted →
+    // liquidation. RM-1 (CPO 2026-09-21); before that it was IM / Equity.
+    const riskRatio = equity > 0 ? (mmTotal / equity) * 100 : 0;
 
     // Determine risk level based on risk ratio thresholds
     let riskLevel: RiskLevel = "SAFE";
@@ -97,13 +100,13 @@ export function useRealtimeRiskMetrics(): RiskMetrics {
     // Available margin for new positions
     const availableMargin = Math.max(equity - imTotal, 0);
 
-    // Distance to liquidation
-    const distanceToLiquidation = Math.max(equity - imTotal, 0);
+    // Distance to liquidation = how much equity can still be lost before MM is hit
+    const distanceToLiquidation = Math.max(equity - mmTotal, 0);
 
-    // IM Rate = IM / Equity (same as risk ratio)
+    // IM Rate = IM / Equity
     const imRate = equity > 0 ? (imTotal / equity) * 100 : 0;
 
-    // MM Rate = MM / Equity
+    // MM Rate = MM / Equity (same as risk ratio)
     const mmRate = equity > 0 ? (mmTotal / equity) * 100 : 0;
 
     return {
