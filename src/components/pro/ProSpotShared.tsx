@@ -8,6 +8,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { OrderStatusBadge } from "@/components/trading/OrderStatusBadge";
 import { EventInfoContent } from "@/components/EventInfoContent";
 import {
   ProSpotPanel,
@@ -325,7 +326,7 @@ export const SpotOrdersTable = ({
           <div className="text-center text-muted-foreground py-4">No open orders</div>
         ) : (
           rows.map((o, i) => {
-            const isPending = o.status === "Pending";
+            const isPending = o.status === "Pending" || o.status === "Partial Filled";
             return (
               <div key={o.id ?? i} className="bg-card rounded-xl p-3">
                 <div className="flex items-center justify-between mb-2">
@@ -340,7 +341,14 @@ export const SpotOrdersTable = ({
                   </span>
                   <span className="text-sm text-muted-foreground">{o.orderType}</span>
                   </div>
-                  <span className={cn("px-2 py-0.5 rounded text-[10px] font-medium", isPending ? "bg-trading-yellow/20 text-trading-yellow" : "bg-muted text-muted-foreground")}>{o.id && t.frozenCancelledIds.has(o.id) ? "Cancelled · market frozen" : o.status}</span>
+                  <OrderStatusBadge
+                    variant="mobile"
+                    status={o.status}
+                    amount={o.amount}
+                    filledAmount={o.filledAmount}
+                    remainingAmount={o.remainingAmount}
+                    label={o.id && t.frozenCancelledIds.has(o.id) ? "Cancelled · market frozen" : undefined}
+                  />
                 </div>
                 <div className="mb-2">
                   <h3 className="font-medium text-foreground text-sm line-clamp-2">{o.event}</h3>
@@ -388,7 +396,7 @@ export const SpotOrdersTable = ({
       ) : (
         rows.map((o, i) => {
           const reserved = o.type === "buy" ? `$${money2(num(o.total))}` : "—";
-          const isPending = o.status === "Pending";
+          const isPending = o.status === "Pending" || o.status === "Partial Filled";
           return (
             <div
               key={o.id ?? i}
@@ -402,13 +410,16 @@ export const SpotOrdersTable = ({
               <span className="text-right font-mono">{o.price}</span>
               <span className="text-right font-mono">{formatShares(num(o.amount))}</span>
               <span className="text-right font-mono text-muted-foreground">{reserved}</span>
-              <span
-                className={cn(
-                  "text-right",
-                  isPending ? "text-trading-yellow" : "text-muted-foreground",
-                )}
-              >
-                {o.id && t.frozenCancelledIds.has(o.id) ? "Cancelled · market frozen" : o.status}
+              <span className="text-right">
+                <OrderStatusBadge
+                  variant="desktop"
+                  status={o.status}
+                  amount={o.amount}
+                  filledAmount={o.filledAmount}
+                  remainingAmount={o.remainingAmount}
+                  label={o.id && t.frozenCancelledIds.has(o.id) ? "Cancelled · market frozen" : undefined}
+                  className="text-xs"
+                />
               </span>
               <button
                 disabled={t.isCancelling || !isPending}

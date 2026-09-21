@@ -48,6 +48,14 @@
 | BR-F | 品牌方出带 tagline 的正式 OG 图 | ⬜ | 等设计 |
 | BR-G | 鸿蒙体（HarmonyOS Sans SC）中文字体接入 | ⬜ | 多语言轮一起定加载策略 |
 
+## 2026-09-21 — 订单状态标 · 部分成交明细 PF-1（[文档](../delivery/order-status-partial-fill-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| PF-A | `OrderStatusBadge`：Partial Filled 桌面 hover / 手机点开成交明细（Fill progress + Filled / Remaining） | ⬜ | 四个挂载点同一组件 |
+| PF-B | 研发撮合需回传 filled 数量（蓝图引擎整单成交，不模拟） | ⬜ | 后端 |
+| PF-C | 字典 PF-D1 / PF-M1 | ⬜ | |
+
 ## 2026-09-17 — Pro 终端不可下单态 DK-1（[文档](../delivery/pro-order-gate-v1.md)）
 
 | # | 项 | Status | Notes |

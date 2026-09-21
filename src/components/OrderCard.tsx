@@ -4,6 +4,7 @@ import { MobileDrawer, MobileDrawerActions } from "@/components/ui/mobile-drawer
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { getBinaryOutcome } from "@/lib/eventUtils";
+import { OrderStatusBadge } from "@/components/trading/OrderStatusBadge";
 
 interface OrderCardProps {
   type: "buy" | "sell";
@@ -18,6 +19,9 @@ interface OrderCardProps {
   total: string;
   time: string;
   status: "Pending" | "Partially Filled" | "Partial Filled" | "Filled" | "Cancelled";
+  /** PF-1: fill detail for Partial Filled (tap the badge). */
+  filledAmount?: string;
+  remainingAmount?: string;
   onCancel?: () => void;
   onFill?: () => void;
 }
@@ -34,6 +38,8 @@ export const OrderCard = ({
   total,
   time,
   status,
+  filledAmount,
+  remainingAmount,
   onCancel,
   onFill,
 }: OrderCardProps) => {
@@ -50,13 +56,6 @@ export const OrderCard = ({
   const [fillDialogOpen, setFillDialogOpen] = useState(false);
   const { toast } = useToast();
 
-  const statusColors: Record<string, string> = {
-    Pending: "bg-amber-500/20 text-amber-400",
-    "Partially Filled": "bg-cyan-500/20 text-cyan-400",
-    "Partial Filled": "bg-cyan-500/20 text-cyan-400",
-    Filled: "bg-trading-green/20 text-trading-green",
-    Cancelled: "bg-trading-red/20 text-trading-red",
-  };
 
   const handleCancelOrder = () => {
     onCancel?.();
@@ -97,9 +96,13 @@ export const OrderCard = ({
             )}
             <span className="text-sm text-muted-foreground">{orderType}</span>
           </div>
-          <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${statusColors[status]}`}>
-            {status}
-          </span>
+          <OrderStatusBadge
+            variant="mobile"
+            status={status}
+            amount={amount}
+            filledAmount={filledAmount}
+            remainingAmount={remainingAmount}
+          />
         </div>
 
         {/* Event Info */}
@@ -215,7 +218,7 @@ export const OrderCard = ({
           </div>
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Status</span>
-            <span className={statusColors[status].split(' ')[1]}>{status}</span>
+            <OrderStatusBadge variant="mobile" status={status} amount={amount} filledAmount={filledAmount} remainingAmount={remainingAmount} />
           </div>
         </div>
         <MobileDrawerActions>

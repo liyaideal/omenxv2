@@ -307,6 +307,28 @@ const TRADE_DOCK_CASES: SectionCase[] = [
   },
 ];
 
+const ORDER_STATUS_CASES: SectionCase[] = [
+  {
+    key: "pro-order-status-desktop",
+    label: "PF-D1 · 桌面 Current Orders 状态标：Partial Filled hover 成交明细",
+    note: "同一个 `OrderStatusBadge` 挂在桌面 /trade 与 /spot 的 Current Orders 表。蓝图引擎限价单整单成交，Partial Filled 态生产不可达，此处给研发看规格。",
+    spec: [
+      { state: "Partial Filled", when: 'status === "Partial Filled"', visual: "青色标，hover 弹 `Fill progress 480 / 1,200 (40%)` + 进度条 + `Filled` / `Remaining` 两行", source: "OrderStatusBadge variant=desktop（HoverCard）" },
+      { state: "Pending / Filled / Cancelled", when: "其他状态", visual: "普通标（黄 / 绿 / 红），不弹", source: "OrderStatusBadge" },
+    ],
+  },
+];
+
+const ORDER_STATUS_MOBILE_CASES: SectionCase[] = [
+  {
+    key: "pro-order-status-mobile",
+    label: "PF-M1 · 手机订单卡状态标：点一下弹成交明细（合约 OrderCard + 现货卡）",
+    spec: [
+      { state: "Partial Filled · 展开", when: "点状态标", visual: "Popover 同桌面内容；再点或点外面收起", source: "OrderStatusBadge variant=mobile（Popover）" },
+    ],
+  },
+];
+
 const TRADE_ORDER_CASES: SectionCase[] = [
   {
     key: "pro-trade-order-buy",
@@ -586,6 +608,15 @@ export const ProSpotSection = (_: Props) => (
       description="合约面板的 Buy · Sell 意图页签。Sell 只做当前净额仓位的减仓/平仓（方案 A），空仓禁用、永不开反向。桌面 /trade 面板与此同规格，但仍是页面内联 JSX，暂无法在字典挂载（见交付文档已知缺口）。"
     >
       <SectionFrame cases={TRADE_ORDER_CASES} device="mobile" minHeight={640} />
+    </SectionWrapper>
+
+    <SectionWrapper
+      id="pro-order-status"
+      title="订单状态标 · 部分成交明细（PF-1）"
+      description="桌面 hover / 手机点一下；四个挂载点（桌面合约表、桌面现货表、手机合约卡、手机现货卡）共用一个组件。"
+    >
+      <SectionFrame cases={ORDER_STATUS_CASES} device="desktop" minHeight={260} />
+      <SectionFrame cases={ORDER_STATUS_MOBILE_CASES} device="mobile" minHeight={380} />
     </SectionWrapper>
 
     <SectionWrapper

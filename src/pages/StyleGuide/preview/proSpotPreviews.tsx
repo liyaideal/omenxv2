@@ -516,3 +516,30 @@ export const ProSpotMobileDockStates = () => (
     ))}
   </div>
 );
+
+/* ---- PF-1 · order status badge (partial fill detail) — production tables ---- */
+const PF_ORDERS = [
+  { id: "sg-pf-1", event: "Bitcoin — up or down?", option: "Up", type: "buy", orderType: "Limit", price: "$0.1800", amount: "1,200", filledAmount: "480", remainingAmount: "720", total: "$216.00", status: "Partial Filled" },
+  { id: "sg-pf-2", event: "Ethereum — up or down?", option: "Up", type: "buy", orderType: "Limit", price: "$0.4500", amount: "22.222", total: "$10.00", status: "Pending" },
+  { id: "sg-pf-3", event: "Solana — up or down?", option: "Down", type: "sell", orderType: "Limit", price: "$0.5200", amount: "300", total: "$156.00", status: "Cancelled" },
+];
+
+/** PF-D1 · desktop /spot Current Orders with a Partial Filled row (hover the badge). */
+export const OrderStatusDesktop = () => {
+  const t = spotFixture({ spotOrders: PF_ORDERS, frozenCancelledIds: new Set<string>(), isCancelling: false, handleCancelSpotOrder: async () => undefined } as unknown as Partial<SpotTerminal>);
+  return (
+    <div style={{ width: 1000 }}>
+      <SpotOrdersTable t={t} variant="desktop" />
+    </div>
+  );
+};
+
+/** PF-M1 · mobile order cards with a Partial Filled row (tap the badge). */
+export const OrderStatusMobile = () => {
+  const t = spotFixture({ spotOrders: PF_ORDERS, frozenCancelledIds: new Set<string>(), isCancelling: false, handleCancelSpotOrder: async () => undefined } as unknown as Partial<SpotTerminal>);
+  return (
+    <Phone>
+      <SpotOrdersTable t={t} variant="mobile" />
+    </Phone>
+  );
+};

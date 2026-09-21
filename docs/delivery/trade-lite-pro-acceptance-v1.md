@@ -107,6 +107,7 @@
 | 1 | E2 | Claude（生产，alex_carter） | 挂 Limit 后 `Current Orders` 行 Reserved `$10.00` 正确，但账户卡 `In orders` 一直 `$0.00`。原因：`useSpotTerminal.reservedInOrders` 对 `o.price`（`"$0.1000"`）直接 `parseFloat` → 0 | ✅ 已修（`useSpotTerminal.reservedInOrders` 按 `o.total` 求和）；E2 ✅ 复验 |
 | 3 | F8 | Claude（生产） | 持仓表 HoverCard 里的 `Go to this event` 是 `href="#"` + `preventDefault`，点了不跳（挂单表那一个是好的）。SL-P 之前就如此 | ✅ 已修（持仓表 HoverCard 改 `<button>` 接 `goToEvent`）；F8 ✅ 复验 |
 | 4 | D6 | Claude（生产） | 桌面 `/trade` 持仓表列头 `Qty` / `Liq. Price` 是缩写（面板内单位词已全词）；手机 `/trade/order` 合约 Winner 事件 CTA `Buy AST` 用 option label，切换钮用 side_labels `Astralis`——两处口径不一，`demo-prekick-cs2` 的 side_labels（Astralis/Heroic）与 option label（AST/HER）本来就不同 | Liya 09-18 定：列头是 Pro 桌面持仓表，**不改**；CTA 统一读 side_labels ✅ 已修并复验（`Buy Astralis` / `Reduce Astralis`）；Liya 09-18 追加：No 钮 CTA 由 `Sell Astralis` 改 `Buy Heroic`（`52003d14`，仅文案，底层仍做空 Yes 端 option） |
+| 5 | E2 | Liya（生产，09-21） | 限价单部分成交时 Current Orders 没有成交明细提示（桌面现货表 / 手机卡都没有；桌面合约表有个老 hover） | ✅ PF-1 已做（`OrderStatusBadge`，四处挂载，字典 PF-D1 / PF-M1）；生产上 `Partial Filled` 因引擎整单成交不可达，见 `order-status-partial-fill-v1.md` |
 | 2 | E2 | Claude（生产） | 挂单只扣了 notional `$10.00`（`deductSpotBalance(price × qty)`），撤单却退 `amount + fee = $10.02`；成交时"从预留里消费手续费"实际没预留过 → 用户每张限价单少付一次手续费、撤单多退 `$0.02` | ✅ 已修（下单扣 `placed.reservedAmount`）；E2 ✅ 复验 |
 
 ## 进度（2026-09-18 生产域联合验收，Claude 侧 · 完成）
