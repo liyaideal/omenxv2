@@ -125,7 +125,7 @@ export const SectionFrame = ({
         {cases
           .filter((c) => c.note || c.spec?.length)
           .map((c) => (
-            <div key={c.key} className="space-y-2 text-[11px] leading-relaxed">
+            <div key={c.key} data-case={c.key} className="space-y-2 text-[11px] leading-relaxed">
               <div className="font-mono uppercase tracking-wider text-muted-foreground/80">{c.label}</div>
               {c.note && <p className="text-muted-foreground">{c.note}</p>}
               {c.spec?.length ? (

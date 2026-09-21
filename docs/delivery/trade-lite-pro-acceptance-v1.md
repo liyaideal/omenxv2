@@ -89,7 +89,7 @@
 
 | # | 打开 | 应该看到 | 我 | Liya |
 |---|---|---|---|---|
-| H1 | `/style-guide` →「Pro — 交易终端」 | ES-D1…D4 / ES-M1、CT-M1…M7、SP-B1b / SP-M4b / SP-M5、SL-D1…D4 / SL-M1…M2、DK-M1 / DK-M2 全部挂生产组件 | ✅ | |
+| H1 | `/style-guide` →「Pro — 交易终端」（09-21 nav 整理后拆为 合约终端 /trade · 现货终端 /spot · 两终端共用 三个节点） | ES-D1…D4 / ES-M1、CT-M1…M7、SP-B1b / SP-M4b / SP-M5、SL-D1…D4 / SL-M1…M2、DK-M1 / DK-M2 全部挂生产组件 | ✅ | |
 | H2 | 「Lite 交易状态」 | TR-27 / TR-27b、SP-19 / SP-19b（定价入口 OR 两态） | ✅ | |
 | H3 | 「Foundations」 | SS-1…SS-6 开关六态 | ✅ | |
 

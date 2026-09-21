@@ -1,9 +1,14 @@
 // ============================================================
-// /style-guide information architecture — four top-level areas:
+// /style-guide information architecture — five top-level areas:
 //   A) Lite       — one node per user page, each carrying a revamp badge
 //   B) Foundations— cross-page primitives + 全站规范
-//   C) Legacy     — surfaces not yet revamped, stored as-is
-//   D) Archive    — retired components
+//   C) Pro        — 合约终端 /trade · 现货终端 /spot · 两终端共用（nav 2026-09-21：
+//                   one node per terminal, sub-sections in page top-to-bottom order)
+//   D) Legacy     — surfaces not yet revamped, stored as-is
+//   E) Archive    — retired components
+// Per-node 本页目录 (toc.ts) and the global case search (search.ts +
+// scripts/sg-index.mjs → searchIndex.json, checked by sg:audit) are derived
+// from the rendered sections — nothing here is hand-maintained.
 // Navigation shell ONLY — every section file below is a living spec and is
 // imported as-is. Never rewrite a section to fit the nav.
 //
@@ -107,7 +112,9 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
     id: "pro",
     label: "Pro — 交易终端",
     sections: [
-      s("pro-spot", "Pro 现货终端 ✅", sec("ProSpotSection", "ProSpotSection")),
+      s("pro-trade", "合约终端 /trade ✅", sec("ProSpotSection", "ProTradeTerminalPage")),
+      s("pro-spot", "现货终端 /spot ✅", sec("ProSpotSection", "ProSpotTerminalPage")),
+      s("pro-shared", "两终端共用 ✅", sec("ProSpotSection", "ProSharedTerminalPage")),
     ],
   },
   {
@@ -144,6 +151,8 @@ export const SECTION_ALIASES: Record<string, string> = {
   vouchers2: "lite-vouchers",
   api: "lite-api",
   mobile: "mobile-patterns",
+  // 2026-09-21 nav: the surface switch moved from Foundations to the shared Pro node.
+  "foundations-surface-switch": "pro-shared",
 };
 
 export const resolveSectionId = (raw: string | null | undefined): string | null => {

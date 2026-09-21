@@ -6,6 +6,7 @@
 
 | 日期 | 文档 | 摘要 |
 |---|---|---|
+| 2026-09-21 | [/style-guide 导航整理](./2026-09-21-style-guide-nav.md) | 「Pro — 交易终端」拆成 合约终端 /trade · 现货终端 /spot · 两终端共用 三个节点，小节按页面顺序；每节点自动「本页目录」；页头搜索改全站索引（编号 / 小节 / case，`sg-index.mjs` 生成、`sg:audit` 校验）；Pro 节点加三行定位行；Lite 交易页并账清单折叠。编号 / key / 内容不变 |
 | 2026-09-19 | [邮箱 + 密码登录（Other email）交付说明 v1](../delivery/auth-email-v1.md) | 登录弹窗 Google 页签下新增 `Other email` 副钮 → 向导 `email` 步：登录 / 注册（6 格验证码，蓝图固定 111111，验证通过才建号）/ 忘记密码（邮件链接）；新路由 `/reset-password` 四态；Settings Account security 加 `Password` 行（点 Change 发重置链接，登录前后一条线）；**同日下午加邮箱账号改登录邮箱**（Linked Account `Change` → 旧新两封确认链接 → `Pending` / `Resend` → 同步 + toast；AU-S3…S8）；字典 AU-E1…E11 / AU-R1…R6 / AU-S1…S8；同轮四款品牌字体自托管进 `public/fonts/`（国内可达） |
 | 2026-09-19 | [全站换标：新 OMENX logo 家族 + favicon / 分享卡 v2（研发版）](../delivery/brand-logo-v1.md) | 品牌书字标（433:65，X 带 Signal 渐变）替换圆 O 旧标：`<Logo variant>` 四变体、X 单标、Mainnet 胶囊 lockup、favicon 三件 + og:image；7 处裸引用全部收口；DESIGN §1.1 品牌层；台账 Ⓑ +16 / 旧标 LEGACY；同日下午按 omenx_lite 页面稿校正 chrome 尺寸（桌面 26 / 手机 15 + 页头 44） |
 | 2026-09-21 | [风险指标统一为 MM / Equity（RM-1）交付说明 v1](../delivery/risk-ratio-mm-v1.md) | Risk Ratio 改为 MM / Equity（交易所口径，100% 强平）；距强平 = Equity − MM；Lite Est. auto-close 与单仓 Liq. Price 同步；手机方块 `Risk x%`、抽屉对齐桌面卡；Lite Boost check 加 `Healthy · 7%` / `Boost usage`；DESIGN §7 改写；字典 RM-M1 / M2 |

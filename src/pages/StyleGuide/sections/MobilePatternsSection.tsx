@@ -80,6 +80,20 @@ interface MobilePatternsSectionProps {
   isMobile: boolean;
 }
 
+/** Surface switch · Lite / Pro — rendered by the "两终端共用" Pro node (nav 2026-09-21); the id keeps its deep link. */
+export const SurfaceSwitchSection = () => (
+  <SectionWrapper
+    id="foundations-surface-switch"
+    title="Surface switch · Lite / Pro（D6'-1 · FIX3）"
+    description="生产件 src/components/surface/SurfaceSwitch.tsx。全站不再有模式开关——除交易页外所有页面恒为 Lite。该控件只挂交易页 chrome，且只对已登录用户渲染；点击调用 setSurface() 就地换页，不做任何跳转、URL 不变。挂载点：桌面页头分段控件三处（EventsDesktopHeader 仅 /trade /trade/order /spot、Pro DesktopTrading、Pro SpotTrading），移动端贴底栏方钮两处（Lite 三张交易页共用的 sticky buy bar、Pro TradingCharts 贴底栏）；/trade/order 不挂。移动端页头不再出现该控件。"
+  >
+    <SectionFrame cases={SURFACE_SWITCH_CASES} device="desktop" minHeight={220} />
+    <div className="mt-4">
+      <SectionFrame cases={SURFACE_SWITCH_CASES} device="mobile" minHeight={220} />
+    </div>
+  </SectionWrapper>
+);
+
 export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) => {
   // Expandable Row Pattern demo
   const [expandableRowOpen, setExpandableRowOpen] = useState(false);
@@ -533,20 +547,6 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
 
 <DesktopSubpageHeader title="Request detail" onBack={() => navigate('/wallet/recovery')} />`}
         />
-      </SectionWrapper>
-
-      {/* =========================== */}
-      {/* SURFACE SWITCH (D6'-1)      */}
-      {/* =========================== */}
-      <SectionWrapper
-        id="foundations-surface-switch"
-        title="Surface switch · Lite / Pro（D6'-1 · FIX3）"
-        description="生产件 src/components/surface/SurfaceSwitch.tsx。全站不再有模式开关——除交易页外所有页面恒为 Lite。该控件只挂交易页 chrome，且只对已登录用户渲染；点击调用 setSurface() 就地换页，不做任何跳转、URL 不变。挂载点：桌面页头分段控件三处（EventsDesktopHeader 仅 /trade /trade/order /spot、Pro DesktopTrading、Pro SpotTrading），移动端贴底栏方钮两处（Lite 三张交易页共用的 sticky buy bar、Pro TradingCharts 贴底栏）；/trade/order 不挂。移动端页头不再出现该控件。"
-      >
-        <SectionFrame cases={SURFACE_SWITCH_CASES} device="desktop" minHeight={220} />
-        <div className="mt-4">
-          <SectionFrame cases={SURFACE_SWITCH_CASES} device="mobile" minHeight={220} />
-        </div>
       </SectionWrapper>
 
       {/* Mobile UI Patterns */}

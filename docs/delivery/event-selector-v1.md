@@ -6,7 +6,7 @@
 
 查什么去哪儿：
 - 长什么样 → 生产页 `/trade`、`/spot`（桌面标题 ▾）、`/trade`、`/spot`、`/trade/order`、`/spot/order`（手机标题 ▾）
-- 什么时候变成什么样 → `/style-guide` →「Pro — 交易终端」：ES-D1…ES-D4（桌面下拉）、ES-M1（手机抽屉）
+- 什么时候变成什么样 → `/style-guide` →「Pro — 交易终端 › 两终端共用」：ES-D1…ES-D4（桌面下拉）、ES-M1（手机抽屉）
 - 字段名、文案、时间格式 → `docs/copy-dictionary.md`（Trading 节 `Standard / Boost（选择器页签）`、`Ends in（列表）`、`Frozen`）+ 本文档 §2
 - 设计法则 → `DESIGN.md` §Addendum 2026-09-15 第 7 则
 - Lite 面 → 不适用（Lite 交易页没有事件选择器，入口在事件列表）

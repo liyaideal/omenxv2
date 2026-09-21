@@ -1,6 +1,7 @@
 // Pro /spot terminal — state dictionary (SP-1 · B3).
 // Every case mounts the production components (ProSpotPanel / ProSpotOrderPreview /
 // ProTerminalLayout). Nothing here is hand-drawn.
+import { SurfaceSwitchSection } from "./MobilePatternsSection";
 import { SectionWrapper } from "../components/SectionWrapper";
 import { SectionFrame, type SectionCase } from "../components/SectionFrame";
 
@@ -574,96 +575,33 @@ const BOOK_CASES: SectionCase[] = [
   },
 ];
 
+const Locate = ({ route, dict, docs, extra }: { route: React.ReactNode; dict: string; docs: string[]; extra?: React.ReactNode }) => (
+  <div className="rounded-lg border border-[#CFFF4A]/30 bg-[#CFFF4A]/5 px-3 py-2 text-[12px] leading-relaxed text-foreground">
+    <div>本页 = {route} 的状态字典 · 样式与布局 → 生产页；状态与判定 → 本页。</div>
+    <div className="text-muted-foreground">
+      字段名 / 文案 / 公式 → <code className="font-mono">docs/copy-dictionary.md</code> {dict}；流程与口径 →{" "}
+      <code className="font-mono">docs/delivery/</code> {docs.join(" · ")}
+    </div>
+    {extra && <div className="text-muted-foreground">{extra}</div>}
+  </div>
+);
+
 interface Props {
   isMobile: boolean;
 }
 
-export const ProSpotSection = (_: Props) => (
+/** Pro 合约终端 /trade（桌面）· /trade + /trade/order（手机）。小节顺序 = 页面从上到下。 */
+export const ProTradeTerminalPage = (_: Props) => (
   <div className="space-y-8">
-    <SectionWrapper
-      id="pro-spot-panel"
-      title="Pro /spot 下单面板（SP-1 · B2）"
-      description="生产件 src/components/pro/ProSpotPanel.tsx。方案 A：Buy/Sell 文字页签 + 订单类型下拉在同一行，整宽选择器只有 BinarySideToggle；汇总区不再有 Max loss，盈利口径统一为扣除 5% winning commission 后的 To win。"
-    >
-      <SectionFrame cases={PANEL_CASES} device="desktop" minHeight={520} />
-    </SectionWrapper>
-
-    <SectionWrapper
-      id="pro-spot-book"
-      title="Pro /spot 桌面订单簿（SP-3-DT1）"
-      description="Spot 固定每侧 10 槽；薄深度只补空行，不补虚构价格。"
-    >
-      <SectionFrame cases={BOOK_CASES} device="desktop" minHeight={600} />
-    </SectionWrapper>
-
-    <SectionWrapper
-      id="pro-spot-preview"
-      title="Pro /spot 订单预览"
-      description="CTA 先开预览弹窗，确认后才提交。"
-    >
-      <SectionFrame cases={DIALOG_CASES} device="desktop" minHeight={460} />
-    </SectionWrapper>
-
-    <SectionWrapper
-      id="pro-terminal-skeleton"
-      title="Pro 终端骨架（SP-1 · B1）"
-      description="ProTerminalLayout / ProBottomTabs / OrderTypeDropdown / BinarySideToggle 四件套，/trade 与 /spot 共用。"
-    >
-      <SectionFrame cases={SKELETON_CASES} device="desktop" minHeight={560} />
-    </SectionWrapper>
-
-    <SectionWrapper
-      id="pro-spot-mobile"
-      title="Pro /spot 移动端（SP-2）"
-      description="移动 Pro 现货重建在合约 Pro 移动骨架上：/spot 为 Charts 视图 + sticky dock，/spot/order 为下单子页（同一个 ProSpotPanel）。"
-    >
-      <SectionFrame cases={MOBILE_CASES} device="mobile" minHeight={560} />
-    </SectionWrapper>
-
-    <SectionWrapper
-      id="pro-trade-order"
-      title="Pro /trade/order 移动下单面板（CT-1 · Buy · Sell）"
-      description="合约面板的 Buy · Sell 意图页签。Sell 只做当前净额仓位的减仓/平仓（方案 A），空仓禁用、永不开反向。桌面 /trade 面板与此同规格，但仍是页面内联 JSX，暂无法在字典挂载（见交付文档已知缺口）。"
-    >
-      <SectionFrame cases={TRADE_ORDER_CASES} device="mobile" minHeight={640} />
-    </SectionWrapper>
-
-    <SectionWrapper
-      id="pro-risk-mobile"
-      title="手机风险指示（RM-1 · Risk Ratio = MM / Equity）"
-      description="页头方块和抽屉与桌面账户卡同一个指标、同一套行；Lite 的 Boost check 也读同一个数（见 Portfolio 节）。"
-    >
-      <SectionFrame cases={RISK_MOBILE_CASES} device="mobile" minHeight={640} />
-    </SectionWrapper>
-
-    <SectionWrapper
-      id="pro-order-status"
-      title="订单状态标 · 部分成交明细（PF-1）"
-      description="桌面 hover / 手机点一下；四个挂载点（桌面合约表、桌面现货表、手机合约卡、手机现货卡）共用一个组件。"
-    >
-      <SectionFrame cases={ORDER_STATUS_CASES} device="desktop" minHeight={260} />
-      <SectionFrame cases={ORDER_STATUS_MOBILE_CASES} device="mobile" minHeight={380} />
-    </SectionWrapper>
-
-    <SectionWrapper
-      id="pro-trade-mobile-dock"
-      title="Pro /trade 手机图表页 sticky dock（DK-1 · 不可下单 = 一条禁用条）"
-      description="合约手机图表页的底部 dock 改用现货同一组件 ProSpotMobileDock；不可下单时两钮收成一条灰色禁用条只印一次原因（/spot 之前把原因印了两遍）。"
-    >
-      <SectionFrame cases={TRADE_DOCK_CASES} device="mobile" minHeight={560} />
-    </SectionWrapper>
-
-    <SectionWrapper
-      id="event-selector"
-      title="交易终端事件选择器（ES-1 · Standard / Boost）"
-      description="桌面 /trade 与 /spot 的标题下拉共用同一组件。页签 = 产品线；`Ends in` 用相对时间，快轮事件才看得出哪局马上结束。"
-    >
-      <SectionFrame cases={EVENT_SELECTOR_CASES} device="desktop" minHeight={520} />
-    </SectionWrapper>
-
+    <Locate
+      route={<><code className="font-mono">/trade</code>（桌面）与 <code className="font-mono">/trade</code> · <code className="font-mono">/trade/order</code>（手机）</>}
+      dict="§Trading"
+      docs={["pro-trade-sell-v1", "pro-order-units-v1", "pro-sports-lines-v1", "pro-order-gate-v1", "risk-ratio-mm-v1"]}
+      extra={<>页头的事件选择器、订单状态标、Lite / Pro 开关 → 「两终端共用」节点；Lite 侧下单面板的 <code className="font-mono">Pro ›</code> 入口 → Lite「交易页」TR-27 / SP-19。</>}
+    />
     <SectionWrapper
       id="pro-market-row"
-      title="Pro /trade · 比赛市场行（SL-P · Winner / Handicap / Total · Map n）"
+      title="① 比赛市场行 · 桌面（SL-P · Winner / Handicap / Total · Map n）"
       description="体育比赛在 Pro 终端的让分 / 大小球 / 单图市场入口。Lite 的 fixture board 在 Pro 里压成一根横向市场行；选线 = 切 sibling event。"
     >
       <SectionFrame cases={MARKET_ROW_CASES} device="desktop" minHeight={360} />
@@ -671,7 +609,7 @@ export const ProSpotSection = (_: Props) => (
 
     <SectionWrapper
       id="pro-market-row-mobile"
-      title="Pro /trade · 比赛市场行 · 手机（SL-M1）"
+      title="① 比赛市场行 · 手机（SL-M1）"
       description="header 之下横向滚动的同一根行。"
     >
       <SectionFrame cases={MARKET_ROW_MOBILE_CASES} device="mobile" minHeight={160} />
@@ -679,26 +617,133 @@ export const ProSpotSection = (_: Props) => (
 
     <SectionWrapper
       id="pro-market-row-mobile-drawer"
-      title="Pro /trade · 比赛市场行 · 线位抽屉（SL-M2）"
+      title="① 比赛市场行 · 手机线位抽屉（SL-M2）"
       description="viewport 级 position:fixed 组件独占一帧。"
     >
       <SectionFrame cases={MARKET_ROW_DRAWER_CASES} device="mobile" minHeight={560} />
     </SectionWrapper>
 
     <SectionWrapper
+      id="pro-trade-order"
+      title="② 下单面板 Buy · Sell · 按数量（CT-1 / QO-1 · 手机 /trade/order）"
+      description="合约面板的 Buy · Sell 意图页签。Sell 只做当前净额仓位的减仓/平仓（方案 A），空仓禁用、永不开反向。桌面 /trade 面板与此同规格，但仍是页面内联 JSX，暂无法在字典挂载（见交付文档已知缺口）。"
+    >
+      <SectionFrame cases={TRADE_ORDER_CASES} device="mobile" minHeight={640} />
+    </SectionWrapper>
+
+    <SectionWrapper
+      id="pro-trade-order-leverage"
+      title="② 下单面板 · Leverage 抽屉（CT-M5）"
+      description="viewport 级 position:fixed 组件独占一帧。"
+    >
+      <SectionFrame cases={TRADE_ORDER_LEVERAGE_CASES} device="mobile" minHeight={640} />
+    </SectionWrapper>
+
+    <SectionWrapper
+      id="pro-trade-mobile-dock"
+      title="③ 手机图表页 sticky dock · 不可下单态（DK-1）"
+      description="合约手机图表页的底部 dock 改用现货同一组件 ProSpotMobileDock；不可下单时两钮收成一条灰色禁用条只印一次原因（/spot 之前把原因印了两遍）。"
+    >
+      <SectionFrame cases={TRADE_DOCK_CASES} device="mobile" minHeight={560} />
+    </SectionWrapper>
+
+    <SectionWrapper
+      id="pro-risk-mobile"
+      title="④ 账户风险 · 手机方块与抽屉（RM-1 · Risk Ratio = MM / Equity）"
+      description="页头方块和抽屉与桌面账户卡同一个指标、同一套行；Lite 的 Boost check 也读同一个数（见 Portfolio 节）。"
+    >
+      <SectionFrame cases={RISK_MOBILE_CASES} device="mobile" minHeight={640} />
+    </SectionWrapper>
+
+  </div>
+);
+
+/** Pro 现货终端 /spot（桌面）· /spot + /spot/order（手机）。 */
+export const ProSpotTerminalPage = (_: Props) => (
+  <div className="space-y-8">
+    <Locate
+      route={<><code className="font-mono">/spot</code>（桌面）与 <code className="font-mono">/spot</code> · <code className="font-mono">/spot/order</code>（手机）</>}
+      dict="§Trading"
+      docs={["spot-pro-v1", "pro-order-units-v1", "pro-order-gate-v1"]}
+      extra={<>页头的事件选择器、订单状态标、Lite / Pro 开关 → 「两终端共用」节点。</>}
+    />
+    <SectionWrapper
+      id="pro-spot-panel"
+      title="① 下单面板（SP-1 · B2）"
+      description="生产件 src/components/pro/ProSpotPanel.tsx。方案 A：Buy/Sell 文字页签 + 订单类型下拉在同一行，整宽选择器只有 BinarySideToggle；汇总区不再有 Max loss，盈利口径统一为扣除 5% winning commission 后的 To win。"
+    >
+      <SectionFrame cases={PANEL_CASES} device="desktop" minHeight={520} />
+    </SectionWrapper>
+
+    <SectionWrapper
+      id="pro-spot-book"
+      title="② 桌面订单簿（SP-3-DT1）"
+      description="Spot 固定每侧 10 槽；薄深度只补空行，不补虚构价格。"
+    >
+      <SectionFrame cases={BOOK_CASES} device="desktop" minHeight={600} />
+    </SectionWrapper>
+
+    <SectionWrapper
+      id="pro-spot-preview"
+      title="③ 订单预览弹窗"
+      description="CTA 先开预览弹窗，确认后才提交。"
+    >
+      <SectionFrame cases={DIALOG_CASES} device="desktop" minHeight={460} />
+    </SectionWrapper>
+
+    <SectionWrapper
+      id="pro-spot-mobile"
+      title="④ 手机端 · Charts 视图 + sticky dock + /spot/order（SP-2）"
+      description="移动 Pro 现货重建在合约 Pro 移动骨架上：/spot 为 Charts 视图 + sticky dock，/spot/order 为下单子页（同一个 ProSpotPanel）。"
+    >
+      <SectionFrame cases={MOBILE_CASES} device="mobile" minHeight={560} />
+    </SectionWrapper>
+
+  </div>
+);
+
+/** 两终端共用：/trade 与 /spot 都长着的件。 */
+export const ProSharedTerminalPage = (_: Props) => (
+  <div className="space-y-8">
+    <Locate
+      route={<><code className="font-mono">/trade</code> 与 <code className="font-mono">/spot</code> 共用的件</>}
+      dict="§Surface switch（交易页）· §Trading"
+      docs={["surface-switch-v1", "event-selector-v1", "order-status-partial-fill-v1"]}
+      extra={<>Lite 侧下单面板的 <code className="font-mono">Want to place a limit order? Pro ›</code> 入口 → Lite「交易页」节点 TR-27 / TR-27b（合约）、SP-19 / SP-19b（现货）。</>}
+    />
+    <SurfaceSwitchSection />
+
+    <SectionWrapper
+      id="event-selector"
+      title="② 事件选择器 · 桌面下拉（ES-1 · Standard / Boost）"
+      description="桌面 /trade 与 /spot 的标题下拉共用同一组件。页签 = 产品线；`Ends in` 用相对时间，快轮事件才看得出哪局马上结束。"
+    >
+      <SectionFrame cases={EVENT_SELECTOR_CASES} device="desktop" minHeight={520} />
+    </SectionWrapper>
+
+    <SectionWrapper
       id="event-selector-mobile"
-      title="交易终端事件选择器 · 手机抽屉（ES-M1）"
+      title="② 事件选择器 · 手机抽屉（ES-M1）"
       description="viewport 级 position:fixed 组件独占一帧。"
     >
       <SectionFrame cases={EVENT_SELECTOR_MOBILE_CASES} device="mobile" minHeight={640} />
     </SectionWrapper>
 
     <SectionWrapper
-      id="pro-trade-order-leverage"
-      title="Pro /trade/order · Leverage 抽屉（CT-M5）"
-      description="viewport 级 position:fixed 组件独占一帧。"
+      id="pro-terminal-skeleton"
+      title="③ 终端骨架（SP-1 · B1）"
+      description="ProTerminalLayout / ProBottomTabs / OrderTypeDropdown / BinarySideToggle 四件套，/trade 与 /spot 共用。"
     >
-      <SectionFrame cases={TRADE_ORDER_LEVERAGE_CASES} device="mobile" minHeight={640} />
+      <SectionFrame cases={SKELETON_CASES} device="desktop" minHeight={560} />
+    </SectionWrapper>
+
+    <SectionWrapper
+      id="pro-order-status"
+      title="④ 订单状态标 · 部分成交明细（PF-1）"
+      description="桌面 hover / 手机点一下；四个挂载点（桌面合约表、桌面现货表、手机合约卡、手机现货卡）共用一个组件。"
+    >
+      <SectionFrame cases={ORDER_STATUS_CASES} device="desktop" minHeight={260} />
+      <SectionFrame cases={ORDER_STATUS_MOBILE_CASES} device="mobile" minHeight={380} />
     </SectionWrapper>
 
   </div>

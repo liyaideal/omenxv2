@@ -9,7 +9,8 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "sg:audit": "node scripts/sg-audit.mjs"
+    "sg:index": "node scripts/sg-index.mjs",
+    "sg:audit": "node scripts/sg-index.mjs --check && node scripts/sg-audit.mjs"
   },
   "dependencies": {
     "@fontsource/archivo-black": "^5.2.8",

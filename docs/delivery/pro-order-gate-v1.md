@@ -4,7 +4,7 @@
 
 ## 0. 读者须知
 
-- 长什么样 → `/style-guide` →「Pro — 交易终端」：DK-M1（手机 dock 五态）、DK-M2（`/trade/order` 封锁）、SP-M5（现货 dock，冻结态已换新形态）
+- 长什么样 → `/style-guide` →「Pro — 交易终端」：DK-M1（手机 dock 五态）、DK-M2（`/trade/order` 封锁）在「合约终端 /trade」节点，SP-M5（现货 dock，冻结态已换新形态）在「现货终端 /spot」节点
 - 现货的封锁条件本身（lifecycle / freeze_time）→ `spot-pro-v1.md`
 - Lite 面 → 不变（Lite 合约页原本就封锁，本文的合约口径就是照它抄的）
 

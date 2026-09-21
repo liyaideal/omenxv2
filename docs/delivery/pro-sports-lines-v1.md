@@ -5,7 +5,7 @@
 ## 0. 读者须知
 
 - 长什么样 → 生产页 `/trade?event=demo-prekick-cs2`（电竞 BO3）、任一足球 fixture；手机 `/trade`、`/trade/order` 同款
-- 什么时候变成什么样 → `/style-guide` →「Pro — 交易终端」：SL-D1…SL-D3（桌面）、SL-M1 / SL-M2（手机）
+- 什么时候变成什么样 → `/style-guide` →「Pro — 交易终端 › 合约终端 /trade」：SL-D1…SL-D4（桌面）、SL-M1 / SL-M2（手机）
 - 数据模型（fixture / sibling / line / side_labels）→ `docs/delivery/sports-game-lines-spec.md`
 - 设计法则 → `DESIGN.md` §Addendum 2026-09-17
 - Lite 面 → 不变（fixture board 照旧）

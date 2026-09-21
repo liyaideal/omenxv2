@@ -455,9 +455,13 @@ export const SpotStatesSection = () => (
       <Gaps />
     </SubSection>
 
-    <SubSection title="⑨ 并账清单（M2c 旧三节删除）">
+    {/* nav 2026-09-21：旧版并账记录折叠到页尾，默认收起（内容不删）。 */}
+    <details className="group rounded-lg border border-border/40 px-4 py-2">
+      <summary className="cursor-pointer select-none text-sm text-muted-foreground group-open:mb-4">
+        ⑨ 并账清单（M2c 旧三节删除）· 旧版记录，点开查看
+      </summary>
       <Ledger />
-    </SubSection>
+    </details>
   </SectionWrapper>
 );
 

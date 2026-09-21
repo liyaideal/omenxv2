@@ -100,7 +100,7 @@
 - **游客的 `setSurface` / `toggle` 均为 no-op。**
 - 路由无需改动：`/trade`、`/trade/order`、`/spot`、`/spot/order` 四条路由与桌面分叉全部读 `useSurface().surface`，代码中已无直接读 `omenx_surface` 的地方。
 - **Pro 登录门换件**：`ProBottomTabs`、`TradeOrder`、`SpotTradeOrder` 改用站点唯一的 `LiteAuthGate`（新增 `variant="panel"`：`bg-card` 无模糊、72px lynx、单行标题、Sign in / Create account 同排、总高 ≤ 220px）。此前"Pro 面保留 `AuthGateOverlay` 原样不动"的说法作废。`src/components/AuthGateOverlay.tsx` 因 `Wallet` / `PortfolioSettlements` / style-guide 仍在引用而保留，交易面已不再使用。
-- 状态字典：Pro — 交易终端 → `pro-bottom-tabs-guest`（SP-I）。
+- 状态字典：Pro — 交易终端 › 两终端共用 →「Surface switch · Lite / Pro」SS-1…SS-5，以及「③ 终端骨架」`pro-bottom-tabs-guest`（SP-I）。
 
 ## 11. SW-2 · 桌面开关归位 + 一句话说明（2026-09-16）
 

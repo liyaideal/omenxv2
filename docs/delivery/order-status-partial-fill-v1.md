@@ -4,7 +4,7 @@
 
 ## 0. 读者须知
 
-- 长什么样 → `/style-guide` →「Pro — 交易终端」→「订单状态标 · 部分成交明细」：PF-D1（桌面表 hover）、PF-M1（手机卡点开）
+- 长什么样 → `/style-guide` →「Pro — 交易终端 › 两终端共用」→「④ 订单状态标 · 部分成交明细」：PF-D1（桌面表 hover）、PF-M1（手机卡点开）
 - 生产上看不到 `Partial Filled`（见 §4），Pending / Filled / Cancelled 三态生产可见
 - Lite 面 → 不涉及
 

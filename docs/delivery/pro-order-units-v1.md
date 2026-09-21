@@ -6,7 +6,7 @@
 
 查什么去哪儿：
 - 长什么样 → 生产页 `/trade`、`/spot`（桌面右栏）、`/trade/order`、`/spot/order`（手机）
-- 什么时候变成什么样 → `/style-guide` →「Pro — 交易终端」：SP-B1b（现货桌面）、SP-M4b（现货手机）、CT-M6（合约手机）
+- 什么时候变成什么样 → `/style-guide` →「Pro — 交易终端」：SP-B1b（现货桌面）、SP-M4b（现货手机）在「现货终端 /spot」节点，CT-M6（合约手机）在「合约终端 /trade」节点
 - 字段名、文案、公式、术语 → `docs/copy-dictionary.md`（Trading 节）+ 本文档 §2 §3
 - 设计法则 → `DESIGN.md` §Addendum 2026-09-15 第 6 则
 - Lite 术语对照 → `docs/copy-dictionary.md` 顶部「Lite 术语对照表」（Lite 面不做本功能，只输金额）

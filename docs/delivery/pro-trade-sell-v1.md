@@ -6,7 +6,7 @@
 
 查什么去哪儿：
 - 长什么样 → 生产页 `/trade`（桌面右栏）、`/trade/order`（手机）
-- 什么时候变成什么样 → `/style-guide` →「Pro — 交易终端」→「Pro /trade/order 移动下单面板」（CT-M1…CT-M4）
+- 什么时候变成什么样 → `/style-guide` →「Pro — 交易终端 › 合约终端 /trade」→「② 下单面板 Buy · Sell · 按数量」（CT-M1…CT-M4）
 - 字段名、文案、公式、术语 → `docs/copy-dictionary.md`（Trading 节）+ 本文档 §2 §7
 - 设计法则（页签、下拉、颜色轴）→ `DESIGN.md` §Addendum 2026-09-14
 - 平仓的钱怎么算（保证金释放、赢利佣金）→ `docs/delivery/pro-trade-v4-cleanup-v1.md`、`docs/delivery/lite-order-returns-v1.md`
