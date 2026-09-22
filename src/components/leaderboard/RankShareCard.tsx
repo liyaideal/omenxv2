@@ -1,18 +1,28 @@
 /**
- * 榜单排名分享卡（可分享海报）。Figma 673:22717 / 673:22718。
+ * 榜单排名分享卡（可分享海报）。
  *
- * ⚠️ 本件受 DESIGN §Addendum 2026-09-07「Lite 分享海报」LOCKED 约束，逐条落：
+ * 【稿源】Figma omenx_lite `673:25397`（"share card"，卡 314 宽）。
+ *   ⚠️ 2026-09-22 CPO 打回实证：本件最初照 **桌面海报稿 673:22717 / 673:22718** 建，
+ *   从未拿本页的移动稿复量，导致底部整块（字标/Referral/QR/tagline）尺寸普遍偏大、
+ *   统计标签偏小。组件形态与素材一样，双端/各页的稿必须分别量，不许沿用别页的海报稿。
+ *
+ * 【换算基准】生产卡实渲 336 宽（移动抽屉）/ ~344（桌面弹窗），对 314 的稿 ≈ ×1.07。
+ *   下面所有像素值 = 稿值 × 1.07 取整。改任何一处前先按这个比例回算，不要拍整数。
+ *
+ * 受 DESIGN §Addendum 2026-09-07「Lite 分享海报」LOCKED 约束，逐条落：
  * 1 自包含，不走 SharePosterLayout 共享骨架（改它会连坐 Pro 海报）
  * 2 盈利色走 volt #CFFF4A（= --trading-green），不是稿上的 #D5FF4D
  * 3 字体：正文 system-ui / -apple-system，数字 'Courier New'。
  *   **禁止网络字体** —— 导出走 html-to-image 且 skipFonts: true，Archivo / Space Grotesk
- *   会 fallback 成另一种字体，导致预览与出图不一致
+ *   会 fallback 成另一种字体，导致预览与出图不一致。稿上是 Archivo / Space Grotesk，
+ *   属「稿与裁定冲突」，按裁定落（CPO 2026-09-22 复批）。
  * 4 艺术底由设计导出、压暗层已烘进像素；代码侧不得用 CSS 渐变复刻压暗层
  * 5 图层顺序：底色渐变 → 艺术底 img → 辉光 → 内容
- * 6 OMENX 字标一律等比，固定 height 18px（稿给的 118×12.5 是压扁值，
- *   与该附录第 6 条③ 记录的是同一个缺陷，不按稿落）
- */
-import type { RefObject } from "react";
+ *
+ * 另两处「稿与全站规范冲突」，均按生产落（CPO 2026-09-22 批）：
+ * · 卡底域名与 QR 指向 `https://omenx.lovable.app`（稿写 omenx.com）——以实际可访问域为准。
+ * · More Options 按钮保持全站 `.btn-primary` 渐变（稿是平铺 #33D6FF）；仅图标按稿改成纸飞机。
+ */import type { RefObject } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import rankArt from "@/assets/share/leaderboard-rank-art.webp";
 import { omenxLogo } from "@/components/Logo";
@@ -33,14 +43,14 @@ const Stat = ({
   size: number;
 }) => (
   <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: 12, padding: 12, textAlign: "center" }}>
-    <div style={{ fontSize: 10, lineHeight: "15px", color: "#9CA2AB" }}>{label}</div>
+    <div style={{ fontSize: 13, lineHeight: "15px", color: "#9CA2AB" }}>{label}</div>
     <div
       style={{
         marginTop: 4,
         fontFamily: NUM_FONT,
         fontSize: size,
         fontWeight: 700,
-        lineHeight: size === 16 ? "24px" : "20px",
+        lineHeight: "20px",
         color,
       }}
     >
@@ -197,13 +207,13 @@ export const RankShareCard = ({
 
       <div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8 }}>
-          <Stat label="PnL" value={`$${Math.round(user.pnl).toLocaleString("en-US")}`} color="#CFFF4A" size={14} />
-          <Stat label="ROI" value={`${user.roi.toFixed(1)}%`} color="#33D6FF" size={14} />
+          <Stat label="PnL" value={`$${Math.round(user.pnl).toLocaleString("en-US")}`} color="#CFFF4A" size={15} />
+          <Stat label="ROI" value={`${user.roi.toFixed(1)}%`} color="#33D6FF" size={15} />
           <Stat
             label="Volume"
             value={`$${Math.round(user.volume).toLocaleString("en-US")}`}
             color="#FFFFFF"
-            size={16}
+            size={15}
           />
         </div>
 
@@ -218,14 +228,14 @@ export const RankShareCard = ({
         >
           <div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-              <span style={{ fontSize: 10, lineHeight: "15px", color: "rgba(255,255,255,0.3)" }}>Referral:</span>
+              <span style={{ fontSize: 10, lineHeight: "13px", color: "rgba(255,255,255,0.3)" }}>Referral:</span>
               <span
                 style={{
                   fontFamily: NUM_FONT,
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: 700,
-                  lineHeight: "19.5px",
-                  letterSpacing: "1.5px",
+                  lineHeight: "17px",
+                  letterSpacing: "1.3px",
                   color: "#FFFFFF",
                 }}
               >
@@ -234,16 +244,16 @@ export const RankShareCard = ({
             </div>
             {/* 字标等比，固定 18 高（§Addendum 2026-09-07 第 6 条③） */}
             <img src={omenxLogo} alt="OMENX" style={{ height: 18, width: "auto", display: "block", marginTop: 10 }} />
-            <div style={{ marginTop: 4, fontSize: 12, fontWeight: 500, lineHeight: "18px", color: "#CFFF4A" }}>
+            <div style={{ marginTop: 4, fontSize: 11, fontWeight: 500, lineHeight: "15px", color: "#CFFF4A" }}>
               Join &amp; trade like a pro!
             </div>
           </div>
 
           <div style={{ textAlign: "center", flexShrink: 0 }}>
-            <div style={{ background: "#FFFFFF", borderRadius: 8, padding: 6, lineHeight: 0 }}>
-              <QRCodeSVG value={shareUrl} size={48} level="M" includeMargin={false} />
+            <div style={{ background: "#FFFFFF", borderRadius: 7, padding: 5, lineHeight: 0 }}>
+              <QRCodeSVG value={shareUrl} size={41} level="M" includeMargin={false} />
             </div>
-            <div style={{ marginTop: 4, fontSize: 8, lineHeight: "12px", color: "rgba(255,255,255,0.3)" }}>
+            <div style={{ marginTop: 4, fontSize: 8, lineHeight: "10px", color: "rgba(255,255,255,0.3)" }}>
               {shareHost}
             </div>
           </div>

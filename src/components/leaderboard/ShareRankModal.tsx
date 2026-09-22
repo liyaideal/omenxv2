@@ -9,7 +9,7 @@
  *   分段器选中态与分页当前页
  */
 import { useEffect, useRef, useState } from "react";
-import { Copy, Download, Send, Share2, X } from "lucide-react";
+import { Copy, Download, Send, X } from "lucide-react";
 import * as htmlToImage from "html-to-image";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { useToast } from "@/hooks/use-toast";
@@ -180,7 +180,7 @@ export const ShareRankModal = ({
           fontWeight: 600,
         }}
       >
-        <Share2 className="h-4 w-4" aria-hidden="true" />
+        <Send className="h-4 w-4" aria-hidden="true" />
         More Options
       </button>
     </>
