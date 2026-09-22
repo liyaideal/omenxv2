@@ -19,6 +19,15 @@ import {
 interface PodiumMetrics {
   colW: number;
   colH: number;
+  /**
+   * 版面上真正占用的高度（≠ 台阶实渲高度）。
+   * Figma 里领奖台是故意向下溢出、被下面的表格/列表卡盖住的：
+   *  desktop 父框 700:29477 y=430 h=547 → 到 977 为止；领奖台组 y=526 h=678.04 → 画到 1204，
+   *          即占版面 451，溢出 227 藏在表格后面（表格 y=1041 起，卡不透明）。
+   *  mobile  Top3 声明 160、实渲 238 未裁切 → 占版面 160，溢出 78 藏在列表卡后面。
+   * 按实渲高度排进文档流会在下方空出一大块（2026-09-22 CPO 打回）。
+   */
+  reservedH: number;
   colGap: number;
   /** 各名次相对最高台的下沉量 */
   drop: Record<1 | 2 | 3, number>;
@@ -54,6 +63,7 @@ const DESKTOP: PodiumMetrics = {
   colW: 344,
   // colH = pedTop + pedH = 613.7；+ drop[3] 64 后 = 678，对上 Figma 组高 678.04
   colH: 614,
+  reservedH: 451,
   colGap: 37,
   drop: { 1: 0, 2: 48, 3: 64 },
   pedTop: 181.03,
@@ -88,6 +98,7 @@ const MOBILE: PodiumMetrics = {
   colW: 115,
   // colH = pedTop + pedH；+ drop[3] 后 = 228.7，对上 Figma 组高 228.63
   colH: 208,
+  reservedH: 160,
   colGap: 6,
   drop: { 1: 0, 2: 15.21, 3: 20.71 },
   pedTop: 78.57,
@@ -301,13 +312,23 @@ export const LeaderboardPodium = ({
   const m = variant === "desktop" ? DESKTOP : MOBILE;
   const [first, second, third] = topThree;
   return (
-    <div
-      className="flex items-start justify-center"
-      style={{ gap: m.colGap, height: m.colH + m.drop[3] }}
-    >
-      <PodiumColumn user={second} place={2} sortType={sortType} m={m} />
-      <PodiumColumn user={first} place={1} sortType={sortType} m={m} />
-      <PodiumColumn user={third} place={3} sortType={sortType} m={m} />
+    // 外壳只占 reservedH；台阶向下溢出，由后面的表格/列表卡盖住（不裁切）
+    <div style={{ height: m.reservedH, position: "relative" }}>
+      <div
+        className="flex items-start justify-center"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          gap: m.colGap,
+          height: m.colH + m.drop[3],
+        }}
+      >
+        <PodiumColumn user={second} place={2} sortType={sortType} m={m} />
+        <PodiumColumn user={first} place={1} sortType={sortType} m={m} />
+        <PodiumColumn user={third} place={3} sortType={sortType} m={m} />
+      </div>
     </div>
   );
 };
