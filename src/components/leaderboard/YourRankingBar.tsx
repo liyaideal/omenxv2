@@ -79,6 +79,8 @@ export const YourRankingBarDesktop = ({
       style={{
         background:
           "linear-gradient(90deg, rgba(1,255,153,0.04) 0%, rgba(51,214,255,0.04) 100%), #131519",
+        // Figma 700:29964 = 1232x88（16 padding + 56 内容行 + 16 padding）
+        height: 88,
         padding: 16,
         gap: 32,
       }}

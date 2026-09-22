@@ -52,6 +52,7 @@ interface PodiumMetrics {
 
 const DESKTOP: PodiumMetrics = {
   colW: 344,
+  // colH = pedTop + pedH = 613.7；+ drop[3] 64 后 = 678，对上 Figma 组高 678.04
   colH: 614,
   colGap: 37,
   drop: { 1: 0, 2: 48, 3: 64 },
@@ -85,7 +86,8 @@ const DESKTOP: PodiumMetrics = {
 
 const MOBILE: PodiumMetrics = {
   colW: 115,
-  colH: 229,
+  // colH = pedTop + pedH；+ drop[3] 后 = 228.7，对上 Figma 组高 228.63
+  colH: 208,
   colGap: 6,
   drop: { 1: 0, 2: 15.21, 3: 20.71 },
   pedTop: 78.57,
