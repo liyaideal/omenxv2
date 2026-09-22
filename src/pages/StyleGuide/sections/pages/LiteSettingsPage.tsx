@@ -174,7 +174,7 @@ const NOTIFICATIONS_CASES: SectionCase[] = [
   {
     key: "settings-notifications-default",
     label: "ST-18 · Notifications · 全开（默认）",
-    note: "本批仅 email（浏览器推送 / Telegram 后续批次）。四个开关存 profiles.notification_prefs（jsonb）；缺省键读作 true。蓝图只存偏好不发信。",
+    note: "本批仅 email（浏览器推送 / Telegram 后续批次）。四个开关存 profiles.notification_prefs（jsonb）；缺省键读作 true。Lovable 只存偏好不发信。",
     spec: [
       { state: "all on", when: "notification_prefs 每键 !== false", visual: "四行：Settled results / Auto-close warnings / Trade confirmations / Deposits & withdrawals，shadcn Switch 选中 = primary；脚注 'Sent to {email}.'", source: "NotificationsCard.tsx NOTIFICATION_EVENTS" },
       { state: "toggle", when: "切换", visual: "乐观更新即保存；失败回滚 + toast 'Couldn't save that. Try again.'；无保存按钮", source: "useUserProfile.updateNotificationPrefs" },
@@ -218,7 +218,7 @@ const SESSIONS_CASES: SectionCase[] = [
   {
     key: "settings-sessions-many",
     label: "ST-23 · Sessions · 多设备",
-    note: "数据来自 RPC list_my_sessions()（SECURITY DEFINER 读 auth.sessions，按 auth.uid() 过滤）。设备 = user-agent 解析（Chrome · macOS）；地点 = 会话最近 IP（蓝图无 geo-IP，真平台解析成城市）；时间 = 最近活跃相对时间。",
+    note: "数据来自 RPC list_my_sessions()（SECURITY DEFINER 读 auth.sessions，按 auth.uid() 过滤）。设备 = user-agent 解析（Chrome · macOS）；地点 = 会话最近 IP（Lovable 无 geo-IP，真平台解析成城市）；时间 = 最近活跃相对时间。",
     spec: [
       { state: "N devices", when: "rows.length > 1", visual: "右槽 '{n} devices'；行：Monitor / Smartphone 18px + '{browser · os}' + 当前会话 THIS DEVICE 胶囊（primary）+ mono '{ip} · {now | n min ago | n h ago | Sep 15}'；底部全宽描边 'Sign out other devices'", source: "SessionsCard.tsx describeUserAgent / relativeTime" },
       { state: "sign out others", when: "点击", visual: "supabase.auth.signOut({ scope: 'others' }) → toast 'Signed out other devices' → 列表收缩为本机", source: "SessionsCard.tsx signOutOthers" },
@@ -252,7 +252,7 @@ const ACCOUNT_CASES: SectionCase[] = [
   {
     key: "settings-account-default",
     label: "ST-28 · Account · Sign out / Close account 行",
-    note: "Close account 行与按钮用 #FF5C5C（DESIGN §5 破坏性；Wallet 删地址先例）。蓝图止于确认：登出 + toast 'Account closed'，不真正删数据（docs/backend-boundary.md）。",
+    note: "Close account 行与按钮用 #FF5C5C（DESIGN §5 破坏性；Wallet 删地址先例）。Lovable 止于确认：登出 + toast 'Account closed'，不真正删数据（docs/backend-boundary.md）。",
     spec: [
       { state: "Sign out", when: "点击", visual: "立即 signOut → navigate('/')，无确认", source: "AccountCard.tsx handleSignOut" },
       { state: "Close…", when: "balance + spot_balance > 0", visual: "→ ST-29 余额未清弹窗", source: "AccountCard.tsx openClose" },
@@ -272,7 +272,7 @@ const ACCOUNT_DIALOGS: SectionCase[] = [
     label: "ST-30 · Close account · 确认弹窗（输入 CLOSE）",
     spec: [
       { state: "confirm", when: "total === 0", visual: "'Close your account?' / 'Your profile, history and API keys are deleted. This cannot be undone.' / 'Type CLOSE to confirm' + 输入框（登录弹窗 Lite 皮）；'Close account' bg-trading-red，输入 ≠ CLOSE 时 disabled", source: "AccountCard.tsx" },
-      { state: "done", when: "点击 Close account", visual: "signOut → toast 'Account closed' → /（蓝图不删数据）", source: "AccountCard.tsx handleClose" },
+      { state: "done", when: "点击 Close account", visual: "signOut → toast 'Account closed' → /（Lovable 不删数据）", source: "AccountCard.tsx handleClose" },
     ],
   },
 ];

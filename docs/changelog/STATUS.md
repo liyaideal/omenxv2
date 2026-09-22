@@ -25,11 +25,11 @@
 | ST-B | Profile hero = Wallet HeroEquityCard 原样（40px 用户名、胶囊 CTA、未设用户名态）；移动 compact | ✅ | `ProfileHero.tsx`；hero 底图槽位留空待素材 |
 | ST-C | Sign-in 卡合并 Email 卡 + Linked Account 卡：邮箱账号 Change 流不变；Google / Wallet / Telegram 显示 Notification email（NOT SET + Add / Edit） | ✅ | `LinkedEmailAccountCard.tsx` / `ProviderSignInCard.tsx` |
 | ST-D | Account security / Withdrawal verification 换皮（hairline 行 + 胶囊），逻辑不变；未配置态提示指向 Sign-in / Account security | ✅ | 两卡 |
-| ST-E | Notifications：四个 email 开关，`profiles.notification_prefs`，默认全开，乐观保存 + 失败回滚，无邮箱空态 | ✅ | `NotificationsCard.tsx`；蓝图不发信 |
+| ST-E | Notifications：四个 email 开关，`profiles.notification_prefs`，默认全开，乐观保存 + 失败回滚，无邮箱空态 | ✅ | `NotificationsCard.tsx`；Lovable 不发信 |
 | ST-F | 真实发信（按偏好 + 语言）；浏览器推送 / Telegram 第二批 | ⬜ | 正式后端 |
 | ST-G | Preferences · Language：7 语，`profiles.language`，与页头切换器共用 `useLanguage()` | ✅ | `PreferencesCard.tsx` / `src/lib/languages.ts`；页面 i18n 未做；第二批 es / id / tr |
 | ST-H | Sessions：`list_my_sessions()` RPC，THIS DEVICE，loading / error / 单机态，Sign out other devices | ✅ | `SessionsCard.tsx`；地点显示 IP，城市解析归正式后端 |
-| ST-I | Account：Sign out；Close account 余额拦截 / 输入 CLOSE 确认（红主钮） | ✅ | `AccountCard.tsx`；蓝图确认后只登出 |
+| ST-I | Account：Sign out；Close account 余额拦截 / 输入 CLOSE 确认（红主钮） | ✅ | `AccountCard.tsx`；Lovable 确认后只登出 |
 | ST-J | 真实注销（异步删号 + 二次验证） | ⬜ | 正式后端 |
 | ST-K | 移动 375：单列同模块，弹窗 MobileDrawer，语言 drawer 列表 | ✅ | 同各组件 |
 | ST-L | 字典 Lite › Settings ST-1…ST-31（30 key）+ AU-S3…S5 改标 | ✅ | `settingsPreviews.tsx` / `LiteSettingsPage.tsx`，sg:audit PASS |

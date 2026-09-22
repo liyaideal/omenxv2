@@ -20,7 +20,8 @@
 - **Demo 入口隔离:** 多状态/多角色的演示一律放 `/style-guide`，禁止在产品页面新增 demo 切换入口。详见 no-demo-entries-in-product。
 - **演示引擎定位:** 本仓库 Supabase 是**演示引擎**不是正式后端，逐表逐函数的参考边界见 `docs/backend-boundary.md`（append-only：新表 / 新 Edge Function 上线同一轮必须在该文档补一行标注 🟢/🟡/🔴）。
 - **状态走库，内容走 mock:** 跨模块流转的**状态**（下单 / 持仓 / 流水 / 券 / 积分）必须落 Supabase；纯展示**内容**（行情形态、联赛资料、社区帖子等）永远 mock，禁止入库。
-- **单一演示引擎:** 本项目的 Supabase 是所有 OmenX 前端蓝图项目（主站 / Sports / 未来 Pro / Lite）**唯一**后端；schema 变更只允许发生在本项目，其他前端只能调用现成 RPC / Edge Function。已有接入方：OmenX Sports（2026-07-13，两场 WC26 半决赛试点）。
+- **用词（2026-09-22）：** 这套站点叫 Lovable，不叫「蓝图」（文档 / 消息 / 回复统一）。
+- **单一演示引擎:** 本项目的 Supabase 是所有 OmenX 前端 Lovable 项目（主站 / Sports / 未来 Pro / Lite）**唯一**后端；schema 变更只允许发生在本项目，其他前端只能调用现成 RPC / Edge Function。已有接入方：OmenX Sports（2026-07-13，两场 WC26 半决赛试点）。
 - **sim- 前缀:** 新增演示专用 Edge Function 一律用 `sim-` 前缀命名；存量函数不改名，以 `docs/backend-boundary.md` 标注为准。
 - **禁止「半活体」:** style-guide preview 不许手写视觉外壳（容器/弹窗/抽屉/卡片），必须挂生产 chrome 本体；改生产组件同轮必须查字典引用并换壳；收尾跑 `npm run sg:audit`。详见 style-guide-ia。
 

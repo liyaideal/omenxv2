@@ -1,6 +1,6 @@
 # Settings 页 Lite 改版 — 交付说明 v1
 
-日期：2026-09-22 · 范围：`/settings`（桌面 + 移动）· 决策：Liya（CPO）逐条签字 24 条行为规则 + mock v5（A 方案 hero）· 蓝图 commits `e2e5c96d`（产品）/ `65ddc440`（字典）/ 本文档同轮
+日期：2026-09-22 · 范围：`/settings`（桌面 + 移动）· 决策：Liya（CPO）逐条签字 24 条行为规则 + mock v5（A 方案 hero）· Lovable commits `e2e5c96d`（产品）/ `65ddc440`（字典）/ 本文档同轮
 
 ## 通俗导读
 
@@ -11,10 +11,10 @@ Settings 以前是一列窄卡片（`max-w-3xl`），每张卡自带标题和图
 ### 易混点辨析
 
 1. Sign-in 卡里的邮箱**不是**一个概念：邮箱账号的邮箱 = 登录凭证（走「改登录邮箱」两封链接流程）；Google / Wallet / Telegram 账号的邮箱 = Notification email（只用于通知与找回，走原来的通知邮箱弹窗）。
-2. Notifications 开关**不是**发信开关本身：蓝图只存偏好，真正发信在正式平台；无邮箱时整卡是空态，不是四个灰开关。
+2. Notifications 开关**不是**发信开关本身：Lovable 只存偏好，真正发信在正式平台；无邮箱时整卡是空态，不是四个灰开关。
 3. Language **不是**页面翻译：本轮页面文案仍全英文，偏好只驱动页头 chip 与邮件语言；页面 i18n 是后续批次。
-4. Sessions 的「地点」蓝图显示的是 IP**不是**城市：城市解析要 geo-IP 服务，归正式后端。
-5. Close account 在蓝图里**不会**删数据：余额为 0 → 输入 CLOSE → 登出 + toast `Account closed`；真删号在正式平台。
+4. Sessions 的「地点」 Lovable 显示的是 IP**不是**城市：城市解析要 geo-IP 服务，归正式后端。
+5. Close account 在 Lovable 里**不会**删数据：余额为 0 → 输入 CLOSE → 登出 + toast `Account closed`；真删号在正式平台。
 6. Withdrawal verification 里未就绪的 Authenticator 选项**仍可点**（就地打开 2FA 设置），只有「什么都没配置」时三项才全部禁用。
 
 ### 用户视角
@@ -29,7 +29,7 @@ Settings 以前是一列窄卡片（`max-w-3xl`），每张卡自带标题和图
 - 什么时候变成什么样 → `/style-guide` → **Lite** 组 **Settings** 节点（ST-1…ST-31）；改登录邮箱与密码行的既有 case 在 **登录 / 注册** 节点第 8–10 节（AU-S1…S8）。
 - 字段名、文案、术语 → `docs/copy-dictionary.md`「Settings（`/settings`，Lite 改版 2026-09-22）」+「Auth · Email」
 - 设计法则（容器、hero、卡片语法、胶囊、弹层） → `DESIGN.md` §Addendum 2026-09-22（并注意 §4 Layout Narrow 已废止、Two Openings 里 Settings 移到 A）
-- 蓝图 / 正式版边界 → `docs/backend-boundary.md` 2026-09-22 节 → 本文 §8
+- Lovable / 正式版边界 → `docs/backend-boundary.md` 2026-09-22 节 → 本文 §8
 
 ## 0.1 字典怎么看（`/style-guide` 阅读指南）
 
@@ -83,7 +83,7 @@ Settings 以前是一列窄卡片（`max-w-3xl`），每张卡自带标题和图
 
 ### 4.3 Sign-in（规则 5–7）· `LinkedEmailAccountCard.tsx` / `ProviderSignInCard.tsx`
 - 邮箱账号：`SIGN-IN · Email & password`，一行 Email / 地址 / `Change`；pending / cooldown / Resend / 同步 toast 逻辑沿用 09-19（AU-S3…S8）。
-- Google / Wallet / Telegram：右槽 `Google account` / `Wallet` / `Telegram`；行 1 登录方式（Google 显示邮箱；Wallet / Telegram 蓝图无地址 / 句柄列，值行省略）；行 2 `Notification email` + `Edit`，无邮箱 → `NOT SET` 胶囊 + `Needed for alerts and account recovery` + `Add`（现有通知邮箱弹窗，验证码步不变）。
+- Google / Wallet / Telegram：右槽 `Google account` / `Wallet` / `Telegram`；行 1 登录方式（Google 显示邮箱；Wallet / Telegram Lovable 无地址 / 句柄列，值行省略）；行 2 `Notification email` + `Edit`，无邮箱 → `NOT SET` 胶囊 + `Needed for alerts and account recovery` + `Add`（现有通知邮箱弹窗，验证码步不变）。
 - 原 Email 卡与 Linked Account 卡不再存在。
 
 ### 4.4 Account security / Withdrawal verification（规则 8–9）
@@ -96,7 +96,7 @@ Settings 以前是一列窄卡片（`max-w-3xl`），每张卡自带标题和图
 - 切换即保存（乐观更新）；失败回滚 + toast `Couldn't save that. Try again.`；无保存按钮。
 - 无邮箱 → 整卡空态 `Add an email to get alerts` + `Add email`（打开 4.3 的通知邮箱弹窗）。
 - 脚注 `Sent to {email}.`；改邮箱等待中仍显示当前地址 + ` — until your email change is confirmed.`
-- 蓝图只存偏好不发信（§8）。
+- Lovable 只存偏好不发信（§8）。
 
 ### 4.6 Preferences · Language（规则 14–15）· `PreferencesCard.tsx` / `src/lib/languages.ts` / `useLanguage()`
 - 7 项：English / 简体中文 / 繁體中文 / 日本語 / 한국어 / Русский / Tiếng Việt（值 `en / zh-CN / zh-TW / ja / ko / ru / vi`）；选中即保存 `profiles.language` + toast `Language set to {label}`。
@@ -104,14 +104,14 @@ Settings 以前是一列窄卡片（`max-w-3xl`），每张卡自带标题和图
 - 页面文案本轮不翻译。第二批：Español / Bahasa Indonesia / Türkçe。
 
 ### 4.7 Sessions（规则 16–18）· `SessionsCard.tsx` · RPC `list_my_sessions()`
-- 行：设备（user-agent → `Chrome · macOS` / `Safari · iPhone` …，解析不出 → `Unknown device`）· 本机 `THIS DEVICE` 胶囊 · mono `{ip} · {now | n min ago | n h ago | Sep 15}`（ip 为空 → `Unknown location`）。**蓝图显示 IP，城市解析归正式后端。**
+- 行：设备（user-agent → `Chrome · macOS` / `Safari · iPhone` …，解析不出 → `Unknown device`）· 本机 `THIS DEVICE` 胶囊 · mono `{ip} · {now | n min ago | n h ago | Sep 15}`（ip 为空 → `Unknown location`）。**Lovable 显示 IP，城市解析归正式后端。**
 - 仅本机 → 隐藏按钮，脚注 `You're only signed in here.`；右槽 `{n} device(s)`。
 - `Sign out other devices` → `signOut({ scope: "others" })` → toast `Signed out other devices` → 列表收缩为本机；加载失败 → 卡内 `Couldn't load sessions` + `Retry`；加载中 3 组骨架。
 
 ### 4.8 Account（规则 19–21）· `AccountCard.tsx`
 - `Sign out` → 立即登出回首页，无确认。
 - `Close…`：`balance + spot_balance > 0` → 弹窗 `Withdraw your balance first` / `You still have {$x} across Standard and Boost. Withdraw it before closing your account.` + `Go to Wallet`；余额为 0 → 弹窗 `Close your account?` / `Your profile, history and API keys are deleted. This cannot be undone.` / `Type CLOSE to confirm`，输入 `CLOSE` 后红色 `Close account` 才可点。
-- 确认后：蓝图只登出 + toast `Account closed` → `/`；真实注销在正式平台（§8）。
+- 确认后：Lovable 只登出 + toast `Account closed` → `/`；真实注销在正式平台（§8）。
 
 ### 4.9 移动端（规则 22）
 375 下单列同模块；所有弹窗 MobileDrawer（语言选择为 drawer 列表，当前项 ✓）；MobileHeader preset B。
@@ -138,7 +138,7 @@ Settings 以前是一列窄卡片（`max-w-3xl`），每张卡自带标题和图
 
 ## 6. 数据与后端
 
-| 项 | 蓝图实现 |
+| 项 | Lovable 实现 |
 |---|---|
 | `profiles.notification_prefs jsonb NOT NULL DEFAULT '{"settled":true,"auto_close":true,"trades":true,"funds":true}'` | 迁移 `supabase/migrations/20260922090000_settings_prefs_sessions.sql`（已应用） |
 | `profiles.language text NOT NULL DEFAULT 'en'` | 同上 |
@@ -162,7 +162,7 @@ Settings 以前是一列窄卡片（`max-w-3xl`），每张卡自带标题和图
 
 已在 preview 实机跑过 1–11（2026-09-22，账号 `qa-vis-1@omenx.dev`，桌面 1280 + 移动 375；DB 侧核对 `notification_prefs` / `language` 落库、`list_my_sessions()` 返回、登出其他设备后行数从 2 → 1）。
 
-## 8. 真平台必须补的（蓝图做不到或有意没做）
+## 8. 真平台必须补的（Lovable 做不到或有意没做）
 
 - 真实发信：四类邮件按 `notification_prefs` + `language` 发；浏览器推送 / Telegram 通知第二批。
 - 页面 i18n：语言偏好已存，页面文案翻译后续批次；第二批语言 es / id / tr。

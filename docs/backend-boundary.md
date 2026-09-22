@@ -74,7 +74,7 @@
 
 | 表 | 类别 | 说明 |
 |---|---|---|
-| profiles | 🟡 | `totp_enabled` / `withdraw_2fa_mode` 是需求；`is_affiliate` / `affiliate_since`（2026-09-19）是 /affiliate CTA 三态的蓝图标记位，真平台读 affiliate 服务的会员状态；`notification_prefs` / `language`（2026-09-22）是需求（用户偏好），存哪里自选；其余演示字段忽略 |
+| profiles | 🟡 | `totp_enabled` / `withdraw_2fa_mode` 是需求；`is_affiliate` / `affiliate_since`（2026-09-19）是 /affiliate CTA 三态的 Lovable 标记位，真平台读 affiliate 服务的会员状态；`notification_prefs` / `language`（2026-09-22）是需求（用户偏好），存哪里自选；其余演示字段忽略 |
 | user_security | 🟢 | TOTP 秘钥独立表、客户端零可见的隔离设计照抄（见 SEC3） |
 | user_roles | 🟡 | RBAC 概念 |
 | user_watchlist | 🟡 | 自选收藏；guest localStorage 部分不实现 |
@@ -202,10 +202,10 @@
 | 项 | 类别 | 说明 |
 |---|---|---|
 | `profiles.notification_prefs`（jsonb：settled / auto_close / trades / funds，默认全 true） | 🟡 | 「四类邮件提醒可分别开关、新账号默认全开、无邮箱不发」的规则照抄；字段位置自选 |
-| 真实发信（结算 / 自动平仓预警 / 成交 / 出入金邮件） | 🟢（正式版必做，蓝图未做） | 蓝图只存偏好；正式版由通知服务按偏好 + 用户语言发信；浏览器推送 / Telegram 通知为第二批 |
+| 真实发信（结算 / 自动平仓预警 / 成交 / 出入金邮件） | 🟢（正式版必做，Lovable 未做） | Lovable 只存偏好；正式版由通知服务按偏好 + 用户语言发信；浏览器推送 / Telegram 通知为第二批 |
 | `profiles.language`（en / zh-CN / zh-TW / ja / ko / ru / vi） | 🟡 | 「站点语言偏好登录后跟账号走、页头与 Settings 共用一份」照抄；游客 localStorage `omenx.language`。页面文案 i18n 本轮未做；第二批语言 es / id / tr |
-| RPC `list_my_sessions()`（SECURITY DEFINER 读 `auth.sessions`，按 `auth.uid()` 过滤，`is_current` = JWT `session_id`） | 🟡 | 「用户能看到自己的活跃会话、标出本机、能登出其他设备」的规则照抄；正式版由认证服务提供会话列表，**IP → 城市**由服务端解析（蓝图显示 IP） |
+| RPC `list_my_sessions()`（SECURITY DEFINER 读 `auth.sessions`，按 `auth.uid()` 过滤，`is_current` = JWT `session_id`） | 🟡 | 「用户能看到自己的活跃会话、标出本机、能登出其他设备」的规则照抄；正式版由认证服务提供会话列表，**IP → 城市**由服务端解析（Lovable 显示 IP） |
 | `supabase.auth.signOut({ scope: "others" })` | 🟡 | 语义照抄（撤销本机以外全部 refresh token） |
-| Close account | 🟢（正式版必做，蓝图未做） | 蓝图：余额 > 0 拦截（`balance + spot_balance`）、输入 CLOSE 确认后只登出 + toast `Account closed`，不删数据。正式版：确认后异步注销（删 profile / API key / 会话，保留合规所需的交易记录），并做二次验证（邮箱码或 2FA） |
-| Authenticator「Added {date}」 | ⬜ | 蓝图 `user_security` 不暴露启用时间，行内显示 `Codes from your authenticator app`；正式版可显示启用日期 |
+| Close account | 🟢（正式版必做，Lovable 未做） | Lovable：余额 > 0 拦截（`balance + spot_balance`）、输入 CLOSE 确认后只登出 + toast `Account closed`，不删数据。正式版：确认后异步注销（删 profile / API key / 会话，保留合规所需的交易记录），并做二次验证（邮箱码或 2FA） |
+| Authenticator「Added {date}」 | ⬜ | Lovable `user_security` 不暴露启用时间，行内显示 `Codes from your authenticator app`；正式版可显示启用日期 |
 

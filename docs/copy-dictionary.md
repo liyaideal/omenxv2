@@ -667,11 +667,11 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 |---|---|---|---|
 | Sign-in（登录方式卡） | 账号用什么登录：Email & password / Google account / Wallet / Telegram；登录方式本身不可改，Google/Wallet/Telegram 账号在此维护 Notification email | `profiles.auth_method` | `LinkedEmailAccountCard`（email）/ `ProviderSignInCard`（其他） |
 | Notification email | Google/Wallet/Telegram 账号收通知与找回用的邮箱（`profiles.email`）；邮箱账号的登录邮箱即通知邮箱 | `auth_method !== "email"` 时可编辑 | `ProviderSignInCard` → Settings.tsx 通知邮箱弹窗 |
-| Notifications（email alerts） | 四类邮件提醒开关；本批只做 email，浏览器推送 / Telegram 后续批次；蓝图只存偏好不发信 | `profiles.notification_prefs.{settled,auto_close,trades,funds}`，缺省键 = true | `NotificationsCard` / `readNotificationPrefs()` |
+| Notifications（email alerts） | 四类邮件提醒开关；本批只做 email，浏览器推送 / Telegram 后续批次；Lovable 只存偏好不发信 | `profiles.notification_prefs.{settled,auto_close,trades,funds}`，缺省键 = true | `NotificationsCard` / `readNotificationPrefs()` |
 | Language | 站点语言偏好，页头切换器与 Settings 共用；本轮不翻译页面文案，只驱动页头 chip 与邮件语言 | `profiles.language`（登录）/ `localStorage omenx.language`（游客） | `useLanguage()` / `SITE_LANGUAGES` |
 | Sessions（devices） | 当前账号活跃会话；本机 = JWT `session_id`；设备 = user-agent，地点 = 会话最近 IP（真平台解析城市），时间 = 最近活跃 | RPC `list_my_sessions()` | `SessionsCard` |
 | Sign out other devices | 登出本机以外全部会话 | `supabase.auth.signOut({ scope: "others" })` | `SessionsCard` |
-| Close account | 注销：余额（Standard + Boost）为 0 才可进确认；蓝图止于确认（登出 + toast），真平台删号 | `balance + spot_balance > 0` → blocked | `AccountCard` |
+| Close account | 注销：余额（Standard + Boost）为 0 才可进确认；Lovable 止于确认（登出 + toast），真平台删号 | `balance + spot_balance > 0` → blocked | `AccountCard` |
 
 ### 卡头（微标签 · 右槽只放值 / 计数）
 | 卡 | 右槽 | 说明行 |
