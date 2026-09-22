@@ -289,10 +289,10 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 - 容器：`<main className="mx-auto w-full max-w-7xl px-4 lg:px-6 py-10 space-y-6">`（移动 `px-4 py-6`）
 - 适用：Events / Resolved / Portfolio(+子页) / Vouchers / Rewards / Wallet / Transparency / API Management
 
-**Layout Narrow（纯单列表单/开关页）**
+~~**Layout Narrow（纯单列表单/开关页）**~~ — **已废止（2026-09-22）**。Settings 自 2026-09-22 改版起归入 ACCOUNT family，容器同上（`max-w-7xl px-4 lg:px-6 py-10`）；全站不再有任何 `max-w-3xl` 页面容器（2026-08-21「禁止任何页面自定义 max-w」的规则自此没有例外）。
 
-- 容器：`<main className="mx-auto w-full max-w-3xl px-4 lg:px-6 py-10 space-y-6">`（移动 `px-4 py-6`）
-- 适用：**仅** Settings 这类纯设置表单页
+- ~~容器：`<main className="mx-auto w-full max-w-3xl px-4 lg:px-6 py-10 space-y-6">`（移动 `px-4 py-6`）~~
+- ~~适用：**仅** Settings 这类纯设置表单页~~
 
 **允许的变体**：`/settings/api` (API Management) 用全宽 hairline `border-t border-border/40` 分段替代 `space-y-6`，这是 §4 明确允许的工程图纸变体，别当违规。仍需 `max-w-7xl px-4 lg:px-6 py-10`（移动 `px-4 py-6`）。
 
@@ -300,12 +300,12 @@ flex items-center justify-between py-1.5 px-2 rounded bg-muted/20 text-xs
 
 每个产品页只允许以下两种开场之一，没有第三种。
 
-**A) DATA OPENING（账户页：Wallet、Portfolio 及其子页）**
+**A) DATA OPENING（账户页：Wallet、Portfolio 及其子页、Settings（2026-09-22 起））**
 
 - **完全不出页面标题**。页面自身的数据 hero（Wallet 的 equity 卡 / Portfolio 的 tabs + stats 行）就是开场。
 - Wallet 没有标题是**按规则正确**的，不要补标题。
 
-**B) TITLE OPENING（浏览/功能页：Events、Resolved、Vouchers、Rewards、Transparency、Settings、API Management）**
+**B) TITLE OPENING（浏览/功能页：Events、Resolved、Vouchers、Rewards、Transparency、~~Settings~~（2026-09-22 移入 A）、API Management）**
 
 - 单行 display h1，由 `src/components/PageTitle.tsx` 渲染：
   `font-display font-bold tracking-[-0.02em] leading-[1.05]`，`fontSize: clamp(28px, 4vw, 40px)`
@@ -342,7 +342,7 @@ Pages: Events list, trade pages, Settled, and other content/browse pages.
 
 #### 2. ACCOUNT family
 
-Pages: Wallet, Portfolio, and future account/data pages.
+Pages: Wallet, Portfolio, Settings (since 2026-09-22), and future account/data pages.
 
 - **Data opening**: NO text page title; the first screen is data itself.
 - **Five grammar rules that define the family**:
@@ -2032,3 +2032,34 @@ Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① 
 
 **7 · 字典**
 AU-E1…E11 / AU-R1…R6 / AU-S1…S8 挂生产件本体（`AuthDialog` / `AuthSheet` `previewStep="email"` + `fixture.emailPanel`、`ResetPasswordContent fixtureState`、`AccountSecurityCard previewEmailUser`、`LinkedEmailAccountCard previewState / previewDialog`），禁止在 preview 里手写复刻。
+
+## §Addendum 2026-09-22 · Settings 归入 ACCOUNT family + 账户页卡片语法（LOCKED）
+
+**适用范围**：`src/pages/Settings.tsx` 及 `src/components/settings/*`；卡片语法对 ACCOUNT family 全体（Wallet / Portfolio / Settings / 未来账户页）生效。参照实现 = Wallet（`HeroEquityCard`、saved-address 行）。取代 §Addendum 2026-09-19 第 5、6 条的卡壳描述（Password 行与改邮箱卡改用本附录语法；状态与逻辑不变）。
+
+**1 · 页面**
+- 容器 `mx-auto w-full max-w-7xl px-4 py-10 lg:px-6 space-y-6`；移动 `px-4 py-6 space-y-4`。§4「Layout Narrow」同日废止，全站零 `max-w-3xl` 容器。
+- 数据开场无标题：hero 就是开场。节奏抄 Wallet：**通栏 hero → 两卡带（`grid-cols-2 gap-6`）→ 12 栅格 8 / 4**。页尾 `SeoFooter`。
+- 游客 `LiteAuthGate`（page 变体），加载 `LoadingState`，失败 `ErrorState` + Retry。
+- 移动 `MobileHeader` preset B（inner，标题 `Settings`，back），单列同模块。
+
+**2 · Profile hero（`ProfileHero.tsx`）= Wallet `HeroEquityCard` 原样**
+`rounded-[18px] border border-border bg-card p-[34px_36px]`；内层 `flex-col lg:flex-row lg:items-end lg:justify-between`。左：72px 圆头像（`border-2 border-primary/50`，点击开头像选择器）+ 微标签 `PROFILE`（`text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-2.5`）+ 用户名 `font-display font-bold text-[40px] leading-[0.96]`（未设置 → 灰 500 `Set a username`）+ meta `text-[13px] text-muted-foreground mt-2.5`（ID 用 `font-mono`）。右：胶囊 `h-auto py-3 px-[22px] rounded-full bg-secondary font-semibold text-sm` —— `Edit username`（outline）/ `Change avatar`（ghost `text-[#C9CED6]`）。compact（移动）：`p-5`，56px 头像，22px 名字，无微标签，下方 `grid-cols-2 gap-2` 两颗 `h-11 rounded-full`。hero 底图槽位（Wallet `hero-thread.webp` 同位）留空，素材由 CPO 提供，禁 CSS 复刻。
+
+**3 · 卡片语法（`SettingsCard` / `SettingsRow` / `SettingsCapsule` / `SettingsNote`）**
+- 卡 = `trading-card p-6`（移动 `p-4`）。卡头 = 微标签（同上 11px 规格）；**右槽只放值或计数**（`Email & password` / `3 devices`），**禁放句子**；可选一行 12px muted 说明在标签下（只在有信息量时出现）。禁 h3 标题、禁图标砖、禁 `bg-muted/30 rounded-xl` 内框。
+- 行 = hairline `flex items-center gap-3 py-3.5 border-b border-[#1D2026]`（末行去线去底距）：18px `text-muted-foreground` lucide 图标 · 14px/500 标题（内联胶囊 `gap-2`）· 12px muted 副文（地址/邮箱 `font-mono text-[13px]`）· 右槽。
+- 右槽只允许四种：`variant="outline" size="sm" h-8` 按钮 / 胶囊 / shadcn `Switch`（`h-6 w-11`，选中 primary）/ 16px chevron（整行可点）。渐变主按钮只给资金 CTA，Settings 无。
+- 胶囊 = productLineBadge 形（`rounded-full border px-1.5 text-[10px] font-semibold uppercase leading-4`）三色：muted（`NOT SET`）/ primary（`THIS DEVICE`）/ accent（`PENDING`、`ENABLED`）。
+- 脚注 `text-[11px] text-muted-foreground leading-relaxed mt-3.5`；强调词 `text-foreground`，登录方式名 `text-primary font-medium`。
+- 单选行（Withdrawal verification）= 同 hairline 行 + `RadioGroupItem`；未就绪 `opacity-55` + 琥珀 `text-trading-yellow` 12px 说明；全未配置 → 琥珀框 `border-trading-yellow/30 bg-trading-yellow/10 rounded-lg p-3`。
+- 空态（Notifications 无邮箱）= 卡内居中 `py-6`：14px 600 标题 + 12px muted 说明 + 描边 sm 按钮；不借 EmptyState 组件（模块级、无插画）。
+- 骨架 = `Skeleton h-3 w-[52%]` + `h-2.5 w-[30%]` 三组，行距同 hairline。
+- 破坏性行（Close account）：图标、标题、按钮字色 `#FF5C5C`，按钮描边 `#FF5C5C/35`；确认弹窗主按钮 `bg-trading-red text-white`，输入 `CLOSE` 前 disabled。
+
+**4 · 弹层**
+桌面 shadcn Dialog；移动 `MobileDrawer`（语言选择 = drawer 列表，行 `px-4 py-3 rounded-xl`，当前项 `bg-muted/40` + 主色 ✓）。桌面语言选择 = 描边 sm chip + `DropdownMenu` 200px，当前项主色 ✓。
+
+**5 · 字典**
+`/style-guide` → Lite › Settings 节点 ST-1…ST-31（`preview/settingsPreviews.tsx`），全部挂生产件 + `preview*` fixture；AU-S1…S8 保留在登录节点，皮随本附录。
+

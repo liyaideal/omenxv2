@@ -658,6 +658,61 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | `rate_limited` | Too many attempts. Please wait a minute and try again. | toast |
 | `unknown` | Something went wrong. Please try again. | toast |
 
+## Settings（`/settings`，Lite 改版 2026-09-22）
+
+固定句子在各组件内（`src/components/settings/*`）；页面级句子在 `src/pages/Settings.tsx` `SETTINGS_GATE_COPY`；通知事件在 `NotificationsCard.tsx` `NOTIFICATION_EVENTS`；语言列表在 `src/lib/languages.ts`。改邮箱 / 密码行 / 验证码句见上一节「Auth · Email」。
+
+### 概念
+| 词 | 一句定义 | 判定表达式 | 出处 |
+|---|---|---|---|
+| Sign-in（登录方式卡） | 账号用什么登录：Email & password / Google account / Wallet / Telegram；登录方式本身不可改，Google/Wallet/Telegram 账号在此维护 Notification email | `profiles.auth_method` | `LinkedEmailAccountCard`（email）/ `ProviderSignInCard`（其他） |
+| Notification email | Google/Wallet/Telegram 账号收通知与找回用的邮箱（`profiles.email`）；邮箱账号的登录邮箱即通知邮箱 | `auth_method !== "email"` 时可编辑 | `ProviderSignInCard` → Settings.tsx 通知邮箱弹窗 |
+| Notifications（email alerts） | 四类邮件提醒开关；本批只做 email，浏览器推送 / Telegram 后续批次；蓝图只存偏好不发信 | `profiles.notification_prefs.{settled,auto_close,trades,funds}`，缺省键 = true | `NotificationsCard` / `readNotificationPrefs()` |
+| Language | 站点语言偏好，页头切换器与 Settings 共用；本轮不翻译页面文案，只驱动页头 chip 与邮件语言 | `profiles.language`（登录）/ `localStorage omenx.language`（游客） | `useLanguage()` / `SITE_LANGUAGES` |
+| Sessions（devices） | 当前账号活跃会话；本机 = JWT `session_id`；设备 = user-agent，地点 = 会话最近 IP（真平台解析城市），时间 = 最近活跃 | RPC `list_my_sessions()` | `SessionsCard` |
+| Sign out other devices | 登出本机以外全部会话 | `supabase.auth.signOut({ scope: "others" })` | `SessionsCard` |
+| Close account | 注销：余额（Standard + Boost）为 0 才可进确认；蓝图止于确认（登出 + toast），真平台删号 | `balance + spot_balance > 0` → blocked | `AccountCard` |
+
+### 卡头（微标签 · 右槽只放值 / 计数）
+| 卡 | 右槽 | 说明行 |
+|---|---|---|
+| PROFILE（hero 微标签） | — | — |
+| SIGN-IN | Email & password · Google account · Wallet · Telegram | — |
+| ACCOUNT SECURITY | — | Verification methods linked to your account. |
+| WITHDRAWAL VERIFICATION | — | How we verify a withdrawal request. |
+| NOTIFICATIONS | — | Email alerts for activity on your account. |
+| PREFERENCES | — | — |
+| SESSIONS | {n} device / devices（loading / error 时空） | — |
+| ACCOUNT | — | — |
+| MORE | — | — |
+
+### 行 / 按钮 / 脚注
+| 文案 | 何时出现 |
+|---|---|
+| Set a username · Set username / Edit username · Change avatar · ID #{6} · Joined {MM-DD-YYYY} | hero（未设 / 已设用户名） |
+| Notification email · **NOT SET** · Needed for alerts and account recovery · Add / Edit | Sign-in 卡（Google / Wallet / Telegram） |
+| You signed in via {Provider}. This cannot be changed. To use a different account, sign out and sign in again. | Sign-in 卡脚注（非邮箱账号） |
+| Authenticator app · **NOT SET** · Connect Google Authenticator, Authy, or similar · Set up | Account security · 未启用 |
+| Authenticator app · **ENABLED** · Codes from your authenticator app · Disable | Account security · 已启用 |
+| Email only / Send a 6-digit code to your email · Authenticator only / Use codes from an authenticator app · Email + Authenticator / Strongest — require both for every withdrawal | Withdrawal verification 三项 |
+| ⚠ Requires {email / authenticator / email + authenticator} to be configured | 未就绪选项下的琥珀行 |
+| ⚠ Add an email in **Sign-in** or set up an authenticator in **Account security** to enable withdrawal verification. | 什么都没配置（Wallet 账号） |
+| Add an email in Sign-in to use this option · Authenticator added. Add an email in Sign-in to enable Email + Authenticator · Withdrawal verification updated | toast |
+| Settled results / When a call you hold settles — won or lost · Auto-close warnings / When a Boost call gets close to its auto-close · Trade confirmations / Every buy and cash out · Deposits & withdrawals / When funds land or leave | Notifications 四行（Lite 词：buy / cash out / Boost / auto-close，无 Back） |
+| Sent to {email}. · Sent to {email} — until your email change is confirmed. | Notifications 脚注（默认 / 改邮箱等待中） |
+| **Add an email to get alerts** / Settled results, auto-close warnings, trade confirmations and funds movements. · Add email | Notifications 空态（无邮箱） |
+| Couldn't save that. Try again. | Notifications / Language 保存失败 toast |
+| Language / Also changes the language of emails we send you · {English · 简体中文 · 繁體中文 · 日本語 · 한국어 · Русский · Tiếng Việt} · Language set to {label} | Preferences 行 / 选项 / toast |
+| {Chrome · macOS} · **THIS DEVICE** · {ip} · {now / {n} min ago / {n} h ago / Sep 15} · Unknown device · Unknown location | Sessions 行 |
+| You're only signed in here. · Sign out other devices · Signed out other devices · Couldn't sign out other devices. Try again. | Sessions 脚注 / 按钮 / toast |
+| Couldn't load sessions / Check your connection and try again. · Retry | Sessions 错误行 |
+| Sign out / Signs out this device only · Close account / Withdraw your balance first. This cannot be undone. · Close… | Account 卡 |
+| **Withdraw your balance first** / You still have {$x} across Standard and Boost. Withdraw it before closing your account. · Cancel · Go to Wallet | Close account · 余额未清弹窗 |
+| **Close your account?** / Your profile, history and API keys are deleted. This cannot be undone. · Type **CLOSE** to confirm · Cancel · Close account · Account closed | Close account · 确认弹窗 / toast |
+| Transparency audit / Verify assets, trades and auto-closes on-chain · API management / API keys for programmatic trading | More 卡（"liquidations" 已按 Lite 禁词改 "auto-closes"） |
+| **Sign in to view your settings** / Manage your profile, security and notifications by signing in to your account. | 未登录门 |
+| **Couldn't load your settings** / Check your connection and try again. · Try again | 页面错误态 |
+
 ## Home (`/`, Lite)
 
 首页 = `/` 与 `/events` 同一 `LiteEventsPage`。完整交付口径见 `docs/delivery/lite-home-v1.md`。
