@@ -452,17 +452,17 @@ const RESET_MOBILE: SectionCase[] = [
 const LINKED_CASES: SectionCase[] = [
   {
     key: "settings-linked-email-default",
-    label: "AU-S3 · Linked Account 卡（邮箱账号）· 默认",
-    note: "只在 profile.auth_method === 'email' 时用这张卡；其他账号仍是 Settings.tsx 里的 LinkedAccountCard。邮箱账号同时隐藏 Profile 卡的 Email Edit。",
+    label: "AU-S3 · Sign-in 卡（邮箱账号，2026-09-22 起原 Linked Account 卡）· 默认",
+    note: "只在 profile.auth_method === 'email' 时用这张卡；Google / Wallet / Telegram 账号用 ProviderSignInCard（见 Settings 节点 ST-9…11）。2026-09-22 改版后卡头为 SIGN-IN · Email & password，状态与逻辑不变。",
     spec: [
-      { state: "default", when: "!user.new_email && cooldown === 0", visual: "邮箱框右侧描边小钮 'Change'（h-8，与 Password 行同钮）；说明 'You signed in via Email. To change it, we'll send a link to both your current and your new address.'", source: "LinkedEmailAccountCard.tsx" },
+      { state: "default", when: "!user.new_email && cooldown === 0", visual: "Email 行右侧描边小钮 'Change'（h-8，与 Password 行同钮）；说明 'You signed in via Email. To change it, we'll send a link to both your current and your new address.'", source: "LinkedEmailAccountCard.tsx" },
     ],
   },
   {
     key: "settings-linked-email-pending",
     label: "AU-S4 · Linked Account 卡 · 等待中（两封链接未都点）",
     spec: [
-      { state: "pending", when: "user.new_email 有值 && cooldown === 0", visual: "'Email' 旁描边徽标 'Pending'（主色染）；邮箱框仍显示当前邮箱；按钮 'Resend'；说明 'Changing to {new} — open the link in both inboxes to finish. Links expire in 24 hours.'", source: "LinkedEmailAccountCard.tsx" },
+      { state: "pending", when: "user.new_email 有值 && cooldown === 0", visual: "'Email' 旁 PENDING 胶囊（accent）；行内仍显示当前邮箱；按钮 'Resend'；说明 'Changing to {new} — open the link in both inboxes to finish. Links expire in 24 hours.'", source: "LinkedEmailAccountCard.tsx" },
       { state: "done", when: "两封都点了 → user.email 变化", visual: "同步 profiles.email → toast 'Email updated to {new}' → 回 AU-S3 显示新邮箱", source: "LinkedEmailAccountCard.tsx sync effect" },
     ],
   },
@@ -612,7 +612,7 @@ export const AuthPage = ({ isMobile }: { isMobile: boolean }) => (
         </div>
       </SubSection>
 
-      <SubSection title="9 · Settings › Linked Account · 改登录邮箱（邮箱账号）" platform="shared">
+      <SubSection title="9 · Settings › Sign-in · 改登录邮箱（邮箱账号）" platform="shared">
         <SectionFrame cases={LINKED_CASES} device="desktop" minHeight={240} />
         <div className="mt-3">
           <SectionFrame cases={LINKED_CASES} device="mobile" minHeight={260} />

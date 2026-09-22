@@ -37,6 +37,7 @@ const walletLite = () => import("./walletLitePreviews");
 const h2e = () => import("./h2ePreviews");
 const autoClose = () => import("./autoClosePreviews");
 const auth = () => import("./authPreviews");
+const settings = () => import("./settingsPreviews");
 const events = () => import("./eventsPreviews");
 const homeStage = () => import("./homeStagePreviews");
 const brandAssets = () => import("@/pages/StyleGuide/sections/BrandAssetsSection");
@@ -560,6 +561,35 @@ export const previewRegistry: Record<string, Loader> = {
   "settings-change-email-input": pick(auth, "SettingsChangeEmailInputPreview"),
   "settings-change-email-error": pick(auth, "SettingsChangeEmailErrorPreview"),
   "settings-change-email-sent": pick(auth, "SettingsChangeEmailSentPreview"),
+
+  // Settings — Lite reskin (2026-09-22, mock v5). ST-* in LiteSettingsPage.
+  "settings-page-guest": pick(settings, "SettingsPageGuestPreview"),
+  "settings-page-loading": pick(settings, "SettingsPageLoadingPreview"),
+  "settings-page-error": pick(settings, "SettingsPageErrorPreview"),
+  "settings-hero-default": pick(settings, "SettingsHeroDefaultPreview"),
+  "settings-hero-unset": pick(settings, "SettingsHeroUnsetPreview"),
+  "settings-hero-mobile": pick(settings, "SettingsHeroMobilePreview"),
+  "settings-signin-google": pick(settings, "SettingsSignInGooglePreview"),
+  "settings-signin-wallet": pick(settings, "SettingsSignInWalletPreview"),
+  "settings-signin-telegram": pick(settings, "SettingsSignInTelegramPreview"),
+  "settings-security-totp-enabled": pick(settings, "SettingsSecurityTotpEnabledPreview"),
+  "settings-withdrawal-default": pick(settings, "SettingsWithdrawalDefaultPreview"),
+  "settings-withdrawal-all-enabled": pick(settings, "SettingsWithdrawalAllEnabledPreview"),
+  "settings-withdrawal-nothing": pick(settings, "SettingsWithdrawalNothingPreview"),
+  "settings-notifications-default": pick(settings, "SettingsNotificationsDefaultPreview"),
+  "settings-notifications-some-off": pick(settings, "SettingsNotificationsSomeOffPreview"),
+  "settings-notifications-no-email": pick(settings, "SettingsNotificationsNoEmailPreview"),
+  "settings-preferences-default": pick(settings, "SettingsPreferencesDefaultPreview"),
+  "settings-preferences-open": pick(settings, "SettingsPreferencesOpenPreview"),
+  "settings-sessions-many": pick(settings, "SettingsSessionsManyPreview"),
+  "settings-sessions-single": pick(settings, "SettingsSessionsSinglePreview"),
+  "settings-sessions-loading": pick(settings, "SettingsSessionsLoadingPreview"),
+  "settings-sessions-error": pick(settings, "SettingsSessionsErrorPreview"),
+  "settings-sessions-unknown": pick(settings, "SettingsSessionsUnknownPreview"),
+  "settings-account-default": pick(settings, "SettingsAccountDefaultPreview"),
+  "settings-account-blocked": pick(settings, "SettingsAccountBlockedPreview"),
+  "settings-account-confirm": pick(settings, "SettingsAccountConfirmPreview"),
+  "settings-more": pick(settings, "SettingsMorePreview"),
 
 
   /* -------- Settlements -------- */

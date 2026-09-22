@@ -11,15 +11,6 @@ export const LiteLeaderboardPage = (_: P) => (
   />
 );
 
-export const LiteSettingsPage = (_: P) => (
-  <NotStartedPage
-    id="lite-settings"
-    title="Settings"
-    route="/settings · /settings/transparency"
-    what="覆盖范围：账户设置主页、通知/安全分组、transparency 子页（其现有 demo 暂存 Legacy 区，改版后迁入本节）。"
-  />
-);
-
 export const LiteInsightsPage = (_: P) => (
   <NotStartedPage
     id="lite-insights"

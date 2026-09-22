@@ -82,7 +82,7 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
       s("lite-portfolio", "Portfolio ✅", lp("LitePortfolioPage")),
       s("lite-share", "分享 / Share ✅", lp("ShareCases")),
       s("lite-leaderboard", "Leaderboard ⏳", lp("LiteStubPages", "LiteLeaderboardPage")),
-      s("lite-settings", "Settings ⏳", lp("LiteStubPages", "LiteSettingsPage")),
+      s("lite-settings", "Settings ✅", lp("LiteSettingsPage")),
       s("lite-insights", "Insights ⏳", lp("LiteStubPages", "LiteInsightsPage")),
       s("lite-content", "内容页 ⏳", lp("LiteStubPages", "LiteContentPage")),
     ],
