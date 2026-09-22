@@ -1,19 +1,17 @@
-import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, User, Copy, Check, AlertTriangle, Plus, Camera, Mail, Star, Shield, LogOut, Key } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Mail } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { MobileHeader } from "@/components/MobileHeader";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { SeoFooter } from "@/components/seo/SeoFooter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import { supabase } from "@/integrations/supabase/client";
 import { useUserProfile, AVATAR_SEEDS, AVATAR_BACKGROUNDS, generateAvatarUrl } from "@/hooks/useUserProfile";
 import { toast } from "sonner";
-import { LoadingState } from "@/components/states";
+import { ErrorState, LoadingState } from "@/components/states";
+import { LiteAuthGate } from "@/components/auth/LiteAuthGate";
 import {
   Dialog,
   DialogContent,
@@ -22,46 +20,58 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  MobileDrawer,
-  MobileDrawerSection,
-  MobileDrawerActions,
-  MobileDrawerList,
-  MobileDrawerListItem,
-  MobileDrawerStatus,
-} from "@/components/ui/mobile-drawer";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { MobileDrawer, MobileDrawerSection, MobileDrawerActions, MobileDrawerStatus } from "@/components/ui/mobile-drawer";
 
-import { GoogleIcon } from "@/components/icons/GoogleIcon";
-import { TelegramIcon } from "@/components/icons/TelegramIcon";
-import { Wallet } from "lucide-react";
-import { AccountSecurityCard } from "@/components/settings/AccountSecurityCard";
+import { ProfileHero } from "@/components/settings/ProfileHero";
 import { LinkedEmailAccountCard } from "@/components/settings/LinkedEmailAccountCard";
+import { ProviderSignInCard, type SignInProvider } from "@/components/settings/ProviderSignInCard";
+import { AccountSecurityCard } from "@/components/settings/AccountSecurityCard";
 import { WithdrawalVerificationCard } from "@/components/settings/WithdrawalVerificationCard";
+import { NotificationsCard } from "@/components/settings/NotificationsCard";
+import { PreferencesCard } from "@/components/settings/PreferencesCard";
+import { SessionsCard } from "@/components/settings/SessionsCard";
+import { AccountCard } from "@/components/settings/AccountCard";
+import { MoreCard } from "@/components/settings/MoreCard";
 
-const AUTH_METHOD_INFO: Record<string, { label: string; icon: React.ReactNode; color: string; description: string }> = {
-  google: { label: "Google", icon: <GoogleIcon className="w-5 h-5" />, color: "text-blue-400", description: "Google Account" },
-  telegram: { label: "Telegram", icon: <TelegramIcon className="w-5 h-5" />, color: "text-sky-400", description: "Telegram Account" },
-  wallet: { label: "Wallet", icon: <Wallet className="w-5 h-5 text-purple-400" />, color: "text-purple-400", description: "Web3 Wallet" },
-  email: { label: "Email", icon: <Mail className="w-5 h-5 text-primary" />, color: "text-primary", description: "Email & password" },
-};
+/**
+ * /settings — Lite ACCOUNT family (CPO 2026-09-22, mock v5; DESIGN.md
+ * §Addendum 2026-09-22). Wallet is the reference implementation:
+ *   desktop  = `max-w-7xl px-4 lg:px-6 py-10` · full-width ProfileHero →
+ *              two-card band (Sign-in + Account security) → 12-grid 8 / 4
+ *              (Withdrawal verification / Notifications / Account ·
+ *              More / Preferences / Sessions) → SeoFooter. No page title:
+ *              the hero is the data opening.
+ *   mobile   = MobileHeader preset B (inner, "Settings", back) · single
+ *              column `px-4 py-6 space-y-4`, same modules.
+ * Guests get the LiteAuthGate (rule 1); a profile fetch error gets the
+ * canonical ErrorState with retry (rule 2). Avatar picker, username dialog
+ * and the notification-email dialog are the existing flows, unchanged.
+ */
+
+export const SETTINGS_GATE_COPY = {
+  title: "Sign in to view your settings",
+  description: "Manage your profile, security and notifications by signing in to your account.",
+  errorTitle: "Couldn't load your settings",
+  errorDescription: "Check your connection and try again.",
+  errorRetry: "Try again",
+} as const;
 
 const Settings = () => {
   const isMobile = useIsMobile();
-  const navigate = useNavigate();
-  const { profile, user, isLoading: profileLoading, updateUsername, updateAvatar, updateEmail, refetchProfile } = useUserProfile();
-  
+  const { profile, user, isLoading: profileLoading, error: profileError, updateUsername, updateAvatar, updateEmail, refetchProfile } =
+    useUserProfile();
+
   // Dialog states
   const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
   const [usernameDialogOpen, setUsernameDialogOpen] = useState(false);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
-  
+
   // Form states
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
   const [newUsername, setNewUsername] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
-  
+
   // Email verification states
   const [emailStep, setEmailStep] = useState<"input" | "verify">("input");
   const [verificationCode, setVerificationCode] = useState("");
@@ -69,7 +79,7 @@ const Settings = () => {
   const handleSelectAvatar = async () => {
     if (!selectedAvatar) return;
     setIsUpdating(true);
-    
+
     const result = await updateAvatar(selectedAvatar);
     if (result.success) {
       toast.success("Avatar updated successfully");
@@ -87,7 +97,7 @@ const Settings = () => {
       return;
     }
     setIsUpdating(true);
-    
+
     const result = await updateUsername(newUsername.trim());
     if (result.success) {
       toast.success("Username updated successfully");
@@ -119,9 +129,9 @@ const Settings = () => {
       return;
     }
     setIsUpdating(true);
-    
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     const result = await updateEmail(newEmail.trim());
     if (result.success) {
       toast.success("Email verified successfully");
@@ -143,31 +153,30 @@ const Settings = () => {
     }
   };
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate("/");
-  };
-
   const formatDate = (dateString?: string) => {
     if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit"
-    }).replace(/\//g, "-");
+    return new Date(dateString)
+      .toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      })
+      .replace(/\//g, "-");
   };
 
   // Generate avatar grid
-  const avatarOptions = useMemo(() => 
-    AVATAR_SEEDS.flatMap((seed, seedIndex) => 
-      AVATAR_BACKGROUNDS.map((bg, bgIndex) => ({
-        seed,
-        bgIndex,
-        url: generateAvatarUrl(seed, bgIndex),
-        key: `${seed}-${bgIndex}`
-      }))
-    ).slice(0, 80),
-  []);
+  const avatarOptions = useMemo(
+    () =>
+      AVATAR_SEEDS.flatMap((seed) =>
+        AVATAR_BACKGROUNDS.map((bg, bgIndex) => ({
+          seed,
+          bgIndex,
+          url: generateAvatarUrl(seed, bgIndex),
+          key: `${seed}-${bgIndex}`,
+        })),
+      ).slice(0, 80),
+    [],
+  );
 
   // Profile data
   const username = profile?.username || null;
@@ -176,21 +185,19 @@ const Settings = () => {
   const userId = user?.id?.slice(0, 6) || "123456";
   const joinDate = formatDate(profile?.created_at || user?.created_at);
 
-  // Auth provider info - read from profile's auth_method column
+  // Auth provider — read from profile's auth_method column.
   const authMethod = profile?.auth_method || "google";
-  const providerInfo = AUTH_METHOD_INFO[authMethod] || AUTH_METHOD_INFO.google;
-  const providerEmail = email;
-  // Email + password accounts: the email IS the credential. Profile-card Edit
-  // (notification email) is hidden and the Linked Account card owns "Change".
   const isEmailUser = authMethod === "email";
+  const provider: SignInProvider = authMethod === "wallet" || authMethod === "telegram" ? authMethod : "google";
 
-  if (profileLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <LoadingState label="Loading profile…" />
-      </div>
-    );
-  }
+  const openEditUsername = () => {
+    setNewUsername(username || "");
+    setUsernameDialogOpen(true);
+  };
+  const openEditEmail = () => {
+    setNewEmail(email || "");
+    setEmailDialogOpen(true);
+  };
 
   // Avatar grid JSX
   const renderAvatarGrid = (maxHeight: string) => (
@@ -202,172 +209,87 @@ const Settings = () => {
             type="button"
             onClick={() => setSelectedAvatar(avatar.url)}
             className={`relative rounded-xl p-1 transition-all ${
-              selectedAvatar === avatar.url
-                ? "ring-2 ring-primary bg-primary/20 scale-105"
-                : "hover:bg-muted"
+              selectedAvatar === avatar.url ? "ring-2 ring-primary bg-primary/20 scale-105" : "hover:bg-muted"
             }`}
           >
-            <img
-              src={avatar.url}
-              alt={`Avatar ${avatar.seed}`}
-              className="w-full aspect-square rounded-lg"
-            />
+            <img src={avatar.url} alt={`Avatar ${avatar.seed}`} className="w-full aspect-square rounded-lg" />
           </button>
         ))}
       </div>
     </div>
   );
 
-  // Profile Card
-  const ProfileCard = () => (
-    <div className="trading-card p-4 md:p-6">
-      <div className="flex items-start gap-4">
-        <div className="relative">
-          <Avatar className="w-16 h-16 md:w-20 md:h-20 border-2 border-primary/50">
-            <AvatarImage src={avatarUrl} alt="User" />
-            <AvatarFallback className="bg-primary/20 text-primary text-xl">
-              {(username || email)?.charAt(0).toUpperCase() || <User className="w-8 h-8" />}
-            </AvatarFallback>
-          </Avatar>
-          <button
-            onClick={() => setAvatarDialogOpen(true)}
-            className="absolute -bottom-1 -right-1 w-7 h-7 bg-primary rounded-full flex items-center justify-center shadow-lg hover:bg-primary/90 transition-colors"
-          >
-            <Camera className="w-3.5 h-3.5 text-primary-foreground" />
-          </button>
-        </div>
-        
-        <div className="flex-1 min-w-0">
-          <span className="text-lg font-semibold">
-            {username ? username : "Username Not Set"}
-          </span>
-          
-          {isMobile ? (
-            <div className="mt-3 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">User ID</span>
-                <span className="font-mono">#{userId}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Join Date</span>
-                <span>{joinDate}</span>
-              </div>
-            </div>
-          ) : (
-            <div className="mt-2 space-y-1 text-sm text-muted-foreground">
-              <p>User ID: #{userId}</p>
-              <p>Joined {joinDate}</p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+  const hero = (
+    <ProfileHero
+      username={username}
+      avatarUrl={avatarUrl}
+      fallbackInitial={username || email}
+      userId={userId}
+      joinDate={joinDate}
+      onEditUsername={openEditUsername}
+      onChangeAvatar={() => setAvatarDialogOpen(true)}
+      compact={isMobile}
+    />
   );
 
-  // Username Card
-  const UsernameCard = () => (
-    <div className="trading-card p-4 md:p-6">
-      <div className="flex items-start justify-between">
-        <div>
-          <h3 className="font-semibold mb-1">Username</h3>
-          <p className="text-sm text-muted-foreground">
-            {username || "Not Set"}
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Used for display and @mentions
-          </p>
-        </div>
-        <Button
-          onClick={() => {
-            setNewUsername(username || "");
-            setUsernameDialogOpen(true);
-          }}
-          className="btn-primary h-9 px-4"
-        >
-          {username ? "Edit" : "Set Now"}
-        </Button>
-      </div>
-    </div>
+  const signInCard = isEmailUser ? (
+    <LinkedEmailAccountCard />
+  ) : (
+    <ProviderSignInCard
+      provider={provider}
+      providerValue={provider === "google" ? email : null}
+      notificationEmail={email}
+      onEditEmail={openEditEmail}
+    />
   );
 
-  // Email Card
-  const EmailCard = () => (
-    <div className="trading-card p-4 md:p-6">
-      <div className="flex items-start justify-between mb-4">
-        <div>
-          <h3 className="font-semibold mb-1">Email Address</h3>
-          <p className="text-sm text-muted-foreground">
-            {email || "Not Set"}
-          </p>
-        </div>
-        <Button
-          onClick={() => {
-            setNewEmail(email || "");
-            setEmailDialogOpen(true);
-          }}
-          className="btn-primary h-9 px-4"
-        >
-          {email ? "Edit" : "Add Email"}
-        </Button>
-      </div>
-      
-      {!email && (
-        <div className="bg-trading-yellow/10 border border-trading-yellow/30 rounded-xl p-4">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-trading-yellow shrink-0 mt-0.5" />
-            <div className="space-y-2">
-              <p className="font-medium text-trading-yellow">Recommended to Add Email</p>
-              <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                <li>Receive important security notifications</li>
-                <li>Account recovery and verification</li>
-                <li>Get updates and activity information</li>
-              </ul>
-              <Button
-                onClick={() => setEmailDialogOpen(true)}
-                className="mt-2 h-8 px-4 bg-trading-yellow/80 hover:bg-trading-yellow text-background font-medium"
-              >
-                Add Now
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+  const body = profileLoading ? (
+    <LoadingState label="Loading profile…" />
+  ) : profileError ? (
+    <ErrorState
+      title={SETTINGS_GATE_COPY.errorTitle}
+      description={SETTINGS_GATE_COPY.errorDescription}
+      retryLabel={SETTINGS_GATE_COPY.errorRetry}
+      onRetry={() => refetchProfile()}
+      className="my-6"
+    />
+  ) : isMobile ? (
+    <div className="space-y-4">
+      {hero}
+      {signInCard}
+      <AccountSecurityCard />
+      <WithdrawalVerificationCard />
+      <MoreCard />
+      <NotificationsCard onAddEmail={openEditEmail} />
+      <PreferencesCard />
+      <SessionsCard />
+      <AccountCard />
     </div>
-  );
+  ) : (
+    <>
+      {/* Band 1 · data opening — the hero IS the opening; no page h1. */}
+      {hero}
 
-  // Linked Account Card - shows which auth provider/email was used to sign in
-  const LinkedAccountCard = () => (
-    <div className="trading-card p-4 md:p-6">
-      <div className="flex items-start justify-between mb-4">
-        <div>
-          <h3 className="font-semibold mb-1">Linked Account</h3>
-          <p className="text-xs text-muted-foreground">
-            The account you used to sign in
-          </p>
+      {/* Band 2 · identity pair */}
+      <section className="grid grid-cols-2 gap-6">
+        {signInCard}
+        <AccountSecurityCard />
+      </section>
+
+      {/* Band 3 · 12-grid 8 / 4 */}
+      <div className="grid grid-cols-12 gap-6">
+        <div className="col-span-8 space-y-6">
+          <WithdrawalVerificationCard />
+          <NotificationsCard onAddEmail={openEditEmail} />
+          <AccountCard />
+        </div>
+        <div className="col-span-4 space-y-6">
+          <MoreCard />
+          <PreferencesCard />
+          <SessionsCard />
         </div>
       </div>
-      
-      <div className="bg-muted/30 rounded-xl p-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-lg">
-            {providerInfo.icon}
-          </div>
-          <div className="flex-1 min-w-0">
-            <span className="font-medium text-sm">{providerInfo.label}</span>
-            {providerEmail && (
-              <p className="text-sm font-mono text-muted-foreground truncate mt-0.5">
-                {providerEmail}
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <p className="text-xs text-muted-foreground mt-3">
-        You signed in via <span className={`font-medium ${providerInfo.color}`}>{providerInfo.label}</span>.
-        This cannot be changed. To use a different account, sign out and sign in again.
-      </p>
-    </div>
+    </>
   );
 
   // Mobile Layout
@@ -376,71 +298,24 @@ const Settings = () => {
       <div className="min-h-screen bg-background pb-24">
         <MobileHeader title="Settings" showLogo={false} showBack />
 
-        <div className="px-4 py-6 space-y-4">
-          <ProfileCard />
-          <UsernameCard />
-          {!isEmailUser && <EmailCard />}
-          {isEmailUser ? <LinkedEmailAccountCard /> : <LinkedAccountCard />}
-          <AccountSecurityCard />
-          <WithdrawalVerificationCard />
-          
-          {/* Transparency Audit entry */}
-          <button
-            onClick={() => navigate("/settings/transparency")}
-            className="trading-card p-4 w-full text-left flex items-center gap-3 hover:border-primary/30 transition-colors"
-          >
-            <div className="w-10 h-10 rounded-xl bg-trading-green/10 flex items-center justify-center">
-              <Shield className="w-5 h-5 text-trading-green" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-sm">Transparency Audit</h3>
-              <p className="text-xs text-muted-foreground">Verify assets, trades & liquidations on-chain</p>
-            </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground" />
-          </button>
-
-          {/* API Management entry */}
-          <button
-            onClick={() => navigate("/settings/api")}
-            className="trading-card p-4 w-full text-left flex items-center gap-3 hover:border-primary/30 transition-colors"
-          >
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Key className="w-5 h-5 text-primary" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-sm">API Management</h3>
-              <p className="text-xs text-muted-foreground">Create and manage API keys for programmatic trading</p>
-            </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground" />
-          </button>
-        </div>
+        <LiteAuthGate title={SETTINGS_GATE_COPY.title} description={SETTINGS_GATE_COPY.description}>
+          <div className="px-4 py-6">{body}</div>
+        </LiteAuthGate>
 
         <BottomNav />
-        
+
         {/* Avatar Picker Drawer */}
-        <MobileDrawer
-          open={avatarDialogOpen}
-          onOpenChange={setAvatarDialogOpen}
-          title="Choose Avatar"
-        >
+        <MobileDrawer open={avatarDialogOpen} onOpenChange={setAvatarDialogOpen} title="Choose Avatar">
           {renderAvatarGrid("max-h-[50vh]")}
           <MobileDrawerActions>
-            <Button
-              onClick={handleSelectAvatar}
-              disabled={!selectedAvatar || isUpdating}
-              className="w-full btn-primary h-12"
-            >
+            <Button onClick={handleSelectAvatar} disabled={!selectedAvatar || isUpdating} className="w-full btn-primary h-12">
               {isUpdating ? "Saving..." : "Save Avatar"}
             </Button>
           </MobileDrawerActions>
         </MobileDrawer>
 
         {/* Username Drawer */}
-        <MobileDrawer
-          open={usernameDialogOpen}
-          onOpenChange={setUsernameDialogOpen}
-          title="Set Username"
-        >
+        <MobileDrawer open={usernameDialogOpen} onOpenChange={setUsernameDialogOpen} title="Set Username">
           <MobileDrawerSection>
             <div>
               <Input
@@ -451,7 +326,7 @@ const Settings = () => {
                 maxLength={20}
               />
               <p className="text-xs text-muted-foreground mt-2">
-                3-20 characters, letters, numbers, and underscores only
+                3-20 characters, letters, numbers, and underscores only. Used for display and @mentions.
               </p>
             </div>
             <Button
@@ -468,10 +343,7 @@ const Settings = () => {
         <MobileDrawer
           open={emailDialogOpen}
           onOpenChange={handleEmailDialogClose}
-          title={emailStep === "input" 
-            ? (email ? "Edit Email Address" : "Add Email Address")
-            : "Verify Email"
-          }
+          title={emailStep === "input" ? (email ? "Edit Email Address" : "Add Email Address") : "Verify Email"}
         >
           {emailStep === "input" ? (
             <MobileDrawerSection>
@@ -482,11 +354,7 @@ const Settings = () => {
                 onChange={(e) => setNewEmail(e.target.value)}
                 className="h-12"
               />
-              <Button
-                onClick={handleSendVerificationCode}
-                disabled={!newEmail.trim()}
-                className="w-full btn-primary h-12"
-              >
+              <Button onClick={handleSendVerificationCode} disabled={!newEmail.trim()} className="w-full btn-primary h-12">
                 Send Verification Code
               </Button>
             </MobileDrawerSection>
@@ -498,11 +366,7 @@ const Settings = () => {
                 description={`Enter the 6-digit code sent to ${newEmail}`}
               />
               <div className="flex justify-center -mt-4">
-                <InputOTP
-                  maxLength={6}
-                  value={verificationCode}
-                  onChange={setVerificationCode}
-                >
+                <InputOTP maxLength={6} value={verificationCode} onChange={setVerificationCode}>
                   <InputOTPGroup>
                     <InputOTPSlot index={0} />
                     <InputOTPSlot index={1} />
@@ -537,68 +401,26 @@ const Settings = () => {
   return (
     <div className="min-h-screen bg-background">
       <EventsDesktopHeader />
-      
-      <main className="mx-auto w-full max-w-3xl px-8 py-10 space-y-6">
-        {/* DATA OPENING — ProfileCard is the opening; no page h1. */}
-        <div className="space-y-6">
-          <ProfileCard />
-          <UsernameCard />
-          {!isEmailUser && <EmailCard />}
-          {isEmailUser ? <LinkedEmailAccountCard /> : <LinkedAccountCard />}
-          <AccountSecurityCard />
-          <WithdrawalVerificationCard />
-          
-          {/* Transparency Audit entry */}
-          <button
-            onClick={() => navigate("/settings/transparency")}
-            className="trading-card p-6 w-full text-left flex items-center gap-4 hover:border-primary/30 transition-colors"
-          >
-            <div className="w-12 h-12 rounded-xl bg-trading-green/10 flex items-center justify-center">
-              <Shield className="w-6 h-6 text-trading-green" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold">Transparency Audit</h3>
-              <p className="text-sm text-muted-foreground">Verify your assets, trades, and liquidations against on-chain data</p>
-            </div>
-            <ChevronRight className="w-5 h-5 text-muted-foreground" />
-          </button>
 
-          {/* API Management entry */}
-          <button
-            onClick={() => navigate("/settings/api")}
-            className="trading-card p-6 w-full text-left flex items-center gap-4 hover:border-primary/30 transition-colors"
-          >
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Key className="w-6 h-6 text-primary" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold">API Management</h3>
-              <p className="text-sm text-muted-foreground">Create and manage API keys for programmatic trading</p>
-            </div>
-            <ChevronRight className="w-5 h-5 text-muted-foreground" />
-          </button>
-        </div>
-      </main>
+      <LiteAuthGate title={SETTINGS_GATE_COPY.title} description={SETTINGS_GATE_COPY.description}>
+        <main className="mx-auto w-full max-w-7xl px-4 py-10 lg:px-6 space-y-6">{body}</main>
+      </LiteAuthGate>
+
+      <SeoFooter />
 
       {/* Avatar Picker Dialog */}
       <Dialog open={avatarDialogOpen} onOpenChange={setAvatarDialogOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Choose Avatar</DialogTitle>
-            <DialogDescription>
-              Select an avatar from our collection
-            </DialogDescription>
+            <DialogDescription>Select an avatar from our collection</DialogDescription>
           </DialogHeader>
           {renderAvatarGrid("max-h-[380px]")}
           <DialogFooter>
             <Button variant="outline" onClick={() => setAvatarDialogOpen(false)}>
               Cancel
             </Button>
-            <Button 
-              onClick={handleSelectAvatar} 
-              disabled={!selectedAvatar || isUpdating} 
-              className="btn-primary"
-            >
+            <Button onClick={handleSelectAvatar} disabled={!selectedAvatar || isUpdating} className="btn-primary">
               {isUpdating ? "Saving..." : "Save"}
             </Button>
           </DialogFooter>
@@ -610,9 +432,7 @@ const Settings = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Set Username</DialogTitle>
-            <DialogDescription>
-              Choose a username for display and @mentions
-            </DialogDescription>
+            <DialogDescription>Choose a username for display and @mentions</DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <Input
@@ -622,9 +442,7 @@ const Settings = () => {
               className="h-12"
               maxLength={20}
             />
-            <p className="text-xs text-muted-foreground mt-2">
-              3-20 characters, letters, numbers, and underscores only
-            </p>
+            <p className="text-xs text-muted-foreground mt-2">3-20 characters, letters, numbers, and underscores only</p>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setUsernameDialogOpen(false)}>
@@ -637,24 +455,22 @@ const Settings = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Email Dialog */}
+      {/* Email Dialog (notification email — provider accounts) */}
       <Dialog open={emailDialogOpen} onOpenChange={handleEmailDialogClose}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {emailStep === "input" 
-                ? (email ? "Edit Email Address" : "Add Email Address")
-                : "Verify Email"
-              }
+              {emailStep === "input" ? (email ? "Edit Email Address" : "Add Email Address") : "Verify Email"}
             </DialogTitle>
             <DialogDescription>
               {emailStep === "input"
-                ? (email ? "Update your email for notifications" : "Add an email for security notifications and account recovery")
-                : "Enter the verification code to confirm your email"
-              }
+                ? email
+                  ? "Update your email for notifications"
+                  : "Add an email for security notifications and account recovery"
+                : "Enter the verification code to confirm your email"}
             </DialogDescription>
           </DialogHeader>
-          
+
           {emailStep === "input" ? (
             <div className="py-4">
               <Input
@@ -672,16 +488,13 @@ const Settings = () => {
                   <Mail className="w-8 h-8 text-primary" />
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Enter the 6-digit code sent to<br />
+                  Enter the 6-digit code sent to
+                  <br />
                   <span className="font-medium text-foreground">{newEmail}</span>
                 </p>
               </div>
               <div className="flex justify-center">
-                <InputOTP
-                  maxLength={6}
-                  value={verificationCode}
-                  onChange={setVerificationCode}
-                >
+                <InputOTP maxLength={6} value={verificationCode} onChange={setVerificationCode}>
                   <InputOTPGroup>
                     <InputOTPSlot index={0} />
                     <InputOTPSlot index={1} />
@@ -694,18 +507,14 @@ const Settings = () => {
               </div>
             </div>
           )}
-          
+
           <DialogFooter>
             {emailStep === "input" ? (
               <>
                 <Button variant="outline" onClick={() => setEmailDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button 
-                  onClick={handleSendVerificationCode} 
-                  disabled={!newEmail.trim()} 
-                  className="btn-primary"
-                >
+                <Button onClick={handleSendVerificationCode} disabled={!newEmail.trim()} className="btn-primary">
                   Send Code
                 </Button>
               </>
@@ -714,11 +523,7 @@ const Settings = () => {
                 <Button variant="outline" onClick={() => setEmailStep("input")}>
                   Back
                 </Button>
-                <Button 
-                  onClick={handleVerifyCode} 
-                  disabled={isUpdating || verificationCode.length !== 6} 
-                  className="btn-primary"
-                >
+                <Button onClick={handleVerifyCode} disabled={isUpdating || verificationCode.length !== 6} className="btn-primary">
                   {isUpdating ? "Verifying..." : "Verify"}
                 </Button>
               </>

@@ -2,21 +2,22 @@ import { useEffect, useRef, useState } from "react";
 import { Check, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { EMAIL_CHANGE_LINK_HOURS, RESEND_COOLDOWN_SECONDS } from "@/lib/emailAuth";
 import { ChangeLoginEmailDialog, type ChangeLoginEmailPreviewState } from "./ChangeLoginEmailDialog";
+import { SettingsCapsule, SettingsCard, SettingsNote, SettingsRow } from "./SettingsCard";
 
 /**
- * Settings › Linked Account — the email + password variant (CPO 2026-09-19,
- * plan A; mock v1 §1). Same card shell as the provider variant in Settings.tsx,
- * plus:
- *   · `Change` (outline sm h-8, the Password-row button) inside the provider box
- *   · `Pending` chip + "Changing to {new}…" helper while `user.new_email` is set
+ * Settings › Sign-in — the email + password variant (CPO 2026-09-19 plan A;
+ * reskinned 2026-09-22 into the ACCOUNT-family card grammar, mock v5 §1).
+ *   · header `SIGN-IN · Email & password`
+ *   · one hairline row: Email / {address mono} / `Change` (outline sm h-8)
+ *   · `PENDING` capsule (accent) + `Resend` while `user.new_email` is set
  *   · 60 s cooldown after sending (`✓ {n}s`), then `Resend`
  *   · once both links are opened Supabase swaps `user.email`; this card syncs
  *     `profiles.email` and toasts "Email updated to {new}"
- * The current address stays in the box until the swap — the account IS still
+ * The current address stays in the row until the swap — the account IS still
  * that email. No Cancel: Supabase has no API for it; links lapse in 24 h.
  */
 
@@ -38,6 +39,7 @@ export const LinkedEmailAccountCard = ({
   previewDialog,
 }: LinkedEmailAccountCardProps = {}) => {
   const preview = !!previewState;
+  const isMobile = useIsMobile();
   const { profile, user, updateEmail } = useUserProfile();
 
   const email = preview ? previewEmail ?? "" : profile?.email || user?.email || "";
@@ -91,35 +93,22 @@ export const LinkedEmailAccountCard = ({
     );
 
   return (
-    <div className="trading-card p-4 md:p-6">
-      <div className="flex items-start justify-between mb-4">
-        <div>
-          <h3 className="font-semibold mb-1">Linked Account</h3>
-          <p className="text-xs text-muted-foreground">The account you used to sign in</p>
-        </div>
-      </div>
+    <SettingsCard label="Sign-in" value="Email & password" compact={isMobile}>
+      <SettingsRow
+        icon={Mail}
+        title={
+          <>
+            Email
+            {shownPending && <SettingsCapsule tone="accent">Pending</SettingsCapsule>}
+          </>
+        }
+        sub={email}
+        subMono
+        right={button}
+        last
+      />
 
-      <div className="bg-muted/30 rounded-xl p-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-lg shrink-0">
-            <Mail className="w-5 h-5 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-sm">Email</span>
-              {shownPending && (
-                <Badge variant="outline" className="text-xs text-primary border-primary/35">
-                  Pending
-                </Badge>
-              )}
-            </div>
-            <p className="text-sm font-mono text-muted-foreground truncate mt-0.5">{email}</p>
-          </div>
-          {button}
-        </div>
-      </div>
-
-      <p className="text-xs text-muted-foreground mt-3">
+      <SettingsNote>
         {shownPending ? (
           <>
             Changing to <span className="text-foreground">{shownPending}</span> — open the link in both inboxes to
@@ -127,11 +116,11 @@ export const LinkedEmailAccountCard = ({
           </>
         ) : (
           <>
-            You signed in via <span className="font-medium text-primary">Email</span>. To change it, we'll send a link to
-            both your current and your new address.
+            You signed in via <span className="font-medium text-primary">Email</span>. To change it, we'll send a link
+            to both your current and your new address.
           </>
         )}
-      </p>
+      </SettingsNote>
 
       <ChangeLoginEmailDialog
         open={dialogOpen}
@@ -141,6 +130,6 @@ export const LinkedEmailAccountCard = ({
         previewState={previewDialog}
         previewNewEmail={previewNewEmail}
       />
-    </div>
+    </SettingsCard>
   );
 };

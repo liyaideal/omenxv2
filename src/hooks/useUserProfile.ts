@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState, useRef } from "react";
 import { User } from "@supabase/supabase-js";
+import type { Json } from "@/integrations/supabase/types";
 import sillyname from "sillyname";
 
 // Available avatar seeds for DiceBear adventurer-neutral style
@@ -34,6 +35,20 @@ export const getRandomAvatarUrl = () => {
   return generateAvatarUrl(randomSeed, randomBg);
 };
 
+export type NotificationPrefKey = "settled" | "auto_close" | "trades" | "funds";
+export type NotificationPrefs = Partial<Record<NotificationPrefKey, boolean>>;
+export const NOTIFICATION_PREF_KEYS: NotificationPrefKey[] = ["settled", "auto_close", "trades", "funds"];
+/** Missing / null keys mean "on" — new accounts get every alert (CPO 2026-09-22 rule 10). */
+export const readNotificationPrefs = (raw: unknown): Record<NotificationPrefKey, boolean> => {
+  const obj = (raw && typeof raw === "object" ? raw : {}) as NotificationPrefs;
+  return {
+    settled: obj.settled !== false,
+    auto_close: obj.auto_close !== false,
+    trades: obj.trades !== false,
+    funds: obj.funds !== false,
+  };
+};
+
 export interface Profile {
   id: string;
   user_id: string;
@@ -52,6 +67,10 @@ export interface Profile {
   /** Affiliate Program membership (blueprint flag; drives the /affiliate CTA state). */
   is_affiliate?: boolean | null;
   affiliate_since?: string | null;
+  /** Settings › Notifications email toggles (2026-09-22): jsonb, read through readNotificationPrefs(). Missing keys read as true. */
+  notification_prefs?: Json | null;
+  /** Settings › Preferences language code (2026-09-22): en | zh-CN | zh-TW | ja | ko | ru | vi. */
+  language?: string | null;
   // NOTE: totp_secret intentionally NOT exposed on the client.
   // It lives in the server-only `user_security` table and is managed via the
   // `totp-manage` edge function.
@@ -368,6 +387,29 @@ export const useUserProfile = () => {
     }
   };
 
+  // ---- Settings › Notifications / Preferences (2026-09-22) ----
+  const updateNotificationPrefs = async (prefs: Record<NotificationPrefKey, boolean>) => {
+    const previous = queryClient.getQueryData<Profile | null>(PROFILE_QUERY_KEY);
+    // Optimistic: flip the switch now, roll back on failure (rule 11).
+    if (previous) queryClient.setQueryData(PROFILE_QUERY_KEY, { ...previous, notification_prefs: prefs as Json });
+    try {
+      await updateMutation.mutateAsync({ notification_prefs: prefs as Json } as Partial<Profile>);
+      return { success: true as const };
+    } catch (error: any) {
+      if (previous) queryClient.setQueryData(PROFILE_QUERY_KEY, previous);
+      return { success: false as const, error: error.message };
+    }
+  };
+
+  const updateLanguage = async (language: string) => {
+    try {
+      await updateMutation.mutateAsync({ language } as Partial<Profile>);
+      return { success: true as const };
+    } catch (error: any) {
+      return { success: false as const, error: error.message };
+    }
+  };
+
   const enableTotp = async (secret: string) => {
     try {
       const { data, error } = await supabase.functions.invoke("totp-manage", {
@@ -428,6 +470,8 @@ export const useUserProfile = () => {
     addSpotBalance,
     transferBetweenAccounts,
     updateWithdraw2faMode,
+    updateNotificationPrefs,
+    updateLanguage,
     enableTotp,
     disableTotp,
     

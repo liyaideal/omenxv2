@@ -1,13 +1,12 @@
 import { useState } from "react";
-import { Banknote, AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { Setup2FADialog } from "./Setup2FADialog";
 import { cn } from "@/lib/utils";
-import { STATUS_STYLES } from "@/lib/statusStyles";
+import { SettingsCard } from "./SettingsCard";
 
 type Mode = "email" | "totp" | "both";
 
@@ -29,22 +28,35 @@ const MODE_OPTIONS: { value: Mode; label: string; description: string }[] = [
   },
 ];
 
-/**
- * Per-feature security preference for the withdrawal flow.
- * Reads credential state from useUserProfile (email, totp_enabled) and
- * disables modes whose prerequisites are not bound.
- */
-export const WithdrawalVerificationCard = () => {
-  const {
-    profile,
-    email,
-    updateWithdraw2faMode,
-    enableTotp,
-  } = useUserProfile();
+export type WithdrawalVerificationPreviewState = "default" | "all-enabled" | "nothing";
 
-  const storedMode = (profile?.withdraw_2fa_mode as Mode) || "email";
-  const totpEnabled = !!profile?.totp_enabled;
-  const hasEmail = !!email;
+/**
+ * Per-feature security preference for the withdrawal flow (reskinned
+ * 2026-09-22 into the ACCOUNT-family card grammar, mock v5 §1 / 4.8 / 4.9;
+ * logic unchanged — rules 8–9).
+ * Reads credential state from useUserProfile (email, totp_enabled) and
+ * disables modes whose prerequisites are not bound. Options are hairline rows
+ * with a radio; a disabled option carries an amber "Requires …" line; when
+ * nothing is configured (wallet account, no email, no 2FA) an amber box
+ * points at Sign-in / Account security and all three rows are disabled.
+ */
+export const WithdrawalVerificationCard = ({
+  previewState,
+}: {
+  /** Style-guide only: freeze credential state with display fixtures. Never set in product. */
+  previewState?: WithdrawalVerificationPreviewState;
+} = {}) => {
+  const isMobile = useIsMobile();
+  const { profile, email, updateWithdraw2faMode, enableTotp } = useUserProfile();
+
+  const preview = !!previewState;
+  const storedMode: Mode = preview
+    ? previewState === "all-enabled"
+      ? "both"
+      : "email"
+    : ((profile?.withdraw_2fa_mode as Mode) || "email");
+  const totpEnabled = preview ? previewState === "all-enabled" : !!profile?.totp_enabled;
+  const hasEmail = preview ? previewState !== "nothing" : !!email;
 
   const isModeReady = (m: Mode) => {
     if (m === "email") return hasEmail;
@@ -60,10 +72,14 @@ export const WithdrawalVerificationCard = () => {
 
   const handleModeChange = async (next: Mode) => {
     if (next === activeMode) return;
+    if (preview) {
+      toast.message("Preview: would update withdrawal verification");
+      return;
+    }
 
-    // Email requirement — direct the user to the Email Address card above.
+    // Email requirement — direct the user to the Sign-in card.
     if ((next === "email" || next === "both") && !hasEmail) {
-      toast.error("Add an email above to use this option");
+      toast.error("Add an email in Sign-in to use this option");
       return;
     }
 
@@ -86,8 +102,8 @@ export const WithdrawalVerificationCard = () => {
     await enableTotp(secret);
     if (pendingMode) {
       // 'both' still requires email — re-check after totp setup
-      if ((pendingMode === "both") && !hasEmail) {
-        toast.error("Authenticator added. Add an email above to enable Email + Authenticator");
+      if (pendingMode === "both" && !hasEmail) {
+        toast.error("Authenticator added. Add an email in Sign-in to enable Email + Authenticator");
       } else {
         const res = await updateWithdraw2faMode(pendingMode);
         if (!res.success) {
@@ -102,86 +118,58 @@ export const WithdrawalVerificationCard = () => {
 
   return (
     <>
-      <div className="trading-card p-4 md:p-6 space-y-5">
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-            <Banknote className="w-5 h-5 text-primary" />
-          </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-semibold">Withdrawal verification</h3>
-              {!activeMode && (
-                <Badge className={`text-xs ${STATUS_STYLES.neutral.badge}`}>
-                  Not configured
-                </Badge>
-              )}
-            </div>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Choose how to verify when you submit a withdrawal
-            </p>
-          </div>
-        </div>
-
+      <SettingsCard
+        label="Withdrawal verification"
+        description="How we verify a withdrawal request."
+        compact={isMobile}
+      >
         {nothingConfigured && (
-          <div className="rounded-lg border border-trading-yellow/30 bg-trading-yellow/10 p-3 flex items-start gap-2">
+          <div className="rounded-lg border border-trading-yellow/30 bg-trading-yellow/10 p-3 flex items-start gap-2 mb-1">
             <AlertTriangle className="w-4 h-4 text-trading-yellow mt-0.5 shrink-0" />
             <p className="text-xs text-muted-foreground leading-relaxed">
-              You haven't added an email or set up an authenticator yet. Configure one above
-              in <span className="font-medium text-foreground">Email Address</span> or
-              <span className="font-medium text-foreground"> Account security</span> first.
+              Add an email in <span className="font-medium text-foreground">Sign-in</span> or set up an authenticator in{" "}
+              <span className="font-medium text-foreground">Account security</span> to enable withdrawal verification.
             </p>
           </div>
         )}
 
-        <RadioGroup
-          value={activeMode}
-          onValueChange={(v) => handleModeChange(v as Mode)}
-        >
-          <div className="space-y-2">
-            {MODE_OPTIONS.map((opt) => {
-              const ready = isModeReady(opt.value);
-              const isActive = activeMode === opt.value;
-              const missing: string[] = [];
-              if (opt.value !== "totp" && !hasEmail) missing.push("email");
-              if (opt.value !== "email" && !totpEnabled) missing.push("authenticator");
+        <RadioGroup value={activeMode} onValueChange={(v) => handleModeChange(v as Mode)}>
+          {MODE_OPTIONS.map((opt, i) => {
+            const ready = isModeReady(opt.value);
+            const isActive = activeMode === opt.value;
+            const missing: string[] = [];
+            if (opt.value !== "totp" && !hasEmail) missing.push("email");
+            if (opt.value !== "email" && !totpEnabled) missing.push("authenticator");
+            const last = i === MODE_OPTIONS.length - 1;
 
-              return (
-                <label
-                  key={opt.value}
-                  htmlFor={`mode-${opt.value}`}
-                  className={cn(
-                    "flex items-start gap-3 rounded-lg border bg-muted/30 p-3 transition-colors",
-                    ready ? "cursor-pointer" : "cursor-not-allowed opacity-60",
-                    isActive
-                      ? "border-primary/50 bg-primary/5"
-                      : ready
-                      ? "hover:bg-muted/50"
-                      : ""
-                  )}
-                >
-                  <RadioGroupItem
-                    id={`mode-${opt.value}`}
-                    value={opt.value}
-                    className="mt-0.5"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium">{opt.label}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">
-                      {opt.description}
+            return (
+              <label
+                key={opt.value}
+                htmlFor={`mode-${opt.value}`}
+                className={cn(
+                  "flex items-start gap-3 py-3.5",
+                  !last && "border-b border-[#1D2026]",
+                  last && "pb-0",
+                  ready ? "cursor-pointer" : "cursor-not-allowed opacity-55",
+                )}
+              >
+                {/* Not-ready options stay clickable: totp/both open the 2FA setup inline (existing logic). Only the nothing-configured state disables all three (rule 9). */}
+                <RadioGroupItem id={`mode-${opt.value}`} value={opt.value} className="mt-0.5" disabled={nothingConfigured} />
+                <div className="flex-1 min-w-0">
+                  <div className={cn("text-sm font-medium", isActive && "text-foreground")}>{opt.label}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{opt.description}</div>
+                  {!ready && !nothingConfigured && (
+                    <div className="flex items-center gap-1.5 mt-1.5 text-xs text-trading-yellow">
+                      <AlertTriangle className="w-3 h-3" />
+                      Requires {missing.join(" + ")} to be configured
                     </div>
-                    {!ready && (
-                      <div className="flex items-center gap-1.5 mt-2 text-xs text-trading-yellow">
-                        <AlertTriangle className="w-3 h-3" />
-                        Requires {missing.join(" + ")} to be configured
-                      </div>
-                    )}
-                  </div>
-                </label>
-              );
-            })}
-          </div>
+                  )}
+                </div>
+              </label>
+            );
+          })}
         </RadioGroup>
-      </div>
+      </SettingsCard>
 
       <Setup2FADialog
         open={setupOpen}

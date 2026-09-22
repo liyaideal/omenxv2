@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useLanguage } from "@/hooks/useLanguage";
 import {
   Globe,
   ChevronDown,
@@ -50,11 +51,8 @@ const navItems = [
   { label: "Insights", path: "/insights" },
 ];
 
-const languages = [
-  { code: "EN", label: "English" },
-  { code: "CN", label: "中文" },
-  { code: "JP", label: "日本語" },
-];
+// Language list + storage are shared with Settings › Preferences (CPO 2026-09-22 rule 15):
+// see src/lib/languages.ts and useLanguage(). The chip shows the 2-letter `short`.
 
 interface EventsDesktopHeaderProps {
   rightContent?: React.ReactNode;
@@ -112,7 +110,7 @@ export const EquityHoverCardBody = ({
 export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [language, setLanguage] = useState("EN");
+  const { code: languageCode, language: currentLanguage, languages, setLanguage } = useLanguage();
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const { balance, spotBalance, user, username, avatarUrl } = useUserProfile();
   const [transferOpen, setTransferOpen] = useState(false);
@@ -255,7 +253,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                       <Globe className="mr-2 h-4 w-4 text-muted-foreground" />
                       <span className="flex-1">Language</span>
                       <span className="ml-2 text-xs text-muted-foreground">
-                        {language}
+                        {currentLanguage.short}
                       </span>
                     </DropdownMenuSubTrigger>
                     <DropdownMenuPortal>
@@ -267,12 +265,12 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                           >
                             <Check
                               className={`mr-2 h-4 w-4 ${
-                                language === lang.code
+                                languageCode === lang.code
                                   ? "text-primary"
                                   : "opacity-0"
                               }`}
                             />
-                            {lang.code} — {lang.label}
+                            {lang.short} — {lang.label}
                           </DropdownMenuItem>
                         ))}
                       </DropdownMenuSubContent>
@@ -338,7 +336,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     aria-label="Language"
                   >
                     <Globe className="h-4 w-4" />
-                    <span className="font-medium">{language}</span>
+                    <span className="font-medium">{currentLanguage.short}</span>
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -346,9 +344,9 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     <DropdownMenuItem
                       key={lang.code}
                       onClick={() => setLanguage(lang.code)}
-                      className={language === lang.code ? "bg-muted" : ""}
+                      className={languageCode === lang.code ? "bg-muted" : ""}
                     >
-                      {lang.code} — {lang.label}
+                      {lang.short} — {lang.label}
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>

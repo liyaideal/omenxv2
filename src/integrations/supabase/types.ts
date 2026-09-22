@@ -1240,6 +1240,8 @@ export type Database = {
           totp_enabled: boolean
           is_affiliate: boolean
           affiliate_since: string | null
+          notification_prefs: Json
+          language: string
           trial_balance: number | null
           updated_at: string
           user_id: string
@@ -1258,6 +1260,8 @@ export type Database = {
           totp_enabled?: boolean
           is_affiliate?: boolean
           affiliate_since?: string | null
+          notification_prefs?: Json
+          language?: string
           trial_balance?: number | null
           updated_at?: string
           user_id: string
@@ -1276,6 +1280,8 @@ export type Database = {
           totp_enabled?: boolean
           is_affiliate?: boolean
           affiliate_since?: string | null
+          notification_prefs?: Json
+          language?: string
           trial_balance?: number | null
           updated_at?: string
           user_id?: string
@@ -1969,6 +1975,17 @@ export type Database = {
           campaign_id: string
           entry_id: string
           joined: number
+        }[]
+      }
+      list_my_sessions: {
+        Args: never
+        Returns: {
+          id: string
+          created_at: string
+          last_active_at: string
+          user_agent: string | null
+          ip: string | null
+          is_current: boolean
         }[]
       }
       get_voucher_pool_today: {
