@@ -242,8 +242,9 @@ export const RankShareCard = ({
                 {referralCode}
               </span>
             </div>
-            {/* 字标等比，固定 18 高（§Addendum 2026-09-07 第 6 条③） */}
-            <img src={omenxLogo} alt="OMENX" style={{ height: 18, width: "auto", display: "block", marginTop: 10 }} />
+            {/* 字标等比；高度 = 本卡稿的画布占比 9.92/314 = 3.16% × 336 ≈ 11
+                （§Addendum 2026-09-07 第 6 条③ 2026-09-22 重写，原「固定 18px」已作废） */}
+            <img src={omenxLogo} alt="OMENX" style={{ height: 11, width: "auto", display: "block", marginTop: 10 }} />
             <div style={{ marginTop: 4, fontSize: 11, fontWeight: 500, lineHeight: "15px", color: "#CFFF4A" }}>
               Join &amp; trade like a pro!
             </div>

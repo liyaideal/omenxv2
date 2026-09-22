@@ -1849,7 +1849,9 @@ Lite 海报不再使用 `SharePosterLayout`。原因：设计把骨架整个换�
 自下而上：底色渐变 → 艺术底 `<img>` → 左下光晕（仅赢版）→ 内容 → 右上光晕。**右上光晕压在内容之上**，这是设计稿的层序，不要"修正"成压在内容之下。
 
 **6 · 设计稿已知缺陷（不采纳，勿按稿改）**
-Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① Google/Telegram 无关，此处为示例文案与生产逻辑阈值不符（稿在 +28.7% 上写「🔥 Absolute legend!」、在 −11.3% 上写「😭 That's rough buddy...」，而生产的 `funLine` 阈值判定分别产出「✨ Well played!」「📉 We go again!」）——**以生产逻辑为准，阈值不许动**；② 登录按钮图标在变体间尺寸不一致（与本页无关，见 Auth 附录）；③ **页脚 OMENX 字标被非等比压扁**（稿为 118×12.5，字标真实比例是 118×24）。字标一律等比，海报页脚固定 `height: 18px`（约 89px 宽），与 Auth 弹窗品牌行同档位。
+Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① Google/Telegram 无关，此处为示例文案与生产逻辑阈值不符（稿在 +28.7% 上写「🔥 Absolute legend!」、在 −11.3% 上写「😭 That's rough buddy...」，而生产的 `funLine` 阈值判定分别产出「✨ Well played!」「📉 We go again!」）——**以生产逻辑为准，阈值不许动**；② 登录按钮图标在变体间尺寸不一致（与本页无关，见 Auth 附录）；③ ~~页脚 OMENX 字标被非等比压扁~~ **本条 2026-09-22 重写，原判定作废**。复核结论：稿里的字标图形是**等比的**（`448:8785` → `454:18903 _图层_1` = 80.37×12.49，比例 6.44；源文件 `omenx-wordmark-white-gradient.svg` 433×65 = 6.66）。原文量到的 118×12.49（比例 9.47）是外层 `Group 2007673870` 的框——里面套了 16.83×12.46 的渐变 X 叠层，才宽成那样；原文写的"字标真实比例是 118×24"（4.92）同样是错的。**量字标一律量图形框（`_图层_1`），不量带叠层的外框。**
+新规则：字标一律**等比**，高度按**该件自己那张稿的画布占比**折算，不锁死像素。已知稿占比约 **3.15%**（Leaderboard 分享卡 9.92/314 = 3.16%；Lite PnL 海报 12.49/398 = 3.14%）。
+落地现状（CPO 2026-09-22 批）：`RankShareCard` 流体卡 336 → **11px**，本轮已改；`LitePnlPoster`（400 定宽，现 18px）与 `SharePosterLayout`（400 定宽，现 20px）**维持现值、出图不变**——其中 LitePnlPoster 与其自身稿存在约 +44% 偏差，**挂账**待单独一轮处理；SharePosterLayout 暂无稿佐证，不动。
 
 **7 · 字典**
 `share-sh1 … sh6` 六个 key 挂的是生产件 `LitePnlPoster` 本体，改动自动跟随，**禁止在 preview 里手写海报复刻**。
@@ -2090,7 +2092,7 @@ Leaderboard 属 BROWSE 家族，但开场是营销 hero 位图、字标烘在像
 本页设计稿的涨色写作 `#D5FF4D`，而仓库 `--trading-green` = `74 100% 65%` = `#CFFF4A`（与 `--no` volt 同值）。两者肉眼难辨，属 §2 色轴陷阱的典型。**一律落 token，不照抄稿上的值**；稿的跌色 `#FF5C5C` 正好等于 `--trading-red`，不动。
 
 **6 · 分享面收编**
-Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED] Mobile-zero-Dialog）；生产原先的居中浮层是存量违规，本轮一并收编。分享卡 `RankShareCard` 受 §Addendum 2026-09-07「Lite 分享海报」全条约束（自包含 / volt / system-ui + Courier New / 艺术底烘好禁 CSS 复刻 / 字标等比 18 高）。旧的 Card Style 四主题与 Show Stats 三开关同轮删除（CPO 批）。
+Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED] Mobile-zero-Dialog）；生产原先的居中浮层是存量违规，本轮一并收编。分享卡 `RankShareCard` 受 §Addendum 2026-09-07「Lite 分享海报」全条约束（自包含 / volt / system-ui + Courier New / 艺术底烘好禁 CSS 复刻 / 字标等比 11 高（§Addendum 2026-09-07 第 6 条③ 2026-09-22 重写））。旧的 Card Style 四主题与 Show Stats 三开关同轮删除（CPO 批）。
 
 **7 · 页面底部留白取 40，不取稿的 137（LOCKED，不重议）**
 设计稿 desktop 把 Footer 放在 y1956，Your Ranking 收底 1819，即底部留白 137。全站 Lite 页（Settings / Wallet / Transparency / RecoveryRequest）一律 `max-w-7xl px-4 py-10`，底部 40。本页 `pb-10` 与之一致。
