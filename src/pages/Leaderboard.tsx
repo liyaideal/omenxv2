@@ -1,6 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { TrendingUp, TrendingDown, Minus, DollarSign, BarChart3, Share2, Crown, ChevronLeft, ChevronDown, Sparkles, Zap, Download, Send, Copy, Check, X, ChevronUp, User, Palette, Eye, EyeOff } from "lucide-react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Share2, Crown, Sparkles, Zap, Download, Send, Copy, Check, X, User, Palette, Eye, EyeOff } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -12,7 +11,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 // Mobile Header System v1: no page draws its own top bar (DESIGN.md §10).
-import { LaurelWreath, SmallLaurelBadge } from "@/components/LaurelWreath";
 import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useReferral } from "@/hooks/useReferral";
@@ -23,16 +21,18 @@ import { QRCodeSVG } from "qrcode.react";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { SeoFooter } from "@/components/seo/SeoFooter";
+import heroDesktop from "@/assets/leaderboard-hero-desktop.webp";
+import heroMobile from "@/assets/leaderboard-hero-mobile.webp";
+import { formatMetric } from "@/components/leaderboard/leaderboardKit";
+import { LeaderboardFiltersDesktop, LeaderboardFiltersMobile } from "@/components/leaderboard/LeaderboardFilters";
+import { LeaderboardPodium } from "@/components/leaderboard/LeaderboardPodium";
+import { CURRENT_USER_ROW_ID, LeaderboardListMobile, LeaderboardTableDesktop } from "@/components/leaderboard/LeaderboardTable";
+import { YourRankingBarDesktop, YourRankingCardMobile, type YourRankingData } from "@/components/leaderboard/YourRankingBar";
+import { RankLocator } from "@/components/leaderboard/RankLocator";
 
 type SortType = "pnl" | "roi" | "volume";
 type PeriodType = "daily" | "7d" | "30d" | "180d";
 
-const periodTabs: { key: PeriodType; label: string }[] = [
-  { key: "daily", label: "Daily" },
-  { key: "7d", label: "7 Days" },
-  { key: "30d", label: "30 Days" },
-  { key: "180d", label: "180 Days" },
-];
 
 interface LeaderboardUser {
   rank: number;
@@ -82,12 +82,9 @@ const mockLeaderboardData: LeaderboardUser[] = [
 // Current user mock ID - will be replaced with actual user data
 const MOCK_CURRENT_USER_USERNAME = "CryptoNinja";
 
-const sortTabs: { key: SortType; label: string; icon: React.ElementType }[] = [
-  { key: "pnl", label: "PnL", icon: DollarSign },
-  { key: "roi", label: "ROI %", icon: TrendingUp },
-  { key: "volume", label: "Volume", icon: BarChart3 },
-];
 
+
+// 分享卡沿用的名次配色（轮 C 随分享卡改版一并处理）
 const getRankColors = (rank: number) => {
   switch (rank) {
     case 1:
@@ -129,259 +126,6 @@ const getRankColors = (rank: number) => {
   }
 };
 
-const TopThreeCard = ({ user, sortType, position }: { user: LeaderboardUser; sortType: SortType; position: "left" | "center" | "right" }) => {
-  const isFirst = user.rank === 1;
-  
-  // Modern web3 style - clean with gradient borders and glows
-  const rankStyles = {
-    1: {
-      gradient: "from-yellow-400 via-amber-400 to-orange-500",
-      glowColor: "shadow-[0_0_40px_rgba(251,191,36,0.4)]",
-      ringColor: "ring-yellow-400/60",
-      avatarSize: "w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28",
-      marginTop: "mt-0",
-      scale: "scale-100 md:scale-105",
-    },
-    2: {
-      gradient: "from-slate-300 via-slate-400 to-slate-500",
-      glowColor: "shadow-[0_0_30px_rgba(148,163,184,0.3)]",
-      ringColor: "ring-slate-400/60",
-      avatarSize: "w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24",
-      marginTop: "mt-3 sm:mt-4 md:mt-6",
-      scale: "scale-100",
-    },
-    3: {
-      gradient: "from-amber-600 via-orange-500 to-amber-700",
-      glowColor: "shadow-[0_0_30px_rgba(217,119,6,0.3)]",
-      ringColor: "ring-amber-500/60",
-      avatarSize: "w-14 h-14 sm:w-18 sm:h-18 md:w-22 md:h-22",
-      marginTop: "mt-6 sm:mt-8 md:mt-10",
-      scale: "scale-100",
-    },
-  };
-  
-  const style = rankStyles[user.rank as 1 | 2 | 3];
-  
-  const getValue = () => {
-    switch (sortType) {
-      case "pnl":
-        return `$${user.pnl.toLocaleString()}`;
-      case "roi":
-        return `${user.roi.toFixed(0)}%`;
-      case "volume":
-        return `$${user.volume.toLocaleString()}`;
-    }
-  };
-
-  const orderClass = position === "left" ? "order-1" : position === "center" ? "order-2" : "order-3";
-  const rankSuffix = user.rank === 1 ? "st" : user.rank === 2 ? "nd" : "rd";
-
-  return (
-    <div className={`flex flex-col items-center ${orderClass} ${style.marginTop} ${style.scale}`}>
-      {/* Avatar with gradient ring and glow */}
-      <div className="relative">
-        {/* Glow effect behind avatar */}
-        <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${style.gradient} blur-xl opacity-40 animate-pulse`} />
-        
-        {/* Gradient border ring */}
-        <div className={`relative p-1 rounded-full bg-gradient-to-br ${style.gradient} ${style.glowColor}`}>
-          <div className="rounded-full bg-background p-0.5">
-            <Avatar className={`${style.avatarSize} rounded-full ring-2 ${style.ringColor}`}>
-              <AvatarImage 
-                src={user.avatar} 
-                alt={user.username}
-                className="object-cover"
-              />
-              <AvatarFallback className="bg-muted text-muted-foreground font-bold text-lg">
-                {user.username.slice(0, 2)}
-              </AvatarFallback>
-            </Avatar>
-          </div>
-        </div>
-
-        {/* Rank badge */}
-        <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-full bg-gradient-to-r ${style.gradient} shadow-lg`}>
-          <span className="text-white font-bold text-sm drop-shadow-md">
-            {user.rank}<sup className="text-[10px] ml-0.5">{rankSuffix}</sup>
-          </span>
-        </div>
-
-        {/* Crown for 1st place */}
-        {isFirst && (
-          <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-            <Crown className="w-6 h-6 md:w-8 md:h-8 text-yellow-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)] animate-pulse" />
-          </div>
-        )}
-      </div>
-
-      {/* Username */}
-      <h3 className={`font-semibold text-foreground ${isFirst ? "text-sm md:text-base" : "text-xs md:text-sm"} mt-2 md:mt-3 truncate max-w-[90px] md:max-w-[120px] text-center`}>
-        {user.username}
-      </h3>
-
-      {/* Value */}
-      <div className={`font-mono font-bold text-trading-green ${isFirst ? "text-base md:text-lg" : "text-sm md:text-base"} mt-0.5`}>
-        {getValue()}
-      </div>
-    </div>
-  );
-};
-
-const LeaderboardRow = ({ user, sortType, index, isCurrentUser, onScrollToUser }: { 
-  user: LeaderboardUser; 
-  sortType: SortType; 
-  index: number;
-  isCurrentUser?: boolean;
-  onScrollToUser?: () => void;
-}) => {
-  const getValue = () => {
-    switch (sortType) {
-      case "pnl":
-        return `$${user.pnl.toLocaleString()}`;
-      case "roi":
-        return `${user.roi.toFixed(1)}%`;
-      case "volume":
-        return `$${user.volume.toLocaleString()}`;
-    }
-  };
-
-  // All ranks use same style for consistency
-  const rankAccent = { border: "border-border/30", bg: "bg-card/40" };
-
-  return (
-    <div 
-      id={isCurrentUser ? "current-user-row" : undefined}
-      className={`web3-card flex items-center gap-3 p-3 transition-all duration-300 group animate-fade-in ${
-        isCurrentUser 
-          ? "web3-card-intense" 
-          : "hover:web3-card-intense"
-      }`}
-      style={{ animationDelay: `${index * 30}ms` }}
-    >
-      {/* Rank Badge */}
-      <div className="flex-shrink-0">
-        <SmallLaurelBadge rank={user.rank} />
-      </div>
-
-      {/* Avatar + Name */}
-      <div className="flex items-center gap-2.5 flex-1 min-w-0">
-        <Avatar className={`h-9 w-9 border transition-all duration-300 ${
-          isCurrentUser 
-            ? "border-primary/60" 
-            : "border-border/40 group-hover:border-primary/40"
-        }`}>
-          <AvatarImage src={user.avatar} alt={user.username} />
-          <AvatarFallback className="bg-muted text-muted-foreground font-medium text-sm">
-            {user.username.slice(0, 2)}
-          </AvatarFallback>
-        </Avatar>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <h4 className={`font-medium text-sm truncate transition-colors ${
-              isCurrentUser ? "text-primary" : "text-foreground group-hover:text-primary"
-            }`}>
-              {user.username}
-            </h4>
-            {isCurrentUser && (
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-primary text-primary-foreground rounded-full">
-                YOU
-              </span>
-            )}
-          </div>
-          <p className="text-[11px] text-muted-foreground/80">{user.trades} trades</p>
-        </div>
-      </div>
-
-      {/* Value + Rank Change */}
-      <div className="text-right flex-shrink-0">
-        <div className={`font-mono font-bold text-sm ${
-          isCurrentUser ? "text-primary" : "text-trading-green"
-        }`}>
-          {getValue()}
-        </div>
-        {/* Rank Change Indicator */}
-        <div className="flex items-center justify-end">
-          {user.rankChange > 0 ? (
-            <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-trading-green/15 text-trading-green font-medium">
-              ↑{user.rankChange} <span className="opacity-70">ranks</span>
-            </span>
-          ) : user.rankChange < 0 ? (
-            <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-trading-red/15 text-trading-red font-medium">
-              ↓{Math.abs(user.rankChange)} <span className="opacity-70">ranks</span>
-            </span>
-          ) : (
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted/30 text-muted-foreground/50 font-medium">
-              —
-            </span>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Fixed bottom "My Rank" component
-const MyRankBar = ({ user, sortType, onClick }: { user: LeaderboardUser; sortType: SortType; onClick: () => void }) => {
-  const getValue = () => {
-    switch (sortType) {
-      case "pnl":
-        return `$${user.pnl.toLocaleString()}`;
-      case "roi":
-        return `${user.roi.toFixed(1)}%`;
-      case "volume":
-        return `$${user.volume.toLocaleString()}`;
-    }
-  };
-
-  return (
-    <div 
-      onClick={onClick}
-      className="fixed bottom-20 md:bottom-6 left-4 right-4 md:left-auto md:right-6 md:w-96 z-40 cursor-pointer"
-    >
-      <div className="bg-card/95 backdrop-blur-md border border-primary/40 rounded-2xl p-4 shadow-[0_0_30px_hsl(260_60%_55%/0.3)] transition-all duration-300 hover:scale-[1.02] hover:border-primary/60">
-        <div className="flex items-center gap-3">
-          {/* User icon */}
-          <div className="relative">
-            <div className="absolute -inset-1 bg-gradient-to-br from-primary to-primary/50 rounded-full blur-sm opacity-50" />
-            <Avatar className="relative h-12 w-12 border-2 border-primary/50">
-              <AvatarImage src={user.avatar} alt={user.username} />
-              <AvatarFallback><User className="w-5 h-5" /></AvatarFallback>
-            </Avatar>
-          </div>
-
-          {/* Info */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-medium text-muted-foreground">My Ranking</span>
-              <ChevronUp className="w-4 h-4 text-primary animate-bounce" />
-            </div>
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="flex items-center gap-1.5 flex-shrink-0">
-                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/20 border border-primary/30">
-                  <span className="text-sm font-bold text-primary">#{user.rank}</span>
-                </div>
-              </div>
-              <span className="font-semibold text-foreground truncate">{user.username}</span>
-            </div>
-          </div>
-
-          {/* Value */}
-          <div className="text-right">
-            <div className="flex items-center gap-1 font-mono font-bold text-primary text-lg">
-              <Zap className="w-4 h-4" />
-              {getValue()}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              {user.roi.toFixed(1)}% ROI
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Card theme types
 type CardTheme = "default" | "neon" | "brutal" | "gold";
 type StatKey = "pnl" | "roi" | "volume";
 
@@ -948,378 +692,301 @@ const ShareModal = ({
   );
 };
 
+
 export default function Leaderboard() {
-  const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { toast } = useToast();
   const { username, avatarUrl, user } = useUserProfile();
   const { referralCode } = useReferral();
   const [sortType, setSortType] = useState<SortType>("pnl");
   const [period, setPeriod] = useState<PeriodType>("7d");
+  const [page, setPage] = useState(1);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const [shareImageBlob, setShareImageBlob] = useState<Blob | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [cardTheme, setCardTheme] = useState<CardTheme>("default");
   const [visibleStats, setVisibleStats] = useState<StatKey[]>(["pnl", "roi", "volume"]);
   const [authOpen, setAuthOpen] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
-  
+
   const isLoggedIn = !!user;
+  const currentUserUsername = user ? username || "You" : MOCK_CURRENT_USER_USERNAME;
+  const currentUserAvatar = user ? avatarUrl || "" : "";
 
-  // Use actual user info if logged in, otherwise use mock data
-  const currentUserUsername = user ? (username || "You") : MOCK_CURRENT_USER_USERNAME;
-  const currentUserAvatar = user ? (avatarUrl || "") : "";
+  /** 用真实用户信息替换 mock 里的占位用户 */
+  const baseData = useMemo(
+    () =>
+      mockLeaderboardData.map((u) =>
+        u.username === MOCK_CURRENT_USER_USERNAME
+          ? { ...u, username: currentUserUsername, avatar: currentUserAvatar || u.avatar }
+          : u
+      ),
+    [currentUserUsername, currentUserAvatar]
+  );
 
-  const sortedData = [...mockLeaderboardData].sort((a, b) => {
-    switch (sortType) {
-      case "pnl":
-        return b.pnl - a.pnl;
-      case "roi":
-        return b.roi - a.roi;
-      case "volume":
-        return b.volume - a.volume;
-    }
-  }).map((user, idx) => {
-    // Replace mock current user with actual user data
-    if (user.username === MOCK_CURRENT_USER_USERNAME) {
-      return { 
-        ...user, 
-        rank: idx + 1,
-        username: currentUserUsername,
-        avatar: currentUserAvatar || user.avatar
-      };
-    }
-    return { ...user, rank: idx + 1 };
-  });
+  const sortedData = useMemo(
+    () =>
+      [...baseData]
+        .sort((a, b) => b[sortType] - a[sortType])
+        .map((u, idx) => ({ ...u, rank: idx + 1 })),
+    [baseData, sortType]
+  );
 
   const topThree = sortedData.slice(0, 3);
   const restOfList = sortedData.slice(3);
-  
-  // Find current user - only when logged in
-  const currentUser = isLoggedIn ? sortedData.find(u => u.username === currentUserUsername) : undefined;
-  const isCurrentUserInTopThree = currentUser && currentUser.rank <= 3;
 
-  const scrollToCurrentUser = () => {
-    const element = document.getElementById('current-user-row');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      // Add a flash effect
-      element.classList.add('ring-4', 'ring-primary');
-      setTimeout(() => {
-        element.classList.remove('ring-4', 'ring-primary');
-      }, 1500);
-    }
+  const PAGE_SIZE = 10;
+  const pageCount = Math.max(1, Math.ceil(restOfList.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount);
+  const pageRows = restOfList.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const rangeStart = 4 + (safePage - 1) * PAGE_SIZE;
+  const rangeLabel = `${rangeStart}–${rangeStart + pageRows.length - 1} of ${sortedData.length}`;
+
+  /** 切指标或时间范围 → 回第 1 页（CPO 批的行为规则） */
+  useEffect(() => {
+    setPage(1);
+  }, [sortType, period]);
+
+  const currentUser = isLoggedIn
+    ? sortedData.find((u) => u.username === currentUserUsername)
+    : undefined;
+  const isCurrentUserInTopThree = !!currentUser && currentUser.rank <= 3;
+
+  /** 三个指标各自的名次（Your Ranking 三格用），未登录一律 null */
+  const myRanks = useMemo(() => {
+    const rankIn = (key: SortType) => {
+      if (!isLoggedIn) return null;
+      const idx = [...baseData]
+        .sort((a, b) => b[key] - a[key])
+        .findIndex((u) => u.username === currentUserUsername);
+      return idx >= 0 ? idx + 1 : null;
+    };
+    return { pnl: rankIn("pnl"), roi: rankIn("roi"), volume: rankIn("volume") };
+  }, [baseData, currentUserUsername, isLoggedIn]);
+
+  const yourRanking: YourRankingData = {
+    username: isLoggedIn ? currentUserUsername : "Not signed in",
+    avatar: isLoggedIn ? currentUserAvatar : undefined,
+    trades: currentUser?.trades ?? 0,
+    ranks: myRanks,
+    pnl: currentUser ? formatMetric(currentUser, "pnl") : "$0.00",
+    roi: currentUser ? formatMetric(currentUser, "roi") : "0.00%",
+    volume: currentUser ? formatMetric(currentUser, "volume") : "$0.00",
   };
 
-  const handleShareCard = async () => {
-    // If not logged in, show auth dialog/sheet
+  const YOUR_RANKING_ID = "your-ranking";
+
+  /** 唯一分享入口：未登录先拉 Auth，否则开弹窗 */
+  const openShare = () => {
     if (!isLoggedIn) {
       setAuthOpen(true);
       return;
     }
+    setIsShareModalOpen(true);
+  };
 
-    if (!cardRef.current || isGenerating) return;
+  const highlightRow = () => {
+    const el = document.getElementById(CURRENT_USER_ROW_ID);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    el.classList.add("ring-2", "ring-[#33D6FF]");
+    window.setTimeout(() => el.classList.remove("ring-2", "ring-[#33D6FF]"), 1500);
+  };
 
-    setIsGenerating(true);
-    try {
-      // Generate image from the card
-      const blob = await htmlToImage.toBlob(cardRef.current, {
-        quality: 1,
-        pixelRatio: 2,
-        backgroundColor: '#0a0c14',
-        skipFonts: true, // Skip external fonts to avoid CORS errors
-        cacheBust: true,
-      });
-
-      if (blob) {
-        setShareImageBlob(blob);
-        setIsShareModalOpen(true);
-      } else {
-        toast({ title: "Failed to generate image", variant: "destructive" });
-      }
-    } catch (error) {
-      console.error('Error generating image:', error);
-      toast({ title: "Failed to generate image", description: "Please try again", variant: "destructive" });
-    } finally {
-      setIsGenerating(false);
+  /** ① 定位器点击：已排名 → 翻到我所在页再滚到我那行；未排名 → 滚到 ② */
+  const jumpToMe = () => {
+    if (!currentUser || isCurrentUserInTopThree) {
+      document.getElementById(YOUR_RANKING_ID)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    const idx = restOfList.findIndex((u) => u.username === currentUserUsername);
+    if (idx < 0) {
+      document.getElementById(YOUR_RANKING_ID)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    const targetPage = Math.floor(idx / PAGE_SIZE) + 1;
+    if (targetPage !== safePage) {
+      setPage(targetPage);
+      window.setTimeout(highlightRow, 80);
+    } else {
+      highlightRow();
     }
   };
 
-  const content = (
-    <div className="min-h-screen bg-background">
-      {isMobile && (
-        <MobileHeader
-          title="Leaderboard"
-          showBack
-          showLogo={false}
-          rightContent={
-            <div className="flex items-center gap-1 -mr-2">
-              <MobileHeaderIconButton aria-label="Share" onClick={handleShareCard}>
-                <Share2 className="w-5 h-5" strokeWidth={1.5} />
-              </MobileHeaderIconButton>
-            </div>
-          }
-        />
-      )}
-      {/* Unified background with seamless gradient */}
-      <div className="relative">
-        {/* Single unified background - extends through entire page */}
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/8 via-background to-background pointer-events-none" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[300px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
-        
-        {/* Content wrapper */}
-        <div className="relative z-10 px-4 pt-4">
-          {/* Logo + Title with Neon Effect */}
-          <div className="text-center mb-4">
-            {/* Logo — desktop only */}
-            {!isMobile && (
-              <div className="flex justify-center mb-2">
-                <img src={omenxLogo} alt="OMENX" className="h-6" />
-              </div>
-            )}
-            
-            {/* Neon Leaderboard Title */}
-            <div className="relative inline-block">
-              {/* Outer glow - soft spread with pulse */}
-              <div className="absolute inset-0 blur-2xl opacity-40 animate-[pulse_3s_ease-in-out_infinite]">
-                <h1 className="text-2xl md:text-4xl font-black tracking-tight text-[#a855f7]">
-                  LEADERBOARD
-                </h1>
-              </div>
-              {/* Mid glow with delayed pulse */}
-              <div className="absolute inset-0 blur-lg opacity-60 animate-[pulse_3s_ease-in-out_0.5s_infinite]">
-                <h1 className="text-2xl md:text-4xl font-black tracking-tight text-[#c084fc]">
-                  LEADERBOARD
-                </h1>
-              </div>
-              {/* Inner glow */}
-              <div className="absolute inset-0 blur-sm opacity-90">
-                <h1 className="text-2xl md:text-4xl font-black tracking-tight text-[#d8b4fe]">
-                  LEADERBOARD
-                </h1>
-              </div>
-              {/* Main text - hollow stroke effect with subtle glow pulse */}
-              <h1 
-                className="relative text-2xl md:text-4xl font-black tracking-tight text-transparent animate-[neon-pulse_3s_ease-in-out_infinite]"
-                style={{
-                  WebkitTextStroke: '1.5px #c084fc',
-                  textShadow: '0 0 10px #a855f7, 0 0 20px #a855f7, 0 0 40px #7c3aed'
-                }}
-              >
-                LEADERBOARD
-              </h1>
-            </div>
-          </div>
-
-          {/* Sort Tabs with Period Dropdown on mobile */}
-          <div className="flex justify-center items-center gap-2 mb-4">
-            {/* Period Dropdown - Mobile only, inline with sort tabs */}
-            {isMobile && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/20 transition-all duration-200">
-                    {periodTabs.find(t => t.key === period)?.label}
-                    <ChevronDown className="w-3 h-3" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="center" className="bg-card border-border">
-                  {periodTabs.map((tab) => (
-                    <DropdownMenuItem
-                      key={tab.key}
-                      onClick={() => setPeriod(tab.key)}
-                      className={`text-sm cursor-pointer ${period === tab.key ? "text-primary" : ""}`}
-                    >
-                      {tab.label}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-            
-            {sortTabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setSortType(tab.key)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
-                  sortType === tab.key
-                    ? "bg-primary text-primary-foreground shadow-[0_0_15px_hsl(260_60%_55%/0.3)]"
-                    : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/20"
-                }`}
-              >
-                <tab.icon className="w-3.5 h-3.5" />
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Top 3 Podium - integrated with page flow */}
-          <div className="relative pb-4">
-            {/* Glow effects and star particles */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              {/* Central glow */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 md:w-48 md:h-48 bg-yellow-500/10 rounded-full blur-[80px]" />
-              
-              {/* Star particles - distributed across the podium area */}
-              {/* Center (1st place) stars */}
-              <Sparkles className="star-particle text-yellow-400/70 w-3 h-3 absolute top-[15%] left-[50%]" style={{ animationDelay: '0s' }} />
-              <Sparkles className="star-particle-burst text-yellow-300/60 w-2.5 h-2.5 absolute top-[5%] left-[48%]" style={{ animationDelay: '0.3s' }} />
-              <Sparkles className="star-particle text-amber-400/50 w-2 h-2 absolute top-[25%] left-[53%]" style={{ animationDelay: '0.6s' }} />
-              <Sparkles className="star-particle-float text-yellow-200/40 w-2 h-2 absolute top-[35%] left-[46%]" style={{ animationDelay: '1.2s' }} />
-              
-              {/* Left (2nd place) stars */}
-              <Sparkles className="star-particle text-slate-300/50 w-2 h-2 absolute top-[30%] left-[25%]" style={{ animationDelay: '0.4s' }} />
-              <Sparkles className="star-particle-burst text-slate-400/40 w-2.5 h-2.5 absolute top-[20%] left-[28%]" style={{ animationDelay: '0.9s' }} />
-              <Sparkles className="star-particle text-gray-300/30 w-1.5 h-1.5 absolute top-[40%] left-[22%]" style={{ animationDelay: '1.5s' }} />
-              
-              {/* Right (3rd place) stars */}
-              <Sparkles className="star-particle text-amber-500/50 w-2 h-2 absolute top-[35%] left-[75%]" style={{ animationDelay: '0.2s' }} />
-              <Sparkles className="star-particle-burst text-orange-400/40 w-2 h-2 absolute top-[25%] left-[72%]" style={{ animationDelay: '0.7s' }} />
-              <Sparkles className="star-particle text-amber-600/30 w-1.5 h-1.5 absolute top-[45%] left-[78%]" style={{ animationDelay: '1.1s' }} />
-              
-              {/* Extra floating particles */}
-              <Sparkles className="star-particle-float text-yellow-400/30 w-1.5 h-1.5 absolute top-[50%] left-[40%]" style={{ animationDelay: '1.8s' }} />
-              <Sparkles className="star-particle-float text-yellow-300/25 w-1.5 h-1.5 absolute top-[55%] left-[60%]" style={{ animationDelay: '2.1s' }} />
-            </div>
-            
-            {/* Podium cards */}
-            <div className="relative flex justify-center items-start gap-4 md:gap-8">
-              <TopThreeCard user={topThree[1]} sortType={sortType} position="left" />
-              <TopThreeCard user={topThree[0]} sortType={sortType} position="center" />
-              <TopThreeCard user={topThree[2]} sortType={sortType} position="right" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Rest of Leaderboard - seamless continuation */}
-      <div className="px-4 pb-8 max-w-2xl mx-auto">
-        {/* Subtle divider */}
-        <div className="flex items-center justify-center gap-3 mb-3 pt-2">
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border/30 to-transparent" />
-          <span className="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-wider">Top Ranking</span>
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border/30 to-transparent" />
-        </div>
-
-        <div className="space-y-1.5">
-          {restOfList.map((user, index) => (
-            <LeaderboardRow 
-              key={user.rank} 
-              user={user} 
-              sortType={sortType} 
-              index={index}
-              isCurrentUser={isLoggedIn && user.username === currentUserUsername}
-            />
-          ))}
-        </div>
-
-        {/* Shareable Card Section */}
-        <div className="mt-10">
-          <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Share2 className="w-5 h-5 text-primary" />
-            Share Your Rank
-          </h3>
-          
-          <ShareableCard 
-            user={currentUser || topThree[0]} 
-            cardRef={cardRef}
-            onShare={handleShareCard}
-            isGenerating={isGenerating}
-            theme={cardTheme}
-            visibleStats={visibleStats}
-            referralCode={referralCode || "OMENX2025"}
-          />
-          <p className="text-center text-sm text-muted-foreground mt-4">
-            Tap to customize and share your ranking card
-          </p>
-        </div>
-        {/* Spacer for fixed MyRankBar */}
-        <div className="h-28 md:h-24" />
-      </div>
-
-      {/* Share Modal */}
-      <ShareModal 
-        isOpen={isShareModalOpen}
-        onClose={() => setIsShareModalOpen(false)}
-        user={currentUser || topThree[0]}
-        cardRef={cardRef}
-        theme={cardTheme}
-        onThemeChange={setCardTheme}
-        visibleStats={visibleStats}
-        onStatsChange={setVisibleStats}
-        referralCode={referralCode || "OMENX2025"}
-      />
-    </div>
+  const shareModal = (
+    <ShareModal
+      isOpen={isShareModalOpen}
+      onClose={() => setIsShareModalOpen(false)}
+      user={currentUser || topThree[0]}
+      cardRef={cardRef}
+      theme={cardTheme}
+      onThemeChange={setCardTheme}
+      visibleStats={visibleStats}
+      onStatsChange={setVisibleStats}
+      referralCode={referralCode || "OMENX2025"}
+    />
   );
 
+  const locator = (
+    <RankLocator
+      user={currentUser}
+      sortType={sortType}
+      isLoggedIn={isLoggedIn}
+      variant={isMobile ? "mobile" : "desktop"}
+      anchorId={YOUR_RANKING_ID}
+      onJump={jumpToMe}
+      onSignIn={() => setAuthOpen(true)}
+    />
+  );
+
+  /* ----------------------------- mobile ----------------------------- */
   if (isMobile) {
     return (
       <>
-        {content}
-        {currentUser && !isCurrentUserInTopThree && (
-          <MyRankBar user={currentUser} sortType={sortType} onClick={scrollToCurrentUser} />
-        )}
+        <div className="min-h-screen bg-background">
+          <MobileHeader
+            title="Leaderboard"
+            showBack
+            showLogo={false}
+            rightContent={
+              <div className="-mr-2 flex items-center gap-1">
+                <MobileHeaderIconButton aria-label="Share" onClick={openShare}>
+                  <Share2 className="h-5 w-5" strokeWidth={1.5} />
+                </MobileHeaderIconButton>
+              </div>
+            }
+          />
+
+          {/* 头图：移动端是独立构图变体，不是桌面裁切；压暗层已烘进像素 */}
+          <img
+            src={heroMobile}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none block w-full select-none"
+            style={{ aspectRatio: "390 / 113", objectFit: "cover" }}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).style.display = "none";
+            }}
+          />
+          <h1 className="sr-only">Leaderboard</h1>
+
+          <div
+            className="px-4"
+            style={{ paddingTop: 16, paddingBottom: "calc(var(--bottom-nav-h, 76px) + 92px)" }}
+          >
+            <LeaderboardFiltersMobile
+              sortType={sortType}
+              onSortChange={setSortType}
+              period={period}
+              onPeriodChange={setPeriod}
+            />
+
+            <h2
+              className="font-display"
+              style={{ marginTop: 16, fontSize: 14, fontWeight: 700, lineHeight: "20px", color: "#F2F3F5" }}
+            >
+              Overall Ranking
+            </h2>
+
+            <div className="relative" style={{ marginTop: 16 }}>
+              <LeaderboardPodium topThree={topThree} sortType={sortType} variant="mobile" />
+            </div>
+
+            <div style={{ marginTop: 16 }}>
+              <LeaderboardListMobile
+                rows={pageRows}
+                sortType={sortType}
+                currentUsername={isLoggedIn ? currentUserUsername : undefined}
+                rangeLabel={rangeLabel}
+                page={safePage}
+                pageCount={pageCount}
+                onPageChange={setPage}
+              />
+            </div>
+
+            <div style={{ marginTop: 16 }}>
+              <YourRankingCardMobile id={YOUR_RANKING_ID} data={yourRanking} onShare={openShare} />
+            </div>
+          </div>
+        </div>
+
         <div className="bg-card/50" style={{ paddingBottom: "var(--bottom-nav-h, 76px)" }}>
           <SeoFooter />
         </div>
 
+        {locator}
         <BottomNav />
-        
-        {/* Auth Sheet for non-logged in users */}
+        {shareModal}
         <AuthSheet open={authOpen} onOpenChange={setAuthOpen} />
       </>
     );
   }
 
+  /* ----------------------------- desktop ---------------------------- */
   return (
     <>
       <EventsDesktopHeader />
-      <div className="max-w-7xl mx-auto relative">
-        {/* Page-specific controls - absolute positioned with higher z-index */}
-        <div className="absolute top-4 right-6 z-20 flex items-center gap-2">
-          {/* Period Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/30 transition-all duration-200">
-                {periodTabs.find(t => t.key === period)?.label}
-                <ChevronDown className="w-3.5 h-3.5" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-card border-border">
-              {periodTabs.map((tab) => (
-                <DropdownMenuItem
-                  key={tab.key}
-                  onClick={() => setPeriod(tab.key)}
-                  className={`text-sm cursor-pointer ${period === tab.key ? "text-primary" : ""}`}
-                >
-                  {tab.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
 
-          {/* Share button */}
-          <button 
-            onClick={handleShareCard}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors"
-          >
-            <Share2 className="w-4 h-4" />
-            <span className="text-sm font-medium">Share</span>
-          </button>
-        </div>
-        {content}
-        {isLoggedIn && currentUser && !isCurrentUserInTopThree && (
-          <MyRankBar user={currentUser} sortType={sortType} onClick={scrollToCurrentUser} />
-        )}
+      {/* 头图（全宽，走 §5 已登记的 Leaderboard 营销 hero 豁免） */}
+      <div className="relative bg-background">
+        <img
+          src={heroDesktop}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none block w-full select-none"
+          style={{ aspectRatio: "1440 / 384", objectFit: "cover" }}
+          onError={(e) => {
+            (e.currentTarget as HTMLImageElement).style.display = "none";
+          }}
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0"
+          style={{ height: 120, background: "linear-gradient(180deg, rgba(9,10,11,0) 0%, #090A0B 100%)" }}
+        />
       </div>
+      <h1 className="sr-only">Leaderboard</h1>
+
+      <main className="mx-auto w-full max-w-7xl space-y-6 px-4 pb-10 lg:px-6" style={{ paddingTop: 46 }}>
+        <LeaderboardFiltersDesktop
+          sortType={sortType}
+          onSortChange={setSortType}
+          period={period}
+          onPeriodChange={setPeriod}
+          onShare={openShare}
+        />
+
+        <div className="relative" style={{ marginTop: 48 }}>
+          <LeaderboardPodium topThree={topThree} sortType={sortType} variant="desktop" />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 bottom-0"
+            style={{
+              height: 236,
+              background: "linear-gradient(180deg, rgba(9,10,11,0) 6.568%, #090A0B 70.551%)",
+            }}
+          />
+        </div>
+
+        <LeaderboardTableDesktop
+          rows={pageRows}
+          sortType={sortType}
+          currentUsername={isLoggedIn ? currentUserUsername : undefined}
+          rangeLabel={rangeLabel}
+          page={safePage}
+          pageCount={pageCount}
+          onPageChange={setPage}
+        />
+
+        <YourRankingBarDesktop
+          id={YOUR_RANKING_ID}
+          data={yourRanking}
+          isLoggedIn={isLoggedIn}
+          onShare={openShare}
+        />
+      </main>
 
       <SeoFooter />
-
-      {/* Auth Dialog/Sheet for non-logged in users */}
-      {isMobile ? (
-        <AuthSheet open={authOpen} onOpenChange={setAuthOpen} />
-      ) : (
-        <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
-      )}
+      {locator}
+      {shareModal}
+      <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
     </>
   );
 }
