@@ -80,11 +80,14 @@ export const SettingsRow = ({
         <div className={cn("text-sm font-medium flex items-center gap-2 flex-wrap", titleClassName)}>{title}</div>
         {sub && (
           <div
+            // Sentence subs wrap (CPO 2026-09-22: never truncate explanatory copy);
+            // only mono values (emails / addresses) stay one line, with the full value in `title`.
             className={cn(
-              "text-xs text-muted-foreground mt-0.5 truncate",
-              subMono && "font-mono text-[13px]",
+              "text-xs text-muted-foreground mt-0.5 leading-snug",
+              subMono ? "font-mono text-[13px] truncate" : "whitespace-normal",
               subClassName,
             )}
+            title={subMono && typeof sub === "string" ? sub : undefined}
           >
             {sub}
           </div>

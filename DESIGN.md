@@ -2048,7 +2048,7 @@ AU-E1…E11 / AU-R1…R6 / AU-S1…S8 挂生产件本体（`AuthDialog` / `AuthS
 
 **3 · 卡片语法（`SettingsCard` / `SettingsRow` / `SettingsCapsule` / `SettingsNote`）**
 - 卡 = `trading-card p-6`（移动 `p-4`）。卡头 = 微标签（同上 11px 规格）；**右槽只放值或计数**（`Email & password` / `3 devices`），**禁放句子**；可选一行 12px muted 说明在标签下（只在有信息量时出现）。禁 h3 标题、禁图标砖、禁 `bg-muted/30 rounded-xl` 内框。
-- 行 = hairline `flex items-center gap-3 py-3.5 border-b border-[#1D2026]`（末行去线去底距）：18px `text-muted-foreground` lucide 图标 · 14px/500 标题（内联胶囊 `gap-2`）· 12px muted 副文（地址/邮箱 `font-mono text-[13px]`）· 右槽。
+- 行 = hairline `flex items-center gap-3 py-3.5 border-b border-[#1D2026]`（末行去线去底距）：18px `text-muted-foreground` lucide 图标 · 14px/500 标题（内联胶囊 `gap-2`）· 12px muted 副文（`leading-snug`；**句子型副文允许折两行，禁止截断**——CPO 2026-09-22；地址/邮箱等 mono 值 `font-mono text-[13px]` 单行 `truncate` + `title` 全文）· 右槽。
 - 右槽只允许四种：`variant="outline" size="sm" h-8` 按钮 / 胶囊 / shadcn `Switch`（`h-6 w-11`，选中 primary）/ 16px chevron（整行可点）。渐变主按钮只给资金 CTA，Settings 无。
 - 胶囊 = productLineBadge 形（`rounded-full border px-1.5 text-[10px] font-semibold uppercase leading-4`）三色：muted（`NOT SET`）/ primary（`THIS DEVICE`）/ accent（`PENDING`、`ENABLED`）。
 - 脚注 `text-[11px] text-muted-foreground leading-relaxed mt-3.5`；强调词 `text-foreground`，登录方式名 `text-primary font-medium`。
