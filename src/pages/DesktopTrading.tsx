@@ -481,11 +481,14 @@ export default function DesktopTrading() {
   const boostCfg = getBoostConfig(selectedEvent?.category);
   // While the table is still loading keep the old 10× frame so the slider does
   // not clamp to 1× and stick there once the real cap arrives.
-  const leverageMax = boostLoading ? 10 : Math.max(1, boostCfg.maxBoost);
+  // Same for the event itself: before selectedEvent resolves the category is
+  // unknown, which would read as "Boost not available" and clamp to 1×.
+  const capReady = !boostLoading && !!selectedEvent;
+  const leverageMax = capReady ? Math.max(1, boostCfg.maxBoost) : 10;
   const leverageTiers = useMemo(() => boostTiers(leverageMax), [leverageMax]);
   useEffect(() => {
-    if (!boostLoading && leverage > leverageMax) setLeverage(leverageMax);
-  }, [boostLoading, leverage, leverageMax]);
+    if (capReady && leverage > leverageMax) setLeverage(leverageMax);
+  }, [capReady, leverage, leverageMax]);
   // 交易页收尾 #6 · RESTRICTION tier (Risk ≥ 95%) = close-only: no open / add.
   const risk = useRealtimeRiskMetrics();
   const closeOnly = risk.riskLevel === "RESTRICTION" || risk.riskLevel === "LIQUIDATION";

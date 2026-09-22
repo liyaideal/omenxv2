@@ -122,12 +122,13 @@ export const TradeForm = ({
   const [leverage, setLeverage] = useState(10);
   // 交易页收尾 #4 · leverage cap follows the category (1 = Boost not available → locked at 1×).
   const { getConfig: getBoostConfig, isLoading: boostLoading } = useCategoryBoostConfigs();
-  const leverageMax = previewLeverageMax ?? (boostLoading ? 10 : Math.max(1, getBoostConfig(eventCategory).maxBoost));
+  // `eventCategory === undefined` = the page has not resolved the event yet (null = event has no category).
+  const capReady = previewLeverageMax !== undefined || (!boostLoading && eventCategory !== undefined);
+  const leverageMax = previewLeverageMax ?? (capReady ? Math.max(1, getBoostConfig(eventCategory).maxBoost) : 10);
   const leverageTiers = useMemo(() => boostTiers(leverageMax), [leverageMax]);
   useEffect(() => {
-    if (previewLeverageMax === undefined && boostLoading) return;
-    if (leverage > leverageMax) setLeverage(leverageMax);
-  }, [boostLoading, previewLeverageMax, leverage, leverageMax]);
+    if (capReady && leverage > leverageMax) setLeverage(leverageMax);
+  }, [capReady, leverage, leverageMax]);
   // 交易页收尾 #6 · RESTRICTION tier (Risk ≥ 95%) = close-only on the Buy tab.
   const liveRisk = useRealtimeRiskMetrics();
   const riskRatio = previewRiskRatio ?? liveRisk.riskRatio;
