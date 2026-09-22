@@ -1,5 +1,7 @@
 # 风险指标统一为 MM / Equity（RM-1）— 交付说明 v1
 
+> **已并入 [`trade-lite-pro-v1.md`](./trade-lite-pro-v1.md)（2026-09-22）**：本文只留档，研发以并入后的总文档为准。
+
 > 2026-09-21 联合验收时 Liya 发现三处比例口径不一：桌面账户卡 `Risk Ratio 14.25%`（IM / Equity）、手机页头方块 `MM 7.11%`（MM / Equity，却按 IM 档位染色）、手机抽屉多两条 `Initial Margin Rate` / `Maintenance Margin Rate`（前者与 Risk Ratio 重复），Lite 的 Boost check 只有美元没有比例。她定：全站一个指标，并且口径换成交易所（Binance / Bybit 全仓）的 **MM / Equity → 100% 强平**。给从未看过这块的人写。
 
 ## 0. 读者须知

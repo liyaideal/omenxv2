@@ -1,5 +1,7 @@
 # Pro 终端体育市场行（让分 / 大小球 / 单图市场）— 交付说明 v1
 
+> **已并入 [`trade-lite-pro-v1.md`](./trade-lite-pro-v1.md)（2026-09-22）**：本文只留档，研发以并入后的总文档为准。
+
 > 这份文档说的是 Pro 交易终端（`/trade` 桌面与手机）对体育"一场比赛多组市场"的兼容：此前 Lite 页已经把一场比赛做成 Winner + Handicap + Total（足球）或 Series lines + 每张地图的 Rounds handicap / Total rounds（电竞）的 board，但 Pro 终端只显示 Winner 一个市场，让分 / 大小球 / 单图市场在 Pro 里不可达，直接打开一条线的 id 还会显示 "Event Has Ended"。现在 Pro 页头下方用一根横向"市场行"承接这些市场：一个芯片一组，点开选线，选一条 = 整个终端切到那条 sibling event。给从未看过这块的人写；兄弟事件模型本身见 `sports-game-lines-spec.md`，本文只写 Pro 侧。
 
 ## 0. 读者须知

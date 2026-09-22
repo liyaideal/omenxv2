@@ -17,7 +17,7 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
-## 2026-09-21 — 交易页收尾 TC-1（[文档](../delivery/trade-close-out-v1.md)）
+## 2026-09-21 — 交易页收尾 TC-1（[文档](../delivery/trade-close-out-v1.md)，已并入总文档 [trade-lite-pro-v1.md](../delivery/trade-lite-pro-v1.md)）
 
 | # | 项 | Status | Notes |
 |---|---|---|---|
