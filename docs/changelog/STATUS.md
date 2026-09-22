@@ -30,6 +30,7 @@
 | TC-7 | 字典 OS-D1 / OS-M1（原 PF-D1 / PF-M1，09-21 改号） → OS-D1 / OS-M1 | ✅ | preview key 不变 |
 | TC-8 | Lite `Pro ›` 入口按账号 + 设备（换设备再看一次）— 文档化 | ➖ | 不改 |
 | TC-9 | `ProContractPanel` 抽件（零视觉变化）+ 字典 CT-D1…D6 / DK-D1 / RM-D1 | ✅ | `src/components/pro/ProContractPanel.tsx` |
+| TC-11 | 品类上限 < 2× → Pro 桌面 / 手机面板不渲染 Leverage 行（Lite 同口径）；现货订单簿去 ⚑ 标记价行 + 字典 SP-J0 正常深度态 | ✅ | 09-22 Liya 追加 |
 | TC-10 | 字典补 CT-M8 / CT-M5b / M5c / RM-M0 / RM-M3 / SP-B2b / SL-M3 / TR-27c / TR-28；词典补 11 行；文档残留清理（IM/Equity、ct/sh、旧节点名、DESIGN LOCKED 现货页头废止注） | ✅ | |
 
 ## 2026-09-19 — 邮箱 + 密码登录 EM-1（[文档](../delivery/auth-email-v1.md)）

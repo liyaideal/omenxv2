@@ -302,6 +302,7 @@ export const previewRegistry: Record<string, Loader> = {
   "pro-spot-preview-dialog": pick(proSpot, "ProSpotPreviewDialog"),
   "pro-terminal-skeleton": pick(proSpot, "ProTerminalSkeleton"),
   "pro-bottom-tabs-guest": pick(proSpot, "ProBottomTabsGuest"),
+  "pro-spot-book": pick(proSpot, "ProSpotBookNormal"),
   "pro-spot-book-thin": pick(proSpot, "ProSpotBookThin"),
 
   /* -------- Pro /trade mobile order panel（CT-1 · Buy · Sell）-------- */

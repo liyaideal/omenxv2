@@ -280,6 +280,41 @@ export const ProBottomTabsGuest = () => (
 );
 
 /** SP-J · Thin spot book: three real levels plus fixed blank slots per side. */
+/** SP-J0 · normal-depth spot book (NORMAL, 9 levels a side) — what /spot looks like most of the day. */
+export const ProSpotBookNormal = () => (
+  <div style={{ height: 560, width: 280 }}>
+    <DesktopOrderBook
+      variant="spot"
+      quoteMode="NORMAL"
+      currentPrice="0.4936"
+      markPrice="0.4936"
+      isPositive={false}
+      asks={[
+        { price: "0.5200", amount: "5,769", total: "5,769" },
+        { price: "0.5300", amount: "193", total: "5,962" },
+        { price: "0.5400", amount: "3,177", total: "9,139" },
+        { price: "0.5500", amount: "5,731", total: "14,870" },
+        { price: "0.5700", amount: "18,945", total: "33,815" },
+        { price: "0.5800", amount: "100", total: "33,915" },
+        { price: "0.5900", amount: "494", total: "34,409" },
+        { price: "0.6000", amount: "1,077", total: "35,486" },
+        { price: "0.6100", amount: "640", total: "36,126" },
+      ]}
+      bids={[
+        { price: "0.4600", amount: "9,221", total: "9,221" },
+        { price: "0.4500", amount: "6,757", total: "15,978" },
+        { price: "0.4400", amount: "4,139", total: "20,117" },
+        { price: "0.4300", amount: "10,467", total: "30,584" },
+        { price: "0.4200", amount: "8,781", total: "39,365" },
+        { price: "0.4100", amount: "4,809", total: "44,174" },
+        { price: "0.4000", amount: "3,117", total: "47,291" },
+        { price: "0.3900", amount: "4,782", total: "52,073" },
+        { price: "0.3800", amount: "3,600", total: "55,673" },
+      ]}
+    />
+  </div>
+);
+
 export const ProSpotBookThin = () => (
   <div style={{ height: 560, width: 280 }}>
     <DesktopOrderBook

@@ -533,6 +533,8 @@ export const TradeForm = ({
       {intent === "buy" ? (
       <>
       {/* Leverage — opens the bottom drawer (DESIGN §5: pickers on mobile are drawers) */}
+      {/* 交易页收尾: no Leverage row when the category cap is < 2× (order goes at 1×) */}
+      {leverageMax >= 2 && (
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground">Leverage</span>
         <button
@@ -545,6 +547,7 @@ export const TradeForm = ({
           <ChevronDown className="w-3 h-3" />
         </button>
       </div>
+      )}
       <MobileDrawer
         open={leverageOpen}
         onOpenChange={setLeverageOpen}
@@ -553,10 +556,7 @@ export const TradeForm = ({
       >
         <div className="space-y-4 pb-2">
           <div className="text-center font-mono text-3xl font-semibold">{leverage}x</div>
-          {leverageMax <= 1 && (
-            <p className="text-center text-xs text-muted-foreground">Boost not available for this category</p>
-          )}
-          <Slider value={[leverage]} onValueChange={(v) => setLeverage(v[0])} min={1} max={Math.max(1, leverageMax)} step={1} disabled={leverageMax <= 1} />
+          <Slider value={[leverage]} onValueChange={(v) => setLeverage(v[0])} min={1} max={leverageMax} step={1} />
           <div className="flex gap-1.5">
             {leverageTiers.map((lev) => (
               <button

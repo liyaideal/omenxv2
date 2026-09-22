@@ -171,7 +171,7 @@ const TRADE_ORDER_LEVERAGE_CASES: SectionCase[] = [
       {
         state: "Leverage 抽屉打开",
         when: "leverageOpen",
-        visual: "标题 Leverage + 一句说明 → 大号 `10x` → Slider 1–上限 → 档位芯片（选中 bg-muted）→ Done。上限 = 品类 `category_boost_configs.max_leverage`（与 Lite Boost 同源，crypto 10× / sports 3× / macro 5×），档位 = `boostTiers(max)`",
+        visual: "标题 Leverage + 一句说明 → 大号 `10x` → Slider 1–上限 → 档位芯片（选中 bg-muted）→ Done。上限 = 品类 `category_boost_configs.max_leverage`（与 Lite Boost 同源，crypto 10× / sports 3× / 其余 5×），档位 = `boostTiers(max)`；上限 < 2× 时整个 Leverage 行不出现（CT-M5c）",
         source: "TradeForm（MobileDrawer）· useCategoryBoostConfigs",
       },
     ],
@@ -185,9 +185,9 @@ const TRADE_ORDER_LEVERAGE_CASES: SectionCase[] = [
   },
   {
     key: "pro-trade-order-leverage-locked",
-    label: "CT-M5c · Leverage 抽屉 · 该品类未开 Boost（锁死 1×）",
+    label: "CT-M5c · 品类上限 1× → 面板没有 Leverage 行",
     spec: [
-      { state: "locked", when: "!getConfig(category).enabled（stocks / tech / politics …）", visual: "一行 `Boost not available for this category`，Slider 禁用停在 1x，芯片只有 1x", source: "TradeForm（leverageMax = 1）" },
+      { state: "no leverage row", when: "getConfig(category).maxBoost < 2（品类未配 Boost）", visual: "`Leverage 1x ▾` 整行不渲染（Yes/No 切换下面直接是 Available），下单按 1×；Lite 同条件同样不渲染 Boost 档位行", source: "TradeForm（leverageMax）· useCategoryBoostConfigs" },
     ],
   },
 ];
@@ -431,9 +431,9 @@ const CONTRACT_PANEL_CASES: SectionCase[] = [
   },
   {
     key: "pro-contract-panel-leverage-locked",
-    label: "CT-D6 · Leverage · 该品类未开 Boost（锁死 1×）",
+    label: "CT-D6 · 品类上限 1× → 面板没有 Leverage 行",
     spec: [
-      { state: "locked", when: "getConfig(category).maxBoost === 1", visual: "Leverage 行 `1x · Boost not available for this category`，Slider 禁用，只剩 1x 芯片", source: "ProContractPanel（leverageMax）· useCategoryBoostConfigs" },
+      { state: "no leverage row", when: "getConfig(category).maxBoost < 2", visual: "Leverage 标签 / 滑杆 / 档位整块不渲染，Yes/No 切换下面直接是 Available；摘要 Margin req. = 金额（1×）", source: "ProContractPanel（leverageMax）· useCategoryBoostConfigs" },
     ],
   },
   {
@@ -674,14 +674,23 @@ const SKELETON_CASES: SectionCase[] = [
 
 const BOOK_CASES: SectionCase[] = [
   {
+    key: "pro-spot-book",
+    label: "SP-J0 · Spot 订单簿 · 正常深度（NORMAL · 每侧 9 档）",
+    note: "生产 DesktopOrderBook variant=spot，照 /spot 平时的样子：每侧 8–10 档、报价模式 NORMAL、tick 0.01。中间行只有现价 `↑ 0.4936`——现货没有标记价，原来合约搬来的黄色 ⚑ 行已去掉（交易页收尾 09-22）。",
+    spec: [
+      { state: "normal", when: "spot aggregated levels ≥ 8", visual: "10 asks + 现价行 + 10 bids 固定槽位；现价行绿 ↑ / 红 ↓ 跟涨跌；tooltip `Last traded price of the outcome share…`；底部 Y / N 深度比例条", source: "DesktopOrderBook variant=spot（无 ⚑）" },
+      { state: "quote mode", when: "sessionProfile.quoteMode", visual: "tick 行左侧徽标：NORMAL 灰 / CONSERVATIVE 黄 / HEDGE_ONLY / CANCEL_ONLY", source: "usStockSessions · LP_QUOTE_MODE_BADGE" },
+    ],
+  },
+  {
     key: "pro-spot-book-thin",
-    label: "SP-J · Spot 薄深度订单簿（10 + 10 固定槽）",
-    note: "生产 DesktopOrderBook variant=spot。fixture 每侧仅 3 档；asks 顶部与 bids 底部使用无文字、无深度条、无 hover 的空槽补齐，不制造价格。",
+    label: "SP-J · Spot 薄深度订单簿（边界态：每侧只 3 档 · CONSERVATIVE）",
+    note: "fixture 每侧仅 3 档；asks 顶部与 bids 底部使用无文字、无深度条、无 hover 的空槽补齐，不制造价格。",
     spec: [
       {
         state: "Thin book · CONSERVATIVE",
         when: "spot aggregated levels < 10",
-        visual: "tab 行只含 tabs；CONSERVATIVE 在 tick row 左侧；10 asks + mark row + 10 bids 固定位置；mark 行显示黄色 ⚑",
+        visual: "tab 行只含 tabs；CONSERVATIVE 在 tick row 左侧；10 asks + 现价行 + 10 bids 固定位置，空槽留白",
         source: "DesktopOrderBook variant=spot / quoteMode",
       },
     ],

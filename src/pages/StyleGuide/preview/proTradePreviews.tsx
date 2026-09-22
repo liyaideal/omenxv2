@@ -127,10 +127,10 @@ export const ProTradeOrderLeverage20 = () => (
   </Phone>
 );
 
-/** CT-M5c · Leverage drawer · Boost not available for this category (locked at 1×). */
+/** CT-M5c · category cap 1× → the panel has no Leverage row at all. */
 export const ProTradeOrderLeverageLocked = () => (
   <Phone>
-    <PanelFixture leverageOpen leverageMax={1} />
+    <PanelFixture leverageMax={1} />
   </Phone>
 );
 
@@ -466,7 +466,7 @@ export const ProContractPanelBuyLimit = () => <DesktopPanelFixture orderType="Li
 export const ProContractPanelSell = () => <DesktopPanelFixture intent="sell" positions={[heldUp]} sellQty={20} />;
 /** CT-D5 · Sell · flat — both sides `0 contracts`, CTA disabled. */
 export const ProContractPanelSellFlat = () => <DesktopPanelFixture intent="sell" positions={[]} />;
-/** CT-D6 · Leverage · Boost not available for this category (locked 1×). */
+/** CT-D6 · category cap 1× → no Leverage row. */
 export const ProContractPanelLeverageLocked = () => <DesktopPanelFixture leverageMax={1} amount="25.00" />;
 /** DK-D1 · Closed — Buy and Sell CTAs print the gate reason. */
 export const ProContractPanelClosed = () => <DesktopPanelFixture blockedReason="Closed" amount="25.00" />;

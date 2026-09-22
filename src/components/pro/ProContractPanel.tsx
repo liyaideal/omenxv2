@@ -157,13 +157,12 @@ export const ProContractPanel = (props: ProContractPanelProps) => {
 
 
 
-        {/* Leverage */}
+        {/* Leverage — 交易页收尾: hidden when the category cap is < 2× (order goes at 1×) */}
+        {leverageMax >= 2 && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground">Leverage</span>
-            <span className="text-sm font-bold text-trading-purple">
-              {leverage}x{leverageMax <= 1 && <span className="ml-1.5 text-[10px] font-normal text-muted-foreground">· Boost not available for this category</span>}
-            </span>
+            <span className="text-sm font-bold text-trading-purple">{leverage}x</span>
           </div>
 
           {/* Slider */}
@@ -171,9 +170,8 @@ export const ProContractPanel = (props: ProContractPanelProps) => {
             value={[leverage]}
             onValueChange={(value) => setLeverage(value[0])}
             min={1}
-            max={Math.max(1, leverageMax)}
+            max={leverageMax}
             step={1}
-            disabled={leverageMax <= 1}
             className="w-full"
           />
 
@@ -194,6 +192,7 @@ export const ProContractPanel = (props: ProContractPanelProps) => {
             ))}
           </div>
         </div>
+        )}
 
         {/* Available Balance */}
         <div className="flex items-center justify-between">

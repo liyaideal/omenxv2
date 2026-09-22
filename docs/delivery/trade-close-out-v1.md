@@ -41,7 +41,7 @@
 |---|---|
 | 上限 | `category_boost_configs.max_leverage`（与 Lite Boost 同源）。当前库（Liya 09-21 定）：crypto 10× · macro / social / stocks / finance / tech / politics / entertainment / economy 5× · sports 3×；没配置的品类 → 1× |
 | 之前 | 桌面 + 手机固定 1–10×，快捷钮 1 / 2 / 5 / 7 / 10 |
-| 1× 品类 | 滑杆锁死；桌面 Leverage 行 `1x · Boost not available for this category`，手机抽屉同句；档位只剩 `1x` |
+| 1× 品类 | **Leverage 行整个不渲染**（桌面标签 / 滑杆 / 档位，手机 `Leverage 1x ▾` 行），下单按 1×；与 Lite「品类未开 Boost 就没有档位行」同口径（Liya 09-22 改，原方案是锁死 1× 并写 `Boost not available for this category`） |
 | 档位 | `boostTiers(max)`：20 → 1 / 2 / 5 / 20，10 → 1 / 2 / 5 / 10，5 → 1 / 2 / 3 / 5，3 → 1 / 2 / 3 |
 | 切品类 | 当前杠杆 > 新上限时自动压到上限 |
 | **注意** | 演示常驻的电竞 / 足球事件是 sports → Pro 最高 3×。美股 / 科技 / 政治类原为 1×，Liya 09-21 定全部开到 5×（改表 `category_boost_configs`，Lite Boost 同步变 `Up to 5×`）。上限要再调只改表不改代码 |
@@ -71,6 +71,10 @@
 ### #8 Lite `Pro ›` 入口的记忆范围
 
 localStorage `omenx_pro_visited:<uid>` = 按账号 **+ 按设备**：换一台设备会再看到一次入口。Liya 定：可以，不改。15 s 窗口过期后 Pro 面板落在 Market，无提示。
+
+### #10 现货订单簿去掉 ⚑ 标记价（Liya 09-22）
+
+现货没有标记价概念，`DesktopOrderBook variant="spot"` 中间行原来照合约搬了黄色 `⚑ 0.4949`（值就是现价）。现在现货只留 `↑ / ↓ 现价`，tooltip 改为 `Last traded price of the outcome share. Shares settle at $1 (win) or $0 (lose).`；合约不动。字典 SP-J0 新增正常深度态（NORMAL · 每侧 9 档，照生产），原薄深度态 SP-J 降为边界态。
 
 ### #9 桌面下单面板抽件 `ProContractPanel`
 
@@ -111,7 +115,8 @@ Pro 合约挂单真的会挂、会成交、撤单退钱；三选一 No 侧不再
 |---|---|
 | 桌面面板全态 | CT-D1…D6 / DK-D1 / RM-D1 |
 | 手机 Buy · Limit | CT-M8 |
-| 杠杆上限 | CT-M5 / M5b / M5c · CT-D6 |
+| 杠杆上限 | CT-M5 / M5b / M5c（无 Leverage 行）· CT-D6 |
+| 现货订单簿 | SP-J0（正常）/ SP-J（薄深度） |
 | Close-only | RM-D1 / RM-M3（Pro）· TR-28（Lite） |
 | Suspended | DK-M1 / DK-D1 / DK-M2 |
 | 风险零态 | RM-M0 |

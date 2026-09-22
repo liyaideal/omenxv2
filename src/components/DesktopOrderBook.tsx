@@ -50,7 +50,7 @@ interface DesktopOrderBookProps {
 const MID_TOOLTIP_COPY = {
   futures:
     "Mark price is derived from the index price, and reflects the fair market price. Liquidation is triggered by mark price.",
-  spot: "Mid price of the outcome share order book. Shares settle at $1 (win) or $0 (lose).",
+  spot: "Last traded price of the outcome share. Shares settle at $1 (win) or $0 (lose).",
 } as const;
 
 const COLUMN_HEADERS = {
@@ -461,6 +461,8 @@ export const DesktopOrderBook = ({
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
+                  {/* 交易页收尾 · spot has no mark price: the ⚑ row is futures-only */}
+                  {variant !== "spot" && (
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -474,6 +476,7 @@ export const DesktopOrderBook = ({
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
+                  )}
                 </div>
               </div>
 
@@ -552,6 +555,8 @@ export const DesktopOrderBook = ({
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
+                  {/* 交易页收尾 · spot has no mark price: the ⚑ row is futures-only */}
+                  {variant !== "spot" && (
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -565,6 +570,7 @@ export const DesktopOrderBook = ({
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
+                  )}
                 </div>
               </div>
 
@@ -613,6 +619,8 @@ export const DesktopOrderBook = ({
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
+                  {/* 交易页收尾 · spot has no mark price: the ⚑ row is futures-only */}
+                  {variant !== "spot" && (
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -626,6 +634,7 @@ export const DesktopOrderBook = ({
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
+                  )}
                 </div>
               </div>
             </>
