@@ -2063,3 +2063,31 @@ AU-E1…E11 / AU-R1…R6 / AU-S1…S8 挂生产件本体（`AuthDialog` / `AuthS
 **5 · 字典**
 `/style-guide` → Lite › Settings 节点 ST-1…ST-31（`preview/settingsPreviews.tsx`），全部挂生产件 + `preview*` fixture；AU-S1…S8 保留在登录节点，皮随本附录。
 
+
+## §Addendum 2026-09-22 · Leaderboard 回流（LOCKED）
+
+**适用范围**：`src/pages/Leaderboard.tsx` 与 `src/components/leaderboard/*`。设计来源 Figma `omenx_lite` 616:1399（desktop）/ 673:24088（mobile）。
+
+**1 · §5 Cards「Leaderboard 营销 hero」豁免收窄**
+该豁免自本轮起**只覆盖头图那一段**（全宽 1440×384 位图）。头图以下的筛选行、领奖台、表格、Your Ranking 一律收编 §4 Layout Wide `mx-auto w-full max-w-7xl px-4 lg:px-6`（内容宽 1232，与设计稿同值），不得再以「营销页豁免」为由自造容器宽度。§4 Canonical Product Page Layouts 中「Leaderboard 自定义 Hero 不受此规范约束」一句按本条收窄理解。
+
+**2 · 领奖台占版高度 ≠ 实渲高度（新规则）**
+领奖台在设计稿里是**故意向下溢出、被下方不透明卡片盖住**的：desktop 实渲 678.04、占版 451（父框 700:29477 y430 h547）；mobile 实渲 238、占版 160（Top3 框声明 160、未开裁切）。
+落地契约：外壳只占 `reservedH`，内层绝对定位溢出且**不裁切**，下方表格/列表卡以 `z-10` 盖住溢出段。按实渲高度排进文档流会在表格上方空出一大块（2026-09-22 CPO 打回实例）。
+
+**3 · 开场（补 §Addendum 2026-07-30 Two page families）**
+Leaderboard 属 BROWSE 家族，但开场是营销 hero 位图、字标烘在像素里。代码侧必须补 `sr-only` h1 承担文字开场，保 SEO 与无障碍。此形态仅限本页与同类营销 hero 页，不构成 BROWSE 家族可以不出标题的先例。
+
+**4 · 浮动定位器（Rank locator，新组件）**
+`src/components/leaderboard/RankLocator.tsx`。设计稿中没有此件，2026-09-22 CPO 拍板新增。
+- 职责边界：**只回答「我第几、我多少」，不承载分享**。分享入口全部归 Your Ranking 与移动顶栏。
+- 显示规则：视口在 hero → 表格之间且 Your Ranking 未进入视口时显示；Your Ranking 任意部分进入视口 → 150ms 淡出（opacity + 4px 下移），反向滚回淡入。**同一时刻只允许一个「我」在说话。**
+- 位置：桌面 `fixed right 24 / bottom 24`，344×56；移动 `left/right 16`、`bottom: calc(var(--bottom-nav-h, 76px) + 12px)`，永不盖底导。
+- Jump 钮沿用 §10 DSH v1 返回钮定稿 B 的语法（36×36 描边方钮 `#262A31` / 10px 圆角）。
+- 三态：已排名（cyan 光晕 + `#N` 胶囊 + 金额）/ 已登录未排名（无光晕、胶囊 `—`、跳 Your Ranking）/ 未登录（整条变 CTA）。
+
+**5 · 设计稿的 `#D5FF4D` 不是 token（记一笔防复发）**
+本页设计稿的涨色写作 `#D5FF4D`，而仓库 `--trading-green` = `74 100% 65%` = `#CFFF4A`（与 `--no` volt 同值）。两者肉眼难辨，属 §2 色轴陷阱的典型。**一律落 token，不照抄稿上的值**；稿的跌色 `#FF5C5C` 正好等于 `--trading-red`，不动。
+
+**6 · 分享面收编**
+Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED] Mobile-zero-Dialog）；生产原先的居中浮层是存量违规，本轮一并收编。分享卡 `RankShareCard` 受 §Addendum 2026-09-07「Lite 分享海报」全条约束（自包含 / volt / system-ui + Courier New / 艺术底烘好禁 CSS 复刻 / 字标等比 18 高）。旧的 Card Style 四主题与 Show Stats 三开关同轮删除（CPO 批）。

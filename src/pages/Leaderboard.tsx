@@ -4,7 +4,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { BottomNav } from "@/components/BottomNav";
 // Mobile Header System v1: no page draws its own top bar (DESIGN.md §10).
-import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useReferral } from "@/hooks/useReferral";
 import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
@@ -141,7 +140,7 @@ export default function Leaderboard() {
   }, [baseData, currentUserUsername, isLoggedIn]);
 
   const yourRanking: YourRankingData = {
-    username: isLoggedIn ? currentUserUsername : "Not signed in",
+    username: currentUserUsername,
     avatar: isLoggedIn ? currentUserAvatar : undefined,
     trades: currentUser?.trades ?? 0,
     ranks: myRanks,
@@ -277,7 +276,12 @@ export default function Leaderboard() {
             </div>
 
             <div className="relative z-10" style={{ marginTop: 16 }}>
-              <YourRankingCardMobile id={YOUR_RANKING_ID} data={yourRanking} onShare={openShare} />
+              <YourRankingCardMobile
+                id={YOUR_RANKING_ID}
+                data={yourRanking}
+                isLoggedIn={isLoggedIn}
+                onShare={openShare}
+              />
             </div>
           </div>
         </div>

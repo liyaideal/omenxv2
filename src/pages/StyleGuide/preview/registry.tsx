@@ -38,6 +38,7 @@ const h2e = () => import("./h2ePreviews");
 const autoClose = () => import("./autoClosePreviews");
 const auth = () => import("./authPreviews");
 const settings = () => import("./settingsPreviews");
+const leaderboard = () => import("./leaderboardPreviews");
 const events = () => import("./eventsPreviews");
 const homeStage = () => import("./homeStagePreviews");
 const brandAssets = () => import("@/pages/StyleGuide/sections/BrandAssetsSection");
@@ -563,6 +564,33 @@ export const previewRegistry: Record<string, Loader> = {
   "settings-change-email-sent": pick(auth, "SettingsChangeEmailSentPreview"),
 
   // Settings — Lite reskin (2026-09-22, mock v5). ST-* in LiteSettingsPage.
+
+  /* ---- Leaderboard（2026-09-22 Figma 回流 · LB-1…20）---- */
+  "leaderboard-page-guest": pick(leaderboard, "LeaderboardPageGuestPreview"),
+  "leaderboard-filters": pick(leaderboard, "LeaderboardFiltersDesktopPreview"),
+  "leaderboard-filters-mobile": pick(leaderboard, "LeaderboardFiltersMobilePreview"),
+  "leaderboard-podium-pnl": pick(leaderboard, "LeaderboardPodiumPnlPreview"),
+  "leaderboard-podium-pnl-mobile": pick(leaderboard, "LeaderboardPodiumPnlMobilePreview"),
+  "leaderboard-podium-roi": pick(leaderboard, "LeaderboardPodiumRoiPreview"),
+  "leaderboard-podium-volume": pick(leaderboard, "LeaderboardPodiumVolumePreview"),
+  "leaderboard-table": pick(leaderboard, "LeaderboardTablePreview"),
+  "leaderboard-table-me": pick(leaderboard, "LeaderboardTableMePreview"),
+  "leaderboard-table-last": pick(leaderboard, "LeaderboardTableLastPagePreview"),
+  "leaderboard-list-mobile": pick(leaderboard, "LeaderboardListMobilePreview"),
+  "leaderboard-list-mobile-me": pick(leaderboard, "LeaderboardListMobileMePreview"),
+  "leaderboard-your-ranking": pick(leaderboard, "YourRankingRankedPreview"),
+  "leaderboard-your-ranking-mobile": pick(leaderboard, "YourRankingMobilePreview"),
+  "leaderboard-your-ranking-unranked": pick(leaderboard, "YourRankingUnrankedPreview"),
+  "leaderboard-your-ranking-guest": pick(leaderboard, "YourRankingGuestPreview"),
+  "leaderboard-your-ranking-mobile-guest": pick(leaderboard, "YourRankingMobileGuestPreview"),
+  "leaderboard-locator": pick(leaderboard, "RankLocatorRankedPreview"),
+  "leaderboard-locator-mobile": pick(leaderboard, "RankLocatorRankedMobilePreview"),
+  "leaderboard-locator-unranked": pick(leaderboard, "RankLocatorUnrankedPreview"),
+  "leaderboard-locator-guest": pick(leaderboard, "RankLocatorGuestPreview"),
+  "leaderboard-share-modal": pick(leaderboard, "ShareModalPreview"),
+  "leaderboard-share-drawer": pick(leaderboard, "ShareDrawerMobilePreview"),
+  "leaderboard-share-card": pick(leaderboard, "RankShareCardPreview"),
+
   "settings-page-guest": pick(settings, "SettingsPageGuestPreview"),
   "settings-page-loading": pick(settings, "SettingsPageLoadingPreview"),
   "settings-page-error": pick(settings, "SettingsPageErrorPreview"),

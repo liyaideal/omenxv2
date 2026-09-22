@@ -9,15 +9,20 @@
  * - 点击（未排名）：滚到 ②
  * - 未登录：整条变 CTA，点击拉 Auth
  * - 移动端：left/right 16，bottom = var(--bottom-nav-h) + 12，永不盖底导
+ *
+ * `previewStatic` 是**纯展示 prop**（字典页专用）：把 fixed 改成 relative 并关掉
+ * IntersectionObserver，让本件能在 style-guide 的 iframe 里静态成帧。
+ * 不传时渲染与行为逐像素零变化。
  */
 import { useEffect, useState } from "react";
 import { ArrowDown } from "lucide-react";
 import { formatMetric, type LeaderboardUser, type SortType } from "./leaderboardKit";
 
 /** 观察 ② 是否进入视口；进入即隐藏定位器 */
-const useHiddenWhenAnchorVisible = (anchorId: string) => {
+const useHiddenWhenAnchorVisible = (anchorId: string, disabled = false) => {
   const [anchorVisible, setAnchorVisible] = useState(false);
   useEffect(() => {
+    if (disabled) return;
     const el = document.getElementById(anchorId);
     if (!el || typeof IntersectionObserver === "undefined") return;
     const io = new IntersectionObserver((entries) => setAnchorVisible(entries[0]?.isIntersecting ?? false), {
@@ -25,7 +30,7 @@ const useHiddenWhenAnchorVisible = (anchorId: string) => {
     });
     io.observe(el);
     return () => io.disconnect();
-  }, [anchorId]);
+  }, [anchorId, disabled]);
   return anchorVisible;
 };
 
@@ -37,6 +42,7 @@ export const RankLocator = ({
   anchorId,
   onJump,
   onSignIn,
+  previewStatic = false,
 }: {
   /** 已登录且已排名时给，否则 undefined = 未排名态 */
   user?: LeaderboardUser;
@@ -46,19 +52,22 @@ export const RankLocator = ({
   anchorId: string;
   onJump: () => void;
   onSignIn: () => void;
+  /** 字典页专用纯展示 prop：静态成帧。不传时渲染零变化。 */
+  previewStatic?: boolean;
 }) => {
-  const anchorVisible = useHiddenWhenAnchorVisible(anchorId);
+  const anchorVisible = useHiddenWhenAnchorVisible(anchorId, previewStatic);
 
-  const shell: React.CSSProperties =
-    variant === "desktop"
-      ? { position: "fixed", right: 24, bottom: 24, width: 344 }
-      : {
-          position: "fixed",
-          left: 16,
-          right: 16,
-          bottom: "calc(var(--bottom-nav-h, 76px) + 12px)",
-          width: "auto",
-        };
+  const shell: React.CSSProperties = previewStatic
+    ? { position: "relative", width: variant === "desktop" ? 344 : "auto" }
+    : variant === "desktop"
+    ? { position: "fixed", right: 24, bottom: 24, width: 344 }
+    : {
+        position: "fixed",
+        left: 16,
+        right: 16,
+        bottom: "calc(var(--bottom-nav-h, 76px) + 12px)",
+        width: "auto",
+      };
 
   const ranked = isLoggedIn && !!user;
 

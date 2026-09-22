@@ -759,3 +759,19 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | `Switch to Pro view` / `Switch to Lite view` | 移动端贴底方钮的无障碍名，界面上只显示目的地标签 | `size === "dock"` | 同上 |
 
 禁写：`Simple` / `Simple mode` / `Simple view` / `Switch to Simple` / `Pro mode` / `Basic` / `Advanced`（模式一词随全站模式一并退役）。
+
+## Leaderboard
+
+字典页：`/style-guide` → LITE → Leaderboard（LB-1…LB-20）。交付说明：`docs/delivery/leaderboard-v1.md`。
+
+| 词 / 文案 | 出现在 | 口径 |
+|---|---|---|
+| `Unranked` | ② Your Ranking（已登录未排名） | 已登录但尚无名次。**只用于已登录用户**；名次数字位一律 em dash `—`，不得暗示一个真实名次（Figma 组件注记原文：never imply a real ranking）。 |
+| `Sign in to see your rank` | ② Your Ranking（未登录）主文案 | 未登录时占用户名位。不臆造用户名，主文案即行动号召。 |
+| `Ranked by PNL, ROI and volume across all traders.` | ② Your Ranking（未登录）副行 | 说明排名依据的三个指标。 |
+| `See where you rank` | ① 浮动定位器（未登录） | 同上语义的紧凑版；右侧配 `Sign in` 按钮。 |
+| `My ranking · #N · M trades` | ② Your Ranking（已排名）副行 | `#N` 取 PNL 指标名次；`M` 为成交笔数。 |
+| `↑N ranks` / `—` / `↓N ranks` | 榜单 CHANGE 列 | 名次相对上一周期的变化。涨用 MONEY 绿、平用 secondary、跌用 MONEY 红。单数时用 `rank`。 |
+| `4–13 of 30` | 分页区间 | en dash（`–`），不是 hyphen。格式 `起–止 of 总数`。 |
+| `PNL (USD)` / `ROI` / `Volume (USD)` | 表头与领奖台副标 | 随指标切换；表头全大写，领奖台副标首字母大写。 |
+| 浮动定位器（Rank locator） | 页面右下 / 移动底导之上 | 只回答「我第几、我多少」的跟随件，不承载分享；② 进入视口即淡出。设计稿中没有此件，2026-09-22 CPO 拍板新增。 |

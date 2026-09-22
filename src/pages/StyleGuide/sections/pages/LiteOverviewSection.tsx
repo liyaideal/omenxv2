@@ -14,7 +14,7 @@ const PAGES: Array<{ id: string; page: string; route: string; status: RevampStat
   { id: "lite-affiliate", page: "Affiliate Program", route: "/affiliate", status: "done" },
   { id: "lite-portfolio", page: "Portfolio", route: "/portfolio · /portfolio?tab=settled · /portfolio/settlement/:id", status: "done" },
   { id: "lite-share", page: "分享 / 晒单", route: "/trade · /spot · /portfolio · 结算详情", status: "done" },
-  { id: "lite-leaderboard", page: "Leaderboard", route: "/leaderboard", status: "todo" },
+  { id: "lite-leaderboard", page: "Leaderboard", route: "/leaderboard", status: "done" },
   { id: "lite-settings", page: "Settings", route: "/settings · /settings/transparency", status: "todo" },
   { id: "lite-insights", page: "Insights", route: "/insights", status: "todo" },
   {

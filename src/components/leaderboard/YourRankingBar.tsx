@@ -20,6 +20,13 @@ export interface YourRankingData {
 
 const EM_DASH = "—";
 
+/** 未登录态文案（CPO 2026-09-22 批：不臆造用户名，主文案即行动号召） */
+const SIGNED_OUT = {
+  headline: "Sign in to see your rank",
+  subline: "Ranked by PNL, ROI and volume across all traders.",
+  cta: "Sign in",
+} as const;
+
 const IdentityAvatar = ({ src, size }: { src?: string; size: number }) => (
   <div className="relative shrink-0" style={{ width: size, height: size }}>
     <div
@@ -72,6 +79,7 @@ export const YourRankingBarDesktop = ({
   onShare: () => void;
 }) => {
   const unranked = data.ranks.pnl === null;
+  const v = (value: string) => (isLoggedIn ? value : EM_DASH);
   return (
     <div
       id={id}
@@ -92,10 +100,12 @@ export const YourRankingBarDesktop = ({
             className="font-display truncate"
             style={{ fontSize: 18, fontWeight: 700, lineHeight: "24px", color: "#F2F3F5" }}
           >
-            {data.username}
+            {isLoggedIn ? data.username : SIGNED_OUT.headline}
           </div>
           <div style={{ marginTop: 4, fontSize: 11, lineHeight: "16px", color: "#9CA2AB" }}>
-            My ranking · {unranked ? "Unranked" : `#${data.ranks.pnl}`} · {data.trades} trades
+            {isLoggedIn
+              ? `My ranking · ${unranked ? "Unranked" : `#${data.ranks.pnl}`} · ${data.trades} trades`
+              : SIGNED_OUT.subline}
           </div>
         </div>
       </div>
@@ -103,9 +113,9 @@ export const YourRankingBarDesktop = ({
       <div className="flex shrink-0" style={{ width: 620, gap: 16 }}>
         {(
           [
-            { label: `PNL · Rank ${rankText(data.ranks.pnl)}`, value: data.pnl, className: "text-trading-green" },
-            { label: `ROI · Rank ${rankText(data.ranks.roi)}`, value: data.roi, style: { color: "#33D6FF" } },
-            { label: `Volume · Rank ${rankText(data.ranks.volume)}`, value: data.volume, style: { color: "#F2F3F5" } },
+            { label: `PNL · Rank ${rankText(data.ranks.pnl)}`, value: v(data.pnl), className: "text-trading-green" },
+            { label: `ROI · Rank ${rankText(data.ranks.roi)}`, value: v(data.roi), style: { color: "#33D6FF" } },
+            { label: `Volume · Rank ${rankText(data.ranks.volume)}`, value: v(data.volume), style: { color: "#F2F3F5" } },
           ] as const
         ).map((m) => (
           <div key={m.label} style={{ width: 196 }}>
@@ -128,7 +138,7 @@ export const YourRankingBarDesktop = ({
           style={{ width: 216, height: 40, borderRadius: 12, fontSize: 14, fontWeight: 600 }}
         >
           <Share2 className="h-4 w-4" aria-hidden="true" />
-          {isLoggedIn ? "Share Your Link" : "Sign in to share"}
+          {isLoggedIn ? "Share Your Link" : SIGNED_OUT.cta}
         </button>
       </div>
     </div>
@@ -138,13 +148,16 @@ export const YourRankingBarDesktop = ({
 export const YourRankingCardMobile = ({
   id,
   data,
+  isLoggedIn,
   onShare,
 }: {
   id: string;
   data: YourRankingData;
+  isLoggedIn: boolean;
   onShare: () => void;
 }) => {
   const unranked = data.ranks.pnl === null;
+  const v = (value: string) => (isLoggedIn ? value : EM_DASH);
   return (
     <div
       id={id}
@@ -177,10 +190,10 @@ export const YourRankingCardMobile = ({
             className="font-display truncate"
             style={{ fontSize: 14, fontWeight: 700, lineHeight: "20px", color: "#F2F3F5" }}
           >
-            {data.username}
+            {isLoggedIn ? data.username : SIGNED_OUT.headline}
           </div>
           <div style={{ marginTop: 2, fontSize: 11, lineHeight: "16px", color: "#9CA2AB" }}>
-            {data.trades} trades
+            {isLoggedIn ? `${data.trades} trades` : SIGNED_OUT.subline}
           </div>
         </div>
       </div>
@@ -191,16 +204,16 @@ export const YourRankingCardMobile = ({
       >
         <span style={{ fontSize: 12, fontWeight: 500, lineHeight: "18px", color: "#9CA2AB" }}>PNL rank</span>
         <span className="font-display" style={{ fontSize: 18, fontWeight: 700, lineHeight: "24px", color: "#F2F3F5" }}>
-          {unranked ? "Unranked" : `#${data.ranks.pnl}`}
+          {!isLoggedIn ? EM_DASH : unranked ? "Unranked" : `#${data.ranks.pnl}`}
         </span>
       </div>
 
       <div className="flex" style={{ marginTop: 12, gap: 12 }}>
         {(
           [
-            { label: "PNL (USD)", value: data.pnl, className: "text-trading-green" },
-            { label: "ROI", value: data.roi, className: "" },
-            { label: "Volume", value: data.volume, className: "" },
+            { label: "PNL (USD)", value: v(data.pnl), className: "text-trading-green" },
+            { label: "ROI", value: v(data.roi), className: "" },
+            { label: "Volume", value: v(data.volume), className: "" },
           ] as const
         ).map((m) => (
           <div key={m.label} className="flex-1 min-w-0">
