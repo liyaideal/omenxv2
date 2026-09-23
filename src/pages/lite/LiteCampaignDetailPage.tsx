@@ -9,6 +9,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { CampaignKeyVisual } from "@/components/campaigns/CampaignKeyVisual";
 import H2eCampaignDetailPage from "./H2eCampaignDetailPage";
 import { GrantTaskRow } from "@/components/campaigns/GrantTaskRow";
+import { TieredTaskRow, deriveTiered } from "@/components/campaigns/TieredTaskRow";
+import { showCreditedToast } from "@/components/campaigns/CreditedToastBody";
 import { SignInPromptCard } from "@/components/campaigns/SignInPromptCard";
 import { CampaignDetailSkeleton } from "@/components/campaigns/CampaignDetailSkeleton";
 import { CampaignUnavailable } from "@/components/campaigns/CampaignUnavailable";
@@ -20,7 +22,9 @@ import { CampaignRulesDisclosure } from "@/components/campaigns/CampaignRulesDis
 import { softBindPublicEntry } from "@/components/campaigns/CampaignAttribution";
 import { useAuth } from "@/hooks/useAuth";
 
-import { formatDateRange, useCampaignViews } from "@/hooks/useCampaigns";
+import { formatDateRange, isTieredTask, useCampaignViews } from "@/hooks/useCampaigns";
+
+const CREDITED_SEEN_KEY = (userId: string) => `omenx_campaign_credited_seen:${userId}`;
 
 export default function LiteCampaignDetailPage() {
   const { campaignId } = useParams();
@@ -48,6 +52,8 @@ export default function LiteCampaignDetailPage() {
     });
   }, [user, view, refresh]);
 
+  /** Claims one grant (plain task key, or `<task_key>#t<n>` for a tier). Throws on failure so a
+   *  tiered "Claim all" chain stops at the first error. */
   const handleClaim = async (taskKey: string) => {
     if (!entry) return;
     setClaiming(taskKey);
@@ -56,12 +62,44 @@ export default function LiteCampaignDetailPage() {
     });
     setClaiming(null);
     if (error || (data as { error?: string })?.error) {
-      toast.error((data as { error?: string })?.error ?? "Could not claim this reward");
-      return;
+      const msg = (data as { error?: string })?.error ?? "Could not claim this reward";
+      toast.error(msg);
+      throw new Error(msg);
     }
     showClaimSuccessToast(() => navigate("/vouchers"));
     refresh();
   };
+  const claimSafely = (taskKey: string) => handleClaim(taskKey).catch(() => undefined);
+
+  // Tiered USDC tiers are credited server-side the moment they are reached;
+  // surface each newly credited tier once (per browser) with a toast.
+  useEffect(() => {
+    if (!user || !view || !entry) return;
+    const credited: { key: string; usdc: number; tierIndex: number; taskName: string }[] = [];
+    entry.tasks.filter(isTieredTask).forEach((task) => {
+      deriveTiered(task, view.grants).tiers.forEach((t) => {
+        const usdc = t.tier.reward?.usdc ?? 0;
+        if (t.claimed && usdc > 0) credited.push({ key: t.key, usdc, tierIndex: t.index + 1, taskName: task.name });
+      });
+    });
+    if (!credited.length) return;
+    let seen: string[] = [];
+    try {
+      seen = JSON.parse(localStorage.getItem(CREDITED_SEEN_KEY(user.id)) ?? "[]");
+    } catch {
+      seen = [];
+    }
+    const fresh = credited.filter((c) => !seen.includes(c.key));
+    // First visit after the feature ships: mark everything seen silently so an
+    // old account does not get seven toasts at once.
+    const firstVisit = seen.length === 0 && fresh.length === credited.length && credited.length > 1;
+    if (!firstVisit) fresh.forEach((c) => showCreditedToast(c.usdc, c.tierIndex, c.taskName, () => navigate("/wallet")));
+    try {
+      localStorage.setItem(CREDITED_SEEN_KEY(user.id), JSON.stringify(credited.map((c) => c.key)));
+    } catch {
+      /* storage unavailable — toast may repeat next visit, harmless */
+    }
+  }, [user, view, entry, navigate]);
 
   const statusFor = (taskKey: string) =>
     view?.grants.find((g) => g.taskKey === taskKey)?.status ?? "not_started";
@@ -219,18 +257,30 @@ export default function LiteCampaignDetailPage() {
         </span>
       </div>
 
-      {(entry?.tasks ?? []).map((task) => (
-        <GrantTaskRow
-          key={task.task_key}
-          task={task}
-          status={statusFor(task.task_key)}
-          progressValue={progressFor(task.task_key)}
-          isClaiming={claiming === task.task_key}
-          frozen={frozen}
-          signedOut={signedOut}
-          onClaim={() => handleClaim(task.task_key)}
-        />
-      ))}
+      {(entry?.tasks ?? []).map((task) =>
+        isTieredTask(task) ? (
+          <TieredTaskRow
+            key={task.task_key}
+            task={task}
+            grants={view.grants}
+            claimingKey={claiming}
+            frozen={frozen}
+            signedOut={signedOut}
+            onClaim={handleClaim}
+          />
+        ) : (
+          <GrantTaskRow
+            key={task.task_key}
+            task={task}
+            status={statusFor(task.task_key)}
+            progressValue={progressFor(task.task_key)}
+            isClaiming={claiming === task.task_key}
+            frozen={frozen}
+            signedOut={signedOut}
+            onClaim={() => claimSafely(task.task_key)}
+          />
+        ),
+      )}
 
     </div>
   );

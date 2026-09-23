@@ -7,18 +7,44 @@ import { useAuth } from "@/hooks/useAuth";
 export type CampaignStatus = "draft" | "live" | "ended";
 export type GrantStatus = "not_started" | "in_progress" | "claimable" | "claimed" | "not_eligible";
 
+export type TaskReward = { voucher?: number; usdc?: number };
+
+/** One rung of a tiered task: reach `target` on the shared metric → `reward`. */
+export interface CampaignTaskTier {
+  target: number;
+  reward: TaskReward;
+}
+
+/**
+ * `type` picks the row renderer + the server-side progress branch.
+ * - `threshold` (default, legacy rows carry no `type`): one target, one reward.
+ * - `tiered`: `tiers[]` on one shared metric; each tier is its own grant
+ *   keyed `<task_key>#t<n>` (n from 1). USDC tiers are credited by the
+ *   trigger the moment they are reached; voucher tiers become claimable.
+ */
+export type CampaignTaskType = "threshold" | "tiered";
+
 export interface CampaignTaskDef {
   task_key: string;
+  type?: CampaignTaskType;
   name: string;
   subtitle?: string;
   target?: number;
   metric?: "count" | "usd_volume";
-  reward?: { voucher?: number; usdc?: number };
+  reward?: TaskReward;
+  /** Tiered only — ascending targets, 2..8 rungs. */
+  tiers?: CampaignTaskTier[];
   /** Which markets count toward this task (server-side driver reads the same field). */
   scope?: { categories?: string[]; any_market?: boolean };
   /** Action button shown while the task is not yet claimable. */
   cta?: { label?: string; href?: string };
 }
+
+export const isTieredTask = (t: CampaignTaskDef): boolean =>
+  t.type === "tiered" && Array.isArray(t.tiers) && t.tiers.length > 0;
+
+/** Grant key for tier n (1-based) of a tiered task. */
+export const tierGrantKey = (taskKey: string, n: number) => `${taskKey}#t${n}`;
 
 export interface CampaignBranding {
   display_name?: string;
@@ -277,7 +303,28 @@ export const buildCampaignView = (
   let usdcUpTo = 0;
   let voucherClaimed = 0;
   let usdcClaimed = 0;
+  // A tiered task counts as ONE task: "up to" sums every rung, "done" means
+  // every rung is claimed, "claimable" means at least one rung is claimable.
+  const taskDone = (t: CampaignTaskDef) =>
+    isTieredTask(t)
+      ? t.tiers!.every((_, i) => statusFor(tierGrantKey(t.task_key, i + 1)) === "claimed")
+      : statusFor(t.task_key) === "claimed";
+  const taskClaimable = (t: CampaignTaskDef) =>
+    isTieredTask(t)
+      ? t.tiers!.some((_, i) => statusFor(tierGrantKey(t.task_key, i + 1)) === "claimable")
+      : statusFor(t.task_key) === "claimable";
   tasks.forEach((t) => {
+    if (isTieredTask(t)) {
+      t.tiers!.forEach((tier, i) => {
+        voucherUpTo += tier.reward?.voucher ?? 0;
+        usdcUpTo += tier.reward?.usdc ?? 0;
+        if (statusFor(tierGrantKey(t.task_key, i + 1)) === "claimed") {
+          voucherClaimed += tier.reward?.voucher ?? 0;
+          usdcClaimed += tier.reward?.usdc ?? 0;
+        }
+      });
+      return;
+    }
     voucherUpTo += t.reward?.voucher ?? 0;
     usdcUpTo += t.reward?.usdc ?? 0;
     if (statusFor(t.task_key) === "claimed") {
@@ -298,8 +345,8 @@ export const buildCampaignView = (
     participation,
     phase,
     tasksTotal: tasks.length,
-    tasksDone: tasks.filter((t) => statusFor(t.task_key) === "claimed").length,
-    claimableCount: tasks.filter((t) => statusFor(t.task_key) === "claimable").length,
+    tasksDone: tasks.filter(taskDone).length,
+    claimableCount: tasks.filter(taskClaimable).length,
     rewardVoucherUpTo: voucherUpTo,
     rewardUsdcUpTo: usdcUpTo,
     voucherClaimed,
