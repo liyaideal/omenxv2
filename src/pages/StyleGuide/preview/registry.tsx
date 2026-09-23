@@ -643,6 +643,9 @@ export const previewRegistry: Record<string, Loader> = {
 
   "rewards-campaign-cards": pick(rewards, "CampaignCardStatesPreview"),
   "rewards-grant-rows": pick(rewards, "GrantTaskRowNineStatesPreview"),
+  "rewards-tiered-rows": pick(rewards, "TieredTaskRowStatesPreview"),
+  "rewards-tiered-drawer": pick(rewards, "TieredTaskRowDrawerPreview"),
+  "rewards-credited-toast": pick(rewards, "CreditedToastPreview"),
   "rewards-kol-band": pick(rewards, "KolBandPreview"),
   "rewards-ended-archive": pick(rewards, "EndedArchivePreview"),
   "rewards-ended-detail": pick(rewards, "EndedCampaignDetailPreview"),

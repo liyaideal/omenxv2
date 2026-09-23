@@ -194,9 +194,12 @@ export const TieredTaskRow = ({
   claimingKey,
   frozen,
   signedOut,
+  defaultDrawerOpen = false,
 }: {
   task: CampaignTaskDef;
   grants: CampaignGrant[];
+  /** Style-guide fixture only — mounts the mobile tier drawer open. Never set in production. */
+  defaultDrawerOpen?: boolean;
   /** Claim one voucher tier by its grant key (`<task_key>#t<n>`); awaited when claiming several. */
   onClaim: (tierKey: string) => void | Promise<void>;
   claimingKey?: string | null;
@@ -204,7 +207,7 @@ export const TieredTaskRow = ({
   signedOut?: boolean;
 }) => {
   const isMobile = useIsMobile();
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(defaultDrawerOpen);
   const d = deriveTiered(task, grants);
   const M = d.tiers.length;
   const notEligible = d.notEligible;

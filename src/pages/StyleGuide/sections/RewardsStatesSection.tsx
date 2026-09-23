@@ -421,6 +421,147 @@ const DETAIL_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "rewards-tiered-rows",
+    label: "RW-8b · TieredTaskRow 阶梯任务（type: tiered · 7 档 USDC 真实配置 + 3 档券）",
+    note: "帧内自上而下：signedOut / 未开始 / 进行中未达首档（$1,250）/ 两档已入账（$7,400）/ 四档已入账（$36,000，一单跨两档）/ 全入账（$250,000）/ not_eligible / ended / 券阶梯 Claim $5 / 券阶梯 Claim all $25 / 券阶梯 claiming / 券阶梯全领。行卡文案三行封顶，不随档数增长；档位明细下沉到 tooltip（桌面）/ 抽屉（移动，见 RW-8c）。",
+    spec: [
+      {
+        state: "共享进度",
+        when: "所有档位读同一 value = max(grants[`<key>#t<n>`].progress.value)；一根进度条",
+        visual: "刻度点等距 (n / M)；填充在当前段内线性插值（不按金额比例）",
+        source: "deriveTiered · TaskRowShell progress.pct / ticks",
+      },
+      {
+        state: "进度文案",
+        when: "分母 = 下一个未达档 target；全达后 = 最高档 target",
+        visual: "`$36,000 / $50,000`（千分位）",
+        source: "deriveTiered.denom",
+      },
+      {
+        state: "刻度点 · 未达",
+        when: "value < tiers[n].target && !claimed && !claimable",
+        visual: "8px 圆 #2B2F38，2px 卡底色描边",
+        source: "TaskRowTick.state = pending",
+      },
+      {
+        state: "刻度点 · 已达未领（券）",
+        when: 'status === "claimable"',
+        visual: "8px 圆 #33D6FF",
+        source: "TaskRowTick.state = reached",
+      },
+      {
+        state: "刻度点 · 已入账 / 已领",
+        when: 'status === "claimed"',
+        visual: "#33D6FF + 内圈 55% 暗芯",
+        source: "TaskRowTick.state = credited",
+      },
+      {
+        state: "USDC 档 · 达标即入账",
+        when: "value >= target && tier.reward.usdc > 0（服务端触发器判定）",
+        visual: "grant 直接 claimed（无 claimable 中间态），Standard 余额 +usdc，钱包流水一条 bonus `Campaign reward · <task> · Tier n`",
+        source: "apply_campaign_progress() tiered 分支（行级闩锁 status <> 'claimed'）",
+      },
+      {
+        state: "券档 · 达标可领",
+        when: "value >= target && tier.reward.voucher > 0",
+        visual: "grant claimable → 白色 `Claim $X`；≥2 档同时可领 → `Claim all $X`（顺序逐档调用 claim-campaign-grant，失败即停）",
+        source: "TieredTaskRow action · claim-campaign-grant `<key>#t<n>`",
+      },
+      {
+        state: "奖励槽 行1 · 有可领",
+        when: "claimableCount > 0",
+        visual: "lime `$25 ready`",
+        source: "TieredTaskRow line1",
+      },
+      {
+        state: "奖励槽 行1 · 无可领有未达",
+        when: "claimableCount === 0 && !allClaimed",
+        visual: "灰 `next $40 USDC` / `next $20 voucher`",
+        source: "TieredTaskRow line1",
+      },
+      {
+        state: "奖励槽 行1 · 全部完成",
+        when: "allClaimed",
+        visual: "灰 `$400 USDC credited` / `$85 voucher claimed`",
+        source: "TieredTaskRow line1",
+      },
+      {
+        state: "奖励槽 行2",
+        when: "恒显",
+        visual: "`4 / 7 tiers`（已达 / 总档）；移动端带 `›` 可点起抽屉；桌面 hover 出全档 tooltip",
+        source: "TieredTaskRow line2",
+      },
+      {
+        state: "动作栏优先级",
+        when: "signedOut → notEligible → frozen → claimable → allClaimed → CTA",
+        visual: "`Sign in to start` / `Not eligible` / `Ended`·`All credited` / Claim 按钮 / `All credited`·`All claimed` / 描边 Trade",
+        source: "TieredTaskRow action",
+      },
+      {
+        state: "not_eligible",
+        when: "任一档 grant.status === not_eligible",
+        visual: "整行虚线灰，无进度条无奖励槽，右侧 `Not eligible`（与 RW-8 同）",
+        source: "deriveTiered.notEligible",
+      },
+      {
+        state: "聚合口径",
+        when: "一个 tiered 任务 = 1 个任务",
+        visual: "`N of M done` 全档 claimed 才计 done；hero `up to $X` 累加全部档；`claimed` 累加已领档",
+        source: "buildCampaignView taskDone / taskClaimable",
+      },
+      {
+        state: "入账反馈",
+        when: "详情页加载时发现新的 claimed USDC 档（seen-set 不含）",
+        visual: "toast `+$40 USDC credited to Standard` / `Tier 4 of Cumulative trading volume` / `Open wallet`（见 RW-12b）",
+        source: "LiteCampaignDetailPage useEffect · showCreditedToast",
+      },
+    ],
+  },
+  {
+    key: "rewards-tiered-drawer",
+    label: "RW-8c · 档位抽屉 / tooltip（TieredTaskRow · MobileDrawer）",
+    note: "移动帧用 fixture prop `defaultDrawerOpen` 把抽屉挂开（生产永不传）；桌面帧只有行卡，tooltip 需 hover 不可静态截。",
+    spec: [
+      {
+        state: "抽屉行",
+        when: "每档一行：状态点 / `$target` + `Tier n` / 奖励 / 状态词",
+        visual: "状态词 Credited（灰）· Ready（lime）· Locked（灰）· Claimed（灰）；奖励已领划线；券档 Ready 行内可单独 Claim",
+        source: "TierList",
+      },
+      {
+        state: "桌面 tooltip · 刻度点",
+        when: "hover 刻度点",
+        visual: "`Tier 4 · $30,000 → $40 USDC · Credited`",
+        source: "TaskRowTick.label",
+      },
+      {
+        state: "桌面 tooltip · 行2",
+        when: "hover `N / M tiers`",
+        visual: "300px 全档表（同抽屉内容，无 Claim）",
+        source: "TieredTaskRow line2 Tooltip",
+      },
+    ],
+  },
+  {
+    key: "rewards-credited-toast",
+    label: "RW-12b · 自动入账反馈（CreditedToastBody）",
+    note: "帧内静态还原 sonner body。USDC 阶梯档由服务端入账，页面只在下一次加载时提示，一档一次。",
+    spec: [
+      {
+        state: "新入账档",
+        when: "claimed && credited_usdc > 0 && key ∉ localStorage `omenx_campaign_credited_seen:<userId>`",
+        visual: "toast.success `+$40 USDC credited to Standard`，描述 `Tier 4 of <task>`，动作 `Open wallet` → /wallet",
+        source: "showCreditedToast",
+      },
+      {
+        state: "首访静默",
+        when: "seen-set 为空且已入账档 > 1",
+        visual: "不弹（避免老账号一次弹七条），全部标记已看",
+        source: "LiteCampaignDetailPage firstVisit",
+      },
+    ],
+  },
+  {
     key: "rewards-campaign-rules",
     label: "RW-9 · 活动规则折叠（CampaignRulesDisclosure）",
     note: "帧内三态：收起 / 展开（受控 defaultOpen，非 setTimeout）/ paragraphs 为空整块不渲染。文案来自 `campaign_entries.rules.details`，只读。",
@@ -952,6 +1093,12 @@ export const RewardsStatesSection = () => (
           <Pair cases={byKey("rewards-grant-rows")} desktopMin={720} mobileMin={1200} />
         </div>
         <div className="mt-6">
+          <Pair cases={byKey("rewards-tiered-rows")} desktopMin={1100} mobileMin={1800} />
+        </div>
+        <div className="mt-6">
+          <Pair cases={byKey("rewards-tiered-drawer")} desktopMin={200} mobileMin={700} />
+        </div>
+        <div className="mt-6">
           <Pair cases={byKey("rewards-campaign-rules")} desktopMin={420} mobileMin={520} />
         </div>
         <div className="mt-6">
@@ -970,6 +1117,9 @@ export const RewardsStatesSection = () => (
         </div>
         <div className="mt-6">
           <Pair cases={byKey("rewards-claim-toast")} desktopMin={260} mobileMin={280} />
+        </div>
+        <div className="mt-6">
+          <Pair cases={byKey("rewards-credited-toast")} desktopMin={260} mobileMin={280} />
         </div>
         <div className="mt-6">
           <Pair cases={byKey("rewards-ineligible-redirect")} desktopMin={240} mobileMin={260} />

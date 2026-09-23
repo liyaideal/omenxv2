@@ -21,6 +21,9 @@ import { CampaignDetailSkeleton } from "@/components/campaigns/CampaignDetailSke
 import { CampaignUnavailable } from "@/components/campaigns/CampaignUnavailable";
 import { CampaignRewardsCard } from "@/components/campaigns/CampaignRewardsCard";
 import { ClaimSuccessToastBody } from "@/components/campaigns/ClaimSuccessToastBody";
+import { TieredTaskRow } from "@/components/campaigns/TieredTaskRow";
+import { CreditedToastBody } from "@/components/campaigns/CreditedToastBody";
+import type { CampaignGrant } from "@/hooks/useCampaigns";
 import { formatDateRange } from "@/hooks/useCampaigns";
 import type { Referral } from "@/hooks/useReferral";
 import { MobileHeader } from "@/components/MobileHeader";
@@ -600,6 +603,125 @@ export const GrantTaskRowNineStatesPreview = () => (
     <GrantTaskRow task={ROW_TASK} status="claimed" onClaim={() => {}} />
     <GrantTaskRow task={ROW_TASK} status="not_eligible" onClaim={() => {}} />
     <GrantTaskRow task={ROW_TASK} status="claimable" frozen onClaim={() => {}} />
+  </div>
+);
+
+/* ---------------- RW-8b · TieredTaskRow（阶梯任务 · 7 档 USDC 真实配置） ---------------- */
+const LADDER_TASK: CampaignTaskDef = {
+  task_key: "vl_volume_ladder",
+  type: "tiered",
+  name: "Cumulative trading volume",
+  subtitle: "Every filled order on any market counts · rewards paid in USDC",
+  metric: "usd_volume",
+  scope: { any_market: true },
+  cta: { label: "Trade", href: "/events" },
+  tiers: [
+    { target: 2000, reward: { usdc: 4 } },
+    { target: 5000, reward: { usdc: 6 } },
+    { target: 10000, reward: { usdc: 10 } },
+    { target: 30000, reward: { usdc: 40 } },
+    { target: 50000, reward: { usdc: 40 } },
+    { target: 100000, reward: { usdc: 100 } },
+    { target: 200000, reward: { usdc: 200 } },
+  ],
+};
+/** Same ladder paid in vouchers — the branch that still needs a Claim. */
+const LADDER_VOUCHER_TASK: CampaignTaskDef = {
+  ...LADDER_TASK,
+  task_key: "vl_voucher_ladder",
+  name: "Voucher ladder",
+  subtitle: "Same rungs, paid in Trial Position Vouchers",
+  tiers: [
+    { target: 100, reward: { voucher: 5 } },
+    { target: 500, reward: { voucher: 20 } },
+    { target: 2000, reward: { voucher: 60 } },
+  ],
+};
+
+/** Fixture grants: shared `value`, tiers below `claimedUpTo` claimed (credited), others derived. */
+const ladderGrants = (
+  task: CampaignTaskDef,
+  value: number,
+  claimedUpTo: number,
+  opts: { claimable?: number[]; notEligible?: boolean } = {},
+): CampaignGrant[] =>
+  (task.tiers ?? []).map((tier, i) => {
+    const n = i + 1;
+    const usdc = tier.reward?.usdc ?? 0;
+    let status: GrantStatus = value >= tier.target ? "claimable" : value > 0 ? "in_progress" : "not_started";
+    if (n <= claimedUpTo) status = "claimed";
+    else if (usdc > 0 && value >= tier.target) status = "claimed"; // USDC tiers are credited on reach
+    if (opts.claimable && !opts.claimable.includes(n) && status === "claimable") status = "in_progress";
+    if (opts.notEligible) status = "not_eligible";
+    return {
+      id: `g-${task.task_key}-${n}`,
+      entryId: "entry-ladder",
+      taskKey: `${task.task_key}#t${n}`,
+      status,
+      progress:
+        status === "claimed" && usdc > 0
+          ? { value, current: value, target: tier.target, credited_usdc: usdc, credited_at: iso(-1) }
+          : { value, current: value, target: tier.target },
+    };
+  });
+
+const noop = () => {};
+
+export const TieredTaskRowStatesPreview = () => (
+  <div className="space-y-2.5 p-4">
+    {/* R8 · signed out */}
+    <TieredTaskRow task={LADDER_TASK} grants={[]} signedOut onClaim={noop} />
+    {/* R1 · not started */}
+    <TieredTaskRow task={LADDER_TASK} grants={[]} onClaim={noop} />
+    {/* R2 · in progress below tier 1 */}
+    <TieredTaskRow task={LADDER_TASK} grants={ladderGrants(LADDER_TASK, 1250, 0)} onClaim={noop} />
+    {/* R4 · tiers 1–2 credited, tier 3 in progress */}
+    <TieredTaskRow task={LADDER_TASK} grants={ladderGrants(LADDER_TASK, 7400, 2)} onClaim={noop} />
+    {/* R6 · tiers 1–4 credited (one order jumped two rungs), tier 5 in progress */}
+    <TieredTaskRow task={LADDER_TASK} grants={ladderGrants(LADDER_TASK, 36000, 4)} onClaim={noop} />
+    {/* R7 · all credited */}
+    <TieredTaskRow task={LADDER_TASK} grants={ladderGrants(LADDER_TASK, 250000, 7)} onClaim={noop} />
+    {/* R9 · not eligible */}
+    <TieredTaskRow task={LADDER_TASK} grants={ladderGrants(LADDER_TASK, 0, 0, { notEligible: true })} onClaim={noop} />
+    {/* R10 · ended, 2 credited */}
+    <TieredTaskRow task={LADDER_TASK} grants={ladderGrants(LADDER_TASK, 7400, 2)} frozen onClaim={noop} />
+    {/* V1 · voucher ladder: one tier ready → Claim $5 */}
+    <TieredTaskRow task={LADDER_VOUCHER_TASK} grants={ladderGrants(LADDER_VOUCHER_TASK, 320, 0)} onClaim={noop} />
+    {/* V2 · voucher ladder: two tiers ready → Claim all $25 */}
+    <TieredTaskRow task={LADDER_VOUCHER_TASK} grants={ladderGrants(LADDER_VOUCHER_TASK, 640, 0)} onClaim={noop} />
+    {/* V3 · voucher ladder: claiming */}
+    <TieredTaskRow
+      task={LADDER_VOUCHER_TASK}
+      grants={ladderGrants(LADDER_VOUCHER_TASK, 640, 1)}
+      claimingKey="vl_voucher_ladder#t2"
+      onClaim={noop}
+    />
+    {/* V4 · voucher ladder: all claimed */}
+    <TieredTaskRow task={LADDER_VOUCHER_TASK} grants={ladderGrants(LADDER_VOUCHER_TASK, 2400, 3)} onClaim={noop} />
+  </div>
+);
+
+/** Mobile-only: the tier drawer mounted open (fixture prop). Desktop frame shows the row + hint. */
+export const TieredTaskRowDrawerPreview = () => (
+  <div className="min-h-[640px] p-4">
+    <TieredTaskRow task={LADDER_TASK} grants={ladderGrants(LADDER_TASK, 36000, 4)} onClaim={noop} defaultDrawerOpen />
+    <p className="mt-3 text-center text-[11px] leading-4 text-muted-foreground">
+      移动端点 <code className="text-[11px] text-foreground">4 / 7 tiers ›</code> 起底部抽屉（MobileDrawer）；桌面无抽屉，
+      hover 刻度点或 <code className="text-[11px] text-foreground">N / M tiers</code> 出 tooltip。
+    </p>
+  </div>
+);
+
+export const CreditedToastPreview = () => (
+  <div className="space-y-2 p-4">
+    <div className="mx-auto w-full max-w-md p-4">
+      <CreditedToastBody usdc={40} tierIndex={4} taskName="Cumulative trading volume" onOpen={noop} />
+    </div>
+    <p className="text-center text-[11px] leading-4 text-muted-foreground">
+      静态渲染 <code className="text-[11px] text-foreground">CreditedToastBody</code>（与{" "}
+      <code className="text-[11px] text-foreground">showCreditedToast()</code> 共用同一 copy 常量）。详情页每个新入账的
+      USDC 档只弹一次（localStorage seen-set）。
+    </p>
   </div>
 );
 
