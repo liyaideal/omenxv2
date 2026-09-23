@@ -1,6 +1,6 @@
 # 全站换标：新 OMENX logo 家族 + favicon / 分享卡 — 交付说明 v2（研发版）
 
-> 这份文档给真平台研发看。OmenX 的字标从"圆 O 版"换成了品牌书定稿的新字标：超宽几何字母 + 带绿→蓝渐变的 X。全站每一处出现 logo 的地方都换了，同时补齐了浏览器标签图标、iOS 主屏图标和社交分享卡图。除了换图，只有一处布局改动：手机端品牌栏页头从 56px 变成 44px。所有资产和组件都已经在蓝图仓库里，pull 下来按同路径搬即可，不需要碰 Figma。
+> 这份文档给真平台研发看。OmenX 的字标从"圆 O 版"换成了品牌书定稿的新字标：超宽几何字母 + 带绿→蓝渐变的 X。全站每一处出现 logo 的地方都换了，同时补齐了浏览器标签图标、iOS 主屏图标和社交分享卡图。除了换图，只有一处布局改动：手机端品牌栏页头从 56px 变成 44px。所有资产和组件都已经在 Lovable 仓库里，pull 下来按同路径搬即可，不需要碰 Figma。
 >
 > 长什么样：https://omenxv2.lovable.app/style-guide → 左栏 Foundations「Design tokens」第一节 **Wordmark · 4 variants**（四版字标 × 七档尺寸 × X 单标）；「Brand assets · IP 插画」Ⓑ 品牌标识（每个文件一行卡）。字典里每一态都是生产组件渲染的，不是截图，可以对着抄。
 
@@ -18,7 +18,7 @@
 
 ## 2. 资产清单
 
-全部在蓝图仓库，路径即交付路径。SVG 的路径数据直接取自品牌书导出，**不要重绘、不要改色**。
+全部在 Lovable 仓库，路径即交付路径。SVG 的路径数据直接取自品牌书导出，**不要重绘、不要改色**。
 
 ### 2.1 矢量（`src/assets/brand/`）
 
@@ -184,6 +184,6 @@ Props：`size`（下表 7 档）、`variant`（`white-gradient` 默认 / `white`
 | 桌面导航尺寸 | omenx_lite `e1gJg4USia95DSju3Eqx09` Event_All `140:68990`（26.5 × 178） |
 | 手机品牌栏尺寸 / 页头 44 | omenx_lite event_all Header `203:92635`（14.75 × 99，页头 43.5） |
 | 登录弹窗尺寸 | omenx_lite Connect / PC `409:4736`（17 × 114） |
-| 蓝图 commit | `e8ac0db1` `43e263e0` `3e68fff8` `6bfff58c` `0d5f5393` |
+| Lovable commit | `e8ac0db1` `43e263e0` `3e68fff8` `6bfff58c` `0d5f5393` |
 | 拍板 | 2026-09-19 上午 A–G、下午 L1–L7、A1–A4；Leaderboard R1/R2 不做 |
 | 台账 | style-guide「Brand assets · IP 插画」Ⓑ 组 17 行，82 枚 / 18 LEGACY |

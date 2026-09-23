@@ -43,7 +43,7 @@
 
 ## 4. Sell 回款标注（技术对接 §7.2 简化）
 
-- 蓝图简化为卖出直接回余额；toast description 明示 `"Proceeds settle to balance (demo). Production: held as event pending cash until settlement."`
+- Lovable 简化为卖出直接回余额；toast description 明示 `"Proceeds settle to balance (demo). Production: held as event pending cash until settlement."`
 - 代码路径带 `// DEMO-STATE: event_pending_cash 简化` 注释；正式版应入 `event_pending_cash`，事件终态前不可提现
 
 ## 5. 下单面板补充（技术对接 §10.1）

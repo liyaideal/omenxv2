@@ -2030,7 +2030,7 @@ Figma `omenx_lite` 文件 `448:8785` 一组海报稿有三处自身错误：① 
 - 卡：Settings.tsx 的 LinkedAccountCard 同壳（`trading-card p-4 md:p-6` / 框 `bg-muted/30 rounded-xl p-4` / 圆标 `w-10 rounded-full bg-primary/10` Mail 主色）。邮箱框右侧 `Change`＝Password 行同钮（`variant="outline" size="sm" h-8`），发送后 `✓ {n}s` → `Resend`。等待中 `Email` 旁 Badge outline `text-xs text-primary border-primary/35` 写 `Pending`——信息态用主色，**不用** trading-yellow。框里始终显示当前邮箱，新邮箱只出现在说明行（`text-foreground`）。
 - 弹窗：桌面 shadcn Dialog 同旧改邮箱弹窗壳；输入框用第 3 条的 Lite 字段（`INPUT_CLASS`，从 EmailAuthPanel 导出，禁止再写一份），行内错误同第 3 条。Footer Cancel outline + `Send links` btn-primary。手机 MobileDrawer，单个全宽 `btn-primary h-12`，无 Cancel。
 - 已发送：第 3 条的 volt 对勾 + 标题 `text-lg font-semibold` + 两行列表（`bg-muted/30 rounded-xl px-4`，行 `py-3` 分隔 `border-border`，键 `text-[11px] uppercase tracking-[0.06em] w-16`，值 `font-mono text-sm`）。桌面主色 `Done`，手机描边全宽 `Done`（无别的动作，不催）。
-- 禁止：6 格验证码步、旧密码框、24 小时禁提现句（蓝图无机制）、取消等待动作。
+- 禁止：6 格验证码步、旧密码框、24 小时禁提现句（Lovable 无机制）、取消等待动作。
 
 **7 · 字典**
 AU-E1…E11 / AU-R1…R6 / AU-S1…S8 挂生产件本体（`AuthDialog` / `AuthSheet` `previewStep="email"` + `fixture.emailPanel`、`ResetPasswordContent fixtureState`、`AccountSecurityCard previewEmailUser`、`LinkedEmailAccountCard previewState / previewDialog`），禁止在 preview 里手写复刻。

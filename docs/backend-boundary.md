@@ -1,7 +1,7 @@
 # 后端参考边界说明（Backend Reference Boundary）
 
 > **本仓库的 Supabase 是演示引擎（Demo Engine），不是正式后端。**
-> 它的职责是让前端蓝图端到端可跑（下单 → 持仓 → 流水 → 奖励处处可见），不是给研发照抄的实现。
+> 它的职责是让前端 Lovable 端到端可跑（下单 → 持仓 → 流水 → 奖励处处可见），不是给研发照抄的实现。
 > 本文档逐表、逐函数标注研发的参考边界。评审需求时先查本表，再看代码。
 
 ## 分类定义
@@ -169,7 +169,7 @@
 ## 治理规则（即日生效）
 
 1. **状态走库，内容走 mock**：需要跨模块流转的状态（下单/持仓/流水/券/积分）必须落 Supabase；纯展示内容（行情形态、联赛资料、社区帖子）永远 mock。
-2. **单一演示引擎**：本仓库的 Supabase 是全部前端蓝图（主站 / Sports / 未来 Pro / Lite）唯一的后端，其他前端项目不得自建数据库。
+2. **单一演示引擎**：本仓库的 Supabase 是全部前端 Lovable（主站 / Sports / 未来 Pro / Lite）唯一的后端，其他前端项目不得自建数据库。
 3. **Schema 只在本项目变更**：其他前端项目只能调用现成的 RPC / Edge Function。
 4. **sim- 前缀**：新增演示专用函数一律 `sim-` 前缀命名。
 5. **本文档 append-only**：新表 / 新函数上线的同一轮，必须在本文档补一行标注；产品线扩张（现货、Pro/Lite 分面）时新增 `product_line` / `surface` 维度也在此登记。
@@ -195,7 +195,7 @@
 | `resetPasswordForEmail` → `/reset-password`（`updateUser({ password })`） | 🟡 | 一次性、1 小时有效、登录前后共用同一落地页的规则照抄；邮件通道与令牌实现自选 |
 | 本库 `auth.users` 无 profile 触发器；profile 行由前端 `upsertStarterProfile()` 在拿到会话后创建 | 🔴 | 演示便利；正式版由服务端在账号创建时建 profile（`auth_method` / `email` / 随机用户名头像） |
 | `profiles.auth_method = "email"` | 🟡 | 「账号来源」语义是需求（决定 Settings 是否显示 Password 行、completeProfile 邮箱只读）；字段位置自选 |
-| 改密码后 24 小时禁提现 | 🟢（正式版必做，蓝图未做） | 蓝图没有提现冻结机制，界面上未写；见 `docs/delivery/auth-email-v1.md` §6 |
+| 改密码后 24 小时禁提现 | 🟢（正式版必做，Lovable 未做） | Lovable 没有提现冻结机制，界面上未写；见 `docs/delivery/auth-email-v1.md` §6 |
 
 ## 2026-09-22 Settings 改版（Notifications / Preferences / Sessions / Close account，append-only 补录）
 

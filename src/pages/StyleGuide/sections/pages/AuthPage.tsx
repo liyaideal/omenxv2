@@ -347,7 +347,7 @@ const EMAIL_DESKTOP: SectionCase[] = [
     key: "auth-email-signup-exists",
     label: "AU-E4 · email · Create account · 邮箱已注册",
     spec: [
-      { state: "email_exists", when: "signUp 返回 already registered（蓝图站只能在验证码通过后得知；真平台应在发码前查）", visual: "退回 signup 表单；Email 框红边；下行 'This email is already registered.' + 行内 'Sign in' 链接一键切换到 signin", source: "EmailAuthPanel.tsx handleVerify → email_exists" },
+      { state: "email_exists", when: "signUp 返回 already registered（Lovable 站只能在验证码通过后得知；真平台应在发码前查）", visual: "退回 signup 表单；Email 框红边；下行 'This email is already registered.' + 行内 'Sign in' 链接一键切换到 signin", source: "EmailAuthPanel.tsx handleVerify → email_exists" },
     ],
   },
   {
@@ -360,10 +360,10 @@ const EMAIL_DESKTOP: SectionCase[] = [
   {
     key: "auth-email-verify",
     label: "AU-E6 · email · Verify your email（6 格验证码）",
-    note: "🔴 蓝图站固定验证码 111111（DEMO_VERIFY_CODE），界面不露；真平台须发真实验证码。",
+    note: "🔴 Lovable 站固定验证码 111111（DEMO_VERIFY_CODE），界面不露；真平台须发真实验证码。",
     spec: [
       { state: "verify · default", when: "mode === 'verify'", visual: "标题 'Verify your email'；副标 'Enter the 6-digit code we sent to {email}'（邮箱白字）；OTPInput 6 格 w-12 h-12 rounded-[12px] bg-[#14161A] border-[#23262D]，active 格 border-[#33D6FF]，font-display 20px；btn-primary 'Verify & create account'；脚注 'Didn't get it? Resend in {n}s'（#6B7280）→ 0s 后 'Resend code'（#33D6FF）", source: "EmailAuthPanel.tsx verify · input-otp OTPInput" },
-      { state: "Resend", when: "cooldown === 0", visual: "重起 60s；toast 'Code sent to {email}'（蓝图站不真发）", source: "EmailAuthPanel.tsx handleResend" },
+      { state: "Resend", when: "cooldown === 0", visual: "重起 60s；toast 'Code sent to {email}'（Lovable 站不真发）", source: "EmailAuthPanel.tsx handleResend" },
       { state: "成功", when: "code === DEMO_VERIFY_CODE && signUp ok", visual: "upsertStarterProfile(auth_method='email', email) → toast 'Email verified — welcome to OMENX!' → setStep('createWallet')（新用户走完整 onboarding）", source: "EmailAuthPanel.tsx handleVerify" },
     ],
   },

@@ -255,8 +255,8 @@ const ACCOUNT_CASES: SectionCase[] = [
     note: "Close account 行与按钮用 #FF5C5C（DESIGN §5 破坏性；Wallet 删地址先例）。Lovable 止于确认：登出 + toast 'Account closed'，不真正删数据（docs/backend-boundary.md）。",
     spec: [
       { state: "Sign out", when: "点击", visual: "立即 signOut → navigate('/')，无确认", source: "AccountCard.tsx handleSignOut" },
-      { state: "Close…", when: "balance + spot_balance > 0", visual: "→ ST-29 余额未清弹窗", source: "AccountCard.tsx openClose" },
-      { state: "Close…", when: "余额为 0", visual: "→ ST-30 确认弹窗", source: "AccountCard.tsx openClose" },
+      { state: "Close account", when: "balance + spot_balance > 0", visual: "→ ST-29 余额未清弹窗", source: "AccountCard.tsx openClose" },
+      { state: "Close account", when: "余额为 0", visual: "→ ST-30 确认弹窗", source: "AccountCard.tsx openClose" },
     ],
   },
 ];
@@ -303,7 +303,7 @@ export const LiteSettingsPage = (_: P) => (
         字段名 / 文案 / 术语 → <code className="font-mono">docs/copy-dictionary.md</code>「Settings（Lite, 2026-09-22）」+「Auth · Email」
       </div>
       <div>
-        流程 / 口径 / 前后端分工 → <code className="font-mono">docs/delivery/settings-lite-v1.md</code>；卡片语法 → <code className="font-mono">DESIGN.md</code> §Addendum 2026-09-22
+        流程 / 口径 / 前后端分工 → <code className="font-mono">docs/delivery/email-login-settings-v1.md</code>（总文档）；卡片语法 → <code className="font-mono">DESIGN.md</code> §Addendum 2026-09-22
       </div>
     </div>
 

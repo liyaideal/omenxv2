@@ -1,5 +1,7 @@
 # 邮箱 + 密码登录（Other email）— 交付说明 v1
 
+> 已并入 [email-login-settings-v1.md](./email-login-settings-v1.md)（邮箱登录与 Settings 页改版总文档，2026-09-23），本文只留档；研发以总文档为准。
+
 > 讲什么：登录弹窗里新增的「Other email」邮箱密码通路——注册（邮箱验证码）、登录、忘记密码、设置页改密码，以及它们落在哪几个页面。
 > 给谁看：真平台前端、后端与测试。
 > 怎么读：先照 §0 找答案，本文只写生产页和字典里看不到的东西。
@@ -43,7 +45,7 @@ Email + Password → `Sign in`。成功后弹窗直接关闭，进入站内，**
 2. 进入 `Verify your email`：6 格验证码，`Resend code` 60 秒冷却。
 3. 验证码通过 → **此时才创建账号** → 建 profile 行（随机用户名 + 头像，`auth_method = "email"`，`email` 写入）→ 进入 createWallet → completeProfile。completeProfile 里的邮箱框只读（它就是登录凭证），下方提示 `This is the email you sign in with`。
 
-**蓝图站的验证码是固定的 111111**，界面上不出现这个数字，也不真的发邮件。真平台必须发真实验证码（见 §6）。
+**Lovable 站的验证码是固定的 111111**，界面上不出现这个数字，也不真的发邮件。真平台必须发真实验证码（见 §6）。
 
 ### 3.3 忘记密码（登录前）
 
@@ -91,8 +93,8 @@ Email + Password → `Sign in`。成功后弹窗直接关闭，进入站内，**
 | 邮箱或密码错 | Email or password is incorrect. | signin，两个输入框同时红边，句子在 Password 下 |
 | 邮箱格式不对 | Please enter a valid email address | 所有含 Email 的表单 |
 | 密码不足 8 位 | Use at least 8 characters. | signup、/reset-password |
-| 密码在泄露库里（太常见） | This password is too easy to guess. Choose a different one. | signup（蓝图在验证码通过后才得知，退回表单显示在 Password 下）、/reset-password |
-| 邮箱已注册 | This email is already registered. **Sign in** | signup（蓝图站在验证码通过后才得知，退回表单显示；`Sign in` 一键切换） |
+| 密码在泄露库里（太常见） | This password is too easy to guess. Choose a different one. | signup（Lovable 在验证码通过后才得知，退回表单显示在 Password 下）、/reset-password |
+| 邮箱已注册 | This email is already registered. **Sign in** | signup（Lovable 站在验证码通过后才得知，退回表单显示；`Sign in` 一键切换） |
 | 验证码错 | Incorrect code. Try again. | verify，6 格全红 |
 | 两次密码不一致 | Passwords don't match. | /reset-password |
 | 请求过多 | Too many attempts. Please wait a minute and try again. | toast |
@@ -118,16 +120,16 @@ Email + Password → `Sign in`。成功后弹窗直接关闭，进入站内，**
 
 本库的 `auth.users` 上**没有**建 profile 的触发器（2026-09-19 查库确认），profile 行一律由前端在拿到会话后创建；正式后端应改为服务端创建。
 
-## 6. 真平台必须补的（蓝图做不到或有意没做）
+## 6. 真平台必须补的（Lovable 做不到或有意没做）
 
 | # | 项 | 说明 |
 |---|---|---|
-| 1 | 真实邮箱验证码 | 蓝图固定 111111；正式版发 6 位验证码，5–10 分钟有效，60 秒重发 |
-| 2 | 发码前查邮箱是否已注册、查密码策略 | 蓝图只能在验证码通过后（尝试建号时）得知「已注册」和「密码太常见」；正式版应在 `Continue` 时就拦下并行内显示 |
-| 3 | 重置链接的邮件投递 | 蓝图用 Supabase 默认邮件通道，能否送达取决于环境；正式版走自有邮件服务，链接一次性、1 小时有效 |
-| 3b | 改邮箱的邮件投递 | 同上；正式版两封确认邮件走自有通道；CEX 惯例改邮箱后 24 小时禁提现，蓝图未做、界面未写 |
-| 4 | 改密码后的资金保护 | CEX 惯例：改密码后 24 小时禁止提现。蓝图没有提现冻结机制，所以界面上没写这句话；正式版加上并在 Password 行说明 |
-| 5 | 登录失败限速 | 蓝图依赖 Supabase 默认限速；正式版按 IP + 邮箱限速并接验证码 |
+| 1 | 真实邮箱验证码 | Lovable 固定 111111；正式版发 6 位验证码，5–10 分钟有效，60 秒重发 |
+| 2 | 发码前查邮箱是否已注册、查密码策略 | Lovable 只能在验证码通过后（尝试建号时）得知「已注册」和「密码太常见」；正式版应在 `Continue` 时就拦下并行内显示 |
+| 3 | 重置链接的邮件投递 | Lovable 用 Supabase 默认邮件通道，能否送达取决于环境；正式版走自有邮件服务，链接一次性、1 小时有效 |
+| 3b | 改邮箱的邮件投递 | 同上；正式版两封确认邮件走自有通道；CEX 惯例改邮箱后 24 小时禁提现，Lovable 未做、界面未写 |
+| 4 | 改密码后的资金保护 | CEX 惯例：改密码后 24 小时禁止提现。Lovable 没有提现冻结机制，所以界面上没写这句话；正式版加上并在 Password 行说明 |
+| 5 | 登录失败限速 | Lovable 依赖 Supabase 默认限速；正式版按 IP + 邮箱限速并接验证码 |
 | 6 | 服务端建 profile | 见 §5 |
 
 ## 7. 同轮附带：品牌字体自托管

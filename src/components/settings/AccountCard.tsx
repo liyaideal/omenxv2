@@ -137,7 +137,7 @@ export const AccountCard = ({
               className="h-8 text-[#FF5C5C] border-[#FF5C5C]/35 hover:text-[#FF5C5C] hover:bg-[#FF5C5C]/10"
               onClick={openClose}
             >
-              Close…
+              Close account
             </Button>
           }
           last

@@ -69,7 +69,7 @@ export const LiteAffiliatePage = (_: P) => (
 
     <SubSection
       title="AF-7 · Apply CTA 三态 + portal 说明（useAffiliateCta）"
-      description="页面五处 Apply（hero / 02 节尾文字链 / 03 / 结尾 CTA / 移动 sticky）共用一个行为：未登录 → 打开站内登录门（桌面 AuthDialog / 移动 AuthSheet），登录后留在本页、按钮按新状态重算，不自动续动作；已登录非 affiliate → 真链接打开申请表（Lark Base form，新标签）；已登录 affiliate（profiles.is_affiliate）→ 文案统一改为「Open affiliate portal」，点击弹 portal 说明（portal 在真平台 /affiliate/portal，蓝图不含）。profile 未回来前保持 Apply 文案、点击等待。帧内按钮可真点：guest 帧点开登录门、affiliate 帧点开说明框。演示：alex_carter 是 affiliate，mia_reyes 不是。"
+      description="页面五处 Apply（hero / 02 节尾文字链 / 03 / 结尾 CTA / 移动 sticky）共用一个行为：未登录 → 打开站内登录门（桌面 AuthDialog / 移动 AuthSheet），登录后留在本页、按钮按新状态重算，不自动续动作；已登录非 affiliate → 真链接打开申请表（Lark Base form，新标签）；已登录 affiliate（profiles.is_affiliate）→ 文案统一改为「Open affiliate portal」，点击弹 portal 说明（portal 在真平台 /affiliate/portal，Lovable 不含）。profile 未回来前保持 Apply 文案、点击等待。帧内按钮可真点：guest 帧点开登录门、affiliate 帧点开说明框。演示：alex_carter 是 affiliate，mia_reyes 不是。"
       platform="shared"
     >
       <div className="grid gap-6 lg:grid-cols-2">

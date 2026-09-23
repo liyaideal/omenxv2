@@ -340,7 +340,7 @@ const ORDER_STATUS_CASES: SectionCase[] = [
   {
     key: "pro-order-status-desktop",
     label: "OS-D1 · 桌面 Current Orders 状态标：Partial Filled hover 成交明细",
-    note: "同一个 `OrderStatusBadge` 挂在桌面 /trade 与 /spot 的 Current Orders 表。蓝图引擎限价单整单成交，Partial Filled 态生产不可达，此处给研发看规格。",
+    note: "同一个 `OrderStatusBadge` 挂在桌面 /trade 与 /spot 的 Current Orders 表。Lovable 引擎限价单整单成交，Partial Filled 态生产不可达，此处给研发看规格。",
     spec: [
       { state: "Partial Filled", when: 'status === "Partial Filled"', visual: "青色标，hover 弹 `Fill progress 480 / 1,200 (40%)` + 进度条 + `Filled` / `Remaining` 两行", source: "OrderStatusBadge variant=desktop（HoverCard）" },
       { state: "Pending / Filled / Cancelled", when: "其他状态", visual: "普通标（黄 / 绿 / 红），不弹", source: "OrderStatusBadge" },

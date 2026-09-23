@@ -57,7 +57,7 @@
 ### 用户视角
 
 看到：交易页头 / 手机 dock 上的 Lite·Pro 开关；Pro 页头标题 ▾ 的 Standard / Boost 事件选择器；比赛事件的 `MARKETS` 行；Buy · Sell 页签 + Market / Limit；Amount 后缀 `USDC ▾ / Contracts ▾`（现货 `Shares ▾`）；不可下单时印原因的灰 CTA；Current Orders 里红色 `Close` 徽标与 `Reduce-only` 标；风险卡与手机 `Risk x%` 方块。
-看不到：头像菜单里的模式切换；页头 `SPOT` / `Boost` 徽标；Funding 费率；全仓 / 逐仓开关；`Max loss` 行；`Partial Filled`（蓝图引擎整单成交，生产不可达）。
+看不到：头像菜单里的模式切换；页头 `SPOT` / `Boost` 徽标；Funding 费率；全仓 / 逐仓开关；`Max loss` 行；`Partial Filled`（Lovable 引擎整单成交，生产不可达）。
 
 ## 0. 读者须知
 
@@ -266,10 +266,10 @@ Buy · Sell 页签与 Yes/No 一样按 `事件:结果` 记忆，`/trade` ↔ `/t
 | 零态 | 无合约持仓 → `Risk 0%` 绿，IM / MM `$0.00`；Equity ≤ 0 且有持仓 → 100 红 |
 | 桌面卡 | `Boost Account`：Margin Mode / Account Equity / Risk Ratio 进度条（80 / 95 / 100 刻度）/ Initial Margin $ / Maint. Margin $ |
 | 手机 | 页头方块 `Risk x%` 按档位染色；点开抽屉 = 桌面卡同一套行，无 Rate 进度条 |
-| Close-only | `riskLevel ∈ {RESTRICTION, LIQUIDATION}` 且 `orderIntent.kind ∈ {open, add}`：Pro Buy CTA `Close-only · Risk 96%`；Sell / 减仓 / 现货不受影响。Lite 合约卡 `Boost limit reached — close a position first`（优先级低于四种封锁），手机 dock 两钮不置灰。蓝图只在 UI 禁，后端不拦 |
+| Close-only | `riskLevel ∈ {RESTRICTION, LIQUIDATION}` 且 `orderIntent.kind ∈ {open, add}`：Pro Buy CTA `Close-only · Risk 96%`；Sell / 减仓 / 现货不受影响。Lite 合约卡 `Boost limit reached — close a position first`（优先级低于四种封锁），手机 dock 两钮不置灰。Lovable 只在 UI 禁，后端不拦 |
 | Lite Boost check | 同一个数：条上 `Healthy · 7%`（整数）/ `Getting tight` / `Auto-close soon`；Details 四行 Equity / Used by Boost calls / `Boost usage 7.13%` / Until auto-close starts；不出现 Risk Ratio / Margin 字样。`Est. auto-close ≈` 解 `equity(P) = 交易后 MM`，1× 仓位为 none |
 
-同一账户（Equity $2,003、IM $285.59）：Risk Ratio 7.13%，`Until auto-close starts` $1,864。蓝图无自动强平引擎，只改显示与估算；正式版强平线按 MM / Equity = 100%，MM 比例由风控配置。
+同一账户（Equity $2,003、IM $285.59）：Risk Ratio 7.13%，`Until auto-close starts` $1,864。Lovable 无自动强平引擎，只改显示与估算；正式版强平线按 MM / Equity = 100%，MM 比例由风控配置。
 
 ## 6. Pro 现货终端 /spot
 
@@ -306,7 +306,7 @@ Buy · Sell 页签与 Yes/No 一样按 `事件:结果` 记忆，`/trade` ↔ `/t
 |---|---|
 | `trades.side` | `buy` / `sell`（reduce-only 平仓单为 sell） |
 | `trades.order_type` | `Market` / `Limit`（市价即时成交按真实类型记） |
-| `trades.status` | `Pending` / `Partial Filled` / `Filled` / `Cancelled`；蓝图整单成交，`Partial Filled` 不出现；无已成交数量字段 |
+| `trades.status` | `Pending` / `Partial Filled` / `Filled` / `Cancelled`；Lovable 整单成交，`Partial Filled` 不出现；无已成交数量字段 |
 | `trades.reduce_only` | `boolean not null default false`，限价平仓单 true |
 | `trades.margin` / `trades.fee` | 合约 Buy · Limit 预留 = 两者之和，撤单退回；reduce-only 均 0 |
 | `trades.amount` | 名义额（库约束 > 0） |
@@ -316,9 +316,9 @@ Buy · Sell 页签与 Yes/No 一样按 `事件:结果` 记忆，`/trade` ↔ `/t
 | `category_boost_configs.max_leverage` | Pro 杠杆上限与 Lite Boost 同源；本轮只改数据 |
 | `events.lifecycle_status` | TRADING / EXTENDED_TRADING / FROZEN / SUSPENDED / REVIEW / SETTLING / SETTLED；`is_resolved`、`freeze_time`、`end_date`、`product_lines`、`side_labels`、`metadata`（fixture / sibling） |
 
-蓝图在前端模拟、正式版必须在后端做：
+Lovable 在前端模拟、正式版必须在后端做：
 
-| 项 | 蓝图 | 正式版 |
+| 项 | Lovable | 正式版 |
 |---|---|---|
 | 限价触发成交 | `useContractLimitFills`（桌面 + 手机 `/trade`）、`useSpotTerminal`（现货）按页面打开时的 mark 触发，离页不成交 | 后端撮合，给出 filled 数量 |
 | 冻结撤单 / 退款 | `freeze_expired_events()` + `sim-settle-spot` | 后端 |

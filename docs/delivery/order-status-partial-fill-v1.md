@@ -2,7 +2,7 @@
 
 > **已并入 [`trade-lite-pro-v1.md`](./trade-lite-pro-v1.md)（2026-09-22）**：本文只留档，研发以并入后的总文档为准。
 
-> 2026-09-21 联合验收时 Liya 提出：限价单部分成交时，Current Orders 里应该有提示（hover 看成交进度），桌面和手机都没有。查下来：桌面**合约**表有一个老的 hover（本地 mock 订单时代留下的），桌面**现货**表、手机合约卡、手机现货卡都没有；且蓝图引擎限价撮合是整单成交，`Partial Filled` 在生产上从不出现。本轮把四个挂载点统一到一个组件，并把规格挂进字典给研发。
+> 2026-09-21 联合验收时 Liya 提出：限价单部分成交时，Current Orders 里应该有提示（hover 看成交进度），桌面和手机都没有。查下来：桌面**合约**表有一个老的 hover（本地 mock 订单时代留下的），桌面**现货**表、手机合约卡、手机现货卡都没有；且 Lovable 引擎限价撮合是整单成交，`Partial Filled` 在生产上从不出现。本轮把四个挂载点统一到一个组件，并把规格挂进字典给研发。
 
 ## 0. 读者须知
 
@@ -17,7 +17,7 @@
 | A 位置 | 桌面 `/trade` 与 `/spot` 的 Current Orders 表 Status 列、手机合约 `OrderCard`、手机现货卡的状态标——同一个组件 `OrderStatusBadge` |
 | B 内容 | `Fill progress  480 / 1,200 (40%)` + 进度条 + `Filled` / `Remaining` 两行；沿用字典原「Order Status & Partial Fill」规格，不新造词 |
 | C 条件 | 只有 status = `Partial Filled` 才可展开；桌面 hover（HoverCard），手机点一下（Popover），再点或点外面收起。Pending / Filled / Cancelled 是普通标 |
-| D 数据 | 蓝图引擎照旧整单成交，不模拟部分成交；`UnifiedOrder.filledAmount / remainingAmount` 只有本地 mock 订单带，Supabase `trades` 没有已成交数量字段。研发的真撮合要给到 filled 数量 |
+| D 数据 | Lovable 引擎照旧整单成交，不模拟部分成交；`UnifiedOrder.filledAmount / remainingAmount` 只有本地 mock 订单带，Supabase `trades` 没有已成交数量字段。研发的真撮合要给到 filled 数量 |
 | E 字典 | 原「Order Status & Partial Fill」所在的 `TradingSection` 并未挂载在 `/style-guide`（死文件，未动）；新节挂生产 `SpotOrdersTable` 两个变体，OS-D1 / OS-M1（原 PF-D1 / PF-M1，09-21 改号） |
 
 ## 2. 实现指引
@@ -28,5 +28,5 @@
 
 ## 3. 已知边界
 
-- 生产上 `Partial Filled` 不可达，直到研发接真撮合；蓝图里只在字典看。
+- 生产上 `Partial Filled` 不可达，直到研发接真撮合；Lovable 里只在字典看。
 - 桌面合约表仍是 `DesktopTrading.tsx` 内联 JSX，字典里桌面态用的是现货表（同一个 badge），合约表随 ProContractPanel 提取再补。

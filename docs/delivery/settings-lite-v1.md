@@ -1,5 +1,7 @@
 # Settings 页 Lite 改版 — 交付说明 v1
 
+> 已并入 [email-login-settings-v1.md](./email-login-settings-v1.md)（邮箱登录与 Settings 页改版总文档，2026-09-23），本文只留档；研发以总文档为准。
+
 日期：2026-09-22 · 范围：`/settings`（桌面 + 移动）· 决策：Liya（CPO）逐条签字 24 条行为规则 + mock v5（A 方案 hero）· Lovable commits `e2e5c96d`（产品）/ `65ddc440`（字典）/ 本文档同轮
 
 ## 通俗导读
@@ -110,7 +112,7 @@ Settings 以前是一列窄卡片（`max-w-3xl`），每张卡自带标题和图
 
 ### 4.8 Account（规则 19–21）· `AccountCard.tsx`
 - `Sign out` → 立即登出回首页，无确认。
-- `Close…`：`balance + spot_balance > 0` → 弹窗 `Withdraw your balance first` / `You still have {$x} across Standard and Boost. Withdraw it before closing your account.` + `Go to Wallet`；余额为 0 → 弹窗 `Close your account?` / `Your profile, history and API keys are deleted. This cannot be undone.` / `Type CLOSE to confirm`，输入 `CLOSE` 后红色 `Close account` 才可点。
+- `Close account`（按钮，2026-09-23 由 `Close…` 改全称）：`balance + spot_balance > 0` → 弹窗 `Withdraw your balance first` / `You still have {$x} across Standard and Boost. Withdraw it before closing your account.` + `Go to Wallet`；余额为 0 → 弹窗 `Close your account?` / `Your profile, history and API keys are deleted. This cannot be undone.` / `Type CLOSE to confirm`，输入 `CLOSE` 后红色 `Close account` 才可点。
 - 确认后：Lovable 只登出 + toast `Account closed` → `/`；真实注销在正式平台（§8）。
 
 ### 4.9 移动端（规则 22）
@@ -155,9 +157,9 @@ Settings 以前是一列窄卡片（`max-w-3xl`），每张卡自带标题和图
 5. Notifications：关一个开关 → 刷新仍关（DB `notification_prefs`）；再开回。
 6. Language：选 `日本語` → toast，页头头像菜单 `Language` 显示 `JA`；刷新保持；改回 English。
 7. Sessions：两处登录 → `2 devices`，本机有 `THIS DEVICE`；点 `Sign out other devices` → toast，另一处失效，本卡 `1 device` + `You're only signed in here.`
-8. Account：余额 > 0 点 `Close…` → 余额弹窗 `Go to Wallet`；余额 0 → 确认弹窗，输入 `close`（大小写不敏感）红钮可点；Cancel 关闭。
+8. Account：余额 > 0 点 `Close account` → 余额弹窗 `Go to Wallet`；余额 0 → 确认弹窗，输入 `close`（大小写不敏感）红钮可点；Cancel 关闭。
 9. Withdrawal verification：Wallet 账号无邮箱无 2FA → 琥珀框 + 三项禁用（ST-17）。
-10. 移动 375：单列；Language chip → 底部抽屉列表；`Close…` → 底部抽屉；hero compact 两颗胶囊。
+10. 移动 375：单列；Language chip → 底部抽屉列表；`Close account` → 底部抽屉；hero compact 两颗胶囊。
 11. 字典：`/style-guide` Lite › Settings 30 张样张全部渲染；`npm run sg:audit` PASS。
 
 已在 preview 实机跑过 1–11（2026-09-22，账号 `qa-vis-1@omenx.dev`，桌面 1280 + 移动 375；DB 侧核对 `notification_prefs` / `language` 落库、`list_my_sessions()` 返回、登出其他设备后行数从 2 → 1）。

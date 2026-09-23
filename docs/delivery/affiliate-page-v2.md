@@ -93,14 +93,14 @@ Lite 术语对照表在 `docs/copy-dictionary.md` 顶部；本页受众是合作
 |---|---|---|---|
 | 未登录 | `!user` | 登录会话 | 按钮文案不变；点击打开站内登录门（桌面 `AuthDialog` / 移动 `AuthSheet`）。登录后留在本页，按钮按新状态重算文案；**不自动续做动作** |
 | 已登录 · 非 affiliate | `user && !profile.is_affiliate` | `profiles.is_affiliate`（默认 false） | 按钮是真链接 `<a target=_blank>`，指向 §2 的申请表；文案不变 |
-| 已登录 · affiliate | `profile.is_affiliate === true` | 同上 | 五处文案统一改为 `Open affiliate portal`；**真平台：点击直接跳转已开发好的 Affiliate Portal（`/affiliate/portal`）**。蓝图里没有 portal，所以蓝图上点击弹一个带 `Blueprint only · dev note` 徽标的占位说明框（中英双语写明"直接跳 portal，不要实现这个弹窗"）——**该弹窗不是产品界面，不要实现** |
+| 已登录 · affiliate | `profile.is_affiliate === true` | 同上 | 五处文案统一改为 `Open affiliate portal`；**真平台：点击直接跳转已开发好的 Affiliate Portal（`/affiliate/portal`）**。Lovable 里没有 portal，所以 Lovable 上点击弹一个带 `Blueprint only · dev note` 徽标的占位说明框（中英双语写明"直接跳 portal，不要实现这个弹窗"）——**该弹窗不是产品界面，不要实现** |
 | 已登录 · 会员信息未返回 | `user && isLoading && !profile` | — | 保持 Apply 文案，点击等待，避免文案闪两次 |
 
 字典 AF-7a–d 四帧对应上面四态（帧内按钮可真点）。演示账号：alex_carter 是 affiliate，mia_reyes 不是。
 
 ## 6. 后端边界
 
-| 项 | 蓝图实现 | 真平台 |
+| 项 | Lovable 实现 | 真平台 |
 |---|---|---|
 | "是不是 affiliate" | `profiles.is_affiliate boolean default false` + `affiliate_since timestamptz`（迁移 `supabase/migrations/20260919060000_affiliate_profile_flag.sql`） | 读你们 affiliate 服务的会员状态，字段放哪自选；`affiliate_since` 仅演示 |
 | 申请 | 无后端，跳外部表单 | 同左 |

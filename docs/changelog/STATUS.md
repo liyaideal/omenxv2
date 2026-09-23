@@ -17,7 +17,7 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
-## 2026-09-22 — Settings Lite 改版 ST-1（[文档](../delivery/settings-lite-v1.md)）
+## 2026-09-22 — Settings Lite 改版 ST-1（[文档](../delivery/settings-lite-v1.md)，已并入总文档 [email-login-settings-v1.md](../delivery/email-login-settings-v1.md)）
 
 | # | 项 | Status | Notes |
 |---|---|---|---|
@@ -39,7 +39,7 @@
 
 | # | 项 | Status | Notes |
 |---|---|---|---|
-| TC-1 | 合约 Buy · Limit：Price 框生效、张数按限价、预留 margin + fee、限价 < 侧价挂单 / ≥ 侧价按现价成交、mark ≤ 限价按限价成交、撤单退预留 | ✅ | 蓝图 touch-fill 在前端（`useContractLimitFills`）；正式版后端撮合 |
+| TC-1 | 合约 Buy · Limit：Price 框生效、张数按限价、预留 margin + fee、限价 < 侧价挂单 / ≥ 侧价按现价成交、mark ≤ 限价按限价成交、撤单退预留 | ✅ | Lovable touch-fill 在前端（`useContractLimitFills`）；正式版后端撮合 |
 | TC-2 | 三选一 No 侧：CTA `Buy Not {option}`，Side 写 `Not {option}`；切换钮仍 Yes / No | ✅ | `getIntentLabel(…, multiOutcome)` |
 | TC-3 | 别名 binary No 侧全站显示别名（`Heroic`），`short` 只在后端 | ✅ | 无代码改动，字典 CT-M7 + 词典 |
 | TC-4 | Pro 杠杆上限 = `category_boost_configs.max_leverage`，档位 `boostTiers`，1× 锁死 + `Boost not available for this category` | ✅ | sports 3× / crypto 10× / 其余 5×（09-21 Liya 定，stocks · tech · politics 等由 1× 开到 5×） |
@@ -51,18 +51,18 @@
 | TC-11 | 品类上限 < 2× → Pro 桌面 / 手机面板不渲染 Leverage 行（Lite 同口径）；现货订单簿去 ⚑ 标记价行 + 字典 SP-J0 正常深度态 | ✅ | 09-22 Liya 追加 |
 | TC-10 | 字典补 CT-M8 / CT-M5b / M5c / RM-M0 / RM-M3 / SP-B2b / SL-M3 / TR-27c / TR-28；词典补 11 行；文档残留清理（IM/Equity、ct/sh、旧节点名、DESIGN LOCKED 现货页头废止注） | ✅ | |
 
-## 2026-09-19 — 邮箱 + 密码登录 EM-1（[文档](../delivery/auth-email-v1.md)）
+## 2026-09-19 — 邮箱 + 密码登录 EM-1（[文档](../delivery/auth-email-v1.md)，已并入总文档 [email-login-settings-v1.md](../delivery/email-login-settings-v1.md)）
 
 | # | 项 | Status | Notes |
 |---|---|---|---|
-| EM-A | Google 页签 `Other email` 副钮 → 弹窗 `email` 步（登录 / 注册 / 验证码 / 忘记密码 / 已发送五态，行内错误句） | ✅ | 蓝图已落；`EmailAuthPanel.tsx`，文案在 `emailAuth.ts` |
-| EM-B | 注册顺序：填邮箱密码 → 验证码 → 验证通过才建号 → createWallet → completeProfile（邮箱只读） | ✅ | 蓝图验证码固定 111111 |
-| EM-C | 真实验证码 + 发码前查邮箱是否已注册 | ⬜ | 正式后端；蓝图只能在建号时得知「已注册」 |
+| EM-A | Google 页签 `Other email` 副钮 → 弹窗 `email` 步（登录 / 注册 / 验证码 / 忘记密码 / 已发送五态，行内错误句） | ✅ | Lovable 已落；`EmailAuthPanel.tsx`，文案在 `emailAuth.ts` |
+| EM-B | 注册顺序：填邮箱密码 → 验证码 → 验证通过才建号 → createWallet → completeProfile（邮箱只读） | ✅ | Lovable 验证码固定 111111 |
+| EM-C | 真实验证码 + 发码前查邮箱是否已注册 | ⬜ | 正式后端；Lovable 只能在建号时得知「已注册」 |
 | EM-D | `/reset-password` 四态（loading / form / success / expired），登录前「忘记密码」与登录后「改密码」共用 | ✅ | `ResetPassword.tsx` |
 | EM-E | Settings › Account security `Password` 行（仅邮箱账号）：Change 发重置链接 → `✓ 60s` | ✅ | `AccountSecurityCard.tsx` |
 | EM-F | Settings Linked Account 显示 `Email / Email & password` | ✅ | `Settings.tsx AUTH_METHOD_INFO.email` |
-| EM-G | 服务端在账号创建时建 profile（`auth_method` / `email`） | ⬜ | 本库无 auth.users 触发器，蓝图由前端建行 |
-| EM-H | 改密码后 24 小时禁提现 | ⬜ | 蓝图无提现冻结机制，界面未写 |
+| EM-G | 服务端在账号创建时建 profile（`auth_method` / `email`） | ⬜ | 本库无 auth.users 触发器，Lovable 由前端建行 |
+| EM-H | 改密码后 24 小时禁提现 | ⬜ | Lovable 无提现冻结机制，界面未写 |
 | EM-I | 登录限速（IP + 邮箱）与真实重置邮件通道 | ⬜ | 正式后端 |
 | EM-K | 邮箱账号改登录邮箱：Linked Account `Change` → 两封确认链接（旧 + 新）→ `Pending` 徽标 / 60s / `Resend` → 两封都点后同步 profiles.email + toast；Profile 卡 Email Edit 对邮箱账号隐藏 | ✅ | `LinkedEmailAccountCard.tsx` / `ChangeLoginEmailDialog.tsx`；第 5 步需真实邮箱验（Liya 自测） |
 | EM-L | 登录门（LiteAuthGate）内注册新号，弹窗不再随门卸载，继续 createWallet → completeProfile | ✅ | `LiteAuthGate.tsx` 弹窗提到分支外 |
@@ -72,7 +72,7 @@
 
 | # | 项 | Status | Notes |
 |---|---|---|---|
-| BR-A | 8 枚矢量资产入 `src/assets/brand/`，路径取自品牌书，不重绘 | ✅ | 蓝图已落；研发同名同路径搬即可 |
+| BR-A | 8 枚矢量资产入 `src/assets/brand/`，路径取自品牌书，不重绘 | ✅ | Lovable 已落；研发同名同路径搬即可 |
 | BR-B | `<Logo variant>` 四变体 + 四档尺寸；Mainnet 胶囊随 logo 高度 | ✅ | `Logo.tsx` / `MainnetBadge.tsx` |
 | BR-C | 7 处裸引用收口（海报 ×2 纯白 / Leaderboard ×2 / Affiliate mask 433:65 / Host 头像 ×2 → X 单标） | ✅ | `grep omenx-logo.svg src` 只剩台账 |
 | BR-D | favicon.ico + app-icon.svg + apple-touch-icon；`index.html` 三条 link | ✅ | 硬刷新才换图 |
@@ -98,7 +98,7 @@
 | # | 项 | Status | Notes |
 |---|---|---|---|
 | PF-A | `OrderStatusBadge`：Partial Filled 桌面 hover / 手机点开成交明细（Fill progress + Filled / Remaining） | ⬜ | 四个挂载点同一组件 |
-| PF-B | 研发撮合需回传 filled 数量（蓝图引擎整单成交，不模拟） | ⬜ | 后端 |
+| PF-B | 研发撮合需回传 filled 数量（Lovable 引擎整单成交，不模拟） | ⬜ | 后端 |
 | PF-C | 字典 OS-D1 / OS-M1（原 PF-D1 / PF-M1，09-21 改号） | ⬜ | |
 
 ## 2026-09-17 — Pro 终端不可下单态 DK-1（[文档](../delivery/pro-order-gate-v1.md)）
@@ -159,8 +159,8 @@
 |---|---|---|---|
 | CT-A | 面板页签行：Buy · Sell + Market/Limit 下拉，替换下划线页签（桌面 + 手机） | ⬜ | 与 `/spot` 面板同一 markup |
 | CT-B | Sell 页签：只减仓 / 平仓当前净额仓位，空仓禁用、永不反向；数量单位 ct | ⬜ | 口径见文档 §2 |
-| CT-C | 市价平仓走持仓表 Close 同一路径（保证金释放 + 已实现盈亏 − 5% 赢利佣金） | ⬜ | 蓝图 `partialClosePosition` |
-| CT-D | 限价平仓 = reduce-only 挂单（`trades.reduce_only`，margin 0 / fee 0 / amount = 名义额，不动余额）+ Current Orders `Close` Side 标 + `Reduce-only` 标 | ⬜ | 撮合由后端；蓝图为前端 touch-fill。顺手修：桌面 Cancel 此前不落库 |
+| CT-C | 市价平仓走持仓表 Close 同一路径（保证金释放 + 已实现盈亏 − 5% 赢利佣金） | ⬜ | Lovable `partialClosePosition` |
+| CT-D | 限价平仓 = reduce-only 挂单（`trades.reduce_only`，margin 0 / fee 0 / amount = 名义额，不动余额）+ Current Orders `Close` Side 标 + `Reduce-only` 标 | ⬜ | 撮合由后端；Lovable 为前端 touch-fill。顺手修：桌面 Cancel 此前不落库 |
 | CT-E | 手机：市价 → ClosePositionDialog；限价 → /order-preview reduce-only 预览；页签状态按事件:结果记忆 | ⬜ | |
 | CT-F | 字典 CT-M1…CT-M4（`/style-guide#pro-trade-order`） | ⬜ | 桌面面板未组件化，待 `ProContractPanel` 提取后补 |
 | CT-G | 引擎口径统一：买反向结果的自动减仓也应扣赢利佣金 | ⚠️ | 真平台按持仓表 Close 口径，见文档 §8 |
@@ -174,8 +174,8 @@
 | AF-G | 桌面 / 移动整页按设计稿重绘（编号并入 eyebrow、h2 56、卡片化、数据 / CTA 暗带） | ⬜ | 文案、数字、路由、外链零变化；以生产页 + 字典为准 |
 | AF-H | 桌面固定点导航 `AffiliateDotNav`（01–06，滚动联动，≥1400px 显示） | ⬜ | 移动端保留 pill 跳转条 |
 | AF-I | 插画位 `AffiliateArt`：18 幅按文件名解析，缺失时生产不渲染 | ⬜ | 资产待 CPO 导出；清单见组件头注释 |
-| AF-J | `/style-guide#lite-affiliate` AF-1…AF-6 按新视觉更新 | ⬜ | 蓝图侧已落 |
-| AF-K | Apply 按钮三态：guest → 登录门 / member → 申请表 / affiliate → `Open affiliate portal` + portal 说明框 | ⬜ | 文档 §5A；`profiles.is_affiliate` 蓝图标记位；字典 AF-7a–d |
+| AF-J | `/style-guide#lite-affiliate` AF-1…AF-6 按新视觉更新 | ⬜ | Lovable 侧已落 |
+| AF-K | Apply 按钮三态：guest → 登录门 / member → 申请表 / affiliate → `Open affiliate portal` + portal 说明框 | ⬜ | 文档 §5A；`profiles.is_affiliate` Lovable 标记位；字典 AF-7a–d |
 | AF-L | 素材全部入仓（hero 视频循环 + 10 幅插画） | ⬜ | 台账 Ⓗ 组 |
 | AF-M | 桌面顶栏主导航 Leaderboard → Affiliate（Leaderboard 留 footer + 移动个人菜单）；移动个人菜单 Rewards 后新增 `Affiliate Program` | ⬜ | |
 
@@ -188,7 +188,7 @@
 | AF-C | 视觉按 DESIGN.md §19.4 尺度 L（单一底色、字阶、陈列框、pill 跳转链、logo tile） | ⬜ | |
 | AF-D | 移动端：单列 + sticky Apply now（hero 滚出后浮出） | ⬜ | |
 | AF-E | Hero 插画资产 `affiliate-hero-lynx.png` 双端 | ⬜ | 待 CPO 提供；缺失时该位不渲染 |
-| AF-F | `/style-guide#lite-affiliate` AF-1…AF-5 | ⬜ | 蓝图侧已落 |
+| AF-F | `/style-guide#lite-affiliate` AF-1…AF-5 | ⬜ | Lovable 侧已落 |
 
 ## 2026-09-09 — 现货 Pro 交易页 v1（[文档](../delivery/spot-pro-v1.md)）
 

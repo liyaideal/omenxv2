@@ -599,10 +599,10 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | Key | 文案 | 何时出现 |
 |---|---|---|
 | `PORTAL.cta` | Open affiliate portal | affiliate 状态下五处 Apply 按钮统一文案 |
-| `PORTAL.badge` | Blueprint only · dev note | 说明框顶部 volt 徽标——这个弹窗是给研发看的蓝图占位，不是产品界面 |
+| `PORTAL.badge` | Blueprint only · dev note | 说明框顶部 volt 徽标——这个弹窗是给研发看的 Lovable 占位，不是产品界面 |
 | `PORTAL.title` | Affiliate portal | 说明框标题 |
 | `PORTAL.body` | On the live platform this button navigates straight to the existing Affiliate Portal ({path}). The portal is already built outside this blueprint, so this dialog is only a placeholder for the blueprint — do not implement it. | 说明框正文，`{path}` = `/affiliate/portal` |
-| `PORTAL.bodyZh` | 研发注：真平台上这个按钮直接跳转到已经开发好的 Affiliate Portal（{path}）。Portal 不在本蓝图里，本弹窗只是蓝图占位，不要实现这个弹窗。 | 同上中文版，与英文并列显示 |
+| `PORTAL.bodyZh` | 研发注：真平台上这个按钮直接跳转到已经开发好的 Affiliate Portal（{path}）。Portal 不在本 Lovable 里，本弹窗只是 Lovable 占位，不要实现这个弹窗。 | 同上中文版，与英文并列显示 |
 | `PORTAL.close` | Got it | 说明框关闭按钮 |
 
 ## Auth · Email（登录弹窗「Other email」/ `/reset-password` / Settings，2026-09-19）
@@ -613,7 +613,7 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | 词 | 一句定义 | 判定表达式 | 出处 |
 |---|---|---|---|
 | email account（邮箱账号） | 用邮箱 + 密码注册的账号 | `profiles.auth_method === "email"` | `starterProfile.ts` 写入；Settings / completeProfile 读取 |
-| verify code（验证码） | 注册时发到邮箱的 6 位数字；蓝图站固定 111111 且不真发 | `code === DEMO_VERIFY_CODE` | `emailAuth.ts` |
+| verify code（验证码） | 注册时发到邮箱的 6 位数字；Lovable 站固定 111111 且不真发 | `code === DEMO_VERIFY_CODE` | `emailAuth.ts` |
 | email change（改登录邮箱） | 邮箱账号换登录邮箱；Supabase「安全改邮箱」开启：旧、新邮箱各收一封链接，两封都点才换 | `supabase.auth.updateUser({ email })`；等待中 `user.new_email` 有值 | `emailAuth.ts requestEmailChange`，`LinkedEmailAccountCard` |
 | reset link（重置链接） | 发到邮箱的一次性链接，落地 `/reset-password`；登录前「忘记密码」与登录后「改密码」共用 | `resetPasswordForEmail(email, { redirectTo: origin + "/reset-password" })` | `emailAuth.ts sendPasswordReset` |
 | resend cooldown | 重发 / 重置后的 60 秒禁用期 | `RESEND_COOLDOWN_SECONDS = 60` | `emailAuth.ts` |
@@ -706,7 +706,7 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | {Chrome · macOS} · **THIS DEVICE** · {ip} · {now / {n} min ago / {n} h ago / Sep 15} · Unknown device · Unknown location | Sessions 行 |
 | You're only signed in here. · Sign out other devices · Signed out other devices · Couldn't sign out other devices. Try again. | Sessions 脚注 / 按钮 / toast |
 | Couldn't load sessions / Check your connection and try again. · Retry | Sessions 错误行 |
-| Sign out / Signs out this device only · Close account / Withdraw your balance first. This cannot be undone. · Close… | Account 卡 |
+| Sign out / Signs out this device only · Close account / Withdraw your balance first. This cannot be undone. · Close account | Account 卡 |
 | **Withdraw your balance first** / You still have {$x} across Standard and Boost. Withdraw it before closing your account. · Cancel · Go to Wallet | Close account · 余额未清弹窗 |
 | **Close your account?** / Your profile, history and API keys are deleted. This cannot be undone. · Type **CLOSE** to confirm · Cancel · Close account · Account closed | Close account · 确认弹窗 / toast |
 | Transparency audit / Verify assets, trades and auto-closes on-chain · API management / API keys for programmatic trading | More 卡（"liquidations" 已按 Lite 禁词改 "auto-closes"） |

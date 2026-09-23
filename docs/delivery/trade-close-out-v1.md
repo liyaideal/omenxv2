@@ -23,7 +23,7 @@
 | 挂 / 成交 | 限价 ≥ 现侧价 → 立即按**现价**成交（等同市价）；限价 < 现侧价 → `Pending`，Current Orders 一行；现价跌到 ≤ 限价时自动按**限价**成交，开仓 entry = 限价（已有同向仓位则加权合并、杠杆按 notional 混合），toast `Limit buy filled at your price` |
 | 提示句 | 会挂单时 Price 框下方一行 `Limit below mark — order will rest as Pending until touched.` |
 | 撤单 | Current Orders `Cancel` 退回 保证金 + 手续费（之前不退） |
-| 不做 | 挂单不做净额对冲：`classifyOrderIntent` 已禁止跨零挂单，所以成交时不会有反向仓位；蓝图成交由前端 touch-fill 模拟（`useContractLimitFills`，桌面与手机 `/trade` 都挂），正式版撮合在后端 |
+| 不做 | 挂单不做净额对冲：`classifyOrderIntent` 已禁止跨零挂单，所以成交时不会有反向仓位；Lovable 成交由前端 touch-fill 模拟（`useContractLimitFills`，桌面与手机 `/trade` 都挂），正式版撮合在后端 |
 
 ### #2 三选一 Winner 的 No 侧（Pro `/trade` 桌面 + 手机）
 
@@ -86,7 +86,7 @@ localStorage `omenx_pro_visited:<uid>` = 按账号 **+ 按设备**：换一台�
 
 Pro 合约挂单真的会挂、会成交、撤单退钱；三选一 No 侧不再写 `Sell Draw`；杠杆上限跟 Lite 一样按品类；停牌事件两条线都只许撤单；账户 Risk ≥ 95% 时只许平仓；桌面面板终于在字典里。
 
-## 3. 实现指引（蓝图 = 参考实现）
+## 3. 实现指引（Lovable = 参考实现）
 
 - `src/lib/contractGate.ts`：+ `SUSPENDED → "Suspended · cancel only"`。
 - `src/lib/positionIntent.ts`：`getIntentLabel(intent, uiSide, sideLabels, multiOutcome)` 第四参；多选项 No 侧 → `Buy Not {label}`。
@@ -107,7 +107,7 @@ Pro 合约挂单真的会挂、会成交、撤单退钱；三选一 No 侧不再
 |---|---|
 | 成交模拟 | 合约 / 现货限价单成交都由前端在页面打开时按 mark 触发；离开页面不成交。正式版撮合在后端 |
 | 限价单不净额 | 合约挂单成交只开仓 / 加仓，不对冲反向仓位（放单时已禁止跨零） |
-| Close-only 与引擎 | 蓝图只在 UI 禁开仓；后端不拦。正式版服务端要同样校验 |
+| Close-only 与引擎 | Lovable 只在 UI 禁开仓；后端不拦。正式版服务端要同样校验 |
 | 杠杆上限来源 | 只读 `category_boost_configs`；品类未配置 = 1× |
 | G5 现货冻结灰条 | 仍等真冻结窗口在生产亲验 |
 

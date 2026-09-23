@@ -30,7 +30,7 @@
 | 永不反向 | Sell 数量上限 = 持仓数量，超出即钳到持仓数量（全平）。没有"卖出超过持仓变成开空"这回事。 |
 | 单位 | 合约张数，全词 `contracts`（Amount 后缀 `Contracts`），整数，不用缩写。滑杆 25 / 50 / 75 / 100% 取整；100% = 精确持仓数量。 |
 | 市价平仓 | 与持仓表 Close 按钮**同一条路径**（`partialClosePosition`）：释放对应比例保证金 + 已实现盈亏 − 赢利佣金，写账本，弹 `Cashed out · $X back`。 |
-| 限价平仓 | 生成一张 **reduce-only** 挂单：`side = sell`、`order_type = Limit`、`margin = 0`、`fee = 0`、`reduce_only = true`，**下单不动余额**。Current Orders 表该行 Side 列显示红色 `Close` 标、类型列带 `Reduce-only` 标；`amount` 列存平仓名义额（张数 × 限价，库约束要求 > 0）。撤单只改状态，无退款。mark 触及限价时按市价平仓同一条路径成交（蓝图侧为前端 touch-fill 模拟，见 §8）。 |
+| 限价平仓 | 生成一张 **reduce-only** 挂单：`side = sell`、`order_type = Limit`、`margin = 0`、`fee = 0`、`reduce_only = true`，**下单不动余额**。Current Orders 表该行 Side 列显示红色 `Close` 标、类型列带 `Reduce-only` 标；`amount` 列存平仓名义额（张数 × 限价，库约束要求 > 0）。撤单只改状态，无退款。mark 触及限价时按市价平仓同一条路径成交（Lovable 侧为前端 touch-fill 模拟，见 §8）。 |
 | 佣金 | 赢利佣金 = `5% × max(已实现盈亏 − 已分摊开仓费, 0)`，亏损为 0。与 `pro-trade-v4-cleanup-v1.md` 同一实现 `cashBackOnClose()`。 |
 | 隐藏项 | Sell 页签下不显示杠杆、TP/SL、"先平反向仓"提示。Available 保留，旁边有 ⇄ 划转入口。 |
 
@@ -82,11 +82,11 @@
 
 减仓 20 contracts：以上各项 × 20/40（Released 2.48，PnL +1.20，佣金 0.06，You receive 3.62）。
 
-## 8. 已知缺口与蓝图说明（提缺陷前先对表）
+## 8. 已知缺口与 Lovable 说明（提缺陷前先对表）
 
 - **限价平仓的撮合是前端模拟**（`DESKTOP /trade` 页内 touch-fill：mark 触及限价即成交）。真平台由后端撮合；手机页不跑这个循环，挂单要等桌面页或后端成交。
 - **桌面面板未组件化**：`/trade` 右栏面板仍是页面内联 JSX，字典里只能挂手机版 `TradeForm`（CT-M1…M4）；桌面规格与手机一致，以生产页为准。待提取为 `ProContractPanel` 后补 `pro-trade-panel-*` 四态。
 - **引擎不一致（QA 注意）**：面板 Buy 页签"买反向结果触发的自动减仓"走 `executeTrade`，**不扣赢利佣金**；Sell 页签与持仓表 Close 走 `partialClosePosition`，**扣**。真平台请统一为后者口径。
-- **不在本特性范围**：合约 Buy 限价单在蓝图侧从不成交、且面板输入的限价没有随单提交（沿用 mark）——历史问题，未动。
+- **不在本特性范围**：合约 Buy 限价单在 Lovable 侧从不成交、且面板输入的限价没有随单提交（沿用 mark）——历史问题，未动。
 - Lite 面的平仓仍是持仓卡 `Cash out`，未动。
 - **顺手修掉的历史缺陷（写给 QA 对表）**：Buy 页签的 `Amount ⇄ Qty` 切换从未接入计算（只改标签、藏后缀），已删除，Buy 一律输 USDC；桌面 Current Orders 的 Cancel 此前对登录用户从不生效（成功 toast 照弹、库里仍 Pending），现已修；手机市价平仓确认框此前总是 100% 开启，现按 Sell 页签填的数量预填。
