@@ -48,10 +48,25 @@ Deno.serve(async (req) => {
 
     const rules = (entry.rules ?? {}) as Record<string, unknown>
     const tasks = Array.isArray(rules.tasks) ? (rules.tasks as Array<Record<string, unknown>>) : []
-    const task = tasks.find((t) => t.task_key === body.taskKey)
+    // Tiered tasks: `<task_key>#t<n>` names tier n (1-based) of a `type: "tiered"` task;
+    // the reward comes from tiers[n-1]. USDC tiers never reach here — the DB trigger
+    // credits them on reach — so only voucher tiers are claimable through this path.
+    const tierMatch = /^(.+)#t(\d+)$/.exec(body.taskKey)
+    const parentKey = tierMatch ? tierMatch[1] : body.taskKey
+    const tierIndex = tierMatch ? Number(tierMatch[2]) - 1 : -1
+    const task = tasks.find((t) => t.task_key === parentKey)
     if (!task) return json({ error: 'Task not found on this entry' }, 404)
 
-    const reward = (task.reward ?? {}) as { voucher?: number; usdc?: number }
+    let reward: { voucher?: number; usdc?: number }
+    if (tierMatch) {
+      const tiers = Array.isArray(task.tiers) ? (task.tiers as Array<Record<string, unknown>>) : []
+      if (task.type !== 'tiered' || tierIndex < 0 || tierIndex >= tiers.length) {
+        return json({ error: 'Tier not found on this task' }, 404)
+      }
+      reward = (tiers[tierIndex].reward ?? {}) as { voucher?: number; usdc?: number }
+    } else {
+      reward = (task.reward ?? {}) as { voucher?: number; usdc?: number }
+    }
     const faceValue = Number(reward.voucher ?? 0)
     if (!faceValue) return json({ error: 'This task has no voucher reward to claim' }, 400)
 
