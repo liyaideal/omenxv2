@@ -91,3 +91,24 @@ export const TennisScoreText = ({
     </>
   );
 };
+
+/**
+ * 所有列表面的比分串入口：网球走 TennisScoreText，其他运动原样。
+ * `tennisBase` 不传时网球与其他运动同字号（行内场景）；卡片中央位需要传更小的网球字号。
+ */
+export const MatchScoreText = ({
+  sport,
+  score,
+  base,
+  tennisBase,
+}: {
+  sport: string | null | undefined;
+  score: string | null | undefined;
+  base: number;
+  tennisBase?: number;
+}): ReactNode =>
+  sport === "tennis" ? (
+    <TennisScoreText score={score} base={tennisBase ?? base} />
+  ) : (
+    score || "\u2013"
+  );

@@ -172,6 +172,27 @@ const SPORTS_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "events-ev9t",
+    label: "EV-9t · 网球抢七比分串（LiteSportsView Playing now / MobileSportsModule）",
+    note:
+      "供应商 metadata.score 网球串形如 `5-7, 7-6(7-2), 6-6`，展示前必须经 tennisScore formatter，禁止原样渲染。抢七盘只在输方一侧上标（ATP/WTA 记法，赢方分可推导）；减号 U+2013。同一 formatter 也覆盖 SportsStageCard / HomeSportsCard / Calendar 行。",
+    spec: [
+      { state: "抢七盘已决", when: "sport === \"tennis\" && 该盘 7–6/6–7 且带括号点数", visual: "`5–7, 7–6², 2–1`——输方数字后上标输方点数；上标 = 主字号 ×0.5 / 600 / top −(主字号 ×0.35) / opacity .85", source: "TennisScoreText" },
+      { state: "抢七进行中", when: "sport === \"tennis\" && 最后一盘 6–6", visual: "比分串写 `6–6`（点数不进列表），联赛行追加橙色 ` · Tiebreak`（#FF8A3D）", source: "isTennisTiebreakLive" },
+      { state: "网球主字号", when: "sport === \"tennis\"", visual: "列表卡 32→26、舞台卡 24→20、移动卡 20→16；行内场景（Home / Calendar）不缩", source: "MatchScoreText tennisBase" },
+      { state: "非网球", when: "sport !== \"tennis\"", visual: "原样 `1 – 0`，零变化", source: "MatchScoreText" },
+      { state: "解析失败", when: "parseTennisScore(score) === null", visual: "回退原串", source: "TennisScoreText" },
+    ],
+  },
+  {
+    key: "events-ev9t2",
+    label: "EV-9t2 · 网球抢七进行中置顶（移动模块只置顶一场 live）",
+    note: "同 EV-9t 数据，把最后一盘 6–6 的那场放到第一位——移动 MobileSportsModule 只渲染第一场 live，此帧专供看 `· Tiebreak` 联赛行与 16px 比分串。",
+    spec: [
+      { state: "抢七进行中置顶", when: "matches[0] 为 6–6 场", visual: "联赛行 `WTA · 3RD SET · TIEBREAK`（橙），比分串 `6²–7, 6–6`", source: "MobileSportsModule / LiteSportsView" },
+    ],
+  },
+  {
     key: "events-ev10",
     label: "EV-10 · day-rail 过滤（HomeSportsCard）",
     note: "fixture 只注初始 bucket（buildDayStrip 首个非 all 日），不传即生产默认 all。",
@@ -1208,9 +1229,9 @@ export const EventsStatesSection = () => (
         </div>
       </SubSection>
 
-      <SubSection title="⑥ Sports 卡（EV-9 / EV-9e / EV-10 / EV-31）">
+      <SubSection title="⑥ Sports 卡（EV-9 / EV-9e / EV-9t / EV-9t2 / EV-10 / EV-31）">
         <Pair
-          cases={byKey("events-ev9", "events-ev9e", "events-ev10", "events-ev31")}
+          cases={byKey("events-ev9", "events-ev9e", "events-ev9t", "events-ev9t2", "events-ev10", "events-ev31")}
           desktopMin={620}
           mobileMin={720}
         />

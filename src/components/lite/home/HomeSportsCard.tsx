@@ -11,6 +11,7 @@ import {
   matchesInBucket,
 } from "@/components/lite/sports/sportsData";
 import { HomeCard, HomeEyebrow, HomeQuestion, MUTED, ORANGE } from "./homeShell";
+import { MatchScoreText } from "@/components/lite/sports/tennisScore";
 
 const CYAN = "#33D6FF";
 const INK = "#2A1200";
@@ -204,7 +205,15 @@ const MatchTitle = ({ m, live }: { m: SportsMatch; live: boolean }) => (
   >
     {live && m.score ? (
       <>
-        {m.home} <span className="font-display">{prettyScore(m.score)}</span> {m.away}
+        {m.home}{" "}
+        <span className="font-display">
+          {m.sport === "tennis" ? (
+            <MatchScoreText sport={m.sport} score={m.score} base={15.5} />
+          ) : (
+            prettyScore(m.score)
+          )}
+        </span>{" "}
+        {m.away}
       </>
     ) : (
       `${m.home || m.name} vs ${m.away}`

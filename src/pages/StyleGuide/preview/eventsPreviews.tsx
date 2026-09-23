@@ -17,6 +17,7 @@ import { IntradayStageCard } from "@/components/lite/allstage/IntradayStageCard"
 import { MobileIntradayModule } from "@/components/lite/mobile/MobileIntradayModule";
 import { SportsStageCard } from "@/components/lite/sports/SportsStageCard";
 import { MobileSportsModule } from "@/components/lite/mobile/MobileSportsModule";
+import { LiteSportsView } from "@/components/lite/categoryviews/LiteSportsView";
 import {
   COINS,
   type Coin,
@@ -707,6 +708,39 @@ const SPORTS_FIXTURE: SportsMatch[] = [
   }),
 ];
 
+/** 网球抢七两态（供应商比分串原样喂入，展示层 formatter 负责上标）。 */
+const TENNIS_FIXTURE: SportsMatch[] = [
+  {
+    ...match({
+      id: "sg-sp-wta-tb-done",
+      league: "WTA",
+      home: "Tatiana Prozorova",
+      away: "Sofia Costoulas",
+      homeAbbr: "PRO",
+      awayAbbr: "COS",
+      kickoff: new Date(Date.now() - 96 * 60_000),
+      options: [opt("sg-sp-wta-tb-done-h", "Tatiana Prozorova", 0.53), opt("sg-sp-wta-tb-done-a", "Sofia Costoulas", 0.47)],
+      live: { minute: 96, score: "5-7, 7-6(7-2), 2-1", phase: "3rd set" },
+    }),
+    sport: "tennis",
+  },
+  {
+    ...match({
+      id: "sg-sp-wta-tb-live",
+      league: "WTA",
+      home: "Tamara Zidansek",
+      away: "Kimberly Birrell",
+      homeAbbr: "ZID",
+      awayAbbr: "BIR",
+      kickoff: new Date(Date.now() - 118 * 60_000),
+      options: [opt("sg-sp-wta-tb-live-h", "Tamara Zidansek", 0.29), opt("sg-sp-wta-tb-live-a", "Kimberly Birrell", 0.71)],
+      live: { minute: 118, score: "6-7(2-7), 6-6", phase: "3rd set" },
+    }),
+    sport: "tennis",
+  },
+  ...SPORTS_FIXTURE.slice(0, 2),
+];
+
 /** League break — no fixtures at all. */
 const EMPTY_SPORTS_FIXTURE: SportsMatch[] = [];
 
@@ -748,6 +782,31 @@ export const Ev9Preview = () => (
 export const Ev9ePreview = () => (
   <Stage>
     <SportsDemo matches={EMPTY_SPORTS_FIXTURE} />
+  </Stage>
+);
+
+/** EV-9t · 网球抢七比分串：桌面 = 品类页 LiteSportsView「Playing now」，移动 = MobileSportsModule。 */
+const TennisListDemo = ({ liveFirst = false }: { liveFirst?: boolean }) => {
+  const isMobile = useIsMobile();
+  // 移动模块只置顶一场 live，所以两态各给一个 case：默认抢七已决在前，liveFirst 把抢七进行中放到第一位。
+  const rows = liveFirst
+    ? [TENNIS_FIXTURE[1], TENNIS_FIXTURE[0], ...TENNIS_FIXTURE.slice(2)]
+    : TENNIS_FIXTURE;
+  if (isMobile) {
+    return <MobileSportsModule matches={rows} onOpenAll={() => undefined} />;
+  }
+  return <LiteSportsView matches={rows} now={Date.now()} />;
+};
+
+export const Ev9tPreview = () => (
+  <Stage>
+    <TennisListDemo />
+  </Stage>
+);
+
+export const Ev9t2Preview = () => (
+  <Stage>
+    <TennisListDemo liveFirst />
   </Stage>
 );
 

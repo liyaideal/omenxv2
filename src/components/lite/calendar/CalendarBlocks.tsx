@@ -7,6 +7,7 @@
 import { AssetAvatar } from "@/components/lite/AssetAvatar";
 import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader";
 import { kickoffCell } from "@/components/lite/sports/sportsData";
+import { MatchScoreText } from "@/components/lite/sports/tennisScore";
 import {
   CalItem,
   TicketView,
@@ -671,7 +672,7 @@ export const SportsBlock = ({
                 fontVariantNumeric: "tabular-nums",
               }}
             >
-              {m.score}
+              <MatchScoreText sport={m.sport} score={m.score} base={17} />
             </span>
           )}
         </span>
