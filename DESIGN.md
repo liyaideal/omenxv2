@@ -1792,6 +1792,29 @@ Don't：用 `new Date()` 本地偏移伪造 session 态；用 `Date.now()` 派�
 
 **同期成文的结构规则**：分段盘口板的分组头（`LiteBoardGroupHeader`）左侧是组名、右侧是注记；注记三态为「已打完 → `Final {比分}`」「进行中 → 橙药丸 + 现比分」「未开打 → `Not played yet`」，且**只能**由 `boardGroupAnnotation()` 一处产出。记分牌的运动形态（列数、列宽、表头词、大数字口径）由 `SegmentSpec` 决定，见 `docs/delivery/sports-live-board-v1.md` §2b。
 
+## §Addendum 2026-09-23 · 网球抢七比分（LOCKED）
+
+**适用范围**：`LiveMatchboard`（桌面矩阵 + 移动条）、`LiteSportsView` Playing now 卡、`SportsStageCard`、`MobileSportsModule`、`HomeSportsCard` live 行、`CalendarBlocks` live 行。判定字段与数据契约见 `docs/delivery/sports-live-board-v1.md` §4.6，词条见 copy-dictionary「Sports」节。
+
+**1 · 上标原子**
+抢七点数永远是**上标**，不是括号、不是同字号第四个数字。桌面矩阵格子：`9px / 600 / position relative top −6px / margin-left 1px / opacity .85`，颜色**继承格子赢输色**（白 / `#5B6270`），主数字 14px 不变。单行比分串：`主字号 ×0.5 / 600 / top −(主字号 ×0.35) / margin-left 2px / opacity .85`。两位数点数（`7¹⁰`）照放，62px 格子放得下。
+
+**2 · 谁标、标几个**
+- 桌面矩阵每行是一个人：**两行各标自己的点数**（`7⁷` / `6²`，同 Polymarket）。
+- 单行比分串空间紧：**只在输方一侧标输方点数**（`5–7, 7–6², 6–6`，ATP/WTA 记法，赢方点数可推导）。
+- 两处规则不同是有意的，不许统一成任一种。
+
+**3 · 抢七进行中**
+格子只放局数（`6` / `6`），点数不进格子也不进列表串。点数只出现在记分牌右上角，形态 `TB 5–3`：`TB` 用状态橙 `#FF8A3D`（本文件「方向色语义」里的进行中轴，非选边色），数字沿用 `#C9D1DA`；桌面 14px / 移动 12px，位置不变。上下文行在 `Set n` 与 `serving` 之间插 `Tiebreak`；列表卡联赛行追加橙色 ` · Tiebreak`。
+
+**4 · 网球主字号**
+三盘串远长于 `1 – 0`，卡片中央位（两个名字之间）按比例缩：列表卡 32→**26**、舞台卡 24→**20**、移动卡 20→**16**，`white-space: nowrap`。行内场景（首页 live 行 15.5、Calendar 行 17）不缩。其他运动字号零变化。
+
+**5 · 减号**
+网球所有比分的减号一律 U+2013 EN DASH（与右上角局分 `30–15` 同一条规则），盘间分隔 `, `。
+
+**禁令**：任何面原样渲染供应商比分串 `7-6(7-2)`；把抢七点数放进矩阵格子；用括号；上标改用选边蓝/volt；决胜盘超级抢七本轮不做（不要擅自扩展 `SegmentSpec`）。
+
 ## §Addendum 2026-09-07 · Auth 弹窗（登录/注册）双端规范（LOCKED）
 
 **适用范围**：`src/components/auth/AuthDialog.tsx`（桌面）、`AuthSheet.tsx`（移动）、`AuthContent.tsx` 的 `login` 步骤。`createWallet` / `completeProfile` 两步不在本规范内。

@@ -107,7 +107,38 @@
 
 ### 4.4 三种运动只在字典里可见
 
-篮球、网球、LOL·Dota 三种形态**已经实现**，但这三类赛事目前不入库，所以**只能在 `/style-guide` 的 `Sports · Live` 里看到，生产页上没有**。这是有意为之的既定状态（CPO 确认可接受）：形态先行，等有真实赛事源再补数据。
+篮球、LOL·Dota 两种形态**已经实现**，但这两类赛事目前不入库，所以**只能在 `/style-guide` 的 `Sports · Live` 里看到，生产页上没有**。这是有意为之的既定状态（CPO 确认可接受）：形态先行，等有真实赛事源再补数据。网球自 2026-09-23 起有一条常驻演示赛事 `demo-live-wta`（见 §9），生产页可见。
+
+### 4.6 网球抢七（2026-09-23 追加）
+
+网球一盘打到 6–6 进入抢七（tiebreak），抢七点数是「这一盘有多惊险」的唯一证据（7–6⁽⁵⁾ 和 7–6⁽⁰⁾ 是两场完全不同的比赛），ATP/WTA 官方、Flashscore、Sofascore、Polymarket 全部用**上标**展示。本站三个面统一如下，全部规则同时写进 DESIGN.md §Addendum 2026-09-23 与词典。
+
+**数据**
+- 记分牌读 `metadata.segment_results[i].tb = { home, away }`：盘打到 6–6 进入抢七时写入并随每分更新；盘以 7–6 / 6–7 结束后保留为终值。缺 `tb` = 零视觉变化（向后兼容）。
+- 列表面读供应商比分串 `metadata.score`，网球串形如 `5-7, 7-6(7-2), 6-6`。**展示前必须经 `tennisScore.tsx` 的 formatter，任何地方禁止原样渲染这串**——上线前列表卡就是原样渲染的，括号里的 `7-2` 与盘分同字号，看起来像第四个比分。
+- `sport === "tennis"` 由 `metadata.sport` 决定；`SportsMatch.sport` 新增（可选）。
+
+**记分牌（`/trade` 桌面矩阵）**
+| 态 | 判定 | 长什么样 |
+|---|---|---|
+| 抢七盘已决 | `isTiebreakSet(r)`：max(home, away) = 7、差 1、带 `tb` | 盘分右侧上标，**两行各标自己的点数**：`7⁷` / `6²`。上标 9px / 600 / 相对上移 6px / 左距 1px / 不透明度 .85，颜色继承格子赢输色 |
+| 抢七进行中 | `tiebreakLive`：status live、`unit === "set"`、当前盘 6–6 且带 `tb` | 格子仍写 `6` / `6`（点数不进格子）；右上角局分换成抢七点数并前缀橙色 `TB`（`TB 5–3`）；上下文行 `WTA · Set 3 · Tiebreak · Costoulas serving` |
+| 抢七结束 | 盘分变 7–6，`tb` 保留终值 | 回到「已决」形态，右值回到局分 |
+| 非抢七盘 | 其他盘分 | 永不带上标 |
+
+**记分牌（移动条）**：只显示盘数总分，不露各盘细分，所以已决的抢七这里不出现；唯一变化是抢七进行中右值 `TB 5–3`（内联 62 与吸顶 45 两形态相同）。
+
+**列表面（`LiteSportsView` Playing now / `SportsStageCard` / `MobileSportsModule` / `HomeSportsCard` / Calendar 行）**
+| 规则 | 值 |
+|---|---|
+| 记法 | ATP/WTA 标准：抢七盘**只在输方一侧上标输方点数**（`5–7, 7–6², 6–6`），赢方点数可推导（7 或 输方 + 2）。桌面矩阵每行是一个人所以两行都标；单行串空间紧所以只标一侧——两处规则不同是有意的 |
+| 减号 | 一律 U+2013 EN DASH（同右上角局分规范），盘间 `, ` |
+| 抢七进行中 | 比分串写 `6–6`（点数不进列表，想看细节点进直播页）；联赛行追加橙色 ` · Tiebreak` |
+| 网球主字号 | 三盘串远长于 `1 – 0`，卡片中央位按比例缩：列表卡 32→**26**、舞台卡 24→**20**、移动卡 20→**16**；行内场景（首页 live 行、Calendar 行）不缩。上标 = 主字号 ×0.5、上移主字号 ×0.35、左距 2px、不透明度 .85 |
+| 解析失败 | 回退原串（不会白屏） |
+| 非网球 | 零变化 |
+
+**不在本轮**：决胜盘 10 分超级抢七（双打 / 部分赛事）——WTA 单打用不到，等有真实赛事再补；`SegmentSpec` 不需要改。
 
 ### 4.5 红线：同一个数字只能有一处实现
 
@@ -195,6 +226,8 @@
 |---|---|
 | `demo-live-cs2` | 永远处在「直播中」 |
 | `demo-prekick-cs2` | 永远处在「即将开赛」 |
+| `demo-live-wta` | 网球，永远处在「直播中 · 第三盘抢七进行中」，S2 由抢七决出（7⁷ / 6²）——静态，不由定时任务推进 |
+| `demo-final-wta` | 网球，已结算（2–1，S2 与决胜盘都是抢七），看已决抢七上标随整卡淡出 |
 
 它们的存在是为了让研发和测试任何时候都有一个活的例子可看，不必等真实赛程。两条实现细节，改引擎时别踩：
 
@@ -211,7 +244,8 @@
 | 格斗结算结果 | 没有 `Won by KO/TKO · R2 3:41` 这一行 |
 | 足球半场比分 | 库里没有半场数据，两个半场格恒为 `·`，`goals` 恒为 0 |
 | 足球中场休息 | 不进段间态，本版未做 |
-| 篮球 / 网球 / MOBA | 形态已实现，库里无此三类赛事，只在字典可见（已确认可接受） |
+| 篮球 / MOBA | 形态已实现，库里无此两类赛事，只在字典可见（已确认可接受）；网球已有常驻演示赛事（§9） |
+| 网球超级抢七 | 决胜盘 10 分制未做（§4.6） |
 | 移动端全屏 | 移动内联舞台只有静音键，没有全屏入口 |
 | 移动条进度轨 | 无决胜分的项目（足球 / 网球 / MOBA）填充恒为 0 |
 | 移动条结算后 | 已结束 / 已结算态没有 `In review` 徽标，段签也不清空 |
@@ -228,7 +262,8 @@
 | 记分牌 · 格斗四态 | `Sports · Live` U1…U4 |
 | 记分牌 · 足球（进行中 / 未开赛） | `Sports · Live` F1 / F2 |
 | 记分牌 · 篮球（进行中 / 加时） | `Sports · Live` B1 / B2 |
-| 记分牌 · 网球 | `Sports · Live` T1 |
+| 记分牌 · 网球（进行中 / 抢七盘已决 / 抢七进行中） | `Sports · Live` T1 / T2 / T3 |
+| 列表面 · 网球抢七比分串（Playing now / 移动模块） | `Events 列表` EV-9t / EV-9t2 |
 | 记分牌 · LOL·Dota | `Sports · Live` G1 |
 | 直播画面九态 | `Sports · Live` S1…S9 |
 | 迷你窗 / 全屏 / Watch 键 | `Sports · Live` C1…C4 |
@@ -244,6 +279,7 @@
 - `src/components/lite/sports/LiveStage.tsx` + `src/hooks/useHlsVideo.ts` — 直播画面与播放器
 - `src/components/lite/sports/liveStageStore.ts` — 舞台与记分牌之间的跨组件状态（`Watch` 键）
 - `src/components/lite/sports/sportsData.ts` — 赛事读取、分组、可见性边界
+- `src/components/lite/sports/tennisScore.tsx` — 网球比分串 formatter（`parseTennisScore` / `TennisScoreText` / `MatchScoreText` / `isTennisTiebreakLive`），所有列表面共用
 - `src/components/lite/multi/LiteBoardGroupHeader.tsx` — 盘口分组头
 - `src/pages/lite/LiteContractTrade.tsx` — 交易页装配（分段板 + 注记 + 滚动联动）
 - `src/components/lite/home/HomeSportsCard.tsx` — 首页比赛卡
