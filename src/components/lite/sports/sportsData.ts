@@ -253,10 +253,12 @@ export const groupSegmentedMarkets = <T extends { id?: string; metadata?: unknow
 
 
 /** Live matches age their own clock off the kickoff timestamp. */
-const liveMinute = (kickoff: Date | null): number | null => {
+/** 列表卡的 live 分钟。足球钳在 90（常规时间）；其他运动没有 90 分钟这回事，按真实已进行分钟显示。 */
+const liveMinute = (kickoff: Date | null, sport: string | null | undefined): number | null => {
   if (!kickoff) return null;
   const m = Math.floor((Date.now() - kickoff.getTime()) / 60_000);
-  return Math.max(1, Math.min(90, m));
+  const cap = (sport || "soccer") === "soccer" ? 90 : Number.POSITIVE_INFINITY;
+  return Math.max(1, Math.min(cap, m));
 };
 
 export const useSportsMatches = () => {
@@ -320,7 +322,7 @@ export const useSportsMatches = () => {
           kickoff,
           endDate,
           live: isLive,
-          minute: isLive ? liveMinute(kickoff) : null,
+          minute: isLive ? liveMinute(kickoff, meta.sport) : null,
           phase: meta.phase ?? null,
            score: meta.score ?? null,
            sport: meta.sport ?? null,
