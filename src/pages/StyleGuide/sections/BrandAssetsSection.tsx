@@ -122,7 +122,7 @@ const SETTINGS: AssetRow[] = [
   {
     src: lynxCloseBlocked,
     path: "src/assets/settings/lynx-close-blocked.png",
-    size: "260 × 260（2x，渲染 130）",
+    size: "260 × 260（2x，渲染 130，透明底）",
     format: "PNG",
     usage: "/settings Close account · 余额未清弹窗（桌面 Dialog + 移动 drawer）",
     added: "2026-09-23",
@@ -130,7 +130,7 @@ const SETTINGS: AssetRow[] = [
   {
     src: lynxCloseConfirm,
     path: "src/assets/settings/lynx-close-confirm.png",
-    size: "260 × 260（2x，渲染 130）",
+    size: "260 × 260（2x，渲染 130，透明底）",
     format: "PNG",
     usage: "/settings Close account · 确认弹窗（桌面 Dialog + 移动 drawer）",
     added: "2026-09-23",
