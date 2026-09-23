@@ -80,7 +80,12 @@ export const TaskRowShell = ({
         </div>
         {subtitle && <div className="mt-0.5 text-[12px] text-[#9AA1AC]">{subtitle}</div>}
         {progress && (
-          <div className="mt-2 flex items-center gap-2">
+          <div
+            className={`mt-2 flex gap-2 ${
+              // tiered rows on mobile: full-width bar so 7–8 ticks stay legible, count below
+              isMobile && progress.ticks ? "flex-col items-end" : "items-center"
+            }`}
+          >
           <div
             className={`relative h-[5px] w-full rounded-full bg-[#1D2026] ${progress.ticks ? "" : "overflow-hidden"} ${isMobile ? "" : "max-w-[280px]"}`}
           >
