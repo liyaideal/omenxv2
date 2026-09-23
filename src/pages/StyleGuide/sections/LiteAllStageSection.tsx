@@ -290,6 +290,39 @@ const UPCOMING_H2H_2 = match({
   options: [opt("s-up-4-h", "Adesanya", 0.48), opt("s-up-4-a", "Pereira", 0.52)],
 });
 
+/* --- 网球（抢七）fixtures：供应商比分串原样喂入，展示层 formatter 负责上标 --- */
+const LIVE_TENNIS_TB_DONE = match({
+  id: "s-live-t1",
+  league: "WTA",
+  home: "Tatiana Prozorova",
+  away: "Sofia Costoulas",
+  format: "h2h",
+  sport: "tennis",
+  live: true,
+  minute: 96,
+  phase: "3rd set",
+  score: "5-7, 7-6(7-2), 2-1",
+  kickoff: new Date(NOW - 96 * MIN),
+  endDate: new Date(NOW + 60 * MIN),
+  options: [opt("s-live-t1-h", "Tatiana Prozorova", 0.53), opt("s-live-t1-a", "Sofia Costoulas", 0.47)],
+});
+
+const LIVE_TENNIS_TB_LIVE = match({
+  id: "s-live-t2",
+  league: "WTA",
+  home: "Tamara Zidansek",
+  away: "Kimberly Birrell",
+  format: "h2h",
+  sport: "tennis",
+  live: true,
+  minute: 118,
+  phase: "3rd set",
+  score: "6-7(2-7), 6-6",
+  kickoff: new Date(NOW - 118 * MIN),
+  endDate: new Date(NOW + 40 * MIN),
+  options: [opt("s-live-t2-h", "Tamara Zidansek", 0.29), opt("s-live-t2-a", "Kimberly Birrell", 0.71)],
+});
+
 /* --- Sub-nav (13A) mocks: sport row + league row --------------- */
 /** One soccer fixture per named league, spread over the next 3 days. */
 const soccer = (
@@ -508,6 +541,14 @@ const SPORTS_PRESETS = [
     variant: "stage" as const,
     caption:
       "Something is live — the LIVE block takes the top and the upcoming list is trimmed to a single next row.",
+  },
+  {
+    id: "tennis-tiebreak",
+    label: "Tennis · tiebreak",
+    matches: [LIVE_TENNIS_TB_DONE, LIVE_TENNIS_TB_LIVE, UPCOMING_TODAY],
+    variant: "stage" as const,
+    caption:
+      "网球比分串走 tennisScore formatter：抢七盘只在输方一侧上标（7–6²），主字号 24→20 免撞名字；最后一盘 6–6 时联赛行追加橙色 · Tiebreak。供应商原串 5-7, 7-6(7-2), 2-1 不再原样渲染。",
   },
   {
     id: "none-live",
@@ -773,6 +814,13 @@ const VIEW_7B_PRESETS = [
     matches: [LIVE_1, LIVE_2, UPCOMING_TODAY, UPCOMING_TOMORROW, UPCOMING_H2H, UPCOMING_H2H_2],
     caption:
       "At least one match is live — \"PLAYING NOW\" pins the live cards above the ledger and those rows are excluded from the day groups.",
+  },
+  {
+    id: "7b-tennis",
+    label: "Tennis · tiebreak",
+    matches: [LIVE_TENNIS_TB_DONE, LIVE_TENNIS_TB_LIVE, UPCOMING_TODAY, UPCOMING_H2H],
+    caption:
+      "网球比分串走 tennisScore formatter：抢七盘只在输方一侧上标（7–6²），主字号 32→26；最后一盘 6–6 时联赛行追加橙色 · Tiebreak。",
   },
   {
     id: "7b-nolive",

@@ -523,6 +523,65 @@ export const T1Preview = () => (
   </Frame>
 );
 
+const wtaBase = {
+  sport: "tennis",
+  league: "WTA",
+  home: "T. Prozorova",
+  away: "S. Costoulas",
+  home_abbr: "PRO",
+  away_abbr: "COS",
+};
+
+/** T2 — 网球 Set 3 进行中，S2 由抢七决出（7⁷ / 6²）。 */
+export const T2Preview = () => (
+  <Frame>
+    <LiveMatchboard
+      fixtureNow={NOW}
+      fixtureSticky={false}
+      event={board(
+        "sg-wta-t2",
+        {
+          ...wtaBase,
+          segment_index: 3,
+          segment_results: [
+            { home: 5, away: 7 },
+            { home: 7, away: 6, tb: { home: 7, away: 2 } },
+            { home: 2, away: 1 },
+          ],
+          server: "Prozorova",
+          game_points: "30\u201315",
+        },
+        { start_date: at(-100), end_date: at(60) },
+      )}
+    />
+  </Frame>
+);
+
+/** T3 — 网球 Set 3 抢七进行中（6–6，TB 5–3）。 */
+export const T3Preview = () => (
+  <Frame>
+    <LiveMatchboard
+      fixtureNow={NOW}
+      fixtureSticky={false}
+      event={board(
+        "sg-wta-t3",
+        {
+          ...wtaBase,
+          segment_index: 3,
+          segment_results: [
+            { home: 5, away: 7 },
+            { home: 7, away: 6, tb: { home: 7, away: 2 } },
+            { home: 6, away: 6, tb: { home: 5, away: 3 } },
+          ],
+          server: "Costoulas",
+          game_points: "0\u20130",
+        },
+        { start_date: at(-100), end_date: at(60) },
+      )}
+    />
+  </Frame>
+);
+
 /** G1 — LOL·Dota Game 4。 */
 export const G1Preview = () => (
   <Frame>

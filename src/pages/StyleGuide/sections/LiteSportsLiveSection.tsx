@@ -195,6 +195,29 @@ const BOARD_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "sports-live-t2",
+    label: "T2 · 网球 · 抢七盘已决（S2 = 7⁷ / 6²）",
+    note:
+      "抢七盘（7–6 / 6–7 且 segment_results[i].tb 有值）格子在盘分右侧带上标，两行各标自己的抢七点数——同 Polymarket，每行是一个人。上标 9px / 600 / top −6 / margin-left 1 / opacity .85，颜色继承格子赢输色。其他盘分永不带上标；两位数（7¹⁰）也放得进 62px 格。",
+    spec: [
+      { state: "抢七上标", when: "isTiebreakSet(r)：max(home,away) === 7 && |home−away| === 1 && r.tb", visual: "`7⁷` / `6²`，上标继承格子色（白 / #5B6270）再降到 85%", source: "Matrix rowCells → TbSup" },
+      { state: "非抢七盘", when: "!isTiebreakSet(r)", visual: "只写盘分，无上标（见 T1）", source: "Matrix rowCells" },
+      { state: "已结算淡出", when: "status === \"settled\"", visual: "上标随整卡 opacity .6 一起淡，不单独处理", source: "Matrix 容器" },
+    ],
+  },
+  {
+    key: "sports-live-t3",
+    label: "T3 · 网球 · 抢七进行中（S3 = 6 / 6，TB 5–3）",
+    note:
+      "当前盘 6–6 且 tb 有值 ⇒ tiebreakLive。格子仍写 6 / 6（点数不进格子），右上角局分 30–15 换成抢七点数并前缀橙色 `TB`，上下文行在 Set n 与 serving 之间插 `Tiebreak`。移动条同样：右值 `TB 5–3`。",
+    spec: [
+      { state: "抢七进行中", when: "status === \"live\" && spec.unit === \"set\" && isTiebreakLive(current)", visual: "上下文行 `WTA · Set 3 · Tiebreak · Costoulas serving`", source: "buildModel ctx / tiebreakLive" },
+      { state: "右值", when: "tiebreakLive && current.tb", visual: "`TB 5–3`，TB 为 #FF8A3D，数字 #C9D1DA；桌面 14px / 移动 12px", source: "RightValue" },
+      { state: "当前盘格", when: "n === idx", visual: "6 / 6，当前列高亮不变，无上标", source: "Matrix rowCells" },
+      { state: "抢七结束", when: "盘分变 7–6，tb 保留终值", visual: "回到 T2 形态，右值回到局分", source: "isTiebreakSet" },
+    ],
+  },
+  {
     key: "sports-live-g1",
     label: "G1 · LOL·Dota · 五局（Game 4）",
     note:
@@ -416,7 +439,7 @@ export const LiteSportsLiveSection = () => (
       </SubSection>
 
       <SubSection title="Ⓐ‴ LiveMatchboard · 篮球 / 网球 / LOL·Dota（B1 / B2 / T1 / G1）">
-        <Pair cases={byKey(BOARD_CASES, "sports-live-b1", "sports-live-b2", "sports-live-t1", "sports-live-g1")} min={1600} />
+        <Pair cases={byKey(BOARD_CASES, "sports-live-b1", "sports-live-b2", "sports-live-t1", "sports-live-t2", "sports-live-t3", "sports-live-g1")} min={2400} />
       </SubSection>
 
       <SubSection title="Ⓑ LiveStage（S1 … S9）">
