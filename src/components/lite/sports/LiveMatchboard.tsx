@@ -9,6 +9,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   buildModel,
+  isTiebreakSet,
   useMatchboardModel,
   type MatchboardEvent,
   type Model,
@@ -123,6 +124,43 @@ const cellStyle = (tone: "w" | "l" | "mut" | "base", now: boolean) => ({
           : "#C9D1DA",
   ...(now ? { background: "rgba(255,138,61,.07)" } : null),
 });
+
+/** 网球抢七上标：贴在盘分右侧，继承格子赢/输色，降到 85% 让主数字仍是第一层级。 */
+const TbSup = ({ v }: { v: number }) => (
+  <sup
+    style={{
+      fontSize: 9,
+      fontWeight: 600,
+      lineHeight: 1,
+      verticalAlign: "baseline",
+      position: "relative",
+      top: -6,
+      marginLeft: 1,
+      opacity: 0.85,
+      fontVariantNumeric: "tabular-nums",
+    }}
+  >
+    {v}
+  </sup>
+);
+
+/** 右值：抢七进行中时前缀橙色 `TB`，其余原样。 */
+const RightValue = ({ m, size }: { m: Model; size: number }) => (
+  <span
+    style={{
+      fontFamily: MONO,
+      fontSize: size,
+      fontWeight: 700,
+      color: m.isMma && m.status === "live" ? "#FF8A3D" : "#C9D1DA",
+      fontVariantNumeric: "tabular-nums",
+      whiteSpace: "nowrap",
+      flexShrink: 0,
+    }}
+  >
+    {m.tiebreakLive ? <span style={{ color: "#FF8A3D" }}>TB </span> : null}
+    {m.rightValue}
+  </span>
+);
 
 const headStyle = (on: boolean) => ({
   fontSize: 9.5,
@@ -239,9 +277,12 @@ const Matrix = ({
         );
       const v = side === "home" ? r.home : r.away;
       const other = side === "home" ? r.away : r.home;
+      // 网球抢七盘：两行各标自己的抢七点数（7⁷ / 6²）；6–6 进行中不标，点数走右值。
+      const tb = isTiebreakSet(r) ? (side === "home" ? r.tb.home : r.tb.away) : null;
       return (
         <div key={n} style={cellStyle(v > other ? "w" : v < other ? "l" : "base", now)}>
           {v}
+          {tb != null ? <TbSup v={tb} /> : null}
         </div>
       );
     });
@@ -350,17 +391,7 @@ const Matrix = ({
         ) : m.status === "finished" ? (
           <ReviewBadge />
         ) : (
-          <span
-            style={{
-              fontFamily: MONO,
-              fontSize: 14,
-              fontWeight: 700,
-              color: m.isMma && m.status === "live" ? "#FF8A3D" : "#C9D1DA",
-              fontVariantNumeric: "tabular-nums",
-            }}
-          >
-            {m.rightValue}
-          </span>
+          <RightValue m={m} size={14} />
         )}
       </div>
 
@@ -592,21 +623,7 @@ const MobileBar = ({ m, sticky }: { m: Model; sticky: boolean }) => {
       {segLabel ? (
         <span style={{ fontFamily: MONO, fontSize: 11, color: "#8B929B" }}>{segLabel}</span>
       ) : null}
-      {m.rightValue ? (
-        <span
-          style={{
-            fontFamily: MONO,
-            fontSize: 12,
-            fontWeight: 700,
-            color: m.isMma && m.status === "live" ? "#FF8A3D" : "#C9D1DA",
-            fontVariantNumeric: "tabular-nums",
-            whiteSpace: "nowrap",
-            flexShrink: 0,
-          }}
-        >
-          {m.rightValue}
-        </span>
-      ) : null}
+      {m.rightValue ? <RightValue m={m} size={12} /> : null}
 
       <CellTrack m={m} />
     </div>

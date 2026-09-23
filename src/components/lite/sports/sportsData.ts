@@ -29,7 +29,10 @@ export interface SportsMatch {
   live: boolean;
   minute: number | null;
   phase: string | null;
+  /** metadata.score — 供应商比分串。网球串形如 `5-7, 7-6(7-2), 6-6`，展示前必须经 tennisScore formatter，禁止原样渲染。 */
   score: string | null;
+  /** metadata.sport — 决定列表卡比分串走哪套 formatter（tennis → tennisScore）。 */
+  sport?: string | null;
   /** metadata.stream_url — non-empty means the match has a watchable stream. */
   streamUrl?: string | null;
   volume: number;
@@ -61,7 +64,7 @@ interface RawMeta {
   /** 1-based index of the segment currently in play. */
   segment_index?: number | null;
   /** One `{home,away}` or `null` per segment. */
-  segment_results?: ({ home: number; away: number } | null)[] | null;
+  segment_results?: ({ home: number; away: number; tb?: { home: number; away: number } | null } | null)[] | null;
   /** UFC round clock, seconds remaining. */
   clock?: number | null;
   stream_url?: string | null;
@@ -320,6 +323,7 @@ export const useSportsMatches = () => {
           minute: isLive ? liveMinute(kickoff) : null,
           phase: meta.phase ?? null,
            score: meta.score ?? null,
+           sport: meta.sport ?? null,
            streamUrl: meta.stream_url ?? null,
            volume: Number((e as { volume?: number | string | null }).volume ?? 0),
           options: opts,

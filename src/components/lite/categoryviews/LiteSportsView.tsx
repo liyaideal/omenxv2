@@ -16,6 +16,7 @@ import {
   kickoffCell,
   matchesInBucket,
 } from "@/components/lite/sports/sportsData";
+import { TennisScoreText, isTennisTiebreakLive } from "@/components/lite/sports/tennisScore";
 import {
   ALL_OPTION,
   filterMatches,
@@ -123,6 +124,9 @@ const LiveCard = ({
         >
           {match.league}
           {match.phase ? ` · ${match.phase}` : ""}
+          {match.sport === "tennis" && isTennisTiebreakLive(match.score) ? (
+            <span style={{ color: "#FF8A3D" }}> · Tiebreak</span>
+          ) : null}
         </span>
         <span className="flex items-center" style={{ gap: 5 }}>
           <LivePulse size={5} color="#FF3B4E" />
@@ -152,13 +156,19 @@ const LiveCard = ({
           className="font-display flex-none"
           style={{
             fontWeight: 700,
-            fontSize: 32,
+            // 网球三盘串远长于 `1 – 0`，固定 26px 免撞队名；其他运动维持 32px。
+            fontSize: match.sport === "tennis" ? 26 : 32,
             color: "#fff",
             fontVariantNumeric: "tabular-nums",
             letterSpacing: "-0.02em",
+            whiteSpace: "nowrap",
           }}
         >
-          {match.score || "–"}
+          {match.sport === "tennis" ? (
+            <TennisScoreText score={match.score} base={26} />
+          ) : (
+            match.score || "–"
+          )}
         </span>
         <span
           className="flex min-w-0 flex-1 items-center justify-end"

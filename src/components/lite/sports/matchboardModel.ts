@@ -24,7 +24,17 @@ export type Status = "live" | "break" | "upcoming" | "finished" | "settled";
 export interface SegResult {
   home: number;
   away: number;
+  /** 网球抢七点数。盘打到 6–6 进入抢七时写入并随每分更新；盘以 7–6 / 6–7 结束后保留为终值。 */
+  tb?: { home: number; away: number } | null;
 }
+
+/** 该盘是否由抢七决出（7–6 / 6–7 且带 tb）。只有这种盘的格子才带上标。 */
+export const isTiebreakSet = (r: SegResult | null | undefined): r is SegResult & { tb: { home: number; away: number } } =>
+  !!r && !!r.tb && Math.max(r.home, r.away) === 7 && Math.abs(r.home - r.away) === 1;
+
+/** 该盘抢七是否正在进行（6–6 且带 tb）。 */
+export const isTiebreakLive = (r: SegResult | null | undefined): r is SegResult & { tb: { home: number; away: number } } =>
+  !!r && !!r.tb && r.home === 6 && r.away === 6;
 
 export interface Model {
   meta: FixtureMeta;
@@ -46,6 +56,8 @@ export interface Model {
   winnerHome: boolean | null;
   current: SegResult | null;
   scoreText: string;
+  /** 网球：当前盘抢七进行中。右值改显抢七点数，上下文行插 `Tiebreak`。 */
+  tiebreakLive: boolean;
   cellMode: "score" | "winloss";
   totalsWord: string;
   colWidth: number;
@@ -163,9 +175,11 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
   const server = typeof metaBag.server === "string" ? metaBag.server : null;
   const gamePoints =
     typeof metaBag.game_points === "string" ? metaBag.game_points : null;
+  const tiebreakLive =
+    status === "live" && spec?.unit === "set" && isTiebreakLive(current);
   const ctx =
     status === "live" && idx != null
-      ? `${league} · ${segName(idx)}${spec?.unit === "set" && server ? ` · ${server} serving` : ""}`
+      ? `${league} · ${segName(idx)}${tiebreakLive ? " · Tiebreak" : ""}${spec?.unit === "set" && server ? ` · ${server} serving` : ""}`
       : status === "break" && idx != null
         ? isMma
           ? `${league} · Between rounds`
@@ -187,7 +201,9 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
             : spec?.rightValue === "clock" && !isMma
             ? clockText(meta.clock)
             : spec?.rightValue === "points"
-            ? (gamePoints ?? "—")
+            ? tiebreakLive && current?.tb
+              ? `${current.tb.home}–${current.tb.away}`
+              : (gamePoints ?? "—")
             : spec?.rightValue === "elapsed"
             ? elapsedText(meta.clock)
             : isMma
@@ -219,6 +235,7 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
       : null,
     current,
     scoreText,
+    tiebreakLive,
     cellMode: spec?.cell ?? "score",
     totalsWord: spec ? (spec.totalsWord ?? "") : "maps",
     colWidth: spec?.colWidth ?? 62,

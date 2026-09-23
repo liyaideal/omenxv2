@@ -12,6 +12,7 @@ import {
   kickoffLabel,
   matchesInBucket,
 } from "./sportsData";
+import { TennisScoreText, isTennisTiebreakLive } from "./tennisScore";
 import { CHALK_SOFT, Crest, DIR_DOWN, DIR_UP, LivePulse } from "@/components/lite/shared/primitives";
 
 const MICRO_LABEL: React.CSSProperties = {
@@ -134,6 +135,9 @@ const LiveBlock = ({
       >
         {match.league}
         {match.phase ? ` · ${match.phase}` : ""}
+        {match.sport === "tennis" && isTennisTiebreakLive(match.score) ? (
+          <span style={{ color: "#FF8A3D" }}> · Tiebreak</span>
+        ) : null}
       </span>
       <span className="flex flex-none items-center gap-[5px]">
         <LivePulse size={5} color="#FF8A3D" />
@@ -163,13 +167,19 @@ const LiveBlock = ({
         className="font-display flex-none"
         style={{
           fontWeight: 700,
-          fontSize: 24,
+          // 网球三盘串：舞台卡按列表卡同比例（32→26）降到 20px。
+          fontSize: match.sport === "tennis" ? 20 : 24,
           color: "#fff",
           fontVariantNumeric: "tabular-nums",
           letterSpacing: "-0.01em",
+          whiteSpace: "nowrap",
         }}
       >
-        {match.score || "–"}
+        {match.sport === "tennis" ? (
+          <TennisScoreText score={match.score} base={20} />
+        ) : (
+          match.score || "–"
+        )}
       </span>
       <span className="flex min-w-0 flex-1 items-center justify-end gap-[8px]">
         <span
