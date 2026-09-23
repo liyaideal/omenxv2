@@ -703,7 +703,7 @@ export const TieredTaskRowStatesPreview = () => (
 
 /** Mobile-only: the tier drawer mounted open (fixture prop). Desktop frame shows the row + hint. */
 export const TieredTaskRowDrawerPreview = () => (
-  <div className="min-h-[640px] p-4">
+  <div className="min-h-[640px] p-4 md:min-h-0">
     <TieredTaskRow task={LADDER_TASK} grants={ladderGrants(LADDER_TASK, 36000, 4)} onClaim={noop} defaultDrawerOpen />
     <p className="mt-3 text-center text-[11px] leading-4 text-muted-foreground">
       移动端点 <code className="text-[11px] text-foreground">4 / 7 tiers ›</code> 起底部抽屉（MobileDrawer）；桌面无抽屉，
