@@ -2113,7 +2113,7 @@ Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED
 
 来源：Figma omenx_lite `858:2323` / `858:2808`（桌面）、`858:2827` / `858:2840`（移动），CPO 2026-09-23 批清单后落地；纯 UI 重绘，触发条件 / 文案 / 校验 / 确认后行为全部沿用。
 
-1. **壳**：账户类确认弹窗与登录弹窗共用一副「Connect modal」壳——桌面 = `AuthDialog` 的 `DialogContent` 类名逐字（`sm:max-w-md p-0 rounded-[16px] border-[#23262D] bg-gradient-to-b from-[#012A35] from-[12.85%] via-[#0A0B0D] via-[21%]`），内层 `p-6`；移动 = `AuthSheet` 的 drawer 类名逐字（`border-t border-[#23262D]` + 48px 青绿平顶 → 136px 归 `#0A0B0D`）。稿上的渐变起色 `#0B2C34` 判为与登录弹窗现值 `#012A35` 同一 token 的抄写差，按仓库现值落，全站只留一种壳。
+1. **壳**：账户类确认弹窗与登录弹窗共用一副「Connect modal」壳——桌面 = `AuthDialog` 的 `DialogContent` 类名逐字（`sm:max-w-md p-0 rounded-[16px] border-[#23262D] bg-gradient-to-b from-[#012A35] from-[12.85%] via-[#0A0B0D] via-[21%]`），内层 `p-6`；移动 = `AuthSheet` 的 drawer 类名逐字（`border-t border-[#23262D]` + 48px 青绿平顶 → 136px 归 `#0A0B0D`）。移动抽屉不出拖拽把手、保留右上 ×（稿 858:2827 / 2840 定）。稿上的渐变起色 `#0B2C34` 判为与登录弹窗现值 `#012A35` 同一 token 的抄写差，按仓库现值落，全站只留一种壳。
 2. **身体语法**（自上而下居中）：lynx 插画 130×130（2x 资产、`opacity-80`、`aria-hidden pointer-events-none select-none`、缺图静默）→ 10px → 17px `font-display` 700 `leading-[25.5px] tracking-[-0.34px]` 白标题 → 12px → 12px/18px `#9CA2AB` 居中说明（`max-w-[330px]`）。金额嵌在句中不做 mono 高亮。
 3. **输入位**（仅确认弹窗）：标签 12px `#9CA2AB`、关键词 `CLOSE` 白字（不 mono）；输入框 h-9 r-8 `#14161A` 底 `#23262D` 描边、`font-display` 14px 占位 `#656E7C`、聚焦描边 `#33D6FF/40`（稿画的是聚焦态）。
 4. **按钮组**：桌面两颗 190×44 并排（`grid-cols-2 gap-5`，说明与按钮之间 22px）；移动竖排 `gap-2 py-2`，**Cancel 在上、主钮在下**（稿定，与其他 drawer 的主钮在上相反，仅账户弹窗如此）。Cancel = `EmailAuthPanel.GHOST_BUTTON_CLASS` 逐字；Go to Wallet = `btn-primary`；Close account = `#FF5C5C` 底 + `#090A0B` 深字（§5 destructive 主钮从此为深字，不再白字），disabled 40%。

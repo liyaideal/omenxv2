@@ -228,13 +228,13 @@ export const AccountCard = ({
 
       {isMobile ? (
         <>
-          <MobileDrawer open={blockedOpen} onOpenChange={setBlockedOpen} className={MOBILE_SHELL}>
+          <MobileDrawer open={blockedOpen} onOpenChange={setBlockedOpen} showHandle={false} className={MOBILE_SHELL}>
             <VisuallyHidden>
               <SheetTitle>{blockedTitle}</SheetTitle>
             </VisuallyHidden>
             {blockedContent(true)}
           </MobileDrawer>
-          <MobileDrawer open={confirmOpen} onOpenChange={setConfirmOpen} className={MOBILE_SHELL}>
+          <MobileDrawer open={confirmOpen} onOpenChange={setConfirmOpen} showHandle={false} className={MOBILE_SHELL}>
             <VisuallyHidden>
               <SheetTitle>{confirmTitle}</SheetTitle>
             </VisuallyHidden>
