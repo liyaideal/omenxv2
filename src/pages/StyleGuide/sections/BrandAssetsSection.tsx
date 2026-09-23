@@ -54,6 +54,8 @@ import kvStarter from "@/assets/campaigns/kv-starter.jpg.asset.json";
 import kvLaowang from "@/assets/campaigns/kv-laowang.jpg.asset.json";
 import kvCpi from "@/assets/campaigns/kv-cpi.jpg.asset.json";
 import laowangAvatar from "@/assets/campaigns/laowang-avatar.jpg.asset.json";
+import lynxCloseBlocked from "@/assets/settings/lynx-close-blocked.png";
+import lynxCloseConfirm from "@/assets/settings/lynx-close-confirm.png";
 
 interface Props {
   isMobile: boolean;
@@ -112,6 +114,26 @@ const WALLET: AssetRow[] = [
     format: "PNG",
     usage: "/wallet/recovery 列表空态（No recovery requests yet）",
     added: "2026-09-03",
+  },
+];
+
+/* ---------------- Ⓘ Settings · Close account 弹窗（2026-09-23 Figma 858:2327 / 858:2813） ---------------- */
+const SETTINGS: AssetRow[] = [
+  {
+    src: lynxCloseBlocked,
+    path: "src/assets/settings/lynx-close-blocked.png",
+    size: "260 × 260（2x，渲染 130）",
+    format: "PNG",
+    usage: "/settings Close account · 余额未清弹窗（桌面 Dialog + 移动 drawer）",
+    added: "2026-09-23",
+  },
+  {
+    src: lynxCloseConfirm,
+    path: "src/assets/settings/lynx-close-confirm.png",
+    size: "260 × 260（2x，渲染 130）",
+    format: "PNG",
+    usage: "/settings Close account · 确认弹窗（桌面 Dialog + 移动 drawer）",
+    added: "2026-09-23",
   },
 ];
 
@@ -592,6 +614,7 @@ const LEGACY_MOTION: AssetRow[] = [
 const ALL_GROUPS: Array<[string, AssetRow[]]> = [
   ["Ⓐ Wallet（R-W2 / R-W3）", WALLET],
   ["Ⓖ 分享海报（R-SH1）", SHARE],
+  ["Ⓘ Settings · Close account 弹窗（2026-09-23）", SETTINGS],
   ["Ⓗ Affiliate 营销页（2026-09-19）", AFFILIATE],
   ["Ⓑ 品牌标识", BRAND],
   ["Ⓒ 首页 / Events / Auth lynx 插画", HOME],

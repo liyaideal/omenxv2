@@ -69,7 +69,8 @@ const HINT_CLASS = "text-[12px] text-[#6B7280] mt-1.5";
 export const ERROR_CLASS = "text-[12px] text-trading-red mt-1.5";
 const LINK_CLASS = "text-[#33D6FF] hover:underline cursor-pointer";
 const FOOT_CLASS = "text-[12px] text-[#9CA2AB] text-center";
-const GHOST_BUTTON_CLASS =
+/** Exported so Settings › Close account dialogs (Connect-modal Cancel) stay literally identical. */
+export const GHOST_BUTTON_CLASS =
   "w-full h-[44px] rounded-[12px] border-[1.5px] border-[#1C1F26] bg-transparent text-[13px] text-white/80 transition-colors hover:text-white inline-flex items-center justify-center gap-2";
 
 const Slot = ({ char, isActive, hasFakeCaret, error }: SlotProps & { error: boolean }) => (

@@ -265,13 +265,13 @@ const ACCOUNT_DIALOGS: SectionCase[] = [
   {
     key: "settings-account-blocked",
     label: "ST-29 · Close account · 余额未清弹窗",
-    spec: [{ state: "blocked", when: "total > 0", visual: "'Withdraw your balance first' / 'You still have {$total} across Standard and Boost. Withdraw it before closing your account.'；描边 'Cancel' + btn-primary 'Go to Wallet' → /wallet；移动端 MobileDrawer", source: "AccountCard.tsx" }],
+    spec: [{ state: "blocked", when: "total > 0", visual: "Connect-modal 壳（AuthDialog 同款：青绿渐变顶 / #23262D 描边 / r-16 / × 右上）；lynx 币罐插画 130 → 17px display 标题 'Withdraw your balance first' → 12px 居中 'You still have {$total} across Standard and Boost. Withdraw it before closing your account.'；桌面两颗 190×44 并排：描边 'Cancel' + btn-primary 'Go to Wallet' → /wallet；移动端 AuthSheet 同款抽屉，按钮竖排 Cancel 在上（Figma 858:2323 / 858:2827）", source: "AccountCard.tsx" }],
   },
   {
     key: "settings-account-confirm",
     label: "ST-30 · Close account · 确认弹窗（输入 CLOSE）",
     spec: [
-      { state: "confirm", when: "total === 0", visual: "'Close your account?' / 'Your profile, history and API keys are deleted. This cannot be undone.' / 'Type CLOSE to confirm' + 输入框（登录弹窗 Lite 皮）；'Close account' bg-trading-red，输入 ≠ CLOSE 时 disabled", source: "AccountCard.tsx" },
+      { state: "confirm", when: "total === 0", visual: "同壳；lynx 百叶窗插画 → 'Close your account?' → 'Your profile, history and API keys are deleted. This cannot be undone.' → 'Type CLOSE to confirm'（CLOSE 白字）+ 36px r-8 输入框（#14161A，占位 CLOSE，聚焦青边 40%）；'Cancel' 描边 + 'Close account' #FF5C5C 底 #090A0B 字（不带青光），输入 ≠ CLOSE 时 disabled 40%；移动端竖排 Cancel 在上（Figma 858:2808 / 858:2840）", source: "AccountCard.tsx" },
       { state: "done", when: "点击 Close account", visual: "signOut → toast 'Account closed' → /（Lovable 不删数据）", source: "AccountCard.tsx handleClose" },
     ],
   },

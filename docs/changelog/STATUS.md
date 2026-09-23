@@ -29,7 +29,8 @@
 | ST-F | 真实发信（按偏好 + 语言）；浏览器推送 / Telegram 第二批 | ⬜ | 正式后端 |
 | ST-G | Preferences · Language：7 语，`profiles.language`，与页头切换器共用 `useLanguage()` | ✅ | `PreferencesCard.tsx` / `src/lib/languages.ts`；页面 i18n 未做；第二批 es / id / tr |
 | ST-H | Sessions：`list_my_sessions()` RPC，THIS DEVICE，loading / error / 单机态，Sign out other devices | ✅ | `SessionsCard.tsx`；地点显示 IP，城市解析归正式后端 |
-| ST-I | Account：Sign out；Close account 余额拦截 / 输入 CLOSE 确认（红主钮） | ✅ | `AccountCard.tsx`；Lovable 确认后只登出 |
+| ST-I | Account：Sign out；Close account 余额拦截 / 输入 CLOSE 确认（红主钮） | ✅ | `AccountCard.tsx`；Lovable 确认后只登出；09-23 按钮文案改 `Close account` |
+| ST-N | Close account 两弹窗按 Figma 858:2323 / 2808 / 2827 / 2840 重绘：Connect modal 壳 + lynx 插画 + 双端按钮组 | ✅ | `AccountCard.tsx`；DESIGN §Addendum 2026-09-23；台账 Ⓘ +2 |
 | ST-J | 真实注销（异步删号 + 二次验证） | ⬜ | 正式后端 |
 | ST-K | 移动 375：单列同模块，弹窗 MobileDrawer，语言 drawer 列表 | ✅ | 同各组件 |
 | ST-L | 字典 Lite › Settings ST-1…ST-31（30 key）+ AU-S3…S5 改标 | ✅ | `settingsPreviews.tsx` / `LiteSettingsPage.tsx`，sg:audit PASS |
