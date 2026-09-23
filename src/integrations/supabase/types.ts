@@ -1229,19 +1229,19 @@ export type Database = {
       }
       profiles: {
         Row: {
+          affiliate_since: string | null
           auth_method: string | null
           avatar_url: string | null
           balance: number | null
           created_at: string
           email: string | null
           id: string
+          is_affiliate: boolean
+          language: string
+          notification_prefs: Json
           preferred_surface: string
           spot_balance: number
           totp_enabled: boolean
-          is_affiliate: boolean
-          affiliate_since: string | null
-          notification_prefs: Json
-          language: string
           trial_balance: number | null
           updated_at: string
           user_id: string
@@ -1249,19 +1249,19 @@ export type Database = {
           withdraw_2fa_mode: string
         }
         Insert: {
+          affiliate_since?: string | null
           auth_method?: string | null
           avatar_url?: string | null
           balance?: number | null
           created_at?: string
           email?: string | null
           id?: string
+          is_affiliate?: boolean
+          language?: string
+          notification_prefs?: Json
           preferred_surface?: string
           spot_balance?: number
           totp_enabled?: boolean
-          is_affiliate?: boolean
-          affiliate_since?: string | null
-          notification_prefs?: Json
-          language?: string
           trial_balance?: number | null
           updated_at?: string
           user_id: string
@@ -1269,19 +1269,19 @@ export type Database = {
           withdraw_2fa_mode?: string
         }
         Update: {
+          affiliate_since?: string | null
           auth_method?: string | null
           avatar_url?: string | null
           balance?: number | null
           created_at?: string
           email?: string | null
           id?: string
+          is_affiliate?: boolean
+          language?: string
+          notification_prefs?: Json
           preferred_surface?: string
           spot_balance?: number
           totp_enabled?: boolean
-          is_affiliate?: boolean
-          affiliate_since?: string | null
-          notification_prefs?: Json
-          language?: string
           trial_balance?: number | null
           updated_at?: string
           user_id?: string
@@ -1977,17 +1977,6 @@ export type Database = {
           joined: number
         }[]
       }
-      list_my_sessions: {
-        Args: never
-        Returns: {
-          id: string
-          created_at: string
-          last_active_at: string
-          user_agent: string | null
-          ip: string | null
-          is_current: boolean
-        }[]
-      }
       get_voucher_pool_today: {
         Args: never
         Returns: {
@@ -2006,6 +1995,17 @@ export type Database = {
         Returns: boolean
       }
       increment_referral_uses: { Args: { _code: string }; Returns: undefined }
+      list_my_sessions: {
+        Args: never
+        Returns: {
+          created_at: string
+          id: string
+          ip: string
+          is_current: boolean
+          last_active_at: string
+          user_agent: string
+        }[]
+      }
       lookup_referral_code: {
         Args: { _code: string }
         Returns: {
