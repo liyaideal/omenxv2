@@ -2142,3 +2142,17 @@ Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED
 4. **按钮组**：桌面两颗 190×44 并排（`grid-cols-2 gap-5`，说明与按钮之间 22px）；移动竖排 `gap-2 py-2`，**Cancel 在上、主钮在下**（稿定，与其他 drawer 的主钮在上相反，仅账户弹窗如此）。Cancel = `EmailAuthPanel.GHOST_BUTTON_CLASS` 逐字；Go to Wallet = `btn-primary`；Close account = `#FF5C5C` 底 + `#090A0B` 深字（§5 destructive 主钮从此为深字，不再白字），disabled 40%。
 5. **不抄的**：稿上红钮带 `rgba(51,214,255,.3)` 青色投影，是从 primary 复制的残留，红钮不加光。
 
+
+## §Addendum 2026-09-23 · 阶梯任务行（TieredTaskRow，LOCKED）
+
+来源：mock t2-tiered-real v2（CPO 2026-09-23 批）；规格 `docs/delivery/rewards-tiered-tasks-v1.md`；字典 RW-8b / 8c / 12b。**作用域**：`TieredTaskRow` 与 `TaskRowShell.progress.ticks`；`GrantTaskRow` 不受影响。
+
+1. **外壳不动**：阶梯行 = `TaskRowShell` 原壳（#131519 / #1D2026 / r14 / 15×16 / 36px 图标 / 桌面 92 + 132 两列 / 手机两层）。任务行家族只允许在壳的三个槽（进度 / 奖励 / 动作）内变化，不许改壳。
+2. **字量封顶**：任务行文案 = 标题 + 副标题 + 一个进度数字，**不随档数增长**；任何"第几档 / 下一档是什么 / 还差多少"的说明句禁止进行卡，只能进 tooltip / 抽屉。
+3. **刻度点**：8px 圆，居中于 5px 条，**等距** `n / M`（不按金额比例），外圈 2px 卡底色描边；三态 未达 `#2B2F38` / 已达未领 `#33D6FF` / 已发 `#33D6FF` + 内圈 55% `#0A0B0D` 暗芯。填充在当前段内线性插值。
+4. **进度文案**：`$value / $nextTarget`，千分位；分母恒为下一个未达档，全达后为最高档。
+5. **奖励槽两行**：行 1 13.5/700 nowrap（可领 lime `#CFFF4A` `$X ready`；否则灰 `#9AA1AC` `next $R` / `$T credited` / `$T claimed`，**不带单位词**）；行 2 11.5 `#6B7280` `N / M tiers`（手机加 `›`）。单位词由副标题、hero pill、tooltip、抽屉承担。
+6. **二级信息对等件**：桌面 = Radix Tooltip（刻度点 → 单档；行 2 → 全档表 300px）；手机 = `MobileDrawer` 标题 `Tiers`。同一份 `TierList` 渲染，抽屉可带 Claim，tooltip 不带。
+7. **手机进度条**：阶梯行通栏，数字换行右对齐（`flex-col items-end`），保证 7–8 个刻度点可辨；threshold 行仍是同行。
+8. **动作栏**：只用现有两种按钮（白底 Claim / 描边 CTA）与灰字状态；Claim 文案带金额 `Claim $5` / `Claim all $25`。USDC 档没有任何领取动作。
+9. **入账反馈**：toast 用 `CreditedToastBody` 三原子（标题 `+$X USDC credited to Standard` / 描述 `Tier n of <task>` / 动作 `Open wallet`），一档一次。

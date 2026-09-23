@@ -17,6 +17,21 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-09-23 — Rewards 阶梯任务 RW-T（[文档](../delivery/rewards-tiered-tasks-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| RW-T-A | 任务定义 `type` / `tiers[]`（`campaign_entries.rules.tasks[]`），存量 threshold 零改动 | ✅ | `useCampaigns.ts` |
+| RW-T-B | 进度触发器阶梯分支：共享值、每档一行 `<key>#t<n>`、USDC 档达标即入账（闩锁 + `bonus` 流水）、券档 claimable | ✅ | migration `20260923150000`；正式版按 §3.1 口径重实现 |
+| RW-T-C | `claim-campaign-grant` 解析 `#t<n>` 取券档面值 | ✅ | 待 Lovable 部署 |
+| RW-T-D | `TieredTaskRow`：刻度点 / 两行奖励槽 / Claim · Claim all / 抽屉 / tooltip；手机通栏进度条 | ✅ | 桌面 + 手机 |
+| RW-T-E | 自动入账 toast（一档一次，localStorage seen-set；首访静默） | ✅ | `LiteCampaignDetailPage` |
+| RW-T-F | 聚合口径：一条阶梯 = 1 任务；up to 累加全档 | ✅ | `buildCampaignView` |
+| RW-T-G | 演示数据 Volume Ladder（live）+ Finals Week 阶梯（ended），alex 各态 | ✅ | seed migration `20260923150100` 留档 |
+| RW-T-H | 字典 RW-8b / 8c / 12b（含券阶梯四态、not_eligible） | ✅ | sg:audit PASS |
+| RW-T-I | 后台配置校验（2–8 档、升序、单一单位） | ⬜ | 正式版 |
+| RW-T-J | 其他任务类型（周期 / 清单 / 人工审核 / 排名 …） | ⬜ | 等拍板 |
+
 ## 2026-09-22 — Settings Lite 改版 ST-1（[文档](../delivery/settings-lite-v1.md)，已并入总文档 [email-login-settings-v1.md](../delivery/email-login-settings-v1.md)）
 
 | # | 项 | Status | Notes |

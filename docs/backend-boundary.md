@@ -209,3 +209,13 @@
 | Close account | 🟢（正式版必做，Lovable 未做） | Lovable：余额 > 0 拦截（`balance + spot_balance`）、输入 CLOSE 确认后只登出 + toast `Account closed`，不删数据。正式版：确认后异步注销（删 profile / API key / 会话，保留合规所需的交易记录），并做二次验证（邮箱码或 2FA） |
 | Authenticator「Added {date}」 | ⬜ | Lovable `user_security` 不暴露启用时间，行内显示 `Codes from your authenticator app`；正式版可显示启用日期 |
 
+
+## 2026-09-23 Rewards 阶梯任务（append-only 补录）
+
+| 项 | 类别 | 说明 |
+|---|---|---|
+| `campaign_entries.rules.tasks[].type` / `tiers[]`（jsonb，无表结构变更） | 🟡 | 任务类型字段：缺省 `threshold`；`tiered` 带 `tiers:[{target,reward}]`。配置校验（2–8 档、升序、单一奖励单位）正式版后台做 |
+| `campaign_grants` 每档一行 `<task_key>#t<n>`，`progress.credited_usdc` / `credited_at` | 🟡 | 键法与 progress 键名照抄；前端按 `#t` 前缀汇总 |
+| `apply_campaign_progress()` 阶梯分支：USDC 档达标 → 行级闩锁 `status <> 'claimed'` → `profiles.spot_balance += usdc` → `transactions(bonus, spot, 'Campaign reward · <task> · Tier n')` | 🟢（正式版必做，口径以 `docs/delivery/rewards-tiered-tasks-v1.md` §3.1 为准） | Lovable 用 Postgres 触发器做参考实现；正式版接自有事件管线 + 真实记账，**必须保留一档只入账一次的幂等语义**，入账写路径唯一 |
+| `claim-campaign-grant` 解析 `<task_key>#t<n>` → `tiers[n-1].reward.voucher` | 🟡 | 只服务券档；USDC 档不经此函数 |
+| 自动入账通知 | 🟡 | Lovable：详情页加载时 toast（localStorage seen-set）；正式版可换服务端推送 / 站内信，文案沿用 RW-12b |

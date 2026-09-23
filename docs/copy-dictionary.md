@@ -67,6 +67,40 @@ Single source of truth for user-visible field names across the app.
 
 **合规铁律**：任何出现 USDC 金额的页面，有且只有一条完整 fine print（`RewardsFinePrint`，11.5px `#6B7280`），金额旁**禁止**行内写 "not guaranteed"。
 
+### 阶梯任务（`type: "tiered"`，2026-09-23）
+
+规格：`docs/delivery/rewards-tiered-tasks-v1.md`；字典 RW-8b / 8c / 12b。
+
+概念（词 / 一句定义 / 判定表达式 / 出处）：
+
+| 词 | 定义 | 判定 | 出处 |
+|---|---|---|---|
+| **Tiered task（阶梯任务）** | 一条任务、一个共享累计值、多个档位，每到一档发一档 | `task.type === "tiered" && tiers.length > 0` | `isTieredTask()` · `useCampaigns.ts` |
+| **Tier（档）** | 阶梯里的一级：`target` + `reward`；每档一条 grant `<task_key>#t<n>` | `tierGrantKey(key, n)` | `useCampaigns.ts` |
+| **Reached（已达）** | 累计值到了该档目标（含已领 / 可领） | `claimed ∨ claimable ∨ value ≥ tier.target` | `deriveTiered()` |
+| **Credited（已入账）** | USDC 档达标后服务端已把面值记入 Standard，状态直接 `claimed` | `status === "claimed" && progress.credited_usdc > 0` | `apply_campaign_progress()` |
+| **Next tier（下一档）** | 第一个未达档；进度分母永远是它的 target | `tiers.findIndex(!reached)` | `deriveTiered().nextIdx` |
+| **Ordinal fill（等距填充）** | 进度条每档一段等长，不按金额比例；当前段内线性插值 | `(nextIdx + clamp((value − lo) / (target − lo))) / M` | `deriveTiered().pct` |
+
+文案：
+
+| Canonical | Meaning | Banned variants |
+|---|---|---|
+| **$36,000 / $50,000** | 阶梯行进度文案：累计值 / 下一档目标，千分位 | $36000 / $200,000（最高档做分母） |
+| **next $40** | 奖励槽行 1 · 无可领有未达：下一档奖励面值，不带单位词（单位在副标题 / hero / tooltip） | next tier $40 USDC, Up next |
+| **$25 ready** | 奖励槽行 1 · 券档可领面值和（lime） | $25 claimable, Ready to claim |
+| **$400 credited** / **$85 claimed** | 奖励槽行 1 · 全档已发（USDC / 券）；活动已结束时显示已发部分 | Total earned, Paid out |
+| **4 / 7 tiers** | 奖励槽行 2：已达 / 总档数；手机带 `›` 起抽屉 | 4 of 7, Tier 4/7, Level |
+| **Claim $5** / **Claim all $25** | 券档 1 档可领 / ≥2 档可领的白底主按钮，带金额 | Claim voucher（阶梯行不用）, Claim rewards |
+| **All credited** / **All claimed** | 阶梯行终态灰字（USDC / 券） | Completed, Done |
+| **Tiers** | 手机抽屉标题 / 桌面 tooltip 标题 | Levels, Milestones, Ladder |
+| **Tier 4 · $30,000 → $40 USDC · Credited** | 刻度点 tooltip 格式 | — |
+| **Credited / Ready / Locked / Claimed** | 抽屉与 tooltip 里每档状态词（USDC 已发 / 券可领 / 未达 / 券已领） | Paid, Available, Pending, Done |
+| **+$40 USDC credited to Standard** | 自动入账 toast 标题；描述 `Tier 4 of <task name>`；动作 `Open wallet` → `/wallet` | Reward received, Payout |
+| **Campaign reward · <task name> · Tier n** | 钱包流水描述（`transactions.type = bonus`，account spot） | Bonus, Airdrop |
+
+**运营配置约定**：一条阶梯只配一种奖励单位；副标题写明单位（如 `rewards paid in USDC`）；`tiers` 按 target 升序，2–8 档。
+
 **已退役**：Points（积分）体系全部词汇不得复用；`/rewards` 只保留一条可关闭的退役提示。
 
 ---
