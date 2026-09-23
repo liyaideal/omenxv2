@@ -27,7 +27,7 @@
 | RW-T-D | `TieredTaskRow`：刻度点 / 两行奖励槽 / Claim · Claim all / 抽屉 / tooltip；手机通栏进度条 | ✅ | 桌面 + 手机 |
 | RW-T-E | 自动入账 toast（一档一次，localStorage seen-set；首访静默） | ✅ | `LiteCampaignDetailPage` |
 | RW-T-F | 聚合口径：一条阶梯 = 1 任务；up to 累加全档 | ✅ | `buildCampaignView` |
-| RW-T-G | 演示数据 Volume Ladder（live）+ Finals Week 阶梯（ended），alex 各态 | ✅ | seed migration `20260923150100` 留档 |
+| RW-T-G | 演示数据 Starter Rewards 新增阶梯任务（always-on）+ Finals Week 阶梯（ended），alex 各态 | ✅ | seed migration `20260923150100` 留档 |
 | RW-T-H | 字典 RW-8b / 8c / 12b（含券阶梯四态、not_eligible） | ✅ | sg:audit PASS |
 | RW-T-I | 后台配置校验（2–8 档、升序、单一单位） | ⬜ | 正式版 |
 | RW-T-J | 其他任务类型（周期 / 清单 / 人工审核 / 排名 …） | ⬜ | 等拍板 |

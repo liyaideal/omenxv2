@@ -1,11 +1,11 @@
 # Rewards 任务类型 · 阶梯解锁（Tiered）— 交付说明 v1
 
-> 通俗导读：活动详情页的任务行原来只有一种——"做到一个目标，领一份奖励"。这一轮给任务定义加了一个 `type` 字段，第一个新类型是 **阶梯解锁（tiered）**：一条任务、一根进度条、多个档位，每到一档发一档。USDC 档**达标即自动入 Standard 账户**，不用点领；券档达标后照旧点 Claim。运营在 `campaign_entries.rules.tasks[]` 里配 `type: "tiered"` + `tiers[]` 就能用，前端与服务端按 `type` 分发，老任务（没有 `type`）一字不动。首个真实配置：Volume Ladder（7 档，2,000 → 200,000 USDC，累计 400 USDC）。
+> 通俗导读：活动详情页的任务行原来只有一种——"做到一个目标，领一份奖励"。这一轮给任务定义加了一个 `type` 字段，第一个新类型是 **阶梯解锁（tiered）**：一条任务、一根进度条、多个档位，每到一档发一档。USDC 档**达标即自动入 Standard 账户**，不用点领；券档达标后照旧点 Claim。运营在 `campaign_entries.rules.tasks[]` 里配 `type: "tiered"` + `tiers[]` 就能用，前端与服务端按 `type` 分发，老任务（没有 `type`）一字不动。首个真实配置：Starter Rewards 活动里新增的「Cumulative trading volume」（7 档，2,000 → 200,000 USDC，累计 400 USDC）。
 
 ## 0. 读者须知
 
 查什么去哪儿：
-- 长什么样 → 生产页 `/rewards/campaign/c3333333-3333-4333-8333-ccccccccccc3`（Volume Ladder，live）、`/rewards/campaign/a2222222-2222-4222-8222-aaaaaaaaaaa2`（Finals Week，ended，含一条阶梯）
+- 长什么样 → 生产页 `/rewards/campaign/19033848-dc98-4a53-b4c5-d9e31b24a51f`（Starter Rewards，always-on，第 4 条任务）、`/rewards/campaign/a2222222-2222-4222-8222-aaaaaaaaaaa2`（Finals Week，ended，含一条阶梯）
 - 什么时候变成什么样 → `/style-guide` → Lite → Rewards 状态字典 **RW-8b / RW-8c / RW-12b**（每个 case 有「状态 / 触发条件 / 视觉 / 数据来源」表）
 - 字段名、文案、公式、时间口径、术语 → `docs/copy-dictionary.md`（顶部有「Lite 术语对照表」；Rewards 节新增「阶梯任务」小节）→ 本文档对应章节
 - 设计法则（刻度点、奖励槽两行、抽屉 / tooltip 对等）→ `DESIGN.md` §Addendum 2026-09-23 · 阶梯任务行
@@ -53,7 +53,7 @@
 | `tiers` | `[{target, reward}]` | **阶梯专用**。按 `target` 升序，2–8 档；`reward` 与现有结构一致 `{usdc}` 或 `{voucher}`。**约定：一条阶梯只配一种奖励单位** |
 | `target` / `reward` | — | 阶梯任务不读（有也忽略） |
 
-真实配置（Volume Ladder）：
+真实配置（Starter Rewards 第 4 条任务）：
 
 ```json
 {
@@ -146,7 +146,7 @@
 
 | 活动 | entry | 任务 | 状态 |
 |---|---|---|---|
-| Volume Ladder（live，09-15 → 12-31） | `e3333333-…-eeeeeeeeeee3` | `vl_volume_ladder` 7 档 USDC | value 36,000：t1–t4 已入账（4 / 6 / 10 / 40），t5–t7 进行中；4 条 bonus 流水 |
+| Starter Rewards（always-on） | `690c42ff-a87d-4201-937f-311c8c4432d5` | `vl_volume_ladder` 7 档 USDC，排在 first_trade / join_discord / connect_external 之后 | value 36,000：t1–t4 已入账（4 / 6 / 10 / 40），t5–t7 进行中；4 条 bonus 流水；entry.reward 加 `usdc: 400` |
 | Finals Week（ended） | `b2222222-…-bbbbbbbbbbb2` | `fw_volume_ladder` 7 档 USDC（scope sports） | value 12,400：t1–t3 已入账，其余进行中；活动已结束 → 行卡 `$20 credited` + `Ended`；3 条 bonus 流水 |
 
 `profiles.spot_balance` 相应 +80（与流水恒等）。留档：`supabase/migrations/20260923150100_seed_volume_ladder_demo.sql`。
