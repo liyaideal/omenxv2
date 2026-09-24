@@ -76,6 +76,14 @@ export const parseQuickId = (
   return { coin: m[1] as Coin, tf: m[2] as Timeframe, period: m[3] };
 };
 
+/** 研发问题 #12 (2026-09-24): round-length chip next to a quick-round name
+ *  ("Bitcoin — up or down?" alone cannot tell 5m from 1h). null for non-round events. */
+export const quickRoundLabel = (id: string | null | undefined): string | null => {
+  const p = id ? parseQuickId(id) : null;
+  if (!p) return null;
+  return p.tf === "1d" ? "Daily" : p.tf;
+};
+
 const toQuick = (row: {
   id: string;
   name: string;

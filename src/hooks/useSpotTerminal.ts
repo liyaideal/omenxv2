@@ -346,8 +346,10 @@ export function useSpotTerminal() {
 
   const cur = market.currency;
   const settleEtOnly = settleAt ? formatLocalTime(settleAt) : null;
-  const freezeEtOnly = freezeAt ? formatLocalTime(freezeAt) : null;
   const closeEtOnly = endDate ? formatLocalTime(endDate) : null;
+  // 研发问题 #14 (2026-09-24): crypto rounds have no freeze window — trading runs to the
+  // round end, so "Trading ends" shows the end time instead of "—".
+  const freezeEtOnly = freezeAt ? formatLocalTime(freezeAt) : market.key === "crypto" ? closeEtOnly : null;
   const freezeLabel = freezeAt
     ? formatLocalTime(freezeAt)
     : `close − ${FREEZE_MINUTES_BEFORE_CLOSE}min`;
@@ -680,9 +682,9 @@ export function useSpotTerminal() {
     .reduce((acc, o) => acc + (parseFloat(String(o.total).replace(/[$,]/g, "")) || 0), 0);
   const sliderBase = isSell ? heldQty : buyInUnits && effectivePrice > 0 ? available / effectivePrice : available;
 
-  const ctaLabel = willBePending
-    ? `Place limit · ${isSell ? "Sell" : "Buy"} ${outcomeLabel}`
-    : `${isSell ? "Sell" : "Buy"} ${outcomeLabel}`;
+  // 研发问题 #15 (2026-09-24): no "Place limit ·" prefix — the yellow hint above the CTA
+  // already says the order will rest as Pending; the button just names the action.
+  const ctaLabel = `${isSell ? "Sell" : "Buy"} ${outcomeLabel}`;
   const ctaDisabled = submitting || blocked || (orderType === "Limit" && tickInvalid);
 
   // FIX3 · Bug 2 — `Close` pre-sets the panel AND opens the order preview.

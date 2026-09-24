@@ -1,10 +1,10 @@
 // ============================================================
 // DK-1 · Order gating for the Pro contract terminal (/trade, /trade/order,
 // desktop /trade). Mirrors the Lite contract page exactly:
-//   resolved → "Settled" · lifecycle REVIEW → "In review" ·
-//   lifecycle SUSPENDED → "Suspended · cancel only" (交易页收尾 #5, same wording
-//   as spot; open orders stay cancellable) · past freeze_time or end_date →
-//   "Closed". Nothing else blocks.
+//   resolved → "Settled" · lifecycle REVIEW → "In review" · past freeze_time
+//   or end_date → "Closed". Nothing else blocks.
+// 研发问题 #16 (2026-09-24): SUSPENDED dropped from the design — the backend has
+// no such lifecycle state; an unknown lifecycle falls through to the time gate.
 // Spot keeps its own gate in useSpotTerminal (lifecycle states + freeze).
 // ============================================================
 import { useEffect, useState } from "react";
@@ -20,7 +20,6 @@ export const contractGate = (event: TradingEvent | null | undefined, now: number
   if (!event) return { blocked: false, reason: "" };
   if (event.isResolved) return { blocked: true, reason: "Settled" };
   if (event.lifecycle === "REVIEW") return { blocked: true, reason: "In review" };
-  if (event.lifecycle === "SUSPENDED") return { blocked: true, reason: "Suspended · cancel only" };
   const freezeAt = event.freezeTime?.getTime();
   const endAt = event.endTime?.getTime();
   if ((freezeAt && freezeAt <= now) || (endAt && endAt <= now)) return { blocked: true, reason: "Closed" };

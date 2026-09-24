@@ -23,6 +23,7 @@ import {
   SpotMiniOrderBook,
   SpotOrdersTable,
   SpotPositionsTable,
+  SpotEventInfoPanel,
 } from "@/components/pro/ProSpotShared";
 import type { SpotTerminal } from "@/hooks/useSpotTerminal";
 
@@ -184,7 +185,7 @@ export const ProSpotPanelFrozen = () => (
 
 /** SP-B6 · Resting limit warning. */
 export const ProSpotPanelPendingLimit = () => (
-  <PanelFixture orderType="Limit" willBePending ctaLabel="Place limit · Buy Up" />
+  <PanelFixture orderType="Limit" willBePending ctaLabel="Buy Up" />
 );
 
 /** SP-B7 · Order preview dialog (production Dialog, forced open). */
@@ -420,7 +421,7 @@ const MobileChartsFrame = ({ width, terminal }: { width?: number; terminal?: Par
       <SpotMobileStatsStrip t={t} />
       <SpotMobileMarkLine t={t} />
       <div className="w-full min-w-0 overflow-hidden" style={{ height: 280 }}>
-        <CandlestickChart basePrice={0.4916} side="buy" />
+        <CandlestickChart basePrice={0.4916} side="buy" showMarkSeries={false} />
       </div>
       <SpotPositionsTable t={t} variant="mobile" />
       <SpotOrdersTable t={t} variant="mobile" />
@@ -582,3 +583,73 @@ export const OrderStatusMobile = () => {
     </Phone>
   );
 };
+
+
+/* ---------------- 研发问题 18 条 (2026-09-24) · new cases ---------------- */
+
+/** HD-D1 · desktop /spot Holdings — Close is the same bordered button as the contract table (研发问题 #10b). */
+export const SpotHoldingsDesktop = () => {
+  const t = spotFixture({
+    closePosition: () => undefined,
+    spotPositions: [
+      { id: "sg-h1", event: "Solana — up or down?", option: "Down", optionId: "sg-down", entryPrice: "$0.4602", markPrice: "$0.4632", entryPriceNum: 0.4602, markPriceNum: 0.4632, sizeNum: 18.091, pnlNum: 0.05 },
+      { id: "sg-h2", event: "Meta (META) — will close higher today?", option: "Up", optionId: "sg-up", entryPrice: "$0.4620", markPrice: "$0.4916", entryPriceNum: 0.462, markPriceNum: 0.4916, sizeNum: 2034.879, pnlNum: 60.23 },
+    ],
+  } as unknown as Partial<SpotTerminal>);
+  return (
+    <div style={{ width: 1000 }}>
+      <SpotPositionsTable t={t} variant="desktop" />
+    </div>
+  );
+};
+
+/** OS-D2 · desktop /spot Cancel → confirmation dialog before the order is pulled (研发问题 #10c). */
+export const OrderCancelConfirmDesktop = () => {
+  const t = spotFixture({ spotOrders: PF_ORDERS, frozenCancelledIds: new Set<string>(), isCancelling: false, handleCancelSpotOrder: async () => undefined } as unknown as Partial<SpotTerminal>);
+  return (
+    <div style={{ width: 1000, minHeight: 420, position: "relative" }}>
+      <SpotOrdersTable t={t} variant="desktop" previewCancelIndex={1} />
+    </div>
+  );
+};
+
+/** OS-M2 · mobile /spot Cancel → the same confirmation dialog (研发问题 #10c). */
+export const OrderCancelConfirmMobile = () => {
+  const t = spotFixture({ spotOrders: PF_ORDERS, frozenCancelledIds: new Set<string>(), isCancelling: false, handleCancelSpotOrder: async () => undefined } as unknown as Partial<SpotTerminal>);
+  return (
+    <Phone>
+      <div style={{ minHeight: 520, position: "relative" }}>
+        <SpotOrdersTable t={t} variant="mobile" previewCancelIndex={1} />
+      </div>
+    </Phone>
+  );
+};
+
+const cryptoFixture = (over: Partial<SpotTerminal> = {}) =>
+  spotFixture({
+    event: {
+      id: "crypto-eth-updown-15m-202609240400",
+      name: "Ethereum — up or down?",
+      base_price: 3350.04,
+      description: "Quick 15m round on Ethereum. Up settles $1 if the price at the end of the round is above the round open ($3350.04).",
+      source_name: "databento",
+      source_url: "",
+      rules: "Settles Up if the price at the end of the round is above the round open ($3350.04); otherwise Down. A new round starts the moment this one settles.",
+    },
+    ticker: "ETH",
+    basePrice: 3350.04,
+    market: { key: "crypto", tz: "UTC", label: "UTC", short: "CRYPTO", currency: "$" },
+    marketKey: "crypto",
+    countdown: { text: "00:13:07", urgency: "yellow" as const, diffMs: 787000 },
+    freezeEtOnly: "04:15",
+    settleEtOnly: "04:16",
+    freezeLabel: "04:15",
+    ...over,
+  } as unknown as Partial<SpotTerminal>);
+
+/** EI-D1 · /spot Event Info for a crypto quick round — ONE grid, nothing listed twice (研发问题 #18 / #14). */
+export const SpotEventInfoCrypto = () => (
+  <div style={{ width: 720 }}>
+    <SpotEventInfoPanel t={cryptoFixture()} />
+  </div>
+);

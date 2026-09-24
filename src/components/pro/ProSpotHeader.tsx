@@ -14,6 +14,8 @@ import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
 export interface ProSpotHeaderProps {
   ticker: string;
   eventName: string;
+  /** 研发问题 #12 · quick-round length chip after the title (5m / 15m / 1h / 4h / Daily). */
+  roundLabel?: string | null;
   lifecycleBadge: { label: string; className: string; tooltip?: string } | null;
   countdown: { text: string; urgency: "red" | "yellow" | "muted" };
   freezeEtOnly?: string | null;
@@ -91,12 +93,24 @@ export const ProSpotHeader = (p: ProSpotHeaderProps) => (
               aria-haspopup="listbox"
             >
               <span className="font-semibold text-foreground truncate">{p.eventName}</span>
+              {p.roundLabel && (
+                <span className="shrink-0 px-1.5 py-px rounded border border-border/60 bg-muted/40 text-[10px] font-mono text-muted-foreground">
+                  {p.roundLabel}
+                </span>
+              )}
               <ChevronDown
                 className={cn("w-4 h-4 text-muted-foreground flex-shrink-0 transition-transform", p.selectorOpen && "rotate-180")}
               />
             </button>
           ) : (
-            <span className="font-semibold text-foreground truncate">{p.eventName}</span>
+            <>
+              <span className="font-semibold text-foreground truncate">{p.eventName}</span>
+              {p.roundLabel && (
+                <span className="shrink-0 px-1.5 py-px rounded border border-border/60 bg-muted/40 text-[10px] font-mono text-muted-foreground">
+                  {p.roundLabel}
+                </span>
+              )}
+            </>
           )}
           {p.lifecycleBadge &&
             (p.lifecycleBadge.tooltip ? (

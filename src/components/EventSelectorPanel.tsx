@@ -11,6 +11,18 @@
 import { Search, Star, X } from "lucide-react";
 import type { TradingEvent } from "@/hooks/useEvents";
 import { cn } from "@/lib/utils";
+import { quickRoundLabel } from "@/components/lite/intraday/intradayData";
+
+/** 研发问题 #12 · round-length chip (5m / 15m / 1h / 4h / Daily) after a quick-round name. */
+const RoundChip = ({ id }: { id: string }) => {
+  const label = quickRoundLabel(id);
+  if (!label) return null;
+  return (
+    <span className="shrink-0 px-1.5 py-px rounded border border-border/60 bg-muted/40 text-[10px] font-mono text-muted-foreground">
+      {label}
+    </span>
+  );
+};
 import {
   formatEndsIn,
   formatListVolume,
@@ -163,7 +175,10 @@ export function EventSelectorPanel(p: EventSelectorPanelProps) {
                   >
                     <FavStar on={p.favorites.has(event.id)} onClick={onFav(event.id)} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground line-clamp-2">{event.name}</p>
+                      <p className="text-sm font-medium text-foreground line-clamp-2">
+                        {event.name}
+                        {quickRoundLabel(event.id) && <span className="ml-1.5 inline-flex align-middle"><RoundChip id={event.id} /></span>}
+                      </p>
                       <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
                         <span>
                           {ends.frozen || ends.text === "Ended" ? "" : "Ends in "}
@@ -220,6 +235,7 @@ export function EventSelectorPanel(p: EventSelectorPanelProps) {
                 <div className="flex items-center gap-3 min-w-0">
                   <FavStar on={p.favorites.has(event.id)} onClick={onFav(event.id)} className="p-1.5 hover:bg-muted/50" />
                   <span className="text-sm font-medium truncate">{event.name}</span>
+                  <RoundChip id={event.id} />
                 </div>
                 <span className={cn("text-xs font-mono text-right", URGENCY_CLASS[ends.urgency])}>{ends.text}</span>
                 <span className="text-xs font-mono text-right">{formatListVolume(event.volume)}</span>

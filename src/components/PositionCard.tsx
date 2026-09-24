@@ -1,3 +1,4 @@
+import { SIDE_CHIP_CLASS } from "@/components/trading/SideChip";
 import { useState, useMemo } from "react";
 import { TrendingUp, TrendingDown, Pencil, Gift, Lock } from "lucide-react";
 import { MobileDrawer, MobileDrawerActions } from "@/components/ui/mobile-drawer";
@@ -63,21 +64,11 @@ export const PositionCard = ({
   // 再渲染一个 Yes/No 侧别 chip 就是重复信息 → 隐藏。
   const outcome = getBinaryOutcome(option);
   const isBinaryAlias = displayOption !== undefined && displayOption !== option && outcome !== null;
-  // Yes/No 颜色看 outcome（option_label），不看 type；多 outcome 才回退到 type-driven 配色
-  const outcomeColorBg = outcome === "yes"
-    ? "bg-trading-green/20 text-trading-green"
-    : outcome === "no"
-    ? "bg-trading-red/20 text-trading-red"
-    : type === "long"
-    ? "bg-trading-green/20 text-trading-green"
-    : "bg-trading-red/20 text-trading-red";
-  const outcomeColorText = outcome === "yes"
-    ? "text-trading-green"
-    : outcome === "no"
-    ? "text-trading-red"
-    : type === "long"
-    ? "text-trading-green"
-    : "text-trading-red";
+  // Yes/No 颜色看 outcome（option_label），不看 type；多 outcome 才回退到 type-driven 配色。
+  // 研发问题 #9 (2026-09-24): side identity follows the market axis (DESIGN §2) — Yes/Up = --yes, No/Down = --no.
+  const isYesSide = outcome === "yes" ? true : outcome === "no" ? false : type === "long";
+  const outcomeColorBg = SIDE_CHIP_CLASS[isYesSide ? "yes" : "no"];
+  const outcomeColorText = isYesSide ? "text-yes" : "text-no";
   // 多 outcome 事件：chip 显示方向 Yes/No（long→Yes，short→No）。binary 事件 chip 被隐藏，此值用于 drawer。
   const directionLabel = type === "long" ? "Yes" : "No";
   const outcomeLabel = outcome === "yes" ? "Yes" : outcome === "no" ? "No" : directionLabel;
@@ -303,27 +294,7 @@ export const PositionCard = ({
           </span>
         </div>
 
-        {/* TP/SL Row - Always visible (hidden for airdrop positions) */}
-        {!isAirdrop && (
-        <div className="flex items-center justify-between py-2 mb-2 border-y border-border/30">
-          <span className="text-[10px] text-muted-foreground">{TRADING_TERMS.TPSL}</span>
-          <button 
-            onClick={handleOpenDialog}
-            className="flex items-center gap-1.5 text-xs hover:opacity-80 transition-opacity"
-          >
-            {hasTpSl ? (
-              <>
-                {savedTp && <span className="text-trading-green font-mono">{formatTpSl(savedTp, savedTpMode, true)}</span>}
-                {savedTp && savedSl && <span className="text-muted-foreground">/</span>}
-                {savedSl && <span className="text-trading-red font-mono">{formatTpSl(savedSl, savedSlMode, false)}</span>}
-              </>
-            ) : (
-              <span className="text-muted-foreground">--</span>
-            )}
-            <Pencil className="w-3 h-3 text-muted-foreground" />
-          </button>
-        </div>
-        )}
+        {/* 研发问题 #5 (2026-09-24): TP/SL row removed — no trigger orders in the engine. */}
 
         {/* Actions at bottom */}
         {isAirdrop && !isVoucher ? (
@@ -361,12 +332,6 @@ export const PositionCard = ({
           </div>
         ) : (
         <div className="flex gap-2">
-          <button 
-            onClick={handleOpenDialog}
-            className="flex-1 py-1.5 text-[10px] font-medium bg-muted rounded-lg hover:bg-muted/80 transition-colors"
-          >
-            {hasTpSl ? `Edit ${TRADING_TERMS.TPSL}` : `Add ${TRADING_TERMS.TPSL}`}
-          </button>
           <button
             onClick={() => setCloseOpen(true)}
             className="flex-1 py-1.5 text-[10px] font-medium bg-trading-red/20 text-trading-red rounded-lg hover:bg-trading-red/30 transition-colors"
@@ -394,132 +359,6 @@ export const PositionCard = ({
         )}
       </div>
 
-      {/* TP/SL Edit Drawer (mobile spec) */}
-      <MobileDrawer
-        open={tpSlOpen}
-        onOpenChange={setTpSlOpen}
-        title={`Edit ${TRADING_TERMS.TPSL}`}
-      >
-        <div className="space-y-4">
-          {/* Position Info */}
-          <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Position</span>
-              <span className={outcomeColorText}>
-                {isBinaryAlias ? optionDisplay : outcomeLabel} {leverage}
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">{TRADING_TERMS.ENTRY_PRICE}</span>
-              <span className="font-mono">{entryPrice}</span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">{TRADING_TERMS.MARK_PRICE}</span>
-              <span className="font-mono">{markPrice}</span>
-            </div>
-          </div>
-
-          {/* Take Profit */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-trading-green">Take Profit</label>
-              {tpEstimatedPnl !== null && (
-                <span className={`text-xs font-mono ${tpEstimatedPnl >= 0 ? "text-trading-green" : "text-trading-red"}`}>
-                  Est. P&L: {formatPnl(tpEstimatedPnl)}
-                </span>
-              )}
-            </div>
-            <div className="flex gap-2">
-              <div className="flex-1 relative">
-                <input
-                  type="number"
-                  value={tpValue}
-                  onChange={(e) => setTpValue(e.target.value)}
-                  placeholder="0"
-                  className="w-full h-11 bg-muted border-0 rounded-lg px-3 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-              </div>
-              <div className="flex bg-muted rounded-lg p-0.5 shrink-0">
-                <button
-                  onClick={() => setTpMode("%")}
-                  className={`px-2 py-1.5 text-xs rounded-md transition-colors ${
-                    tpMode === "%" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-                  }`}
-                >
-                  %
-                </button>
-                <button
-                  onClick={() => setTpMode("$")}
-                  className={`px-2 py-1.5 text-xs rounded-md transition-colors ${
-                    tpMode === "$" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-                  }`}
-                >
-                  $
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Stop Loss */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-trading-red">Stop Loss</label>
-              {slEstimatedPnl !== null && (
-                <span className={`text-xs font-mono ${slEstimatedPnl >= 0 ? "text-trading-green" : "text-trading-red"}`}>
-                  Est. P&L: {formatPnl(slEstimatedPnl)}
-                </span>
-              )}
-            </div>
-            <div className="flex gap-2">
-              <div className="flex-1 relative">
-                <input
-                  type="number"
-                  value={slValue}
-                  onChange={(e) => setSlValue(e.target.value)}
-                  placeholder="0"
-                  className="w-full h-11 bg-muted border-0 rounded-lg px-3 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-              </div>
-              <div className="flex bg-muted rounded-lg p-0.5 shrink-0">
-                <button
-                  onClick={() => setSlMode("%")}
-                  className={`px-2 py-1.5 text-xs rounded-md transition-colors ${
-                    slMode === "%" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-                  }`}
-                >
-                  %
-                </button>
-                <button
-                  onClick={() => setSlMode("$")}
-                  className={`px-2 py-1.5 text-xs rounded-md transition-colors ${
-                    slMode === "$" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-                  }`}
-                >
-                  $
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <MobileDrawerActions>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                className="flex-1 h-11"
-                onClick={handleCancel}
-              >
-                Cancel
-              </Button>
-              <Button
-                className="flex-1 h-11 bg-primary hover:bg-primary/90"
-                onClick={handleSave}
-              >
-                Confirm
-              </Button>
-            </div>
-          </MobileDrawerActions>
-        </div>
-      </MobileDrawer>
 
       {/* Position Detail Drawer */}
       {fullPosition && (

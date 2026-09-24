@@ -18,6 +18,9 @@ import type { RiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import type { UnifiedPosition } from "@/hooks/usePositions";
 import type { ProOrderType } from "@/components/pro/OrderTypeDropdown";
 import { ProContractPanel } from "@/components/pro/ProContractPanel";
+import { DesktopOrderBook } from "@/components/DesktopOrderBook";
+import { CandlestickChart } from "@/components/CandlestickChart";
+import { SideChip } from "@/components/trading/SideChip";
 import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
 import { FUTURES_FEE_RATE, netWin } from "@/services/tradingService";
 
@@ -208,7 +211,6 @@ export const ProTradeMobileDockStates = () => (
       { k: "No selected", selected: "no" as const, reason: "" },
       { k: "closed (past freeze / end)", selected: "yes" as const, reason: "Closed" },
       { k: "in review", selected: "yes" as const, reason: "In review" },
-      { k: "suspended (cancel only)", selected: "yes" as const, reason: "Suspended · cancel only" },
       { k: "settled", selected: "yes" as const, reason: "Settled" },
     ].map((s) => (
       <div key={s.k}>
@@ -472,3 +474,70 @@ export const ProContractPanelLeverageLocked = () => <DesktopPanelFixture leverag
 export const ProContractPanelClosed = () => <DesktopPanelFixture blockedReason="Closed" amount="25.00" />;
 /** RM-D1 · Close-only (Risk ≥ 95 %) — Buy CTA disabled, Sell tab untouched. */
 export const ProContractPanelCloseOnly = () => <DesktopPanelFixture riskRatio={96} amount="25.00" />;
+
+
+/* ---------------- 研发问题 18 条 (2026-09-24) · new contract cases ---------------- */
+
+/** OB-D1 · contract order book — no precision picker (研发问题 #2); ⚑ mark row stays. */
+export const ProContractBook = () => (
+  <div style={{ height: 560, width: 280 }}>
+    <DesktopOrderBook
+      variant="futures"
+      currentPrice="0.0468"
+      markPrice="0.0468"
+      isPositive={false}
+      asks={[
+        { price: "0.0531", amount: "28,499", total: "534,070" },
+        { price: "0.0526", amount: "26,204", total: "506,571" },
+        { price: "0.0521", amount: "40,953", total: "480,367" },
+        { price: "0.0516", amount: "24,872", total: "439,414" },
+        { price: "0.0506", amount: "43,460", total: "375,014" },
+        { price: "0.0501", amount: "50,183", total: "331,554" },
+        { price: "0.0496", amount: "60,251", total: "308,301" },
+        { price: "0.0491", amount: "18,990", total: "222,110" },
+        { price: "0.0486", amount: "75,178", total: "203,060" },
+        { price: "0.0481", amount: "58,758", total: "128,882" },
+        { price: "0.0476", amount: "69,624", total: "69,624" },
+      ]}
+      bids={[
+        { price: "0.0466", amount: "57,415", total: "57,415" },
+        { price: "0.0461", amount: "46,830", total: "104,251" },
+        { price: "0.0456", amount: "50,354", total: "154,605" },
+        { price: "0.0451", amount: "17,754", total: "172,359" },
+        { price: "0.0446", amount: "17,109", total: "189,468" },
+        { price: "0.0441", amount: "51,447", total: "240,915" },
+        { price: "0.0436", amount: "71,428", total: "312,343" },
+        { price: "0.0431", amount: "44,671", total: "357,014" },
+        { price: "0.0426", amount: "59,757", total: "416,771" },
+        { price: "0.0421", amount: "59,533", total: "476,304" },
+        { price: "0.0416", amount: "60,398", total: "536,702" },
+      ]}
+    />
+  </div>
+);
+
+/** CH-D1 · contract chart — Last candles + Mark dashed line, legend chips toggle each (研发问题 #3). */
+export const ProContractChart = () => (
+  <div style={{ width: 760, height: 380 }}>
+    <CandlestickChart remainingDays={7} basePrice={0.0471} side="buy" />
+  </div>
+);
+
+/** PT-D1 · SIDE chip on the Pro tables — market axis colours (研发问题 #9). */
+export const ProSideChips = () => (
+  <div className="p-4 space-y-3 text-sm" style={{ width: 420 }}>
+    {[
+      ["binary Yes side", "yes", "Above 685"],
+      ["binary No side", "no", "Below 685"],
+      ["alias line · Yes", "yes", "AST −1.5"],
+      ["alias line · No", "no", "HER +1.5"],
+      ["multi-outcome · Yes", "yes", "Inter"],
+      ["multi-outcome · No", "no", "Not Draw"],
+    ].map(([k, side, label]) => (
+      <div key={k} className="flex items-center justify-between">
+        <span className="text-xs text-muted-foreground">{k}</span>
+        <SideChip side={side as "yes" | "no"}>{label}</SideChip>
+      </div>
+    ))}
+  </div>
+);

@@ -43,10 +43,13 @@ const ev = (
 });
 
 export const EVENTS: TradingEvent[] = [
-  ev("sg-btc-round", "BTC · Up or down?", 8 * MIN + 41_000, "$803K", ["spot"]),
+  // 研发问题 #12 (2026-09-24): quick rounds use the real id shape so the round chip renders
+  // (crypto-{coin}-updown-{tf}-{period}) — two BTC rounds differ only by the chip.
+  ev("crypto-btc-updown-5m-202609240400", "Bitcoin — up or down?", 3 * MIN + 41_000, "$803K", ["spot"]),
+  ev("crypto-btc-updown-1h-202609240400", "Bitcoin — up or down?", 38 * MIN + 12_000, "$1.02M", ["spot"]),
   ev("sg-hk-0700", "0700.HK · Up or down?", 42 * MIN, "$1.12M", ["spot"]),
   ev("sg-tsla", "TSLA · Up or down?", 3 * HOUR + 12 * MIN, "$2.31M", ["spot"]),
-  ev("sg-eth-round", "ETH · Up or down?", 30_000, "$412K", ["spot"]),
+  ev("crypto-eth-updown-15m-202609240400", "Ethereum — up or down?", 30_000, "$412K", ["spot"]),
   ev("sg-nvda", "NVDA · Up or down?", 6 * HOUR, "$1.87M", ["spot"], -2 * MIN),
   ev("sg-fed", "Fed decision · September 2026", 2 * DAY + 14 * HOUR, "$4.2M", ["futures"]),
   ev("sg-derby", "Shanghai Port vs Shandong Taishan", 1 * HOUR + 36 * MIN, "$2.45M", ["futures"]),
@@ -124,7 +127,7 @@ const Dropdown = (f: Fixture) => {
 };
 
 /** ES-D1 · Standard tab (spot line) — every `Ends in` format + Frozen. */
-export const EventSelectorStandard = () => <Dropdown tab="standard" currentEventId="sg-btc-round" favorites={["sg-tsla"]} />;
+export const EventSelectorStandard = () => <Dropdown tab="standard" currentEventId="crypto-btc-updown-5m-202609240400" favorites={["sg-tsla"]} />;
 
 /** ES-D2 · Boost tab (contract line), opened from /spot — no current row. */
 export const EventSelectorBoost = () => <Dropdown tab="boost" favorites={["sg-derby"]} />;
@@ -137,10 +140,10 @@ export const EventSelectorSearchEmpty = () => <Dropdown tab="standard" search="x
 
 /** ES-M1 · Mobile drawer (375), Standard tab. viewport-fixed — own frame. */
 export const EventSelectorDrawer = () => {
-  const s = useFixtureSelector({ tab: "standard", currentEventId: "sg-btc-round", favorites: ["sg-tsla"] });
+  const s = useFixtureSelector({ tab: "standard", currentEventId: "crypto-btc-updown-5m-202609240400", favorites: ["sg-tsla"] });
   return (
     <div style={{ width: 375, height: 640 }}>
-      <EventSelectorSheet open onOpenChange={() => undefined} selector={s} currentEventId="sg-btc-round" onSelect={() => undefined} />
+      <EventSelectorSheet open onOpenChange={() => undefined} selector={s} currentEventId="crypto-btc-updown-5m-202609240400" onSelect={() => undefined} />
     </div>
   );
 };

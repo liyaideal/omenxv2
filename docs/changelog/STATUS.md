@@ -17,6 +17,25 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-09-24 — 交易页一体化 · 研发问题 18 条 DQ（[文档](../delivery/trade-lite-pro-v1.md#11-验收记录)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| DQ-2 | 订单簿精度切换下拉删除（合约 + 现货），聚合固定原生 tick | ✅ | `DesktopOrderBook` |
+| DQ-3 | 合约 K 线 Last 蜡烛 + Mark 黄色虚线，图例 chip 各自开关；现货无 | ✅ | `CandlestickChart showMarkSeries`；Mark 序列为模拟，正式版接后端 mark |
+| DQ-5 | TP/SL 全站删除（面板段 / 持仓表列 / 手机持仓卡 / 预览行 / 编辑弹窗）；Sell · Limit 保留 | ✅ | 引擎无触发单 |
+| DQ-7 | 文档口径：Standard / Boost 按 event product line 配置，不按品类 | ✅ | §1 概念词典 |
+| DQ-9 | Pro 持仓 / 挂单 / 空投行 Side chip 走方向轴（`SideChip`）；手机持仓卡同色 | ✅ | DESIGN §2 |
+| DQ-10b | 现货 Holdings Close / Current Orders Cancel 与合约表同款按钮；手机卡 Close 红底 | ✅ | `ProSpotShared` |
+| DQ-10c | 现货撤单先弹 `Cancel Order` 确认框（桌面 + 手机） | ✅ | `SpotOrdersTable` |
+| DQ-12 | 加密快轮周期 chip（选择器行 / 桌面页头 / 手机短名） | ✅ | `quickRoundLabel` |
+| DQ-14 | 加密 `Trading ends` = 轮次结束时间 | ✅ | `useSpotTerminal.freezeEtOnly` |
+| DQ-15 | 现货 Limit CTA 去 `Place limit ·` 前缀 | ✅ | `useSpotTerminal.ctaLabel` |
+| DQ-16 | Suspended 态从设计删除（gate / Lite / 徽标 / 字典） | ✅ | DB 枚举保留不处理 |
+| DQ-18 | 现货 Event Info 合成一套六格 | ✅ | `SpotEventInfoPanel` |
+| DQ-1 | mark price 悬浮框 `Click here for details` 接 help center 链接 | ⬜ | 等 Liya 给 URL |
+| DQ-字典 | CH-D1 / OB-D1 / PT-D1 / HD-D1 / OS-D2 / OS-M2 / EI-D1；DK 案例去 Suspended | ✅ | sg:audit PASS |
+
 ## 2026-09-23 — Rewards 阶梯任务 RW-T（[文档](../delivery/rewards-tiered-tasks-v1.md)）
 
 | # | 项 | Status | Notes |

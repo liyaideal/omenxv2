@@ -9,7 +9,17 @@ import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { OrderStatusBadge } from "@/components/trading/OrderStatusBadge";
-import { EventInfoContent } from "@/components/EventInfoContent";
+import { AlertTriangle } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   ProSpotPanel,
   ProSpotAccountPanel,
@@ -19,6 +29,7 @@ import {
 } from "@/components/pro/ProSpotPanel";
 import { ProBottomTabs } from "@/components/pro/ProBottomTabs";
 import { mock24hVolume, type SpotTerminal } from "@/hooks/useSpotTerminal";
+import { quickRoundLabel } from "@/components/lite/intraday/intradayData";
 import type { TradingEvent } from "@/hooks/useEvents";
 import { TRADING_TERMS } from "@/lib/tradingTerms";
 
@@ -129,21 +140,35 @@ const InfoCell = ({ label, value }: { label: string; value: string }) => (
 export const SpotEventInfoPanel = ({ t }: { t: SpotTerminal }) => {
   const event = t.event;
   if (!event) return null;
+  const isCrypto = t.market.key === "crypto";
+  // 研发问题 #18 (2026-09-24): ONE metadata grid — the generic EventInfoContent block
+  // (Event End Date / Total Volume / Open Interest / Resolution Source) used to stack on
+  // top of the spot grid, so Volume and Resolution source appeared twice and Symbol read
+  // `ETH · Nasdaq` for crypto. Every cell now has a single source.
+  const roundLabel = quickRoundLabel(event.id);
+  const symbolValue = isCrypto
+    ? `${t.ticker} · USD${roundLabel ? ` · ${roundLabel} round` : ""}`
+    : `${t.ticker} · ${t.market.key === "hk" ? "HKEX" : t.market.key === "kr" ? "KRX" : "Nasdaq"}`;
   return (
     <div className="p-6 overflow-auto text-sm space-y-4">
-      <EventInfoContent event={spotHeaderEvent(t)} />
+      <div>
+        <h2 className="text-lg font-bold">{event.name}</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          {event.description || (isCrypto
+            ? "Crypto quick round (spot). Winning share pays $1 at settlement."
+            : "US-stock daily up/down (spot). Winning share pays $1 at settlement.")}
+        </p>
+      </div>
       <div className="grid grid-cols-2 gap-3 text-xs font-mono">
+        <InfoCell label="Trading ends" value={t.freezeEtOnly ? `${t.countdown.text} · ${t.freezeEtOnly}` : t.countdown.text} />
+        <InfoCell label="Volume" value={mock24hVolume(event.id)} />
         <InfoCell
-          label="Prior official close"
+          label={isCrypto ? "Round open" : "Prior official close"}
           value={t.basePrice != null ? `${t.cur}${money2(t.basePrice)}` : "—"}
         />
-        <InfoCell label="Settles vs" value={`Prior close · flat close = ${t.noLabel}`} />
+        <InfoCell label="Settles vs" value={`${isCrypto ? "Round open" : "Prior close"} · flat close = ${t.noLabel}`} />
         <InfoCell label="Resolution source" value={event.source_name || "databento"} />
-        <InfoCell
-          label="Symbol"
-          value={`${t.ticker} · ${t.market.key === "hk" ? "HKEX" : t.market.key === "kr" ? "KRX" : "Nasdaq"}`}
-        />
-        <InfoCell label="Volume" value={mock24hVolume(event.id)} />
+        <InfoCell label="Symbol" value={symbolValue} />
       </div>
       <div className="space-y-1 text-xs text-muted-foreground">
         <div className="font-semibold text-foreground text-sm">Rules</div>
@@ -237,7 +262,7 @@ export const SpotPositionsTable = ({
                   </div>
                 </div>
                 <div className="flex items-center justify-between pt-2 border-t border-border/30">
-                  <button onClick={() => t.closePosition(p)} className="flex-1 py-1.5 text-[10px] font-medium rounded-lg text-primary hover:bg-primary/10">Close</button>
+                  <button onClick={() => t.closePosition(p)} className="flex-1 py-1.5 text-[10px] font-medium bg-trading-red/20 text-trading-red rounded-lg hover:bg-trading-red/30 transition-colors">Close</button>
                 </div>
               </div>
             );
@@ -298,7 +323,8 @@ export const SpotPositionsTable = ({
               </span>
               <button
                 onClick={() => t.closePosition(p)}
-                className="text-[10px] text-primary hover:underline text-right"
+                // 研发问题 #10b (2026-09-24): same button chrome as the contract terminal's Close.
+                className="justify-self-end px-3 py-1 text-xs text-foreground border border-border/50 rounded hover:bg-muted"
               >
                 Close
               </button>
@@ -313,15 +339,83 @@ export const SpotPositionsTable = ({
 export const SpotOrdersTable = ({
   t,
   variant = "desktop",
+  previewCancelIndex,
 }: {
   t: SpotTerminal;
   variant?: "desktop" | "mobile";
+  /** Style-guide only: open the cancel confirmation for this row on mount. */
+  previewCancelIndex?: number;
 }) => {
   const rows = t.spotOrders;
+  // 研发问题 #10c (2026-09-24): spot Cancel confirms first — same dialog as the contract terminal.
+  const [pendingCancel, setPendingCancel] = useState<(typeof rows)[number] | null>(
+    previewCancelIndex != null ? rows[previewCancelIndex] ?? null : null,
+  );
+  const confirmDialog = (
+    <AlertDialog open={pendingCancel !== null} onOpenChange={(o) => { if (!o) setPendingCancel(null); }}>
+      <AlertDialogContent className="max-w-md bg-card border-border">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-trading-red" />
+            Cancel Order
+          </AlertDialogTitle>
+          <AlertDialogDescription className="text-left">
+            Are you sure you want to cancel this order?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        {pendingCancel && (
+          <div className="bg-muted/30 rounded-lg p-3 space-y-2 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Market</span>
+              <span className="text-right truncate max-w-[60%]">{pendingCancel.event}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Side</span>
+              <span className={cn("font-medium", pendingCancel.type === "buy" ? "text-yes" : "text-no")}>
+                {pendingCancel.type === "buy" ? "Buy" : "Sell"} {pendingCancel.type === "buy" ? t.yesLabel : t.noLabel}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Type</span>
+              <span>{pendingCancel.orderType}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Limit</span>
+              <span className="font-mono">{pendingCancel.price}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Shares</span>
+              <span className="font-mono">{formatShares(num(pendingCancel.amount))}</span>
+            </div>
+            {pendingCancel.type === "buy" && (
+              <div className="flex items-center justify-between border-t border-border/30 pt-2 mt-2">
+                <span className="text-muted-foreground">Reserved · refunded on cancel</span>
+                <span className="font-mono">${money2(num(pendingCancel.total))}</span>
+              </div>
+            )}
+          </div>
+        )}
+        <AlertDialogFooter className="flex gap-2 sm:gap-2">
+          <AlertDialogCancel className="flex-1">Keep Order</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              const o = pendingCancel;
+              setPendingCancel(null);
+              if (o) void t.handleCancelSpotOrder(o);
+            }}
+            className="flex-1 bg-trading-red hover:bg-trading-red/90 text-white"
+          >
+            Cancel Order
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
 
   if (variant === "mobile") {
     return (
       <div className="px-4 py-3 space-y-3">
+        {confirmDialog}
         {rows.length === 0 ? (
           <div className="text-center text-muted-foreground py-4">No open orders</div>
         ) : (
@@ -369,7 +463,7 @@ export const SpotOrdersTable = ({
                   </div>
                 </div>
                 <div className="flex items-center justify-between pt-2 border-t border-border/30">
-                  <button disabled={t.isCancelling || !isPending} onClick={() => t.handleCancelSpotOrder(o)} className="flex-1 py-1.5 text-[10px] font-medium rounded-lg text-trading-red hover:bg-trading-red/10 disabled:opacity-40">Cancel</button>
+                  <button disabled={t.isCancelling || !isPending} onClick={() => setPendingCancel(o)} className="flex-1 py-1.5 text-[10px] font-medium rounded-lg text-trading-red hover:bg-trading-red/10 disabled:opacity-40">Cancel</button>
                 </div>
               </div>
             );
@@ -381,6 +475,7 @@ export const SpotOrdersTable = ({
 
   return (
     <div className="text-xs">
+      {confirmDialog}
       <div className="grid grid-cols-[1.5fr_0.6fr_0.6fr_0.6fr_0.7fr_0.8fr_0.7fr_0.5fr] gap-2 px-4 py-2 text-muted-foreground border-b border-border/30 sticky top-0 bg-background">
         <span>Market</span>
         <span>Side</span>
@@ -423,8 +518,9 @@ export const SpotOrdersTable = ({
               </span>
               <button
                 disabled={t.isCancelling || !isPending}
-                onClick={() => t.handleCancelSpotOrder(o)}
-                className="text-[10px] text-trading-red hover:underline text-right disabled:opacity-40 disabled:no-underline"
+                onClick={() => setPendingCancel(o)}
+                // 研发问题 #10b (2026-09-24): same button chrome as the contract terminal's Cancel.
+                className="justify-self-end px-3 py-1 text-xs text-trading-red border border-trading-red/50 rounded hover:bg-trading-red/10 disabled:opacity-40 disabled:hover:bg-transparent"
               >
                 Cancel
               </button>
@@ -554,8 +650,11 @@ const sessionPill = (tag?: string | null) => {
  */
 export const spotMobileTitle = (t: SpotTerminal): string => {
   const name = t.event?.name || "";
-  if (t.ticker && /up or down/i.test(name)) return `${t.ticker} · Up or down?`;
-  if (t.ticker && /higher|lower/i.test(name)) return `${t.ticker} · Up or down?`;
+  // 研发问题 #12 (2026-09-24): quick rounds carry their length in the title (BTC · 5m · Up or down?).
+  const round = quickRoundLabel(t.event?.id);
+  const tf = round ? ` · ${round}` : "";
+  if (t.ticker && /up or down/i.test(name)) return `${t.ticker}${tf} · Up or down?`;
+  if (t.ticker && /higher|lower/i.test(name)) return `${t.ticker}${tf} · Up or down?`;
   return name;
 };
 

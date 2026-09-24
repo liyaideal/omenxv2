@@ -133,7 +133,7 @@ const PANEL_CASES: SectionCase[] = [
       {
         state: "Pending 提示",
         when: "willBePending && !tickInvalid",
-        visual: "黄色 10px 提示说明会挂为 Pending 并占用预留资金，金额为 cost + fee（含手续费）；CTA 文案变 `Place limit · Buy Up`",
+        visual: "黄色 10px 提示说明会挂为 Pending 并占用预留资金，金额为 cost + fee（含手续费）；CTA 文案仍是 `Buy Up`（研发问题 #15 2026-09-24：去掉 `Place limit ·` 前缀）",
         source: "ProSpotPanel.willBePending",
       },
     ],
@@ -328,10 +328,10 @@ const TRADE_DOCK_CASES: SectionCase[] = [
   {
     key: "pro-trade-mobile-dock",
     label: "DK-M1 · /trade 手机图表页 sticky dock 五态（与 /spot 同一组件）",
-    note: "TradingCharts 自绘的 dock 已换成 ProSpotMobileDock（DK-1），两条线一个组件。封锁四种原因：Closed / In review / Suspended · cancel only / Settled（交易页收尾 #5 起合约与现货同口径，SUSPENDED 只许撤单）。",
+    note: "TradingCharts 自绘的 dock 已换成 ProSpotMobileDock（DK-1），两条线一个组件。封锁三种原因：Closed / In review / Settled（研发问题 #16 2026-09-24：SUSPENDED 已从设计删除，后端无此状态）。",
     spec: [
       { state: "default / 选中一边", when: "selected === 'yes' | 'no'（首屏始终一侧激活，无超时复位）", visual: "选中一边描边 + 箭头；点另一边 = 切边，再点同一边 = 跳 /trade/order", source: "ProSpotMobileDock（TradingCharts）" },
-      { state: "closed / in review / suspended / settled", when: "useContractGate(event).blocked（isResolved → Settled；lifecycle REVIEW → In review；lifecycle SUSPENDED → Suspended · cancel only；过 freeze_time / end_date → Closed）", visual: "两钮收成一条禁用条，只印一次原因；`tap again to trade` 隐藏；Lite/Pro 开关保留", source: "ProSpotMobileDock · lib/contractGate" },
+      { state: "closed / in review / settled", when: "useContractGate(event).blocked（isResolved → Settled；lifecycle REVIEW → In review；过 freeze_time / end_date → Closed）", visual: "两钮收成一条禁用条，只印一次原因；`tap again to trade` 隐藏；Lite/Pro 开关保留", source: "ProSpotMobileDock · lib/contractGate" },
     ],
   },
 ];
@@ -392,11 +392,47 @@ const RISK_MOBILE_CASES: SectionCase[] = [
   },
 ];
 
+/** 研发问题 18 条（2026-09-24）· 合约终端新增：订单簿 / K 线 / Side chip。 */
+const CONTRACT_BOOK_CASES: SectionCase[] = [
+  {
+    key: "pro-contract-book",
+    label: "OB-D1 · 合约订单簿（DesktopOrderBook variant=futures）· 无精度切换",
+    note: "研发问题 #2（2026-09-24）：右上角的精度下拉（0.0001 / 0.001 / …）已去掉，后端只有原生 tick；合约固定 0.0001，现货固定 0.01。中间行 `↑ 现价` + 黄色 ⚑ 标记价保留（现货没有 ⚑，见 SP-J0）。",
+    spec: [
+      { state: "normal", when: "variant=futures", visual: "三种视图按钮（双边 / 只买 / 只卖）+ 列头 Price / Qty / Total；11 asks + 现价行 + 11 bids；⚑ 标记价 hover 解释", source: "DesktopOrderBook（priceStep 常量，无 selector）" },
+    ],
+  },
+];
+
+const CONTRACT_CHART_CASES: SectionCase[] = [
+  {
+    key: "pro-contract-chart",
+    label: "CH-D1 · 合约 K 线 · Last 蜡烛 + Mark 虚线（图例可各自开关）",
+    note: "研发问题 #3（2026-09-24）：合约才有标记价，图上同时画两条序列。Last = 蜡烛（ALL 周期或切线图时为绿色折线）；Mark = 黄色虚线（与订单簿 ⚑ 同色）。周期选择器右侧两枚图例 chip，点一下各自开关，关掉的 chip 变灰；两条默认都开。现货终端不显示 Mark 与图例。Lovable 的 Mark 序列是 Last 三根均值的模拟，正式版接后端 mark 序列。",
+    spec: [
+      { state: "Last + Mark（默认）", when: "showMarkSeries && showLast && showMark", visual: "蜡烛 + 黄色 1.5px 虚线 `5,3`；图例 `● Last` `--- Mark` 白字带边框", source: "CandlestickChart · showMarkSeries（合约 true / 现货 false）" },
+      { state: "关掉一条", when: "点图例 chip", visual: "对应序列不画，chip 变 muted 无边框；两条都关 = 只剩网格与成交量", source: "CandlestickChart · showLast / showMark" },
+    ],
+  },
+];
+
+const SIDE_CHIP_CASES: SectionCase[] = [
+  {
+    key: "pro-side-chips",
+    label: "PT-D1 · 持仓 / 挂单 / 空投行的 Side chip（SideChip）· 方向轴配色",
+    note: "研发问题 #9（2026-09-24）：三张表的 Side 列原来全走盈亏轴（绿 / 红），改成方向轴——Yes/Up 蓝 #33D6FF、No/Down 绿 #CFFF4A、黑字，与 Portfolio 的 SIDE chip 同规则（DESIGN §2 持仓标识）。文案不变：binary 写 Yes/No 别名（Above 685 / Below 685），比赛线位写线位别名（AST −1.5），多选项写选项名 / `Not {option}`。手机持仓卡 PositionCard 同色。",
+    spec: [
+      { state: "Yes / Up", when: 'position.type === "long"（binary 看 option_label）', visual: "bg-yes 黑字", source: "SideChip · SIDE_CHIP_CLASS.yes · DESIGN §2" },
+      { state: "No / Down", when: 'position.type === "short" / option_label = No', visual: "bg-no 黑字", source: "SideChip · SIDE_CHIP_CLASS.no · resolveBinarySideLabel / `Not {option}`" },
+    ],
+  },
+];
+
 const CONTRACT_PANEL_CASES: SectionCase[] = [
   {
     key: "pro-contract-panel-buy",
     label: "CT-D1 · 桌面 /trade 面板 · Buy · Market（ProContractPanel）",
-    note: "桌面右栏 280px 面板抽成 `ProContractPanel`（交易页收尾 #9，零视觉变化），字典挂本体。与手机 /trade/order 同规格：Buy · Sell 页签 + Market/Limit 下拉 → Yes/No 切换 → Leverage 滑杆 + 档位 → Available + ⇄ → (Price) → Amount + 单位 → 滑杆 → TP/SL → 摘要 → CTA。桌面 CTA 走 Order Preview 弹窗，手机走 /order-preview 页。",
+    note: "桌面右栏 280px 面板抽成 `ProContractPanel`（交易页收尾 #9，零视觉变化），字典挂本体。与手机 /trade/order 同规格：Buy · Sell 页签 + Market/Limit 下拉 → Yes/No 切换 → Leverage 滑杆 + 档位 → Available + ⇄ → (Price) → Amount + 单位 → 滑杆 → 摘要 → CTA（研发问题 #5 2026-09-24：TP/SL 段已删，引擎无触发单）。桌面 CTA 走 Order Preview 弹窗，手机走 /order-preview 页。",
     spec: [
       { state: "Buy · Market", when: 'intent === "buy"', visual: "Leverage 行 `5x` + Slider 1–上限 + 档位芯片；摘要 Contracts / Notional val. / Margin req. / Fee (est.) / Total / To win ⓘ；CTA `Buy Up · To win $X`", source: "ProContractPanel（DesktopTrading 传值）" },
     ],
@@ -438,7 +474,7 @@ const CONTRACT_PANEL_CASES: SectionCase[] = [
   },
   {
     key: "pro-contract-panel-closed",
-    label: "DK-D1 · 桌面不可下单（Closed / In review / Suspended · cancel only / Settled）",
+    label: "DK-D1 · 桌面不可下单（Closed / In review / Settled）",
     spec: [
       { state: "blocked", when: "useContractGate(event).blocked", visual: "Buy 与 Sell 的 CTA 都置灰印原因，其余表单照常", source: "ProContractPanel（buyBlockedReason / sellBlockedReason）· lib/contractGate" },
     ],
@@ -461,7 +497,7 @@ const TRADE_ORDER_CASES: SectionCase[] = [
       {
         state: "Buy · Market",
         when: 'intent === "buy"',
-        visual: "Buy · Sell 文字页签（选中 text-foreground border-foreground）+ OrderTypeDropdown ml-auto → Yes/No 切换 → Leverage 10x ▾ → Available (USDC) + ⇄ Transfer → Amount → 滑杆 → TP/SL → 摘要（Notional / Margin req. / Fee / Total / To win ⓘ）→ CTA",
+        visual: "Buy · Sell 文字页签（选中 text-foreground border-foreground）+ OrderTypeDropdown ml-auto → Yes/No 切换 → Leverage 10x ▾ → Available (USDC) + ⇄ Transfer → Amount → 滑杆 → 摘要（Notional / Margin req. / Fee / Total / To win ⓘ）→ CTA（TP/SL 已删，研发问题 #5）",
         source: "TradeForm（/trade/order）",
       },
     ],
@@ -507,7 +543,7 @@ const TRADE_ORDER_CASES: SectionCase[] = [
   {
     key: "pro-trade-order-sell",
     label: "CT-M2 · Sell · Market（持 40 contracts Up 5x，全平）",
-    note: "Sell = 只减仓/平仓当前净额仓位，永不开反向。Leverage 与 TP/SL 隐藏；数量单位为 contracts（全词，不缩写），滑杆基数 = 持仓数量；CTA 红色，全平文案 Close {outcome}，部分平 Reduce {outcome}。市价 → 打开 ClosePositionDialog，走与 Positions 表 Close 同一条 partialClosePosition（含 5% 胜利佣金）。",
+    note: "Sell = 只减仓/平仓当前净额仓位，永不开反向。Leverage 隐藏（TP/SL 全站已删）；数量单位为 contracts（全词，不缩写），滑杆基数 = 持仓数量；CTA 红色，全平文案 Close {outcome}，部分平 Reduce {outcome}。市价 → 打开 ClosePositionDialog，走与 Positions 表 Close 同一条 partialClosePosition（含 5% 胜利佣金）。",
     spec: [
       {
         state: "Sell · Market · 全平",
@@ -672,6 +708,48 @@ const SKELETON_CASES: SectionCase[] = [
   },
 ];
 
+/** 研发问题 18 条（2026-09-24）· 现货终端新增：Holdings 表 / 撤单确认 / Event Info。 */
+const SPOT_TABLE_CASES: SectionCase[] = [
+  {
+    key: "pro-spot-holdings-desktop",
+    label: "HD-D1 · 桌面 /spot Holdings 表 · Close 按钮与合约表同款",
+    note: "研发问题 #10b（2026-09-24）：现货 Holdings 的 `Close` 原来是蓝色文字链、Current Orders 的 `Cancel` 是红字下划线，与合约表的边框按钮不一致，不是特意的。现在统一：Close = 白字细边框，Cancel = 红字红边框；手机现货卡的 Close 同合约手机卡（红底红字）。Close 点开 = 100% 预填的卖出确认框（全平）；部分平仓走 Sell 页签输数量。",
+    spec: [
+      { state: "有持仓", when: "spotPositions.length > 0", visual: "Market / Outcome chip（bg-yes/15 或 bg-no/15）/ Shares / Avg price / Price / Value / PnL（绿正红负）/ `Close`", source: "SpotPositionsTable variant=desktop" },
+    ],
+  },
+  {
+    key: "pro-spot-orders-cancel-confirm",
+    label: "OS-D2 · 桌面 /spot Current Orders · 点 Cancel 先弹确认框",
+    note: "研发问题 #10c（2026-09-24）：现货撤单原来直接撤，合约有确认框，两边不一致。现在现货复用同一套 `Cancel Order` AlertDialog：Market / Side / Type / Limit / Shares，Buy 单多一行 `Reserved · refunded on cancel $X`（Sell 单不锁份额、无退款行）；`Keep Order` 关闭，`Cancel Order` 才真撤并 toast `Order cancelled · $X refunded`。",
+    spec: [
+      { state: "confirm open", when: "点某行 Cancel（Pending / Partial Filled 才可点）", visual: "居中 AlertDialog，红色 ⚠ 标题；主按钮红底 `Cancel Order`，次按钮 `Keep Order`", source: "SpotOrdersTable · AlertDialog（与 DesktopTrading 撤单框同文案）" },
+    ],
+  },
+];
+
+const SPOT_TABLE_MOBILE_CASES: SectionCase[] = [
+  {
+    key: "pro-spot-orders-cancel-confirm-mobile",
+    label: "OS-M2 · 手机 /spot 订单卡 · Cancel 同一确认框",
+    spec: [
+      { state: "confirm open", when: "点卡片底部 Cancel", visual: "同 OS-D2，AlertDialog 在 375 宽下满宽居中", source: "SpotOrdersTable variant=mobile" },
+    ],
+  },
+];
+
+const SPOT_INFO_CASES: SectionCase[] = [
+  {
+    key: "pro-spot-event-info-crypto",
+    label: "EI-D1 · /spot Event Info · 加密快轮（一套卡片）",
+    note: "研发问题 #18 + #14（2026-09-24）：原来通用 EventInfoContent（Event End Date / Total Volume / 写死的 Open Interest / Resolution Source）叠在现货专用格上面，Volume 与 Resolution source 各出现两次、Symbol 错写 `ETH · Nasdaq`。现在只有一套六格：Trading ends（倒计时 · 时刻）/ Volume / Round open（股票为 Prior official close）/ Settles vs / Resolution source / Symbol；加密轮没有冻结期，Trading ends 取轮次结束时间，不再是 `—`（页头 ⓘ tooltip、手机 ⓘ 同源）。",
+    spec: [
+      { state: "crypto round", when: 'market.key === "crypto"', visual: "Symbol `ETH · USD · 15m round`；Settles vs `Round open · flat close = Down`；Rules 末尾 `All open orders are automatically cancelled and refunded at freeze (HH:MM)`；`Payout by ~HH:MM`", source: "SpotEventInfoPanel · useSpotTerminal.freezeEtOnly（crypto → closeEtOnly）· quickRoundLabel" },
+      { state: "stock", when: "其他 market", visual: "同格局；Prior official close / `Prior close · flat close = Down` / Symbol `META · Nasdaq`", source: "SpotEventInfoPanel" },
+    ],
+  },
+];
+
 const BOOK_CASES: SectionCase[] = [
   {
     key: "pro-spot-book",
@@ -746,6 +824,22 @@ export const ProTradeTerminalPage = (_: Props) => (
     </SectionWrapper>
 
     <SectionWrapper
+      id="pro-contract-chart"
+      title="① K 线 · Last + Mark 双序列（CH-D1）"
+      description="合约终端才有标记价：蜡烛是 Last，黄色虚线是 Mark，图例 chip 各自开关。现货终端无此图例。"
+    >
+      <SectionFrame cases={CONTRACT_CHART_CASES} device="desktop" minHeight={420} />
+    </SectionWrapper>
+
+    <SectionWrapper
+      id="pro-contract-book"
+      title="① 合约订单簿（OB-D1）"
+      description="生产 DesktopOrderBook variant=futures。研发问题 #2 起无精度切换；⚑ 标记价行保留。"
+    >
+      <SectionFrame cases={CONTRACT_BOOK_CASES} device="desktop" minHeight={600} />
+    </SectionWrapper>
+
+    <SectionWrapper
       id="pro-contract-panel"
       title="② 下单面板 · 桌面右栏（CT-D · DK-D1 · RM-D1）"
       description="桌面 /trade 的 280px 下单面板本体（ProContractPanel）。Buy · Sell 页签、Sell 只减仓、Contracts 模式、Buy · Limit 挂单、品类杠杆上限、封锁与 Close-only 都在这里；手机 /trade/order 同规格见下一节。"
@@ -775,6 +869,14 @@ export const ProTradeTerminalPage = (_: Props) => (
       description="合约手机图表页的底部 dock 改用现货同一组件 ProSpotMobileDock；不可下单时两钮收成一条灰色禁用条只印一次原因（/spot 之前把原因印了两遍）。"
     >
       <SectionFrame cases={TRADE_DOCK_CASES} device="mobile" minHeight={560} />
+    </SectionWrapper>
+
+    <SectionWrapper
+      id="pro-side-chip"
+      title="③ 持仓 / 挂单表 Side chip（PT-D1）"
+      description="三张表（Positions / Current Orders / 空投行）与手机持仓卡共用 SideChip，颜色走方向轴。"
+    >
+      <SectionFrame cases={SIDE_CHIP_CASES} device="desktop" minHeight={300} />
     </SectionWrapper>
 
     <SectionWrapper
@@ -811,6 +913,23 @@ export const ProSpotTerminalPage = (_: Props) => (
       description="Spot 固定每侧 10 槽；薄深度只补空行，不补虚构价格。"
     >
       <SectionFrame cases={BOOK_CASES} device="desktop" minHeight={600} />
+    </SectionWrapper>
+
+    <SectionWrapper
+      id="pro-spot-tables"
+      title="② Holdings / Current Orders 表 · 按钮与撤单确认（HD-D1 · OS-D2 · OS-M2）"
+      description="研发问题 #10b / #10c：现货表的 Close / Cancel 与合约表同款按钮；撤单先弹与合约相同的确认框。"
+    >
+      <SectionFrame cases={SPOT_TABLE_CASES} device="desktop" minHeight={420} />
+      <SectionFrame cases={SPOT_TABLE_MOBILE_CASES} device="mobile" minHeight={560} />
+    </SectionWrapper>
+
+    <SectionWrapper
+      id="pro-spot-event-info"
+      title="② Event Info（EI-D1）"
+      description="一套卡片、每格单一来源；加密快轮 Trading ends = 轮次结束时间。"
+    >
+      <SectionFrame cases={SPOT_INFO_CASES} device="desktop" minHeight={560} />
     </SectionWrapper>
 
     <SectionWrapper

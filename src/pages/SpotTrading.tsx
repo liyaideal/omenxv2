@@ -8,6 +8,7 @@
 // `SpotTradeOrder`; all state and engine logic lives in
 // `useSpotTerminal`, all render blocks in `pro/ProSpotShared`.
 // ============================================================
+import { quickRoundLabel } from "@/components/lite/intraday/intradayData";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
@@ -85,6 +86,7 @@ export default function SpotTrading() {
     <ProSpotHeader
       ticker={t.ticker}
       eventName={event.name}
+      roundLabel={quickRoundLabel(event.id)}
       lifecycleBadge={t.badge}
       marketKey={t.marketKey}
       countdown={{ text: t.countdown.text, urgency: t.countdown.urgency as "red" | "yellow" | "muted" }}
@@ -173,6 +175,7 @@ export default function SpotTrading() {
                   basePrice={t.outcomePrice || 0.5}
                   side={t.side}
                   onSeriesReady={t.seedSessionOpenMark}
+                  showMarkSeries={false}
                 />
               </div>
             </>

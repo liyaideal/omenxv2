@@ -408,26 +408,21 @@ const LiteContractTrade = () => {
   // Intermediate state between trading close and settlement — the result is
   // being checked and can stay here for a long time. Settled always wins.
   const inReview = !resolved && (event as any)?.lifecycle_status === "REVIEW";
-  // 交易页收尾 #5: SUSPENDED blocks new orders on both surfaces (Pro says
-  // "Suspended · cancel only"; Lite has no resting orders, so just "Suspended").
-  const suspended = !resolved && (event as any)?.lifecycle_status === "SUSPENDED";
   const pastEnd = endDate ? endDate.getTime() <= Date.now() : false;
   const pastFreeze = freezeAt ? freezeAt.getTime() <= Date.now() : false;
   // 交易页收尾 #6 (RM-1 RESTRICTION tier, Risk ≥ 95%): no new exposure until a
   // position is closed. Lite wording — never "Risk" / "Margin" on this surface.
   const closeOnly = risk.riskLevel === "RESTRICTION" || risk.riskLevel === "LIQUIDATION";
-  const blocked = resolved || inReview || suspended || pastEnd || pastFreeze || closeOnly;
+  const blocked = resolved || inReview || pastEnd || pastFreeze || closeOnly;
   const blockedReason = resolved
     ? "Settled"
     : inReview
       ? IN_REVIEW_BADGE
-      : suspended
-        ? "Suspended"
-        : pastEnd || pastFreeze
-          ? "Closed"
-          : closeOnly
-            ? BOOST_LIMIT_REACHED
-            : "";
+      : pastEnd || pastFreeze
+        ? "Closed"
+        : closeOnly
+          ? BOOST_LIMIT_REACHED
+          : "";
 
 
   const boostCfg = getConfig(event?.category);

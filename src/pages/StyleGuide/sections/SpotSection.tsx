@@ -111,15 +111,15 @@ export const SpotSection = ({ isMobile }: Props) => {
       >
         <div className="space-y-3">
           <SpotStatsHeader eventId="us-tsla-updown-20260715" eventName="Will TSLA close higher today?" basePrice={268.30} yesPrice={0.44} lifecycle="TRADING" />
-          <SpotStatsHeader eventId="us-nvda-updown-20260715" eventName="Will NVDA close higher today?" basePrice={182.45} yesPrice={0.57} lifecycle="SUSPENDED" />
+          <SpotStatsHeader eventId="us-nvda-updown-20260715" eventName="Will NVDA close higher today?" basePrice={182.45} yesPrice={0.57} lifecycle="REVIEW" />
           <SpotStatsHeader eventId="us-aapl-updown-20260715" eventName="Will AAPL close higher today?" basePrice={231.10} yesPrice={0.54} lifecycle="FROZEN" />
         </div>
       </SectionWrapper>
 
       <SectionWrapper
         id="spot-lifecycle"
-        title="Lifecycle badges (9 states)"
-        description="events.event_status enum per 技术对接 v1.0 §2: CREATED / EXTENDED_TRADING / TRADING / FROZEN / SETTLING / SETTLED + SUSPENDED / REVIEW / CANCELED. OPEN_COOLDOWN and CLOSE_MODE were removed (QA-16: open protection lives in the LP quote profile). Only TRADING / EXTENDED_TRADING accept new orders; SUSPENDED is cancel-only."
+        title="Lifecycle badges (8 states)"
+        description="events.event_status enum per 技术对接 v1.0 §2: CREATED / EXTENDED_TRADING / TRADING / FROZEN / SETTLING / SETTLED + REVIEW / CANCELED. OPEN_COOLDOWN and CLOSE_MODE were removed (QA-16: open protection lives in the LP quote profile); SUSPENDED was dropped 2026-09-24 (研发问题 #16 — the backend has no such state). Only TRADING / EXTENDED_TRADING accept new orders."
 
       >
         <div className="flex flex-wrap gap-2">

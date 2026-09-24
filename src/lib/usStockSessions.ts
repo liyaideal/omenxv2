@@ -4,7 +4,7 @@
  * 状态机口径以《美股当日涨跌现货事件 PRD 技术对接 v1.0》§2 为准（9 态，
  * 取代此前事件 PRD 的 11 态）：
  *   CREATED / EXTENDED_TRADING / TRADING / FROZEN / SETTLING / SETTLED
- *   + SUSPENDED / REVIEW / CANCELED
+ *   + REVIEW / CANCELED (研发问题 #16 2026-09-24: SUSPENDED dropped — backend has no such state)
  * 已删除 OPEN_COOLDOWN 与 CLOSE_MODE（技术对接 QA-16：开盘直接进 TRADING，
  * 开盘保护由 quote profile 内部实现，不设独立状态）。
  *
@@ -67,10 +67,6 @@ export const LIFECYCLE_BADGE: Record<
     label: "Settled",
     className: "bg-muted/60 text-muted-foreground border-border/60",
   },
-  SUSPENDED: {
-    label: "Suspended",
-    className: "bg-trading-red/15 text-trading-red border-trading-red/40",
-  },
   REVIEW: {
     label: "In review",
     className: "bg-trading-red/15 text-trading-red border-trading-red/40",
@@ -98,12 +94,8 @@ const ORDERABLE_STATES = new Set(["TRADING", "EXTENDED_TRADING"]);
 export const isOrderingBlocked = (lifecycle: string | null | undefined): boolean =>
   !lifecycle || !ORDERABLE_STATES.has(lifecycle);
 
-/** SUSPENDED allows cancels on existing Pending orders (cancel-only mode). */
-export const isCancelAllowedInLifecycle = (
-  lifecycle: string | null | undefined,
-): boolean => lifecycle === "SUSPENDED" || !ORDERABLE_STATES.has(lifecycle) === false || true;
-// Cancel is always allowed on a user-submitted Pending order; the helper
-// above is kept for symmetry / future tightening.
+/** Cancel is always allowed on a user-submitted Pending order, whatever the lifecycle. */
+export const isCancelAllowedInLifecycle = (_lifecycle: string | null | undefined): boolean => true;
 
 /** Short reason string for a disabled CTA. Empty string when orderable. */
 export const getBlockedReason = (lifecycle: string | null | undefined): string => {
@@ -118,8 +110,6 @@ export const getBlockedReason = (lifecycle: string | null | undefined): string =
       return "Settling";
     case "SETTLED":
       return "Settled";
-    case "SUSPENDED":
-      return "Suspended · cancel only";
     case "REVIEW":
       return "In review";
     case "CANCELED":
@@ -412,7 +402,7 @@ export const getCurrentSession = (
 // -----------------------------------------------------------------
 // DEMO-STATE: 自动态显示由前端时钟推导，正式版由后端状态机驱动。
 // -----------------------------------------------------------------
-// Manual states (SUSPENDED / REVIEW / FROZEN / SETTLING / SETTLED / CANCELED
+// Manual states (REVIEW / FROZEN / SETTLING / SETTLED / CANCELED
 // / CREATED) are authoritative and pass through unchanged. When the DB
 // lifecycle is TRADING or EXTENDED_TRADING we derive the display value
 // from the ET wall clock so the badge and the LP session profile stay

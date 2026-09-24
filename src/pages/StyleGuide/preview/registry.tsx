@@ -309,6 +309,10 @@ export const previewRegistry: Record<string, Loader> = {
   "pro-terminal-skeleton": pick(proSpot, "ProTerminalSkeleton"),
   "pro-bottom-tabs-guest": pick(proSpot, "ProBottomTabsGuest"),
   "pro-spot-book": pick(proSpot, "ProSpotBookNormal"),
+  "pro-spot-holdings-desktop": pick(proSpot, "SpotHoldingsDesktop"),
+  "pro-spot-orders-cancel-confirm": pick(proSpot, "OrderCancelConfirmDesktop"),
+  "pro-spot-orders-cancel-confirm-mobile": pick(proSpot, "OrderCancelConfirmMobile"),
+  "pro-spot-event-info-crypto": pick(proSpot, "SpotEventInfoCrypto"),
   "pro-spot-book-thin": pick(proSpot, "ProSpotBookThin"),
 
   /* -------- Pro /trade mobile order panel（CT-1 · Buy · Sell）-------- */
@@ -331,6 +335,9 @@ export const previewRegistry: Record<string, Loader> = {
   "pro-trade-order-close-only": pick(proTrade, "ProTradeOrderCloseOnly"),
   "pro-risk-chip-mobile-zero": pick(proTrade, "RiskChipZero"),
   // CT-D · desktop /trade panel (ProContractPanel)
+  "pro-contract-book": pick(proTrade, "ProContractBook"),
+  "pro-contract-chart": pick(proTrade, "ProContractChart"),
+  "pro-side-chips": pick(proTrade, "ProSideChips"),
   "pro-contract-panel-buy": pick(proTrade, "ProContractPanelBuy"),
   "pro-contract-panel-buy-contracts": pick(proTrade, "ProContractPanelBuyContracts"),
   "pro-contract-panel-buy-limit": pick(proTrade, "ProContractPanelBuyLimit"),

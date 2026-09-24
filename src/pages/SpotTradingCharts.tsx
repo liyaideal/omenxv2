@@ -73,7 +73,7 @@ function SpotChartsBody({ t }: { t: SpotTerminal }) {
 
 
       <div className="h-[450px]">
-        <CandlestickChart basePrice={t.outcomePrice || 0.5} side={t.isYesSelected ? "buy" : "sell"} />
+        <CandlestickChart basePrice={t.outcomePrice || 0.5} side={t.isYesSelected ? "buy" : "sell"} showMarkSeries={false} />
       </div>
 
       {/* Bottom tabs */}

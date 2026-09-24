@@ -15,6 +15,8 @@ interface CandlestickChartProps {
   basePrice?: number; // Base price from selected option
   side?: "buy" | "sell"; // Trade side: sell mirrors price (1 - p)
   onSeriesReady?: (firstOpen: number) => void;
+  /** Contract terminal only: overlay the Mark series + Last/Mark legend. Spot has no mark price. */
+  showMarkSeries?: boolean;
 }
 
 const TIMEFRAMES = ["1m", "5m", "15m", "1H", "4H", "1D", "ALL"] as const;
@@ -140,10 +142,15 @@ const calculateMA = (data: number[], period: number): number[] => {
   return result;
 };
 
-export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = "buy", onSeriesReady }: CandlestickChartProps) => {
+export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = "buy", onSeriesReady, showMarkSeries = true }: CandlestickChartProps) => {
   const defaultTimeframe = getDefaultTimeframe(remainingDays);
   const [selectedTimeframe, setSelectedTimeframe] = useState<Timeframe>(defaultTimeframe);
   const [chartMode, setChartMode] = useState<"candle" | "line">("candle");
+  // 研发问题 #3 (2026-09-24): contract chart carries TWO series — Last (candles / green
+  // line) and Mark (yellow dashed line, the price that drives margin & liquidation).
+  // The legend chips toggle each; Last stays on by default, Mark is optional.
+  const [showLast, setShowLast] = useState(true);
+  const [showMark, setShowMark] = useState(true);
   const [crosshair, setCrosshair] = useState<{ x: number; y: number; candleIndex: number } | null>(null);
   
   // Auto-switch to line for ALL timeframe
@@ -164,6 +171,14 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = 
   const candles = useMemo(
     () => generateMockCandles(selectedTimeframe, effectiveBasePrice, candleCount), 
     [selectedTimeframe, effectiveBasePrice, candleCount]
+  );
+  // Mark series (simulation): 3-candle mean of Last closes, so it hugs Last without the wicks.
+  const markSeries = useMemo(
+    () => candles.map((_, i) => {
+      const win = candles.slice(Math.max(0, i - 2), i + 1);
+      return win.reduce((a, c) => a + c.close, 0) / win.length;
+    }),
+    [candles],
   );
   useEffect(() => {
     const firstOpen = candles[0]?.open;
@@ -269,6 +284,32 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = 
               </button>
             ))}
           </div>
+          {showMarkSeries && (
+            <div className="ml-3 flex items-center gap-1.5" aria-label="Chart series">
+              <button
+                type="button"
+                onClick={() => setShowLast((v) => !v)}
+                aria-pressed={showLast}
+                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono border transition-colors ${
+                  showLast ? "border-border/60 text-foreground" : "border-transparent text-muted-foreground/60"
+                }`}
+              >
+                <span className="w-2 h-2 rounded-full bg-trading-green" />
+                Last
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowMark((v) => !v)}
+                aria-pressed={showMark}
+                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono border transition-colors ${
+                  showMark ? "border-border/60 text-foreground" : "border-transparent text-muted-foreground/60"
+                }`}
+              >
+                <span className="w-3 h-0 border-t border-dashed border-trading-yellow" />
+                Mark
+              </button>
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <button 
@@ -307,6 +348,7 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = 
                 />
               ))}
               
+              {showLast && (<>
               {chartMode === "line" || selectedTimeframe === "ALL" ? (
                 // Line chart for ALL or when line mode selected
                 <path
@@ -351,6 +393,22 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = 
                     </g>
                   );
                 })
+              )}
+              </>)}
+
+              {/* Mark price series (研发问题 #3) */}
+              {showMarkSeries && showMark && markSeries.length > 0 && (
+                <path
+                  d={markSeries.map((m, index) => {
+                    const x = index * candleSpacing + candleSpacing / 2;
+                    return `${index === 0 ? "M" : "L"} ${x} ${priceToY(m)}`;
+                  }).join(" ")}
+                  fill="none"
+                  stroke="hsl(48 100% 55%)"
+                  strokeWidth="1.5"
+                  strokeDasharray="5,3"
+                  vectorEffect="non-scaling-stroke"
+                />
               )}
 
               {/* Current price line */}

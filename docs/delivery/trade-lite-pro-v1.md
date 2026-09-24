@@ -34,7 +34,7 @@
 | 概念 | 是什么 | 判定表达式 | 一句话类比 |
 |---|---|---|---|
 | Lite / Pro | 同一交易页的两种看法；只改渲染不改路由与数据 | `useSurface().surface`；游客恒 `lite` | 同一间店的前台 / 后厨 |
-| Standard / Boost | 现货线 / 合约线；选择器页签与账户卡同词 | `product_lines` 含 `spot` / 含 `futures`（旧值 `contract`） | 现金账户 / 保证金账户 |
+| Standard / Boost | 现货线 / 合约线；选择器页签与账户卡同词。**按 event 的 product line 配置决定走哪条线，不按品类**——Lovable 里加密快轮配成现货，正式版按各 event 的配置来（研发问题 #7，2026-09-24） | `product_lines` 含 `spot` / 含 `futures`（旧值 `contract`） | 现金账户 / 保证金账户 |
 | Boost check | Lite 组合页的账户级仪表，读 Pro 的 Risk Ratio，词不同 | `Healthy < 80` / `Getting tight 80–95` / `Auto-close soon ≥ 95` | 油表 |
 | Risk Ratio | 维持保证金占权益的比例，100% 强平 | `MM / Equity × 100`，`MM = 50% × IM` | 水位线 |
 | Series lines / 线位 | 一场比赛的让分 / 大小球各条线，各是一个 sibling event | `?event=<fixture>&line=<sibling>` | 同一场球的不同赔率盘 |
@@ -42,7 +42,6 @@
 | reduce-only | 只减少现有仓位的挂单，不动余额、不开反向 | `trades.reduce_only = true`，`margin 0 fee 0` | 只出不进的闸 |
 | In orders / Reserved | 现货限价买单锁住的钱：份额 × 限价 + 0.15% 手续费 | `Σ Pending 买单 Reserved` | 预授权冻结 |
 | Close-only | 账户风险 ≥ 95% 时禁止开仓 / 加仓 | `riskLevel ∈ {RESTRICTION, LIQUIDATION}` | 只许卸货不许装货 |
-| Suspended | 事件停牌：两条线都只许撤单 | `lifecycle_status = SUSPENDED` | 暂停交易的股票 |
 
 ### 易混点辨析
 
@@ -84,7 +83,7 @@
 
 编号规则：前缀 = 模块（`SS` 开关 · `ES` 事件选择器 · `SL` 市场行 · `CT` 合约面板 · `DK` 不可下单 · `RM` 账户风险 · `OS` 订单状态标 · `SP` 现货 · `TR` Lite 合约页），`-D` 桌面 / `-M` 手机 / 无后缀 = 双端同一 case；`b / c` 是同一状态的变体。本次交付的编号全表在 §10，每个模块一行，按节点 › 小节列，照着表逐条对就是验收。
 
-只在字典可见、生产暂时凑不出条件的态（不是 bug）：`Partial Filled` 成交明细（OS-D1 / OS-M1）、`Close-only`（RM-D1 / RM-M3 / TR-28）、`Suspended`（DK-M1 / DK-D1）、限价自动成交（CT-M8 / CT-D3 的成交后半段）。
+只在字典可见、生产暂时凑不出条件的态（不是 bug）：`Partial Filled` 成交明细（OS-D1 / OS-M1）、`Close-only`（RM-D1 / RM-M3 / TR-28）、限价自动成交（CT-M8 / CT-D3 的成交后半段）。
 
 ## 1. 功能目标
 
@@ -152,7 +151,7 @@ Lite 是全站唯一外观；只有 `/trade` 与 `/spot` 两页按 `useSurface()
 
 | lifecycle | 列 / 不列 | `Ends in` 显示 |
 |---|---|---|
-| TRADING / SUSPENDED / REVIEW / SETTLING | 列（未结算且未过结束时间） | 相对时间，同阈色 |
+| TRADING / REVIEW / SETTLING | 列（未结算且未过结束时间） | 相对时间，同阈色 |
 | FROZEN（`freeze_time ≤ now < end_date`） | 列 | `Frozen` 红 |
 | 过 `end_date` / `is_resolved = true` | 不列 | — |
 
@@ -180,7 +179,7 @@ Lite 是全站唯一外观；只有 `/trade` 与 `/spot` 两页按 `useSurface()
 
 ### 5.2 下单面板 · Buy
 
-自上而下：`Buy · Sell` 文字页签 + `Market ▾ / Limit` 下拉 → Yes/No 切换 → Leverage → `Available (USDC)` + ⇄ 划转 → (Price，仅 Limit) → Amount + 单位下拉 → 滑杆 → TP/SL → 摘要 → CTA。桌面与手机同一套 markup，与 `/spot` 相同。
+自上而下：`Buy · Sell` 文字页签 + `Market ▾ / Limit` 下拉 → Yes/No 切换 → Leverage → `Available (USDC)` + ⇄ 划转 → (Price，仅 Limit) → Amount + 单位下拉 → 滑杆 → 摘要 → CTA。桌面与手机同一套 markup，与 `/spot` 相同。
 
 | 项 | 规则 |
 |---|---|
@@ -191,7 +190,7 @@ Lite 是全站唯一外观；只有 `/trade` 与 `/spot` 两页按 `useSurface()
 | Amount 单位 | 后缀 `USDC ▾ / Contracts ▾`，标签恒 `Amount`。USDC = 保证金；Contracts = 整数张。切换时换算不清空：张数 = `floor(保证金 × 杠杆 ÷ 价格)`。按设备记忆 `omenx-amount-mode` |
 | 取整 | 手输 `floor`，下限 0（`2.7` 按 2，`0.9` 按 0，输入串不改写）；`maxUnits = floor(可用 × 杠杆 ÷ 价格)`；滑杆 = `round(maxUnits × pct)`；USDC 模式滑杆 = 可用余额 % |
 | Price（Limit） | 默认 = 当前侧价，可改。`Contracts = 金额 × 杠杆 ÷ 限价`；Contracts 模式 `Margin = 张数 × 限价 ÷ 杠杆`。下单即扣 `保证金 + 手续费`。限价 ≥ 现侧价 → 立即按现价成交；限价 < 现侧价 → `Pending` + 提示 `Limit below mark — order will rest as Pending until touched.`；现价 ≤ 限价时按限价成交，entry = 限价（同向已有仓位加权合并），toast `Limit buy filled at your price`。撤单退回保证金 + 手续费。挂单不做净额对冲（跨零挂单已被禁止） |
-| TP/SL | 保留（Buy 页签），Sell 页签隐藏 |
+| TP/SL | **已删除**（研发问题 #5，2026-09-24）：面板段、持仓表列、手机持仓卡、预览行全部去掉；引擎无触发单 |
 | 摘要 | `Contracts` = 张数 · `Notional` = 张数 × 价格 · `Margin` = Notional ÷ 杠杆 · `Fee (0.15%)` = Notional × 0.0015 · `Total` = Margin + Fee · `To win ⓘ` = `netWin()`（扣 5% 赢利佣金后的净利，5% 基数 = 毛利 − 开仓费）。算例 $25 · 5× · Yes 68¢：fee `$0.19`、gross `$58.82`、WC `$2.93`、net `$55.89`，与 Lite 同单同数 |
 | 余额不足 | 按换算后 Margin 校验，`Insufficient balance.` |
 
@@ -199,7 +198,7 @@ CTA 文案（优先级自上而下）：
 
 | 情形 | CTA |
 |---|---|
-| 封锁（§5.5） | `Settled` / `In review` / `Suspended · cancel only` / `Closed` |
+| 封锁（§5.5） | `Settled` / `In review` / `Closed` |
 | Risk ≥ 95% 且开仓 / 加仓 | `Close-only · Risk 96%`（取整，不显示 `To win`） |
 | 持有反向仓位再买（跨零被禁） | `Close existing position first`（CTA 禁用；上方红框提示 `You hold N long/short shares. Close it before opening the opposite side.` + `Close & Continue` 链接把金额填成正好平掉那一仓） |
 | 买反向减仓 | `Reduce {label}` / `Close {label}` |
@@ -207,7 +206,7 @@ CTA 文案（优先级自上而下）：
 | 开仓 · 三选一 No 侧 | `Buy Not {option}`（`Buy Not Draw`） |
 | 金额 0 | 可点，聚焦输入框并提示 `Enter an amount` |
 
-确认：桌面 `Order Preview` 弹窗，行 = Type / Leverage / Price / Order cost / Traded notional / Opening notional / Margin required / Liq. price / TP/SL / Position impact（无 Margin 行）；手机跳 `/order-preview` 页，同组行（无 `Margin type` 行）。
+确认：桌面 `Order Preview` 弹窗，行 = Type / Leverage / Price / Order cost / Traded notional / Opening notional / Margin required / Liq. price / Position impact（无 Margin 行、无 TP/SL 行）；手机跳 `/order-preview` 页，同组行（无 `Margin type` 行）。
 
 ### 5.3 下单面板 · Sell
 
@@ -216,7 +215,7 @@ Sell = reduce-only：只减仓 / 平仓当前结果上已持有的仓位（一�
 | 项 | 规则 |
 |---|---|
 | 空仓 | 两侧禁用、价格条 `0 contracts`、一行 `No position to close yet`、CTA 禁用；只持一侧则另一侧禁用 |
-| 结构 | Yes/No 切换 → `Held {size} contracts · {outcome} · {leverage}x · entry {price}` → Available + ⇄ → (`Close price` 输入框，Limit，默认 mark) → Amount（后缀 `Contracts`）+ 滑杆 25/50/75/100%（100% = 精确持仓） → 摘要 → CTA。无 Leverage、TP/SL |
+| 结构 | Yes/No 切换 → `Held {size} contracts · {outcome} · {leverage}x · entry {price}` → Available + ⇄ → (`Close price` 输入框，Limit，默认 mark) → Amount（后缀 `Contracts`）+ 滑杆 25/50/75/100%（100% = 精确持仓） → 摘要 → CTA。无 Leverage |
 | 摘要 | `Close price (mark)`（限价按输入价）· `Contracts` · `Released margin` = 持仓保证金 × 张数 / 持仓张数 · `Realized PnL est.` = (mark − entry) × 张数 × 方向 · `Est. commission` = 5% × max(PnL − 已分摊开仓费, 0) · **`You receive`** = Released + PnL − commission |
 | 算例 | 持 40 · Up · 5× · entry 0.6200 · 保证金 4.96，mark 0.6800 全平：Released 4.96、PnL +2.40、开仓费 0.0372、commission 0.12、You receive **7.24**；减仓 20 各项 × 1/2 |
 | CTA | 红色；`sellQty >= heldSize` → `Close {outcome}`，否则 `Reduce {outcome}`；副文案 `You receive $X`；数量 0 可点提示 `Enter an amount` |
@@ -233,13 +232,12 @@ Buy · Sell 页签与 Yes/No 一样按 `事件:结果` 记忆，`/trade` ↔ `/t
 
 ### 5.5 不可下单态
 
-`contractGate(event, now)`（15 s 重算一次），优先级 **Settled > In review > Suspended · cancel only > Closed**：
+`contractGate(event, now)`（15 s 重算一次），优先级 **Settled > In review > Closed**（研发问题 #16，2026-09-24：SUSPENDED 从设计删除，后端无此状态）：
 
 | 原因 | 判定 |
 |---|---|
 | `Settled` | `is_resolved = true` |
 | `In review` | `lifecycle_status === "REVIEW"` |
-| `Suspended · cancel only` | `lifecycle_status === "SUSPENDED"` |
 | `Closed` | `freeze_time ≤ now` 或 `end_date ≤ now` |
 
 其他 lifecycle（含 SETTLING）不封锁，与 Lite 合约页一致。形态：桌面 / `/trade/order` 面板 Buy 与 Sell 两个 CTA 都置灰只印原因（`To win $0` 读数保留），预览打不开、提交兜底 toast；手机图表页 dock 两钮收成一条禁用条（`bg-muted/40 text-muted-foreground`，`role="status"`，不可点）只印一次原因，提示句隐藏，开关与 Available 行保留。Current Orders 的 `Cancel` 在任何封锁态仍可点。
@@ -248,7 +246,7 @@ Buy · Sell 页签与 Yes/No 一样按 `事件:结果` 记忆，`/trade` ↔ `/t
 
 | 项 | 规则 |
 |---|---|
-| Side 列 | 字面事件 `Yes / No`；别名事件显示别名（`Heroic`，`short` 只在后端）；三选一 No 侧 `Not {option}`；sibling 上的仓位显示 `AST −1.5` 而非 `Yes`；reduce-only 挂单 Side 红色 `Close` 徽标（`bg-trading-red/20 text-trading-red`）+ 类型列 `Reduce-only` 标（`text-[10px] bg-muted`） |
+| Side 列 | 字面事件 `Yes / No`；别名事件显示别名（`Heroic`，`short` 只在后端）；三选一 No 侧 `Not {option}`；sibling 上的仓位显示 `AST −1.5` 而非 `Yes`。**颜色走方向轴**（研发问题 #9，2026-09-24）：`SideChip` — Yes/Up `bg-yes` 黑字、No/Down `bg-no` 黑字，三张表与手机持仓卡同规则（DESIGN §2 持仓标识），不走绿 / 红盈亏轴；reduce-only 挂单 Side 红色 `Close` 徽标（`bg-trading-red/20 text-trading-red`）+ 类型列 `Reduce-only` 标（`text-[10px] bg-muted`） |
 | 列头 | 桌面持仓表 `Qty` / `Liq. Price` 缩写保留（Liya 09-18 定，不改） |
 | Liq. Price | `entry × (1 ∓ (1 − MM_RATIO) / 杠杆)`，`MM_RATIO = 0.5`（10× → ±5%）；预览弹窗同式 |
 | Go to this event | 持仓 / 挂单 HoverCard 里的按钮；sibling 走 `?event=<fixture>&line=<id>` |
@@ -275,15 +273,16 @@ Buy · Sell 页签与 Yes/No 一样按 `事件:结果` 记忆，`/trade` ↔ `/t
 
 | 区 | 口径 |
 |---|---|
-| 页头 | 标题只写 `Trade`，无 `SPOT` 徽标、无 Base stat；右侧仅 Volume 与标的价格；badge 只在 `lifecycle !== "TRADING"`（`Extended hours` + tooltip；crypto 24/7 无 PRE/AH）；ⓘ 里 `Trading ends` / `Payout:` |
+| 页头 | 标题只写 `Trade`，无 `SPOT` 徽标、无 Base stat；右侧仅 Volume 与标的价格；badge 只在 `lifecycle !== "TRADING"`（`Extended hours` + tooltip；crypto 24/7 无 PRE/AH）；ⓘ 里 `Trading ends` / `Payout:`——**加密快轮无冻结期，`Trading ends` = 轮次结束时间**（研发问题 #14，原来显示 `—`）。**快轮标题后带周期 chip** `5m / 15m / 1h / 4h / Daily`（研发问题 #12；手机短名 `BTC · 5m · Up or down?`；选择器行同 chip） |
 | Buy 面板 | `Buy · Sell` 页签 + Market / Limit → `BinarySideToggle`（Up / Down 带价）→ `Available (USDC)` + ⇄ → (Limit price) → Amount 后缀 `USDC ▾ / Shares ▾`（份额 3 位小数）+ 滑杆 → 滑点（仅 Market，中性 chip）→ 摘要 `Cost`（Market 下附 `Est. fill @ X`）/ `Shares` / `Fee (0.15%)` / `To win ⓘ`；无 Max loss。CTA 副文案 `To win $X`；零金额可点提示 `Enter an amount` |
 | 费率 | 输入 = 份额成本，费另收：$25 @ 0.68 → fee $0.04、shares 36.76、扣款 $25.04、To win $11.17（Lite 预算口径同单 $10.45） |
-| 限价买 | 价格 tick `$0.01`，默认 = mark 四舍五入到分；不合法报 `Limit price must be a multiple of $0.01`。≥ 最优卖价即时成交 toast `Limit buy filled immediately at $x`；否则 `Pending`，提示预留 `cost + fee`，CTA `Place limit · Buy Up`。预留 = `notional + fee`，账户卡 `In orders` = Σ Pending 买单 Reserved；撤单退全额 |
+| 限价买 | 价格 tick `$0.01`，默认 = mark 四舍五入到分；不合法报 `Limit price must be a multiple of $0.01`。≥ 最优卖价即时成交 toast `Limit buy filled immediately at $x`；否则 `Pending`，提示预留 `cost + fee`，CTA 仍是 `Buy Up`（研发问题 #15：去掉 `Place limit ·` 前缀，黄字提示已说明会挂单）。预留 = `notional + fee`，账户卡 `In orders` = Σ Pending 买单 Reserved；撤单退全额 |
 | Sell | 下方 `Held · N shares {outcome}`；未持有侧禁用 `0 shares`，两侧皆无 `No shares to sell yet`。份额不锁定：下单时校验持有 ≥ 数量，成交时再校验，不够则自动 Cancelled；限价卖 > mark 挂单，触及成交 toast `Limit sell filled · $X to wallet`；撤单不退钱。全平吸附：`|qty − held| < 0.001` 或 `qty ≥ held × 0.9995` → 发精确 held。摘要 `Proceeds / Shares / Est. commission / You receive`，CTA 副文案 `You receive $X` |
-| 订单簿 | 每侧固定 10 槽，薄深度补空槽不虚构价格；中间行只有 `↑ / ↓ 现价`，无 ⚑ 标记价，tooltip `Last traded price of the outcome share. Shares settle at $1 (win) or $0 (lose).`；tick 行左侧报价模式徽标 NORMAL 灰 / CONSERVATIVE 黄 / HEDGE_ONLY / CANCEL_ONLY |
-| 底部页签 | `Current Orders` / `Holdings`；Holdings 列 `Market · Outcome · Shares · Avg price · Price · Value · PnL`，空态 `No holdings yet` / `No open orders`；行内无 `SPOT` 标；Holdings 行 `Close` 预置 Sell · 该 outcome · Market · 全量精确份额并直接开预览 |
+| 订单簿 | 每侧固定 10 槽，薄深度补空槽不虚构价格；中间行只有 `↑ / ↓ 现价`，无 ⚑ 标记价，tooltip `Last traded price of the outcome share. Shares settle at $1 (win) or $0 (lose).`；tick 行左侧报价模式徽标 NORMAL 灰 / CONSERVATIVE 黄 / HEDGE_ONLY / CANCEL_ONLY；**无精度切换下拉**（研发问题 #2，合约簿同；聚合固定原生 tick：现货 0.01、合约 0.0001） |
+| 底部页签 | `Current Orders` / `Holdings`；Holdings 列 `Market · Outcome · Shares · Avg price · Price · Value · PnL`，空态 `No holdings yet` / `No open orders`；行内无 `SPOT` 标；Holdings 行 `Close` 预置 Sell · 该 outcome · Market · 全量精确份额并直接开预览（部分平仓走 Sell 页签输数量）。**按钮样式与合约表同款**（研发问题 #10b）：Close 白字细边框、Cancel 红字红边框，手机卡 Close 红底红字。**Cancel 先弹确认框**（研发问题 #10c）：`Cancel Order` AlertDialog（Market / Side / Type / Limit / Shares，Buy 单加 `Reserved · refunded on cancel $X`），`Keep Order` / `Cancel Order` |
 | 预览弹窗 | `Order Preview`：事件名 + outcome chip + 两张卡；Buy 第二卡 Cost / Fee (0.15%) / To win，Sell 为 Proceeds / Est. commission / You receive；无杠杆 / 保证金 / 强平 |
 | 账户卡 | `Standard Account`：Available (USDC) / In orders / Holdings；`Payout by ~{time}` |
+| Event Info | **一套卡片**（研发问题 #18）：标题 + 描述 → 六格 `Trading ends（倒计时 · 时刻）/ Volume / Round open（股票 Prior official close）/ Settles vs / Resolution source / Symbol` → Rules → `Payout by`。删掉了通用块的 Event End Date / Total Volume / 写死的 Open Interest / 重复的 Resolution Source；加密 Symbol = `ETH · USD · 15m round`（原错写 Nasdaq） |
 | 冻结 | `blocked = isOrderingBlocked(lifecycle) || isFrozenByTime`，文案 `Market frozen`（SETTLING 内部态用户仍看 `Market frozen` 直到 `Settled`）；tile 仍可点看价，CTA 置灰、预览打不开、Holdings `Close` toast 拦截。冻结巡检 `freeze_expired_events()` 每 5 分钟；结算时退还挂单 `冻结金额 + 手续费`；被冻结撤掉的挂单状态标 `Cancelled · market frozen` |
 | 轮次 | 加密涨跌事件按固定轮次开局 / 结算：5m · 15m · 1h · 4h（事件 id 形如 `crypto-btc-updown-4h-<YYYYMMDDHHmm>`）；每轮到点结算、下一轮自动开局，选择器里只列未结束的轮 |
 | 手机 | `/spot` = 32px stats strip + 图表 + Orders / Holdings 卡 + dock（Lite/Pro 方钮 + Up / Down 两步点按，同 §5.4）；`/spot/order` = 同一 `ProSpotPanel` bare chrome + 120px 迷你盘口（10 + 10 档 + `Depth 0.1`）；日内涨跌页头短名 `META · Up or down?` |
@@ -293,8 +292,7 @@ Buy · Sell 页签与 Yes/No 一样按 `事件:结果` 记忆，`/trade` ↔ `/t
 | 项 | 规则 | 字典 |
 |---|---|---|
 | Pro 入口脚注 | §3 的 `Want to place a limit order? Pro ›` OR 规则，三种面板 + 手机抽屉同一行位 | TR-27 / 27b / 27c · SP-19 / 19b |
-| Suspended | `lifecycle_status = SUSPENDED` → CTA 置灰 `Suspended`（Lite 无挂单，不写 cancel only） | — |
-| Risk ≥ 95% | CTA 置灰 `Boost limit reached — close a position first`，优先级低于 Settled / In review / Suspended / Closed；手机 dock 不置灰，抽屉里才见 | TR-28 |
+| Risk ≥ 95% | CTA 置灰 `Boost limit reached — close a position first`，优先级低于 Settled / In review / Closed；手机 dock 不置灰，抽屉里才见 | TR-28 |
 | Boost 上限 | 跟 `category_boost_configs`（同 §5.2 值表，美股 / 科技 / 政治类开到 `Up to 5×`）；品类未开 Boost → 无档位行 | — |
 | Boost check | `Healthy · 7%` + Details `Boost usage`（§5.7） | Portfolio 节 |
 
@@ -314,7 +312,7 @@ Buy · Sell 页签与 Yes/No 一样按 `事件:结果` 记忆，`/trade` ↔ `/t
 | `positions` | 用到 `size` / `entry_price` / `leverage` / `margin` / `option_id` / `trade_id` / `status` / `mark_price` / `pnl` / `pnl_percent` / `winning_commission` / `close_reason`；一交易对一行 |
 | `profiles.preferred_surface` | `lite` / `pro`，尽力写入；`profiles.balance`（Boost）/ `profiles.spot_balance`（Standard） |
 | `category_boost_configs.max_leverage` | Pro 杠杆上限与 Lite Boost 同源；本轮只改数据 |
-| `events.lifecycle_status` | TRADING / EXTENDED_TRADING / FROZEN / SUSPENDED / REVIEW / SETTLING / SETTLED；`is_resolved`、`freeze_time`、`end_date`、`product_lines`、`side_labels`、`metadata`（fixture / sibling） |
+| `events.lifecycle_status` | TRADING / EXTENDED_TRADING / FROZEN / REVIEW / SETTLING / SETTLED（DB 枚举里的 SUSPENDED 前端已不处理，研发问题 #16）；`is_resolved`、`freeze_time`、`end_date`、`product_lines`、`side_labels`、`metadata`（fixture / sibling） |
 
 Lovable 在前端模拟、正式版必须在后端做：
 
@@ -348,6 +346,11 @@ Lovable 在前端模拟、正式版必须在后端做：
 | 现货订单簿 ⚑ 标记价行 | 删除，只留现价 |
 | 老 `AuthGateOverlay`（交易面） | 换 `LiteAuthGate variant="panel"` |
 | `PF-D1 / PF-M1` 编号 | 改 `OS-D1 / OS-M1` |
+| TP/SL（面板段 / 持仓表列 / 手机持仓卡 / 预览行 / 编辑弹窗） | 研发问题 #5（2026-09-24）删除，引擎无触发单；Sell · Limit（reduce-only 限价单）保留 |
+| `Suspended · cancel only` / `Suspended` | 研发问题 #16（2026-09-24）从设计删除，后端无此状态 |
+| 订单簿精度切换下拉 | 研发问题 #2（2026-09-24）删除，聚合固定原生 tick |
+| `Place limit · Buy Up` CTA 前缀 | 研发问题 #15（2026-09-24）删除，CTA 恒 `Buy Up` |
+| 现货 Event Info 的通用块（Event End Date / Total Volume / Open Interest $1.2M / 第二个 Resolution Source） | 研发问题 #18（2026-09-24）合并成一套六格 |
 
 ## 10. 状态索引
 
@@ -363,13 +366,18 @@ Lovable 在前端模拟、正式版必须在后端做：
 | 订单状态标 | 两终端共用 › ④ | OS-D1 桌面 hover · OS-M1 手机点开 |
 | 市场行 · 桌面 | 合约终端 › ① | SL-D1 电竞 · SL-D2 Map 1 下拉 · SL-D3 足球 · SL-D4 Winner 三选一下拉 |
 | 市场行 · 手机 | 合约终端 › ① | SL-M1 横滚 · SL-M2 线位抽屉 · SL-M3 Winner 三选一抽屉 |
+| K 线 | 合约终端 › ① | CH-D1 Last + Mark 双序列 |
+| 合约订单簿 | 合约终端 › ① | OB-D1 无精度切换 |
 | 桌面面板 | 合约终端 › ② 桌面右栏 | CT-D1 Buy · Market · CT-D2 Contracts · CT-D3 Buy · Limit · CT-D4 Sell 减仓 · CT-D5 Sell 空仓 · CT-D6 无 Leverage 行 · DK-D1 封锁 · RM-D1 Close-only |
 | 手机 `/trade/order` | 合约终端 › ② 手机 | CT-M1 Buy · CT-M2 Sell Market · CT-M3 Sell Limit · CT-M4 Sell 空仓 · CT-M6 Contracts · CT-M7 别名 binary · CT-M8 Buy · Limit · DK-M2 封锁 |
 | 手机 Leverage 抽屉 | 合约终端 › ② | CT-M5 抽屉 · CT-M5b 上限 20× · CT-M5c 无 Leverage 行 |
-| 手机 dock | 合约终端 › ③ | DK-M1 五态 |
+| Side chip | 合约终端 › ③ | PT-D1 方向轴配色 |
+| 手机 dock | 合约终端 › ③ | DK-M1 四态 |
 | 账户风险 · 手机 | 合约终端 › ④ | RM-M0 零态 · RM-M1 方块四档 · RM-M2 抽屉 · RM-M3 Close-only |
 | 现货面板 | 现货终端 › ① | SP-B1 Buy Market · SP-B1b Shares · SP-B2 Buy Limit · SP-B2b Sell Limit · SP-B3 单边持仓 · SP-B3b 仅持 Down · SP-B4 无持仓 · SP-B5 余额不足 · SP-B6 限价将挂单 · SP-B8 冻结 |
 | 现货订单簿 | 现货终端 › ② | SP-J0 正常深度 · SP-J 薄深度 |
+| 现货表与撤单确认 | 现货终端 › ② | HD-D1 Holdings · OS-D2 撤单确认 · OS-M2 手机撤单确认 |
+| 现货 Event Info | 现货终端 › ② | EI-D1 加密快轮 |
 | 现货预览弹窗 | 现货终端 › ③ | SP-B7 |
 | 现货手机 | 现货终端 › ④ | SP-M1 Charts · SP-M1b 360 · SP-M2 冻结 · SP-M3 order Buy · SP-M4 order Sell · SP-M4b Shares · SP-M5 dock 四态 |
 
@@ -378,7 +386,8 @@ Lovable 在前端模拟、正式版必须在后端做：
 - 2026-09-17 → 09-18 生产域（`alex_carter`）45 行联合验收：43 行通过；A7（退出登录回 Lite）Liya 亲验通过；验收中修掉 `In orders` 恒 $0、现货限价只扣 notional、持仓表 `Go to this event` 死链、CTA 与切换钮 side_labels 不一致四项并复验。
 - 2026-09-21 研发冷读 9 项口径缺口（合约 Buy · Limit、三选一 No 侧、别名 Side、品类杠杆上限、Suspended、Close-only、case 改号、入口记忆范围、桌面面板抽件）全部收掉；PF-1 部分成交标、RM-1 风险口径做完并在生产复验（三处百分比一致）。
 - **Liya 2026-09-21 验收通过，进入交付。**
-- 未在生产亲验、靠字典交付的三项：限价自动成交（`useContractLimitFills`）、Close-only、Suspended。
+- 未在生产亲验、靠字典交付的两项：限价自动成交（`useContractLimitFills`）、Close-only。
+- 2026-09-24 研发问题 18 条（研发对照线上后台）：A 类按后台改设计 4 条（#1 help center 链接待补、#2 精度切换删、#5 TP/SL 删 / Sell · Limit 保留、#16 Suspended 删）；B 类既定行为回复口径 8 条（#3 K 线补 Mark 序列、#6 平仓 close price = mark 且只收 commission、#7 按 event product line、#8 两条色轴、#10 按产品线不按市场、#11 Holdings Close = 全平、#13 线位名 `{event} — {line}`、#17 实时 Risk %）；C 类 Lovable 修 7 条（#9 Side chip 方向轴、#10b 按钮统一、#10c 撤单确认、#12 周期 chip、#14 加密 Trading ends、#15 CTA 前缀、#18 Event Info 合并）。
 - 仍开放：G5 现货冻结灰条 `Market frozen` 只印一次——等真冻结窗口，不阻塞。
 
 ## 12. 涉及文件
@@ -404,5 +413,6 @@ Lovable 在前端模拟、正式版必须在后端做：
 | RM | Risk Ratio = MM / Equity | §5.7 | `docs/delivery/risk-ratio-mm-v1.md` |
 | SP（SP-1…SP-3、FIX、SP-L） | 现货费率 V4、Pro 现货终端桌面与手机 | §6 | `docs/delivery/spot-pro-v1.md` |
 | V4 清理 | Funding / Isolated 删除、To win 净利 | §5.2 §9 | `docs/delivery/pro-trade-v4-cleanup-v1.md` |
-| TC（交易页收尾 #1–#10） | 合约 Buy · Limit、三选一 No 侧、品类杠杆、Suspended、Close-only、面板抽件 | §5.2 §5.5 §5.7 §7 | `docs/delivery/trade-close-out-v1.md`（口径冲突时以此为准） |
+| TC（交易页收尾 #1–#10） | 合约 Buy · Limit、三选一 No 侧、品类杠杆、Suspended、Close-only、面板抽件 | §5.2 §5.5 §5.7 §7 | `docs/delivery/trade-close-out-v1.md`（口径冲突时以此为准；其中 Suspended 已于 09-24 删除） |
+| 研发问题 18 条（2026-09-24） | 研发对照线上后台提出的 18 条：砍 TP/SL、删 Suspended、去精度切换、K 线 Mark 序列、Side chip 配色、现货按钮 / 撤单确认、周期 chip、加密 Trading ends、Event Info 合并、CTA 文案 | §1 §5.2 §5.5 §5.6 §6 §9 §10 | 本文 §11 末段 |
 | 验收 | 联合验收单 | §11 | `docs/delivery/trade-lite-pro-acceptance-v1.md` |

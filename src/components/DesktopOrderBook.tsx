@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { ChevronDown, Flag } from "lucide-react";
+import { Flag } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -174,8 +174,9 @@ export const DesktopOrderBook = ({
   const [activeTab, setActiveTab] = useState<"orderbook" | "trades">("orderbook");
   const [viewMode, setViewMode] = useState<"both" | "bids" | "asks">("both");
   const bookSide = side;
-  const [priceStep, setPriceStep] = useState(variant === "spot" ? "0.01" : "0.0001");
-  const [showStepDropdown, setShowStepDropdown] = useState(false);
+  // 研发问题 #2 (2026-09-24): no user-facing precision selector — the book aggregates at the
+  // native tick only (spot 0.01 / contract 0.0001); the backend does not offer coarser levels.
+  const priceStep = variant === "spot" ? "0.01" : "0.0001";
   const [asks, setAsks] = useState<OrderBookEntry[]>(initialAsks);
   const [bids, setBids] = useState<OrderBookEntry[]>(initialBids);
   const [currentPrice, setCurrentPrice] = useState(initialPrice);
@@ -185,9 +186,6 @@ export const DesktopOrderBook = ({
   );
   const [buyRatio, setBuyRatio] = useState(40);
   
-  const priceStepOptions =
-    variant === "spot" ? ["0.01", "0.02", "0.05"] : ["0.0001", "0.001", "0.01", "0.1", "1"];
-
   // Transform price by side: sell side shows 1 - price (asymmetric pricing)
   const transformPrice = useCallback((price: string): string => {
     if (bookSide === "buy") return price;
@@ -376,33 +374,6 @@ export const DesktopOrderBook = ({
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-              )}
-            </div>
-            <div className="relative">
-              <button 
-                onClick={() => setShowStepDropdown(!showStepDropdown)}
-                className="flex items-center gap-1 px-2 py-1 text-xs bg-muted rounded hover:bg-muted/80 transition-colors"
-              >
-                {priceStep}
-                <ChevronDown className={`w-3 h-3 transition-transform ${showStepDropdown ? 'rotate-180' : ''}`} />
-              </button>
-              {showStepDropdown && (
-                <div className="absolute right-0 top-full mt-1 bg-card border border-border rounded shadow-lg z-50 py-1 min-w-[60px]">
-                  {priceStepOptions.map((step) => (
-                    <button
-                      key={step}
-                      onClick={() => {
-                        setPriceStep(step);
-                        setShowStepDropdown(false);
-                      }}
-                      className={`w-full px-3 py-1.5 text-xs text-left hover:bg-muted transition-colors ${
-                        priceStep === step ? 'text-primary bg-muted/50' : 'text-foreground'
-                      }`}
-                    >
-                      {step}
-                    </button>
-                  ))}
-                </div>
               )}
             </div>
           </div>

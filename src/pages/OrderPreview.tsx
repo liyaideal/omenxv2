@@ -172,7 +172,6 @@ export default function OrderPreview() {
       { label: "Released margin est.", value: `${orderIntent.releasedMargin.toFixed(2)} USDC`, highlight: "green" as const },
       { label: "Realized PnL est.", value: `${orderIntent.realizedPnl >= 0 ? "+" : "-"}${Math.abs(orderIntent.realizedPnl).toFixed(2)} USDC`, highlight: orderIntent.realizedPnl >= 0 ? "green" as const : "red" as const },
     ] : []),
-    { label: "TP/SL", value: orderData.tpsl ? "Set" : "--" },
     { label: "Estimated Liq. Price", value: `${orderCalculations.liqPrice} USDC` },
     { label: "Available Balance", value: `${balance.toFixed(2)} USDC`, highlight: hasSufficientFunds ? "green" as const : "red" as const },
   ];
