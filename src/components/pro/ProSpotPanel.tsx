@@ -217,7 +217,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
                 type="text"
                 value={p.limitPrice}
                 onChange={(e) => p.onLimitPriceChange(e.target.value)}
-                className={cn("flex-1 bg-transparent outline-none font-mono", isBare ? "text-xs" : "text-sm")}
+                className={cn("flex-1 min-w-0 bg-transparent outline-none font-mono", isBare ? "text-xs" : "text-sm")}
                 placeholder="0.0000"
                 inputMode="decimal"
               />
@@ -235,7 +235,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
               type="text"
               value={p.amount}
               onChange={(e) => p.onAmountChange(e.target.value)}
-              className={cn("flex-1 bg-transparent outline-none font-mono", isBare ? "text-xs" : "text-sm")}
+              className={cn("flex-1 min-w-0 bg-transparent outline-none font-mono", isBare ? "text-xs" : "text-sm")}
               placeholder="0.00"
               inputMode="decimal"
             />

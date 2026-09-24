@@ -213,7 +213,7 @@ export const ProContractPanel = (props: ProContractPanelProps) => {
                 type="text"
                 value={limitPrice || sidePrice.toFixed(4)}
                 onChange={(e) => setLimitPrice(e.target.value)}
-                className="flex-1 bg-transparent outline-none font-mono text-sm"
+                className="flex-1 min-w-0 bg-transparent outline-none font-mono text-sm"
                 placeholder="0.0000"
               />
               <span className="text-muted-foreground text-xs">USDC</span>
@@ -234,7 +234,7 @@ export const ProContractPanel = (props: ProContractPanelProps) => {
               type="text"
               value={amountMode === "units" ? unitsInput : amount}
               onChange={(e) => (amountMode === "units" ? setUnitsInput(e.target.value) : setAmount(e.target.value))}
-              className="flex-1 bg-transparent outline-none font-mono text-sm"
+              className="flex-1 min-w-0 bg-transparent outline-none font-mono text-sm"
               placeholder={amountMode === "units" ? "0" : "0.00"}
               inputMode="decimal"
             />
@@ -371,7 +371,7 @@ export const ProContractPanel = (props: ProContractPanelProps) => {
                 type="text"
                 value={sellLimitPrice || sellMark.toFixed(4)}
                 onChange={(e) => setSellLimitPrice(e.target.value)}
-                className="flex-1 bg-transparent outline-none font-mono text-sm"
+                className="flex-1 min-w-0 bg-transparent outline-none font-mono text-sm"
                 placeholder="0.0000"
               />
               <span className="text-muted-foreground text-xs">USDC</span>
@@ -392,7 +392,7 @@ export const ProContractPanel = (props: ProContractPanelProps) => {
               type="text"
               value={sellQtyInput}
               onChange={(e) => setSellQtyInput(e.target.value.replace(/[^0-9]/g, ""))}
-              className="flex-1 bg-transparent outline-none font-mono text-sm"
+              className="flex-1 min-w-0 bg-transparent outline-none font-mono text-sm"
               placeholder="0"
             />
             <span className="text-muted-foreground text-xs font-medium">Contracts</span>

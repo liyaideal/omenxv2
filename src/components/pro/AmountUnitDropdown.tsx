@@ -28,7 +28,9 @@ export const AmountUnitDropdown = ({ value, unitLabel, onChange, className }: Am
         type="button"
         aria-label="Amount unit"
         className={cn(
-          "inline-flex items-center gap-1 rounded px-1.5 py-0.5 -mr-1 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-background/60 transition-colors",
+          // 09-24 Liya: `Contracts ▾` used to ride over the box's right padding (-mr-1 + no shrink-0),
+          // so the chevron touched the edge; USDC was short enough to hide it.
+          "inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded px-1.5 py-0.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-background/60 transition-colors",
           className,
         )}
       >
