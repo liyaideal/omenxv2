@@ -7,6 +7,7 @@
 import { useMemo, useSyncExternalStore } from "react";
 import { SPORT_SEGMENTS, SPORT_FALLBACK, type SegmentSpec } from "@/lib/sportSegments";
 import { fixtureMeta, isFixtureLive, type FixtureMeta } from "./sportsData";
+import { formatGamePoints } from "./tennisScore";
 
 export interface MatchboardEvent {
   id: string;
@@ -173,8 +174,9 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
   // `server` / `game_points` 尚未入库（RawMeta 未声明），这里做局部读取。
   const metaBag = meta as unknown as Record<string, unknown>;
   const server = typeof metaBag.server === "string" ? metaBag.server : null;
-  const gamePoints =
-    typeof metaBag.game_points === "string" ? metaBag.game_points : null;
+  const gamePoints = formatGamePoints(
+    typeof metaBag.game_points === "string" ? metaBag.game_points : null,
+  );
   const tiebreakLive =
     status === "live" && spec?.unit === "set" && isTiebreakLive(current);
   const ctx =

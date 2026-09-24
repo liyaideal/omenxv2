@@ -119,8 +119,6 @@ const MobileCornerStreamButton = ({
   </button>
 );
 
-/** metadata.score is stored as "1-0"; the canvas wants "1 – 0" (en dash). */
-const prettyScore = (s: string) => s.split(/\s*[-–]\s*/).join(" – ");
 const LIVE_MAX = 3;
 
 const hashHue = (s: string) => {
@@ -207,11 +205,7 @@ const MatchTitle = ({ m, live }: { m: SportsMatch; live: boolean }) => (
       <>
         {m.home}{" "}
         <span className="font-display">
-          {m.sport === "tennis" ? (
-            <MatchScoreText sport={m.sport} score={m.score} base={15.5} />
-          ) : (
-            prettyScore(m.score)
-          )}
+          <MatchScoreText sport={m.sport} score={m.score} base={15.5} />
         </span>{" "}
         {m.away}
       </>

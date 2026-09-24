@@ -110,5 +110,43 @@ export const MatchScoreText = ({
   sport === "tennis" ? (
     <TennisScoreText score={score} base={tennisBase ?? base} />
   ) : (
-    score || "\u2013"
+    formatPlainScore(score)
   );
+
+/**
+ * 非网球比分串的唯一格式：引擎写 `0-1`（ASCII 连字符、无空格），界面一律 `0 – 1`
+ * （U+2013 + 两侧空格，即字典一直展示的格式）。解析不出两个数就回退原串；空值 `–`。
+ */
+export const formatPlainScore = (score: string | null | undefined): string => {
+  if (!score) return "\u2013";
+  const m = /^\s*(\d+)\s*[-–:]\s*(\d+)\s*$/.exec(score);
+  return m ? `${m[1]} \u2013 ${m[2]}` : score;
+};
+
+/**
+ * 引擎 `metadata.phase` 是机器枚举（`LIVE` / `BREAK` / `DECISION`，给记分牌判段间用），
+ * 列表卡联赛行只能显示人话：LIVE 不显示（LIVE 药丸已在），BREAK → `Break`，DECISION → `Decision`，
+ * 其他（供应商给的 `2nd half` / `3rd set` 这类）原样。返回 null = 不渲染。
+ */
+export const phaseLabel = (phase: string | null | undefined): string | null => {
+  if (!phase) return null;
+  const key = phase.trim().toUpperCase();
+  if (key === "LIVE") return null;
+  if (key === "BREAK") return "Break";
+  if (key === "DECISION") return "Decision";
+  return phase;
+};
+
+/**
+ * 网球局分归一：减号 `-` → `–`（U+2013），占先 `A` / `AD` / `ADV` 统一为 `AD`。
+ * `30-15` → `30–15`，`40-A` → `40–AD`，空值原样交给调用方兜底。
+ */
+export const formatGamePoints = (gp: string | null | undefined): string | null => {
+  if (!gp) return null;
+  const norm = (t: string) => {
+    const k = t.trim().toUpperCase();
+    return k === "A" || k === "AD" || k === "ADV" ? "AD" : t.trim();
+  };
+  const m = /^\s*([^-–:]+)\s*[-–:]\s*([^-–:]+)\s*$/.exec(gp);
+  return m ? `${norm(m[1])}\u2013${norm(m[2])}` : gp;
+};

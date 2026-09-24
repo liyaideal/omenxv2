@@ -21,7 +21,7 @@ import {
 } from "@/components/lite/categoryviews/verticalChrome";
 import { EmptyState } from "@/components/states";
 import { CHALK_SOFT, Crest, DIR_DOWN, DIR_UP, LivePulse } from "@/components/lite/shared/primitives";
-import { MatchScoreText, isTennisTiebreakLive } from "@/components/lite/sports/tennisScore";
+import { MatchScoreText, isTennisTiebreakLive, phaseLabel } from "@/components/lite/sports/tennisScore";
 
 const MICRO: React.CSSProperties = {
   fontSize: 9,
@@ -116,7 +116,7 @@ const LiveMatchCard = ({ match }: { match: SportsMatch }) => {
       <div className="flex items-center justify-between">
         <span style={MICRO}>
           {match.league}
-          {match.phase ? ` · ${match.phase}` : ""}
+          {phaseLabel(match.phase) ? ` · ${phaseLabel(match.phase)}` : ""}
           {match.sport === "tennis" && isTennisTiebreakLive(match.score) ? (
             <span style={{ color: "#FF8A3D" }}> · Tiebreak</span>
           ) : null}

@@ -102,6 +102,7 @@ export const previewRegistry: Record<string, Loader> = {
   "events-ev10": pick(homeStage, "Ev10Preview"),
   "events-ev9t": pick(events, "Ev9tPreview"),
   "events-ev9t2": pick(events, "Ev9t2Preview"),
+  "events-ev9b": pick(events, "Ev9bPreview"),
   "events-ev11": pick(events, "Ev11Preview"),
   "events-ev12": pick(events, "Ev12Preview"),
   "events-ev13": pick(events, "Ev13Preview"),

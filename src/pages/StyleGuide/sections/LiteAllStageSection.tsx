@@ -232,7 +232,7 @@ const LIVE_1 = match({
   live: true,
   minute: 63,
   phase: "2nd half",
-  score: "1 – 0",
+  score: "1-0",
   kickoff: new Date(NOW - 63 * MIN),
   endDate: new Date(NOW + 30 * MIN),
 });
@@ -245,7 +245,7 @@ const LIVE_2 = match({
   live: true,
   minute: 28,
   phase: "1st half",
-  score: "0 – 0",
+  score: "0-0",
   kickoff: new Date(NOW - 28 * MIN),
   endDate: new Date(NOW + 70 * MIN),
 });

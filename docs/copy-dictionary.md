@@ -191,11 +191,13 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | **G1** … **G5** | MOBA 的局次列头 | Game 1（列头位不写全称）, M1 |
 | **Set {n}** / **Game {n}** | 上下文行里的段落全称（`ATP Rome · Set 3`） | S3 / G4（上下文行不用缩写） |
 | **{选手} serving** | 网球上下文行的发球方后缀（`· Alcaraz serving`） | Serve: X, on serve |
-| **30–15** | 网球右上角的当前局比分，减号是 U+2013 EN DASH | 30-15（ASCII 连字符）, 30:15 |
+| **30–15** / **40–AD** | 网球右上角的当前局比分，减号是 U+2013 EN DASH；占先统一 `AD`。供应商给 `30-15` / `40-A` 经 `formatGamePoints` 归一 | 30-15（ASCII 连字符）, 30:15, 40-A, ADV |
 | **7⁷** / **6²** | 网球记分牌里由抢七决出的盘：盘分右侧上标本行选手的抢七点数（两行各标各的）；判定 = 盘分 7–6 / 6–7 且 `segment_results[i].tb` 有值 | 7-6(7-2)、7(7)、括号写法 |
 | **TB 5–3** | 网球抢七进行中的右上角值：橙 `TB` + 抢七点数，替换局分；判定 = 当前盘 6–6 且带 `tb` | Tiebreak 5-3、5-3（无前缀）、TB5:3 |
 | **Tiebreak** | 抢七进行中的段落词：记分牌上下文行 `Set 3 · Tiebreak · X serving`；列表卡联赛行追加橙色 ` · Tiebreak` | Tie-break, Tie break, TB（上下文行不缩写） |
 | **5–7, 7–6², 6–6** | 列表面的网球比分串（供应商 `5-7, 7-6(7-2), 6-6` 经 formatter）：抢七盘只在**输方一侧**上标输方点数，减号 U+2013，盘间 `, `；最后一盘 6–6 = 抢七进行中，点数不进列表 | 原样渲染供应商串、7-6(7-2)、两侧都标 |
+| **0 – 1** | 列表面所有非网球比分串的唯一格式：引擎 `metadata.score` 写 `0-1`，展示层 `formatPlainScore` 转成 U+2013 + 两侧空格；解析不出回退原串，空值 `–` | 0-1（原样直出）, 0:1, 0—1 |
+| **Break** / **Decision** | 引擎 `metadata.phase` 机器枚举在列表卡联赛行的显示词：`BREAK` → `Break`，`DECISION` → `Decision`，`LIVE` → 不显示（LIVE 药丸已在）；供应商人话（`2nd half`）原样 | BREAK / DECISION 大写直出, · LIVE |
 | **24:10** | MOBA 右上角的当前局已进行时长，无上限 | 24m, 24'10, +24:10 |
 | **W** / **L** | MOBA 已打完那一局的格子内容 | Win/Loss, 1/0, ✓/✗ |
 | **●** | MOBA 当前局的格子内容，橙 `#FF8A3D` | LIVE, ▶, 圆点用其他颜色 |

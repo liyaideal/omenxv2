@@ -12,7 +12,7 @@ import {
   kickoffLabel,
   matchesInBucket,
 } from "./sportsData";
-import { TennisScoreText, isTennisTiebreakLive } from "./tennisScore";
+import { MatchScoreText, isTennisTiebreakLive, phaseLabel } from "./tennisScore";
 import { CHALK_SOFT, Crest, DIR_DOWN, DIR_UP, LivePulse } from "@/components/lite/shared/primitives";
 
 const MICRO_LABEL: React.CSSProperties = {
@@ -134,7 +134,7 @@ const LiveBlock = ({
         }}
       >
         {match.league}
-        {match.phase ? ` · ${match.phase}` : ""}
+        {phaseLabel(match.phase) ? ` · ${phaseLabel(match.phase)}` : ""}
         {match.sport === "tennis" && isTennisTiebreakLive(match.score) ? (
           <span style={{ color: "#FF8A3D" }}> · Tiebreak</span>
         ) : null}
@@ -175,11 +175,7 @@ const LiveBlock = ({
           whiteSpace: "nowrap",
         }}
       >
-        {match.sport === "tennis" ? (
-          <TennisScoreText score={match.score} base={20} />
-        ) : (
-          match.score || "–"
-        )}
+        <MatchScoreText sport={match.sport} score={match.score} base={24} tennisBase={20} />
       </span>
       <span className="flex min-w-0 flex-1 items-center justify-end gap-[8px]">
         <span

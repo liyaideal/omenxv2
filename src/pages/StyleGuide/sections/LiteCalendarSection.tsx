@@ -188,7 +188,7 @@ const MATCHES: SportsMatch[] = [
     live: true,
     minute: 37,
     phase: "1H",
-    score: "1 - 0",
+    score: "1-0",
     volume: 1_902_000,
   }),
   match({

@@ -373,7 +373,7 @@ const SPORTS: SportsMatch[] = [
     homeAbbr: "ARS",
     awayAbbr: "CHE",
     kickoff: new Date(Date.now() - 33 * 60_000),
-    live: { minute: 33, score: "1 – 0" },
+    live: { minute: 33, score: "1-0" },
     options: three("Arsenal", "Chelsea", [0.58, 0.24, 0.18], "sg-hp-live-1"),
   }),
   UP(1, "Serie A", "Juventus", "Napoli", "JUV", "NAP", 0, 20, 45, [0.4, 0.31, 0.29]),

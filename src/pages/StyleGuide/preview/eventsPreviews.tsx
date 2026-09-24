@@ -527,7 +527,7 @@ const SPORTS_FIXTURE: SportsMatch[] = [
     homeAbbr: "ARS",
     awayAbbr: "CHE",
     kickoff: new Date(Date.now() - 33 * 60_000),
-    live: { minute: 33, score: "1 – 0", phase: "1st half" },
+    live: { minute: 33, score: "1-0", phase: "LIVE" },
     options: threeWay("Arsenal", "Chelsea", [0.58, 0.24, 0.18], "sg-sp-live"),
   }),
   // today · 4
@@ -741,6 +741,39 @@ const TENNIS_FIXTURE: SportsMatch[] = [
   ...SPORTS_FIXTURE.slice(0, 2),
 ];
 
+/** 引擎 phase 枚举（LIVE / BREAK / DECISION）与引擎比分串 `0-1` 原样喂入，展示层负责翻译。 */
+const PHASE_FIXTURE: SportsMatch[] = [
+  {
+    ...match({
+      id: "sg-sp-cs2-break",
+      league: "IEM Cologne · BO3",
+      home: "Spirit",
+      away: "MOUZ",
+      homeAbbr: "SPIRIT",
+      awayAbbr: "MOUZ",
+      kickoff: new Date(Date.now() - 71 * 60_000),
+      options: [opt("sg-sp-cs2-break-h", "Spirit", 0.55), opt("sg-sp-cs2-break-a", "MOUZ", 0.45)],
+      live: { minute: 71, score: "0-1", phase: "BREAK" },
+    }),
+    sport: "esports",
+  },
+  {
+    ...match({
+      id: "sg-sp-ufc-decision",
+      league: "UFC 321",
+      home: "Pereira",
+      away: "Ankalaev",
+      homeAbbr: "PER",
+      awayAbbr: "ANK",
+      kickoff: new Date(Date.now() - 28 * 60_000),
+      options: [opt("sg-sp-ufc-decision-h", "Pereira", 0.48), opt("sg-sp-ufc-decision-a", "Ankalaev", 0.52)],
+      live: { minute: 28, score: "", phase: "DECISION" },
+    }),
+    sport: "mma",
+  },
+  ...SPORTS_FIXTURE.slice(0, 2),
+];
+
 /** League break — no fixtures at all. */
 const EMPTY_SPORTS_FIXTURE: SportsMatch[] = [];
 
@@ -797,6 +830,21 @@ const TennisListDemo = ({ liveFirst = false }: { liveFirst?: boolean }) => {
   }
   return <LiteSportsView matches={rows} now={Date.now()} />;
 };
+
+/** EV-9b · 引擎 phase 枚举翻译 + 比分串统一格式（`0-1` → `0 – 1`）。 */
+const PhaseListDemo = () => {
+  const isMobile = useIsMobile();
+  if (isMobile) {
+    return <MobileSportsModule matches={PHASE_FIXTURE} onOpenAll={() => undefined} />;
+  }
+  return <LiteSportsView matches={PHASE_FIXTURE} now={Date.now()} />;
+};
+
+export const Ev9bPreview = () => (
+  <Stage>
+    <PhaseListDemo />
+  </Stage>
+);
 
 export const Ev9tPreview = () => (
   <Stage>

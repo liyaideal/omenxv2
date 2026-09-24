@@ -515,7 +515,8 @@ export const T1Preview = () => (
             { home: 2, away: 1 },
           ],
           server: "Alcaraz",
-          game_points: "30\u201315",
+          // 供应商原始 ASCII 连字符，展示层 formatGamePoints 归一为 U+2013。
+          game_points: "30-15",
         },
         { start_date: at(-100), end_date: at(60) },
       )}

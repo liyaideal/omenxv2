@@ -193,6 +193,19 @@ const SPORTS_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "events-ev9b",
+    label: "EV-9b · 引擎原始值翻译：比分串 `0-1` → `0 – 1`、phase 枚举 → 人话",
+    note:
+      "Lovable 引擎往 metadata 写的是机器值：score = `0-1`（ASCII 连字符无空格）、phase = LIVE / BREAK / DECISION。列表面统一经 tennisScore.tsx 的 formatPlainScore / phaseLabel 翻译，禁止原样渲染——此前 Playing now 卡直出 `0-1` 与首页 `0 – 1` 两页两种写法、UFC 会出现 `UFC 321 · DECISION`。",
+    spec: [
+      { state: "比分串", when: "sport !== \"tennis\" && score 形如 `d-d` / `d–d` / `d:d`", visual: "`0 – 1`（U+2013 两侧空格）；解析不出回退原串；空值 `–`", source: "formatPlainScore" },
+      { state: "phase = LIVE", when: "phase.toUpperCase() === \"LIVE\"", visual: "联赛行不追加任何词（LIVE 药丸已在）", source: "phaseLabel → null" },
+      { state: "phase = BREAK", when: "phase === \"BREAK\"", visual: "`IEM Cologne · BO3 · Break`", source: "phaseLabel" },
+      { state: "phase = DECISION", when: "phase === \"DECISION\"", visual: "`UFC 321 · Decision`；格斗无比分串，中央位 `–`", source: "phaseLabel / formatPlainScore" },
+      { state: "供应商人话", when: "其他字符串（`2nd half` / `3rd set`）", visual: "原样", source: "phaseLabel" },
+    ],
+  },
+  {
     key: "events-ev10",
     label: "EV-10 · day-rail 过滤（HomeSportsCard）",
     note: "fixture 只注初始 bucket（buildDayStrip 首个非 all 日），不传即生产默认 all。",
@@ -1229,9 +1242,9 @@ export const EventsStatesSection = () => (
         </div>
       </SubSection>
 
-      <SubSection title="⑥ Sports 卡（EV-9 / EV-9e / EV-9t / EV-9t2 / EV-10 / EV-31）">
+      <SubSection title="⑥ Sports 卡（EV-9 / EV-9e / EV-9t / EV-9t2 / EV-9b / EV-10 / EV-31）">
         <Pair
-          cases={byKey("events-ev9", "events-ev9e", "events-ev9t", "events-ev9t2", "events-ev10", "events-ev31")}
+          cases={byKey("events-ev9", "events-ev9e", "events-ev9t", "events-ev9t2", "events-ev9b", "events-ev10", "events-ev31")}
           desktopMin={620}
           mobileMin={720}
         />

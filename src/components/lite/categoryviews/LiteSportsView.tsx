@@ -16,7 +16,7 @@ import {
   kickoffCell,
   matchesInBucket,
 } from "@/components/lite/sports/sportsData";
-import { TennisScoreText, isTennisTiebreakLive } from "@/components/lite/sports/tennisScore";
+import { MatchScoreText, isTennisTiebreakLive, phaseLabel } from "@/components/lite/sports/tennisScore";
 import {
   ALL_OPTION,
   filterMatches,
@@ -123,7 +123,7 @@ const LiveCard = ({
           }}
         >
           {match.league}
-          {match.phase ? ` · ${match.phase}` : ""}
+          {phaseLabel(match.phase) ? ` · ${phaseLabel(match.phase)}` : ""}
           {match.sport === "tennis" && isTennisTiebreakLive(match.score) ? (
             <span style={{ color: "#FF8A3D" }}> · Tiebreak</span>
           ) : null}
@@ -164,11 +164,7 @@ const LiveCard = ({
             whiteSpace: "nowrap",
           }}
         >
-          {match.sport === "tennis" ? (
-            <TennisScoreText score={match.score} base={26} />
-          ) : (
-            match.score || "–"
-          )}
+          <MatchScoreText sport={match.sport} score={match.score} base={32} tennisBase={26} />
         </span>
         <span
           className="flex min-w-0 flex-1 items-center justify-end"

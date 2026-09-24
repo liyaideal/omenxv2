@@ -140,6 +140,18 @@
 
 **不在本轮**：决胜盘 10 分超级抢七（双打 / 部分赛事）——WTA 单打用不到，等有真实赛事再补；`SegmentSpec` 不需要改。
 
+### 4.7 引擎原始值不许直出（2026-09-24 追加）
+
+抢七那轮暴露的病根不止网球：Lovable 引擎（`roll_sports_matches` / `tick_live_matches` / `tick_demo_showcase`）写进 `metadata` 的是机器值，界面有三处曾原样渲染。现在全部收口到 `src/components/lite/sports/tennisScore.tsx`（文件名沿用，实际是体育比分/段落文案的 formatter 家族）：
+
+| 字段 | 引擎写的 | 界面规则 | 函数 |
+|---|---|---|---|
+| `score`（非网球） | `0-1` | `0 – 1`（U+2013 两侧空格）；解析不出回退原串；空值 `–`。首页此前私有的 `prettyScore` 已删，六个列表面同一入口 | `formatPlainScore` / `MatchScoreText` |
+| `phase` | `LIVE` / `BREAK` / `DECISION` | 列表卡联赛行：`LIVE` 不显示、`BREAK` → `Break`、`DECISION` → `Decision`；其他字符串原样。记分牌的机器判定（`meta.phase === "BREAK"` 判段间）不变 | `phaseLabel` |
+| `game_points`（网球） | 供应商可能给 `30-15` / `40-A` | `30–15` / `40–AD` | `formatGamePoints` |
+
+字典 fixture 自本轮起一律喂**引擎真实格式**（`1-0`、`LIVE`），由 formatter 输出——之前字典写的是设计后的 `1 – 0`，生产上根本不会出现，字典与生产不是同一条路。新增 case：`Events 列表` EV-9b。
+
 ### 4.5 红线：同一个数字只能有一处实现
 
 比分、当前是第几段、这一段打完没有——这些数字**只能**从 `useMatchboardModel(event)` 读。记分牌、舞台上的胶囊、盘口板分组头的注记，三处读的是同一份。任何地方第二次自己算一遍比分，都是缺陷。
@@ -265,6 +277,7 @@
 | 记分牌 · 篮球（进行中 / 加时） | `Sports · Live` B1 / B2 |
 | 记分牌 · 网球（进行中 / 抢七盘已决 / 抢七进行中） | `Sports · Live` T1 / T2 / T3 |
 | 列表面 · 网球抢七比分串（Playing now / 移动模块） | `Events 列表` EV-9t / EV-9t2 |
+| 列表面 · 引擎原始值翻译（比分串格式 / phase 枚举） | `Events 列表` EV-9b |
 | 记分牌 · LOL·Dota | `Sports · Live` G1 |
 | 直播画面九态 | `Sports · Live` S1…S9 |
 | 迷你窗 / 全屏 / Watch 键 | `Sports · Live` C1…C4 |
@@ -280,7 +293,7 @@
 - `src/components/lite/sports/LiveStage.tsx` + `src/hooks/useHlsVideo.ts` — 直播画面与播放器
 - `src/components/lite/sports/liveStageStore.ts` — 舞台与记分牌之间的跨组件状态（`Watch` 键）
 - `src/components/lite/sports/sportsData.ts` — 赛事读取、分组、可见性边界
-- `src/components/lite/sports/tennisScore.tsx` — 网球比分串 formatter（`parseTennisScore` / `TennisScoreText` / `MatchScoreText` / `isTennisTiebreakLive`），所有列表面共用
+- `src/components/lite/sports/tennisScore.tsx` — 体育比分/段落文案 formatter 家族（`parseTennisScore` / `TennisScoreText` / `MatchScoreText` / `formatPlainScore` / `phaseLabel` / `formatGamePoints` / `isTennisTiebreakLive`），所有列表面共用
 - `src/components/lite/multi/LiteBoardGroupHeader.tsx` — 盘口分组头
 - `src/pages/lite/LiteContractTrade.tsx` — 交易页装配（分段板 + 注记 + 滚动联动）
 - `src/components/lite/home/HomeSportsCard.tsx` — 首页比赛卡
