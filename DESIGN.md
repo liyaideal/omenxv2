@@ -2160,7 +2160,7 @@ Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED
 ## §Addendum 2026-09-24 · 交易页研发问题 18 条收口（append-only）
 
 1. **§2 持仓标识作用域扩到 Pro 三张表**：`/trade` Positions / Current Orders / 空投行的 Side 列与手机 `PositionCard` 的 side chip 一律走方向轴（Yes/Up `--yes` 黑字、No/Down `--no` 黑字），组件 `src/components/trading/SideChip.tsx`；盈亏轴（绿 / 红）只留给 PnL 数字与 Buy / Sell 动作。
-2. **合约 K 线双序列**：`Last` = 蜡烛（ALL / 线图为 `hsl(142 71% 45%)` 折线），`Mark` = `--trading-yellow` 1.5px 虚线 `5,3`（与订单簿 ⚑ 同色）；周期选择器右侧两枚图例 chip（10px mono，选中带 `border-border/60`，关闭 muted 无边框）各自开关。现货终端不画 Mark、不出图例。
+2. **K 线序列切换**（同日 Liya 改）：不叠线。周期选择器右侧放两段切换（与周期组同一套 `bg-muted/50 rounded-md p-0.5` 壳、选中 `bg-muted text-foreground`）：合约 `Last | Mark` 选蜡烛数据源；涨跌市场 `{选边} | {ticker} price` 选份额 / 标的视图，标的视图纵轴列 68px、白色 45% 虚线 `6,4` 的 `Base $X` 参考线 + 左侧小标签。手机（<768）切换独占周期行下一行、左对齐，图表容器 +40px。
 3. **终端表格动作按钮统一**：Close = `text-foreground border-border/50` 细边框；Cancel = `text-trading-red border-trading-red/50`；手机卡 Close = `bg-trading-red/20 text-trading-red`。现货与合约同款，撤单一律先弹 `Cancel Order` AlertDialog。
 4. **轮长 chip**：`px-1.5 py-px rounded border-border/60 bg-muted/40 text-[10px] font-mono text-muted-foreground`，只跟在加密快轮名后（选择器行、桌面页头）；手机短名 `BTC · 5m · Up or down?`。
 5. **删除**：TP/SL 全部 UI、`Suspended` 态、订单簿精度切换、现货 Limit CTA 的 `Place limit ·` 前缀。

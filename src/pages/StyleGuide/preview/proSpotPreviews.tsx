@@ -420,8 +420,8 @@ const MobileChartsFrame = ({ width, terminal }: { width?: number; terminal?: Par
 
       <SpotMobileStatsStrip t={t} />
       <SpotMobileMarkLine t={t} />
-      <div className="w-full min-w-0 overflow-hidden" style={{ height: 280 }}>
-        <CandlestickChart basePrice={0.4916} side="buy" showMarkSeries={false} />
+      <div className="w-full min-w-0 overflow-hidden" style={{ height: 320 }}>
+        <CandlestickChart basePrice={0.4916} side="buy" underlying={{ ticker: "META", basePrice: 577.1755, lastPrice: 579.0784, shareLabel: "Up" }} />
       </div>
       <SpotPositionsTable t={t} variant="mobile" />
       <SpotOrdersTable t={t} variant="mobile" />
@@ -651,5 +651,29 @@ const cryptoFixture = (over: Partial<SpotTerminal> = {}) =>
 export const SpotEventInfoCrypto = () => (
   <div style={{ width: 720 }}>
     <SpotEventInfoPanel t={cryptoFixture()} />
+  </div>
+);
+
+/** CH-S1 · spot up/down chart — `Share | BTC` view switch (Liya 09-24 B 方案). */
+export const SpotChartViews = () => (
+  <div className="space-y-4">
+    <div style={{ width: 760, height: 360 }}>
+      <CandlestickChart remainingDays={1} basePrice={0.5367} side="buy" underlying={{ ticker: "BTC", basePrice: 72066.13, lastPrice: 72410.5, shareLabel: "Up" }} />
+    </div>
+    <div style={{ width: 760, height: 360 }}>
+      <CandlestickChart remainingDays={1} basePrice={0.5367} side="buy" previewView="underlying" underlying={{ ticker: "BTC", basePrice: 72066.13, lastPrice: 72410.5, shareLabel: "Up" }} />
+    </div>
+  </div>
+);
+
+/** CH-S2 · spot up/down chart on the phone (375) — `Up | BTC price`, BTC view selected. */
+export const SpotChartViewsMobile = () => (
+  <div className="space-y-3">
+    <div style={{ width: 375, height: 360 }}>
+      <CandlestickChart remainingDays={1} basePrice={0.5367} side="buy" underlying={{ ticker: "BTC", basePrice: 72066.13, lastPrice: 72410.5, shareLabel: "Up" }} />
+    </div>
+    <div style={{ width: 375, height: 360 }}>
+      <CandlestickChart remainingDays={1} basePrice={0.5367} side="buy" previewView="underlying" underlying={{ ticker: "BTC", basePrice: 72066.13, lastPrice: 72410.5, shareLabel: "Up" }} />
+    </div>
   </div>
 );

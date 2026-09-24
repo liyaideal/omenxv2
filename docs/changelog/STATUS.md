@@ -22,7 +22,7 @@
 | # | 项 | Status | Notes |
 |---|---|---|---|
 | DQ-2 | 订单簿精度切换下拉删除（合约 + 现货），聚合固定原生 tick | ✅ | `DesktopOrderBook` |
-| DQ-3 | 合约 K 线 Last 蜡烛 + Mark 黄色虚线，图例 chip 各自开关；现货无 | ✅ | `CandlestickChart showMarkSeries`；Mark 序列为模拟，正式版接后端 mark |
+| DQ-3 | 合约 K 线 `Last \| Mark` 数据源切换（一次一套蜡烛）；涨跌市场 `{选边} \| {ticker} price` 视图切换 + Base 参考线；手机切换独占第二行、容器 +40px | ✅ | `CandlestickChart priceSource / underlying`；Mark 蜡烛与标的走势为模拟，正式版接后端 mark / 行情源 |
 | DQ-5 | TP/SL 全站删除（面板段 / 持仓表列 / 手机持仓卡 / 预览行 / 编辑弹窗）；Sell · Limit 保留 | ✅ | 引擎无触发单 |
 | DQ-7 | 文档口径：Standard / Boost 按 event product line 配置，不按品类 | ✅ | §1 概念词典 |
 | DQ-9 | Pro 持仓 / 挂单 / 空投行 Side chip 走方向轴（`SideChip`）；手机持仓卡同色 | ✅ | DESIGN §2 |

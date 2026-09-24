@@ -175,7 +175,7 @@ export default function SpotTrading() {
                   basePrice={t.outcomePrice || 0.5}
                   side={t.side}
                   onSeriesReady={t.seedSessionOpenMark}
-                  showMarkSeries={false}
+                  underlying={t.basePrice != null ? { ticker: t.ticker, basePrice: t.basePrice, lastPrice: t.indicative, shareLabel: t.outcomeLabel } : undefined}
                 />
               </div>
             </>

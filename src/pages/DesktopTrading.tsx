@@ -1290,7 +1290,7 @@ export default function DesktopTrading() {
                     </TooltipProvider>
                   </div>
                   <div className="flex-1 min-h-0">
-                    <CandlestickChart remainingDays={7} basePrice={parseFloat(selectedOptionData.price)} side={side} />
+                    <CandlestickChart remainingDays={7} basePrice={parseFloat(selectedOptionData.price)} side={side} priceSource />
                   </div>
                 </>
               ) : (

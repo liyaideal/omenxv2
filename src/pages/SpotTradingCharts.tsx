@@ -72,8 +72,9 @@ function SpotChartsBody({ t }: { t: SpotTerminal }) {
       <SpotMobileMarkLine t={t} />
 
 
-      <div className="h-[450px]">
-        <CandlestickChart basePrice={t.outcomePrice || 0.5} side={t.isYesSelected ? "buy" : "sell"} showMarkSeries={false} />
+      {/* 09-24 Liya: +40px = the second toolbar row (series switch) so the candles keep their height. */}
+      <div className="h-[490px]">
+        <CandlestickChart basePrice={t.outcomePrice || 0.5} side={t.isYesSelected ? "buy" : "sell"} underlying={t.basePrice != null ? { ticker: t.ticker, basePrice: t.basePrice, lastPrice: t.indicative, shareLabel: t.outcomeLabel } : undefined} />
       </div>
 
       {/* Bottom tabs */}

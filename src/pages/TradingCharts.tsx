@@ -168,8 +168,9 @@ function TradingChartsContent({ selectedEvent, selectedOptionData, options }: Tr
       </div>
 
       {/* Candlestick Chart */}
-      <div className="h-[450px]">
-        <CandlestickChart basePrice={longPrice} side={side} />
+      {/* 09-24 Liya: +40px = the second toolbar row (series switch) so the candles keep their height. */}
+      <div className="h-[490px]">
+        <CandlestickChart basePrice={longPrice} side={side} priceSource />
       </div>
 
       {/* Bottom Tabs */}

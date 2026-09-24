@@ -161,6 +161,9 @@ Lite 是全站唯一外观；只有 `/trade` 与 `/spot` 两页按 `useSurface()
 
 ### 5.1 页头与比赛市场行
 
+K 线（研发问题 #3 → Liya 09-24 定稿）：合约终端周期选择器右侧一个两段切换 `Last | Mark`，选哪个就画哪套蜡烛，一次一套、不叠线（Binance / Bybit 同型），默认 Last；手机 375 宽下切换独占周期行下面一行，图表容器 450 → 490px 保住蜡烛高度。现货终端没有 Mark。字典 CH-D1 / CH-D2 / CH-M1。
+
+
 页头：标题 = 比赛名（Winner 事件的 name），右侧 ▾ 开选择器；数据条只有 24h Volume 与 OI；最多一个生命周期 badge。
 
 | 项 | 口径 |
@@ -282,6 +285,7 @@ Buy · Sell 页签与 Yes/No 一样按 `事件:结果` 记忆，`/trade` ↔ `/t
 | 底部页签 | `Current Orders` / `Holdings`；Holdings 列 `Market · Outcome · Shares · Avg price · Price · Value · PnL`，空态 `No holdings yet` / `No open orders`；行内无 `SPOT` 标；Holdings 行 `Close` 预置 Sell · 该 outcome · Market · 全量精确份额并直接开预览（部分平仓走 Sell 页签输数量）。**按钮样式与合约表同款**（研发问题 #10b）：Close 白字细边框、Cancel 红字红边框，手机卡 Close 红底红字。**Cancel 先弹确认框**（研发问题 #10c）：`Cancel Order` AlertDialog（Market / Side / Type / Limit / Shares，Buy 单加 `Reserved · refunded on cancel $X`），`Keep Order` / `Cancel Order` |
 | 预览弹窗 | `Order Preview`：事件名 + outcome chip + 两张卡；Buy 第二卡 Cost / Fee (0.15%) / To win，Sell 为 Proceeds / Est. commission / You receive；无杠杆 / 保证金 / 强平 |
 | 账户卡 | `Standard Account`：Available (USDC) / In orders / Holdings；`Payout by ~{time}` |
+| K 线视图 | 涨跌市场（有 base price 的加密快轮 / 股票日内）周期选择器右侧加 `{当前选边} \| {ticker} price` 两段切换（`Up \| BTC price`、`Down \| BTC price`、`Up \| META price`），默认份额视图；标的视图 = 标的价蜡烛（$、2 位小数、千分位）+ 白色虚线 `Base $X`（= 页头 Base，结算分界）。页头价格行仍是份额价。手机同 5.1 的第二行规则。字典 CH-S1 / CH-S2 |
 | Event Info | **一套卡片**（研发问题 #18）：标题 + 描述 → 六格 `Trading ends（倒计时 · 时刻）/ Volume / Round open（股票 Prior official close）/ Settles vs / Resolution source / Symbol` → Rules → `Payout by`。删掉了通用块的 Event End Date / Total Volume / 写死的 Open Interest / 重复的 Resolution Source；加密 Symbol = `ETH · USD · 15m round`（原错写 Nasdaq） |
 | 冻结 | `blocked = isOrderingBlocked(lifecycle) || isFrozenByTime`，文案 `Market frozen`（SETTLING 内部态用户仍看 `Market frozen` 直到 `Settled`）；tile 仍可点看价，CTA 置灰、预览打不开、Holdings `Close` toast 拦截。冻结巡检 `freeze_expired_events()` 每 5 分钟；结算时退还挂单 `冻结金额 + 手续费`；被冻结撤掉的挂单状态标 `Cancelled · market frozen` |
 | 轮次 | 加密涨跌事件按固定轮次开局 / 结算：5m · 15m · 1h · 4h（事件 id 形如 `crypto-btc-updown-4h-<YYYYMMDDHHmm>`）；每轮到点结算、下一轮自动开局，选择器里只列未结束的轮 |
@@ -308,6 +312,7 @@ Buy · Sell 页签与 Yes/No 一样按 `事件:结果` 记忆，`/trade` ↔ `/t
 | `trades.reduce_only` | `boolean not null default false`，限价平仓单 true |
 | `trades.margin` / `trades.fee` | 合约 Buy · Limit 预留 = 两者之和，撤单退回；reduce-only 均 0 |
 | `trades.amount` | 名义额（库约束 > 0） |
+| 标的行情（页头 `BTC $X` 格 + K 线标的视图） | Lovable 里是围绕 base price 的正弦漂移 / 模拟走势，**不是真行情**；正式版两处接同一个行情源（与结算用的 resolution source 一致），Mark 蜡烛序列同理接后端 mark |
 | `trades.product_line` | `spot` / `futures` |
 | `positions` | 用到 `size` / `entry_price` / `leverage` / `margin` / `option_id` / `trade_id` / `status` / `mark_price` / `pnl` / `pnl_percent` / `winning_commission` / `close_reason`；一交易对一行 |
 | `profiles.preferred_surface` | `lite` / `pro`，尽力写入；`profiles.balance`（Boost）/ `profiles.spot_balance`（Standard） |
@@ -366,7 +371,8 @@ Lovable 在前端模拟、正式版必须在后端做：
 | 订单状态标 | 两终端共用 › ④ | OS-D1 桌面 hover · OS-M1 手机点开 |
 | 市场行 · 桌面 | 合约终端 › ① | SL-D1 电竞 · SL-D2 Map 1 下拉 · SL-D3 足球 · SL-D4 Winner 三选一下拉 |
 | 市场行 · 手机 | 合约终端 › ① | SL-M1 横滚 · SL-M2 线位抽屉 · SL-M3 Winner 三选一抽屉 |
-| K 线 | 合约终端 › ① | CH-D1 Last + Mark 双序列 |
+| K 线 · 合约 | 合约终端 › ① | CH-D1 Last · CH-D2 Mark · CH-M1 手机 |
+| K 线 · 现货涨跌 | 现货终端 › ① | CH-S1 份额 / 标的两视图 · CH-S2 手机 |
 | 合约订单簿 | 合约终端 › ① | OB-D1 无精度切换 |
 | 桌面面板 | 合约终端 › ② 桌面右栏 | CT-D1 Buy · Market · CT-D2 Contracts · CT-D3 Buy · Limit · CT-D4 Sell 减仓 · CT-D5 Sell 空仓 · CT-D6 无 Leverage 行 · DK-D1 封锁 · RM-D1 Close-only |
 | 手机 `/trade/order` | 合约终端 › ② 手机 | CT-M1 Buy · CT-M2 Sell Market · CT-M3 Sell Limit · CT-M4 Sell 空仓 · CT-M6 Contracts · CT-M7 别名 binary · CT-M8 Buy · Limit · DK-M2 封锁 |

@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { BarChart2 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Candle {
   time: string;
@@ -15,8 +16,15 @@ interface CandlestickChartProps {
   basePrice?: number; // Base price from selected option
   side?: "buy" | "sell"; // Trade side: sell mirrors price (1 - p)
   onSeriesReady?: (firstOpen: number) => void;
-  /** Contract terminal only: overlay the Mark series + Last/Mark legend. Spot has no mark price. */
-  showMarkSeries?: boolean;
+  /** Contract terminal only: `Last | Mark` candle-source switch (Binance / Bybit pattern —
+   *  one series at a time, never overlaid). Spot has no mark price. */
+  priceSource?: boolean;
+  /** Up/down markets: `Share | {ticker}` view switch. The underlying view draws the asset
+   *  price candles with the round's base line, which is what an up/down trader watches. */
+  underlying?: { ticker: string; basePrice: number; lastPrice?: number | null; /** Selected outcome word for the share view — `Up` / `Down`. */ shareLabel: string };
+  /** Style-guide only: initial switch positions. */
+  previewSource?: "last" | "mark";
+  previewView?: "share" | "underlying";
 }
 
 const TIMEFRAMES = ["1m", "5m", "15m", "1H", "4H", "1D", "ALL"] as const;
@@ -142,15 +150,17 @@ const calculateMA = (data: number[], period: number): number[] => {
   return result;
 };
 
-export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = "buy", onSeriesReady, showMarkSeries = true }: CandlestickChartProps) => {
+export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = "buy", onSeriesReady, priceSource = false, underlying, previewSource, previewView }: CandlestickChartProps) => {
   const defaultTimeframe = getDefaultTimeframe(remainingDays);
   const [selectedTimeframe, setSelectedTimeframe] = useState<Timeframe>(defaultTimeframe);
   const [chartMode, setChartMode] = useState<"candle" | "line">("candle");
-  // 研发问题 #3 (2026-09-24): contract chart carries TWO series — Last (candles / green
-  // line) and Mark (yellow dashed line, the price that drives margin & liquidation).
-  // The legend chips toggle each; Last stays on by default, Mark is optional.
-  const [showLast, setShowLast] = useState(true);
-  const [showMark, setShowMark] = useState(true);
+  // 研发问题 #3 · Liya 09-24: like Binance / Bybit, the chart draws ONE price series at a
+  // time — `Last | Mark` picks the candle source (contract only). Up/down markets add a
+  // `Share | {ticker}` view switch: the underlying asset's candles with the base line.
+  const isMobile = useIsMobile();
+  const [source, setSource] = useState<"last" | "mark">(previewSource ?? "last");
+  const [view, setView] = useState<"share" | "underlying">(previewView ?? "share");
+  const showUnderlying = !!underlying && view === "underlying";
   const [crosshair, setCrosshair] = useState<{ x: number; y: number; candleIndex: number } | null>(null);
   
   // Auto-switch to line for ALL timeframe
@@ -168,23 +178,30 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = 
     : basePrice;
 
   const candleCount = selectedTimeframe === "ALL" ? 60 : 60;
-  const candles = useMemo(
-    () => generateMockCandles(selectedTimeframe, effectiveBasePrice, candleCount), 
-    [selectedTimeframe, effectiveBasePrice, candleCount]
+  const anchorPrice = showUnderlying ? (underlying!.lastPrice ?? underlying!.basePrice) : effectiveBasePrice;
+  const lastCandles = useMemo(
+    () => generateMockCandles(selectedTimeframe, anchorPrice, candleCount),
+    [selectedTimeframe, anchorPrice, candleCount]
   );
-  // Mark series (simulation): 3-candle mean of Last closes, so it hugs Last without the wicks.
-  const markSeries = useMemo(
-    () => candles.map((_, i) => {
-      const win = candles.slice(Math.max(0, i - 2), i + 1);
-      return win.reduce((a, c) => a + c.close, 0) / win.length;
+  // Mark candles (simulation): 3-candle mean of the Last OHLC — the wick-free, smoother tape
+  // the risk engine prices from. Production swaps in the backend mark series.
+  const markCandles = useMemo(
+    () => lastCandles.map((c, i) => {
+      const win = lastCandles.slice(Math.max(0, i - 2), i + 1);
+      const avg = (k: keyof Candle) => win.reduce((a, x) => a + (x[k] as number), 0) / win.length;
+      return { ...c, open: avg("open"), high: avg("high"), low: avg("low"), close: avg("close") };
     }),
-    [candles],
+    [lastCandles],
   );
+  const candles = priceSource && source === "mark" && !showUnderlying ? markCandles : lastCandles;
+  // Price formatting: share prices 4 dp; the underlying asset 2 dp with thousands separators.
+  const fp = (n: number) =>
+    showUnderlying ? n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : n.toFixed(4);
   useEffect(() => {
-    const firstOpen = candles[0]?.open;
-    if (firstOpen == null) return;
+    const firstOpen = lastCandles[0]?.open;
+    if (firstOpen == null || showUnderlying) return;
     onSeriesReady?.(firstOpen);
-  }, [candles, onSeriesReady]);
+  }, [lastCandles, onSeriesReady, showUnderlying]);
   
   // Calculate volume data
   const volumes = candles.map(c => c.volume);
@@ -264,6 +281,48 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = 
     return adjustedMax - ((y - 10) / drawHeight) * adjustedRange;
   };
 
+  // Series switches (`Last | Mark`, `{outcome} | {ticker} price`). Desktop: same row as the
+  // timeframes. Mobile (375): their own row under the timeframes so the row never overflows
+  // and the candle / line icon stays reachable.
+  const switches = (
+    <>
+      {priceSource && !showUnderlying && (
+        <div className="flex bg-muted/50 rounded-md p-0.5" role="group" aria-label="Price source">
+          {(["last", "mark"] as const).map((k) => (
+            <button
+              key={k}
+              type="button"
+              onClick={() => setSource(k)}
+              aria-pressed={source === k}
+              className={`px-2 py-1 text-xs rounded whitespace-nowrap transition-all ${
+                source === k ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {k === "last" ? "Last" : "Mark"}
+            </button>
+          ))}
+        </div>
+      )}
+      {underlying && (
+        <div className="flex bg-muted/50 rounded-md p-0.5" role="group" aria-label="Chart view">
+          {(["share", "underlying"] as const).map((k) => (
+            <button
+              key={k}
+              type="button"
+              onClick={() => setView(k)}
+              aria-pressed={view === k}
+              className={`px-2 py-1 text-xs rounded whitespace-nowrap transition-all ${
+                view === k ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {k === "share" ? underlying.shareLabel : `${underlying.ticker} price`}
+            </button>
+          ))}
+        </div>
+      )}
+    </>
+  );
+
   return (
     <div className="h-full w-full min-w-0 flex flex-col overflow-hidden">
       {/* Timeframe selector */}
@@ -284,32 +343,7 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = 
               </button>
             ))}
           </div>
-          {showMarkSeries && (
-            <div className="ml-3 flex items-center gap-1.5" aria-label="Chart series">
-              <button
-                type="button"
-                onClick={() => setShowLast((v) => !v)}
-                aria-pressed={showLast}
-                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono border transition-colors ${
-                  showLast ? "border-border/60 text-foreground" : "border-transparent text-muted-foreground/60"
-                }`}
-              >
-                <span className="w-2 h-2 rounded-full bg-trading-green" />
-                Last
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowMark((v) => !v)}
-                aria-pressed={showMark}
-                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono border transition-colors ${
-                  showMark ? "border-border/60 text-foreground" : "border-transparent text-muted-foreground/60"
-                }`}
-              >
-                <span className="w-3 h-0 border-t border-dashed border-trading-yellow" />
-                Mark
-              </button>
-            </div>
-          )}
+          {!isMobile && <div className="ml-2 flex items-center gap-2">{switches}</div>}
         </div>
         <div className="flex items-center gap-2">
           <button 
@@ -320,6 +354,9 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = 
           </button>
         </div>
       </div>
+      {isMobile && (priceSource || underlying) && (
+        <div className="flex items-center gap-2 px-4 pb-2 flex-shrink-0">{switches}</div>
+      )}
 
       {/* Price Chart */}
       <div className="relative flex-1 min-h-0">
@@ -348,7 +385,6 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = 
                 />
               ))}
               
-              {showLast && (<>
               {chartMode === "line" || selectedTimeframe === "ALL" ? (
                 // Line chart for ALL or when line mode selected
                 <path
@@ -394,20 +430,19 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = 
                   );
                 })
               )}
-              </>)}
 
-              {/* Mark price series (研发问题 #3) */}
-              {showMarkSeries && showMark && markSeries.length > 0 && (
-                <path
-                  d={markSeries.map((m, index) => {
-                    const x = index * candleSpacing + candleSpacing / 2;
-                    return `${index === 0 ? "M" : "L"} ${x} ${priceToY(m)}`;
-                  }).join(" ")}
-                  fill="none"
-                  stroke="hsl(48 100% 55%)"
-                  strokeWidth="1.5"
-                  strokeDasharray="5,3"
+              {/* Base line — the round's reference price (underlying view only) */}
+              {showUnderlying && (
+                <line
+                  x1={0}
+                  y1={priceToY(underlying!.basePrice)}
+                  x2={viewBoxWidth}
+                  y2={priceToY(underlying!.basePrice)}
+                  stroke="hsl(0 0% 100%)"
+                  strokeWidth="1"
+                  strokeDasharray="6,4"
                   vectorEffect="non-scaling-stroke"
+                  opacity="0.45"
                 />
               )}
 
@@ -494,6 +529,14 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = 
             </svg>
 
             {/* Highest price label (HTML overlay) */}
+            {showUnderlying && (
+              <div
+                className="absolute left-2 -translate-y-1/2 px-1.5 py-px rounded border border-border/60 bg-background/80 text-[10px] font-mono text-muted-foreground pointer-events-none"
+                style={{ top: `${(priceToY(underlying!.basePrice) / chartHeight) * 100}%` }}
+              >
+                Base {fp(underlying!.basePrice)}
+              </div>
+            )}
             {highestCandleIndex >= 0 && (() => {
               const xPercent = (highestCandleIndex * candleSpacing + candleSpacing / 2) / viewBoxWidth * 100;
               const yPercent = priceToY(maxPrice) / chartHeight * 100;
@@ -509,7 +552,7 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = 
                     transform: `translateY(-50%) ${isRightSide ? 'translateX(-100%)' : ''}`,
                   }}
                 >
-                  {maxPrice.toFixed(4)}
+                  {fp(maxPrice)}
                 </span>
               );
             })()}
@@ -530,7 +573,7 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = 
                     transform: `translateY(-50%) ${isRightSide ? 'translateX(-100%)' : ''}`,
                   }}
                 >
-                  {minPrice.toFixed(4)}
+                  {fp(minPrice)}
                 </span>
               );
             })()}
@@ -544,10 +587,10 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = 
                 <div className="absolute top-1 left-1 bg-background/90 border border-border rounded px-2 py-1 text-[10px] font-mono z-10">
                   <div className="flex gap-3">
                     <span className="text-muted-foreground">{candle.time}</span>
-                    <span>O: <span className={isGreen ? "text-trading-green" : "text-trading-red"}>{candle.open.toFixed(4)}</span></span>
-                    <span>H: <span className="text-foreground">{candle.high.toFixed(4)}</span></span>
-                    <span>L: <span className="text-foreground">{candle.low.toFixed(4)}</span></span>
-                    <span>C: <span className={isGreen ? "text-trading-green" : "text-trading-red"}>{candle.close.toFixed(4)}</span></span>
+                    <span>O: <span className={isGreen ? "text-trading-green" : "text-trading-red"}>{fp(candle.open)}</span></span>
+                    <span>H: <span className="text-foreground">{fp(candle.high)}</span></span>
+                    <span>L: <span className="text-foreground">{fp(candle.low)}</span></span>
+                    <span>C: <span className={isGreen ? "text-trading-green" : "text-trading-red"}>{fp(candle.close)}</span></span>
                   </div>
                 </div>
               );
@@ -555,9 +598,9 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = 
           </div>
 
           {/* Y-axis labels (right side) */}
-          <div className="flex flex-col justify-between text-[10px] text-muted-foreground font-mono pl-2 w-12 shrink-0 text-right">
+          <div className={`flex flex-col justify-between text-[10px] text-muted-foreground font-mono pl-2 shrink-0 text-right ${showUnderlying ? "w-[68px]" : "w-12"}`}>
             {priceLabels.map((label, i) => (
-              <span key={i}>{label.toFixed(4)}</span>
+              <span key={i}>{fp(label)}</span>
             ))}
           </div>
         </div>

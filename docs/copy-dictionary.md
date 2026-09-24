@@ -312,7 +312,8 @@ positives. Chip words come from the sibling event's `side_labels`.
 | **Boost limit reached — close a position first** | Lite 合约下单卡在账户 Risk ≥ 95% 时的 CTA 置灰句（优先级低于 Settled / In review / Closed）；手机 dock 两钮不置灰，抽屉里 CTA 置灰 | Close-only（Lite 禁）, Risk, Margin |
 | ~~Suspended / Suspended · cancel only~~ | **已废（2026-09-24 研发问题 #16）**：后端没有 SUSPENDED 状态，前端不再有这一态；不可下单原因只剩 `Settled` / `In review` / `Closed` | Suspended, Paused, Halted |
 | **TP/SL（已废）** | **2026-09-24 研发问题 #5 全站删除**：面板 `☐ TP/SL` 段、持仓表 `TP/SL` 列、手机持仓卡行、预览 `TP/SL` 行、编辑弹窗都不再存在；引擎无触发单。Sell · Limit（reduce-only 限价单）保留 | Take profit, Stop loss, TP/SL |
-| **Last / Mark（合约 K 线图例）** | 合约终端 K 线两条序列：`Last` = 蜡烛 / 折线（成交价），`Mark` = 黄色虚线（标记价，驱动保证金与强平，与订单簿 ⚑ 同色）；周期选择器右侧两枚 chip 各自开关，默认都开；现货无 Mark | Index, Fair price, Mark price line |
+| **Last \| Mark（合约 K 线数据源）** | 合约终端周期选择器右侧的两段切换：`Last` = 成交价蜡烛（默认），`Mark` = 标记价蜡烛（驱动保证金与强平的价）；一次只画一套，不叠线（Binance / Bybit 同型）。手机独占第二行。现货无 | Index, Fair price, 叠加的 Mark 虚线（09-24 废） |
+| **`{选边} \| {ticker} price`（涨跌市场 K 线视图）** | 有 base price 的涨跌市场，周期选择器右侧两段切换：左段 = 当前选边词（`Up` / `Down`），右段 = `{ticker} price`（`BTC price` / `META price`）；默认份额视图；标的视图画标的价蜡烛 + `Base $X` 白色虚线参考线。页头价格行不变 | Share \| BTC（09-24 废）, Underlying, Spot price |
 | **SideChip（Pro 表 Side 列）** | 持仓 / 挂单 / 空投行与手机持仓卡的"你持有哪一边"chip：颜色走方向轴 Yes/Up `bg-yes` 黑字、No/Down `bg-no` 黑字（DESIGN §2 持仓标识，与 Portfolio SIDE chip 同规则）；文案 = Yes/No 别名 / 线位别名 / 选项名 / `Not {option}` | 绿 / 红盈亏轴上色, Long / Short |
 | **Cancel Order（撤单确认框）** | 合约与现货同一套：标题 `Cancel Order` + `Are you sure you want to cancel this order?`，摘要 Market / Side / Type / Limit / Shares（现货 Buy 单加 `Reserved · refunded on cancel $X`），按钮 `Keep Order` / `Cancel Order`（红）。现货 2026-09-24 起也先弹再撤（研发问题 #10c） | 直接撤, Confirm cancel |
 | **周期 chip `5m / 15m / 1h / 4h / Daily`** | 加密快轮的轮长，跟在事件名后（事件选择器行、桌面现货页头标题）；手机短名把它放中间 `BTC · 5m · Up or down?`。判定：`parseQuickId(event.id)` 命中（`crypto-{coin}-updown-{tf}-{period}`）才显示，股票 / 其他事件无 chip；`1d` 显示 `Daily`（研发问题 #12） | 塞进标题字符串, 5 min, 1 hour |

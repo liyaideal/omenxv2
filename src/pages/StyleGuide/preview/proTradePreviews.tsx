@@ -516,10 +516,17 @@ export const ProContractBook = () => (
   </div>
 );
 
-/** CH-D1 · contract chart — Last candles + Mark dashed line, legend chips toggle each (研发问题 #3). */
+/** CH-D1 · contract chart — `Last | Mark` candle-source switch, Last selected (研发问题 #3 · Liya 09-24). */
 export const ProContractChart = () => (
   <div style={{ width: 760, height: 380 }}>
-    <CandlestickChart remainingDays={7} basePrice={0.0471} side="buy" />
+    <CandlestickChart remainingDays={7} basePrice={0.0471} side="buy" priceSource />
+  </div>
+);
+
+/** CH-D2 · contract chart — Mark selected: the smoother mark tape, same candle rules. */
+export const ProContractChartMark = () => (
+  <div style={{ width: 760, height: 380 }}>
+    <CandlestickChart remainingDays={7} basePrice={0.0471} side="buy" priceSource previewSource="mark" />
   </div>
 );
 
@@ -539,5 +546,12 @@ export const ProSideChips = () => (
         <SideChip side={side as "yes" | "no"}>{label}</SideChip>
       </div>
     ))}
+  </div>
+);
+
+/** CH-M1 · contract chart on the phone (375) — `Last | Mark` sits in the same toolbar row. */
+export const ProContractChartMobile = () => (
+  <div style={{ width: 375, height: 380 }}>
+    <CandlestickChart remainingDays={7} basePrice={0.0471} side="buy" priceSource />
   </div>
 );

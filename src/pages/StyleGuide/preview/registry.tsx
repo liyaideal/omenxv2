@@ -313,6 +313,8 @@ export const previewRegistry: Record<string, Loader> = {
   "pro-spot-orders-cancel-confirm": pick(proSpot, "OrderCancelConfirmDesktop"),
   "pro-spot-orders-cancel-confirm-mobile": pick(proSpot, "OrderCancelConfirmMobile"),
   "pro-spot-event-info-crypto": pick(proSpot, "SpotEventInfoCrypto"),
+  "pro-spot-chart-views": pick(proSpot, "SpotChartViews"),
+  "pro-spot-chart-views-mobile": pick(proSpot, "SpotChartViewsMobile"),
   "pro-spot-book-thin": pick(proSpot, "ProSpotBookThin"),
 
   /* -------- Pro /trade mobile order panel（CT-1 · Buy · Sell）-------- */
@@ -337,6 +339,8 @@ export const previewRegistry: Record<string, Loader> = {
   // CT-D · desktop /trade panel (ProContractPanel)
   "pro-contract-book": pick(proTrade, "ProContractBook"),
   "pro-contract-chart": pick(proTrade, "ProContractChart"),
+  "pro-contract-chart-mark": pick(proTrade, "ProContractChartMark"),
+  "pro-contract-chart-mobile": pick(proTrade, "ProContractChartMobile"),
   "pro-side-chips": pick(proTrade, "ProSideChips"),
   "pro-contract-panel-buy": pick(proTrade, "ProContractPanelBuy"),
   "pro-contract-panel-buy-contracts": pick(proTrade, "ProContractPanelBuyContracts"),

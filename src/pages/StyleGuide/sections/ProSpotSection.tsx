@@ -407,11 +407,28 @@ const CONTRACT_BOOK_CASES: SectionCase[] = [
 const CONTRACT_CHART_CASES: SectionCase[] = [
   {
     key: "pro-contract-chart",
-    label: "CH-D1 · 合约 K 线 · Last 蜡烛 + Mark 虚线（图例可各自开关）",
-    note: "研发问题 #3（2026-09-24）：合约才有标记价，图上同时画两条序列。Last = 蜡烛（ALL 周期或切线图时为绿色折线）；Mark = 黄色虚线（与订单簿 ⚑ 同色）。周期选择器右侧两枚图例 chip，点一下各自开关，关掉的 chip 变灰；两条默认都开。现货终端不显示 Mark 与图例。Lovable 的 Mark 序列是 Last 三根均值的模拟，正式版接后端 mark 序列。",
+    label: "CH-D1 · 合约 K 线 · `Last | Mark` 数据源切换（Last 选中）",
+    note: "研发问题 #3 → Liya 09-24 改：与 Binance / Bybit 同型——一次只画一套蜡烛，`Last | Mark` 两段切换选数据源，不叠加。位置在周期选择器右侧（桌面同行）；默认 Last。合约才有标记价，现货终端没有这个切换。Lovable 的 Mark 蜡烛 = Last 三根 OHLC 均值的模拟，正式版接后端 mark 序列。",
     spec: [
-      { state: "Last + Mark（默认）", when: "showMarkSeries && showLast && showMark", visual: "蜡烛 + 黄色 1.5px 虚线 `5,3`；图例 `● Last` `--- Mark` 白字带边框", source: "CandlestickChart · showMarkSeries（合约 true / 现货 false）" },
-      { state: "关掉一条", when: "点图例 chip", visual: "对应序列不画，chip 变 muted 无边框；两条都关 = 只剩网格与成交量", source: "CandlestickChart · showLast / showMark" },
+      { state: "Last", when: 'source === "last"（默认）', visual: "成交价蜡烛；ALL / 线图模式为绿色折线；`Last` 段选中 bg-muted", source: "CandlestickChart · priceSource" },
+    ],
+  },
+  {
+    key: "pro-contract-chart-mark",
+    label: "CH-D2 · 合约 K 线 · Mark 选中",
+    spec: [
+      { state: "Mark", when: 'source === "mark"', visual: "标记价蜡烛（更平滑、影线短），颜色规则 / 成交量 / 高低点标注全部同 Last；页头 ⚑ 数字与之对应", source: "CandlestickChart · markCandles" },
+    ],
+  },
+];
+
+const CONTRACT_CHART_MOBILE_CASES: SectionCase[] = [
+  {
+    key: "pro-contract-chart-mobile",
+    label: "CH-M1 · 手机 /trade Charts 视图 · `Last | Mark` 独占第二行",
+    note: "375 宽下切换不与周期同行（会把右上角蜡烛 / 折线图标顶出屏幕），放周期行正下方左对齐；图表容器 450 → 490px，蜡烛区高度不变。",
+    spec: [
+      { state: "mobile", when: "useIsMobile()", visual: "第一行周期 + 图标，第二行 `Last | Mark`；其余同桌面", source: "CandlestickChart（isMobile 分支）· TradingCharts h-[490px]" },
     ],
   },
 ];
@@ -750,6 +767,29 @@ const SPOT_INFO_CASES: SectionCase[] = [
   },
 ];
 
+const SPOT_CHART_CASES: SectionCase[] = [
+  {
+    key: "pro-spot-chart-views",
+    label: "CH-S1 · 涨跌市场 K 线 · `Up | BTC price` 视图切换（桌面，两帧）",
+    note: "Liya 09-24 方案 B：涨跌市场的用户盯的是标的价离 base 多远，不是份额价蜡烛。周期选择器右侧加两段切换 `{当前选边} | {ticker} price`（选 Down 就是 `Down | BTC price`，股票 `Up | META price`）；默认份额视图。只有带 base price 的涨跌市场（加密快轮、股票日内）才出现。BTC 视图 = 标的价蜡烛（美元、两位小数、千分位）+ 白色虚线 `Base 72,066.13` 参考线（= 页头 Base，也是结算分界）。页头价格行不动仍是份额价。Lovable 的标的走势是围绕 base 的模拟、尾巴对齐页头右侧那格假行情；正式版页头行情与 BTC 视图接同一数据源（交付说明 §8）。",
+    spec: [
+      { state: "share view", when: 'view === "share"（默认）', visual: "份额价蜡烛，4 位小数；切换左段 = 当前选边词", source: "CandlestickChart · underlying.shareLabel = t.outcomeLabel" },
+      { state: "underlying view", when: 'view === "underlying"', visual: "标的价蜡烛 + `Base $X` 虚线与标签；纵轴列加宽到 68px", source: "CandlestickChart · underlying{ticker, basePrice, lastPrice}" },
+    ],
+  },
+];
+
+const SPOT_CHART_MOBILE_CASES: SectionCase[] = [
+  {
+    key: "pro-spot-chart-views-mobile",
+    label: "CH-S2 · 手机 /spot Charts 视图 · `Up | BTC price` 两帧",
+    note: "同 CH-M1：切换独占第二行；SpotTradingCharts 容器 450 → 490px。",
+    spec: [
+      { state: "mobile · share / underlying", when: "useIsMobile()", visual: "第二行左对齐两段切换；BTC 视图同桌面", source: "CandlestickChart（isMobile 分支）" },
+    ],
+  },
+];
+
 const BOOK_CASES: SectionCase[] = [
   {
     key: "pro-spot-book",
@@ -825,10 +865,11 @@ export const ProTradeTerminalPage = (_: Props) => (
 
     <SectionWrapper
       id="pro-contract-chart"
-      title="① K 线 · Last + Mark 双序列（CH-D1）"
-      description="合约终端才有标记价：蜡烛是 Last，黄色虚线是 Mark，图例 chip 各自开关。现货终端无此图例。"
+      title="① K 线 · Last | Mark 数据源切换（CH-D1 · CH-D2 · CH-M1）"
+      description="合约终端才有标记价：两段切换选画 Last 还是 Mark 蜡烛，一次一套（Binance / Bybit 同型）。现货终端无此切换。"
     >
       <SectionFrame cases={CONTRACT_CHART_CASES} device="desktop" minHeight={420} />
+      <SectionFrame cases={CONTRACT_CHART_MOBILE_CASES} device="mobile" minHeight={420} />
     </SectionWrapper>
 
     <SectionWrapper
@@ -913,6 +954,15 @@ export const ProSpotTerminalPage = (_: Props) => (
       description="Spot 固定每侧 10 槽；薄深度只补空行，不补虚构价格。"
     >
       <SectionFrame cases={BOOK_CASES} device="desktop" minHeight={600} />
+    </SectionWrapper>
+
+    <SectionWrapper
+      id="pro-spot-chart"
+      title="① K 线 · 份额 / 标的价视图（CH-S1 · CH-S2）"
+      description="涨跌市场加 `{选边} | {ticker} price` 切换；标的视图带 Base 参考线。"
+    >
+      <SectionFrame cases={SPOT_CHART_CASES} device="desktop" minHeight={780} />
+      <SectionFrame cases={SPOT_CHART_MOBILE_CASES} device="mobile" minHeight={780} />
     </SectionWrapper>
 
     <SectionWrapper
