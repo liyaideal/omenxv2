@@ -631,7 +631,8 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
           )}
         </span>
         {!blocked && (
-          <span className="font-mono text-sm">{money(potentialWinNet)} →</span>
+          // 09-24 Liya: name the number — same `To win $X →` as the spot card and the Pro CTA.
+          <span className="font-mono text-sm">To win {money(potentialWinNet)} →</span>
         )}
       </button>
       {/* SW-2 · one footnote slot: doorway while the amount is empty, risk line once money is on the table. */}

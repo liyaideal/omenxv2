@@ -59,9 +59,9 @@ const PANEL_CASES: SectionCase[] = [
     key: "trade-tr5",
     label: "TR-5 · 下单面板 · guest 零单默认（LiteContractOrderPanel）",
     note:
-      "逐字：CTA `Buy Yes $0.00 →`；脚注 `Not guaranteed. You can lose everything you put in.`。Est. auto-close 行的四态见 AC-T4 专案，本 case 不重复收录。",
+      "逐字：CTA `Buy Yes · To win $0.00 →`；脚注 `Not guaranteed. You can lose everything you put in.`。Est. auto-close 行的四态见 AC-T4 专案，本 case 不重复收录。",
     spec: [
-      { state: "零单", when: "amountNum <= 0", visual: "`Make your call` + 倒计时 + Yes/No 50¢ + HOW MUCH + $10/$25/$50/$100/Max + Boost 1×…20×+Custom + Returns（win 净利 + ⓘ / auto-close 两行）+ CTA `Buy Yes $0.00 →`", source: "LiteContractOrderPanel" },
+      { state: "零单", when: "amountNum <= 0", visual: "`Make your call` + 倒计时 + Yes/No 50¢ + HOW MUCH + $10/$25/$50/$100/Max + Boost 1×…20×+Custom + Returns（win 净利 + ⓘ / auto-close 两行）+ CTA `Buy Yes · To win $0.00 →`", source: "LiteContractOrderPanel" },
       { state: "未登录", when: "!user", visual: "提交改为拉起登录（onRequestAuth），面板本身不变", source: "onRequestAuth" },
       { state: "Boost 不可用", when: "boostEnabled === false", visual: "Boost 模块整块不渲染；boostLoading 时渲染等高骨架防跳位", source: "boostEnabled / boostLoading" },
     ],
