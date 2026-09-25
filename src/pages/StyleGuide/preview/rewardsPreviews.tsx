@@ -22,7 +22,8 @@ import { CampaignUnavailable } from "@/components/campaigns/CampaignUnavailable"
 import { CampaignRewardsCard } from "@/components/campaigns/CampaignRewardsCard";
 import { ClaimSuccessToastBody } from "@/components/campaigns/ClaimSuccessToastBody";
 import { TieredTaskRow } from "@/components/campaigns/TieredTaskRow";
-import { CreditedToastBody } from "@/components/campaigns/CreditedToastBody";
+import { RecurringTaskRow } from "@/components/campaigns/RecurringTaskRow";
+import { CreditedToastBody, StreakBonusToastBody } from "@/components/campaigns/CreditedToastBody";
 import type { CampaignGrant } from "@/hooks/useCampaigns";
 import { formatDateRange } from "@/hooks/useCampaigns";
 import type { Referral } from "@/hooks/useReferral";
@@ -725,6 +726,214 @@ export const CreditedToastPreview = () => (
   </div>
 );
 
+/* ---------------- RW-8d · RecurringTaskRow（周期任务 · 每日 $50 → $1 USDC · 7 连 +$5） ---------------- */
+const DAILY_TASK: CampaignTaskDef = {
+  task_key: "daily_trade",
+  type: "recurring",
+  period: "daily",
+  name: "Trade every day",
+  subtitle: "$50 in filled orders each day · paid in USDC",
+  metric: "usd_volume",
+  target: 50,
+  scope: { any_market: true },
+  reward: { usdc: 1 },
+  max_periods: 30,
+  streak_bonus: { every: 7, reward: { usdc: 5 } },
+  cta: { label: "Trade", href: "/events" },
+};
+const WEEKLY_TASK: CampaignTaskDef = {
+  ...DAILY_TASK,
+  task_key: "weekly_trade",
+  period: "weekly",
+  name: "Trade every week",
+  subtitle: "$200 in filled orders each week · paid in USDC",
+  target: 200,
+  reward: { usdc: 5 },
+  max_periods: 8,
+  streak_bonus: { every: 4, reward: { usdc: 20 } },
+};
+const DAILY_VOUCHER_TASK: CampaignTaskDef = { ...DAILY_TASK, task_key: "daily_voucher", reward: { voucher: 1 }, streak_bonus: undefined };
+
+/** Frozen clock for every recurring fixture: Fri 2026-09-25 12:00 UTC. */
+const R_NOW = new Date("2026-09-25T12:00:00Z");
+const R_JOIN = "2026-09-05T09:00:00Z";
+const dayKey = (offset: number) => new Date(R_NOW.getTime() - offset * 86_400_000).toISOString().slice(0, 10);
+
+/**
+ * Fixture builder: `days` = last 14 days oldest → today, 1 done / 0 missed (value 18) /
+ * null before join. Today's value / status come from `today`. Bonus grants are added for every
+ * 7th consecutive done day. Everything on the row is derived from these grants.
+ */
+const recurringGrants = (
+  task: CampaignTaskDef,
+  days: (0 | 1 | null)[],
+  today: { value: number; status?: GrantStatus },
+  opts: { doneBefore?: string[]; claimed?: boolean } = {},
+): CampaignGrant[] => {
+  const out: CampaignGrant[] = [];
+  const target = task.target ?? 50;
+  const usdc = task.reward?.usdc ?? 0;
+  const mk = (key: string, value: number, status: GrantStatus): CampaignGrant => ({
+    id: `g-${key}`,
+    entryId: "entry-recurring",
+    taskKey: key,
+    status,
+    progress: status === "claimed" && usdc > 0 ? { value, current: value, target, credited_usdc: usdc, credited_at: iso(-1) } : { value, current: value, target },
+  });
+  (opts.doneBefore ?? []).forEach((d) => out.push(mk(`${task.task_key}@${d}`, target + 10, "claimed")));
+  let run = (opts.doneBefore ?? []).length;
+  days.forEach((v, i) => {
+    const offset = 13 - i;
+    const key = `${task.task_key}@${dayKey(offset)}`;
+    if (offset === 0) {
+      const st: GrantStatus = today.status ?? (today.value >= target ? (usdc > 0 ? "claimed" : "claimable") : today.value > 0 ? "in_progress" : "not_started");
+      out.push(mk(key, today.value, st));
+      if (st === "claimed" || st === "claimable") run++;
+      else run = 0;
+    } else if (v === 1) {
+      out.push(mk(key, target + 10, usdc > 0 ? "claimed" : opts.claimed ? "claimed" : "claimed"));
+      run++;
+    } else if (v === 0) {
+      out.push(mk(key, 18, "in_progress"));
+      run = 0;
+    }
+    const every = task.streak_bonus?.every ?? 0;
+    if (every && run > 0 && run % every === 0) {
+      const n = run / every;
+      out.push({
+        id: `g-${task.task_key}-s${n}`,
+        entryId: "entry-recurring",
+        taskKey: `${task.task_key}#s${n}`,
+        status: "claimed",
+        progress: { value: 1, current: 1, target: 1, credited_usdc: task.streak_bonus?.reward?.usdc ?? 0, credited_at: iso(-1) },
+      });
+    }
+  });
+  return out;
+};
+const N = null;
+const R = {
+  d3: recurringGrants(DAILY_TASK, [1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0], { value: 32 }, { doneBefore: ["2026-09-11"] }),
+  d4: recurringGrants(DAILY_TASK, [1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1], { value: 64 }, { doneBefore: ["2026-09-11"] }),
+  d5: recurringGrants(DAILY_TASK, [1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1], { value: 58 }, { doneBefore: ["2026-09-10", "2026-09-11"] }),
+  d6: recurringGrants(DAILY_TASK, [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0], { value: 10 }),
+  d7: recurringGrants(DAILY_VOUCHER_TASK, [N, N, N, N, N, N, N, N, N, N, N, 1, 1, 1], { value: 55, status: "claimable" }),
+  d8: recurringGrants(
+    DAILY_TASK,
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    { value: 70 },
+    { doneBefore: Array.from({ length: 16 }, (_, i) => dayKey(14 + i)) },
+  ),
+  // weekly keys are ISO weeks: 2026-09-25 is W39; W37 + W38 done, W39 in progress
+  d9: (["2026-W37", "2026-W38"].map((w) => ({
+    id: `g-w-${w}`,
+    entryId: "entry-recurring",
+    taskKey: `weekly_trade@${w}`,
+    status: "claimed" as GrantStatus,
+    progress: { value: 240, current: 240, target: 200, credited_usdc: 5, credited_at: iso(-3) },
+  })) as CampaignGrant[]).concat([
+    { id: "g-w-39", entryId: "entry-recurring", taskKey: "weekly_trade@2026-W39", status: "in_progress", progress: { value: 120, current: 120, target: 200 } },
+  ]),
+  d10: recurringGrants(DAILY_TASK, [1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0], { value: 20 }, { doneBefore: Array.from({ length: 5 }, (_, i) => dayKey(14 + i)) }),
+};
+const rNoop = () => {};
+
+export const RecurringTaskRowStatesPreview = () => (
+  <div className="space-y-2.5 p-4">
+    {/* D1 · signed out */}
+    <RecurringTaskRow task={DAILY_TASK} grants={[]} signedOut onClaim={rNoop} now={R_NOW} />
+    {/* D2 · first day after joining */}
+    <RecurringTaskRow task={DAILY_TASK} grants={[]} joinedAt={R_NOW.toISOString()} onClaim={rNoop} now={R_NOW} />
+    {/* D3 · today in progress, 5-day streak */}
+    <RecurringTaskRow task={DAILY_TASK} grants={R.d3} joinedAt={R_JOIN} onClaim={rNoop} now={R_NOW} />
+    {/* D4 · today done + credited, 6-day streak */}
+    <RecurringTaskRow task={DAILY_TASK} grants={R.d4} joinedAt={R_JOIN} onClaim={rNoop} now={R_NOW} />
+    {/* D5 · 7th consecutive day: today is the bonus day */}
+    <RecurringTaskRow task={DAILY_TASK} grants={R.d5} joinedAt={R_JOIN} onClaim={rNoop} now={R_NOW} />
+    {/* D6 · restarted after a break (streak 1 → no flame) */}
+    <RecurringTaskRow task={DAILY_TASK} grants={R.d6} joinedAt={R_JOIN} onClaim={rNoop} now={R_NOW} />
+    {/* D7 · voucher variant: today claimable */}
+    <RecurringTaskRow task={DAILY_VOUCHER_TASK} grants={R.d7} joinedAt={dayKey(2) + "T00:00:00Z"} onClaim={rNoop} now={R_NOW} />
+    {/* D8 · 30 / 30 done → Completed */}
+    <RecurringTaskRow task={DAILY_TASK} grants={R.d8} joinedAt={dayKey(29) + "T00:00:00Z"} onClaim={rNoop} now={R_NOW} />
+    {/* D9 · weekly variant */}
+    <RecurringTaskRow task={WEEKLY_TASK} grants={R.d9} joinedAt={R_JOIN} onClaim={rNoop} now={R_NOW} />
+    {/* D10 · campaign ended */}
+    <RecurringTaskRow task={DAILY_TASK} grants={R.d10} joinedAt={R_JOIN} frozen onClaim={rNoop} now={R_NOW} />
+  </div>
+);
+
+/** Mobile: drawer mounted open (fixture prop). Desktop: the row — hover the strip for the month card. */
+export const RecurringTaskRowDrawerPreview = () => (
+  <div className="min-h-[720px] p-4 md:min-h-0">
+    <RecurringTaskRow task={DAILY_TASK} grants={R.d3} joinedAt={R_JOIN} onClaim={rNoop} now={R_NOW} defaultDrawerOpen />
+    <p className="mt-3 text-center text-[11px] leading-4 text-muted-foreground">
+      手机点 <code className="text-[11px] text-foreground">12 / 30 days ›</code> 起抽屉；桌面 hover 日历条弹同一份月历卡。
+    </p>
+  </div>
+);
+
+export const StreakBonusToastPreview = () => (
+  <div className="space-y-2 p-4">
+    <div className="mx-auto w-full max-w-md p-4">
+      <StreakBonusToastBody usdc={5} streak="7-day streak" taskName="Trade every day" onOpen={rNoop} />
+    </div>
+    <p className="text-center text-[11px] leading-4 text-muted-foreground">
+      静态渲染 <code className="text-[11px] text-foreground">StreakBonusToastBody</code>；只在凑满 streak 那期弹一次，每日 $1 不弹。
+    </p>
+  </div>
+);
+
+/* ---------------- RW-8e · 指标行（referrals_qualified / active_days / hold_positions） ---------------- */
+const INVITE_TASK: CampaignTaskDef = {
+  task_key: "invite_3",
+  name: "Invite 3 friends who trade",
+  subtitle: "Each friend counts once they trade $100 · paid in USDC",
+  metric: "referrals_qualified",
+  target: 3,
+  reward: { usdc: 10 },
+};
+const ACTIVE_TASK: CampaignTaskDef = {
+  task_key: "active_7d",
+  name: "Trade on 7 different days",
+  subtitle: "Any market · at least $10 a day · paid in USDC",
+  metric: "active_days",
+  min_notional: 10,
+  target: 7,
+  reward: { usdc: 5 },
+};
+const HOLD_TASK: CampaignTaskDef = {
+  task_key: "hold_24h",
+  name: "Hold a position for 24 hours",
+  subtitle: "3 positions of $50+ held a full day · auto-closed ones count too · paid in USDC",
+  metric: "hold_positions",
+  hold: { min_hours: 24, min_notional: 50 },
+  target: 3,
+  reward: { usdc: 15 },
+};
+const INVITE_LADDER: CampaignTaskDef = {
+  task_key: "invite_ladder",
+  type: "tiered",
+  name: "Invite friends who trade",
+  subtitle: "Each friend counts once they trade $100 · paid in USDC",
+  metric: "referrals_qualified",
+  tiers: [
+    { target: 1, reward: { usdc: 5 } },
+    { target: 3, reward: { usdc: 15 } },
+    { target: 10, reward: { usdc: 50 } },
+  ],
+};
+export const MetricTaskRowsPreview = () => (
+  <div className="space-y-2.5 p-4">
+    <GrantTaskRow task={INVITE_TASK} status="in_progress" progressValue={2} onClaim={rNoop} />
+    <GrantTaskRow task={INVITE_TASK} status="claimed" progressValue={3} onClaim={rNoop} />
+    <GrantTaskRow task={ACTIVE_TASK} status="in_progress" progressValue={3} onClaim={rNoop} />
+    <GrantTaskRow task={HOLD_TASK} status="in_progress" progressValue={1} onClaim={rNoop} />
+    <GrantTaskRow task={HOLD_TASK} status="not_started" onClaim={rNoop} />
+    <TieredTaskRow task={INVITE_LADDER} grants={ladderGrants(INVITE_LADDER, 2, 1)} onClaim={rNoop} />
+  </div>
+);
+
 /* ---------------- RW-9 · CampaignRulesDisclosure（受控展开） ---------------- */
 export const CampaignRulesStatesPreview = () => (
   <div className="space-y-3 p-3">
@@ -817,6 +1026,15 @@ const REF_ROWS: Referral[] = [
   ref("r1", "pending", 42, "a***n@omenx.io", -9),
   ref("r2", "qualified", 100, "b***t@omenx.io", -7),
   ref("r3", "rewarded", 240, "c***m@omenx.io", -5),
+  // counted toward a campaign invite task — one reward path, no per-friend voucher
+  {
+    ...ref("r4", "rewarded", 132, "d***e@omenx.io", -3),
+    metadata: {
+      masked_email: "d***e@omenx.io",
+      volume: 132,
+      counted_toward: { campaign_id: "starter", campaign_name: "Starter Rewards" },
+    },
+  },
 ];
 
 const REF_FIXTURE = { referralCode: "OMX7K2", referrals: REF_ROWS };

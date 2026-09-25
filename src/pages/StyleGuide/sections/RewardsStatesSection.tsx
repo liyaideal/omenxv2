@@ -562,6 +562,55 @@ const DETAIL_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "rewards-recurring-rows",
+    label: "RW-8d · RecurringTaskRow 周期任务（type: recurring · 每日 $50 → $1 USDC · 7 连 +$5）",
+    note: "帧内自上而下：signedOut / 加入第一天 / 今天进行中 🔥5 / 今天已达标已入账 🔥6 / 第 7 连今天橙点 / 断签重来（无火） / 券版今天可领 / 30 天上限 Completed / 周任务 / 活动已结束。行卡只画当期；第三行 14 天（手机 7 天）+ streak；所有数字与点阵由 deriveRecurring() 从 grant 推导，fixture 时钟冻结在 2026-09-25 12:00 UTC。",
+    spec: [
+      { state: "周期 grant", when: "每期一行 `<key>@<YYYY-MM-DD>`（周任务 `@IYYY-Www`），UTC 边界", visual: "行卡只显示当期：进度 `$32 / $50 today`", source: "campaign_recurring_apply() · deriveRecurring()" },
+      { state: "当期达标", when: "value ≥ target → USDC 直接 claimed（入账）/ 券 claimable", visual: "进度条填满变 lime；动作 `Done today`（券：`Claim $1`）；行 1 `$1 credited` / `$1 ready`", source: "campaign_settle_grant()" },
+      { state: "券跨期仍可领", when: "voucher period grant claimable 且已不是当期", visual: "行 1 累计 `$3 ready`，`Claim all $3` 顺序逐档领", source: "RecurringTaskRow claimAll" },
+      { state: "第三行 · 点阵", when: "最近 14 期（手机 7 期），最右今天", visual: "达标 ● #33D6FF · 未达 ● #2B2F38 · streak bonus 那期 ● #FF8A3D · 今天空心青（已达标实心）· 加入前虚线", source: "deriveRecurring().strip" },
+      { state: "第三行 · streak", when: "末尾连续达标期数 ≥ 2", visual: "橙 `🔥 5-day streak`；否则灰 `Last 14 days`", source: "deriveRecurring().streak" },
+      { state: "streak bonus", when: "连续达标数 % every = 0（服务端判定）", visual: "bonus grant `<key>#s<n>` 入账；点阵该期橙点；toast 一次（RW-12c）", source: "campaign_recurring_apply()" },
+      { state: "奖励槽行 2", when: "恒显", visual: "`12 / 30 days`（无上限 `12 days`）；手机带 `›` 起抽屉", source: "RecurringTaskRow line2" },
+      { state: "max_periods 达到", when: "done ≥ max_periods", visual: "无当期进度条；第三行 `30 / 30 days done`；行 1 累计 `$50 credited`；动作 `Completed`", source: "deriveRecurring().completed" },
+      { state: "frozen", when: "view.phase === ended", visual: "整行 faded；行 1 累计已发；动作 `Ended`", source: "RecurringTaskRow frozen" },
+      { state: "历史明细", when: "桌面 hover 点阵 / 手机点行 2", visual: "HoverCard 320px / MobileDrawer：三格 KPI（days done / streak / earned）+ 月历（加入日起，按月分段）", source: "RecurringHistory" },
+      { state: "聚合口径", when: "一条 recurring = 1 个任务", visual: "done 只在 max_periods 达到时计；`up to` = reward × max + 能凑到的 bonus", source: "buildCampaignView" },
+    ],
+  },
+  {
+    key: "rewards-recurring-drawer",
+    label: "RW-8d-b · 周期任务历史（RecurringHistory · HoverCard / MobileDrawer）",
+    note: "手机帧抽屉挂开（fixture prop `defaultDrawerOpen`）；桌面帧只有行卡，hover 点阵弹同一份月历卡。",
+    spec: [
+      { state: "KPI 三格", when: "恒显", visual: "`Days done 12 / 30` · `Streak 🔥 5`（橙）· `Earned $12`（青 / 券 lime）", source: "RecurringHistory Kpi" },
+      { state: "月历", when: "daily 任务", visual: "7 列周一起；达标日实心青带日期、bonus 橙、今天空心、加入前空白", source: "RecurringHistory grid" },
+      { state: "周任务", when: "period = weekly", visual: "无月历，只有 14 周点阵", source: "RecurringHistory" },
+    ],
+  },
+  {
+    key: "rewards-streak-toast",
+    label: "RW-12c · streak bonus 反馈（StreakBonusToastBody）",
+    note: "每日 $1 不弹；只在凑满 streak 那期弹一次（seen-set 同 RW-12b）。",
+    spec: [
+      { state: "bonus 入账", when: "`<key>#s<n>` claimed 且未见过", visual: "`+$5 USDC · 7-day streak` / `Trade every day · bonus credited to Standard` / `Open wallet`", source: "showStreakBonusToast" },
+    ],
+  },
+  {
+    key: "rewards-metric-rows",
+    label: "RW-8e · 指标行（referrals_qualified · active_days · hold_positions）",
+    note: "同一 GrantTaskRow / TieredTaskRow，只换指标：图标、CTA、进度单位与分段条。帧内：邀请 2/3 · 邀请 3/3 已入账 · 活跃 3/7 天 · 持仓 1/3 · 持仓未开始 · 邀请阶梯（1/3/10 人，t1 已入账）。",
+    spec: [
+      { state: "referrals_qualified", when: "metric = referrals_qualified", visual: "UserPlus 图标；`2 / 3 friends`；CTA `Invite` → /rewards?tab=referral", source: "metricIcon / fallbackCta / metricUnit" },
+      { state: "active_days", when: "metric = active_days（min_notional 缺省 $10）", visual: "CalendarCheck；`3 / 7 days`", source: "campaign_metric_value()" },
+      { state: "hold_positions", when: "metric = hold_positions（hold.min_hours / min_notional）；已平仓（含自动平仓）与仍持有 ≥ min_hours 都算；每小时 cron 扫描", visual: "Clock；`1 / 3 positions`", source: "campaign_metric_value() · campaign_hold_sweep()" },
+      { state: "分段条", when: "计数类指标且 target ≤ 10", visual: "N 段 22×5 圆角，达一段亮一段（青），全达 lime；target > 10 回落连续条", source: "TaskRowShell progress.steps" },
+      { state: "邀请不叠加", when: "好友合格时邀请人在参加含邀请任务的活动", visual: "该好友计进任务；Referral 分页该行 `Counted toward campaign`，不出 Claim voucher（RW-15 第 4 行）", source: "referrals_campaign_hook() · ReferralPanel countedToward" },
+      { state: "套 tiered", when: "type = tiered + 计数指标", visual: "刻度点连续条 + `2 / 3 friends`，其余同 RW-8b", source: "TieredTaskRow" },
+    ],
+  },
+  {
     key: "rewards-campaign-rules",
     label: "RW-9 · 活动规则折叠（CampaignRulesDisclosure）",
     note: "帧内三态：收起 / 展开（受控 defaultOpen，非 setTimeout）/ paragraphs 为空整块不渲染。文案来自 `campaign_entries.rules.details`，只读。",
@@ -789,9 +838,15 @@ const REFERRAL_CASES: SectionCase[] = [
   },
   {
     key: "rewards-referral-rows",
-    label: "RW-15 · Your invites 行（TaskRowShell · fixture 三态）",
-    note: "fixture 三行分别是 pending / qualified / rewarded；空态见 RW-14 帧（同组件 rows.length === 0 分支）。",
+    label: "RW-15 · Your invites 行（TaskRowShell · fixture 四态）",
+    note: "fixture 四行分别是 pending / qualified / rewarded / counted toward campaign；空态见 RW-14 帧（同组件 rows.length === 0 分支）。",
     spec: [
+      {
+        state: "counted toward campaign",
+        when: "metadata.counted_toward 存在（服务端在好友合格时写入，status 同时置 rewarded）",
+        visual: "副标题 `Qualified {date} · counted toward Starter Rewards`，无奖励槽，右侧青字 `Counted toward campaign`，不 faded",
+        source: "ReferralPanel countedToward · referrals_campaign_hook()",
+      },
       {
         state: "in_progress",
         when: 'r.status === "pending"',
@@ -1099,6 +1154,15 @@ export const RewardsStatesSection = () => (
           <Pair cases={byKey("rewards-tiered-drawer")} desktopMin={200} mobileMin={700} />
         </div>
         <div className="mt-6">
+          <Pair cases={byKey("rewards-recurring-rows")} desktopMin={1300} mobileMin={2200} />
+        </div>
+        <div className="mt-6">
+          <Pair cases={byKey("rewards-recurring-drawer")} desktopMin={220} mobileMin={780} />
+        </div>
+        <div className="mt-6">
+          <Pair cases={byKey("rewards-metric-rows")} desktopMin={620} mobileMin={1100} />
+        </div>
+        <div className="mt-6">
           <Pair cases={byKey("rewards-campaign-rules")} desktopMin={420} mobileMin={520} />
         </div>
         <div className="mt-6">
@@ -1120,6 +1184,9 @@ export const RewardsStatesSection = () => (
         </div>
         <div className="mt-6">
           <Pair cases={byKey("rewards-credited-toast")} desktopMin={260} mobileMin={280} />
+        </div>
+        <div className="mt-6">
+          <Pair cases={byKey("rewards-streak-toast")} desktopMin={260} mobileMin={280} />
         </div>
         <div className="mt-6">
           <Pair cases={byKey("rewards-ineligible-redirect")} desktopMin={240} mobileMin={260} />

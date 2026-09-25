@@ -138,7 +138,9 @@ export const GrantTaskRow = ({
           <span className="text-right text-[12.5px] font-semibold text-[#9AA1AC]">
             {status === "claimable" && usdc > 0
               ? "Credited to Standard after review"
-              : STATUS_LABEL[status]}
+              : status === "claimed" && usdc > 0 && voucher === 0
+                ? "Credited"
+                : STATUS_LABEL[status]}
           </span>
         )}
         </div>

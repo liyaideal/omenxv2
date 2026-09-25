@@ -270,7 +270,7 @@ export const RecurringHistory = ({ task, d }: { task: CampaignTaskDef; d: Recurr
                   <div
                     key={c.key}
                     data-period={c.state}
-                    className="grid aspect-square place-items-center rounded-full font-display text-[11px]"
+                    className="mx-auto grid h-9 w-9 place-items-center rounded-full font-display text-[11px]"
                     style={{
                       background: CELL_BG[c.state],
                       border: c.state === "today" ? "1.5px solid #33D6FF" : c.state === "pre" ? "1px dashed #2B2F38" : undefined,
