@@ -2172,7 +2172,7 @@ Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED
 1. **当期唯一**：周期任务行卡只画当期（`$32 / $50 today` / `this week`），历史不进行卡正文；当期达标进度条填满并变 lime `#CFFF4A`（与"完成"语义一致）。`max_periods` 达到后无当期，进度条不渲染。
 2. **第三行 = 点阵**：桌面最近 14 期、手机最近 7 期，14px 圆点间距 4px，最右今天。达标 `#33D6FF`、未达 `#2B2F38`、拿到 streak bonus 那期 `#FF8A3D`（状态橙，与体育 TB 同一语义色，不新增颜色）、今天空心 1.5px 青描边（已达标实心）、加入活动前 1px 虚线空。右侧 11px：streak ≥ 2 橙 600 `🔥 5-day streak`，否则灰 `Last 14 days`；Completed `30 / 30 days done`。
 3. **点阵与数字同源**：行卡上 streak / 橙点 / done / earned 全部由 `deriveRecurring()` 从 grant 推导；禁止各画各的（2026-09-25 mock 复盘：D8 火苗与点阵对不上就是这么来的）。
-4. **二级面对等件**：桌面 hover 点阵 → HoverCard 320px（`#1B1E24` / `#2B2F38`）；手机点行 2 `›` → MobileDrawer。同一份 `RecurringHistory`：三格 KPI（Days done / Streak / Earned）+ 月历（一次一个月，标题行两侧 28px ‹ › 切月，范围第一条记录所在月…当月，到头 30% 透明禁用；7 列周一起、36px 圆格；周任务只有点阵）。历史起点 = max(任务第一条期记录, 加入活动)，之前留白不算 missed——弹层高度因此固定，不随任务跑多久增长。
+4. **二级面对等件**：桌面 hover 点阵 → HoverCard 320px（`#1B1E24` / `#2B2F38`）；手机点行 2 `›` → MobileDrawer。同一份 `RecurringHistory`：三格 KPI（Days done / Streak / Earned）+ 月历（一次一个月，标题行两侧 28px ‹ › 切月，范围第一条记录所在月…当月，到头 30% 透明禁用；7 列周一起、36px 圆格；**整月画满**：第一条记录之前与今天之后的日子 1px 虚线空圈 + 灰 `#3A3F47` 日期，不留白；周任务只有点阵）。历史起点 = max(任务第一条期记录, 加入活动)，之前不算 missed——弹层高度因此固定，不随任务跑多久增长。
 5. **奖励槽两行不变**（92px nowrap）：行 1 `$1 today` / `$1 credited` / `$1 ready` / 累计 `$50 credited`；行 2 `12 / 30 days`（无上限 `12 days`；周 `weeks`）。
 6. **指标单位**：进度文案按 metric 带单位——金额 `$` 前缀；计数后缀词 `friends / days / positions`，不带 `$`。图标 UserPlus / CalendarCheck / Clock；邀请指标缺省 CTA `Invite`。
 7. **分段条**：计数指标且 target ≤ 10 → N 段 22×5 圆角、间距 5，达一段亮一段（青），全达全 lime；target > 10 或金额类回落连续条。

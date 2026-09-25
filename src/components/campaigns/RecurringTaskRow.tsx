@@ -261,7 +261,22 @@ export const RecurringHistory = ({ task, d }: { task: CampaignTaskDef; d: Recurr
   const monthKeys = [...months.keys()].sort();
   const [idx, setIdx] = useState(Math.max(0, monthKeys.length - 1));
   const shown = monthKeys[Math.min(idx, monthKeys.length - 1)];
-  const cells = shown ? months.get(shown)! : [];
+  // Always draw the full month: days before the first record and after today are dashed
+  // placeholders with a dim date, so a month with two records still reads as a calendar.
+  const cells: PeriodCell[] = (() => {
+    if (!shown) return [];
+    const known = new Map(months.get(shown)!.map((c) => [c.start.getUTCDate(), c]));
+    const [y, m] = shown.split("-").map(Number);
+    const daysInMonth = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+    const firstKnown = months.get(shown)![0].start.getUTCDate();
+    return Array.from({ length: daysInMonth }, (_, i) => {
+      const day = i + 1;
+      const hit = known.get(day);
+      if (hit) return hit;
+      const start = new Date(Date.UTC(y, m, day));
+      return { key: `${shown}-${String(day).padStart(2, "0")}`, start, state: day < firstKnown ? "pre" : "future" } as PeriodCell;
+    });
+  })();
   return (
     <div>
       <div className="mb-3 text-[12px] text-[#9AA1AC]">
@@ -313,17 +328,24 @@ export const RecurringHistory = ({ task, d }: { task: CampaignTaskDef; d: Recurr
                     className="mx-auto grid h-9 w-9 place-items-center rounded-full font-display text-[11px]"
                     style={{
                       background: CELL_BG[c.state],
-                      border: c.state === "today" ? "1.5px solid #33D6FF" : c.state === "pre" ? "1px dashed #2B2F38" : undefined,
+                      border:
+                        c.state === "today"
+                          ? "1.5px solid #33D6FF"
+                          : c.state === "pre" || c.state === "future"
+                            ? "1px dashed #2B2F38"
+                            : undefined,
                       color:
                         c.state === "done" || c.state === "bonus" || c.state === "today-done"
                           ? "#0A0B0D"
                           : c.state === "today"
                             ? "#33D6FF"
-                            : "#6B7280",
+                            : c.state === "pre" || c.state === "future"
+                              ? "#3A3F47"
+                              : "#6B7280",
                       fontWeight: c.state === "done" || c.state === "bonus" || c.state === "today-done" ? 700 : 400,
                     }}
                   >
-                    {c.state === "pre" ? "" : c.start.getUTCDate()}
+                    {c.start.getUTCDate()}
                   </div>
                 ))}
               </div>
