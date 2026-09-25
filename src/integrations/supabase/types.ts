@@ -1948,18 +1948,74 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      apply_campaign_progress: {
+      apply_campaign_progress:
+        | {
+            Args: {
+              _amount: number
+              _at: string
+              _event_name: string
+              _user_id: string
+            }
+            Returns: number
+          }
+        | {
+            Args: {
+              _amount: number
+              _at: string
+              _event_name: string
+              _metrics: string[]
+              _user_id: string
+            }
+            Returns: number
+          }
+      campaign_hold_sweep: { Args: never; Returns: number }
+      campaign_metric_value: {
         Args: {
-          _amount: number
-          _at: string
-          _event_name: string
+          _from: string
+          _metric: string
+          _task: Json
+          _to: string
           _user_id: string
         }
         Returns: number
       }
+      campaign_period_key: {
+        Args: { _at: string; _period: string }
+        Returns: string
+      }
+      campaign_period_prev: {
+        Args: { _period: string; _start: string }
+        Returns: string
+      }
+      campaign_period_start: {
+        Args: { _at: string; _period: string }
+        Returns: string
+      }
+      campaign_recurring_apply: {
+        Args: {
+          _at: string
+          _entry_id: string
+          _joined_at: string
+          _task: Json
+          _user_id: string
+        }
+        Returns: undefined
+      }
       campaign_scope_matches: {
         Args: { _event_name: string; _scope: Json }
         Returns: boolean
+      }
+      campaign_settle_grant: {
+        Args: {
+          _entry_id: string
+          _key: string
+          _label: string
+          _reward: Json
+          _target: number
+          _user_id: string
+          _value: number
+        }
+        Returns: string
       }
       consume_daily_voucher_pool: {
         Args: { _face_value: number }
@@ -2043,6 +2099,7 @@ export type Database = {
         Returns: Record<string, unknown>
       }
       tick_demo_showcase: { Args: never; Returns: Json }
+      tick_demo_wta: { Args: never; Returns: Json }
       tick_live_matches: { Args: never; Returns: Json }
     }
     Enums: {
