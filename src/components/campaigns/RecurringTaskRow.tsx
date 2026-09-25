@@ -237,9 +237,9 @@ const Strip = ({ d, mobile, max }: { d: RecurringDerived; mobile: boolean; max?:
 };
 
 const Kpi = ({ label, value, color }: { label: string; value: string; color?: string }) => (
-  <div className="flex-1 rounded-[10px] border border-[#1D2026] bg-[#0F1114] px-[10px] py-2">
-    <div className="text-[10px] uppercase tracking-[0.08em] text-[#6B7280]">{label}</div>
-    <div className="font-display text-[16px] font-bold" style={{ color: color ?? "#fff" }}>
+  <div className="flex min-w-0 flex-1 flex-col rounded-[10px] border border-[#1D2026] bg-[#0F1114] px-[8px] py-2">
+    <div className="whitespace-nowrap text-[10px] uppercase tracking-[0.06em] text-[#6B7280]">{label}</div>
+    <div className="mt-auto font-display text-[16px] font-bold leading-6" style={{ color: color ?? "#fff" }}>
       {value}
     </div>
   </div>
@@ -283,7 +283,7 @@ export const RecurringHistory = ({ task, d }: { task: CampaignTaskDef; d: Recurr
         {task.name} · {fmtUsd(task.target ?? 0)} {d.period === "weekly" ? "a week" : "a day"}
       </div>
       <div className="mb-3 flex gap-2">
-        <Kpi label={`${noun} done`} value={task.max_periods ? `${d.doneCount} / ${task.max_periods}` : `${d.doneCount}`} />
+        <Kpi label={`${noun}s done`} value={task.max_periods ? `${d.doneCount} / ${task.max_periods}` : `${d.doneCount}`} />
         <Kpi label="Streak" value={d.streak >= 2 ? `🔥 ${d.streak}` : `${d.streak}`} color={d.streak >= 2 ? "#FF8A3D" : undefined} />
         <Kpi label="Earned" value={`$${d.earned}`} color={d.unit === "usdc" ? "#33D6FF" : "#CFFF4A"} />
       </div>
