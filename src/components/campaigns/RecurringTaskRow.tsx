@@ -283,7 +283,7 @@ export const RecurringHistory = ({ task, d }: { task: CampaignTaskDef; d: Recurr
         {task.name} · {fmtUsd(task.target ?? 0)} {d.period === "weekly" ? "a week" : "a day"}
       </div>
       <div className="mb-3 flex gap-2">
-        <Kpi label={`${noun}s done`} value={task.max_periods ? `${d.doneCount} / ${task.max_periods}` : `${d.doneCount}`} />
+        <Kpi label={`${noun} done`} value={task.max_periods ? `${d.doneCount} / ${task.max_periods}` : `${d.doneCount}`} />
         <Kpi label="Streak" value={d.streak >= 2 ? `🔥 ${d.streak}` : `${d.streak}`} color={d.streak >= 2 ? "#FF8A3D" : undefined} />
         <Kpi label="Earned" value={`$${d.earned}`} color={d.unit === "usdc" ? "#33D6FF" : "#CFFF4A"} />
       </div>
