@@ -39,7 +39,7 @@
 
 未登录时所有行的动作位统一渲染 `Sign in to start`；`frozen`（活动已结束）时所有按钮不渲染，只留状态词。
 
-**2026-09-23 起任务有 `type`**：缺省 `threshold` = 上表；`tiered`（阶梯解锁：多档、USDC 档达标即入账、券档达标可领）见 `docs/delivery/rewards-tiered-tasks-v1.md`，字典 RW-8b / 8c / 12b。
+**2026-09-23 起任务有 `type` 与 `metric` 两轴**：缺省 `threshold` = 上表；`tiered`（阶梯）/ `recurring`（周期 + streak）与指标 `referrals_qualified / active_days / hold_positions` 见总文档 `docs/delivery/rewards-task-types-v1.md`，字典 RW-8b…8e / 12b / 12c。USDC 奖励一律达标即入账，上表 `claimable` 行的 `Credited to Standard after review` 只剩历史券任务会用到。
 
 ### 2.3 Referral 状态（`referrals.status`）
 
@@ -113,12 +113,16 @@ Rewards 的活动配置（campaigns / campaign_entries）当前全部由运营�
 | Ⓒ | GrantTaskRow 九分支 | RW-8 | `rewards-grant-rows` |
 | Ⓒ | TieredTaskRow 阶梯任务（2026-09-23） | RW-8b | `rewards-tiered-rows` |
 | Ⓒ | 档位抽屉 / tooltip（2026-09-23） | RW-8c | `rewards-tiered-drawer` |
+| Ⓒ | RecurringTaskRow 周期任务（2026-09-25） | RW-8d | `rewards-recurring-rows` |
+| Ⓒ | 周期任务历史（2026-09-25） | RW-8d-b | `rewards-recurring-drawer` |
+| Ⓒ | 指标行（2026-09-25） | RW-8e | `rewards-metric-rows` |
 | Ⓒ | 活动规则折叠 | RW-9 | `rewards-campaign-rules` |
 | Ⓒ | Your rewards here | RW-10 | `rewards-rewards-card` / `rewards-rewards-card-mobile` |
 | Ⓒ | 详情 loading | RW-11a | `rewards-detail-loading` |
 | Ⓒ | 详情空态 | RW-11b | `rewards-detail-unavailable` |
 | Ⓒ | claim 成功反馈 | RW-12 | `rewards-claim-toast` |
 | Ⓒ | 自动入账反馈（2026-09-23） | RW-12b | `rewards-credited-toast` |
+| Ⓒ | streak bonus 反馈（2026-09-25） | RW-12c | `rewards-streak-toast` |
 | Ⓒ | entry 绑定两路径 | RW-13 | `rewards-ineligible-redirect` |
 | Ⓓ | Invite a friend 卡 | RW-14 | `rewards-referral-invite` |
 | Ⓓ | Your invites 行 | RW-15 | `rewards-referral-rows` |
@@ -130,7 +134,7 @@ Rewards 的活动配置（campaigns / campaign_entries）当前全部由运营�
 
 **页面**：`src/pages/lite/LiteRewardsPage.tsx`、`src/pages/lite/LiteCampaignDetailPage.tsx`、`src/pages/lite/H2eCampaignDetailPage.tsx`
 
-**组件**（`src/components/campaigns/`）：`CampaignCard` · `CampaignKeyVisual` · `CampaignGridSkeleton` · `CampaignDetailSkeleton` · `CampaignUnavailable` · `CampaignRewardsCard` · `CampaignRulesDisclosure` · `CampaignAttribution` · `ClaimSuccessToastBody` · `CreditedToastBody` · `EndedCampaignsArchive` · `GrantTaskRow` · `TieredTaskRow` · `TaskRowShell` · `IneligibleEntryToast` · `KolBand` · `PointsRetiredNotice` · `ReferralPanel` · `RewardsFinePrint` · `SignInPromptCard`
+**组件**（`src/components/campaigns/`）：`CampaignCard` · `CampaignKeyVisual` · `CampaignGridSkeleton` · `CampaignDetailSkeleton` · `CampaignUnavailable` · `CampaignRewardsCard` · `CampaignRulesDisclosure` · `CampaignAttribution` · `ClaimSuccessToastBody` · `CreditedToastBody` · `EndedCampaignsArchive` · `GrantTaskRow` · `TieredTaskRow` · `RecurringTaskRow` · `TaskRowShell` · `IneligibleEntryToast` · `KolBand` · `PointsRetiredNotice` · `ReferralPanel` · `RewardsFinePrint` · `SignInPromptCard`
 
 **Hook**：`src/hooks/useCampaigns.ts`、`src/hooks/useReferral.ts`
 

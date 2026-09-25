@@ -1,0 +1,224 @@
+# Rewards 任务类型体系（Task types）— 交付说明 v1（总文档）
+
+> 通俗导读：活动详情页的任务行原来只有一种——"做到一个目标，领一份奖励"。现在任务定义有两个正交的轴：**类型 `type`**（行卡长什么样、奖励怎么分：直接达标 / 阶梯解锁 / 周期重复）和**指标 `metric`**（进度怎么算：交易量 / 首单 / 邀请合格好友 / 活跃天数 / 持仓时长）。运营在 `campaign_entries.rules.tasks[]` 里两两组合，不改代码。USDC 奖励**达标即自动入 Standard 账户**，券奖励达标后点 Claim。老任务（没有 `type`）一字不动。
+>
+> 本文档并入了 `rewards-tiered-tasks-v1.md`（2026-09-23 阶梯解锁轮）；那份只留档。
+
+## 0. 读者须知
+
+查什么去哪儿：
+- 长什么样 → 生产页 `/rewards/campaign/19033848-dc98-4a53-b4c5-d9e31b24a51f`（Starter Rewards，always-on：第 4–8 条任务分别是阶梯 / 每日 / 邀请阶梯 / 活跃天数 / 持仓）、`/rewards/campaign/a2222222-2222-4222-8222-aaaaaaaaaaa2`（Finals Week，ended：阶梯 + 每日各一条）、`/rewards?tab=referral`（好友被计入活动的行）
+- 什么时候变成什么样 → `/style-guide` → Lite → Rewards 状态字典 **RW-8b / 8c / 8d / 8d-b / 8e / 12b / 12c / 15**（每个 case 有「状态 / 触发条件 / 视觉 / 数据来源」表）
+- 字段名、文案、公式、时间口径、术语 → `docs/copy-dictionary.md`（顶部有「Lite 术语对照表」；Rewards 节「阶梯任务」「周期任务与指标」两小节）→ 本文档对应章节
+- 设计法则（刻度点、奖励槽两行、日历条、分段条、抽屉 / hover 对等）→ `DESIGN.md` §Addendum 2026-09-23 · 阶梯任务行、§Addendum 2026-09-25 · 周期任务行与指标行
+- Rewards 页整体（相位、九分支任务行、邀请、合规）→ `docs/delivery/lite-rewards-spec-v1.md`（本文档只写任务类型新增的部分）
+
+提问前先按上面顺序查一遍；查不到再提，提问时写明"我查了 X 没有"。
+
+## 0.1 字典怎么看
+
+1. 打开 `/style-guide`（不用登录），左栏点 **Lite › Rewards**。
+2. 节点顶部「本页目录」按产品页从上到下排小节；本次样张全在 **Ⓒ Campaign 详情** 与 **Ⓓ Referral** 两个小节。
+3. 小节顶部黄框「定位行」写路由 / 词典节 / 交付文档。
+4. 每张样张 = `编号 · 状态名（组件名）` + iframe 里的真组件（桌面 100% / 手机 375），可交互：RW-8c / 8d-b 手机帧里的抽屉是挂开的；RW-8d 的时钟冻结在 2026-09-25 12:00 UTC，所以"今天"永远是 9 月 25 日。
+5. 样张下表「状态 / 触发条件 / 视觉 / 数据来源」——触发条件就是判定表达式，可直接照抄进实现。
+6. 页头搜索框敲 `RW-8d` 或 `recurring`，结果点了落到样张。
+7. 单张查看 / 截图：`/style-guide/preview?c=<key>`，key 见 §7。
+
+**编号规则**：RW 前缀 = Rewards；`b / c / d / e` 是同一模块（任务行）的类型变体样张，`8d-b` 是 8d 的二级面（抽屉）；`12b / 12c` 是入账 / streak 两种 toast。无 `-D` / `-M` 后缀，桌面 / 手机在同一编号的上下两帧。
+
+**只在字典可见、生产凑不出条件的态**（既定状态，不是 bug）：
+- RW-8b 券阶梯四态、RW-8d 券版周期任务（D7）——生产只配了 USDC 版；券版行为已实现等运营配。
+- RW-8b / 8d 的 not_eligible——阶梯 / 周期任务目前没有 KOL 专属入口场景。
+- RW-8d D5「第 7 连今天橙点」、D8「30 / 30 Completed」、D9 周任务——演示账号还没跑到；服务端逻辑已按 §3 实测。
+- RW-8e 活跃天数 3/7、持仓 1/3 的进行中态——演示账号 alex 的真实数据已经达标入账（30 天 / 19 仓），生产页上这两条显示 `Credited`。
+
+## 1. 功能目标
+
+给运营一套可复用的任务模版：类型 × 指标两两组合，只改 JSON。关键约束：
+
+- **一条任务一根进度条、三行文案封顶**（标题 / 副标题 / 一个进度数字）；档位、历史等明细一律下沉到二级（桌面 hover、手机抽屉）。
+- **USDC 达标即入账**：服务端在成交 / 好友合格 / 每小时扫描的同一事务里把该档记为已发、Standard 余额 +X、写一条钱包流水（`bonus`）；页面没有"待领 / 待审核"中间态。**入账写路径只有一处**（`campaign_settle_grant()`），带行级闩锁，重放零副作用。
+- **券达标后点领**：走 `claim-campaign-grant`，同一个函数解析三种 grant key。
+- **邀请不叠加**：好友合格时邀请人若在参加含邀请任务的活动，这个好友计进任务，Referral 分页不再出 `$5 voucher`。
+- **持仓时长**：被自动平仓（强平）的仓位同样计入。
+
+## 2. 数据模型
+
+### 2.1 任务定义（`campaign_entries.rules.tasks[]`）
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `task_key` | text | 父任务 key；各类型的 grant key 派生规则见 §2.3 |
+| `type` | `threshold` \| `tiered` \| `recurring` | 缺省 `threshold` = 现有单目标任务，存量零改动 |
+| `metric` | `usd_volume` \| `count` \| `referrals_qualified` \| `active_days` \| `hold_positions` | 进度怎么算，见 §2.2；缺省 `count` |
+| `name` / `subtitle` | text | 与现有一致；**约定：副标题写明奖励单位**（如 `paid in USDC`），奖励槽第一行不带单位词 |
+| `scope` | json | `{any_market:true}` / `{categories:[…]}`，交易类指标按事件品类过滤；邀请指标不看 scope |
+| `cta` | `{label, href}` | 缺省：邀请指标 `Invite` → `/rewards?tab=referral`，其余 `Trade` → `/events(?sector=)` |
+| `target` / `reward` | — | threshold 与 recurring 用；tiered 不读 |
+| `tiers` | `[{target, reward}]` | **tiered**：升序 2–8 档，每档 `{usdc}` 或 `{voucher}`，**一条只配一种单位** |
+| `period` | `daily` \| `weekly` | **recurring**：UTC 日 / ISO 周（周一起） |
+| `max_periods` | int | recurring：可发次数上限，缺省无上限 |
+| `streak_bonus` | `{every, reward}` | recurring：每连续 `every` 期达标发一次 bonus |
+| `min_notional` | number | `active_days`：每天至少成交多少才算活跃日，缺省 $10 |
+| `hold` | `{min_hours, min_notional}` | `hold_positions`：持有时长与名义门槛，缺省 24h / $0 |
+
+真实配置（Starter Rewards 第 5–8 条）：
+
+```json
+{ "task_key": "daily_trade", "type": "recurring", "period": "daily",
+  "name": "Trade every day", "subtitle": "$50 in filled orders each day · paid in USDC",
+  "metric": "usd_volume", "target": 50, "scope": { "any_market": true }, "reward": { "usdc": 1 },
+  "max_periods": 30, "streak_bonus": { "every": 7, "reward": { "usdc": 5 } } }
+
+{ "task_key": "invite_ladder", "type": "tiered", "name": "Invite friends who trade",
+  "subtitle": "Each friend counts once they trade $100 · paid in USDC", "metric": "referrals_qualified",
+  "tiers": [ { "target": 1, "reward": { "usdc": 5 } }, { "target": 3, "reward": { "usdc": 15 } }, { "target": 10, "reward": { "usdc": 50 } } ] }
+
+{ "task_key": "active_7d", "type": "threshold", "name": "Trade on 7 different days",
+  "subtitle": "Any market · at least $10 a day · paid in USDC", "metric": "active_days", "min_notional": 10,
+  "target": 7, "scope": { "any_market": true }, "reward": { "usdc": 5 } }
+
+{ "task_key": "hold_24h", "type": "threshold", "name": "Hold a position for 24 hours",
+  "subtitle": "3 positions of $50+ held a full day · auto-closed ones count too · paid in USDC",
+  "metric": "hold_positions", "hold": { "min_hours": 24, "min_notional": 50 }, "target": 3,
+  "scope": { "any_market": true }, "reward": { "usdc": 15 } }
+```
+
+阶梯任务的 7 档 USDC 配置见第 4 条任务 `vl_volume_ladder`（2,000 → 200,000，4 → 200 USDC，累计 400）。
+
+### 2.2 指标口径（`campaign_metric_value()`，全部从源表**重算**，幂等）
+
+| metric | 值 | 来源 | 触发时机 |
+|---|---|---|---|
+| `usd_volume` | 窗口内 Filled / Closed 成交的 USD 名义之和（scope 内） | `trades.amount` | 成交落库 |
+| `count` | 窗口内有无成交（0 / 1） | `trades` | 成交落库 |
+| `active_days` | 窗口内有 ≥ `min_notional` 成交的**不同 UTC 日**数 | `trades.created_at` | 成交落库 |
+| `hold_positions` | 名义 ≥ `hold.min_notional` 且持有 ≥ `hold.min_hours` 的仓位数：仍持有（Filled，`now − created_at`）或已平（Closed，`closed_at − created_at`，含自动平仓） | `trades` | 平仓落库 + 每小时 cron `campaign-hold-sweep` |
+| `referrals_qualified` | 窗口内 `qualified_at` 的合格好友数（status qualified / rewarded） | `referrals` | 好友合格（trigger `trg_referrals_campaign_hook`） |
+
+窗口：threshold / tiered 为 `[joined_at, ∞)`；recurring 为当期 `[max(period_start, joined_at), period_end)`。`count` 无 scope 的任务（Discord / share）仍不自动驱动。
+
+### 2.3 grant 行（`campaign_grants`，表结构不变）
+
+| type | grant key | 说明 |
+|---|---|---|
+| threshold | `<task_key>` | 一行 |
+| tiered | `<task_key>#t<n>` | 每档一行，n 从 1；`progress.value` 各档同值 |
+| recurring | `<task_key>@<YYYY-MM-DD>` / `<task_key>@<IYYY-Www>` | 每期一行；父 key 不写行 |
+| recurring bonus | `<task_key>#s<n>` | 第 n 次 streak bonus（n = 连续期数 / every） |
+
+`progress` 键：`value / current / target`，USDC 入账时加 `credited_usdc / credited_at`。状态 5 值不变（`not_started / in_progress / claimable / claimed / not_eligible`）；USDC 奖励不出现 `claimable`，达标直接 `claimed`。状态只进不退（GREATEST 合并）。
+
+### 2.4 前端派生（纯函数，字典与生产共用）
+
+- `deriveTiered(task, grants)` — 共享值、各档态、下一档分母、等距填充、可领和。
+- `deriveRecurring(task, grants, joinedAt, now)` — 当期值 / 态、done 数、streak（末尾连续达标期）、bonus 期、earned、completed、14 期点阵、月历格。**行卡上每个数字和点阵只能从这里出**，禁止各画各的。
+
+### 2.5 聚合口径（`buildCampaignView`）
+
+| | tasksTotal | tasksDone | claimableCount | up to | claimed |
+|---|---|---|---|---|---|
+| threshold | 1 | claimed | claimable | reward | claimed 的 reward |
+| tiered | 1 | 全档 claimed | 任一档 claimable | 全档之和 | 已发档之和 |
+| recurring | 1 | `max_periods` 达到（无上限永不计） | 任一期 / bonus claimable | `reward × max_periods` + 凑得到的 bonus（无上限时不累加） | 已发期 + bonus |
+
+## 3. 数据库 / 服务端（migration `20260923150000` + `20260925100000`）
+
+两层：**指标层** `campaign_metric_value()` 重算绝对值 → **类型层** `apply_campaign_progress()` 按 `type` 分发 → **结算层** `campaign_settle_grant()` 唯一入账点。
+
+1. `campaign_settle_grant(user, entry, key, value, target, reward, label)`：upsert 行；已 `claimed / not_eligible` 只同步 value；`value ≥ target` 且 USDC → `UPDATE … WHERE status <> 'claimed'` 闩锁 → `profiles.spot_balance += usdc` → `transactions(bonus, spot, 'Campaign reward · <label>')`；券 → `claimable`；否则 `in_progress`。
+2. `campaign_recurring_apply(user, entry, task, at, joined_at)`：算当期 key 与窗口；`max_periods` 已满则不再开新期；结算当期行；当期 `claimed` 时向前数连续 `claimed` 期 = streak，`streak % every = 0` → 结算 bonus 行 `#s<streak/every>`（label `<name> · 7-day streak`）。
+3. `apply_campaign_progress(user, event_name, amount, at, metrics[])`：遍历 live 活动 × 任务；`metrics` 非空时只处理这些指标；交易类指标带 event_name 时过 scope；按 type 分发。4 参数版是 trades 触发器用的兼容壳。
+4. `trades_campaign_progress()`：INSERT / 转 Filled → 全量；转 Closed → 只 `hold_positions`。
+5. `referrals_campaign_hook()`（AFTER UPDATE OF status）：pending → qualified 时，邀请人若在 live 活动里有 `referrals_qualified` 任务 → 该 referral 置 `rewarded` + `metadata.counted_toward = {campaign_id, campaign_name}`，再驱动邀请人的任务。没有邀请任务 → 什么都不做，Referral 分页照旧 `$5 voucher`。
+6. `campaign_hold_sweep()`：pg_cron `15 * * * *`，对所有参加含 `hold_positions` 任务活动的用户重算。
+7. Edge Function `claim-campaign-grant`：`#t<n>` → `tiers[n-1].reward`；`@<period>` → `task.reward`；`#s<n>` → `streak_bonus.reward`；只服务券。
+
+实测（fixture 用户，已清理）：连续 7 天各 $60 → 7 期各入账 $1 + `7-day streak` $5；同日再 $10 不重复；活跃天 7/7 入账；好友合格 → referral `rewarded` + counted_toward + 邀请阶梯 t1 $5；随后重放 + 手动 sweep → 流水数不变。
+
+## 4. 用户端流程
+
+### 4.1 任务行（挂在 `LiteCampaignDetailPage`，按 `task.type` 分发到 `GrantTaskRow` / `TieredTaskRow` / `RecurringTaskRow`）
+
+三种行卡共用 `TaskRowShell`。新增的槽：
+
+| 槽 | 规格 |
+|---|---|
+| 进度单位 | `$` 前缀（金额）或后缀词 `friends / days / positions`（计数） |
+| 分段条 | 计数类指标且 target ≤ 10：N 段 22×5，达一段亮一段（青），全达 lime；否则连续条 |
+| 刻度点（tiered） | 等距 `n / M`，未达灰 / 已达青 / 已发青+暗芯；桌面 hover 单档 tooltip |
+| 当期后缀（recurring） | `$32 / $50 today`（周 `this week`）；当期达标后条填满变 lime |
+| 第三行（recurring） | 最近 14 期点阵（手机 7 期）+ `🔥 5-day streak`（≥2）/ `Last 14 days`；达标青、未达灰、bonus 期橙 `#FF8A3D`、今天空心、加入前虚线 |
+| 奖励槽行 1 | tiered：`$25 ready` / `next $40` / `$400 credited`；recurring：`$1 today` / `$1 credited` / `$1 ready` / 累计 `$50 credited`（Completed / Ended） |
+| 奖励槽行 2 | tiered `4 / 7 tiers`；recurring `12 / 30 days`；手机带 `›` 起抽屉 |
+| 动作栏 | 未登录 `Sign in to start` → `Not eligible` → 已结束 `Ended` → `Completed` → 券可领 `Claim $X` / `Claim all $X`（顺序逐档，失败即停）→ 当期已达 `Done today` → 全部已发 `All credited` → 描边 CTA |
+
+二级面：tiered = `Tiers` tooltip（桌面）/ 抽屉（手机）列每档；recurring = `Daily progress` hover 卡（桌面）/ 抽屉（手机）：三格 KPI（Days done / Streak / Earned）+ 月历（从加入日起，按月分段；周任务只有点阵）。
+
+### 4.2 反馈 toast（详情页加载时，一档一次，localStorage seen-set，首访静默）
+
+- 阶梯 USDC 档入账：`+$40 USDC credited to Standard` / `Tier 4 of <task>` / `Open wallet`
+- streak bonus：`+$5 USDC · 7-day streak` / `<task> · bonus credited to Standard` / `Open wallet`
+- 每日 $1 不弹。
+
+### 4.3 Referral 分页
+
+好友行若 `metadata.counted_toward` 存在：副标题 `Qualified {date} · counted toward Starter Rewards`，无奖励槽，右侧青字 `Counted toward campaign`，不 faded；`claim-referral-voucher` 因 status 已 `rewarded` 拒绝。
+
+### 4.4 钱包流水
+
+复用 `bonus` 类型（Gift 绿图标），描述：`Campaign reward · <task> · Tier n` / `Campaign reward · <task> · 2026-09-24` / `Campaign reward · <task> · 7-day streak` / `Campaign reward · <task>`。
+
+### 4.5 演示数据（alex_carter）
+
+| 活动 | 任务 | 状态 |
+|---|---|---|
+| Starter Rewards | `vl_volume_ladder` | $36,000，t1–t4 已入账 |
+| | `daily_trade` | 9-11…9-24 共 12 天达标（9-14 / 9-19 断），今天 $32 进行中，🔥 5 |
+| | `invite_ladder` | 2 位好友被计入（Referral 分页两行 `Counted toward campaign`），t1 $5 已入账，t2 2/3 |
+| | `active_7d` / `hold_24h` | alex 真实数据已达标 → 已入账 $5 / $15 |
+| Finals Week（ended） | `fw_volume_ladder` / `fw_daily` | 阶梯 3/7 档已入账；每日 3 天达标 |
+
+`profiles.spot_balance` 与全部 `Campaign reward` 流水恒等。留档：`supabase/migrations/20260923150100_seed_volume_ladder_demo.sql`、`20260925100100_seed_task_types_r2_demo.sql`。
+
+## 5. Admin 端：无
+
+运营直接改 `campaign_entries.rules`。
+
+## 7. 状态索引
+
+| 区 | 模块 | RW 编号 | style-guide key |
+|---|---|---|---|
+| Ⓒ | TieredTaskRow 阶梯任务全态 | RW-8b | `rewards-tiered-rows` |
+| Ⓒ | 档位抽屉 / tooltip | RW-8c | `rewards-tiered-drawer` |
+| Ⓒ | RecurringTaskRow 周期任务全态 | RW-8d | `rewards-recurring-rows` |
+| Ⓒ | 周期任务历史（hover 卡 / 抽屉） | RW-8d-b | `rewards-recurring-drawer` |
+| Ⓒ | 指标行（邀请 / 活跃天 / 持仓 + 邀请阶梯） | RW-8e | `rewards-metric-rows` |
+| Ⓒ | 自动入账 toast | RW-12b | `rewards-credited-toast` |
+| Ⓒ | streak bonus toast | RW-12c | `rewards-streak-toast` |
+| Ⓓ | Your invites 行（含 counted toward） | RW-15 | `rewards-referral-rows` |
+
+## 8. 涉及文件
+
+**前端**：`src/components/campaigns/TieredTaskRow.tsx` · `RecurringTaskRow.tsx` · `CreditedToastBody.tsx` · `TaskRowShell.tsx` · `GrantTaskRow.tsx` · `ReferralPanel.tsx` · `src/pages/lite/LiteCampaignDetailPage.tsx` · `src/hooks/useCampaigns.ts`
+
+**后端**：`supabase/functions/claim-campaign-grant/index.ts` · `supabase/migrations/20260923150000_campaign_tiered_tasks.sql` · `20260925100000_campaign_task_types_r2.sql` · 演示留档 `20260923150100_*` / `20260925100100_*`
+
+**字典**：`src/pages/StyleGuide/preview/rewardsPreviews.tsx` · `preview/registry.tsx` · `sections/RewardsStatesSection.tsx`
+
+## 10. Lovable / 正式版边界
+
+| 项 | Lovable | 正式版 |
+|---|---|---|
+| 指标重算与类型分发 | Postgres 触发器 + pg_cron | 研发自有事件管线，**口径以 §2.2 / §3 为准**，可整体替换实现 |
+| USDC 入账 | `campaign_settle_grant()` 同事务写余额 + 流水 | 真实记账系统；必须保留「一档 / 一期 / 一次 bonus 只入账一次」的幂等语义，入账写路径唯一 |
+| 邀请不叠加 | referrals 触发器写 `counted_toward` | 同语义；好友合格事件必须先判"邀请人是否在含邀请任务的活动里" |
+| 持仓时长 | 平仓事件 + 每小时 cron | 可改事件驱动（仓位跨过 min_hours 时推一次） |
+| 券档领取 | `claim-campaign-grant` | 同 |
+| 入账 / streak 通知 | 页面加载 toast（localStorage） | 服务端推送 / 站内信，文案沿用 RW-12b / 12c |
+| 配置校验 | 无 | 后台校验：tiers 2–8 升序单一单位；recurring `period` 枚举、`every > 0`；metric 与 scope 组合合法 |
+
+## 11. 未做的类型（等拍板）
+
+顺序清单、人工审核（解 share / discord 事件源缺口）、排名结算、瓜分奖池、抽奖。框架已预留 `type` / `metric` 两轴。

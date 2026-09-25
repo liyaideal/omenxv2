@@ -36,7 +36,24 @@
 | DQ-1 | mark price 悬浮框 `Click here for details` 接 help center 链接 | ⬜ | 等 Liya 给 URL |
 | DQ-字典 | CH-D1 / OB-D1 / PT-D1 / HD-D1 / OS-D2 / OS-M2 / EI-D1；DK 案例去 Suspended | ✅ | sg:audit PASS |
 
-## 2026-09-23 — Rewards 阶梯任务 RW-T（[文档](../delivery/rewards-tiered-tasks-v1.md)）
+## 2026-09-25 — Rewards 任务类型第二轮 RW-T2（总文档 [rewards-task-types-v1.md](../delivery/rewards-task-types-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| RW-T2-A | 触发器三层：`campaign_metric_value()` 重算 / 类型分发 / `campaign_settle_grant()` 唯一入账 | ✅ | migration `20260925100000`；正式版按 §2.2 / §3 口径重实现 |
+| RW-T2-B | `type: recurring`：期 grant `<key>@<period>`、`max_periods`、streak bonus `<key>#s<n>` | ✅ | fixture 7 天 → 7 期 + bonus，重放零副作用 |
+| RW-T2-C | 指标 `referrals_qualified`（referrals 触发器）/ `active_days` / `hold_positions`（平仓 + 每小时 cron `campaign-hold-sweep`） | ✅ | 持仓含自动平仓 |
+| RW-T2-D | 邀请不叠加：合格好友 → `rewarded` + `metadata.counted_toward`；Referral 行 `Counted toward campaign` | ✅ | `referrals_campaign_hook()` · `ReferralPanel` |
+| RW-T2-E | `RecurringTaskRow`：当期进度 / 14（7）天点阵 / streak / hover 卡 + 抽屉月历 / Claim all；`deriveRecurring()` 纯函数 | ✅ | 桌面 + 手机 |
+| RW-T2-F | 指标行：图标 / CTA `Invite` / 单位 `friends · days · positions` / 分段条（target ≤ 10） | ✅ | `GrantTaskRow` / `TieredTaskRow` / `TaskRowShell` |
+| RW-T2-G | streak bonus toast（一次一档，每日 $1 不弹） | ✅ | `showStreakBonusToast` |
+| RW-T2-H | `claim-campaign-grant` 解析 `@period` / `#s<n>`（券版周期任务） | ✅ | 待 Lovable 部署 |
+| RW-T2-I | 演示：Starter Rewards +4 任务（真实配置）、alex 各态；Finals Week + fw_daily | ✅ | seed migration `20260925100100` 留档 |
+| RW-T2-J | 字典 RW-8d / 8d-b / 8e / 12c、RW-15 第 4 行 | ✅ | sg:audit PASS |
+| RW-T2-K | 后台配置校验（period 枚举 / every ≥ 2 / metric × scope 合法性） | ⬜ | 正式版 |
+| RW-T2-L | 剩余类型（顺序清单 / 人工审核 / 排名 / 奖池 / 抽奖） | ⬜ | 等拍板 |
+
+## 2026-09-23 — Rewards 阶梯任务 RW-T（[文档](../delivery/rewards-tiered-tasks-v1.md)，已并入总文档 [rewards-task-types-v1.md](../delivery/rewards-task-types-v1.md)）
 
 | # | 项 | Status | Notes |
 |---|---|---|---|

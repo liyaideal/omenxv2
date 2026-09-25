@@ -219,3 +219,14 @@
 | `apply_campaign_progress()` 阶梯分支：USDC 档达标 → 行级闩锁 `status <> 'claimed'` → `profiles.spot_balance += usdc` → `transactions(bonus, spot, 'Campaign reward · <task> · Tier n')` | 🟢（正式版必做，口径以 `docs/delivery/rewards-tiered-tasks-v1.md` §3.1 为准） | Lovable 用 Postgres 触发器做参考实现；正式版接自有事件管线 + 真实记账，**必须保留一档只入账一次的幂等语义**，入账写路径唯一 |
 | `claim-campaign-grant` 解析 `<task_key>#t<n>` → `tiers[n-1].reward.voucher` | 🟡 | 只服务券档；USDC 档不经此函数 |
 | 自动入账通知 | 🟡 | Lovable：详情页加载时 toast（localStorage seen-set）；正式版可换服务端推送 / 站内信，文案沿用 RW-12b |
+
+## 2026-09-25 Rewards 任务类型第二轮（append-only 补录）
+
+| 项 | 类别 | 说明 |
+|---|---|---|
+| 触发器三层：`campaign_metric_value()`（指标重算）/ `apply_campaign_progress(…, _metrics[])`（类型分发）/ `campaign_settle_grant()`（唯一入账点，行级闩锁） | 🟢（正式版必做，口径以 `docs/delivery/rewards-task-types-v1.md` §2.2 / §3 为准） | Lovable 用 Postgres 触发器 + pg_cron 做参考实现；正式版接自有事件管线 + 真实记账，保留「一档 / 一期 / 一次 bonus 只入账一次」幂等语义 |
+| `type: recurring` 期 grant `<key>@<YYYY-MM-DD \| IYYY-Www>`、bonus `<key>#s<n>`、`max_periods` | 🟡 | 键法与 progress 键名照抄；UTC 日 / ISO 周边界 |
+| `referrals_campaign_hook()`：好友合格 → 邀请人任务 + `referrals.metadata.counted_toward` + status `rewarded` | 🟢 | 邀请不叠加语义：合格事件先判"邀请人是否在含 `referrals_qualified` 任务的 live 活动里"，是则不再发每人券 |
+| `hold_positions`：平仓事件 + pg_cron `campaign-hold-sweep`（每小时 :15） | 🟡 | 正式版可改事件驱动；含自动平仓 |
+| `active_days`：distinct UTC 日，`min_notional` 缺省 $10 | 🟡 | 照抄 |
+| `claim-campaign-grant` 解析 `@period` / `#s<n>` | 🟡 | 只服务券 |

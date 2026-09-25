@@ -101,6 +101,50 @@ Single source of truth for user-visible field names across the app.
 
 **运营配置约定**：一条阶梯只配一种奖励单位；副标题写明单位（如 `rewards paid in USDC`）；`tiers` 按 target 升序，2–8 档。
 
+### 周期任务与指标（`type: "recurring"` · `metric`，2026-09-25）
+
+规格：`docs/delivery/rewards-task-types-v1.md`（总文档）；字典 RW-8d / 8d-b / 8e / 12c / 15。
+
+概念：
+
+| 词 | 定义 | 判定 | 出处 |
+|---|---|---|---|
+| **Recurring task（周期任务）** | 同一任务按日 / 周重置，每期各发一份 | `task.type === "recurring"`，`period ∈ {daily, weekly}` | `isRecurringTask()` |
+| **Period（期）** | UTC 日 `YYYY-MM-DD` 或 ISO 周 `IYYY-Www`（周一起）；每期一条 grant `<key>@<period>` | `campaign_period_key()` / `periodKeyOf()` | SQL + `RecurringTaskRow` |
+| **Done（当期达标）** | 当期值 ≥ target：USDC 直接入账（claimed），券可领（claimable） | `status ∈ {claimed, claimable}` | `deriveRecurring().todayDone` |
+| **Streak（连续）** | 以今天（已达标）或上一期为终点的连续达标期数 | 向前逐期查 grant，遇未达即止 | `deriveRecurring().streak` |
+| **Streak bonus** | 每连续 `every` 期达标发一次的额外奖励，grant `<key>#s<n>` | `streak % every === 0`（服务端判定） | `campaign_recurring_apply()` |
+| **Max periods** | 可发次数上限；达到后无当期、行卡 Completed | `done ≥ max_periods` | `deriveRecurring().completed` |
+| **Metric（指标）** | 进度怎么算，与类型正交 | `usd_volume / count / referrals_qualified / active_days / hold_positions` | `campaign_metric_value()` |
+| **Qualified friend（合格好友）** | 被邀请人累计成交 ≥ $100 | `referrals.status ∈ {qualified, rewarded}` | 现有口径 |
+| **Counted toward campaign** | 合格好友被计入邀请人正在参加的活动任务，不再发每人 $5 券 | `referrals.metadata.counted_toward` 存在 | `referrals_campaign_hook()` |
+| **Active day（活跃日）** | 当日有 ≥ `min_notional`（缺省 $10）成交的 UTC 日 | `count(distinct date)` | `campaign_metric_value()` |
+| **Held position（持仓达标）** | 名义 ≥ `hold.min_notional` 且持有 ≥ `hold.min_hours` 的仓位，含自动平仓 | 仍持有按 `now − created_at`，已平按 `closed_at − created_at` | `campaign_metric_value()` · 每小时 `campaign-hold-sweep` |
+
+文案：
+
+| Canonical | Meaning | Banned variants |
+|---|---|---|
+| **$32 / $50 today** / **this week** | 周期任务当期进度；后缀灰字标当期 | so far, current |
+| **$1 today** / **$1 credited** / **$1 ready** | 奖励槽行 1：当期未达 / 当期已入账 / 券当期可领 | earned today, pending |
+| **12 / 30 days** / **12 days** / **3 / 8 weeks** | 奖励槽行 2：已达标期数 / 上限（无上限省略）；手机带 `›` | streak, completed days |
+| **🔥 5-day streak** / **🔥 2-week streak** | 第三行右侧，streak ≥ 2 时橙色 | on fire, combo, x5 |
+| **Last 14 days** / **Last 7 days** | 第三行右侧，streak < 2 时（桌面 14 / 手机 7） | History, Recent |
+| **30 / 30 days done** | Completed 态第三行 | All done, Finished |
+| **Done today** / **Done this week** | 当期已达标的动作栏灰字 | Completed, Claimed |
+| **Completed** | `max_periods` 达到的动作栏灰字 | Finished, Maxed out |
+| **Daily progress** / **Weekly progress** | hover 卡 / 抽屉标题 | History, Calendar |
+| **Days done / Streak / Earned** | 历史面三格 KPI | Total, Best streak |
+| **done / missed / streak bonus / today** | 日历图例四词 | hit, skipped |
+| **+$5 USDC · 7-day streak** | streak bonus toast 标题；描述 `<task> · bonus credited to Standard` | Streak reward, Combo bonus |
+| **2 / 3 friends** / **3 / 7 days** / **1 / 3 positions** | 计数指标进度文案（不带 `$`） | 2 of 3, 2/3 |
+| **Invite** | 邀请指标缺省 CTA → `/rewards?tab=referral` | Refer, Share link |
+| **Counted toward campaign** | Referral 分页好友行右侧青字；副标题 `Qualified {date} · counted toward Starter Rewards` | Used in campaign, Applied |
+| **Credited** | USDC threshold 任务已入账的动作栏灰字（替代 `Claimed`） | Paid, Done |
+| **Campaign reward · <task> · 2026-09-24** / **· 7-day streak** | 钱包流水描述（周期 / bonus） | Daily reward, Streak payout |
+
+**运营配置约定**：周期任务 `period` 只有 `daily / weekly`；`streak_bonus.every ≥ 2`；一个活动里 recurring 任务建议 ≤ 2 条（行高 118px）；计数指标目标 ≤ 10 才有分段条。
+
 **已退役**：Points（积分）体系全部词汇不得复用；`/rewards` 只保留一条可关闭的退役提示。
 
 ---

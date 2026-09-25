@@ -1,5 +1,7 @@
 # Rewards 任务类型 · 阶梯解锁（Tiered）— 交付说明 v1
 
+> **已并入 `rewards-task-types-v1.md`（任务类型体系总文档），本文只留档。**
+
 > 通俗导读：活动详情页的任务行原来只有一种——"做到一个目标，领一份奖励"。这一轮给任务定义加了一个 `type` 字段，第一个新类型是 **阶梯解锁（tiered）**：一条任务、一根进度条、多个档位，每到一档发一档。USDC 档**达标即自动入 Standard 账户**，不用点领；券档达标后照旧点 Claim。运营在 `campaign_entries.rules.tasks[]` 里配 `type: "tiered"` + `tiers[]` 就能用，前端与服务端按 `type` 分发，老任务（没有 `type`）一字不动。首个真实配置：Starter Rewards 活动里新增的「Cumulative trading volume」（7 档，2,000 → 200,000 USDC，累计 400 USDC）。
 
 ## 0. 读者须知

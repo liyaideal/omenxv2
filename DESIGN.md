@@ -2164,3 +2164,17 @@ Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED
 3. **终端表格动作按钮统一**：Close = `text-foreground border-border/50` 细边框；Cancel = `text-trading-red border-trading-red/50`；手机卡 Close = `bg-trading-red/20 text-trading-red`。现货与合约同款，撤单一律先弹 `Cancel Order` AlertDialog。
 4. **轮长 chip**：`px-1.5 py-px rounded border-border/60 bg-muted/40 text-[10px] font-mono text-muted-foreground`，只跟在加密快轮名后（选择器行、桌面页头）；手机短名 `BTC · 5m · Up or down?`。
 5. **删除**：TP/SL 全部 UI、`Suspended` 态、订单簿精度切换、现货 Limit CTA 的 `Place limit ·` 前缀。
+
+## §Addendum 2026-09-25 · 周期任务行与指标行（RecurringTaskRow · 指标单位 · 分段条，LOCKED）
+
+来源：mock t3-recurring v2.2（CPO 2026-09-25 批）；规格 `docs/delivery/rewards-task-types-v1.md`；字典 RW-8d / 8d-b / 8e / 12c。**作用域**：`RecurringTaskRow`、`TaskRowShell.progress.{unit,steps,fillColor,suffix}` 与 `extra` 槽、`GrantTaskRow` / `TieredTaskRow` 的指标分支、`ReferralPanel` counted 行。
+
+1. **当期唯一**：周期任务行卡只画当期（`$32 / $50 today` / `this week`），历史不进行卡正文；当期达标进度条填满并变 lime `#CFFF4A`（与"完成"语义一致）。`max_periods` 达到后无当期，进度条不渲染。
+2. **第三行 = 点阵**：桌面最近 14 期、手机最近 7 期，14px 圆点间距 4px，最右今天。达标 `#33D6FF`、未达 `#2B2F38`、拿到 streak bonus 那期 `#FF8A3D`（状态橙，与体育 TB 同一语义色，不新增颜色）、今天空心 1.5px 青描边（已达标实心）、加入活动前 1px 虚线空。右侧 11px：streak ≥ 2 橙 600 `🔥 5-day streak`，否则灰 `Last 14 days`；Completed `30 / 30 days done`。
+3. **点阵与数字同源**：行卡上 streak / 橙点 / done / earned 全部由 `deriveRecurring()` 从 grant 推导；禁止各画各的（2026-09-25 mock 复盘：D8 火苗与点阵对不上就是这么来的）。
+4. **二级面对等件**：桌面 hover 点阵 → HoverCard 320px（`#1B1E24` / `#2B2F38`）；手机点行 2 `›` → MobileDrawer。同一份 `RecurringHistory`：三格 KPI（Days done / Streak / Earned）+ 月历（7 列周一起、36px 圆格、加入日起按月分段；周任务只有点阵）。
+5. **奖励槽两行不变**（92px nowrap）：行 1 `$1 today` / `$1 credited` / `$1 ready` / 累计 `$50 credited`；行 2 `12 / 30 days`（无上限 `12 days`；周 `weeks`）。
+6. **指标单位**：进度文案按 metric 带单位——金额 `$` 前缀；计数后缀词 `friends / days / positions`，不带 `$`。图标 UserPlus / CalendarCheck / Clock；邀请指标缺省 CTA `Invite`。
+7. **分段条**：计数指标且 target ≤ 10 → N 段 22×5 圆角、间距 5，达一段亮一段（青），全达全 lime；target > 10 或金额类回落连续条。
+8. **行高预算**：threshold 行 ≈ 74px，recurring 行 ≈ 118px（多一行点阵）；一个活动里 recurring 任务建议 ≤ 2 条。
+9. **Referral 分页 counted 行**：不 faded、无奖励槽、右侧青 `Counted toward campaign`；副标题追加 `· counted toward <campaign>`。
