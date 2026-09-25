@@ -51,6 +51,7 @@ export const SectionFrame = ({
   minHeight?: number;
 }) => {
   const holderRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLIFrameElement>(null);
   // `minHeight` is ONLY a loading placeholder. Once the iframe reports its real
   // document height we follow it exactly — otherwise a case shorter than the
   // hand-guessed estimate leaves a blank band (and the errors accumulate down
@@ -89,7 +90,11 @@ export const SectionFrame = ({
       const d = e.data;
       if (!d || !d.__styleGuidePreview) return;
       if (d.fid !== fid) return;
-      setReported(Math.max(48, Math.ceil(d.height) + 4));
+      // Portal mode: the frame is momentarily a phone/desktop viewport (see
+      // StyleGuidePreview) — no +4 slack, and bring the whole frame into view so the
+      // sheet that just opened at its bottom edge is on screen.
+      setReported(d.portal ? Math.ceil(d.height) : Math.max(48, Math.ceil(d.height) + 4));
+      if (d.portal) window.requestAnimationFrame(() => frameRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" }));
     };
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
@@ -103,6 +108,7 @@ export const SectionFrame = ({
         <div ref={holderRef} className="mx-auto" style={width ? { width, maxWidth: width } : undefined}>
           {mounted ? (
             <iframe
+              ref={frameRef}
               title={`section-preview-${device}-${keyParam}`}
               src={src}
               loading="lazy"
