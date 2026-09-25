@@ -423,7 +423,7 @@ const DETAIL_CASES: SectionCase[] = [
   {
     key: "rewards-tiered-rows",
     label: "RW-8b · TieredTaskRow 阶梯任务（type: tiered · 7 档 USDC 真实配置 + 3 档券）",
-    note: "帧内自上而下：signedOut / 未开始 / 进行中未达首档（$1,250）/ 两档已入账（$7,400）/ 四档已入账（$36,000，一单跨两档）/ 全入账（$250,000）/ not_eligible / ended / 券阶梯 Claim $5 / 券阶梯 Claim all $25 / 券阶梯 claiming / 券阶梯全领。行卡文案三行封顶，不随档数增长；档位明细下沉到 tooltip（桌面）/ 抽屉（移动，见 RW-8c）。",
+    note: "帧内自上而下：signedOut / 未开始 / 进行中未达首档（$1,250）/ 两档已入账（$7,400）/ 四档已入账（$36,000，一单跨两档）/ 全入账（$250,000）/ not_eligible / ended / 8 档上限（$14,200，四档已入账）/ 券阶梯 Claim $5 / 券阶梯 Claim all $25 / 券阶梯 claiming / 券阶梯全领。行卡文案三行封顶，不随档数增长；桌面进度条 360px 下方有「档位标尺」——每个刻度点正下方写该档门槛（2K / 30K / 200K，不带 $；计数指标 1 / 3 / 10），已达白 / 下一档青 700 / 未达灰（2026-09-26）；档位奖励仍在 tooltip（桌面）/ 抽屉（移动，见 RW-8c）。",
     spec: [
       {
         state: "共享进度",

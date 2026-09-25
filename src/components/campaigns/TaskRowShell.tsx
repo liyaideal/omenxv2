@@ -12,6 +12,10 @@ export interface TaskRowTick {
   pct: number;
   state: "pending" | "reached" | "credited";
   label?: ReactNode;
+  /** Short threshold shown on the desktop tier rail under the dot (`2K`, `100K`, `3`). */
+  short?: string;
+  /** The rung the user is currently working toward — rendered cyan on the rail. */
+  next?: boolean;
 }
 
 const fmtUsd = (n: number) => `$${n.toLocaleString("en-US")}`;
@@ -103,8 +107,9 @@ export const TaskRowShell = ({
         {progress && (
           <div
             className={`mt-2 flex gap-2 ${
-              // tiered rows on mobile: full-width bar so 7–8 ticks stay legible, count below
-              isMobile && progress.ticks ? "flex-col items-end" : "items-center"
+              // tiered rows on mobile: full-width bar so 7–8 ticks stay legible, count below;
+              // on desktop the tier rail sits under the bar, so the count top-aligns with the bar
+              isMobile && progress.ticks ? "flex-col items-end" : progress.ticks ? "items-start" : "items-center"
             }`}
           >
           {progress.steps && progress.target <= 10 ? (
@@ -127,8 +132,9 @@ export const TaskRowShell = ({
               ))}
             </div>
           ) : (
+          <div className={`w-full ${isMobile ? "" : progress.ticks ? "max-w-[360px]" : "max-w-[280px]"}`}>
           <div
-            className={`relative h-[5px] w-full rounded-full bg-[#1D2026] ${progress.ticks ? "" : "overflow-hidden"} ${isMobile ? "" : "max-w-[280px]"}`}
+            className={`relative h-[5px] w-full rounded-full bg-[#1D2026] ${progress.ticks ? "" : "overflow-hidden"}`}
           >
               <div
                 className="h-full rounded-full"
@@ -164,8 +170,33 @@ export const TaskRowShell = ({
                 );
               })}
             </div>
+            {/* Tier rail (desktop only): the threshold of every rung under its dot.
+                2026-09-26 Liya: "desktop 上每个档位的具体解锁数值最好加上". Reached/credited white,
+                the rung being worked toward cyan, pending grey; the last label is right-anchored so
+                the rail never extends past the bar. */}
+            {!isMobile && progress.ticks?.some((t) => t.short) && (
+              <div className="relative mt-[5px] h-3" data-tier-rail>
+                {progress.ticks.map((tick, i) => (
+                  <span
+                    key={i}
+                    data-tier-rail-label={tick.state}
+                    className={`absolute top-0 whitespace-nowrap font-mono text-[10px] leading-3 tabular-nums ${
+                      i === progress.ticks!.length - 1 ? "-translate-x-full" : "-translate-x-1/2"
+                    } ${tick.next ? "font-bold text-[#33D6FF]" : tick.state === "pending" ? "text-[#6B7280]" : "text-[#F2F3F5]"}`}
+                    style={{ left: `${tick.pct}%` }}
+                  >
+                    {tick.short}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
           )}
-            <span className="shrink-0 whitespace-nowrap font-mono text-[11.5px] tabular-nums text-[#9AA1AC]">
+            <span
+              className={`shrink-0 whitespace-nowrap font-mono text-[11.5px] tabular-nums text-[#9AA1AC] ${
+                !isMobile && progress.ticks ? "-mt-1.5" : ""
+              }`}
+            >
               <strong className="font-bold text-white">{fmtProgress(progress.value, progress.unit)}</strong> /{" "}
               {fmtProgress(progress.target, progress.unit)}
               {progress.unit && progress.unit !== "$" ? ` ${progress.unit}` : ""}

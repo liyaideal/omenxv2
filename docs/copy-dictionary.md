@@ -87,6 +87,7 @@ Single source of truth for user-visible field names across the app.
 | Canonical | Meaning | Banned variants |
 |---|---|---|
 | **$36,000 / $50,000** | 阶梯行进度文案：累计值 / 下一档目标，千分位 | $36000 / $200,000（最高档做分母） |
+| **2K / 30K / 200K**（标尺） | 桌面阶梯行进度条下每个刻度点的门槛，缩写 K 不带 `$`（计数指标 `1 / 3 / 10`）；已达白 / 下一档青 / 未达灰；只写门槛不写奖励 | $2,000, Tier 1 |
 | **$40 USDC** / **$25 voucher** | 奖励槽行 1 · 金额 + 单位词 + 奖励色（青 / lime），与直达行同配方：有可领显示可领和，全发显示累计，否则下一档面值；状态词在动作栏 | next $40, $40 ready, paid in USDC |
 | **$25 ready** | 奖励槽行 1 · 券档可领面值和（lime） | $25 claimable, Ready to claim |
 | **$400 credited** / **$85 claimed** | 奖励槽行 1 · 全档已发（USDC / 券）；活动已结束时显示已发部分 | Total earned, Paid out |

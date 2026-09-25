@@ -626,6 +626,21 @@ const LADDER_TASK: CampaignTaskDef = {
     { target: 200000, reward: { usdc: 200 } },
   ],
 };
+/** 8 rungs — the DESIGN ceiling; the tier rail's longest variant (45px between dots). */
+const LADDER_8_TASK: CampaignTaskDef = {
+  ...LADDER_TASK,
+  task_key: "vl_volume_ladder_8",
+  tiers: [
+    { target: 1000, reward: { usdc: 2 } },
+    { target: 2000, reward: { usdc: 4 } },
+    { target: 5000, reward: { usdc: 6 } },
+    { target: 10000, reward: { usdc: 10 } },
+    { target: 30000, reward: { usdc: 40 } },
+    { target: 50000, reward: { usdc: 40 } },
+    { target: 100000, reward: { usdc: 100 } },
+    { target: 200000, reward: { usdc: 200 } },
+  ],
+};
 /** Same ladder paid in vouchers — the branch that still needs a Claim. */
 const LADDER_VOUCHER_TASK: CampaignTaskDef = {
   ...LADDER_TASK,
@@ -686,6 +701,8 @@ export const TieredTaskRowStatesPreview = () => (
     <TieredTaskRow task={LADDER_TASK} grants={ladderGrants(LADDER_TASK, 0, 0, { notEligible: true })} onClaim={noop} />
     {/* R10 · ended, 2 credited */}
     <TieredTaskRow task={LADDER_TASK} grants={ladderGrants(LADDER_TASK, 7400, 2)} frozen onClaim={noop} />
+    {/* R11 · 8 rungs (ceiling) — tier rail at its densest, tiers 1–4 credited, tier 5 next */}
+    <TieredTaskRow task={LADDER_8_TASK} grants={ladderGrants(LADDER_8_TASK, 14200, 4)} onClaim={noop} />
     {/* V1 · voucher ladder: one tier ready → Claim $5 */}
     <TieredTaskRow task={LADDER_VOUCHER_TASK} grants={ladderGrants(LADDER_VOUCHER_TASK, 320, 0)} onClaim={noop} />
     {/* V2 · voucher ladder: two tiers ready → Claim all $25 */}

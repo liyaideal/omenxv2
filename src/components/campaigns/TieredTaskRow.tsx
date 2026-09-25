@@ -28,6 +28,9 @@ import { ClaimButton, TaskRowShell, type TaskRowTick } from "./TaskRowShell";
 
 const fmtUsd = (n: number) => `$${n.toLocaleString("en-US")}`;
 const fmtTarget = (n: number, unit: string) => (unit === "$" ? fmtUsd(n) : `${n} ${unit}`);
+/** Rail label: no `$` (the count next to the bar carries the unit), K-abbreviated — `2K`, `2.5K`, `100K`, `3`. */
+const fmtShort = (n: number) =>
+  n >= 1000 ? `${Number.isInteger(n / 1000) ? n / 1000 : (n / 1000).toFixed(1)}K` : `${n}`;
 
 type TierUnit = "usdc" | "voucher";
 const tierUnit = (t: CampaignTaskTier): TierUnit => ((t.reward?.usdc ?? 0) > 0 ? "usdc" : "voucher");
@@ -223,6 +226,8 @@ export const TieredTaskRow = ({
   const ticks: TaskRowTick[] = d.tiers.map((t) => ({
     pct: ((t.index + 1) / M) * 100,
     state: t.claimed ? "credited" : t.reached ? "reached" : "pending",
+    short: fmtShort(t.tier.target),
+    next: !d.allClaimed && !frozen && t.index === d.nextIdx,
     label: (
       <span>
         Tier {t.index + 1} · {fmtTarget(t.tier.target, metricUnit(task.metric))} →{" "}

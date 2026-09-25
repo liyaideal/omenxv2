@@ -150,6 +150,7 @@
 | 刻度点（tiered） | 等距 `n / M`，未达灰 / 已达青 / 已发青+暗芯；桌面 hover 单档 tooltip |
 | 当期后缀（recurring） | `$32 / $50 today`（周 `this week`）；当期达标后条填满变 lime |
 | 第三行（recurring） | 最近 14 期点阵（手机 7 期）+ `🔥 5-day streak`（≥2）/ `Last 14 days`；达标青、未达灰、bonus 期橙 `#FF8A3D`、今天空心、加入前虚线 |
+| 档位标尺（桌面） | tiered 行进度条 360px 下方，每个刻度点正下方写该档门槛：`2K / 30K / 200K`（K 缩写、不带 $；计数指标 `1 / 3 / 10`），已达白 / 下一档青 / 未达灰；只写门槛，奖励看 tooltip。移动端无标尺（抽屉全表）。DESIGN §Addendum 2026-09-23 规则 4b |
 | 奖励槽行 1 | 金额 + 单位词 + 奖励色（USDC 青 / voucher lime），与直达行同配方。tiered：下一档 `$40 USDC` / 可领和 `$25 voucher` / 全发累计 `$400 USDC`；recurring：每期 `$1 USDC` / 可领和 `$3 voucher` / Completed·Ended 累计 `$50 USDC`。状态词由动作栏承担 |
 | 奖励槽行 2 | tiered `4 / 7 tiers`；recurring `12 / 30 days`；手机带 `›` 起抽屉 |
 | 动作栏 | 未登录 `Sign in to start` → `Not eligible` → 已结束 `Ended` → `Completed` → 券可领 `Claim $X` / `Claim all $X`（顺序逐档，失败即停）→ 当期已达 `Done today` → 全部已发 `All credited` → 描边 CTA |
