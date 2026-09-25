@@ -8,7 +8,7 @@
 
 查什么去哪儿：
 - 长什么样 → 生产页 `/rewards/campaign/19033848-dc98-4a53-b4c5-d9e31b24a51f`（Starter Rewards，always-on：第 4–8 条任务分别是阶梯 / 每日 / 邀请阶梯 / 活跃天数 / 持仓）、`/rewards/campaign/a2222222-2222-4222-8222-aaaaaaaaaaa2`（Finals Week，ended：阶梯 + 每日各一条）、`/rewards?tab=referral`（好友被计入活动的行）
-- 什么时候变成什么样 → `/style-guide` → Lite → Rewards 状态字典 **RW-8b / 8c / 8d / 8d-b / 8e / 12b / 12c / 15**（每个 case 有「状态 / 触发条件 / 视觉 / 数据来源」表）
+- 什么时候变成什么样 → `/style-guide` → Lite → Rewards 状态字典 **RW-8b / 8c / 8d / 8d-b / 8d-c / 8e / 12b / 12c / 15**（每个 case 有「状态 / 触发条件 / 视觉 / 数据来源」表）
 - 字段名、文案、公式、时间口径、术语 → `docs/copy-dictionary.md`（顶部有「Lite 术语对照表」；Rewards 节「阶梯任务」「周期任务与指标」两小节）→ 本文档对应章节
 - 设计法则（刻度点、奖励槽两行、日历条、分段条、抽屉 / hover 对等）→ `DESIGN.md` §Addendum 2026-09-23 · 阶梯任务行、§Addendum 2026-09-25 · 周期任务行与指标行
 - Rewards 页整体（相位、九分支任务行、邀请、合规）→ `docs/delivery/lite-rewards-spec-v1.md`（本文档只写任务类型新增的部分）
@@ -20,17 +20,18 @@
 1. 打开 `/style-guide`（不用登录），左栏点 **Lite › Rewards**。
 2. 节点顶部「本页目录」按产品页从上到下排小节；本次样张全在 **Ⓒ Campaign 详情** 与 **Ⓓ Referral** 两个小节。
 3. 小节顶部黄框「定位行」写路由 / 词典节 / 交付文档。
-4. 每张样张 = `编号 · 状态名（组件名）` + iframe 里的真组件（桌面 100% / 手机 375），可交互：RW-8c / 8d-b 手机帧里的抽屉是挂开的；RW-8d 的时钟冻结在 2026-09-25 12:00 UTC，所以"今天"永远是 9 月 25 日。
+4. 每张样张 = `编号 · 状态名（组件名）` + iframe 里的真组件（桌面 100% / 手机 375），可交互：RW-8c / 8d-b / 8d-c 手机帧里的抽屉是挂开的，行卡帧里点 `›` 也能开抽屉（抽屉从点击行下方升起）；RW-8d 的时钟冻结在 2026-09-25 12:00 UTC，所以"今天"永远是 9 月 25 日。
 5. 样张下表「状态 / 触发条件 / 视觉 / 数据来源」——触发条件就是判定表达式，可直接照抄进实现。
 6. 页头搜索框敲 `RW-8d` 或 `recurring`，结果点了落到样张。
 7. 单张查看 / 截图：`/style-guide/preview?c=<key>`，key 见 §7。
 
-**编号规则**：RW 前缀 = Rewards；`b / c / d / e` 是同一模块（任务行）的类型变体样张，`8d-b` 是 8d 的二级面（抽屉）；`12b / 12c` 是入账 / streak 两种 toast。无 `-D` / `-M` 后缀，桌面 / 手机在同一编号的上下两帧。
+**编号规则**：RW 前缀 = Rewards；`b / c / d / e` 是同一模块（任务行）的类型变体样张，`8d-b` 是 8d 的二级面（抽屉），`8d-c` 是它的周任务变体；`12b / 12c` 是入账 / streak 两种 toast。无 `-D` / `-M` 后缀，桌面 / 手机在同一编号的上下两帧。
 
 **只在字典可见、生产凑不出条件的态**（既定状态，不是 bug）：
 - RW-8b 券阶梯四态、RW-8d 券版周期任务（D7）——生产只配了 USDC 版；券版行为已实现等运营配。
+- RW-8b 第 9 行「8 档上限」——生产最多配了 7 档；用来看档位标尺最密时的样子。
 - RW-8b / 8d 的 not_eligible——阶梯 / 周期任务目前没有 KOL 专属入口场景。
-- RW-8d D5「第 7 连今天橙点」、D8「30 / 30 Completed」、D9 周任务——演示账号还没跑到；服务端逻辑已按 §3 实测。
+- RW-8d D5「第 7 连今天橙点」、D8「30 / 30 Completed」、D9 周任务、RW-8d-c 周任务历史——演示账号还没跑到 / 生产没配周任务；服务端逻辑已按 §3 实测。
 - RW-8e 活跃天数 3/7、持仓 1/3 的进行中态——演示账号 alex 的真实数据已经达标入账（30 天 / 19 仓），生产页上这两条显示 `Credited`。
 
 ## 1. 功能目标
@@ -146,7 +147,7 @@
 | 槽 | 规格 |
 |---|---|
 | 进度单位 | `$` 前缀（金额）或后缀词 `friends / days / positions`（计数） |
-| 分段条 | 计数类指标且 target ≤ 10：N 段 22×5，达一段亮一段（青），全达 lime；否则连续条 |
+| 分段条 | 计数类指标且 target ≤ 10：N 段 22×5，达一段亮一段（青），全达 lime；否则连续条。文案列不够宽时（375 帧 7 段）段宽等比收缩到最低 10px，计数文字不折行 |
 | 刻度点（tiered） | 等距 `n / M`，未达灰 / 已达青 / 已发青+暗芯；桌面 hover 单档 tooltip |
 | 当期后缀（recurring） | `$32 / $50 today`（周 `this week`）；当期达标后条填满变 lime |
 | 第三行（recurring） | 最近 14 期点阵（手机 7 期）+ `🔥 5-day streak`（≥2）/ `Last 14 days`；达标青、未达灰、bonus 期橙 `#FF8A3D`、今天空心、加入前虚线 |
@@ -155,7 +156,7 @@
 | 奖励槽行 2 | tiered `4 / 7 tiers`；recurring `12 / 30 days`；手机带 `›` 起抽屉 |
 | 动作栏 | 未登录 `Sign in to start` → `Not eligible` → 已结束 `Ended` → `Completed` → 券可领 `Claim $X` / `Claim all $X`（顺序逐档，失败即停）→ 当期已达 `Done today` → 全部已发 `All credited` → 描边 CTA |
 
-二级面：tiered = `Tiers` tooltip（桌面）/ 抽屉（手机）列每档；recurring = `Daily progress` hover 卡（桌面）/ 抽屉（手机）：三格 KPI（Days done / Streak / Earned）+ 月历——**一次一个月**，默认当月，‹ › 在「第一条记录所在月 … 当月」之间切换，到头禁用；周任务只有 14 周点阵。历史起点 = max(任务第一条期记录, 加入活动)：任务后加进活动时，之前的日子留白不算 missed（点阵同理）。
+二级面：tiered = `Tiers` tooltip（桌面）/ 抽屉（手机）列每档；recurring = `Daily progress` hover 卡（桌面）/ 抽屉（手机）：三格 KPI（Days done / Streak / Earned；标签单行、数值贴底同底线，周任务是 `Weeks done`）+ 月历——**一次一个月**，默认当月，‹ › 在「第一条记录所在月 … 当月」之间切换，到头禁用；周任务只有 14 周点阵。历史起点 = max(任务第一条期记录, 加入活动)：任务后加进活动时，之前的日子留白不算 missed（点阵同理）。
 
 ### 4.2 反馈 toast（详情页加载时，一档一次，localStorage seen-set，首访静默）
 
@@ -176,12 +177,12 @@
 | 活动 | 任务 | 状态 |
 |---|---|---|
 | Starter Rewards | `vl_volume_ladder` | $36,000，t1–t4 已入账 |
-| | `daily_trade` | 9-11…9-24 共 12 天达标（9-14 / 9-19 断），今天 $32 进行中，🔥 5 |
+| | `daily_trade` | 相对今天（UTC）：最近 14 天里 12 天达标（D-11 $18 未达、D-6 未开始），今天 $32 进行中，🔥 5。**每天 00:02 UTC 由 `roll_demo_campaign_daily()`（pg_cron `roll-demo-campaign-daily`）按今天重写**，否则第二天就成「昨天没做、streak 归零」 |
 | | `invite_ladder` | 2 位好友被计入（Referral 分页两行 `Counted toward campaign`），t1 $5 已入账，t2 2/3 |
 | | `active_7d` / `hold_24h` | alex 真实数据已达标 → 已入账 $5 / $15 |
 | Finals Week（ended） | `fw_volume_ladder` / `fw_daily` | 阶梯 3/7 档已入账；每日 3 天达标 |
 
-`profiles.spot_balance` 与全部 `Campaign reward` 流水恒等。留档：`supabase/migrations/20260923150100_seed_volume_ladder_demo.sql`、`20260925100100_seed_task_types_r2_demo.sql`。
+`profiles.spot_balance` 与全部 `Campaign reward` 流水恒等。留档：`supabase/migrations/20260923150100_seed_volume_ladder_demo.sql`、`20260925100100_seed_task_types_r2_demo.sql`、`20260926000000_roll_demo_campaign_daily.sql`（滚动器，演示专用，正式版不需要）。
 
 ## 5. Admin 端：无
 
@@ -195,6 +196,7 @@
 | Ⓒ | 档位抽屉 / tooltip | RW-8c | `rewards-tiered-drawer` |
 | Ⓒ | RecurringTaskRow 周期任务全态 | RW-8d | `rewards-recurring-rows` |
 | Ⓒ | 周期任务历史（hover 卡 / 抽屉） | RW-8d-b | `rewards-recurring-drawer` |
+| Ⓒ | 周期任务历史 · 周任务变体 | RW-8d-c | `rewards-recurring-drawer-weekly` |
 | Ⓒ | 指标行（邀请 / 活跃天 / 持仓 + 邀请阶梯） | RW-8e | `rewards-metric-rows` |
 | Ⓒ | 自动入账 toast | RW-12b | `rewards-credited-toast` |
 | Ⓒ | streak bonus toast | RW-12c | `rewards-streak-toast` |
@@ -204,7 +206,7 @@
 
 **前端**：`src/components/campaigns/TieredTaskRow.tsx` · `RecurringTaskRow.tsx` · `CreditedToastBody.tsx` · `TaskRowShell.tsx` · `GrantTaskRow.tsx` · `ReferralPanel.tsx` · `src/pages/lite/LiteCampaignDetailPage.tsx` · `src/hooks/useCampaigns.ts`
 
-**后端**：`supabase/functions/claim-campaign-grant/index.ts` · `supabase/migrations/20260923150000_campaign_tiered_tasks.sql` · `20260925100000_campaign_task_types_r2.sql` · 演示留档 `20260923150100_*` / `20260925100100_*`
+**后端**：`supabase/functions/claim-campaign-grant/index.ts` · `supabase/migrations/20260923150000_campaign_tiered_tasks.sql` · `20260925100000_campaign_task_types_r2.sql` · 演示留档 `20260923150100_*` / `20260925100100_*` / `20260926000000_*`
 
 **字典**：`src/pages/StyleGuide/preview/rewardsPreviews.tsx` · `preview/registry.tsx` · `sections/RewardsStatesSection.tsx`
 

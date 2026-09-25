@@ -228,5 +228,6 @@
 | `type: recurring` 期 grant `<key>@<YYYY-MM-DD \| IYYY-Www>`、bonus `<key>#s<n>`、`max_periods` | 🟡 | 键法与 progress 键名照抄；UTC 日 / ISO 周边界 |
 | `referrals_campaign_hook()`：好友合格 → 邀请人任务 + `referrals.metadata.counted_toward` + status `rewarded` | 🟢 | 邀请不叠加语义：合格事件先判"邀请人是否在含 `referrals_qualified` 任务的 live 活动里"，是则不再发每人券 |
 | `hold_positions`：平仓事件 + pg_cron `campaign-hold-sweep`（每小时 :15） | 🟡 | 正式版可改事件驱动；含自动平仓 |
+| 演示滚动器 `roll_demo_campaign_daily()` + pg_cron `roll-demo-campaign-daily`（00:02 UTC） | 🔴 演示专用 | 只重写 alex_carter 的 daily_trade 期记录与对应流水；正式版不存在 |
 | `active_days`：distinct UTC 日，`min_notional` 缺省 $10 | 🟡 | 照抄 |
 | `claim-campaign-grant` 解析 `@period` / `#s<n>` | 🟡 | 只服务券 |

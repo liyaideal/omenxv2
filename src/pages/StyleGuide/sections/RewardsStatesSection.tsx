@@ -588,7 +588,17 @@ const DETAIL_CASES: SectionCase[] = [
       { state: "月历", when: "daily 任务", visual: "一次一个月、整月画满，7 列周一起；达标日实心青带日期、未达灰实心、bonus 橙、今天空心、第一条记录之前与未来虚线空圈灰日期", source: "RecurringHistory grid" },
       { state: "切月 ‹ ›", when: "默认当月；范围 = 第一条记录所在月 … 当月，到头按钮 30% 透明禁用", visual: "标题行两侧 28px 圆按钮 ChevronLeft / ChevronRight", source: "RecurringHistory navBtn" },
       { state: "历史起点", when: "max(任务第一条期记录, 加入活动)", visual: "任务后加进活动时，加入到任务出现之间的日子不算 missed（空白），点阵同理", source: "deriveRecurring joinStart" },
-      { state: "周任务", when: "period = weekly", visual: "无月历，只有 14 周点阵", source: "RecurringHistory" },
+      { state: "周任务", when: "period = weekly", visual: "无月历，只有 14 周点阵（见 RW-8d-c）", source: "RecurringHistory" },
+      { state: "KPI 格对齐", when: "恒显（标签是模板变量 `${noun} done`）", visual: "标签单行 `whitespace-nowrap` 字距 0.06em、数值 `mt-auto` 贴底；三格数值底线全等", source: "DESIGN §Addendum 2026-09-25 规则 10" },
+    ],
+  },
+  {
+    key: "rewards-recurring-drawer-weekly",
+    label: "RW-8d-c · 周期任务历史 · 周任务变体（RecurringHistory · weekly）",
+    note: "最长文案变体：`WEEKS DONE` 比 `DAYS DONE` 多一个字母，2026-09-25 曾在 92px KPI 格折行；本 case 固定渲染它。无月历，14 周点阵。手机帧抽屉挂开。",
+    spec: [
+      { state: "KPI 三格", when: "period = weekly", visual: "`Weeks done 2 / 8` · `Streak 🔥 2` · `Earned $10`，标签单行、数值同底线", source: "RecurringHistory Kpi" },
+      { state: "点阵", when: "weekly", visual: "14 周，达标青 / 未达灰 / 本周空心；无月历", source: "RecurringHistory" },
     ],
   },
   {
@@ -1160,6 +1170,9 @@ export const RewardsStatesSection = () => (
         </div>
         <div className="mt-6">
           <Pair cases={byKey("rewards-recurring-drawer")} desktopMin={220} mobileMin={780} />
+        </div>
+        <div className="mt-6">
+          <Pair cases={byKey("rewards-recurring-drawer-weekly")} desktopMin={220} mobileMin={520} />
         </div>
         <div className="mt-6">
           <Pair cases={byKey("rewards-metric-rows")} desktopMin={620} mobileMin={1100} />

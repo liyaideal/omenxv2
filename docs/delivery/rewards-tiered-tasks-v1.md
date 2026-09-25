@@ -161,16 +161,7 @@
 
 1. **进度条刻度点**：每档一个 8px 圆，等距 `n / M`，外圈 2px 卡底色描边；未达 `#2B2F38`、已达未领 `#33D6FF`、已发 `#33D6FF` + 55% 暗芯。桌面 hover 出 tooltip `Tier 4 · $30,000 → $40 USDC · Credited`。
 2. **进度文案** `$36,000 / $50,000`（千分位，分母 = 下一档）。手机端阶梯行的进度条通栏、数字换行右对齐（7–8 个刻度点才放得开）。
-3. **奖励槽两行**（92px，不带单位词）：
-
-| 情形 | 行 1 | 行 2 |
-|---|---|---|
-| 有券档可领 | lime `$25 ready` | `2 / 3 tiers` |
-| 无可领、有未达 | 灰 `next $40` | `4 / 7 tiers` |
-| 全部已发 | 灰 `$400 credited`（USDC）/ `$85 claimed`（券） | `7 / 7 tiers` |
-| 活动已结束 | 灰 `$20 credited`（已发部分） | `3 / 7 tiers` |
-
-行 2 桌面 hover 出全档表 tooltip；手机带 `›`，点开底部抽屉（`MobileDrawer`，标题 `Tiers`，副题 `<task> · $36,000 traded`，每档：状态点 / `$target` + `Tier n` / 奖励 / `Credited` · `Ready` · `Locked`；券档 `Ready` 行内可单独 Claim）。
+3. **奖励槽两行**：2026-09-25 起改为「金额 + 单位词 + 奖励色」（`$40 USDC` / `$25 voucher`），状态词只在动作栏；桌面进度条下加档位标尺（2026-09-26）。**以 `rewards-task-types-v1.md` §4.1 与 DESIGN §Addendum 2026-09-23 规则 4b / 5 为准，本节原文已废。**
 
 **动作栏优先级**：`Sign in to start`（未登录）→ `Not eligible` → 已结束（`All credited` / `Ended`）→ 券档可领（1 档 `Claim $5`，≥2 档 `Claim all $25`，顺序逐档调 `claim-campaign-grant`，失败即停、已领档保持）→ 全部已发（`All credited` / `All claimed`）→ 描边 CTA（`Trade`）。
 

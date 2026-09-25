@@ -883,6 +883,16 @@ export const RecurringTaskRowStatesPreview = () => (
 );
 
 /** Mobile: drawer mounted open (fixture prop). Desktop: the row — hover the strip for the month card. */
+/** RW-8d-c · weekly variant of the history sheet — the longer KPI label (`WEEKS DONE`) that wrapped on 2026-09-25. */
+export const RecurringTaskRowDrawerWeeklyPreview = () => (
+  <div className="min-h-[520px] p-4 md:min-h-0">
+    <RecurringTaskRow task={WEEKLY_TASK} grants={R.d9} joinedAt={R_JOIN} onClaim={rNoop} now={R_NOW} defaultDrawerOpen />
+    <p className="mt-3 text-center text-[11px] leading-4 text-muted-foreground">
+      周任务的历史面：KPI 标签 <code className="text-[11px] text-foreground">WEEKS DONE</code> 单行、三格数值同一底线；无月历，只有 14 周点阵。
+    </p>
+  </div>
+);
+
 export const RecurringTaskRowDrawerPreview = () => (
   <div className="min-h-[720px] p-4 md:min-h-0">
     <RecurringTaskRow task={DAILY_TASK} grants={R.d3m} joinedAt="2026-08-28T09:00:00Z" onClaim={rNoop} now={R_NOW} defaultDrawerOpen />

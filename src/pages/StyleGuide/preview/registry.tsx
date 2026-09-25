@@ -660,6 +660,7 @@ export const previewRegistry: Record<string, Loader> = {
   "rewards-credited-toast": pick(rewards, "CreditedToastPreview"),
   "rewards-recurring-rows": pick(rewards, "RecurringTaskRowStatesPreview"),
   "rewards-recurring-drawer": pick(rewards, "RecurringTaskRowDrawerPreview"),
+  "rewards-recurring-drawer-weekly": pick(rewards, "RecurringTaskRowDrawerWeeklyPreview"),
   "rewards-streak-toast": pick(rewards, "StreakBonusToastPreview"),
   "rewards-metric-rows": pick(rewards, "MetricTaskRowsPreview"),
   "rewards-kol-band": pick(rewards, "KolBandPreview"),
