@@ -40,6 +40,12 @@ const isoWeekKey = (d: Date) => {
   const week = Math.floor((isoWeekStart(t).getTime() - w1.getTime()) / (7 * DAY)) + 1;
   return `${y}-W${String(week).padStart(2, "0")}`;
 };
+/** `IYYY-Www` → Monday 00:00 UTC of that ISO week. */
+const isoWeekStartFromKey = (key: string) => {
+  const [y, w] = key.split("-W").map(Number);
+  const jan4 = new Date(Date.UTC(y, 0, 4));
+  return new Date(isoWeekStart(jan4).getTime() + (w - 1) * 7 * DAY);
+};
 export const periodKeyOf = (period: "daily" | "weekly", d: Date) =>
   period === "weekly" ? isoWeekKey(d) : utcDay(d).toISOString().slice(0, 10);
 const periodStartOf = (period: "daily" | "weekly", d: Date) => (period === "weekly" ? isoWeekStart(d) : utcDay(d));
@@ -110,7 +116,20 @@ export const deriveRecurring = (
     cursor = periodPrev(period, cursor);
   }
 
-  const joinStart = joinedAt ? periodStartOf(period, new Date(joinedAt)) : null;
+  // The task may have been added to the campaign long after the user joined: history
+  // starts at the task's first period record (or join, whichever is later), never earlier —
+  // days before that are "pre" (blank), not "missed".
+  const earliestKey = [...periods.keys()].sort()[0];
+  const earliestStart = earliestKey
+    ? period === "weekly"
+      ? isoWeekStartFromKey(earliestKey)
+      : new Date(`${earliestKey}T00:00:00Z`)
+    : null;
+  const joinStartRaw = joinedAt ? periodStartOf(period, new Date(joinedAt)) : null;
+  const joinStart =
+    earliestStart && joinStartRaw
+      ? new Date(Math.max(earliestStart.getTime(), joinStartRaw.getTime()))
+      : earliestStart ?? joinStartRaw;
   const every = task.streak_bonus?.every ?? 0;
 
   // cells from `from` to today, with a running streak so bonus days are marked
@@ -141,10 +160,9 @@ export const deriveRecurring = (
   };
   const todayStart = periodStartOf(period, now);
   const strip = cellsFrom(new Date(todayStart.getTime() - 13 * (period === "weekly" ? 7 : 1) * DAY));
-  const earliestGrant = [...periods.keys()].sort()[0];
-  const monthFrom =
-    joinStart ??
-    (earliestGrant ? periodStartOf(period, new Date(period === "weekly" ? now : `${earliestGrant}T00:00:00Z`)) : todayStart);
+  // month calendar: from the first record (≥ join) to today, capped at ~2 months so the card fits
+  const cap = new Date(todayStart.getTime() - 62 * DAY);
+  const monthFrom = joinStart ? new Date(Math.max(joinStart.getTime(), cap.getTime())) : todayStart;
   const monthCells = period === "daily" ? cellsFrom(monthFrom) : [];
 
   const claimable = [...periods.values(), ...bonuses].filter((g) => g.status === "claimable");
