@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CircleSlash, Loader2, Repeat } from "lucide-react";
+import { ChevronLeft, ChevronRight, CircleSlash, Loader2, Repeat } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { CampaignGrant, CampaignTaskDef, GrantStatus } from "@/hooks/useCampaigns";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -160,10 +160,9 @@ export const deriveRecurring = (
   };
   const todayStart = periodStartOf(period, now);
   const strip = cellsFrom(new Date(todayStart.getTime() - 13 * (period === "weekly" ? 7 : 1) * DAY));
-  // month calendar: from the first record (≥ join) to today, capped at ~2 months so the card fits
-  const cap = new Date(todayStart.getTime() - 62 * DAY);
-  const monthFrom = joinStart ? new Date(Math.max(joinStart.getTime(), cap.getTime())) : todayStart;
-  const monthCells = period === "daily" ? cellsFrom(monthFrom) : [];
+  // month calendar: every day from the first record (≥ join) to today; the history view
+  // shows ONE month at a time with ‹ › navigation, so this never grows the card
+  const monthCells = period === "daily" ? cellsFrom(joinStart ?? todayStart) : [];
 
   const claimable = [...periods.values(), ...bonuses].filter((g) => g.status === "claimable");
   const claimableSum = claimable.reduce(
@@ -248,14 +247,21 @@ const Kpi = ({ label, value, color }: { label: string; value: string; color?: st
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-/** Month calendar (daily tasks) — one grid per month from join to today. Weekly tasks list weeks. */
+/**
+ * History (daily tasks): one month at a time, ‹ › between the first record's month and the
+ * current month, opening on the current month. Weekly tasks list the last 14 weeks.
+ */
 export const RecurringHistory = ({ task, d }: { task: CampaignTaskDef; d: RecurringDerived }) => {
   const noun = d.period === "weekly" ? "weeks" : "days";
   const months = new Map<string, PeriodCell[]>();
   d.monthCells.forEach((c) => {
-    const k = `${c.start.getUTCFullYear()}-${c.start.getUTCMonth()}`;
+    const k = `${c.start.getUTCFullYear()}-${String(c.start.getUTCMonth()).padStart(2, "0")}`;
     months.set(k, [...(months.get(k) ?? []), c]);
   });
+  const monthKeys = [...months.keys()].sort();
+  const [idx, setIdx] = useState(Math.max(0, monthKeys.length - 1));
+  const shown = monthKeys[Math.min(idx, monthKeys.length - 1)];
+  const cells = shown ? months.get(shown)! : [];
   return (
     <div>
       <div className="mb-3 text-[12px] text-[#9AA1AC]">
@@ -266,14 +272,30 @@ export const RecurringHistory = ({ task, d }: { task: CampaignTaskDef; d: Recurr
         <Kpi label="Streak" value={d.streak >= 2 ? `🔥 ${d.streak}` : `${d.streak}`} color={d.streak >= 2 ? "#FF8A3D" : undefined} />
         <Kpi label="Earned" value={`$${d.earned}`} color={d.unit === "usdc" ? "#33D6FF" : "#CFFF4A"} />
       </div>
-      {d.period === "daily" ? (
-        [...months.entries()].map(([k, cells]) => {
+      {d.period === "daily" && cells.length > 0 ? (
+        (() => {
           const first = cells[0].start;
           const lead = (first.getUTCDay() + 6) % 7; // Monday-first offset of the first cell
+          const navBtn = (dir: -1 | 1, disabled: boolean) => (
+            <button
+              type="button"
+              aria-label={dir < 0 ? "Previous month" : "Next month"}
+              disabled={disabled}
+              onClick={() => setIdx((i) => i + dir)}
+              className="grid h-7 w-7 place-items-center rounded-full text-[#C9CED6] hover:bg-[#2B2F38] disabled:opacity-30 disabled:hover:bg-transparent"
+              data-month-nav={dir < 0 ? "prev" : "next"}
+            >
+              {dir < 0 ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+            </button>
+          );
           return (
-            <div key={k} className="mt-2">
-              <div className="mb-1.5 font-display text-[12px] font-semibold text-[#9AA1AC]">
-                {MONTHS[first.getUTCMonth()]} {first.getUTCFullYear()}
+            <div className="mt-2">
+              <div className="mb-1.5 flex items-center justify-between">
+                {navBtn(-1, idx <= 0)}
+                <div className="font-display text-[12px] font-semibold text-[#9AA1AC]" data-month-label>
+                  {MONTHS[first.getUTCMonth()]} {first.getUTCFullYear()}
+                </div>
+                {navBtn(1, idx >= monthKeys.length - 1)}
               </div>
               <div className="grid grid-cols-7 gap-1.5">
                 {["M", "T", "W", "T", "F", "S", "S"].map((w, i) => (
@@ -307,7 +329,7 @@ export const RecurringHistory = ({ task, d }: { task: CampaignTaskDef; d: Recurr
               </div>
             </div>
           );
-        })
+        })()
       ) : (
         <div className="mt-2 flex gap-1">
           {d.strip.map((c) => (

@@ -585,7 +585,9 @@ const DETAIL_CASES: SectionCase[] = [
     note: "手机帧抽屉挂开（fixture prop `defaultDrawerOpen`）；桌面帧只有行卡，hover 点阵弹同一份月历卡。",
     spec: [
       { state: "KPI 三格", when: "恒显", visual: "`Days done 12 / 30` · `Streak 🔥 5`（橙）· `Earned $12`（青 / 券 lime）", source: "RecurringHistory Kpi" },
-      { state: "月历", when: "daily 任务", visual: "7 列周一起；达标日实心青带日期、bonus 橙、今天空心、加入前空白", source: "RecurringHistory grid" },
+      { state: "月历", when: "daily 任务", visual: "一次一个月，7 列周一起；达标日实心青带日期、bonus 橙、今天空心、第一条记录之前空白", source: "RecurringHistory grid" },
+      { state: "切月 ‹ ›", when: "默认当月；范围 = 第一条记录所在月 … 当月，到头按钮 30% 透明禁用", visual: "标题行两侧 28px 圆按钮 ChevronLeft / ChevronRight", source: "RecurringHistory navBtn" },
+      { state: "历史起点", when: "max(任务第一条期记录, 加入活动)", visual: "任务后加进活动时，加入到任务出现之间的日子不算 missed（空白），点阵同理", source: "deriveRecurring joinStart" },
       { state: "周任务", when: "period = weekly", visual: "无月历，只有 14 周点阵", source: "RecurringHistory" },
     ],
   },

@@ -825,6 +825,8 @@ const R = {
     { doneBefore: Array.from({ length: 16 }, (_, i) => dayKey(14 + i)) },
   ),
   // weekly keys are ISO weeks: 2026-09-25 is W39; W37 + W38 done, W39 in progress
+  // drawer / hover fixture: D3 + two August days so the ‹ › month navigation has somewhere to go
+  d3m: recurringGrants(DAILY_TASK, [1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0], { value: 32 }, { doneBefore: ["2026-08-30", "2026-08-31", "2026-09-11"] }),
   d9: (["2026-W37", "2026-W38"].map((w) => ({
     id: `g-w-${w}`,
     entryId: "entry-recurring",
@@ -866,9 +868,9 @@ export const RecurringTaskRowStatesPreview = () => (
 /** Mobile: drawer mounted open (fixture prop). Desktop: the row — hover the strip for the month card. */
 export const RecurringTaskRowDrawerPreview = () => (
   <div className="min-h-[720px] p-4 md:min-h-0">
-    <RecurringTaskRow task={DAILY_TASK} grants={R.d3} joinedAt={R_JOIN} onClaim={rNoop} now={R_NOW} defaultDrawerOpen />
+    <RecurringTaskRow task={DAILY_TASK} grants={R.d3m} joinedAt="2026-08-28T09:00:00Z" onClaim={rNoop} now={R_NOW} defaultDrawerOpen />
     <p className="mt-3 text-center text-[11px] leading-4 text-muted-foreground">
-      手机点 <code className="text-[11px] text-foreground">12 / 30 days ›</code> 起抽屉；桌面 hover 日历条弹同一份月历卡。
+      手机点 <code className="text-[11px] text-foreground">14 / 30 days ›</code> 起抽屉；桌面 hover 日历条弹同一份月历卡。月历一次一个月，‹ › 在第一条记录的月份与当月之间切换（此 fixture 从 8 月 28 日起）。
     </p>
   </div>
 );

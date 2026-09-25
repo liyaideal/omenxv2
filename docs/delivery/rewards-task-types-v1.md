@@ -154,7 +154,7 @@
 | 奖励槽行 2 | tiered `4 / 7 tiers`；recurring `12 / 30 days`；手机带 `›` 起抽屉 |
 | 动作栏 | 未登录 `Sign in to start` → `Not eligible` → 已结束 `Ended` → `Completed` → 券可领 `Claim $X` / `Claim all $X`（顺序逐档，失败即停）→ 当期已达 `Done today` → 全部已发 `All credited` → 描边 CTA |
 
-二级面：tiered = `Tiers` tooltip（桌面）/ 抽屉（手机）列每档；recurring = `Daily progress` hover 卡（桌面）/ 抽屉（手机）：三格 KPI（Days done / Streak / Earned）+ 月历（从加入日起，按月分段；周任务只有点阵）。
+二级面：tiered = `Tiers` tooltip（桌面）/ 抽屉（手机）列每档；recurring = `Daily progress` hover 卡（桌面）/ 抽屉（手机）：三格 KPI（Days done / Streak / Earned）+ 月历——**一次一个月**，默认当月，‹ › 在「第一条记录所在月 … 当月」之间切换，到头禁用；周任务只有 14 周点阵。历史起点 = max(任务第一条期记录, 加入活动)：任务后加进活动时，之前的日子留白不算 missed（点阵同理）。
 
 ### 4.2 反馈 toast（详情页加载时，一档一次，localStorage seen-set，首访静默）
 
