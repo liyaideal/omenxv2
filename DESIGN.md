@@ -2175,7 +2175,7 @@ Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED
 4. **二级面对等件**：桌面 hover 点阵 → HoverCard 320px（`#1B1E24` / `#2B2F38`）；手机点行 2 `›` → MobileDrawer。同一份 `RecurringHistory`：三格 KPI（Days done / Streak / Earned）+ 月历（一次一个月，标题行两侧 28px ‹ › 切月，范围第一条记录所在月…当月，到头 30% 透明禁用；7 列周一起、36px 圆格；**整月画满**：第一条记录之前与今天之后的日子 1px 虚线空圈 + 灰 `#3A3F47` 日期，不留白；周任务只有点阵）。历史起点 = max(任务第一条期记录, 加入活动)，之前不算 missed——弹层高度因此固定，不随任务跑多久增长。
 5. **奖励槽两行不变**（92px nowrap）：行 1 每期奖励 **金额 + 单位词 + 奖励色**（`$1 USDC` / 券 `$1 voucher`；有可领显示可领和 `$3 voucher`；Completed / Ended 显示累计 `$50 USDC`），状态词由动作栏承担；行 2 `12 / 30 days`（无上限 `12 days`；周 `weeks`）。
 6. **指标单位**：进度文案按 metric 带单位——金额 `$` 前缀；计数后缀词 `friends / days / positions`，不带 `$`。图标 UserPlus / CalendarCheck / Clock；邀请指标缺省 CTA `Invite`。
-7. **分段条**：计数指标且 target ≤ 10 → N 段 22×5 圆角、间距 5，达一段亮一段（青），全达全 lime；target > 10 或金额类回落连续条。
+7. **分段条**：计数指标且 target ≤ 10 → N 段 22×5 圆角、间距 5，达一段亮一段（青），全达全 lime；target > 10 或金额类回落连续条。文案列不够宽时（375 帧 7 段 + `3 / 7 days`）段宽等比收缩、最低 10px，计数文字 `shrink-0` 不折行（2026-09-25 RW-12c 溢出修正）。
 8. **行高预算**：threshold 行 ≈ 74px，recurring 行 ≈ 118px（多一行点阵）；一个活动里 recurring 任务建议 ≤ 2 条。
 9. **Referral 分页 counted 行**：不 faded、无奖励槽、右侧青 `Counted toward campaign`；副标题追加 `· counted toward <campaign>`。
 10. **KPI 格三断言（2026-09-25 Weekly 弹窗 `WEEKS DONE` 折行事故后立，全站等宽 KPI 格通用）**：同排等宽 KPI 格的标签**单行**（`whitespace-nowrap`，字距可缩到 0.06em、内距可缩到 8px 换空间），数值 **`flex-col + mt-auto` 贴底**——对齐靠结构保证，不靠标签恰好一样长；凡标签/数值是模板变量（`${noun} done`、单复数、币种词），设计与字典必须**渲染最长变体**（weekly ≥ daily、voucher ≥ USDC）。取证三断言：`getClientRects().length === 1`（未折行）、`scrollWidth <= clientWidth`（未溢出）、同排数值 `getBoundingClientRect().bottom` 全等。

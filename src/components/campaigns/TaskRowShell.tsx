@@ -108,11 +108,13 @@ export const TaskRowShell = ({
             }`}
           >
           {progress.steps && progress.target <= 10 ? (
-            <div className="flex items-center gap-[5px]" data-progress-steps={progress.target}>
+            <div className="flex min-w-0 flex-1 items-center gap-[5px]" data-progress-steps={progress.target}>
+              {/* 22px segments; shrink evenly (never below 10px) when the copy column is narrower than N×22 —
+                  2026-09-25: 7 segments + "3 / 7 days" overflowed the 375 frame in RW-12c */}
               {Array.from({ length: Math.max(1, Math.round(progress.target)) }, (_, i) => (
                 <span
                   key={i}
-                  className="h-[5px] w-[22px] rounded-full"
+                  className="h-[5px] w-[22px] min-w-[10px] shrink rounded-full"
                   style={{
                     background:
                       i < progress.value
@@ -163,7 +165,7 @@ export const TaskRowShell = ({
               })}
             </div>
           )}
-            <span className="whitespace-nowrap font-mono text-[11.5px] tabular-nums text-[#9AA1AC]">
+            <span className="shrink-0 whitespace-nowrap font-mono text-[11.5px] tabular-nums text-[#9AA1AC]">
               <strong className="font-bold text-white">{fmtProgress(progress.value, progress.unit)}</strong> /{" "}
               {fmtProgress(progress.target, progress.unit)}
               {progress.unit && progress.unit !== "$" ? ` ${progress.unit}` : ""}
