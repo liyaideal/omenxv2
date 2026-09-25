@@ -6,7 +6,7 @@
 -- profiles.spot_balance += 80 to stay equal to the 7 bonus transactions.
 
 UPDATE campaign_entries
-   SET rules = jsonb_set(rules, '{tasks}', (rules->'tasks') || $j$[{"task_key":"vl_volume_ladder","type":"tiered","name":"Cumulative trading volume","subtitle":"Every filled order on any market counts · rewards paid in USDC","metric":"usd_volume","scope":{"any_market":true},"cta":{"label":"Trade","href":"/events"},"tiers":[{"target":2000,"reward":{"usdc":4}},{"target":5000,"reward":{"usdc":6}},{"target":10000,"reward":{"usdc":10}},{"target":30000,"reward":{"usdc":40}},{"target":50000,"reward":{"usdc":40}},{"target":100000,"reward":{"usdc":100}},{"target":200000,"reward":{"usdc":200}}]}]$j$::jsonb),
+   SET rules = jsonb_set(rules, '{tasks}', (rules->'tasks') || $j$[{"task_key":"vl_volume_ladder","type":"tiered","name":"Cumulative trading volume","subtitle":"Every filled order on any market counts","metric":"usd_volume","scope":{"any_market":true},"cta":{"label":"Trade","href":"/events"},"tiers":[{"target":2000,"reward":{"usdc":4}},{"target":5000,"reward":{"usdc":6}},{"target":10000,"reward":{"usdc":10}},{"target":30000,"reward":{"usdc":40}},{"target":50000,"reward":{"usdc":40}},{"target":100000,"reward":{"usdc":100}},{"target":200000,"reward":{"usdc":200}}]}]$j$::jsonb),
        reward = coalesce(reward,'{}'::jsonb) || '{"usdc": 400}'::jsonb
  WHERE id = '690c42ff-a87d-4201-937f-311c8c4432d5';
 
@@ -27,7 +27,7 @@ INSERT INTO transactions (user_id, type, amount, account, description, status, c
 
 -- ended campaign (Finals Week) — same ladder scoped to sports, 3 of 7 credited before it ended
 UPDATE campaign_entries
-   SET rules = jsonb_set(rules, '{tasks}', (rules->'tasks') || $j$[{"task_key":"fw_volume_ladder","type":"tiered","name":"Finals volume ladder","subtitle":"Every filled order on a Finals market counts · rewards paid in USDC","metric":"usd_volume","scope":{"categories":["sports"]},"tiers":[{"target":2000,"reward":{"usdc":4}},{"target":5000,"reward":{"usdc":6}},{"target":10000,"reward":{"usdc":10}},{"target":30000,"reward":{"usdc":40}},{"target":50000,"reward":{"usdc":40}},{"target":100000,"reward":{"usdc":100}},{"target":200000,"reward":{"usdc":200}}]}]$j$::jsonb),
+   SET rules = jsonb_set(rules, '{tasks}', (rules->'tasks') || $j$[{"task_key":"fw_volume_ladder","type":"tiered","name":"Finals volume ladder","subtitle":"Every filled order on a Finals market counts","metric":"usd_volume","scope":{"categories":["sports"]},"tiers":[{"target":2000,"reward":{"usdc":4}},{"target":5000,"reward":{"usdc":6}},{"target":10000,"reward":{"usdc":10}},{"target":30000,"reward":{"usdc":40}},{"target":50000,"reward":{"usdc":40}},{"target":100000,"reward":{"usdc":100}},{"target":200000,"reward":{"usdc":200}}]}]$j$::jsonb),
        reward = '{"usdc": 402, "voucher": 16}'::jsonb
  WHERE id = 'b2222222-2222-4222-8222-bbbbbbbbbbb2';
 INSERT INTO campaign_grants (user_id, entry_id, task_key, progress, status) VALUES

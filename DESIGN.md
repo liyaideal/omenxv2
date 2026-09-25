@@ -2151,7 +2151,7 @@ Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED
 2. **字量封顶**：任务行文案 = 标题 + 副标题 + 一个进度数字，**不随档数增长**；任何"第几档 / 下一档是什么 / 还差多少"的说明句禁止进行卡，只能进 tooltip / 抽屉。
 3. **刻度点**：8px 圆，居中于 5px 条，**等距** `n / M`（不按金额比例），外圈 2px 卡底色描边；三态 未达 `#2B2F38` / 已达未领 `#33D6FF` / 已发 `#33D6FF` + 内圈 55% `#0A0B0D` 暗芯。填充在当前段内线性插值。
 4. **进度文案**：`$value / $nextTarget`，千分位；分母恒为下一个未达档，全达后为最高档。
-5. **奖励槽两行**：行 1 13.5/700 nowrap（可领 lime `#CFFF4A` `$X ready`；否则灰 `#9AA1AC` `next $R` / `$T credited` / `$T claimed`，**不带单位词**）；行 2 11.5 `#6B7280` `N / M tiers`（手机加 `›`）。单位词由副标题、hero pill、tooltip、抽屉承担。
+5. **奖励槽两行**：行 1 13.5/700 nowrap，与直达行同配方 **金额 + 单位词 + 奖励色**（USDC 青 `#33D6FF` `$40 USDC`、券 lime `#CFFF4A` `$25 voucher`）：有可领显示可领和，全发/冻结显示累计已发，否则显示下一档面值；状态词（next / ready / credited）不进这一行，由动作栏承担；行 2 11.5 `#6B7280` `N / M tiers`（手机加 `›`）。副标题不写单位（2026-09-25 修正：单位回到第二列）。
 6. **二级信息对等件**：桌面 = Radix Tooltip（刻度点 → 单档；行 2 → 全档表 300px）；手机 = `MobileDrawer` 标题 `Tiers`。同一份 `TierList` 渲染，抽屉可带 Claim，tooltip 不带。
 7. **手机进度条**：阶梯行通栏，数字换行右对齐（`flex-col items-end`），保证 7–8 个刻度点可辨；threshold 行仍是同行。
 8. **动作栏**：只用现有两种按钮（白底 Claim / 描边 CTA）与灰字状态；Claim 文案带金额 `Claim $5` / `Claim all $25`。USDC 档没有任何领取动作。
@@ -2173,7 +2173,7 @@ Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED
 2. **第三行 = 点阵**：桌面最近 14 期、手机最近 7 期，14px 圆点间距 4px，最右今天。达标 `#33D6FF`、未达 `#2B2F38`、拿到 streak bonus 那期 `#FF8A3D`（状态橙，与体育 TB 同一语义色，不新增颜色）、今天空心 1.5px 青描边（已达标实心）、加入活动前 1px 虚线空。右侧 11px：streak ≥ 2 橙 600 `🔥 5-day streak`，否则灰 `Last 14 days`；Completed `30 / 30 days done`。
 3. **点阵与数字同源**：行卡上 streak / 橙点 / done / earned 全部由 `deriveRecurring()` 从 grant 推导；禁止各画各的（2026-09-25 mock 复盘：D8 火苗与点阵对不上就是这么来的）。
 4. **二级面对等件**：桌面 hover 点阵 → HoverCard 320px（`#1B1E24` / `#2B2F38`）；手机点行 2 `›` → MobileDrawer。同一份 `RecurringHistory`：三格 KPI（Days done / Streak / Earned）+ 月历（一次一个月，标题行两侧 28px ‹ › 切月，范围第一条记录所在月…当月，到头 30% 透明禁用；7 列周一起、36px 圆格；**整月画满**：第一条记录之前与今天之后的日子 1px 虚线空圈 + 灰 `#3A3F47` 日期，不留白；周任务只有点阵）。历史起点 = max(任务第一条期记录, 加入活动)，之前不算 missed——弹层高度因此固定，不随任务跑多久增长。
-5. **奖励槽两行不变**（92px nowrap）：行 1 `$1 today` / `$1 credited` / `$1 ready` / 累计 `$50 credited`；行 2 `12 / 30 days`（无上限 `12 days`；周 `weeks`）。
+5. **奖励槽两行不变**（92px nowrap）：行 1 每期奖励 **金额 + 单位词 + 奖励色**（`$1 USDC` / 券 `$1 voucher`；有可领显示可领和 `$3 voucher`；Completed / Ended 显示累计 `$50 USDC`），状态词由动作栏承担；行 2 `12 / 30 days`（无上限 `12 days`；周 `weeks`）。
 6. **指标单位**：进度文案按 metric 带单位——金额 `$` 前缀；计数后缀词 `friends / days / positions`，不带 `$`。图标 UserPlus / CalendarCheck / Clock；邀请指标缺省 CTA `Invite`。
 7. **分段条**：计数指标且 target ≤ 10 → N 段 22×5 圆角、间距 5，达一段亮一段（青），全达全 lime；target > 10 或金额类回落连续条。
 8. **行高预算**：threshold 行 ≈ 74px，recurring 行 ≈ 118px（多一行点阵）；一个活动里 recurring 任务建议 ≤ 2 条。

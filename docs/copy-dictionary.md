@@ -87,7 +87,7 @@ Single source of truth for user-visible field names across the app.
 | Canonical | Meaning | Banned variants |
 |---|---|---|
 | **$36,000 / $50,000** | 阶梯行进度文案：累计值 / 下一档目标，千分位 | $36000 / $200,000（最高档做分母） |
-| **next $40** | 奖励槽行 1 · 无可领有未达：下一档奖励面值，不带单位词（单位在副标题 / hero / tooltip） | next tier $40 USDC, Up next |
+| **$40 USDC** / **$25 voucher** | 奖励槽行 1 · 金额 + 单位词 + 奖励色（青 / lime），与直达行同配方：有可领显示可领和，全发显示累计，否则下一档面值；状态词在动作栏 | next $40, $40 ready, paid in USDC |
 | **$25 ready** | 奖励槽行 1 · 券档可领面值和（lime） | $25 claimable, Ready to claim |
 | **$400 credited** / **$85 claimed** | 奖励槽行 1 · 全档已发（USDC / 券）；活动已结束时显示已发部分 | Total earned, Paid out |
 | **4 / 7 tiers** | 奖励槽行 2：已达 / 总档数；手机带 `›` 起抽屉 | 4 of 7, Tier 4/7, Level |
@@ -99,7 +99,7 @@ Single source of truth for user-visible field names across the app.
 | **+$40 USDC credited to Standard** | 自动入账 toast 标题；描述 `Tier 4 of <task name>`；动作 `Open wallet` → `/wallet` | Reward received, Payout |
 | **Campaign reward · <task name> · Tier n** | 钱包流水描述（`transactions.type = bonus`，account spot） | Bonus, Airdrop |
 
-**运营配置约定**：一条阶梯只配一种奖励单位；副标题写明单位（如 `rewards paid in USDC`）；`tiers` 按 target 升序，2–8 档。
+**运营配置约定**：一条阶梯只配一种奖励单位；副标题只写达成口径、**不写奖励单位**（单位由第二列承担）；`tiers` 按 target 升序，2–8 档。
 
 ### 周期任务与指标（`type: "recurring"` · `metric`，2026-09-25）
 
@@ -126,7 +126,7 @@ Single source of truth for user-visible field names across the app.
 | Canonical | Meaning | Banned variants |
 |---|---|---|
 | **$32 / $50 today** / **this week** | 周期任务当期进度；后缀灰字标当期 | so far, current |
-| **$1 today** / **$1 credited** / **$1 ready** | 奖励槽行 1：当期未达 / 当期已入账 / 券当期可领 | earned today, pending |
+| **$1 USDC** / **$1 voucher** | 奖励槽行 1：每期奖励面值（有可领显示可领和；Completed / Ended 显示累计） | $1 today, $1 credited, earned today |
 | **12 / 30 days** / **12 days** / **3 / 8 weeks** | 奖励槽行 2：已达标期数 / 上限（无上限省略）；手机带 `›` | streak, completed days |
 | **🔥 5-day streak** / **🔥 2-week streak** | 第三行右侧，streak ≥ 2 时橙色 | on fire, combo, x5 |
 | **Last 14 days** / **Last 7 days** | 第三行右侧，streak < 2 时（桌面 14 / 手机 7） | History, Recent |

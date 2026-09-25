@@ -52,7 +52,7 @@
 | `task_key` | text | 父任务 key；各类型的 grant key 派生规则见 §2.3 |
 | `type` | `threshold` \| `tiered` \| `recurring` | 缺省 `threshold` = 现有单目标任务，存量零改动 |
 | `metric` | `usd_volume` \| `count` \| `referrals_qualified` \| `active_days` \| `hold_positions` | 进度怎么算，见 §2.2；缺省 `count` |
-| `name` / `subtitle` | text | 与现有一致；**约定：副标题写明奖励单位**（如 `paid in USDC`），奖励槽第一行不带单位词 |
+| `name` / `subtitle` | text | 与现有一致；**约定：副标题只写达成口径，不写奖励单位**（单位在第二列奖励槽），也不写判定细则（如强平计入）——细则进活动规则折叠 / 本文 |
 | `scope` | json | `{any_market:true}` / `{categories:[…]}`，交易类指标按事件品类过滤；邀请指标不看 scope |
 | `cta` | `{label, href}` | 缺省：邀请指标 `Invite` → `/rewards?tab=referral`，其余 `Trade` → `/events(?sector=)` |
 | `target` / `reward` | — | threshold 与 recurring 用；tiered 不读 |
@@ -67,20 +67,20 @@
 
 ```json
 { "task_key": "daily_trade", "type": "recurring", "period": "daily",
-  "name": "Trade every day", "subtitle": "$50 in filled orders each day · paid in USDC",
+  "name": "Trade every day", "subtitle": "$50 in filled orders each day",
   "metric": "usd_volume", "target": 50, "scope": { "any_market": true }, "reward": { "usdc": 1 },
   "max_periods": 30, "streak_bonus": { "every": 7, "reward": { "usdc": 5 } } }
 
 { "task_key": "invite_ladder", "type": "tiered", "name": "Invite friends who trade",
-  "subtitle": "Each friend counts once they trade $100 · paid in USDC", "metric": "referrals_qualified",
+  "subtitle": "Each friend counts once they trade $100", "metric": "referrals_qualified",
   "tiers": [ { "target": 1, "reward": { "usdc": 5 } }, { "target": 3, "reward": { "usdc": 15 } }, { "target": 10, "reward": { "usdc": 50 } } ] }
 
 { "task_key": "active_7d", "type": "threshold", "name": "Trade on 7 different days",
-  "subtitle": "Any market · at least $10 a day · paid in USDC", "metric": "active_days", "min_notional": 10,
+  "subtitle": "Any market · at least $10 a day", "metric": "active_days", "min_notional": 10,
   "target": 7, "scope": { "any_market": true }, "reward": { "usdc": 5 } }
 
 { "task_key": "hold_24h", "type": "threshold", "name": "Hold a position for 24 hours",
-  "subtitle": "3 positions of $50+ held a full day · auto-closed ones count too · paid in USDC",
+  "subtitle": "3 positions of $50+ held a full day",
   "metric": "hold_positions", "hold": { "min_hours": 24, "min_notional": 50 }, "target": 3,
   "scope": { "any_market": true }, "reward": { "usdc": 15 } }
 ```
@@ -150,7 +150,7 @@
 | 刻度点（tiered） | 等距 `n / M`，未达灰 / 已达青 / 已发青+暗芯；桌面 hover 单档 tooltip |
 | 当期后缀（recurring） | `$32 / $50 today`（周 `this week`）；当期达标后条填满变 lime |
 | 第三行（recurring） | 最近 14 期点阵（手机 7 期）+ `🔥 5-day streak`（≥2）/ `Last 14 days`；达标青、未达灰、bonus 期橙 `#FF8A3D`、今天空心、加入前虚线 |
-| 奖励槽行 1 | tiered：`$25 ready` / `next $40` / `$400 credited`；recurring：`$1 today` / `$1 credited` / `$1 ready` / 累计 `$50 credited`（Completed / Ended） |
+| 奖励槽行 1 | 金额 + 单位词 + 奖励色（USDC 青 / voucher lime），与直达行同配方。tiered：下一档 `$40 USDC` / 可领和 `$25 voucher` / 全发累计 `$400 USDC`；recurring：每期 `$1 USDC` / 可领和 `$3 voucher` / Completed·Ended 累计 `$50 USDC`。状态词由动作栏承担 |
 | 奖励槽行 2 | tiered `4 / 7 tiers`；recurring `12 / 30 days`；手机带 `›` 起抽屉 |
 | 动作栏 | 未登录 `Sign in to start` → `Not eligible` → 已结束 `Ended` → `Completed` → 券可领 `Claim $X` / `Claim all $X`（顺序逐档，失败即停）→ 当期已达 `Done today` → 全部已发 `All credited` → 描边 CTA |
 

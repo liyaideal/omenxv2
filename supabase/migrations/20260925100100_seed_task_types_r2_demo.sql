@@ -8,10 +8,10 @@
 
 UPDATE campaign_entries
    SET rules = jsonb_set(rules, '{tasks}', (rules->'tasks') || $j$[
- {"task_key":"daily_trade","type":"recurring","period":"daily","name":"Trade every day","subtitle":"$50 in filled orders each day · paid in USDC","metric":"usd_volume","target":50,"scope":{"any_market":true},"reward":{"usdc":1},"max_periods":30,"streak_bonus":{"every":7,"reward":{"usdc":5}},"cta":{"label":"Trade","href":"/events"}},
- {"task_key":"invite_ladder","type":"tiered","name":"Invite friends who trade","subtitle":"Each friend counts once they trade $100 · paid in USDC","metric":"referrals_qualified","tiers":[{"target":1,"reward":{"usdc":5}},{"target":3,"reward":{"usdc":15}},{"target":10,"reward":{"usdc":50}}],"cta":{"label":"Invite","href":"/rewards?tab=referral"}},
- {"task_key":"active_7d","type":"threshold","name":"Trade on 7 different days","subtitle":"Any market · at least $10 a day · paid in USDC","metric":"active_days","min_notional":10,"target":7,"scope":{"any_market":true},"reward":{"usdc":5},"cta":{"label":"Trade","href":"/events"}},
- {"task_key":"hold_24h","type":"threshold","name":"Hold a position for 24 hours","subtitle":"3 positions of $50+ held a full day · auto-closed ones count too · paid in USDC","metric":"hold_positions","hold":{"min_hours":24,"min_notional":50},"target":3,"scope":{"any_market":true},"reward":{"usdc":15},"cta":{"label":"Trade","href":"/events"}}
+ {"task_key":"daily_trade","type":"recurring","period":"daily","name":"Trade every day","subtitle":"$50 in filled orders each day","metric":"usd_volume","target":50,"scope":{"any_market":true},"reward":{"usdc":1},"max_periods":30,"streak_bonus":{"every":7,"reward":{"usdc":5}},"cta":{"label":"Trade","href":"/events"}},
+ {"task_key":"invite_ladder","type":"tiered","name":"Invite friends who trade","subtitle":"Each friend counts once they trade $100","metric":"referrals_qualified","tiers":[{"target":1,"reward":{"usdc":5}},{"target":3,"reward":{"usdc":15}},{"target":10,"reward":{"usdc":50}}],"cta":{"label":"Invite","href":"/rewards?tab=referral"}},
+ {"task_key":"active_7d","type":"threshold","name":"Trade on 7 different days","subtitle":"Any market · at least $10 a day","metric":"active_days","min_notional":10,"target":7,"scope":{"any_market":true},"reward":{"usdc":5},"cta":{"label":"Trade","href":"/events"}},
+ {"task_key":"hold_24h","type":"threshold","name":"Hold a position for 24 hours","subtitle":"3 positions of $50+ held a full day","metric":"hold_positions","hold":{"min_hours":24,"min_notional":50},"target":3,"scope":{"any_market":true},"reward":{"usdc":15},"cta":{"label":"Trade","href":"/events"}}
 ]$j$::jsonb),
        reward = coalesce(reward,'{}'::jsonb) || '{"usdc": 525}'::jsonb
  WHERE id='690c42ff-a87d-4201-937f-311c8c4432d5';
@@ -42,7 +42,7 @@ FROM (VALUES ('2026-09-11'),('2026-09-12'),('2026-09-13'),('2026-09-15'),('2026-
 INSERT INTO transactions (user_id, type, amount, account, description, status, created_at) VALUES
 ('968a2b3a-3913-4acb-948b-c78cc828a125','bonus',5,'spot','Campaign reward · Invite friends who trade · Tier 1','completed','2026-09-20 11:12:00+00');
 
-UPDATE campaign_entries SET rules = jsonb_set(rules,'{tasks}',(rules->'tasks') || $j$[{"task_key":"fw_daily","type":"recurring","period":"daily","name":"Trade every Finals day","subtitle":"$50 on Finals markets each day · paid in USDC","metric":"usd_volume","target":50,"scope":{"categories":["sports"]},"reward":{"usdc":1},"max_periods":7,"streak_bonus":{"every":7,"reward":{"usdc":5}}}]$j$::jsonb),
+UPDATE campaign_entries SET rules = jsonb_set(rules,'{tasks}',(rules->'tasks') || $j$[{"task_key":"fw_daily","type":"recurring","period":"daily","name":"Trade every Finals day","subtitle":"$50 on Finals markets each day","metric":"usd_volume","target":50,"scope":{"categories":["sports"]},"reward":{"usdc":1},"max_periods":7,"streak_bonus":{"every":7,"reward":{"usdc":5}}}]$j$::jsonb),
   reward = coalesce(reward,'{}'::jsonb) || '{"usdc": 414}'::jsonb
  WHERE id='b2222222-2222-4222-8222-bbbbbbbbbbb2';
 INSERT INTO campaign_grants (user_id, entry_id, task_key, progress, status, created_at, updated_at)

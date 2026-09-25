@@ -48,7 +48,7 @@
 |---|---|---|
 | `task_key` | text | 父任务 key；各档 grant 用 `<task_key>#t<n>`（n 从 1） |
 | `type` | `"threshold"` \| `"tiered"` | 缺省 `threshold` = 现有单目标任务，**存量任务零改动** |
-| `name` / `subtitle` | text | 与现有一致；**约定：阶梯任务副标题要写明奖励单位**（如 `rewards paid in USDC`），因为奖励槽第一行不带单位词 |
+| `name` / `subtitle` | text | 与现有一致（2026-09-25 修正：副标题不写奖励单位，单位回到第二列奖励槽，见 rewards-task-types-v1 §2.1） |
 | `metric` | `"usd_volume"` \| `"count"` | 与现有一致，`count` 阶梯没有实际意义（只能到 1） |
 | `scope` | json | 与现有一致（`{any_market:true}` / `{categories:[…]}`） |
 | `cta` | `{label, href}` | 与现有一致；缺省 `Trade` → `/events?sector=<scope.categories[0]>` 或 `/events` |
@@ -62,7 +62,7 @@
   "task_key": "vl_volume_ladder",
   "type": "tiered",
   "name": "Cumulative trading volume",
-  "subtitle": "Every filled order on any market counts · rewards paid in USDC",
+  "subtitle": "Every filled order on any market counts",
   "metric": "usd_volume",
   "scope": { "any_market": true },
   "cta": { "label": "Trade", "href": "/events" },

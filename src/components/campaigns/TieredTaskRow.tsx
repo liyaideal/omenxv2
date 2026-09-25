@@ -234,21 +234,19 @@ export const TieredTaskRow = ({
     ),
   }));
 
-  /* ---- reward slot: two lines max, 92px column → no unit word on line 1 (the
-     unit lives in the subtitle, the hero pill, the tooltip and the drawer) ---- */
+  /* ---- reward slot: line 1 = amount + unit word in the reward colour (same recipe as
+     GrantTaskRow: USDC cyan / voucher lime); the state lives in the action column ---- */
   const l1 = "whitespace-nowrap font-display text-[13.5px] font-bold leading-4";
+  const colour = (u: TierUnit) => (u === "usdc" ? "text-[#33D6FF]" : "text-[#CFFF4A]");
   let line1: JSX.Element;
   if (d.claimableCount > 0) {
-    line1 = <div className={`${l1} text-[#CFFF4A]`}>${d.claimableSum} ready</div>;
+    line1 = <div className={`${l1} text-[#CFFF4A]`}>${d.claimableSum} voucher</div>;
   } else if (d.allClaimed || frozen) {
-    line1 = (
-      <div className={`${l1} text-[#9AA1AC]`}>
-        ${d.claimedSum} {d.unit === "usdc" ? "credited" : "claimed"}
-      </div>
-    );
+    line1 = <div className={`${l1} ${colour(d.unit)}`}>${d.claimedSum} {unit}</div>;
   } else {
     const nx = d.tiers[d.nextIdx]?.tier;
-    line1 = <div className={`${l1} text-[#9AA1AC]`}>next ${nx ? tierAmount(nx) : 0}</div>;
+    const u = nx ? tierUnit(nx) : d.unit;
+    line1 = <div className={`${l1} ${colour(u)}`}>${nx ? tierAmount(nx) : 0} {unitLabel(u)}</div>;
   }
   const line2Text = `${d.reachedCount} / ${M} tiers`;
   const line2 = isMobile ? (

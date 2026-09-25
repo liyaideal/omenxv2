@@ -419,17 +419,18 @@ export const RecurringTaskRow = ({
   const reward = (task.reward?.usdc ?? 0) > 0 ? task.reward!.usdc! : (task.reward?.voucher ?? 0);
   const cta = { label: "Trade", href: task.scope?.categories?.[0] ? `/events?sector=${task.scope.categories[0]}` : "/events", ...(task.cta ?? {}) } as { label: string; href: string };
 
-  /* reward slot */
+  /* reward slot: line 1 = per-period reward, amount + unit word, reward colour (USDC cyan /
+     voucher lime); after Completed / Ended it shows the total credited. State is in the action column. */
   const l1 = "whitespace-nowrap font-display text-[13.5px] font-bold leading-4";
+  const colour = d.unit === "usdc" ? "text-[#33D6FF]" : "text-[#CFFF4A]";
+  const unitWord = d.unit === "usdc" ? "USDC" : "voucher";
   let line1: JSX.Element;
   if (frozen || d.completed) {
-    line1 = <div className={`${l1} text-[#9AA1AC]`}>${d.earned} {d.unit === "usdc" ? "credited" : "claimed"}</div>;
+    line1 = <div className={`${l1} ${colour}`}>${d.earned} {unitWord}</div>;
   } else if (d.claimableKeys.length) {
-    line1 = <div className={`${l1} text-[#CFFF4A]`}>${d.claimableSum} ready</div>;
-  } else if (d.todayDone) {
-    line1 = <div className={`${l1} text-[#9AA1AC]`}>${reward} credited</div>;
+    line1 = <div className={`${l1} text-[#CFFF4A]`}>${d.claimableSum} voucher</div>;
   } else {
-    line1 = <div className={`${l1} text-[#9AA1AC]`}>${reward} {when}</div>;
+    line1 = <div className={`${l1} ${colour}`}>${reward} {unitWord}</div>;
   }
   const line2Text = `${d.doneCount}${task.max_periods ? ` / ${task.max_periods}` : ""} ${noun}`;
   const line2 = isMobile ? (
