@@ -51,14 +51,22 @@ Deno.serve(async (req) => {
     // Tiered tasks: `<task_key>#t<n>` names tier n (1-based) of a `type: "tiered"` task;
     // the reward comes from tiers[n-1]. USDC tiers never reach here — the DB trigger
     // credits them on reach — so only voucher tiers are claimable through this path.
+    // Recurring: `<task_key>@<period>` = one period's reward, `<task_key>#s<n>` = streak bonus.
     const tierMatch = /^(.+)#t(\d+)$/.exec(body.taskKey)
-    const parentKey = tierMatch ? tierMatch[1] : body.taskKey
+    const periodMatch = /^(.+)@([0-9]{4}-(?:[0-9]{2}-[0-9]{2}|W[0-9]{2}))$/.exec(body.taskKey)
+    const streakMatch = /^(.+)#s(\d+)$/.exec(body.taskKey)
+    const parentKey = tierMatch ? tierMatch[1] : periodMatch ? periodMatch[1] : streakMatch ? streakMatch[1] : body.taskKey
     const tierIndex = tierMatch ? Number(tierMatch[2]) - 1 : -1
     const task = tasks.find((t) => t.task_key === parentKey)
     if (!task) return json({ error: 'Task not found on this entry' }, 404)
 
     let reward: { voucher?: number; usdc?: number }
-    if (tierMatch) {
+    if (periodMatch || streakMatch) {
+      if (task.type !== 'recurring') return json({ error: 'Not a recurring task' }, 404)
+      reward = (streakMatch
+        ? (task.streak_bonus as Record<string, unknown> | undefined)?.reward ?? {}
+        : task.reward ?? {}) as { voucher?: number; usdc?: number }
+    } else if (tierMatch) {
       const tiers = Array.isArray(task.tiers) ? (task.tiers as Array<Record<string, unknown>>) : []
       if (task.type !== 'tiered' || tierIndex < 0 || tierIndex >= tiers.length) {
         return json({ error: 'Tier not found on this task' }, 404)

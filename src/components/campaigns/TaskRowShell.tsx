@@ -16,6 +16,11 @@ export interface TaskRowTick {
 
 const fmtUsd = (n: number) => `$${n.toLocaleString("en-US")}`;
 
+/** Progress unit: `$` prefixes the numbers; any other word is appended (`2 / 3 friends`). */
+export type ProgressUnit = "$" | "friends" | "days" | "positions" | "weeks";
+export const fmtProgress = (n: number, unit: ProgressUnit = "$") =>
+  unit === "$" ? fmtUsd(n) : n.toLocaleString("en-US");
+
 /**
  * The one row recipe shared by campaign grant tasks and referral invites
  * (design contract .task): #131519 card, 1px #1D2026 border, r14, 15/16 padding,
@@ -33,6 +38,7 @@ export const TaskRowShell = ({
   dashed,
   faded,
   progress,
+  extra,
   reward,
   action,
 }: {
@@ -46,7 +52,22 @@ export const TaskRowShell = ({
    * `pct` overrides the linear value/target fill (tiered rows fill
    * ordinally, one equal segment per tier); `ticks` draws tier markers.
    */
-  progress?: { value: number; target: number; pct?: number; ticks?: TaskRowTick[] };
+  progress?: {
+    value: number;
+    target: number;
+    pct?: number;
+    ticks?: TaskRowTick[];
+    /** `$` (default) or a count word appended after the numbers. */
+    unit?: ProgressUnit;
+    /** Small integer targets (≤ 10) render as N segments instead of a continuous bar. */
+    steps?: boolean;
+    /** Fill colour override (recurring rows turn lime once the period is done). */
+    fillColor?: string;
+    /** Grey word after the count (`today` / `this week`). */
+    suffix?: string;
+  };
+  /** Extra line under the progress (recurring calendar strip). */
+  extra?: ReactNode;
   reward?: ReactNode;
   action: ReactNode;
 }) => {
@@ -86,10 +107,31 @@ export const TaskRowShell = ({
               isMobile && progress.ticks ? "flex-col items-end" : "items-center"
             }`}
           >
+          {progress.steps && progress.target <= 10 ? (
+            <div className="flex items-center gap-[5px]" data-progress-steps={progress.target}>
+              {Array.from({ length: Math.max(1, Math.round(progress.target)) }, (_, i) => (
+                <span
+                  key={i}
+                  className="h-[5px] w-[22px] rounded-full"
+                  style={{
+                    background:
+                      i < progress.value
+                        ? progress.value >= progress.target
+                          ? "#CFFF4A"
+                          : "#33D6FF"
+                        : "#1D2026",
+                  }}
+                />
+              ))}
+            </div>
+          ) : (
           <div
             className={`relative h-[5px] w-full rounded-full bg-[#1D2026] ${progress.ticks ? "" : "overflow-hidden"} ${isMobile ? "" : "max-w-[280px]"}`}
           >
-              <div className="h-full rounded-full bg-[#33D6FF]" style={{ width: `${pct}%` }} />
+              <div
+                className="h-full rounded-full"
+                style={{ width: `${pct}%`, background: progress.fillColor ?? "#33D6FF" }}
+              />
               {progress.ticks?.map((tick, i) => {
                 const dot = (
                   <span
@@ -120,11 +162,16 @@ export const TaskRowShell = ({
                 );
               })}
             </div>
+          )}
             <span className="whitespace-nowrap font-mono text-[11.5px] tabular-nums text-[#9AA1AC]">
-              <strong className="font-bold text-white">{fmtUsd(progress.value)}</strong> / {fmtUsd(progress.target)}
+              <strong className="font-bold text-white">{fmtProgress(progress.value, progress.unit)}</strong> /{" "}
+              {fmtProgress(progress.target, progress.unit)}
+              {progress.unit && progress.unit !== "$" ? ` ${progress.unit}` : ""}
+              {progress.suffix && <span className="ml-1.5 text-[#6B7280]">{progress.suffix}</span>}
             </span>
           </div>
         )}
+        {extra}
     </div>
   );
 

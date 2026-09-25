@@ -1,11 +1,28 @@
-import { CirclePlus, CircleSlash, Loader2, TrendingUp } from "lucide-react";
+import { CalendarCheck, CirclePlus, CircleSlash, Clock, Loader2, TrendingUp, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { CampaignTaskDef, GrantStatus } from "@/hooks/useCampaigns";
+import { isCountMetric, metricUnit } from "@/hooks/useCampaigns";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ClaimButton, TaskRowShell } from "./TaskRowShell";
 
+/** Metric → icon (shared with TieredTaskRow). */
+export const metricIcon = (task: CampaignTaskDef) => {
+  switch (task.metric) {
+    case "referrals_qualified":
+      return UserPlus;
+    case "active_days":
+      return CalendarCheck;
+    case "hold_positions":
+      return Clock;
+    default:
+      return null;
+  }
+};
+
 const iconFor = (task: CampaignTaskDef, notEligible: boolean) => {
   if (notEligible) return CircleSlash;
+  const byMetric = metricIcon(task);
+  if (byMetric) return byMetric;
   const key = `${task.task_key} ${task.metric ?? ""}`.toLowerCase();
   if (key.includes("volume") || key.includes("trade")) return TrendingUp;
   return CirclePlus;
@@ -20,8 +37,9 @@ const STATUS_LABEL: Record<GrantStatus, string> = {
 };
 
 /** Fallback action when a task carries no explicit `cta`. */
-const fallbackCta = (task: CampaignTaskDef): { label: string; href: string } => {
+export const fallbackCta = (task: CampaignTaskDef): { label: string; href: string } => {
   const key = task.task_key.toLowerCase();
+  if (task.metric === "referrals_qualified") return { label: "Invite", href: "/rewards?tab=referral" };
   if (key.includes("discord")) return { label: "Join", href: "https://discord.gg/qXssm2crf9" };
   if (key.includes("connect")) return { label: "Connect", href: "/settings" };
   const sector = task.scope?.categories?.[0];
@@ -87,7 +105,16 @@ export const GrantTaskRow = ({
           ? "Covered by your friend's invite — this one goes to them."
           : task.subtitle
       }
-      progress={showBar ? { value: progressValue!, target: task.target! } : undefined}
+      progress={
+        showBar
+          ? {
+              value: progressValue!,
+              target: task.target!,
+              unit: metricUnit(task.metric),
+              steps: isCountMetric(task.metric),
+            }
+          : undefined
+      }
       reward={
         <div className={isMobile ? "" : "w-[92px] shrink-0 text-right"}>
           {voucher > 0 && (

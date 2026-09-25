@@ -2,7 +2,8 @@ import { useState } from "react";
 import { CircleSlash, Loader2, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { CampaignGrant, CampaignTaskDef, CampaignTaskTier, GrantStatus } from "@/hooks/useCampaigns";
-import { tierGrantKey } from "@/hooks/useCampaigns";
+import { metricUnit, tierGrantKey } from "@/hooks/useCampaigns";
+import { metricIcon } from "./GrantTaskRow";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -26,6 +27,7 @@ import { ClaimButton, TaskRowShell, type TaskRowTick } from "./TaskRowShell";
  */
 
 const fmtUsd = (n: number) => `$${n.toLocaleString("en-US")}`;
+const fmtTarget = (n: number, unit: string) => (unit === "$" ? fmtUsd(n) : `${n} ${unit}`);
 
 type TierUnit = "usdc" | "voucher";
 const tierUnit = (t: CampaignTaskTier): TierUnit => ((t.reward?.usdc ?? 0) > 0 ? "usdc" : "voucher");
@@ -34,6 +36,7 @@ const unitLabel = (u: TierUnit) => (u === "usdc" ? "USDC" : "voucher");
 
 /** Fallback action when a task carries no explicit `cta` (mirrors GrantTaskRow). */
 const fallbackCta = (task: CampaignTaskDef): { label: string; href: string } => {
+  if (task.metric === "referrals_qualified") return { label: "Invite", href: "/rewards?tab=referral" };
   const sector = task.scope?.categories?.[0];
   return { label: "Trade", href: sector ? `/events?sector=${sector}` : "/events" };
 };
@@ -78,6 +81,7 @@ export interface TieredDerived {
   claimableCount: number;
   claimedSum: number;
   unit: TierUnit; // dominant unit (first tier) — one task should carry one unit
+  unitLabel: string; // progress unit word ($ / friends / …)
 }
 
 /** Pure derivation shared by the row, the style-guide and the credited toast. */
@@ -122,6 +126,7 @@ export const deriveTiered = (task: CampaignTaskDef, grants: CampaignGrant[]): Ti
     claimableCount: tiers.filter((t) => t.claimable).length,
     claimedSum: tiers.reduce((a, t) => a + (t.claimed ? tierAmount(t.tier) : 0), 0),
     unit: tiersDef[0] ? tierUnit(tiersDef[0]) : "usdc",
+    unitLabel: metricUnit(task.metric),
   };
 };
 
@@ -154,7 +159,7 @@ const TierList = ({
             style={{ background: t.reached ? "#33D6FF" : "#2B2F38", opacity: t.claimed ? 0.55 : 1 }}
           />
           <span className="flex-1 font-semibold text-[#F2F3F5]">
-            {fmtUsd(t.tier.target)}
+            {fmtTarget(t.tier.target, d.unitLabel)}
             <span className="block font-sans text-[11.5px] font-normal text-[#6B7280]">Tier {t.index + 1}</span>
           </span>
           <span
@@ -211,7 +216,7 @@ export const TieredTaskRow = ({
   const d = deriveTiered(task, grants);
   const M = d.tiers.length;
   const notEligible = d.notEligible;
-  const Icon = notEligible ? CircleSlash : TrendingUp;
+  const Icon = notEligible ? CircleSlash : (metricIcon(task) ?? TrendingUp);
   const cta = { ...fallbackCta(task), ...(task.cta ?? {}) } as { label: string; href: string };
   const unit = unitLabel(d.unit);
 
@@ -220,7 +225,7 @@ export const TieredTaskRow = ({
     state: t.claimed ? "credited" : t.reached ? "reached" : "pending",
     label: (
       <span>
-        Tier {t.index + 1} · {fmtUsd(t.tier.target)} →{" "}
+        Tier {t.index + 1} · {fmtTarget(t.tier.target, metricUnit(task.metric))} →{" "}
         <b style={{ color: tierUnit(t.tier) === "usdc" ? "#33D6FF" : "#CFFF4A" }}>
           ${tierAmount(t.tier)} {unitLabel(tierUnit(t.tier))}
         </b>{" "}
@@ -307,7 +312,9 @@ export const TieredTaskRow = ({
         muted={notEligible}
         dashed={notEligible}
         subtitle={notEligible ? "Covered by your friend's invite — this one goes to them." : task.subtitle}
-        progress={notEligible ? undefined : { value: d.value, target: d.denom, pct: d.pct, ticks }}
+        progress={
+          notEligible ? undefined : { value: d.value, target: d.denom, pct: d.pct, ticks, unit: metricUnit(task.metric) }
+        }
         reward={
           notEligible ? undefined : (
             <div className={isMobile ? "" : "w-[92px] shrink-0 text-right"}>
@@ -322,7 +329,7 @@ export const TieredTaskRow = ({
         <MobileDrawer open={drawerOpen} onOpenChange={setDrawerOpen} title="Tiers">
           <div className="pb-5">
             <div className="mb-3 text-[12px] text-[#9AA1AC]">
-              {task.name} · <b className="text-white">{fmtUsd(d.value)}</b> traded
+              {task.name} · <b className="text-white">{fmtTarget(d.value, d.unitLabel)}</b>{d.unitLabel === "$" ? " traded" : ""}
             </div>
             <TierList d={d} onClaim={onClaim} claimingKey={claimingKey} frozen={frozen} />
           </div>

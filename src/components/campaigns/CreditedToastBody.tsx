@@ -43,3 +43,39 @@ export const showCreditedToast = (usdc: number, tierIndex: number, taskName: str
     description: creditedToastDescription(tierIndex, taskName),
     action: { label: CREDITED_TOAST_ACTION_LABEL, onClick: onOpen },
   });
+
+/* ---- streak bonus (recurring tasks) — same chrome, different title ---- */
+export const streakToastTitle = (usdc: number, streak: string) => `+$${usdc} USDC · ${streak}`;
+export const streakToastDescription = (taskName: string) => `${taskName} · bonus credited to Standard`;
+
+export const StreakBonusToastBody = ({
+  usdc,
+  streak,
+  taskName,
+  onOpen,
+}: {
+  usdc: number;
+  streak: string;
+  taskName: string;
+  onOpen: () => void;
+}) => (
+  <>
+    <div className="text-[13px] font-semibold text-[#F2F3F5]">{streakToastTitle(usdc, streak)}</div>
+    <div className="mt-1 text-[12px] text-[#9AA1AC]">{streakToastDescription(taskName)}</div>
+    <div className="mt-3">
+      <button
+        type="button"
+        onClick={onOpen}
+        className="inline-flex min-h-[32px] items-center rounded-[8px] bg-white px-3 font-display text-[12px] font-bold text-[#0A0B0D]"
+      >
+        {CREDITED_TOAST_ACTION_LABEL}
+      </button>
+    </div>
+  </>
+);
+
+export const showStreakBonusToast = (usdc: number, streak: string, taskName: string, onOpen: () => void) =>
+  toast.success(streakToastTitle(usdc, streak), {
+    description: streakToastDescription(taskName),
+    action: { label: CREDITED_TOAST_ACTION_LABEL, onClick: onOpen },
+  });

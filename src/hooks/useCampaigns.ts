@@ -22,7 +22,16 @@ export interface CampaignTaskTier {
  *   keyed `<task_key>#t<n>` (n from 1). USDC tiers are credited by the
  *   trigger the moment they are reached; voucher tiers become claimable.
  */
-export type CampaignTaskType = "threshold" | "tiered";
+export type CampaignTaskType = "threshold" | "tiered" | "recurring";
+
+/**
+ * How progress is measured (server recomputes each from source tables):
+ * - usd_volume: filled notional in scope · count: any fill in scope
+ * - referrals_qualified: friends who traded $100 (one reward path — counted friends
+ *   skip the per-friend voucher) · active_days: distinct UTC days with a fill ≥ min_notional
+ * - hold_positions: positions ≥ hold.min_notional held ≥ hold.min_hours (auto-closed count)
+ */
+export type CampaignTaskMetric = "count" | "usd_volume" | "referrals_qualified" | "active_days" | "hold_positions";
 
 export interface CampaignTaskDef {
   task_key: string;
@@ -30,10 +39,18 @@ export interface CampaignTaskDef {
   name: string;
   subtitle?: string;
   target?: number;
-  metric?: "count" | "usd_volume";
+  metric?: CampaignTaskMetric;
   reward?: TaskReward;
   /** Tiered only — ascending targets, 2..8 rungs. */
   tiers?: CampaignTaskTier[];
+  /** Recurring only. */
+  period?: "daily" | "weekly";
+  max_periods?: number;
+  streak_bonus?: { every: number; reward: TaskReward };
+  /** active_days: minimum fill notional per day (default $10). */
+  min_notional?: number;
+  /** hold_positions parameters. */
+  hold?: { min_hours?: number; min_notional?: number };
   /** Which markets count toward this task (server-side driver reads the same field). */
   scope?: { categories?: string[]; any_market?: boolean };
   /** Action button shown while the task is not yet claimable. */
@@ -42,6 +59,18 @@ export interface CampaignTaskDef {
 
 export const isTieredTask = (t: CampaignTaskDef): boolean =>
   t.type === "tiered" && Array.isArray(t.tiers) && t.tiers.length > 0;
+export const isRecurringTask = (t: CampaignTaskDef): boolean => t.type === "recurring";
+
+/** Progress unit per metric — `$` prefixes, count words are appended. */
+export const metricUnit = (m?: CampaignTaskMetric): "$" | "friends" | "days" | "positions" =>
+  m === "referrals_qualified" ? "friends" : m === "active_days" ? "days" : m === "hold_positions" ? "positions" : "$";
+/** Count metrics with small targets render as segmented steps. */
+export const isCountMetric = (m?: CampaignTaskMetric) =>
+  m === "referrals_qualified" || m === "active_days" || m === "hold_positions";
+
+/** Grant key for period p of a recurring task (`YYYY-MM-DD` / `IYYY-Www`). */
+export const periodGrantKey = (taskKey: string, periodKey: string) => `${taskKey}@${periodKey}`;
+export const streakGrantKey = (taskKey: string, n: number) => `${taskKey}#s${n}`;
 
 /** Grant key for tier n (1-based) of a tiered task. */
 export const tierGrantKey = (taskKey: string, n: number) => `${taskKey}#t${n}`;
@@ -305,15 +334,36 @@ export const buildCampaignView = (
   let usdcClaimed = 0;
   // A tiered task counts as ONE task: "up to" sums every rung, "done" means
   // every rung is claimed, "claimable" means at least one rung is claimable.
+  // Recurring: grants keyed <key>@<period> (+ <key>#s<n> streak bonuses); "done" only when
+  // max_periods is reached; "up to" = reward × max_periods + every bonus that fits.
+  const periodGrants = (t: CampaignTaskDef) => entryGrants.filter((g) => g.taskKey.startsWith(`${t.task_key}@`));
+  const streakGrants = (t: CampaignTaskDef) => entryGrants.filter((g) => g.taskKey.startsWith(`${t.task_key}#s`));
   const taskDone = (t: CampaignTaskDef) =>
     isTieredTask(t)
       ? t.tiers!.every((_, i) => statusFor(tierGrantKey(t.task_key, i + 1)) === "claimed")
-      : statusFor(t.task_key) === "claimed";
+      : isRecurringTask(t)
+        ? !!t.max_periods && periodGrants(t).filter((g) => g.status === "claimed").length >= t.max_periods
+        : statusFor(t.task_key) === "claimed";
   const taskClaimable = (t: CampaignTaskDef) =>
     isTieredTask(t)
       ? t.tiers!.some((_, i) => statusFor(tierGrantKey(t.task_key, i + 1)) === "claimable")
-      : statusFor(t.task_key) === "claimable";
+      : isRecurringTask(t)
+        ? [...periodGrants(t), ...streakGrants(t)].some((g) => g.status === "claimable")
+        : statusFor(t.task_key) === "claimable";
   tasks.forEach((t) => {
+    if (isRecurringTask(t)) {
+      const max = t.max_periods ?? 0;
+      const bonusCount = t.streak_bonus?.every ? Math.floor(max / t.streak_bonus.every) : 0;
+      voucherUpTo += (t.reward?.voucher ?? 0) * max + (t.streak_bonus?.reward?.voucher ?? 0) * bonusCount;
+      usdcUpTo += (t.reward?.usdc ?? 0) * max + (t.streak_bonus?.reward?.usdc ?? 0) * bonusCount;
+      [...periodGrants(t), ...streakGrants(t)].forEach((g) => {
+        if (g.status !== "claimed") return;
+        const r = g.taskKey.includes("#s") ? t.streak_bonus?.reward : t.reward;
+        voucherClaimed += r?.voucher ?? 0;
+        usdcClaimed += r?.usdc ?? 0;
+      });
+      return;
+    }
     if (isTieredTask(t)) {
       t.tiers!.forEach((tier, i) => {
         voucherUpTo += tier.reward?.voucher ?? 0;

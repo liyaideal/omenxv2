@@ -10,7 +10,8 @@ import { CampaignKeyVisual } from "@/components/campaigns/CampaignKeyVisual";
 import H2eCampaignDetailPage from "./H2eCampaignDetailPage";
 import { GrantTaskRow } from "@/components/campaigns/GrantTaskRow";
 import { TieredTaskRow, deriveTiered } from "@/components/campaigns/TieredTaskRow";
-import { showCreditedToast } from "@/components/campaigns/CreditedToastBody";
+import { RecurringTaskRow } from "@/components/campaigns/RecurringTaskRow";
+import { showCreditedToast, showStreakBonusToast } from "@/components/campaigns/CreditedToastBody";
 import { SignInPromptCard } from "@/components/campaigns/SignInPromptCard";
 import { CampaignDetailSkeleton } from "@/components/campaigns/CampaignDetailSkeleton";
 import { CampaignUnavailable } from "@/components/campaigns/CampaignUnavailable";
@@ -22,7 +23,7 @@ import { CampaignRulesDisclosure } from "@/components/campaigns/CampaignRulesDis
 import { softBindPublicEntry } from "@/components/campaigns/CampaignAttribution";
 import { useAuth } from "@/hooks/useAuth";
 
-import { formatDateRange, isTieredTask, useCampaignViews } from "@/hooks/useCampaigns";
+import { formatDateRange, isRecurringTask, isTieredTask, useCampaignViews } from "@/hooks/useCampaigns";
 
 const CREDITED_SEEN_KEY = (userId: string) => `omenx_campaign_credited_seen:${userId}`;
 
@@ -75,12 +76,30 @@ export default function LiteCampaignDetailPage() {
   // surface each newly credited tier once (per browser) with a toast.
   useEffect(() => {
     if (!user || !view || !entry) return;
-    const credited: { key: string; usdc: number; tierIndex: number; taskName: string }[] = [];
+    const credited: { key: string; usdc: number; tierIndex: number; taskName: string; streak?: string }[] = [];
     entry.tasks.filter(isTieredTask).forEach((task) => {
       deriveTiered(task, view.grants).tiers.forEach((t) => {
         const usdc = t.tier.reward?.usdc ?? 0;
         if (t.claimed && usdc > 0) credited.push({ key: t.key, usdc, tierIndex: t.index + 1, taskName: task.name });
       });
+    });
+    // Recurring: only the streak bonuses toast (a daily $1 would nag); "n-day streak" label.
+    entry.tasks.filter(isRecurringTask).forEach((task) => {
+      const every = task.streak_bonus?.every ?? 0;
+      const usdc = task.streak_bonus?.reward?.usdc ?? 0;
+      if (!every || !usdc) return;
+      view.grants
+        .filter((g) => g.taskKey.startsWith(`${task.task_key}#s`) && g.status === "claimed")
+        .forEach((g) => {
+          const n = Number(g.taskKey.split("#s")[1] ?? 0);
+          credited.push({
+            key: g.taskKey,
+            usdc,
+            tierIndex: n,
+            taskName: task.name,
+            streak: `${n * every}-${task.period === "weekly" ? "week" : "day"} streak`,
+          });
+        });
     });
     if (!credited.length) return;
     let seen: string[] = [];
@@ -93,7 +112,12 @@ export default function LiteCampaignDetailPage() {
     // First visit after the feature ships: mark everything seen silently so an
     // old account does not get seven toasts at once.
     const firstVisit = seen.length === 0 && fresh.length === credited.length && credited.length > 1;
-    if (!firstVisit) fresh.forEach((c) => showCreditedToast(c.usdc, c.tierIndex, c.taskName, () => navigate("/wallet")));
+    if (!firstVisit)
+      fresh.forEach((c) =>
+        c.streak
+          ? showStreakBonusToast(c.usdc, c.streak, c.taskName, () => navigate("/wallet"))
+          : showCreditedToast(c.usdc, c.tierIndex, c.taskName, () => navigate("/wallet")),
+      );
     try {
       localStorage.setItem(CREDITED_SEEN_KEY(user.id), JSON.stringify(credited.map((c) => c.key)));
     } catch {
@@ -258,7 +282,18 @@ export default function LiteCampaignDetailPage() {
       </div>
 
       {(entry?.tasks ?? []).map((task) =>
-        isTieredTask(task) ? (
+        isRecurringTask(task) ? (
+          <RecurringTaskRow
+            key={task.task_key}
+            task={task}
+            grants={view.grants}
+            joinedAt={view.participation?.joinedAt}
+            claimingKey={claiming}
+            frozen={frozen}
+            signedOut={signedOut}
+            onClaim={handleClaim}
+          />
+        ) : isTieredTask(task) ? (
           <TieredTaskRow
             key={task.task_key}
             task={task}
