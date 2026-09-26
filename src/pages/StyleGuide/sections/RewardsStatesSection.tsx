@@ -618,7 +618,7 @@ const DETAIL_CASES: SectionCase[] = [
       { state: "active_days", when: "metric = active_days（min_notional 缺省 $10）", visual: "CalendarCheck；`3 / 7 days`", source: "campaign_metric_value()" },
       { state: "hold_positions", when: "metric = hold_positions（hold.min_hours / min_notional）；已平仓（含自动平仓）与仍持有 ≥ min_hours 都算；每小时 cron 扫描", visual: "Clock；`1 / 3 positions`", source: "campaign_metric_value() · campaign_hold_sweep()" },
       { state: "分段条", when: "计数类指标且 target ≤ 10", visual: "N 段 22×5 圆角，达一段亮一段（青），全达 lime；target > 10 回落连续条", source: "TaskRowShell progress.steps" },
-      { state: "邀请不叠加", when: "好友合格时邀请人在参加含邀请任务的活动", visual: "该好友计进任务；Referral 分页该行 `Counted toward campaign`，不出 Claim voucher（RW-15 第 4 行）", source: "referrals_campaign_hook() · ReferralPanel countedToward" },
+      { state: "与 Referral 分页各算各的", when: "好友合格（status → qualified）", visual: "Referral 分页照旧出 `$5 voucher` 可领；同时邀请人所在活动里的邀请任务 +1。同一好友两边都算，互不影响（2026-09-26 起，之前的 `Counted toward campaign` 态已废）", source: "referrals_campaign_hook() 只驱动任务进度，不写 referrals" },
       { state: "套 tiered", when: "type = tiered + 计数指标", visual: "刻度点连续条 + `2 / 3 friends`，其余同 RW-8b", source: "TieredTaskRow" },
     ],
   },
@@ -851,14 +851,8 @@ const REFERRAL_CASES: SectionCase[] = [
   {
     key: "rewards-referral-rows",
     label: "RW-15 · Your invites 行（TaskRowShell · fixture 四态）",
-    note: "fixture 四行分别是 pending / qualified / rewarded / counted toward campaign；空态见 RW-14 帧（同组件 rows.length === 0 分支）。",
+    note: "fixture 三行分别是 pending / qualified / rewarded；空态见 RW-14 帧（同组件 rows.length === 0 分支）。好友合格是否同时计进活动邀请任务，不影响本分页的行（两边各算各的，2026-09-26 起）。",
     spec: [
-      {
-        state: "counted toward campaign",
-        when: "metadata.counted_toward 存在（服务端在好友合格时写入，status 同时置 rewarded）",
-        visual: "副标题 `Qualified {date} · counted toward Starter Rewards`，无奖励槽，右侧青字 `Counted toward campaign`，不 faded",
-        source: "ReferralPanel countedToward · referrals_campaign_hook()",
-      },
       {
         state: "in_progress",
         when: 'r.status === "pending"',

@@ -5,7 +5,7 @@
 > 活动详情页的任务行，原来只有一种：做到一个目标，领一份奖励。上一批加了「阶梯解锁」（一条任务多个档，每过一档发一次）。这一批再加三种，运营在活动里配任务时可以直接选：
 >
 > 1. **每日 / 每周任务** —— 每天（或每周）做到目标就发一次，连续 7 天再加一笔 bonus。任务行上看得到今日进度、最近两周的点阵和 🔥 连续天数，点开有月历。
-> 2. **邀请任务** —— 进度 = 邀请到的好友里成交满 $100 的人数。好友一旦被计进活动任务，Referral 分页那边就不再另发 $5，只显示 `Counted toward campaign`。
+> 2. **邀请任务** —— 进度 = 邀请到的好友里成交满 $100 的人数。和 Referral 分页的每人 $5 券各算各的：好友合格时 Referral 那边照旧可领 $5，活动里的邀请任务同时 +1，两边互不影响。
 > 3. **活跃天数 / 持仓时长任务** —— 进度 = 有成交的不同天数，或拿满 24 小时的仓位数。目标 ≤ 10 时进度条是分段的，达一段亮一段。
 >
 > 这三种和原有两种共用同一套底层：运营只在 `campaign_entries.rules.tasks[]` 里写 JSON，不改代码；USDC 奖励达标即自动入 Standard 账户（上一批已有的规则，本批沿用）；券奖励达标后点 Claim。老任务一字不动。
@@ -17,7 +17,7 @@
 ## 0. 读者须知
 
 查什么去哪儿：
-- 长什么样 → 生产页 `/rewards/campaign/19033848-dc98-4a53-b4c5-d9e31b24a51f`（Starter Rewards，always-on：第 4–8 条任务分别是阶梯 / 每日 / 邀请阶梯 / 活跃天数 / 持仓）、`/rewards/campaign/a2222222-2222-4222-8222-aaaaaaaaaaa2`（Finals Week，ended：阶梯 + 每日各一条）、`/rewards?tab=referral`（好友被计入活动的行）
+- 长什么样 → 生产页 `/rewards/campaign/19033848-dc98-4a53-b4c5-d9e31b24a51f`（Starter Rewards，always-on：第 4–8 条任务分别是阶梯 / 每日 / 邀请阶梯 / 活跃天数 / 持仓）、`/rewards/campaign/a2222222-2222-4222-8222-aaaaaaaaaaa2`（Finals Week，ended：阶梯 + 每日各一条）、`/rewards?tab=referral`（好友行不因活动邀请任务改样）
 - 什么时候变成什么样 → `/style-guide` → Lite → Rewards 状态字典 **RW-8b / 8c / 8d / 8d-b / 8d-c / 8e / 12b / 12c / 15**（每个 case 有「状态 / 触发条件 / 视觉 / 数据来源」表）
 - 字段名、文案、公式、时间口径、术语 → `docs/copy-dictionary.md`（顶部有「Lite 术语对照表」；Rewards 节「阶梯任务」「周期任务与指标」两小节）→ 本文档对应章节
 - 设计法则（刻度点、奖励槽两行、日历条、分段条、抽屉 / hover 对等）→ `DESIGN.md` §Addendum 2026-09-23 · 阶梯任务行、§Addendum 2026-09-25 · 周期任务行与指标行
@@ -61,7 +61,7 @@
 - **一条任务一根进度条、三行文案封顶**（标题 / 副标题 / 一个进度数字）；档位、历史明细一律下沉到二级（桌面 hover、手机抽屉）。
 - **USDC 达标即入账，写路径只有一处**：服务端在成交 / 好友合格 / 每小时扫描的同一事务里把该档记为已发、Standard 余额 +X、写一条钱包流水（`bonus`）；页面没有"待领 / 待审核"中间态；同一档 / 同一期 / 同一次 bonus 只入账一次，重放零副作用（`campaign_settle_grant()` 行级闩锁）。
 - **券达标后点领**：走 `claim-campaign-grant`，同一个函数解析三种 grant key。
-- **邀请不叠加**：好友合格时，邀请人若在参加含邀请任务的活动，这个好友计进任务，Referral 分页不再出 `$5 voucher`。
+- **邀请与 Referral 分页各算各的**（2026-09-26 定，取代 09-25 版的"不叠加"）：好友合格时，Referral 分页照旧出每人 `$5 voucher`，邀请人所在活动里的邀请任务同时 +1；两条路径互不判断、互不抵扣。运营配邀请任务时按"一个合格好友 = $5 券 + 任务进度"算预算。
 - **持仓时长**：被自动平仓（强平）的仓位同样计入。
 
 ## 2. 数据模型
@@ -144,7 +144,7 @@
 | tiered | 1 | 全档 claimed | 任一档 claimable | 全档之和 | 已发档之和 |
 | recurring | 1 | `max_periods` 达到（无上限永不计） | 任一期 / bonus claimable | `reward × max_periods` + 凑得到的 bonus（无上限时不累加） | 已发期 + bonus |
 
-## 3. 数据库 / 服务端（migration `20260923150000` + `20260925100000`）
+## 3. 数据库 / 服务端（migration `20260923150000` + `20260925100000` + `20260926110000`）
 
 两层：**指标层** `campaign_metric_value()` 重算绝对值 → **类型层** `apply_campaign_progress()` 按 `type` 分发 → **结算层** `campaign_settle_grant()` 唯一入账点。
 
@@ -152,11 +152,11 @@
 2. `campaign_recurring_apply(user, entry, task, at, joined_at)`：算当期 key 与窗口；`max_periods` 已满则不再开新期；结算当期行；当期 `claimed` 时向前数连续 `claimed` 期 = streak，`streak % every = 0` → 结算 bonus 行 `#s<streak/every>`（label `<name> · 7-day streak`）。
 3. `apply_campaign_progress(user, event_name, amount, at, metrics[])`：遍历 live 活动 × 任务；`metrics` 非空时只处理这些指标；交易类指标带 event_name 时过 scope；按 type 分发。4 参数版是 trades 触发器用的兼容壳。
 4. `trades_campaign_progress()`：INSERT / 转 Filled → 全量；转 Closed → 只 `hold_positions`。
-5. `referrals_campaign_hook()`（AFTER UPDATE OF status）：pending → qualified 时，邀请人若在 live 活动里有 `referrals_qualified` 任务 → 该 referral 置 `rewarded` + `metadata.counted_toward = {campaign_id, campaign_name}`，再驱动邀请人的任务。没有邀请任务 → 什么都不做，Referral 分页照旧 `$5 voucher`。
+5. `referrals_campaign_hook()`（AFTER UPDATE OF status，migration `20260926110000` 重定义）：pending → qualified 时只做一件事——`apply_campaign_progress(referrer, NULL, 1, now(), [referrals_qualified])` 驱动邀请人所在 live 活动里的邀请任务；**不写 referrals 表**，Referral 分页的 `$5 voucher` 流程不受影响。
 6. `campaign_hold_sweep()`：pg_cron `15 * * * *`，对所有参加含 `hold_positions` 任务活动的用户重算。
 7. Edge Function `claim-campaign-grant`：`#t<n>` → `tiers[n-1].reward`；`@<period>` → `task.reward`；`#s<n>` → `streak_bonus.reward`；只服务券。
 
-实测（fixture 用户，已清理）：连续 7 天各 $60 → 7 期各入账 $1 + `7-day streak` $5；同日再 $10 不重复；活跃天 7/7 入账；好友合格 → referral `rewarded` + counted_toward + 邀请阶梯 t1 $5；随后重放 + 手动 sweep → 流水数不变。
+实测（fixture 用户，已清理）：连续 7 天各 $60 → 7 期各入账 $1 + `7-day streak` $5；同日再 $10 不重复；活跃天 7/7 入账；好友合格 → 邀请阶梯 t1 $5 入账，referral 行本身仍 `qualified`（$5 券可领）；随后重放 + 手动 sweep → 流水数不变。
 
 ## 4. 用户端流程
 
@@ -186,7 +186,7 @@
 
 ### 4.3 Referral 分页
 
-好友行若 `metadata.counted_toward` 存在：副标题 `Qualified {date} · counted toward Starter Rewards`，无奖励槽，右侧青字 `Counted toward campaign`，不 faded；`claim-referral-voucher` 因 status 已 `rewarded` 拒绝。
+本批不改 Referral 分页。好友合格 → 该行照旧 `Qualified {date}` + `$5 voucher` + `Claim voucher`；同一好友是否被活动邀请任务计数，这里看不出来也不需要看出来（各算各的）。09-25 曾做过的 `Counted toward campaign` 行态已于 09-26 废止（migration `20260926110000`）。
 
 ### 4.4 钱包流水
 
@@ -198,7 +198,7 @@
 |---|---|---|
 | Starter Rewards | `vl_volume_ladder` | $36,000，t1–t4 已入账 |
 | | `daily_trade` | 相对今天（UTC）：最近 14 天里 12 天达标（D-11 $18 未达、D-6 未开始），今天 $32 进行中，🔥 5。**每天 00:02 UTC 由 `roll_demo_campaign_daily()`（pg_cron `roll-demo-campaign-daily`）按今天重写**，否则第二天就成「昨天没做、streak 归零」 |
-| | `invite_ladder` | 2 位好友被计入（Referral 分页两行 `Counted toward campaign`），t1 $5 已入账，t2 2/3 |
+| | `invite_ladder` | 2 位好友合格（Referral 分页两行 `$5 voucher · Claim voucher`），t1 $5 已入账，t2 2/3 |
 | | `active_7d` / `hold_24h` | alex 真实数据已达标 → 已入账 $5 / $15 |
 | Finals Week（ended） | `fw_volume_ladder` / `fw_daily` | 阶梯 3/7 档已入账；每日 3 天达标 |
 
@@ -220,13 +220,13 @@
 | Ⓒ | 指标行（邀请 / 活跃天 / 持仓 + 邀请阶梯） | RW-8e | `rewards-metric-rows` |
 | Ⓒ | 自动入账 toast | RW-12b | `rewards-credited-toast` |
 | Ⓒ | streak bonus toast | RW-12c | `rewards-streak-toast` |
-| Ⓓ | Your invites 行（含 counted toward） | RW-15 | `rewards-referral-rows` |
+| Ⓓ | Your invites 行（pending / qualified / rewarded） | RW-15 | `rewards-referral-rows` |
 
 ## 8. 涉及文件
 
 **前端**：`src/components/campaigns/TieredTaskRow.tsx` · `RecurringTaskRow.tsx` · `CreditedToastBody.tsx` · `TaskRowShell.tsx` · `GrantTaskRow.tsx` · `ReferralPanel.tsx` · `src/pages/lite/LiteCampaignDetailPage.tsx` · `src/hooks/useCampaigns.ts`
 
-**后端**：`supabase/functions/claim-campaign-grant/index.ts` · `supabase/migrations/20260923150000_campaign_tiered_tasks.sql` · `20260925100000_campaign_task_types_r2.sql` · 演示留档 `20260923150100_*` / `20260925100100_*` / `20260926000000_*`
+**后端**：`supabase/functions/claim-campaign-grant/index.ts` · `supabase/migrations/20260923150000_campaign_tiered_tasks.sql` · `20260925100000_campaign_task_types_r2.sql` · `20260926110000_referral_no_link.sql` · 演示留档 `20260923150100_*` / `20260925100100_*` / `20260926000000_*`
 
 **字典**：`src/pages/StyleGuide/preview/rewardsPreviews.tsx` · `preview/registry.tsx` · `sections/RewardsStatesSection.tsx`
 
@@ -236,7 +236,7 @@
 |---|---|---|
 | 指标重算与类型分发 | Postgres 触发器 + pg_cron | 研发自有事件管线，**口径以 §2.2 / §3 为准**，可整体替换实现 |
 | USDC 入账 | `campaign_settle_grant()` 同事务写余额 + 流水 | 真实记账系统；必须保留「一档 / 一期 / 一次 bonus 只入账一次」的幂等语义，入账写路径唯一 |
-| 邀请不叠加 | referrals 触发器写 `counted_toward` | 同语义；好友合格事件必须先判"邀请人是否在含邀请任务的活动里" |
+| 邀请任务进度 | referrals 触发器在好友合格时给邀请人任务 +1 | 同语义；与 Referral 每人券是两条独立路径，不需要跨模块判断 |
 | 持仓时长 | 平仓事件 + 每小时 cron | 可改事件驱动（仓位跨过 min_hours 时推一次） |
 | 券档领取 | `claim-campaign-grant` | 同 |
 | 入账 / streak 通知 | 页面加载 toast（localStorage） | 服务端推送 / 站内信，文案沿用 RW-12b / 12c |

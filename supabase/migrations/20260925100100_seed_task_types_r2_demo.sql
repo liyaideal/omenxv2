@@ -2,7 +2,7 @@
 -- Starter Rewards (entry 690c42ff…) gets four more tasks: daily_trade (recurring),
 -- invite_ladder (tiered × referrals_qualified), active_7d (active_days), hold_24h (hold_positions).
 -- alex_carter: 12 daily credits (9-11…9-24, misses 9-14 / 9-19), today $32 in progress;
--- two friends counted toward the campaign (invite tier 1 credited); active_7d / hold_24h were
+-- two qualified friends drive the invite task (tier 1 credited; 2026-09-26 起不再写 counted_toward，见 20260926110000); active_7d / hold_24h were
 -- credited by the real driver from alex's own trades (30 active days / 19 held positions).
 -- Finals Week (ended) gets fw_daily with 3 credited days. profiles.spot_balance += 20 (+5 +15 by the driver).
 
@@ -18,10 +18,10 @@ UPDATE campaign_entries
 
 SELECT set_config('app.progress_driver','on',true);
 INSERT INTO referrals (referrer_id, referee_id, referral_code, level, status, qualified_at, rewarded_at, metadata, created_at) VALUES
-('968a2b3a-3913-4acb-948b-c78cc828a125','33333333-3333-4333-8333-333333333333','ALEX24',1,'rewarded','2026-09-20 11:12:00+00','2026-09-20 11:12:00+00',
- '{"demo":true,"masked_email":"j***n@gmail.com","target":100,"volume":132,"counted_toward":{"campaign_id":"19033848-dc98-4a53-b4c5-d9e31b24a51f","campaign_name":"Starter Rewards"}}','2026-09-18 09:00:00+00'),
-('968a2b3a-3913-4acb-948b-c78cc828a125','44444444-4444-4444-8444-444444444444','ALEX24',1,'rewarded','2026-09-23 16:40:00+00','2026-09-23 16:40:00+00',
- '{"demo":true,"masked_email":"l***e@proton.me","target":100,"volume":205,"counted_toward":{"campaign_id":"19033848-dc98-4a53-b4c5-d9e31b24a51f","campaign_name":"Starter Rewards"}}','2026-09-21 14:30:00+00');
+('968a2b3a-3913-4acb-948b-c78cc828a125','33333333-3333-4333-8333-333333333333','ALEX24',1,'qualified','2026-09-20 11:12:00+00',NULL,
+ '{"demo":true,"masked_email":"j***n@gmail.com","target":100,"volume":132}','2026-09-18 09:00:00+00'),
+('968a2b3a-3913-4acb-948b-c78cc828a125','44444444-4444-4444-8444-444444444444','ALEX24',1,'qualified','2026-09-23 16:40:00+00',NULL,
+ '{"demo":true,"masked_email":"l***e@proton.me","target":100,"volume":205}','2026-09-21 14:30:00+00');
 
 INSERT INTO campaign_grants (user_id, entry_id, task_key, progress, status, created_at, updated_at) VALUES
 ('968a2b3a-3913-4acb-948b-c78cc828a125','690c42ff-a87d-4201-937f-311c8c4432d5','invite_ladder#t1','{"value":2,"current":2,"target":1,"credited_usdc":5,"credited_at":"2026-09-20T11:12:00+00:00"}','claimed','2026-09-20 11:12:00+00','2026-09-23 16:40:00+00'),

@@ -226,7 +226,7 @@
 |---|---|---|
 | 触发器三层：`campaign_metric_value()`（指标重算）/ `apply_campaign_progress(…, _metrics[])`（类型分发）/ `campaign_settle_grant()`（唯一入账点，行级闩锁） | 🟢（正式版必做，口径以 `docs/delivery/rewards-task-types-v1.md` §2.2 / §3 为准） | Lovable 用 Postgres 触发器 + pg_cron 做参考实现；正式版接自有事件管线 + 真实记账，保留「一档 / 一期 / 一次 bonus 只入账一次」幂等语义 |
 | `type: recurring` 期 grant `<key>@<YYYY-MM-DD \| IYYY-Www>`、bonus `<key>#s<n>`、`max_periods` | 🟡 | 键法与 progress 键名照抄；UTC 日 / ISO 周边界 |
-| `referrals_campaign_hook()`：好友合格 → 邀请人任务 + `referrals.metadata.counted_toward` + status `rewarded` | 🟢 | 邀请不叠加语义：合格事件先判"邀请人是否在含 `referrals_qualified` 任务的 live 活动里"，是则不再发每人券 |
+| `referrals_campaign_hook()`：好友合格 → 只驱动邀请人所在活动里 `referrals_qualified` 任务 +1，**不写 referrals 表** | 🟢 | 与 Referral 分页每人 $5 券各算各的（2026-09-26 Liya 拍板，取代 09-25 的"不叠加 / counted_toward"）；正式版同样两条独立路径，不需要跨模块判断 |
 | `hold_positions`：平仓事件 + pg_cron `campaign-hold-sweep`（每小时 :15） | 🟡 | 正式版可改事件驱动；含自动平仓 |
 | 演示滚动器 `roll_demo_campaign_daily()` + pg_cron `roll-demo-campaign-daily`（00:02 UTC） | 🔴 演示专用 | 只重写 alex_carter 的 daily_trade 期记录与对应流水；正式版不存在 |
 | `active_days`：distinct UTC 日，`min_notional` 缺省 $10 | 🟡 | 照抄 |

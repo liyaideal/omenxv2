@@ -118,7 +118,6 @@ Single source of truth for user-visible field names across the app.
 | **Max periods** | 可发次数上限；达到后无当期、行卡 Completed | `done ≥ max_periods` | `deriveRecurring().completed` |
 | **Metric（指标）** | 进度怎么算，与类型正交 | `usd_volume / count / referrals_qualified / active_days / hold_positions` | `campaign_metric_value()` |
 | **Qualified friend（合格好友）** | 被邀请人累计成交 ≥ $100 | `referrals.status ∈ {qualified, rewarded}` | 现有口径 |
-| **Counted toward campaign** | 合格好友被计入邀请人正在参加的活动任务，不再发每人 $5 券 | `referrals.metadata.counted_toward` 存在 | `referrals_campaign_hook()` |
 | **Active day（活跃日）** | 当日有 ≥ `min_notional`（缺省 $10）成交的 UTC 日 | `count(distinct date)` | `campaign_metric_value()` |
 | **Held position（持仓达标）** | 名义 ≥ `hold.min_notional` 且持有 ≥ `hold.min_hours` 的仓位，含自动平仓 | 仍持有按 `now − created_at`，已平按 `closed_at − created_at` | `campaign_metric_value()` · 每小时 `campaign-hold-sweep` |
 
@@ -140,7 +139,6 @@ Single source of truth for user-visible field names across the app.
 | **+$5 USDC · 7-day streak** | streak bonus toast 标题；描述 `<task> · bonus credited to Standard` | Streak reward, Combo bonus |
 | **2 / 3 friends** / **3 / 7 days** / **1 / 3 positions** | 计数指标进度文案（不带 `$`） | 2 of 3, 2/3 |
 | **Invite** | 邀请指标缺省 CTA → `/rewards?tab=referral` | Refer, Share link |
-| **Counted toward campaign** | Referral 分页好友行右侧青字；副标题 `Qualified {date} · counted toward Starter Rewards` | Used in campaign, Applied |
 | **Credited** | USDC threshold 任务已入账的动作栏灰字（替代 `Claimed`） | Paid, Done |
 | **Campaign reward · <task> · 2026-09-24** / **· 7-day streak** | 钱包流水描述（周期 / bonus） | Daily reward, Streak payout |
 

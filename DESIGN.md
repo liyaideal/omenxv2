@@ -2168,7 +2168,7 @@ Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED
 
 ## §Addendum 2026-09-25 · 周期任务行与指标行（RecurringTaskRow · 指标单位 · 分段条，LOCKED）
 
-来源：mock t3-recurring v2.2（CPO 2026-09-25 批）；规格 `docs/delivery/rewards-task-types-v1.md`；字典 RW-8d / 8d-b / 8e / 12c。**作用域**：`RecurringTaskRow`、`TaskRowShell.progress.{unit,steps,fillColor,suffix}` 与 `extra` 槽、`GrantTaskRow` / `TieredTaskRow` 的指标分支、`ReferralPanel` counted 行。
+来源：mock t3-recurring v2.2（CPO 2026-09-25 批）；规格 `docs/delivery/rewards-task-types-v1.md`；字典 RW-8d / 8d-b / 8e / 12c。**作用域**：`RecurringTaskRow`、`TaskRowShell.progress.{unit,steps,fillColor,suffix}` 与 `extra` 槽、`GrantTaskRow` / `TieredTaskRow` 的指标分支。
 
 1. **当期唯一**：周期任务行卡只画当期（`$32 / $50 today` / `this week`），历史不进行卡正文；当期达标进度条填满并变 lime `#CFFF4A`（与"完成"语义一致）。`max_periods` 达到后无当期，进度条不渲染。
 2. **第三行 = 点阵**：桌面最近 14 期、手机最近 7 期，14px 圆点间距 4px，最右今天。达标 `#33D6FF`、未达 `#2B2F38`、拿到 streak bonus 那期 `#FF8A3D`（状态橙，与体育 TB 同一语义色，不新增颜色）、今天空心 1.5px 青描边（已达标实心）、加入活动前 1px 虚线空。右侧 11px：streak ≥ 2 橙 600 `🔥 5-day streak`，否则灰 `Last 14 days`；Completed `30 / 30 days done`。
@@ -2178,6 +2178,6 @@ Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED
 6. **指标单位**：进度文案按 metric 带单位——金额 `$` 前缀；计数后缀词 `friends / days / positions`，不带 `$`。图标 UserPlus / CalendarCheck / Clock；邀请指标缺省 CTA `Invite`。
 7. **分段条**：计数指标且 target ≤ 10 → N 段 22×5 圆角、间距 5，达一段亮一段（青），全达全 lime；target > 10 或金额类回落连续条。文案列不够宽时（375 帧 7 段 + `3 / 7 days`）段宽等比收缩、最低 10px，计数文字 `shrink-0` 不折行（2026-09-25 RW-12c 溢出修正）。
 8. **行高预算**：threshold 行 ≈ 74px，recurring 行 ≈ 118px（多一行点阵）；一个活动里 recurring 任务建议 ≤ 2 条。
-9. **Referral 分页 counted 行**：不 faded、无奖励槽、右侧青 `Counted toward campaign`；副标题追加 `· counted toward <campaign>`。
+9. **Referral 分页不因活动邀请任务改样**（2026-09-26 起）：好友合格时 Referral 分页照旧出 `$5 voucher` 行，活动里的邀请任务同时 +1，两边各算各的；原 `Counted toward campaign` 行态废止。
 10. **KPI 格三断言（2026-09-25 Weekly 弹窗 `WEEKS DONE` 折行事故后立，全站等宽 KPI 格通用）**：同排等宽 KPI 格的标签**单行**（`whitespace-nowrap`，字距可缩到 0.06em、内距可缩到 8px 换空间），数值 **`flex-col + mt-auto` 贴底**——对齐靠结构保证，不靠标签恰好一样长；凡标签/数值是模板变量（`${noun} done`、单复数、币种词），设计与字典必须**渲染最长变体**（weekly ≥ daily、voucher ≥ USDC）。取证三断言：`getClientRects().length === 1`（未折行）、`scrollWidth <= clientWidth`（未溢出）、同排数值 `getBoundingClientRect().bottom` 全等。
 11. **布局约束不改内容归属**：某列塞不下既定内容（如 92px 奖励槽塞不下 `$40 USDC`）时，只允许**改视觉**（加宽列、缩字距、换行策略、缩写词）；**禁止把内容挪到别的字段**（把单位词写进副标题 = 改产品口径，本轮 T2 事故）。列语义变更属产品决策，须在方案里以「⚠ 改既有规范」独立条目请 Liya 批。

@@ -79,14 +79,7 @@ export const ReferralPanel = ({ fixture }: { fixture?: ReferralPanelFixture }) =
     showClaimSuccessToast(() => navigate("/vouchers"));
   };
 
-  /** Friend counted toward a campaign invite task — one reward path, no per-friend voucher. */
-  const countedToward = (r: Referral): string | null => {
-    const ct = (r.metadata as { counted_toward?: { campaign_name?: string } } | null)?.counted_toward;
-    return ct?.campaign_name ?? null;
-  };
-
   const inviteRow = (r: Referral) => {
-    const counted = countedToward(r);
     const isClaimed = r.status === "rewarded" || claimed.includes(r.id);
     const isQualified = r.status === "qualified" || r.status === "rewarded";
     const volume = volumeOf(r);
@@ -96,17 +89,15 @@ export const ReferralPanel = ({ fixture }: { fixture?: ReferralPanelFixture }) =
         key={r.id}
         icon={isQualified ? UserCheck : UserPlus}
         title={maskedEmail(r)}
-        faded={isClaimed && !counted}
+        faded={isClaimed}
         subtitle={
-          counted
-            ? `Qualified ${fmtDate(r.qualified_at ?? r.created_at)} · counted toward ${counted}`
-            : isQualified
+          isQualified
             ? `Qualified ${fmtDate(r.qualified_at ?? r.created_at)}`
             : `Signed up ${fmtDate(r.created_at)} · $${volume} / $${QUALIFY_TARGET} traded`
         }
         progress={isQualified ? undefined : { value: volume, target: QUALIFY_TARGET }}
         reward={
-          counted ? null : isQualified ? (
+          isQualified ? (
               <div className="font-display text-[13.5px] font-bold text-[#CFFF4A]">
                 ${REFERRAL_VOUCHER} voucher
               </div>
@@ -114,9 +105,7 @@ export const ReferralPanel = ({ fixture }: { fixture?: ReferralPanelFixture }) =
         }
         action={
           <>
-            {counted ? (
-              <span className="whitespace-nowrap text-[12.5px] font-semibold text-[#33D6FF]">Counted toward campaign</span>
-            ) : isClaimed ? (
+            {isClaimed ? (
               <span className="whitespace-nowrap text-[12.5px] font-semibold text-[#9AA1AC]">Claimed</span>
             ) : isQualified ? (
               <ClaimButton onClick={() => claim(r.id)} disabled={claiming === r.id}>

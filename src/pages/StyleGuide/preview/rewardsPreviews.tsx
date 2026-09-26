@@ -1055,15 +1055,6 @@ const REF_ROWS: Referral[] = [
   ref("r1", "pending", 42, "a***n@omenx.io", -9),
   ref("r2", "qualified", 100, "b***t@omenx.io", -7),
   ref("r3", "rewarded", 240, "c***m@omenx.io", -5),
-  // counted toward a campaign invite task — one reward path, no per-friend voucher
-  {
-    ...ref("r4", "rewarded", 132, "d***e@omenx.io", -3),
-    metadata: {
-      masked_email: "d***e@omenx.io",
-      volume: 132,
-      counted_toward: { campaign_id: "starter", campaign_name: "Starter Rewards" },
-    },
-  },
 ];
 
 const REF_FIXTURE = { referralCode: "OMX7K2", referrals: REF_ROWS };
