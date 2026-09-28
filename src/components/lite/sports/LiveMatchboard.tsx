@@ -5,6 +5,7 @@
 //         in-segment value) with a cell track along the bottom edge.
 // Display-only. Reads events.metadata; writes nothing.
 // ============================================================
+import { t } from "@/i18n";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -337,11 +338,11 @@ const Matrix = ({
         }}
       >
         {m.status === "live" ? (
-          <LivePill label="LIVE" />
+          <LivePill label={t("common.live")} />
         ) : m.status === "break" ? (
           <LivePill label="BREAK" />
         ) : m.status === "upcoming" ? (
-          <QuietPill label="UPCOMING" />
+          <QuietPill label={t("common.upcoming")} />
         ) : (
           <QuietPill label="FINISHED" />
         )}
@@ -387,7 +388,7 @@ const Matrix = ({
           </span>
         ) : null}
         {m.status === "settled" ? (
-          <QuietPill label="SETTLED" />
+          <QuietPill label={t("trade.screen.lite.lite_contract_sections.settled")} />
         ) : m.status === "finished" ? (
           <ReviewBadge />
         ) : (
@@ -592,13 +593,13 @@ const MobileBar = ({ m, sticky }: { m: Model; sticky: boolean }) => {
     <div className="w-full" style={shell}>
       <Blink />
       {m.status === "live" ? (
-        <LivePill label="LIVE" />
+        <LivePill label={t("common.live")} />
       ) : m.status === "break" ? (
         <LivePill label="BREAK" />
       ) : m.status === "upcoming" ? (
-        <QuietPill label="UPCOMING" />
+        <QuietPill label={t("common.upcoming")} />
       ) : m.status === "settled" ? (
-        <QuietPill label="SETTLED" />
+        <QuietPill label={t("trade.screen.lite.lite_contract_sections.settled")} />
       ) : (
         <QuietPill label="FINISHED" />
       )}

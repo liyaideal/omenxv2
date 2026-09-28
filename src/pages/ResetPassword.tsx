@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Check, Eye, EyeOff, Loader2 } from "lucide-react";
@@ -162,7 +163,7 @@ export const ResetPasswordContent = ({
           <h2 className="font-display text-[20px] font-semibold tracking-tight text-foreground">This link has expired</h2>
           <p className="text-[13px] text-muted-foreground leading-snug">
             Reset links work once and expire after 1 hour. Request a new one from{" "}
-            <span className="text-white">Forgot password?</span> in the sign-in dialog, or from Settings › Account
+            <span className="text-white">{t("common.auth.login.forgot_password")}</span> in the sign-in dialog, or from Settings › Account
             security.
           </p>
         </div>

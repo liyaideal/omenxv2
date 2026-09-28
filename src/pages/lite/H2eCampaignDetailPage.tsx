@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { Component, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { BottomNav } from "@/components/BottomNav";
@@ -64,7 +65,7 @@ export default function H2eCampaignDetailPage() {
       className="inline-flex items-center rounded-full px-2 py-[3px] text-[10px] font-semibold uppercase tracking-[0.06em]"
       style={{ background: "#242830", color: "#C9CED6" }}
     >
-      Always on
+      {t("rewards.screen.campaign_card.always_on")}
     </span>
   );
 
@@ -79,9 +80,9 @@ export default function H2eCampaignDetailPage() {
       >
         <div>{alwaysOnBadge}</div>
         <div className="flex flex-col gap-[10px]">
-          <h1 className="font-display text-[22px] font-bold leading-[28px] text-[#F2F3F5]">Hedge Airdrop Rewards</h1>
+          <h1 className="font-display text-[22px] font-bold leading-[28px] text-[#F2F3F5]">{t("settings.wallet.h2e_rewards_title")}</h1>
           <div className="font-display text-[12px] leading-[16px] tabular-nums text-[#9AA1AC]">
-            Always valid
+            {t("rewards.screen.campaign_card.always_valid")}
           </div>
           <div className="flex flex-wrap items-center gap-2">{heroChip("6px 12px", "12px")}</div>
         </div>
@@ -101,9 +102,9 @@ export default function H2eCampaignDetailPage() {
       >
         <div className="mx-auto w-full max-w-[1248px]">{alwaysOnBadge}</div>
         <div className="mx-auto flex w-full max-w-[1248px] flex-col gap-[12px]">
-          <h1 className="font-display text-[36px] font-bold leading-tight text-[#F2F3F5]">Hedge Airdrop Rewards</h1>
+          <h1 className="font-display text-[36px] font-bold leading-tight text-[#F2F3F5]">{t("settings.wallet.h2e_rewards_title")}</h1>
           <div className="font-display text-[12.5px] tabular-nums text-[#C9CED6]">
-            Always valid
+            {t("rewards.screen.campaign_card.always_valid")}
           </div>
           <div className="flex flex-wrap items-center gap-2">{heroChip("7px 13px", "12.5px")}</div>
         </div>
@@ -120,7 +121,7 @@ export default function H2eCampaignDetailPage() {
       className="flex flex-col gap-[14px] rounded-[16px] border border-[#1D2026] bg-[#131519]"
       style={{ padding: isMobile ? 16 : 18 }}
     >
-      <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6B7280]">Your rewards here</div>
+      <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6B7280]">{t("rewards.screen.h2e_rewards_rail.your_rewards_here")}</div>
 
       {isMobile ? (
         <div className="grid grid-cols-3 gap-2">
@@ -140,17 +141,17 @@ export default function H2eCampaignDetailPage() {
       ) : (
         <>
           <div className="flex items-baseline justify-between">
-            <span className="text-[12.5px] text-[#9AA1AC]">Airdrops earned</span>
+            <span className="text-[12.5px] text-[#9AA1AC]">{t("rewards.screen.h2e_rewards_rail.earned_desktop")}</span>
             <span className="font-display text-[15px] font-bold tabular-nums text-[#33D6FF]">
               ${h2e.totalEarned.toFixed(2)}
             </span>
           </div>
           <div className="flex items-baseline justify-between">
-            <span className="text-[12.5px] text-[#9AA1AC]">Credited to wallet</span>
+            <span className="text-[12.5px] text-[#9AA1AC]">{t("rewards.screen.h2e_rewards_rail.credited_desktop")}</span>
             <span className="font-display text-[15px] font-bold tabular-nums text-white">${credited.toFixed(2)}</span>
           </div>
           <div className="flex items-baseline justify-between" style={{ borderTop: "1px solid #1D2026", paddingTop: 11 }}>
-            <span className="text-[12.5px] text-[#9AA1AC]">Still locked here</span>
+            <span className="text-[12.5px] text-[#9AA1AC]">{t("rewards.screen.h2e_rewards_rail.locked_desktop")}</span>
             <span className="font-display text-[15px] font-bold tabular-nums text-[#9AA1AC]">
               ${h2e.lockedAmount.toFixed(2)}
             </span>
@@ -164,7 +165,7 @@ export default function H2eCampaignDetailPage() {
         className="w-full rounded-[10px] bg-white px-4 font-display text-[12.5px] font-bold text-[#0A0B0D] transition-colors hover:bg-[#E6E9EE]"
         style={{ minHeight: 44 }}
       >
-        Open Wallet →
+        {t("rewards.screen.h2e_rewards_rail.open_wallet")}
       </button>
 
       <div
@@ -175,12 +176,12 @@ export default function H2eCampaignDetailPage() {
           className="grid h-7 w-7 shrink-0 place-items-center overflow-hidden rounded-full text-[11px] font-bold"
           style={{ background: "#16181D", color: "#9AA1AC" }}
         >
-          <img src={omenxMark} alt="OmenX" className="h-3 w-auto" />
+          <img src={omenxMark} alt={t("common.app_name")} className="h-3 w-auto" />
         </span>
         <div className="min-w-0">
-          <div className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#6B7280]">Host</div>
+          <div className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#6B7280]">{t("rewards.screen.h2e_rewards_rail.host")}</div>
           <div className="text-[12.5px] font-semibold" style={{ color: "#F2F3F5" }}>
-            Official OmenX campaign — open to everyone
+            {t("rewards.screen.campaign_detail_page.official_campaign")}
           </div>
         </div>
       </div>
@@ -192,7 +193,7 @@ export default function H2eCampaignDetailPage() {
       <ConnectedAccountsCard />
       <AirdroppedPositionsCard />
       <H2eRewardsCard h2e={h2e} />
-      <CampaignRulesDisclosure heading="Campaign rules" paragraphs={H2E_RULES} />
+      <CampaignRulesDisclosure heading={t("rewards.screen.campaign_detail_page.campaign_rules")} paragraphs={H2E_RULES} />
     </>
   );
 
@@ -223,7 +224,7 @@ export default function H2eCampaignDetailPage() {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background pb-24">
-        <MobileHeader title="Campaign" showLogo={false} showBack />
+        <MobileHeader title={t("rewards.screen.campaign_detail_page.campaign")} showLogo={false} showBack />
         <main className="px-4 py-4">{body}</main>
         <BottomNav />
       </div>

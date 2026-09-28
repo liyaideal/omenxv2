@@ -6,6 +6,7 @@
  * tailwind class disagreed with the mock, the literal wins — do not
  * "approximate with the nearest token".
  */
+import { t } from "@/i18n";
 import { Lock, Search } from "lucide-react";
 import { VT } from "./voucherTokens";
 
@@ -252,8 +253,8 @@ export const PickerOptionRow = ({
         {label}
       </span>
       <div className="grid grid-cols-2 gap-[7px]">
-        <SideButton mobile={mobile} label="Yes" tone="yes" price={price} picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
-        <SideButton mobile={mobile} label="No" tone="no" price={1 - price} picked={pickedShort} disabled={dim} onClick={() => onPick?.("short")} />
+        <SideButton mobile={mobile} label={t("common.yes")} tone="yes" price={price} picked={pickedLong} disabled={dim} onClick={() => onPick?.("long")} />
+        <SideButton mobile={mobile} label={t("common.no")} tone="no" price={1 - price} picked={pickedShort} disabled={dim} onClick={() => onPick?.("short")} />
       </div>
     </div>
   );
@@ -316,13 +317,13 @@ export const EventPickerCard = ({
 }: EventPickerCardProps) => {
   const badges = (
     <>
-      {lines.includes("futures") && <LineBadge strong desktop={!mobile}>Boost</LineBadge>}
-      {lines.includes("spot") && <LineBadge strong desktop={!mobile}>Standard</LineBadge>}
+      {lines.includes("futures") && <LineBadge strong desktop={!mobile}>{t("trade.screen.lite.lite_contract_account_sections.boost")}</LineBadge>}
+      {lines.includes("spot") && <LineBadge strong desktop={!mobile}>{t("common.standard")}</LineBadge>}
       {!locked && tail && <LineBadge desktop={!mobile}>{tail}</LineBadge>}
       {locked && (
         <span className="flex items-center gap-[5px]" style={{ fontSize: 11, fontWeight: 600, color: VT.ink2 }}>
           <Lock className="w-3 h-3" />
-          Voucher already used
+          {t("rewards.screen.voucher_event_picker_card.voucher_already_used")}
         </span>
       )}
     </>
@@ -407,7 +408,7 @@ export const PickerEmpty = ({ query, onClear }: { query?: string; onClear?: () =
       {query ? `No markets match “${query}”` : "No markets take a voucher right now"}
     </span>
     <span style={{ fontSize: 11.5, color: "#9AA1AC", lineHeight: 1.6, maxWidth: 250 }}>
-      Nothing here right now takes a voucher. Clear the filter to see everything eligible.
+      {t("rewards.screen.voucher_event_picker_card.nothing_here_right_now_takes_a_voucher_clear_the_filter_to_see")}
     </span>
     <button
       type="button"
@@ -424,7 +425,7 @@ export const PickerEmpty = ({ query, onClear }: { query?: string; onClear?: () =
         color: VT.ink,
       }}
     >
-      Clear filters
+      {t("common.clear_filters")}
     </button>
   </div>
 );
@@ -445,7 +446,7 @@ export const PickerNoEligible = ({
     style={{ background: "#0F1114", border: "1px solid #1D2026", borderRadius: 12, padding: "26px 18px" }}
   >
     <span className="font-display" style={{ fontSize: 14, fontWeight: 700, color: VT.ink }}>
-      No eligible markets right now
+      {t("rewards.screen.voucher_event_picker_card.no_eligible_markets_right_now")}
     </span>
     <span style={{ fontSize: 11.5, color: "#9AA1AC", lineHeight: 1.6, maxWidth: 250 }}>
       This voucher opens a trial position on Boost and Standard markets priced between 20¢ and 80¢. None are
@@ -466,7 +467,7 @@ export const PickerNoEligible = ({
         color: VT.ink,
       }}
     >
-      Browse all events
+      {t("rewards.screen.voucher_event_picker_card.browse_all_events")}
     </button>
   </div>
 );
@@ -495,7 +496,7 @@ export const PickerSearchBar = ({
     <input
       value={value}
       onChange={(e) => onChange?.(e.target.value)}
-      placeholder="Search markets"
+      placeholder={t("rewards.screen.voucher_event_picker_list.search_markets")}
       className="flex-1 bg-transparent outline-none"
       style={{ fontSize: 12.5, color: VT.ink }}
     />

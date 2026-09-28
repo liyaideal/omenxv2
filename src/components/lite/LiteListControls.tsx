@@ -3,6 +3,7 @@
 // Watchlist chip, trait toggle chips (Boost / Intraday) and the
 // mobile Topics bottom sheet. Lucide icons only, no emoji.
 // ============================================================
+import { t } from "@/i18n";
 import { Calendar, Check, ChevronDown, Star, Timer, Zap } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
@@ -35,7 +36,7 @@ export const CalendarChip = ({
   >
     <Calendar className="h-3.5 w-3.5" strokeWidth={2} />
     <span className="font-display font-semibold" style={{ fontSize: 12 }}>
-      Calendar
+      {t("events.screen.simple.events_view_controls.calendar")}
     </span>
   </button>
 );
@@ -72,7 +73,7 @@ export const WatchlistChip = ({
         className="font-display font-semibold"
         style={{ fontSize: 12, color: active ? "#241B00" : "#C9CED6" }}
       >
-        Watchlist
+        {t("common.watchlist")}
       </span>
     )}
     {count > 0 && (

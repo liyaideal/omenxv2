@@ -6,6 +6,7 @@
  * screen has no BottomNav). Desktop keeps an inline card inside the desk.
  * Pure presentation; every action arrives through props.
  */
+import { t } from "@/i18n";
 import { VT } from "./voucherTokens";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -73,7 +74,7 @@ export const RedeemSummaryBar = ({
       className="flex-none flex items-center justify-center"
       style={{ minHeight: 44, padding: "0 12px", fontSize: 11.5, color: "#9AA1AC" }}
     >
-      Reset
+      {t("market.reset")}
     </button>
   );
 
@@ -132,7 +133,7 @@ export const RedeemSummaryBar = ({
           {lineTwo}
         </div>
       ) : (
-        <span style={{ fontSize: 12, color: VT.ink3 }}>Pick an outcome above to see your trial position.</span>
+        <span style={{ fontSize: 12, color: VT.ink3 }}>{t("rewards.screen.redeem_summary_bar.pick_an_outcome_above_to_see_your_trial_position")}</span>
       )}
       <div className="flex-none flex items-center gap-[8px]">
         {picked && resetButton}

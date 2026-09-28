@@ -3,6 +3,7 @@
 // BTC is the fixed hero tile; ETH / SOL are the compact right column.
 // One module-level round dial drives all three tiles.
 // ============================================================
+import { t } from "@/i18n";
 import { useNavigate } from "react-router-dom";
 import { AssetAvatar } from "@/components/lite/AssetAvatar";
 import { RoundPlot } from "@/components/lite/intraday/RoundPlot";
@@ -130,7 +131,7 @@ const MainTile = ({
         style={{ gridTemplateColumns: "repeat(2, minmax(0,1fr))", gap: 10 }}
       >
         <DirectionButton
-          label="Up"
+          label={t("events.screen.simple.home.home_crypto_card.up")}
           price={up ? up.price : 0.5}
           tone="up"
           minHeight={compact ? 46 : 44}
@@ -140,7 +141,7 @@ const MainTile = ({
           onClick={go("up")}
         />
         <DirectionButton
-          label="Down"
+          label={t("events.screen.simple.home.home_crypto_card.down")}
           price={down ? down.price : 0.5}
           tone="down"
           minHeight={compact ? 46 : 44}
@@ -240,7 +241,7 @@ const CompactTile = ({
         style={{ gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: compact ? 6 : 8 }}
       >
         <DirectionButton
-          label="Up"
+          label={t("events.screen.simple.home.home_crypto_card.up")}
           price={up ? up.price : 0.5}
           tone="up"
           layout={compact ? "stacked" : "split"}
@@ -252,7 +253,7 @@ const CompactTile = ({
           onClick={go("up")}
         />
         <DirectionButton
-          label="Down"
+          label={t("events.screen.simple.home.home_crypto_card.down")}
           price={down ? down.price : 0.5}
           tone="down"
           layout={compact ? "stacked" : "split"}
@@ -344,7 +345,7 @@ const MobileRoundCard = ({
               fontWeight: 700,
             }}
           >
-            Closes
+            {t("market.screen.lite.lite_market_sections.timeline.closes")}
           </span>
           <span
             className="font-mono"
@@ -386,7 +387,7 @@ const MobileRoundCard = ({
         style={{ gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 10, marginTop: 10 }}
       >
         <DirectionButton
-          label="Up"
+          label={t("events.screen.simple.home.home_crypto_card.up")}
           price={up ? up.price : 0.5}
           tone="up"
           minHeight={44}
@@ -396,7 +397,7 @@ const MobileRoundCard = ({
           onClick={go("up")}
         />
         <DirectionButton
-          label="Down"
+          label={t("events.screen.simple.home.home_crypto_card.down")}
           price={down ? down.price : 0.5}
           tone="down"
           minHeight={44}
@@ -430,12 +431,12 @@ export const HomeCryptoCard = ({
 
   return (
     <HomeCard style={{ padding: isMobile ? "16px" : "26px 30px" }}>
-      <HomeEyebrow color={ORANGE}>● Intraday · Rolling rounds</HomeEyebrow>
+      <HomeEyebrow color={ORANGE}>{t("events.screen.simple.home.home_crypto_card.intraday_rolling_rounds")}</HomeEyebrow>
       <div
         className={isMobile ? "flex flex-col" : "flex items-center"}
         style={{ gap: isMobile ? 10 : 20, marginTop: isMobile ? 10 : 12 }}
       >
-        <HomeQuestion size={isMobile ? 20 : 26}>Will the price go up?</HomeQuestion>
+        <HomeQuestion size={isMobile ? 20 : 26}>{t("events.screen.simple.home.home_crypto_card.will_the_price_go_up")}</HomeQuestion>
         <span className={isMobile ? "" : "ml-auto flex-none"}>
           <span className="flex items-center" style={{ gap: 16 }}>
             {!isMobile && (
@@ -449,7 +450,7 @@ export const HomeCryptoCard = ({
                   fontWeight: 700,
                 }}
               >
-                ROUND
+                {t("events.screen.lite.lite_round_navigation.round")}
               </span>
             )}
             <RoundDial value={tf} onSelect={onSelectTf} />

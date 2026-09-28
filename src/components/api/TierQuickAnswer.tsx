@@ -1,3 +1,4 @@
+import { t as tr } from "@/i18n";
 import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { TierEligibility } from "@/hooks/useApiKeys";
@@ -8,7 +9,7 @@ export const TierQuickAnswer = ({ tiers }: { tiers: TierEligibility[] }) => {
   return (
     <div className="py-5 md:flex md:flex-wrap md:items-center md:gap-2 space-y-2 md:space-y-0">
       <span className="block md:inline text-[11px] uppercase tracking-wider text-muted-foreground md:mr-1">
-        You can create
+        {tr("api-management.screen.api_tier_display.you_can_create")}
       </span>
       <div className="flex flex-wrap gap-2">
         {TIER_ORDER.map((tid) => {
@@ -29,7 +30,7 @@ export const TierQuickAnswer = ({ tiers }: { tiers: TierEligibility[] }) => {
               <Icon className="w-3.5 h-3.5 md:w-3 md:h-3" />
               {meta.label}
               {state === "ok" && <Check className="w-3 h-3 opacity-80" />}
-              {state === "manual" && <span className="opacity-80">· manual</span>}
+              {state === "manual" && <span className="opacity-80">{tr("api-management.screen.api_tier_display.manual")}</span>}
               {state === "locked" && <X className="w-3 h-3 opacity-60" />}
             </span>
           );

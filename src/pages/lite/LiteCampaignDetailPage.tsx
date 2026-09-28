@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -185,7 +186,7 @@ export default function LiteCampaignDetailPage() {
                 className="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.06em]"
                 style={{ background: "#242830", color: "#C9CED6" }}
               >
-                Ended
+                {t("home.ended")}
               </span>
             )}
           </div>
@@ -249,7 +250,7 @@ export default function LiteCampaignDetailPage() {
               className="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.06em]"
               style={{ background: "#242830", color: "#C9CED6" }}
             >
-              Ended
+              {t("home.ended")}
             </span>
           )}
         </div>
@@ -275,7 +276,7 @@ export default function LiteCampaignDetailPage() {
   const tasksPanel = view && (
     <div className="space-y-3">
       <div className="flex items-baseline justify-between">
-        <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6B7280]">Grant tasks</span>
+        <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6B7280]">{t("rewards.screen.campaign_detail_task_list.grant_tasks")}</span>
         <span className="text-[11.5px] text-[#6B7280]">
           {view.tasksDone} of {view.tasksTotal} done
         </span>
@@ -353,7 +354,7 @@ export default function LiteCampaignDetailPage() {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background pb-24">
-        <MobileHeader title="Campaign" showLogo={false} showBack />
+        <MobileHeader title={t("rewards.screen.campaign_detail_page.campaign")} showLogo={false} showBack />
         <main className="px-4 py-4">{body}</main>
         <BottomNav />
       </div>

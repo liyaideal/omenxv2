@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { Check, X, Mail } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,15 +12,15 @@ export const TierSegment = ({ tier, current }: { tier: TierEligibility; current:
   const Icon = meta.icon;
   const statusBadge = tier.manualReview ? (
     <Badge variant="outline" className="bg-amber-400/10 text-amber-400 border-amber-400/20 text-[10px]">
-      Manual approval
+      {t("api-management.screen.api_tier_display.manual_approval")}
     </Badge>
   ) : tier.eligible ? (
     <Badge variant="outline" className={cn("text-[10px]", STATUS_STYLES.success.badge)}>
-      Available
+      {t("market.available_balance")}
     </Badge>
   ) : (
     <Badge variant="outline" className={cn("text-[10px]", STATUS_STYLES.neutral.badge)}>
-      Requirements not met
+      {t("api-management.screen.api_key_steps.requirements_not_met")}
     </Badge>
   );
 
@@ -36,7 +37,7 @@ export const TierSegment = ({ tier, current }: { tier: TierEligibility; current:
           <div className="text-[15px] md:text-sm font-semibold text-foreground truncate">{meta.label}</div>
           {current && (
             <span className="text-[9px] uppercase tracking-wider text-muted-foreground/70 border border-border/40 px-1 rounded">
-              you
+              {t("leaderboard.you")}
             </span>
           )}
         </div>
@@ -63,7 +64,7 @@ export const TierSegment = ({ tier, current }: { tier: TierEligibility; current:
       {tier.manualReview && (
         <a href="mailto:api@omenx.io?subject=Pro%2FMM%20API%20access%20request" className="mt-1">
           <Button variant="outline" size="sm" className="w-full h-10 md:h-8 gap-1.5">
-            <Mail className="w-3.5 h-3.5" /> Contact us
+            <Mail className="w-3.5 h-3.5" /> {t("api-management.screen.api_tier_display.contact_us")}
           </Button>
         </a>
       )}

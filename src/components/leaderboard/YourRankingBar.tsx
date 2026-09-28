@@ -4,6 +4,7 @@
  * 恒显：已排名 / 已登录未排名 / 未登录 三态（CPO 2026-09-22 批）。
  * Figma 组件注记原文：Unranked state uses an em dash for rank; never imply a real ranking.
  */
+import { t } from "@/i18n";
 import { Share2 } from "lucide-react";
 import type { SortType } from "./leaderboardKit";
 
@@ -175,7 +176,7 @@ export const YourRankingCardMobile = ({
         <button
           type="button"
           onClick={onShare}
-          aria-label="Share your rank"
+          aria-label={t("leaderboard.share_your_rank")}
           className="flex items-center justify-center transition-colors hover:bg-[#23262D]"
           style={{ width: 44, height: 44, borderRadius: 12, background: "#1C1F26", color: "#F2F3F5" }}
         >

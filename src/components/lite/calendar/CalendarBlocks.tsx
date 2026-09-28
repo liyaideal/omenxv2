@@ -4,6 +4,7 @@
 // types. Pixel contract: docs/design-contracts/calendar-final.html
 // Every card routes into the existing trade pages (CHK-8).
 // ============================================================
+import { t } from "@/i18n";
 import { AssetAvatar } from "@/components/lite/AssetAvatar";
 import { deriveTickerFromEvent, STOCK_NAME } from "@/components/SpotStatsHeader";
 import { kickoffCell } from "@/components/lite/sports/sportsData";
@@ -100,7 +101,7 @@ export const ClosesSoonBadge = () => (
       whiteSpace: "nowrap",
     }}
   >
-    Closes soon
+    {t("events.screen.simple.calendar.calendar_day.closes_soon")}
   </span>
 );
 
@@ -486,7 +487,7 @@ export const MobileTicket = ({
       {ticket.live && (
         <span className="flex items-center" style={{ gap: 4 }}>
           <LivePulse size={4} />
-          <span style={{ fontSize: 9, color: "#fff", fontWeight: 700 }}>live</span>
+          <span style={{ fontSize: 9, color: "#fff", fontWeight: 700 }}>{t("common.live")}</span>
         </span>
       )}
     </span>
@@ -631,7 +632,7 @@ export const SportsBlock = ({
     <CardShell onClick={() => onOpen(m.id)}>
       <span className="flex min-w-0 flex-1 flex-col" style={{ gap: 7 }}>
         <span className="flex flex-wrap items-center" style={{ gap: 9 }}>
-          <CategoryBadge label="Sports" tone="sports" />
+          <CategoryBadge label={t("market.category_sports")} tone="sports" />
           <MicroCaption>
             {m.league} · {/ufc|mma/i.test(m.league) ? "MMA" : "Football"}
           </MicroCaption>
@@ -717,7 +718,7 @@ export const SessionBlock = ({
   return (
     <span className="flex flex-col" style={{ gap: 9 }}>
       <span className="flex flex-wrap items-center" style={{ gap: 9 }}>
-        <CategoryBadge label="Intraday" tone="intraday" />
+        <CategoryBadge label={t("events.screen.simple.simple_events_page.intraday")} tone="intraday" />
         <span style={{ fontSize: 12, color: "#9AA1AC" }}>
           {short} closing bell · {total} {total === 1 ? "name" : "names"} settle when the
           market closes
@@ -766,7 +767,7 @@ export const SessionBlock = ({
               </span>
               <span className="flex flex-none" style={{ gap: 6 }}>
                 <DirectionButton
-                  label="Up"
+                  label={t("events.screen.simple.home.home_crypto_card.up")}
                   price={row.upPrice}
                   tone="up"
                   onClick={(e) => {
@@ -775,7 +776,7 @@ export const SessionBlock = ({
                   }}
                 />
                 <DirectionButton
-                  label="Not up"
+                  label={t("events.screen.simple.calendar.calendar_day.not_up")}
                   price={row.downPrice}
                   tone="down"
                   onClick={(e) => {

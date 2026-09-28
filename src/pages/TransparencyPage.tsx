@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Shield, FileSearch, Scale, ChevronRight, ExternalLink, Lock, Eye, Zap, Percent } from "lucide-react";
@@ -77,8 +78,8 @@ const TransparencyPage = () => {
     return (
       <div className="flex min-h-screen flex-col bg-background">
         <LoginPrompt
-          title="Sign in to access Transparency Audit"
-          description="Verify your assets, trades, and liquidations on-chain."
+          title={t("transparency.screen.TransparencyPage.sign_in_to_access_transparency_audit")}
+          description={t("transparency.screen.TransparencyPage.verify_your_assets_trades_and_liquidations_on_chain")}
         />
         <div style={{ marginBottom: isMobile ? "var(--bottom-nav-h, 76px)" : undefined }}>
           <SeoFooter />
@@ -173,15 +174,15 @@ const TransparencyPage = () => {
     <div className="trading-card p-5 md:p-6">
       <div className="flex flex-col md:flex-row md:items-center gap-4">
         <div className="flex-1">
-          <h3 className="font-semibold text-sm mb-1">Smart Contract</h3>
-          <p className="text-xs text-muted-foreground mb-2">All user funds are held in the OmenX smart contract on Base network.</p>
+          <h3 className="font-semibold text-sm mb-1">{t("transparency.screen.TransparencyPage.smart_contract")}</h3>
+          <p className="text-xs text-muted-foreground mb-2">{t("transparency.screen.TransparencyPage.all_user_funds_are_held_in_the_omenx_smart_contract_on_base")}</p>
           <code className="text-xs font-mono text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded break-all">{BASE_CONTRACT}</code>
         </div>
         <div className="flex flex-col gap-2">
           <Button variant="outline" size="sm" className="text-xs gap-1.5"
             onClick={() => window.open(`https://basescan.org/address/${BASE_CONTRACT}`, "_blank")}
           >
-            <ExternalLink className="w-3.5 h-3.5" /> View on BaseScan
+            <ExternalLink className="w-3.5 h-3.5" /> {t("transparency.screen.TransparencyPage.view_on_basescan")}
           </Button>
           {/* TODO: Unhide when audit report is ready */}
           {/* <Button variant="outline" size="sm" className="text-xs gap-1.5"
@@ -206,7 +207,7 @@ const TransparencyPage = () => {
   if (isMobile) {
     return (
       <div className="flex min-h-screen flex-col bg-background">
-        <MobileHeader title="Transparency audit" showLogo={false} showBack />
+        <MobileHeader title={t("settings.transparency_audit")} showLogo={false} showBack />
         <div className="flex-1 px-4 py-6">{content}</div>
         <div style={{ marginBottom: "var(--bottom-nav-h, 76px)" }}>
           <SeoFooter />

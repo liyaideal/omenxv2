@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useEffect, useMemo, useState } from "react";
 import { Share2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -219,12 +220,12 @@ export default function Leaderboard() {
       <>
         <div className="min-h-screen bg-background">
           <MobileHeader
-            title="Leaderboard"
+            title={t("nav.leaderboard")}
             showBack
             showLogo={false}
             rightContent={
               <div className="-mr-2 flex items-center gap-1">
-                <MobileHeaderIconButton aria-label="Share" onClick={openShare}>
+                <MobileHeaderIconButton aria-label={t("common.share")} onClick={openShare}>
                   <Share2 className="h-5 w-5" strokeWidth={1.5} />
                 </MobileHeaderIconButton>
               </div>
@@ -242,7 +243,7 @@ export default function Leaderboard() {
               (e.currentTarget as HTMLImageElement).style.display = "none";
             }}
           />
-          <h1 className="sr-only">Leaderboard</h1>
+          <h1 className="sr-only">{t("nav.leaderboard")}</h1>
 
           <div
             className="px-4"
@@ -328,7 +329,7 @@ export default function Leaderboard() {
             (e.currentTarget as HTMLImageElement).style.display = "none";
           }}
         />
-        <h1 className="sr-only">Leaderboard</h1>
+        <h1 className="sr-only">{t("nav.leaderboard")}</h1>
 
         <div className="mx-auto w-full max-w-7xl px-4 lg:px-6" style={{ paddingTop: 46 }}>
           <LeaderboardFiltersDesktop

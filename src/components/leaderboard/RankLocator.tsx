@@ -14,6 +14,7 @@
  * IntersectionObserver，让本件能在 style-guide 的 iframe 里静态成帧。
  * 不传时渲染与行为逐像素零变化。
  */
+import { t } from "@/i18n";
 import { useEffect, useState } from "react";
 import { ArrowDown } from "lucide-react";
 import { formatMetric, type LeaderboardUser, type SortType } from "./leaderboardKit";
@@ -108,7 +109,7 @@ export const RankLocator = ({
             className="btn-primary shrink-0"
             style={{ height: 36, padding: "0 16px", borderRadius: 10, fontSize: 13, fontWeight: 600 }}
           >
-            Sign in
+            {t("common.sign_in")}
           </button>
         </>
       ) : (

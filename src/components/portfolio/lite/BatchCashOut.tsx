@@ -3,6 +3,7 @@
 // the confirm layer (desktop Dialog / mobile MobileDrawer, per overlay rules).
 // Pure UI: selection state and the actual closing live in LitePortfolio.
 // ============================================================
+import { t } from "@/i18n";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { MobileDrawer, MobileDrawerActions } from "@/components/ui/mobile-drawer";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,7 @@ export const SelectEntry = ({ onEnter }: { onEnter: () => void }) => (
     onClick={onEnter}
     className="py-[7px] text-[12.5px] font-semibold text-[#33D6FF]"
   >
-    Select
+    {t("portfolio.lite.cash_out.select")}
   </button>
 );
 
@@ -37,16 +38,16 @@ export const SelectToolbar = ({
 }) => (
   <div className="flex items-center gap-3 py-[7px] text-[12.5px]">
     <button type="button" onClick={onSelectAll} className="font-semibold text-[#33D6FF]">
-      Select all
+      {t("portfolio.lite.cash_out.select_all")}
     </button>
     {/* Narrow screens: Clear / count yield to the action bar's count so the
         toolbar fits inline next to the segment chips at 390px. */}
     <button type="button" onClick={onClear} className="hidden sm:inline text-[#6B7280]">
-      Clear
+      {t("common.clear")}
     </button>
     <span className="hidden sm:inline font-mono text-[#6B7280]">{count} selected</span>
     <button type="button" onClick={onCancel} className="text-[#C7CCD4]">
-      Cancel
+      {t("common.cancel")}
     </button>
   </div>
 );
@@ -104,12 +105,12 @@ const ConfirmBody = ({ rows }: { rows: LiteLiveRow[] }) => {
           ))}
         </div>
         <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 text-xs">
-          <span className="text-muted-foreground">You get about</span>
+          <span className="text-muted-foreground">{t("portfolio.lite.cash_out.estimate_label")}</span>
           <span className="text-right font-mono font-bold text-foreground">{money(total)}</span>
         </div>
       </div>
       <p className="text-xs text-muted-foreground">
-        Prices move while we close — the final amount can differ slightly.
+        {t("portfolio.lite.cash_out.estimate_warning")}
       </p>
     </div>
   );
@@ -127,7 +128,7 @@ const Actions = ({
 }) => (
   <>
     <Button variant="outline" className="h-11 flex-1" onClick={onCancel} disabled={!!closingLabel}>
-      Cancel
+      {t("common.cancel")}
     </Button>
     <Button
       className="h-11 flex-1 bg-trading-red text-white hover:bg-trading-red/90"

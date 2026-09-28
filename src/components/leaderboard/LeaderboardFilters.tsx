@@ -3,6 +3,7 @@
  * desktop：分段器 360×48 + 右侧 7 Days 90×40 + Share 96×40
  * mobile ：分段器满宽 48 + 下一行 Time range 标签 + 下拉 84×38（无 Share，入口在顶栏与 Your Ranking）
  */
+import { t } from "@/i18n";
 import { ChevronDown, Share2 } from "lucide-react";
 import {
   DropdownMenu,
@@ -134,7 +135,7 @@ export const LeaderboardFiltersDesktop = ({
         }}
       >
         <Share2 className="h-4 w-4" aria-hidden="true" />
-        Share
+        {t("common.share")}
       </button>
     </div>
   </div>
@@ -154,7 +155,7 @@ export const LeaderboardFiltersMobile = ({
   <div>
     <SortSegment sortType={sortType} onSortChange={onSortChange} />
     <div className="flex items-center justify-between" style={{ height: 40, marginTop: 8 }}>
-      <span style={{ fontSize: 12, fontWeight: 500, lineHeight: "18px", color: "#9CA2AB" }}>Time range</span>
+      <span style={{ fontSize: 12, fontWeight: 500, lineHeight: "18px", color: "#9CA2AB" }}>{t("resolved.filters.timeRange")}</span>
       <PeriodDropdown period={period} onPeriodChange={onPeriodChange} width={84} height={38} fontSize={12} />
     </div>
   </div>

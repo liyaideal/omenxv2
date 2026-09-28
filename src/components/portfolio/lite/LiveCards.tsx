@@ -2,6 +2,7 @@
 // Lite /portfolio Live list — mobile position card + desktop grid row +
 // the "waiting to fill" Pro order tail row. Literal spec (工单 §3).
 // ============================================================
+import { t } from "@/i18n";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -184,7 +185,7 @@ export const LiveCard = ({
           className="mt-3 h-10 w-full rounded-[10px] text-[13px] font-semibold text-[#F2F3F5]"
           style={{ border: "1px solid #2A2F38" }}
         >
-          Cash out
+          {t("common.cash_out")}
         </button>
       )}
     </div>
@@ -203,12 +204,12 @@ export const LiveRowHeader = ({ selectMode }: { selectMode?: boolean }) => (
     style={{ gridTemplateColumns: gridFor(selectMode), letterSpacing: "1.1px" }}
   >
     {selectMode && <span />}
-    <span>CALL</span>
-    <span>SIDE</span>
-    <span>COST</span>
-    <span>NOW WORTH</span>
-    <span>PROFIT</span>
-    <span>AUTO-CLOSE / IF WINS</span>
+    <span>{t("portfolio.lite.live.call")}</span>
+    <span>{t("common.side")}</span>
+    <span>{t("common.cost")}</span>
+    <span>{t("common.now_worth")}</span>
+    <span>{t("trade.screen.lite.lite_contract_sections.profit")}</span>
+    <span>{t("portfolio.lite.live.auto_close_if_wins")}</span>
     <span />
   </div>
 );
@@ -311,7 +312,7 @@ export const LiveRow = ({
                       ≈{cents(row.autoClose.price)}
                     </span>
                   ) : (
-                    <span className="cursor-help border-b border-dotted border-[#4d5560] text-[#4d5560]">none</span>
+                    <span className="cursor-help border-b border-dotted border-[#4d5560] text-[#4d5560]">{t("common.none")}</span>
                   )}
                 </TooltipTrigger>
                 <TooltipContent side="top" className="p-3">
@@ -336,7 +337,7 @@ export const LiveRow = ({
             className="h-8 whitespace-nowrap rounded-[8px] px-3 text-[12.5px] font-semibold text-[#F2F3F5]"
             style={{ border: "1px solid #2A2F38" }}
           >
-            Cash out
+            {t("common.cash_out")}
           </button>
         )}
       </div>

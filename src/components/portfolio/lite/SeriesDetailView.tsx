@@ -3,6 +3,7 @@
 // A "series" is 2+ settled rounds of the same recurring event. Numbers are
 // reconciled by the caller: Net = Payout − Cost, and the round nets sum to Net.
 // ============================================================
+import { t } from "@/i18n";
 import { KpiCard, KpiGrid, RED, money, signedMoney, pnlColor } from "./parts";
 import { settledDayLabel } from "@/lib/settleLabel";
 import { DetailCard, DetailTitleRow } from "./SettlementDetailView";
@@ -101,7 +102,7 @@ export const SeriesDetailMobile = ({
         className="mt-1 font-display text-[30px] font-extrabold"
         style={{ color: pnlColor(vm.net) }}
       >
-        Net <span className="font-mono">{signedMoney(vm.net)}</span>
+        {t("portfolio.lite.series.net")} <span className="font-mono">{signedMoney(vm.net)}</span>
       </div>
     </div>
 
@@ -116,7 +117,7 @@ export const SeriesDetailMobile = ({
 
     <div className="px-4 pt-6">
       <div className="pb-1.5 text-[10px] font-bold text-[#6B7280]" style={{ letterSpacing: "1.4px" }}>
-        ROUNDS
+        {t("portfolio.lite.series.rounds")}
       </div>
       {vm.rounds.map((r) => (
         <RoundRow key={r.id} r={r} onClick={() => actions?.onOpenRound?.(r.id)} />
@@ -156,29 +157,29 @@ export const SeriesDetailDesktop = ({
     <div className="mt-4">
       <KpiGrid cols={3}>
         <KpiCard
-          label="NET"
+          label={t("portfolio.lite.series.net")}
           value={signedMoney(vm.net)}
           valueColor={pnlColor(vm.net)}
           sub={`won ${vm.wins} of ${vm.rounds.length} rounds`}
         />
         <KpiCard
-          label="COST"
+          label={t("common.cost")}
           value={money(vm.cost)}
           sub={`${vm.rounds.length} rounds · ${vm.segmentLabel}`}
         />
-        <KpiCard label="PAYOUT" value={money(vm.payout)} sub={`after ${money(vm.fees)} fees`} />
+        <KpiCard label={t("common.payout")} value={money(vm.payout)} sub={`after ${money(vm.fees)} fees`} />
       </KpiGrid>
     </div>
 
     <div className="mt-3 grid grid-cols-2 gap-3">
-      <DetailCard title="DETAILS">
+      <DetailCard title={t("portfolio.lite.boost.details")}>
         <Row k="Type" v={`Series · ${vm.segmentLabel}`} />
         <Row k="Rounds" v={roundsLabel(vm)} />
         <Row k="First round" v={firstRound(vm)} />
         <Row k="Last settled" v={lastSettled(vm)} />
       </DetailCard>
 
-      <DetailCard title="ROUNDS">
+      <DetailCard title={t("portfolio.lite.series.rounds")}>
         {vm.rounds.map((r) => (
           <RoundRow key={r.id} r={r} onClick={() => actions?.onOpenRound?.(r.id)} />
         ))}

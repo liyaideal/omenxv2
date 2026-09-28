@@ -2,6 +2,7 @@
 // MOBILE SPORTS MODULE (390) — live match card pinned above two
 // upcoming match cards. Contract: list-final-touches-11.html 11B / 11C.
 // ============================================================
+import { t } from "@/i18n";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -307,13 +308,13 @@ export const MobileSportsModule = ({
             fontWeight: 700,
           }}
         >
-          Sports · match winners
+          {t("events.screen.simple.all_stage.sports_stage_card.sports_match_winners")}
         </span>
         <h2
           className="font-display"
           style={{ fontWeight: 700, fontSize: 22, letterSpacing: "-0.02em", color: "#fff" }}
         >
-          Who wins the match?
+          {t("events.screen.simple.home.home_sports_card.who_wins_the_match")}
         </h2>
         <p style={{ fontSize: 12, color: "#9AA1AC" }}>
           Winning shares pay <strong style={{ color: "#fff", fontWeight: 600 }}>$1</strong>.
@@ -330,7 +331,7 @@ export const MobileSportsModule = ({
               {live.length} playing now
             </span>
           ) : (
-            <span style={CHIP}>Nothing playing now</span>
+            <span style={CHIP}>{t("events.screen.simple.sports_view.sports_vertical_chrome.nothing_playing")}</span>
           )}
           <span style={CHIP}>{weekCount} this week</span>
         </span>
@@ -340,10 +341,10 @@ export const MobileSportsModule = ({
       {/* Dimension rows — 44px pills, horizontal scroll with the fade mask. */}
       {filters && (
         <div className="flex flex-col" style={{ gap: 9 }}>
-          <DimensionRow label="Sport" labelWidth={44} scroll>
+          <DimensionRow label={t("events.screen.simple.sports_view.sports_vertical.sport")} labelWidth={44} scroll>
             <DimensionPill
               mobile
-              label="All"
+              label={t("common.all")}
               active={sport === ALL_OPTION}
               onSelect={() => {
                 setSport(ALL_OPTION);
@@ -364,10 +365,10 @@ export const MobileSportsModule = ({
             ))}
           </DimensionRow>
           {showLeagueRow && (
-            <DimensionRow label="League" labelWidth={44} scroll>
+            <DimensionRow label={t("common.league")} labelWidth={44} scroll>
               <DimensionPill
                 mobile
-                label="All"
+                label={t("common.all")}
                 active={activeLeague === ALL_OPTION}
                 onSelect={() => setLeague(ALL_OPTION)}
               />
@@ -388,7 +389,7 @@ export const MobileSportsModule = ({
       {boostEmpty ? (
         <EmptyState
           variant="page"
-          title="Nothing boosted here yet — check back soon."
+          title={t("events.screen.simple.crypto_view.crypto_vertical.nothing_boosted_here_yet")}
           illustrationSrc="/assets/mobile/empty-no-boost.png"
         />
       ) : (

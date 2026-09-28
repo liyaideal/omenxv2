@@ -3,6 +3,7 @@
 // 自包含：不再走 SharePosterLayout（那个骨架与 Pro 的 SettlementPoster 共用，本轮不动它）。
 // 固定 400px、100% inline styles —— html-to-image 导出的硬要求。
 // ============================================================
+import { t as tr } from "@/i18n";
 import { forwardRef } from "react";
 import { format } from "date-fns";
 import { QRCodeSVG } from "qrcode.react";
@@ -335,7 +336,7 @@ export const LitePnlPoster = forwardRef<HTMLDivElement, LitePnlPosterProps>(
                     opacity: 0.7,
                   }}
                 >
-                  ROI
+                  {tr("market.roi")}
                 </span>
               </div>
               <div
@@ -440,7 +441,7 @@ export const LitePnlPoster = forwardRef<HTMLDivElement, LitePnlPosterProps>(
             <div style={{ flex: 1, minWidth: 0, height: "76px", display: "flex", flexDirection: "column" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "4px", paddingTop: "6px" }}>
                 <span style={{ fontSize: "10px", lineHeight: "15px", letterSpacing: "0.1172px", color: MUTED }}>
-                  Referral:
+                  {tr("common.referral")}
                 </span>
                 <span
                   style={{
@@ -457,7 +458,7 @@ export const LitePnlPoster = forwardRef<HTMLDivElement, LitePnlPosterProps>(
               </div>
               <div style={{ flex: 1 }} />
               <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                <img src={omenxLogo} alt="OMENX" style={{ height: "18px", width: "auto", alignSelf: "flex-start" }} />
+                <img src={omenxLogo} alt={tr("common.app_name")} style={{ height: "18px", width: "auto", alignSelf: "flex-start" }} />
                 <span style={{ fontSize: "12px", fontWeight: 500, lineHeight: "18px", color: t.accent }}>
                   {isWin ? "Join & trade like a pro!" : "Join & do better than me 😅"}
                 </span>
@@ -484,7 +485,7 @@ export const LitePnlPoster = forwardRef<HTMLDivElement, LitePnlPosterProps>(
                 />
               </div>
               <span style={{ fontSize: "8px", lineHeight: "12px", letterSpacing: "0.2057px", color: MUTED }}>
-                omenx.com
+                {tr("portfolio.screen.lite.lite_pnl_poster.omenx_com")}
               </span>
             </div>
           </div>

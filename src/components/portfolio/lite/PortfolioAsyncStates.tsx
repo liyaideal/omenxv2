@@ -11,6 +11,7 @@
 //  · A failed list request never renders a fake $0.00 KPI — the three values
 //    render `—` and the list area carries the retry affordance.
 // ============================================================
+import { t } from "@/i18n";
 import { useNavigate } from "react-router-dom";
 
 const GROUND = "#171A1F";
@@ -74,7 +75,7 @@ export const PortfolioSkeleton = ({
   /** The page renders the two halves around the static chips row. */
   part?: "all" | "kpi" | "rows";
 }) => (
-  <div className="animate-pulse" aria-busy="true" aria-label="Loading your positions">
+  <div className="animate-pulse" aria-busy="true" aria-label={t("portfolio.screen.lite.lite_portfolio_state.loading_your_positions")}>
     {part !== "rows" && (
       <div className="px-4 lg:px-0 pb-1 pt-3.5">
         <div className={cols === 2 ? "grid grid-cols-2 gap-2" : "grid grid-cols-3 gap-3"}>
@@ -102,14 +103,14 @@ export const PortfolioEmptyLive = () => {
   const navigate = useNavigate();
   return (
     <div className="flex flex-col items-center gap-3 py-14">
-      <p className="text-[13px] text-[#6B7280]">No live calls yet</p>
+      <p className="text-[13px] text-[#6B7280]">{t("portfolio.lite.live.empty")}</p>
       <button
         type="button"
         onClick={() => navigate("/events")}
         className="h-10 rounded-[10px] px-4 text-[13px] font-semibold text-[#F2F3F5]"
         style={{ border: "1px solid #2A2F38" }}
       >
-        Browse events
+        {t("portfolio.lite.live.browse_events")}
       </button>
     </div>
   );
@@ -121,14 +122,14 @@ export const KPI_DASH = "—";
 /** List-area error state: one sentence + an outlined Retry. */
 export const PortfolioFetchError = ({ onRetry }: { onRetry?: () => void }) => (
   <div className="flex flex-col items-center gap-3 py-14" role="alert">
-    <p className="text-sm text-[#6B7280]">Couldn't load your positions.</p>
+    <p className="text-sm text-[#6B7280]">{t("portfolio.lite.error.fetch")}</p>
     <button
       type="button"
       onClick={onRetry}
       className="h-10 rounded-[10px] px-4 text-[13px] font-semibold text-[#F2F3F5]"
       style={{ border: "1px solid #2A2F38" }}
     >
-      Retry
+      {t("market.retry")}
     </button>
   </div>
 );
@@ -141,9 +142,9 @@ export const PortfolioNotFound = () => {
   const navigate = useNavigate();
   return (
     <div className="flex flex-col items-center gap-2 py-14 text-center">
-      <p className="text-[15px] font-semibold text-[#F2F3F5]">Position not found</p>
+      <p className="text-[15px] font-semibold text-[#F2F3F5]">{t("portfolio.lite.not_found.title")}</p>
       <p className="text-[13px] text-[#6B7280]">
-        It may have been removed, or the link is wrong.
+        {t("portfolio.lite.not_found.description")}
       </p>
       <button
         type="button"
@@ -151,7 +152,7 @@ export const PortfolioNotFound = () => {
         className="mt-2 h-10 rounded-[10px] px-4 text-[13px] font-semibold text-[#F2F3F5]"
         style={{ border: "1px solid #2A2F38" }}
       >
-        Back to settled
+        {t("portfolio.lite.detail.back_settled")}
       </button>
     </div>
   );

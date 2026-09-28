@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import type React from "react";
 import { useState, useEffect, ReactNode, CSSProperties } from "react";
 import { ChevronLeft, ChevronDown, ExternalLink } from "lucide-react";
@@ -193,7 +194,7 @@ export const MobileHeader = ({
       return (
         <button
           onClick={handleBack}
-          aria-label="Back"
+          aria-label={t("common.back")}
           className="h-9 w-9 -ml-2 flex items-center justify-center active:scale-95 transition-transform duration-200"
         >
           <ChevronLeft className="w-5 h-5 text-foreground" strokeWidth={1.5} />
@@ -304,24 +305,24 @@ export const MobileHeader = ({
                   className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
                 >
                   <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
-                  <span className="text-xs text-muted-foreground">Tweets</span>
+                  <span className="text-xs text-muted-foreground">{t("market.tweets")}</span>
                   <span className="text-xs text-orange-500 font-mono font-medium">{tweetCount}</span>
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-64 p-3" align="center">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Tweet Count</span>
+                    <span className="text-sm font-medium">{t("market.tweet_count")}</span>
                     <span className="text-lg font-bold text-orange-500">{tweetCount}</span>
                   </div>
                   <div className="text-xs text-muted-foreground space-y-1">
                     <div className="flex justify-between">
-                      <span>Period</span>
+                      <span>{t("market.period")}</span>
                       <span>{period || "N/A"}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Last updated</span>
-                      <span>Just now</span>
+                      <span>{t("market.last_updated")}</span>
+                      <span>{t("market.just_now")}</span>
                     </div>
                   </div>
                   {sourceUrl && (
@@ -347,7 +348,7 @@ export const MobileHeader = ({
                   className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
                 >
                   <span className="w-1.5 h-1.5 bg-trading-green rounded-full animate-pulse" />
-                  <span className="text-xs text-muted-foreground">Price</span>
+                  <span className="text-xs text-muted-foreground">{t("market.price")}</span>
                   <span className="text-xs text-trading-green font-mono font-medium">{currentPrice}</span>
                 </button>
               </PopoverTrigger>
@@ -359,7 +360,7 @@ export const MobileHeader = ({
                   </div>
                   {priceChange24h && (
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">24h Change</span>
+                      <span className="text-sm text-muted-foreground">{t("market.24h_change")}</span>
                       <span className={`text-sm font-medium ${priceChange24h.startsWith('+') ? 'text-trading-green' : 'text-trading-red'}`}>
                         {priceChange24h}
                       </span>
@@ -367,12 +368,12 @@ export const MobileHeader = ({
                   )}
                   <div className="text-xs text-muted-foreground space-y-1">
                     <div className="flex justify-between">
-                      <span>Period</span>
+                      <span>{t("market.period")}</span>
                       <span>{period || "N/A"}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Last updated</span>
-                      <span>Just now</span>
+                      <span>{t("market.last_updated")}</span>
+                      <span>{t("market.just_now")}</span>
                     </div>
                   </div>
                   {sourceUrl && (

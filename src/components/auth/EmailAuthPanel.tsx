@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useEffect, useRef, useState } from "react";
 import { OTPInput, type SlotProps } from "input-otp";
 import { ArrowLeft, Check, Eye, EyeOff, Loader2 } from "lucide-react";
@@ -129,8 +130,8 @@ const PasswordInput = ({
 
 const Terms = () => (
   <p className={FOOT_CLASS}>
-    By continuing, you agree to our <span className={LINK_CLASS}>Terms of Service</span> and{" "}
-    <span className={LINK_CLASS}>Privacy Policy</span>
+    {t("auth.lite.agree_prefix")} <span className={LINK_CLASS}>{t("common.auth.signup.terms.service")}</span> and{" "}
+    <span className={LINK_CLASS}>{t("common.auth.signup.terms.privacy")}</span>
   </p>
 );
 
@@ -320,7 +321,7 @@ export const EmailAuthPanel = ({
       className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
     >
       <ArrowLeft className="w-4 h-4" />
-      Back
+      {t("common.back")}
     </button>
   );
 
@@ -346,7 +347,7 @@ export const EmailAuthPanel = ({
         inputMode="email"
         autoComplete="email"
         autoFocus={autoFocus}
-        placeholder="Email address"
+        placeholder={t("settings.email_address")}
         value={email}
         onChange={(e) => {
           setEmail(e.target.value);
@@ -361,7 +362,7 @@ export const EmailAuthPanel = ({
             <>
               {" "}
               <button type="button" onClick={() => go("signin")} className={LINK_CLASS}>
-                Sign in
+                {t("common.sign_in")}
               </button>
             </>
           )}
@@ -383,7 +384,7 @@ export const EmailAuthPanel = ({
             <PasswordInput
               id="auth-password"
               autoComplete="current-password"
-              placeholder="Password"
+              placeholder={t("settings.security.password")}
               value={password}
               onChange={(v) => {
                 setPassword(v);
@@ -398,7 +399,7 @@ export const EmailAuthPanel = ({
           </div>
           <div className="flex justify-end pt-1">
             <button type="button" onClick={() => go("forgot")} className={`text-[12px] ${LINK_CLASS}`}>
-              Forgot password?
+              {t("common.auth.login.forgot_password")}
             </button>
           </div>
         </div>
@@ -406,7 +407,7 @@ export const EmailAuthPanel = ({
         <p className={FOOT_CLASS}>
           New to OMENX?{" "}
           <button type="button" onClick={() => go("signup")} className={LINK_CLASS}>
-            Create account
+            {t("wallet.authCreate")}
           </button>
         </p>
         <Terms />
@@ -425,7 +426,7 @@ export const EmailAuthPanel = ({
             <PasswordInput
               id="auth-new-password"
               autoComplete="new-password"
-              placeholder="Password"
+              placeholder={t("settings.security.password")}
               value={password}
               onChange={(v) => {
                 setPassword(v);
@@ -440,7 +441,7 @@ export const EmailAuthPanel = ({
         <p className={FOOT_CLASS}>
           Already have an account?{" "}
           <button type="button" onClick={() => go("signin")} className={LINK_CLASS}>
-            Sign in
+            {t("common.sign_in")}
           </button>
         </p>
         <Terms />

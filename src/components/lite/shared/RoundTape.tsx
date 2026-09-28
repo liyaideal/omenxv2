@@ -6,6 +6,7 @@
 // both are the Intraday family — dashed NEXT slot after the close).
 // Density/context differences are props — never re-drawn markup.
 // ============================================================
+import { t } from "@/i18n";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
@@ -241,7 +242,7 @@ export const RoundTape = ({
                     color: "#6B7280",
                   }}
                 >
-                  NEXT
+                  {t("common.next")}
                 </span>
               </TooltipTrigger>
               <TooltipContent>

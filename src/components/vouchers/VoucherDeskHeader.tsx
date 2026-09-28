@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import type { PositionVoucher } from "@/hooks/usePositionVouchers";
@@ -72,7 +73,7 @@ export const VoucherDeskHeader = ({
       <div className="flex items-start justify-between gap-[16px]">
         <div className="flex flex-col gap-[7px] min-w-0">
           <span className="font-display uppercase" style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".14em", color: VT.muted }}>
-            Redeeming voucher
+            {t("common.redeeming_voucher")}
           </span>
           <div className="flex items-end gap-[10px] min-w-0">
             <span
@@ -150,7 +151,7 @@ const VoucherStub = ({
             className="font-display uppercase flex-none"
             style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".1em", color: "#CFFF4A" }}
           >
-            Instant
+            {t("common.instant")}
           </span>
         )}
         <span className="flex-none flex items-center justify-center" style={{ width: 32, height: 44 }}>

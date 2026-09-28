@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useVoucherEarnings } from "@/hooks/useVoucherEarnings";
 import { VOUCHER_TIERS, formatTierCap, deriveVoucherTierState } from "@/lib/voucherTiers";
 import { VT, money, compactMoney } from "./voucherTokens";
@@ -87,7 +88,7 @@ export const VoucherEarningsCard = ({ data, fixture, stats, mobile, onRedeemProm
   /* ------------------------------ left cell ------------------------------ */
   const leftCell = (
     <div className="flex flex-col gap-[10px]" style={{ padding: mobile ? 16 : "20px 22px" }}>
-      <Caps>Voucher earnings</Caps>
+      <Caps>{t("rewards.screen.voucher_earnings_card.voucher_earnings")}</Caps>
       <div className="flex items-end gap-[9px]">
         <span
           className="font-display tabular-nums"
@@ -102,7 +103,7 @@ export const VoucherEarningsCard = ({ data, fixture, stats, mobile, onRedeemProm
           ${loading ? "—" : money(pending)}
         </span>
         <span style={{ fontSize: mobile ? 12 : 13, fontWeight: 600, color: VT.ink3, paddingBottom: mobile ? 4 : 5 }}>
-          USDC pending
+          {t("rewards.screen.voucher_earnings_card.usdc_pending")}
         </span>
       </div>
       <div style={{ fontSize: 11.5, lineHeight: 1.55, color: VT.ink3, maxWidth: 430 }}>
@@ -129,7 +130,7 @@ export const VoucherEarningsCard = ({ data, fixture, stats, mobile, onRedeemProm
           </span>
           <span style={{ width: 1, height: 12, background: VT.line2 }} />
           <span className="flex items-baseline gap-[7px]">
-            <Caps size={9.5} ls=".12em">Active</Caps>
+            <Caps size={9.5} ls=".12em">{t("market.status_active")}</Caps>
             <span className="font-display tabular-nums" style={{ fontSize: 15, lineHeight: 1, fontWeight: 700, color: VT.ink }}>
               {stats.activeCount}
             </span>
@@ -143,7 +144,7 @@ export const VoucherEarningsCard = ({ data, fixture, stats, mobile, onRedeemProm
         style={{ paddingTop: 12, borderTop: `1px solid ${VT.line}` }}
       >
         <span className="flex items-baseline gap-[6px]">
-          <span style={{ fontSize: 11.5, color: VT.muted }}>Lifetime claimed</span>
+          <span style={{ fontSize: 11.5, color: VT.muted }}>{t("common.lifetime_claimed")}</span>
           <span className="font-display tabular-nums" style={{ fontSize: 12.5, fontWeight: 700, color: VT.ink }}>
             ${money(lifetimeCredited)}
           </span>
@@ -152,7 +153,7 @@ export const VoucherEarningsCard = ({ data, fixture, stats, mobile, onRedeemProm
           <>
             <span style={{ width: 1, height: 11, background: VT.line2 }} />
             <span className="flex items-baseline gap-[6px]">
-              <span style={{ fontSize: 11.5, color: VT.muted }}>Vouchers redeemed</span>
+              <span style={{ fontSize: 11.5, color: VT.muted }}>{t("rewards.screen.voucher_earnings_card.vouchers_redeemed")}</span>
               <span className="font-display tabular-nums" style={{ fontSize: 12.5, fontWeight: 700, color: VT.ink }}>
                 {stats.redeemedCount}
               </span>
@@ -174,7 +175,7 @@ export const VoucherEarningsCard = ({ data, fixture, stats, mobile, onRedeemProm
       }}
     >
       <div className="flex items-center justify-between">
-        <Caps>Payout tier</Caps>
+        <Caps>{t("rewards.screen.voucher_earnings_card.payout_tier")}</Caps>
         <Caps ls=".06em" color={current ? VT.volt : VT.muted}>{current ? current.label : "Not started"}</Caps>
       </div>
 
@@ -216,7 +217,7 @@ export const VoucherEarningsCard = ({ data, fixture, stats, mobile, onRedeemProm
         className="flex items-baseline justify-between gap-[8px]"
         style={{ paddingTop: 9, borderTop: `1px solid ${VT.line}` }}
       >
-        <span style={{ fontSize: 11, color: VT.muted }}>Traded volume</span>
+        <span style={{ fontSize: 11, color: VT.muted }}>{t("rewards.screen.voucher_earnings_card.traded_volume")}</span>
         <span className="font-display tabular-nums" style={{ fontSize: 11.5, fontWeight: 700, color: VT.ink }}>
           ${money(volume)} <span style={{ color: VT.muted, fontWeight: 600 }}>/ {compactMoney(topVolume)}</span>
         </span>
@@ -259,7 +260,7 @@ export const VoucherEarningsCard = ({ data, fixture, stats, mobile, onRedeemProm
             cursor: onRedeemPrompt ? "pointer" : "default",
           }}
         >
-          Redeem a voucher
+          {t("rewards.screen.voucher_earnings_card.redeem_voucher")}
         </button>
       )}
     </div>

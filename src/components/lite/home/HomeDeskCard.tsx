@@ -3,6 +3,7 @@
 // Same data contract as EditorPicksModule (metadata.editorial, MAX 3,
 // mandatory note). Zero picks → the whole module is absent.
 // ============================================================
+import { t } from "@/i18n";
 import { useNavigate } from "react-router-dom";
 import { DirectionButton } from "@/components/lite/categoryviews/verticalBlocks";
 import { EditorPick, pickHref } from "@/components/lite/picks/editorialPicks";
@@ -113,9 +114,9 @@ export const HomeDeskCard = ({
   if (picks.length === 0) return null;
   return (
     <HomeCard style={{ padding: isMobile ? "18px 16px" : "26px 28px" }}>
-      <HomeEyebrow color={LIME}>✦ Editor's Desk</HomeEyebrow>
+      <HomeEyebrow color={LIME}>{t("events.screen.simple.home.home_desk_card.eyebrow")}</HomeEyebrow>
       <div style={{ marginTop: 12 }}>
-        <HomeQuestion size={isMobile ? 18 : 22}>What's worth watching</HomeQuestion>
+        <HomeQuestion size={isMobile ? 18 : 22}>{t("events.screen.simple.home.home_desk_card.heading")}</HomeQuestion>
       </div>
       {picks.map((p, i) => (
         <PickRow key={p.id} pick={p} index={i} />

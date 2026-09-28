@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useEffect, useState } from "react";
 import { Check, Mail } from "lucide-react";
 import { toast } from "sonner";
@@ -158,7 +159,7 @@ export const ChangeLoginEmailDialog = ({
             <>
               {sentBody}
               <Button variant="outline" className="w-full h-12 rounded-xl" onClick={() => onOpenChange(false)}>
-                Done
+                {t("wallet.screen.sell_to_fiat.done")}
               </Button>
             </>
           )}
@@ -179,7 +180,7 @@ export const ChangeLoginEmailDialog = ({
             <div className="py-2">{field}</div>
             <DialogFooter>
               <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button onClick={handleSend} disabled={sending || !newEmail.trim()} className="btn-primary">
                 Send links
@@ -195,7 +196,7 @@ export const ChangeLoginEmailDialog = ({
             <div className="pt-2">{sentBody}</div>
             <DialogFooter>
               <Button className="btn-primary" onClick={() => onOpenChange(false)}>
-                Done
+                {t("wallet.screen.sell_to_fiat.done")}
               </Button>
             </DialogFooter>
           </>

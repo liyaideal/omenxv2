@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import type { ReactNode } from "react";
 import { VT } from "./voucherTokens";
 
@@ -59,7 +60,7 @@ export const VoucherRow = ({
           {metaLine}
         </div>
         {instantLine && (
-          <div style={{ fontSize: 11, color: VT.volt }}>Profit goes straight to your wallet</div>
+          <div style={{ fontSize: 11, color: VT.volt }}>{t("rewards.screen.voucher_ticket.instant_payout_description")}</div>
         )}
       </div>
       {!mobile && action}

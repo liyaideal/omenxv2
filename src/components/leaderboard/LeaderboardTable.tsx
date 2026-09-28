@@ -2,6 +2,7 @@
  * 榜单表格。desktop = 五列真表格（Figma 700:29638），mobile = 两列列表卡（Figma 711:33760）。
  * 两端是两套实现，不是一个响应式组件塞两个宽度。
  */
+import { t } from "@/i18n";
 import {
   formatMetric,
   metricColumnLabel,
@@ -130,11 +131,11 @@ export const LeaderboardTableDesktop = ({
 }) => (
   <div className="trading-card overflow-hidden">
     <div className="flex items-center justify-between" style={{ height: 51, paddingInline: 48 }}>
-      <div style={{ ...HEAD, width: 56 }}>RANK</div>
-      <div style={{ ...HEAD, flex: "1 1 0", minWidth: 200 }}>TRADER</div>
-      <div style={{ ...HEAD, width: 160, textAlign: "right" }}>TRADES</div>
+      <div style={{ ...HEAD, width: 56 }}>{t("sports.screen.dashboard.PlayerSpotlightCard.rank")}</div>
+      <div style={{ ...HEAD, flex: "1 1 0", minWidth: 200 }}>{t("common.trader")}</div>
+      <div style={{ ...HEAD, width: 160, textAlign: "right" }}>{t("market.trades_short")}</div>
       <div style={{ ...HEAD, width: 200, textAlign: "right" }}>{metricColumnLabel(sortType)}</div>
-      <div style={{ ...HEAD, width: 160, textAlign: "right" }}>CHANGE</div>
+      <div style={{ ...HEAD, width: 160, textAlign: "right" }}>{t("market.events_sort_change")}</div>
     </div>
 
     {rows.map((user) => {

@@ -2,6 +2,7 @@
 // 28px ghost share icon button (SH-b §1/§3). Pure presentation — the caller
 // owns the share flow. Never rendered unless a page passes an onShare handler.
 // ============================================================
+import { t } from "@/i18n";
 import { Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -14,7 +15,7 @@ export const ShareIconButton = ({
 }) => (
   <button
     type="button"
-    aria-label="Share"
+    aria-label={t("common.share")}
     onClick={(e) => {
       e.stopPropagation();
       onClick();

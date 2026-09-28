@@ -3,6 +3,7 @@
 // Extracted verbatim from LiteEventsPage so the style guide can mount
 // the SAME nodes production renders (no hand-copied markup).
 // ============================================================
+import { t } from "@/i18n";
 import { cn } from "@/lib/utils";
 import { CategoryPill } from "@/components/lite/CategoryPill";
 import {
@@ -20,10 +21,10 @@ export const LiteEventsGreeting = ({ isMobile }: { isMobile: boolean }) => (
         className="font-display font-bold tracking-tight text-foreground"
         style={{ fontSize: "clamp(28px, 4vw, 40px)", lineHeight: 1.05 }}
       >
-        What do you think happens next?
+        {t("events.screen.simple.events_simple_intro.what_do_you_think_happens_next")}
       </h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Pick a topic. Tap Yes or No. That's it.
+        {t("events.screen.simple.home.home_hero.how_to_trade")}
       </p>
     </div>
   </div>

@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { EventWithOptions } from "@/hooks/useActiveEvents";
 import { getCategoryInfo, CATEGORY_STYLES, CategoryType } from "@/lib/categoryUtils";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
@@ -57,7 +58,7 @@ export const CategoryBreakdown = ({ events }: CategoryBreakdownProps) => {
 
   return (
     <section>
-      <h2 className="text-lg font-semibold text-foreground mb-4">Category Breakdown</h2>
+      <h2 className="text-lg font-semibold text-foreground mb-4">{t("insights.sections.category_breakdown")}</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Donut Chart */}
         <div className="p-4 rounded-xl bg-card border border-border/30 flex items-center justify-center">
@@ -101,10 +102,10 @@ export const CategoryBreakdown = ({ events }: CategoryBreakdownProps) => {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border/30 bg-muted/20">
-                <th className="text-left py-2.5 px-4 text-xs font-medium text-muted-foreground">Category</th>
-                <th className="text-right py-2.5 px-4 text-xs font-medium text-muted-foreground">Markets</th>
-                <th className="text-right py-2.5 px-4 text-xs font-medium text-muted-foreground">Total Volume</th>
-                <th className="text-right py-2.5 px-4 text-xs font-medium text-muted-foreground">24h Volume</th>
+                <th className="text-left py-2.5 px-4 text-xs font-medium text-muted-foreground">{t("market.category")}</th>
+                <th className="text-right py-2.5 px-4 text-xs font-medium text-muted-foreground">{t("market.market_list")}</th>
+                <th className="text-right py-2.5 px-4 text-xs font-medium text-muted-foreground">{t("market.total_volume")}</th>
+                <th className="text-right py-2.5 px-4 text-xs font-medium text-muted-foreground">{t("market.24h_volume")}</th>
               </tr>
             </thead>
             <tbody>

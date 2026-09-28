@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -19,15 +20,15 @@ export const KeysTable = ({
       {/* ---------- Desktop table (md+) ---------- */}
       <div className="hidden md:block border-y border-border/40">
         <div className="grid grid-cols-[1.2fr_1.6fr_0.8fr_1.8fr_0.6fr_0.9fr_0.9fr_0.7fr_0.7fr] gap-3 px-3 py-2 text-[10px] uppercase tracking-wider text-muted-foreground/70 border-b border-border/40">
-          <div>Label</div>
-          <div>Key</div>
-          <div>Tier</div>
-          <div>Scopes</div>
-          <div>IP</div>
-          <div>Created</div>
-          <div>Last used</div>
-          <div>Status</div>
-          <div className="text-right">Action</div>
+          <div>{t("common.label")}</div>
+          <div>{t("api-management.screen.api_keys_table.key")}</div>
+          <div>{t("api-management.screen.api_key_steps.tier")}</div>
+          <div>{t("api-management.screen.api_key_steps.scopes")}</div>
+          <div>{t("api-management.screen.api_keys_table.ip")}</div>
+          <div>{t("common.created")}</div>
+          <div>{t("api-management.screen.api_keys_table.last_used")}</div>
+          <div>{t("common.status")}</div>
+          <div className="text-right">{t("market.action")}</div>
         </div>
         <div className="divide-y divide-border/30">
           {keys.map((k) => {
@@ -72,11 +73,11 @@ export const KeysTable = ({
                 <div>
                   {active ? (
                     <Badge variant="outline" className={cn("text-[10px]", STATUS_STYLES.active.badge)}>
-                      Active
+                      {t("market.status_active")}
                     </Badge>
                   ) : (
                     <Badge variant="outline" className={cn("text-[10px]", STATUS_STYLES.neutral.badge)}>
-                      Revoked
+                      {t("common.revoked")}
                     </Badge>
                   )}
                 </div>
@@ -88,7 +89,7 @@ export const KeysTable = ({
                       className="h-7 text-trading-red hover:text-trading-red hover:bg-trading-red/10"
                       onClick={() => onRevoke(k)}
                     >
-                      Revoke
+                      {t("api-management.screen.api_keys_table.revoke")}
                     </Button>
                   )}
                 </div>
@@ -124,11 +125,11 @@ export const KeysTable = ({
                 </div>
                 {active ? (
                   <Badge variant="outline" className={cn("text-[10px] shrink-0", STATUS_STYLES.active.badge)}>
-                    Active
+                    {t("market.status_active")}
                   </Badge>
                 ) : (
                   <Badge variant="outline" className={cn("text-[10px] shrink-0", STATUS_STYLES.neutral.badge)}>
-                    Revoked
+                    {t("common.revoked")}
                   </Badge>
                 )}
               </div>
@@ -157,7 +158,7 @@ export const KeysTable = ({
               <div className="grid grid-cols-3 gap-2 pt-2 border-t border-border/30 text-[10px]">
                 <div className="min-w-0">
                   <div className="uppercase tracking-wider text-muted-foreground/60 mb-0.5 flex items-center gap-1">
-                    <Globe className="w-3 h-3" /> IP
+                    <Globe className="w-3 h-3" /> {t("api-management.screen.api_keys_table.ip")}
                   </div>
                   <div className="font-mono text-foreground/80">
                     {k.ip_whitelist.length > 0 ? `${k.ip_whitelist.length}` : "—"}
@@ -165,7 +166,7 @@ export const KeysTable = ({
                 </div>
                 <div className="min-w-0">
                   <div className="uppercase tracking-wider text-muted-foreground/60 mb-0.5 flex items-center gap-1">
-                    <CalendarPlus className="w-3 h-3" /> Created
+                    <CalendarPlus className="w-3 h-3" /> {t("common.created")}
                   </div>
                   <div className="font-mono text-foreground/80 truncate">
                     {formatDistanceToNow(new Date(k.created_at))}
@@ -173,7 +174,7 @@ export const KeysTable = ({
                 </div>
                 <div className="min-w-0">
                   <div className="uppercase tracking-wider text-muted-foreground/60 mb-0.5 flex items-center gap-1">
-                    <Clock className="w-3 h-3" /> Last used
+                    <Clock className="w-3 h-3" /> {t("api-management.screen.api_keys_table.last_used")}
                   </div>
                   <div className="font-mono text-foreground/80 truncate">
                     {k.last_used_at ? formatDistanceToNow(new Date(k.last_used_at)) : "Never"}
@@ -189,7 +190,7 @@ export const KeysTable = ({
                   onClick={() => onRevoke(k)}
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                  Revoke key
+                  {t("api-management.screen.api_keys_table.revoke_key")}
                 </Button>
               )}
             </article>

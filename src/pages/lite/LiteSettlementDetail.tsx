@@ -5,6 +5,7 @@
 // Mobile: MobileHeader + BottomNav. Desktop: site header + standard container,
 // no bottom nav.
 // ============================================================
+import { t } from "@/i18n";
 import { Share2 } from "lucide-react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
@@ -52,13 +53,13 @@ export default function LiteSettlementDetail() {
     // is already scoped to the signed-in user, so an out-of-scope id lands here
     // and never leaks the other reader's event name or money.
     const body = isLoading ? (
-      <div className="px-4 py-10 text-center text-[13px] text-[#6B7280]">Loading…</div>
+      <div className="px-4 py-10 text-center text-[13px] text-[#6B7280]">{t("common.loading")}</div>
     ) : (
       <PortfolioNotFound />
     );
     return isMobile ? (
       <div className="min-h-screen bg-background pb-24">
-        <MobileHeader variant="inner" title="Settled" showBack backTo={backTo} />
+        <MobileHeader variant="inner" title={t("trade.screen.lite.lite_contract_sections.settled")} showBack backTo={backTo} />
 
         <LiteAuthGate>{body}</LiteAuthGate>
         <BottomNav />
@@ -151,7 +152,7 @@ export default function LiteSettlementDetail() {
           backTo={backTo}
           rightContent={
             user ? (
-              <MobileHeaderIconButton aria-label="Share" onClick={openShare}>
+              <MobileHeaderIconButton aria-label={t("common.share")} onClick={openShare}>
                 <Share2 className="h-[18px] w-[18px]" />
               </MobileHeaderIconButton>
             ) : undefined

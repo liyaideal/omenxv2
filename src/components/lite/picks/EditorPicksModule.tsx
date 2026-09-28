@@ -3,6 +3,7 @@
 // Ops-curated module between the Sports module and the catalogue.
 // Pixel contract: docs/design-contracts/list-final-touches-11.html (11A / 11B).
 // ============================================================
+import { t } from "@/i18n";
 import { useNavigate } from "react-router-dom";
 import { CardArtTile } from "@/components/lite/CardArtTile";
 import { cardImageFor, microlabelFor } from "@/components/lite/categoryArt";
@@ -86,7 +87,7 @@ const ReasonStrip = ({ note, compact }: { note: string; compact?: boolean }) => 
       &ldquo;
     </span>
     <span className="flex min-w-0 flex-col" style={{ gap: 3 }}>
-      <span style={{ ...MICRO, letterSpacing: "0.16em" }}>Why this</span>
+      <span style={{ ...MICRO, letterSpacing: "0.16em" }}>{t("events.screen.simple.featured_markets.featured_market_card.why_this")}</span>
       <span
         style={{
           fontSize: 12,
@@ -235,7 +236,7 @@ export const EditorPicksModule = ({
               color: "#fff",
             }}
           >
-            What's worth watching?
+            {t("events.screen.simple.featured_markets.featured_markets.whats_worth_watching")}
           </h2>
           <p style={{ fontSize: 12, color: "#9AA1AC" }}>
             Hand-picked markets — and why we think they matter. Winning shares pay{" "}
@@ -270,7 +271,7 @@ export const EditorPicksModule = ({
               color: "#fff",
             }}
           >
-            What's worth watching?
+            {t("events.screen.simple.featured_markets.featured_markets.whats_worth_watching")}
           </h2>
           <p style={{ fontSize: 13, color: "#9AA1AC" }}>
             Hand-picked markets — and why we think they matter. Winning shares pay{" "}

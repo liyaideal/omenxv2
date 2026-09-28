@@ -4,6 +4,7 @@
 // through a window of them and marks the active one with a triangle.
 // Pure presentational — the trade page swaps the active event.
 // ============================================================
+import { t } from "@/i18n";
 import { useEffect, useMemo, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -66,7 +67,7 @@ export const LiteLineScrubber = ({
       ref={rootRef}
       tabIndex={0}
       role="group"
-      aria-label="Line"
+      aria-label={t("market.sports_game_lines_line")}
       className={cn(
         "flex h-10 items-center border-t border-border/90 px-1 outline-none",
         compact ? "-mx-3 -mb-2.5 mt-2.5" : "-mx-4 -mb-2.5 mt-2.5",
@@ -74,7 +75,7 @@ export const LiteLineScrubber = ({
     >
       <button
         type="button"
-        aria-label="Previous lines"
+        aria-label={t("market.sports_game_lines_previous_lines")}
         disabled={start === 0}
         onClick={() => onChange(values[Math.max(0, start - size)])}
         className="flex h-9 w-9 shrink-0 items-center justify-center text-muted-foreground disabled:opacity-30"
@@ -108,7 +109,7 @@ export const LiteLineScrubber = ({
       </div>
       <button
         type="button"
-        aria-label="More lines"
+        aria-label={t("market.sports_game_lines_more_lines")}
         disabled={start + size >= values.length}
         onClick={() =>
           onChange(values[Math.min(values.length - 1, start + size)])

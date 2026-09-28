@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BarChart3, Sparkles, Clock, Flame, TrendingUp, ArrowRight, Share2 } from "lucide-react";
@@ -108,9 +109,9 @@ export const InsightsFeed = ({ events, priceChanges }: InsightsFeedProps) => {
   if (insights.length === 0) {
     return (
       <section>
-        <h2 className="text-lg font-semibold text-foreground mb-4">Insights Feed</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-4">{t("insights.sections.insights_feed")}</h2>
         <div className="p-8 rounded-xl bg-card border border-border/30 text-center">
-          <p className="text-sm text-muted-foreground">No insights generated yet. Check back as markets move.</p>
+          <p className="text-sm text-muted-foreground">{t("insights.messages.no_feed")}</p>
         </div>
       </section>
     );
@@ -119,7 +120,7 @@ export const InsightsFeed = ({ events, priceChanges }: InsightsFeedProps) => {
   return (
     <section>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-foreground">Insights Feed</h2>
+        <h2 className="text-lg font-semibold text-foreground">{t("insights.sections.insights_feed")}</h2>
         <span className="text-xs text-muted-foreground">{insights.length} insights</span>
       </div>
 
@@ -154,11 +155,11 @@ export const InsightsFeed = ({ events, priceChanges }: InsightsFeedProps) => {
                   onClick={() => navigate("/trade")}
                   className="flex items-center gap-1 text-xs text-primary font-medium hover:text-primary/80 transition-colors"
                 >
-                  View Market <ArrowRight className="w-3 h-3" />
+                  {t("insights.actions.view_market")} <ArrowRight className="w-3 h-3" />
                 </button>
               )}
               <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
-                <Share2 className="w-3 h-3" /> Share
+                <Share2 className="w-3 h-3" /> {t("common.share")}
               </button>
             </div>
           </article>

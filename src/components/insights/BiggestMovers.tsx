@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useNavigate } from "react-router-dom";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { EventWithOptions } from "@/hooks/useActiveEvents";
@@ -75,18 +76,18 @@ export const BiggestMovers = ({ events, priceChanges }: BiggestMoversProps) => {
 
   return (
     <section>
-      <h2 className="text-lg font-semibold text-foreground mb-4">Biggest Movers (24h)</h2>
+      <h2 className="text-lg font-semibold text-foreground mb-4">{t("insights.sections.biggest_movers")}</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Gainers */}
         <div className="p-4 rounded-xl bg-card border border-border/30">
           <div className="flex items-center gap-2 mb-3">
             <TrendingUp className="w-4 h-4 text-trading-green" />
-            <h3 className="text-sm font-semibold text-trading-green">Biggest Gainers</h3>
+            <h3 className="text-sm font-semibold text-trading-green">{t("insights.labels.biggest_gainers")}</h3>
           </div>
           {gainers.length > 0 ? (
             gainers.map((item, i) => <MoverRow key={i} item={item} />)
           ) : (
-            <p className="text-xs text-muted-foreground py-4 text-center">No significant gainers in the past 24h</p>
+            <p className="text-xs text-muted-foreground py-4 text-center">{t("insights.messages.no_gainers")}</p>
           )}
         </div>
 
@@ -94,12 +95,12 @@ export const BiggestMovers = ({ events, priceChanges }: BiggestMoversProps) => {
         <div className="p-4 rounded-xl bg-card border border-border/30">
           <div className="flex items-center gap-2 mb-3">
             <TrendingDown className="w-4 h-4 text-trading-red" />
-            <h3 className="text-sm font-semibold text-trading-red">Biggest Losers</h3>
+            <h3 className="text-sm font-semibold text-trading-red">{t("insights.labels.biggest_losers")}</h3>
           </div>
           {losers.length > 0 ? (
             losers.map((item, i) => <MoverRow key={i} item={item} />)
           ) : (
-            <p className="text-xs text-muted-foreground py-4 text-center">No significant losers in the past 24h</p>
+            <p className="text-xs text-muted-foreground py-4 text-center">{t("insights.messages.no_losers")}</p>
           )}
         </div>
       </div>

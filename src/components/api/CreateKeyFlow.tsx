@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -170,27 +171,27 @@ export const CreateKeyFlow = ({
       {step === 1 && (
         <>
           <Button variant="outline" onClick={() => handleClose(false)} className="h-11 md:h-10">
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button disabled={!canNext1} onClick={() => setStep(2)} className="h-11 md:h-10">
-            Next
+            {t("common.next")}
           </Button>
         </>
       )}
       {step === 2 && (
         <>
           <Button variant="outline" onClick={() => setStep(1)} className="h-11 md:h-10">
-            Back
+            {t("common.back")}
           </Button>
           <Button disabled={!canNext2} onClick={() => setStep(3)} className="h-11 md:h-10">
-            Next
+            {t("common.next")}
           </Button>
         </>
       )}
       {step === 3 && (
         <>
           <Button variant="outline" onClick={() => setStep(2)} disabled={createKey.isPending} className="h-11 md:h-10">
-            Back
+            {t("common.back")}
           </Button>
           <Button
             disabled={!canSubmit3 || createKey.isPending}
@@ -203,7 +204,7 @@ export const CreateKeyFlow = ({
       )}
       {step === 4 && (
         <Button className="w-full h-11 md:h-10" onClick={() => handleClose(false)}>
-          Done
+          {t("wallet.screen.sell_to_fiat.done")}
         </Button>
       )}
     </>

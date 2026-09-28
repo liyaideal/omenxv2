@@ -1,4 +1,4 @@
-import { useT } from "@/i18n";
+import { useT, t } from "@/i18n";
 import { useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogOut, Trash2 } from "lucide-react";
@@ -125,7 +125,7 @@ export const AccountCard = ({
   const confirmField = (
     <div className="w-full">
       <label htmlFor="close-account-confirm" className="block text-[12px] leading-[18px] text-[#9CA2AB] mb-1.5">
-        Type <span className="text-white">{CONFIRM_WORD}</span> to confirm
+        {t("common.type")} <span className="text-white">{CONFIRM_WORD}</span> to confirm
       </label>
       <input
         id="close-account-confirm"
@@ -151,7 +151,7 @@ export const AccountCard = ({
   const blockedButtons = (stacked: boolean) => (
     <div className={cn("w-full", stacked ? "flex flex-col gap-2 py-2" : "grid grid-cols-2 gap-5 pt-[22px]")}>
       <button type="button" className={cancelClass} onClick={() => setBlockedOpen(false)}>
-        Cancel
+        {t("common.cancel")}
       </button>
       <Button className={walletClass} onClick={() => navigate("/wallet")}>
         Go to Wallet

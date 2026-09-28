@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { SeoFooter } from "@/components/seo";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -182,7 +183,7 @@ const AffiliatePageDesktop = () => {
                   ))}{" "}
                   <span
                     role="img"
-                    aria-label="OmenX"
+                    aria-label={t("common.app_name")}
                     className="inline-block h-[0.57em] w-[calc(0.57em*433/65)] bg-current align-baseline"
                     style={{ WebkitMaskImage: `url("${omenxLogoSolid}")`, maskImage: `url("${omenxLogoSolid}")`, WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat" }}
                   />
@@ -433,7 +434,7 @@ const AffiliatePageDesktop = () => {
           <div className="border-y border-foreground/10">
             <div className={cn(container, "flex h-[120px] items-center gap-2.5 font-display text-[30px] leading-[22.5px] text-foreground")}>
               <span>{BASE_LINE.pre}</span>
-              <img src="/chain-logos/base.svg" alt="Base" className="h-[41px] w-[41px]" loading="lazy" />
+              <img src="/chain-logos/base.svg" alt={t("common.base")} className="h-[41px] w-[41px]" loading="lazy" />
               <span>{BASE_LINE.post}</span>
             </div>
           </div>

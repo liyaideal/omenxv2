@@ -4,6 +4,7 @@
 // Mobile: illustration is a full-bleed band on top, type stacked under
 // it — the phone-native reading order.
 // ============================================================
+import { t } from "@/i18n";
 import { useEffect, useState } from "react";
 
 const LIME = "#CFFF4A";
@@ -43,7 +44,7 @@ export const HomeHero = ({ isMobile }: { isMobile: boolean }) => {
               textTransform: "uppercase",
             }}
           >
-            ● Live markets
+            {t("events.screen.simple.home.home_hero.live_markets")}
           </span>
           <h1
             className="font-display font-bold text-foreground"
@@ -57,7 +58,7 @@ export const HomeHero = ({ isMobile }: { isMobile: boolean }) => {
             What do you think <span style={{ color: LIME }}>happens next</span>?
           </h1>
           <p style={{ marginTop: 8, fontSize: 13, color: "#98A1AD" }}>
-            Pick a topic. Tap Yes or No. That's it.
+            {t("events.screen.simple.home.home_hero.how_to_trade")}
           </p>
         </div>
         <div className="relative w-full" style={{ height: bandHeight }}>
@@ -100,7 +101,7 @@ export const HomeHero = ({ isMobile }: { isMobile: boolean }) => {
             textTransform: "uppercase",
           }}
         >
-          ● Live markets
+          {t("events.screen.simple.home.home_hero.live_markets")}
         </span>
         <h1
           className="font-display font-bold text-foreground"
@@ -114,7 +115,7 @@ export const HomeHero = ({ isMobile }: { isMobile: boolean }) => {
           What do you think <span style={{ color: LIME }}>happens next</span>?
         </h1>
         <p style={{ marginTop: 10, fontSize: 14, color: "#98A1AD" }}>
-          Pick a topic. Tap Yes or No. That's it.
+          {t("events.screen.simple.home.home_hero.how_to_trade")}
         </p>
       </div>
     </div>

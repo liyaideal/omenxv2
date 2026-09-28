@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useEffect, useMemo, useState } from "react";
 import { Copy, Check, ShieldCheck, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -92,7 +93,7 @@ export const Setup2FADialog = ({ open, onOpenChange, onSuccess }: Setup2FADialog
       </div>
 
       <div className="rounded-lg border bg-muted/30 p-3 space-y-2">
-        <div className="text-xs text-muted-foreground">Or enter this key manually</div>
+        <div className="text-xs text-muted-foreground">{t("settings.screen.sections.settings_setup_2fa_dialog.or_enter_this_key_manually")}</div>
         <div className="flex items-center gap-2">
           <code className="flex-1 font-mono text-sm break-all">
             {formatTotpSecret(secret)}
@@ -122,7 +123,7 @@ export const Setup2FADialog = ({ open, onOpenChange, onSuccess }: Setup2FADialog
           <Smartphone className="w-7 h-7 text-primary" />
         </div>
         <p className="text-sm text-muted-foreground">
-          Enter the 6-digit code from your authenticator app
+          {t("wallet.screen.withdraw_verify_dialog.enter_the_6_digit_code_from_your_authenticator_app")}
         </p>
         <p className="text-xs text-muted-foreground mt-1">{DEMO_OTP_HINT}</p>
       </div>
@@ -155,14 +156,14 @@ export const Setup2FADialog = ({ open, onOpenChange, onSuccess }: Setup2FADialog
           {step === "qr" ? (
             <>
               <Button onClick={() => setStep("verify")} className="w-full h-11">
-                Continue
+                {t("wallet.screen.sell_to_fiat.continue")}
               </Button>
               <Button
                 variant="outline"
                 onClick={() => onOpenChange(false)}
                 className="w-full h-11"
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
             </>
           ) : (
@@ -179,7 +180,7 @@ export const Setup2FADialog = ({ open, onOpenChange, onSuccess }: Setup2FADialog
                 onClick={() => setStep("qr")}
                 className="w-full h-11"
               >
-                Back
+                {t("common.back")}
               </Button>
             </>
           )}
@@ -210,14 +211,14 @@ export const Setup2FADialog = ({ open, onOpenChange, onSuccess }: Setup2FADialog
           {step === "qr" ? (
             <>
               <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
+                {t("common.cancel")}
               </Button>
-              <Button onClick={() => setStep("verify")}>Continue</Button>
+              <Button onClick={() => setStep("verify")}>{t("wallet.screen.sell_to_fiat.continue")}</Button>
             </>
           ) : (
             <>
               <Button variant="outline" onClick={() => setStep("qr")}>
-                Back
+                {t("common.back")}
               </Button>
               <Button onClick={handleConfirm} disabled={code.length !== 6 || submitting}>
                 {submitting ? "Enabling..." : "Enable"}

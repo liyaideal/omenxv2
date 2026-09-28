@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,7 +33,7 @@ export const RevokeDialog = ({
 
   const bodyText = target ? (
     <>
-      Revoking <span className="font-medium text-foreground">{target.label}</span> immediately
+      {t("api-management.screen.revoke_api_key_dialog.revoking")} <span className="font-medium text-foreground">{target.label}</span> immediately
       disables all requests using this key. This action cannot be undone.
     </>
   ) : null;
@@ -42,7 +43,7 @@ export const RevokeDialog = ({
       <MobileDrawer
         open={open}
         onOpenChange={(o) => !o && onClose()}
-        title="Revoke API key"
+        title={t("api-management.screen.revoke_api_key_dialog.revoke_api_key")}
       >
         <MobileDrawerSection>
           <div className="rounded-lg border border-trading-red/30 bg-trading-red/[0.06] p-3 flex items-start gap-2">
@@ -52,7 +53,7 @@ export const RevokeDialog = ({
           {target && (
             <div className="rounded-lg border border-border/40 bg-muted/30 p-3 space-y-1">
               <div className="text-[10px] uppercase tracking-wider text-muted-foreground/70">
-                Key
+                {t("api-management.screen.api_keys_table.key")}
               </div>
               <div className="text-sm font-medium">{target.label}</div>
               <code className="block font-mono text-[11px] text-muted-foreground truncate">
@@ -70,7 +71,7 @@ export const RevokeDialog = ({
             {pending ? "Revoking…" : "Revoke key"}
           </Button>
           <Button variant="outline" className="w-full h-11" onClick={onClose} disabled={pending}>
-            Cancel
+            {t("common.cancel")}
           </Button>
         </MobileDrawerActions>
       </MobileDrawer>
@@ -81,12 +82,12 @@ export const RevokeDialog = ({
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Revoke API key</DialogTitle>
+          <DialogTitle>{t("api-management.screen.revoke_api_key_dialog.revoke_api_key")}</DialogTitle>
           <DialogDescription>{bodyText}</DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={onClose} disabled={pending}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button
             className="bg-trading-red text-white hover:bg-trading-red/90"

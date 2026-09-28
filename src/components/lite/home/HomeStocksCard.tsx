@@ -3,6 +3,7 @@
 // US / HK tabs over the daily up-down stock rounds. Rows stretch to
 // fill the left column so the two stage columns end flush.
 // ============================================================
+import { t } from "@/i18n";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AssetAvatar } from "@/components/lite/AssetAvatar";
@@ -88,7 +89,7 @@ const MobileStockRow = ({
       style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}
     >
       <DirectionButton
-        label="Up"
+        label={t("events.screen.simple.home.home_crypto_card.up")}
         price={row.upPrice}
         tone="up"
         minHeight={44}
@@ -99,7 +100,7 @@ const MobileStockRow = ({
         onClick={go("up")}
       />
       <DirectionButton
-        label="Down"
+        label={t("events.screen.simple.home.home_crypto_card.down")}
         price={row.downPrice}
         tone="down"
         minHeight={44}
@@ -146,7 +147,7 @@ const MobileStockRow = ({
         </span>
         <span className="flex flex-none flex-col items-end">
           {state === "preSession" && (
-            <span style={{ fontSize: 10, color: MUTED }}>Last close</span>
+            <span style={{ fontSize: 10, color: MUTED }}>{t("events.screen.simple.home.last_close")}</span>
           )}
           <span
             className="font-display"
@@ -203,7 +204,7 @@ const MobileStockRow = ({
           className="flex items-center justify-center"
           style={{ ...DISABLED, minHeight: 34, borderRadius: 10, fontSize: 12 }}
         >
-          Unavailable
+          {t("common.unavailable")}
         </span>
       )}
     </div>
@@ -328,7 +329,7 @@ const StockRow = ({
       {state === "live" ? (
         <>
           <DirectionButton
-            label="Up"
+            label={t("events.screen.simple.home.home_crypto_card.up")}
             price={row.upPrice}
             tone="up"
             minHeight={38}
@@ -339,7 +340,7 @@ const StockRow = ({
             onClick={go("up")}
           />
           <DirectionButton
-            label="Down"
+            label={t("events.screen.simple.home.home_crypto_card.down")}
             price={row.downPrice}
             tone="down"
             minHeight={38}
@@ -398,7 +399,7 @@ const StockRow = ({
           )}
           <span className="flex flex-none" style={{ gap: isMobile ? 8 : 13 }}>
             <DirectionButton
-              label="Up"
+              label={t("events.screen.simple.home.home_crypto_card.up")}
               price={row.upPrice}
               tone="up"
               minHeight={38}
@@ -408,7 +409,7 @@ const StockRow = ({
               onClick={go("up")}
             />
             <DirectionButton
-              label="Down"
+              label={t("events.screen.simple.home.home_crypto_card.down")}
               price={row.downPrice}
               tone="down"
               minHeight={38}
@@ -420,7 +421,7 @@ const StockRow = ({
           </span>
         </>
       ) : (
-        <span style={DISABLED}>Unavailable</span>
+        <span style={DISABLED}>{t("common.unavailable")}</span>
       )}
       </div>
 
@@ -530,7 +531,7 @@ export const HomeStocksCard = ({
       style={{ padding: isMobile ? "18px 16px" : "22px 28px" }}
     >
       <div className="flex items-baseline" style={{ gap: 14 }}>
-        <HomeEyebrow color={CYAN}>Stocks · Closing today</HomeEyebrow>
+        <HomeEyebrow color={CYAN}>{t("events.screen.simple.home.home_stocks_card.stocks_closing_today")}</HomeEyebrow>
         {!isMobile && (
           <span
             className="font-display ml-auto"
@@ -545,7 +546,7 @@ export const HomeStocksCard = ({
         style={{ gap: isMobile ? 10 : 16, marginTop: 8 }}
       >
         <HomeQuestion size={isMobile ? 18 : 22}>
-          Will it finish higher than it opened?
+          {t("events.screen.simple.all_stage.intraday_stage_card.stock_question")}
         </HomeQuestion>
         {isMobile && (
           <>

@@ -1,4 +1,4 @@
-import { useT } from "@/i18n";
+import { useT, t } from "@/i18n";
 import { useState } from "react";
 import { AlertTriangle } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -129,8 +129,8 @@ export const WithdrawalVerificationCard = ({
           <div className="rounded-lg border border-trading-yellow/30 bg-trading-yellow/10 p-3 flex items-start gap-2 mb-1">
             <AlertTriangle className="w-4 h-4 text-trading-yellow mt-0.5 shrink-0" />
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Add an email in <span className="font-medium text-foreground">Sign-in</span> or set up an authenticator in{" "}
-              <span className="font-medium text-foreground">Account security</span> to enable withdrawal verification.
+              Add an email in <span className="font-medium text-foreground">{t("settings.signin.label")}</span> or set up an authenticator in{" "}
+              <span className="font-medium text-foreground">{t("settings.screen.sections.settings_account_security_card.account_security")}</span> to enable withdrawal verification.
             </p>
           </div>
         )}

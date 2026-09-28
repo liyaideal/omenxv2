@@ -5,6 +5,7 @@
 // the All stage, the vertical views, the mobile modules and Calendar.
 // Every surface keeps its CURRENT pixels via props — no redesign.
 // ============================================================
+import { t } from "@/i18n";
 import {
   Tooltip,
   TooltipContent,
@@ -176,7 +177,7 @@ export const Last8Strip = ({
             <TooltipTrigger asChild>{row}</TooltipTrigger>
             <TooltipContent>
               Last 8 rounds — <span style={{ color: DIR_UP }}>▲</span> Up won ·{" "}
-              <span style={{ color: DIR_DOWN }}>▼</span> Down won
+              <span style={{ color: DIR_DOWN }}>▼</span> {t("events.screen.lite.lite_round_navigation.history_down_won")}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

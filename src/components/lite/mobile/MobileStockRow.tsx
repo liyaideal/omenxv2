@@ -2,6 +2,7 @@
 // MOBILE STOCK ROW (390) — Crypto-tile style for daily stock rounds.
 // Used by the Finance vertical view on mobile.
 // ============================================================
+import { t } from "@/i18n";
 import { useNavigate } from "react-router-dom";
 import { AssetAvatar } from "@/components/lite/AssetAvatar";
 import {
@@ -92,7 +93,7 @@ export const MobileTradingStockRow = ({
           </span>
         </span>
         <span className="flex shrink-0 flex-col items-end" style={{ gap: 1 }}>
-          <span style={MICRO}>Closes</span>
+          <span style={MICRO}>{t("market.screen.lite.lite_market_sections.timeline.closes")}</span>
           <span
             className="font-display"
             style={{
@@ -109,7 +110,7 @@ export const MobileTradingStockRow = ({
 
       <div className="flex" style={{ gap: 8 }}>
         <DirectionButton
-          label="Up"
+          label={t("events.screen.simple.home.home_crypto_card.up")}
           price={row.upPrice}
           tone="up"
           grow
@@ -121,7 +122,7 @@ export const MobileTradingStockRow = ({
           onClick={go("up")}
         />
         <DirectionButton
-          label="Not up"
+          label={t("events.screen.simple.calendar.calendar_day.not_up")}
           price={row.downPrice}
           tone="down"
           grow

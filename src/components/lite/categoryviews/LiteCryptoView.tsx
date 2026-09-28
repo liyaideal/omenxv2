@@ -5,6 +5,7 @@
 // (desktop) / mobile coin card, and the frozen LiteEventCard grid.
 // Options come from src/lib/taxonomy.ts, never from literals.
 // ============================================================
+import { t } from "@/i18n";
 import { useMemo, useState } from "react";
 import { CRYPTO_COINS, CRYPTO_TIMEFRAMES } from "@/lib/taxonomy";
 import type { EventRow } from "@/hooks/useMarketListData";
@@ -84,7 +85,7 @@ export const LiteCryptoView = ({
       <VerticalHeader
         compact={isMobile}
         eyebrow="Crypto · around the clock"
-        title="Where do the coins go next?"
+        title={t("events.screen.simple.crypto_view.crypto_vertical_chrome.where_do_the_coins_go_next")}
         subtitle={
           <>
             Pick a window, pick a direction. Winning shares pay{" "}
@@ -106,7 +107,7 @@ export const LiteCryptoView = ({
               >
                 {compactUsd(tradedToday)}
               </span>
-              <span style={{ ...EYEBROW, fontSize: 11 }}>Traded today</span>
+              <span style={{ ...EYEBROW, fontSize: 11 }}>{t("events.screen.simple.crypto_view.crypto_vertical_chrome.traded_today")}</span>
             </div>
           )
         }
@@ -117,7 +118,7 @@ export const LiteCryptoView = ({
         {isMobile ? (
           <MobileRoundSwitcher value={tf} onSelect={setTf} />
         ) : (
-          <DimensionRow label="Round">
+          <DimensionRow label={t("events.screen.lite.lite_round_navigation.round")}>
             <StageDial value={tf} onChange={setTf} size="module" />
           </DimensionRow>
         )}
@@ -177,23 +178,23 @@ export const LiteCryptoView = ({
       >
         <CatalogueHeader
           compact={isMobile}
-          title="What else could crypto do?"
-          subtitle="Longer-running questions about coins, chains and the people behind them. Winning shares pay $1."
+          title={t("events.screen.simple.crypto_view.crypto_vertical_chrome.what_else_could_crypto_do")}
+          subtitle={t("events.screen.simple.crypto_view.crypto_vertical_chrome.longer_running_questions_about_coins_chains_and_the_people_behind_them_winning")}
           count={catalogue.length}
         />
         {catalogue.length === 0 ? (
           boostOnly ? (
             <EmptyState
               variant="page"
-              title="Nothing boosted here yet — check back soon."
+              title={t("events.screen.simple.crypto_view.crypto_vertical.nothing_boosted_here_yet")}
               illustrationSrc={isMobile ? "/assets/mobile/empty-no-boost.png" : "/assets/desktop/empty-no-boost.png"}
             />
           ) : (
           <EmptyState
             variant="page"
-            title="No open markets for this coin"
+            title={t("events.screen.simple.crypto_view.crypto_vertical.no_open_markets")}
             illustrationSrc={isMobile ? "/assets/mobile/empty-no-boost.png" : "/assets/desktop/empty-no-boost.png"}
-            description="New crypto markets land here as they open. Check back soon."
+            description={t("events.screen.simple.crypto_view.crypto_vertical.new_markets_hint")}
             actionLabel="See all coins"
             onAction={() => setCoin("all")}
           />

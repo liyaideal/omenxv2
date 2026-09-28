@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import { TrendingUp, TrendingDown, BarChart3, Activity, Users, DollarSign } from "lucide-react";
 
@@ -100,7 +101,7 @@ export const InsightsKpiDashboard = ({ activeMarketsCount }: InsightsKpiDashboar
     <section>
       {/* Period Selector */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-foreground">Platform Overview</h2>
+        <h2 className="text-lg font-semibold text-foreground">{t("insights.sections.platform_overview")}</h2>
         <div className="flex items-center gap-1 p-1 rounded-lg bg-muted/50 border border-border/30">
           {(["24h", "7d", "30d", "all"] as Period[]).map((p) => (
             <button
@@ -120,9 +121,9 @@ export const InsightsKpiDashboard = ({ activeMarketsCount }: InsightsKpiDashboar
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        <KpiCard icon={DollarSign} label="Total Trading Volume" value={formatNumber(data.totalVolume)} change={data.totalVolumeChange} showChange={showChange} />
-        <KpiCard icon={BarChart3} label="Open Interest" value={formatNumber(data.openInterest)} change={data.openInterestChange} showChange={showChange} />
-        <KpiCard icon={Activity} label="Active Markets" value={activeMarketsCount.toString()} change={data.activeMarketsChange} showChange={showChange} />
+        <KpiCard icon={DollarSign} label={t("insights.kpi.total_volume")} value={formatNumber(data.totalVolume)} change={data.totalVolumeChange} showChange={showChange} />
+        <KpiCard icon={BarChart3} label={t("market.open_interest")} value={formatNumber(data.openInterest)} change={data.openInterestChange} showChange={showChange} />
+        <KpiCard icon={Activity} label={t("insights.kpi.active_markets")} value={activeMarketsCount.toString()} change={data.activeMarketsChange} showChange={showChange} />
         <KpiCard icon={DollarSign} label={`${period === "24h" ? "24h" : period} Volume`} value={formatNumber(data.volume24h)} change={data.volume24hChange} showChange={showChange} />
         <KpiCard icon={Users} label={`Unique Traders (${period === "all" ? "All" : period})`} value={formatCount(data.uniqueTraders)} change={data.uniqueTradersChange} showChange={showChange} />
       </div>

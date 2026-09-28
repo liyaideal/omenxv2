@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState, useEffect } from "react";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { SheetTitle } from "@/components/ui/sheet";
@@ -60,7 +61,7 @@ export const AuthSheet = ({ open, onOpenChange, previewStep, previewFixture }: A
     >
       {/* a11y: Radix requires a Title inside the sheet content. Visually hidden — zero visual change. */}
       <VisuallyHidden>
-        <SheetTitle>Sign in</SheetTitle>
+        <SheetTitle>{t("common.sign_in")}</SheetTitle>
       </VisuallyHidden>
 
       {/* Logo header */}

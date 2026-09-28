@@ -6,6 +6,7 @@
 // "Week is the map. Day is where you trade."
 // CHK-8: every ticket/card/button routes into /trade or /spot.
 // ============================================================
+import { t } from "@/i18n";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -260,7 +261,7 @@ export const LiteCalendarView = ({
             color: "#fff",
           }}
         >
-          What's coming up?
+          {t("events.screen.simple.calendar.calendar_chrome.heading")}
         </h1>
         <span style={{ fontSize: isMobile ? 12 : 13, color: "#9AA1AC", textWrap: "pretty" }}>
           Every market with a decision moment, on one timeline. Winning shares pay{" "}
@@ -279,7 +280,7 @@ export const LiteCalendarView = ({
                 type="button"
                 onClick={() => setDayKey((k) => Math.max(k - DAY_MS, todayKey))}
                 disabled={dayKey <= todayKey}
-                aria-label="Previous day"
+                aria-label={t("events.screen.simple.calendar.calendar_chrome.previous_day")}
                 className="flex items-center justify-center disabled:cursor-default disabled:opacity-40"
                 style={{
                   width: 36,
@@ -302,7 +303,7 @@ export const LiteCalendarView = ({
                 onClick={() =>
                   setDayKey((k) => k + DAY_MS)
                 }
-                aria-label="Next day"
+                aria-label={t("events.screen.simple.calendar.calendar_chrome.next_day")}
                 className="flex items-center justify-center disabled:cursor-default disabled:opacity-40"
                 style={{
                   width: 36,
@@ -337,7 +338,7 @@ export const LiteCalendarView = ({
         {subTypeRow.micro}
       </span>
       <SubTypeChip
-        label="All sports"
+        label={t("events.screen.simple.sports_view.sports_vertical.all_sports")}
         active={subType === "all"}
         onClick={() => setSubType("all")}
       />
@@ -457,7 +458,7 @@ export const LiteCalendarView = ({
         {openNow.length > 0 && (
           <div className="flex flex-col" style={{ gap: 7, paddingTop: 2 }}>
             <div className="flex items-center" style={{ gap: 10 }}>
-              <LaneCaption>Open all day</LaneCaption>
+              <LaneCaption>{t("events.screen.simple.calendar.calendar_week.open_all_day")}</LaneCaption>
               <span style={{ height: 1, background: "#1D2026", flex: 1 }} />
               <span style={{ fontSize: 10, color: "#6B7280", fontWeight: 600 }}>
                 {openNow.length} {openNow.length === 1 ? "market" : "markets"}
@@ -476,9 +477,9 @@ export const LiteCalendarView = ({
 
         {weekTotal === 0 && openNow.length === 0 && (
           <EmptyState
-            title="Nothing scheduled this week"
+            title={t("events.screen.simple.calendar.calendar_view.nothing_scheduled_this_week")}
             illustrationSrc={isMobile ? "/assets/mobile/empty-no-boost.png" : "/assets/desktop/empty-no-boost.png"}
-            description="Pick another week, or browse every open market from the list."
+            description={t("events.screen.simple.calendar.calendar_view.pick_another_week_or_browse_every_open_market_from_the_list")}
             actionLabel="Back to all markets"
             onAction={onBackToList}
           />
@@ -581,7 +582,7 @@ export const LiteCalendarView = ({
           {weekLanes.length > 0 && (
             <div className="flex flex-col" style={{ gap: 6 }}>
               <div className="flex items-center" style={{ gap: 10 }}>
-                <LaneCaption>Open across days</LaneCaption>
+                <LaneCaption>{t("events.screen.simple.calendar.calendar_week.open_across_days")}</LaneCaption>
                 <span style={{ height: 1, background: "#1D2026", flex: 1 }} />
                 <span style={{ fontSize: 11, color: "#6B7280", fontWeight: 600 }}>
                   {spanTotal} {spanTotal === 1 ? "market" : "markets"} tradeable now
@@ -635,13 +636,13 @@ export const LiteCalendarView = ({
                 ` ${spanTotal} more stay open across the week — the bars below the grid.`}
             </span>
             <span style={{ fontSize: 12, color: "#9AA1AC", fontWeight: 600 }}>
-              Rolling Intraday rounds are not counted.
+              {t("events.screen.simple.calendar.calendar_week.rolling_intraday_rounds_are_not_counted")}
             </span>
           </div>
         </>
       ) : dayItems.length === 0 && dayOpen.length === 0 ? (
         <EmptyState
-          title="Nothing scheduled this day"
+          title={t("events.screen.simple.calendar.calendar_view.nothing_scheduled_this_day")}
           illustrationSrc={isMobile ? "/assets/mobile/empty-no-boost.png" : "/assets/desktop/empty-no-boost.png"}
           description={
             nextItem
@@ -679,7 +680,7 @@ export const LiteCalendarView = ({
           {dayOpen.length > 0 && (
             <div className="flex flex-col" style={{ gap: 6, paddingTop: 16 }}>
               <div className="flex items-center" style={{ gap: 10 }}>
-                <LaneCaption>Open all day</LaneCaption>
+                <LaneCaption>{t("events.screen.simple.calendar.calendar_week.open_all_day")}</LaneCaption>
                 <span style={{ height: 1, background: "#1D2026", flex: 1 }} />
                 <span style={{ fontSize: 11, color: "#6B7280", fontWeight: 600 }}>
                   {dayOpen.length} {dayOpen.length === 1 ? "market" : "markets"}

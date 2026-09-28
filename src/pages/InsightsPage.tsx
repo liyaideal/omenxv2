@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { SeoPageLayout } from "@/components/seo";
 import {
   InsightsKpiDashboard,
@@ -14,8 +15,8 @@ const InsightsPage = () => {
 
   return (
     <SeoPageLayout
-      title="OmenX Insights"
-      description="Live data, trending markets, and auto-generated insights from OmenX event trading markets."
+      title={t("insights.page.title")}
+      description={t("insights.page.description")}
     >
       {isLoading ? (
         <div className="space-y-6">

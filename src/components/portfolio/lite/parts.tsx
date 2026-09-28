@@ -3,6 +3,7 @@
 // chips, Boost check gauge. Literal spec values (CPO工单 2026-08-19 §3–§4);
 // these hexes are the spec, not token approximations.
 // ============================================================
+import { t } from "@/i18n";
 import { useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
@@ -236,7 +237,7 @@ const DetailsDrawer = ({
   onOpenChange: (v: boolean) => void;
   data: BoostCheckData;
 }) => (
-  <MobileDrawer open={open} onOpenChange={onOpenChange} title="Boost check">
+  <MobileDrawer open={open} onOpenChange={onOpenChange} title={t("portfolio.lite.boost.title")}>
     <div className="space-y-3 pb-6">
       <p className="text-xs text-muted-foreground">{DETAILS_SENTENCE}</p>
       <div className="rounded-lg border border-border bg-muted/30 p-3">
@@ -270,7 +271,7 @@ const DetailsPopover = ({
       align="end"
       className="w-[320px] rounded-[12px] border-[#1D2026] bg-[#12151A] p-4"
     >
-      <div className="text-[13px] font-bold text-[#F2F3F5]">Boost check</div>
+      <div className="text-[13px] font-bold text-[#F2F3F5]">{t("portfolio.lite.boost.title")}</div>
       <p className="mt-1.5 text-[12px] text-[#6B7280]">{DETAILS_SENTENCE}</p>
       <div className="mt-3 space-y-2">
         {detailRows(data).map((r) => (
@@ -304,7 +305,7 @@ export const BoostCheckCard = ({
             className="text-[10px] font-bold text-[#6B7280]"
             style={{ letterSpacing: "1.4px" }}
           >
-            BOOST CHECK
+            {t("portfolio.lite.boost.title")}
           </span>
           <span className="text-[14px] font-bold" style={{ color: st.color }}>
             {st.word}
@@ -343,7 +344,7 @@ export const BoostCheckBar = ({
   return (
     <div className="flex items-center gap-3.5 rounded-[12px] bg-[#12151A] px-[16px] py-[11px]">
         <span className="text-[10px] font-bold text-[#6B7280]" style={{ letterSpacing: "1.4px" }}>
-          BOOST CHECK
+          {t("portfolio.lite.boost.title")}
         </span>
         <span className="text-[14px] font-bold" style={{ color: st.color }}>
           {st.word}

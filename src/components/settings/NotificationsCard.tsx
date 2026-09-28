@@ -1,4 +1,4 @@
-import { useT } from "@/i18n";
+import { useT, t } from "@/i18n";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -78,7 +78,7 @@ export const NotificationsCard = ({
             Settled results, auto-close warnings, trade confirmations and funds movements.
           </p>
           <Button variant="outline" size="sm" className="h-8 mt-4" onClick={onAddEmail}>
-            Add email
+            {t("settings.add_email")}
           </Button>
         </div>
       ) : (

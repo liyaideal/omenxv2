@@ -4,6 +4,7 @@
 // State B: coin-major — three large cards, each with its own dial.
 // Pixel contract: docs/design-contracts/all-stage-6A/6B.html
 // ============================================================
+import { t } from "@/i18n";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AssetAvatar } from "@/components/lite/AssetAvatar";
@@ -217,7 +218,7 @@ const CompactCoinTile = ({
           </span>
         </span>
         <span className="flex flex-col items-end gap-[1px]">
-          <span style={MICRO}>Closes</span>
+          <span style={MICRO}>{t("market.screen.lite.lite_market_sections.timeline.closes")}</span>
           <span
             className="font-display"
             style={{
@@ -248,7 +249,7 @@ const CompactCoinTile = ({
 
       <div className="grid grid-cols-2 gap-[7px]">
         <DirectionButton
-          label="Up"
+          label={t("events.screen.simple.home.home_crypto_card.up")}
           price={up?.price ?? 0.5}
           tone="up"
           radius={10}
@@ -259,7 +260,7 @@ const CompactCoinTile = ({
           onClick={go("up")}
         />
         <DirectionButton
-          label="Down"
+          label={t("events.screen.simple.home.home_crypto_card.down")}
           price={down?.price ?? 0.5}
           tone="down"
           radius={10}
@@ -345,7 +346,7 @@ const MajorCoinCard = ({
           </span>
         </span>
         <span className="flex flex-col items-end gap-[1px]">
-          <span style={{ ...MICRO, letterSpacing: "0.12em" }}>Closes</span>
+          <span style={{ ...MICRO, letterSpacing: "0.12em" }}>{t("market.screen.lite.lite_market_sections.timeline.closes")}</span>
           <span
             className="font-display"
             style={{
@@ -388,7 +389,7 @@ const MajorCoinCard = ({
 
       <div className="grid grid-cols-2 gap-[6px]">
         <DirectionButton
-          label="Up"
+          label={t("events.screen.simple.home.home_crypto_card.up")}
           price={up?.price ?? 0.5}
           tone="up"
           radius={10}
@@ -399,7 +400,7 @@ const MajorCoinCard = ({
           onClick={go("up")}
         />
         <DirectionButton
-          label="Down"
+          label={t("events.screen.simple.home.home_crypto_card.down")}
           price={down?.price ?? 0.5}
           tone="down"
           radius={10}
@@ -579,7 +580,7 @@ export const IntradayStageCard = ({
             }}
           >
             <LivePulse size={6} color={ORANGE} />
-            Intraday · rolling rounds
+            {t("events.screen.simple.all_stage.intraday_stage_card.rolling_rounds")}
           </span>
           <span
             className="font-display"
@@ -590,7 +591,7 @@ export const IntradayStageCard = ({
               color: "#fff",
             }}
           >
-            Will the price go up?
+            {t("events.screen.simple.home.home_crypto_card.will_the_price_go_up")}
           </span>
           <span style={{ fontSize: 12, color: "#9AA1AC" }}>
             {sessionOpen ? (
@@ -646,7 +647,7 @@ export const IntradayStageCard = ({
                 fontWeight: 700,
               }}
             >
-              Stocks closing today
+              {t("events.screen.simple.all_stage.intraday_stage_card.stocks_closing_today")}
             </span>
             <span style={{ fontSize: 11, color: "#6B7280", fontWeight: 600 }}>
               Will it finish higher than it opened? · {closeLabel}
@@ -671,7 +672,7 @@ export const IntradayStageCard = ({
             : "Stocks return when the next session opens"}
         </span>
         <span style={{ fontSize: 12, color: ORANGE, fontWeight: 700 }}>
-          Open Intraday →
+          {t("events.screen.simple.all_stage.intraday_stage_card.open_intraday")}
         </span>
       </button>
     </div>

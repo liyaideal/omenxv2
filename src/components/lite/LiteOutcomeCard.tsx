@@ -2,6 +2,7 @@
 // Settled-market result card. Shared by the Lite contract page and
 // (future) the Lite spot page. Two states: held / not held.
 // ============================================================
+import { t } from "@/i18n";
 import { ArrowUpRight, Check, Share2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -71,13 +72,13 @@ export const LiteOutcomeCard = ({
     <div className="rounded-2xl border border-border bg-card p-4">
       <div className="mb-3 flex items-center gap-2">
         <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-          Settled
+          {t("trade.screen.lite.lite_contract_sections.settled")}
         </span>
         {when && <span className="font-mono text-[11px] text-muted-foreground">{when}</span>}
       </div>
 
       <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-        Outcome
+        {t("common.outcome")}
       </div>
       <div className="mt-2 space-y-1.5">
         {options && options.length > 0 ? (
@@ -175,7 +176,7 @@ export const LiteOutcomeCard = ({
         <div className="mt-4 border-t border-border pt-3">
           <div className="mb-2 flex items-center gap-2">
             <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-              Your result
+              {t("trade.screen.lite.lite_contract_sections.your_result")}
             </span>
             <span
               className={cn(
@@ -195,11 +196,11 @@ export const LiteOutcomeCard = ({
             )}
           </div>
           <div className="grid grid-cols-3 gap-2">
-            <Cell label="You put in" value={money(holding.putIn)} />
-            <Cell label="Paid out" value={money(holding.paidOut)} />
+            <Cell label={t("trade.screen.lite.lite_contract_sections.you_put_in")} value={money(holding.putIn)} />
+            <Cell label={t("common.paid_out")} value={money(holding.paidOut)} />
             <div>
               <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                Profit
+                {t("trade.screen.lite.lite_contract_sections.profit")}
               </div>
               <div
                 className={cn(
@@ -242,7 +243,7 @@ export const LiteOutcomeCard = ({
                 className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-border px-3 text-xs font-semibold text-foreground hover:bg-muted/50"
               >
                 <Share2 className="h-3.5 w-3.5" />
-                Share
+                {t("common.share")}
               </button>
             </div>
           ) : (
@@ -270,7 +271,7 @@ export const LiteOutcomeCard = ({
         <div className="mt-4 border-t border-border pt-3">
           <div className="rounded-xl border border-dashed border-border p-4 text-center">
             <div className="text-xs font-medium text-foreground">
-              You didn't hold this market.
+              {t("trade.screen.lite.lite_contract_sections.you_didnt_hold_this_market")}
             </div>
             <p className="mt-1 text-[11px] text-muted-foreground">
               {summary || `${winnerLabel} was the outcome, paying $1.00 a share.`}

@@ -1,4 +1,4 @@
-import { useT } from "@/i18n";
+import { useT, t } from "@/i18n";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -299,10 +299,10 @@ export const AuthContent = ({
           <>
             <div className="text-center space-y-1">
               <h2 className="text-lg font-semibold text-foreground">
-                Predict the Future, Profit from Certainty
+                {t("auth.title")}
               </h2>
               <p className="text-sm text-muted-foreground">
-                Trade crypto, politics, sports & more like futures
+                {t("auth.subtitle")}
               </p>
             </div>
 
@@ -312,8 +312,8 @@ export const AuthContent = ({
                 <TrendingUp className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <p className="font-medium text-foreground text-sm">Predict. Trade. Profit.</p>
-                <p className="text-xs text-muted-foreground">Up to 100x Leverage · Pro Trading Tools</p>
+                <p className="font-medium text-foreground text-sm">{t("auth.promo_tag")}</p>
+                <p className="text-xs text-muted-foreground">{t("auth.promo_sub")}</p>
               </div>
             </div>
           </>
@@ -349,7 +349,7 @@ export const AuthContent = ({
         <div className={isMobile ? "space-y-3" : "space-y-4"}>
           {authMethod === "google" && (
             <>
-              <p className={isLite ? "text-[12px] text-[#9CA2AB]" : "text-sm text-muted-foreground"}>Quick sign-in with Google</p>
+              <p className={isLite ? "text-[12px] text-[#9CA2AB]" : "text-sm text-muted-foreground"}>{t("auth.google_login_hint")}</p>
               <Button
                 onClick={() => setGoogleChooserOpen(true)}
                 disabled={isLoading}
@@ -386,7 +386,7 @@ export const AuthContent = ({
 
           {authMethod === "wallet" && (
             <>
-              <p className={isLite ? "text-[12px] text-[#9CA2AB]" : "text-sm text-muted-foreground"}>Connect your Web3 wallet</p>
+              <p className={isLite ? "text-[12px] text-[#9CA2AB]" : "text-sm text-muted-foreground"}>{t("auth.wallet_login_hint")}</p>
               <Button
                 onClick={() => handleDemoLogin("wallet")}
                 disabled={isLoading}
@@ -407,7 +407,7 @@ export const AuthContent = ({
 
           {authMethod === "telegram" && (
             <>
-              <p className={isLite ? "text-[12px] text-[#9CA2AB]" : "text-sm text-muted-foreground"}>Sign in with Telegram</p>
+              <p className={isLite ? "text-[12px] text-[#9CA2AB]" : "text-sm text-muted-foreground"}>{t("auth.telegram_btn")}</p>
               <Button
                 onClick={() => handleDemoLogin("telegram")}
                 disabled={isLoading}
@@ -432,7 +432,7 @@ export const AuthContent = ({
         {/* Divider with OR */}
         <div className="flex items-center gap-3">
           <div className={isLite ? "flex-1 h-px bg-[#23262D]" : "flex-1 h-px bg-border/50"} />
-          <span className={isLite ? "text-[12px] text-[#9CA2AB]" : "text-xs text-muted-foreground"}>OR</span>
+          <span className={isLite ? "text-[12px] text-[#9CA2AB]" : "text-xs text-muted-foreground"}>{t("common.auth.shared.divider_or")}</span>
           <div className={isLite ? "flex-1 h-px bg-[#23262D]" : "flex-1 h-px bg-border/50"} />
         </div>
 
@@ -445,7 +445,7 @@ export const AuthContent = ({
           ) : (
             <>
               <p className="text-sm text-foreground">
-                New to OMENX? Authorization creates your account automatically
+                {t("auth.auto_register")}
               </p>
               <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5">
                 <Zap className="w-3.5 h-3.5 text-primary" />
@@ -506,18 +506,18 @@ export const AuthContent = ({
           className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back
+          {t("common.back")}
         </button>
 
         {isLite ? (
           <div className="text-center space-y-1">
-            <h2 className="font-display text-[20px] font-semibold tracking-tight text-foreground">Create your wallet</h2>
+            <h2 className="font-display text-[20px] font-semibold tracking-tight text-foreground">{t("auth.lite.create_wallet.title")}</h2>
             <p className="text-[13px] text-muted-foreground leading-snug">A USDC wallet on Base, set up for you in one tap.</p>
           </div>
         ) : (
           <div className="text-center space-y-1">
-            <h2 className="text-lg font-semibold text-foreground">Create Your Trading Wallet</h2>
-            <p className="text-sm text-muted-foreground">Start trading events with real funds</p>
+            <h2 className="text-lg font-semibold text-foreground">{t("auth.screen.components.create_wallet_form.create_your_trading_wallet")}</h2>
+            <p className="text-sm text-muted-foreground">{t("auth.lite.create_wallet.subtitle")}</p>
           </div>
         )}
 
@@ -563,15 +563,15 @@ export const AuthContent = ({
               <Zap className="w-4 h-4 text-primary" />
             </div>
             <div>
-              <p className="font-semibold text-primary text-sm">Pro Trading Platform</p>
+              <p className="font-semibold text-primary text-sm">{t("auth.screen.components.create_wallet_form.pro_trading_platform")}</p>
               <ul className="text-xs text-muted-foreground mt-1 space-y-0.5">
                 <li className="flex items-center gap-1.5">
                   <div className="w-1 h-1 rounded-full bg-primary" />
-                  Up to 100x leverage on events
+                  {t("auth.lite.create_wallet.leverage")}
                 </li>
                 <li className="flex items-center gap-1.5">
                   <div className="w-1 h-1 rounded-full bg-primary" />
-                  Real-time market data
+                  {t("auth.reason_2")}
                 </li>
               </ul>
             </div>
@@ -598,11 +598,11 @@ export const AuthContent = ({
         <div className="bg-muted/30 border border-border/50 rounded-xl p-3">
           <div className="flex items-center gap-2 mb-1">
             <ShieldCheck className="w-4 h-4 text-muted-foreground" />
-            <span className="text-xs font-medium text-foreground">Security Verified</span>
+            <span className="text-xs font-medium text-foreground">{t("auth.lite.create_wallet.security")}</span>
           </div>
           <div className="h-9 bg-muted/50 rounded-lg flex items-center justify-center">
             <Check className="w-4 h-4 text-trading-green mr-1.5" />
-            <span className="text-xs text-trading-green">Verified</span>
+            <span className="text-xs text-trading-green">{t("common.verified")}</span>
           </div>
         </div>
           </>
@@ -631,7 +631,7 @@ export const AuthContent = ({
           className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back
+          {t("common.back")}
         </button>
 
         {/* Success Banner */}
@@ -639,14 +639,14 @@ export const AuthContent = ({
           <div className="bg-[rgba(207,255,74,0.1)] border border-[rgba(207,255,74,0.3)] text-[#DCFF6A] rounded-xl p-2.5 flex items-center gap-2">
             <Check className="w-4 h-4 flex-shrink-0" />
             <span className="font-medium text-sm">
-              Wallet created — complete your profile to start
+              {t("auth.lite.profile.wallet_created")}
             </span>
           </div>
         ) : (
           <div className="bg-trading-green/10 border border-trading-green/30 rounded-xl p-2.5 flex items-center gap-2">
             <Check className="w-4 h-4 text-trading-green flex-shrink-0" />
             <span className="text-trading-green font-medium text-sm">
-              Wallet created! Complete your profile to start
+              {t("auth.complete_profile_wallet_created")}
             </span>
           </div>
         )}
@@ -663,20 +663,20 @@ export const AuthContent = ({
           {/* Username Input */}
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <Label htmlFor="username" className="text-sm font-medium text-foreground">Username</Label>
-              <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">Optional</span>
+              <Label htmlFor="username" className="text-sm font-medium text-foreground">{t("common.auth.signup.username_label")}</Label>
+              <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{t("common.optional")}</span>
             </div>
             <Input
               id="username"
               type="text"
-              placeholder="Enter your display name"
+              placeholder={t("auth.complete_profile_username_placeholder")}
               value={username}
               maxLength={20}
               onChange={(e) => setUsername(e.target.value)}
               className="h-10 bg-muted/50 border-border/50"
             />
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Public display name</span>
+              <span>{t("auth.complete_profile_username_hint")}</span>
               <span>{username.length}/20</span>
             </div>
           </div>
@@ -684,13 +684,13 @@ export const AuthContent = ({
           {/* Email Input - Required */}
           <div className="space-y-1">
             <div className="flex items-center gap-1">
-              <Label htmlFor="email" className="text-sm font-medium text-foreground">Email Address</Label>
+              <Label htmlFor="email" className="text-sm font-medium text-foreground">{t("settings.email_address")}</Label>
               <span className="text-trading-red">*</span>
             </div>
             <Input
               id="email"
               type="email"
-              placeholder="your.email@example.com"
+              placeholder={t("settings.input_email_placeholder")}
               value={email}
               readOnly={isEmailSignIn}
               onChange={(e) => {
@@ -739,14 +739,14 @@ export const AuthContent = ({
               <Input
                 id="referralCode"
                 type="text"
-                placeholder="Enter 6-character code (e.g. ABCDEF)"
+                placeholder={t("auth.complete_profile_referral_placeholder")}
                 value={referralCode}
                 maxLength={6}
                 onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
                 className="h-10 bg-muted/50 border-border/50 font-mono uppercase tracking-wider"
               />
               <p className="text-xs text-muted-foreground">
-                You and your inviter will both earn bonus points!
+                {t("auth.complete_profile_referral_hint")}
               </p>
             </div>
           )}
@@ -762,7 +762,7 @@ export const AuthContent = ({
             "Start trading →"
           ) : (
             <>
-              Start Trading Now
+              {t("auth.start_trading")}
               <ArrowRight className="w-4 h-4 ml-1.5" />
             </>
           )}

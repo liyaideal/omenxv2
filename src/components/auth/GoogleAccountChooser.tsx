@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
@@ -53,7 +54,7 @@ const HeaderBlock = () => (
         Choose an account
       </h2>
       <p className="text-sm text-muted-foreground">
-        to continue to <span className="font-medium text-foreground">OMENX</span>
+        to continue to <span className="font-medium text-foreground">{t("common.app_name")}</span>
       </p>
     </div>
   </div>

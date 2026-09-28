@@ -4,6 +4,7 @@
 // Boost/Standard chips → segment list. Desktop: site header + 3 KPI cards +
 // gauge bar + grid rows. Pro portfolio is a separate code path.
 // ============================================================
+import { t } from "@/i18n";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -226,12 +227,12 @@ export default function LitePortfolio() {
   const liveKpiMobile = (
     <KpiGrid cols={2}>
       <KpiCard
-        label="COST"
+        label={t("common.cost")}
         value={dash ? KPI_DASH : money(p.liveKpi.cost)}
         sub={`${p.liveKpi.count} ${p.liveKpi.count === 1 ? "call" : "calls"}`}
       />
       <KpiCard
-        label="NOW WORTH"
+        label={t("common.now_worth")}
         value={dash ? KPI_DASH : money(p.liveKpi.nowWorth)}
         sub={`${signedMoney(p.liveKpi.profit)} · ${p.liveKpi.profit >= 0 ? "+" : ""}${p.liveKpi.profitPercent.toFixed(1)}%`}
         subColor={p.liveKpi.profit >= 0 ? VOLT : RED}
@@ -242,13 +243,13 @@ export default function LitePortfolio() {
   const liveKpiDesktop = (
     <KpiGrid cols={3}>
       <KpiCard
-        label="COST"
+        label={t("common.cost")}
         value={dash ? KPI_DASH : money(p.liveKpi.cost)}
         sub={`${p.liveKpi.count} ${p.liveKpi.count === 1 ? "call" : "calls"}`}
       />
-      <KpiCard label="NOW WORTH" value={dash ? KPI_DASH : money(p.liveKpi.nowWorth)} />
+      <KpiCard label={t("common.now_worth")} value={dash ? KPI_DASH : money(p.liveKpi.nowWorth)} />
       <KpiCard
-        label="PROFIT"
+        label={t("trade.screen.lite.lite_contract_sections.profit")}
         value={dash ? KPI_DASH : signedMoney(p.liveKpi.profit)}
         sub={`${p.liveKpi.profit >= 0 ? "+" : ""}${p.liveKpi.profitPercent.toFixed(1)}%`}
         subColor={p.liveKpi.profit >= 0 ? VOLT : RED}
@@ -259,12 +260,12 @@ export default function LitePortfolio() {
   const settledKpiMobile = (
     <KpiGrid cols={2}>
       <KpiCard
-        label="WIN RATE"
+        label={t("portfolio.win_rate")}
         value={dash ? KPI_DASH : `${p.settledKpi.winRate}%`}
         sub={`${p.settledKpi.wins} of ${p.settledKpi.total}`}
       />
       <KpiCard
-        label="NET PROFIT"
+        label={t("portfolio.net_profit")}
         value={dash ? KPI_DASH : signedMoney(p.settledKpi.net)}
         sub={`${p.settledKpi.total} settled`}
         subColor={p.settledKpi.net >= 0 ? VOLT : RED}
@@ -275,20 +276,20 @@ export default function LitePortfolio() {
   const settledKpiDesktop = (
     <KpiGrid cols={3}>
       <KpiCard
-        label="WIN RATE"
+        label={t("portfolio.win_rate")}
         value={dash ? KPI_DASH : `${p.settledKpi.winRate}%`}
         sub={`${p.settledKpi.wins} of ${p.settledKpi.total}`}
       />
       <KpiCard
-        label="NET PROFIT"
+        label={t("portfolio.net_profit")}
         value={dash ? KPI_DASH : signedMoney(p.settledKpi.net)}
         sub={`${p.settledKpi.total} settled`}
         subColor={p.settledKpi.net >= 0 ? VOLT : RED}
       />
       <KpiCard
-        label="RECORD"
+        label={t("portfolio.lite.kpi.record")}
         value={dash ? KPI_DASH : `${p.settledKpi.wins}W ${p.settledKpi.losses}L`}
-        sub="wins · losses"
+        sub={t("portfolio.lite.kpi.wins_losses")}
       />
     </KpiGrid>
   );
@@ -330,7 +331,7 @@ export default function LitePortfolio() {
             <SeriesDetailDesktop vm={seriesVm} actions={seriesActions} />
           )
         ) : (
-          <div className="py-14 text-center text-[13px] text-[#6B7280]">Nothing settled yet</div>
+          <div className="py-14 text-center text-[13px] text-[#6B7280]">{t("portfolio.lite.settled.empty")}</div>
         )}
       </PortfolioErrorBoundary>
     </div>

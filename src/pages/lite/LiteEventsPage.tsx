@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { SeoFooter } from "@/components/seo/SeoFooter";
 import { useMemo, useState, type ReactNode } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -130,7 +131,7 @@ export const CatalogueIdentityCard = ({ isMobile }: { isMobile: boolean }) => (
           maxWidth: 279,
         }}
       >
-        Buy Yes or No on real-world outcomes.
+        {t("events.screen.simple.standard_event_grid.trade_real_world_outcomes")}
         <br />
         Winning shares pay <span style={{ color: "#fff" }}>$1</span>.
       </div>
@@ -198,7 +199,7 @@ export const CatalogueMobileBanner = ({ openCount }: { openCount: number }) => (
             color: "#fff",
           }}
         >
-          Will it happen?
+          {t("events.screen.simple.standard_event_grid.will_it_happen")}
         </div>
         <div
           className="font-sans"
@@ -231,7 +232,7 @@ export const CatalogueHeaderRow = ({ openCount }: { openCount: number }) => (
         color: "#fff",
       }}
     >
-      All Markets
+      {t("events.screen.simple.standard_event_grid.all_markets")}
     </span>
     <span style={{ color: "#6B7280", marginLeft: 8, fontSize: 15 }}>›</span>
     <span
@@ -472,7 +473,7 @@ const LiteEventsPage = () => {
         className="text-primary underline"
         style={{ textUnderlineOffset: 3 }}
       >
-        Browse all
+        {t("events.screen.simple.events_view_controls.browse_all")}
       </button>
     </div>
   );
@@ -752,18 +753,18 @@ const LiteEventsPage = () => {
           filtered.length === 0 ? (
           <EmptyState
             variant="page"
-            title="Nothing starred yet"
+            title={t("events.screen.simple.standard_event_grid.watchlist_empty_title")}
             illustrationSrc={isMobile ? "/assets/mobile/empty-no-starred-event.png" : "/assets/desktop/empty-no-starred-event.png"}
-            description="Tap the ★ on any market and it'll show up here."
+            description={t("events.screen.simple.standard_event_grid.watchlist_empty_description")}
             actionLabel="See all markets"
             onAction={resetAll}
           />
         ) : filtered.length === 0 ? (
           <EmptyState
             variant="page"
-            title="No open markets here right now"
+            title={t("events.screen.simple.standard_event_grid.topic_empty_title")}
             illustrationSrc={isMobile ? "/assets/mobile/empty-no-boost.png" : "/assets/desktop/empty-no-boost.png"}
-            description="New markets land in this topic as they open. Check back soon."
+            description={t("events.screen.simple.standard_event_grid.topic_empty_description")}
             actionLabel="See all markets"
             onAction={resetAll}
           />

@@ -22,7 +22,8 @@
  * 另两处「稿与全站规范冲突」，均按生产落（CPO 2026-09-22 批）：
  * · 卡底域名与 QR 指向 `https://omenx.lovable.app`（稿写 omenx.com）——以实际可访问域为准。
  * · More Options 按钮保持全站 `.btn-primary` 渐变（稿是平铺 #33D6FF）；仅图标按稿改成纸飞机。
- */import type { RefObject } from "react";
+ */import { t } from "@/i18n";
+import type { RefObject } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import rankArt from "@/assets/share/leaderboard-rank-art.webp";
 import { omenxLogo } from "@/components/Logo";
@@ -207,10 +208,10 @@ export const RankShareCard = ({
 
       <div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8 }}>
-          <Stat label="PnL" value={`$${Math.round(user.pnl).toLocaleString("en-US")}`} color="#CFFF4A" size={15} />
-          <Stat label="ROI" value={`${user.roi.toFixed(1)}%`} color="#33D6FF" size={15} />
+          <Stat label={t("common.pnl")} value={`$${Math.round(user.pnl).toLocaleString("en-US")}`} color="#CFFF4A" size={15} />
+          <Stat label={t("market.roi")} value={`${user.roi.toFixed(1)}%`} color="#33D6FF" size={15} />
           <Stat
-            label="Volume"
+            label={t("market.volume")}
             value={`$${Math.round(user.volume).toLocaleString("en-US")}`}
             color="#FFFFFF"
             size={15}
@@ -228,7 +229,7 @@ export const RankShareCard = ({
         >
           <div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-              <span style={{ fontSize: 10, lineHeight: "13px", color: "rgba(255,255,255,0.3)" }}>Referral:</span>
+              <span style={{ fontSize: 10, lineHeight: "13px", color: "rgba(255,255,255,0.3)" }}>{t("common.referral")}</span>
               <span
                 style={{
                   fontFamily: NUM_FONT,
@@ -244,9 +245,9 @@ export const RankShareCard = ({
             </div>
             {/* 字标等比；高度 = 本卡稿的画布占比 9.92/314 = 3.16% × 336 ≈ 11
                 （§Addendum 2026-09-07 第 6 条③ 2026-09-22 重写，原「固定 18px」已作废） */}
-            <img src={omenxLogo} alt="OMENX" style={{ height: 11, width: "auto", display: "block", marginTop: 10 }} />
+            <img src={omenxLogo} alt={t("common.app_name")} style={{ height: 11, width: "auto", display: "block", marginTop: 10 }} />
             <div style={{ marginTop: 4, fontSize: 11, fontWeight: 500, lineHeight: "15px", color: "#CFFF4A" }}>
-              Join &amp; trade like a pro!
+              {t("portfolio.share_cta_win")}
             </div>
           </div>
 

@@ -4,6 +4,7 @@
 // width equals that option's yes-price. Settled options are excluded.
 // No interactions — the board below is the selector.
 // ============================================================
+import { t } from "@/i18n";
 import { cn } from "@/lib/utils";
 
 export interface CrowdRow {
@@ -34,7 +35,7 @@ export const LiteCrowdOverview = ({ options, className }: Props) => {
       )}
     >
       <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-        What the crowd thinks
+        {t("trade.screen.lite.lite_contract_sections.what_the_crowd_thinks")}
       </div>
       <div className="mt-2.5 space-y-2">
         {live.map((o) => {

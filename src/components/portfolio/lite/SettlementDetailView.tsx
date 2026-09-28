@@ -3,6 +3,7 @@
 // page and the style guide mount the very same component.
 // Mobile layout is the frozen 2026-08-19 stack; desktop is CPO v1.17 §4b.
 // ============================================================
+import { t } from "@/i18n";
 import { Share2 } from "lucide-react";
 import { KpiCard, KpiGrid, GREEN, RED, money, signedMoney } from "./parts";
 
@@ -171,7 +172,7 @@ export const SettlementDetailMobile = ({
       {vm.trades.length > 0 && (
         <div className="px-4 pt-6">
           <div className="pb-1.5 text-[10px] font-bold text-[#6B7280]" style={{ letterSpacing: "1.4px" }}>
-            ACTIVITY
+            {t("portfolio.lite.detail.activity")}
           </div>
           {activityRows(vm).map((t) => (
             <div
@@ -249,7 +250,7 @@ export const DetailTitleRow = ({
           className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-3 text-[13px] font-semibold text-foreground hover:bg-muted/50"
         >
           <Share2 className="h-3.5 w-3.5" />
-          Share
+          {t("common.share")}
         </button>
       )}
       {onViewEvent && (
@@ -294,15 +295,15 @@ export const SettlementDetailDesktop = ({
 
         <KpiGrid cols={3}>
           <KpiCard
-            label="RESULT"
+            label={t("market.result")}
             value={signedMoney(vm.net)}
             valueColor={won ? GREEN : RED}
             sub={sub.text}
             subColor={sub.color}
           />
-          <KpiCard label="COST" value={money(vm.cost)} sub={costSub(vm)} />
+          <KpiCard label={t("common.cost")} value={money(vm.cost)} sub={costSub(vm)} />
           <KpiCard
-            label="PAYOUT"
+            label={t("common.payout")}
             value={money(payout)}
             sub={
               <>
@@ -315,7 +316,7 @@ export const SettlementDetailDesktop = ({
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-3">
-        <DetailCard title="DETAILS">
+        <DetailCard title={t("portfolio.lite.boost.details")}>
           <Row k="Side" v={sideLine(vm)} />
           <Row k="Avg price" v={centsLabel(vm.avgPrice)} />
           <Row k="Shares" v={`${Math.round(vm.shares)}`} />
@@ -329,9 +330,9 @@ export const SettlementDetailDesktop = ({
           />
         </DetailCard>
 
-        <DetailCard title="ACTIVITY">
+        <DetailCard title={t("portfolio.lite.detail.activity")}>
           {vm.trades.length === 0 ? (
-            <div className="py-3 text-[13px] text-[#6B7280]">No fills recorded</div>
+            <div className="py-3 text-[13px] text-[#6B7280]">{t("portfolio.lite.detail.no_fills")}</div>
           ) : (
             <>
               {activityRows(vm).map((t) => (

@@ -1,4 +1,4 @@
-import { useT } from "@/i18n";
+import { useT, t } from "@/i18n";
 import { User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -43,7 +43,7 @@ export const ProfileHero = ({
     <button
       type="button"
       onClick={onChangeAvatar}
-      aria-label="Change avatar"
+      aria-label={t("settings.profile.changeAvatar")}
       className="shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
     >
       <Avatar className={cn("border-2 border-primary/50", compact ? "w-14 h-14" : "w-[72px] h-[72px]")}>
@@ -110,7 +110,7 @@ export const ProfileHero = ({
           {avatar}
           <div className="min-w-0">
             <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-2.5">
-              Profile
+              {t("portfolio.nav_me")}
             </div>
             {name}
             {meta}

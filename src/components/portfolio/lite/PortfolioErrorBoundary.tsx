@@ -3,6 +3,7 @@
 // A throwing detail view must degrade to an in-page error state —
 // never unmount the whole page into a white screen.
 // ============================================================
+import { t } from "@/i18n";
 import { Component, type ReactNode } from "react";
 
 interface Props {
@@ -38,7 +39,7 @@ export class PortfolioErrorBoundary extends Component<Props, State> {
     if (!this.state.hasError) return this.props.children;
     return (
       <div className="flex flex-col items-center gap-3 py-14">
-        <p className="text-[13px] text-[#6B7280]">Something went wrong</p>
+        <p className="text-[13px] text-[#6B7280]">{t("common.error_title")}</p>
         <button
           type="button"
           onClick={() => {
@@ -48,7 +49,7 @@ export class PortfolioErrorBoundary extends Component<Props, State> {
           className="h-10 rounded-[10px] px-4 text-[13px] font-semibold text-[#F2F3F5]"
           style={{ border: "1px solid #2A2F38" }}
         >
-          Back to settled
+          {t("portfolio.lite.detail.back_settled")}
         </button>
       </div>
     );

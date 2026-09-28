@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { BottomNav } from "@/components/BottomNav";
@@ -114,12 +115,12 @@ export default function LiteRewardsPage() {
         </div>
       ) : tab === "vouchers" ? (
         signedOut ? (
-          <SignInPromptCard cap="VOUCHERS" description="Sign in to view and redeem your vouchers." />
+          <SignInPromptCard cap="VOUCHERS" description={t("rewards.screen.rewards_page.sign_in_to_view_and_redeem_your_vouchers")} />
         ) : (
           <VouchersBody />
         )
       ) : signedOut ? (
-        <SignInPromptCard cap="REFERRAL" description="Sign in to track progress and claim rewards." />
+        <SignInPromptCard cap="REFERRAL" description={t("rewards.screen.rewards_page.sign_in_to_track_progress_and_claim_rewards")} />
       ) : (
         <ReferralPanel />
       )}
@@ -131,13 +132,13 @@ export default function LiteRewardsPage() {
       <div className={`flex min-h-screen flex-col bg-background ${mobileRedeeming ? "pb-0" : ""}`}>
         {mobileRedeeming ? (
           <MobileHeader
-            title="Redeem voucher"
+            title={t("rewards.screen.rewards_page.redeem_voucher")}
             showBack
             showLogo={false}
             backTo="/rewards?tab=vouchers"
           />
         ) : (
-          <MobileHeader title="Rewards" showLogo={false} showBack flushBottom />
+          <MobileHeader title={t("nav.rewards")} showLogo={false} showBack flushBottom />
         )}
         <main className={mobileRedeeming ? "flex-1" : "flex-1 px-4 py-4"}>{body}</main>
         {!mobileRedeeming && (

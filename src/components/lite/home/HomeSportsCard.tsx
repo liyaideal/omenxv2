@@ -2,6 +2,7 @@
 // HOME · SPORTS MATCH WINNERS (HP-1)
 // Day strip → live cards (green only) → upcoming rows → week footer.
 // ============================================================
+import { t } from "@/i18n";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -522,12 +523,12 @@ export const HomeSportsCard = ({
 
   return (
     <HomeCard style={{ padding: isMobile ? "18px 16px" : "26px 28px" }}>
-      <HomeEyebrow color="#F87171">● Sports · Match winners</HomeEyebrow>
+      <HomeEyebrow color="#F87171">{t("events.screen.simple.home.home_sports_card.sports_match_winners")}</HomeEyebrow>
       <div style={{ marginTop: 12 }}>
-        <HomeQuestion size={isMobile ? 20 : 26}>Who wins the match?</HomeQuestion>
+        <HomeQuestion size={isMobile ? 20 : 26}>{t("events.screen.simple.home.home_sports_card.who_wins_the_match")}</HomeQuestion>
       </div>
       <div style={{ marginTop: 8, fontSize: 14, color: MUTED }}>
-        Winning shares pay $1. Trade before kickoff or live.
+        {t("events.screen.simple.home.home_sports_card.winning_shares_pay_1_trade_before_kickoff_or_live")}
       </div>
 
       <div

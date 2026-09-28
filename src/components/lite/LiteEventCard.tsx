@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Clock, Flame, Timer, Zap } from "lucide-react";
@@ -185,7 +186,7 @@ export const LiteEventCard = ({
       />,
     );
   } else if (status === "new") {
-    badges.push(<BadgePill key="new" bg="hsl(var(--yes))" fg="#04222c" label="New" />);
+    badges.push(<BadgePill key="new" bg="hsl(var(--yes))" fg="#04222c" label={t("market.events_badge_new")} />);
   } else if (status === "trending") {
     badges.push(
       <BadgePill
@@ -193,7 +194,7 @@ export const LiteEventCard = ({
         bg="#FFFFFF"
         fg="#0A0B0D"
         icon={<Flame className="h-3 w-3" strokeWidth={2.5} />}
-        label="Trending"
+        label={t("market.sort_trending")}
       />,
     );
   }
@@ -300,7 +301,7 @@ export const LiteEventCard = ({
               className="chip-t2 flex min-h-[44px] flex-1 items-center justify-between px-3"
               style={{ borderRadius: 10, ["--chip-accent" as string]: "#33D6FF" }}
             >
-              <span className="text-[11px] text-[#9AA1AC]">Yes</span>
+              <span className="text-[11px] text-[#9AA1AC]">{t("common.yes")}</span>
               <span
                 className="font-display text-[15px] font-bold"
                 style={{ color: "#33D6FF", fontVariantNumeric: "tabular-nums" }}
@@ -312,7 +313,7 @@ export const LiteEventCard = ({
               className="chip-t2 flex min-h-[44px] flex-1 items-center justify-between px-3"
               style={{ borderRadius: 10, ["--chip-accent" as string]: "#CFFF4A" }}
             >
-              <span className="text-[11px] text-[#9AA1AC]">No</span>
+              <span className="text-[11px] text-[#9AA1AC]">{t("common.no")}</span>
               <span
                 className="font-display text-[15px] font-bold"
                 style={{ color: "#CFFF4A", fontVariantNumeric: "tabular-nums" }}
@@ -406,7 +407,7 @@ export const LiteEventCard = ({
                 className="chip-t2 flex min-h-[58px] flex-1 items-center justify-between px-[13px]"
                 style={{ borderRadius: 11, ["--chip-accent" as string]: "#33D6FF" }}
               >
-                <span className="text-[11px] text-[#9AA1AC]">Yes</span>
+                <span className="text-[11px] text-[#9AA1AC]">{t("common.yes")}</span>
                 <span
                   className="font-display text-[17px] font-bold"
                   style={{ color: "#33D6FF", fontVariantNumeric: "tabular-nums" }}
@@ -418,7 +419,7 @@ export const LiteEventCard = ({
                 className="chip-t2 flex min-h-[58px] flex-1 items-center justify-between px-[13px]"
                 style={{ borderRadius: 11, ["--chip-accent" as string]: "#CFFF4A" }}
               >
-                <span className="text-[11px] text-[#9AA1AC]">No</span>
+                <span className="text-[11px] text-[#9AA1AC]">{t("common.no")}</span>
                 <span
                   className="font-display text-[17px] font-bold"
                   style={{ color: "#CFFF4A", fontVariantNumeric: "tabular-nums" }}

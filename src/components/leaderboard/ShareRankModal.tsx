@@ -8,6 +8,7 @@
  * - 主 CTA 走 .btn-primary（DESIGN §5「主 CTA 不手搓」），稿的纯 cyan 实心只留给
  *   分段器选中态与分页当前页
  */
+import { t } from "@/i18n";
 import { useEffect, useRef, useState } from "react";
 import { Copy, Download, Send, X } from "lucide-react";
 import * as htmlToImage from "html-to-image";
@@ -148,18 +149,18 @@ export const ShareRankModal = ({
       <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
         <button type="button" onClick={handleSave} disabled={!imageBlob} style={{ ...SECONDARY, opacity: imageBlob ? 1 : 0.5 }}>
           <Download className="h-4 w-4" aria-hidden="true" />
-          Save
+          {t("common.save")}
         </button>
         <button type="button" onClick={handleCopyLink} style={SECONDARY}>
           <Copy className="h-4 w-4" aria-hidden="true" />
-          Copy Link
+          {t("common.copy_link")}
         </button>
         <button type="button" onClick={handleX} style={SECONDARY}>
           <XLogo className="h-4 w-4" />X
         </button>
         <button type="button" onClick={handleTelegram} style={SECONDARY}>
           <Send className="h-4 w-4" aria-hidden="true" />
-          Telegram
+          {t("common.screen.shared.ShareModal.telegram")}
         </button>
       </div>
 
@@ -181,7 +182,7 @@ export const ShareRankModal = ({
         }}
       >
         <Send className="h-4 w-4" aria-hidden="true" />
-        More Options
+        {t("common.more_options")}
       </button>
     </>
   );
@@ -191,8 +192,8 @@ export const ShareRankModal = ({
       <MobileDrawer
         open={isOpen}
         onOpenChange={(o) => !o && onClose()}
-        title="Share Your Rank"
-        description="Show your leaderboard performance with one tap."
+        title={t("leaderboard.share_your_rank")}
+        description={t("leaderboard.share_modal_subtitle")}
       >
         {body}
       </MobileDrawer>
@@ -207,7 +208,7 @@ export const ShareRankModal = ({
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Share Your Rank"
+        aria-label={t("leaderboard.share_your_rank")}
         className="animate-scale-in relative max-h-[90vh] overflow-y-auto"
         style={{
           width: 384,
@@ -222,7 +223,7 @@ export const ShareRankModal = ({
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close"
+          aria-label={t("common.close")}
           className="absolute"
           style={{
             right: 16,
@@ -243,10 +244,10 @@ export const ShareRankModal = ({
         </button>
 
         <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, lineHeight: "28px", color: "#FFFFFF" }}>
-          Share Your Rank
+          {t("leaderboard.share_your_rank")}
         </h3>
         <p style={{ margin: "4px 0 16px", fontSize: 14, lineHeight: "20px", color: "#9CA2AB" }}>
-          Show your leaderboard performance with one tap.
+          {t("leaderboard.share_modal_subtitle")}
         </p>
 
         {body}

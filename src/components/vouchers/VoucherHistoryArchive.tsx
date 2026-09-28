@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import type { PositionVoucher } from "@/hooks/usePositionVouchers";
 import { VT, shortDate } from "./voucherTokens";
@@ -86,7 +87,7 @@ const HistoryRow = ({ voucher: v, last }: { voucher: PositionVoucher; last: bool
       </div>
       {isExpired ? (
         <span className="flex-none font-display" style={{ fontSize: 11.5, fontWeight: 700, color: VT.muted }}>
-          Expired
+          {t("common.expired")}
         </span>
       ) : settled ? (
         <span className="flex-none flex flex-col items-end gap-[2px]">
@@ -106,7 +107,7 @@ const HistoryRow = ({ voucher: v, last }: { voucher: PositionVoucher; last: bool
         </span>
       ) : (
         <span className="flex-none font-display" style={{ fontSize: 11.5, fontWeight: 700, color: VT.ink3 }}>
-          Open
+          {t("market.open")}
         </span>
       )}
     </div>

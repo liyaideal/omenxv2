@@ -1,4 +1,4 @@
-import { useT } from "@/i18n";
+import { useT, t } from "@/i18n";
 import { useEffect, useRef, useState } from "react";
 import { Check, Mail } from "lucide-react";
 import { toast } from "sonner";
@@ -118,7 +118,7 @@ export const LinkedEmailAccountCard = ({
           </>
         ) : (
           <>
-            You signed in via <span className="font-medium text-primary">Email</span>. To change it, we'll send a link
+            {t("settings.linked_account_locked_prefix")} <span className="font-medium text-primary">{t("settings.email")}</span>. To change it, we'll send a link
             to both your current and your new address.
           </>
         )}

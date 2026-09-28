@@ -3,6 +3,7 @@
 // stock-session row. Contract: list-final-touches-11.html 11B / 11C.
 // All counts and session state come from the real market calendar.
 // ============================================================
+import { t } from "@/i18n";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { AssetAvatar } from "@/components/lite/AssetAvatar";
@@ -140,7 +141,7 @@ export const MobileCoinCard = ({
           </span>
         </span>
         <span className="flex shrink-0 flex-col items-end" style={{ gap: 1 }}>
-          <span style={MICRO}>Closes</span>
+          <span style={MICRO}>{t("market.screen.lite.lite_market_sections.timeline.closes")}</span>
           <span
             className="font-display"
             style={{
@@ -184,7 +185,7 @@ export const MobileCoinCard = ({
 
       <div className="flex" style={{ gap: 8 }}>
         <DirectionButton
-          label="Up"
+          label={t("events.screen.simple.home.home_crypto_card.up")}
           price={up?.price ?? 0.5}
           tone="up"
           grow
@@ -196,7 +197,7 @@ export const MobileCoinCard = ({
           onClick={go("up")}
         />
         <DirectionButton
-          label="Down"
+          label={t("events.screen.simple.home.home_crypto_card.down")}
           price={down?.price ?? 0.5}
           tone="down"
           grow
@@ -255,7 +256,7 @@ const SessionRow = ({
         </span>
       </span>
       <span style={{ fontSize: 12, color: "#FF8A3D", fontWeight: 700, flex: "none" }}>
-        Open →
+        {t("events.screen.simple.mobile_all_stage.mobile_intraday_module.open")}
       </span>
     </button>
   );
@@ -279,7 +280,7 @@ export const MobileRoundSwitcher = ({
       padding: "8px 10px",
     }}
   >
-    <span style={{ ...MICRO, flex: "none" }}>Round</span>
+    <span style={{ ...MICRO, flex: "none" }}>{t("events.screen.lite.lite_round_navigation.round")}</span>
     <span
       className="flex overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       style={{ gap: 5 }}
@@ -363,13 +364,13 @@ export const MobileIntradayModule = ({
           }}
         >
           <LivePulse size={6} color="#FF8A3D" />
-          Intraday · rolling rounds
+          {t("events.screen.simple.all_stage.intraday_stage_card.rolling_rounds")}
         </span>
         <h2
           className="font-display"
           style={{ fontWeight: 700, fontSize: 22, letterSpacing: "-0.02em", color: "#fff" }}
         >
-          Will the price go up?
+          {t("events.screen.simple.home.home_crypto_card.will_the_price_go_up")}
         </h2>
         <p style={{ fontSize: 12, color: "#9AA1AC" }}>
           Pick Up or Down before the clock hits zero. Winning shares pay{" "}
@@ -383,7 +384,7 @@ export const MobileIntradayModule = ({
 
       {boostOnly ? (
         <span style={{ fontSize: 12, color: "#6B7280" }}>
-          Nothing boosted here yet — check back soon.
+          {t("events.screen.simple.crypto_view.crypto_vertical.nothing_boosted_here_yet")}
         </span>
       ) : (
         <>

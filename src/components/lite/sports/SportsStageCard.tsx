@@ -3,6 +3,7 @@
 // Also rendered full-width when the Sports category is selected.
 // Pixel contract: docs/design-contracts/all-stage-6A/6B.html
 // ============================================================
+import { t } from "@/i18n";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -350,7 +351,7 @@ export const SportsStageCard = ({
       >
         <div className="flex flex-col gap-[6px]">
           <span className="flex items-center gap-[8px]" style={MICRO_LABEL}>
-            Sports · match winners
+            {t("events.screen.simple.all_stage.sports_stage_card.sports_match_winners")}
           </span>
           <span
             className="font-display"
@@ -361,7 +362,7 @@ export const SportsStageCard = ({
               color: "#fff",
             }}
           >
-            Who wins the match?
+            {t("events.screen.simple.home.home_sports_card.who_wins_the_match")}
           </span>
           <span style={{ fontSize: 12, color: "#9AA1AC" }}>
             Winning shares pay{" "}
@@ -448,7 +449,7 @@ export const SportsStageCard = ({
         >
           {i === 0 && upcoming.length === 0 && (
             <span style={{ fontSize: 11.5, color: "#6B7280" }}>
-              No matches on this day
+              {t("events.screen.simple.all_stage.sports_stage_card.no_matches_on_this_day")}
             </span>
           )}
         </div>
@@ -465,7 +466,7 @@ export const SportsStageCard = ({
             className="flex items-center justify-between"
           >
             <span style={{ fontSize: 12, color: "#9AA1AC" }}>
-              All days mixed · newest kickoff first
+              {t("events.screen.simple.all_stage.sports_stage_card.all_days_mixed_newest_kickoff_first")}
             </span>
             <span style={{ fontSize: 12, color: "#F2F3F5", fontWeight: 700 }}>
               All {matches.length} matches →

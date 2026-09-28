@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
@@ -151,11 +152,11 @@ export const PickerCaptionRow = ({
 }) => (
   <div className="flex items-center justify-between gap-[10px]">
     <span style={{ fontSize: 12, color: "#9AA1AC", lineHeight: 1.4 }}>
-      Pick a market — one voucher opens one trial position
+      {t("rewards.screen.voucher_event_picker_list.pick_a_market_one_voucher_opens_one_trial_position")}
     </span>
     <button
       type="button"
-      aria-label="Search markets"
+      aria-label={t("rewards.screen.voucher_event_picker_list.search_markets")}
       onClick={onToggleSearch}
       className="flex-none flex items-center justify-center"
       style={{ width: 44, height: 44, marginRight: -10, color: searchOpen ? VT.ink : "#9AA1AC" }}
@@ -246,7 +247,7 @@ export const EventPickerList = ({ voucher, selected, onSelect }: EventPickerList
 
       {showPills && (
         <div className={isMobile ? "flex gap-[7px] overflow-x-auto scrollbar-hide" : "flex flex-wrap gap-[7px]"}>
-          <Chip active={!activeCat} onClick={() => setActiveCat(null)} mobile={isMobile}>All</Chip>
+          <Chip active={!activeCat} onClick={() => setActiveCat(null)} mobile={isMobile}>{t("common.all")}</Chip>
           {categories.map((c) => (
             <Chip key={c.id} active={activeCat === c.id} onClick={() => setActiveCat(c.id)} mobile={isMobile}>
               {c.label}

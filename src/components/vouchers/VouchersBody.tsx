@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -47,7 +48,7 @@ export const VoucherDeskEmpty = () => (
       style={{ height: 300, background: VT.surfaceDeep, border: `1px solid ${VT.line}`, padding: "0 40px" }}
     >
       <span className="font-display" style={{ fontSize: 15, fontWeight: 700, color: VT.ink }}>
-        Pick a voucher to redeem
+        {t("rewards.screen.voucher_redeem_desk.pick_a_voucher_to_redeem")}
       </span>
       <span style={{ fontSize: 12, color: VT.ink3, lineHeight: 1.6, maxWidth: 360 }}>
         Choose one on the left and the market picker opens here. Your own balance is never used — the voucher
@@ -67,9 +68,9 @@ export const VouchersListEmpty = () => (
     className="rounded-[12px] flex flex-col items-center gap-[8px] text-center"
     style={{ background: VT.surfaceDeep, border: `1px solid ${VT.line}`, padding: "34px 24px" }}
   >
-    <span className="font-display" style={{ fontSize: 14, fontWeight: 700, color: VT.ink }}>No vouchers yet</span>
+    <span className="font-display" style={{ fontSize: 14, fontWeight: 700, color: VT.ink }}>{t("common.no_vouchers_yet")}</span>
     <span style={{ fontSize: 11.5, color: VT.ink3, lineHeight: 1.6, maxWidth: 280 }}>
-      Vouchers you earn from campaigns and referrals land here, ready to open a trial position.
+      {t("rewards.screen.vouchers_list.vouchers_you_earn_from_campaigns_and_referrals_land_here_ready_to_open")}
     </span>
   </div>
 );
@@ -208,22 +209,22 @@ export const VouchersBody = () => {
                 if (isMobile) openMobileRedeem(v.id);
               }}
             >
-              Redeem
+              {t("common.redeem")}
             </RowOutlineButton>
           )
         }
-        readout={isSelected ? <RowStatusWord tone="volt">Selected</RowStatusWord> : undefined}
+        readout={isSelected ? <RowStatusWord tone="volt">{t("common.selected")}</RowStatusWord> : undefined}
       />
     );
   };
 
   /* -------------------------------- states -------------------------------- */
-  if (isLoading) return <LoadingState label="Loading vouchers…" variant="skeleton" skeletonRows={3} />;
+  if (isLoading) return <LoadingState label={t("rewards.screen.voucher_request_state.loading_vouchers")} variant="skeleton" skeletonRows={3} />;
   if (isError)
     return (
       <ErrorState
-        title="Couldn't load vouchers"
-        description="Something went wrong fetching your vouchers."
+        title={t("rewards.screen.voucher_request_state.couldnt_load_vouchers")}
+        description={t("rewards.screen.voucher_request_state.something_went_wrong_fetching_your_vouchers")}
         onRetry={() => refetch()}
       />
     );
@@ -248,14 +249,14 @@ export const VouchersBody = () => {
     <div className="flex flex-col gap-[14px]">
       {grantedVouchers.length > 0 && (
         <>
-          <SectionHead dot label="Ready to claim" count={grantedVouchers.length} tone="volt" />
+          <SectionHead dot label={t("rewards.screen.vouchers_list.ready_to_claim")} count={grantedVouchers.length} tone="volt" />
           <div className="flex flex-col gap-[8px]">{grantedVouchers.map(grantedRow)}</div>
         </>
       )}
 
       {activeVouchers.length > 0 && (
         <>
-          <SectionHead label="Active" count={activeVouchers.length} tone="neutral" />
+          <SectionHead label={t("market.status_active")} count={activeVouchers.length} tone="neutral" />
           <div className="flex flex-col gap-[8px]">{activeVouchers.map(activeRow)}</div>
         </>
       )}

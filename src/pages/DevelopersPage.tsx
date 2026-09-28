@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useNavigate } from "react-router-dom";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 
@@ -241,11 +242,11 @@ const DevelopersPage = () => {
                     v1
                   </Badge>
                   <span className="text-[11px] font-mono uppercase tracking-[0.24em] text-primary">
-                    OMENX OPEN API
+                    {t("developers.screen.developers_page.omenx_open_api")}
                   </span>
                 </div>
                 <h1 className="font-display font-bold text-3xl md:text-4xl lg:text-5xl leading-[1.05] tracking-[-0.02em] text-foreground">
-                  Trade outcome markets from code.
+                  {t("developers.screen.developers_page.trade_outcome_markets_from_code")}
                 </h1>
                 <p className="mt-5 text-sm md:text-base text-muted-foreground max-w-xl leading-relaxed">
                   Every surface of the exchange — order book, orders, positions, settlement — over REST
@@ -253,10 +254,10 @@ const DevelopersPage = () => {
                 </p>
                 <div className="mt-7 flex flex-col sm:flex-row flex-wrap gap-3">
                   <Button size="lg" onClick={() => navigate("/settings/api")} className="gap-2 w-full sm:w-auto h-12 sm:h-11">
-                    <KeyRound className="w-4 h-4" /> Manage API Keys
+                    <KeyRound className="w-4 h-4" /> {t("developers.screen.developers_page.manage_api_keys")}
                   </Button>
                   <Button size="lg" variant="outline" onClick={comingSoon} className="gap-2 w-full sm:w-auto h-12 sm:h-11">
-                    <BookOpen className="w-4 h-4" /> Read the Docs
+                    <BookOpen className="w-4 h-4" /> {t("developers.screen.developers_page.read_the_docs")}
                   </Button>
                 </div>
 
@@ -344,8 +345,8 @@ const DevelopersPage = () => {
         <Band>
           <SectionHeader
             n="01"
-            title="Built for automation"
-            subtitle="Three surfaces, one typed schema, zero surprise state changes."
+            title={t("developers.screen.developers_content.built_for_automation")}
+            subtitle={t("developers.screen.developers_content.three_surfaces_one_typed_schema_zero_surprise_state_changes")}
             meta="3 surfaces"
           />
 
@@ -354,12 +355,12 @@ const DevelopersPage = () => {
             <div className="grid md:grid-cols-[0.4fr_0.6fr] gap-6 md:gap-10 px-5 md:px-6 py-6 border-b border-border/40">
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-base font-semibold text-foreground">Agent-Ready</h3>
+                  <h3 className="text-base font-semibold text-foreground">{t("developers.screen.developers_content.agent_ready")}</h3>
                   <Badge
                     variant="outline"
                     className="bg-trading-purple/10 text-trading-purple border-trading-purple/30 font-mono text-[10px]"
                   >
-                    Agent-safe
+                    {t("developers.screen.developers_content.agent_safe")}
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed max-w-md">
@@ -367,7 +368,7 @@ const DevelopersPage = () => {
                   preview.
                 </p>
                 <p className="text-[11px] text-muted-foreground/80 mt-1">
-                  Strict typed schema · No natural-language execution path
+                  {t("developers.screen.developers_content.strict_typed_schema_no_natural_language_execution_path")}
                 </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3 text-xs font-mono self-center">
@@ -397,8 +398,8 @@ const DevelopersPage = () => {
               {/* Market Data */}
               <div className="px-5 md:px-6 py-6 flex flex-col gap-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-base font-semibold text-foreground">Market Data</h3>
-                  <span className="text-[10px] font-mono text-muted-foreground">REST · WS</span>
+                  <h3 className="text-base font-semibold text-foreground">{t("portfolio.market_data")}</h3>
+                  <span className="text-[10px] font-mono text-muted-foreground">{t("developers.screen.mobile_capabilities.market_data.tag")}</span>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   Depth, tape and mark. Snapshots over REST, sequence-numbered deltas over
@@ -435,8 +436,8 @@ const DevelopersPage = () => {
               {/* Trading */}
               <div className="px-5 md:px-6 py-6 flex flex-col gap-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-base font-semibold text-foreground">Trading</h3>
-                  <span className="text-[10px] font-mono text-muted-foreground">Idempotent</span>
+                  <h3 className="text-base font-semibold text-foreground">{t("market.status_trading")}</h3>
+                  <span className="text-[10px] font-mono text-muted-foreground">{t("developers.screen.mobile_capabilities.trading.tag")}</span>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   Place, cancel, stage conditionals. Every write is idempotent by client_order_id.
@@ -449,7 +450,7 @@ const DevelopersPage = () => {
   "fee_u": "0.1872"
 }`}
                 </pre>
-                <div className="text-[10px] font-mono text-muted-foreground/80">POST /v1/orders</div>
+                <div className="text-[10px] font-mono text-muted-foreground/80">{t("developers.screen.developers_content.post_v1_orders")}</div>
               </div>
             </div>
           </div>
@@ -459,8 +460,8 @@ const DevelopersPage = () => {
         <Band alt>
           <SectionHeader
             n="02"
-            title="Access tiers"
-            subtitle="Three progressive tiers. Everyone starts read-only."
+            title={t("common.access_tiers")}
+            subtitle={t("developers.screen.developers_content.three_progressive_tiers_everyone_starts_read_only")}
             meta="3 tiers · self-serve to manual"
           />
 
@@ -588,8 +589,8 @@ const DevelopersPage = () => {
         <Band>
           <SectionHeader
             n="03"
-            title="Quickstart"
-            subtitle="From zero to first signed request in three steps."
+            title={t("developers.screen.developers_content.quickstart")}
+            subtitle={t("developers.screen.developers_content.from_zero_to_first_signed_request_in_three_steps")}
             meta="3 steps"
           />
 
@@ -637,8 +638,8 @@ const DevelopersPage = () => {
         <Band alt>
           <SectionHeader
             n="04"
-            title="Reference"
-            subtitle="Full documentation surface rolling out with v1 launch."
+            title={t("developers.screen.developers_content.reference")}
+            subtitle={t("developers.screen.developers_content.full_documentation_surface_rolling_out_with_v1_launch")}
             meta="3 guides"
           />
           <div className="border-y border-border/40 divide-y divide-border/40">
@@ -659,7 +660,7 @@ const DevelopersPage = () => {
                   variant="outline"
                   className="hidden md:inline-flex bg-muted text-muted-foreground border-border font-mono text-[10px]"
                 >
-                  Coming soon
+                  {t("common.coming_soon")}
                 </Badge>
                 <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-all shrink-0" />
               </button>
@@ -673,17 +674,17 @@ const DevelopersPage = () => {
             <div className="flex flex-col md:flex-row md:items-center gap-6">
               <div className="flex-1">
                 <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-primary mb-2">
-                  Ready to build
+                  {t("developers.screen.developers_content.ready_to_build")}
                 </div>
                 <h3 className="font-display font-medium tracking-[-0.01em] text-2xl md:text-3xl text-foreground">
-                  Start with three requests.
+                  {t("developers.screen.developers_content.start_with_three_requests")}
                 </h3>
                 <p className="text-sm text-muted-foreground mt-2 max-w-xl">
-                  Preview. Confirm. Submit.
+                  {t("developers.screen.developers_content.preview_confirm_submit")}
                 </p>
               </div>
               <Button size="lg" onClick={() => navigate("/settings/api")} className="gap-2 shrink-0 w-full md:w-auto h-12 md:h-11">
-                Manage API Keys <ArrowRight className="w-4 h-4" />
+                {t("developers.screen.developers_page.manage_api_keys")} <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
           </div>

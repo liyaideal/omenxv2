@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Flame, DollarSign, BarChart3, Sparkles, Clock, TrendingUp, TrendingDown, ArrowRight } from "lucide-react";
@@ -131,7 +132,7 @@ export const TrendingMarkets = ({ events, priceChanges }: TrendingMarketsProps) 
 
   return (
     <section>
-      <h2 className="text-lg font-semibold text-foreground mb-4">Top Trending Markets</h2>
+      <h2 className="text-lg font-semibold text-foreground mb-4">{t("insights.sections.top_trending_markets")}</h2>
 
       {/* Tabs */}
       <div className="flex flex-wrap gap-2 mb-4">
@@ -183,7 +184,7 @@ export const TrendingMarkets = ({ events, priceChanges }: TrendingMarketsProps) 
                   onClick={(e) => { e.stopPropagation(); navigate(`/trade?event=${event.id}`); }}
                   className="relative z-10 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-primary/10 text-primary text-[11px] font-medium hover:bg-primary/20 transition-colors"
                 >
-                  Trade <ArrowRight className="w-3 h-3" />
+                  {t("common.nav_trade")} <ArrowRight className="w-3 h-3" />
                 </button>
               </div>
 

@@ -9,6 +9,7 @@
 // in ./verticalBlocks so the Crypto and Finance verticals reuse the very
 // same rendered pixels.
 // ============================================================
+import { t } from "@/i18n";
 import { useMemo, useState } from "react";
 import { COINS, QuickEvent, StockEventRow, Timeframe } from "@/components/lite/intraday/intradayData";
 import { formatLocalTime } from "@/lib/usStockSessions";
@@ -68,7 +69,7 @@ export const LiteIntradayView = ({
             }}
           >
             <LivePulse size={6} color={ORANGE} />
-            Intraday · rolling rounds
+            {t("events.screen.simple.all_stage.intraday_stage_card.rolling_rounds")}
           </span>
           <span
             className="font-display"
@@ -79,7 +80,7 @@ export const LiteIntradayView = ({
               color: "#fff",
             }}
           >
-            Will the price go up?
+            {t("events.screen.simple.home.home_crypto_card.will_the_price_go_up")}
           </span>
           <span style={{ fontSize: 13, color: "#9AA1AC" }}>
             Pick Up or Down before the clock hits zero. Winning shares pay{" "}
@@ -97,7 +98,7 @@ export const LiteIntradayView = ({
               fontWeight: 700,
             }}
           >
-            Round
+            {t("events.screen.lite.lite_round_navigation.round")}
           </span>
           <RoundDial value={tf} onSelect={setTf} />
         </div>
@@ -106,7 +107,7 @@ export const LiteIntradayView = ({
       {boostOnly && (
         <EmptyState
           variant="page"
-          title="Nothing boosted here yet — check back soon."
+          title={t("events.screen.simple.crypto_view.crypto_vertical.nothing_boosted_here_yet")}
           illustrationSrc="/assets/desktop/empty-no-boost.png"
         />
       )}
@@ -143,7 +144,7 @@ export const LiteIntradayView = ({
                 letterSpacing: "-0.02em",
               }}
             >
-              Will the stock finish higher than it opened?
+              {t("events.screen.simple.intraday_view.intraday_vertical.will_the_stock_finish_higher_than_it_opened")}
             </span>
             <span style={{ fontSize: 12, color: "#9AA1AC" }}>
               One round per trading day. It settles at the closing bell — winning
@@ -215,7 +216,7 @@ export const LiteIntradayView = ({
                   fontWeight: 700,
                 }}
               >
-                Asleep until their market opens
+                {t("events.screen.simple.intraday_view.intraday_vertical.asleep_until_their_market_opens")}
               </span>
               <span style={{ height: 1, background: "#1D2026", flex: 1 }} />
               {groups.wakeLabel && (

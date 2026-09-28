@@ -4,6 +4,7 @@
 // from the Intraday view (Trading / Asleep), and the frozen
 // LiteEventCard grid. Class + region options come from taxonomy.ts.
 // ============================================================
+import { t } from "@/i18n";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FINANCE_ASSET_CLASSES, FINANCE_REGIONS } from "@/lib/taxonomy";
 import type { EventRow } from "@/hooks/useMarketListData";
@@ -119,7 +120,7 @@ export const LiteFinanceView = ({
       <VerticalHeader
         compact={isMobile}
         eyebrow="Finance · daily closes"
-        title="Which way does it close?"
+        title={t("events.screen.simple.finance_view.finance_vertical_chrome.which_way_does_it_close")}
         subtitle={
           <>
             One round per trading day, settled at the closing bell. Winning shares pay{" "}
@@ -134,9 +135,9 @@ export const LiteFinanceView = ({
 
       {/* Filters — row 1 ASSET CLASS, row 2 REGION. */}
       <div className="flex flex-col" style={{ gap: 9 }}>
-        <DimensionRow label="Asset class" scroll={isMobile} labelWidth={88}>
+        <DimensionRow label={t("events.screen.simple.finance_view.finance_vertical.asset_class")} scroll={isMobile} labelWidth={88}>
           <DimensionPill
-            label="All"
+            label={t("common.all")}
             active={cls === "all"}
             onSelect={() => setCls("all")}
             mobile={isMobile}
@@ -151,7 +152,7 @@ export const LiteFinanceView = ({
             />
           ))}
         </DimensionRow>
-        <DimensionRow label="Region" scroll={isMobile} labelWidth={88}>
+        <DimensionRow label={t("events.screen.simple.finance_view.finance_vertical.region")} scroll={isMobile} labelWidth={88}>
           <DimensionPill
             label="All regions"
             active={region === "all"}
@@ -231,7 +232,7 @@ export const LiteFinanceView = ({
       {boostOnly && catalogue.length === 0 && (
         <EmptyState
           variant="page"
-          title="Nothing boosted here yet — check back soon."
+          title={t("events.screen.simple.crypto_view.crypto_vertical.nothing_boosted_here_yet")}
           illustrationSrc={isMobile ? "/assets/mobile/empty-no-boost.png" : "/assets/desktop/empty-no-boost.png"}
         />
       )}
@@ -244,8 +245,8 @@ export const LiteFinanceView = ({
         >
           <CatalogueHeader
             compact={isMobile}
-            title="What else could the markets do?"
-            subtitle="Questions that run longer than one trading day. Winning shares pay $1."
+            title={t("events.screen.simple.finance_view.finance_vertical_chrome.what_else_could_the_markets_do")}
+            subtitle={t("events.screen.simple.finance_view.finance_vertical_chrome.questions_that_run_longer_than_one_trading_day_winning_shares_pay_1")}
             count={catalogue.length}
           />
           {renderGrid(catalogue)}

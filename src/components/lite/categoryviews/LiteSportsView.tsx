@@ -4,6 +4,7 @@
 // Live matches pinned, ALL day strip, day-grouped ledger.
 // Every row/chip routes into the existing /trade contract page.
 // ============================================================
+import { t } from "@/i18n";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -382,7 +383,7 @@ export const LiteSportsView = ({
               fontWeight: 700,
             }}
           >
-            Sports · match winners
+            {t("events.screen.simple.all_stage.sports_stage_card.sports_match_winners")}
           </span>
           <span
             className="font-display"
@@ -393,7 +394,7 @@ export const LiteSportsView = ({
               color: "#fff",
             }}
           >
-            Who wins the match?
+            {t("events.screen.simple.home.home_sports_card.who_wins_the_match")}
           </span>
           <span style={{ fontSize: 13, color: "#9AA1AC" }}>
             Winning shares pay{" "}
@@ -423,16 +424,16 @@ export const LiteSportsView = ({
               fontWeight: 700,
             }}
           >
-            matches this week
+            {t("events.screen.simple.sports_view.sports_vertical_chrome.matches_this_week")}
           </span>
         </span>
       </div>
 
       {/* Dimension filter rows — SPORT, then LEAGUE (13A). */}
       <div className="flex flex-col" style={{ gap: 10 }}>
-        <DimensionRow label="Sport" labelWidth={66}>
+        <DimensionRow label={t("events.screen.simple.sports_view.sports_vertical.sport")} labelWidth={66}>
           <DimensionPill
-            label="All"
+            label={t("common.all")}
             active={sport === ALL_OPTION}
             onSelect={() => {
               setSport(ALL_OPTION);
@@ -452,9 +453,9 @@ export const LiteSportsView = ({
           ))}
         </DimensionRow>
         {showLeagueRow && (
-          <DimensionRow label="League" labelWidth={66}>
+          <DimensionRow label={t("common.league")} labelWidth={66}>
             <DimensionPill
-              label="All"
+              label={t("common.all")}
               active={activeLeague === ALL_OPTION}
               onSelect={() => setLeague(ALL_OPTION)}
             />
@@ -473,7 +474,7 @@ export const LiteSportsView = ({
       {boostEmpty && (
         <EmptyState
           variant="page"
-          title="Nothing boosted here yet — check back soon."
+          title={t("events.screen.simple.crypto_view.crypto_vertical.nothing_boosted_here_yet")}
           illustrationSrc="/assets/desktop/empty-no-boost.png"
         />
       )}

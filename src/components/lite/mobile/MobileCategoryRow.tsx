@@ -4,6 +4,7 @@
 // that opens a bottom sheet holding Boost / Watchlist / Calendar.
 // Contract: list-final-touches-11.html 11B (right cluster collapsed).
 // ============================================================
+import { t } from "@/i18n";
 import { useState } from "react";
 import { Calendar, SlidersHorizontal, Star, Zap } from "lucide-react";
 import { LivePulse } from "@/components/lite/shared/primitives";
@@ -163,7 +164,7 @@ export const MobileCategoryRow = ({
     <button
       type="button"
       onClick={() => setOpen(true)}
-      aria-label="Filters and views"
+      aria-label={t("events.screen.simple.events_view_controls.filters_and_views")}
       aria-pressed={anyActive}
       className="relative flex items-center justify-center"
       style={{
@@ -203,14 +204,14 @@ export const MobileCategoryRow = ({
         }}
       >
         <SheetHeader className="text-left">
-          <SheetTitle style={{ fontSize: 14 }}>Filters & views</SheetTitle>
+          <SheetTitle style={{ fontSize: 14 }}>{t("events.screen.simple.events_view_controls.filters_and_views_heading")}</SheetTitle>
         </SheetHeader>
         <div className="mt-3 flex flex-col" style={{ gap: 8 }}>
           {onBoost && (
             <SheetRow
               icon={Zap}
-              label="Boost"
-              hint="Only events you can boost"
+              label={t("trade.screen.lite.lite_contract_account_sections.boost")}
+              hint={t("events.screen.simple.events_view_controls.boost_hint")}
               active={!!boostActive}
               onClick={() => {
                 onBoost();
@@ -221,7 +222,7 @@ export const MobileCategoryRow = ({
           <SheetRow
             icon={Star}
             label={watchlistCount > 0 ? `Watchlist (${watchlistCount})` : "Watchlist"}
-            hint="Events you saved"
+            hint={t("events.screen.simple.events_view_controls.watchlist_hint")}
             active={watchlistActive}
             onClick={() => {
               onWatchlist();
@@ -230,8 +231,8 @@ export const MobileCategoryRow = ({
           />
           <SheetRow
             icon={Calendar}
-            label="Calendar"
-            hint="See everything by day"
+            label={t("events.screen.simple.events_view_controls.calendar")}
+            hint={t("events.screen.simple.events_view_controls.calendar_hint")}
             active={calendarActive}
             onClick={() => {
               onCalendar();

@@ -13,6 +13,7 @@
 // Collapsed / dismissed means the <video> is gone, not hidden —
 // a hidden video keeps burning bandwidth.
 // ============================================================
+import { t } from "@/i18n";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useHlsVideo } from "@/hooks/useHlsVideo";
@@ -79,7 +80,7 @@ const Pill = ({ small, tiny }: { small?: boolean; tiny?: boolean }) => (
         lineHeight: 1.2,
       }}
     >
-      LIVE
+      {t("common.live")}
     </b>
   </span>
 );
@@ -721,7 +722,7 @@ export const LiveStage = ({
         </button>
         <button
           type="button"
-          aria-label="Fullscreen"
+          aria-label={t("sports.screen.event.EventLiveStage.fullscreen")}
           onClick={enterFullscreen}
           style={{
             width: 30,
@@ -905,7 +906,7 @@ export const LiveStage = ({
             <Glass mono>{fullCapsule}</Glass>
           </div>
           <div style={{ position: "absolute", right: 16, top: 16, zIndex: 2 }}>
-            <RoundBtn label="Exit fullscreen" onClick={exitFullscreen}>
+            <RoundBtn label={t("sports.screen.live.FullscreenStreamOverlay.exit_fullscreen")} onClick={exitFullscreen}>
               <Ic d={CLOSE_D} size={13} />
             </RoundBtn>
           </div>
@@ -993,7 +994,7 @@ export const LiveStage = ({
           >
             {delayPill}
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <RoundBtn label="Fullscreen" onClick={enterFullscreen}>
+              <RoundBtn label={t("sports.screen.event.EventLiveStage.fullscreen")} onClick={enterFullscreen}>
                 <Ic d={EXPAND_D} size={13} />
               </RoundBtn>
               <MuteBtn muted={muted} onClick={() => setMuted(!muted)} />

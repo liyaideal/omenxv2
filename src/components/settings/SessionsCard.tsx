@@ -1,4 +1,4 @@
-import { useT } from "@/i18n";
+import { useT, t } from "@/i18n";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, Monitor, Smartphone } from "lucide-react";
@@ -160,7 +160,7 @@ export const SessionsCard = ({
           sub={t("settings.sessions.errorSub")}
           right={
             <Button variant="outline" size="sm" className="h-8" onClick={() => (preview ? undefined : query.refetch())}>
-              Retry
+              {t("market.retry")}
             </Button>
           }
           last={rows.length === 0}

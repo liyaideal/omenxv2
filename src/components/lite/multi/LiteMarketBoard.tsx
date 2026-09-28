@@ -8,6 +8,7 @@
 // Pure presentational — every figure is passed in so the style-guide
 // playground can drive all states.
 // ============================================================
+import { t } from "@/i18n";
 import { cn } from "@/lib/utils";
 import { LiteBoardChart } from "./LiteBoardChart";
 
@@ -86,7 +87,7 @@ export const LiteMarketBoard = ({
     {!hideHeader && (
     <div className="flex items-end justify-between gap-3">
       <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-        What the crowd thinks
+        {t("trade.screen.lite.lite_contract_sections.what_the_crowd_thinks")}
       </div>
       <div className="shrink-0 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
         {volumeText}
@@ -175,7 +176,7 @@ export const LiteMarketBoard = ({
                         {pct(o.yesPrice)}
                       </div>
                       <div className="mt-1 text-[9.5px] uppercase tracking-[0.12em] text-muted-foreground">
-                        Chance
+                        {t("common.chance")}
                       </div>
                     </div>
                   )}
@@ -274,7 +275,7 @@ const SettledMark = ({
   stacked?: boolean;
 }) => (
   <div className={stacked ? "" : "text-right"}>
-    <div className="text-[13px] font-semibold leading-none text-muted-foreground">Settled</div>
+    <div className="text-[13px] font-semibold leading-none text-muted-foreground">{t("trade.screen.lite.lite_contract_sections.settled")}</div>
     <div className="mt-1 text-[9.5px] uppercase tracking-[0.12em] text-muted-foreground">
       Outcome: {outcomeYes ? "Yes" : "No"}
     </div>

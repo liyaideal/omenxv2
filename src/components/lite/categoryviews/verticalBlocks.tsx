@@ -5,6 +5,7 @@
 // Zero visual change: the markup below is byte-identical to what the
 // Intraday view shipped before the extraction.
 // ============================================================
+import { t } from "@/i18n";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { AssetAvatar } from "@/components/lite/AssetAvatar";
@@ -227,7 +228,7 @@ export const CoinTile = ({
           </span>
         </span>
         <span className="flex flex-col items-end" style={{ gap: 2 }}>
-          <span style={MICRO}>Closes</span>
+          <span style={MICRO}>{t("market.screen.lite.lite_market_sections.timeline.closes")}</span>
           <span
             className="font-display"
             style={{
@@ -267,7 +268,7 @@ export const CoinTile = ({
 
       <div className="grid grid-cols-2" style={{ gap: 8 }}>
         <DirectionButton
-          label="Up"
+          label={t("events.screen.simple.home.home_crypto_card.up")}
           price={up?.price ?? 0.5}
           tone="up"
           minHeight={48}
@@ -276,7 +277,7 @@ export const CoinTile = ({
           onClick={go("up")}
         />
         <DirectionButton
-          label="Down"
+          label={t("events.screen.simple.home.home_crypto_card.down")}
           price={down?.price ?? 0.5}
           tone="down"
           minHeight={48}
@@ -348,7 +349,7 @@ export const TradingStockRow = ({
         <PctChange value={pct} size={12} weight={700} />
       </span>
       <DirectionButton
-        label="Up"
+        label={t("events.screen.simple.home.home_crypto_card.up")}
         price={row.upPrice}
         tone="up"
         minHeight={44}
@@ -358,7 +359,7 @@ export const TradingStockRow = ({
         onClick={go("up")}
       />
       <DirectionButton
-        label="Not up"
+        label={t("events.screen.simple.calendar.calendar_day.not_up")}
         price={row.downPrice}
         tone="down"
         minHeight={44}

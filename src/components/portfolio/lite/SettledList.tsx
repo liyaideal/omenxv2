@@ -4,6 +4,7 @@
 // Month group headers are collapsible (mobile + desktop share this
 // component): tap/click the header to hide or show that month's rows.
 // ============================================================
+import { t } from "@/i18n";
 import { forwardRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
@@ -75,7 +76,7 @@ export const SettledList = ({ groups }: { groups: LiteMonthGroup[] }) => {
 
   if (groups.length === 0) {
     return (
-      <div className="py-14 text-center text-[13px] text-[#6B7280]">Nothing settled yet</div>
+      <div className="py-14 text-center text-[13px] text-[#6B7280]">{t("portfolio.lite.settled.empty")}</div>
     );
   }
   return (
@@ -118,7 +119,7 @@ export const SettledList = ({ groups }: { groups: LiteMonthGroup[] }) => {
           className="mx-4 mt-4 h-10 w-[calc(100%-2rem)] rounded-[10px] text-[13px] font-semibold text-[#F2F3F5]"
           style={{ border: "1px solid #2A2F38" }}
         >
-          Load earlier months
+          {t("portfolio.lite.settled.load_more")}
         </button>
       )}
     </div>
