@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import { t } from "@/i18n";
 import { toast } from "sonner";
 import { SITE_URL } from "@/lib/site";
-import { cents, fmtDate, fmtDateTimeUtc, fmtInt, fmtUsd, marketPath, untilLabel, categoryLabelForKey, isQuickRound, MOVE_THRESHOLD, type MarketRow } from "@/lib/insights";
+import { anPct, cents, fmtDate, fmtDateTimeUtc, fmtInt, fmtUsd, marketPath, untilLabel, categoryLabelForKey, isQuickRound, MOVE_THRESHOLD, type MarketRow } from "@/lib/insights";
 
 export type InsightKind = "move" | "closing" | "new";
 export interface InsightItem { id: string; kind: InsightKind; at: string; row: MarketRow; }
@@ -34,7 +34,7 @@ export const answerSentence = (i: InsightItem) => {
   const r = i.row; const d = fmtDate(i.at); const p = r.probability; const lbl = r.lead.label;
   if (i.kind === "move") {
     const from = Math.round(r.move!.from * 100);
-    return t("insights.feed.move_sentence", { date: d, pct: p, label: lbl, from, volume: fmtUsd(r.activity.volume), trades: fmtInt(r.activity.trades) });
+    return t("insights.feed.move_sentence", { date: d, an: anPct(p), pct: p, label: lbl, from, volume: fmtUsd(r.activity.volume), trades: fmtInt(r.activity.trades) });
   }
   if (i.kind === "closing") return t("insights.feed.closing_sentence", { date: d, pct: p, label: lbl, until: untilLabel(r.event.end_date), volume: fmtUsd(r.activity.volume) });
   return t("insights.feed.new_sentence", { date: d, pct: p, label: lbl, category: categoryLabelForKey(r.event.category) });

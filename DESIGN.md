@@ -2215,3 +2215,17 @@ Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED
 6. **SEO head 一处**：`useSeoHead({title, description, path, jsonLd, ogType, hreflang})`；禁止页面各自写 `document.title`。
 7. **市场链接一处**：`marketPath()`；真平台改 `/event/{slug}` 只动此函数。
 8. **视觉沿用交易面 token**：`trading-card`、`#1D2026` 分隔、`trading-green / red` 涨跌、display 32/40 H1、eyebrow 10px 0.1em；375 态榜单横向滚动不折列。
+
+## §Addendum 2026-09-28 · Insights v2 序列语法（LOCKED，覆盖同日 Insights SEO/GEO 附录第 8 条视觉部分）
+
+来源：CPO 批 `insights-ia-mock` v3 + 移动稿；规格 `docs/delivery/lite-insights-seo-v2.md`；字典 IN-9…IN-14。**作用域**：`src/components/insightsSeo/seriesParts.tsx` 与所有 `/insights*` 页。
+
+1. **一页一问**：每个 Insights 页只回答「交易者现在押什么、过去押得准不准」，模块顺序固定 现在 → 过去 → 逐条 → 引用；禁止加与此无关的图表（时段柱图等已删）。
+2. **一个词**：Majority = 投注截止时高于 50¢ 的一边。页面文案只用 majority / majority was right / favourite，禁 crowd called / leaned / pts / ▲9 之类裸变动。
+3. **Up 左 Down 右**（`UpDownPair`）：文字顺序与条一致，多数派加粗上 MARKET 轴色（`--yes` 蓝 / `--no` 绿），少数派 11px 灰；两侧各 72px，条 80×4。禁止把多数派挪到左边。
+4. **变动只写全**：`+9% today`（带 % 带 today），MONEY 轴色；绝不 `▲ 9`。
+5. **命中率色轴**（`Hit`）：≥55 `--trading-green` / ≤45 `--trading-red` / 其余 foreground；样本 < 20 不上色。
+6. **表格 v7**（`Table`）：52px 行、fixed 布局、第一列吃剩余宽、数字列右对齐 tabular、整行可点、无箭头列、无 Price 列、无折线；表头 36px mono 10px。
+7. **移动列表行**（`List/Row/Name`）：两行——名 + 右侧一个时间 / Up·Down 对 + 右侧一个"准不准"；页面留上下文 + `StickyCta`（资产页 / 运动页），首页与报告页用 BottomNav。
+8. **开篇**：`SeriesOpening` = display H1（40 / 移动 28）+ eyebrow + lede + as-of，走 Page Openings 的 SEO 页豁免；`MobileHeader titleAs="div"`，全页唯一 h1。
+9. **页尾三件**固定：`PlatformLine`（品牌句）→ `HowComputed` → `Cite`。

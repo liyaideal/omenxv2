@@ -17,6 +17,21 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-09-28 晚 — Insights v2 资产序列 / 运动 / 命中率（[文档](../delivery/lite-insights-seo-v2.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| IS2-1 | 四 RPC `insights_updown_rounds / series_list / series_detail / accuracy` | ✅ | 迁移 `20260928200000_insights_series_v1.sql`，Lovable Cloud 已执行 |
+| IS2-2 | 资产页一模板 19 URL + 家族 hub | ✅ | `/insights/crypto/*` `/insights/stocks/*` |
+| IS2-3 | 首页重写为全平台「现在」一屏 | ✅ | |
+| IS2-4 | 运动页 `/insights/sports/:sport` | ✅ | Lovable 无体育结算历史，"过去"块空态 |
+| IS2-5 | 命中率报告 + 月报 URL | ✅ | 月末冻结由 URL 决定（p_to = 月末） |
+| IS2-6 | G1–G4 复核项（移动双 h1 / 2126 / an / 移动 time） | ✅ | |
+| IS2-7 | 周报下线（301 → accuracy）、v1 表格改 v7 语法、CHK-3 pill 修 | ✅ | |
+| IS2-8 | 字典 IN-9…14 + DESIGN 附录 | ✅ | sg:audit PASS |
+| IS2-9 | **真平台**：六种页面 SSR / 预渲染 + 动态 sitemap + `/event/{slug}` | ⬜ | 研发 |
+| IS2-10 | 删旧文件 `InsightsWeeklyPage.tsx`、`pages/InsightsPage.tsx`（旧）、`components/insights/` | ⬜ | Liya 手删 |
+
 ## 2026-09-28 — Insights SEO/GEO 数据页（[文档](../delivery/lite-insights-seo-v1.md)）
 
 | # | 项 | Status | Notes |

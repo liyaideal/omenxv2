@@ -158,3 +158,38 @@ export const InsightsEmptyPreview = () => (
     </div>
   </Pad>
 );
+
+/* ================= Insights v2 · series grammar (IN-9…IN-14, 2026-09-28 晚) ================= */
+import { Chip, Cite as CiteV2, FavTag, FourTiles, LiveCard, LivePill, List, MajorityTag, Name, PlatformLine, RightWrong, Row, SeriesOpening, SeriesSection, Strip, Table, Td, Th, UpDownPair, Hit } from "@/components/insightsSeo/seriesParts";
+import type { LiveRound } from "@/lib/insights/series";
+
+const LIVE: LiveRound = { event_id: "crypto-btc-updown-5m-x", mins: 5, start: "2026-09-28T10:15:00Z", end: "2099-01-01T00:00:00Z", freeze: null, up_price: 0.48, down_price: 0.52, volume: 1204 };
+
+/** IN-9 · 开篇 v2（display H1 + eyebrow + lede + as-of，SEO 页豁免） */
+export const SeriesOpeningPreview = () => (
+  <Pad><SeriesOpening crumb="← INSIGHTS · CRYPTO" eyebrow="OmenX Insights · Crypto · Up or down" title="Bitcoin Up or Down — Prediction Market Odds & Crowd Accuracy" lede="Every 5 minutes, 15 minutes, hour, 4 hours and day OmenX traders bet whether Bitcoin closes higher or lower." asOf={AS_OF} /></Pad>
+);
+/** IN-10 · Live 卡 + 今日四格（资产页 hero 5/7 栅格） */
+export const SeriesHeroPreview = () => (
+  <Pad><div className="grid gap-3 md:grid-cols-12 md:gap-4"><div className="md:col-span-5"><LiveCard eyebrow="Now · next to settle · 5-minute round" when="10:15 – 10:20 UTC" round={LIVE} sub={<>Right now more money is on <b className="font-semibold text-no">Down</b> — 48¢ vs 52¢, $1.2K traded so far.</>} foot={<>Settles in <b>1:42</b> · at 10:20 UTC</>} cta={{ label: "Trade this round", to: "#" }} /></div>
+    <div className="md:col-span-7"><FourTiles tiles={[{ l: "Rounds today", v: "181", d: "all round lengths · 5m to 1d" }, { l: "Majority bet Up in", v: "44%", unit: "of rounds", d: <><b className="text-trading-red">a bearish day</b> — more rounds leaned Down</> }, { l: "Majority was right in", v: <Hit v={52} />, unit: "of rounds", d: <>30-day average <b>50%</b></> }, { l: "Longest winning run today", v: "6", unit: "rounds", d: "majority right 6× in a row · from 06:30 UTC" }]} /></div></div></Pad>
+);
+/** IN-11 · Up·Down 对（Up 永远左、Down 永远右、多数派加粗上色）+ 标签件 */
+export const SeriesPairPreview = () => (
+  <Pad><div className="space-y-3"><UpDownPair up={0.63} down={0.37} /><UpDownPair up={0.48} down={0.52} /><UpDownPair up={0.5} down={0.5} size="sm" /><div className="flex flex-wrap gap-2"><MajorityTag up={0.55} down={0.45} /><MajorityTag up={0.41} down={0.59} prefix="Now · " /><FavTag label="Arsenal" price={0.54} /><LivePill /><LivePill label="62′ · 1–1" /><span className="text-[13px]"><RightWrong ok /></span><span className="text-[13px]"><RightWrong ok={false} note="upset" /></span><Hit v={69} big /><Hit v={40} big /><Hit v={50} big /></div></div></Pad>
+);
+/** IN-12 · v7 表格语法（52px 行 · fixed 列宽 · 数字右对齐 · 整行可点 · 无箭头列） */
+export const SeriesTablePreview = () => (
+  <Pad><SeriesSection n="01" title="Crypto · next round to settle" more={{ label: "All crypto rounds", to: "#" }}><Table head={<><Th>Asset</Th><Th w={160}>Round (UTC)</Th><Th w={280}>Up · Down price</Th><Th w={100} r>Settles in</Th><Th w={130} r>Rounds today</Th><Th w={160} r>Majority right · today</Th><Th w={120} r>Traded 24h</Th></>}>
+    <tr><Td><span className="inline-flex items-center gap-2"><span className="text-[13px] font-semibold">Bitcoin</span><Chip>5m round</Chip></span></Td><Td mono dim>10:15 – 10:20</Td><Td><UpDownPair up={0.48} down={0.52} /></Td><Td r mono>1:42</Td><Td r mono>181</Td><Td r><Hit v={52} /></Td><Td r mono>$512K</Td></tr>
+    <tr><Td><span className="text-[13px] font-semibold">Ethereum</span></Td><Td mono dim>10:15 – 10:20</Td><Td><UpDownPair up={0.49} down={0.51} /></Td><Td r mono>1:42</Td><Td r mono>181</Td><Td r><Hit v={46} /></Td><Td r mono>$501K</Td></tr>
+  </Table></SeriesSection></Pad>
+);
+/** IN-13 · 移动列表行（两行：名 + 右侧时间 / Up·Down 对 + 右侧准不准） */
+export const SeriesListPreview = () => (
+  <Pad><List><Row to="#" l1={<><Name chip="5m">Bitcoin</Name><span className="font-mono text-[12px] text-muted-foreground">settles in <span className="text-foreground">1:42</span></span></>} l2={<><UpDownPair up={0.48} down={0.52} size="sm" /><span className="font-mono text-[12px]"><Hit v={52} /> <span className="text-muted-foreground">right today</span></span></>} /><Row to="#" l1={<><Name sub="TSLA">Tesla</Name><span className="font-mono text-[12px] text-muted-foreground">settles 20:00 UTC</span></>} l2={<><UpDownPair up={0.63} down={0.37} size="sm" /><span className="font-mono text-[12px]"><Hit v={40} /> <span className="text-muted-foreground">right · 30d</span></span></>} /><Row to="#" l1={<><Name sub="Premier League">Arsenal vs Liverpool</Name><LivePill label="62′ · 1–1" /></>} l2={<><FavTag label="Arsenal" price={0.54} /><span className="font-mono text-[12px] text-muted-foreground">Under 2.5 · 70¢</span></>} /></List></Pad>
+);
+/** IN-14 · 平台四数条 + 平台句 + Cite */
+export const SeriesStripPreview = () => (
+  <Pad><Strip cells={[{ l: "Traded 24h", v: "$2.5M", d: <span className="text-trading-green">▲ +4.8%</span> }, { l: "Settled 24h", v: "543", d: "rounds" }, { l: "Live markets", v: "261", d: "19 assets · 14 matches" }, { l: "Majority right · today", v: <Hit v={49} />, d: "30d avg 50%" }]} /><PlatformLine /><CiteV2 sentence="According to OmenX prediction market data, the majority bet Up in 44% of Bitcoin rounds on 28 Sep 2026 and was right 52% of the time." url="https://omenx.com/insights/crypto/bitcoin" /></Pad>
+);

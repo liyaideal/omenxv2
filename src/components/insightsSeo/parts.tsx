@@ -86,7 +86,7 @@ export const PricePills = ({ r, size = "sm" }: { r: MarketRow; size?: "sm" | "md
   return (
     <div className={cn("flex gap-1.5", size === "md" && "w-full")}>
       <span className={cn("inline-flex items-center gap-1.5 rounded-md border border-primary/50 font-mono text-primary", cls)}>{r.lead.label} <b className="font-medium">{cents(r.lead.price)}</b></span>
-      {r.other && <span className={cn("inline-flex items-center gap-1.5 rounded-md border border-trading-green/50 font-mono text-trading-green", cls)}>{r.other.label} <b className="font-medium">{cents(r.other.price)}</b></span>}
+      {r.other && <span className={cn("inline-flex items-center gap-1.5 rounded-md border border-no/50 font-mono text-no", cls)}>{r.other.label} <b className="font-medium">{cents(r.other.price)}</b></span>}
     </div>
   );
 };
@@ -110,25 +110,29 @@ export const MoveText = ({ r }: { r: MarketRow }) => {
 };
 
 const Cat = ({ r }: { r: MarketRow }) => (
-  <Link to={`/insights/category/${categorySlugFor(r.event.category)}`} className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground hover:text-foreground">
-    {categoryLabelForKey(r.event.category)}
-  </Link>
+  <Link to={`/insights/category/${categorySlugFor(r.event.category)}`} className="flex-none rounded border border-[#262A31] px-1.5 py-[3px] font-mono text-[9px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/70">{categoryLabelForKey(r.event.category)}</Link>
 );
 
 /* ---------- market table (desktop) / cards (mobile) ---------- */
-export const MarketTable = ({ rows, showSpark = true, caption }: { rows: MarketRow[]; showSpark?: boolean; caption?: string }) => {
+export const MarketTable = ({ rows, caption }: { rows: MarketRow[]; showSpark?: boolean; caption?: string }) => {
   const isMobile = useIsMobile();
   if (rows.length === 0) return <Empty text={t("insights.messages.no_markets")} />;
+  const Move = ({ r }: { r: MarketRow }) => r.move ? (
+    <span className={cn("w-[74px] font-mono text-[11px]", r.move.delta > 0 ? "text-trading-green" : r.move.delta < 0 ? "text-trading-red" : "text-muted-foreground")}>{r.move.delta > 0 ? "+" : ""}{Math.round(r.move.delta)}% today</span>
+  ) : null;
   if (isMobile) {
+    // mobile = two-line list rows (mobile mock ①/④), never a flattened table
     return (
-      <div className="flex gap-3 overflow-x-auto pb-1">
+      <div className="trading-card px-3.5 [&>*+*]:border-t [&>*+*]:border-[#1D2026]">
         {rows.map((r) => (
-          <article key={r.event.id} data-market-id={r.event.id} className="trading-card min-w-[230px] flex-1 p-3.5">
-            <Cat r={r} />
-            <h3 className="mb-2 mt-1 text-[13px] font-semibold leading-snug"><Link to={marketPath(r.event)}>{r.event.name}</Link></h3>
-            <div className="h-1.5 w-full overflow-hidden rounded bg-[#1D2026]"><i className="block h-full bg-primary" style={{ width: `${r.probability}%` }} /></div>
-            <dl className="my-2 font-mono text-[11px] text-muted-foreground"><dt className="sr-only">{t("insights.labels.crowd_says")}</dt><dd>{t("insights.labels.pct_probability", { pct: r.probability, label: r.lead.label })} · {fmtUsd(r.activity.volume)} · {fmtInt(r.activity.trades)} {t("insights.labels.trades")}</dd></dl>
-            <PricePills r={r} />
+          <article key={r.event.id} data-market-id={r.event.id} className="py-2.5">
+            <Link to={marketPath(r.event)} className="block">
+              <div className="flex items-center justify-between gap-2.5"><h3 className="truncate text-[13px] font-semibold">{r.event.name}</h3><span className="flex-none font-mono text-[11px] text-muted-foreground"><time dateTime={r.event.end_date}>{fmtDate(r.event.end_date)}</time></span></div>
+              <dl className="mt-1.5 flex items-center justify-between gap-2.5 font-mono text-[12px]">
+                <dd><span className="text-muted-foreground">{r.lead.label}</span> <b className="text-[15px] font-semibold tabular-nums">{r.probability}%</b> <Move r={r} /></dd>
+                <dd className="text-muted-foreground">{fmtUsd(r.activity.volume)} · {fmtInt(r.activity.trades)} {t("insights.labels.trades")}</dd>
+              </dl>
+            </Link>
           </article>
         ))}
       </div>
@@ -136,23 +140,20 @@ export const MarketTable = ({ rows, showSpark = true, caption }: { rows: MarketR
   }
   return (
     <div className="trading-card overflow-x-auto">
-      <table className="w-full text-[13px]">
+      <table className="w-full border-collapse text-[13px]" style={{ tableLayout: "fixed", minWidth: 960 }}>
         {caption && <caption className="sr-only">{caption}</caption>}
-        <thead><tr className="text-left text-[11px] uppercase tracking-[0.06em] text-muted-foreground">
-          <th className="px-3 py-2">#</th><th className="px-3 py-2">{t("insights.labels.market")}</th><th className="px-3 py-2">{t("insights.labels.crowd_says")}</th><th className="px-3 py-2">{t("insights.labels.price")}</th><th className="px-3 py-2">{t("insights.labels.vol_24h_short")}</th><th className="px-3 py-2">{t("insights.labels.trades")}</th>{showSpark && <th className="px-3 py-2">7d</th>}<th className="px-3 py-2">{t("insights.labels.closes")}</th><th className="px-3 py-2" />
+        <thead><tr className="h-9 bg-white/[0.02] text-left font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/70 [&_th]:whitespace-nowrap [&_th]:px-3">
+          <th style={{ width: 44 }}>#</th><th>{t("insights.labels.market")}</th><th style={{ width: 300 }}>{t("insights.labels.crowd_says")}</th><th className="text-right" style={{ width: 92 }}>{t("insights.labels.vol_24h_short")}</th><th className="text-right" style={{ width: 76 }}>{t("insights.labels.trades")}</th><th className="text-right" style={{ width: 136, paddingRight: 20 }}>{t("insights.labels.closes")}</th>
         </tr></thead>
-        <tbody>
+        <tbody className="[&_td]:h-[52px] [&_td]:overflow-hidden [&_td]:whitespace-nowrap [&_td]:border-t [&_td]:border-[#1D2026] [&_td]:px-3 [&_tr]:cursor-pointer [&_tr:hover_td]:bg-white/[0.02] [&_tr:hover_h3]:text-primary">
           {rows.map((r, i) => (
-            <tr key={r.event.id} className="border-t border-[#1D2026]">
-              <td className="px-3 py-2.5 font-mono text-muted-foreground">{i + 1}</td>
-              <td className="px-3 py-2.5"><article data-market-id={r.event.id}><h3 className="text-[13px] font-semibold leading-snug"><Link to={marketPath(r.event)} className="hover:text-primary">{r.event.name}</Link></h3><Cat r={r} /></article></td>
-              <td className="px-3 py-2.5"><ProbBar pct={r.probability} label={r.lead.label} /></td>
-              <td className="px-3 py-2.5"><PricePills r={r} /></td>
-              <td className="px-3 py-2.5 font-mono tabular-nums">{fmtUsd(r.activity.volume)}</td>
-              <td className="px-3 py-2.5 font-mono tabular-nums">{fmtInt(r.activity.trades)}</td>
-              {showSpark && <td className="px-3 py-2.5"><Sparkline data={r.series} up={(r.move?.delta ?? 0) >= 0} /></td>}
-              <td className="px-3 py-2.5 font-mono text-muted-foreground"><time dateTime={r.event.end_date}>{fmtDate(r.event.end_date)}</time></td>
-              <td className="px-3 py-2.5 text-right"><Link to={marketPath(r.event)} className="text-[12px] text-primary hover:underline">{t("insights.actions.trade")} →</Link></td>
+            <tr key={r.event.id} onClick={() => (window.location.href = marketPath(r.event))}>
+              <td className="font-mono text-[12px] text-muted-foreground/70">{i + 1}</td>
+              <td><article data-market-id={r.event.id} className="flex items-center gap-2"><h3 className="truncate text-[13px] font-semibold"><Link to={marketPath(r.event)}>{r.event.name}</Link></h3><Cat r={r} /></article></td>
+              <td><span className="inline-flex items-center gap-2.5"><span className="w-[84px] truncate text-[12px]">{r.lead.label}</span><b className="w-10 text-right font-mono text-[15px] font-semibold tabular-nums">{r.probability}%</b><Move r={r} /><span className="relative h-1 w-20 overflow-hidden rounded-sm bg-[#262A31]"><i className={cn("absolute inset-y-0 left-0", /^no$|^not /i.test(r.lead.label) ? "bg-no" : "bg-yes")} style={{ width: `${r.probability}%` }} /></span></span></td>
+              <td className="text-right font-mono tabular-nums">{fmtUsd(r.activity.volume)}</td>
+              <td className="text-right font-mono tabular-nums text-muted-foreground">{fmtInt(r.activity.trades)}</td>
+              <td className="text-right font-mono text-muted-foreground" style={{ paddingRight: 20 }}><time dateTime={r.event.end_date}>{fmtDate(r.event.end_date)}</time></td>
             </tr>
           ))}
         </tbody>

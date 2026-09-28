@@ -1412,7 +1412,7 @@
     "how.title": "How this data is computed",
     "how.body": "Prices are the last traded price of each outcome on OmenX; implied probability = price in cents. Volume and trade counts come from the public market ledger and refresh every 15 minutes; probability changes compare hourly price snapshots.",
     "how.brand": "OmenX is a leveraged prediction market on Base, settled in USDC.",
-    "feed.move_sentence": "As of {{date}}, OmenX traders put a {{pct}}% probability on {{label}}, up from {{from}}% over the past 24 hours, on {{volume}} of volume across {{trades}} trades.",
+    "feed.move_sentence": "As of {{date}}, OmenX traders put {{an}} {{pct}}% probability on {{label}}, up from {{from}}% over the past 24 hours, on {{volume}} of volume across {{trades}} trades.",
     "feed.closing_sentence": "As of {{date}}, the market settles in {{until}} with the crowd at {{pct}}% for {{label}}. {{volume}} traded in the last 24 hours.",
     "feed.new_sentence": "Listed {{date}} in {{category}}. The crowd opens at {{pct}}% for {{label}}.",
     "seo.home_title": "OmenX Insights — Live Prediction Market Data & Trends",

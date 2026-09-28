@@ -1,17 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Static core sitemap (Lovable). Dynamic URLs — /insights/daily/{date}, /insights/weekly/{week}, market pages — must be emitted by the real platform (see docs/delivery/lite-insights-seo-v1.md §SSR). -->
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<!-- Static core sitemap (Lovable). Dynamic URLs — /insights/daily/{date}, /insights/accuracy/{month}, market pages — must be emitted by the real platform (docs/delivery/lite-insights-seo-v2.md §4). -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://omenx.lovable.app/</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>
   <url><loc>https://omenx.lovable.app/events</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
   <url><loc>https://omenx.lovable.app/insights</loc><lastmod>2026-09-28</lastmod><changefreq>hourly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://omenx.lovable.app/insights/category/sports</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>
-  <url><loc>https://omenx.lovable.app/insights/category/crypto</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>
-  <url><loc>https://omenx.lovable.app/insights/category/finance</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>
-  <url><loc>https://omenx.lovable.app/insights/category/politics</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>
-  <url><loc>https://omenx.lovable.app/insights/category/macro</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>
-  <url><loc>https://omenx.lovable.app/insights/category/tech</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>
-  <url><loc>https://omenx.lovable.app/insights/category/entertainment</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>
-  <url><loc>https://omenx.lovable.app/insights/category/social</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/crypto</loc><lastmod>2026-09-28</lastmod><changefreq>hourly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/stocks</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/sports</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/accuracy</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/crypto/bitcoin</loc><lastmod>2026-09-28</lastmod><changefreq>hourly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/crypto/ethereum</loc><lastmod>2026-09-28</lastmod><changefreq>hourly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/crypto/solana</loc><lastmod>2026-09-28</lastmod><changefreq>hourly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/stocks/aapl</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/stocks/tsla</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/stocks/nvda</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/stocks/msft</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/stocks/amzn</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/stocks/meta</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/stocks/googl</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/stocks/amd</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/stocks/coin</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/stocks/hood</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/stocks/0700-hk</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/stocks/9988-hk</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/stocks/1211-hk</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/stocks/3690-hk</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/stocks/1810-hk</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/stocks/0005-hk</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/sports/soccer</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/sports/esports</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/category/politics</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/category/macro</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/category/tech</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/category/crypto</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/category/finance</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/category/entertainment</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/category/social</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
   <url><loc>https://omenx.lovable.app/leaderboard</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
   <url><loc>https://omenx.lovable.app/affiliate</loc><lastmod>2026-09-28</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://omenx.lovable.app/developers</loc><lastmod>2026-09-28</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>

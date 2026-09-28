@@ -490,6 +490,12 @@ export const previewRegistry: Record<string, Loader> = {
   "insights-articles-compact": pick(insights, "InsightsArticlesCompactPreview"),
   "insights-footer-blocks": pick(insights, "InsightsFooterBlocksPreview"),
   "insights-empty": pick(insights, "InsightsEmptyPreview"),
+  "insights-series-opening": pick(insights, "SeriesOpeningPreview"),
+  "insights-series-hero": pick(insights, "SeriesHeroPreview"),
+  "insights-series-pair": pick(insights, "SeriesPairPreview"),
+  "insights-series-table": pick(insights, "SeriesTablePreview"),
+  "insights-series-list": pick(insights, "SeriesListPreview"),
+  "insights-series-strip": pick(insights, "SeriesStripPreview"),
 
   /* -------- Affiliate Program (/affiliate) -------- */
   "affiliate-page": pick(affiliate, "AffiliatePagePreview"),

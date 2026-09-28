@@ -57,6 +57,8 @@ interface MobileHeaderProps {
   titleHidden?: boolean;
   /** SP-2: small badge rendered right after the title (e.g. SPOT). */
   titleBadge?: ReactNode;
+  /** SEO pages own their <h1>; pass "div" so the bar title is not a second h1 (Insights, 2026-09-28). */
+  titleAs?: "h1" | "div";
   /**
    * SP-2-FIX1: pre-formatted countdown text owned by the caller. When set the
    * header runs no clock of its own (perp keeps the internal `endTime` clock).
@@ -152,6 +154,7 @@ export const MobileHeader = ({
   onTitleClick,
   titleHidden = false,
   titleBadge,
+  titleAs = "h1",
   countdownText,
   countdownLabel = "Ends in",
   countdownUrgency = "red",
@@ -254,9 +257,11 @@ export const MobileHeader = ({
             onClick={onTitleClick}
           >
             <div className="flex items-center justify-center gap-1">
-              <h1 className="text-sm font-semibold text-foreground truncate">
-                {title}
-              </h1>
+              {titleAs === "div" ? (
+                <div className="text-sm font-semibold text-foreground truncate">{title}</div>
+              ) : (
+                <h1 className="text-sm font-semibold text-foreground truncate">{title}</h1>
+              )}
               {titleBadge}
               {onTitleClick && (
                 <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />

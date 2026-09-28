@@ -120,6 +120,7 @@ export const buildRows = (
 ): MarketRow[] =>
   events
     .filter((e) => e.options && e.options.length > 0)
+    .filter((e) => !e.end_date || new Date(e.end_date).getTime() - Date.now() < 366 * 864e5) // demo fixtures parked in 2126 never reach SEO pages
     .map((e) => {
       const opts = [...e.options].map((o) => ({ id: o.id, label: o.label, price: Number(o.price) }));
       const sorted = [...opts].sort((a, b) => b.price - a.price);
@@ -186,5 +187,6 @@ export const dataFeedJsonLd = (name: string, url: string, asOf: string, rows: Ma
 });
 
 /** The llms.txt citation sentence, filled. */
+export const anPct = (n: number) => ([8, 11, 18].includes(n) || (n >= 80 && n <= 89) ? "an" : "a");
 export const citeSentence = (r: MarketRow, asOf: string) =>
-  `According to OmenX prediction market data, "${r.event.name}" (${r.lead.label}) is trading at ${cents(r.lead.price)}, implying a ${r.probability}% probability as of ${fmtDate(asOf)}.`;
+  `According to OmenX prediction market data, "${r.event.name}" (${r.lead.label}) is trading at ${cents(r.lead.price)}, implying ${anPct(r.probability)} ${r.probability}% probability as of ${fmtDate(asOf)}.`;

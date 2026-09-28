@@ -16,9 +16,9 @@ export const LiteInsightsPage = (_: P) => (
   <LitePage
     id="lite-insights"
     title="Insights"
-    route="/insights · /insights/daily/:date · /insights/weekly/:week · /insights/category/:slug"
+    route="/insights · /insights/{crypto|stocks}/:slug · /insights/sports/:sport · /insights/accuracy/:month · /insights/daily/:date · /insights/category/:slug"
     status="done"
-    note="SEO/GEO 页：无 tab、无懒加载列表（所有内容首屏进 DOM）；一份内容一个 URL；H1/title 带「prediction market」搜索词；每篇洞察 = 问题 h3 + 带日期答句 + dl + JSON-LD（Dataset / ItemList）+ 可引用句；所有时间 <time datetime>；页尾「How computed」。数据只走聚合 RPC（insights_*），无个人数据。Lovable 是 SPA：真平台需 SSR/预渲染（见 delivery 文档边界）。"
+    note="v2（2026-09-28 晚，CPO 批统一方案稿 insights-ia-mock v3 + 移动稿）：六种页面（首页 / 资产页 ×19 URL / 运动页 / 分类页 / 命中率报告 / 日报），每页只答一个问题「交易者现在押什么、过去押得准不准」，模块顺序固定 现在 → 过去 → 逐条 → 引用；全站一个词 Majority（投注截止时高于 50¢ 的一边）。周报已删。IN-1…8 为 v1 部件（日报 / 分类页仍用），IN-9…14 为 v2 序列语法。SEO/GEO 页：无 tab、无懒加载列表（所有内容首屏进 DOM）；一份内容一个 URL；H1/title 带「prediction market」搜索词；每篇洞察 = 问题 h3 + 带日期答句 + dl + JSON-LD（Dataset / ItemList）+ 可引用句；所有时间 <time datetime>；页尾「How computed」。数据只走聚合 RPC（insights_*），无个人数据。Lovable 是 SPA：真平台需 SSR/预渲染（见 delivery 文档边界）。"
   >
     <SubSection title="IN-1 · 开篇（eyebrow / H1 / lede / as-of）" description="Opening：eyebrow 10px 大写字距 0.1em；H1 display 32/40（375 态 28）；lede 14/22 muted 最多两句；右侧 as-of 用 <time datetime>，UTC。日报 / 周报 / 分类页共用，仅文案不同。" platform="shared">
       <DualDevicePreview previewKey="insights-opening" label="Opening · daily 形态" minHeight={200} />
@@ -49,6 +49,25 @@ export const LiteInsightsPage = (_: P) => (
 
     <SubSection title="IN-7 · 页尾 GEO 块" description="How computed：一段说明口径（概率 = 领先项价格；量 = 24h 成交；快照每小时；UTC）+ 品牌句。Cite：虚线框 + 等宽引用句 + Source URL，给 AI 引擎与写手直接复制。" platform="shared">
       <DualDevicePreview previewKey="insights-footer-blocks" label="HowComputed + CiteBlock" minHeight={220} />
+    </SubSection>
+
+    <SubSection title="IN-9 · 开篇 v2（SeriesOpening）" description="BROWSE 家族 display H1（font-display 40 / 移动 28，tracking −0.02em）+ 10px mono eyebrow + 15px lede（≤ 74ch）+ 右下 as-of（绿点 + <time>）。走 Page Openings 的 SEO 页豁免。上方可选面包屑（← Insights · Crypto）。" platform="shared">
+      <DualDevicePreview previewKey="insights-series-opening" label="SeriesOpening" minHeight={240} />
+    </SubSection>
+    <SubSection title="IN-10 · Live 卡 + 今日四格（LiveCard / FourTiles）" description="资产页 / 运动页 hero：桌面 12 栅格 5 / 7，移动上下堆。LiveCard = 红点 eyebrow + 时段 · display 56px 大数（多数派色：Up 蓝 / Down 绿）+ 少数派 20px 灰 · 一句人话 · 8px 双色条 + 两端 ¢ · 底部倒计时 + 白色胶囊 CTA（移动端 CTA 改 sticky 底栏）。FourTiles = 2×2，10px 微标签 / 30px display 数 / 11px mono 副行。" platform="shared">
+      <DualDevicePreview previewKey="insights-series-hero" label="LiveCard + FourTiles" minHeight={360} />
+    </SubSection>
+    <SubSection title="IN-11 · Up·Down 对与标签件（UpDownPair / MajorityTag / FavTag / LivePill / RightWrong / Hit）" description="UpDownPair：Up 永远在左、Down 永远在右，多数派加粗上 MARKET 轴色（--yes / --no），少数派 11px 灰；两侧各锁 72px，条 80×4，蓝在绿上。MajorityTag：只写多数派一边 + ¢。FavTag：热门队名 + ¢（蓝）。Hit：命中率按 MONEY 轴——≥55 绿 / ≤45 红 / 其余白。禁止再出现 ▲ 9 / pts 这类裸变动。" platform="shared">
+      <DualDevicePreview previewKey="insights-series-pair" label="pair + tags" minHeight={200} />
+    </SubSection>
+    <SubSection title="IN-12 · 表格语法 v7（Table / Th / Td）" description="trading-card 外壳横向滚动；table-layout fixed，min-width 960；表头 36px mono 10px 大写 bg white/2；行 52px，单元 nowrap + overflow hidden；数字列右对齐 tabular；第一列吃剩余宽度，其余逐列定宽；整行可点（hover 行底 white/2）；无箭头列、无 Price 列、无折线。" platform="desktop">
+      <DualDevicePreview previewKey="insights-series-table" label="Table v7" minHeight={260} />
+    </SubSection>
+    <SubSection title="IN-13 · 移动列表行（List / Row / Name）" description="移动端不平铺表格：每行两行——第一行 名（+ 小标签 / 副文）+ 右侧一个时间；第二行 UpDownPair sm（或热门 tag）+ 右侧一个「准不准」。整行 Link；行间 1px #1D2026。" platform="mobile">
+      <DualDevicePreview previewKey="insights-series-list" label="List rows" minHeight={220} />
+    </SubSection>
+    <SubSection title="IN-14 · 平台四数条 + 平台句 + Cite（Strip / PlatformLine / Cite）" description="Strip：桌面四格一行、移动 2×2，标签上 / display 22px 数 / 副行下（不再一行内并排，避免溢出）。PlatformLine：每页页尾固定一行「OmenX · Up or Down with up to 10× Boost · settles on … · USDC on Base · How it works」，与 llms.txt 品牌句一致。Cite：虚线框 + 逐字引用句 + Source URL。" platform="shared">
+      <DualDevicePreview previewKey="insights-series-strip" label="Strip + PlatformLine + Cite" minHeight={260} />
     </SubSection>
 
     <SubSection title="IN-8 · 空态 / 失败态" description="Empty：虚线框居中一句。加载中用 LoadingState skeleton 6 行；RPC 失败显示 load_failed，页面其余 SEO 结构（title / canonical / H1 / lede / How computed）仍在 DOM。" platform="shared">

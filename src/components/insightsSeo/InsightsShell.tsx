@@ -10,7 +10,7 @@ export const InsightsShell = ({ children, mobileTitle }: { children: React.React
   const isMobile = useIsMobile();
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      {isMobile ? <MobileHeader title={mobileTitle ?? t("nav.insights")} showLogo={false} showBack /> : <EventsDesktopHeader />}
+      {isMobile ? <MobileHeader title={mobileTitle ?? t("nav.insights")} titleAs="div" showLogo={false} showBack /> : <EventsDesktopHeader />}
       <main className={isMobile ? "mx-auto w-full max-w-7xl px-4 pb-24 pt-5" : "mx-auto w-full max-w-7xl px-4 py-10 lg:px-6"}>{children}</main>
       <SeoFooter />
       {isMobile && <BottomNav />}

@@ -211,28 +211,28 @@ export const SettingsPreferencesOpenPreview = () => (
 
 /** ST-32 · production desktop header, guest branch: chip sits left of Sign In. */
 export const SettingsLangHeaderGuestPreview = () => (
-  <div className="bg-background" style={{ minWidth: 1024 }}>
+  <div style={{ minWidth: 1024 }}>
     <EventsDesktopHeader />
   </div>
 );
 
 /** ST-33 · the header chip alone, open, zh-CN current (fixture; no storage writes). */
 export const SettingsLangChipOpenPreview = () => (
-  <div className="bg-background p-6 flex justify-end" style={{ minHeight: 360 }}>
+  <div className="p-6 flex justify-end" style={{ minHeight: 360 }}>
     <LanguageChip previewCode="zh-CN" previewOpen />
   </div>
 );
 
 /** ST-34 · production mobile brand bar: default right slot is the globe. */
 export const SettingsLangBrandBarPreview = () => (
-  <div className="bg-background">
+  <div>
     <MobileHeader variant="brand" showBack={false} />
   </div>
 );
 
 /** ST-35 · brand bar with the language drawer open, zh-CN current. */
 export const SettingsLangDrawerOpenPreview = () => (
-  <div className="bg-background">
+  <div>
     <MobileHeader
       variant="brand"
       showBack={false}
