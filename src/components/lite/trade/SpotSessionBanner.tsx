@@ -5,6 +5,7 @@
 // byte-identical to the inline version, only the values arrive as
 // props so the style-guide can mount the two states directly.
 // ============================================================
+import { t } from "@/i18n";
 import {
   formatLocalTime,
   formatMarketPrice,
@@ -52,13 +53,13 @@ export const SpotSessionBanner = ({
     return (
       <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-muted/30 px-3 py-2.5">
         <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-primary">
-          Next session
+          {t("spot.screen.lite_spot_session_banner.next_session")}
         </span>
         <span className="ml-auto font-mono text-xs text-muted-foreground">
           Opens {formatLocalTime(session.nextOpenAt)}
         </span>
         <span className="w-full text-[11px] text-muted-foreground">
-          Chart shows the last session for reference.
+          {t("spot.screen.lite_spot_session_banner.chart_shows_the_last_session_for_reference")}
         </span>
       </div>
     );

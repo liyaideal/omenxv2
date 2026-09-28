@@ -4,6 +4,7 @@
 // those render terms from the Lite forbidden-word list. Cash math is not
 // reinvented — 100% routes to closePosition, partial to partialClosePosition.
 // ============================================================
+import { t } from "@/i18n";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -204,7 +205,7 @@ export const LiteCashOutFlow = ({
         step={1}
         value={pct}
         onChange={(e) => setPct(Number(e.target.value))}
-        aria-label="How much to cash out"
+        aria-label={t("trade.screen.lite.lite_contract_account_sections.how_much_to_cash_out")}
         className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-border accent-yes"
       />
     </div>
@@ -220,11 +221,11 @@ export const LiteCashOutFlow = ({
   if (isMobile) {
     return (
       <>
-        <MobileDrawer open={open} onOpenChange={onOpenChange} title="Cash out">
+        <MobileDrawer open={open} onOpenChange={onOpenChange} title={t("common.cash_out")}>
           {body}
           <MobileDrawerActions>
             <Button variant="outline" className="w-full" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             {cta}
           </MobileDrawerActions>
@@ -239,7 +240,7 @@ export const LiteCashOutFlow = ({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[380px]">
           <DialogHeader>
-            <DialogTitle>Cash out</DialogTitle>
+            <DialogTitle>{t("common.cash_out")}</DialogTitle>
           </DialogHeader>
           {body}
           <div className="pt-2">{cta}</div>

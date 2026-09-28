@@ -4,6 +4,7 @@
 // variant="spot", basePath="/spot"): context + chart + tabs on this
 // page, the order form on the `/spot/order` sub-page.
 // ============================================================
+import { t as tr } from "@/i18n";
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
@@ -113,8 +114,8 @@ function SpotChartsBody({ t }: { t: SpotTerminal }) {
         <div className="px-4">
           <div className="grid grid-cols-3 text-xs text-muted-foreground py-2">
             <span>Price (USDT)</span>
-            <span className="text-center">Amount</span>
-            <span className="text-right">Time</span>
+            <span className="text-center">{tr("trade.screen.lite.lite_contract_order_panel.amount")}</span>
+            <span className="text-right">{tr("common.time")}</span>
           </div>
           <div className="space-y-0">
             {trades.map((trade, index) => (

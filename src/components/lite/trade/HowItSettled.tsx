@@ -3,6 +3,7 @@
 // BOTH Lite trade pages in the settled state — same panel style and
 // typography as the rule card, no new surface. Consumer wording only.
 // ============================================================
+import { t } from "@/i18n";
 import { ArrowUpRight, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -50,7 +51,7 @@ export const HowItSettled = ({
       <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
       <div className="min-w-0 flex-1 space-y-3">
         <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-          How it settled
+          {t("common.how_it_settled")}
         </div>
 
         {line && <p className="text-muted-foreground">{line}</p>}
@@ -83,7 +84,7 @@ export const HowItSettled = ({
                   rel="noreferrer"
                   className="inline-flex items-center gap-0.5 underline underline-offset-2 hover:text-foreground"
                 >
-                  Official result <ArrowUpRight className="h-3 w-3" />
+                  {t("market.screen.lite.lite_market_sections.official_result")} <ArrowUpRight className="h-3 w-3" />
                 </a>
               ) : (
                 "Official result"

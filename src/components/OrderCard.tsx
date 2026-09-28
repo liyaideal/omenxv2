@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import { AlertTriangle, CheckCircle } from "lucide-react";
 import { MobileDrawer, MobileDrawerActions } from "@/components/ui/mobile-drawer";
@@ -117,11 +118,11 @@ export const OrderCard = ({
         {/* Order Details */}
         <div className="grid grid-cols-3 gap-3 mb-2">
           <div>
-            <span className="text-[10px] text-muted-foreground block">Price</span>
+            <span className="text-[10px] text-muted-foreground block">{t("market.price")}</span>
             <span className="font-mono text-xs">{price}</span>
           </div>
           <div>
-            <span className="text-[10px] text-muted-foreground block">Amount</span>
+            <span className="text-[10px] text-muted-foreground block">{t("trade.screen.lite.lite_contract_order_panel.amount")}</span>
             <span className="font-mono text-xs">{amount}</span>
           </div>
           <div>
@@ -147,33 +148,33 @@ export const OrderCard = ({
       >
         <div className="bg-muted/50 rounded-lg p-3 space-y-2">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Order Type</span>
+            <span className="text-muted-foreground">{t("market.order_type")}</span>
             <span className={`${sideColor} font-medium`}>
               <CheckCircle className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />
               {sideText ? `${sideText} ${orderType}` : orderType}
             </span>
           </div>
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Contract</span>
+            <span className="text-muted-foreground">{t("common.contract")}</span>
             <span className="font-medium">{optionDisplay}</span>
           </div>
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Price</span>
+            <span className="text-muted-foreground">{t("market.price")}</span>
             <span className="font-mono">{price}</span>
           </div>
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Amount</span>
+            <span className="text-muted-foreground">{t("trade.screen.lite.lite_contract_order_panel.amount")}</span>
             <span className="font-mono">{amount}</span>
           </div>
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Total</span>
+            <span className="text-muted-foreground">{t("market.total")}</span>
             <span className="font-mono">{total}</span>
           </div>
         </div>
         <MobileDrawerActions>
           <div className="flex gap-2">
             <Button variant="outline" className="flex-1 h-11" onClick={() => setFillDialogOpen(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               className="flex-1 h-11 bg-trading-green hover:bg-trading-green/90 text-white"
@@ -189,48 +190,48 @@ export const OrderCard = ({
       <MobileDrawer
         open={cancelDialogOpen}
         onOpenChange={setCancelDialogOpen}
-        title="Cancel Order"
-        description="Are you sure you want to cancel this order?"
+        title={t("market.confirm_cancel_order")}
+        description={t("market.confirm_cancel_order_desc")}
       >
         <div className="bg-muted/50 rounded-lg p-3 space-y-2">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Order Type</span>
+            <span className="text-muted-foreground">{t("market.order_type")}</span>
             <span className={`${sideColor} font-medium`}>
               <AlertTriangle className="inline w-3.5 h-3.5 mr-1 -mt-0.5" />
               {sideText ? `${sideText} ${orderType}` : orderType}
             </span>
           </div>
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Contract</span>
+            <span className="text-muted-foreground">{t("common.contract")}</span>
             <span className="font-medium">{optionDisplay}</span>
           </div>
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Price</span>
+            <span className="text-muted-foreground">{t("market.price")}</span>
             <span className="font-mono">{price}</span>
           </div>
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Amount</span>
+            <span className="text-muted-foreground">{t("trade.screen.lite.lite_contract_order_panel.amount")}</span>
             <span className="font-mono">{amount}</span>
           </div>
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Total</span>
+            <span className="text-muted-foreground">{t("market.total")}</span>
             <span className="font-mono">{total}</span>
           </div>
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Status</span>
+            <span className="text-muted-foreground">{t("common.status")}</span>
             <OrderStatusBadge variant="mobile" status={status} amount={amount} filledAmount={filledAmount} remainingAmount={remainingAmount} />
           </div>
         </div>
         <MobileDrawerActions>
           <div className="flex gap-2">
             <Button variant="outline" className="flex-1 h-11" onClick={() => setCancelDialogOpen(false)}>
-              Keep Order
+              {t("market.keep_order")}
             </Button>
             <Button
               className="flex-1 h-11 bg-trading-red hover:bg-trading-red/90 text-white"
               onClick={handleCancelOrder}
             >
-              Cancel Order
+              {t("market.confirm_cancel_order")}
             </Button>
           </div>
         </MobileDrawerActions>

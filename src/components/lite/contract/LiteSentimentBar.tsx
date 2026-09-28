@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 // ============================================================
 // "What the crowd thinks" split bar. MARKET axis only (yes = Pulse Blue,
 // no = Volt Green). Pure presentational so the playground can drive it.
@@ -17,7 +18,7 @@ export const LiteSentimentBar = ({ yesLabel, noLabel, yesPct, compact }: Props) 
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-          What the crowd thinks
+          {t("trade.screen.lite.lite_contract_sections.what_the_crowd_thinks")}
         </div>
       </div>
       <div

@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -104,11 +105,11 @@ export const PendingConfirmations = ({ className, fixture }: PendingConfirmation
   return (
     <div className={cn("rounded-[18px] border border-border bg-card p-4 md:p-[22px_22px_18px]", className)}>
       <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-4">
-        Pending confirmations
+        {t("wallet.pending.title")}
       </div>
       {isLoading ? (
         <div className="flex items-center gap-3 text-sm text-muted-foreground">
-          <Loader2 className="w-4 h-4 animate-spin" /> Loading…
+          <Loader2 className="w-4 h-4 animate-spin" /> {t("common.loading")}
         </div>
       ) : (
         <div className="space-y-4">
@@ -126,9 +127,9 @@ export const PendingConfirmations = ({ className, fixture }: PendingConfirmation
                       <ArrowDown className="w-4 h-4" />
                     </div>
                     <div className="flex-1 min-w-0 flex items-center gap-2">
-                      <span className="text-sm font-semibold">Deposit</span>
+                      <span className="text-sm font-semibold">{t("common.deposit")}</span>
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-[0.08em] flex-shrink-0" style={{ background: 'rgba(51,214,255,0.14)', color: '#7FE4FF' }}>
-                        Confirming
+                        {t("wallet.pending.confirming")}
                       </span>
                     </div>
                     <span className="font-mono font-bold text-sm tabular-nums flex-shrink-0" style={{ color: '#DCFF6A' }}>
@@ -156,9 +157,9 @@ export const PendingConfirmations = ({ className, fixture }: PendingConfirmation
                       <span className="font-mono font-bold text-sm tabular-nums" style={{ color: '#DCFF6A' }}>
                         +${formatAmount(tx.amount)}
                       </span>
-                      <span className="text-sm font-semibold">Deposit</span>
+                      <span className="text-sm font-semibold">{t("common.deposit")}</span>
                       <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.08em]" style={{ background: 'rgba(51,214,255,0.14)', color: '#7FE4FF' }}>
-                        Confirming
+                        {t("wallet.pending.confirming")}
                       </span>
                     </div>
                     <div className="text-xs text-muted-foreground mt-0.5">
@@ -185,7 +186,7 @@ export const PendingConfirmations = ({ className, fixture }: PendingConfirmation
           to="/wallet/recovery"
           className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-[3px]"
         >
-          Sent to the wrong network? Request recovery
+          {t("wallet.pending.recovery")}
         </Link>
       </div>
     </div>

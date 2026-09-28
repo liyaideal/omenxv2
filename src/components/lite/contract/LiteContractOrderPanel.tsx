@@ -9,6 +9,7 @@
 //      deductBalance(Math.abs(delta)) / addBalance(delta). No self-math.
 //   4. No dynamic Tailwind class strings.
 // ============================================================
+import { t } from "@/i18n";
 import { useCallback, useMemo, useState } from "react";
 import { Info } from "lucide-react";
 import { toast } from "sonner";
@@ -401,7 +402,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
     <div className={wrapClass}>
       {variant === "desktop" && (
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold">Make your call</h3>
+          <h3 className="text-sm font-semibold">{t("trade.screen.lite.lite_contract_order_panel.make_your_call")}</h3>
           <span className="font-mono text-[11px] text-muted-foreground">
             {countdownText} left
           </span>
@@ -413,7 +414,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
       {variant === "desktop" && marketContextLabel && (
         <div className="rounded-xl border border-border bg-muted/20 px-3 py-2">
           <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-            Market · change in the list ←
+            {t("trade.screen.lite.lite_contract_order_panel.market_change_in_the_list")}
           </div>
           <div className="mt-0.5 font-display text-[14px] font-semibold text-foreground">
             {marketContextLabel}
@@ -441,9 +442,9 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-            How much
+            {t("trade.screen.lite.lite_contract_order_panel.how_much")}
           </div>
-          <AccountBalanceLine label="Boost balance" value={money(balance)} direction="to_futures" />
+          <AccountBalanceLine label={t("trade.screen.lite.lite_contract_order_panel.boost_balance")} value={money(balance)} direction="to_futures" />
         </div>
         <div className="rounded-xl bg-muted/40 p-3">
           <div className="flex items-baseline gap-2">
@@ -488,7 +489,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
             onClick={() => onAmountChange(String(Math.max(0, Math.floor(balance))))}
             className="rounded-lg border border-border py-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:text-foreground"
           >
-            Max
+            {t("common.max")}
           </button>
         </div>
       </div>
@@ -555,10 +556,10 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
         ) : (
           <div className="flex items-center justify-between px-2">
             <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-              If you're right, you win
+              {t("trade.screen.lite.lite_contract_order_panel.potential_win")}
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button type="button" aria-label="About what you win">
+                  <button type="button" aria-label={t("trade.screen.lite.lite_contract_order_panel.about_what_you_win")}>
                     <Info className="h-3 w-3 text-muted-foreground" />
                   </button>
                 </TooltipTrigger>
@@ -575,10 +576,10 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
         <div className="flex items-start justify-between px-2 pt-0.5">
           <div>
             <span className="inline-flex items-center gap-1 text-muted-foreground">
-              Est. auto-close
+              {t("common.est_auto_close")}
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button type="button" aria-label="About auto-close">
+                  <button type="button" aria-label={t("trade.screen.lite.lite_contract_order_panel.about_auto_close")}>
                     <Info className="h-3 w-3 text-muted-foreground" />
                   </button>
                 </TooltipTrigger>
@@ -588,7 +589,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
               </Tooltip>
             </span>
             <div className="text-[10px] text-muted-foreground/70">
-              Moves with your other positions
+              {t("trade.screen.lite.lite_contract_order_panel.moves_with_your_other_positions")}
             </div>
           </div>
           <span

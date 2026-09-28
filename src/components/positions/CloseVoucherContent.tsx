@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MobileDrawerActions } from "@/components/ui/mobile-drawer";
@@ -72,7 +73,7 @@ export const CloseVoucherContent = ({
           disabled={isClosing}
           className={isDrawer ? "flex-1 h-11" : "h-11"}
         >
-          Cancel
+          {t("common.cancel")}
         </Button>
       )}
       <Button
@@ -84,7 +85,7 @@ export const CloseVoucherContent = ({
         {isClosing ? (
           <>
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            Closing…
+            {t("market.closing")}
           </>
         ) : (
           "Close position"
@@ -98,21 +99,21 @@ export const CloseVoucherContent = ({
       {/* Position summary */}
       <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5">
         <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">Position</span>
+          <span className="text-muted-foreground">{t("market.position")}</span>
           <span className={side === "long" ? "text-trading-green" : "text-trading-red"}>
             {optionLabel} · {VOUCHER_LEVERAGE}x
           </span>
         </div>
         <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">Contracts</span>
+          <span className="text-muted-foreground">{t("market.contracts")}</span>
           <span className="font-mono">{Math.round(contracts).toLocaleString()}</span>
         </div>
         <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">Entry price</span>
+          <span className="text-muted-foreground">{t("common.entry_price")}</span>
           <span className="font-mono">${entryPrice.toFixed(4)}</span>
         </div>
         <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">Mark price</span>
+          <span className="text-muted-foreground">{t("market.mark_price")}</span>
           <span className="font-mono">${markPrice.toFixed(4)}</span>
         </div>
       </div>
@@ -120,13 +121,13 @@ export const CloseVoucherContent = ({
       {/* PnL preview */}
       <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5">
         <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">Raw PnL</span>
+          <span className="text-muted-foreground">{t("vouchers.close_position_raw_pnl")}</span>
           <span className={`font-mono ${rawPnl >= 0 ? "text-trading-green" : "text-trading-red"}`}>
             {fmtUsd(rawPnl)}
           </span>
         </div>
         <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">Max profit</span>
+          <span className="text-muted-foreground">{t("vouchers.close_position_max_profit")}</span>
           <span className="font-mono">${cap.toFixed(2)}</span>
         </div>
         <div className="flex items-center justify-between text-sm font-medium pt-1 border-t border-border/40 mt-1">

@@ -4,6 +4,7 @@
 // MONEY axis (trading-green/red) is used for profit only; MARKET axis
 // (yes/no) only for the side identity in the header.
 // ============================================================
+import { t } from "@/i18n";
 import type { ReactNode } from "react";
 import { Info } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -57,13 +58,13 @@ export const LitePositionCard = ({
       {boost > 1 && (
         <span className="text-foreground">
           {" · "}
-          <span className="font-mono">{boost}×</span> Boost
+          <span className="font-mono">{boost}×</span> {t("trade.screen.lite.lite_contract_account_sections.boost")}
         </span>
       )}
       {voucherTag && (
         <span className="text-foreground">
           {" · "}
-          <span style={{ color: "#CFFF4A" }}>Voucher</span>
+          <span style={{ color: "#CFFF4A" }}>{t("portfolio.lite.live.voucher")}</span>
         </span>
       )}
     </>
@@ -86,10 +87,10 @@ export const LitePositionCard = ({
         compact ? "grid-cols-2" : "grid-cols-4",
       )}
     >
-      <PosCell label="Put in" value={`$${putIn.toFixed(2)}`} />
-      <PosCell label="Now worth" value={`$${nowWorth.toFixed(2)}`} />
+      <PosCell label={t("common.put_in")} value={`$${putIn.toFixed(2)}`} />
+      <PosCell label={t("common.now_worth")} value={`$${nowWorth.toFixed(2)}`} />
       <PosCell
-        label="Profit"
+        label={t("trade.screen.lite.lite_contract_sections.profit")}
         value={`${profit >= 0 ? "+" : "−"}$${Math.abs(profit).toFixed(2)}`}
         tone={profit >= 0 ? "up" : "down"}
       />
@@ -101,7 +102,7 @@ export const LitePositionCard = ({
         labelExtra={
           <Tooltip>
             <TooltipTrigger asChild>
-              <button type="button" aria-label="About auto-close">
+              <button type="button" aria-label={t("trade.screen.lite.lite_contract_order_panel.about_auto_close")}>
                 <Info className="w-3 h-3 cursor-help" />
               </button>
             </TooltipTrigger>

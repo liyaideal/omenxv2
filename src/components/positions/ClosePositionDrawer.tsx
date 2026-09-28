@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { ClosePositionForm } from "./ClosePositionForm";
 
@@ -44,7 +45,7 @@ export const ClosePositionDrawer = ({
     <MobileDrawer
       open={open}
       onOpenChange={onOpenChange}
-      title="Close position"
+      title={t("common.close_position")}
       description={description}
     >
       <ClosePositionForm

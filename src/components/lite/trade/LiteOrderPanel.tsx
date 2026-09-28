@@ -7,6 +7,7 @@
 //      the live price during the async call.
 //   2. Cash leg mirrors SpotTrading: switch on the returned balanceDelta.
 // ============================================================
+import { t } from "@/i18n";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AccountBalanceLine } from "@/components/wallet/AccountBalanceLine";
@@ -199,7 +200,7 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
     <div className={wrapClass}>
       {variant === "desktop" && (
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold">Place your order</h3>
+          <h3 className="text-sm font-semibold">{t("spot.screen.lite_spot_order_panel.place_your_order")}</h3>
           <span className="font-mono text-[11px] text-muted-foreground">
             {countdownText} left
           </span>
@@ -210,7 +211,7 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
       {!hideSideSelector && (
         <div className="space-y-2">
           <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-            Your call
+            {t("spot.screen.lite_spot_order_panel.your_call")}
           </div>
           <div className="grid grid-cols-2 gap-2">
             <SideButton
@@ -235,7 +236,7 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-            How much
+            {t("trade.screen.lite.lite_contract_order_panel.how_much")}
           </div>
           <AccountBalanceLine label="Standard balance" value={money(spotBalance)} direction="to_spot" />
         </div>
@@ -287,7 +288,7 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
             onClick={() => handlePreset("max")}
             className="rounded-lg border border-border py-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:text-foreground"
           >
-            Max
+            {t("common.max")}
           </button>
         </div>
       </div>
@@ -301,7 +302,7 @@ export const LiteOrderPanel = (props: LiteOrderPanelProps) => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <button type="button" aria-label="How your winnings are calculated">
+                    <button type="button" aria-label={t("spot.screen.lite_spot_order_panel.how_your_winnings_are_calculated")}>
                       <HelpCircle className="h-3 w-3 text-muted-foreground" />
                     </button>
                   </TooltipTrigger>

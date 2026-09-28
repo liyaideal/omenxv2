@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState, useMemo, useEffect, useRef, useCallback } from "react"; // v2
 import { AmountUnitDropdown } from "@/components/pro/AmountUnitDropdown";
 import { useAmountModeStore } from "@/stores/useAmountModeStore";
@@ -1068,7 +1069,7 @@ export default function DesktopTrading() {
                     <span>·</span>
                   </>
                 )}
-                <span>Ends in</span>
+                <span>{t("market.ends_in")}</span>
                 <span className="text-trading-red font-mono font-medium">{countdown}</span>
               </div>
             </div>
@@ -1116,7 +1117,7 @@ export default function DesktopTrading() {
                   <div className="text-xs text-muted-foreground space-y-1 border-t border-border/30 pt-2">
                     {/* Period - always show */}
                     <div className="flex justify-between">
-                      <span>Period</span>
+                      <span>{t("market.period")}</span>
                       <span>{selectedEvent.period}</span>
                     </div>
                     
@@ -1135,7 +1136,7 @@ export default function DesktopTrading() {
                     )}
                     {selectedEvent.stats?.volume24h && (
                       <div className="flex justify-between">
-                        <span>24h Volume</span>
+                        <span>{t("market.24h_volume")}</span>
                         <span className="font-mono">{selectedEvent.stats.volume24h}</span>
                       </div>
                     )}
@@ -1148,8 +1149,8 @@ export default function DesktopTrading() {
                     
                     {/* Last updated - always show */}
                     <div className="flex justify-between">
-                      <span>Last updated</span>
-                      <span>Just now</span>
+                      <span>{t("market.last_updated")}</span>
+                      <span>{t("market.just_now")}</span>
                     </div>
                   </div>
                   
@@ -1193,11 +1194,11 @@ export default function DesktopTrading() {
 
         <div className="flex items-center gap-6 text-xs">
           <div>
-            <div className="text-muted-foreground">24h Volume</div>
+            <div className="text-muted-foreground">{t("market.24h_volume")}</div>
             <div className="font-mono font-medium">$2.45M</div>
           </div>
           <div>
-            <div className="text-muted-foreground">OI</div>
+            <div className="text-muted-foreground">{t("common.oi")}</div>
             <div className="font-mono font-medium">$480K</div>
           </div>
         </div>
@@ -1231,7 +1232,7 @@ export default function DesktopTrading() {
           />
         ) : hasMarketChips && (
         <div className="flex items-center gap-2 px-4 py-2 border-b border-border/30 overflow-x-auto scrollbar-hide">
-          <span className="text-xs text-muted-foreground flex-shrink-0">Select Option:</span>
+          <span className="text-xs text-muted-foreground flex-shrink-0">{t("market.screen.event_detail.desktop.desktop_market_option.select_option")}</span>
           {options.map((option) => (
             <button
               key={option.id}
@@ -1383,7 +1384,7 @@ export default function DesktopTrading() {
                           </td>
                           <td className="px-4 py-2">
                             {order.reduceOnly ? (
-                              <span className="px-2 py-0.5 rounded text-xs font-medium bg-trading-red/20 text-trading-red">Close</span>
+                              <span className="px-2 py-0.5 rounded text-xs font-medium bg-trading-red/20 text-trading-red">{t("common.close")}</span>
                             ) : orderOutcome ? (
                               <span className="text-muted-foreground/40">—</span>
                             ) : (
@@ -1398,7 +1399,7 @@ export default function DesktopTrading() {
                           <td className="px-4 py-2 text-sm">
                             {order.orderType}
                             {order.reduceOnly && (
-                              <span className="ml-1.5 text-[10px] bg-muted text-muted-foreground rounded px-1">Reduce-only</span>
+                              <span className="ml-1.5 text-[10px] bg-muted text-muted-foreground rounded px-1">{t("market.reduce_only")}</span>
                             )}
                           </td>
                           <td className="px-4 py-2 text-sm font-mono text-right">{order.price}</td>
@@ -1420,7 +1421,7 @@ export default function DesktopTrading() {
                               onClick={() => handleCancelOrderClick(index, order.id)}
                               className="px-3 py-1 text-xs text-trading-red border border-trading-red/50 rounded hover:bg-trading-red/10"
                             >
-                              Cancel
+                              {t("common.cancel")}
                             </button>
                           </td>
                         </tr>
@@ -1460,7 +1461,7 @@ export default function DesktopTrading() {
                   <tbody>
                     {positions.length === 0 && pendingAirdrops.length === 0 ? (
                       <tr>
-                        <td colSpan={11} className="px-4 py-6 text-center text-sm text-muted-foreground">No open positions</td>
+                        <td colSpan={11} className="px-4 py-6 text-center text-sm text-muted-foreground">{t("market.no_positions")}</td>
                       </tr>
                     ) : (
                       <>
@@ -1497,7 +1498,7 @@ export default function DesktopTrading() {
                                     {position.isAirdrop && (
                                       <span className="inline-flex items-center gap-0.5 bg-primary/20 text-primary border border-primary/30 text-[9px] font-semibold px-1 py-px rounded whitespace-nowrap flex-shrink-0">
                                         <Gift className="w-2.5 h-2.5" />
-                                        AIRDROP
+                                        {t("common.airdrop")}
                                       </span>
                                     )}
                                     <PositionDetailDialog
@@ -1587,7 +1588,7 @@ export default function DesktopTrading() {
                               onConfirm={() => closePosition(position.id, index)}
                             >
                               <button className="px-3 py-1 text-xs text-foreground border border-border/50 rounded hover:bg-muted">
-                                Close
+                                {t("common.close")}
                               </button>
                             </CloseVoucherDialog>
                             ) : (
@@ -1609,7 +1610,7 @@ export default function DesktopTrading() {
                               onConfirm={(qty) => partialClosePosition(position.id, index, qty)}
                             >
                               <button className="px-3 py-1 text-xs text-foreground border border-border/50 rounded hover:bg-muted">
-                                Close
+                                {t("common.close")}
                               </button>
                             </ClosePositionDialog>
                             )}
@@ -1625,7 +1626,7 @@ export default function DesktopTrading() {
                             <div className="flex items-center gap-1.5 flex-nowrap">
                               <span className="inline-flex items-center gap-0.5 bg-trading-yellow/20 text-trading-yellow border border-trading-yellow/30 text-[9px] font-semibold px-1 py-px rounded whitespace-nowrap flex-shrink-0">
                                 <Gift className="w-2.5 h-2.5" />
-                                PENDING
+                                {t("market.status_pending")}
                               </span>
                               <span className="text-sm font-medium truncate">{airdrop.counterOptionLabel}</span>
                             </div>
@@ -1643,7 +1644,7 @@ export default function DesktopTrading() {
                           <td className="px-4 py-2 text-sm font-mono text-right text-muted-foreground">--</td>
                           <td className="px-4 py-2 text-sm font-mono text-right text-muted-foreground">--</td>
                           <td className="px-4 py-2 text-sm font-mono text-right">${airdrop.airdropValue.toFixed(2)}</td>
-                          <td className="px-4 py-2 text-right text-xs text-trading-yellow">Activate to claim</td>
+                          <td className="px-4 py-2 text-right text-xs text-trading-yellow">{t("common.activate_to_claim")}</td>
                           <td className="px-4 py-2 text-sm text-muted-foreground">--</td>
                           <td className="px-4 py-2 text-center text-xs text-muted-foreground">--</td>
                           <td className="px-4 py-2 text-center">
@@ -1775,9 +1776,9 @@ export default function DesktopTrading() {
       <Dialog open={orderPreviewOpen && intent === "buy"} onOpenChange={setOrderPreviewOpen}>
         <DialogContent className="sm:max-w-2xl gap-4 p-5">
           <DialogHeader>
-            <DialogTitle>Order Preview</DialogTitle>
+            <DialogTitle>{t("market.order_preview")}</DialogTitle>
             <DialogDescription className="sr-only">
-              Review the trade, notional values, margin requirement, and position impact before confirming.
+              {t("market.order_preview_desc")}
             </DialogDescription>
           </DialogHeader>
 
@@ -1801,7 +1802,7 @@ export default function DesktopTrading() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-lg border border-border/50 bg-muted/20 p-3">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Trade</p>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("common.nav_trade")}</p>
                 <div className="space-y-2">
                   {previewTradeFields.map((field) => (
                     <div key={field.label} className="flex items-center justify-between gap-3 text-xs">
@@ -1813,7 +1814,7 @@ export default function DesktopTrading() {
               </div>
 
               <div className="rounded-lg border border-border/50 bg-muted/20 p-3">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Notional</p>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("market.notional")}</p>
                 <div className="space-y-2">
                   {previewNotionalFields.map((field) => (
                     <div key={field.label} className="flex items-center justify-between gap-3 text-xs">
@@ -1828,7 +1829,7 @@ export default function DesktopTrading() {
             <div className="rounded-lg border border-border/50 bg-background p-3">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Position impact</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("market.position_impact")}</p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {isReducingOrder ? "This order reduces existing risk and releases margin." : "This order increases exposure and requires opening margin."}
                   </p>
@@ -1836,18 +1837,18 @@ export default function DesktopTrading() {
                 <div className="grid min-w-[280px] grid-cols-2 gap-x-4 gap-y-2 text-xs">
                   {isReducingOrder ? (
                     <>
-                      <span className="text-muted-foreground">Released margin</span>
+                      <span className="text-muted-foreground">{t("market.released_margin")}</span>
                       <span className="text-right font-mono text-trading-green">+{orderIntent.releasedMargin.toFixed(2)} USDC</span>
-                      <span className="text-muted-foreground">Realized PnL est.</span>
+                      <span className="text-muted-foreground">{t("market.preview_realized_pnl_est_label")}</span>
                       <span className={`text-right font-mono ${orderIntent.realizedPnl >= 0 ? "text-trading-green" : "text-trading-red"}`}>
                         {orderIntent.realizedPnl >= 0 ? "+" : "-"}{Math.abs(orderIntent.realizedPnl).toFixed(2)} USDC
                       </span>
                     </>
                   ) : (
                     <>
-                      <span className="text-muted-foreground">Margin required</span>
+                      <span className="text-muted-foreground">{t("market.margin_required")}</span>
                       <span className="text-right font-mono text-foreground">{displayCalculations.marginRequired} USDC</span>
-                      <span className="text-muted-foreground">Liq. price</span>
+                      <span className="text-muted-foreground">{t("market.liq_price")}</span>
                       <span className="text-right font-mono text-foreground">{orderCalculations.liqPrice} USDC</span>
                     </>
                   )}
@@ -1874,34 +1875,34 @@ export default function DesktopTrading() {
       <Dialog open={orderPreviewOpen && intent === "sell"} onOpenChange={setOrderPreviewOpen}>
         <DialogContent className="sm:max-w-md gap-4 p-5">
           <DialogHeader>
-            <DialogTitle className="text-base">Order preview</DialogTitle>
+            <DialogTitle className="text-base">{t("market.order_preview")}</DialogTitle>
             <DialogDescription className="text-xs">{selectedEvent?.name}</DialogDescription>
           </DialogHeader>
           <div className="rounded-lg border border-border/50 bg-muted/20 p-3 space-y-2 text-xs">
             <div className="flex items-center justify-between gap-3">
-              <span className="text-muted-foreground">Outcome</span>
+              <span className="text-muted-foreground">{t("common.outcome")}</span>
               <span className="text-foreground text-right">{sellOutcomeLabel}</span>
             </div>
             <div className="flex items-center justify-between gap-3">
-              <span className="text-muted-foreground">Type</span>
+              <span className="text-muted-foreground">{t("common.type")}</span>
               <span className="text-foreground text-right">{orderType} · Reduce-only</span>
             </div>
             <div className="flex items-center justify-between gap-3">
-              <span className="text-muted-foreground">Close price (mark)</span>
+              <span className="text-muted-foreground">{t("market.close_price_mark")}</span>
               <span className="font-mono text-foreground text-right">{sellClosePrice.toFixed(4)} USDC</span>
             </div>
             <div className="flex items-center justify-between gap-3">
-              <span className="text-muted-foreground">Contracts</span>
+              <span className="text-muted-foreground">{t("market.contracts")}</span>
               <span className="font-mono text-foreground text-right">{sellQty.toLocaleString()}</span>
             </div>
           </div>
           <div className="rounded-lg border border-border/50 bg-background p-3 space-y-2 text-xs">
             <div className="flex items-center justify-between gap-3">
-              <span className="text-muted-foreground">Released margin</span>
+              <span className="text-muted-foreground">{t("market.released_margin")}</span>
               <span className="font-mono text-foreground text-right">{sellReleasedMargin.toFixed(2)} USDC</span>
             </div>
             <div className="flex items-center justify-between gap-3">
-              <span className="text-muted-foreground">Realized PnL est.</span>
+              <span className="text-muted-foreground">{t("market.preview_realized_pnl_est_label")}</span>
               <span className={`font-mono text-right ${sellRealizedPnl >= 0 ? "text-trading-green" : "text-trading-red"}`}>
                 {sellRealizedPnl >= 0 ? "+" : "-"}{Math.abs(sellRealizedPnl).toFixed(2)} USDC
               </span>
@@ -1911,7 +1912,7 @@ export default function DesktopTrading() {
               <span className="font-mono text-foreground text-right">{sellCommission.toFixed(2)} USDC</span>
             </div>
             <div className="flex items-center justify-between gap-3 pt-2 border-t border-border/30 font-medium">
-              <span className="text-foreground">You receive</span>
+              <span className="text-foreground">{t("wallet.screen.sell_to_fiat.you_receive")}</span>
               <span className="font-mono text-foreground text-right">{sellCashBack.toFixed(2)} USDC</span>
             </div>
           </div>
@@ -1934,10 +1935,10 @@ export default function DesktopTrading() {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-trading-red" />
-              Cancel Order
+              {t("market.confirm_cancel_order")}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-left">
-              Are you sure you want to cancel this order?
+              {t("market.confirm_cancel_order_desc")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           
@@ -1956,33 +1957,33 @@ export default function DesktopTrading() {
             return (
               <div className="bg-muted/50 rounded-lg p-4 space-y-2 my-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Order Type</span>
+                  <span className="text-muted-foreground">{t("market.order_type")}</span>
                   <span className={outcomeColor}>
                     {typeLabel}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Contract</span>
+                  <span className="text-muted-foreground">{t("common.contract")}</span>
                   <span className={`font-medium ${orderOutcome === "yes" ? "text-trading-green" : orderOutcome === "no" ? "text-trading-red" : ""}`}>{orderDisplay}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Event</span>
+                  <span className="text-muted-foreground">{t("common.event")}</span>
                   <span className="text-xs text-muted-foreground truncate max-w-[200px]">{order.event}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Price</span>
+                  <span className="text-muted-foreground">{t("market.price")}</span>
                   <span className="font-mono">{order.price}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Amount</span>
+                  <span className="text-muted-foreground">{t("trade.screen.lite.lite_contract_order_panel.amount")}</span>
                   <span className="font-mono">{order.amount}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Total</span>
+                  <span className="text-muted-foreground">{t("market.total")}</span>
                   <span className="font-mono">{order.total}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm border-t border-border/30 pt-2 mt-2">
-                  <span className="text-muted-foreground">Status</span>
+                  <span className="text-muted-foreground">{t("common.status")}</span>
                   <span className={`px-2 py-0.5 rounded text-xs ${
                     order.status === "Pending" ? "bg-amber-500/20 text-amber-400" :
                     order.status === "Partial Filled" ? "bg-cyan-500/20 text-cyan-400" :
@@ -1996,12 +1997,12 @@ export default function DesktopTrading() {
           })()}
 
           <AlertDialogFooter className="flex gap-2 sm:gap-2">
-            <AlertDialogCancel className="flex-1">Keep Order</AlertDialogCancel>
+            <AlertDialogCancel className="flex-1">{t("market.keep_order")}</AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleConfirmCancelOrder}
               className="flex-1 bg-trading-red hover:bg-trading-red/90 text-white"
             >
-              Cancel Order
+              {t("market.confirm_cancel_order")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

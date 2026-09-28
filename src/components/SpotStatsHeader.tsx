@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -137,7 +138,7 @@ export const SpotStatsHeader = ({
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="font-bold text-foreground truncate">{ticker}</span>
-              <Badge variant="outline" className="text-[10px]">SPOT</Badge>
+              <Badge variant="outline" className="text-[10px]">{t("market.mode_spot")}</Badge>
               <Badge variant="outline" className={cn("text-[10px] border", badge.className)}>
                 {badge.label}
               </Badge>
@@ -174,7 +175,7 @@ export const SpotStatsHeader = ({
         </StatCell>
 
         {/* Yes price */}
-        <StatCell label="Yes Price">
+        <StatCell label={t("market.yes_price")}>
           <span className="font-mono text-foreground">
             {yesPrice != null ? `$${yesPrice.toFixed(2)}` : "—"}
           </span>

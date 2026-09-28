@@ -3,6 +3,7 @@
 // crypto quick-round page can reuse the SAME visual species.
 // Markup/classes are byte-identical to the stock page originals.
 // ============================================================
+import { t } from "@/i18n";
 import { cn } from "@/lib/utils";
 import { ShareIconButton } from "@/components/lite/share/ShareIconButton";
 
@@ -25,7 +26,7 @@ export const SpotSentimentBar = ({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-          What the crowd thinks
+          {t("trade.screen.lite.lite_contract_sections.what_the_crowd_thinks")}
         </div>
         <div className="font-mono text-[11px] text-muted-foreground">
           Vol {volText}
@@ -115,12 +116,12 @@ export const SpotSettlementRail = ({
   <div className="rounded-2xl border border-border bg-muted/20 p-4">
     <div className="mb-3 flex items-center justify-between">
       <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-        How it settles
+        {t("spot.screen.settlement_timeline.how_it_settles")}
       </div>
       {tradingNow && (
         <span className="flex items-center gap-1 text-[11px] font-medium text-yes">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-yes" />
-          Trading now
+          {t("common.trading_now")}
         </span>
       )}
     </div>
@@ -210,9 +211,9 @@ export const SpotYourPosition = ({
     </div>
 
     <div className="grid grid-cols-4 gap-2 border-t border-border pt-3 text-xs">
-      <PosCell label="Current value" value={`$${currentValue.toFixed(2)}`} />
-      <PosCell label="Avg cost" value={avgCost} />
-      <PosCell label="Profit" value={pnl} tone={pnl.startsWith("-") ? "red" : "green"} />
+      <PosCell label={t("market.current_value")} value={`$${currentValue.toFixed(2)}`} />
+      <PosCell label={t("common.avg_cost")} value={avgCost} />
+      <PosCell label={t("trade.screen.lite.lite_contract_sections.profit")} value={pnl} tone={pnl.startsWith("-") ? "red" : "green"} />
       <PosCell label={ifWinsLabel} value={ifWinsValue} tone="yes" />
     </div>
     <div className="mt-3 border-t border-border pt-3">

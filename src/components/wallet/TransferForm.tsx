@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -124,7 +125,7 @@ export const TransferForm = ({
       <div className="relative space-y-2">
         <div className="rounded-lg border border-border bg-muted/20 p-3">
           <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-            From
+            {t("wallet.from")}
           </div>
           <div className="mt-1 flex items-center justify-between">
             <span className="text-sm font-medium">{fromLabel}</span>
@@ -142,7 +143,7 @@ export const TransferForm = ({
 
         <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
           <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-            To
+            {t("market.date_to")}
           </div>
           <div className="mt-1 flex items-center justify-between">
             <span className="text-sm font-medium">{toLabel}</span>
@@ -156,7 +157,7 @@ export const TransferForm = ({
       {/* Amount */}
       <div className="space-y-1.5">
         <div className="flex items-baseline justify-between">
-          <span className="text-xs text-muted-foreground">Amount</span>
+          <span className="text-xs text-muted-foreground">{t("trade.screen.lite.lite_contract_order_panel.amount")}</span>
           <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
             <span className="font-mono">Available ${fmt(fromAvailable)}</span>
             <button
@@ -165,7 +166,7 @@ export const TransferForm = ({
               disabled={fromAvailable <= 0}
               className="rounded px-1.5 py-0.5 text-primary hover:bg-primary/10 disabled:opacity-40"
             >
-              MAX
+              {t("common.max")}
             </button>
           </div>
         </div>
@@ -194,7 +195,7 @@ export const TransferForm = ({
               onClick={onCancel}
               disabled={submitting}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
           )}
           <Button

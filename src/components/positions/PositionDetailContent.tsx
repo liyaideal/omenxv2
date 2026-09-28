@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { FUTURES_FEE_RATE } from "@/services/tradingService";
 import { useMemo } from "react";
 import { Info } from "lucide-react";
@@ -85,7 +86,7 @@ export const PositionDetailContent = ({
         <div className="space-y-5">
           <div className="flex items-center gap-2 text-sm">
             <span className={cn("font-semibold truncate", labelColor)}>{label}</span>
-            <span className="text-xs text-muted-foreground shrink-0 uppercase tracking-wide">Spot</span>
+            <span className="text-xs text-muted-foreground shrink-0 uppercase tracking-wide">{t("market.mode_spot")}</span>
           </div>
 
           <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5">
@@ -101,15 +102,15 @@ export const PositionDetailContent = ({
           </div>
 
           <div className="space-y-2">
-            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Position</div>
+            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t("market.position")}</div>
             <div className="grid grid-cols-2 gap-y-1.5 text-xs">
-              <span className="text-muted-foreground">Shares</span>
+              <span className="text-muted-foreground">{t("portfolio.shares_unit")}</span>
               <span className="font-mono text-right">{position.sizeDisplay}</span>
-              <span className="text-muted-foreground">Avg cost</span>
+              <span className="text-muted-foreground">{t("common.avg_cost")}</span>
               <span className="font-mono text-right">${avgCost.toFixed(4)}</span>
-              <span className="text-muted-foreground">Mark price</span>
+              <span className="text-muted-foreground">{t("market.mark_price")}</span>
               <span className="font-mono text-right">${mark.toFixed(4)}</span>
-              <span className="text-muted-foreground">Current value</span>
+              <span className="text-muted-foreground">{t("market.current_value")}</span>
               <span className="font-mono text-right">${currentValue.toFixed(2)}</span>
               <span className="text-muted-foreground">Cost basis</span>
               <span className="font-mono text-right">${costBasis.toFixed(2)}</span>
@@ -174,7 +175,7 @@ export const PositionDetailContent = ({
         {/* ============ Net PnL block ============ */}
         <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
-            Net unrealized PnL
+            {t("market.position_detail_net_unrealized_pnl")}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Info className="w-3 h-3 cursor-help" />
@@ -193,7 +194,7 @@ export const PositionDetailContent = ({
           </div>
 
           <div className="mt-3 grid grid-cols-2 gap-y-1.5 text-xs">
-            <span className="text-muted-foreground">Price PnL</span>
+            <span className="text-muted-foreground">{t("market.position_detail_price_pnl")}</span>
             <span
               className={cn(
                 "font-mono text-right",
@@ -203,12 +204,12 @@ export const PositionDetailContent = ({
               {pricePnl >= 0 ? "+" : "−"}${Math.abs(pricePnl).toFixed(2)}
             </span>
 
-            <span className="text-muted-foreground">Cumulative Trading Fees</span>
+            <span className="text-muted-foreground">{t("market.position_detail_cumulative_trading_fees")}</span>
             <span className="font-mono text-right text-foreground">
               −${openFee.toFixed(4)}
             </span>
 
-            <span className="text-muted-foreground">Est. close fee</span>
+            <span className="text-muted-foreground">{t("market.position_detail_est_close_fee")}</span>
             <span className="font-mono text-right text-muted-foreground">
               ≈ ${estCloseFee.toFixed(4)}
             </span>
@@ -218,15 +219,15 @@ export const PositionDetailContent = ({
         {/* ============ Position block ============ */}
         <div className="space-y-2">
           <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-            Position
+            {t("market.position")}
           </div>
           <div className="grid grid-cols-2 gap-y-1.5 text-xs">
-            <span className="text-muted-foreground">Entry price</span>
+            <span className="text-muted-foreground">{t("common.entry_price")}</span>
             <span className="font-mono text-right">{position.entryPrice}</span>
-            <span className="text-muted-foreground">Mark price</span>
+            <span className="text-muted-foreground">{t("market.mark_price")}</span>
             <span className="font-mono text-right">${mark.toFixed(4)}</span>
             <span className="text-muted-foreground inline-flex items-center gap-1">
-              Liq. price
+              {t("market.liq_price")}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Info className="w-3 h-3 cursor-help" />
@@ -239,11 +240,11 @@ export const PositionDetailContent = ({
             <span className="font-mono text-right text-trading-red">
               {calcLiqPrice(position.entryPriceNum, position.leverage, position.type)}
             </span>
-            <span className="text-muted-foreground">Size</span>
+            <span className="text-muted-foreground">{t("market.size")}</span>
             <span className="font-mono text-right">{position.sizeDisplay}</span>
-            <span className="text-muted-foreground">Margin</span>
+            <span className="text-muted-foreground">{t("common.margin")}</span>
             <span className="font-mono text-right">{position.margin}</span>
-            <span className="text-muted-foreground">Notional</span>
+            <span className="text-muted-foreground">{t("market.notional")}</span>
             <span className="font-mono text-right">${notional.toFixed(2)}</span>
           </div>
         </div>

@@ -3,6 +3,7 @@
 // category_boost_configs.max_leverage — never hardcoded. The tray
 // expands INSIDE the card (no secondary dialog / drawer).
 // ============================================================
+import { t } from "@/i18n";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -43,7 +44,7 @@ export const LiteBoostSelector = ({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-          Boost — multiply your call
+          {t("trade.screen.lite.lite_contract_order_panel.boost_multiply_your_call")}
         </div>
         <span className="font-mono text-[10px] text-muted-foreground">
           Up to {maxBoost}×
@@ -82,7 +83,7 @@ export const LiteBoostSelector = ({
               ? "font-mono text-yes"
               : "border-[1.5px] border-border text-muted-foreground hover:text-foreground",
           )}
-          aria-label="Choose a custom boost"
+          aria-label={t("trade.screen.lite.lite_contract_order_panel.choose_a_custom_boost")}
           style={{ ...(isCustom ? SELECTED_STYLE : {}), width: customWidth }}
         >
           {isCustom ? `${value}×` : "Custom"}
@@ -103,7 +104,7 @@ export const LiteBoostSelector = ({
             step={1}
             value={trayValue}
             onChange={(e) => onChange(clamp(Number(e.target.value)))}
-            aria-label="Custom boost"
+            aria-label={t("trade.screen.lite.lite_contract_order_panel.custom_boost")}
             className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-border accent-yes"
           />
           <div className="flex items-center gap-1">
@@ -118,7 +119,7 @@ export const LiteBoostSelector = ({
                 const n = Number(e.target.value);
                 if (isFinite(n) && n > 0) onChange(clamp(n));
               }}
-              aria-label="Custom boost value"
+              aria-label={t("trade.screen.lite.lite_contract_order_panel.custom_boost_value")}
               className="h-9 w-16 rounded-lg border border-border bg-background px-2 text-center font-mono text-sm font-semibold text-foreground outline-none placeholder:font-normal placeholder:text-muted-foreground/60"
             />
             <span className="font-mono text-sm text-muted-foreground">×</span>

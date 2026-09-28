@@ -4,6 +4,7 @@
 // for the option, otherwise a deterministic front-end walk anchored
 // on base_price → current. Marked DEMO-STATE inline.
 // ============================================================
+import { t } from "@/i18n";
 import { useMemo, useState } from "react";
 import {
   ResponsiveContainer,
@@ -227,7 +228,7 @@ export const LiteStockChart = ({
       <div className="h-[220px] w-full px-2 pb-3">
         {series.length === 0 ? (
           <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
-            No data yet
+            {t("spot.screen.lite_underlying_price_chart.no_data_yet")}
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">

@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Loader2, Plus, Info } from 'lucide-react';
 import { DesktopSubpageHeader } from '@/components/layout/DesktopSubpageHeader';
@@ -31,18 +32,18 @@ export default function RecoveryRequestPage() {
       <div className="flex items-start gap-3">
         <Info className="w-5 h-5 text-trading-yellow shrink-0 mt-0.5" />
         <div className="space-y-2 flex-1">
-          <div className="font-semibold text-foreground">Wrong-chain recovery service</div>
+          <div className="font-semibold text-foreground">{t("settings.wallet.recovery_intro_title")}</div>
           <p className="text-sm text-muted-foreground leading-relaxed">
             We can attempt to retrieve funds sent to the wrong network or with the wrong token.
             A flat <span className="text-trading-yellow font-medium">10% recovery fee</span> applies
             (covers source-chain gas, bridge cost, and manual processing).
           </p>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            We cannot recover funds sent to chains we do not operate on. You'll be notified once funds are credited or if recovery is not possible.
+            {t("settings.wallet.recovery_intro_desc_2")}
           </p>
           <div className="flex flex-wrap gap-2 pt-1">
-            <Pill>10% flat fee</Pill>
-            <Pill>3–7 business days</Pill>
+            <Pill>{t("settings.wallet.recovery_pill_fee")}</Pill>
+            <Pill>{t("settings.wallet.recovery_pill_eta")}</Pill>
           </div>
         </div>
       </div>
@@ -53,12 +54,12 @@ export default function RecoveryRequestPage() {
   if (!user) {
     const gateBody = (
       <LiteAuthGate
-        title="Sign in to view your recovery requests"
-        description="Submit or view your recovery requests by signing in to your account."
+        title={t("auth.lite.recovery_title")}
+        description={t("auth.lite.recovery_description")}
       >
         {intro}
         <div className="space-y-3 mt-6">
-          <h2 className={isMobile ? 'text-sm font-semibold' : 'text-base font-semibold'}>Your requests</h2>
+          <h2 className={isMobile ? 'text-sm font-semibold' : 'text-base font-semibold'}>{t("settings.wallet.recovery_your_requests")}</h2>
           <div className="space-y-2">
             <div className="h-[74px] rounded-xl border bg-muted/30" />
             <div className="h-[74px] rounded-xl border bg-muted/30" />
@@ -71,7 +72,7 @@ export default function RecoveryRequestPage() {
     if (isMobile) {
       return (
         <div className="min-h-screen bg-background flex flex-col">
-          <MobileHeader title="Recovery" showBack showLogo={false} />
+          <MobileHeader title={t("settings.wallet.recovery_page_short_title")} showBack showLogo={false} />
           <main className="flex-1 overflow-auto pb-24">
             <div className="px-4 mt-5">{gateBody}</div>
           </main>
@@ -84,7 +85,7 @@ export default function RecoveryRequestPage() {
         <EventsDesktopHeader />
         <main className="flex-1">
           <div className="mx-auto w-full max-w-7xl px-4 py-10 lg:px-6">
-            <DesktopSubpageHeader title="Recovery" onBack={() => navigate('/wallet')} />
+            <DesktopSubpageHeader title={t("settings.wallet.recovery_page_short_title")} onBack={() => navigate('/wallet')} />
             <div className="mt-[22px]">{gateBody}</div>
           </div>
         </main>
@@ -95,11 +96,11 @@ export default function RecoveryRequestPage() {
   const listSection = (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className={isMobile ? 'text-sm font-semibold' : 'text-base font-semibold'}>Your requests</h2>
+        <h2 className={isMobile ? 'text-sm font-semibold' : 'text-base font-semibold'}>{t("settings.wallet.recovery_your_requests")}</h2>
         {isMobile && (
           <Button size="sm" onClick={() => setShowForm(true)} className="h-8 rounded-lg">
             <Plus className="w-3.5 h-3.5 mr-1" />
-            New request
+            {t("settings.wallet.recovery_new_request")}
           </Button>
         )}
       </div>
@@ -146,7 +147,7 @@ export default function RecoveryRequestPage() {
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2 className={isMobile ? 'text-sm font-semibold' : 'text-base font-semibold'}>
-          New recovery request
+          {t("settings.wallet.recovery_new_request_title")}
         </h2>
         <Button
           variant="ghost"
@@ -154,7 +155,7 @@ export default function RecoveryRequestPage() {
           onClick={() => setShowForm(false)}
           className={isMobile ? 'h-8 rounded-lg' : 'h-9 rounded-lg'}
         >
-          Cancel
+          {t("common.cancel")}
         </Button>
       </div>
       <div className={isMobile ? '' : 'max-w-xl'}>
@@ -170,10 +171,10 @@ export default function RecoveryRequestPage() {
         <EventsDesktopHeader />
         <main className="flex-1">
           <div className="mx-auto w-full max-w-7xl px-4 py-10 lg:px-6">
-            <DesktopSubpageHeader title="Recovery" onBack={() => navigate('/wallet')}>
+            <DesktopSubpageHeader title={t("settings.wallet.recovery_page_short_title")} onBack={() => navigate('/wallet')}>
               <Button size="sm" onClick={() => setShowForm(true)} className="h-9 rounded-lg">
                 <Plus className="w-3.5 h-3.5 mr-1" />
-                New request
+                {t("settings.wallet.recovery_new_request")}
               </Button>
             </DesktopSubpageHeader>
             <div className="mt-[22px] space-y-6">
@@ -189,7 +190,7 @@ export default function RecoveryRequestPage() {
   // ---- Mobile ----
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <MobileHeader title="Recovery" showBack showLogo={false} />
+      <MobileHeader title={t("settings.wallet.recovery_page_short_title")} showBack showLogo={false} />
       <main className="flex-1 overflow-auto pb-24">
         <div className="px-4 mt-5">{intro}</div>
         <div className="px-4 mt-6">{showForm ? formSection : listSection}</div>

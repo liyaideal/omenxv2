@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Gift } from "lucide-react";
@@ -212,8 +213,8 @@ function TradingChartsContent({ selectedEvent, selectedOptionData, options }: Tr
           {/* Header */}
           <div className="grid grid-cols-3 text-xs text-muted-foreground py-2">
             <span>Price (USDT)</span>
-            <span className="text-center">Amount</span>
-            <span className="text-right">Time</span>
+            <span className="text-center">{t("trade.screen.lite.lite_contract_order_panel.amount")}</span>
+            <span className="text-right">{t("common.time")}</span>
           </div>
           {/* Trades List */}
           <div className="space-y-0">
@@ -262,7 +263,7 @@ function TradingChartsContent({ selectedEvent, selectedOptionData, options }: Tr
       {bottomTab === "Orders" && (
         <div className="px-4 py-3 space-y-3">
           {ordersLoading ? (
-            <div className="text-center text-muted-foreground py-4">Loading orders...</div>
+            <div className="text-center text-muted-foreground py-4">{t("market.account_activity_loading_orders")}</div>
           ) : orders.length === 0 ? (
             <div className="text-center text-muted-foreground py-4">No open orders</div>
           ) : (
@@ -285,9 +286,9 @@ function TradingChartsContent({ selectedEvent, selectedOptionData, options }: Tr
             </div>
           )}
           {positionsLoading ? (
-            <div className="text-center text-muted-foreground py-4">Loading positions...</div>
+            <div className="text-center text-muted-foreground py-4">{t("market.account_activity_loading_positions")}</div>
           ) : positions.length === 0 && pendingAirdrops.length === 0 ? (
-            <div className="text-center text-muted-foreground py-4">No open positions</div>
+            <div className="text-center text-muted-foreground py-4">{t("market.no_positions")}</div>
           ) : (
             <>
               {positions.map((position, index) => (

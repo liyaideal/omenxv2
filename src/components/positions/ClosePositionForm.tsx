@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState, useMemo, useEffect } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
@@ -76,7 +77,7 @@ export const ClosePositionForm = ({
     <div className="space-y-4">
       {showHeader && (
         <div className="text-xs text-muted-foreground truncate">
-          {option} · <span className="font-mono">{safeSize.toLocaleString()}</span> contracts
+          {option} · <span className="font-mono">{safeSize.toLocaleString()}</span> {t("market.contracts")}
         </div>
       )}
 
@@ -112,7 +113,7 @@ export const ClosePositionForm = ({
               onValueChange={(v) => setCloseQty(v[0])}
             />
             <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Quantity</span>
+              <span className="text-muted-foreground">{t("market.quantity")}</span>
               <span className="font-mono text-foreground">
                 {clampedQty.toLocaleString()}{" "}
                 <span className="text-muted-foreground">({ratioPct}%)</span>
@@ -124,11 +125,11 @@ export const ClosePositionForm = ({
 
       <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5 text-xs">
         <div className="flex items-center justify-between">
-          <span className="text-muted-foreground">Close price (mark)</span>
+          <span className="text-muted-foreground">{t("market.close_price_mark")}</span>
           <span className="font-mono text-foreground">${markPrice.toFixed(4)}</span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-muted-foreground">Realized PnL</span>
+          <span className="text-muted-foreground">{t("vouchers.realized_pnl")}</span>
           <span className={`font-mono ${pnlPositive ? "text-trading-green" : "text-trading-red"}`}>
             {pnlPositive ? "+" : ""}
             {fmtUsd(realizedPnl)}{" "}
@@ -136,11 +137,11 @@ export const ClosePositionForm = ({
           </span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-muted-foreground">Released margin</span>
+          <span className="text-muted-foreground">{t("market.released_margin")}</span>
           <span className="font-mono text-foreground">${releasedMargin.toFixed(2)}</span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-muted-foreground">Remaining size</span>
+          <span className="text-muted-foreground">{t("market.remaining_size")}</span>
           <span className="font-mono text-foreground">
             {remaining.toLocaleString()} contracts
           </span>
@@ -157,7 +158,7 @@ export const ClosePositionForm = ({
               onClick={onCancel}
               disabled={isClosing}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
           )}
           <Button

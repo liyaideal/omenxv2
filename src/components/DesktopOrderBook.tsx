@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState, useEffect, useCallback } from "react";
 import { Flag } from "lucide-react";
 import {
@@ -307,7 +308,7 @@ export const DesktopOrderBook = ({
               activeTab === "orderbook" ? "text-foreground" : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            Order Book
+            {t("common.order_book")}
           </button>
           <button
             onClick={() => setActiveTab("trades")}
@@ -315,7 +316,7 @@ export const DesktopOrderBook = ({
               activeTab === "trades" ? "text-foreground" : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            Recent Trades
+            {t("common.recent_trades")}
           </button>
         </div>
       </div>
@@ -634,8 +635,8 @@ export const DesktopOrderBook = ({
           {/* Recent Trades Column Headers */}
           <div className="grid grid-cols-3 text-xs text-muted-foreground px-3 py-2">
             <span>{headers.price}</span>
-            <span className="text-right">Amount</span>
-            <span className="text-right">Time</span>
+            <span className="text-right">{t("trade.screen.lite.lite_contract_order_panel.amount")}</span>
+            <span className="text-right">{t("common.time")}</span>
           </div>
 
           {/* Recent Trades List */}

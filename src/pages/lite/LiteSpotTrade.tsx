@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { SeoFooter } from "@/components/seo/SeoFooter";
 // ============================================================
 // /spot (surface=lite) — US-stock daily up/down, odds-forward.
@@ -416,7 +417,7 @@ const LiteSpotTrade = () => {
   const WatchStar = (
     <MobileHeaderIconButton
       onClick={(e) => toggle(event.id, e as unknown as React.MouseEvent)}
-      aria-label="Watchlist"
+      aria-label={t("common.watchlist")}
       className={starred ? "text-trading-yellow" : undefined}
     >
       <Star
@@ -435,7 +436,7 @@ const LiteSpotTrade = () => {
           lifecycle === "TRADING" ? "bg-trading-green animate-pulse" : "bg-muted-foreground",
         )}
       />
-      <span>Closes in</span>
+      <span>{t("spot.screen.lite_spot_trade.closes_in")}</span>
       <span className="font-mono font-medium text-foreground">{countdown}</span>
       {closeEt && (
         <>
@@ -870,7 +871,7 @@ const LiteSpotTrade = () => {
                 onClick={() => navigate("/portfolio")}
                 className="w-full rounded-xl bg-no py-3 font-display text-sm font-bold text-[#1a2408]"
               >
-                View in Portfolio →
+                {t("spot.screen.lite_spot_trade.view_in_portfolio")}
               </button>
             ) : (
             <div className="mx-auto flex max-w-md gap-1.5">

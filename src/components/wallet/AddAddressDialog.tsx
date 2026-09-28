@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -51,30 +52,30 @@ export const AddAddressFields = ({
 }) => (
   <div className="space-y-4">
     <div className="space-y-2">
-      <Label htmlFor={`${idPrefix}-label`}>Label</Label>
+      <Label htmlFor={`${idPrefix}-label`}>{t("common.label")}</Label>
       <Input
         id={`${idPrefix}-label`}
-        placeholder="e.g. My Binance, Cold Wallet"
+        placeholder={t("settings.wallet.add_address_label_placeholder")}
         value={values.label}
         onChange={(e) => onChange({ ...values, label: e.target.value })}
       />
     </div>
     <div className="space-y-2">
-      <Label htmlFor={`${idPrefix}-address`}>Address</Label>
+      <Label htmlFor={`${idPrefix}-address`}>{t("settings.wallet.address")}</Label>
       <Input
         id={`${idPrefix}-address`}
-        placeholder="Paste wallet address"
+        placeholder={t("settings.wallet.add_address_address_placeholder")}
         value={values.address}
         onChange={(e) => onChange({ ...values, address: e.target.value })}
         className="font-mono"
       />
     </div>
     <div className="space-y-2">
-      <Label>Network</Label>
+      <Label>{t("settings.wallet.network")}</Label>
       {/* Base-only (2026-09-03): network is fixed, no selector. */}
       <div className="flex h-10 items-center gap-2 rounded-md border border-input bg-muted/30 px-3 text-sm">
-        <img src="/chain-logos/base.svg" alt="Base" className="h-4 w-4" />
-        <span className="font-medium">Base</span>
+        <img src="/chain-logos/base.svg" alt={t("common.base")} className="h-4 w-4" />
+        <span className="font-medium">{t("common.base")}</span>
       </div>
     </div>
   </div>
@@ -160,12 +161,12 @@ export const AddAddressDialog = ({
       <MobileDrawer
         open={open}
         onOpenChange={handleClose}
-        title="Add address"
+        title={t("settings.wallet.add_address")}
       >
         {formContent}
         <MobileDrawerActions className="flex gap-2 space-y-0">
           <Button variant="outline" onClick={() => handleClose(false)} className="flex-1 h-11">
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button
             onClick={handleAdd}
@@ -183,13 +184,13 @@ export const AddAddressDialog = ({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add Address</DialogTitle>
-          <DialogDescription>Save a wallet address for quick deposits and withdrawals</DialogDescription>
+          <DialogTitle>{t("settings.wallet.add_address")}</DialogTitle>
+          <DialogDescription>{t("settings.wallet.add_address_description")}</DialogDescription>
         </DialogHeader>
         {formContent}
         <div className="flex gap-3 pt-2">
           <Button variant="outline" onClick={() => handleClose(false)} className="flex-1">
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button onClick={handleAdd} disabled={isAdding} className="flex-1 btn-primary">
             {isAdding ? "Saving..." : "Save Address"}

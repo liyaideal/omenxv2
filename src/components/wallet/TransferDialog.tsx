@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import {
   Dialog,
   DialogContent,
@@ -21,9 +22,9 @@ export const TransferDialog = ({ open, onOpenChange, initialDirection }: Transfe
   <Dialog open={open} onOpenChange={onOpenChange}>
     <DialogContent className="max-w-md bg-card border-border">
       <DialogHeader>
-        <DialogTitle>Transfer funds</DialogTitle>
+        <DialogTitle>{t("wallet.transferTitle")}</DialogTitle>
         <DialogDescription className="text-xs">
-          Move USDC between your Standard and Boost accounts.
+          {t("wallet.transferDescription")}
         </DialogDescription>
       </DialogHeader>
       <TransferForm

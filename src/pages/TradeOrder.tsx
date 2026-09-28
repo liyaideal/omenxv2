@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { LiteAuthGate } from "@/components/auth/LiteAuthGate";
@@ -126,10 +127,10 @@ function TradeOrderContent({ selectedEvent, selectedOptionData, options, setSele
           <div className="px-3 py-1.5 border-b border-border/30 overflow-hidden">
             <div className="flex items-center justify-between gap-2 text-[10px] whitespace-nowrap font-mono tabular-nums">
               <span className="text-muted-foreground truncate">
-                Vol <span className="font-medium text-foreground">{selectedEvent?.volume || "—"}</span>
+                {t("common.vol")} <span className="font-medium text-foreground">{selectedEvent?.volume || "—"}</span>
               </span>
               <span className="text-muted-foreground truncate">
-                OI <span className="font-medium text-foreground">$480K</span>
+                {t("common.oi")} <span className="font-medium text-foreground">$480K</span>
               </span>
             </div>
           </div>
@@ -175,8 +176,8 @@ function TradeOrderContent({ selectedEvent, selectedOptionData, options, setSele
         <div className="w-[120px] flex-shrink-0">
           <div className="px-1.5 py-1.5">
             <div className="grid grid-cols-2 text-[9px] text-muted-foreground mb-1">
-              <span>Price</span>
-              <span className="text-right">Amount</span>
+              <span>{t("market.price")}</span>
+              <span className="text-right">{t("trade.screen.lite.lite_contract_order_panel.amount")}</span>
             </div>
           </div>
           
@@ -213,7 +214,7 @@ function TradeOrderContent({ selectedEvent, selectedOptionData, options, setSele
 
           {/* Depth Selector */}
           <div className="flex items-center justify-between px-1.5 py-1.5 border-t border-border/30 mt-1">
-            <span className="text-[9px] text-muted-foreground">Depth</span>
+            <span className="text-[9px] text-muted-foreground">{t("common.depth")}</span>
             <button className="flex items-center gap-0.5 text-[10px]">
               0.1
               <ChevronDown className="w-2.5 h-2.5" />
@@ -247,11 +248,11 @@ function TradeOrderContent({ selectedEvent, selectedOptionData, options, setSele
         })}
       </div>
 
-      <LiteAuthGate variant="panel" title="Sign in to view positions" description="Track and manage your trades by signing in to your account.">
+      <LiteAuthGate variant="panel" title={t("market.auth_gate_positions_title")} description="Track and manage your trades by signing in to your account.">
       <div className="px-4 py-3 space-y-3">
         {bottomTab === "Orders" && (
           ordersLoading ? (
-            <div className="text-center text-muted-foreground py-4">Loading orders...</div>
+            <div className="text-center text-muted-foreground py-4">{t("market.account_activity_loading_orders")}</div>
           ) : orders.length === 0 ? (
             <div className="text-center text-muted-foreground py-4">No open orders</div>
           ) : (
@@ -275,9 +276,9 @@ function TradeOrderContent({ selectedEvent, selectedOptionData, options, setSele
               </div>
             )}
             {positionsLoading ? (
-              <div className="text-center text-muted-foreground py-4">Loading positions...</div>
+              <div className="text-center text-muted-foreground py-4">{t("market.account_activity_loading_positions")}</div>
             ) : positions.length === 0 && pendingAirdrops.length === 0 ? (
-              <div className="text-center text-muted-foreground py-4">No open positions</div>
+              <div className="text-center text-muted-foreground py-4">{t("market.no_positions")}</div>
             ) : (
               <>
                 {positions.map((position, index) => (

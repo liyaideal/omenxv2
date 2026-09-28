@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { FUTURES_FEE_RATE, netWin, cashBackOnClose } from "@/services/tradingService";
 import { AmountUnitDropdown } from "@/components/pro/AmountUnitDropdown";
 import { useAmountModeStore } from "@/stores/useAmountModeStore";
@@ -536,7 +537,7 @@ export const TradeForm = ({
       {/* 交易页收尾: no Leverage row when the category cap is < 2× (order goes at 1×) */}
       {leverageMax >= 2 && (
       <div className="flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">Leverage</span>
+        <span className="text-xs text-muted-foreground">{t("market.leverage")}</span>
         <button
           type="button"
           onClick={() => setLeverageOpen(true)}
@@ -551,7 +552,7 @@ export const TradeForm = ({
       <MobileDrawer
         open={leverageOpen}
         onOpenChange={setLeverageOpen}
-        title="Leverage"
+        title={t("market.leverage")}
         description="Applies to this order. Higher leverage means a closer auto-close price."
       >
         <div className="space-y-4 pb-2">
@@ -576,14 +577,14 @@ export const TradeForm = ({
             onClick={() => setLeverageOpen(false)}
             className="w-full h-11 rounded-lg bg-foreground text-background text-sm font-semibold"
           >
-            Done
+            {t("wallet.screen.sell_to_fiat.done")}
           </button>
         </div>
       </MobileDrawer>
 
       {/* Available Balance */}
       <div className="flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">Available (USDC)</span>
+        <span className="text-xs text-muted-foreground">{t("market.available_usdc")}</span>
         <div className="flex items-center gap-2">
           <span className="font-mono text-xs">{available.toLocaleString()}</span>
           <TransferEntry direction="to_futures" mobile />
@@ -594,7 +595,7 @@ export const TradeForm = ({
       {/* 交易页收尾 #1 · Price (Limit orders) — same box as the desktop panel */}
       {orderType === "Limit" && (
         <div className="space-y-0.5">
-          <span className="text-[10px] text-muted-foreground">Price</span>
+          <span className="text-[10px] text-muted-foreground">{t("market.price")}</span>
           <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
             <input
               type="text"
@@ -604,7 +605,7 @@ export const TradeForm = ({
               placeholder="0.0000"
               inputMode="decimal"
             />
-            <span className="text-muted-foreground text-[10px]">USDC</span>
+            <span className="text-muted-foreground text-[10px]">{t("market.usdc")}</span>
           </div>
           {buyLimitPending && (
             <p className="text-[10px] text-muted-foreground">
@@ -616,7 +617,7 @@ export const TradeForm = ({
 
       {/* Amount/Qty Input */}
       <div className="space-y-0.5">
-        <span className="text-[10px] text-muted-foreground">Amount</span>
+        <span className="text-[10px] text-muted-foreground">{t("trade.screen.lite.lite_contract_order_panel.amount")}</span>
         <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
           <input
             type="text"
@@ -655,31 +656,31 @@ export const TradeForm = ({
       {/* Order Summary */}
       <div className="space-y-1 text-xs">
         <div className="flex justify-between">
-          <span className="text-muted-foreground">Contracts</span>
+          <span className="text-muted-foreground">{t("market.contracts")}</span>
           <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
             {parseFloat(amount) > 0 ? parseInt(orderCalculations.quantity).toLocaleString() : "--"}
           </span>
         </div>
         <div className="flex justify-between">
-          <span className="text-muted-foreground">Notional val.</span>
+          <span className="text-muted-foreground">{t("market.notional_val")}</span>
           <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
             {parseFloat(amount) > 0 ? `${displayCalculations.notionalValue} USDC` : "--"}
           </span>
         </div>
         <div className="flex justify-between">
-          <span className="text-muted-foreground">Margin req.</span>
+          <span className="text-muted-foreground">{t("market.margin_req")}</span>
           <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
             {parseFloat(amount) > 0 ? `${displayCalculations.marginRequired} USDC` : "--"}
           </span>
         </div>
         <div className="flex justify-between">
-          <span className="text-muted-foreground">Fee (est.)</span>
+          <span className="text-muted-foreground">{t("market.fee_est")}</span>
           <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
             {parseFloat(amount) > 0 ? `${displayCalculations.estimatedFee} USDC` : "--"}
           </span>
         </div>
         <div className="flex justify-between pt-2 border-t border-border/30">
-          <span className="font-medium text-foreground">Total</span>
+          <span className="font-medium text-foreground">{t("market.total")}</span>
           <span className={parseFloat(amount) > 0 ? "text-foreground font-mono font-medium" : "text-muted-foreground"}>
             {parseFloat(amount) > 0 ? `${displayCalculations.total} USDC` : "--"}
           </span>
@@ -747,7 +748,7 @@ export const TradeForm = ({
 
       {/* Available Balance */}
       <div className="flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">Available (USDC)</span>
+        <span className="text-xs text-muted-foreground">{t("market.available_usdc")}</span>
         <div className="flex items-center gap-2">
           <span className="font-mono text-xs">{available.toLocaleString()}</span>
           <TransferEntry direction="to_futures" mobile />
@@ -765,7 +766,7 @@ export const TradeForm = ({
               className="flex-1 min-w-0 bg-transparent outline-none font-mono text-xs"
               placeholder="0.0000"
             />
-            <span className="text-muted-foreground text-[10px] font-medium">USDC</span>
+            <span className="text-muted-foreground text-[10px] font-medium">{t("market.usdc")}</span>
           </div>
           {sellLimitPending && (
             <p className="text-[10px] text-muted-foreground">
@@ -776,7 +777,7 @@ export const TradeForm = ({
       )}
 
       <div className="space-y-0.5">
-        <span className="text-[10px] text-muted-foreground">Amount</span>
+        <span className="text-[10px] text-muted-foreground">{t("trade.screen.lite.lite_contract_order_panel.amount")}</span>
         <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
           <input
             ref={sellAmountRef}
@@ -786,7 +787,7 @@ export const TradeForm = ({
             className="flex-1 min-w-0 bg-transparent outline-none font-mono text-xs"
             placeholder="0"
           />
-          <span className="text-muted-foreground text-[10px] font-medium">Contracts</span>
+          <span className="text-muted-foreground text-[10px] font-medium">{t("market.contracts")}</span>
         </div>
       </div>
 
@@ -810,19 +811,19 @@ export const TradeForm = ({
 
       <div className="space-y-1 text-xs">
         <div className="flex justify-between">
-          <span className="text-muted-foreground">Close price (mark)</span>
+          <span className="text-muted-foreground">{t("market.close_price_mark")}</span>
           <span className="text-foreground font-mono">{sellClosePrice.toFixed(4)} USDC</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-muted-foreground">Contracts</span>
+          <span className="text-muted-foreground">{t("market.contracts")}</span>
           <span className="text-foreground font-mono">{sellQty.toLocaleString()}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-muted-foreground">Released margin</span>
+          <span className="text-muted-foreground">{t("market.released_margin")}</span>
           <span className="text-foreground font-mono">{sellReleasedMargin.toFixed(2)} USDC</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-muted-foreground">Realized PnL est.</span>
+          <span className="text-muted-foreground">{t("market.preview_realized_pnl_est_label")}</span>
           <span className={`font-mono ${sellRealizedPnl >= 0 ? "text-trading-green" : "text-trading-red"}`}>
             {sellRealizedPnl >= 0 ? "+" : "-"}{Math.abs(sellRealizedPnl).toFixed(2)} USDC
           </span>
@@ -832,7 +833,7 @@ export const TradeForm = ({
           <span className="text-foreground font-mono">{sellCommission.toFixed(2)} USDC</span>
         </div>
         <div className="flex justify-between pt-2 border-t border-border/30">
-          <span className="font-medium text-foreground">You receive</span>
+          <span className="font-medium text-foreground">{t("wallet.screen.sell_to_fiat.you_receive")}</span>
           <span className="text-foreground font-mono font-medium">{sellCashBack.toFixed(2)} USDC</span>
         </div>
       </div>

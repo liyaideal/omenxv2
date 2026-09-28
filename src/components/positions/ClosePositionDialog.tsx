@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import {
   Dialog,
@@ -59,7 +60,7 @@ export const ClosePositionDialog = ({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-w-md bg-card border-border">
         <DialogHeader>
-          <DialogTitle>Close position</DialogTitle>
+          <DialogTitle>{t("common.close_position")}</DialogTitle>
           <DialogDescription className="text-xs">{description}</DialogDescription>
         </DialogHeader>
         <ClosePositionForm

@@ -11,6 +11,7 @@
 //        Pro /spot keeps using it untouched.
 //   1/2. Price snapshot + balance leg live in LiteContractOrderPanel.
 // ============================================================
+import { t } from "@/i18n";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ChevronRight, Info, Loader2, Star } from "lucide-react";
@@ -139,7 +140,7 @@ export const AnnotLivePill = () => (
       }}
     />
     <b style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: ".16em", color: "#2A1200" }}>
-      LIVE
+      {t("common.live")}
     </b>
   </span>
 );
@@ -833,7 +834,7 @@ const LiteContractTrade = () => {
         // Mobile already carries the crowd caption in LiteCrowdOverview.
         <div className="flex items-end justify-between gap-3">
           <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-            What the crowd thinks
+            {t("trade.screen.lite.lite_contract_sections.what_the_crowd_thinks")}
           </div>
           <div className="shrink-0 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
             {volumeText}
@@ -842,7 +843,7 @@ const LiteContractTrade = () => {
       )}
       {event.options.length > 1 && (
         <>
-          <GroupHeader title="Winner" note="Regulation time" tip={regulationTip} />
+          <GroupHeader title={t("market.winner")} note="Regulation time" tip={regulationTip} />
           <LiteMarketBoard
             options={boardOptions}
             volumeText={volumeText}
@@ -864,7 +865,7 @@ const LiteContractTrade = () => {
       {handicapRow && (
         <>
           <GroupHeader
-            title="Handicap"
+            title={t("market.sports_game_lines_handicap")}
             note="Regulation time"
             tip={`A team covers when its regulation-time score plus the line beats the opponent. ${regulationTip}`}
           />
@@ -942,7 +943,7 @@ const LiteContractTrade = () => {
         // Mobile already carries the crowd caption in LiteCrowdOverview.
         <div className="flex items-end justify-between gap-3">
           <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-            What the crowd thinks
+            {t("trade.screen.lite.lite_contract_sections.what_the_crowd_thinks")}
           </div>
           <div className="shrink-0 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
             {volumeText}
@@ -1074,7 +1075,7 @@ const LiteContractTrade = () => {
   const WatchStar = (
     <MobileHeaderIconButton
       onClick={(e) => toggle(event.id, e as unknown as React.MouseEvent)}
-      aria-label="Watchlist"
+      aria-label={t("common.watchlist")}
       className={starred ? "text-trading-yellow" : undefined}
     >
       <Star
@@ -1714,7 +1715,7 @@ const LiteContractTrade = () => {
                 onClick={() => navigate("/portfolio")}
                 className="w-full rounded-xl bg-no py-3 font-display text-sm font-bold text-[#1a2408]"
               >
-                View in Portfolio →
+                {t("spot.screen.lite_spot_trade.view_in_portfolio")}
               </button>
             ) : (
               <div className="mx-auto flex max-w-md gap-1.5">

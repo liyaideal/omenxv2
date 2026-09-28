@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useNavigate, useParams } from 'react-router-dom';
 import { Copy, Loader2, ExternalLink } from 'lucide-react';
 import { DesktopSubpageHeader } from '@/components/layout/DesktopSubpageHeader';
@@ -28,7 +29,7 @@ export default function RecoveryRequestDetailPage() {
     if (isMobile) {
       return (
         <div className="min-h-screen bg-background flex flex-col">
-          <MobileHeader title="Recovery request" showBack showLogo={false} />
+          <MobileHeader title={t("settings.wallet.recovery_request_title")} showBack showLogo={false} />
           {children}
           <BottomNav />
         </div>
@@ -46,8 +47,8 @@ export default function RecoveryRequestDetailPage() {
   if (!user) {
     const gate = (
       <LiteAuthGate
-        title="Sign in to view your recovery requests"
-        description="Submit or view your recovery requests by signing in to your account."
+        title={t("auth.lite.recovery_title")}
+        description={t("auth.lite.recovery_description")}
       >
         <div className="space-y-4">
           <div className="h-[140px] rounded-xl border bg-muted/30" />
@@ -62,7 +63,7 @@ export default function RecoveryRequestDetailPage() {
       ) : (
         <main className="flex-1">
           <div className="mx-auto w-full max-w-7xl px-4 py-10 lg:px-6">
-            <DesktopSubpageHeader title="Request detail" onBack={back} />
+            <DesktopSubpageHeader title={t("settings.wallet.recovery_request_detail_title")} onBack={back} />
             <div className="mt-[22px]">{gate}</div>
           </div>
         </main>
@@ -81,7 +82,7 @@ export default function RecoveryRequestDetailPage() {
   if (!req) {
     return renderShell(
       <div className="flex-1 flex items-center justify-center p-6 text-center text-sm text-muted-foreground">
-        Request not found.
+        {t("settings.wallet.recovery_not_found")}
       </div>,
     );
   }
@@ -100,13 +101,13 @@ export default function RecoveryRequestDetailPage() {
   const statusCard = (
     <div className={`rounded-xl border bg-card ${isMobile ? 'p-4' : 'p-6'} space-y-4`}>
       <div className="flex items-center justify-between">
-        <h2 className={isMobile ? 'text-sm font-semibold' : 'text-base font-semibold'}>Status</h2>
+        <h2 className={isMobile ? 'text-sm font-semibold' : 'text-base font-semibold'}>{t("common.status")}</h2>
         <RecoveryStatusBadge status={req.status} />
       </div>
       <RecoveryStatusTimeline status={req.status} />
       {req.status === 'submitted' && (
         <p className="text-xs text-muted-foreground">
-          Our team is reviewing and attempting recovery. This typically takes 3–7 business days.
+          {t("settings.wallet.recovery_status_submitted_hint")}
         </p>
       )}
     </div>
@@ -124,7 +125,7 @@ export default function RecoveryRequestDetailPage() {
         {req.status === 'completed' ? 'Funds credited' : 'Estimated payout'}
       </div>
       <div className="space-y-1.5 text-sm">
-        <Row label="Amount sent" value={`$${amountNum.toFixed(2)}`} />
+        <Row label={t("settings.wallet.amount_sent")} value={`$${amountNum.toFixed(2)}`} />
         <Row label={`Recovery fee (${FEE_PERCENT}%)`} value={`-$${feeAmount.toFixed(2)}`} />
         <div className="border-t pt-2 flex items-center justify-between">
           <span className="font-medium">
@@ -141,7 +142,7 @@ export default function RecoveryRequestDetailPage() {
       </div>
       {req.status === 'completed' && req.processed_tx_hash && (
         <div className="flex items-center justify-between text-xs pt-1 border-t border-trading-green/20">
-          <span className="text-muted-foreground">Internal ref</span>
+          <span className="text-muted-foreground">{t("settings.wallet.recovery_internal_ref")}</span>
           <span className="font-mono">{truncate(req.processed_tx_hash)}</span>
         </div>
       )}
@@ -152,27 +153,27 @@ export default function RecoveryRequestDetailPage() {
   const detailsCard = (
     <div className={`rounded-xl border bg-card ${isMobile ? 'p-4' : 'p-6'} space-y-3`}>
       <h2 className={isMobile ? 'text-sm font-semibold mb-1' : 'text-base font-semibold mb-1'}>
-        Request details
+        {t("settings.wallet.recovery_details_title")}
       </h2>
-      <DetailRow label="Amount sent" value={`$${Number(req.claimed_amount).toFixed(2)}`} mono />
-      <DetailRow label="Token" value={req.wrong_token} />
-      <DetailRow label="Wrong network" value={req.wrong_network} />
+      <DetailRow label={t("settings.wallet.amount_sent")} value={`$${Number(req.claimed_amount).toFixed(2)}`} mono />
+      <DetailRow label={t("wallet.screen.cross_chain_deposit.token")} value={req.wrong_token} />
+      <DetailRow label={t("settings.wallet.recovery_wrong_network_short")} value={req.wrong_network} />
       <DetailRow
-        label="Transaction hash"
+        label={t("wallet.screen.withdraw_status_tracker.transaction_hash")}
         value={truncate(req.tx_hash)}
         mono
         onCopy={() => copy(req.tx_hash, 'Hash')}
       />
       <DetailRow
-        label="Sender wallet"
+        label={t("settings.wallet.recovery_sender_wallet_short")}
         value={truncate(req.sender_address)}
         mono
         onCopy={() => copy(req.sender_address, 'Address')}
       />
-      <DetailRow label="Submitted" value={new Date(req.created_at).toLocaleString()} />
+      <DetailRow label={t("wallet.screen.recovery_status.steps.submitted")} value={new Date(req.created_at).toLocaleString()} />
       {req.user_note && (
         <div className="pt-2 border-t">
-          <div className="text-xs text-muted-foreground mb-1">Your note</div>
+          <div className="text-xs text-muted-foreground mb-1">{t("settings.wallet.recovery_your_note")}</div>
           <div className="text-sm text-foreground whitespace-pre-wrap">{req.user_note}</div>
         </div>
       )}
@@ -182,7 +183,7 @@ export default function RecoveryRequestDetailPage() {
   const adminCard = req.admin_note && (
     <div className={`rounded-xl border bg-card ${isMobile ? 'p-4' : 'p-6'} space-y-1.5`}>
       <h2 className={isMobile ? 'text-sm font-semibold' : 'text-base font-semibold'}>
-        Message from OmenX
+        {t("settings.wallet.recovery_admin_note_title")}
       </h2>
       <p className="text-sm text-muted-foreground whitespace-pre-wrap">{req.admin_note}</p>
     </div>
@@ -197,7 +198,7 @@ export default function RecoveryRequestDetailPage() {
         rel="noopener noreferrer"
         className="text-primary hover:underline inline-flex items-center gap-0.5"
       >
-        Contact support
+        {t("settings.wallet.recovery_support_link")}
         <ExternalLink className="w-3 h-3" />
       </a>
     </div>
@@ -208,7 +209,7 @@ export default function RecoveryRequestDetailPage() {
     return renderShell(
       <main className="flex-1">
         <div className="mx-auto w-full max-w-7xl px-4 py-10 lg:px-6">
-          <DesktopSubpageHeader title="Request detail" onBack={back} />
+          <DesktopSubpageHeader title={t("settings.wallet.recovery_request_detail_title")} onBack={back} />
 
           <div className="mt-[22px] grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 items-start">
             <div className="space-y-6">

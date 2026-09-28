@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { CloseVoucherContent } from "./CloseVoucherContent";
 
@@ -41,7 +42,7 @@ export const CloseVoucherDrawer = ({
     <MobileDrawer
       open={open}
       onOpenChange={onOpenChange}
-      title="Close voucher position"
+      title={t("vouchers.close_position_title")}
       description={event}
     >
       <CloseVoucherContent

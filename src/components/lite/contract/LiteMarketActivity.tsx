@@ -5,6 +5,7 @@
 // viewer's own owner-scoped fills. Pure presentational: rows come from the
 // caller.
 // ============================================================
+import { t } from "@/i18n";
 import { cn } from "@/lib/utils";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -185,15 +186,15 @@ export const LiteMarketActivity = ({
         className="h-1.5 w-1.5 animate-pulse rounded-full"
         style={{ background: "#6B7280" }}
       />
-      Market activity
+      {t("market.screen.lite.lite_market_activity.market_activity")}
     </div>
     {rows.length === 0 ? (
       <EmptyState
         variant="module"
         bordered={false}
-        title="No activity yet"
+        title={t("market.screen.lite.lite_market_activity.no_activity_yet")}
         illustrationSrc="/assets/desktop/empty-no-boost.png"
-        description="Trades on this market show up here as people buy in."
+        description={t("market.screen.lite.lite_market_activity.trades_on_this_market_show_up_here_as_people_buy_in")}
         className="px-0 py-2"
       />
     ) : (

@@ -3,6 +3,7 @@
 // Extracted verbatim from LiteContractTrade so the style-guide mounts the
 // PRODUCTION markup instead of a hand copy. Pure display — no data access.
 // ============================================================
+import { t } from "@/i18n";
 import type { Ref, ReactNode } from "react";
 import { ChevronRight, Info } from "lucide-react";
 import { EmptyState } from "@/components/states";
@@ -70,7 +71,7 @@ export const TradeMoreMarkets = ({
       <EmptyState
         variant="module"
         bordered={false}
-        title="No other markets right now"
+        title={t("trade.screen.lite.lite_contract_sections.no_other_markets_right_now")}
         illustrationSrc="/assets/desktop/empty-no-boost.png"
         description="New markets show up here as they open."
         className="px-0 py-1"

@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -38,7 +39,7 @@ export default function Deposit() {
   if (!user) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
-        <MobileHeader title="Deposit" showBack showLogo={false} />
+        <MobileHeader title={t("common.deposit")} showBack showLogo={false} />
         <main className="flex-1 overflow-auto pb-24">
           <WalletAuthGate isLite>
             <WalletGatePlaceholder />
@@ -51,15 +52,15 @@ export default function Deposit() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <MobileHeader title="Deposit" showBack showLogo={false} />
+      <MobileHeader title={t("common.deposit")} showBack showLogo={false} />
 
       {!account ? (
         /* Step 1: Deposit to */
         <main className="flex-1 overflow-auto p-4 pb-24 space-y-4">
           <div>
-            <h3 className="text-sm font-semibold mb-1">Deposit to</h3>
+            <h3 className="text-sm font-semibold mb-1">{t("wallet.depositTo")}</h3>
             <p className="text-xs text-muted-foreground">
-              Pick which account will receive your funds. You can change this later.
+              {t("wallet.depositAccountHint")}
             </p>
           </div>
           <AccountPickerRows
@@ -84,8 +85,8 @@ export default function Deposit() {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1">
             <div className="px-4 pt-3 bg-background">
               <TabsList className="w-full grid grid-cols-2 h-10">
-                <TabsTrigger value="wallet" className="text-xs">Address</TabsTrigger>
-                <TabsTrigger value="crosschain" className="text-xs">Wallet</TabsTrigger>
+                <TabsTrigger value="wallet" className="text-xs">{t("settings.wallet.address")}</TabsTrigger>
+                <TabsTrigger value="crosschain" className="text-xs">{t("settings.wallet.title")}</TabsTrigger>
               </TabsList>
             </div>
 
@@ -107,7 +108,7 @@ export default function Deposit() {
               setAccount(a);
               setPickerOpen(false);
             }}
-            title="Deposit to"
+            title={t("wallet.depositTo")}
           />
         </>
       )}
@@ -118,7 +119,7 @@ export default function Deposit() {
           href="mailto:customerservice@omenx.com?subject=Deposit Support"
           className="text-xs text-muted-foreground underline-offset-4 hover:underline"
         >
-          Need help? Contact support
+          {t("settings.wallet.need_help_contact_support")}
         </a>
       </div>
 

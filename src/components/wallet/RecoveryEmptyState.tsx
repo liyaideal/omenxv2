@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import lynxEmptyRecovery from "@/assets/wallet/lynx-empty-recovery.png";
 
 /**
@@ -17,9 +18,9 @@ export const RecoveryEmptyState = () => (
       }}
       className="mx-auto w-24 h-24 object-contain pointer-events-none select-none"
     />
-    <div className="text-sm font-medium">No recovery requests yet</div>
+    <div className="text-sm font-medium">{t("settings.wallet.recovery_empty_title")}</div>
     <div className="text-xs text-muted-foreground">
-      Submit a request if a deposit was sent to the wrong network.
+      {t("settings.wallet.recovery_empty_desc")}
     </div>
   </div>
 );

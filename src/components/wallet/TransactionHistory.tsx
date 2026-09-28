@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState, useMemo } from 'react';
 import { 
   ArrowUpRight, 
@@ -353,7 +354,7 @@ export const TransactionHistory = ({ transactions = [], className, fixture }: Tr
       {/* Header: microlabel + inline pill filters */}
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground shrink-0">
-          Transaction history
+          {t("market.transaction_history")}
         </h2>
         <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide flex-nowrap">
           {PILLS.map((p) => {
@@ -517,7 +518,7 @@ export const TransactionHistory = ({ transactions = [], className, fixture }: Tr
                   )}>
                     {tx.status && (
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Status</span>
+                        <span className="text-muted-foreground">{t("common.status")}</span>
                         <span className={cn("flex items-center gap-1.5", statusConfig.color)}>
                           <StatusIcon className={cn(
                             "w-3.5 h-3.5",
@@ -530,7 +531,7 @@ export const TransactionHistory = ({ transactions = [], className, fixture }: Tr
 
                     {tx.sourceChain && tx.destChain && (
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Route</span>
+                        <span className="text-muted-foreground">{t("settings.wallet.route")}</span>
                         <span className="text-foreground font-mono text-xs">
                           {tx.sourceToken || 'USDC'} ({tx.sourceChain}) → {tx.destToken || 'USDC'} ({tx.destChain})
                         </span>
@@ -539,21 +540,21 @@ export const TransactionHistory = ({ transactions = [], className, fixture }: Tr
 
                     {tx.network && (
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Network</span>
+                        <span className="text-muted-foreground">{t("settings.wallet.network")}</span>
                         <span className="text-foreground">{tx.network}</span>
                       </div>
                     )}
 
                     {tx.fee != null && tx.fee > 0 && (
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Fee</span>
+                        <span className="text-muted-foreground">{t("common.fee")}</span>
                         <span className="text-foreground font-mono">${tx.fee.toFixed(2)}</span>
                       </div>
                     )}
                     
                     {tx.txHash && explorerUrl && (
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Transaction</span>
+                        <span className="text-muted-foreground">{t("settings.wallet.transaction")}</span>
                         <a 
                           href={explorerUrl}
                           target="_blank"
@@ -598,7 +599,7 @@ export const TransactionHistory = ({ transactions = [], className, fixture }: Tr
               disabled={currentPage === totalPages}
               className="gap-1"
             >
-              Next
+              {t("common.next")}
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>

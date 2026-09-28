@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState, useMemo, useEffect } from "react";
 import { BarChart2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -610,7 +611,7 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = 
         {/* Volume indicator header */}
         <div className="flex items-center gap-3 text-[10px] font-mono mb-1">
           <span className="text-muted-foreground">
-            VOL: <span className="text-foreground">{formatVolume(currentVolume)}</span>
+            {t("market.screen.event_detail.mobile.chart_section.vol")} <span className="text-foreground">{formatVolume(currentVolume)}</span>
           </span>
           <span className="text-yellow-500">
             MA5: {formatVolume(currentMA5)}

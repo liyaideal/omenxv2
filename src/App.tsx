@@ -53,6 +53,7 @@ import HedgeLanding from "./pages/HedgeLanding";
 import CampaignStyleGuide from "./pages/CampaignStyleGuide";
 import NotFound from "./pages/NotFound";
 import { ExternalRedirect } from "./components/ExternalRedirect";
+import { useT } from "./i18n";
 import { HELP_CENTER_URL, HELP_FAQ_URL, HELP_GUIDE_URL } from "./lib/site";
 import { useIsMobile } from "./hooks/use-mobile";
 import { RealtimePricesProvider } from "./contexts/RealtimePricesContext";
@@ -173,6 +174,17 @@ const LiteSettledRedirect = () => {
 
 const ResolvedDetailRoute = () => <LiteSettledRedirect />;
 
+/**
+ * Language-keyed subtree (i18n phase B, 2026-09-28): remounting the route tree
+ * on language change lets every component use the module-level `t()` from
+ * "@/i18n" without subscribing; `useT()` stays available for hot re-render
+ * inside overlays that must not lose state.
+ */
+const LanguageKeyed = ({ children }: { children: React.ReactNode }) => {
+  const { code } = useT();
+  return <div key={code} className="contents">{children}</div>;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <RealtimePricesProvider>
@@ -184,6 +196,7 @@ const App = () => (
           <ScrollToTop />
           <OrderSimulationRunner />
           <CampaignAttribution />
+          <LanguageKeyed>
           <Routes>
             {/* Full-width landing pages (rendered outside max-w-md mobile shell) */}
             <Route path="/hedge" element={<Navigate to="/campaign/world-cup-polymarket-hedge" replace />} />
@@ -243,6 +256,7 @@ const App = () => (
               }
             />
           </Routes>
+          </LanguageKeyed>
         </BrowserRouter>
       </TooltipProvider>
       </SurfaceProvider>

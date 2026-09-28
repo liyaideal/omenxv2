@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -26,7 +27,7 @@ export default function Withdraw() {
   if (!user) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
-        <MobileHeader title="Withdraw" showBack showLogo={false} />
+        <MobileHeader title={t("wallet.withdraw")} showBack showLogo={false} />
         <main className="flex-1 overflow-auto pb-24">
           <WalletAuthGate isLite>
             <WalletGatePlaceholder />
@@ -40,7 +41,7 @@ export default function Withdraw() {
   return (
     <WithdrawSubmitProvider>
       <div className="min-h-screen bg-background flex flex-col">
-        <MobileHeader title="Withdraw" showBack showLogo={false} />
+        <MobileHeader title={t("wallet.withdraw")} showBack showLogo={false} />
 
         <main className="flex-1 overflow-auto pb-40">
           <WalletWithdraw />
@@ -51,7 +52,7 @@ export default function Withdraw() {
               href="mailto:customerservice@omenx.com?subject=Withdraw Support"
               className="text-xs text-muted-foreground underline-offset-4 hover:underline"
             >
-              Need help? Contact support
+              {t("settings.wallet.need_help_contact_support")}
             </a>
           </div>
         </main>

@@ -2,6 +2,7 @@
  * DeleteAddressDrawer — mobile confirm drawer for deleting a saved address.
  * Mounted by: src/pages/Wallet.tsx (mobile layout) and the style-guide funding preview.
  */
+import { t } from "@/i18n";
 import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,13 +30,13 @@ export const DeleteAddressDrawer = ({
   <MobileDrawer open={open} onOpenChange={onOpenChange} showHandle>
     <MobileDrawerStatus
       icon={<AlertTriangle className="w-8 h-8 text-trading-red" />}
-      title="Delete Address?"
+      title={t("settings.wallet.delete_address_confirm_title")}
       description={`Are you sure you want to delete "${label ?? ""}"? This action cannot be undone.`}
       variant="error"
     />
     <MobileDrawerActions className="flex gap-2 space-y-0">
       <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1 h-11">
-        Cancel
+        {t("common.cancel")}
       </Button>
       <Button
         onClick={onConfirm}

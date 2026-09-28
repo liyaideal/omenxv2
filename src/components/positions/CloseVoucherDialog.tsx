@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import {
   Dialog,
@@ -50,7 +51,7 @@ export const CloseVoucherDialog = ({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-w-md bg-card border-border">
         <DialogHeader>
-          <DialogTitle>Close voucher position</DialogTitle>
+          <DialogTitle>{t("vouchers.close_position_title")}</DialogTitle>
           <DialogDescription className="text-xs">{event}</DialogDescription>
         </DialogHeader>
         <CloseVoucherContent

@@ -1,6 +1,7 @@
 // ============================================================
 // /spot?event=crypto-… — Intraday QUICK ROUND trade page.
 // Fusion design: round switcher + round tape + settle-line chart.
+import { t } from "@/i18n";
 import { RoundTape } from "@/components/lite/shared/RoundTape";
 // Execution reuses the existing spot order panel / service.
 // ============================================================
@@ -521,7 +522,7 @@ export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
   const WatchStar = (
     <MobileHeaderIconButton
       onClick={(e) => toggleWatch(event.id, e as unknown as React.MouseEvent)}
-      aria-label="Watchlist"
+      aria-label={t("common.watchlist")}
       className={watched ? "text-trading-yellow" : undefined}
     >
       <Star className={cn("h-5 w-5", watched && "fill-trading-yellow")} strokeWidth={1.5} />

@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useEffect, useState, useRef, useMemo } from "react";
 import { cn } from "@/lib/utils";
 
@@ -117,8 +118,8 @@ export const OrderBook = ({ asks, bids, currentPrice, compact = false }: OrderBo
       {!compact && (
         <div className="grid grid-cols-3 text-xs text-muted-foreground px-4 py-2">
           <span>Price (USDT)</span>
-          <span className="text-center">Amount</span>
-          <span className="text-right">Total</span>
+          <span className="text-center">{t("trade.screen.lite.lite_contract_order_panel.amount")}</span>
+          <span className="text-right">{t("market.total")}</span>
         </div>
       )}
 
@@ -170,7 +171,7 @@ export const OrderBook = ({ asks, bids, currentPrice, compact = false }: OrderBo
           >
             ${currentPrice}
           </span>
-          <div className="text-xs text-muted-foreground mt-0.5">Current Price</div>
+          <div className="text-xs text-muted-foreground mt-0.5">{t("common.current_price")}</div>
         </div>
       </div>
 

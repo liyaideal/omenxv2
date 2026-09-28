@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import { ArrowLeftRight } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -35,7 +36,7 @@ export const AccountBalanceLine = ({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          aria-label="Transfer funds"
+          aria-label={t("wallet.transferTitle")}
           className={cn(
             "inline-flex items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
             // Mobile needs a >=44px tap target; negative margin keeps layout unchanged.

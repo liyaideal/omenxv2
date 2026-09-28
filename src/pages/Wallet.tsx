@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import { AuthGateOverlay } from "@/components/AuthGateOverlay";
 import { LiteAuthGate } from "@/components/auth/LiteAuthGate";
@@ -154,7 +155,7 @@ export const HeroEquityCard = ({
       <div className="min-w-0">
         <div className="flex items-center gap-2 mb-2.5">
           <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-            Est. Total Equity
+            {t("wallet.equity")}
           </span>
           <button
             type="button"
@@ -181,33 +182,33 @@ export const HeroEquityCard = ({
       {compact ? (
         <div className="grid grid-cols-2 gap-2">
           <Button className={cn("h-11 rounded-full font-semibold", HERO_CTA_GRADIENT)} onClick={onDeposit}>
-            Deposit
+            {t("common.deposit")}
           </Button>
           <Button variant="outline" className="h-11 rounded-full bg-secondary" onClick={onWithdraw}>
-            Withdraw
+            {t("wallet.withdraw")}
           </Button>
           <Button
             variant="ghost"
             className="col-span-2 h-11 rounded-full bg-secondary border border-border/50"
             onClick={onTransfer}
           >
-            Transfer <span className="ml-1.5 text-muted-foreground">⇄</span>
+            {t("wallet.transfer")} <span className="ml-1.5 text-muted-foreground">⇄</span>
           </Button>
         </div>
       ) : (
         <div className="flex flex-wrap gap-2.5 lg:shrink-0">
           <Button className={cn("h-auto py-3 px-[22px] rounded-full font-semibold text-sm", HERO_CTA_GRADIENT)} onClick={onDeposit}>
-            Deposit
+            {t("common.deposit")}
           </Button>
           <Button variant="outline" className="h-auto py-3 px-[22px] rounded-full bg-secondary font-semibold text-sm" onClick={onWithdraw}>
-            Withdraw
+            {t("wallet.withdraw")}
           </Button>
           <Button
             variant="ghost"
             className="h-auto py-3 px-[22px] rounded-full bg-secondary font-semibold text-sm text-[#C9CED6] hover:text-foreground"
             onClick={onTransfer}
           >
-            Transfer <span className="ml-1.5 text-muted-foreground">⇄</span>
+            {t("wallet.transfer")} <span className="ml-1.5 text-muted-foreground">⇄</span>
           </Button>
         </div>
       )}
@@ -250,7 +251,7 @@ const AccountCardShell = ({
         onClick={onTransfer}
         className="h-8 w-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center justify-center transition-colors"
         aria-label={transferLabel}
-        title="Transfer"
+        title={t("wallet.transfer")}
       >
         <ArrowLeftRight className="w-3.5 h-3.5" />
       </button>
@@ -334,7 +335,7 @@ export const AvailableBalanceTooltip = ({ marginInUse, unrealizedPnL }: { margin
         onClick={() => navigate('/portfolio')}
         className="w-full mt-2 text-xs text-primary hover:underline text-left"
       >
-        View positions in Portfolio →
+        {t("settings.wallet.view_positions_in_portfolio")}
       </button>
     </div>
   );
@@ -378,7 +379,7 @@ const StandardAvailableTooltip = () => {
             onClick={() => navigate('/portfolio')}
             className="w-full mt-2 text-xs text-primary hover:underline text-left"
           >
-            View positions in Portfolio →
+            {t("settings.wallet.view_positions_in_portfolio")}
           </button>
         </div>
       </PopoverContent>
@@ -406,7 +407,7 @@ export const SpotAccountCard = ({
   >
     <div className="mt-3.5 flex items-center gap-1.5">
       <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-        Available (USDC)
+        {t("market.available_usdc")}
       </span>
       <StandardAvailableTooltip />
     </div>
@@ -460,7 +461,7 @@ export const FuturesAccountCard = ({
     >
       <div className="mt-3.5 flex items-center gap-1.5">
         <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-          Available (USDC)
+          {t("market.available_usdc")}
         </span>
         <AvailableTooltip marginInUse={marginInUse} unrealizedPnL={unrealizedPnL} />
       </div>
@@ -509,16 +510,16 @@ export const WalletAuthGate = ({
 }) =>
   isLite ? (
     <LiteAuthGate
-      title="Sign in to view your wallet"
-      description="Deposit, withdraw and move funds between your accounts by signing in."
+      title={t("wallet.liteAuthTitle")}
+      description={t("wallet.liteAuthDescription")}
       forceSignedOut={forceSignedOut}
     >
       {children}
     </LiteAuthGate>
   ) : (
     <AuthGateOverlay
-      title="Sign in to view your wallet"
-      description="Manage your funds and saved addresses by signing in."
+      title={t("wallet.liteAuthTitle")}
+      description={t("settings.wallet.auth_gate_desc")}
       maxPreviewHeight={maxPreviewHeight}
       forceSignedOut={forceSignedOut}
     >
@@ -568,7 +569,7 @@ export const SavedAddressRowView = ({
             className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase"
             style={{ backgroundColor: 'rgba(207,255,74,0.16)', color: '#DCFF6A' }}
           >
-            Default
+            {t("settings.wallet.default")}
           </span>
         )}
       </div>
@@ -580,7 +581,7 @@ export const SavedAddressRowView = ({
       <button
         onClick={onOpenActions}
         className="text-muted-foreground hover:text-white transition-colors shrink-0"
-        aria-label="More actions"
+        aria-label={t("settings.wallet.more_actions")}
       >
         <MoreHorizontal className="w-3.5 h-3.5" />
       </button>
@@ -589,7 +590,7 @@ export const SavedAddressRowView = ({
         <button
           onClick={onCopy}
           className="text-muted-foreground hover:text-white transition-colors shrink-0"
-          aria-label="Copy address"
+          aria-label={t("settings.wallet.copy_address")}
         >
           {copied ? (
             <Check className="w-3.5 h-3.5 text-trading-green" />
@@ -599,7 +600,7 @@ export const SavedAddressRowView = ({
         </button>
         <Popover>
           <PopoverTrigger asChild>
-            <button className="text-muted-foreground hover:text-white transition-colors shrink-0" aria-label="More actions">
+            <button className="text-muted-foreground hover:text-white transition-colors shrink-0" aria-label={t("settings.wallet.more_actions")}>
               <MoreHorizontal className="w-3.5 h-3.5" />
             </button>
           </PopoverTrigger>
@@ -609,14 +610,14 @@ export const SavedAddressRowView = ({
                 onClick={onSetPrimary}
                 className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13.5px] text-[#F2F3F5] hover:bg-white/5 transition-colors"
               >
-                <Star className="w-4 h-4" /> Set as default
+                <Star className="w-4 h-4" /> {t("settings.wallet.set_default")}
               </button>
             )}
             <button
               onClick={onDelete}
               className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13.5px] text-[#FF5C5C] hover:bg-[rgba(255,92,92,0.1)] transition-colors"
             >
-              <Trash2 className="w-4 h-4" /> Delete address
+              <Trash2 className="w-4 h-4" /> {t("settings.wallet.delete_address")}
             </button>
           </PopoverContent>
         </Popover>
@@ -645,20 +646,20 @@ export const SavedAddressActionsList = ({
           onClick={onSetPrimary}
           className="flex items-center gap-3 py-[15px] border-b border-[#1D2026] text-[15px] text-[#F2F3F5]"
         >
-          <Star className="w-[18px] h-[18px]" /> Set as default
+          <Star className="w-[18px] h-[18px]" /> {t("settings.wallet.set_default")}
         </button>
       )}
       <button
         onClick={onCopy}
         className="flex items-center gap-3 py-[15px] border-b border-[#1D2026] text-[15px] text-[#F2F3F5]"
       >
-        <Copy className="w-[18px] h-[18px]" /> Copy address
+        <Copy className="w-[18px] h-[18px]" /> {t("settings.wallet.copy_address")}
       </button>
       <button
         onClick={onDelete}
         className="flex items-center gap-3 py-[15px] text-[15px] text-[#FF5C5C]"
       >
-        <Trash2 className="w-[18px] h-[18px]" /> Delete address
+        <Trash2 className="w-[18px] h-[18px]" /> {t("settings.wallet.delete_address")}
       </button>
     </div>
   </>
@@ -846,7 +847,7 @@ export default function Wallet() {
     <div className="trading-card p-4 space-y-2">
       <div className="flex items-center justify-between">
         <h2 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-          Saved addresses
+          {t("settings.wallet.saved_addresses")}
         </h2>
         <span className="text-xs text-muted-foreground">
           {wallets.length} address{wallets.length !== 1 ? 'es' : ''}
@@ -866,16 +867,16 @@ export default function Wallet() {
             className="mt-3 w-full border-[1.5px] border-dashed border-[#2B2F38] hover:border-primary/60 rounded-xl h-10 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-all"
           >
             <Plus className="w-4 h-4" />
-            <span className="font-medium">Add address</span>
+            <span className="font-medium">{t("settings.wallet.add_address")}</span>
           </button>
 
           {wallets.length === 0 && !walletsLoading && (
             <EmptyState
               variant="module"
               bordered={false}
-              title="No saved addresses"
+              title={t("settings.wallet.no_saved_addresses")}
               illustrationSrc={lynxEmptyAddresses}
-              description="Save addresses for quick deposits and withdrawals."
+              description={t("settings.wallet.saved_addresses_desc")}
               className="px-0 py-2"
             />
           )}
@@ -946,14 +947,14 @@ export default function Wallet() {
                 onClick={() => navigate("/wallet/recovery")}
                 className="text-[11px] text-muted-foreground underline underline-offset-2 hover:text-foreground"
               >
-                Sent funds to the wrong network? Request recovery →
+                {t("settings.wallet.recovery_entry")}
               </button>
             </div>
             <div className="col-span-4 space-y-6">
               <div className="trading-card p-6">
                 <div className="flex items-center justify-between mb-2">
                   <h2 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                    Saved addresses
+                    {t("settings.wallet.saved_addresses")}
                   </h2>
                   <span className="text-xs text-muted-foreground">
                     {wallets.length} address{wallets.length !== 1 ? "es" : ""}
@@ -971,15 +972,15 @@ export default function Wallet() {
                       className="mt-3 w-full border-[1.5px] border-dashed border-[#2B2F38] hover:border-primary/60 rounded-xl h-10 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-all"
                     >
                       <Plus className="w-4 h-4" />
-                      <span className="font-medium">Add address</span>
+                      <span className="font-medium">{t("settings.wallet.add_address")}</span>
                     </button>
                     {wallets.length === 0 && !walletsLoading && (
                       <EmptyState
                         variant="module"
                         bordered={false}
-                        title="No saved addresses"
+                        title={t("settings.wallet.no_saved_addresses")}
                         illustrationSrc={lynxEmptyAddresses}
-                        description="Save addresses for quick deposits and withdrawals."
+                        description={t("settings.wallet.saved_addresses_desc")}
                         className="px-0 py-2"
                       />
                     )}
@@ -1016,7 +1017,7 @@ export default function Wallet() {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-trading-red" />
-                Delete Address?
+                {t("settings.wallet.delete_address_confirm_title")}
               </DialogTitle>
               <DialogDescription>
                 Are you sure you want to delete "{walletToDelete?.label}"? This action cannot be undone.
@@ -1028,13 +1029,13 @@ export default function Wallet() {
                 onClick={() => setDeleteDialogOpen(false)}
                 className="flex-1"
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 onClick={handleConfirmDelete}
                 className="flex-1 bg-trading-red hover:bg-trading-red/90 text-white"
               >
-                Delete
+                {t("common.delete")}
               </Button>
             </div>
           </DialogContent>
@@ -1101,7 +1102,7 @@ export default function Wallet() {
           onClick={() => navigate("/wallet/recovery")}
           className="text-[11px] text-muted-foreground underline underline-offset-2 hover:text-foreground"
         >
-          Sent funds to the wrong network? Request recovery →
+          {t("settings.wallet.recovery_entry")}
         </button>
       </div>
       </WalletAuthGate>

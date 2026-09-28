@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { TransferForm, type TransferDirection } from "./TransferForm";
 
@@ -15,8 +16,8 @@ export const TransferDrawer = ({ open, onOpenChange, initialDirection }: Transfe
   <MobileDrawer
     open={open}
     onOpenChange={onOpenChange}
-    title="Transfer funds"
-    description="Move USDC between your Standard and Boost accounts."
+    title={t("wallet.transferTitle")}
+    description={t("wallet.transferDescription")}
   >
     <TransferForm
       onCancel={() => onOpenChange(false)}

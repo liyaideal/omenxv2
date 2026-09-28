@@ -7,6 +7,7 @@
 // derived value (useQuickRounds / useSecondTick / usStockSessions / fetches)
 // stays on the page side and arrives here as props.
 // ============================================================
+import { t } from "@/i18n";
 import type { ReactNode, Ref } from "react";
 import { ChevronRight } from "lucide-react";
 import { AssetAvatar } from "@/components/lite/AssetAvatar";
@@ -89,7 +90,7 @@ export const SpotRoundSwitcher = ({
   onSelect: (id: string) => void;
 }) => (
   <div style={{ marginTop: 16 }}>
-    <div style={SPOT_MICRO}>Round</div>
+    <div style={SPOT_MICRO}>{t("events.screen.lite.lite_round_navigation.round")}</div>
     <div
       className="mt-1.5 inline-flex items-center"
       style={{
@@ -307,7 +308,7 @@ export const SpotSideRailStocks = ({ rows }: { rows: SpotRailStockRow[] }) => (
       <EmptyState
         variant="module"
         bordered={false}
-        title="No other markets right now"
+        title={t("trade.screen.lite.lite_contract_sections.no_other_markets_right_now")}
         illustrationSrc="/assets/desktop/empty-no-boost.png"
         description="More stocks open here at the start of each trading day."
         className="px-0 py-1"

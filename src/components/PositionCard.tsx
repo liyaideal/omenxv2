@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { SIDE_CHIP_CLASS } from "@/components/trading/SideChip";
 import { useState, useMemo } from "react";
 import { TrendingUp, TrendingDown, Pencil, Gift, Lock } from "lucide-react";
@@ -231,7 +232,7 @@ export const PositionCard = ({
             {isAirdrop && (
               <span className="inline-flex items-center gap-0.5 bg-primary/20 text-primary border border-primary/30 text-[9px] font-semibold px-1.5 py-0 rounded">
                 <Gift className="w-2.5 h-2.5" />
-                AIRDROP
+                {t("common.airdrop")}
               </span>
             )}
           </div>
@@ -270,11 +271,11 @@ export const PositionCard = ({
             <span className="font-mono text-xs">{sizeDisplay || size}</span>
           </div>
           <div>
-            <span className="text-[10px] text-muted-foreground block">Entry</span>
+            <span className="text-[10px] text-muted-foreground block">{t("market.entry")}</span>
             <span className="font-mono text-xs">{entryPrice}</span>
           </div>
           <div>
-            <span className="text-[10px] text-muted-foreground block">Mark</span>
+            <span className="text-[10px] text-muted-foreground block">{t("market.mark")}</span>
             <span className="font-mono text-xs">{displayMarkPrice}</span>
           </div>
           <div>
@@ -300,7 +301,7 @@ export const PositionCard = ({
         {isAirdrop && !isVoucher ? (
           <div className="flex items-center gap-1.5 py-1.5 text-[10px] text-muted-foreground border-t border-border/30 mt-1 pt-2">
             <Lock className="w-3 h-3" />
-            <span>Auto-settles on event resolution</span>
+            <span>{t("market.screen.event_detail.trading_activity_panel.positions_tab.mobile_airdrop_position_card.auto_settles_on_event_resolution")}</span>
           </div>
         ) : isVoucher ? (
           <div className="flex gap-2">
@@ -308,7 +309,7 @@ export const PositionCard = ({
               onClick={() => setCloseOpen(true)}
               className="flex-1 py-1.5 text-[10px] font-medium bg-trading-red/20 text-trading-red rounded-lg hover:bg-trading-red/30 transition-colors"
             >
-              Close position
+              {t("common.close_position")}
             </button>
             <CloseVoucherDrawer
               open={closeOpen}
@@ -336,7 +337,7 @@ export const PositionCard = ({
             onClick={() => setCloseOpen(true)}
             className="flex-1 py-1.5 text-[10px] font-medium bg-trading-red/20 text-trading-red rounded-lg hover:bg-trading-red/30 transition-colors"
           >
-            Close
+            {t("common.close")}
           </button>
           <ClosePositionDrawer
             open={closeOpen}
