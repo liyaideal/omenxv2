@@ -162,10 +162,10 @@ export const AccountCard = ({
   const confirmButtons = (stacked: boolean) => (
     <div className={cn("w-full", stacked ? "flex flex-col gap-2 py-2" : "grid grid-cols-2 gap-5")}>
       <button type="button" className={cancelClass} onClick={() => setConfirmOpen(false)}>
-        Cancel
+        {t("common.cancel")}
       </button>
       <button type="button" className={closeClass} disabled={!canConfirm} onClick={handleClose}>
-        Close account
+        {t("settings.account.close")}
       </button>
     </div>
   );
@@ -204,7 +204,7 @@ export const AccountCard = ({
           sub={t("settings.account.signOutSub")}
           right={
             <Button variant="outline" size="sm" className="h-8" onClick={handleSignOut}>
-              Sign out
+              {t("common.sign_out")}
             </Button>
           }
         />
@@ -221,7 +221,7 @@ export const AccountCard = ({
               className="h-8 text-[#FF5C5C] border-[#FF5C5C]/35 hover:text-[#FF5C5C] hover:bg-[#FF5C5C]/10"
               onClick={openClose}
             >
-              Close account
+              {t("settings.account.close")}
             </Button>
           }
           last
