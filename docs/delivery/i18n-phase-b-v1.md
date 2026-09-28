@@ -86,3 +86,16 @@
 ## 6. 二期清单
 
 交易页（Lite / Pro / 现货）· Wallet / Deposit / Withdraw · Portfolio · Rewards / Vouchers · Leaderboard · Affiliate · 登录后续步骤 · 2FA / 改邮箱弹窗 · 字典页语言开关（工具栏级）。每轮同样先对线上表匹配、缺的追加回表。
+
+## 7. 二期进度（2026-09-28 下午）
+
+自动接线工具（`~/i18n/autowire.py`，不入仓）：扫组件 JSX 文案与 title/label/placeholder 等属性 → 按英文（忽略大小写 / 省略号 / 占位符）匹配线上表 → 命中即换 `{t("key")}`。语言切换时整棵路由树按语言 key 重挂（`App.tsx` `LanguageKeyed`），组件可直接用模块级 `t()`。
+
+| 轮 | commit | 范围 | 命中 |
+|---|---|---|---|
+| 2a | `aa1fa1c3` | Wallet 家族 + 交易家族 | 125 + 210 |
+| 2b | `c1815342` | Portfolio / Rewards / Vouchers / Leaderboard / Affiliate / Home / API / Insights / Auth / Settings 组件 | 522 |
+| 2c | `5713c79c` | 其余全部组件（除 `ui/` 与 StyleGuide） | 816 |
+
+累计接线约 1,860 处。**剩余未命中 ≈ 1,135 条真文案（146 个文件）**——全是 Lovable 8–9 月新做、线上表还没有的（Lite 交易页、Rewards 任务体系、体育直播、Home 模块……）。下一步按页面优先级分批：追加回表（7 语）→ 接线。`t` 与局部变量重名的文件改用 `t as tr`（SpotTradingCharts / ProSpotShared / CreateKeySteps / TierQuickAnswer / LitePnlPoster）。
+**入口缺口**：Pro 终端顶栏无语言 chip（Pro bar 取代了 EventsDesktopHeader），待补。
