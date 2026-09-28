@@ -1,3 +1,4 @@
+import { useT } from "@/i18n";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -23,10 +24,10 @@ import { SettingsCard, SettingsNote } from "./SettingsCard";
  */
 
 export const NOTIFICATION_EVENTS: { key: NotificationPrefKey; label: string; description: string }[] = [
-  { key: "settled", label: "Settled results", description: "When a call you hold settles — won or lost" },
-  { key: "auto_close", label: "Auto-close warnings", description: "When a Boost call gets close to its auto-close" },
-  { key: "trades", label: "Trade confirmations", description: "Every buy and cash out" },
-  { key: "funds", label: "Deposits & withdrawals", description: "When funds land or leave" },
+  { key: "settled", label: "settings.notifications.settled", description: "settings.notifications.settledDesc" },
+  { key: "auto_close", label: "settings.notifications.autoClose", description: "settings.notifications.autoCloseDesc" },
+  { key: "trades", label: "settings.notifications.trades", description: "settings.notifications.tradesDesc" },
+  { key: "funds", label: "settings.notifications.funds", description: "settings.notifications.fundsDesc" },
 ];
 
 export type NotificationsPreviewState = "default" | "some-off" | "no-email";
@@ -42,6 +43,7 @@ export const NotificationsCard = ({
   previewState?: NotificationsPreviewState;
   previewEmail?: string;
 } = { onAddEmail: () => undefined }) => {
+  const { t } = useT();
   const isMobile = useIsMobile();
   const { profile, user, updateNotificationPrefs } = useUserProfile();
   const preview = !!previewState;
@@ -64,11 +66,11 @@ export const NotificationsCard = ({
     setSaving(key);
     const res = await updateNotificationPrefs({ ...prefs, [key]: next });
     setSaving(null);
-    if (!res.success) toast.error("Couldn't save that. Try again.");
+    if (!res.success) toast.error(t("settings.notifications.saveFailed"));
   };
 
   return (
-    <SettingsCard label="Notifications" description="Email alerts for activity on your account." compact={isMobile}>
+    <SettingsCard label={t("settings.notifications.label")} description={t("settings.notifications.description")} compact={isMobile}>
       {!email ? (
         <div className="py-6 flex flex-col items-center text-center">
           <div className="text-sm font-semibold">Add an email to get alerts</div>
@@ -90,15 +92,15 @@ export const NotificationsCard = ({
                 className={cn("flex items-center gap-4 py-3.5", !last && "border-b border-[#1D2026]", last && "pb-0")}
               >
                 <label htmlFor={id} className="flex-1 min-w-0 cursor-pointer">
-                  <div className="text-sm font-medium">{ev.label}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{ev.description}</div>
+                  <div className="text-sm font-medium">{t(ev.label)}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{t(ev.description)}</div>
                 </label>
                 <Switch
                   id={id}
                   checked={prefs[ev.key]}
                   disabled={saving === ev.key}
                   onCheckedChange={(v) => toggle(ev.key, v)}
-                  aria-label={ev.label}
+                  aria-label={t(ev.label)}
                 />
               </div>
             );

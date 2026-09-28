@@ -1,6 +1,8 @@
 import { Suspense, lazy, useEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { previewRegistry } from "./registry";
+import { lockI18nLanguage } from "@/i18n";
+import { isLanguageCode } from "@/lib/languages";
 
 /**
  * Chrome-free preview route consumed by <DeviceFrame> / <SectionFrame> via iframe.
@@ -51,6 +53,11 @@ const Case = ({ id, label }: { id: string; label?: string }) => {
 const StyleGuidePreview = () => {
   const [params] = useSearchParams();
   const raw = params.get("c") ?? "";
+  // `&lang=zh-CN` renders the frame in that language (i18n phase B, 2026-09-28):
+  // the way to check CJK / RU / VI copy against the layout without touching the
+  // viewer's own preference.
+  const lang = params.get("lang");
+  if (isLanguageCode(lang)) lockI18nLanguage(lang);
   const key = raw;
   // Frame id — desktop and mobile frames of one section share the same `c=`,
   // so height messages MUST be addressed per frame or the two cross-talk.

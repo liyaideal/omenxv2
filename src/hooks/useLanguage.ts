@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { setI18nLanguage } from "@/i18n";
 import {
   DEFAULT_LANGUAGE,
   LANGUAGE_STORAGE_KEY,
@@ -44,6 +45,11 @@ export const useLanguage = () => {
 
   const fromProfile = user && isLanguageCode(profile?.language) ? (profile!.language as LanguageCode) : null;
   const code: LanguageCode = fromProfile ?? local;
+
+  // Push the resolved language into the i18n store (drives useT() site-wide).
+  useEffect(() => {
+    setI18nLanguage(code);
+  }, [code]);
 
   // R5 carry-over: profile loaded, language never set → adopt the guest pick.
   const carriedFor = useRef<string | null>(null);

@@ -11,6 +11,7 @@ import { MobileDrawer, MobileDrawerList } from "@/components/ui/mobile-drawer";
 import { useLanguage } from "@/hooks/useLanguage";
 import { SITE_LANGUAGES, getLanguage, type LanguageCode } from "@/lib/languages";
 import { cn } from "@/lib/utils";
+import { tIn, loadLanguage } from "@/i18n";
 
 /**
  * Language picker — the ONE set of pieces every language entry point uses
@@ -46,14 +47,15 @@ export const useLanguagePick = (preview?: LanguagePreviewProps) => {
   const pick = async (next: LanguageCode): Promise<LanguagePickResult> => {
     if (next === code) return { success: true };
     const label = getLanguage(next).label;
+    await loadLanguage(next); // so the toast itself is already in the new language
     if (isPreview) {
       setLocalCode(next);
-      toast.success(`Language set to ${label}`);
+      toast.success(tIn(next, "language.set", { label }));
       return { success: true };
     }
     const res = await live.setLanguage(next);
-    if (res.success) toast.success(`Language set to ${label}`);
-    else toast.error("Couldn't save that. Try again.");
+    if (res.success) toast.success(tIn(next, "language.set", { label }));
+    else toast.error(tIn(code, "language.saveFailed"));
     return res;
   };
 
@@ -97,7 +99,7 @@ export const LanguageDrawer = ({
   current: LanguageCode;
   onPick: (code: LanguageCode) => void;
 }) => (
-  <MobileDrawer open={open} onOpenChange={onOpenChange} title="Language">
+  <MobileDrawer open={open} onOpenChange={onOpenChange} title={tIn(current, "nav.language")}>
     <MobileDrawerList>
       {SITE_LANGUAGES.map((l) => (
         <button

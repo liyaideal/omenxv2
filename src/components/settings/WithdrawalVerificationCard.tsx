@@ -1,3 +1,4 @@
+import { useT } from "@/i18n";
 import { useState } from "react";
 import { AlertTriangle } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -13,18 +14,18 @@ type Mode = "email" | "totp" | "both";
 const MODE_OPTIONS: { value: Mode; label: string; description: string }[] = [
   {
     value: "email",
-    label: "Email only",
-    description: "Send a 6-digit code to your email",
+    label: "settings.screen.sections.settings_withdrawal_verification_card.email_only",
+    description: "settings.screen.sections.settings_withdrawal_verification_card.email_only_description",
   },
   {
     value: "totp",
-    label: "Authenticator only",
-    description: "Use codes from an authenticator app",
+    label: "settings.screen.sections.settings_withdrawal_verification_card.authenticator_only",
+    description: "settings.screen.sections.settings_withdrawal_verification_card.authenticator_only_description",
   },
   {
     value: "both",
-    label: "Email + Authenticator",
-    description: "Strongest — require both for every withdrawal",
+    label: "settings.screen.sections.settings_withdrawal_verification_card.email_and_authenticator",
+    description: "settings.screen.sections.settings_withdrawal_verification_card.email_and_authenticator_description",
   },
 ];
 
@@ -46,6 +47,7 @@ export const WithdrawalVerificationCard = ({
   /** Style-guide only: freeze credential state with display fixtures. Never set in product. */
   previewState?: WithdrawalVerificationPreviewState;
 } = {}) => {
+  const { t } = useT();
   const isMobile = useIsMobile();
   const { profile, email, updateWithdraw2faMode, enableTotp } = useUserProfile();
 
@@ -79,7 +81,7 @@ export const WithdrawalVerificationCard = ({
 
     // Email requirement — direct the user to the Sign-in card.
     if ((next === "email" || next === "both") && !hasEmail) {
-      toast.error("Add an email in Sign-in to use this option");
+      toast.error(t("settings.withdrawal.needEmail"));
       return;
     }
 
@@ -92,9 +94,9 @@ export const WithdrawalVerificationCard = ({
 
     const res = await updateWithdraw2faMode(next);
     if (res.success) {
-      toast.success("Withdrawal verification updated");
+      toast.success(t("settings.screen.sections.settings_withdrawal_verification_card.update_success"));
     } else {
-      toast.error(res.error || "Failed to update");
+      toast.error(res.error || t("settings.screen.sections.settings_withdrawal_verification_card.update_failed"));
     }
   };
 
@@ -109,7 +111,7 @@ export const WithdrawalVerificationCard = ({
         if (!res.success) {
           toast.error(res.error || "Saved authenticator, failed to update mode");
         } else {
-          toast.success("Withdrawal verification updated");
+          toast.success(t("settings.screen.sections.settings_withdrawal_verification_card.update_success"));
         }
       }
       setPendingMode(null);
@@ -119,8 +121,8 @@ export const WithdrawalVerificationCard = ({
   return (
     <>
       <SettingsCard
-        label="Withdrawal verification"
-        description="How we verify a withdrawal request."
+        label={t("settings.screen.sections.settings_withdrawal_verification_card.withdrawal_verification")}
+        description={t("settings.withdrawal.description")}
         compact={isMobile}
       >
         {nothingConfigured && (
@@ -138,8 +140,8 @@ export const WithdrawalVerificationCard = ({
             const ready = isModeReady(opt.value);
             const isActive = activeMode === opt.value;
             const missing: string[] = [];
-            if (opt.value !== "totp" && !hasEmail) missing.push("email");
-            if (opt.value !== "email" && !totpEnabled) missing.push("authenticator");
+            if (opt.value !== "totp" && !hasEmail) missing.push(t("settings.email"));
+            if (opt.value !== "email" && !totpEnabled) missing.push(t("settings.screen.sections.settings_withdrawal_verification_card.authenticator_requirement"));
             const last = i === MODE_OPTIONS.length - 1;
 
             return (
@@ -156,12 +158,12 @@ export const WithdrawalVerificationCard = ({
                 {/* Not-ready options stay clickable: totp/both open the 2FA setup inline (existing logic). Only the nothing-configured state disables all three (rule 9). */}
                 <RadioGroupItem id={`mode-${opt.value}`} value={opt.value} className="mt-0.5" disabled={nothingConfigured} />
                 <div className="flex-1 min-w-0">
-                  <div className={cn("text-sm font-medium", isActive && "text-foreground")}>{opt.label}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{opt.description}</div>
+                  <div className={cn("text-sm font-medium", isActive && "text-foreground")}>{t(opt.label)}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{t(opt.description)}</div>
                   {!ready && !nothingConfigured && (
                     <div className="flex items-center gap-1.5 mt-1.5 text-xs text-trading-yellow">
                       <AlertTriangle className="w-3 h-3" />
-                      Requires {missing.join(" + ")} to be configured
+                      {t("settings.screen.sections.settings_withdrawal_verification_card.requires_configuration", { methods: missing.join(" + ") })}
                     </div>
                   )}
                 </div>

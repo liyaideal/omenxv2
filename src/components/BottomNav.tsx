@@ -1,6 +1,7 @@
 import { useState, useEffect, type CSSProperties } from "react";
 import { User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, KeyRound, Compass, PieChart, ArrowLeftRight, Handshake, Globe } from "lucide-react";
 import { LanguageDrawer, useLanguagePick } from "@/components/language/LanguagePicker";
+import { useT } from "@/i18n";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthSheet } from "@/components/auth/AuthSheet";
@@ -13,9 +14,9 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 
 // Lite surface: Events / Portfolio / Wallet (+ shared Me button)
 const liteNavItems = [
-  { icon: Compass, label: "Events", path: "/events" },
-  { icon: PieChart, label: "Portfolio", path: "/portfolio" },
-  { icon: Wallet, label: "Wallet", path: "/wallet" },
+  { icon: Compass, key: "nav.events", path: "/events" },
+  { icon: PieChart, key: "nav.portfolio", path: "/portfolio" },
+  { icon: Wallet, key: "nav.wallet", path: "/wallet" },
 ];
 
 // Haptic feedback utility
@@ -34,6 +35,7 @@ export const BottomNav = () => {
   const [pendingPath, setPendingPath] = useState<string | null>(null);
   const [profileSheetOpen, setProfileSheetOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
+  const { t } = useT();
   const { code: languageCode, current: language, pick: pickLanguage } = useLanguagePick();
   const [transferOpen, setTransferOpen] = useState(false);
 
@@ -59,9 +61,9 @@ export const BottomNav = () => {
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
-      toast.error("Failed to sign out");
+      toast.error(t("auth.signOutFailed"));
     } else {
-      toast.success("Signed out successfully");
+      toast.success(t("common.signed_out_successfully"));
       setProfileSheetOpen(false);
       navigate("/");
     }
@@ -111,7 +113,7 @@ export const BottomNav = () => {
             >
               <item.icon strokeWidth={1.75} className={`w-5 h-5 transition-all duration-300 ${active ? "text-primary" : ""}`} />
               <span className={`text-xs transition-all duration-300 ${active ? "font-semibold" : "font-medium"}`}>
-                {item.label}
+                {t(item.key)}
               </span>
             </button>
           );
@@ -139,7 +141,7 @@ export const BottomNav = () => {
             </Avatar>
             <span className={`text-xs transition-all duration-300 ${
               location.pathname === "/portfolio" ? "font-semibold" : "font-medium"
-            }`}>Me</span>
+            }`}>{t("common.nav_me")}</span>
           </button>
         ) : (
           <button
@@ -150,7 +152,7 @@ export const BottomNav = () => {
             className="flex flex-col items-center gap-1 transition-all duration-300 text-muted-foreground hover:text-foreground hover:scale-105"
           >
             <User className="w-5 h-5" />
-            <span className="text-xs font-medium">Me</span>
+            <span className="text-xs font-medium">{t("common.nav_me")}</span>
           </button>
         )}
       </div>
@@ -181,9 +183,9 @@ export const BottomNav = () => {
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground truncate">
-              {username || "Trader"}
+              {username || t("common.trader")}
             </p>
-            <p className="text-xs text-muted-foreground truncate">{user?.email || profile?.email || "Account"}</p>
+            <p className="text-xs text-muted-foreground truncate">{user?.email || profile?.email || t("header.account")}</p>
           </div>
         </div>
 
@@ -200,7 +202,7 @@ export const BottomNav = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Wallet className="w-5 h-5 text-trading-green" />
-              <span className="text-sm text-muted-foreground">Equity</span>
+              <span className="text-sm text-muted-foreground">{t("common.equity")}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-lg font-bold text-trading-green font-mono">
@@ -211,7 +213,7 @@ export const BottomNav = () => {
           </div>
           <div className="mt-3 flex items-center justify-between border-t border-trading-green/20 pt-3 text-xs">
             <span className="text-muted-foreground">
-              Standard ${spotBalance.toFixed(2)} · Boost ${balance.toFixed(2)}
+              {t("header.accountsLine", { standard: spotBalance.toFixed(2), boost: balance.toFixed(2) })}
             </span>
             <button
               type="button"
@@ -223,7 +225,7 @@ export const BottomNav = () => {
               className="inline-flex min-h-[44px] items-center gap-1 rounded-md px-2 py-1 text-primary hover:bg-primary/10"
             >
               <ArrowLeftRight className="h-3 w-3" />
-              Transfer
+              {t("nav.screen.navigation.bottom_navigation.transfer")}
             </button>
           </div>
         </div>
@@ -232,7 +234,7 @@ export const BottomNav = () => {
         <MobileDrawerList>
           <MobileDrawerListItem
             icon={User}
-            label="Portfolio"
+            label={t("nav.portfolio")}
             onClick={() => {
               setProfileSheetOpen(false);
               navigate("/portfolio");
@@ -240,7 +242,7 @@ export const BottomNav = () => {
           />
           <MobileDrawerListItem
             icon={Award}
-            label="Leaderboard"
+            label={t("nav.leaderboard")}
             onClick={() => {
               setProfileSheetOpen(false);
               navigate("/leaderboard");
@@ -248,7 +250,7 @@ export const BottomNav = () => {
           />
           <MobileDrawerListItem
             icon={Gift}
-            label="Rewards"
+            label={t("nav.rewards")}
             onClick={() => {
               setProfileSheetOpen(false);
               navigate("/rewards");
@@ -257,7 +259,7 @@ export const BottomNav = () => {
           {/* Affiliate Program entry (CPO 2026-09-19): mobile has no top-nav slot for it, so it lives here after Rewards. */}
           <MobileDrawerListItem
             icon={Handshake}
-            label="Affiliate Program"
+            label={t("nav.affiliateProgram")}
             onClick={() => {
               setProfileSheetOpen(false);
               navigate("/affiliate");
@@ -267,7 +269,7 @@ export const BottomNav = () => {
           {/* Vouchers live inside /rewards as a tab — no separate menu entry (2026-08-12) */}
           <MobileDrawerListItem
             icon={KeyRound}
-            label="API"
+            label={t("nav.api")}
             onClick={() => {
               setProfileSheetOpen(false);
               navigate("/developers");
@@ -279,7 +281,7 @@ export const BottomNav = () => {
               LanguageDrawer the brand bar uses. */}
           <MobileDrawerListItem
             icon={Globe}
-            label="Language"
+            label={t("nav.language")}
             right={<span className="text-sm text-muted-foreground">{language.label}</span>}
             onClick={() => {
               setProfileSheetOpen(false);
@@ -289,7 +291,7 @@ export const BottomNav = () => {
 
           <MobileDrawerListItem
             icon={Settings}
-            label="Settings"
+            label={t("nav.settings")}
             onClick={() => {
               setProfileSheetOpen(false);
               navigate("/settings");
@@ -301,7 +303,7 @@ export const BottomNav = () => {
 
           <MobileDrawerListItem
             icon={HelpCircle}
-            label="Help & Support"
+            label={t("nav.screen.navigation.bottom_navigation.help_and_support")}
             onClick={() => {
               setProfileSheetOpen(false);
               window.open("https://discord.gg/qXssm2crf9", "_blank", "noopener,noreferrer");
@@ -310,7 +312,7 @@ export const BottomNav = () => {
 
           <MobileDrawerListItem
             icon={Lightbulb}
-            label="Insights"
+            label={t("nav.insights")}
             onClick={() => {
               setProfileSheetOpen(false);
               navigate("/insights");
@@ -323,7 +325,7 @@ export const BottomNav = () => {
         <MobileDrawerList>
           <MobileDrawerListItem
             icon={LogOut}
-            label="Sign Out"
+            label={t("nav.screen.navigation.bottom_navigation.sign_out")}
             onClick={handleSignOut}
             className="text-trading-red hover:bg-trading-red/10"
           />

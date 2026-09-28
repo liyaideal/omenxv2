@@ -1,3 +1,4 @@
+import { useT } from "@/i18n";
 import { useState } from "react";
 import { ChevronDown, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ export const PreferencesCard = ({
   /** Style-guide only: render the picker open. Never set in product. */
   previewOpen?: boolean;
 } = {}) => {
+  const { t } = useT();
   const isMobile = useIsMobile();
   const { code, current, pick } = useLanguagePick({ previewCode, previewOpen });
   const [open, setOpen] = useState(!!previewOpen);
@@ -47,11 +49,11 @@ export const PreferencesCard = ({
   );
 
   return (
-    <SettingsCard label="Preferences" compact={isMobile}>
+    <SettingsCard label={t("settings.preferences.label")} compact={isMobile}>
       <SettingsRow
         icon={Globe}
-        title="Language"
-        sub="Also changes the language of emails we send you"
+        title={t("common.language")}
+        sub={t("settings.preferences.languageSub")}
         last
         right={
           isMobile ? (

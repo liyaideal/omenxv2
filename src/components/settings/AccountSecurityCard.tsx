@@ -1,3 +1,4 @@
+import { useT } from "@/i18n";
 import { useEffect, useState } from "react";
 import { Smartphone, Lock, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ export const AccountSecurityCard = ({
   /** Style-guide only: render the Authenticator row as enabled. Never set in product. */
   previewTotpEnabled?: boolean;
 } = {}) => {
+  const { t } = useT();
   const isMobile = useIsMobile();
   const { profile, updateWithdraw2faMode, enableTotp, disableTotp } = useUserProfile();
   const totpEnabled = previewTotpEnabled ?? !!profile?.totp_enabled;
@@ -57,7 +59,7 @@ export const AccountSecurityCard = ({
     }
     const email = profile?.email;
     if (!email) {
-      toast.error("No email on this account");
+      toast.error(t("settings.security.noEmail"));
       return;
     }
     setResetSending(true);
@@ -68,7 +70,7 @@ export const AccountSecurityCard = ({
       return;
     }
     setResetCooldown(RESEND_COOLDOWN_SECONDS);
-    toast.success(`Reset link sent to ${email}`);
+    toast.success(t("settings.security.resetSent", { email }));
   };
 
   const handleSetupSuccess = async (secret: string) => {
@@ -88,27 +90,27 @@ export const AccountSecurityCard = ({
 
     const res = await disableTotp();
     if (!res.success) {
-      toast.error(res.error || "Failed to disable");
+      toast.error(res.error || t("settings.screen.sections.settings_account_security_card.disable_failed"));
       return;
     }
     if (willResetMode) {
       await updateWithdraw2faMode("email");
     }
-    toast.success("Authenticator disabled");
+    toast.success(t("settings.screen.use_settings_page.authenticator_disabled"));
   };
 
   return (
     <>
       <SettingsCard
-        label="Account security"
-        description="Verification methods linked to your account."
+        label={t("settings.screen.sections.settings_account_security_card.account_security")}
+        description={t("settings.security.description")}
         compact={isMobile}
       >
         {isEmailUser && (
           <SettingsRow
             icon={Lock}
-            title="Password"
-            sub={resetCooldown > 0 ? "Reset link sent — check your inbox." : "Change it with a link sent to your email"}
+            title={t("settings.security.password")}
+            sub={resetCooldown > 0 ? t("settings.security.passwordSubSent") : t("settings.security.passwordSub")}
             right={
               resetCooldown > 0 ? (
                 <Button variant="outline" size="sm" className="h-8" disabled>
@@ -117,7 +119,7 @@ export const AccountSecurityCard = ({
                 </Button>
               ) : (
                 <Button variant="outline" size="sm" className="h-8" disabled={resetSending} onClick={handleSendReset}>
-                  Change
+                  {t("settings.security.change")}
                 </Button>
               )
             }
@@ -128,23 +130,23 @@ export const AccountSecurityCard = ({
           icon={Smartphone}
           title={
             <>
-              Authenticator app
+              {t("settings.screen.sections.settings_account_security_card.authenticator_app")}
               {totpEnabled ? (
-                <SettingsCapsule tone="accent">Enabled</SettingsCapsule>
+                <SettingsCapsule tone="accent">{t("settings.screen.sections.settings_account_security_card.enabled")}</SettingsCapsule>
               ) : (
-                <SettingsCapsule>Not set</SettingsCapsule>
+                <SettingsCapsule>{t("settings.not_set")}</SettingsCapsule>
               )}
             </>
           }
-          sub={totpEnabled ? "Codes from your authenticator app" : "Connect Google Authenticator, Authy, or similar"}
+          sub={totpEnabled ? t("settings.security.authSubOn") : t("settings.screen.sections.settings_account_security_card.connect_authenticator_description")}
           right={
             totpEnabled ? (
               <Button variant="outline" size="sm" className="h-8" onClick={handleDisable}>
-                Disable
+                {t("settings.screen.sections.settings_account_security_card.disable")}
               </Button>
             ) : (
               <Button variant="outline" size="sm" className="h-8" onClick={() => setSetupOpen(true)}>
-                Set up
+                {t("settings.screen.sections.settings_account_security_card.set_up")}
               </Button>
             )
           }

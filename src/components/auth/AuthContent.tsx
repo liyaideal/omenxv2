@@ -1,3 +1,4 @@
+import { useT } from "@/i18n";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -59,6 +60,7 @@ export const AuthContent = ({
 }: AuthContentProps) => {
   const queryClient = useQueryClient();
   const isLite = true;
+  const { t } = useT();
   const [searchParams] = useSearchParams();
   const { profile, username: profileUsername, email: profileEmail } = useUserProfile();
   // Email + password accounts: the email is the sign-in credential, so completeProfile shows it read-only.
@@ -116,7 +118,7 @@ export const AuthContent = ({
       const { data: { session: existingSession } } = await supabase.auth.getSession();
       
       if (existingSession?.user) {
-        toast.success(`Welcome back! Connected via ${method === "google" ? "Google" : method === "telegram" ? "Telegram" : "Wallet"}!`);
+        toast.success(t("auth.login.welcomeBack", { method: method === "google" ? "Google" : method === "telegram" ? "Telegram" : "Wallet" }));
         setStep("createWallet");
         return;
       }
@@ -150,12 +152,12 @@ export const AuthContent = ({
           setEmail(mockEmail);
         }
 
-        toast.success(`Connected via ${method === "google" ? "Google" : method === "telegram" ? "Telegram" : "Wallet"}!`);
+        toast.success(t("auth.login.connected", { method: method === "google" ? "Google" : method === "telegram" ? "Telegram" : "Wallet" }));
         setStep("createWallet");
       }
     } catch (error: any) {
       console.error("Auth error:", error);
-      toast.error(error.message || "Failed to sign in");
+      toast.error(error.message || t("auth.login.failed"));
     } finally {
       setIsLoading(false);
     }
@@ -286,10 +288,10 @@ export const AuthContent = ({
               className={`pointer-events-none select-none ${isMobile ? "w-[100px] h-[100px]" : "w-[120px] h-[120px]"} object-contain mx-auto`}
             />
             <h2 className="font-display text-[17px] font-bold tracking-[-0.34px] text-white text-center">
-              Trade what happens next
+              {t("auth.lite.title")}
             </h2>
             <p className="text-[12px] text-[#9CA2AB] text-center mt-3 leading-snug">
-              Intraday crypto, stock and sports markets — settled in USDC.
+              {t("auth.lite.subtitle")}
             </p>
           </div>
 
@@ -320,9 +322,9 @@ export const AuthContent = ({
         {/* Auth Method Tabs */}
         <div className={isLite ? "flex bg-[#14161A] rounded-[12px] p-[4px] gap-[4px] h-[48px]" : "flex bg-muted/50 rounded-xl p-1 gap-1"}>
           {[
-            { id: "wallet" as const, label: "Wallet" },
-            { id: "google" as const, label: "Google" },
-            { id: "telegram" as const, label: "Telegram" },
+            { id: "wallet" as const, label: t("auth.wallet") },
+            { id: "google" as const, label: t("common.google") },
+            { id: "telegram" as const, label: t("auth.telegram") },
           ].map((method) => (
             <button
               key={method.id}
@@ -363,7 +365,7 @@ export const AuthContent = ({
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                   </svg>
                 )}
-                Sign in with Google
+                {t("auth.google_btn")}
               </Button>
               {/* "Other email" — email + password entry for users who can't reach Google (CPO 2026-09-19).
                   Secondary-button grammar = LiteAuthGate "Create account". */}
@@ -374,10 +376,10 @@ export const AuthContent = ({
                 className="w-full h-[44px] rounded-[12px] border-[1.5px] border-[#1C1F26] bg-transparent text-[13px] text-white/80 transition-colors hover:text-white inline-flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 <Mail className="w-4 h-4" />
-                Other email
+                {t("auth.login.otherEmail")}
               </button>
               <p className={isLite ? "text-[12px] text-[#6B7280] text-center" : "text-xs text-muted-foreground text-center"}>
-                {isLite ? "No wallet needed · Ready in seconds" : "Instant access · No wallet needed · Start trading in seconds"}
+                {isLite ? t("auth.lite.google_help") : "Instant access · No wallet needed · Start trading in seconds"}
               </p>
             </>
           )}
@@ -395,10 +397,10 @@ export const AuthContent = ({
                 ) : (
                   <Wallet className="w-5 h-5 mr-2" />
                 )}
-                Connect Wallet
+                {t("auth.lite.wallet_btn")}
               </Button>
               <p className={isLite ? "text-[12px] text-[#6B7280] text-center" : "text-xs text-muted-foreground text-center"}>
-                Supports MetaMask, WalletConnect & more
+                {t("auth.lite.wallet_help")}
               </p>
             </>
           )}
@@ -418,10 +420,10 @@ export const AuthContent = ({
                     <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
                   </svg>
                 )}
-                Sign in with Telegram
+                {t("auth.telegram_btn")}
               </Button>
               <p className={isLite ? "text-[12px] text-[#6B7280] text-center" : "text-xs text-muted-foreground text-center"}>
-                Fast & secure Telegram authentication
+                {t("auth.telegram_help")}
               </p>
             </>
           )}
@@ -438,7 +440,7 @@ export const AuthContent = ({
         <div className="text-center space-y-2">
           {isLite ? (
             <p className="text-[12px] text-white text-center">
-              New to OMENX? Your account is created the first time you sign in.
+              {t("auth.lite.auto_register")}
             </p>
           ) : (
             <>
@@ -456,10 +458,10 @@ export const AuthContent = ({
 
         {/* Terms */}
         <p className={isLite ? "text-[12px] text-[#9CA2AB] text-center" : "text-xs text-muted-foreground text-center"}>
-          By continuing, you agree to our{" "}
-          <span className={isLite ? "text-[#33D6FF] hover:underline cursor-pointer" : "text-primary hover:underline cursor-pointer"}>Terms of Service</span>
-          {" "}and{" "}
-          <span className={isLite ? "text-[#33D6FF] hover:underline cursor-pointer" : "text-primary hover:underline cursor-pointer"}>Privacy Policy</span>
+          {t("auth.lite.agree_prefix")}{" "}
+          <span className={isLite ? "text-[#33D6FF] hover:underline cursor-pointer" : "text-primary hover:underline cursor-pointer"}>{t("legal.footer.links.terms_of_service")}</span>
+          {" "}{t("common.auth.signup.terms.and")}{" "}
+          <span className={isLite ? "text-[#33D6FF] hover:underline cursor-pointer" : "text-primary hover:underline cursor-pointer"}>{t("legal.footer.links.privacy_policy")}</span>
         </p>
 
         {/* Google account chooser (fixed identities + "use another account") */}

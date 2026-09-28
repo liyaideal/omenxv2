@@ -1,6 +1,7 @@
 import { RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useT } from "@/i18n";
 
 export interface ErrorStateProps {
   title?: string;
@@ -17,12 +18,16 @@ export interface ErrorStateProps {
  * Retry button when an `onRetry` handler is provided.
  */
 export const ErrorState = ({
-  title = "Something went wrong",
-  description = "Please try again.",
+  title: titleProp,
+  description: descriptionProp,
   onRetry,
-  retryLabel = "Retry",
+  retryLabel: retryLabelProp,
   className,
 }: ErrorStateProps) => {
+  const { t } = useT();
+  const title = titleProp ?? t("common.error_title");
+  const description = descriptionProp ?? t("common.please_try_again");
+  const retryLabel = retryLabelProp ?? t("settings.wallet.retry");
   return (
     <div
       role="alert"

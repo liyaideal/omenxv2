@@ -10,12 +10,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { AuthSheet } from "@/components/auth/AuthSheet";
+import { useT } from "@/i18n";
 
 
 export const LiteAuthGate = ({
   children,
-  title = "Sign in to view your portfolio",
-  description = "Track your live calls and settled results by signing in to your account.",
+  title: titleProp,
+  description: descriptionProp,
   /**
    * "page" (default) = full-height blurred overlay.
    * "panel" = compact inline card for short Pro terminal panels (≤220px, no blur).
@@ -36,6 +37,9 @@ export const LiteAuthGate = ({
   const { user } = useAuth();
   const isMobile = useIsMobile();
   const [authOpen, setAuthOpen] = useState(false);
+  const { t } = useT();
+  const title = titleProp ?? t("portfolio.lite.auth.title");
+  const description = descriptionProp ?? t("portfolio.lite.auth.description");
 
   // The auth wizard lives OUTSIDE the signed-out branch (CPO 2026-09-21).
   // Before, the dialog was a child of the overlay, so the moment a sign-up
@@ -85,14 +89,14 @@ export const LiteAuthGate = ({
             className="inline-flex items-center gap-2 rounded-[10px] px-[18px] h-9 font-semibold text-[13px] text-[#090A0B]"
           >
             <LogIn className="h-3.5 w-3.5" />
-            Sign in
+            {t("auth.sign_in")}
           </button>
           <button
             type="button"
             onClick={() => setAuthOpen(true)}
             className="inline-flex items-center justify-center h-9 rounded-[10px] px-[14px] border-[1.5px] border-[#1C1F26] bg-transparent text-[12.5px] text-white/80 transition-colors hover:text-white"
           >
-            Create account
+            {t("auth.lite.create_account")}
           </button>
         </div>
 
@@ -142,14 +146,14 @@ export const LiteAuthGate = ({
               className="inline-flex items-center gap-2 rounded-[12px] px-[24px] py-[12px] font-semibold text-[14px] text-[#090A0B] drop-shadow-[0_4px_7.5px_rgba(51,214,255,0.3)]"
             >
               <LogIn className="h-4 w-4" />
-              Sign in
+              {t("auth.sign_in")}
             </button>
             <button
               type="button"
               onClick={() => setAuthOpen(true)}
               className="inline-flex items-center justify-center h-[44px] rounded-[12px] px-[18px] border-[1.5px] border-[#1C1F26] bg-transparent text-[13px] text-white/80 transition-colors hover:text-white"
             >
-              Create account
+              {t("auth.lite.create_account")}
             </button>
           </div>
         </div>

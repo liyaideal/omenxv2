@@ -1,3 +1,4 @@
+import { useT } from "@/i18n";
 import { Mail, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GoogleIcon } from "@/components/icons/GoogleIcon";
@@ -21,9 +22,9 @@ const PROVIDER: Record<
   SignInProvider,
   { label: string; value: string; icon: React.ComponentType<{ className?: string }> }
 > = {
-  google: { label: "Google", value: "Google account", icon: GoogleIcon },
-  wallet: { label: "Wallet", value: "Wallet", icon: Wallet },
-  telegram: { label: "Telegram", value: "Telegram", icon: TelegramIcon },
+  google: { label: "settings.login_method_google", value: "settings.signin.googleAccount", icon: GoogleIcon },
+  wallet: { label: "settings.account_type_wallet", value: "settings.account_type_wallet", icon: Wallet },
+  telegram: { label: "settings.login_method_telegram", value: "settings.login_method_telegram", icon: TelegramIcon },
 };
 
 export const ProviderSignInCard = ({
@@ -38,32 +39,32 @@ export const ProviderSignInCard = ({
   notificationEmail: string | null;
   onEditEmail: () => void;
 }) => {
+  const { t } = useT();
   const isMobile = useIsMobile();
   const p = PROVIDER[provider];
 
   return (
-    <SettingsCard label="Sign-in" value={p.value} compact={isMobile}>
-      <SettingsRow icon={p.icon} title={p.label} sub={providerValue || undefined} subMono />
+    <SettingsCard label={t("settings.signin.label")} value={t(p.value)} compact={isMobile}>
+      <SettingsRow icon={p.icon} title={t(p.label)} sub={providerValue || undefined} subMono />
       <SettingsRow
         icon={Mail}
         title={
           <>
-            Notification email
-            {!notificationEmail && <SettingsCapsule>Not set</SettingsCapsule>}
+            {t("settings.signin.notificationEmail")}
+            {!notificationEmail && <SettingsCapsule>{t("settings.not_set")}</SettingsCapsule>}
           </>
         }
-        sub={notificationEmail || "Needed for alerts and account recovery"}
+        sub={notificationEmail || t("settings.signin.notificationEmailSub")}
         subMono={!!notificationEmail}
         right={
           <Button variant="outline" size="sm" className="h-8" onClick={onEditEmail}>
-            {notificationEmail ? "Edit" : "Add"}
+            {notificationEmail ? t("common.edit") : t("settings.signin.add")}
           </Button>
         }
         last
       />
       <SettingsNote>
-        You signed in via <span className="font-medium text-primary">{p.label}</span>. This cannot be changed. To use a
-        different account, sign out and sign in again.
+        {t("settings.signin.providerNote", { provider: t(p.label) })}
       </SettingsNote>
     </SettingsCard>
   );

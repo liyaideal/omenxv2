@@ -2,6 +2,16 @@ import { createRoot } from "react-dom/client";
 import "@fontsource/archivo-black/400.css";
 
 import "./index.css";
+import { setI18nLanguage } from "@/i18n";
+import { LANGUAGE_STORAGE_KEY, isLanguageCode } from "@/lib/languages";
+
+// First paint in the stored language (useLanguage() re-syncs once profile loads).
+try {
+  const stored = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+  if (isLanguageCode(stored)) setI18nLanguage(stored);
+} catch {
+  /* private mode */
+}
 
 const rootElement = document.getElementById("root");
 

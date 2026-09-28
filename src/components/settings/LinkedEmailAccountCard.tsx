@@ -1,3 +1,4 @@
+import { useT } from "@/i18n";
 import { useEffect, useRef, useState } from "react";
 import { Check, Mail } from "lucide-react";
 import { toast } from "sonner";
@@ -38,6 +39,7 @@ export const LinkedEmailAccountCard = ({
   previewNewEmail,
   previewDialog,
 }: LinkedEmailAccountCardProps = {}) => {
+  const { t } = useT();
   const preview = !!previewState;
   const isMobile = useIsMobile();
   const { profile, user, updateEmail } = useUserProfile();
@@ -88,18 +90,18 @@ export const LinkedEmailAccountCard = ({
       </Button>
     ) : (
       <Button variant="outline" size="sm" className="h-8 shrink-0" onClick={() => setDialogOpen(true)}>
-        {shownPending ? "Resend" : "Change"}
+        {shownPending ? t("settings.signin.resend") : t("settings.signin.change")}
       </Button>
     );
 
   return (
-    <SettingsCard label="Sign-in" value="Email & password" compact={isMobile}>
+    <SettingsCard label={t("settings.signin.label")} value={t("settings.signin.emailPassword")} compact={isMobile}>
       <SettingsRow
         icon={Mail}
         title={
           <>
             Email
-            {shownPending && <SettingsCapsule tone="accent">Pending</SettingsCapsule>}
+            {shownPending && <SettingsCapsule tone="accent">{t("settings.wallet.pending")}</SettingsCapsule>}
           </>
         }
         sub={email}

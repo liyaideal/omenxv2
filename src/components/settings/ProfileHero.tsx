@@ -1,3 +1,4 @@
+import { useT } from "@/i18n";
 import { User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,7 @@ export const ProfileHero = ({
   onChangeAvatar: () => void;
   compact?: boolean;
 }) => {
+  const { t } = useT();
   const initial = fallbackInitial?.charAt(0).toUpperCase();
   const avatar = (
     <button
@@ -61,7 +63,7 @@ export const ProfileHero = ({
         !username && "text-muted-foreground font-medium",
       )}
     >
-      {username || "Set a username"}
+      {username || t("settings.profile.setUsername")}
     </div>
   );
 
@@ -69,11 +71,11 @@ export const ProfileHero = ({
     <div className={cn("text-[13px] text-muted-foreground", compact ? "mt-1.5" : "mt-2.5")}>
       <span className="font-mono">ID #{userId}</span>
       <span className="mx-2">·</span>
-      Joined {joinDate}
+      {t("settings.joined_at", { date: joinDate })}
     </div>
   );
 
-  const primaryLabel = username ? "Edit username" : "Set username";
+  const primaryLabel = username ? t("settings.profile.editUsername") : t("settings.set_username_title");
 
   if (compact) {
     return (
@@ -94,7 +96,7 @@ export const ProfileHero = ({
             className="h-11 rounded-full bg-secondary border border-border/50 text-[#C9CED6] hover:text-foreground"
             onClick={onChangeAvatar}
           >
-            Change avatar
+            {t("settings.profile.changeAvatar")}
           </Button>
         </div>
       </section>
@@ -127,7 +129,7 @@ export const ProfileHero = ({
             className="h-auto py-3 px-[22px] rounded-full bg-secondary font-semibold text-sm text-[#C9CED6] hover:text-foreground"
             onClick={onChangeAvatar}
           >
-            Change avatar
+            {t("settings.profile.changeAvatar")}
           </Button>
         </div>
       </div>

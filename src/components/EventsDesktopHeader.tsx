@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { LanguageChip } from "@/components/language/LanguagePicker";
+import { useT, t as tt } from "@/i18n";
 import {
   ChevronDown,
   User,
@@ -39,10 +40,10 @@ import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
 // gives its slot to Affiliate — partner acquisition matters more at this stage; Leaderboard
 // stays reachable from the footer Platform column and the mobile profile menu.
 const navItems = [
-  { label: "Events", path: "/events" },
-  { label: "Portfolio", path: "/portfolio" },
-  { label: "Affiliate", path: "/affiliate" },
-  { label: "Insights", path: "/insights" },
+  { key: "nav.events", path: "/events" },
+  { key: "nav.portfolio", path: "/portfolio" },
+  { key: "nav.affiliate", path: "/affiliate" },
+  { key: "nav.insights", path: "/insights" },
 ];
 
 // Language (CPO 2026-09-28, language-entry-v1 R1/R2): ONE <LanguageChip> in the
@@ -72,21 +73,21 @@ export const EquityHoverCardBody = ({
   return (
     <>
       <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">
-        Total Equity
+        {tt("home.screen.HomeGreeting.total_equity")}
       </div>
       <div className="space-y-1.5 text-xs">
         <div className="flex items-center justify-between">
-          <span className="text-muted-foreground">Standard Account</span>
+          <span className="text-muted-foreground">{tt("wallet.standardAccount")}</span>
           <span className="font-mono">${formatEquityUsd(spotBalance)}</span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-muted-foreground">Boost Account</span>
+          <span className="text-muted-foreground">{tt("wallet.boostAccount")}</span>
           <span className="font-mono">${formatEquityUsd(balance)}</span>
         </div>
       </div>
       <div className="my-2 border-t border-border/50" />
       <div className="flex items-center justify-between text-xs">
-        <span className="font-medium">Total Equity</span>
+        <span className="font-medium">{tt("home.screen.HomeGreeting.total_equity")}</span>
         <span className="font-mono font-bold">${formatEquityUsd(total)}</span>
       </div>
       <button
@@ -97,7 +98,7 @@ export const EquityHoverCardBody = ({
         }}
         className="mt-3 flex w-full items-center justify-center gap-1 rounded-md py-1.5 text-xs text-primary hover:bg-primary/10 transition-colors"
       >
-        <ArrowLeftRight className="w-3 h-3" /> Transfer ›
+        <ArrowLeftRight className="w-3 h-3" /> {tt("header.transfer")}
       </button>
     </>
   );
@@ -106,6 +107,7 @@ export const EquityHoverCardBody = ({
 export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useT();
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const { balance, spotBalance, user, username, avatarUrl } = useUserProfile();
   const [transferOpen, setTransferOpen] = useState(false);
@@ -114,9 +116,9 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
-      toast.error("Failed to sign out");
+      toast.error(t("auth.signOutFailed"));
     } else {
-      toast.success("Signed out successfully");
+      toast.success(t("common.signed_out_successfully"));
       navigate("/");
     }
   };
@@ -163,7 +165,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                       : "text-muted-foreground hover:bg-primary/10 hover:text-foreground"
                   }`}
                 >
-                  {item.label}
+                  {t(item.key)}
                   {isActive && (
                     <span className="absolute -bottom-3 left-1/2 h-[2px] w-6 -translate-x-1/2 rounded-full bg-primary" />
                   )}
@@ -187,7 +189,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     className="flex min-w-0 items-center gap-2 rounded-lg border border-border/50 bg-muted/30 px-3 py-2 transition-all duration-200 hover:border-trading-green/30 hover:bg-trading-green/5 xl:px-4"
                   >
                     <span className="hidden text-sm text-muted-foreground xl:inline">
-                      Equity:
+                      {t("header.equity")}
                     </span>
                     <span className="font-mono text-sm font-bold text-trading-green">
                       ${formatEquityUsd(totalEquity)}
@@ -217,7 +219,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                       </AvatarFallback>
                     </Avatar>
                     <span className="max-w-[64px] truncate text-sm font-medium text-foreground xl:max-w-[100px]">
-                      {username || "User"}
+                      {username || t("home.default_user")}
                     </span>
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   </button>
@@ -226,13 +228,13 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                   {/* Account & activity */}
                   <DropdownMenuItem onClick={() => navigate("/rewards")}>
                     <Gift className="mr-2 h-4 w-4 text-primary" />
-                    Rewards
+                    {t("nav.rewards")}
                   </DropdownMenuItem>
                   {/* Referral entry hidden until the /referral route exists (R3b-2 round 12) */}
                   {/* Vouchers live inside /rewards as a tab — no separate menu entry (2026-08-12) */}
                   <DropdownMenuItem onClick={() => navigate("/developers")}>
                     <KeyRound className="mr-2 h-4 w-4 text-primary" />
-                    API
+                    {t("nav.api")}
                   </DropdownMenuItem>
 
 
@@ -242,7 +244,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                   {/* Preferences */}
                   <DropdownMenuItem onClick={() => navigate("/settings")}>
                     <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
-                    Settings
+                    {t("nav.settings")}
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator />
@@ -252,7 +254,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     onClick={() => navigate("/settings/transparency")}
                   >
                     <Shield className="mr-2 h-4 w-4 text-emerald-400" />
-                    Transparency Audit
+                    {t("settings.transparency_audit")}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() =>
@@ -264,7 +266,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     }
                   >
                     <HelpCircle className="mr-2 h-4 w-4 text-muted-foreground" />
-                    <span className="flex-1">Help & Support</span>
+                    <span className="flex-1">{t("nav.screen.navigation.bottom_navigation.help_and_support")}</span>
                     <ExternalLink className="ml-2 h-3 w-3 text-muted-foreground" />
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -277,7 +279,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     }
                   >
                     <MessageCircle className="mr-2 h-4 w-4 text-[#5865F2]" />
-                    <span className="flex-1">Join Discord</span>
+                    <span className="flex-1">{t("nav.join_discord")}</span>
                     <ExternalLink className="ml-2 h-3 w-3 text-muted-foreground" />
                   </DropdownMenuItem>
 
@@ -289,7 +291,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     className="text-trading-red"
                   >
                     <LogOut className="mr-2 h-4 w-4" />
-                    Sign Out
+                    {t("nav.screen.navigation.bottom_navigation.sign_out")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -303,7 +305,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                 className="btn-primary flex items-center gap-2"
               >
                 <LogIn className="h-4 w-4" />
-                Sign In
+                {t("nav.sign_in")}
               </Button>
             </>
           )}

@@ -1,5 +1,6 @@
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useT } from "@/i18n";
 
 export interface LoadingStateProps {
   label?: string;
@@ -16,11 +17,13 @@ export interface LoadingStateProps {
  * `skeleton` — N shimmering placeholder rows for list/table loads.
  */
 export const LoadingState = ({
-  label = "Loading…",
+  label: labelProp,
   variant = "spinner",
   skeletonRows = 3,
   className,
 }: LoadingStateProps) => {
+  const { t } = useT();
+  const label = labelProp ?? t("common.loading");
   if (variant === "skeleton") {
     return (
       <div className={cn("space-y-2", className)} aria-busy="true" aria-label={label}>

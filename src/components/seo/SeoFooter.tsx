@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { useT } from "@/i18n";
 
 type FooterLink = { label: string; path: string };
 
@@ -59,37 +60,39 @@ const FooterAccordion = ({ heading, links }: { heading: string; links: FooterLin
 };
 
 export const SeoFooter = () => {
+  const { t } = useT();
   // D6'-1: no Resolved page any more — /resolved bounces back to /events.
   const platformLinks: FooterLink[] = [
-    { label: "Events", path: "/events" },
-    { label: "Leaderboard", path: "/leaderboard" },
-    { label: "Insights", path: "/insights" },
+    { label: t("nav.events"), path: "/events" },
+    { label: t("nav.leaderboard"), path: "/leaderboard" },
+    { label: t("nav.insights"), path: "/insights" },
   ];
 
+  // Bottom three lines (©, disclaimer, licence) are FROZEN legal copy (§16.5) — English only.
   const columns: { heading: string; links: FooterLink[] }[] = [
-    { heading: "Platform", links: platformLinks },
+    { heading: t("legal.footer.headings.platform"), links: platformLinks },
     {
-      heading: "Learn",
+      heading: t("legal.footer.headings.learn"),
       links: [
-        { label: "About", path: "/about" },
-        { label: "FAQ", path: "/faq" },
-        { label: "Glossary", path: "/glossary" },
-        { label: "Methodology", path: "/methodology" },
+        { label: t("legal.footer.links.about"), path: "/about" },
+        { label: t("legal.footer.links.faq"), path: "/faq" },
+        { label: t("legal.footer.links.glossary"), path: "/glossary" },
+        { label: t("legal.footer.links.methodology"), path: "/methodology" },
       ],
     },
     {
-      heading: "Resources",
+      heading: t("legal.footer.headings.resources"),
       links: [
-        { label: "Developers", path: "/developers" },
-        { label: "Affiliate Program", path: "/affiliate" },
-        { label: "On-Chain Transparency", path: "/settings/transparency" },
+        { label: t("legal.footer.links.developers"), path: "/developers" },
+        { label: t("nav.affiliateProgram"), path: "/affiliate" },
+        { label: t("legal.footer.links.on_chain_transparency"), path: "/settings/transparency" },
       ],
     },
     {
-      heading: "Legal",
+      heading: t("legal.footer.headings.legal"),
       links: [
-        { label: "Privacy Policy", path: "/privacy-policy" },
-        { label: "Terms of Service", path: "/terms-of-service" },
+        { label: t("legal.footer.links.privacy_policy"), path: "/privacy-policy" },
+        { label: t("legal.footer.links.terms_of_service"), path: "/terms-of-service" },
       ],
     },
   ];
@@ -122,7 +125,7 @@ export const SeoFooter = () => {
               <Logo size="xl" showMainnetBadge={false} />
             </Link>
             <p className="text-xs text-muted-foreground leading-relaxed max-w-[240px]">
-              Trade on real-world event outcomes with transparent pricing and instant settlement.
+              {t("legal.footer.brand_description")}
             </p>
             <div className="mt-4">{socialRow}</div>
             <a href="mailto:support@omenx.com" className={`${LINK_CLASS} mt-3 inline-block`}>
@@ -155,7 +158,7 @@ export const SeoFooter = () => {
               <Logo size="lg" showMainnetBadge={false} />
             </Link>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Trade on real-world event outcomes with transparent pricing and instant settlement.
+              {t("legal.footer.brand_description")}
             </p>
             <div className="mt-4 flex items-center gap-4">
               {socialRow}

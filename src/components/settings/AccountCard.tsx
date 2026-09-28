@@ -1,3 +1,4 @@
+import { useT } from "@/i18n";
 import { useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogOut, Trash2 } from "lucide-react";
@@ -74,6 +75,7 @@ export const AccountCard = ({
   previewState?: AccountPreviewState;
   previewBalance?: number;
 } = {}) => {
+  const { t } = useT();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { balance, spotBalance } = useUserProfile();
@@ -105,7 +107,7 @@ export const AccountCard = ({
     await supabase.auth.signOut();
     setBusy(false);
     setConfirmOpen(false);
-    toast.success("Account closed");
+    toast.success(t("settings.account.closed"));
     navigate("/");
   };
 
@@ -195,11 +197,11 @@ export const AccountCard = ({
 
   return (
     <>
-      <SettingsCard label="Account" compact={isMobile}>
+      <SettingsCard label={t("settings.account.label")} compact={isMobile}>
         <SettingsRow
           icon={LogOut}
-          title="Sign out"
-          sub="Signs out this device only"
+          title={t("common.sign_out")}
+          sub={t("settings.account.signOutSub")}
           right={
             <Button variant="outline" size="sm" className="h-8" onClick={handleSignOut}>
               Sign out
@@ -209,9 +211,9 @@ export const AccountCard = ({
         <SettingsRow
           icon={Trash2}
           iconClassName="text-[#FF5C5C]"
-          title="Close account"
+          title={t("settings.account.close")}
           titleClassName="text-[#FF5C5C]"
-          sub="Withdraw your balance first. This cannot be undone."
+          sub={t("settings.account.closeSub")}
           right={
             <Button
               variant="outline"

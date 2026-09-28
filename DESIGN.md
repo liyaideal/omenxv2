@@ -2192,3 +2192,13 @@ Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED
 4. **列表一份**：`LanguageMenuItems`（DropdownMenu 200px）与 `LanguageDrawer`（MobileDrawer）是唯一两种列表壳，任何新入口只许挂这两件；禁止再手写语言列表。
 5. **点选行为一份**：`useLanguagePick` = 同值不动作 → `setLanguage` → toast `Language set to {本名}` / 失败 `Couldn't save that. Try again.`；未登录 localStorage、登录 `profiles.language`；登录后 profile `language` 为 null 时带入本地值一次。
 6. **MobileDrawerListItem `right` 槽**（本轮新增）：trailing 值 / 徽标，`shrink-0`，用于「行名 + 当前值」类行；不放按钮。
+
+## §Addendum 2026-09-28 · i18n 一期（外壳，LOCKED）
+
+规格 `docs/delivery/i18n-phase-b-v1.md`。**作用域**：全站 UI 文案。
+
+1. **文案真相源 = 线上 `OMENX-i18n.xlsx`**（27 sheet / 7 语）。Lovable 不自造 key：先按英文匹配线上 key，匹配不到才追加到同一份表（`source = Lovable <日期>`）并回传研发。禁止在组件里再写裸英文字符串（新模块同轮接 `useT()`）。
+2. **翻什么**：UI 外壳与固定文案。**不翻**：事件 / 赛事 / 活动等内容数据、页脚法务三行（FROZEN）、品牌词 OmenX / Boost / Standard / USDC。
+3. **key 语法**：`namespace.flatKey`；插值 `{{var}}`；复数 `_one/_other`；语言本名（简体中文 / 日本語 …）是"站内文案英文"规则的唯一具名例外。
+4. **布局验收**：CJK / RU / VI 文案进字典帧用 `&lang=` 钉语言看；发生撑破按 §Addendum 2026-09-25 第 11 条——只改视觉不挪内容。
+5. **英文口径差异**（Lovable 字典 vs 线上表大小写等）以线上表显示、差异清单交 CPO 裁定后改表。

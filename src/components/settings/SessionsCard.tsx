@@ -1,3 +1,4 @@
+import { useT } from "@/i18n";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, Monitor, Smartphone } from "lucide-react";
@@ -101,6 +102,7 @@ export const SessionsCard = ({
   /** Style-guide only: freeze the card in a state with display fixtures. Never set in product. */
   previewState?: SessionsPreviewState;
 } = {}) => {
+  const { t } = useT();
   const isMobile = useIsMobile();
   const preview = !!previewState;
   const { user } = useUserProfile();
@@ -130,18 +132,18 @@ export const SessionsCard = ({
     const { error: err } = await supabase.auth.signOut({ scope: "others" });
     setSigningOut(false);
     if (err) {
-      toast.error("Couldn't sign out other devices. Try again.");
+      toast.error(t("settings.sessions.signOutFailed"));
       return;
     }
-    toast.success("Signed out other devices");
+    toast.success(t("settings.sessions.signedOutOthers"));
     queryClient.invalidateQueries({ queryKey: SESSIONS_QUERY_KEY });
   };
 
   const count = rows.length;
-  const value = loading || error ? undefined : `${count} ${count === 1 ? "device" : "devices"}`;
+  const value = loading || error ? undefined : t(count === 1 ? "settings.sessions.device" : "settings.sessions.devices", { count });
 
   return (
-    <SettingsCard label="Sessions" value={value} compact={isMobile}>
+    <SettingsCard label={t("settings.sessions.label")} value={value} compact={isMobile}>
       {loading ? (
         <div className="space-y-0">
           {[0, 1, 2].map((i) => (
@@ -154,8 +156,8 @@ export const SessionsCard = ({
       ) : error ? (
         <SettingsRow
           icon={AlertCircle}
-          title="Couldn't load sessions"
-          sub="Check your connection and try again."
+          title={t("settings.sessions.errorTitle")}
+          sub={t("settings.sessions.errorSub")}
           right={
             <Button variant="outline" size="sm" className="h-8" onClick={() => (preview ? undefined : query.refetch())}>
               Retry
@@ -175,18 +177,18 @@ export const SessionsCard = ({
               icon={ua?.mobile ? Smartphone : Monitor}
               title={
                 <>
-                  {ua?.label ?? "Unknown device"}
-                  {row.is_current && <SettingsCapsule tone="primary">This device</SettingsCapsule>}
+                  {ua?.label ?? t("settings.sessions.unknownDevice")}
+                  {row.is_current && <SettingsCapsule tone="primary">{t("settings.sessions.thisDevice")}</SettingsCapsule>}
                 </>
               }
-              sub={`${row.ip || "Unknown location"} · ${relativeTime(row.last_active_at)}`}
+              sub={`${row.ip || t("settings.sessions.unknownLocation")} · ${relativeTime(row.last_active_at)}`}
               subMono
               last={last}
             />
           );
         })}
 
-      {!loading && !error && count === 1 && <SettingsNote>You're only signed in here.</SettingsNote>}
+      {!loading && !error && count === 1 && <SettingsNote>{t("settings.sessions.onlyHere")}</SettingsNote>}
 
       {!loading && !error && count > 1 && (
         <Button
@@ -196,7 +198,7 @@ export const SessionsCard = ({
           disabled={signingOut}
           onClick={signOutOthers}
         >
-          Sign out other devices
+          {t("settings.sessions.signOutOthers")}
         </Button>
       )}
     </SettingsCard>

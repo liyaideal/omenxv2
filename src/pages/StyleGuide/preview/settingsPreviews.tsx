@@ -23,6 +23,7 @@ import { SessionsCard } from "@/components/settings/SessionsCard";
 import { AccountCard } from "@/components/settings/AccountCard";
 import { MoreCard } from "@/components/settings/MoreCard";
 import { SETTINGS_GATE_COPY } from "@/pages/Settings";
+import { t } from "@/i18n";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { MobileHeader } from "@/components/MobileHeader";
 import { LanguageChip, LanguageIconButton } from "@/components/language/LanguagePicker";
@@ -57,7 +58,7 @@ const GateUnderlay = () => (
 );
 
 export const SettingsPageGuestPreview = () => (
-  <LiteAuthGate title={SETTINGS_GATE_COPY.title} description={SETTINGS_GATE_COPY.description} forceSignedOut>
+  <LiteAuthGate title={t(SETTINGS_GATE_COPY.title)} description={t(SETTINGS_GATE_COPY.description)} forceSignedOut>
     <GateUnderlay />
   </LiteAuthGate>
 );
@@ -71,9 +72,9 @@ export const SettingsPageLoadingPreview = () => (
 export const SettingsPageErrorPreview = () => (
   <Pad wide>
     <ErrorState
-      title={SETTINGS_GATE_COPY.errorTitle}
-      description={SETTINGS_GATE_COPY.errorDescription}
-      retryLabel={SETTINGS_GATE_COPY.errorRetry}
+      title={t(SETTINGS_GATE_COPY.errorTitle)}
+      description={t(SETTINGS_GATE_COPY.errorDescription)}
+      retryLabel={t(SETTINGS_GATE_COPY.errorRetry)}
       onRetry={noop}
     />
   </Pad>

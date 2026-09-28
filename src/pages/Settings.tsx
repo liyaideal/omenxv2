@@ -1,3 +1,4 @@
+import { useT } from "@/i18n";
 import { useState, useMemo } from "react";
 import { Mail } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -49,14 +50,15 @@ import { MoreCard } from "@/components/settings/MoreCard";
  */
 
 export const SETTINGS_GATE_COPY = {
-  title: "Sign in to view your settings",
-  description: "Manage your profile, security and notifications by signing in to your account.",
-  errorTitle: "Couldn't load your settings",
-  errorDescription: "Check your connection and try again.",
-  errorRetry: "Try again",
+  title: "settings.gate.title",
+  description: "settings.gate.description",
+  errorTitle: "settings.gate.errorTitle",
+  errorDescription: "settings.gate.errorDescription",
+  errorRetry: "common.try_again",
 } as const;
 
 const Settings = () => {
+  const { t } = useT();
   const isMobile = useIsMobile();
   const { profile, user, isLoading: profileLoading, error: profileError, updateUsername, updateAvatar, updateEmail, refetchProfile } =
     useUserProfile();
@@ -82,50 +84,50 @@ const Settings = () => {
 
     const result = await updateAvatar(selectedAvatar);
     if (result.success) {
-      toast.success("Avatar updated successfully");
+      toast.success(t("settings.avatar.updated"));
       setAvatarDialogOpen(false);
       setSelectedAvatar(null);
     } else {
-      toast.error(result.error || "Failed to update avatar");
+      toast.error(result.error || t("settings.avatar.failed"));
     }
     setIsUpdating(false);
   };
 
   const handleUpdateUsername = async () => {
     if (!newUsername.trim()) {
-      toast.error("Username cannot be empty");
+      toast.error(t("settings.username.empty"));
       return;
     }
     setIsUpdating(true);
 
     const result = await updateUsername(newUsername.trim());
     if (result.success) {
-      toast.success("Username updated successfully");
+      toast.success(t("settings.username.updated"));
       setUsernameDialogOpen(false);
       setNewUsername("");
     } else {
-      toast.error(result.error || "Failed to update username");
+      toast.error(result.error || t("settings.username.failed"));
     }
     setIsUpdating(false);
   };
 
   const handleSendVerificationCode = () => {
     if (!newEmail.trim()) {
-      toast.error("Email cannot be empty");
+      toast.error(t("settings.email.empty"));
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(newEmail.trim())) {
-      toast.error("Please enter a valid email address");
+      toast.error(t("settings.auth_validation_email_invalid"));
       return;
     }
     setEmailStep("verify");
-    toast.success("Verification code sent to " + newEmail);
+    toast.success(t("settings.email.codeSent", { email: newEmail }));
   };
 
   const handleVerifyCode = async () => {
     if (verificationCode.length !== 6) {
-      toast.error("Please enter a 6-digit code");
+      toast.error(t("settings.email.codeInvalid"));
       return;
     }
     setIsUpdating(true);
@@ -134,13 +136,13 @@ const Settings = () => {
 
     const result = await updateEmail(newEmail.trim());
     if (result.success) {
-      toast.success("Email verified successfully");
+      toast.success(t("settings.email.verified"));
       setEmailDialogOpen(false);
       setNewEmail("");
       setVerificationCode("");
       setEmailStep("input");
     } else {
-      toast.error(result.error || "Failed to update email");
+      toast.error(result.error || t("settings.email.failed"));
     }
     setIsUpdating(false);
   };
@@ -244,12 +246,12 @@ const Settings = () => {
   );
 
   const body = profileLoading ? (
-    <LoadingState label="Loading profile…" />
+    <LoadingState label={t("settings.loadingProfile")} />
   ) : profileError ? (
     <ErrorState
-      title={SETTINGS_GATE_COPY.errorTitle}
-      description={SETTINGS_GATE_COPY.errorDescription}
-      retryLabel={SETTINGS_GATE_COPY.errorRetry}
+      title={t(SETTINGS_GATE_COPY.errorTitle)}
+      description={t(SETTINGS_GATE_COPY.errorDescription)}
+      retryLabel={t(SETTINGS_GATE_COPY.errorRetry)}
       onRetry={() => refetchProfile()}
       className="my-6"
     />
@@ -296,30 +298,30 @@ const Settings = () => {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background pb-24">
-        <MobileHeader title="Settings" showLogo={false} showBack />
+        <MobileHeader title={t("settings.title")} showLogo={false} showBack />
 
-        <LiteAuthGate title={SETTINGS_GATE_COPY.title} description={SETTINGS_GATE_COPY.description}>
+        <LiteAuthGate title={t(SETTINGS_GATE_COPY.title)} description={t(SETTINGS_GATE_COPY.description)}>
           <div className="px-4 py-6">{body}</div>
         </LiteAuthGate>
 
         <BottomNav />
 
         {/* Avatar Picker Drawer */}
-        <MobileDrawer open={avatarDialogOpen} onOpenChange={setAvatarDialogOpen} title="Choose Avatar">
+        <MobileDrawer open={avatarDialogOpen} onOpenChange={setAvatarDialogOpen} title={t("settings.choose_avatar")}>
           {renderAvatarGrid("max-h-[50vh]")}
           <MobileDrawerActions>
             <Button onClick={handleSelectAvatar} disabled={!selectedAvatar || isUpdating} className="w-full btn-primary h-12">
-              {isUpdating ? "Saving..." : "Save Avatar"}
+              {isUpdating ? t("settings.saving") : t("settings.avatar.save")}
             </Button>
           </MobileDrawerActions>
         </MobileDrawer>
 
         {/* Username Drawer */}
-        <MobileDrawer open={usernameDialogOpen} onOpenChange={setUsernameDialogOpen} title="Set Username">
+        <MobileDrawer open={usernameDialogOpen} onOpenChange={setUsernameDialogOpen} title={t("settings.set_username_title")}>
           <MobileDrawerSection>
             <div>
               <Input
-                placeholder="Enter your username"
+                placeholder={t("settings.username.placeholder")}
                 value={newUsername}
                 onChange={(e) => setNewUsername(e.target.value)}
                 className="h-12"
@@ -334,7 +336,7 @@ const Settings = () => {
               disabled={isUpdating || !newUsername.trim()}
               className="w-full btn-primary h-12"
             >
-              {isUpdating ? "Saving..." : "Confirm"}
+              {isUpdating ? t("settings.saving") : t("common.confirm")}
             </Button>
           </MobileDrawerSection>
         </MobileDrawer>
@@ -343,13 +345,13 @@ const Settings = () => {
         <MobileDrawer
           open={emailDialogOpen}
           onOpenChange={handleEmailDialogClose}
-          title={emailStep === "input" ? (email ? "Edit Email Address" : "Add Email Address") : "Verify Email"}
+          title={emailStep === "input" ? (email ? t("settings.edit_email_address_title") : t("settings.add_email_address_title")) : t("settings.verify_email")}
         >
           {emailStep === "input" ? (
             <MobileDrawerSection>
               <Input
                 type="email"
-                placeholder="Enter your email"
+                placeholder={t("settings.email.placeholder")}
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
                 className="h-12"
@@ -363,7 +365,7 @@ const Settings = () => {
               <MobileDrawerStatus
                 icon={<Mail className="w-8 h-8 text-primary" />}
                 title=""
-                description={`Enter the 6-digit code sent to ${newEmail}`}
+                description={t("settings.verify_code_sent_to", { email: newEmail })}
               />
               <div className="flex justify-center -mt-4">
                 <InputOTP maxLength={6} value={verificationCode} onChange={setVerificationCode}>
@@ -382,7 +384,7 @@ const Settings = () => {
                 disabled={isUpdating || verificationCode.length !== 6}
                 className="w-full btn-primary h-12"
               >
-                {isUpdating ? "Verifying..." : "Verify"}
+                {isUpdating ? t("settings.verifying") : t("settings.verify")}
               </Button>
               <button
                 onClick={() => setEmailStep("input")}
@@ -402,7 +404,7 @@ const Settings = () => {
     <div className="min-h-screen bg-background">
       <EventsDesktopHeader />
 
-      <LiteAuthGate title={SETTINGS_GATE_COPY.title} description={SETTINGS_GATE_COPY.description}>
+      <LiteAuthGate title={t(SETTINGS_GATE_COPY.title)} description={t(SETTINGS_GATE_COPY.description)}>
         <main className="mx-auto w-full max-w-7xl px-4 py-10 lg:px-6 space-y-6">{body}</main>
       </LiteAuthGate>
 
@@ -412,8 +414,8 @@ const Settings = () => {
       <Dialog open={avatarDialogOpen} onOpenChange={setAvatarDialogOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Choose Avatar</DialogTitle>
-            <DialogDescription>Select an avatar from our collection</DialogDescription>
+            <DialogTitle>{t("settings.choose_avatar")}</DialogTitle>
+            <DialogDescription>{t("settings.avatar.description")}</DialogDescription>
           </DialogHeader>
           {renderAvatarGrid("max-h-[380px]")}
           <DialogFooter>
@@ -421,7 +423,7 @@ const Settings = () => {
               Cancel
             </Button>
             <Button onClick={handleSelectAvatar} disabled={!selectedAvatar || isUpdating} className="btn-primary">
-              {isUpdating ? "Saving..." : "Save"}
+              {isUpdating ? t("settings.saving") : t("common.save")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -431,12 +433,12 @@ const Settings = () => {
       <Dialog open={usernameDialogOpen} onOpenChange={setUsernameDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Set Username</DialogTitle>
-            <DialogDescription>Choose a username for display and @mentions</DialogDescription>
+            <DialogTitle>{t("settings.set_username_title")}</DialogTitle>
+            <DialogDescription>{t("settings.set_username_desc_drawer")}</DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <Input
-              placeholder="Enter your username"
+              placeholder={t("settings.username.placeholder")}
               value={newUsername}
               onChange={(e) => setNewUsername(e.target.value)}
               className="h-12"
@@ -449,7 +451,7 @@ const Settings = () => {
               Cancel
             </Button>
             <Button onClick={handleUpdateUsername} disabled={isUpdating} className="btn-primary">
-              {isUpdating ? "Saving..." : "Save"}
+              {isUpdating ? t("settings.saving") : t("common.save")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -460,14 +462,14 @@ const Settings = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {emailStep === "input" ? (email ? "Edit Email Address" : "Add Email Address") : "Verify Email"}
+              {emailStep === "input" ? (email ? t("settings.edit_email_address_title") : t("settings.add_email_address_title")) : t("settings.verify_email")}
             </DialogTitle>
             <DialogDescription>
               {emailStep === "input"
                 ? email
-                  ? "Update your email for notifications"
-                  : "Add an email for security notifications and account recovery"
-                : "Enter the verification code to confirm your email"}
+                  ? t("settings.edit_email_address_desc")
+                  : t("settings.add_email_address_desc")
+                : t("settings.verify_email_desc")}
             </DialogDescription>
           </DialogHeader>
 
@@ -475,7 +477,7 @@ const Settings = () => {
             <div className="py-4">
               <Input
                 type="email"
-                placeholder="Enter your email"
+                placeholder={t("settings.email.placeholder")}
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
                 className="h-12"
@@ -512,19 +514,19 @@ const Settings = () => {
             {emailStep === "input" ? (
               <>
                 <Button variant="outline" onClick={() => setEmailDialogOpen(false)}>
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button onClick={handleSendVerificationCode} disabled={!newEmail.trim()} className="btn-primary">
-                  Send Code
+                  {t("settings.send_code")}
                 </Button>
               </>
             ) : (
               <>
                 <Button variant="outline" onClick={() => setEmailStep("input")}>
-                  Back
+                  {t("common.back")}
                 </Button>
                 <Button onClick={handleVerifyCode} disabled={isUpdating || verificationCode.length !== 6} className="btn-primary">
-                  {isUpdating ? "Verifying..." : "Verify"}
+                  {isUpdating ? t("settings.verifying") : t("settings.verify")}
                 </Button>
               </>
             )}
