@@ -35,6 +35,16 @@
 - 设计法则 → `DESIGN.md` §Addendum 2026-09-28。
 - Lovable / 正式版边界 → 本文 §5。
 
+### 0.1 字典怎么看
+
+- 网址：https://omenxv2.lovable.app/style-guide
+- 本次节点：左栏 **Lite** 组 → `Settings ✅`；页内目录到 **Ⓚ 语言入口（ST-32 … ST-35）**。相关但非本轮新建：同节 Ⓑ Preferences 的 ST-21 / ST-22（Language 行改为共用列表）；**Foundations** 组 → `Mobile patterns` 的 header A 形态帧（品牌栏右上 🌐）。
+- 定位行：每张样张上方一行「编号 · 名称 · 平台」，下方 Desktop / Mobile · 375 两个 iframe 各挂一份生产组件 + 固定数据。
+- 一张样张怎么读：ST-32 看 chip 在 Sign In 左的位置与尺寸；ST-33 看列表形态（灰短码 + 本名 + ✓）；ST-34 看品牌栏 🌐 的位置；ST-35 看底部抽屉列表。
+- 搜索：页顶搜索框敲 `ST-32` 直达。单张预览：`/style-guide/preview?c=<previewKey>`（本轮 `settings-lang-header-guest` / `settings-lang-chip-open` / `settings-lang-brandbar` / `settings-lang-drawer-open`）。
+- 编号前缀：`ST-` = Settings 节；语言入口的四张都在 Ⓚ 区。
+- 只在字典可见的态：ST-33 / ST-35 的「展开且当前为简体中文」是固定数据帧，生产上要先切一次语言才能看到同样画面，是既定状态。
+
 ## 1. 入口矩阵（R1–R4）
 
 | 端 × 态 | 主入口 | 次入口 | 备注 |
@@ -76,7 +86,7 @@ Settings 节点 Ⓚ：ST-32 顶栏 chip 未登录（生产 `EventsDesktopHeader`
 | 入口位置与形态 | 照本文 | 照抄 |
 | 语言列表 | 7 语（第二批 3 语未开） | 同 |
 | 存储 | `profiles.language` / localStorage | 用户偏好存哪里自选，语义照抄 |
-| 切换效果 | 只改 chip 与（将来）邮件语言，**页面不翻译** | **整站文案切换 + 邮件语言**（i18n 工程，研发） |
+| 切换效果 | 本交付只含**入口与偏好存储**；Lovable 上页面文案是否跟随切换属于 i18n 交付（`i18n-phase-b-v1.md`，另行交付），不在本文范围 | **整站文案切换 + 邮件语言**（i18n 工程，研发） |
 | 首次访问默认语言 | `en` | 建议按浏览器 `Accept-Language` 命中列表则用之，否则 `en`（本文未实现，研发定） |
 | 带入规则 | 登录后 null → 写本地值 | 同 |
 
