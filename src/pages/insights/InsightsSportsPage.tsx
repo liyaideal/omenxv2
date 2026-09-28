@@ -9,7 +9,7 @@ import { SITE_URL } from "@/lib/site";
 import { InsightsShell } from "@/components/insightsSeo/InsightsShell";
 import { LoadingState } from "@/components/states";
 import { useInsightsSeo } from "@/hooks/useInsightsSeo";
-import { Cite, Crumb, FavTag, FourTiles, Hit, HowComputed, LiveCard, LivePill, List, Name, PlatformLine, Responsive, RightWrong, Row, SeriesOpening, SeriesSection, StickyCta, Table, Td, Th } from "@/components/insightsSeo/seriesParts";
+import { Cite, FavTag, FourTiles, Hit, HowComputed, LiveCard, LivePill, List, Name, PlatformLine, Responsive, RightWrong, Row, SeriesOpening, SeriesSection, StickyCta, Table, Td, Th } from "@/components/insightsSeo/seriesParts";
 import { fmtInt, fmtUsd, marketPath } from "@/lib/insights";
 import { c } from "@/lib/insights/series";
 import { buildFixtures, kickoffLong, liveLabel, settleWord, sportLabel, sportPath, type Fixture } from "@/lib/insights/sports";
@@ -41,7 +41,7 @@ const InsightsSportsPage = () => {
 
   return (
     <InsightsShell mobileTitle={label}>
-      <SeriesOpening crumb={<Crumb items={[{ label: "Insights", to: "/insights" }, ...(sport ? [{ label: "Sports", to: "/insights/sports" }, { label }] : [{ label: "Sports" }])]} />}
+      <SeriesOpening
         eyebrow={`OmenX Insights · Sports${sport ? ` · ${label}` : ""}`} title={`${label} Prediction Market Odds — Who the Crowd Backs`}
         lede={<>Match winner, handicap and totals lines{leagues.length ? <> across {leagues.slice(0, 6).join(", ")}</> : null} — priced by OmenX traders, settled on the {sport ? settleWord(sport) : "official result"}.</>} asOf={seo.stats?.as_of} />
       {seo.isLoading && <LoadingState variant="skeleton" skeletonRows={6} />}

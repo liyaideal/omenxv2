@@ -12,9 +12,8 @@ import { c, majorityUp, mmss, type LiveRound } from "@/lib/insights/series";
 import { useNow } from "@/hooks/useInsightsSeries";
 
 /* ---------- opening (display h1 — BROWSE family, SEO-page exemption for eyebrow + lede) ---------- */
-export const SeriesOpening = ({ crumb, eyebrow, title, lede, asOf }: { crumb?: React.ReactNode; eyebrow: string; title: string; lede: React.ReactNode; asOf?: string }) => (
+export const SeriesOpening = ({ eyebrow, title, lede, asOf }: { eyebrow: string; title: string; lede: React.ReactNode; asOf?: string }) => (
   <header className="mb-6">
-    {crumb && <div className="mb-5 font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground/70">{crumb}</div>}
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0">
         <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">{eyebrow}</div>
@@ -30,14 +29,6 @@ export const AsOfLive = ({ iso }: { iso: string }) => (
   <span className="whitespace-nowrap pb-1 font-mono text-[11px] uppercase tracking-[0.06em] text-muted-foreground/70">
     <i className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-trading-green align-[1px]" />As of <time dateTime={iso}>{fmtDateTimeUtc(iso)}</time>
   </span>
-);
-
-export const Crumb = ({ items }: { items: { label: string; to?: string }[] }) => (
-  <nav aria-label="Breadcrumb">
-    {items.map((it, i) => (
-      <span key={i}>{i > 0 && <span className="mx-2 text-muted-foreground/40">·</span>}{it.to ? <Link to={it.to} className="hover:text-primary">{i === 0 ? "← " : ""}{it.label}</Link> : it.label}</span>
-    ))}
-  </nav>
 );
 
 /* ---------- section head (mock: "01" 12px mono grey + 18px h2, right meta capsule or link) ---------- */

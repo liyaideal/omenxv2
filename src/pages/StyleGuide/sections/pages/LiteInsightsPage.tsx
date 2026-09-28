@@ -51,7 +51,7 @@ export const LiteInsightsPage = (_: P) => (
       <DualDevicePreview previewKey="insights-footer-blocks" label="HowComputed + CiteBlock" minHeight={220} />
     </SubSection>
 
-    <SubSection title="IN-9 · 开篇 v2（SeriesOpening）" description="BROWSE 家族 display H1（font-display 40 / 移动 28，tracking −0.02em）+ 10px mono eyebrow + 15px lede（≤ 74ch）+ 右下 as-of（绿点 + <time>）。走 Page Openings 的 SEO 页豁免。上方可选面包屑（← Insights · Crypto）。" platform="shared">
+    <SubSection title="IN-9 · 开篇 v2（SeriesOpening）" description="BROWSE 家族 display H1（font-display 40 / 移动 28，tracking −0.02em）+ 10px mono eyebrow + 15px lede（≤ 74ch）+ 右下 as-of（绿点 + <time>）。走 Page Openings 的 SEO 页豁免。无面包屑（PD-6）：返回靠全站 header / 移动 header 返回键。" platform="shared">
       <DualDevicePreview previewKey="insights-series-opening" label="SeriesOpening" minHeight={240} />
     </SubSection>
     <SubSection title="IN-10 · Live 卡 + 今日四格（LiveCard / FourTiles）" description="资产页 / 运动页 hero：桌面 12 栅格 5 / 7，移动上下堆。LiveCard = 红点 eyebrow + 时段 · display 56px 大数（多数派色：Up 蓝 / Down 绿）+ 少数派 20px 灰 · 一句人话 · 8px 双色条 + 两端 ¢ · 底部倒计时 + 白色胶囊 CTA（移动端 CTA 改 sticky 底栏）。FourTiles = 2×2，10px 微标签 / 30px display 数 / 11px mono 副行。" platform="shared">

@@ -9,7 +9,7 @@ import { SITE_URL } from "@/lib/site";
 import { InsightsShell } from "@/components/insightsSeo/InsightsShell";
 import { LoadingState } from "@/components/states";
 import { useAccuracy } from "@/hooks/useInsightsSeries";
-import { Cite, Crumb, Hit, HowComputed, List, Name, PlatformLine, Responsive, Row, SeriesOpening, SeriesSection, Strip, Table, Td, Th } from "@/components/insightsSeo/seriesParts";
+import { Cite, Hit, HowComputed, List, Name, PlatformLine, Responsive, Row, SeriesOpening, SeriesSection, Strip, Table, Td, Th } from "@/components/insightsSeo/seriesParts";
 import { fmtInt } from "@/lib/insights";
 import { citeAccuracy, minsLabel, minsNoun, minsShort, monthId, monthRange, seriesPath } from "@/lib/insights/series";
 
@@ -35,7 +35,7 @@ const InsightsAccuracyPage = () => {
 
   return (
     <InsightsShell mobileTitle="Accuracy report">
-      <SeriesOpening crumb={<Crumb items={[{ label: "Insights", to: "/insights" }, { label: "Accuracy report" }]} />} eyebrow={`OmenX Insights · Accuracy report · ${range ? range.label : "Rolling 30 days"}`}
+      <SeriesOpening eyebrow={`OmenX Insights · Accuracy report · ${range ? range.label : "Rolling 30 days"}`}
         title={`How Accurate Is the Prediction Market Crowd? — OmenX, ${range ? range.label : "Last 30 Days"}`}
         lede={a ? <>Across <b>{fmtInt(a.rounds)} settled Up-or-Down rounds</b> ({label}), the side the majority backed was right <b>{a.hit ?? 0}%</b> of the time.{bestLen && <> The crowd does best on {minsLabel(bestLen.mins)} rounds ({bestLen.hit}%).</>}{frozen && <> This report is frozen and will not change.</>}</> : "Loading…"} asOf={a?.as_of} />
       {isLoading && <LoadingState variant="skeleton" skeletonRows={6} />}

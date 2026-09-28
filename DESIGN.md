@@ -2227,5 +2227,5 @@ Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED
 5. **命中率色轴**（`Hit`）：≥55 `--trading-green` / ≤45 `--trading-red` / 其余 foreground；样本 < 20 不上色。
 6. **表格 v7**（`Table`）：52px 行、fixed 布局、第一列吃剩余宽、数字列右对齐 tabular、整行可点、无箭头列、无 Price 列、无折线；表头 36px mono 10px。
 7. **移动列表行**（`List/Row/Name`）：两行——名 + 右侧一个时间 / Up·Down 对 + 右侧一个"准不准"；页面留上下文 + `StickyCta`（资产页 / 运动页），首页与报告页用 BottomNav。
-8. **开篇**：`SeriesOpening` = display H1（40 / 移动 28）+ eyebrow + lede + as-of，走 Page Openings 的 SEO 页豁免；`MobileHeader titleAs="div"`，全页唯一 h1。
+8. **开篇**：`SeriesOpening` = display H1（40 / 移动 28）+ eyebrow + lede + as-of，走 Page Openings 的 SEO 页豁免；**无面包屑**（PD-6，2026-09-28 CPO 打回）；`MobileHeader titleAs="div"`，全页唯一 h1。
 9. **页尾三件**固定：`PlatformLine`（品牌句）→ `HowComputed` → `Cite`。

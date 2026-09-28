@@ -167,7 +167,7 @@ const LIVE: LiveRound = { event_id: "crypto-btc-updown-5m-x", mins: 5, start: "2
 
 /** IN-9 · 开篇 v2（display H1 + eyebrow + lede + as-of，SEO 页豁免） */
 export const SeriesOpeningPreview = () => (
-  <Pad><SeriesOpening crumb="← INSIGHTS · CRYPTO" eyebrow="OmenX Insights · Crypto · Up or down" title="Bitcoin Up or Down — Prediction Market Odds & Crowd Accuracy" lede="Every 5 minutes, 15 minutes, hour, 4 hours and day OmenX traders bet whether Bitcoin closes higher or lower." asOf={AS_OF} /></Pad>
+  <Pad><SeriesOpening eyebrow="OmenX Insights · Crypto · Up or down" title="Bitcoin Up or Down — Prediction Market Odds & Crowd Accuracy" lede="Every 5 minutes, 15 minutes, hour, 4 hours and day OmenX traders bet whether Bitcoin closes higher or lower." asOf={AS_OF} /></Pad>
 );
 /** IN-10 · Live 卡 + 今日四格（资产页 hero 5/7 栅格） */
 export const SeriesHeroPreview = () => (

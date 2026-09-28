@@ -8,7 +8,7 @@ import { InsightsShell } from "@/components/insightsSeo/InsightsShell";
 import { LoadingState } from "@/components/states";
 import { useSeriesDetail, useSeriesList } from "@/hooks/useInsightsSeries";
 import {
-  Cite, Crumb, FourTiles, Hit, HowComputed, LiveCard, LivePill, List, MajorityTag, Name, PlatformLine, Responsive, RightWrong, Row, SeriesOpening, SeriesSection, SettlesIn, StickyCta, Table, Td, Th,
+  Cite, FourTiles, Hit, HowComputed, LiveCard, LivePill, List, MajorityTag, Name, PlatformLine, Responsive, RightWrong, Row, SeriesOpening, SeriesSection, SettlesIn, StickyCta, Table, Td, Th,
 } from "@/components/insightsSeo/seriesParts";
 import { fmtUsd, fmtInt, fmtDate } from "@/lib/insights";
 import {
@@ -39,7 +39,6 @@ const InsightsAssetPage = ({ family }: { family: "crypto" | "stocks" }) => {
       {ok && (
         <>
           <SeriesOpening
-            crumb={<Crumb items={[{ label: "Insights", to: "/insights" }, { label: fam, to: `/insights/${family}` }]} />}
             eyebrow={`OmenX Insights · ${fam} · Up or down`}
             title={stock ? `${assetTitle(data)} Up or Down Today — Prediction Market Odds` : `${data.asset} Up or Down — Prediction Market Odds & Crowd Accuracy`}
             lede={stock
