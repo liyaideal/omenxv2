@@ -34,6 +34,7 @@ import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/h
 import { computeTotalEquity, formatEquityUsd } from "@/lib/equity";
 import { TransferDialog } from "@/components/wallet/TransferDialog";
 import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
+import { HELP_CENTER_URL } from "@/lib/site";
 
 
 // Main nav (4 items). Resolved is now an Events page tab. 2026-09-19 (CPO): Leaderboard
@@ -259,7 +260,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                   <DropdownMenuItem
                     onClick={() =>
                       window.open(
-                        "https://omenx-helpcenter.lovable.app",
+                        HELP_CENTER_URL,
                         "_blank",
                         "noopener,noreferrer"
                       )

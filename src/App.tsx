@@ -37,13 +37,10 @@ import LiteRewardsPage from "./pages/lite/LiteRewardsPage";
 import LiteCampaignDetailPage from "./pages/lite/LiteCampaignDetailPage";
 import { CampaignAttribution } from "@/components/campaigns/CampaignAttribution";
 import Vouchers from "./pages/Vouchers";
-import FaqPage from "./pages/FaqPage";
 import GlossaryPage from "./pages/GlossaryPage";
 import GlossaryEnPage from "./pages/GlossaryEnPage";
 import GlossaryCnPage from "./pages/GlossaryCnPage";
-import AboutPage from "./pages/AboutPage";
 import InsightsPage from "./pages/InsightsPage";
-import MethodologyPage from "./pages/MethodologyPage";
 import DevelopersPage from "./pages/DevelopersPage";
 import AffiliatePage from "./pages/AffiliatePage";
 import { ScrollToTop } from "./components/ScrollToTop";
@@ -55,6 +52,8 @@ import HedgeLanding from "./pages/HedgeLanding";
 
 import CampaignStyleGuide from "./pages/CampaignStyleGuide";
 import NotFound from "./pages/NotFound";
+import { ExternalRedirect } from "./components/ExternalRedirect";
+import { HELP_CENTER_URL, HELP_FAQ_URL, HELP_GUIDE_URL } from "./lib/site";
 import { useIsMobile } from "./hooks/use-mobile";
 import { RealtimePricesProvider } from "./contexts/RealtimePricesContext";
 import { SurfaceProvider, useSurface } from "./contexts/SurfaceContext";
@@ -226,13 +225,14 @@ const App = () => (
               <Route path="/settings/transparency" element={<TransparencyPage />} />
               <Route path="/settings/api" element={<ApiManagement />} />
               <Route path="/style-guide" element={<StyleGuide />} />
-              <Route path="/faq" element={<FaqPage />} />
+              {/* Help-center pages (CPO 2026-09-28): no in-app page, old paths forward out. */}
+              <Route path="/faq" element={<ExternalRedirect to={HELP_FAQ_URL} />} />
               <Route path="/glossary" element={<GlossaryPage />} />
               <Route path="/glossary/en" element={<GlossaryEnPage />} />
               <Route path="/glossary/cn" element={<GlossaryCnPage />} />
-              <Route path="/about" element={<AboutPage />} />
+              <Route path="/about" element={<ExternalRedirect to={HELP_CENTER_URL} />} />
               <Route path="/insights" element={<InsightsPage />} />
-              <Route path="/methodology" element={<MethodologyPage />} />
+              <Route path="/methodology" element={<ExternalRedirect to={HELP_GUIDE_URL} />} />
               <Route path="/developers" element={<DevelopersPage />} />
               <Route path="/affiliate" element={<AffiliatePage />} />
               <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />

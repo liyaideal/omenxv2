@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useT } from "@/i18n";
+import { HELP_CENTER_URL, HELP_FAQ_URL, HELP_GUIDE_URL } from "@/lib/site";
 
-type FooterLink = { label: string; path: string };
+type FooterLink = { label: string; path: string; external?: boolean };
 
 const socialLinks = [
   {
@@ -48,9 +49,15 @@ const FooterAccordion = ({ heading, links }: { heading: string; links: FooterLin
         <ul className="space-y-2">
           {links.map((link) => (
             <li key={link.path}>
-              <Link to={link.path} className={LINK_CLASS}>
-                {link.label}
-              </Link>
+              {link.external ? (
+                <a href={link.path} target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>
+                  {link.label}
+                </a>
+              ) : (
+                <Link to={link.path} className={LINK_CLASS}>
+                  {link.label}
+                </Link>
+              )}
             </li>
           ))}
         </ul>
@@ -74,10 +81,11 @@ export const SeoFooter = () => {
     {
       heading: t("legal.footer.headings.learn"),
       links: [
-        { label: t("legal.footer.links.about"), path: "/about" },
-        { label: t("legal.footer.links.faq"), path: "/faq" },
+        // About / FAQ / Methodology live in the help center (CPO 2026-09-28); Glossary stays in-app.
+        { label: t("legal.footer.links.about"), path: HELP_CENTER_URL, external: true },
+        { label: t("legal.footer.links.faq"), path: HELP_FAQ_URL, external: true },
         { label: t("legal.footer.links.glossary"), path: "/glossary" },
-        { label: t("legal.footer.links.methodology"), path: "/methodology" },
+        { label: t("legal.footer.links.methodology"), path: HELP_GUIDE_URL, external: true },
       ],
     },
     {
@@ -140,9 +148,15 @@ export const SeoFooter = () => {
               <ul className="space-y-2">
                 {col.links.map((link) => (
                   <li key={link.path}>
-                    <Link to={link.path} className={LINK_CLASS}>
-                      {link.label}
-                    </Link>
+                    {link.external ? (
+                      <a href={link.path} target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link to={link.path} className={LINK_CLASS}>
+                        {link.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>

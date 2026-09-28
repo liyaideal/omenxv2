@@ -2,6 +2,7 @@ import { useState, useEffect, type CSSProperties } from "react";
 import { User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, KeyRound, Compass, PieChart, ArrowLeftRight, Handshake, Globe } from "lucide-react";
 import { LanguageDrawer, useLanguagePick } from "@/components/language/LanguagePicker";
 import { useT } from "@/i18n";
+import { HELP_CENTER_URL } from "@/lib/site";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthSheet } from "@/components/auth/AuthSheet";
@@ -306,7 +307,7 @@ export const BottomNav = () => {
             label={t("nav.screen.navigation.bottom_navigation.help_and_support")}
             onClick={() => {
               setProfileSheetOpen(false);
-              window.open("https://discord.gg/qXssm2crf9", "_blank", "noopener,noreferrer");
+              window.open(HELP_CENTER_URL, "_blank", "noopener,noreferrer");
             }}
           />
 

@@ -9,3 +9,12 @@ const fromEnv = (import.meta.env.VITE_SITE_URL as string | undefined)?.replace(/
 
 export const SITE_URL =
   fromEnv || (typeof window !== "undefined" ? window.location.origin : "https://omenx.com");
+
+/**
+ * 帮助中心（CPO 2026-09-28）：About / FAQ / Methodology 不再做站内页，全部跳
+ * help.omenxfoundation.org；Glossary 留站内 /glossary。页脚、Help & Support
+ * 入口、旧路由重定向统一从这里取。
+ */
+export const HELP_CENTER_URL = "https://help.omenxfoundation.org/";
+export const HELP_FAQ_URL = "https://help.omenxfoundation.org/faq";
+export const HELP_GUIDE_URL = "https://help.omenxfoundation.org/guide";
