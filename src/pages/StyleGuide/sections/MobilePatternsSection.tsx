@@ -439,7 +439,7 @@ export const MobilePatternsSection = ({ isMobile }: MobilePatternsSectionProps) 
         {/* Live playground — 375px iframes */}
         <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
           {[
-            ["A · top of page", "mobile-header-brand-top"],
+            ["A · top of page (+ default language globe)", "mobile-header-brand-top"],
             ["A · scrolled (divider in)", "mobile-header-brand-scrolled"],
             ["A · + compact control (Portfolio)", "mobile-header-brand-control"],
             ["B · title only (Settings)", "mobile-header-inner-title"],

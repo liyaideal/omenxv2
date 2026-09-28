@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/popover";
 import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
+import { LanguageIconButton } from "@/components/language/LanguagePicker";
 
 /**
  * Mobile Header System v1 (DESIGN.md §10)
@@ -204,7 +205,10 @@ export const MobileHeader = ({
 
   const renderRight = () => {
     if (rightContent) return rightContent;
-    if (isBrand) return null;
+    // Brand bar default right slot = language entry (CPO 2026-09-28,
+    // language-entry-v1 R3): guests and signed-in alike; a page that passes
+    // its own rightContent owns the slot and composes the globe itself.
+    if (isBrand) return <LanguageIconButton />;
     return <div className="w-9 -mr-2" />;
   };
 

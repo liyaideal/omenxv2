@@ -23,6 +23,9 @@ import { SessionsCard } from "@/components/settings/SessionsCard";
 import { AccountCard } from "@/components/settings/AccountCard";
 import { MoreCard } from "@/components/settings/MoreCard";
 import { SETTINGS_GATE_COPY } from "@/pages/Settings";
+import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
+import { MobileHeader } from "@/components/MobileHeader";
+import { LanguageChip, LanguageIconButton } from "@/components/language/LanguagePicker";
 
 const noop = () => undefined;
 
@@ -200,6 +203,40 @@ export const SettingsPreferencesDefaultPreview = () => (
 export const SettingsPreferencesOpenPreview = () => (
   <div className="p-6 max-w-2xl" style={{ minHeight: 420 }}>
     <PreferencesCard previewCode="en" previewOpen />
+  </div>
+);
+
+/* ---------------- Language entry points (language-entry-v1, 2026-09-28) ---------------- */
+
+/** ST-32 · production desktop header, guest branch: chip sits left of Sign In. */
+export const SettingsLangHeaderGuestPreview = () => (
+  <div className="bg-background" style={{ minWidth: 1024 }}>
+    <EventsDesktopHeader />
+  </div>
+);
+
+/** ST-33 · the header chip alone, open, zh-CN current (fixture; no storage writes). */
+export const SettingsLangChipOpenPreview = () => (
+  <div className="bg-background p-6 flex justify-end" style={{ minHeight: 360 }}>
+    <LanguageChip previewCode="zh-CN" previewOpen />
+  </div>
+);
+
+/** ST-34 · production mobile brand bar: default right slot is the globe. */
+export const SettingsLangBrandBarPreview = () => (
+  <div className="bg-background">
+    <MobileHeader variant="brand" showBack={false} />
+  </div>
+);
+
+/** ST-35 · brand bar with the language drawer open, zh-CN current. */
+export const SettingsLangDrawerOpenPreview = () => (
+  <div className="bg-background">
+    <MobileHeader
+      variant="brand"
+      showBack={false}
+      rightContent={<LanguageIconButton previewCode="zh-CN" previewOpen />}
+    />
   </div>
 );
 

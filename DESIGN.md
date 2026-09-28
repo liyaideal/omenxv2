@@ -2181,3 +2181,14 @@ Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED
 9. **Referral 分页不因活动邀请任务改样**（2026-09-26 起）：好友合格时 Referral 分页照旧出 `$5 voucher` 行，活动里的邀请任务同时 +1，两边各算各的；原 `Counted toward campaign` 行态废止。
 10. **KPI 格三断言（2026-09-25 Weekly 弹窗 `WEEKS DONE` 折行事故后立，全站等宽 KPI 格通用）**：同排等宽 KPI 格的标签**单行**（`whitespace-nowrap`，字距可缩到 0.06em、内距可缩到 8px 换空间），数值 **`flex-col + mt-auto` 贴底**——对齐靠结构保证，不靠标签恰好一样长；凡标签/数值是模板变量（`${noun} done`、单复数、币种词），设计与字典必须**渲染最长变体**（weekly ≥ daily、voucher ≥ USDC）。取证三断言：`getClientRects().length === 1`（未折行）、`scrollWidth <= clientWidth`（未溢出）、同排数值 `getBoundingClientRect().bottom` 全等。
 11. **布局约束不改内容归属**：某列塞不下既定内容（如 92px 奖励槽塞不下 `$40 USDC`）时，只允许**改视觉**（加宽列、缩字距、换行策略、缩写词）；**禁止把内容挪到别的字段**（把单位词写进副标题 = 改产品口径，本轮 T2 事故）。列语义变更属产品决策，须在方案里以「⚠ 改既有规范」独立条目请 Liya 批。
+
+## §Addendum 2026-09-28 · 语言入口（LanguagePicker，LOCKED）
+
+来源：CPO 2026-09-28 批 R1–R8 + 视觉 mock；规格 `docs/delivery/language-entry-v1.md`；字典 Settings Ⓚ ST-32…35。**作用域**：`src/components/language/LanguagePicker.tsx`、`EventsDesktopHeader`、`MobileHeader`（brand）、`BottomNav` Me 抽屉、`settings/PreferencesCard`。
+
+1. **一个组件、一个位置、双态常驻**：桌面顶栏右侧固定 `LanguageChip`（未登录在 Sign In 左、登录后在 Equity 左），`hidden lg:flex`；头像菜单**不得**再放 Language 子菜单。移动品牌形态 header 默认右槽 = `LanguageIconButton`（页面自带 `rightContent` 时由页面组合）；内页 header 不加。Me 抽屉 Language 行放 Settings 上方，右侧显示当前本名。
+2. **chip 只显示 2 字母短码**（EN / ZH / TW / JA / KO / RU / VI），列表才显示「灰色短码 + 本名 + ✓」；本名用各语言自己的文字，是「站内文案英文」规则的唯一具名例外。
+3. **chip 规格 = 顶栏 Equity 块**：h-9 / rounded-lg / `border-border/50 bg-muted/30` / `text-muted-foreground` hover 转 foreground；Globe 16。移动图标 = back 钮规格：h-9 w-9 / Globe 20 / stroke 1.5。
+4. **列表一份**：`LanguageMenuItems`（DropdownMenu 200px）与 `LanguageDrawer`（MobileDrawer）是唯一两种列表壳，任何新入口只许挂这两件；禁止再手写语言列表。
+5. **点选行为一份**：`useLanguagePick` = 同值不动作 → `setLanguage` → toast `Language set to {本名}` / 失败 `Couldn't save that. Try again.`；未登录 localStorage、登录 `profiles.language`；登录后 profile `language` 为 null 时带入本地值一次。
+6. **MobileDrawerListItem `right` 槽**（本轮新增）：trailing 值 / 徽标，`shrink-0`，用于「行名 + 当前值」类行；不放按钮。

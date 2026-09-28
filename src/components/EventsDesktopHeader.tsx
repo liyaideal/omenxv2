@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useLanguage } from "@/hooks/useLanguage";
+import { LanguageChip } from "@/components/language/LanguagePicker";
 import {
-  Globe,
   ChevronDown,
   User,
   LogOut,
@@ -13,7 +12,6 @@ import {
   Shield,
   MessageCircle,
   ExternalLink,
-  Check,
   KeyRound,
   ArrowLeftRight,
 } from "lucide-react";
@@ -23,10 +21,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
-  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/Logo";
@@ -51,8 +45,10 @@ const navItems = [
   { label: "Insights", path: "/insights" },
 ];
 
-// Language list + storage are shared with Settings › Preferences (CPO 2026-09-22 rule 15):
-// see src/lib/languages.ts and useLanguage(). The chip shows the 2-letter `short`.
+// Language (CPO 2026-09-28, language-entry-v1 R1/R2): ONE <LanguageChip> in the
+// right cluster for both guests and signed-in users — left of Sign In / left of
+// Equity — shown from lg. The avatar menu no longer carries a Language submenu;
+// the only other entry is Settings › Preferences. See src/components/language.
 
 interface EventsDesktopHeaderProps {
   rightContent?: React.ReactNode;
@@ -110,7 +106,6 @@ export const EquityHoverCardBody = ({
 export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { code: languageCode, language: currentLanguage, languages, setLanguage } = useLanguage();
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const { balance, spotBalance, user, username, avatarUrl } = useUserProfile();
   const [transferOpen, setTransferOpen] = useState(false);
@@ -184,6 +179,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
 
           {user ? (
             <>
+              <LanguageChip className="hidden lg:flex" />
               <HoverCard openDelay={120} closeDelay={100}>
                 <HoverCardTrigger asChild>
                   <button
@@ -248,34 +244,6 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                     <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
                     Settings
                   </DropdownMenuItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <Globe className="mr-2 h-4 w-4 text-muted-foreground" />
-                      <span className="flex-1">Language</span>
-                      <span className="ml-2 text-xs text-muted-foreground">
-                        {currentLanguage.short}
-                      </span>
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        {languages.map((lang) => (
-                          <DropdownMenuItem
-                            key={lang.code}
-                            onClick={() => setLanguage(lang.code)}
-                          >
-                            <Check
-                              className={`mr-2 h-4 w-4 ${
-                                languageCode === lang.code
-                                  ? "text-primary"
-                                  : "opacity-0"
-                              }`}
-                            />
-                            {lang.short} — {lang.label}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
 
                   <DropdownMenuSeparator />
 
@@ -328,29 +296,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
             </>
           ) : (
             <>
-              {/* Compact language selector for guests (no avatar menu available) */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className="hidden items-center gap-1.5 rounded-lg border border-border/50 bg-muted/30 px-2.5 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground xl:flex"
-                    aria-label="Language"
-                  >
-                    <Globe className="h-4 w-4" />
-                    <span className="font-medium">{currentLanguage.short}</span>
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {languages.map((lang) => (
-                    <DropdownMenuItem
-                      key={lang.code}
-                      onClick={() => setLanguage(lang.code)}
-                      className={languageCode === lang.code ? "bg-muted" : ""}
-                    >
-                      {lang.short} — {lang.label}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <LanguageChip className="hidden lg:flex" />
 
               <Button
                 onClick={() => setAuthDialogOpen(true)}

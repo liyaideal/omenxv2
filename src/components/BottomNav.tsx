@@ -1,5 +1,6 @@
 import { useState, useEffect, type CSSProperties } from "react";
-import { User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, KeyRound, Compass, PieChart, ArrowLeftRight, Handshake } from "lucide-react";
+import { User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, KeyRound, Compass, PieChart, ArrowLeftRight, Handshake, Globe } from "lucide-react";
+import { LanguageDrawer, useLanguagePick } from "@/components/language/LanguagePicker";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthSheet } from "@/components/auth/AuthSheet";
@@ -32,6 +33,8 @@ export const BottomNav = () => {
   const [authSheetOpen, setAuthSheetOpen] = useState(false);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
   const [profileSheetOpen, setProfileSheetOpen] = useState(false);
+  const [languageOpen, setLanguageOpen] = useState(false);
+  const { code: languageCode, current: language, pick: pickLanguage } = useLanguagePick();
   const [transferOpen, setTransferOpen] = useState(false);
 
   // Deliver the user to the tab they originally tapped, once signed in
@@ -155,6 +158,17 @@ export const BottomNav = () => {
       {/* Auth Sheet for mobile */}
       <AuthSheet open={authSheetOpen} onOpenChange={handleAuthSheetOpenChange} />
 
+      {/* Language sheet opened from the Me drawer row (language-entry-v1 R4) */}
+      <LanguageDrawer
+        open={languageOpen}
+        onOpenChange={setLanguageOpen}
+        current={languageCode}
+        onPick={(c) => {
+          setLanguageOpen(false);
+          void pickLanguage(c);
+        }}
+      />
+
       {/* Profile Drawer for logged in users - updated */}
       <MobileDrawer open={profileSheetOpen} onOpenChange={setProfileSheetOpen} hideCloseButton>
         {/* User Info Section */}
@@ -257,6 +271,19 @@ export const BottomNav = () => {
             onClick={() => {
               setProfileSheetOpen(false);
               navigate("/developers");
+            }}
+          />
+
+          {/* Language row (CPO 2026-09-28, language-entry-v1 R4): sits above
+              Settings, shows the current language's own name, opens the same
+              LanguageDrawer the brand bar uses. */}
+          <MobileDrawerListItem
+            icon={Globe}
+            label="Language"
+            right={<span className="text-sm text-muted-foreground">{language.label}</span>}
+            onClick={() => {
+              setProfileSheetOpen(false);
+              setLanguageOpen(true);
             }}
           />
 

@@ -148,6 +148,8 @@ interface MobileDrawerListItemProps {
   onClick?: () => void;
   className?: string;
   disabled?: boolean;
+  /** Optional trailing value/adornment (e.g. current language name). */
+  right?: React.ReactNode;
 }
 
 /**
@@ -160,6 +162,7 @@ export function MobileDrawerListItem({
   onClick,
   className,
   disabled = false,
+  right,
 }: MobileDrawerListItemProps) {
   const renderIcon = () => {
     if (!Icon) return null;
@@ -198,6 +201,7 @@ export function MobileDrawerListItem({
           <p className="text-sm text-muted-foreground truncate">{description}</p>
         )}
       </div>
+      {right && <div className="shrink-0 flex items-center gap-1">{right}</div>}
     </button>
   );
 }

@@ -1,27 +1,25 @@
 import { useState } from "react";
-import { Check, ChevronDown, Globe } from "lucide-react";
-import { toast } from "sonner";
+import { ChevronDown, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MobileDrawer, MobileDrawerList } from "@/components/ui/mobile-drawer";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useLanguage } from "@/hooks/useLanguage";
-import { SITE_LANGUAGES, getLanguage, type LanguageCode } from "@/lib/languages";
-import { cn } from "@/lib/utils";
+import type { LanguageCode } from "@/lib/languages";
+import {
+  LanguageDrawer,
+  LanguageMenuItems,
+  useLanguagePick,
+} from "@/components/language/LanguagePicker";
 import { SettingsCard, SettingsRow } from "./SettingsCard";
 
 /**
- * Settings › Preferences (new, CPO 2026-09-22 rules 14–15, mock v5 §1 / 4.11).
- * One row this batch: Language. Desktop = chip (outline sm) + dropdown with
- * the 7 languages, current ticked; mobile = the chip opens a MobileDrawer
- * list. Pick = save (`profiles.language`) + toast. Shares list + storage
- * with the header switcher through `useLanguage`. Page copy is not
- * translated in the blueprint.
+ * Settings › Preferences (CPO 2026-09-22 rules 14–15, mock v5 §1 / 4.11).
+ * One row this batch: Language. Desktop = chip (outline sm, shows the
+ * language's own name) + the shared dropdown list; mobile = the chip opens
+ * the shared LanguageDrawer. Pick = save + toast via useLanguagePick — the
+ * same list, storage and toast as the header chip / brand-bar globe / Me
+ * drawer row (language-entry-v1 R6, 2026-09-28). This is the secondary
+ * entry; the header is the primary one. Page copy is not translated in
+ * Lovable.
  */
 export const PreferencesCard = ({
   previewCode,
@@ -33,24 +31,12 @@ export const PreferencesCard = ({
   previewOpen?: boolean;
 } = {}) => {
   const isMobile = useIsMobile();
-  const { code, setLanguage } = useLanguage();
-  const preview = previewCode !== undefined || previewOpen !== undefined;
-  const [localCode, setLocalCode] = useState<LanguageCode>(previewCode ?? "en");
-  const current = getLanguage(preview ? localCode : code);
+  const { code, current, pick } = useLanguagePick({ previewCode, previewOpen });
   const [open, setOpen] = useState(!!previewOpen);
 
-  const pick = async (next: LanguageCode) => {
+  const onPick = (next: LanguageCode) => {
     setOpen(false);
-    if (next === current.code) return;
-    const label = getLanguage(next).label;
-    if (preview) {
-      setLocalCode(next);
-      toast.success(`Language set to ${label}`);
-      return;
-    }
-    const res = await setLanguage(next);
-    if (res.success) toast.success(`Language set to ${label}`);
-    else toast.error("Couldn't save that. Try again.");
+    void pick(next);
   };
 
   const chip = (
@@ -74,38 +60,14 @@ export const PreferencesCard = ({
             <DropdownMenu open={open} onOpenChange={setOpen}>
               <DropdownMenuTrigger asChild>{chip}</DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[200px]">
-                {SITE_LANGUAGES.map((l) => (
-                  <DropdownMenuItem key={l.code} onSelect={() => pick(l.code)} className="justify-between">
-                    <span>{l.label}</span>
-                    <Check className={cn("w-4 h-4 text-primary", l.code !== current.code && "opacity-0")} />
-                  </DropdownMenuItem>
-                ))}
+                <LanguageMenuItems current={code} onPick={onPick} />
               </DropdownMenuContent>
             </DropdownMenu>
           )
         }
       />
 
-      {isMobile && (
-        <MobileDrawer open={open} onOpenChange={setOpen} title="Language">
-          <MobileDrawerList>
-            {SITE_LANGUAGES.map((l) => (
-              <button
-                key={l.code}
-                type="button"
-                onClick={() => pick(l.code)}
-                className={cn(
-                  "w-full flex items-center justify-between px-4 py-3 rounded-xl text-left text-sm font-medium hover:bg-muted/50 transition-colors",
-                  l.code === current.code && "bg-muted/40",
-                )}
-              >
-                <span>{l.label}</span>
-                {l.code === current.code && <Check className="w-4 h-4 text-primary" />}
-              </button>
-            ))}
-          </MobileDrawerList>
-        </MobileDrawer>
-      )}
+      {isMobile && <LanguageDrawer open={open} onOpenChange={setOpen} current={code} onPick={onPick} />}
     </SettingsCard>
   );
 };

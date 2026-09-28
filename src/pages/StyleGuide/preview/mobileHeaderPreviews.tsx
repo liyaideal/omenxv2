@@ -15,7 +15,7 @@ const Body = ({ children, tall }: { children?: React.ReactNode; tall?: boolean }
 export const HeaderBrandTopPreview = () => (
   <div className="bg-background">
     <MobileHeader variant="brand" showBack={false} />
-    <Body>Lite roots: /, /events, /portfolio, /wallet — logo lg, no back, no title.</Body>
+    <Body>Lite roots: /, /events, /portfolio, /wallet — logo brand-bar, no back, no title. Default right slot = language globe (language-entry-v1 R3, 2026-09-28).</Body>
   </div>
 );
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import {
   DEFAULT_LANGUAGE,
@@ -32,6 +32,11 @@ const writeLocal = (code: LanguageCode) => {
  * value. Signed in → `profiles.language` is the truth (mirrored to
  * localStorage so the header does not flash on reload); signed out →
  * localStorage only.
+ *
+ * Carry-over (CPO 2026-09-28, language-entry-v1 R5): when a user signs in /
+ * signs up and their profile has never had a language set (`null`), the
+ * language they picked as a guest is written to the profile once, instead
+ * of being dropped in favour of the default.
  */
 export const useLanguage = () => {
   const { user, profile, updateLanguage } = useUserProfile();
@@ -39,6 +44,15 @@ export const useLanguage = () => {
 
   const fromProfile = user && isLanguageCode(profile?.language) ? (profile!.language as LanguageCode) : null;
   const code: LanguageCode = fromProfile ?? local;
+
+  // R5 carry-over: profile loaded, language never set → adopt the guest pick.
+  const carriedFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (!user || !profile || profile.language != null) return;
+    if (carriedFor.current === user.id) return;
+    carriedFor.current = user.id;
+    void updateLanguage(local);
+  }, [user, profile, local, updateLanguage]);
 
   // Keep the local mirror in step with the profile value.
   useEffect(() => {

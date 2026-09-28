@@ -207,8 +207,38 @@ const PREFERENCES_CASES: SectionCase[] = [
   },
   {
     key: "settings-preferences-open",
-    label: "ST-22 · Preferences · 下拉展开（desktop）",
-    spec: [{ state: "open", when: "chip 点击", visual: "DropdownMenu 200px，7 项按批次顺序，当前项右侧主色 ✓；移动端为 MobileDrawer 列表（ST-22b）", source: "PreferencesCard.tsx" }],
+    label: "ST-22 · Preferences · 下拉展开（desktop）/ 抽屉展开（mobile）",
+    spec: [{ state: "open", when: "chip 点击", visual: "共用列表 LanguageMenuItems：灰色 2 字母短码 + 语言本名 + 当前项主色 ✓，200px；移动端 = 共用 LanguageDrawer 底部抽屉，同一列表形态", source: "components/language/LanguagePicker.tsx" }],
+  },
+];
+
+/* ---------------- Ⓚ 语言入口（language-entry-v1，2026-09-28） ---------------- */
+
+const LANGUAGE_ENTRY_CASES: SectionCase[] = [
+  {
+    key: "settings-lang-header-guest",
+    label: "ST-32 · 语言入口 · 桌面顶栏 chip · 未登录（生产 EventsDesktopHeader）",
+    note: "R1：同一个 <LanguageChip> 双态常驻——未登录在 Sign In 左、登录后在 Equity 左；lg（≥1024）起显示，md 以下由移动品牌栏承接。R2：头像菜单不再带 Language 子菜单。登录态帧需登录，不在字典里造假；看生产。",
+    spec: [
+      { state: "guest", when: "未登录", visual: "🌐 + 短码（EN）chip，h-9 / rounded-lg / border-border/50 / bg-muted/30，Sign In 左侧", source: "EventsDesktopHeader.tsx → LanguageChip" },
+      { state: "signed-in", when: "登录后", visual: "同一 chip，Equity 块左侧，样式不变", source: "同上" },
+    ],
+  },
+  {
+    key: "settings-lang-chip-open",
+    label: "ST-33 · 语言入口 · 顶栏 chip 展开（当前 简体中文）",
+    spec: [{ state: "open", when: "chip 点击", visual: "共用列表：短码 + 本名 + ✓；点选即生效 + toast 'Language set to {本名}'，未登录写 localStorage / 登录写 profiles.language", source: "LanguagePicker.tsx useLanguagePick" }],
+  },
+  {
+    key: "settings-lang-brandbar",
+    label: "ST-34 · 语言入口 · 移动品牌栏 🌐（生产 MobileHeader brand 默认右槽）",
+    note: "R3：品牌形态 header（/、/events、/portfolio、/wallet）右槽默认 = 语言图标，双态一样；页面自带 rightContent 时由页面自己组合。内页（标题 + 返回）不加，靠 Settings。",
+    spec: [{ state: "default", when: "始终", visual: "h-9 w-9 Globe 1.5 描边，muted 色，与 back 钮同规格", source: "MobileHeader.tsx renderRight → LanguageIconButton" }],
+  },
+  {
+    key: "settings-lang-drawer-open",
+    label: "ST-35 · 语言入口 · 移动抽屉展开（当前 简体中文）",
+    spec: [{ state: "open", when: "🌐 点击 / Me 抽屉 Language 行点击 / Settings chip 点击", visual: "MobileDrawer 'Language'，共用列表；点选 → 抽屉收起 + toast", source: "LanguagePicker.tsx LanguageDrawer" }],
   },
 ];
 
@@ -309,7 +339,7 @@ export const LiteSettingsPage = (_: P) => (
 
     <SectionWrapper
       id="settings-cases"
-      title="Settings · 状态字典（ST-1…ST-31 · Ⓐ–Ⓙ 区）"
+      title="Settings · 状态字典（ST-1…ST-35 · Ⓐ–Ⓚ 区）"
       platform="shared"
       description="分区序 = 生产页从上到下：Ⓐ页面外壳 · Ⓑhero · ⒸSign-in · ⒹAccount security · ⒺWithdrawal verification · ⒻNotifications · ⒼPreferences · ⒽSessions · ⒾAccount · ⒿMore。每个 case 挂载生产组件（preview* fixture 只定初态，禁运行时 fetch）；移动帧里组件自行切到 compact / MobileDrawer 形态。"
     >
@@ -368,8 +398,21 @@ export const LiteSettingsPage = (_: P) => (
             <SectionFrame cases={[PREFERENCES_CASES[1]]} device="desktop" minHeight={460} />
           </div>
           <div className="mt-3">
-            <SectionFrame cases={[PREFERENCES_CASES[0]]} device="mobile" minHeight={200} />
+            <SectionFrame cases={PREFERENCES_CASES} device="mobile" minHeight={200} />
           </div>
+        </SubSection>
+
+        <SubSection title="Ⓚ 语言入口（ST-32 … ST-35）· language-entry-v1" platform="shared">
+          <SectionFrame cases={[LANGUAGE_ENTRY_CASES[0]]} device="desktop" minHeight={80} />
+          <div className="mt-3">
+            <SectionFrame cases={[LANGUAGE_ENTRY_CASES[1]]} device="desktop" minHeight={360} />
+          </div>
+          <div className="mt-3">
+            <SectionFrame cases={[LANGUAGE_ENTRY_CASES[2], LANGUAGE_ENTRY_CASES[3]]} device="mobile" minHeight={120} />
+          </div>
+          <p className="mt-3 text-xs text-muted-foreground">
+            未入字典（需登录态）：桌面登录后 chip 在 Equity 左侧；移动 Me 抽屉「Language · {"{本名}"}」行（BottomNav，R4）。看生产 alex_carter。
+          </p>
         </SubSection>
 
         <SubSection title="Ⓗ Sessions（ST-23 … ST-27）" platform="shared">
