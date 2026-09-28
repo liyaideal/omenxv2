@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Static core sitemap (Lovable). Dynamic URLs — /insights/daily/{date}, /insights/weekly/{week}, market pages — must be emitted by the real platform (see docs/delivery/lite-insights-seo-v1.md §SSR). -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url><loc>https://omenx.lovable.app/</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://omenx.lovable.app/events</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://omenx.lovable.app/insights</loc><lastmod>2026-09-28</lastmod><changefreq>hourly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/category/sports</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/category/crypto</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/category/finance</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/category/politics</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/category/macro</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/category/tech</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/category/entertainment</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://omenx.lovable.app/insights/category/social</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://omenx.lovable.app/leaderboard</loc><lastmod>2026-09-28</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://omenx.lovable.app/affiliate</loc><lastmod>2026-09-28</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://omenx.lovable.app/developers</loc><lastmod>2026-09-28</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://omenx.lovable.app/glossary</loc><lastmod>2026-09-28</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://omenx.lovable.app/privacy-policy</loc><lastmod>2026-09-28</lastmod><changefreq>yearly</changefreq><priority>0.2</priority></url>
+  <url><loc>https://omenx.lovable.app/terms-of-service</loc><lastmod>2026-09-28</lastmod><changefreq>yearly</changefreq><priority>0.2</priority></url>
+</urlset>

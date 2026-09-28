@@ -99,3 +99,7 @@
 
 累计接线约 1,860 处。**剩余未命中 ≈ 1,135 条真文案（146 个文件）**——全是 Lovable 8–9 月新做、线上表还没有的（Lite 交易页、Rewards 任务体系、体育直播、Home 模块……）。下一步按页面优先级分批：追加回表（7 语）→ 接线。`t` 与局部变量重名的文件改用 `t as tr`（SpotTradingCharts / ProSpotShared / CreateKeySteps / TierQuickAnswer / LitePnlPoster）。
 **入口缺口**：Pro 终端顶栏无语言 chip（Pro bar 取代了 EventsDesktopHeader），待补。
+
+## 8. Insights 追加（2026-09-28 晚）
+
+Insights SEO/GEO 重建新增 `insights.*` 150 条（`src/locales/en.json`，含 `insights.seo.*` title / description、`insights.category.intro.*` 八段分类导语、`insights.feed.*` 答句模板）。**只有英文**：其余 6 语随二期追加批一起并入 `OMENX-i18n.xlsx` `insights` sheet（`source = Lovable 2026-09-28`）。SEO title / description / 分类导语上多语言时**每语各写，不机翻**（搜索词汇随语言变）。

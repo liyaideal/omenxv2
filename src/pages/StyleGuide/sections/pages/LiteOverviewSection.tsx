@@ -15,12 +15,12 @@ const PAGES: Array<{ id: string; page: string; route: string; status: RevampStat
   { id: "lite-portfolio", page: "Portfolio", route: "/portfolio · /portfolio?tab=settled · /portfolio/settlement/:id", status: "done" },
   { id: "lite-share", page: "分享 / 晒单", route: "/trade · /spot · /portfolio · 结算详情", status: "done" },
   { id: "lite-leaderboard", page: "Leaderboard", route: "/leaderboard", status: "done" },
-  { id: "lite-settings", page: "Settings", route: "/settings · /settings/transparency", status: "todo" },
-  { id: "lite-insights", page: "Insights", route: "/insights", status: "todo" },
+  { id: "lite-settings", page: "Settings", route: "/settings · /settings/transparency", status: "done" },
+  { id: "lite-insights", page: "Insights（SEO/GEO）", route: "/insights · /insights/daily/:date · /insights/weekly/:week · /insights/category/:slug", status: "done" },
   {
     id: "lite-content",
-    page: "内容页（FAQ · Glossary · About · Methodology · 法务）",
-    route: "/faq · /glossary · /about · /methodology · /privacy-policy · /terms-of-service",
+    page: "内容页（Glossary · 法务；About / FAQ / Methodology 已跳帮助中心）",
+    route: "/glossary · /privacy-policy · /terms-of-service",
     status: "todo",
   },
 ];

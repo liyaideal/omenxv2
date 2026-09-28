@@ -17,6 +17,21 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-09-28 — Insights SEO/GEO 数据页（[文档](../delivery/lite-insights-seo-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| IS-1 | 四类 URL：`/insights` · `/insights/daily/:date` · `/insights/weekly/:week` · `/insights/category/:slug` | ✅ | Lovable 客户端渲染 |
+| IS-2 | 聚合 RPC `insights_platform_stats / event_activity / movers / series` + 每小时 `price_history` 快照 | ✅ | 迁移 `20260928160000_insights_seo_v1.sql`；首轮 7d 历史一次性回填 |
+| IS-3 | `useSeoHead`：title / canonical / hreflang / og / JSON-LD 一处 | ✅ | |
+| IS-4 | GEO 文章壳 `InsightArticle`（h3 问题 + 带日期答句 + dl + Share 引用句） | ✅ | |
+| IS-5 | `public/sitemap.xml` 静态核心 | ✅ | 动态 URL 见 IS-7 |
+| IS-6 | 字典 Lite › Insights IN-1…IN-8 + 总览转 ✅ | ✅ | |
+| IS-7 | **真平台**：SSR / 预渲染四类 URL；动态 sitemap（日报 / 周报 / 市场页） | ⬜ | 研发；Lovable 不做 |
+| IS-8 | **真平台**：市场 canonical `/event/{slug}`，老 `/trade?event=` 301；Lovable 端 `marketPath()` 一处 | ⬜ | 研发 |
+| IS-9 | `insights.*` 150 条 6 语翻译并入总表 | ⬜ | 随 i18n 二期追加批 |
+| IS-10 | 删旧文件 `pages/InsightsPage.tsx`、`components/insights/` | ⬜ | Liya 手删（Lovable 端无删权限） |
+
 ## 2026-09-24 — 交易页一体化 · 研发问题 18 条 DQ（[文档](../delivery/trade-lite-pro-v1.md#11-验收记录)）
 
 | # | 项 | Status | Notes |

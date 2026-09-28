@@ -38,6 +38,7 @@ const h2e = () => import("./h2ePreviews");
 const autoClose = () => import("./autoClosePreviews");
 const auth = () => import("./authPreviews");
 const settings = () => import("./settingsPreviews");
+const insights = () => import("./insightsPreviews");
 const leaderboard = () => import("./leaderboardPreviews");
 const events = () => import("./eventsPreviews");
 const homeStage = () => import("./homeStagePreviews");
@@ -476,6 +477,19 @@ export const previewRegistry: Record<string, Loader> = {
   "wizard-shell": pick(api, "WizardShellPreview"),
   "revoke-dialog": pick(api, "RevokeDialogPreview"),
   "developers-mobile-tiers": pick(api, "DevelopersMobileTiersPreview"),
+
+  /* -------- Insights · SEO/GEO (/insights, 2026-09-28) -------- */
+  "insights-opening": pick(insights, "InsightsOpeningPreview"),
+  "insights-kpi": pick(insights, "InsightsKpiPreview"),
+  "insights-market-table": pick(insights, "InsightsMarketTablePreview"),
+  "insights-market-table-nospark": pick(insights, "InsightsMarketTableNoSparkPreview"),
+  "insights-movers": pick(insights, "InsightsMoversPreview"),
+  "insights-movers-empty": pick(insights, "InsightsMoversEmptyPreview"),
+  "insights-category-table": pick(insights, "InsightsCategoryTablePreview"),
+  "insights-articles": pick(insights, "InsightsArticlesPreview"),
+  "insights-articles-compact": pick(insights, "InsightsArticlesCompactPreview"),
+  "insights-footer-blocks": pick(insights, "InsightsFooterBlocksPreview"),
+  "insights-empty": pick(insights, "InsightsEmptyPreview"),
 
   /* -------- Affiliate Program (/affiliate) -------- */
   "affiliate-page": pick(affiliate, "AffiliatePagePreview"),

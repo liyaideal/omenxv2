@@ -40,7 +40,10 @@ import Vouchers from "./pages/Vouchers";
 import GlossaryPage from "./pages/GlossaryPage";
 import GlossaryEnPage from "./pages/GlossaryEnPage";
 import GlossaryCnPage from "./pages/GlossaryCnPage";
-import InsightsPage from "./pages/InsightsPage";
+import InsightsPage from "./pages/insights/InsightsPage";
+import InsightsDailyPage from "./pages/insights/InsightsDailyPage";
+import InsightsWeeklyPage from "./pages/insights/InsightsWeeklyPage";
+import InsightsCategoryPage from "./pages/insights/InsightsCategoryPage";
 import DevelopersPage from "./pages/DevelopersPage";
 import AffiliatePage from "./pages/AffiliatePage";
 import { ScrollToTop } from "./components/ScrollToTop";
@@ -245,6 +248,9 @@ const App = () => (
               <Route path="/glossary/cn" element={<GlossaryCnPage />} />
               <Route path="/about" element={<ExternalRedirect to={HELP_CENTER_URL} />} />
               <Route path="/insights" element={<InsightsPage />} />
+              <Route path="/insights/daily/:date" element={<InsightsDailyPage />} />
+              <Route path="/insights/weekly/:week" element={<InsightsWeeklyPage />} />
+              <Route path="/insights/category/:slug" element={<InsightsCategoryPage />} />
               <Route path="/methodology" element={<ExternalRedirect to={HELP_GUIDE_URL} />} />
               <Route path="/developers" element={<DevelopersPage />} />
               <Route path="/affiliate" element={<AffiliatePage />} />

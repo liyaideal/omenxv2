@@ -2,15 +2,6 @@ import { NotStartedPage } from "./shell";
 
 type P = { isMobile: boolean };
 
-export const LiteInsightsPage = (_: P) => (
-  <NotStartedPage
-    id="lite-insights"
-    title="Insights"
-    route="/insights"
-    what="覆盖范围：洞察列表、文章详情、空态。"
-  />
-);
-
 export const LiteContentPage = (_: P) => (
   <NotStartedPage
     id="lite-content"

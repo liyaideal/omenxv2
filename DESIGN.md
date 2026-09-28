@@ -2202,3 +2202,16 @@ Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED
 3. **key 语法**：`namespace.flatKey`；插值 `{{var}}`；复数 `_one/_other`；语言本名（简体中文 / 日本語 …）是"站内文案英文"规则的唯一具名例外。
 4. **布局验收**：CJK / RU / VI 文案进字典帧用 `&lang=` 钉语言看；发生撑破按 §Addendum 2026-09-25 第 11 条——只改视觉不挪内容。
 5. **英文口径差异**（Lovable 字典 vs 线上表大小写等）以线上表显示、差异清单交 CPO 裁定后改表。
+
+## §Addendum 2026-09-28 · Insights SEO/GEO 数据页（LOCKED）
+
+来源：CPO 2026-09-28 批「改吧」（omenx-seo-geo 审稿 R1–R9 修订稿）；规格 `docs/delivery/lite-insights-seo-v1.md`；字典 Lite › Insights IN-1…IN-8。**作用域**：`src/pages/insights/*`、`src/components/insightsSeo/*`、`src/lib/insights`、`src/lib/seo/head.ts`。
+
+1. **定位是抓取页不是发现流**：无 tab、无懒加载、无无限滚动，所有榜单一次进 DOM；页面结构 = Opening → KPI → 编号 H2 节（01…）→ How computed → Cite。禁止把 Events 列表卡（LiteEventCard）搬进来。
+2. **一份内容一个 URL**：日报 `/insights/daily/{date}`、周报 `/insights/weekly/{week}`、分类 `/insights/category/{slug}` 各自独立页，永不覆盖；首页只放摘要 + 链接，不复制全文。
+3. **搜索词汇**：H1 / title / lede 必带 "prediction market(s)"；数字只用 `{n}% probability` 与 `¢`，不出现 `$0.62`；分类页 intro 每类独立成段，禁止模板复用。
+4. **GEO 文章壳**（`InsightArticle`）：`<article data-market-id>` · type eyebrow + `<time datetime>` · `<h3>` = 市场问题（链到市场）· 首句 = 带日期答句 · `<dl>` 四项 · View market / Share。JSON-LD 与 `<dl>` 用同一组数字。
+5. **排除与阈值**：`CRYPTO_QUICK*` 轮次全站排除；涨跌与洞察阈值 `MOVE_THRESHOLD = 5 pts`；Closing soon 按事件名去重。
+6. **SEO head 一处**：`useSeoHead({title, description, path, jsonLd, ogType, hreflang})`；禁止页面各自写 `document.title`。
+7. **市场链接一处**：`marketPath()`；真平台改 `/event/{slug}` 只动此函数。
+8. **视觉沿用交易面 token**：`trading-card`、`#1D2026` 分隔、`trading-green / red` 涨跌、display 32/40 H1、eyebrow 10px 0.1em；375 态榜单横向滚动不折列。

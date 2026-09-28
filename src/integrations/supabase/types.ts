@@ -2100,6 +2100,27 @@ export type Database = {
       }
       tick_demo_showcase: { Args: never; Returns: Json }
       tick_demo_wta: { Args: never; Returns: Json }
+      insights_event_activity: {
+        Args: { p_from: string; p_to?: string }
+        Returns: { event_name: string; trades: number; volume: number }[]
+      }
+      insights_movers: {
+        Args: { p_from: string; p_to?: string }
+        Returns: {
+          event_id: string
+          option_id: string
+          first_price: number
+          last_price: number
+          first_at: string
+          last_at: string
+        }[]
+      }
+      insights_platform_stats: { Args: never; Returns: Json }
+      insights_series: {
+        Args: { p_option_ids: string[]; p_from: string; p_to?: string }
+        Returns: { option_id: string; price: number; recorded_at: string }[]
+      }
+      insights_snapshot_prices: { Args: never; Returns: undefined }
       tick_live_matches: { Args: never; Returns: Json }
     }
     Enums: {
