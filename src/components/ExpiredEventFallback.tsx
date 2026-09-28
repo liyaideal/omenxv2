@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useNavigate } from "react-router-dom";
 import { Clock, ArrowLeft, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,7 @@ export function ExpiredEventFallback({ eventId }: ExpiredEventFallbackProps) {
 
         {/* Event ID hint */}
         <div className="w-full bg-muted/50 rounded-lg px-4 py-3 border border-border/50">
-          <p className="text-xs text-muted-foreground">Event ID</p>
+          <p className="text-xs text-muted-foreground">{t("common.event_id")}</p>
           <p className="text-sm font-mono text-foreground mt-0.5 truncate">{eventId}</p>
         </div>
 

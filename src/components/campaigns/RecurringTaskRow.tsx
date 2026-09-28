@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, CircleSlash, Loader2, Repeat } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -285,7 +286,7 @@ export const RecurringHistory = ({ task, d }: { task: CampaignTaskDef; d: Recurr
       <div className="mb-3 flex gap-2">
         <Kpi label={`${noun} done`} value={task.max_periods ? `${d.doneCount} / ${task.max_periods}` : `${d.doneCount}`} />
         <Kpi label="Streak" value={d.streak >= 2 ? `🔥 ${d.streak}` : `${d.streak}`} color={d.streak >= 2 ? "#FF8A3D" : undefined} />
-        <Kpi label="Earned" value={`$${d.earned}`} color={d.unit === "usdc" ? "#33D6FF" : "#CFFF4A"} />
+        <Kpi label={t("rewards.earned")} value={`$${d.earned}`} color={d.unit === "usdc" ? "#33D6FF" : "#CFFF4A"} />
       </div>
       {d.period === "daily" && cells.length > 0 ? (
         (() => {
@@ -372,7 +373,7 @@ export const RecurringHistory = ({ task, d }: { task: CampaignTaskDef; d: Recurr
         ))}
         <span className="inline-flex items-center gap-1">
           <i className="inline-block h-2 w-2 rounded-full" style={{ border: "1.5px solid #33D6FF" }} />
-          today
+          {t("common.today")}
         </span>
       </div>
     </div>
@@ -453,9 +454,9 @@ export const RecurringTaskRow = ({
   } else if (d.notEligible) {
     action = <span className="text-right text-[12.5px] font-semibold text-[#9AA1AC]">Not eligible</span>;
   } else if (frozen) {
-    action = <span className="text-right text-[12.5px] font-semibold text-[#9AA1AC]">Ended</span>;
+    action = <span className="text-right text-[12.5px] font-semibold text-[#9AA1AC]">{t("home.ended")}</span>;
   } else if (d.completed) {
-    action = <span className="text-right text-[12.5px] font-semibold text-[#9AA1AC]">Completed</span>;
+    action = <span className="text-right text-[12.5px] font-semibold text-[#9AA1AC]">{t("wallet.screen.recovery_status.steps.completed")}</span>;
   } else if (d.claimableKeys.length) {
     const claimAll = async () => {
       try {

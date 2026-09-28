@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import {
   Accordion,
   AccordionContent,
@@ -95,7 +96,7 @@ export const HedgeFAQ = () => {
       <div className="mx-auto max-w-5xl px-4 md:px-6">
         <div className="mb-8 md:mb-10">
           <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#1D4ED8]">
-            FAQ
+            {t("common.faq")}
           </p>
           <h2 className="mt-2 font-poster text-3xl uppercase leading-tight tracking-tight text-[#0E0E0E] md:text-5xl">
             Quick answers.

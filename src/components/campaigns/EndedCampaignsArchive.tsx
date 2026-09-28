@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -106,7 +107,7 @@ export const EndedCampaignsArchive = ({
               onClick={() => navigate("/vouchers")}
               className="text-[11.5px] text-[#6B7280] underline-offset-2 hover:underline"
             >
-              All rewards you've received live in Position Vouchers →
+              {t("rewards.screen.ended_campaigns_archive.all_rewards_youve_received_live_in_position_vouchers")}
             </button>
           </div>
         </div>

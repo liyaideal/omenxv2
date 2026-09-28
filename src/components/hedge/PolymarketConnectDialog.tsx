@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState, useEffect } from "react";
 import { Loader2, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -203,7 +204,7 @@ export const PolymarketConnectDialog = ({
         <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 flex items-center gap-3">
           <Loader2 className="w-5 h-5 animate-spin text-primary" />
           <div>
-            <p className="text-sm font-medium">Waiting for wallet signature...</p>
+            <p className="text-sm font-medium">{t("settings.waiting_signature")}</p>
             <p className="text-xs text-muted-foreground">
               Please confirm in your wallet
             </p>
@@ -215,7 +216,7 @@ export const PolymarketConnectDialog = ({
         <div className="bg-trading-green/10 border border-trading-green/20 rounded-xl p-4 flex items-center gap-3">
           <Loader2 className="w-5 h-5 animate-spin text-trading-green" />
           <div>
-            <p className="text-sm font-medium">Verifying on-chain...</p>
+            <p className="text-sm font-medium">{t("settings.verifying_onchain")}</p>
             <p className="text-xs text-muted-foreground">
               Confirming wallet ownership and linking your account
             </p>
@@ -264,7 +265,7 @@ export const PolymarketConnectDialog = ({
         <DialogHeader>
           <DialogTitle>Connect Polymarket</DialogTitle>
           <DialogDescription>
-            Link your wallet to claim your free hedge airdrop
+            {t("settings.connect_dialog_desc")}
           </DialogDescription>
         </DialogHeader>
         {formContent}
@@ -274,7 +275,7 @@ export const PolymarketConnectDialog = ({
             onClick={() => onOpenChange(false)}
             className="flex-1"
           >
-            Cancel
+            {t("common.cancel")}
           </Button>
           <div className="flex-1">{ctaButton}</div>
         </div>

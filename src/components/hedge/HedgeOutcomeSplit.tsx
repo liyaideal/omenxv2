@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { HedgePosterFrame } from "./HedgePosterFrame";
 
 interface OutcomeColProps {
@@ -80,7 +81,7 @@ export const HedgeOutcomeSplit = () => {
             className="pointer-events-none absolute left-1/2 top-1/2 z-10 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-4 border-[#0E0E0E] bg-[#FACC15] font-poster text-sm uppercase tracking-tight text-[#0E0E0E] md:h-14 md:w-14 md:text-base"
             style={{ boxShadow: "3px 3px 0 0 #0E0E0E" }}
           >
-            VS
+            {t("common.vs")}
           </div>
 
           <OutcomeCol

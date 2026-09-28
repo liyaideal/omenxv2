@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { cn } from "@/lib/utils";
 
 /** Mirrors LogoSize — the badge is sized from the logo's cap-height (brand book lockup rule). */
@@ -37,9 +38,9 @@ export const MainnetBadge = ({ className, size = "sm", responsive = true }: Main
         sizeClasses[size],
         className,
       )}
-      aria-label="Live on mainnet"
+      aria-label={t("common.live_on_mainnet")}
     >
-      Mainnet
+      {t("common.mainnet")}
     </span>
   );
 };

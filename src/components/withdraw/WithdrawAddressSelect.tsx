@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useEffect, useState } from 'react';
 import { Check, Plus } from 'lucide-react';
 import { useWallets, type Wallet } from '@/hooks/useWallets';
@@ -116,7 +117,7 @@ export const WithdrawAddressSelect = ({
                     <span className="font-medium truncate">{wallet.label}</span>
                     {wallet.isPrimary && (
                        <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase shrink-0 bg-trading-green/15 text-trading-green">
-                        Default
+                        {t("settings.wallet.default")}
                       </span>
                     )}
                   </div>
@@ -142,7 +143,7 @@ export const WithdrawAddressSelect = ({
             className="w-full flex items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-border/50 hover:border-primary/50 text-muted-foreground hover:text-foreground transition-all"
           >
             <Plus className="w-5 h-5" />
-            <span className="font-medium">Add new address</span>
+            <span className="font-medium">{t("settings.wallet.add_new_address")}</span>
           </button>
 
           {wallets.length === 0 && (
@@ -158,7 +159,7 @@ export const WithdrawAddressSelect = ({
           <AddAddressFields values={form} onChange={setForm} idPrefix="withdraw-add-addr" />
           <MobileDrawerActions className="flex gap-2 space-y-0">
             <Button variant="outline" onClick={() => setStep('list')} className="flex-1 h-11">
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={handleSave} disabled={isSaving} className="flex-1 h-11 btn-primary">
               {isSaving ? 'Saving...' : 'Save address'}

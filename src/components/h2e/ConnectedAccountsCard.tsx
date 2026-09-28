@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import { Info } from "lucide-react";
 import { Plus, Loader2, X, Wallet } from "lucide-react";
@@ -303,9 +304,9 @@ export const ConnectedAccountsCard = ({ fixture }: { fixture?: ConnectedAccounts
         <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 flex items-center gap-3">
           <Loader2 className="w-5 h-5 animate-spin text-primary" />
           <div>
-            <p className="text-sm font-medium">Waiting for wallet signature...</p>
+            <p className="text-sm font-medium">{t("settings.waiting_signature")}</p>
             <p className="text-xs text-muted-foreground">
-              Please confirm the signature request in your wallet
+              {t("settings.confirm_signature")}
             </p>
           </div>
         </div>
@@ -315,9 +316,9 @@ export const ConnectedAccountsCard = ({ fixture }: { fixture?: ConnectedAccounts
         <div className="bg-trading-green/10 border border-trading-green/20 rounded-xl p-4 flex items-center gap-3">
           <Loader2 className="w-5 h-5 animate-spin text-trading-green" />
           <div>
-            <p className="text-sm font-medium">Verifying on-chain...</p>
+            <p className="text-sm font-medium">{t("settings.verifying_onchain")}</p>
             <p className="text-xs text-muted-foreground">
-              Confirming wallet ownership and linking account
+              {t("settings.confirming_ownership")}
             </p>
           </div>
         </div>
@@ -366,7 +367,7 @@ export const ConnectedAccountsCard = ({ fixture }: { fixture?: ConnectedAccounts
           {connectFormContent}
           <div className="flex gap-3 pt-2">
             <Button variant="outline" onClick={() => handleCloseDialog(false)} className="flex-1">
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               onClick={handlePrimaryConnectAction}
@@ -390,9 +391,9 @@ export const ConnectedAccountsCard = ({ fixture }: { fixture?: ConnectedAccounts
       <div className="rounded-[16px] border border-[#1D2026] bg-[#131519] p-4 md:p-[18px]">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6B7280]">CONNECTED ACCOUNTS</div>
+            <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6B7280]">{t("settings.connected_accounts")}</div>
             <p className="mt-1 text-[12px] text-[#9AA1AC]">
-              Link external prediction market wallets to receive hedge airdrops
+              {t("rewards.screen.h2e_connected_accounts.link_external_prediction_market_wallets_to_receive_hedge_airdrops")}
             </p>
           </div>
         </div>
@@ -416,12 +417,12 @@ export const ConnectedAccountsCard = ({ fixture }: { fixture?: ConnectedAccounts
                       <span className="font-medium text-sm">{platform.name}</span>
                       {isComingSoon && (
                         <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                          Coming Soon
+                          {t("common.coming_soon")}
                         </Badge>
                       )}
                       {account && (
                         <Badge className={`${STATUS_STYLES.success.badge} text-[10px] px-1.5 py-0`}>
-                          Connected
+                          {t("common.connected")}
                         </Badge>
                       )}
                     </div>
@@ -442,7 +443,7 @@ export const ConnectedAccountsCard = ({ fixture }: { fixture?: ConnectedAccounts
                           onClick={() => handleOpenConnect(platform.id)}
                           className="rounded-[10px] bg-white text-[#0A0B0D] font-display font-bold text-[12.5px] px-3.5 h-8 hover:bg-[#E6E9EE]"
                         >
-                          <Plus className="w-4 h-4 mr-1" /> Connect
+                          <Plus className="w-4 h-4 mr-1" /> {t("settings.connect")}
                         </Button>
                       ) : null}
                     </div>
@@ -458,7 +459,7 @@ export const ConnectedAccountsCard = ({ fixture }: { fixture?: ConnectedAccounts
                       {account.scanStatus === "scanning" ? (
                         <div className="flex items-center gap-1.5">
                           <Loader2 className="w-3 h-3 animate-spin text-primary" />
-                          <span className="text-xs text-muted-foreground">Scanning positions...</span>
+                          <span className="text-xs text-muted-foreground">{t("settings.scanning_positions")}</span>
                         </div>
                       ) : (
                         <div className="flex items-center gap-3 text-xs text-muted-foreground">
@@ -491,11 +492,11 @@ export const ConnectedAccountsCard = ({ fixture }: { fixture?: ConnectedAccounts
         {/* Eligibility explainer */}
         <div className="mt-4 rounded-[12px] border border-[#1D2026] bg-[#0F1115] px-4 py-3.5">
           <div className="flex items-center gap-1.5 text-[12px] font-semibold text-foreground">
-            <Info className="w-3.5 h-3.5 text-[#33D6FF]" /> Which positions qualify for airdrops?
+            <Info className="w-3.5 h-3.5 text-[#33D6FF]" /> {t("settings.airdrop_eligibility_title")}
           </div>
           <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
             <div>
-              <div className="mb-1.5 text-[9px] font-bold uppercase tracking-[0.14em] text-[#6B7280]">Qualifies</div>
+              <div className="mb-1.5 text-[9px] font-bold uppercase tracking-[0.14em] text-[#6B7280]">{t("rewards.screen.h2e_connected_accounts.qualifies")}</div>
               <div className="grid grid-cols-[52px_1fr] items-baseline gap-x-2.5 gap-y-1 text-[11px] text-[#9AA1AC]">
                 <span className="font-display text-[12px] font-semibold text-[#F2F3F5]">&ge; $20</span><span>position notional on Polymarket</span>
                 <span className="font-display text-[12px] font-semibold text-[#F2F3F5]">&ge; 1 day</span><span>position held</span>
@@ -503,7 +504,7 @@ export const ConnectedAccountsCard = ({ fixture }: { fixture?: ConnectedAccounts
               </div>
             </div>
             <div>
-              <div className="mb-1.5 text-[9px] font-bold uppercase tracking-[0.14em] text-[#6B7280]">Limits</div>
+              <div className="mb-1.5 text-[9px] font-bold uppercase tracking-[0.14em] text-[#6B7280]">{t("common.limits")}</div>
               <div className="grid grid-cols-[52px_1fr] items-baseline gap-x-2.5 gap-y-1 text-[11px] text-[#9AA1AC]">
                 <span className="font-display text-[12px] font-semibold text-[#F2F3F5]">3</span><span>active airdrops at a time</span>
                 <span className="font-display text-[12px] font-semibold text-[#F2F3F5]">72h</span><span>to activate, or the airdrop expires</span>

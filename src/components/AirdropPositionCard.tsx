@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import { Gift, Ticket, Clock, Zap, AlertTriangle, CheckCircle2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -73,12 +74,12 @@ export const AirdropPositionCard = ({ airdrop, onActivate, isActivating, onClose
           {isVoucher ? (
             <Badge variant="outline" className="bg-primary/20 text-primary border-primary/30 text-[10px] px-1.5 py-0 gap-1">
               <Ticket className="w-3 h-3" />
-              VOUCHER
+              {t("portfolio.lite.live.voucher")}
             </Badge>
           ) : (
             <Badge variant="outline" className="bg-primary/20 text-primary border-primary/30 text-[10px] px-1.5 py-0 gap-1">
               <Gift className="w-3 h-3" />
-              AIRDROP
+              {t("common.airdrop")}
             </Badge>
           )}
           {isWelcomeGift && (
@@ -137,11 +138,11 @@ export const AirdropPositionCard = ({ airdrop, onActivate, isActivating, onClose
       {/* Details Grid */}
       <div className="grid grid-cols-3 gap-2 mb-2">
         <div>
-          <span className="text-[10px] text-muted-foreground block">Value</span>
+          <span className="text-[10px] text-muted-foreground block">{t("market.value")}</span>
           <span className="font-mono text-xs text-trading-green">${airdrop.airdropValue.toFixed(2)}</span>
         </div>
         <div>
-          <span className="text-[10px] text-muted-foreground block">Price</span>
+          <span className="text-[10px] text-muted-foreground block">{t("market.price")}</span>
           <span className="font-mono text-xs">${airdrop.counterPrice.toFixed(4)}</span>
         </div>
         {isSettled && airdrop.settledPnl != null ? (
@@ -153,7 +154,7 @@ export const AirdropPositionCard = ({ airdrop, onActivate, isActivating, onClose
           </div>
         ) : (
           <div>
-            <span className="text-[10px] text-muted-foreground block">Source</span>
+            <span className="text-[10px] text-muted-foreground block">{t("common.source")}</span>
             <span className="text-xs text-muted-foreground truncate block">
               {isVoucher
                 ? `Voucher · cap $${airdrop.redeemableCap?.toFixed(2) ?? "—"}`
@@ -168,14 +169,14 @@ export const AirdropPositionCard = ({ airdrop, onActivate, isActivating, onClose
       {/* External position reference — only when matched */}
       {!isWelcomeGift && !isVoucher && airdrop.externalEventName && (
         <div className="text-[10px] text-muted-foreground mb-2 flex items-center gap-1">
-          <span>Hedging:</span>
+          <span>{t("market.airdrop_hedging_label")}</span>
           <span className="truncate">{airdrop.externalEventName}</span>
         </div>
       )}
 
       {/* $500 cap notice for pending */}
       {isPending && (
-        <p className="text-[10px] text-muted-foreground/70 mb-2">Max $500 earnings per account</p>
+        <p className="text-[10px] text-muted-foreground/70 mb-2">{t("rewards.screen.airdrop.airdrop_notification_manager.max_500_earnings_per_account")}</p>
       )}
 
       {/* Action */}
@@ -192,7 +193,7 @@ export const AirdropPositionCard = ({ airdrop, onActivate, isActivating, onClose
       {isExpiredStatus && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground py-1">
           <AlertTriangle className="w-3 h-3" />
-          <span>This airdrop expired without activation</span>
+          <span>{t("portfolio.screen.mobile_portfolio_airdrop_card.this_airdrop_expired_without_activation")}</span>
         </div>
       )}
 

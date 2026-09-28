@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { CheckCircle2, Loader2, XCircle, Send } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { RecoveryStatus } from '@/hooks/useRecoveryRequests';
@@ -22,9 +23,9 @@ export const RecoveryStatusTimeline = ({ status }: RecoveryStatusTimelineProps) 
       <div className="flex items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4">
         <XCircle className="w-5 h-5 text-destructive shrink-0" />
         <div className="text-sm">
-          <div className="font-medium text-destructive">Request rejected</div>
+          <div className="font-medium text-destructive">{t("wallet.screen.recovery_status.request_rejected")}</div>
           <div className="text-xs text-muted-foreground mt-0.5">
-            See note below for details.
+            {t("wallet.screen.recovery_status.see_note_below_for_details")}
           </div>
         </div>
       </div>

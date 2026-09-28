@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { ExternalHedgeLinks } from "@/components/ExternalHedgeLinks";
 import type { TradingEvent } from "@/hooks/useEvents";
 
@@ -43,7 +44,7 @@ export function EventInfoContent({ event }: EventInfoContentProps) {
                 <div className="text-sm font-medium">{event.stats.low24h}</div>
               </div>
               <div>
-                <div className="text-[10px] text-muted-foreground">24h Volume</div>
+                <div className="text-[10px] text-muted-foreground">{t("market.24h_volume")}</div>
                 <div className="text-sm font-medium">{event.stats.volume24h}</div>
               </div>
               <div>
@@ -58,22 +59,22 @@ export function EventInfoContent({ event }: EventInfoContentProps) {
       {/* Event Details Grid */}
       <div className="grid grid-cols-2 gap-2">
         <div className="bg-muted/30 rounded-lg p-3">
-          <div className="text-[10px] text-muted-foreground mb-0.5">Event End Date</div>
+          <div className="text-[10px] text-muted-foreground mb-0.5">{t("market.event_info_event_end")}</div>
           <div className="text-sm font-medium">{event.ends}</div>
         </div>
         <div className="bg-muted/30 rounded-lg p-3">
-          <div className="text-[10px] text-muted-foreground mb-0.5">Total Volume</div>
+          <div className="text-[10px] text-muted-foreground mb-0.5">{t("market.total_volume")}</div>
           <div className="text-sm font-medium">{event.volume}</div>
         </div>
         <div className="bg-muted/30 rounded-lg p-3">
-          <div className="text-[10px] text-muted-foreground mb-0.5">Open Interest</div>
+          <div className="text-[10px] text-muted-foreground mb-0.5">{t("market.open_interest")}</div>
           <div className="text-sm font-medium">$1.2M</div>
         </div>
       </div>
 
       {/* Resolution Source */}
       <div className="bg-muted/30 rounded-lg p-3">
-        <div className="text-[10px] text-muted-foreground mb-1">Resolution Source</div>
+        <div className="text-[10px] text-muted-foreground mb-1">{t("market.event_info_resolution_source")}</div>
         <p className="text-sm">
           {event.resolutionSource || "This market will be resolved based on official data sources as specified in the market rules."}
         </p>
@@ -82,7 +83,7 @@ export function EventInfoContent({ event }: EventInfoContentProps) {
       {/* Market Rules */}
       {event.rules && event.rules.length > 0 && (
         <div className="bg-muted/30 rounded-lg p-3">
-          <div className="text-[10px] text-muted-foreground mb-1">Market Rules</div>
+          <div className="text-[10px] text-muted-foreground mb-1">{t("market.market_rules")}</div>
           <ul className="text-sm space-y-1.5">
             {event.rules.map((rule, idx) => (
               <li key={idx} className="flex items-start gap-2">

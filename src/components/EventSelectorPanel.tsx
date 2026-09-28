@@ -8,6 +8,7 @@
 // Picking a row on the other tab is the host's job (`onSelect(event, tab)`);
 // it navigates to that terminal.
 // ============================================================
+import { t } from "@/i18n";
 import { Search, Star, X } from "lucide-react";
 import type { TradingEvent } from "@/hooks/useEvents";
 import { cn } from "@/lib/utils";
@@ -87,7 +88,7 @@ const SearchRow = (
       onChange={(e) => p.onSearchChange(e.target.value)}
       placeholder={p.showFavoritesOnly ? "Search favorites..." : "Search events..."}
       className="flex-1 bg-transparent outline-none text-sm min-w-0"
-      aria-label="Search events"
+      aria-label={t("market.events_search_placeholder")}
     />
     {p.search && (
       <button onClick={() => p.onSearchChange("")} aria-label="Clear search">
@@ -115,17 +116,17 @@ const Empty = ({ favoritesOnly, onShowAll }: { favoritesOnly: boolean; onShowAll
     {favoritesOnly ? (
       <>
         <Star className="w-10 h-10 text-muted-foreground/30 mb-3" />
-        <p className="text-sm text-muted-foreground mb-1">No favorites yet</p>
+        <p className="text-sm text-muted-foreground mb-1">{t("market.screen.event_detail.event_info.event_selector_content.no_favorites_yet")}</p>
         <p className="text-xs text-muted-foreground/70">Tap the star next to an event to add it here</p>
         <button onClick={onShowAll} className="mt-3 text-xs text-primary hover:underline">
-          View all events
+          {t("market.screen.event_detail.event_info.event_selector_content.view_all_events")}
         </button>
       </>
     ) : (
       <>
         <Search className="w-10 h-10 text-muted-foreground/30 mb-3" />
-        <p className="text-sm text-muted-foreground">No events found</p>
-        <p className="text-xs text-muted-foreground/70">Try a different search term</p>
+        <p className="text-sm text-muted-foreground">{t("market.no_events_found")}</p>
+        <p className="text-xs text-muted-foreground/70">{t("market.screen.event_detail.event_info.event_selector_content.try_a_different_search_term")}</p>
       </>
     )}
   </div>
@@ -211,9 +212,9 @@ export function EventSelectorPanel(p: EventSelectorPanelProps) {
         />
       </div>
       <div className="grid grid-cols-[1fr_96px_88px] text-xs text-muted-foreground px-4 py-2 border-b border-border/30">
-        <span>Event</span>
-        <span className="text-right">Ends in</span>
-        <span className="text-right">Volume</span>
+        <span>{t("common.event")}</span>
+        <span className="text-right">{t("market.ends_in")}</span>
+        <span className="text-right">{t("market.volume")}</span>
       </div>
       <div className="max-h-[300px] overflow-y-auto">
         {p.events.length === 0 ? (

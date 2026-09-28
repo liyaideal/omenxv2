@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useRef, useState, type ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -136,7 +137,7 @@ const CountdownDemo = () => {
           <Countdown compact endsAt={endsAt} className="text-mainnet-gold text-base" />
         </div>
         <div className="rounded-sm border border-border/40 bg-background/30 p-4">
-          <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Yes</p>
+          <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{t("common.yes")}</p>
           <Countdown endsAt={endsAt} className="text-mainnet-gold text-base" />
         </div>
       </div>
@@ -560,7 +561,7 @@ const RetroFrameDemo = () => {
               Sample sticker
             </span>
             <div className="mt-3 font-poster text-3xl uppercase leading-none text-[#0E0E0E]">
-              Poster <span className="text-[#1D4ED8]">frame</span>
+              {t("common.poster")} <span className="text-[#1D4ED8]">frame</span>
             </div>
             <p className="mt-3 max-w-md text-sm text-[#0E0E0E]/80">
               Reusable container for hero, rules, tiers, final CTA. Shadow color
@@ -653,7 +654,7 @@ const RetroTokensDemo = () => (
     </div>
 
     <div>
-      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Typography</p>
+      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{t("nav.typography")}</p>
       <div className="mt-2 space-y-3 rounded-sm border border-border/50 bg-[#FDFCF0] p-5 text-[#0E0E0E]">
         <div>
           <p className="font-mono text-[9px] uppercase tracking-widest text-[#0E0E0E]/60">Poster · Archivo Black</p>
@@ -728,7 +729,7 @@ export const CampaignPlayground = () => {
         <TabsContent value="data" className="mt-0 space-y-6">
           <PlaygroundCard
             id="countdown"
-            title="Countdown"
+            title={t("market.countdown")}
             description="Live countdown to a target date. Auto-handles days / hours / minutes / seconds and ended state."
             whenToUse="Campaign deadline, claim window, settlement window. Anywhere a user needs to see urgency."
             whenNotTo="Static dates that don't tick. Use a plain formatted date string instead."

@@ -5,6 +5,7 @@
  *
  * Mounted by: src/pages/Withdraw.tsx (and the style-guide funding preview).
  */
+import { t } from "@/i18n";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useWithdrawSubmit } from "@/components/withdraw/WithdrawSubmitContext";
@@ -38,7 +39,7 @@ export const StickyWithdrawBar = ({ offsetBottomNav = true }: StickyWithdrawBarP
         className="w-full h-12 rounded-xl bg-primary hover:bg-primary-hover font-semibold text-sm"
       >
         {loading ? (
-          <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Processing...</>
+          <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{t("common.processing")}</>
         ) : (
           "Withdraw"
         )}

@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import { LogIn } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -50,7 +51,7 @@ export function LoginPrompt({
             onClick={() => setAuthOpen(true)}
           >
             <LogIn className="w-4 h-4 mr-2" />
-            Sign In
+            {t("common.sign_in")}
           </Button>
         </div>
       </main>

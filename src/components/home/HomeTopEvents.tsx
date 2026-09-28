@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useMemo, useState, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
@@ -81,13 +82,13 @@ export const HomeTopEvents = ({ interlude, title = "Top Events" }: HomeTopEvents
       ) : filtered.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border/40 bg-card/30 px-4 py-8 text-center">
           <p className="text-[13px] text-muted-foreground">
-            No markets in this view right now.
+            {t("home.screen.HomeTopEvents.no_markets_in_this_view_right_now")}
           </p>
           <button
             onClick={() => setBucket("all")}
             className="mt-2 text-[12px] font-semibold text-primary hover:underline"
           >
-            Reset to All
+            {t("home.screen.HomeTopEvents.reset_to_all")}
           </button>
         </div>
       ) : (
@@ -114,7 +115,7 @@ export const HomeTopEvents = ({ interlude, title = "Top Events" }: HomeTopEvents
         onClick={() => navigate("/events")}
         className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl border border-border/40 bg-card px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-card-hover hover:border-border/70"
       >
-        Browse all markets
+        {t("home.screen.HomeTopEvents.browse_all_markets")}
         <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.5} />
       </button>
     </section>

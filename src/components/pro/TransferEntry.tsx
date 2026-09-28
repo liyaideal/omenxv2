@@ -4,6 +4,7 @@
 // wallet's TransferDialog (desktop) / TransferDrawer (mobile) — no new
 // transfer UI. Used by the Pro contract and spot panels' `Available` row.
 // ============================================================
+import { t } from "@/i18n";
 import { useState } from "react";
 import { ArrowLeftRight } from "lucide-react";
 import { TransferDialog } from "@/components/wallet/TransferDialog";
@@ -27,8 +28,8 @@ export const TransferEntry = ({ direction, mobile = false, className }: Transfer
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="Transfer funds"
-        title="Transfer funds"
+        aria-label={t("wallet.transferTitle")}
+        title={t("wallet.transferTitle")}
         className={cn(
           // ⇄ is the site-wide transfer glyph (wallet AccountBalanceLine uses it too).
           "inline-flex items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",

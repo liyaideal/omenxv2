@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useNavigate } from "react-router-dom";
 import { MobileHeader } from "@/components/MobileHeader";
 import { SeoFooter } from "@/components/seo";
@@ -159,7 +160,7 @@ export const DevelopersPageMobile = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col pb-safe">
-      <MobileHeader title="Open API" showLogo={false} showBack />
+      <MobileHeader title={t("developers.screen.developers_page.open_api")} showLogo={false} showBack />
 
       <main className="flex-1 w-full">
         {/* HERO */}
@@ -175,12 +176,12 @@ export const DevelopersPageMobile = () => {
                 v1
               </Badge>
               <span className="text-[11px] font-mono uppercase tracking-[0.22em] text-primary">
-                OMENX OPEN API
+                {t("developers.screen.developers_page.omenx_open_api")}
               </span>
             </div>
 
             <h1 className="font-display font-bold text-[28px] leading-[1.08] tracking-[-0.02em] text-foreground">
-              Trade outcome markets from code.
+              {t("developers.screen.developers_page.trade_outcome_markets_from_code")}
             </h1>
             <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
               Order book, orders, positions and settlement — over REST and WebSocket. Signed
@@ -193,7 +194,7 @@ export const DevelopersPageMobile = () => {
                 onClick={() => navigate("/settings/api")}
                 className="gap-2 w-full h-12"
               >
-                <KeyRound className="w-4 h-4" /> Manage API Keys
+                <KeyRound className="w-4 h-4" /> {t("developers.screen.developers_page.manage_api_keys")}
               </Button>
               <Button
                 size="lg"
@@ -201,7 +202,7 @@ export const DevelopersPageMobile = () => {
                 onClick={comingSoon}
                 className="gap-2 w-full h-12"
               >
-                <BookOpen className="w-4 h-4" /> Read the Docs
+                <BookOpen className="w-4 h-4" /> {t("developers.screen.developers_page.read_the_docs")}
               </Button>
             </div>
 
@@ -266,7 +267,7 @@ export const DevelopersPageMobile = () => {
 
         {/* 01 — CAPABILITIES */}
         <MobileBand>
-          <SectionHead n="01" title="Built for automation" subtitle="Three surfaces, one typed schema." />
+          <SectionHead n="01" title={t("developers.screen.developers_content.built_for_automation")} subtitle={t("developers.screen.developers_mobile_content.three_surfaces_one_typed_schema")} />
           <ul className="border-y border-border/40 divide-y divide-border/40">
             {CAPABILITIES.map((c) => (
               <li key={c.title} className="flex items-start gap-3 py-4">
@@ -287,13 +288,13 @@ export const DevelopersPageMobile = () => {
 
         {/* 02 — TIERS (vertical stepper) */}
         <MobileBand alt>
-          <SectionHead n="02" title="Access tiers" subtitle="Everyone starts read-only." />
+          <SectionHead n="02" title={t("common.access_tiers")} subtitle={t("developers.screen.developers_mobile_content.everyone_starts_read_only")} />
           <TiersStepperMobile tiers={DEVELOPERS_MOBILE_TIERS} />
         </MobileBand>
 
         {/* 03 — QUICKSTART */}
         <MobileBand>
-          <SectionHead n="03" title="Quickstart" subtitle="Three steps to your first signed request." />
+          <SectionHead n="03" title={t("developers.screen.developers_content.quickstart")} subtitle={t("developers.screen.developers_mobile_content.three_steps_to_your_first_signed_request")} />
           <ol className="relative">
             <div className="absolute left-[13px] top-3 bottom-3 w-px bg-border/40" />
             {QUICKSTART.map((s, i) => (
@@ -323,7 +324,7 @@ export const DevelopersPageMobile = () => {
 
         {/* 04 — REFERENCE (endpoint cards) */}
         <MobileBand alt>
-          <SectionHead n="04" title="Reference" subtitle="Endpoints shipping with v1." />
+          <SectionHead n="04" title={t("developers.screen.developers_content.reference")} subtitle={t("developers.screen.developers_mobile_content.endpoints_shipping_with_v1")} />
           <ul className="space-y-2">
             {ENDPOINTS.map((e) => (
               <li key={e.path}>
@@ -354,7 +355,7 @@ export const DevelopersPageMobile = () => {
           {/* Accordion — secondary detail */}
           <Accordion type="single" collapsible className="mt-6 border-t border-border/30">
             <AccordionItem value="signing" className="border-b border-border/30">
-              <AccordionTrigger className="text-sm font-semibold">Request signing</AccordionTrigger>
+              <AccordionTrigger className="text-sm font-semibold">{t("developers.screen.developers_mobile_content.request_signing")}</AccordionTrigger>
               <AccordionContent>
                 <p className="text-xs text-muted-foreground leading-relaxed mb-2">
                   HMAC-SHA256 over{" "}
@@ -371,7 +372,7 @@ X-OMENX-SIGN:    $SIG`}
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="agent" className="border-b border-border/30">
-              <AccordionTrigger className="text-sm font-semibold">Agent-safe pattern</AccordionTrigger>
+              <AccordionTrigger className="text-sm font-semibold">{t("developers.screen.developers_mobile_content.agent_safe_pattern")}</AccordionTrigger>
               <AccordionContent>
                 <div className="flex flex-col gap-2 text-xs">
                   {["preview → pricing_snapshot_id", "confirm → client_order_id", "submit → idempotent"].map(
@@ -388,7 +389,7 @@ X-OMENX-SIGN:    $SIG`}
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="guides" className="border-b border-border/30">
-              <AccordionTrigger className="text-sm font-semibold">Full guides</AccordionTrigger>
+              <AccordionTrigger className="text-sm font-semibold">{t("developers.screen.developers_mobile_content.full_guides")}</AccordionTrigger>
               <AccordionContent>
                 <ul className="divide-y divide-border/30">
                   {RESOURCES.map((r) => (
@@ -417,18 +418,18 @@ X-OMENX-SIGN:    $SIG`}
         {/* CTA */}
         <section className="relative w-full border-y border-border/40 bg-background-elevated px-5 py-10">
           <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-primary mb-2">
-            Ready to build
+            {t("developers.screen.developers_content.ready_to_build")}
           </div>
           <h3 className="font-display font-medium tracking-[-0.01em] text-2xl text-foreground">
-            Start with three requests.
+            {t("developers.screen.developers_content.start_with_three_requests")}
           </h3>
-          <p className="text-sm text-muted-foreground mt-2">Preview. Confirm. Submit.</p>
+          <p className="text-sm text-muted-foreground mt-2">{t("developers.screen.developers_content.preview_confirm_submit")}</p>
           <Button
             size="lg"
             onClick={() => navigate("/settings/api")}
             className="gap-2 w-full h-12 mt-5"
           >
-            Manage API Keys <ArrowRight className="w-4 h-4" />
+            {t("developers.screen.developers_page.manage_api_keys")} <ArrowRight className="w-4 h-4" />
           </Button>
         </section>
       </main>

@@ -1,4 +1,5 @@
 // Banxa deprecated 2026-09-03 — Fiat on-ramp will return as a MoonPay flow (separate round). Tab hidden, do not delete.
+import { t } from "@/i18n";
 import { useState } from 'react';
 import { CreditCard, Building2, Smartphone, Loader2, Check, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -100,7 +101,7 @@ export const BuyWithFiat = ({ account: _account }: BuyWithFiatProps = {}) => {
         {/* Currency & Amount */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-muted-foreground">You pay</label>
+            <label className="text-sm font-medium text-muted-foreground">{t("settings.wallet.deposit_fiat_you_pay")}</label>
             <span className="text-xs text-muted-foreground font-mono">
               Min {formatLimit(min)} / Max {formatLimit(max)} {currency}
             </span>
@@ -144,17 +145,17 @@ export const BuyWithFiat = ({ account: _account }: BuyWithFiatProps = {}) => {
         {/* You receive */}
         <div className="p-4 rounded-xl border border-primary/30 bg-primary/5">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-sm text-muted-foreground">You receive</span>
-            <span className="text-xs text-muted-foreground">on Base</span>
+            <span className="text-sm text-muted-foreground">{t("wallet.screen.sell_to_fiat.you_receive")}</span>
+            <span className="text-xs text-muted-foreground">{t("settings.wallet.deposit_fiat_on_base")}</span>
           </div>
           <div className="text-2xl font-mono font-semibold">
-            {usdcReceive > 0 ? `~${usdcReceive.toFixed(2)}` : '0.00'} <span className="text-sm text-muted-foreground">USDC</span>
+            {usdcReceive > 0 ? `~${usdcReceive.toFixed(2)}` : '0.00'} <span className="text-sm text-muted-foreground">{t("market.usdc")}</span>
           </div>
         </div>
 
         {/* Payment Method */}
         <div className="space-y-3">
-          <label className="text-sm font-medium text-muted-foreground">Payment method</label>
+          <label className="text-sm font-medium text-muted-foreground">{t("settings.wallet.deposit_fiat_payment_method")}</label>
           <div className="space-y-2">
             {PAYMENT_METHODS.map(method => {
               const Icon = method.icon;
@@ -183,26 +184,26 @@ export const BuyWithFiat = ({ account: _account }: BuyWithFiatProps = {}) => {
         <div className="p-3 rounded-lg bg-muted/30 space-y-2 text-xs">
           {parsedAmount <= 0 ? (
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Fees</span>
-              <span className="text-muted-foreground italic">Enter amount to see fees</span>
+              <span className="text-muted-foreground">{t("portfolio.lite.series.fees")}</span>
+              <span className="text-muted-foreground italic">{t("settings.wallet.deposit_fiat_enter_amount_to_see_fees")}</span>
             </div>
           ) : (
             <>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Banxa processing fee</span>
+                <span className="text-muted-foreground">{t("settings.wallet.deposit_fiat_banxa_processing_fee")}</span>
                 <span className="font-mono">{banxaFee.toFixed(2)} {currency}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Network fee (Base)</span>
+                <span className="text-muted-foreground">{t("settings.wallet.deposit_fiat_network_fee_base")}</span>
                 <span className="font-mono">{networkFee.toFixed(2)} {currency}</span>
               </div>
               <div className="h-px bg-border/40 my-1" />
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Total fees</span>
+                <span className="text-muted-foreground">{t("settings.wallet.deposit_fiat_total_fees")}</span>
                 <span className="font-mono font-medium">{totalFee.toFixed(2)} {currency}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Exchange rate</span>
+                <span className="text-muted-foreground">{t("wallet.screen.cross_chain_deposit.exchange_rate")}</span>
                 <span className="font-mono">1 USDC = {selectedCurrency.rate.toFixed(2)} {currency}</span>
               </div>
             </>
@@ -214,18 +215,18 @@ export const BuyWithFiat = ({ account: _account }: BuyWithFiatProps = {}) => {
           disabled={parsedAmount <= 0 || amountInvalid}
           className={cn("w-full bg-primary hover:bg-primary-hover", isMobile ? "h-12 rounded-xl" : "h-10 rounded-lg")}
         >
-          Continue to Payment
+          {t("settings.wallet.deposit_fiat_continue_to_payment")}
         </Button>
 
         <p className="text-[10px] text-center text-muted-foreground">
-          Powered by <span className="font-semibold">Banxa</span> • Limits and fees vary by region and payment method.{' '}
+          {t("settings.wallet.deposit_fiat_powered_by")} <span className="font-semibold">{t("wallet.screen.sell_to_fiat.banxa")}</span> • Limits and fees vary by region and payment method.{' '}
           <a
             href="https://support.banxa.com/en/support/solutions/articles/44002625875-transaction-limits-for-individuals"
             target="_blank"
             rel="noopener noreferrer"
             className="text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
           >
-            View Banxa limits
+            {t("settings.wallet.deposit_fiat_view_banxa_limits")}
           </a>
         </p>
 
@@ -239,27 +240,27 @@ export const BuyWithFiat = ({ account: _account }: BuyWithFiatProps = {}) => {
       <div className={cn("space-y-5", isMobile ? "px-4 py-5" : "p-5")}>
         {/* Banxa header */}
         <div className="text-center space-y-2 pt-2">
-          <img src="/brand-logos/banxa.png" alt="Banxa" className="w-12 h-12 mx-auto object-contain" />
-          <h3 className="text-lg font-semibold">Banxa Checkout</h3>
+          <img src="/brand-logos/banxa.png" alt={t("wallet.screen.sell_to_fiat.banxa")} className="w-12 h-12 mx-auto object-contain" />
+          <h3 className="text-lg font-semibold">{t("settings.wallet.deposit_fiat_banxa_checkout")}</h3>
         </div>
 
         {/* Order summary */}
         <div className="p-4 rounded-xl border border-border/50 space-y-3">
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Amount</span>
+            <span className="text-muted-foreground">{t("trade.screen.lite.lite_contract_order_panel.amount")}</span>
             <span className="font-mono font-medium">{selectedCurrency.flag} {parsedAmount.toFixed(2)} {currency}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Total fees</span>
+            <span className="text-muted-foreground">{t("settings.wallet.deposit_fiat_total_fees")}</span>
             <span className="font-mono">{totalFee.toFixed(2)} {currency}</span>
           </div>
           <hr className="border-border/30" />
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">You receive</span>
+            <span className="text-muted-foreground">{t("wallet.screen.sell_to_fiat.you_receive")}</span>
             <span className="font-mono font-semibold text-trading-green">~{usdcReceive.toFixed(2)} USDC</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Payment</span>
+            <span className="text-muted-foreground">{t("settings.wallet.deposit_fiat_payment")}</span>
             <span>{selectedPayment.label}</span>
           </div>
         </div>
@@ -267,15 +268,15 @@ export const BuyWithFiat = ({ account: _account }: BuyWithFiatProps = {}) => {
         {/* KYC badge */}
         <div className="flex items-center gap-2 p-3 rounded-lg bg-trading-green/10 border border-trading-green/20">
           <Shield className="w-4 h-4 text-trading-green" />
-          <span className="text-sm text-trading-green font-medium">KYC Verified</span>
+          <span className="text-sm text-trading-green font-medium">{t("wallet.screen.sell_to_fiat.kyc_verified")}</span>
         </div>
 
         <div className="flex gap-3">
           <Button variant="outline" onClick={() => setStep('form')} className="flex-1">
-            Back
+            {t("common.back")}
           </Button>
           <Button onClick={handleCompletePayment} className="flex-1 bg-[#00D395] hover:bg-[#00D395]/90 text-white">
-            Complete Payment
+            {t("settings.wallet.deposit_fiat_complete_payment")}
           </Button>
         </div>
       </div>
@@ -295,7 +296,7 @@ export const BuyWithFiat = ({ account: _account }: BuyWithFiatProps = {}) => {
     return (
       <div className={cn("flex flex-col items-center py-10 space-y-8", isMobile ? "px-4" : "px-5")}>
         <div className="text-center space-y-2">
-          <h3 className="text-lg font-semibold">Processing Payment</h3>
+          <h3 className="text-lg font-semibold">{t("settings.wallet.deposit_fiat_processing")}</h3>
           <p className="text-sm text-muted-foreground">
             {selectedCurrency.flag} {parsedAmount.toFixed(2)} {currency} → ~{usdcReceive.toFixed(2)} USDC
           </p>
@@ -335,18 +336,18 @@ export const BuyWithFiat = ({ account: _account }: BuyWithFiatProps = {}) => {
         <Check className="w-10 h-10 text-trading-green" />
       </div>
       <div className="text-center space-y-1">
-        <h3 className="text-xl font-semibold">Purchase Complete</h3>
+        <h3 className="text-xl font-semibold">{t("settings.wallet.deposit_fiat_success")}</h3>
         <p className="text-3xl font-mono font-bold text-trading-green">
-          +{usdcReceive.toFixed(2)} <span className="text-lg">USDC</span>
+          +{usdcReceive.toFixed(2)} <span className="text-lg">{t("market.usdc")}</span>
         </p>
-        <p className="text-sm text-muted-foreground">Credited to your OmenX account</p>
+        <p className="text-sm text-muted-foreground">{t("wallet.screen.cross_chain_deposit.credited_to_your_omenx_account")}</p>
       </div>
       <Button
         onClick={handleReset}
         variant="secondary"
         className={cn("w-full max-w-sm", isMobile ? "h-12 rounded-xl" : "h-10 rounded-lg")}
       >
-        Done
+        {t("wallet.screen.sell_to_fiat.done")}
       </Button>
     </div>
   );

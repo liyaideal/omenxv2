@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { TokenConfig } from '@/types/deposit';
 import { ShareModal } from '@/components/ShareModal';
 import { SharePosterContent } from './SharePosterContent';
@@ -22,8 +23,8 @@ export const SharePosterDialog = ({
     <ShareModal
       isOpen={open}
       onClose={() => onOpenChange(false)}
-      title="Share Deposit Address"
-      subtitle="Share your deposit address with others"
+      title={t("wallet.screen.share_poster_dialog.share_deposit_address")}
+      subtitle={t("wallet.screen.share_poster_dialog.share_your_deposit_address_with_others")}
       shareText={shareText}
       shareUrl={shareUrl}
       fileName={`omenx-deposit-${token.symbol.toLowerCase()}`}

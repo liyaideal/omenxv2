@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Smartphone, Shield, ArrowRight, ExternalLink } from "lucide-react";
@@ -197,7 +198,7 @@ export const WithdrawVerifyDialog = ({
         return (
           <OtpPanel
             icon={<Mail className="w-7 h-7 text-primary" />}
-            title="Verify by email"
+            title={t("wallet.screen.withdraw_verify_dialog.verify_by_email")}
             description={`Enter the 6-digit code sent to ${
               email ? maskEmail(email) : DEMO_MASKED_EMAIL
             }`}
@@ -210,8 +211,8 @@ export const WithdrawVerifyDialog = ({
         return (
           <OtpPanel
             icon={<Smartphone className="w-7 h-7 text-primary" />}
-            title="Verify with authenticator"
-            description="Enter the 6-digit code from your authenticator app"
+            title={t("wallet.screen.withdraw_verify_dialog.verify_with_authenticator")}
+            description={t("wallet.screen.withdraw_verify_dialog.enter_the_6_digit_code_from_your_authenticator_app")}
             code={code}
             onCodeChange={setCode}
           />
@@ -223,12 +224,12 @@ export const WithdrawVerifyDialog = ({
             <div className="space-y-3">
               <PanelHeading
                 icon={<Mail className="w-7 h-7 text-primary" />}
-                title="Add email to continue"
-                description="Withdrawals require email verification. Add your email below."
+                title={t("wallet.screen.withdraw_verify_dialog.add_email_to_continue")}
+                description={t("wallet.screen.withdraw_verify_dialog.withdrawals_require_email_verification_add_your_email_below")}
               />
               <Input
                 type="email"
-                placeholder="you@example.com"
+                placeholder={t("wallet.screen.withdraw_verify_dialog.you_example_com")}
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
                 className="h-11"
@@ -238,7 +239,7 @@ export const WithdrawVerifyDialog = ({
                 className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
               >
                 <ExternalLink className="w-3 h-3" />
-                Manage in Settings instead
+                {t("wallet.screen.withdraw_verify_dialog.manage_in_settings_instead")}
               </button>
             </div>
           );
@@ -246,7 +247,7 @@ export const WithdrawVerifyDialog = ({
         return (
           <OtpPanel
             icon={<Mail className="w-7 h-7 text-primary" />}
-            title="Verify your email"
+            title={t("wallet.screen.withdraw_verify_dialog.verify_your_email")}
             description={`Enter the 6-digit code sent to ${newEmail}`}
             code={code}
             onCodeChange={setCode}
@@ -258,7 +259,7 @@ export const WithdrawVerifyDialog = ({
                 }}
                 className="text-xs text-muted-foreground hover:text-foreground"
               >
-                ← Change email
+                {t("wallet.screen.withdraw_verify_dialog.change_email")}
               </button>
             }
           />
@@ -269,11 +270,11 @@ export const WithdrawVerifyDialog = ({
           <div className="space-y-3">
             <PanelHeading
               icon={<Shield className="w-7 h-7 text-primary" />}
-              title="Set up authenticator"
-              description="Scan with an authenticator app, then enter the 6-digit code."
+              title={t("wallet.screen.withdraw_verify_dialog.set_up_authenticator")}
+              description={t("wallet.screen.withdraw_verify_dialog.scan_with_an_authenticator_app_then_enter_the_6_digit_code")}
             />
             <div className="rounded-lg border bg-muted/30 p-3 space-y-2">
-              <div className="text-xs text-muted-foreground">Secret key</div>
+              <div className="text-xs text-muted-foreground">{t("wallet.screen.withdraw_verify_dialog.secret_key")}</div>
               <code className="block font-mono text-sm break-all">
                 {formatTotpSecret(totpSecret)}
               </code>
@@ -295,7 +296,7 @@ export const WithdrawVerifyDialog = ({
               className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
             >
               <ExternalLink className="w-3 h-3" />
-              Full setup in Settings
+              {t("wallet.screen.withdraw_verify_dialog.full_setup_in_settings")}
             </button>
           </div>
         );
@@ -353,7 +354,7 @@ export const WithdrawVerifyDialog = ({
       <MobileDrawer
         open={open}
         onOpenChange={onOpenChange}
-        title="Verify withdrawal"
+        title={t("wallet.screen.withdraw_verify_dialog.verify_withdrawal")}
       >
         <MobileDrawerSection>
           <p className="text-xs text-muted-foreground -mt-1 mb-3">{subtitle}</p>
@@ -365,7 +366,7 @@ export const WithdrawVerifyDialog = ({
             onClick={() => onOpenChange(false)}
             className="flex-1 h-11"
           >
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button
             onClick={primary.onClick}
@@ -387,7 +388,7 @@ export const WithdrawVerifyDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 pr-6">
             <Shield className="w-5 h-5 text-primary" />
-            Verify withdrawal
+            {t("wallet.screen.withdraw_verify_dialog.verify_withdrawal")}
           </DialogTitle>
           <DialogDescription>{subtitle}</DialogDescription>
         </DialogHeader>
@@ -396,7 +397,7 @@ export const WithdrawVerifyDialog = ({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button onClick={primary.onClick} disabled={primary.disabled}>
             {primary.label}

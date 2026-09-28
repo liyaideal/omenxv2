@@ -3,6 +3,7 @@
 // the trade panel only has room for ONE full-width selector and that slot
 // belongs to BinarySideToggle.
 // ============================================================
+import { t } from "@/i18n";
 import { ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
@@ -24,7 +25,7 @@ export const OrderTypeDropdown = ({ value, onChange, className }: OrderTypeDropd
     <DropdownMenuTrigger asChild>
       <button
         type="button"
-        aria-label="Order type"
+        aria-label={t("market.order_type")}
         className={`h-7 px-2 rounded-md border border-border/60 text-[11px] font-semibold inline-flex items-center gap-1 text-foreground hover:bg-muted/40 transition-colors ${className ?? ""}`}
       >
         {value}

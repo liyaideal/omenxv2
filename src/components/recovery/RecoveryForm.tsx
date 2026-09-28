@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
@@ -117,7 +118,7 @@ export const RecoveryForm = () => {
 
   return (
     <div className="space-y-5">
-      <Field label="Transaction hash" error={errors.tx_hash}>
+      <Field label={t("wallet.screen.withdraw_status_tracker.transaction_hash")} error={errors.tx_hash}>
         <Input
           placeholder="0x..."
           value={form.tx_hash}
@@ -126,10 +127,10 @@ export const RecoveryForm = () => {
         />
       </Field>
 
-      <Field label="Network you sent to (wrong network)" error={errors.wrong_network}>
+      <Field label={t("settings.wallet.recovery_wrong_network_label")} error={errors.wrong_network}>
         <Select value={form.wrong_network} onValueChange={(v) => update('wrong_network', v)}>
           <SelectTrigger>
-            <SelectValue placeholder="Select network" />
+            <SelectValue placeholder={t("settings.wallet.recovery_select_network")} />
           </SelectTrigger>
           <SelectContent>
             {NETWORKS.map((n) => (
@@ -141,10 +142,10 @@ export const RecoveryForm = () => {
         </Select>
       </Field>
 
-      <Field label="Token you sent" error={errors.wrong_token}>
+      <Field label={t("settings.wallet.recovery_wrong_token_label")} error={errors.wrong_token}>
         <Select value={form.wrong_token} onValueChange={(v) => update('wrong_token', v)}>
           <SelectTrigger>
-            <SelectValue placeholder="Select token" />
+            <SelectValue placeholder={t("settings.wallet.recovery_select_token")} />
           </SelectTrigger>
           <SelectContent>
             {TOKENS.map((t) => (
@@ -156,7 +157,7 @@ export const RecoveryForm = () => {
         </Select>
         {form.wrong_token === 'Other' && (
           <Input
-            placeholder="Specify token symbol"
+            placeholder={t("settings.wallet.recovery_token_other_placeholder")}
             value={form.wrong_token_other}
             onChange={(e) => update('wrong_token_other', e.target.value)}
             className="mt-2"
@@ -167,7 +168,7 @@ export const RecoveryForm = () => {
         )}
       </Field>
 
-      <Field label="Amount sent" error={errors.claimed_amount}>
+      <Field label={t("settings.wallet.amount_sent")} error={errors.claimed_amount}>
         <Input
           type="number"
           step="any"
@@ -178,18 +179,18 @@ export const RecoveryForm = () => {
         />
       </Field>
 
-      <Field label="Your sending wallet address" error={errors.sender_address}>
+      <Field label={t("settings.wallet.recovery_sender_address_label")} error={errors.sender_address}>
         <Input
-          placeholder="0x... (the wallet you sent from)"
+          placeholder={t("wallet.screen.recovery_form.0x_the_wallet_you_sent_from")}
           value={form.sender_address}
           onChange={(e) => update('sender_address', e.target.value)}
           className="font-mono text-sm"
         />
       </Field>
 
-      <Field label="Additional notes (optional)" error={errors.user_note}>
+      <Field label={t("settings.wallet.recovery_note_label")} error={errors.user_note}>
         <Textarea
-          placeholder="Any extra details that may help us locate your funds..."
+          placeholder={t("settings.wallet.recovery_note_placeholder")}
           value={form.user_note}
           onChange={(e) => update('user_note', e.target.value)}
           rows={3}
@@ -202,10 +203,10 @@ export const RecoveryForm = () => {
 
       {/* Fee preview */}
       <div className="rounded-xl border bg-muted/30 p-4 space-y-2 text-sm">
-        <Row label="Amount sent" value={`$${(amountNum || 0).toFixed(2)}`} />
+        <Row label={t("settings.wallet.amount_sent")} value={`$${(amountNum || 0).toFixed(2)}`} />
         <Row label={`Recovery fee (${FEE_PERCENT}%)`} value={`-$${((amountNum * FEE_PERCENT) / 100).toFixed(2)}`} />
         <div className="border-t pt-2 flex items-center justify-between">
-          <span className="font-medium">You will receive</span>
+          <span className="font-medium">{t("settings.wallet.recovery_you_will_receive")}</span>
           <span className="font-mono font-semibold text-primary">
             ${(estimatedReturn || 0).toFixed(2)}
           </span>
@@ -224,7 +225,7 @@ export const RecoveryForm = () => {
         {create.isPending ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin mr-2" />
-            Submitting...
+            {t("common.submitting")}
           </>
         ) : (
           'Submit recovery request'

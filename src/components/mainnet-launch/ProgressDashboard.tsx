@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -35,7 +36,7 @@ export const ProgressDashboard = ({ onCta, progressOverride }: Props) => {
       <div className="rounded-sm border border-border/50 bg-background/40 p-5 md:p-7">
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Total Volume</p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">{t("market.total_volume")}</p>
             <h3 className="mt-2 font-mono text-4xl font-semibold tracking-[-0.04em] text-foreground md:text-6xl">{formatUsd(volume)}</h3>
           </div>
           <div className="flex items-center gap-2 border border-trading-green/25 bg-trading-green/10 px-3 py-2 font-mono text-xs text-trading-green">

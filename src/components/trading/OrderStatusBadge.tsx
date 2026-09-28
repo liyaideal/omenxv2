@@ -8,6 +8,7 @@
 // Content follows /style-guide "Order Status & Partial Fill":
 //   Fill progress  60 / 100 (60%)  + bar  +  Filled / Remaining rows.
 // ============================================================
+import { t } from "@/i18n";
 import { useState } from "react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -55,7 +56,7 @@ const FillDetail = ({ total, filled }: { total: number; filled: number }) => {
     <div className="w-60 text-xs">
       <div className="px-3 py-2.5 border-b border-border bg-muted/30">
         <div className="flex items-center justify-between mb-1.5">
-          <span className="font-medium">Fill progress</span>
+          <span className="font-medium">{t("market.fill_progress")}</span>
           <span className="font-mono text-cyan-400">
             {fmt(filled)} / {fmt(total)} ({pct}%)
           </span>
@@ -66,11 +67,11 @@ const FillDetail = ({ total, filled }: { total: number; filled: number }) => {
       </div>
       <div className="px-3 py-2 space-y-1">
         <div className="flex justify-between gap-4">
-          <span className="text-muted-foreground">Filled</span>
+          <span className="text-muted-foreground">{t("common.filled")}</span>
           <span className="font-mono text-trading-green">{fmt(filled)}</span>
         </div>
         <div className="flex justify-between gap-4">
-          <span className="text-muted-foreground">Remaining</span>
+          <span className="text-muted-foreground">{t("market.remaining_amount")}</span>
           <span className="font-mono text-trading-yellow">{fmt(remaining)}</span>
         </div>
       </div>
@@ -105,7 +106,7 @@ export const OrderStatusBadge = ({
     return (
       <HoverCard openDelay={100} closeDelay={100} {...(previewOpen ? { open: true } : {})}>
         <HoverCardTrigger asChild>
-          <button type="button" className="cursor-help" aria-label="Fill progress">
+          <button type="button" className="cursor-help" aria-label={t("market.fill_progress")}>
             {badge}
           </button>
         </HoverCardTrigger>
@@ -118,7 +119,7 @@ export const OrderStatusBadge = ({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button type="button" aria-label="Fill progress" aria-expanded={open}>
+        <button type="button" aria-label={t("market.fill_progress")} aria-expanded={open}>
           {badge}
         </button>
       </PopoverTrigger>

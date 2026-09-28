@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import { CircleSlash, Loader2, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -269,7 +270,7 @@ export const TieredTaskRow = ({
         <div className="mt-0.5 cursor-default font-display text-[11.5px] text-[#6B7280]">{line2Text}</div>
       </TooltipTrigger>
       <TooltipContent side="left" className="w-[300px] border-[#2B2F38] bg-[#1B1E24] p-3 text-[#F2F3F5]">
-        <div className="mb-1 font-display text-[12px] font-bold">Tiers</div>
+        <div className="mb-1 font-display text-[12px] font-bold">{t("rewards.screen.ended_campaigns_archive.tiers")}</div>
         <TierList d={d} />
       </TooltipContent>
     </Tooltip>
@@ -329,7 +330,7 @@ export const TieredTaskRow = ({
         action={<div className={`flex items-center justify-end ${isMobile ? "" : "w-[132px] shrink-0"}`}>{action}</div>}
       />
       {isMobile && (
-        <MobileDrawer open={drawerOpen} onOpenChange={setDrawerOpen} title="Tiers">
+        <MobileDrawer open={drawerOpen} onOpenChange={setDrawerOpen} title={t("rewards.screen.ended_campaigns_archive.tiers")}>
           <div className="pb-5">
             <div className="mb-3 text-[12px] text-[#9AA1AC]">
               {task.name} · <b className="text-white">{fmtTarget(d.value, d.unitLabel)}</b>{d.unitLabel === "$" ? " traded" : ""}

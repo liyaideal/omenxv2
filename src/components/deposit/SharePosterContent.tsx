@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { forwardRef } from 'react';
 import { SharePosterLayout } from '@/components/share/SharePosterLayout';
 import { posterColors, posterThemes } from '@/lib/posterStyles';
@@ -105,7 +106,7 @@ export const SharePosterContent = forwardRef<HTMLDivElement, SharePosterContentP
             textTransform: 'uppercase',
             letterSpacing: '1px',
           }}>
-            Deposit Address
+            {t("wallet.screen.deposit_poster_content.deposit_address")}
           </p>
           <div style={{
             padding: '14px 16px',

@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Gift, Clock, ArrowRight, X, Zap, Shield } from "lucide-react";
@@ -152,7 +153,7 @@ const AirdropModalBody = ({
       {isWelcomeGift && (
         <div className="rounded-lg border border-dashed border-border/60 bg-muted/20 p-2.5">
           <p className="text-[11px] text-muted-foreground leading-relaxed">
-            Want to hedge it? You can open the opposite side on Polymarket anytime — totally optional.
+            {t("rewards.screen.airdrop.airdrop_notification_manager.want_to_hedge_it_you_can_open_the_opposite_side_on_polymarket")}
           </p>
         </div>
       )}
@@ -160,13 +161,13 @@ const AirdropModalBody = ({
       {/* Countdown */}
       <div className="flex items-center justify-center gap-2 text-sm py-2">
         <Clock className="w-3.5 h-3.5 text-trading-yellow" />
-        <span className="text-muted-foreground text-xs">Expires in</span>
+        <span className="text-muted-foreground text-xs">{t("rewards.screen.airdrop.airdrop_notification_manager.expires_in")}</span>
         <span className="font-mono font-bold text-sm text-foreground">{countdown}</span>
-        <span className="text-muted-foreground text-xs">— tap Activate to claim</span>
+        <span className="text-muted-foreground text-xs">{t("rewards.screen.airdrop.airdrop_notification_manager.tap_activate_to_claim")}</span>
       </div>
 
       {/* Earnings cap notice */}
-      <p className="text-center text-[10px] text-muted-foreground/70">Max $500 earnings per account</p>
+      <p className="text-center text-[10px] text-muted-foreground/70">{t("rewards.screen.airdrop.airdrop_notification_manager.max_500_earnings_per_account")}</p>
 
       {/* Actions */}
       <div className="flex gap-3">
@@ -177,7 +178,7 @@ const AirdropModalBody = ({
             className="flex-1 text-muted-foreground"
             onClick={onDismiss}
           >
-            Dismiss
+            {t("common.dismiss")}
           </Button>
         )}
         <Button

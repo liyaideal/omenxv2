@@ -5,6 +5,7 @@
 // with fixture props (CHK-9: no hand-copied shells in the dictionary).
 // Presentational only: every number is computed by the page and passed in.
 // ============================================================
+import { t } from "@/i18n";
 import { useEffect, useRef, useState } from "react";
 import { AmountUnitDropdown } from "@/components/pro/AmountUnitDropdown";
 import { TransferEntry } from "@/components/pro/TransferEntry";
@@ -152,7 +153,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
     <div className={cn("flex flex-col", !isBare && "bg-background rounded-lg border border-border/50")}>
       {!isBare && (
         <div className="flex items-center px-4 py-2 border-b border-border/30">
-          <span className="text-sm font-medium">Trade</span>
+          <span className="text-sm font-medium">{t("common.nav_trade")}</span>
         </div>
       )}
       <div className={isBare ? "px-3 pb-2 space-y-2" : "px-4 py-3 space-y-3"}>
@@ -195,7 +196,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
 
         {/* Balance / holdings */}
         <div className={cn("flex items-center justify-between", isBare ? "text-xs" : "text-[11px]")}>
-          <span className="text-muted-foreground">Available (USDC)</span>
+          <span className="text-muted-foreground">{t("market.available_usdc")}</span>
           <span className="inline-flex items-center gap-2">
             <span className="font-mono">{money2(p.available)}</span>
             <TransferEntry direction="to_spot" mobile={isBare} />
@@ -221,14 +222,14 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
                 placeholder="0.0000"
                 inputMode="decimal"
               />
-              <span className="text-muted-foreground text-xs">USD</span>
+              <span className="text-muted-foreground text-xs">{t("spot.screen.pro_spot_sections.usd")}</span>
             </div>
           </div>
         )}
 
         {/* Amount */}
         <div className={isBare ? "space-y-0.5" : "space-y-1"}>
-          <span className={cn("text-muted-foreground", isBare ? "text-[10px]" : "text-xs")}>Amount</span>
+          <span className={cn("text-muted-foreground", isBare ? "text-[10px]" : "text-xs")}>{t("trade.screen.lite.lite_contract_order_panel.amount")}</span>
           <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
             <input
               ref={amountInputRef}
@@ -240,7 +241,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
               inputMode="decimal"
             />
             {isSell ? (
-              <span className="text-muted-foreground text-xs font-medium">Shares</span>
+              <span className="text-muted-foreground text-xs font-medium">{t("portfolio.shares_unit")}</span>
             ) : (
               <AmountUnitDropdown value={p.amountMode} unitLabel="Shares" onChange={p.onAmountModeChange} />
             )}
@@ -271,7 +272,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
           <div className={isBare ? "" : "space-y-1"}>
             <div className="flex items-center justify-between text-xs">
               <span className="text-xs text-muted-foreground inline-flex items-center gap-1">
-                Max slippage
+                {t("spot.screen.pro_spot_sections.max_slippage")}
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -288,7 +289,7 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
                   <DropdownMenuTrigger asChild>
                     <button
                       type="button"
-                      aria-label="Max slippage"
+                      aria-label={t("spot.screen.pro_spot_sections.max_slippage")}
                       className="h-7 px-2 rounded-md border border-border/60 text-[11px] font-semibold inline-flex items-center gap-1 text-foreground hover:bg-muted/40 transition-colors"
                     >
                       {(p.slippageBps / 100).toFixed(2)}%
@@ -331,26 +332,26 @@ export const ProSpotPanel = (p: ProSpotPanelProps) => {
           {isSell ? (
             <>
               <Row label="Proceeds">${money2(p.cost)}</Row>
-              {!isBare && <Row label="Shares">{formatShares(p.qty)}</Row>}
+              {!isBare && <Row label={t("portfolio.shares_unit")}>{formatShares(p.qty)}</Row>}
               <Row label="Est. commission">${money2(p.sellCommission)}</Row>
               <div className={cn("flex justify-between", isBare && "pt-2 border-t border-border/30 font-medium text-foreground")}>
-                <span>You receive</span>
+                <span>{t("wallet.screen.sell_to_fiat.you_receive")}</span>
                 <span>${money2(p.sellReceive)}</span>
               </div>
             </>
           ) : (
             <>
-              <Row label="Cost">${money2(p.cost)}</Row>
+              <Row label={t("common.cost")}>${money2(p.cost)}</Row>
               {!isBare && p.orderType === "Market" && (
                 <div className="flex justify-end text-[10px] text-muted-foreground -mt-1">
                   Est. fill @ {p.bestAsk.toFixed(2)}
                 </div>
               )}
-              {!isBare && <Row label="Shares">{formatShares(p.qty)}</Row>}
+              {!isBare && <Row label={t("portfolio.shares_unit")}>{formatShares(p.qty)}</Row>}
               <Row label="Fee (0.15%)">${money2(p.fee)}</Row>
               {isBare && (
                 <div className="flex justify-between pt-2 border-t border-border/30 font-medium text-foreground">
-                  <span>Total</span>
+                  <span>{t("market.total")}</span>
                   <span>${money2(p.cost + p.fee)}</span>
                 </div>
               )}
@@ -434,8 +435,8 @@ export interface ProSpotAccountPanelProps {
 export const ProSpotAccountPanel = ({ available, inOrders, openPositions }: ProSpotAccountPanelProps) => (
   <div className="flex flex-col bg-background rounded-lg border border-border/50">
     <div className="p-3 space-y-3 text-xs">
-      <span className="text-sm font-medium">Standard Account</span>
-      <Row label="Available (USDC)">
+      <span className="text-sm font-medium">{t("common.standard_account")}</span>
+      <Row label={t("market.available_usdc")}>
         <span className="font-mono text-foreground">${money2(available)}</span>
       </Row>
       <Row label="In orders">
@@ -478,7 +479,7 @@ export const ProSpotOrderPreview = (p: ProSpotOrderPreviewProps) => {
     <Dialog open={p.open} onOpenChange={p.onOpenChange}>
       <DialogContent className="sm:max-w-md gap-4 p-5">
         <DialogHeader>
-          <DialogTitle>Order Preview</DialogTitle>
+          <DialogTitle>{t("market.order_preview")}</DialogTitle>
           <DialogDescription className="sr-only">
             Review your spot order before submitting.
           </DialogDescription>
@@ -491,11 +492,11 @@ export const ProSpotOrderPreview = (p: ProSpotOrderPreviewProps) => {
           </div>
 
           <div className="rounded-lg border border-border/50 bg-muted/20 p-3 space-y-1.5 text-xs font-mono">
-            <Row label="Outcome">{p.outcomeLabel}</Row>
-            <Row label="Side">{isSell ? "Sell" : "Buy"}</Row>
-            <Row label="Type">{p.orderType}</Row>
+            <Row label={t("common.outcome")}>{p.outcomeLabel}</Row>
+            <Row label={t("common.side")}>{isSell ? "Sell" : "Buy"}</Row>
+            <Row label={t("common.type")}>{p.orderType}</Row>
             <Row label={p.orderType === "Limit" ? "Price" : "Est. fill"}>${p.price.toFixed(4)}</Row>
-            <Row label="Shares">{formatShares(p.qty)}</Row>
+            <Row label={t("portfolio.shares_unit")}>{formatShares(p.qty)}</Row>
           </div>
 
           <div className="rounded-lg border border-border/50 bg-muted/20 p-3 space-y-1.5 text-xs font-mono">
@@ -503,11 +504,11 @@ export const ProSpotOrderPreview = (p: ProSpotOrderPreviewProps) => {
               <>
                 <Row label="Proceeds">${money2(p.cost)}</Row>
                 <Row label="Est. commission">${money2(p.sellCommission)}</Row>
-                <Row label="You receive">${money2(p.sellReceive)}</Row>
+                <Row label={t("wallet.screen.sell_to_fiat.you_receive")}>${money2(p.sellReceive)}</Row>
               </>
             ) : (
               <>
-                <Row label="Cost">${money2(p.cost)}</Row>
+                <Row label={t("common.cost")}>${money2(p.cost)}</Row>
                 <Row label="Fee (0.15%)">${money2(p.fee)}</Row>
                 <Row label="To win">${money2(p.maxWin)}</Row>
               </>

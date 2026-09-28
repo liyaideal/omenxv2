@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { CheckCircle2, Clock, Loader2, XCircle, ExternalLink, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TokenConfig } from '@/types/deposit';
@@ -72,18 +73,18 @@ export const WithdrawStatusTracker = ({ withdrawal, token, onDone }: WithdrawSta
       {/* Amount Summary */}
       <div className="p-4 bg-muted/20 rounded-xl space-y-3">
         <div className="flex items-center justify-between">
-          <LabelText size="sm" muted>Amount</LabelText>
+          <LabelText size="sm" muted>{t("trade.screen.lite.lite_contract_order_panel.amount")}</LabelText>
           <MonoText className="font-semibold">
             {withdrawal.amount.toFixed(token.decimals > 8 ? 4 : 2)} {token.symbol}
           </MonoText>
         </div>
         <div className="flex items-center justify-between">
-          <LabelText size="sm" muted>Network Fee</LabelText>
+          <LabelText size="sm" muted>{t("wallet.screen.withdraw_status_tracker.network_fee")}</LabelText>
           <MonoText>-{withdrawal.fee} {token.symbol}</MonoText>
         </div>
         <div className="h-px bg-border/50" />
         <div className="flex items-center justify-between">
-          <span className="font-medium">You'll Receive</span>
+          <span className="font-medium">{t("wallet.screen.withdraw_status_tracker.youll_receive")}</span>
           <MonoText className="text-lg font-bold text-trading-green">
             {withdrawal.netAmount.toFixed(token.decimals > 8 ? 4 : 2)} {token.symbol}
           </MonoText>
@@ -165,7 +166,7 @@ export const WithdrawStatusTracker = ({ withdrawal, token, onDone }: WithdrawSta
       {/* Transaction Hash */}
       {withdrawal.txHash && (
         <div className="p-4 bg-muted/20 rounded-xl">
-          <LabelText size="sm" muted className="mb-2 block">Transaction Hash</LabelText>
+          <LabelText size="sm" muted className="mb-2 block">{t("wallet.screen.withdraw_status_tracker.transaction_hash")}</LabelText>
           <a
             href={`https://basescan.org/tx/${withdrawal.txHash}`}
             target="_blank"
@@ -180,7 +181,7 @@ export const WithdrawStatusTracker = ({ withdrawal, token, onDone }: WithdrawSta
 
       {/* Destination Address */}
       <div className="p-4 bg-muted/20 rounded-xl">
-        <LabelText size="sm" muted className="mb-2 block">To Address</LabelText>
+        <LabelText size="sm" muted className="mb-2 block">{t("wallet.screen.withdraw_status_tracker.to_address")}</LabelText>
         <MonoText className="text-sm break-all">{withdrawal.toAddress}</MonoText>
       </div>
 

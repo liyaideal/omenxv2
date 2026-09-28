@@ -4,6 +4,7 @@
 // Shows pending / activated / expired hedge airdrops (source !== "voucher");
 // settled airdrops live in Recent settlements below, never here.
 // ============================================================
+import { t } from "@/i18n";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -98,7 +99,7 @@ export const AirdroppedPositionsCard = ({ fixture }: { fixture?: AirdroppedPosit
         </span>
       </div>
       <p className="mt-1 text-[11.5px] text-[#9AA1AC]">
-        Hedge positions we airdropped against your Polymarket exposure. Activate within 72h or they expire.
+        {t("rewards.screen.h2e_airdropped_positions.hedge_positions_we_airdropped_against_your_polymarket_exposure_activate_within_72h_or")}
       </p>
 
       <div className="mt-3 space-y-3">
@@ -156,7 +157,7 @@ export const AirdroppedPositionsCard = ({ fixture }: { fixture?: AirdroppedPosit
                 }}
                 className="font-display text-[11.5px] font-semibold text-[#33D6FF] hover:underline"
               >
-                View in portfolio ›
+                {t("rewards.screen.h2e_airdropped_positions.view_in_portfolio")}
               </button>
             </>
           );
@@ -174,7 +175,7 @@ export const AirdroppedPositionsCard = ({ fixture }: { fixture?: AirdroppedPosit
                   {pending && <div>{cd}</div>}
                   {activateBtn}
                   {activated && <div className="flex items-center justify-between">{liveBits}</div>}
-                  {expired && <div className="font-display text-[11.5px] font-bold text-[#6B7280]">Expired</div>}
+                  {expired && <div className="font-display text-[11.5px] font-bold text-[#6B7280]">{t("common.expired")}</div>}
                 </div>
               ) : (
                 <div className="flex items-center gap-3.5">
@@ -183,7 +184,7 @@ export const AirdroppedPositionsCard = ({ fixture }: { fixture?: AirdroppedPosit
                     {cd}
                     {activateBtn}
                     {liveBits}
-                    {expired && <span className="font-display text-[11.5px] font-bold text-[#6B7280]">Expired</span>}
+                    {expired && <span className="font-display text-[11.5px] font-bold text-[#6B7280]">{t("common.expired")}</span>}
                   </div>
                 </div>
               )}
@@ -193,7 +194,7 @@ export const AirdroppedPositionsCard = ({ fixture }: { fixture?: AirdroppedPosit
       </div>
 
       <p className="mt-3 text-[10px] leading-relaxed text-[#6B7280]">
-        Settled airdrops move to Recent settlements below. Airdrop profit stays locked here until you unlock it by trading.
+        {t("rewards.screen.h2e_airdropped_positions.settled_airdrops_move_to_recent_settlements_below_airdrop_profit_stays_locked_here")}
       </p>
     </div>
   );

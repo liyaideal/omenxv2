@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useNavigate } from "react-router-dom";
 import { CampaignKeyVisual } from "./CampaignKeyVisual";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -27,7 +28,7 @@ const Badge = ({ view }: { view: CampaignView }) => {
         className="inline-flex items-center rounded-full px-2 py-[3px] text-[10px] font-semibold uppercase tracking-[0.06em]"
         style={{ background: "rgba(207,255,74,.14)", color: "#CFFF4A" }}
       >
-        Live
+        {t("common.live")}
       </span>
     );
   }
@@ -88,7 +89,7 @@ export const CampaignCard = ({ view, signedOut }: { view: CampaignView; signedOu
         {!signedOut && (
           <>
             <div className="flex items-center justify-between">
-          <span className="text-[12px] text-[#9AA1AC]">Your progress</span>
+          <span className="text-[12px] text-[#9AA1AC]">{t("common.your_progress")}</span>
           <span className="font-display text-[12.5px] font-semibold tabular-nums text-[#F2F3F5]">
             {view.tasksDone} / {view.tasksTotal} tasks done
           </span>
@@ -100,7 +101,7 @@ export const CampaignCard = ({ view, signedOut }: { view: CampaignView; signedOu
         )}
 
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[12px]">
-          <span className="text-[#9AA1AC]">Rewards up to</span>
+          <span className="text-[#9AA1AC]">{t("rewards.screen.campaign_card.rewards_up_to")}</span>
           {view.rewardVoucherUpTo > 0 && (
             <span className="font-display font-semibold tabular-nums text-[#CFFF4A]">
               ${view.rewardVoucherUpTo} in vouchers

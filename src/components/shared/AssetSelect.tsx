@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState, useMemo } from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -48,7 +49,7 @@ export const AssetSelect = ({ onSelectToken, showBalance = true, balanceLabel = 
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
           type="text"
-          placeholder="Search"
+          placeholder={t("common.search")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-10 bg-muted/50 border-border/50 h-11 rounded-xl"
@@ -76,7 +77,7 @@ export const AssetSelect = ({ onSelectToken, showBalance = true, balanceLabel = 
       {/* Assets Header */}
       <div className="flex items-center justify-between pt-2">
         <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
-          Assets
+          {t("settings.wallet.assets")}
         </span>
         {showBalance && (
           <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium">

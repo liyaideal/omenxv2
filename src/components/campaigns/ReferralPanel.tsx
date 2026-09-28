@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -106,14 +107,14 @@ export const ReferralPanel = ({ fixture }: { fixture?: ReferralPanelFixture }) =
         action={
           <>
             {isClaimed ? (
-              <span className="whitespace-nowrap text-[12.5px] font-semibold text-[#9AA1AC]">Claimed</span>
+              <span className="whitespace-nowrap text-[12.5px] font-semibold text-[#9AA1AC]">{t("common.claimed")}</span>
             ) : isQualified ? (
               <ClaimButton onClick={() => claim(r.id)} disabled={claiming === r.id}>
                 {claiming === r.id && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                 Claim voucher
               </ClaimButton>
             ) : (
-              <span className="whitespace-nowrap text-[12.5px] font-semibold text-[#9AA1AC]">In progress</span>
+              <span className="whitespace-nowrap text-[12.5px] font-semibold text-[#9AA1AC]">{t("rewards.screen.referral_invites_section.in_progress")}</span>
             )}
           </>
         }
@@ -123,7 +124,7 @@ export const ReferralPanel = ({ fixture }: { fixture?: ReferralPanelFixture }) =
 
   const inviteSection = (
     <section className={PANEL}>
-      <div className={CAP}>Invite a friend</div>
+      <div className={CAP}>{t("rewards.screen.referral_invite_section.invite_a_friend")}</div>
 
       <div className="mt-3 flex flex-col gap-2 sm:flex-row">
         <div
@@ -156,7 +157,7 @@ export const ReferralPanel = ({ fixture }: { fixture?: ReferralPanelFixture }) =
   const invitesSection = (
     <section className="space-y-3">
       <div className="flex items-baseline justify-between">
-        <span className={CAP}>Your invites</span>
+        <span className={CAP}>{t("rewards.screen.referral_invites_section.your_invites")}</span>
         <span className="text-[11.5px] text-[#6B7280]">
           {qualified.length} of {rows.length} qualified
         </span>
@@ -168,8 +169,8 @@ export const ReferralPanel = ({ fixture }: { fixture?: ReferralPanelFixture }) =
         <EmptyState
           variant="module"
           bordered={false}
-          title="No invites yet"
-          description="Share your link to get started."
+          title={t("rewards.screen.referral_invites_section.no_invites_yet")}
+          description={t("rewards.screen.referral_invites_section.share_your_link_to_get_started")}
         />
       ) : (
         rows.map(inviteRow)
@@ -179,7 +180,7 @@ export const ReferralPanel = ({ fixture }: { fixture?: ReferralPanelFixture }) =
 
   const finePrintSection = (
     <section className={PANEL}>
-      <div className={CAP}>The fine print</div>
+      <div className={CAP}>{t("rewards.screen.referral_tab.the_fine_print")}</div>
       <p className="mt-2 text-[11.5px] leading-5 text-[#6B7280]">
         Referral rewards are Trial Position Vouchers, issued after your friend completes $100 in trades and passes
         review. One reward per qualified friend, subject to anti-abuse checks.
@@ -194,7 +195,7 @@ export const ReferralPanel = ({ fixture }: { fixture?: ReferralPanelFixture }) =
 
         {/* Compact three-column overview strip */}
         <section className="rounded-[16px] border border-[#1D2026] bg-[#131519] p-4">
-          <div className={CAP}>Your referrals</div>
+          <div className={CAP}>{t("rewards.screen.referral_summary.your_referrals")}</div>
           <div className="mt-3 grid grid-cols-3 gap-2">
             {[
               { label: "Invited", value: `${rows.length}`, color: "#FFFFFF" },
@@ -219,7 +220,7 @@ export const ReferralPanel = ({ fixture }: { fixture?: ReferralPanelFixture }) =
 
           <div className="mt-3">
             <ClaimButton fullWidth onClick={() => navigate("/vouchers")}>
-              Open Position Vouchers →
+              {t("rewards.screen.referral_summary.open_position_vouchers")}
             </ClaimButton>
           </div>
         </section>
@@ -243,21 +244,21 @@ export const ReferralPanel = ({ fixture }: { fixture?: ReferralPanelFixture }) =
         className="order-1 flex h-fit flex-col gap-[14px] rounded-[16px] border border-[#1D2026] bg-[#131519] lg:order-2"
         style={{ padding: 18 }}
       >
-        <div className={CAP}>Your referrals</div>
+        <div className={CAP}>{t("rewards.screen.referral_summary.your_referrals")}</div>
 
         <div className="flex items-baseline justify-between">
-          <span className="text-[12.5px] text-[#9AA1AC]">Invited</span>
+          <span className="text-[12.5px] text-[#9AA1AC]">{t("rewards.screen.referral_summary.invited")}</span>
           <span className="font-display text-[15px] font-bold tabular-nums text-white">{rows.length}</span>
         </div>
         <div className="flex items-baseline justify-between">
-          <span className="text-[12.5px] text-[#9AA1AC]">Qualified</span>
+          <span className="text-[12.5px] text-[#9AA1AC]">{t("rewards.qualified")}</span>
           <span className="font-display text-[15px] font-bold tabular-nums text-white">{qualified.length}</span>
         </div>
         <div
           className="flex items-baseline justify-between"
           style={{ borderTop: "1px solid #1D2026", paddingTop: 11 }}
         >
-          <span className="text-[12.5px] text-[#9AA1AC]">Vouchers earned</span>
+          <span className="text-[12.5px] text-[#9AA1AC]">{t("rewards.screen.referral_summary.vouchers_earned")}</span>
           <span className="font-display text-[15px] font-bold tabular-nums text-[#CFFF4A]">${vouchersEarned}</span>
         </div>
 
@@ -266,7 +267,7 @@ export const ReferralPanel = ({ fixture }: { fixture?: ReferralPanelFixture }) =
         )}
 
         <ClaimButton fullWidth onClick={() => navigate("/vouchers")}>
-          Open Position Vouchers →
+          {t("rewards.screen.referral_summary.open_position_vouchers")}
         </ClaimButton>
       </aside>
     </div>

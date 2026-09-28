@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import { ShieldCheck, AlertTriangle, Ban, Zap, Eye, EyeOff, Info } from "lucide-react";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
@@ -76,7 +77,7 @@ export function AccountRiskDrawer({ open, onOpenChange, riskMetrics }: AccountRi
       <div className="space-y-4 pb-6">
         {/* Title with icons on the right */}
         <div className="flex items-center justify-between">
-          <span className="text-lg font-semibold text-foreground">Boost Account</span>
+          <span className="text-lg font-semibold text-foreground">{t("wallet.boostAccount")}</span>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowValues(!showValues)}
@@ -92,15 +93,15 @@ export function AccountRiskDrawer({ open, onOpenChange, riskMetrics }: AccountRi
               </PopoverTrigger>
               <PopoverContent side="bottom" align="end" className="w-[280px] p-3">
                 <div className="space-y-2 text-xs">
-                  <p><strong>Risk Ratio</strong> = MM / Equity</p>
+                  <p><strong>{t("common.risk_ratio")}</strong> = MM / Equity</p>
                   <p><strong>IM (Initial Margin):</strong> Entry threshold - determines if you can open positions.</p>
                   <p><strong>MM (Maintenance Margin):</strong> Survival line - determines if you'll be liquidated.</p>
-                  <p><strong>Equity:</strong> Your real wealth - determines how much you can still lose.</p>
+                  <p><strong>{t("header.equity")}</strong> Your real wealth - determines how much you can still lose.</p>
                   <div className="pt-1 border-t border-border/50 space-y-1">
                     <p className="text-trading-green">SAFE: &lt;80% - Normal trading</p>
-                    <p className="text-trading-yellow">WARNING: 80-95% - Reduce positions</p>
-                    <p className="text-orange-500">RESTRICTION: 95-100% - Close only</p>
-                    <p className="text-trading-red">LIQUIDATION: ≥100% - Force close</p>
+                    <p className="text-trading-yellow">{t("market.risk_warning_desc")}</p>
+                    <p className="text-orange-500">{t("market.risk_restriction_desc")}</p>
+                    <p className="text-trading-red">{t("market.risk_liquidation_desc")}</p>
                   </div>
                 </div>
               </PopoverContent>
@@ -110,13 +111,13 @@ export function AccountRiskDrawer({ open, onOpenChange, riskMetrics }: AccountRi
 
         {/* Margin Mode */}
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Margin Mode</span>
-          <span className="text-sm text-foreground">Cross Margin</span>
+          <span className="text-sm text-muted-foreground">{t("market.margin_mode")}</span>
+          <span className="text-sm text-foreground">{t("market.cross_margin_mode")}</span>
         </div>
 
         {/* Account Equity */}
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Account Equity</span>
+          <span className="text-sm text-muted-foreground">{t("market.account_equity")}</span>
           <div className="flex items-center gap-2">
             <span className="text-sm font-mono font-semibold text-foreground">
               {showValues ? `$${riskMetrics.equity.toFixed(2)}` : "****"}
@@ -133,7 +134,7 @@ export function AccountRiskDrawer({ open, onOpenChange, riskMetrics }: AccountRi
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Risk Ratio</span>
+              <span className="text-sm text-muted-foreground">{t("common.risk_ratio")}</span>
               <span className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded ${getRiskBgColor(riskMetrics.riskLevel)}/20 ${getRiskColor(riskMetrics.riskLevel)}`}>
                 {getRiskIcon(riskMetrics.riskLevel)}
                 {riskMetrics.riskLevel}
@@ -169,13 +170,13 @@ export function AccountRiskDrawer({ open, onOpenChange, riskMetrics }: AccountRi
         {/* IM & MM summary — same rows as the desktop card (RM-1) */}
         <div className="grid grid-cols-2 gap-3 pt-3 border-t border-border/30">
           <div>
-            <span className="text-xs text-muted-foreground">Initial Margin</span>
+            <span className="text-xs text-muted-foreground">{t("common.initial_margin")}</span>
             <p className="text-sm font-mono text-foreground">
               {showValues ? `$${riskMetrics.imTotal.toFixed(2)}` : "****"}
             </p>
           </div>
           <div>
-            <span className="text-xs text-muted-foreground">Maint. Margin</span>
+            <span className="text-xs text-muted-foreground">{t("common.maint_margin")}</span>
             <p className="text-sm font-mono text-foreground">
               {showValues ? `$${riskMetrics.mmTotal.toFixed(2)}` : "****"}
             </p>

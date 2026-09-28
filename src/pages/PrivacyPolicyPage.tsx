@@ -1,8 +1,9 @@
+import { t } from "@/i18n";
 import { SeoPageLayout } from "@/components/seo";
 
 const PrivacyPolicyPage = () => {
   return (
-    <SeoPageLayout title="Privacy Policy" description="Effective Date: 28 March, 2026 · Last Updated: 30 March, 2026">
+    <SeoPageLayout title={t("common.auth.signup.terms.privacy")} description="Effective Date: 28 March, 2026 · Last Updated: 30 March, 2026">
       <h2>1. Introduction</h2>
       <p>
         OmenX ("we," "us," or "our") operates the website at{" "}
@@ -96,7 +97,7 @@ const PrivacyPolicyPage = () => {
         <li>Data portability — receive your data in a structured, machine-readable format</li>
       </ul>
       <p>
-        To exercise these rights, contact us at <strong>support@omenx.com</strong>. We will respond within the timeframe required by applicable law.
+        To exercise these rights, contact us at <strong>{t("seo.screen.seo_footer.support_omenx_com")}</strong>. We will respond within the timeframe required by applicable law.
       </p>
 
       <h2>9. International Data Transfers</h2>
@@ -124,7 +125,7 @@ const PrivacyPolicyPage = () => {
         If you have questions or concerns about this Privacy Policy or our data practices, please contact us:
       </p>
       <ul>
-        <li><strong>Email:</strong> support@omenx.com</li>
+        <li><strong>Email:</strong> {t("seo.screen.seo_footer.support_omenx_com")}</li>
         <li><strong>Website:</strong>{" "}
           <a href="https://omenx.com" target="_blank" rel="noopener noreferrer">https://omenx.com</a>
         </li>

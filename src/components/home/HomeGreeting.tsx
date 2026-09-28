@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { ArrowRight, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -134,7 +135,7 @@ export const HomeGreeting = ({ onSignIn, demoOverride }: HomeGreetingProps) => {
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Welcome back
+                {t("common.auth.login.title")}
               </p>
               <h1 className="mt-1 break-words text-[17px] font-bold leading-tight text-foreground line-clamp-2">
                 {displayName}
@@ -151,11 +152,11 @@ export const HomeGreeting = ({ onSignIn, demoOverride }: HomeGreetingProps) => {
                   handleDeposit(e);
                 }
               }}
-              aria-label="Deposit"
+              aria-label={t("common.deposit")}
               className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border/50 bg-muted/30 px-2.5 py-1.5 transition-all hover:border-border hover:bg-muted/60"
             >
               <span className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-foreground">
-                Deposit
+                {t("common.deposit")}
               </span>
               <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 <Plus className="h-2.5 w-2.5" strokeWidth={3.5} />
@@ -167,7 +168,7 @@ export const HomeGreeting = ({ onSignIn, demoOverride }: HomeGreetingProps) => {
           <div className="mt-6 flex items-end justify-between gap-3">
             <div className="min-w-0 flex-1">
               <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Total equity
+                {t("portfolio.total_account_value")}
               </p>
               <div className="mt-1.5 font-mono text-[34px] font-bold leading-none tracking-tight text-foreground">
                 {formatBalance(demoOverride ? demoOverride.balance : profile?.balance)}
@@ -192,7 +193,7 @@ export const HomeGreeting = ({ onSignIn, demoOverride }: HomeGreetingProps) => {
                     No 7D activity ·{" "}
                   </span>
                   <span className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-primary">
-                    Tap Deposit to start
+                    {t("home.screen.HomeGreeting.tap_deposit_to_start")}
                   </span>
                 </p>
               )}
@@ -249,11 +250,11 @@ export const HomeGreeting = ({ onSignIn, demoOverride }: HomeGreetingProps) => {
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-trading-green" />
                 </span>
                 <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-trading-green">
-                  Live on OmenX
+                  {t("home.screen.HomeGreeting.live_on_omenx")}
                 </span>
               </div>
               <h1 className="mt-2 text-[15px] font-semibold leading-snug text-foreground">
-                Hey Caller. Ready to make your next call?
+                {t("home.screen.HomeGreeting.hey_caller_ready_to_make_your_next_call")}
               </h1>
             </div>
           </div>
@@ -268,7 +269,7 @@ export const HomeGreeting = ({ onSignIn, demoOverride }: HomeGreetingProps) => {
                     {formatCompactUSD(volume24h)}
                   </span>
                   <span className="font-sans text-[12px] font-medium text-muted-foreground">
-                    traded · 24h
+                    {t("home.screen.HomeGreeting.traded_24h")}
                   </span>
                 </div>
               )}
@@ -324,7 +325,7 @@ export const HomeGreeting = ({ onSignIn, demoOverride }: HomeGreetingProps) => {
           {/* CTA divider */}
           <div className="mt-5 border-t border-border/40 pt-4">
             <div className="flex items-center justify-between gap-2 text-[13px] font-semibold text-foreground transition-colors group-hover:text-primary">
-              <span>Sign in to start trading</span>
+              <span>{t("home.screen.HomeGreeting.sign_in_to_start_trading")}</span>
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" strokeWidth={2.5} />
             </div>
           </div>

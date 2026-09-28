@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { forwardRef, ReactNode, CSSProperties } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { omenxLogoSolid as omenxLogo } from '@/components/Logo';
@@ -121,7 +122,7 @@ export const SharePosterLayout = forwardRef<HTMLDivElement, SharePosterLayoutPro
         }}>
           <img 
             src={omenxLogo} 
-            alt="OMENX" 
+            alt={t("common.app_name")} 
             style={{ height: '20px', width: 'auto' }}
           />
           {date && (
@@ -185,7 +186,7 @@ export const SharePosterLayout = forwardRef<HTMLDivElement, SharePosterLayoutPro
                 fontSize: '10px', 
                 color: posterColors.textMuted 
               }}>
-                Referral:
+                {t("common.referral")}
               </span>
               <span style={{ 
                 fontFamily: 'monospace',

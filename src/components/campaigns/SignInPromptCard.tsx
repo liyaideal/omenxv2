@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import { LogIn, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,11 +30,11 @@ export const SignInPromptCard = ({
       <div className="flex items-center gap-3">
         <Button variant="outline" onClick={() => setAuthOpen(true)} className="border-border/50">
           <LogIn className="mr-1.5 h-4 w-4" />
-          Log In
+          {t("common.log_in")}
         </Button>
         <Button onClick={() => setAuthOpen(true)}>
           <UserPlus className="mr-1.5 h-4 w-4" />
-          Sign Up
+          {t("common.sign_up")}
         </Button>
       </div>
       {isMobile ? (

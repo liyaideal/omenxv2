@@ -5,6 +5,7 @@
 // State comes from `useEventSelector`; the host handles `onSelect`, which may
 // jump to the other terminal when the pick is on the other product tab.
 // ============================================================
+import { t } from "@/i18n";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { EventSelectorPanel } from "@/components/EventSelectorPanel";
 import type { TradingEvent } from "@/hooks/useEvents";
@@ -21,7 +22,7 @@ interface EventSelectorSheetProps {
 
 export function EventSelectorSheet({ open, onOpenChange, selector, currentEventId, onSelect }: EventSelectorSheetProps) {
   return (
-    <MobileDrawer open={open} onOpenChange={onOpenChange} title="Select Event" height="h-[70vh]">
+    <MobileDrawer open={open} onOpenChange={onOpenChange} title={t("market.screen.event_detail.event_info.event_selector_sheet.select_event")} height="h-[70vh]">
       <EventSelectorPanel
         variant="drawer"
         tab={selector.tab}

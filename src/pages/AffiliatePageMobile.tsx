@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useEffect, useRef, useState } from "react";
 import { MobileHeader } from "@/components/MobileHeader";
 import { SeoFooter } from "@/components/seo";
@@ -125,7 +126,7 @@ export const AffiliatePageMobile = () => {
 
   return (
     <div className="flex min-h-screen flex-col bg-background pb-24">
-      <MobileHeader title="Affiliate Program" showLogo={false} showBack />
+      <MobileHeader title={t("nav.affiliateProgram")} showLogo={false} showBack />
 
       <main className="w-full flex-1">
         {/* ============================== HERO ============================== */}
@@ -146,7 +147,7 @@ export const AffiliatePageMobile = () => {
               <span className="block text-primary">
                 {accentLead} <span
                     role="img"
-                    aria-label="OmenX"
+                    aria-label={t("common.app_name")}
                     className="inline-block h-[0.53em] w-[calc(0.53em*433/65)] bg-current align-baseline"
                     style={{ WebkitMaskImage: `url("${omenxLogoSolid}")`, maskImage: `url("${omenxLogoSolid}")`, WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat" }}
                   />
@@ -354,7 +355,7 @@ export const AffiliatePageMobile = () => {
           <div className="pt-[26px] font-display text-lg leading-6 text-foreground">
             <span className="inline-flex items-center gap-2.5">
               {BASE_LINE.pre}
-              <img src="/chain-logos/base.svg" alt="Base" className="h-7 w-7" loading="lazy" />
+              <img src="/chain-logos/base.svg" alt={t("common.base")} className="h-7 w-7" loading="lazy" />
             </span>
             <span className="mt-2.5 block">{BASE_LINE.post}</span>
           </div>

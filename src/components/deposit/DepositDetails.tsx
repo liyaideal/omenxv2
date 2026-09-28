@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from 'react';
 import { Copy, Check, MoreHorizontal, AlertTriangle, Loader2, RefreshCw, Eye, Share2 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
@@ -118,12 +119,12 @@ export const DepositDetails = ({ token }: DepositDetailsProps) => {
           {copied ? (
             <>
               <Check className="w-4 h-4 mr-2" />
-              Copied
+              {t("common.copied")}
             </>
           ) : (
             <>
               <Copy className="w-4 h-4 mr-2" />
-              Copy address
+              {t("settings.wallet.copy_address")}
             </>
           )}
         </Button>
@@ -147,11 +148,11 @@ export const DepositDetails = ({ token }: DepositDetailsProps) => {
               disabled={isGeneratingAddress}
             >
               <RefreshCw className={cn("w-4 h-4 mr-2", isGeneratingAddress && "animate-spin")} />
-              Generate new address
+              {t("settings.wallet.generate_new_address")}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleViewFullAddress}>
               <Eye className="w-4 h-4 mr-2" />
-              View full address
+              {t("settings.wallet.view_full_address")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -184,16 +185,16 @@ export const DepositDetails = ({ token }: DepositDetailsProps) => {
       {/* Info Table */}
       <div className="space-y-4 pt-4">
         <InfoRow 
-          label="Network" 
+          label={t("settings.wallet.network")} 
           value={token.network}
           valueIcon={token.icon}
         />
         <InfoRow 
-          label="Fee" 
+          label={t("common.fee")} 
           value={`${token.fee} ${token.symbol}`}
         />
         <InfoRow 
-          label="Minimum deposit" 
+          label={t("settings.wallet.minimum_deposit")} 
           value={`${token.minAmount} ${token.symbol}`}
           underline
         />
@@ -202,7 +203,7 @@ export const DepositDetails = ({ token }: DepositDetailsProps) => {
           value={token.confirmationBlocks.toString()}
         />
         <InfoRow 
-          label="Processing time" 
+          label={t("settings.wallet.processing_time")} 
           value={token.estimatedTime}
           underline
         />
@@ -280,7 +281,7 @@ export const DepositDetails = ({ token }: DepositDetailsProps) => {
           variant="secondary"
           className="w-full h-12 rounded-xl"
         >
-          Done
+          {t("wallet.screen.sell_to_fiat.done")}
         </Button>
       </div>
     </div>

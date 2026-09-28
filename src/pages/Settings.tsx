@@ -1,4 +1,4 @@
-import { useT } from "@/i18n";
+import { useT, t } from "@/i18n";
 import { useState, useMemo } from "react";
 import { Mail } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -390,7 +390,7 @@ const Settings = () => {
                 onClick={() => setEmailStep("input")}
                 className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                ← Change email address
+                {t("settings.screen.mobile_settings_page.change_email_address")}
               </button>
             </MobileDrawerSection>
           )}
@@ -420,7 +420,7 @@ const Settings = () => {
           {renderAvatarGrid("max-h-[380px]")}
           <DialogFooter>
             <Button variant="outline" onClick={() => setAvatarDialogOpen(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={handleSelectAvatar} disabled={!selectedAvatar || isUpdating} className="btn-primary">
               {isUpdating ? t("settings.saving") : t("common.save")}
@@ -448,7 +448,7 @@ const Settings = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setUsernameDialogOpen(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={handleUpdateUsername} disabled={isUpdating} className="btn-primary">
               {isUpdating ? t("settings.saving") : t("common.save")}

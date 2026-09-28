@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -180,7 +181,7 @@ const PreviewCanvas = ({ type }: { type: string }) => {
           className="inline-block -rotate-2 border-2 border-[#0E0E0E] bg-[#E11D48] px-2 py-0.5 font-poster text-[10px] uppercase tracking-wider text-white"
           style={{ fontFamily: '"Archivo Black", Impact, sans-serif' }}
         >
-          World Cup 2026
+          {t("common.world_cup_2026")}
         </span>
         <div
           className="mt-2 font-poster text-2xl uppercase leading-none"
@@ -193,7 +194,7 @@ const PreviewCanvas = ({ type }: { type: string }) => {
         </div>
         <div className="mt-3 flex gap-2 border-t-2 border-[#0E0E0E] pt-2 font-mono text-[9px] uppercase tracking-widest text-[#0E0E0E]/60">
           <span><span className="font-poster text-[#E11D48]">$47K</span> dist</span>
-          <span><span className="font-poster">1,284</span> claimed</span>
+          <span><span className="font-poster">1,284</span> {t("common.claimed")}</span>
           <span><span className="font-poster text-[#1D4ED8]">213</span> left</span>
         </div>
       </div>
@@ -261,7 +262,7 @@ const CampaignStyleGuide = () => {
           <TabsList className="mb-6 flex w-full justify-start overflow-x-auto bg-muted/40 p-1">
             <TabsTrigger value="principles" className="gap-2 whitespace-nowrap"><ShieldCheck className="h-4 w-4" />Principles</TabsTrigger>
             <TabsTrigger value="archetypes" className="gap-2 whitespace-nowrap"><Award className="h-4 w-4" />Archetypes</TabsTrigger>
-            <TabsTrigger value="components" className="gap-2 whitespace-nowrap"><LayoutTemplate className="h-4 w-4" />Components</TabsTrigger>
+            <TabsTrigger value="components" className="gap-2 whitespace-nowrap"><LayoutTemplate className="h-4 w-4" />{t("nav.components")}</TabsTrigger>
             <TabsTrigger value="playground" className="gap-2 whitespace-nowrap"><Sparkles className="h-4 w-4" />Playground</TabsTrigger>
             <TabsTrigger value="qa" className="gap-2 whitespace-nowrap"><CheckCircle2 className="h-4 w-4" />QA</TabsTrigger>
           </TabsList>

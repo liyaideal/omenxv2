@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { banners, type BannerThemeKey } from "@/components/campaign/banners";
@@ -60,7 +61,7 @@ export const HomeCampaignRail = () => {
     <section>
       <div className="mb-2 flex items-end justify-between gap-2 px-1">
         <h2 className="text-[18px] font-extrabold uppercase tracking-tight text-foreground">
-          Campaigns
+          {t("home.screen.HomeCampaignRail.campaigns")}
         </h2>
       </div>
 

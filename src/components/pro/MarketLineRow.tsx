@@ -7,6 +7,7 @@
 // (the host navigates). Desktop = DropdownMenu, mobile = MobileDrawer.
 // Replaces the `Select Option` chip row on fixture events.
 // ============================================================
+import { t } from "@/i18n";
 import { forwardRef, useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import {
@@ -200,11 +201,11 @@ export const MarketLineRow = ({ markets, currentId, onSelect, variant, previewOp
         variant === "desktop" ? "px-4 py-2" : "px-4 py-2.5",
       )}
       role="group"
-      aria-label="Markets"
+      aria-label={t("market.market_list")}
     >
       {variant === "desktop" && (
         <span className="flex-shrink-0 text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground mr-1">
-          Markets
+          {t("market.market_list")}
         </span>
       )}
       {chips}

@@ -6,6 +6,7 @@
 // DK-1: while ordering is blocked the two buttons collapse into ONE inert bar
 // that prints the reason once; the "tap again to trade" hint is hidden.
 // ============================================================
+import { t } from "@/i18n";
 import { ArrowRight } from "lucide-react";
 import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
 import { cn } from "@/lib/utils";
@@ -53,7 +54,7 @@ export const ProSpotMobileDock = ({
         {available.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
         USDC
       </span>
-      {!blocked && <span className="opacity-70">Tap to switch view · tap again to trade</span>}
+      {!blocked && <span className="opacity-70">{t("market.mobile_trade_footer_hint")}</span>}
     </div>
     <div className="flex gap-1.5">
       {showSurfaceSwitch && (

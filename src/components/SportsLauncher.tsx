@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useEffect, useState } from "react";
 import { X, ChevronRight } from "lucide-react";
 import { isWorldCupActive, SPORTS_URL } from "@/lib/worldCup";
@@ -82,7 +83,7 @@ export const SportsLauncher = ({
       <button
         type="button"
         onClick={handleDismiss}
-        aria-label="Dismiss OmenX Sports launcher"
+        aria-label={t("sports.screen.sports_entry.SportsLauncher.dismiss_omenx_sports_launcher")}
         className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-card border border-border/60 text-muted-foreground hover:text-foreground hover:bg-muted flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md z-10"
       >
         <X className="w-3 h-3" />
@@ -121,12 +122,12 @@ export const SportsLauncher = ({
         {/* Text content */}
         <span className="flex flex-col items-start leading-tight">
           <span className="text-[15px] font-bold tracking-tight text-foreground">
-            OmenX Sports
+            {t("common.omenx_sports")}
           </span>
           <span className="flex items-center gap-1.5 text-[10px] font-mono font-bold tracking-widest text-trading-yellow uppercase">
-            <span>World Cup</span>
+            <span>{t("sports.screen.mobile.MobileWorldCupHero.world_cup")}</span>
             <span className="h-0.5 w-0.5 rounded-full bg-muted-foreground" />
-            <span>Live</span>
+            <span>{t("common.live")}</span>
           </span>
         </span>
 

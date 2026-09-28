@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useEffect, useState } from "react";
 import { X, ArrowRight, Trophy, MapPin } from "lucide-react";
 import {
@@ -173,10 +174,10 @@ export const WorldCupPanel = ({
                   className="text-lg tracking-[0.12em] bg-gradient-to-b from-yellow-200 to-yellow-500 bg-clip-text text-transparent"
                   style={{ fontFamily: "'Bebas Neue', sans-serif" }}
                 >
-                  WORLD CUP 2026
+                  {t("common.world_cup_2026")}
                 </h2>
                 <span className="text-[10px] tracking-[0.2em] text-[#7FA088] uppercase">
-                  United · Mexico · Canada
+                  {t("sports.screen.sports_entry.WorldCupTeaserPanel.united_mexico_canada")}
                 </span>
               </div>
             </div>
@@ -199,7 +200,7 @@ export const WorldCupPanel = ({
               >
                 <div className="flex items-center justify-between mb-3">
                   <span className="px-2 py-0.5 bg-[#C8102E] text-white text-[10px] font-bold rounded animate-pulse shadow-[0_0_10px_rgba(200,16,46,0.5)] tracking-[0.15em] uppercase">
-                    LIVE
+                    {t("common.live")}
                   </span>
                   <span className="font-mono text-[#C9A227] text-xs font-bold uppercase tracking-wider">
                     {live.minute} MINUTES

@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import { Shield, Loader2, CheckCircle2, ChevronDown, ChevronUp, Copy, Check, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -60,13 +61,13 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
             <Shield className="w-10 h-10 text-emerald-400" />
           </div>
           <div className="space-y-2 max-w-md mx-auto">
-            <h2 className="text-xl font-bold">My Funds Are Really There?</h2>
+            <h2 className="text-xl font-bold">{t("transparency.screen.TransparencyPage.scenarios.merkle_proof.title")}</h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              This verification proves your account balance and open positions are included in OmenX's on-chain Merkle state tree committed to Base network.
+              {t("transparency.screen.MerkleProofVerification.proof_explanation")}
             </p>
           </div>
           <div className="bg-muted/30 rounded-xl p-4 text-left max-w-sm mx-auto space-y-2">
-            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">How it works</h4>
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("rewards.how_it_works")}</h4>
             {STEPS_CONFIG.slice(0, 3).map((s, i) => (
               <div key={i} className="flex items-start gap-2">
                 <span className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold text-muted-foreground shrink-0 mt-0.5">
@@ -77,7 +78,7 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
             ))}
           </div>
           <Button onClick={startVerification} className="px-8 gap-2">
-            <Shield className="w-4 h-4" /> Start Verification
+            <Shield className="w-4 h-4" /> {t("transparency.screen.MerkleProofVerification.start_verification")}
           </Button>
         </div>
       </div>
@@ -120,8 +121,8 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
                 <Shield className="w-7 h-7 text-emerald-400" />
               </div>
               <div>
-                <h3 className="font-bold text-emerald-400 text-lg">Verified ✓</h3>
-                <p className="text-sm text-muted-foreground">Your assets are cryptographically proven to exist in the platform's on-chain state.</p>
+                <h3 className="font-bold text-emerald-400 text-lg">{t("transparency.screen.MerkleProofVerification.verified")}</h3>
+                <p className="text-sm text-muted-foreground">{t("transparency.screen.MerkleProofVerification.your_assets_are_cryptographically_proven_to_exist_in_the_platforms_on_chain")}</p>
               </div>
             </div>
 
@@ -142,7 +143,7 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
               ))}
             </div>
             <p className="text-[10px] text-muted-foreground/70 leading-relaxed -mt-1">
-              Only settled-state fields are committed on-chain. Floating PnL and live position mark value are real-time derivatives and are not part of the state root.
+              {t("transparency.screen.MerkleProofVerification.only_settled_state_fields_are_committed_on_chain_floating_pnl_and_live")}
             </p>
 
             {/* Expandable cryptographic details */}
@@ -150,7 +151,7 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
               onClick={() => setDetailsOpen(!detailsOpen)}
               className="w-full flex items-center justify-between text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
             >
-              <span className="font-medium">Cryptographic Details</span>
+              <span className="font-medium">{t("transparency.screen.MerkleProofVerification.cryptographic_details")}</span>
               {detailsOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </button>
 
@@ -158,7 +159,7 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
               <div className="animate-fade-in space-y-3 bg-muted/20 rounded-xl p-4">
                 {/* batchId */}
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">batchId</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{t("transparency.screen.MerkleProofVerification.batchid")}</p>
                   <div className="flex items-center">
                     <code className="text-xs font-mono text-foreground">#{data.batchId.toLocaleString()}</code>
                     <CopyBtn text={data.batchId.toString()} field="batch" />
@@ -167,7 +168,7 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
 
                 {/* leafHash */}
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">leafHash</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{t("transparency.screen.MerkleProofVerification.leafhash")}</p>
                   <div className="flex items-center">
                     <code className="text-xs font-mono text-emerald-400 break-all flex-1">{data.leafHash}</code>
                     <CopyBtn text={data.leafHash} field="leaf" />
@@ -176,7 +177,7 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
 
                 {/* oldRoot */}
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">oldRoot</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{t("transparency.screen.MerkleProofVerification.oldroot")}</p>
                   <div className="flex items-center">
                     <code className="text-xs font-mono text-muted-foreground break-all flex-1">{data.oldRoot}</code>
                     <CopyBtn text={data.oldRoot} field="oldRoot" />
@@ -185,7 +186,7 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
 
                 {/* newRoot */}
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">newRoot</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{t("transparency.screen.MerkleProofVerification.newroot")}</p>
                   <div className="flex items-center">
                     <code className="text-xs font-mono text-blue-400 break-all flex-1">{data.stateRoot}</code>
                     <CopyBtn text={data.stateRoot} field="root" />
@@ -194,7 +195,7 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
 
                 {/* timestamp */}
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">timestamp</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{t("transparency.screen.MerkleProofVerification.timestamp")}</p>
                   <code className="text-xs font-mono text-foreground">
                     {format(new Date(data.commitTimestamp), "yyyy-MM-dd HH:mm:ss 'UTC'")}
                   </code>
@@ -223,7 +224,7 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
                 <Button variant="outline" size="sm" className="text-xs gap-1.5 w-full"
                   onClick={() => window.open(`https://basescan.org/tx/${data.stateRoot}`, "_blank")}
                 >
-                  <ExternalLink className="w-3.5 h-3.5" /> View State Root on BaseScan
+                  <ExternalLink className="w-3.5 h-3.5" /> {t("transparency.screen.MerkleProofVerification.view_state_root_on_basescan")}
                 </Button>
               </div>
             )}
@@ -231,9 +232,9 @@ export const MerkleProofVerification = ({ onBack }: Props) => {
             {/* Actions */}
             <div className="flex gap-3">
               <Button onClick={startVerification} className="flex-1 gap-2">
-                <Shield className="w-4 h-4" /> Verify Again
+                <Shield className="w-4 h-4" /> {t("transparency.screen.MerkleProofVerification.verify_again")}
               </Button>
-              <Button variant="outline" onClick={() => { reset(); onBack(); }} className="flex-1">Done</Button>
+              <Button variant="outline" onClick={() => { reset(); onBack(); }} className="flex-1">{t("wallet.screen.sell_to_fiat.done")}</Button>
             </div>
           </div>
         )}

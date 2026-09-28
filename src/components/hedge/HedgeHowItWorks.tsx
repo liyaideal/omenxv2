@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { HedgeOutcomeSplit } from "./HedgeOutcomeSplit";
 import { HedgeCTAButton } from "./HedgeCTAButton";
 
@@ -26,7 +27,7 @@ export const HedgeHowItWorks = () => {
         {/* Title */}
         <div className="mb-8 md:mb-12">
           <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#1D4ED8]">
-            How it works
+            {t("rewards.how_it_works")}
           </p>
           <h2 className="mt-2 font-poster text-3xl uppercase leading-tight tracking-tight text-[#0E0E0E] md:text-5xl">
             A hedge for every pick.
@@ -35,7 +36,7 @@ export const HedgeHowItWorks = () => {
             OmenX is running a{" "}
             <span className="font-poster uppercase">World Cup Hedge-to-Earn Campaign</span>.
             Connect your Polymarket wallet and we'll give you a{" "}
-            <span className="font-poster uppercase">Trial Position Voucher</span> to open
+            <span className="font-poster uppercase">{t("rewards.screen.vouchers_list.trial_position_voucher")}</span> to open
             a hedge position on OmenX — a position that moves the opposite way
             to your Polymarket pick.
           </p>

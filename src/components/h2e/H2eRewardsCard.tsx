@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useConnectedAccounts } from "@/hooks/useConnectedAccounts";
@@ -125,15 +126,15 @@ export const H2eRewardsCard = ({
   if (stage === "S0" || stage === "S1") {
     return (
       <div className={`${shell} space-y-4`}>
-        <MicroLabel>Your progress</MicroLabel>
+        <MicroLabel>{t("common.your_progress")}</MicroLabel>
         <div className="grid grid-cols-3 gap-3">
           <GuideNode
             state="next"
             title={stage === "S0" ? "Sign in and connect your wallet" : "Connect wallet"}
-            sub="Link your Polymarket wallet above"
+            sub={t("rewards.screen.h2e_campaign_progress.link_your_polymarket_wallet_above")}
           />
-          <GuideNode state="todo" title="Receive airdrops" sub="Qualifying positions get a $10 counter-side hedge" />
-          <GuideNode state="todo" title="Trade to unlock" sub="Earnings unlock for withdrawal by volume tiers" />
+          <GuideNode state="todo" title={t("rewards.screen.h2e_campaign_progress.receive_airdrops")} sub={t("rewards.screen.h2e_campaign_progress.qualifying_positions_get_a_10_counter_side_hedge")} />
+          <GuideNode state="todo" title={t("rewards.screen.h2e_campaign_progress.trade_to_unlock")} sub={t("rewards.screen.h2e_campaign_progress.earnings_unlock_for_withdrawal_by_volume_tiers")} />
         </div>
       </div>
     );
@@ -142,20 +143,20 @@ export const H2eRewardsCard = ({
   if (stage === "S2") {
     return (
       <div className={`${shell} space-y-4`}>
-        <MicroLabel>Your progress</MicroLabel>
+        <MicroLabel>{t("common.your_progress")}</MicroLabel>
         <div className="grid grid-cols-3 gap-3">
           <GuideNode
             state="done"
-            title="Wallet connected"
+            title={t("rewards.screen.h2e_campaign_progress.wallet_connected")}
             subNode={<div className="font-mono text-[10px] text-[#6B7280]">{acct?.displayAddress}</div>}
           />
           <GuideNode
             state="next"
-            title="Receive airdrops"
+            title={t("rewards.screen.h2e_campaign_progress.receive_airdrops")}
             subNode={
               scanning ? (
                 <div className="flex items-center gap-1.5 text-[10px] text-[#6B7280]">
-                  <Loader2 className="h-3 w-3 animate-spin text-primary" /> Scanning positions…
+                  <Loader2 className="h-3 w-3 animate-spin text-primary" /> {t("settings.scanning_positions")}
                 </div>
               ) : liveAirdropCount > 0 ? (
                 <div className="text-[10px] text-[#6B7280]">
@@ -164,12 +165,12 @@ export const H2eRewardsCard = ({
                 </div>
               ) : (
                 <div className="text-[10px] text-[#6B7280]">
-                  No qualifying positions yet — positions ≥ $20 held a day qualify
+                  {t("rewards.screen.h2e_campaign_progress.no_qualifying_positions")}
                 </div>
               )
             }
           />
-          <GuideNode state="todo" title="Trade to unlock" sub="Starts once earnings land" />
+          <GuideNode state="todo" title={t("rewards.screen.h2e_campaign_progress.trade_to_unlock")} sub={t("rewards.screen.h2e_campaign_progress.starts_once_earnings_land")} />
         </div>
       </div>
     );
@@ -178,22 +179,22 @@ export const H2eRewardsCard = ({
   return (
     <div className={`${shell} space-y-4`}>
       <div className="flex items-center justify-between gap-3">
-        <MicroLabel>Your progress</MicroLabel>
+        <MicroLabel>{t("common.your_progress")}</MicroLabel>
         <span className="text-[11px] text-[#6B7280]">
           {connected ? (
-            <span className="text-[#4ADE80]">✓ Connected</span>
+            <span className="text-[#4ADE80]">{t("rewards.screen.h2e_campaign_progress.wallet_connected_status")}</span>
           ) : (
-            <span className="text-[#FFD666]">Wallet not connected</span>
+            <span className="text-[#FFD666]">{t("wallet.screen.cross_chain_deposit.wallet_not_connected")}</span>
           )}{" "}
           · <span className="text-[#4ADE80]">✓ Airdrops</span> ·{" "}
-          <span className="text-[#33D6FF] font-semibold">Trade to unlock</span>
+          <span className="text-[#33D6FF] font-semibold">{t("rewards.screen.h2e_campaign_progress.trade_to_unlock")}</span>
         </span>
       </div>
 
       {/* Earnings cap */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <span className="text-[12px] text-[#9AA1AC]">Earned / Cap</span>
+          <span className="text-[12px] text-[#9AA1AC]">{t("common.earned_cap")}</span>
           <span className="font-display text-[12.5px] font-semibold tabular-nums text-[#F2F3F5]">
             ${sm.totalEarned.toFixed(2)} / ${sm.earningsCap}
           </span>
@@ -206,7 +207,7 @@ export const H2eRewardsCard = ({
       {/* Volume unlock */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">Withdrawal unlock progress</span>
+          <span className="text-muted-foreground">{t("rewards.screen.h2e_campaign_progress.withdrawal_unlock_progress")}</span>
           <span className="font-mono font-semibold">
             ${Math.round(sm.volumeCompleted).toLocaleString()} / ${Math.round(sm.nextTierVolume ?? sm.volumeRequired).toLocaleString()}
           </span>
@@ -256,7 +257,7 @@ export const H2eRewardsCard = ({
         <div className="space-y-2 rounded-lg border border-[#1D2026] bg-[#0F1114] p-3 sm:hidden">
           {!sm.isFullyUnlocked && (
             <div className="rounded-md border border-primary/20 bg-primary/10 px-3 py-2">
-              <div className="text-[10px] uppercase text-muted-foreground">Next unlock</div>
+              <div className="text-[10px] uppercase text-muted-foreground">{t("rewards.screen.h2e_campaign_progress.next_unlock")}</div>
               <div className="mt-0.5 flex items-center justify-between text-xs">
                 <span className="font-medium">{sm.nextTierPercent}% at ${Math.round(sm.nextTierVolume ?? sm.volumeRequired).toLocaleString()}</span>
                 <span className="font-mono text-primary">${Math.round(sm.volumeToNextTier).toLocaleString()} left</span>
@@ -326,7 +327,7 @@ export const H2eRewardsCard = ({
       {/* Recent settlements */}
       {sm.settlements.length > 0 && (
         <div className="space-y-2 pt-2 border-t border-border/30">
-          <MicroLabel>Recent settlements</MicroLabel>
+          <MicroLabel>{t("settings.wallet.h2e_recent_settlements")}</MicroLabel>
           {sm.settlements.slice(0, 3).map((s) => (
             <div key={s.id} className="flex items-center justify-between text-xs">
               <div className="truncate max-w-[60%]">

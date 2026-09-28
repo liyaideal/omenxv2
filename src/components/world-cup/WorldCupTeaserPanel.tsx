@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useEffect, useRef, useState } from "react";
 import { X, ArrowRight, Trophy, MapPin } from "lucide-react";
 import {
@@ -206,17 +207,17 @@ export const WorldCupTeaserPanel = ({
                   className="text-lg tracking-[0.12em] bg-gradient-to-b from-yellow-200 to-yellow-500 bg-clip-text text-transparent"
                   style={{ fontFamily: "'Bebas Neue', sans-serif" }}
                 >
-                  WORLD CUP 2026
+                  {t("common.world_cup_2026")}
                 </h2>
                 <span className="text-[10px] tracking-[0.2em] text-[#7FA088] uppercase">
-                  United · Mexico · Canada
+                  {t("sports.screen.sports_entry.WorldCupTeaserPanel.united_mexico_canada")}
                 </span>
               </div>
             </div>
             <button
               onClick={handleDismiss}
               className="text-[#5F7A66] hover:text-white transition-colors"
-              aria-label="Dismiss"
+              aria-label={t("common.dismiss")}
             >
               <X className="w-5 h-5" />
             </button>
@@ -229,20 +230,20 @@ export const WorldCupTeaserPanel = ({
               className="text-[10px] font-bold tracking-[0.3em] uppercase text-[#C9A227] animate-pulse"
               style={{ fontFamily: "'Bebas Neue', sans-serif" }}
             >
-              Kickoff In
+              {t("sports.screen.sports_entry.WorldCupTeaserPanel.kickoff_in")}
             </span>
             <span className="h-px flex-1 bg-[#243528]" />
           </div>
 
           {/* Countdown */}
           <div className="relative px-4 pb-4 flex items-center justify-between gap-2">
-            <Cell value={cd.days} label="Days" />
+            <Cell value={cd.days} label={t("sports.screen.sports_entry.WorldCupTeaserPanel.days")} />
             <span className="text-[#C9A227] text-2xl font-black -mt-4">:</span>
-            <Cell value={cd.hours} label="Hours" />
+            <Cell value={cd.hours} label={t("sports.screen.sports_entry.WorldCupTeaserPanel.hours")} />
             <span className="text-[#C9A227] text-2xl font-black -mt-4">:</span>
-            <Cell value={cd.minutes} label="Mins" />
+            <Cell value={cd.minutes} label={t("sports.screen.sports_entry.WorldCupTeaserPanel.mins")} />
             <span className="text-[#C9A227] text-2xl font-black -mt-4">:</span>
-            <Cell value={cd.seconds} label="Secs" />
+            <Cell value={cd.seconds} label={t("sports.screen.sports_entry.WorldCupTeaserPanel.secs")} />
           </div>
 
           {/* Opening match preview — pitch styled */}
@@ -307,7 +308,7 @@ export const WorldCupTeaserPanel = ({
                   className="text-[#E8C547] text-base tracking-[0.2em] shrink-0"
                   style={{ fontFamily: "'Anton', sans-serif" }}
                 >
-                  VS
+                  {t("common.vs")}
                 </span>
 
                 <div className="flex flex-col items-center flex-1 min-w-0">
@@ -340,7 +341,7 @@ export const WorldCupTeaserPanel = ({
                 className="text-lg tracking-[0.2em] text-[#3A2E08]"
                 style={{ fontFamily: "'Bebas Neue', sans-serif" }}
               >
-                ENTER THE ARENA
+                {t("sports.screen.sports_entry.WorldCupTeaserPanel.enter_the_arena")}
               </span>
               <ArrowRight className="w-4 h-4 text-[#3A2E08]" />
             </button>
@@ -350,7 +351,7 @@ export const WorldCupTeaserPanel = ({
           <div className="relative flex items-center justify-center gap-2 px-4 pb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-[#1D9E75] animate-pulse" />
             <span className="text-[10px] tracking-[0.18em] text-[#7FA088] uppercase">
-              PRE-MATCH ODDS LIVE NOW
+              {t("sports.screen.sports_entry.WorldCupTeaserPanel.pre_match_odds_live_now")}
             </span>
           </div>
         </div>

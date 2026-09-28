@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { ReactNode, CSSProperties } from "react";
 import { cn } from "@/lib/utils";
 
@@ -110,7 +111,7 @@ export const FeedCard = ({
             {tag}
             {unread && tier === 1 && (
               <span
-                aria-label="Unread"
+                aria-label={t("home.screen.feed.FeedCard.unread")}
                 className="inline-block h-1.5 w-1.5 rounded-full bg-trading-red animate-pulse-soft motion-reduce:animate-none"
               />
             )}

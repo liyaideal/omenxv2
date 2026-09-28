@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState, useEffect } from 'react';
 import { Loader2, AlertTriangle, ChevronDown, Wallet, ChevronRight, ArrowLeftRight } from 'lucide-react';
 import { TransferDialog } from '@/components/wallet/TransferDialog';
@@ -181,16 +182,16 @@ export const WalletWithdraw = ({ onDone, demoAvailableBalance, fixtureWallets }:
     <div className={cn("space-y-5", isMobile ? "px-4 py-5" : "p-5")}>
       {/* Base-USDC info */}
       <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl">
-        <img src="/chain-logos/base.svg" alt="Base" className="w-10 h-10" />
+        <img src="/chain-logos/base.svg" alt={t("common.base")} className="w-10 h-10" />
         <div>
-          <div className="font-semibold text-sm">USDC</div>
+          <div className="font-semibold text-sm">{t("market.usdc")}</div>
           <div className="text-xs text-muted-foreground">Base Network</div>
         </div>
       </div>
 
       {/* From account */}
       <div className="space-y-2">
-        <LabelText size="sm" muted>From account</LabelText>
+        <LabelText size="sm" muted>{t("wallet.fromAccount")}</LabelText>
         {isMobile ? (
           <button
             onClick={() => setAccountPickerOpen(true)}
@@ -236,7 +237,7 @@ export const WalletWithdraw = ({ onDone, demoAvailableBalance, fixtureWallets }:
 
       {/* Withdrawal Address */}
       <div className="space-y-2">
-        <LabelText size="sm" muted>Withdrawal Address</LabelText>
+        <LabelText size="sm" muted>{t("settings.wallet.withdrawal_address")}</LabelText>
         <button
           onClick={() => setShowAddressSelect(true)}
           className={cn(
@@ -255,7 +256,7 @@ export const WalletWithdraw = ({ onDone, demoAvailableBalance, fixtureWallets }:
           ) : (
             <div className="flex items-center gap-2 text-muted-foreground">
               <Wallet className="w-4 h-4" />
-              <span className="text-sm">Select withdrawal address</span>
+              <span className="text-sm">{t("settings.wallet.select_withdrawal_address")}</span>
             </div>
           )}
           <ChevronDown className="w-4 h-4 text-muted-foreground" />
@@ -265,8 +266,8 @@ export const WalletWithdraw = ({ onDone, demoAvailableBalance, fixtureWallets }:
       {/* Amount Input */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <LabelText size="sm" muted>Amount</LabelText>
-          <button onClick={handleSetMax} className="text-xs text-primary font-medium hover:underline">MAX</button>
+          <LabelText size="sm" muted>{t("trade.screen.lite.lite_contract_order_panel.amount")}</LabelText>
+          <button onClick={handleSetMax} className="text-xs text-primary font-medium hover:underline">{t("common.max")}</button>
         </div>
         <div className="relative">
           <Input
@@ -281,7 +282,7 @@ export const WalletWithdraw = ({ onDone, demoAvailableBalance, fixtureWallets }:
               error && "border-trading-red focus-visible:ring-trading-red"
             )}
           />
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground font-medium text-sm">USDC</div>
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground font-medium text-sm">{t("market.usdc")}</div>
         </div>
         {error && (
           <div className="flex items-center gap-2 text-trading-red text-xs">
@@ -291,11 +292,11 @@ export const WalletWithdraw = ({ onDone, demoAvailableBalance, fixtureWallets }:
         )}
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5">
-            Available: <span className="font-mono">{availableBalance.toFixed(2)}</span> USDC
+            Available: <span className="font-mono">{availableBalance.toFixed(2)}</span> {t("market.usdc")}
             <button
               type="button"
               onClick={() => setTransferOpen(true)}
-              aria-label="Transfer funds"
+              aria-label={t("wallet.transferTitle")}
               className={cn(
                 "inline-flex items-center justify-center rounded hover:bg-muted hover:text-foreground",
                 isMobile ? "min-h-[44px] min-w-[44px] -my-3 -mx-2" : "p-0.5",
@@ -304,23 +305,23 @@ export const WalletWithdraw = ({ onDone, demoAvailableBalance, fixtureWallets }:
               <ArrowLeftRight className="h-3 w-3" />
             </button>
           </span>
-          <span>Min <span className="font-mono">{minAmount}</span> USDC</span>
+          <span>{t("market.minutes")} <span className="font-mono">{minAmount}</span> {t("market.usdc")}</span>
         </div>
       </div>
 
       {/* Summary */}
       <div className="space-y-2 p-3 bg-muted/20 rounded-xl border border-border/30">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Network Fee</span>
+          <span className="text-muted-foreground">{t("wallet.screen.withdraw_status_tracker.network_fee")}</span>
           <MonoText className="font-medium">{fee} USDC</MonoText>
         </div>
         <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Minimum</span>
+          <span className="text-muted-foreground">{t("settings.wallet.minimum")}</span>
           <MonoText className="font-medium">{minAmount} USDC</MonoText>
         </div>
         <div className="h-px bg-border/50" />
         <div className="flex items-center justify-between">
-          <span className="font-medium text-sm">You'll Receive</span>
+          <span className="font-medium text-sm">{t("wallet.screen.withdraw_status_tracker.youll_receive")}</span>
           <MonoText className="text-sm font-bold">{netAmount.toFixed(2)} USDC</MonoText>
         </div>
       </div>
@@ -340,7 +341,7 @@ export const WalletWithdraw = ({ onDone, demoAvailableBalance, fixtureWallets }:
           className={cn("w-full bg-primary hover:bg-primary-hover font-semibold", isMobile ? "h-12 rounded-xl text-sm" : "h-11 rounded-lg")}
         >
           {isSubmitting ? (
-            <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Processing...</>
+            <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{t("common.processing")}</>
           ) : (
             'Withdraw'
           )}
@@ -385,7 +386,7 @@ export const WalletWithdraw = ({ onDone, demoAvailableBalance, fixtureWallets }:
             setAmount('');
             setError(null);
           }}
-          title="From account"
+          title={t("wallet.fromAccount")}
         />
       )}
 

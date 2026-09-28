@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { X } from "lucide-react";
@@ -20,12 +21,12 @@ export const PointsRetiredNoticeCard = ({
     <p className="flex-1 text-[12.5px] leading-5 text-[#C9CED6]">
       Points have retired. Rewards now come as Trial Position Vouchers.{" "}
       <button type="button" onClick={onOpenVouchers} className="text-[#33D6FF]">
-        Open vouchers →
+        {t("rewards.screen.points_retired_notice.open_vouchers")}
       </button>
     </p>
     <button
       type="button"
-      aria-label="Dismiss"
+      aria-label={t("common.dismiss")}
       onClick={onDismiss}
       className="-m-2 grid h-11 w-11 place-items-center text-[#6B7280]"
     >

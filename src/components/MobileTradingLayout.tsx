@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useNavigate, useSearchParams, useNavigationType } from "react-router-dom";
 import { Loader2, Link, Star, Share2 } from "lucide-react";
@@ -163,16 +164,16 @@ function TradingShell({
           <Sheet>
             <SheetTrigger asChild>
               <button
-                aria-label="Event info"
+                aria-label={t("market.event_info")}
                 className="flex flex-col items-center justify-center w-14 h-10 rounded-lg bg-muted/50 border border-border/30 hover:bg-muted transition-colors"
               >
-                <span className="text-[10px] text-muted-foreground leading-none mb-0.5">Event info</span>
+                <span className="text-[10px] text-muted-foreground leading-none mb-0.5">{t("market.event_info")}</span>
                 <Link className="w-3.5 h-3.5 text-muted-foreground" />
               </button>
             </SheetTrigger>
             <SheetContent side="bottom" className="max-h-[80vh] overflow-y-auto rounded-t-2xl">
               <SheetHeader className="sr-only">
-                <SheetTitle>Event Info</SheetTitle>
+                <SheetTitle>{t("market.event_info")}</SheetTitle>
               </SheetHeader>
               <div className="px-1 pb-4">
                 {eventInfo ?? <EventInfoContent event={activeEvent} />}
@@ -411,7 +412,7 @@ function PerpTradingLayout({
           headerRight ?? (
             <div className="flex items-center gap-1 -mr-2">
               <MobileHeaderIconButton
-                aria-label="Favorite"
+                aria-label={t("market.favorite")}
                 onClick={() => toggleFavorite(selectedEvent.id)}
               >
                 <Star
@@ -420,7 +421,7 @@ function PerpTradingLayout({
                 />
               </MobileHeaderIconButton>
               <MobileHeaderIconButton
-                aria-label="Share"
+                aria-label={t("common.share")}
                 onClick={() => {
                   navigator.clipboard?.writeText(window.location.href);
                 }}

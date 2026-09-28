@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import { LogIn, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,7 +32,7 @@ interface AuthGateOverlayProps {
  *
  * Usage:
  * ```tsx
- * <AuthGateOverlay title="Sign in to view positions">
+ * <AuthGateOverlay title={t("market.auth_gate_positions_title")}>
  *   <PositionsTable />
  * </AuthGateOverlay>
  * ```
@@ -88,14 +89,14 @@ export const AuthGateOverlay = ({
               className="border-border/50"
             >
               <LogIn className="w-4 h-4 mr-1.5" />
-              Log In
+              {t("common.log_in")}
             </Button>
             <Button
               size={compact ? "sm" : "default"}
               onClick={() => setAuthOpen(true)}
             >
               <UserPlus className="w-4 h-4 mr-1.5" />
-              Sign Up
+              {t("common.sign_up")}
             </Button>
           </div>
         </div>

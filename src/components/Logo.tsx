@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import wordmarkWhiteGradient from "@/assets/brand/omenx-wordmark-white-gradient.svg";
 import wordmarkWhite from "@/assets/brand/omenx-wordmark-white.svg";
 import wordmarkBlackGradient from "@/assets/brand/omenx-wordmark-black-gradient.svg";
@@ -75,7 +76,7 @@ const gapClasses: Record<LogoSize, string> = {
 export function Logo({ size = "md", variant = "white-gradient", className, showMainnetBadge = true }: LogoProps) {
   return (
     <span className={cn("inline-flex items-center", gapClasses[size], className)}>
-      <img src={wordmark[variant]} alt="OMENX" className={sizeClasses[size]} />
+      <img src={wordmark[variant]} alt={t("common.app_name")} className={sizeClasses[size]} />
       {showMainnetBadge && <MainnetBadge size={size} responsive={false} />}
     </span>
   );

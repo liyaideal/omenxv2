@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import { Copy, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -118,7 +119,7 @@ export const ApiTerminal = ({ tabs, caption, className, showCursor = true }: Pro
         <button
           onClick={onCopy}
           className="ml-auto flex items-center gap-1 text-[10px] font-mono text-muted-foreground hover:text-foreground transition-colors"
-          aria-label="Copy code"
+          aria-label={t("developers.screen.developer_terminal.copy_code")}
         >
           {copied ? <Check className="w-3 h-3 text-trading-green" /> : <Copy className="w-3 h-3" />}
           {copied ? "copied" : "copy"}

@@ -7,6 +7,7 @@
 // label and gate decision is computed by the page and passed in; the panel
 // never reads stores or hooks itself.
 // ============================================================
+import { t } from "@/i18n";
 import type { MutableRefObject } from "react";
 import { ChevronDown, ChevronUp, HelpCircle } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
@@ -116,7 +117,7 @@ export const ProContractPanel = (props: ProContractPanelProps) => {
   return (
     <div className="flex flex-col bg-background rounded-lg border border-border/50 flex-shrink-0">
       <div className="flex items-center px-4 py-2 border-b border-border/30">
-        <span className="text-sm font-medium">Trade</span>
+        <span className="text-sm font-medium">{t("common.nav_trade")}</span>
       </div>
 
         <div className="px-4 py-3 space-y-3">
@@ -161,7 +162,7 @@ export const ProContractPanel = (props: ProContractPanelProps) => {
         {leverageMax >= 2 && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Leverage</span>
+            <span className="text-xs text-muted-foreground">{t("market.leverage")}</span>
             <span className="text-sm font-bold text-trading-purple">{leverage}x</span>
           </div>
 
@@ -196,7 +197,7 @@ export const ProContractPanel = (props: ProContractPanelProps) => {
 
         {/* Available Balance */}
         <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">Available (USDC)</span>
+          <span className="text-xs text-muted-foreground">{t("market.available_usdc")}</span>
           <div className="flex items-center gap-2">
             <span className="font-mono text-xs">{available.toLocaleString()}</span>
             <TransferEntry direction="to_futures" />
@@ -207,7 +208,7 @@ export const ProContractPanel = (props: ProContractPanelProps) => {
         {/* Price Input (for Limit orders) */}
         {orderType === "Limit" && (
           <div className="space-y-1">
-            <span className="text-xs text-muted-foreground">Price</span>
+            <span className="text-xs text-muted-foreground">{t("market.price")}</span>
             <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
               <input
                 type="text"
@@ -216,7 +217,7 @@ export const ProContractPanel = (props: ProContractPanelProps) => {
                 className="flex-1 min-w-0 bg-transparent outline-none font-mono text-sm"
                 placeholder="0.0000"
               />
-              <span className="text-muted-foreground text-xs">USDC</span>
+              <span className="text-muted-foreground text-xs">{t("market.usdc")}</span>
             </div>
             {buyLimitPending && (
               <p className="text-[10px] text-muted-foreground">
@@ -228,7 +229,7 @@ export const ProContractPanel = (props: ProContractPanelProps) => {
 
         {/* Amount/Qty Input */}
         <div className="space-y-1">
-          <span className="text-xs text-muted-foreground">Amount</span>
+          <span className="text-xs text-muted-foreground">{t("trade.screen.lite.lite_contract_order_panel.amount")}</span>
           <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
             <input
               type="text"
@@ -267,31 +268,31 @@ export const ProContractPanel = (props: ProContractPanelProps) => {
         {/* Order Summary */}
         <div className="space-y-1 text-xs pt-2 border-t border-border/30">
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Contracts</span>
+            <span className="text-muted-foreground">{t("market.contracts")}</span>
             <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
               {parseFloat(amount) > 0 ? parseInt(orderCalculations.quantity).toLocaleString() : "--"}
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Notional val.</span>
+            <span className="text-muted-foreground">{t("market.notional_val")}</span>
             <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
               {parseFloat(amount) > 0 ? `${displayCalculations.notionalValue} USDC` : "--"}
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Margin req.</span>
+            <span className="text-muted-foreground">{t("market.margin_req")}</span>
             <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
               {parseFloat(amount) > 0 ? `${displayCalculations.marginRequired} USDC` : "--"}
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Fee (est.)</span>
+            <span className="text-muted-foreground">{t("market.fee_est")}</span>
             <span className={parseFloat(amount) > 0 ? "text-foreground font-mono" : "text-muted-foreground"}>
               {parseFloat(amount) > 0 ? `${displayCalculations.estimatedFee} USDC` : "--"}
             </span>
           </div>
           <div className="flex justify-between pt-2 border-t border-border/30">
-            <span className="font-medium text-foreground">Total</span>
+            <span className="font-medium text-foreground">{t("market.total")}</span>
             <span className={parseFloat(amount) > 0 ? "text-foreground font-mono font-medium" : "text-muted-foreground"}>
               {parseFloat(amount) > 0 ? `${displayCalculations.total} USDC` : "--"}
             </span>
@@ -356,7 +357,7 @@ export const ProContractPanel = (props: ProContractPanelProps) => {
 
         {/* Available Balance */}
         <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">Available (USDC)</span>
+          <span className="text-xs text-muted-foreground">{t("market.available_usdc")}</span>
           <div className="flex items-center gap-2">
             <span className="font-mono text-xs">{available.toLocaleString()}</span>
             <TransferEntry direction="to_futures" />
@@ -374,7 +375,7 @@ export const ProContractPanel = (props: ProContractPanelProps) => {
                 className="flex-1 min-w-0 bg-transparent outline-none font-mono text-sm"
                 placeholder="0.0000"
               />
-              <span className="text-muted-foreground text-xs">USDC</span>
+              <span className="text-muted-foreground text-xs">{t("market.usdc")}</span>
             </div>
             {sellLimitPending && (
               <p className="text-[10px] text-muted-foreground">
@@ -385,7 +386,7 @@ export const ProContractPanel = (props: ProContractPanelProps) => {
         )}
 
         <div className="space-y-1">
-          <span className="text-xs text-muted-foreground">Amount</span>
+          <span className="text-xs text-muted-foreground">{t("trade.screen.lite.lite_contract_order_panel.amount")}</span>
           <div className="flex items-center bg-muted rounded-lg px-2.5 py-2">
             <input
               ref={sellAmountRef}
@@ -395,7 +396,7 @@ export const ProContractPanel = (props: ProContractPanelProps) => {
               className="flex-1 min-w-0 bg-transparent outline-none font-mono text-sm"
               placeholder="0"
             />
-            <span className="text-muted-foreground text-xs font-medium">Contracts</span>
+            <span className="text-muted-foreground text-xs font-medium">{t("market.contracts")}</span>
           </div>
         </div>
 
@@ -420,19 +421,19 @@ export const ProContractPanel = (props: ProContractPanelProps) => {
         {/* Sell summary */}
         <div className="space-y-1 text-xs pt-2 border-t border-border/30">
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Close price (mark)</span>
+            <span className="text-muted-foreground">{t("market.close_price_mark")}</span>
             <span className="text-foreground font-mono">{sellClosePrice.toFixed(4)} USDC</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Contracts</span>
+            <span className="text-muted-foreground">{t("market.contracts")}</span>
             <span className="text-foreground font-mono">{sellQty.toLocaleString()}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Released margin</span>
+            <span className="text-muted-foreground">{t("market.released_margin")}</span>
             <span className="text-foreground font-mono">{sellReleasedMargin.toFixed(2)} USDC</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Realized PnL est.</span>
+            <span className="text-muted-foreground">{t("market.preview_realized_pnl_est_label")}</span>
             <span className={`font-mono ${sellRealizedPnl >= 0 ? "text-trading-green" : "text-trading-red"}`}>
               {sellRealizedPnl >= 0 ? "+" : "-"}{Math.abs(sellRealizedPnl).toFixed(2)} USDC
             </span>
@@ -442,7 +443,7 @@ export const ProContractPanel = (props: ProContractPanelProps) => {
             <span className="text-foreground font-mono">{sellCommission.toFixed(2)} USDC</span>
           </div>
           <div className="flex justify-between pt-2 border-t border-border/30 font-medium">
-            <span className="text-foreground">You receive</span>
+            <span className="text-foreground">{t("wallet.screen.sell_to_fiat.you_receive")}</span>
             <span className="text-foreground font-mono">{sellCashBack.toFixed(2)} USDC</span>
           </div>
         </div>

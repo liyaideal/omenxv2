@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from 'react';
 import { Settings2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -27,7 +28,7 @@ export const SettingsPanel = ({
   return (
     <div className="rounded-xl border border-border/50 bg-card p-4 space-y-5 animate-in fade-in slide-in-from-top-2 duration-200">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-semibold">Bridge Settings</h4>
+        <h4 className="text-sm font-semibold">{t("wallet.screen.cross_chain_settings.bridge_settings")}</h4>
         <button onClick={onClose} className="p-1 rounded-md hover:bg-muted/50 text-muted-foreground">
           <X className="w-4 h-4" />
         </button>
@@ -36,7 +37,7 @@ export const SettingsPanel = ({
       {/* Slippage */}
       <div className="space-y-2.5">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-medium">Slippage</p>
+          <p className="text-sm font-medium">{t("wallet.screen.cross_chain_deposit.slippage")}</p>
           <span className="text-xs text-muted-foreground">
             {isSuggested ? 'Suggested' : `${slippage}%`}
           </span>
@@ -59,7 +60,7 @@ export const SettingsPanel = ({
           <div className="relative flex-1">
             <input
               type="number"
-              placeholder="Custom %"
+              placeholder={t("wallet.screen.cross_chain_settings.custom")}
               value={customSlippage}
               onChange={(e) => {
                 setCustomSlippage(e.target.value);
@@ -73,12 +74,12 @@ export const SettingsPanel = ({
         </div>
         {isSuggested && (
           <p className="text-xs text-muted-foreground">
-            We'll find the best slippage for a successful swap.
+            {t("wallet.screen.cross_chain_settings.well_find_the_best_slippage_for_a_successful_swap")}
           </p>
         )}
         {!isSuggested && slippage > 3 && (
           <p className="text-xs text-yellow-500 flex items-center gap-1">
-            ⚠️ High slippage may result in unfavorable rates
+            {t("wallet.screen.cross_chain_settings.high_slippage_may_result_in_unfavorable_rates")}
           </p>
         )}
       </div>

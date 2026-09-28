@@ -1,4 +1,5 @@
 // DEMO-STATE: 静态装饰订单簿，不接实时数据流；仅用于 /developers hero 视觉层
+import { t } from "@/i18n";
 import { cn } from "@/lib/utils";
 
 interface Row {
@@ -36,14 +37,14 @@ export const MiniOrderBook = ({ className }: { className?: string }) => {
       <div className="flex items-center justify-between px-3 py-2 border-b border-border/60 bg-muted/40">
         <div className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-trading-green animate-pulse" />
-          <span className="text-foreground/90 font-semibold">BTC ≥ $150k · Yes</span>
+          <span className="text-foreground/90 font-semibold">{t("developers.screen.developer_terminal.sample_market")}</span>
         </div>
-        <span className="text-muted-foreground">seq 48,516</span>
+        <span className="text-muted-foreground">{t("developers.screen.developer_terminal.seq_48_516")}</span>
       </div>
       <div className="grid grid-cols-3 px-3 py-1 text-muted-foreground text-[9px]">
-        <span>Price</span>
-        <span className="text-center">Size</span>
-        <span className="text-right">Depth</span>
+        <span>{t("market.price")}</span>
+        <span className="text-center">{t("market.size")}</span>
+        <span className="text-right">{t("common.depth")}</span>
       </div>
 
       {/* Asks */}
@@ -56,7 +57,7 @@ export const MiniOrderBook = ({ className }: { className?: string }) => {
       {/* Mid */}
       <div className="px-3 py-1.5 border-y border-border/50 bg-background/40 flex items-center justify-between">
         <span className="text-foreground font-semibold">0.5040</span>
-        <span className="text-muted-foreground text-[9px]">mid</span>
+        <span className="text-muted-foreground text-[9px]">{t("developers.screen.developer_terminal.mid")}</span>
       </div>
 
       {/* Bids */}

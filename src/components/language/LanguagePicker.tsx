@@ -11,7 +11,7 @@ import { MobileDrawer, MobileDrawerList } from "@/components/ui/mobile-drawer";
 import { useLanguage } from "@/hooks/useLanguage";
 import { SITE_LANGUAGES, getLanguage, type LanguageCode } from "@/lib/languages";
 import { cn } from "@/lib/utils";
-import { tIn, loadLanguage } from "@/i18n";
+import { tIn, loadLanguage, t } from "@/i18n";
 
 /**
  * Language picker — the ONE set of pieces every language entry point uses
@@ -162,7 +162,7 @@ export const LanguageIconButton = ({ className, ...preview }: { className?: stri
     <>
       <button
         type="button"
-        aria-label="Language"
+        aria-label={t("common.language")}
         onClick={() => setOpen(true)}
         className={cn(
           "h-9 w-9 -mr-2 flex items-center justify-center text-muted-foreground active:scale-95 transition-transform duration-200",

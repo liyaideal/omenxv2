@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import type { ReactNode } from "react";
 import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -33,7 +34,7 @@ export const DesktopSubpageHeader = ({
   >
     <button
       type="button"
-      aria-label="Back"
+      aria-label={t("common.back")}
       onClick={onBack}
       className="group h-9 w-9 shrink-0 inline-flex items-center justify-center rounded-[10px] border border-[#262A31] transition-colors hover:border-[#2E333B]"
     >

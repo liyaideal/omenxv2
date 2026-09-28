@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ChevronLeft, Scale, Loader2, CheckCircle2, AlertTriangle, ExternalLink, Activity, Link2 } from "lucide-react";
@@ -38,20 +39,20 @@ export const LiquidationAudit = ({ onBack }: Props) => {
     return (
       <div className="space-y-6">
         <button onClick={onBack} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-          <ChevronLeft className="w-4 h-4" /> Back
+          <ChevronLeft className="w-4 h-4" /> {t("common.back")}
         </button>
         <div className="trading-card p-6 text-center space-y-4">
           <div className="w-14 h-14 rounded-2xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center mx-auto">
             <Scale className="w-7 h-7 text-amber-400" />
           </div>
           <div>
-            <h2 className="text-xl font-bold">Liquidation Audit</h2>
+            <h2 className="text-xl font-bold">{t("transparency.screen.LiquidationAudit.liquidation_audit")}</h2>
             <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
-              Retrieve the on-chain <code className="text-xs bg-muted/50 px-1 rounded">PositionLiquidated</code> event and verify the forced closure was triggered by the contract's maintenance margin rule — not by manual intervention.
+              Retrieve the on-chain <code className="text-xs bg-muted/50 px-1 rounded">{t("transparency.screen.LiquidationAudit.positionliquidated")}</code> event and verify the forced closure was triggered by the contract's maintenance margin rule — not by manual intervention.
             </p>
           </div>
           <Button onClick={openSelector} className="gap-2">
-            <Activity className="w-4 h-4" /> Select a Closed Position
+            <Activity className="w-4 h-4" /> {t("transparency.screen.LiquidationAudit.select_a_closed_position")}
           </Button>
         </div>
       </div>
@@ -63,13 +64,13 @@ export const LiquidationAudit = ({ onBack }: Props) => {
     return (
       <div className="space-y-4">
         <button onClick={reset} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-          <ChevronLeft className="w-4 h-4" /> Back
+          <ChevronLeft className="w-4 h-4" /> {t("common.back")}
         </button>
-        <h3 className="font-semibold">Select a Losing Position to Audit</h3>
+        <h3 className="font-semibold">{t("transparency.screen.LiquidationAudit.select_a_losing_position_to_audit")}</h3>
         {isLoading ? (
           <div className="flex items-center justify-center py-12"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
         ) : positions.length === 0 ? (
-          <div className="trading-card p-8 text-center text-sm text-muted-foreground">No closed losing positions found.</div>
+          <div className="trading-card p-8 text-center text-sm text-muted-foreground">{t("transparency.screen.LiquidationAudit.no_closed_losing_positions_found")}</div>
         ) : (
           <div className="space-y-2">
             {positions.map((pos) => (
@@ -102,7 +103,7 @@ export const LiquidationAudit = ({ onBack }: Props) => {
   return (
     <div className="space-y-4">
       <button onClick={reset} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-        <ChevronLeft className="w-4 h-4" /> Back
+        <ChevronLeft className="w-4 h-4" /> {t("common.back")}
       </button>
 
       {/* Progress stepper */}
@@ -126,12 +127,12 @@ export const LiquidationAudit = ({ onBack }: Props) => {
       {/* Position summary */}
       {selectedPosition && (
         <div className="trading-card p-4">
-          <p className="text-xs text-muted-foreground mb-1">Auditing Position</p>
+          <p className="text-xs text-muted-foreground mb-1">{t("transparency.screen.LiquidationAudit.auditing_position")}</p>
           <p className="font-medium text-sm">{selectedPosition.event_name} — {selectedPosition.option_label}</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2 text-xs">
-            <div><span className="text-muted-foreground">Side</span><br /><span className="font-medium">{selectedPosition.side}</span></div>
-            <div><span className="text-muted-foreground">Entry</span><br /><span className="font-mono tabular-nums">{fmtPrice(selectedPosition.entry_price)}</span></div>
-            <div><span className="text-muted-foreground">Close</span><br /><span className="font-mono tabular-nums">{audit ? fmtPrice(audit.onchainMarkPrice) : fmtPrice(selectedPosition.mark_price)}</span></div>
+            <div><span className="text-muted-foreground">{t("common.side")}</span><br /><span className="font-medium">{selectedPosition.side}</span></div>
+            <div><span className="text-muted-foreground">{t("market.entry")}</span><br /><span className="font-mono tabular-nums">{fmtPrice(selectedPosition.entry_price)}</span></div>
+            <div><span className="text-muted-foreground">{t("common.close")}</span><br /><span className="font-mono tabular-nums">{audit ? fmtPrice(audit.onchainMarkPrice) : fmtPrice(selectedPosition.mark_price)}</span></div>
             <div><span className="text-muted-foreground">P&L</span><br /><span className="font-mono tabular-nums text-trading-red">{selectedPosition.pnl?.toFixed(2)}</span></div>
           </div>
         </div>
@@ -153,12 +154,12 @@ export const LiquidationAudit = ({ onBack }: Props) => {
           <div className="trading-card overflow-hidden">
             <div className="px-4 py-3 border-b border-border/30 flex items-center gap-2">
               <Link2 className="w-4 h-4 text-muted-foreground" />
-              <h4 className="text-sm font-semibold">On-Chain Liquidation Snapshot</h4>
-              <code className="ml-auto text-[10px] font-mono text-muted-foreground/60 bg-muted/30 px-1.5 py-0.5 rounded">PositionLiquidated</code>
+              <h4 className="text-sm font-semibold">{t("transparency.screen.LiquidationAudit.on_chain_liquidation_snapshot")}</h4>
+              <code className="ml-auto text-[10px] font-mono text-muted-foreground/60 bg-muted/30 px-1.5 py-0.5 rounded">{t("transparency.screen.LiquidationAudit.positionliquidated")}</code>
             </div>
             <div className="p-4 space-y-4">
               <div className="text-center py-3">
-                <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">markPrice</p>
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">{t("transparency.screen.LiquidationAudit.markprice")}</p>
                 <p className="text-4xl font-bold font-mono text-trading-red">{fmtPrice(audit.onchainMarkPrice)}</p>
                 <p className="text-[10px] font-mono text-muted-foreground/60 mt-1">Raw: {audit.rawMarkPrice.toLocaleString()}</p>
               </div>
@@ -181,7 +182,7 @@ export const LiquidationAudit = ({ onBack }: Props) => {
               <Button variant="ghost" size="sm" className="text-[10px] gap-1 text-muted-foreground w-full"
                 onClick={() => window.open(`https://basescan.org/tx/${audit.txHash}`, "_blank")}
               >
-                <ExternalLink className="w-3 h-3" /> View Transaction on BaseScan
+                <ExternalLink className="w-3 h-3" /> {t("transparency.screen.LiquidationAudit.view_transaction_on_basescan")}
               </Button>
             </div>
           </div>
@@ -218,9 +219,9 @@ export const LiquidationAudit = ({ onBack }: Props) => {
             <Button variant="outline" size="sm" className="text-xs gap-1.5 flex-1"
               onClick={() => window.open(`https://basescan.org/tx/${audit.txHash}`, "_blank")}
             >
-              <ExternalLink className="w-3.5 h-3.5" /> View on BaseScan
+              <ExternalLink className="w-3.5 h-3.5" /> {t("transparency.screen.TransparencyPage.view_on_basescan")}
             </Button>
-            <Button variant="outline" size="sm" className="text-xs flex-1" onClick={reset}>Audit Another Position</Button>
+            <Button variant="outline" size="sm" className="text-xs flex-1" onClick={reset}>{t("transparency.screen.LiquidationAudit.audit_another_position")}</Button>
           </div>
         </div>
       )}

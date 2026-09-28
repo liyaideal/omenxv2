@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState, useRef, useEffect, useLayoutEffect, ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { X, Download, Copy, Send, Check } from "lucide-react";
@@ -202,7 +203,7 @@ export const ShareModal = ({
             className="flex items-center justify-center gap-2 p-3 rounded-xl bg-muted hover:bg-muted/80 border border-border transition-colors disabled:opacity-50"
           >
             <Download className="w-4 h-4 text-foreground" />
-            <span className="text-sm font-medium">Save</span>
+            <span className="text-sm font-medium">{t("common.save")}</span>
           </button>
           <button
             onClick={handleCopyLink}
@@ -225,7 +226,7 @@ export const ShareModal = ({
             className="flex items-center justify-center gap-2 p-3 rounded-xl bg-muted hover:bg-muted/80 border border-border transition-colors"
           >
             <Send className="w-4 h-4 text-foreground" />
-            <span className="text-sm font-medium">Telegram</span>
+            <span className="text-sm font-medium">{t("common.screen.shared.ShareModal.telegram")}</span>
           </button>
         </div>
 
@@ -238,7 +239,7 @@ export const ShareModal = ({
             className="w-full flex items-center justify-center gap-2 p-3 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             <Send className="w-4 h-4" />
-            <span className="text-sm font-semibold">More Options</span>
+            <span className="text-sm font-semibold">{t("common.more_options")}</span>
           </button>
         )}
       </div>

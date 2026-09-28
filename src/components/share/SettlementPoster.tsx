@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { forwardRef } from 'react';
 import { format } from 'date-fns';
 import { SharePosterLayout } from './SharePosterLayout';
@@ -203,7 +204,7 @@ export const SettlementPoster = forwardRef<HTMLDivElement, SettlementPosterProps
             <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '16px' }}>
               {pnlPercent >= 0 ? '+' : ''}{pnlPercent.toFixed(1)}%
             </span>
-            <span style={{ fontSize: '11px', opacity: 0.7 }}>ROI</span>
+            <span style={{ fontSize: '11px', opacity: 0.7 }}>{t("market.roi")}</span>
           </div>
           {/* Fun message */}
           <div style={{
@@ -273,7 +274,7 @@ export const SettlementPoster = forwardRef<HTMLDivElement, SettlementPosterProps
             textAlign: 'center',
           }}>
             <div style={{ fontSize: '9px', color: posterColors.textMuted, marginBottom: '2px' }}>
-              Entry Price
+              {t("common.entry_price")}
             </div>
             <div style={{ fontFamily: 'monospace', fontSize: '13px', fontWeight: 600, color: posterColors.textPrimary }}>
               ${entryPrice.toFixed(4)}
@@ -286,7 +287,7 @@ export const SettlementPoster = forwardRef<HTMLDivElement, SettlementPosterProps
             textAlign: 'center',
           }}>
             <div style={{ fontSize: '9px', color: posterColors.textMuted, marginBottom: '2px' }}>
-              Exit Price
+              {t("portfolio.exit_price")}
             </div>
             <div style={{ fontFamily: 'monospace', fontSize: '13px', fontWeight: 600, color: themeStyle.primary }}>
               ${exitPrice.toFixed(4)}

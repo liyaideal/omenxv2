@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useNavigate } from "react-router-dom";
 import { omenxMark } from "@/components/Logo";
 import type { CampaignView } from "@/hooks/useCampaigns";
@@ -32,7 +33,7 @@ export const CampaignRewardsCard = ({
       className="flex flex-col gap-[14px] rounded-[16px] border border-[#1D2026] bg-[#131519]"
       style={{ padding: isMobile ? 16 : 18 }}
     >
-      <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6B7280]">Your rewards here</div>
+      <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6B7280]">{t("rewards.screen.h2e_rewards_rail.your_rewards_here")}</div>
 
       {isMobile ? (
         <div className="grid grid-cols-3 gap-2">
@@ -59,7 +60,7 @@ export const CampaignRewardsCard = ({
       ) : (
         <>
       <div className="flex items-baseline justify-between">
-        <span className="text-[12.5px] text-[#9AA1AC]">Vouchers claimed</span>
+        <span className="text-[12.5px] text-[#9AA1AC]">{t("rewards.screen.campaign_detail_page.vouchers_claimed")}</span>
         <span className="font-display text-[15px] font-bold tabular-nums text-[#CFFF4A]">${view.voucherClaimed}</span>
       </div>
       <div className="flex items-baseline justify-between">
@@ -71,7 +72,7 @@ export const CampaignRewardsCard = ({
           className="flex items-baseline justify-between"
           style={{ borderTop: "1px solid #1D2026", paddingTop: 11 }}
         >
-          <span className="text-[12.5px] text-[#9AA1AC]">Still available</span>
+          <span className="text-[12.5px] text-[#9AA1AC]">{t("rewards.screen.campaign_detail_page.still_available")}</span>
           <span className="font-display text-[15px] font-bold tabular-nums text-white">
             ${Math.max(0, view.rewardVoucherUpTo + view.rewardUsdcUpTo - view.voucherClaimed - view.usdcClaimed)}
           </span>
@@ -92,7 +93,7 @@ export const CampaignRewardsCard = ({
               className="w-full rounded-[10px] bg-white px-4 font-display text-[12.5px] font-bold text-[#0A0B0D] transition-colors hover:bg-[#E6E9EE]"
               style={{ minHeight: 44 }}
             >
-              Open Vouchers →
+              {t("rewards.screen.points_retired_notice.open_vouchers")}
             </button>
           );
         }
@@ -104,7 +105,7 @@ export const CampaignRewardsCard = ({
               className="w-full rounded-[10px] bg-white px-4 font-display text-[12.5px] font-bold text-[#0A0B0D] transition-colors hover:bg-[#E6E9EE]"
               style={{ minHeight: 44 }}
             >
-              Open Wallet →
+              {t("rewards.screen.h2e_rewards_rail.open_wallet")}
             </button>
           );
         }
@@ -116,7 +117,7 @@ export const CampaignRewardsCard = ({
               className="w-full rounded-[10px] bg-white px-4 font-display text-[12.5px] font-bold text-[#0A0B0D] transition-colors hover:bg-[#E6E9EE]"
               style={{ minHeight: 44 }}
             >
-              Open Vouchers →
+              {t("rewards.screen.points_retired_notice.open_vouchers")}
             </button>
             <button
               type="button"
@@ -124,7 +125,7 @@ export const CampaignRewardsCard = ({
               className="w-full rounded-[10px] border border-[#2B2F38] bg-transparent px-4 font-display text-[12.5px] font-semibold text-[#F2F3F5] transition-colors hover:border-[#3A3F47]"
               style={{ minHeight: 44 }}
             >
-              Open Wallet →
+              {t("rewards.screen.h2e_rewards_rail.open_wallet")}
             </button>
           </div>
         );
@@ -141,7 +142,7 @@ export const CampaignRewardsCard = ({
           {isSpecial ? (
             avatar ? <img src={avatar} alt="" className="h-full w-full object-cover" /> : kolName.slice(0, 1)
           ) : (
-            <img src={omenxMark} alt="OmenX" className="h-3 w-auto" />
+            <img src={omenxMark} alt={t("common.app_name")} className="h-3 w-auto" />
           )}
         </span>
         <div className="min-w-0">

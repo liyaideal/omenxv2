@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useH2eRewardsSummary } from "@/hooks/useH2eRewardsSummary";
@@ -89,19 +90,19 @@ export const H2eCampaignCard = ({ fixture }: { fixture?: H2eCampaignCardFixture 
         <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(10,11,13,0) 0%, rgba(10,11,13,.55) 55%, rgba(10,11,13,.92) 100%)" }} />
         <div className="relative">
           <span className="inline-flex items-center rounded-full px-2 py-[3px] text-[10px] font-semibold uppercase tracking-[0.06em]" style={{ background: "#242830", color: "#C9CED6" }}>
-            Always on
+            {t("rewards.screen.campaign_card.always_on")}
           </span>
         </div>
         <div className="relative">
-          <div className="font-display text-[17px] font-bold leading-tight text-[#F2F3F5]">Hedge Airdrop Rewards</div>
-          <div className="mt-1 font-display text-[11.5px] tabular-nums text-[#C9CED6]">Always valid</div>
+          <div className="font-display text-[17px] font-bold leading-tight text-[#F2F3F5]">{t("settings.wallet.h2e_rewards_title")}</div>
+          <div className="mt-1 font-display text-[11.5px] tabular-nums text-[#C9CED6]">{t("rewards.screen.campaign_card.always_valid")}</div>
         </div>
       </div>
       <div className="space-y-3 p-4">
         {stage === "S3" && (
           <>
             <div className="flex items-center justify-between text-[12px]">
-              <span className="text-[#9AA1AC]">Earned / Cap</span>
+              <span className="text-[#9AA1AC]">{t("common.earned_cap")}</span>
               <span className="font-display text-[12.5px] font-semibold tabular-nums text-[#F2F3F5]">
                 ${totalEarned.toFixed(2)} / ${earningsCap}
               </span>
@@ -110,7 +111,7 @@ export const H2eCampaignCard = ({ fixture }: { fixture?: H2eCampaignCardFixture 
               <div className="h-full rounded-[3px] bg-[#33D6FF]" style={{ width: `${capPct}%` }} />
             </div>
             <div className="flex items-center justify-between text-[12px]">
-              <span className="text-[#9AA1AC]">Withdrawal unlock</span>
+              <span className="text-[#9AA1AC]">{t("rewards.screen.hedge_airdrop_campaign_card.withdrawal_unlock")}</span>
               <span className="font-display text-[12.5px] font-semibold tabular-nums text-[#33D6FF]">
                 {isFullyUnlocked
                   ? "100% — fully unlocked"
@@ -121,15 +122,15 @@ export const H2eCampaignCard = ({ fixture }: { fixture?: H2eCampaignCardFixture 
         )}
         {(stage === "S1" || stage === "S2") && (
           <div className="flex flex-wrap items-center gap-1.5">
-            <Step label="Connect wallet" state={stage === "S2" ? "done" : "active"} />
+            <Step label={t("wallet.screen.cross_chain_deposit.connect_wallet")} state={stage === "S2" ? "done" : "active"} />
             <Sep />
-            <Step label="Receive airdrops" state={stage === "S2" ? "active" : "todo"} />
+            <Step label={t("rewards.screen.h2e_campaign_progress.receive_airdrops")} state={stage === "S2" ? "active" : "todo"} />
             <Sep />
-            <Step label="Trade to unlock" state="todo" />
+            <Step label={t("rewards.screen.h2e_campaign_progress.trade_to_unlock")} state="todo" />
           </div>
         )}
         <div className="text-[12px] text-[#9AA1AC]">
-          Rewards up to <span className="font-display font-semibold tabular-nums text-[#33D6FF]">${earningsCap} USDC in airdrops</span>
+          {t("rewards.screen.campaign_card.rewards_up_to")} <span className="font-display font-semibold tabular-nums text-[#33D6FF]">${earningsCap} USDC in airdrops</span>
         </div>
         <div className="text-[11px] text-[#6B7280]">
           {stage === "S0" && "Hedge Polymarket positions — settled losses return as USDC airdrops. Sign in to track yours."}

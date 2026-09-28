@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useEffect, useMemo, useState } from 'react';
 import { Copy, Check, MoreHorizontal, RefreshCw, Info } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
@@ -216,12 +217,12 @@ export const WalletDeposit = ({ onDone, account: _account, demoAcknowledged, fix
           {copied ? (
             <>
               <Check className="w-4 h-4 mr-2" />
-              Copied
+              {t("common.copied")}
             </>
           ) : (
             <>
               <Copy className="w-4 h-4 mr-2" />
-              Copy address
+              {t("settings.wallet.copy_address")}
             </>
           )}
         </Button>
@@ -241,7 +242,7 @@ export const WalletDeposit = ({ onDone, account: _account, demoAcknowledged, fix
               disabled={isGeneratingAddress}
             >
               <RefreshCw className={cn("w-4 h-4 mr-2", isGeneratingAddress && "animate-spin")} />
-              Generate new address
+              {t("settings.wallet.generate_new_address")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -249,11 +250,11 @@ export const WalletDeposit = ({ onDone, account: _account, demoAcknowledged, fix
 
       {/* Info Table */}
       <div className="space-y-3 pt-2">
-        <InfoRow label="Network" value="Base" />
-        <InfoRow label="Token" value="USDC" />
-        <InfoRow label="Fee" value="0 USDC" />
-        <InfoRow label="Confirmations" value={BASE_USDC_CONFIG.confirmationBlocks.toString()} />
-        <InfoRow label="Processing time" value={BASE_USDC_CONFIG.estimatedTime} underline />
+        <InfoRow label={t("settings.wallet.network")} value="Base" />
+        <InfoRow label={t("wallet.screen.cross_chain_deposit.token")} value="USDC" />
+        <InfoRow label={t("common.fee")} value="0 USDC" />
+        <InfoRow label={t("settings.wallet.confirmations")} value={BASE_USDC_CONFIG.confirmationBlocks.toString()} />
+        <InfoRow label={t("settings.wallet.processing_time")} value={BASE_USDC_CONFIG.estimatedTime} underline />
       </div>
         </>
       )}
@@ -265,7 +266,7 @@ export const WalletDeposit = ({ onDone, account: _account, demoAcknowledged, fix
           variant="secondary"
           className="w-full h-10 rounded-lg"
         >
-          Done
+          {t("wallet.screen.sell_to_fiat.done")}
         </Button>
       )}
     </div>

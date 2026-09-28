@@ -5,6 +5,7 @@
 // header instead of hand-copying it (CHK-9). Zero visual change: every class
 // below is the one that shipped; the page now passes its values as props.
 // ============================================================
+import { t } from "@/i18n";
 import { ArrowLeft, ChevronDown, Info, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -69,7 +70,7 @@ export const ProSpotHeader = (p: ProSpotHeaderProps) => (
     <button
       onClick={p.onBack}
       className="w-9 h-9 rounded-full bg-muted/50 flex items-center justify-center hover:bg-muted flex-shrink-0"
-      aria-label="Back"
+      aria-label={t("common.back")}
     >
       <ArrowLeft className="w-5 h-5 text-foreground" />
     </button>
@@ -142,7 +143,7 @@ export const ProSpotHeader = (p: ProSpotHeaderProps) => (
                 p.countdown.urgency === "muted" && "bg-muted-foreground",
               )}
             />
-            <span>Trading ends in</span>
+            <span>{t("spot.screen.pro_spot_countdown.trading_ends_in")}</span>
             <span
               className={cn(
                 "font-mono font-medium",
@@ -162,9 +163,9 @@ export const ProSpotHeader = (p: ProSpotHeaderProps) => (
             {p.closingSoon && (
               <span
                 className="px-1.5 py-0.5 rounded bg-trading-yellow/15 text-trading-yellow text-[10px] font-medium"
-                title="Trading remains open until 5 minutes before close."
+                title={t("spot.screen.pro_spot_sections.trading_remains_open_until_5_minutes_before_close")}
               >
-                Closing soon
+                {t("market.events_hot_closing_soon_title")}
               </span>
             )}
             <TooltipProvider>
@@ -173,7 +174,7 @@ export const ProSpotHeader = (p: ProSpotHeaderProps) => (
                   <button
                     type="button"
                     className="p-0.5 text-muted-foreground hover:text-foreground"
-                    aria-label="Schedule details"
+                    aria-label={t("spot.screen.pro_spot_sections.schedule_details")}
                   >
                     <Info className="w-3 h-3" />
                   </button>
@@ -181,13 +182,13 @@ export const ProSpotHeader = (p: ProSpotHeaderProps) => (
                 <TooltipContent side="bottom" align="start" className="text-xs max-w-[280px]">
                   {p.marketKey === "crypto" ? (
                     <div className="space-y-1">
-                      <div><span className="text-muted-foreground">Trading ends:</span> {p.freezeEtOnly ?? "—"}</div>
+                      <div><span className="text-muted-foreground">{t("spot.screen.pro_spot_sections.trading_ends")}</span> {p.freezeEtOnly ?? "—"}</div>
                       <div><span className="text-muted-foreground">Payout:</span> ~{p.settleEtOnly ?? "—"}</div>
                     </div>
                   ) : (
                     <div className="space-y-1">
-                      <div><span className="text-muted-foreground">Opens:</span> after prior close (extended trading)</div>
-                      <div><span className="text-muted-foreground">Trading ends:</span> {p.freezeEtOnly ?? "—"}</div>
+                      <div><span className="text-muted-foreground">{t("spot.screen.pro_spot_sections.opens")}</span> after prior close (extended trading)</div>
+                      <div><span className="text-muted-foreground">{t("spot.screen.pro_spot_sections.trading_ends")}</span> {p.freezeEtOnly ?? "—"}</div>
                       <div><span className="text-muted-foreground">Official close:</span> {p.closeEtOnly ?? "—"} (settlement price)</div>
                       <div><span className="text-muted-foreground">Payout by:</span> ~{p.settleEtOnly ?? "—"}</div>
                     </div>
@@ -203,7 +204,7 @@ export const ProSpotHeader = (p: ProSpotHeaderProps) => (
 
     {/* Right stats — spot-specific. NO index / funding / OI / Yes price. */}
     <div className="ml-auto flex items-center gap-6 text-xs">
-      <Stat label="Volume" value={p.volumeText} />
+      <Stat label={t("market.volume")} value={p.volumeText} />
       <Stat
         label={p.lastLabel}
         value={p.lastPriceText}

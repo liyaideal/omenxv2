@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { HedgeCTAButton } from "./HedgeCTAButton";
 import heroPop from "@/assets/hedge-hero-v3.png.asset.json";
 
@@ -31,7 +32,7 @@ export const HedgeHero = () => {
               </span>
 
               <h1 className="font-poster text-4xl uppercase leading-[0.9] tracking-tight text-[#0E0E0E] md:text-6xl lg:text-7xl">
-                WORLD CUP <span className="text-[#1D4ED8]">CHAOS?</span>{" "}&nbsp;
+                {t("sports.screen.mobile.MobileWorldCupHero.world_cup")} <span className="text-[#1D4ED8]">CHAOS?</span>{" "}&nbsp;
                 <br />
                 HEDGE IT — REDEEM UP TO <span className="text-[#E11D48]">500U</span>.
               </h1>

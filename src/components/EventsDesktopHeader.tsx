@@ -211,7 +211,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                 <DropdownMenuTrigger asChild>
                   <button className="flex min-w-0 items-center gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-muted/50 xl:gap-2.5 xl:px-3">
                     <Avatar className="h-9 w-9 border-2 border-primary/50">
-                      <AvatarImage src={avatarUrl || undefined} alt="User" />
+                      <AvatarImage src={avatarUrl || undefined} alt={t("home.default_user")} />
                       <AvatarFallback className="bg-primary/20 text-primary">
                         {username?.charAt(0).toUpperCase() ||
                           user.email?.charAt(0).toUpperCase() || (

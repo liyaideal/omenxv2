@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from 'react';
 import { Copy, Check, AlertTriangle, Clock, ExternalLink, Loader2 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
@@ -84,7 +85,7 @@ export const DepositPanel = ({ open, onOpenChange }: DepositPanelProps) => {
 
       {/* Token Selection */}
       <div className="space-y-2">
-        <LabelText size="sm" muted>Select Token</LabelText>
+        <LabelText size="sm" muted>{t("settings.wallet.recovery_select_token")}</LabelText>
         <div className="flex gap-2">
           {stablecoins.map((token) => (
             <button
@@ -247,7 +248,7 @@ export const DepositPanel = ({ open, onOpenChange }: DepositPanelProps) => {
       <MobileDrawer
         open={open}
         onOpenChange={onOpenChange}
-        title="Deposit"
+        title={t("common.deposit")}
         description="Send tokens to the address below"
       >
         {content}
@@ -261,7 +262,7 @@ export const DepositPanel = ({ open, onOpenChange }: DepositPanelProps) => {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <span className="text-xl">⬇️</span>
-            Deposit
+            {t("common.deposit")}
           </DialogTitle>
           <DialogDescription>
             Send tokens to the address below

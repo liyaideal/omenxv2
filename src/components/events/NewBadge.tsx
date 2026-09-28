@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { cn } from "@/lib/utils";
 
 interface NewBadgeProps {
@@ -13,6 +14,6 @@ export const NewBadge = ({ className }: NewBadgeProps) => (
     )}
     style={{ animationDuration: "1.5s" }}
   >
-    NEW
+    {t("market.events_badge_new")}
   </span>
 );

@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MAINNET_REBATE_TIERS, formatUsd } from "@/lib/mainnetLaunch";
@@ -27,8 +28,8 @@ export const RewardLadder = ({ onCta, progressOverride }: Props) => {
       <div className="overflow-hidden rounded-md border border-border/50 bg-background/30">
         {/* Header — mobile: 2 cols / desktop: 3 cols */}
         <div className="grid grid-cols-[1fr_auto] gap-4 border-b border-border/40 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground md:grid-cols-[1.4fr_0.8fr_1.6fr] md:px-6">
-          <span>Volume</span>
-          <span className="text-right md:text-left">Rebate</span>
+          <span>{t("market.volume")}</span>
+          <span className="text-right md:text-left">{t("settings.wallet.rebate")}</span>
           <span className="hidden md:inline">Progress</span>
         </div>
 

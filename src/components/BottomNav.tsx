@@ -1,7 +1,7 @@
 import { useState, useEffect, type CSSProperties } from "react";
 import { User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, KeyRound, Compass, PieChart, ArrowLeftRight, Handshake, Globe } from "lucide-react";
 import { LanguageDrawer, useLanguagePick } from "@/components/language/LanguagePicker";
-import { useT } from "@/i18n";
+import { useT, t } from "@/i18n";
 import { HELP_CENTER_URL } from "@/lib/site";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -135,7 +135,7 @@ export const BottomNav = () => {
             }`}
           >
             <Avatar className="w-6 h-6 border border-border">
-              <AvatarImage src={avatarUrl || undefined} alt="User" />
+              <AvatarImage src={avatarUrl || undefined} alt={t("home.default_user")} />
               <AvatarFallback className="bg-muted text-muted-foreground text-xs">
                 {username?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || <User className="w-3 h-3" />}
               </AvatarFallback>
@@ -177,7 +177,7 @@ export const BottomNav = () => {
         {/* User Info Section */}
         <div className="flex items-center gap-3 mb-4 p-3 bg-muted/30 rounded-xl">
           <Avatar className="w-12 h-12 border-2 border-primary/50">
-            <AvatarImage src={avatarUrl || undefined} alt="User" />
+            <AvatarImage src={avatarUrl || undefined} alt={t("home.default_user")} />
             <AvatarFallback className="bg-primary/20 text-primary">
               {username?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || <User className="w-5 h-5" />}
             </AvatarFallback>

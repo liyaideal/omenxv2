@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { Zap, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCountdown } from "@/hooks/useCountdown";
@@ -40,12 +41,12 @@ export const ActivateAirdropButton = ({
         {isActivating ? (
           <>
             <Loader2 className="w-3 h-3 animate-spin" />
-            <span>Activating…</span>
+            <span>{t("portfolio.activating")}</span>
           </>
         ) : (
           <>
             <Zap className="w-3 h-3" />
-            <span>Activate</span>
+            <span>{t("common.activate")}</span>
             {showCountdown && (
               <>
                 <span className="opacity-40">·</span>
@@ -76,12 +77,12 @@ export const ActivateAirdropButton = ({
       {isActivating ? (
         <>
           <Loader2 className="w-3 h-3 animate-spin" />
-          <span>Activating…</span>
+          <span>{t("portfolio.activating")}</span>
         </>
       ) : (
         <>
           <Zap className="w-3 h-3" />
-          <span>Activate</span>
+          <span>{t("common.activate")}</span>
           {showCountdown && (
             <>
               <span className="opacity-40">|</span>

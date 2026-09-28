@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { TrendingUp, TrendingDown, Trophy, ChevronRight } from "lucide-react";
@@ -105,7 +106,7 @@ export const SettlementRowMobile = ({ settlement, optionDisplay, onOpen }: Settl
         <div className="text-xs text-muted-foreground">
           {TRADING_TERMS.QTY}: <span className="font-mono">{settlement.size}</span>
           <span className="mx-2 opacity-40">·</span>
-          Exit <span className="font-mono">{settlement.exitPrice}</span>
+          {t("portfolio.price_chart_exit")} <span className="font-mono">{settlement.exitPrice}</span>
         </div>
         <ChevronRight className="w-4 h-4 text-muted-foreground" />
       </div>
@@ -141,7 +142,7 @@ export const SettlementRowDesktop = ({ settlement, optionDisplay, onOpen }: Sett
       <TableCell className="text-right text-muted-foreground">{settlement.settledAt}</TableCell>
       <TableCell className="text-right">
         <Button variant="outline" size="sm" className="h-7 text-xs">
-          View
+          {t("common.view")}
           <ChevronRight className="w-4 h-4 ml-1" />
         </Button>
       </TableCell>
@@ -199,7 +200,7 @@ export default function PortfolioSettlements() {
     >
       {/* Header */}
       {isMobile ? (
-        <MobileHeader title="Settlements" showBack showLogo={false} backTo="/portfolio" />
+        <MobileHeader title={t("portfolio.settlements")} showBack showLogo={false} backTo="/portfolio" />
       ) : (
         <EventsDesktopHeader />
       )}
@@ -214,7 +215,7 @@ export default function PortfolioSettlements() {
               onClick={() => navigate("/portfolio")}
               className="py-2 px-4 text-sm font-medium transition-all text-muted-foreground"
             >
-              Positions
+              {t("market.positions")}
             </button>
             <button
               className="py-2 px-4 text-sm font-medium transition-all text-primary border-b-2 border-primary"
@@ -236,7 +237,7 @@ export default function PortfolioSettlements() {
           <div className="bg-card rounded-xl p-4">
             <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
               <TrendingUp className="w-3.5 h-3.5" />
-              <span>Realized P&L</span>
+              <span>{t("market.realized_pnl")}</span>
             </div>
             <div
               className={`text-lg font-bold font-mono ${
@@ -251,7 +252,7 @@ export default function PortfolioSettlements() {
           <div className="bg-card rounded-xl p-4">
             <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
               <Trophy className="w-3.5 h-3.5" />
-              <span>Win Rate</span>
+              <span>{t("portfolio.win_rate")}</span>
             </div>
             <div className="text-lg font-bold font-mono text-foreground">
               {settlementsStats.winRate}%
@@ -297,13 +298,13 @@ export default function PortfolioSettlements() {
               <Table>
                 <TableHeader>
                   <TableRow className="border-border/50 hover:bg-transparent">
-                    <TableHead className="text-muted-foreground">Event</TableHead>
-                    <TableHead className="text-muted-foreground">Option</TableHead>
-                    <TableHead className="text-muted-foreground">Result</TableHead>
+                    <TableHead className="text-muted-foreground">{t("common.event")}</TableHead>
+                    <TableHead className="text-muted-foreground">{t("common.option")}</TableHead>
+                    <TableHead className="text-muted-foreground">{t("market.result")}</TableHead>
                     <TableHead className="text-muted-foreground text-right">{TRADING_TERMS.QTY}</TableHead>
                     <TableHead className="text-muted-foreground text-right">P&L</TableHead>
-                    <TableHead className="text-muted-foreground text-right">Settled</TableHead>
-                    <TableHead className="text-muted-foreground text-right">Action</TableHead>
+                    <TableHead className="text-muted-foreground text-right">{t("trade.screen.lite.lite_contract_sections.settled")}</TableHead>
+                    <TableHead className="text-muted-foreground text-right">{t("market.action")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState, useRef } from 'react';
 import { Download, Share2, Loader2 } from 'lucide-react';
 import { toPng } from 'html-to-image';
@@ -88,7 +89,7 @@ export const SharePosterSheet = ({
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="max-h-[90vh]">
         <DrawerHeader className="text-center pb-2">
-          <DrawerTitle>Share Deposit Address</DrawerTitle>
+          <DrawerTitle>{t("wallet.screen.share_poster_dialog.share_deposit_address")}</DrawerTitle>
         </DrawerHeader>
         
         <div className="px-4 pb-6 space-y-4 overflow-y-auto">

@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from 'react';
 import { Copy, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -100,7 +101,7 @@ export const FullAddressDialog = ({
             <p className="text-sm text-muted-foreground text-center leading-relaxed">
               <span className="font-semibold text-foreground">Only deposit {tokenSymbol} from the correct network.</span>{' '}
               Deposits of other assets or from other networks will be lost.{' '}
-              <button className="text-primary underline underline-offset-2 hover:text-primary-hover transition-colors">Learn more</button>
+              <button className="text-primary underline underline-offset-2 hover:text-primary-hover transition-colors">{t("wallet.screen.withdraw_dialog.learn_more")}</button>
             </p>
 
             {/* Action Buttons */}
@@ -111,14 +112,14 @@ export const FullAddressDialog = ({
                 className="flex-1 h-10 rounded-lg"
               >
                 <Share2 className="w-4 h-4 mr-2" />
-                Share
+                {t("common.share")}
               </Button>
               <Button
                 onClick={handleCopy}
                 className="flex-1 h-10 rounded-lg bg-primary hover:bg-primary-hover"
               >
                 <Copy className="w-4 h-4 mr-2" />
-                Copy
+                {t("common.copy")}
               </Button>
             </div>
           </div>

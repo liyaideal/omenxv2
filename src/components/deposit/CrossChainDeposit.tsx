@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from 'react';
 import { ArrowDown, Loader2, Check, X, AlertCircle, ExternalLink, RotateCcw, Wallet, Power } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -118,7 +119,7 @@ export const CrossChainDeposit = ({ account: _account }: CrossChainDepositProps 
       <div className={cn("space-y-4", isMobile ? "px-4 py-5" : "p-5")}>
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-semibold">Swap</h3>
+          <h3 className="text-base font-semibold">{t("wallet.screen.cross_chain_deposit.swap")}</h3>
           <div className="flex items-center gap-2">
             {wallet.connected && (
               <>
@@ -150,7 +151,7 @@ export const CrossChainDeposit = ({ account: _account }: CrossChainDepositProps 
               className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
               <Power className="w-3 h-3" />
-              Disconnect
+              {t("common.disconnect")}
             </button>
           </div>
         ) : (
@@ -161,9 +162,9 @@ export const CrossChainDeposit = ({ account: _account }: CrossChainDepositProps 
             className={cn("w-full gap-2", isMobile ? "h-12 rounded-xl" : "h-10 rounded-lg")}
           >
             {wallet.connecting ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> Connecting...</>
+              <><Loader2 className="w-4 h-4 animate-spin" /> {t("common.connecting")}</>
             ) : (
-              <><Wallet className="w-4 h-4" /> Connect Wallet</>
+              <><Wallet className="w-4 h-4" /> {t("wallet.screen.cross_chain_deposit.connect_wallet")}</>
             )}
           </Button>
         )}
@@ -174,14 +175,14 @@ export const CrossChainDeposit = ({ account: _account }: CrossChainDepositProps 
           wallet.connected ? "border-border/50 bg-muted/20" : "border-border/20 bg-muted/10 opacity-60"
         )}>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">From</span>
+            <span className="text-sm text-muted-foreground">{t("wallet.from")}</span>
             {wallet.connected && (
               <button
                 onClick={() => setAmount(tokenBalance.toString())}
                 className="text-xs text-muted-foreground hover:text-primary transition-colors"
               >
                 Bal: <span className="font-mono">{tokenBalance.toFixed(tokenBalance < 10 ? 4 : 2)}</span>
-                <span className="ml-1 text-primary font-medium">MAX</span>
+                <span className="ml-1 text-primary font-medium">{t("common.max")}</span>
               </button>
             )}
           </div>
@@ -251,17 +252,17 @@ export const CrossChainDeposit = ({ account: _account }: CrossChainDepositProps 
         {/* To (locked: Base USDC) */}
         <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">To</span>
-            <span className="text-xs text-muted-foreground">OmenX Wallet</span>
+            <span className="text-sm text-muted-foreground">{t("market.date_to")}</span>
+            <span className="text-xs text-muted-foreground">{t("wallet.screen.sell_to_fiat.omenx_wallet")}</span>
           </div>
           <div className="flex items-center gap-3">
             <span className="flex-1 text-2xl font-mono font-semibold">
               {parsedAmount > 0 ? estimatedReceive.toFixed(2) : '0.00'}
             </span>
             <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-card border border-border/50">
-              <img src="/chain-logos/base.svg" alt="Base" className="w-5 h-5" />
-              <span className="font-medium text-sm">USDC</span>
-              <span className="text-xs text-muted-foreground">Base</span>
+              <img src="/chain-logos/base.svg" alt={t("common.base")} className="w-5 h-5" />
+              <span className="font-medium text-sm">{t("market.usdc")}</span>
+              <span className="text-xs text-muted-foreground">{t("common.base")}</span>
             </div>
           </div>
         </div>
@@ -270,23 +271,23 @@ export const CrossChainDeposit = ({ account: _account }: CrossChainDepositProps 
         {parsedAmount > 0 && wallet.connected && (
           <div className="space-y-2 px-1">
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Rate</span>
+              <span>{t("wallet.screen.sell_to_fiat.rate")}</span>
               <span className="font-mono">1 {fromToken} = {mockRate.toFixed(2)} USDC</span>
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Bridge Fee</span>
+              <span>{t("wallet.screen.cross_chain_deposit.bridge_fee")}</span>
               <span className="font-mono text-muted-foreground">Varies by route</span>
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Est. Gas</span>
+              <span>{t("wallet.screen.cross_chain_deposit.est_gas")}</span>
               <span className="font-mono">~${gasFee.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Slippage</span>
+              <span>{t("wallet.screen.cross_chain_deposit.slippage")}</span>
               <span className="font-mono">{slippage === -1 ? '~0.5% ~ Suggested' : `${slippage}%`}</span>
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Est. Time</span>
+              <span>{t("wallet.screen.cross_chain_deposit.est_time")}</span>
               <span className="font-mono">~2 min</span>
             </div>
           </div>
@@ -308,7 +309,7 @@ export const CrossChainDeposit = ({ account: _account }: CrossChainDepositProps 
         ) : null}
 
         <p className="text-[10px] text-center text-muted-foreground">
-          Powered by <span className="font-semibold">SOCKET</span>
+          {t("settings.wallet.deposit_fiat_powered_by")} <span className="font-semibold">SOCKET</span>
         </p>
       </div>
     );
@@ -319,7 +320,7 @@ export const CrossChainDeposit = ({ account: _account }: CrossChainDepositProps 
     return (
       <div className={cn("space-y-5", isMobile ? "px-4 py-5" : "p-5")}>
         <div className="text-center space-y-1">
-          <h3 className="text-lg font-semibold">Confirm Bridge</h3>
+          <h3 className="text-lg font-semibold">{t("wallet.screen.cross_chain_deposit.confirm_bridge")}</h3>
         </div>
 
         <div className="space-y-3">
@@ -333,7 +334,7 @@ export const CrossChainDeposit = ({ account: _account }: CrossChainDepositProps 
           <div className="flex justify-center"><ArrowDown className="w-4 h-4 text-muted-foreground" /></div>
           <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <img src="/chain-logos/base.svg" alt="Base" className="w-5 h-5" />
+              <img src="/chain-logos/base.svg" alt={t("common.base")} className="w-5 h-5" />
               <span className="text-sm">USDC on Base</span>
             </div>
             <span className="font-mono font-semibold text-trading-green">~{estimatedReceive.toFixed(2)}</span>
@@ -342,26 +343,26 @@ export const CrossChainDeposit = ({ account: _account }: CrossChainDepositProps 
 
         <div className="p-3 rounded-lg border border-border/30 space-y-2">
           <div className="flex justify-between text-sm"><span className="text-muted-foreground">Min. USDC</span><span className="font-mono">{(estimatedReceive * (1 - (slippage === -1 ? 0.5 : slippage) / 100)).toFixed(2)} USDC</span></div>
-          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Exchange Rate</span><span className="font-mono">1 {fromToken} = {mockRate.toFixed(2)} USDC</span></div>
-          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Bridge Fee</span><span className="font-mono text-muted-foreground">Varies by route</span></div>
-          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Est. Gas</span><span className="font-mono">~${gasFee.toFixed(2)}</span></div>
-          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Swap Slippage</span><span className="font-mono">{slippage === -1 ? '0.5% ~ Suggested' : `${slippage}%`}</span></div>
+          <div className="flex justify-between text-sm"><span className="text-muted-foreground">{t("wallet.screen.cross_chain_deposit.exchange_rate")}</span><span className="font-mono">1 {fromToken} = {mockRate.toFixed(2)} USDC</span></div>
+          <div className="flex justify-between text-sm"><span className="text-muted-foreground">{t("wallet.screen.cross_chain_deposit.bridge_fee")}</span><span className="font-mono text-muted-foreground">Varies by route</span></div>
+          <div className="flex justify-between text-sm"><span className="text-muted-foreground">{t("wallet.screen.cross_chain_deposit.est_gas")}</span><span className="font-mono">~${gasFee.toFixed(2)}</span></div>
+          <div className="flex justify-between text-sm"><span className="text-muted-foreground">{t("wallet.screen.cross_chain_deposit.swap_slippage")}</span><span className="font-mono">{slippage === -1 ? '0.5% ~ Suggested' : `${slippage}%`}</span></div>
         </div>
 
         <div className="p-3 rounded-lg bg-muted/30 border border-border/30 space-y-1">
           <div>
-            <p className="text-xs text-muted-foreground">From Wallet</p>
+            <p className="text-xs text-muted-foreground">{t("wallet.screen.cross_chain_deposit.from_wallet")}</p>
             <code className="text-xs text-foreground">{wallet.address.slice(0, 6)}...{wallet.address.slice(-6)}</code>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground">Receiving Address (OmenX)</p>
+            <p className="text-xs text-muted-foreground">{t("wallet.screen.cross_chain_deposit.receiving_address_omenx")}</p>
             <code className="text-xs text-foreground break-all">{receivingAddress}</code>
           </div>
         </div>
 
         <div className="flex gap-3">
-          <Button variant="outline" onClick={() => setStep('swap')} className="flex-1">Back</Button>
-          <Button onClick={handleConfirm} className="flex-1 bg-primary hover:bg-primary-hover">Confirm & Bridge</Button>
+          <Button variant="outline" onClick={() => setStep('swap')} className="flex-1">{t("common.back")}</Button>
+          <Button onClick={handleConfirm} className="flex-1 bg-primary hover:bg-primary-hover">{t("wallet.screen.cross_chain_deposit.confirm_and_bridge")}</Button>
         </div>
       </div>
     );
@@ -393,7 +394,7 @@ export const CrossChainDeposit = ({ account: _account }: CrossChainDepositProps 
     return (
       <div className={cn("flex flex-col items-center py-10 space-y-8", isMobile ? "px-4" : "px-5")}>
         <div className="text-center space-y-2">
-          <h3 className="text-lg font-semibold">Bridging in Progress</h3>
+          <h3 className="text-lg font-semibold">{t("wallet.screen.cross_chain_deposit.bridging_in_progress")}</h3>
           <p className="text-sm text-muted-foreground">{parsedAmount} {fromToken} → ~{estimatedReceive.toFixed(2)} USDC</p>
         </div>
         <div className="w-full max-w-sm space-y-1">
@@ -425,13 +426,13 @@ export const CrossChainDeposit = ({ account: _account }: CrossChainDepositProps 
         <>
           <div className="w-20 h-20 rounded-full bg-trading-green/20 flex items-center justify-center"><Check className="w-10 h-10 text-trading-green" /></div>
           <div className="text-center space-y-1">
-            <h3 className="text-xl font-semibold">Bridge Successful</h3>
-            <p className="text-3xl font-mono font-bold text-trading-green">+{estimatedReceive.toFixed(2)} <span className="text-lg">USDC</span></p>
-            <p className="text-sm text-muted-foreground">Credited to your OmenX account</p>
+            <h3 className="text-xl font-semibold">{t("wallet.screen.cross_chain_deposit.bridge_successful")}</h3>
+            <p className="text-3xl font-mono font-bold text-trading-green">+{estimatedReceive.toFixed(2)} <span className="text-lg">{t("market.usdc")}</span></p>
+            <p className="text-sm text-muted-foreground">{t("wallet.screen.cross_chain_deposit.credited_to_your_omenx_account")}</p>
           </div>
           <div className="w-full max-w-sm p-3 rounded-lg bg-muted/30 border border-border/30">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Tx Hash</span>
+              <span className="text-muted-foreground">{t("wallet.screen.cross_chain_deposit.tx_hash")}</span>
               <div className="flex items-center gap-1"><code className="text-muted-foreground">0x8f3a...e7b2</code><ExternalLink className="w-3 h-3 text-muted-foreground" /></div>
             </div>
           </div>
@@ -440,8 +441,8 @@ export const CrossChainDeposit = ({ account: _account }: CrossChainDepositProps 
         <>
           <div className="w-20 h-20 rounded-full bg-trading-red/20 flex items-center justify-center"><X className="w-10 h-10 text-trading-red" /></div>
           <div className="text-center space-y-1">
-            <h3 className="text-xl font-semibold">Bridge Failed</h3>
-            <p className="text-sm text-muted-foreground">Transaction could not be completed</p>
+            <h3 className="text-xl font-semibold">{t("wallet.screen.cross_chain_deposit.bridge_failed")}</h3>
+            <p className="text-sm text-muted-foreground">{t("wallet.screen.cross_chain_deposit.transaction_could_not_be_completed")}</p>
           </div>
           <div className="w-full max-w-sm p-3 rounded-lg bg-trading-red/5 border border-trading-red/20">
             <div className="flex items-center gap-2 text-sm text-trading-red">
@@ -452,7 +453,7 @@ export const CrossChainDeposit = ({ account: _account }: CrossChainDepositProps 
         </>
       )}
       <Button onClick={handleRetry} variant={txResult === 'success' ? 'secondary' : 'default'} className={cn("w-full max-w-sm", isMobile ? "h-12 rounded-xl" : "h-10 rounded-lg")}>
-        {txResult === 'success' ? 'Done' : <><RotateCcw className="w-4 h-4 mr-2" />Try Again</>}
+        {txResult === 'success' ? 'Done' : <><RotateCcw className="w-4 h-4 mr-2" />{t("common.try_again")}</>}
       </Button>
     </div>
   );

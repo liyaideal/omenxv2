@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from 'react';
 import { Check, Plus, Wallet } from 'lucide-react';
 import {
@@ -37,7 +38,7 @@ export const WithdrawAddressSelectDialog = ({
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-[420px]">
           <DialogHeader>
-            <DialogTitle>Select Withdrawal Address</DialogTitle>
+            <DialogTitle>{t("settings.wallet.select_withdrawal_address")}</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-2 py-2">
@@ -47,11 +48,11 @@ export const WithdrawAddressSelectDialog = ({
                   <Wallet className="w-6 h-6 text-muted-foreground" />
                 </div>
                 <p className="text-muted-foreground text-sm mb-4">
-                  No addresses saved yet
+                  {t("settings.wallet.no_addresses_saved")}
                 </p>
                 <Button variant="outline" size="sm" onClick={() => setAddOpen(true)}>
                   <Plus className="w-4 h-4 mr-2" />
-                  Add Address
+                  {t("settings.wallet.add_address")}
                 </Button>
               </div>
             ) : (
@@ -82,7 +83,7 @@ export const WithdrawAddressSelectDialog = ({
                             <span className="font-medium text-sm">{wallet.label}</span>
                             {wallet.isPrimary && (
                               <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-primary font-medium">
-                                Default
+                                {t("settings.wallet.default")}
                               </span>
                             )}
                           </div>
@@ -110,7 +111,7 @@ export const WithdrawAddressSelectDialog = ({
                   className="w-full flex items-center justify-center gap-2 p-3 rounded-lg border-2 border-dashed border-border/50 hover:border-primary/50 text-muted-foreground hover:text-foreground transition-all text-sm"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>Add New Address</span>
+                  <span>{t("settings.wallet.add_new_address")}</span>
                 </button>
               </>
             )}

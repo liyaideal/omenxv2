@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { MobileHeader } from "@/components/MobileHeader";
@@ -242,7 +243,7 @@ export default function OrderPreview() {
 
   return (
     <div className="min-h-screen bg-background pb-32">
-      <MobileHeader title="Order preview" showLogo={false} showBack />
+      <MobileHeader title={t("market.order_preview")} showLogo={false} showBack />
 
       {/* Order Details Card */}
       <div className="px-4 py-4 animate-fade-in">

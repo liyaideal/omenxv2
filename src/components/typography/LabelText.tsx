@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { cn } from "@/lib/utils";
 import { ReactNode } from "react";
 
@@ -14,7 +15,7 @@ interface LabelTextProps {
  * 自动应用 font-sans (Inter) 样式
  * 
  * @example
- * <LabelText>Yes</LabelText>
+ * <LabelText>{t("common.yes")}</LabelText>
  * <LabelText muted size="sm">Option Label</LabelText>
  */
 export const LabelText = ({

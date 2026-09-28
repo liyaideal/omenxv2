@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ResolvedEvent } from "@/hooks/useResolvedEvents";
@@ -73,7 +74,7 @@ export const ResolvedMarketCard = ({ event, onClick }: ResolvedMarketCardProps) 
               variant="outline"
               className="text-[10px] font-semibold uppercase tracking-wide bg-muted/40 text-muted-foreground border-border/50 px-1.5 py-0"
             >
-              Settled
+              {t("trade.screen.lite.lite_contract_sections.settled")}
             </Badge>
           </div>
           <div className="text-[10px] font-mono text-muted-foreground">

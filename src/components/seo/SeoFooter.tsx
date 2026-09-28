@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import { Logo } from "@/components/Logo";
-import { useT } from "@/i18n";
+import { useT, t } from "@/i18n";
 import { HELP_CENTER_URL, HELP_FAQ_URL, HELP_GUIDE_URL } from "@/lib/site";
 
 type FooterLink = { label: string; path: string; external?: boolean };
@@ -137,7 +137,7 @@ export const SeoFooter = () => {
             </p>
             <div className="mt-4">{socialRow}</div>
             <a href="mailto:support@omenx.com" className={`${LINK_CLASS} mt-3 inline-block`}>
-              support@omenx.com
+              {t("seo.screen.seo_footer.support_omenx_com")}
             </a>
           </div>
 
@@ -177,7 +177,7 @@ export const SeoFooter = () => {
             <div className="mt-4 flex items-center gap-4">
               {socialRow}
               <a href="mailto:support@omenx.com" className={LINK_CLASS}>
-                support@omenx.com
+                {t("seo.screen.seo_footer.support_omenx_com")}
               </a>
             </div>
           </div>
@@ -191,13 +191,13 @@ export const SeoFooter = () => {
         {/* Bottom bar */}
         <div className="border-t border-border/20 mt-8 pt-6 flex flex-col items-center gap-1.5 text-center">
           <p className="text-xs text-muted-foreground">
-            OmenX is operated by Nuvion Holdings Ltd., a company incorporated in the Cayman Islands.
+            {t("legal.footer.brand_legal")}
           </p>
           <p className="text-xs text-muted-foreground">
-            © 2026 OmenX. All rights reserved.
+            {t("legal.footer.copyright")}
           </p>
           <p className="text-xs text-muted-foreground/60">
-            For informational purposes only. Not financial advice. Trading involves risk of loss.
+            {t("legal.footer.disclaimer")}
           </p>
         </div>
       </div>

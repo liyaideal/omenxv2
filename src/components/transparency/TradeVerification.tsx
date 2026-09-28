@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from "react";
 import { FileSearch, Loader2, CheckCircle2, ExternalLink, Copy, Check, ArrowRightLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,13 +32,13 @@ export const TradeVerification = ({ onBack }: Props) => {
             <FileSearch className="w-10 h-10 text-blue-400" />
           </div>
           <div className="space-y-2 max-w-md mx-auto">
-            <h2 className="text-xl font-bold">Is My Trade Real?</h2>
+            <h2 className="text-xl font-bold">{t("transparency.screen.TradeVerification.is_my_trade_real")}</h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Select a recent filled trade and compare its database record against the on-chain <code className="text-xs bg-muted/50 px-1 rounded">TradeLogged</code> event to verify execution integrity.
             </p>
           </div>
           <Button onClick={openSelector} className="px-8 gap-2">
-            <FileSearch className="w-4 h-4" /> Select a Trade
+            <FileSearch className="w-4 h-4" /> {t("transparency.screen.TradeVerification.select_a_trade")}
           </Button>
         </div>
       </div>
@@ -50,13 +51,13 @@ export const TradeVerification = ({ onBack }: Props) => {
       <div className="space-y-6">
         <DesktopBackLink onClick={() => reset()} />
         <div className="trading-card p-5 md:p-6 space-y-4">
-          <h3 className="font-semibold">Select a Filled Trade</h3>
+          <h3 className="font-semibold">{t("transparency.screen.TradeVerification.select_a_filled_trade")}</h3>
           {isLoadingTrades ? (
             <div className="flex items-center justify-center py-8 gap-2 text-muted-foreground">
-              <Loader2 className="w-5 h-5 animate-spin" /> Loading trades...
+              <Loader2 className="w-5 h-5 animate-spin" /> {t("transparency.screen.TradeVerification.loading_trades")}
             </div>
           ) : trades.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">No filled trades found.</p>
+            <p className="text-sm text-muted-foreground text-center py-8">{t("transparency.screen.TradeVerification.no_filled_trades_found")}</p>
           ) : (
             <div className="space-y-2 max-h-[50vh] overflow-y-auto">
               {trades.map((t) => {
@@ -123,7 +124,7 @@ export const TradeVerification = ({ onBack }: Props) => {
             <div className="rounded-xl bg-blue-400/10 border border-blue-400/20 p-4 flex items-center gap-3">
               <CheckCircle2 className="w-8 h-8 text-blue-400 shrink-0" />
               <div>
-                <h3 className="font-bold text-blue-400">All Fields Match ✓</h3>
+                <h3 className="font-bold text-blue-400">{t("transparency.screen.TradeVerification.all_fields_match")}</h3>
                 <p className="text-xs text-muted-foreground">
                   {comparison.dbFields.filter(f => f.match).length} of {comparison.dbFields.length} contract fields verified against on-chain data.
                 </p>
@@ -155,10 +156,10 @@ export const TradeVerification = ({ onBack }: Props) => {
               {/* Desktop / tablet: 4-column table */}
               <div className="hidden sm:block">
                 <div className="grid grid-cols-[0.8fr,1fr,1fr,0.7fr] gap-0 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2 px-2">
-                  <span>Field</span>
-                  <span>DB Record</span>
-                  <span>On-Chain Log</span>
-                  <span>Raw Value</span>
+                  <span>{t("transparency.screen.TradeVerification.field")}</span>
+                  <span>{t("transparency.screen.TradeVerification.db_record")}</span>
+                  <span>{t("transparency.screen.TradeVerification.on_chain_log")}</span>
+                  <span>{t("transparency.screen.TradeVerification.raw_value")}</span>
                 </div>
                 <div className="space-y-1">
                   {comparison.dbFields.map((f) => (
@@ -180,16 +181,16 @@ export const TradeVerification = ({ onBack }: Props) => {
                       <span className="text-[11px] font-semibold text-foreground/90 min-w-0 truncate">{f.label}</span>
                       {f.match && (
                         <span className="text-[10px] text-emerald-400 shrink-0 flex items-center gap-0.5">
-                          <CheckCircle2 className="w-3 h-3" /> match
+                          <CheckCircle2 className="w-3 h-3" /> {t("transparency.screen.TradeVerification.match")}
                         </span>
                       )}
                     </div>
                     <div className="grid grid-cols-[44px,1fr] gap-x-2 gap-y-1 text-[11px]">
-                      <span className="text-muted-foreground">DB</span>
+                      <span className="text-muted-foreground">{t("transparency.screen.TradeVerification.db")}</span>
                       <span className={`font-mono break-all ${f.match ? "text-emerald-400" : "text-foreground/80"}`}>{f.dbValue}</span>
-                      <span className="text-muted-foreground">Chain</span>
+                      <span className="text-muted-foreground">{t("wallet.screen.cross_chain_deposit.chain")}</span>
                       <span className={`font-mono break-all ${f.match ? "text-emerald-400" : "text-foreground/80"}`}>{f.chainValue}</span>
-                      <span className="text-muted-foreground">Raw</span>
+                      <span className="text-muted-foreground">{t("transparency.screen.TradeVerification.raw")}</span>
                       <span className="font-mono break-all text-muted-foreground/70">{f.chainRaw}</span>
                     </div>
                   </div>
@@ -199,28 +200,28 @@ export const TradeVerification = ({ onBack }: Props) => {
 
             {/* Execution Role */}
             <div className="bg-muted/20 rounded-xl p-4 space-y-3">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Execution Role</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t("transparency.screen.TradeVerification.execution_role")}</p>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">Your Role</span>
+                  <span className="text-xs text-muted-foreground">{t("transparency.screen.TradeVerification.your_role")}</span>
                   <span className={`text-xs font-semibold px-2 py-0.5 rounded ${comparison.onchain.userRole === "Maker" ? "bg-emerald-400/10 text-emerald-400" : "bg-blue-400/10 text-blue-400"}`}>
                     {comparison.onchain.userRole}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">Match Type</span>
+                  <span className="text-xs text-muted-foreground">{t("transparency.screen.TradeVerification.match_type")}</span>
                   <code className="text-[10px] font-mono text-foreground/80">{comparison.onchain.matchType}</code>
                 </div>
               </div>
               <p className="text-[10px] text-muted-foreground/70 leading-relaxed pt-1 border-t border-border/20">
-                Your counterparty is matched by the platform's execution engine. For privacy and to prevent front-running, counterparty identity is not disclosed.
+                {t("transparency.screen.TradeVerification.counterparty_privacy")}
               </p>
             </div>
 
             {/* TX details */}
             <div className="bg-muted/20 rounded-xl p-4 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">txHash</span>
+                <span className="text-xs text-muted-foreground">{t("transparency.screen.TradeVerification.txhash")}</span>
                 <div className="flex items-center gap-1">
                   <code className="text-[10px] font-mono text-foreground/80">{comparison.onchain.txHash.slice(0, 6)}...{comparison.onchain.txHash.slice(-6)}</code>
                   <button onClick={() => copyText(comparison.onchain.txHash, "tx")} className="text-muted-foreground hover:text-foreground">
@@ -229,7 +230,7 @@ export const TradeVerification = ({ onBack }: Props) => {
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">blockNumber</span>
+                <span className="text-xs text-muted-foreground">{t("transparency.screen.TradeVerification.blocknumber")}</span>
                 <code className="text-[10px] font-mono text-foreground/80">#{comparison.onchain.blockNumber.toLocaleString()}</code>
               </div>
             </div>
@@ -239,10 +240,10 @@ export const TradeVerification = ({ onBack }: Props) => {
               <Button variant="outline" size="sm" className="flex-1 text-xs gap-1.5"
                 onClick={() => window.open(`https://basescan.org/tx/${comparison.onchain.txHash}`, "_blank")}
               >
-                <ExternalLink className="w-3.5 h-3.5" /> View on BaseScan
+                <ExternalLink className="w-3.5 h-3.5" /> {t("transparency.screen.TransparencyPage.view_on_basescan")}
               </Button>
               <Button size="sm" className="flex-1 text-xs gap-1.5" onClick={openSelector}>
-                <ArrowRightLeft className="w-3.5 h-3.5" /> Verify Another
+                <ArrowRightLeft className="w-3.5 h-3.5" /> {t("transparency.screen.FundingRateAudit.verify_another")}
               </Button>
             </div>
           </div>

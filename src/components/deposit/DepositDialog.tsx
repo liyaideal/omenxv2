@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { useState } from 'react';
 import { X, HelpCircle, ChevronRight } from 'lucide-react';
 import {
@@ -41,7 +42,7 @@ export const DepositDialog = ({ open, onOpenChange }: DepositDialogProps) => {
         {/* Header */}
         <DialogHeader className="px-6 py-4 border-b border-border/50 flex-shrink-0">
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-lg font-semibold">Deposit</DialogTitle>
+            <DialogTitle className="text-lg font-semibold">{t("common.deposit")}</DialogTitle>
             <div className="flex items-center gap-2">
               <a
                 href="mailto:customerservice@omenx.com?subject=Deposit Support"
@@ -63,9 +64,9 @@ export const DepositDialog = ({ open, onOpenChange }: DepositDialogProps) => {
           /* Step 1: Deposit to (account selection) */
           <div className="p-5 space-y-4">
             <div>
-              <h3 className="text-sm font-semibold mb-1">Deposit to</h3>
+              <h3 className="text-sm font-semibold mb-1">{t("wallet.depositTo")}</h3>
               <p className="text-xs text-muted-foreground">
-                Pick which account will receive your funds. You can change this later.
+                {t("wallet.depositAccountHint")}
               </p>
             </div>
             <AccountPickerRows selected={null} onSelect={handleSelect} />
@@ -89,8 +90,8 @@ export const DepositDialog = ({ open, onOpenChange }: DepositDialogProps) => {
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
               <div className="px-4 pt-3 flex-shrink-0">
                 <TabsList className="w-full grid grid-cols-2 h-9">
-                  <TabsTrigger value="wallet" className="text-xs">Address</TabsTrigger>
-                  <TabsTrigger value="crosschain" className="text-xs">Wallet</TabsTrigger>
+                  <TabsTrigger value="wallet" className="text-xs">{t("settings.wallet.address")}</TabsTrigger>
+                  <TabsTrigger value="crosschain" className="text-xs">{t("settings.wallet.title")}</TabsTrigger>
                 </TabsList>
               </div>
 
