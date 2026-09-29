@@ -1,5 +1,5 @@
 import { t } from "@/i18n";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { Share2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
@@ -21,8 +21,24 @@ import { YourRankingBarDesktop, YourRankingCardMobile, type YourRankingData } fr
 import { RankLocator } from "@/components/leaderboard/RankLocator";
 import { ShareRankModal } from "@/components/leaderboard/ShareRankModal";
 
-/** EventsDesktopHeader 实测高度（h-16 + 1px 下描边）。头图靠负边距铺到页顶，顶栏浮其上。 */
-const DESKTOP_HEADER_H = 65;
+/**
+ * 桌面顶栏高度：实测而不是写死。头图靠负边距铺到页顶、顶栏 sticky 浮其上，负边距必须等于
+ * 顶栏的真实高度。2026-09-29 CPO 打回实证：09-28 语言入口轮把顶栏从 65 撑到 73，这里的常量
+ * 没跟，整页又低了 8px。约束由本页自己量，顶栏以后再变也不用回来改。
+ */
+const useDesktopHeaderHeight = (fallback = 73) => {
+  const [h, setH] = useState(fallback);
+  useLayoutEffect(() => {
+    const el = document.querySelector<HTMLElement>("header");
+    if (!el) return;
+    const read = () => setH(Math.round(el.getBoundingClientRect().height));
+    read();
+    const ro = new ResizeObserver(read);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return h;
+};
 
 type SortType = "pnl" | "roi" | "volume";
 type PeriodType = "daily" | "7d" | "30d" | "180d";
@@ -80,6 +96,7 @@ const MOCK_CURRENT_USER_USERNAME = "CryptoNinja";
 
 export default function Leaderboard() {
   const isMobile = useIsMobile();
+  const headerH = useDesktopHeaderHeight();
   const { username, avatarUrl, user } = useUserProfile();
   const { referralCode } = useReferral();
   const [sortType, setSortType] = useState<SortType>("pnl");
@@ -314,11 +331,11 @@ export default function Leaderboard() {
         站内其他页的内容本来就从它底下滚过去——所以头图要铺到页顶、由顶栏浮在其上，
         用负外边距抵掉顶栏高度。把头图排在顶栏下面会让整页低 65px（2026-09-22 CPO 两次打回）。
         纵向坐标逐条对 Figma 绝对值（以**页顶**为 0）：
-        头图 0-384（顶部 65 被顶栏覆盖）/ 筛选行 430-478 / 领奖台 526 起，版面占到 977 为止
+        头图 0-384（顶部被顶栏覆盖，高度实测）/ 筛选行 430-478 / 领奖台 526 起，版面占到 977 为止
         （领奖台实渲到 1204，227px 故意溢出，被下面不透明的表格卡盖住）
         地面渐变带 700:29476 = y815 h236，全宽 1440。
       */}
-      <div className="relative bg-background" style={{ marginTop: -DESKTOP_HEADER_H }}>
+      <div className="relative bg-background" style={{ marginTop: -headerH }}>
         <img
           src={heroDesktop}
           alt=""
