@@ -253,7 +253,10 @@ export default function Leaderboard() {
 
           <div
             className="px-4"
-            style={{ paddingTop: 16, paddingBottom: "calc(var(--bottom-nav-h, 76px) + 92px)" }}
+            // 稿 711:33603：内容框在 ② Your Ranking 下方只留 32 即收；底导的位置由页脚容器的
+            // padding-bottom 让出、① 定位器在 ② 进视口时已隐藏——这里原先叠了 76+92=168 的空白
+            // 是给定位器和底导重复预留的，多出 136px（CPO 2026-09-29 打回）。
+            style={{ paddingTop: 16, paddingBottom: 32 }}
           >
             <LeaderboardFiltersMobile
               sortType={sortType}
