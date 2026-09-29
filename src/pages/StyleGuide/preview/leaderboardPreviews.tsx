@@ -280,8 +280,8 @@ export const RankShareCardPreview = () => (
     <RankShareCard
       user={ME}
       referralCode="75CN66"
-      shareHost="omenx.lovable.app"
-      shareUrl="https://omenx.lovable.app?ref=75CN66"
+      shareHost="omenx.com"
+      shareUrl="https://omenx.com?ref=75CN66"
     />
   </div>
 );

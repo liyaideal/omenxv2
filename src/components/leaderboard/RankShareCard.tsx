@@ -252,11 +252,12 @@ export const RankShareCard = ({
             </div>
           </div>
 
-          <div style={{ textAlign: "center", flexShrink: 0 }}>
-            <div style={{ background: "#FFFFFF", borderRadius: 7, padding: 5, lineHeight: 0 }}>
+          {/* 宽度锁死在二维码框上（41 + 5×2），域名文字再长也不许把白框撑开 */}
+          <div style={{ width: 51, flexShrink: 0, textAlign: "center" }}>
+            <div style={{ width: 51, boxSizing: "border-box", background: "#FFFFFF", borderRadius: 7, padding: 5, lineHeight: 0 }}>
               <QRCodeSVG value={shareUrl} size={41} level="M" includeMargin={false} />
             </div>
-            <div style={{ marginTop: 4, fontSize: 8, lineHeight: "10px", color: "rgba(255,255,255,0.3)" }}>
+            <div style={{ marginTop: 4, fontSize: 8, lineHeight: "10px", color: "rgba(255,255,255,0.3)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {shareHost}
             </div>
           </div>

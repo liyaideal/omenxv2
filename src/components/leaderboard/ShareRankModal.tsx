@@ -64,7 +64,9 @@ export const ShareRankModal = ({
   const [imageBlob, setImageBlob] = useState<Blob | null>(null);
 
   const shareUrl = `${SHARE_ORIGIN}?ref=${referralCode}`;
-  const shareHost = SHARE_ORIGIN.replace(/^https?:\/\//, "");
+  // 卡上印的是品牌域（与 SharePosterLayout qrLabel / LitePnlPoster 一致），二维码才编码 SITE_URL 活链。
+  // 2026-09-29 CPO 打回：印 window.origin 会在预览站印出 id-preview--xxxx 长串并把二维码框撑宽。
+  const shareHost = "omenx.com";
   const shareText = `🏆 #${user.rank} on the OMENX leaderboard — $${Math.round(
     user.pnl
   ).toLocaleString("en-US")} PnL, ${user.roi.toFixed(1)}% ROI.`;
