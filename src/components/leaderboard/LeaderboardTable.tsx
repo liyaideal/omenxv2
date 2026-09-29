@@ -40,69 +40,6 @@ const RowAvatar = ({ user, size, border, isCurrentUser }: { user: LeaderboardUse
   />
 );
 
-/* ----------------------------- 分页 ----------------------------- */
-
-const Pagination = ({
-  rangeLabel,
-  page,
-  pageCount,
-  onPageChange,
-  variant,
-}: {
-  rangeLabel: string;
-  page: number;
-  pageCount: number;
-  onPageChange: (p: number) => void;
-  variant: "desktop" | "mobile";
-}) => {
-  const size = variant === "desktop" ? 32 : 40;
-  const height = variant === "desktop" ? 56 : 64;
-  const padX = variant === "desktop" ? 24 : 12;
-
-  const cell = (content: string, opts: { active?: boolean; disabled?: boolean; onClick?: () => void; label?: string }) => (
-    <button
-      key={opts.label ?? content}
-      type="button"
-      aria-label={opts.label}
-      aria-current={opts.active ? "page" : undefined}
-      disabled={opts.disabled}
-      onClick={opts.onClick}
-      className="transition-colors"
-      style={{
-        width: size,
-        height: size,
-        border: 0,
-        borderRadius: 8,
-        background: opts.active ? "#33D6FF" : "transparent",
-        color: opts.active ? "#090A0B" : "#9CA2AB",
-        fontSize: 12,
-        fontWeight: 500,
-        lineHeight: "18px",
-        opacity: opts.disabled ? 0.35 : 1,
-        cursor: opts.disabled ? "default" : "pointer",
-      }}
-    >
-      {content}
-    </button>
-  );
-
-  return (
-    <div
-      className="flex items-center justify-between"
-      style={{ height, paddingInline: padX, borderTop: "1px solid #23262D" }}
-    >
-      <div style={{ fontSize: 11, fontWeight: 400, lineHeight: "16px", color: "#9CA2AB" }}>{rangeLabel}</div>
-      <div className="flex items-center" style={{ gap: 4 }}>
-        {cell("‹", { disabled: page === 1, onClick: () => onPageChange(page - 1), label: "Previous page" })}
-        {Array.from({ length: pageCount }, (_, i) => i + 1).map((p) =>
-          cell(String(p), { active: p === page, onClick: () => onPageChange(p), label: `Page ${p}` })
-        )}
-        {cell("›", { disabled: page === pageCount, onClick: () => onPageChange(page + 1), label: "Next page" })}
-      </div>
-    </div>
-  );
-};
-
 /* --------------------------- desktop --------------------------- */
 
 const HEAD: React.CSSProperties = {
@@ -116,18 +53,10 @@ export const LeaderboardTableDesktop = ({
   rows,
   sortType,
   currentUsername,
-  rangeLabel,
-  page,
-  pageCount,
-  onPageChange,
 }: {
   rows: LeaderboardUser[];
   sortType: SortType;
   currentUsername?: string;
-  rangeLabel: string;
-  page: number;
-  pageCount: number;
-  onPageChange: (p: number) => void;
 }) => (
   <div className="trading-card overflow-hidden">
     <div className="flex items-center justify-between" style={{ height: 51, paddingInline: 48 }}>
@@ -178,7 +107,6 @@ export const LeaderboardTableDesktop = ({
       );
     })}
 
-    <Pagination rangeLabel={rangeLabel} page={page} pageCount={pageCount} onPageChange={onPageChange} variant="desktop" />
   </div>
 );
 
@@ -188,18 +116,10 @@ export const LeaderboardListMobile = ({
   rows,
   sortType,
   currentUsername,
-  rangeLabel,
-  page,
-  pageCount,
-  onPageChange,
 }: {
   rows: LeaderboardUser[];
   sortType: SortType;
   currentUsername?: string;
-  rangeLabel: string;
-  page: number;
-  pageCount: number;
-  onPageChange: (p: number) => void;
 }) => (
   <div className="trading-card overflow-hidden">
     <div className="flex items-center justify-between" style={{ height: 40, paddingInline: 12 }}>
@@ -241,6 +161,5 @@ export const LeaderboardListMobile = ({
       );
     })}
 
-    <Pagination rangeLabel={rangeLabel} page={page} pageCount={pageCount} onPageChange={onPageChange} variant="mobile" />
   </div>
 );

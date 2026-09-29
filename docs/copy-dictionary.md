@@ -864,6 +864,6 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | `See where you rank` | ① 浮动定位器（未登录） | 同上语义的紧凑版；右侧配 `Sign in` 按钮。 |
 | `My ranking · #N · M trades` | ② Your Ranking（已排名）副行 | `#N` 取 PNL 指标名次；`M` 为成交笔数。 |
 | `↑N ranks` / `—` / `↓N ranks` | 榜单 CHANGE 列 | 名次相对上一周期的变化。涨用 MONEY 绿、平用 secondary、跌用 MONEY 红。单数时用 `rank`。 |
-| `4–13 of 30` | 分页区间 | en dash（`–`），不是 hyphen。格式 `起–止 of 总数`。 |
+| ~~`4–13 of 30`~~ | ~~分页区间~~ | 2026-09-29 作废：榜单 Top 30 平铺不分页，无区间文案。 |
 | `PNL (USD)` / `ROI` / `Volume (USD)` | 表头与领奖台副标 | 随指标切换；表头全大写，领奖台副标首字母大写。 |
 | 浮动定位器（Rank locator） | 页面右下 / 移动底导之上 | 只回答「我第几、我多少」的跟随件，不承载分享；② 进入视口即淡出。设计稿中没有此件，2026-09-22 CPO 拍板新增。 |

@@ -40,6 +40,9 @@ const useDesktopHeaderHeight = (fallback = 73) => {
   return h;
 };
 
+/** 榜单展示上限：领奖台 3 + 表格 27 */
+const LEADERBOARD_SIZE = 30;
+
 type SortType = "pnl" | "roi" | "volume";
 type PeriodType = "daily" | "7d" | "30d" | "180d";
 
@@ -101,7 +104,6 @@ export default function Leaderboard() {
   const { referralCode } = useReferral();
   const [sortType, setSortType] = useState<SortType>("pnl");
   const [period, setPeriod] = useState<PeriodType>("7d");
-  const [page, setPage] = useState(1);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
 
@@ -128,20 +130,13 @@ export default function Leaderboard() {
     [baseData, sortType]
   );
 
-  const topThree = sortedData.slice(0, 3);
-  const restOfList = sortedData.slice(3);
-
-  const PAGE_SIZE = 10;
-  const pageCount = Math.max(1, Math.ceil(restOfList.length / PAGE_SIZE));
-  const safePage = Math.min(page, pageCount);
-  const pageRows = restOfList.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-  const rangeStart = 4 + (safePage - 1) * PAGE_SIZE;
-  const rangeLabel = `${rangeStart}–${rangeStart + pageRows.length - 1} of ${sortedData.length}`;
-
-  /** 切指标或时间范围 → 回第 1 页（CPO 批的行为规则） */
-  useEffect(() => {
-    setPage(1);
-  }, [sortType, period]);
+  /**
+   * 榜单固定 Top 30，不分页（CPO 2026-09-29：「一共才 30，平铺在一页里」）。
+   * 前三进领奖台，第 4–30 名平铺成一张表；服务端接上后仍只取前 30，超出不展示。
+   */
+  const board = sortedData.slice(0, LEADERBOARD_SIZE);
+  const topThree = board.slice(0, 3);
+  const restOfList = board.slice(3);
 
   const currentUser = isLoggedIn
     ? sortedData.find((u) => u.username === currentUserUsername)
@@ -189,7 +184,7 @@ export default function Leaderboard() {
     window.setTimeout(() => el.classList.remove("ring-2", "ring-[#33D6FF]"), 1500);
   };
 
-  /** ① 定位器点击：已排名 → 翻到我所在页再滚到我那行；未排名 → 滚到 ② */
+  /** ① 定位器点击：已排名 → 滚到我那行并高亮；未排名 / 在三甲 → 滚到 ② */
   const jumpToMe = () => {
     if (!currentUser || isCurrentUserInTopThree) {
       document.getElementById(YOUR_RANKING_ID)?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -200,13 +195,7 @@ export default function Leaderboard() {
       document.getElementById(YOUR_RANKING_ID)?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
-    const targetPage = Math.floor(idx / PAGE_SIZE) + 1;
-    if (targetPage !== safePage) {
-      setPage(targetPage);
-      window.setTimeout(highlightRow, 80);
-    } else {
-      highlightRow();
-    }
+    highlightRow();
   };
 
   const shareModal = (
@@ -286,13 +275,9 @@ export default function Leaderboard() {
 
             <div className="relative z-10" style={{ marginTop: 16 }}>
               <LeaderboardListMobile
-                rows={pageRows}
+                rows={restOfList}
                 sortType={sortType}
                 currentUsername={isLoggedIn ? currentUserUsername : undefined}
-                rangeLabel={rangeLabel}
-                page={safePage}
-                pageCount={pageCount}
-                onPageChange={setPage}
               />
             </div>
 
@@ -375,13 +360,9 @@ export default function Leaderboard() {
       {/* 表格 y=1041（= 舞台底 977 + 64），Your Ranking 再 +24 */}
       <main className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-10 lg:px-6" style={{ paddingTop: 64 }}>
         <LeaderboardTableDesktop
-          rows={pageRows}
+          rows={restOfList}
           sortType={sortType}
           currentUsername={isLoggedIn ? currentUserUsername : undefined}
-          rangeLabel={rangeLabel}
-          page={safePage}
-          pageCount={pageCount}
-          onPageChange={setPage}
         />
 
         <div style={{ marginTop: 24 }}>

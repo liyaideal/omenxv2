@@ -7,7 +7,7 @@
  * LB-2  头图双端  → 并入 LB-1（整页帧里双端各自加载自己那张）
  * LB-4  时间范围展开 → 并入 LB-3（帧内可真点开）
  * LB-10 CHANGE 三态 → 并入 LB-8 的 spec 行（同一帧内三态齐现）
- * LB-11 分页首页态 → 并入 LB-8（该帧本身即 page 1，`‹` disabled）
+ * LB-11 / LB-12 分页态 → 作废（CPO 2026-09-29：榜单固定 Top 30 平铺，不分页）
  * LB-21 分享卡出图中 → 并入 LB-19 的 spec 行（Save 在 blob 就绪前禁用）
  */
 import { LitePage } from "./shell";
@@ -43,7 +43,7 @@ const FILTER_DESKTOP: SectionCase[] = [
       { state: "选中 tab", when: "sortType", visual: "分段器 360×48 底 #131519 / padding 4 / r12；tab 112×40；选中底 #33D6FF 字 #1C1F26，未选 #9CA2AB；字体 Space Grotesk Bold 14/20", source: "Figma 700:29480–29486" },
       { state: "时间范围", when: "period", visual: "90×40 底 rgba(28,31,38,.4) 描边 rgba(28,31,38,.3) 字 #9CA2AB + chevron 14；四项 Daily / 7 Days / 30 Days / 180 Days", source: "Figma 700:29488 · Leaderboard.tsx PERIOD_TABS" },
       { state: "Share", when: "恒", visual: "96×40 底 rgba(51,214,255,.2) 描边 rgba(51,214,255,.3) 字 #33D6FF；点击 → 分享弹窗（未登录先拉 Auth）", source: "Figma 700:29492" },
-      { state: "切指标 / 切时间范围", when: "onChange", visual: "分页回到第 1 页", source: "Leaderboard.tsx useEffect([sortType, period])" },
+      { state: "切指标 / 切时间范围", when: "onChange", visual: "领奖台与表格按新指标全量重排；页面不滚动", source: "Leaderboard.tsx sortedData" },
     ],
   },
 ];
@@ -98,20 +98,20 @@ const PODIUM_METRICS: SectionCase[] = [
   },
 ];
 
-/* ---------------- Ⓓ 表格 / 列表 / 分页 ---------------- */
+/* ---------------- Ⓓ 表格 / 列表（Top 30 平铺，不分页） ---------------- */
 
 const TABLE_DESKTOP: SectionCase[] = [
   {
     key: "leaderboard-table",
-    label: "LB-8 · 表格 · 常规（含 CHANGE 三态 · 分页首页）",
-    note: "同一帧内三种 CHANGE 齐现（涨 / 平 / 跌）；本帧即 page 1，`‹` 为 disabled 态（LB-10 / LB-11 并入）。",
+    label: "LB-8 · 表格 · 常规（含 CHANGE 三态 · 27 行平铺）",
+    note: "同一帧内三种 CHANGE 齐现（涨 / 平 / 跌，LB-10 并入）。榜单固定 Top 30：前三进领奖台、第 4–30 名 27 行一张表到底，无分页条（CPO 2026-09-29 拍板，原 LB-11 / LB-12 分页态作废）。",
     spec: [
       { state: "列栅格", when: "恒", visual: "RANK 56 / TRADER flex / TRADES 160 / PNL (USD) 200 / CHANGE 160，后三列右对齐；左右内边距 48；表头 51 高、行 56 高、行下描边 1px #23262D", source: "Figma 700:29638" },
       { state: "金额位", when: "恒", visual: "Space Grotesk Bold 14/20 `text-trading-green`（#CFFF4A）——走 MONEY 轴 token，不用稿上的 #D5FF4D", source: "DESIGN §2 Market Axis LOCKED · §Addendum 2026-09-09 色轴优先级" },
       { state: "CHANGE 涨", when: "rankChange > 0", visual: "`↑N ranks` text-trading-green", source: "leaderboardKit rankChangeClass" },
       { state: "CHANGE 平", when: "rankChange === 0", visual: "`—` #9CA2AB", source: "leaderboardKit" },
       { state: "CHANGE 跌", when: "rankChange < 0", visual: "`↓N ranks` text-trading-red（#FF5C5C）", source: "leaderboardKit" },
-      { state: "分页首页", when: "page === 1", visual: "`‹` opacity .35 不可点；当前页底 #33D6FF 字 #090A0B；按钮 32×32 r8 gap4", source: "Figma 700:29950" },
+      { state: "行数", when: "恒", visual: "第 4–30 名 27 行平铺；不足 27 照实渲染不补占位行，卡高随内容；服务端接上后仍只取 Top 30", source: "Leaderboard.tsx LEADERBOARD_SIZE · CPO 2026-09-29" },
     ],
   },
   {
@@ -119,21 +119,13 @@ const TABLE_DESKTOP: SectionCase[] = [
     label: "LB-9 · 表格 · 当前用户行",
     spec: [{ state: "是我", when: "user.username === currentUsername", visual: "**仅**头像描边从 rgba(28,31,38,.4) 换成 rgba(51,214,255,.4)；不做整行底色、不加 YOU 徽章", source: "Figma 700:29657 · CPO 2026-09-22" }],
   },
-  {
-    key: "leaderboard-table-last",
-    label: "LB-12 · 表格 · 末页（不足 10 行）",
-    spec: [
-      { state: "末页", when: "page === pageCount", visual: "`›` disabled；区间文案 `24–30 of 30`（en dash）", source: "Figma 700:29951" },
-      { state: "不补空行", when: "rows.length < 10", visual: "7 行照实渲染，不填占位行，卡高随内容", source: "Leaderboard.tsx restOfList.slice" },
-    ],
-  },
 ];
 
 const TABLE_MOBILE: SectionCase[] = [
   {
     key: "leaderboard-list-mobile",
     label: "LB-8b · 列表 · mobile",
-    spec: [{ state: "两列", when: "isMobile", visual: "表头 40 高（RANK / TRADER · PNL (USD)）；行 64 高、左右 12、头像 28；右侧两行＝金额 14/700 + 变化 11/400；分页条 64 高、按钮 40×40", source: "Figma 711:33760" }],
+    spec: [{ state: "两列", when: "isMobile", visual: "表头 40 高（RANK / TRADER · PNL (USD)）；行 64 高、左右 12、头像 28；右侧两行＝金额 14/700 + 变化 11/400；27 行到底无分页条", source: "Figma 711:33760" }],
   },
   {
     key: "leaderboard-list-mobile-me",
@@ -265,7 +257,7 @@ export const LiteLeaderboardPage = (_: P) => (
     title="Leaderboard"
     route="/leaderboard"
     status="done"
-    note="2026-09-22 按 Figma omenx_lite 设计稿（桌面 616:1399 / 移动 673:24088）整页回流：紫色霓虹标题、星点粒子、旧浮动 MyRankBar、页面内嵌 Share Your Rank 整块全部删除；改为 3D 头图 + 分段器 + 三甲领奖台 + 五列表格（移动两列列表）+ 分页 + 恒显 ② Your Ranking，并新增稿中没有的 ① 浮动定位器（CPO 拍板）。金额位统一走 MONEY 轴 token #CFFF4A——设计稿的 #D5FF4D 不是 token。"
+    note="2026-09-22 按 Figma omenx_lite 设计稿（桌面 616:1399 / 移动 673:24088）整页回流：紫色霓虹标题、星点粒子、旧浮动 MyRankBar、页面内嵌 Share Your Rank 整块全部删除；改为 3D 头图 + 分段器 + 三甲领奖台 + 五列表格（移动两列列表，Top 30 平铺不分页）+ 恒显 ② Your Ranking，并新增稿中没有的 ① 浮动定位器（CPO 拍板）。金额位统一走 MONEY 轴 token #CFFF4A——设计稿的 #D5FF4D 不是 token。"
   >
     <SubSection title="Ⓐ 整页" description="真路由帧。头图为已登记的营销 hero 豁免（全宽），hero 以下收编 Layout Wide 容器。">
       <SectionFrame cases={PAGE_CASES} device="desktop" minHeight={900} />
@@ -283,7 +275,7 @@ export const LiteLeaderboardPage = (_: P) => (
       <SectionFrame cases={PODIUM_METRICS} device="desktop" minHeight={700} />
     </SubSection>
 
-    <SubSection title="Ⓓ 榜单表格 / 列表 / 分页" description="桌面五列真表格与移动两列列表是两套实现，不是一个组件塞两个宽度。">
+    <SubSection title="Ⓓ 榜单表格 / 列表" description="桌面五列真表格与移动两列列表是两套实现，不是一个组件塞两个宽度。">
       <SectionFrame cases={TABLE_DESKTOP} device="desktop" minHeight={700} />
       <SectionFrame cases={TABLE_MOBILE} device="mobile" minHeight={760} />
     </SubSection>

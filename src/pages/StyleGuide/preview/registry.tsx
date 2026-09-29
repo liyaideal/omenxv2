@@ -611,7 +611,6 @@ export const previewRegistry: Record<string, Loader> = {
   "leaderboard-podium-volume": pick(leaderboard, "LeaderboardPodiumVolumePreview"),
   "leaderboard-table": pick(leaderboard, "LeaderboardTablePreview"),
   "leaderboard-table-me": pick(leaderboard, "LeaderboardTableMePreview"),
-  "leaderboard-table-last": pick(leaderboard, "LeaderboardTableLastPagePreview"),
   "leaderboard-list-mobile": pick(leaderboard, "LeaderboardListMobilePreview"),
   "leaderboard-list-mobile-me": pick(leaderboard, "LeaderboardListMobileMePreview"),
   "leaderboard-your-ranking": pick(leaderboard, "YourRankingRankedPreview"),

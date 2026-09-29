@@ -65,17 +65,13 @@ const PAGE_ONE: LeaderboardUser[] = [
   U(13, "CryptoNinja", "currentuser", "d1d4f9", 7650, 45.8, 245000, 52, 5),
 ];
 
-const PAGE_LAST: LeaderboardUser[] = [
-  U(24, "SwingTrader", "swing", "ffd5dc", 1920, 12.6, 72000, 18, 2),
-  U(25, "CoinCollector", "coin", "ffdfbf", 1650, 10.4, 65000, 22, 1),
-  U(26, "AltSeason", "alt", "b6e3f4", 1380, 8.2, 54000, 16, -1),
-  U(27, "FuturesFreak", "futures", "c0aede", 1120, 6.1, 48000, 27, 0),
-  U(28, "LeverageL", "leverage", "d1d4f9", 890, 4.3, 42000, 35, -2),
-  U(29, "PerpsPlayer", "perps", "ffd5dc", 650, 2.8, 35000, 14, 1),
-  U(30, "NewbieTrader", "newbie", "ffdfbf", 420, 1.5, 28000, 8, 0),
-];
 
 const ME = PAGE_ONE[9];
+/** 表格 fixture：第 4–30 名共 27 行平铺（榜单固定 Top 30，不分页） */
+const BOARD_ROWS: LeaderboardUser[] = Array.from({ length: 27 }, (_, i) => {
+  const base = PAGE_ONE[i % PAGE_ONE.length];
+  return { ...base, rank: 4 + i, username: i < PAGE_ONE.length ? base.username : `${base.username}_${4 + i}` };
+});
 
 const RANKED: YourRankingData = {
   username: "CryptoNinja",
@@ -95,13 +91,6 @@ const UNRANKED: YourRankingData = {
   pnl: "$0.00",
   roi: "0.00%",
   volume: "$0.00",
-};
-
-const TABLE_COMMON = {
-  rangeLabel: "4–13 of 30",
-  page: 1,
-  pageCount: 3,
-  onPageChange: noop,
 };
 
 /* ---------------- LB-1 整页 ---------------- */
@@ -158,42 +147,29 @@ export const LeaderboardPodiumPnlMobilePreview = () => <PodiumHost sortType="pnl
 export const LeaderboardPodiumRoiPreview = () => <PodiumHost sortType="roi" variant="desktop" />;
 export const LeaderboardPodiumVolumePreview = () => <PodiumHost sortType="volume" variant="desktop" />;
 
-/* ---------------- LB-8…12 表格 / 列表 / 分页 ---------------- */
+/* ---------------- LB-8…9 表格 / 列表（Top 30 平铺，不分页；CPO 2026-09-29） ---------------- */
 
 export const LeaderboardTablePreview = () => (
   <Pad wide>
-    <LeaderboardTableDesktop rows={PAGE_ONE} sortType="pnl" {...TABLE_COMMON} />
+    <LeaderboardTableDesktop rows={BOARD_ROWS} sortType="pnl" />
   </Pad>
 );
 
 export const LeaderboardTableMePreview = () => (
   <Pad wide>
-    <LeaderboardTableDesktop rows={PAGE_ONE} sortType="pnl" currentUsername="CryptoNinja" {...TABLE_COMMON} />
-  </Pad>
-);
-
-export const LeaderboardTableLastPagePreview = () => (
-  <Pad wide>
-    <LeaderboardTableDesktop
-      rows={PAGE_LAST}
-      sortType="pnl"
-      rangeLabel="24–30 of 30"
-      page={3}
-      pageCount={3}
-      onPageChange={noop}
-    />
+    <LeaderboardTableDesktop rows={BOARD_ROWS} sortType="pnl" currentUsername="CryptoNinja" />
   </Pad>
 );
 
 export const LeaderboardListMobilePreview = () => (
   <Pad wide>
-    <LeaderboardListMobile rows={PAGE_ONE} sortType="pnl" {...TABLE_COMMON} />
+    <LeaderboardListMobile rows={BOARD_ROWS} sortType="pnl" />
   </Pad>
 );
 
 export const LeaderboardListMobileMePreview = () => (
   <Pad wide>
-    <LeaderboardListMobile rows={PAGE_ONE} sortType="pnl" currentUsername="CryptoNinja" {...TABLE_COMMON} />
+    <LeaderboardListMobile rows={BOARD_ROWS} sortType="pnl" currentUsername="CryptoNinja" />
   </Pad>
 );
 
