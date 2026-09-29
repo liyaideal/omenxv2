@@ -20,7 +20,8 @@
  * 5 图层顺序：底色渐变 → 艺术底 img → 辉光 → 内容
  *
  * 另两处「稿与全站规范冲突」，均按生产落（CPO 2026-09-22 批）：
- * · 卡底域名与 QR 指向 `https://omenx.lovable.app`（稿写 omenx.com）——以实际可访问域为准。
+ * · 卡底域名与 QR 走 `src/lib/site.ts` 的 SITE_URL（部署设 VITE_SITE_URL=https://omenx.com 即印 omenx.com；
+ *   未设时回落当前访问域，保证扫出去永远是活链）。2026-09-29 前曾硬编码 omenx.lovable.app（死域），已收敛。
  * · More Options 按钮保持全站 `.btn-primary` 渐变（稿是平铺 #33D6FF）；仅图标按稿改成纸飞机。
  */import { t } from "@/i18n";
 import type { RefObject } from "react";

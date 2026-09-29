@@ -13,11 +13,17 @@ import { useEffect, useRef, useState } from "react";
 import { Copy, Download, Send, X } from "lucide-react";
 import * as htmlToImage from "html-to-image";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
+import { SITE_URL } from "@/lib/site";
 import { useToast } from "@/hooks/use-toast";
 import { RankShareCard } from "./RankShareCard";
 import type { LeaderboardUser } from "./leaderboardKit";
 
-const SHARE_ORIGIN = "https://omenx.lovable.app";
+/**
+ * 分享链接 / 二维码 / 卡底域名统一走 src/lib/site.ts 的 SITE_URL（VITE_SITE_URL → 当前访问域）。
+ * 2026-09-29 CPO 打回：本件原先硬编码 `https://omenx.lovable.app`——那不是任何一个活着的域，
+ * 二维码扫出去是死链；09-07 全站域名收敛（54a2e3df）时把 Leaderboard 漏了。
+ */
+const SHARE_ORIGIN = SITE_URL;
 
 const XLogo = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

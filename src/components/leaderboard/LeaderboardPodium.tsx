@@ -48,11 +48,16 @@ interface PodiumMetrics {
   crownTop: number;
   nameFont: number;
   nameGap: number;
+  /** 用户名行高（稿的文本框高）。不写 = 继承 font-display 的 1.5 行高，桌面会多出 9px 把下面整块压下去 */
+  nameLine: number;
   stackGap: number;
   plateIcon: number;
   platePad: number;
   plateRadius: number;
+  /** 奖杯底板底边 → 数值顶边（稿 Frame 8.y − Frame 6.h） */
   valueGap: number;
+  /** 数值底边 → 说明文字顶边（稿 caption.y − value.h） */
+  captionGap: number;
   valueFont: number;
   valueLine: number;
   captionFont: number;
@@ -82,12 +87,16 @@ const DESKTOP: PodiumMetrics = {
   crownLeft: 43.4,
   crownTop: -15.1,
   nameFont: 22,
+  nameLine: 24,
   nameGap: 11.333,
   stackGap: 32.969,
   plateIcon: 24.727,
   platePad: 10.303,
   plateRadius: 8.242,
-  valueGap: 9.272,
+  // 2026-09-29 CPO 打回：原先把「数值→说明」的 9.27 填进了这个槽，数值顶边比分隔线还高 6.8px，
+  // 线从数字中间穿过。稿：底板 45.33 → 数值 78.30，间距 32.97。
+  valueGap: 32.97,
+  captionGap: 9.27,
   valueFont: 24,
   valueLine: 32,
   captionFont: 11,
@@ -101,8 +110,11 @@ const MOBILE: PodiumMetrics = {
   reservedH: 160,
   colGap: 6,
   drop: { 1: 0, 2: 15.21, 3: 20.71 },
-  pedTop: 78.57,
-  pedH: 129.35,
+  // 2026-09-29 复核 711:33672：稿的移动台阶 = 桌面 SVG 非等比缩到 115×140.02（顶面 10.78 + 身 129.35），
+  // 顶边距列顶 67.11。原先把「身高 129.35」当成了整座台阶高、再按 colH 反推 pedTop，台阶整体低了 11.5、矮了 10.7，
+  // 分隔线跟着上浮、从数字里穿过。
+  pedTop: 67.11,
+  pedH: 140.02,
   avatar: 37.859,
   glowBlur: { 1: 1.577, 2: 1.993, 3: 1.993 },
   ringPad: { 1: 1.163, 2: 1.402, 3: 1.514 },
@@ -117,12 +129,15 @@ const MOBILE: PodiumMetrics = {
   crownLeft: 14.044,
   crownTop: -4.884,
   nameFont: 10,
+  nameLine: 11,
   nameGap: 3.667,
   stackGap: 10,
   plateIcon: 13.091,
   platePad: 5.455,
   plateRadius: 4.364,
-  valueGap: 6,
+  // 同桌面的槽位错位：稿 底板 24 → 数值 34.67，间距 10.67；数值→说明 6
+  valueGap: 10.67,
+  captionGap: 6,
   valueFont: 12,
   valueLine: 16,
   captionFont: 8,
@@ -255,7 +270,7 @@ const PodiumColumn = ({
 
           <div
             className="truncate text-center text-white"
-            style={{ fontSize: m.nameFont, fontWeight: 600, maxWidth: m.colW, paddingInline: 4 }}
+            style={{ fontSize: m.nameFont, lineHeight: `${m.nameLine}px`, fontWeight: 600, maxWidth: m.colW, paddingInline: 4 }}
           >
             {user.username}
           </div>
@@ -288,7 +303,7 @@ const PodiumColumn = ({
                 lineHeight: `${m.captionLine}px`,
                 fontWeight: 400,
                 color: "#9CA2AB",
-                marginTop: 2,
+                marginTop: m.captionGap,
               }}
             >
               {metricCaption(sortType)}
