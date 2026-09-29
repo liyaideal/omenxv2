@@ -28,7 +28,12 @@ import type { RefObject } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import rankArt from "@/assets/share/leaderboard-rank-art.webp";
 import { omenxLogo } from "@/components/Logo";
-import type { LeaderboardUser } from "./leaderboardKit";
+import { PERIOD_TABS, SORT_TABS, type LeaderboardUser, type PeriodType, type SortType } from "./leaderboardKit";
+
+/** 三个指标位各自的数值色（= 榜单表格里的色轴）；当前排名维度的格子拿它做 1px 描边 */
+const METRIC_COLOR: Record<SortType, string> = { pnl: "#CFFF4A", roi: "#33D6FF", volume: "#FFFFFF" };
+export const sortLabel = (s: SortType) => SORT_TABS.find((x) => x.key === s)?.label ?? s.toUpperCase();
+export const periodLabel = (p: PeriodType) => PERIOD_TABS.find((x) => x.key === p)?.label ?? p;
 
 const BODY_FONT = "system-ui, -apple-system, sans-serif";
 const NUM_FONT = "'Courier New', Courier, monospace";
@@ -38,13 +43,24 @@ const Stat = ({
   value,
   color,
   size,
+  ranked,
 }: {
   label: string;
   value: string;
   color: string;
   size: number;
+  /** 这一格就是海报上 #N 所指的维度：加 1px 同色描边，把名次和指标钉在一起 */
+  ranked?: boolean;
 }) => (
-  <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: 12, padding: 12, textAlign: "center" }}>
+  <div
+    style={{
+      background: "rgba(255,255,255,0.05)",
+      borderRadius: 12,
+      padding: 12,
+      textAlign: "center",
+      boxShadow: ranked ? `inset 0 0 0 1px ${color}` : undefined,
+    }}
+  >
     <div style={{ fontSize: 13, lineHeight: "15px", color: "#9CA2AB" }}>{label}</div>
     <div
       style={{
@@ -63,12 +79,17 @@ const Stat = ({
 
 export const RankShareCard = ({
   user,
+  sortType,
+  period,
   referralCode,
   shareHost,
   shareUrl,
   cardRef,
 }: {
   user: LeaderboardUser;
+  /** #N 是哪个榜（PNL / ROI / Volume）、哪个时间范围的名次——海报必须把这两个写出来（CPO 2026-09-29） */
+  sortType: SortType;
+  period: PeriodType;
   referralCode: string;
   shareHost: string;
   shareUrl: string;
@@ -187,7 +208,8 @@ export const RankShareCard = ({
           >
             {user.username}
           </div>
-          <div style={{ marginTop: 4, display: "flex", alignItems: "center", gap: 8 }}>
+          {/* 胶囊 + 周期/成交数 放不下（Volume · 180 Days、或多语言更长的标签）就换行，不许溢出卡边 */}
+          <div style={{ marginTop: 4, display: "flex", alignItems: "center", flexWrap: "wrap", columnGap: 8, rowGap: 4 }}>
             <span
               style={{
                 display: "inline-block",
@@ -198,24 +220,29 @@ export const RankShareCard = ({
                 fontSize: 14,
                 fontWeight: 700,
                 lineHeight: "20px",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
               }}
             >
-              #{user.rank}
+              #{user.rank} · {sortLabel(sortType)}
             </span>
-            <span style={{ fontSize: 14, lineHeight: "20px", color: "#9CA2AB" }}>{user.trades} trades</span>
+            <span style={{ fontSize: 14, lineHeight: "20px", color: "#9CA2AB", whiteSpace: "nowrap" }}>
+              {periodLabel(period)} · {user.trades} trades
+            </span>
           </div>
         </div>
       </div>
 
       <div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8 }}>
-          <Stat label={t("common.pnl")} value={`$${Math.round(user.pnl).toLocaleString("en-US")}`} color="#CFFF4A" size={15} />
-          <Stat label={t("market.roi")} value={`${user.roi.toFixed(1)}%`} color="#33D6FF" size={15} />
+          <Stat label={t("common.pnl")} value={`$${Math.round(user.pnl).toLocaleString("en-US")}`} color={METRIC_COLOR.pnl} size={15} ranked={sortType === "pnl"} />
+          <Stat label={t("market.roi")} value={`${user.roi.toFixed(1)}%`} color={METRIC_COLOR.roi} size={15} ranked={sortType === "roi"} />
           <Stat
             label={t("market.volume")}
             value={`$${Math.round(user.volume).toLocaleString("en-US")}`}
-            color="#FFFFFF"
+            color={METRIC_COLOR.volume}
             size={15}
+            ranked={sortType === "volume"}
           />
         </div>
 

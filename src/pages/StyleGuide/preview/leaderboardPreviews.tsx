@@ -241,20 +241,40 @@ export const RankLocatorGuestPreview = () => <LocatorHost isLoggedIn={false} var
 
 export const ShareModalPreview = () => (
   <OverlayBox height={680}>
-    <ShareRankModal isOpen onClose={noop} user={ME} referralCode="75CN66" isMobile={false} />
+    <ShareRankModal isOpen onClose={noop} user={ME} sortType="pnl" period="7d" referralCode="75CN66" isMobile={false} />
   </OverlayBox>
 );
 
 export const ShareDrawerMobilePreview = () => (
   <OverlayBox height={760}>
-    <ShareRankModal isOpen onClose={noop} user={ME} referralCode="75CN66" isMobile />
+    <ShareRankModal isOpen onClose={noop} user={ME} sortType="pnl" period="7d" referralCode="75CN66" isMobile />
   </OverlayBox>
+);
+
+/** LB-20b · 三个榜各自的分享卡并排（#N · 维度 胶囊 + 周期，对应格子描边） */
+export const RankShareCardDimensionsPreview = () => (
+  <div className="flex flex-wrap gap-4 p-6">
+    {(["pnl", "roi", "volume"] as const).map((s, i) => (
+      <div key={s} style={{ width: 336 }}>
+        <RankShareCard
+          user={{ ...ME, rank: [13, 7, 21][i] }}
+          sortType={s}
+          period={(["7d", "30d", "daily"] as const)[i]}
+          referralCode="75CN66"
+          shareHost="omenx.com"
+          shareUrl="https://omenx.com?ref=75CN66"
+        />
+      </div>
+    ))}
+  </div>
 );
 
 export const RankShareCardPreview = () => (
   <div className="p-6" style={{ maxWidth: 384 }}>
     <RankShareCard
       user={ME}
+      sortType="pnl"
+      period="7d"
       referralCode="75CN66"
       shareHost="omenx.com"
       shareUrl="https://omenx.com?ref=75CN66"

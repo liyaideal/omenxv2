@@ -625,6 +625,7 @@ export const previewRegistry: Record<string, Loader> = {
   "leaderboard-share-modal": pick(leaderboard, "ShareModalPreview"),
   "leaderboard-share-drawer": pick(leaderboard, "ShareDrawerMobilePreview"),
   "leaderboard-share-card": pick(leaderboard, "RankShareCardPreview"),
+  "leaderboard-share-card-dimensions": pick(leaderboard, "RankShareCardDimensionsPreview"),
 
   "settings-page-guest": pick(settings, "SettingsPageGuestPreview"),
   "settings-page-loading": pick(settings, "SettingsPageLoadingPreview"),

@@ -203,6 +203,8 @@ export default function Leaderboard() {
       isOpen={isShareModalOpen}
       onClose={() => setIsShareModalOpen(false)}
       user={currentUser || topThree[0]}
+      sortType={sortType}
+      period={period}
       referralCode={referralCode || "OMENX2025"}
       isMobile={isMobile}
     />
