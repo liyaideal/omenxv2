@@ -34,6 +34,11 @@ import { PERIOD_TABS, SORT_TABS, type LeaderboardUser, type PeriodType, type Sor
 const METRIC_COLOR: Record<SortType, string> = { pnl: "#CFFF4A", roi: "#33D6FF", volume: "#FFFFFF" };
 export const sortLabel = (s: SortType) => SORT_TABS.find((x) => x.key === s)?.label ?? s.toUpperCase();
 export const periodLabel = (p: PeriodType) => PERIOD_TABS.find((x) => x.key === p)?.label ?? p;
+/** 海报胶囊用的短周期：Daily→1D、7 Days→7D、30 Days→30D、180 Days→180D（CPO 2026-09-29） */
+export const periodShort = (p: PeriodType) => (p === "daily" ? "1D" : p.toUpperCase());
+/** 胶囊文案：`#13 · 7D PNL`（名次 + 周期 + 榜），一行说清是什么名次 */
+export const rankBadgeText = (rank: number, sortType: SortType, period: PeriodType) =>
+  `#${rank} · ${periodShort(period)} ${sortLabel(sortType)}`;
 
 const BODY_FONT = "system-ui, -apple-system, sans-serif";
 const NUM_FONT = "'Courier New', Courier, monospace";
@@ -208,8 +213,8 @@ export const RankShareCard = ({
           >
             {user.username}
           </div>
-          {/* 胶囊 + 周期/成交数 放不下（Volume · 180 Days、或多语言更长的标签）就换行，不许溢出卡边 */}
-          <div style={{ marginTop: 4, display: "flex", alignItems: "center", flexWrap: "wrap", columnGap: 8, rowGap: 4 }}>
+          {/* 名次 + 周期 + 榜 一颗胶囊说清（CPO 2026-09-29：去掉 trades，不要第二行） */}
+          <div style={{ marginTop: 4, display: "flex", alignItems: "center" }}>
             <span
               style={{
                 display: "inline-block",
@@ -224,10 +229,7 @@ export const RankShareCard = ({
                 flexShrink: 0,
               }}
             >
-              #{user.rank} · {sortLabel(sortType)}
-            </span>
-            <span style={{ fontSize: 14, lineHeight: "20px", color: "#9CA2AB", whiteSpace: "nowrap" }}>
-              {periodLabel(period)} · {user.trades} trades
+              {rankBadgeText(user.rank, sortType, period)}
             </span>
           </div>
         </div>

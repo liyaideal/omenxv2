@@ -86,7 +86,7 @@
 桌面 384 居中浮层（底 `#14161A`、描边 `#1C1F26`、圆角 16、padding 20）；**移动端走 MobileDrawer**，不是居中弹窗（`DESIGN.md` §5 Mobile-zero-Dialog）。
 四渠道 2×2 各 167×46（Save / Copy Link / X / Telegram）+ 主按钮 `More Options`。
 分享卡 342×345 受 `DESIGN.md` §Addendum 2026-09-07「Lite 分享海报」LOCKED 约束：艺术底由设计导出且压暗层已烘进像素（**禁止用 CSS 渐变复刻**）、正文 `system-ui` + 数字 `Courier New`（**禁网络字体**，导出走 `skipFonts: true`）、盈利色 volt、OMENX 字标等比 11 高（按卡宽占比折算，原"固定 18"作废）。
-**名次必须带榜别与周期（CPO 2026-09-29 补，稿未画）**：同一个人在 PNL / ROI / Volume 三个榜 × 四个时间范围上各有名次，海报只印 `#13` 无法说明是哪个榜。胶囊改为 `#N · <榜>`（PNL / ROI / Volume），下一行 `<周期> · M trades`（Daily / 7 Days / 30 Days / 180 Days）；三格里被排名的那一格加 1px 同色内描边。分享文案同步：`🏆 #N in <榜> (<周期>) on the OMENX leaderboard — $… PnL, …% ROI.`。榜别与周期取自打开弹窗时筛选行的当前选择。
+**名次必须带榜别与周期（CPO 2026-09-29 补，稿未画）**：同一个人在 PNL / ROI / Volume 三个榜 × 四个时间范围上各有名次，海报只印 `#13` 无法说明是哪个榜。胶囊改为一颗说清的 `#N · <周期短码> <榜>`，如 `#13 · 7D PNL`（周期 Daily→1D / 7 Days→7D / 30 Days→30D / 180 Days→180D，榜名 PNL / ROI / Volume）；**成交笔数从卡上去掉**，胶囊下不再有第二行；三格里被排名的那一格加 1px 同色内描边。分享文案同步：`🏆 #13 · 7D PNL on the OMENX leaderboard — $… PnL, …% ROI.`。榜别与周期取自打开弹窗时筛选行的当前选择。
 
 ## 3. 色值口径（容易踩的一条）
 

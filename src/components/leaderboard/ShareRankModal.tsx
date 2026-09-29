@@ -15,7 +15,7 @@ import * as htmlToImage from "html-to-image";
 import { MobileDrawer } from "@/components/ui/mobile-drawer";
 import { SITE_URL } from "@/lib/site";
 import { useToast } from "@/hooks/use-toast";
-import { RankShareCard, periodLabel, sortLabel } from "./RankShareCard";
+import { RankShareCard, rankBadgeText } from "./RankShareCard";
 import type { LeaderboardUser, PeriodType, SortType } from "./leaderboardKit";
 
 /**
@@ -71,7 +71,7 @@ export const ShareRankModal = ({
   // 卡上印的是品牌域（与 SharePosterLayout qrLabel / LitePnlPoster 一致），二维码才编码 SITE_URL 活链。
   // 2026-09-29 CPO 打回：印 window.origin 会在预览站印出 id-preview--xxxx 长串并把二维码框撑宽。
   const shareHost = "omenx.com";
-  const shareText = `🏆 #${user.rank} in ${sortLabel(sortType)} (${periodLabel(period)}) on the OMENX leaderboard — $${Math.round(
+  const shareText = `🏆 ${rankBadgeText(user.rank, sortType, period)} on the OMENX leaderboard — $${Math.round(
     user.pnl
   ).toLocaleString("en-US")} PnL, ${user.roi.toFixed(1)}% ROI.`;
 

@@ -863,9 +863,8 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | `Ranked by PNL, ROI and volume across all traders.` | ② Your Ranking（未登录）副行 | 说明排名依据的三个指标。 |
 | `See where you rank` | ① 浮动定位器（未登录） | 同上语义的紧凑版；右侧配 `Sign in` 按钮。 |
 | `My ranking · #N · M trades` | ② Your Ranking（已排名）副行 | `#N` 取 PNL 指标名次；`M` 为成交笔数。 |
-| `#N · PNL` / `#N · ROI` / `#N · Volume` | 分享卡名次胶囊 | 榜名取筛选行标签原文；中点 `·` 前后各一空格。2026-09-29 起带榜名，单独 `#N` 作废。 |
-| `7 Days · M trades` | 分享卡胶囊下一行 | 周期取筛选行标签（Daily / 7 Days / 30 Days / 180 Days）。 |
-| `🏆 #N in PNL (7 Days) on the OMENX leaderboard — $X PnL, Y% ROI.` | 分享到 X / Telegram / 系统分享的文案 | 榜名与周期同卡面。 |
+| `#13 · 7D PNL` | 分享卡名次胶囊 | 格式 `#N · <周期短码> <榜>`。周期短码：Daily→`1D`、7 Days→`7D`、30 Days→`30D`、180 Days→`180D`；榜名取筛选行标签原文（PNL / ROI / Volume）；中点 `·` 前后各一空格。2026-09-29 起；单独 `#N` 与 `M trades` 行作废。 |
+| `🏆 #13 · 7D PNL on the OMENX leaderboard — $X PnL, Y% ROI.` | 分享到 X / Telegram / 系统分享的文案 | 胶囊文案原样带入。 |
 | `↑N ranks` / `—` / `↓N ranks` | 榜单 CHANGE 列 | 名次相对上一周期的变化。涨用 MONEY 绿、平用 secondary、跌用 MONEY 红。单数时用 `rank`。 |
 | ~~`4–13 of 30`~~ | ~~分页区间~~ | 2026-09-29 作废：榜单 Top 30 平铺不分页，无区间文案。 |
 | `PNL (USD)` / `ROI` / `Volume (USD)` | 表头与领奖台副标 | 随指标切换；表头全大写，领奖台副标首字母大写。 |

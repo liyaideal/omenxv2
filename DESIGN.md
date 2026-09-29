@@ -2117,7 +2117,7 @@ Leaderboard 属 BROWSE 家族，但开场是营销 hero 位图、字标烘在像
 
 **6 · 分享面收编**
 Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED] Mobile-zero-Dialog）；生产原先的居中浮层是存量违规，本轮一并收编。分享卡 `RankShareCard` 受 §Addendum 2026-09-07「Lite 分享海报」全条约束（自包含 / volt / system-ui + Courier New / 艺术底烘好禁 CSS 复刻 / 字标等比 11 高（§Addendum 2026-09-07 第 6 条③ 2026-09-22 重写））。旧的 Card Style 四主题与 Show Stats 三开关同轮删除（CPO 批）。
-**分享卡名次必须带榜别与周期（CPO 2026-09-29 补，稿未画）**：胶囊 `#N · <榜>`、下一行 `<周期> · M trades`、被排名的那一格 1px 同色内描边；胶囊与灰字放不下自动换行，不许溢出卡边。理由：同一用户在 3 榜 × 4 周期上各有名次，裸 `#N` 分享出去无法说明是什么名次。
+**分享卡名次必须带榜别与周期（CPO 2026-09-29 补，稿未画）**：胶囊一颗写全 `#N · <周期短码> <榜>`（如 `#13 · 7D PNL`；Daily→1D / 7 Days→7D / 30 Days→30D / 180 Days→180D），**成交笔数不上卡、不出第二行**；被排名的那一格 1px 同色内描边。理由：同一用户在 3 榜 × 4 周期上各有名次，裸 `#N` 分享出去无法说明是什么名次。
 
 **7 · 页面底部留白取 40，不取稿的 137（LOCKED，不重议）**
 设计稿 desktop 把 Footer 放在 y1956，Your Ranking 收底 1819，即底部留白 137。全站 Lite 页（Settings / Wallet / Transparency / RecoveryRequest）一律 `max-w-7xl px-4 py-10`，底部 40。本页 `pb-10` 与之一致。

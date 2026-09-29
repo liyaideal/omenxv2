@@ -246,18 +246,18 @@ const SHARE_CARD: SectionCase[] = [
       { state: "字体", when: "恒", visual: "正文 system-ui / -apple-system，数字 'Courier New'。**禁网络字体**——导出 skipFonts:true，Archivo / Space Grotesk 会 fallback 导致预览与出图不一致", source: "§Addendum 2026-09-07 第 3 条" },
       { state: "盈利色", when: "恒", visual: "PnL 用 volt #CFFF4A（= --trading-green），不是稿上的 #D5FF4D", source: "§Addendum 2026-09-07 第 2 条" },
       { state: "字标", when: "恒", visual: "OMENX 一律等比，高度按本卡稿的画布占比折算 = 11px（稿 9.92/314 × 336）；原「固定 18px」已作废", source: "§Addendum 2026-09-07 第 6 条③（2026-09-22 重写）" },
-      { state: "名次徽章", when: "恒", visual: "胶囊文案 `#N · <榜>`（PNL / ROI / Volume，取筛选行的标签），品牌渐变 `linear-gradient(150.75deg, #CFFF4A, #33D6FF)` 黑字全圆、不换行；下一行灰字 `<周期> · M trades`（Daily / 7 Days / 30 Days / 180 Days）。胶囊 + 灰字放不下自动换行，不许溢出卡边", source: "CPO 2026-09-29：海报必须写清是哪个榜、哪个时间范围的名次" },
+      { state: "名次徽章", when: "恒", visual: "胶囊一颗说清：`#N · <周期短码> <榜>`，如 `#13 · 7D PNL`（周期 Daily→1D / 7 Days→7D / 30 Days→30D / 180 Days→180D；榜名取筛选行标签 PNL / ROI / Volume），品牌渐变 `linear-gradient(150.75deg, #CFFF4A, #33D6FF)` 黑字全圆、不换行。**不再印成交笔数**，胶囊下无第二行", source: "CPO 2026-09-29：海报必须写清是哪个榜、哪个时间范围的名次；trades 去掉、不要两行" },
       { state: "维度格描边", when: "sortType === 该格", visual: "三格里 #N 所指的那一格加 1px 同色内描边（PnL volt / ROI cyan / Volume 白），把名次和指标钉在一起；另两格不描", source: "RankShareCard Stat.ranked" },
     ],
   },
   {
     key: "leaderboard-share-card-dimensions",
     label: "LB-20b · 分享卡 · 三个榜 × 不同周期并排",
-    note: "同一用户在 PNL · 7 Days / ROI · 30 Days / Volume · Daily 三个榜上各自的名次卡。胶囊写榜名、灰字写周期、对应格描边——三张卡一眼分得开。",
+    note: "同一用户在 7D PNL / 30D ROI / 1D Volume 三个榜上各自的名次卡。一颗胶囊写全名次 + 周期 + 榜，对应格描边——三张卡一眼分得开。",
     spec: [
-      { state: "PNL 榜", when: "sortType=pnl", visual: "`#13 · PNL` + `7 Days · 52 trades`；PnL 格 volt 描边", source: "—" },
-      { state: "ROI 榜", when: "sortType=roi", visual: "`#7 · ROI` + `30 Days · 52 trades`；ROI 格 cyan 描边", source: "—" },
-      { state: "Volume 榜", when: "sortType=volume", visual: "`#21 · Volume` + `Daily · 52 trades`；Volume 格白描边", source: "—" },
+      { state: "PNL 榜", when: "sortType=pnl", visual: "`#13 · 7D PNL`；PnL 格 volt 描边", source: "—" },
+      { state: "ROI 榜", when: "sortType=roi", visual: "`#7 · 30D ROI`；ROI 格 cyan 描边", source: "—" },
+      { state: "Volume 榜", when: "sortType=volume", visual: "`#21 · 1D Volume`；Volume 格白描边", source: "—" },
     ],
   },
 ];
