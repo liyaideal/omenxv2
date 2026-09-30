@@ -30,7 +30,7 @@
 
 1. **"Crowd was right" 不是平台准不准**，是多数派押的那边最后赢没赢。5 分钟轮约 50%（掷硬币），1 小时轮 55–56%，Tesla 日盘只有 40%。坏数字不藏——数据页藏坏数字反而没人信。
 2. 首页 Crypto 行显示的是**最快要结算的那一轮**（通常 5m），不是某个固定轮长；资产页 01 表的 Now 列才是五种轮长各自此刻的多数派。
-3. Lovable 上体育没有结算历史，运动页"过去"块（热门胜率 / 最大冷门）会显示"no settled matches"，正式版有数据后自动填。
+3. Lovable 的体育演示引擎结算后立刻把比赛改期重跑，结算历史本来留不下来。2026-09-30 起结算前先归档一份（`SPORTS_RESULT` 行，含胜者盘 + 最接近 2.5 的大小球线），Insights 只读归档行，公共 Resolved 列表不显示它们；另种了 18 场（14 足球 + 4 电竞，`res-seed-*`）作 30 天历史。正式版直接用真实结算记录，不需要归档表。
 4. 演示赛事 `end_date = 2126` 已在数据层排除（`buildRows` + `buildFixtures` 都过滤 > 1 年）。
 
 ## 1. 数据层（`supabase/migrations/20260928200000_insights_series_v1.sql`，已在 Lovable Cloud 执行）
@@ -41,6 +41,7 @@
 | `insights_series_list()` | 首页 / hub：每资产的下一轮 + 今日 / 30 天命中率 + 24h 量 |
 | `insights_series_detail(p_slug)` | 资产页：live（每种轮长各一）· today · longest_run_today · by_len（30d）· recent 10（主轮长：crypto 15m / 股票日盘） |
 | `insights_accuracy(p_from, p_to)` | 报告页 + 首页 05：总命中、按资产（≥5 轮）、按轮长（crypto） |
+| `archive_sports_result(p_id)`（迁移 `20260930100000`） | 体育结算归档：`roll_sports_matches` 改期前调用，复制胜者盘 + 大小球线为 `SPORTS_RESULT` 行 |
 
 全部 `SECURITY DEFINER` 聚合，只读 `events` + `event_options`，无个人数据。前端 60s 轮询（报告页 5 min，冻结月报不轮询）。
 
@@ -70,7 +71,7 @@
 2. 市场 canonical `/event/{slug}`；Lovable 端 `roundTradePath()` / `marketPath()` 各一处
 3. sitemap 动态：19 个资产页 + 运动页 + 每月报告 + 每日日报
 4. 快照 15 分钟（v1 §4 第 5 条）；`insights_series_*` 建议物化或缓存 60s（基表扫 35 天，Lovable 上 ~4k 行没问题，正式版按量评估）
-5. 体育结算历史：`favouriteWon` 取 winner 市场的 `is_winner`，平局算热门输
+5. 体育结算历史：`favouriteWon` 取 winner 市场的 `is_winner`，平局算热门输；"Went over the line" 取大小球线的胜方是否为 Over。正式版无需 `SPORTS_RESULT` 归档，直接读真实结算
 
 ## 5. 待删（Lovable 端无删权限）
 

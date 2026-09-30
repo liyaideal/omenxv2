@@ -12,6 +12,8 @@ export interface Fixture {
   main: EventWithOptions; favourite: { label: string; price: number } | null;
   line: { label: string; price: number; kind: "goals" | "maps" | "points" | "rounds" } | null;
   volume: number; settled: boolean; favouriteWon: boolean | null; draw: boolean;
+  /** Settled totals line: did Over win? null when no total line or not settled. */
+  overWon: boolean | null;
 }
 
 export const SPORT_LABEL: Record<string, string> = { soccer: "Soccer", esports: "Esports", tennis: "Tennis", basketball: "Basketball", mma: "MMA", football: "American football", baseball: "Baseball", hockey: "Ice hockey", cricket: "Cricket" };
@@ -27,7 +29,7 @@ const lineKind = (meta: FixtureMeta): "goals" | "maps" | "points" | "rounds" => 
 export const buildFixtures = (events: EventWithOptions[], now = Date.now()): Fixture[] => {
   const groups = new Map<string, EventWithOptions[]>();
   for (const e of events) {
-    if (e.event_subtype !== "SPORTS_MATCH") continue;
+    if (e.event_subtype !== "SPORTS_MATCH" && e.event_subtype !== "SPORTS_RESULT") continue;
     if (e.end_date && new Date(e.end_date).getTime() - now > 365 * 864e5) continue; // demo fixtures parked in 2126
     const m = fixtureMeta(e); const key = m.fixture_id ?? e.id;
     (groups.get(key) ?? groups.set(key, []).get(key)!).push(e);
@@ -41,7 +43,8 @@ export const buildFixtures = (events: EventWithOptions[], now = Date.now()): Fix
     const totals = list.filter((e) => fixtureMeta(e).market_type === "total").sort((a, b) => Math.abs((fixtureMeta(a).line ?? 0) - 2.5) - Math.abs((fixtureMeta(b).line ?? 0) - 2.5));
     const tot = totals[0] ?? null;
     let line: Fixture["line"] = null;
-    if (tot && tot.options.length) { const o = [...tot.options].map((x) => ({ ...x, price: Number(x.price) })).sort((a, b) => b.price - a.price)[0]; line = { label: `${o.label}`, price: o.price, kind: lineKind(fixtureMeta(tot)) }; }
+    let overWon: boolean | null = null;
+    if (tot && tot.options.length) { const o = [...tot.options].map((x) => ({ ...x, price: Number(x.price) })).sort((a, b) => b.price - a.price)[0]; line = { label: `${o.label}`, price: o.price, kind: lineKind(fixtureMeta(tot)) }; const tw = tot.is_resolved ? tot.options.find((x) => x.is_winner) : null; overWon = tw ? /^over/i.test(tw.label) : null; }
     const winner = main.is_resolved ? main.options.find((o) => o.is_winner) ?? null : null;
     out.push({
       id: key, name: m.home && m.away ? `${m.home} vs ${m.away}` : main.name.split(" —")[0],
@@ -49,7 +52,7 @@ export const buildFixtures = (events: EventWithOptions[], now = Date.now()): Fix
       live: isFixtureLive(main, now), minute: m.minute ?? null, phase: m.phase ?? null, score: m.score ?? null,
       main, favourite: fav ? { label: fav.label, price: fav.price } : null, line,
       volume: list.reduce((s, e) => s + (Number(e.volume) || 0), 0),
-      settled: !!main.is_resolved, favouriteWon: winner && fav ? winner.id === fav.id : null, draw: !!winner && /^draw$/i.test(winner.label),
+      settled: !!main.is_resolved, favouriteWon: winner && fav ? winner.id === fav.id : null, draw: !!winner && /^draw$/i.test(winner.label), overWon,
     });
   }
   return out.sort((a, b) => Number(b.live) - Number(a.live) || (+new Date(a.kickoff ?? 0)) - (+new Date(b.kickoff ?? 0)));

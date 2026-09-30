@@ -20,7 +20,7 @@ const InsightsSportsPage = () => {
   const { sport } = useParams();
   const [now] = useState(() => new Date());
   const [win] = useState(() => ({ from: new Date(now.getTime() - 30 * DAY), to: now }));
-  const seo = useInsightsSeo(win, { includeResolved: true });
+  const seo = useInsightsSeo(win, { includeResolved: true, resolvedSubtypes: ["SPORTS_RESULT", "SPORTS_MATCH"] });
   const all = buildFixtures(seo.events, now.getTime());
   const settledAll = buildFixtures(seo.resolvedEvents, now.getTime()).filter((f) => f.settled);
   const sports = [...new Set([...all, ...settledAll].map((f) => f.sport))];
@@ -65,7 +65,7 @@ const InsightsSportsPage = () => {
                 { l: "Matches this week", v: fmtInt(list.filter((f) => f.live || (f.kickoff && new Date(f.kickoff).getTime() - now.getTime() < 7 * DAY)).length), d: `${leagues.length} leagues · ${live.length} live now` },
                 { l: "Favourite won in", v: favWinPct == null ? "—" : <Hit v={favWinPct} big />, unit: favWinPct == null ? undefined : "of matches", d: favWon.length ? `last 30 days · ${favWon.length} settled` : "no settled matches in the last 30 days yet" },
                 { l: "Biggest upset", v: upset ? <span className="text-[18px] md:text-[20px]">{upset.name}{upset.score ? ` · ${upset.score}` : ""}</span> : "—", d: upset ? <>{upset.favourite!.label} was priced <b>{c(upset.favourite!.price)}</b> to win</> : "none in the window" },
-                { l: "Went over the line", v: settled.filter((f) => f.line).length ? `${Math.round((100 * settled.filter((f) => f.line && /^over/i.test(f.line.label)).length) / settled.filter((f) => f.line).length)}%` : "—", unit: settled.filter((f) => f.line).length ? "of matches" : undefined, d: "totals line · last 30 days" },
+                { l: "Went over the line", v: settled.filter((f) => f.overWon != null).length ? `${Math.round((100 * settled.filter((f) => f.overWon).length) / settled.filter((f) => f.overWon != null).length)}%` : "—", unit: settled.filter((f) => f.overWon != null).length ? "of matches" : undefined, d: "totals line · last 30 days" },
               ]} />
             </div>
           </div>

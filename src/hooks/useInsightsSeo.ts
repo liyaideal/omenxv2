@@ -24,7 +24,7 @@ interface State {
 
 const HOUR = 36e5;
 
-export const useInsightsSeo = (win: InsightsWindow, opts: { sparklineIds?: (rows: MarketRow[]) => string[]; includeResolved?: boolean } = {}) => {
+export const useInsightsSeo = (win: InsightsWindow, opts: { sparklineIds?: (rows: MarketRow[]) => string[]; includeResolved?: boolean; resolvedSubtypes?: string[] } = {}) => {
   const [s, setS] = useState<State>({ stats: null, events: [], resolvedEvents: [], activity: new Map(), movers: new Map(), series: new Map(), isLoading: true, error: null });
   const fromIso = win.from.toISOString();
   const toIso = win.to.toISOString();
@@ -39,7 +39,7 @@ export const useInsightsSeo = (win: InsightsWindow, opts: { sparklineIds?: (rows
           supabase.rpc("insights_event_activity", { p_from: fromIso, p_to: toIso }),
           supabase.rpc("insights_movers", { p_from: fromIso, p_to: toIso }),
           opts.includeResolved
-            ? supabase.from("events").select("*").eq("is_resolved", true).gte("settled_at", fromIso).lt("settled_at", toIso).order("settled_at", { ascending: false }).limit(50)
+            ? (opts.resolvedSubtypes ? supabase.from("events").select("*").eq("is_resolved", true).in("event_subtype", opts.resolvedSubtypes) : supabase.from("events").select("*").eq("is_resolved", true)).gte("settled_at", fromIso).lt("settled_at", toIso).order("settled_at", { ascending: false }).limit(200)
             : Promise.resolve({ data: [], error: null }),
         ]);
         if (eventsRes.error) throw eventsRes.error;
@@ -84,7 +84,7 @@ export const useInsightsSeo = (win: InsightsWindow, opts: { sparklineIds?: (rows
     })();
     return () => { alive = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fromIso, toIso, opts.includeResolved]);
+  }, [fromIso, toIso, opts.includeResolved, (opts.resolvedSubtypes ?? []).join(",")]);
 
   const rows = useMemo(() => buildRows(s.events, s.activity, s.movers, s.series), [s.events, s.activity, s.movers, s.series]);
   return { ...s, rows };

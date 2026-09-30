@@ -52,7 +52,9 @@ export const useResolvedEvents = (options: UseResolvedEventsOptions = {}) => {
           *,
           event_options (*)
         `)
-        .eq("is_resolved", true);
+        .eq("is_resolved", true)
+        // Insights archive rows (SPORTS_RESULT, settled copies the demo roller would otherwise wipe) stay out of the public Resolved list.
+        .neq("event_subtype", "SPORTS_RESULT");
 
       if (category !== "all") {
         query = query.eq("category", category);
