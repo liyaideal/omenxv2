@@ -17,6 +17,17 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-09-28 — 语言切换入口 LE-1（[文档](../delivery/language-entry-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| LE-1 | 桌面顶栏 `LanguageChip`（未登录 Sign In 左 / 登录后 Equity 左，lg 起显示；头像菜单 Language 子菜单删） | ✅ | Lovable 已上线 |
+| LE-2 | 移动品牌栏右槽 🌐 → `LanguageDrawer`；Me 抽屉加 Language 行 | ✅ | |
+| LE-3 | Settings › Preferences 改用同一语言列表（灰短码 + 本名 + ✓） | ✅ | |
+| LE-4 | 行为：点选即生效 + toast；登录后 profile 无语言时带入游客选值 | ✅ | |
+| LE-5 | 字典 Settings Ⓚ ST-32…35 + DESIGN §Addendum 2026-09-28 | ✅ | |
+| LE-6 | 研发交付（Meegle）：只交付入口，不含 i18n key | ✅ | 2026-09-30 已发；正式版切换 = 整站文案 + 邮件语言，页面翻译不在本轮 |
+
 ## 2026-09-28 晚 — Insights v2 资产序列 / 运动 / 命中率（[文档](../delivery/lite-insights-seo-v2.md)）
 
 | # | 项 | Status | Notes |
@@ -30,7 +41,7 @@
 | IS2-7 | 周报下线（301 → accuracy）、v1 表格改 v7 语法、CHK-3 pill 修 | ✅ | |
 | IS2-8 | 字典 IN-9…14 + DESIGN 附录 | ✅ | sg:audit PASS |
 | IS2-9 | **真平台**：六种页面 SSR / 预渲染 + 动态 sitemap + `/event/{slug}` | ⬜ | 研发 |
-| IS2-10 | 删旧文件 `InsightsWeeklyPage.tsx`、`pages/InsightsPage.tsx`（旧）、`components/insights/` | ⬜ | Liya 手删 |
+| IS2-10 | 删旧文件 `InsightsWeeklyPage.tsx`、`pages/InsightsPage.tsx`（旧）、`components/insights/` | ✅ | 2026-09-30 已删，tsc 绿 |
 
 ## 2026-09-28 — Insights SEO/GEO 数据页（[文档](../delivery/lite-insights-seo-v1.md)）
 
@@ -45,7 +56,7 @@
 | IS-7 | **真平台**：SSR / 预渲染四类 URL；动态 sitemap（日报 / 周报 / 市场页） | ⬜ | 研发；Lovable 不做 |
 | IS-8 | **真平台**：市场 canonical `/event/{slug}`，老 `/trade?event=` 301；Lovable 端 `marketPath()` 一处 | ⬜ | 研发 |
 | IS-9 | `insights.*` 150 条 6 语翻译并入总表 | ⬜ | 随 i18n 二期追加批 |
-| IS-10 | 删旧文件 `pages/InsightsPage.tsx`、`components/insights/` | ⬜ | Liya 手删（Lovable 端无删权限） |
+| IS-10 | 删旧文件 `pages/InsightsPage.tsx`、`components/insights/` | ✅ | 2026-09-30 已删（并入 IS2-10） |
 
 ## 2026-09-24 — 交易页一体化 · 研发问题 18 条 DQ（[文档](../delivery/trade-lite-pro-v1.md#11-验收记录)）
 

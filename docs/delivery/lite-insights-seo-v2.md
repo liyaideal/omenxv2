@@ -49,7 +49,7 @@
 
 - `src/lib/insights/series.ts`（类型 / slug / 轮长文案 / 引用句）· `src/lib/insights/sports.ts`（比赛聚合：fixture_id 分组，热门 = winner 市场最高价，线 = 最接近 2.5 的 total）· `src/hooks/useInsightsSeries.ts`
 - `src/components/insightsSeo/seriesParts.tsx`：SeriesOpening / LiveCard / FourTiles / Strip / UpDownPair / MajorityTag / FavTag / Hit / Table·Th·Td / List·Row·Name·Chip / PlatformLine / HowComputed / Cite / StickyCta
-- 页面：`InsightsPage`（重写）· `InsightsAssetPage` · `InsightsFamilyPage` · `InsightsSportsPage` · `InsightsAccuracyPage`；`InsightsWeeklyPage` 路由改 301 到 `/insights/accuracy`（文件待删）
+- 页面：`InsightsPage`（重写）· `InsightsAssetPage` · `InsightsFamilyPage` · `InsightsSportsPage` · `InsightsAccuracyPage`；`InsightsWeeklyPage` 已删，路由 301 到 `/insights/accuracy`
 - v1 `MarketTable` 按 v7 语法重排（无 Price 列 / 无折线 / 无箭头列，`+9% today`，移动端列表行）；`PricePills` 第二枚改 `--no`（修 CHK-3）
 - `MobileHeader` 新增 `titleAs="div"`：Insights 路由下标题不再是第二个 `<h1>`（G1）
 - 引用句冠词 `an 87%`（G3）
@@ -73,6 +73,6 @@
 4. 快照 15 分钟（v1 §4 第 5 条）；`insights_series_*` 建议物化或缓存 60s（基表扫 35 天，Lovable 上 ~4k 行没问题，正式版按量评估）
 5. 体育结算历史：`favouriteWon` 取 winner 市场的 `is_winner`，平局算热门输；"Went over the line" 取大小球线的胜方是否为 Over。正式版无需 `SPORTS_RESULT` 归档，直接读真实结算
 
-## 5. 待删（Lovable 端无删权限）
+## 5. 已删（2026-09-30）
 
-`src/pages/insights/InsightsWeeklyPage.tsx`、`src/pages/InsightsPage.tsx`（旧）、`src/components/insights/`。
+`src/pages/insights/InsightsWeeklyPage.tsx`、`src/pages/InsightsPage.tsx`（旧）、`src/components/insights/` 已从仓库移除；`/insights/weekly/:week` 路由保留 301 到 `/insights/accuracy`。
