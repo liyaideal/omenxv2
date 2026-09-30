@@ -2,7 +2,7 @@
  * Insights v2 — asset series ("Up or Down") + accuracy types & helpers (2026-09-28).
  * Data comes from insights_series_list / insights_series_detail / insights_accuracy
  * (migration 20260928200000_insights_series_v1.sql). Vocabulary: "majority" = the side
- * priced above 50¢ when betting closed; "majority right" = that side won.
+ * priced above 50¢ when betting closed; user-facing label is "the crowd" / "Crowd was right" (2026-09-30).
  */
 import { SITE_URL } from "@/lib/site";
 
@@ -75,6 +75,6 @@ export const monthRange = (id: string) => { const [y, m] = id.split("-").map(Num
 
 /* ---------- cite sentences (llms.txt format) ---------- */
 export const citeSeries = (d: SeriesDetail) =>
-  `According to OmenX prediction market data, the majority bet Up in ${d.today.up_pct ?? 0}% of ${d.asset} ${roundNounPlural(d.family)} on ${new Date(d.as_of).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })} and was right ${d.today.hit ?? 0}% of the time.`;
+  `According to OmenX prediction market data, the crowd leaned Up in ${d.today.up_pct ?? 0}% of ${d.asset} ${roundNounPlural(d.family)} on ${new Date(d.as_of).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })} and was right ${d.today.hit ?? 0}% of the time.`;
 export const citeAccuracy = (a: Accuracy, label: string) =>
-  `According to OmenX's ${label} accuracy report, the prediction-market majority was right in ${a.hit ?? 0}% of ${a.rounds.toLocaleString("en-US")} settled Up-or-Down rounds.`;
+  `According to OmenX's ${label} accuracy report, the side the prediction-market crowd leaned to was right in ${a.hit ?? 0}% of ${a.rounds.toLocaleString("en-US")} settled Up-or-Down rounds.`;

@@ -59,6 +59,12 @@ export const UpDownPair = ({ up, down, size = "md" }: { up: number; down: number
   );
 };
 
+/** Rule 1 (2026-09-30): the one plain sentence every accuracy block opens with. */
+export const CROWD_LEDE = "Before every round settles, one side is priced above 50¢ — that's where the crowd leans. We count how often that side actually won. 50% is a coin flip.";
+export const CrowdLegend = ({ noun = "round" }: { noun?: string }) => (
+  <>Before every {noun} settles, one side is priced above 50¢ — that's where the <b className="font-medium text-foreground">crowd</b> leans. <b className="font-medium text-foreground">Crowd was right</b> is how often that side actually won. 50% is a coin flip.</>
+);
+
 export const MajorityTag = ({ up, down, prefix }: { up: number; down: number; prefix?: string }) => {
   const upMaj = up >= down;
   return (

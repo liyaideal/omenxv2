@@ -42,6 +42,7 @@
 | IS2-8 | 字典 IN-9…14 + DESIGN 附录 | ✅ | sg:audit PASS |
 | IS2-9 | **真平台**：六种页面 SSR / 预渲染 + 动态 sitemap + `/event/{slug}` | ⬜ | 研发 |
 | IS2-10 | 删旧文件 `InsightsWeeklyPage.tsx`、`pages/InsightsPage.tsx`（旧）、`components/insights/` | ✅ | 2026-09-30 已删，tsc 绿 |
+| IS2-11 | 准确率文案口径改人话：Majority → the crowd / "Crowd was right"，三处导语，accuracy 01/02 改问题式标题 + 删 "Price actually rose" 列，首页 05 四格改写 | ✅ | 文档 §4.1；Liya 2026-09-30 批 |
 
 ## 2026-09-28 — Insights SEO/GEO 数据页（[文档](../delivery/lite-insights-seo-v1.md)）
 

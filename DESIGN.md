@@ -2226,7 +2226,7 @@ Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED
 来源：CPO 批 `insights-ia-mock` v3 + 移动稿；规格 `docs/delivery/lite-insights-seo-v2.md`；字典 IN-9…IN-14。**作用域**：`src/components/insightsSeo/seriesParts.tsx` 与所有 `/insights*` 页。
 
 1. **一页一问**：每个 Insights 页只回答「交易者现在押什么、过去押得准不准」，模块顺序固定 现在 → 过去 → 逐条 → 引用；禁止加与此无关的图表（时段柱图等已删）。
-2. **一个词**：Majority = 投注截止时高于 50¢ 的一边。页面文案只用 majority / majority was right / favourite，禁 crowd called / leaned / pts / ▲9 之类裸变动。
+2. **一个词**：the crowd = 投注截止时高于 50¢ 的一边（2026-09-30 起用户可见文案由 Majority 改为 the crowd，Liya 批）。标签只用 **Crowd was right / Crowd leaned Up / favourite**；每个准确率模块开头固定一句导语（`CROWD_LEDE`），页尾图例用 `CrowdLegend`。禁 pts / ▲9 之类裸变动；"reliable" 之类评价词不用，只说 right / wrong。
 3. **Up 左 Down 右**（`UpDownPair`）：文字顺序与条一致，多数派加粗上 MARKET 轴色（`--yes` 蓝 / `--no` 绿），少数派 11px 灰；两侧各 72px，条 80×4。禁止把多数派挪到左边。
 4. **变动只写全**：`+9% today`（带 % 带 today），MONEY 轴色；绝不 `▲ 9`。
 5. **命中率色轴**（`Hit`）：≥55 `--trading-green` / ≤45 `--trading-red` / 其余 foreground；样本 < 20 不上色。

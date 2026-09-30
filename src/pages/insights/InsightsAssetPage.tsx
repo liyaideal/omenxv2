@@ -8,7 +8,7 @@ import { InsightsShell } from "@/components/insightsSeo/InsightsShell";
 import { LoadingState } from "@/components/states";
 import { useSeriesDetail, useSeriesList } from "@/hooks/useInsightsSeries";
 import {
-  DataFooter, FourTiles, Hit, LiveCard, LivePill, List, MajorityTag, Name, Responsive, RightWrong, Row, SeriesOpening, SeriesSection, SettlesIn, StickyCta, Table, Td, Th,
+  CROWD_LEDE, CrowdLegend, DataFooter, FourTiles, Hit, LiveCard, LivePill, List, MajorityTag, Name, Responsive, RightWrong, Row, SeriesOpening, SeriesSection, SettlesIn, StickyCta, Table, Td, Th,
 } from "@/components/insightsSeo/seriesParts";
 import { fmtUsd, fmtInt, fmtDate } from "@/lib/insights";
 import {
@@ -24,7 +24,7 @@ const InsightsAssetPage = ({ family }: { family: "crypto" | "stocks" }) => {
 
   const title = ok ? (isStock(data.family) ? `${assetTitle(data)} Up or Down Today — Prediction Market Odds` : `${data.asset} Up or Down — Prediction Market Odds & Crowd Accuracy`) : "Up or Down — Prediction Market Odds | OmenX";
   const desc = ok ? (isStock(data.family)
-    ? `Will ${data.asset} close higher today? Live OmenX prediction market odds, how often the majority has been right, and the last ten sessions.`
+    ? `Will ${data.asset} close higher today? Live OmenX prediction market odds, how often the crowd has been right, and the last ten sessions.`
     : `Live OmenX prediction market odds on whether ${data.asset} closes higher or lower in 5-minute to daily rounds, with the crowd's track record.`) : "";
   useSeoHead({ title, description: desc, path: ok ? seriesPath(data) : `/insights/${family}/${slug}`, hreflang: true, jsonLd: ok ? [jsonLd(data)] : [] }, [ok ? data.as_of : ""]);
 
@@ -42,8 +42,8 @@ const InsightsAssetPage = ({ family }: { family: "crypto" | "stocks" }) => {
             eyebrow={`OmenX Insights · ${fam} · Up or down`}
             title={stock ? `${assetTitle(data)} Up or Down Today — Prediction Market Odds` : `${data.asset} Up or Down — Prediction Market Odds & Crowd Accuracy`}
             lede={stock
-              ? <>Each trading day OmenX traders bet whether {data.asset} closes above its previous close. This page shows today's odds, how often the majority has been right, and the last ten sessions.</>
-              : <>Every 5 minutes, 15 minutes, hour, 4 hours and day OmenX traders bet whether {data.asset} closes higher or lower. This page shows what the majority is betting right now and how often it has been right.</>}
+              ? <>Each trading day OmenX traders bet whether {data.asset} closes above its previous close. This page shows today's odds, how often the crowd has been right, and the last ten sessions.</>
+              : <>Every 5 minutes, 15 minutes, hour, 4 hours and day OmenX traders bet whether {data.asset} closes higher or lower. This page shows where the crowd leans right now and how often it has been right.</>}
             asOf={data.as_of}
           />
 
@@ -67,20 +67,20 @@ const InsightsAssetPage = ({ family }: { family: "crypto" | "stocks" }) => {
                 stock
                   ? { l: "Sessions tracked", v: fmtInt(data.rounds_30d), d: "last 30 days" }
                   : { l: "Rounds today", v: fmtInt(data.today.rounds), d: "all round lengths · 5m to 1d" },
-                { l: "Majority bet Up in", v: data.today.up_pct == null ? (data.by_len[0]?.up_pct ?? "—") + (data.by_len[0] ? "%" : "") : `${data.today.up_pct}%`, unit: `of ${roundNounPlural(data.family)}`,
+                { l: "Crowd leaned Up in", v: data.today.up_pct == null ? (data.by_len[0]?.up_pct ?? "—") + (data.by_len[0] ? "%" : "") : `${data.today.up_pct}%`, unit: `of ${roundNounPlural(data.family)}`,
                   d: data.today.up_pct == null ? "last 30 days" : data.today.up_pct >= 50 ? <><b className="text-trading-green">a bullish day</b> — more rounds leaned Up</> : <><b className="text-trading-red">a bearish day</b> — more rounds leaned Down</> },
-                { l: "Majority was right in", v: data.today.hit == null ? <Hit v={data.hit_30d} /> : <Hit v={data.today.hit} />, unit: `of ${roundNounPlural(data.family)}`, d: data.today.hit == null ? "last 30 days" : <>30-day average <b>{data.hit_30d ?? "—"}%</b></> },
+                { l: "Crowd was right in", v: data.today.hit == null ? <Hit v={data.hit_30d} /> : <Hit v={data.today.hit} />, unit: `of ${roundNounPlural(data.family)}`, d: data.today.hit == null ? "last 30 days" : <>30-day average <b>{data.hit_30d ?? "—"}%</b></> },
                 { l: stock ? "Longest winning run" : "Longest winning run today", v: fmtInt(data.longest_run_today.len), unit: roundNounPlural(data.family),
-                  d: data.longest_run_today.len > 0 ? <>majority right {data.longest_run_today.len}× in a row{data.longest_run_today.start && !stock ? ` · from ${hhmm(data.longest_run_today.start)} UTC` : ""}</> : "no settled rounds yet today" },
+                  d: data.longest_run_today.len > 0 ? <>crowd right {data.longest_run_today.len}× in a row{data.longest_run_today.start && !stock ? ` · from ${hhmm(data.longest_run_today.start)} UTC` : ""}</> : "no settled rounds yet today" },
               ]} />
             </div>
           </div>
 
-          <SeriesSection n="01" title={stock ? `${data.asset} sessions — now, and how often the majority is right` : `All ${data.asset} round lengths — now, and how often the majority is right`} meta={`Last 30 days · ${fmtInt(data.rounds_30d)} ${roundNounPlural(data.family)}`}
-            intro={<><b>Majority</b> = the side priced above 50¢ when betting closed (both sides always have backers). {byLenSentence(data)}</>}>
+          <SeriesSection n="01" title={stock ? `${data.asset} sessions — now, and how often the crowd is right` : `All ${data.asset} round lengths — now, and how often the crowd is right`} meta={`Last 30 days · ${fmtInt(data.rounds_30d)} ${roundNounPlural(data.family)}`}
+            intro={<>{CROWD_LEDE} {byLenSentence(data)}</>}>
             <Responsive
               desktop={
-                <Table head={<><Th>Round length</Th><Th w={150}>Now</Th><Th w={100} r>Rounds</Th><Th w={210}>Majority bet Up</Th><Th w={150} r>Majority was right</Th><Th w={160} r>{data.asset} actually rose</Th><Th w={120} r>Avg traded</Th></>}>
+                <Table head={<><Th>Round length</Th><Th w={150}>Now</Th><Th w={100} r>Rounds</Th><Th w={210}>Crowd leaned Up</Th><Th w={150} r>Crowd was right</Th><Th w={160} r>{data.asset} actually rose</Th><Th w={120} r>Avg traded</Th></>}>
                   {data.by_len.map((b) => { const lv = data.live.find((l) => l.mins === b.mins); return (
                     <tr key={b.mins} onClick={() => lv && (window.location.href = roundTradePath(lv.event_id))}>
                       <Td className="font-semibold">{minsNoun(b.mins)}</Td>
@@ -109,7 +109,7 @@ const InsightsAssetPage = ({ family }: { family: "crypto" | "stocks" }) => {
           <SeriesSection n="02" title={stock ? `Last 10 ${data.asset} sessions` : `Last 10 ${data.asset} ${minsLabel(data.primary_mins)} rounds`} meta={stock ? "Trading days · settles on official close" : `${fmtDate(data.as_of)} · UTC`}>
             <Responsive
               desktop={
-                <Table head={<><Th>{stock ? "Session" : "Round (UTC)"}</Th><Th w={200}>Majority bet · price</Th><Th w={150}>{data.asset} actually</Th><Th w={190}>Majority was…</Th><Th w={120} r>Traded</Th></>}>
+                <Table head={<><Th>{stock ? "Session" : "Round (UTC)"}</Th><Th w={200}>Crowd leaned · price</Th><Th w={150}>{data.asset} actually</Th><Th w={190}>Crowd was…</Th><Th w={120} r>Traded</Th></>}>
                   {data.recent.map((r) => <RecentTr key={r.event_id} r={r} stock={stock} />)}
                 </Table>
               }
@@ -138,7 +138,7 @@ const InsightsAssetPage = ({ family }: { family: "crypto" | "stocks" }) => {
             </SeriesSection>
           )}
 
-          <DataFooter legend={<>Each {roundNoun(data.family)}, the side priced above 50¢ is the <b className="font-medium text-foreground">majority</b> — the side more money is on. <b className="font-medium text-foreground">Majority right</b> is how often that side actually won. {stock ? `A session settles on ${data.asset}'s official closing price.` : `A round settles on ${data.asset}'s reference-index price at the end of the round.`} Numbers refresh every 15 minutes; all times are UTC.</>} sentence={citeSeries(data)} url={seriesUrl(data)} />
+          <DataFooter legend={<><CrowdLegend noun={roundNoun(data.family)} /> {stock ? `A session settles on ${data.asset}'s official closing price.` : `A round settles on ${data.asset}'s reference-index price at the end of the round.`} Numbers refresh every 15 minutes; all times are UTC.</>} sentence={citeSeries(data)} url={seriesUrl(data)} />
           {next && <StickyCta to={roundTradePath(next.event_id)} label={stock ? "Trade today's session" : "Trade this round"} sub={`${majorityUp(next) ? "Up" : "Down"} ${c(majorityPrice(next))}`} />}
         </>
       )}
@@ -161,7 +161,7 @@ const byLenSentence = (d: SeriesDetail) => {
   if (!ranked.length) return `Fewer than 20 settled ${roundNounPlural(d.family)} in the last 30 days — too few to judge.`;
   const best = ranked[0]; const worst = ranked[ranked.length - 1];
   const few = d.by_len.filter((b) => b.rounds < 20).map((b) => minsNoun(b.mins));
-  const parts = [`The majority is right most often on ${minsLabel(best.mins)} ${roundNounPlural(d.family)} (${best.hit}%)`];
+  const parts = [`The crowd is right most often on ${minsLabel(best.mins)} ${roundNounPlural(d.family)} (${best.hit}%)`];
   if (worst !== best) parts.push(`and least on ${minsLabel(worst.mins)} (${worst.hit}%${worst.hit >= 48 && worst.hit <= 52 ? " — a coin flip" : ""})`);
   let s = parts.join(" ") + ".";
   if (few.length) s += ` ${few.join(" / ")} ${roundNounPlural(d.family)}: too few settled this month to read anything into.`;
@@ -171,13 +171,13 @@ const byLenSentence = (d: SeriesDetail) => {
 const jsonLd = (d: SeriesDetail) => ({
   "@context": "https://schema.org", "@type": "Dataset",
   name: `${d.asset} Up or Down — OmenX prediction market odds`,
-  description: `Live majority side and 30-day crowd accuracy for ${d.asset} Up-or-Down ${roundNounPlural(d.family)} on OmenX.`,
+  description: `Live crowd side and 30-day crowd accuracy for ${d.asset} Up-or-Down ${roundNounPlural(d.family)} on OmenX.`,
   url: seriesUrl(d), dateModified: d.as_of,
   creator: { "@type": "Organization", name: "OmenX", url: seriesUrl(d).replace(/\/insights.*$/, "") },
   variableMeasured: [
-    { "@type": "PropertyValue", name: "Majority bet Up (today)", value: d.today.up_pct, unitText: "percent" },
-    { "@type": "PropertyValue", name: "Majority was right (today)", value: d.today.hit, unitText: "percent" },
-    { "@type": "PropertyValue", name: "Majority was right (30 days)", value: d.hit_30d, unitText: "percent" },
+    { "@type": "PropertyValue", name: "Crowd leaned Up (today)", value: d.today.up_pct, unitText: "percent" },
+    { "@type": "PropertyValue", name: "Crowd was right (today)", value: d.today.hit, unitText: "percent" },
+    { "@type": "PropertyValue", name: "Crowd was right (30 days)", value: d.hit_30d, unitText: "percent" },
     { "@type": "PropertyValue", name: `${roundNounPlural(d.family)} settled (30 days)`, value: d.rounds_30d },
   ],
 });

@@ -12,9 +12,9 @@ import { InsightsShell } from "@/components/insightsSeo/InsightsShell";
 import { LoadingState } from "@/components/states";
 import { useInsightsSeo } from "@/hooks/useInsightsSeo";
 import { useAccuracy, useSeriesList } from "@/hooks/useInsightsSeries";
-import { DataFooter, Chip, FavTag, Hit, LivePill, List, Name, Responsive, Row, SeriesOpening, SeriesSection, SettlesIn, Strip, Table, Td, Th, UpDownPair } from "@/components/insightsSeo/seriesParts";
+import { CROWD_LEDE, CrowdLegend, DataFooter, Chip, FavTag, Hit, LivePill, List, Name, Responsive, Row, SeriesOpening, SeriesSection, SettlesIn, Strip, Table, Td, Th, UpDownPair } from "@/components/insightsSeo/seriesParts";
 import { INSIGHTS_PATH, deltaPct, fmtDate, fmtInt, fmtPct, fmtUsd, gainers, isoDate, losers, marketPath, categoryLabelForKey, categorySlugFor, isQuickRound } from "@/lib/insights";
-import { c, hhmm, isStock, minsShort, roundSpan, seriesPath, sessionDay, type SeriesAsset } from "@/lib/insights/series";
+import { c, hhmm, isStock, minsLabel, minsShort, roundSpan, seriesPath, sessionDay, type SeriesAsset } from "@/lib/insights/series";
 import { buildFixtures, liveLabel, sportPath, type Fixture } from "@/lib/insights/sports";
 import { cn } from "@/lib/utils";
 
@@ -59,7 +59,7 @@ const InsightsPage = () => {
               { l: "Traded 24h", v: fmtUsd(seo.stats.volume_24h), d: <span className={deltaPct(seo.stats.volume_24h, seo.stats.volume_prev_24h) >= 0 ? "text-trading-green" : "text-trading-red"}>{deltaPct(seo.stats.volume_24h, seo.stats.volume_prev_24h) >= 0 ? "▲" : "▼"} {fmtPct(deltaPct(seo.stats.volume_24h, seo.stats.volume_prev_24h))}</span> },
               { l: "Settled 24h", v: fmtInt(acc?.rounds_24h ?? 0), d: "rounds" },
               { l: "Live markets", v: fmtInt(seo.stats.active_markets), d: `${assets?.length ?? 0} assets · ${fixtures.length} matches` },
-              { l: "Majority right · today", v: <Hit v={acc?.hit_today ?? null} />, d: `30d avg ${acc?.hit ?? "—"}%` },
+              { l: "Crowd was right · today", v: <Hit v={acc?.hit_today ?? null} />, d: `30-day average ${acc?.hit ?? "—"}%` },
             ]} />
           )}
 
@@ -67,7 +67,7 @@ const InsightsPage = () => {
             intro="Each asset runs 5-minute, 15-minute, 1-hour, 4-hour and daily rounds at the same time. This shows the round settling next; the asset page shows all five.">
             <Responsive
               desktop={
-                <Table head={<><Th>Asset</Th><Th w={160}>Round (UTC)</Th><Th w={280}>Up · Down price</Th><Th w={100} r>Settles in</Th><Th w={130} r>Rounds today</Th><Th w={160} r>Majority right · today</Th><Th w={120} r>Traded 24h</Th></>}>
+                <Table head={<><Th>Asset</Th><Th w={160}>Round (UTC)</Th><Th w={280}>Up · Down price</Th><Th w={100} r>Settles in</Th><Th w={130} r>Rounds today</Th><Th w={160} r>Crowd was right · today</Th><Th w={120} r>Traded 24h</Th></>}>
                   {crypto.map((a) => <AssetTr key={a.slug} a={a} />)}
                 </Table>}
               mobile={<List>{crypto.map((a) => <AssetRow key={a.slug} a={a} />)}</List>} />
@@ -76,7 +76,7 @@ const InsightsPage = () => {
           <SeriesSection n="02" title="Stocks · today's session" more={{ label: `All ${stocks.length} stocks`, to: "/insights/stocks" }}>
             <Responsive
               desktop={
-                <Table head={<><Th>Stock</Th><Th w={150}>Session</Th><Th w={280}>Up · Down price</Th><Th w={140} r>Settles</Th><Th w={170} r>Majority right · 30d</Th><Th w={120} r>Traded 24h</Th></>}>
+                <Table head={<><Th>Stock</Th><Th w={150}>Session</Th><Th w={280}>Up · Down price</Th><Th w={140} r>Settles</Th><Th w={170} r>Crowd was right · 30d</Th><Th w={120} r>Traded 24h</Th></>}>
                   {stocks.slice(0, 8).map((a) => <AssetTr key={a.slug} a={a} />)}
                 </Table>}
               mobile={<List>{stocks.slice(0, 6).map((a) => <AssetRow key={a.slug} a={a} />)}</List>} />
@@ -114,17 +114,17 @@ const InsightsPage = () => {
           </SeriesSection>
 
           {acc && (
-            <SeriesSection n="05" title="Is the crowd right?" more={{ label: "Full accuracy report", to: "/insights/accuracy" }}>
+            <SeriesSection n="05" title="Is the crowd right?" more={{ label: "Full accuracy report", to: "/insights/accuracy" }} intro={CROWD_LEDE}>
               <Strip cells={[
-                { l: "Majority right · 30d", v: <Hit v={acc.hit} />, d: `${fmtInt(acc.rounds)} rounds` },
-                { l: "Most reliable", v: best ? <Link to={seriesPath(best)}>{best.ticker ?? best.asset} <Hit v={best.hit} /></Link> : "—", d: best ? `${best.family === "crypto" ? "crypto" : best.family.toUpperCase()} · ${best.family === "crypto" ? "rounds" : "daily"}` : undefined },
-                { l: "Least reliable", v: worst ? <Link to={seriesPath(worst)}>{worst.ticker ?? worst.asset} <Hit v={worst.hit} /></Link> : "—", d: worst ? `${worst.family === "crypto" ? "crypto" : worst.family.toUpperCase()} · ${worst.family === "crypto" ? "rounds" : "daily"}` : undefined },
-                { l: "Best round length", v: bestLen(acc.by_len), d: "crypto" },
+                { l: "Crowd was right · 30 days", v: <Hit v={acc.hit} />, d: `of ${fmtInt(acc.rounds)} rounds` },
+                { l: "Crowd calls it best", v: best ? <Link to={seriesPath(best)}>{best.asset} <Hit v={best.hit} /></Link> : "—", d: best ? famLabel(best.family) : undefined },
+                { l: "Crowd calls it worst", v: worst ? <Link to={seriesPath(worst)}>{worst.asset} <Hit v={worst.hit} /></Link> : "—", d: worst ? famLabel(worst.family) : undefined },
+                { l: "Best crypto round length", v: bestLen(acc.by_len), d: "crowd was right most often" },
               ]} />
             </SeriesSection>
           )}
 
-          <DataFooter legend={<>In every round, the side priced above 50¢ is the <b className="font-medium text-foreground">majority</b> — the side more money is on. <b className="font-medium text-foreground">Majority right</b> is how often that side actually won. Prices are the last trade; "traded" is USDC volume. Numbers refresh every 15 minutes; all times are UTC.</>} sentence={`According to OmenX prediction market data, traders settled ${fmtInt(acc?.rounds_24h ?? 0)} Up-or-Down rounds in the 24 hours to ${fmtDate(asOf)} ${hhmm(asOf)} UTC, with the majority right ${acc?.hit_today ?? "—"}% of the time.`} url={`${SITE_URL}${INSIGHTS_PATH}`} />
+          <DataFooter legend={<><CrowdLegend /> Prices are the last trade; "traded" is USDC volume. Numbers refresh every 15 minutes; all times are UTC.</>} sentence={`According to OmenX prediction market data, traders settled ${fmtInt(acc?.rounds_24h ?? 0)} Up-or-Down rounds in the 24 hours to ${fmtDate(asOf)} ${hhmm(asOf)} UTC, and the crowd was right ${acc?.hit_today ?? "—"}% of the time.`} url={`${SITE_URL}${INSIGHTS_PATH}`} />
           <p className="mt-6 font-mono text-[11px] text-muted-foreground/70">Daily digest: <Link to={`/insights/daily/${isoDate(now)}`} className="text-primary">{fmtDate(now)} →</Link></p>
         </>
       )}
@@ -132,9 +132,10 @@ const InsightsPage = () => {
   );
 };
 
+const famLabel = (f: string) => f === "crypto" ? "crypto rounds" : `${f.toUpperCase()} daily`;
 const bestLen = (by: { mins: number; rounds: number; hit: number }[]) => {
   const b = [...by].filter((x) => x.rounds >= 20).sort((a, b) => b.hit - a.hit)[0];
-  return b ? <>{minsShort(b.mins)} · <Hit v={b.hit} /></> : "—";
+  return b ? <>{minsLabel(b.mins)} · <Hit v={b.hit} /></> : "—";
 };
 
 /** "+9% today" — rounds first, then colours; ±0 is neutral grey, never green or red. */

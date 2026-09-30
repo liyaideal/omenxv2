@@ -6,7 +6,7 @@
 
 上午那版 Insights 把平台主业排除在外——榜单里全是一次性事件和体育，BTC / ETH / SOL 的快轮、美股港股日盘一条都没有，因为"单轮 15 分钟就死，没有收录价值"。判断没错，结论错了：**SEO 的单位不是"轮"，是"资产"**。库里 BTC 有 1,400 多轮已结算、每只美股 60 多个交易日，每轮都存着结算前的人群价格和结果——**人群每轮押哪边、押对多少次，全网只有 OmenX 有**。v2 就围绕这两个数字重建。
 
-**整个站只回答一个问题：「OmenX 交易者现在押什么，他们过去押得准不准」。** 每页三块顺序固定：现在 → 过去 → 逐条 → 引用。全站只用一个词 **Majority**（多数派）= 投注截止时价格高于 50¢ 的一边；每轮两边都有人押，多数派只是押得多的那边。
+**整个站只回答一个问题：「OmenX 交易者现在押什么，他们过去押得准不准」。** 每页三块顺序固定：现在 → 过去 → 逐条 → 引用。全站只用一个词 **the crowd**（人群）= 投注截止时价格高于 50¢ 的一边，用户可见标签统一 **"Crowd was right"**（2026-09-30 起，原 "Majority right" 退役，只保留在函数名里）；每轮两边都有人押，人群只是押得多的那边。每个准确率模块开头固定一句导语：*"Before every round settles, one side is priced above 50¢ — that's where the crowd leans. We count how often that side actually won. 50% is a coin flip."*
 
 ### 六种页面
 
@@ -72,6 +72,14 @@
 3. sitemap 动态：19 个资产页 + 运动页 + 每月报告 + 每日日报
 4. 快照 15 分钟（v1 §4 第 5 条）；`insights_series_*` 建议物化或缓存 60s（基表扫 35 天，Lovable 上 ~4k 行没问题，正式版按量评估）
 5. 体育结算历史：`favouriteWon` 取 winner 市场的 `is_winner`，平局算热门输；"Went over the line" 取大小球线的胜方是否为 Over。正式版无需 `SPORTS_RESULT` 归档，直接读真实结算
+
+## 4.1 文案口径修订（2026-09-30，Liya 批）
+
+1. 三处准确率模块（首页 05、accuracy 01/02、资产页 01）开头统一一句人话导语（`CROWD_LEDE`），页尾 "What these numbers mean" 用同一句（`CrowdLegend`）。
+2. accuracy 01 标题 "Which markets does the crowd call right?"；两张卡 "Crowd is right most often / Crowd is wrong most often"；每行补样本 "right in 22 of 32 sessions"。
+3. accuracy 02 标题 "Does a longer round help the crowd?"；列 Round length / Rounds settled / Crowd was right / Verdict；**删 "Price actually rose" 列**；Verdict 为完整句（no better than / better than / worse than a coin flip · too few rounds to judge）。
+4. 首页 05 四格："Crowd was right · 30 days — 51% of 4,425 rounds" / "Crowd calls it best — BYD 69%" / "Crowd calls it worst — Tesla 40%" / "Best crypto round length — 5 minutes · 52%"；用公司名不用代码。
+5. 全站标签 "Majority right / Majority was right / Majority bet Up" → "Crowd was right / Crowd leaned Up"；JSON-LD 与引用句同步。
 
 ## 5. 已删（2026-09-30）
 

@@ -160,7 +160,7 @@ export const InsightsEmptyPreview = () => (
 );
 
 /* ================= Insights v2 · series grammar (IN-9…IN-14, 2026-09-28 晚) ================= */
-import { Chip, DataFooter, FavTag, FourTiles, LiveCard, LivePill, List, MajorityTag, Name, RightWrong, Row, SeriesOpening, SeriesSection, Strip, Table, Td, Th, UpDownPair, Hit } from "@/components/insightsSeo/seriesParts";
+import { Chip, CrowdLegend, DataFooter, FavTag, FourTiles, LiveCard, LivePill, List, MajorityTag, Name, RightWrong, Row, SeriesOpening, SeriesSection, Strip, Table, Td, Th, UpDownPair, Hit } from "@/components/insightsSeo/seriesParts";
 import type { LiveRound } from "@/lib/insights/series";
 
 const LIVE: LiveRound = { event_id: "crypto-btc-updown-5m-x", mins: 5, start: "2026-09-28T10:15:00Z", end: "2099-01-01T00:00:00Z", freeze: null, up_price: 0.48, down_price: 0.52, volume: 1204 };
@@ -172,7 +172,7 @@ export const SeriesOpeningPreview = () => (
 /** IN-10 · Live 卡 + 今日四格（资产页 hero 5/7 栅格） */
 export const SeriesHeroPreview = () => (
   <Pad><div className="grid gap-3 md:grid-cols-12 md:gap-4"><div className="md:col-span-5"><LiveCard eyebrow="Now · next to settle · 5-minute round" when="10:15 – 10:20 UTC" round={LIVE} sub={<>Right now more money is on <b className="font-semibold text-no">Down</b> — 48¢ vs 52¢, $1.2K traded so far.</>} foot={<>Settles in <b>1:42</b> · at 10:20 UTC</>} cta={{ label: "Trade this round", to: "#" }} /></div>
-    <div className="md:col-span-7"><FourTiles tiles={[{ l: "Rounds today", v: "181", d: "all round lengths · 5m to 1d" }, { l: "Majority bet Up in", v: "44%", unit: "of rounds", d: <><b className="text-trading-red">a bearish day</b> — more rounds leaned Down</> }, { l: "Majority was right in", v: <Hit v={52} />, unit: "of rounds", d: <>30-day average <b>50%</b></> }, { l: "Longest winning run today", v: "6", unit: "rounds", d: "majority right 6× in a row · from 06:30 UTC" }]} /></div></div></Pad>
+    <div className="md:col-span-7"><FourTiles tiles={[{ l: "Rounds today", v: "181", d: "all round lengths · 5m to 1d" }, { l: "Crowd leaned Up in", v: "44%", unit: "of rounds", d: <><b className="text-trading-red">a bearish day</b> — more rounds leaned Down</> }, { l: "Crowd was right in", v: <Hit v={52} />, unit: "of rounds", d: <>30-day average <b>50%</b></> }, { l: "Longest winning run today", v: "6", unit: "rounds", d: "crowd right 6× in a row · from 06:30 UTC" }]} /></div></div></Pad>
 );
 /** IN-11 · Up·Down 对（Up 永远左、Down 永远右、多数派加粗上色）+ 标签件 */
 export const SeriesPairPreview = () => (
@@ -180,7 +180,7 @@ export const SeriesPairPreview = () => (
 );
 /** IN-12 · v7 表格语法（52px 行 · fixed 列宽 · 数字右对齐 · 整行可点 · 无箭头列） */
 export const SeriesTablePreview = () => (
-  <Pad><SeriesSection n="01" title="Crypto · next round to settle" more={{ label: "All crypto rounds", to: "#" }}><Table head={<><Th>Asset</Th><Th w={160}>Round (UTC)</Th><Th w={280}>Up · Down price</Th><Th w={100} r>Settles in</Th><Th w={130} r>Rounds today</Th><Th w={160} r>Majority right · today</Th><Th w={120} r>Traded 24h</Th></>}>
+  <Pad><SeriesSection n="01" title="Crypto · next round to settle" more={{ label: "All crypto rounds", to: "#" }}><Table head={<><Th>Asset</Th><Th w={160}>Round (UTC)</Th><Th w={280}>Up · Down price</Th><Th w={100} r>Settles in</Th><Th w={130} r>Rounds today</Th><Th w={160} r>Crowd was right · today</Th><Th w={120} r>Traded 24h</Th></>}>
     <tr><Td><span className="inline-flex items-center gap-2"><span className="text-[13px] font-semibold">Bitcoin</span><Chip>5m round</Chip></span></Td><Td mono dim>10:15 – 10:20</Td><Td><UpDownPair up={0.48} down={0.52} /></Td><Td r mono>1:42</Td><Td r mono>181</Td><Td r><Hit v={52} /></Td><Td r mono>$512K</Td></tr>
     <tr><Td><span className="text-[13px] font-semibold">Ethereum</span></Td><Td mono dim>10:15 – 10:20</Td><Td><UpDownPair up={0.49} down={0.51} /></Td><Td r mono>1:42</Td><Td r mono>181</Td><Td r><Hit v={46} /></Td><Td r mono>$501K</Td></tr>
   </Table></SeriesSection></Pad>
@@ -191,5 +191,5 @@ export const SeriesListPreview = () => (
 );
 /** IN-14 · 平台四数条 + 平台句 + Cite */
 export const SeriesStripPreview = () => (
-  <Pad><Strip cells={[{ l: "Traded 24h", v: "$2.5M", d: <span className="text-trading-green">▲ +4.8%</span> }, { l: "Settled 24h", v: "543", d: "rounds" }, { l: "Live markets", v: "261", d: "19 assets · 14 matches" }, { l: "Majority right · today", v: <Hit v={49} />, d: "30d avg 50%" }]} /><div className="mt-4"><DataFooter legend={<>In every round, the side priced above 50¢ is the <b className="font-medium text-foreground">majority</b> — the side more money is on. <b className="font-medium text-foreground">Majority right</b> is how often that side actually won. All times are UTC.</>} sentence="According to OmenX prediction market data, the majority bet Up in 44% of Bitcoin rounds on 28 Sep 2026 and was right 52% of the time." url="https://omenx.com/insights/crypto/bitcoin" /></div></Pad>
+  <Pad><Strip cells={[{ l: "Traded 24h", v: "$2.5M", d: <span className="text-trading-green">▲ +4.8%</span> }, { l: "Settled 24h", v: "543", d: "rounds" }, { l: "Live markets", v: "261", d: "19 assets · 14 matches" }, { l: "Crowd was right · today", v: <Hit v={49} />, d: "30d avg 50%" }]} /><div className="mt-4"><DataFooter legend={<><CrowdLegend /> All times are UTC.</>} sentence="According to OmenX prediction market data, the crowd leaned Up in 44% of Bitcoin rounds on 28 Sep 2026 and was right 52% of the time." url="https://omenx.com/insights/crypto/bitcoin" /></div></Pad>
 );
