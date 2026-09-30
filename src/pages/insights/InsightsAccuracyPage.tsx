@@ -9,7 +9,7 @@ import { SITE_URL } from "@/lib/site";
 import { InsightsShell } from "@/components/insightsSeo/InsightsShell";
 import { LoadingState } from "@/components/states";
 import { useAccuracy } from "@/hooks/useInsightsSeries";
-import { Cite, Hit, HowComputed, List, Name, PlatformLine, Responsive, Row, SeriesOpening, SeriesSection, Strip, Table, Td, Th } from "@/components/insightsSeo/seriesParts";
+import { DataFooter, Hit, List, Name, Responsive, Row, SeriesOpening, SeriesSection, Strip, Table, Td, Th } from "@/components/insightsSeo/seriesParts";
 import { fmtInt } from "@/lib/insights";
 import { citeAccuracy, minsLabel, minsNoun, minsShort, monthId, monthRange, seriesPath } from "@/lib/insights/series";
 
@@ -70,9 +70,7 @@ const InsightsAccuracyPage = () => {
             </div>
           </SeriesSection>
 
-          <PlatformLine />
-          <HowComputed>In every round, the side priced above 50¢ is the <b className="font-medium text-foreground">majority</b> — the side more money is on. <b className="font-medium text-foreground">Majority right</b> is how often that side actually won. Only settled rounds count, and an asset needs at least 5 of them to be ranked. A monthly report is frozen at month end and never edited.</HowComputed>
-          <Cite sentence={`${citeAccuracy(a, range ? range.label : "rolling 30-day")}${bestLen ? ` rising to ${bestLen.hit}% on ${minsLabel(bestLen.mins)} rounds.` : ""}`} url={`${SITE_URL}${path}`} />
+          <DataFooter legend={<>In every round, the side priced above 50¢ is the <b className="font-medium text-foreground">majority</b> — the side more money is on. <b className="font-medium text-foreground">Majority right</b> is how often that side actually won. Only settled rounds count, and an asset needs at least 5 of them to be ranked. A monthly report is frozen at month end and never edited.</>} sentence={`${citeAccuracy(a, range ? range.label : "rolling 30-day")}${bestLen ? ` rising to ${bestLen.hit}% on ${minsLabel(bestLen.mins)} rounds.` : ""}`} url={`${SITE_URL}${path}`} />
         </>
       )}
     </InsightsShell>

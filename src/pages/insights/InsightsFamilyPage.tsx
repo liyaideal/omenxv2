@@ -6,7 +6,7 @@ import { SITE_URL } from "@/lib/site";
 import { InsightsShell } from "@/components/insightsSeo/InsightsShell";
 import { LoadingState } from "@/components/states";
 import { useSeriesList } from "@/hooks/useInsightsSeries";
-import { Chip, Cite, Hit, HowComputed, List, Name, PlatformLine, Responsive, Row, SeriesOpening, SeriesSection, SettlesIn, Table, Td, Th, UpDownPair } from "@/components/insightsSeo/seriesParts";
+import { DataFooter, Chip, Hit, List, Name, Responsive, Row, SeriesOpening, SeriesSection, SettlesIn, Table, Td, Th, UpDownPair } from "@/components/insightsSeo/seriesParts";
 import { fmtInt, fmtUsd } from "@/lib/insights";
 import { familyFromPath, hhmm, isStock, minsShort, roundSpan, roundTradePath, seriesPath, sessionDay, type LiveRound, type SeriesAsset } from "@/lib/insights/series";
 import { cn } from "@/lib/utils";
@@ -37,9 +37,7 @@ const InsightsFamilyPage = ({ family }: { family: "crypto" | "stocks" }) => {
               </Table>}
               mobile={<List>{crypto ? list.flatMap((a) => a.live_all.map((l) => <MRow key={l.event_id} a={a} l={l} />)) : list.map((a) => <MRow key={a.slug} a={a} />)}</List>} />
           </SeriesSection>
-          <PlatformLine settle={crypto ? "settles on the reference index" : "settles on the official close"} />
-          <HowComputed>In every {crypto ? "round" : "session"}, the side priced above 50¢ is the <b className="font-medium text-foreground">majority</b> — the side more money is on. <b className="font-medium text-foreground">Majority right</b> is how often that side actually won. {crypto ? "Rounds settle on the reference-index price." : "Sessions settle on the official closing price."} All times are UTC.</HowComputed>
-          <Cite sentence={`According to OmenX prediction market data, the majority was right in ${Math.round(list.reduce((s, a) => s + (a.hit_30d ?? 0), 0) / Math.max(1, list.length))}% of ${crypto ? "crypto" : "stock"} Up-or-Down ${crypto ? "rounds" : "sessions"} over the last 30 days (${fmtInt(list.reduce((s, a) => s + a.rounds_30d, 0))} settled).`} url={`${SITE_URL}/insights/${family}`} />
+          <DataFooter settle={crypto ? "Settles on the reference index" : "Settles on the official close"} legend={<>In every {crypto ? "round" : "session"}, the side priced above 50¢ is the <b className="font-medium text-foreground">majority</b> — the side more money is on. <b className="font-medium text-foreground">Majority right</b> is how often that side actually won. {crypto ? "Rounds settle on the reference-index price." : "Sessions settle on the official closing price."} All times are UTC.</>} sentence={`According to OmenX prediction market data, the majority was right in ${Math.round(list.reduce((s, a) => s + (a.hit_30d ?? 0), 0) / Math.max(1, list.length))}% of ${crypto ? "crypto" : "stock"} Up-or-Down ${crypto ? "rounds" : "sessions"} over the last 30 days (${fmtInt(list.reduce((s, a) => s + a.rounds_30d, 0))} settled).`} url={`${SITE_URL}/insights/${family}`} />
         </>
       )}
     </InsightsShell>

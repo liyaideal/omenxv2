@@ -8,7 +8,7 @@ import { InsightsShell } from "@/components/insightsSeo/InsightsShell";
 import { LoadingState } from "@/components/states";
 import { useSeriesDetail, useSeriesList } from "@/hooks/useInsightsSeries";
 import {
-  Cite, FourTiles, Hit, HowComputed, LiveCard, LivePill, List, MajorityTag, Name, PlatformLine, Responsive, RightWrong, Row, SeriesOpening, SeriesSection, SettlesIn, StickyCta, Table, Td, Th,
+  DataFooter, FourTiles, Hit, LiveCard, LivePill, List, MajorityTag, Name, Responsive, RightWrong, Row, SeriesOpening, SeriesSection, SettlesIn, StickyCta, Table, Td, Th,
 } from "@/components/insightsSeo/seriesParts";
 import { fmtUsd, fmtInt, fmtDate } from "@/lib/insights";
 import {
@@ -138,9 +138,7 @@ const InsightsAssetPage = ({ family }: { family: "crypto" | "stocks" }) => {
             </SeriesSection>
           )}
 
-          <PlatformLine />
-          <HowComputed>Each {roundNoun(data.family)}, the side priced above 50¢ is the <b className="font-medium text-foreground">majority</b> — the side more money is on. <b className="font-medium text-foreground">Majority right</b> is how often that side actually won. {stock ? `A session settles on ${data.asset}'s official closing price.` : `A round settles on ${data.asset}'s reference-index price at the end of the round.`} Numbers refresh every 15 minutes; all times are UTC.</HowComputed>
-          <Cite sentence={citeSeries(data)} url={seriesUrl(data)} />
+          <DataFooter legend={<>Each {roundNoun(data.family)}, the side priced above 50¢ is the <b className="font-medium text-foreground">majority</b> — the side more money is on. <b className="font-medium text-foreground">Majority right</b> is how often that side actually won. {stock ? `A session settles on ${data.asset}'s official closing price.` : `A round settles on ${data.asset}'s reference-index price at the end of the round.`} Numbers refresh every 15 minutes; all times are UTC.</>} sentence={citeSeries(data)} url={seriesUrl(data)} />
           {next && <StickyCta to={roundTradePath(next.event_id)} label={stock ? "Trade today's session" : "Trade this round"} sub={`${majorityUp(next) ? "Up" : "Down"} ${c(majorityPrice(next))}`} />}
         </>
       )}

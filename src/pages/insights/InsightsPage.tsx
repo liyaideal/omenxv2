@@ -12,7 +12,7 @@ import { InsightsShell } from "@/components/insightsSeo/InsightsShell";
 import { LoadingState } from "@/components/states";
 import { useInsightsSeo } from "@/hooks/useInsightsSeo";
 import { useAccuracy, useSeriesList } from "@/hooks/useInsightsSeries";
-import { Chip, Cite, FavTag, Hit, HowComputed, LivePill, List, Name, PlatformLine, Responsive, Row, SeriesOpening, SeriesSection, SettlesIn, Strip, Table, Td, Th, UpDownPair } from "@/components/insightsSeo/seriesParts";
+import { DataFooter, Chip, FavTag, Hit, LivePill, List, Name, Responsive, Row, SeriesOpening, SeriesSection, SettlesIn, Strip, Table, Td, Th, UpDownPair } from "@/components/insightsSeo/seriesParts";
 import { INSIGHTS_PATH, deltaPct, fmtDate, fmtInt, fmtPct, fmtUsd, gainers, isoDate, losers, marketPath, categoryLabelForKey, categorySlugFor, isQuickRound } from "@/lib/insights";
 import { c, hhmm, isStock, minsShort, roundSpan, seriesPath, sessionDay, type SeriesAsset } from "@/lib/insights/series";
 import { buildFixtures, liveLabel, sportPath, type Fixture } from "@/lib/insights/sports";
@@ -124,9 +124,7 @@ const InsightsPage = () => {
             </SeriesSection>
           )}
 
-          <PlatformLine />
-          <HowComputed>In every round, the side priced above 50¢ is the <b className="font-medium text-foreground">majority</b> — the side more money is on. <b className="font-medium text-foreground">Majority right</b> is how often that side actually won. Prices are the last trade; "traded" is USDC volume. Numbers refresh every 15 minutes; all times are UTC.</HowComputed>
-          <Cite sentence={`According to OmenX prediction market data, traders settled ${fmtInt(acc?.rounds_24h ?? 0)} Up-or-Down rounds in the 24 hours to ${fmtDate(asOf)} ${hhmm(asOf)} UTC, with the majority right ${acc?.hit_today ?? "—"}% of the time.`} url={`${SITE_URL}${INSIGHTS_PATH}`} />
+          <DataFooter legend={<>In every round, the side priced above 50¢ is the <b className="font-medium text-foreground">majority</b> — the side more money is on. <b className="font-medium text-foreground">Majority right</b> is how often that side actually won. Prices are the last trade; "traded" is USDC volume. Numbers refresh every 15 minutes; all times are UTC.</>} sentence={`According to OmenX prediction market data, traders settled ${fmtInt(acc?.rounds_24h ?? 0)} Up-or-Down rounds in the 24 hours to ${fmtDate(asOf)} ${hhmm(asOf)} UTC, with the majority right ${acc?.hit_today ?? "—"}% of the time.`} url={`${SITE_URL}${INSIGHTS_PATH}`} />
           <p className="mt-6 font-mono text-[11px] text-muted-foreground/70">Daily digest: <Link to={`/insights/daily/${isoDate(now)}`} className="text-primary">{fmtDate(now)} →</Link></p>
         </>
       )}

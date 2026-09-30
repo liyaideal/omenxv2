@@ -160,7 +160,7 @@ export const InsightsEmptyPreview = () => (
 );
 
 /* ================= Insights v2 · series grammar (IN-9…IN-14, 2026-09-28 晚) ================= */
-import { Chip, Cite as CiteV2, FavTag, FourTiles, LiveCard, LivePill, List, MajorityTag, Name, PlatformLine, RightWrong, Row, SeriesOpening, SeriesSection, Strip, Table, Td, Th, UpDownPair, Hit } from "@/components/insightsSeo/seriesParts";
+import { Chip, DataFooter, FavTag, FourTiles, LiveCard, LivePill, List, MajorityTag, Name, RightWrong, Row, SeriesOpening, SeriesSection, Strip, Table, Td, Th, UpDownPair, Hit } from "@/components/insightsSeo/seriesParts";
 import type { LiveRound } from "@/lib/insights/series";
 
 const LIVE: LiveRound = { event_id: "crypto-btc-updown-5m-x", mins: 5, start: "2026-09-28T10:15:00Z", end: "2099-01-01T00:00:00Z", freeze: null, up_price: 0.48, down_price: 0.52, volume: 1204 };
@@ -191,5 +191,5 @@ export const SeriesListPreview = () => (
 );
 /** IN-14 · 平台四数条 + 平台句 + Cite */
 export const SeriesStripPreview = () => (
-  <Pad><Strip cells={[{ l: "Traded 24h", v: "$2.5M", d: <span className="text-trading-green">▲ +4.8%</span> }, { l: "Settled 24h", v: "543", d: "rounds" }, { l: "Live markets", v: "261", d: "19 assets · 14 matches" }, { l: "Majority right · today", v: <Hit v={49} />, d: "30d avg 50%" }]} /><PlatformLine /><CiteV2 sentence="According to OmenX prediction market data, the majority bet Up in 44% of Bitcoin rounds on 28 Sep 2026 and was right 52% of the time." url="https://omenx.com/insights/crypto/bitcoin" /></Pad>
+  <Pad><Strip cells={[{ l: "Traded 24h", v: "$2.5M", d: <span className="text-trading-green">▲ +4.8%</span> }, { l: "Settled 24h", v: "543", d: "rounds" }, { l: "Live markets", v: "261", d: "19 assets · 14 matches" }, { l: "Majority right · today", v: <Hit v={49} />, d: "30d avg 50%" }]} /><div className="mt-4"><DataFooter legend={<>In every round, the side priced above 50¢ is the <b className="font-medium text-foreground">majority</b> — the side more money is on. <b className="font-medium text-foreground">Majority right</b> is how often that side actually won. All times are UTC.</>} sentence="According to OmenX prediction market data, the majority bet Up in 44% of Bitcoin rounds on 28 Sep 2026 and was right 52% of the time." url="https://omenx.com/insights/crypto/bitcoin" /></div></Pad>
 );

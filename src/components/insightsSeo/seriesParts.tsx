@@ -3,6 +3,7 @@
  * Grammar: Up always left · Down always right, majority bold + coloured on the MARKET axis (--yes / --no);
  * every number mono tabular; 52px desktop rows; mobile = two-line list rows, never a flattened table.
  */
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -169,22 +170,57 @@ export const Name = ({ children, sub, chip }: { children: React.ReactNode; sub?:
 /* ---------- responsive switch ---------- */
 export const Responsive = ({ desktop, mobile }: { desktop: React.ReactNode; mobile: React.ReactNode }) => { const m = useIsMobile(); return <>{m ? mobile : desktop}</>; };
 
-/* ---------- platform line + how computed + cite ---------- */
+/* ---------- page-end "About this data" card (CPO 2026-09-30: one designed block, not three loose modules) ----------
+ * Three columns on desktop, stacked on mobile: who we are · what the numbers mean · a copy-ready quote.
+ * Semantics stay for GEO (h2 / dl / aside / code); the visual is one trading-card with an eyebrow. */
+export const DataFooter = ({ settle = "Settles on the reference index", legend, sentence, url }: { settle?: string; legend: React.ReactNode; sentence: string; url: string }) => {
+  const [copied, setCopied] = useState(false);
+  const line = `${sentence} Source: ${url}`;
+  const copy = async () => { try { await navigator.clipboard.writeText(line); setCopied(true); window.setTimeout(() => setCopied(false), 1600); } catch { /* clipboard unavailable */ } };
+  return (
+    <section aria-labelledby="about-this-data" className="trading-card mt-2 overflow-hidden">
+      <div className="border-b border-[#1D2026] px-4 py-3 md:px-6">
+        <h2 id="about-this-data" className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">About this data</h2>
+      </div>
+      <div className="grid md:grid-cols-12">
+        <div className="px-4 py-4 md:col-span-3 md:px-6 md:py-5">
+          <div className="text-[13px] font-semibold">OmenX</div>
+          <dl className="mt-2 space-y-1.5 text-[12px] text-muted-foreground md:text-[13px]">
+            <dd>Trade Up or Down with up to 10× Boost</dd>
+            <dd>{settle}</dd>
+            <dd>USDC on Base</dd>
+          </dl>
+          <a href={HELP_GUIDE_URL} target="_blank" rel="noopener" className="mt-3 inline-block text-[12px] font-semibold text-primary">How it works →</a>
+        </div>
+        <div className="border-t border-[#1D2026] px-4 py-4 md:col-span-5 md:border-l md:border-t-0 md:px-6 md:py-5">
+          <h3 className="text-[13px] font-semibold">What these numbers mean</h3>
+          <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground md:text-[13px]">{legend} <a href={HELP_GUIDE_URL} target="_blank" rel="noopener" className="text-primary">Full methodology →</a></p>
+        </div>
+        <aside className="border-t border-[#1D2026] px-4 py-4 md:col-span-4 md:border-l md:border-t-0 md:px-6 md:py-5">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-[13px] font-semibold">Quote this page</h3>
+            <button type="button" onClick={copy} className={cn("h-7 rounded-full border px-3 font-mono text-[11px] font-semibold transition-colors", copied ? "border-trading-green/50 text-trading-green" : "border-[#262A31] text-muted-foreground hover:text-foreground")}>{copied ? "Copied" : "Copy"}</button>
+          </div>
+          <p className="mt-1 text-[11px] text-muted-foreground/70">Names the number, the date and where it came from.</p>
+          <code className="mt-2.5 block whitespace-pre-wrap rounded-lg bg-white/[0.03] px-3 py-2.5 font-mono text-[11px] leading-relaxed text-[#E6E8EB] md:text-[12px]">{line}</code>
+        </aside>
+      </div>
+    </section>
+  );
+};
+/* legacy pieces kept for the v1 daily / category pages */
 export const PlatformLine = ({ settle = "settles on the reference index" }: { settle?: string }) => (
   <div className="mb-8 flex flex-wrap items-center gap-x-2.5 gap-y-1 rounded-[10px] border border-[#1D2026] bg-white/[0.015] px-4 py-3 font-mono text-[11px] text-muted-foreground md:text-[12px]">
     <b className="font-semibold text-foreground">OmenX</b><Dot />Trade Up or Down with up to 10× Boost<Dot />{settle}<Dot />USDC on Base<Dot /><a href={HELP_GUIDE_URL} target="_blank" rel="noopener" className="text-primary">How it works →</a>
   </div>
 );
 const Dot = () => <i className="h-1 w-1 rounded-full bg-muted-foreground/50" />;
-
-/** Plain-language legend. GEO needs the methodology on-page; people need it readable — so: two sentences, no jargon. */
 export const HowComputed = ({ children }: { children: React.ReactNode }) => (
   <section className="max-w-[100ch] text-[12px] leading-relaxed text-muted-foreground md:text-[13px]">
     <h2 className="mb-1.5 text-[13px] font-semibold text-foreground md:text-[14px]">What these numbers mean</h2>
     <p>{children} <a href={HELP_GUIDE_URL} target="_blank" rel="noopener" className="text-primary">Full methodology →</a></p>
   </section>
 );
-/** Copy-ready citation. AI engines and writers lift this line verbatim, link included — that is the point of the block. */
 export const Cite = ({ sentence, url }: { sentence: string; url: string }) => (
   <aside className="mt-4 rounded-xl border border-dashed border-[#262A31] px-4 py-3 text-[12px] text-muted-foreground md:text-[13px]">
     <b className="text-foreground">Quoting this page?</b> Copy the line below — it names the number, the date and where it came from.

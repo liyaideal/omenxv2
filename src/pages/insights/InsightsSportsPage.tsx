@@ -9,7 +9,7 @@ import { SITE_URL } from "@/lib/site";
 import { InsightsShell } from "@/components/insightsSeo/InsightsShell";
 import { LoadingState } from "@/components/states";
 import { useInsightsSeo } from "@/hooks/useInsightsSeo";
-import { Cite, FavTag, FourTiles, Hit, HowComputed, LiveCard, LivePill, List, Name, PlatformLine, Responsive, RightWrong, Row, SeriesOpening, SeriesSection, StickyCta, Table, Td, Th } from "@/components/insightsSeo/seriesParts";
+import { DataFooter, FavTag, FourTiles, Hit, LiveCard, LivePill, List, Name, Responsive, RightWrong, Row, SeriesOpening, SeriesSection, StickyCta, Table, Td, Th } from "@/components/insightsSeo/seriesParts";
 import { fmtInt, fmtUsd, marketPath } from "@/lib/insights";
 import { c } from "@/lib/insights/series";
 import { buildFixtures, kickoffLong, liveLabel, settleWord, sportLabel, sportPath, type Fixture } from "@/lib/insights/sports";
@@ -88,9 +88,7 @@ const InsightsSportsPage = () => {
             )}
           </SeriesSection>
 
-          <PlatformLine settle={`settles on the ${sport ? settleWord(sport) : "official result"}`} />
-          <HowComputed>The <b className="font-medium text-foreground">crowd favourite</b> is the team priced above 50¢ to win at kick-off — the side more money is on. <b className="font-medium text-foreground">Favourite won</b> is how often that team actually won; a draw counts as the favourite losing. Matches settle on the {sport ? settleWord(sport) : "official result"}. All times are UTC.</HowComputed>
-          <Cite sentence={favWinPct == null ? `According to OmenX prediction market data, ${list.length} ${label.toLowerCase()} matches are open for trading as of ${now.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })}.` : `According to OmenX prediction market data, the crowd favourite won ${favWinPct}% of ${label.toLowerCase()} matches settled in the 30 days to ${now.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })}.`} url={`${SITE_URL}${path}`} />
+          <DataFooter settle={`Settles on the ${sport ? settleWord(sport) : "official result"}`} legend={<>The <b className="font-medium text-foreground">crowd favourite</b> is the team priced above 50¢ to win at kick-off — the side more money is on. <b className="font-medium text-foreground">Favourite won</b> is how often that team actually won; a draw counts as the favourite losing. Matches settle on the {sport ? settleWord(sport) : "official result"}. All times are UTC.</>} sentence={favWinPct == null ? `According to OmenX prediction market data, ${list.length} ${label.toLowerCase()} matches are open for trading as of ${now.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })}.` : `According to OmenX prediction market data, the crowd favourite won ${favWinPct}% of ${label.toLowerCase()} matches settled in the 30 days to ${now.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })}.`} url={`${SITE_URL}${path}`} />
           {hero && <StickyCta to={marketPath(hero.main)} label={`Trade ${hero.name}`} sub={hero.live ? "live" : undefined} />}
         </>
       )}

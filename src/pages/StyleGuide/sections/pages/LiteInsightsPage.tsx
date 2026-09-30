@@ -66,7 +66,7 @@ export const LiteInsightsPage = (_: P) => (
     <SubSection title="IN-13 · 移动列表行（List / Row / Name）" description="移动端不平铺表格：每行两行——第一行 名（+ 小标签 / 副文）+ 右侧一个时间；第二行 UpDownPair sm（或热门 tag）+ 右侧一个「准不准」。整行 Link；行间 1px #1D2026。" platform="mobile">
       <DualDevicePreview previewKey="insights-series-list" label="List rows" minHeight={220} />
     </SubSection>
-    <SubSection title="IN-14 · 平台四数条 + 平台句 + Cite（Strip / PlatformLine / Cite）" description="Strip：桌面四格一行、移动 2×2，标签上 / display 22px 数 / 副行下（不再一行内并排，避免溢出）。PlatformLine：每页页尾固定一行「OmenX · Up or Down with up to 10× Boost · settles on … · USDC on Base · How it works」，与 llms.txt 品牌句一致。Cite：虚线框 + 逐字引用句 + Source URL。" platform="shared">
+    <SubSection title="IN-14 · 平台四数条 + 页尾 About this data 卡（Strip / DataFooter）" description="Strip：桌面四格一行、移动 2×2，标签上 / display 22px 数 / 副行下。DataFooter（CPO 2026-09-30：三个散模块并成一张卡）：trading-card + 「ABOUT THIS DATA」eyebrow 头，桌面 3 / 5 / 4 三栏、移动上下堆——左 OmenX 三行品牌句 + How it works；中 What these numbers mean 两句人话；右 Quote this page + Copy 按钮（复制成功 1.6s 变绿 Copied）+ 等宽引用句。语义保留（section / h2 / dl / aside / code）给 GEO。" platform="shared">
       <DualDevicePreview previewKey="insights-series-strip" label="Strip + PlatformLine + Cite" minHeight={260} />
     </SubSection>
 
