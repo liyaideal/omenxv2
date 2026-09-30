@@ -117,9 +117,9 @@ const Cat = ({ r }: { r: MarketRow }) => (
 export const MarketTable = ({ rows, caption }: { rows: MarketRow[]; showSpark?: boolean; caption?: string }) => {
   const isMobile = useIsMobile();
   if (rows.length === 0) return <Empty text={t("insights.messages.no_markets")} />;
-  const Move = ({ r }: { r: MarketRow }) => r.move ? (
-    <span className={cn("w-[74px] font-mono text-[11px]", r.move.delta > 0 ? "text-trading-green" : r.move.delta < 0 ? "text-trading-red" : "text-muted-foreground")}>{r.move.delta > 0 ? "+" : ""}{Math.round(r.move.delta)}% today</span>
-  ) : null;
+  const Move = ({ r }: { r: MarketRow }) => { if (!r.move) return null; const n = Math.round(r.move.delta); return (
+    <span className={cn("w-[74px] font-mono text-[11px]", n > 0 ? "text-trading-green" : n < 0 ? "text-trading-red" : "text-muted-foreground")}>{n > 0 ? `+${n}` : n < 0 ? `−${Math.abs(n)}` : "0"}% today</span>
+  ); };
   if (isMobile) {
     // mobile = two-line list rows (mobile mock ①/④), never a flattened table
     return (

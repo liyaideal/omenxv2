@@ -32,7 +32,7 @@ const InsightsPage = () => {
 
   const crypto = (assets ?? []).filter((a) => a.family === "crypto");
   const stocks = (assets ?? []).filter((a) => isStock(a.family)).sort((a, b) => b.vol_24h - a.vol_24h);
-  const fixtures = buildFixtures(seo.events).filter((f) => f.live || (f.kickoff && new Date(f.kickoff).getTime() - now.getTime() < 24 * HOUR)).slice(0, 8);
+  const fixtures = buildFixtures(seo.events).filter((f) => f.live || (f.kickoff && new Date(f.kickoff).getTime() - now.getTime() < 7 * 24 * HOUR)).slice(0, 10);
   const eventRows = seo.rows.filter((r) => !isQuickRound(r.event) && r.event.event_subtype !== "SPORTS_MATCH" && !/UPDOWN/.test(r.event.event_subtype ?? "") && new Date(r.event.end_date).getTime() - now.getTime() < 365 * 864e5);
   const moves = [...gainers(eventRows), ...losers(eventRows)].sort((a, b) => Math.abs(b.move!.delta) - Math.abs(a.move!.delta)).slice(0, 8);
   const eventsFallback = moves.length >= 3 ? moves : [...eventRows].sort((a, b) => b.activity.volume - a.activity.volume).slice(0, 8);
@@ -82,14 +82,14 @@ const InsightsPage = () => {
               mobile={<List>{stocks.slice(0, 6).map((a) => <AssetRow key={a.slug} a={a} />)}</List>} />
           </SeriesSection>
 
-          <SeriesSection n="03" title="Sports · live & next 24 hours" more={{ label: "All sports", to: "/insights/sports" }}>
-            {fixtures.length === 0 ? <Empty>No matches live or starting in the next 24 hours.</Empty> : (
+          <SeriesSection n="03" title="Sports · live & next 7 days" more={{ label: "All sports", to: "/insights/sports" }}>
+            {fixtures.length === 0 ? <Empty>No matches live or starting in the next seven days.</Empty> : (
               <Responsive
                 desktop={
                   <Table head={<><Th>Match</Th><Th w={150}>League</Th><Th w={170}>Status (UTC)</Th><Th w={240}>Crowd favourite · price</Th><Th w={170}>Goals / maps line</Th><Th w={120} r>Traded</Th></>}>
                     {fixtures.map((f) => <FixtureTr key={f.id} f={f} />)}
                   </Table>}
-                mobile={<List>{fixtures.slice(0, 5).map((f) => <FixtureRow key={f.id} f={f} />)}</List>} />
+                mobile={<List>{fixtures.slice(0, 6).map((f) => <FixtureRow key={f.id} f={f} />)}</List>} />
             )}
           </SeriesSection>
 
@@ -101,14 +101,14 @@ const InsightsPage = () => {
                     {eventsFallback.map((r) => (
                       <tr key={r.event.id} onClick={() => (window.location.href = marketPath(r.event))}>
                         <Td><article data-market-id={r.event.id} className="flex items-center gap-2"><h3 className="truncate text-[13px] font-semibold"><Link to={marketPath(r.event)}>{r.event.name}</Link></h3><Link to={`/insights/category/${categorySlugFor(r.event.category)}`} className="flex-none rounded border border-[#262A31] px-1.5 py-[3px] font-mono text-[9px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/70">{categoryLabelForKey(r.event.category)}</Link></article></Td>
-                        <Td><span className="inline-flex items-center gap-2.5"><span className="w-20 truncate font-mono text-[12px]">{r.lead.label}</span><b className="font-mono text-[15px] tabular-nums">{r.probability}%</b>{r.move && <span className={cn("w-[74px] font-mono text-[11px]", r.move.delta > 0 ? "text-trading-green" : r.move.delta < 0 ? "text-trading-red" : "text-muted-foreground")}>{r.move.delta > 0 ? "+" : ""}{Math.round(r.move.delta)}% today</span>}<span className="relative h-1 w-20 overflow-hidden rounded-sm bg-[#262A31]"><i className="absolute inset-y-0 left-0 bg-primary" style={{ width: `${r.probability}%` }} /></span></span></Td>
+                        <Td><span className="inline-flex items-center gap-2.5"><span className="w-20 truncate font-mono text-[12px]">{r.lead.label}</span><b className="font-mono text-[15px] tabular-nums">{r.probability}%</b>{r.move && <MoveToday d={r.move.delta} />}<span className="relative h-1 w-20 overflow-hidden rounded-sm bg-[#262A31]"><i className="absolute inset-y-0 left-0 bg-primary" style={{ width: `${r.probability}%` }} /></span></span></Td>
                         <Td r mono>{fmtUsd(r.activity.volume)}</Td>
                         <Td r mono dim><time dateTime={r.event.end_date}>{fmtDate(r.event.end_date)}</time></Td>
                       </tr>
                     ))}
                   </Table>}
                 mobile={<List>{eventsFallback.slice(0, 5).map((r) => (
-                  <Row key={r.event.id} to={marketPath(r.event)} l1={<Name>{r.event.name}</Name>} l2={<><span className="font-mono text-[12px]">{r.lead.label} <b className="text-[15px] font-semibold">{r.probability}%</b></span>{r.move && <span className={cn("font-mono text-[12px]", r.move.delta > 0 ? "text-trading-green" : r.move.delta < 0 ? "text-trading-red" : "text-muted-foreground")}>{r.move.delta > 0 ? "+" : ""}{Math.round(r.move.delta)}% today</span>}</>} />
+                  <Row key={r.event.id} to={marketPath(r.event)} l1={<Name>{r.event.name}</Name>} l2={<><span className="font-mono text-[12px]">{r.lead.label} <b className="text-[15px] font-semibold">{r.probability}%</b></span>{r.move && <MoveToday d={r.move.delta} className="text-[12px]" />}</>} />
                 ))}</List>} />
             )}
           </SeriesSection>
@@ -137,6 +137,11 @@ const bestLen = (by: { mins: number; rounds: number; hit: number }[]) => {
   return b ? <>{minsShort(b.mins)} · <Hit v={b.hit} /></> : "—";
 };
 
+/** "+9% today" — rounds first, then colours; ±0 is neutral grey, never green or red. */
+const MoveToday = ({ d, className }: { d: number; className?: string }) => {
+  const n = Math.round(d);
+  return <span className={cn("w-[74px] font-mono text-[11px]", n > 0 ? "text-trading-green" : n < 0 ? "text-trading-red" : "text-muted-foreground", className)}>{n > 0 ? `+${n}` : n < 0 ? `−${Math.abs(n)}` : "0"}% today</span>;
+};
 const Empty = ({ children }: { children: React.ReactNode }) => <div className="rounded-xl border border-dashed border-[#262A31] px-4 py-6 text-center text-[13px] text-muted-foreground">{children}</div>;
 
 const AssetTr = ({ a }: { a: SeriesAsset }) => {
