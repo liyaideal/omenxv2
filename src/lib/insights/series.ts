@@ -15,6 +15,8 @@ export interface LiveRound {
 export interface SeriesAsset {
   family: Family; asset: string; ticker: string | null; slug: string;
   live: LiveRound | null;
+  /** Every open round, one per length (crypto: 5); stocks: the one session. */
+  live_all: LiveRound[];
   rounds_today: number; up_pct_today: number | null; hit_today: number | null;
   hit_30d: number | null; rounds_30d: number; rounds_total: number; vol_24h: number;
 }
@@ -59,7 +61,11 @@ export const c = (p: number) => `${Math.round(p * 100)}¢`;
 
 /* ---------- time ---------- */
 export const hhmm = (iso: string) => new Date(iso).toISOString().slice(11, 16);
-export const roundSpan = (r: { start: string; end: string }) => `${hhmm(r.start)} – ${hhmm(r.end)}`;
+export const roundSpan = (r: { start: string; end: string }) => {
+  const ms = new Date(r.end).getTime() - new Date(r.start).getTime();
+  if (ms >= 24 * 36e5) { const d = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" }); return `${d(r.start)} ${hhmm(r.start)} – ${d(r.end)} ${hhmm(r.end)}`; }
+  return `${hhmm(r.start)} – ${hhmm(r.end)}`;
+};
 export const sessionDay = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
 export const mmss = (ms: number) => { const s = Math.max(0, Math.floor(ms / 1000)); const m = Math.floor(s / 60); return m >= 60 ? `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, "0")}m` : `${m}:${String(s % 60).padStart(2, "0")}`; };
 

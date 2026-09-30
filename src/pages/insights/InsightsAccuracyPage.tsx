@@ -71,7 +71,7 @@ const InsightsAccuracyPage = () => {
           </SeriesSection>
 
           <PlatformLine />
-          <HowComputed>"Majority" is the side priced above 50¢ when betting closed; "majority right" is the share of settled rounds where that side won. Only settled rounds count; assets need at least 5 settled rounds to be ranked. Monthly reports are frozen at month end and never edited.</HowComputed>
+          <HowComputed>In every round, the side priced above 50¢ is the <b className="font-medium text-foreground">majority</b> — the side more money is on. <b className="font-medium text-foreground">Majority right</b> is how often that side actually won. Only settled rounds count, and an asset needs at least 5 of them to be ranked. A monthly report is frozen at month end and never edited.</HowComputed>
           <Cite sentence={`${citeAccuracy(a, range ? range.label : "rolling 30-day")}${bestLen ? ` rising to ${bestLen.hit}% on ${minsLabel(bestLen.mins)} rounds.` : ""}`} url={`${SITE_URL}${path}`} />
         </>
       )}

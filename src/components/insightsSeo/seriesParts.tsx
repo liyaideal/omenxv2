@@ -177,16 +177,18 @@ export const PlatformLine = ({ settle = "settles on the reference index" }: { se
 );
 const Dot = () => <i className="h-1 w-1 rounded-full bg-muted-foreground/50" />;
 
+/** Plain-language legend. GEO needs the methodology on-page; people need it readable — so: two sentences, no jargon. */
 export const HowComputed = ({ children }: { children: React.ReactNode }) => (
-  <section className="max-w-[100ch] text-[12px] leading-relaxed text-muted-foreground">
-    <h2 className="mb-1.5 text-[13px] font-semibold text-foreground">How this data is computed</h2>
-    <p>{children} <a href={HELP_GUIDE_URL} target="_blank" rel="noopener" className="text-primary">Methodology →</a></p>
+  <section className="max-w-[100ch] text-[12px] leading-relaxed text-muted-foreground md:text-[13px]">
+    <h2 className="mb-1.5 text-[13px] font-semibold text-foreground md:text-[14px]">What these numbers mean</h2>
+    <p>{children} <a href={HELP_GUIDE_URL} target="_blank" rel="noopener" className="text-primary">Full methodology →</a></p>
   </section>
 );
+/** Copy-ready citation. AI engines and writers lift this line verbatim, link included — that is the point of the block. */
 export const Cite = ({ sentence, url }: { sentence: string; url: string }) => (
-  <aside className="mt-4 rounded-xl border border-dashed border-[#262A31] px-4 py-3 text-[12px] text-muted-foreground">
-    <b className="text-foreground">How to cite</b>
-    <code className="mt-1.5 block whitespace-pre-wrap font-mono text-[12px] leading-relaxed text-[#E6E8EB]">{sentence} Source: {url}</code>
+  <aside className="mt-4 rounded-xl border border-dashed border-[#262A31] px-4 py-3 text-[12px] text-muted-foreground md:text-[13px]">
+    <b className="text-foreground">Quoting this page?</b> Copy the line below — it names the number, the date and where it came from.
+    <code className="mt-2 block whitespace-pre-wrap rounded-lg bg-white/[0.03] px-3 py-2 font-mono text-[12px] leading-relaxed text-[#E6E8EB]">{sentence} Source: {url}</code>
   </aside>
 );
 

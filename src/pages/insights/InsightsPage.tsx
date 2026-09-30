@@ -125,7 +125,7 @@ const InsightsPage = () => {
           )}
 
           <PlatformLine />
-          <HowComputed>"Majority" is the side priced above 50¢ when betting closed; "majority right" is the share of settled rounds where that side won. Prices are the last traded price; volume is USDC traded. Figures refresh every 15 minutes; all times UTC.</HowComputed>
+          <HowComputed>In every round, the side priced above 50¢ is the <b className="font-medium text-foreground">majority</b> — the side more money is on. <b className="font-medium text-foreground">Majority right</b> is how often that side actually won. Prices are the last trade; "traded" is USDC volume. Numbers refresh every 15 minutes; all times are UTC.</HowComputed>
           <Cite sentence={`According to OmenX prediction market data, traders settled ${fmtInt(acc?.rounds_24h ?? 0)} Up-or-Down rounds in the 24 hours to ${fmtDate(asOf)} ${hhmm(asOf)} UTC, with the majority right ${acc?.hit_today ?? "—"}% of the time.`} url={`${SITE_URL}${INSIGHTS_PATH}`} />
           <p className="mt-6 font-mono text-[11px] text-muted-foreground/70">Daily digest: <Link to={`/insights/daily/${isoDate(now)}`} className="text-primary">{fmtDate(now)} →</Link></p>
         </>

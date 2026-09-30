@@ -89,7 +89,7 @@ const InsightsSportsPage = () => {
           </SeriesSection>
 
           <PlatformLine settle={`settles on the ${sport ? settleWord(sport) : "official result"}`} />
-          <HowComputed>"Crowd favourite" is the side priced above 50¢ at kick-off. "Favourite was right" is the share of settled matches the favourite won; a draw counts as wrong. Matches settle on the {sport ? settleWord(sport) : "official result"}. All times UTC.</HowComputed>
+          <HowComputed>The <b className="font-medium text-foreground">crowd favourite</b> is the team priced above 50¢ to win at kick-off — the side more money is on. <b className="font-medium text-foreground">Favourite won</b> is how often that team actually won; a draw counts as the favourite losing. Matches settle on the {sport ? settleWord(sport) : "official result"}. All times are UTC.</HowComputed>
           <Cite sentence={favWinPct == null ? `According to OmenX prediction market data, ${list.length} ${label.toLowerCase()} matches are open for trading as of ${now.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })}.` : `According to OmenX prediction market data, the crowd favourite won ${favWinPct}% of ${label.toLowerCase()} matches settled in the 30 days to ${now.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })}.`} url={`${SITE_URL}${path}`} />
           {hero && <StickyCta to={marketPath(hero.main)} label={`Trade ${hero.name}`} sub={hero.live ? "live" : undefined} />}
         </>
