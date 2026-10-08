@@ -21,7 +21,7 @@
 
 | # | 项 | Status | Notes |
 |---|---|---|---|
-| PT-1 | 成交量档（T2–T4）改近 30 天滚动，Filled + Closed；T1 入金终身；cap 终身累计不变 | ✅ | hook + 边缘函数同口径；边缘函数待 Lovable 部署 |
+| PT-1 | 成交量档（T2–T4）改近 30 天滚动，Filled + Closed；T1 入金终身；cap 终身累计不变 | ✅ | hook + 边缘函数同口径；边缘函数已部署；2026-10-08 主网 alex 复验：`$14,975.12 / $50k` 与 DB 30d 求和逐分对账一致，桌面 + 375 文案单行 |
 | PT-2 | 卡片文案：`Traded volume (30d)` / 档位句 in total / 到顶态句 + 置灰按钮（next unlock tier 可跳档） | ✅ | 零版式改动 |
 | PT-3 | 演示：`top_up_demo_voucher_volume()` + cron 05:25 UTC，alex 30d 常驻 ≥ $12k | ✅ | 首跑 $15,000.00；幂等实测 |
 | PT-4 | 字典 VC-2 +2 preset（T3 cap fully claimed / Dropped to T2 (30d)）+ spec 行 | ✅ | |
