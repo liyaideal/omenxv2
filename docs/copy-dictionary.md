@@ -182,12 +182,26 @@ Single source of truth for user-visible field names across the app.
 
 | Canonical | Meaning | Banned variants |
 |---|---|---|
-| **Volume tier** | Section label for the T1–T4 ladder | Tier progress, Volume gate |
-| **Filled volume** | Cumulative `trades.amount` where `status='Filled'` | Trading volume, Total volume |
-| **T0 / T1 / T2 / T3 / T4** | Tier labels with lifetime claim caps `$2 / $5 / $10 / $20 / $50` and unlocks `No req. / $10 deposit / $1K vol / $10K vol / $50K vol` | Tier 1, Level 1, Gold/Silver |
+| **Payout tier** | Section label for the T0–T4 ladder (card right cell) | Volume tier, Tier progress, Volume gate |
+| **Traded volume (30d)** | Row label. Value = `trades.amount` summed over the **trailing 30 days** (`created_at ≥ now − 30d`), `status IN ('Filled','Closed')`; Cancelled / Pending excluded. Rolls daily, no grace period (2026-10-08) | Filled volume, Trading volume, Total volume, Lifetime volume |
+| **T0 / T1 / T2 / T3 / T4** | Tier labels with **lifetime-cumulative** claim caps `$2 / $5 / $10 / $20 / $50` and unlocks `No req. / $10 deposit (lifetime) / $1K vol / $10K vol / $50K vol` (volume = 30d) | Tier 1, Level 1, Gold/Silver |
+| **T3 unlocks up to $20 in total — keep trading to hold your tier.** | Cap line, volume tier (T2–T4), below cap | …per claim, …per voucher |
+| **T0 unlocks up to $2 in total — trade more to raise the cap.** | Cap line, non-volume tier (T0 / T1), below cap | Trade to unlock claim caps |
+| **T3 cap fully claimed — reach T4 to unlock $30 more.** | Cap line when `lifetime_credited ≥ cap`; `T4` = **next unlock tier**, `$30` = its cap − lifetime_credited | Cap reached, Locked |
+| **All tier caps claimed.** | Cap line when no higher tier's cap exceeds lifetime_credited | — |
+| **$X more volume to T4** | Progress line toward the next ladder step (30d volume) | — |
 | **Claim $X to wallet** | Primary button when claimable > 0 | Claim to balance, Withdraw earnings |
-| **Tier cap claimed — reach next tier** | Button label when current-tier cap is exhausted | Cap reached, Locked |
-| **Trade more to unlock** | Button label when below T1 or no claimable | Volume required, Locked |
+| **Tier cap claimed — reach T4** | Disabled button when current-tier cap is exhausted (`T4` = next unlock tier) | Cap reached, Locked, reach next tier |
+| **Redeem a voucher** | Outline button when nothing is claimable and the cap is not exhausted | Trade more to unlock |
+
+Concepts (2026-10-08):
+
+| 词 | 一句定义 | 判定表达式 | 出处 |
+|---|---|---|---|
+| **30d volume** | 近 30 天的成交量，每天自然滚出，决定 T2–T4 档位 | `Σ trades.amount WHERE user_id = me AND status IN ('Filled','Closed') AND created_at ≥ now() − 30d` | `useVoucherEarnings` / `claim-voucher-earnings` |
+| **Lifetime cap** | 每档"这辈子一共最多领多少"，已领部分永不退回、换档不重置 | `claimable = min(pending, tier.maxClaim − lifetime_credited)` | `lib/voucherTiers.deriveVoucherTierState` |
+| **Next unlock tier** | 到顶后真正还能多给钱的下一档（可跳档：T2 已领 $20 → T4） | `first tier t WHERE t.maxClaim > lifetime_credited AND t.id > current.id` | `deriveVoucherTierState.nextUnlockTier` |
+| **Tier drop** | 30d 成交量跌破当前档门槛即时降档；无保护期、不追回、pending 不清零 | `current = highest tier whose unlock is met by (depositTotal, volume30d)` | 同上 |
 
 Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are capped at $5.00` — that's prose, not a labeled field, and is allowed.
 

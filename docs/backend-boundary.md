@@ -86,7 +86,7 @@
 |---|---|---|
 | claim-position-voucher | 🟢 | 券领取规则 |
 | redeem-position-voucher | 🟢 | 券核销开仓规则 |
-| claim-voucher-earnings | 🟢 | 5 阶解冻校验（必须与前端 voucherTiers 同配置） |
+| claim-voucher-earnings | 🟢 | 5 阶解冻校验（必须与前端 voucherTiers 同配置）。**2026-10-08：成交量档读近 30 天 `trades`（Filled + Closed，`created_at ≥ now − 30d`）；cap 仍终身累计（`min(pending, cap − lifetime_credited)`）** |
 | close-trial-position | 🟢 | 券仓平仓盈利只进 pending，不直接进钱包 |
 | claim-task | 🟢 | 任务奖励，达标 ≠ 发放 |
 | claim-treasure | 🟢 | 宝箱发放 |
@@ -229,5 +229,6 @@
 | `referrals_campaign_hook()`：好友合格 → 只驱动邀请人所在活动里 `referrals_qualified` 任务 +1，**不写 referrals 表** | 🟢 | 与 Referral 分页每人 $5 券各算各的（2026-09-26 Liya 拍板，取代 09-25 的"不叠加 / counted_toward"）；正式版同样两条独立路径，不需要跨模块判断 |
 | `hold_positions`：平仓事件 + pg_cron `campaign-hold-sweep`（每小时 :15） | 🟡 | 正式版可改事件驱动；含自动平仓 |
 | 演示滚动器 `roll_demo_campaign_daily()` + pg_cron `roll-demo-campaign-daily`（00:02 UTC） | 🔴 演示专用 | 只重写 alex_carter 的 daily_trade 期记录与对应流水；正式版不存在 |
+| 演示补量 `top_up_demo_voucher_volume()` + pg_cron `top-up-demo-voucher-volume`（05:25 UTC） | 🔴 演示专用 | alex_carter 近 30 天成交量 < $12k 时补一笔已结算合约单（trade + Closed position + trade_profit 流水，≤ $4k/次，目标 $15k）让 Vouchers 页 Payout tier 常驻 T3；正式版不存在。migration `20261008120000` |
 | `active_days`：distinct UTC 日，`min_notional` 缺省 $10 | 🟡 | 照抄 |
 | `claim-campaign-grant` 解析 `@period` / `#s<n>` | 🟡 | 只服务券 |

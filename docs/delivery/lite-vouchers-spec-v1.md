@@ -61,7 +61,7 @@
 |---|---|
 | `position_vouchers` | 券本体：`face_value` / `redeemable_cap_pct`（现值 0.5）/ `max_holding_hours` / `entry_price_min`·`max` / `min_hours_to_settlement` / `status` / `payout_mode` / `claimed_at` / `expires_at` / `event_id` |
 | `voucher_daily_pools` | 每日限量：按 UTC 日计数，读取走 `get_voucher_pool_today()` |
-| `voucher_earnings` (+ ledger) | 共享 pending 池：`pending` / `lifetime_credited`；claim 走 `min(pending, tier.cap − lifetime_credited)` |
+| `voucher_earnings` (+ ledger) | 共享 pending 池：`pending` / `lifetime_credited`；claim 走 `min(pending, tier.cap − lifetime_credited)`。**档位成交量自 2026-10-08 起为近 30 天滚动**，见 [payout-tier-30d-v1](./payout-tier-30d-v1.md) |
 | `airdrop_positions` | 券兑换出的仓位实体，持有到 `max_holding_hours` 自动平仓 |
 
 RLS：三张用户表均按 `auth.uid()` 限定行；池表对 `authenticated` 只读。触发器：结算时按 `payout_mode` 分流入账，instant 分支幂等。
@@ -140,3 +140,7 @@ granted 券行显示 `Claim voucher`；点击后 `status → claimed`，进入 7
 - 券发放规则、每日限量额度、档位金额（T0 $2 / T1 $5 / T2 $10 / T3 $20 / T4 $50；解锁条件 No req. / $10 deposit / $1K vol / $10K vol / $50K vol，与 `src/lib/voucherTiers.ts` 一致）全部照旧。
 - `/rewards` 三个 tab 的顺序与 Campaigns / Referral 两个 tab 的内容未动。
 - 生产页版式零改动：本轮生产文件的改动只有可选 prop（`defaultExpanded` / `stubDefaultOpen` / `fixture`）与一处落点文案对齐词典。移动版式为 CPO 亲定，实现以生产代码为唯一事实。
+
+## 10. 追加 · 2026-10-08 · Payout tier 近 30 天滚动
+
+档位口径改动单独成文：[payout-tier-30d-v1.md](./payout-tier-30d-v1.md)。一句话：**T2–T4 看近 30 天成交量（Filled + Closed），每日滚出即降档、无保护期；T1 入金终身；cap 仍终身累计，换档不重置。** 字典 VC-2 加「到顶」「降档」两个 preset。
