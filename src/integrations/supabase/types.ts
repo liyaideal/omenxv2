@@ -1968,6 +1968,7 @@ export type Database = {
             }
             Returns: number
           }
+      archive_sports_result: { Args: { p_id: string }; Returns: undefined }
       campaign_hold_sweep: { Args: never; Returns: number }
       campaign_metric_value: {
         Args: {
@@ -2051,6 +2052,60 @@ export type Database = {
         Returns: boolean
       }
       increment_referral_uses: { Args: { _code: string }; Returns: undefined }
+      insights_accuracy: {
+        Args: { p_from: string; p_to?: string }
+        Returns: Json
+      }
+      insights_event_activity: {
+        Args: { p_from: string; p_to?: string }
+        Returns: {
+          event_name: string
+          trades: number
+          volume: number
+        }[]
+      }
+      insights_movers: {
+        Args: { p_from: string; p_to?: string }
+        Returns: {
+          event_id: string
+          first_at: string
+          first_price: number
+          last_at: string
+          last_price: number
+          option_id: string
+        }[]
+      }
+      insights_platform_stats: { Args: never; Returns: Json }
+      insights_series: {
+        Args: { p_from: string; p_option_ids: string[]; p_to?: string }
+        Returns: {
+          option_id: string
+          price: number
+          recorded_at: string
+        }[]
+      }
+      insights_series_detail: { Args: { p_slug: string }; Returns: Json }
+      insights_series_list: { Args: never; Returns: Json }
+      insights_snapshot_prices: { Args: never; Returns: undefined }
+      insights_updown_rounds: {
+        Args: { p_from?: string }
+        Returns: {
+          asset: string
+          down_price: number
+          end_date: string
+          event_id: string
+          family: string
+          freeze_time: string
+          is_resolved: boolean
+          mins: number
+          slug: string
+          start_date: string
+          ticker: string
+          up_price: number
+          up_won: boolean
+          volume: number
+        }[]
+      }
       list_my_sessions: {
         Args: never
         Returns: {
@@ -2074,6 +2129,7 @@ export type Database = {
       roll_crypto_quick_rounds: { Args: never; Returns: Json }
       roll_daily_hk_stock_events: { Args: never; Returns: number }
       roll_daily_stock_events: { Args: never; Returns: number }
+      roll_demo_campaign_daily: { Args: never; Returns: undefined }
       roll_demo_positions: { Args: never; Returns: Json }
       roll_sports_matches: { Args: never; Returns: Json }
       settle_futures_event: { Args: { p_event_id: string }; Returns: number }
@@ -2100,28 +2156,8 @@ export type Database = {
       }
       tick_demo_showcase: { Args: never; Returns: Json }
       tick_demo_wta: { Args: never; Returns: Json }
-      insights_event_activity: {
-        Args: { p_from: string; p_to?: string }
-        Returns: { event_name: string; trades: number; volume: number }[]
-      }
-      insights_movers: {
-        Args: { p_from: string; p_to?: string }
-        Returns: {
-          event_id: string
-          option_id: string
-          first_price: number
-          last_price: number
-          first_at: string
-          last_at: string
-        }[]
-      }
-      insights_platform_stats: { Args: never; Returns: Json }
-      insights_series: {
-        Args: { p_option_ids: string[]; p_from: string; p_to?: string }
-        Returns: { option_id: string; price: number; recorded_at: string }[]
-      }
-      insights_snapshot_prices: { Args: never; Returns: undefined }
       tick_live_matches: { Args: never; Returns: Json }
+      top_up_demo_voucher_volume: { Args: never; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
