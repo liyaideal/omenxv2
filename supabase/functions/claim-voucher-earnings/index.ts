@@ -19,6 +19,8 @@ const TIERS: Tier[] = [
   { id: 3, maxClaim: 20, unlock: { kind: 'volume',  amount: 10_000 } },
   { id: 4, maxClaim: 50, unlock: { kind: 'volume',  amount: 50_000 } },
 ]
+const VOLUME_WINDOW_DAYS = 30 // keep in sync with VOUCHER_VOLUME_WINDOW_DAYS
+
 function meets(u: Unlock, deposit: number, volume: number): boolean {
   if (u.kind === 'none') return true
   if (u.kind === 'deposit') return deposit >= u.amount
@@ -69,7 +71,13 @@ Deno.serve(async (req) => {
     }
 
     const [{ data: trades, error: tErr }, { data: deposits, error: dErr }] = await Promise.all([
-      admin.from('trades').select('amount').eq('user_id', user.id).eq('status', 'Filled'),
+      // Trailing 30-day filled volume (Filled + Closed) — mirrors src/lib/voucherTiers.ts.
+      admin
+        .from('trades')
+        .select('amount')
+        .eq('user_id', user.id)
+        .in('status', ['Filled', 'Closed'])
+        .gte('created_at', new Date(Date.now() - VOLUME_WINDOW_DAYS * 86_400_000).toISOString()),
       admin.from('transactions').select('amount').eq('user_id', user.id).eq('type', 'deposit').eq('status', 'completed'),
     ])
     if (tErr) return json({ error: tErr.message }, 500)

@@ -226,7 +226,7 @@ export const Vouchers2RowsPreview = () => {
    dictionary iframe issues zero supabase queries and mounts zero realtime
    subscriptions; the Claim button is inert. */
 
-type HeroState = "claimable" | "locked" | "zero" | "loading" | "claiming";
+type HeroState = "claimable" | "locked" | "capped" | "dropped" | "zero" | "loading" | "claiming";
 
 export const Vouchers2EarningsPreview = () => {
   const isMobile = useIsMobile();
@@ -235,6 +235,10 @@ export const Vouchers2EarningsPreview = () => {
   const base =
     state === "locked"
       ? { pending: 12.5, lifetimeCredited: 2, volume: 120, depositTotal: 0 }
+      : state === "capped"
+        ? { pending: 3.1, lifetimeCredited: 20, volume: 13_725.98, depositTotal: 500 }
+        : state === "dropped"
+          ? { pending: 3.1, lifetimeCredited: 20, volume: 2_480, depositTotal: 500 }
       : state === "zero"
         ? { pending: 0, lifetimeCredited: 6, volume: 3_200, depositTotal: 50 }
         : { pending: 18.4, lifetimeCredited: 4, volume: 12_400, depositTotal: 250 };
@@ -254,6 +258,8 @@ export const Vouchers2EarningsPreview = () => {
         options={[
           { id: "claimable", label: "Claimable (T3)" },
           { id: "locked", label: "Locked (T0 · cap reached)" },
+          { id: "capped", label: "T3 · cap fully claimed" },
+          { id: "dropped", label: "Dropped to T2 (30d) · $20 claimed" },
           { id: "zero", label: "Pending $0" },
           { id: "loading", label: "Loading" },
           { id: "claiming", label: "Claiming…" },
@@ -264,7 +270,9 @@ export const Vouchers2EarningsPreview = () => {
       </Frame>
       <p className="text-[11px] leading-relaxed text-muted-foreground">
         Tier rail carries the volume ladder underneath each segment (T0 $0 · T1 $10 dep · T2 $1k · T3 $10k ·
-        T4 $50k). The stats strip is one line and never wraps to a second row on desktop.
+        T4 $50k). Volume tiers read the trailing 30-day filled volume; caps are lifetime-cumulative, so a
+        dropped tier whose cap is already claimed points at the next tier that still pays (T2 → T4 here).
+        The stats strip is one line and never wraps to a second row on desktop.
       </p>
     </div>
   );

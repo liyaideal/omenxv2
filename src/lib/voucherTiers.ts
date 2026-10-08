@@ -3,6 +3,25 @@
 //   - VoucherEarningsCard (UI)
 //   - claim-voucher-earnings edge function (server-side copy must stay in sync)
 //   - StyleGuide / Vouchers playground
+//
+// Tier semantics (2026-10-08, Liya):
+//   - Volume tiers (T2+) look at the TRAILING 30-DAY traded volume — filled
+//     orders (status Filled or Closed) with created_at inside the window.
+//     Volume ages out day by day; the tier drops with it, no grace period.
+//   - T1 (deposit) is lifetime: once $10 has been deposited it never lapses.
+//   - Caps are LIFETIME cumulative: claim = min(pending, cap − lifetime_credited).
+//     lifetime_credited never resets, so a dropped tier never re-pays what a
+//     higher tier already released — the only way to more is a higher tier.
+
+/** Trailing window (days) for volume-unlocked tiers. Server copy must match. */
+export const VOUCHER_VOLUME_WINDOW_DAYS = 30;
+
+/** ISO timestamp of the window start, for `.gte("created_at", …)` filters. */
+export const voucherVolumeWindowStart = (now: number = Date.now()): string =>
+  new Date(now - VOUCHER_VOLUME_WINDOW_DAYS * 86_400_000).toISOString();
+
+/** Trade statuses that count as filled volume (Cancelled / Pending do not). */
+export const VOUCHER_VOLUME_TRADE_STATUSES = ["Filled", "Closed"] as const;
 
 export type VoucherTierUnlock =
   | { kind: "none" }
@@ -34,6 +53,13 @@ export interface VoucherTierState {
   unlockedCap: number;
   claimable: number;
   lifetimeAtCap: boolean;
+  /**
+   * First tier above `current` whose cap still exceeds lifetimeCredited —
+   * i.e. the tier that would actually release more money. Null when every
+   * tier's cap is already claimed. Drives the "reach T4 to unlock $30 more"
+   * line; may skip tiers (dropped from T3 to T2 with $20 claimed → T4).
+   */
+  nextUnlockTier: VoucherTier | null;
   /** Progress info toward `next` tier (null if at top). */
   nextProgress: {
     kind: VoucherTierUnlock["kind"];
@@ -72,6 +98,8 @@ export function deriveVoucherTierState(
   const headroom = Math.max(0, unlockedCap - lifetimeCredited);
   const claimable = Math.max(0, Math.min(pending, headroom));
   const lifetimeAtCap = !!current && lifetimeCredited >= unlockedCap;
+  const nextUnlockTier =
+    VOUCHER_TIERS.find((t) => t.maxClaim > lifetimeCredited && (!current || t.id > current.id)) ?? null;
 
   let nextProgress: VoucherTierState["nextProgress"] = null;
   if (next) {
@@ -85,7 +113,11 @@ export function deriveVoucherTierState(
     }
   }
 
-  return { current, next, unlockedCap, claimable, lifetimeAtCap, nextProgress };
+  return { current, next, unlockedCap, claimable, lifetimeAtCap, nextUnlockTier, nextProgress };
 }
 
 export const formatTierCap = (t: VoucherTier) => `$${t.maxClaim.toLocaleString()}`;
+
+/** "$30" for whole numbers, "$13.42" otherwise — for "unlock $X more" copy. */
+export const formatCapDelta = (n: number) =>
+  Number.isInteger(n) ? `$${n.toLocaleString()}` : `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;

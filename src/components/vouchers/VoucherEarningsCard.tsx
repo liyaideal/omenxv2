@@ -1,6 +1,6 @@
 import { t } from "@/i18n";
 import { useVoucherEarnings } from "@/hooks/useVoucherEarnings";
-import { VOUCHER_TIERS, formatTierCap, deriveVoucherTierState } from "@/lib/voucherTiers";
+import { VOUCHER_TIERS, formatTierCap, formatCapDelta, deriveVoucherTierState } from "@/lib/voucherTiers";
 import { VT, money, compactMoney } from "./voucherTokens";
 
 /**
@@ -69,7 +69,7 @@ export const VoucherEarningsCard = ({ data, fixture, stats, mobile, onRedeemProm
     : live.tierState;
   const canClaim = source ? tierState.claimable > 0 : live.canClaim;
 
-  const { current, next, claimable, nextProgress } = tierState;
+  const { current, next, claimable, nextProgress, lifetimeAtCap, nextUnlockTier } = tierState;
 
   const topTier = VOUCHER_TIERS[VOUCHER_TIERS.length - 1];
   const topVolume = topTier.unlock.kind === "volume" ? topTier.unlock.amount : 0;
@@ -81,9 +81,17 @@ export const VoucherEarningsCard = ({ data, fixture, stats, mobile, onRedeemProm
     return "";
   })();
 
-  const capLine = current
-    ? `${current.label} releases up to ${formatTierCap(current)} per claim. Higher volume raises the cap.`
-    : "Trade to unlock claim caps.";
+  // Cap is lifetime-cumulative; volume tiers (T2+) are held by trailing 30-day volume.
+  const capLine = (() => {
+    if (!current) return "Trade to unlock claim caps.";
+    if (lifetimeAtCap) {
+      return nextUnlockTier
+        ? `${current.label} cap fully claimed — reach ${nextUnlockTier.label} to unlock ${formatCapDelta(nextUnlockTier.maxClaim - lifetimeCredited)} more.`
+        : "All tier caps claimed.";
+    }
+    const tail = current.unlock.kind === "volume" ? "keep trading to hold your tier." : "trade more to raise the cap.";
+    return `${current.label} unlocks up to ${formatTierCap(current)} in total — ${tail}`;
+  })();
 
   /* ------------------------------ left cell ------------------------------ */
   const leftCell = (
@@ -217,7 +225,7 @@ export const VoucherEarningsCard = ({ data, fixture, stats, mobile, onRedeemProm
         className="flex items-baseline justify-between gap-[8px]"
         style={{ paddingTop: 9, borderTop: `1px solid ${VT.line}` }}
       >
-        <span style={{ fontSize: 11, color: VT.muted }}>{t("rewards.screen.voucher_earnings_card.traded_volume")}</span>
+        <span style={{ fontSize: 11, color: VT.muted }}>{t("rewards.screen.voucher_earnings_card.traded_volume")} (30d)</span>
         <span className="font-display tabular-nums" style={{ fontSize: 11.5, fontWeight: 700, color: VT.ink }}>
           ${money(volume)} <span style={{ color: VT.muted, fontWeight: 600 }}>/ {compactMoney(topVolume)}</span>
         </span>
@@ -243,6 +251,23 @@ export const VoucherEarningsCard = ({ data, fixture, stats, mobile, onRedeemProm
           }}
         >
           {claiming ? "Claiming…" : `Claim $${money(claimable)} to wallet`}
+        </button>
+      ) : lifetimeAtCap ? (
+        <button
+          type="button"
+          disabled
+          className="font-display w-full rounded-[10px] mt-auto"
+          style={{
+            minHeight: 44,
+            border: `1px solid ${VT.line3}`,
+            background: "transparent",
+            color: VT.muted2,
+            fontSize: 13,
+            fontWeight: 600,
+            cursor: "default",
+          }}
+        >
+          {nextUnlockTier ? `Tier cap claimed — reach ${nextUnlockTier.label}` : "All tier caps claimed"}
         </button>
       ) : (
         <button

@@ -2,7 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { VOUCHER_TIERS, deriveVoucherTierState } from "@/lib/voucherTiers";
+import {
+  VOUCHER_TIERS,
+  VOUCHER_VOLUME_TRADE_STATUSES,
+  deriveVoucherTierState,
+  voucherVolumeWindowStart,
+} from "@/lib/voucherTiers";
 
 interface VoucherEarningsState {
   pending: number;
@@ -45,11 +50,13 @@ export function useVoucherEarnings(options?: { enabled?: boolean }) {
         .select("pending_amount, lifetime_credited")
         .eq("user_id", user.id)
         .maybeSingle(),
+      // Trailing 30-day filled volume (Filled + Closed; Cancelled / Pending excluded).
       supabase
         .from("trades")
         .select("amount")
         .eq("user_id", user.id)
-        .eq("status", "Filled"),
+        .in("status", [...VOUCHER_VOLUME_TRADE_STATUSES])
+        .gte("created_at", voucherVolumeWindowStart()),
       supabase
         .from("transactions")
         .select("amount")
