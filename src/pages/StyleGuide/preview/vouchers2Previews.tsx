@@ -226,7 +226,7 @@ export const Vouchers2RowsPreview = () => {
    dictionary iframe issues zero supabase queries and mounts zero realtime
    subscriptions; the Claim button is inert. */
 
-type HeroState = "claimable" | "locked" | "capped" | "dropped" | "zero" | "loading" | "claiming";
+type HeroState = "claimable" | "locked" | "capped" | "dropped" | "top" | "maxed" | "zero" | "loading" | "claiming";
 
 export const Vouchers2EarningsPreview = () => {
   const isMobile = useIsMobile();
@@ -239,6 +239,10 @@ export const Vouchers2EarningsPreview = () => {
         ? { pending: 3.1, lifetimeCredited: 20, volume: 13_725.98, depositTotal: 500 }
         : state === "dropped"
           ? { pending: 3.1, lifetimeCredited: 20, volume: 2_480, depositTotal: 500 }
+          : state === "top"
+            ? { pending: 12.4, lifetimeCredited: 20, volume: 61_200, depositTotal: 500 }
+            : state === "maxed"
+              ? { pending: 4.75, lifetimeCredited: 50, volume: 61_200, depositTotal: 500 }
       : state === "zero"
         ? { pending: 0, lifetimeCredited: 6, volume: 3_200, depositTotal: 50 }
         : { pending: 18.4, lifetimeCredited: 4, volume: 12_400, depositTotal: 250 };
@@ -260,6 +264,8 @@ export const Vouchers2EarningsPreview = () => {
           { id: "locked", label: "Locked (T0 · cap reached)" },
           { id: "capped", label: "T3 · cap fully claimed" },
           { id: "dropped", label: "Dropped to T2 (30d) · $20 claimed" },
+          { id: "top", label: "T4 · $30 left" },
+          { id: "maxed", label: "T4 · $50 lifetime max claimed" },
           { id: "zero", label: "Pending $0" },
           { id: "loading", label: "Loading" },
           { id: "claiming", label: "Claiming…" },

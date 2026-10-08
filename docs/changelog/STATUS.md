@@ -26,7 +26,7 @@
 | PT-3 | 演示：`top_up_demo_voucher_volume()` + cron 05:25 UTC，alex 30d 常驻 ≥ $12k | ✅ | 首跑 $15,000.00；幂等实测 |
 | PT-4 | 字典 VC-2 +2 preset（T3 cap fully claimed / Dropped to T2 (30d)）+ spec 行 | ✅ | |
 | PT-5 | 词典 Voucher earnings tiers 节重写 + Concepts 表；backend-boundary；spec §10 | ✅ | |
-| PT-6 | T4 进度句 "full pending balance is claimable" 与终身 cap 矛盾 | ⚠️ | 待 Liya 拍板，建议 "Top tier reached — $30 left under the T4 cap." |
+| PT-6 | T4 进度句改 `Top tier reached — $30 left under the T4 cap.` / 领满 `Top tier reached.`；领满说明句 `T4 cap fully claimed — $50 is the lifetime maximum.`；字典 VC-2 +2 preset（T4 两态） | ✅ | Liya 2026-10-08 批 |
 
 ## 2026-09-28 — 语言切换入口 LE-1（[文档](../delivery/language-entry-v1.md)）
 

@@ -64,8 +64,10 @@ Payout tier 是 Vouchers 页右上角那个 T0–T4 的阶梯：档位越高，�
 | `claimable > 0` | 成交量档：`T3 unlocks up to $20 in total — keep trading to hold your tier.`；T0/T1：`T0 unlocks up to $2 in total — trade more to raise the cap.` | 白底 `Claim $4.20 to wallet` |
 | `claimable = 0`，未到顶（pending = 0） | 同上 | 描边 `Redeem a voucher` |
 | `lifetime_credited ≥ cap`，有 next unlock tier | `T3 cap fully claimed — reach T4 to unlock $30 more.`（`$30` = T4.cap − lifetime_credited，整数不带小数） | 置灰 `Tier cap claimed — reach T4` |
-| `lifetime_credited ≥ cap`，无更高档 | `All tier caps claimed.` | 置灰 `All tier caps claimed` |
-| T4 | 进度句 `Top tier reached — the full pending balance is claimable.`（**未改**，见 §6） | 同第一行 |
+| `lifetime_credited ≥ cap`，无更高档（T4 领满 $50，或从 T4 掉档且已领 $50） | `T4 cap fully claimed — $50 is the lifetime maximum.` | 置灰 `All tier caps claimed` |
+| T4 进度句 | `Top tier reached — $30 left under the T4 cap.`（`$30` = $50 − lifetime_credited）；领满后 `Top tier reached.` | — |
+
+**"$50 到顶在哪看"（Liya 2026-10-08 问）**：就在这张卡——左栏 `Lifetime claimed $50.00`、右栏进度句 `Top tier reached.` + 说明句 `T4 cap fully claimed — $50 is the lifetime maximum.` + 置灰按钮 `All tier caps claimed`。字典 VC-2 preset `T4 · $50 lifetime max claimed`。
 
 `next unlock tier` = `VOUCHER_TIERS.find(t => t.maxClaim > lifetime_credited && t.id > current.id)`。
 
@@ -95,7 +97,7 @@ Payout tier 是 Vouchers 页右上角那个 T0–T4 的阶梯：档位越高，�
 
 ## 6. 未了账 / 待拍板
 
-- T4 进度句 "Top tier reached — the full pending balance is claimable." 与终身 cap 矛盾（T4 也只能总共领 $50）。建议改 "Top tier reached — $30 left under the T4 cap."；Liya 未拍板，本轮未动。
+- ~~T4 进度句~~ 2026-10-08 Liya 批改：`Top tier reached — $30 left under the T4 cap.` / 领满 `Top tier reached.`（已落）。
 - i18n：`en.json` 里 `tier_claim_cap` / `tier_cap_claimed` 等 key 文案与本轮定稿不同且组件未接线（卡片其余句子本就硬编码英文）；多语言二期接线时按本文 §2 更新 7 语。
 
 ## 7. 验收剧本
@@ -107,6 +109,7 @@ Payout tier 是 Vouchers 页右上角那个 T0–T4 的阶梯：档位越高，�
 | 3 | `/style-guide` → Vouchers → VC-2 → `T3 · cap fully claimed` | 说明句 `T3 cap fully claimed — reach T4 to unlock $30 more.`，置灰 `Tier cap claimed — reach T4` | desktop + mobile 单行不折 |
 | 4 | VC-2 → `Dropped to T2 (30d)` | 轨 2 段实心、T2 描边，`$2,480.00 / $50k`，`$7,520.00 more volume to T3`，说明句 `T2 cap fully claimed — reach T4 to unlock $30 more.` | 跳档指向 T4 |
 | 5 | VC-2 → `Locked (T0 · cap reached)` | `T0 cap fully claimed — reach T1 to unlock $3 more.` | 非成交量档也走到顶句 |
+| 5b | VC-2 → `T4 · $30 left` / `T4 · $50 lifetime max claimed` | 进度句 `Top tier reached — $30 left under the T4 cap.` / `Top tier reached.` + `T4 cap fully claimed — $50 is the lifetime maximum.` + 置灰 `All tier caps claimed`，Lifetime claimed `$50.00` | 终身上限态 |
 | 6 | 字典页滚到底 → `sg-overflow-scan.js` | 0 命中 | — |
 
 ## 8. 文件

@@ -75,7 +75,11 @@ export const VoucherEarningsCard = ({ data, fixture, stats, mobile, onRedeemProm
   const topVolume = topTier.unlock.kind === "volume" ? topTier.unlock.amount : 0;
 
   const nextLine = (() => {
-    if (!next || !nextProgress) return "Top tier reached — the full pending balance is claimable.";
+    if (!next || !nextProgress) {
+      // Top tier: say how much the lifetime cap still allows (cap is cumulative, not "all pending").
+      const headroom = current ? Math.max(0, current.maxClaim - lifetimeCredited) : 0;
+      return headroom > 0 ? `Top tier reached — ${formatCapDelta(headroom)} left under the T4 cap.` : "Top tier reached.";
+    }
     if (nextProgress.kind === "deposit") return `$${money(nextProgress.remaining)} more deposit to ${next.label}`;
     if (nextProgress.kind === "volume") return `$${money(nextProgress.remaining)} more volume to ${next.label}`;
     return "";
@@ -87,7 +91,7 @@ export const VoucherEarningsCard = ({ data, fixture, stats, mobile, onRedeemProm
     if (lifetimeAtCap) {
       return nextUnlockTier
         ? `${current.label} cap fully claimed — reach ${nextUnlockTier.label} to unlock ${formatCapDelta(nextUnlockTier.maxClaim - lifetimeCredited)} more.`
-        : "All tier caps claimed.";
+        : `${current.label} cap fully claimed — ${formatTierCap(topTier)} is the lifetime maximum.`;
     }
     const tail = current.unlock.kind === "volume" ? "keep trading to hold your tier." : "trade more to raise the cap.";
     return `${current.label} unlocks up to ${formatTierCap(current)} in total — ${tail}`;

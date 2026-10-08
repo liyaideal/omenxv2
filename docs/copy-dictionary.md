@@ -188,7 +188,9 @@ Single source of truth for user-visible field names across the app.
 | **T3 unlocks up to $20 in total — keep trading to hold your tier.** | Cap line, volume tier (T2–T4), below cap | …per claim, …per voucher |
 | **T0 unlocks up to $2 in total — trade more to raise the cap.** | Cap line, non-volume tier (T0 / T1), below cap | Trade to unlock claim caps |
 | **T3 cap fully claimed — reach T4 to unlock $30 more.** | Cap line when `lifetime_credited ≥ cap`; `T4` = **next unlock tier**, `$30` = its cap − lifetime_credited | Cap reached, Locked |
-| **All tier caps claimed.** | Cap line when no higher tier's cap exceeds lifetime_credited | — |
+| **T4 cap fully claimed — $50 is the lifetime maximum.** | Cap line when no higher tier's cap exceeds lifetime_credited (T4 maxed, or dropped from T4 with $50 claimed) | All caps reached, Maxed out |
+| **Top tier reached — $30 left under the T4 cap.** | Progress line at T4 (`$30` = $50 − lifetime_credited); `Top tier reached.` once maxed | Top tier reached — the full pending balance is claimable |
+| **All tier caps claimed** | Disabled button when no higher tier's cap exceeds lifetime_credited | — |
 | **$X more volume to T4** | Progress line toward the next ladder step (30d volume) | — |
 | **Claim $X to wallet** | Primary button when claimable > 0 | Claim to balance, Withdraw earnings |
 | **Tier cap claimed — reach T4** | Disabled button when current-tier cap is exhausted (`T4` = next unlock tier) | Cap reached, Locked, reach next tier |

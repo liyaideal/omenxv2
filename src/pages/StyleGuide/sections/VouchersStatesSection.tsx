@@ -58,7 +58,7 @@ const CASES: SectionCase[] = [
   },
   {
     key: "vouchers2-earnings",
-    label: "VC-2 · 收益 hero 七态（VoucherEarningsCard）",
+    label: "VC-2 · 收益 hero 九态（VoucherEarningsCard）",
     note: "本 case 走 M4a-① 的 `fixture` prop：`useVoucherEarnings({ enabled: false })` 直接返回，字典 iframe 零 supabase 查询、零 realtime 订阅，Claim 按钮 inert。2026-10-08 起：成交量档（T2–T4）看**近 30 天滚动**成交量（Filled + Closed，按 created_at），量滚出即降档、无保护期；T1 入金门槛终身；cap 为**终身累计**（claim = min(pending, cap − lifetime_credited)，lifetime_credited 永不重置）。",
     spec: [
       {
@@ -104,7 +104,13 @@ const CASES: SectionCase[] = [
       { state: "T1", when: "depositTotal ≥ $10", visual: "cap $5 · 轨下 `$10 dep`", source: "lib/voucherTiers.ts" },
       { state: "T2", when: "volume(30d) ≥ $1,000", visual: "cap $10 · 轨下 `$1k`", source: "lib/voucherTiers.ts" },
       { state: "T3", when: "volume(30d) ≥ $10,000", visual: "cap $20 · 轨下 `$10k`", source: "lib/voucherTiers.ts" },
-      { state: "T4", when: "volume(30d) ≥ $50,000", visual: "cap $50 · 顶档句「Top tier reached — the full pending balance is claimable.」", source: "lib/voucherTiers.ts" },
+      { state: "T4", when: "volume(30d) ≥ $50,000", visual: "cap $50 · 进度句「Top tier reached — $30 left under the T4 cap.」（$30 = cap − lifetimeCredited）", source: "lib/voucherTiers.ts" },
+      {
+        state: "T4 领满 $50（终身上限）",
+        when: "current = T4 && lifetimeCredited ≥ 50（nextUnlockTier = null）",
+        visual: "进度句「Top tier reached.」· 说明句「T4 cap fully claimed — $50 is the lifetime maximum.」· 置灰按钮「All tier caps claimed」· 左栏 Lifetime claimed `$50.00`",
+        source: "VoucherEarningsCard capLine / 按钮分支",
+      },
     ],
   },
   {
