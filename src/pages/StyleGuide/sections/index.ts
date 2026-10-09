@@ -15,6 +15,7 @@ export { WorldCupSection } from "./WorldCupSection";
 export { SpotSection } from "./SpotSection";
 export { ProTradeTerminalPage, ProSpotTerminalPage, ProSharedTerminalPage } from "./ProSpotSection";
 export { LiteSpotSection } from "./LiteSpotSection";
+export { TableStatesSection } from "./TableStatesSection";
 export { LiteSection } from "./LiteSection";
 export { LiteAllStageSection } from "./LiteAllStageSection";
 export { LiteVerticalViewsSection } from "./LiteVerticalViewsSection";

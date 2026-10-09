@@ -52,6 +52,7 @@ const eventSelector = () => import("./eventSelectorPreviews");
 const marketRow = () => import("./marketRowPreviews");
 const share = () => import("./sharePreviews");
 const sportsLive = () => import("./sportsLivePreviews");
+const table = () => import("./tablePreviews");
 
 
 export const previewRegistry: Record<string, Loader> = {
@@ -379,6 +380,14 @@ export const previewRegistry: Record<string, Loader> = {
   "pro-spot-mobile-dock": pick(proSpot, "ProSpotMobileDockStates"),
 
 
+  /* -------- Lite /spot · Table（TB-1 … TB-6）-------- */
+  "table-tb1": pick(table, "Tb1Preview"),
+  "table-tb2": pick(table, "Tb2Preview"),
+  "table-tb2b": pick(table, "Tb2bPreview"),
+  "table-tb3": pick(table, "Tb3Preview"),
+  "table-tb4": pick(table, "Tb4Preview"),
+  "table-tb5": pick(table, "Tb5Preview"),
+  "table-tb6": pick(table, "Tb6Preview"),
   "spot-sp1": pick(spot, "Sp1Preview"),
   "spot-sp2": pick(spot, "Sp2Preview"),
   "spot-sp3": pick(spot, "Sp3Preview"),

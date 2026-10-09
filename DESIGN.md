@@ -2234,3 +2234,18 @@ Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED
 7. **移动列表行**（`List/Row/Name`）：两行——名 + 右侧一个时间 / Up·Down 对 + 右侧一个"准不准"；页面留上下文 + `StickyCta`（资产页 / 运动页），首页与报告页用 BottomNav。
 8. **开篇**：`SeriesOpening` = display H1（40 / 移动 28）+ eyebrow + lede + as-of，走 Page Openings 的 SEO 页豁免；**无面包屑**（PD-6，2026-09-28 CPO 打回）；`MobileHeader titleAs="div"`，全页唯一 h1。
 9. **页尾三件**固定：`PlatformLine`（品牌句）→ `HowComputed` → `Cite`。
+
+## §Addendum 2026-10-09 · Lite Table（5m / 15m 加密快轮 · 筹码上桌下单，LOCKED · 内测）
+
+来源：CPO 2026-10-09 拍板（独立原型 OmenX Table v23 + 比稿画布 H8）；规格 `docs/delivery/lite-table-spec-v1.md`；字典 Lite › Table TB-1…TB-6（`/style-guide` → 交易页 → Table）。**作用域**：`src/components/lite/table/*`、`src/pages/lite/LiteQuickTable.tsx`、`src/lib/tableMode.ts`、`src/lib/formatPrice.ts`、`src/services/tableTradeService.ts`。
+
+1. **形态跟着周期走，不是第三个 surface**：`5m / 15m`（未来 `1m`）在 Lite 下只有 Table，`1h / 4h / 1d` 只有 Classic；**没有用户开关**，Lite/Pro 开关、`/spot` 路由、Pro 终端、美股页全部不动。内测期由 `tableMode.ts` 发布开关控（`?table=1` / `alex_carter`），关着时外部用户看到的与今天完全一致。桌面专属；移动端 5m/15m 继续 Classic，直到 Table 移动版（按抽屉规范另做）验收。
+2. **四行动线固定**：① 看历史（路单条，132px）→ ② 看现在（舞台图 + 140px 梯子）→ ③ 做决定（右列 420px：UP · 筹码×Boost 托盘 104px · DOWN）→ ④ 看结果（104px）。网格 `minmax(0,1fr) 140px 420px × 64 132 1fr 104`，高 `calc(100vh − 顶栏)`，最小 1100×760；站点顶栏与合规 Footer 原件照挂。
+3. **交互契约**：落筹 = 1.5s 待发（筹码转环，点筹码撤回），**无 Confirm**；一轮一边（对侧锁定 45%）；每枚筹码各自 Boost，同向合并为一仓；结算期落筹排下一轮、新轮开盘即成交；加密轮无封盘秒数（代码已核）。拖拽（pointer events）与「选筹码 → 点格」等价。
+4. **色轴**：UP/DOWN 走 §2 Market Axis（`--yes` 蓝 / `--no` 黄）；舞台图价格线**固定中性白**，方向只由面积渐变、末端光点、梯子指针表达，禁止给价格线上方向色；盈亏走收益轴（Volt / `#FF5C5C`）；橙 `#FF8A3D` 只给倒计时环、Closing 提示与周期 tab 激活态。
+5. **哑光纪律**：禁径向高光球。筹码 = 平面面色 + 内圈双色边纹（`inset 0 0 0 3px rgba(0,0,0,.22), inset 0 0 0 4px rgba(255,255,255,.35)`）+ 底部硬阴影；选中上浮 4px + 白环。梯子指针 = 平面圆片 + 同色环 + 柔外光，呼吸只走外光不缩放。持仓格 `omx-breathe-up/down` 2.4s。
+6. **梯子量程**：开轮 = 开盘价 0.06%（$）或 0.06（%）取整到档位（`tableMath.NICE`）；偏离超量程 80% 跳 `niceStep(|d| × 1.25)`；同轮只扩不缩；新轮重置。刻度与指针标签距 < 40px 时刻度隐藏。
+7. **价格格式一处**（`formatPrice`）：≥ $1 两位小数；< $1 下标零写法 `$0.0₄1234`（4 位有效数字）。< $1 的币梯子与偏离改百分比。题目、大数字、OPEN 线/胶囊、toast、开奖帧、海报全部走它。
+8. **路单读法**：珠盘左（原始时序 6 行）→ 大路右（同结果向下堆、变结果开新列、6 行换列）→ 统计；hover 显示时间窗不显示轮号；无下三路、无问路（后续）。
+9. **执行与结算**：`tableTradeService.placeTableOrder` = 扣保证金（筹码值）、按 `margin × boost` 买份额、现货仓 `leverage = boost`；`cashOutTable` = 保证金 + 盈亏 − 5% wc；结算 `settle_spot_event` 对 `leverage > 1` 付 `margin + size × (1 − entry)`（migration `20261009120000`），1× 仓完全不变。DEMO-STATE：无盘中强平（真平台合约引擎负责）。
+10. **文案**：全部占位，待合规措辞轮；i18n key 下一轮接。

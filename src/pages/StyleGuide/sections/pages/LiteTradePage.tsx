@@ -1,6 +1,7 @@
 import { LitePage } from "./shell";
 import { TradeStatesSection } from "../TradeStatesSection";
 import { SpotStatesSection } from "../SpotStatesSection";
+import { TableStatesSection } from "../TableStatesSection";
 import { AutoCloseTradeCases } from "./AutoCloseTradeCases";
 
 
@@ -29,6 +30,8 @@ export const LiteTradePage = (_props: P) => (
     <TradeStatesSection />
 
     <SpotStatesSection />
+
+    <TableStatesSection />
 
     <AutoCloseTradeCases />
 

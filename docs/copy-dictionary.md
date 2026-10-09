@@ -495,6 +495,39 @@ Full address rendering: digits `text-primary`, letters `text-foreground` (see `m
 `Round #12`, `Round open $X` and `Round opens 09:30` refer to the round *object*
 and stay as-is — they are a different noun from the selector label.
 
+### Table（5m / 15m 加密快轮 · 筹码上桌，2026-10-09 · 占位措辞）
+
+> 状态：**占位**。全部英文待合规措辞轮统一；i18n key 下一轮接。字典 TB-1…TB-6 见 `/style-guide` 交易页。
+
+| Canonical | Where | Note |
+|---|---|---|
+| **Table** | 内部名；页面上不出现 | 对外名待定 |
+| **chip** | 托盘 10 / 25 / 50 / 100 / 500；toast `$50 in` | 不说 bet / stake / wager（见 banned words） |
+| **Boost** | 托盘 `× 1 / 2 / 5 / 10`，默认 2；徽标 `×2` | 沿用 Lite 术语铁律，不说 leverage |
+| **position** | `$50×2 = $100 position`；格上胶囊 `$100 position` | 保证金 × Boost |
+| **margin** | 结果行副文案 `$50 margin` | 筹码值 |
+| ① what happened / ② what's happening / ③ decide · drag a chip up or down / ④ your result | 四行步骤标签（10px uppercase） | 单行不换行 |
+| Bead · N / Big road | 路单两块标签 | 术语先保留百家乐原名，合规轮再定 |
+| `Up ×N in a row` | streak 胶囊（N ≥ 3） | |
+| `You last 10` | 路单右侧统计 | |
+| `OPEN 67,412` · `OPEN · $67,412.00` | 梯子胶囊 / 图上标签 | 价格走 `formatPrice` |
+| `Place your chips` / `Closing` / `Settling · chips queue next round` | 梯子倒计时上方提示 | Closing = 剩 ≤ 10s |
+| `closes HH:MM UTC` | 倒计时环下 | |
+| `pays $1.00 / share · 2× boost` | 空格副行 | |
+| `you hold 379 sh · to win +$179` | 持仓格副行 | |
+| `you hold Up this round` / `next round queued on Up` | 锁定格副行 | |
+| `Filling $100 · boosted · tap chip to cancel` | 待发提示 | 1.5s 窗口 |
+| `$125 queued · buys at next open` / `$125 next round` | 结算期排队 | |
+| `Up · $100 in · 2× Boost → win +$179 if BTC closes above $67,412.00` | 落筹成交 toast | `at or below` 为 Down |
+| `Settling — $50 queued for the next round` | 结算期落筹 toast | |
+| `Cancelled · $50 is back in your hand` | 撤回 toast | |
+| `You hold Down this round — one side per round` | 对侧落筹拦截 | |
+| `UP ✓` · `Closed $67,431.20 · +$19.20 vs open · You won +$93` · `Share this win` | 开奖帧 | |
+| This round / Live / Today · `Nothing on the table` / `Filling…` / `Queued for next round` / `Settling` | 结果行 | |
+| `if Up wins +$179` · `7 won · 3 lost` | 结果行副文案 | |
+| Share / Cash out | 结果行按钮 | Cash out 复用 LiteCashOutFlow 文案 |
+| `Search coin` / `No coin matches` / `no live round` | 币种下拉 | 列表 > 5 才出搜索框 |
+
 ---
 
 ## Share / 晒单（Lite）
