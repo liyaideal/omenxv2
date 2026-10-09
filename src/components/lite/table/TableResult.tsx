@@ -53,7 +53,7 @@ export const TableResult = ({ holding, emptyText, net, won, lost, canCashOut, on
         display: "flex",
         alignItems: "center",
         gap: 40,
-        padding: "0 28px",
+        padding: "0 24px",
         height: "100%",
         background: "linear-gradient(180deg,#0B0C11,#0E1016)",
       }}

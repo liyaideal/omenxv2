@@ -149,7 +149,7 @@ export const TableStage = ({ points, open, durationSec, price, deviationText, de
   return (
     <div style={{ position: "relative", height: "100%", overflow: "hidden" }}>
       <canvas ref={cv} style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} />
-      <div style={{ position: "absolute", left: 28, top: 16, fontSize: 10, letterSpacing: ".14em", textTransform: "uppercase", color: DIM }}>
+      <div style={{ position: "absolute", left: 24, top: 16, fontSize: 10, letterSpacing: ".14em", textTransform: "uppercase", color: DIM }}>
         ② what's happening
       </div>
       <div style={{ position: "absolute", right: 20, top: 16, textAlign: "right" }}>

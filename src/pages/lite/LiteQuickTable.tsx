@@ -29,7 +29,6 @@ import {
   COINS,
   COIN_META,
   TF_SECONDS,
-  derivedPrice,
   downOptionOf,
   parseQuickId,
   seedFromId,
@@ -141,17 +140,30 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
   const settling = remainingMs <= 0;
   const pct = ladderUsesPct(base);
 
-  // Price path since the open (deterministic mock walk, same as Classic).
-  const price = derivedPrice(base, upPrice, seed, elapsedSec) ?? base ?? 0;
-  const points = useMemo<StagePoint[]>(() => {
+  // Price path since the open — DEMO-STATE. A seeded random walk (same path
+  // for every viewer of this round), drifting toward the side the market
+  // favours, replaces Classic's sine wobble which reads as a waveform on a
+  // full-round chart. The real platform feeds the index mark here.
+  const walk = useMemo<number[]>(() => {
     if (base == null) return [];
+    const dur = TF_SECONDS[tf];
+    const amp = base * (pct ? 0.004 : 0.0009);
+    const drift = (upPrice - 0.5) * 0.004 * base;
+    let x = (seed * 9301 + 49297) % 233280;
+    const rnd = () => ((x = (x * 9301 + 49297) % 233280), x / 233280 - 0.5);
+    const out = [base];
+    for (let t = 1; t <= dur; t++) out.push(out[t - 1] + rnd() * amp + drift / dur);
+    return out;
+  }, [base, seed, tf, upPrice, pct]);
+  const price = walk[Math.min(elapsedSec, walk.length - 1)] ?? base ?? 0;
+  const points = useMemo<StagePoint[]>(() => {
+    if (!walk.length) return [];
     const step = Math.max(1, Math.floor(elapsedSec / 240));
     const out: StagePoint[] = [];
-    for (let t = 0; t <= elapsedSec; t += step) out.push({ t, p: derivedPrice(base, upPrice, seed, t) ?? base });
+    for (let t = 0; t <= elapsedSec; t += step) out.push({ t, p: walk[Math.min(t, walk.length - 1)] });
     if (out[out.length - 1]?.t !== elapsedSec) out.push({ t: elapsedSec, p: price });
     return out;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [base, upPrice, seed, elapsedSec]);
+  }, [walk, elapsedSec, price]);
   const deviation = base ? (pct ? ((price - base) / base) * 100 : price - base) : 0;
   const flat = Math.abs(deviation) < (pct ? 0.001 : 0.005);
   const devSide: TableSide | "flat" = flat ? "flat" : deviation > 0 ? "up" : "down";
@@ -357,24 +369,27 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
     <div className="min-h-screen bg-background">
       <style>{KEYFRAMES}</style>
       <EventsDesktopHeader />
+      {/* DESIGN §4: Lite desktop container, no page-level max-w / px overrides.
+          The table is ONE card module inside it (same rounded-2xl / border /
+          bg-card skin as every other Lite module), never a full-bleed viewport. */}
+      <div className="mx-auto w-full max-w-7xl px-4 py-6 lg:px-6">
       <div
+        className="rounded-2xl border border-border bg-card"
         style={{
           position: "relative",
-          height: "calc(100vh - 64px)",
-          minHeight: 760,
-          minWidth: 1100,
+          overflow: "hidden",
           display: "grid",
-          gridTemplateColumns: "minmax(0,1fr) 140px 420px",
-          gridTemplateRows: "64px 132px minmax(0,1fr) 104px",
+          gridTemplateColumns: "minmax(0,1fr) 140px 400px",
+          gridTemplateRows: "64px 132px 520px 104px",
           color: "#fff",
           fontFamily: "'Space Grotesk', system-ui, sans-serif",
-          background:
-            "radial-gradient(900px 500px at 30% 60%,rgba(51,214,255,.05),transparent 60%),radial-gradient(700px 400px at 85% 70%,rgba(207,255,74,.04),transparent 60%),#0A0A10",
+          backgroundImage:
+            "radial-gradient(900px 500px at 30% 60%,rgba(51,214,255,.05),transparent 60%),radial-gradient(700px 400px at 85% 70%,rgba(207,255,74,.04),transparent 60%)",
           userSelect: "none",
         }}
       >
         {/* row 1 — question */}
-        <div style={{ gridColumn: "1 / 4", display: "flex", alignItems: "center", gap: 18, padding: "0 28px", borderBottom: `1px solid ${LINE}` }}>
+        <div style={{ gridColumn: "1 / 4", display: "flex", alignItems: "center", gap: 18, padding: "0 24px", borderBottom: `1px solid ${LINE}` }}>
           <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, letterSpacing: "-.01em", whiteSpace: "nowrap" }}>
             Will {ticker} close above <span className="font-mono">{formatPrice(base)}</span>?
             <span
@@ -526,6 +541,7 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
             }
           />
         </div>
+      </div>
       </div>
 
       {heldPos && heldLive && resultHolding && (

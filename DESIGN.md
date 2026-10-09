@@ -2240,7 +2240,7 @@ Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED
 来源：CPO 2026-10-09 拍板（独立原型 OmenX Table v23 + 比稿画布 H8）；规格 `docs/delivery/lite-table-spec-v1.md`；字典 Lite › Table TB-1…TB-6（`/style-guide` → 交易页 → Table）。**作用域**：`src/components/lite/table/*`、`src/pages/lite/LiteQuickTable.tsx`、`src/lib/tableMode.ts`、`src/lib/formatPrice.ts`、`src/components/lite/table/tableQuote.ts`。
 
 1. **形态跟着周期走，不是第三个 surface**：`5m / 15m`（未来 `1m`）在 Lite 下只有 Table，`1h / 4h / 1d` 只有 Classic；**没有用户开关**，Lite/Pro 开关、`/spot` 路由、Pro 终端、美股页全部不动。内测期由 `tableMode.ts` 发布开关控（`?table=1` / `alex_carter`），关着时外部用户看到的与今天完全一致。桌面专属；移动端 5m/15m 继续 Classic，直到 Table 移动版（按抽屉规范另做）验收。
-2. **四行动线固定**：① 看历史（路单条，132px）→ ② 看现在（舞台图 + 140px 梯子）→ ③ 做决定（右列 420px：UP · 筹码×Boost 托盘 104px · DOWN）→ ④ 看结果（104px）。网格 `minmax(0,1fr) 140px 420px × 64 132 1fr 104`，高 `calc(100vh − 顶栏)`，最小 1100×760；站点顶栏与合规 Footer 原件照挂。
+2. **四行动线固定，住在标准 Lite 容器里**：页面容器 = §4 `mx-auto w-full max-w-7xl px-4 py-6 lg:px-6`，Table 是其中**一个** `rounded-2xl border border-border bg-card` 卡片模块，禁止全出血 / 禁止 100vh 自定高（2026-10-09 CPO 打回：全站只有 Pro 全屏终端与等页边距两种页式）。卡内网格 `minmax(0,1fr) 140px 400px × 64 132 520 104`，内边距 24：① 看历史（路单条）→ ② 看现在（舞台图 + 140px 梯子）→ ③ 做决定（右列：UP · 筹码×Boost 托盘 104px · DOWN）→ ④ 看结果。站点顶栏与合规 Footer 原件照挂。
 3. **交互契约**：落筹 = 1.5s 待发（筹码转环，点筹码撤回），**无 Confirm**；一轮一边（对侧锁定 45%）；每枚筹码各自 Boost，同向合并为一仓；结算期落筹排下一轮、新轮开盘即成交；加密轮无封盘秒数（代码已核）。拖拽（pointer events）与「选筹码 → 点格」等价。
 4. **色轴**：UP/DOWN 走 §2 Market Axis（`--yes` 蓝 / `--no` 黄）；舞台图价格线**固定中性白**，方向只由面积渐变、末端光点、梯子指针表达，禁止给价格线上方向色；盈亏走收益轴（Volt / `#FF5C5C`）；橙 `#FF8A3D` 只给倒计时环、Closing 提示与周期 tab 激活态。
 5. **哑光纪律**：禁径向高光球。筹码 = 平面面色 + 内圈双色边纹（`inset 0 0 0 3px rgba(0,0,0,.22), inset 0 0 0 4px rgba(255,255,255,.35)`）+ 底部硬阴影；选中上浮 4px + 白环。梯子指针 = 平面圆片 + 同色环 + 柔外光，呼吸只走外光不缩放。持仓格 `omx-breathe-up/down` 2.4s。
