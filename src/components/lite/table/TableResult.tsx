@@ -68,7 +68,7 @@ export const TableResult = ({ holding, emptyText, net, won, lost, canCashOut, on
                 {holding.side === "up" ? "Up" : "Down"} · ${Math.round(holding.notional)} position
               </span>
               <small style={SMALL}>
-                ${holding.margin} margin · {holding.boosts.join("/")}× · {holding.shares} sh @ {(holding.entry * 100).toFixed(1)}¢ · value $
+                ${holding.margin} margin · {holding.boosts.join("/")}× · {Math.round(holding.shares)} sh @ {(holding.entry * 100).toFixed(1)}¢ · value $
                 {holding.currentValue.toFixed(2)}
               </small>
             </>

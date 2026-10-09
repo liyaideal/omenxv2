@@ -109,7 +109,7 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
   const navigate = useNavigate();
   const seconds = useSecondTick();
   const { user } = useAuth();
-  const { positions, refetch: refetchPositions } = usePositions();
+  const { positions, refetch: refetchPositions, closePosition } = usePositions();
   const { balance, deductBalance, addBalance } = useUserProfile();
   const [refetchTick, setRefetchTick] = useState(0);
   const { currentFor, historyFor, loading } = useQuickRounds(true, refetchTick);
@@ -222,13 +222,21 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
   const notify = useCallback((m: string) => toast(m), []);
 
   const fill = useCallback(
-    async (side: TableSide, value: ChipValue, b: Boost, source: "table" | "next") => {
+    async (side: TableSide, value: ChipValue, b: Boost, source: "table" | "next", flip: boolean) => {
       if (!user || !event || !up || !down) throw new Error("Sign in to place chips");
       if (event.rail !== "contract") throw new Error("This round opened before the switch to contracts — chips open on the next round");
       const opt = side === "up" ? up : down;
       const p = side === "up" ? upPrice : downPrice;
       const q = quoteTableOrder(value, b, p);
       if (!(q.shares > 0)) throw new Error("Chip too small for this price");
+      // FLIP (CPO 2026-10-09): a chip on the other side closes the held leg in
+      // full first (same path as the Cash out button), then opens this side.
+      let flipLine = "";
+      if (flip && heldPos && heldSide && heldSide !== side) {
+        const closedPnl = heldLive?.pnl ?? 0;
+        await closePosition(heldPos.id, heldIndex);
+        flipLine = `Flipped · ${heldSide === "up" ? "Up" : "Down"} closed ${closedPnl >= 0 ? "+" : "−"}$${Math.abs(closedPnl).toFixed(2)} · `;
+      }
       const res = await executeTrade(user.id, {
         eventName: event.name,
         optionLabel: opt.label,
@@ -258,12 +266,12 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
       setPlacedChips((c) => [...c, { round: event.id, side, value, boost: b }]);
       refetchPositions();
       toast.success(
-        `${side === "up" ? "Up" : "Down"} · $${value} in${b > 1 ? ` · ${b}× Boost` : ""} → win +$${q.profit.toFixed(0)} if ${COIN_META[coin].ticker} closes ${
+        `${flipLine}${side === "up" ? "Up" : "Down"} · $${value} in${b > 1 ? ` · ${b}× Boost` : ""} → win +$${q.profit.toFixed(0)} if ${COIN_META[coin].ticker} closes ${
           side === "up" ? "above" : "at or below"
         } ${formatPrice(base)}${source === "next" ? " · filled at the open" : ""}`,
       );
     },
-    [user, event, up, down, upPrice, downPrice, deductBalance, addBalance, refetchPositions, coin, base],
+    [user, event, up, down, upPrice, downPrice, deductBalance, addBalance, refetchPositions, coin, base, heldPos, heldSide, heldIndex, heldLive, closePosition],
   );
 
   const orders = useTableOrders({
@@ -271,6 +279,7 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
     settling,
     heldSide,
     balance,
+    flipCredit: heldPos ? Math.max(0, heldPos.marginNum + (heldLive?.pnl ?? 0)) : 0,
     fill,
     notify,
   });
@@ -489,7 +498,8 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
             filled={zoneFilled("up")}
             pending={orders.pending.filter((c) => c.side === "up")}
             queued={orders.queued.filter((c) => c.side === "up")}
-            lockedBy={orders.activeSide}
+            lockedBy={heldSide}
+            flipCredit={heldPos ? Math.max(0, heldPos.marginNum + (heldLive?.pnl ?? 0)) : 0}
             settling={settling}
             over={over === "up"}
             result={flash ? (flash.side === "up" ? "won" : "lost") : null}
@@ -505,7 +515,8 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
             filled={zoneFilled("down")}
             pending={orders.pending.filter((c) => c.side === "down")}
             queued={orders.queued.filter((c) => c.side === "down")}
-            lockedBy={orders.activeSide}
+            lockedBy={heldSide}
+            flipCredit={heldPos ? Math.max(0, heldPos.marginNum + (heldLive?.pnl ?? 0)) : 0}
             settling={settling}
             over={over === "down"}
             result={flash ? (flash.side === "down" ? "won" : "lost") : null}

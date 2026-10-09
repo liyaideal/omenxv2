@@ -516,13 +516,15 @@ and stay as-is — they are a different noun from the selector label.
 | `closes HH:MM UTC` | 倒计时环下 | |
 | `pays $1.00 / share · 2× boost` | 空格副行 | |
 | `you hold 379 sh · to win +$179` | 持仓格副行 | |
-| `you hold Up this round` / `next round queued on Up` | 锁定格副行 | |
+| `you hold Up · a chip here flips to Down` | 对侧格副行（翻面就绪） | 不再锁定 |
+| `Flipping · closes your Up ($X back) · then $50 boosted on Down` | 翻面待发提示 | 1.5s 可撤 |
+| `Flipped · Up closed −$12.40 · Down · $50 in · 2× Boost → win +$X …` | 翻面成交 toast | |
+| `Next round switched to Down · $50` | 结算期换边排队 toast | |
 | `Filling $100 · boosted · tap chip to cancel` | 待发提示 | 1.5s 窗口 |
 | `$125 queued · buys at next open` / `$125 next round` | 结算期排队 | |
 | `Up · $100 in · 2× Boost → win +$179 if BTC closes above $67,412.00` | 落筹成交 toast | `at or below` 为 Down |
 | `Settling — $50 queued for the next round` | 结算期落筹 toast | |
 | `Cancelled · $50 is back in your hand` | 撤回 toast | |
-| `You hold Down this round — one side per round` | 对侧落筹拦截 | |
 | `UP ✓` · `Closed $67,431.20 · +$19.20 vs open · You won +$93` · `Share this win` | 开奖帧 | |
 | This round / Live / Today · `Nothing on the table` / `Filling…` / `Queued for next round` / `Settling` | 结果行 | |
 | `if Up wins +$179` · `7 won · 3 lost` | 结果行副文案 | |

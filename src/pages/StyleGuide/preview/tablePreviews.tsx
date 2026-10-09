@@ -115,7 +115,7 @@ export const Tb4Preview = () => (
         <TableSideZone side="down" price={0.38} holding={null} {...zoneProps} lockedBy="up" />
       </ZoneBox>
       <ZoneBox>
-        <TableSideZone side="up" price={0.62} holding={null} {...zoneProps} pending={[{ id: 1, side: "up", value: 100, boost: 2, at: 0 }]} />
+        <TableSideZone side="up" price={0.62} holding={null} {...zoneProps} pending={[{ id: 1, side: "up", value: 100, boost: 2, at: 0, flip: false }]} />
       </ZoneBox>
       <ZoneBox>
         <TableSideZone side="down" price={0.38} holding={null} {...zoneProps} settling queued={[{ id: 2, side: "down", value: 25, boost: 5 }]} />

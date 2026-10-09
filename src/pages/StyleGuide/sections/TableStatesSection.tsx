@@ -71,11 +71,11 @@ const ZONES: SectionCase[] = [
     key: "table-tb4",
     label: "TB-4 · ③ UP / DOWN 格 × 8 态",
     note:
-      "从左到右、从上到下：空桌 · 拖拽悬停（虚线框）· 持仓（呼吸光 + 右上筹码堆 + `$200 position` 胶囊）· 锁定（对侧有仓，45% 透明 + `you hold up this round`）· 待发（筹码转环 + `Filling $100 · boosted · tap chip to cancel`）· 结算期排队（虚线筹码 + `$125 queued · buys at next open`）· 赢（3px 同色内框）· 输（30% 透明）。UP 格左上角固定 `③ decide · drag a chip up or down`。",
+      "从左到右、从上到下：空桌 · 拖拽悬停（虚线框）· 持仓（呼吸光 + 右上筹码堆 + `$200 position` 胶囊）· 翻面就绪（对侧有仓，70% 透明 + `you hold Up · a chip here flips to Down`，不拦截）· 待发（筹码转环 + `Filling $100 · boosted · tap chip to cancel`；翻面时 `Flipping · closes your Up ($X back) · then $100 boosted on Down`）· 结算期排队（虚线筹码 + `$125 queued · buys at next open`）· 赢（3px 同色内框）· 输（30% 透明）。UP 格左上角固定 `③ decide · drag a chip up or down`。",
     spec: [
       { state: "空桌", when: "!holding && !pending && !queued", visual: "渐变底 6%→16%，副行 `pays $1.00 / share · 2× boost`", source: "TableSideZone" },
       { state: "持仓", when: "holding != null", visual: "底 10%→26% + omx-breathe-up/down 2.4s + 54px 字 18px 光晕", source: "同上" },
-      { state: "锁定", when: "lockedBy && lockedBy !== side", visual: "opacity .45 · cursor not-allowed · 副行 `you hold X this round`", source: "useTableOrders.activeSide" },
+      { state: "翻面就绪", when: "lockedBy(held) && lockedBy !== side && !settling", visual: "opacity .7 · 副行 `you hold X · a chip here flips to Y`；落筹 = 先全额平掉持有腿再开新腿", source: "useTableOrders.place · flip" },
       { state: "待发", when: "pending.length > 0", visual: "28px 筹码 + 白色转环（animate-spin 0.8s）· 点筹码撤回", source: "PENDING_MS = 1500" },
       { state: "排队", when: "settling && queued.length > 0", visual: "虚线筹码 55% · 胶囊 `$N next round`", source: "useTableOrders.queued" },
       { state: "赢 / 输", when: "result === 'won' | 'lost'", visual: "won: inset 0 0 0 3px 方向色；lost: opacity .3", source: "flash.side" },
@@ -126,7 +126,7 @@ export const TableStatesSection = () => (
     description="下单形态跟着周期走：5m / 15m 只有 Table，1h 以上只有 Classic，无用户开关。四行动线 ① 看历史（路单）→ ② 看现在（舞台图 + 梯子）→ ③ 做决定（UP · 筹码×Boost · DOWN）→ ④ 看结果。桌面专属；内测期由 src/lib/tableMode.ts 控（?table=1 或 alex_carter）。文案全部占位，待合规措辞轮统一。"
   >
     <div className="rounded-lg border border-[#FF8A3D]/30 bg-[#FF8A3D]/5 px-3 py-2 text-[12px] text-foreground">
-      交互契约：落筹 = 1.5s 待发可撤（无 Confirm）· 一轮一边 · 每枚筹码各自 Boost、同向合并一仓 · 结算期落筹排下一轮 · 加密轮无封盘秒数。
+      交互契约：落筹 = 1.5s 待发可撤（无 Confirm）· 一轮一仓、反向落筹 = 翻面（先平后开）· 每枚筹码各自 Boost、同向合并一仓 · 结算期落筹排下一轮 · 加密轮无封盘秒数。
       快轮 2026-10-09 起走<b>合约</b>（`product_lines = ['contract']`，Boost 账户）：落筹 = <code className="font-mono">executeTrade(leverage = boost)</code>，
       平仓走通用 close，结算 <code className="font-mono">settle_quick_contract_round</code>（只认本轮 option_id；migration <code className="font-mono">20261009180000</code>）。
     </div>

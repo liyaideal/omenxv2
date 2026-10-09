@@ -1,7 +1,7 @@
 // ============================================================
 // TABLE ③ — one side of the decision (UP on top, DOWN below the tray).
-// States: open · held (breathing glow) · locked (you hold the other side /
-// next round queued on the other side) · drag-over · won · lost.
+// States: open · held (breathing glow) · flip-ready (you hold the other
+// side — a chip here flips) · pending (incl. flip) · drag-over · won · lost.
 // Chips on the zone: filled (solid, ×Boost), queued (dashed), pending (spin
 // ring — tap to cancel).
 // ============================================================
@@ -27,8 +27,10 @@ interface Props {
   filled: { value: ChipValue; boost: number }[];
   pending: PendingChip[];
   queued: QueuedChip[];
-  /** Side the user is committed to; this zone is locked when it is the other one. */
+  /** Side the user holds; when it is the other one, a chip here is a FLIP. */
   lockedBy: Side | null;
+  /** Cash that comes back if the held leg is closed (shown on the flip copy). */
+  flipCredit?: number;
   settling: boolean;
   over: boolean;
   result: "won" | "lost" | null;
@@ -37,11 +39,11 @@ interface Props {
   onCancelPending: (id: number) => void;
 }
 
-export const TableSideZone = ({ side, price, holding, filled, pending, queued, lockedBy, settling, over, result, boost, onTap, onCancelPending }: Props) => {
+export const TableSideZone = ({ side, price, holding, filled, pending, queued, lockedBy, flipCredit = 0, settling, over, result, boost, onTap, onCancelPending }: Props) => {
   const up = side === "up";
   const col = up ? UP : DOWN;
   const rgb = up ? "51,214,255" : "207,255,74";
-  const locked = !!lockedBy && lockedBy !== side;
+  const flipReady = !!lockedBy && lockedBy !== side && !settling;
   const has = !!holding || pending.length > 0 || queued.length > 0;
   const queuedAmt = queued.reduce((a, c) => a + c.value, 0);
   const queuedNot = queued.reduce((a, c) => a + c.value * c.boost, 0);
@@ -50,10 +52,10 @@ export const TableSideZone = ({ side, price, holding, filled, pending, queued, l
     ? `linear-gradient(180deg,rgba(${rgb},${has ? ".10" : ".06"}),rgba(${rgb},${has ? ".26" : ".16"}))`
     : `linear-gradient(180deg,rgba(${rgb},${has ? ".26" : ".16"}),rgba(${rgb},${has ? ".10" : ".06"}))`;
 
-  const sub = locked
-    ? `you hold ${lockedBy === "up" ? "Up" : "Down"}${settling ? " · next round queued" : " this round"}`
+  const sub = flipReady
+    ? `you hold ${lockedBy === "up" ? "Up" : "Down"} · a chip here flips to ${up ? "Up" : "Down"}`
     : holding
-      ? `you hold ${holding.shares} sh · to win +$${holding.profit.toFixed(0)}`
+      ? `you hold ${Math.round(holding.shares)} sh · to win +$${holding.profit.toFixed(0)}`
       : queuedAmt
         ? `$${queuedNot} queued · buys at next open`
         : `pays $1.00 / share${boost > 1 ? ` · ${boost}× boost` : ""}`;
@@ -74,7 +76,7 @@ export const TableSideZone = ({ side, price, holding, filled, pending, queued, l
       style={{
         position: "relative",
         border: 0,
-        cursor: locked ? "not-allowed" : "pointer",
+        cursor: "pointer",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -84,7 +86,7 @@ export const TableSideZone = ({ side, price, holding, filled, pending, queued, l
         color: col,
         padding: 0,
         background: bg,
-        opacity: result === "lost" ? 0.3 : locked ? 0.45 : 1,
+        opacity: result === "lost" ? 0.3 : flipReady ? 0.7 : 1,
         outline: over ? `2px dashed ${col}` : undefined,
         outlineOffset: over ? -6 : undefined,
         boxShadow: result === "won" ? `inset 0 0 0 3px ${col}` : has ? "inset 0 1px 0 rgba(255,255,255,.18)" : undefined,
@@ -134,8 +136,10 @@ export const TableSideZone = ({ side, price, holding, filled, pending, queued, l
       )}
       {pending.length > 0 && (
         <span style={{ position: "absolute", left: 0, right: 0, [up ? "bottom" : "top"]: 12, textAlign: "center", fontSize: 11, color: "#9CA3AC" }}>
-          Filling ${pending.reduce((a, c) => a + c.value, 0)}
-          {pending.some((c) => c.boost > 1) ? " · boosted" : ""} · tap chip to cancel
+          {pending.some((c) => c.flip)
+            ? `Flipping · closes your ${lockedBy === "up" ? "Up" : "Down"} ($${flipCredit.toFixed(0)} back) · then $${pending.reduce((a, c) => a + c.value, 0)}${pending.some((c) => c.boost > 1) ? " boosted" : ""} on ${up ? "Up" : "Down"}`
+            : `Filling $${pending.reduce((a, c) => a + c.value, 0)}${pending.some((c) => c.boost > 1) ? " · boosted" : ""}`}{" "}
+          · tap chip to cancel
         </span>
       )}
 
