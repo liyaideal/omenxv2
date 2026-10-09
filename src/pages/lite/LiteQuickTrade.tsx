@@ -75,6 +75,8 @@ import {
   useSecondTick,
 } from "@/components/lite/intraday/intradayData";
 import { cn } from "@/lib/utils";
+import { isTableEnabled, isTableTimeframe } from "@/lib/tableMode";
+import { LiteQuickTable } from "@/pages/lite/LiteQuickTable";
 
 type Side = "yes" | "no";
 
@@ -92,7 +94,22 @@ const utcHHMM = (d: Date) =>
 const utcMonthDay = (d: Date) =>
   new Intl.DateTimeFormat("en-US", { timeZone: "UTC", month: "short", day: "numeric" }).format(d);
 
+/**
+ * TABLE gate (2026-10-09). Order form follows the round length: 5m/15m render
+ * the chip-on-the-table page once the release flag is open (desktop only);
+ * everything else — and everyone while the flag is closed — gets the Classic
+ * page below, untouched. See src/lib/tableMode.ts.
+ */
 export const LiteQuickTrade = ({ eventId }: { eventId: string }) => {
+  const isMobile = useIsMobile();
+  const { username } = useUserProfile();
+  const parsed = parseQuickId(eventId);
+  const table = !!parsed && isTableTimeframe(parsed.tf) && !isMobile && isTableEnabled(username);
+  if (table) return <LiteQuickTable eventId={eventId} />;
+  return <LiteQuickTradeClassic eventId={eventId} />;
+};
+
+const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const isMobile = useIsMobile();
