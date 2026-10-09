@@ -30,6 +30,10 @@ import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
 import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
 import { useHeadingScrolledOut } from "@/hooks/useHeadingScrolledOut";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
+import { LiteContractOrderPanel } from "@/components/lite/contract/LiteContractOrderPanel";
+import { useCategoryBoostConfigs, boostTiers } from "@/hooks/useCategoryBoostConfigs";
+import { FUTURES_FEE_RATE } from "@/services/tradingService";
+import { boostSuffix } from "@/lib/liteSideName";
 import {
   SpotBuyDrawerHeader,
   SpotCryptoHead,
@@ -132,6 +136,10 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
 
   const [side, setSide] = useState<Side>(params.get("side") === "down" ? "no" : "yes");
   const [amount, setAmount] = useState("");
+  const [boost, setBoost] = useState(1);
+  const { getConfig, isLoading: boostLoading } = useCategoryBoostConfigs();
+  const boostCfg = getConfig("crypto");
+  const tiers = useMemo(() => boostTiers(boostCfg.maxBoost), [boostCfg.maxBoost]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [resumeBuy, setResumeBuy] = useState(false);
@@ -141,6 +149,17 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
 
   const event = currentFor.get(`${coin}-${tf}`) ?? null;
   const history = historyFor.get(`${coin}-${tf}`) ?? [];
+  // Rail (CPO 2026-10-09): quick rounds trade as contracts; rounds opened
+  // before the switch keep the spot panel until they settle.
+  const contractRail = event?.rail === "contract";
+  const posLine: "spot" | "futures" = contractRail ? "futures" : "spot";
+
+  // A contract-rail round lives on /trade — bounce the old /spot link.
+  useEffect(() => {
+    if (contractRail && routerLocation.pathname === "/spot") {
+      navigate(`/trade?event=${encodeURIComponent(eventId)}`, { replace: true, state: routerLocation.state });
+    }
+  }, [contractRail, routerLocation.pathname, routerLocation.state, eventId, navigate]);
 
   // Auto-rebind: when the bound round rolls, land on the new current round.
   useEffect(() => {
@@ -226,7 +245,7 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
     if (!event) return -1;
     return positions.findIndex(
       (p) =>
-        p.productLine === "spot" &&
+        p.productLine === posLine &&
         typeof p.optionId === "string" &&
         p.optionId.startsWith(`${event.id}-`),
     );
@@ -237,7 +256,7 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
   // MUST read from this one computation (same source as LiteSpotTrade).
   const heldIsUp = heldPos ? heldPos.optionId === up?.id : false;
   const tfLabel = TIMEFRAMES.find((t) => t.id === tf)?.label ?? tf;
-  const sideLine = `${heldIsUp ? "Up" : "Down"} · ${tfLabel} round`;
+  const sideLine = [`${heldIsUp ? "Up" : "Down"} · ${tfLabel} round`, contractRail && heldPos ? boostSuffix(heldPos.leverageNum) : ""].filter(Boolean).join(" · ");
 
   // Live display values for the unsettled spot leg — realtime mark first,
   // stored DB mark_price / pnl only as a fallback (matches /portfolio).
@@ -261,7 +280,7 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
       pnlPercent,
       pnlText: f.pnlStr,
       pnlPercentText: f.pnlPercentStr,
-      currentValue: mark * heldPos.sizeNum,
+      currentValue: contractRail ? heldPos.marginNum + pnl : mark * heldPos.sizeNum,
     };
   })();
 
@@ -335,6 +354,19 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
       }
       setAuthOpen(true);
     },
+  } as const;
+
+  const contractPanelProps = {
+    ...orderPanelProps,
+    boost,
+    onBoostChange: setBoost,
+    boostEnabled: boostCfg.enabled,
+    boostLoading,
+    boostMax: boostCfg.maxBoost,
+    boostTiers: tiers,
+    heldSideLabel: heldPos ? heldPos.option : null,
+    heldCurrentValue: heldLive?.currentValue ?? null,
+    heldQty: heldPos?.sizeNum ?? null,
   } as const;
 
   // ---------- blocks ----------
@@ -455,12 +487,14 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
         eventId: event.id,
         eventName: event.name,
         sideLine,
-        boost: 1,
-        putIn: (parseFloat(String(heldPos.entryPrice).replace(/[^0-9.]/g, "")) || 0) * heldPos.sizeNum,
-        productLine: "spot",
+        boost: contractRail ? heldPos.leverageNum : 1,
+        putIn: contractRail ? heldPos.marginNum : (parseFloat(String(heldPos.entryPrice).replace(/[^0-9.]/g, "")) || 0) * heldPos.sizeNum,
+        productLine: posLine,
       }}
+      pnlAtPrice={contractRail ? heldLive!.pnl : undefined}
+      entryFee={contractRail ? heldPos.entryPriceNum * heldPos.sizeNum * FUTURES_FEE_RATE : undefined}
       onShareSnapshot={setShareSnap}
-      onConfirmCashOut={handleCashOut}
+      onConfirmCashOut={contractRail ? undefined : handleCashOut}
       onDone={() => setRefetchTick((n) => n + 1)}
     />
   ) : null;
@@ -527,7 +561,7 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
                 pnlPercent: heldLive!.pnlPercent,
                 leftAmount: heldPos.marginNum,
                 rightAmount: heldLive!.currentValue,
-                segment: "standard",
+                segment: contractRail ? "boost" : "standard",
               })
           : undefined
       }
@@ -645,14 +679,25 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
             chancePct={Math.round((side === "yes" ? upPrice : downPrice) * 100)}
           />
 
-          <LiteOrderPanel
-            {...orderPanelProps}
-            variant="mobile"
-            onFilled={() => {
-              setDrawerOpen(false);
-              setRefetchTick((n) => n + 1);
-            }}
-          />
+          {contractRail ? (
+            <LiteContractOrderPanel
+              {...contractPanelProps}
+              variant="mobile"
+              onFilled={() => {
+                setDrawerOpen(false);
+                setRefetchTick((n) => n + 1);
+              }}
+            />
+          ) : (
+            <LiteOrderPanel
+              {...orderPanelProps}
+              variant="mobile"
+              onFilled={() => {
+                setDrawerOpen(false);
+                setRefetchTick((n) => n + 1);
+              }}
+            />
+          )}
         </MobileDrawer>
 
         <AuthSheet
@@ -695,12 +740,16 @@ const LiteQuickTradeClassic = ({ eventId }: { eventId: string }) => {
         </div>
         <aside className="space-y-4">
           {PickCard}
-          <LiteOrderPanel
-            {...orderPanelProps}
-            variant="desktop"
-            hideSideSelector
-            onFilled={() => setRefetchTick((n) => n + 1)}
-          />
+          {contractRail ? (
+            <LiteContractOrderPanel {...contractPanelProps} variant="desktop" onFilled={() => setRefetchTick((n) => n + 1)} />
+          ) : (
+            <LiteOrderPanel
+              {...orderPanelProps}
+              variant="desktop"
+              hideSideSelector
+              onFilled={() => setRefetchTick((n) => n + 1)}
+            />
+          )}
           {AlsoLiveNow}
         </aside>
       </div>

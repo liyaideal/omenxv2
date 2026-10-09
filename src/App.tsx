@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import TradingCharts from "./pages/TradingCharts";
 import TradeOrder from "./pages/TradeOrder";
@@ -12,6 +12,9 @@ import SpotTradingCharts from "./pages/SpotTradingCharts";
 import SpotTradeOrder from "./pages/SpotTradeOrder";
 
 import LiteContractTrade from "./pages/lite/LiteContractTrade";
+import { LiteQuickTrade } from "./pages/lite/LiteQuickTrade";
+import { parseQuickId } from "./components/lite/intraday/intradayData";
+import { useQuickRailRedirect } from "./components/lite/intraday/useQuickRailRedirect";
 import LiteSpotTrade from "./pages/lite/LiteSpotTrade";
 import OrderPreview from "./pages/OrderPreview";
 import DesktopTrading from "./pages/DesktopTrading";
@@ -101,6 +104,11 @@ const EventsRoute = () => <LiteEventsPage />;
 const TradingPage = () => {
   const { surface } = useSurface();
   const isMobile = useIsMobile();
+  const [params] = useSearchParams();
+  const quickId = params.get("event") || "";
+  // Crypto quick rounds (contract rail since 2026-10-09) keep their own Lite
+  // page (round tape + settle-line chart; 5m/15m may render the Table).
+  if (surface === "lite" && parseQuickId(quickId)) return <LiteQuickTrade eventId={quickId} />;
   if (surface === "lite") return <LiteContractTrade />;
   return isMobile ? <TradingCharts /> : <DesktopTrading />;
 };
@@ -118,6 +126,9 @@ const TradeOrderPage = () => {
 const SpotRoute = () => {
   const { surface } = useSurface();
   const isMobile = useIsMobile();
+  // Contract-rail quick rounds live on /trade — bounce old /spot links first.
+  const railChecked = useQuickRailRedirect();
+  if (!railChecked) return null;
   if (surface === "lite") return <LiteSpotTrade />;
   return isMobile ? <SpotTradingCharts /> : <SpotTrading />;
 };

@@ -506,6 +506,7 @@ and stay as-is — they are a different noun from the selector label.
 | **Boost** | 托盘 `× 1 / 2 / 5 / 10`，默认 2；徽标 `×2` | 沿用 Lite 术语铁律，不说 leverage |
 | **position** | `$50×2 = $100 position`；格上胶囊 `$100 position` | 保证金 × Boost |
 | **margin** | 结果行副文案 `$50 margin` | 筹码值 |
+| **Boost 账户** | 快轮（全部周期）2026-10-09 起为合约，资金走 Boost 账户，页面在 `/trade` | 旧 `/spot` 链接自动跳转 |
 | ① what happened / ② what's happening / ③ decide · drag a chip up or down / ④ your result | 四行步骤标签（10px uppercase） | 单行不换行 |
 | Bead · N / Big road | 路单两块标签 | 术语先保留百家乐原名，合规轮再定 |
 | `Up ×N in a row` | streak 胶囊（N ≥ 3） | |

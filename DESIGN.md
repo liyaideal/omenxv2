@@ -2237,7 +2237,7 @@ Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED
 
 ## §Addendum 2026-10-09 · Lite Table（5m / 15m 加密快轮 · 筹码上桌下单，LOCKED · 内测）
 
-来源：CPO 2026-10-09 拍板（独立原型 OmenX Table v23 + 比稿画布 H8）；规格 `docs/delivery/lite-table-spec-v1.md`；字典 Lite › Table TB-1…TB-6（`/style-guide` → 交易页 → Table）。**作用域**：`src/components/lite/table/*`、`src/pages/lite/LiteQuickTable.tsx`、`src/lib/tableMode.ts`、`src/lib/formatPrice.ts`、`src/services/tableTradeService.ts`。
+来源：CPO 2026-10-09 拍板（独立原型 OmenX Table v23 + 比稿画布 H8）；规格 `docs/delivery/lite-table-spec-v1.md`；字典 Lite › Table TB-1…TB-6（`/style-guide` → 交易页 → Table）。**作用域**：`src/components/lite/table/*`、`src/pages/lite/LiteQuickTable.tsx`、`src/lib/tableMode.ts`、`src/lib/formatPrice.ts`、`src/components/lite/table/tableQuote.ts`。
 
 1. **形态跟着周期走，不是第三个 surface**：`5m / 15m`（未来 `1m`）在 Lite 下只有 Table，`1h / 4h / 1d` 只有 Classic；**没有用户开关**，Lite/Pro 开关、`/spot` 路由、Pro 终端、美股页全部不动。内测期由 `tableMode.ts` 发布开关控（`?table=1` / `alex_carter`），关着时外部用户看到的与今天完全一致。桌面专属；移动端 5m/15m 继续 Classic，直到 Table 移动版（按抽屉规范另做）验收。
 2. **四行动线固定**：① 看历史（路单条，132px）→ ② 看现在（舞台图 + 140px 梯子）→ ③ 做决定（右列 420px：UP · 筹码×Boost 托盘 104px · DOWN）→ ④ 看结果（104px）。网格 `minmax(0,1fr) 140px 420px × 64 132 1fr 104`，高 `calc(100vh − 顶栏)`，最小 1100×760；站点顶栏与合规 Footer 原件照挂。
@@ -2247,5 +2247,5 @@ Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED
 6. **梯子量程**：开轮 = 开盘价 0.06%（$）或 0.06（%）取整到档位（`tableMath.NICE`）；偏离超量程 80% 跳 `niceStep(|d| × 1.25)`；同轮只扩不缩；新轮重置。刻度与指针标签距 < 40px 时刻度隐藏。
 7. **价格格式一处**（`formatPrice`）：≥ $1 两位小数；< $1 下标零写法 `$0.0₄1234`（4 位有效数字）。< $1 的币梯子与偏离改百分比。题目、大数字、OPEN 线/胶囊、toast、开奖帧、海报全部走它。
 8. **路单读法**：珠盘左（原始时序 6 行）→ 大路右（同结果向下堆、变结果开新列、6 行换列）→ 统计；hover 显示时间窗不显示轮号；无下三路、无问路（后续）。
-9. **执行与结算**：`tableTradeService.placeTableOrder` = 扣保证金（筹码值）、按 `margin × boost` 买份额、现货仓 `leverage = boost`；`cashOutTable` = 保证金 + 盈亏 − 5% wc；结算 `settle_spot_event` 对 `leverage > 1` 付 `margin + size × (1 − entry)`（migration `20261009120000`），1× 仓完全不变。DEMO-STATE：无盘中强平（真平台合约引擎负责）。
+9. **快轮 = 合约（同日第二项拍板 D1–D10）**：`roll_crypto_quick_rounds` 开轮 `product_lines = ['contract']`，全部五档周期一起；结算 `settle_quick_contract_round`（合约 payoff：保证金 + (结算价 − 入场价) × 份额、亏损封顶保证金、5% wc、入 Boost 账户，**只认本轮 option_id**，因快轮跨轮同名）；切换前开的现货轮由 `settle_spot_event` 结完。Lite 路径随品类到 `/trade?event=`，`/spot` 旧链接 replace 跳转（`useQuickRailRedirect`）；Classic 快轮页外壳不变、面板换 `LiteContractOrderPanel`（Boost 档由 `category_boost_configs` crypto 决定，上限 10，Custom 可自定）；Table 落筹 = `executeTrade(leverage = boost)`，档位固定 1 / 2 / 5 / 10 默认 2；Pro 下快轮进 `/trade` 终端。
 10. **文案**：全部占位，待合规措辞轮；i18n key 下一轮接。

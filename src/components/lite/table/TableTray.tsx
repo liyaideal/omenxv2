@@ -9,7 +9,7 @@
 // ============================================================
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { quoteTableOrder } from "@/services/tableTradeService";
+import { quoteTableOrder } from "./tableQuote";
 import { TableChip } from "./TableChip";
 import { BOOSTS, CHIP_VALUES, type Boost, type ChipValue, type TableSide } from "./tableMath";
 
@@ -136,7 +136,7 @@ export const TableTray = ({ chip, boost, onChip, onBoost, quotePrice, onDrop, on
       <div style={{ display: "flex", justifyContent: "space-between", width: "100%", fontSize: 10, color: "#6B7280", whiteSpace: "nowrap" }}>
         <span>↑ UP · ↓ DOWN · drag or tap</span>
         <span>
-          ${chip}×{boost} = <b className="font-mono" style={{ color: "#fff" }}>${chip * boost}</b> · {q.shares} sh · fee ${q.fee.toFixed(2)}
+          ${chip}×{boost} = <b className="font-mono" style={{ color: "#fff" }}>${chip * boost}</b> · {q.shares.toFixed(0)} sh · fee ${q.fee.toFixed(2)}
         </span>
       </div>
 

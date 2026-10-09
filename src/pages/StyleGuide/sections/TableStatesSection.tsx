@@ -94,7 +94,7 @@ const TRAY: SectionCase[] = [
       { state: "Boost 徽标", when: "boost > 1", visual: "右上 `×N` 黑底白字 1px 40% 白边胶囊", source: "TableChip.boost" },
       { state: "拖拽", when: "pointermove ≥ 6px", visual: "44px 幽灵筹码跟随指针（portal 到 body），悬停格出虚线框", source: "TableTray · onDragOver" },
       { state: "落筹", when: "pointerup 在 [data-table-side] 上", visual: "→ useTableOrders.place(side)", source: "TableTray · onDrop" },
-      { state: "算式", when: "chip / boost / quotePrice 变化", visual: "`$chip×boost = $notional · shares sh · fee $x`", source: "tableTradeService.quoteTableOrder" },
+      { state: "算式", when: "chip / boost / quotePrice 变化", visual: "`$chip×boost = $notional · shares sh · fee $x`", source: "tableQuote.quoteTableOrder（合约口径）" },
     ],
   },
 ];
@@ -127,8 +127,8 @@ export const TableStatesSection = () => (
   >
     <div className="rounded-lg border border-[#FF8A3D]/30 bg-[#FF8A3D]/5 px-3 py-2 text-[12px] text-foreground">
       交互契约：落筹 = 1.5s 待发可撤（无 Confirm）· 一轮一边 · 每枚筹码各自 Boost、同向合并一仓 · 结算期落筹排下一轮 · 加密轮无封盘秒数。
-      执行走 <code className="font-mono">tableTradeService</code>（保证金 × Boost 买份额，现货仓 leverage = boost），结算函数见 migration
-      <code className="font-mono"> 20261009120000_table_boost_settlement</code>。
+      快轮 2026-10-09 起走<b>合约</b>（`product_lines = ['contract']`，Boost 账户）：落筹 = <code className="font-mono">executeTrade(leverage = boost)</code>，
+      平仓走通用 close，结算 <code className="font-mono">settle_quick_contract_round</code>（只认本轮 option_id；migration <code className="font-mono">20261009180000</code>）。
     </div>
     <SubSection title="① 路单（TB-1）">
       <Desk cases={ROADS} min={160} />
@@ -153,7 +153,7 @@ export const TableStatesSection = () => (
         <li>移动端 Table（按抽屉规范另做）；移动端 5m / 15m 继续 Classic。</li>
         <li>memecoin / 1m 周期：前端下拉 + 格式化已就绪，等 roll_crypto_quick_rounds 加币种 / 周期。</li>
         <li>下三路（大眼仔 / 小路 / 曱甴路）与问路预览。</li>
-        <li>盘中强平：Lovable 现货路径无此机制，真平台合约引擎负责。</li>
+        <li>盘中强平：Lovable 合约路径沿用现有 auto-close 口径（TR 系列），真平台由风控引擎负责。</li>
         <li>措辞 / 合规终稿；i18n key 接入。</li>
       </ul>
     </SubSection>

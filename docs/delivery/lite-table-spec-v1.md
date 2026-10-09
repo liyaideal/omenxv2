@@ -20,8 +20,8 @@
 ### 易混点辨析
 
 1. **Table 不是第三个 surface**。Lite / Pro 切的是「信息密度」，所有市场都有两面；Table 是加密快轮 5m / 15m 这一种市场的专属下单形态。所以它不在 Lite / Pro 开关里，也不是用户可切的选项。
-2. **Boost 在 Lovable 里怎么成交**：线上是合约、本来就有杠杆；Lovable 的快轮走的是现货路径（没有杠杆）。这轮新加了 `tableTradeService`：扣保证金（筹码值）、按「保证金 × Boost」买份额、现货仓的 `leverage` 字段记 Boost；赢了拿「保证金 + 每股利润」，输了亏保证金。**结算函数要改一行**（见 §5 待办），不改的话 2× 赢一把会多付一个保证金。
-3. **没有盘中强平**：真平台上 Boost 后价格跌到 1/Boost 会被平掉；Lovable 现货路径没有这个机制，仓一直拿到结算。交付边界，不是 bug。
+2. **快轮改成合约了（同日第二项决定）**：线上快轮本来就是合约；Lovable 原来走现货（没有杠杆）。这轮把加密快轮整个品类（5 档周期一起）切到合约轨：滚轮 job 开轮写 `product_lines = ['contract']`，结算用新函数 `settle_quick_contract_round`（保证金 + 盈亏、亏损封顶保证金、5% 赢单佣金、入 Boost 账户；**只认本轮的 option_id**，因为快轮每一轮同名）。切换前开的现货轮由旧函数结完。Table 落筹就是普通合约市价单（`executeTrade`，杠杆 = Boost），不再有任何现货补丁。
+3. **快轮搬家到 `/trade`**：品类变了，Lite 路径跟着变——`/spot?event=crypto-…` 的旧链接（海报、持仓卡、书签）会自动跳到 `/trade?event=…`。Classic 快轮页长相不变（周期 tab + 轮次胶片 + 结算线图），只有下单区从现货面板换成 Boost 面板（档位由 crypto 品类配置决定，上限 10×，可自定义）。Pro 下快轮进 `/trade` 终端。盘中强平沿用合约路径的 auto-close 口径。
 4. **价格线故意不上色**：之前比稿里图表只在一边有价格线会被读成「UP 的线」。现在线是白的，涨跌只靠面积渐变、末端光点和梯子亮点表达。
 5. **梯子量程是动态的**：开局按币价的 0.06% 定（BTC 约 ±$40），价格走到量程 80% 外就跳到下一档，同一局只放大不缩小，新一局重置。小币（< $1）刻度改百分比，价格用 `$0.0₄1234` 这种下标零写法。
 6. **「今天」统计**按 UTC 零点切，取该币种已结算的现货仓（同一个事件名跨轮次）。
@@ -55,7 +55,7 @@
 | 3 | Pro 不变：Pro 下 5m/15m 仍是 CLOB 终端 | `App.tsx SpotRoute` 未改 |
 | 4 | 发布开关 ≠ 用户开关：`TABLE_PUBLIC=false` 时仅 `?table=1` / 白名单（`alex_carter`）可见 | `tableMode.ts` |
 | 5 | 移动端分开翻：桌面先；`isMobile` 一律 Classic | 分叉条件含 `!isMobile` |
-| 6 | 数据层：不新建表；落筹 = 现有市价买入语义 + Boost；1.5s 待发纯前端；路单读已结算轮次 | `tableTradeService` / `useTableOrders` / `useQuickRounds.historyFor` |
+| 6 | 数据层：不新建表；落筹 = 合约市价单（`executeTrade`，leverage = Boost，Boost 账户）；1.5s 待发纯前端；路单读已结算轮次 | `tableQuote` / `useTableOrders` / `useQuickRounds.historyFor` |
 | 7 | Table 内周期选择器只列 5m / 15m；1h 以上入口在事件列表 | `LiteQuickTable` 头部 |
 | 8 | 文案占位 | `copy-dictionary.md` |
 | 9 | 梯子量程：开局 0.06% 取档；超 80% 跳 ×1.25 档；同局只扩不缩；新局重置 | `tableMath.initialLadderRange / nextLadderRange` |
@@ -85,8 +85,8 @@
 
 ## 3. 文件清单
 
-新增：`src/components/lite/table/{tableMath,useTableOrders,TableChip,TableRoads,TableStage,TableLadder,TableSide,TableTray,TableResult,CoinSelect}`、`src/pages/lite/LiteQuickTable.tsx`、`src/lib/tableMode.ts`、`src/lib/formatPrice.ts`、`src/services/tableTradeService.ts`、`supabase/migrations/20261009120000_table_boost_settlement.sql`、`src/pages/StyleGuide/{preview/tablePreviews.tsx,sections/TableStatesSection.tsx}`。
-修改：`src/pages/lite/LiteQuickTrade.tsx`（仅顶部分叉包装，原组件改名 `LiteQuickTradeClassic`，内容未动）、style-guide 注册三处、`DESIGN.md`、`docs/copy-dictionary.md`。
+新增：`src/components/lite/table/{tableMath,useTableOrders,TableChip,TableRoads,TableStage,TableLadder,TableSide,TableTray,TableResult,CoinSelect}`、`src/pages/lite/LiteQuickTable.tsx`、`src/lib/tableMode.ts`、`src/lib/formatPrice.ts`、`src/components/lite/table/tableQuote.ts`、`src/components/lite/intraday/useQuickRailRedirect.ts`、`supabase/migrations/20261009180000_quick_rounds_contract.sql`、`src/pages/StyleGuide/{preview/tablePreviews.tsx,sections/TableStatesSection.tsx}`。
+修改：`src/pages/lite/LiteQuickTrade.tsx`（顶部分叉包装 + 合约轨：面板按轮次 rail 切换 `LiteContractOrderPanel` / `LiteOrderPanel`，`/spot` 上的合约轮跳 `/trade`）、`src/App.tsx`（`/trade` Lite 下快轮 id 渲染快轮页；`/spot` 先过 `useQuickRailRedirect`）、`src/components/lite/intraday/intradayData.ts`（`QuickEvent.rail`）、style-guide 注册三处、`DESIGN.md`、`docs/copy-dictionary.md`。
 
 ## 4. 验证方法
 
@@ -96,13 +96,14 @@
 4. 已持 UP 时 DOWN 格变暗、点击被拦（toast）；同边再放一枚不同 Boost 的筹码 → 合并成一仓，结果行 `boosts` 显示 `2/5×`。
 5. 倒计时归零 → 梯子提示 Settling、Cash out 禁用；此时落筹 → 排队（虚线筹码）；新轮开盘自动成交并 toast `filled at the open`。
 6. 轮次滚动 → 开奖帧 2.6s；有仓且赢 → `Share this win` 出海报。
-7. 持仓中点 Cash out → 现有确认流程；确认后钱包回「保证金 + 盈亏 − 5% wc」。
+7. 持仓中点 Cash out → 现有合约 cash-out 流程；确认后 Boost 账户回「保证金 + 盈亏 − 5% wc」。
+9. 旧链接 `/spot?event=crypto-…` → 自动到 `/trade?event=…`；1h 以上周期在 `/trade` 上是 Classic 快轮页 + Boost 面板。
 8. `/style-guide` 交易页 → Table 六张样张全部有图；`npm run sg:audit` 绿。
 
 ## 5. Lovable / 正式版边界与待办
 
-- **待办（需 CPO 批）**：应用 migration `20261009120000_table_boost_settlement.sql`（`settle_spot_event` 对 `leverage > 1` 付 `margin + size × (1 − entry)`；1× 不变）。未应用前，Boost > 1 的赢单会按 `size` 全额付（多付借入部分）。
-- 正式版：快轮本来就是合约，Boost = 杠杆，盘中强平、保证金、ADL 由风控引擎负责；本文只定交互与展示，`tableTradeService` 是 Lovable 的演示实现。
+- **后端（已批，Lovable 数据库接口恢复后执行）**：migration `20261009180000_quick_rounds_contract.sql`（新结算函数 + 滚轮 job 改合约 + 未结轮次翻 `['contract']`）；`category_boost_configs` crypto `max_leverage = 10`（D4）。
+- 正式版：快轮本来就是合约，Boost = 杠杆，盘中强平、保证金、ADL 由风控引擎负责；本文只定交互与展示。
 - 下一轮：移动端 Table（抽屉规范）；memecoin / 1m（后端加币种 / 周期即可，前端已备）；合规措辞 + i18n key；下三路 / 问路；「桌上有 $X」热度展示；翻默认（`TABLE_PUBLIC`）看内测数据。
 
 ## 附录 · 代号对照

@@ -63,6 +63,9 @@ export interface QuickEvent {
   end_date: string | null;
   volume: number;
   is_resolved: boolean;
+  /** Which rail the round trades on. Quick rounds moved to 'contract'
+   *  (CPO 2026-10-09); rounds opened before the switch stay 'spot'. */
+  rail?: "spot" | "contract";
   options: QuickOption[];
 }
 
@@ -92,6 +95,7 @@ const toQuick = (row: {
   end_date: string | null;
   volume: string | number | null;
   is_resolved: boolean;
+  product_lines?: string[] | null;
   event_options?: { id: string; label: string; price: number | string; is_winner: boolean | null }[];
 }): QuickEvent | null => {
   const parsed = parseQuickId(row.id);
@@ -107,6 +111,7 @@ const toQuick = (row: {
     end_date: row.end_date,
     volume: Number(row.volume ?? 0),
     is_resolved: row.is_resolved,
+    rail: (row.product_lines || []).includes("contract") || (row.product_lines || []).includes("futures") ? "contract" : "spot",
     options: (row.event_options || []).map((o) => ({
       id: o.id,
       label: o.label,
@@ -164,14 +169,14 @@ export const useQuickRounds = (enabled: boolean, refreshKey: number = 0) => {
         supabase
           .from("events")
           .select(
-            "id, name, base_price, start_date, end_date, volume, is_resolved, event_options(id, label, price, is_winner)",
+            "id, name, base_price, start_date, end_date, volume, is_resolved, product_lines, event_options(id, label, price, is_winner)",
           )
           .eq("event_subtype", QUICK_SUBTYPE)
           .eq("is_resolved", false),
         supabase
           .from("events")
           .select(
-            "id, name, base_price, start_date, end_date, volume, is_resolved, event_options(id, label, price, is_winner)",
+            "id, name, base_price, start_date, end_date, volume, is_resolved, product_lines, event_options(id, label, price, is_winner)",
           )
           .eq("event_subtype", QUICK_SUBTYPE)
           .eq("is_resolved", true)

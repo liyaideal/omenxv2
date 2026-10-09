@@ -8,8 +8,8 @@
 //   ③ decide           UP · chip×Boost tray on the open line · DOWN
 //   ④ your result      this round · live · today · Share · Cash out
 // Gated by src/lib/tableMode.ts. Classic quick page is untouched.
-// Execution: tableTradeService (boosted spot legs). Cash out / share /
-// auth reuse the existing Lite flows.
+// Execution: the contract rail (executeTrade, leverage = Boost) — quick rounds
+// are contracts since 2026-10-09. Cash out / share / auth reuse the Lite flows.
 // ============================================================
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -41,7 +41,8 @@ import {
 } from "@/components/lite/intraday/intradayData";
 import { formatPrice, ladderUsesPct } from "@/lib/formatPrice";
 import { TABLE_TIMEFRAMES } from "@/lib/tableMode";
-import { cashOutTable, placeTableOrder } from "@/services/tableTradeService";
+import { FUTURES_FEE_RATE, executeTrade, netWin } from "@/services/tradingService";
+import { quoteTableOrder } from "@/components/lite/table/tableQuote";
 import { CoinSelect } from "@/components/lite/table/CoinSelect";
 import { TableLadder } from "@/components/lite/table/TableLadder";
 import { TableResult, type ResultHolding } from "@/components/lite/table/TableResult";
@@ -87,7 +88,7 @@ const useTableToday = (userId: string | undefined, eventName: string | null, ref
         .select("pnl, option_label, closed_at")
         .eq("user_id", userId)
         .eq("event_name", eventName)
-        .eq("product_line", "spot")
+        .in("product_line", ["futures", "contract"])
         .eq("status", "Closed")
         .gte("closed_at", since.toISOString())
         .order("closed_at", { ascending: true })
@@ -110,7 +111,7 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
   const seconds = useSecondTick();
   const { user } = useAuth();
   const { positions, refetch: refetchPositions } = usePositions();
-  const { spotBalance, deductSpotBalance, addSpotBalance } = useUserProfile();
+  const { balance, deductBalance, addBalance } = useUserProfile();
   const [refetchTick, setRefetchTick] = useState(0);
   const { currentFor, historyFor, loading } = useQuickRounds(true, refetchTick);
 
@@ -165,7 +166,7 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
   // ---------- holdings ----------
   const heldIndex = useMemo(() => {
     if (!event) return -1;
-    return positions.findIndex((p) => p.productLine === "spot" && typeof p.optionId === "string" && p.optionId.startsWith(`${event.id}-`));
+    return positions.findIndex((p) => p.productLine === "futures" && typeof p.optionId === "string" && p.optionId.startsWith(`${event.id}-`));
   }, [positions, event]);
   const heldPos = heldIndex >= 0 ? positions[heldIndex] : null;
   const heldSide: TableSide | null = heldPos ? (heldPos.optionId === up?.id ? "up" : "down") : null;
@@ -211,34 +212,53 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
   const fill = useCallback(
     async (side: TableSide, value: ChipValue, b: Boost, source: "table" | "next") => {
       if (!user || !event || !up || !down) throw new Error("Sign in to place chips");
+      if (event.rail !== "contract") throw new Error("This round is still settling on the old rail — the table opens next round");
       const opt = side === "up" ? up : down;
       const p = side === "up" ? upPrice : downPrice;
-      const res = await placeTableOrder(user.id, {
+      const q = quoteTableOrder(value, b, p);
+      if (!(q.shares > 0)) throw new Error("Chip too small for this price");
+      const res = await executeTrade(user.id, {
         eventName: event.name,
         optionLabel: opt.label,
         optionId: opt.id,
+        side: "buy",
+        orderType: "Market",
         price: p,
+        amount: value,
+        quantity: q.shares,
+        leverage: b,
         margin: value,
-        boost: b,
+        fee: q.fee,
       });
-      if (res.balanceDelta < 0) await deductSpotBalance(-res.balanceDelta);
+      if (res.balanceDelta < 0) {
+        const ok = await deductBalance(Math.abs(res.balanceDelta));
+        if (!ok) throw new Error("Failed to update balance");
+      } else if (res.balanceDelta > 0) {
+        await addBalance(res.balanceDelta);
+      }
+      if ((res.intent === "open" || res.intent === "add") && q.fee > 0) {
+        void supabase.functions
+          .invoke("record-transaction", {
+            body: { type: "fee", amount: -q.fee, account: "futures", status: "completed", description: `Trading fee · ${opt.label} · ${event.name}` },
+          })
+          .catch(() => {});
+      }
       setPlacedChips((c) => [...c, { round: event.id, side, value, boost: b }]);
       refetchPositions();
-      const q = res.quote;
       toast.success(
         `${side === "up" ? "Up" : "Down"} · $${value} in${b > 1 ? ` · ${b}× Boost` : ""} → win +$${q.profit.toFixed(0)} if ${COIN_META[coin].ticker} closes ${
           side === "up" ? "above" : "at or below"
         } ${formatPrice(base)}${source === "next" ? " · filled at the open" : ""}`,
       );
     },
-    [user, event, up, down, upPrice, downPrice, deductSpotBalance, refetchPositions, coin, base],
+    [user, event, up, down, upPrice, downPrice, deductBalance, addBalance, refetchPositions, coin, base],
   );
 
   const orders = useTableOrders({
     roundId: event?.id ?? null,
     settling,
     heldSide,
-    balance: spotBalance,
+    balance,
     fill,
     notify,
   });
@@ -299,7 +319,7 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
             : [heldPos.leverageNum],
           livePnl: heldLive.pnl,
           currentValue: heldPos.marginNum + heldLive.pnl,
-          profitIfWin: heldPos.sizeNum * (1 - heldPos.entryPriceNum),
+          profitIfWin: netWin(heldPos.sizeNum * (1 - heldPos.entryPriceNum), heldPos.entryPriceNum * heldPos.sizeNum * FUTURES_FEE_RATE),
         }
       : null;
   useEffect(() => {
@@ -321,22 +341,6 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
     if (target) navigate(`/spot?event=${encodeURIComponent(target.id)}`, { replace: true });
   };
 
-  const handleCashOut = useCallback(
-    async (qty: number) => {
-      if (!user || !event || !heldPos || !heldLive) throw new Error("Sign in to cash out");
-      const res = await cashOutTable(user.id, {
-        positionId: heldPos.id,
-        eventName: event.name,
-        optionLabel: heldPos.option,
-        price: heldLive.mark,
-        quantity: qty,
-      });
-      if (res.balanceDelta > 0) await addSpotBalance(res.balanceDelta);
-      refetchPositions();
-      setRefetchTick((n) => n + 1);
-    },
-    [user, event, heldPos, heldLive, addSpotBalance, refetchPositions],
-  );
 
   if ((loading && !event) || !event || !up || !down || base == null) {
     return (
@@ -347,7 +351,7 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
   }
 
   const ticker = COIN_META[coin].ticker;
-  const sideLine = `${resultHolding?.side === "up" ? "Up" : "Down"} · ${tf} round`;
+  const sideLine = `${resultHolding?.side === "up" ? "Up" : "Down"} · ${tf} round${heldPos && heldPos.leverageNum > 1 ? ` · ${heldPos.leverageNum}× Boost` : ""}`;
 
   return (
     <div className="min-h-screen bg-background">
@@ -455,7 +459,7 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
                       pnlPercent: 0,
                       leftAmount: 0,
                       rightAmount: flash.pnl,
-                      segment: "standard",
+                      segment: "boost",
                     })
                 : undefined
             }
@@ -517,7 +521,7 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
                 pnlPercent: resultHolding.margin > 0 ? (resultHolding.livePnl / resultHolding.margin) * 100 : 0,
                 leftAmount: resultHolding.margin,
                 rightAmount: resultHolding.currentValue,
-                segment: "standard",
+                segment: "boost",
               })
             }
           />
@@ -533,6 +537,7 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
           positionIndex={heldIndex}
           currentValue={resultHolding.currentValue}
           pnlAtPrice={resultHolding.livePnl}
+          entryFee={heldPos.entryPriceNum * heldPos.sizeNum * FUTURES_FEE_RATE}
           sizeNum={heldPos.sizeNum}
           sideLabel={heldPos.option}
           shareContext={{
@@ -541,10 +546,9 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
             sideLine,
             boost: heldPos.leverageNum,
             putIn: resultHolding.margin,
-            productLine: "spot",
+            productLine: "futures",
           }}
           onShareSnapshot={setShareSnap}
-          onConfirmCashOut={handleCashOut}
           onDone={() => setRefetchTick((n) => n + 1)}
         />
       )}
