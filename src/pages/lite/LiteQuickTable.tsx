@@ -380,7 +380,7 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
           overflow: "hidden",
           display: "grid",
           gridTemplateColumns: "minmax(0,1fr) 140px 400px",
-          gridTemplateRows: "64px 132px 520px 104px",
+          gridTemplateRows: "64px 140px 520px 104px",
           color: "#fff",
           fontFamily: "'Space Grotesk', system-ui, sans-serif",
           backgroundImage:

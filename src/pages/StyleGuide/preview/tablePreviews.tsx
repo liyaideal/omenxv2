@@ -30,7 +30,7 @@ const MINE = [true, true, false, true, false, true, true, true, false, true].map
 
 /* ------------------------- TB-1 roads ------------------------- */
 export const Tb1Preview = () => (
-  <Frame h={132}>
+  <Frame h={140}>
     <TableRoads history={HISTORY} currentStartMs={START} tfMs={TF_MS} mine={MINE} holding net={84.2} />
   </Frame>
 );

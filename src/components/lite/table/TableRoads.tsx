@@ -118,7 +118,7 @@ export const TableRoads = ({ history, currentStartMs, tfMs, mine, holding, net, 
       <div style={{ ...MICRO, height: "auto" }}>① what happened</div>
 
       {/* Bead plate */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 8, alignSelf: "flex-start", paddingTop: 16 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         <div style={MICRO}>Bead · {last36.length}</div>
         <div style={{ display: "flex", gap: 3, minHeight: 87 }}>
           {chunk(last36.map((s, i) => [s, i + off] as const), 6).map((col, ci) => (
@@ -134,7 +134,7 @@ export const TableRoads = ({ history, currentStartMs, tfMs, mine, holding, net, 
       <div style={{ width: 1, height: 96, background: LINE }} />
 
       {/* Big road */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 8, alignSelf: "flex-start", paddingTop: 16, minWidth: 0 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 0 }}>
         <div style={MICRO}>
           Big road
           {streak.n >= 3 && streak.side && (
