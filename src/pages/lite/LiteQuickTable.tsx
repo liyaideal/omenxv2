@@ -203,8 +203,11 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
   const [placedChips, setPlacedChips] = useState<{ round: string; side: TableSide; value: ChipValue; boost: number }[]>([]);
   const roundChips = placedChips.filter((c) => c.round === event?.id);
   const zoneFilled = (side: TableSide) => {
+    // Chips are drawn only on the side actually held — a flipped-away leg
+    // leaves nothing behind.
+    if (!heldPos || heldSide !== side) return [];
     const mine = roundChips.filter((c) => c.side === side).map(({ value, boost }) => ({ value, boost }));
-    if (mine.length || !heldPos || heldSide !== side) return mine;
+    if (mine.length) return mine;
     return [{ value: nearestChip(heldPos.marginNum), boost: heldPos.leverageNum }];
   };
 
@@ -235,6 +238,7 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
       if (flip && heldPos && heldSide && heldSide !== side) {
         const closedPnl = heldLive?.pnl ?? 0;
         await closePosition(heldPos.id, heldIndex);
+        setPlacedChips((c) => c.filter((x) => !(x.round === event.id && x.side === heldSide)));
         flipLine = `Flipped · ${heldSide === "up" ? "Up" : "Down"} closed ${closedPnl >= 0 ? "+" : "−"}$${Math.abs(closedPnl).toFixed(2)} · `;
       }
       const res = await executeTrade(user.id, {
