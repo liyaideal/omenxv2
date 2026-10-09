@@ -133,6 +133,8 @@ export const TableLadder = ({ open, deviation, pct, roundId, remainingMs, durati
           color: "#9CA3AC",
           whiteSpace: "nowrap",
           zIndex: 2,
+          opacity: Math.abs(yOf(0) - y) < 26 ? 0 : 1,
+          transition: "opacity .2s",
         }}
       >
         OPEN {formatPriceBare(open)}

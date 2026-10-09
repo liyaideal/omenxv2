@@ -224,7 +224,7 @@ export const LiteQuickTable = ({ eventId }: { eventId: string }) => {
   const fill = useCallback(
     async (side: TableSide, value: ChipValue, b: Boost, source: "table" | "next") => {
       if (!user || !event || !up || !down) throw new Error("Sign in to place chips");
-      if (event.rail !== "contract") throw new Error("This round is still settling on the old rail — the table opens next round");
+      if (event.rail !== "contract") throw new Error("This round opened before the switch to contracts — chips open on the next round");
       const opt = side === "up" ? up : down;
       const p = side === "up" ? upPrice : downPrice;
       const q = quoteTableOrder(value, b, p);
