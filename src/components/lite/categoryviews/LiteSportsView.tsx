@@ -255,7 +255,7 @@ const LedgerRow = ({
           className="truncate"
           style={{ fontSize: 15, color: "#fff", fontWeight: 600 }}
         >
-          {match.home} vs {match.away}
+          {match.homeShort || match.home} vs {match.awayShort || match.away}
         </span>
         <span
           style={{

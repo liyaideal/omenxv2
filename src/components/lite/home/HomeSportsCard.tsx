@@ -211,7 +211,7 @@ const MatchTitle = ({ m, live }: { m: SportsMatch; live: boolean }) => (
         {m.awayShort || m.away}
       </>
     ) : (
-      `${m.home || m.name} vs ${m.away}`
+      `${m.homeShort || m.home || m.name} vs ${m.awayShort || m.away}`
     )}
   </div>
 );
@@ -382,7 +382,7 @@ const MobileUpcomingCard = ({
             className="truncate"
             style={{ fontWeight: 700, fontSize: 14.5, color: "#fff" }}
           >
-            {`${m.home || m.name} vs ${m.away}`}
+            {`${m.homeShort || m.home || m.name} vs ${m.awayShort || m.away}`}
           </div>
           <div
             className="font-display flex items-center truncate"

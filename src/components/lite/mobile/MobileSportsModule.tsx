@@ -236,8 +236,9 @@ const UpcomingMatchCard = ({ match }: { match: SportsMatch }) => {
           <span
             className="truncate"
             style={{ fontSize: 13, color: "#fff", fontWeight: 600, lineHeight: 1.25 }}
+            title={match.name}
           >
-            {match.name}
+            {match.homeShort && match.awayShort ? `${match.homeShort} vs ${match.awayShort}` : match.name}
           </span>
           <span style={MICRO}>{match.league}</span>
         </span>

@@ -208,9 +208,12 @@ export const shortName = (
   const f = (full || "").trim();
   if (!f) return f;
   const fl = f.toLowerCase();
+  const esc = (t: string) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  // 昵称必须是全名里的整词（`Chiefs` ⊂ `Kansas City Chiefs`）；`AST` ⊂ `Astralis` 这种子串不算。
   const nick = optionLabels.find((l) => {
     const t = (l || "").trim();
-    return t && t.toLowerCase() !== "draw" && t.toLowerCase() !== fl && fl.includes(t.toLowerCase());
+    if (!t || t.toLowerCase() === "draw" || t.toLowerCase() === fl) return false;
+    return new RegExp(`(^|\\s)${esc(t.toLowerCase())}(\\s|$)`).test(fl);
   });
   if (nick) return nick.trim();
   if (isPersonSport(meta)) {

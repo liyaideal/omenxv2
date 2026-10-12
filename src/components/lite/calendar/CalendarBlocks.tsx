@@ -662,7 +662,9 @@ export const SportsBlock = ({
               <Crest text={m.awayAbbr || m.away.slice(0, 3).toUpperCase()} />
             </span>
           </span>
-          <span style={{ fontSize: 17, color: "#fff", fontWeight: 600 }}>{m.name}</span>
+          <span style={{ fontSize: 17, color: "#fff", fontWeight: 600 }} title={m.name}>
+            {m.homeShort && m.awayShort ? `${m.homeShort} vs ${m.awayShort}` : m.name}
+          </span>
           {m.live && m.score && (
             <span
               className="font-display"
