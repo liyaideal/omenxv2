@@ -295,31 +295,31 @@ export const SettingsAccountConfirmPreview = () => (
 
 export const SettingsAccountBalancePreview = () => (
   <DialogBox>
-    <AccountCard previewState="balance" previewBalance={0} />
+    <AccountCard previewState="balance" previewBalance={12.5} />
   </DialogBox>
 );
 
 export const SettingsAccountBalanceNoAddressPreview = () => (
   <DialogBox>
-    <AccountCard previewState="balance-no-address" previewBalance={0} />
+    <AccountCard previewState="balance-no-address" previewBalance={12.5} />
   </DialogBox>
 );
 
 export const SettingsAccountConfirmEmailPreview = () => (
   <DialogBox>
-    <AccountCard previewState="confirm-email" previewBalance={0} />
+    <AccountCard previewState="confirm-email" previewBalance={12.5} />
   </DialogBox>
 );
 
 export const SettingsAccountConfirmBothPreview = () => (
   <DialogBox>
-    <AccountCard previewState="confirm-both" previewBalance={0} />
+    <AccountCard previewState="confirm-both" previewBalance={12.5} />
   </DialogBox>
 );
 
 export const SettingsAccountDoneSentPreview = () => (
   <DialogBox>
-    <AccountCard previewState="done-sent" previewBalance={0} />
+    <AccountCard previewState="done-sent" previewBalance={12.5} />
   </DialogBox>
 );
 
