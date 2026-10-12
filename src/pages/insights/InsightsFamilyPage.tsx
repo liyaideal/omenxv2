@@ -17,9 +17,13 @@ const InsightsFamilyPage = ({ family }: { family: "crypto" | "stocks" }) => {
   const fams = familyFromPath(family);
   const list = (data ?? []).filter((a) => fams.includes(a.family));
   const crypto = family === "crypto";
+  const bySettle = (rows: SeriesAsset[]) => rows.find((a) => a.live)?.live ? `settles ${hhmm(rows.find((a) => a.live)!.live!.end)} UTC` : "no live session";
+  const markets = crypto ? [] : ([["us", "US"], ["hk", "HK"]] as const)
+    .map(([key, label]) => { const rows = list.filter((a) => a.family === key).sort((a, b) => b.vol_24h - a.vol_24h); return { key, label, rows, settle: bySettle(rows) }; })
+    .filter((m) => m.rows.length > 0);
   const title = crypto ? "Crypto Up or Down — Live Prediction Market Odds on Bitcoin, Ethereum & Solana" : "Stock Up or Down Today — Prediction Market Odds on US & HK Stocks";
   const asOf = new Date().toISOString();
-  useSeoHead({ title, description: crypto ? "Every 5 minutes to daily, OmenX traders bet whether BTC, ETH and SOL close higher or lower. Live odds and how often the crowd is right." : "Will Apple, Tesla, Tencent close higher today? Live OmenX prediction market odds for 16 US and Hong Kong stocks, with the crowd's 30-day record.", path: `/insights/${family}`, hreflang: true, jsonLd: data ? [{ "@context": "https://schema.org", "@type": "ItemList", name: title, itemListElement: list.map((a, i) => ({ "@type": "ListItem", position: i + 1, name: `${a.asset} Up or Down`, url: `${SITE_URL}${seriesPath(a)}` })) }] : [] }, [data?.length ?? 0]);
+  useSeoHead({ title, description: crypto ? "Every 5 minutes to daily, OmenX traders bet whether BTC, ETH and SOL close higher or lower. Live odds and how often the crowd is right." : "Will Apple, Tesla, Tencent close higher today? Live OmenX prediction market odds for every US and Hong Kong stock on OmenX, with the crowd's 30-day record.", path: `/insights/${family}`, hreflang: true, jsonLd: data ? [{ "@context": "https://schema.org", "@type": "ItemList", name: title, itemListElement: list.map((a, i) => ({ "@type": "ListItem", position: i + 1, name: `${a.asset} Up or Down`, url: `${SITE_URL}${seriesPath(a)}` })) }] : [] }, [data?.length ?? 0]);
   return (
     <InsightsShell mobileTitle={crypto ? "Crypto · Up or Down" : "Stocks · Up or Down"}>
       <SeriesOpening art={crypto ? HERO_ART.crypto : HERO_ART.stocks} eyebrow={`OmenX Insights · ${crypto ? "Crypto" : "US & HK stocks"} · Up or down`}
@@ -29,8 +33,8 @@ const InsightsFamilyPage = ({ family }: { family: "crypto" | "stocks" }) => {
       {isLoading && <LoadingState variant="skeleton" skeletonRows={6} />}
       {!isLoading && (
         <>
-          <SeriesSection n="01" title={crypto ? "Every open round — all five lengths" : "Today's session"} meta={crypto ? `${list.length} assets · ${list.reduce((n, a) => n + a.live_all.length, 0)} rounds` : `${list.length} assets`}
-            intro={crypto ? <>Each asset runs 5-minute, 15-minute, 1-hour, 4-hour and daily rounds at the same time. Grouped by asset; the group line carries the asset's <b>crowd was right · today</b> and 24-hour volume.</> : undefined}>
+          <SeriesSection n="01" title={crypto ? "Every open round — all five lengths" : "Today's session"} meta={crypto ? `${list.length} assets · ${list.reduce((n, a) => n + a.live_all.length, 0)} rounds` : `${list.length} stocks · ${markets.map((m) => `${m.label} ${m.rows.length}`).join(" · ")}`}
+            intro={crypto ? <>Each asset runs 5-minute, 15-minute, 1-hour, 4-hour and daily rounds at the same time. Grouped by asset; the group line carries the asset's <b>crowd was right · today</b> and 24-hour volume.</> : <>Grouped by market — US sessions settle at the New York close, Hong Kong sessions at the Hong Kong close — and sorted by 24-hour volume. Every stock with a session in the last 35 days is listed.</>}>
             {crypto ? (
               <Responsive
                 desktop={
@@ -46,11 +50,26 @@ const InsightsFamilyPage = ({ family }: { family: "crypto" | "stocks" }) => {
                   </List>
                 ))}</div>} />
             ) : (
-              <Responsive
-                desktop={<Table head={<><Th>Stock</Th><Th w={170}>Session</Th><Th w={280}>Up · Down price</Th><Th w={110} r>Settles</Th><Th w={170} r>Crowd was right · 30d</Th><Th w={120} r>Traded 24h</Th></>}>
-                  {list.map((a) => <Tr key={a.slug} a={a} />)}
-                </Table>}
-                mobile={<List>{list.map((a) => <MRow key={a.slug} a={a} />)}</List>} />
+              /* Stocks: one table per market (US / HK), each sorted by 24h traded; market chips at the top jump to the group.
+                 Data-driven — production has 100+ stocks, the list has no cap (CPO 2026-10-12). */
+              <div className="space-y-8">
+                <div className="flex flex-wrap gap-2">
+                  {markets.map((m) => <a key={m.key} href={`#stocks-${m.key}`} className="rounded-full border border-[#1D2026] px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground transition-colors hover:text-primary">{m.label} · {m.rows.length}</a>)}
+                </div>
+                {markets.map((m) => (
+                  <div key={m.key} id={`stocks-${m.key}`} className="scroll-mt-24">
+                    <h3 className="mb-3 flex flex-wrap items-baseline justify-between gap-2 text-[15px] font-semibold md:text-[17px]">
+                      <span>{m.label} stocks <span className="font-normal text-muted-foreground">· {m.rows.length}</span></span>
+                      <span className="font-mono text-[11px] font-normal uppercase tracking-[0.08em] text-muted-foreground/70">{m.settle}</span>
+                    </h3>
+                    <Responsive
+                      desktop={<Table head={<><Th>Stock</Th><Th w={170}>Session</Th><Th w={280}>Up · Down price</Th><Th w={110} r>Settles</Th><Th w={170} r>Crowd was right · 30d</Th><Th w={120} r>Traded 24h</Th></>}>
+                        {m.rows.map((a) => <Tr key={a.slug} a={a} />)}
+                      </Table>}
+                      mobile={<List>{m.rows.map((a) => <MRow key={a.slug} a={a} />)}</List>} />
+                  </div>
+                ))}
+              </div>
             )}
           </SeriesSection>
           <DataFooter settle={crypto ? "Settles on the reference index" : "Settles on the official close"} legend={<><CrowdLegend noun={crypto ? "round" : "session"} /> {crypto ? "Rounds settle on the reference-index price." : "Sessions settle on the official closing price."} All times are UTC.</>} sentence={`According to OmenX prediction market data, the crowd was right in ${Math.round(list.reduce((s, a) => s + (a.hit_30d ?? 0), 0) / Math.max(1, list.length))}% of ${crypto ? "crypto" : "stock"} Up-or-Down ${crypto ? "rounds" : "sessions"} over the last 30 days (${fmtInt(list.reduce((s, a) => s + a.rounds_30d, 0))} settled).`} url={`${SITE_URL}/insights/${family}`} />
