@@ -1,5 +1,5 @@
 export interface SegmentSpec {
-  unit: "map" | "round" | "half" | "quarter" | "set" | "game";
+  unit: "map" | "round" | "half" | "quarter" | "set" | "game" | "period" | "inning";
   label: (n: number) => string;      // 列头："M1" / "R1" / "1H"
   total: number;
   decisiveThreshold: number | null;
@@ -12,13 +12,22 @@ export interface SegmentSpec {
   /** 上下文行里这一段怎么叫："Map 2" / "Round 3" / "2nd half"。 */
   segName: (n: number) => string;
   /** 卡片右上角显示什么：段内比分 / 回合钟 / 比赛分钟 / 当前局分 / 已进行时长。 */
-  rightValue: "segScore" | "clock" | "minute" | "points" | "elapsed";
+  rightValue: "segScore" | "clock" | "minute" | "points" | "elapsed" | "inning";
+  /** 右上角钟的上限秒数（UFC 回合 300 / NBA 节 720 / NFL 节 900 / NHL 节 1200）。不填 = 300。 */
+  clockMax?: number;
   /** 格子写什么：score = 该段的数字；winloss = W/L（MOBA，一局没有可比分数）。
    *  UFC 走 Matrix 里既有的 isMma 分支，优先级在本字段之上。 */
   cell: "score" | "winloss";
-  /** 允许在固定段数右边追加加时列（篮球 OT）。 */
+  /** 允许在固定段数右边追加加时列（篮球 OT / 棒球加赛局）。 */
   overtime: boolean;
 }
+
+/** 1 → "1st"，2 → "2nd"，11 → "11th"。 */
+export const ordinal = (n: number): string => {
+  const r = n % 100;
+  const suf = r >= 11 && r <= 13 ? "th" : n % 10 === 1 ? "st" : n % 10 === 2 ? "nd" : n % 10 === 3 ? "rd" : "th";
+  return `${n}${suf}`;
+};
 
 export const SPORT_SEGMENTS: Record<string, SegmentSpec> = {
   "IEM Cologne · BO3": { unit: "map",   label: (n) => `M${n}`, total: 3, decisiveThreshold: 13,   totalsWord: "maps",   totalsRule: "won", colWidth: 62, segName: (n) => `Map ${n}`,   rightValue: "segScore", cell: "score", overtime: false },
@@ -41,7 +50,7 @@ export const SPORT_FALLBACK: Record<string, SegmentSpec> = {
     total: 4, decisiveThreshold: null,
     totalsWord: "pts", totalsRule: "sum", colWidth: 54,
     segName: (n) => (n <= 4 ? `Q${n}` : n === 5 ? "OT" : `${n - 4}OT`),
-    rightValue: "clock", cell: "score", overtime: true,
+    rightValue: "clock", clockMax: 720, cell: "score", overtime: true,
   },
   tennis: {
     unit: "set", label: (n) => `S${n}`, total: 3, decisiveThreshold: null,
@@ -54,6 +63,29 @@ export const SPORT_FALLBACK: Record<string, SegmentSpec> = {
     totalsWord: "games", totalsRule: "won", colWidth: 48,
     segName: (n) => `Game ${n}`, rightValue: "elapsed",
     cell: "winloss", overtime: false,
+  },
+  // 美式足球：四节 15 分钟 + OT，与篮球同骨架，只有钟上限不同。
+  american_football: {
+    unit: "quarter", label: (n) => (n <= 4 ? `Q${n}` : n === 5 ? "OT" : `${n - 4}OT`),
+    total: 4, decisiveThreshold: null,
+    totalsWord: "pts", totalsRule: "sum", colWidth: 54,
+    segName: (n) => (n <= 4 ? `Q${n}` : n === 5 ? "OT" : `${n - 4}OT`),
+    rightValue: "clock", clockMax: 900, cell: "score", overtime: true,
+  },
+  // 冰球：三节 20 分钟 + OT。
+  hockey: {
+    unit: "period", label: (n) => (n <= 3 ? `P${n}` : n === 4 ? "OT" : `${n - 3}OT`),
+    total: 3, decisiveThreshold: null,
+    totalsWord: "goals", totalsRule: "sum", colWidth: 54,
+    segName: (n) => (n <= 3 ? `P${n}` : n === 4 ? "OT" : `${n - 3}OT`),
+    rightValue: "clock", clockMax: 1200, cell: "score", overtime: true,
+  },
+  // 棒球：九局，第 10 局起按数据追加；没有钟，右上角写半局箭头 + 局次 + 出局数。
+  baseball: {
+    unit: "inning", label: (n) => `${n}`, total: 9, decisiveThreshold: null,
+    totalsWord: "runs", totalsRule: "sum", colWidth: 34,
+    segName: (n) => `${ordinal(n)} inning`, rightValue: "inning",
+    cell: "score", overtime: true,
   },
 };
 

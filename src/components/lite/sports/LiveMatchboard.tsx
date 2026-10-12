@@ -158,7 +158,7 @@ const RightValue = ({ m, size }: { m: Model; size: number }) => (
       flexShrink: 0,
     }}
   >
-    {m.tiebreakLive ? <span style={{ color: "#FF8A3D" }}>TB </span> : null}
+    {m.rightPrefix ? <span style={{ color: "#FF8A3D" }}>{m.rightPrefix} </span> : null}
     {m.rightValue}
   </span>
 );
@@ -278,10 +278,18 @@ const Matrix = ({
         );
       const v = side === "home" ? r.home : r.away;
       const other = side === "home" ? r.away : r.home;
+      // 棒球：该半局还没轮到打 ⇒ `—`（和"这局没打"的 `·` 是两种态）。
+      if (v == null)
+        return (
+          <div key={n} style={cellStyle("mut", now)}>
+            —
+          </div>
+        );
       // 网球抢七盘：两行各标自己的抢七点数（7⁷ / 6²）；6–6 进行中不标，点数走右值。
       const tb = isTiebreakSet(r) ? (side === "home" ? r.tb.home : r.tb.away) : null;
+      const o = other ?? 0;
       return (
-        <div key={n} style={cellStyle(v > other ? "w" : v < other ? "l" : "base", now)}>
+        <div key={n} style={cellStyle(v > o ? "w" : v < o ? "l" : "base", now)}>
           {v}
           {tb != null ? <TbSup v={tb} /> : null}
         </div>
@@ -487,7 +495,7 @@ const CellTrack = ({ m }: { m: Model }) => {
         const now = (m.status === "live" || m.status === "break") && n === m.idx;
         const pct =
           now && r && thr
-            ? Math.max(0, Math.min(1, Math.max(r.home, r.away) / thr))
+            ? Math.max(0, Math.min(1, Math.max(r.home ?? 0, r.away ?? 0) / thr))
             : 0;
         if (now)
           return (
@@ -526,7 +534,9 @@ const MobileBar = ({ m, sticky }: { m: Model; sticky: boolean }) => {
           ? sticky
             ? `M${m.idx}`
             : `MAP ${m.idx}`
-          : m.spec.label(m.idx);
+          : m.spec.unit === "inning"
+            ? "" // 棒球：局次已在右值 `▼ 7th` 里，不重复
+            : m.spec.label(m.idx);
 
   const shellBase = {
     position: "relative" as const,

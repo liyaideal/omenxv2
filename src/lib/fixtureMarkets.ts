@@ -17,6 +17,7 @@ import {
   groupFixtureMarkets,
   groupSegmentedMarkets,
   scoringNoun,
+  lineWords,
 } from "@/components/lite/sports/sportsData";
 
 export interface MarketSide {
@@ -237,7 +238,8 @@ export const buildFixtureMarkets = (
     } else {
       push("winner", "Winner", [{ title: "Winner", lines: [lineOf(fixture, "winner", "Winner")] }], fixture.id);
     }
-    if (fm.handicap.length) push("handicap", "Handicap", [{ title: "Handicap", lines: fm.handicap.map((e) => lineOf(e, "handicap", "Handicap")) }]);
+    const hw = lineWords(meta).handicap;
+    if (fm.handicap.length) push("handicap", hw, [{ title: hw, lines: fm.handicap.map((e) => lineOf(e, "handicap", hw)) }]);
     if (fm.total.length) push("total", `Total ${noun}`, [{ title: `Total ${noun}`, lines: fm.total.map((e) => lineOf(e, "total", `Total ${noun}`)) }]);
   }
 

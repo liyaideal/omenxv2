@@ -133,6 +133,12 @@ export const SPORTS_GROUPS: SportGroup[] = [
   { code: "NFL", label: "NFL", leagues: [
     { code: "NFL", label: "NFL", aliases: [/\bnfl\b/i] },
   ] },
+  { code: "BASEBALL", label: "Baseball", leagues: [
+    { code: "MLB", label: "MLB", aliases: [/\bmlb\b/i] },
+  ] },
+  { code: "HOCKEY", label: "Hockey", leagues: [
+    { code: "NHL", label: "NHL", aliases: [/\bnhl\b/i] },
+  ] },
   {
     code: "ESPORTS",
     label: "Esports",

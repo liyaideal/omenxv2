@@ -4,7 +4,7 @@
 // ============================================================
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { SPORT_SEGMENTS } from "@/lib/sportSegments";
+import { SPORT_SEGMENTS, SPORT_FALLBACK, ordinal } from "@/lib/sportSegments";
 
 
 export const SPORTS_SUBTYPE = "SPORTS_MATCH";
@@ -33,6 +33,8 @@ export interface SportsMatch {
   score: string | null;
   /** metadata.sport — 决定列表卡比分串走哪套 formatter（tennis → tennisScore）。 */
   sport?: string | null;
+  /** 列表卡 live 位文案：足球/默认 `63'`；有钟的运动（NFL / NBA / NHL）`8:42`；棒球 `▼ 7th`。 */
+  liveLabel?: string | null;
   /** metadata.stream_url — non-empty means the match has a watchable stream. */
   streamUrl?: string | null;
   volume: number;
@@ -65,8 +67,12 @@ interface RawMeta {
   segment_index?: number | null;
   /** One `{home,away}` or `null` per segment. */
   segment_results?: ({ home: number; away: number; tb?: { home: number; away: number } | null } | null)[] | null;
-  /** UFC round clock, seconds remaining. */
+  /** 回合/节内剩余秒（UFC / NBA / NFL / NHL）。 */
   clock?: number | null;
+  /** 棒球半局 + 出局数；美式足球球权（队伍缩写）。 */
+  half?: "top" | "bottom" | null;
+  outs?: number | null;
+  possession?: string | null;
   stream_url?: string | null;
 }
 
@@ -135,11 +141,64 @@ export const formatSignedLine = (n: number): string => {
 };
 
 /** Sport-aware scoring noun for the Total group. */
-export const scoringNoun = (meta: FixtureMeta): "goals" | "points" => {
+export const scoringNoun = (meta: FixtureMeta): "goals" | "points" | "runs" => {
   const sport = (meta.sport || "").toLowerCase();
-  if (sport) return sport === "basketball" ? "points" : "goals";
+  if (sport === "basketball" || sport === "american_football") return "points";
+  if (sport === "baseball") return "runs";
+  if (sport) return "goals";
   const league = (meta.league || "").toLowerCase();
-  return /nba|basket|wnba|euroleague/.test(league) ? "points" : "goals";
+  if (/nba|basket|wnba|euroleague|nfl/.test(league)) return "points";
+  if (/mlb|baseball/.test(league)) return "runs";
+  return "goals";
+};
+
+/**
+ * 让分 / 大小分的行话与结算口径（按运动）。足球按常规时间；美式运动（NFL / NBA / NHL / MLB）
+ * 让分与大小分都含加时 / 加赛局，这是行业口径，引擎也按终场比分结算。
+ */
+export const lineWords = (
+  meta: FixtureMeta,
+): { handicap: string; totalTitle: string; note: string; tip: string } => {
+  const sport = (meta.sport || "").toLowerCase();
+  const noun = scoringNoun(meta);
+  const us = {
+    american_football: "Spread",
+    basketball: "Spread",
+    hockey: "Puck line",
+    baseball: "Run line",
+  } as Record<string, string>;
+  if (us[sport]) {
+    const ot = sport === "baseball" ? "extra innings" : "overtime";
+    return {
+      handicap: us[sport],
+      totalTitle: `Total ${noun}`,
+      note: `Includes ${ot}`,
+      tip: `Settles on the final score including ${ot}.`,
+    };
+  }
+  return {
+    handicap: "Handicap",
+    totalTitle: `Total ${noun}`,
+    note: "Regulation time",
+    tip: "Settles on the regulation-time result. Extra time and penalties don't count.",
+  };
+};
+
+/** 列表卡 live 位：按运动形态选"分钟 / 节次钟 / 半局 + 局次"。 */
+export const liveLabelFor = (meta: FixtureMeta, minute: number | null): string | null => {
+  const spec = SPORT_FALLBACK[(meta.sport || "").toLowerCase()];
+  if (spec?.rightValue === "inning") {
+    const idx = meta.segment_index ?? null;
+    if (idx == null) return null;
+    const arrow = meta.half === "bottom" ? "\u25BC " : meta.half === "top" ? "\u25B2 " : "";
+    return `${arrow}${ordinal(idx)}`;
+  }
+  if (spec?.rightValue === "clock" && spec.clockMax && meta.clock != null) {
+    const sec = Math.max(0, Math.min(spec.clockMax, Number(meta.clock)));
+    const lab = meta.segment_index != null ? `${spec.label(meta.segment_index)} ` : "";
+    return `${lab}${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`;
+  }
+  return minute != null ? `${minute}'` : null;
 };
 
 /**
@@ -323,6 +382,7 @@ export const useSportsMatches = () => {
           endDate,
           live: isLive,
           minute: isLive ? liveMinute(kickoff, meta.sport) : null,
+          liveLabel: isLive ? liveLabelFor(meta, liveMinute(kickoff, meta.sport)) : null,
           phase: meta.phase ?? null,
            score: meta.score ?? null,
            sport: meta.sport ?? null,

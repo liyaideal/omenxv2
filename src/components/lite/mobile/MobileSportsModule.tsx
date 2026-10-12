@@ -132,7 +132,7 @@ const LiveMatchCard = ({ match }: { match: SportsMatch }) => {
               fontVariantNumeric: "tabular-nums",
             }}
           >
-            {match.minute != null ? `${match.minute}'` : "LIVE"}
+            {match.liveLabel ?? (match.minute != null ? `${match.minute}'` : "LIVE")}
           </span>
         </span>
       </div>

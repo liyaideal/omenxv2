@@ -5,7 +5,7 @@
 // headers) must read them from here, never recompute locally.
 // ============================================================
 import { useMemo, useSyncExternalStore } from "react";
-import { SPORT_SEGMENTS, SPORT_FALLBACK, type SegmentSpec } from "@/lib/sportSegments";
+import { SPORT_SEGMENTS, SPORT_FALLBACK, ordinal, type SegmentSpec } from "@/lib/sportSegments";
 import { fixtureMeta, isFixtureLive, type FixtureMeta } from "./sportsData";
 import { formatGamePoints } from "./tennisScore";
 
@@ -23,19 +23,23 @@ export interface MatchboardEvent {
 export type Status = "live" | "break" | "upcoming" | "finished" | "settled";
 
 export interface SegResult {
-  home: number;
-  away: number;
+  /** 棒球：该半局还没轮到打时为 null（格子写 `—`）。其他运动恒为数字。 */
+  home: number | null;
+  away: number | null;
   /** 网球抢七点数。盘打到 6–6 进入抢七时写入并随每分更新；盘以 7–6 / 6–7 结束后保留为终值。 */
   tb?: { home: number; away: number } | null;
 }
 
 /** 该盘是否由抢七决出（7–6 / 6–7 且带 tb）。只有这种盘的格子才带上标。 */
 export const isTiebreakSet = (r: SegResult | null | undefined): r is SegResult & { tb: { home: number; away: number } } =>
-  !!r && !!r.tb && Math.max(r.home, r.away) === 7 && Math.abs(r.home - r.away) === 1;
+  !!r && !!r.tb && r.home != null && r.away != null && Math.max(r.home, r.away) === 7 && Math.abs(r.home - r.away) === 1;
 
 /** 该盘抢七是否正在进行（6–6 且带 tb）。 */
 export const isTiebreakLive = (r: SegResult | null | undefined): r is SegResult & { tb: { home: number; away: number } } =>
   !!r && !!r.tb && r.home === 6 && r.away === 6;
+
+/** 一方未出场的半局当 0 算（总分、胜负判定都用它）。 */
+export const n0 = (v: number | null | undefined): number => v ?? 0;
 
 export interface Model {
   meta: FixtureMeta;
@@ -59,6 +63,8 @@ export interface Model {
   scoreText: string;
   /** 网球：当前盘抢七进行中。右值改显抢七点数，上下文行插 `Tiebreak`。 */
   tiebreakLive: boolean;
+  /** 右值前缀（橙色）：网球抢七 `TB`、棒球半局箭头 `▲` / `▼`。null = 无前缀。 */
+  rightPrefix: string | null;
   cellMode: "score" | "winloss";
   totalsWord: string;
   colWidth: number;
@@ -66,9 +72,9 @@ export interface Model {
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
-/** `m:ss`, clamped to [0,300]. */
-export const clockText = (raw: number | null | undefined): string => {
-  const s = Math.max(0, Math.min(300, Number(raw ?? 0)));
+/** `m:ss`, clamped to [0, max]（默认 300 = UFC 回合；NBA 720 / NFL 900 / NHL 1200 由 SegmentSpec.clockMax 给）。 */
+export const clockText = (raw: number | null | undefined, max = 300): string => {
+  const s = Math.max(0, Math.min(max, Number(raw ?? 0)));
   return `${Math.floor(s / 60)}:${pad(s % 60)}`;
 };
 
@@ -150,7 +156,7 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
   // 且它 `totalsWord: null`，根本不渲染总数列。
   const decided = (r: SegResult | null, n: number) => {
     if (!r) return false;
-    if (spec?.decisiveThreshold != null) return Math.max(r.home, r.away) >= spec.decisiveThreshold;
+    if (spec?.decisiveThreshold != null) return Math.max(n0(r.home), n0(r.away)) >= spec.decisiveThreshold;
     // 无决胜分的项目（网球盘、MOBA 局）：不是当前段就算打完。
     return idx == null || n !== idx;
   };
@@ -158,14 +164,14 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
   let awayMaps = 0;
   if (spec?.totalsRule === "sum") {
     results.forEach((r) => {
-      homeMaps += r?.home ?? 0;
-      awayMaps += r?.away ?? 0;
+      homeMaps += n0(r?.home);
+      awayMaps += n0(r?.away);
     });
   } else {
     results.forEach((r, i) => {
       if (!decided(r, i + 1) || !r) return;
-      if (r.home > r.away) homeMaps += 1;
-      else if (r.away > r.home) awayMaps += 1;
+      if (n0(r.home) > n0(r.away)) homeMaps += 1;
+      else if (n0(r.away) > n0(r.home)) awayMaps += 1;
     });
   }
 
@@ -179,9 +185,17 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
   );
   const tiebreakLive =
     status === "live" && spec?.unit === "set" && isTiebreakLive(current);
+  // 美式足球球权（`metadata.possession` = 队伍缩写），缺失不显示。
+  const possession =
+    spec?.unit === "quarter" && typeof metaBag.possession === "string" && metaBag.possession
+      ? ` · ${metaBag.possession} ball`
+      : "";
+  // 棒球半局 + 出局数（`metadata.half` = top | bottom，`outs` = 0–2）。
+  const half = metaBag.half === "bottom" ? "bottom" : metaBag.half === "top" ? "top" : null;
+  const outs = typeof metaBag.outs === "number" ? metaBag.outs : null;
   const ctx =
     status === "live" && idx != null
-      ? `${league} · ${segName(idx)}${tiebreakLive ? " · Tiebreak" : ""}${spec?.unit === "set" && server ? ` · ${server} serving` : ""}`
+      ? `${league} · ${segName(idx)}${tiebreakLive ? " · Tiebreak" : ""}${possession}${spec?.unit === "set" && server ? ` · ${server} serving` : ""}`
       : status === "break" && idx != null
         ? isMma
           ? `${league} · Between rounds`
@@ -200,8 +214,10 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
         : status === "live"
           ? spec?.rightValue === "minute" && Number.isFinite(kickoff)
             ? minuteText
+            : spec?.rightValue === "inning" && idx != null
+            ? `${ordinal(idx)}${outs != null ? ` · ${outs} out` : ""}`
             : spec?.rightValue === "clock" && !isMma
-            ? clockText(meta.clock)
+            ? clockText(meta.clock, spec.clockMax)
             : spec?.rightValue === "points"
             ? tiebreakLive && current?.tb
               ? `${current.tb.home}–${current.tb.away}`
@@ -231,13 +247,19 @@ export const buildModel = (event: MatchboardEvent, now: number): Model => {
     ctx,
     rightValue,
     sealed: isMma,
-    clockText: clockText(meta.clock),
+    clockText: clockText(meta.clock, spec?.clockMax),
     winnerHome: event.winning_option_id
       ? event.winning_option_id.endsWith("-o1")
       : null,
     current,
     scoreText,
     tiebreakLive,
+    rightPrefix:
+      status === "live" && tiebreakLive
+        ? "TB"
+        : status === "live" && spec?.rightValue === "inning" && half
+          ? half === "top" ? "\u25B2" : "\u25BC"
+          : null,
     cellMode: spec?.cell ?? "score",
     totalsWord: spec ? (spec.totalsWord ?? "") : "maps",
     colWidth: spec?.colWidth ?? 62,

@@ -86,6 +86,7 @@ import {
   groupSegmentedMarkets,
   isFixtureSibling,
   NON_SIBLING_FILTER,
+  lineWords,
   scoringNoun,
 } from "@/components/lite/sports/sportsData";
 import {
@@ -753,9 +754,9 @@ const LiteContractTrade = () => {
 
   // ---- Sports game lines: grouped board -------------------------------
   const noun = scoringNoun(meta);
+  const words = lineWords(meta);
   const homeAbbr = meta.home_abbr || meta.home || "Home";
-  const regulationTip =
-    "Settles on the regulation-time result. Extra time and penalties don't count.";
+  const regulationTip = words.tip;
 
   const lineRow = (
     ev: EventRow | null,
@@ -843,7 +844,7 @@ const LiteContractTrade = () => {
       )}
       {event.options.length > 1 && (
         <>
-          <GroupHeader title={t("market.winner")} note="Regulation time" tip={regulationTip} />
+          <GroupHeader title={t("market.winner")} note={words.note} tip={regulationTip} />
           <LiteMarketBoard
             options={boardOptions}
             volumeText={volumeText}
@@ -865,9 +866,9 @@ const LiteContractTrade = () => {
       {handicapRow && (
         <>
           <GroupHeader
-            title={t("market.sports_game_lines_handicap")}
-            note="Regulation time"
-            tip={`A team covers when its regulation-time score plus the line beats the opponent. ${regulationTip}`}
+            title={words.handicap === "Handicap" ? t("market.sports_game_lines_handicap") : words.handicap}
+            note={words.note}
+            tip={`A team covers when its final score plus the line beats the opponent. ${regulationTip}`}
           />
           {lineGroupBoard(
             handicapRow,
@@ -881,8 +882,8 @@ const LiteContractTrade = () => {
         <>
           <GroupHeader
             title={`Total ${noun}`}
-            note="Regulation time"
-            tip={`Counts both teams' ${noun} in regulation time. ${regulationTip}`}
+            note={words.note}
+            tip={`Counts both teams' ${noun}. ${regulationTip}`}
           />
           {lineGroupBoard(
             totalRow,
@@ -1095,7 +1096,7 @@ const LiteContractTrade = () => {
               ? [
                   categoryLabel,
                   event.options.length > 1 ? "Winner" : null,
-                  handicapRow ? "Handicap" : null,
+                  handicapRow ? words.handicap : null,
                   totalRow ? `Total ${noun}` : null,
                 ]
                   .filter(Boolean)
@@ -1598,7 +1599,7 @@ const LiteContractTrade = () => {
   const selectedLineGroup = hasSegGroups
     ? (selectedSeg?.group ?? null)
     : selectedLineEvent && selectedLineEvent.id === activeHandicap?.id
-      ? "Handicap"
+      ? words.handicap
       : selectedLineEvent
         ? `Total ${noun}`
         : null;

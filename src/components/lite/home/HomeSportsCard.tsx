@@ -283,7 +283,7 @@ const LiveCard = ({
               flex: "none",
             }}
           >
-            ● LIVE{m.minute != null ? ` ${m.minute}'` : ""}
+            ● LIVE{m.liveLabel ? ` ${m.liveLabel}` : m.minute != null ? ` ${m.minute}'` : ""}
           </span>
           {!isMobile && m.streamUrl ? (
             <WatchLiveChip

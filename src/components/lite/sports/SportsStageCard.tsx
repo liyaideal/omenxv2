@@ -150,7 +150,7 @@ const LiveBlock = ({
             fontVariantNumeric: "tabular-nums",
           }}
         >
-          {match.minute}'
+          {match.liveLabel ?? (match.minute != null ? `${match.minute}'` : "LIVE")}
         </span>
       </span>
     </div>

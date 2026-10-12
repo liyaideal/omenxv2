@@ -650,7 +650,7 @@ export const SportsBlock = ({
                   fontVariantNumeric: "tabular-nums",
                 }}
               >
-                {m.minute}'
+                {m.liveLabel ?? (m.minute != null ? `${m.minute}'` : "LIVE")}
               </span>
             </span>
           )}
