@@ -98,11 +98,11 @@ const InsightsPage = () => {
             {eventsFallback.length === 0 ? <Empty>No event markets open right now.</Empty> : (
               <Responsive
                 desktop={
-                  <Table head={<><Th>Market</Th><Th w={320}>Probability</Th><Th w={110} r>Vol 24h</Th><Th w={130} r>Closes</Th></>}>
+                  <Table head={<><Th>Market</Th><Th w={380}>Probability</Th><Th w={110} r>Vol 24h</Th><Th w={130} r>Closes</Th></>}>
                     {eventsFallback.map((r) => (
                       <tr key={r.event.id} onClick={() => (window.location.href = marketPath(r.event))}>
-                        <Td><article data-market-id={r.event.id} className="flex items-center gap-2"><h3 className="truncate text-[13px] font-semibold"><Link to={marketPath(r.event)}>{r.event.name}</Link></h3><Link to={`/insights/category/${categorySlugFor(r.event.category)}`} className="flex-none rounded border border-[#262A31] px-1.5 py-[3px] font-mono text-[9px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/70">{categoryLabelForKey(r.event.category)}</Link></article></Td>
-                        <Td><span className="inline-flex items-center gap-2.5"><span className="w-20 truncate font-mono text-[12px]">{r.lead.label}</span><b className="font-mono text-[15px] tabular-nums">{r.probability}%</b>{r.move && <MoveToday d={r.move.delta} />}<span className="relative h-1 w-20 overflow-hidden rounded-sm bg-[#262A31]"><i className="absolute inset-y-0 left-0 bg-primary" style={{ width: `${r.probability}%` }} /></span></span></Td>
+                        <Td><article data-market-id={r.event.id} className="flex items-center gap-2"><h3 className="truncate text-[13px] font-semibold"><Link to={marketPath(r.event)} title={r.event.name}>{r.event.name}</Link></h3><Link to={`/insights/category/${categorySlugFor(r.event.category)}`} className="flex-none rounded border border-[#262A31] px-1.5 py-[3px] font-mono text-[9px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/70">{categoryLabelForKey(r.event.category)}</Link></article></Td>
+                        <Td><span className="inline-flex items-center gap-2.5"><span title={r.lead.label} className="min-w-[80px] max-w-[150px] truncate font-mono text-[12px]">{r.lead.label}</span><b className="font-mono text-[15px] tabular-nums">{r.probability}%</b>{r.move && <MoveToday d={r.move.delta} />}<span className="relative h-1 w-20 overflow-hidden rounded-sm bg-[#262A31]"><i className="absolute inset-y-0 left-0 bg-primary" style={{ width: `${r.probability}%` }} /></span></span></Td>
                         <Td r mono>{fmtUsd(r.activity.volume)}</Td>
                         <Td r mono dim><time dateTime={r.event.end_date}>{fmtDate(r.event.end_date)}</time></Td>
                       </tr>
