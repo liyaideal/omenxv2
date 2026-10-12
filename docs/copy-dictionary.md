@@ -925,3 +925,39 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | ~~`4–13 of 30`~~ | ~~分页区间~~ | 2026-09-29 作废：榜单 Top 30 平铺不分页，无区间文案。 |
 | `PNL (USD)` / `ROI` / `Volume (USD)` | 表头与领奖台副标 | 随指标切换；表头全大写，领奖台副标首字母大写。 |
 | 浮动定位器（Rank locator） | 页面右下 / 移动底导之上 | 只回答「我第几、我多少」的跟随件，不承载分享；② 进入视口即淡出。设计稿中没有此件，2026-09-22 CPO 拍板新增。 |
+
+## Insights（`/insights*` SEO/GEO 数据页，2026-09-28 → 10-12）
+
+> 状态字典：`/style-guide` → Lite → Insights ✅（IN-1…IN-14）。规格文档：`docs/delivery/insights-v1.md`。文案目前硬编码英文（`src/pages/insights/*`、`src/lib/insights/series.ts`），随 i18n 二期进总表。
+
+### 概念
+
+| 概念 | 是什么 | 判定表达式 | 一句话类比 |
+|---|---|---|---|
+| **round / session** | 一个 Up-or-Down 市场：加密叫 round（5m / 15m / 1h / 4h / 1d），股票日盘叫 session | `event_subtype` ∈ CRYPTO_QUICK_UPDOWN_SPOT → round；US/HK_STOCK_DAILY_UPDOWN_SPOT → session | 一局 |
+| **the crowd** | 投注截止时价格高于 50¢ 的那一边 | `up_price >= 0.5 ? Up : Down` | 押得多的那边 |
+| **Crowd was right** | 人群那边最后赢了的比例 | `avg((up_price >= 0.5) == up_won)` 只算已结算 | 押对率 |
+| **Crowd leaned Up** | 今日/30 天里人群押 Up 的轮占比 | `avg(up_price >= 0.5)` | 看多的比例 |
+| **coin flip** | 押对率落在 48–52% | `48 <= hit <= 52` | 掷硬币 |
+| **Verdict** | 轮长表每行一句结论 | `rounds < 20` → too few rounds to judge；`hit > 52` → better than a coin flip；`48–52` → no better than a coin flip；`< 48` → worse than a coin flip | 判词 |
+| **crowd favourite** | 体育：开赛时胜者盘价格最高的非平局选项 | `max(price)` over winner market, `label != Draw` | 热门 |
+| **✓ right / ✗ wrong · draw / upset** | 热门赢了 / 输了；平局算热门输；热门 ≥ 70¢ 输了加 upset | `favouriteWon`；`draw`；`!favouriteWon && price >= 0.7` | 爆冷 |
+| **the line / Went over the line** | 大小球里最接近 2.5 的那条；30 天内 Over 胜的比例 | `abs(total − 2.5)` 最小；`overWon` | 大小球线 |
+| **Settles in / Settles** | 距离本轮结算的倒计时 / 日盘结算时刻 | `end_date − now` / `end_date` | 开奖倒计时 |
+| **Traded** | 该轮 USDC 成交量 | `events.volume` | 成交额 |
+
+### 标题 / 标签
+
+| Canonical | Meaning | Banned variants |
+|---|---|---|
+| **Crowd was right · today / · 30d** | 命中率标签（首页、hub、资产页） | Majority right, Accuracy, Hit rate |
+| **Crowd calls it best / worst** | 首页 05 最准 / 最不准的资产 | Most reliable, Least reliable |
+| **Which markets does the crowd call right?** | 报告页 01 标题 | By asset |
+| **Does a longer round help the crowd?** | 报告页 02 标题 | By round length |
+| **Crowd is right most often / wrong most often** | 报告页两张卡 | Most / Least reliable crowd |
+| **right in 20 of 29 sessions** | 报告页每行样本句 | 69% (29) |
+| **Trade this round / Trade today's session / Trade this match** | sticky / Live 卡 CTA | Bet now, Buy |
+| **About this data / What these numbers mean / Quote this page** | 页尾三块 | How computed, Methodology, Cite |
+| **As of {date} {hh:mm} UTC** | 数据时间戳（绿点） | Updated, Last refreshed |
+
+固定导语（每个准确率模块开头 + 页尾图例）：*Before every round settles, one side is priced above 50¢ — that's where the crowd leans. We count how often that side actually won. 50% is a coin flip.*

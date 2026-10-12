@@ -1,5 +1,7 @@
 # Insights v2 — 资产序列 / 运动 / 命中率报告 交付说明
 
+> 已并入总文档 `docs/delivery/insights-v1.md`（2026-10-12），本文只留档。
+
 日期：2026-09-28（晚）· 决策：Liya（CPO）批统一方案稿 `insights-ia-mock` v3 + 移动稿 · 取代同日上午的 v1（`lite-insights-seo-v1.md`，其日报 / 分类页部件仍在用；周报已删）
 
 ## 通俗导读

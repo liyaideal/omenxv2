@@ -56,6 +56,7 @@
 | IS2-11 | 准确率文案口径改人话：Majority → the crowd / "Crowd was right"，三处导语，accuracy 01/02 改问题式标题 + 删 "Price actually rose" 列，首页 05 四格改写 | ✅ | 文档 §4.1；Liya 2026-09-30 批 |
 | IS2-12 | 品牌回流：Figma 七帧 ×2 端换皮——开篇插画 + 蓝 eyebrow + 48px H1、章节头两栏编辑式 + 插画、Strip 48px、About this data 拆三卡；20 张插画 WebP 入仓 | ✅ | DESIGN §Addendum 2026-10-12；Liya 批 #1–#4 照稿 / #5–#7 保持规范 / #9 不落 |
 | IS2-13 | 回流收尾：分类页 / 日报换共享件（Events / Daily 插画 + DataFooter，去「← Insights」）；Sports chips 常驻 + 计数 + 当前项高亮 | ✅ | DESIGN §Addendum 2026-10-12 第 7 条 |
+| IS2-14 | 总交付文档 `docs/delivery/insights-v1.md`（并入 v1/v2 分轮文档，§0.1 字典怎么看）+ 词典 `Insights` 节 + Meegle 交付 | ✅ | 2026-10-12 交付研发 |
 
 ## 2026-09-28 — Insights SEO/GEO 数据页（[文档](../delivery/lite-insights-seo-v1.md)）
 

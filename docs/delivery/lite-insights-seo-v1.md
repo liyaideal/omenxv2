@@ -1,5 +1,7 @@
 # Insights SEO/GEO 数据页 — 交付说明 v1
 
+> 已并入总文档 `docs/delivery/insights-v1.md`（2026-10-12），本文只留档。
+
 日期：2026-09-28 · 范围：`/insights` 家族四类 URL · 决策：Liya（CPO）批「改吧」（SEO/GEO 帽子审稿 R1–R9 后的修订稿）· 规格来源：`SEO_P2_Insights_Page_Spec.md`（03-30）+ `omenx-seo-geo` 技能 · Lovable commit 见 changelog
 
 ## 通俗导读
