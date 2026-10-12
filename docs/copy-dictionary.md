@@ -268,6 +268,7 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | **—** | 棒球记分牌里"该半局还没轮到打"的格子（与"这局没打" `·` 是两种态） | ·, 0, 空 |
 | **{队} ball** | 美式足球上下文行的球权后缀（`NFL · Q3 · KC ball`），`metadata.possession` 缺失不显示 | Possession: KC, 🏈 |
 | **Q3 8:42** / **P2 12:07** / **Map 2** / **▼ 7th** | 列表卡 live 位：有钟的运动写节次 + 节钟，电竞写当前地图，棒球写半局 + 局次；足球仍 `63'` | 279'（电竞分钟）, 90' |
+| **Chiefs** / **Maple Leafs** / **T. Prozorova** | 列表卡中央位短名：球队昵称（Winner 选项文案 ⊂ 全名时取之）；人名运动首字母 + 姓；全名在 hover title 与交易页 | Kansas City Chiefs（列表卡）, Tatiana P…, Prozorova T. |
 | **Spread** / **Run line** / **Puck line** | 让分组名按运动：NFL·NBA / MLB（固定 ±1.5）/ NHL；足球仍 `Handicap` | Handicap（美式运动）, Line |
 | **Includes overtime** / **Includes extra innings** | 美式运动让分与大小分的注记（按终场比分结算）；足球仍 `Regulation time` | Regulation time（美式运动） |
 

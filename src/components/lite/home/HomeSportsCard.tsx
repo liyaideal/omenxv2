@@ -204,11 +204,11 @@ const MatchTitle = ({ m, live }: { m: SportsMatch; live: boolean }) => (
   >
     {live && m.score ? (
       <>
-        {m.home}{" "}
+        {m.homeShort || m.home}{" "}
         <span className="font-display">
           <MatchScoreText sport={m.sport} score={m.score} base={15.5} />
         </span>{" "}
-        {m.away}
+        {m.awayShort || m.away}
       </>
     ) : (
       `${m.home || m.name} vs ${m.away}`

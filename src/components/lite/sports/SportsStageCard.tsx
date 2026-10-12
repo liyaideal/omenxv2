@@ -160,8 +160,9 @@ const LiveBlock = ({
         <span
           className="truncate"
           style={{ fontSize: 13, color: "#fff", fontWeight: 600 }}
+          title={match.home}
         >
-          {match.home}
+          {match.homeShort || match.home}
         </span>
       </span>
       <span
@@ -182,8 +183,9 @@ const LiveBlock = ({
         <span
           className="truncate"
           style={{ fontSize: 13, color: "#fff", fontWeight: 600 }}
+          title={match.away}
         >
-          {match.away}
+          {match.awayShort || match.away}
         </span>
         <TeamToken abbr={match.awayAbbr} />
       </span>

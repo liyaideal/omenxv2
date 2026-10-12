@@ -35,6 +35,9 @@ export interface SportsMatch {
   sport?: string | null;
   /** 列表卡 live 位文案：足球/默认 `63'`；有钟的运动（NFL / NBA / NHL）`8:42`；棒球 `▼ 7th`。 */
   liveLabel?: string | null;
+  /** 列表卡中央位的短名（队伍昵称 / `T. Prozorova`），全名仍在 home / away；见 shortName()。 */
+  homeShort?: string;
+  awayShort?: string;
   /** metadata.stream_url — non-empty means the match has a watchable stream. */
   streamUrl?: string | null;
   volume: number;
@@ -182,6 +185,41 @@ export const lineWords = (
     note: "Regulation time",
     tip: "Settles on the regulation-time result. Extra time and penalties don't count.",
   };
+};
+
+/** 人名类运动（网球 / 格斗）：按 sport 或联赛判断。 */
+const isPersonSport = (meta: FixtureMeta): boolean => {
+  const sport = (meta.sport || "").toLowerCase();
+  if (sport === "tennis" || sport === "mma") return true;
+  return /\b(atp|wta|ufc|mma|bellator|pfl)\b/i.test(meta.league || "");
+};
+
+/**
+ * 列表卡中央位的短名（全名留给交易页标题 / 记分牌 / 字典）：
+ * - 球队：Winner 选项文案若是全名的子串（`Chiefs` ⊂ `Kansas City Chiefs`），用它作昵称；
+ * - 人名（网球 / 格斗）：首字母 + 姓（`T. Prozorova`，同 Polymarket 的 `S. Park`）；
+ * - 其他原样。
+ */
+export const shortName = (
+  full: string,
+  meta: FixtureMeta,
+  optionLabels: string[],
+): string => {
+  const f = (full || "").trim();
+  if (!f) return f;
+  const fl = f.toLowerCase();
+  const nick = optionLabels.find((l) => {
+    const t = (l || "").trim();
+    return t && t.toLowerCase() !== "draw" && t.toLowerCase() !== fl && fl.includes(t.toLowerCase());
+  });
+  if (nick) return nick.trim();
+  if (isPersonSport(meta)) {
+    const parts = f.split(/\s+/);
+    if (parts.length >= 2 && !/^[A-Z]\.$/.test(parts[0])) {
+      return `${parts[0][0]}. ${parts.slice(1).join(" ")}`;
+    }
+  }
+  return f;
 };
 
 /** 列表卡 live 位：按运动形态选"分钟 / 节次钟 / 半局 + 局次"。 */
@@ -381,6 +419,8 @@ export const useSportsMatches = () => {
           away: meta.away || "",
           homeAbbr: meta.home_abbr || "",
           awayAbbr: meta.away_abbr || "",
+          homeShort: shortName(meta.home || "", meta, opts.map((o) => o.label)),
+          awayShort: shortName(meta.away || "", meta, opts.map((o) => o.label)),
           format: meta.format === "h2h" ? "h2h" : "1x2",
           kickoff,
           endDate,

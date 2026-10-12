@@ -1802,8 +1802,9 @@ Don't：用 `new Date()` 本地偏移伪造 session 态；用 `Date.now()` 派�
 4. **棒球两种空格子**：`—`（#3D444C）= 这个半局还没轮到打；`·` = 这局没打。禁止用 0 或空白代替。
 5. **列表卡 live 位按形态**：有钟写节次 + 钟，棒球写半局 + 局次，电竞写 `Map n`，足球写分钟。禁止对有钟的运动显示比赛分钟。
 6. **让分 / 大小分口径**：组名用运动行话（Spread / Run line / Puck line），注记 `Includes overtime / extra innings`；足球不变。
+7. **列表卡中央位用短名**（2026-10-12 下午 Liya 打回 `Tatiana P…` / `Kansas City …` 截断后立）：球队用昵称（Winner 选项文案是全名子串时取它：`Chiefs`、`Maple Leafs`），人名运动（网球 / 格斗）用首字母 + 姓（`T. Prozorova`，同 Polymarket）；全名进 hover `title`，交易页标题 / 记分牌行名 / 字典词条仍用全名。唯一来源 `sportsData.shortName()`，五个列表面都读 `homeShort / awayShort`。
 
-**禁令**：给 NFL / NHL 单独造视觉；棒球格子里放出局数或垒包；移动条重复局次；对美式运动写 `Regulation time`。
+**禁令**：给 NFL / NHL 单独造视觉；列表卡中央位放城市全名或人名全名；棒球格子里放出局数或垒包；移动条重复局次；对美式运动写 `Regulation time`。
 
 ## §Addendum 2026-09-23 · 网球抢七比分（LOCKED）
 

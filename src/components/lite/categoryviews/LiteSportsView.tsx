@@ -149,8 +149,9 @@ const LiveCard = ({
           <span
             className="truncate"
             style={{ fontSize: 17, color: "#fff", fontWeight: 600 }}
+            title={match.home}
           >
-            {match.home}
+            {match.homeShort || match.home}
           </span>
         </span>
         <span
@@ -174,8 +175,9 @@ const LiveCard = ({
           <span
             className="truncate"
             style={{ fontSize: 17, color: "#fff", fontWeight: 600 }}
+            title={match.away}
           >
-            {match.away}
+            {match.awayShort || match.away}
           </span>
           <Crest abbr={match.awayAbbr} size={38} />
         </span>

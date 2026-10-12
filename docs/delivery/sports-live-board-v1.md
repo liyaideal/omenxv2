@@ -172,6 +172,8 @@
 
 **列表卡 live 位**（`SportsMatch.liveLabel`，`sportsData.liveLabelFor` 唯一来源）：足球 `63'`；有钟的运动（NFL / NBA / NHL / UFC）`Q3 8:42`；棒球 `▼ 7th`；电竞 `Map 2`；网球仍为已进行分钟。比赛分钟对有钟的运动没意义，这条同时也治了 CS2 常驻演示的 `279'`。
 
+**列表卡短名**（`sportsData.shortName`，`SportsMatch.homeShort / awayShort`）：中央位名字与比分抢同一行，全名必然截断成 `Tatiana P…`。规则：球队取 Winner 选项文案作昵称（它是全名子串时，`Chiefs` ⊂ `Kansas City Chiefs`）；人名运动（网球 / 格斗，按 sport 或 ATP / WTA / UFC 联赛判断）写首字母 + 姓 `T. Prozorova`；其他原样。全名进 hover title；交易页、记分牌、字典词条不变。
+
 **让分 / 大小分**（`sportsData.lineWords`）：组名按运动行话——NFL / NBA `Spread`、MLB `Run line`（固定 ±1.5）、NHL `Puck line`，大小分 `Total points / runs / goals`；美式运动注记与 tip 写 **Includes overtime / extra innings**，引擎按终场比分（含加时）结算；足球仍是 Regulation time。每场 2 让分 + 2 大小分，由 `ensure_us_sport_lines(fixture, hcp, total)` 生成，主行必须自指 `fixture_id`。
 
 **引擎** `tick_live_us_sports()`（每 5 分钟，独立于 `tick_live_matches`，只认 `metadata.sport ∈ american_football / hockey / baseball`）：有钟的运动每 tick 走 5 分钟比赛时间、随机得分、到 0 换节、常规时间平分进 OT（10 分钟）；棒球每 tick 推进一个半局、0–3 分偏 0、九局后平分加赛。终场：Winner + 兄弟行一起结算（同 tick_live_matches 的 yes/no 判定）；`demo-live-*` 结算后立即重开（开赛时间重置，不腐烂），其他赛事留给 `roll_sports_matches` 按 end_date 重排。

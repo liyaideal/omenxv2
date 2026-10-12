@@ -140,8 +140,8 @@ const LiveMatchCard = ({ match }: { match: SportsMatch }) => {
       <div className="flex items-center" style={{ gap: 10 }}>
         <span className="flex min-w-0 flex-1 items-center" style={{ gap: 8 }}>
           <Crest abbr={match.homeAbbr} size={30} />
-          <span className="truncate" style={{ fontSize: 13, color: "#fff", fontWeight: 600 }}>
-            {match.home}
+          <span className="truncate" style={{ fontSize: 13, color: "#fff", fontWeight: 600 }} title={match.home}>
+            {match.homeShort || match.home}
           </span>
         </span>
         <span
@@ -161,8 +161,8 @@ const LiveMatchCard = ({ match }: { match: SportsMatch }) => {
           className="flex min-w-0 flex-1 items-center justify-end"
           style={{ gap: 8 }}
         >
-          <span className="truncate" style={{ fontSize: 13, color: "#fff", fontWeight: 600 }}>
-            {match.away}
+          <span className="truncate" style={{ fontSize: 13, color: "#fff", fontWeight: 600 }} title={match.away}>
+            {match.awayShort || match.away}
           </span>
           <Crest abbr={match.awayAbbr} size={30} />
         </span>

@@ -36,7 +36,7 @@ import {
   type Timeframe,
   US_STOCK_SUBTYPE,
 } from "@/components/lite/intraday/intradayData";
-import type { SportsMatch } from "@/components/lite/sports/sportsData";
+import { shortName, type SportsMatch } from "@/components/lite/sports/sportsData";
 import type { EditorPick } from "@/components/lite/picks/editorialPicks";
 import { SpotSessionBanner } from "@/components/lite/trade/SpotSessionBanner";
 import { LiteOrderPanel } from "@/components/lite/trade/LiteOrderPanel";
@@ -318,6 +318,8 @@ const match = (m: {
   away: m.away,
   homeAbbr: m.homeAbbr,
   awayAbbr: m.awayAbbr,
+  homeShort: shortName(m.home, { league: m.league }, m.options.map((o) => o.label)),
+  awayShort: shortName(m.away, { league: m.league }, m.options.map((o) => o.label)),
   format: m.options.length === 3 ? "1x2" : "h2h",
   kickoff: m.kickoff,
   endDate: new Date(m.kickoff.getTime() + 2 * 3_600_000),

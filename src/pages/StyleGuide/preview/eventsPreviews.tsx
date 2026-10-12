@@ -27,7 +27,9 @@ import {
   TIMEFRAMES,
   type Timeframe,
 } from "@/components/lite/intraday/intradayData";
-import { buildDayStrip, type SportsMatch } from "@/components/lite/sports/sportsData";
+import { buildDayStrip, type SportsMatch,
+  shortName,
+} from "@/components/lite/sports/sportsData";
 import { LiteCalendarView } from "@/components/lite/calendar/LiteCalendarView";
 import { WatchlistChip, CalendarChip } from "@/components/lite/LiteListControls";
 import { EmptyState } from "@/components/states";
@@ -497,6 +499,8 @@ const match = (m: {
   away: m.away,
   homeAbbr: m.homeAbbr,
   awayAbbr: m.awayAbbr,
+  homeShort: shortName(m.home, { league: m.league }, m.options.map((o) => o.label)),
+  awayShort: shortName(m.away, { league: m.league }, m.options.map((o) => o.label)),
   format: m.options.length === 3 ? "1x2" : "h2h",
   kickoff: m.kickoff,
   endDate: new Date(m.kickoff.getTime() + 2 * 3_600_000),

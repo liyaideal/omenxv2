@@ -215,6 +215,7 @@ const SPORTS_CASES: SectionCase[] = [
       { state: "棒球", when: "spec.rightValue === \"inning\" && meta.segment_index", visual: "`▼ 7th`（half 缺失则 `7th`）", source: "liveLabelFor" },
       { state: "足球 / 其他", when: "无 clock 形态", visual: "`63'`（不变）", source: "liveMinute" },
       { state: "比分串", when: "任意", visual: "`17 – 14` / `4 – 3`（formatPlainScore）", source: "MatchScoreText" },
+      { state: "短名", when: "Winner 选项文案 ⊂ 全名 / 人名运动", visual: "`Chiefs` `Maple Leafs`；网球 `T. Prozorova`（见 EV-9t）；hover 出全名", source: "shortName → homeShort / awayShort" },
     ],
   },
   {
