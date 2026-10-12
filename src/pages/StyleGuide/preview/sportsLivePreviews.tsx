@@ -583,6 +583,171 @@ export const T3Preview = () => (
   </Frame>
 );
 
+const nflBase = {
+  sport: "american_football",
+  league: "NFL",
+  home: "Kansas City Chiefs",
+  away: "Buffalo Bills",
+  home_abbr: "KC",
+  away_abbr: "BUF",
+};
+const mlbBase = {
+  sport: "baseball",
+  league: "MLB",
+  home: "Los Angeles Dodgers",
+  away: "New York Yankees",
+  home_abbr: "LAD",
+  away_abbr: "NYY",
+};
+const nhlBase = {
+  sport: "hockey",
+  league: "NHL",
+  home: "Toronto Maple Leafs",
+  away: "Montreal Canadiens",
+  home_abbr: "TOR",
+  away_abbr: "MTL",
+};
+
+/** NF-1 — NFL Q3，KC 球权，节钟 8:42。 */
+export const NF1Preview = () => (
+  <Frame>
+    <LiveMatchboard
+      fixtureNow={NOW}
+      fixtureSticky={false}
+      event={board(
+        "sg-nfl-nf1",
+        {
+          ...nflBase,
+          segment_index: 3,
+          clock: 522,
+          possession: "KC",
+          segment_results: [
+            { home: 7, away: 0 },
+            { home: 3, away: 14 },
+            { home: 7, away: 0 },
+            null,
+          ],
+        },
+        { start_date: at(-100), end_date: at(80) },
+      )}
+    />
+  </Frame>
+);
+
+/** NF-2 — NFL 加时（OT 列由数据撑开）。 */
+export const NF2Preview = () => (
+  <Frame>
+    <LiveMatchboard
+      fixtureNow={NOW}
+      fixtureSticky={false}
+      event={board(
+        "sg-nfl-nf2",
+        {
+          ...nflBase,
+          segment_index: 5,
+          clock: 195,
+          possession: "BUF",
+          segment_results: [
+            { home: 7, away: 0 },
+            { home: 3, away: 14 },
+            { home: 7, away: 0 },
+            { home: 7, away: 10 },
+            { home: 0, away: 0 },
+          ],
+        },
+        { start_date: at(-200), end_date: at(30) },
+      )}
+    />
+  </Frame>
+);
+
+/** BB-1 — MLB 第 7 局下半，2 出局；Yankees 半局未轮到写 `—`。 */
+export const BB1Preview = () => (
+  <Frame>
+    <LiveMatchboard
+      fixtureNow={NOW}
+      fixtureSticky={false}
+      event={board(
+        "sg-mlb-bb1",
+        {
+          ...mlbBase,
+          segment_index: 7,
+          half: "bottom",
+          outs: 2,
+          segment_results: [
+            { home: 0, away: 1 },
+            { home: 2, away: 0 },
+            { home: 0, away: 0 },
+            { home: 0, away: 2 },
+            { home: 1, away: 0 },
+            { home: 0, away: 0 },
+            { home: 1, away: null },
+            null,
+            null,
+          ],
+        },
+        { start_date: at(-130), end_date: at(60) },
+      )}
+    />
+  </Frame>
+);
+
+/** BB-2 — MLB 加赛第 10 局上半，0 出局（第 10 列由数据撑开）。 */
+export const BB2Preview = () => (
+  <Frame>
+    <LiveMatchboard
+      fixtureNow={NOW}
+      fixtureSticky={false}
+      event={board(
+        "sg-mlb-bb2",
+        {
+          ...mlbBase,
+          segment_index: 10,
+          half: "top",
+          outs: 0,
+          segment_results: [
+            { home: 0, away: 1 },
+            { home: 2, away: 0 },
+            { home: 0, away: 0 },
+            { home: 0, away: 2 },
+            { home: 1, away: 0 },
+            { home: 0, away: 0 },
+            { home: 1, away: 0 },
+            { home: 0, away: 1 },
+            { home: 0, away: 0 },
+            { home: 0, away: null },
+          ],
+        },
+        { start_date: at(-200), end_date: at(30) },
+      )}
+    />
+  </Frame>
+);
+
+/** HK-1 — NHL 第二节，节钟 12:07。 */
+export const HK1Preview = () => (
+  <Frame>
+    <LiveMatchboard
+      fixtureNow={NOW}
+      fixtureSticky={false}
+      event={board(
+        "sg-nhl-hk1",
+        {
+          ...nhlBase,
+          segment_index: 2,
+          clock: 727,
+          segment_results: [
+            { home: 1, away: 0 },
+            { home: 1, away: 1 },
+            null,
+          ],
+        },
+        { start_date: at(-60), end_date: at(100) },
+      )}
+    />
+  </Frame>
+);
+
 /** G1 — LOL·Dota Game 4。 */
 export const G1Preview = () => (
   <Frame>

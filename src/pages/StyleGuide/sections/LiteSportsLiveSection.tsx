@@ -169,7 +169,7 @@ const BOARD_CASES: SectionCase[] = [
     spec: [
       { state: "四列节次", when: "SPORT_FALLBACK.basketball && segment_results.length === 4", visual: "列头 `Q1` … `Q4`，列宽 54px，表头词 `pts`", source: "SPORT_FALLBACK.basketball" },
       { state: "大数字", when: "spec.totalsRule === \"sum\"", visual: "各节相加：98 / 92", source: "buildModel totals" },
-      { state: "右上剩余钟", when: "spec.rightValue === \"clock\" && status === \"live\"", visual: "`3:41`", source: "clockText(meta.clock)" },
+      { state: "右上剩余钟", when: "spec.rightValue === \"clock\" && status === \"live\"", visual: "`3:41`；上限 720 秒（2026-10-12 前被钳在 300，节初会显示 5:00）", source: "clockText(meta.clock, spec.clockMax)" },
     ],
   },
   {
@@ -215,6 +215,57 @@ const BOARD_CASES: SectionCase[] = [
       { state: "右值", when: "tiebreakLive && current.tb", visual: "`TB 5–3`，TB 为 #FF8A3D，数字 #C9D1DA；桌面 14px / 移动 12px", source: "RightValue" },
       { state: "当前盘格", when: "n === idx", visual: "6 / 6，当前列高亮不变，无上标", source: "Matrix rowCells" },
       { state: "抢七结束", when: "盘分变 7–6，tb 保留终值", visual: "回到 T2 形态，右值回到局分", source: "isTiebreakSet" },
+    ],
+  },
+  {
+    key: "sports-live-nf1",
+    label: "NF-1 · NFL · 第三节（KC 球权，节钟 8:42）",
+    note:
+      "美式足球复用篮球骨架：Q1–Q4 + OT、pts 相加、列宽 54。两处不同：节钟上限 900 秒（SegmentSpec.clockMax）；上下文行追加球权 `· KC ball`（metadata.possession 有值才显示）。",
+    spec: [
+      { state: "四节列", when: "SPORT_FALLBACK.american_football", visual: "列头 `Q1` … `Q4`（+ `OT`），表头词 `pts`", source: "SPORT_FALLBACK.american_football" },
+      { state: "节钟", when: "spec.rightValue === \"clock\" && clockMax === 900", visual: "`8:42`；节初 `15:00` 不再被 300 秒钳成 `5:00`", source: "clockText(meta.clock, spec.clockMax)" },
+      { state: "球权", when: "spec.unit === \"quarter\" && typeof meta.possession === \"string\"", visual: "上下文行 `NFL · Q3 · KC ball`", source: "buildModel ctx" },
+      { state: "无球权数据", when: "meta.possession 缺失", visual: "上下文行只写 `NFL · Q3`", source: "buildModel ctx" },
+    ],
+  },
+  {
+    key: "sports-live-nf2",
+    label: "NF-2 · NFL · 加时（OT 列由数据撑开）",
+    note: "与篮球 B2 同机制：segment_results 长度超过 4 且 spec.overtime 为真，右边追加 `OT` 列并高亮。",
+    spec: [
+      { state: "加时列", when: "spec.overtime && segment_results.length > 4", visual: "第五列 `OT`，上下文行 `NFL · OT · BUF ball`", source: "buildModel total / segName" },
+    ],
+  },
+  {
+    key: "sports-live-bb1",
+    label: "BB-1 · MLB · 第 7 局下半，2 出局",
+    note:
+      "棒球是新形态：九列局次 `1`…`9`、runs 相加、列宽 34、没有钟。右值 = 橙色半局箭头 + 局次 + 出局数（`▼ 7th · 2 out`）；该半局还没轮到打的一方格子写 `—`——和\"这局没打\"的 `·` 是两种态。移动条局次只在右值出现一次。",
+    spec: [
+      { state: "九列局次", when: "SPORT_FALLBACK.baseball", visual: "列头 `1` … `9`，表头词 `runs`，列宽 34", source: "SPORT_FALLBACK.baseball" },
+      { state: "右值 · 半局", when: "spec.rightValue === \"inning\" && meta.half", visual: "`▲ 7th` / `▼ 7th`（箭头 #FF8A3D）；outs 有值追加 ` · 2 out`", source: "buildModel rightValue / rightPrefix" },
+      { state: "半局未轮到", when: "results[i].away === null（或 home）", visual: "该格 `—`（#3D444C）", source: "Matrix rowCells v == null" },
+      { state: "未打的局", when: "results[i] === null", visual: "`·`", source: "Matrix rowCells" },
+      { state: "上下文行", when: "status === \"live\"", visual: "`MLB · 7th inning`", source: "segName → ordinal()" },
+      { state: "移动条", when: "spec.unit === \"inning\"", visual: "段标签不渲染，右值 `▼ 7th · 2 out` 独占", source: "MobileBar segLabel" },
+    ],
+  },
+  {
+    key: "sports-live-bb2",
+    label: "BB-2 · MLB · 加赛第 10 局上半（第 10 列由数据撑开）",
+    note: "九局后平分进加赛：segment_results 长度 10，spec.overtime 为真，追加列头 `10`；右值 `▲ 10th · 0 out`。",
+    spec: [
+      { state: "加赛列", when: "segment_results.length > 9", visual: "第十列 `10`（列头无 OT 字样，棒球就是局次）", source: "buildModel total" },
+    ],
+  },
+  {
+    key: "sports-live-hk1",
+    label: "HK-1 · NHL · 第二节（节钟 12:07）",
+    note: "冰球 = 三节版篮球：P1–P3 + OT、goals 相加、列宽 54、节钟上限 1200。",
+    spec: [
+      { state: "三节列", when: "SPORT_FALLBACK.hockey", visual: "列头 `P1` `P2` `P3`（+ `OT`），表头词 `goals`", source: "SPORT_FALLBACK.hockey" },
+      { state: "节钟", when: "clockMax === 1200", visual: "`12:07`", source: "clockText(meta.clock, 1200)" },
     ],
   },
   {
@@ -439,7 +490,7 @@ export const LiteSportsLiveSection = () => (
       </SubSection>
 
       <SubSection title="Ⓐ‴ LiveMatchboard · 篮球 / 网球 / LOL·Dota（B1 / B2 / T1 / G1）">
-        <Pair cases={byKey(BOARD_CASES, "sports-live-b1", "sports-live-b2", "sports-live-t1", "sports-live-t2", "sports-live-t3", "sports-live-g1")} min={2400} />
+        <Pair cases={byKey(BOARD_CASES, "sports-live-b1", "sports-live-b2", "sports-live-t1", "sports-live-t2", "sports-live-t3", "sports-live-g1", "sports-live-nf1", "sports-live-nf2", "sports-live-bb1", "sports-live-bb2", "sports-live-hk1")} min={4400} />
       </SubSection>
 
       <SubSection title="Ⓑ LiveStage（S1 … S9）">

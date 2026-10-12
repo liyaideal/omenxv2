@@ -206,6 +206,18 @@ const SPORTS_CASES: SectionCase[] = [
     ],
   },
   {
+    key: "events-ev9u",
+    label: "EV-9u · 美式运动列表卡 live 位（NFL `Q3 8:42` / MLB `▼ 7th` / NHL `P2 12:07`）",
+    note:
+      "比赛分钟对有钟的运动没意义：列表卡 live 位改读 SportsMatch.liveLabel（sportsData.liveLabelFor 统一算出）——足球仍 `63'`，NFL / NBA / NHL 写 `节次 + 节钟`，棒球写 `半局箭头 + 局次`。子导航新增 Baseball / Hockey 组。",
+    spec: [
+      { state: "有钟运动", when: "spec.rightValue === \"clock\" && meta.clock != null", visual: "`Q3 8:42` / `P2 12:07`", source: "liveLabelFor" },
+      { state: "棒球", when: "spec.rightValue === \"inning\" && meta.segment_index", visual: "`▼ 7th`（half 缺失则 `7th`）", source: "liveLabelFor" },
+      { state: "足球 / 其他", when: "无 clock 形态", visual: "`63'`（不变）", source: "liveMinute" },
+      { state: "比分串", when: "任意", visual: "`17 – 14` / `4 – 3`（formatPlainScore）", source: "MatchScoreText" },
+    ],
+  },
+  {
     key: "events-ev10",
     label: "EV-10 · day-rail 过滤（HomeSportsCard）",
     note: "fixture 只注初始 bucket（buildDayStrip 首个非 all 日），不传即生产默认 all。",
@@ -1242,9 +1254,9 @@ export const EventsStatesSection = () => (
         </div>
       </SubSection>
 
-      <SubSection title="⑥ Sports 卡（EV-9 / EV-9e / EV-9t / EV-9t2 / EV-9b / EV-10 / EV-31）">
+      <SubSection title="⑥ Sports 卡（EV-9 / EV-9e / EV-9t / EV-9t2 / EV-9b / EV-9u / EV-10 / EV-31）">
         <Pair
-          cases={byKey("events-ev9", "events-ev9e", "events-ev9t", "events-ev9t2", "events-ev9b", "events-ev10", "events-ev31")}
+          cases={byKey("events-ev9", "events-ev9e", "events-ev9t", "events-ev9t2", "events-ev9b", "events-ev9u", "events-ev10", "events-ev31")}
           desktopMin={620}
           mobileMin={720}
         />

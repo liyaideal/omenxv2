@@ -774,6 +774,56 @@ const PHASE_FIXTURE: SportsMatch[] = [
   ...SPORTS_FIXTURE.slice(0, 2),
 ];
 
+/** 美式运动列表卡 live 位：有钟的写节次钟，棒球写半局 + 局次（liveLabel 由 sportsData 统一算出）。 */
+const US_LIVE_FIXTURE: SportsMatch[] = [
+  {
+    ...match({
+      id: "sg-sp-nfl-live",
+      league: "NFL",
+      home: "Kansas City Chiefs",
+      away: "Buffalo Bills",
+      homeAbbr: "KC",
+      awayAbbr: "BUF",
+      kickoff: new Date(Date.now() - 100 * 60_000),
+      options: [opt("sg-sp-nfl-live-h", "Chiefs", 0.54), opt("sg-sp-nfl-live-a", "Bills", 0.46)],
+      live: { minute: 100, score: "17-14", phase: "LIVE" },
+    }),
+    sport: "american_football",
+    liveLabel: "Q3 8:42",
+  },
+  {
+    ...match({
+      id: "sg-sp-mlb-live",
+      league: "MLB",
+      home: "Los Angeles Dodgers",
+      away: "New York Yankees",
+      homeAbbr: "LAD",
+      awayAbbr: "NYY",
+      kickoff: new Date(Date.now() - 130 * 60_000),
+      options: [opt("sg-sp-mlb-live-h", "Dodgers", 0.58), opt("sg-sp-mlb-live-a", "Yankees", 0.42)],
+      live: { minute: 130, score: "4-3", phase: "LIVE" },
+    }),
+    sport: "baseball",
+    liveLabel: "\u25BC 7th",
+  },
+  {
+    ...match({
+      id: "sg-sp-nhl-live",
+      league: "NHL",
+      home: "Toronto Maple Leafs",
+      away: "Montreal Canadiens",
+      homeAbbr: "TOR",
+      awayAbbr: "MTL",
+      kickoff: new Date(Date.now() - 60 * 60_000),
+      options: [opt("sg-sp-nhl-live-h", "Maple Leafs", 0.51), opt("sg-sp-nhl-live-a", "Canadiens", 0.49)],
+      live: { minute: 60, score: "2-1", phase: "LIVE" },
+    }),
+    sport: "hockey",
+    liveLabel: "P2 12:07",
+  },
+  ...SPORTS_FIXTURE.slice(0, 1),
+];
+
 /** League break — no fixtures at all. */
 const EMPTY_SPORTS_FIXTURE: SportsMatch[] = [];
 
@@ -843,6 +893,21 @@ const PhaseListDemo = () => {
 export const Ev9bPreview = () => (
   <Stage>
     <PhaseListDemo />
+  </Stage>
+);
+
+/** EV-9u · 美式运动 live 位（NFL / MLB / NHL）。 */
+const UsListDemo = () => {
+  const isMobile = useIsMobile();
+  if (isMobile) {
+    return <MobileSportsModule matches={US_LIVE_FIXTURE} onOpenAll={() => undefined} />;
+  }
+  return <LiteSportsView matches={US_LIVE_FIXTURE} now={Date.now()} />;
+};
+
+export const Ev9uPreview = () => (
+  <Stage>
+    <UsListDemo />
   </Stage>
 );
 
