@@ -332,6 +332,7 @@ export const previewRegistry: Record<string, Loader> = {
   "pro-trade-order-closed": pick(proTrade, "ProTradeOrderClosed"),
   "pro-trade-mobile-dock": pick(proTrade, "ProTradeMobileDockStates"),
   "pro-order-status-desktop": pick(proSpot, "OrderStatusDesktop"),
+  "pro-order-status-pending-open": pick(proSpot, "OrderStatusPendingOpen"),
   "pro-risk-chip-mobile": pick(proTrade, "RiskChipStates"),
   "pro-risk-drawer-mobile": pick(proTrade, "RiskDrawerMobile"),
   "pro-order-status-mobile": pick(proSpot, "OrderStatusMobile"),

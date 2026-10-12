@@ -2,9 +2,10 @@
 // PF-1 · Order status badge with the partial-fill detail.
 //
 // One badge for every open-orders surface (desktop contract table, desktop
-// spot table, mobile contract / spot cards). While an order is
-// `Partial Filled` the badge opens a fill-progress card — hover on desktop,
-// tap on mobile. Any other status is a plain badge.
+// spot table, mobile contract / spot cards). While an order is still open
+// (`Pending` or `Partial Filled`) the badge opens a fill-progress card — hover
+// on desktop, tap on mobile (Liya 2026-10-12: Pending shows 0 / N, like the
+// Filled / Total column on Binance). Terminal states are plain badges.
 // Content follows /style-guide "Order Status & Partial Fill":
 //   Fill progress  60 / 100 (60%)  + bar  +  Filled / Remaining rows.
 // ============================================================
@@ -37,6 +38,9 @@ const toNum = (v: string | number | undefined) =>
 const fmt = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 3 });
 
 const isPartial = (s: string) => s === "Partial Filled" || s === "Partially Filled";
+/** Open orders expand; a Pending row relabelled `Cancelled · …` is terminal. */
+const isOpen = (s: string, label?: string) =>
+  (isPartial(s) || s === "Pending") && !(label && label.startsWith("Cancelled"));
 
 const tone = (s: string) =>
   isPartial(s)
@@ -96,10 +100,16 @@ export const OrderStatusBadge = ({
       {text}
     </span>
   );
-  if (!isPartial(status)) return badge;
+  if (!isOpen(status, label)) return badge;
 
   const total = toNum(amount);
-  const filled = filledAmount !== undefined ? toNum(filledAmount) : Math.max(0, total - toNum(remainingAmount));
+  // No fill data at all (the usual Pending row: the engine fills whole orders) = nothing filled.
+  const filled =
+    filledAmount !== undefined
+      ? toNum(filledAmount)
+      : remainingAmount !== undefined
+        ? Math.max(0, total - toNum(remainingAmount))
+        : 0;
   const detail = <FillDetail total={total} filled={filled} />;
 
   if (variant === "desktop") {

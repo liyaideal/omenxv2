@@ -253,7 +253,7 @@ Buy · Sell 页签与 Yes/No 一样按 `事件:结果` 记忆，`/trade` ↔ `/t
 | 列头 | 桌面持仓表 `Qty` / `Liq. Price` 缩写保留（Liya 09-18 定，不改） |
 | Liq. Price | `entry × (1 ∓ (1 − MM_RATIO) / 杠杆)`，`MM_RATIO = 0.5`（10× → ±5%）；预览弹窗同式 |
 | Go to this event | 持仓 / 挂单 HoverCard 里的按钮；sibling 走 `?event=<fixture>&line=<id>` |
-| 状态标 | `OrderStatusBadge`：Pending 黄 / Filled 绿 / Cancelled 红 / Partial Filled 青。仅 `Partial Filled` 可展开：桌面 hover（HoverCard）、手机点一下（Popover，再点或点外收起），内容 `Fill progress  480 / 1,200 (40%)` + 进度条 + `Filled` / `Remaining` 两行；filled 缺省 = amount − remaining |
+| 状态标 | `OrderStatusBadge`：Pending 黄 / Filled 绿 / Cancelled 红 / Partial Filled 青。`Pending` 与 `Partial Filled` 都可展开（2026-10-12 Liya：未终态一律能看成交进度，Pending 为 `0 / N (0%)`）：桌面 hover（HoverCard）、手机点一下（Popover，再点或点外收起），内容 `Fill progress  480 / 1,200 (40%)` + 进度条 + `Filled` / `Remaining` 两行；filled 缺省 = amount − remaining；`Filled` / `Cancelled`（含 `Cancelled · market frozen`）不展开。字典 OS-D1 / OS-D1b / OS-M1 |
 | Cancel 退款 | 合约 Buy · Limit：退 `margin + fee`；合约 reduce-only：无退款；现货买单：退 `Reserved`（notional + fee）；现货卖单：无（没扣过）。`Partial Filled` 行 Cancel 可点 |
 
 ### 5.7 账户风险

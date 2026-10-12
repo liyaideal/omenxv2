@@ -339,11 +339,22 @@ const TRADE_DOCK_CASES: SectionCase[] = [
 const ORDER_STATUS_CASES: SectionCase[] = [
   {
     key: "pro-order-status-desktop",
-    label: "OS-D1 · 桌面 Current Orders 状态标：Partial Filled hover 成交明细",
-    note: "同一个 `OrderStatusBadge` 挂在桌面 /trade 与 /spot 的 Current Orders 表。Lovable 引擎限价单整单成交，Partial Filled 态生产不可达，此处给研发看规格。",
+    label: "OS-D1 · 桌面 Current Orders 状态标：Pending / Partial Filled hover 成交明细",
+    note: "同一个 `OrderStatusBadge` 挂在桌面 /trade 与 /spot 的 Current Orders 表。2026-10-12 Liya：未终态的单（Pending / Partial Filled）都可展开，Pending 显示 `0 / N (0%)`——Lovable 引擎整单成交，生产只会见到 Pending 这一态，此前只有 Partial Filled 可展开等于线上永远 hover 不到。Filled / Cancelled（含 `Cancelled · market frozen`）不展开。",
     spec: [
       { state: "Partial Filled", when: 'status === "Partial Filled"', visual: "青色标，hover 弹 `Fill progress 480 / 1,200 (40%)` + 进度条 + `Filled` / `Remaining` 两行", source: "OrderStatusBadge variant=desktop（HoverCard）" },
-      { state: "Pending / Filled / Cancelled", when: "其他状态", visual: "普通标（黄 / 绿 / 红），不弹", source: "OrderStatusBadge" },
+      { state: "Pending", when: 'status === "Pending" && !label.startsWith("Cancelled")', visual: "黄标，hover 弹同一张卡：`Fill progress 0 / 22.222 (0%)`、空进度条、Filled 0 / Remaining 全量", source: "OrderStatusBadge · isOpen()" },
+      { state: "Filled / Cancelled", when: "终态", visual: "普通标（绿 / 红），不弹", source: "OrderStatusBadge" },
+    ],
+  },
+];
+
+const ORDER_STATUS_PENDING_CASES: SectionCase[] = [
+  {
+    key: "pro-order-status-pending-open",
+    label: "OS-D1b · Pending 展开态（0 / N · 0%）",
+    spec: [
+      { state: "Pending · open", when: "hover Pending 标", visual: "同 OS-D1 的卡；数字 `0 / 22.222 (0%)`，进度条空，Remaining = 全量", source: "OrderStatusBadge previewOpen" },
     ],
   },
 ];
@@ -351,7 +362,7 @@ const ORDER_STATUS_CASES: SectionCase[] = [
 const ORDER_STATUS_MOBILE_CASES: SectionCase[] = [
   {
     key: "pro-order-status-mobile",
-    label: "OS-M1 · 手机订单卡状态标：点一下弹成交明细（合约 OrderCard + 现货卡）",
+    label: "OS-M1 · 手机订单卡状态标：Pending / Partial Filled 点一下弹成交明细（合约 OrderCard + 现货卡）",
     spec: [
       { state: "Partial Filled · 展开", when: "点状态标", visual: "Popover 同桌面内容；再点或点外面收起", source: "OrderStatusBadge variant=mobile（Popover）" },
     ],
@@ -1042,6 +1053,7 @@ export const ProSharedTerminalPage = (_: Props) => (
       description="桌面 hover / 手机点一下；四个挂载点（桌面合约表、桌面现货表、手机合约卡、手机现货卡）共用一个组件。"
     >
       <SectionFrame cases={ORDER_STATUS_CASES} device="desktop" minHeight={260} />
+      <SectionFrame cases={ORDER_STATUS_PENDING_CASES} device="desktop" minHeight={200} />
       <SectionFrame cases={ORDER_STATUS_MOBILE_CASES} device="mobile" minHeight={380} />
     </SectionWrapper>
 

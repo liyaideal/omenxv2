@@ -16,6 +16,7 @@ import { winningCommission, SPOT_FEE_RATE } from "@/services/tradingService";
 import { OptionChips } from "@/components/OptionChips";
 import { CandlestickChart } from "@/components/CandlestickChart";
 import { DesktopOrderBook } from "@/components/DesktopOrderBook";
+import { OrderStatusBadge } from "@/components/trading/OrderStatusBadge";
 import { ProSpotMobileDock } from "@/components/pro/ProSpotMobileDock";
 import {
   SpotMobileMarkLine,
@@ -675,5 +676,12 @@ export const SpotChartViewsMobile = () => (
     <div style={{ width: 375, height: 360 }}>
       <CandlestickChart remainingDays={1} basePrice={0.5367} side="buy" previewView="underlying" underlying={{ ticker: "BTC", basePrice: 72066.13, lastPrice: 72410.5, shareLabel: "Up" }} />
     </div>
+  </div>
+);
+
+/** OS-D1b · Pending badge expanded — `0 / 22.222 (0%)` (Liya 2026-10-12: open orders always show fill progress). */
+export const OrderStatusPendingOpen = () => (
+  <div style={{ width: 420, height: 170 }} className="flex items-start justify-end p-4">
+    <OrderStatusBadge variant="desktop" status="Pending" amount="22.222" previewOpen />
   </div>
 );
