@@ -20,6 +20,7 @@ import OrderPreview from "./pages/OrderPreview";
 import DesktopTrading from "./pages/DesktopTrading";
 import StyleGuide from "./pages/StyleGuide/index";
 import StyleGuidePreview from "./pages/StyleGuide/preview/StyleGuidePreview";
+import { ClosedAccountGate } from "@/components/settings/ClosedAccountGate";
 
 import LiteEventsPage from "./pages/lite/LiteEventsPage";
 import Leaderboard from "./pages/Leaderboard";
@@ -213,6 +214,7 @@ const App = () => (
           <ScrollToTop />
           <OrderSimulationRunner />
           <CampaignAttribution />
+          <ClosedAccountGate />
           <LanguageKeyed>
           <Routes>
             {/* Full-width landing pages (rendered outside max-w-md mobile shell) */}

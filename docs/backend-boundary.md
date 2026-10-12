@@ -206,7 +206,7 @@
 | `profiles.language`（en / zh-CN / zh-TW / ja / ko / ru / vi） | 🟡 | 「站点语言偏好登录后跟账号走、页头与 Settings 共用一份」照抄；游客 localStorage `omenx.language`。页面文案 i18n 本轮未做；第二批语言 es / id / tr |
 | RPC `list_my_sessions()`（SECURITY DEFINER 读 `auth.sessions`，按 `auth.uid()` 过滤，`is_current` = JWT `session_id`） | 🟡 | 「用户能看到自己的活跃会话、标出本机、能登出其他设备」的规则照抄；正式版由认证服务提供会话列表，**IP → 城市**由服务端解析（Lovable 显示 IP） |
 | `supabase.auth.signOut({ scope: "others" })` | 🟡 | 语义照抄（撤销本机以外全部 refresh token） |
-| Close account | 🟢（正式版必做，Lovable 部分模拟） | 2026-10-12 定稿四步：余额 ≥ 起提额拦截去 Wallet；0 < 余额 < 起提额 → 发到已保存地址或放弃；确认 = 提现验证设置（邮箱 / 验证器 / 两者 / 无）+ CLOSE；7 天冷静期。Lovable：打款走 `record-transaction` + 余额清零、码固定 111111、只写 `profiles.close_scheduled_at`，不删数据、不拦登录。正式版：链上打款（USDC on Base）、真验码、到期异步注销（删 profile / API key / 会话，保留合规交易记录）、冷静期内登录即撤销（清空时间戳 + 拦截弹窗）、放弃余额归平台。见 `docs/delivery/email-login-settings-v1.md` §4.4 / §7 #10 |
+| Close account | 🟢（正式版必做，Lovable 部分模拟） | 2026-10-12 定稿四步：余额 ≥ 起提额拦截去 Wallet；0 < 余额 < 起提额 → 发到已保存地址或放弃；确认 = 提现验证设置（邮箱 / 验证器 / 两者 / 无）+ CLOSE；确认即关闭，无冷静期、不可恢复。Lovable：打款走 `record-transaction` + 余额清零、码固定 111111、写 `profiles.closed_at` 不删数据，已关账号再登录由 `ClosedAccountGate` 全站拦一屏 + Sign out。正式版：链上打款（USDC on Base）、真验码、确认即异步注销（删 profile / API key / 全部会话，保留合规交易记录；登录直接失败）、放弃余额归平台。见 `docs/delivery/email-login-settings-v1.md` §4.4 / §7 #10 |
 | Authenticator「Added {date}」 | ⬜ | Lovable `user_security` 不暴露启用时间，行内显示 `Codes from your authenticator app`；正式版可显示启用日期 |
 
 

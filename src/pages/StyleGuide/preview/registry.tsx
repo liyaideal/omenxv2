@@ -672,6 +672,7 @@ export const previewRegistry: Record<string, Loader> = {
   "settings-account-confirm-both": pick(settings, "SettingsAccountConfirmBothPreview"),
   "settings-account-done-sent": pick(settings, "SettingsAccountDoneSentPreview"),
   "settings-account-done": pick(settings, "SettingsAccountDonePreview"),
+  "settings-account-closed-gate": pick(settings, "SettingsAccountClosedGatePreview"),
   "settings-more": pick(settings, "SettingsMorePreview"),
 
 

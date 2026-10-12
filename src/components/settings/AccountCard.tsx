@@ -40,12 +40,12 @@ import { SettingsCard, SettingsRow } from "./SettingsCard";
  *                the account's Withdrawal verification setting — email code /
  *                authenticator code / both; nothing configured → only CLOSE
  *                (rule 5). Then type CLOSE, red primary.
- *       done     "Your account closes on {date}" — 7-day grace, signing in
- *                before then cancels (rule 6). Done → sign out → `/`.
+ *       done     "Your account is closed" — no grace period, closed is closed
+ *                (CPO 2026-10-12). Done → sign out → `/`.
  *     Lovable: payout = `record-transaction` withdraw row + balances to 0;
- *     codes accept the demo OTP; `profiles.close_scheduled_at` is written and
- *     nothing is deleted. The live platform sends the payout, verifies real
- *     codes, and deletes at close_scheduled_at (docs/backend-boundary.md).
+ *     codes accept the demo OTP; `profiles.closed_at` is written and the row
+ *     stays (ClosedAccountGate blocks the next sign-in). The live platform
+ *     sends the payout, verifies real codes, and deletes (docs/backend-boundary.md).
  * Both shells are the Auth "Connect modal" (AuthDialog / AuthSheet literal);
  * desktop two 190×44 buttons side by side, mobile stacked with Cancel first.
  */
@@ -66,7 +66,6 @@ type VerifyMode = "none" | "email" | "totp" | "both";
 type BalanceChoice = "send" | "forfeit";
 
 const CONFIRM_WORD = "CLOSE";
-const GRACE_DAYS = 7;
 const RESEND_SECONDS = 60;
 
 const PREVIEW_ADDRESSES = [
@@ -171,8 +170,6 @@ const maskEmail = (e: string) => {
   return `${u.slice(0, 2)}•••@${d}`;
 };
 
-const fmtDate = (d: Date) => d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-
 const pickStep = (s?: AccountPreviewState): Step | null => {
   switch (s) {
     case "blocked":
@@ -203,8 +200,7 @@ export const AccountCard = ({
   const { t } = useT();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const { user, profile, email, balance, spotBalance, deductAvailableOnly, deductSpotBalance, refetchProfile } =
-    useUserProfile();
+  const { user, profile, email, balance, spotBalance, deductAvailableOnly, deductSpotBalance } = useUserProfile();
   const { wallets } = useWallets();
 
   const preview = !!previewState;
@@ -259,12 +255,9 @@ export const AccountCard = ({
   const [cooldown, setCooldown] = useState(0);
   const [typed, setTyped] = useState("");
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState<{ date: Date; sent?: { amount: number; address: string } } | null>(
+  const [done, setDone] = useState<{ sent?: { amount: number; address: string } } | null>(
     previewState === "done" || previewState === "done-sent"
-      ? {
-          date: new Date(Date.now() + GRACE_DAYS * 864e5),
-          sent: previewState === "done-sent" ? { amount: 12.5, address: PREVIEW_ADDRESSES[0].address } : undefined,
-        }
+      ? { sent: previewState === "done-sent" ? { amount: 12.5, address: PREVIEW_ADDRESSES[0].address } : undefined }
       : null,
   );
   const cooldownTimer = useRef<number | null>(null);
@@ -375,16 +368,14 @@ export const AccountCard = ({
         if ((balance ?? 0) > 0) await deductAvailableOnly(balance ?? 0);
         if ((spotBalance ?? 0) > 0) await deductSpotBalance(spotBalance ?? 0);
       }
-      const date = new Date(Date.now() + GRACE_DAYS * 864e5);
       const { error: profileError } = await supabase
         .from("profiles")
-        .update({ close_scheduled_at: date.toISOString() })
+        .update({ closed_at: new Date().toISOString() })
         .eq("user_id", user.id);
       if (profileError) throw new Error(profileError.message);
-      await refetchProfile();
-      setDone({ date, sent });
+      setDone({ sent });
       setStep("done");
-      toast.success(t("settings.account.scheduledToast"));
+      toast.success(t("settings.account.closed"));
     } catch (e: any) {
       toast.error(e?.message || "Couldn't close the account. Try again.");
     } finally {
@@ -599,13 +590,12 @@ export const AccountCard = ({
   );
 
   const doneBody = (stacked: boolean) => {
-    const date = done ? fmtDate(done.date) : "";
     return (
       <div className="flex w-full flex-col items-center gap-3">
-        <Headline src={lynxCloseConfirm} title={t("settings.account.done.title", { date })}>
+        <Headline src={lynxCloseConfirm} title={t("settings.account.done.title")}>
           {done?.sent
-            ? t("settings.account.done.sent", { amount: fmtUsd(done.sent.amount), address: done.sent.address, date })
-            : t("settings.account.done.plain", { date })}
+            ? t("settings.account.done.sent", { amount: fmtUsd(done.sent.amount), address: done.sent.address })
+            : t("settings.account.done.plain")}
         </Headline>
         {buttons(
           stacked,
@@ -634,7 +624,7 @@ export const AccountCard = ({
         ? t("settings.account.balance.title", { amount: fmtUsd(total) })
         : step === "confirm"
           ? t("settings.account.confirm.title")
-          : t("settings.account.done.title", { date: done ? fmtDate(done.date) : "" });
+          : t("settings.account.done.title");
 
   /* AuthDialog / AuthSheet shells, literal. */
   const DESKTOP_SHELL =

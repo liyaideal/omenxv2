@@ -282,13 +282,13 @@ const ACCOUNT_CASES: SectionCase[] = [
   {
     key: "settings-account-default",
     label: "ST-28 · Account · Sign out / Close account 行",
-    note: "Close account 行与按钮用 #FF5C5C（DESIGN §5 破坏性；Wallet 删地址先例）。2026-10-12 起注销 = 一只弹窗四步（拦截 / 余额处置 / 确认 / 已安排），7 天冷静期；Lovable 只写 profiles.close_scheduled_at，不删数据（docs/backend-boundary.md）。",
+    note: "Close account 行与按钮用 #FF5C5C（DESIGN §5 破坏性；Wallet 删地址先例）。2026-10-12 起注销 = 一只弹窗四步（拦截 / 余额处置 / 确认 / 已关闭），关了就是关了、无冷静期；Lovable 写 profiles.closed_at 并用 ST-42 拦住再登录，不删数据（docs/backend-boundary.md）。",
     spec: [
       { state: "Sign out", when: "点击", visual: "立即 signOut → navigate('/')，无确认", source: "AccountCard.tsx handleSignOut" },
       { state: "Close account", when: "balance + spot_balance ≥ 20（提现起提额）", visual: "→ ST-29 拦截弹窗", source: "AccountCard.tsx openClose" },
       { state: "Close account", when: "0 < 余额 < 20", visual: "→ ST-36 / ST-37 余额处置（Step 1 of 2）→ ST-30 / 38 / 39 确认（Step 2 of 2）", source: "AccountCard.tsx openClose" },
       { state: "Close account", when: "余额为 0", visual: "→ 直接确认弹窗（无 Step 标）：按账号验证设置选 ST-30 / ST-38 / ST-39", source: "AccountCard.tsx openClose" },
-      { state: "副文", when: "常态", visual: "'Takes effect in 7 days. Sign in before then to cancel.'", source: "settings.account.closeSub" },
+      { state: "副文", when: "常态", visual: "'This cannot be undone.'", source: "settings.account.closeSub" },
     ],
   },
 ];
@@ -319,8 +319,8 @@ const ACCOUNT_DIALOGS: SectionCase[] = [
     key: "settings-account-confirm",
     label: "ST-30 · Close account · 确认弹窗（钱包账号 · 无邮箱无验证器）",
     spec: [
-      { state: "confirm · none", when: "无邮箱且未启用验证器 → verifyMode = none；余额 0 时无 Step 标", visual: "同壳；lynx 百叶窗插画 → 'Close your account?' → 'Your profile, history and API keys are deleted in 7 days. Sign in before then to cancel.' → 'Type CLOSE to confirm'（CLOSE 白字）+ 36px r-8 输入框（#14161A，占位 CLOSE，聚焦青边 40%）；'Cancel' 描边 + 'Close account' #FF5C5C 底 #090A0B 字（不带青光），输入 ≠ CLOSE 时 disabled 40%；移动端竖排 Cancel 在上（Figma 858:2808 / 858:2840）", source: "AccountCard.tsx confirmBody" },
-      { state: "done", when: "点击 Close account", visual: "Lovable：有打款则 record-transaction（withdraw，-total，'Account close payout to {address}'）+ 两账户余额清零 → profiles.close_scheduled_at = now + 7d → toast 'Account scheduled to close' → ST-40 / ST-41", source: "AccountCard.tsx handleClose" },
+      { state: "confirm · none", when: "无邮箱且未启用验证器 → verifyMode = none；余额 0 时无 Step 标", visual: "同壳；lynx 百叶窗插画 → 'Close your account?' → 'Your profile, history and API keys are deleted. This cannot be undone.' → 'Type CLOSE to confirm'（CLOSE 白字）+ 36px r-8 输入框（#14161A，占位 CLOSE，聚焦青边 40%）；'Cancel' 描边 + 'Close account' #FF5C5C 底 #090A0B 字（不带青光），输入 ≠ CLOSE 时 disabled 40%；移动端竖排 Cancel 在上（Figma 858:2808 / 858:2840）", source: "AccountCard.tsx confirmBody" },
+      { state: "done", when: "点击 Close account", visual: "Lovable：有打款则 record-transaction（withdraw，-total，'Account close payout to {address}'）+ 两账户余额清零 → profiles.closed_at = now → toast 'Account closed' → ST-40 / ST-41", source: "AccountCard.tsx handleClose" },
     ],
   },
   {
@@ -340,17 +340,23 @@ const ACCOUNT_DIALOGS: SectionCase[] = [
   },
   {
     key: "settings-account-done-sent",
-    label: "ST-40 · Close account · 已安排注销（有打款）",
+    label: "ST-40 · Close account · 已关闭（有打款）",
     spec: [
-      { state: "done · sent", when: "确认成功且 Step 1 选了发到地址", visual: "'Your account closes on {Mon D}' / '{$x} is on its way to {0x…}. Sign in before {date} to keep your account; the transfer itself can't be reversed.' / 单钮 btn-primary 'Done' → signOut → /；关 × 同 Done", source: "AccountCard.tsx doneBody" },
+      { state: "done · sent", when: "确认成功且 Step 1 选了发到地址", visual: "'Your account is closed' / '{$x} is on its way to {0x…}. Thanks for trading with us.' / 单钮 btn-primary 'Done' → signOut → /；关 × 同 Done", source: "AccountCard.tsx doneBody" },
     ],
   },
   {
     key: "settings-account-done",
-    label: "ST-41 · Close account · 已安排注销（放弃 / 余额 0）",
+    label: "ST-41 · Close account · 已关闭（放弃 / 余额 0）",
     spec: [
-      { state: "done · plain", when: "确认成功且无打款", visual: "'Your account closes on {Mon D}' / 'Sign in before {date} to keep your account. After that, everything is deleted.' / 'Done'", source: "AccountCard.tsx doneBody" },
-      { state: "冷静期内再登录", when: "profiles.close_scheduled_at 非空且未到期", visual: "拦截弹窗（Keep my account）下一轮做；Lovable 本轮不拦", source: "backend-boundary" },
+      { state: "done · plain", when: "确认成功且无打款", visual: "'Your account is closed' / 'Thanks for trading with us.' / 'Done'", source: "AccountCard.tsx doneBody" },
+    ],
+  },
+  {
+    key: "settings-account-closed-gate",
+    label: "ST-42 · 已关闭账号再登录（Lovable 兜底）",
+    spec: [
+      { state: "closed gate", when: "profiles.closed_at 非空：登录成功或会话恢复后，任何页面", visual: "同壳、不可关闭（无 ×、遮罩 / Esc 无效）：'This account was closed' / 'It was closed on {Mon D} and can't be reopened. You can start fresh with a new account any time.' / 单钮 'Sign out' → /。正式版真删号、登录直接失败，没有这一屏", source: "ClosedAccountGate.tsx（App 层挂载）" },
     ],
   },
 ];
@@ -387,7 +393,7 @@ export const LiteSettingsPage = (_: P) => (
 
     <SectionWrapper
       id="settings-cases"
-      title="Settings · 状态字典（ST-1…ST-41 · Ⓐ–Ⓚ 区）"
+      title="Settings · 状态字典（ST-1…ST-42 · Ⓐ–Ⓚ 区）"
       platform="shared"
       description="分区序 = 生产页从上到下：Ⓐ页面外壳 · Ⓑhero · ⒸSign-in · ⒹAccount security · ⒺWithdrawal verification · ⒻNotifications · ⒼPreferences · ⒽSessions · ⒾAccount · ⒿMore。每个 case 挂载生产组件（preview* fixture 只定初态，禁运行时 fetch）；移动帧里组件自行切到 compact / MobileDrawer 形态。"
     >
@@ -470,7 +476,7 @@ export const LiteSettingsPage = (_: P) => (
           </div>
         </SubSection>
 
-        <SubSection title="Ⓘ Account（ST-28 … ST-30 · ST-36 … ST-41）" platform="shared">
+        <SubSection title="Ⓘ Account（ST-28 … ST-30 · ST-36 … ST-42）" platform="shared">
           <SectionFrame cases={ACCOUNT_CASES} device="desktop" minHeight={220} />
           {ACCOUNT_DIALOGS.map((c) => (
             <div key={c.key} className="mt-3">

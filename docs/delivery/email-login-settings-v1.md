@@ -171,7 +171,7 @@ Lovable 上验证码固定 111111，界面不出现这个数字，也不真发�
 | NOTIFICATIONS | Settled results / Auto-close warnings / Trade confirmations / Deposits & withdrawals 四开关，存 `profiles.notification_prefs`，新用户默认全开（缺省键 = true）；切换即保存（乐观更新），失败回滚 + toast `Couldn't save that. Try again.`，无保存按钮；无邮箱 → 整卡空态 `Add an email to get alerts` + `Add email`；脚注 `Sent to {email}.`，改邮箱等待中仍显示当前地址 + ` — until your email change is confirmed.` |
 | PREFERENCES · Language | 7 项 English / 简体中文 / 繁體中文 / 日本語 / 한국어 / Русский / Tiếng Việt（值 `en / zh-CN / zh-TW / ja / ko / ru / vi`）；桌面 chip + 下拉，移动 chip + 底部抽屉；选中即保存 `profiles.language` + toast `Language set to {label}`；与页头切换器共用列表与存储（`useLanguage()`），页头 chip 显示两字母 short；页面文案本轮不翻译；第二批 Español / Bahasa Indonesia / Türkçe |
 | SESSIONS | 行 = 设备（user-agent → `Chrome · macOS`，解析不出 `Unknown device`）· 本机 `THIS DEVICE` · mono `{ip} · {now / n min ago / n h ago / Sep 15}`（ip 空 → `Unknown location`）；右槽 `{n} device(s)`；仅本机 → 隐藏按钮 + 脚注 `You're only signed in here.`；`Sign out other devices` → `signOut({ scope: "others" })` → toast → 列表收缩；加载失败 → `Couldn't load sessions` + `Retry`；加载中 3 组骨架 |
-| ACCOUNT | `Sign out` → 立即登出回首页，无确认。`Close account`（按钮全称，与行标题一致；行副文 `Takes effect in 7 days. Sign in before then to cancel.`）= 一只弹窗四步（2026-10-12 CPO 定稿 10 条，见 §4.4）：余额 ≥ $20 拦截去 Wallet；0 < 余额 < $20 先处置（发到**已保存地址**或放弃）；确认步按账号的 Withdrawal verification 设置验码（邮箱 / 验证器 / 两者 / 都没有则只输 CLOSE）+ 输入 `CLOSE`；成功 → `Your account closes on {date}`（7 天冷静期）→ Done 登出。两弹窗外观 = 登录弹窗同款壳 + lynx 插画（DESIGN §Addendum 2026-09-23 / 2026-10-12），字典 ST-29 / 30 / 36–41 |
+| ACCOUNT | `Sign out` → 立即登出回首页，无确认。`Close account`（按钮全称，与行标题一致；行副文 `This cannot be undone.`）= 一只弹窗四步（2026-10-12 CPO 定稿 10 条，见 §4.4）：余额 ≥ $20 拦截去 Wallet；0 < 余额 < $20 先处置（发到**已保存地址**或放弃）；确认步按账号的 Withdrawal verification 设置验码（邮箱 / 验证器 / 两者 / 都没有则只输 CLOSE）+ 输入 `CLOSE`；成功即关闭 → `Your account is closed` → Done 登出。无冷静期、无恢复。两弹窗外观 = 登录弹窗同款壳 + lynx 插画（DESIGN §Addendum 2026-09-23 / 2026-10-12），字典 ST-29 / 30 / 36–41 |
 | MORE | `Transparency audit / Verify assets, trades and auto-closes on-chain` → `/settings/transparency`；`API management / API keys for programmatic trading` → `/settings/api` |
 | 移动 | 375 单列同模块；所有弹窗 MobileDrawer；语言选择为 drawer 列表 |
 
@@ -181,11 +181,11 @@ Lovable 上验证码固定 111111，界面不出现这个数字，也不真发�
 |---|---|---|---|
 | 拦截 | `balance + spot_balance ≥ 20`（提现起提额 `getWithdrawMinimum('USDC')`） | `Withdraw your balance first` / `You still have {$x} across Standard and Boost. Withdraw it before closing your account.` | `Go to Wallet` → `/wallet`；Cancel |
 | 余额处置（Step 1 of 2） | `0 < 余额 < 20` | `You still have {$x}` / `It's under the $20 withdrawal minimum. Choose what happens to it before your account closes.`。有已保存地址：单选「Send it to a saved address」（下挂地址簿，默认 is_primary；**不开放手输地址**）或「Forfeit {$x}」；无地址：勾选 `I understand {$x} will be forfeited` + `Want to keep it? Add an address in Wallet ›` | `Continue` → 确认步；无地址且未勾选时禁用 |
-| 确认（Step 2 of 2；余额 0 时直接进入、无 Step 标） | 任何注销 | `Close your account?` / `Your profile, history and API keys are deleted in 7 days. Sign in before then to cancel.`。验证 = 账号 Withdrawal verification 设置：`Email code`（进步即发码，`Sent to {masked} · Resend {n}s`，60 秒）/ `Authenticator code` / 两者；设置不可用则回落到可用的一种；邮箱、验证器都没有（钱包账号）→ 只输 `CLOSE`。错码行内 `Invalid code. Try again.` | 红钮 `Close account`：码齐 + CLOSE 才可点 |
-| 已安排 | 确认成功 | `Your account closes on {Mon D}`；有打款：`{$x} is on its way to {0x…}. Sign in before {date} to keep your account; the transfer itself can't be reversed.`；否则 `Sign in before {date} to keep your account. After that, everything is deleted.` | `Done`（或 ×）→ 登出回首页 |
+| 确认（Step 2 of 2；余额 0 时直接进入、无 Step 标） | 任何注销 | `Close your account?` / `Your profile, history and API keys are deleted. This cannot be undone.`。验证 = 账号 Withdrawal verification 设置：`Email code`（进步即发码，`Sent to {masked} · Resend {n}s`，60 秒）/ `Authenticator code` / 两者；设置不可用则回落到可用的一种；邮箱、验证器都没有（钱包账号）→ 只输 `CLOSE`。错码行内 `Invalid code. Try again.` | 红钮 `Close account`：码齐 + CLOSE 才可点 |
+| 已关闭 | 确认成功 | `Your account is closed`；有打款：`{$x} is on its way to {0x…}. Thanks for trading with us.`；否则 `Thanks for trading with us.` | `Done`（或 ×）→ 登出回首页 |
 
-规则来源（CPO 2026-10-12）：① 不在注销流程里新建手输地址通路，只用已验证的地址簿；② 不写免责声明；③ 注销验证不单设一套，等于提现验证设置；④ 7 天冷静期代替更多验证——期间登录即撤销（登录拦截弹窗「Keep my account」下一轮）；⑤ 打款在确认成功时立即发出，冷静期只管删号。
-Lovable 实现：打款 = `record-transaction`（withdraw，-余额，`Account close payout to {address}`，processing）+ 两账户余额清零；验证码接受固定 111111；确认成功写 `profiles.close_scheduled_at = now + 7d`，不删数据、不拦登录。
+规则来源（CPO 2026-10-12）：① 不在注销流程里新建手输地址通路，只用已验证的地址簿；② 不写免责声明；③ 注销验证不单设一套，等于提现验证设置；④ **关了就是关了**——无冷静期、无恢复入口，钱包账号也只凭 CLOSE；⑤ 打款在确认成功时立即发出。
+Lovable 实现：打款 = `record-transaction`（withdraw，-余额，`Account close payout to {address}`，processing）+ 两账户余额清零；验证码接受固定 111111；确认成功写 `profiles.closed_at = now` 并登出；Lovable 删不了 auth 用户，所以已关账号再登录（或旧会话恢复）由 App 层 `ClosedAccountGate` 全站盖一屏 `This account was closed` + Sign out（字典 ST-42）。正式版真删号，登录直接失败，没有这一屏。
 
 ## 5. 全部状态与文案
 
@@ -242,7 +242,7 @@ Lovable 实现：打款 = `record-transaction`（withdraw，-余额，`Account c
 | 7 | 真实发信（四类通知按 `notification_prefs` + `language`） | Lovable 只存偏好；浏览器推送 / Telegram 通知第二批 |
 | 8 | 页面 i18n | 偏好已存；页面文案翻译后续批次；第二批语言 es / id / tr |
 | 9 | Sessions 地点 IP → 城市（geo-IP）、更完整的 UA 解析 | Lovable 显示 IP |
-| 10 | Close account 正式版：① 余额 < 起提额的打款真发链上（USDC on Base，到已保存地址）；② 验证码真发真验（按提现验证设置）；③ `close_scheduled_at` 到期异步注销（删 profile / API key / 会话，保留合规所需交易记录）；④ 冷静期内登录 = 撤销（清空 `close_scheduled_at`，拦截弹窗下一轮画）；⑤ 放弃的余额归平台 | Lovable：打款走 `record-transaction` + 余额清零，码固定 111111，只写时间戳、不删号、不拦登录 |
+| 10 | Close account 正式版：① 余额 < 起提额的打款真发链上（USDC on Base，到已保存地址）；② 验证码真发真验（按提现验证设置）；③ 确认即异步注销（删 profile / API key / 全部会话，保留合规所需交易记录），无冷静期、不可恢复；④ 放弃的余额归平台 | Lovable：打款走 `record-transaction` + 余额清零，码固定 111111，写 `closed_at` 不删号，再登录由 ClosedAccountGate 拦住 |
 | 11 | Authenticator 行的启用日期 | `user_security` 不暴露时间 |
 | 12 | hero 底图 | Wallet 同位素材槽，待 CPO 提供 |
 
@@ -278,7 +278,7 @@ Google 账号选择器、Wallet / Telegram 页签、createWallet 步内容、头
 | Notifications 全开 / 部分关 / 无邮箱 | ST-18 / ST-19 / ST-20 |
 | Preferences chip / 下拉 | ST-21 / ST-22 |
 | Sessions 多设备 / 仅本机 / loading / error / 未知设备 | ST-23…ST-27 |
-| Account 行 / ≥$20 拦截 / 余额处置（有地址 / 无地址）/ 确认（钱包 / 邮箱 / 邮箱+验证器）/ 已安排（打款 / 无打款） | ST-28 / ST-29 / ST-36 / ST-37 / ST-30 / ST-38 / ST-39 / ST-40 / ST-41 |
+| Account 行 / ≥$20 拦截 / 余额处置（有地址 / 无地址）/ 确认（钱包 / 邮箱 / 邮箱+验证器）/ 已关闭（打款 / 无打款）/ 已关闭账号再登录（Lovable 兜底） | ST-28 / ST-29 / ST-36 / ST-37 / ST-30 / ST-38 / ST-39 / ST-40 / ST-41 / ST-42 |
 | More | ST-31 |
 
 ## 11. 验收记录
@@ -299,18 +299,18 @@ Google 账号选择器、Wallet / Telegram 页签、createWallet 步内容、头
 | 10 | 副文折行 | Language 说明折两行完整显示，不再截断 | ✅ |
 | 10b | Account 卡按钮（09-23 修） | 按钮全称 `Close account`，不再是 `Close…` | ✅ |
 | 10c | Close account 两弹窗（09-23 重绘） | 桌面：渐变壳 + 插画 + 并排两钮；手机 375：抽屉同壳、竖排 Cancel 在上；输入 CLOSE 后红钮（深字）可点 | ✅ |
-| 10d | Close account 四步（10-12） | 余额 $12.50 + 地址簿 → Step 1 选地址 → Step 2 邮箱码 111111 + CLOSE → `Your account closes on …` → Done 登出；DB `close_scheduled_at` 写入、余额清零、transactions 多一行 payout；字典 ST-36…41 渲染 | ✅ |
+| 10d | Close account 四步（10-12，mainnet） | 余额 $12.50 + 地址簿 → Step 1 选地址 → Step 2 邮箱码 111111 + CLOSE（错码行内红字）→ `Your account is closed` → Done 登出；DB `closed_at` 写入、余额清零、transactions 多一行 payout；再登录被 ST-42 拦住；字典 ST-36…42 渲染 | ✅ |
 | 11 | 邮箱登录剧本（登录 / 注册 / 错误句 / 忘记密码 / 重置页四态 / 改密码行 / 改邮箱两封链接） | 见 2026-09-19 记录（`auth-email-v1.md` §9，21 步全过） | ✅ |
 | 12 | 字典 | `/style-guide` 登录 / 注册 节点 35 case + Settings 节点 30 key 全部渲染；`npm run sg:audit` PASS | ✅ |
 
 ## 12. 涉及文件
 
-前端：`src/components/auth/EmailAuthPanel.tsx` · `AuthContent.tsx` · `AuthDialog.tsx` · `AuthSheet.tsx` · `LiteAuthGate.tsx` · `src/pages/ResetPassword.tsx` · `src/pages/Settings.tsx` · `src/components/settings/{SettingsCard,ProfileHero,LinkedEmailAccountCard,ProviderSignInCard,ChangeLoginEmailDialog,AccountSecurityCard,WithdrawalVerificationCard,NotificationsCard,PreferencesCard,SessionsCard,AccountCard,MoreCard}.tsx` · `src/lib/emailAuth.ts` · `src/lib/starterProfile.ts` · `src/lib/languages.ts` · `src/hooks/useLanguage.ts` · `src/hooks/useUserProfile.ts` · `src/components/EventsDesktopHeader.tsx` · `public/fonts/` · `src/assets/settings/lynx-close-{blocked,confirm}.png`
-后端：`supabase/migrations/20260922090000_settings_prefs_sessions.sql` · `20261012120000_profiles_close_scheduled_at.sql` · `src/integrations/supabase/types.ts`
+前端：`src/components/auth/EmailAuthPanel.tsx` · `AuthContent.tsx` · `AuthDialog.tsx` · `AuthSheet.tsx` · `LiteAuthGate.tsx` · `src/pages/ResetPassword.tsx` · `src/pages/Settings.tsx` · `src/components/settings/{SettingsCard,ProfileHero,LinkedEmailAccountCard,ProviderSignInCard,ChangeLoginEmailDialog,AccountSecurityCard,WithdrawalVerificationCard,NotificationsCard,PreferencesCard,SessionsCard,AccountCard,ClosedAccountGate,MoreCard}.tsx` · `src/lib/emailAuth.ts` · `src/lib/starterProfile.ts` · `src/lib/languages.ts` · `src/hooks/useLanguage.ts` · `src/hooks/useUserProfile.ts` · `src/components/EventsDesktopHeader.tsx` · `public/fonts/` · `src/assets/settings/lynx-close-{blocked,confirm}.png`
+后端：`supabase/migrations/20260922090000_settings_prefs_sessions.sql` · `20261012120000_profiles_close_scheduled_at.sql` · `20261012150000_profiles_closed_at.sql` · `src/integrations/supabase/types.ts`
 字典：`src/pages/StyleGuide/preview/authPreviews.tsx` · `settingsPreviews.tsx` · `sections/pages/AuthPage.tsx` · `LiteSettingsPage.tsx`
 文档：`DESIGN.md` §Addendum 2026-09-19 / 2026-09-22 / 2026-09-23 / 2026-10-12 · `docs/copy-dictionary.md` · `docs/backend-boundary.md` · `docs/changelog/INDEX.md` · `STATUS.md`
 
-字典 key（`/style-guide/preview?c=`）：`auth-email-*`（AU-E）、`auth-reset-*`（AU-R）、`settings-security-email-default` `settings-security-email-sent` `settings-linked-email-default` `settings-linked-email-pending` `settings-linked-email-cooldown` `settings-change-email-input` `settings-change-email-error` `settings-change-email-sent` `settings-page-guest` `settings-page-loading` `settings-page-error` `settings-hero-default` `settings-hero-unset` `settings-hero-mobile` `settings-signin-google` `settings-signin-wallet` `settings-signin-telegram` `settings-security-totp-enabled` `settings-withdrawal-default` `settings-withdrawal-all-enabled` `settings-withdrawal-nothing` `settings-notifications-default` `settings-notifications-some-off` `settings-notifications-no-email` `settings-preferences-default` `settings-preferences-open` `settings-sessions-many` `settings-sessions-single` `settings-sessions-loading` `settings-sessions-error` `settings-sessions-unknown` `settings-account-default` `settings-account-blocked` `settings-account-balance` `settings-account-balance-no-address` `settings-account-confirm` `settings-account-confirm-email` `settings-account-confirm-both` `settings-account-done-sent` `settings-account-done` `settings-more`
+字典 key（`/style-guide/preview?c=`）：`auth-email-*`（AU-E）、`auth-reset-*`（AU-R）、`settings-security-email-default` `settings-security-email-sent` `settings-linked-email-default` `settings-linked-email-pending` `settings-linked-email-cooldown` `settings-change-email-input` `settings-change-email-error` `settings-change-email-sent` `settings-page-guest` `settings-page-loading` `settings-page-error` `settings-hero-default` `settings-hero-unset` `settings-hero-mobile` `settings-signin-google` `settings-signin-wallet` `settings-signin-telegram` `settings-security-totp-enabled` `settings-withdrawal-default` `settings-withdrawal-all-enabled` `settings-withdrawal-nothing` `settings-notifications-default` `settings-notifications-some-off` `settings-notifications-no-email` `settings-preferences-default` `settings-preferences-open` `settings-sessions-many` `settings-sessions-single` `settings-sessions-loading` `settings-sessions-error` `settings-sessions-unknown` `settings-account-default` `settings-account-blocked` `settings-account-balance` `settings-account-balance-no-address` `settings-account-confirm` `settings-account-confirm-email` `settings-account-confirm-both` `settings-account-done-sent` `settings-account-done` `settings-account-closed-gate` `settings-more`
 
 ## 13. 轮次代号 ↔ 章节
 

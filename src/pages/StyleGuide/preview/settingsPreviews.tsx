@@ -21,6 +21,7 @@ import { NotificationsCard } from "@/components/settings/NotificationsCard";
 import { PreferencesCard } from "@/components/settings/PreferencesCard";
 import { SessionsCard } from "@/components/settings/SessionsCard";
 import { AccountCard } from "@/components/settings/AccountCard";
+import { ClosedAccountGate } from "@/components/settings/ClosedAccountGate";
 import { MoreCard } from "@/components/settings/MoreCard";
 import { SETTINGS_GATE_COPY } from "@/pages/Settings";
 import { t } from "@/i18n";
@@ -326,6 +327,12 @@ export const SettingsAccountDoneSentPreview = () => (
 export const SettingsAccountDonePreview = () => (
   <DialogBox>
     <AccountCard previewState="done" previewBalance={0} />
+  </DialogBox>
+);
+
+export const SettingsAccountClosedGatePreview = () => (
+  <DialogBox>
+    <ClosedAccountGate previewOpen />
   </DialogBox>
 );
 

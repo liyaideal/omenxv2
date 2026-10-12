@@ -61,8 +61,8 @@ export interface Profile {
   created_at: string;
   updated_at: string;
   withdraw_2fa_mode?: string | null;
-  /** Settings › Close account (2026-10-12): scheduled deletion time (7-day grace), null = not closing. */
-  close_scheduled_at?: string | null;
+  /** Settings › Close account (2026-10-12): when the user closed the account; null = open. Lovable keeps the row; live deletes. */
+  closed_at?: string | null;
   totp_enabled?: boolean | null;
   /** How the account was created: "wallet" | "google" | "telegram" | "email" (null for legacy rows). */
   auth_method?: string | null;
