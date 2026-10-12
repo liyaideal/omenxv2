@@ -67,14 +67,14 @@ export const AsOfLive = ({ iso }: { iso: string }) => (
 export const SeriesSection = ({ n, eyebrow, title, meta, more, intro, art, children }: { n?: string; eyebrow?: string; title: string; meta?: string; more?: { label: string; to: string }; intro?: React.ReactNode; art?: Art; children: React.ReactNode }) => (
   <section className="mb-10 md:mb-12">
     <div className={cn("mb-5 md:mb-6", art && "md:flex md:items-start md:justify-between md:gap-6")}>
-      <div className={cn("min-w-0", art ? "md:max-w-[485px] md:flex-1" : "flex items-start justify-between gap-3")}>
+      <div className={cn("min-w-0", art ? "md:max-w-[485px] md:flex-1" : "flex flex-col items-start gap-3 md:flex-row md:justify-between")}>
         <div className={cn("min-w-0", !art && "flex-1 md:max-w-[760px]")}>
           {(n || eyebrow) && <div className="text-[12px] font-semibold uppercase leading-[17px] tracking-[0.04em] text-primary md:text-[11px] md:leading-[15px] md:tracking-[2px]">{[n, eyebrow].filter(Boolean).join(" ")}</div>}
           <h2 className={cn("mt-1.5 font-display text-[20px] font-semibold leading-[1.2] tracking-[-0.01em] md:mt-2.5 md:text-[30px] md:font-medium md:leading-[36px]", art && "capitalize")}>{title}</h2>
           {intro && <p className="mt-3 text-[13px] leading-[19px] text-muted-foreground md:text-[14px] md:leading-5 [&_b]:font-semibold [&_b]:text-foreground">{intro}</p>}
           {more && <Link to={more.to} className="mt-3 inline-block text-[14px] font-semibold text-primary md:mt-5 md:text-[18px]">{more.label} →</Link>}
         </div>
-        {!art && meta && <span className="mt-1 shrink-0 rounded-full border border-[#1D2026] px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground/70">{meta}</span>}
+        {!art && meta && <span className="shrink-0 rounded-full md:mt-1 border border-[#1D2026] px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground/70">{meta}</span>}
       </div>
       {art && <Illustration art={art} variant="section" />}
     </div>
