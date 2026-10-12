@@ -4369,7 +4369,7 @@
   "account.label": "アカウント",
   "account.signOutSub": "このデバイスのみログアウト",
   "account.close": "アカウントを閉鎖",
-  "account.closeSub": "先に残高を出金してください。元に戻せません。",
+  "account.closeSub": "7日後に有効になります。それまでにサインインすれば取り消せます。",
   "account.closed": "アカウントを閉鎖しました",
   "more.transparencySub": "資産・取引・自動クローズをオンチェーンで検証",
   "more.apiSub": "プログラム取引用 API キー",

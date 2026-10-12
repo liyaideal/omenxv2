@@ -4363,7 +4363,7 @@
   "account.label": "帳戶",
   "account.signOutSub": "僅登出本裝置",
   "account.close": "註銷帳戶",
-  "account.closeSub": "請先提領餘額。此操作不可撤銷。",
+  "account.closeSub": "7 天後生效。期間登入即可撤銷。",
   "account.closed": "帳戶已註銷",
   "more.transparencySub": "在鏈上核驗資產、交易與自動平倉",
   "more.apiSub": "用於程式化交易的 API 金鑰",

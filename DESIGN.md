@@ -2249,3 +2249,13 @@ Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED
 8. **路单读法**：珠盘左（原始时序 6 行）→ 大路右（同结果向下堆、变结果开新列、6 行换列）→ 统计；hover 显示时间窗不显示轮号；无下三路、无问路（后续）。
 9. **快轮 = 合约（同日第二项拍板 D1–D10）**：`roll_crypto_quick_rounds` 开轮 `product_lines = ['contract']`，全部五档周期一起；结算 `settle_quick_contract_round`（合约 payoff：保证金 + (结算价 − 入场价) × 份额、亏损封顶保证金、5% wc、入 Boost 账户，**只认本轮 option_id**，因快轮跨轮同名）；切换前开的现货轮由 `settle_spot_event` 结完。Lite 路径随品类到 `/trade?event=`，`/spot` 旧链接 replace 跳转（`useQuickRailRedirect`）；Classic 快轮页外壳不变、面板换 `LiteContractOrderPanel`（Boost 档由 `category_boost_configs` crypto 决定，上限 10，Custom 可自定）；Table 落筹 = `executeTrade(leverage = boost)`，档位固定 1 / 2 / 5 / 10 默认 2；Pro 下快轮进 `/trade` 终端。
 10. **文案**：全部占位，待合规措辞轮；i18n key 下一轮接。
+
+## §Addendum 2026-10-12 · Close account 四步弹窗（LOCKED）
+
+沿用 §Addendum 2026-09-23 的 Connect modal 壳与身体语法，新增三件：
+
+1. **Step 标**：多步弹窗在 17px 标题正下方加 11px 大写 `#656E7C` `tracking-[0.08em]` 的 `STEP n OF 2`；只有一步时不出现（余额 0 的确认弹窗无 Step 标）。
+2. **选项卡**：`rounded-[12px] border bg-[#14161A] px-3 py-2.5`，左 16px 单选圆（选中 `#33D6FF` 描边 + 内点）或方勾（选中青底墨字 ✓）；选中卡描边 `#33D6FF/40`，未选 `#23262D`；标题 13px/600 白，副文 11px `#9CA2AB`。选项展开的子列表（地址簿）左缩 12px、`border-l #23262D`，行间 hairline `#1D2026`，行内复用 Wallet 地址行（label + DEFAULT 胶囊 + ColoredAddress）。
+3. **验证码位**：登录弹窗同件 `CodeSlot`（48px r-12 `#14161A`，聚焦 `#33D6FF`，错码 trading-red），六格 `justify-between gap-2` 撑满 400 宽；标签行左 12px `#9CA2AB`、右 11px 状态（`Sent to … · Resend 58s`，倒计时青色）。错码红字 `ERROR_CLASS` 在格下。
+按钮组、红钮、移动竖排 Cancel 在上均不变。
+

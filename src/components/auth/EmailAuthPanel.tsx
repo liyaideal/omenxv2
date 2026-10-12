@@ -74,7 +74,8 @@ const FOOT_CLASS = "text-[12px] text-[#9CA2AB] text-center";
 export const GHOST_BUTTON_CLASS =
   "w-full h-[44px] rounded-[12px] border-[1.5px] border-[#1C1F26] bg-transparent text-[13px] text-white/80 transition-colors hover:text-white inline-flex items-center justify-center gap-2";
 
-const Slot = ({ char, isActive, hasFakeCaret, error }: SlotProps & { error: boolean }) => (
+/** Exported so Settings › Close account verification uses the same 6-slot code field. */
+export const CodeSlot = ({ char, isActive, hasFakeCaret, error }: SlotProps & { error: boolean }) => (
   <div
     className={`relative w-12 h-12 rounded-[12px] bg-[#14161A] border flex items-center justify-center font-display text-[20px] font-medium text-white transition-colors ${
       error ? "border-trading-red" : isActive ? "border-[#33D6FF]" : "border-[#23262D]"
@@ -475,7 +476,7 @@ export const EmailAuthPanel = ({
             render={({ slots }) => (
               <>
                 {slots.map((slot, i) => (
-                  <Slot key={i} {...slot} error={!!codeError} />
+                  <CodeSlot key={i} {...slot} error={!!codeError} />
                 ))}
               </>
             )}

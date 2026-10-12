@@ -4350,7 +4350,7 @@
   "account.label": "账户",
   "account.signOutSub": "仅退出本设备",
   "account.close": "注销账户",
-  "account.closeSub": "请先提取余额。此操作不可撤销。",
+  "account.closeSub": "7 天后生效。期间登录即可撤销。",
   "account.closed": "账户已注销",
   "more.transparencySub": "在链上核验资产、交易与自动平仓",
   "more.apiSub": "用于程序化交易的 API 密钥",

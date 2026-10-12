@@ -666,6 +666,12 @@ export const previewRegistry: Record<string, Loader> = {
   "settings-account-default": pick(settings, "SettingsAccountDefaultPreview"),
   "settings-account-blocked": pick(settings, "SettingsAccountBlockedPreview"),
   "settings-account-confirm": pick(settings, "SettingsAccountConfirmPreview"),
+  "settings-account-balance": pick(settings, "SettingsAccountBalancePreview"),
+  "settings-account-balance-no-address": pick(settings, "SettingsAccountBalanceNoAddressPreview"),
+  "settings-account-confirm-email": pick(settings, "SettingsAccountConfirmEmailPreview"),
+  "settings-account-confirm-both": pick(settings, "SettingsAccountConfirmBothPreview"),
+  "settings-account-done-sent": pick(settings, "SettingsAccountDoneSentPreview"),
+  "settings-account-done": pick(settings, "SettingsAccountDonePreview"),
   "settings-more": pick(settings, "SettingsMorePreview"),
 
 

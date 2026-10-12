@@ -4369,7 +4369,7 @@
   "account.label": "계정",
   "account.signOutSub": "이 기기에서만 로그아웃",
   "account.close": "계정 해지",
-  "account.closeSub": "먼저 잔액을 출금하세요. 되돌릴 수 없습니다.",
+  "account.closeSub": "7일 후 적용됩니다. 그 전에 로그인하면 취소됩니다.",
   "account.closed": "계정이 해지되었습니다",
   "more.transparencySub": "자산, 거래, 자동 청산을 온체인에서 확인",
   "more.apiSub": "프로그래매틱 트레이딩용 API 키",

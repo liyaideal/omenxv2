@@ -282,11 +282,13 @@ const ACCOUNT_CASES: SectionCase[] = [
   {
     key: "settings-account-default",
     label: "ST-28 · Account · Sign out / Close account 行",
-    note: "Close account 行与按钮用 #FF5C5C（DESIGN §5 破坏性；Wallet 删地址先例）。Lovable 止于确认：登出 + toast 'Account closed'，不真正删数据（docs/backend-boundary.md）。",
+    note: "Close account 行与按钮用 #FF5C5C（DESIGN §5 破坏性；Wallet 删地址先例）。2026-10-12 起注销 = 一只弹窗四步（拦截 / 余额处置 / 确认 / 已安排），7 天冷静期；Lovable 只写 profiles.close_scheduled_at，不删数据（docs/backend-boundary.md）。",
     spec: [
       { state: "Sign out", when: "点击", visual: "立即 signOut → navigate('/')，无确认", source: "AccountCard.tsx handleSignOut" },
-      { state: "Close account", when: "balance + spot_balance > 0", visual: "→ ST-29 余额未清弹窗", source: "AccountCard.tsx openClose" },
-      { state: "Close account", when: "余额为 0", visual: "→ ST-30 确认弹窗", source: "AccountCard.tsx openClose" },
+      { state: "Close account", when: "balance + spot_balance ≥ 20（提现起提额）", visual: "→ ST-29 拦截弹窗", source: "AccountCard.tsx openClose" },
+      { state: "Close account", when: "0 < 余额 < 20", visual: "→ ST-36 / ST-37 余额处置（Step 1 of 2）→ ST-30 / 38 / 39 确认（Step 2 of 2）", source: "AccountCard.tsx openClose" },
+      { state: "Close account", when: "余额为 0", visual: "→ 直接确认弹窗（无 Step 标）：按账号验证设置选 ST-30 / ST-38 / ST-39", source: "AccountCard.tsx openClose" },
+      { state: "副文", when: "常态", visual: "'Takes effect in 7 days. Sign in before then to cancel.'", source: "settings.account.closeSub" },
     ],
   },
 ];
@@ -294,15 +296,61 @@ const ACCOUNT_CASES: SectionCase[] = [
 const ACCOUNT_DIALOGS: SectionCase[] = [
   {
     key: "settings-account-blocked",
-    label: "ST-29 · Close account · 余额未清弹窗",
-    spec: [{ state: "blocked", when: "total > 0", visual: "Connect-modal 壳（AuthDialog 同款：青绿渐变顶 / #23262D 描边 / r-16 / × 右上）；lynx 币罐插画 130 → 17px display 标题 'Withdraw your balance first' → 12px 居中 'You still have {$total} across Standard and Boost. Withdraw it before closing your account.'；桌面两颗 190×44 并排：描边 'Cancel' + btn-primary 'Go to Wallet' → /wallet；移动端 AuthSheet 同款抽屉，按钮竖排 Cancel 在上（Figma 858:2323 / 858:2827）", source: "AccountCard.tsx" }],
+    label: "ST-29 · Close account · 余额 ≥ $20 拦截弹窗",
+    spec: [{ state: "blocked", when: "total ≥ getWithdrawMinimum('USDC') = 20", visual: "Connect-modal 壳（AuthDialog 同款：青绿渐变顶 / #23262D 描边 / r-16 / × 右上）；lynx 币罐插画 130 → 17px display 标题 'Withdraw your balance first' → 12px 居中 'You still have {$total} across Standard and Boost. Withdraw it before closing your account.'；桌面两颗 190×44 并排：描边 'Cancel' + btn-primary 'Go to Wallet' → /wallet；移动端 AuthSheet 同款抽屉，按钮竖排 Cancel 在上（Figma 858:2323 / 858:2827）", source: "AccountCard.tsx" }],
+  },
+  {
+    key: "settings-account-balance",
+    label: "ST-36 · Close account · 余额处置（有已保存地址）",
+    spec: [
+      { state: "balance · send", when: "0 < total < 20 且 wallets.length > 0；默认选中", visual: "标题 'You still have {$total}' + 'STEP 1 OF 2'；说明 'It's under the $20 withdrawal minimum. Choose what happens to it before your account closes.'；选项卡 'Send it to a saved address / Arrives on Base, usually within a few minutes.'，下挂地址簿列表（label + DEFAULT 胶囊 + ColoredAddress 全地址），默认选 is_primary；不开放手输地址", source: "AccountCard.tsx balanceBody · useWallets()" },
+      { state: "balance · forfeit", when: "切到第二项", visual: "'Forfeit {$total} / Nothing is sent. This cannot be undone.'；地址列表收起", source: "AccountCard.tsx" },
+      { state: "Continue", when: "send 需已选地址；forfeit 直接可点", visual: "btn-primary 'Continue' → 确认弹窗（Step 2 of 2），邮箱账号同时发码（Lovable 不真发）", source: "AccountCard.tsx enterConfirm" },
+    ],
+  },
+  {
+    key: "settings-account-balance-no-address",
+    label: "ST-37 · Close account · 余额处置（无已保存地址）",
+    spec: [
+      { state: "balance · no address", when: "0 < total < 20 且 wallets.length === 0", visual: "只有一张勾选卡 'I understand {$total} will be forfeited / Nothing is sent. This cannot be undone.'；下方 'Want to keep it? Add an address in Wallet ›' → /wallet；未勾选 Continue 禁用 40%", source: "AccountCard.tsx balanceBody" },
+    ],
   },
   {
     key: "settings-account-confirm",
-    label: "ST-30 · Close account · 确认弹窗（输入 CLOSE）",
+    label: "ST-30 · Close account · 确认弹窗（钱包账号 · 无邮箱无验证器）",
     spec: [
-      { state: "confirm", when: "total === 0", visual: "同壳；lynx 百叶窗插画 → 'Close your account?' → 'Your profile, history and API keys are deleted. This cannot be undone.' → 'Type CLOSE to confirm'（CLOSE 白字）+ 36px r-8 输入框（#14161A，占位 CLOSE，聚焦青边 40%）；'Cancel' 描边 + 'Close account' #FF5C5C 底 #090A0B 字（不带青光），输入 ≠ CLOSE 时 disabled 40%；移动端竖排 Cancel 在上（Figma 858:2808 / 858:2840）", source: "AccountCard.tsx" },
-      { state: "done", when: "点击 Close account", visual: "signOut → toast 'Account closed' → /（Lovable 不删数据）", source: "AccountCard.tsx handleClose" },
+      { state: "confirm · none", when: "无邮箱且未启用验证器 → verifyMode = none；余额 0 时无 Step 标", visual: "同壳；lynx 百叶窗插画 → 'Close your account?' → 'Your profile, history and API keys are deleted in 7 days. Sign in before then to cancel.' → 'Type CLOSE to confirm'（CLOSE 白字）+ 36px r-8 输入框（#14161A，占位 CLOSE，聚焦青边 40%）；'Cancel' 描边 + 'Close account' #FF5C5C 底 #090A0B 字（不带青光），输入 ≠ CLOSE 时 disabled 40%；移动端竖排 Cancel 在上（Figma 858:2808 / 858:2840）", source: "AccountCard.tsx confirmBody" },
+      { state: "done", when: "点击 Close account", visual: "Lovable：有打款则 record-transaction（withdraw，-total，'Account close payout to {address}'）+ 两账户余额清零 → profiles.close_scheduled_at = now + 7d → toast 'Account scheduled to close' → ST-40 / ST-41", source: "AccountCard.tsx handleClose" },
+    ],
+  },
+  {
+    key: "settings-account-confirm-email",
+    label: "ST-38 · Close account · 确认弹窗（邮箱验证）",
+    spec: [
+      { state: "confirm · email", when: "verifyMode = email：withdraw_2fa_mode 为 email，或设置不可用但有邮箱", visual: "标题下 'STEP 2 OF 2'（有余额处置步时）；'Email code' + 右侧 'Sent to li•••@gmail.com · Resend 58s'（倒计时归零变 'Resend' 链接）；登录弹窗同款 6 格（CodeSlot，48px r-12）；再 'Type CLOSE to confirm'；码满 6 位 + CLOSE 才可点", source: "AccountCard.tsx verifyMode / CodeField" },
+      { state: "错码", when: "验证码 ≠ 111111（Lovable 固定码）", visual: "六格描边红 + 行内红字 'Invalid code. Try again.'，不关弹窗", source: "verifyDemoOtp" },
+    ],
+  },
+  {
+    key: "settings-account-confirm-both",
+    label: "ST-39 · Close account · 确认弹窗（邮箱 + 验证器）",
+    spec: [
+      { state: "confirm · both", when: "withdraw_2fa_mode = both 且邮箱、验证器都就绪", visual: "'Email code' 六格 + 'Authenticator code' 六格 + CLOSE 三段；全部填满红钮才亮。verifyMode = totp 时只有第二段（字典无独立样张，同 ST-38 去掉邮件行）", source: "AccountCard.tsx" },
+    ],
+  },
+  {
+    key: "settings-account-done-sent",
+    label: "ST-40 · Close account · 已安排注销（有打款）",
+    spec: [
+      { state: "done · sent", when: "确认成功且 Step 1 选了发到地址", visual: "'Your account closes on {Mon D}' / '{$x} is on its way to {0x…}. Sign in before {date} to keep your account; the transfer itself can't be reversed.' / 单钮 btn-primary 'Done' → signOut → /；关 × 同 Done", source: "AccountCard.tsx doneBody" },
+    ],
+  },
+  {
+    key: "settings-account-done",
+    label: "ST-41 · Close account · 已安排注销（放弃 / 余额 0）",
+    spec: [
+      { state: "done · plain", when: "确认成功且无打款", visual: "'Your account closes on {Mon D}' / 'Sign in before {date} to keep your account. After that, everything is deleted.' / 'Done'", source: "AccountCard.tsx doneBody" },
+      { state: "冷静期内再登录", when: "profiles.close_scheduled_at 非空且未到期", visual: "拦截弹窗（Keep my account）下一轮做；Lovable 本轮不拦", source: "backend-boundary" },
     ],
   },
 ];
@@ -339,7 +387,7 @@ export const LiteSettingsPage = (_: P) => (
 
     <SectionWrapper
       id="settings-cases"
-      title="Settings · 状态字典（ST-1…ST-35 · Ⓐ–Ⓚ 区）"
+      title="Settings · 状态字典（ST-1…ST-41 · Ⓐ–Ⓚ 区）"
       platform="shared"
       description="分区序 = 生产页从上到下：Ⓐ页面外壳 · Ⓑhero · ⒸSign-in · ⒹAccount security · ⒺWithdrawal verification · ⒻNotifications · ⒼPreferences · ⒽSessions · ⒾAccount · ⒿMore。每个 case 挂载生产组件（preview* fixture 只定初态，禁运行时 fetch）；移动帧里组件自行切到 compact / MobileDrawer 形态。"
     >
@@ -422,15 +470,17 @@ export const LiteSettingsPage = (_: P) => (
           </div>
         </SubSection>
 
-        <SubSection title="Ⓘ Account（ST-28 … ST-30）" platform="shared">
+        <SubSection title="Ⓘ Account（ST-28 … ST-30 · ST-36 … ST-41）" platform="shared">
           <SectionFrame cases={ACCOUNT_CASES} device="desktop" minHeight={220} />
           {ACCOUNT_DIALOGS.map((c) => (
             <div key={c.key} className="mt-3">
               <SectionFrame cases={[c]} device="desktop" minHeight={440} />
             </div>
           ))}
-          <div className="mt-3">
-            <SectionFrame cases={[ACCOUNT_DIALOGS[1]]} device="mobile" minHeight={560} />
+          <div className="mt-3 grid gap-3 md:grid-cols-3">
+            <SectionFrame cases={[ACCOUNT_DIALOGS[1]]} device="mobile" minHeight={720} />
+            <SectionFrame cases={[ACCOUNT_DIALOGS[4]]} device="mobile" minHeight={640} />
+            <SectionFrame cases={[ACCOUNT_DIALOGS[6]]} device="mobile" minHeight={480} />
           </div>
         </SubSection>
 

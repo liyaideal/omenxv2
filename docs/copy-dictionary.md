@@ -815,7 +815,7 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | Language | 站点语言偏好；**入口（2026-09-28 language-entry-v1）**：桌面顶栏 chip（双态常驻，Sign In 左 / Equity 左）· 移动品牌栏 🌐 · Me 抽屉 Language 行 · Settings › Preferences——四处共用一份列表与点选；头像菜单子菜单已删。chip 只显短码，列表「短码 + 本名 + ✓」。Lovable 不翻译页面文案，只驱动 chip 与邮件语言；登录后 profile 无语言时带入游客选值 | `profiles.language`（登录）/ `localStorage omenx.language`（游客） | `useLanguage()` / `SITE_LANGUAGES` / `components/language/LanguagePicker.tsx` |
 | Sessions（devices） | 当前账号活跃会话；本机 = JWT `session_id`；设备 = user-agent，地点 = 会话最近 IP（真平台解析城市），时间 = 最近活跃 | RPC `list_my_sessions()` | `SessionsCard` |
 | Sign out other devices | 登出本机以外全部会话 | `supabase.auth.signOut({ scope: "others" })` | `SessionsCard` |
-| Close account | 注销：余额（Standard + Boost）为 0 才可进确认；Lovable 止于确认（登出 + toast），真平台删号 | `balance + spot_balance > 0` → blocked | `AccountCard` |
+| Close account | 注销四步（2026-10-12）：余额 ≥ $20 拦截；0 < 余额 < $20 发到已保存地址或放弃；确认 = 提现验证设置 + CLOSE；7 天冷静期，登录即撤销 | `total ≥ 20` → blocked；`0 < total < 20` → balance；验证 = `withdraw_2fa_mode` 可用项，否则回落，都没有 → none | `AccountCard` |
 
 ### 卡头（微标签 · 右槽只放值 / 计数）
 | 卡 | 右槽 | 说明行 |
@@ -850,9 +850,12 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | {Chrome · macOS} · **THIS DEVICE** · {ip} · {now / {n} min ago / {n} h ago / Sep 15} · Unknown device · Unknown location | Sessions 行 |
 | You're only signed in here. · Sign out other devices · Signed out other devices · Couldn't sign out other devices. Try again. | Sessions 脚注 / 按钮 / toast |
 | Couldn't load sessions / Check your connection and try again. · Retry | Sessions 错误行 |
-| Sign out / Signs out this device only · Close account / Withdraw your balance first. This cannot be undone. · Close account | Account 卡 |
-| **Withdraw your balance first** / You still have {$x} across Standard and Boost. Withdraw it before closing your account. · Cancel · Go to Wallet | Close account · 余额未清弹窗 |
-| **Close your account?** / Your profile, history and API keys are deleted. This cannot be undone. · Type **CLOSE** to confirm · Cancel · Close account · Account closed | Close account · 确认弹窗 / toast |
+| Sign out / Signs out this device only · Close account / Takes effect in 7 days. Sign in before then to cancel. · Close account | Account 卡 |
+| **Withdraw your balance first** / You still have {$x} across Standard and Boost. Withdraw it before closing your account. · Cancel · Go to Wallet | Close account · 余额 ≥ $20 拦截 |
+| **You still have {$x}** · STEP 1 OF 2 / It's under the $20 withdrawal minimum. Choose what happens to it before your account closes. · Send it to a saved address / Arrives on Base, usually within a few minutes. · Forfeit {$x} / Nothing is sent. This cannot be undone. · I understand {$x} will be forfeited · Want to keep it? Add an address in Wallet › · Continue | Close account · 余额处置 |
+| STEP 2 OF 2 · Email code · Sent to {masked} · Resend {n}s / Resend · Authenticator code · Invalid code. Try again. | Close account · 确认验证 |
+| **Your account closes on {Mon D}** / {$x} is on its way to {0x…}. Sign in before {date} to keep your account; the transfer itself can't be reversed. / Sign in before {date} to keep your account. After that, everything is deleted. · Done · toast Account scheduled to close | Close account · 已安排 |
+| **Close your account?** / Your profile, history and API keys are deleted in 7 days. Sign in before then to cancel. · Type **CLOSE** to confirm · Cancel · Close account | Close account · 确认弹窗 / toast |
 | Transparency audit / Verify assets, trades and auto-closes on-chain · API management / API keys for programmatic trading | More 卡（"liquidations" 已按 Lite 禁词改 "auto-closes"） |
 | **Sign in to view your settings** / Manage your profile, security and notifications by signing in to your account. | 未登录门 |
 | **Couldn't load your settings** / Check your connection and try again. · Try again | 页面错误态 |

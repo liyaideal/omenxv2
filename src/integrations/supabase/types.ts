@@ -1233,6 +1233,7 @@ export type Database = {
           auth_method: string | null
           avatar_url: string | null
           balance: number | null
+          close_scheduled_at: string | null
           created_at: string
           email: string | null
           id: string
@@ -1253,6 +1254,7 @@ export type Database = {
           auth_method?: string | null
           avatar_url?: string | null
           balance?: number | null
+          close_scheduled_at?: string | null
           created_at?: string
           email?: string | null
           id?: string
@@ -1273,6 +1275,7 @@ export type Database = {
           auth_method?: string | null
           avatar_url?: string | null
           balance?: number | null
+          close_scheduled_at?: string | null
           created_at?: string
           email?: string | null
           id?: string

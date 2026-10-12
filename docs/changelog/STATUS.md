@@ -135,6 +135,8 @@
 | ST-H | Sessions：`list_my_sessions()` RPC，THIS DEVICE，loading / error / 单机态，Sign out other devices | ✅ | `SessionsCard.tsx`；地点显示 IP，城市解析归正式后端 |
 | ST-I | Account：Sign out；Close account 余额拦截 / 输入 CLOSE 确认（红主钮） | ✅ | `AccountCard.tsx`；Lovable 确认后只登出；09-23 按钮文案改 `Close account` |
 | ST-N | Close account 两弹窗按 Figma 858:2323 / 2808 / 2827 / 2840 重绘：Connect modal 壳 + lynx 插画 + 双端按钮组 | ✅ | `AccountCard.tsx`；DESIGN §Addendum 2026-09-23；台账 Ⓘ +2 |
+| ST-O | Close account 四步（10-12 CPO 10 条）：≥$20 拦截 / <$20 发已保存地址或放弃 / 验证 = 提现验证设置 + CLOSE / 7 天冷静期 | ✅ | `AccountCard.tsx`；`profiles.close_scheduled_at`；字典 ST-36…41；DESIGN §Addendum 2026-10-12；交付文档 §4.4 |
+| ST-P | 冷静期内登录拦截弹窗（Keep my account）+ 清空 `close_scheduled_at` | ⬜ | 下一轮 |
 | ST-J | 真实注销（异步删号 + 二次验证） | ⬜ | 正式后端 |
 | ST-K | 移动 375：单列同模块，弹窗 MobileDrawer，语言 drawer 列表 | ✅ | 同各组件 |
 | ST-L | 字典 Lite › Settings ST-1…ST-31（30 key）+ AU-S3…S5 改标 | ✅ | `settingsPreviews.tsx` / `LiteSettingsPage.tsx`，sg:audit PASS |

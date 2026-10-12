@@ -4369,7 +4369,7 @@
   "account.label": "Tài khoản",
   "account.signOutSub": "Chỉ đăng xuất thiết bị này",
   "account.close": "Đóng tài khoản",
-  "account.closeSub": "Rút số dư trước. Không thể hoàn tác.",
+  "account.closeSub": "Có hiệu lực sau 7 ngày. Đăng nhập trước đó để hủy.",
   "account.closed": "Đã đóng tài khoản",
   "more.transparencySub": "Xác minh tài sản, giao dịch và tự động đóng trên chuỗi",
   "more.apiSub": "Khóa API cho giao dịch tự động",
