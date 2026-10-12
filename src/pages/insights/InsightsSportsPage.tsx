@@ -76,11 +76,13 @@ const InsightsSportsPage = () => {
                   { l: "Favourite won in", v: favWinPct == null ? "—" : <span className={favWinPct >= 55 ? "text-trading-green" : favWinPct <= 45 ? "text-trading-red" : undefined}>{favWinPct}%</span>, unit: favWinPct == null ? undefined : "of matches", d: favWon.length ? `last 30 days · ${favWon.length} settled` : "no settled matches yet" },
                   { l: "Went over the line", v: settled.filter((f) => f.overWon != null).length ? `${Math.round((100 * settled.filter((f) => f.overWon).length) / settled.filter((f) => f.overWon != null).length)}%` : "—", unit: settled.filter((f) => f.overWon != null).length ? "of matches" : undefined, d: "totals line · last 30 days" },
                 ].map((t, i) => (
-                  <div key={t.l} className={cn("min-w-0 px-3 py-4 md:px-[18px] md:py-5", i > 0 && "border-l border-[#1D2026]")}>
+                  <div key={t.l} className={cn("flex min-w-0 flex-col px-3 py-4 md:px-[18px] md:py-5", i > 0 && "border-l border-[#1D2026]")}>
                     <dt className="font-mono text-[10px] font-medium uppercase leading-[14px] tracking-[0.1em] text-muted-foreground md:text-[11px]">{t.l}</dt>
-                    <dd className="mt-1.5 truncate font-display text-[26px] font-bold leading-[1.3] tracking-[-0.015em] tabular-nums md:text-[40px]">{t.v}</dd>
-                    {t.unit && <dd className="font-mono text-[11px] font-medium leading-[14px] text-muted-foreground">{t.unit}</dd>}
-                    <dd className="mt-1.5 truncate font-mono text-[10px] leading-[14px] text-muted-foreground/70 md:text-[11px]">{t.d}</dd>
+                    <div className="mt-auto pt-1.5">
+                      <dd className="truncate font-display text-[26px] font-bold leading-[1.3] tracking-[-0.015em] tabular-nums md:text-[40px]">{t.v}</dd>
+                      <dd className="h-[14px] font-mono text-[11px] font-medium leading-[14px] text-muted-foreground">{t.unit ?? "\u00a0"}</dd>
+                      <dd className="mt-1.5 truncate font-mono text-[10px] leading-[14px] text-muted-foreground/70 md:text-[11px]">{t.d}</dd>
+                    </div>
                   </div>
                 ))}
               </dl>

@@ -166,10 +166,12 @@ export interface Tile { l: string; v: React.ReactNode; unit?: string; d?: React.
 export const FourTiles = ({ tiles }: { tiles: Tile[] }) => (
   <dl className="trading-card grid grid-cols-2 overflow-hidden">
     {tiles.map((t, i) => (
-      <div key={i} className={cn("p-3.5 md:px-6 md:py-5", i % 2 === 1 && "border-l border-[#1D2026]", i >= 2 && "border-t border-[#1D2026]")}>
+      <div key={i} className={cn("flex flex-col p-3.5 md:px-6 md:py-5", i % 2 === 1 && "border-l border-[#1D2026]", i >= 2 && "border-t border-[#1D2026]")}>
         <dt className="font-mono text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground md:text-[10px]">{t.l}</dt>
-        <dd className="mt-2 font-display text-[22px] font-bold leading-[1.1] tracking-[-0.02em] tabular-nums md:text-[30px]">{t.v}{t.unit && <span className="ml-1.5 text-[13px] font-medium text-muted-foreground">{t.unit}</span>}</dd>
-        {t.d && <dd className="mt-1.5 font-mono text-[10px] text-muted-foreground/70 md:text-[11px] [&_b]:font-medium">{t.d}</dd>}
+        <div className="mt-auto pt-2">
+          <dd className="font-display text-[22px] font-bold leading-[1.1] tracking-[-0.02em] tabular-nums md:text-[30px]">{t.v}{t.unit && <span className="ml-1.5 text-[13px] font-medium text-muted-foreground">{t.unit}</span>}</dd>
+          {t.d && <dd className="mt-1.5 font-mono text-[10px] text-muted-foreground/70 md:text-[11px] [&_b]:font-medium">{t.d}</dd>}
+        </div>
       </div>
     ))}
   </dl>
@@ -181,11 +183,15 @@ export const FourTiles = ({ tiles }: { tiles: Tile[] }) => (
 export const Strip = ({ cells, cols = 4 }: { cells: { l: string; v: React.ReactNode; d?: React.ReactNode; small?: boolean }[]; cols?: 3 | 4 }) => (
   <dl className={cn("mb-8 grid md:mb-12 md:block md:gap-0", cols === 3 ? "grid-cols-3 gap-2" : "grid-cols-2 gap-3")}>
     <div className={cn("contents md:grid md:overflow-hidden md:rounded-xl md:border md:border-[#1D2026] md:bg-card", cols === 3 ? "md:grid-cols-3" : "md:grid-cols-4")}>
+      {/* Cross-cell alignment rule (CPO 2026-10-12): label sits at the top, number + sub-line are anchored to the bottom (mt-auto) so the
+          numbers line up across cells even when one label wraps to two lines. Cells are equal height (grid stretch). */}
       {cells.map((x, i) => (
-        <div key={i} className={cn("min-w-0 overflow-hidden whitespace-nowrap rounded-xl border border-[#1D2026] bg-card md:rounded-none md:border-0 md:px-5 md:py-6", cols === 3 ? "px-2.5 py-4" : "p-4", i >= 1 && "md:border-l md:border-[#1D2026]")}>
+        <div key={i} className={cn("flex min-w-0 flex-col overflow-hidden whitespace-nowrap rounded-xl border border-[#1D2026] bg-card md:rounded-none md:border-0 md:px-5 md:py-6", cols === 3 ? "px-2.5 py-4" : "p-4", i >= 1 && "md:border-l md:border-[#1D2026]")}>
           <dt className={cn("font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-primary", cols === 3 && "whitespace-normal leading-[15px]")}>{x.l}</dt>
-          <dd className={cn("mt-1.5 overflow-hidden text-ellipsis font-display font-bold leading-[38px] tracking-[-0.02em] tabular-nums md:mt-4 md:leading-[66px]", x.small ? "text-[22px] md:text-[36px]" : cols === 3 ? "text-[24px] md:text-[48px]" : "text-[28px] md:text-[48px]")}>{x.v}</dd>
-          {x.d && <dd className="mt-2 truncate font-mono text-[11px] font-medium text-muted-foreground/70 md:mt-3.5">{x.d}</dd>}
+          <div className="mt-auto pt-1.5 md:pt-4">
+            <dd className={cn("overflow-hidden text-ellipsis font-display font-bold leading-[38px] tracking-[-0.02em] tabular-nums md:leading-[66px]", x.small ? "text-[22px] md:text-[36px]" : cols === 3 ? "text-[24px] md:text-[48px]" : "text-[28px] md:text-[48px]")}>{x.v}</dd>
+            <dd className="mt-2 h-[16px] truncate font-mono text-[11px] font-medium text-muted-foreground/70 md:mt-3.5">{x.d ?? "\u00a0"}</dd>
+          </div>
         </div>
       ))}
     </div>
