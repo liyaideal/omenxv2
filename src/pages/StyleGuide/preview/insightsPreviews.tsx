@@ -159,15 +159,16 @@ export const InsightsEmptyPreview = () => (
   </Pad>
 );
 
-/* ================= Insights v2 · series grammar (IN-9…IN-14, 2026-09-28 晚) ================= */
+/* ================= Insights v2 · series grammar (IN-9…IN-14, 2026-09-28 晚；品牌回流换皮 2026-10-12) ================= */
+import { HERO_ART, SECTION_ART } from "@/lib/insights/art";
 import { Chip, CrowdLegend, DataFooter, FavTag, FourTiles, LiveCard, LivePill, List, MajorityTag, Name, RightWrong, Row, SeriesOpening, SeriesSection, Strip, Table, Td, Th, UpDownPair, Hit } from "@/components/insightsSeo/seriesParts";
 import type { LiveRound } from "@/lib/insights/series";
 
 const LIVE: LiveRound = { event_id: "crypto-btc-updown-5m-x", mins: 5, start: "2026-09-28T10:15:00Z", end: "2099-01-01T00:00:00Z", freeze: null, up_price: 0.48, down_price: 0.52, volume: 1204 };
 
-/** IN-9 · 开篇 v2（display H1 + eyebrow + lede + as-of，SEO 页豁免） */
+/** IN-9 · 开篇 v2（display H1 48 + 蓝 eyebrow + lede + 右侧插画 + as-of，SEO 页豁免；品牌回流 2026-10-12，稿 1000:10485 / 1004:34） */
 export const SeriesOpeningPreview = () => (
-  <Pad><SeriesOpening eyebrow="OmenX Insights · Crypto · Up or down" title="Bitcoin Up or Down — Prediction Market Odds & Crowd Accuracy" lede="Every 5 minutes, 15 minutes, hour, 4 hours and day OmenX traders bet whether Bitcoin closes higher or lower." asOf={AS_OF} /></Pad>
+  <Pad><SeriesOpening art={HERO_ART.crypto} eyebrow="OmenX Insights · Crypto · Up or down" title="Bitcoin Up or Down — Prediction Market Odds & Crowd Accuracy" accent="Prediction Market Odds" lede="Every 5 minutes, 15 minutes, hour, 4 hours and day OmenX traders bet whether Bitcoin closes higher or lower." asOf={AS_OF} /></Pad>
 );
 /** IN-10 · Live 卡 + 今日四格（资产页 hero 5/7 栅格） */
 export const SeriesHeroPreview = () => (
@@ -180,7 +181,7 @@ export const SeriesPairPreview = () => (
 );
 /** IN-12 · v7 表格语法（52px 行 · fixed 列宽 · 数字右对齐 · 整行可点 · 无箭头列） */
 export const SeriesTablePreview = () => (
-  <Pad><SeriesSection n="01" title="Crypto · next round to settle" more={{ label: "All crypto rounds", to: "#" }}><Table head={<><Th>Asset</Th><Th w={160}>Round (UTC)</Th><Th w={280}>Up · Down price</Th><Th w={100} r>Settles in</Th><Th w={130} r>Rounds today</Th><Th w={160} r>Crowd was right · today</Th><Th w={120} r>Traded 24h</Th></>}>
+  <Pad><SeriesSection n="01" eyebrow="Crypto" title="Next round to settle" art={SECTION_ART.crypto} more={{ label: "All crypto rounds", to: "#" }} intro="Each asset runs 5-minute, 15-minute, 1-hour, 4-hour and daily rounds at the same time. This shows the round settling next; the asset page shows all five."><Table head={<><Th>Asset</Th><Th w={160}>Round (UTC)</Th><Th w={280}>Up · Down price</Th><Th w={100} r>Settles in</Th><Th w={130} r>Rounds today</Th><Th w={160} r>Crowd was right · today</Th><Th w={120} r>Traded 24h</Th></>}>
     <tr><Td><span className="inline-flex items-center gap-2"><span className="text-[13px] font-semibold">Bitcoin</span><Chip>5m round</Chip></span></Td><Td mono dim>10:15 – 10:20</Td><Td><UpDownPair up={0.48} down={0.52} /></Td><Td r mono>1:42</Td><Td r mono>181</Td><Td r><Hit v={52} /></Td><Td r mono>$512K</Td></tr>
     <tr><Td><span className="text-[13px] font-semibold">Ethereum</span></Td><Td mono dim>10:15 – 10:20</Td><Td><UpDownPair up={0.49} down={0.51} /></Td><Td r mono>1:42</Td><Td r mono>181</Td><Td r><Hit v={46} /></Td><Td r mono>$501K</Td></tr>
   </Table></SeriesSection></Pad>

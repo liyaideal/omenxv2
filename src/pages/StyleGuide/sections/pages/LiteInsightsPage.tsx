@@ -18,7 +18,7 @@ export const LiteInsightsPage = (_: P) => (
     title="Insights"
     route="/insights · /insights/{crypto|stocks}/:slug · /insights/sports/:sport · /insights/accuracy/:month · /insights/daily/:date · /insights/category/:slug"
     status="done"
-    note="v2（2026-09-28 晚，CPO 批统一方案稿 insights-ia-mock v3 + 移动稿）：六种页面（首页 / 资产页 ×19 URL / 运动页 / 分类页 / 命中率报告 / 日报），每页只答一个问题「交易者现在押什么、过去押得准不准」，模块顺序固定 现在 → 过去 → 逐条 → 引用；全站一个词 Majority（投注截止时高于 50¢ 的一边）。周报已删。IN-1…8 为 v1 部件（日报 / 分类页仍用），IN-9…14 为 v2 序列语法。SEO/GEO 页：无 tab、无懒加载列表（所有内容首屏进 DOM）；一份内容一个 URL；H1/title 带「prediction market」搜索词；每篇洞察 = 问题 h3 + 带日期答句 + dl + JSON-LD（Dataset / ItemList）+ 可引用句；所有时间 <time datetime>；页尾「How computed」。数据只走聚合 RPC（insights_*），无个人数据。Lovable 是 SPA：真平台需 SSR/预渲染（见 delivery 文档边界）。"
+    note="v2（2026-09-28 晚，CPO 批统一方案稿 insights-ia-mock v3 + 移动稿）：六种页面（首页 / 资产页 ×19 URL / 运动页 / 分类页 / 命中率报告 / 日报），每页只答一个问题「交易者现在押什么、过去押得准不准」，模块顺序固定 现在 → 过去 → 逐条 → 引用；全站一个词 Majority（投注截止时高于 50¢ 的一边）。周报已删。IN-1…8 为 v1 部件（日报 / 分类页仍用），IN-9…14 为 v2 序列语法。**品牌回流 2026-10-12**（Figma omenx_lite pc 1004:3314 / mobile 1004:3315，CPO 批 #1–#4 照稿、#5–#7 保持规范）：开篇加右侧插画 + 蓝 eyebrow + 48px H1 关键词高亮；章节头改两栏编辑式（蓝「01 CRYPTO」eyebrow · 30px display 标题 · lede · 18px 链接 | 745×162 插画）；Strip 48px 大数 + 蓝标签；About this data 拆章节头 + 两卡 + 引用卡。保持不照稿：容器 py-10（稿 60）、移动 px-4（稿 24）、底色/卡色走 token（稿 #05070E/#111316 同色漂移）、文案以生产为准。插画 20 张 WebP 在 src/assets/insights/（lib/insights/art.ts 索引 node id）。SEO/GEO 页：无 tab、无懒加载列表（所有内容首屏进 DOM）；一份内容一个 URL；H1/title 带「prediction market」搜索词；每篇洞察 = 问题 h3 + 带日期答句 + dl + JSON-LD（Dataset / ItemList）+ 可引用句；所有时间 <time datetime>；页尾「How computed」。数据只走聚合 RPC（insights_*），无个人数据。Lovable 是 SPA：真平台需 SSR/预渲染（见 delivery 文档边界）。"
   >
     <SubSection title="IN-1 · 开篇（eyebrow / H1 / lede / as-of）" description="Opening：eyebrow 10px 大写字距 0.1em；H1 display 32/40（375 态 28）；lede 14/22 muted 最多两句；右侧 as-of 用 <time datetime>，UTC。日报 / 周报 / 分类页共用，仅文案不同。" platform="shared">
       <DualDevicePreview previewKey="insights-opening" label="Opening · daily 形态" minHeight={200} />
@@ -51,7 +51,7 @@ export const LiteInsightsPage = (_: P) => (
       <DualDevicePreview previewKey="insights-footer-blocks" label="HowComputed + CiteBlock" minHeight={220} />
     </SubSection>
 
-    <SubSection title="IN-9 · 开篇 v2（SeriesOpening）" description="BROWSE 家族 display H1（font-display 40 / 移动 28，tracking −0.02em）+ 10px mono eyebrow + 15px lede（≤ 74ch）+ 右下 as-of（绿点 + <time>）。走 Page Openings 的 SEO 页豁免。无面包屑（PD-6）：返回靠全站 header / 移动 header 返回键。" platform="shared">
+    <SubSection title="IN-9 · 开篇 v2（SeriesOpening）" description="BROWSE 家族 display H1（font-display 48/1.2 / 移动 28，可选 accent 子串蓝色高亮）+ 11px Archivo 蓝 eyebrow（tracking 2px）+ 18/24 lede（≤ 744）+ 右侧插画（art：桌面按稿原尺寸 ≤46%，移动全宽带在 lede 下）+ 右下 as-of（绿点 + <time>）。走 Page Openings 的 SEO 页豁免。无面包屑（PD-6）：返回靠全站 header / 移动 header 返回键。" platform="shared">
       <DualDevicePreview previewKey="insights-series-opening" label="SeriesOpening" minHeight={240} />
     </SubSection>
     <SubSection title="IN-10 · Live 卡 + 今日四格（LiveCard / FourTiles）" description="资产页 / 运动页 hero：桌面 12 栅格 5 / 7，移动上下堆。LiveCard = 红点 eyebrow + 时段 · display 56px 大数（多数派色：Up 蓝 / Down 绿）+ 少数派 20px 灰 · 一句人话 · 8px 双色条 + 两端 ¢ · 底部倒计时 + 白色胶囊 CTA（移动端 CTA 改 sticky 底栏）。FourTiles = 2×2，10px 微标签 / 30px display 数 / 11px mono 副行。" platform="shared">
@@ -60,13 +60,13 @@ export const LiteInsightsPage = (_: P) => (
     <SubSection title="IN-11 · Up·Down 对与标签件（UpDownPair / MajorityTag / FavTag / LivePill / RightWrong / Hit）" description="UpDownPair：Up 永远在左、Down 永远在右，多数派加粗上 MARKET 轴色（--yes / --no），少数派 11px 灰；两侧各锁 72px，条 80×4，蓝在绿上。MajorityTag：只写多数派一边 + ¢。FavTag：热门队名 + ¢（蓝）。Hit：命中率按 MONEY 轴——≥55 绿 / ≤45 红 / 其余白。禁止再出现 ▲ 9 / pts 这类裸变动。" platform="shared">
       <DualDevicePreview previewKey="insights-series-pair" label="pair + tags" minHeight={200} />
     </SubSection>
-    <SubSection title="IN-12 · 表格语法 v7（Table / Th / Td）" description="trading-card 外壳横向滚动；table-layout fixed，min-width 960；表头 36px mono 10px 大写 bg white/2；行 52px，单元 nowrap + overflow hidden；数字列右对齐 tabular；第一列吃剩余宽度，其余逐列定宽；整行可点（hover 行底 white/2）；无箭头列、无 Price 列、无折线。" platform="desktop">
+    <SubSection title="IN-12 · 表格语法 v7（Table / Th / Td）" description="trading-card 外壳横向滚动；table-layout fixed，min-width 960；表头 36px mono 10px 大写 bg white/2；行 52px，单元 nowrap + overflow hidden；数字列右对齐 tabular；第一列吃剩余宽度，其余逐列定宽；整行可点（hover 行底 white/2）；无箭头列、无 Price 列、无折线。章节头（SeriesSection，2026-10-12 回流）：蓝 eyebrow「01 CRYPTO」(11px tracking 2px) → display 30px 标题（有插画时 capitalize）→ 14/20 lede → 18px 蓝链接；右侧 745×162 插画 rounded 12；无插画时 meta 胶囊在右上；移动 eyebrow 12 / 标题 20 / 链接 14 / 插画 342×164 全宽带 rounded 4。" platform="desktop">
       <DualDevicePreview previewKey="insights-series-table" label="Table v7" minHeight={260} />
     </SubSection>
     <SubSection title="IN-13 · 移动列表行（List / Row / Name）" description="移动端不平铺表格：每行两行——第一行 名（+ 小标签 / 副文）+ 右侧一个时间；第二行 UpDownPair sm（或热门 tag）+ 右侧一个「准不准」。整行 Link；行间 1px #1D2026。" platform="mobile">
       <DualDevicePreview previewKey="insights-series-list" label="List rows" minHeight={220} />
     </SubSection>
-    <SubSection title="IN-14 · 平台四数条 + 页尾 About this data 卡（Strip / DataFooter）" description="Strip：桌面四格一行、移动 2×2，标签上 / display 22px 数 / 副行下。DataFooter（CPO 2026-09-30：三个散模块并成一张卡）：trading-card + 「ABOUT THIS DATA」eyebrow 头，桌面 3 / 5 / 4 三栏、移动上下堆——左 OmenX 三行品牌句 + How it works；中 What these numbers mean 两句人话；右 Quote this page + Copy 按钮（复制成功 1.6s 变绿 Copied）+ 等宽引用句。语义保留（section / h2 / dl / aside / code）给 GEO。" platform="shared">
+    <SubSection title="IN-14 · 平台四数条 + 页尾 About this data 卡（Strip / DataFooter）" description="Strip：桌面一张卡四格 173 高（蓝 10px 标签 / display 48px 数 / 副行），移动 2×2 四张独立卡 gap 12（28px 数）；长值用 small 降到 36px。DataFooter（2026-10-12 按稿拆开）：顶部分隔线 + 「06 · DATA & METHODOLOGY」eyebrow + 30px「About this data」；桌面两卡 432 + 1fr（OmenX 三行品牌句 + How it works ‖ What these numbers mean + Full methodology）；下方引用卡（蓝 20% 描边、#091117 底）：Quote this page + 等宽引用句 + 蓝底 Copy 96×36（复制成功 1.6s 变绿 Copied）。移动上下堆。语义保留（section / h2 / dl / aside / code）给 GEO。" platform="shared">
       <DualDevicePreview previewKey="insights-series-strip" label="Strip + PlatformLine + Cite" minHeight={260} />
     </SubSection>
 

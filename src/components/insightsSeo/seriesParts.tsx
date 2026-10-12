@@ -2,6 +2,13 @@
  * Insights v2 — shared UI for the asset series / home / accuracy pages (mock insights-ia-mock v3 + mobile mock, CPO 批 2026-09-28).
  * Grammar: Up always left · Down always right, majority bold + coloured on the MARKET axis (--yes / --no);
  * every number mono tabular; 52px desktop rows; mobile = two-line list rows, never a flattened table.
+ *
+ * Brand backflow 2026-10-12 (Figma omenx_lite · pc 1000:10405 @1440 / mobile 1004:21 @390, ratio 1:1 — the 1232px content
+ * column equals our max-w-7xl − px-6): SeriesOpening gains a right-hand illustration + blue eyebrow + 48px H1 with accent;
+ * SeriesSection becomes a two-column editorial head (blue "01 CRYPTO" eyebrow · 30px display title · lede · 18px link | 745×162 art);
+ * Strip tiles grow to 48px numbers with blue labels; DataFooter splits into section heading + two cards + quote card.
+ * Kept per site rules, not the draft: container py-10 (draft 60), mobile px-4 (draft 24), page/card colours stay on tokens
+ * (draft #05070E / #111316 are same-colour drift), copy follows production.
  */
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -11,19 +18,40 @@ import { HELP_GUIDE_URL } from "@/lib/site";
 import { fmtDateTimeUtc, fmtUsd, fmtInt } from "@/lib/insights";
 import { c, majorityUp, mmss, type LiveRound } from "@/lib/insights/series";
 import { useNow } from "@/hooks/useInsightsSeries";
+import type { Art } from "@/lib/insights/art";
 
-/* ---------- opening (display h1 — BROWSE family, SEO-page exemption for eyebrow + lede) ---------- */
-export const SeriesOpening = ({ eyebrow, title, lede, asOf }: { eyebrow: string; title: string; lede: React.ReactNode; asOf?: string }) => (
-  <header className="mb-6">
-    <div className="flex flex-wrap items-end justify-between gap-4">
-      <div className="min-w-0">
-        <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">{eyebrow}</div>
-        <h1 className="mt-2 max-w-[24ch] font-display text-[28px] font-bold leading-[1.05] tracking-[-0.02em] md:text-[40px]">{title}</h1>
-        <p className="mt-3 max-w-[74ch] text-[13px] leading-relaxed text-muted-foreground md:text-[15px]">{lede}</p>
+/* ---------- opening (display h1 — BROWSE family, SEO-page exemption for eyebrow + lede) ----------
+ * Figma 1000:10485 (pc): text column 744 · gap 32 · art 456×341 right, top-aligned; eyebrow Archivo 600 11/15 tracking 2px primary;
+ * H1 Space Grotesk 700 48/1.2 with `accent` substring in primary; lede Archivo 18/24 muted (<b> = white).
+ * Figma 1004:34 (mobile): eyebrow 12/17 · H1 28/32 · lede 14/18 · art 342×256 band · "As of" below. */
+export const SeriesOpening = ({ eyebrow, title, accent, lede, asOf, art }: { eyebrow: string; title: string; accent?: string; lede: React.ReactNode; asOf?: string; art?: Art }) => {
+  const i = accent ? title.indexOf(accent) : -1;
+  const heading = i >= 0 ? <>{title.slice(0, i)}<span className="text-primary">{accent}</span>{title.slice(i + accent!.length)}</> : title;
+  return (
+    <header className="mb-10 md:mb-8">
+      <div className={cn("md:flex md:items-start md:justify-between md:gap-8", !art && "md:block")}>
+        <div className="min-w-0 md:max-w-[744px] md:flex-1">
+          <div className="text-[12px] font-semibold uppercase leading-[17px] tracking-[0.04em] text-primary md:text-[11px] md:leading-[15px] md:tracking-[2px]">{eyebrow}</div>
+          <h1 className="mt-2 font-display text-[28px] font-bold leading-[1.15] tracking-[-0.02em] md:mt-2.5 md:max-w-[744px] md:text-[48px] md:leading-[1.2] md:tracking-normal">{heading}</h1>
+          <p className="mt-3 text-[14px] leading-[18px] text-muted-foreground md:mt-5 md:max-w-[744px] md:text-[18px] md:leading-6 [&_b]:font-medium [&_b]:text-foreground">{lede}</p>
+        </div>
+        {art && <Illustration art={art} variant="hero" />}
       </div>
-      {asOf && <AsOfLive iso={asOf} />}
-    </div>
-  </header>
+      {asOf && <div className="mt-4 flex justify-end md:mt-0"><AsOfLive iso={asOf} /></div>}
+    </header>
+  );
+};
+
+/** Editorial illustration — flat Figma export with the fade-to-background baked in; decorative only. */
+export const Illustration = ({ art, variant, className }: { art: Art; variant: "hero" | "section"; className?: string }) => (
+  <>
+    <img src={art.mobile} width={art.mw} height={art.mh} alt="" aria-hidden loading={variant === "hero" ? "eager" : "lazy"} decoding="async" draggable={false}
+      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+      className={cn("pointer-events-none mt-4 block h-auto w-full select-none md:hidden", variant === "hero" ? "rounded-xl" : "rounded-[4px]", className)} />
+    <img src={art.pc} width={art.w} height={art.h} alt="" aria-hidden loading={variant === "hero" ? "eager" : "lazy"} decoding="async" draggable={false}
+      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+      className={cn("pointer-events-none hidden h-auto shrink-0 select-none md:block", variant === "hero" ? "max-w-[46%] rounded-xl" : "max-w-[60%] rounded-xl", className)} />
+  </>
 );
 
 export const AsOfLive = ({ iso }: { iso: string }) => (
@@ -32,15 +60,24 @@ export const AsOfLive = ({ iso }: { iso: string }) => (
   </span>
 );
 
-/* ---------- section head (mock: "01" 12px mono grey + 18px h2, right meta capsule or link) ---------- */
-export const SeriesSection = ({ n, title, meta, more, intro, children }: { n?: string; title: string; meta?: string; more?: { label: string; to: string }; intro?: React.ReactNode; children: React.ReactNode }) => (
-  <section className="mb-10">
-    <div className="mb-3 flex flex-wrap items-baseline justify-between gap-3">
-      <h2 className="text-[16px] font-semibold tracking-[-0.01em] md:text-[18px]">{n && <span className="mr-2.5 font-mono text-[12px] tracking-[0.06em] text-muted-foreground/60">{n}</span>}{title}</h2>
-      {more ? <Link to={more.to} className="text-[12px] font-semibold text-primary">{more.label} →</Link>
-        : meta ? <span className="rounded-full border border-[#1D2026] px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground/70">{meta}</span> : null}
+/* ---------- section head ----------
+ * Figma 1000:10535 (pc): two columns — left 485: eyebrow "01 CRYPTO" (Archivo 600 11/15 tracking 2px primary) · title Space Grotesk 500 30 · lede 14/20 muted (pt-12) · link Archivo 600 18 primary (gap 20);
+ * right: art 745×162 rounded 12. Meta capsule (when no art / no link) stays top-right. Table starts 60 below the head (pt-12 + mt-12).
+ * Figma 1004:132 (mobile): eyebrow 12/17 · title Space Grotesk 600 20 · link 14/20 · art 342×164 band rounded 4 · list 20 below. */
+export const SeriesSection = ({ n, eyebrow, title, meta, more, intro, art, children }: { n?: string; eyebrow?: string; title: string; meta?: string; more?: { label: string; to: string }; intro?: React.ReactNode; art?: Art; children: React.ReactNode }) => (
+  <section className="mb-10 md:mb-12">
+    <div className={cn("mb-5 md:mb-6", art && "md:flex md:items-start md:justify-between md:gap-6")}>
+      <div className={cn("min-w-0", art ? "md:max-w-[485px] md:flex-1" : "flex items-start justify-between gap-3")}>
+        <div className={cn("min-w-0", !art && "flex-1 md:max-w-[760px]")}>
+          {(n || eyebrow) && <div className="text-[12px] font-semibold uppercase leading-[17px] tracking-[0.04em] text-primary md:text-[11px] md:leading-[15px] md:tracking-[2px]">{[n, eyebrow].filter(Boolean).join(" ")}</div>}
+          <h2 className={cn("mt-1.5 font-display text-[20px] font-semibold leading-[1.2] tracking-[-0.01em] md:mt-2.5 md:text-[30px] md:font-medium md:leading-[36px]", art && "capitalize")}>{title}</h2>
+          {intro && <p className="mt-3 text-[13px] leading-[19px] text-muted-foreground md:text-[14px] md:leading-5 [&_b]:font-semibold [&_b]:text-foreground">{intro}</p>}
+          {more && <Link to={more.to} className="mt-3 inline-block text-[14px] font-semibold text-primary md:mt-5 md:text-[18px]">{more.label} →</Link>}
+        </div>
+        {!art && meta && <span className="mt-1 shrink-0 rounded-full border border-[#1D2026] px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground/70">{meta}</span>}
+      </div>
+      {art && <Illustration art={art} variant="section" />}
     </div>
-    {intro && <p className="mb-3 max-w-[92ch] text-[12px] leading-relaxed text-muted-foreground md:text-[13px] [&_b]:font-semibold [&_b]:text-foreground">{intro}</p>}
     {children}
   </section>
 );
@@ -136,16 +173,20 @@ export const FourTiles = ({ tiles }: { tiles: Tile[] }) => (
   </dl>
 );
 
-/* ---------- platform strip (4 cells, stacked label/value) ---------- */
-export const Strip = ({ cells }: { cells: { l: string; v: React.ReactNode; d?: React.ReactNode }[] }) => (
-  <dl className="trading-card mb-8 grid grid-cols-2 overflow-hidden md:grid-cols-4">
-    {cells.map((x, i) => (
-      <div key={i} className={cn("min-w-0 overflow-hidden whitespace-nowrap px-3.5 py-3 md:px-5 md:py-3.5", i % 2 === 1 && "border-l border-[#1D2026]", i >= 2 && "border-t border-[#1D2026] md:border-t-0", i >= 1 && "md:border-l")}>
-        <dt className="font-mono text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground md:text-[10px]">{x.l}</dt>
-        <dd className="mt-2 overflow-hidden text-ellipsis font-display text-[20px] font-bold leading-none tracking-[-0.02em] tabular-nums md:text-[22px]">{x.v}</dd>
-        {x.d && <dd className="mt-1.5 truncate font-mono text-[10px] font-medium text-muted-foreground/70 md:text-[11px]">{x.d}</dd>}
-      </div>
-    ))}
+/* ---------- platform strip ----------
+ * Figma 1000:10500 (pc): one card, four 308×173 cells (px-20 py-24): label Space Grotesk 600 10/15 tracking 1.2 primary · value Space Grotesk 700 48/66 · sub Space Grotesk 500 11.
+ * Figma 1004:42 (mobile): 2×2 separate cards 165×115 gap 12 (p-16): label 12 · value 32/38 · sub 12. */
+export const Strip = ({ cells }: { cells: { l: string; v: React.ReactNode; d?: React.ReactNode; small?: boolean }[] }) => (
+  <dl className="mb-8 grid grid-cols-2 gap-3 md:mb-12 md:block md:gap-0">
+    <div className="contents md:grid md:grid-cols-4 md:overflow-hidden md:rounded-xl md:border md:border-[#1D2026] md:bg-card">
+      {cells.map((x, i) => (
+        <div key={i} className={cn("min-w-0 overflow-hidden whitespace-nowrap rounded-xl border border-[#1D2026] bg-card p-4 md:rounded-none md:border-0 md:px-5 md:py-6", i >= 1 && "md:border-l md:border-[#1D2026]")}>
+          <dt className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">{x.l}</dt>
+          <dd className={cn("mt-1.5 overflow-hidden text-ellipsis font-display font-bold leading-[38px] tracking-[-0.02em] tabular-nums md:mt-4 md:leading-[66px]", x.small ? "text-[22px] md:text-[36px]" : "text-[28px] md:text-[48px]")}>{x.v}</dd>
+          {x.d && <dd className="mt-2 truncate font-mono text-[11px] font-medium text-muted-foreground/70 md:mt-3.5">{x.d}</dd>}
+        </div>
+      ))}
+    </div>
   </dl>
 );
 
@@ -179,37 +220,42 @@ export const Responsive = ({ desktop, mobile }: { desktop: React.ReactNode; mobi
 /* ---------- page-end "About this data" card (CPO 2026-09-30: one designed block, not three loose modules) ----------
  * Three columns on desktop, stacked on mobile: who we are · what the numbers mean · a copy-ready quote.
  * Semantics stay for GEO (h2 / dl / aside / code); the visual is one trading-card with an eyebrow. */
-export const DataFooter = ({ settle = "Settles on the reference index", legend, sentence, url }: { settle?: string; legend: React.ReactNode; sentence: string; url: string }) => {
+/* ---------- About this data ----------
+ * Figma 1000:11238 (pc, 1232 wide): divider · section heading (eyebrow "06 · DATA & METHODOLOGY" + "About this data" Space Grotesk 500 30/36, gap 8)
+ * · row of two cards 432 + 776, gap 24, p-24, h 211 (OmenX wordmark 102×15 / three 14/22 lines / "How it works →" 14 primary ‖ "What these numbers mean" 20/26 · legend 14/21 · "Full methodology →")
+ * · quote card: bg #091117 border primary/20 p-24: title 20/26 + 12/18 guidance (240) | code 12/19.5 on white/3 rounded 12 | Copy 96×36 bg primary text #04070F 14/600.
+ * Mobile (1004:*): the same blocks stacked, cards full width. */
+export const DataFooter = ({ n = "06", settle = "Settles on the reference index", legend, sentence, url }: { n?: string; settle?: string; legend: React.ReactNode; sentence: string; url: string }) => {
   const [copied, setCopied] = useState(false);
   const line = `${sentence} Source: ${url}`;
   const copy = async () => { try { await navigator.clipboard.writeText(line); setCopied(true); window.setTimeout(() => setCopied(false), 1600); } catch { /* clipboard unavailable */ } };
   return (
-    <section aria-labelledby="about-this-data" className="trading-card mt-2 overflow-hidden">
-      <div className="border-b border-[#1D2026] px-4 py-3 md:px-6">
-        <h2 id="about-this-data" className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">About this data</h2>
-      </div>
-      <div className="grid md:grid-cols-12">
-        <div className="px-4 py-4 md:col-span-3 md:px-6 md:py-5">
-          <div className="text-[13px] font-semibold">OmenX</div>
-          <dl className="mt-2 space-y-1.5 text-[12px] text-muted-foreground md:text-[13px]">
+    <section aria-labelledby="about-this-data" className="border-t border-[#1D2026] pt-6 md:-mt-2">
+      <div className="text-[12px] font-semibold uppercase leading-[17px] tracking-[0.04em] text-primary md:text-[11px] md:leading-[15px] md:tracking-[2px]">{n} · Data &amp; methodology</div>
+      <h2 id="about-this-data" className="mt-1.5 font-display text-[20px] font-semibold leading-[1.2] md:mt-2 md:text-[30px] md:font-medium md:leading-[36px]">About this data</h2>
+      <div className="mt-5 grid gap-4 md:mt-6 md:grid-cols-[432px_minmax(0,1fr)] md:gap-6">
+        <div className="trading-card p-5 md:p-6">
+          <div className="font-display text-[15px] font-bold uppercase tracking-[0.04em]">OmenX</div>
+          <dl className="mt-3 space-y-2 text-[13px] leading-[22px] text-muted-foreground md:mt-4 md:text-[14px]">
             <dd>Trade Up or Down with up to 10× Boost</dd>
             <dd>{settle}</dd>
             <dd>USDC on Base</dd>
           </dl>
-          <a href={HELP_GUIDE_URL} target="_blank" rel="noopener" className="mt-3 inline-block text-[12px] font-semibold text-primary">How it works →</a>
+          <a href={HELP_GUIDE_URL} target="_blank" rel="noopener" className="mt-3 inline-block text-[14px] font-semibold text-primary">How it works →</a>
         </div>
-        <div className="border-t border-[#1D2026] px-4 py-4 md:col-span-5 md:border-l md:border-t-0 md:px-6 md:py-5">
-          <h3 className="text-[13px] font-semibold">What these numbers mean</h3>
-          <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground md:text-[13px]">{legend} <a href={HELP_GUIDE_URL} target="_blank" rel="noopener" className="text-primary">Full methodology →</a></p>
+        <div className="trading-card p-5 md:p-6">
+          <h3 className="font-display text-[17px] font-medium md:text-[20px] md:leading-[26px]">What these numbers mean</h3>
+          <p className="mt-2.5 text-[13px] leading-[20px] text-muted-foreground md:mt-3 md:text-[14px] md:leading-[21px]">{legend}</p>
+          <a href={HELP_GUIDE_URL} target="_blank" rel="noopener" className="mt-5 inline-block text-[14px] font-semibold text-primary md:mt-8">Full methodology →</a>
         </div>
-        <aside className="border-t border-[#1D2026] px-4 py-4 md:col-span-4 md:border-l md:border-t-0 md:px-6 md:py-5">
-          <div className="flex items-center justify-between gap-3">
-            <h3 className="text-[13px] font-semibold">Quote this page</h3>
-            <button type="button" onClick={copy} className={cn("h-7 rounded-full border px-3 font-mono text-[11px] font-semibold transition-colors", copied ? "border-trading-green/50 text-trading-green" : "border-[#262A31] text-muted-foreground hover:text-foreground")}>{copied ? "Copied" : "Copy"}</button>
-          </div>
-          <p className="mt-1 text-[11px] text-muted-foreground/70">Names the number, the date and where it came from.</p>
-          <code className="mt-2.5 block whitespace-pre-wrap rounded-lg bg-white/[0.03] px-3 py-2.5 font-mono text-[11px] leading-relaxed text-[#E6E8EB] md:text-[12px]">{line}</code>
-        </aside>
+      </div>
+      <div className="mt-4 rounded-xl border border-primary/20 bg-[#091117] p-5 md:mt-6 md:flex md:items-center md:gap-6 md:p-6">
+        <div className="md:w-[240px] md:shrink-0">
+          <h3 className="font-display text-[17px] font-medium md:text-[20px] md:leading-[26px]">Quote this page</h3>
+          <p className="mt-1 text-[12px] leading-[18px] text-muted-foreground">Names the number, the date and where it came from.</p>
+        </div>
+        <code className="mt-3 block min-w-0 flex-1 whitespace-pre-wrap rounded-xl bg-white/[0.03] px-3 py-2.5 font-mono text-[12px] leading-[19.5px] text-[#E6E8EB] md:mt-0">{line}</code>
+        <button type="button" onClick={copy} className={cn("mt-3 h-9 w-24 shrink-0 rounded-lg text-[14px] font-semibold transition-colors md:mt-0", copied ? "bg-trading-green text-[#04070F]" : "bg-primary text-[#04070F] hover:bg-primary/90")}>{copied ? "Copied" : "Copy"}</button>
       </div>
     </section>
   );

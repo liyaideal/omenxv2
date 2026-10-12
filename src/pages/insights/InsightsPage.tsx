@@ -14,6 +14,7 @@ import { useInsightsSeo } from "@/hooks/useInsightsSeo";
 import { useAccuracy, useSeriesList } from "@/hooks/useInsightsSeries";
 import { CROWD_LEDE, CrowdLegend, DataFooter, Chip, FavTag, Hit, LivePill, List, Name, Responsive, Row, SeriesOpening, SeriesSection, SettlesIn, Strip, Table, Td, Th, UpDownPair } from "@/components/insightsSeo/seriesParts";
 import { INSIGHTS_PATH, deltaPct, fmtDate, fmtInt, fmtPct, fmtUsd, gainers, isoDate, losers, marketPath, categoryLabelForKey, categorySlugFor, isQuickRound } from "@/lib/insights";
+import { HERO_ART, SECTION_ART } from "@/lib/insights/art";
 import { c, hhmm, isStock, minsLabel, minsShort, roundSpan, seriesPath, sessionDay, type SeriesAsset } from "@/lib/insights/series";
 import { buildFixtures, liveLabel, sportPath, type Fixture } from "@/lib/insights/sports";
 import { cn } from "@/lib/utils";
@@ -48,7 +49,7 @@ const InsightsPage = () => {
 
   return (
     <InsightsShell>
-      <SeriesOpening eyebrow="OmenX Insights · Live prediction market data" title="Prediction Market Data — What OmenX Traders Are Betting Right Now"
+      <SeriesOpening eyebrow="OmenX Insights · Live prediction market data" title="Prediction Market Data — What OmenX Traders Are Betting Right Now" accent="OmenX Traders Are Betting" art={HERO_ART.market}
         lede={<>Live odds from a <b>leveraged prediction market</b> on Base: 5-minute to daily <b>Up-or-Down</b> rounds on crypto and stocks, sports lines and world events. Every market has a Down side, and every round settles on a public reference index.</>}
         asOf={seo.stats ? asOf : undefined} />
       {isLoading && <LoadingState variant="skeleton" skeletonRows={6} />}
@@ -63,7 +64,7 @@ const InsightsPage = () => {
             ]} />
           )}
 
-          <SeriesSection n="01" title="Crypto · next round to settle" more={{ label: "All crypto rounds", to: "/insights/crypto" }}
+          <SeriesSection n="01" eyebrow="Crypto" title="Next round to settle" art={SECTION_ART.crypto} more={{ label: "All crypto rounds", to: "/insights/crypto" }}
             intro="Each asset runs 5-minute, 15-minute, 1-hour, 4-hour and daily rounds at the same time. This shows the round settling next; the asset page shows all five.">
             <Responsive
               desktop={
@@ -73,7 +74,7 @@ const InsightsPage = () => {
               mobile={<List>{crypto.map((a) => <AssetRow key={a.slug} a={a} />)}</List>} />
           </SeriesSection>
 
-          <SeriesSection n="02" title="Stocks · today's session" more={{ label: `All ${stocks.length} stocks`, to: "/insights/stocks" }}>
+          <SeriesSection n="02" eyebrow="Stocks" title="Today's session" art={SECTION_ART.stocks} more={{ label: `All ${stocks.length} stocks`, to: "/insights/stocks" }}>
             <Responsive
               desktop={
                 <Table head={<><Th>Stock</Th><Th w={150}>Session</Th><Th w={280}>Up · Down price</Th><Th w={140} r>Settles</Th><Th w={170} r>Crowd was right · 30d</Th><Th w={120} r>Traded 24h</Th></>}>
@@ -82,7 +83,7 @@ const InsightsPage = () => {
               mobile={<List>{stocks.slice(0, 6).map((a) => <AssetRow key={a.slug} a={a} />)}</List>} />
           </SeriesSection>
 
-          <SeriesSection n="03" title="Sports · live & next 7 days" more={{ label: "All sports", to: "/insights/sports" }}>
+          <SeriesSection n="03" eyebrow="Sports" title="Live & next 7 days" art={SECTION_ART.sports} more={{ label: "All sports", to: "/insights/sports" }}>
             {fixtures.length === 0 ? <Empty>No matches live or starting in the next seven days.</Empty> : (
               <Responsive
                 desktop={
@@ -93,7 +94,7 @@ const InsightsPage = () => {
             )}
           </SeriesSection>
 
-          <SeriesSection n="04" title={moves.length >= 3 ? "Events · biggest moves 24h" : "Events · most traded 24h"} more={{ label: "By category", to: "/insights/category/politics" }}>
+          <SeriesSection n="04" eyebrow="Events" title={moves.length >= 3 ? "Biggest moves 24h" : "Most traded 24h"} art={SECTION_ART.events} more={{ label: "By category", to: "/insights/category/politics" }}>
             {eventsFallback.length === 0 ? <Empty>No event markets open right now.</Empty> : (
               <Responsive
                 desktop={
@@ -114,12 +115,12 @@ const InsightsPage = () => {
           </SeriesSection>
 
           {acc && (
-            <SeriesSection n="05" title="Is the crowd right?" more={{ label: "Full accuracy report", to: "/insights/accuracy" }} intro={CROWD_LEDE}>
+            <SeriesSection n="05" eyebrow="Crowd accuracy" title="Is the crowd right?" art={SECTION_ART.crowd} more={{ label: "Full accuracy report", to: "/insights/accuracy" }} intro={CROWD_LEDE}>
               <Strip cells={[
                 { l: "Crowd was right · 30 days", v: <Hit v={acc.hit} />, d: `of ${fmtInt(acc.rounds)} rounds` },
-                { l: "Crowd calls it best", v: best ? <Link to={seriesPath(best)}>{best.asset} <Hit v={best.hit} /></Link> : "—", d: best ? famLabel(best.family) : undefined },
-                { l: "Crowd calls it worst", v: worst ? <Link to={seriesPath(worst)}>{worst.asset} <Hit v={worst.hit} /></Link> : "—", d: worst ? famLabel(worst.family) : undefined },
-                { l: "Best crypto round length", v: bestLen(acc.by_len), d: "crowd was right most often" },
+                { l: "Crowd calls it best", small: true, v: best ? <Link to={seriesPath(best)}>{best.asset} <Hit v={best.hit} /></Link> : "—", d: best ? famLabel(best.family) : undefined },
+                { l: "Crowd calls it worst", small: true, v: worst ? <Link to={seriesPath(worst)}>{worst.asset} <Hit v={worst.hit} /></Link> : "—", d: worst ? famLabel(worst.family) : undefined },
+                { l: "Best crypto round length", small: true, v: bestLen(acc.by_len), d: "crowd was right most often" },
               ]} />
             </SeriesSection>
           )}

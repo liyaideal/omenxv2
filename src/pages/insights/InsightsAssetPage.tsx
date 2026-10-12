@@ -7,6 +7,7 @@ import { useSeoHead } from "@/lib/seo/head";
 import { InsightsShell } from "@/components/insightsSeo/InsightsShell";
 import { LoadingState } from "@/components/states";
 import { useSeriesDetail, useSeriesList } from "@/hooks/useInsightsSeries";
+import { HERO_ART } from "@/lib/insights/art";
 import {
   CROWD_LEDE, CrowdLegend, DataFooter, FourTiles, Hit, LiveCard, LivePill, List, MajorityTag, Name, Responsive, RightWrong, Row, SeriesOpening, SeriesSection, SettlesIn, StickyCta, Table, Td, Th,
 } from "@/components/insightsSeo/seriesParts";
@@ -38,7 +39,7 @@ const InsightsAssetPage = ({ family }: { family: "crypto" | "stocks" }) => {
       {!isLoading && (error || !ok) && <div className="rounded-xl border border-dashed border-[#262A31] px-4 py-8 text-center text-sm text-muted-foreground">No Up-or-Down market found for “{slug}”. <Link to="/insights" className="text-primary">Back to Insights →</Link></div>}
       {ok && (
         <>
-          <SeriesOpening
+          <SeriesOpening art={stock ? HERO_ART.stocks : HERO_ART.crypto}
             eyebrow={`OmenX Insights · ${fam} · Up or down`}
             title={stock ? `${assetTitle(data)} Up or Down Today — Prediction Market Odds` : `${data.asset} Up or Down — Prediction Market Odds & Crowd Accuracy`}
             lede={stock

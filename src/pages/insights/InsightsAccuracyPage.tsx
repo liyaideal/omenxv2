@@ -9,6 +9,7 @@ import { SITE_URL } from "@/lib/site";
 import { InsightsShell } from "@/components/insightsSeo/InsightsShell";
 import { LoadingState } from "@/components/states";
 import { useAccuracy } from "@/hooks/useInsightsSeries";
+import { HERO_ART } from "@/lib/insights/art";
 import { CROWD_LEDE, CrowdLegend, DataFooter, Hit, List, Name, Responsive, Row, SeriesOpening, SeriesSection, Strip, Table, Td, Th } from "@/components/insightsSeo/seriesParts";
 import { fmtInt } from "@/lib/insights";
 import { citeAccuracy, minsLabel, minsNoun, minsShort, monthId, monthRange, seriesPath } from "@/lib/insights/series";
@@ -35,7 +36,7 @@ const InsightsAccuracyPage = () => {
 
   return (
     <InsightsShell mobileTitle="Accuracy report">
-      <SeriesOpening eyebrow={`OmenX Insights · Accuracy report · ${range ? range.label : "Rolling 30 days"}`}
+      <SeriesOpening art={HERO_ART.crowd} eyebrow={`OmenX Insights · Accuracy report · ${range ? range.label : "Rolling 30 days"}`}
         title={`How Accurate Is the Prediction Market Crowd? — OmenX, ${range ? range.label : "Last 30 Days"}`}
         lede={a ? <>Across <b>{fmtInt(a.rounds)} settled Up-or-Down rounds</b> ({label}), the side the crowd leaned to was right <b>{a.hit ?? 0}%</b> of the time.{bestLen && <> The crowd does best on {minsLabel(bestLen.mins)} rounds ({bestLen.hit}%).</>}{frozen && <> This report is frozen and will not change.</>}</> : "Loading…"} asOf={a?.as_of} />
       {isLoading && <LoadingState variant="skeleton" skeletonRows={6} />}
@@ -44,7 +45,7 @@ const InsightsAccuracyPage = () => {
           <Strip cells={[
             { l: "Rounds settled", v: fmtInt(a.rounds), d: label },
             { l: "Crowd was right", v: <Hit v={a.hit} />, d: "all rounds" },
-            { l: "Best crypto round length", v: bestLen ? <>{minsLabel(bestLen.mins)} · <Hit v={bestLen.hit} /></> : "—", d: "crowd was right most often" },
+            { l: "Best crypto round length", small: true, v: bestLen ? <>{minsLabel(bestLen.mins)} · <Hit v={bestLen.hit} /></> : "—", d: "crowd was right most often" },
             { l: "Assets tracked", v: fmtInt(a.by_asset.length), d: "≥ 5 rounds each" },
           ]} />
 

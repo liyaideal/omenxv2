@@ -2259,3 +2259,15 @@ Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED
 3. **验证码位**：登录弹窗同件 `CodeSlot`（48px r-12 `#14161A`，聚焦 `#33D6FF`，错码 trading-red），六格 `justify-between gap-2` 撑满 400 宽；标签行左 12px `#9CA2AB`、右 11px 状态（`Sent to … · Resend 58s`，倒计时青色）。错码红字 `ERROR_CLASS` 在格下。
 按钮组、红钮、移动竖排 Cancel 在上均不变。
 
+
+## §Addendum 2026-10-12 · Insights 品牌回流（LOCKED）
+
+稿源：Figma omenx_lite `e1gJg4USia95DSju3Eqx09`，pc section `1004:3314`（7 帧 ×1440：首页 1000:10405 / Crypto 1001:14736 / Stocks 1001:15306 / Sports 1001:15856 / Events 1001:16525 / Accuracy 1001:16998 / Daily 1001:17410），mobile section `1004:3315`（7 帧 ×390：1004:21 / 572 / 1050 / 1466 / 2079 / 2422 / 2776）。比对基准 = 页面顶端（稿顶栏 73 / 生产 65）；换算比例 1:1（稿内容列 1232 = `max-w-7xl` − `px-6`）。纯 UI 换皮，UX 零新增；差异全部落在四个共享件（`seriesParts.tsx`），7 页自动对齐。
+
+1. **开篇 `SeriesOpening`**（稿 1000:10485 / 1004:34）：桌面左文 744 + 右插画（按稿原尺寸：首页 456×341、hub 532×241…612×300，`max-w-[46%]`，`rounded-xl`，顶对齐）；eyebrow Archivo 600 11/15 tracking 2px **primary**；H1 Space Grotesk 700 48/1.2，`accent` 子串 primary（首页 "OmenX Traders Are Betting"）；lede Archivo 18/24 muted，`<b>` 白；as-of 行紧贴 hero 块下（mt-0），Strip 在其下 32。移动：eyebrow 12/17 → H1 28 → lede 14/18 → 插画全宽带 342×256 → as-of。
+2. **章节头 `SeriesSection`**（稿 1000:10535 / 1004:132）：有插画时两栏——左 485：eyebrow `{n} {eyebrow}` 大写 primary → 标题 Space Grotesk 500 30/36 **capitalize** → lede 14/20 → 链接 Archivo 600 18 primary；右 745×162 插画 `rounded-xl`；头到表 24。无插画（hub/accuracy 节）：同一 eyebrow + 30px 标题，meta 胶囊留右上，内容列 ≤ 760。移动：eyebrow 12 / 标题 20 / 链接 14 / 插画 342×164 `rounded-[4px]` / 列表 20 下。
+3. **数据条 `Strip`**（稿 1000:10500 / 1004:42）：桌面一张卡四格 173 高（`px-5 py-6`，标签 10px primary tracking 1.2，数 48/66 bold，副行 11）；移动 2×2 四张独立卡 gap 12（数 28/38）。长值（"5-minute · 52%"、公司名）加 `small` → 36px，禁止省略号截断。
+4. **页尾 `DataFooter`**（稿 1000:11238）：分隔线 → eyebrow「06 · DATA & METHODOLOGY」+ 30px「About this data」→ 两卡 `432px + 1fr` gap 24 p-24 → 引用卡（`border-primary/20` + `#091117`，Copy 96×36 primary 底 `#04070F` 字）。上一节到分隔线 65（mb-12 − 8 + 1 + 24）。
+5. **保持规范、不照稿（CPO 2026-10-12 批）**：容器顶 `py-10`=40（稿 60）；移动 `px-4`=16（稿 24，内容 358 vs 342）；页底色 `--background` / 卡 `bg-card` / 描边 `#1D2026`（稿 `#05070E` / `#111316` / `rgba(249,250,251,.07)` 为同色漂移）；文案以生产为准（首页帧仍是 09-30 前的 "Majority right"，Crypto/Accuracy 帧已是 "Crowd was right"）；分类页 / 日报稿里的「← INSIGHTS」返回链接不落（PD-6）。
+6. **插画资产**：20 张，Figma 帧整张扁平导出 2×（渐隐已烘进像素，渐隐终色 `#05070E` 与底色 `#0A0A10` 差 ≤5/255 不可见）→ WebP q86，总 296K，`src/assets/insights/`，索引 `src/lib/insights/art.ts`（每张记 node id + 1× 尺寸）。页面按 1× 尺寸渲染（`width/height` 属性），装饰性 `aria-hidden` + `pointer-events-none` + onError 隐藏；hero 两张 eager、章节图 lazy。
+7. **复验基线（localhost 1440 / 390，2026-10-12）**：首页 1440 — 插画 456×341 @y105、as-of 446、Strip 499/178、01 eyebrow 724、01 表 910（稿减 28 = 顶栏 8 + py 20，逐块差 ≤4）；390 — H1 97 高、插画 358×268、2×2 卡 173×118、01 eyebrow 923 → 链接 1051 → 插画 1089 → 列表 1281。

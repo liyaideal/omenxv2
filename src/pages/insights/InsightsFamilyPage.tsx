@@ -6,6 +6,7 @@ import { SITE_URL } from "@/lib/site";
 import { InsightsShell } from "@/components/insightsSeo/InsightsShell";
 import { LoadingState } from "@/components/states";
 import { useSeriesList } from "@/hooks/useInsightsSeries";
+import { HERO_ART } from "@/lib/insights/art";
 import { CrowdLegend, DataFooter, Chip, Hit, List, Name, Responsive, Row, SeriesOpening, SeriesSection, SettlesIn, Table, Td, Th, UpDownPair } from "@/components/insightsSeo/seriesParts";
 import { fmtInt, fmtUsd } from "@/lib/insights";
 import { familyFromPath, hhmm, isStock, minsNoun, minsShort, roundSpan, roundTradePath, seriesPath, sessionDay, type LiveRound, type SeriesAsset } from "@/lib/insights/series";
@@ -21,7 +22,7 @@ const InsightsFamilyPage = ({ family }: { family: "crypto" | "stocks" }) => {
   useSeoHead({ title, description: crypto ? "Every 5 minutes to daily, OmenX traders bet whether BTC, ETH and SOL close higher or lower. Live odds and how often the crowd is right." : "Will Apple, Tesla, Tencent close higher today? Live OmenX prediction market odds for 16 US and Hong Kong stocks, with the crowd's 30-day record.", path: `/insights/${family}`, hreflang: true, jsonLd: data ? [{ "@context": "https://schema.org", "@type": "ItemList", name: title, itemListElement: list.map((a, i) => ({ "@type": "ListItem", position: i + 1, name: `${a.asset} Up or Down`, url: `${SITE_URL}${seriesPath(a)}` })) }] : [] }, [data?.length ?? 0]);
   return (
     <InsightsShell mobileTitle={crypto ? "Crypto · Up or Down" : "Stocks · Up or Down"}>
-      <SeriesOpening eyebrow={`OmenX Insights · ${crypto ? "Crypto" : "US & HK stocks"} · Up or down`}
+      <SeriesOpening art={crypto ? HERO_ART.crypto : HERO_ART.stocks} eyebrow={`OmenX Insights · ${crypto ? "Crypto" : "US & HK stocks"} · Up or down`}
         title={crypto ? "Crypto Up or Down — Live Prediction Market Odds" : "Stock Up or Down Today — Prediction Market Odds"}
         lede={crypto ? <>Bitcoin, Ethereum and Solana each run 5-minute, 15-minute, 1-hour, 4-hour and daily rounds. One row per asset: the round settling next and how often the crowd has been right.</> : <>Each trading day OmenX traders bet whether a stock closes above its previous close. One row per stock: today's session and the crowd's 30-day record.</>}
         asOf={asOf} />

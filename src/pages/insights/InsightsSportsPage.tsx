@@ -9,6 +9,7 @@ import { SITE_URL } from "@/lib/site";
 import { InsightsShell } from "@/components/insightsSeo/InsightsShell";
 import { LoadingState } from "@/components/states";
 import { useInsightsSeo } from "@/hooks/useInsightsSeo";
+import { HERO_ART } from "@/lib/insights/art";
 import { DataFooter, FavTag, FourTiles, Hit, LiveCard, LivePill, List, Name, Responsive, RightWrong, Row, SeriesOpening, SeriesSection, StickyCta, Table, Td, Th } from "@/components/insightsSeo/seriesParts";
 import { fmtInt, fmtUsd, marketPath } from "@/lib/insights";
 import { c } from "@/lib/insights/series";
@@ -41,7 +42,7 @@ const InsightsSportsPage = () => {
 
   return (
     <InsightsShell mobileTitle={label}>
-      <SeriesOpening
+      <SeriesOpening art={HERO_ART.sports}
         eyebrow={`OmenX Insights · Sports${sport ? ` · ${label}` : ""}`} title={`${label} Prediction Market Odds — Who the Crowd Backs`}
         lede={<>Match winner, handicap and totals lines{leagues.length ? <> across {leagues.slice(0, 6).join(", ")}</> : null} — priced by OmenX traders, settled on the {sport ? settleWord(sport) : "official result"}.</>} asOf={seo.stats?.as_of} />
       {seo.isLoading && <LoadingState variant="skeleton" skeletonRows={6} />}

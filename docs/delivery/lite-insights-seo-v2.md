@@ -81,6 +81,10 @@
 4. 首页 05 四格："Crowd was right · 30 days — 51% of 4,425 rounds" / "Crowd calls it best — BYD 69%" / "Crowd calls it worst — Tesla 40%" / "Best crypto round length — 5 minutes · 52%"；用公司名不用代码。
 5. 全站标签 "Majority right / Majority was right / Majority bet Up" → "Crowd was right / Crowd leaned Up"；JSON-LD 与引用句同步。
 
+## 4.2 品牌回流（2026-10-12，Liya 批）
+
+设计在 Figma omenx_lite 对 Insights 七张页面（pc `1004:3314` / mobile `1004:3315`）做了纯 UI 品牌升级，结构、数据、表格语法与生产一致。落地只改四个共享件（`seriesParts.tsx`：SeriesOpening / SeriesSection / Strip / DataFooter）+ 20 张插画（`src/assets/insights/*.webp`，索引 `src/lib/insights/art.ts`），七页同时换皮；规格与复验基线见 DESIGN §Addendum 2026-10-12。保持规范不照稿：容器 py-10、移动 px-4、底色/卡色走 token、文案以生产为准、分类页/日报的返回链接不落。**正式版研发**：插画是静态资源，随前端一起发；无后端改动。
+
 ## 5. 已删（2026-09-30）
 
 `src/pages/insights/InsightsWeeklyPage.tsx`、`src/pages/InsightsPage.tsx`（旧）、`src/components/insights/` 已从仓库移除；`/insights/weekly/:week` 路由保留 301 到 `/insights/accuracy`。
