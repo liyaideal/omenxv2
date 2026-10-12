@@ -120,6 +120,7 @@ Email + Password → `Sign in`。成功后弹窗直接关闭，**不走** create
 2. `Verify your email`：6 格验证码，`Resend code` 60 秒冷却。
 3. 验证码通过 → **此时才创建账号** → 前端建 profile 行（随机用户名 + 头像，`auth_method = "email"`，`email` 写入）→ createWallet → completeProfile（邮箱只读，提示 `This is the email you sign in with`）。
 4. 在 Portfolio / Wallet / Settings 这类登录门里注册：门放行后弹窗留在页面上继续走完向导（2026-09-21 修）；老号登录仍是直接关。
+5. **中途关闭 / 保存失败（2026-10-12 CPO 定）**：验证码通过即建号并登录，用户名、头像已随机分配，`Create wallet` 一步只是展示（钱包由服务端在建号时生成，不需要用户动作），所以向导后两步都不阻塞。下次登录**直接进平台，不续向导**；未改用户名的提醒只在 Settings 顶部 hero（`Set a username`），消息中心上线后加第二个提醒位，不做登录弹窗。向导里保存失败原地红字重试，不退出、不丢已填内容。若正式版的钱包生成需要用户端动作（如密钥分片），在**首次下单 / 入金时**就地触发，不在登录时。
 
 Lovable 上验证码固定 111111，界面不出现这个数字，也不真发邮件。
 
