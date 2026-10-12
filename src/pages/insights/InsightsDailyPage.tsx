@@ -35,7 +35,10 @@ const InsightsDailyPage = () => {
     },
     [date, feed.length],
   );
+  // Future days have no digest: redirect to today (UTC). "Next day" only exists up to today (CPO 2026-10-12).
+  const todayId = isoDate(new Date());
   if (!valid) return <Navigate to="/insights" replace />;
+  if (date > todayId) return <Navigate to={`/insights/daily/${todayId}`} replace />;
 
   return (
     <InsightsShell mobileTitle={t("nav.insights")}>
@@ -43,7 +46,7 @@ const InsightsDailyPage = () => {
       {/* Figma 1001:17489: day pager sits above the opening (the draft's "← INSIGHTS" is not built, PD-6). */}
       <div className="mb-4 flex items-center gap-4 font-mono text-[11px] uppercase tracking-[0.06em] text-muted-foreground">
         <Link to={`/insights/daily/${prev}`} className="hover:text-primary">‹ {prev}</Link>
-        {to.getTime() < Date.now() && <Link to={`/insights/daily/${next}`} className="hover:text-primary">{next} ›</Link>}
+        {next <= todayId && <Link to={`/insights/daily/${next}`} className="hover:text-primary">{next} ›</Link>}
       </div>
       <SeriesOpening art={HERO_ART.daily} eyebrow="OmenX Insights · Daily digest" title={t("insights.daily.title", { date: label })} lede={t("insights.daily.lede", { moves, new: fresh, closing })} asOf={to.toISOString()} />
       {/* Figma 1001:17507: three-cell snapshot strip (moves / newly listed / settling soon). */}
