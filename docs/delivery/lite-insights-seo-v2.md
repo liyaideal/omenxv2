@@ -83,7 +83,7 @@
 
 ## 4.2 品牌回流（2026-10-12，Liya 批）
 
-设计在 Figma omenx_lite 对 Insights 七张页面（pc `1004:3314` / mobile `1004:3315`）做了纯 UI 品牌升级，结构、数据、表格语法与生产一致。落地只改四个共享件（`seriesParts.tsx`：SeriesOpening / SeriesSection / Strip / DataFooter）+ 20 张插画（`src/assets/insights/*.webp`，索引 `src/lib/insights/art.ts`），七页同时换皮；规格与复验基线见 DESIGN §Addendum 2026-10-12。保持规范不照稿：容器 py-10、移动 px-4、底色/卡色走 token、文案以生产为准、分类页/日报的返回链接不落。**正式版研发**：插画是静态资源，随前端一起发；无后端改动。
+设计在 Figma omenx_lite 对 Insights 七张页面（pc `1004:3314` / mobile `1004:3315`）做了纯 UI 品牌升级，结构、数据、表格语法与生产一致。落地只改四个共享件（`seriesParts.tsx`：SeriesOpening / SeriesSection / Strip / DataFooter）+ 20 张插画（`src/assets/insights/*.webp`，索引 `src/lib/insights/art.ts`），七页同时换皮；规格与复验基线见 DESIGN §Addendum 2026-10-12。保持规范不照稿：容器 py-10、移动 px-4、底色/卡色走 token、文案以生产为准、分类页/日报的返回链接不落。分类页 `/insights/category/:slug` 与日报 `/insights/daily/:date` 同样改走共享件（v1 的 `Opening / SectionHead / HowComputed / CiteBlock` 在这两页退役）；Sports 页运动筛选 chips 常驻（All + 各运动 + 计数，当前项高亮）。**正式版研发**：插画是静态资源，随前端一起发；无后端改动。
 
 ## 5. 已删（2026-09-30）
 

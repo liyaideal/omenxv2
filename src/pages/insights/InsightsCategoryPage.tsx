@@ -1,11 +1,13 @@
 /** /insights/category/:slug — one indexable page per category (spec §3.1), unique intro + that category's lists. */
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { t } from "@/i18n";
 import { useSeoHead } from "@/lib/seo/head";
 import { SITE_URL } from "@/lib/site";
 import { useInsightsSeo } from "@/hooks/useInsightsSeo";
 import { InsightsShell } from "@/components/insightsSeo/InsightsShell";
-import { CiteBlock, Empty, HowComputed, MarketTable, MoverList, Opening, SectionHead } from "@/components/insightsSeo/parts";
+import { Empty, MarketTable, MoverList } from "@/components/insightsSeo/parts";
+import { DataFooter, SeriesOpening, SeriesSection } from "@/components/insightsSeo/seriesParts";
+import { HERO_ART } from "@/lib/insights/art";
 import { LoadingState } from "@/components/states";
 import { CATEGORY_SLUGS, categoryLabelForSlug, categorySlugFor, citeSentence, dataFeedJsonLd, gainers, losers, rankClosing, rankTrending, rankVolume } from "@/lib/insights";
 
@@ -32,17 +34,15 @@ const InsightsCategoryPage = () => {
 
   return (
     <InsightsShell mobileTitle={label}>
-      <div className="mb-3 font-mono text-[11px] uppercase tracking-[0.06em] text-muted-foreground"><Link to="/insights" className="hover:text-foreground">← {t("nav.insights")}</Link></div>
-      <Opening title={t("insights.category.h1", { category: label })} lede={t(introKey) === introKey ? t("insights.category.intro.other") : t(introKey)} asOf={data.stats ? asOf : undefined}
-        right={<span className="font-mono text-[11px] uppercase tracking-[0.06em] text-muted-foreground">{t("insights.category.count", { count: rows.length })}</span>} />
+      {/* Brand backflow 2026-10-12 (Figma 1001:16525 / 1004:2079): v2 opening with the Events illustration; the draft's "← INSIGHTS" link is not built (PD-6). */}
+      <SeriesOpening art={HERO_ART.events} eyebrow={`OmenX Insights · Events · ${label}`} title={t("insights.category.h1", { category: label })} lede={t(introKey) === introKey ? t("insights.category.intro.other") : t(introKey)} asOf={data.stats ? asOf : undefined} />
       {data.isLoading ? <LoadingState variant="skeleton" skeletonRows={6} /> : rows.length === 0 ? <Empty text={t("insights.messages.no_markets")} /> : (
         <>
-          <section className="mt-2"><SectionHead n="01" title={t("insights.sections.top_trending")} /><MarketTable rows={trending} /></section>
-          <section className="mt-8"><SectionHead n="02" title={t("insights.sections.top_volume")} /><MarketTable rows={byVolume} showSpark={false} /></section>
-          <section className="mt-8"><SectionHead n="03" title={t("insights.sections.biggest_moves")} /><div className="grid gap-4 md:grid-cols-2"><MoverList title={t("insights.labels.biggest_gainers")} rows={gainers(rows).slice(0, 5)} tone="up" /><MoverList title={t("insights.labels.biggest_losers")} rows={losers(rows).slice(0, 5)} tone="down" /></div></section>
-          <section className="mt-8"><SectionHead n="04" title={t("insights.sections.closing_soon")} /><MarketTable rows={closing} showSpark={false} /></section>
-          <HowComputed asOf={asOf} />
-          {trending[0] && <CiteBlock sentence={citeSentence(trending[0], asOf)} url={`${SITE_URL}${path}`} />}
+          <SeriesSection n="01" title={t("insights.sections.top_trending")} meta={t("insights.category.count", { count: rows.length })}><MarketTable rows={trending} /></SeriesSection>
+          <SeriesSection n="02" title={t("insights.sections.top_volume")}><MarketTable rows={byVolume} showSpark={false} /></SeriesSection>
+          <SeriesSection n="03" title={t("insights.sections.biggest_moves")}><div className="grid gap-4 md:grid-cols-2"><MoverList title={t("insights.labels.biggest_gainers")} rows={gainers(rows).slice(0, 5)} tone="up" /><MoverList title={t("insights.labels.biggest_losers")} rows={losers(rows).slice(0, 5)} tone="down" /></div></SeriesSection>
+          <SeriesSection n="04" title={t("insights.sections.closing_soon")}><MarketTable rows={closing} showSpark={false} /></SeriesSection>
+          <DataFooter n="05" settle="Settles on the official outcome" legend={<>{t("insights.how.body")} {t("insights.how.brand")}</>} sentence={trending[0] ? citeSentence(trending[0], asOf) : t("insights.category.seo_description", { category: label })} url={`${SITE_URL}${path}`} />
         </>
       )}
     </InsightsShell>

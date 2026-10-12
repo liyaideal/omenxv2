@@ -9,6 +9,7 @@ import { SITE_URL } from "@/lib/site";
 import { InsightsShell } from "@/components/insightsSeo/InsightsShell";
 import { LoadingState } from "@/components/states";
 import { useInsightsSeo } from "@/hooks/useInsightsSeo";
+import { cn } from "@/lib/utils";
 import { HERO_ART } from "@/lib/insights/art";
 import { DataFooter, FavTag, FourTiles, Hit, LiveCard, LivePill, List, Name, Responsive, RightWrong, Row, SeriesOpening, SeriesSection, StickyCta, Table, Td, Th } from "@/components/insightsSeo/seriesParts";
 import { fmtInt, fmtUsd, marketPath } from "@/lib/insights";
@@ -48,8 +49,14 @@ const InsightsSportsPage = () => {
       {seo.isLoading && <LoadingState variant="skeleton" skeletonRows={6} />}
       {!seo.isLoading && (
         <>
-          {!sport && sports.length > 1 && (
-            <div className="mb-6 flex flex-wrap gap-2">{sports.map((s) => <Link key={s} to={sportPath(s)} className="rounded-full border border-[#1D2026] px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground hover:text-primary">{sportLabel(s)} · {all.filter((f) => f.sport === s).length}</Link>)}</div>
+          {/* Sport filter chips — Figma 1001:15945 (pill 11px mono tracking .08em, border #1D2026, px-12 py-6, gap 8). Shown on every sports page (draft #8, CPO 2026-10-12); active chip = primary. Counts = live + upcoming matches. */}
+          {sports.length > 1 && (
+            <div className="mb-6 flex flex-wrap gap-2 md:mb-8">
+              {[["", "All", all.length] as const, ...sports.map((s) => [s, sportLabel(s), all.filter((f) => f.sport === s).length] as const)].map(([key, name, n]) => {
+                const active = (sport ?? "") === key;
+                return <Link key={key || "all"} to={key ? sportPath(key) : "/insights/sports"} aria-current={active ? "page" : undefined} className={cn("rounded-full border px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.08em] transition-colors", active ? "border-primary/50 text-primary" : "border-[#1D2026] text-muted-foreground hover:text-primary")}>{name} · {n}</Link>;
+              })}
+            </div>
           )}
           <div className="mb-8 grid gap-3 md:mb-10 md:grid-cols-12 md:gap-4">
             <div className="md:col-span-5">

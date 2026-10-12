@@ -5,7 +5,9 @@ import { useSeoHead } from "@/lib/seo/head";
 import { SITE_URL } from "@/lib/site";
 import { useInsightsSeo } from "@/hooks/useInsightsSeo";
 import { InsightsShell } from "@/components/insightsSeo/InsightsShell";
-import { CiteBlock, Empty, HowComputed, Opening } from "@/components/insightsSeo/parts";
+import { Empty } from "@/components/insightsSeo/parts";
+import { DataFooter, SeriesOpening } from "@/components/insightsSeo/seriesParts";
+import { HERO_ART } from "@/lib/insights/art";
 import { InsightArticle, buildInsights } from "@/components/insightsSeo/insightsFeed";
 import { LoadingState } from "@/components/states";
 import { citeSentence, dataFeedJsonLd, fmtDate, isoDate } from "@/lib/insights";
@@ -37,18 +39,17 @@ const InsightsDailyPage = () => {
 
   return (
     <InsightsShell mobileTitle={t("nav.insights")}>
-      <div className="mb-3 flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.06em] text-muted-foreground">
-        <Link to="/insights" className="hover:text-foreground">← {t("nav.insights")}</Link>
-        <span>·</span>
-        <Link to={`/insights/daily/${prev}`} className="hover:text-foreground">‹ {prev}</Link>
-        {to.getTime() < Date.now() && <Link to={`/insights/daily/${next}`} className="hover:text-foreground">{next} ›</Link>}
+      {/* Brand backflow 2026-10-12 (Figma 1001:17410 / 1004:2776): v2 opening with the Daily illustration; "← INSIGHTS" not built (PD-6), day pager kept. */}
+      <SeriesOpening art={HERO_ART.daily} eyebrow="OmenX Insights · Daily digest" title={t("insights.daily.title", { date: label })} lede={t("insights.daily.lede", { moves, new: fresh, closing })} asOf={to.toISOString()} />
+      <div className="mb-5 flex items-center gap-4 font-mono text-[11px] uppercase tracking-[0.06em] text-muted-foreground">
+        <Link to={`/insights/daily/${prev}`} className="hover:text-primary">‹ {prev}</Link>
+        {to.getTime() < Date.now() && <Link to={`/insights/daily/${next}`} className="hover:text-primary">{next} ›</Link>}
       </div>
-      <Opening eyebrow="OmenX Insights · Daily" title={t("insights.daily.title", { date: label })} lede={t("insights.daily.lede", { moves, new: fresh, closing })} asOf={to.toISOString()} />
       {data.isLoading ? <LoadingState variant="skeleton" skeletonRows={6} /> : feed.length === 0 ? <Empty text={t("insights.daily.empty")} /> : (
         <div className="trading-card px-4">{feed.map((i) => <InsightArticle key={i.id} item={i} />)}</div>
       )}
-      <HowComputed asOf={to.toISOString()} />
-      {feed[0] && <CiteBlock sentence={citeSentence(feed[0].row, to.toISOString())} url={`${SITE_URL}${path}`} />}
+      <div className="mb-10" />
+      <DataFooter n="02" settle="Settles on the official outcome" legend={<>{t("insights.how.body")} {t("insights.how.brand")}</>} sentence={feed[0] ? citeSentence(feed[0].row, to.toISOString()) : t("insights.daily.seo_description", { date: label, moves, new: fresh, closing })} url={`${SITE_URL}${path}`} />
     </InsightsShell>
   );
 };
