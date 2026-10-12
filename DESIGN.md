@@ -1792,6 +1792,19 @@ Don't：用 `new Date()` 本地偏移伪造 session 态；用 `Date.now()` 派�
 
 **同期成文的结构规则**：分段盘口板的分组头（`LiteBoardGroupHeader`）左侧是组名、右侧是注记；注记三态为「已打完 → `Final {比分}`」「进行中 → 橙药丸 + 现比分」「未开打 → `Not played yet`」，且**只能**由 `boardGroupAnnotation()` 一处产出。记分牌的运动形态（列数、列宽、表头词、大数字口径）由 `SegmentSpec` 决定，见 `docs/delivery/sports-live-board-v1.md` §2b。
 
+## §Addendum 2026-10-12 · 美式运动记分牌（NFL / MLB / NHL）（LOCKED）
+
+**适用范围**：`LiveMatchboard`（桌面矩阵 + 移动条）、五个列表面的 live 位、交易页让分/大小分组头。规格表见 `src/lib/sportSegments.ts`，规则与数据契约见 `docs/delivery/sports-live-board-v1.md` §4.8。
+
+1. **形态只加表不加样式**：NFL / NHL 复用篮球骨架（列宽 54、`pts` / `goals` 相加、节钟），MLB 九列局次列宽 34、`runs` 相加。记分牌没有任何新 token。
+2. **钟上限进规格**：`SegmentSpec.clockMax`（UFC 300 / NBA 720 / NFL 900 / NHL 1200），`clockText` 不再写死 300。
+3. **右值前缀统一橙色**：`rightPrefix`——网球 `TB`、棒球 `▲` / `▼`，都走状态橙 `#FF8A3D`，数字沿用 `#C9D1DA`。
+4. **棒球两种空格子**：`—`（#3D444C）= 这个半局还没轮到打；`·` = 这局没打。禁止用 0 或空白代替。
+5. **列表卡 live 位按形态**：有钟写节次 + 钟，棒球写半局 + 局次，电竞写 `Map n`，足球写分钟。禁止对有钟的运动显示比赛分钟。
+6. **让分 / 大小分口径**：组名用运动行话（Spread / Run line / Puck line），注记 `Includes overtime / extra innings`；足球不变。
+
+**禁令**：给 NFL / NHL 单独造视觉；棒球格子里放出局数或垒包；移动条重复局次；对美式运动写 `Regulation time`。
+
 ## §Addendum 2026-09-23 · 网球抢七比分（LOCKED）
 
 **适用范围**：`LiveMatchboard`（桌面矩阵 + 移动条）、`LiteSportsView` Playing now 卡、`SportsStageCard`、`MobileSportsModule`、`HomeSportsCard` live 行、`CalendarBlocks` live 行。判定字段与数据契约见 `docs/delivery/sports-live-board-v1.md` §4.6，词条见 copy-dictionary「Sports」节。

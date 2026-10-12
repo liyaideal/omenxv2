@@ -95,6 +95,11 @@
 | 篮球 | `SPORT_FALLBACK.basketball` | 节 | `Q1`…`Q4`（+ `OT`） | 54 | `pts` | 各节得分**相加** | 节内剩余钟 `3:41` |
 | 网球 | `SPORT_FALLBACK.tennis` | 盘 | `S1` `S2` `S3` | 62 | `sets` | 赢下的盘数 | 当前局比分 `30–15` |
 | LOL · Dota | `SPORT_FALLBACK.moba` | 局 | `G1`…`G5` | 48 | `games` | 赢下的局数 | 当前局已进行时长 `24:10` |
+| 美式足球（NFL） | `SPORT_FALLBACK.american_football` | 节 | `Q1`…`Q4`（+ `OT`） | 54 | `pts` | 各节得分**相加** | 节内剩余钟 `8:42`（上限 900 秒） |
+| 冰球（NHL） | `SPORT_FALLBACK.hockey` | 节 | `P1`…`P3`（+ `OT`） | 54 | `goals` | 各节进球**相加** | 节内剩余钟 `12:07`（上限 1200 秒） |
+| 棒球（MLB） | `SPORT_FALLBACK.baseball` | 局 | `1`…`9`（第 10 局起追加） | 34 | `runs` | 各局得分**相加** | 半局箭头 + 局次 + 出局数 `▼ 7th · 2 out`，无钟 |
+
+**钟上限**：`SegmentSpec.clockMax`——UFC 300 / NBA 720 / NFL 900 / NHL 1200。2026-10-12 前所有钟都被钳在 300 秒，篮球节初会显示 `5:00`，已修。
 
 ### 4.3 四条容易踩的口径
 
@@ -151,6 +156,25 @@
 | `game_points`（网球） | 供应商可能给 `30-15` / `40-A` | `30–15` / `40–AD` | `formatGamePoints` |
 
 字典 fixture 自本轮起一律喂**引擎真实格式**（`1-0`、`LIVE`），由 formatter 输出——之前字典写的是设计后的 `1 – 0`，生产上根本不会出现，字典与生产不是同一条路。新增 case：`Events 列表` EV-9b。
+
+### 4.8 美式运动：NFL / MLB / NHL（2026-10-12 追加）
+
+三种运动各补齐四件事：子导航分组（`NFL` 已有，新增 `Baseball` / `Hockey`）、记分牌形态（§4.2 表末三行）、引擎推进、让分/大小分子市场。
+
+**NFL / NHL** 复用篮球骨架，只有三处不同：钟上限（900 / 1200）；上下文行追加球权 `· KC ball`（`metadata.possession` = 队伍缩写，缺失不显示，NFL 独有）；中场休息同篮球本轮不做 BREAK 态。
+
+**MLB 是新形态**，三条特有规则：
+| 规则 | 值 |
+|---|---|
+| 半局 | 上半客队打、下半主队打。`segment_results[i]` 里**还没轮到打的一方为 `null`**，格子写 `—`；"这局没打"仍是 `null` 整项 → `·`。两种态不许混 |
+| 右值 | 没有钟，写 `▲ 7th` / `▼ 7th`（箭头 #FF8A3D，`metadata.half` = top / bottom）+ ` · 2 out`（`metadata.outs` 0–2，缺失不写） |
+| 移动条 | 段标签不渲染，局次只在右值出现一次 |
+
+**列表卡 live 位**（`SportsMatch.liveLabel`，`sportsData.liveLabelFor` 唯一来源）：足球 `63'`；有钟的运动（NFL / NBA / NHL / UFC）`Q3 8:42`；棒球 `▼ 7th`；电竞 `Map 2`；网球仍为已进行分钟。比赛分钟对有钟的运动没意义，这条同时也治了 CS2 常驻演示的 `279'`。
+
+**让分 / 大小分**（`sportsData.lineWords`）：组名按运动行话——NFL / NBA `Spread`、MLB `Run line`（固定 ±1.5）、NHL `Puck line`，大小分 `Total points / runs / goals`；美式运动注记与 tip 写 **Includes overtime / extra innings**，引擎按终场比分（含加时）结算；足球仍是 Regulation time。每场 2 让分 + 2 大小分，由 `ensure_us_sport_lines(fixture, hcp, total)` 生成，主行必须自指 `fixture_id`。
+
+**引擎** `tick_live_us_sports()`（每 5 分钟，独立于 `tick_live_matches`，只认 `metadata.sport ∈ american_football / hockey / baseball`）：有钟的运动每 tick 走 5 分钟比赛时间、随机得分、到 0 换节、常规时间平分进 OT（10 分钟）；棒球每 tick 推进一个半局、0–3 分偏 0、九局后平分加赛。终场：Winner + 兄弟行一起结算（同 tick_live_matches 的 yes/no 判定）；`demo-live-*` 结算后立即重开（开赛时间重置，不腐烂），其他赛事留给 `roll_sports_matches` 按 end_date 重排。
 
 ### 4.5 红线：同一个数字只能有一处实现
 
@@ -240,6 +264,8 @@
 | `demo-prekick-cs2` | 永远处在「即将开赛」 |
 | `demo-live-wta` | 网球，永远处在「直播中 · 第三盘抢七进行中」，S2 由抢七决出（7⁷ / 6²）——比分静态；`tick_demo_wta()` 每 5 分钟把开赛时间钉在 118 分钟前，列表卡分钟数不腐烂 |
 | `demo-final-wta` | 网球，已结算（2–1，S2 与决胜盘都是抢七），看已决抢七上标随整卡淡出 |
+| `demo-live-nfl` | NFL，永远直播中；`tick_live_us_sports()` 推进→结算→立即重开；带 2 让分 + 2 大小分 |
+| `demo-live-mlb` | MLB，同上 |
 
 它们的存在是为了让研发和测试任何时候都有一个活的例子可看，不必等真实赛程。两条实现细节，改引擎时别踩：
 
@@ -256,7 +282,8 @@
 | 格斗结算结果 | 没有 `Won by KO/TKO · R2 3:41` 这一行 |
 | 足球半场比分 | 库里没有半场数据，两个半场格恒为 `·`，`goals` 恒为 0 |
 | 足球中场休息 | 不进段间态，本版未做 |
-| 篮球 / MOBA | 形态已实现，库里无此两类赛事，只在字典可见（已确认可接受）；网球已有常驻演示赛事（§9） |
+| 篮球 / MOBA | 形态已实现，库里无此两类赛事，只在字典可见（已确认可接受）；网球 / NFL / MLB 已有常驻演示赛事（§9） |
+| NFL 中场 / down & distance、MLB 垒包与球数、NHL 点球大战列 | 本轮不做（§4.8） |
 | 网球超级抢七 | 决胜盘 10 分制未做（§4.6） |
 | 列表卡 live 分钟 | 足球钳在 90′（常规时间）；其他运动自 2026-09-23 起按真实已进行分钟显示，不再被足球的 90 封顶（网球 118′、CS2 按重开后的分钟）；`metadata.sport` 缺失按足球处理 |
 | 移动端全屏 | 移动内联舞台只有静音键，没有全屏入口 |
@@ -278,6 +305,10 @@
 | 记分牌 · 网球（进行中 / 抢七盘已决 / 抢七进行中） | `Sports · Live` T1 / T2 / T3 |
 | 列表面 · 网球抢七比分串（Playing now / 移动模块） | `Events 列表` EV-9t / EV-9t2 |
 | 列表面 · 引擎原始值翻译（比分串格式 / phase 枚举） | `Events 列表` EV-9b |
+| 记分牌 · NFL（进行中 / 加时） | `Sports · Live` NF-1 / NF-2 |
+| 记分牌 · MLB（第 7 局下半 / 加赛局） | `Sports · Live` BB-1 / BB-2 |
+| 记分牌 · NHL | `Sports · Live` HK-1 |
+| 列表面 · 美式运动 live 位（`Q3 8:42` / `▼ 7th` / `P2 12:07`） | `Events 列表` EV-9u |
 | 记分牌 · LOL·Dota | `Sports · Live` G1 |
 | 直播画面九态 | `Sports · Live` S1…S9 |
 | 迷你窗 / 全屏 / Watch 键 | `Sports · Live` C1…C4 |
@@ -303,6 +334,7 @@
 - `tick_live_matches()` — 正常赛事推进与结算
 - `tick_demo_showcase()` — 两条常驻演示赛事的维持
 - `tick_demo_wta()` — 网球常驻演示赛事的开赛时间自愈（每 5 分钟）
+- `tick_live_us_sports()` — NFL / MLB / NHL 推进与结算（每 5 分钟）；`ensure_us_sport_lines()` — 生成让分 / 大小分兄弟行
 
 ## §13 不在本特性范围内
 

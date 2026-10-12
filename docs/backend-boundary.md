@@ -232,3 +232,13 @@
 | 演示补量 `top_up_demo_voucher_volume()` + pg_cron `top-up-demo-voucher-volume`（05:25 UTC） | 🔴 演示专用 | alex_carter 近 30 天成交量 < $12k 时补一笔已结算合约单（trade + Closed position + trade_profit 流水，≤ $4k/次，目标 $15k）让 Vouchers 页 Payout tier 常驻 T3；正式版不存在。migration `20261008120000` |
 | `active_days`：distinct UTC 日，`min_notional` 缺省 $10 | 🟡 | 照抄 |
 | `claim-campaign-grant` 解析 `@period` / `#s<n>` | 🟡 | 只服务券 |
+
+## 2026-10-12 美式运动 NFL / MLB / NHL（append-only 补录）
+
+| 项 | 标记 | 说明 |
+|---|---|---|
+| `events.metadata.sport` ∈ `american_football` / `baseball` / `hockey` 决定记分牌形态 | 🟢 A | 正式版照抄：形态规格在前端 `sportSegments.ts`，服务端只需保证字段值 |
+| `segment_results[i].{home, away}`：棒球未轮到的半局为 `null`；`half` / `outs` / `possession` / `clock` 新字段 | 🟢 A | 数据契约见 delivery §4.8；正式版由真实赛事源填 |
+| 让分 / 大小分兄弟行：主行自指 `fixture_id`，`market_type` handicap / total，`line` 主队视角带符号；美式运动**按终场比分（含加时 / 加赛局）结算** | 🟢 A | 结算口径是产品规则，必须照抄；足球仍按常规时间 |
+| `tick_live_us_sports()` + pg_cron `tick_live_us_sports`（*/5）；`ensure_us_sport_lines()` | 🔴 演示专用 | 随机推进与结算只为 Lovable 演示；正式版接真实比分源 |
+| 常驻演示 `demo-live-nfl` / `demo-live-mlb`（结算后立即重开） | 🔴 演示专用 | 不上正式版 |

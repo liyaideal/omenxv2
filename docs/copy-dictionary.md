@@ -260,6 +260,16 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | **24:10** | MOBA 右上角的当前局已进行时长，无上限 | 24m, 24'10, +24:10 |
 | **W** / **L** | MOBA 已打完那一局的格子内容 | Win/Loss, 1/0, ✓/✗ |
 | **●** | MOBA 当前局的格子内容，橙 `#FF8A3D` | LIVE, ▶, 圆点用其他颜色 |
+| **runs** | 棒球记分牌总数列表头词（各局相加） | R, Score |
+| **P1** / **P2** / **P3** | 冰球的节次列头；`OT` 第四列起 | 1P, Period 1 |
+| **1** … **9** | 棒球的局次列头（纯数字，第 10 局起追加 `10`，没有 OT 字样） | I1, Inn 1 |
+| **▲ 7th · 2 out** / **▼ 7th** | 棒球右上角：橙色半局箭头（▲ 上半 / ▼ 下半）+ 局次序数 + 出局数（outs 缺失不写） | Top 7th, T7, 7上 |
+| **{n}th inning** | 棒球上下文行的段落全称（`MLB · 7th inning`） | Inning 7, 7th |
+| **—** | 棒球记分牌里"该半局还没轮到打"的格子（与"这局没打" `·` 是两种态） | ·, 0, 空 |
+| **{队} ball** | 美式足球上下文行的球权后缀（`NFL · Q3 · KC ball`），`metadata.possession` 缺失不显示 | Possession: KC, 🏈 |
+| **Q3 8:42** / **P2 12:07** / **Map 2** / **▼ 7th** | 列表卡 live 位：有钟的运动写节次 + 节钟，电竞写当前地图，棒球写半局 + 局次；足球仍 `63'` | 279'（电竞分钟）, 90' |
+| **Spread** / **Run line** / **Puck line** | 让分组名按运动：NFL·NBA / MLB（固定 ±1.5）/ NHL；足球仍 `Handicap` | Handicap（美式运动）, Line |
+| **Includes overtime** / **Includes extra innings** | 美式运动让分与大小分的注记（按终场比分结算）；足球仍 `Regulation time` | Regulation time（美式运动） |
 
 ---
 

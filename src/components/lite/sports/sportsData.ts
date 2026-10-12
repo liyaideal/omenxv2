@@ -186,18 +186,22 @@ export const lineWords = (
 
 /** 列表卡 live 位：按运动形态选"分钟 / 节次钟 / 半局 + 局次"。 */
 export const liveLabelFor = (meta: FixtureMeta, minute: number | null): string | null => {
-  const spec = SPORT_FALLBACK[(meta.sport || "").toLowerCase()];
+  const spec =
+    (meta.segments_key ? SPORT_SEGMENTS[meta.segments_key] : undefined) ??
+    SPORT_FALLBACK[(meta.sport || "").toLowerCase()];
   if (spec?.rightValue === "inning") {
     const idx = meta.segment_index ?? null;
     if (idx == null) return null;
     const arrow = meta.half === "bottom" ? "\u25BC " : meta.half === "top" ? "\u25B2 " : "";
     return `${arrow}${ordinal(idx)}`;
   }
-  if (spec?.rightValue === "clock" && spec.clockMax && meta.clock != null) {
-    const sec = Math.max(0, Math.min(spec.clockMax, Number(meta.clock)));
+  if (spec?.rightValue === "clock" && meta.clock != null) {
+    const sec = Math.max(0, Math.min(spec.clockMax ?? 300, Number(meta.clock)));
     const lab = meta.segment_index != null ? `${spec.label(meta.segment_index)} ` : "";
     return `${lab}${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`;
   }
+  // 电竞：比赛分钟没意义，写当前地图。
+  if (spec?.unit === "map" && meta.segment_index != null) return `Map ${meta.segment_index}`;
   return minute != null ? `${minute}'` : null;
 };
 
