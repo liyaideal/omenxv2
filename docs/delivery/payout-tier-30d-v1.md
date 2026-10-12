@@ -16,10 +16,11 @@ Payout tier 是 Vouchers 页右上角那个 T0–T4 的阶梯：档位越高，�
 ### 易混点辨析
 
 1. **"30 天"是滚动窗口，不是固定周期**：每次打开页面按 `now − 30d` 实时算，没有"起算日"、没有"清零日"、没有定时任务。
-2. **Closed 的单也算成交量**。以前只算 `Filled`，仓位一结算 trade 变 `Closed` 就从成交量里消失——这是本轮顺手修掉的既有 bug。Cancelled / Pending 不算。
-3. **掉档不影响 pending**：收益池里的钱留着，等重新达档再领。已领的不追回。
-4. **"reach T4 to unlock $30 more"里的 T4 可以跳档**：它指的是"第一个 cap 比你已领总额高的更高档"，不一定是相邻档。T2 已领 $20 的人直接指向 T4。
-5. **"per claim"是旧文案 bug**：原来写 "T3 releases up to $20 per claim"，代码一直是终身累计。本轮文案改成 "up to $20 in total"。
+2. **成交量按名义额算**：合约 = 保证金 × 杠杆，现货 = 成交金额。$100 保证金开 5× 算 $500。
+3. **Closed 的单也算成交量**。以前只算 `Filled`，仓位一结算 trade 变 `Closed` 就从成交量里消失——这是本轮顺手修掉的既有 bug。Cancelled / Pending 不算。
+4. **掉档不影响 pending**：收益池里的钱留着，等重新达档再领。已领的不追回。
+5. **"reach T4 to unlock $30 more"里的 T4 可以跳档**：它指的是"第一个 cap 比你已领总额高的更高档"，不一定是相邻档。T2 已领 $20 的人直接指向 T4。
+6. **"per claim"是旧文案 bug**：原来写 "T3 releases up to $20 per claim"，代码一直是终身累计。本轮文案改成 "up to $20 in total"。
 
 ### 用户视角
 
@@ -74,6 +75,7 @@ Payout tier 是 Vouchers 页右上角那个 T0–T4 的阶梯：档位越高，�
 ## 3. 恒等式
 
 - `volume30d = Σ amount (status ∈ {Filled, Closed}, created_at ≥ now − 30 × 86400s)`
+- **`amount` = 名义成交额**（交易所通行口径，Liya 2026-10-12 拍板）：合约单 `amount = margin × leverage`，现货单 `amount = 成交金额（= margin）`。不是保证金、不是 PnL、不含手续费。Lovable 里 `trades.amount` 已按此写入（`roll_demo_positions` / 下单路径一致）；正式版按同口径给 `volume_30d`。
 - `current = max tier t s.t. unlock(t) met by (depositTotal, volume30d)`；T0 恒满足
 - `headroom = max(0, current.maxClaim − lifetime_credited)`；`claimable = max(0, min(pending, headroom))`
 - `lifetimeAtCap = lifetime_credited ≥ current.maxClaim`
