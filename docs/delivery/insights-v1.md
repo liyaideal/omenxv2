@@ -77,9 +77,9 @@
 | `/insights` | 首页 | `Prediction Market Data — What OmenX Traders Are Betting Right Now` | 开篇（插画）→ 四数条 → 01 Crypto next round → 02 Stocks today's session → 03 Sports live & next 7 days → 04 Events most traded / biggest moves 24h → 05 Is the crowd right? → About this data → 日报链接 |
 | `/insights/crypto/{slug}` `/insights/stocks/{slug}` | 资产页（一个模板，19 URL） | `Bitcoin Up or Down — Prediction Market Odds & Crowd Accuracy` / `Apple (AAPL) Up or Down Today — Prediction Market Odds` | 开篇 → Live 卡（下一轮）+ 今日四格 → 01 全部轮长（Now + 30 天）→ 02 最近 10 轮 → 03 其他资产 → About → sticky CTA（手机） |
 | `/insights/crypto` `/insights/stocks` | 家族总览 | `Crypto Up or Down — Live Prediction Market Odds` / `Stock Up or Down Today — Prediction Market Odds` | 开篇 → 01 表（加密按资产分组 3×5 行；**股票按 US / HK 分两张表，组内按 24h 成交额排序，页顶市场 chips 跳转；有多少只列多少只，无上限**）→ About |
-| `/insights/sports[/{sport}]` | 运动页 | `{Sport} Prediction Market Odds — Who the Crowd Backs` | 开篇 → 运动 chips（All + 各运动 + 计数）→ Live 卡 + 本周四格 → 01 未来 7 天 → 02 已结算 30 天 → About |
+| `/insights/sports[/{sport}]` | 运动页 | `{Sport} Prediction Market Odds — Who the Crowd Backs` | 开篇 → 运动 chips（All + 各运动 + 计数）→ Live 卡 + 三格（本周场次 / 热门赢率 / 大球占比）+ Biggest upset 卡 → 01 未来 7 天 → 02 已结算 30 天 → About |
 | `/insights/accuracy[/{YYYY-MM}]` | 命中率报告 | `How Accurate Is the Prediction Market Crowd? — OmenX, Last 30 Days` | 开篇 → 四数条 → 01 Which markets does the crowd call right?（两张卡）→ 02 Does a longer round help the crowd?（轮长表）→ 03 往期月报 → About |
-| `/insights/daily/{date}` | 日报 | `Prediction Market Digest {d MMM yyyy} — OmenX Insights` | 开篇 → 前后日翻页 → 当日洞察文章 → About |
+| `/insights/daily/{date}` | 日报 | `Prediction Market Digest {d MMM yyyy} — OmenX Insights` | 前后日翻页 → 开篇 → 三格快照（变动 / 新上 / 将结算）→ 当日洞察文章（每篇一张卡：问题 + 带日期答句 + 四指标）→ About |
 | `/insights/category/{slug}` | 分类页 | `{Category} Prediction Markets — Odds, Moves & Volume` | 开篇 → 01 Trending → 02 by volume → 03 涨跌 → 04 closing soon → About |
 
 slug：资产由名字派生（`Apple (AAPL)` → `aapl`，`Tencent (0700.HK)` → `0700-hk`，`Bitcoin` → `bitcoin`）；分类 = crypto / finance / politics / macro / tech / entertainment / social / sports。`/insights/weekly/*` 已删，301 到 `/insights/accuracy`。

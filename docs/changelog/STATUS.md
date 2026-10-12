@@ -58,6 +58,7 @@
 | IS2-13 | 回流收尾：分类页 / 日报换共享件（Events / Daily 插画 + DataFooter，去「← Insights」）；Sports chips 常驻 + 计数 + 当前项高亮 | ✅ | DESIGN §Addendum 2026-10-12 第 7 条 |
 | IS2-14 | 总交付文档 `docs/delivery/insights-v1.md`（并入 v1/v2 分轮文档，§0.1 字典怎么看）+ 词典 `Insights` 节 + Meegle 交付 | ✅ | 2026-10-12 交付研发 |
 | IS2-15 | 股票总览按 US / HK 分组 + 组内按成交额排序 + 市场 chips 锚点，列表无上限（正式版 100+ 只） | ✅ | Liya 2026-10-12 批 |
+| IS2-16 | 回流漏项补齐：hub 开篇文字列按稿 = 1232 − 插画宽（H1 不再三行）；Sports 概览改三格 + Biggest upset 卡；日报加三格快照条、文章改独立卡、翻页挪到开篇上 | ✅ | DESIGN §Addendum 2026-10-12 第 8 条 |
 
 ## 2026-09-28 — Insights SEO/GEO 数据页（[文档](../delivery/lite-insights-seo-v1.md)）
 

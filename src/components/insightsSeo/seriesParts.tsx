@@ -29,8 +29,10 @@ export const SeriesOpening = ({ eyebrow, title, accent, lede, asOf, art }: { eye
   const heading = i >= 0 ? <>{title.slice(0, i)}<span className="text-primary">{accent}</span>{title.slice(i + accent!.length)}</> : title;
   return (
     <header className="mb-10 md:mb-8">
-      <div className={cn("md:flex md:items-start md:justify-between md:gap-8", !art && "md:block")}>
-        <div className="min-w-0 md:max-w-[744px] md:flex-1">
+      {/* Figma: the text column is exactly (1232 − art width) wide and vertically centred on the art (home 1000:10485: 744 | 456;
+          hubs 1001:15935 etc.: 700 | 532, 620 | 612). Flex row, no gap, art at natural size. */}
+      <div className={cn(art && "md:flex md:items-center")}>
+        <div className={cn("min-w-0", art ? "md:flex-1 md:pr-6" : "md:max-w-[744px]")}>
           <div className="text-[12px] font-semibold uppercase leading-[17px] tracking-[0.04em] text-primary md:text-[11px] md:leading-[15px] md:tracking-[2px]">{eyebrow}</div>
           <h1 className="mt-2 font-display text-[28px] font-bold leading-[1.15] tracking-[-0.02em] md:mt-2.5 md:max-w-[744px] md:text-[48px] md:leading-[1.2] md:tracking-normal">{heading}</h1>
           <p className="mt-3 text-[14px] leading-[18px] text-muted-foreground md:mt-5 md:max-w-[744px] md:text-[18px] md:leading-6 [&_b]:font-medium [&_b]:text-foreground">{lede}</p>
@@ -50,7 +52,7 @@ export const Illustration = ({ art, variant, className }: { art: Art; variant: "
       className={cn("pointer-events-none mt-4 block h-auto w-full select-none md:hidden", variant === "hero" ? "rounded-xl" : "rounded-[4px]", className)} />
     <img src={art.pc} width={art.w} height={art.h} alt="" aria-hidden loading={variant === "hero" ? "eager" : "lazy"} decoding="async" draggable={false}
       onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-      className={cn("pointer-events-none hidden h-auto shrink-0 select-none md:block", variant === "hero" ? "max-w-[46%] rounded-xl" : "max-w-[60%] rounded-xl", className)} />
+      className={cn("pointer-events-none hidden h-auto shrink-0 select-none md:block", variant === "hero" ? "max-w-[50%] rounded-xl" : "max-w-[60%] rounded-xl", className)} />
   </>
 );
 
@@ -176,13 +178,13 @@ export const FourTiles = ({ tiles }: { tiles: Tile[] }) => (
 /* ---------- platform strip ----------
  * Figma 1000:10500 (pc): one card, four 308×173 cells (px-20 py-24): label Space Grotesk 600 10/15 tracking 1.2 primary · value Space Grotesk 700 48/66 · sub Space Grotesk 500 11.
  * Figma 1004:42 (mobile): 2×2 separate cards 165×115 gap 12 (p-16): label 12 · value 32/38 · sub 12. */
-export const Strip = ({ cells }: { cells: { l: string; v: React.ReactNode; d?: React.ReactNode; small?: boolean }[] }) => (
-  <dl className="mb-8 grid grid-cols-2 gap-3 md:mb-12 md:block md:gap-0">
-    <div className="contents md:grid md:grid-cols-4 md:overflow-hidden md:rounded-xl md:border md:border-[#1D2026] md:bg-card">
+export const Strip = ({ cells, cols = 4 }: { cells: { l: string; v: React.ReactNode; d?: React.ReactNode; small?: boolean }[]; cols?: 3 | 4 }) => (
+  <dl className={cn("mb-8 grid md:mb-12 md:block md:gap-0", cols === 3 ? "grid-cols-3 gap-2" : "grid-cols-2 gap-3")}>
+    <div className={cn("contents md:grid md:overflow-hidden md:rounded-xl md:border md:border-[#1D2026] md:bg-card", cols === 3 ? "md:grid-cols-3" : "md:grid-cols-4")}>
       {cells.map((x, i) => (
-        <div key={i} className={cn("min-w-0 overflow-hidden whitespace-nowrap rounded-xl border border-[#1D2026] bg-card p-4 md:rounded-none md:border-0 md:px-5 md:py-6", i >= 1 && "md:border-l md:border-[#1D2026]")}>
-          <dt className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">{x.l}</dt>
-          <dd className={cn("mt-1.5 overflow-hidden text-ellipsis font-display font-bold leading-[38px] tracking-[-0.02em] tabular-nums md:mt-4 md:leading-[66px]", x.small ? "text-[22px] md:text-[36px]" : "text-[28px] md:text-[48px]")}>{x.v}</dd>
+        <div key={i} className={cn("min-w-0 overflow-hidden whitespace-nowrap rounded-xl border border-[#1D2026] bg-card md:rounded-none md:border-0 md:px-5 md:py-6", cols === 3 ? "px-2.5 py-4" : "p-4", i >= 1 && "md:border-l md:border-[#1D2026]")}>
+          <dt className={cn("font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-primary", cols === 3 && "whitespace-normal leading-[15px]")}>{x.l}</dt>
+          <dd className={cn("mt-1.5 overflow-hidden text-ellipsis font-display font-bold leading-[38px] tracking-[-0.02em] tabular-nums md:mt-4 md:leading-[66px]", x.small ? "text-[22px] md:text-[36px]" : cols === 3 ? "text-[24px] md:text-[48px]" : "text-[28px] md:text-[48px]")}>{x.v}</dd>
           {x.d && <dd className="mt-2 truncate font-mono text-[11px] font-medium text-muted-foreground/70 md:mt-3.5">{x.d}</dd>}
         </div>
       ))}
