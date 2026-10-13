@@ -23,7 +23,7 @@
 |---|---|---|---|
 | NT-1 | `notifications` 表 / RLS / realtime / `notify()` / `mark_notifications_read()` / `notify_self()` | ✅ | Lovable Cloud 已应用（query_database）；migration `20261013120000` 入库 |
 | NT-2 | 13 组生产者触发器 + `settled.round_batch` 合并 + `notify_expiring` */30 + `purge_notifications` 每日 | ✅ | 触发器冒烟：买入 / 结算 / 三条合并 / 非 status 更新 no-op / 到期函数双跑 0 |
-| NT-3 | 前端：铃铛 + 角标（trade.* 不计）、Popover、`/notifications` 全页、行组件、i18n ×7 | ✅ | |
+| NT-3 | 前端：铃铛 + 角标（trade.* 不计）、Popover、`/notifications` 全页、行组件、i18n ×7 | ✅ | mainnet 验收修一处：移动全页 sticky tab 原被 tabs-only 容器困住（49px 内即失效），改为 tab + 列表同容器（b940d85c） |
 | NT-4 | 入口：桌面 `Equity → 🔔 → 头像` + 头像菜单 `Language · EN ▸`（LE-1 登录态修订）；移动品牌栏 `[🔔][🌐]` + Me 菜单行 | ✅ | 游客右簇不变 |
 | NT-5 | 演示：alex_carter 35 type / 36 条（今天 5 未读 → 角标 4） | ✅ | 之后由演示引擎自然产生 |
 | NT-6 | 字典 Notifications NT-1…NT-19 + DESIGN §Addendum 2026-10-13 + 词典「Notifications」+ backend-boundary | ✅ | sg:audit PASS，新文件 0 违规 |
