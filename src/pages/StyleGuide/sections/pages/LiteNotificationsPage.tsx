@@ -46,6 +46,7 @@ const POPOVER_CASES: SectionCase[] = [
   { key: "notif-popover-account", label: "NT-3 · Popover · Account tab", spec: [{ state: "account", when: "tab=account", visual: "同壳；Funds / Rewards / Account 行", source: "tabOf(category)" }] },
   { key: "notif-popover-allread", label: "NT-4 · Popover · 全部已读（Mark all read 隐藏）", spec: [{ state: "all read", when: "!hasAnyUnread", visual: "头右槽空；tab 无圆点；行全部 muted", source: "NotificationsPanel" }] },
   { key: "notif-popover-empty", label: "NT-5 · Popover · 单 tab 空态（Trading 有未读）", spec: [{ state: "empty tab", when: "visible.length === 0", visual: "EmptyState section · 品牌猞猁插画 `empty-no-boost.png`（Account）/ `empty-celebrate.png`（Trading）· 'Nothing here yet' / 'Deposits, withdrawals, rewards and security alerts land here.'；无 See all", source: "NotificationEmpty · NOTIFICATION_EMPTY_ART" }] },
+  { key: "notif-popover-empty-trading", label: "NT-5b · Popover · Trading 空态（全清 · empty-celebrate）", spec: [{ state: "empty trading", when: "tab=trading && visible.length === 0", visual: "品牌猞猁「撒彩纸」款 `empty-celebrate.png` · 'You're all caught up' / 'Results, auto-close alerts and trade confirmations land here.'", source: "NOTIFICATION_EMPTY_ART.trading" }] },
   { key: "notif-popover-loading", label: "NT-6 · Popover · 加载骨架", spec: [{ state: "loading", when: "query.isLoading", visual: "5 行骨架（圆 20 + 62% / 40% + 34px）；头右槽空", source: "NotificationSkeleton" }] },
   { key: "notif-popover-error", label: "NT-7 · Popover · 出错", spec: [{ state: "error", when: "query.isError", visual: "ErrorState 'Couldn't load notifications' / 'Check your connection and try again.' / 'Retry' → refetch", source: "states/ErrorState" }] },
   { key: "notif-panel-bare", label: "NT-8 · Popover 本体（无 portal，量宽用）", spec: [{ state: "bare", when: "—", visual: "w-[400px] max-w-[calc(100vw-24px)]；列表 max-h-[460px] overflow-y-auto", source: "NotificationsPanel" }] },
@@ -80,6 +81,7 @@ const PAGE_MOBILE: SectionCase[] = [
   },
   { key: "notif-page-mobile-account", label: "NT-10b · /notifications · mobile · Account", spec: [{ state: "account", when: "tab=account", visual: "同壳", source: "—" }] },
   { key: "notif-page-mobile-empty", label: "NT-11b · /notifications · mobile · 空态 · 全读（无 CheckCheck）", spec: [{ state: "empty", when: "visible.length === 0 && !hasAnyUnread", visual: "品牌猞猁插画空态；右槽空", source: "—" }] },
+  { key: "notif-page-mobile-empty-trading", label: "NT-11c · /notifications · mobile · Trading 空态（全清）", spec: [{ state: "empty trading", when: "tab=trading && visible.length === 0", visual: "`empty-celebrate.png` + 'You're all caught up'", source: "NOTIFICATION_EMPTY_ART.trading" }] },
   { key: "notif-page-mobile-loading", label: "NT-12b · /notifications · mobile · 加载骨架", spec: [{ state: "loading", when: "isLoading", visual: "5 行骨架", source: "NotificationSkeleton" }] },
   { key: "notif-page-mobile-error", label: "NT-13b · /notifications · mobile · 出错", spec: [{ state: "error", when: "isError", visual: "ErrorState + Retry", source: "—" }] },
 ];
@@ -154,7 +156,7 @@ export const LiteNotificationsPage = (_: P) => (
           ))}
         </SubSection>
 
-        <SubSection title="Ⓒ /notifications 全页（NT-9 … NT-13）" platform="shared">
+        <SubSection title="Ⓒ /notifications 全页（NT-9 … NT-13，含 NT-11c）" platform="shared">
           <SectionFrame cases={PAGE_DESKTOP} device="desktop" minHeight={560} />
           <div className="mt-3">
             <SectionFrame cases={PAGE_MOBILE} device="mobile" minHeight={560} />

@@ -170,6 +170,12 @@ export const PopoverEmptyTabPreview = () => (
     <NotificationBell variant="desktop" preview={{ count: 2, open: true, rows: TRADING_FEED, tab: "account", byTab: { trading: 2, account: 0 }, now: NOW }} />
   </PopoverBox>
 );
+/** Trading tab empty = the "all clear" lynx (empty-celebrate). */
+export const PopoverEmptyTradingPreview = () => (
+  <PopoverBox>
+    <NotificationBell variant="desktop" preview={{ count: 2, open: true, rows: ACCOUNT_FEED, tab: "trading", byTab: { trading: 0, account: 2 }, now: NOW }} />
+  </PopoverBox>
+);
 export const PopoverLoadingPreview = () => (
   <PopoverBox>
     <NotificationBell variant="desktop" preview={{ count: 0, open: true, rows: [], state: "loading", byTab: UNREAD_NONE, now: NOW }} />
@@ -285,6 +291,7 @@ const MobilePage = ({ tab, rows, state, markAll = true }: { tab: NotificationTab
 export const PageMobileTradingPreview = () => <MobilePage tab="trading" rows={[...TRADING_FEED, ...ACCOUNT_FEED]} />;
 export const PageMobileAccountPreview = () => <MobilePage tab="account" rows={[...TRADING_FEED, ...ACCOUNT_FEED]} />;
 export const PageMobileEmptyPreview = () => <MobilePage tab="account" rows={[]} markAll={false} />;
+export const PageMobileEmptyTradingPreview = () => <MobilePage tab="trading" rows={[]} markAll={false} />;
 export const PageMobileLoadingPreview = () => <MobilePage tab="trading" rows={[]} state="loading" markAll={false} />;
 export const PageMobileErrorPreview = () => <MobilePage tab="trading" rows={[]} state="error" markAll={false} />;
 

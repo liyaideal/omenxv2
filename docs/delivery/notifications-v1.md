@@ -186,7 +186,7 @@ alex_carter（`968a2b3a…`）已种 36 条 / 35 type（今天 5 条未读，其
 
 ## 7. 状态索引
 
-NT-1 铃铛三态 `notif-bell-states` · NT-2…8 Popover `notif-popover-trading / account / allread / empty / loading / error / notif-panel-bare` · NT-9…11 桌面页 `notif-page-desktop-trading / account / empty` · NT-9b…13b 手机页 `notif-page-mobile-trading / account / empty / loading / error` · NT-14 `notif-mobile-brandbar` · NT-15 `notif-mobile-menu-row` · NT-16 `notif-row-states` · NT-17 `notif-row-unknown` · NT-18 `notif-types-trading` · NT-19 `notif-types-account`。
+NT-1 铃铛三态 `notif-bell-states` · NT-2…8 Popover `notif-popover-trading / account / allread / empty / empty-trading(5b) / loading / error / notif-panel-bare` · NT-9…11 桌面页 `notif-page-desktop-trading / account / empty` · NT-9b…13b 手机页 `notif-page-mobile-trading / account / empty / empty-trading(11c) / loading / error` · NT-14 `notif-mobile-brandbar` · NT-15 `notif-mobile-menu-row` · NT-16 `notif-row-states` · NT-17 `notif-row-unknown` · NT-18 `notif-types-trading` · NT-19 `notif-types-account`。
 
 ## 8. 涉及文件
 
