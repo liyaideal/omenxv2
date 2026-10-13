@@ -17,6 +17,18 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-10-13 — 消息中心 v2 · Updates tab + 公告页 NT-20（[文档](../delivery/notifications-v2.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| NV-1 | `announcements` 表 / RLS / 发布广播 / 撤回 / campaign_live 触发器 / campaign_ending · watchlist_live cron | ✅ | Lovable Cloud 已应用；migration `20261013180000`；冒烟：发布 53/53、撤回归零、两 cron 空跑 0 |
+| NV-2 | Updates 第三枚 tab + 5 type + 默认 tab 落第一个有未读 + 空态 + i18n ×7 | ✅ | |
+| NV-3 | `/announcements` 列表 + `/announcements/:id` 详情（桌面 8+4 / 移动单列）+ Markdown 子集（图片 / 表格）+ 窗口卡 + CTA / Back + 已撤回态 + 页脚入口 | ✅ | 桌面无面包屑（PD-6 同条） |
+| NV-4 | 字典：NT-20…22 + 新节点 Announcements AN-1…13；sg:audit PASS；overflow scan 0 | ✅ | |
+| NV-5 | 演示：6 条公告（含图 + 表的「公告即活动」样板）+ alex Updates 9 行（3 未读）；alex 星标 Alcaraz vs Sinner 今晚开赛 → cron 活体验证 | ✅ | |
+| NV-6 | 正式版：运营后台（发布 / 定时 / 撤回 / 预览 / 多语言）；大用户量广播改拉模式 | ⬜ | 研发侧 |
+| NV-7 | 关注「临近结算」提醒（A9 本轮不做；字段在） | ⬜ | 待 CPO 要 |
+
 ## 2026-10-13 — 消息中心 Notifications NT-1（[文档](../delivery/notifications-v1.md)）
 
 | # | 项 | Status | Notes |
@@ -28,7 +40,7 @@
 | NT-5 | 演示：alex_carter 35 type / 36 条（今天 5 未读 → 角标 4） | ✅ | 之后由演示引擎自然产生 |
 | NT-6 | 字典 Notifications NT-1…NT-19 + DESIGN §Addendum 2026-10-13 + 词典「Notifications」+ backend-boundary | ✅ | sg:audit PASS，新文件 0 违规 |
 | NT-7 | 正式版：Pro 挂单成交 / 撤单两条 type；`autoclose.*` / `new_session` 服务端产出；邮件副本按四开关 | ⬜ | 研发侧 |
-| NT-8 | v2：`system` category → Updates tab（活动 / 公告），运营后台 | ⬜ | 待立项 |
+| NT-8 | v2：`system` category → Updates tab（活动 / 公告），运营后台 | ✅ | 2026-10-13 晚同日交付（见上节 NV-1…5）；运营后台 → NV-6 |
 
 ## 2026-10-08 — Vouchers Payout tier 近 30 天滚动 PT-1（[文档](../delivery/payout-tier-30d-v1.md)）
 

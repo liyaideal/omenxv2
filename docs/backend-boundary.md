@@ -258,3 +258,16 @@
 | `trade.order_filled / order_cancelled`（Pro 挂单） | 🟢 A · 正式版必做 | Lovable 没有订单账本（红线 4），正式版 v1 必须补这两条进 Trading tab |
 | `system` category（活动 / 公告 → v2 Updates tab） | 预留 | 需运营后台，不在 v1 |
 | 邮件副本按 `profiles.notification_prefs` 四开关分发 | 🟡 B | Lovable 只存偏好不发信 |
+
+## 2026-10-13 消息中心 v2 · Updates tab + 公告页（append-only 补录）
+
+| 项 | 标记 | 说明 |
+|---|---|---|
+| `announcements` 表（kind / title / summary / body_md / cta / window / affects / status / published_at / locale） | 🟡 B | 字段语义、两种 kind、published 才公开、withdrawn 删通知是需求；存储自选 |
+| 发布 = 广播：`trg_announcements_notify` 对 `profiles` 全员 `notify()`，dedupe `ann:<id>` | 🟡 B | "发布那一刻全员各一条、同一公告只一条"是需求；大用户量正式版可改「一条广播 + 每人已读表」拉模式，前端语义不变 |
+| 写公告：Lovable 阶段用 SQL 手工插，无后台页 | 🔴 演示专用 | 正式版需**运营后台**（发布 / 定时 / 撤回 / 预览 / 多语言副本），研发侧立项 |
+| `system.campaign_live` 触发器（campaigns → live 广播全员） | 🟡 B | 活动服务同一业务点发出 |
+| `notify_campaign_ending()` cron */30，只给 `campaign_participations` 里的人（A8） | 🟡 B | "只提醒参与过的"是需求 |
+| `notify_watchlist_live()` cron */5：`user_watchlist × events.start_date` 最近 10 分钟 | 🟡 B | 赛事服务按 kickoff 推；「临近结算」本轮不做（A9），`events.end_date / expected_settlement_time` 字段在，等 CPO 要 |
+| 公告正文 Markdown 子集（含图片 / 表格，无 HTML） | 🟢 A | 渲染规则照抄（`src/lib/markdownLite.ts`）；正式版若换渲染器须保持同一子集与安全策略 |
+| 公告多语言 | 预留 | v2 只有 en 正文；`locale` 列在；正式版按 locale 多副本 |

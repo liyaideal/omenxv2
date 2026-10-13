@@ -985,7 +985,7 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | 概念 | 是什么 | 判定表达式 | 一句话类比 |
 |---|---|---|---|
 | **type** | 一条通知的机器键，决定模板 / icon / 色 / 深链 | `notifications.type`，35 个枚举（下表） | 邮件模板编号 |
-| **Trading / Account**（tab） | 两枚 tab；库里 7 个 category 映射上来 | `settled / autoclose / trades → Trading`；`funds / rewards / account → Account`；`system` → v2 `Updates` | 抽屉分格 |
+| **Trading / Account / Updates**（tab） | 三枚 tab；库里 7 个 category 映射上来 | `settled / autoclose / trades → Trading`；`funds / rewards / account → Account`；`system → Updates`（v2，2026-10-13） | 抽屉分格 |
 | **unread**（计角标） | 铃铛数字与 tab 圆点的口径 | `read_at IS NULL AND type NOT LIKE 'trade.%'`（Buy / Cash out 不计，行保留未读样式） | 自己发的不算新消息 |
 | **read** | 点行 / Mark all read 才已读；打开面板不算 | `read_at IS NOT NULL` | 打开列表 ≠ 打开邮件 |
 | **round batch** | 同一事件 ≥3 条在一次结算里一起 Closed → 合成一条 | 语句级触发器 `count(*) ≥ 3 GROUP BY user_id, event_name` | 一叠回执一个信封 |
@@ -993,7 +993,7 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | **Mark all read** | 全部已读（含 `trade.*`） | `mark_notifications_read(null)`；0 未读时按钮隐藏 | 清空红点 |
 | **90 天** | 保留期，未读也删 | `purge_notifications()` | 短信自动清理 |
 
-### 35 个 type（标题 / 正文 = en 模板；`{{x}}` 由前端格式化后插值）
+### 40 个 type（35 v1 + 5 v2 Updates；标题 / 正文 = en 模板；`{{x}}` 由前端格式化后插值）
 
 | tab | type | 触发 | 标题 | 正文 | 深链 | 计角标 |
 |---|---|---|---|---|---|---|
@@ -1032,6 +1032,11 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | Account | `account.api_key_created` | api_keys INSERT | `API key created` | `{{label}} · {{prefix}}…` | `/settings/api` | ✓ |
 | Account | `account.api_key_revoked` | status → revoked | `API key revoked` | `{{label}} · {{prefix}}…` | `/settings/api` | ✓ |
 | Account | `account.wallet_linked` | connected_accounts INSERT | `Wallet connected` | `{{address}}` | `/rewards/campaign/h2e` | ✓ |
+| Updates | `system.announcement` | 公告发布（广播全员，v2） | `{{title}}`（公告原文） | `{{summary}}`（公告原文） | `/announcements/:id` | ✓ |
+| Updates | `system.maintenance` | 维护公告发布（广播全员，v2） | `{{title}}` | `{{summary}}` | `/announcements/:id` | ✓ |
+| Updates | `system.campaign_live` | campaigns → live（广播全员，v2） | `New campaign: {{campaign}}` | `{{task}}{{ends}}`（`ends` = ` · ends Oct 31, 23:59`，无 ends_at 省略） | `/rewards/campaign/:id` | ✓ |
+| Updates | `system.campaign_ending` | 活动结束前 24h（cron，只给参与者，v2） | `{{campaign}} ends in 24h` | `claim before {{deadline}}` | `/rewards/campaign/:id` | ✓ |
+| Updates | `system.watchlist_live` | 星标赛事到开赛时间（cron，v2） | `{{event}} is live` | `a starred event just opened · tap to trade` | `/trade?event=` | ✓ |
 
 插值格式（`lib/notifications.ts notificationVars()`）：`{{pnl}}` / `{{net}}` = `signedUsd()`（`+$38.20` / `−$25.00`，U+2212）；`{{cost}}` / `{{amount}}` = `$1,234.56`；`{{face}}` = `faceUsd()`（整数无小数 `$25`）；`{{side}}` = `legTitle(resolveLegSide(option_label, side, side_labels))`（Yes / No / Up / Down / 别名）；`{{boost}}` = `` / ` · 2× Boost`（1× 不显示，与 `boostSuffix()` 同规则）；`{{ratio}}` = `83%`；`{{deadline}}` = `notifDeadline()` `Oct 14, 09:00`；`{{kind}}` = `Voucher` / `USDC`；`{{account}}` = `Standard Account` / `Boost Account`；`{{where}}` = `device · location`（空项省略）。未知 type → 标题 = 原样 type，无正文。
 
@@ -1040,10 +1045,10 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | Canonical | Meaning | Banned variants |
 |---|---|---|
 | **Notifications** | 页面标题 / 菜单行 / 面板头 / Settings 卡同名 | Inbox, Messages, Alerts, Message Center（内部名） |
-| **Trading · Account** | 两枚 tab（无 All） | Results, Trades, Funds, Rewards（细分名只在 category） |
+| **Trading · Account · Updates** | 三枚 tab（无 All；Updates = v2） | Results, Trades, Funds, Rewards, News, Announcements（细分名只在 category） |
 | **Mark all read** | 全部已读（面板文字钮 / 页头右槽 / 手机 CheckCheck） | Clear all, Dismiss |
 | **See all** | 面板底 → `/notifications` | View all, More |
-| **You're all caught up / Nothing here yet** | 空态标题（Trading / Account） | No notifications |
+| **You're all caught up / Nothing here yet / Nothing new** | 空态标题（Trading / Account / Updates） | No notifications |
 | **Couldn't load notifications · Retry** | 出错 | — |
 | **That's everything from the last 90 days** | 全页列表底 | — |
 | **Sign in to see your notifications** | 游客门 | — |
@@ -1059,3 +1064,50 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | `badgeText(n)` | `` / `7` / `99+` | 铃铛与菜单计数 |
 | `countsAsUnread(row)` | boolean | `trade.*` 永不计 |
 | `tabOf(row)` | `trading` / `account` | category → tab |
+
+---
+
+## Announcements（`/announcements` · `/announcements/:id`，公开内容页，2026-10-13 v2）
+
+运营写的公告。两种 `kind`；发布 = 广播一条 `system.announcement / system.maintenance` 通知给全员（标题正文 = 公告的 title / summary 原样）；撤回 = 删通知 + 正文页「已不可用」。Lite 词照旧；正文由运营写，禁词表同样适用。
+
+### 概念
+
+| 概念 | 是什么 | 判定表达式 | 一句话类比 |
+|---|---|---|---|
+| **kind** | Announcement（信息）/ Maintenance（要注意时间） | `announcements.kind` | 公告 vs 停水通知 |
+| **published** | 可见、已广播 | `status = 'published'`（RLS 只放这一种） | 已张贴 |
+| **withdrawn** | 下架 + 已发通知删除 | `status = 'withdrawn'` | 撕掉 |
+| **window** | 维护窗口 + 影响范围 | `window_starts_at / window_ends_at / affects / not_affected` | 停水时段 |
+| **CTA** | 可选一枚按钮 | `cta_label && cta_href` 才渲染 | 公告末尾的「点此前往」 |
+| **More announcements** | 详情页最近 3 条（排除当前）+ See all | `useRecentAnnouncements(exclude, 3)`；0 条隐藏整栏 | 相关公告 |
+| **from notifications** | 从通知行进来才出 Back 钮 | `location.state.from === 'notifications' && user` | 从哪来回哪去 |
+
+### 标题 / 标签（UI 词）
+
+| Canonical | Meaning | Banned variants |
+|---|---|---|
+| **Announcements** | 列表页标题 / 页脚 Resources 行 / 移动 header | News, Updates（Updates 是 tab 名）, Notices, Blog |
+| **Announcement · Maintenance** | kind chip / 移动详情 header 标题 | Notice, Downtime, Alert |
+| **Window** | 窗口卡第一行词头 | Time, Schedule |
+| **{{range}} your time** | 本地换算括号 | local time |
+| **Affects: … · Not affected: …** | 窗口卡第二行 | Impact, Scope |
+| **Load more** | 列表翻页钮 | Show more, Next |
+| **That's everything** | 列表到底（≥5 行） | No more |
+| **More announcements** | 详情页右栏 / 移动下方眉线 | Related, Recent |
+| **See all announcements →** | 右栏底链 | View all |
+| **Back to Notifications** | 详情页副钮 | Back, Return |
+| **This announcement is no longer available** | 已撤回 / 不存在 | 404, Not found |
+| **All announcements** | 已撤回态的胶囊钮 | Go back |
+| **Nothing posted yet** | 列表空态标题 | No announcements |
+| **Couldn't load announcements · Retry** | 出错 | — |
+
+### helper 家族（`src/lib/announcements.ts`，成对入典）
+
+| 函数 | 输出 | 规则 |
+|---|---|---|
+| `annPublished(iso)` | `Oct 13, 2026 · 15:02` | 发布时间，本地，**年份常显**（公告是存档性内容） |
+| `annListDate(iso, compact)` | `Oct 13, 2026` / `Oct 13`（compact 且当年） | 列表与右栏日期；移动 compact |
+| `annWindowUtc(s, e)` | `Oct 15, 02:00–04:00 UTC` / `Oct 15, 22:00 – Oct 16, 02:00 UTC` / `Oct 15, 02:00 UTC` | 窗口卡 UTC 段 |
+| `annWindowLocal(s, e)` | `10:00–12:00` / `Oct 16, 06:00 – 10:00` | 括号里的本地段；`viewerIsUtc()` 时省略 |
+| `parseMarkdown(src)` | Block[] | Markdown 子集（§delivery v2 3.4）；无 HTML 透传；`safeHref` 只放行 http(s) / `/` / mailto |
