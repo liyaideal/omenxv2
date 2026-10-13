@@ -77,7 +77,7 @@ export default function NotificationsPage() {
 
   const openRow = (row: NotificationRow) => {
     if (!row.read_at) void markRead([row.id]);
-    if (row.deep_link) navigate(row.deep_link);
+    if (row.deep_link) navigate(row.deep_link, { state: { from: "notifications" } });
   };
 
   const footer = (

@@ -37,6 +37,8 @@ import RecoveryRequest from "./pages/RecoveryRequest";
 import RecoveryRequestDetail from "./pages/RecoveryRequestDetail";
 import Settings from "./pages/Settings";
 import NotificationsPage from "./pages/NotificationsPage";
+import AnnouncementsPage from "./pages/AnnouncementsPage";
+import AnnouncementPage from "./pages/AnnouncementPage";
 import { NotificationsRuntime } from "@/components/notifications/NotificationsRuntime";
 import ResetPassword from "./pages/ResetPassword";
 import LiteRewardsPage from "./pages/lite/LiteRewardsPage";
@@ -257,6 +259,8 @@ const App = () => (
               <Route path="/vouchers" element={<Vouchers />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/announcements" element={<AnnouncementsPage />} />
+              <Route path="/announcements/:id" element={<AnnouncementPage />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/settings/transparency" element={<TransparencyPage />} />
               <Route path="/settings/api" element={<ApiManagement />} />

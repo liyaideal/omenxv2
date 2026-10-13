@@ -170,7 +170,8 @@ export const NotificationBell = ({
     if (preview) return;
     if (!row.read_at) void markRead([row.id]);
     setOpen(false);
-    if (row.deep_link) navigate(row.deep_link);
+    // `from` lets /announcements/:id offer "Back to Notifications" (A5).
+    if (row.deep_link) navigate(row.deep_link, { state: { from: "notifications" } });
   };
 
   if (variant === "mobile") {

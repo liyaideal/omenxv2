@@ -91,6 +91,7 @@ export const SeoFooter = () => {
     {
       heading: t("legal.footer.headings.resources"),
       links: [
+        { label: t("legal.footer.links.announcements"), path: "/announcements" }, // Notifications v2 (CPO A2): guests' only entry
         { label: t("legal.footer.links.developers"), path: "/developers" },
         { label: t("nav.affiliateProgram"), path: "/affiliate" },
         { label: t("legal.footer.links.on_chain_transparency"), path: "/settings/transparency" },
