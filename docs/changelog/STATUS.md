@@ -17,6 +17,19 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-10-13 — 消息中心 Notifications NT-1（[文档](../delivery/notifications-v1.md)）
+
+| # | 项 | Status | Notes |
+|---|---|---|---|
+| NT-1 | `notifications` 表 / RLS / realtime / `notify()` / `mark_notifications_read()` / `notify_self()` | ✅ | Lovable Cloud 已应用（query_database）；migration `20261013120000` 入库 |
+| NT-2 | 13 组生产者触发器 + `settled.round_batch` 合并 + `notify_expiring` */30 + `purge_notifications` 每日 | ✅ | 触发器冒烟：买入 / 结算 / 三条合并 / 非 status 更新 no-op / 到期函数双跑 0 |
+| NT-3 | 前端：铃铛 + 角标（trade.* 不计）、Popover、`/notifications` 全页、行组件、i18n ×7 | ✅ | |
+| NT-4 | 入口：桌面 `Equity → 🔔 → 头像` + 头像菜单 `Language · EN ▸`（LE-1 登录态修订）；移动品牌栏 `[🔔][🌐]` + Me 菜单行 | ✅ | 游客右簇不变 |
+| NT-5 | 演示：alex_carter 35 type / 36 条（今天 5 未读 → 角标 4） | ✅ | 之后由演示引擎自然产生 |
+| NT-6 | 字典 Notifications NT-1…NT-19 + DESIGN §Addendum 2026-10-13 + 词典「Notifications」+ backend-boundary | ✅ | sg:audit PASS，新文件 0 违规 |
+| NT-7 | 正式版：Pro 挂单成交 / 撤单两条 type；`autoclose.*` / `new_session` 服务端产出；邮件副本按四开关 | ⬜ | 研发侧 |
+| NT-8 | v2：`system` category → Updates tab（活动 / 公告），运营后台 | ⬜ | 待立项 |
+
 ## 2026-10-08 — Vouchers Payout tier 近 30 天滚动 PT-1（[文档](../delivery/payout-tier-30d-v1.md)）
 
 | # | 项 | Status | Notes |
@@ -32,7 +45,7 @@
 
 | # | 项 | Status | Notes |
 |---|---|---|---|
-| LE-1 | 桌面顶栏 `LanguageChip`（未登录 Sign In 左 / 登录后 Equity 左，lg 起显示；头像菜单 Language 子菜单删） | ✅ | Lovable 已上线 |
+| LE-1 | 桌面顶栏 `LanguageChip`（未登录 Sign In 左 / 登录后 Equity 左，lg 起显示；头像菜单 Language 子菜单删） | ✅ | Lovable 已上线。**2026-10-13 修订（消息中心方案 A）**：登录态 chip 退役，位置给铃铛；语言回到头像菜单 `Language · EN ▸` 子菜单行（Settings 之上）。游客 chip 不变 |
 | LE-2 | 移动品牌栏右槽 🌐 → `LanguageDrawer`；Me 抽屉加 Language 行 | ✅ | |
 | LE-3 | Settings › Preferences 改用同一语言列表（灰短码 + 本名 + ✓） | ✅ | |
 | LE-4 | 行为：点选即生效 + toast；登录后 profile 无语言时带入游客选值 | ✅ | |

@@ -115,7 +115,7 @@ const ROW_CASES: SectionCase[] = [
   },
   { key: "notif-row-unknown", label: "NT-17 · 行 · 未知 type（default 分支）", spec: [{ state: "unknown", when: "type ∉ NOTIFICATION_TYPES", visual: "Bell muted + 原样 type 作标题、无正文；不进任何语义色、不计角标口径之外", source: "notificationMeta() DEFAULT_META" }] },
   { key: "notif-types-trading", label: "NT-18 · Trading 全 type（9）· 未读 · 最长变体", spec: [{ state: "all", when: "—", visual: "settled.win / loss / flat / round_batch · autoclose.tight / soon / done · trade.bought / cashed_out", source: "copy-dictionary「Notifications」" }] },
-  { key: "notif-types-account", label: "NT-19 · Account 全 type（26）· 未读 · 最长变体", spec: [{ state: "all", when: "—", visual: "funds ×7 · reward ×11 · account ×8", source: "copy-dictionary「Notifications」" }] },
+  { key: "notif-types-account", label: "NT-19 · Account 全 type（26）· 未读 · 最长变体（标题单行 ellipsis 为设计；sg-overflow-scan 已排除 text-overflow: ellipsis）", spec: [{ state: "all", when: "—", visual: "funds ×7 · reward ×11 · account ×8", source: "copy-dictionary「Notifications」" }] },
 ];
 
 export const LiteNotificationsPage = (_: P) => (

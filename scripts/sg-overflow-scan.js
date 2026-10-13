@@ -25,7 +25,8 @@
     }
     for (const el of d.body.querySelectorAll("span,div,button,strong")) {
       if (el.children.length) continue; const cs = w.getComputedStyle(el);
-      if (cs.whiteSpace === "nowrap" && el.clientWidth > 0 && el.scrollWidth > el.clientWidth + 1 && cs.overflow !== "visible")
+      // text-overflow: ellipsis = deliberate single-line truncation (e.g. Notifications titles, 2026-10-13), not a clip.
+      if (cs.whiteSpace === "nowrap" && el.clientWidth > 0 && el.scrollWidth > el.clientWidth + 1 && cs.overflow !== "visible" && cs.textOverflow !== "ellipsis")
         hits.push(`clipped nowrap "${(el.textContent || "").trim().slice(0, 30)}" ${el.scrollWidth} > ${el.clientWidth}`);
       if (cs.whiteSpace !== "nowrap" && el.getClientRects().length > 1 && /^[A-Z0-9 $/]+$/.test((el.textContent || "").trim()) && (el.textContent || "").trim().length < 14)
         hits.push(`label wrapped "${(el.textContent || "").trim()}"`);

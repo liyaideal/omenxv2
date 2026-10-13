@@ -972,3 +972,90 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | **As of {date} {hh:mm} UTC** | 数据时间戳（绿点） | Updated, Last refreshed |
 
 固定导语（每个准确率模块开头 + 页尾图例）：*Before every round settles, one side is priced above 50¢ — that's where the crowd leans. We count how often that side actually won. 50% is a coin flip.*
+
+
+---
+
+## Notifications（`/notifications` · 顶栏铃铛 · 品牌栏铃铛 · Me 菜单行，2026-10-13）
+
+站内消息中心。服务端只存 `type + params`，标题 / 正文是 i18n 模板 `notifications.<type>.title / .body`（7 语种，`src/locales/*.json` 命名空间 `notifications`）。Lite 词：Boost / auto-close / Bought / Cashed out / Voucher / Airdrop / Standard Account；禁词表全适用。
+
+### 概念
+
+| 概念 | 是什么 | 判定表达式 | 一句话类比 |
+|---|---|---|---|
+| **type** | 一条通知的机器键，决定模板 / icon / 色 / 深链 | `notifications.type`，35 个枚举（下表） | 邮件模板编号 |
+| **Trading / Account**（tab） | 两枚 tab；库里 7 个 category 映射上来 | `settled / autoclose / trades → Trading`；`funds / rewards / account → Account`；`system` → v2 `Updates` | 抽屉分格 |
+| **unread**（计角标） | 铃铛数字与 tab 圆点的口径 | `read_at IS NULL AND type NOT LIKE 'trade.%'`（Buy / Cash out 不计，行保留未读样式） | 自己发的不算新消息 |
+| **read** | 点行 / Mark all read 才已读；打开面板不算 | `read_at IS NOT NULL` | 打开列表 ≠ 打开邮件 |
+| **round batch** | 同一事件 ≥3 条在一次结算里一起 Closed → 合成一条 | 语句级触发器 `count(*) ≥ 3 GROUP BY user_id, event_name` | 一叠回执一个信封 |
+| **Boost check tier** | `autoclose.tight` = Boost usage ≥ 80%；`autoclose.soon` ≥ 95%；每次进入档位发一次 | `riskRatio ≥ 80 / ≥ 95`（Portfolio Boost check 同一数） | 油表黄灯 / 红灯 |
+| **Mark all read** | 全部已读（含 `trade.*`） | `mark_notifications_read(null)`；0 未读时按钮隐藏 | 清空红点 |
+| **90 天** | 保留期，未读也删 | `purge_notifications()` | 短信自动清理 |
+
+### 35 个 type（标题 / 正文 = en 模板；`{{x}}` 由前端格式化后插值）
+
+| tab | type | 触发 | 标题 | 正文 | 深链 | 计角标 |
+|---|---|---|---|---|---|---|
+| Trading | `settled.win` | 结算 pnl > 0 | `{{event}} settled — you won` | `{{side}} · {{pnl}}` | `/portfolio/settlement/:id` | ✓ |
+| Trading | `settled.loss` | 结算 pnl < 0 | `{{event}} settled` | `{{side}} · {{pnl}}` | 同上 | ✓ |
+| Trading | `settled.flat` | 结算 pnl = 0 | `{{event}} settled` | `{{side}} · your {{cost}} is back` | 同上 | ✓ |
+| Trading | `settled.round_batch` | 同事件 ≥3 条同刻结算 | `{{series}} · {{n}} rounds settled` | `net {{net}}` | `/portfolio/settlements` | ✓ |
+| Trading | `autoclose.tight` | Boost usage 进入 ≥ 80% | `Boost check: getting tight` | `Boost usage {{ratio}} · add funds or cash out` | `/portfolio` | ✓ |
+| Trading | `autoclose.soon` | 进入 ≥ 95% | `Boost check: auto-close soon` | 同上 | `/portfolio` | ✓ |
+| Trading | `autoclose.done` | `close_reason = auto_close` | `{{event}} auto-closed` | `{{side}}{{boost}} · {{pnl}}` | `/portfolio/settlement/:id` | ✓ |
+| Trading | `trade.bought` | positions INSERT | `Bought {{side}} · {{cost}}` | `{{event}}{{boost}}` | `/trade?event=` | — |
+| Trading | `trade.cashed_out` | `close_reason = cashout` | `Cashed out {{side}}` | `{{event}} · {{pnl}}` | `/portfolio/settlement/:id` | — |
+| Account | `funds.deposit_done` | 入金 completed | `Deposit received` | `+{{amount}} USDC · {{account}}` | `/wallet` | ✓ |
+| Account | `funds.deposit_failed` | 入金 failed | `Deposit failed` | `{{amount}} USDC · tap for details` | `/wallet` | ✓ |
+| Account | `funds.withdraw_submitted` | 出金 pending | `Withdrawal submitted` | `{{amount}} USDC · usually within 30 min` | `/wallet` | ✓ |
+| Account | `funds.withdraw_done` | 出金 completed | `Withdrawal sent` | `{{amount}} USDC · view on explorer` | `/wallet` | ✓ |
+| Account | `funds.withdraw_failed` | 出金 failed / rejected | `Withdrawal failed` | `{{amount}} USDC is back in your account` | `/wallet` | ✓ |
+| Account | `funds.recovery_update` | 找回 completed / rejected | `Recovery request {{status}}` | `{{amount}} {{token}} on {{network}}` | `/wallet/recovery/:id` | ✓ |
+| Account | `funds.credit` | `bonus` 入账 | `{{amount}} credited` | `{{reason}}` | `/wallet` | ✓ |
+| Account | `reward.voucher_issued` | 发券 | `You got a {{face}} Voucher` | `{{source}} · expires {{deadline}}` | `/vouchers` | ✓ |
+| Account | `reward.voucher_expiring` | 到期前 24h（cron） | `Voucher expires in 24h` | `{{face}} · use it before {{deadline}}` | `/vouchers` | ✓ |
+| Account | `reward.voucher_expired` | status → expired | `Voucher expired` | `{{face}} · {{source}}` | `/vouchers` | ✓ |
+| Account | `reward.voucher_earnings_unlocked` | 档位解冻 accrual | `{{amount}} voucher earnings unlocked` | `{{tier}} · claim in Vouchers` | `/vouchers` | ✓ |
+| Account | `reward.grant_claimable` | grant → claimable | `{{amount}} {{kind}} ready to claim` | `{{campaign}} · {{task}}` | `/rewards/campaign/:id` | ✓ |
+| Account | `reward.grant_expiring` | 活动结束前 24h（cron） | `{{amount}} {{kind}} expires in 24h` | `{{campaign}} · {{task}} · claim before {{deadline}}` | 同上 | ✓ |
+| Account | `reward.task_claimable` | user_task → completed | `Task done — claim your reward` | `{{task}} · {{points}} points` | `/rewards` | ✓ |
+| Account | `reward.referral_joined` | referrals INSERT（给 referrer） | `{{username}} joined with your code` | `your referral voucher is on its way` | `/affiliate` | ✓ |
+| Account | `reward.airdrop_credited` | airdrop INSERT | `Airdrop landed: {{event}}` | `{{side}} · {{amount}} · expires {{deadline}}` | `/portfolio/airdrops` | ✓ |
+| Account | `reward.airdrop_expiring` | 到期前 24h（cron） | `Airdrop expires in 24h` | `{{event}} · {{side}}` | `/portfolio/airdrops` | ✓ |
+| Account | `reward.treasure_opened` | treasure_drops INSERT | `Treasure box opened` | `+{{points}} points` | `/rewards` | ✓ |
+| Account | `account.new_session` | SIGNED_IN（每会话一次） | `New sign-in` | `{{where}} · {{time}}` | `/settings` | ✓ |
+| Account | `account.password_changed` | 密码修改 | `Password changed` | `not you? reset it now` | `/settings` | ✓ |
+| Account | `account.email_changed` | profiles.email 变更 | `Login email updated` | `{{email}}` | `/settings` | ✓ |
+| Account | `account.2fa_on` | totp_enabled → true | `Two-factor turned on` | （无正文） | `/settings` | ✓ |
+| Account | `account.2fa_off` | totp_enabled → false | `Two-factor turned off` | `not you? turn it back on` | `/settings` | ✓ |
+| Account | `account.api_key_created` | api_keys INSERT | `API key created` | `{{label}} · {{prefix}}…` | `/settings/api` | ✓ |
+| Account | `account.api_key_revoked` | status → revoked | `API key revoked` | `{{label}} · {{prefix}}…` | `/settings/api` | ✓ |
+| Account | `account.wallet_linked` | connected_accounts INSERT | `Wallet connected` | `{{address}}` | `/rewards/campaign/h2e` | ✓ |
+
+插值格式（`lib/notifications.ts notificationVars()`）：`{{pnl}}` / `{{net}}` = `signedUsd()`（`+$38.20` / `−$25.00`，U+2212）；`{{cost}}` / `{{amount}}` = `$1,234.56`；`{{face}}` = `faceUsd()`（整数无小数 `$25`）；`{{side}}` = `legTitle(resolveLegSide(option_label, side, side_labels))`（Yes / No / Up / Down / 别名）；`{{boost}}` = `` / ` · 2× Boost`（1× 不显示，与 `boostSuffix()` 同规则）；`{{ratio}}` = `83%`；`{{deadline}}` = `notifDeadline()` `Oct 14, 09:00`；`{{kind}}` = `Voucher` / `USDC`；`{{account}}` = `Standard Account` / `Boost Account`；`{{where}}` = `device · location`（空项省略）。未知 type → 标题 = 原样 type，无正文。
+
+### 标题 / 标签（UI 词）
+
+| Canonical | Meaning | Banned variants |
+|---|---|---|
+| **Notifications** | 页面标题 / 菜单行 / 面板头 / Settings 卡同名 | Inbox, Messages, Alerts, Message Center（内部名） |
+| **Trading · Account** | 两枚 tab（无 All） | Results, Trades, Funds, Rewards（细分名只在 category） |
+| **Mark all read** | 全部已读（面板文字钮 / 页头右槽 / 手机 CheckCheck） | Clear all, Dismiss |
+| **See all** | 面板底 → `/notifications` | View all, More |
+| **You're all caught up / Nothing here yet** | 空态标题（Trading / Account） | No notifications |
+| **Couldn't load notifications · Retry** | 出错 | — |
+| **That's everything from the last 90 days** | 全页列表底 | — |
+| **Sign in to see your notifications** | 游客门 | — |
+
+### helper 家族（`src/lib/notifications.ts`，成对入典）
+
+| 函数 | 输出 | 规则 |
+|---|---|---|
+| `notifTime(iso)` | `14:05` / `Yesterday 14:05` / `Oct 3` / `Oct 3, 2025` | 行时间列；`settleLabel()` 家族的兄弟：今天只时分、昨天带 Yesterday、更早只日期；本地 24h，无时区后缀 |
+| `notifDayLabel(iso)` | `Today` / `Yesterday` / `Oct 3` / `Oct 3, 2025` | 日分组眉线（CSS 大写） |
+| `notifDeadline(iso)` | `Oct 14, 09:00` | 正文里的截止时刻 |
+| `signedUsd(n)` / `faceUsd(n)` | `+$38.20` / `$25` | 盈亏带符号（U+2212）；面值整数不带小数 |
+| `badgeText(n)` | `` / `7` / `99+` | 铃铛与菜单计数 |
+| `countsAsUnread(row)` | boolean | `trade.*` 永不计 |
+| `tabOf(row)` | `trading` / `account` | category → tab |

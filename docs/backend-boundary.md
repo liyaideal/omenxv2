@@ -242,3 +242,19 @@
 | 让分 / 大小分兄弟行：主行自指 `fixture_id`，`market_type` handicap / total，`line` 主队视角带符号；美式运动**按终场比分（含加时 / 加赛局）结算** | 🟢 A | 结算口径是产品规则，必须照抄；足球仍按常规时间 |
 | `tick_live_us_sports()` + pg_cron `tick_live_us_sports`（*/5）；`ensure_us_sport_lines()` | 🔴 演示专用 | 随机推进与结算只为 Lovable 演示；正式版接真实比分源 |
 | 常驻演示 `demo-live-nfl` / `demo-live-mlb`（结算后立即重开） | 🔴 演示专用 | 不上正式版 |
+
+## 2026-10-13 消息中心 Notifications（append-only 补录）
+
+| 项 | 标记 | 说明 |
+|---|---|---|
+| `notifications` 表：`type` / `params`（只存插值参数，不存文本）/ `deep_link` / `dedupe_key` 唯一 / `read_at` / 90 天保留 | 🟡 B | type 枚举、params 键、已读规则、保留期是需求（词典「Notifications」）；存储 / 投递实现自选 |
+| `notify()` 单一写入口 + `ON CONFLICT (user_id, dedupe_key) DO NOTHING` | 🟡 B | "同一事件只发一次"是需求；正式版可用消息队列幂等键实现同一语义 |
+| 生产者触发器（positions / transactions / position_vouchers / campaign_grants / user_tasks / referrals / airdrop_positions / voucher_earnings_ledger / treasure_drops / api_keys / connected_accounts / recovery_requests / profiles） | 🟡 B | 触发点与 type 映射是需求（delivery §2.2）；正式版在各服务的同一业务点发出 |
+| `settled.round_batch`：同一事件 ≥3 条在一次结算里一起 Closed → 一条 | 🟢 A | 合并规则照抄 |
+| `trade.*` 不计角标；`close_reason` 空且 pnl = 0 不发（撤回的下注） | 🟢 A | 照抄 |
+| `notify_expiring()` cron */30（券 / 空投 / grant 到期前 24h）；`purge_notifications()` 每日 | 🟡 B | 提前 24h 与 90 天是需求；调度方式自选 |
+| `notify_self()`：前端产出 `autoclose.tight / soon`（Boost usage ≥ 80 / ≥ 95 进入档位）与 `account.new_session` | 🔴 演示专用 | 正式版由风控引擎 / 认证服务在服务端产出（带设备 + 城市）；前端禁止写通知 |
+| `mark_notifications_read(ids | null)` | 🟡 B | 已读语义照抄 |
+| `trade.order_filled / order_cancelled`（Pro 挂单） | 🟢 A · 正式版必做 | Lovable 没有订单账本（红线 4），正式版 v1 必须补这两条进 Trading tab |
+| `system` category（活动 / 公告 → v2 Updates tab） | 预留 | 需运营后台，不在 v1 |
+| 邮件副本按 `profiles.notification_prefs` 四开关分发 | 🟡 B | Lovable 只存偏好不发信 |

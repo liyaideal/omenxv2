@@ -1,5 +1,7 @@
 # 语言切换入口整理 — 交付说明 v1
 
+> **2026-10-13 修订（消息中心 Notifications，CPO 方案 A）**：桌面**登录态**的 `LanguageChip` 退役，顶栏那一格给铃铛（`Equity → 🔔 → 头像`）；语言改为头像菜单 `Language · EN ▸` 子菜单行（Settings 之上，列表仍是 `LanguageMenuItems`）。游客顶栏 chip、移动品牌栏 🌐、Me 抽屉行、Settings 入口不变。见 `docs/delivery/notifications-v1.md` §3.1、DESIGN §Addendum 2026-10-13 第 1 条。
+
 日期：2026-09-28 · 范围：全站语言入口（桌面顶栏 / 移动品牌栏 / Me 抽屉 / Settings）· 决策：Liya（CPO）批 R1–R8 + 视觉 mock · Lovable commit 见 changelog
 
 ## 通俗导读
