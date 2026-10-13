@@ -39,6 +39,7 @@ const mk = (
     : type.startsWith("trade") ? "trades"
     : type.startsWith("funds") ? "funds"
     : type.startsWith("reward") ? "rewards"
+    : type.startsWith("system") ? "system"
     : "account",
   type,
   params,
@@ -118,8 +119,20 @@ export const ALL_TYPES: Row[] = [
   mk("account.wallet_linked", { address: "0x3b4e780d12e1b0f4a9c8d7e6f5a4b3c2d1e0c6b3", platform: "polymarket" }, 30.7, false),
 ];
 
+/** Updates feed (v2, CPO V1–V5 / A1–A9): the five `system.*` types as alex sees them. */
+export const UPDATES_FEED: Row[] = [
+  mk("system.watchlist_live", { event_name: "Los Angeles Dodgers vs New York Yankees", event_id: "demo-live-mlb" }, 0.75, false, "/trade?event=demo-live-mlb"),
+  mk("system.maintenance", { kind: "maintenance", title: "Scheduled maintenance · Oct 15", summary: "Base deposits & withdrawals paused 02:00–04:00 UTC · trading unaffected" }, 1.5, false, "/announcements/0a000001-0000-4000-8000-000000000001"),
+  mk("system.announcement", { kind: "announcement", title: "Crypto rounds now settle in under 2 minutes", summary: "Faster settlement for every crypto quick round from Oct 20" }, 3, false, "/announcements/0a000001-0000-4000-8000-000000000002"),
+  mk("system.campaign_ending", { campaign: "CPI Print Week", ends_at: new Date(2026, 9, 13, 23, 59).toISOString() }, 15, true, "/rewards/campaign/x"),
+  mk("system.announcement", { kind: "announcement", title: "Autumn Volume Ladder: trade $500, unlock up to $50", summary: "Oct 12 – Oct 31 · every $500 of volume unlocks the next Voucher tier" }, 28.5, true, "/announcements/0a000001-0000-4000-8000-000000000003"),
+  mk("system.campaign_live", { campaign: "World Cup Qualifiers", task: "Buy $500 across World Cup markets", ends_at: new Date(2026, 9, 31, 23, 59).toISOString() }, 12 * 24 + 4.5, true, "/rewards/campaign/y"),
+];
+
 const UNREAD_BOTH: Record<NotificationTab, number> = { trading: 2, account: 2, updates: 0 };
 const UNREAD_NONE: Record<NotificationTab, number> = { trading: 0, account: 0, updates: 0 };
+const UNREAD_ALL3: Record<NotificationTab, number> = { trading: 2, account: 2, updates: 3 };
+const FEED3: Row[] = [...TRADING_FEED, ...ACCOUNT_FEED, ...UPDATES_FEED];
 
 /* ------------------------------ bell / badges ------------------------------ */
 
@@ -176,6 +189,18 @@ export const PopoverEmptyTradingPreview = () => (
     <NotificationBell variant="desktop" preview={{ count: 2, open: true, rows: ACCOUNT_FEED, tab: "trading", byTab: { trading: 0, account: 2, updates: 0 }, now: NOW }} />
   </PopoverBox>
 );
+/** v2 Updates tab (NT-20): 3 unread today, campaign rows read. */
+export const PopoverUpdatesPreview = () => (
+  <PopoverBox>
+    <NotificationBell variant="desktop" preview={{ count: 7, open: true, rows: FEED3, tab: "updates", byTab: UNREAD_ALL3, now: NOW }} />
+  </PopoverBox>
+);
+/** Updates tab empty = the waiting lynx (empty-no-starred-event). */
+export const PopoverUpdatesEmptyPreview = () => (
+  <PopoverBox>
+    <NotificationBell variant="desktop" preview={{ count: 4, open: true, rows: [...TRADING_FEED, ...ACCOUNT_FEED], tab: "updates", byTab: UNREAD_BOTH, now: NOW }} />
+  </PopoverBox>
+);
 export const PopoverLoadingPreview = () => (
   <PopoverBox>
     <NotificationBell variant="desktop" preview={{ count: 0, open: true, rows: [], state: "loading", byTab: UNREAD_NONE, now: NOW }} />
@@ -206,20 +231,20 @@ export const PanelBarePreview = () => (
 
 /* ------------------------------ desktop page ------------------------------ */
 
-const DesktopPage = ({ tab, rows, state }: { tab: NotificationTab; rows: Row[]; state?: "loading" | "error" | "ready" }) => {
+const DesktopPage = ({ tab, rows, state, unread = UNREAD_BOTH }: { tab: NotificationTab; rows: Row[]; state?: "loading" | "error" | "ready"; unread?: Record<NotificationTab, number> }) => {
   const visible = rows.filter((r) => tabOf(r) === tab);
-  const unread = visible.some((r) => !r.read_at);
+  const hasUnread = visible.some((r) => !r.read_at);
   return (
     <div className="px-6 py-6">
       <DesktopSubpageHeader title="Notifications" onBack={noop}>
-        {unread && (
+        {hasUnread && (
           <button type="button" className="text-[13px] font-medium text-primary">
             Mark all read
           </button>
         )}
       </DesktopSubpageHeader>
       <div className="mt-[22px]">
-        <NotificationTabs value={tab} onChange={noop} unread={UNREAD_BOTH} variant="opening" />
+        <NotificationTabs value={tab} onChange={noop} unread={unread} variant="opening" />
       </div>
       <div className="-mx-2">
         <NotificationList rows={visible} tab={tab} state={state} onOpen={noop} dense={false} now={NOW} />
@@ -231,6 +256,7 @@ const DesktopPage = ({ tab, rows, state }: { tab: NotificationTab; rows: Row[]; 
 export const PageDesktopTradingPreview = () => <DesktopPage tab="trading" rows={[...TRADING_FEED, ...ACCOUNT_FEED]} />;
 export const PageDesktopAccountPreview = () => <DesktopPage tab="account" rows={[...TRADING_FEED, ...ACCOUNT_FEED]} />;
 export const PageDesktopEmptyPreview = () => <DesktopPage tab="account" rows={[]} />;
+export const PageDesktopUpdatesPreview = () => <DesktopPage tab="updates" rows={FEED3} unread={UNREAD_ALL3} />;
 
 /* ------------------------------ mobile ------------------------------ */
 
@@ -260,7 +286,7 @@ export const MobileMenuRowPreview = () => (
   </div>
 );
 
-const MobilePage = ({ tab, rows, state, markAll = true }: { tab: NotificationTab; rows: Row[]; state?: "loading" | "error" | "ready"; markAll?: boolean }) => {
+const MobilePage = ({ tab, rows, state, markAll = true, unread }: { tab: NotificationTab; rows: Row[]; state?: "loading" | "error" | "ready"; markAll?: boolean; unread?: Record<NotificationTab, number> }) => {
   const visible = rows.filter((r) => tabOf(r) === tab);
   return (
     <div className="pb-6">
@@ -281,7 +307,7 @@ const MobilePage = ({ tab, rows, state, markAll = true }: { tab: NotificationTab
         }
       />
       <div className="px-4">
-        <NotificationTabs value={tab} onChange={noop} unread={markAll ? UNREAD_BOTH : UNREAD_NONE} variant="opening" />
+        <NotificationTabs value={tab} onChange={noop} unread={unread ?? (markAll ? UNREAD_BOTH : UNREAD_NONE)} variant="opening" />
       </div>
       <NotificationList rows={visible} tab={tab} state={state} onOpen={noop} dense now={NOW} />
     </div>
@@ -291,6 +317,7 @@ const MobilePage = ({ tab, rows, state, markAll = true }: { tab: NotificationTab
 export const PageMobileTradingPreview = () => <MobilePage tab="trading" rows={[...TRADING_FEED, ...ACCOUNT_FEED]} />;
 export const PageMobileAccountPreview = () => <MobilePage tab="account" rows={[...TRADING_FEED, ...ACCOUNT_FEED]} />;
 export const PageMobileEmptyPreview = () => <MobilePage tab="account" rows={[]} markAll={false} />;
+export const PageMobileUpdatesPreview = () => <MobilePage tab="updates" rows={FEED3} unread={UNREAD_ALL3} />;
 export const PageMobileEmptyTradingPreview = () => <MobilePage tab="trading" rows={[]} markAll={false} />;
 export const PageMobileLoadingPreview = () => <MobilePage tab="trading" rows={[]} state="loading" markAll={false} />;
 export const PageMobileErrorPreview = () => <MobilePage tab="trading" rows={[]} state="error" markAll={false} />;
@@ -319,9 +346,17 @@ export const AllTypesAccountPreview = () => (
   </div>
 );
 
+export const AllTypesUpdatesPreview = () => (
+  <div className="py-2">
+    {UPDATES_FEED.map((r) => (
+      <NotificationRow key={r.id} row={{ ...r, read_at: null }} onOpen={noop} now={NOW} />
+    ))}
+  </div>
+);
+
 /** Unknown type → default branch: Bell, muted, raw type as title, no body. */
 export const RowUnknownTypePreview = () => (
   <div className="py-2">
-    <NotificationRow row={mk("system.announcement", { title: "x" }, 1, false)} onOpen={noop} now={NOW} />
+    <NotificationRow row={mk("ops.unknown_type", { title: "x" }, 1, false)} onOpen={noop} now={NOW} />
   </div>
 );

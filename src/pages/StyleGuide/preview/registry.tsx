@@ -39,6 +39,7 @@ const autoClose = () => import("./autoClosePreviews");
 const auth = () => import("./authPreviews");
 const settings = () => import("./settingsPreviews");
 const notifications = () => import("./notificationsPreviews");
+const announcements = () => import("./announcementsPreviews");
 const insights = () => import("./insightsPreviews");
 const leaderboard = () => import("./leaderboardPreviews");
 const events = () => import("./eventsPreviews");
@@ -82,6 +83,31 @@ export const previewRegistry: Record<string, Loader> = {
   "notif-row-unknown": pick(notifications, "RowUnknownTypePreview"),
   "notif-types-trading": pick(notifications, "AllTypesTradingPreview"),
   "notif-types-account": pick(notifications, "AllTypesAccountPreview"),
+  // v2 Updates tab (NT-20…NT-22)
+  "notif-popover-updates": pick(notifications, "PopoverUpdatesPreview"),
+  "notif-popover-updates-empty": pick(notifications, "PopoverUpdatesEmptyPreview"),
+  "notif-page-desktop-updates": pick(notifications, "PageDesktopUpdatesPreview"),
+  "notif-page-mobile-updates": pick(notifications, "PageMobileUpdatesPreview"),
+  "notif-types-updates": pick(notifications, "AllTypesUpdatesPreview"),
+  // Announcements (AN-1…AN-13)
+  "ann-list-desktop": pick(announcements, "ListDesktopPreview"),
+  "ann-list-desktop-end": pick(announcements, "ListDesktopEndPreview"),
+  "ann-list-desktop-empty": pick(announcements, "ListDesktopEmptyPreview"),
+  "ann-list-desktop-loading": pick(announcements, "ListDesktopLoadingPreview"),
+  "ann-list-desktop-error": pick(announcements, "ListDesktopErrorPreview"),
+  "ann-list-mobile": pick(announcements, "ListMobilePreview"),
+  "ann-list-mobile-empty": pick(announcements, "ListMobileEmptyPreview"),
+  "ann-detail-desktop-maintenance": pick(announcements, "DetailDesktopMaintenancePreview"),
+  "ann-detail-desktop-announcement": pick(announcements, "DetailDesktopAnnouncementPreview"),
+  "ann-detail-desktop-campaign": pick(announcements, "DetailDesktopCampaignPreview"),
+  "ann-detail-desktop-unavailable": pick(announcements, "DetailDesktopUnavailablePreview"),
+  "ann-detail-desktop-loading": pick(announcements, "DetailDesktopLoadingPreview"),
+  "ann-detail-mobile-maintenance": pick(announcements, "DetailMobileMaintenancePreview"),
+  "ann-detail-mobile-campaign": pick(announcements, "DetailMobileCampaignPreview"),
+  "ann-detail-mobile-unavailable": pick(announcements, "DetailMobileUnavailablePreview"),
+  "ann-kind-chips": pick(announcements, "KindChipsPreview"),
+  "ann-window-card": pick(announcements, "WindowCardPreview"),
+  "ann-markdown-sink": pick(announcements, "MarkdownKitchenSinkPreview"),
   /* -------- Lite Sports · Live（SP-L3a）-------- */
   "sports-live-m1": pick(sportsLive, "M1Preview"),
   "sports-live-m2": pick(sportsLive, "M2Preview"),

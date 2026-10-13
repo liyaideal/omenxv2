@@ -50,6 +50,16 @@ const POPOVER_CASES: SectionCase[] = [
   { key: "notif-popover-loading", label: "NT-6 · Popover · 加载骨架", spec: [{ state: "loading", when: "query.isLoading", visual: "5 行骨架（圆 20 + 62% / 40% + 34px）；头右槽空", source: "NotificationSkeleton" }] },
   { key: "notif-popover-error", label: "NT-7 · Popover · 出错", spec: [{ state: "error", when: "query.isError", visual: "ErrorState 'Couldn't load notifications' / 'Check your connection and try again.' / 'Retry' → refetch", source: "states/ErrorState" }] },
   { key: "notif-panel-bare", label: "NT-8 · Popover 本体（无 portal，量宽用）", spec: [{ state: "bare", when: "—", visual: "w-[400px] max-w-[calc(100vw-24px)]；列表 max-h-[460px] overflow-y-auto", source: "NotificationsPanel" }] },
+  {
+    key: "notif-popover-updates",
+    label: "NT-20 · Popover · Updates tab（v2）· 3 未读",
+    note: "第三枚 tab = `system` category：公告 / 维护 / 活动上线 / 活动将结束 / 关注赛事开盘（CPO 2026-10-13 V1–V5）。全部计角标（V2）。默认 tab = 第一个有未读的（Trading → Account → Updates）。公告 / 维护行标题正文 = 公告的 title / summary 原样，不走模板。",
+    spec: [
+      { state: "icon 色", when: "type", visual: "announcement Megaphone / campaign_live Gift / watchlist_live Star = primary；maintenance Wrench / campaign_ending Hourglass = trading-yellow；不碰 green / red", source: "NOTIFICATION_TYPES system.*" },
+      { state: "deep link", when: "row click", visual: "公告 → /announcements/:id（带 state.from=notifications → 详情页出 Back 钮）；活动 → /rewards/campaign/:id；关注 → /trade?event=", source: "notify() deep_link" },
+    ],
+  },
+  { key: "notif-popover-updates-empty", label: "NT-20b · Popover · Updates 空态", spec: [{ state: "empty updates", when: "tab=updates && visible.length === 0", visual: "彩绘猞猁 `empty-no-starred-event.png` · 'Nothing new' / 'Campaign news and announcements land here.'", source: "NOTIFICATION_EMPTY_ART.updates" }] },
 ];
 
 /* ---------------- Ⓒ page ---------------- */
@@ -66,6 +76,7 @@ const PAGE_DESKTOP: SectionCase[] = [
     ],
   },
   { key: "notif-page-desktop-account", label: "NT-10 · /notifications · desktop · Account", spec: [{ state: "account", when: "tab=account", visual: "同壳", source: "—" }] },
+  { key: "notif-page-desktop-updates", label: "NT-21 · /notifications · desktop · Updates（三枚开场级 tab）", spec: [{ state: "updates", when: "?tab=updates", visual: "第三枚 tab 同规格；`?tab=updates` 可直达", source: "NOTIFICATION_TABS" }] },
   { key: "notif-page-desktop-empty", label: "NT-11 · /notifications · desktop · 空态", spec: [{ state: "empty", when: "visible.length === 0", visual: "EmptyState section · 品牌猞猁插画（Account = `empty-no-boost.png`，Trading = `empty-celebrate.png` 全清）· 'Nothing here yet'；DSH 右槽无 Mark all read", source: "NotificationEmpty · NOTIFICATION_EMPTY_ART" }] },
 ];
 
@@ -80,6 +91,7 @@ const PAGE_MOBILE: SectionCase[] = [
     ],
   },
   { key: "notif-page-mobile-account", label: "NT-10b · /notifications · mobile · Account", spec: [{ state: "account", when: "tab=account", visual: "同壳", source: "—" }] },
+  { key: "notif-page-mobile-updates", label: "NT-21b · /notifications · mobile · Updates（三枚 19/26 在 375 放得下，gap 28）", spec: [{ state: "updates", when: "tab=updates", visual: "sticky tab 同壳", source: "—" }] },
   { key: "notif-page-mobile-empty", label: "NT-11b · /notifications · mobile · 空态 · 全读（无 CheckCheck）", spec: [{ state: "empty", when: "visible.length === 0 && !hasAnyUnread", visual: "品牌猞猁插画空态；右槽空", source: "—" }] },
   { key: "notif-page-mobile-empty-trading", label: "NT-11c · /notifications · mobile · Trading 空态（全清）", spec: [{ state: "empty trading", when: "tab=trading && visible.length === 0", visual: "`empty-celebrate.png` + 'You're all caught up'", source: "NOTIFICATION_EMPTY_ART.trading" }] },
   { key: "notif-page-mobile-loading", label: "NT-12b · /notifications · mobile · 加载骨架", spec: [{ state: "loading", when: "isLoading", visual: "5 行骨架", source: "NotificationSkeleton" }] },
@@ -118,6 +130,7 @@ const ROW_CASES: SectionCase[] = [
   { key: "notif-row-unknown", label: "NT-17 · 行 · 未知 type（default 分支）", spec: [{ state: "unknown", when: "type ∉ NOTIFICATION_TYPES", visual: "Bell muted + 原样 type 作标题、无正文；不进任何语义色、不计角标口径之外", source: "notificationMeta() DEFAULT_META" }] },
   { key: "notif-types-trading", label: "NT-18 · Trading 全 type（9）· 未读 · 最长变体", spec: [{ state: "all", when: "—", visual: "settled.win / loss / flat / round_batch · autoclose.tight / soon / done · trade.bought / cashed_out", source: "copy-dictionary「Notifications」" }] },
   { key: "notif-types-account", label: "NT-19 · Account 全 type（26）· 未读 · 最长变体（标题单行 ellipsis 为设计；sg-overflow-scan 已排除 text-overflow: ellipsis）", spec: [{ state: "all", when: "—", visual: "funds ×7 · reward ×11 · account ×8", source: "copy-dictionary「Notifications」" }] },
+  { key: "notif-types-updates", label: "NT-22 · Updates 全 type（5 · v2）· 未读", spec: [{ state: "all", when: "—", visual: "system.watchlist_live / maintenance / announcement / campaign_ending / campaign_live；campaign_live 无 ends_at 时正文不带 `· ends …` 尾巴", source: "copy-dictionary「Notifications」· notificationVars()" }] },
 ];
 
 export const LiteNotificationsPage = (_: P) => (
@@ -133,22 +146,22 @@ export const LiteNotificationsPage = (_: P) => (
         本页 = 生产 <code className="font-mono">/notifications</code> + 铃铛入口的状态字典 · 样式与布局 → 生产页；状态与判定 → 本页；表里没有列出的组合视为不存在
       </div>
       <div>
-        35 个 type 的标题 / 正文 / 触发 / 深链 / 计角标 → <code className="font-mono">docs/copy-dictionary.md</code>「Notifications」；数据与投递 → <code className="font-mono">docs/delivery/notifications-v1.md</code>
+        40 个 type（35 v1 + 5 v2 Updates）的标题 / 正文 / 触发 / 深链 / 计角标 → <code className="font-mono">docs/copy-dictionary.md</code>「Notifications」；数据与投递 → <code className="font-mono">docs/delivery/notifications-v1.md</code>
       </div>
     </div>
 
     <SectionWrapper
       id="notifications-cases"
-      title="Notifications · 状态字典（NT-1…NT-19 · Ⓐ–Ⓔ 区）"
+      title="Notifications · 状态字典（NT-1…NT-22 · Ⓐ–Ⓔ 区）"
       platform="shared"
-      description="Ⓐ铃铛与角标 · ⒷPopover 六态 · Ⓒ全页（桌面 / 移动）· Ⓓ移动入口 · Ⓔ行组件 + 35 type 全枚举。每个 case 挂载生产组件（preview 夹具只定初态，禁运行时 fetch）。"
+      description="Ⓐ铃铛与角标 · ⒷPopover 六态 · Ⓒ全页（桌面 / 移动）· Ⓓ移动入口 · Ⓔ行组件 + 40 type 全枚举（含 v2 Updates 5 个）。每个 case 挂载生产组件（preview 夹具只定初态，禁运行时 fetch）。"
     >
       <div className="space-y-12">
         <SubSection title="Ⓐ 铃铛 + 角标（NT-1）" platform="shared">
           <SectionFrame cases={BELL_CASES} device="desktop" minHeight={120} />
         </SubSection>
 
-        <SubSection title="Ⓑ Popover（NT-2 … NT-8）· portal 弹层一帧一 case" platform="desktop">
+        <SubSection title="Ⓑ Popover（NT-2 … NT-8，NT-20）· portal 弹层一帧一 case" platform="desktop">
           {POPOVER_CASES.map((c, i) => (
             <div key={c.key} className={i === 0 ? undefined : "mt-3"}>
               <SectionFrame cases={[c]} device="desktop" minHeight={c.key === "notif-panel-bare" ? 620 : 800} />
@@ -156,7 +169,7 @@ export const LiteNotificationsPage = (_: P) => (
           ))}
         </SubSection>
 
-        <SubSection title="Ⓒ /notifications 全页（NT-9 … NT-13，含 NT-11c）" platform="shared">
+        <SubSection title="Ⓒ /notifications 全页（NT-9 … NT-13，NT-21）" platform="shared">
           <SectionFrame cases={PAGE_DESKTOP} device="desktop" minHeight={560} />
           <div className="mt-3">
             <SectionFrame cases={PAGE_MOBILE} device="mobile" minHeight={560} />
@@ -167,7 +180,7 @@ export const LiteNotificationsPage = (_: P) => (
           <SectionFrame cases={MOBILE_ENTRIES} device="mobile" minHeight={120} />
         </SubSection>
 
-        <SubSection title="Ⓔ 行组件 + 35 type 全枚举（NT-16 … NT-19）" platform="shared">
+        <SubSection title="Ⓔ 行组件 + 40 type 全枚举（NT-16 … NT-19，NT-22）" platform="shared">
           <SectionFrame cases={ROW_CASES.slice(0, 2)} device="desktop" minHeight={200} />
           <div className="mt-3">
             <SectionFrame cases={ROW_CASES.slice(2)} device="desktop" minHeight={900} />
