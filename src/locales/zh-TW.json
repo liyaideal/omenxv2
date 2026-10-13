@@ -1605,7 +1605,8 @@
   "terms.sections[18].bullets[3]": "**Email:** support@omenx.com",
   "terms.sections[18].bullets[4]": "**Website:** https://www.omenx.com",
   "terms.sections[18].bullets[5]": "**Official X account:** https://x.com/OmenX_Official",
-  "terms.last_updated_note": "These Terms of Service were last updated on 21 August 2026."
+  "terms.last_updated_note": "These Terms of Service were last updated on 21 August 2026.",
+  "footer.links.announcements": "公告"
  },
  "market": {
   "category_labels.social": "社群",
@@ -5940,6 +5941,42 @@
   "account.api_key_revoked.title": "API key 已撤銷",
   "account.api_key_revoked.body": "{{label}} · {{prefix}}…",
   "account.wallet_linked.title": "錢包已連接",
-  "account.wallet_linked.body": "{{address}}"
+  "account.wallet_linked.body": "{{address}}",
+  "tab.updates": "動態",
+  "empty.updates.title": "暫無新動態",
+  "empty.updates.description": "活動消息和公告會出現在這裡。",
+  "system.announcement.title": "{{title}}",
+  "system.announcement.body": "{{summary}}",
+  "system.maintenance.title": "{{title}}",
+  "system.maintenance.body": "{{summary}}",
+  "system.campaign_live.title": "新活動：{{campaign}}",
+  "system.campaign_live.body": "{{task}}{{ends}}",
+  "system.campaign_live.ends": " · {{deadline}} 結束",
+  "system.campaign_ending.title": "{{campaign}} 將在 24 小時後結束",
+  "system.campaign_ending.body": "請在 {{deadline}} 前領取",
+  "system.watchlist_live.title": "{{event}} 開盤了",
+  "system.watchlist_live.body": "你關注的賽事剛剛開始 · 點擊交易"
+ },
+ "announcements": {
+  "title": "公告",
+  "subtitle": "產品更新、新市場與維護通知。",
+  "loadMore": "載入更多",
+  "kind.announcement": "公告",
+  "kind.maintenance": "維護",
+  "window.label": "時間窗口",
+  "window.yourTime": "你的時區 {{range}}",
+  "window.affects": "影響：{{list}}",
+  "window.notAffected": "不受影響：{{list}}",
+  "more": "更多公告",
+  "seeAll": "查看全部公告 →",
+  "backToNotifications": "返回訊息中心",
+  "unavailable.title": "該公告已不可用",
+  "unavailable.description": "可能已被撤回，或連結已失效。",
+  "unavailable.action": "全部公告",
+  "empty.title": "暫無公告",
+  "empty.description": "產品更新和維護通知會出現在這裡。",
+  "error.title": "公告載入失敗",
+  "error.retry": "重試",
+  "endOfList": "沒有更多了"
  }
 }

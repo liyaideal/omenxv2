@@ -31,7 +31,7 @@ export const NOTIFICATIONS_GATE_COPY = {
   description: "notifications.gate.description",
 };
 
-const isTab = (v: string | null): v is NotificationTab => v === "trading" || v === "account";
+const isTab = (v: string | null): v is NotificationTab => v === "trading" || v === "account" || v === "updates";
 
 export default function NotificationsPage() {
   const { t } = useT();

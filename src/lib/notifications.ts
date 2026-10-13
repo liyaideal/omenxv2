@@ -2,10 +2,11 @@
  * Notifications (消息中心) — type registry, tab mapping, badge rules, time label.
  *
  * CPO 2026-10-13 (方案 v0 D1–D12 + mock v1 M1–M8):
- *  - 34 types in 6 categories; v1 tabs = Trading (settled + autoclose + trades)
- *    and Account (funds + rewards + account). v2 adds `Updates` (system) — the
- *    DB keeps `category` fine-grained, this file is the only place a tab is
- *    derived, so adding a tab never touches stored rows.
+ *  - 35 v1 types in 6 categories; tabs = Trading (settled + autoclose + trades)
+ *    and Account (funds + rewards + account). v2 (CPO 2026-10-13 V1–V5) adds
+ *    `Updates` = `system` category: announcements / maintenance / campaign
+ *    live + ending / starred event live. The DB keeps `category` fine-grained,
+ *    this file is the only place a tab is derived.
  *  - Bell badge = unread in Trading + Account EXCEPT `trade.*` (D4b): a Buy /
  *    Cash out is the user's own action, it never lights the bell or the tab dot.
  *  - The server stores `type` + `params` only; title / body are i18n keys
@@ -18,9 +19,13 @@ import {
   Bell,
   CircleCheck,
   Gift,
+  Hourglass,
+  Megaphone,
   ShieldCheck,
+  Star,
   TriangleAlert,
   Wallet,
+  Wrench,
   type LucideIcon,
 } from "lucide-react";
 import { t, type TVars } from "@/i18n";
@@ -35,7 +40,7 @@ export type NotificationCategory =
   | "account"
   | "system";
 
-export type NotificationTab = "trading" | "account";
+export type NotificationTab = "trading" | "account" | "updates";
 
 export interface NotificationRow {
   id: string;
@@ -50,7 +55,7 @@ export interface NotificationRow {
   created_at: string;
 }
 
-/** Tab ← category. v2: `system` → "updates". */
+/** Tab ← category. */
 export const TAB_OF_CATEGORY: Record<NotificationCategory, NotificationTab> = {
   settled: "trading",
   autoclose: "trading",
@@ -58,13 +63,20 @@ export const TAB_OF_CATEGORY: Record<NotificationCategory, NotificationTab> = {
   funds: "account",
   rewards: "account",
   account: "account",
-  system: "account", // placeholder until the Updates tab ships (v2)
+  system: "updates",
 };
 
 export const NOTIFICATION_TABS: { id: NotificationTab; labelKey: string }[] = [
   { id: "trading", labelKey: "notifications.tab.trading" },
   { id: "account", labelKey: "notifications.tab.account" },
+  { id: "updates", labelKey: "notifications.tab.updates" },
 ];
+
+/** First tab with unread, else Trading (D11 / V4). */
+export const firstUnreadTab = (byTab: Record<NotificationTab, number>): NotificationTab =>
+  NOTIFICATION_TABS.find((tab) => byTab[tab.id] > 0)?.id ?? "trading";
+
+export const EMPTY_BY_TAB: Record<NotificationTab, number> = { trading: 0, account: 0, updates: 0 };
 
 export const tabOf = (n: Pick<NotificationRow, "category">): NotificationTab =>
   TAB_OF_CATEGORY[n.category as NotificationCategory] ?? "account";
@@ -93,7 +105,7 @@ const num = (v: unknown) => (typeof v === "number" ? v : Number(v ?? 0)) || 0;
 
 const pnlTone = (p: Record<string, unknown>): NotificationTone => (num(p.pnl) > 0 ? "volt" : "muted");
 
-/** The 34 v1 types. Keep in sync with docs/copy-dictionary.md「Notifications」. */
+/** The 35 v1 + 5 v2 types. Keep in sync with docs/copy-dictionary.md「Notifications」. */
 export const NOTIFICATION_TYPES: Record<string, TypeMeta> = {
   // Trading · Settled
   "settled.win": { icon: CircleCheck, tone: "volt" },
@@ -136,6 +148,13 @@ export const NOTIFICATION_TYPES: Record<string, TypeMeta> = {
   "account.api_key_created": { icon: ShieldCheck, tone: "muted" },
   "account.api_key_revoked": { icon: ShieldCheck, tone: "muted" },
   "account.wallet_linked": { icon: ShieldCheck, tone: "muted" },
+  // Updates · system (v2). Icon is the only tinted element: primary = info,
+  // yellow = "mind the clock". Never green / red here.
+  "system.announcement": { icon: Megaphone, tone: "primary" },
+  "system.maintenance": { icon: Wrench, tone: "yellow" },
+  "system.campaign_live": { icon: Gift, tone: "primary" },
+  "system.campaign_ending": { icon: Hourglass, tone: "yellow" },
+  "system.watchlist_live": { icon: Star, tone: "primary" },
 };
 
 export const NOTIFICATION_TYPE_KEYS = Object.keys(NOTIFICATION_TYPES);
@@ -290,6 +309,21 @@ export const notificationVars = (n: Pick<NotificationRow, "type" | "params">): T
       return { label: String(p.label ?? ""), prefix: String(p.key_prefix ?? "") };
     case "account.wallet_linked":
       return { address: shortAddress(p.address) };
+    // Updates — announcement copy is ops-written, passed through verbatim.
+    case "system.announcement":
+    case "system.maintenance":
+      return { title: String(p.title ?? ""), summary: String(p.summary ?? "") };
+    case "system.campaign_live":
+      return {
+        campaign: String(p.campaign ?? ""),
+        task: String(p.task ?? ""),
+        // Open-ended campaigns have no ends_at → no " · ends …" tail.
+        ends: typeof p.ends_at === "string" ? t("notifications.system.campaign_live.ends", { deadline: notifDeadline(p.ends_at) }) : "",
+      };
+    case "system.campaign_ending":
+      return { campaign: String(p.campaign ?? ""), deadline: notifDeadline(p.ends_at) };
+    case "system.watchlist_live":
+      return { event: String(p.event_name ?? "") };
     default:
       return base;
   }

@@ -118,8 +118,8 @@ export const ALL_TYPES: Row[] = [
   mk("account.wallet_linked", { address: "0x3b4e780d12e1b0f4a9c8d7e6f5a4b3c2d1e0c6b3", platform: "polymarket" }, 30.7, false),
 ];
 
-const UNREAD_BOTH: Record<NotificationTab, number> = { trading: 2, account: 2 };
-const UNREAD_NONE: Record<NotificationTab, number> = { trading: 0, account: 0 };
+const UNREAD_BOTH: Record<NotificationTab, number> = { trading: 2, account: 2, updates: 0 };
+const UNREAD_NONE: Record<NotificationTab, number> = { trading: 0, account: 0, updates: 0 };
 
 /* ------------------------------ bell / badges ------------------------------ */
 
@@ -167,13 +167,13 @@ export const PopoverAllReadPreview = () => (
 );
 export const PopoverEmptyTabPreview = () => (
   <PopoverBox>
-    <NotificationBell variant="desktop" preview={{ count: 2, open: true, rows: TRADING_FEED, tab: "account", byTab: { trading: 2, account: 0 }, now: NOW }} />
+    <NotificationBell variant="desktop" preview={{ count: 2, open: true, rows: TRADING_FEED, tab: "account", byTab: { trading: 2, account: 0, updates: 0 }, now: NOW }} />
   </PopoverBox>
 );
 /** Trading tab empty = the "all clear" lynx (empty-celebrate). */
 export const PopoverEmptyTradingPreview = () => (
   <PopoverBox>
-    <NotificationBell variant="desktop" preview={{ count: 2, open: true, rows: ACCOUNT_FEED, tab: "trading", byTab: { trading: 0, account: 2 }, now: NOW }} />
+    <NotificationBell variant="desktop" preview={{ count: 2, open: true, rows: ACCOUNT_FEED, tab: "trading", byTab: { trading: 0, account: 2, updates: 0 }, now: NOW }} />
   </PopoverBox>
 );
 export const PopoverLoadingPreview = () => (
@@ -219,7 +219,7 @@ const DesktopPage = ({ tab, rows, state }: { tab: NotificationTab; rows: Row[]; 
         )}
       </DesktopSubpageHeader>
       <div className="mt-[22px]">
-        <NotificationTabs value={tab} onChange={noop} unread={{ trading: 2, account: 2 }} variant="opening" />
+        <NotificationTabs value={tab} onChange={noop} unread={UNREAD_BOTH} variant="opening" />
       </div>
       <div className="-mx-2">
         <NotificationList rows={visible} tab={tab} state={state} onOpen={noop} dense={false} now={NOW} />

@@ -1601,7 +1601,8 @@
   "terms.sections[18].bullets[3]": "Email: support@omenx.com",
   "terms.sections[18].bullets[4]": "Trang web: https://www.omenx.com",
   "terms.sections[18].bullets[5]": "Tài khoản X chính thức: https://x.com/OmenX_Official",
-  "terms.last_updated_note": "Các Điều khoản dịch vụ này được cập nhật lần cuối vào ngày 21 tháng 8 năm 2026."
+  "terms.last_updated_note": "Các Điều khoản dịch vụ này được cập nhật lần cuối vào ngày 21 tháng 8 năm 2026.",
+  "footer.links.announcements": "Thông báo"
  },
  "market": {
   "category_labels.social": "Xã hội",
@@ -5950,6 +5951,42 @@
   "account.api_key_revoked.title": "Đã thu hồi API key",
   "account.api_key_revoked.body": "{{label}} · {{prefix}}…",
   "account.wallet_linked.title": "Đã kết nối ví",
-  "account.wallet_linked.body": "{{address}}"
+  "account.wallet_linked.body": "{{address}}",
+  "tab.updates": "Cập nhật",
+  "empty.updates.title": "Chưa có gì mới",
+  "empty.updates.description": "Tin chiến dịch và thông báo sẽ xuất hiện ở đây.",
+  "system.announcement.title": "{{title}}",
+  "system.announcement.body": "{{summary}}",
+  "system.maintenance.title": "{{title}}",
+  "system.maintenance.body": "{{summary}}",
+  "system.campaign_live.title": "Chiến dịch mới: {{campaign}}",
+  "system.campaign_live.body": "{{task}}{{ends}}",
+  "system.campaign_live.ends": " · kết thúc {{deadline}}",
+  "system.campaign_ending.title": "{{campaign}} kết thúc sau 24h",
+  "system.campaign_ending.body": "nhận thưởng trước {{deadline}}",
+  "system.watchlist_live.title": "{{event}} đã bắt đầu",
+  "system.watchlist_live.body": "sự kiện bạn theo dõi vừa mở · chạm để giao dịch"
+ },
+ "announcements": {
+  "title": "Thông báo",
+  "subtitle": "Cập nhật sản phẩm, thị trường mới và lịch bảo trì.",
+  "loadMore": "Tải thêm",
+  "kind.announcement": "Thông báo",
+  "kind.maintenance": "Bảo trì",
+  "window.label": "Thời gian",
+  "window.yourTime": "{{range}} theo giờ của bạn",
+  "window.affects": "Ảnh hưởng: {{list}}",
+  "window.notAffected": "Không ảnh hưởng: {{list}}",
+  "more": "Thông báo khác",
+  "seeAll": "Xem tất cả thông báo →",
+  "backToNotifications": "Về trung tâm thông báo",
+  "unavailable.title": "Thông báo này không còn khả dụng",
+  "unavailable.description": "Có thể đã bị gỡ hoặc liên kết đã cũ.",
+  "unavailable.action": "Tất cả thông báo",
+  "empty.title": "Chưa có thông báo",
+  "empty.description": "Cập nhật sản phẩm và lịch bảo trì sẽ hiển thị ở đây.",
+  "error.title": "Không tải được thông báo",
+  "error.retry": "Thử lại",
+  "endOfList": "Đã hết"
  }
 }

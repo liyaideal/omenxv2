@@ -1601,7 +1601,8 @@
   "terms.sections[18].bullets[3]": "メール：support@omenx.com",
   "terms.sections[18].bullets[4]": "ウェブサイト：https://www.omenx.com",
   "terms.sections[18].bullets[5]": "公式 X アカウント：https://x.com/OmenX_Official",
-  "terms.last_updated_note": "本利用規約は 2026 年 8 月 21 日に最終更新されました。"
+  "terms.last_updated_note": "本利用規約は 2026 年 8 月 21 日に最終更新されました。",
+  "footer.links.announcements": "お知らせ"
  },
  "market": {
   "category_labels.social": "ソーシャル",
@@ -5951,6 +5952,42 @@
   "account.api_key_revoked.title": "API キーを取り消し",
   "account.api_key_revoked.body": "{{label}} · {{prefix}}…",
   "account.wallet_linked.title": "ウォレットを接続",
-  "account.wallet_linked.body": "{{address}}"
+  "account.wallet_linked.body": "{{address}}",
+  "tab.updates": "お知らせ",
+  "empty.updates.title": "新しいお知らせはありません",
+  "empty.updates.description": "キャンペーン情報やお知らせはここに届きます。",
+  "system.announcement.title": "{{title}}",
+  "system.announcement.body": "{{summary}}",
+  "system.maintenance.title": "{{title}}",
+  "system.maintenance.body": "{{summary}}",
+  "system.campaign_live.title": "新しいキャンペーン：{{campaign}}",
+  "system.campaign_live.body": "{{task}}{{ends}}",
+  "system.campaign_live.ends": " · {{deadline}} 終了",
+  "system.campaign_ending.title": "{{campaign}} は24時間後に終了",
+  "system.campaign_ending.body": "{{deadline}} までに受け取ってください",
+  "system.watchlist_live.title": "{{event}} が開始",
+  "system.watchlist_live.body": "お気に入りのイベントが始まりました · タップして取引"
+ },
+ "announcements": {
+  "title": "お知らせ",
+  "subtitle": "製品のアップデート、新しいマーケット、メンテナンスのお知らせ。",
+  "loadMore": "もっと見る",
+  "kind.announcement": "お知らせ",
+  "kind.maintenance": "メンテナンス",
+  "window.label": "実施時間",
+  "window.yourTime": "お住まいの時間で {{range}}",
+  "window.affects": "影響：{{list}}",
+  "window.notAffected": "影響なし：{{list}}",
+  "more": "その他のお知らせ",
+  "seeAll": "すべてのお知らせを見る →",
+  "backToNotifications": "通知に戻る",
+  "unavailable.title": "このお知らせは表示できません",
+  "unavailable.description": "取り下げられたか、リンクが古い可能性があります。",
+  "unavailable.action": "お知らせ一覧",
+  "empty.title": "まだお知らせはありません",
+  "empty.description": "製品のアップデートやメンテナンスのお知らせはここに表示されます。",
+  "error.title": "お知らせを読み込めませんでした",
+  "error.retry": "再試行",
+  "endOfList": "以上です"
  }
 }

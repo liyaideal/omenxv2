@@ -20,7 +20,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { MobileHeaderIconButton } from "@/components/MobileHeader";
 import { useT } from "@/i18n";
 import { cn } from "@/lib/utils";
-import { badgeText, tabOf, type NotificationRow, type NotificationTab } from "@/lib/notifications";
+import { badgeText, firstUnreadTab, tabOf, type NotificationRow, type NotificationTab } from "@/lib/notifications";
 import {
   useMarkNotificationsRead,
   useNotificationCounts,
@@ -29,8 +29,8 @@ import {
 import { NotificationList, type NotificationListState } from "./NotificationList";
 import { NotificationTabs } from "./NotificationTabs";
 
-export const defaultTab = (byTab: Record<NotificationTab, number>): NotificationTab =>
-  byTab.trading > 0 ? "trading" : byTab.account > 0 ? "account" : "trading";
+/** D11 / V4: first tab with unread (Trading → Account → Updates), else Trading. */
+export const defaultTab = firstUnreadTab;
 
 /* ------------------------------ badge ------------------------------ */
 

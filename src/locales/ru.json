@@ -1643,7 +1643,8 @@
   "terms.sections[18].bullets[3]": "Эл. почта: support@omenx.com",
   "terms.sections[18].bullets[4]": "Веб-сайт: https://www.omenx.com",
   "terms.sections[18].bullets[5]": "Официальный аккаунт X: https://x.com/OmenX_Official",
-  "terms.last_updated_note": "Настоящие Условия обслуживания в последний раз обновлялись 21 августа 2026 г."
+  "terms.last_updated_note": "Настоящие Условия обслуживания в последний раз обновлялись 21 августа 2026 г.",
+  "footer.links.announcements": "Объявления"
  },
  "market": {
   "category_labels.social": "Общество",
@@ -6048,6 +6049,42 @@
   "account.api_key_revoked.title": "API-ключ отозван",
   "account.api_key_revoked.body": "{{label}} · {{prefix}}…",
   "account.wallet_linked.title": "Кошелёк подключён",
-  "account.wallet_linked.body": "{{address}}"
+  "account.wallet_linked.body": "{{address}}",
+  "tab.updates": "Новости",
+  "empty.updates.title": "Ничего нового",
+  "empty.updates.description": "Новости кампаний и объявления появятся здесь.",
+  "system.announcement.title": "{{title}}",
+  "system.announcement.body": "{{summary}}",
+  "system.maintenance.title": "{{title}}",
+  "system.maintenance.body": "{{summary}}",
+  "system.campaign_live.title": "Новая кампания: {{campaign}}",
+  "system.campaign_live.body": "{{task}}{{ends}}",
+  "system.campaign_live.ends": " · до {{deadline}}",
+  "system.campaign_ending.title": "{{campaign}} завершится через 24 ч",
+  "system.campaign_ending.body": "заберите награду до {{deadline}}",
+  "system.watchlist_live.title": "{{event}} — старт",
+  "system.watchlist_live.body": "событие из избранного только что открылось · нажмите, чтобы торговать"
+ },
+ "announcements": {
+  "title": "Объявления",
+  "subtitle": "Обновления продукта, новые рынки и уведомления о техработах.",
+  "loadMore": "Показать ещё",
+  "kind.announcement": "Объявление",
+  "kind.maintenance": "Техработы",
+  "window.label": "Окно",
+  "window.yourTime": "{{range}} по вашему времени",
+  "window.affects": "Затрагивает: {{list}}",
+  "window.notAffected": "Не затрагивает: {{list}}",
+  "more": "Другие объявления",
+  "seeAll": "Все объявления →",
+  "backToNotifications": "К уведомлениям",
+  "unavailable.title": "Это объявление больше недоступно",
+  "unavailable.description": "Возможно, оно отозвано или ссылка устарела.",
+  "unavailable.action": "Все объявления",
+  "empty.title": "Пока ничего нет",
+  "empty.description": "Обновления продукта и уведомления о техработах появятся здесь.",
+  "error.title": "Не удалось загрузить объявления",
+  "error.retry": "Повторить",
+  "endOfList": "Это всё"
  }
 }

@@ -37,13 +37,15 @@ export const NotificationSkeleton = ({ rows = 5, dense = true }: { rows?: number
 /**
  * Designed lynx illustrations (CPO 2026-10-13: the line-art mascot is retired
  * for empty states — always the painted lynx from the brand ledger):
- *   Trading → empty-celebrate ("all clear"), Account → empty-no-boost (generic nothing).
+ *   Trading → empty-celebrate ("all clear"), Account → empty-no-boost (generic nothing),
+ *   Updates → empty-no-starred-event (the lynx waiting for news).
  * Same file for desktop / mobile (the ledger keeps both paths; pick by viewport
  * like every other Lite surface).
  */
 export const NOTIFICATION_EMPTY_ART: Record<NotificationTab, string> = {
   trading: "empty-celebrate.png",
   account: "empty-no-boost.png",
+  updates: "empty-no-starred-event.png",
 };
 
 export const NotificationEmpty = ({ tab, compact }: { tab: NotificationTab; compact?: boolean }) => {

@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import {
   countsAsUnread,
+  EMPTY_BY_TAB,
   tabOf,
   type NotificationRow,
   type NotificationTab,
@@ -60,7 +61,7 @@ export const useNotificationCounts = () => {
   return useMemo(() => {
     const rows = q.data ?? [];
     const counted = rows.filter(countsAsUnread);
-    const byTab: Record<NotificationTab, number> = { trading: 0, account: 0 };
+    const byTab: Record<NotificationTab, number> = { ...EMPTY_BY_TAB };
     for (const r of counted) byTab[tabOf(r)] += 1;
     return {
       badge: counted.length,

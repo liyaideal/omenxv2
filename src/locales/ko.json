@@ -1601,7 +1601,8 @@
   "terms.sections[18].bullets[3]": "이메일: support@omenx.com",
   "terms.sections[18].bullets[4]": "웹사이트: https://www.omenx.com",
   "terms.sections[18].bullets[5]": "공식 X 계정: https://x.com/OmenX_Official",
-  "terms.last_updated_note": "본 서비스 약관은 2026년 8월 21일에 최종 업데이트되었습니다."
+  "terms.last_updated_note": "본 서비스 약관은 2026년 8월 21일에 최종 업데이트되었습니다.",
+  "footer.links.announcements": "공지"
  },
  "market": {
   "category_labels.social": "소셜",
@@ -5950,6 +5951,42 @@
   "account.api_key_revoked.title": "API 키 취소됨",
   "account.api_key_revoked.body": "{{label}} · {{prefix}}…",
   "account.wallet_linked.title": "지갑 연결됨",
-  "account.wallet_linked.body": "{{address}}"
+  "account.wallet_linked.body": "{{address}}",
+  "tab.updates": "업데이트",
+  "empty.updates.title": "새 소식이 없습니다",
+  "empty.updates.description": "캠페인 소식과 공지가 여기에 표시됩니다.",
+  "system.announcement.title": "{{title}}",
+  "system.announcement.body": "{{summary}}",
+  "system.maintenance.title": "{{title}}",
+  "system.maintenance.body": "{{summary}}",
+  "system.campaign_live.title": "새 캠페인: {{campaign}}",
+  "system.campaign_live.body": "{{task}}{{ends}}",
+  "system.campaign_live.ends": " · {{deadline}} 종료",
+  "system.campaign_ending.title": "{{campaign}} 24시간 후 종료",
+  "system.campaign_ending.body": "{{deadline}} 전에 수령하세요",
+  "system.watchlist_live.title": "{{event}} 시작",
+  "system.watchlist_live.body": "즐겨찾기한 이벤트가 방금 시작됐습니다 · 탭하여 거래"
+ },
+ "announcements": {
+  "title": "공지",
+  "subtitle": "제품 업데이트, 새 마켓, 점검 안내.",
+  "loadMore": "더 보기",
+  "kind.announcement": "공지",
+  "kind.maintenance": "점검",
+  "window.label": "점검 시간",
+  "window.yourTime": "내 시간대 기준 {{range}}",
+  "window.affects": "영향: {{list}}",
+  "window.notAffected": "영향 없음: {{list}}",
+  "more": "다른 공지",
+  "seeAll": "모든 공지 보기 →",
+  "backToNotifications": "알림으로 돌아가기",
+  "unavailable.title": "이 공지는 더 이상 볼 수 없습니다",
+  "unavailable.description": "철회되었거나 링크가 만료되었을 수 있습니다.",
+  "unavailable.action": "전체 공지",
+  "empty.title": "아직 공지가 없습니다",
+  "empty.description": "제품 업데이트와 점검 안내가 여기에 표시됩니다.",
+  "error.title": "공지를 불러오지 못했습니다",
+  "error.retry": "다시 시도",
+  "endOfList": "더 이상 없습니다"
  }
 }

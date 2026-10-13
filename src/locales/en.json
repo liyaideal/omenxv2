@@ -1726,7 +1726,8 @@
     "terms.sections[18].bullets[3]": "Email: support@omenx.com",
     "terms.sections[18].bullets[4]": "Website: https://www.omenx.com",
     "terms.sections[18].bullets[5]": "Official X account: https://x.com/OmenX_Official",
-    "terms.last_updated_note": "These Terms of Service were last updated on 21 August 2026."
+    "terms.last_updated_note": "These Terms of Service were last updated on 21 August 2026.",
+    "footer.links.announcements": "Announcements"
   },
   "market": {
     "category_labels.social": "Social",
@@ -6164,6 +6165,42 @@
     "account.api_key_revoked.title": "API key revoked",
     "account.api_key_revoked.body": "{{label}} · {{prefix}}…",
     "account.wallet_linked.title": "Wallet connected",
-    "account.wallet_linked.body": "{{address}}"
+    "account.wallet_linked.body": "{{address}}",
+    "tab.updates": "Updates",
+    "empty.updates.title": "Nothing new",
+    "empty.updates.description": "Campaign news and announcements land here.",
+    "system.announcement.title": "{{title}}",
+    "system.announcement.body": "{{summary}}",
+    "system.maintenance.title": "{{title}}",
+    "system.maintenance.body": "{{summary}}",
+    "system.campaign_live.title": "New campaign: {{campaign}}",
+    "system.campaign_live.body": "{{task}}{{ends}}",
+    "system.campaign_live.ends": " · ends {{deadline}}",
+    "system.campaign_ending.title": "{{campaign}} ends in 24h",
+    "system.campaign_ending.body": "claim before {{deadline}}",
+    "system.watchlist_live.title": "{{event}} is live",
+    "system.watchlist_live.body": "a starred event just opened · tap to trade"
+  },
+  "announcements": {
+    "title": "Announcements",
+    "subtitle": "Product updates, new markets and maintenance notices.",
+    "loadMore": "Load more",
+    "kind.announcement": "Announcement",
+    "kind.maintenance": "Maintenance",
+    "window.label": "Window",
+    "window.yourTime": "{{range}} your time",
+    "window.affects": "Affects: {{list}}",
+    "window.notAffected": "Not affected: {{list}}",
+    "more": "More announcements",
+    "seeAll": "See all announcements →",
+    "backToNotifications": "Back to Notifications",
+    "unavailable.title": "This announcement is no longer available",
+    "unavailable.description": "It may have been withdrawn or the link is out of date.",
+    "unavailable.action": "All announcements",
+    "empty.title": "Nothing posted yet",
+    "empty.description": "Product updates and maintenance notices will show up here.",
+    "error.title": "Couldn't load announcements",
+    "error.retry": "Retry",
+    "endOfList": "That's everything"
   }
 }

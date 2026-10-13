@@ -1592,7 +1592,8 @@
   "terms.sections[18].bullets[3]": "**Email:** support@omenx.com",
   "terms.sections[18].bullets[4]": "**Website:** https://www.omenx.com",
   "terms.sections[18].bullets[5]": "**Official X account:** https://x.com/OmenX_Official",
-  "terms.last_updated_note": "These Terms of Service were last updated on 21 August 2026."
+  "terms.last_updated_note": "These Terms of Service were last updated on 21 August 2026.",
+  "footer.links.announcements": "公告"
  },
  "market": {
   "category_labels.social": "社交",
@@ -5927,6 +5928,42 @@
   "account.api_key_revoked.title": "API key 已撤销",
   "account.api_key_revoked.body": "{{label}} · {{prefix}}…",
   "account.wallet_linked.title": "钱包已连接",
-  "account.wallet_linked.body": "{{address}}"
+  "account.wallet_linked.body": "{{address}}",
+  "tab.updates": "动态",
+  "empty.updates.title": "暂无新动态",
+  "empty.updates.description": "活动消息和公告会出现在这里。",
+  "system.announcement.title": "{{title}}",
+  "system.announcement.body": "{{summary}}",
+  "system.maintenance.title": "{{title}}",
+  "system.maintenance.body": "{{summary}}",
+  "system.campaign_live.title": "新活动：{{campaign}}",
+  "system.campaign_live.body": "{{task}}{{ends}}",
+  "system.campaign_live.ends": " · {{deadline}} 结束",
+  "system.campaign_ending.title": "{{campaign}} 将在 24 小时后结束",
+  "system.campaign_ending.body": "请在 {{deadline}} 前领取",
+  "system.watchlist_live.title": "{{event}} 开盘了",
+  "system.watchlist_live.body": "你关注的赛事刚刚开始 · 点击交易"
+ },
+ "announcements": {
+  "title": "公告",
+  "subtitle": "产品更新、新市场与维护通知。",
+  "loadMore": "加载更多",
+  "kind.announcement": "公告",
+  "kind.maintenance": "维护",
+  "window.label": "时间窗口",
+  "window.yourTime": "你的时区 {{range}}",
+  "window.affects": "影响：{{list}}",
+  "window.notAffected": "不受影响：{{list}}",
+  "more": "更多公告",
+  "seeAll": "查看全部公告 →",
+  "backToNotifications": "返回消息中心",
+  "unavailable.title": "该公告已不可用",
+  "unavailable.description": "可能已被撤回，或链接已失效。",
+  "unavailable.action": "全部公告",
+  "empty.title": "暂无公告",
+  "empty.description": "产品更新和维护通知会出现在这里。",
+  "error.title": "公告加载失败",
+  "error.retry": "重试",
+  "endOfList": "没有更多了"
  }
 }
