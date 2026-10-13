@@ -36,6 +36,8 @@ import Withdraw from "./pages/Withdraw";
 import RecoveryRequest from "./pages/RecoveryRequest";
 import RecoveryRequestDetail from "./pages/RecoveryRequestDetail";
 import Settings from "./pages/Settings";
+import NotificationsPage from "./pages/NotificationsPage";
+import { NotificationsRuntime } from "@/components/notifications/NotificationsRuntime";
 import ResetPassword from "./pages/ResetPassword";
 import LiteRewardsPage from "./pages/lite/LiteRewardsPage";
 import LiteCampaignDetailPage from "./pages/lite/LiteCampaignDetailPage";
@@ -215,6 +217,7 @@ const App = () => (
           <OrderSimulationRunner />
           <CampaignAttribution />
           <ClosedAccountGate />
+          <NotificationsRuntime />
           <LanguageKeyed>
           <Routes>
             {/* Full-width landing pages (rendered outside max-w-md mobile shell) */}
@@ -253,6 +256,7 @@ const App = () => (
               <Route path="/rewards/campaign/:campaignId" element={<LiteCampaignDetailPage />} />
               <Route path="/vouchers" element={<Vouchers />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/settings/transparency" element={<TransparencyPage />} />
               <Route path="/settings/api" element={<ApiManagement />} />

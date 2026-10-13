@@ -11,6 +11,8 @@ import {
 import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 import { LanguageIconButton } from "@/components/language/LanguagePicker";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { useAuth } from "@/hooks/useAuth";
 
 /**
  * Mobile Header System v1 (DESIGN.md §10)
@@ -162,6 +164,7 @@ export const MobileHeader = ({
 }: MobileHeaderProps) => {
 
   const navigate = useNavigate();
+  const { user } = useAuth();
   const navigationType = useNavigationType();
   const location = useLocation();
   // SP-2-FIX1: only one clock — the internal one is skipped when the caller
@@ -209,10 +212,17 @@ export const MobileHeader = ({
 
   const renderRight = () => {
     if (rightContent) return rightContent;
-    // Brand bar default right slot = language entry (CPO 2026-09-28,
-    // language-entry-v1 R3): guests and signed-in alike; a page that passes
-    // its own rightContent owns the slot and composes the globe itself.
-    if (isBrand) return <LanguageIconButton />;
+    // Brand bar default right slot (CPO 2026-09-28 language-entry-v1 R3;
+    // 2026-10-13 Notifications M5): signed-in = [🔔][🌐], guests = [🌐] —
+    // ≤2 icon buttons per the slot contract. A page that passes its own
+    // rightContent owns the slot and composes these itself.
+    if (isBrand)
+      return (
+        <div className="flex items-center gap-1 -mr-2">
+          {user && <NotificationBell variant="mobile" />}
+          <LanguageIconButton />
+        </div>
+      );
     return <div className="w-9 -mr-2" />;
   };
 

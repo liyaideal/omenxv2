@@ -1,6 +1,8 @@
 import { useState, useEffect, type CSSProperties } from "react";
-import { User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, KeyRound, Compass, PieChart, ArrowLeftRight, Handshake, Globe } from "lucide-react";
+import { User, LogOut, Settings, HelpCircle, Wallet, ChevronRight, Gift, Lightbulb, Award, KeyRound, Compass, PieChart, ArrowLeftRight, Handshake, Globe, Bell } from "lucide-react";
 import { LanguageDrawer, useLanguagePick } from "@/components/language/LanguagePicker";
+import { useNotificationCounts } from "@/hooks/useNotifications";
+import { badgeText } from "@/lib/notifications";
 import { useT, t } from "@/i18n";
 import { HELP_CENTER_URL } from "@/lib/site";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -38,6 +40,7 @@ export const BottomNav = () => {
   const [languageOpen, setLanguageOpen] = useState(false);
   const { t } = useT();
   const { code: languageCode, current: language, pick: pickLanguage } = useLanguagePick();
+  const unreadBadge = badgeText(useNotificationCounts().badge);
   const [transferOpen, setTransferOpen] = useState(false);
 
   // Deliver the user to the tab they originally tapped, once signed in
@@ -255,6 +258,22 @@ export const BottomNav = () => {
             onClick={() => {
               setProfileSheetOpen(false);
               navigate("/rewards");
+            }}
+          />
+          {/* Notifications (CPO 2026-10-13 M5): after Rewards; right value = unread count (hidden at 0). */}
+          <MobileDrawerListItem
+            icon={Bell}
+            label={t("notifications.title")}
+            right={
+              unreadBadge ? (
+                <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1.5 font-mono text-[11px] font-semibold leading-none text-primary-foreground">
+                  {unreadBadge}
+                </span>
+              ) : undefined
+            }
+            onClick={() => {
+              setProfileSheetOpen(false);
+              navigate("/notifications");
             }}
           />
           {/* Affiliate Program entry (CPO 2026-09-19): mobile has no top-nav slot for it, so it lives here after Rewards. */}

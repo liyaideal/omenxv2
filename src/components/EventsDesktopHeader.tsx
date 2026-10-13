@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { LanguageChip } from "@/components/language/LanguagePicker";
+import { LanguageChip, LanguageMenuItems, useLanguagePick } from "@/components/language/LanguagePicker";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { useT, t as tt } from "@/i18n";
 import {
   ChevronDown,
@@ -9,6 +10,7 @@ import {
   LogIn,
   Gift,
   Settings,
+  Globe,
   HelpCircle,
   Shield,
   MessageCircle,
@@ -22,6 +24,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/Logo";
@@ -47,10 +52,12 @@ const navItems = [
   { key: "nav.insights", path: "/insights" },
 ];
 
-// Language (CPO 2026-09-28, language-entry-v1 R1/R2): ONE <LanguageChip> in the
-// right cluster for both guests and signed-in users — left of Sign In / left of
-// Equity — shown from lg. The avatar menu no longer carries a Language submenu;
-// the only other entry is Settings › Preferences. See src/components/language.
+// Language (CPO 2026-09-28, language-entry-v1 R1/R2; amended 2026-10-13 by the
+// Notifications round, plan A): guests keep ONE <LanguageChip> left of Sign In.
+// Signed-in users no longer see the chip — the bell takes that slot
+// (`Equity → 🔔 → avatar`) so the right cluster gains no element — and the
+// language lives as a `Language · EN ▸` submenu row in the avatar menu, above
+// Settings (same list as the chip; Settings › Preferences stays the other entry).
 
 interface EventsDesktopHeaderProps {
   rightContent?: React.ReactNode;
@@ -113,6 +120,7 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
   const { balance, spotBalance, user, username, avatarUrl } = useUserProfile();
   const [transferOpen, setTransferOpen] = useState(false);
   const totalEquity = computeTotalEquity({ spotBalance, balance });
+  const lang = useLanguagePick();
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -182,7 +190,6 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
 
           {user ? (
             <>
-              <LanguageChip className="hidden lg:flex" />
               <HoverCard openDelay={120} closeDelay={100}>
                 <HoverCardTrigger asChild>
                   <button
@@ -206,6 +213,9 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
                 </HoverCardContent>
               </HoverCard>
               <TransferDialog open={transferOpen} onOpenChange={setTransferOpen} />
+
+              {/* Notifications (CPO 2026-10-13, plan A): Equity → 🔔 → avatar. Signed-in only. */}
+              <NotificationBell variant="desktop" />
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -241,6 +251,18 @@ export const EventsDesktopHeader = ({ rightContent }: EventsDesktopHeaderProps) 
 
                   <DropdownMenuSeparator />
 
+
+                  {/* Language row (2026-10-13, plan A): current short code + submenu = LanguageMenuItems. */}
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <Globe className="mr-2 h-4 w-4 text-muted-foreground" />
+                      <span className="flex-1">{t("nav.language")}</span>
+                      <span className="ml-2 font-mono text-[11px] text-muted-foreground">{lang.current.short}</span>
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent className="w-[200px]">
+                      <LanguageMenuItems current={lang.code} onPick={(c) => void lang.pick(c)} />
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
 
                   {/* Preferences */}
                   <DropdownMenuItem onClick={() => navigate("/settings")}>
