@@ -118,10 +118,13 @@ export default function NotificationsPage() {
           }
         />
         <LiteAuthGate title={t(NOTIFICATIONS_GATE_COPY.title)} description={t(NOTIFICATIONS_GATE_COPY.description)}>
+          {/* Tabs + list share one padded container so the sticky tab bar has the
+              whole list as its containing block (a tabs-only wrapper would unstick
+              it after 49px). The list bleeds back out with -mx-4; rows carry px-4. */}
           <div className="px-4">
             <NotificationTabs value={tab} onChange={setTab} unread={counts.byTab} variant="opening" sticky />
+            <div className="-mx-4 pb-safe">{list}</div>
           </div>
-          <div className="pb-safe">{list}</div>
         </LiteAuthGate>
         <BottomNav />
       </div>
