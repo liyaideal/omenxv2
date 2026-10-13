@@ -98,7 +98,7 @@ END $$;
 -- positions: INSERT → trade.bought ; UPDATE → settled.* / autoclose.done / trade.cashed_out
 CREATE OR REPLACE FUNCTION public.notif_position_insert() RETURNS trigger
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
-DECLARE v_event uuid;
+DECLARE v_event text;
 BEGIN
   IF NEW.status <> 'Open' THEN RETURN NEW; END IF;
   SELECT event_id INTO v_event FROM public.event_options WHERE id = NEW.option_id;
@@ -106,7 +106,7 @@ BEGIN
     jsonb_build_object('event_name', NEW.event_name, 'option_label', NEW.option_label, 'side', NEW.side,
                        'margin', NEW.margin, 'leverage', NEW.leverage, 'product_line', NEW.product_line),
     'position', NEW.id,
-    CASE WHEN v_event IS NULL THEN '/trade' ELSE '/trade?event=' || v_event::text END,
+    CASE WHEN v_event IS NULL THEN '/trade' ELSE '/trade?event=' || v_event END,
     'trade.bought:' || NEW.id::text);
   RETURN NEW;
 END $$;
@@ -380,6 +380,10 @@ END $$;
 DROP TRIGGER IF EXISTS notif_profile ON public.profiles;
 CREATE TRIGGER notif_profile AFTER UPDATE OF email, totp_enabled ON public.profiles
   FOR EACH ROW EXECUTE FUNCTION public.notif_profile();
+
+-- Applied to Lovable Cloud via query_database 2026-10-13 (trigger smoke test: buy → trade.bought;
+-- settle → settled.win; 3 same-event closes in one UPDATE → 1 settled.round_batch + 0 singles;
+-- non-status UPDATE → no-op; notify_expiring() twice → 0 / 0). Fixtures deleted after the test.
 
 -- ---------------------------------------------------------------- cron producers
 -- Expiry reminders (24h window). Idempotent per entity — safe to run every 30 minutes.

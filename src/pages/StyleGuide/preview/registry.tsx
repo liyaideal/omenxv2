@@ -38,6 +38,7 @@ const h2e = () => import("./h2ePreviews");
 const autoClose = () => import("./autoClosePreviews");
 const auth = () => import("./authPreviews");
 const settings = () => import("./settingsPreviews");
+const notifications = () => import("./notificationsPreviews");
 const insights = () => import("./insightsPreviews");
 const leaderboard = () => import("./leaderboardPreviews");
 const events = () => import("./eventsPreviews");
@@ -56,6 +57,29 @@ const table = () => import("./tablePreviews");
 
 
 export const previewRegistry: Record<string, Loader> = {
+  /* -------- Notifications（NT-1…NT-19, 2026-10-13）-------- */
+  "notif-bell-states": pick(notifications, "BellStatesPreview"),
+  "notif-popover-trading": pick(notifications, "PopoverTradingPreview"),
+  "notif-popover-account": pick(notifications, "PopoverAccountPreview"),
+  "notif-popover-allread": pick(notifications, "PopoverAllReadPreview"),
+  "notif-popover-empty": pick(notifications, "PopoverEmptyTabPreview"),
+  "notif-popover-loading": pick(notifications, "PopoverLoadingPreview"),
+  "notif-popover-error": pick(notifications, "PopoverErrorPreview"),
+  "notif-panel-bare": pick(notifications, "PanelBarePreview"),
+  "notif-page-desktop-trading": pick(notifications, "PageDesktopTradingPreview"),
+  "notif-page-desktop-account": pick(notifications, "PageDesktopAccountPreview"),
+  "notif-page-desktop-empty": pick(notifications, "PageDesktopEmptyPreview"),
+  "notif-page-mobile-trading": pick(notifications, "PageMobileTradingPreview"),
+  "notif-page-mobile-account": pick(notifications, "PageMobileAccountPreview"),
+  "notif-page-mobile-empty": pick(notifications, "PageMobileEmptyPreview"),
+  "notif-page-mobile-loading": pick(notifications, "PageMobileLoadingPreview"),
+  "notif-page-mobile-error": pick(notifications, "PageMobileErrorPreview"),
+  "notif-mobile-brandbar": pick(notifications, "MobileBrandBarPreview"),
+  "notif-mobile-menu-row": pick(notifications, "MobileMenuRowPreview"),
+  "notif-row-states": pick(notifications, "RowStatesPreview"),
+  "notif-row-unknown": pick(notifications, "RowUnknownTypePreview"),
+  "notif-types-trading": pick(notifications, "AllTypesTradingPreview"),
+  "notif-types-account": pick(notifications, "AllTypesAccountPreview"),
   /* -------- Lite Sports · Live（SP-L3a）-------- */
   "sports-live-m1": pick(sportsLive, "M1Preview"),
   "sports-live-m2": pick(sportsLive, "M2Preview"),

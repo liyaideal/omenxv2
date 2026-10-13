@@ -83,6 +83,7 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
       s("lite-share", "分享 / Share ✅", lp("ShareCases")),
       s("lite-leaderboard", "Leaderboard ✅", lp("LiteLeaderboardPage")),
       s("lite-settings", "Settings ✅", lp("LiteSettingsPage")),
+      s("lite-notifications", "Notifications ✅", lp("LiteNotificationsPage")),
       s("lite-insights", "Insights ✅", lp("LiteInsightsPage")),
       s("lite-content", "内容页 ⏳", lp("LiteStubPages", "LiteContentPage")),
     ],
@@ -105,7 +106,6 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
       s("event-art", "Event 美术方向", sec("EventArtSection", "EventArtSection")),
       // R-W3: 品牌/IP 素材台账 —— 静态登记，只增不删。
       s("foundations-brand-assets", "Brand assets · IP 插画", sec("BrandAssetsSection", "BrandAssetsSection")),
-      s("message-center", "Message Center（Backlog）", sec("MessageCenterSection", "MessageCenterSection")),
     ],
   },
   {

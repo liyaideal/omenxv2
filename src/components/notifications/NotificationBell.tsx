@@ -52,6 +52,17 @@ export const BellBadge = ({ count, size }: { count: number; size: "desktop" | "m
   );
 };
 
+/** Me-menu row value: unread count pill (mobile BottomNav). Hidden at 0. */
+export const UnreadCountPill = ({ count }: { count: number }) => {
+  const text = badgeText(count);
+  if (!text) return null;
+  return (
+    <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1.5 font-mono text-[11px] font-semibold leading-none text-primary-foreground">
+      {text}
+    </span>
+  );
+};
+
 /* ------------------------------ popover body ------------------------------ */
 
 export interface NotificationsPanelProps {
@@ -115,35 +126,48 @@ export const NotificationsPanel = ({
 
 /* ------------------------------ bell ------------------------------ */
 
+export interface NotificationBellPreview {
+  /** Fixed badge count (no query). */
+  count: number;
+  /** Render the popover open (desktop). */
+  open?: boolean;
+  rows?: NotificationRow[];
+  state?: NotificationListState;
+  tab?: NotificationTab;
+  byTab?: Record<NotificationTab, number>;
+  now?: Date;
+}
+
 export const NotificationBell = ({
   variant,
   className,
-  previewCount,
-  previewOpen,
+  preview: pv,
 }: {
   variant: "desktop" | "mobile";
   className?: string;
-  /** Style-guide only: fixed badge count (no query). */
-  previewCount?: number;
-  /** Style-guide only: render the popover open (desktop). */
-  previewOpen?: boolean;
+  /** Style-guide only: freeze the bell / panel in a state with display fixtures. Never set in product. */
+  preview?: NotificationBellPreview;
 }) => {
   const { t } = useT();
   const navigate = useNavigate();
-  const preview = previewCount !== undefined;
+  const preview = !!pv;
   const counts = useNotificationCounts();
-  const badge = preview ? previewCount : counts.badge;
-  const [open, setOpen] = useState(!!previewOpen);
-  const [tab, setTab] = useState<NotificationTab>("trading");
+  const badge = pv ? pv.count : counts.badge;
+  const [open, setOpen] = useState(!!pv?.open);
+  const [tab, setTab] = useState<NotificationTab>(pv?.tab ?? "trading");
   const recent = useRecentNotifications(20, !preview && open);
   const { markRead, markAllRead } = useMarkNotificationsRead();
+  const byTab = pv?.byTab ?? counts.byTab;
+  const hasAnyUnread = pv ? (pv.rows ?? []).some((r) => !r.read_at) : counts.hasAnyUnread;
 
   const onOpenChange = (next: boolean) => {
+    if (preview) return;
     if (next) setTab(defaultTab(counts.byTab));
     setOpen(next);
   };
 
   const openRow = (row: NotificationRow) => {
+    if (preview) return;
     if (!row.read_at) void markRead([row.id]);
     setOpen(false);
     if (row.deep_link) navigate(row.deep_link);
@@ -160,7 +184,7 @@ export const NotificationBell = ({
     );
   }
 
-  const state: NotificationListState = recent.isError ? "error" : recent.isLoading ? "loading" : "ready";
+  const state: NotificationListState = pv ? (pv.state ?? "ready") : recent.isError ? "error" : recent.isLoading ? "loading" : "ready";
 
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
@@ -181,19 +205,21 @@ export const NotificationBell = ({
       </PopoverTrigger>
       <PopoverContent align="end" sideOffset={8} className="w-auto p-0">
         <NotificationsPanel
-          rows={recent.data ?? []}
-          byTab={counts.byTab}
-          hasAnyUnread={counts.hasAnyUnread}
+          rows={pv ? (pv.rows ?? []) : (recent.data ?? [])}
+          byTab={byTab}
+          hasAnyUnread={hasAnyUnread}
           state={state}
           tab={tab}
           onTab={setTab}
           onOpen={openRow}
-          onMarkAll={() => void markAllRead()}
+          onMarkAll={() => (preview ? undefined : void markAllRead())}
           onSeeAll={() => {
+            if (preview) return;
             setOpen(false);
             navigate("/notifications");
           }}
-          onRetry={() => void recent.refetch()}
+          onRetry={() => (preview ? undefined : void recent.refetch())}
+          now={pv?.now}
         />
       </PopoverContent>
     </Popover>
