@@ -146,17 +146,12 @@ export const LiteNotificationsPage = (_: P) => (
           <SectionFrame cases={BELL_CASES} device="desktop" minHeight={120} />
         </SubSection>
 
-        <SubSection title="Ⓑ Popover（NT-2 … NT-8）" platform="desktop">
-          <SectionFrame cases={POPOVER_CASES.slice(0, 2)} device="desktop" minHeight={680} />
-          <div className="mt-3">
-            <SectionFrame cases={POPOVER_CASES.slice(2, 4)} device="desktop" minHeight={680} />
-          </div>
-          <div className="mt-3">
-            <SectionFrame cases={POPOVER_CASES.slice(4, 6)} device="desktop" minHeight={680} />
-          </div>
-          <div className="mt-3">
-            <SectionFrame cases={[POPOVER_CASES[6]]} device="desktop" minHeight={620} />
-          </div>
+        <SubSection title="Ⓑ Popover（NT-2 … NT-8）· portal 弹层一帧一 case" platform="desktop">
+          {POPOVER_CASES.map((c, i) => (
+            <div key={c.key} className={i === 0 ? undefined : "mt-3"}>
+              <SectionFrame cases={[c]} device="desktop" minHeight={c.key === "notif-panel-bare" ? 620 : 800} />
+            </div>
+          ))}
         </SubSection>
 
         <SubSection title="Ⓒ /notifications 全页（NT-9 … NT-13）" platform="shared">

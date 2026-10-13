@@ -96,6 +96,13 @@ END $$;
 
 -- ---------------------------------------------------------------- producers
 -- positions: INSERT → trade.bought ; UPDATE → settled.* / autoclose.done / trade.cashed_out
+-- side_labels travel with the row so the client resolves Yes/No/Up/Down with resolveLegSide()
+-- (the long/short ↔ Yes/No mapping stays in the render layer — backend-boundary red line 2).
+CREATE OR REPLACE FUNCTION public.position_side_labels(p_option_id text) RETURNS jsonb
+LANGUAGE sql STABLE AS $$
+  SELECT e.side_labels FROM public.event_options o JOIN public.events e ON e.id = o.event_id WHERE o.id = p_option_id LIMIT 1
+$$;
+
 CREATE OR REPLACE FUNCTION public.notif_position_insert() RETURNS trigger
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 DECLARE v_event text;
@@ -104,6 +111,7 @@ BEGIN
   SELECT event_id INTO v_event FROM public.event_options WHERE id = NEW.option_id;
   PERFORM public.notify(NEW.user_id, 'trade.bought',
     jsonb_build_object('event_name', NEW.event_name, 'option_label', NEW.option_label, 'side', NEW.side,
+                       'side_labels', public.position_side_labels(NEW.option_id),
                        'margin', NEW.margin, 'leverage', NEW.leverage, 'product_line', NEW.product_line),
     'position', NEW.id,
     CASE WHEN v_event IS NULL THEN '/trade' ELSE '/trade?event=' || v_event END,
@@ -159,6 +167,7 @@ BEGIN
         ELSE CASE WHEN COALESCE(r.pnl,0) > 0 THEN 'settled.win' WHEN COALESCE(r.pnl,0) < 0 THEN 'settled.loss' ELSE 'settled.flat' END
       END,
       jsonb_build_object('event_name', r.event_name, 'option_label', r.option_label, 'side', r.side,
+                         'side_labels', public.position_side_labels(r.option_id),
                          'pnl', COALESCE(r.pnl,0), 'margin', r.margin, 'leverage', r.leverage, 'product_line', r.product_line),
       'position', r.id, '/portfolio/settlement/' || r.id::text,
       'position.closed:' || r.id::text);
