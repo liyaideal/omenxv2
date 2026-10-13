@@ -109,7 +109,7 @@ export const NotificationsPanel = ({
       </div>
       <NotificationTabs value={tab} onChange={onTab} unread={byTab} variant="local" />
       <div className="max-h-[460px] overflow-y-auto">
-        <NotificationList rows={visible} tab={tab} state={state} onOpen={onOpen} onRetry={onRetry} dense mascot="mark" now={now} />
+        <NotificationList rows={visible} tab={tab} state={state} onOpen={onOpen} onRetry={onRetry} dense compactEmpty now={now} />
       </div>
       {showFooter && (
         <button

@@ -45,7 +45,7 @@ const POPOVER_CASES: SectionCase[] = [
   },
   { key: "notif-popover-account", label: "NT-3 · Popover · Account tab", spec: [{ state: "account", when: "tab=account", visual: "同壳；Funds / Rewards / Account 行", source: "tabOf(category)" }] },
   { key: "notif-popover-allread", label: "NT-4 · Popover · 全部已读（Mark all read 隐藏）", spec: [{ state: "all read", when: "!hasAnyUnread", visual: "头右槽空；tab 无圆点；行全部 muted", source: "NotificationsPanel" }] },
-  { key: "notif-popover-empty", label: "NT-5 · Popover · 单 tab 空态（Trading 有未读）", spec: [{ state: "empty tab", when: "visible.length === 0", visual: "EmptyState section · LynxMark 64 · 'Nothing here yet' / 'Deposits, withdrawals, rewards and security alerts land here.'；无 See all", source: "NotificationEmpty mascot=mark" }] },
+  { key: "notif-popover-empty", label: "NT-5 · Popover · 单 tab 空态（Trading 有未读）", spec: [{ state: "empty tab", when: "visible.length === 0", visual: "EmptyState section · 品牌猞猁插画 `empty-no-boost.png`（Account）/ `empty-celebrate.png`（Trading）· 'Nothing here yet' / 'Deposits, withdrawals, rewards and security alerts land here.'；无 See all", source: "NotificationEmpty · NOTIFICATION_EMPTY_ART" }] },
   { key: "notif-popover-loading", label: "NT-6 · Popover · 加载骨架", spec: [{ state: "loading", when: "query.isLoading", visual: "5 行骨架（圆 20 + 62% / 40% + 34px）；头右槽空", source: "NotificationSkeleton" }] },
   { key: "notif-popover-error", label: "NT-7 · Popover · 出错", spec: [{ state: "error", when: "query.isError", visual: "ErrorState 'Couldn't load notifications' / 'Check your connection and try again.' / 'Retry' → refetch", source: "states/ErrorState" }] },
   { key: "notif-panel-bare", label: "NT-8 · Popover 本体（无 portal，量宽用）", spec: [{ state: "bare", when: "—", visual: "w-[400px] max-w-[calc(100vw-24px)]；列表 max-h-[460px] overflow-y-auto", source: "NotificationsPanel" }] },
@@ -65,7 +65,7 @@ const PAGE_DESKTOP: SectionCase[] = [
     ],
   },
   { key: "notif-page-desktop-account", label: "NT-10 · /notifications · desktop · Account", spec: [{ state: "account", when: "tab=account", visual: "同壳", source: "—" }] },
-  { key: "notif-page-desktop-empty", label: "NT-11 · /notifications · desktop · 空态", spec: [{ state: "empty", when: "visible.length === 0", visual: "EmptyState section · LynxFigure 100 · 'Nothing here yet'；DSH 右槽无 Mark all read", source: "NotificationEmpty mascot=figure" }] },
+  { key: "notif-page-desktop-empty", label: "NT-11 · /notifications · desktop · 空态", spec: [{ state: "empty", when: "visible.length === 0", visual: "EmptyState section · 品牌猞猁插画（Account = `empty-no-boost.png`，Trading = `empty-celebrate.png` 全清）· 'Nothing here yet'；DSH 右槽无 Mark all read", source: "NotificationEmpty · NOTIFICATION_EMPTY_ART" }] },
 ];
 
 const PAGE_MOBILE: SectionCase[] = [
@@ -79,7 +79,7 @@ const PAGE_MOBILE: SectionCase[] = [
     ],
   },
   { key: "notif-page-mobile-account", label: "NT-10b · /notifications · mobile · Account", spec: [{ state: "account", when: "tab=account", visual: "同壳", source: "—" }] },
-  { key: "notif-page-mobile-empty", label: "NT-11b · /notifications · mobile · 空态 · 全读（无 CheckCheck）", spec: [{ state: "empty", when: "visible.length === 0 && !hasAnyUnread", visual: "LynxFigure 100 空态；右槽空", source: "—" }] },
+  { key: "notif-page-mobile-empty", label: "NT-11b · /notifications · mobile · 空态 · 全读（无 CheckCheck）", spec: [{ state: "empty", when: "visible.length === 0 && !hasAnyUnread", visual: "品牌猞猁插画空态；右槽空", source: "—" }] },
   { key: "notif-page-mobile-loading", label: "NT-12b · /notifications · mobile · 加载骨架", spec: [{ state: "loading", when: "isLoading", visual: "5 行骨架", source: "NotificationSkeleton" }] },
   { key: "notif-page-mobile-error", label: "NT-13b · /notifications · mobile · 出错", spec: [{ state: "error", when: "isError", visual: "ErrorState + Retry", source: "—" }] },
 ];

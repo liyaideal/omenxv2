@@ -154,9 +154,9 @@ cron（到期前 24h）─┘                                    └── 90 �
 |---|---|---|
 | loading | 查询中 | 5 行骨架 |
 | error | 查询失败 | `Couldn't load notifications` / `Check your connection and try again.` / `Retry` |
-| empty（Trading） | 本 tab 无行 | 山猫 + `You're all caught up` / `Results, auto-close alerts and trade confirmations land here.` |
-| empty（Account） | 本 tab 无行 | 山猫 + `Nothing here yet` / `Deposits, withdrawals, rewards and security alerts land here.` |
-| 山猫 | Popover = `LynxMark 64`（EmptyState section · mascot=mark）；全页 = `LynxFigure 100` | |
+| empty（Trading） | 本 tab 无行 | 品牌猞猁插画 `empty-celebrate.png` + `You're all caught up` / `Results, auto-close alerts and trade confirmations land here.` |
+| empty（Account） | 本 tab 无行 | 品牌猞猁插画 `empty-no-boost.png` + `Nothing here yet` / `Deposits, withdrawals, rewards and security alerts land here.` |
+| 插画 | 同一张图桌面 / 移动按视口取 `/assets/desktop|mobile/`；Popover 内 `py-7`。线稿猞猁不再用于空态（CPO 2026-10-13） | |
 
 ## 4. Lovable / 正式版边界
 

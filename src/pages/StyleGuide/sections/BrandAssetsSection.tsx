@@ -256,7 +256,7 @@ const HOME: AssetRow[] = [
     path: "public/assets/desktop/empty-celebrate.png",
     size: "220 × 227",
     format: "PNG",
-    usage: "未接线（备用：结算完成 / 全清空态）",
+    usage: "Notifications Trading 空态 `You're all caught up`（NT-5 / NT-11 / NT-11b，2026-10-13 接线）",
     added: "2026-08-29",
   },
   {
@@ -288,7 +288,7 @@ const HOME: AssetRow[] = [
     path: "public/assets/mobile/empty-celebrate.png",
     size: "220 × 227",
     format: "PNG",
-    usage: "未接线（备用：移动同款）",
+    usage: "Notifications Trading 空态移动帧（2026-10-13 接线）",
     added: "2026-08-29",
   },
   {

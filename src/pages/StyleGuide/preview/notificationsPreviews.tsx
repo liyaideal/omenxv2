@@ -216,7 +216,7 @@ const DesktopPage = ({ tab, rows, state }: { tab: NotificationTab; rows: Row[]; 
         <NotificationTabs value={tab} onChange={noop} unread={{ trading: 2, account: 2 }} variant="opening" />
       </div>
       <div className="-mx-2">
-        <NotificationList rows={visible} tab={tab} state={state} onOpen={noop} dense={false} mascot="figure" now={NOW} />
+        <NotificationList rows={visible} tab={tab} state={state} onOpen={noop} dense={false} now={NOW} />
       </div>
     </div>
   );
@@ -277,7 +277,7 @@ const MobilePage = ({ tab, rows, state, markAll = true }: { tab: NotificationTab
       <div className="px-4">
         <NotificationTabs value={tab} onChange={noop} unread={markAll ? UNREAD_BOTH : UNREAD_NONE} variant="opening" />
       </div>
-      <NotificationList rows={visible} tab={tab} state={state} onOpen={noop} dense mascot="figure" now={NOW} />
+      <NotificationList rows={visible} tab={tab} state={state} onOpen={noop} dense now={NOW} />
     </div>
   );
 };

@@ -4,7 +4,7 @@
  * States (every one a style-guide case):
  *   loading → 5 skeleton rows
  *   error   → ErrorState "Couldn't load notifications" + Retry
- *   empty   → EmptyState with the lynx (mark in the popover, figure on pages)
+ *   empty   → EmptyState with the painted lynx (celebrate / no-boost)
  *   rows    → TODAY / YESTERDAY / OCT 3 groups
  * `state` / `rows` are display-only fixtures for /style-guide; production
  * passes the query result.
@@ -12,6 +12,7 @@
 import { EmptyState, ErrorState } from "@/components/states";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useT } from "@/i18n";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { groupByDay, type NotificationRow as Row, type NotificationTab } from "@/lib/notifications";
 import { NotificationRow } from "./NotificationRow";
@@ -33,16 +34,29 @@ export const NotificationSkeleton = ({ rows = 5, dense = true }: { rows?: number
   </div>
 );
 
-export const NotificationEmpty = ({ tab, mascot }: { tab: NotificationTab; mascot: "mark" | "figure" }) => {
+/**
+ * Designed lynx illustrations (CPO 2026-10-13: the line-art mascot is retired
+ * for empty states — always the painted lynx from the brand ledger):
+ *   Trading → empty-celebrate ("all clear"), Account → empty-no-boost (generic nothing).
+ * Same file for desktop / mobile (the ledger keeps both paths; pick by viewport
+ * like every other Lite surface).
+ */
+export const NOTIFICATION_EMPTY_ART: Record<NotificationTab, string> = {
+  trading: "empty-celebrate.png",
+  account: "empty-no-boost.png",
+};
+
+export const NotificationEmpty = ({ tab, compact }: { tab: NotificationTab; compact?: boolean }) => {
   const { t } = useT();
+  const isMobile = useIsMobile();
   return (
     <EmptyState
       variant="section"
-      mascot={mascot}
+      illustrationSrc={`/assets/${isMobile ? "mobile" : "desktop"}/${NOTIFICATION_EMPTY_ART[tab]}`}
       bordered={false}
       title={t(`notifications.empty.${tab}.title`)}
       description={t(`notifications.empty.${tab}.description`)}
-      className={mascot === "mark" ? "py-7" : undefined}
+      className={compact ? "py-7" : undefined}
     />
   );
 };
@@ -54,7 +68,7 @@ export const NotificationList = ({
   onRetry,
   onOpen,
   dense = true,
-  mascot = "mark",
+  compactEmpty = false,
   now,
   footer,
 }: {
@@ -64,7 +78,8 @@ export const NotificationList = ({
   onRetry?: () => void;
   onOpen?: (row: Row) => void;
   dense?: boolean;
-  mascot?: "mark" | "figure";
+  /** Popover: tighter vertical padding around the empty illustration. */
+  compactEmpty?: boolean;
   now?: Date;
   /** Infinite-scroll sentinel / "Loading more…" slot on the page. */
   footer?: React.ReactNode;
@@ -82,7 +97,7 @@ export const NotificationList = ({
         />
       </div>
     );
-  if (!rows.length) return <NotificationEmpty tab={tab} mascot={mascot} />;
+  if (!rows.length) return <NotificationEmpty tab={tab} compact={compactEmpty} />;
   const groups = groupByDay(rows, now);
   return (
     <div>
