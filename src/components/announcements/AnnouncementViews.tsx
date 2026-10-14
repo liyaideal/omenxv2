@@ -4,7 +4,9 @@
  * pages and the style-guide mount the exact same tree (Truth Rule §16.1.1).
  *
  * Desktop list: title 24/30 + subtitle → bordered list → Load more / end note.
- * Mobile list: subtitle only (the inner header carries the title).
+ * Mobile list: no title block at all — the inner header is the title, and a
+ * lone subtitle under it reads as a stray first row (CPO 2026-10-14). Rows
+ * start right under the header divider, like /notifications on mobile.
  * Desktop detail: 12-col grid, article spans 8, rail spans 4 (rail hidden
  * when empty; the article never widens). Mobile detail: single column, rail
  * under the CTA.
@@ -60,10 +62,7 @@ export const AnnouncementListView = ({ rows, state = "ready", hasMore, loadingMo
 
   if (mobile) {
     return (
-      <div className="px-4 pb-6 pt-3">
-        <p className="text-sm leading-5 text-muted-foreground">{t("announcements.subtitle")}</p>
-        <div className="mt-3 border-t border-border">{list}</div>
-      </div>
+      <div className="px-4 pb-6">{list}</div>
     );
   }
   return (

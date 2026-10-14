@@ -34,7 +34,7 @@ const LIST_MOBILE: SectionCase[] = [
   {
     key: "ann-list-mobile",
     label: "AN-1b · /announcements · mobile",
-    note: "Variant B inner header（返回 + 'Announcements'）→ px-4 pt-3 副题 → 行同桌面（日期当年省年份『Oct 13』）→ 全宽 Load more 44h → SeoFooter。内容页不挂 BottomNav（同 /glossary）。",
+    note: "Variant B inner header（返回 + 'Announcements'）→ 行直接接页头分隔线（**移动不放副题**：页头就是标题，孤零零一行副题会被读成列表第一行——CPO 2026-10-14；同 /notifications 移动）→ 行同桌面（日期当年省年份『Oct 13』）→ 全宽 Load more 44h → SeoFooter。内容页不挂 BottomNav（同 /glossary）。",
     spec: [{ state: "date", when: "mobile && 当年", visual: "`Oct 13`；跨年 `Oct 13, 2025`", source: "annListDate(iso, compact)" }],
   },
   { key: "ann-list-mobile-empty", label: "AN-3b · /announcements · mobile · 空态", spec: [{ state: "empty", when: "rows.length === 0", visual: "彩绘猞猁空态", source: "AnnouncementEmpty" }] },
