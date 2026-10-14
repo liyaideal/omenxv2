@@ -5944,7 +5944,7 @@
   "system.watchlist_live.title": "{{event}} 开盘了",
   "system.watchlist_live.body": "你关注的赛事刚刚开始 · 点击交易",
   "loadMore": "加载更多",
-  "endOfList.trading": "到底了——结算与 Boost 提醒保留 90 天，买入 / 变现确认保留 7 天"
+  "endOfList.tradingNote": "买入 / 变现确认只保留 7 天"
  },
  "announcements": {
   "title": "公告",
@@ -5957,7 +5957,7 @@
   "window.affects": "影响：{{list}}",
   "window.notAffected": "不受影响：{{list}}",
   "more": "更多公告",
-  "seeAll": "查看全部公告 →",
+  "seeAll": "查看全部公告",
   "backToNotifications": "返回消息中心",
   "unavailable.title": "该公告已不可用",
   "unavailable.description": "可能已被撤回，或链接已失效。",

@@ -83,8 +83,12 @@ export default function NotificationsPage() {
   };
 
   const footer = isMobile ? (
-    <div ref={sentinel} className="py-3 text-center font-mono text-[11px] text-muted-foreground">
-      {pages.isFetchingNextPage ? t("notifications.loadingMore") : pages.hasNextPage ? "" : t(tab === "trading" ? "notifications.endOfList.trading" : "notifications.endOfList")}
+    <div ref={sentinel}>
+      {pages.hasNextPage ? (
+        <div className="py-3 text-center font-mono text-[11px] text-muted-foreground">{pages.isFetchingNextPage ? t("notifications.loadingMore") : ""}</div>
+      ) : (
+        <NotificationEndNote tab={tab} />
+      )}
     </div>
   ) : pages.hasNextPage ? (
     <NotificationLoadMore loading={pages.isFetchingNextPage} onClick={() => void pages.fetchNextPage()} />

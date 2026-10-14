@@ -5967,7 +5967,7 @@
   "system.watchlist_live.title": "{{event}} đã bắt đầu",
   "system.watchlist_live.body": "sự kiện bạn theo dõi vừa mở · chạm để giao dịch",
   "loadMore": "Tải thêm",
-  "endOfList.trading": "Đã hết — kết quả và cảnh báo Boost trong 90 ngày qua, xác nhận Buy / Cash out trong 7 ngày qua"
+  "endOfList.tradingNote": "Xác nhận Buy / Cash out chỉ giữ 7 ngày"
  },
  "announcements": {
   "title": "Thông báo",
@@ -5980,7 +5980,7 @@
   "window.affects": "Ảnh hưởng: {{list}}",
   "window.notAffected": "Không ảnh hưởng: {{list}}",
   "more": "Thông báo khác",
-  "seeAll": "Xem tất cả thông báo →",
+  "seeAll": "Xem tất cả thông báo",
   "backToNotifications": "Về trung tâm thông báo",
   "unavailable.title": "Thông báo này không còn khả dụng",
   "unavailable.description": "Có thể đã bị gỡ hoặc liên kết đã cũ.",

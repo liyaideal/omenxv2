@@ -52,7 +52,7 @@ export const AnnouncementListView = ({ rows, state = "ready", hasMore, loadingMo
               {t("announcements.loadMore")}
             </Button>
           ) : (
-            rows.length >= 5 && <p className="py-2 text-xs text-muted-foreground/70">{t("announcements.endOfList")}</p>
+            rows.length >= 5 && <p className="py-3 font-mono text-[11px] leading-4 text-muted-foreground">{t("announcements.endOfList")}</p>
           )}
         </div>
       </>
@@ -61,8 +61,8 @@ export const AnnouncementListView = ({ rows, state = "ready", hasMore, loadingMo
   if (mobile) {
     return (
       <div className="px-4 pb-6 pt-3">
-        <p className="mb-1 text-sm leading-5 text-muted-foreground">{t("announcements.subtitle")}</p>
-        {list}
+        <p className="text-sm leading-5 text-muted-foreground">{t("announcements.subtitle")}</p>
+        <div className="mt-3 border-t border-border">{list}</div>
       </div>
     );
   }

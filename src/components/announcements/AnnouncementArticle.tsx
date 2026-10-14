@@ -98,9 +98,10 @@ export const MoreAnnouncements = ({
       <button
         type="button"
         onClick={() => (onSeeAll ? onSeeAll() : navigate("/announcements"))}
-        className="mt-2 text-[13px] font-medium text-primary transition-colors hover:text-primary/80"
+        className="mt-2 inline-flex items-center gap-1 text-[13px] font-medium text-primary transition-colors hover:text-primary/80"
       >
         {t("announcements.seeAll")}
+        <ArrowRight className="h-3.5 w-3.5" />
       </button>
     </aside>
   );

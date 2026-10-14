@@ -5967,7 +5967,7 @@
   "system.watchlist_live.title": "{{event}} 시작",
   "system.watchlist_live.body": "즐겨찾기한 이벤트가 방금 시작됐습니다 · 탭하여 거래",
   "loadMore": "더 보기",
-  "endOfList.trading": "여기까지입니다 — 결과와 Boost 알림은 최근 90일, Buy / Cash out 확인은 최근 7일만 보관됩니다"
+  "endOfList.tradingNote": "Buy / Cash out 확인은 7일간만 보관됩니다"
  },
  "announcements": {
   "title": "공지",
@@ -5980,7 +5980,7 @@
   "window.affects": "영향: {{list}}",
   "window.notAffected": "영향 없음: {{list}}",
   "more": "다른 공지",
-  "seeAll": "모든 공지 보기 →",
+  "seeAll": "모든 공지 보기",
   "backToNotifications": "알림으로 돌아가기",
   "unavailable.title": "이 공지는 더 이상 볼 수 없습니다",
   "unavailable.description": "철회되었거나 링크가 만료되었을 수 있습니다.",

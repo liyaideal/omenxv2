@@ -32,12 +32,17 @@ export const NotificationLoadMore = ({ loading, onClick }: { loading?: boolean; 
   );
 };
 
-/** End-of-list note: Trading spells out the 7-day keep for Buy / Cash out (N1). */
-export const NotificationEndNote = ({ tab }: { tab: NotificationTab }) => {
+/**
+ * End-of-list note. Two short lines, never one wrapping sentence (designer pass
+ * 2026-10-14): line 1 on every tab, line 2 only on Trading — the 7-day keep for
+ * Buy / Cash out (N1).
+ */
+export const NotificationEndNote = ({ tab, className }: { tab: NotificationTab; className?: string }) => {
   const { t } = useT();
   return (
-    <div className="py-3 text-center font-mono text-[11px] text-muted-foreground">
-      {t(tab === "trading" ? "notifications.endOfList.trading" : "notifications.endOfList")}
+    <div className={cn("space-y-1 py-3 text-center font-mono text-[11px] leading-4 text-muted-foreground", className)}>
+      <p>{t("notifications.endOfList")}</p>
+      {tab === "trading" && <p className="text-muted-foreground/70">{t("notifications.endOfList.tradingNote")}</p>}
     </div>
   );
 };

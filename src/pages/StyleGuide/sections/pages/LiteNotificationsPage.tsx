@@ -72,11 +72,11 @@ const PAGE_DESKTOP: SectionCase[] = [
     spec: [
       { state: "tab", when: "?tab= | 首个有未读 tab | Trading", visual: "切 tab 写 ?tab=（replace）", source: "NotificationsPage" },
       { state: "load more", when: "hasNextPage", visual: "outline 钮 `Load more`（rounded-[10px]）；isFetchingNextPage 时文字 'Loading more…' 并 disabled", source: "NotificationsPage footer（desktop）" },
-      { state: "end · Trading", when: "!hasNextPage && tab=trading", visual: "mono 11 'That's everything — results and Boost alerts from the last 90 days, Buy / Cash out confirmations from the last 7 days'", source: "notifications.endOfList.trading" },
+      { state: "end · Trading", when: "!hasNextPage && tab=trading", visual: "两行 mono 11：'That's everything from the last 90 days' + 第二行 muted/70 'Buy / Cash out confirmations are kept for 7 days'（设计师验收 2026-10-14：不用一句长话换行）", source: "NotificationEndNote · notifications.endOfList.tradingNote" },
       { state: "end · 其他 tab", when: "!hasNextPage", visual: "'That's everything from the last 90 days'", source: "notifications.endOfList" },
     ],
   },
-  { key: "notif-page-desktop-trading-end", label: "NT-9c · /notifications · desktop · Trading · 到底（7 天 / 90 天双口径底注）", spec: [{ state: "end", when: "!hasNextPage", visual: "Trading 独有的双口径句；其他 tab 只说 90 天", source: "notifications.endOfList.trading" }] },
+  { key: "notif-page-desktop-trading-end", label: "NT-9c · /notifications · desktop · Trading · 到底（两行底注：90 天 + 7 天）", spec: [{ state: "end", when: "!hasNextPage", visual: "Trading 独有第二行；其他 tab 只一行", source: "NotificationEndNote" }] },
   { key: "notif-page-desktop-account", label: "NT-10 · /notifications · desktop · Account", spec: [{ state: "account", when: "tab=account", visual: "同壳；底注 'That's everything from the last 90 days'", source: "—" }] },
   { key: "notif-page-desktop-updates", label: "NT-21 · /notifications · desktop · Updates（三枚开场级 tab）", spec: [{ state: "updates", when: "?tab=updates", visual: "第三枚 tab 同规格；`?tab=updates` 可直达", source: "NOTIFICATION_TABS" }] },
   { key: "notif-page-desktop-empty", label: "NT-11 · /notifications · desktop · 空态", spec: [{ state: "empty", when: "visible.length === 0", visual: "EmptyState section · 品牌猞猁插画（Account = `empty-no-boost.png`，Trading = `empty-celebrate.png` 全清）· 'Nothing here yet'；DSH 右槽无 Mark all read", source: "NotificationEmpty · NOTIFICATION_EMPTY_ART" }] },

@@ -90,7 +90,8 @@ const renderBlock = (b: Block, i: number): ReactNode => {
     case "image":
       return (
         <figure key={i} className="my-4">
-          <img src={b.src} alt={b.alt} loading="lazy" className="h-auto max-w-full rounded-[10px] border border-border" />
+          {/* Height-capped on desktop so a square / tall ops image doesn't swallow the column; mobile keeps natural size. */}
+          <img src={b.src} alt={b.alt} loading="lazy" className="h-auto max-w-full rounded-[10px] border border-border md:max-h-[480px] md:w-auto" />
           {b.alt && <figcaption className="mt-1.5 text-xs text-muted-foreground">{b.alt}</figcaption>}
         </figure>
       );

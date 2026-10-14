@@ -5968,7 +5968,7 @@
   "system.watchlist_live.title": "{{event}} が開始",
   "system.watchlist_live.body": "お気に入りのイベントが始まりました · タップして取引",
   "loadMore": "もっと見る",
-  "endOfList.trading": "以上です — 結果と Boost アラートは過去90日分、Buy / Cash out の確認は過去7日分を表示"
+  "endOfList.tradingNote": "Buy / Cash out の確認は7日間のみ保存"
  },
  "announcements": {
   "title": "お知らせ",
@@ -5981,7 +5981,7 @@
   "window.affects": "影響：{{list}}",
   "window.notAffected": "影響なし：{{list}}",
   "more": "その他のお知らせ",
-  "seeAll": "すべてのお知らせを見る →",
+  "seeAll": "すべてのお知らせを見る",
   "backToNotifications": "通知に戻る",
   "unavailable.title": "このお知らせは表示できません",
   "unavailable.description": "取り下げられたか、リンクが古い可能性があります。",
