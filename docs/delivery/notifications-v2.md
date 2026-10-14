@@ -183,6 +183,12 @@ NT-20 `notif-popover-updates` · NT-20b `notif-popover-updates-empty` · NT-21 `
 - 字典：`preview/announcementsPreviews.tsx` · `sections/pages/LiteAnnouncementsPage.tsx` · `notificationsPreviews.tsx` / `LiteNotificationsPage.tsx`（NT-20…22）· `nav.tsx` · `registry.tsx`
 - 另：移动 `/notifications` sticky tab 修复（tab 与列表同容器，b940d85c）
 
+## 8.1 mainnet 验收补记（2026-10-14）
+
+- 全项通过（桌面 Popover 三 tab / 默认 tab / Updates 行 / 公告详情无面包屑 + 表格 + Back / 图片 + 奖励表 / 列表 6 条 + 页脚入口 / 移动 sticky tab / 移动详情 + 窗口卡 / 已撤回态）。
+- 活体：`notify-watchlist-live` 在 Alcaraz vs Sinner 开赛时刻（10-13 18:00:00 UTC）准点写入，dedupe 正常。
+- 修一处 v1 遗留：演示引擎 `roll_demo_campaign_daily`（00:02 UTC）每晚删除并重插 alex 的 12 条「Trade every day」历史 bonus 交易（新 id）→ `notif_transaction` 每晚发 12 条 `funds.credit`。加**回填守卫**：INSERT 且 `created_at` 早于 1 小时 → 不发（`20261014060000_notifications_backfill_guard.sql`），已清掉当晚 12 条。正式版语义：批量回填 / 重放 / 迁移永不触发用户通知。
+
 ## 9. 未变更项
 
 v1 的 35 个 type 与模板；Trading / Account tab；角标与已读规则；90 天保留；Settings 邮件开关；交易 / 钱包 / 奖励业务逻辑；Pro 终端；游客顶栏。

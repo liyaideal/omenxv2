@@ -271,3 +271,4 @@
 | `notify_watchlist_live()` cron */5：`user_watchlist × events.start_date` 最近 10 分钟 | 🟡 B | 赛事服务按 kickoff 推；「临近结算」本轮不做（A9），`events.end_date / expected_settlement_time` 字段在，等 CPO 要 |
 | 公告正文 Markdown 子集（含图片 / 表格，无 HTML） | 🟢 A | 渲染规则照抄（`src/lib/markdownLite.ts`）；正式版若换渲染器须保持同一子集与安全策略 |
 | 公告多语言 | 预留 | v2 只有 en 正文；`locale` 列在；正式版按 locale 多副本 |
+| **回填守卫**（2026-10-14）：`notif_transaction` 对 INSERT 且 `created_at < now() − 1h` 的行不发通知 | 🟢 A | "导入 / 回填 / 重跑的历史记录不算新事件" 是需求——正式版任何批量回填、对账重放、迁移都不得触发用户通知；Lovable 的触发源是演示引擎 `roll_demo_campaign_daily` 每晚重插历史 bonus |
