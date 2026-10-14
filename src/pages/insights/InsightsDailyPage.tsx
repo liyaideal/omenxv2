@@ -56,7 +56,7 @@ const InsightsDailyPage = () => {
         { l: "Settling soon", v: fmtInt(closing), d: "within 48 hours" },
       ]} />
       {data.isLoading ? <LoadingState variant="skeleton" skeletonRows={6} /> : feed.length === 0 ? <Empty text={t("insights.daily.empty")} /> : (
-        <div className="space-y-2">{feed.map((i) => <InsightArticle key={i.id} item={i} card />)}</div>
+        <div className="space-y-2">{feed.map((i) => <InsightArticle key={i.id} item={i} card day={date} />)}</div>
       )}
       <div className="mb-10" />
       <DataFooter n="02" settle="Settles on the official outcome" legend={<>{t("insights.how.body")} {t("insights.how.brand")}</>} sentence={feed[0] ? citeSentence(feed[0].row, to.toISOString()) : t("insights.daily.seo_description", { date: label, moves, new: fresh, closing })} url={`${SITE_URL}${path}`} />

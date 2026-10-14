@@ -94,7 +94,7 @@ const InsightsPage = () => {
             )}
           </SeriesSection>
 
-          <SeriesSection n="04" eyebrow="Events" title={moves.length >= 3 ? "Biggest moves 24h" : "Most traded 24h"} art={SECTION_ART.events} more={{ label: "By category", to: "/insights/category/politics" }}>
+          <SeriesSection n="04" eyebrow="Events" title={moves.length >= 3 ? "Biggest moves 24h" : "Most traded 24h"} art={SECTION_ART.events} more={eventsFallback[0] ? { label: "By category", to: `/insights/category/${categorySlugFor(eventsFallback[0].event.category)}` } : undefined}>
             {eventsFallback.length === 0 ? <Empty>No event markets open right now.</Empty> : (
               <Responsive
                 desktop={

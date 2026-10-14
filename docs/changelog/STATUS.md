@@ -87,6 +87,7 @@
 | IS2-14 | 总交付文档 `docs/delivery/insights-v1.md`（并入 v1/v2 分轮文档，§0.1 字典怎么看）+ 词典 `Insights` 节 + Meegle 交付 | ✅ | 2026-10-12 交付研发 |
 | IS2-15 | 股票总览按 US / HK 分组 + 组内按成交额排序 + 市场 chips 锚点，列表无上限（正式版 100+ 只） | ✅ | Liya 2026-10-12 批 |
 | IS2-16 | 回流漏项补齐：hub 开篇文字列按稿 = 1232 − 插画宽（H1 不再三行）；Sports 概览改三格 + Biggest upset 卡；日报加三格快照条、文章改独立卡、翻页挪到开篇上 | ✅ | DESIGN §Addendum 2026-10-12 第 8 条 |
+| IS2-17 | 测试反馈修复（2026-10-14）：首页 04「By category」不再写死 politics，链到首行事件的分类页；日报文章 Share 链接改为 `/insights/daily/{date}#{id}`（文章只在日报页，首页锚点落空）；交付文档 §1 / §4 补「内容由本站数据决定」说明 | ✅ | Liya 2026-10-14 批 |
 
 ## 2026-09-28 — Insights SEO/GEO 数据页（[文档](../delivery/lite-insights-seo-v1.md)）
 

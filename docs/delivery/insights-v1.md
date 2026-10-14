@@ -79,8 +79,10 @@
 | `/insights/crypto` `/insights/stocks` | 家族总览 | `Crypto Up or Down — Live Prediction Market Odds` / `Stock Up or Down Today — Prediction Market Odds` | 开篇 → 01 表（加密按资产分组 3×5 行；**股票按 US / HK 分两张表，组内按 24h 成交额排序，页顶市场 chips 跳转；有多少只列多少只，无上限**）→ About |
 | `/insights/sports[/{sport}]` | 运动页 | `{Sport} Prediction Market Odds — Who the Crowd Backs` | 开篇 → 运动 chips（All + 各运动 + 计数）→ Live 卡 + 三格（本周场次 / 热门赢率 / 大球占比）+ Biggest upset 卡 → 01 未来 7 天 → 02 已结算 30 天 → About |
 | `/insights/accuracy[/{YYYY-MM}]` | 命中率报告 | `How Accurate Is the Prediction Market Crowd? — OmenX, Last 30 Days` | 开篇 → 四数条 → 01 Which markets does the crowd call right?（两张卡）→ 02 Does a longer round help the crowd?（轮长表）→ 03 往期月报 → About |
-| `/insights/daily/{date}` | 日报 | `Prediction Market Digest {d MMM yyyy} — OmenX Insights` | 前后日翻页 → 开篇 → 三格快照（变动 / 新上 / 将结算）→ 当日洞察文章（每篇一张卡：问题 + 带日期答句 + 四指标）→ About |
+| `/insights/daily/{date}` | 日报 | `Prediction Market Digest {d MMM yyyy} — OmenX Insights` | 前后日翻页 → 开篇 → 三格快照（变动 / 新上 / 将结算）→ 当日洞察文章（每篇一张卡：问题 + 带日期答句 + 四指标；Share 复制「答句 + `/insights/daily/{date}#{move|new|closing}-{eventId}`」，锚点 = 该篇文章卡的 id，打开即滚到那一条）→ About |
 | `/insights/category/{slug}` | 分类页 | `{Category} Prediction Markets — Odds, Moves & Volume` | 开篇 → 01 Trending → 02 by volume → 03 涨跌 → 04 closing soon → About |
+
+首页 04 节「By category →」链到表格第一行事件所属的分类页（不是固定分类；表空则不显示该链接）。
 
 slug：资产由名字派生（`Apple (AAPL)` → `aapl`，`Tencent (0700.HK)` → `0700-hk`，`Bitcoin` → `bitcoin`）；分类 = crypto / finance / politics / macro / tech / entertainment / social / sports。`/insights/weekly/*` 已删，301 到 `/insights/accuracy`。
 
@@ -121,6 +123,7 @@ slug：资产由名字派生（`Apple (AAPL)` → `aapl`，`Tencent (0700.HK)` �
 - **Live 卡**：eyebrow（Next · 5m round）/ 时间 → 大字 `Up 52% · Down 48%` → 一句 "more money is on Up" → 蓝绿条 → 成交 + CTA。
 - **About this data**：分隔线 → 「06 · DATA & METHODOLOGY」→ 两卡（OmenX 三行 + How it works ‖ What these numbers mean + Full methodology）→ 引用卡（固定导语 + 等宽引用句 + Copy，复制成功变绿 Copied 1.6s）。
 - **准确率模块导语**（首页 05、报告 01、资产页 01）：固定一句，见词典。
+- **哪些内容会出现，由站点自己的数据决定**：Insights 不存内容，打开时实时读本站数据库里的 events / rounds / 成交并按 §2 规则生成；Lovable 读演示库（故有 politics 分类、Amazon 只结算 2 个 session），正式版读生产库（没有的分类不会出现；≥20 轮的轮长自动切到判词句）。设计稿里的文字是示意，文案以 §2 与词典为准。
 
 ## 5. GEO 结构
 

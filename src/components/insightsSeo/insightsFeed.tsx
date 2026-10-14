@@ -42,10 +42,11 @@ export const answerSentence = (i: InsightItem) => {
 
 /** `card` = Figma 1001:17535 "Article / Compact" (daily digest, 2026-10-12): own rounded card px-20 py-16, 11px mono eyebrow, 22px display title,
  *  14/22 answer, four metrics (blue 11px label / 20px bold value) in a row (2×2 on mobile), View Market + Share stacked right. */
-export const InsightArticle = ({ item, compact = false, card = false }: { item: InsightItem; compact?: boolean; card?: boolean }) => {
+/** `day` = the daily-digest date (YYYY-MM-DD) the article is shown on; the share link deep-links to that page (articles only live on /insights/daily/:date since 2026-09-30). */
+export const InsightArticle = ({ item, compact = false, card = false, day }: { item: InsightItem; compact?: boolean; card?: boolean; day?: string }) => {
   const r = item.row;
   const share = async () => {
-    const url = `${SITE_URL}/insights#${item.id}`;
+    const url = `${SITE_URL}${day ? `/insights/daily/${day}` : "/insights"}#${item.id}`;
     try { await navigator.clipboard.writeText(`${answerSentence(item)} ${url}`); toast.success(t("insights.actions.link_copied")); } catch { toast.error(t("insights.actions.copy_failed")); }
   };
   return (
