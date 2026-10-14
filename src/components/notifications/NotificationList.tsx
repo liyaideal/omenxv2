@@ -98,6 +98,7 @@ export const NotificationList = ({
   onRetry,
   onOpen,
   dense = true,
+  wrapTitle = false,
   compactEmpty = false,
   now,
   footer,
@@ -108,6 +109,8 @@ export const NotificationList = ({
   onRetry?: () => void;
   onOpen?: (row: Row) => void;
   dense?: boolean;
+  /** Mobile page: titles wrap to ≤2 lines (popover keeps one-line truncation). */
+  wrapTitle?: boolean;
   /** Popover: tighter vertical padding around the empty illustration. */
   compactEmpty?: boolean;
   now?: Date;
@@ -142,7 +145,7 @@ export const NotificationList = ({
             {g.label}
           </div>
           {g.rows.map((r) => (
-            <NotificationRow key={r.id} row={r} onOpen={onOpen} dense={dense} now={now} />
+            <NotificationRow key={r.id} row={r} onOpen={onOpen} dense={dense} wrapTitle={wrapTitle} now={now} />
           ))}
         </div>
       ))}

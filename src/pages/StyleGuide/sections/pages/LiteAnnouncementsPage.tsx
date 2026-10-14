@@ -19,7 +19,7 @@ const LIST_DESKTOP: SectionCase[] = [
     label: "AN-1 · /announcements · desktop · 列表 + Load more",
     note: "公开内容页（游客可达，挂 SeoFooter）。入口两处：SeoFooter Resources『Announcements』、详情页右栏 See all；顶栏 / Me 菜单 / BottomNav 不加（登录用户走铃铛 Updates tab）。页头 = 内容页式标题 24/30 + 副题 14/20 muted，非 DSH。行 = kind icon 20（Megaphone primary / Wrench yellow）+ 标题 15/22 500 truncate + 摘要 13/18 muted ≤2 行 + 日期 mono 11『Oct 13, 2026』；每页 20。",
     spec: [
-      { state: "ready", when: "rows.length > 0", visual: "行 `-mx-2 px-2 py-3.5 border-b border-border/60`，hover bg-muted/50；点行 → /announcements/:id", source: "AnnouncementRow size=lg" },
+      { state: "ready", when: "rows.length > 0", visual: "行 `-mx-2 px-2 py-3.5 border-b border-border/60`，hover bg-muted/50；点行 → /announcements/:id；标题桌面单行 ellipsis、**移动折 ≤2 行**（右栏 sm 行同规则）", source: "AnnouncementRow size=lg" },
       { state: "load more", when: "hasNextPage", visual: "居中 outline 钮 `Load more`（rounded-[10px]）；isFetchingNextPage 时 disabled", source: "AnnouncementListView" },
       { state: "end", when: "!hasNextPage && rows ≥ 5", visual: "`That's everything` 12px muted/70；不足 5 行不显示底注", source: "AnnouncementListView" },
     ],

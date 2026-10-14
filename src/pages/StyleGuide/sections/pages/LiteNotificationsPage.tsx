@@ -122,7 +122,7 @@ const ROW_CASES: SectionCase[] = [
   {
     key: "notif-row-states",
     label: "NT-16 · 行 · 未读 vs 已读",
-    note: "结构 [6px 点][lucide 20][标题 14/500 单行截断 + 正文 13 muted ≤2 行][时间 mono 11]。未读：点 + 标题白 + icon 语义色；已读：点隐、标题 #9AA1AC、icon #5C636D。时间 notifTime()：今天 HH:mm / Yesterday HH:mm / Oct 3 / Oct 3, 2025（本地 24h，无时区）。",
+    note: "结构 [6px 点][lucide 20][标题 14/500 + 正文 13 muted ≤2 行][时间 mono 11]。标题：桌面页 / Popover 单行 ellipsis；**移动全页折 ≤2 行不截断**（375 宽不能把事件名吃掉——设计师验收 2026-10-14）。未读：点 + 标题白 + icon 语义色；已读：点隐、标题 #9AA1AC、icon #5C636D。时间 notifTime()：今天 HH:mm / Yesterday HH:mm / Oct 3 / Oct 3, 2025（本地 24h，无时区）。",
     spec: [
       { state: "unread", when: "read_at IS NULL", visual: "dot bg-primary；title text-foreground；icon TONE_CLASS[tone]", source: "NotificationRow" },
       { state: "read", when: "read_at", visual: "dot transparent；title muted；icon #5C636D", source: "NotificationRow" },

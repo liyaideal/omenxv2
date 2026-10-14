@@ -104,6 +104,7 @@ export default function NotificationsPage() {
       onOpen={openRow}
       onRetry={() => void pages.refetch()}
       dense={isMobile}
+      wrapTitle={!!isMobile}
       footer={visible.length ? footer : undefined}
     />
   );

@@ -75,7 +75,8 @@ export const AnnouncementRow = ({
     >
       <KindIcon kind={row.kind} className="mt-px" />
       <span className="min-w-0 flex-1">
-        <span className={cn("block truncate font-medium text-foreground", lg ? "text-[15px] leading-[22px]" : "text-sm leading-5")}>{row.title}</span>
+        {/* Mobile wraps the title (≤2 lines) — a 375 column can't afford to eat it; desktop keeps the one-liner. */}
+        <span className={cn("block font-medium text-foreground", isMobile ? "line-clamp-2" : "truncate", lg ? "text-[15px] leading-[22px]" : "text-sm leading-5")}>{row.title}</span>
         <span className={cn("mt-px block text-[13px] leading-[18px] text-muted-foreground", lg ? "line-clamp-2" : "truncate")}>{row.summary}</span>
       </span>
       <span className="shrink-0 font-mono text-[11px] leading-5 text-muted-foreground">{annListDate(row.published_at, !lg || !!isMobile, now)}</span>
