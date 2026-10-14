@@ -66,6 +66,13 @@ export const TAB_OF_CATEGORY: Record<NotificationCategory, NotificationTab> = {
   system: "updates",
 };
 
+/** Inverse of TAB_OF_CATEGORY — the server-side filter for per-tab paging. */
+export const CATEGORIES_OF_TAB: Record<NotificationTab, NotificationCategory[]> = {
+  trading: ["settled", "autoclose", "trades"],
+  account: ["funds", "rewards", "account"],
+  updates: ["system"],
+};
+
 export const NOTIFICATION_TABS: { id: NotificationTab; labelKey: string }[] = [
   { id: "trading", labelKey: "notifications.tab.trading" },
   { id: "account", labelKey: "notifications.tab.account" },

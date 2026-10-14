@@ -8,12 +8,11 @@
  */
 import { CheckCheck } from "lucide-react";
 import { NotificationBell, NotificationsPanel, UnreadCountPill } from "@/components/notifications/NotificationBell";
-import { NotificationList } from "@/components/notifications/NotificationList";
+import { NotificationEndNote, NotificationList, NotificationLoadMore } from "@/components/notifications/NotificationList";
 import { NotificationRow } from "@/components/notifications/NotificationRow";
 import { NotificationTabs } from "@/components/notifications/NotificationTabs";
 import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
 import { MobileDrawerListItem } from "@/components/ui/mobile-drawer";
-import { DesktopSubpageHeader } from "@/components/layout/DesktopSubpageHeader";
 import { LanguageIconButton } from "@/components/language/LanguagePicker";
 import { Bell } from "lucide-react";
 import { tabOf, type NotificationRow as Row, type NotificationTab } from "@/lib/notifications";
@@ -231,29 +230,33 @@ export const PanelBarePreview = () => (
 
 /* ------------------------------ desktop page ------------------------------ */
 
-const DesktopPage = ({ tab, rows, state, unread = UNREAD_BOTH }: { tab: NotificationTab; rows: Row[]; state?: "loading" | "error" | "ready"; unread?: Record<NotificationTab, number> }) => {
+/** Desktop page body (CPO 2026-10-14 ①: content-page title row, no DSH / back; N2: Load more). */
+const DesktopPage = ({ tab, rows, state, unread = UNREAD_BOTH, more }: { tab: NotificationTab; rows: Row[]; state?: "loading" | "error" | "ready"; unread?: Record<NotificationTab, number>; more?: boolean }) => {
   const visible = rows.filter((r) => tabOf(r) === tab);
   const hasUnread = visible.some((r) => !r.read_at);
+  const footer = more ? <NotificationLoadMore onClick={noop} /> : <NotificationEndNote tab={tab} />;
   return (
-    <div className="px-6 py-6">
-      <DesktopSubpageHeader title="Notifications" onBack={noop}>
+    <div className="px-6 py-10">
+      <div className="flex items-end justify-between gap-4">
+        <h1 className="font-display text-2xl font-bold leading-[30px] tracking-[-0.01em] text-foreground">Notifications</h1>
         {hasUnread && (
-          <button type="button" className="text-[13px] font-medium text-primary">
+          <button type="button" className="pb-1 text-[13px] font-medium text-primary">
             Mark all read
           </button>
         )}
-      </DesktopSubpageHeader>
-      <div className="mt-[22px]">
+      </div>
+      <div className="mt-[18px]">
         <NotificationTabs value={tab} onChange={noop} unread={unread} variant="opening" />
       </div>
       <div className="-mx-2">
-        <NotificationList rows={visible} tab={tab} state={state} onOpen={noop} dense={false} now={NOW} />
+        <NotificationList rows={visible} tab={tab} state={state} onOpen={noop} dense={false} now={NOW} footer={visible.length ? footer : undefined} />
       </div>
     </div>
   );
 };
 
-export const PageDesktopTradingPreview = () => <DesktopPage tab="trading" rows={[...TRADING_FEED, ...ACCOUNT_FEED]} />;
+export const PageDesktopTradingPreview = () => <DesktopPage tab="trading" rows={[...TRADING_FEED, ...ACCOUNT_FEED]} more />;
+export const PageDesktopTradingEndPreview = () => <DesktopPage tab="trading" rows={[...TRADING_FEED, ...ACCOUNT_FEED]} />;
 export const PageDesktopAccountPreview = () => <DesktopPage tab="account" rows={[...TRADING_FEED, ...ACCOUNT_FEED]} />;
 export const PageDesktopEmptyPreview = () => <DesktopPage tab="account" rows={[]} />;
 export const PageDesktopUpdatesPreview = () => <DesktopPage tab="updates" rows={FEED3} unread={UNREAD_ALL3} />;

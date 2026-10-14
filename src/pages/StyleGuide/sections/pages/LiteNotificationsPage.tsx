@@ -67,15 +67,17 @@ const POPOVER_CASES: SectionCase[] = [
 const PAGE_DESKTOP: SectionCase[] = [
   {
     key: "notif-page-desktop-trading",
-    label: "NT-9 · /notifications · desktop · Trading",
-    note: "DSH v1 子页头（返回方钮 + 'Notifications' 17/600 + 右槽 Mark all read）→ 开场级 tab（font-display 24/30，选中 #F2F3F5 700，2.5px 白下划线）→ 列表（px-6 py-3 行）；无限滚动每页 30，服务端只留 90 天。游客 = LiteAuthGate 'Sign in to see your notifications'。",
+    label: "NT-9 · /notifications · desktop · Trading · 有下一页（Load more）",
+    note: "内容页式标题行（'Notifications' font-display 24/30 + 右侧 Mark all read 文字钮；**无 DSH / 无返回件**——父级是顶栏铃铛，CPO 2026-10-14 ①）→ 开场级 tab（24/30，选中 #F2F3F5 700，2.5px 白下划线）→ 列表（px-6 py-3 行）→ 底部 **Load more** outline 钮每次 30（N2，桌面不自动加载）。保留期：结算 / 提醒 / 资金 / 奖励 / 安全 / Updates 90 天，**Buy / Cash out 确认 7 天**（N1）。游客 = LiteAuthGate。",
     spec: [
       { state: "tab", when: "?tab= | 首个有未读 tab | Trading", visual: "切 tab 写 ?tab=（replace）", source: "NotificationsPage" },
-      { state: "end", when: "!hasNextPage", visual: "列表底 mono 11 'That's everything from the last 90 days'", source: "NotificationsPage footer" },
-      { state: "loading more", when: "isFetchingNextPage", visual: "'Loading more…'", source: "IntersectionObserver sentinel" },
+      { state: "load more", when: "hasNextPage", visual: "outline 钮 `Load more`（rounded-[10px]）；isFetchingNextPage 时文字 'Loading more…' 并 disabled", source: "NotificationsPage footer（desktop）" },
+      { state: "end · Trading", when: "!hasNextPage && tab=trading", visual: "mono 11 'That's everything — results and Boost alerts from the last 90 days, Buy / Cash out confirmations from the last 7 days'", source: "notifications.endOfList.trading" },
+      { state: "end · 其他 tab", when: "!hasNextPage", visual: "'That's everything from the last 90 days'", source: "notifications.endOfList" },
     ],
   },
-  { key: "notif-page-desktop-account", label: "NT-10 · /notifications · desktop · Account", spec: [{ state: "account", when: "tab=account", visual: "同壳", source: "—" }] },
+  { key: "notif-page-desktop-trading-end", label: "NT-9c · /notifications · desktop · Trading · 到底（7 天 / 90 天双口径底注）", spec: [{ state: "end", when: "!hasNextPage", visual: "Trading 独有的双口径句；其他 tab 只说 90 天", source: "notifications.endOfList.trading" }] },
+  { key: "notif-page-desktop-account", label: "NT-10 · /notifications · desktop · Account", spec: [{ state: "account", when: "tab=account", visual: "同壳；底注 'That's everything from the last 90 days'", source: "—" }] },
   { key: "notif-page-desktop-updates", label: "NT-21 · /notifications · desktop · Updates（三枚开场级 tab）", spec: [{ state: "updates", when: "?tab=updates", visual: "第三枚 tab 同规格；`?tab=updates` 可直达", source: "NOTIFICATION_TABS" }] },
   { key: "notif-page-desktop-empty", label: "NT-11 · /notifications · desktop · 空态", spec: [{ state: "empty", when: "visible.length === 0", visual: "EmptyState section · 品牌猞猁插画（Account = `empty-no-boost.png`，Trading = `empty-celebrate.png` 全清）· 'Nothing here yet'；DSH 右槽无 Mark all read", source: "NotificationEmpty · NOTIFICATION_EMPTY_ART" }] },
 ];
@@ -84,7 +86,7 @@ const PAGE_MOBILE: SectionCase[] = [
   {
     key: "notif-page-mobile-trading",
     label: "NT-9b · /notifications · mobile · Trading",
-    note: "Variant B inner header（返回 + 'Notifications' + 右槽 CheckCheck = Mark all read，0 未读不渲染）→ 开场级 tab 19/26 sticky 贴页头 → 列表（px-4 py-2.5 行）→ BottomNav；移动端不做 Popover。",
+    note: "Variant B inner header（返回 + 'Notifications' + 右槽 CheckCheck = Mark all read，0 未读不渲染）→ 开场级 tab 19/26 sticky 贴页头 → 列表（px-4 py-2.5 行，**滑到底自动加载**，移动端保留）→ BottomNav；移动端不做 Popover。Trading 到底同样是双口径底注。",
     spec: [
       { state: "mark all", when: "hasAnyUnread", visual: "右槽 MobileHeaderIconButton CheckCheck 20/1.5", source: "NotificationsPage mobile" },
       { state: "sticky tabs", when: "scroll", visual: "`sticky top-[var(--mobile-header-h)] z-30 bg-background`", source: "NotificationTabs sticky" },

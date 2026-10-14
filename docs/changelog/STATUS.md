@@ -28,6 +28,7 @@
 | NV-5 | 演示：6 条公告（含图 + 表的「公告即活动」样板）+ alex Updates 9 行（3 未读）；alex 星标 Alcaraz vs Sinner 今晚开赛 → cron 活体验证 | ✅ | |
 | NV-6 | 正式版：运营后台（发布 / 定时 / 撤回 / 预览 / 多语言）；大用户量广播改拉模式 | ⬜ | 研发侧 |
 | NV-7 | 关注「临近结算」提醒（A9 本轮不做；字段在） | ⬜ | 待 CPO 要 |
+| NV-9 | v2.1（10-14 CPO 桌面终验）：① 桌面页去 DSH 改标题行；N1 `trade.*` 保留 7 天 + Trading 双口径底注（×7 语）；N2 桌面 Load more 按 tab 分页、移动保留自动加载；N3 Popover 不变 | ✅ | 待 Publish 复验 |
 | NV-8 | mainnet 验收（10-14）：全项通过；`watchlist_live` cron 活体命中（Alcaraz vs Sinner 18:00 UTC 准点）；发现并修 **回填守卫**——演示引擎 `roll_demo_campaign_daily` 每晚重插 alex 12 条历史 bonus 交易 → 12 条 `funds.credit` 刷屏；`notif_transaction` 对 `created_at` 早于 1h 的 INSERT 不发（migration `20261014060000`），已清 12 条 | ✅ | |
 
 ## 2026-10-13 — 消息中心 Notifications NT-1（[文档](../delivery/notifications-v1.md)）

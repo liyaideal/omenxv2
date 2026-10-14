@@ -5965,7 +5965,9 @@
   "system.campaign_ending.title": "{{campaign}} 24시간 후 종료",
   "system.campaign_ending.body": "{{deadline}} 전에 수령하세요",
   "system.watchlist_live.title": "{{event}} 시작",
-  "system.watchlist_live.body": "즐겨찾기한 이벤트가 방금 시작됐습니다 · 탭하여 거래"
+  "system.watchlist_live.body": "즐겨찾기한 이벤트가 방금 시작됐습니다 · 탭하여 거래",
+  "loadMore": "더 보기",
+  "endOfList.trading": "여기까지입니다 — 결과와 Boost 알림은 최근 90일, Buy / Cash out 확인은 최근 7일만 보관됩니다"
  },
  "announcements": {
   "title": "공지",

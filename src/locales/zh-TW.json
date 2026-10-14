@@ -5955,7 +5955,9 @@
   "system.campaign_ending.title": "{{campaign}} 將在 24 小時後結束",
   "system.campaign_ending.body": "請在 {{deadline}} 前領取",
   "system.watchlist_live.title": "{{event}} 開盤了",
-  "system.watchlist_live.body": "你關注的賽事剛剛開始 · 點擊交易"
+  "system.watchlist_live.body": "你關注的賽事剛剛開始 · 點擊交易",
+  "loadMore": "載入更多",
+  "endOfList.trading": "到底了——結算與 Boost 提醒保留 90 天，買入 / 變現確認保留 7 天"
  },
  "announcements": {
   "title": "公告",

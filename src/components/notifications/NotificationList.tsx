@@ -10,6 +10,7 @@
  * passes the query result.
  */
 import { EmptyState, ErrorState } from "@/components/states";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useT } from "@/i18n";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -18,6 +19,28 @@ import { groupByDay, type NotificationRow as Row, type NotificationTab } from "@
 import { NotificationRow } from "./NotificationRow";
 
 export type NotificationListState = "loading" | "error" | "ready";
+
+/** Desktop page footer while there is a next page (CPO 2026-10-14 N2): explicit, no auto-load. */
+export const NotificationLoadMore = ({ loading, onClick }: { loading?: boolean; onClick?: () => void }) => {
+  const { t } = useT();
+  return (
+    <div className="pb-2 pt-4 text-center">
+      <Button variant="outline" className="rounded-[10px]" disabled={loading} onClick={onClick}>
+        {loading ? t("notifications.loadingMore") : t("notifications.loadMore")}
+      </Button>
+    </div>
+  );
+};
+
+/** End-of-list note: Trading spells out the 7-day keep for Buy / Cash out (N1). */
+export const NotificationEndNote = ({ tab }: { tab: NotificationTab }) => {
+  const { t } = useT();
+  return (
+    <div className="py-3 text-center font-mono text-[11px] text-muted-foreground">
+      {t(tab === "trading" ? "notifications.endOfList.trading" : "notifications.endOfList")}
+    </div>
+  );
+};
 
 export const NotificationSkeleton = ({ rows = 5, dense = true }: { rows?: number; dense?: boolean }) => (
   <div aria-busy="true" className="py-1">

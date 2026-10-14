@@ -991,7 +991,8 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | **round batch** | 同一事件 ≥3 条在一次结算里一起 Closed → 合成一条 | 语句级触发器 `count(*) ≥ 3 GROUP BY user_id, event_name` | 一叠回执一个信封 |
 | **Boost check tier** | `autoclose.tight` = Boost usage ≥ 80%；`autoclose.soon` ≥ 95%；每次进入档位发一次 | `riskRatio ≥ 80 / ≥ 95`（Portfolio Boost check 同一数） | 油表黄灯 / 红灯 |
 | **Mark all read** | 全部已读（含 `trade.*`） | `mark_notifications_read(null)`；0 未读时按钮隐藏 | 清空红点 |
-| **90 天** | 保留期，未读也删 | `purge_notifications()` | 短信自动清理 |
+| **90 天 / 7 天** | 保留期，未读也删：`trade.*`（Buy / Cash out 确认）7 天，其余 90 天（CPO 2026-10-14 N1） | `purge_notifications()` 每日 | 回执一周、账单三个月 |
+| **Load more**（桌面） | 桌面全页每次 30 条、按 tab 分页；移动滑到底自动加载 | `useNotificationPages(tab)` → `category IN (…)` | 翻页钮 |
 
 ### 40 个 type（35 v1 + 5 v2 Updates；标题 / 正文 = en 模板；`{{x}}` 由前端格式化后插值）
 
@@ -1050,7 +1051,9 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 | **See all** | 面板底 → `/notifications` | View all, More |
 | **You're all caught up / Nothing here yet / Nothing new** | 空态标题（Trading / Account / Updates） | No notifications |
 | **Couldn't load notifications · Retry** | 出错 | — |
-| **That's everything from the last 90 days** | 全页列表底 | — |
+| **That's everything from the last 90 days** | 全页列表底（Account / Updates） | — |
+| **That's everything — results and Boost alerts from the last 90 days, Buy / Cash out confirmations from the last 7 days** | 全页列表底（Trading，双口径） | Older trades are hidden |
+| **Load more** | 桌面全页翻页钮（加载中 `Loading more…`） | Show more, Next |
 | **Sign in to see your notifications** | 游客门 | — |
 
 ### helper 家族（`src/lib/notifications.ts`，成对入典）

@@ -6179,7 +6179,9 @@
     "system.campaign_ending.title": "{{campaign}} ends in 24h",
     "system.campaign_ending.body": "claim before {{deadline}}",
     "system.watchlist_live.title": "{{event}} is live",
-    "system.watchlist_live.body": "a starred event just opened · tap to trade"
+    "system.watchlist_live.body": "a starred event just opened · tap to trade",
+    "loadMore": "Load more",
+    "endOfList.trading": "That's everything — results and Boost alerts from the last 90 days, Buy / Cash out confirmations from the last 7 days"
   },
   "announcements": {
     "title": "Announcements",

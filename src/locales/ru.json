@@ -6063,7 +6063,9 @@
   "system.campaign_ending.title": "{{campaign}} завершится через 24 ч",
   "system.campaign_ending.body": "заберите награду до {{deadline}}",
   "system.watchlist_live.title": "{{event}} — старт",
-  "system.watchlist_live.body": "событие из избранного только что открылось · нажмите, чтобы торговать"
+  "system.watchlist_live.body": "событие из избранного только что открылось · нажмите, чтобы торговать",
+  "loadMore": "Показать ещё",
+  "endOfList.trading": "Это всё — результаты и предупреждения Boost за 90 дней, подтверждения Buy / Cash out за 7 дней"
  },
  "announcements": {
   "title": "Объявления",

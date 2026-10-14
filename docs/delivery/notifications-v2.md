@@ -189,6 +189,17 @@ NT-20 `notif-popover-updates` · NT-20b `notif-popover-updates-empty` · NT-21 `
 - 活体：`notify-watchlist-live` 在 Alcaraz vs Sinner 开赛时刻（10-13 18:00:00 UTC）准点写入，dedupe 正常。
 - 修一处 v1 遗留：演示引擎 `roll_demo_campaign_daily`（00:02 UTC）每晚删除并重插 alex 的 12 条「Trade every day」历史 bonus 交易（新 id）→ `notif_transaction` 每晚发 12 条 `funds.credit`。加**回填守卫**：INSERT 且 `created_at` 早于 1 小时 → 不发（`20261014060000_notifications_backfill_guard.sql`），已清掉当晚 12 条。正式版语义：批量回填 / 重放 / 迁移永不触发用户通知。
 
+## 8.2 v2.1 修订（2026-10-14，CPO 桌面终验后 ① + N1–N3）
+
+| # | 改动 | 落点 |
+|---|---|---|
+| ① | 桌面 `/notifications` 去掉 DSH 返回方钮，改内容页式标题行（`Notifications` 24/30 + 右侧 Mark all read），与 Announcements 同级 | `NotificationsPage.tsx`；DESIGN §Addendum 第 17 条；字典 NT-9 |
+| N1 | 分类型保留期：`trade.*` 7 天，其余 90 天；Trading tab 到底句写明双口径 | `purge_notifications()`（migration `20261014070000`）；`notifications.endOfList.trading` ×7 语；词典「90 天 / 7 天」 |
+| N2 | 桌面无限滚动 → `Load more` 钮（每次 30，**按 tab 分页**：服务端 `category IN (…)`）；移动端保留自动加载 | `useNotificationPages(tab)`、`CATEGORIES_OF_TAB`、`NotificationLoadMore` / `NotificationEndNote`；字典 NT-9 / NT-9c |
+| N3 | Popover 不变（最近 20 + See all） | — |
+
+不做页码分页的理由：通知是 feed，没人翻到第 7 页；撑爆列表的是交易回执，回执的正本在 Portfolio——所以用保留期而不是分页解决。
+
 ## 9. 未变更项
 
 v1 的 35 个 type 与模板；Trading / Account tab；角标与已读规则；90 天保留；Settings 邮件开关；交易 / 钱包 / 奖励业务逻辑；Pro 终端；游客顶栏。

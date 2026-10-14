@@ -1,12 +1,14 @@
 /**
  * /notifications — the full Notifications page (mock v1 §04 desktop / §05 mobile).
  *
- * Desktop: EventsDesktopHeader → DSH v1 sub-page header ("Notifications" +
- *   right slot "Mark all read") → opening tabs 24/30 → day-grouped list,
- *   infinite scroll 30 / page (server keeps 90 days).
+ * Desktop: EventsDesktopHeader → content-page title row ("Notifications"
+ *   24/30 + "Mark all read" at the right; no DSH / back control — the parent is
+ *   the top-bar bell, CPO 2026-10-14 ①) → opening tabs 24/30 → day-grouped list,
+ *   explicit "Load more" 30 / click (CPO 2026-10-14 N2). Server keeps 90 days,
+ *   trade.* confirmations 7 days (N1) — the Trading tab's end note says so.
  * Mobile: MobileHeader inner ("Notifications", right slot CheckCheck = Mark all
  *   read, hidden at 0 unread) → opening tabs 19/26 sticky under the header →
- *   list → BottomNav. No popover on mobile.
+ *   list (auto-loads on scroll) → BottomNav. No popover on mobile.
  * Guests: LiteAuthGate (same gate as Portfolio / Wallet / Settings).
  */
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -17,12 +19,11 @@ import { useT } from "@/i18n";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { MobileHeader, MobileHeaderIconButton } from "@/components/MobileHeader";
 import { BottomNav } from "@/components/BottomNav";
-import { DesktopSubpageHeader } from "@/components/layout/DesktopSubpageHeader";
 import { LiteAuthGate } from "@/components/auth/LiteAuthGate";
 import { SeoFooter } from "@/components/seo/SeoFooter";
 import { tabOf, type NotificationRow, type NotificationTab } from "@/lib/notifications";
 import { useMarkNotificationsRead, useNotificationCounts, useNotificationPages } from "@/hooks/useNotifications";
-import { NotificationList, type NotificationListState } from "@/components/notifications/NotificationList";
+import { NotificationEndNote, NotificationList, NotificationLoadMore, type NotificationListState } from "@/components/notifications/NotificationList";
 import { NotificationTabs } from "@/components/notifications/NotificationTabs";
 import { defaultTab } from "@/components/notifications/NotificationBell";
 
@@ -39,7 +40,6 @@ export default function NotificationsPage() {
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const counts = useNotificationCounts();
-  const pages = useNotificationPages();
   const { markRead, markAllRead } = useMarkNotificationsRead();
 
   // Tab: ?tab= wins; otherwise the first tab with unread, else Trading (D11).
@@ -50,6 +50,7 @@ export default function NotificationsPage() {
     settled.current = true;
     setTabState(defaultTab(counts.byTab));
   }, [counts.isLoading, counts.byTab]);
+  const pages = useNotificationPages(tab);
   const setTab = (v: NotificationTab) => {
     settled.current = true;
     setTabState(v);
@@ -63,27 +64,32 @@ export default function NotificationsPage() {
   const visible = useMemo(() => rows.filter((r) => tabOf(r) === tab), [rows, tab]);
   const state: NotificationListState = pages.isError ? "error" : pages.isLoading ? "loading" : "ready";
 
-  // Infinite scroll: fetch the next page when the sentinel enters the viewport.
+  // Mobile: fetch the next page when the sentinel enters the viewport.
+  // Desktop: explicit "Load more" (N2) — no sentinel.
   const sentinel = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = sentinel.current;
-    if (!el || !pages.hasNextPage) return;
+    if (!el || !pages.hasNextPage || !isMobile) return;
     const io = new IntersectionObserver((entries) => {
       if (entries.some((e) => e.isIntersecting) && !pages.isFetchingNextPage) void pages.fetchNextPage();
     });
     io.observe(el);
     return () => io.disconnect();
-  }, [pages.hasNextPage, pages.isFetchingNextPage, pages]);
+  }, [pages.hasNextPage, pages.isFetchingNextPage, pages, isMobile]);
 
   const openRow = (row: NotificationRow) => {
     if (!row.read_at) void markRead([row.id]);
     if (row.deep_link) navigate(row.deep_link, { state: { from: "notifications" } });
   };
 
-  const footer = (
+  const footer = isMobile ? (
     <div ref={sentinel} className="py-3 text-center font-mono text-[11px] text-muted-foreground">
-      {pages.isFetchingNextPage ? t("notifications.loadingMore") : pages.hasNextPage ? "" : t("notifications.endOfList")}
+      {pages.isFetchingNextPage ? t("notifications.loadingMore") : pages.hasNextPage ? "" : t(tab === "trading" ? "notifications.endOfList.trading" : "notifications.endOfList")}
     </div>
+  ) : pages.hasNextPage ? (
+    <NotificationLoadMore loading={pages.isFetchingNextPage} onClick={() => void pages.fetchNextPage()} />
+  ) : (
+    <NotificationEndNote tab={tab} />
   );
 
   const list = (
@@ -134,21 +140,22 @@ export default function NotificationsPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <EventsDesktopHeader />
-      <div className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 lg:px-6">
-        <DesktopSubpageHeader title={t("notifications.title")} onBack={() => navigate(-1)}>
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-10 lg:px-6">
+        <div className="flex items-end justify-between gap-4">
+          <h1 className="font-display text-2xl font-bold leading-[30px] tracking-[-0.01em] text-foreground">{t("notifications.title")}</h1>
           {counts.hasAnyUnread && (
-            <button type="button" onClick={() => void markAllRead()} className="text-[13px] font-medium text-primary hover:underline">
+            <button type="button" onClick={() => void markAllRead()} className="pb-1 text-[13px] font-medium text-primary hover:underline">
               {t("notifications.markAllRead")}
             </button>
           )}
-        </DesktopSubpageHeader>
+        </div>
         <LiteAuthGate title={t(NOTIFICATIONS_GATE_COPY.title)} description={t(NOTIFICATIONS_GATE_COPY.description)}>
-          <div className="mt-[22px]">
+          <div className="mt-[18px]">
             <NotificationTabs value={tab} onChange={setTab} unread={counts.byTab} variant="opening" />
           </div>
           <div className="-mx-2">{list}</div>
         </LiteAuthGate>
-      </div>
+      </main>
       <SeoFooter />
     </div>
   );

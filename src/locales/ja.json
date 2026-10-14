@@ -5966,7 +5966,9 @@
   "system.campaign_ending.title": "{{campaign}} は24時間後に終了",
   "system.campaign_ending.body": "{{deadline}} までに受け取ってください",
   "system.watchlist_live.title": "{{event}} が開始",
-  "system.watchlist_live.body": "お気に入りのイベントが始まりました · タップして取引"
+  "system.watchlist_live.body": "お気に入りのイベントが始まりました · タップして取引",
+  "loadMore": "もっと見る",
+  "endOfList.trading": "以上です — 結果と Boost アラートは過去90日分、Buy / Cash out の確認は過去7日分を表示"
  },
  "announcements": {
   "title": "お知らせ",

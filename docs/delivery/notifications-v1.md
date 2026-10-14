@@ -139,7 +139,7 @@ cron（到期前 24h）─┘                                    └── 90 �
 
 | 端 | 结构 |
 |---|---|
-| 桌面 | 顶栏 → DSH v1 子页头（返回 + `Notifications` + 右槽 Mark all read）→ 开场级 tab 24/30 → 列表（无限滚动，每页 30）→ 底句 `That's everything from the last 90 days` |
+| 桌面 | 顶栏 → 内容页式标题行（`Notifications` 24/30 + 右侧 Mark all read，**无 DSH / 返回件**——2026-10-14 ① 修订）→ 开场级 tab 24/30 → 列表（**Load more** 每次 30、按 tab 分页——N2）→ 底句：Trading `That's everything — results and Boost alerts from the last 90 days, Buy / Cash out confirmations from the last 7 days`，其他 `That's everything from the last 90 days` |
 | 手机 | inner header（返回 + `Notifications` + 右槽 CheckCheck = Mark all read，0 未读不渲染）→ 开场级 tab 19/26 sticky → 列表 → BottomNav |
 
 `?tab=trading|account` 可直达；切 tab 写回 URL（replace）。游客 = LiteAuthGate（`Sign in to see your notifications`）。

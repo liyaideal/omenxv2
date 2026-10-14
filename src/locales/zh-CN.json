@@ -5942,7 +5942,9 @@
   "system.campaign_ending.title": "{{campaign}} 将在 24 小时后结束",
   "system.campaign_ending.body": "请在 {{deadline}} 前领取",
   "system.watchlist_live.title": "{{event}} 开盘了",
-  "system.watchlist_live.body": "你关注的赛事刚刚开始 · 点击交易"
+  "system.watchlist_live.body": "你关注的赛事刚刚开始 · 点击交易",
+  "loadMore": "加载更多",
+  "endOfList.trading": "到底了——结算与 Boost 提醒保留 90 天，买入 / 变现确认保留 7 天"
  },
  "announcements": {
   "title": "公告",

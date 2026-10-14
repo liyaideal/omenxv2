@@ -5965,7 +5965,9 @@
   "system.campaign_ending.title": "{{campaign}} kết thúc sau 24h",
   "system.campaign_ending.body": "nhận thưởng trước {{deadline}}",
   "system.watchlist_live.title": "{{event}} đã bắt đầu",
-  "system.watchlist_live.body": "sự kiện bạn theo dõi vừa mở · chạm để giao dịch"
+  "system.watchlist_live.body": "sự kiện bạn theo dõi vừa mở · chạm để giao dịch",
+  "loadMore": "Tải thêm",
+  "endOfList.trading": "Đã hết — kết quả và cảnh báo Boost trong 90 ngày qua, xác nhận Buy / Cash out trong 7 ngày qua"
  },
  "announcements": {
   "title": "Thông báo",

@@ -69,6 +69,7 @@ export const previewRegistry: Record<string, Loader> = {
   "notif-popover-error": pick(notifications, "PopoverErrorPreview"),
   "notif-panel-bare": pick(notifications, "PanelBarePreview"),
   "notif-page-desktop-trading": pick(notifications, "PageDesktopTradingPreview"),
+  "notif-page-desktop-trading-end": pick(notifications, "PageDesktopTradingEndPreview"),
   "notif-page-desktop-account": pick(notifications, "PageDesktopAccountPreview"),
   "notif-page-desktop-empty": pick(notifications, "PageDesktopEmptyPreview"),
   "notif-page-mobile-trading": pick(notifications, "PageMobileTradingPreview"),

@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useRealtimeRiskMetrics } from "@/hooks/useRealtimeRiskMetrics";
 import {
+  CATEGORIES_OF_TAB,
   countsAsUnread,
   EMPTY_BY_TAB,
   tabOf,
@@ -91,20 +92,24 @@ export const useRecentNotifications = (limit = POPOVER_LIMIT, enabled = true) =>
 };
 
 /** Full page: infinite scroll, PAGE_SIZE per page, 90-day retention is server-side. */
-export const useNotificationPages = (enabled = true) => {
+/**
+ * Full-page feed, paged PER TAB (CPO 2026-10-14 N2): "Load more" on Account
+ * must bring 30 Account rows, not 30 rows of a heavy trader's confirmations.
+ */
+export const useNotificationPages = (tab?: NotificationTab, enabled = true) => {
   const { user } = useAuth();
+  const categories = tab ? CATEGORIES_OF_TAB[tab] : null;
   return useInfiniteQuery({
-    queryKey: [...NOTIFICATIONS_QUERY_KEY, "pages", user?.id],
+    queryKey: [...NOTIFICATIONS_QUERY_KEY, "pages", user?.id, tab ?? "all"],
     enabled: !!user && enabled,
     staleTime: 15_000,
     initialPageParam: 0,
     getNextPageParam: (last: NotificationRow[], all) => (last.length < PAGE_SIZE ? undefined : all.length * PAGE_SIZE),
     queryFn: async ({ pageParam }) => {
       const from = pageParam as number;
-      const { data, error } = await db()
-        .select("*")
-        .order("created_at", { ascending: false })
-        .range(from, from + PAGE_SIZE - 1);
+      let q = db().select("*").order("created_at", { ascending: false }).range(from, from + PAGE_SIZE - 1);
+      if (categories) q = q.in("category", categories);
+      const { data, error } = await q;
       if (error) throw error;
       return ((data ?? []) as Record<string, unknown>[]).map(toRow);
     },
