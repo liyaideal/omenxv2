@@ -34,7 +34,7 @@ export const answerSentence = (i: InsightItem) => {
   const r = i.row; const d = fmtDate(i.at); const p = r.probability; const lbl = r.lead.label;
   if (i.kind === "move") {
     const from = Math.round(r.move!.from * 100);
-    return t("insights.feed.move_sentence", { date: d, an: anPct(p), pct: p, label: lbl, from, volume: fmtUsd(r.activity.volume), trades: fmtInt(r.activity.trades) });
+    return t(r.move!.delta < 0 ? "insights.feed.move_sentence_down" : "insights.feed.move_sentence", { date: d, an: anPct(p), pct: p, label: lbl, from, volume: fmtUsd(r.activity.volume), trades: fmtInt(r.activity.trades) });
   }
   if (i.kind === "closing") return t("insights.feed.closing_sentence", { date: d, pct: p, label: lbl, until: untilLabel(r.event.end_date), volume: fmtUsd(r.activity.volume) });
   return t("insights.feed.new_sentence", { date: d, pct: p, label: lbl, category: categoryLabelForKey(r.event.category) });

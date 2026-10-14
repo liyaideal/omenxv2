@@ -79,7 +79,7 @@
 | `/insights/crypto` `/insights/stocks` | 家族总览 | `Crypto Up or Down — Live Prediction Market Odds` / `Stock Up or Down Today — Prediction Market Odds` | 开篇 → 01 表（加密按资产分组 3×5 行；**股票按 US / HK 分两张表，组内按 24h 成交额排序，页顶市场 chips 跳转；有多少只列多少只，无上限**）→ About |
 | `/insights/sports[/{sport}]` | 运动页 | `{Sport} Prediction Market Odds — Who the Crowd Backs` | 开篇 → 运动 chips（All + 各运动 + 计数）→ Live 卡 + 三格（本周场次 / 热门赢率 / 大球占比）+ Biggest upset 卡 → 01 未来 7 天 → 02 已结算 30 天 → About |
 | `/insights/accuracy[/{YYYY-MM}]` | 命中率报告 | `How Accurate Is the Prediction Market Crowd? — OmenX, Last 30 Days` | 开篇 → 四数条 → 01 Which markets does the crowd call right?（两张卡）→ 02 Does a longer round help the crowd?（轮长表）→ 03 往期月报 → About |
-| `/insights/daily/{date}` | 日报 | `Prediction Market Digest {d MMM yyyy} — OmenX Insights` | 前后日翻页 → 开篇 → 三格快照（变动 / 新上 / 将结算）→ 当日洞察文章（每篇一张卡：问题 + 带日期答句 + 四指标；Share 复制「答句 + `/insights/daily/{date}#{move|new|closing}-{eventId}`」，锚点 = 该篇文章卡的 id，打开即滚到那一条）→ About |
+| `/insights/daily/{date}` | 日报 | `Prediction Market Digest {d MMM yyyy} — OmenX Insights` | 前后日翻页 → 开篇 → 三格快照（变动 / 新上 / 将结算）→ 当日洞察文章（每篇一张卡：问题 + 带日期答句 + 四指标；答句方向词随 24h 变动正负切 up / down from；日期一律 UTC 日（与日报分天口径一致，不随浏览器时区）；Share 复制「答句 + `/insights/daily/{date}#{move|new|closing}-{eventId}`」，锚点 = 该篇文章卡的 id，打开即滚到那一条）→ About |
 | `/insights/category/{slug}` | 分类页 | `{Category} Prediction Markets — Odds, Moves & Volume` | 开篇 → 01 Trending → 02 by volume → 03 涨跌 → 04 closing soon → About |
 
 首页 04 节「By category →」链到表格第一行事件所属的分类页（不是固定分类；表空则不显示该链接）。

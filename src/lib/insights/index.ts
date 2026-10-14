@@ -58,7 +58,7 @@ export const pct = (p: number) => Math.round(p * 100);
 export const deltaPct = (cur: number, prev: number) => (prev > 0 ? ((cur - prev) / prev) * 100 : 0);
 
 export const fmtDate = (d: Date | string) =>
-  new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }); // Insights days are UTC days; never the viewer's zone
 export const fmtDateTimeUtc = (d: Date | string) => {
   const x = new Date(d);
   return x.toISOString().slice(0, 16).replace("T", " ") + " UTC";
