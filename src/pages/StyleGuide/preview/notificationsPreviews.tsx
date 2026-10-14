@@ -312,7 +312,7 @@ const MobilePage = ({ tab, rows, state, markAll = true, unread }: { tab: Notific
       <div className="px-4">
         <NotificationTabs value={tab} onChange={noop} unread={unread ?? (markAll ? UNREAD_BOTH : UNREAD_NONE)} variant="opening" />
       </div>
-      <NotificationList rows={visible} tab={tab} state={state} onOpen={noop} dense wrapTitle now={NOW} />
+      <NotificationList rows={visible} tab={tab} state={state} onOpen={noop} dense mobile now={NOW} />
     </div>
   );
 };
