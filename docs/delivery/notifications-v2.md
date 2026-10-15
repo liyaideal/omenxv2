@@ -219,7 +219,9 @@ NT-20 `notif-popover-updates` · NT-20b `notif-popover-updates-empty` · NT-21 `
 - **copy-dictionary「Notifications」表**加 `icon · 色` 列，由同一张表生成。
 - 三个条件色（`settled.round_batch` / `trade.cashed_out` / `funds.recovery_update`）在源表加 `toneRule` 文字，台账与词典原样展示。
 
-研发问「这个 type 用什么 icon」→ 指 NT-23；问「为什么是这个颜色」→ 指 DESIGN §Addendum 2026-10-13 第 7 / 12 条。
+- **字典 AN-14**（Announcements 同款）：kind → 列表行 icon → 详情页 chip（实渲）→ 广播成的 `system.<kind>` 通知 icon，读 `ANNOUNCEMENT_KIND` + `NOTIFICATION_TYPES`；词典「概念 › kind」行补 icon · 色。
+
+研发问「这个 type 用什么 icon」→ 指 NT-23（公告 kind → AN-14）；问「为什么是这个颜色」→ 指 DESIGN §Addendum 2026-10-13 第 7 / 12 条。
 
 ## 9. 未变更项
 

@@ -1080,7 +1080,7 @@ icon · 色 列与 `src/lib/notifications.ts` NOTIFICATION_TYPES 同源，渲染
 
 | 概念 | 是什么 | 判定表达式 | 一句话类比 |
 |---|---|---|---|
-| **kind** | Announcement（信息）/ Maintenance（要注意时间） | `announcements.kind` | 公告 vs 停水通知 |
+| **kind** | Announcement（信息）/ Maintenance（要注意时间）；icon · 色：`announcement` = `Megaphone` primary，`maintenance` = `Wrench` trading-yellow（列表行 icon、详情 chip、广播成的 `system.<kind>` 通知三处同一枚同一色；渲染版 /style-guide#lite-announcements AN-14） | `announcements.kind` | 公告 vs 停水通知 |
 | **published** | 可见、已广播 | `status = 'published'`（RLS 只放这一种） | 已张贴 |
 | **withdrawn** | 下架 + 已发通知删除 | `status = 'withdrawn'` | 撕掉 |
 | **window** | 维护窗口 + 影响范围 | `window_starts_at / window_ends_at / affects / not_affected` | 停水时段 |

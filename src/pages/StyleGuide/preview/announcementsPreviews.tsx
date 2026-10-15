@@ -12,6 +12,7 @@ import { KindChip, WindowCard } from "@/components/announcements/AnnouncementPar
 import { AnnouncementDetailView, AnnouncementListView } from "@/components/announcements/AnnouncementViews";
 import { MarkdownBody } from "@/components/announcements/MarkdownBody";
 import type { Announcement, AnnouncementListRow } from "@/lib/announcements";
+import { AnnouncementKindLedger } from "../components/AnnouncementKindLedger";
 
 const noop = () => undefined;
 export const NOW = new Date(2026, 9, 13, 14, 30);
@@ -138,6 +139,9 @@ export const KindChipsPreview = () => (
     <KindChip kind="maintenance" />
   </div>
 );
+
+/** AN-14 — kind → icon → chip → notification type, read from ANNOUNCEMENT_KIND (zero hand-copy). */
+export const KindLedgerPreview = () => <AnnouncementKindLedger />;
 
 export const WindowCardPreview = () => (
   <div className="space-y-3 p-6">

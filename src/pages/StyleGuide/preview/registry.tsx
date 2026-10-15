@@ -108,6 +108,7 @@ export const previewRegistry: Record<string, Loader> = {
   "ann-detail-mobile-campaign": pick(announcements, "DetailMobileCampaignPreview"),
   "ann-detail-mobile-unavailable": pick(announcements, "DetailMobileUnavailablePreview"),
   "ann-kind-chips": pick(announcements, "KindChipsPreview"),
+  "ann-kind-ledger": pick(announcements, "KindLedgerPreview"),
   "ann-window-card": pick(announcements, "WindowCardPreview"),
   "ann-markdown-sink": pick(announcements, "MarkdownKitchenSinkPreview"),
   /* -------- Lite Sports · Live（SP-L3a）-------- */

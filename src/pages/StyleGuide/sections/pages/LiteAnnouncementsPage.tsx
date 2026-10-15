@@ -86,6 +86,12 @@ const PART_CASES: SectionCase[] = [
   { key: "ann-kind-chips", label: "AN-11 · kind chip 两种", spec: [{ state: "chip", when: "kind", visual: "`h-[22px] px-2 rounded-full text-[11px] 600 uppercase tracking-[0.04em] border` + 12px 同名 icon；Announcement = primary/35 边 + primary/8 底；Maintenance = trading-yellow 同配比。只此两色。", source: "ANNOUNCEMENT_KIND" }] },
   { key: "ann-window-card", label: "AN-12 · 窗口卡三变体（同日 / 跨日 / 只有开始）", spec: [{ state: "range", when: "window_ends_at", visual: "同日 `Oct 15, 02:00–04:00 UTC`；跨日 `Oct 15, 22:00 – Oct 16, 02:00 UTC`；无结束 `Oct 15, 02:00 UTC`", source: "annWindowUtc" }] },
   { key: "ann-markdown-sink", label: "AN-13 · Markdown 子集全枚举（h2 / h3 / p / 粗斜 / code / 链接 / ul / ol / 引用 / 表格 / hr / 图片 / HTML 转义）", spec: [{ state: "prose", when: "—", visual: "p 15/24 fg/86 mb-3.5；h2 font-display 18/24 600；h3 15/22 600 mt-[22px]；ul/ol ml-[18px] marker muted；a primary underline offset-3；code mono 13 bg-muted/60；quote border-l-2 muted；hr my-5", source: "MarkdownBody" }] },
+  {
+    key: "ann-kind-ledger",
+    label: "AN-14 · kind 台账（kind → 列表 icon → 详情 chip → 广播成的通知 type，直接读 ANNOUNCEMENT_KIND 渲染）",
+    note: "研发看这一张定 icon / 色 / chip，不看 AN-11 的两枚 chip 猜。与 Notifications NT-23 同一种台账：源表是 `src/lib/announcements.ts` ANNOUNCEMENT_KIND，通知那一列读 NOTIFICATION_TYPES 的 `system.<kind>`，两边必须同一枚 lucide、同一色轴。",
+    spec: [{ state: "ledger", when: "—", visual: "announcement = Megaphone primary · maintenance = Wrench trading-yellow；每行 [kind][icon + 组件名 · tone][KindChip 实渲][system.<kind> icon + type][语义]", source: "ANNOUNCEMENT_KIND · NOTIFICATION_TYPES · KindChip" }],
+  },
 ];
 
 export const LiteAnnouncementsPage = (_: P) => (
@@ -107,7 +113,7 @@ export const LiteAnnouncementsPage = (_: P) => (
 
     <SectionWrapper
       id="announcements-cases"
-      title="Announcements · 状态字典（AN-1…AN-13 · Ⓐ–Ⓒ 区）"
+      title="Announcements · 状态字典（AN-1…AN-14 · Ⓐ–Ⓒ 区）"
       platform="shared"
       description="Ⓐ列表（桌面 / 移动）· Ⓑ详情（桌面 / 移动，含图片表格 + 已撤回）· Ⓒ部件（kind chip / 窗口卡 / Markdown 全枚举）。每个 case 挂载生产视图（preview 夹具只定初态，禁运行时 fetch）。"
     >
@@ -126,7 +132,7 @@ export const LiteAnnouncementsPage = (_: P) => (
           </div>
         </SubSection>
 
-        <SubSection title="Ⓒ 部件（AN-11 … AN-13）" platform="shared">
+        <SubSection title="Ⓒ 部件 + kind 台账（AN-11 … AN-14）" platform="shared">
           <SectionFrame cases={PART_CASES} device="desktop" minHeight={160} />
         </SubSection>
       </div>
