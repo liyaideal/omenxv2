@@ -103,36 +103,38 @@ export const TONE_CLASS: Record<NotificationTone, string> = {
   primary: "text-primary",
 };
 
-interface TypeMeta {
+export interface TypeMeta {
   icon: LucideIcon;
   tone: NotificationTone | ((p: Record<string, unknown>) => NotificationTone);
+  /** Human-readable rule for a conditional tone — rendered in the style-guide icon ledger (NT-23). */
+  toneRule?: string;
 }
 
 const num = (v: unknown) => (typeof v === "number" ? v : Number(v ?? 0)) || 0;
 
 const pnlTone = (p: Record<string, unknown>): NotificationTone => (num(p.pnl) > 0 ? "volt" : "muted");
 
-/** The 35 v1 + 5 v2 types. Keep in sync with docs/copy-dictionary.md「Notifications」. */
+/** The 35 v1 + 5 v2 types. Keep in sync with docs/copy-dictionary.md「Notifications」. The style-guide icon ledger (NT-23) renders straight from this table — it never drifts. */
 export const NOTIFICATION_TYPES: Record<string, TypeMeta> = {
   // Trading · Settled
   "settled.win": { icon: CircleCheck, tone: "volt" },
   "settled.loss": { icon: CircleCheck, tone: "muted" },
   "settled.flat": { icon: CircleCheck, tone: "muted" },
-  "settled.round_batch": { icon: CircleCheck, tone: (p) => (num(p.net) > 0 ? "volt" : "muted") },
+  "settled.round_batch": { icon: CircleCheck, tone: (p) => (num(p.net) > 0 ? "volt" : "muted"), toneRule: "net > 0 → volt · else muted" },
   // Trading · Auto-close (Boost check)
   "autoclose.tight": { icon: TriangleAlert, tone: "yellow" },
   "autoclose.soon": { icon: TriangleAlert, tone: "red" },
   "autoclose.done": { icon: TriangleAlert, tone: "red" },
   // Trading · Trades
   "trade.bought": { icon: ArrowLeftRight, tone: "muted" },
-  "trade.cashed_out": { icon: ArrowLeftRight, tone: pnlTone },
+  "trade.cashed_out": { icon: ArrowLeftRight, tone: pnlTone, toneRule: "pnl > 0 → volt · else muted" },
   // Account · Funds
   "funds.deposit_done": { icon: Wallet, tone: "volt" },
   "funds.deposit_failed": { icon: Wallet, tone: "red" },
   "funds.withdraw_submitted": { icon: Wallet, tone: "muted" },
   "funds.withdraw_done": { icon: Wallet, tone: "muted" },
   "funds.withdraw_failed": { icon: Wallet, tone: "red" },
-  "funds.recovery_update": { icon: Wallet, tone: (p) => (p.status === "rejected" ? "red" : "muted") },
+  "funds.recovery_update": { icon: Wallet, tone: (p) => (p.status === "rejected" ? "red" : "muted"), toneRule: "status = rejected → red · else muted" },
   "funds.credit": { icon: Wallet, tone: "volt" },
   // Account · Rewards
   "reward.voucher_issued": { icon: Gift, tone: "primary" },
@@ -166,7 +168,7 @@ export const NOTIFICATION_TYPES: Record<string, TypeMeta> = {
 
 export const NOTIFICATION_TYPE_KEYS = Object.keys(NOTIFICATION_TYPES);
 
-const DEFAULT_META: TypeMeta = { icon: Bell, tone: "muted" };
+export const DEFAULT_META: TypeMeta = { icon: Bell, tone: "muted" };
 
 export const notificationMeta = (n: Pick<NotificationRow, "type" | "params">) => {
   const meta = NOTIFICATION_TYPES[n.type] ?? DEFAULT_META;

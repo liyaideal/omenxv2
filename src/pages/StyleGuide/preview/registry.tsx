@@ -90,6 +90,7 @@ export const previewRegistry: Record<string, Loader> = {
   "notif-page-desktop-updates": pick(notifications, "PageDesktopUpdatesPreview"),
   "notif-page-mobile-updates": pick(notifications, "PageMobileUpdatesPreview"),
   "notif-types-updates": pick(notifications, "AllTypesUpdatesPreview"),
+  "notif-icon-ledger": pick(notifications, "IconLedgerPreview"),
   // Announcements (AN-1…AN-13)
   "ann-list-desktop": pick(announcements, "ListDesktopPreview"),
   "ann-list-desktop-end": pick(announcements, "ListDesktopEndPreview"),

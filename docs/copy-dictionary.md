@@ -996,48 +996,50 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 
 ### 40 个 type（35 v1 + 5 v2 Updates；标题 / 正文 = en 模板；`{{x}}` 由前端格式化后插值）
 
-| tab | type | 触发 | 标题 | 正文 | 深链 | 计角标 |
-|---|---|---|---|---|---|---|
-| Trading | `settled.win` | 结算 pnl > 0 | `{{event}} settled — you won` | `{{side}} · {{pnl}}` | `/portfolio/settlement/:id` | ✓ |
-| Trading | `settled.loss` | 结算 pnl < 0 | `{{event}} settled` | `{{side}} · {{pnl}}` | 同上 | ✓ |
-| Trading | `settled.flat` | 结算 pnl = 0 | `{{event}} settled` | `{{side}} · your {{cost}} is back` | 同上 | ✓ |
-| Trading | `settled.round_batch` | 同事件 ≥3 条同刻结算 | `{{series}} · {{n}} rounds settled` | `net {{net}}` | `/portfolio/settlements` | ✓ |
-| Trading | `autoclose.tight` | Boost usage 进入 ≥ 80% | `Boost check: getting tight` | `Boost usage {{ratio}} · add funds or cash out` | `/portfolio` | ✓ |
-| Trading | `autoclose.soon` | 进入 ≥ 95% | `Boost check: auto-close soon` | 同上 | `/portfolio` | ✓ |
-| Trading | `autoclose.done` | `close_reason = auto_close` | `{{event}} auto-closed` | `{{side}}{{boost}} · {{pnl}}` | `/portfolio/settlement/:id` | ✓ |
-| Trading | `trade.bought` | positions INSERT | `Bought {{side}} · {{cost}}` | `{{event}}{{boost}}` | `/trade?event=` | — |
-| Trading | `trade.cashed_out` | `close_reason = cashout` | `Cashed out {{side}}` | `{{event}} · {{pnl}}` | `/portfolio/settlement/:id` | — |
-| Account | `funds.deposit_done` | 入金 completed | `Deposit received` | `+{{amount}} USDC · {{account}}` | `/wallet` | ✓ |
-| Account | `funds.deposit_failed` | 入金 failed | `Deposit failed` | `{{amount}} USDC · tap for details` | `/wallet` | ✓ |
-| Account | `funds.withdraw_submitted` | 出金 pending | `Withdrawal submitted` | `{{amount}} USDC · usually within 30 min` | `/wallet` | ✓ |
-| Account | `funds.withdraw_done` | 出金 completed | `Withdrawal sent` | `{{amount}} USDC · view on explorer` | `/wallet` | ✓ |
-| Account | `funds.withdraw_failed` | 出金 failed / rejected | `Withdrawal failed` | `{{amount}} USDC is back in your account` | `/wallet` | ✓ |
-| Account | `funds.recovery_update` | 找回 completed / rejected | `Recovery request {{status}}` | `{{amount}} {{token}} on {{network}}` | `/wallet/recovery/:id` | ✓ |
-| Account | `funds.credit` | `bonus` 入账 | `{{amount}} credited` | `{{reason}}` | `/wallet` | ✓ |
-| Account | `reward.voucher_issued` | 发券 | `You got a {{face}} Voucher` | `{{source}} · expires {{deadline}}` | `/vouchers` | ✓ |
-| Account | `reward.voucher_expiring` | 到期前 24h（cron） | `Voucher expires in 24h` | `{{face}} · use it before {{deadline}}` | `/vouchers` | ✓ |
-| Account | `reward.voucher_expired` | status → expired | `Voucher expired` | `{{face}} · {{source}}` | `/vouchers` | ✓ |
-| Account | `reward.voucher_earnings_unlocked` | 档位解冻 accrual | `{{amount}} voucher earnings unlocked` | `{{tier}} · claim in Vouchers` | `/vouchers` | ✓ |
-| Account | `reward.grant_claimable` | grant → claimable | `{{amount}} {{kind}} ready to claim` | `{{campaign}} · {{task}}` | `/rewards/campaign/:id` | ✓ |
-| Account | `reward.grant_expiring` | 活动结束前 24h（cron） | `{{amount}} {{kind}} expires in 24h` | `{{campaign}} · {{task}} · claim before {{deadline}}` | 同上 | ✓ |
-| Account | `reward.task_claimable` | user_task → completed | `Task done — claim your reward` | `{{task}} · {{points}} points` | `/rewards` | ✓ |
-| Account | `reward.referral_joined` | referrals INSERT（给 referrer） | `{{username}} joined with your code` | `your referral voucher is on its way` | `/affiliate` | ✓ |
-| Account | `reward.airdrop_credited` | airdrop INSERT | `Airdrop landed: {{event}}` | `{{side}} · {{amount}} · expires {{deadline}}` | `/portfolio/airdrops` | ✓ |
-| Account | `reward.airdrop_expiring` | 到期前 24h（cron） | `Airdrop expires in 24h` | `{{event}} · {{side}}` | `/portfolio/airdrops` | ✓ |
-| Account | `reward.treasure_opened` | treasure_drops INSERT | `Treasure box opened` | `+{{points}} points` | `/rewards` | ✓ |
-| Account | `account.new_session` | SIGNED_IN（每会话一次） | `New sign-in` | `{{where}} · {{time}}` | `/settings` | ✓ |
-| Account | `account.password_changed` | 密码修改 | `Password changed` | `not you? reset it now` | `/settings` | ✓ |
-| Account | `account.email_changed` | profiles.email 变更 | `Login email updated` | `{{email}}` | `/settings` | ✓ |
-| Account | `account.2fa_on` | totp_enabled → true | `Two-factor turned on` | （无正文） | `/settings` | ✓ |
-| Account | `account.2fa_off` | totp_enabled → false | `Two-factor turned off` | `not you? turn it back on` | `/settings` | ✓ |
-| Account | `account.api_key_created` | api_keys INSERT | `API key created` | `{{label}} · {{prefix}}…` | `/settings/api` | ✓ |
-| Account | `account.api_key_revoked` | status → revoked | `API key revoked` | `{{label}} · {{prefix}}…` | `/settings/api` | ✓ |
-| Account | `account.wallet_linked` | connected_accounts INSERT | `Wallet connected` | `{{address}}` | `/rewards/campaign/h2e` | ✓ |
-| Updates | `system.announcement` | 公告发布（广播全员，v2） | `{{title}}`（公告原文） | `{{summary}}`（公告原文） | `/announcements/:id` | ✓ |
-| Updates | `system.maintenance` | 维护公告发布（广播全员，v2） | `{{title}}` | `{{summary}}` | `/announcements/:id` | ✓ |
-| Updates | `system.campaign_live` | campaigns → live（广播全员，v2） | `New campaign: {{campaign}}` | `{{task}}{{ends}}`（`ends` = ` · ends Oct 31, 23:59`，无 ends_at 省略） | `/rewards/campaign/:id` | ✓ |
-| Updates | `system.campaign_ending` | 活动结束前 24h（cron，只给参与者，v2） | `{{campaign}} ends in 24h` | `claim before {{deadline}}` | `/rewards/campaign/:id` | ✓ |
-| Updates | `system.watchlist_live` | 星标赛事到开赛时间（cron，v2） | `{{event}} is live` | `a starred event just opened · tap to trade` | `/trade?event=` | ✓ |
+icon · 色 列与 `src/lib/notifications.ts` NOTIFICATION_TYPES 同源，渲染版在 /style-guide#lite-notifications NT-23；色义：volt 盈 / 入账 · muted 亏 / 出账 / 中性 · red 失败 / done / 安全 · yellow tight / 要注意时间 · primary Rewards / 信息类 Updates；表外 type → `Bell` muted。
+
+| tab | type | icon · 色 | 触发 | 标题 | 正文 | 深链 | 计角标 |
+|---|---|---|---|---|---|---|---|
+| Trading | `settled.win` | `CircleCheck` volt | 结算 pnl > 0 | `{{event}} settled — you won` | `{{side}} · {{pnl}}` | `/portfolio/settlement/:id` | ✓ |
+| Trading | `settled.loss` | `CircleCheck` muted | 结算 pnl < 0 | `{{event}} settled` | `{{side}} · {{pnl}}` | 同上 | ✓ |
+| Trading | `settled.flat` | `CircleCheck` muted | 结算 pnl = 0 | `{{event}} settled` | `{{side}} · your {{cost}} is back` | 同上 | ✓ |
+| Trading | `settled.round_batch` | `CircleCheck` net > 0 → volt · else muted | 同事件 ≥3 条同刻结算 | `{{series}} · {{n}} rounds settled` | `net {{net}}` | `/portfolio/settlements` | ✓ |
+| Trading | `autoclose.tight` | `TriangleAlert` yellow | Boost usage 进入 ≥ 80% | `Boost check: getting tight` | `Boost usage {{ratio}} · add funds or cash out` | `/portfolio` | ✓ |
+| Trading | `autoclose.soon` | `TriangleAlert` red | 进入 ≥ 95% | `Boost check: auto-close soon` | 同上 | `/portfolio` | ✓ |
+| Trading | `autoclose.done` | `TriangleAlert` red | `close_reason = auto_close` | `{{event}} auto-closed` | `{{side}}{{boost}} · {{pnl}}` | `/portfolio/settlement/:id` | ✓ |
+| Trading | `trade.bought` | `ArrowLeftRight` muted | positions INSERT | `Bought {{side}} · {{cost}}` | `{{event}}{{boost}}` | `/trade?event=` | — |
+| Trading | `trade.cashed_out` | `ArrowLeftRight` pnl > 0 → volt · else muted | `close_reason = cashout` | `Cashed out {{side}}` | `{{event}} · {{pnl}}` | `/portfolio/settlement/:id` | — |
+| Account | `funds.deposit_done` | `Wallet` volt | 入金 completed | `Deposit received` | `+{{amount}} USDC · {{account}}` | `/wallet` | ✓ |
+| Account | `funds.deposit_failed` | `Wallet` red | 入金 failed | `Deposit failed` | `{{amount}} USDC · tap for details` | `/wallet` | ✓ |
+| Account | `funds.withdraw_submitted` | `Wallet` muted | 出金 pending | `Withdrawal submitted` | `{{amount}} USDC · usually within 30 min` | `/wallet` | ✓ |
+| Account | `funds.withdraw_done` | `Wallet` muted | 出金 completed | `Withdrawal sent` | `{{amount}} USDC · view on explorer` | `/wallet` | ✓ |
+| Account | `funds.withdraw_failed` | `Wallet` red | 出金 failed / rejected | `Withdrawal failed` | `{{amount}} USDC is back in your account` | `/wallet` | ✓ |
+| Account | `funds.recovery_update` | `Wallet` status = rejected → red · else muted | 找回 completed / rejected | `Recovery request {{status}}` | `{{amount}} {{token}} on {{network}}` | `/wallet/recovery/:id` | ✓ |
+| Account | `funds.credit` | `Wallet` volt | `bonus` 入账 | `{{amount}} credited` | `{{reason}}` | `/wallet` | ✓ |
+| Account | `reward.voucher_issued` | `Gift` primary | 发券 | `You got a {{face}} Voucher` | `{{source}} · expires {{deadline}}` | `/vouchers` | ✓ |
+| Account | `reward.voucher_expiring` | `Gift` yellow | 到期前 24h（cron） | `Voucher expires in 24h` | `{{face}} · use it before {{deadline}}` | `/vouchers` | ✓ |
+| Account | `reward.voucher_expired` | `Gift` muted | status → expired | `Voucher expired` | `{{face}} · {{source}}` | `/vouchers` | ✓ |
+| Account | `reward.voucher_earnings_unlocked` | `Gift` primary | 档位解冻 accrual | `{{amount}} voucher earnings unlocked` | `{{tier}} · claim in Vouchers` | `/vouchers` | ✓ |
+| Account | `reward.grant_claimable` | `Gift` primary | grant → claimable | `{{amount}} {{kind}} ready to claim` | `{{campaign}} · {{task}}` | `/rewards/campaign/:id` | ✓ |
+| Account | `reward.grant_expiring` | `Gift` yellow | 活动结束前 24h（cron） | `{{amount}} {{kind}} expires in 24h` | `{{campaign}} · {{task}} · claim before {{deadline}}` | 同上 | ✓ |
+| Account | `reward.task_claimable` | `Gift` primary | user_task → completed | `Task done — claim your reward` | `{{task}} · {{points}} points` | `/rewards` | ✓ |
+| Account | `reward.referral_joined` | `Gift` primary | referrals INSERT（给 referrer） | `{{username}} joined with your code` | `your referral voucher is on its way` | `/affiliate` | ✓ |
+| Account | `reward.airdrop_credited` | `Gift` primary | airdrop INSERT | `Airdrop landed: {{event}}` | `{{side}} · {{amount}} · expires {{deadline}}` | `/portfolio/airdrops` | ✓ |
+| Account | `reward.airdrop_expiring` | `Gift` yellow | 到期前 24h（cron） | `Airdrop expires in 24h` | `{{event}} · {{side}}` | `/portfolio/airdrops` | ✓ |
+| Account | `reward.treasure_opened` | `Gift` primary | treasure_drops INSERT | `Treasure box opened` | `+{{points}} points` | `/rewards` | ✓ |
+| Account | `account.new_session` | `ShieldCheck` red | SIGNED_IN（每会话一次） | `New sign-in` | `{{where}} · {{time}}` | `/settings` | ✓ |
+| Account | `account.password_changed` | `ShieldCheck` red | 密码修改 | `Password changed` | `not you? reset it now` | `/settings` | ✓ |
+| Account | `account.email_changed` | `ShieldCheck` muted | profiles.email 变更 | `Login email updated` | `{{email}}` | `/settings` | ✓ |
+| Account | `account.2fa_on` | `ShieldCheck` muted | totp_enabled → true | `Two-factor turned on` | （无正文） | `/settings` | ✓ |
+| Account | `account.2fa_off` | `ShieldCheck` red | totp_enabled → false | `Two-factor turned off` | `not you? turn it back on` | `/settings` | ✓ |
+| Account | `account.api_key_created` | `ShieldCheck` muted | api_keys INSERT | `API key created` | `{{label}} · {{prefix}}…` | `/settings/api` | ✓ |
+| Account | `account.api_key_revoked` | `ShieldCheck` muted | status → revoked | `API key revoked` | `{{label}} · {{prefix}}…` | `/settings/api` | ✓ |
+| Account | `account.wallet_linked` | `ShieldCheck` muted | connected_accounts INSERT | `Wallet connected` | `{{address}}` | `/rewards/campaign/h2e` | ✓ |
+| Updates | `system.announcement` | `Megaphone` primary | 公告发布（广播全员，v2） | `{{title}}`（公告原文） | `{{summary}}`（公告原文） | `/announcements/:id` | ✓ |
+| Updates | `system.maintenance` | `Wrench` yellow | 维护公告发布（广播全员，v2） | `{{title}}` | `{{summary}}` | `/announcements/:id` | ✓ |
+| Updates | `system.campaign_live` | `Gift` primary | campaigns → live（广播全员，v2） | `New campaign: {{campaign}}` | `{{task}}{{ends}}`（`ends` = ` · ends Oct 31, 23:59`，无 ends_at 省略） | `/rewards/campaign/:id` | ✓ |
+| Updates | `system.campaign_ending` | `Hourglass` yellow | 活动结束前 24h（cron，只给参与者，v2） | `{{campaign}} ends in 24h` | `claim before {{deadline}}` | `/rewards/campaign/:id` | ✓ |
+| Updates | `system.watchlist_live` | `Star` primary | 星标赛事到开赛时间（cron，v2） | `{{event}} is live` | `a starred event just opened · tap to trade` | `/trade?event=` | ✓ |
 
 插值格式（`lib/notifications.ts notificationVars()`）：`{{pnl}}` / `{{net}}` = `signedUsd()`（`+$38.20` / `−$25.00`，U+2212）；`{{cost}}` / `{{amount}}` = `$1,234.56`；`{{face}}` = `faceUsd()`（整数无小数 `$25`）；`{{side}}` = `legTitle(resolveLegSide(option_label, side, side_labels))`（Yes / No / Up / Down / 别名）；`{{boost}}` = `` / ` · 2× Boost`（1× 不显示，与 `boostSuffix()` 同规则）；`{{ratio}}` = `83%`；`{{deadline}}` = `notifDeadline()` `Oct 14, 09:00`；`{{kind}}` = `Voucher` / `USDC`；`{{account}}` = `Standard Account` / `Boost Account`；`{{where}}` = `device · location`（空项省略）。未知 type → 标题 = 原样 type，无正文。
 

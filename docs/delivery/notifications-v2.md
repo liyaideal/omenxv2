@@ -211,6 +211,16 @@ NT-20 `notif-popover-updates` · NT-20b `notif-popover-updates-empty` · NT-21 `
 
 取证口径从这一轮起：桌面 1280 与移动 375 并排看同一行，用库里最长的真标题，不用 mock 样例标题（流程 ④ 设计师清单 ⑧–⑩）。
 
+## 8.4 icon 台账（2026-10-15，CPO）
+
+「什么 type 用什么 icon / 什么颜色」原来只活在 `src/lib/notifications.ts` 的 `NOTIFICATION_TYPES` 和 DESIGN 第 7 条的一句话里，字典 NT-18 / 19 / 22 只是把 40 行渲染出来、没标 type 键——研发看行猜 icon，等于没规范。补：
+
+- **字典 NT-23**：40 type → lucide 组件名（渲染在自己的 tone 里）→ tone 键 / 条件规则，外加 tone 图例与 default 行；**直接读 `NOTIFICATION_TYPES` 渲染**，新增 type 改一处表自动跟上，不会漂。
+- **copy-dictionary「Notifications」表**加 `icon · 色` 列，由同一张表生成。
+- 三个条件色（`settled.round_batch` / `trade.cashed_out` / `funds.recovery_update`）在源表加 `toneRule` 文字，台账与词典原样展示。
+
+研发问「这个 type 用什么 icon」→ 指 NT-23；问「为什么是这个颜色」→ 指 DESIGN §Addendum 2026-10-13 第 7 / 12 条。
+
 ## 9. 未变更项
 
 v1 的 35 个 type 与模板；Trading / Account tab；角标与已读规则；90 天保留；Settings 邮件开关；交易 / 钱包 / 奖励业务逻辑；Pro 终端；游客顶栏。

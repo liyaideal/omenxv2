@@ -29,6 +29,7 @@
 | NV-6 | 正式版：运营后台（发布 / 定时 / 撤回 / 预览 / 多语言）；大用户量广播改拉模式 | ⬜ | 研发侧 |
 | NV-7 | 关注「临近结算」提醒（A9 本轮不做；字段在） | ⬜ | 待 CPO 要 |
 | NV-10 | 设计师帽子验收（10-14 CPO 立规，流程进 omenx-requirement-flow ④ 第 12 根因）：Trading 到底句改两行短句（90 天 / 7 天各一行）；Announcements 底注统一 mono 11；移动公告列表加顶分隔线；正文图片桌面封顶 480px；See all 用 lucide 箭头；第二批：移动端去孤零零副题、标题不截断 → 移动行改「标题 ≤3 行 · 正文 · 时间落行底」（交付文档 §8.3） | ✅ | Publish 后 mainnet 并排复验 |
+| NV-11 | icon 台账（10-15 CPO：style-guide 里没列「什么 type 用什么 icon」，研发会自由发挥）：NT-23 直接读 `NOTIFICATION_TYPES` 渲染 40 type → lucide → tone + 图例 + default 行；copy-dictionary 表加 `icon · 色` 列（同源生成）；三个条件色加 `toneRule` 文字 | ✅ | 待 Publish |
 | NV-9 | v2.1（10-14 CPO 桌面终验）：① 桌面页去 DSH 改标题行；N1 `trade.*` 保留 7 天 + Trading 双口径底注（×7 语）；N2 桌面 Load more 按 tab 分页、移动保留自动加载；N3 Popover 不变 | ✅ | 待 Publish 复验 |
 | NV-8 | mainnet 验收（10-14）：全项通过；`watchlist_live` cron 活体命中（Alcaraz vs Sinner 18:00 UTC 准点）；发现并修 **回填守卫**——演示引擎 `roll_demo_campaign_daily` 每晚重插 alex 12 条历史 bonus 交易 → 12 条 `funds.credit` 刷屏；`notif_transaction` 对 `created_at` 早于 1h 的 INSERT 不发（migration `20261014060000`），已清 12 条 | ✅ | |
 

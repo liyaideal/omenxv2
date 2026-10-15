@@ -16,6 +16,7 @@ import { MobileDrawerListItem } from "@/components/ui/mobile-drawer";
 import { LanguageIconButton } from "@/components/language/LanguagePicker";
 import { Bell } from "lucide-react";
 import { tabOf, type NotificationRow as Row, type NotificationTab } from "@/lib/notifications";
+import { NotificationIconLedger } from "../components/NotificationIconLedger";
 
 const noop = () => undefined;
 export const NOW = new Date(2026, 9, 13, 14, 30);
@@ -363,3 +364,9 @@ export const RowUnknownTypePreview = () => (
     <NotificationRow row={mk("ops.unknown_type", { title: "x" }, 1, false)} onOpen={noop} now={NOW} />
   </div>
 );
+
+/* ------------------------------ NT-23 · icon ledger ------------------------------ */
+
+/** The ledger is a dictionary artifact (not a product surface), so it lives in
+ *  StyleGuide/components and reads NOTIFICATION_TYPES directly — zero hand-copy. */
+export const IconLedgerPreview = () => <NotificationIconLedger />;
