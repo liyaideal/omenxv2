@@ -1,5 +1,7 @@
 # 消息中心 v2 — Updates tab + 公告页 — 交付说明
 
+> **已并入 [`message-center-v1.md`](./message-center-v1.md)（2026-10-15），本文只留档，研发交付只看那一份。**
+
 > 这是消息中心的第二期：铃铛面板和 `/notifications` 多了第三个 tab **Updates**，装运营和系统要告诉所有人的事——公告、维护、新活动上线、活动快结束、你关注的赛事开盘了；另外新加了两个公开页面 `/announcements`（公告列表）和 `/announcements/:id`（公告正文），游客也能看。
 > 这次用户能看见：Updates tab 里的五种新通知；点公告类通知进正文页，正文支持图片和表格（运营可以不做落地页、发一条公告就开一个活动）；维护类公告有一块黄色「时间窗口」卡；页脚 Resources 多了「Announcements」入口。
 > 没动的：v1 的 Trading / Account 两个 tab、角标口径、已读规则、90 天保留；v1 的 35 种通知一字未改。
