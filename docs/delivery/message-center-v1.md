@@ -251,6 +251,9 @@ RLS：`status = 'published'` 对 anon + authenticated 可读；写只给 admin �
 | `account.new_session` | 前端 SIGNED_IN 事件（无地理位置） | 认证服务产出，带设备 + 城市 |
 | `trade.order_filled / cancelled` | 无（Lovable 没有订单账本） | **正式版必做**：Pro 挂单成交 / 撤单 → Trading tab |
 | 邮件副本 | 只存偏好不发信 | 按 `profiles.notification_prefs` 四开关发邮件副本 |
+| 分页 | offset 分页（`range(from, from+29)`，按 tab 服务端过滤）；新行插入时下一页可能重复 / 跳过一条 | keyset 分页（`created_at, id` 游标） |
+| 未读计数 | 客户端拉最多 500 条未读行自算（`countsAsUnread` 排除 `trade.*`），realtime 触发重拉 | 服务端 count / 已读表；口径不变 |
+| 已读 | `mark_notifications_read(null)` = 三个 tab 全部已读（Popover 与全页的 Mark all read 都是全量，不按 tab） | 同语义 |
 | 写公告 | **用 query_database 手工插**，没有后台页 | 运营后台（发布 / 定时 / 撤回 / 预览 / 多语言副本），研发侧立项 |
 | 发布 = 广播 | 触发器 fan-out 到 `profiles` 全员（53 人） | 消息服务 fan-out；大用户量改「一条广播 + 每人已读表」的拉模式，字段语义不变 |
 | 关注「临近结算」 | **本轮不做**。`events` 有 `end_date` / `expected_settlement_time`，技术上可做，等 CPO 要 | — |
