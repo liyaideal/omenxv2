@@ -34,8 +34,8 @@ const LIST_MOBILE: SectionCase[] = [
   {
     key: "ann-list-mobile",
     label: "AN-1b · /announcements · mobile",
-    note: "Variant B inner header（返回 + 'Announcements'）→ 行直接接页头分隔线（**移动不放副题**：页头就是标题，孤零零一行副题会被读成列表第一行——CPO 2026-10-14；同 /notifications 移动）→ 行同桌面（日期当年省年份『Oct 13』）→ 全宽 Load more 44h → SeoFooter。内容页不挂 BottomNav（同 /glossary）。",
-    spec: [{ state: "date", when: "mobile && 当年", visual: "`Oct 13`；跨年 `Oct 13, 2025`", source: "annListDate(iso, compact)" }],
+    note: "Variant B inner header（返回 + 'Announcements'）→ 行直接接页头分隔线（**移动不放副题**：页头就是标题，孤零零一行副题会被读成列表第一行——CPO 2026-10-14；同 /notifications 移动）→ 行用移动换行结构（同 /notifications NT-9 移动行，CPO 2026-10-15：标题占满列宽 ≤3 行 · 摘要 ≤2 行 · 日期落行底 mono 11，当年省年份『Oct 13』；详情页 More announcements 的 rail 行在移动端同样标题 ≤2 行 + 日期落底）→ 全宽 Load more 44h → SeoFooter。内容页不挂 BottomNav（同 /glossary）。",
+    spec: [{ state: "date", when: "mobile && 当年", visual: "`Oct 13`；跨年 `Oct 13, 2025`", source: "annListDate(iso, compact)" }, { state: "行结构", when: "useIsMobile()", visual: "[icon][标题 line-clamp-3 · 摘要 line-clamp-2 · 日期 mt-1 mono 11]；桌面 [icon][标题 truncate · 摘要][日期右上]", source: "AnnouncementRow · DESIGN §Addendum 2026-10-13 第 6 / 13 条" }],
   },
   { key: "ann-list-mobile-empty", label: "AN-3b · /announcements · mobile · 空态", spec: [{ state: "empty", when: "rows.length === 0", visual: "彩绘猞猁空态", source: "AnnouncementEmpty" }] },
 ];

@@ -207,7 +207,7 @@ NT-20 `notif-popover-updates` · NT-20b `notif-popover-updates-empty` · NT-21 `
 | D1 | Trading 到底句一句 100 字符 mono 长话，375 在「Buy /」处折行，像一段正文 | 拆两行短句：`That's everything from the last 90 days` / `Buy / Cash out confirmations are kept for 7 days` | `NotificationEndNote`；`notifications.endOfList.tradingNote` ×7 语 |
 | D2 | Announcements 底注一处 sans 一处 mono；移动公告列表与页头之间无分隔；正文图片竖向占满一屏；See all 用文字 `→` | 底注统一 mono 11 muted；移动列表加顶分隔线；图片桌面封顶 `md:max-h-[480px]`；箭头换 lucide `ArrowRight` | `AnnouncementViews` / `MarkdownBody` / `MoreAnnouncements` |
 | D3 | 桌面「标题 + 副题」平铺到移动端，副题孤零零一行被读成列表第一行 | 移动端不下放副题，inner header 即标题，列表直接接页头 | `AnnouncementViews` 移动分支；DESIGN 第 13 条 |
-| D4 | 移动端标题 `…` 截断，桌面能展示全的事件名在 375 被吃掉 | 先改 `line-clamp-2`；并排复验发现右侧时间列（`Yesterday 21:00` 占行宽 45%）仍把库里最长的结算标题挤到 4 行——改成移动换行结构：标题占满列宽 ≤3 行、正文、时间落到行底一行（Binance / Bybit 通知列表式，CPO 批） | `NotificationRow` `mobile` prop；DESIGN 第 6 条；字典 NT-9 移动 case；Announcements 行时间是短日期，保持右上 + `line-clamp-2` |
+| D4 | 移动端标题 `…` 截断，桌面能展示全的事件名在 375 被吃掉 | 先改 `line-clamp-2`；并排复验发现右侧时间列（`Yesterday 21:00` 占行宽 45%）仍把库里最长的结算标题挤到 4 行——改成移动换行结构：标题占满列宽 ≤3 行、正文、时间落到行底一行（Binance / Bybit 通知列表式，CPO 批） | `NotificationRow` `mobile` prop；DESIGN 第 6 条；字典 NT-9 移动 case。**10-15 补**：Announcements 列表行 + 详情 rail 行移动端同一结构（CPO："notification 和 announcement 是一起搞的需求，怎么老是只照顾一边"）——`AnnouncementRow` 移动分支，字典 AN-1b，DESIGN 第 6 / 13 条 |
 
 取证口径从这一轮起：桌面 1280 与移动 375 并排看同一行，用库里最长的真标题，不用 mock 样例标题（流程 ④ 设计师清单 ⑧–⑩）。
 

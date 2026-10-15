@@ -2,7 +2,8 @@
  * Announcement building blocks (DESIGN §Addendum 2026-10-13 · Announcements):
  *   KindChip        22px pill, 11/600 uppercase, kind icon 12 — primary / yellow
  *   AnnouncementRow list row (`size="lg"`: 15/22 title + 2-line summary) and
- *                   rail row (`size="sm"`: 14/20 title + 1-line summary)
+ *                   rail row (`size="sm"`: 14/20 title + 1-line summary);
+ *                   on mobile both flip to title ≤3/≤2 lines · summary · date at the bottom
  *   WindowCard      maintenance window (yellow, same recipe as the Wallet
  *                   MaintenanceNoticeBanner): UTC range (+ viewer's clock),
  *                   affects / not affected
@@ -75,11 +76,26 @@ export const AnnouncementRow = ({
     >
       <KindIcon kind={row.kind} className="mt-px" />
       <span className="min-w-0 flex-1">
-        {/* Mobile wraps the title (≤2 lines) — a 375 column can't afford to eat it; desktop keeps the one-liner. */}
-        <span className={cn("block font-medium text-foreground", isMobile ? "line-clamp-2" : "truncate", lg ? "text-[15px] leading-[22px]" : "text-sm leading-5")}>{row.title}</span>
+        {/* Mobile = the notification-row anatomy (CPO 2026-10-15, same requirement, same rules):
+            title takes the full column (lg ≤3 lines, rail ≤2), summary below, date on its own
+            bottom line. Desktop keeps the one-line title + date top-right. */}
+        <span
+          className={cn(
+            "block font-medium text-foreground",
+            isMobile ? (lg ? "line-clamp-3" : "line-clamp-2") : "truncate",
+            lg ? "text-[15px] leading-[22px]" : "text-sm leading-5",
+          )}
+        >
+          {row.title}
+        </span>
         <span className={cn("mt-px block text-[13px] leading-[18px] text-muted-foreground", lg ? "line-clamp-2" : "truncate")}>{row.summary}</span>
+        {isMobile && (
+          <span className="mt-1 block font-mono text-[11px] leading-4 text-muted-foreground">{annListDate(row.published_at, true, now)}</span>
+        )}
       </span>
-      <span className="shrink-0 font-mono text-[11px] leading-5 text-muted-foreground">{annListDate(row.published_at, !lg || !!isMobile, now)}</span>
+      {!isMobile && (
+        <span className="shrink-0 font-mono text-[11px] leading-5 text-muted-foreground">{annListDate(row.published_at, !lg, now)}</span>
+      )}
     </Link>
   );
 };
