@@ -84,33 +84,37 @@ export const NotificationIconLedger = () => {
           </span>
         ))}
       </div>
-      {(Object.keys(byTab) as NotificationTab[]).map((tab) => (
-        <table key={tab} className="w-full border-collapse">
-          <thead>
-            <tr className="text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-              <th className="pb-1 pr-3 font-semibold">
-                {TAB_LABEL[tab]} · {byTab[tab].length}
-              </th>
-              <th className="pb-1 pr-3 font-semibold">icon（lucide）</th>
-              <th className="pb-1 pr-3 font-semibold">tone</th>
-            </tr>
-          </thead>
-          <tbody>
-            {byTab[tab].map((type) => (
-              <LedgerRow key={type} type={type} meta={NOTIFICATION_TYPES[type]} />
-            ))}
-          </tbody>
-        </table>
-      ))}
-      <table className="w-full border-collapse">
+      <table className="w-full table-fixed border-collapse">
+        <colgroup>
+          <col className="w-[42%]" />
+          <col className="w-[30%]" />
+          <col className="w-[28%]" />
+        </colgroup>
         <thead>
           <tr className="text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-            <th className="pb-1 pr-3 font-semibold">default（type ∉ 表）</th>
+            <th className="pb-1 pr-3 font-semibold">type</th>
             <th className="pb-1 pr-3 font-semibold">icon（lucide）</th>
             <th className="pb-1 pr-3 font-semibold">tone</th>
           </tr>
         </thead>
+        {(Object.keys(byTab) as NotificationTab[]).map((tab) => (
+          <tbody key={tab}>
+            <tr>
+              <th colSpan={3} className="pb-1 pt-4 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                {TAB_LABEL[tab]} · {byTab[tab].length}
+              </th>
+            </tr>
+            {byTab[tab].map((type) => (
+              <LedgerRow key={type} type={type} meta={NOTIFICATION_TYPES[type]} />
+            ))}
+          </tbody>
+        ))}
         <tbody>
+          <tr>
+            <th colSpan={3} className="pb-1 pt-4 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              default（type ∉ 表）· 1
+            </th>
+          </tr>
           <tr className="border-t border-border/60">
             <td className="py-1.5 pr-3 font-mono text-[12px] text-foreground">*</td>
             <td className="py-1.5 pr-3">
