@@ -325,7 +325,7 @@ export const SpotPositionsTable = ({
               <button
                 onClick={() => t.closePosition(p)}
                 // 研发问题 #10b (2026-09-24): same button chrome as the contract terminal's Close.
-                className="justify-self-end px-3 py-1 text-xs text-foreground border border-border/50 rounded hover:bg-muted"
+                className="justify-self-end px-3 py-1 text-xs text-foreground border border-foreground/25 bg-muted/40 rounded hover:bg-muted hover:border-foreground/40 transition-colors"
               >
                 {tr("common.close")}
               </button>

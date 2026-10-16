@@ -1592,7 +1592,7 @@ export default function DesktopTrading() {
                               isClosing={isClosing}
                               onConfirm={() => closePosition(position.id, index)}
                             >
-                              <button className="px-3 py-1 text-xs text-foreground border border-border/50 rounded hover:bg-muted">
+                              <button className="px-3 py-1 text-xs text-foreground border border-foreground/25 bg-muted/40 rounded hover:bg-muted hover:border-foreground/40 transition-colors">
                                 {t("common.close")}
                               </button>
                             </CloseVoucherDialog>
@@ -1614,7 +1614,7 @@ export default function DesktopTrading() {
                               isClosing={isClosing}
                               onConfirm={(qty) => partialClosePosition(position.id, index, qty)}
                             >
-                              <button className="px-3 py-1 text-xs text-foreground border border-border/50 rounded hover:bg-muted">
+                              <button className="px-3 py-1 text-xs text-foreground border border-foreground/25 bg-muted/40 rounded hover:bg-muted hover:border-foreground/40 transition-colors">
                                 {t("common.close")}
                               </button>
                             </ClosePositionDialog>
@@ -1796,7 +1796,7 @@ export default function DesktopTrading() {
                 </span>
                 <div className="flex items-center gap-2 shrink-0">
                   {!isBinarySingleMarket && (
-                    <span className={`rounded px-2 py-1 text-xs font-semibold ${previewSideColor === "green" ? "bg-trading-green/15 text-trading-green" : "bg-trading-red/15 text-trading-red"}`}>
+                    <span className={`rounded px-2 py-1 text-xs font-semibold ${previewSideColor === "green" ? "bg-yes/15 text-yes" : "bg-no/15 text-no"}`}>
                       {previewSideLabel}
                     </span>
                   )}

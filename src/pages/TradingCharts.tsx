@@ -152,9 +152,11 @@ function TradingChartsContent({ selectedEvent, selectedOptionData, options }: Tr
             <span>{TRADING_TERMS.MARK_PRICE} {displayPriceStr}</span>
             <span className={cn(
               "px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide",
+              // §2 Market Axis: the side word is a selection, not a P&L — yes/no, never green/red
+              // (CPO 2026-10-16; same classes as the spot mobile price block).
               side === "buy"
-                ? "bg-trading-green/15 text-trading-green"
-                : "bg-trading-red/15 text-trading-red"
+                ? "bg-yes/15 text-yes"
+                : "bg-no/15 text-no"
             )}>
               {side === "buy" ? yesLabel : noLabel}
             </span>
