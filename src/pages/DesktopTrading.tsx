@@ -1111,7 +1111,7 @@ export default function DesktopTrading() {
                   {/* Header with title and value */}
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">
-                      {selectedEvent.currentPrice ? (selectedEvent.priceLabel || "Current Price") : "Tweet Count"}
+                      {headerPriceText ? `${business.ticker || "Underlying"} price` : selectedEvent.currentPrice ? (selectedEvent.priceLabel || "Current Price") : "Tweet Count"}
                     </span>
                     <div className="text-right">
                       <div className="text-lg font-bold text-indicator">
@@ -1131,11 +1131,18 @@ export default function DesktopTrading() {
                   
                   {/* Unified stats section - shows available fields */}
                   <div className="text-xs text-muted-foreground space-y-1 border-t border-border/30 pt-2">
-                    {/* Period - always show */}
-                    <div className="flex justify-between">
-                      <span>{t("market.period")}</span>
-                      <span>{selectedEvent.period}</span>
-                    </div>
+                    {/* Period — price-referenced events show the round window / base time instead of a date range */}
+                    {business.isPriceRef && business.timeClause ? (
+                      <div className="flex justify-between gap-4">
+                        <span>{business.kind === "quick" ? "Round" : "Base"}</span>
+                        <span className="text-right">{business.timeClause}</span>
+                      </div>
+                    ) : (
+                      <div className="flex justify-between">
+                        <span>{t("market.period")}</span>
+                        <span>{selectedEvent.period}</span>
+                      </div>
+                    )}
                     
                     {/* 24h stats - show if available */}
                     {selectedEvent.stats?.high24h && (
