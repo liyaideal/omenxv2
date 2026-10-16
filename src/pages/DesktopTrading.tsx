@@ -6,7 +6,7 @@ import { TransferEntry } from "@/components/pro/TransferEntry";
 import { WinTooltipBody } from "@/components/lite/shared/WinTooltipBody";
 import { SurfaceSwitch } from "@/components/surface/SurfaceSwitch";
 import { useNavigate, useNavigationType, useSearchParams, useLocation } from "react-router-dom";
-import { ChevronDown, ChevronUp, Plus, Star, Info, Flag, Search, ExternalLink, X, Pencil, AlertTriangle, ArrowLeft, Loader2, Gift, Lock, HelpCircle } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, Star, Info, Search, ExternalLink, X, Pencil, AlertTriangle, ArrowLeft, Loader2, Gift, Lock, HelpCircle } from "lucide-react";
 import { ExternalHedgeLinks } from "@/components/ExternalHedgeLinks";
 import { EventInfoContent } from "@/components/EventInfoContent";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
@@ -65,6 +65,8 @@ import { buildFixtureMarkets, currentLineId, fixtureIdOf, fixtureLinePath, parse
 import { useContractGate } from "@/lib/contractGate";
 import { MarketLineRow } from "@/components/pro/MarketLineRow";
 import { isSingleMarketBinary, getBinarySideLabels, getYesNoOptions, getBinaryOutcome } from "@/lib/eventUtils";
+import { useEventBusinessMeta, basePriceText } from "@/hooks/useEventBusinessMeta";
+import { ContractPriceBlock } from "@/components/pro/ContractPriceBlock";
 import { useEventSideLabelsLookup, resolveBinarySideLabel } from "@/hooks/useEventSideLabelsLookup";
 
 
@@ -525,6 +527,16 @@ export default function DesktopTrading() {
     [options, selectedEvent],
   );
   const binaryLabels = useMemo(() => getBinarySideLabels(selectedEvent), [selectedEvent]);
+  // Rail-switch SOP (2026-10-16): the business layer (ticker / base / round window /
+  // underlying candles) comes from the same hook the spot terminal uses — it follows
+  // the event, not the rail.
+  const business = useEventBusinessMeta(selectedEvent?.id ?? null, side === "buy" ? binaryLabels.yes : binaryLabels.no);
+  const headerPriceText = business.isPriceRef && business.indicative != null
+    ? `${business.cur}${business.indicative.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    : null;
+  const headerPricePct = business.isPriceRef
+    ? `${business.indicativePct >= 0 ? "+" : ""}${business.indicativePct.toFixed(2)}%`
+    : null;
   // CTA reads side_labels whenever the Yes/No toggle does (literal or alias binary).
   const ctaSideLabels = !hasMarketChips ? binaryLabels : undefined;
   const yesNoOptions = useMemo(() => getYesNoOptions(options), [options]);
@@ -1076,7 +1088,7 @@ export default function DesktopTrading() {
           </button>
           
           {/* Real-time Indicator Badge - Unified for all event types */}
-          {(selectedEvent.tweetCount !== undefined || selectedEvent.currentPrice !== undefined) && (
+          {(selectedEvent.tweetCount !== undefined || selectedEvent.currentPrice !== undefined || headerPriceText) && (
             <Popover>
               <PopoverTrigger asChild>
                 <button 
@@ -1086,11 +1098,11 @@ export default function DesktopTrading() {
                   <div className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 bg-indicator rounded-full animate-pulse" />
                     <span className="text-xs text-muted-foreground">
-                      {selectedEvent.currentPrice ? "Current Price" : "Current Tweets"}
+                      {headerPriceText ? business.ticker || "Current Price" : selectedEvent.currentPrice ? "Current Price" : "Current Tweets"}
                     </span>
                   </div>
                   <span className="text-sm text-indicator font-mono font-bold">
-                    {selectedEvent.currentPrice || selectedEvent.tweetCount}
+                    {headerPriceText || selectedEvent.currentPrice || selectedEvent.tweetCount}
                   </span>
                 </button>
               </PopoverTrigger>
@@ -1103,9 +1115,13 @@ export default function DesktopTrading() {
                     </span>
                     <div className="text-right">
                       <div className="text-lg font-bold text-indicator">
-                        {selectedEvent.currentPrice || selectedEvent.tweetCount}
+                        {headerPriceText || selectedEvent.currentPrice || selectedEvent.tweetCount}
                       </div>
-                      {selectedEvent.priceChange24h && (
+                      {headerPricePct ? (
+                        <div className={`text-xs font-mono ${headerPricePct.startsWith('+') ? 'text-trading-green' : 'text-trading-red'}`}>
+                          {headerPricePct} vs {business.baseWord.toLowerCase()} {basePriceText(business)}
+                        </div>
+                      ) : selectedEvent.priceChange24h && (
                         <div className={`text-xs font-mono ${selectedEvent.priceChange24h.startsWith('+') ? 'text-trading-green' : 'text-trading-red'}`}>
                           {selectedEvent.priceChange24h} (24h)
                         </div>
@@ -1271,27 +1287,16 @@ export default function DesktopTrading() {
               </div>
               {chartTab === "Chart" ? (
                 <>
-                  <div className="flex items-center gap-4 px-4 py-2 border-b border-border/30">
-                    <span className="text-2xl font-bold font-mono">{sidePrice.toFixed(4)}</span>
-                    <span className={`text-sm font-mono ${priceChange.isPositive ? "text-trading-green" : "text-trading-red"}`}>
-                      {priceChange.isPositive ? "+" : ""}{priceChange.percentage}%
-                    </span>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="text-sm text-trading-yellow font-mono flex items-center gap-1 cursor-help border-b border-dashed border-trading-yellow">
-                            <Flag className="w-3 h-3" /> {sidePrice.toFixed(4)}
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-[280px] p-3">
-                          <p className="text-sm">Mark price is derived from the index price, and reflects the fair market price. Liquidation is triggered by mark price.</p>
-                          <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
+                  <ContractPriceBlock price={sidePrice} change={priceChange} business={business} />
                   <div className="flex-1 min-h-0">
-                    <CandlestickChart remainingDays={7} basePrice={parseFloat(selectedOptionData.price)} side={side} priceSource />
+                    <CandlestickChart
+                      remainingDays={7}
+                      basePrice={parseFloat(selectedOptionData.price)}
+                      side={side}
+                      priceSource
+                      underlying={business.underlying ?? undefined}
+                      initialTimeframe={business.kind === "quick" ? business.defaultTimeframe : undefined}
+                    />
                   </div>
                 </>
               ) : (

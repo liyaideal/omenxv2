@@ -506,6 +506,17 @@ Full address rendering: digits `text-primary`, letters `text-foreground` (see `m
 `Round #12`, `Round open $X` and `Round opens 09:30` refer to the round *object*
 and stay as-is — they are a different noun from the selector label.
 
+### Chart price-block subline（价格参照型事件 · 两个 Pro 终端同源，2026-10-16）
+
+| Canonical | Where | Meaning |
+|---|---|---|
+| **Base $X ⓘ · as of Fri 04:00 (Oct 15 close)** | daily stock up/down (`/spot`, `/trade`) | Reference price = prior trading day's close. Clock is the viewer's local time (`formatLocalStamp`); the bracket keeps the market trading day. |
+| **Open $X ⓘ · 14:05–14:10** | crypto quick rounds (5m / 15m / 1h / 4h / 1d) | Reference price = round open; the clause is the round window in local time (`Thu 08:00 – Fri 08:00` when it crosses midnight). |
+| ⓘ tooltip | both | `Settles Up if {TICKER} closes above $X. Equal or below settles Down.` (quick rounds: `ends the round above`). |
+| **Retired** | — | `· Oct 12 close · flat = Down` — the tie rule moved into the ⓘ; dates without a clock are gone (R1 全站用户时间). |
+
+Mobile: the same facts live in the 32px stats strip (`OPEN` / `BASE` cell word follows the event kind); no subline.
+
 ### Table（5m / 15m 加密快轮 · 筹码上桌，2026-10-09 · 占位措辞）
 
 > 状态：**占位**。全部英文待合规措辞轮统一；i18n key 下一轮接。字典 TB-1…TB-6 见 `/style-guide` 交易页。

@@ -20,6 +20,9 @@ import type { ProOrderType } from "@/components/pro/OrderTypeDropdown";
 import { ProContractPanel } from "@/components/pro/ProContractPanel";
 import { DesktopOrderBook } from "@/components/DesktopOrderBook";
 import { CandlestickChart } from "@/components/CandlestickChart";
+import { ContractPriceBlock } from "@/components/pro/ContractPriceBlock";
+import { SpotMobileStatsStrip } from "@/components/pro/ProSpotShared";
+import { deriveBusinessMeta } from "@/hooks/useEventBusinessMeta";
 import { SideChip } from "@/components/trading/SideChip";
 import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
 import { FUTURES_FEE_RATE, netWin } from "@/services/tradingService";
@@ -553,5 +556,82 @@ export const ProSideChips = () => (
 export const ProContractChartMobile = () => (
   <div style={{ width: 375, height: 380 }}>
     <CandlestickChart remainingDays={7} basePrice={0.0471} side="buy" priceSource />
+  </div>
+);
+
+// ---------------------------------------------------------------------------
+// CH-D3 / CH-D4 / CH-M2 / CH-M3 · contract terminal × price-referenced event
+// (rail-switch SOP 2026-10-16): the product-layer `Last | Mark` and the
+// business-layer `Up | {ticker} price` coexist; the price block carries the
+// Base/Open subline; the underlying view greys `Last | Mark`.
+// ---------------------------------------------------------------------------
+const quickRow = {
+  id: "crypto-btc-updown-15m-202610160730",
+  name: "Bitcoin — up or down?",
+  event_subtype: "CRYPTO_QUICK_UPDOWN_SPOT",
+  base_price: 82621.56,
+  start_date: "2026-10-16T07:30:00Z",
+  end_date: "2026-10-16T07:45:00Z",
+  side_labels: null,
+};
+const stockRow = {
+  id: "us-tsla-updown-20261016",
+  name: "Tesla (TSLA) — will close higher today?",
+  event_subtype: "US_STOCK_DAILY_UPDOWN_SPOT",
+  base_price: 307.33,
+  start_date: "2026-10-16T13:30:00Z",
+  end_date: "2026-10-16T20:00:00Z",
+  side_labels: null,
+};
+const quickMeta = deriveBusinessMeta(quickRow, 82870.12);
+const stockMeta = deriveBusinessMeta(stockRow, 306.86);
+
+/** CH-D3 · contract × crypto quick round — both switch groups, Up view, `Open … · window` subline. */
+export const ProContractChartUnderlying = () => (
+  <div style={{ width: 760, height: 420 }} className="flex flex-col">
+    <ContractPriceBlock price={0.5229} change={{ isPositive: true, percentage: "0.90" }} business={quickMeta} />
+    <div className="flex-1 min-h-0">
+      <CandlestickChart remainingDays={7} basePrice={0.5229} side="buy" priceSource underlying={quickMeta.underlying ?? undefined} initialTimeframe="1m" />
+    </div>
+  </div>
+);
+
+/** CH-D4 · same chart in the `BTC price` view — `Last | Mark` greyed, Open line on the asset candles. */
+export const ProContractChartUnderlyingView = () => (
+  <div style={{ width: 760, height: 420 }} className="flex flex-col">
+    <ContractPriceBlock price={0.5229} change={{ isPositive: true, percentage: "0.90" }} business={quickMeta} />
+    <div className="flex-1 min-h-0">
+      <CandlestickChart remainingDays={7} basePrice={0.5229} side="buy" priceSource underlying={quickMeta.underlying ?? undefined} previewView="underlying" initialTimeframe="1m" />
+    </div>
+  </div>
+);
+
+/** CH-D5 · contract × US-stock daily — `Base … · as of <local> (<market day> close)` subline. */
+export const ProContractChartStock = () => (
+  <div style={{ width: 760, height: 420 }} className="flex flex-col">
+    <ContractPriceBlock price={0.5688} change={{ isPositive: false, percentage: "-0.15" }} business={stockMeta} />
+    <div className="flex-1 min-h-0">
+      <CandlestickChart remainingDays={1} basePrice={0.5688} side="buy" priceSource underlying={stockMeta.underlying ?? undefined} />
+    </div>
+  </div>
+);
+
+/** CH-M2 · phone /trade Charts × price-referenced — spot's 32px strip on top, both switch groups on row two. */
+export const ProContractChartMobileUnderlying = () => (
+  <div style={{ width: 375, height: 460 }} className="flex flex-col">
+    <SpotMobileStatsStrip t={quickMeta} />
+    <div className="flex-1 min-h-0">
+      <CandlestickChart remainingDays={7} basePrice={0.5229} side="buy" priceSource underlying={quickMeta.underlying ?? undefined} initialTimeframe="1m" />
+    </div>
+  </div>
+);
+
+/** CH-M3 · phone, `BTC price` view — `Last | Mark` greyed. */
+export const ProContractChartMobileUnderlyingView = () => (
+  <div style={{ width: 375, height: 460 }} className="flex flex-col">
+    <SpotMobileStatsStrip t={quickMeta} />
+    <div className="flex-1 min-h-0">
+      <CandlestickChart remainingDays={7} basePrice={0.5229} side="buy" priceSource underlying={quickMeta.underlying ?? undefined} previewView="underlying" initialTimeframe="1m" />
+    </div>
   </div>
 );

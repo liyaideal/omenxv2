@@ -144,3 +144,13 @@ export function getBinaryOutcome(optionLabel: string | null | undefined): "yes" 
   if (lc === "no") return "no";
   return null;
 }
+
+/**
+ * Price-referenced up/down event by id shape (crypto quick rounds + US/HK/KR daily
+ * stocks). These carry `base_price` and an underlying ticker — the business layer
+ * (`useEventBusinessMeta`) renders their price; mock "Current Price" copy must not.
+ */
+export const isUpDownPriceEventId = (id: string | null | undefined): boolean => {
+  const v = (id ?? "").toLowerCase();
+  return /^crypto-[a-z]+-updown-/.test(v) || /^(us|hk|kr)-[a-z0-9]+-updown/.test(v);
+};

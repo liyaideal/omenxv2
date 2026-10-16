@@ -48,6 +48,7 @@ import {
 import { deriveTickerFromEvent } from "@/components/SpotStatsHeader";
 import type { Tables } from "@/integrations/supabase/types";
 import { consumeOpenLimit } from "@/lib/proHandoff";
+import { useIndicativeLast, useEventBusinessMeta } from "@/hooks/useEventBusinessMeta";
 
 export type SpotEventRow = Tables<"events"> & { options: Tables<"event_options">[] };
 
@@ -160,21 +161,6 @@ export const useSpotCountdown = (
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [endTime?.getTime()]);
   return state;
-};
-
-// ---- Indicative last price (mock walk around base_price) ----
-const useIndicativeLast = (basePrice: number | null, seedKey: string) => {
-  const [tick, setTick] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => setTick((n) => n + 1), 2500);
-    return () => clearInterval(t);
-  }, []);
-  return useMemo(() => {
-    if (!basePrice) return null;
-    const seed = seedKey.length % 7;
-    const drift = Math.sin(tick / 3 + seed) * 0.008;
-    return basePrice * (1 + drift);
-  }, [basePrice, tick, seedKey]);
 };
 
 export type SpotTerminal = ReturnType<typeof useSpotTerminal>;
@@ -343,6 +329,8 @@ export function useSpotTerminal() {
   const basePrice = event?.base_price != null ? Number(event.base_price) : null;
   const indicative = useIndicativeLast(basePrice, event?.id || "");
   const indicativePct = basePrice && indicative ? ((indicative - basePrice) / basePrice) * 100 : 0;
+  // Rail-switch SOP (2026-10-16): the business layer, shared with the contract terminal.
+  const business = useEventBusinessMeta(event, outcomeLabel);
 
   const cur = market.currency;
   const settleEtOnly = settleAt ? formatLocalTime(settleAt) : null;
@@ -771,6 +759,8 @@ export function useSpotTerminal() {
     basePrice,
     indicative,
     indicativePct,
+    business,
+    baseWord: business.baseWord,
     sessionOpenMark,
     seedSessionOpenMark,
     book,

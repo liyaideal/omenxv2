@@ -31,6 +31,7 @@ import {
   SpotBottomTabs,
 } from "@/components/pro/ProSpotShared";
 import { useSpotTerminal, mock24hVolume } from "@/hooks/useSpotTerminal";
+import { BaseSubline } from "@/components/pro/BaseSubline";
 import { cn } from "@/lib/utils";
 
 export default function SpotTrading() {
@@ -165,9 +166,7 @@ export default function SpotTrading() {
                     <span className="text-sm font-mono text-muted-foreground">--</span>
                   )}
                 </div>
-                <div className="text-xs text-muted-foreground">
-                  Base {t.basePrice != null ? `${t.cur}${t.basePrice.toFixed(2)}` : "—"} · {t.priorCloseDateLabel} close · flat = {t.noLabel}
-                </div>
+                <BaseSubline m={t.business} />
               </div>
               <div className="flex-1 min-h-0">
                 <CandlestickChart

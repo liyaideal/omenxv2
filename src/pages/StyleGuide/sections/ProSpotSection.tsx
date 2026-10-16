@@ -433,6 +433,32 @@ const CONTRACT_CHART_CASES: SectionCase[] = [
   },
 ];
 
+/** Rail-switch SOP 2026-10-16 · contract terminal × price-referenced event (the matrix cell that was missing). */
+const CONTRACT_CHART_BUSINESS_CASES: SectionCase[] = [
+  {
+    key: "pro-contract-chart-underlying",
+    label: "CH-D3 · 合约 × 价格参照型（加密快轮）· 两组开关并存 · Up 视图",
+    note: "两层正交：`Last | Mark` 跟 rail 走（产品层），`Up | BTC price` 跟 event 类型走（业务层）；两组并排、各自 bg-muted/50 胶囊，产品层在左。价格块第二行 = 业务副标题（SP-3-DT1：Base / Prior Close 只属于 chart price block 的 subline）：快轮 `Open $X ⓘ · 14:05–14:10`（本轮起止，用户本地时间）；ⓘ = 结算规则整句（原 `flat = Down` 退役）。快轮默认周期 1m（1h/4h → 5m，1d → 15m）。两者都来自 `useEventBusinessMeta`，与 /spot 同源。",
+    spec: [
+      { state: "Up 视图（默认）", when: 'business.isPriceRef && view === "share"', visual: "`Last | Mark` 可点 + `Up | BTC price`；share 蜡烛；副标题 `Open $82,621.56 ⓘ · 15:30–15:45`", source: "DesktopTrading · BaseSubline · CandlestickChart(priceSource + underlying)" },
+    ],
+  },
+  {
+    key: "pro-contract-chart-underlying-view",
+    label: "CH-D4 · 同上 · BTC price 视图 · `Last | Mark` 置灰",
+    spec: [
+      { state: "标的视图", when: 'view === "underlying"', visual: "`Last | Mark` opacity-40 + pointer-events-none（选中态保留，切回恢复）；BTC 蜡烛 + 虚线 `Open 82,621.56` 参考线；大数字仍是 share 价", source: "CandlestickChart · showUnderlying" },
+    ],
+  },
+  {
+    key: "pro-contract-chart-stock",
+    label: "CH-D5 · 合约 × 美股日线 · `Base … · as of 本地时间 (交易日 close)`",
+    spec: [
+      { state: "美股日线", when: 'business.kind === "stock"', visual: "副标题 `Base $307.33 ⓘ · as of Fri 04:00 (Oct 15 close)`——前一交易日 16:00 ET 换算成用户本地，括号保留交易日；PRE / AH 徽标不进这行（留在页头统计）", source: "useEventBusinessMeta · priorCloseInstant" },
+    ],
+  },
+];
+
 const CONTRACT_CHART_MOBILE_CASES: SectionCase[] = [
   {
     key: "pro-contract-chart-mobile",
@@ -440,6 +466,21 @@ const CONTRACT_CHART_MOBILE_CASES: SectionCase[] = [
     note: "375 宽下切换不与周期同行（会把右上角蜡烛 / 折线图标顶出屏幕），放周期行正下方左对齐；图表容器 450 → 490px，蜡烛区高度不变。",
     spec: [
       { state: "mobile", when: "useIsMobile()", visual: "第一行周期 + 图标，第二行 `Last | Mark`；其余同桌面", source: "CandlestickChart（isMobile 分支）· TradingCharts h-[490px]" },
+    ],
+  },
+  {
+    key: "pro-contract-chart-mobile-underlying",
+    label: "CH-M2 · 手机 /trade × 价格参照型 · strip + 两组开关",
+    note: "移动端业务层 = /spot 已有的 32px stats strip（`SpotMobileStatsStrip`，`OPEN/BASE $x ｜ TICKER $x ±%`）原件复用，放价格块上方；页头不再显示 mock `Price`；第二工具栏行放两组开关（375 下约 210px，不截断）。合约价格块本身不动。",
+    spec: [
+      { state: "Up 视图", when: "business.isPriceRef", visual: "strip → 价格块 → 周期行 → `Last | Mark` + `Up | BTC price` → 蜡烛", source: "TradingCharts · SpotMobileStatsStrip · CandlestickChart" },
+    ],
+  },
+  {
+    key: "pro-contract-chart-mobile-underlying-view",
+    label: "CH-M3 · 手机 · BTC price 视图 · `Last | Mark` 置灰",
+    spec: [
+      { state: "标的视图", when: 'view === "underlying"', visual: "同 CH-D4；strip 不变", source: "CandlestickChart · showUnderlying" },
     ],
   },
 ];
@@ -876,11 +917,12 @@ export const ProTradeTerminalPage = (_: Props) => (
 
     <SectionWrapper
       id="pro-contract-chart"
-      title="① K 线 · Last | Mark 数据源切换（CH-D1 · CH-D2 · CH-M1）"
-      description="合约终端才有标记价：两段切换选画 Last 还是 Mark 蜡烛，一次一套（Binance / Bybit 同型）。现货终端无此切换。"
+      title="① K 线 · 产品层 Last | Mark × 业务层 Up | {ticker} price（CH-D1…D5 · CH-M1…M3）"
+      description="两层正交（rail-switch SOP 2026-10-16）：`Last | Mark` 跟 rail 走，合约有、现货无；`Up | {ticker} price` + Base/Open 副标题跟 event 类型走，价格参照型（加密 / 美股）有、体育 / 政治无。四格：Spot×价格参照 = 只有业务层（见 Pro Spot 节）；Contract×价格参照 = 两组并存（CH-D3/D4）；Contract×非价格 = 只有 Last | Mark（CH-D1/D2）；Spot×非价格 = 无开关。"
     >
       <SectionFrame cases={CONTRACT_CHART_CASES} device="desktop" minHeight={420} />
-      <SectionFrame cases={CONTRACT_CHART_MOBILE_CASES} device="mobile" minHeight={420} />
+      <SectionFrame cases={CONTRACT_CHART_BUSINESS_CASES} device="desktop" minHeight={460} />
+      <SectionFrame cases={CONTRACT_CHART_MOBILE_CASES} device="mobile" minHeight={480} />
     </SectionWrapper>
 
     <SectionWrapper

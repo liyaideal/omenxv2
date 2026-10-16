@@ -23,6 +23,8 @@ import { cn } from "@/lib/utils";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useTradeSideStore, tradeSideKey } from "@/stores/useTradeSideStore";
 import { getBinarySideLabels, isSingleMarketBinary } from "@/lib/eventUtils";
+import { useEventBusinessMeta } from "@/hooks/useEventBusinessMeta";
+import { SpotMobileStatsStrip } from "@/components/pro/ProSpotShared";
 
 const bottomTabs = ["Order Book", "Trades history", "Orders", "Positions"];
 
@@ -74,6 +76,8 @@ function TradingChartsContent({ selectedEvent, selectedOptionData, options }: Tr
   const noLabel = isBinary ? sideLabels.no : "No";
   // DK-1: resolved / in review / past freeze or end → dock collapses to one bar.
   const gate = useContractGate(selectedEvent);
+  // Rail-switch SOP (2026-10-16): business layer shared with /spot — strip + underlying candles.
+  const business = useEventBusinessMeta(selectedEvent.id, side === "buy" ? yesLabel : noLabel);
 
   // Mirror price for sell perspective (Yes-only model: Sell = 1 - p)
   const longPrice = parseFloat(selectedOptionData.price);
@@ -132,6 +136,8 @@ function TradingChartsContent({ selectedEvent, selectedOptionData, options }: Tr
 
   return (
     <div className="pb-40">
+      {/* Business layer: the same 32px stats strip as /spot (SP-2 §2), only for price-referenced events. */}
+      {business.isPriceRef && <SpotMobileStatsStrip t={business} />}
       {/* Price + Stats Row - Horizontal Layout */}
       <div className="flex items-center justify-between px-4 py-1.5 border-b border-border/20">
         {/* Left: Price Display */}
@@ -171,7 +177,13 @@ function TradingChartsContent({ selectedEvent, selectedOptionData, options }: Tr
       {/* Candlestick Chart */}
       {/* 09-24 Liya: +40px = the second toolbar row (series switch) so the candles keep their height. */}
       <div className="h-[490px]">
-        <CandlestickChart basePrice={longPrice} side={side} priceSource />
+        <CandlestickChart
+          basePrice={longPrice}
+          side={side}
+          priceSource
+          underlying={business.underlying ?? undefined}
+          initialTimeframe={business.kind === "quick" ? business.defaultTimeframe : undefined}
+        />
       </div>
 
       {/* Bottom Tabs */}

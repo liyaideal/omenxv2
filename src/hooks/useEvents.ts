@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { useActiveEvents, EventWithOptions, DatabaseEventOption } from "@/hooks/useActiveEvents";
 import { useRealtimePricesOptional } from "@/contexts/RealtimePricesContext";
-import { resolveYesSideOption } from "@/lib/eventUtils";
+import { resolveYesSideOption, isUpDownPriceEventId } from "@/lib/eventUtils";
 
 // Legacy types for compatibility
 export interface EventOption {
@@ -168,22 +168,26 @@ export const dbEventToTradingEvent = (event: EventWithOptions): TradingEvent => 
     tweetCount = 1847; // Mock current tweet count
   }
 
+  // Rail-switch SOP (2026-10-16): up/down events with a real base_price get their
+  // price from `useEventBusinessMeta`; the mock figures below are for legacy events only.
+  const priceRefEvent = isUpDownPriceEventId(event.id);
+
   // Crypto price-based events - ETH
-  if (event.id.includes('eth-') || event.id.includes('ethereum') || event.name.toLowerCase().includes('eth')) {
+  if (!priceRefEvent && (event.id.includes('eth-') || event.id.includes('ethereum') || event.name.toLowerCase().includes('eth'))) {
     currentPrice = '$3,456.78';
     priceChange24h = '+2.34%';
     if (!priceLabel) priceLabel = 'ETH/USD';
   }
 
   // Crypto price-based events - BTC
-  if (event.id.includes('btc-') || event.id.includes('bitcoin') || event.name.toLowerCase().includes('bitcoin')) {
+  if (!priceRefEvent && (event.id.includes('btc-') || event.id.includes('bitcoin') || event.name.toLowerCase().includes('bitcoin'))) {
     currentPrice = '$104,567.89';
     priceChange24h = '+1.56%';
     if (!priceLabel) priceLabel = 'BTC/USD';
   }
 
   // Stock market events - S&P 500
-  if (event.id.includes('sp500') || event.name.toLowerCase().includes('s&p')) {
+  if (!priceRefEvent && (event.id.includes('sp500') || event.name.toLowerCase().includes('s&p'))) {
     currentPrice = '6,234.56';
     priceChange24h = '+0.45%';
     if (!priceLabel) priceLabel = 'S&P 500';

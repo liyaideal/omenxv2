@@ -2318,3 +2318,15 @@ CPO 2026-10-13 方案 v0 D1–D12 + mock v1 M1–M8（桌面入口方案 A）。
 17. **桌面 `/notifications` 页头 = 内容页式标题行，不挂 DSH**：`Notifications` font-display 24/30 700 + 右侧 `Mark all read` 文字钮（`items-end`，钮 `pb-1`），容器 §4 标准 `max-w-7xl px-4 lg:px-6 py-10`，标题下 18px 接开场级 tab。本节第 4 / 第 9 条里"DSH v1 子页头"的说法作废——DSH 只给**父级不在顶栏**的深层页（§10 DSH v1 适用表），`/notifications` 的父级是顶栏铃铛，按「挂标准 header 的页不放页内返回件」规则不该有返回方钮。移动端 inner header 的返回箭头不变。
 18. **分页 = 桌面 `Load more`、移动自动加载，不做页码**：桌面列表底部 outline 钮（`rounded-[10px]`，加载中文字 `Loading more…` + disabled），每次 30，**按 tab 分页**（服务端按 category 过滤，Account 的 Load more 拿的是 30 条 Account）；移动端保留滑到底自动加载（拇指场景）。页码分页在 feed 里无意义（Leaderboard 已否过分页条）。
 19. **分类型保留期**：`trade.*`（Buy / Cash out 确认）**7 天**，其余 90 天——回执的正本在 Portfolio，消息中心不是账本。口径必须在文案里体现（CPO 2026-10-14）：Trading tab 到底句 `That's everything — results and Boost alerts from the last 90 days, Buy / Cash out confirmations from the last 7 days`；其他 tab `That's everything from the last 90 days`。
+
+## §Addendum 2026-10-16 · 图表头两层开关 · 产品层 × 业务层（rail-switch SOP，LOCKED）
+
+来源：CPO 2026-10-16 拍板 7 条（快轮搬到合约轨后 Pro `/trade` 丢了 `BTC price` 视图与 Base 副标题的复盘）。SOP 全文 `docs/design-contracts/rail-switch-sop.md`；字典 Pro Spot 节 CH-D3…D5 / CH-M2…M3；词典「Chart price-block subline」。
+
+1. **两层正交，各走各的开关**。产品层 = rail（Spot / Contract）：`Last | Mark`、杠杆 / Boost、保证金账户、mark 旗、费用行、结算函数——**只跟 rail 走**。业务层 = event 类型（crypto 快轮 / 美股日线 / 体育 / 政治 …）：标的 ticker、Base / Open 参考价、标的 K 线视图 `Up | {ticker} price`、参考线、价格块副标题、session 徽标、Up / Down 词、默认周期——**只跟 event 走，切 rail 一项都不能少**。Lite / Pro 是第三条正交轴，与前两条互不影响。
+2. **四格矩阵（工具栏右侧）**：Spot × 价格参照 = `[Up | {ticker} price]`；Contract × 价格参照 = `[Last | Mark]` + `[Up | {ticker} price]` 并排，产品层在左；Contract × 非价格 = `[Last | Mark]`；Spot × 非价格 = 无。两组都是 `bg-muted/50 rounded-md p-0.5` 胶囊、选中 `bg-muted`（SP-3-DT1 中性选择态）。
+3. **标的视图下产品层开关置灰**：`view === "underlying"` 时 `Last | Mark` 保持可见但 `opacity-40 pointer-events-none`（§Addendum 2026-09-09 Sell 无持仓档同一禁用写法），选中态保留，切回 share 视图恢复。标的价格没有 mark，隐藏会让用户以为功能丢了。
+4. **价格块副标题 = 业务层，两个 Pro 终端同一组件 `BaseSubline`**（SP-3-DT1：Base / Prior Close 只属于 chart price block 的 subline）：日线 `Base $X ⓘ · as of {本地 Thu 04:00} ({交易日 Oct 15} close)`，快轮 `Open $X ⓘ · {本地起}–{本地止}`（跨日 `Thu 08:00 – Fri 08:00`）；ⓘ = 结算规则整句。`flat = Down` 与无时钟的日期写法退役（R1 全站用户时间）。非价格参照事件不渲染。
+5. **移动端业务层 = `/spot` 的 32px stats strip 原件**（SP-2 §2 / FIX2）：合约 `/trade` Charts 对价格参照事件挂同一个 `SpotMobileStatsStrip`（左格词随事件 `OPEN` / `BASE`），页头不再显示 mock `Price`；两组开关放第二工具栏行（375 宽约 210px，不截断）。合约价格块（30px 数字 / Mark Price 行 / 右侧统计）不动。
+6. **默认周期跟业务层**：5m / 15m 快轮开 `1m`，1h / 4h 开 `5m`，1d 与日线保持图表自身默认。
+7. **单一来源**：以上字段全部出自 `useEventBusinessMeta(eventRow | eventId)`（`src/hooks/useEventBusinessMeta.ts`）；`useSpotTerminal` 与 `DesktopTrading` / `TradingCharts` 都从它取，禁止任一终端自己再拼 ticker / base / 时间。`useEvents` 里的 mock `Current Price` 不再给 up/down 事件赋值（`isUpDownPriceEventId`），桌面页头的实时胶囊也改读该 hook（视觉不变，显示 `{TICKER} $x`）。

@@ -660,7 +660,11 @@ export const spotMobileTitle = (t: SpotTerminal): string => {
 };
 
 /** 32 px two-cell stats strip — SP-2 mobile spot exception to the perp grid. */
-export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => {
+/** Business-layer fields the strip reads — `SpotTerminal` and `EventBusinessMeta` both satisfy it,
+ *  so the contract terminal mounts the same strip for price-referenced events (rail-switch SOP 2026-10-16). */
+export type StatsStripSource = Pick<SpotTerminal, "basePrice" | "cur" | "indicative" | "indicativePct" | "sessionTag" | "ticker"> & { baseWord?: "Base" | "Open" };
+
+export const SpotMobileStatsStrip = ({ t }: { t: StatsStripSource }) => {
   const stripRef = useRef<HTMLDivElement>(null);
   const [showPercent, setShowPercent] = useState(false);
 
@@ -681,7 +685,7 @@ export const SpotMobileStatsStrip = ({ t }: { t: SpotTerminal }) => {
     className="mx-3 my-2 h-8 flex items-center overflow-hidden rounded-md border border-border/40 bg-card"
   >
     <div data-spot-stats-cell="base" className="flex-1 min-w-0 flex items-center gap-1.5 px-2">
-      <span className="text-[10px] uppercase tracking-wide text-muted-foreground shrink-0">{tr("common.base")}</span>
+      <span className="text-[10px] uppercase tracking-wide text-muted-foreground shrink-0">{t.baseWord === "Open" ? "Open" : tr("common.base")}</span>
       <span className="text-[12px] font-mono shrink-0">
         {t.basePrice != null ? `${t.cur}${money2(t.basePrice)}` : "—"}
       </span>

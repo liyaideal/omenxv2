@@ -22,10 +22,13 @@ interface CandlestickChartProps {
   priceSource?: boolean;
   /** Up/down markets: `Share | {ticker}` view switch. The underlying view draws the asset
    *  price candles with the round's base line, which is what an up/down trader watches. */
-  underlying?: { ticker: string; basePrice: number; lastPrice?: number | null; /** Selected outcome word for the share view — `Up` / `Down`. */ shareLabel: string };
+  underlying?: { ticker: string; basePrice: number; lastPrice?: number | null; /** Selected outcome word for the share view — `Up` / `Down`. */ shareLabel: string; /** Word on the reference line: `Base` (daily) / `Open` (quick rounds). */ baseWord?: string };
   /** Style-guide only: initial switch positions. */
   previewSource?: "last" | "mark";
   previewView?: "share" | "underlying";
+  /** Business layer (rail-switch SOP 2026-10-16): timeframe the chart opens on — quick
+   *  rounds open on `1m`. Omitted → derived from `remainingDays` as before. */
+  initialTimeframe?: "1m" | "5m" | "15m" | "1H" | "4H" | "1D" | "ALL";
 }
 
 const TIMEFRAMES = ["1m", "5m", "15m", "1H", "4H", "1D", "ALL"] as const;
@@ -151,9 +154,12 @@ const calculateMA = (data: number[], period: number): number[] => {
   return result;
 };
 
-export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = "buy", onSeriesReady, priceSource = false, underlying, previewSource, previewView }: CandlestickChartProps) => {
-  const defaultTimeframe = getDefaultTimeframe(remainingDays);
+export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = "buy", onSeriesReady, priceSource = false, underlying, previewSource, previewView, initialTimeframe }: CandlestickChartProps) => {
+  const defaultTimeframe = initialTimeframe ?? getDefaultTimeframe(remainingDays);
   const [selectedTimeframe, setSelectedTimeframe] = useState<Timeframe>(defaultTimeframe);
+  useEffect(() => {
+    if (initialTimeframe) setSelectedTimeframe(initialTimeframe);
+  }, [initialTimeframe]);
   const [chartMode, setChartMode] = useState<"candle" | "line">("candle");
   // 研发问题 #3 · Liya 09-24: like Binance / Bybit, the chart draws ONE price series at a
   // time — `Last | Mark` picks the candle source (contract only). Up/down markets add a
@@ -287,8 +293,16 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = 
   // and the candle / line icon stays reachable.
   const switches = (
     <>
-      {priceSource && !showUnderlying && (
-        <div className="flex bg-muted/50 rounded-md p-0.5" role="group" aria-label="Price source">
+      {priceSource && (
+        // Product-layer switch. In the underlying view it stays visible but inert — the
+        // asset price has no mark (rail-switch SOP 2026-10-16, rule 4); same disabled
+        // grammar as the Sell-without-holding tier (§Addendum 2026-09-09).
+        <div
+          className={`flex bg-muted/50 rounded-md p-0.5 ${showUnderlying ? "opacity-40 pointer-events-none" : ""}`}
+          role="group"
+          aria-label="Price source"
+          aria-disabled={showUnderlying || undefined}
+        >
           {(["last", "mark"] as const).map((k) => (
             <button
               key={k}
@@ -535,7 +549,7 @@ export const CandlestickChart = ({ remainingDays = 25, basePrice = 0.12, side = 
                 className="absolute left-2 -translate-y-1/2 px-1.5 py-px rounded border border-border/60 bg-background/80 text-[10px] font-mono text-muted-foreground pointer-events-none"
                 style={{ top: `${(priceToY(underlying!.basePrice) / chartHeight) * 100}%` }}
               >
-                Base {fp(underlying!.basePrice)}
+                {underlying!.baseWord ?? "Base"} {fp(underlying!.basePrice)}
               </div>
             )}
             {highestCandleIndex >= 0 && (() => {
