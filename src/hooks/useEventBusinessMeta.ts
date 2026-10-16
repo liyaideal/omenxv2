@@ -34,6 +34,8 @@ export interface BusinessEventRow {
   start_date?: string | null;
   end_date?: string | null;
   side_labels?: unknown;
+  freeze_time?: string | null;
+  expected_settlement_time?: string | null;
 }
 
 export type BusinessKind = "quick" | "stock" | "none";
@@ -56,6 +58,12 @@ export interface EventBusinessMeta {
   baseWord: "Base" | "Open";
   /** Viewer-local time clause after the price: "as of Fri 04:00 (Oct 15 close)" / "14:05–14:10". */
   timeClause: string | null;
+  /** Short form for the mobile countdown row (375, zero-truncation): "15:30–15:45" / "Base Fri 04:00". */
+  mobileClause: string | null;
+  /** "Base: $307.33 · as of Fri 04:00 (Oct 15 close)" — first line of the mobile ⓘ popover. */
+  baseLine: string | null;
+  /** Local clock strings for the schedule popover (trading ends = freeze, or close when no freeze window). */
+  schedule: { tradingEnds: string | null; close: string | null; settle: string | null };
   /** Settle rule for the ⓘ next to the base price. */
   settleRule: string | null;
   /** Chart timeframe the page should open on (quick rounds: 5m/15m → 1m, 1h/4h → 5m, 1d → 15m). */
@@ -159,19 +167,34 @@ export const deriveBusinessMeta = (
   const end = row?.end_date ? new Date(row.end_date) : null;
 
   let timeClause: string | null = null;
+  let mobileClause: string | null = null;
   let settleRule: string | null = null;
   const baseWord: EventBusinessMeta["baseWord"] = kind === "quick" ? "Open" : "Base";
   if (isPriceRef && basePrice != null) {
     const px = `${cur}${money2(basePrice)}`;
     if (kind === "quick") {
       timeClause = roundWindowClause(start, end);
+      mobileClause = timeClause;
       settleRule = `Settles ${yesLabel} if ${ticker || "the price"} ends the round above ${px}. Equal or below settles ${noLabel}.`;
     } else {
       const prior = priorCloseInstant(end, market);
       timeClause = prior ? `as of ${formatLocalStamp(prior)} (${marketDateLabel(prior, market)} close)` : null;
+      mobileClause = prior ? `Base ${formatLocalStamp(prior)}` : null;
       settleRule = `Settles ${yesLabel} if ${ticker || "the price"} closes above ${px}. Equal or below settles ${noLabel}.`;
     }
   }
+
+  const freeze = row?.freeze_time ? new Date(row.freeze_time) : null;
+  const settle = row?.expected_settlement_time ? new Date(row.expected_settlement_time) : null;
+  const schedule = {
+    tradingEnds: freeze ? formatLocalTime(freeze) : end ? formatLocalTime(end) : null,
+    close: end ? formatLocalTime(end) : null,
+    settle: settle ? formatLocalTime(settle) : null,
+  };
+  const baseLine =
+    isPriceRef && basePrice != null && timeClause
+      ? `${baseWord}: ${cur}${money2(basePrice)} · ${timeClause}`
+      : null;
 
   return {
     kind,
@@ -187,6 +210,9 @@ export const deriveBusinessMeta = (
     noLabel,
     baseWord,
     timeClause,
+    mobileClause,
+    baseLine,
+    schedule,
     settleRule,
     defaultTimeframe: quickDefaultTimeframe(row?.id),
     underlying:
@@ -196,7 +222,7 @@ export const deriveBusinessMeta = (
   };
 };
 
-const SELECT = "id, name, event_subtype, base_price, start_date, end_date, side_labels";
+const SELECT = "id, name, event_subtype, base_price, start_date, end_date, side_labels, freeze_time, expected_settlement_time";
 
 /**
  * Business layer for an event. Pass a row when the page already has one

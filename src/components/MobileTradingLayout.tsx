@@ -16,6 +16,8 @@ import { isSingleMarketBinary } from "@/lib/eventUtils";
 import { MobileRiskIndicator } from "@/components/MobileRiskIndicator";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { useAuth } from "@/hooks/useAuth";
+import { useEventBusinessMeta } from "@/hooks/useEventBusinessMeta";
+import { ScheduleInfo } from "@/components/pro/ScheduleInfo";
 
 
 // Context for sharing trading state with child components
@@ -297,6 +299,11 @@ function PerpTradingLayout({
     getOptionsForEvent,
   } = useEvents(eventId);
 
+  // Rail-switch SOP (2026-10-16, mobile): the countdown row's business tail — round
+  // window / base time + ⓘ — comes from the same hook as /spot; null for other events.
+  const business = useEventBusinessMeta(selectedEvent?.id ?? null);
+  const scheduleTail = statsExtra ?? (business.isPriceRef ? <ScheduleInfo m={business} /> : undefined);
+
   // SL-P: fixture market row for sports fixtures (same model as desktop).
   const fixtureMarkets = useMemo(
     () => buildFixtureMarkets(selectedEvent, events, siblings, getOptionsForEvent),
@@ -404,7 +411,7 @@ function PerpTradingLayout({
         endTime={endTimeOverride ?? selectedEvent.endTime}
         countdownLabel={currentLine ? `${currentLine.caption} · ${countdownLabel ?? "Ends in"}` : countdownLabel}
         countdownUrgency={countdownUrgency}
-        statsExtra={statsExtra}
+        statsExtra={scheduleTail}
         eventInfo={eventInfo}
         backTo={backTo}
         onTitleClick={() => setEventSheetOpen(true)}

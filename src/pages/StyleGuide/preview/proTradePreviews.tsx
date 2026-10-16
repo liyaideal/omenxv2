@@ -23,6 +23,8 @@ import { CandlestickChart } from "@/components/CandlestickChart";
 import { ContractPriceBlock } from "@/components/pro/ContractPriceBlock";
 import { SpotMobileStatsStrip } from "@/components/pro/ProSpotShared";
 import { deriveBusinessMeta } from "@/hooks/useEventBusinessMeta";
+import { ScheduleInfo } from "@/components/pro/ScheduleInfo";
+import { MobileHeader } from "@/components/MobileHeader";
 import { SideChip } from "@/components/trading/SideChip";
 import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
 import { FUTURES_FEE_RATE, netWin } from "@/services/tradingService";
@@ -573,6 +575,7 @@ const quickRow = {
   start_date: "2026-10-16T07:30:00Z",
   end_date: "2026-10-16T07:45:00Z",
   side_labels: null,
+  expected_settlement_time: "2026-10-16T07:45:30Z",
 };
 const stockRow = {
   id: "us-tsla-updown-20261016",
@@ -582,6 +585,8 @@ const stockRow = {
   start_date: "2026-10-16T13:30:00Z",
   end_date: "2026-10-16T20:00:00Z",
   side_labels: null,
+  freeze_time: "2026-10-16T19:55:00Z",
+  expected_settlement_time: "2026-10-16T20:15:00Z",
 };
 const quickMeta = deriveBusinessMeta(quickRow, 82870.12);
 const stockMeta = deriveBusinessMeta(stockRow, 306.86);
@@ -633,5 +638,28 @@ export const ProContractChartMobileUnderlyingView = () => (
     <div className="flex-1 min-h-0">
       <CandlestickChart remainingDays={7} basePrice={0.5229} side="buy" priceSource underlying={quickMeta.underlying ?? undefined} previewView="underlying" initialTimeframe="1m" />
     </div>
+  </div>
+);
+
+/** CH-M4 · phone header countdown row × price-referenced — `· 15:30–15:45 ⓘ` (quick) / `· Base Fri 04:00 ⓘ` (stock). */
+export const ProContractMobileHeaderSchedule = () => (
+  <div style={{ width: 375 }} className="space-y-4">
+    <MobileHeader
+      title="Bitcoin — up or down?"
+      showBack
+      showLogo={false}
+      countdownText="00:09:46"
+      countdownUrgency="red"
+      statsExtra={<ScheduleInfo m={quickMeta} />}
+    />
+    <MobileHeader
+      title="TSLA · Up or down?"
+      showBack
+      showLogo={false}
+      countdownLabel="Trading ends in"
+      countdownText="11:42:51"
+      countdownUrgency="muted"
+      statsExtra={<ScheduleInfo m={stockMeta} />}
+    />
   </div>
 );

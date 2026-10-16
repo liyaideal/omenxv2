@@ -564,8 +564,8 @@ export const SpotBottomTabs = ({
 // -----------------------------------------------------------------
 // SP-2 · mobile helpers
 // -----------------------------------------------------------------
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ChevronDown, Info, Star, Share2 } from "lucide-react";
+import { ChevronDown, Star, Share2 } from "lucide-react";
+import { ScheduleInfo } from "@/components/pro/ScheduleInfo";
 import { MobileHeaderIconButton } from "@/components/MobileHeader";
 
 /** Adapter: the raw spot event row → the shared `TradingEvent` header shape. */
@@ -609,29 +609,9 @@ export const SpotHeaderActions = ({ t }: { t: SpotTerminal }) => (
 );
 
 /** Schedule ⓘ shown inline in the mobile header stats row. */
+/** Spot terminal's countdown-row tail — the shared ScheduleInfo fed with the spot hook's own clocks. */
 export const SpotScheduleInfo = ({ t }: { t: SpotTerminal }) => (
-  <Popover>
-    <PopoverTrigger asChild>
-      <button type="button" className="p-0.5 text-muted-foreground" aria-label={tr("spot.screen.pro_spot_sections.schedule_details")}>
-        <Info className="w-3.5 h-3.5" />
-      </button>
-    </PopoverTrigger>
-    <PopoverContent side="bottom" align="center" className="text-[11px] max-w-[280px] p-2">
-      {t.marketKey === "crypto" ? (
-        <div className="space-y-1">
-          <div><span className="text-muted-foreground">{tr("spot.screen.pro_spot_sections.trading_ends")}</span> {t.freezeEtOnly ?? "—"}</div>
-          <div><span className="text-muted-foreground">Payout:</span> ~{t.settleEtOnly ?? "—"}</div>
-        </div>
-      ) : (
-        <div className="space-y-1">
-          <div><span className="text-muted-foreground">{tr("spot.screen.pro_spot_sections.opens")}</span> after prior close (extended trading)</div>
-          <div><span className="text-muted-foreground">{tr("spot.screen.pro_spot_sections.trading_ends")}</span> {t.freezeEtOnly ?? "—"}</div>
-          <div><span className="text-muted-foreground">Official close:</span> {t.closeEtOnly ?? "—"} (settlement price)</div>
-          <div><span className="text-muted-foreground">Payout by:</span> ~{t.settleEtOnly ?? "—"}</div>
-        </div>
-      )}
-    </PopoverContent>
-  </Popover>
+  <ScheduleInfo m={t.business} schedule={{ tradingEnds: t.freezeEtOnly, close: t.closeEtOnly, settle: t.settleEtOnly }} />
 );
 
 /**

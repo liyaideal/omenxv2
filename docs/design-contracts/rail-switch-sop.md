@@ -35,6 +35,7 @@
 | Base / Open 参考线 + 右轴标签 | `underlying.basePrice` / `baseWord` | 同上 |
 | 价格块副标题 `Base $X ⓘ · as of …` / `Open $X ⓘ · 起–止` | `BaseSubline`（`baseWord` / `timeClause` / `settleRule`） | 同上；桌面两个 Pro 终端同一组件 |
 | 移动 32px stats strip | `SpotMobileStatsStrip t={meta}` | 同上；`/spot` 与 `/trade` 同一原件 |
+| 移动倒计时行时间子句 + ⓘ `· 15:30–15:45 ⓘ` / `· Base Fri 04:00 ⓘ` | `ScheduleInfo m={meta}`（`mobileClause` / `baseLine` / `settleRule` / `schedule`） | 同上；`/trade` 由 `MobileTradingLayout` 自动挂，`/spot` 经 `SpotScheduleInfo` |
 | 页头实时价胶囊 `{TICKER} $x` | `indicative` / `indicativePct` | 桌面 `/trade` 页头；`/spot` 页头 `ProSpotHeader` |
 | session 徽标 PRE / AH | `sessionTag` | stock |
 | Up / Down 词 | `yesLabel` / `noLabel` | 价格参照型 |
@@ -54,11 +55,11 @@
 
 1. **业务类型不变**：rail 切换不改 `event_subtype` / `base_price` / `start_date` / `end_date` / id 形状。
 2. **替换产品层**：按 §2 逐行换面板 / 账户 / 价格源 / 结算函数 / 路由。
-3. **保留业务层**：按 §3 逐行勾——新 rail 的页面是否把 `useEventBusinessMeta` 的每个字段都接上（桌面 `BaseSubline` + `underlying`；移动 strip + `underlying`；页头胶囊）。
+3. **保留业务层**：按 §3 逐行勾——新 rail 的页面是否把 `useEventBusinessMeta` 的每个字段都接上（桌面 `BaseSubline` + `underlying`；移动 strip + 倒计时行 `ScheduleInfo` + `underlying`；页头胶囊）。
 4. **四格核对**：目标格的工具栏按 §4 长什么样，截图对照。
 5. **style-guide**：目标格有新状态就加 case（Pro Spot 节 CH-D1…D5 / CH-M1…M3 是现成坐标），`npm run sg:audit` 过。
 6. **alex_carter 演示数据**：新 rail 上至少一张持仓 + 一张已结算历史。
-7. **验收**：逻辑取证（DOM 四个探针：`[data-base-subline]` / `[aria-label="Chart view"]` / `[aria-label="Price source"]` / `[data-spot-stats-strip]`）+ 设计师帽子视觉验收（桌面 1440 + 移动 375），两个 Pro 终端 + Lite 对等页都看。
+7. **验收**：逻辑取证（DOM 五个探针：`[data-base-subline]` / `[aria-label="Chart view"]` / `[aria-label="Price source"]` / `[data-spot-stats-strip]` / `[data-schedule-info]`）+ 设计师帽子视觉验收（桌面 1440 + 移动 375），两个 Pro 终端 + Lite 对等页都看。
 
 ## 6 · 禁止
 
@@ -69,4 +70,4 @@
 
 ## 7 · 坐标
 
-`src/hooks/useEventBusinessMeta.ts` · `src/components/pro/BaseSubline.tsx` · `src/components/pro/ContractPriceBlock.tsx` · `src/components/pro/ProSpotShared.tsx`（`SpotMobileStatsStrip` / `StatsStripSource`）· `src/components/CandlestickChart.tsx`（`underlying.baseWord` / `initialTimeframe` / 置灰）· `src/pages/DesktopTrading.tsx` · `src/pages/TradingCharts.tsx` · `src/pages/SpotTrading.tsx` · `src/hooks/useSpotTerminal.ts`（`business`）· `src/hooks/useEvents.ts`（`isUpDownPriceEventId` 守卫）· DESIGN.md §Addendum 2026-10-16 · `docs/copy-dictionary.md`「Chart price-block subline」。
+`src/hooks/useEventBusinessMeta.ts` · `src/components/pro/BaseSubline.tsx` · `src/components/pro/ContractPriceBlock.tsx` · `src/components/pro/ScheduleInfo.tsx` · `src/components/MobileTradingLayout.tsx`（`scheduleTail`） · `src/components/pro/ProSpotShared.tsx`（`SpotMobileStatsStrip` / `StatsStripSource`）· `src/components/CandlestickChart.tsx`（`underlying.baseWord` / `initialTimeframe` / 置灰）· `src/pages/DesktopTrading.tsx` · `src/pages/TradingCharts.tsx` · `src/pages/SpotTrading.tsx` · `src/hooks/useSpotTerminal.ts`（`business`）· `src/hooks/useEvents.ts`（`isUpDownPriceEventId` 守卫）· DESIGN.md §Addendum 2026-10-16 · `docs/copy-dictionary.md`「Chart price-block subline」。

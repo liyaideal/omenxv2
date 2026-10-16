@@ -483,6 +483,16 @@ const CONTRACT_CHART_MOBILE_CASES: SectionCase[] = [
       { state: "标的视图", when: 'view === "underlying"', visual: "同 CH-D4；strip 不变", source: "CandlestickChart · showUnderlying" },
     ],
   },
+  {
+    key: "pro-contract-mobile-header-schedule",
+    label: "CH-M4 · 手机页头倒计时行 × 价格参照型 · 时间子句 + ⓘ（CPO 2026-10-16 批）",
+    note: "桌面副标题在移动端没有位置，收进倒计时行：快轮 `· 15:30–15:45 ⓘ`，日线 `· Base Fri 04:00 ⓘ`（行上不带 `(Oct 15 close)`，375 放不下且零截断）；ⓘ 弹层三段 = Base/Open 整句（含交易日）· 结算规则 · Trading ends / Official close / Payout。`ScheduleInfo` 两个终端共用，/spot 的 `SpotScheduleInfo` 已改为它的壳（原来只有时间表）；/trade 由 `MobileTradingLayout` 对价格参照事件自动挂。非价格型事件倒计时行不变。",
+    spec: [
+      { state: "快轮", when: 'business.kind === "quick"', visual: "`● Ends in 00:09:46 · 16:00–16:15 ⓘ`", source: "MobileHeader statsExtra · ScheduleInfo" },
+      { state: "美股日线", when: 'business.kind === "stock"', visual: "`● Trading ends in 11:42:51 · Base Fri 04:00 ⓘ`，实测 343px 行宽不溢出", source: "ScheduleInfo · mobileClause" },
+      { state: "ⓘ 弹层", when: "点 ⓘ", visual: "`Base: $307.33 · as of Fri 04:00 (Oct 15 close)` / 结算规则 / 分隔线 / 时间表", source: "ScheduleInfo · baseLine / settleRule / schedule" },
+    ],
+  },
 ];
 
 const SIDE_CHIP_CASES: SectionCase[] = [
@@ -917,7 +927,7 @@ export const ProTradeTerminalPage = (_: Props) => (
 
     <SectionWrapper
       id="pro-contract-chart"
-      title="① K 线 · 产品层 Last | Mark × 业务层 Up | {ticker} price（CH-D1…D5 · CH-M1…M3）"
+      title="① K 线 · 产品层 Last | Mark × 业务层 Up | {ticker} price（CH-D1…D5 · CH-M1…M4）"
       description="两层正交（rail-switch SOP 2026-10-16）：`Last | Mark` 跟 rail 走，合约有、现货无；`Up | {ticker} price` + Base/Open 副标题跟 event 类型走，价格参照型（加密 / 美股）有、体育 / 政治无。四格：Spot×价格参照 = 只有业务层（见 Pro Spot 节）；Contract×价格参照 = 两组并存（CH-D3/D4）；Contract×非价格 = 只有 Last | Mark（CH-D1/D2）；Spot×非价格 = 无开关。"
     >
       <SectionFrame cases={CONTRACT_CHART_CASES} device="desktop" minHeight={420} />

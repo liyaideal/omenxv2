@@ -515,7 +515,7 @@ and stay as-is — they are a different noun from the selector label.
 | ⓘ tooltip | both | `Settles Up if {TICKER} closes above $X. Equal or below settles Down.` (quick rounds: `ends the round above`). |
 | **Retired** | — | `· Oct 12 close · flat = Down` — the tie rule moved into the ⓘ; dates without a clock are gone (R1 全站用户时间). |
 
-Mobile: the same facts live in the 32px stats strip (`OPEN` / `BASE` cell word follows the event kind); no subline.
+Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follows the event kind); the time clause goes on the header countdown row — `· 15:30–15:45 ⓘ` / `· Base Fri 04:00 ⓘ` — and the ⓘ popover carries the full `Base: $X · as of … (Oct 15 close)` line, the settle rule and the schedule rows. No `(Oct 15 close)` on the row itself (375 width, zero truncation).
 
 ### Table（5m / 15m 加密快轮 · 筹码上桌，2026-10-09 · 占位措辞）
 

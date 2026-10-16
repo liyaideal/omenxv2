@@ -411,6 +411,7 @@ export const previewRegistry: Record<string, Loader> = {
   "pro-contract-chart-stock": pick(proTrade, "ProContractChartStock"),
   "pro-contract-chart-mobile-underlying": pick(proTrade, "ProContractChartMobileUnderlying"),
   "pro-contract-chart-mobile-underlying-view": pick(proTrade, "ProContractChartMobileUnderlyingView"),
+  "pro-contract-mobile-header-schedule": pick(proTrade, "ProContractMobileHeaderSchedule"),
   "pro-side-chips": pick(proTrade, "ProSideChips"),
   "pro-contract-panel-buy": pick(proTrade, "ProContractPanelBuy"),
   "pro-contract-panel-buy-contracts": pick(proTrade, "ProContractPanelBuyContracts"),
