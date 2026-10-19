@@ -1,11 +1,15 @@
 // ============================================================
 // Quick-round TABLE mode — release switch (not a user toggle).
 //
-// Rule (Liya, 2026-10-09): order form follows the round length.
-//   5m / 15m  → Table (chip-on-the-table ordering)      ← this flag gates it
-//   1h / 4h / 1d → Classic quick page, untouched
-// While the flag is closed, 5m/15m keep rendering Classic — external users
-// see no change. Desktop only until the mobile Table ships.
+// 2026-10-19 (CPO): Table is NOT the 5m/15m form any more. After playing the
+// build, Liya judged the chip-on-the-table cadence fits 30s / 1m rounds, so
+// it moves to a separate quick-play zone (/arcade, spot wallet, no Boost —
+// see DESIGN.md §Addendum 2026-10-19). Every crypto quick round (5m … 1d)
+// renders Classic again. TABLE_TIMEFRAMES is therefore empty: the gate in
+// LiteQuickTrade never fires. The components under
+// src/components/lite/table stay — the arcade page is built on them.
+//
+// Original rule (2026-10-09, superseded): 5m / 15m → Table, 1h+ → Classic.
 //
 // Who sees Table while gated:
 //   • ?table=1 on the URL (sticks in localStorage for the session's browser)
@@ -14,13 +18,13 @@
 // ============================================================
 import type { Timeframe } from "@/components/lite/intraday/intradayData";
 
-export const TABLE_TIMEFRAMES: readonly Timeframe[] = ["5m", "15m"];
+export const TABLE_TIMEFRAMES: readonly Timeframe[] = [];
 export const isTableTimeframe = (tf: Timeframe) => TABLE_TIMEFRAMES.includes(tf);
 
 const LS_KEY = "omenx_table";
 const INTERNAL_USERNAMES = new Set(["alex_carter"]);
 
-/** Flip this to true to open Table to everyone on 5m/15m (step 2). */
+/** Dead while TABLE_TIMEFRAMES is empty; kept for the arcade round. */
 export const TABLE_PUBLIC = false;
 
 export const tableFlagFromUrl = () => {

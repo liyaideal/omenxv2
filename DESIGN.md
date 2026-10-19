@@ -2251,6 +2251,8 @@ Leaderboard 的分享弹窗移动端改走 `MobileDrawer`（§5 Overlays [LOCKED
 
 ## §Addendum 2026-10-09 · Lite Table（5m / 15m 加密快轮 · 筹码上桌下单，LOCKED · 内测）
 
+> **2026-10-19 更正（CPO）**：Table **不再是 5m / 15m 的下单形态**。实际体验后判定这套筹码节奏属于 30s / 1m 轮，改为单开「快玩专区」（`/arcade`，现货账户、无 Boost、平局退本金），加密快轮五档周期全部回到 Classic（合约面板不变）。本节第 1 条作废，`tableMode.ts` 的 `TABLE_TIMEFRAMES` 已清空；其余条目（筹码/翻面/路单/梯子等组件规范）作为专区的基础继续有效，专区规范另起 §Addendum 2026-10-19。
+
 来源：CPO 2026-10-09 拍板（独立原型 OmenX Table v23 + 比稿画布 H8）；规格 `docs/delivery/lite-table-spec-v1.md`；字典 Lite › Table TB-1…TB-6（`/style-guide` → 交易页 → Table）。**作用域**：`src/components/lite/table/*`、`src/pages/lite/LiteQuickTable.tsx`、`src/lib/tableMode.ts`、`src/lib/formatPrice.ts`、`src/components/lite/table/tableQuote.ts`。
 
 1. **形态跟着周期走，不是第三个 surface**：`5m / 15m`（未来 `1m`）在 Lite 下只有 Table，`1h / 4h / 1d` 只有 Classic；**没有用户开关**，Lite/Pro 开关、`/spot` 路由、Pro 终端、美股页全部不动。内测期由 `tableMode.ts` 发布开关控（`?table=1` / `alex_carter`），关着时外部用户看到的与今天完全一致。桌面专属；移动端 5m/15m 继续 Classic，直到 Table 移动版（按抽屉规范另做）验收。

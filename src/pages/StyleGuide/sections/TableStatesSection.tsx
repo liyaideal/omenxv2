@@ -123,7 +123,7 @@ export const TableStatesSection = () => (
   <SectionWrapper
     id="table-states"
     title="/spot · Table（5m / 15m 加密快轮 · 筹码上桌）· 状态字典（TB-1 … TB-6）"
-    description="下单形态跟着周期走：5m / 15m 只有 Table，1h 以上只有 Classic，无用户开关。四行动线 ① 看历史（路单）→ ② 看现在（舞台图 + 梯子）→ ③ 做决定（UP · 筹码×Boost · DOWN）→ ④ 看结果。桌面专属；内测期由 src/lib/tableMode.ts 控（?table=1 或 alex_carter）。文案全部占位，待合规措辞轮统一。"
+    description="2026-10-19 起 Table 不再挂 5m / 15m（全部回 Classic），组件转为快玩专区（/arcade · 30s / 1m · 现货账户 · 无 Boost）的基础；本节先保留 Boost 态直至专区轮重排。四行动线 ① 看历史（路单）→ ② 看现在（舞台图 + 梯子）→ ③ 做决定（UP · 筹码×Boost · DOWN）→ ④ 看结果。桌面专属；内测期由 src/lib/tableMode.ts 控（?table=1 或 alex_carter）。文案全部占位，待合规措辞轮统一。"
   >
     <div className="rounded-lg border border-[#FF8A3D]/30 bg-[#FF8A3D]/5 px-3 py-2 text-[12px] text-foreground">
       交互契约：落筹 = 1.5s 待发可撤（无 Confirm）· 一轮一仓、反向落筹 = 翻面（先平后开）· 每枚筹码各自 Boost、同向合并一仓 · 结算期落筹排下一轮 · 加密轮无封盘秒数。
