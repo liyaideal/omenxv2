@@ -591,6 +591,16 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     md.style.top = Math.max(10, Math.min(H - 10, Math.abs(y - H / 2) < 14 ? (diff >= 0 ? H / 2 - 16 : H / 2 + 16) : y)) + "px";
     md.textContent = `${diff >= 0 ? "▲ +" : "▼ −"}${Math.abs(diff).toFixed(2)}`;
     md.style.color = diff >= 0 ? C.up : C.dn;
+    const zl = mb.querySelector(".zl");
+    if (zl) {
+      const a = md.getBoundingClientRect(),
+        b = zl.getBoundingClientRect();
+      if (a.height && !(a.bottom < b.top || a.top > b.bottom)) {
+        const cur = parseFloat(md.style.top) || H / 2,
+          shift = diff >= 0 ? -(a.bottom - b.top + 3) : b.bottom - a.top + 3;
+        md.style.top = Math.max(4, Math.min(H - 4, cur + shift)) + "px";
+      }
+    }
   }
 
   /* ---------- history: resolved rounds of this table drive bead, road, stats ----------
@@ -722,7 +732,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     lp.textContent = signed(sum);
     lp.classList.toggle("neg", sum < 0);
     const mp = $("#mPeekS");
-    if (mp) mp.innerHTML = `Last 10 <b style="color:${sum < 0 ? "var(--hot)" : "var(--lime)"};font-weight:600">${signed(sum)}</b>`;
+    if (mp) mp.innerHTML = `<b style="color:${sum < 0 ? "var(--hot)" : "var(--lime)"};font-weight:600" title="Your last 10 rounds">${(sum < 0 ? "−" : "+") + whole(sum)}</b>`;
     const mt = $("#mPeekTicks");
     if (mt) mt.innerHTML = $("#ticks").innerHTML;
   }
@@ -1115,6 +1125,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         cls = "hold";
         txt = `${whole(S.pos.margin)} in · wins +${whole(toWin())} if ${SIDE(sd)}`;
       } else if (opp) txt = ARCADE_FLIP === "net" ? `You're on ${SIDE(S.pos.side)} · a chip here comes off it` : `You hold ${SIDE(S.pos.side)} · a chip here flips it`;
+      else if (S.closed) txt = "Market closed";
       else {
         const px = cents()[sd] / 100,
           sh = Math.max(1, Math.floor((S.chip - fee(S.chip)) / px));
@@ -1131,7 +1142,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       ls = $("#rLiveS");
     if (S.pos) {
       const Pp = S.pos;
-      n.textContent = `${SIDE(Pp.side)} · ${whole(Pp.margin)} on the table`;
+      n.textContent = api.isMobile ? `${SIDE(Pp.side)} · ${whole(Pp.margin)} in` : `${SIDE(Pp.side)} · ${whole(Pp.margin)} on the table`;
       n.className = "n " + (Pp.side === "u" ? "cu" : "cd");
       const fl = S.pend.filter((x: any) => x.side !== Pp.side),
         fs = fl.reduce((a: number, x: any) => a + x.margin, 0);
@@ -1531,6 +1542,16 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       if (S.closed) {
         $("#closedS").textContent = `${a.name} rounds run during the US cash session only. Crypto tables are open 24/7.`;
         $("#closedN").textContent = nextUsSessionText();
+        if (!S.round) {
+          // no round to label — never show the markup's sample numbers
+          $("#titleOpen").textContent = "—";
+          $("#win").textContent = `opens ${nextUsSessionText()}`;
+          $("#roundLbl").textContent = ROUND_NAMES[S.dur];
+          ["#cU", "#cD"].forEach((q) => ($(q).textContent = "—"));
+          ["#paysU", "#paysD"].forEach((q) => ($(q).textContent = "Market closed"));
+          const bq = $("#betQuote");
+          if (bq) bq.textContent = `${whole(S.chip)} SELECTED`;
+        }
       }
     }
     ["#btnU", "#btnD"].forEach((q) => {
@@ -1828,13 +1849,28 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     });
   })();
   $("#shAva").src = api.avatarUrl || SPR.lynx[0];
-  const shName = $("#shName");
-  if (shName) shName.textContent = api.username;
-  const shRef = $("#shRef");
-  if (shRef) shRef.textContent = api.referralLink.split("/").pop() || "";
+  function fillShareIdentity() {
+    const shName = $("#shName");
+    if (shName) shName.textContent = api.username;
+    $("#shAva").src = api.avatarUrl || SPR.lynx[0];
+    const shRef = $("#shRef");
+    if (shRef) {
+      let code = "";
+      try {
+        code = new URL(api.referralLink).searchParams.get("ref") || "";
+      } catch {
+        code = "";
+      }
+      shRef.textContent = code || "—";
+      const line = shRef.closest(".ref") as HTMLElement | null;
+      if (line) line.style.visibility = code ? "" : "hidden";
+    }
+  }
+  fillShareIdentity();
   function openShare() {
     const D = shareData();
     if (!D) return;
+    fillShareIdentity();
     shLive = !!D.live;
     shArtWin = null;
     renderShare();

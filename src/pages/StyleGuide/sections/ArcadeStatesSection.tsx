@@ -55,7 +55,7 @@ const MOBILE: SectionCase[] = [
     key: "arcade-ar4",
     label: "AR-4 · 移动版（一屏 + 抽屉）",
     note:
-      "设计师的抽屉版 1:1：全屏（无站点 header / footer），机柜占满视口不滚动，右上 ✕ 回 Events；顶部题目 → 币种 / 周期 → 舞台（价格 + 倒计时 + 图 + 梯子）→ `ROAD & STATS` 窥条（最近 10 局 + 合计，上滑 / 点开抽屉：珠盘、大路、统计、Today、猫）→ This round / Live / Share / Cash out → 筹码盘 → UP / DOWN 两大键。弹层（Cash out / Share / Orders）都在壳内从底部升起。",
+      "设计师的抽屉版 1:1：全屏（无站点 header / footer），机柜占满视口不滚动，右上 ✕ 回 Events；顶部题目 → 币种 / 周期 → 舞台（价格 + 倒计时 + 图 + 梯子）→ `ROAD & STATS` 窥条（最近 10 局 + 合计，上滑 / 点开抽屉：珠盘、大路、统计、Today、猫）→ This round / Live / Share / Cash out → 筹码盘 → UP / DOWN 两大键。弹层（Cash out / Share / Orders）都在壳内从底部升起。360 / 375 走查后（2026-10-19）：Available 标签在上数字在下；THIS ROUND 有 ORDERS 徽标时省掉标签字、大字短式 `Up · $10 in`；窥条合计整元；梯子涨跌标签避让 OPEN；盘外不露样例数。",
     spec: [
       { state: "窥条", when: "always", visual: "`ROAD & STATS` + 10 格 ✓✕ + `Last 10 ±$X`；aria-expanded 跟抽屉", source: "mobileSheet · renderTicks" },
       { state: "抽屉开", when: "peek tap / swipe up", visual: "半屏钢板 sheet，拖把手下拉 80px 关闭，Esc 关闭", source: "mobileSheet" },

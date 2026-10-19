@@ -140,3 +140,17 @@
 .arcade-root .r4 .big{display:contents}
 .arcade-root .r4 .big .s{grid-area:1/2;justify-self:end;min-width:0;max-width:100%;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px;line-height:1}
 .arcade-root .r4 .big .n{grid-area:2/1/3/3;height:28px;display:flex;align-items:center;min-width:0;overflow:hidden;text-overflow:ellipsis}
+
+/* mobile walkthrough fixes (CPO 2026-10-19, live-site pass at 360 / 375): balance plate stacks label over value so a
+   five-digit balance fits; THIS ROUND drops its label text when the ORDERS chip is showing and the value is the short
+   form (`Up · $10 in`); Share / Cash out keys are fixed-width single-line; peek sum is whole dollars; the meter's diff
+   label is right-aligned inside the meter so a four-digit move never pokes past the panel edge. */
+.arcade-root .m-app .eqscr{flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;padding:0 10px}
+.arcade-root .m-app .eqscr .lbl{font-size:10px;letter-spacing:1px}
+.arcade-root .m-app .eqscr strong{font-size:20px;line-height:1;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.arcade-root .m-pos{grid-template-columns:minmax(0,1.55fr) minmax(0,1fr) 52px 78px}
+.arcade-root .m-pos .big .n{font-size:17px}
+.arcade-root .m-pos .act,.arcade-root .m-pos #cashBtn{width:auto;font-size:13px;white-space:nowrap;padding:0 2px;letter-spacing:0}
+.arcade-root .m-pos .lbl:has(.ordbtn:not([hidden])) .lbltxt{display:none}
+.arcade-root .m-app .m-meter .mdiff{left:auto;right:0;text-align:right;white-space:nowrap}
+.arcade-root .m-app .m-meter .zl{white-space:nowrap}
