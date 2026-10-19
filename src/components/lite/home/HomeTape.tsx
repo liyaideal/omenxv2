@@ -1,9 +1,11 @@
 // ============================================================
 // HOME TAPE (HP-1) — one-line quote strip above the hero.
-// Data comes ONLY from the two streams the page already runs:
-//   crypto  = intraday quick-round spot stream (currentFor)
+// Data comes from the streams the page already runs:
+//   crypto  = the Quick Play price stream when it has an open round (the same
+//             print the quick rounds / cabinet / banner show — one BTC price
+//             on the site, CPO 2026-10-19), else the quick-round open + odds skew
 //   equity  = daily stock rounds (usStockSessions pricing)
-// No polling of its own, no external quote dependency.
+// No external quote dependency.
 // ============================================================
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -39,6 +41,7 @@ export const buildTapeItems = (
   tf: string,
   stockRows: StockEventRow[],
   tickSeconds: number,
+  live: Record<string, number | undefined> = {},
 ): TapeItem[] => {
   const out: TapeItem[] = [];
 
@@ -49,12 +52,14 @@ export const buildTapeItems = (
       null;
     if (!ev || ev.base_price == null) continue;
     const up = upOptionOf(ev);
-    const price = derivedPrice(
-      ev.base_price,
-      up ? up.price : 0.5,
-      seedFromId(ev.id),
-      tickSeconds,
-    );
+    const price =
+      live[COIN_META[coin].ticker] ??
+      derivedPrice(
+        ev.base_price,
+        up ? up.price : 0.5,
+        seedFromId(ev.id),
+        tickSeconds,
+      );
     if (price == null) continue;
     out.push({
       key: coin,

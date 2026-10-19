@@ -8,6 +8,7 @@ import { useMarketListData } from "@/hooks/useMarketListData";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { MobileHeader } from "@/components/MobileHeader";
 import { ArcadeEntryBanner } from "@/components/lite/arcade/ArcadeEntryBanner";
+import { useArcadeLivePrices } from "@/components/lite/arcade/useArcadeLivePrices";
 import { BottomNav } from "@/components/BottomNav";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
@@ -450,9 +451,10 @@ const LiteEventsPage = () => {
   };
 
 
+  const livePrices = useArcadeLivePrices();
   const tapeItems = useMemo(
-    () => buildTapeItems(currentFor, mobileTf, stockRows, tickSeconds),
-    [currentFor, mobileTf, stockRows, tickSeconds],
+    () => buildTapeItems(currentFor, mobileTf, stockRows, tickSeconds, livePrices),
+    [currentFor, mobileTf, stockRows, tickSeconds, livePrices],
   );
   const tapeLoading =
     (roundsLoading && currentFor.size === 0) || (stocksLoading && stockRows.length === 0);
