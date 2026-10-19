@@ -22,7 +22,7 @@
 //   the implied price and opens the remainder on the other side — exactly what
 //   every other spot trade on the platform does; "close-then-open" (sell the
 //   held leg in full, then buy) stays available behind the constant
-//   30s rounds: no cash out · 1m rounds: cash out (sell) any time before close
+//   cash out (sell at the live share price) any time before the close, 30s and 1m alike (CPO 2026-10-19: no need to limit it)
 //   close == open → void, stakes returned (server) · stocks outside the US
 //   cash session: table closed, chips bounce
 // ============================================================
@@ -1160,8 +1160,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       ls.textContent = "";
     }
     const cb = $("#cashBtn");
-    cb.disabled = !S.pos || S.dur < 60 || S.busy;
-    cb.title = S.dur < 60 ? "Cash out is available on 1m rounds" : "";
+    cb.disabled = !S.pos || S.busy;
+    cb.title = "";
     $("#shareBtn").disabled = !(S.pos || S.shareLast);
     const ob = $("#ordBtn");
     ob.hidden = !S.orders.length;
@@ -1553,7 +1553,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   function rulesHtml() {
     const a = ARCADE_ASSETS[S.asset],
       n = S.dur < 60 ? "30-second" : "1-minute";
-    return `<b>How a ${n} round settles</b><br>Every chip buys <b>Up</b> or <b>Down</b> shares at the price shown (e.g. 59¢). A share pays <b>$1.00</b> if your side wins, <b>$0</b> if not.<br><b>Up</b> wins when ${S.asset} closes the round above the open <b>${money(S.open)}</b>; <b>Down</b> wins when it closes below.<br>Closes <b>exactly at the open</b> → round void, every stake returned.<br>${a.kind === "stock" ? "Halted or outside the US cash session (09:30–16:00 ET) → round void, stakes returned.<br>" : ""}${S.dur < 60 ? "No cash out on 30s rounds — hold to the close." : "Cash out any time before the close at the live share price."}<span class="k">SPOT ACCOUNT · NO BOOST · MAX LOSS = YOUR STAKE · FEE 0.15% · 5% ON WINNINGS</span>`;
+    return `<b>How a ${n} round settles</b><br>Every chip buys <b>Up</b> or <b>Down</b> shares at the price shown (e.g. 59¢). A share pays <b>$1.00</b> if your side wins, <b>$0</b> if not.<br><b>Up</b> wins when ${S.asset} closes the round above the open <b>${money(S.open)}</b>; <b>Down</b> wins when it closes below.<br>Closes <b>exactly at the open</b> → round void, every stake returned.<br>${a.kind === "stock" ? "Halted or outside the US cash session (09:30–16:00 ET) → round void, stakes returned.<br>" : ""}Cash out any time before the close at the live share price.<span class="k">SPOT ACCOUNT · NO BOOST · MAX LOSS = YOUR STAKE · FEE 0.15% · 5% ON WINNINGS</span>`;
   }
   (function rulesInit() {
     const i = $("#rulesI"),

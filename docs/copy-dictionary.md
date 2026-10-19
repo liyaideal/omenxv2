@@ -535,7 +535,7 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 | **Up · $25 on the table** | 记分板 This round | 副行 `146 sh @ 17.0¢ · value $24.82` |
 | **Nothing on the table** | 记分板空态 | |
 | **Round void · closed exactly at the open · $25 returned to Spot** | toast | 停牌版 `market halted` |
-| **Cash out ≈ $X** | 弹层主键 | 30s 轮键禁用 + title `Cash out is available on 1m rounds` |
+| **Cash out ≈ $X** | 弹层主键 | 30s / 1m 都可（CPO 2026-10-19 放开） |
 | **MARKET CLOSED · Mon 09:30 ET · in 10h 27m** | 股票桌盘外遮罩 | 副句 `Apple rounds run during the US cash session only. Crypto tables are open 24/7.` |
 | **Sign in to play** | 未登录落筹 toast | 同时弹 AuthDialog |
 | **Not enough Spot balance** | 余额不足 | |

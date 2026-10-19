@@ -17,7 +17,7 @@ const CABINET: SectionCase[] = [
     note:
       "四行动线不变：① 路单（珠盘 + 大路 + 统计，赌场标准画法：珠盘一列 6 格留最近 6 列、虚线格 = 下一局落点；大路同结果向下堆 6 行、变结果右开新列、到底或被挡向右拐龙尾，相邻列永不同色）→ ② 舞台（价格线 + 梯子 + 倒计时）→ ③ UP / 筹码 / DOWN → ④ 记分板。价格线是确定性路径（服务端同一算法），Up/Down 价格由「偏离 ÷ 剩余时间」的 tanh 曲线给出。UP/DOWN 底注写成当前筹码的结果 `$25 in → win +$X if Up`，不写份额。",
     spec: [
-      { state: "题目", when: "always", visual: "`Will BTC close above $open?` + ⓘ（规则弹层：份额、判定、平局作废、30s 无 Cash out、SPOT · NO BOOST）；副行本轮起止（本地时间）", source: "arcadeEngine · labelRound / rulesHtml" },
+      { state: "题目", when: "always", visual: "`Will BTC close above $open?` + ⓘ（规则弹层：份额、判定、平局作废、随时可 Cash out、SPOT · NO BOOST）；副行本轮起止（本地时间）", source: "arcadeEngine · labelRound / rulesHtml" },
       { state: "Available", when: "always", visual: "现货账户余额，下单 / 回款时 700ms 滚数 + bump", source: "api.getBalance · eqTo" },
       { state: "币种 / 周期", when: "always", visual: "CRYPTO ▾ / STOCK 两键（当前类目显示币种 + 下拉），30s / 1m 两键；股票时 30s 禁用", source: "renderCats · applyMarket" },
       { state: "筹码盘", when: "always", visual: "`YOUR STAKE · USD PER CHIP` + `$25 SELECTED`；$10/25/50/100/500，带 $ 前缀，选中黄绿摆动", source: "selectChip" },
@@ -28,12 +28,12 @@ const CABINET: SectionCase[] = [
     key: "arcade-ar2",
     label: "AR-2 · 持仓中（$25 on Up · 21 秒）",
     note:
-      "落筹 1.5s 待发环（点筹码撤回）→ 现货市价买入（executeSpotTrade，手续费从筹码里扣，份额 = ⌊(筹码 − 费)/价⌋）。持仓格显示筹码堆 + `Position $25`；底注 `$25 in · wins +$121 if Up`；对侧底注 `You're on Up · a chip here comes off it`（反向落筹 = 净额冲减，toast 说人话、只讲钱：`$25 on Down · $24 off your Up · $54 still on`）。**机柜内不出现 sh / 份额数**（CPO：正常人看不懂）——份额一律换算成钱：N 份 = `wins $N if Up`；记分板副行 `in at 27.6¢ · worth $612 now`。记分板：This round / Live（实时盈亏 + 赢了拿多少）/ Today；30s 轮 Cash out 禁用。",
+      "落筹 1.5s 待发环（点筹码撤回）→ 现货市价买入（executeSpotTrade，手续费从筹码里扣，份额 = ⌊(筹码 − 费)/价⌋）。持仓格显示筹码堆 + `Position $25`；底注 `$25 in · wins +$121 if Up`；对侧底注 `You're on Up · a chip here comes off it`（反向落筹 = 净额冲减，toast 说人话、只讲钱：`$25 on Down · $24 off your Up · $54 still on`）。**机柜内不出现 sh / 份额数**（CPO：正常人看不懂）——份额一律换算成钱：N 份 = `wins $N if Up`；记分板副行 `in at 27.6¢ · worth $612 now`。记分板：This round / Live（实时盈亏 + 赢了拿多少）/ Today；Cash out 30s / 1m 都能点（CPO 2026-10-19 放开）。",
     spec: [
       { state: "待发", when: "pend.length", visual: "按钮上 40px 环 1.5s 倒数 + 筹码；底注 `Filling $25 · tap chip to cancel`", source: "place / cancelPend" },
       { state: "持仓", when: "pos.side === side", visual: "held 态：筹码堆（最近 4 枚）+ Position 徽标；底注 `$25 in · wins +$121 if Up`", source: "renderButtons" },
       { state: "反向落筹 = 净额冲减", when: "pos && chip on the other side", visual: "底注 `Nets $25 against your Up · tap chip to cancel`；成交 = executeSpotTrade 按隐含价份额对份额减持仓、余量开对面（ARCADE_FLIP = net，与平台现货一致）", source: "fill" },
-      { state: "Cash out", when: "pos && tf === 1m", visual: "红键可点 → 25 / 50 / 100% 滑杆弹层 → 现货 SELL；30s 轮禁用 + title 说明", source: "openCo / cashOut" },
+      { state: "Cash out", when: "pos（30s / 1m 都可）", visual: "红键可点 → 25 / 50 / 100% 滑杆弹层 → 现货 SELL，按当前份额价结已实现盈亏", source: "openCo / cashOut" },
       { state: "结算", when: "clock hits 0", visual: "赢：金币雨 + 涨落数字 splash + 猫欢呼；输：红闪 + 抖动 + 猫丧；路单弹入新格；服务端 ≤30s 内入账", source: "settle / settlePosition" },
     ],
   },
@@ -104,7 +104,7 @@ export const ArcadeStatesSection = () => (
     description="2026-10-19 CPO 拍板：Table 形态离开 5m / 15m 页，成为独立快玩专区。加密 BTC / ETH / SOL 30s + 1m 全天；美股 AAPL / NVDA / TSLA / COIN 1m 只在美国现金时段。现货账户、无 Boost、平局退本金、停牌作废。第三种页面类型：全屏游戏页，无站点 header / footer，机柜自带 ✕ 出口。设计师机柜（artifact BKHuHJvFkzeLXQxLWBHxSF）1:1 搬入，只换数据缝：轮次 / 价格 = public.arcade_rounds + 确定性路径（SQL 与 JS 同一算法），下单 = executeSpotTrade。字体自托管 public/fonts/arcade。文案占位，待措辞轮。"
   >
     <div className="rounded-lg border border-[#FF8A3D]/30 bg-[#FF8A3D]/5 px-3 py-2 text-[12px] text-foreground">
-      交互契约：落筹 = 1.5s 待发可撤（无 Confirm）· 一轮一仓、同向加仓 · 反向落筹 = 净额冲减（<code className="font-mono">ARCADE_FLIP = net</code>，与平台现货一致）· 30s 无 Cash out，1m 可 · 结算由
+      交互契约：落筹 = 1.5s 待发可撤（无 Confirm）· 一轮一仓、同向加仓 · 反向落筹 = 净额冲减（<code className="font-mono">ARCADE_FLIP = net</code>，与平台现货一致）· Cash out 30s / 1m 都可（CPO 2026-10-19 放开） · 结算由
       <code className="font-mono"> roll_arcade_rounds</code>（pg_cron 每 30s）按 option_id 结现货仓（<code className="font-mono">settle_arcade_round</code>，migration <code className="font-mono">20261019120000</code>），
       客户端用同一路径先行开奖、≤30s 内服务端入账。
     </div>
