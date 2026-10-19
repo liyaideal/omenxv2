@@ -529,8 +529,8 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 | **YOUR STAKE · USD PER CHIP** / **$25 SELECTED** | 筹码盘标头 | 用户得知道这块是下单金额 |
 | **$25 in → win +$17 if Up** | UP / DOWN 底注（空桌） | 按当前筹码算；不写 Pays $1.00 / share |
 | **Filling $25 · tap chip to cancel** | 底注（待发 1.5s） | 同向加仓 `+$25 · tap chip to cancel` |
-| **Nets $25 against your Up · tap chip to cancel** | 底注（反向待发） | 成交后 toast `Down · $25 in · netted against your Up → Up reduced by 24 sh · 54 sh left`（或 `Up closed · Down 18 sh opened`） |
-| **You hold Up · a chip here nets against it** | 对侧底注（持仓中） | 净额冲减 = 平台现货统一逻辑（CPO 2026-10-19） |
+| **$25 comes off your Up · tap chip to cancel** | 底注（反向待发） | 成交后 toast 说人话、只讲现在手里有什么（CPO 2026-10-19）：`$25 on Down · 24 sh off your Up · 54 sh still on` / `$25 on Down · Your Up is closed · the rest went Down · 18 sh` / `$25 on Down · Your Up is closed · nothing on the table`；不写 netted / reduced by |
+| **You're on Up · a chip here comes off it** | 对侧底注（持仓中） | 净额冲减 = 平台现货统一逻辑（CPO 2026-10-19）；措辞不露 net |
 | **146 sh · to win +$121** | 持仓底注 | sh = shares 缩写，机柜内允许 |
 | **Up · $25 on the table** | 记分板 This round | 副行 `146 sh @ 17.0¢ · value $24.82` |
 | **Nothing on the table** | 记分板空态 | |

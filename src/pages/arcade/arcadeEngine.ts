@@ -904,10 +904,11 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         const h = await api.loadHolding(round);
         S.pos = h;
         const reduced = Math.min(before, sh);
-        const txt = h && h.side === p.side ? `${SIDE(was)} closed · ${SIDE(p.side)} ${h.sh} sh opened` : h ? `${SIDE(was)} reduced by ${reduced} sh · ${h.sh} sh left` : `${SIDE(was)} closed`;
+        // plain words (CPO 2026-10-19): say what the player now holds, not the netting mechanics
+        const txt = h && h.side === p.side ? `Your ${SIDE(was)} is closed · the rest went ${SIDE(p.side)} · ${h.sh} sh` : h ? `${reduced} sh off your ${SIDE(was)} · ${h.sh} sh still on` : `Your ${SIDE(was)} is closed · nothing on the table`;
         S.marks.push({ s: p.side, t: now(), p: S.price });
-        logOrder({ k: "flip", side: p.side, txt: `${p.side === "u" ? "↑" : "↓"} ${SIDE(p.side)} · ${whole(p.margin)} netted · ${txt}` });
-        toast(`${SIDE(p.side)} · ${whole(p.margin)} in · netted against your ${SIDE(was)} → ${txt}`);
+        logOrder({ k: "flip", side: p.side, txt: `${p.side === "u" ? "↑" : "↓"} ${whole(p.margin)} on ${SIDE(p.side)} · ${txt}` });
+        toast(`${whole(p.margin)} on ${SIDE(p.side)} · ${txt}`);
         const to = center(btn),
           col = p.side === "u" ? C.up : C.dn;
         press(btn);
@@ -1108,12 +1109,12 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         cls = "";
       if (pend.length) {
         cls = "fill";
-        txt = opp ? (ARCADE_FLIP === "net" ? `Nets ${whole(sum)} against your ${SIDE(S.pos.side)} · tap chip to cancel` : `Flip to ${SIDE(sd)} · ${whole(sum)} · tap chip to cancel`) : `Filling ${whole(sum)} · tap chip to cancel`;
+        txt = opp ? (ARCADE_FLIP === "net" ? `${whole(sum)} comes off your ${SIDE(S.pos.side)} · tap chip to cancel` : `Flip to ${SIDE(sd)} · ${whole(sum)} · tap chip to cancel`) : `Filling ${whole(sum)} · tap chip to cancel`;
         if (held) txt = `+${whole(sum)} · tap chip to cancel`;
       } else if (held) {
         cls = "hold";
         txt = `${S.pos.sh} sh · to win +${whole(toWin())}`;
-      } else if (opp) txt = ARCADE_FLIP === "net" ? `You hold ${SIDE(S.pos.side)} · a chip here nets against it` : `You hold ${SIDE(S.pos.side)} · a chip here flips it`;
+      } else if (opp) txt = ARCADE_FLIP === "net" ? `You're on ${SIDE(S.pos.side)} · a chip here comes off it` : `You hold ${SIDE(S.pos.side)} · a chip here flips it`;
       else {
         const px = cents()[sd] / 100,
           sh = Math.max(1, Math.floor((S.chip - fee(S.chip)) / px));

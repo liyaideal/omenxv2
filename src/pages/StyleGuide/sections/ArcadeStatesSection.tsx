@@ -28,7 +28,7 @@ const CABINET: SectionCase[] = [
     key: "arcade-ar2",
     label: "AR-2 · 持仓中（Up 146 sh · 21 秒）",
     note:
-      "落筹 1.5s 待发环（点筹码撤回）→ 现货市价买入（executeSpotTrade，手续费从筹码里扣，份额 = ⌊(筹码 − 费)/价⌋）。持仓格显示筹码堆 + `Position $25`；底注 `146 sh · to win +$121`；对侧底注 `You hold Up · a chip here flips it`。记分板：This round / Live（实时盈亏 + 赢了拿多少）/ Today；30s 轮 Cash out 禁用。",
+      "落筹 1.5s 待发环（点筹码撤回）→ 现货市价买入（executeSpotTrade，手续费从筹码里扣，份额 = ⌊(筹码 − 费)/价⌋）。持仓格显示筹码堆 + `Position $25`；底注 `146 sh · to win +$121`；对侧底注 `You're on Up · a chip here comes off it`（反向落筹 = 净额冲减，toast 说人话：`$25 on Down · 24 sh off your Up · 54 sh still on`）。记分板：This round / Live（实时盈亏 + 赢了拿多少）/ Today；30s 轮 Cash out 禁用。",
     spec: [
       { state: "待发", when: "pend.length", visual: "按钮上 40px 环 1.5s 倒数 + 筹码；底注 `Filling $25 · tap chip to cancel`", source: "place / cancelPend" },
       { state: "持仓", when: "pos.side === side", visual: "held 态：筹码堆（最近 4 枚）+ Position 徽标；底注 sh · to win", source: "renderButtons" },
