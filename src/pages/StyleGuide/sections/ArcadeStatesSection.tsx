@@ -26,12 +26,12 @@ const CABINET: SectionCase[] = [
   },
   {
     key: "arcade-ar2",
-    label: "AR-2 · 持仓中（Up 146 sh · 21 秒）",
+    label: "AR-2 · 持仓中（$25 on Up · 21 秒）",
     note:
-      "落筹 1.5s 待发环（点筹码撤回）→ 现货市价买入（executeSpotTrade，手续费从筹码里扣，份额 = ⌊(筹码 − 费)/价⌋）。持仓格显示筹码堆 + `Position $25`；底注 `146 sh · to win +$121`；对侧底注 `You're on Up · a chip here comes off it`（反向落筹 = 净额冲减，toast 说人话：`$25 on Down · 24 sh off your Up · 54 sh still on`）。记分板：This round / Live（实时盈亏 + 赢了拿多少）/ Today；30s 轮 Cash out 禁用。",
+      "落筹 1.5s 待发环（点筹码撤回）→ 现货市价买入（executeSpotTrade，手续费从筹码里扣，份额 = ⌊(筹码 − 费)/价⌋）。持仓格显示筹码堆 + `Position $25`；底注 `$25 in · wins +$121 if Up`；对侧底注 `You're on Up · a chip here comes off it`（反向落筹 = 净额冲减，toast 说人话、只讲钱：`$25 on Down · $24 off your Up · $54 still on`）。**机柜内不出现 sh / 份额数**（CPO：正常人看不懂）——份额一律换算成钱：N 份 = `wins $N if Up`；记分板副行 `in at 27.6¢ · worth $612 now`。记分板：This round / Live（实时盈亏 + 赢了拿多少）/ Today；30s 轮 Cash out 禁用。",
     spec: [
       { state: "待发", when: "pend.length", visual: "按钮上 40px 环 1.5s 倒数 + 筹码；底注 `Filling $25 · tap chip to cancel`", source: "place / cancelPend" },
-      { state: "持仓", when: "pos.side === side", visual: "held 态：筹码堆（最近 4 枚）+ Position 徽标；底注 sh · to win", source: "renderButtons" },
+      { state: "持仓", when: "pos.side === side", visual: "held 态：筹码堆（最近 4 枚）+ Position 徽标；底注 `$25 in · wins +$121 if Up`", source: "renderButtons" },
       { state: "反向落筹 = 净额冲减", when: "pos && chip on the other side", visual: "底注 `Nets $25 against your Up · tap chip to cancel`；成交 = executeSpotTrade 按隐含价份额对份额减持仓、余量开对面（ARCADE_FLIP = net，与平台现货一致）", source: "fill" },
       { state: "Cash out", when: "pos && tf === 1m", visual: "红键可点 → 25 / 50 / 100% 滑杆弹层 → 现货 SELL；30s 轮禁用 + title 说明", source: "openCo / cashOut" },
       { state: "结算", when: "clock hits 0", visual: "赢：金币雨 + 涨落数字 splash + 猫欢呼；输：红闪 + 抖动 + 猫丧；路单弹入新格；服务端 ≤30s 内入账", source: "settle / settlePosition" },

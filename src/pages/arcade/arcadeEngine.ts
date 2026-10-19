@@ -890,7 +890,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         eqTo(S.equity);
         S.today += pnl;
         S.todayTouched = true;
-        logOrder({ k: "flip", side: was, txt: `Closed ${SIDE(was)} ${S.pos.sh} sh · ${whole(back)} back · ${signed(pnl)}` });
+        logOrder({ k: "flip", side: was, txt: `Closed ${SIDE(was)} · ${whole(back)} back · ${signed(pnl)}` });
         lead = `Flipped · ${SIDE(was)} closed ${signed(pnl)} · `;
         S.pos = null;
       }
@@ -900,12 +900,12 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       if (netting) {
         // the spot rail reduced the held leg share-for-share and opened the rest: read back the truth
         const was: Side = S.pos.side;
-        const before = S.pos.sh;
+        const before = S.pos.sh,
+          beforeCost = S.pos.margin;
         const h = await api.loadHolding(round);
         S.pos = h;
-        const reduced = Math.min(before, sh);
         // plain words (CPO 2026-10-19): say what the player now holds, not the netting mechanics
-        const txt = h && h.side === p.side ? `Your ${SIDE(was)} is closed · the rest went ${SIDE(p.side)} · ${h.sh} sh` : h ? `${reduced} sh off your ${SIDE(was)} · ${h.sh} sh still on` : `Your ${SIDE(was)} is closed · nothing on the table`;
+        const txt = h && h.side === p.side ? `Your ${SIDE(was)} is closed · ${whole(h.margin)} now riding on ${SIDE(p.side)}` : h ? `${whole(Math.max(0, beforeCost - h.margin))} off your ${SIDE(was)} · ${whole(h.margin)} still on` : `Your ${SIDE(was)} is closed · nothing on the table`;
         S.marks.push({ s: p.side, t: now(), p: S.price });
         logOrder({ k: "flip", side: p.side, txt: `${p.side === "u" ? "↑" : "↓"} ${whole(p.margin)} on ${SIDE(p.side)} · ${txt}` });
         toast(`${whole(p.margin)} on ${SIDE(p.side)} · ${txt}`);
@@ -933,7 +933,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       }
       S.pos.avg = S.pos.margin / S.pos.sh;
       S.marks.push({ s: p.side, t: now(), p: S.price });
-      logOrder({ k: kind === "flip" ? "open" : kind, side: p.side, txt: `${p.side === "u" ? "↑" : "↓"} ${SIDE(p.side)} · ${whole(p.margin)} · ${sh} sh @ ${(px * 100).toFixed(1)}¢` });
+      logOrder({ k: kind === "flip" ? "open" : kind, side: p.side, txt: `${p.side === "u" ? "↑" : "↓"} ${SIDE(p.side)} · ${whole(p.margin)} in at ${(px * 100).toFixed(1)}¢ · wins +${whole(sh - p.margin)}` });
       toast(`${lead}${SIDE(p.side)} · ${whole(p.margin)} in → win +${whole(toWin())} if ${S.asset} closes ${p.side === "u" ? "above" : "below"} ${money(S.open)}`);
       const to = center(btn),
         col = p.side === "u" ? C.up : C.dn;
@@ -976,7 +976,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       eqTo(S.equity);
       S.today += pnl;
       S.todayTouched = true;
-      logOrder({ k: "cash", side: sd, txt: `${all ? "" : Math.round(f * 100) + "% · "}${SIDE(sd)} ${shOut} sh · ${whole(v)} back · ${signed(pnl)}` });
+      logOrder({ k: "cash", side: sd, txt: `Cashed out ${all ? "" : Math.round(f * 100) + "% of "}${SIDE(sd)} · ${whole(v)} back · ${signed(pnl)}` });
       if (!silent) S.shareLast = { side: sd, put: P.margin * f, worth: v, live: false, cash: true, asset: S.asset, dur: S.dur };
       if (all) S.pos = null;
       else {
@@ -1113,7 +1113,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         if (held) txt = `+${whole(sum)} · tap chip to cancel`;
       } else if (held) {
         cls = "hold";
-        txt = `${S.pos.sh} sh · to win +${whole(toWin())}`;
+        txt = `${whole(S.pos.margin)} in · wins +${whole(toWin())} if ${SIDE(sd)}`;
       } else if (opp) txt = ARCADE_FLIP === "net" ? `You're on ${SIDE(S.pos.side)} · a chip here comes off it` : `You hold ${SIDE(S.pos.side)} · a chip here flips it`;
       else {
         const px = cents()[sd] / 100,
@@ -1137,9 +1137,9 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         fs = fl.reduce((a: number, x: any) => a + x.margin, 0);
       s.textContent = fl.length
         ? ARCADE_FLIP === "net"
-          ? `Netting · ${whole(fs)} on ${SIDE(fl[0].side)} reduces your ${SIDE(Pp.side)} share-for-share`
+          ? `${whole(fs)} on ${SIDE(fl[0].side)} comes off your ${SIDE(Pp.side)} · tap chip to cancel`
           : `Flipping · closes your ${SIDE(Pp.side)} (${whole(posValue())} back) · then ${whole(fs)} on ${SIDE(fl[0].side)}`
-        : `${Pp.sh} sh @ ${(Pp.avg * 100).toFixed(1)}¢ · value ${money(posValue())}`;
+        : `in at ${(Pp.avg * 100).toFixed(1)}¢ · worth ${whole(posValue())} now`;
       const v = posValue() - Pp.margin;
       l.textContent = signed(v);
       l.className = "n " + (v < 0 ? "neg" : "pos");
@@ -1736,7 +1736,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     $("#coOut").textContent = coPct + "%";
     $("#coInfo").innerHTML = `Cashing out <b>${coPct}%</b> of your <span class="sd${Pp.side}">${SIDE(Pp.side)}</span> call. You get back <span class="get">≈ ${money(get)}</span>`;
     $("#coGo").textContent = `Cash out ≈ ${money(get)}`;
-    $("#coNote").innerHTML = `${coPct < 100 ? `Keeps ${Pp.sh - Math.round(Pp.sh * f)} sh riding · ` : ""}<span style="color:${pnl < 0 ? "var(--hot)" : "var(--lime)"}">${signed(pnl)}</span> vs what you put in`;
+    $("#coNote").innerHTML = `${coPct < 100 ? `Keeps ${whole(Pp.margin * (1 - f))} riding · ` : ""}<span style="color:${pnl < 0 ? "var(--hot)" : "var(--lime)"}">${signed(pnl)}</span> vs what you put in`;
   }
   function openCo() {
     if (!S.pos) return;

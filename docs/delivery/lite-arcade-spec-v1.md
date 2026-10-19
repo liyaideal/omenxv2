@@ -31,8 +31,8 @@
 |---|---|---|
 | 进 `/arcade`（默认 BTC 30s） | 全屏机柜（右上 ✕ 回 Events）：题目 `Will BTC close above $X?`、Available 余额、CRYPTO/STOCK 与 30s/1m 键、路单条、价格舞台 + 梯子 + 倒计时、UP / 筹码 / DOWN、记分板 | 选筹码 → 点 UP/DOWN |
 | 落筹后 1.5 秒内 | 按钮上一枚筹码带倒数环，底注 `Filling $25 · tap chip to cancel` | 点筹码撤回 |
-| 成交 | toast `Up · $25 in → win +$17 if BTC closes above $X`，按钮变 held 态（筹码堆 + Position $25），记分板出 This round / Live | 等结果或（1m）Cash out |
-| 往对面放 | 底注 `$25 comes off your Up · tap chip to cancel` → 成交 toast 只讲现在手里有什么：`$25 on Down · N sh off your Up · M sh still on` / `$25 on Down · Your Up is closed · the rest went Down · N sh` / `$25 on Down · Your Up is closed · nothing on the table` | 平台现货统一逻辑（净额冲减），措辞不露 net（CPO 2026-10-19） |
+| 成交 | toast `Up · $25 in → win +$17 if BTC closes above $X`，按钮变 held 态（筹码堆 + Position $25，底注 `$25 in · wins +$121 if Up`），记分板 This round `Up · $25 on the table` / `in at 17.0¢ · worth $24 now`、Live 盈亏 + `if Up wins +$121`。**机柜内不出现 sh / 份额数**，份额一律换算成钱 | 等结果或（1m）Cash out |
+| 往对面放 | 底注 `$25 comes off your Up · tap chip to cancel` → 成交 toast 只讲现在手里有什么：`$25 on Down · $N off your Up · $M still on` / `$25 on Down · Your Up is closed · $N now riding on Down` / `$25 on Down · Your Up is closed · nothing on the table` | 平台现货统一逻辑（净额冲减），措辞不露 net（CPO 2026-10-19） |
 | 结算 | 赢：金币雨 + `+$17` 大字 + 路单弹入；输：红闪抖动；Today 更新、最近 10 局打 ✓/✕ | 下一局自动开始 |
 | 切 STOCK（盘外） | 图表区 `MARKET CLOSED · 下一场 Mon 09:30 ET · in Xh Ym`，UP/DOWN 置灰，30s 键禁用 | 换回 CRYPTO 或等开盘 |
 | 未登录点 UP | toast `Sign in to play` + 登录弹窗 | 登录后持仓 / 今日战绩自动加载 |
