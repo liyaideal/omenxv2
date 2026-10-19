@@ -7,6 +7,7 @@ import { useActiveEvents } from "@/hooks/useActiveEvents";
 import { useMarketListData } from "@/hooks/useMarketListData";
 import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
 import { MobileHeader } from "@/components/MobileHeader";
+import { ArcadeEntryBanner } from "@/components/lite/arcade/ArcadeEntryBanner";
 import { BottomNav } from "@/components/BottomNav";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
@@ -603,6 +604,9 @@ const LiteEventsPage = () => {
             />
           </div>
         )}
+
+        {/* Quick Play entry (CPO 2026-10-19): the All view only, above the stage. */}
+        {!calendarOn && (isStageView || isMobileStage) && !isWatchlistView && <ArcadeEntryBanner isMobile={!!isMobile} />}
 
         {/* Desktop "All stage" — category-as-view. */}
         {!calendarOn && isStageView && stageFirstLoad && <LiteAllStageSkeleton />}

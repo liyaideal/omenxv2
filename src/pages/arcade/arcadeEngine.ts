@@ -38,6 +38,7 @@ import {
   nextUsSessionText,
   tfSeconds,
   usSessionOpen,
+  type ArcadeTableSnapshot,
   type ArcadeTf,
 } from "@/lib/arcade/arcadeTables";
 
@@ -85,10 +86,18 @@ export interface ArcadeApi {
   onSettled?: () => void;
 }
 
+export interface ArcadeFixture {
+  /** frozen wall clock — every countdown / price readout is computed at this instant */
+  nowMs: number;
+  snapshot: ArcadeTableSnapshot;
+}
+
 export interface ArcadeMountOptions {
   symbol: string;
   tf: ArcadeTf;
   onTableChange?: (symbol: string, tf: ArcadeTf) => void;
+  /** style-guide: deterministic rounds + frozen clock, no network */
+  fixture?: ArcadeFixture;
 }
 
 const C = { up: "#33d6ff", dn: "#cfff4a", cy: "#05d7ed", hot: "#ff5c5c" };
@@ -105,6 +114,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   const $ = (q: string) => root.querySelector(q) as any;
   const $$ = (q: string) => Array.from(root.querySelectorAll(q)) as any[];
   const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const now = () => (opts.fixture ? opts.fixture.nowMs : Date.now());
   const disposers: (() => void)[] = [];
   const on = (el: any, ev: string, fn: any, o?: any) => {
     el.addEventListener(ev, fn, o);
@@ -325,11 +335,11 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     S.start = new Date(r.start_at).getTime();
     S.open = r.open_price;
     S.path = arcadePath(r.seed, r.open_price, r.steps, r.sigma);
-    const now = Date.now();
-    const n = Math.max(0, Math.min(r.steps, Math.floor((now - S.start) / ARCADE_STEP_MS)));
+    const at = now();
+    const n = Math.max(0, Math.min(r.steps, Math.floor((at - S.start) / ARCADE_STEP_MS)));
     S.pts = [];
     for (let i = 0; i <= n; i++) S.pts.push({ t: S.start + i * ARCADE_STEP_MS, p: S.path[i] });
-    S.price = arcadePriceAt(S.path, S.start, now);
+    S.price = arcadePriceAt(S.path, S.start, at);
     S.marks = [];
     S.orders = [];
     S.pend.slice().forEach((p: any) => dropPend(p));
@@ -342,7 +352,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
 
   /* ---------- pricing ---------- */
   function cents() {
-    const rem = Math.max(0, (S.start + S.dur * 1000 - Date.now()) / 1000) / S.dur;
+    const rem = Math.max(0, (S.start + S.dur * 1000 - now()) / 1000) / S.dur;
     const z = (S.price - S.open) / ((60 + 520 * rem) * K()),
       up = Math.round(50 + 49 * Math.tanh(z));
     return { u: Math.min(99, Math.max(1, up)), d: Math.min(99, Math.max(1, 100 - up)) };
@@ -487,7 +497,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       const h = vis[vis.length - 1],
         hx = X(h.t),
         hy = Y(h.p),
-        pulse = 6 + 3 * Math.sin(Date.now() / 160);
+        pulse = 6 + 3 * Math.sin(now() / 160);
       ctx.fillStyle = col;
       ctx.shadowColor = col;
       ctx.shadowBlur = 24;
@@ -653,7 +663,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     lp.textContent = signed(sum);
     lp.classList.toggle("neg", sum < 0);
     const mp = $("#mPeekS");
-    if (mp) mp.textContent = `Last 10 ${signed(sum)}`;
+    if (mp) mp.innerHTML = `Last 10 <b style="color:${sum < 0 ? "var(--hot)" : "var(--lime)"};font-weight:600">${signed(sum)}</b>`;
     const mt = $("#mPeekTicks");
     if (mt) mt.innerHTML = $("#ticks").innerHTML;
   }
@@ -700,7 +710,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     toastT = setTimeout(() => (t.hidden = true), 3800);
   }
   function logOrder(o: any) {
-    S.orders.push({ t: Date.now(), ...o });
+    S.orders.push({ t: now(), ...o });
     renderOrders();
   }
   function deny(btn: any, msg: string) {
@@ -721,7 +731,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     }
     if (!S.round) return;
     if (S.closed) return deny(btn, `${ARCADE_ASSETS[S.asset].name} is closed · next session ${nextUsSessionText()}`);
-    if (S.start + S.dur * 1000 - Date.now() < 1200) return deny(btn, "Round is closing · wait for the next one");
+    if (S.start + S.dur * 1000 - now() < 1200) return deny(btn, "Round is closing · wait for the next one");
     if (ARCADE_FLIP === "net" && S.pos && S.pos.side !== side) {
       /* fallthrough: net mode lets the spot rail reduce share-for-share */
     }
@@ -738,7 +748,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     el.setAttribute("aria-label", `Cancel ${whole(margin)} order`);
     el.innerHTML = `<svg viewBox="0 0 36 36"><circle class="bg" cx="18" cy="18" r="16" fill="none" stroke-width="3.5"/><circle class="fg" cx="18" cy="18" r="16" fill="none" stroke-width="3.5"/></svg><span class="mchip ${chipCls(p.chip)}">${p.chip}</span><span class="x">✕</span>`;
     el.style.setProperty("--pend", ARCADE_PEND_MS + "ms");
-    (el as any)._t = Date.now();
+    (el as any)._t = now();
     btn.querySelector(".pendrow").appendChild(el);
     p.el = el;
     p.timer = setTimeout(() => void fill(p), ARCADE_PEND_MS);
@@ -834,7 +844,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         S.pos.margin = r.margin;
       }
       S.pos.avg = S.pos.margin / S.pos.sh;
-      S.marks.push({ s: p.side, t: Date.now(), p: S.price });
+      S.marks.push({ s: p.side, t: now(), p: S.price });
       logOrder({ k: kind === "flip" ? "open" : kind, side: p.side, txt: `${p.side === "u" ? "↑" : "↓"} ${SIDE(p.side)} · ${whole(p.margin)} · ${sh} sh @ ${(px * 100).toFixed(1)}¢` });
       toast(`${lead}${SIDE(p.side)} · ${whole(p.margin)} in → win +${whole(toWin())} if ${S.asset} closes ${p.side === "u" ? "above" : "below"} ${money(S.open)}`);
       const to = center(btn),
@@ -920,7 +930,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     S.todayTouched = true;
     if (won) S.won++;
     else S.lost++;
-    S.last.push({ s: S.pos.side, w: won, t: Date.now(), pnl });
+    S.last.push({ s: S.pos.side, w: won, t: now(), pnl });
     S.last = S.last.slice(-10);
     renderTicks();
     S.shareLast = { side: S.pos.side, put: S.pos.margin, worth: payout, live: false, asset: S.asset, dur: S.dur };
@@ -1131,7 +1141,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     const m = $(id);
     on(m, "click", (e: any) => {
       const pc = e.target.closest(".pend");
-      if (pc && Date.now() - pc._t > 450) {
+      if (pc && now() - pc._t > 450) {
         e.stopPropagation();
         e.preventDefault();
         cancelPend(+pc.dataset.pid);
@@ -1151,9 +1161,9 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   let lastPx = 0;
   every(() => {
     if (!S.round) return;
-    const now = Date.now();
-    S.price = arcadePriceAt(S.path, S.start, now);
-    const n = Math.max(0, Math.min(S.round.steps, Math.floor((now - S.start) / ARCADE_STEP_MS)));
+    const at = now();
+    S.price = arcadePriceAt(S.path, S.start, at);
+    const n = Math.max(0, Math.min(S.round.steps, Math.floor((at - S.start) / ARCADE_STEP_MS)));
     while (S.pts.length <= n) {
       const i = S.pts.length;
       S.pts.push({ t: S.start + i * ARCADE_STEP_MS, p: S.path[i] });
@@ -1177,7 +1187,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   let lastSec = -1;
   raf(() => {
     if (!S.round) return;
-    const rem = S.start + S.dur * 1000 - Date.now();
+    const rem = S.start + S.dur * 1000 - now();
     if (rem <= 0) settle();
     const r = Math.max(0, rem),
       sec = Math.ceil(r / 1000);
@@ -1481,7 +1491,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     const symbol = S.asset,
       tf = S.tf;
     try {
-      const snap = await fetchArcadeTable(symbol, tf, 60);
+      const snap = opts.fixture ? opts.fixture.snapshot : await fetchArcadeTable(symbol, tf, 60);
       if (!alive || seq !== loadSeq || symbol !== S.asset || tf !== S.tf) return;
       if (snap.current) {
         if (!S.round || S.round.id !== snap.current.id) {
@@ -1798,7 +1808,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         const l = S.last.slice(-10)[+el.dataset.li];
         if (!l) return hideTip();
         const amt = Math.abs(l.pnl || 0).toFixed(2);
-        return showTip(`${fmtT(new Date(l.t || Date.now()), true)} · ${l.s === "u" ? "↑ UP" : "↓ DOWN"} · ${l.w ? `<span class="w">won +$${amt}</span>` : `<span class="l">lost −$${amt}</span>`}`, x, y);
+        return showTip(`${fmtT(new Date(l.t || now()), true)} · ${l.s === "u" ? "↑ UP" : "↓ DOWN"} · ${l.w ? `<span class="w">won +$${amt}</span>` : `<span class="l">lost −$${amt}</span>`}`, x, y);
       }
       const k = el.dataset.tip,
         tot = S.nUp + S.nDn;
@@ -2121,7 +2131,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   renderCats();
   $("#equity").textContent = money(S.equity);
   void switchTable(S.asset, S.tf).then(() => loadToday());
-  every(() => void refreshTable(false), 15000);
+  if (!opts.fixture) every(() => void refreshTable(false), 15000);
 
   /* ---------- public setters (React → engine) ---------- */
   (root as any).__arcade = {

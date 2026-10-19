@@ -55,6 +55,7 @@ const marketRow = () => import("./marketRowPreviews");
 const share = () => import("./sharePreviews");
 const sportsLive = () => import("./sportsLivePreviews");
 const table = () => import("./tablePreviews");
+const arcade = () => import("./arcadePreviews");
 
 
 export const previewRegistry: Record<string, Loader> = {
@@ -456,6 +457,14 @@ export const previewRegistry: Record<string, Loader> = {
   "table-tb4": pick(table, "Tb4Preview"),
   "table-tb5": pick(table, "Tb5Preview"),
   "table-tb6": pick(table, "Tb6Preview"),
+
+  /* -------- /arcade · Quick Play（AR-1 … AR-4 · AB-1 / AB-2）-------- */
+  "arcade-ar1": pick(arcade, "Ar1Preview"),
+  "arcade-ar2": pick(arcade, "Ar2Preview"),
+  "arcade-ar3": pick(arcade, "Ar3Preview"),
+  "arcade-ar4": pick(arcade, "Ar4Preview"),
+  "arcade-ab1": pick(arcade, "Ab1Preview"),
+  "arcade-ab2": pick(arcade, "Ab2Preview"),
   "spot-sp1": pick(spot, "Sp1Preview"),
   "spot-sp2": pick(spot, "Sp2Preview"),
   "spot-sp3": pick(spot, "Sp3Preview"),

@@ -517,6 +517,34 @@ and stay as-is — they are a different noun from the selector label.
 
 Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follows the event kind); the time clause goes on the header countdown row — `· 15:30–15:45 ⓘ` / `· Base Fri 04:00 ⓘ` — and the ⓘ popover carries the full `Base: $X · as of … (Oct 15 close)` line, the settle rule and the schedule rows. No `(Oct 15 close)` on the row itself (375 width, zero truncation).
 
+### Quick Play（/arcade · 30s / 1m Up/Down · 机柜，2026-10-19 · 占位措辞）
+
+> 状态：**占位**。取代下面 Table 节在 5m / 15m 上的用法（Table 节保留给组件术语）。全部英文待合规措辞轮；i18n key 下一轮接。字典 AR-1…AR-4 / AB-1 / AB-2 见 `/style-guide` 交易页。
+
+| Canonical | Where | Note |
+|---|---|---|
+| **Quick Play** | 专区题牌、入口横幅、MobileHeader 标题 | 对外名（CPO 定）；不说 Arcade / Casino / Bet |
+| **Will BTC close above $X?** | 机柜题目 + 横幅题目 | `$X` = 本轮开盘价；股票同句换 ticker |
+| **Available: $X** | 机柜顶部 | 现货账户余额，与 Wallet 叫法一致；不说 Equity |
+| **YOUR STAKE · USD PER CHIP** / **$25 SELECTED** | 筹码盘标头 | 用户得知道这块是下单金额 |
+| **$25 in → win +$17 if Up** | UP / DOWN 底注（空桌） | 按当前筹码算；不写 Pays $1.00 / share |
+| **Filling $25 · tap chip to cancel** | 底注（待发 1.5s） | 同向加仓 `+$25 · tap chip to cancel` |
+| **Flip to Down · $25 · tap chip to cancel** | 底注（反向待发） | 成交后 toast `Flipped · Up closed +$1.88 · Down · $25 in → win …` |
+| **You hold Up · a chip here flips it** | 对侧底注（持仓中） | |
+| **146 sh · to win +$121** | 持仓底注 | sh = shares 缩写，机柜内允许 |
+| **Up · $25 on the table** | 记分板 This round | 副行 `146 sh @ 17.0¢ · value $24.82` |
+| **Nothing on the table** | 记分板空态 | |
+| **Round void · closed exactly at the open · $25 returned to Spot** | toast | 停牌版 `market halted` |
+| **Cash out ≈ $X** | 弹层主键 | 30s 轮键禁用 + title `Cash out is available on 1m rounds` |
+| **MARKET CLOSED · Mon 09:30 ET · in 10h 27m** | 股票桌盘外遮罩 | 副句 `Apple rounds run during the US cash session only. Crypto tables are open 24/7.` |
+| **Sign in to play** | 未登录落筹 toast | 同时弹 AuthDialog |
+| **Not enough Spot balance** | 余额不足 | |
+| **OPENING…** | 横幅无开放轮次 | 不许用假价格占位 |
+| **30S · 1M · CRYPTO 24/7** | 横幅副行 | |
+| **Play ▸** | 横幅键 | |
+| ⓘ 规则整段 | 机柜题目旁 | `How a 30-second round settles … Closes exactly at the open → round void, every stake returned … SPOT ACCOUNT · NO BOOST · MAX LOSS = YOUR STAKE · FEE 0.15% · 5% ON WINNINGS` |
+| **BTC — up or down? (30s · 03:51:00 UTC)** | DB events.name（Portfolio / 海报可见） | 带 UTC 轮次起点，避免 30s 同名串轮 |
+
 ### Table（5m / 15m 加密快轮 · 筹码上桌，2026-10-09 · 占位措辞）
 
 > 状态：**占位**。全部英文待合规措辞轮统一；i18n key 下一轮接。字典 TB-1…TB-6 见 `/style-guide` 交易页。
