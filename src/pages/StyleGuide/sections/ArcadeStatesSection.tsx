@@ -123,7 +123,7 @@ export const ArcadeStatesSection = () => (
         <li>措辞 / 合规终稿；i18n key 接入（机柜文案全为英文占位）。</li>
         <li>Share 卡：用设计师的卡（Save = 长按提示，X / Telegram 直链）；接站内海报服务另议。</li>
         <li>memecoin 桌、10s 轮、积分模式：待真平台参考价与 CPO 拍板。</li>
-        <li>站内行情条（$48k）与快轮 / 专区价格流（$67k）来自不同演示源，数字对不上是老问题，本轮未动。</li>
+        <li>价格源已统一（migration 20261019130000）：加密快轮五档周期读专区价格流，行情条 / 快轮 / 横幅 / 机柜同一个 BTC 价；美股日线仍是每日链。</li>
       </ul>
     </SubSection>
   </SectionWrapper>
