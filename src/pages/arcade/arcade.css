@@ -125,3 +125,9 @@
 .arcade-root.is-m .m-app{height:calc(100dvh - var(--arcade-top,56px))}
 /* exit key — the page is full-screen (no site header/footer, CPO 2026-10-19), so the cabinet carries its own way out */
 .arcade-root .exitbtn{font:400 22px/1 var(--f-pix);color:#020c10;display:grid;place-items:center}
+
+/* full-screen for real (CPO 2026-10-19 third batch): the cabinet is the viewport — no dark floor around it */
+.arcade-root main{padding-block:0}
+.arcade-root main>.wrap{padding:0;max-width:none}
+.arcade-root .cab{padding:12px 14px 10px}
+.arcade-root .logoplate{cursor:pointer}

@@ -1397,6 +1397,13 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     const c = center(e.currentTarget);
     burst(c.x, c.y, C.cy, 24);
     burst(c.x, c.y, C.dn, 10, true);
+    setTimeout(() => api.exit(), 160);
+  });
+  on($("#logoPlate"), "keydown", (e: KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      api.exit();
+    }
   });
 
   /* ---------- asset picker ---------- */
