@@ -24,7 +24,7 @@ import { ARCADE_ASSETS, ARCADE_TFS, type ArcadeTf } from "@/lib/arcade/arcadeTab
 import { arcadeEventName, type ArcadeRoundRow } from "@/lib/arcade/arcadePath";
 import { ensureArcadeFonts } from "@/lib/arcade/arcadeFonts";
 import { ARCADE_DESKTOP, ARCADE_MOBILE, ARCADE_OVERLAYS } from "./arcadeMarkup";
-import { mountArcade, type ArcadeApi, type ArcadeHolding, type Side } from "./arcadeEngine";
+import { mountArcade, type ArcadeApi, type ArcadeHolding, type Side, colorUp } from "./arcadeEngine";
 import "./arcade.css";
 
 const SITE_URL = "https://omenxv2.lovable.app";
@@ -101,7 +101,7 @@ const ArcadePage = () => {
       if (!p) return null;
       const side: Side = p.option_id.endsWith("-up") ? "u" : "d";
       const margin = Number(p.margin);
-      return { side, sh: Number(p.size), margin, avg: Number(p.entry_price), chips: [Math.round(margin)], positionId: p.id };
+      return { side, sh: Number(p.size), margin, avg: Number(p.entry_price), chips: colorUp(margin), positionId: p.id };
     },
     [userId],
   );

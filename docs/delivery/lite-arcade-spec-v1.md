@@ -55,6 +55,7 @@
 - 机柜 = 设计师 HTML 原样：`arcadeMarkup.ts`（桌面 + 移动两套 DOM）、`arcade.css`（全部选择器 scoped `.arcade-root`）、`arcadeEngine.ts`（控制器，`mountArcade(root, api, opts)` 返回卸载函数）。React 只喂 `api`（余额 / buy / sell / 持仓 / 今日 / 推荐码 / 登录门）。
 - 下单：`executeSpotTrade`，买 = `{side:'buy', price: 份额价, quantity: ⌊(筹码 − 0.15%)/价⌋, fee}`，卖 = `{side:'sell', price, quantity}`；余额走 `deductSpotBalance / addSpotBalance`，与 `LiteOrderPanel` 一字不差。
 - 价格 / 轮次：`src/lib/arcade/arcadeTables.ts`（`fetchArcadeTable` 当前 + 下一局 + 60 局历史，15s 轮询 + 换局时刷新）、`arcadePath.ts`（LCG 路径、`arcadeNextOf` 本地续局、`arcadeEventName`）。
+- 持仓筹码塔（`arcadeEngine.ts` `stackHtmlOf` / `colorUp`）：同面额一堆、大面额在左、每堆最多画 5 枚、≥2 枚带 ×N；成交 = 落堆 + 角标 bump + 徽标 bump；移动端最多 3 堆；刷新后从总额按找零法重建。
 - 路单（`arcadeEngine.ts` `buildRoad / renderBead / renderRoad`）按赌场标准：珠盘一列 6 格、留最近 6 列、整列滑动、虚线格 = 下一局落点；大路同结果向下堆（6 行）、变结果右开新列、到底 / 被挡向右拐（龙尾），列数按容器宽度自适应（ResizeObserver），最新在右；作废局不进历史，不画下三路。
 - 入口横幅 `src/components/lite/arcade/ArcadeEntryBanner.tsx`（桌面钢板 + 整圈跑灯 `ARCADE_BANNER_LIGHTS = true`，移动 CRT），挂在 `LiteEventsPage` All 视图舞台之上（`isStageView || isMobileStage`，非日历非 watchlist）。
 - 字体 `public/fonts/arcade/*.woff2`（Jersey 10 / VT323 / Chakra Petch，OFL，自托管；`ensureArcadeFonts()` 按需注入）；素材 `public/arcade/*.png`（设计师文件里的猫 / 金币 / 分享图原样取出）。

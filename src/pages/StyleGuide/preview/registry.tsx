@@ -463,6 +463,7 @@ export const previewRegistry: Record<string, Loader> = {
   "arcade-ar2": pick(arcade, "Ar2Preview"),
   "arcade-ar3": pick(arcade, "Ar3Preview"),
   "arcade-ar4": pick(arcade, "Ar4Preview"),
+  "arcade-ar5": pick(arcade, "Ar5Preview"),
   "arcade-ab1": pick(arcade, "Ab1Preview"),
   "arcade-ab2": pick(arcade, "Ab2Preview"),
   "spot-sp1": pick(spot, "Sp1Preview"),

@@ -26,9 +26,9 @@ const CABINET: SectionCase[] = [
   },
   {
     key: "arcade-ar2",
-    label: "AR-2 · 持仓中（$25 on Up · 21 秒）",
+    label: "AR-2 · 持仓中（$126 on Up · 9 枚筹码 · 21 秒）",
     note:
-      "落筹 1.5s 待发环（点筹码撤回）→ 现货市价买入（executeSpotTrade，手续费从筹码里扣，份额 = ⌊(筹码 − 费)/价⌋）。持仓格显示筹码堆 + `Position $25`；底注 `$25 in · wins +$121 if Up`；对侧底注 `You're on Up · a chip here comes off it`（反向落筹 = 净额冲减，toast 说人话、只讲钱：`$25 on Down · $24 off your Up · $54 still on`）。**机柜内不出现 sh / 份额数**（CPO：正常人看不懂）——份额一律换算成钱：N 份 = `wins $N if Up`；记分板副行 `in at 27.6¢ · worth $612 now`。记分板：This round / Live（实时盈亏 + 赢了拿多少）/ Today；Cash out 30s / 1m 都能点（CPO 2026-10-19 放开）。",
+      "落筹 1.5s 待发环（点筹码撤回）→ 现货市价买入（executeSpotTrade，手续费从筹码里扣，份额 = ⌊(筹码 − 费)/价⌋）。持仓格显示筹码塔（方案 A，CPO 2026-10-19：同面额一堆、大面额在左、每堆最多画 5 枚厚、≥2 枚带 ×N 角标；成交 = 新筹码落进对应堆 + 角标 bump + Position 徽标 bump；移动端最多 3 堆，其余并入末堆角标；刷新后按找零法从总额重建）+ `Position $126`；底注 `$25 in · wins +$121 if Up`；对侧底注 `You're on Up · a chip here comes off it`（反向落筹 = 净额冲减，toast 说人话、只讲钱：`$25 on Down · $24 off your Up · $54 still on`）。**机柜内不出现 sh / 份额数**（CPO：正常人看不懂）——份额一律换算成钱：N 份 = `wins $N if Up`；记分板副行 `in at 27.6¢ · worth $612 now`。记分板：This round / Live（实时盈亏 + 赢了拿多少）/ Today；Cash out 30s / 1m 都能点（CPO 2026-10-19 放开）。",
     spec: [
       { state: "待发", when: "pend.length", visual: "按钮上 40px 环 1.5s 倒数 + 筹码；底注 `Filling $25 · tap chip to cancel`", source: "place / cancelPend" },
       { state: "持仓", when: "pos.side === side", visual: "held 态：筹码堆（最近 4 枚）+ Position 徽标；底注 `$25 in · wins +$121 if Up`", source: "renderButtons" },
@@ -60,6 +60,15 @@ const MOBILE: SectionCase[] = [
       { state: "窥条", when: "always", visual: "`ROAD & STATS` + 10 格 ✓✕ + `Last 10 ±$X`；aria-expanded 跟抽屉", source: "mobileSheet · renderTicks" },
       { state: "抽屉开", when: "peek tap / swipe up", visual: "半屏钢板 sheet，拖把手下拉 80px 关闭，Esc 关闭", source: "mobileSheet" },
       { state: "下单", when: "tap UP / DOWN 或拖筹码", visual: "同桌面（1.5s 待发环）", source: "place" },
+    ],
+  },
+  {
+    key: "arcade-ar5",
+    label: "AR-5 · 移动版持仓中（$126 on Up · 9 枚筹码）",
+    note: "持仓格第二行：左 Position 徽标，右筹码塔（方案 A：同面额一堆、大面额在左、≥2 枚带 ×N；移动端最多 3 堆，其余并入末堆角标）。底注 `$126 in · wins +$615 if Up`，对侧 `You're on Up · a chip here comes off it`。",
+    spec: [
+      { state: "筹码塔", when: "pos.side === side", visual: "26px 筹码、堆间距 6px、角标 9px", source: "stackHtmlOf(chips, mobile)" },
+      { state: "成交反馈", when: "fill", visual: "新筹码落进对应堆（tDrop）+ 该堆角标 bump + Position 徽标 bump", source: "renderButtons / fill" },
     ],
   },
 ];

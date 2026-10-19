@@ -111,6 +111,40 @@ const whole = (n: number) => "$" + Math.round(Math.abs(n)).toLocaleString("en-US
 const pad = (n: number) => String(n).padStart(2, "0");
 const SIDE = (x: Side) => (x === "u" ? "Up" : "Down");
 const chipCls = (v: number) => (v >= 500 ? "v500" : v >= 100 ? "v100" : v >= 50 ? "v50" : v >= 25 ? "v25" : "");
+/** Split a dollar amount into the fewest chips (a holding rebuilt from the DB has no per-chip record). */
+export const colorUp = (amount: number): number[] => {
+  const out: number[] = [];
+  let rest = Math.round(amount);
+  for (const d of [...ARCADE_CHIPS].reverse()) while (rest >= d) {
+    out.push(d);
+    rest -= d;
+  }
+  return out.length ? out : [ARCADE_CHIPS[0]];
+};
+/**
+ * Chip tower, option A (CPO 2026-10-19): one stack per denomination, biggest on the left, up to 5 chips of
+ * thickness each, a ×N badge once a stack has two or more; the newest chip drops in and its badge bumps.
+ * Mobile keeps three stacks at most and folds the rest into the last badge.
+ */
+function stackHtmlOf(chips: number[], mobile: boolean): string {
+  const g = new Map<number, number>();
+  chips.forEach((v) => g.set(v, (g.get(v) || 0) + 1));
+  let dens = [...g.keys()].sort((a, b) => b - a),
+    extra = 0;
+  if (mobile && dens.length > 3) {
+    extra = dens.slice(3).reduce((a, v) => a + (g.get(v) || 0), 0);
+    dens = dens.slice(0, 3);
+  }
+  const newest = chips[chips.length - 1];
+  return dens
+    .map((v, di) => {
+      const n = (g.get(v) || 0) + (di === dens.length - 1 ? extra : 0),
+        k = Math.min(5, g.get(v) || 0);
+      const faces = Array.from({ length: k }, (_, i) => `<span class="mchip ${chipCls(v)}${i === k - 1 && v === newest ? " tnew" : ""}">${v}</span>`).join("");
+      return `<span class="den">${faces}${n > 1 ? `<span class="cnt${v === newest ? " bump" : ""}">×${n}</span>` : ""}</span>`;
+    })
+    .join("");
+}
 const round2 = (n: number) => Math.round(n * 100) / 100;
 const fee = (amount: number) => round2(amount * ARCADE_FEE_RATE);
 
@@ -1101,8 +1135,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         sum = pend.reduce((a: number, p: any) => a + p.margin, 0);
       btn.classList.toggle("held", held);
       wrap.classList.toggle("held", held);
-      const ch = held ? S.pos.chips.slice(-4) : [],
-        stackHtml = ch.map((v: number, i: number) => `<span class="mchip ${chipCls(v)}${i === ch.length - 1 ? " tnew" : ""}">${v}</span>`).join("") + (held ? `<!--${S.pos.chips.length}-->` : "");
+      const stackHtml = held ? stackHtmlOf(S.pos.chips, !!api.isMobile) : "";
       if (stackHtml !== lastStack[sd]) {
         btn.querySelector(".stack").innerHTML = stackHtml;
         lastStack[sd] = stackHtml;

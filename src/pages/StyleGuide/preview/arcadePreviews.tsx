@@ -93,7 +93,7 @@ const Cabinet = ({ mobile, symbol, tf, fixture, api, elapsedMs, width, height }:
 export const Ar1Preview = () => <Cabinet symbol="BTC" tf="30s" fixture={SNAP_BTC_30S} elapsedMs={9000} width={1040} height={640} />;
 
 /* ---------- AR-2 desktop · holding Up, 21 s in ---------- */
-const HOLD = { loadHolding: async () => ({ side: "u" as const, sh: 146, margin: 24.82, avg: 0.17, chips: [25] }) };
+const HOLD = { loadHolding: async () => ({ side: "u" as const, sh: 741, margin: 125.97, avg: 0.17, chips: [25, 25, 10, 10, 10, 25, 10, 500, 10] }) };
 export const Ar2Preview = () => <Cabinet symbol="BTC" tf="30s" fixture={SNAP_BTC_30S} api={HOLD} elapsedMs={21000} width={1040} height={640} />;
 
 /* ---------- AR-3 desktop · stock table (AAPL 1m) — session gate renders from the wall clock of the viewer ---------- */
@@ -101,6 +101,9 @@ export const Ar3Preview = () => <Cabinet symbol="AAPL" tf="1m" fixture={SNAP_AAP
 
 /* ---------- AR-4 mobile · idle ---------- */
 export const Ar4Preview = () => <Cabinet mobile symbol="BTC" tf="30s" fixture={SNAP_BTC_30S} elapsedMs={9000} width={375} height={760} />;
+
+/* ---------- AR-5 mobile · holding Up with a mixed chip tower (option A: stacks per denomination) ---------- */
+export const Ar5Preview = () => <Cabinet mobile symbol="BTC" tf="30s" fixture={SNAP_BTC_30S} api={HOLD} elapsedMs={21000} width={375} height={760} />;
 
 /* ---------- AB-1 / AB-2 entry banner, desktop + mobile ---------- */
 const BANNER_TICK: ArcadeBannerFixture = (() => {
