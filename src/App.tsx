@@ -13,6 +13,7 @@ import SpotTradeOrder from "./pages/SpotTradeOrder";
 
 import LiteContractTrade from "./pages/lite/LiteContractTrade";
 import { LiteQuickTrade } from "./pages/lite/LiteQuickTrade";
+import ArcadePage from "./pages/arcade/ArcadePage";
 import { parseQuickId } from "./components/lite/intraday/intradayData";
 import { useQuickRailRedirect } from "./components/lite/intraday/useQuickRailRedirect";
 import LiteSpotTrade from "./pages/lite/LiteSpotTrade";
@@ -242,6 +243,8 @@ const App = () => (
 
               <Route path="/order-preview" element={<OrderPreview />} />
               <Route path="/events" element={<EventsRoute />} />
+              {/* Quick Play (CPO 2026-10-19): 30s / 1m Up/Down on the spot rail, cabinet skin. */}
+              <Route path="/arcade" element={<ArcadePage />} />
               <Route path="/resolved" element={<ResolvedRoute />} />
               <Route path="/resolved/:eventId" element={<ResolvedDetailRoute />} />
               <Route path="/portfolio" element={<PortfolioRoute />} />
