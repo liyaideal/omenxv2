@@ -1,8 +1,9 @@
 // ============================================================
 // /arcade — Quick Play: 30s / 1m Up/Down on the spot rail, cabinet skin.
-// CPO 2026-10-19. Third page type (DESIGN.md §Addendum 2026-10-19): the
-// cabinet fills the viewport under the site header; the Lite container
-// rule does not apply here, the Lite header / auth / footer still do.
+// CPO 2026-10-19. Third page type (DESIGN.md §Addendum 2026-10-19): a
+// FULL-SCREEN game page — no site header, no footer (CPO: the cabinet looked
+// stuck in the middle with them). The cabinet carries its own exit key
+// (✕ → /events); the Lite auth dialog still gates chips.
 //
 // React owns the shell and the data seams; the designer's cabinet runs as a
 // DOM engine (arcadeEngine.ts) mounted into `.arcade-root`. Orders go
@@ -11,16 +12,13 @@
 // at the live share price, so realised P&L is real (not the stored mark).
 // ============================================================
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useReferral } from "@/hooks/useReferral";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AuthDialog } from "@/components/auth/AuthDialog";
-import { EventsDesktopHeader } from "@/components/EventsDesktopHeader";
-import { MobileHeader } from "@/components/MobileHeader";
-import { SeoFooter } from "@/components/seo/SeoFooter";
 import { executeSpotTrade } from "@/services/tradingService";
 import { ARCADE_ASSETS, ARCADE_TFS, type ArcadeTf } from "@/lib/arcade/arcadeTables";
 import { arcadeEventName, type ArcadeRoundRow } from "@/lib/arcade/arcadePath";
@@ -37,6 +35,7 @@ const ArcadePage = () => {
   const { spotBalance, username, avatarUrl, deductSpotBalance, addSpotBalance, refetchProfile } = useUserProfile();
   const { referralLink } = useReferral();
   const [params, setParams] = useSearchParams();
+  const navigate = useNavigate();
   const [authOpen, setAuthOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<ArcadeApi | null>(null);
@@ -146,6 +145,7 @@ const ArcadePage = () => {
       loadHolding,
       loadToday,
       referralLink: referralLink || SITE_URL,
+      exit: () => navigate("/events"),
       username: username || "you",
       avatarUrl,
       onSettled: () => setTimeout(() => void refetchProfile(), 35000),
@@ -186,14 +186,8 @@ const ArcadePage = () => {
 
   return (
     <div className="min-h-screen bg-black">
-      {isMobile ? (
-        <MobileHeader title="Quick Play" showBack backTo="/events" showLogo={false} flushBottom />
-      ) : (
-        <EventsDesktopHeader />
-      )}
-      <div ref={rootRef} className={`arcade-root${isMobile ? " is-m" : ""}`} style={isMobile ? ({ "--arcade-top": "56px" } as React.CSSProperties) : undefined} />
+      <div ref={rootRef} className={`arcade-root${isMobile ? " is-m" : ""}`} style={isMobile ? ({ "--arcade-top": "0px" } as React.CSSProperties) : undefined} />
       <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
-      {!isMobile && <SeoFooter />}
     </div>
   );
 };

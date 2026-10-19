@@ -17,9 +17,11 @@
 //
 // Order semantics (CPO 2026-10-19):
 //   chip → 1.5 s pending ring (tap to take back) → market buy on the spot rail
-//   same side again → adds to the leg · opposite side → FLIP: sell the held leg
-//   in full at the live share price, then buy this chip on the other side
-//   (set ARCADE_FLIP = "net" to let executeSpotTrade net share-for-share instead)
+//   same side again → adds to the leg · opposite side → NET (ARCADE_FLIP="net",
+//   CPO 2026-10-19): executeSpotTrade reduces the held leg share-for-share at
+//   the implied price and opens the remainder on the other side — exactly what
+//   every other spot trade on the platform does; "close-then-open" (sell the
+//   held leg in full, then buy) stays available behind the constant
 //   30s rounds: no cash out · 1m rounds: cash out (sell) any time before close
 //   close == open → void, stakes returned (server) · stocks outside the US
 //   cash session: table closed, chips bounce
@@ -42,7 +44,7 @@ import {
   type ArcadeTf,
 } from "@/lib/arcade/arcadeTables";
 
-export const ARCADE_FLIP: "close-then-open" | "net" = "close-then-open";
+export const ARCADE_FLIP: "close-then-open" | "net" = "net"; // CPO 2026-10-19: same netting as every other spot trade on the platform
 export const ARCADE_PEND_MS = 1500;
 export const ARCADE_FEE_RATE = 0.0015;
 export const ARCADE_CHIPS = [10, 25, 50, 100, 500] as const;
@@ -81,6 +83,8 @@ export interface ArcadeApi {
   /** today's closed arcade legs (UTC day) */
   loadToday: () => Promise<{ net: number; won: number; lost: number; last: { s: Side; w: boolean; pnl: number; t: number }[] }>;
   referralLink: string;
+  /** leave the zone (full-screen page: the cabinet carries its own exit key) */
+  exit: () => void;
   username: string;
   avatarUrl?: string | null;
   onSettled?: () => void;
@@ -685,6 +689,12 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       el.textContent = money(eqShown);
       if (k < 1 && alive) requestAnimationFrame(step);
     })(t0);
+    // background tabs pause rAF: land on the final figure regardless
+    setTimeout(() => {
+      if (!alive) return;
+      eqShown = v;
+      el.textContent = money(v);
+    }, 760);
   }
 
   /* ---------- trading ---------- */
@@ -813,6 +823,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     const btn = btnOf(p.side);
     S.busy = true;
     let lead = "";
+    const netting = !!(S.pos && S.pos.side !== p.side && ARCADE_FLIP === "net");
     try {
       if (S.pos && S.pos.side !== p.side && ARCADE_FLIP === "close-then-open") {
         const was: Side = S.pos.side;
@@ -831,6 +842,27 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       const r = await api.buy({ round, side: p.side, price: px, qty: sh, fee: f, amount: p.margin });
       S.equity += r.balanceDelta;
       eqTo(S.equity);
+      if (netting) {
+        // the spot rail reduced the held leg share-for-share and opened the rest: read back the truth
+        const was: Side = S.pos.side;
+        const before = S.pos.sh;
+        const h = await api.loadHolding(round);
+        S.pos = h;
+        const reduced = Math.min(before, sh);
+        const txt = h && h.side === p.side ? `${SIDE(was)} closed · ${SIDE(p.side)} ${h.sh} sh opened` : h ? `${SIDE(was)} reduced by ${reduced} sh · ${h.sh} sh left` : `${SIDE(was)} closed`;
+        S.marks.push({ s: p.side, t: now(), p: S.price });
+        logOrder({ k: "flip", side: p.side, txt: `${p.side === "u" ? "↑" : "↓"} ${SIDE(p.side)} · ${whole(p.margin)} netted · ${txt}` });
+        toast(`${SIDE(p.side)} · ${whole(p.margin)} in · netted against your ${SIDE(was)} → ${txt}`);
+        const to = center(btn),
+          col = p.side === "u" ? C.up : C.dn;
+        press(btn);
+        sfx.bet();
+        burst(to.x, to.y, col, 30);
+        flash(col);
+        Lx.react("bet");
+        void loadToday();
+        return;
+      }
       const kind = S.pos ? "add" : lead ? "flip" : "open";
       if (S.pos && S.pos.side === p.side) {
         S.pos.margin += p.margin - f;
@@ -1021,12 +1053,12 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         cls = "";
       if (pend.length) {
         cls = "fill";
-        txt = opp ? `Flip to ${SIDE(sd)} · ${whole(sum)} · tap chip to cancel` : `Filling ${whole(sum)} · tap chip to cancel`;
+        txt = opp ? (ARCADE_FLIP === "net" ? `Nets ${whole(sum)} against your ${SIDE(S.pos.side)} · tap chip to cancel` : `Flip to ${SIDE(sd)} · ${whole(sum)} · tap chip to cancel`) : `Filling ${whole(sum)} · tap chip to cancel`;
         if (held) txt = `+${whole(sum)} · tap chip to cancel`;
       } else if (held) {
         cls = "hold";
         txt = `${S.pos.sh} sh · to win +${whole(toWin())}`;
-      } else if (opp) txt = `You hold ${SIDE(S.pos.side)} · a chip here flips it`;
+      } else if (opp) txt = ARCADE_FLIP === "net" ? `You hold ${SIDE(S.pos.side)} · a chip here nets against it` : `You hold ${SIDE(S.pos.side)} · a chip here flips it`;
       else {
         const px = cents()[sd] / 100,
           sh = Math.max(1, Math.floor((S.chip - fee(S.chip)) / px));
@@ -1048,7 +1080,9 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       const fl = S.pend.filter((x: any) => x.side !== Pp.side),
         fs = fl.reduce((a: number, x: any) => a + x.margin, 0);
       s.textContent = fl.length
-        ? `Flipping · closes your ${SIDE(Pp.side)} (${whole(posValue())} back) · then ${whole(fs)} on ${SIDE(fl[0].side)}`
+        ? ARCADE_FLIP === "net"
+          ? `Netting · ${whole(fs)} on ${SIDE(fl[0].side)} reduces your ${SIDE(Pp.side)} share-for-share`
+          : `Flipping · closes your ${SIDE(Pp.side)} (${whole(posValue())} back) · then ${whole(fs)} on ${SIDE(fl[0].side)}`
         : `${Pp.sh} sh @ ${(Pp.avg * 100).toFixed(1)}¢ · value ${money(posValue())}`;
       const v = posValue() - Pp.margin;
       l.textContent = signed(v);
@@ -1349,6 +1383,13 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       } catch (e) {
         /* unsupported */
       }
+    });
+  const exitBtn = $("#exitBtn");
+  if (exitBtn)
+    on(exitBtn, "click", () => {
+      audio();
+      sfx.click();
+      api.exit();
     });
   on($("#logoPlate"), "click", (e: any) => {
     audio();

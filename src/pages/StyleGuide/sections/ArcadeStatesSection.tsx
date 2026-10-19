@@ -32,7 +32,7 @@ const CABINET: SectionCase[] = [
     spec: [
       { state: "待发", when: "pend.length", visual: "按钮上 40px 环 1.5s 倒数 + 筹码；底注 `Filling $25 · tap chip to cancel`", source: "place / cancelPend" },
       { state: "持仓", when: "pos.side === side", visual: "held 态：筹码堆（最近 4 枚）+ Position 徽标；底注 sh · to win", source: "renderButtons" },
-      { state: "翻面", when: "pos && chip on the other side", visual: "底注 `Flip to Down · $25 · tap chip to cancel`；成交 = 先 SELL 全部持仓（当前份额价）再 BUY（ARCADE_FLIP）", source: "fill" },
+      { state: "反向落筹 = 净额冲减", when: "pos && chip on the other side", visual: "底注 `Nets $25 against your Up · tap chip to cancel`；成交 = executeSpotTrade 按隐含价份额对份额减持仓、余量开对面（ARCADE_FLIP = net，与平台现货一致）", source: "fill" },
       { state: "Cash out", when: "pos && tf === 1m", visual: "红键可点 → 25 / 50 / 100% 滑杆弹层 → 现货 SELL；30s 轮禁用 + title 说明", source: "openCo / cashOut" },
       { state: "结算", when: "clock hits 0", visual: "赢：金币雨 + 涨落数字 splash + 猫欢呼；输：红闪 + 抖动 + 猫丧；路单弹入新格；服务端 ≤30s 内入账", source: "settle / settlePosition" },
     ],
@@ -55,7 +55,7 @@ const MOBILE: SectionCase[] = [
     key: "arcade-ar4",
     label: "AR-4 · 移动版（一屏 + 抽屉）",
     note:
-      "设计师的抽屉版 1:1：站点 MobileHeader（Quick Play · 返回 Events）之下机柜占满余下视口，不滚动；顶部题目 → 币种 / 周期 → 舞台（价格 + 倒计时 + 图 + 梯子）→ `ROAD & STATS` 窥条（最近 10 局 + 合计，上滑 / 点开抽屉：珠盘、大路、统计、Today、猫）→ This round / Live / Share / Cash out → 筹码盘 → UP / DOWN 两大键。弹层（Cash out / Share / Orders）都在壳内从底部升起。",
+      "设计师的抽屉版 1:1：全屏（无站点 header / footer），机柜占满视口不滚动，右上 ✕ 回 Events；顶部题目 → 币种 / 周期 → 舞台（价格 + 倒计时 + 图 + 梯子）→ `ROAD & STATS` 窥条（最近 10 局 + 合计，上滑 / 点开抽屉：珠盘、大路、统计、Today、猫）→ This round / Live / Share / Cash out → 筹码盘 → UP / DOWN 两大键。弹层（Cash out / Share / Orders）都在壳内从底部升起。",
     spec: [
       { state: "窥条", when: "always", visual: "`ROAD & STATS` + 10 格 ✓✕ + `Last 10 ±$X`；aria-expanded 跟抽屉", source: "mobileSheet · renderTicks" },
       { state: "抽屉开", when: "peek tap / swipe up", visual: "半屏钢板 sheet，拖把手下拉 80px 关闭，Esc 关闭", source: "mobileSheet" },
@@ -69,7 +69,7 @@ const BANNER: SectionCase[] = [
     key: "arcade-ab1",
     label: "AB-1 · Events All 入口横幅（桌面 V1-B 钢板）· 活体 / 开桌中",
     note:
-      "Events「All」视图 chips 带之下、舞台之上；只在 All（非日历、非 watchlist）出现。读的是 BTC 30s 桌的同一条确定性价格流：价格、`BTC · OPEN $X · ▲ +$Y`、UP/DOWN 价、倒计时全部与点进去看到的一致。没有开放轮次时显示 `OPENING…` 而不是假数字；不显示在线人数（没有数据源）。整条可点 → `/arcade?table=BTC&tf=30s`。跑灯环（V1-B+）由 ARCADE_BANNER_LIGHTS 常量控，默认关。",
+      "Events「All」视图 chips 带之下、舞台之上；只在 All（非日历、非 watchlist）出现。读的是 BTC 30s 桌的同一条确定性价格流：价格、`BTC · OPEN $X · ▲ +$Y`、UP/DOWN 价、倒计时全部与点进去看到的一致。没有开放轮次时显示 `OPENING…` 而不是假数字；不显示在线人数（没有数据源）。整条可点 → `/arcade?table=BTC&tf=30s`。跑灯环（V1-B+）开，ARCADE_BANNER_LIGHTS（CPO）。",
     spec: [
       { state: "活体", when: "round != null", visual: "钢板 170 / 1fr / auto / 150 四列；CRT 屏铺价格线；青色 LCD 倒计时，≤5s 变红", source: "ArcadeEntryBanner · useArcadeTicker" },
       { state: "开桌中", when: "round == null", visual: "价格位 `OPENING…`，倒计时位 `—`", source: "同上" },
@@ -101,10 +101,10 @@ export const ArcadeStatesSection = () => (
   <SectionWrapper
     id="arcade-states"
     title="/arcade · Quick Play（30s / 1m Up/Down · 机柜皮肤）· 状态字典（AR-1 … AR-4 · AB-1 / AB-2）"
-    description="2026-10-19 CPO 拍板：Table 形态离开 5m / 15m 页，成为独立快玩专区。加密 BTC / ETH / SOL 30s + 1m 全天；美股 AAPL / NVDA / TSLA / COIN 1m 只在美国现金时段。现货账户、无 Boost、平局退本金、停牌作废。第三种页面类型：机柜铺满站点 header 之下。设计师机柜（artifact BKHuHJvFkzeLXQxLWBHxSF）1:1 搬入，只换数据缝：轮次 / 价格 = public.arcade_rounds + 确定性路径（SQL 与 JS 同一算法），下单 = executeSpotTrade。字体自托管 public/fonts/arcade。文案占位，待措辞轮。"
+    description="2026-10-19 CPO 拍板：Table 形态离开 5m / 15m 页，成为独立快玩专区。加密 BTC / ETH / SOL 30s + 1m 全天；美股 AAPL / NVDA / TSLA / COIN 1m 只在美国现金时段。现货账户、无 Boost、平局退本金、停牌作废。第三种页面类型：全屏游戏页，无站点 header / footer，机柜自带 ✕ 出口。设计师机柜（artifact BKHuHJvFkzeLXQxLWBHxSF）1:1 搬入，只换数据缝：轮次 / 价格 = public.arcade_rounds + 确定性路径（SQL 与 JS 同一算法），下单 = executeSpotTrade。字体自托管 public/fonts/arcade。文案占位，待措辞轮。"
   >
     <div className="rounded-lg border border-[#FF8A3D]/30 bg-[#FF8A3D]/5 px-3 py-2 text-[12px] text-foreground">
-      交互契约：落筹 = 1.5s 待发可撤（无 Confirm）· 一轮一仓、同向加仓 · 反向落筹 = 翻面（先 SELL 全部持仓再 BUY，<code className="font-mono">ARCADE_FLIP</code>）· 30s 无 Cash out，1m 可 · 结算由
+      交互契约：落筹 = 1.5s 待发可撤（无 Confirm）· 一轮一仓、同向加仓 · 反向落筹 = 净额冲减（<code className="font-mono">ARCADE_FLIP = net</code>，与平台现货一致）· 30s 无 Cash out，1m 可 · 结算由
       <code className="font-mono"> roll_arcade_rounds</code>（pg_cron 每 30s）按 option_id 结现货仓（<code className="font-mono">settle_arcade_round</code>，migration <code className="font-mono">20261019120000</code>），
       客户端用同一路径先行开奖、≤30s 内服务端入账。
     </div>

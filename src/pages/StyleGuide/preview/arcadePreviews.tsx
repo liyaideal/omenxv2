@@ -62,6 +62,7 @@ const stubApi = (over: Partial<ArcadeApi> = {}): ArcadeApi => ({
   loadHolding: async () => null,
   loadToday: async () => ({ net: -24.82, won: 0, lost: 1, last: [{ s: "u", w: false, pnl: -24.82, t: T0 - 30000 }] }),
   referralLink: "https://omenxv2.lovable.app?ref=75CN66",
+  exit: () => {},
   username: "alex_carter",
   avatarUrl: null,
   ...over,

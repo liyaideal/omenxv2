@@ -14,8 +14,8 @@ import { ARCADE_ASSETS, fetchArcadeTable, tfSeconds } from "@/lib/arcade/arcadeT
 import { ensureArcadeFonts } from "@/lib/arcade/arcadeFonts";
 import { arcadeNextOf } from "@/lib/arcade/arcadePath";
 
-/** V1-B+ (ring of marquee lights) — off by default (CPO: "带不带灯你挑"). */
-export const ARCADE_BANNER_LIGHTS = false;
+/** V1-B+ ring of marquee lights (CPO 2026-10-19: on). */
+export const ARCADE_BANNER_LIGHTS = true; // CPO 2026-10-19: 横幅带灯
 
 const SYMBOL = "BTC";
 const TF = "30s" as const;
