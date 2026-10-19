@@ -593,7 +593,21 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     md.style.color = diff >= 0 ? C.up : C.dn;
   }
 
-  /* ---------- history: resolved rounds of this table drive bead, road, stats ---------- */
+  /* ---------- history: resolved rounds of this table drive bead, road, stats ----------
+   * The roads follow the standard baccarat display rules (CPO 2026-10-19, "正常赌博网站的展示规则"):
+   *  · Bead plate (珠盘路): every result in order, 6 per column, top → bottom, then the next column to the
+   *    right. The plate keeps the last 6 columns and slides one whole column when the newest column fills;
+   *    the dashed cell is where the next result lands.
+   *  · Big road (大路): a result equal to the previous one stacks DOWN the same column (6 rows max); a change
+   *    opens a new column to the right at row 1. A streak that reaches the floor, or whose next cell is already
+   *    taken by an earlier streak, turns RIGHT and runs along its row (龙尾 / dragon tail); later columns still
+   *    start at row 1 and turn right themselves when they hit a tail. Two adjacent columns never share a colour,
+   *    so a long streak reads as one dragon, never as several short stacks. The road shows as many columns as
+   *    fit, newest on the right.
+   *  · Void rounds (close == open / halted) are not part of the history (fetchArcadeTable drops them), so no tie
+   *    mark; the derived roads (big eye / small / cockroach) are deliberately not drawn — they encode pattern
+   *    repetition, which a 30-second random stream has none of.
+   */
   function streakInfo() {
     const h = S.hist;
     let best = { s: "u", n: 0 },
@@ -604,20 +618,47 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     }
     return { best, cur };
   }
-  function buildRoad() {
-    const cols: any[] = [];
+  type RoadCell = { i: number; s: Side; c: number; r: number; k: number; n: number };
+  function buildRoad(): { cells: RoadCell[]; cols: number } {
+    const cells: RoadCell[] = [],
+      occ = new Set<string>();
+    let head = -1,
+      c = 0,
+      r = 0,
+      prev: Side | null = null,
+      turned = false,
+      run: RoadCell[] = [];
     S.hist.forEach((x: Side, i: number) => {
-      const c = cols[cols.length - 1];
-      if (c && c.s === x && c.cells.length < 4) c.cells.push(i);
-      else cols.push({ s: x, cells: [i] });
+      if (x !== prev) {
+        head += 1;
+        c = head;
+        r = 0;
+        turned = false;
+        prev = x;
+        run = [];
+        while (occ.has(c + ",0")) {
+          c += 1;
+          head = c;
+        }
+      } else if (!turned && r < 5 && !occ.has(c + "," + (r + 1))) {
+        r += 1;
+      } else {
+        turned = true;
+        c += 1;
+      }
+      occ.add(c + "," + r);
+      const cell: RoadCell = { i, s: x, c, r, k: run.length + 1, n: 0 };
+      run.push(cell);
+      cells.push(cell);
+      for (const q of run) q.n = run.length;
     });
-    return cols;
+    return { cells, cols: cells.length ? cells[cells.length - 1].c + 1 : 0 };
   }
   function renderBead(newest?: boolean) {
     const el = $("#bead");
     el.innerHTML = "";
     const n = S.hist.length,
-      from = Math.max(0, n - 36);
+      from = Math.max(0, Math.ceil((n + 1) / 6) - 6) * 6; // last 6 columns, the newest one still filling
     for (let i = from; i < n; i++) {
       const b = document.createElement("span");
       b.className = "bead " + S.hist[i];
@@ -625,29 +666,43 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       if (newest && i === n - 1) b.classList.add("pop");
       el.appendChild(b);
     }
-    $("#beadN").textContent = String(Math.min(36, n));
+    const g = document.createElement("span");
+    g.className = "bead ghost";
+    el.appendChild(g);
+    $("#beadN").textContent = String(n - from);
   }
+  let roadW = -1;
   function renderRoad(newest?: boolean) {
     const el = $("#road");
     el.innerHTML = "";
-    const cols = buildRoad().slice(-40),
-      last = S.hist.length - 1;
-    cols.forEach((c: any) => {
-      const d = document.createElement("div");
-      d.className = "col";
-      c.cells.forEach((i: number) => {
-        const b = document.createElement("span");
-        b.className = "cell " + c.s;
-        b.dataset.i = String(i);
-        if (newest && i === last) b.classList.add("pop");
-        d.appendChild(b);
-      });
-      el.appendChild(d);
+    const { cells, cols } = buildRoad(),
+      last = S.hist.length - 1,
+      st = getComputedStyle(el),
+      pitch = (parseFloat(st.gridAutoColumns) || 9) + (parseFloat(st.columnGap) || 2),
+      w = el.clientWidth;
+    roadW = w;
+    const fit = w > 0 ? Math.max(6, Math.floor((w + 2) / pitch)) : 40,
+      first = Math.max(0, cols - fit);
+    for (const q of cells) {
+      if (q.c < first) continue;
+      const b = document.createElement("span");
+      b.className = "cell " + q.s;
+      b.dataset.i = String(q.i);
+      b.dataset.k = String(q.k);
+      b.dataset.n = String(q.n);
+      b.style.gridColumn = String(q.c - first + 1);
+      b.style.gridRow = String(q.r + 1);
+      if (newest && q.i === last) b.classList.add("pop");
+      el.appendChild(b);
+    }
+  }
+  {
+    const roadRo = new ResizeObserver(() => {
+      const el = $("#road");
+      if (el && el.clientWidth !== roadW) renderRoad();
     });
-    const g = document.createElement("div");
-    g.className = "col";
-    g.innerHTML = '<span class="cell ghost"></span>';
-    el.appendChild(g);
+    roadRo.observe($("#road"));
+    disposers.push(() => roadRo.disconnect());
   }
   function renderStats() {
     S.nUp = S.hist.filter((x: Side) => x === "u").length;
@@ -1835,7 +1890,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   const winOf = (r: ArcadeRoundRow) => `${fmtT(new Date(r.start_at), true)}–${fmtT(new Date(r.end_at), true)}`;
   const sideTxt = (r: boolean) => (r ? `<b>Up won</b>` : `<span class="w">Down won</span>`);
   function tipFor(t: any) {
-    const el = t.closest && t.closest(".bead,.cell:not(.ghost),.tick,[data-tip]");
+    const el = t.closest && t.closest(".bead:not(.ghost),.cell:not(.ghost),.tick,[data-tip]");
     if (el && root.contains(el)) {
       const r = el.getBoundingClientRect(),
         x = r.left + r.width / 2,
@@ -1846,10 +1901,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
           up = el.classList.contains("u");
         if (!rr) return hideTip();
         const mv = (rr.close_price ?? rr.open_price) - rr.open_price;
-        if (el.classList.contains("cell")) {
-          const col = [...el.parentNode.children];
-          return showTip(`${winOf(rr)} · ${sideTxt(up)} · streak ${col.indexOf(el) + 1}/${col.length}`, x, y);
-        }
+        if (el.classList.contains("cell")) return showTip(`${winOf(rr)} · ${sideTxt(up)} · streak ${el.dataset.k}/${el.dataset.n}`, x, y);
         return showTip(`${winOf(rr)} · ${sideTxt(up)} · ${up ? "▲ +" : "▼ −"}$${Math.abs(mv).toFixed(2)}`, x, y);
       }
       if (el.classList.contains("tick")) {

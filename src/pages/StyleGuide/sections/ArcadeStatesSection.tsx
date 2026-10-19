@@ -15,7 +15,7 @@ const CABINET: SectionCase[] = [
     key: "arcade-ar1",
     label: "AR-1 · 空桌（BTC 30s · 开局 9 秒）",
     note:
-      "四行动线不变：① 路单（珠盘 36 + 大路 + 统计）→ ② 舞台（价格线 + 梯子 + 倒计时）→ ③ UP / 筹码 / DOWN → ④ 记分板。价格线是确定性路径（服务端同一算法），Up/Down 价格由「偏离 ÷ 剩余时间」的 tanh 曲线给出。UP/DOWN 底注写成当前筹码的结果 `$25 in → win +$X if Up`，不写份额。",
+      "四行动线不变：① 路单（珠盘 + 大路 + 统计，赌场标准画法：珠盘一列 6 格留最近 6 列、虚线格 = 下一局落点；大路同结果向下堆 6 行、变结果右开新列、到底或被挡向右拐龙尾，相邻列永不同色）→ ② 舞台（价格线 + 梯子 + 倒计时）→ ③ UP / 筹码 / DOWN → ④ 记分板。价格线是确定性路径（服务端同一算法），Up/Down 价格由「偏离 ÷ 剩余时间」的 tanh 曲线给出。UP/DOWN 底注写成当前筹码的结果 `$25 in → win +$X if Up`，不写份额。",
     spec: [
       { state: "题目", when: "always", visual: "`Will BTC close above $open?` + ⓘ（规则弹层：份额、判定、平局作废、30s 无 Cash out、SPOT · NO BOOST）；副行本轮起止（本地时间）", source: "arcadeEngine · labelRound / rulesHtml" },
       { state: "Available", when: "always", visual: "现货账户余额，下单 / 回款时 700ms 滚数 + bump", source: "api.getBalance · eqTo" },
