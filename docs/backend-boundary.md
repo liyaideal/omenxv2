@@ -249,7 +249,7 @@
 |---|---|---|
 | `notifications` 表：`type` / `params`（只存插值参数，不存文本）/ `deep_link` / `dedupe_key` 唯一 / `read_at` / 90 天保留 | 🟡 B | type 枚举、params 键、已读规则、保留期是需求（词典「Notifications」）；存储 / 投递实现自选 |
 | `notify()` 单一写入口 + `ON CONFLICT (user_id, dedupe_key) DO NOTHING` | 🟡 B | "同一事件只发一次"是需求；正式版可用消息队列幂等键实现同一语义 |
-| 生产者触发器（positions / transactions / position_vouchers / campaign_grants / user_tasks / referrals / airdrop_positions / voucher_earnings_ledger / treasure_drops / api_keys / connected_accounts / recovery_requests / profiles） | 🟡 B | 触发点与 type 映射是需求（delivery §2.2）；正式版在各服务的同一业务点发出 |
+| 生产者触发器（positions / transactions / position_vouchers / campaign_grants / user_tasks / referrals / airdrop_positions / voucher_earnings_ledger / api_keys / connected_accounts / recovery_requests / profiles） | 🟡 B | 触发点与 type 映射是需求（delivery §2.2）；正式版在各服务的同一业务点发出 |
 | `settled.round_batch`：同一事件 ≥3 条在一次结算里一起 Closed → 一条 | 🟢 A | 合并规则照抄 |
 | `trade.*` 不计角标；`close_reason` 空且 pnl = 0 不发（撤回的下注） | 🟢 A | 照抄 |
 | `notify_expiring()` cron */30（券 / 空投 / grant 到期前 24h）；`purge_notifications()` 每日 | 🟡 B | 提前 24h 与 90 天是需求；调度方式自选 |

@@ -114,7 +114,7 @@ const num = (v: unknown) => (typeof v === "number" ? v : Number(v ?? 0)) || 0;
 
 const pnlTone = (p: Record<string, unknown>): NotificationTone => (num(p.pnl) > 0 ? "volt" : "muted");
 
-/** The 35 v1 + 5 v2 types. Keep in sync with docs/copy-dictionary.md「Notifications」. The style-guide icon ledger (NT-23) renders straight from this table — it never drifts. */
+/** The 34 v1 + 5 v2 types (reward.treasure_opened retired 2026-10-20). Keep in sync with docs/copy-dictionary.md「Notifications」. The style-guide icon ledger (NT-23) renders straight from this table — it never drifts. */
 export const NOTIFICATION_TYPES: Record<string, TypeMeta> = {
   // Trading · Settled
   "settled.win": { icon: CircleCheck, tone: "volt" },
@@ -147,7 +147,6 @@ export const NOTIFICATION_TYPES: Record<string, TypeMeta> = {
   "reward.referral_joined": { icon: Gift, tone: "primary" },
   "reward.airdrop_credited": { icon: Gift, tone: "primary" },
   "reward.airdrop_expiring": { icon: Gift, tone: "yellow" },
-  "reward.treasure_opened": { icon: Gift, tone: "primary" },
   // Account · Account & security
   "account.new_session": { icon: ShieldCheck, tone: "red" },
   "account.password_changed": { icon: ShieldCheck, tone: "red" },
@@ -251,6 +250,23 @@ const shortAddress = (a: unknown) =>
  * Interpolation vars per type. Every value is already a display string, so
  * the i18n templates stay pure text (translators never see numbers' formats).
  */
+/** Daily US / HK stock rounds carry `session_date` (the round's trading day); other events don't. */
+const sessionLabel = (p: Record<string, unknown>) => {
+  const d = typeof p.session_date === "string" ? p.session_date : "";
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return "";
+  const [y, m, day] = d.split("-").map(Number);
+  return t("notifications.session", { date: new Date(y, m - 1, day).toLocaleDateString("en-US", { month: "short", day: "numeric" }) });
+};
+const sessionHead = (p: Record<string, unknown>) => { const l = sessionLabel(p); return l ? `${l} · ` : ""; };
+const sessionTail = (p: Record<string, unknown>) => { const l = sessionLabel(p); return l ? ` · ${l}` : ""; };
+const accountWord = (p: Record<string, unknown>) => (p.account === "spot" ? "Standard Account" : "Boost Account");
+/** Deposit rail from transactions.type: deposit → on Base · cross_chain_in → via bridge · fiat_buy → via card. */
+const depositSource = (p: Record<string, unknown>) => {
+  const k = p.tx_type === "cross_chain_in" ? "bridge" : p.tx_type === "fiat_buy" ? "card" : "chain";
+  return t(`notifications.deposit.source.${k}`);
+};
+const WITHDRAW_FEE_USDC = 1;
+
 export const notificationVars = (n: Pick<NotificationRow, "type" | "params">): TVars => {
   const p = n.params ?? {};
   const base: TVars = {};
@@ -260,20 +276,24 @@ export const notificationVars = (n: Pick<NotificationRow, "type" | "params">): T
     case "settled.flat":
     case "autoclose.done":
     case "trade.cashed_out":
-      return { event: String(p.event_name ?? ""), side: sideWord(p), pnl: signedUsd(num(p.pnl)), cost: usd(num(p.margin)), boost: boost(p) };
+      // `pnl` is net to wallet (gross − winning commission) since 2026-10-20; no commission wording in copy (CPO).
+      return { event: String(p.event_name ?? ""), side: sideWord(p), pnl: signedUsd(num(p.pnl)), cost: usd(num(p.margin)), boost: boost(p), session: sessionHead(p) };
     case "settled.round_batch":
       return { series: String(p.series ?? ""), n: num(p.n), net: signedUsd(num(p.net)) };
     case "autoclose.tight":
     case "autoclose.soon":
       return { ratio: `${num(p.ratio).toFixed(0)}%` };
     case "trade.bought":
-      return { event: String(p.event_name ?? ""), side: sideWord(p), cost: usd(num(p.margin)), boost: boost(p) };
+      return { event: String(p.event_name ?? ""), side: sideWord(p), cost: usd(num(p.margin)), boost: boost(p), session: sessionTail(p) };
     case "funds.deposit_done":
     case "funds.deposit_failed":
+      return { amount: usd(num(p.amount)), account: accountWord(p), source: depositSource(p) };
     case "funds.withdraw_submitted":
     case "funds.withdraw_done":
+      // Net of the flat USDC withdraw fee — the figure that actually leaves / lands (CPO 2026-10-20).
+      return { amount: usd(Math.max(0, num(p.amount) - WITHDRAW_FEE_USDC)), fee: usd(WITHDRAW_FEE_USDC), account: accountWord(p) };
     case "funds.withdraw_failed":
-      return { amount: usd(num(p.amount)), account: p.account === "spot" ? "Standard Account" : "Boost Account" };
+      return { amount: usd(num(p.amount)), account: accountWord(p) };
     case "funds.credit":
       return { amount: usd(num(p.amount)), reason: String(p.description ?? "") };
     case "funds.recovery_update":
@@ -304,8 +324,6 @@ export const notificationVars = (n: Pick<NotificationRow, "type" | "params">): T
     case "reward.airdrop_credited":
     case "reward.airdrop_expiring":
       return { event: String(p.event_name ?? ""), side: sideWord(p), amount: usd(num(p.amount)), deadline: notifDeadline(p.expires_at) };
-    case "reward.treasure_opened":
-      return { points: num(p.points).toLocaleString("en-US") };
     case "account.new_session":
       return {
         where: [p.device, p.location].filter((v) => typeof v === "string" && v.trim()).join(" · ") || t("notifications.unknownDevice"),

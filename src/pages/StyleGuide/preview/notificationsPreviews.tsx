@@ -64,12 +64,15 @@ export const TRADING_FEED: Row[] = [
   mk("trade.cashed_out", { event_name: "Will the Fed cut rates in October?", option_label: "Yes", side: "long", pnl: 4.1, margin: 50, leverage: 1 }, 22.1, true, "/portfolio/settlement/y"),
   mk("autoclose.done", { event_name: "Will Tesla close above $300 on Oct 13?", option_label: "No", side: "long", pnl: -60, margin: 20, leverage: 3 }, 70, true, "/portfolio/settlement/z"),
   mk("settled.loss", { event_name: "Will the Fed cut rates in October?", option_label: "No", side: "long", pnl: -25, margin: 25, leverage: 1 }, 72, true, "/portfolio/settlement/w"),
+  // Daily HK stock round: carries session_date → "Oct 17 session" lead-in (tester 2026-10-20).
+  mk("settled.win", { event_name: "Xiaomi (1810.HK) — will close higher today?", option_label: "Down", side: "short", side_labels: UPDOWN, pnl: 14.17, margin: 12.08, leverage: 1, session_date: "2026-10-17" }, 73, true, "/portfolio/settlement/v"),
+  mk("trade.bought", { event_name: "Xiaomi (1810.HK) — will close higher today?", option_label: "Down", side: "short", side_labels: UPDOWN, margin: 12.08, leverage: 1, session_date: "2026-10-17" }, 80, true, "/trade"),
 ];
 
 /** Account feed (mock P2 / M4). */
 export const ACCOUNT_FEED: Row[] = [
   mk("reward.grant_claimable", { campaign: "Volume Ladder · October", task: "Buy $300 across CPI markets", amount: 40, reward_kind: "usdc" }, 2, false, "/rewards/campaign/a"),
-  mk("funds.deposit_done", { amount: 500, account: "spot" }, 4.5, false, "/wallet"),
+  mk("funds.deposit_done", { tx_type: "cross_chain_in", amount: 500, account: "spot" }, 4.5, false, "/wallet"),
   mk("reward.voucher_expiring", { face_value: 25, expires_at: "2026-10-14T01:00:00Z" }, 29.5, true, "/vouchers"),
   mk("account.new_session", { device: "Chrome · macOS", location: "Singapore", at: "2026-10-13T01:12:00Z" }, 30, true, "/settings"),
   mk("reward.referral_joined", { username: "maria_lopez" }, 96, true, "/affiliate"),
@@ -108,7 +111,6 @@ export const ALL_TYPES: Row[] = [
   mk("reward.referral_joined", { username: "maria_lopez" }, 1.3, false),
   mk("reward.airdrop_credited", { event_name: BTC, option_label: "Yes", side: "long", amount: 10, expires_at: "2026-10-20T01:00:00Z" }, 255, false),
   mk("reward.airdrop_expiring", { event_name: BTC, option_label: "Yes", side: "long", expires_at: "2026-10-14T01:00:00Z" }, 30.1, false),
-  mk("reward.treasure_opened", { points: 120, tier: "silver" }, 1.4, false),
   mk("account.new_session", { device: "Chrome · macOS", location: "Singapore", at: "2026-10-13T01:12:00Z" }, 256, false),
   mk("account.password_changed", {}, 30.3, false),
   mk("account.email_changed", { email: "alex.carter@example.com" }, 1.5, false),

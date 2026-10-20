@@ -97,7 +97,35 @@ const closePositionInDb = async ({
   const fundingPaid = 0;
   const netPnl = pnl - fundingPaid;
 
-  // Update position status (store net realized pnl)
+  // Entry fee is allocated by REMAINING size over the ORIGINAL filled
+  // quantity, so a partial close followed by a full close can never
+  // charge the same fee slice twice.
+  let allocatedEntryFee = 0;
+  let trade: { fee: number | null; quantity: number | null } | null = null;
+  if (position.trade_id) {
+    const { data } = await supabase
+      .from("trades")
+      .select("fee, quantity")
+      .eq("id", position.trade_id)
+      .maybeSingle();
+    trade = data;
+    const feeWhole = Number(trade?.fee ?? 0) || 0;
+    const originalQty = Number(trade?.quantity ?? 0) || 0;
+    const closedQty = Number(position.size) || 0;
+    allocatedEntryFee = originalQty > 0 ? feeWhole * (closedQty / originalQty) : feeWhole;
+  }
+
+  // Cash back = released margin + realized PnL − winning commission.
+  const releasedMargin = Number(position.margin) || 0;
+  const { wc, cashBack } = cashBackOnClose({
+    releasedMargin,
+    realizedPnl: netPnl,
+    allocatedEntryFee,
+  });
+
+  // Close in ONE statement, commission included: the notifications trigger
+  // reads winning_commission off the same row to show the net figure
+  // (2026-10-20); stamping it in a second UPDATE would race the trigger.
   const { error: updateError } = await supabase
     .from("positions")
     .update({
@@ -105,28 +133,14 @@ const closePositionInDb = async ({
       mark_price: closePrice,
       pnl: netPnl,
       closed_at: new Date().toISOString(),
+      ...(wc > 0 ? { winning_commission: (Number(position.winning_commission) || 0) + wc } : {}),
     })
     .eq("id", positionId)
     .eq("user_id", userId);
 
   if (updateError) throw updateError;
 
-  // 4. Update corresponding trade with funding snapshot.
-  //    Entry fee is allocated by REMAINING size over the ORIGINAL filled
-  //    quantity, so a partial close followed by a full close can never
-  //    charge the same fee slice twice.
-  let allocatedEntryFee = 0;
   if (position.trade_id) {
-    const { data: trade } = await supabase
-      .from("trades")
-      .select("fee, quantity")
-      .eq("id", position.trade_id)
-      .maybeSingle();
-    const feeWhole = Number(trade?.fee ?? 0) || 0;
-    const originalQty = Number(trade?.quantity ?? 0) || 0;
-    const closedQty = Number(position.size) || 0;
-    allocatedEntryFee = originalQty > 0 ? feeWhole * (closedQty / originalQty) : feeWhole;
-
     await supabase
       .from("trades")
       .update({
@@ -136,23 +150,6 @@ const closePositionInDb = async ({
         closed_at: new Date().toISOString(),
       })
       .eq("id", position.trade_id);
-  }
-
-
-  // 5. Cash back = released margin + realized PnL − winning commission.
-  const releasedMargin = Number(position.margin) || 0;
-  const { wc, cashBack } = cashBackOnClose({
-    releasedMargin,
-    realizedPnl: netPnl,
-    allocatedEntryFee,
-  });
-
-  if (wc > 0) {
-    await supabase
-      .from("positions")
-      .update({ winning_commission: (Number(position.winning_commission) || 0) + wc })
-      .eq("id", positionId)
-      .eq("user_id", userId);
   }
 
   recordCloseLedger({

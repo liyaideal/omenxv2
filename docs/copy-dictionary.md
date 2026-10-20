@@ -1039,19 +1039,19 @@ icon · 色 列与 `src/lib/notifications.ts` NOTIFICATION_TYPES 同源，渲染
 
 | tab | type | icon · 色 | 触发 | 标题 | 正文 | 深链 | 计角标 |
 |---|---|---|---|---|---|---|---|
-| Trading | `settled.win` | `CircleCheck` volt | 结算 pnl > 0 | `{{event}} settled — you won` | `{{side}} · {{pnl}}` | `/portfolio/settlement/:id` | ✓ |
-| Trading | `settled.loss` | `CircleCheck` muted | 结算 pnl < 0 | `{{event}} settled` | `{{side}} · {{pnl}}` | 同上 | ✓ |
-| Trading | `settled.flat` | `CircleCheck` muted | 结算 pnl = 0 | `{{event}} settled` | `{{side}} · your {{cost}} is back` | 同上 | ✓ |
+| Trading | `settled.win` | `CircleCheck` volt | 结算 pnl > 0 | `{{event}} settled — you won` | `{{session}}{{side}} · {{pnl}}`（pnl = 净额，扣 winning commission；日内美股/港股轮 session = `Oct 17 session · `） | `/portfolio/settlement/:id` | ✓ |
+| Trading | `settled.loss` | `CircleCheck` muted | 结算 pnl < 0 | `{{event}} settled` | `{{session}}{{side}} · {{pnl}}` | 同上 | ✓ |
+| Trading | `settled.flat` | `CircleCheck` muted | 结算 pnl = 0 | `{{event}} settled` | `{{session}}{{side}} · your {{cost}} is back` | 同上 | ✓ |
 | Trading | `settled.round_batch` | `CircleCheck` net > 0 → volt · else muted | 同事件 ≥3 条同刻结算 | `{{series}} · {{n}} rounds settled` | `net {{net}}` | `/portfolio/settlements` | ✓ |
 | Trading | `autoclose.tight` | `TriangleAlert` yellow | Boost usage 进入 ≥ 80% | `Boost check: getting tight` | `Boost usage {{ratio}} · add funds or cash out` | `/portfolio` | ✓ |
 | Trading | `autoclose.soon` | `TriangleAlert` red | 进入 ≥ 95% | `Boost check: auto-close soon` | 同上 | `/portfolio` | ✓ |
-| Trading | `autoclose.done` | `TriangleAlert` red | `close_reason = auto_close` | `{{event}} auto-closed` | `{{side}}{{boost}} · {{pnl}}` | `/portfolio/settlement/:id` | ✓ |
-| Trading | `trade.bought` | `ArrowLeftRight` muted | positions INSERT | `Bought {{side}} · {{cost}}` | `{{event}}{{boost}}` | `/trade?event=` | — |
-| Trading | `trade.cashed_out` | `ArrowLeftRight` pnl > 0 → volt · else muted | `close_reason = cashout` | `Cashed out {{side}}` | `{{event}} · {{pnl}}` | `/portfolio/settlement/:id` | — |
-| Account | `funds.deposit_done` | `Wallet` volt | 入金 completed | `Deposit received` | `+{{amount}} USDC · {{account}}` | `/wallet` | ✓ |
-| Account | `funds.deposit_failed` | `Wallet` red | 入金 failed | `Deposit failed` | `{{amount}} USDC · tap for details` | `/wallet` | ✓ |
-| Account | `funds.withdraw_submitted` | `Wallet` muted | 出金 pending | `Withdrawal submitted` | `{{amount}} USDC · usually within 30 min` | `/wallet` | ✓ |
-| Account | `funds.withdraw_done` | `Wallet` muted | 出金 completed | `Withdrawal sent` | `{{amount}} USDC · view on explorer` | `/wallet` | ✓ |
+| Trading | `autoclose.done` | `TriangleAlert` red | `close_reason = auto_close` | `{{event}} auto-closed` | `{{session}}{{side}}{{boost}} · {{pnl}}` | `/portfolio/settlement/:id` | ✓ |
+| Trading | `trade.bought` | `ArrowLeftRight` muted | positions INSERT | `Bought {{side}} · {{cost}}` | `{{event}}{{boost}}{{session}}`（session = ` · Oct 17 session`） | `/trade?event=` | — |
+| Trading | `trade.cashed_out` | `ArrowLeftRight` pnl > 0 → volt · else muted | `close_reason = cashout` | `Cashed out {{side}}` | `{{session}}{{event}} · {{pnl}}`（pnl 净额） | `/portfolio/settlement/:id` | — |
+| Account | `funds.deposit_done` | `Wallet` volt | 入金 completed | `Deposit received` | `+{{amount}} USDC · {{source}} · {{account}}`（source 按 tx_type：deposit → `on Base` · cross_chain_in → `via bridge` · fiat_buy → `via card`） | `/wallet` | ✓ |
+| Account | `funds.deposit_failed` | `Wallet` red | 入金 failed | `Deposit failed` | `{{amount}} USDC · {{source}} · tap for details` | `/wallet` | ✓ |
+| Account | `funds.withdraw_submitted` | `Wallet` muted | 出金 pending | `Withdrawal submitted` | `{{amount}} USDC · {{fee}} fee · processing`（amount = 申请额 − $1 固定费，fee = `$1.00`） | `/wallet` | ✓ |
+| Account | `funds.withdraw_done` | `Wallet` muted | 出金 completed | `Withdrawal sent` | `{{amount}} USDC · {{fee}} fee · view on explorer`（净额 + 费） | `/wallet` | ✓ |
 | Account | `funds.withdraw_failed` | `Wallet` red | 出金 failed / rejected | `Withdrawal failed` | `{{amount}} USDC is back in your account` | `/wallet` | ✓ |
 | Account | `funds.recovery_update` | `Wallet` status = rejected → red · else muted | 找回 completed / rejected | `Recovery request {{status}}` | `{{amount}} {{token}} on {{network}}` | `/wallet/recovery/:id` | ✓ |
 | Account | `funds.credit` | `Wallet` volt | `bonus` 入账 | `{{amount}} credited` | `{{reason}}` | `/wallet` | ✓ |
@@ -1065,14 +1065,13 @@ icon · 色 列与 `src/lib/notifications.ts` NOTIFICATION_TYPES 同源，渲染
 | Account | `reward.referral_joined` | `Gift` primary | referrals INSERT（给 referrer） | `{{username}} joined with your code` | `your referral voucher is on its way` | `/affiliate` | ✓ |
 | Account | `reward.airdrop_credited` | `Gift` primary | airdrop INSERT | `Airdrop landed: {{event}}` | `{{side}} · {{amount}} · expires {{deadline}}` | `/portfolio/airdrops` | ✓ |
 | Account | `reward.airdrop_expiring` | `Gift` yellow | 到期前 24h（cron） | `Airdrop expires in 24h` | `{{event}} · {{side}}` | `/portfolio/airdrops` | ✓ |
-| Account | `reward.treasure_opened` | `Gift` primary | treasure_drops INSERT | `Treasure box opened` | `+{{points}} points` | `/rewards` | ✓ |
 | Account | `account.new_session` | `ShieldCheck` red | SIGNED_IN（每会话一次） | `New sign-in` | `{{where}} · {{time}}` | `/settings` | ✓ |
 | Account | `account.password_changed` | `ShieldCheck` red | 密码修改 | `Password changed` | `not you? reset it now` | `/settings` | ✓ |
 | Account | `account.email_changed` | `ShieldCheck` muted | profiles.email 变更 | `Login email updated` | `{{email}}` | `/settings` | ✓ |
 | Account | `account.2fa_on` | `ShieldCheck` muted | totp_enabled → true | `Two-factor turned on` | （无正文） | `/settings` | ✓ |
 | Account | `account.2fa_off` | `ShieldCheck` red | totp_enabled → false | `Two-factor turned off` | `not you? turn it back on` | `/settings` | ✓ |
-| Account | `account.api_key_created` | `ShieldCheck` muted | api_keys INSERT | `API key created` | `{{label}} · {{prefix}}…` | `/settings/api` | ✓ |
-| Account | `account.api_key_revoked` | `ShieldCheck` muted | status → revoked | `API key revoked` | `{{label}} · {{prefix}}…` | `/settings/api` | ✓ |
+| Account | `account.api_key_created` | `ShieldCheck` muted | api_keys INSERT | `API key created` | `{{label}} · {{prefix}}`（prefix 自带打码省略号；label 是用户起的名字原样） | `/settings/api` | ✓ |
+| Account | `account.api_key_revoked` | `ShieldCheck` muted | status → revoked | `API key revoked` | `{{label}} · {{prefix}}` | `/settings/api` | ✓ |
 | Account | `account.wallet_linked` | `ShieldCheck` muted | connected_accounts INSERT | `Wallet connected` | `{{address}}` | `/rewards/campaign/h2e` | ✓ |
 | Updates | `system.announcement` | `Megaphone` primary | 公告发布（广播全员，v2） | `{{title}}`（公告原文） | `{{summary}}`（公告原文） | `/announcements/:id` | ✓ |
 | Updates | `system.maintenance` | `Wrench` yellow | 维护公告发布（广播全员，v2） | `{{title}}` | `{{summary}}` | `/announcements/:id` | ✓ |
