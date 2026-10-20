@@ -5946,7 +5946,18 @@
   "session": "{{date}} 交易日",
   "deposit.source.chain": "Base 链上",
   "deposit.source.bridge": "跨链",
-  "deposit.source.card": "银行卡"
+  "deposit.source.card": "银行卡",
+  "trade.order_filled.title": "挂单成交 · {{side}}",
+  "trade.order_filled.body": "{{qty}} 份 @ {{price}}¢ · {{event}}",
+  "trade.order_cancelled.title": "挂单已撤 · {{side}}",
+  "trade.order_cancelled.body": "{{unfilled}} 份未成交 · {{reason}} · {{event}}",
+  "order.buy": "买入",
+  "order.sell": "卖出",
+  "cancelReason.user": "你撤销的",
+  "cancelReason.expired": "已过期",
+  "cancelReason.market_closed": "市场已关闭",
+  "cancelReason.insufficient_balance": "余额不足",
+  "cancelReason.system": "系统撤销"
  },
  "announcements": {
   "title": "公告",

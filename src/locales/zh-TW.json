@@ -5959,7 +5959,18 @@
   "session": "{{date}} 交易日",
   "deposit.source.chain": "Base 鏈上",
   "deposit.source.bridge": "跨鏈",
-  "deposit.source.card": "銀行卡"
+  "deposit.source.card": "銀行卡",
+  "trade.order_filled.title": "掛單成交 · {{side}}",
+  "trade.order_filled.body": "{{qty}} 份 @ {{price}}¢ · {{event}}",
+  "trade.order_cancelled.title": "掛單已撤 · {{side}}",
+  "trade.order_cancelled.body": "{{unfilled}} 份未成交 · {{reason}} · {{event}}",
+  "order.buy": "買入",
+  "order.sell": "賣出",
+  "cancelReason.user": "你撤銷的",
+  "cancelReason.expired": "已過期",
+  "cancelReason.market_closed": "市場已關閉",
+  "cancelReason.insufficient_balance": "餘額不足",
+  "cancelReason.system": "系統撤銷"
  },
  "announcements": {
   "title": "公告",

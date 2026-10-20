@@ -93,6 +93,9 @@ export const ALL_TYPES: Row[] = [
   mk("autoclose.done", { event_name: "Will Tesla close above $300 on Oct 13?", option_label: "No", side: "long", pnl: -60, margin: 20, leverage: 3 }, 0.7, false),
   mk("trade.bought", { event_name: BTC, option_label: "Yes", side: "long", margin: 25, leverage: 2 }, 17.6, false),
   mk("trade.cashed_out", { event_name: "Will the Fed cut rates in October?", option_label: "Yes", side: "long", pnl: 4.1, margin: 50, leverage: 1 }, 0.8, false),
+  // Pro order book (正式版 producer only — Lovable never writes these; fixtures show the agreed copy).
+  mk("trade.order_filled", { order_side: "buy", option_label: "Up", qty: 1.5, price_cents: 4, event_name: "Bitcoin — up or down? (15m · 15:00:00 UTC)" }, 31, false),
+  mk("trade.order_cancelled", { order_side: "sell", option_label: "Up", unfilled_qty: 12.76, reason: "user", event_name: "Bitcoin — up or down? (1h · 15:00:00 UTC)" }, 31.2, false),
   // Account
   mk("funds.deposit_done", { amount: 500, account: "spot" }, 250, false),
   mk("funds.deposit_failed", { amount: 500, account: "spot" }, 29, false),

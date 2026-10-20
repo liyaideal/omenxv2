@@ -114,7 +114,7 @@ const num = (v: unknown) => (typeof v === "number" ? v : Number(v ?? 0)) || 0;
 
 const pnlTone = (p: Record<string, unknown>): NotificationTone => (num(p.pnl) > 0 ? "volt" : "muted");
 
-/** The 34 v1 + 5 v2 types (reward.treasure_opened retired 2026-10-20). Keep in sync with docs/copy-dictionary.md「Notifications」. The style-guide icon ledger (NT-23) renders straight from this table — it never drifts. */
+/** The 34 v1 + 5 v2 + 2 Pro-order types (正式版 only; reward.treasure_opened retired 2026-10-20). Keep in sync with docs/copy-dictionary.md「Notifications」. The style-guide icon ledger (NT-23) renders straight from this table — it never drifts. */
 export const NOTIFICATION_TYPES: Record<string, TypeMeta> = {
   // Trading · Settled
   "settled.win": { icon: CircleCheck, tone: "volt" },
@@ -128,6 +128,10 @@ export const NOTIFICATION_TYPES: Record<string, TypeMeta> = {
   // Trading · Trades
   "trade.bought": { icon: ArrowLeftRight, tone: "muted" },
   "trade.cashed_out": { icon: ArrowLeftRight, tone: pnlTone, toneRule: "pnl > 0 → volt · else muted" },
+  // Pro order book only (正式版 producer; Lovable has no order ledger). Same family as bought / cashed_out:
+  // not counted in the badge, 7-day retention.
+  "trade.order_filled": { icon: ArrowLeftRight, tone: "muted" },
+  "trade.order_cancelled": { icon: ArrowLeftRight, tone: "muted" },
   // Account · Funds
   "funds.deposit_done": { icon: Wallet, tone: "volt" },
   "funds.deposit_failed": { icon: Wallet, tone: "red" },
@@ -266,6 +270,9 @@ const depositSource = (p: Record<string, unknown>) => {
   return t(`notifications.deposit.source.${k}`);
 };
 const WITHDRAW_FEE_USDC = 1;
+/** Pro order side: `Buy Up` / `Sell Down` — order direction + the option's own label (Up / Down / Yes / No). */
+const orderSide = (p: Record<string, unknown>) =>
+  `${p.order_side === "sell" ? t("notifications.order.sell") : t("notifications.order.buy")} ${String(p.option_label ?? "")}`.trim();
 
 export const notificationVars = (n: Pick<NotificationRow, "type" | "params">): TVars => {
   const p = n.params ?? {};
@@ -283,6 +290,10 @@ export const notificationVars = (n: Pick<NotificationRow, "type" | "params">): T
     case "autoclose.tight":
     case "autoclose.soon":
       return { ratio: `${num(p.ratio).toFixed(0)}%` };
+    case "trade.order_filled":
+      return { side: orderSide(p), qty: String(p.qty ?? ""), price: String(p.price_cents ?? ""), event: String(p.event_name ?? "") };
+    case "trade.order_cancelled":
+      return { side: orderSide(p), unfilled: String(p.unfilled_qty ?? ""), reason: t(`notifications.cancelReason.${String(p.reason ?? "user")}`), event: String(p.event_name ?? "") };
     case "trade.bought":
       return { event: String(p.event_name ?? ""), side: sideWord(p), cost: usd(num(p.margin)), boost: boost(p), session: sessionTail(p) };
     case "funds.deposit_done":

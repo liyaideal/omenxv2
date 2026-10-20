@@ -6067,7 +6067,18 @@
   "session": "Сессия {{date}}",
   "deposit.source.chain": "в сети Base",
   "deposit.source.bridge": "через мост",
-  "deposit.source.card": "с карты"
+  "deposit.source.card": "с карты",
+  "trade.order_filled.title": "Ордер исполнен · {{side}}",
+  "trade.order_filled.body": "{{qty}} акций по {{price}}¢ · {{event}}",
+  "trade.order_cancelled.title": "Ордер отменён · {{side}}",
+  "trade.order_cancelled.body": "{{unfilled}} акций не исполнено · {{reason}} · {{event}}",
+  "order.buy": "Купить",
+  "order.sell": "Продать",
+  "cancelReason.user": "Отменён вами",
+  "cancelReason.expired": "Истёк",
+  "cancelReason.market_closed": "Рынок закрыт",
+  "cancelReason.insufficient_balance": "Недостаточно средств",
+  "cancelReason.system": "Отменён системой"
  },
  "announcements": {
   "title": "Объявления",

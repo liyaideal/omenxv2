@@ -5969,7 +5969,18 @@
   "session": "Phiên {{date}}",
   "deposit.source.chain": "trên Base",
   "deposit.source.bridge": "qua cầu nối",
-  "deposit.source.card": "qua thẻ"
+  "deposit.source.card": "qua thẻ",
+  "trade.order_filled.title": "Lệnh đã khớp · {{side}}",
+  "trade.order_filled.body": "{{qty}} cổ phần @ {{price}}¢ · {{event}}",
+  "trade.order_cancelled.title": "Lệnh đã huỷ · {{side}}",
+  "trade.order_cancelled.body": "{{unfilled}} cổ phần chưa khớp · {{reason}} · {{event}}",
+  "order.buy": "Mua",
+  "order.sell": "Bán",
+  "cancelReason.user": "Bạn đã huỷ",
+  "cancelReason.expired": "Hết hạn",
+  "cancelReason.market_closed": "Thị trường đã đóng",
+  "cancelReason.insufficient_balance": "Số dư không đủ",
+  "cancelReason.system": "Hệ thống huỷ"
  },
  "announcements": {
   "title": "Thông báo",

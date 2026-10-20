@@ -32,6 +32,7 @@
 | NV-11 | icon 台账（10-15 CPO：style-guide 里没列「什么 type 用什么 icon」，研发会自由发挥）：NT-23 直接读 `NOTIFICATION_TYPES` 渲染 40 type → lucide → tone + 图例 + default 行；copy-dictionary 表加 `icon · 色` 列（同源生成）；三个条件色加 `toneRule` 文字；Announcements 同款 AN-14（kind → 列表 icon → 详情 chip → `system.<kind>`，读 ANNOUNCEMENT_KIND） | ✅ | 待 Publish |
 | NV-12 | 总交付文档 `docs/delivery/message-center-v1.md`（并入 v1 / v2 / v2.1 / 设计师两批 / 台账），v1、v2 文档标「已并入」；INDEX 登记 | ✅ | 10-15 交付研发 |
 | NV-13 | 测试反馈轮（10-20 CPO 批）：结算 / 变现 / 提现改净额（不写 commission 字样）；日内美股港股带 `Oct 17 session`；充值标 on Base / via bridge / via card；提现提交去 30 min 改 processing；treasure_opened 退役（39 type）；API key 双省略号；cashout 一条 UPDATE 落 wc | ✅ | 待 Publish |
+| NV-14 | 测试反馈第二批（10-21）：Bought 金额口径 = margin（CPO 批，正式版要改）；Pro 挂单 `trade.order_filled / order_cancelled` 收进规范（注册表 / 词典 / 字典 NT-18 · NT-23，41 type；i18n ×7；撤单原因枚举 + 部分成交待研发答） | ✅ | 字典待 Publish |
 | NV-9 | v2.1（10-14 CPO 桌面终验）：① 桌面页去 DSH 改标题行；N1 `trade.*` 保留 7 天 + Trading 双口径底注（×7 语）；N2 桌面 Load more 按 tab 分页、移动保留自动加载；N3 Popover 不变 | ✅ | 待 Publish 复验 |
 | NV-8 | mainnet 验收（10-14）：全项通过；`watchlist_live` cron 活体命中（Alcaraz vs Sinner 18:00 UTC 准点）；发现并修 **回填守卫**——演示引擎 `roll_demo_campaign_daily` 每晚重插 alex 12 条历史 bonus 交易 → 12 条 `funds.credit` 刷屏；`notif_transaction` 对 `created_at` 早于 1h 的 INSERT 不发（migration `20261014060000`），已清 12 条 | ✅ | |
 

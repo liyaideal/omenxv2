@@ -5969,7 +5969,18 @@
   "session": "{{date}} 세션",
   "deposit.source.chain": "Base 온체인",
   "deposit.source.bridge": "브리지 경유",
-  "deposit.source.card": "카드 결제"
+  "deposit.source.card": "카드 결제",
+  "trade.order_filled.title": "주문 체결 · {{side}}",
+  "trade.order_filled.body": "{{qty}}주 @ {{price}}¢ · {{event}}",
+  "trade.order_cancelled.title": "주문 취소 · {{side}}",
+  "trade.order_cancelled.body": "{{unfilled}}주 미체결 · {{reason}} · {{event}}",
+  "order.buy": "매수",
+  "order.sell": "매도",
+  "cancelReason.user": "직접 취소",
+  "cancelReason.expired": "만료",
+  "cancelReason.market_closed": "마켓 종료",
+  "cancelReason.insufficient_balance": "잔액 부족",
+  "cancelReason.system": "시스템 취소"
  },
  "announcements": {
   "title": "공지",

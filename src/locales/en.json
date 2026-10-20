@@ -6184,7 +6184,18 @@
     "session": "{{date}} session",
     "deposit.source.chain": "on Base",
     "deposit.source.bridge": "via bridge",
-    "deposit.source.card": "via card"
+    "deposit.source.card": "via card",
+    "trade.order_filled.title": "Order filled · {{side}}",
+    "trade.order_filled.body": "{{qty}} shares at {{price}}¢ · {{event}}",
+    "trade.order_cancelled.title": "Order cancelled · {{side}}",
+    "trade.order_cancelled.body": "{{unfilled}} shares unfilled · {{reason}} · {{event}}",
+    "order.buy": "Buy",
+    "order.sell": "Sell",
+    "cancelReason.user": "Cancelled by you",
+    "cancelReason.expired": "Expired",
+    "cancelReason.market_closed": "Market closed",
+    "cancelReason.insufficient_balance": "Insufficient balance",
+    "cancelReason.system": "Cancelled by system"
   },
   "announcements": {
     "title": "Announcements",

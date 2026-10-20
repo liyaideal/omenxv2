@@ -130,15 +130,15 @@ const ROW_CASES: SectionCase[] = [
     ],
   },
   { key: "notif-row-unknown", label: "NT-17 · 行 · 未知 type（default 分支）", spec: [{ state: "unknown", when: "type ∉ NOTIFICATION_TYPES", visual: "Bell muted + 原样 type 作标题、无正文；不进任何语义色、不计角标口径之外", source: "notificationMeta() DEFAULT_META" }] },
-  { key: "notif-types-trading", label: "NT-18 · Trading 全 type（9）· 未读 · 最长变体", spec: [{ state: "all", when: "—", visual: "settled.win / loss / flat / round_batch · autoclose.tight / soon / done · trade.bought / cashed_out", source: "copy-dictionary「Notifications」" }] },
+  { key: "notif-types-trading", label: "NT-18 · Trading 全 type（11，含正式版才有的 Pro 挂单 2 种）· 未读 · 最长变体", spec: [{ state: "all", when: "—", visual: "settled.win / loss / flat / round_batch · autoclose.tight / soon / done · trade.bought / cashed_out", source: "copy-dictionary「Notifications」" }] },
   { key: "notif-types-account", label: "NT-19 · Account 全 type（25）· 未读 · 最长变体（标题单行 ellipsis 为设计；sg-overflow-scan 已排除 text-overflow: ellipsis）", spec: [{ state: "all", when: "—", visual: "funds ×7 · reward ×11 · account ×8", source: "copy-dictionary「Notifications」" }] },
   { key: "notif-types-updates", label: "NT-22 · Updates 全 type（5 · v2）· 未读", spec: [{ state: "all", when: "—", visual: "system.watchlist_live / maintenance / announcement / campaign_ending / campaign_live；campaign_live 无 ends_at 时正文不带 `· ends …` 尾巴", source: "copy-dictionary「Notifications」· notificationVars()" }] },
   {
     key: "notif-icon-ledger",
-    label: "NT-23 · 行 · 39 type → lucide icon → tone 台账（直接读 NOTIFICATION_TYPES 渲染，零手抄）",
+    label: "NT-23 · 行 · 41 type → lucide icon → tone 台账（直接读 NOTIFICATION_TYPES 渲染，零手抄）",
     note: "研发看这一张定 icon 与颜色，不看 NT-18/19/22 的行猜。每个 type 一行：type 键 · lucide 组件名（渲染在它自己的 tone 里）· tone 键；三个条件色（settled.round_batch / trade.cashed_out / funds.recovery_update）列判定规则。tone 语义见顶部图例（DESIGN §Addendum 2026-10-13 第 7 条）。新增 type 只改 `src/lib/notifications.ts` 的 NOTIFICATION_TYPES，本台账自动跟上；没进表的 type 走 default 行（Bell muted）。",
     spec: [
-      { state: "ledger", when: "—", visual: "Trading 9 · Account 25 · Updates 5 · default 1；每行 [type mono 12][icon 20 + 组件名][tone 键 / 判定规则]", source: "NOTIFICATION_TYPES · TONE_CLASS · DEFAULT_META" },
+      { state: "ledger", when: "—", visual: "Trading 11 · Account 25 · Updates 5 · default 1；每行 [type mono 12][icon 20 + 组件名][tone 键 / 判定规则]", source: "NOTIFICATION_TYPES · TONE_CLASS · DEFAULT_META" },
       { state: "tone 图例", when: "—", visual: "volt 盈 / 入账 · muted 亏 / 出账 / 中性 · red 失败 / done / 安全 · yellow tight / 要注意时间 · primary Rewards / 信息类 Updates", source: "DESIGN §Addendum 2026-10-13 第 7 · 12 条" },
     ],
   },
@@ -157,7 +157,7 @@ export const LiteNotificationsPage = (_: P) => (
         本页 = 生产 <code className="font-mono">/notifications</code> + 铃铛入口的状态字典 · 样式与布局 → 生产页；状态与判定 → 本页；表里没有列出的组合视为不存在
       </div>
       <div>
-        39 个 type（34 v1 + 5 v2 Updates；treasure_opened 2026-10-20 退役）的标题 / 正文 / 触发 / 深链 / 计角标 → <code className="font-mono">docs/copy-dictionary.md</code>「Notifications」；数据与投递 → <code className="font-mono">docs/delivery/notifications-v1.md</code>
+        41 个 type（34 v1 + 5 v2 Updates + 2 Pro 挂单（`trade.order_filled / order_cancelled`，只有正式版产生）；treasure_opened 2026-10-20 退役）的标题 / 正文 / 触发 / 深链 / 计角标 → <code className="font-mono">docs/copy-dictionary.md</code>「Notifications」；数据与投递 → <code className="font-mono">docs/delivery/notifications-v1.md</code>
       </div>
     </div>
 
@@ -191,7 +191,7 @@ export const LiteNotificationsPage = (_: P) => (
           <SectionFrame cases={MOBILE_ENTRIES} device="mobile" minHeight={120} />
         </SubSection>
 
-        <SubSection title="Ⓔ 行组件 + 39 type 全枚举 + icon 台账（NT-16 … NT-19，NT-22，NT-23）" platform="shared">
+        <SubSection title="Ⓔ 行组件 + 41 type 全枚举 + icon 台账（NT-16 … NT-19，NT-22，NT-23）" platform="shared">
           <SectionFrame cases={ROW_CASES.slice(0, 2)} device="desktop" minHeight={200} />
           <div className="mt-3">
             <SectionFrame cases={ROW_CASES.slice(2)} device="desktop" minHeight={900} />

@@ -5970,7 +5970,18 @@
   "session": "{{date}} セッション",
   "deposit.source.chain": "Base チェーン",
   "deposit.source.bridge": "ブリッジ経由",
-  "deposit.source.card": "カード経由"
+  "deposit.source.card": "カード経由",
+  "trade.order_filled.title": "注文約定 · {{side}}",
+  "trade.order_filled.body": "{{qty}} 株 @ {{price}}¢ · {{event}}",
+  "trade.order_cancelled.title": "注文取消 · {{side}}",
+  "trade.order_cancelled.body": "{{unfilled}} 株未約定 · {{reason}} · {{event}}",
+  "order.buy": "買い",
+  "order.sell": "売り",
+  "cancelReason.user": "あなたが取消",
+  "cancelReason.expired": "期限切れ",
+  "cancelReason.market_closed": "市場クローズ",
+  "cancelReason.insufficient_balance": "残高不足",
+  "cancelReason.system": "システム取消"
  },
  "announcements": {
   "title": "お知らせ",

@@ -2,7 +2,7 @@
 
 > **研发交付用的唯一总文档**（并入 `notifications-v1.md` 与 `notifications-v2.md`，那两份只留档）。
 > 这是站内消息中心：登录后顶栏铃铛 → 下拉面板，和一个完整页面 `/notifications`，分 **Trading / Account / Updates** 三个 tab；另外两个公开页 `/announcements`（公告列表）和 `/announcements/:id`（公告正文），游客也能看。以前平台没有任何通知承接面——结算、到账、券过期这些事用户都不知道。
-> 这次用户能看见：铃铛和未读数字；最近 20 条通知的面板；全页按日分组的列表；39 种通知（你自己的结算 / Boost 检查 / 买入变现确认 / 充提 / 券与奖励 / 账号安全，以及所有人的公告 / 维护 / 活动上线 / 活动将结束 / 关注赛事开盘）；公告正文页能放图和表格，维护公告有黄色时间窗口卡；页脚 Resources 多了「Announcements」。
+> 这次用户能看见：铃铛和未读数字；最近 20 条通知的面板；全页按日分组的列表；41 种通知（你自己的结算 / Boost 检查 / 买入变现确认 / 充提 / 券与奖励 / 账号安全，以及所有人的公告 / 维护 / 活动上线 / 活动将结束 / 关注赛事开盘）；公告正文页能放图和表格，维护公告有黄色时间窗口卡；页脚 Resources 多了「Announcements」。
 > 没动的：Settings › Notifications 里的四个邮件开关只管邮件；交易、钱包、奖励、认证的业务逻辑一行没改，只在它们落库的地方多写一条通知；Pro 终端不碰。
 > 怎么读：先看 §0 查什么去哪儿，再看通俗导读；文案与字段在词典「Notifications」「Announcements」两节；状态看字典节点 Notifications（NT-1…NT-23）与 Announcements（AN-1…AN-14）。
 
@@ -51,7 +51,7 @@ user_watchlist × events.start_date 到点（cron */5）────────
 
 | 概念 | 是什么 | 判定表达式 | 一句话类比 |
 |---|---|---|---|
-| type | 一条通知的机器键，决定标题 / 正文模板、icon、颜色 | `notifications.type`，39 个枚举（词典表 + 字典 NT-23） | 邮件模板编号 |
+| type | 一条通知的机器键，决定标题 / 正文模板、icon、颜色 | `notifications.type`，41 个枚举（2 种只有正式版产生）（词典表 + 字典 NT-23） | 邮件模板编号 |
 | category → tab | 库里 7 个细分类，前端映射成 3 个 tab | `settled/autoclose/trades → Trading`；`funds/rewards/account → Account`；`system → Updates` | 抽屉里的分格 |
 | 计角标 | 铃铛数字 = 三个 tab 未读数之和，**不含 `trade.*`** | `read_at IS NULL AND type NOT LIKE 'trade.%'` | 自己发的消息不算新消息 |
 | 已读 | 点行或 Mark all read 才已读；打开面板不算 | `read_at` 非空 | 邮件打开列表 ≠ 打开邮件 |
@@ -82,7 +82,7 @@ user_watchlist × events.start_date 到点（cron */5）────────
 
 ## 1. 功能目标
 
-- 一个承接面收全站通知：39 种 type——34 种「你自己的事」（结算 / Boost 检查 / 交易确认 / 资金 / 奖励 / 账号安全）+ 5 种「所有人的事」（公告 / 维护 / 活动上线 / 活动将结束 / 关注赛事开盘）。
+- 一个承接面收全站通知：41 种 type——34 种「你自己的事」（结算 / Boost 检查 / 交易确认 / 资金 / 奖励 / 账号安全）+ 5 种「所有人的事」（公告 / 维护 / 活动上线 / 活动将结束 / 关注赛事开盘）。
 - 登录用户才有铃铛；游客无铃铛，`/notifications` 走 LiteAuthGate。公告两页公开。
 - 服务端只存 `type + params`，标题 / 正文由前端 i18n（7 语种）渲染；公告类通知的标题正文 = 公告 title / summary 原样。
 - 单一写入口 `notify()`，所有生产者幂等。
@@ -248,7 +248,7 @@ RLS：`status = 'published'` 对 anon + authenticated 可读；写只给 admin �
 | 生产者 | DB 触发器 + pg_cron | 交易引擎 / 资金 / 奖励 / 认证 / 活动 / 赛事服务在同一业务点发出，同一 dedupe 语义 |
 | `autoclose.tight / soon` | 前端算 Boost usage 后 `notify_self()`（🔴 演示） | 风控引擎服务端产出，每次进入档位一次 |
 | `account.new_session` | 前端 SIGNED_IN 事件（无地理位置） | 认证服务产出，带设备 + 城市 |
-| `trade.order_filled / cancelled` | 无（Lovable 没有订单账本） | **正式版必做**：Pro 挂单成交 / 撤单 → Trading tab |
+| `trade.order_filled / order_cancelled` | 无（Lovable 没有订单账本；字典 NT-18 / NT-23 有夹具行展示定稿文案） | **正式版必做**：Pro 挂单成交 / 撤单 → Trading tab。模板已定稿（词典两行）：`Order filled · Buy Up` / `1.5 shares at 4¢ · {event}`；`Order cancelled · Sell Up` / `12.76 shares unfilled · Cancelled by you · {event}`。同 `trade.*` 家族：不计角标、7 天保留。**待研发答**：撤单原因全部枚举（现只有 Cancelled by you；系统撤的——到期 / 盘口关闭 / 余额不足——各是什么）、有没有部分成交（一条 `partially filled` 还是每次成交一条） |
 | 邮件副本 | 只存偏好不发信 | 按 `profiles.notification_prefs` 四开关发邮件副本 |
 | 分页 | offset 分页（`range(from, from+29)`，按 tab 服务端过滤）；新行插入时下一页可能重复 / 跳过一条 | keyset 分页（`created_at, id` 游标） |
 | 未读计数 | 客户端拉最多 500 条未读行自算（`countsAsUnread` 排除 `trade.*`），realtime 触发重拉 | 服务端 count / 已读表；口径不变 |
@@ -284,14 +284,14 @@ RLS：`status = 'published'` 对 anon + authenticated 可读；写只给 admin �
 
 ## 7. 状态索引
 
-**Notifications**：NT-1 铃铛三态 `notif-bell-states` · NT-2…8 Popover `notif-popover-trading / account / allread / empty / empty-trading(5b) / loading / error / notif-panel-bare` · NT-9 / 9c…11 桌面页 `notif-page-desktop-trading / -trading-end / -account / -empty` · NT-9b…13b 手机页 `notif-page-mobile-trading / account / empty / empty-trading(11c) / loading / error` · NT-14 `notif-mobile-brandbar` · NT-15 `notif-mobile-menu-row` · NT-16 `notif-row-states` · NT-17 `notif-row-unknown` · NT-18 `notif-types-trading` · NT-19 `notif-types-account` · NT-20 / 20b `notif-popover-updates / -empty` · NT-21 / 21b `notif-page-desktop-updates / -mobile-updates` · NT-22 `notif-types-updates` · **NT-23 `notif-icon-ledger`（39 type → icon → tone 台账）**。
+**Notifications**：NT-1 铃铛三态 `notif-bell-states` · NT-2…8 Popover `notif-popover-trading / account / allread / empty / empty-trading(5b) / loading / error / notif-panel-bare` · NT-9 / 9c…11 桌面页 `notif-page-desktop-trading / -trading-end / -account / -empty` · NT-9b…13b 手机页 `notif-page-mobile-trading / account / empty / empty-trading(11c) / loading / error` · NT-14 `notif-mobile-brandbar` · NT-15 `notif-mobile-menu-row` · NT-16 `notif-row-states` · NT-17 `notif-row-unknown` · NT-18 `notif-types-trading` · NT-19 `notif-types-account` · NT-20 / 20b `notif-popover-updates / -empty` · NT-21 / 21b `notif-page-desktop-updates / -mobile-updates` · NT-22 `notif-types-updates` · **NT-23 `notif-icon-ledger`（41 type → icon → tone 台账）**。
 
 **Announcements**：AN-1…5 `ann-list-desktop / -end / -empty / -loading / -error` · AN-1b / 3b `ann-list-mobile / -empty` · AN-6…10 `ann-detail-desktop-maintenance / -announcement / -campaign / -unavailable / -loading` · AN-6b / 8b / 9b `ann-detail-mobile-maintenance / -campaign / -unavailable` · AN-11 `ann-kind-chips` · AN-12 `ann-window-card` · AN-13 `ann-markdown-sink` · **AN-14 `ann-kind-ledger`（kind → 列表 icon → 详情 chip → 广播通知台账）**。
 
 ## 8. 涉及文件
 
-- 前端：`src/lib/notifications.ts`（39 type 注册表 `NOTIFICATION_TYPES` / tab 映射 / 计数 / 时间）· `src/lib/announcements.ts`（`ANNOUNCEMENT_KIND`）· `src/lib/markdownLite.ts` · `src/hooks/useNotifications.ts` · `src/hooks/useAnnouncements.ts` · `src/components/notifications/*`（Row / List / Tabs / Bell / Runtime）· `src/components/announcements/*`（Parts / Article / Views / MarkdownBody）· `src/pages/NotificationsPage.tsx` · `AnnouncementsPage.tsx` · `AnnouncementPage.tsx` · `EventsDesktopHeader.tsx` · `MobileHeader.tsx` · `BottomNav.tsx` · `SeoFooter.tsx` · `App.tsx`
-- i18n：`src/locales/*.json` 命名空间 `notifications`（109 key）、`announcements`（20 key）、`legal.footer.links.announcements`（×7 语）
+- 前端：`src/lib/notifications.ts`（41 type 注册表 `NOTIFICATION_TYPES` / tab 映射 / 计数 / 时间）· `src/lib/announcements.ts`（`ANNOUNCEMENT_KIND`）· `src/lib/markdownLite.ts` · `src/hooks/useNotifications.ts` · `src/hooks/useAnnouncements.ts` · `src/components/notifications/*`（Row / List / Tabs / Bell / Runtime）· `src/components/announcements/*`（Parts / Article / Views / MarkdownBody）· `src/pages/NotificationsPage.tsx` · `AnnouncementsPage.tsx` · `AnnouncementPage.tsx` · `EventsDesktopHeader.tsx` · `MobileHeader.tsx` · `BottomNav.tsx` · `SeoFooter.tsx` · `App.tsx`
+- i18n：`src/locales/*.json` 命名空间 `notifications`（120 key）、`announcements`（20 key）、`legal.footer.links.announcements`（×7 语）
 - 字典：`src/pages/StyleGuide/preview/notificationsPreviews.tsx` · `announcementsPreviews.tsx` · `components/NotificationIconLedger.tsx` · `AnnouncementKindLedger.tsx` · `sections/pages/LiteNotificationsPage.tsx` · `LiteAnnouncementsPage.tsx` · `registry.tsx` · `nav.tsx`
 - 数据库：`supabase/migrations/20261013120000_notifications_center.sql` · `20261013180000_notifications_updates.sql` · `20261014060000_notifications_backfill_guard.sql` · `20261014070000_notifications_trade_retention.sql` · `20261020090000_notifications_qa_round.sql`
 
@@ -306,6 +306,13 @@ RLS：`status = 'published'` 对 anon + authenticated 可读；写只给 admin �
 | Q12 | treasure_opened 是不是老积分 | 是，积分宝箱已下线 → type 退役：触发器 / 注册表 / 词典 / 字典 NT-19 · NT-23 / 已存在通知一起删，**39 type** | migration；`NOTIFICATION_TYPES` |
 | Q9 | API key 那条有中文 | "但是" 是用户起的 key 名，原样显示不是 bug；顺手去掉模板末尾多出的 `…`（prefix 自带打码） | i18n ×7 |
 | Q5 / Q8 / Q10 / Q11 / Q13 | 已成文 | 划转不发（§2.4）、muted = 中性色档（NT-23 图例）、新登录正式版只在新设备 / 新地区发（§4）、recovery_update / credit 释义（词典）、round_batch 同事件 ≥3 笔同次结算（NT-18 第 4 行） | — |
+
+## 8.6 测试反馈第二批（2026-10-21，正式版暴露）
+
+| # | 问题 | 口径 | 落点 |
+|---|---|---|---|
+| Q14 | Bought 金额是 margin + fee 还是 margin | **margin（本金）**，与 Portfolio 仓位 cost 同一个数；手续费在钱包账单单独一行。正式版现在显示 margin + fee，要改回 margin | 词典 `trade.bought` 行 |
+| Q15 | `order_filled / order_cancelled` 字典没定义 | 我们的缺口——只写了"正式版必做"没给模板。按研发现写法定稿，收进注册表 / 词典 / 字典 NT-18 · NT-23（41 type）；两个开口问题待研发答（撤单原因枚举、部分成交） | §4；词典两行；字典 |
 
 ## 9. 未变更项
 
