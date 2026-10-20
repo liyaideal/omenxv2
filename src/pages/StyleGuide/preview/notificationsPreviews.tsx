@@ -64,9 +64,9 @@ export const TRADING_FEED: Row[] = [
   mk("trade.cashed_out", { event_name: "Will the Fed cut rates in October?", option_label: "Yes", side: "long", pnl: 4.1, margin: 50, leverage: 1 }, 22.1, true, "/portfolio/settlement/y"),
   mk("autoclose.done", { event_name: "Will Tesla close above $300 on Oct 13?", option_label: "No", side: "long", pnl: -60, margin: 20, leverage: 3 }, 70, true, "/portfolio/settlement/z"),
   mk("settled.loss", { event_name: "Will the Fed cut rates in October?", option_label: "No", side: "long", pnl: -25, margin: 25, leverage: 1 }, 72, true, "/portfolio/settlement/w"),
-  // Daily HK stock round: carries session_date → "Oct 17 session" lead-in (tester 2026-10-20).
-  mk("settled.win", { event_name: "Xiaomi (1810.HK) — will close higher today?", option_label: "Down", side: "long", side_labels: UPDOWN, pnl: 14.17, margin: 12.08, leverage: 1, session_date: "2026-10-17" }, 73, true, "/portfolio/settlement/v"),
-  mk("trade.bought", { event_name: "Xiaomi (1810.HK) — will close higher today?", option_label: "Down", side: "long", side_labels: UPDOWN, margin: 12.08, leverage: 1, session_date: "2026-10-17" }, 80, true, "/trade"),
+  // Daily HK stock round: carries session_date → "Oct 10 session" lead-in (tester 2026-10-20).
+  mk("settled.win", { event_name: "Xiaomi (1810.HK) — will close higher today?", option_label: "Down", side: "long", side_labels: UPDOWN, pnl: 14.17, margin: 12.08, leverage: 1, session_date: "2026-10-10" }, 73, true, "/portfolio/settlement/v"),
+  mk("trade.bought", { event_name: "Xiaomi (1810.HK) — will close higher today?", option_label: "Down", side: "long", side_labels: UPDOWN, margin: 12.08, leverage: 1, session_date: "2026-10-10" }, 80, true, "/trade"),
 ];
 
 /** Account feed (mock P2 / M4). */
