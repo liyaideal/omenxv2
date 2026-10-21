@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useReferral, type Referral } from "@/hooks/useReferral";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EmptyState } from "@/components/states";
+import lynxEnvelopeRun from "@/assets/empty-states/lynx-envelope-run.png";
 import { ClaimButton, TaskRowShell } from "./TaskRowShell";
 import { showClaimSuccessToast } from "./ClaimSuccessToastBody";
 
@@ -169,6 +170,7 @@ export const ReferralPanel = ({ fixture }: { fixture?: ReferralPanelFixture }) =
         <EmptyState
           variant="module"
           bordered={false}
+          illustrationSrc={lynxEnvelopeRun}
           title={t("rewards.screen.referral_invites_section.no_invites_yet")}
           description={t("rewards.screen.referral_invites_section.share_your_link_to_get_started")}
         />

@@ -13,6 +13,7 @@
 // ============================================================
 import { t } from "@/i18n";
 import { useNavigate } from "react-router-dom";
+import lynxMagnifier from "@/assets/empty-states/lynx-magnifier.png";
 
 const GROUND = "#171A1F";
 const BLOCK = "#15181C";
@@ -103,6 +104,7 @@ export const PortfolioEmptyLive = () => {
   const navigate = useNavigate();
   return (
     <div className="flex flex-col items-center gap-3 py-14">
+      <img src={lynxMagnifier} alt="" aria-hidden className="pointer-events-none select-none" style={{ width: 100, height: 103.33 }} />
       <p className="text-[13px] text-[#6B7280]">{t("portfolio.lite.live.empty")}</p>
       <button
         type="button"

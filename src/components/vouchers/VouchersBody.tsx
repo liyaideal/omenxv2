@@ -16,6 +16,8 @@ import {
 } from "./VoucherRow";
 import { VT, formatExpiresIn, shortDate } from "./voucherTokens";
 import { LoadingState, ErrorState } from "@/components/states";
+import lynxVoucherScissors from "@/assets/empty-states/lynx-voucher-scissors.png";
+import lynxVoucherRain from "@/assets/empty-states/lynx-voucher-rain.png";
 
 const FINE_PRINT =
   "USDC amounts are estimates and not guaranteed. A Trial Position Voucher opens a trial position — the profit is yours, the voucher itself is not withdrawable.";
@@ -47,6 +49,7 @@ export const VoucherDeskEmpty = () => (
       className="flex flex-col items-center justify-center gap-[10px] text-center rounded-[12px]"
       style={{ height: 300, background: VT.surfaceDeep, border: `1px solid ${VT.line}`, padding: "0 40px" }}
     >
+      <img src={lynxVoucherRain} alt="" aria-hidden className="pointer-events-none select-none" style={{ width: 65, height: 65 }} />
       <span className="font-display" style={{ fontSize: 15, fontWeight: 700, color: VT.ink }}>
         {t("rewards.screen.voucher_redeem_desk.pick_a_voucher_to_redeem")}
       </span>
@@ -68,6 +71,7 @@ export const VouchersListEmpty = () => (
     className="rounded-[12px] flex flex-col items-center gap-[8px] text-center"
     style={{ background: VT.surfaceDeep, border: `1px solid ${VT.line}`, padding: "34px 24px" }}
   >
+    <img src={lynxVoucherScissors} alt="" aria-hidden className="pointer-events-none select-none" style={{ width: 65, height: 65 }} />
     <span className="font-display" style={{ fontSize: 14, fontWeight: 700, color: VT.ink }}>{t("common.no_vouchers_yet")}</span>
     <span style={{ fontSize: 11.5, color: VT.ink3, lineHeight: 1.6, maxWidth: 280 }}>
       {t("rewards.screen.vouchers_list.vouchers_you_earn_from_campaigns_and_referrals_land_here_ready_to_open")}

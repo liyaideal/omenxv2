@@ -13,6 +13,10 @@ import heroThreadMobile from "@/assets/wallet/hero-thread-mobile.png";
 import lynxEmptyActivity from "@/assets/wallet/lynx-empty-activity.png";
 import lynxEmptyAddresses from "@/assets/wallet/lynx-empty-addresses.png";
 import lynxEmptyRecovery from "@/assets/wallet/lynx-empty-recovery.png";
+import lynxEnvelopeRun from "@/assets/empty-states/lynx-envelope-run.png";
+import lynxVoucherScissors from "@/assets/empty-states/lynx-voucher-scissors.png";
+import lynxVoucherRain from "@/assets/empty-states/lynx-voucher-rain.png";
+import lynxMagnifier from "@/assets/empty-states/lynx-magnifier.png";
 import posterArtWin from "@/assets/share/poster-art-win.png";
 import posterArtLose from "@/assets/share/poster-art-lose.png";
 import omenxLogo from "@/assets/omenx-logo.svg";
@@ -115,6 +119,60 @@ const WALLET: AssetRow[] = [
     usage: "/wallet/recovery 列表空态（No recovery requests yet）",
     added: "2026-09-03",
   },
+];
+
+/* ---------------- Ⓙ 空态插画库（2026-10-21 Figma omenx_lite 15-4452：Reward_Referral / Reward_Vouchers / Portfolio_空状态） ---------------- */
+const EMPTY_STATES: AssetRow[] = [
+  {
+    src: lynxEnvelopeRun,
+    path: "src/assets/empty-states/lynx-envelope-run.png",
+    size: "330 × 330（透明底，60% 不透明度已烘入；渲染 64）",
+    format: "PNG",
+    usage: "Referral「No invites yet」（ReferralPanel · EmptyState module）",
+    added: "2026-10-21",
+  },
+  {
+    src: lynxVoucherScissors,
+    path: "src/assets/empty-states/lynx-voucher-scissors.png",
+    size: "330 × 330（透明底，60% 不透明度已烘入；渲染 65）",
+    format: "PNG",
+    usage: "Vouchers 列表「No vouchers yet」（VouchersListEmpty）",
+    added: "2026-10-21",
+  },
+  {
+    src: lynxVoucherRain,
+    path: "src/assets/empty-states/lynx-voucher-rain.png",
+    size: "330 × 330（透明底，60% 不透明度已烘入；渲染 65）",
+    format: "PNG",
+    usage: "Vouchers redeem 桌「Pick a voucher to redeem」（VoucherDeskEmpty · 桌面）",
+    added: "2026-10-21",
+  },
+  {
+    src: lynxMagnifier,
+    path: "src/assets/empty-states/lynx-magnifier.png",
+    size: "300 × 310（透明底，60% 不透明度已烘入；渲染 100 × 103）",
+    format: "PNG",
+    usage: "Portfolio Live「No live calls yet」（PortfolioEmptyLive）",
+    added: "2026-10-21",
+  },
+];
+
+/**
+ * 空态插画总览 —— 全站可选的猞猁空态图一处看全（新页面 / 新功能做空态先来这里挑）。
+ * 行来自各分组的真实 import（Ⓐ Wallet 三张 / Ⓒ public 四张 / Ⓙ 四张），不重复计入台账总数。
+ */
+const EMPTY_STATE_PICKER: Array<{ src: string; name: string; motif: string; usedBy: string }> = [
+  { src: lynxEnvelopeRun, name: "lynx-envelope-run", motif: "跑着送信", usedBy: "Referral 无邀请" },
+  { src: lynxVoucherScissors, name: "lynx-voucher-scissors", motif: "剪券", usedBy: "Vouchers 无券" },
+  { src: lynxVoucherRain, name: "lynx-voucher-rain", motif: "抛券", usedBy: "Redeem 桌未选券" },
+  { src: lynxMagnifier, name: "lynx-magnifier", motif: "放大镜找东西", usedBy: "Portfolio 无持仓" },
+  { src: "/assets/desktop/empty-no-starred-event.png", name: "empty-no-starred-event", motif: "纸箱探头", usedBy: "Watchlist 空" },
+  { src: "/assets/desktop/empty-no-boost.png", name: "empty-no-boost", motif: "趴着犯懒", usedBy: "通用暂无市场 / Boost 空 / Notifications Account 空" },
+  { src: "/assets/desktop/empty-celebrate.png", name: "empty-celebrate", motif: "拉炮庆祝", usedBy: "全清（Notifications Trading 空）" },
+  { src: "/assets/desktop/empty-error.png", name: "empty-error", motif: "工程帽扳手", usedBy: "ErrorState 出错态" },
+  { src: lynxEmptyActivity, name: "lynx-empty-activity", motif: "推独轮车装金币", usedBy: "Wallet 流水空" },
+  { src: lynxEmptyAddresses, name: "lynx-empty-addresses", motif: "看地图", usedBy: "Wallet 地址簿空" },
+  { src: lynxEmptyRecovery, name: "lynx-empty-recovery", motif: "救生圈打电话", usedBy: "Wallet recovery 空" },
 ];
 
 /* ---------------- Ⓘ Settings · Close account 弹窗（2026-09-23 Figma 858:2327 / 858:2813） ---------------- */
@@ -612,6 +670,7 @@ const LEGACY_MOTION: AssetRow[] = [
 ];
 
 const ALL_GROUPS: Array<[string, AssetRow[]]> = [
+  ["Ⓙ 空态插画库（2026-10-21）", EMPTY_STATES],
   ["Ⓐ Wallet（R-W2 / R-W3）", WALLET],
   ["Ⓖ 分享海报（R-SH1）", SHARE],
   ["Ⓘ Settings · Close account 弹窗（2026-09-23）", SETTINGS],
@@ -688,7 +747,33 @@ export const BrandAssetsSection = ({ isMobile }: Props) => (
       event-images。
     </p>
 
-    <div className="space-y-8">
+    <SubSection title={`空态插画总览 · ${EMPTY_STATE_PICKER.length} 张可选`}>
+      <p className="mb-3 text-xs leading-5 text-muted-foreground">
+        新页面 / 新功能的空态从这里挑一张，传给 <code className="font-mono text-[11px]">EmptyState illustrationSrc</code>
+        （DESIGN.md §Empty states 第 8 条）。全部透明底、60% 不透明度已烘入 PNG，直接用，不要再加 opacity。
+        同一张图可复用于语义相近的空态；同一页面内不同空态尽量不同图。
+      </p>
+      <div className={isMobile ? "grid grid-cols-2 gap-3" : "grid grid-cols-4 gap-3"}>
+        {EMPTY_STATE_PICKER.map((it) => (
+          <div key={it.name} className="rounded-lg border border-border/50 bg-muted/20 p-3 text-center">
+            <div className="mx-auto flex h-24 w-24 items-center justify-center">
+              <img
+                src={it.src}
+                alt=""
+                aria-hidden
+                draggable={false}
+                className="max-h-full max-w-full object-contain pointer-events-none select-none"
+              />
+            </div>
+            <div className="mt-2 break-all font-mono text-[11px] text-foreground">{it.name}</div>
+            <div className="mt-0.5 text-[11px] text-foreground/80">{it.motif}</div>
+            <div className="mt-0.5 text-[10px] text-muted-foreground">现用：{it.usedBy}</div>
+          </div>
+        ))}
+      </div>
+    </SubSection>
+
+    <div className="mt-8 space-y-8">
       {ALL_GROUPS.map(([title, rows]) => (
         <SubSection key={title} title={`${title} · ${rows.length}`}>
           <div className={isMobile ? "grid grid-cols-1 gap-3" : "grid grid-cols-2 gap-3"}>
