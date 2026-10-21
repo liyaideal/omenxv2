@@ -168,7 +168,7 @@ K 线（研发问题 #3 → Liya 09-24 定稿）：合约终端周期选择器�
 - 价格块副标题（`BaseSubline`，两终端同源）：日线 `Base $X ⓘ · as of Fri 04:00 (Oct 15 close)`；快轮 `Open $X ⓘ · 15:30–15:45`（跨日 `Fri 08:00 – Sat 08:00`）；ⓘ = `Settles Up if BTC closes / ends the round above $X. Equal or below settles Down.`；时间一律用户本地时间，括号保留交易日。词典「Chart price-block subline」。
 - 手机：32px stats strip（左格 OPEN / BASE 随事件）+ 倒计时行追加 `· 15:30–15:45 ⓘ` / `· Base Fri 04:00 ⓘ`（`ScheduleInfo`，弹层 = 整句 + 结算规则 + 时间表）；字典 CH-M2 / CH-M3 / CH-M4。
 - 桌面 `/trade` 页头右侧胶囊 `BTC $x`（Lovable 为模拟行情，见 §8）；默认周期 5m / 15m 轮 → 1m，1h / 4h → 5m，1d 不动。
-- 终端表格行操作钮（合约 Positions / Current Orders、现货 Holdings 的 Close）2026-10-16 改 `border-foreground/25 bg-muted/40`，强光下可辨（DESIGN §Addendum 2026-10-16 第 9 条）；价格块 Up / Down 徽标与 Order Preview 的 Side 徽标走方向轴 `bg-yes/15 text-yes` / `bg-no/15 text-no`。
+- 终端表格行操作钮（合约 Positions / Current Orders、现货 Holdings 的 Close）2026-10-16 改 `border-foreground/25 bg-muted/40`，强光下可辨（DESIGN §Addendum 2026-10-16 第 9 条）；`Cancel` 2026-10-21 同步提亮为红描边 `/70` + 红底 `/10`；价格块 Up / Down 徽标与 Order Preview 的 Side 徽标走方向轴 `bg-yes/15 text-yes` / `bg-no/15 text-no`。
 
 
 页头：标题 = 比赛名（Winner 事件的 name），右侧 ▾ 开选择器；数据条只有 24h Volume 与 OI；最多一个生命周期 badge。
@@ -402,6 +402,7 @@ Lovable 在前端模拟、正式版必须在后端做：
 - 2026-09-21 研发冷读 9 项口径缺口（合约 Buy · Limit、三选一 No 侧、别名 Side、品类杠杆上限、Suspended、Close-only、case 改号、入口记忆范围、桌面面板抽件）全部收掉；PF-1 部分成交标、RM-1 风险口径做完并在生产复验（三处百分比一致）。
 - **Liya 2026-09-21 验收通过，进入交付。**
 - 未在生产亲验、靠字典交付的两项：限价自动成交（`useContractLimitFills`）、Close-only。
+- 2026-10-21 Lite 合约面板 `Est. auto-close` 行：值与提示改为上下两行右对齐（窄面板下 `None · enter an amount` 不再拦腰断）；Pro 终端表格 `Cancel` 钮提亮。
 - 2026-10-21 `/trade` 价格参照型事件的 Event Info 换成与 /spot 同款六格（EI-D2，#18 平行面）；mark price 悬浮框 `Click here for details` 三处接帮助中心 `https://help.omenxfoundation.org/guide`（#1）。
 - 2026-10-12 订单状态标 Pending 也可展开（DQ-19）；2026-10-09 加密快轮搬到合约线；2026-10-16 rail-switch SOP 四格（1d 轮 / 15m 轮 / 美股 /spot / 非价格事件）桌面 1440 + 手机 375 在 mainnet 复验，alex_carter 在 1d 轮持 $25×10x Up 仓作演示。
 - 2026-09-24 研发问题 18 条（研发对照线上后台）：A 类按后台改设计 4 条（#1 help center 链接接 `/guide`（10-21 已接）、#2 精度切换删、#5 TP/SL 删 / Sell · Limit 保留、#16 Suspended 删）；B 类既定行为回复口径 8 条（#3 K 线补 Mark 序列、#6 平仓 close price = mark 且只收 commission、#7 按 event product line、#8 两条色轴、#10 按产品线不按市场、#11 Holdings Close = 全平、#13 线位名 `{event} — {line}`、#17 实时 Risk %）；C 类 Lovable 修 7 条（#9 Side chip 方向轴、#10b 按钮统一、#10c 撤单确认、#12 周期 chip、#14 加密 Trading ends、#15 CTA 前缀、#18 Event Info 合并）。

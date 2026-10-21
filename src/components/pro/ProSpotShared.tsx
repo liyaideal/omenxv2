@@ -521,7 +521,7 @@ export const SpotOrdersTable = ({
                 disabled={t.isCancelling || !isPending}
                 onClick={() => setPendingCancel(o)}
                 // 研发问题 #10b (2026-09-24): same button chrome as the contract terminal's Cancel.
-                className="justify-self-end px-3 py-1 text-xs text-trading-red border border-trading-red/50 rounded hover:bg-trading-red/10 disabled:opacity-40 disabled:hover:bg-transparent"
+                className="justify-self-end px-3 py-1 text-xs text-trading-red border border-trading-red/70 bg-trading-red/10 rounded hover:bg-trading-red/20 hover:border-trading-red disabled:opacity-40 disabled:hover:bg-transparent"
               >
                 {tr("common.cancel")}
               </button>

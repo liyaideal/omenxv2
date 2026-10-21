@@ -573,9 +573,9 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
             </span>
           </div>
         )}
-        <div className="flex items-start justify-between px-2 pt-0.5">
-          <div>
-            <span className="inline-flex items-center gap-1 text-muted-foreground">
+        <div className="flex items-start justify-between gap-3 px-2 pt-0.5">
+          <div className="min-w-0">
+            <span className="inline-flex items-center gap-1 whitespace-nowrap text-muted-foreground">
               {t("common.est_auto_close")}
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -592,16 +592,18 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
               {t("trade.screen.lite.lite_contract_order_panel.moves_with_your_other_positions")}
             </div>
           </div>
+          {/* Value and its hint stack like the label and its subline on the left,
+              so a narrow panel never breaks "None · enter an amount" mid-phrase. */}
           <span
             className={cn(
-              "font-mono font-semibold",
+              "flex shrink-0 flex-col items-end whitespace-nowrap font-mono font-semibold",
               autoCloseRow.hot ? "text-trading-red" : "text-muted-foreground",
             )}
           >
             {autoCloseRow.text}
             {autoCloseRow.sub && (
-              <span className={cn("font-normal", autoCloseRow.hot ? "text-trading-red" : "text-muted-foreground/70")}>
-                {" · "}{autoCloseRow.sub}
+              <span className={cn("text-[10px] font-normal", autoCloseRow.hot ? "text-trading-red" : "text-muted-foreground/70")}>
+                {autoCloseRow.sub}
               </span>
             )}
           </span>
