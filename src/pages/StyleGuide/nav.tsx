@@ -122,7 +122,6 @@ export const STYLE_GUIDE_GROUPS: SectionGroup[] = [
     label: "Legacy — 未改版存量",
     sections: [
       s("transparency", "Transparency", sec("TransparencySection", "TransparencySection")),
-      s("worldcup", "World Cup (legacy)", sec("WorldCupSection", "WorldCupSection")),
     ],
   },
   {

@@ -1,6 +1,5 @@
 import { t } from "@/i18n";
 import { HedgeCTAButton } from "./HedgeCTAButton";
-import heroPop from "@/assets/hedge-hero-v3.png.asset.json";
 
 // Operations can edit these constants directly.
 const LIVE_STATS = {
@@ -57,16 +56,14 @@ export const HedgeHero = () => {
               className="relative hidden items-center justify-center bg-[#FDFCF0] lg:flex lg:w-[45%]"
               aria-label="OMENX World Cup Hedge-to-Earn campaign — hedge your Polymarket prediction position"
             >
-              <img
-                src={heroPop.url}
-                alt="Soccer ball with red, yellow, and blue arrows — World Cup hedge motion"
-                className="relative z-10 h-full w-full object-contain object-center"
-                style={{
-                  filter:
-                    "drop-shadow(0 0 0.5px #FDFCF0) drop-shadow(0 0 0.5px #FDFCF0) drop-shadow(0 1px 2px rgba(14,14,14,0.08))",
-                }}
-                loading="eager"
-              />
+              {/* Graphic slot — the World Cup ball art was retired with the campaign (2026-10-21);
+                  the playground keeps the 65/35 split with a dotted placeholder. */}
+              <div
+                className="relative z-10 flex h-[260px] w-[85%] items-center justify-center rounded-sm border-2 border-dashed border-[#0E0E0E]/30 font-mono text-[11px] uppercase tracking-[0.18em] text-[#0E0E0E]/50"
+                aria-hidden
+              >
+                graphic slot
+              </div>
             </div>
           </div>
 

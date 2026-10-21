@@ -13,14 +13,5 @@ export interface CampaignBannerConfig {
   backgroundImage?: string;
 }
 
-export const banners: CampaignBannerConfig[] = [
-  {
-    id: "hedge",
-    href: "/hedge",
-    title: "Hedge your World Cup pick.",
-    ctaLabel: "CLAIM YOUR HEDGE",
-    qualifierChip: { text: "World Cup 2026", tone: "accent" },
-    heroMetric: { value: "$500", label: "Redeem up to" },
-    theme: "poster",
-  },
-];
+/** World Cup 2026 hedge banner retired 2026-10-21; rail renders nothing until a new campaign is configured. */
+export const banners: CampaignBannerConfig[] = [];

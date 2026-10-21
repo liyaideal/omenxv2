@@ -63,7 +63,6 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
 import TransparencyPage from "./pages/TransparencyPage";
 import ApiManagement from "./pages/ApiManagement";
-import HedgeLanding from "./pages/HedgeLanding";
 
 import CampaignStyleGuide from "./pages/CampaignStyleGuide";
 import NotFound from "./pages/NotFound";
@@ -73,7 +72,6 @@ import { HELP_CENTER_URL, HELP_FAQ_URL, HELP_GUIDE_URL } from "./lib/site";
 import { useIsMobile } from "./hooks/use-mobile";
 import { RealtimePricesProvider } from "./contexts/RealtimePricesContext";
 import { SurfaceProvider, useSurface } from "./contexts/SurfaceContext";
-import { SportsLauncher } from "./components/SportsLauncher";
 import { useOrderSimulation } from "./hooks/useOrderSimulation";
 
 const queryClient = new QueryClient();
@@ -224,8 +222,9 @@ const App = () => (
           <LanguageKeyed>
           <Routes>
             {/* Full-width landing pages (rendered outside max-w-md mobile shell) */}
-            <Route path="/hedge" element={<Navigate to="/campaign/world-cup-polymarket-hedge" replace />} />
-            <Route path="/campaign/world-cup-polymarket-hedge" element={<HedgeLanding />} />
+            {/* World Cup 2026 H2E campaign retired 2026-10-21 — old links land on home. */}
+            <Route path="/hedge" element={<Navigate to="/" replace />} />
+            <Route path="/campaign/world-cup-polymarket-hedge" element={<Navigate to="/" replace />} />
             <Route path="/mainnet-launch" element={<Navigate to="/" replace />} />
             <Route path="/campaign-style-guide" element={<CampaignStyleGuide />} />
             <Route path="/style-guide/preview" element={<StyleGuidePreview />} />
@@ -233,7 +232,6 @@ const App = () => (
               path="*"
               element={
                 <ResponsiveLayout>
-                  <SportsLauncher />
                   <Routes>
                     <Route path="/" element={<HomePage />} />
               <Route path="/trade" element={<TradingPage />} />

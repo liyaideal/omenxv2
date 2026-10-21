@@ -32,9 +32,6 @@ import affMarketCrypto from "@/assets/affiliate/market-crypto.webp";
 import affMarketFinance from "@/assets/affiliate/market-finance.webp";
 import affMosaic from "@/assets/affiliate/cta-mosaic.webp";
 import affHeroLoop from "@/assets/affiliate/hero-x-loop.mp4";
-import hedgeHeroV3 from "@/assets/hedge-hero-v3.png.asset.json";
-import soccerBall from "@/assets/soccer-ball.png.asset.json";
-import trophySilhouette from "@/assets/trophy-silhouette.png.asset.json";
 import lynxCloseBlocked from "@/assets/settings/lynx-close-blocked.png";
 import lynxCloseConfirm from "@/assets/settings/lynx-close-confirm.png";
 
@@ -372,48 +369,7 @@ const HOME: AssetRow[] = [
     usage: "Auth 弹窗 login 步插画（移动同款）",
     added: "2026-09-04",
   },
-  {
-    src: "/lynx-auth-placeholder.png",
-    path: "public/lynx-auth-placeholder.png",
-    size: "393 × 364",
-    format: "PNG",
-    usage: "已退役（由 auth-wizard-lynx 替换）",
-    added: "2026-08-24",
-  },
 
-];
-
-/* ---------------- Ⓓ Rewards / Campaign KV ---------------- */
-/* ---------------- Ⓔ Hedge / H2E ---------------- */
-const HEDGE: AssetRow[] = [
-  {
-    src: hedgeHeroV3.url,
-    path: "src/assets/hedge-hero-v3.png.asset.json",
-    size: "CDN 资产",
-    format: "PNG（CDN）",
-    usage: "Hedge hero 现行版（HedgeHero）",
-    added: "2026-07-23",
-  },
-];
-
-/* ---------------- Ⓕ Mainnet / Rewards 旧动效 ---------------- */
-const LEGACY_MOTION: AssetRow[] = [
-  {
-    src: soccerBall.url,
-    path: "src/assets/soccer-ball.png.asset.json",
-    size: "CDN 资产",
-    format: "PNG（CDN）",
-    usage: "World Cup 装饰件",
-    added: "2026-07-23",
-  },
-  {
-    src: trophySilhouette.url,
-    path: "src/assets/trophy-silhouette.png.asset.json",
-    size: "CDN 资产",
-    format: "PNG（CDN）",
-    usage: "World Cup 奖杯剪影装饰件",
-    added: "2026-07-23",
-  },
 ];
 
 const ALL_GROUPS: Array<[string, AssetRow[]]> = [
@@ -424,8 +380,6 @@ const ALL_GROUPS: Array<[string, AssetRow[]]> = [
   ["Ⓗ Affiliate 营销页（2026-09-19）", AFFILIATE],
   ["Ⓑ 品牌标识", BRAND],
   ["Ⓒ 首页 / Events / Auth lynx 插画", HOME],
-  ["Ⓔ Hedge / H2E", HEDGE],
-  ["Ⓕ World Cup 装饰件", LEGACY_MOTION],
 ];
 
 const TOTAL = ALL_GROUPS.reduce((n, [, rows]) => n + rows.length, 0);
