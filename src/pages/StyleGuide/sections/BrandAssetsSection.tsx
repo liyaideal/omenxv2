@@ -1,7 +1,8 @@
 // ============================================================
 // Brand assets · IP 插画 —— 素材台账（静态）
 // 零运行时 fetch、零日期函数：入仓日期一律写死字面量。
-// 只增不删：资产被替换时保留旧行并打 LEGACY 徽标。
+// 2026-10-21 起（CPO）：未接线 / 已退役的资产连文件带行一起删，不留 LEGACY 行；
+// 猞猁 IP 只认灰色插画款，深色款退役。
 // ============================================================
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
@@ -19,7 +20,6 @@ import lynxVoucherRain from "@/assets/empty-states/lynx-voucher-rain.png";
 import lynxMagnifier from "@/assets/empty-states/lynx-magnifier.png";
 import posterArtWin from "@/assets/share/poster-art-win.png";
 import posterArtLose from "@/assets/share/poster-art-lose.png";
-import omenxLogo from "@/assets/omenx-logo.svg";
 import { wordmark, mark } from "@/components/Logo";
 import affEarn1D from "@/assets/affiliate/earn-1-desktop.webp";
 import affEarn1M from "@/assets/affiliate/earn-1-mobile.webp";
@@ -32,32 +32,9 @@ import affMarketCrypto from "@/assets/affiliate/market-crypto.webp";
 import affMarketFinance from "@/assets/affiliate/market-finance.webp";
 import affMosaic from "@/assets/affiliate/cta-mosaic.webp";
 import affHeroLoop from "@/assets/affiliate/hero-x-loop.mp4";
-import hedgeEntryBanner from "@/assets/hedge-entry-banner.png";
-import hedgeEntryBannerMobile from "@/assets/hedge-entry-banner-mobile.png";
 import hedgeHeroV3 from "@/assets/hedge-hero-v3.png.asset.json";
-import hedgeHeroV2 from "@/assets/hedge-hero-v2.png.asset.json";
-import hedgeHeroPop from "@/assets/hedge-hero-pop.png.asset.json";
-import hedgeHero from "@/assets/hedge-hero.png";
-import hedgeHeroMobile from "@/assets/hedge-hero-mobile.png";
-import hedgeBannerHero from "@/assets/hedge-banner-hero.png";
-import bannerHedge from "@/assets/banner-hedge.jpg";
-import bannerMainnetLaunch from "@/assets/banner-mainnet-launch.jpg";
-import mainnetCoin from "@/assets/mainnet-coin.png";
-import mainnetLaunchCoin from "@/assets/mainnet-launch-coin.jpg";
-import bonusBadge from "@/assets/bonus-badge.gif";
-import penguinGiftBox from "@/assets/penguin-gift-box.gif";
-import rewardsGiftBoxGif from "@/assets/rewards-gift-box.gif";
-import rewardsGiftBoxPng from "@/assets/rewards-gift-box.png";
-import treasureChest from "@/assets/treasure-chest.gif";
-import treasureDropSuccess from "@/assets/treasure-drop-success.gif";
-import treasurePenguin from "@/assets/treasure-penguin.gif";
 import soccerBall from "@/assets/soccer-ball.png.asset.json";
 import trophySilhouette from "@/assets/trophy-silhouette.png.asset.json";
-import kvWorldCup from "@/assets/campaigns/kv-worldcup.jpg.asset.json";
-import kvStarter from "@/assets/campaigns/kv-starter.jpg.asset.json";
-import kvLaowang from "@/assets/campaigns/kv-laowang.jpg.asset.json";
-import kvCpi from "@/assets/campaigns/kv-cpi.jpg.asset.json";
-import laowangAvatar from "@/assets/campaigns/laowang-avatar.jpg.asset.json";
 import lynxCloseBlocked from "@/assets/settings/lynx-close-blocked.png";
 import lynxCloseConfirm from "@/assets/settings/lynx-close-confirm.png";
 
@@ -72,7 +49,6 @@ interface AssetRow {
   format: string;
   usage: string;
   added: string;
-  legacy?: boolean;
   /** Video asset — thumbnail renders a muted looping <video> instead of <img>. */
   video?: boolean;
 }
@@ -248,15 +224,6 @@ const BRAND: AssetRow[] = [
   { src: "/brand/app-icon-512.png", path: "public/brand/app-icon-512.png", size: "512 × 512", format: "PNG", usage: "商店 / 高分图标（备用）", added: "2026-09-19" },
   { src: "/brand/avatar-400.png", path: "public/brand/avatar-400.png", size: "400 × 400", format: "PNG", usage: "X / Telegram / Discord 头像上传件", added: "2026-09-19" },
   { src: "/brand/og-image.png", path: "public/brand/og-image.png", size: "1200 × 630", format: "PNG", usage: "og:image / twitter:image（index.html）——纯矢量合成，待品牌方出带 tagline 正式版可直接替换", added: "2026-09-19" },
-  {
-    src: omenxLogo,
-    path: "src/assets/omenx-logo.svg",
-    size: "矢量",
-    format: "SVG",
-    usage: "旧字标（圆 O 版）：2026-09-19 全站换标后无引用，仅台账留档",
-    added: "2026-07-23",
-    legacy: true,
-  },
 ];
 
 /* ---------------- Ⓒ 首页 / Events lynx 插画（public） ---------------- */
@@ -414,87 +381,11 @@ const HOME: AssetRow[] = [
     added: "2026-08-24",
   },
 
-  {
-    src: "/event-art-samples/f1-drivers-2026.png",
-    path: "public/event-art-samples/f1-drivers-2026.png",
-    size: "1024 × 1024",
-    format: "PNG",
-    usage: "style-guide「Event 美术方向」批准样张",
-    added: "2026-07-31",
-  },
-  {
-    src: "/event-art-samples/us-coin-updown-20260731.png",
-    path: "public/event-art-samples/us-coin-updown-20260731.png",
-    size: "1024 × 1024",
-    format: "PNG",
-    usage: "style-guide「Event 美术方向」批准样张",
-    added: "2026-07-31",
-  },
 ];
 
 /* ---------------- Ⓓ Rewards / Campaign KV ---------------- */
-const CAMPAIGN: AssetRow[] = [
-  {
-    src: kvWorldCup.url,
-    path: "src/assets/campaigns/kv-worldcup.jpg.asset.json",
-    size: "CDN 资产",
-    format: "JPG（CDN）",
-    usage: "Rewards campaign KV — World Cup",
-    added: "2026-08-07",
-  },
-  {
-    src: kvStarter.url,
-    path: "src/assets/campaigns/kv-starter.jpg.asset.json",
-    size: "CDN 资产",
-    format: "JPG（CDN）",
-    usage: "Rewards campaign KV — Starter",
-    added: "2026-08-07",
-  },
-  {
-    src: kvLaowang.url,
-    path: "src/assets/campaigns/kv-laowang.jpg.asset.json",
-    size: "CDN 资产",
-    format: "JPG（CDN）",
-    usage: "Rewards campaign KV — 老王",
-    added: "2026-08-07",
-  },
-  {
-    src: laowangAvatar.url,
-    path: "src/assets/campaigns/laowang-avatar.jpg.asset.json",
-    size: "CDN 资产",
-    format: "JPG（CDN）",
-    usage: "Rewards campaign 头像 — 老王",
-    added: "2026-08-07",
-  },
-  {
-    src: kvCpi.url,
-    path: "src/assets/campaigns/kv-cpi.jpg.asset.json",
-    size: "CDN 资产",
-    format: "JPG（CDN）",
-    usage: "旧 CPI campaign KV — 站内已无引用",
-    added: "2026-08-07",
-    legacy: true,
-  },
-];
-
 /* ---------------- Ⓔ Hedge / H2E ---------------- */
 const HEDGE: AssetRow[] = [
-  {
-    src: hedgeEntryBanner,
-    path: "src/assets/hedge-entry-banner.png",
-    size: "1920 × 480",
-    format: "PNG",
-    usage: "Hedge 入口横幅（桌面）",
-    added: "2026-07-23",
-  },
-  {
-    src: hedgeEntryBannerMobile,
-    path: "src/assets/hedge-entry-banner-mobile.png",
-    size: "1920 × 640",
-    format: "PNG",
-    usage: "Hedge 入口横幅（移动）",
-    added: "2026-07-23",
-  },
   {
     src: hedgeHeroV3.url,
     path: "src/assets/hedge-hero-v3.png.asset.json",
@@ -503,154 +394,10 @@ const HEDGE: AssetRow[] = [
     usage: "Hedge hero 现行版（HedgeHero）",
     added: "2026-07-23",
   },
-  {
-    src: hedgeHeroV2.url,
-    path: "src/assets/hedge-hero-v2.png.asset.json",
-    size: "CDN 资产",
-    format: "PNG（CDN）",
-    usage: "Hedge hero 第二版 — 已被 v3 取代",
-    added: "2026-07-23",
-    legacy: true,
-  },
-  {
-    src: hedgeHeroPop.url,
-    path: "src/assets/hedge-hero-pop.png.asset.json",
-    size: "CDN 资产",
-    format: "PNG（CDN）",
-    usage: "Hedge hero pop 版 — 已被 v3 取代",
-    added: "2026-07-23",
-    legacy: true,
-  },
-  {
-    src: hedgeHero,
-    path: "src/assets/hedge-hero.png",
-    size: "1448 × 1086",
-    format: "PNG",
-    usage: "Hedge hero 初版 — 站内已无引用",
-    added: "2026-07-23",
-    legacy: true,
-  },
-  {
-    src: hedgeHeroMobile,
-    path: "src/assets/hedge-hero-mobile.png",
-    size: "1920 × 640",
-    format: "PNG",
-    usage: "Hedge hero 初版移动 — 站内已无引用",
-    added: "2026-07-23",
-    legacy: true,
-  },
-  {
-    src: hedgeBannerHero,
-    path: "src/assets/hedge-banner-hero.png",
-    size: "1793 × 877",
-    format: "PNG",
-    usage: "Hedge 横幅初版 — 站内已无引用",
-    added: "2026-07-23",
-    legacy: true,
-  },
-  {
-    src: bannerHedge,
-    path: "src/assets/banner-hedge.jpg",
-    size: "1916 × 821",
-    format: "PNG（.jpg 后缀）",
-    usage: "Hedge 首页横幅初版 — 站内已无引用",
-    added: "2026-07-23",
-    legacy: true,
-  },
 ];
 
 /* ---------------- Ⓕ Mainnet / Rewards 旧动效 ---------------- */
 const LEGACY_MOTION: AssetRow[] = [
-  {
-    src: bannerMainnetLaunch,
-    path: "src/assets/banner-mainnet-launch.jpg",
-    size: "1916 × 821",
-    format: "PNG（.jpg 后缀）",
-    usage: "Mainnet 上线横幅 — 站内已无引用",
-    added: "2026-07-23",
-    legacy: true,
-  },
-  {
-    src: mainnetCoin,
-    path: "src/assets/mainnet-coin.png",
-    size: "1254 × 1254",
-    format: "PNG",
-    usage: "Mainnet 金币 — 站内已无引用",
-    added: "2026-07-23",
-    legacy: true,
-  },
-  {
-    src: mainnetLaunchCoin,
-    path: "src/assets/mainnet-launch-coin.jpg",
-    size: "1672 × 941",
-    format: "PNG（.jpg 后缀）",
-    usage: "Mainnet 上线金币 — 站内已无引用",
-    added: "2026-07-23",
-    legacy: true,
-  },
-  {
-    src: bonusBadge,
-    path: "src/assets/bonus-badge.gif",
-    size: "640 × 640",
-    format: "GIF",
-    usage: "Trial bonus 徽标动效 — 站内已无引用",
-    added: "2026-07-23",
-    legacy: true,
-  },
-  {
-    src: treasureChest,
-    path: "src/assets/treasure-chest.gif",
-    size: "640 × 640",
-    format: "GIF",
-    usage: "Mystery box 宝箱 — mainnet 已停用",
-    added: "2026-07-23",
-    legacy: true,
-  },
-  {
-    src: treasureDropSuccess,
-    path: "src/assets/treasure-drop-success.gif",
-    size: "340 × 282",
-    format: "GIF",
-    usage: "Mystery box 开箱成功 — mainnet 已停用",
-    added: "2026-07-23",
-    legacy: true,
-  },
-  {
-    src: treasurePenguin,
-    path: "src/assets/treasure-penguin.gif",
-    size: "332 × 284",
-    format: "GIF",
-    usage: "Mystery box 企鹅 — mainnet 已停用",
-    added: "2026-07-23",
-    legacy: true,
-  },
-  {
-    src: penguinGiftBox,
-    path: "src/assets/penguin-gift-box.gif",
-    size: "332 × 284",
-    format: "GIF",
-    usage: "Rewards 礼盒企鹅 — 站内已无引用",
-    added: "2026-07-23",
-    legacy: true,
-  },
-  {
-    src: rewardsGiftBoxGif,
-    path: "src/assets/rewards-gift-box.gif",
-    size: "400 × 400",
-    format: "GIF",
-    usage: "Rewards 礼盒动效 — 站内已无引用",
-    added: "2026-07-23",
-    legacy: true,
-  },
-  {
-    src: rewardsGiftBoxPng,
-    path: "src/assets/rewards-gift-box.png",
-    size: "1024 × 1024",
-    format: "PNG",
-    usage: "Rewards 礼盒静帧 — 站内已无引用",
-    added: "2026-07-23",
-    legacy: true,
-  },
   {
     src: soccerBall.url,
     path: "src/assets/soccer-ball.png.asset.json",
@@ -677,16 +424,11 @@ const ALL_GROUPS: Array<[string, AssetRow[]]> = [
   ["Ⓗ Affiliate 营销页（2026-09-19）", AFFILIATE],
   ["Ⓑ 品牌标识", BRAND],
   ["Ⓒ 首页 / Events / Auth lynx 插画", HOME],
-  ["Ⓓ Rewards campaign KV", CAMPAIGN],
   ["Ⓔ Hedge / H2E", HEDGE],
-  ["Ⓕ Mainnet / Rewards 动效与装饰", LEGACY_MOTION],
+  ["Ⓕ World Cup 装饰件", LEGACY_MOTION],
 ];
 
 const TOTAL = ALL_GROUPS.reduce((n, [, rows]) => n + rows.length, 0);
-const LEGACY_COUNT = ALL_GROUPS.reduce(
-  (n, [, rows]) => n + rows.filter((r) => r.legacy).length,
-  0,
-);
 
 const AssetCard = ({ row, isMobile }: { row: AssetRow; isMobile: boolean }) => (
   <div className="flex items-start gap-3 rounded-lg border border-border/50 bg-muted/20 p-3">
@@ -714,11 +456,6 @@ const AssetCard = ({ row, isMobile }: { row: AssetRow; isMobile: boolean }) => (
     <div className="min-w-0 flex-1 space-y-1">
       <div className="flex flex-wrap items-center gap-2">
         <span className="break-all font-mono text-[11px] text-foreground">{row.path}</span>
-        {row.legacy && (
-          <span className="shrink-0 rounded-full border border-trading-yellow/30 bg-trading-yellow/10 px-2 py-0.5 text-[10px] text-trading-yellow">
-            LEGACY · 已弃用
-          </span>
-        )}
       </div>
       <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
         {row.size} · {row.format} · 入仓 {row.added}
@@ -737,11 +474,12 @@ export const BrandAssetsSection = ({ isMobile }: Props) => (
     platform="shared"
   >
     <p className="mb-5 rounded-md border border-border/50 bg-muted/20 px-3 py-2 text-xs leading-5 text-foreground/85">
-      素材入仓流程：设计导出 → CPO 把文件放进仓库 src/assets/… → 接线 → 本节同轮登记（只增不删）。素材找不到先来这里。
+      素材入仓流程：Figma 源图 → 按稿裁切入仓 src/assets/… → 接线 → 本节同轮登记。2026-10-21 起台账只留在用 + 明确备用的资产：
+      退役 / 未接线即删文件删行，不留 LEGACY。猞猁 IP 只认灰色插画款（空态总览那一套），深色款一律退役。素材找不到先来这里。
     </p>
 
     <p className="mb-6 text-xs text-muted-foreground">
-      台账共 {TOTAL} 枚（其中 {LEGACY_COUNT} 枚标 LEGACY）。缩略图为仓库真实资产渲染。标 `PNG（CDN）` 的 `*.asset.json` 行由 Lovable 大文件通道 `/__l5e/assets-v1/` 供图，只在 lovable.app 域（preview / 正式版）能显示，localhost 开发机上一律破图——不是资产丢了。
+      台账共 {TOTAL} 枚。缩略图为仓库真实资产渲染。标 `PNG（CDN）` 的 `*.asset.json` 行由 Lovable 大文件通道 `/__l5e/assets-v1/` 供图，只在 lovable.app 域（preview / 正式版）能显示，localhost 开发机上一律破图——不是资产丢了。
       不入账：qa-* 取证目录、纯功能图标（chain-logos / company-logos / token-logos /
       platform-logos / brand-logos / favicon / placeholder.svg）、类目底图 card-bg 与事件配图
       event-images。

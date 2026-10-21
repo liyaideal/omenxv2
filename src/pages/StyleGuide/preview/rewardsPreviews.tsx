@@ -30,10 +30,25 @@ import type { Referral } from "@/hooks/useReferral";
 import { MobileHeader } from "@/components/MobileHeader";
 import { Tabs } from "@/pages/lite/LiteRewardsPage";
 import type { Campaign, CampaignEntry, CampaignTaskDef, CampaignView, GrantStatus } from "@/hooks/useCampaigns";
-import kvWorldCup from "@/assets/campaigns/kv-worldcup.jpg.asset.json";
-import kvLaowang from "@/assets/campaigns/kv-laowang.jpg.asset.json";
-import kvStarter from "@/assets/campaigns/kv-starter.jpg.asset.json";
-import laowangAvatar from "@/assets/campaigns/laowang-avatar.jpg.asset.json";
+
+/**
+ * Mock key visuals / avatar for the dictionary frames (2026-10-21).
+ * The old campaign KV photos (dark-lynx era) were deleted with the asset
+ * clean-up; demos now use neutral inline SVG placeholders so no retired art
+ * ever renders in the style guide. Production KVs come from the DB.
+ */
+const mockKv = (label: string, from: string, to: string) =>
+  `data:image/svg+xml;utf8,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="1584" height="672" viewBox="0 0 1584 672"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/></linearGradient></defs><rect width="1584" height="672" fill="url(#g)"/><!-- ${label} mock KV --></svg>`,
+  )}`;
+const kvWorldCup = { url: mockKv("World Cup", "#14211A", "#1F3A2A") };
+const kvLaowang = { url: mockKv("KOL", "#2A1B14", "#4A2E1C") };
+const kvStarter = { url: mockKv("Starter", "#16181F", "#2A2E3A") };
+const laowangAvatar = {
+  url: `data:image/svg+xml;utf8,${encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="816" height="816" viewBox="0 0 816 816"><rect width="816" height="816" fill="#2A2F38"/><circle cx="408" cy="330" r="150" fill="#6B7280"/><ellipse cx="408" cy="700" rx="260" ry="190" fill="#6B7280"/></svg>',
+  )}`,
+};
 
 const day = 86_400_000;
 const iso = (offsetDays: number) => new Date(Date.now() + offsetDays * day).toISOString();

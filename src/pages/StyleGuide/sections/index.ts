@@ -24,7 +24,6 @@ export { LiteFinalTouchesSection } from "./LiteFinalTouchesSection";
 export { ApiSection } from "./ApiSection";
 export { StatesSection } from "./StatesSection";
 export { EmptyStatesSection } from "./EmptyStatesSection";
-export { EventArtSection } from "./EventArtSection";
 
 export { RewardsMobileSection } from "./RewardsMobileSection";
 export { RewardsSection } from "./RewardsSection";

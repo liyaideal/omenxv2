@@ -1556,6 +1556,7 @@ All tiers: mascot is muted-foreground only; pill = 1.5px hairline border, `round
 2. Expression is locked — only this grumpy face. No variants, no redrawing, no coordinate edits.
 3. Minimum `LynxMark` render size is 40px; use `strokeWidth ≈ 3.4` at size ≤ 48.
 4. Never stretch, rotate, add shadow/gradient, or recolor. The mascot never participates in the MARKET or MONEY color axes.
+5. **Illustrated lynx — one style only (CPO 2026-10-21).** The grey illustrated lynx (`src/assets/empty-states/`, `src/assets/wallet/lynx-empty-*`, `src/assets/settings/lynx-close-*`, `auth-gate-lynx`, `auth-wizard-lynx`, `hero-lynx`) is the sole IP illustration style from now on. The earlier dark / charcoal lynx (the `empty-*.png` set under `public/assets`, `will-it-happen`, the Event cover-art contract and its samples, the campaign KV photos) is retired: never add a new drawing in that style, and replace a wired one with a grey drawing before deleting it. The style-guide ledger no longer keeps LEGACY rows — a retired or unwired asset is deleted with its file.
 
 ## §Addendum 2026-07-31 · Lite multi-market (LOCKED)
 
@@ -1599,6 +1600,8 @@ Applies to "All" and, scoped to the filtered set, to every sector filter. Watchl
 ---
 
 ## §Addendum 2026-07-31 · Event cover art (LOCKED)
+
+> **2026-10-21 CPO:** the charcoal-lynx art contract below is **retired** with the dark lynx style (see §Lynx mascot item 5). The style-guide section and its samples are deleted. `generate-event-image` still runs this prompt until the grey-style prompt + reference sheet replace it — tracked in the 待设计 list. Keep the format / pipeline rows; the character spec is superseded.
 
 Every listed event carries one AI-generated illustration of the OmenX lynx IP, written to `events.image_url` by the `generate-event-image` backend function at listing time (invoked from `sim-daily-seed`). Cards fall back to the category image when generation fails — never a broken tile.
 
