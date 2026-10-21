@@ -1,6 +1,7 @@
 import { t } from "@/i18n";
 import { useState, useEffect, useCallback } from "react";
 import { Flag } from "lucide-react";
+import { HELP_GUIDE_URL } from "@/lib/site";
 import {
   Tooltip,
   TooltipContent,
@@ -444,7 +445,14 @@ export const DesktopOrderBook = ({
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[280px] p-3">
                         <p className="text-sm">{midTooltip}</p>
-                        <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
+                        <a
+                          href={HELP_GUIDE_URL}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block text-sm text-trading-yellow mt-2 hover:underline"
+                        >
+                          Click here for details
+                        </a>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -538,7 +546,14 @@ export const DesktopOrderBook = ({
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[280px] p-3">
                         <p className="text-sm">{midTooltip}</p>
-                        <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
+                        <a
+                          href={HELP_GUIDE_URL}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block text-sm text-trading-yellow mt-2 hover:underline"
+                        >
+                          Click here for details
+                        </a>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -602,7 +617,14 @@ export const DesktopOrderBook = ({
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[280px] p-3">
                         <p className="text-sm">{midTooltip}</p>
-                        <p className="text-sm text-trading-yellow mt-2 cursor-pointer">Click here for details</p>
+                        <a
+                          href={HELP_GUIDE_URL}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block text-sm text-trading-yellow mt-2 hover:underline"
+                        >
+                          Click here for details
+                        </a>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>

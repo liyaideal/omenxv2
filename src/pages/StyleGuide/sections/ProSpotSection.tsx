@@ -829,6 +829,30 @@ const SPOT_INFO_CASES: SectionCase[] = [
   },
 ];
 
+const CONTRACT_INFO_CASES: SectionCase[] = [
+  {
+    key: "pro-contract-event-info-quick",
+    label: "EI-D2 · /trade Event Info · 价格参照型（加密快轮 / 美股）· 合约口径",
+    note: "研发 #18 的平行面（2026-10-21）：快轮 10-09 搬到合约轨后，/trade 的 Event Info 还是通用 EventInfoContent（写死 Open Interest $1.2M、Event End Date），与 /spot 的 EI-D1 不是一套。现在价格参照型事件（business.isPriceRef）在两条轨都渲染同一组件 PriceRefEventInfo：六格同 EI-D1，只有 Rules 末句按轨不同——现货写冻结自动撤单，合约写「Open positions are settled at the round end / official close; resting limit orders are cancelled and their margin refunded」。体育 / 政治等非价格参照事件仍用 EventInfoContent，不受影响。",
+    spec: [
+      { state: "crypto quick · contract", when: 'business.isPriceRef && kind === "quick"', visual: "Trading ends `倒计时 · HH:MM` / Volume / Round open `$82,621.56` / Settles vs `Round open · flat close = Down` / Resolution source / Symbol `BTC · USD · 15m round`；Rules 末句合约版；`Payout by ~HH:MM`", source: "PriceRefEventInfo · useEventBusinessMeta（ticker/basePrice/schedule/noLabel）· quickRoundLabel" },
+      { state: "stock daily · contract", when: 'kind === "stock"', visual: "Prior official close / `Prior close · flat close = Down` / Symbol `TSLA · Nasdaq`", source: "PriceRefEventInfo" },
+      { state: "non price-ref", when: "!business.isPriceRef", visual: "原 EventInfoContent 不变", source: "DesktopTrading / MobileTradingLayout 分支" },
+    ],
+  },
+];
+
+const CONTRACT_INFO_MOBILE_CASES: SectionCase[] = [
+  {
+    key: "pro-contract-event-info-mobile",
+    label: "EI-D2 · 手机 /trade Event info 底部抽屉（美股日内）",
+    note: "同一组件挂在 MobileTradingLayout 的 Event info Sheet 里；倒计时由组件自己按 endTime 走秒（桌面传 countdownText）。",
+    spec: [
+      { state: "mobile sheet", when: "useIsMobile() · 点页头 Event info", visual: "六格两列、Rules、Payout by；抽屉 max-h 80vh 可滚", source: "MobileTradingLayout · PriceRefEventInfo(endTime)" },
+    ],
+  },
+];
+
 const SPOT_CHART_CASES: SectionCase[] = [
   {
     key: "pro-spot-chart-views",
@@ -1039,10 +1063,12 @@ export const ProSpotTerminalPage = (_: Props) => (
 
     <SectionWrapper
       id="pro-spot-event-info"
-      title="② Event Info（EI-D1）"
-      description="一套卡片、每格单一来源；加密快轮 Trading ends = 轮次结束时间。"
+      title="② Event Info（EI-D1 / EI-D2）"
+      description="一套卡片、每格单一来源；加密快轮 Trading ends = 轮次结束时间。EI-D2：/trade 对价格参照型事件挂同一组件（合约口径）。"
     >
       <SectionFrame cases={SPOT_INFO_CASES} device="desktop" minHeight={560} />
+      <SectionFrame cases={CONTRACT_INFO_CASES} device="desktop" minHeight={560} />
+      <SectionFrame cases={CONTRACT_INFO_MOBILE_CASES} device="mobile" minHeight={620} />
     </SectionWrapper>
 
     <SectionWrapper

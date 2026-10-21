@@ -124,9 +124,10 @@
 | DQ-15 | 现货 Limit CTA 去 `Place limit ·` 前缀 | ✅ | `useSpotTerminal.ctaLabel` |
 | DQ-16 | Suspended 态从设计删除（gate / Lite / 徽标 / 字典） | ✅ | DB 枚举保留不处理 |
 | DQ-18 | 现货 Event Info 合成一套六格 | ✅ | `SpotEventInfoPanel` |
-| DQ-1 | mark price 悬浮框 `Click here for details` 接 help center 链接 | ⬜ | 等 Liya 给 URL |
+| DQ-1 | mark price 悬浮框 `Click here for details` 接 help center 链接 | ✅ | `HELP_GUIDE_URL`（`src/lib/site.ts`）· 三处 `DesktopOrderBook` |
+| DQ-18b | `/trade` 价格参照型事件 Event Info 换成与 /spot 同款六格（桌面页签 + 手机抽屉），合约口径 Rules | ✅ | `PriceRefEventInfo`；字典 EI-D2 |
 | DQ-19 | 订单状态标：Pending 也可 hover / 点开成交进度（`0 / N`），终态不展开（Liya 10-12） | ✅ | `OrderStatusBadge isOpen()`；字典 OS-D1b |
-| DQ-字典 | CH-D1 / OB-D1 / PT-D1 / HD-D1 / OS-D2 / OS-M2 / EI-D1；DK 案例去 Suspended | ✅ | sg:audit PASS |
+| DQ-字典 | CH-D1 / OB-D1 / PT-D1 / HD-D1 / OS-D2 / OS-M2 / EI-D1 / EI-D2；DK 案例去 Suspended | ✅ | sg:audit PASS |
 
 ## 2026-09-25 — Rewards 任务类型第二轮 RW-T2（总文档 [rewards-task-types-v1.md](../delivery/rewards-task-types-v1.md)）
 

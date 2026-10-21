@@ -18,6 +18,7 @@ import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { useAuth } from "@/hooks/useAuth";
 import { useEventBusinessMeta } from "@/hooks/useEventBusinessMeta";
 import { ScheduleInfo } from "@/components/pro/ScheduleInfo";
+import { PriceRefEventInfo } from "@/components/pro/PriceRefEventInfo";
 
 
 // Context for sharing trading state with child components
@@ -412,7 +413,17 @@ function PerpTradingLayout({
         countdownLabel={currentLine ? `${currentLine.caption} · ${countdownLabel ?? "Ends in"}` : countdownLabel}
         countdownUrgency={countdownUrgency}
         statsExtra={scheduleTail}
-        eventInfo={eventInfo}
+        eventInfo={
+          eventInfo ??
+          (business.isPriceRef ? (
+            <PriceRefEventInfo
+              meta={business}
+              event={{ id: selectedEvent.id, name: selectedEvent.name, description: selectedEvent.description, rules: selectedEvent.rules.join("\n"), source_name: selectedEvent.sourceName }}
+              endTime={endTimeOverride ?? selectedEvent.endTime}
+              rail="contract"
+            />
+          ) : undefined)
+        }
         backTo={backTo}
         onTitleClick={() => setEventSheetOpen(true)}
         headerRight={

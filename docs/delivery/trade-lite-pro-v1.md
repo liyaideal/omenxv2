@@ -34,7 +34,7 @@
 | 概念 | 是什么 | 判定表达式 | 一句话类比 |
 |---|---|---|---|
 | Lite / Pro | 同一交易页的两种看法；只改渲染不改路由与数据 | `useSurface().surface`；游客恒 `lite` | 同一间店的前台 / 后厨 |
-| Standard / Boost | 现货线 / 合约线；选择器页签与账户卡同词。**按 event 的 product line 配置决定走哪条线，不按品类**——Lovable 里加密快轮配成现货，正式版按各 event 的配置来（研发问题 #7，2026-09-24） | `product_lines` 含 `spot` / 含 `futures`（旧值 `contract`） | 现金账户 / 保证金账户 |
+| Standard / Boost | 现货线 / 合约线；选择器页签与账户卡同词。**按 event 的 product line 配置决定走哪条线，不按品类**（研发问题 #7，2026-09-24）。2026-10-09 起 Lovable 的加密快轮（5m / 15m / 1h / 4h / 1d）已配成合约线，走 `/trade`，Boost 上限 10×；现货线现在只有美股 / 港股 / 韩股日内；旧 `/spot?event=crypto-…` 链接自动跳 `/trade` | `product_lines` 含 `spot` / 含 `futures`（旧值 `contract`） | 现金账户 / 保证金账户 |
 | Boost check | Lite 组合页的账户级仪表，读 Pro 的 Risk Ratio，词不同 | `Healthy < 80` / `Getting tight 80–95` / `Auto-close soon ≥ 95` | 油表 |
 | Risk Ratio | 维持保证金占权益的比例，100% 强平 | `MM / Equity × 100`，`MM = 50% × IM` | 水位线 |
 | Series lines / 线位 | 一场比赛的让分 / 大小球各条线，各是一个 sibling event | `?event=<fixture>&line=<sibling>` | 同一场球的不同赔率盘 |
@@ -61,7 +61,7 @@
 ## 0. 读者须知
 
 查什么去哪儿：
-- 长什么样 → 生产页：`/trade?event=demo-prekick-cs2`（7×24 常驻电竞 BO3）、`/trade?event=sp-ucl-mci-int`（足球三选一）、`/spot?event=<crypto-btc-updown-4h-…>`（现货，id 按当天轮次取）、手机 `/trade/order?event=demo-prekick-cs2`。Pro 需登录，演示账号 `alex_carter`；手机 = 375 宽。
+- 长什么样 → 生产页：`/trade?event=demo-prekick-cs2`（7×24 常驻电竞 BO3）、`/trade?event=sp-ucl-mci-int`（足球三选一）、`/trade?event=<crypto-btc-updown-15m-…>`（加密快轮，合约线，id 按当天轮次取）、`/spot?event=<us-…-updown-…>`（美股日内，现货线）、手机 `/trade/order?event=demo-prekick-cs2`。Pro 需登录，演示账号 `alex_carter`；手机 = 375 宽。
 - 什么时候变成什么样 → `/style-guide` → 「Pro — 交易终端」下三个节点：**合约终端 /trade**、**现货终端 /spot**、**两终端共用**；Lite 侧入口与 Close-only 在 **Lite 交易页** 节点。每个 case 有「状态 / 触发条件 / 视觉 / 数据来源」表，编号见 §10。
 - 字段名、文案、公式、术语 → `docs/copy-dictionary.md`（顶部「Lite 术语对照表」+ §Trading）→ 本文 §5–§7
 - 设计法则（颜色轴、chip、overlay 对等）→ `DESIGN.md`（§7 Account Risk Indicator 及 09-14 / 09-15 / 09-17 Addendum）
@@ -155,13 +155,20 @@ Lite 是全站唯一外观；只有 `/trade` 与 `/spot` 两页按 `useSurface()
 | FROZEN（`freeze_time ≤ now < end_date`） | 列 | `Frozen` 红 |
 | 过 `end_date` / `is_resolved = true` | 不列 | — |
 
-手机 `/trade/order` 跨线选中现货事件 → `/spot/order?event=`；Buy/Sell 页签按 `${eventId}:${optionId}` 分键，新事件落默认 Buy；单位模式（USDC / Contracts·Shares）按设备记忆、两终端共用。
+手机 `/trade/order` 跨线选中现货事件 → `/spot/order?event=`。加密快轮 2026-10-09 起在 `Boost` 页签（合约线），`Standard` 页签只剩股票日内；Buy/Sell 页签按 `${eventId}:${optionId}` 分键，新事件落默认 Buy；单位模式（USDC / Contracts·Shares）按设备记忆、两终端共用。
 
 ## 5. Pro 合约终端 /trade
 
 ### 5.1 页头与比赛市场行
 
 K 线（研发问题 #3 → Liya 09-24 定稿）：合约终端周期选择器右侧一个两段切换 `Last | Mark`，选哪个就画哪套蜡烛，一次一套、不叠线（Binance / Bybit 同型），默认 Last；手机 375 宽下切换独占周期行下面一行，图表容器 450 → 490px 保住蜡烛高度。现货终端没有 Mark。字典 CH-D1 / CH-D2 / CH-M1。
+
+价格参照型事件（加密快轮、股票日内）在合约终端上的"业务层"（2026-10-16 rail-switch SOP，`docs/design-contracts/rail-switch-sop.md`）：产品层（下单栏 / 杠杆 / Mark / 账户）随现货 ↔ 合约切换替换，业务层随事件走、不分线，全部出自 `useEventBusinessMeta`：
+- 图表工具栏第二组开关 `{当前选边} | {ticker} price`（同 §6 K 线视图）；标的视图下 `Last | Mark` 置灰不可点。四格矩阵：合约 × 价格参照 = `[Last | Mark] + [Up | BTC price] + ⚑ + 副标题`；合约 × 非价格 = 只有 `[Last | Mark]`。字典 CH-D3 / CH-D4 / CH-D5。
+- 价格块副标题（`BaseSubline`，两终端同源）：日线 `Base $X ⓘ · as of Fri 04:00 (Oct 15 close)`；快轮 `Open $X ⓘ · 15:30–15:45`（跨日 `Fri 08:00 – Sat 08:00`）；ⓘ = `Settles Up if BTC closes / ends the round above $X. Equal or below settles Down.`；时间一律用户本地时间，括号保留交易日。词典「Chart price-block subline」。
+- 手机：32px stats strip（左格 OPEN / BASE 随事件）+ 倒计时行追加 `· 15:30–15:45 ⓘ` / `· Base Fri 04:00 ⓘ`（`ScheduleInfo`，弹层 = 整句 + 结算规则 + 时间表）；字典 CH-M2 / CH-M3 / CH-M4。
+- 桌面 `/trade` 页头右侧胶囊 `BTC $x`（Lovable 为模拟行情，见 §8）；默认周期 5m / 15m 轮 → 1m，1h / 4h → 5m，1d 不动。
+- 终端表格行操作钮（合约 Positions / Current Orders、现货 Holdings 的 Close）2026-10-16 改 `border-foreground/25 bg-muted/40`，强光下可辨（DESIGN §Addendum 2026-10-16 第 9 条）；价格块 Up / Down 徽标与 Order Preview 的 Side 徽标走方向轴 `bg-yes/15 text-yes` / `bg-no/15 text-no`。
 
 
 页头：标题 = 比赛名（Winner 事件的 name），右侧 ▾ 开选择器；数据条只有 24h Volume 与 OI；最多一个生命周期 badge。
@@ -286,9 +293,9 @@ Buy · Sell 页签与 Yes/No 一样按 `事件:结果` 记忆，`/trade` ↔ `/t
 | 预览弹窗 | `Order Preview`：事件名 + outcome chip + 两张卡；Buy 第二卡 Cost / Fee (0.15%) / To win，Sell 为 Proceeds / Est. commission / You receive；无杠杆 / 保证金 / 强平 |
 | 账户卡 | `Standard Account`：Available (USDC) / In orders / Holdings；`Payout by ~{time}` |
 | K 线视图 | 涨跌市场（有 base price 的加密快轮 / 股票日内）周期选择器右侧加 `{当前选边} \| {ticker} price` 两段切换（`Up \| BTC price`、`Down \| BTC price`、`Up \| META price`），默认份额视图；标的视图 = 标的价蜡烛（$、2 位小数、千分位）+ 白色虚线 `Base $X`（= 页头 Base，结算分界）。页头价格行仍是份额价。手机同 5.1 的第二行规则。字典 CH-S1 / CH-S2 |
-| Event Info | **一套卡片**（研发问题 #18）：标题 + 描述 → 六格 `Trading ends（倒计时 · 时刻）/ Volume / Round open（股票 Prior official close）/ Settles vs / Resolution source / Symbol` → Rules → `Payout by`。删掉了通用块的 Event End Date / Total Volume / 写死的 Open Interest / 重复的 Resolution Source；加密 Symbol = `ETH · USD · 15m round`（原错写 Nasdaq） |
+| Event Info | **一套卡片**（研发问题 #18）：标题 + 描述 → 六格 `Trading ends（倒计时 · 时刻）/ Volume / Round open（股票 Prior official close）/ Settles vs / Resolution source / Symbol` → Rules → `Payout by`。删掉了通用块的 Event End Date / Total Volume / 写死的 Open Interest / 重复的 Resolution Source；加密 Symbol = `ETH · USD · 15m round`（原错写 Nasdaq）。**合约页同款**（2026-10-21，#18 的平行面）：价格参照型事件（加密快轮 / 美股日内）在 `/trade` 桌面 Event Info 页签与手机 Event info 抽屉渲染同一组件 `PriceRefEventInfo`，六格同上，只有 Rules 末句按线不同——现货 `All open orders are automatically cancelled and refunded at freeze (HH:MM)`，合约 `Open positions are settled at the round end / official close; resting limit orders are cancelled and their margin refunded`；体育 / 政治等非价格参照事件仍是通用 `EventInfoContent`。字典 EI-D1（现货）/ EI-D2（合约，桌面 + 手机） |
 | 冻结 | `blocked = isOrderingBlocked(lifecycle) || isFrozenByTime`，文案 `Market frozen`（SETTLING 内部态用户仍看 `Market frozen` 直到 `Settled`）；tile 仍可点看价，CTA 置灰、预览打不开、Holdings `Close` toast 拦截。冻结巡检 `freeze_expired_events()` 每 5 分钟；结算时退还挂单 `冻结金额 + 手续费`；被冻结撤掉的挂单状态标 `Cancelled · market frozen` |
-| 轮次 | 加密涨跌事件按固定轮次开局 / 结算：5m · 15m · 1h · 4h（事件 id 形如 `crypto-btc-updown-4h-<YYYYMMDDHHmm>`）；每轮到点结算、下一轮自动开局，选择器里只列未结束的轮 |
+| 轮次 | 加密涨跌事件按固定轮次开局 / 结算：5m · 15m · 1h · 4h · 1d（事件 id 形如 `crypto-btc-updown-4h-<YYYYMMDDHHmm>`）；每轮到点结算、下一轮自动开局，选择器里只列未结束的轮。**2026-10-09 起快轮开在合约线**（`product_lines = ['contract']`，结算 `settle_quick_contract_round`，只认本轮 option_id），本节现货口径对快轮不再适用，快轮页面行为见 §5；本节保留给股票日内 |
 | 手机 | `/spot` = 32px stats strip + 图表 + Orders / Holdings 卡 + dock（Lite/Pro 方钮 + Up / Down 两步点按，同 §5.4）；`/spot/order` = 同一 `ProSpotPanel` bare chrome + 120px 迷你盘口（10 + 10 档 + `Depth 0.1`）；日内涨跌页头短名 `META · Up or down?` |
 
 ## 7. Lite 交易页本轮改动
@@ -312,7 +319,8 @@ Buy · Sell 页签与 Yes/No 一样按 `事件:结果` 记忆，`/trade` ↔ `/t
 | `trades.reduce_only` | `boolean not null default false`，限价平仓单 true |
 | `trades.margin` / `trades.fee` | 合约 Buy · Limit 预留 = 两者之和，撤单退回；reduce-only 均 0 |
 | `trades.amount` | 名义额（库约束 > 0） |
-| 标的行情（页头 `BTC $X` 格 + K 线标的视图） | Lovable 里是围绕 base price 的正弦漂移 / 模拟走势，**不是真行情**；正式版两处接同一个行情源（与结算用的 resolution source 一致），Mark 蜡烛序列同理接后端 mark |
+| 标的行情（页头 `BTC $X` 格 + K 线标的视图 + 副标题 Base / Open） | Lovable 里是围绕 base price 的模拟走势（2026-10-19 起加密走全站同一条 Quick Play 模拟价流），**不是真行情**；正式版两处接同一个行情源（与结算用的 resolution source 一致），Mark 蜡烛序列同理接后端 mark |
+| 快轮结算函数 | Lovable：`roll_crypto_quick_rounds` 开轮（五档一起、`product_lines = ['contract']`）、`settle_quick_contract_round` 结算（保证金 + (结算价 − 入场价) × 份额，亏损封顶保证金，5% wc，入 Boost 账户，只认本轮 option_id）；正式版按自家引擎实现，口径同 |
 | `trades.product_line` | `spot` / `futures` |
 | `positions` | 用到 `size` / `entry_price` / `leverage` / `margin` / `option_id` / `trade_id` / `status` / `mark_price` / `pnl` / `pnl_percent` / `winning_commission` / `close_reason`；一交易对一行 |
 | `profiles.preferred_surface` | `lite` / `pro`，尽力写入；`profiles.balance`（Boost）/ `profiles.spot_balance`（Standard） |
@@ -371,7 +379,7 @@ Lovable 在前端模拟、正式版必须在后端做：
 | 订单状态标 | 两终端共用 › ④ | OS-D1 桌面 hover · OS-M1 手机点开 |
 | 市场行 · 桌面 | 合约终端 › ① | SL-D1 电竞 · SL-D2 Map 1 下拉 · SL-D3 足球 · SL-D4 Winner 三选一下拉 |
 | 市场行 · 手机 | 合约终端 › ① | SL-M1 横滚 · SL-M2 线位抽屉 · SL-M3 Winner 三选一抽屉 |
-| K 线 · 合约 | 合约终端 › ① | CH-D1 Last · CH-D2 Mark · CH-M1 手机 |
+| K 线 · 合约 | 合约终端 › ① | CH-D1 Last · CH-D2 Mark · CH-D3 价格参照型两组开关 · CH-D4 BTC price 视图 · CH-D5 美股日线副标题 · CH-M1 手机 Last / Mark · CH-M2 手机 strip + 两组开关 · CH-M3 手机 BTC price · CH-M4 手机倒计时时间子句 |
 | K 线 · 现货涨跌 | 现货终端 › ① | CH-S1 份额 / 标的两视图 · CH-S2 手机 |
 | 合约订单簿 | 合约终端 › ① | OB-D1 无精度切换 |
 | 桌面面板 | 合约终端 › ② 桌面右栏 | CT-D1 Buy · Market · CT-D2 Contracts · CT-D3 Buy · Limit · CT-D4 Sell 减仓 · CT-D5 Sell 空仓 · CT-D6 无 Leverage 行 · DK-D1 封锁 · RM-D1 Close-only |
@@ -384,6 +392,7 @@ Lovable 在前端模拟、正式版必须在后端做：
 | 现货订单簿 | 现货终端 › ② | SP-J0 正常深度 · SP-J 薄深度 |
 | 现货表与撤单确认 | 现货终端 › ② | HD-D1 Holdings · OS-D2 撤单确认 · OS-M2 手机撤单确认 |
 | 现货 Event Info | 现货终端 › ② | EI-D1 加密快轮 |
+| 合约 Event Info（价格参照型） | 现货终端 › ② | EI-D2 加密快轮 · 手机美股 |
 | 现货预览弹窗 | 现货终端 › ③ | SP-B7 |
 | 现货手机 | 现货终端 › ④ | SP-M1 Charts · SP-M1b 360 · SP-M2 冻结 · SP-M3 order Buy · SP-M4 order Sell · SP-M4b Shares · SP-M5 dock 四态 |
 
@@ -393,7 +402,9 @@ Lovable 在前端模拟、正式版必须在后端做：
 - 2026-09-21 研发冷读 9 项口径缺口（合约 Buy · Limit、三选一 No 侧、别名 Side、品类杠杆上限、Suspended、Close-only、case 改号、入口记忆范围、桌面面板抽件）全部收掉；PF-1 部分成交标、RM-1 风险口径做完并在生产复验（三处百分比一致）。
 - **Liya 2026-09-21 验收通过，进入交付。**
 - 未在生产亲验、靠字典交付的两项：限价自动成交（`useContractLimitFills`）、Close-only。
-- 2026-09-24 研发问题 18 条（研发对照线上后台）：A 类按后台改设计 4 条（#1 help center 链接待补、#2 精度切换删、#5 TP/SL 删 / Sell · Limit 保留、#16 Suspended 删）；B 类既定行为回复口径 8 条（#3 K 线补 Mark 序列、#6 平仓 close price = mark 且只收 commission、#7 按 event product line、#8 两条色轴、#10 按产品线不按市场、#11 Holdings Close = 全平、#13 线位名 `{event} — {line}`、#17 实时 Risk %）；C 类 Lovable 修 7 条（#9 Side chip 方向轴、#10b 按钮统一、#10c 撤单确认、#12 周期 chip、#14 加密 Trading ends、#15 CTA 前缀、#18 Event Info 合并）。
+- 2026-10-21 `/trade` 价格参照型事件的 Event Info 换成与 /spot 同款六格（EI-D2，#18 平行面）；mark price 悬浮框 `Click here for details` 三处接帮助中心 `https://help.omenxfoundation.org/guide`（#1）。
+- 2026-10-12 订单状态标 Pending 也可展开（DQ-19）；2026-10-09 加密快轮搬到合约线；2026-10-16 rail-switch SOP 四格（1d 轮 / 15m 轮 / 美股 /spot / 非价格事件）桌面 1440 + 手机 375 在 mainnet 复验，alex_carter 在 1d 轮持 $25×10x Up 仓作演示。
+- 2026-09-24 研发问题 18 条（研发对照线上后台）：A 类按后台改设计 4 条（#1 help center 链接接 `/guide`（10-21 已接）、#2 精度切换删、#5 TP/SL 删 / Sell · Limit 保留、#16 Suspended 删）；B 类既定行为回复口径 8 条（#3 K 线补 Mark 序列、#6 平仓 close price = mark 且只收 commission、#7 按 event product line、#8 两条色轴、#10 按产品线不按市场、#11 Holdings Close = 全平、#13 线位名 `{event} — {line}`、#17 实时 Risk %）；C 类 Lovable 修 7 条（#9 Side chip 方向轴、#10b 按钮统一、#10c 撤单确认、#12 周期 chip、#14 加密 Trading ends、#15 CTA 前缀、#18 Event Info 合并）。
 - 仍开放：G5 现货冻结灰条 `Market frozen` 只印一次——等真冻结窗口，不阻塞。
 
 ## 12. 涉及文件
@@ -421,4 +432,5 @@ Lovable 在前端模拟、正式版必须在后端做：
 | V4 清理 | Funding / Isolated 删除、To win 净利 | §5.2 §9 | `docs/delivery/pro-trade-v4-cleanup-v1.md` |
 | TC（交易页收尾 #1–#10） | 合约 Buy · Limit、三选一 No 侧、品类杠杆、Suspended、Close-only、面板抽件 | §5.2 §5.5 §5.7 §7 | `docs/delivery/trade-close-out-v1.md`（口径冲突时以此为准；其中 Suspended 已于 09-24 删除） |
 | 研发问题 18 条（2026-09-24） | 研发对照线上后台提出的 18 条：砍 TP/SL、删 Suspended、去精度切换、K 线 Mark 序列、Side chip 配色、现货按钮 / 撤单确认、周期 chip、加密 Trading ends、Event Info 合并、CTA 文案 | §1 §5.2 §5.5 §5.6 §6 §9 §10 | 本文 §11 末段 |
+| 快轮切合约 / rail-switch SOP（2026-10-09 · 10-16） | 加密快轮从现货线搬到合约线；产品层 / 业务层两层原则，合约终端补回标的价视图、Base / Open 副标题、手机时间子句 | §1 §4 §5.1 §6 §8 | `docs/design-contracts/rail-switch-sop.md`、DESIGN §Addendum 2026-10-09 第 9 条 / 2026-10-16 |
 | 验收 | 联合验收单 | §11 | `docs/delivery/trade-lite-pro-acceptance-v1.md` |

@@ -24,6 +24,7 @@ import { ContractPriceBlock } from "@/components/pro/ContractPriceBlock";
 import { SpotMobileStatsStrip } from "@/components/pro/ProSpotShared";
 import { deriveBusinessMeta } from "@/hooks/useEventBusinessMeta";
 import { ScheduleInfo } from "@/components/pro/ScheduleInfo";
+import { PriceRefEventInfo } from "@/components/pro/PriceRefEventInfo";
 import { MobileHeader } from "@/components/MobileHeader";
 import { SideChip } from "@/components/trading/SideChip";
 import { classifyOrderIntent, getIntentLabel } from "@/lib/positionIntent";
@@ -660,6 +661,30 @@ export const ProContractMobileHeaderSchedule = () => (
       countdownText="11:42:51"
       countdownUrgency="muted"
       statsExtra={<ScheduleInfo m={stockMeta} />}
+    />
+  </div>
+);
+
+/** EI-D2 · /trade Event Info for a crypto quick round — same six cells as /spot EI-D1, contract wording (研发 #18 parallel face). */
+export const ProContractEventInfoQuick = () => (
+  <div style={{ width: 720 }}>
+    <PriceRefEventInfo
+      meta={quickMeta}
+      event={{ id: quickRow.id, name: quickRow.name, source_name: "databento" }}
+      countdownText="00:09:41"
+      rail="contract"
+    />
+  </div>
+);
+
+/** EI-D2 · same panel on the phone — Event info bottom sheet body (375), stock daily up/down. */
+export const ProContractEventInfoMobile = () => (
+  <div style={{ width: 375 }} className="px-1 pb-4">
+    <PriceRefEventInfo
+      meta={stockMeta}
+      event={{ id: stockRow.id, name: stockRow.name, source_name: "databento" }}
+      countdownText="02:41:07"
+      rail="contract"
     />
   </div>
 );

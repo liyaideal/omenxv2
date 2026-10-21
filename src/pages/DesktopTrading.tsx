@@ -9,6 +9,7 @@ import { useNavigate, useNavigationType, useSearchParams, useLocation } from "re
 import { ChevronDown, ChevronUp, Plus, Star, Info, Search, ExternalLink, X, Pencil, AlertTriangle, ArrowLeft, Loader2, Gift, Lock, HelpCircle } from "lucide-react";
 import { ExternalHedgeLinks } from "@/components/ExternalHedgeLinks";
 import { EventInfoContent } from "@/components/EventInfoContent";
+import { PriceRefEventInfo } from "@/components/pro/PriceRefEventInfo";
 import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { useOrdersStore, Order } from "@/stores/useOrdersStore";
 import { usePositions, UnifiedPosition } from "@/hooks/usePositions";
@@ -1307,8 +1308,19 @@ export default function DesktopTrading() {
                   </div>
                 </>
               ) : (
-                <div className="flex-1 p-6 overflow-auto">
-                  <EventInfoContent event={selectedEvent} />
+                <div className="flex-1 overflow-auto">
+                  {business.isPriceRef ? (
+                    // 研发问题 #18 平行面 (CPO 2026-10-21): quick rounds / stock days use the same
+                    // six-cell panel as /spot — no generic block, no hard-coded Open Interest.
+                    <PriceRefEventInfo
+                      meta={business}
+                      event={{ id: selectedEvent.id, name: selectedEvent.name, description: selectedEvent.description, rules: selectedEvent.rules.join("\n"), source_name: selectedEvent.sourceName }}
+                      countdownText={countdown}
+                      rail="contract"
+                    />
+                  ) : (
+                    <div className="p-6"><EventInfoContent event={selectedEvent} /></div>
+                  )}
                 </div>
               )}
       </>}
