@@ -11,6 +11,7 @@ import { ChevronDown } from "lucide-react";
 import { savePortfolioScroll } from "@/lib/portfolioReturn";
 import type { LiteMonthGroup, LiteSettledRow } from "@/hooks/useLitePortfolio";
 import { RED, signedMoney, pnlColor } from "./parts";
+import { PortfolioEmptySettled } from "./PortfolioAsyncStates";
 
 const MetaLine = forwardRef<HTMLDivElement, { row: LiteSettledRow }>(({ row }, ref) => (
   <div ref={ref} className="truncate text-[11px] text-[#6B7280]">
@@ -75,9 +76,7 @@ export const SettledList = ({ groups }: { groups: LiteMonthGroup[] }) => {
     });
 
   if (groups.length === 0) {
-    return (
-      <div className="py-14 text-center text-[13px] text-[#6B7280]">{t("portfolio.lite.settled.empty")}</div>
-    );
+    return <PortfolioEmptySettled />;
   }
   return (
     <div>

@@ -66,6 +66,7 @@ import {
   PortfolioFetchError,
   KPI_DASH,
   PortfolioEmptyLive as EmptyLive,
+  PortfolioEmptySettled,
 } from "@/components/portfolio/lite/PortfolioAsyncStates";
 
 
@@ -331,7 +332,7 @@ export default function LitePortfolio() {
             <SeriesDetailDesktop vm={seriesVm} actions={seriesActions} />
           )
         ) : (
-          <div className="py-14 text-center text-[13px] text-[#6B7280]">{t("portfolio.lite.settled.empty")}</div>
+          <PortfolioEmptySettled />
         )}
       </PortfolioErrorBoundary>
     </div>

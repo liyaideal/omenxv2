@@ -784,7 +784,7 @@ const STATE_CASES: SectionCase[] = [
     note: "两个空态都是生产实渲（Live 空态已提取为 PortfolioEmptyLive），不是手抄 div。",
     spec: [
       { state: "Live 空", when: "live.length === 0 && !isLoading && !isError", visual: "`No live calls yet` + 描边按钮 `Browse events`（去 /events）", source: "PortfolioEmptyLive" },
-      { state: "Settled 空", when: "settled.length === 0 && !isLoading && !isError", visual: "`Nothing settled yet`，无按钮", source: "SettledList groups.length === 0" },
+      { state: "Settled 空", when: "settled.length === 0 && !isLoading && !isError", visual: "休息猞猁（empty-no-boost，宽 150）+ `Nothing settled yet`，无按钮（2026-10-21 配图）", source: "PortfolioEmptySettled（SettledList groups.length === 0 · 系列详情无数据兜底）" },
     ],
   },
   {

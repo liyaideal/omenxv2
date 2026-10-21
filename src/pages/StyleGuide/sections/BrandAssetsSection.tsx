@@ -167,7 +167,7 @@ const EMPTY_STATE_PICKER: Array<{ src: string; name: string; motif: string; used
   { src: lynxVoucherRain, name: "lynx-voucher-rain", motif: "抛券", usedBy: "Redeem 桌未选券" },
   { src: lynxMagnifier, name: "lynx-magnifier", motif: "放大镜找东西", usedBy: "Portfolio 无持仓" },
   { src: "/assets/desktop/empty-no-starred-event.png", name: "empty-no-starred-event", motif: "纸箱探头", usedBy: "Watchlist 空" },
-  { src: "/assets/desktop/empty-no-boost.png", name: "empty-no-boost", motif: "趴着犯懒", usedBy: "通用暂无市场 / Boost 空 / Notifications Account 空" },
+  { src: "/assets/desktop/empty-no-boost.png", name: "empty-no-boost", motif: "趴着犯懒", usedBy: "通用暂无市场 / Boost 空 / Notifications Account 空 / Portfolio Settled 空" },
   { src: "/assets/desktop/empty-celebrate.png", name: "empty-celebrate", motif: "拉炮庆祝", usedBy: "全清（Notifications Trading 空）" },
   { src: "/assets/desktop/empty-error.png", name: "empty-error", motif: "工程帽扳手", usedBy: "ErrorState 出错态" },
   { src: lynxEmptyActivity, name: "lynx-empty-activity", motif: "推独轮车装金币", usedBy: "Wallet 流水空" },
@@ -330,7 +330,7 @@ const HOME: AssetRow[] = [
     path: "public/assets/desktop/empty-no-boost.png",
     size: "348 × 220",
     format: "PNG",
-    usage: "Boost 空 + 通用暂无市场空态（EV-19/20/26、TR-13/14、SP-15、品类视图×5、Crypto 目录空）",
+    usage: "Boost 空 + 通用暂无市场空态（EV-19/20/26、TR-13/14、SP-15、品类视图×5、Crypto 目录空）· Portfolio Settled 空（2026-10-21）",
     added: "2026-08-29",
   },
   {
@@ -741,7 +741,7 @@ export const BrandAssetsSection = ({ isMobile }: Props) => (
     </p>
 
     <p className="mb-6 text-xs text-muted-foreground">
-      台账共 {TOTAL} 枚（其中 {LEGACY_COUNT} 枚标 LEGACY）。缩略图为仓库真实资产渲染。
+      台账共 {TOTAL} 枚（其中 {LEGACY_COUNT} 枚标 LEGACY）。缩略图为仓库真实资产渲染。标 `PNG（CDN）` 的 `*.asset.json` 行由 Lovable 大文件通道 `/__l5e/assets-v1/` 供图，只在 lovable.app 域（preview / 正式版）能显示，localhost 开发机上一律破图——不是资产丢了。
       不入账：qa-* 取证目录、纯功能图标（chain-logos / company-logos / token-logos /
       platform-logos / brand-logos / favicon / placeholder.svg）、类目底图 card-bg 与事件配图
       event-images。

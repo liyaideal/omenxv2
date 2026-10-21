@@ -118,6 +118,24 @@ export const PortfolioEmptyLive = () => {
   );
 };
 
+/**
+ * Settled tab empty state. Same stack as the Live one; the resting lynx
+ * (`empty-no-boost`, the site-wide "nothing here yet" art) keeps the two
+ * empties on one page visually distinct. No action — nothing to browse to.
+ */
+export const PortfolioEmptySettled = () => (
+  <div className="flex flex-col items-center gap-3 py-14">
+    <img
+      src="/assets/desktop/empty-no-boost.png"
+      alt=""
+      aria-hidden
+      className="pointer-events-none select-none"
+      style={{ width: 150, height: "auto" }}
+    />
+    <p className="text-[13px] text-[#6B7280]">{t("portfolio.lite.settled.empty")}</p>
+  </div>
+);
+
 /** Placeholder KPI value when the request failed — never a fake zero. */
 export const KPI_DASH = "—";
 
