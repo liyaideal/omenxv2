@@ -513,7 +513,7 @@ export const TransactionHistory = ({ transactions = [], className, fixture, onOp
                       </div>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
-                      {tx.type === 'fiat_buy' ? (
+                      {tx.type === 'fiat_buy' && tx.status !== 'completed' ? (
                         <span className={cn("flex items-center justify-end gap-1.5 text-xs xl:w-[140px]", statusConfig.color)}>
                           <StatusIcon className={cn("w-3.5 h-3.5 shrink-0", tx.status === 'processing' && "animate-spin")} />
                           <span className="hidden xl:inline whitespace-nowrap">
