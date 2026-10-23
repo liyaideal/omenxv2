@@ -10,12 +10,30 @@
 
 查什么去哪儿：
 - 长什么样 → 生产页 `/deposit`（手机）和 `/wallet` 右上 Deposit（桌面弹窗），登录 alex_carter 看；钱包流水里三条 Card purchase 示例
-- 什么时候变成什么样 → `/style-guide` → Lite → Wallet 状态字典 → Ⓓ 充值流 → **W-14a…W-14h**（手机）与 **W-14**（桌面弹窗），每张样张都有「状态 / 触发条件 / 视觉 / 数据来源」表；流水行看 **W-17**
+- 什么时候变成什么样 → `/style-guide` → Lite → `Wallet ✅` → Ⓓ 充值流（Card tab 全部状态）与 Ⓒ 流水与 pending（卡购行）；怎么找、编号规则、只在字典可见的态见 §0.1
 - 字段名、文案 → 本文 §3；i18n 新增三个 tab 文案 key 在 `src/locales/en.json`（`settings.wallet.deposit_tab_card / _crypto / _cross_chain`）
 - 设计法则（主 CTA 用信号绿、移动 sticky 底栏、Pay with 的 Drawer / Popover 对等、猞猁空态只认灰色款）→ `DESIGN.md` §9 Deposit & Withdraw Patterns 与 §Addendum 2026-10-23
 - 后端边界、要配的密钥、要部署的函数 → §4
 
 提问前先按上面顺序查一遍；查不到再提，提问时写明"我查了 X 没有"。
+
+## 0.1 字典怎么看（`/style-guide` 阅读指南）
+
+字典 = 每个模块「全部状态 × 桌面 / 手机」的活体样张：每一态都是**生产组件挂固定数据渲染出来的**，不是截图，可以直接对着抄；旁边的表告诉你这一态什么时候出现。看的顺序：
+
+| 步 | 做什么 | 看到什么 |
+|---|---|---|
+| 1 | 打开 `https://omenxv2.lovable.app/style-guide`（不用登录） | 左栏是节点树。本次交付只在 **Lite** 组的 `Wallet ✅` 一个节点里 |
+| 2 | 点进去，先看顶部「本页目录」 | 目录 = 这个节点里的小节，按产品页从上到下排；本次看 **Ⓓ 充值流**（Card tab 全部状态）和 **Ⓒ 流水与 pending**（卡购行）。点目录条直接滚过去 |
+| 3 | 每个小节顶部一行黄框「定位行」 | 写着：这页对应哪个路由；字段 / 文案去 `copy-dictionary.md` 哪一节；口径去哪份交付文档（现在就是本文） |
+| 4 | 小节里每张样张 | 上面一行小字 = **编号 · 状态名**，如 `W-14d · Pay with · MobileDrawer`；样张本体是 iframe 里的真组件（桌面帧 100% 宽、手机帧 375 宽），能点、能滚、能展开 Fee details |
+| 5 | 样张下面的表 | 列固定为「状态 / 触发条件 / 视觉结果 / 数据来源」——**触发条件就是判定表达式** |
+| 6 | 找某个具体编号 | 页头搜索框直接敲编号（`W-14f`）或文字（`Pay with`），结果行「编号 · 名 → 节点 › 小节」，点了自动滚到那张样张 |
+| 7 | 只要一张样张单独看 / 截图 | `https://omenxv2.lovable.app/style-guide/preview?c=<key>`，key 见 `src/pages/StyleGuide/preview/registry.tsx` 里 `wallet-card-tab-*`（手机）/ `wallet-deposit-dialog-card-*`（桌面） |
+
+编号规则：`W-14a…W-14h` = 手机 Card tab 从首屏到终态的八张，按用户走的顺序排；`W-14`（无字母）= 桌面 DepositDialog 同一套的五张（首屏 / Pay with Popover / 跟踪 / completed / failed），对应手机的 a / d / f / g / h；`W-17` = 钱包流水里的卡购行三态；`W-20` 只改了注记。
+
+只在字典可见、生产暂时凑不出条件的态（不是 bug）：`W-14b` 报价中骨架（生产上一闪而过）、`W-14c` 金额越界（生产要自己输一个 $5 才看得到）、`W-14e` 关掉浮层但没付款（生产要点 Buy 再关浮层）、Apple Pay 行（只在 iOS 出现，字典里用固定数据画出来）、PIX / PayPal 行（只在对应地区出现）。
 
 ## 通俗导读
 
