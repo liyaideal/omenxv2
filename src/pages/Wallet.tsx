@@ -752,7 +752,13 @@ export default function Wallet() {
     id: tx.id,
     type: tx.type as Transaction['type'],
     amount: tx.amount,
-    description: tx.description || (tx.type === "platform_credit" ? "Platform Credit" : tx.type === "deposit" ? "Deposit" : "Withdraw"),
+    description:
+      tx.description ||
+      (tx.type === "platform_credit" ? "Platform Credit"
+        : tx.type === "deposit" ? "Deposit"
+        : tx.type === "fiat_buy" ? "Card purchase"
+        : tx.type === "withdraw" ? "Withdraw"
+        : tx.type.replace(/_/g, " ")),
     date: new Date(tx.created_at).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' }),
     timestamp: new Date(tx.created_at).getTime(),
     txHash: tx.tx_hash,
@@ -768,6 +774,7 @@ export default function Wallet() {
   
   // Dialog states
   const [depositDialogOpen, setDepositDialogOpen] = useState(false);
+  const [cardOrderTxId, setCardOrderTxId] = useState<string | null>(null);
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
   const [transferInitDir, setTransferInitDir] = useState<"to_spot" | "to_futures">("to_spot");
@@ -937,7 +944,7 @@ export default function Wallet() {
                     onRetry={refetchTx}
                   />
                 ) : (
-                  <TransactionHistory transactions={transactions} />
+                  <TransactionHistory transactions={transactions} onOpenCardOrder={isMobile ? undefined : (id) => { setCardOrderTxId(id); setDepositDialogOpen(true); }} />
                 )}
               </div>
               {/* Permanent door to recovery — the in-context link inside
@@ -997,7 +1004,8 @@ export default function Wallet() {
 
         <DepositDialog 
           open={depositDialogOpen} 
-          onOpenChange={setDepositDialogOpen} 
+          onOpenChange={(o) => { setDepositDialogOpen(o); if (!o) setCardOrderTxId(null); }}
+          cardOrderTransactionId={cardOrderTxId}
         />
 
         <WithdrawDialog 
@@ -1094,7 +1102,7 @@ export default function Wallet() {
               onRetry={refetchTx}
             />
           ) : (
-            <TransactionHistory transactions={transactions} />
+            <TransactionHistory transactions={transactions} onOpenCardOrder={isMobile ? undefined : (id) => { setCardOrderTxId(id); setDepositDialogOpen(true); }} />
           )}
         </div>
         <button

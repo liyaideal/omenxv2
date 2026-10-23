@@ -112,7 +112,7 @@ Transfer 无独立路由，只有 Dialog / Drawer 两件。
 4. Tabs 两页：`Address`（`WalletDeposit`）/ `Wallet`（`CrossChainDeposit`，bridge **仅充值方向**）。
 5. 页尾支持链接 `Need help? Contact support`（`mailto:customerservice@omenx.com`）。
 
-桌面 `DepositDialog` 同两 tab 结构（`Address` / `Wallet`），**无 Fiat tab**。
+桌面 `DepositDialog` 同结构；2026-10-23 起 tab 为 `Card` / `Crypto` / `Cross-chain`（支持卡支付的地区三列、Card 默认；不支持两列），见 `fiat-moonpay-spec-v1.md` §1。
 
 充值前拦截（`WalletDeposit`）：三段 checkbox 全勾才露出 QR + 地址，逐字为 `I am sending USDC (not USDT, ETH, BNB, or any other token)` / `I am using the Base network (not Ethereum, BSC, Polygon, Arbitrum, or any other chain)` / `I have double-checked the deposit address below before sending`；风险卡句 `Only send USDC on Base network.`。
 **历史记录为 localStorage key `deposit-ack-v2`，现行实现为 `omenx:deposit:base-usdc-warning-ack-v2`（登录后再拼 `:{user.id}`），以现行为准。**
@@ -214,7 +214,7 @@ P0 处置口径五条：
 
 1. 充值与提现页一律加登录门（`/deposit`、`/withdraw` 已与 `/wallet` 同门）。
 2. bridge 线上**只支持 deposit 方向**，不支持 withdraw 跨链。
-3. Banxa 法币入口已弃用并隐藏（bug 多）；后续换 MoonPay 另做流程，`BuyWithFiat.tsx` 留仓不挂载。
+3. 法币入口：Banxa 已于 2026-09-03 弃用；**2026-10-23 起换成 MoonPay 的 Card tab**（`BuyWithCard.tsx`，Banxa 代码与素材已删），完整说明见 `docs/delivery/fiat-moonpay-spec-v1.md`。
 4. 资产收敛为 Base-only USDC，充提与地址簿皆按此校验。
 5. 账户偏好待服务端化（08-31 拍板转研发）：链上到账任务按服务端偏好记入 Standard / Boost，单一充值地址，不按账户分地址。
 
@@ -306,7 +306,7 @@ Recovery 费率固定 10%、3–7 business days，全人工处理，无自动化
 ## 10. 涉及文件
 
 页面：`src/pages/Wallet.tsx`、`Deposit.tsx`、`Withdraw.tsx`、`RecoveryRequest.tsx`、`RecoveryRequestDetail.tsx`
-组件：`src/components/wallet/*`（`TransactionHistory` / `PendingConfirmations` / `TransferForm` / `TransferDialog` / `TransferDrawer` / `AccountPicker` / `AddAddressDialog` / `DeleteAddressDrawer` / `ColoredAddress` / `MaintenanceNoticeBanner` / `AccountBalanceLine`）、`src/components/deposit/*`（`WalletDeposit` / `CrossChainDeposit` / `DepositDialog` / `DepositDetails` / `BuyWithFiat`（留仓不挂载））、`src/components/withdraw/*`（`WalletWithdraw` / `WithdrawDialog` / `WithdrawAddressSelect(+Dialog)` / `WithdrawVerifyDialog` / `WithdrawStatusTracker` / `StickyWithdrawBar` / `WithdrawSubmitContext` / `CrossChainWithdraw`）、`src/components/recovery/*`（`RecoveryForm` / `RecoveryStatusTimeline`）、`src/components/layout/DesktopSubpageHeader.tsx`、`src/components/portfolio/lite/LiteAuthGate.tsx`、`src/components/AuthGateOverlay.tsx`
+组件：`src/components/wallet/*`（`TransactionHistory` / `PendingConfirmations` / `TransferForm` / `TransferDialog` / `TransferDrawer` / `AccountPicker` / `AddAddressDialog` / `DeleteAddressDrawer` / `ColoredAddress` / `MaintenanceNoticeBanner` / `AccountBalanceLine`）、`src/components/deposit/*`（`WalletDeposit` / `CrossChainDeposit` / `DepositDialog` / `DepositDetails` / `BuyWithCard` / `PayWithPicker`（MoonPay Card tab，见 `fiat-moonpay-spec-v1.md`））、`src/components/withdraw/*`（`WalletWithdraw` / `WithdrawDialog` / `WithdrawAddressSelect(+Dialog)` / `WithdrawVerifyDialog` / `WithdrawStatusTracker` / `StickyWithdrawBar` / `WithdrawSubmitContext` / `CrossChainWithdraw`）、`src/components/recovery/*`（`RecoveryForm` / `RecoveryStatusTimeline`）、`src/components/layout/DesktopSubpageHeader.tsx`、`src/components/portfolio/lite/LiteAuthGate.tsx`、`src/components/AuthGateOverlay.tsx`
 Hooks / 库 / 配置：`src/hooks/useWithdraw.ts`、`useDeposit.ts`、`useWallets.ts`、`useRecoveryRequests.ts`、`useAccountPreference.ts`、`useUserProfile.ts`、`src/lib/equity.ts`、`src/lib/demoOtp.ts`、`src/lib/productLineBadge.tsx`、`src/config/maintenanceNotices.ts`、`src/types/withdraw.ts`、`src/types/deposit.ts`
 资产：`src/assets/wallet/hero-thread.webp`、`hero-thread-mobile.png`、`lynx-empty-activity.png`、`lynx-empty-addresses.png`、`lynx-empty-recovery.png`
 字典 / 文档件：`src/pages/StyleGuide/sections/WalletStatesSection.tsx`、`src/pages/StyleGuide/preview/fundingPreviews.tsx`、`walletLitePreviews.tsx`、`preview/registry.tsx`、`docs/copy-dictionary.md`、`DESIGN.md` §8 / §10
@@ -316,7 +316,7 @@ Hooks / 库 / 配置：`src/hooks/useWithdraw.ts`、`useDeposit.ts`、`useWallet
 
 | 项 | 说明 |
 |---|---|
-| 法币入口（Banxa / Fiat tab） | 退役，`/deposit` 与 `DepositDialog` 均不挂载；`BuyWithFiat.tsx` 留仓待 MoonPay 轮 |
+| 法币入口（Banxa / Fiat tab） | 退役（2026-09-03）；2026-10-23 由 MoonPay Card tab 接替，见 `fiat-moonpay-spec-v1.md` |
 | `trial_balance` 体系 | 全站下线，总权益只由 `computeTotalEquity` 出 |
 | Recovery 五个中间态与 quote 卡 | `respondToQuote` mutation、Accept / Decline 按钮、"Wait for quote" 文案全部移除 |
 | 用户改 `status` 的能力 | DB trigger 封死 |

@@ -17,7 +17,8 @@ import lynxEmptyAddresses from "@/assets/wallet/lynx-empty-addresses.png";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { WalletDeposit } from "@/components/deposit/WalletDeposit";
 import { CrossChainDeposit } from "@/components/deposit/CrossChainDeposit";
-import { BuyWithFiat } from "@/components/deposit/BuyWithFiat";
+import { BuyWithCard, type BuyWithCardFixture } from "@/components/deposit/BuyWithCard";
+import type { BuyQuote, FiatOrder } from "@/lib/moonpay";
 import { WalletWithdraw } from "@/components/withdraw/WalletWithdraw";
 import { WithdrawSubmitProvider } from "@/components/withdraw/WithdrawSubmitContext";
 import {
@@ -434,7 +435,7 @@ const DepositBodyShell = ({
   tab,
   children,
 }: {
-  tab: "wallet" | "crosschain" | "fiat";
+  tab: "wallet" | "crosschain" | "card";
   children: React.ReactNode;
 }) => (
   <div className="mx-auto w-full max-w-[480px] rounded-xl border border-border/50 bg-background overflow-hidden">
@@ -447,16 +448,16 @@ const DepositBodyShell = ({
     </div>
     <div className="flex items-center justify-between px-6 py-2.5 text-xs border-b border-border/50 bg-muted/20">
       <span className="text-muted-foreground">
-        To: <span className="font-medium text-foreground">Standard Account</span>
+        To: <span className="font-medium text-foreground">Boost Account</span>
       </span>
       <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
     </div>
     <Tabs value={tab} className="flex flex-col">
       <div className="px-4 pt-3">
         <TabsList className="w-full grid grid-cols-3 h-9">
-          <TabsTrigger value="wallet" className="text-xs">Address</TabsTrigger>
-          <TabsTrigger value="crosschain" className="text-xs">Wallet</TabsTrigger>
-          <TabsTrigger value="fiat" className="text-xs">Fiat</TabsTrigger>
+          <TabsTrigger value="card" className="text-xs">Card</TabsTrigger>
+          <TabsTrigger value="wallet" className="text-xs">Crypto</TabsTrigger>
+          <TabsTrigger value="crosschain" className="text-xs">Cross-chain</TabsTrigger>
         </TabsList>
       </div>
       <TabsContent value={tab} className="mt-0">{children}</TabsContent>
@@ -476,10 +477,92 @@ export const DepositDialogAddressPreview = () => (
   </DepositBodyShell>
 );
 
-export const DepositDialogFiatPreview = () => (
-  <DepositBodyShell tab="fiat">
-    <BuyWithFiat account="spot" />
+/* ---------------- W-14 · Card tab (MoonPay) — all states ----------------
+ * Every frame mounts the production BuyWithCard with a frozen fixture:
+ * no MoonPay / supabase calls, no timers. Mobile frames render the tab body
+ * bare (the /deposit chrome is W-21's job); desktop frames sit in the dialog shell.
+ */
+const CARD_QUOTE: BuyQuote = {
+  fiatCode: "USD", fiatAmount: 100, paymentMethod: "credit_debit_card",
+  quoteAmount: 95.18, moonpayFee: 4.5, networkFee: 0.32, totalFee: 4.82, rate: 1,
+};
+const CARD_QUOTES: Partial<Record<BuyQuote["paymentMethod"], BuyQuote>> = {
+  credit_debit_card: CARD_QUOTE,
+  apple_pay: { ...CARD_QUOTE, paymentMethod: "apple_pay" },
+  google_pay: { ...CARD_QUOTE, paymentMethod: "google_pay" },
+  paypal: { ...CARD_QUOTE, paymentMethod: "paypal" },
+};
+const CARD_ORDER: FiatOrder = {
+  id: "00000000-0000-4000-8000-00000000c0de",
+  status: "sending",
+  fiatCode: "USD", fiatAmount: 100, quoteAmount: 95.18, totalFee: 4.82,
+  paymentMethod: "credit_debit_card", cardBrand: "Visa", cardLast4: "4242",
+  failureReason: null, account: "futures", providerTxId: "mp_7f3a…c91e", transactionId: null,
+  createdAt: "2026-10-23T04:40:00Z", paidAt: "2026-10-23T04:41:00Z", confirmedAt: "2026-10-23T04:41:20Z", completedAt: null,
+};
+const cardFixture = (f: Partial<BuyWithCardFixture> & { state: BuyWithCardFixture["state"] }): BuyWithCardFixture => ({
+  region: { country: "US", isBuyAllowed: true, fallback: false },
+  fiatCode: "USD",
+  amount: 100,
+  quote: CARD_QUOTE,
+  platform: "desktop",
+  ...f,
+});
+
+// desktop (dialog shell)
+export const DepositDialogCardFormPreview = () => (
+  <DepositBodyShell tab="card">
+    <BuyWithCard account="futures" fixture={cardFixture({ state: "form", feeOpen: true })} />
   </DepositBodyShell>
+);
+export const DepositDialogCardPickerPreview = () => (
+  <DepositBodyShell tab="card">
+    <BuyWithCard account="futures" fixture={cardFixture({ state: "form", pickerOpen: true, pickerQuotes: CARD_QUOTES })} />
+  </DepositBodyShell>
+);
+export const DepositDialogCardTrackingPreview = () => (
+  <DepositBodyShell tab="card">
+    <BuyWithCard account="futures" fixture={cardFixture({ state: "tracking", order: CARD_ORDER })} />
+  </DepositBodyShell>
+);
+export const DepositDialogCardCompletedPreview = () => (
+  <DepositBodyShell tab="card">
+    <BuyWithCard account="futures" fixture={cardFixture({ state: "completed", order: { ...CARD_ORDER, status: "completed", completedAt: "2026-10-23T04:43:00Z" } })} />
+  </DepositBodyShell>
+);
+export const DepositDialogCardFailedPreview = () => (
+  <DepositBodyShell tab="card">
+    <BuyWithCard account="futures" fixture={cardFixture({ state: "failed", order: { ...CARD_ORDER, status: "failed", failureReason: "card_declined" } })} />
+  </DepositBodyShell>
+);
+
+// mobile (bare tab body; sticky CTA renders at the frame bottom)
+const MobileCardFrame = ({ children }: { children: React.ReactNode }) => (
+  <div className="min-h-[640px] flex flex-col">{children}</div>
+);
+export const CardTabMobileFormPreview = () => (
+  <MobileCardFrame><BuyWithCard account="futures" fixture={cardFixture({ state: "form", platform: "ios" })} /></MobileCardFrame>
+);
+export const CardTabMobileQuotingPreview = () => (
+  <MobileCardFrame><BuyWithCard account="futures" fixture={cardFixture({ state: "quoting", amount: 180, quote: undefined, platform: "ios" })} /></MobileCardFrame>
+);
+export const CardTabMobileBelowMinPreview = () => (
+  <MobileCardFrame><BuyWithCard account="futures" fixture={cardFixture({ state: "below-min", amount: 12, quote: undefined, platform: "ios" })} /></MobileCardFrame>
+);
+export const CardTabMobilePickerPreview = () => (
+  <MobileCardFrame><BuyWithCard account="futures" fixture={cardFixture({ state: "form", platform: "ios", pickerOpen: true, pickerQuotes: CARD_QUOTES })} /></MobileCardFrame>
+);
+export const CardTabMobileTrackingPreview = () => (
+  <MobileCardFrame><BuyWithCard account="futures" fixture={cardFixture({ state: "tracking", order: CARD_ORDER })} /></MobileCardFrame>
+);
+export const CardTabMobileWaitingPreview = () => (
+  <MobileCardFrame><BuyWithCard account="futures" fixture={cardFixture({ state: "waiting", order: { ...CARD_ORDER, status: "waiting_payment", cardBrand: null, cardLast4: null, paidAt: null, confirmedAt: null, providerTxId: null } })} /></MobileCardFrame>
+);
+export const CardTabMobileCompletedPreview = () => (
+  <MobileCardFrame><BuyWithCard account="futures" fixture={cardFixture({ state: "completed", order: { ...CARD_ORDER, status: "completed", completedAt: "2026-10-23T04:43:00Z" } })} /></MobileCardFrame>
+);
+export const CardTabMobileFailedPreview = () => (
+  <MobileCardFrame><BuyWithCard account="futures" fixture={cardFixture({ state: "failed", order: { ...CARD_ORDER, status: "failed", failureReason: "card_declined" } })} /></MobileCardFrame>
 );
 
 export const DepositDialogWalletTabPreview = () => (
@@ -502,14 +585,17 @@ export const WithdrawFormDesktopPreview = () => (
 // E1/E4 (2026-08-28): win/lose wording follows the NET AMOUNT SIGN, never the
 // tx type; fiat_buy is a funding-in row and reads like a crypto deposit.
 const FIAT_AND_SIGN_TXS: Transaction[] = [
-  mk("1", "fiat_buy", 250, "Bought USDC with USD · Banxa", { account: "spot" }),
-  mk("2", "trade_loss", 28.87, "Settled: Solana — up or down? · Up · Lost", { account: "spot" }),
-  mk("3", "trade_profit", -12.4, "Settled: Ethereum — up or down? · Up · Won", { account: "spot" }),
+  mk("1", "fiat_buy", 95.18, "Card purchase · Visa •• 4242", { account: "futures", status: "processing", network: "Base" }),
+  mk("2", "fiat_buy", 237.9, "Card purchase · Mastercard •• 8810", { account: "futures", status: "completed", network: "Base" }),
+  mk("3", "fiat_buy", 50, "Card purchase · Visa •• 4242", { account: "futures", status: "failed", network: "Base" }),
+  mk("4", "deposit", 500, "Deposit · USDC on Base", { account: "futures", network: "Base", txHash: "0x8f2a0c1d9e7b6a5f4e3d2c1b0a9f8e7d6c5b4a39281706f5e4d3c2b1a0f9e8d7e41c" }),
+  mk("5", "trade_loss", 28.87, "Settled: Solana — up or down? · Up · Lost", { account: "spot" }),
+  mk("6", "trade_profit", -12.4, "Settled: Ethereum — up or down? · Up · Won", { account: "spot" }),
 ];
 
 export const TxFiatBuyPreview = () => (
   <div className="rounded-2xl border border-border/40 bg-card">
-    <TransactionHistory fixture={{ transactions: FIAT_AND_SIGN_TXS }} />
+    <TransactionHistory fixture={{ transactions: FIAT_AND_SIGN_TXS, initialExpandedId: "1" }} onOpenCardOrder={() => undefined} />
   </div>
 );
 

@@ -2358,3 +2358,18 @@ CPO 2026-10-13 方案 v0 D1–D12 + mock v1 M1–M8（桌面入口方案 A）。
 12. **机柜内不出现 `sh` / 份额数**（CPO 2026-10-19 第二次打回：自己编的缩写，正常人看不懂）：份额一律换算成钱——N 份 = `wins $N if Up`（每份赢付 $1），持仓底注 `$25 in · wins +$121 if Up`，记分板副行 `in at 27.6¢ · worth $612 now`（单行、溢出省略，不再两行截断），Orders 行 `Up · $25 in at 51.0¢ · wins +$23`，Cash out 弹层 `Keeps $X riding`，净额 toast 讲 `$N off your Down · $M still on`。`shares` 全拼只许出现在规则弹层的解释句里。
 13. **移动端走查修正**（CPO 2026-10-19 上线后"随便看了几眼"，我按 360 / 375 全态走查）：① Available 牌改成标签在上、数字在下（五位数余额不再被切）；② THIS ROUND 牌：有 ORDERS 徽标时隐掉 "THIS ROUND" 字样、大字用短式 `Up · $10 in`、数字 17px，Share / Cash out 定宽 52 / 78 单行；③ 窥条合计只显示 `−$158`（整元），不再 `Last 10 −$17…`；④ 梯子：涨跌标签测量后避让 `OPEN / $0`（桌面同样生效），移动端右对齐在梯子内，四位数涨跌不出框；⑤ 盘外（无轮次）不再露出 markup 的样例数（题目 `—` / 副行 `opens Mon 09:30 ET · in 7h`，UP/DOWN 价 `—`、底注 `Market closed`）；⑥ Share 卡的名字和推荐码在打开时读（之前挂载时读到 `you` / 域名），推荐码取 `?ref=`，没有就隐掉那行。
 14. **持仓筹码塔 = 方案 A「按面额归堆」**（CPO 2026-10-19 比稿三选一："用 A 吧"；此前只画最近 4 枚，第 5 枚起没反馈，CPO 以为单没下下去）：同面额一堆、大面额在左、每堆最多画 5 枚厚、≥2 枚带 `×N` 角标；成交反馈三重 = 新筹码落进对应堆（tDrop）+ 该堆角标 bump + Position 徽标 bump；桌面 32px 筹码堆距 6，移动 24px 堆距 3、最多 3 堆（其余并入末堆角标）、徽标省掉 "Position" 字样只留金额；刷新后从持仓重建时按找零法拆成最少枚（`colorUp`：$1,032 → 500×2 + 25 + 零头并入最小堆）。style-guide AR-2（桌面 9 枚）/ AR-5（移动 9 枚）。
+
+## §Addendum 2026-10-23 · 法币入金 Card tab（MoonPay，LOCKED）
+
+来源：CPO 2026-10-23 批准的 19 条方案 + mock（artifact UCuJh1r3FjtTbi6asWHb3p）。交付文档 `docs/delivery/fiat-moonpay-spec-v1.md`；字典 Wallet Ⓓ W-14a…h / W-14 / W-17；词典「Wallet」节新增 Card 行。
+
+1. **Deposit tab 三列**：`Card / Crypto / Cross-chain`（Address / Wallet 两个旧文案退役）。Card 只在 MoonPay 允许刷卡的地区渲染并默认选中；不允许则两列、默认 Crypto。永远不渲染一个"点进去才告诉你不支持"的 tab。
+2. **第一屏三件事**：金额（64px 输入框 · 币种下拉在左 · 32px mono 数字右对齐 · 四个 36px 圆角 chip）→ 报价卡（`border-primary/30 bg-primary/5`，28px mono `≈ 95.18 USDC`，Fee details 默认折叠）→ Pay with 选择行（56px，图标 · 名 + 副行 · chevron）。KYC 字样、限额表、第三方免责长句**不进第一屏**。
+3. **主 CTA 带到手数**：`Buy 95.18 USDC`，`.btn-trading-green`（§全站主 CTA），移动 h-12 rounded-xl sticky 在 BottomNav 之上，桌面 h-10 rounded-lg 内联；下一行 10px 信任行。禁用态 `opacity-50` 去阴影。
+4. **Pay with 的 overlay 对等**：移动 `MobileDrawer`、桌面 `Popover`（`w-[trigger] p-1.5 bg-[#12151A] border-[#1D2026] rounded-xl`，同 Saved addresses ⋯ Popover 底色）。选项行 60px，右侧该方式的 `≈ USDC` + `fee`；不可用行 `opacity-40` 并在副行写原因，**不隐藏**。
+5. **第三方浮层不画**：MoonPay checkout 是它托管的 overlay（两端都 overlay，不跳新标签），我们只预填与设 `theme: dark`；字典里以说明帧占位，不手绘它的界面。
+6. **订单跟踪 = 四步固定竖向时间线**：24px 圆点 + 2px 连线；完成 `bg-trading-green/20` ✓ + 时间戳、连线 `/40`；进行中 `border-primary` + 脉冲点 + 预计时长；未到灰。订单头 `付了多少 / 卡尾号 → ≈ 到手 / 账户名`（16px mono）。
+7. **终态插画只认灰色猞猁库**：成功 `empty-celebrate` 130×130，失败 `empty-no-boost` 150 宽（"摊手 + 退回的卡"新画进库后替换）。失败态必须有 `Nothing was charged` 一句和一张 Reason 卡（`border-trading-red/30 bg-trading-red-bg`），原因写人话（银行拒付 / 3DS / 身份验证），**不露错误码**。
+8. **流水卡购行与链上充值同构**：绿色入账箭头 + 描述 `Card purchase · Visa •• 4242` + `Card` 类型 badge（`border-purple-500/30 bg-purple-500/10 text-purple-400`——类型 badge 自成一轴：cross-chain 蓝 / 橙、card 紫，与旁边的 BOOST（accent 绿）/ STANDARD（primary 蓝）账户胶囊永不同色；只改标签 Fiat Buy → Card）。处理中加 `In progress` 胶囊（`border-primary/30 bg-primary/10 text-primary`——与流水 processing 状态同一色轴，不另开黄色）+ 转圈；失败金额 `text-muted-foreground line-through` 无正负号 + 红胶囊 `Failed · not charged`。桌面行固定列不变（状态 140 → 账户 78 → 金额 120 → 箭头）。
+9. **本币默认但不换算**：币种按 IP 所在国默认，快捷档是该币种自己的整数档，不出现汇率换算出来的零碎数；用户切过币种后会话内不再覆盖。
+

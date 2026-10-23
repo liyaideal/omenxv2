@@ -4,7 +4,6 @@ export { DepositDetails } from './DepositDetails';
 export { DepositDialog } from './DepositDialog';
 export { WalletDeposit } from './WalletDeposit';
 export { CrossChainDeposit } from './CrossChainDeposit';
-export { BuyWithFiat } from './BuyWithFiat';
 export { FullAddressSheet } from './FullAddressSheet';
 export { FullAddressDialog } from './FullAddressDialog';
 export { SharePosterContent } from './SharePosterContent';

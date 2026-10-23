@@ -1,5 +1,6 @@
 import { t } from "@/i18n";
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   ArrowUpRight, 
   ArrowDownLeft, 
@@ -96,6 +97,11 @@ interface TransactionHistoryProps {
   transactions?: Transaction[];
   className?: string;
   /**
+   * Card purchase rows (type fiat_buy) link to their order tracking. Desktop
+   * Wallet opens DepositDialog on the order; mobile navigates to /deposit?order=.
+   */
+  onOpenCardOrder?: (transactionId: string) => void;
+  /**
    * Style-guide only (docs fixture). Seeds the initial pill filter / expanded
    * row so a static state can be photographed. Never set in product code —
    * when omitted the component behaves exactly as before.
@@ -132,7 +138,7 @@ const TYPE_LABELS: Record<TransactionType, string> = {
   winning_commission: 'Winning commission',
   cross_chain_in: 'Cross-Chain In',
   cross_chain_out: 'Cross-Chain Out',
-  fiat_buy: 'Fiat Buy',
+  fiat_buy: 'Card purchases',
   fiat_sell: 'Fiat Sell',
   transfer_to_spot: 'Transfer → Standard',
   transfer_to_futures: 'Transfer → Boost',
@@ -150,7 +156,10 @@ const TYPE_BADGE_CONFIG: Record<TransactionType, { label: string; className: str
   // Pro-only tx types; not surfaced on Lite
   cross_chain_in: { label: 'Cross-Chain In', className: 'border-blue-500/30 bg-blue-500/10 text-blue-400' },
   cross_chain_out: { label: 'Cross-Chain Out', className: 'border-orange-500/30 bg-orange-500/10 text-orange-400' },
-  fiat_buy: { label: 'Fiat Buy', className: 'border-purple-500/30 bg-purple-500/10 text-purple-400' },
+  // Card purchases (MoonPay, 2026-10-23). Type badges stay on their own axis
+  // (blue-500 / orange-500 / purple) so they never read as the BOOST (accent) or
+  // STANDARD (primary) account pills sitting next to them.
+  fiat_buy: { label: 'Card', className: 'border-purple-500/30 bg-purple-500/10 text-purple-400' },
   fiat_sell: { label: 'Fiat Sell', className: 'border-pink-500/30 bg-pink-500/10 text-pink-400' },
   transfer_to_spot: { label: 'Transfer', className: 'border-primary/30 bg-primary/10 text-primary' },
   transfer_to_futures: { label: 'Transfer', className: 'border-primary/30 bg-primary/10 text-primary' },
@@ -164,7 +173,9 @@ const ACCOUNT_BADGE_CONFIG: Record<TransactionAccount, { label: string; classNam
   futures: { label: PRODUCT_LINE_LABELS.futures, className: PRODUCT_LINE_BADGE_CLASSES.futures },
 };
 
-export const TransactionHistory = ({ transactions = [], className, fixture }: TransactionHistoryProps) => {
+export const TransactionHistory = ({ transactions = [], className, fixture, onOpenCardOrder }: TransactionHistoryProps) => {
+  const navigate = useNavigate();
+  const openCardOrder = (id: string) => (onOpenCardOrder ? onOpenCardOrder(id) : navigate(`/deposit?order=${id}`));
   const rows = fixture?.transactions ?? transactions;
   type PillFilter = 'all' | 'deposit' | 'withdraw' | 'trade';
   const [pillFilter, setPillFilter] = useState<PillFilter>(fixture?.initialFilter ?? 'all');
@@ -346,8 +357,23 @@ export const TransactionHistory = ({ transactions = [], className, fixture }: Tr
 
   // Check if a transaction has extra details worth showing
   const hasDetails = (tx: Transaction) => {
-    return tx.txHash || (tx.status && tx.status !== 'completed') || tx.network || tx.fee || tx.sourceChain || tx.destChain;
+    return tx.type === 'fiat_buy' || tx.txHash || (tx.status && tx.status !== 'completed') || tx.network || tx.fee || tx.sourceChain || tx.destChain;
   };
+
+  // Card purchase rows: a human status pill instead of the bare icon (CPO mock 2026-10-23 §7).
+  const cardPill = (tx: Transaction) => {
+    if (tx.type !== 'fiat_buy') return null;
+    if (tx.status === 'failed' || tx.status === 'rejected')
+      return <span className="inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap border-trading-red/30 bg-trading-red-bg text-trading-red">Failed · not charged</span>;
+    if (tx.status === 'pending' || tx.status === 'processing')
+      return (
+        <span className="inline-flex items-center gap-1 rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap border-primary/30 bg-primary/10 text-primary">
+          In progress <Loader2 className="w-3 h-3 animate-spin" />
+        </span>
+      );
+    return null;
+  };
+  const isFailedCard = (tx: Transaction) => tx.type === 'fiat_buy' && (tx.status === 'failed' || tx.status === 'rejected');
 
   return (
     <div className={cn("space-y-4", className)}>
@@ -424,9 +450,9 @@ export const TransactionHistory = ({ transactions = [], className, fixture }: Tr
                       </span>
                       <span className={cn(
                         "text-sm font-semibold font-mono shrink-0 text-right",
-                        tx.amount >= 0 ? "text-trading-green" : "text-trading-red"
+                        isFailedCard(tx) ? "text-muted-foreground line-through" : tx.amount >= 0 ? "text-trading-green" : "text-trading-red"
                       )}>
-                        {tx.amount >= 0 ? "+" : "−"}${formatCurrency(Math.abs(tx.amount))}
+                        {isFailedCard(tx) ? '' : tx.amount >= 0 ? "+" : "−"}${formatCurrency(Math.abs(tx.amount))}
                       </span>
                     </div>
                     {/* Row 2: date + badge + status icon (aligned to description) */}
@@ -439,13 +465,18 @@ export const TransactionHistory = ({ transactions = [], className, fixture }: Tr
                         )}>
                           {ACCOUNT_BADGE_CONFIG[tx.account || 'spot'].label}
                         </span>
-                        {tx.status && tx.status !== 'completed' && (
+                        {tx.type === 'fiat_buy' && (
+                          <span className={cn("inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap", TYPE_BADGE_CONFIG.fiat_buy.className)}>
+                            {TYPE_BADGE_CONFIG.fiat_buy.label}
+                          </span>
+                        )}
+                        {cardPill(tx) ?? (tx.status && tx.status !== 'completed' && (
                           <StatusIcon className={cn(
                             "w-3.5 h-3.5 shrink-0",
                             statusConfig.color,
                             tx.status === 'processing' && "animate-spin"
                           )} />
-                        )}
+                        ))}
                       </div>
                       {showExpandable && (
                         <ChevronDown className={cn(
@@ -471,11 +502,23 @@ export const TransactionHistory = ({ transactions = [], className, fixture }: Tr
                             {formatDescription(tx)}
                           </span>
                         </div>
-                        <div className="text-xs text-muted-foreground">{tx.date}</div>
+                        <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                          <span>{tx.date}</span>
+                          {tx.type === 'fiat_buy' && (
+                            <span className={cn("inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap", TYPE_BADGE_CONFIG.fiat_buy.className)}>
+                              {TYPE_BADGE_CONFIG.fiat_buy.label}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
-                      {tx.status && tx.status !== 'completed' && (
+                      {tx.type === 'fiat_buy' ? (
+                        <span className={cn("w-[140px] flex items-center justify-end gap-1.5 text-xs", statusConfig.color)}>
+                          <StatusIcon className={cn("w-3.5 h-3.5 shrink-0", tx.status === 'processing' && "animate-spin")} />
+                          {tx.status === 'processing' ? 'Sending to Base' : tx.status === 'pending' ? 'Waiting for payment' : statusConfig.label}
+                        </span>
+                      ) : tx.status && tx.status !== 'completed' && (
                         <StatusIcon className={cn(
                           "w-3.5 h-3.5 shrink-0",
                           statusConfig.color,
@@ -493,9 +536,9 @@ export const TransactionHistory = ({ transactions = [], className, fixture }: Tr
                       <div className="w-[120px] text-right">
                         <span className={cn(
                           "text-sm font-semibold font-mono",
-                          tx.amount >= 0 ? "text-trading-green" : "text-trading-red"
+                          isFailedCard(tx) ? "text-muted-foreground line-through" : tx.amount >= 0 ? "text-trading-green" : "text-trading-red"
                         )}>
-                          {tx.amount >= 0 ? "+" : "−"}${formatCurrency(Math.abs(tx.amount))}
+                          {isFailedCard(tx) ? '' : tx.amount >= 0 ? "+" : "−"}${formatCurrency(Math.abs(tx.amount))}
                         </span>
                       </div>
                       <div className="w-4 flex items-center justify-center shrink-0">
@@ -552,6 +595,18 @@ export const TransactionHistory = ({ transactions = [], className, fixture }: Tr
                       </div>
                     )}
                     
+                    {tx.type === 'fiat_buy' && (
+                      <div className="flex items-center justify-end text-sm">
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); openCardOrder(tx.id); }}
+                          className="text-primary hover:underline font-mono text-xs"
+                        >
+                          View order status ›
+                        </button>
+                      </div>
+                    )}
+
                     {tx.txHash && explorerUrl && (
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">{t("settings.wallet.transaction")}</span>

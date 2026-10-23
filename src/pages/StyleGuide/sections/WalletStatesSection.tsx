@@ -312,11 +312,11 @@ const TX_STATE_CASES: SectionCase[] = [
   {
     key: "wallet-lite-tx-pro-only-types",
     label: "W-20 · 平台入账与跨链行（TxRowPlatformTypes）",
-    note: "fiat_* 类型随 Banxa 弃用退役（2026-09-03），MoonPay 轮重启前不再展示。cross-chain 为真业务（bridge 仅支持 deposit）。",
+    note: "fiat_buy 自 2026-10-23 起为 MoonPay 卡购行（见 W-17）；fiat_sell 仍未启用。cross-chain 为真业务（bridge 仅支持 deposit）。",
     spec: [
       { state: "cross_chain_in", when: "type === 'cross_chain_in'", visual: "跨链入账，展开显示 source → dest 链与币种", source: "TransactionHistory.tsx" },
       { state: "cross_chain_out", when: "type === 'cross_chain_out'", visual: "跨链出账，金额为负", source: "TransactionHistory.tsx" },
-      { state: "fiat_buy", when: "type === 'fiat_buy'", visual: "见 W-17：与 crypto deposit 同构（ArrowDownLeft 绿 · bg-trading-green/20）", source: "TransactionHistory.tsx" },
+      { state: "fiat_buy", when: "type === 'fiat_buy'", visual: "见 W-17：与 crypto deposit 同构 + 紫色 Card 类型 badge + 状态胶囊", source: "TransactionHistory.tsx" },
       { state: "fiat_sell", when: "type === 'fiat_sell'", visual: "法币卖出 USDC，金额为负", source: "TransactionHistory.tsx" },
     ],
   },
@@ -325,14 +325,31 @@ const TX_STATE_CASES: SectionCase[] = [
 const TX_FIAT_CASES: SectionCase[] = [
   {
     key: "wallet-lite-tx-fiat-buy",
-    label: "W-17 · 交易流水 · fiat_buy + 净额符号判定",
-    note: "win/lose 与图标一律看净额符号；type 只决定来源注记。",
+    label: "W-17 · 交易流水 · 卡购行（fiat_buy）三态 + 净额符号判定",
+    note: "2026-10-23 MoonPay 轮：fiat_buy = Card purchase。与链上充值同构，只多一个紫色 Card 类型 badge（类型 badge 自成一轴，不与账户胶囊撞色）；处理中 / 失败各有胶囊。win/lose 与图标一律看净额符号。",
     spec: [
       {
-        state: "fiat_buy",
-        when: "type === 'fiat_buy'",
-        visual: "ArrowDownLeft · text-trading-green · bg-trading-green/20；金额 +$250.00 绿；来源注记来自描述通道字段（Banxa）；Deposits 筛选包含此行",
-        source: "TransactionHistory getTransactionIcon / pillFilter",
+        state: "fiat_buy · completed",
+        when: "type === 'fiat_buy' && status === 'completed'",
+        visual: "ArrowDownLeft 绿 · bg-trading-green/20；描述 `Card purchase · Mastercard •• 8810`；第二行 日期 · BOOST · Card（紫 type badge，与 BOOST 绿 / STANDARD 蓝不同轴）；金额 +$237.90；Deposits 筛选包含此行",
+        source: "TransactionHistory getTransactionIcon / TYPE_BADGE_CONFIG.fiat_buy / pillFilter",
+      },
+      {
+        state: "fiat_buy · processing / pending",
+        when: "status ∈ {processing, pending}",
+        visual: "第二行多一枚 primary 色 `In progress` 胶囊 + 转圈（与 processing 状态同色轴）；展开区有 `View order status ›`（移动 → /deposit?order=，桌面 → DepositDialog 跟踪态）；桌面状态列文字 Sending to Base / Waiting for payment",
+        source: "TransactionHistory cardPill / openCardOrder",
+      },
+      {
+        state: "fiat_buy · failed",
+        when: "status ∈ {failed, rejected}",
+        visual: "金额灰色划线无正负号；胶囊 `Failed · not charged`（红）；不计入余额",
+        source: "TransactionHistory isFailedCard",
+      },
+      {
+        state: "净额符号",
+        when: "trade_profit / trade_loss",
+        visual: "win/lose 看净额符号，type 只决定来源注记",
       },
       {
         state: "type=trade_loss 但净额 > 0",
@@ -410,13 +427,6 @@ const DEPOSIT_DIALOG_CASES: SectionCase[] = [
         visual: "二维码 + 链上地址（ColoredAddress）+ Copy；最小入金与到账说明",
         source: "WalletDeposit.tsx",
       },
-    ],
-  },
-  {
-    key: "wallet-deposit-dialog-fiat",
-    label: "W-14 · Deposit 弹窗 · Fiat tab",
-    spec: [
-      { state: "fiat", when: "tab === 'fiat'", visual: "法币金额输入 + 报价行 + Banxa 跳转 CTA", source: "BuyWithFiat.tsx" },
     ],
   },
   {
@@ -565,11 +575,87 @@ const DEPOSIT_FLOW_CASES: SectionCase[] = [
       { state: "review", when: "点击继续后的确认步", visual: "确认页 + 假进度阶段（本字典按静态步帧解读，不做动画取证）", source: "CrossChainDeposit.tsx processingStage" },
     ],
   },
+];
+
+/* W-14 · Card tab（MoonPay，2026-10-23 轮）— 规则编号对应 docs/delivery/fiat-moonpay-spec-v1.md §2 */
+const CARD_TAB_MOBILE_CASES: SectionCase[] = [
   {
-    key: "wallet-deposit-dialog-fiat",
-    label: "W-14 · Deposit 弹窗 · Fiat tab（已退役，仅存档深链）",
-    note: "fiat_* 随 Banxa 弃用退役（2026-09-03），Fiat tab 入口已从 /deposit 与 DepositDialog 移除；BuyWithFiat.tsx 保留在仓库，MoonPay 轮重启前不再展示。",
+    key: "wallet-card-tab-form",
+    label: "W-14a · Card tab · 首屏（支持地区 · 默认 Card · 预选第二档）",
+    note: "tab 栏变三列 Card / Crypto / Cross-chain，Card 在前且默认；不支持地区整个 Card tab 不渲染，tab 栏回两列（规则 3）。币种与快捷档按 IP 所在国默认（规则 4 子项）。",
+    spec: [
+      { state: "默认币种", when: "region.country 的本币在 FIAT_CURRENCIES 内", visual: "币种下拉默认本币，金额默认第二档 chip；否则 USD / $100", source: "BuyWithCard.tsx · lib/moonpay.defaultFiatFor" },
+      { state: "快捷 chip", when: "amount === chip 值", visual: "选中 chip 描边 primary + 文字 primary + bg-primary/[0.08]；四档为该币种整数档（USD 50/100/250/500，JPY 5,000/10,000/30,000/50,000）", source: "FIAT_CURRENCIES[*].chips" },
+      { state: "报价行", when: "quote !== null", visual: "≈ 95.18 USDC（28px mono）+ 右上 USDC on Base；Fee details 默认收起，右侧 Total", source: "getBuyQuote（500ms 防抖）" },
+      { state: "Pay with 行", when: "恒显", visual: "56px 选择行：图标 · 方式名 + 副行 · chevron；默认 Credit / Debit card，iOS 且支持 Apple Pay 时默认 Apple Pay", source: "PayWithPicker.tsx · defaultPaymentMethod" },
+      { state: "CTA", when: "quote 可用且金额合法", visual: "`Buy 95.18 USDC`（btn-trading-green，移动 h-12 sticky 底栏）；下一行 10px 信任行 Powered by MoonPay · 160+ countries · Secure checkout", source: "CtaBlock" },
+      { state: "CTA 禁用", when: "quoting || invalid || !quote", visual: "opacity-50 无阴影；报价中文案 Getting quote…", source: "CtaBlock disabled" },
+    ],
   },
+  {
+    key: "wallet-card-tab-quoting",
+    label: "W-14b · Card tab · 报价中（骨架）",
+    spec: [
+      { state: "quoting", when: "输入后 500ms 内 / quote 请求未返回", visual: "You get 处 28×150 骨架脉冲；Fee details 右侧 Updating…；CTA Getting quote… 禁用", source: "BuyWithCard quoting" },
+    ],
+  },
+  {
+    key: "wallet-card-tab-below-min",
+    label: "W-14c · Card tab · 金额越界",
+    spec: [
+      { state: "below-min", when: "0 < amount < minBuyAmount", visual: "输入框描边 destructive；下方红字 `Minimum is $30 for card payments.`；You get 显示 —；CTA 禁用", source: "BuyWithCard belowMin" },
+      { state: "above-max", when: "amount > maxBuyAmount", visual: "同上，文案 `Maximum is $12,000 per purchase.`", source: "BuyWithCard aboveMax" },
+    ],
+  },
+  {
+    key: "wallet-card-tab-picker",
+    label: "W-14d · Pay with · MobileDrawer（桌面同内容走 Popover）",
+    spec: [
+      { state: "选项行", when: "每个可用方式", visual: "60px 行：图标 · 名称 + 副行 · 右侧该方式 ≈ USDC 与 fee（各自报价）· 选中行描边 primary + ✓", source: "PayWithPicker OptionRow" },
+      { state: "不可用方式", when: "available === false", visual: "整行 opacity-40 不可点，副行写原因（Not available in your region / SEPA accounts only）", source: "paymentMethodsFor" },
+      { state: "设备分支", when: "ios / android / desktop", visual: "iOS 不列 Google Pay；Android 不列 Apple Pay；桌面两者都列", source: "detectPlatform" },
+    ],
+  },
+  {
+    key: "wallet-card-tab-waiting",
+    label: "W-14e · 订单跟踪 · 浮层关闭但未付款（waiting_payment）",
+    spec: [
+      { state: "waiting_payment", when: "order.status === 'waiting_payment'", visual: "第一步显示 Waiting for payment + `Finish checkout to continue`；按钮 Resume checkout（绿）+ Cancel order（描边）", source: "TrackingView" },
+    ],
+  },
+  {
+    key: "wallet-card-tab-tracking",
+    label: "W-14f · 订单跟踪 · 付款成功链上发送中（sending）",
+    note: "四步固定：Payment received → Order confirmed by MoonPay → Sending USDC to Base → Credited。状态由 webhook（Lovable：演示引擎定时器）推进，前端 4s 轮询。",
+    spec: [
+      { state: "已完成步", when: "i < stepIndex(status)", visual: "✓ 绿圈 bg-trading-green/20 + 时间戳；连线 bg-trading-green/40", source: "TrackingView STEPS" },
+      { state: "进行中步", when: "i === stepIndex(status)", visual: "primary 描边圈 + 脉冲点；文字 primary 加粗 + 预计时长", source: "TrackingView" },
+      { state: "订单头", when: "恒显", visual: "`$100.00 / Visa •• 4242 → ≈ 95.18 USDC / Boost Account` + Order ID 行", source: "TrackingView" },
+    ],
+  },
+  {
+    key: "wallet-card-tab-completed",
+    label: "W-14g · 终态 · completed",
+    spec: [
+      { state: "completed", when: "order.status === 'completed'", visual: "庆祝款猞猁 empty-celebrate 130×130 → `Deposit complete` → `+95.18 USDC`（32px mono 绿）→ `Credited to your Boost Account. Ready to trade.`；按钮 Start trading（绿，去 /）+ Done（描边）", source: "ResultView success" },
+    ],
+  },
+  {
+    key: "wallet-card-tab-failed",
+    label: "W-14h · 终态 · failed",
+    spec: [
+      { state: "failed", when: "order.status === 'failed'", visual: "趴地款猞猁 empty-no-boost 150 宽 → `Payment didn’t go through` → `Nothing was charged…` → Reason 卡（红描边）写人话（银行拒付 / 3DS / KYC 三类）；按钮 Try again（绿）+ Contact support（描边）", source: "ResultView fail · failureCopy" },
+      { state: "cancelled", when: "failureReason === 'cancelled'", visual: "标题 Order cancelled，无 Reason 卡", source: "ResultView" },
+    ],
+  },
+];
+
+const CARD_TAB_DESKTOP_CASES: SectionCase[] = [
+  { key: "wallet-deposit-dialog-card-form", label: "W-14 · DepositDialog · Card tab 首屏（Fee details 展开）", note: "桌面 CTA h-10 rounded-lg 内联；Fee details 展开三行 MoonPay fee / Network fee (Base) / Rate。" },
+  { key: "wallet-deposit-dialog-card-picker", label: "W-14d · DepositDialog · Pay with Popover" },
+  { key: "wallet-deposit-dialog-card-tracking", label: "W-14f · DepositDialog · 跟踪态" },
+  { key: "wallet-deposit-dialog-card-completed", label: "W-14g · DepositDialog · completed（按钮横排：Done 左 · Start trading 右）" },
+  { key: "wallet-deposit-dialog-card-failed", label: "W-14h · DepositDialog · failed" },
 ];
 
 const WITHDRAW_FLOW_CASES: SectionCase[] = [
@@ -809,6 +895,12 @@ export const WalletStatesSection = ({ isMobile }: { isMobile: boolean }) => (
       </div>
       <div className="mt-3">
         <SectionFrame cases={[DEPOSIT_FLOW_CASES[4]]} device="desktop" minHeight={520} />
+      </div>
+      <div className="mt-6">
+        <SectionFrame cases={CARD_TAB_MOBILE_CASES} device="mobile" minHeight={1400} />
+      </div>
+      <div className="mt-3">
+        <SectionFrame cases={CARD_TAB_DESKTOP_CASES} device="desktop" minHeight={760} />
       </div>
     </SubSection>
 

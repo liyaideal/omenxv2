@@ -26,7 +26,7 @@ export const useRealtimeTransactions = (enabled: boolean = true) => {
       : type === 'withdraw' ? 'Withdrawal' 
       : type === 'cross_chain_in' ? 'Cross-Chain Deposit'
       : type === 'cross_chain_out' ? 'Cross-Chain Withdrawal'
-      : type === 'fiat_buy' ? 'Fiat Purchase'
+      : type === 'fiat_buy' ? 'Card purchase'
       : type === 'fiat_sell' ? 'Fiat Sale'
       : 'Transaction';
 

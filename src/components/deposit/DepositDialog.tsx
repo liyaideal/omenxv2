@@ -1,5 +1,5 @@
 import { t } from "@/i18n";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X, HelpCircle, ChevronRight } from 'lucide-react';
 import {
   Dialog,
@@ -10,21 +10,35 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WalletDeposit } from './WalletDeposit';
 import { CrossChainDeposit } from './CrossChainDeposit';
+import { BuyWithCard, useCardRegion } from './BuyWithCard';
+import { cn } from '@/lib/utils';
 import { AccountPickerRows, type AccountKind } from '@/components/wallet/AccountPicker';
 import { useAccountPreference, ACCOUNT_LABEL } from '@/hooks/useAccountPreference';
 
 interface DepositDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Open straight on a card order's tracking state (Wallet ledger "View order status"). */
+  cardOrderTransactionId?: string | null;
 }
 
-export const DepositDialog = ({ open, onOpenChange }: DepositDialogProps) => {
-  const [activeTab, setActiveTab] = useState('wallet');
+export const DepositDialog = ({ open, onOpenChange, cardOrderTransactionId = null }: DepositDialogProps) => {
+  // Card tab only where MoonPay can take cards (rule 3); first + default when it can.
+  const region = useCardRegion();
+  const cardAvailable = region?.isBuyAllowed === true;
+  const [activeTab, setActiveTab] = useState<string>('wallet');
+  const [tabTouched, setTabTouched] = useState(false);
+  useEffect(() => {
+    if (!open) return;
+    if (cardOrderTransactionId) { setActiveTab('card'); setTabTouched(true); return; }
+    if (!tabTouched && cardAvailable) setActiveTab('card');
+  }, [open, cardAvailable, tabTouched, cardOrderTransactionId]);
   const { account, setAccount } = useAccountPreference('deposit');
   const [editingAccount, setEditingAccount] = useState(false);
 
   const handleClose = () => {
-    setActiveTab('wallet');
+    setActiveTab(cardAvailable ? 'card' : 'wallet');
+    setTabTouched(false);
     setEditingAccount(false);
     onOpenChange(false);
   };
@@ -87,15 +101,21 @@ export const DepositDialog = ({ open, onOpenChange }: DepositDialogProps) => {
             </button>
 
             {/* Tabs */}
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
+            <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setTabTouched(true); }} className="flex flex-col flex-1 min-h-0">
               <div className="px-4 pt-3 flex-shrink-0">
-                <TabsList className="w-full grid grid-cols-2 h-9">
-                  <TabsTrigger value="wallet" className="text-xs">{t("settings.wallet.address")}</TabsTrigger>
-                  <TabsTrigger value="crosschain" className="text-xs">{t("settings.wallet.title")}</TabsTrigger>
+                <TabsList className={cn("w-full grid h-9", cardAvailable ? "grid-cols-3" : "grid-cols-2")}>
+                  {cardAvailable && <TabsTrigger value="card" className="text-xs">{t("settings.wallet.deposit_tab_card")}</TabsTrigger>}
+                  <TabsTrigger value="wallet" className="text-xs">{t("settings.wallet.deposit_tab_crypto")}</TabsTrigger>
+                  <TabsTrigger value="crosschain" className="text-xs">{t("settings.wallet.deposit_tab_cross_chain")}</TabsTrigger>
                 </TabsList>
               </div>
 
               <div className="flex-1 overflow-y-auto">
+                {cardAvailable && (
+                  <TabsContent value="card" className="mt-0">
+                    <BuyWithCard account={account} initialTransactionId={cardOrderTransactionId} onDone={handleClose} />
+                  </TabsContent>
+                )}
                 <TabsContent value="wallet" className="mt-0">
                   <WalletDeposit onDone={handleClose} account={account} />
                 </TabsContent>

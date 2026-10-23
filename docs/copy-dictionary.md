@@ -703,6 +703,22 @@ Never render "liquidated" or "stopped out" — banned Lite jargon.
 
 | Canonical | Meaning | Banned variants |
 |---|---|---|
+| **Card** | Deposit tab · 刷卡买 USDC（MoonPay，2026-10-23） | Fiat, Buy crypto, Credit card |
+| **Crypto** | Deposit tab · 链上直充（原 Address） | Address, Wallet |
+| **Cross-chain** | Deposit tab · 跨链充值（原 Wallet） | Bridge, Wallet |
+| **You pay** / **You get** | Card tab 金额与报价标签 | You receive, Amount |
+| **Fee details** | 费用折叠行；展开 `MoonPay fee` / `Network fee (Base)` / `Rate` | Fees, Total fees |
+| **Pay with** | 支付方式选择行标签 | Payment method |
+| **Credit / Debit card** · **Apple Pay** · **Google Pay** · **Bank transfer** · **PIX** · **PayPal** | 支付方式名（副行 `Visa · Mastercard · Instant` 等见交付文档 §3） | Card payment, Bank, Wire |
+| **Buy 95.18 USDC** | Card tab 主 CTA，带到手数 | Continue, Continue to payment, Buy now |
+| **Powered by MoonPay · 160+ countries · Secure checkout** | CTA 下信任行（逐字） | — |
+| **Minimum is $30 for card payments.** / **Maximum is $12,000 per purchase.** | 越界内联提示（金额随币种） | Amount too low |
+| **Payment received** · **Order confirmed by MoonPay** · **Sending USDC to Base** · **Credited to your account** | 订单跟踪四步；未付款时第一步 `Waiting for payment` | Processing order, Payment pending |
+| **Deposit complete** | 成功态标题 | Success, Purchase successful |
+| **Payment didn’t go through** / **Nothing was charged.** | 失败态标题 / 首句 | Payment failed, Error |
+| **Card purchase · Visa •• 4242** | 流水描述（`fiat_buy`） | Fiat Buy, Bought USDC with USD |
+| **In progress** / **Failed · not charged** | 流水卡购行胶囊 | Pending, Processing |
+| **View order status** | 流水展开区回跟踪态的链接 | Track order |
 | **Sign in to view your wallet** | Lite auth-gate title on `/wallet` | Login required, Sign in to continue |
 | **Deposit, withdraw and move funds between your accounts by signing in.** | Lite auth-gate description | — |
 | **Saved addresses** | Address-book section title | My wallets, Addresses, Withdrawal addresses |

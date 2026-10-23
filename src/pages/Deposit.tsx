@@ -1,14 +1,15 @@
 import { t } from "@/i18n";
-import { useState } from 'react';
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 import { BottomNav } from '@/components/BottomNav';
 import { MobileHeader } from '@/components/MobileHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WalletDeposit } from '@/components/deposit/WalletDeposit';
 import { CrossChainDeposit } from '@/components/deposit/CrossChainDeposit';
+import { BuyWithCard, useCardRegion } from '@/components/deposit/BuyWithCard';
 
 import { AccountPicker, AccountPickerRows, type AccountKind } from '@/components/wallet/AccountPicker';
 import { useAccountPreference, ACCOUNT_LABEL } from '@/hooks/useAccountPreference';
@@ -18,7 +19,17 @@ import { WalletAuthGate, WalletGatePlaceholder } from '@/pages/Wallet';
 export default function Deposit() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [activeTab, setActiveTab] = useState('wallet');
+  const [searchParams] = useSearchParams();
+  const orderTxId = searchParams.get('order');
+  // Card tab shows only where MoonPay can take cards (rule 3). Until the lookup
+  // answers we render today's two tabs; when supported, Card is first + default.
+  const region = useCardRegion();
+  const cardAvailable = region?.isBuyAllowed === true;
+  const [activeTab, setActiveTab] = useState<string>(orderTxId ? 'card' : 'wallet');
+  const [tabTouched, setTabTouched] = useState(!!orderTxId);
+  useEffect(() => {
+    if (!tabTouched && cardAvailable) setActiveTab('card');
+  }, [cardAvailable, tabTouched]);
   const { account, setAccount } = useAccountPreference('deposit');
   const { user } = useAuth();
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -82,15 +93,21 @@ export default function Deposit() {
             <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1">
+          <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setTabTouched(true); }} className="flex flex-col flex-1">
             <div className="px-4 pt-3 bg-background">
-              <TabsList className="w-full grid grid-cols-2 h-10">
-                <TabsTrigger value="wallet" className="text-xs">{t("settings.wallet.address")}</TabsTrigger>
-                <TabsTrigger value="crosschain" className="text-xs">{t("settings.wallet.title")}</TabsTrigger>
+              <TabsList className={cn("w-full grid h-10", cardAvailable ? "grid-cols-3" : "grid-cols-2")}>
+                {cardAvailable && <TabsTrigger value="card" className="text-xs">{t("settings.wallet.deposit_tab_card")}</TabsTrigger>}
+                <TabsTrigger value="wallet" className="text-xs">{t("settings.wallet.deposit_tab_crypto")}</TabsTrigger>
+                <TabsTrigger value="crosschain" className="text-xs">{t("settings.wallet.deposit_tab_cross_chain")}</TabsTrigger>
               </TabsList>
             </div>
 
-            <main className="flex-1 overflow-auto pb-24">
+            <main className="flex-1 overflow-auto pb-24 flex flex-col">
+              {cardAvailable && (
+                <TabsContent value="card" className="mt-0 flex-1 flex flex-col">
+                  <BuyWithCard account={account} initialTransactionId={orderTxId} />
+                </TabsContent>
+              )}
               <TabsContent value="wallet" className="mt-0">
                 <WalletDeposit account={account} />
               </TabsContent>

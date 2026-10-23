@@ -17,6 +17,20 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
+## 2026-10-23 — 法币入金 · Card tab（MoonPay）FM-1（[文档](../delivery/fiat-moonpay-spec-v1.md)）
+
+| 编号 | 项 | Lovable | 正式版 |
+|---|---|---|---|
+| FM-1 | 充值页三 tab（Card / Crypto / Cross-chain）+ 地区决定是否渲染 Card 与默认 tab | ✅ | ⬜ 用 MoonPay IP 接口（前端 publishable key） |
+| FM-2 | Card tab 首屏：本币默认、整数快捷档、实时报价、Fee details、Pay with 选择行、`Buy X USDC` | ✅（演示引擎报价） | ⬜ 接 buy_quote / currencies 接口 |
+| FM-3 | MoonPay overlay 预填 + URL 签名 + IP matching | ✅（演示浮层替身） | ⬜ 注册 Dashboard → KYB → 勾 USDC (Base) → `VITE_MOONPAY_API_KEY` → 部署 `moonpay-sign-url`（`MOONPAY_SECRET_KEY`） |
+| FM-4 | 订单跟踪四步 + 终态（`fiat_orders` 表） | ✅（定时器推进） | ⬜ 部署 `moonpay-webhook`（`MOONPAY_WEBHOOK_KEY`，verify_jwt=false）并在 Dashboard 订阅三类事件；删 `DEMO_ENGINE` 分支与 transactions 本人 UPDATE 策略 |
+| FM-5 | completed 入账 | ✅ 前端加余额 | ⬜ 二选一：webhook 加余额 **或** 链上充值检测入账（避免重复，见文档 §4） |
+| FM-6 | 钱包流水卡购行三态 + View order status + 首页描述兜底 | ✅ | ✅ 随前端 |
+| FM-7 | 品牌 SVG（Visa / Mastercard / Apple Pay / Google Pay / MoonPay） | ⬜ lucide 占位 | ⬜ 按素材铁律取官方 SVG |
+| FM-8 | 失败态猞猁「摊手 + 退回的卡」新画 | ⬜ 暂用 `empty-no-boost` | ⬜ 设计师补画后替换 |
+| FM-9 | Card tab 文案 i18n ×7 | ⬜ 仅 tab 三 key | ⬜ 平台 i18n 表补齐 |
+
 ## 2026-10-13 — 消息中心 v2 · Updates tab + 公告页 NT-20（[文档](../delivery/notifications-v2.md)）
 
 | # | 项 | Status | Notes |
