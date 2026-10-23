@@ -27,7 +27,7 @@
 | FM-4 | 订单跟踪四步 + 终态（`fiat_orders` 表） | ✅（定时器推进） | ⬜ 部署 `moonpay-webhook`（`MOONPAY_WEBHOOK_KEY`，verify_jwt=false）并在 Dashboard 订阅三类事件；删 `DEMO_ENGINE` 分支与 transactions 本人 UPDATE 策略 |
 | FM-5 | completed 入账 | ✅ 前端加余额 | ⬜ 二选一：webhook 加余额 **或** 链上充值检测入账（避免重复，见文档 §4） |
 | FM-6 | 钱包流水卡购行三态 + View order status + 首页描述兜底 | ✅ | ✅ 随前端 |
-| FM-7 | 品牌 SVG（Visa / Mastercard / Apple Pay / Google Pay / MoonPay） | ⬜ lucide 占位 | ⬜ 按素材铁律取官方 SVG |
+| FM-7 | 品牌标（Visa / Mastercard / Apple Pay / Google Pay / PayPal / PIX / MoonPay 字标） | ✅ 单色白标，`BrandMark` CSS mask | ✅ 随前端 |
 | FM-8 | 失败态猞猁「摊手 + 退回的卡」新画 | ⬜ 暂用 `empty-no-boost` | ⬜ 设计师补画后替换 |
 | FM-9 | Card tab 文案 i18n ×7 | ⬜ 仅 tab 三 key | ⬜ 平台 i18n 表补齐 |
 

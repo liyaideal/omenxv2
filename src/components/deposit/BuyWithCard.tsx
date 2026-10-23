@@ -49,6 +49,7 @@ import {
   type Platform,
 } from '@/lib/moonpay';
 import { PayWithPicker } from './PayWithPicker';
+import { BrandMark } from './BrandMark';
 
 /** Brand lynx illustrations (public/assets, 60% opacity baked in — never add CSS opacity). */
 const LYNX = {
@@ -465,8 +466,8 @@ const CtaBlock = ({ isMobile, label, disabled, loading, onClick }: { isMobile: b
       {label}
     </button>
     <p className="flex items-center justify-center gap-2 text-[10px] text-muted-foreground text-center flex-wrap">
-      <span className="inline-flex items-center gap-1 font-semibold">
-        <span className="w-3 h-3 rounded-full border-2 border-muted-foreground inline-block" aria-hidden />Powered by MoonPay
+      <span className="inline-flex items-center gap-1.5 font-semibold">
+        Powered by <BrandMark name="moonpay-wordmark" className="h-3 text-muted-foreground" title="MoonPay" />
       </span>
       <span className="opacity-50">·</span><span>160+ countries</span>
       <span className="opacity-50">·</span><span>Secure checkout</span>
@@ -604,8 +605,8 @@ const DemoCheckoutOverlay = ({ amountLabel, onPay, onDecline, onClose }: { amoun
       className="w-full sm:w-[380px] h-[78vh] sm:h-[520px] bg-[#0b0f17] border border-border rounded-t-[20px] sm:rounded-2xl flex flex-col items-center justify-center gap-3 text-xs text-muted-foreground px-6 text-center"
       onClick={(e) => e.stopPropagation()}
     >
-      <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-foreground">
-        <span className="w-3.5 h-3.5 rounded-full border-2 border-foreground inline-block" aria-hidden />MoonPay checkout
+      <span className="inline-flex items-center gap-2 text-sm font-semibold text-foreground">
+        <BrandMark name="moonpay-wordmark" className="h-4 text-foreground" title="MoonPay" /> checkout
       </span>
       <span className="font-mono text-foreground">{amountLabel}</span>
       <span>Demo stand-in. The live site shows MoonPay’s hosted checkout here (card entry + 3D Secure).</span>

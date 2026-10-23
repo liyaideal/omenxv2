@@ -8,7 +8,8 @@
  * visible, greyed, with the reason.
  */
 import { useEffect, useState } from 'react';
-import { ChevronRight, Check, CreditCard, Landmark, Smartphone, Wallet, Zap } from 'lucide-react';
+import { ChevronRight, Check, Landmark } from 'lucide-react';
+import { BrandMark, type BrandMarkName } from './BrandMark';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MobileDrawer } from '@/components/ui/mobile-drawer';
@@ -23,14 +24,13 @@ import {
   type Platform,
 } from '@/lib/moonpay';
 
-const METHOD_ICON: Record<PaymentMethod, typeof CreditCard> = {
-  credit_debit_card: CreditCard,
-  apple_pay: Smartphone,
-  google_pay: Smartphone,
-  sepa_bank_transfer: Landmark,
-  gbp_bank_transfer: Landmark,
-  pix_instant_payment: Zap,
-  paypal: Wallet,
+/** Bank rails keep the lucide Landmark glyph; card / wallet rails use the brand mark. */
+const METHOD_MARK: Partial<Record<PaymentMethod, BrandMarkName>> = {
+  credit_debit_card: 'visa',
+  apple_pay: 'apple-pay',
+  google_pay: 'google-pay',
+  pix_instant_payment: 'pix',
+  paypal: 'paypal',
 };
 
 interface PayWithPickerProps {
@@ -137,8 +137,19 @@ export const PayWithPicker = ({
 };
 
 const MethodIcon = ({ id }: { id: PaymentMethod }) => {
-  const Icon = METHOD_ICON[id];
-  return <Icon className="w-4 h-4 text-muted-foreground" />;
+  if (id === 'credit_debit_card') {
+    // Card rail = the two schemes we take, side by side (Visa · Mastercard).
+    return (
+      <span className="flex items-center gap-0.5 text-muted-foreground">
+        <BrandMark name="visa" className="w-3.5" title="Visa" />
+        <BrandMark name="mastercard" className="w-3.5" title="Mastercard" />
+      </span>
+    );
+  }
+  const mark = METHOD_MARK[id];
+  // Apple Pay / Google Pay marks carry their own rounded frame → draw wider so the lettering reads at 32px.
+  if (mark) return <BrandMark name={mark} className={cn('text-muted-foreground', mark === 'apple-pay' || mark === 'google-pay' ? 'w-6' : 'w-4')} />;
+  return <Landmark className="w-4 h-4 text-muted-foreground" />;
 };
 
 const OptionRow = ({

@@ -118,7 +118,7 @@ tab 文案：**Card · Crypto · Cross-chain**（以前的 Address / Wallet 两�
 | 报价 | 本地算 | `GET /v3/currencies/usdc_base/buy_quote`（publishable key，前端直调）|
 | 支付方式可用性 | `lib/moonpay.paymentMethodsFor` 按国家/币种/设备的静态表 | 同上表；MoonPay 浮层内会再按真实情况过滤 |
 | 法币 min / max | `FIAT_CURRENCIES` 静态表 | `GET /v3/currencies` 的 `minBuyAmount / maxBuyAmount` |
-| 品牌 SVG | Visa / Mastercard / Apple Pay / Google Pay / MoonPay 用 lucide 图标占位 | 按素材铁律取官方 SVG 替换（`PayWithPicker.METHOD_ICON` 与 `CtaBlock` 信任行） |
+| 品牌标 | 单色白标已接：`public/brand-logos/{visa,mastercard,apple-pay,google-pay,paypal,pix}.svg`（simple-icons CC0 集的官方 mark）+ `moonpay-wordmark.svg`（moonpay.com 官方字标），`BrandMark` 组件用 CSS mask 填 currentColor；银行转账保留 lucide Landmark | 同左（品牌标不入素材台账，按台账"纯功能图标不入账"规则） |
 | 多语言 | tab 三个 key 已进 en.json；其余 Card tab 文案本轮英文硬编码 | 平台 i18n 表（`OMENX-i18n.xlsx`）补齐后再提 key |
 
 MoonPay 文档坐标：Web SDK `dev.moonpay.com/widget/on-ramp/integration-methods/sdks/web`；URL 签名 `…/docs/ramps-sdk-url-signing`；IP matching `…/widget/on-ramp/customization/ip-matching`；买入参数 `…/docs/ramps-sdk-buy-params`；webhook `…/api-reference/widget/webhooks/overview`；上线流程 `support.moonpay.com/customers/docs/how-to-go-live-with-moonpay`。

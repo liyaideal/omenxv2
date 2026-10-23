@@ -2364,7 +2364,7 @@ CPO 2026-10-13 方案 v0 D1–D12 + mock v1 M1–M8（桌面入口方案 A）。
 来源：CPO 2026-10-23 批准的 19 条方案 + mock（artifact UCuJh1r3FjtTbi6asWHb3p）。交付文档 `docs/delivery/fiat-moonpay-spec-v1.md`；字典 Wallet Ⓓ W-14a…h / W-14 / W-17；词典「Wallet」节新增 Card 行。
 
 1. **Deposit tab 三列**：`Card / Crypto / Cross-chain`（Address / Wallet 两个旧文案退役）。Card 只在 MoonPay 允许刷卡的地区渲染并默认选中；不允许则两列、默认 Crypto。永远不渲染一个"点进去才告诉你不支持"的 tab。
-2. **第一屏三件事**：金额（64px 输入框 · 币种下拉在左 · 32px mono 数字右对齐 · 四个 36px 圆角 chip）→ 报价卡（`border-primary/30 bg-primary/5`，28px mono `≈ 95.18 USDC`，Fee details 默认折叠）→ Pay with 选择行（56px，图标 · 名 + 副行 · chevron）。KYC 字样、限额表、第三方免责长句**不进第一屏**。
+2. **第一屏三件事**：金额（64px 输入框 · 币种下拉在左 · 32px mono 数字右对齐 · 四个 36px 圆角 chip）→ 报价卡（`border-primary/30 bg-primary/5`，28px mono `≈ 95.18 USDC`，Fee details 默认折叠）→ Pay with 选择行（56px，图标 · 名 + 副行 · chevron）。图标 tile 里是**单色品牌标**（`BrandMark`：public/brand-logos 官方 mark 做 CSS mask 填 currentColor，永不按品牌上色、不拉伸）：卡 = Visa + Mastercard 并排各 14px，Apple Pay / Google Pay 24px（自带圆角框），PayPal / PIX 16px，银行转账仍用 lucide Landmark；CTA 信任行 `Powered by` 后接 12px 高 MoonPay 字标。KYC 字样、限额表、第三方免责长句**不进第一屏**。
 3. **主 CTA 带到手数**：`Buy 95.18 USDC`，`.btn-trading-green`（§全站主 CTA），移动 h-12 rounded-xl sticky 在 BottomNav 之上，桌面 h-10 rounded-lg 内联；下一行 10px 信任行。禁用态 `opacity-50` 去阴影。
 4. **Pay with 的 overlay 对等**：移动 `MobileDrawer`、桌面 `Popover`（`w-[trigger] p-1.5 bg-[#12151A] border-[#1D2026] rounded-xl`，同 Saved addresses ⋯ Popover 底色）。选项行 60px，右侧该方式的 `≈ USDC` + `fee`；不可用行 `opacity-40` 并在副行写原因，**不隐藏**。
 5. **第三方浮层不画**：MoonPay checkout 是它托管的 overlay（两端都 overlay，不跳新标签），我们只预填与设 `theme: dark`；字典里以说明帧占位，不手绘它的界面。
