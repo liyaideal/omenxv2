@@ -419,7 +419,7 @@ export const BuyWithCard = ({ account, initialOrderId = null, initialTransaction
         <div
           className={cn(
             'z-30 bg-gradient-to-b from-background/0 via-background to-background px-4 pt-3',
-            fixture ? 'sticky bottom-0 mt-auto' : 'fixed left-0 right-0',
+            fixture ? 'mt-auto' : 'fixed left-0 right-0',
           )}
           style={fixture ? { paddingBottom: 16 } : { bottom: 'var(--bottom-nav-h, 76px)', paddingBottom: 'calc(16px + env(safe-area-inset-bottom))' }}
         >

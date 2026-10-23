@@ -893,14 +893,18 @@ export const WalletStatesSection = ({ isMobile }: { isMobile: boolean }) => (
       <div className="mt-3">
         <SectionFrame cases={[DEPOSIT_FLOW_CASES[3]]} device="desktop" minHeight={640} />
       </div>
-      <div className="mt-3">
-        <SectionFrame cases={[DEPOSIT_FLOW_CASES[4]]} device="desktop" minHeight={520} />
-      </div>
+      {/* W-14 · Card tab — portal 弹层（抽屉 / Popover）一帧一 case，不与其他帧同 iframe */}
       <div className="mt-6">
-        <SectionFrame cases={CARD_TAB_MOBILE_CASES} device="mobile" minHeight={1400} />
+        <SectionFrame cases={CARD_TAB_MOBILE_CASES.filter((c) => c.key !== "wallet-card-tab-picker")} device="mobile" minHeight={1400} />
       </div>
       <div className="mt-3">
-        <SectionFrame cases={CARD_TAB_DESKTOP_CASES} device="desktop" minHeight={760} />
+        <SectionFrame cases={CARD_TAB_MOBILE_CASES.filter((c) => c.key === "wallet-card-tab-picker")} device="mobile" minHeight={720} />
+      </div>
+      <div className="mt-3">
+        <SectionFrame cases={CARD_TAB_DESKTOP_CASES.filter((c) => c.key !== "wallet-deposit-dialog-card-picker")} device="desktop" minHeight={760} />
+      </div>
+      <div className="mt-3">
+        <SectionFrame cases={CARD_TAB_DESKTOP_CASES.filter((c) => c.key === "wallet-deposit-dialog-card-picker")} device="desktop" minHeight={720} />
       </div>
     </SubSection>
 
