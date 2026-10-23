@@ -29,7 +29,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useDeposit } from '@/hooks/useDeposit';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { ACCOUNT_LABEL } from '@/hooks/useAccountPreference';
-import { useFiatOrders, useFiatOrderTracker, isOpenOrder } from '@/hooks/useFiatOrders';
+import { useFiatOrders, useFiatOrderTracker, isOpenOrder, fiatRailLabel } from '@/hooks/useFiatOrders';
 import {
   FIAT_CURRENCIES,
   MOONPAY_DEMO,
@@ -144,7 +144,8 @@ export const BuyWithCard = ({ account, initialOrderId = null, initialTransaction
   useEffect(() => {
     if (fixture || !initialTransactionId || orderId) return;
     let alive = true;
-    fetchOrderByTransaction(initialTransactionId).then((o) => { if (alive && o) setOrderId(o.id); });
+    fetchOrderByTransaction(initialTransactionId).then((o) => { if (alive && o) setOrderIdState(o.id); }); // view only — not remembered as "current"
+
     return () => { alive = false; };
   }, [initialTransactionId, orderId, fixture, fetchOrderByTransaction]);
 
@@ -488,7 +489,7 @@ const TrackingView = ({ order, isMobile, onBack, onResume, onCancel }: { order: 
   const current = stepIndex(order.status);
   const waiting = order.status === 'waiting_payment';
   const times = [order.paidAt, order.confirmedAt, order.confirmedAt, order.completedAt];
-  const methodLabel = order.cardBrand && order.cardLast4 ? `${order.cardBrand} •• ${order.cardLast4}` : waiting ? 'Card' : order.cardBrand ?? 'Card';
+  const methodLabel = fiatRailLabel(order);
   return (
     <div className={cn('flex flex-col gap-4', isMobile ? 'px-4 pt-6 pb-4' : 'p-5')}>
       <div className="rounded-xl border border-border bg-muted/25 p-4 flex flex-col gap-3.5">

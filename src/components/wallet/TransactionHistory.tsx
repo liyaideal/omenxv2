@@ -503,7 +503,7 @@ export const TransactionHistory = ({ transactions = [], className, fixture, onOp
                           </span>
                         </div>
                         <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-                          <span>{tx.date}</span>
+                          <span className="whitespace-nowrap">{tx.date}</span>
                           {tx.type === 'fiat_buy' && (
                             <span className={cn("inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-semibold whitespace-nowrap", TYPE_BADGE_CONFIG.fiat_buy.className)}>
                               {TYPE_BADGE_CONFIG.fiat_buy.label}
@@ -514,9 +514,11 @@ export const TransactionHistory = ({ transactions = [], className, fixture, onOp
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
                       {tx.type === 'fiat_buy' ? (
-                        <span className={cn("w-[140px] flex items-center justify-end gap-1.5 text-xs", statusConfig.color)}>
+                        <span className={cn("flex items-center justify-end gap-1.5 text-xs xl:w-[140px]", statusConfig.color)}>
                           <StatusIcon className={cn("w-3.5 h-3.5 shrink-0", tx.status === 'processing' && "animate-spin")} />
-                          {tx.status === 'processing' ? 'Sending to Base' : tx.status === 'pending' ? 'Waiting for payment' : statusConfig.label}
+                          <span className="hidden xl:inline whitespace-nowrap">
+                            {tx.status === 'processing' ? 'Sending to Base' : tx.status === 'pending' ? 'Waiting for payment' : statusConfig.label}
+                          </span>
                         </span>
                       ) : tx.status && tx.status !== 'completed' && (
                         <StatusIcon className={cn(

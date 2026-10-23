@@ -2370,6 +2370,6 @@ CPO 2026-10-13 方案 v0 D1–D12 + mock v1 M1–M8（桌面入口方案 A）。
 5. **第三方浮层不画**：MoonPay checkout 是它托管的 overlay（两端都 overlay，不跳新标签），我们只预填与设 `theme: dark`；字典里以说明帧占位，不手绘它的界面。
 6. **订单跟踪 = 四步固定竖向时间线**：24px 圆点 + 2px 连线；完成 `bg-trading-green/20` ✓ + 时间戳、连线 `/40`；进行中 `border-primary` + 脉冲点 + 预计时长；未到灰。订单头 `付了多少 / 卡尾号 → ≈ 到手 / 账户名`（16px mono）。
 7. **终态插画只认灰色猞猁库**：成功 `empty-celebrate` 130×130，失败 `empty-no-boost` 150 宽（"摊手 + 退回的卡"新画进库后替换）。失败态必须有 `Nothing was charged` 一句和一张 Reason 卡（`border-trading-red/30 bg-trading-red-bg`），原因写人话（银行拒付 / 3DS / 身份验证），**不露错误码**。
-8. **流水卡购行与链上充值同构**：绿色入账箭头 + 描述 `Card purchase · Visa •• 4242` + `Card` 类型 badge（`border-purple-500/30 bg-purple-500/10 text-purple-400`——类型 badge 自成一轴：cross-chain 蓝 / 橙、card 紫，与旁边的 BOOST（accent 绿）/ STANDARD（primary 蓝）账户胶囊永不同色；只改标签 Fiat Buy → Card）。处理中加 `In progress` 胶囊（`border-primary/30 bg-primary/10 text-primary`——与流水 processing 状态同一色轴，不另开黄色）+ 转圈；失败金额 `text-muted-foreground line-through` 无正负号 + 红胶囊 `Failed · not charged`。桌面行固定列不变（状态 140 → 账户 78 → 金额 120 → 箭头）。
+8. **流水卡购行与链上充值同构**：绿色入账箭头 + 描述 `Card purchase · Visa •• 4242` + `Card` 类型 badge（`border-purple-500/30 bg-purple-500/10 text-purple-400`——类型 badge 自成一轴：cross-chain 蓝 / 橙、card 紫，与旁边的 BOOST（accent 绿）/ STANDARD（primary 蓝）账户胶囊永不同色；只改标签 Fiat Buy → Card）。处理中加 `In progress` 胶囊（`border-primary/30 bg-primary/10 text-primary`——与流水 processing 状态同一色轴，不另开黄色）+ 转圈；失败金额 `text-muted-foreground line-through` 无正负号 + 红胶囊 `Failed · not charged`。桌面行固定列不变（状态列 xl 起 140 并显示文字，窄桌面只留图标 → 账户 78 → 金额 120 → 箭头）。
 9. **本币默认但不换算**：币种按 IP 所在国默认，快捷档是该币种自己的整数档，不出现汇率换算出来的零碎数；用户切过币种后会话内不再覆盖。
 

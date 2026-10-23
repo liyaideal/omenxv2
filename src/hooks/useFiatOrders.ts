@@ -78,11 +78,24 @@ const METHOD_LABEL: Record<PaymentMethod, string> = {
   paypal: 'PayPal',
 };
 
-/** Ledger description shown in Wallet rows: "Card purchase · Visa •• 4242". */
+const CARD_LIKE = new Set<PaymentMethod>(['credit_debit_card', 'apple_pay', 'google_pay']);
+
+/**
+ * Ledger description shown in Wallet rows.
+ * Card rails → "Card purchase · Visa •• 4242" / "Card purchase · Apple Pay";
+ * other rails → "Bank transfer purchase" / "PIX purchase" / "PayPal purchase".
+ */
 export const fiatLedgerDescription = (o: Pick<FiatOrder, 'paymentMethod' | 'cardBrand' | 'cardLast4'>) => {
-  const tail = o.cardBrand && o.cardLast4 ? `${o.cardBrand} •• ${o.cardLast4}` : METHOD_LABEL[o.paymentMethod];
-  return `Card purchase · ${tail}`;
+  if (CARD_LIKE.has(o.paymentMethod)) {
+    const tail = o.cardBrand && o.cardLast4 ? `${o.cardBrand} •• ${o.cardLast4}` : o.cardBrand ?? METHOD_LABEL[o.paymentMethod];
+    return `Card purchase · ${tail}`;
+  }
+  return `${METHOD_LABEL[o.paymentMethod]} purchase`;
 };
+
+/** Short rail label for the tracking header: "Visa •• 4242" / "Apple Pay" / "Bank transfer". */
+export const fiatRailLabel = (o: Pick<FiatOrder, 'paymentMethod' | 'cardBrand' | 'cardLast4'>) =>
+  o.cardBrand && o.cardLast4 ? `${o.cardBrand} •• ${o.cardLast4}` : o.cardBrand ?? METHOD_LABEL[o.paymentMethod];
 
 export interface CreateOrderInput {
   quote: BuyQuote;
@@ -201,7 +214,7 @@ export const useFiatOrders = () => {
     const row = data as OrderRow | null;
     if (!row) return;
     const now = () => new Date().toISOString();
-    const brand = row.payment_method === 'apple_pay' ? 'Apple Pay' : row.payment_method === 'google_pay' ? 'Google Pay' : 'Visa';
+    const brand = row.payment_method === 'credit_debit_card' ? 'Visa' : CARD_LIKE.has(row.payment_method) ? METHOD_LABEL[row.payment_method] : null;
     const last4 = row.payment_method === 'credit_debit_card' ? '4242' : null;
 
     const syncLedger = async (status: 'pending' | 'processing' | 'completed' | 'failed') => {
