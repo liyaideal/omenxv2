@@ -118,7 +118,7 @@ tab 文案：**Card · Crypto · Cross-chain**（以前的 Address / Wallet 两�
 | 报价 | 本地算 | `GET /v3/currencies/usdc_base/buy_quote`（publishable key，前端直调）|
 | 支付方式可用性 | `lib/moonpay.paymentMethodsFor` 按国家/币种/设备的静态表 | 同上表；MoonPay 浮层内会再按真实情况过滤 |
 | 法币 min / max | `FIAT_CURRENCIES` 静态表 | `GET /v3/currencies` 的 `minBuyAmount / maxBuyAmount` |
-| 品牌标 | 单色白标已接：`public/brand-logos/{visa,mastercard,apple-pay,google-pay,paypal,pix}.svg`（simple-icons CC0 集的官方 mark）+ `moonpay-wordmark.svg`（moonpay.com 官方字标），`BrandMark` 组件用 CSS mask 填 currentColor；银行转账保留 lucide Landmark | 同左（品牌标不入素材台账，按台账"纯功能图标不入账"规则） |
+| 品牌标 | **彩色官方标**已接（CPO 2026-10-23 否掉单色白标："看着像没上线"）：`public/brand-logos/{visa,mastercard,apple-pay,google-pay,paypal,pix}.svg` 统一为 780×500 圆角"支付卡片"tile，官方配色——Visa / Mastercard / PayPal 取自 aaronfagan payment-icons（Apache-2.0，flat-rounded），Apple Pay（官方字标白字黑底）/ Google Pay（官方 G Pay）/ PIX（官方青色 mark）按同尺寸合成；`BrandTile` 组件以 `<img>` 渲染，`rounded-[3px] ring-1 ring-white/10`（黑底 Apple Pay 在深色面上靠细环显形）。Pay with 图标位 48×32：卡 = Visa + Mastercard 两张 22px 小 tile 并排，其余单张 36px；银行转账保留 lucide Landmark。`moonpay-wordmark.svg` 仍走 `BrandMark` CSS mask 随文字色 | 同左（品牌标不入素材台账，按台账"纯功能图标不入账"规则） |
 | 多语言 | tab 三个 key 已进 en.json；其余 Card tab 文案本轮英文硬编码 | 平台 i18n 表（`OMENX-i18n.xlsx`）补齐后再提 key |
 
 MoonPay 文档坐标：Web SDK `dev.moonpay.com/widget/on-ramp/integration-methods/sdks/web`；URL 签名 `…/docs/ramps-sdk-url-signing`；IP matching `…/widget/on-ramp/customization/ip-matching`；买入参数 `…/docs/ramps-sdk-buy-params`；webhook `…/api-reference/widget/webhooks/overview`；上线流程 `support.moonpay.com/customers/docs/how-to-go-live-with-moonpay`。

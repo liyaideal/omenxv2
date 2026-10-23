@@ -9,7 +9,7 @@
  */
 import { useEffect, useState } from 'react';
 import { ChevronRight, Check, Landmark } from 'lucide-react';
-import { BrandMark, type BrandMarkName } from './BrandMark';
+import { BrandTile, type BrandTileName } from './BrandMark';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MobileDrawer } from '@/components/ui/mobile-drawer';
@@ -25,7 +25,7 @@ import {
 } from '@/lib/moonpay';
 
 /** Bank rails keep the lucide Landmark glyph; card / wallet rails use the brand mark. */
-const METHOD_MARK: Partial<Record<PaymentMethod, BrandMarkName>> = {
+const METHOD_MARK: Partial<Record<PaymentMethod, BrandTileName>> = {
   credit_debit_card: 'visa',
   apple_pay: 'apple-pay',
   google_pay: 'google-pay',
@@ -87,7 +87,7 @@ export const PayWithPicker = ({
       onClick={() => setOpen(true)}
       className="w-full flex items-center gap-3 h-14 px-3.5 rounded-xl border border-input bg-muted/25 text-left hover:border-border transition-colors"
     >
-      <span className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+      <span className="w-12 h-8 flex items-center justify-center shrink-0">
         <MethodIcon id={selected.id} />
       </span>
       <span className="flex-1 min-w-0">
@@ -138,17 +138,16 @@ export const PayWithPicker = ({
 
 const MethodIcon = ({ id }: { id: PaymentMethod }) => {
   if (id === 'credit_debit_card') {
-    // Card rail = the two schemes we take, side by side (Visa · Mastercard).
+    // Card rail = the two schemes we take, side by side (Visa · Mastercard), two small tiles.
     return (
-      <span className="flex items-center gap-0.5 text-muted-foreground">
-        <BrandMark name="visa" className="w-3.5" title="Visa" />
-        <BrandMark name="mastercard" className="w-3.5" title="Mastercard" />
+      <span className="flex items-center gap-0.5">
+        <BrandTile name="visa" className="w-[22px]" />
+        <BrandTile name="mastercard" className="w-[22px]" />
       </span>
     );
   }
   const mark = METHOD_MARK[id];
-  // Apple Pay / Google Pay marks carry their own rounded frame → draw wider so the lettering reads at 32px.
-  if (mark) return <BrandMark name={mark} className={cn('text-muted-foreground', mark === 'apple-pay' || mark === 'google-pay' ? 'w-6' : 'w-4')} />;
+  if (mark) return <BrandTile name={mark} className="w-9" />;
   return <Landmark className="w-4 h-4 text-muted-foreground" />;
 };
 
@@ -180,7 +179,7 @@ const OptionRow = ({
       !available && 'opacity-40 cursor-not-allowed',
     )}
   >
-    <span className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+    <span className="w-12 h-8 flex items-center justify-center shrink-0">
       <MethodIcon id={meta.id} />
     </span>
     <span className="flex-1 min-w-0">
