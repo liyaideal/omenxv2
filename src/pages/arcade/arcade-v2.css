@@ -9,7 +9,7 @@
    (.qscr .meter .timer .orders .coModal .shModal .amenu .cats …) are no longer referenced
    by the markup and are kept only for the git history of the designer's port.
    ============================================================ */
-.arcade-root .v2{display:grid;gap:8px;grid-template-rows:auto auto minmax(0,1fr) auto auto}
+.arcade-root .v2{display:grid;gap:8px;grid-template-rows:auto auto minmax(420px,1fr) auto auto}
 :is(.arcade-root .v2,.arcade-root .v2m) .r1{display:grid;grid-template-columns:190px minmax(0,1fr) auto;gap:8px;height:72px}
 :is(.arcade-root .v2,.arcade-root .v2m) .r1 .ctrlplate{display:flex;align-items:center;gap:6px;padding:0 10px}
 /* header bar */
@@ -33,7 +33,8 @@
 /* road strip */
 :is(.arcade-root .v2,.arcade-root .v2m) .rr{padding:6px 12px;display:flex;flex-direction:column;gap:5px;overflow:visible;z-index:7;position:relative}
 .arcade-root .v2 .r2r{display:grid;grid-template-columns:160px auto minmax(0,1.3fr) minmax(0,1.1fr);gap:6px;padding:6px;flex-direction:row;overflow:visible}
-.arcade-root .v2 .r2r .scr{padding:7px 14px;display:flex;flex-direction:column;justify-content:center;gap:5px;min-height:0;overflow:visible}
+.arcade-root .v2 .r2r .scr{padding:6px 12px;display:flex;flex-direction:column;justify-content:center;gap:4px;min-height:0;overflow:visible}
+.arcade-root .v2 .r2r .tagscr .tag{font-size:22px}.arcade-root .v2 .r2r .tagscr .sub{font-size:15px}
 .arcade-root .v2 .r2r .tagscr{gap:8px}
 .arcade-root .v2 .r2r .beadscr,.arcade-root .v2 .r2r .roadscr{overflow:hidden}
 .arcade-root .v2 .r2r .rstats{gap:6px;font:500 13px/1 var(--f-ui);color:var(--mute)}
@@ -60,22 +61,30 @@
 .arcade-root .v2m .msheet .rstats{padding:0;background:none;border:0;box-shadow:none}
 :is(.arcade-root .v2,.arcade-root .v2m) .rstats b{color:#fff;font-weight:500}:is(.arcade-root .v2,.arcade-root .v2m) .rstats small{color:var(--dim);font-size:10px;margin-left:4px}:is(.arcade-root .v2,.arcade-root .v2m) .rstats .cu{color:var(--up)}:is(.arcade-root .v2,.arcade-root .v2m) .rstats .cd{color:var(--lime)}
 /* row 2 · stage + rail */
-:is(.arcade-root .v2,.arcade-root .v2m) .r2{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:8px;min-height:380px;padding:0}
+:is(.arcade-root .v2,.arcade-root .v2m) .r2{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:8px;min-height:420px;padding:0}
 :is(.arcade-root .v2,.arcade-root .v2m) .feedplate,:is(.arcade-root .v2,.arcade-root .v2m) .railplate{padding:6px}
 :is(.arcade-root .v2,.arcade-root .v2m) .feedplate .feed,:is(.arcade-root .v2,.arcade-root .v2m) .railplate .rail{height:100%}
 :is(.arcade-root .v2,.arcade-root .v2m) .feed{padding:10px 12px 8px;display:flex;flex-direction:column;gap:4px;position:relative}
 :is(.arcade-root .v2,.arcade-root .v2m) .feed-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;min-height:0}
-.arcade-root .v2 .feed-head .titles{display:flex;flex-direction:column;gap:6px}
-.arcade-root .v2 .feed>.chg{font:500 13px/1 var(--f-ui);color:var(--mute);margin-top:4px}
-.arcade-root .v2 .feed>.chg.up{color:var(--up)}.arcade-root .v2 .feed>.chg.dn{color:var(--lime)}
+.arcade-root .v2 .feed-head{grid-template-columns:150px auto minmax(0,1fr) auto;align-items:start;gap:14px}
+.arcade-root .v2 .feed-head>.combo{grid-column:3;align-self:center}
+.arcade-root .v2 .feed-head>.lbl{grid-column:4}
+.arcade-root .v2 .feed-head .titles{display:flex;flex-direction:column;gap:6px;grid-column:1}
+.arcade-root .v2 .feed-head .tag{font-size:22px}
+.arcade-root .v2 .feed-head .sub{font-size:15px}
+.arcade-root .v2 .pricebox{grid-column:2;display:flex;flex-direction:column;gap:3px}
+.arcade-root .v2 .pricebox .price{font-size:44px;margin:0;line-height:.85}
+.arcade-root .v2 .pricebox .chg{font:500 12px/1 var(--f-ui);color:var(--mute)}
+.arcade-root .v2 .pricebox .chg.up{color:var(--up)}.arcade-root .v2 .pricebox .chg.dn{color:var(--lime)}
 :is(.arcade-root .v2,.arcade-root .v2m) .feed-head>:first-child{grid-column:1}:is(.arcade-root .v2,.arcade-root .v2m) .feed-head>.combo{grid-column:2;overflow:hidden}:is(.arcade-root .v2,.arcade-root .v2m) .feed-head>.lbl{grid-column:3;justify-self:end;white-space:nowrap}
-/* the price keeps the designer's 62px glow (.price.up / .price.dn in arcade.css) */
-.arcade-root .v2 .price{margin-top:4px}
+/* the price keeps the designer's glow (.price.up / .price.dn in arcade.css), sized for the stage header */
 :is(.arcade-root .v2,.arcade-root .v2m) .chg.src{display:flex;gap:14px;align-items:baseline;margin-top:2px;font:500 12px/1 var(--f-ui);color:var(--mute)}
 :is(.arcade-root .v2,.arcade-root .v2m) .chg.src .s{display:inline-flex;gap:5px;align-items:baseline}
 :is(.arcade-root .v2,.arcade-root .v2m) .chg.src .s i{font:500 9px/1 var(--f-ui);color:var(--dim);letter-spacing:1px;text-transform:uppercase;font-style:normal}
 :is(.arcade-root .v2,.arcade-root .v2m) .chg.src .s b{font:500 12px/1 var(--f-ui);color:#aab4c2;font-weight:500}
 :is(.arcade-root .v2,.arcade-root .v2m) .chg.src .st b{color:var(--lime);font-size:10px;letter-spacing:1px}
+:is(.arcade-root .v2,.arcade-root .v2m) .chg.src .ln{margin-left:auto}
+:is(.arcade-root .v2,.arcade-root .v2m) .chg.src .ln b{font-size:10px;letter-spacing:1px;color:var(--dim)}
 :is(.arcade-root .v2,.arcade-root .v2m) .chg.src.paused .s b{color:var(--hot)}
 :is(.arcade-root .v2,.arcade-root .v2m) .plot{flex:1;min-height:0;position:relative;margin:0;padding:0}
 :is(.arcade-root .v2,.arcade-root .v2m) .plot canvas{width:100%;height:100%;display:block}
@@ -97,7 +106,8 @@
 :is(.arcade-root .v2,.arcade-root .v2m) .rail .list{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:4px}
 :is(.arcade-root .v2,.arcade-root .v2m) .row{flex:none;min-height:30px;display:grid;grid-template-columns:34px minmax(0,1fr) 62px;gap:8px;align-items:center;padding:3px 6px;border:1px solid #1c2a33;background:rgba(255,255,255,.02);position:relative;overflow:hidden;animation:v2rowIn .25s ease-out}
 @keyframes v2rowIn{from{transform:translateY(-8px);opacity:0}}
-:is(.arcade-root .v2,.arcade-root .v2m) .row .sd{font:400 18px/1 var(--f-pix);padding-top:2px}
+:is(.arcade-root .v2,.arcade-root .v2m) .row.u,:is(.arcade-root .v2,.arcade-root .v2m) .row.d{background:rgba(255,255,255,.02);box-shadow:none}
+:is(.arcade-root .v2,.arcade-root .v2m) .row .sd{font:400 18px/1 var(--f-pix);padding-top:2px;background:none;box-shadow:none}
 :is(.arcade-root .v2,.arcade-root .v2m) .row .sd.u{color:var(--up)}:is(.arcade-root .v2,.arcade-root .v2m) .row .sd.d{color:var(--lime)}
 :is(.arcade-root .v2,.arcade-root .v2m) .row.other .sd{font-size:14px;letter-spacing:.5px}
 :is(.arcade-root .v2,.arcade-root .v2m) .row .who{font:600 11px/1 var(--f-ui);color:#aab4c2;letter-spacing:.3px}
@@ -109,8 +119,9 @@
 :is(.arcade-root .v2,.arcade-root .v2m) .row.d .bar i{background:var(--lime)}
 :is(.arcade-root .v2,.arcade-root .v2m) .row .st{font:400 17px/1 var(--f-pix);text-align:right;white-space:nowrap}
 :is(.arcade-root .v2,.arcade-root .v2m) .row .st.ahead{color:var(--lime)}:is(.arcade-root .v2,.arcade-root .v2m) .row .st.behind{color:var(--hot)}:is(.arcade-root .v2,.arcade-root .v2m) .row .st.pend{color:var(--dim)}:is(.arcade-root .v2,.arcade-root .v2m) .row .st.lock{color:var(--mute)}
-:is(.arcade-root .v2,.arcade-root .v2m) .row.won{border-color:var(--lime);background:rgba(207,255,74,.1)}
-:is(.arcade-root .v2,.arcade-root .v2m) .row.lost{border-color:var(--hot);background:rgba(255,77,77,.1)}
+:is(.arcade-root .v2,.arcade-root .v2m) .row.won{border-color:var(--lime);background:rgba(207,255,74,.1)!important}
+:is(.arcade-root .v2,.arcade-root .v2m) .row.lost{border-color:var(--hot);background:rgba(255,77,77,.1)!important}
+:is(.arcade-root .v2,.arcade-root .v2m) .mc.u,:is(.arcade-root .v2,.arcade-root .v2m) .mc.d{background:none;box-shadow:none}
 :is(.arcade-root .v2,.arcade-root .v2m) .row.settling .st{animation:v2blink .4s steps(2) infinite}
 @keyframes v2blink{50%{opacity:.3}}
 :is(.arcade-root .v2,.arcade-root .v2m) .rail .done{display:flex;flex-direction:column;gap:3px}
@@ -241,7 +252,8 @@
 .arcade-root .window.game{cursor:pointer}
 /* ---------- desktop: fit the viewport (the cabinet fills the page, no site chrome) ---------- */
 @media (max-height:860px) and (min-width:1121px){
-  :is(.arcade-root .v2,.arcade-root .v2m) .r2{min-height:300px}
+  :is(.arcade-root .v2,.arcade-root .v2m) .r2{min-height:360px}
+  .arcade-root .v2{grid-template-rows:auto auto minmax(360px,1fr) auto auto}
   :is(.arcade-root .v2,.arcade-root .v2m) .hl h1{font-size:26px}
   :is(.arcade-root .v2,.arcade-root .v2m) .dir{min-height:84px}
   :is(.arcade-root .v2,.arcade-root .v2m) .r4 .scr{min-height:54px}

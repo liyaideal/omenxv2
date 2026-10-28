@@ -221,6 +221,9 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     price: 0,
     disp: 0,
     lastPx: 0,
+    live: [] as { t: number; p: number }[],
+    liveP: 0,
+    basis: 0,
     bal: api.getBalance(),
     chip: 5,
     calls: [] as Call[],
@@ -824,6 +827,12 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   }
 
   /* ---------- chart ---------- */
+  /** what the line is drawn from: index ticks up to where the live feed starts, then the live book */
+  function lineSeries(from: number): { t: number; p: number }[] {
+    if (!liveOn()) return S.px.filter((x: any) => x.t >= from);
+    const first = S.live[0].t;
+    return S.px.filter((x: any) => x.t >= from && x.t < first - 200).concat(S.live.filter((x: any) => x.t >= from));
+  }
   function geom(cv: any) {
     const W = cv.clientWidth,
       H = cv.clientHeight,
@@ -831,7 +840,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       t0 = t - 45000,
       t1 = t + 32000;
     const open = S.calls.filter((c: Call) => c.s0 != null);
-    const ps = S.px.filter((x: any) => x.t >= t0).map((x: any) => x.p).concat(open.map((c: Call) => c.s0));
+    const ps = lineSeries(t0).map((x: any) => x.p).concat(open.map((c: Call) => c.s0));
     if (S.slotOpen != null) ps.push(S.slotOpen);
     if (S.disp) ps.push(S.disp);
     let lo = Math.min(...ps),
@@ -926,7 +935,13 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       ctx.setLineDash([]);
     }
     /* price line: one point per valid second, the head eased toward the latest index; gaps where the index was invalid */
-    const pts = S.px.filter((x: any) => x.t >= t - 45000);
+    const useLive = liveOn();
+    const pts = lineSeries(t - 45000);
+    const lineEl = $("#dLine");
+    if (lineEl) {
+      const lt = useLive ? "Binance live · settles on the index" : "index";
+      if (lineEl.textContent !== lt) lineEl.textContent = lt;
+    }
     if (pts.length > 1 || (pts.length && S.disp)) {
       const col = S.disp >= ref ? C.up : C.dn;
       const headX = Math.min(g.x(t), g.x(pts[pts.length - 1].t) + 40),
@@ -961,6 +976,13 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       ctx.beginPath();
       ctx.arc(headX, headY, 3, 0, 7);
       ctx.fill();
+      if (useLive) {
+        ctx.fillStyle = "rgba(238,242,248,.45)";
+        for (const p of S.px) {
+          if (p.t < t - 45000) continue;
+          ctx.fillRect(Math.round(g.x(p.t)) - 1, Math.round(g.y(p.p)) - 1, 2, 2);
+        }
+      }
     }
     /* calls: entry dot + open line, settled badges */
     const live = S.calls.filter((c: Call) => c.s0 != null || c.status === "pending" || c.status === "open").sort((a: Call, b: Call) => a.t1 - b.t1);
@@ -1435,6 +1457,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       if (S.px.length > 200) S.px.shift();
       S.lastPx = S.price;
       S.price = tk.idx;
+      if (tk.binance != null) S.basis = tk.idx - tk.binance; // index − Binance mid: shifts the live line onto the index
       if (!S.disp || FX) S.disp = tk.idx;
       if (tk.p_up != null) {
         S.pUp = tk.p_up;
@@ -2072,17 +2095,79 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     });
   })();
 
+  /* ---------- live line: Binance's book over WebSocket, shifted onto the index ----------
+     The index ticks once a second (Supabase); the market moves many times a second. The line
+     between index points follows Binance's best bid/ask mid plus the latest (index − Binance)
+     basis, so it passes through the index points and still wiggles like the real book.
+     Settlement never reads it (CPO 2026-10-28: 做到 mock 那种"一直在扭"). */
+  let ws: WebSocket | null = null,
+    wsAlive = 0,
+    wsTimer: any = 0;
+  const liveOn = () => perf() - wsAlive < 3000 && S.live.length > 1;
+  function wsOpen() {
+    if (FX || !alive) return;
+    try {
+      ws = new WebSocket("wss://stream.binance.com:9443/ws/btcusdt@bookTicker");
+    } catch (e) {
+      ws = null;
+      return;
+    }
+    ws.onmessage = (e: MessageEvent) => {
+      try {
+        const d = JSON.parse(e.data);
+        const mid = (+d.b + +d.a) / 2;
+        if (!mid) return;
+        wsAlive = perf();
+        const p = mid + S.basis,
+          t = now();
+        S.liveP = p;
+        const last = S.live[S.live.length - 1];
+        if (!last || t - last.t >= 100) {
+          S.live.push({ t, p });
+          if (S.live.length > 600) S.live.shift();
+        } else last.p = p;
+      } catch (err) {
+        /* ignore a bad frame */
+      }
+    };
+    ws.onclose = () => {
+      ws = null;
+      if (alive) wsTimer = setTimeout(wsOpen, 3000);
+    };
+    ws.onerror = () => {
+      try {
+        ws?.close();
+      } catch (e) {
+        /* already closed */
+      }
+    };
+  }
+  wsOpen();
+  disposers.push(() => {
+    clearTimeout(wsTimer);
+    try {
+      ws?.close();
+    } catch (e) {
+      /* already closed */
+    }
+    ws = null;
+  });
+
   /* ---------- clocks ---------- */
   const cv = $("#cv");
   let lastF = perf();
   raf((tf) => {
     const dt = Math.min(100, tf - lastF);
     lastF = tf;
-    if (S.price && !FX) S.disp += (S.price - S.disp) * Math.min(1, dt / 420); // ease the head over ~1 s
+    if (!FX) {
+      const target = liveOn() ? S.liveP : S.price;
+      if (target) S.disp += (target - S.disp) * Math.min(1, dt / (liveOn() ? 120 : 420)); // ease the head toward the latest print
+    }
     draw(cv);
   });
   every(() => renderPriceBig(), 100);
   every(() => {
+    if (liveOn()) S.price = S.liveP;
     loop();
     render();
     slotLoop();

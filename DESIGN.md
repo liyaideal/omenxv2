@@ -2383,6 +2383,7 @@ CPO 2026-10-13 方案 v0 D1–D12 + mock v1 M1–M8（桌面入口方案 A）。
 16. **时钟**：机柜一律按服务器时间（`arcade_table_now().now` 偏移），t0 / t1 / tick 与图对齐；SESSION = 本次打开以来，LAST 10 / COMBO = 账号历史。
 17. **style-guide**：AR-1（免责门）/ AR-2（6 张未到期 + 已结 + 会话）/ AR-3（暂停 + 跑酷）/ AR-4（移动空桌 TABLE）/ AR-5（移动持仓）/ AB-1 / AB-2（横幅改读指数，`30 SEC` 徽章代替倒计时），引擎 fixture `{nowMs, ticks, calls, feed, road, state, ack, session}` 零网络。字典 `docs/copy-dictionary.md`「Quick Play v2」节。
 18. **设计师的版式细节原样保留**（CPO 2026-10-28 第二批："原来的设计是这样的，怎么 mock 时把边框 / logo 这类细节都删了"）：四行各自带钢板 + 铆钉 + 编号题牌（`01 / REPLAY · WHAT HAPPENED` 路单行四块独立 CRT 屏；`02 / LIVE FEED · WHAT'S HAPPENING` 舞台头 + 62px 像素大价（青 / 黄绿辉光）+ `▲ +$12.40 this slot` 涨跌行；`03 / SELECT YOUR DIRECTION` 键头；`04 / YOUR RESULT · SESSION SCOREBOARD` 记分板头）。**K 线按设计师 / 入口方案的画法**：一秒一点但线头按 ~1 s 缓动追最新指数（10 fps 顺滑），线色 = 相对本 30 秒格开盘价（上青下黄绿）、辉光 + 线下渐变面、格开盘价虚线、24px 竖向淡格线；旗道 / 入场菱形 / ✓✕ 圆点叠在其上。TABLE 行改 keyed 更新（之前整段重绘每 250 ms 重放入场动画 = 闪烁）。
+19. **线要一直在扭（CPO 2026-10-28 拍板）**：浏览器直连 Binance `btcusdt@bookTicker` WebSocket，取买卖中间价 + 最近一条服务器 tick 的（指数 − Binance）基差画展示线（每 100 ms 一点、线头 ~120 ms 缓动），所以线穿过每个指数点、点与点之间跟着真实盘口扭；指数点在线上画成淡白小方点，来源行末尾标 `LINE · Binance live · settles on the index`，规则弹层第 1 段写明。**开 / 收 / 结算只读指数**。WS 断了自动 3 s 重连，断线期间退回一秒一点的指数线。舞台头压成一行（`02 / LIVE FEED` 题牌 150px | 44px 大价 + 涨跌行 | COMBO | NEXT SETTLE），来源行在下，图表区 ≥ 420px 高——mock 的比例。
 
 ## §Addendum 2026-10-23 · 法币入金 Card tab（MoonPay，LOCKED）
 
