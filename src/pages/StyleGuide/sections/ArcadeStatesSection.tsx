@@ -147,6 +147,7 @@ export const ArcadeStatesSection = () => (
     <SubSection title="附注 · 本轮不做 / 演示引擎放宽">
       <ul className="list-disc space-y-1 pl-5 text-[12px] text-muted-foreground">
         <li>采样 ≈ 1.2 s / 报价有效 2.5 s / 指数过期 4 s / 模型历史 120 s 起（研发稿 500 ms / 500 ms / 600 s）——Supabase pg_cron + pg_net 的上限，`arcade_params` 可调；真平台照研发稿。</li>
+        <li>演示桌永远能交易（CPO 10-28）：行情停顿时服务端补合成 tick（`src_raw.synthetic`），熔断 / 亏损上限 / 全桌上限在演示桌拨到够不着；AR-3 的暂停态只在这里看得到，线上基本不会出现。</li>
         <li>可用结算现金 1.10× 门控、关联账户组、异常胜率人工复核、损失熔断人工恢复：未做。</li>
         <li>措辞 / 合规终稿；i18n key；Portfolio 的 Quick Play 页签（右栏 `All settled calls → Portfolio` 已指过去，页签待做）。</li>
         <li>ETH / SOL / 美股桌隐藏（`ARCADE_LIVE_TABLES`）；旧轮次流照跑给站内行情，BTC 开盘改锚真指数。</li>
