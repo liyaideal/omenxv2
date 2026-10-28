@@ -740,7 +740,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       pips.innerHTML = [0, 1, 2].map((i) => `<i class="${n - base > i ? "on" : ""}"></i>`).join("");
       sub.textContent = n % 3 === 0 ? (cold ? "ouch" : "bonus!") : `${next - n} more → ${cold ? "×" + next : "×" + next + " bonus"}`;
     });
-    if (n && n % 3 === 0) {
+    if (n && n % 3 === 0 && status !== "boot") {
+      // a streak restored from history shows the HUD but earns no fireworks
       mega(cold, n);
       Lx.react(cold ? "cold" : "combo");
       if (!cold) {
