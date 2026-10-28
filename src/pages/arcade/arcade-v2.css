@@ -194,6 +194,9 @@
 /* 04 / YOUR RESULT · scoreboard at the bottom of the rail (one line per board) */
 :is(.arcade-root .v2,.arcade-root .v2m) .r4.score{margin-top:auto;display:flex;flex-direction:column;gap:3px;padding-top:6px;border-top:1px solid #1c2a33}
 :is(.arcade-root .v2,.arcade-root .v2m) .r4 .shead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
+:is(.arcade-root .v2,.arcade-root .v2m) .r4 .shead .sr{display:flex;align-items:center;gap:8px}
+:is(.arcade-root .v2,.arcade-root .v2m) .sharekey{height:24px;padding:0 9px;font:600 10px/1 var(--f-ui);letter-spacing:.8px;color:#07090f;background:linear-gradient(180deg,#e4ff8a,var(--lime));box-shadow:inset 2px 2px 0 #f4ffc8,inset -2px -2px 0 #8cb31a;border:2px solid var(--ink);clip-path:polygon(0 4px,4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px))}
+:is(.arcade-root .v2,.arcade-root .v2m) .sharekey:disabled{filter:grayscale(1) brightness(.6);cursor:not-allowed}
 :is(.arcade-root .v2,.arcade-root .v2m) .r4 .shead .tag{font-size:16px}:is(.arcade-root .v2,.arcade-root .v2m) .r4 .shead .sub{color:var(--dim);font-size:10px;letter-spacing:1.5px;text-transform:uppercase}
 :is(.arcade-root .v2,.arcade-root .v2m) .r4 .kpi{padding:4px 8px;display:grid;grid-template-columns:62px minmax(0,1fr) auto;align-items:center;column-gap:8px;min-height:26px;border:1px solid #1c2a33;overflow:hidden}
 :is(.arcade-root .v2,.arcade-root .v2m) .r4 .kpi>.lbl{grid-area:1/1;white-space:nowrap;font-size:10px}
@@ -369,7 +372,7 @@
 .arcade-root .v2m .msheet .rr .rstats{grid-column:1/-1;flex-direction:row;gap:14px;font-size:12px}
 .arcade-root .v2m .msheet .rr .x{display:none}
 .arcade-root .v2m .msheet .rr .rh .lbl{white-space:nowrap}
-.arcade-root .v2m .r4m{padding:8px 10px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;align-items:center}
+.arcade-root .v2m .r4m{padding:8px 10px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 10px;align-items:center}
 .arcade-root .v2m .r4m .s{font:500 12px/1 var(--f-ui);color:var(--mute);justify-self:end}
 .arcade-root .v2m .msettled{padding:8px 10px;display:flex;flex-direction:column;gap:4px}
 .arcade-root .v2m .msettled .row{min-height:26px;padding:2px 6px;grid-template-columns:30px minmax(0,1fr) auto}

@@ -557,7 +557,11 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 | **TABLE PAUSED · TAP TO JUMP** / **CRASH · TAP TO RETRY** / **41 · HI 58** | 跑酷 HUD | |
 | **DRAGON ×5 ▲** / **choppy…** / **new here? tap ⓘ ↗** | 猞猁举牌 | |
 | **ROAD & STATS** | 移动窥条 / 抽屉标题 | |
-| **QUICK PLAY** / **BTC · 30-SECOND CALLS · 24/7** / **BTC · 3 EXCHANGES · ▲ +$12.40 last 30s** / **30 SEC** / **PAUSED** / **INDEX INVALID · WAITING FOR THE EXCHANGES** | 入口横幅 | 移动题目 `BTC up or down in the next 30 seconds?` |
+| **QUICK PLAY** / **BTC · 30-SECOND CALLS · 24/7** / **BTC · 3 EXCHANGES · ▲ +$12.40 last 30s** / **30 SEC** / **PAUSED** | 入口横幅（10-19 V1-B / V1-A，10-28 作废，见上面方案 C 行） | |
+| **⇪ SHARE** | 04 / YOUR RESULT 右上小键（10-28） | ≥1 笔结算才亮 |
+| **Share your run** / **Save the card or post it straight to X / Telegram** / **Rough one — share it anyway, we go again** | 分享弹层标题 / 副标题（赚 / 亏） | |
+| **⚡ 7 of 10 right** / **📉 3 of 10 right** / **QUICK PLAY** / **Profit** / **Lost** / **Called Bitcoin up or down, 30 seconds at a time** / **23 minutes · 10 calls · $5 each** / **$80 staked** / **Best run · 4 in a row** / **Biggest win · +$9.20** / **Pick UP or DOWN · from $5** | 分享海报 | 净利已扣佣金；不写 ROI |
+| **Called Bitcoin up or down for 23 min on OmenX Quick Play — 7 of 10 right, +$83.57 ⚡** / **… −$21.40. We go again 😅** | 分享文案（X / Telegram / 系统分享） | |
 | **Quick Play fee · 3% · Up · BTC 30-second call** / **Quick Play cancel · 0.15% · …** / **Quick Play fee returned · cancelled within 2 s** / **Quick Play · Up · Won · open 81155.30 → close 81194.73** / **Winning commission · 5% · Quick Play · Up** / **Quick Play · Up · tie · chip and fee returned** | 钱包流水 description | |
 
 ### Quick Play v1（/arcade · 30s / 1m 轮次版，2026-10-19 · 已被 v2 取代，仅留组件术语）

@@ -8,6 +8,7 @@ import { useEffect, useRef } from "react";
 import { mountArcade, type ArcadeApi, type ArcadeFixture } from "@/pages/arcade/arcadeEngine";
 import { ARCADE_DESKTOP, ARCADE_MOBILE, ARCADE_OVERLAYS } from "@/pages/arcade/arcadeMarkup";
 import { ArcadeEntryBanner, type ArcadeBannerFixture } from "@/components/lite/arcade/ArcadeEntryBanner";
+import { ArcadeRunPoster } from "@/components/lite/arcade/ArcadeRunPoster";
 import type { ArcadeCall, ArcadeFeedRow, ArcadeTick, RoadSlot } from "@/lib/arcade/arcadeCalls";
 import { callPayout } from "@/lib/arcade/arcadeCalls";
 import { ensureArcadeFonts } from "@/lib/arcade/arcadeFonts";
@@ -168,5 +169,15 @@ export const Ab2Preview = () => (
   <div className="p-4" style={{ width: 375 }}>
     <ArcadeEntryBanner isMobile fixture={BANNER_TICK} />
     <ArcadeEntryBanner isMobile fixture={BANNER_OPENING} />
+  </div>
+);
+
+/* ---------- AS-1 run poster · win / loss (the 400px card the Share key exports) ---------- */
+const RUN_WIN = { pnl: 83.57, won: 7, lost: 3, bestRun: 4, biggestWin: 9.2, minutes: 23, calls: 10, stakeLine: "$5 each" };
+const RUN_LOSS = { pnl: -21.4, won: 3, lost: 7, bestRun: 2, biggestWin: 4.6, minutes: 12, calls: 10, stakeLine: "$5 each" };
+export const As1Preview = () => (
+  <div className="flex flex-wrap gap-6 p-4">
+    <ArcadeRunPoster run={RUN_WIN} username="alex_carter" referralCode="ALEX7K" />
+    <ArcadeRunPoster run={RUN_LOSS} username="alex_carter" referralCode="ALEX7K" />
   </div>
 );

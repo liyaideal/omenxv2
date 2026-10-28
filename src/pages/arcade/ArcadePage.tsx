@@ -20,7 +20,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { ensureArcadeFonts } from "@/lib/arcade/arcadeFonts";
 import { ARCADE_DESKTOP, ARCADE_MOBILE, ARCADE_OVERLAYS } from "./arcadeMarkup";
-import { mountArcade, type ArcadeApi } from "./arcadeEngine";
+import { mountArcade, type ArcadeApi, type ArcadeRunShare } from "./arcadeEngine";
+import { ArcadeShareCard } from "@/components/lite/arcade/ArcadeShareCard";
 import "./arcade.css";
 import "./arcade-v2.css";
 
@@ -33,6 +34,7 @@ const ArcadePage = () => {
   const { spotBalance, username, refetchProfile } = useUserProfile();
   const navigate = useNavigate();
   const [authOpen, setAuthOpen] = useState(false);
+  const [shareRun, setShareRun] = useState<ArcadeRunShare | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<ArcadeApi | null>(null);
 
@@ -57,6 +59,7 @@ const ArcadePage = () => {
       deposit: () => navigate("/deposit"),
       transfer: () => navigate("/wallet"),
       portfolio: () => navigate("/portfolio"),
+      share: (run) => setShareRun(run),
       username: username || "you",
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -98,6 +101,7 @@ const ArcadePage = () => {
     <div className="min-h-screen bg-black">
       <div ref={rootRef} className={`arcade-root${isMobile ? " is-m" : ""}`} style={isMobile ? ({ "--arcade-top": "0px" } as React.CSSProperties) : undefined} />
       <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
+      <ArcadeShareCard run={shareRun} onClose={() => setShareRun(null)} />
     </div>
   );
 };

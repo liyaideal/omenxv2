@@ -74,6 +74,20 @@ const MOBILE: SectionCase[] = [
   },
 ];
 
+const SHARE: SectionCase[] = [
+  {
+    key: "arcade-as1",
+    label: "AS-1 · 分享海报「Share your run」· 赚 / 亏",
+    note:
+      "CPO 2026-10-28：按场分享（这次打开机柜以来），入口只有右栏 `04 / YOUR RESULT` 标题行的 `⇪ SHARE` 键（有 ≥1 笔结算才亮；移动端在 ROAD & STATS 抽屉的 04 同位置），连赢 / 大赢都不主动弹。海报走主站 Lite 晒单海报同一家族（黑底渐变、头像 + 徽章、PROFIT 等宽大字、两格、推荐码 + logo + 二维码，恒 400px 内联样式），Quick Play 身份靠右上 `QUICK PLAY` 标签 + 大字下一句 `Called Bitcoin up or down, 30 seconds at a time` + 小字 `23 minutes · 10 calls · $5 each` + 设计师的撒金币 / 哭的猞猁。徽章 `⚡ 7 of 10 right`；两格 `Best run · 4 in a row` / `Biggest win · +$9.20`；CTA `Pick UP or DOWN · from $5`；二维码 → `/arcade?ref=code`。只写净利（已扣佣金）与对了几次，不写 ROI、不出 SESSION / COMBO / LAST 10。弹层 = 站点 ShareModal（Save / Copy Link / X / Telegram，手机走系统分享面板）。",
+    spec: [
+      { state: "赚", when: "pnl ≥ 0", visual: "黄绿：`Profit +$83.57`、徽章 ⚡、撒金币猞猁", source: "ArcadeRunPoster" },
+      { state: "亏", when: "pnl < 0", visual: "红：`Lost −$21.40`、徽章 📉、哭的猞猁；弹层副标题 `Rough one — share it anyway, we go again`", source: "ArcadeRunPoster / ArcadeShareCard" },
+      { state: "入口", when: "won + lost ≥ 1", visual: "`⇪ SHARE` 黄绿小键亮；0 笔结算灰", source: "arcadeEngine · renderBoard / #shareKey → api.share" },
+    ],
+  },
+];
+
 const BANNER: SectionCase[] = [
   {
     key: "arcade-ab1",
@@ -110,7 +124,7 @@ const Mob = ({ cases, min }: { cases: SectionCase[]; min: number }) => (
 export const ArcadeStatesSection = () => (
   <SectionWrapper
     id="arcade-states"
-    title="/arcade · Quick Play v2（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-5 · AB-1 / AB-2）"
+    title="/arcade · Quick Play v2（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-5 · AB-1 / AB-2 · AS-1）"
     description="2026-10-27 / 10-28 CPO 拍板（研发稿 v1.0 + 修订）：先只上 BTC；没有「局」，每一枚筹码就是一张自己的 30 秒合约；价格 = Binance / Hyperliquid / Coinbase 三所中间价中位数（pg_cron + pg_net 每秒采样，真价）；报价 = 研发稿模型 0.40–0.60 三位小数；3% 开仓费含在筹码里、2 秒内可取消（0.15%）、不可平仓、盈利扣 5% 佣金、平局全退；$5–100 一注、单账户未到期 ≤ $500、全桌最坏损失 ≤ $10,000；指数无效 / 熔断 / 亏损触顶 / 满额暂停新单。交互按 mock v26（claude.ai/artifact/6AmwMxsb3aNDUgVDZ8epWJ）复刻在设计师钢板壳上。ETH / SOL / 美股桌隐藏。文案英文占位。"
   >
     <div className="rounded-lg border border-[#FF8A3D]/30 bg-[#FF8A3D]/5 px-3 py-2 text-[12px] text-foreground">
@@ -127,11 +141,14 @@ export const ArcadeStatesSection = () => (
       <Desk cases={[BANNER[0]]} min={280} />
       <Mob cases={[BANNER[1]]} min={320} />
     </SubSection>
+    <SubSection title="分享海报（AS-1）">
+      <Desk cases={SHARE} min={520} />
+    </SubSection>
     <SubSection title="附注 · 本轮不做 / 演示引擎放宽">
       <ul className="list-disc space-y-1 pl-5 text-[12px] text-muted-foreground">
         <li>采样 ≈ 1.2 s / 报价有效 2.5 s / 指数过期 4 s / 模型历史 120 s 起（研发稿 500 ms / 500 ms / 600 s）——Supabase pg_cron + pg_net 的上限，`arcade_params` 可调；真平台照研发稿。</li>
         <li>可用结算现金 1.10× 门控、关联账户组、异常胜率人工复核、损失熔断人工恢复：未做。</li>
-        <li>措辞 / 合规终稿；i18n key；Share 海报（mock 里没有，待 CPO 定）；Portfolio 是否展示这些合约（现在只在机柜 SETTLED / LAST 10 + 钱包流水）。</li>
+        <li>措辞 / 合规终稿；i18n key；Portfolio 的 Quick Play 页签（右栏 `All settled calls → Portfolio` 已指过去，页签待做）。</li>
         <li>ETH / SOL / 美股桌隐藏（`ARCADE_LIVE_TABLES`）；旧轮次流照跑给站内行情，BTC 开盘改锚真指数。</li>
       </ul>
     </SubSection>

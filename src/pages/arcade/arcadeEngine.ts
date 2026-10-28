@@ -114,7 +114,27 @@ export interface ArcadeApi {
   transfer: () => void;
   /** "All settled calls → Portfolio" at the bottom of the rail */
   portfolio?: () => void;
+  /** 04 / YOUR RESULT · Share key → the page opens the run poster (CPO 2026-10-28) */
+  share?: (run: ArcadeRunShare) => void;
   username: string;
+}
+
+/** What the share poster says about this run (this session of the cabinet, settled calls only) */
+export interface ArcadeRunShare {
+  /** net profit of the run, commission already taken */
+  pnl: number;
+  won: number;
+  lost: number;
+  /** longest winning streak this run */
+  bestRun: number;
+  /** largest single net win this run */
+  biggestWin: number;
+  /** minutes since the cabinet was opened, at least 1 */
+  minutes: number;
+  /** settled calls this run (won + lost) */
+  calls: number;
+  /** "$5 each" when every chip was the same size, otherwise "$80 staked" */
+  stakeLine: string;
 }
 
 /** style-guide: a frozen moment with no network */
@@ -242,6 +262,10 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     last: [] as boolean[],
     streakW: 0,
     streakL: 0,
+    bestRun: 0,
+    bigWin: 0,
+    sesStakes: [] as number[],
+    sesStart: now(),
     ack: null as string | null,
     ackKnown: false,
     sessionStart: new Date(now()).toISOString(),
@@ -647,6 +671,9 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         S.streakL++;
         S.streakW = 0;
       }
+      S.bestRun = Math.max(S.bestRun, S.streakW);
+      if (won) S.bigWin = Math.max(S.bigWin, pnl);
+      S.sesStakes.push(c.gross);
     }
     if (won) S.bal += c.pay - Math.round((c.pay - c.gross) * 5) / 100;
     else if (status === "void") S.bal += c.gross;
@@ -703,6 +730,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
               S.ses += real.pnl;
               if (real.status === "won") S.won++;
               else S.lost++;
+              if (real.status === "won") S.bigWin = Math.max(S.bigWin, real.pnl);
+              S.sesStakes.push(real.gross);
             }
           }
         } else if ((loc.status === "open" || loc.status === "settling") && (real.status === "won" || real.status === "lost" || real.status === "void")) {
@@ -1395,6 +1424,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       s.className = "n " + (S.ses < 0 ? "neg" : S.ses > 0 ? "pos" : "");
     }
     set("#dSesS", `${S.won} won · ${S.lost} lost`);
+    const sk = $("#shareKey") as HTMLButtonElement | null;
+    if (sk) sk.disabled = !(S.won + S.lost);
     const tk = $("#dTicks");
     if (tk) {
       const h = S.last.map((w: boolean) => `<span class="${w ? "w" : "l"}">${w ? "✓" : "✕"}</span>`).join("");
@@ -1683,6 +1714,22 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     audio();
     sfx.key();
     api.transfer();
+  });
+  on($("#shareKey"), "click", () => {
+    if (!(S.won + S.lost)) return;
+    audio();
+    sfx.key();
+    const same = S.sesStakes.length && S.sesStakes.every((g: number) => g === S.sesStakes[0]);
+    api.share?.({
+      pnl: S.ses,
+      won: S.won,
+      lost: S.lost,
+      bestRun: S.bestRun,
+      biggestWin: S.bigWin,
+      minutes: Math.max(1, Math.round((now() - S.sesStart) / 60000)),
+      calls: S.won + S.lost,
+      stakeLine: same ? `${whole(S.sesStakes[0])} each` : `${whole(S.sesStakes.reduce((a: number, g: number) => a + g, 0))} staked`,
+    });
   });
   on($("#dPlink"), "click", () => {
     audio();
@@ -2242,6 +2289,14 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       }
       S.streakW = w;
       S.streakL = l;
+      let run = 0;
+      S.last.forEach((x: boolean) => {
+        run = x ? run + 1 : 0;
+        S.bestRun = Math.max(S.bestRun, run);
+      });
+      S.bigWin = S.done.reduce((a: number, c: Call) => (c.status === "won" ? Math.max(a, c.pnl) : a), 0);
+      S.sesStakes = S.done.filter((c: Call) => c.status === "won" || c.status === "lost").map((c: Call) => c.gross);
+      S.sesStart = now() - 23 * 60000;
       if (w >= 2 || l >= 2) comboUpdate("boot");
     }
     if (FX.ack === false) openGate(true);
