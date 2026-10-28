@@ -219,6 +219,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     quoteTs: null as string | null,
     paused: null as string | null, // index | breaker | loss | full | off | null
     price: 0,
+    disp: 0,
     lastPx: 0,
     bal: api.getBalance(),
     chip: 5,
@@ -480,7 +481,10 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       S.slotOpen = null;
       if (!FX) void loadRoad(true);
     }
-    if (S.slotOpen == null && S.price) S.slotOpen = S.price; // first index of the slot (refined by the server road)
+    if (S.slotOpen == null && S.price) {
+      const first = S.px.find((x: any) => x.t >= cur);
+      S.slotOpen = first ? first.p : S.price; // first index of the slot
+    }
     for (const pre of ["", "m_"]) {
       const e = $("#" + pre + "slotLbl");
       if (e) e.textContent = "THIS SLOT · " + (S.slotOpen != null && S.price ? (S.price >= S.slotOpen ? "▲ +" : "▼ −") + Math.abs(S.price - S.slotOpen).toFixed(2) + " · " : "") + Math.max(0, Math.ceil((cur + SLOT - w) / 1000)) + "s";
@@ -899,13 +903,31 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     ctx.lineTo(xn, H);
     ctx.stroke();
     ctx.setLineDash([]);
-    /* price line: one point per valid second; gaps where the index was invalid */
+    /* faint vertical grid (designer's CRT feed) */
+    ctx.strokeStyle = "rgba(51,214,255,.05)";
+    for (let gx = 0; gx < W; gx += 24) {
+      ctx.beginPath();
+      ctx.moveTo(gx + 0.5, 34);
+      ctx.lineTo(gx + 0.5, H);
+      ctx.stroke();
+    }
+    /* the slot's open: dashed reference, the line is cyan above it and lime below */
+    const ref = S.slotOpen ?? S.price;
+    if (ref) {
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = "rgba(238,242,248,.22)";
+      ctx.beginPath();
+      ctx.moveTo(0, Math.round(g.y(ref)) + 0.5);
+      ctx.lineTo(W, Math.round(g.y(ref)) + 0.5);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    /* price line: one point per valid second, the head eased toward the latest index; gaps where the index was invalid */
     const pts = S.px.filter((x: any) => x.t >= t - 45000);
-    if (pts.length > 1) {
-      ctx.strokeStyle = C.up;
-      ctx.lineWidth = 1.6;
-      ctx.shadowColor = "rgba(51,214,255,.6)";
-      ctx.shadowBlur = 6;
+    if (pts.length > 1 || (pts.length && S.disp)) {
+      const col = S.disp >= ref ? C.up : C.dn;
+      const headX = Math.min(g.x(t), g.x(pts[pts.length - 1].t) + 40),
+        headY = g.y(S.disp);
       ctx.beginPath();
       let prevT = 0;
       pts.forEach((p: any, i: number) => {
@@ -915,12 +937,26 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         else ctx.lineTo(x, y);
         prevT = p.t;
       });
+      if (t - prevT < 3500) ctx.lineTo(headX, headY);
+      ctx.lineWidth = 2;
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = col;
+      ctx.shadowColor = col;
+      ctx.shadowBlur = 6;
       ctx.stroke();
       ctx.shadowBlur = 0;
-      const l = pts[pts.length - 1];
-      ctx.fillStyle = "#fff";
+      /* area under the line */
+      ctx.lineTo(headX, H);
+      ctx.lineTo(g.x(pts[0].t), H);
+      ctx.closePath();
+      const grad = ctx.createLinearGradient(0, 34, 0, H);
+      grad.addColorStop(0, col + "38");
+      grad.addColorStop(1, col + "00");
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.fillStyle = col;
       ctx.beginPath();
-      ctx.arc(g.x(l.t), g.y(l.p), 3, 0, 7);
+      ctx.arc(headX, headY, 3, 0, 7);
       ctx.fill();
     }
     /* calls: entry dot + open line, settled badges */
@@ -1152,18 +1188,30 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     const el = $("#dTable");
     if (!el) return;
     const t = now();
-    const rows = S.feed
-      .filter((o: ArcadeFeedRow) => ms(o.t1) > t - 500)
-      .slice(0, 9)
-      .map((o: ArcadeFeedRow) => {
-        const side = sideOf(o.side),
-          t0 = ms(o.t0),
-          t1 = ms(o.t1);
-        const frac = clip((t - t0) / ARCADE_DURATION_MS, 0, 1);
-        return `<div class="row other ${side}${o.mine ? " mine" : ""}"><span class="sd ${side}">${side === "u" ? "UP" : "DN"}</span><span class="mid"><b>${whole(o.gross)} @ ${cents(o.p)} <span class="who">· ${o.mine ? "you" : o.who}</span></b><span class="bar"><i style="width:${frac * 100}%"></i></span></span><span class="st lock">${Math.max(0, Math.ceil((t1 - t) / 1000))}s</span></div>`;
-      })
-      .join("");
-    if (el.innerHTML !== rows) el.innerHTML = rows;
+    const rows = S.feed.filter((o: ArcadeFeedRow) => ms(o.t1) > t - 500).slice(0, 9);
+    const seen = new Set<string>();
+    rows.forEach((o: ArcadeFeedRow, i: number) => {
+      const side = sideOf(o.side),
+        t0 = ms(o.t0),
+        t1 = ms(o.t1);
+      const frac = clip((t - t0) / ARCADE_DURATION_MS, 0, 1);
+      let row = el.querySelector(`.row[data-id="${o.id}"]`);
+      seen.add(o.id);
+      if (!row) {
+        row = document.createElement("div");
+        row.dataset.id = o.id;
+        row.className = `row other ${side}${o.mine ? " mine" : ""}`;
+        row.innerHTML = `<span class="sd ${side}">${side === "u" ? "UP" : "DN"}</span><span class="mid"><b>${whole(o.gross)} @ ${cents(o.p)} <span class="who">· ${o.mine ? "you" : o.who}</span></b><span class="bar"><i></i></span></span><span class="st lock"></span>`;
+      }
+      row.querySelector(".bar i").style.width = frac * 100 + "%";
+      const st = row.querySelector(".st"),
+        txt = Math.max(0, Math.ceil((t1 - t) / 1000)) + "s";
+      if (st.textContent !== txt) st.textContent = txt;
+      if (el.children[i] !== row) el.insertBefore(row, el.children[i] || null);
+    });
+    [...el.children].forEach((r: any) => {
+      if (!seen.has(r.dataset.id)) r.remove();
+    });
     const n = $("#dTableN");
     if (n) n.textContent = String(S.feed.filter((o: ArcadeFeedRow) => ms(o.t1) > t - 500).length);
   }
@@ -1309,6 +1357,27 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     set("#mOpen", open.length ? `${open.length} · ${whole(stake)}` : "—");
     $$("#dYourOpen").forEach((e) => (e.textContent = whole(stake) + " / $" + ARCADE_MAX_OPEN));
   }
+  function renderPriceBig() {
+    const p = S.disp || S.price;
+    const pe = $("#price");
+    if (!pe) return;
+    const txt = p ? money(p) : "$—";
+    if (pe.textContent !== txt) pe.textContent = txt;
+    const ref = S.slotOpen;
+    const up = ref == null || p >= ref;
+    pe.classList.toggle("up", up);
+    pe.classList.toggle("dn", !up);
+    const ch = $("#chg");
+    if (ch) {
+      const diff = ref == null ? 0 : p - ref;
+      const ct = ref == null || !p ? "—" : `${up ? "▲ +" : "▼ −"}${money(diff)} this slot`;
+      if (ch.textContent !== ct) ch.textContent = ct;
+      ch.classList.toggle("up", up && ref != null);
+      ch.classList.toggle("dn", !up);
+    }
+    const mp = $("#mPrice");
+    if (mp && mp.textContent !== txt) mp.textContent = txt;
+  }
   function renderPrice() {
     const tk: ArcadeTick | null = S.tick;
     const p = S.price;
@@ -1317,13 +1386,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       const e = $(id);
       if (e && e.textContent !== v) e.textContent = v;
     };
-    set("#mPrice", p ? money(p) : "$—");
-    const pe = $("#price");
-    if (pe) {
-      pe.textContent = p ? money(p) : "$—";
-      pe.classList.toggle("up", p >= S.lastPx);
-      pe.classList.toggle("dn", p < S.lastPx);
-    }
+    renderPriceBig();
     const src = (v: number | null) => (v == null ? "—" : money(v));
     set("#s1", tk ? src(tk.binance) : "—");
     set("#s2", tk ? src(tk.hyperliquid) : "—");
@@ -1369,6 +1432,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       if (S.px.length > 200) S.px.shift();
       S.lastPx = S.price;
       S.price = tk.idx;
+      if (!S.disp || FX) S.disp = tk.idx;
       if (tk.p_up != null) {
         S.pUp = tk.p_up;
         S.quoteTs = tk.ts;
@@ -2007,7 +2071,14 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
 
   /* ---------- clocks ---------- */
   const cv = $("#cv");
-  raf(() => draw(cv));
+  let lastF = perf();
+  raf((tf) => {
+    const dt = Math.min(100, tf - lastF);
+    lastF = tf;
+    if (S.price && !FX) S.disp += (S.price - S.disp) * Math.min(1, dt / 420); // ease the head over ~1 s
+    draw(cv);
+  });
+  every(() => renderPriceBig(), 100);
   every(() => {
     loop();
     render();

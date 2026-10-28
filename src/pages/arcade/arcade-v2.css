@@ -32,6 +32,13 @@
 :is(.arcade-root .v2,.arcade-root .v2m) .lbl{font:500 11px/1 var(--f-ui);color:var(--dim);letter-spacing:1.5px;text-transform:uppercase}
 /* road strip */
 :is(.arcade-root .v2,.arcade-root .v2m) .rr{padding:6px 12px;display:flex;flex-direction:column;gap:5px;overflow:visible;z-index:7;position:relative}
+.arcade-root .v2 .r2r{display:grid;grid-template-columns:160px auto minmax(0,1.3fr) minmax(0,1.1fr);gap:6px;padding:6px;flex-direction:row;overflow:visible}
+.arcade-root .v2 .r2r .scr{padding:7px 14px;display:flex;flex-direction:column;justify-content:center;gap:5px;min-height:0;overflow:visible}
+.arcade-root .v2 .r2r .tagscr{gap:8px}
+.arcade-root .v2 .r2r .beadscr,.arcade-root .v2 .r2r .roadscr{overflow:hidden}
+.arcade-root .v2 .r2r .rstats{gap:6px;font:500 13px/1 var(--f-ui);color:var(--mute)}
+.arcade-root .v2 .r2r .rstats .lbl{margin-top:2px}
+.arcade-root .v2 .r2r .howto{top:calc(100% - 4px);left:180px}
 :is(.arcade-root .v2,.arcade-root .v2m) .rr .rh{display:flex;justify-content:space-between}
 :is(.arcade-root .v2,.arcade-root .v2m) .info{display:inline-grid;place-items:center;width:14px;height:14px;border-radius:50%;border:1px solid var(--dim);color:var(--fg);font:700 9px/1 var(--f-ui);font-style:normal;margin-left:6px;cursor:pointer;vertical-align:middle;text-transform:none;letter-spacing:0}
 :is(.arcade-root .v2,.arcade-root .v2m) .info:hover{border-color:var(--lime);color:var(--lime)}
@@ -49,17 +56,21 @@
 :is(.arcade-root .v2,.arcade-root .v2m) .cell.u{border-color:var(--up);background:rgba(51,214,255,.1)}:is(.arcade-root .v2,.arcade-root .v2m) .cell.d{border-color:var(--lime);background:rgba(207,255,74,.08)}
 :is(.arcade-root .v2,.arcade-root .v2m) .cell.pop,:is(.arcade-root .v2,.arcade-root .v2m) .bead.pop{animation:v2pop .5s cubic-bezier(.2,1.8,.4,1)}
 @keyframes v2pop{from{transform:scale(2.2)}}
-:is(.arcade-root .v2,.arcade-root .v2m) .rstats{display:flex;flex-direction:column;gap:6px;font:500 13px/1 var(--f-ui);color:var(--mute);padding:0;background:none;border:0;box-shadow:none}
+:is(.arcade-root .v2,.arcade-root .v2m) .rstats{display:flex;flex-direction:column;gap:6px;font:500 13px/1 var(--f-ui);color:var(--mute)}
+.arcade-root .v2m .msheet .rstats{padding:0;background:none;border:0;box-shadow:none}
 :is(.arcade-root .v2,.arcade-root .v2m) .rstats b{color:#fff;font-weight:500}:is(.arcade-root .v2,.arcade-root .v2m) .rstats small{color:var(--dim);font-size:10px;margin-left:4px}:is(.arcade-root .v2,.arcade-root .v2m) .rstats .cu{color:var(--up)}:is(.arcade-root .v2,.arcade-root .v2m) .rstats .cd{color:var(--lime)}
 /* row 2 · stage + rail */
 :is(.arcade-root .v2,.arcade-root .v2m) .r2{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:8px;min-height:380px;padding:0}
 :is(.arcade-root .v2,.arcade-root .v2m) .feedplate,:is(.arcade-root .v2,.arcade-root .v2m) .railplate{padding:6px}
 :is(.arcade-root .v2,.arcade-root .v2m) .feedplate .feed,:is(.arcade-root .v2,.arcade-root .v2m) .railplate .rail{height:100%}
 :is(.arcade-root .v2,.arcade-root .v2m) .feed{padding:10px 12px 8px;display:flex;flex-direction:column;gap:4px;position:relative}
-:is(.arcade-root .v2,.arcade-root .v2m) .feed-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;min-height:54px}
+:is(.arcade-root .v2,.arcade-root .v2m) .feed-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;min-height:0}
+.arcade-root .v2 .feed-head .titles{display:flex;flex-direction:column;gap:6px}
+.arcade-root .v2 .feed>.chg{font:500 13px/1 var(--f-ui);color:var(--mute);margin-top:4px}
+.arcade-root .v2 .feed>.chg.up{color:var(--up)}.arcade-root .v2 .feed>.chg.dn{color:var(--lime)}
 :is(.arcade-root .v2,.arcade-root .v2m) .feed-head>:first-child{grid-column:1}:is(.arcade-root .v2,.arcade-root .v2m) .feed-head>.combo{grid-column:2;overflow:hidden}:is(.arcade-root .v2,.arcade-root .v2m) .feed-head>.lbl{grid-column:3;justify-self:end;white-space:nowrap}
-:is(.arcade-root .v2,.arcade-root .v2m) .price{font:400 40px/.9 var(--f-pix);color:#fff;text-shadow:0 0 10px rgba(51,214,255,.5);margin:0}
-:is(.arcade-root .v2,.arcade-root .v2m) .price.dn{text-shadow:0 0 10px rgba(207,255,74,.5)}
+/* the price keeps the designer's 62px glow (.price.up / .price.dn in arcade.css) */
+.arcade-root .v2 .price{margin-top:4px}
 :is(.arcade-root .v2,.arcade-root .v2m) .chg.src{display:flex;gap:14px;align-items:baseline;margin-top:2px;font:500 12px/1 var(--f-ui);color:var(--mute)}
 :is(.arcade-root .v2,.arcade-root .v2m) .chg.src .s{display:inline-flex;gap:5px;align-items:baseline}
 :is(.arcade-root .v2,.arcade-root .v2m) .chg.src .s i{font:500 9px/1 var(--f-ui);color:var(--dim);letter-spacing:1px;text-transform:uppercase;font-style:normal}
@@ -106,8 +117,10 @@
 :is(.arcade-root .v2,.arcade-root .v2m) .rail .done .row{min-height:30px;padding:3px 6px;opacity:.9;grid-template-columns:34px minmax(0,1fr) auto}
 :is(.arcade-root .v2,.arcade-root .v2m) .rail .done .row .mid b{font-weight:500;color:#aab4c2}
 /* row 3 · keys */
-:is(.arcade-root .v2,.arcade-root .v2m) .r3{padding:6px;min-height:0;flex:none;display:block}
-:is(.arcade-root .v2,.arcade-root .v2m) .r3 .row2{display:grid;grid-template-columns:minmax(0,1fr) 300px minmax(0,1fr);gap:8px;height:100%}
+:is(.arcade-root .v2,.arcade-root .v2m) .r3{padding:6px;min-height:0;flex:none;display:flex;flex-direction:column;gap:6px}
+.arcade-root .v2 .r3 .dirhead{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 14px;flex:none}
+.arcade-root .v2 .r3 .dirhead .sub{font-size:14px;color:var(--mute)}
+:is(.arcade-root .v2,.arcade-root .v2m) .r3 .row2{display:grid;grid-template-columns:minmax(0,1fr) 300px minmax(0,1fr);gap:8px;flex:1}
 :is(.arcade-root .v2,.arcade-root .v2m) .dir{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"side mid cents" "pays pays pays";grid-template-rows:auto auto;align-content:center;align-items:center;column-gap:8px;row-gap:7px;padding:10px 15px 9px;color:#020c10;border:3px solid var(--ink);min-height:100px;cursor:pointer;user-select:none;clip-path:polygon(0 6px,6px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0 calc(100% - 6px));transition:filter .15s,transform .06s;width:100%;height:100%;text-align:left}
 :is(.arcade-root .v2,.arcade-root .v2m) .dir:active{transform:translateY(2px)}
 :is(.arcade-root .v2,.arcade-root .v2m) .dir.u{background:linear-gradient(180deg,#5aeeff 0%,#13e3fa 40%,var(--cy-lo) 100%);box-shadow:inset 4px 4px 0 var(--cy-hi),inset -4px -4px 0 #00809a}
@@ -150,7 +163,8 @@
 :is(.arcade-root .v2,.arcade-root .v2m) .chip.off{opacity:.35;cursor:not-allowed;animation:none}
 @keyframes v2wob{50%{transform:translateY(-3px)}}
 /* row 4 · boards */
-:is(.arcade-root .v2,.arcade-root .v2m) .r4{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.4fr);gap:8px;padding:6px}
+:is(.arcade-root .v2,.arcade-root .v2m) .r4{display:grid;grid-template-columns:160px minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.4fr);gap:6px;padding:6px}
+.arcade-root .v2 .r4 .scr.head{display:flex;flex-direction:column;justify-content:center;gap:5px}
 :is(.arcade-root .v2,.arcade-root .v2m) .r4 .scr{padding:7px 14px;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;align-items:center;column-gap:10px;row-gap:4px;min-height:62px}
 :is(.arcade-root .v2,.arcade-root .v2m) .r4 .lbl{grid-area:1/1}
 :is(.arcade-root .v2,.arcade-root .v2m) .r4 .s{grid-area:1/2;justify-self:end;font:500 12px/1 var(--f-ui);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -236,6 +250,8 @@
   :is(.arcade-root .v2,.arcade-root .v2m) .r2{grid-template-columns:minmax(0,1fr) 260px}
   :is(.arcade-root .v2,.arcade-root .v2m) .r3 .row2{grid-template-columns:minmax(0,1fr) 220px minmax(0,1fr)}
   :is(.arcade-root .v2,.arcade-root .v2m) .r4{grid-template-columns:1fr 1fr}
+  .arcade-root .v2 .r2r{grid-template-columns:auto minmax(0,1fr) minmax(0,1fr)}
+  .arcade-root .v2 .r2r .tagscr{display:none}
   :is(.arcade-root .v2,.arcade-root .v2m) .hbar{padding:0 12px}:is(.arcade-root .v2,.arcade-root .v2m) .stat{padding:0 12px}:is(.arcade-root .v2,.arcade-root .v2m) .keys{padding-left:12px}
 }
 /* ============================================================
@@ -272,7 +288,9 @@
 .arcade-root .v2m .feed-head>.lbl{grid-column:2}
 .arcade-root .v2m .combo.on~.lbl{display:none}
 .arcade-root .v2m .mega .t{font-size:44px}.arcade-root .v2m .mega .s{font-size:10px}
-.arcade-root .v2m .price{font-size:30px}
+.arcade-root .v2m .price{font-size:30px;margin-top:0}
+.arcade-root .v2m .feed .feed-head .chg{font:500 11px/1 var(--f-ui);color:var(--mute);margin-top:3px}
+.arcade-root .v2m .feed .chg.up{color:var(--up)}.arcade-root .v2m .feed .chg.dn{color:var(--lime)}
 .arcade-root .v2m .calls{height:56px;padding:4px 8px;display:flex;align-items:center;gap:8px;overflow:hidden;flex:none}
 .arcade-root .v2m .calls .lbl{font-size:9px;flex:none;width:52px;line-height:1.3}
 .arcade-root .v2m .calls .hint{font:500 11px/1.3 var(--f-ui);color:var(--dim);flex:1;text-align:center}

@@ -2382,6 +2382,7 @@ CPO 2026-10-13 方案 v0 D1–D12 + mock v1 M1–M8（桌面入口方案 A）。
 15. **移动端**：顶栏 logo / AVAILABLE / `+` / RULES / 静音 → `BTC · 30s calls · $价` + YOUR OPEN → 四格来源价 → 舞台（COMBO 右上小盒）→ `MY CALLS` 筹码带（无单显示 TABLE 别人的）→ OPEN / LIVE / SESSION → 筹码 → UP / DOWN → **底部** `ROAD & STATS` 窥条（CPO：卡中间太怪）→ 抽屉：路单 + SESSION / LAST 10 + SETTLED + 猞猁。
 16. **时钟**：机柜一律按服务器时间（`arcade_table_now().now` 偏移），t0 / t1 / tick 与图对齐；SESSION = 本次打开以来，LAST 10 / COMBO = 账号历史。
 17. **style-guide**：AR-1（免责门）/ AR-2（6 张未到期 + 已结 + 会话）/ AR-3（暂停 + 跑酷）/ AR-4（移动空桌 TABLE）/ AR-5（移动持仓）/ AB-1 / AB-2（横幅改读指数，`30 SEC` 徽章代替倒计时），引擎 fixture `{nowMs, ticks, calls, feed, road, state, ack, session}` 零网络。字典 `docs/copy-dictionary.md`「Quick Play v2」节。
+18. **设计师的版式细节原样保留**（CPO 2026-10-28 第二批："原来的设计是这样的，怎么 mock 时把边框 / logo 这类细节都删了"）：四行各自带钢板 + 铆钉 + 编号题牌（`01 / REPLAY · WHAT HAPPENED` 路单行四块独立 CRT 屏；`02 / LIVE FEED · WHAT'S HAPPENING` 舞台头 + 62px 像素大价（青 / 黄绿辉光）+ `▲ +$12.40 this slot` 涨跌行；`03 / SELECT YOUR DIRECTION` 键头；`04 / YOUR RESULT · SESSION SCOREBOARD` 记分板头）。**K 线按设计师 / 入口方案的画法**：一秒一点但线头按 ~1 s 缓动追最新指数（10 fps 顺滑），线色 = 相对本 30 秒格开盘价（上青下黄绿）、辉光 + 线下渐变面、格开盘价虚线、24px 竖向淡格线；旗道 / 入场菱形 / ✓✕ 圆点叠在其上。TABLE 行改 keyed 更新（之前整段重绘每 250 ms 重放入场动画 = 闪烁）。
 
 ## §Addendum 2026-10-23 · 法币入金 Card tab（MoonPay，LOCKED）
 

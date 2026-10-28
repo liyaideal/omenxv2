@@ -17,7 +17,8 @@ const LOGO_SVG = (fill: string, clip: string) =>
 const MUTE_BTN = `<button class="key fsbtn mutebtn" id="muteBtn" aria-pressed="false" aria-label="Mute sound" title="Sound on / off"><svg class="on" width="20" height="18" viewBox="0 0 20 18" fill="#020c10"><path d="M1 6h4l5-4v14l-5-4H1z"/><path d="M13 5h2v8h-2zM16 2h2v14h-2z"/></svg><svg class="off" width="20" height="18" viewBox="0 0 20 18" fill="#fff"><path d="M1 6h4l5-4v14l-5-4H1z"/><path d="M12 5h2v2h-2zM16 5h2v2h-2zM14 7h2v2h-2zM12 9h2v2h-2zM16 9h2v2h-2z"/></svg></button>`;
 const FS_BTN = `<button class="key fsbtn" id="fsBtn" aria-label="Toggle full screen"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#020c10" stroke-width="2.5" stroke-linecap="square"><path d="M1 6V1h5M12 1h5v5M17 12v5h-5M6 17H1v-5"/></svg></button>`;
 
-/** the road strip is the same markup on desktop and in the mobile sheet */
+const HOWTO = `<div class="howto" id="howto" hidden><b>How to read the road</b><span><i class="k">Dragon</i> — one colour stacking down a column: BTC has been going the same way for several 30-second slots. Trend-followers are getting paid.</span><span><i class="k">Chop</i> — colours alternating every cell: the market is flip-flopping. Chasing gets punished; size down or wait.</span><span><i class="k">Break</i> — a long column just switched colour: the direction just changed. Loudest moment, easiest to get shaken out.</span><span class="n">The road is context, not a forecast. Each cell is the same 30-second horizon as your call, so it tells you the market's mood at the horizon you are betting on — nothing more.</span></div>`;
+/** the road strip in the mobile sheet */
 const ROAD_STRIP = `<div class="howto" id="howto" hidden><b>How to read the road</b><span><i class="k">Dragon</i> — one colour stacking down a column: BTC has been going the same way for several 30-second slots. Trend-followers are getting paid.</span><span><i class="k">Chop</i> — colours alternating every cell: the market is flip-flopping. Chasing gets punished; size down or wait.</span><span><i class="k">Break</i> — a long column just switched colour: the direction just changed. Loudest moment, easiest to get shaken out.</span><span class="n">The road is context, not a forecast. Each cell is the same 30-second horizon as your call, so it tells you the market's mood at the horizon you are betting on — nothing more.</span></div><div class="rh"><span class="lbl">Market<span class="x"> · every cell = 30 seconds of BTC</span> <i class="info" id="roadI" tabindex="0" role="button" aria-label="How to read the road">i</i></span><span class="lbl" id="slotLbl">THIS SLOT · —</span></div><div class="roads"><div class="beadscr"><span class="lbl">BEAD · <span id="beadN">0</span></span><div class="beads" id="bead"></div></div><div class="roadscr"><span class="lbl">Big road<span class="x"> · same result stacks down, a change starts a new column</span></span><div class="road" id="road"></div></div><div class="rstats"><span>Up <b class="cu" id="nUp">0</b> · Down <b class="cd" id="nDn">0</b> <small>last <span id="nSlots">0</span> slots</small></span><span>Longest <b id="longest">—</b></span></div></div>`;
 
 const COMBO = (id: string) => `<div class="combo" id="${id}"><div class="big"></div><div class="meta"><div class="pips"></div><div class="sub"></div></div></div>`;
@@ -78,13 +79,22 @@ export const ARCADE_DESKTOP = `<main>
         <div class="ctrlplate steel rivets">${MUTE_BTN}${FS_BTN}</div>
       </div>
 
-      <!-- road strip -->
-      <div class="rr scr">${ROAD_STRIP}</div>
+      <!-- row 2 · the table's road (01 / REPLAY) -->
+      <div class="r2r steel rivets rr">
+        <div class="scr tagscr"><span class="tag">01 / REPLAY</span><span class="sub">WHAT HAPPENED</span></div>
+        <div class="scr beadscr"><span class="lbl">BEAD · <span id="beadN">0</span></span><div class="beads" id="bead"></div></div>
+        <div class="scr roadscr"><span class="lbl">Big road <i class="info" id="roadI" tabindex="0" role="button" aria-label="How to read the road">i</i></span><div class="road" id="road"></div></div>
+        <div class="scr rstats"><span>Up <b class="cu" id="nUp">0</b> · Down <b class="cd" id="nDn">0</b> <small>last <span id="nSlots">0</span> slots</small></span><span>Longest <b id="longest">—</b></span><span class="lbl" id="slotLbl">THIS SLOT · —</span></div>
+        ${HOWTO}
+      </div>
 
       <!-- row 2 · stage + rail -->
       <div class="r2">
         <div class="feedplate steel rivets"><div class="feed scr crt">
-          <div class="feed-head"><div><div class="price" id="price">$—</div><div class="chg src" id="dSrc"><span class="s"><i>Binance</i><b id="s1">—</b></span><span class="s"><i>Hyperliquid</i><b id="s2">—</b></span><span class="s"><i>Coinbase</i><b id="s3">—</b></span><span class="s st"><b id="dSrcState">—</b></span></div></div>${COMBO("dCombo")}<div class="lbl" id="dNext">NEXT SETTLE · —</div></div>
+          <div class="feed-head"><div class="titles"><span class="tag">02 / LIVE FEED</span><span class="sub">WHAT'S HAPPENING</span></div>${COMBO("dCombo")}<div class="lbl" id="dNext">NEXT SETTLE · —</div></div>
+          <div class="price up" id="price">$—</div>
+          <div class="chg" id="chg">—</div>
+          <div class="chg src" id="dSrc"><span class="s"><i>Binance</i><b id="s1">—</b></span><span class="s"><i>Hyperliquid</i><b id="s2">—</b></span><span class="s"><i>Coinbase</i><b id="s3">—</b></span><span class="s st"><b id="dSrcState">—</b></span></div>
           <div class="plot" id="plot"><canvas id="cv"></canvas><div class="ov" id="dOv"><div><div class="t" id="dOvT">TABLE PAUSED</div><div class="s" id="dOvS"></div><div class="h">Open calls keep running and settle as normal</div></div></div></div>
           <div class="axis"><span>−45s</span><span>now</span><span>+30s · flags = settlement</span></div>${MEGA("dMega")}
         </div></div>
@@ -93,6 +103,7 @@ export const ARCADE_DESKTOP = `<main>
 
       <!-- row 3 · keys -->
       <div class="r3 dirplate steel rivets">
+        <div class="dirhead scr"><span class="tag">03 / SELECT YOUR DIRECTION</span><span class="sub" id="dirSub">EVERY CHIP IS ITS OWN 30-SECOND CALL</span></div>
         <div class="row2">
           ${DIR("u", "btn")}
           <div class="bet scr"><div class="bethead"><span>Your stake · per chip</span><b id="dSel">$5 SELECTED</b></div><div class="chips" id="chips"></div></div>
@@ -102,6 +113,7 @@ export const ARCADE_DESKTOP = `<main>
 
       <!-- row 4 · boards -->
       <div class="r4 steel rivets">
+        <div class="scr head"><span class="tag">04 / YOUR RESULT</span><span class="sub">SESSION SCOREBOARD</span></div>
         <div class="scr"><span class="lbl">Open</span><span class="s" id="dOpenS">nothing on the table</span><span class="n" id="dOpenBig">—</span></div>
         <div class="scr"><span class="lbl">Live</span><span class="s">if all settle now</span><span class="n" id="dLive">—</span></div>
         <div class="scr"><span class="lbl">Session</span><span class="s" id="dSesS">0 won · 0 lost</span><span class="n" id="dSes">$0.00</span></div>
@@ -129,7 +141,7 @@ export const ARCADE_MOBILE = `<main class="m-app v2m">
     </header>
     <section class="scr q"><h1>BTC · 30s calls · <span class="amt" id="mPrice">$—</span></h1><div class="meta"><span>Your open <b id="dYourOpen">$0 / $500</b></span><span>$5–100 a call</span></div></section>
     <div class="scr src" id="mSrc"><div class="s"><i>Binance</i><b id="s1">—</b></div><div class="s"><i>Hyperliq.</i><b id="s2">—</b></div><div class="s"><i>Coinbase</i><b id="s3">—</b></div><div class="s"><i>Index</i><b class="idx" id="mIdx">—</b></div></div>
-    <div class="scr feed crt"><div class="feed-head"><div class="price" id="price">$—</div>${COMBO("dCombo")}<div class="lbl" id="dNext"></div></div>${MEGA("dMega")}<div class="plot" id="plot"><canvas id="cv"></canvas><div class="ov" id="dOv"><div><div class="t" id="dOvT">PAUSED</div><div class="s" id="dOvS"></div></div></div></div></div>
+    <div class="scr feed crt"><div class="feed-head"><div><div class="price up" id="price">$—</div><div class="chg" id="chg">—</div></div>${COMBO("dCombo")}<div class="lbl" id="dNext"></div></div>${MEGA("dMega")}<div class="plot" id="plot"><canvas id="cv"></canvas><div class="ov" id="dOv"><div><div class="t" id="dOvT">PAUSED</div><div class="s" id="dOvS"></div></div></div></div></div>
     <div class="scr calls"><span class="lbl" id="mStripLbl">My calls</span><div class="strip" id="mStrip"></div></div>
     <div class="sb"><div class="scr"><span class="lbl">Open</span><span class="n" id="mOpen">—</span></div><div class="scr"><span class="lbl">Live</span><span class="n" id="dLive">—</span></div><div class="scr"><span class="lbl">Session</span><span class="n" id="dSes">$0.00</span></div></div>
     <div class="scr bet"><div class="bethead"><span>Your stake</span><b id="dSel">$5 SELECTED</b></div><div class="chips" id="chips"></div></div>
