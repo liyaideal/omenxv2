@@ -517,9 +517,50 @@ and stay as-is — they are a different noun from the selector label.
 
 Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follows the event kind); the time clause goes on the header countdown row — `· 15:30–15:45 ⓘ` / `· Base Fri 04:00 ⓘ` — and the ⓘ popover carries the full `Base: $X · as of … (Oct 15 close)` line, the settle rule and the schedule rows. No `(Oct 15 close)` on the row itself (375 width, zero truncation).
 
-### Quick Play（/arcade · 30s / 1m Up/Down · 机柜，2026-10-19 · 占位措辞）
+### Quick Play v2（/arcade · BTC 30 秒合约 · 流式舞台，2026-10-28 · 占位措辞）
 
-> 状态：**占位**。取代下面 Table 节在 5m / 15m 上的用法（Table 节保留给组件术语）。全部英文待合规措辞轮；i18n key 下一轮接。字典 AR-1…AR-4 / AB-1 / AB-2 见 `/style-guide` 交易页。
+> 状态：**占位**。取代下面 v1 节；全部英文待合规措辞轮，i18n key 下一轮接。字典 AR-1…AR-5 / AB-1 / AB-2 见 `/style-guide` 交易页。铁律不变：机柜内不出现 `sh` / 份额数，所有金额讲钱、所有提示讲人话。
+
+| Canonical | Where | Note |
+|---|---|---|
+| **BTC · 30-second calls** / **Price from 3 exchanges · settles in 30s** | 头条题牌 + 副行 | 移动 `BTC · 30s calls · $81,155.30` |
+| **YOUR OPEN $25 / $500** | 头条 / 移动副行 | 未到期总额 / 单账户上限 |
+| **AVAILABLE · SPOT $2,753.89** | 头条 | 移动只写 `AVAILABLE` |
+| **+ Deposit** / **⇄ Transfer** / **Rules** | 头条三键 | 移动 `+` / `RULES` |
+| **BINANCE $x · HYPERLIQUID $x · COINBASE $x · LIVE · 3 of 3** | 大价下一行 | 无效 `INDEX INVALID · fewer than two sources` / `two sources disagree` / `no USDT-USD rate`；移动四格第四格 `INDEX` |
+| **NEXT SETTLE · 12s** | 图表头右上 | 没单 `—`；移动 `NEXT · 12s` |
+| **−45s / now / +30s · flags = settlement** | 图表轴 | |
+| **MY CALLS 3** / **TABLE 7** / **$75** | 右栏页签 + 合计 | 不叫 MINE（CPO：像挖矿）、不叫 Open calls |
+| **Tap UP or DOWN — your calls land here** | 右栏空态 | 移动筹码带 `Tap UP or DOWN — your calls show here` |
+| **$25 @ 51.2¢ · wins +$21.46** / **open $81,155.30 · 12s** | MY CALLS 行 | 行尾 `cancel` → `open…` → `ahead` / `behind` → `settling` → `+$21.46` / `VOID` |
+| **$25 @ 51.0¢ · won · open 81,155.30 · close 81,194.73** | SETTLED 行 | `lost` / `void · no valid price · refunded` / `cancelled · taken back within 2 s` |
+| **$25 @ 51.2¢ · kz***88** | TABLE 行 | 自己的单标 `you` |
+| **YOUR STAKE · PER CHIP** / **$5 SELECTED** | 筹码盘 | $5 / 10 / 25 / 50 / 100 |
+| **$5 in · fee $0.15 · wins +$4.49 if Up** | UP / DOWN 底注 | `+$` 已扣 5% 佣金 |
+| **tap chip to cancel · costs $0.01** | 底注（前 2 秒） | 取消 toast `Cancelled · $0.01 close fee` |
+| **Price moved · tap again** | 底注（拒单） | 键上价闪白；不扣钱 |
+| **Table paused · index invalid** / **· market moving too fast** / **· daily limit reached** / **Table full · room opens as calls settle** / **Table closed** | 底注（暂停） | 遮罩 `TABLE PAUSED` + `Index invalid · waiting for the exchanges` / `BTC is moving too fast · back in a moment` / `Daily limit reached · back tomorrow` / `TABLE FULL · Room opens as calls settle` + `Open calls keep running and settle as normal` |
+| **Waiting for the price** / **Warming up · odds in a moment** | 底注（无 tick / 无报价） | |
+| **$500 max open per account** / **Too fast · 2 calls per second** / **Not enough in your spot account** / **Accept the rules first** / **Sign in to play** | 拒单 | 服务端 RAISE 原文直接显示 |
+| **6 calls · $125 on the table** / **next settles in 3s** / **nothing on the table** | OPEN 牌 | |
+| **if all settle now** / **+$4.63** | LIVE 牌 | |
+| **SESSION +$83.57** / **2 won · 1 lost** | SESSION 牌 | 本次打开以来 |
+| **LAST 10** ✓✕ / **3 in a row** / **2 lost in a row** | LAST 10 牌 | 账号历史 |
+| **COMBO ×2** / **1 more → ×3 bonus** / **bonus!** / **COMBO BREAK** | COMBO HUD | 连输 `LOST ×2` / `ouch` / `STREAK OVER` |
+| **×3 COMBO** / **keep it rolling · next bonus at ×6** | 大字 | 连输 `×3 LOST` / `take a breath · streak resets on a win` |
+| **+$4.29** / **−$5.00** / **VOID** | 图上飘字 | |
+| **Market · every cell = 30 seconds of BTC** / **THIS SLOT · ▲ +5.29 · 21s** / **BEAD · 36** / **Big road · same result stacks down, a change starts a new column** / **Up 31 · Down 25 last 56 slots** / **Longest Up ×9** | 路单条 | ⓘ → `How to read the road`（Dragon / Chop / Break + `The road is context, not a forecast…`） |
+| **BEFORE YOU PLAY** 四行 + **I GET IT · START PLAYING** + **How the price and odds are made →** | 免责门 | 见 AR-1 |
+| **HOW IT WORKS** 六段 | RULES 弹层 | 1 The price · 2 Open and close · 3 The odds · 4 Payout & fees · 5 Limits & pauses · 6 Your record |
+| **TABLE PAUSED · TAP TO JUMP** / **CRASH · TAP TO RETRY** / **41 · HI 58** | 跑酷 HUD | |
+| **DRAGON ×5 ▲** / **choppy…** / **new here? tap ⓘ ↗** | 猞猁举牌 | |
+| **ROAD & STATS** | 移动窥条 / 抽屉标题 | |
+| **QUICK PLAY** / **BTC · 30-SECOND CALLS · 24/7** / **BTC · 3 EXCHANGES · ▲ +$12.40 last 30s** / **30 SEC** / **PAUSED** / **INDEX INVALID · WAITING FOR THE EXCHANGES** | 入口横幅 | 移动题目 `BTC up or down in the next 30 seconds?` |
+| **Quick Play fee · 3% · Up · BTC 30-second call** / **Quick Play cancel · 0.15% · …** / **Quick Play fee returned · cancelled within 2 s** / **Quick Play · Up · Won · open 81155.30 → close 81194.73** / **Winning commission · 5% · Quick Play · Up** / **Quick Play · Up · tie · chip and fee returned** | 钱包流水 description | |
+
+### Quick Play v1（/arcade · 30s / 1m 轮次版，2026-10-19 · 已被 v2 取代，仅留组件术语）
+
+> 状态：**作废（2026-10-28）**。BTC 桌已改为每筹一合约（见上节）；本节只为 ETH / SOL / 美股桌的旧轮次形态留档。取代下面 Table 节在 5m / 15m 上的用法（Table 节保留给组件术语）。全部英文待合规措辞轮；i18n key 下一轮接。字典 AR-1…AR-4 / AB-1 / AB-2 见 `/style-guide` 交易页。
 
 | Canonical | Where | Note |
 |---|---|---|

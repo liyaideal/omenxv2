@@ -2342,6 +2342,8 @@ CPO 2026-10-13 方案 v0 D1–D12 + mock v1 M1–M8（桌面入口方案 A）。
 
 ## §Addendum 2026-10-19 · Quick Play 专区（/arcade · 30s / 1m Up/Down · 机柜皮肤，LOCKED · 内测）
 
+> **2026-10-28 更正（CPO）**：BTC 桌改为"每一枚筹码一张 30 秒合约 + 真实三所指数"，本节第 3–8 条对 BTC 桌作废，见 §Addendum 2026-10-28；ETH / SOL / 美股桌隐藏待价格源。
+>
 > 取代 §Addendum 2026-10-09 第 1 条。CPO 实际体验后判定筹码上桌的节奏属于 30s / 1m，不属于 5m / 15m：Table 形态离开快轮页（五档周期全部回 Classic），成为独立专区。设计师机柜（artifact BKHuHJvFkzeLXQxLWBHxSF）1:1 搬入，只换数据缝。
 
 1. **第三种页面类型 = 全屏游戏页**（CPO 2026-10-19 第二批：带 header / footer 时机柜"卡在当中"）：`/arcade` **没有站点 header、没有 footer**，机柜就是整个视口——四边贴满，没有黑色地板留边（`main>.wrap` padding 0 / max-width none）；出口是机柜右上的 `✕` 键（→ `/events`），登录门仍是 Lite AuthDialog（落筹触发）。桌面 `.cockpit` 居中铺满；移动端机柜占满 100dvh，**一屏不滚**，路单 / 统计收进抽屉，下单键永远在拇指区。Lite/Pro 开关不碰（专区没有 Pro）。
@@ -2358,6 +2360,28 @@ CPO 2026-10-13 方案 v0 D1–D12 + mock v1 M1–M8（桌面入口方案 A）。
 12. **机柜内不出现 `sh` / 份额数**（CPO 2026-10-19 第二次打回：自己编的缩写，正常人看不懂）：份额一律换算成钱——N 份 = `wins $N if Up`（每份赢付 $1），持仓底注 `$25 in · wins +$121 if Up`，记分板副行 `in at 27.6¢ · worth $612 now`（单行、溢出省略，不再两行截断），Orders 行 `Up · $25 in at 51.0¢ · wins +$23`，Cash out 弹层 `Keeps $X riding`，净额 toast 讲 `$N off your Down · $M still on`。`shares` 全拼只许出现在规则弹层的解释句里。
 13. **移动端走查修正**（CPO 2026-10-19 上线后"随便看了几眼"，我按 360 / 375 全态走查）：① Available 牌改成标签在上、数字在下（五位数余额不再被切）；② THIS ROUND 牌：有 ORDERS 徽标时隐掉 "THIS ROUND" 字样、大字用短式 `Up · $10 in`、数字 17px，Share / Cash out 定宽 52 / 78 单行；③ 窥条合计只显示 `−$158`（整元），不再 `Last 10 −$17…`；④ 梯子：涨跌标签测量后避让 `OPEN / $0`（桌面同样生效），移动端右对齐在梯子内，四位数涨跌不出框；⑤ 盘外（无轮次）不再露出 markup 的样例数（题目 `—` / 副行 `opens Mon 09:30 ET · in 7h`，UP/DOWN 价 `—`、底注 `Market closed`）；⑥ Share 卡的名字和推荐码在打开时读（之前挂载时读到 `you` / 域名），推荐码取 `?ref=`，没有就隐掉那行。
 14. **持仓筹码塔 = 方案 A「按面额归堆」**（CPO 2026-10-19 比稿三选一："用 A 吧"；此前只画最近 4 枚，第 5 枚起没反馈，CPO 以为单没下下去）：同面额一堆、大面额在左、每堆最多画 5 枚厚、≥2 枚带 `×N` 角标；成交反馈三重 = 新筹码落进对应堆（tDrop）+ 该堆角标 bump + Position 徽标 bump；桌面 32px 筹码堆距 6，移动 24px 堆距 3、最多 3 堆（其余并入末堆角标）、徽标省掉 "Position" 字样只留金额；刷新后从持仓重建时按找零法拆成最少枚（`colorUp`：$1,032 → 500×2 + 25 + 零头并入最小堆）。style-guide AR-2（桌面 9 枚）/ AR-5（移动 9 枚）。
+
+## §Addendum 2026-10-28 · Quick Play v2 · 每一枚筹码一张 30 秒合约（流式舞台，LOCKED · 内测）
+
+> 取代 §Addendum 2026-10-19 第 3 / 4 / 5 / 6 / 7 / 8 条对 BTC 桌的规定（第 1 / 2 / 11 / 12 / 14 条继续有效）。CPO 2026-10-27 读研发稿《BTCUSDT_30秒与1分钟涨跌产品设计_v1.0》后改后端设计，10-28 看完流式舞台 mock（claude.ai/artifact/6AmwMxsb3aNDUgVDZ8epWJ v26）拍"直接落地"。交付文档 `docs/delivery/lite-arcade-spec-v2.md`；后端 `supabase/migrations/20261028120000_arcade_calls.sql`。
+
+1. **没有"局"**：每一枚筹码就是一张独立的 30 秒合约，t0 = 服务端接单时刻，t1 = t0 + 30 s；同向可连开、涨跌可同时持有，各自到期各自结。先只上 BTC（ETH / SOL / 美股桌隐藏 `ARCADE_LIVE_TABLES`，后端旧轮次流只剩站内行情一个用途，BTC 开盘改锚真指数）。
+2. **价格是真的**：Binance BTC/USDT · Hyperliquid 现货 UBTC/USDC（`@142`，不是永续）· Coinbase BTC-USD，USD / USDC 报价按 Coinbase USDT-USD 实时汇率换成 USDT 计价后取中位数；点差 > 2 bps 的来源剔除，≥2 源才有效（只剩两源且偏差 > 5 bps 无效）。pg_cron + pg_net 每秒采样（实测 ≈ 1.2 s 一条）。机柜底下**常驻三个来源价 + `LIVE · 3 of 3`**，无效整行变红 `INDEX INVALID · 原因`——用户随时看得见价格是怎么来的（CPO：机柜要展示三个价格源）。
+3. **报价 = 研发稿模型**（0.40–0.60，步长 0.001，UP + DOWN = $1.00）：z30 / z60 / RV600 → sigmoid → clip → round_3，系数在 `arcade_params`；报价跟 tick 走，前端**不因报价变动闪键**，只在拒单（`Price moved · tap again`）时闪白。历史不足 → `Warming up · odds in a moment`、键置灰。
+4. **费用三段**：开仓 3% 含在筹码里（`$5 in · fee $0.15 · wins +$4.49 if Up`）；2 秒内取消 = 开盘价原价平掉、收平台平仓费 0.15%（开仓费退）；结算不收费、**盈利扣 5% 佣金**（键上 / 行里 / 飘字的 `+$` 都是扣完 5% 的净利）。平局或无有效价 → 全额退含费。**没有 Cash out**。
+5. **S0 / S1**：S0 = 接单之后第一条有效指数（不是用户点的那一刻的价——研发稿 4.2 + Jason 评论，堵抢跑）；S1 = t1 及之前最近一条有效指数（最多等 2 s 迟到行情，绝不读 t1 之后的价）。图上入场菱形画在 S0，MY CALLS 行写 `open $x`。
+6. **舞台 = 时间轴**（取代"梯子 + 倒计时"）：−45 s … now … +30 s；每张合约 = 入场菱形 + 开盘虚线（领先本色 / 落后灰）+ 旗道里一面到期旗（剩余秒数，同一秒合并 `×N`，两行错开永不重叠，旗到价格线有垂线）；到期旗翻 ✓ / ✕ + `+$4.29` 飘字 + 筹码飞进余额，(t1, S1) 留 ✓ / ✕ 圆点直到滚出画面。背景按 30 秒格（路单的格）按结果浅色着色。`NEXT SETTLE · 12s` 固定右上。
+7. **反馈三级，不再一局一场**：每张 = 旗 + 飘字 + 飞筹码；一秒内同时结的只 bump 一次余额；**连赢 ×3 / ×6 … 才金币雨 + 大字 `×3 COMBO`**，连输 ×3 红闪一次 + `×3 LOST · take a breath`。跳舞机式 COMBO HUD 常驻图表头中间：`COMBO ×2` + 三格 pips + `1 more → ×3 bonus`，断链 `COMBO BREAK` 掉落（CPO："得让我知道我正在连着赢或连着输"）。
+8. **右栏 = MY CALLS / TABLE 两页签 + SETTLED**（取代 Orders 弹层）：自己没单时自动显示 TABLE（全桌未到期合约，用户名打码 `al***er`；桌子冷清时匿名模拟单补位，`arcade_params.sim_table` 可关），有单切回 MY CALLS；行 = 方向 / `$25 @ 51.2¢ · wins +$21.46` / `open $x · 12s` / 进度条 / `cancel` → `ahead` / `behind` → 结算闪色滑进 SETTLED（`won · open … · close …`）。页签名 **MY CALLS**（CPO 否了 MINE：像挖矿）。
+9. **键不锁、筹码塔按方案 A 延伸**：结算过程中 UP / DOWN 照样能点；塔 = 这一边正在跑的合约，最近面额靠环、堆多缩小（s4 / s5）、再多把最旧折成 `+N`（永不藏最新一枚——CPO："以为我的筹码不见了"）；最新一枚带 2 秒取消环，底注 `tap chip to cancel · costs $0.04`。筹码档位 $5 / 10 / 25 / 50 / 100（$500 删，单笔 ≤ $100）。
+10. **头条重排**（CPO："header 好乱 / 越来越丑"）：`BTC · 30-second calls` + 副行 `Price from 3 exchanges · settles in 30s` | `YOUR OPEN $x / $500` | `AVAILABLE · SPOT $x` | `+ Deposit`（黄绿）`⇄ Transfer` `Rules`（青）；logo 板是唯一出口（无 ✕）；静音 / 全屏两键保留在右端小板。记分板四格 OPEN（`6 calls · $125 on the table / next settles in 3s`）/ LIVE（此刻全结）/ SESSION（本次打开以来）/ LAST 10（账号历史）。
+11. **免责门 + RULES**：登录后第一次进来弹四行门（⏱ 每筹一合约 · 🔒 2 秒可取消、不可平仓 · % 3% in · 5% of profit out、平局全退 · ⚠ 高风险、$5–100、$500 open max）+ `I GET IT · START PLAYING`（`arcade_acks`，一个账号只弹一次）+ `How the price and odds are made →`；RULES 弹层六段（价格 / 开收盘 / 赔率 / 派彩与费用含 $100 例 / 限额与暂停 / 记录）。CPO 两次打回"字太多"后定稿为四行门 + 可选展开。
+12. **路单 = 桌子的路**（不是个人胜负）：30 秒墙钟格（…:00 / :30）的指数涨跌，与合约无关；统计 `Up N · Down N · last N slots` / `Longest Up ×9`；ⓘ 打开"How to read the road"（Dragon / Chop / Break 三段 + "路是背景不是预测"），个人 ✓ ✕ 只在 LAST 10 与图上圆点。
+13. **暂停态**：指数无效 / 市场熔断（1 s > 10 bps 或 30 s 实现波动 > 20 bps，30 s 冷却）/ 平台当日亏损触顶 / 全桌最坏损失满（TABLE FULL）/ 人工关桌 → 图表遮罩 `TABLE PAUSED` + 原因 + `Open calls keep running and settle as normal`，UP / DOWN 置灰、底注写原因。**暂停时猞猁窗变小恐龙跑酷**（点窗口 / 空格跳陨石，本地最高分），恢复瞬间退出。
+14. **猞猁有情绪**（CPO："增加一点游戏感，像 Google 没网的小恐龙"）：会话 > +$0.5 昂首阔步、< −$0.5 耷拉慢走；60 s 没人碰打盹 zzz、点它醒；读路——大路同色 ≥5 举牌 `DRAGON ×5 ▲`、交替 ≥6 举牌 `choppy…`；新手 8 s 没下单举牌 `new here? tap ⓘ ↗`。
+15. **移动端**：顶栏 logo / AVAILABLE / `+` / RULES / 静音 → `BTC · 30s calls · $价` + YOUR OPEN → 四格来源价 → 舞台（COMBO 右上小盒）→ `MY CALLS` 筹码带（无单显示 TABLE 别人的）→ OPEN / LIVE / SESSION → 筹码 → UP / DOWN → **底部** `ROAD & STATS` 窥条（CPO：卡中间太怪）→ 抽屉：路单 + SESSION / LAST 10 + SETTLED + 猞猁。
+16. **时钟**：机柜一律按服务器时间（`arcade_table_now().now` 偏移），t0 / t1 / tick 与图对齐；SESSION = 本次打开以来，LAST 10 / COMBO = 账号历史。
+17. **style-guide**：AR-1（免责门）/ AR-2（6 张未到期 + 已结 + 会话）/ AR-3（暂停 + 跑酷）/ AR-4（移动空桌 TABLE）/ AR-5（移动持仓）/ AB-1 / AB-2（横幅改读指数，`30 SEC` 徽章代替倒计时），引擎 fixture `{nowMs, ticks, calls, feed, road, state, ack, session}` 零网络。字典 `docs/copy-dictionary.md`「Quick Play v2」节。
 
 ## §Addendum 2026-10-23 · 法币入金 Card tab（MoonPay，LOCKED）
 

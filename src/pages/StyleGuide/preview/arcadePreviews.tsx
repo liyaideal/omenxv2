@@ -1,87 +1,129 @@
 // ============================================================
-// /arcade · Quick Play（30s / 1m Up/Down · 机柜皮肤）状态字典 previews。
+// /arcade · Quick Play v2（BTC 30 秒合约 · 流式舞台）状态字典 previews。
 // 铁律同 SP / TB 系列：只挂生产件（ArcadePage 的引擎 + 入口横幅），数据一律
-// fixture 确定性注入——时钟冻结在 nowMs、轮次种子固定、路单序列固定、零网络
-// （引擎 fixture 模式跳过 supabase 拉取；api 全部为桩）。
+// fixture 确定性注入——时钟冻结在 nowMs、指数序列由固定 LCG 生成、合约 / 路单 /
+// 桌面 feed 全部写死、零网络（引擎 fixture 模式跳过 supabase 拉取；api 全部为桩）。
 // ============================================================
 import { useEffect, useRef } from "react";
 import { mountArcade, type ArcadeApi, type ArcadeFixture } from "@/pages/arcade/arcadeEngine";
 import { ARCADE_DESKTOP, ARCADE_MOBILE, ARCADE_OVERLAYS } from "@/pages/arcade/arcadeMarkup";
 import { ArcadeEntryBanner, type ArcadeBannerFixture } from "@/components/lite/arcade/ArcadeEntryBanner";
-import { arcadePath, type ArcadeRoundRow } from "@/lib/arcade/arcadePath";
-import type { ArcadeTableSnapshot } from "@/lib/arcade/arcadeTables";
+import type { ArcadeCall, ArcadeFeedRow, ArcadeTick, RoadSlot } from "@/lib/arcade/arcadeCalls";
+import { callPayout } from "@/lib/arcade/arcadeCalls";
 import { ensureArcadeFonts } from "@/lib/arcade/arcadeFonts";
 import "@/pages/arcade/arcade.css";
+import "@/pages/arcade/arcade-v2.css";
 
 /* ---------- frozen fixtures ---------- */
-const T0 = Date.UTC(2026, 9, 19, 3, 51, 0); // 2026-10-19 03:51:00Z — a BTC 30s round start
-const mkRound = (symbol: string, tf: "30s" | "1m", startMs: number, open: number, seed: number, winner: "up" | "down" | null = null): ArcadeRoundRow => {
-  const secs = tf === "30s" ? 30 : 60;
-  const kind = symbol === "BTC" || symbol === "ETH" || symbol === "SOL" ? "crypto" : "stock";
-  const r: ArcadeRoundRow = {
-    id: `arcade-${symbol.toLowerCase()}-${tf}-fixture-${startMs}`,
-    symbol,
-    kind,
-    tf,
-    start_at: new Date(startMs).toISOString(),
-    end_at: new Date(startMs + secs * 1000).toISOString(),
-    open_price: open,
-    close_price: null,
-    seed,
-    steps: secs * 4,
-    sigma: kind === "stock" ? 0.00022 : 0.00045,
-    winner,
+const NOW = Date.UTC(2026, 9, 28, 7, 52, 17); // 2026-10-28 07:52:17Z
+const iso = (t: number) => new Date(t).toISOString();
+
+/** 1-second index ticks, deterministic LCG walk ending at NOW (valid, with the model quote) */
+const ticksFx = (() => {
+  const out: ArcadeTick[] = [];
+  let x = 20261028,
+    p = 80934.75;
+  const rnd = () => {
+    x = (x * 1664525 + 1013904223) % 4294967296;
+    return x / 4294967296;
   };
-  if (winner) r.close_price = arcadePath(seed, open, r.steps, r.sigma)[r.steps];
-  return r;
+  for (let i = 90; i >= 0; i--) {
+    p *= 1 + (rnd() - 0.5) * 0.00018;
+    const t = NOW - i * 1000;
+    out.push({ ts: iso(t), binance: p + 2.1, hyperliquid: p - 4.3, coinbase: p, usdt_usd: 0.99854, idx: p, valid: true, reason: null, p_up: 0.512 });
+  }
+  return out;
+})();
+const PX_AT = (t: number) => {
+  let best = ticksFx[0];
+  for (const k of ticksFx) if (new Date(k.ts).getTime() <= t) best = k;
+  return best.idx!;
 };
-/** 36 settled rounds before T0 with a fixed u/d sequence (the seed is irrelevant for history: winner is stored) */
-const HIST_SEQ = "ud uu d uuu dd u d uuuu d uuuuuu u dd uu d u ddd u dd uuu d u".replace(/ /g, "");
-const history = (symbol: string, tf: "30s" | "1m") => {
-  const secs = tf === "30s" ? 30 : 60;
-  return HIST_SEQ.split("").map((c, i) => mkRound(symbol, tf, T0 - (HIST_SEQ.length - i) * secs * 1000, 66400 + i * 3, 1000 + i, c === "u" ? "up" : "down"));
+
+/** the table's road: 60 wall-clock slots before NOW with a fixed u/d sequence */
+const ROAD_SEQ = "ud uu d uuu dd u d uuuu d uuuuuu u dd uu d u ddd u dd uuu d u udu".replace(/ /g, "");
+const roadFx: RoadSlot[] = (() => {
+  const cur = Math.floor(NOW / 30000) * 30000;
+  return ROAD_SEQ.split("").map((c, i) => {
+    const s = cur - (ROAD_SEQ.length - i) * 30000;
+    return { slot_start: iso(s), open_idx: 80900, close_idx: c === "u" ? 80912 : 80888 };
+  });
+})();
+
+const mkCall = (id: string, side: "up" | "down", gross: number, p: number, t0: number, status: ArcadeCall["status"] = "open", s1?: number): ArcadeCall => {
+  const fee = Math.floor(gross * 3 + 0.5) / 100,
+    net = gross - fee;
+  const s0 = PX_AT(t0 + 1000);
+  const pay = callPayout(gross, p);
+  const won = status === "won";
+  const commission = won ? Math.floor((pay - gross) * 5 + 0.5) / 100 : 0;
+  return {
+    id,
+    user_id: "fixture-user",
+    side,
+    gross,
+    fee,
+    net,
+    p,
+    p_up: side === "up" ? p : 1 - p,
+    win_payout: pay,
+    quote_ts: iso(t0 - 300),
+    quote_idx: s0,
+    t0: iso(t0),
+    t1: iso(t0 + 30000),
+    s0,
+    s1: status === "open" ? null : (s1 ?? PX_AT(t0 + 30000)),
+    status,
+    pnl: status === "open" ? null : won ? pay - commission - gross : status === "lost" ? -gross : 0,
+    commission: won ? commission : null,
+    cancel_fee: null,
+    settled_at: status === "open" ? null : iso(t0 + 30600),
+    created_at: iso(t0),
+  };
 };
-const SNAP_BTC_30S: ArcadeTableSnapshot = {
-  current: mkRound("BTC", "30s", T0, 66474.49, 2177009297),
-  next: mkRound("BTC", "30s", T0 + 30000, 66474.49, 843266656),
-  history: history("BTC", "30s"),
-};
-const SNAP_AAPL_1M: ArcadeTableSnapshot = {
-  current: mkRound("AAPL", "1m", T0, 235.22, 333751864),
-  next: null,
-  history: history("AAPL", "1m").slice(-12),
-};
+const CALLS_LIVE: ArcadeCall[] = [
+  mkCall("c1", "up", 25, 0.512, NOW - 27000),
+  mkCall("c2", "up", 10, 0.511, NOW - 19000),
+  mkCall("c3", "down", 50, 0.489, NOW - 16000),
+  mkCall("c4", "up", 10, 0.512, NOW - 9000),
+  mkCall("c5", "up", 5, 0.513, NOW - 4000),
+  mkCall("c6", "down", 25, 0.488, NOW - 900),
+  mkCall("d1", "up", 25, 0.51, NOW - 71000, "won"),
+  mkCall("d2", "down", 10, 0.49, NOW - 64000, "lost"),
+  mkCall("d3", "up", 50, 0.512, NOW - 58000, "won"),
+];
+const FEED: ArcadeFeedRow[] = [
+  { id: "f1", who: "al***er", side: "up", gross: 25, p: 0.512, t0: iso(NOW - 22000), t1: iso(NOW + 8000), mine: false },
+  { id: "f2", who: "kz***88", side: "down", gross: 100, p: 0.488, t0: iso(NOW - 14000), t1: iso(NOW + 16000), mine: false },
+  { id: "f3", who: "sa***ra", side: "up", gross: 5, p: 0.511, t0: iso(NOW - 6000), t1: iso(NOW + 24000), mine: false },
+  { id: "f4", who: "mi***to", side: "up", gross: 10, p: 0.513, t0: iso(NOW - 2000), t1: iso(NOW + 28000), mine: false },
+];
 
 const stubApi = (over: Partial<ArcadeApi> = {}): ArcadeApi => ({
   isMobile: false,
   userId: "fixture-user",
   requireAuth: () => {},
-  getBalance: () => 7879.07,
-  buy: async () => ({ balanceDelta: 0 }),
-  sell: async () => ({ balanceDelta: 0 }),
-  loadHolding: async () => null,
-  loadToday: async () => ({ net: -24.82, won: 0, lost: 1, last: [{ s: "u", w: false, pnl: -24.82, t: T0 - 30000 }] }),
-  referralLink: "https://omenxv2.lovable.app?ref=75CN66",
+  getBalance: () => 6249.09,
   exit: () => {},
+  deposit: () => {},
+  transfer: () => {},
   username: "alex_carter",
-  avatarUrl: null,
   ...over,
 });
 
-const Cabinet = ({ mobile, symbol, tf, fixture, api, elapsedMs, width, height }: { mobile?: boolean; symbol: string; tf: "30s" | "1m"; fixture: ArcadeTableSnapshot; api?: Partial<ArcadeApi>; elapsedMs: number; width: number; height: number }) => {
+const Cabinet = ({ mobile, fixture, width, height }: { mobile?: boolean; fixture: ArcadeFixture; width: number; height: number }) => {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const root = ref.current;
     if (!root) return;
     ensureArcadeFonts();
     root.innerHTML = ARCADE_OVERLAYS + (mobile ? ARCADE_MOBILE : ARCADE_DESKTOP);
-    const fx: ArcadeFixture = { nowMs: T0 + elapsedMs, snapshot: fixture };
-    const un = mountArcade(root, stubApi({ isMobile: !!mobile, ...api }), { symbol, tf, fixture: fx });
+    const un = mountArcade(root, stubApi({ isMobile: !!mobile }), { fixture });
     return () => {
       un();
       root.innerHTML = "";
     };
-  }, [mobile, symbol, tf, fixture, api, elapsedMs]);
+  }, [mobile, fixture]);
   return (
     <div className="relative overflow-hidden" style={{ width, height }}>
       <div ref={ref} className={`arcade-root${mobile ? " is-m" : ""}`} style={mobile ? ({ "--arcade-top": "0px", height } as React.CSSProperties) : { transform: "scale(.72)", transformOrigin: "0 0", width: 1440 }} />
@@ -89,30 +131,33 @@ const Cabinet = ({ mobile, symbol, tf, fixture, api, elapsedMs, width, height }:
   );
 };
 
-/* ---------- AR-1 desktop · idle, 9 s into a BTC 30s round ---------- */
-export const Ar1Preview = () => <Cabinet symbol="BTC" tf="30s" fixture={SNAP_BTC_30S} elapsedMs={9000} width={1040} height={640} />;
+const base = (over: Partial<ArcadeFixture> = {}): ArcadeFixture => ({ nowMs: NOW, ticks: ticksFx, calls: [], feed: FEED, road: roadFx, ack: true, ...over });
 
-/* ---------- AR-2 desktop · holding Up, 21 s in ---------- */
-const HOLD = { loadHolding: async () => ({ side: "u" as const, sh: 741, margin: 125.97, avg: 0.17, chips: [25, 25, 10, 10, 10, 25, 10, 500, 10] }) };
-export const Ar2Preview = () => <Cabinet symbol="BTC" tf="30s" fixture={SNAP_BTC_30S} api={HOLD} elapsedMs={21000} width={1040} height={640} />;
+/* ---------- AR-1 desktop · first entry: the gate (once per account) ---------- */
+const FX_GATE = base({ ack: false });
+export const Ar1Preview = () => <Cabinet fixture={FX_GATE} width={1040} height={700} />;
 
-/* ---------- AR-3 desktop · stock table (AAPL 1m) — session gate renders from the wall clock of the viewer ---------- */
-export const Ar3Preview = () => <Cabinet symbol="AAPL" tf="1m" fixture={SNAP_AAPL_1M} elapsedMs={15000} width={1040} height={640} />;
+/* ---------- AR-2 desktop · live: 6 open calls (one still cancellable), 3 settled, session +$ ---------- */
+const FX_LIVE = base({ calls: CALLS_LIVE, session: { last: [true, false, true, true, false, true, true] } });
+export const Ar2Preview = () => <Cabinet fixture={FX_LIVE} width={1040} height={700} />;
 
-/* ---------- AR-4 mobile · idle ---------- */
-export const Ar4Preview = () => <Cabinet mobile symbol="BTC" tf="30s" fixture={SNAP_BTC_30S} elapsedMs={9000} width={375} height={760} />;
+/* ---------- AR-3 desktop · table paused (index invalid) → the lynx runner ---------- */
+const FX_PAUSED = base({
+  ticks: ticksFx.map((t, i) => (i >= ticksFx.length - 4 ? { ...t, valid: false, idx: null, reason: "fewer than two sources", hyperliquid: null, coinbase: null, p_up: null } : t)),
+  calls: CALLS_LIVE.slice(0, 3),
+  state: { paused_reason: "index", breaker_until: null, worst_loss: 1240, open_calls: 3, open_stake: 85, updated_at: iso(NOW) },
+});
+export const Ar3Preview = () => <Cabinet fixture={FX_PAUSED} width={1040} height={700} />;
 
-/* ---------- AR-5 mobile · holding Up with a mixed chip tower (option A: stacks per denomination) ---------- */
-export const Ar5Preview = () => <Cabinet mobile symbol="BTC" tf="30s" fixture={SNAP_BTC_30S} api={HOLD} elapsedMs={21000} width={375} height={760} />;
+/* ---------- AR-4 mobile · nothing of mine on the table (TABLE strip) ---------- */
+export const Ar4Preview = () => <Cabinet mobile fixture={base()} width={375} height={760} />;
 
-/* ---------- AB-1 / AB-2 entry banner, desktop + mobile ---------- */
-const BANNER_TICK: ArcadeBannerFixture = (() => {
-  const r = SNAP_BTC_30S.current!;
-  const path = arcadePath(r.seed, r.open_price, r.steps, r.sigma);
-  const i = 36;
-  return { round: r, price: path[i], open: r.open_price, secLeft: 21, up: 58, pts: path.slice(0, i + 1) };
-})();
-const BANNER_OPENING: ArcadeBannerFixture = { round: null, price: 0, open: 0, secLeft: 0, up: 50, pts: [] };
+/* ---------- AR-5 mobile · live with calls ---------- */
+export const Ar5Preview = () => <Cabinet mobile fixture={FX_LIVE} width={375} height={760} />;
+
+/* ---------- AB-1 / AB-2 entry banner, desktop + mobile (same index readout as the cabinet) ---------- */
+const BANNER_TICK: ArcadeBannerFixture = { live: true, price: ticksFx[ticksFx.length - 1].idx!, open: ticksFx[ticksFx.length - 31].idx!, up: 51.2, pts: ticksFx.slice(-45).map((t) => t.idx!) };
+const BANNER_OPENING: ArcadeBannerFixture = { live: false, price: 0, open: 0, up: 50, pts: [] };
 export const Ab1Preview = () => (
   <div className="p-4" style={{ width: 1120 }}>
     <ArcadeEntryBanner isMobile={false} fixture={BANNER_TICK} />

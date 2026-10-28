@@ -1,165 +1,201 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // ============================================================
-// Quick Play (arcade) engine — the designer's cabinet controller
-// (artifact BKHuHJvFkzeLXQxLWBHxSF) ported 1:1 and wired to real data.
+// Quick Play v2 engine — the "stream stage" cabinet controller.
+// Mock (spec): claude.ai/artifact/6AmwMxsb3aNDUgVDZ8epWJ v26 · CPO 2026-10-28.
+// Shell: the designer's cabinet (artifact BKHuHJvFkzeLXQxLWBHxSF).
 //
-// Why a DOM controller and not React components: the cabinet is a game
-// screen — two canvases, particle fx, a mascot, chip drag physics, a 100 ms
-// price tick and a 60 fps clock. The designer's interaction layer is the
-// spec (feedback_lovable_pixelmatch), so it is kept as written and only the
-// data seams are replaced:
-//   • rounds / price   ← public.arcade_rounds + the deterministic path
-//   • orders           ← api.buy / api.sell (spot rail, executeSpotTrade)
-//   • balance / today  ← api (spot_balance, closed arcade positions)
-//   • auth             ← api.requireAuth() (chips bounce until signed in)
-// React owns the shell (header, auth dialog, footer) in ArcadePage.tsx and
-// mounts/unmounts this engine; everything below is scoped to `root`.
+// Every chip is its own 30-second contract on the real three-exchange BTC
+// index (supabase/migrations/20261028120000_arcade_calls.sql):
+//   • the stage is a time axis: −45 s of index … now … +30 s; each call is an
+//     entry diamond + open-price dash line + a flag in the lane at its t1;
+//     at t1 the flag flips ✓/✕, a +$/−$ floats, the chip flies to the balance,
+//     and a ✓/✕ badge stays at (t1, S1) until it scrolls off
+//   • feedback has three levels: per call (flag · float · fly), per second
+//     (one balance bump), per event (combo ×3 → coins / confetti + mega,
+//     lost ×3 → red flash). Keys never lock.
+//   • right rail: MY CALLS (open rows, 2-second cancel, ahead/behind) and
+//     TABLE (everyone's open calls, anonymised); SETTLED under it
+//   • road strip: the table's own road — 30 s wall-clock cells of the index
+//   • first-entry gate (once per account) + RULES modal + ⓘ how-to
+//   • the lynx: mood follows the session, reads the road, sleeps when idle,
+//     and runs a Chrome-dino game in the space window while the table pauses
 //
-// Order semantics (CPO 2026-10-19):
-//   chip → 1.5 s pending ring (tap to take back) → market buy on the spot rail
-//   same side again → adds to the leg · opposite side → NET (ARCADE_FLIP="net",
-//   CPO 2026-10-19): executeSpotTrade reduces the held leg share-for-share at
-//   the implied price and opens the remainder on the other side — exactly what
-//   every other spot trade on the platform does; "close-then-open" (sell the
-//   held leg in full, then buy) stays available behind the constant
-//   cash out (sell at the live share price) any time before the close, 30s and 1m alike (CPO 2026-10-19: no need to limit it)
-//   close == open → void, stakes returned (server) · stocks outside the US
-//   cash session: table closed, chips bounce
+// Why a DOM controller and not React components: see v1 — a game screen with
+// canvases, particles, a mascot and a 1 Hz data loop. Data seams go through
+// `api` (React) and `opts.data` (network or style-guide fixture).
+//
+// Clock: everything runs on SERVER time (arcade_table_now().now − Date.now()
+// gives the offset) so t0 / t1 / tick timestamps line up with the chart.
 // ============================================================
 import {
-  ARCADE_STEP_MS,
-  arcadeEventName,
-  arcadeNextOf,
-  arcadePath,
-  arcadePriceAt,
-  type ArcadeRoundRow,
-} from "@/lib/arcade/arcadePath";
-import {
-  ARCADE_ASSETS,
-  fetchArcadeTable,
-  nextUsSessionText,
-  tfSeconds,
-  usSessionOpen,
-  type ArcadeTableSnapshot,
-  type ArcadeTf,
-} from "@/lib/arcade/arcadeTables";
-
-export const ARCADE_FLIP: "close-then-open" | "net" = "net"; // CPO 2026-10-19: same netting as every other spot trade on the platform
-export const ARCADE_PEND_MS = 1500;
-export const ARCADE_FEE_RATE = 0.0015;
-export const ARCADE_CHIPS = [10, 25, 50, 100, 500] as const;
+  ARCADE_CHIPS_V2,
+  ARCADE_CANCEL_MS,
+  ARCADE_DURATION_MS,
+  ARCADE_MAX_OPEN,
+  acceptTerms,
+  callFee,
+  callNetWin,
+  callPayout,
+  cancelCall,
+  cancelFee,
+  fetchMyCalls,
+  fetchRoad,
+  fetchTableFeed,
+  fetchTableNow,
+  fetchTicks,
+  fetchTicksAfter,
+  placeCall,
+  roadCells,
+  settleMine,
+  type ArcadeCall,
+  type ArcadeFeedRow,
+  type ArcadeTableNow,
+  type ArcadeTick,
+  type RoadCell,
+  type RoadSlot,
+} from "@/lib/arcade/arcadeCalls";
 
 export type Side = "u" | "d";
 
-export interface ArcadeHolding {
-  side: Side;
-  sh: number;
-  margin: number;
-  avg: number;
-  chips: number[];
-  positionId?: string;
+/** data seams — the real module by default, a fixture in the style guide */
+export interface ArcadeData {
+  tableNow: () => Promise<ArcadeTableNow>;
+  ticks: (seconds: number) => Promise<ArcadeTick[]>;
+  ticksAfter: (afterTs: string) => Promise<ArcadeTick[]>;
+  road: (slots: number) => Promise<RoadSlot[]>;
+  place: (side: "up" | "down", gross: number, quoteTs: string) => Promise<ArcadeCall & { balance: number }>;
+  cancel: (id: string) => Promise<{ cancel_fee: number; balance: number }>;
+  settleMine: () => Promise<{ id: string; status: string; pnl: number; s0: number | null; s1: number | null }[]>;
+  myCalls: (since: string | null) => Promise<ArcadeCall[]>;
+  feed: () => Promise<ArcadeFeedRow[]>;
+  acceptTerms: () => Promise<string>;
 }
 
-export interface ArcadeTradeResult {
-  balanceDelta: number;
-  realizedPnl?: number;
-  positionId?: string;
-  size?: number;
-  margin?: number;
-  entry?: number;
-}
+export const realData: ArcadeData = {
+  tableNow: fetchTableNow,
+  ticks: fetchTicks,
+  ticksAfter: fetchTicksAfter,
+  road: fetchRoad,
+  place: placeCall,
+  cancel: cancelCall,
+  settleMine,
+  myCalls: (since) => fetchMyCalls(since),
+  feed: fetchTableFeed,
+  acceptTerms,
+};
+
+/** style-guide stand-in: nothing leaves the page */
+const previewData: ArcadeData = {
+  tableNow: async () => ({ tick: null, state: null, params: {}, now: new Date().toISOString(), my_open: 0, ack: null }),
+  ticks: async () => [],
+  ticksAfter: async () => [],
+  road: async () => [],
+  place: async () => {
+    throw new Error("Preview only · play it on /arcade");
+  },
+  cancel: async () => {
+    throw new Error("Preview only");
+  },
+  settleMine: async () => [],
+  myCalls: async () => [],
+  feed: async () => [],
+  acceptTerms: async () => new Date().toISOString(),
+};
 
 export interface ArcadeApi {
   isMobile: boolean;
   userId: string | null;
   requireAuth: () => void;
   getBalance: () => number;
-  /** market buy `qty` shares of `side` at `price` (0–1); `amount` = chip incl. fee */
-  buy: (a: { round: ArcadeRoundRow; side: Side; price: number; qty: number; fee: number; amount: number }) => Promise<ArcadeTradeResult>;
-  /** sell `qty` shares of the held side at `price` */
-  sell: (a: { round: ArcadeRoundRow; side: Side; price: number; qty: number }) => Promise<ArcadeTradeResult>;
-  /** the open spot leg (if any) on this round for the signed-in user */
-  loadHolding: (round: ArcadeRoundRow) => Promise<ArcadeHolding | null>;
-  /** today's closed arcade legs (UTC day) */
-  loadToday: () => Promise<{ net: number; won: number; lost: number; last: { s: Side; w: boolean; pnl: number; t: number }[] }>;
-  referralLink: string;
-  /** leave the zone (full-screen page: the cabinet carries its own exit key) */
+  /** React refreshes the profile after the server moved money */
+  onBalance?: (balance: number) => void;
   exit: () => void;
+  deposit: () => void;
+  transfer: () => void;
   username: string;
-  avatarUrl?: string | null;
-  onSettled?: () => void;
 }
 
+/** style-guide: a frozen moment with no network */
 export interface ArcadeFixture {
-  /** frozen wall clock — every countdown / price readout is computed at this instant */
   nowMs: number;
-  snapshot: ArcadeTableSnapshot;
+  ticks: ArcadeTick[];
+  calls: ArcadeCall[];
+  feed?: ArcadeFeedRow[];
+  road?: RoadSlot[];
+  state?: ArcadeTableNow["state"];
+  ack?: boolean;
+  /** pre-baked session numbers so the boards and combo have something to show */
+  session?: { last: boolean[] };
 }
 
 export interface ArcadeMountOptions {
-  symbol: string;
-  tf: ArcadeTf;
-  onTableChange?: (symbol: string, tf: ArcadeTf) => void;
-  /** style-guide: deterministic rounds + frozen clock, no network */
+  data?: ArcadeData;
   fixture?: ArcadeFixture;
+}
+
+/* ---------- local call model ---------- */
+interface Call {
+  id: string;
+  side: Side;
+  gross: number;
+  p: number;
+  t0: number; // server ms
+  t1: number;
+  s0: number | null;
+  s1: number | null;
+  pay: number; // win payout before commission
+  status: "pending" | "open" | "settling" | "won" | "lost" | "void" | "cancelled";
+  pnl: number;
+  tDone?: number;
+  settledAt?: number;
+  cancelWanted?: boolean;
 }
 
 const C = { up: "#33d6ff", dn: "#cfff4a", cy: "#05d7ed", hot: "#ff5c5c" };
 const money = (n: number) => "$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const signed = (n: number) => (n < 0 ? "−" : "+") + money(n);
 const whole = (n: number) => "$" + Math.round(Math.abs(n)).toLocaleString("en-US");
-const pad = (n: number) => String(n).padStart(2, "0");
+const cents = (p: number) => (p * 100).toFixed(1) + "¢";
+const clip = (x: number, a: number, b: number) => Math.max(a, Math.min(b, x));
 const SIDE = (x: Side) => (x === "u" ? "Up" : "Down");
-const chipCls = (v: number) => (v >= 500 ? "v500" : v >= 100 ? "v100" : v >= 50 ? "v50" : v >= 25 ? "v25" : "");
-/** Split a dollar amount into the fewest chips (a holding rebuilt from the DB has no per-chip record). */
-export const colorUp = (amount: number): number[] => {
-  const out: number[] = [];
-  let rest = Math.round(amount);
-  for (const d of [...ARCADE_CHIPS].reverse()) while (rest >= d) {
-    out.push(d);
-    rest -= d;
-  }
-  return out.length ? out : [ARCADE_CHIPS[0]];
-};
-/**
- * Chip tower, option A (CPO 2026-10-19): one stack per denomination, biggest on the left, up to 5 chips of
- * thickness each, a ×N badge once a stack has two or more; the newest chip drops in and its badge bumps.
- * Mobile keeps three stacks at most and folds the rest into the last badge.
- */
-function stackHtmlOf(chips: number[], mobile: boolean): string {
-  const g = new Map<number, number>();
-  chips.forEach((v) => g.set(v, (g.get(v) || 0) + 1));
-  let dens = [...g.keys()].sort((a, b) => b - a),
-    extra = 0;
-  if (mobile && dens.length > 3) {
-    extra = dens.slice(3).reduce((a, v) => a + (g.get(v) || 0), 0);
-    dens = dens.slice(0, 3);
-  }
-  const newest = chips[chips.length - 1];
-  return dens
-    .map((v, di) => {
-      const n = (g.get(v) || 0) + (di === dens.length - 1 ? extra : 0),
-        k = Math.min(5, g.get(v) || 0);
-      const faces = Array.from({ length: k }, (_, i) => `<span class="mchip ${chipCls(v)}${i === k - 1 && v === newest ? " tnew" : ""}">${v}</span>`).join("");
-      return `<span class="den">${faces}${n > 1 ? `<span class="cnt${v === newest ? " bump" : ""}">×${n}</span>` : ""}</span>`;
-    })
-    .join("");
-}
-const round2 = (n: number) => Math.round(n * 100) / 100;
-const fee = (amount: number) => round2(amount * ARCADE_FEE_RATE);
+const sideOf = (s: "up" | "down"): Side => (s === "up" ? "u" : "d");
+/** Postgres "2026-10-28 07:43:57.28+00" and ISO both parse everywhere once normalised */
+const ms = (iso: string) => new Date(iso.replace(" ", "T").replace(/\+00$/, "Z")).getTime();
 
-export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMountOptions): () => void {
+/** server row → local call */
+const fromRow = (r: ArcadeCall): Call => ({
+  id: r.id,
+  side: sideOf(r.side),
+  gross: r.gross,
+  p: r.p,
+  t0: ms(r.t0),
+  t1: ms(r.t1),
+  s0: r.s0,
+  s1: r.s1,
+  pay: r.win_payout,
+  status: r.status === "open" ? "open" : r.status,
+  pnl: r.pnl ?? 0,
+  settledAt: r.settled_at ? ms(r.settled_at) : undefined,
+});
+
+export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMountOptions = {}): () => void {
   const $ = (q: string) => root.querySelector(q) as any;
   const $$ = (q: string) => Array.from(root.querySelectorAll(q)) as any[];
   const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const now = () => (opts.fixture ? opts.fixture.nowMs : Date.now());
+  const FX = opts.fixture;
+  const data: ArcadeData = opts.data || (FX ? previewData : realData);
+  const mobile = api.isMobile;
   const disposers: (() => void)[] = [];
   const on = (el: any, ev: string, fn: any, o?: any) => {
+    if (!el) return;
     el.addEventListener(ev, fn, o);
     disposers.push(() => el.removeEventListener(ev, fn, o));
   };
   const timers: any[] = [];
-  const every = (fn: () => void, ms: number) => timers.push(setInterval(fn, ms));
+  const every = (fn: () => void, msv: number) => {
+    if (FX) return;
+    timers.push(setInterval(fn, msv));
+  };
   let alive = true;
   const raf = (fn: (t: number) => void) => {
     const loop = (t: number) => {
@@ -169,44 +205,50 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     };
     requestAnimationFrame(loop);
   };
+  /* server clock */
+  let off = 0; // server − client
+  const now = () => (FX ? FX.nowMs : Date.now() + off);
+  const perf = () => performance.now();
 
   /* ---------- state ---------- */
   const S: any = {
-    asset: opts.symbol in ARCADE_ASSETS ? opts.symbol : "BTC",
-    tf: opts.tf,
-    dur: tfSeconds(opts.tf),
-    round: null as ArcadeRoundRow | null,
-    next: null as ArcadeRoundRow | null,
-    path: [] as number[],
-    start: 0,
-    open: 0,
+    px: [] as { t: number; p: number }[], // valid ticks (server ms)
+    lastTs: null as string | null,
+    tick: null as ArcadeTick | null,
+    pUp: null as number | null,
+    quoteTs: null as string | null,
+    paused: null as string | null, // index | breaker | loss | full | off | null
     price: 0,
-    pts: [] as { t: number; p: number }[],
-    marks: [] as any[],
-    orders: [] as any[],
-    pend: [] as any[],
-    pos: null as ArcadeHolding | null,
-    chip: 25,
-    equity: api.getBalance(),
-    today: 0,
-    todayTouched: false,
+    lastPx: 0,
+    bal: api.getBalance(),
+    chip: 5,
+    calls: [] as Call[],
+    done: [] as Call[],
+    bursts: [] as any[],
+    feed: [] as ArcadeFeedRow[],
+    roadRows: [] as RoadSlot[],
+    hist: [] as RoadCell[],
+    slotStart: 0,
+    slotOpen: null as number | null,
+    ses: 0,
     won: 0,
     lost: 0,
-    last: [] as any[],
-    hist: [] as Side[],
-    histRounds: [] as ArcadeRoundRow[],
-    nUp: 0,
-    nDn: 0,
-    longest: 0,
-    longestS: "u",
-    closed: false,
-    busy: false,
-    shareLast: null as any,
+    last: [] as boolean[],
+    streakW: 0,
+    streakL: 0,
+    ack: null as string | null,
+    ackKnown: false,
+    sessionStart: new Date(now()).toISOString(),
+    busy: 0,
+    params: {} as Record<string, number | null>,
   };
-  const K = () => ARCADE_ASSETS[S.asset].k;
-  let OID = 0;
+  const myOpen = () => S.calls.filter((c: Call) => c.status === "open" || c.status === "pending" || c.status === "settling");
+  const openStake = () => myOpen().reduce((a: number, c: Call) => a + c.gross, 0);
+  const nextT1 = () => Math.min(...myOpen().map((c: Call) => c.t1));
+  const maxAge = () => Number(S.params?.tick_max_age_ms) || 4000;
+  const liveQuote = () => !!(S.tick && S.tick.valid && S.pUp != null && now() - ms(S.tick.ts) < maxAge());
 
-  /* ---------- audio ---------- */
+  /* ---------- audio (designer's tones) ---------- */
   let AC: AudioContext | null = null;
   const audio = () => {
     if (!AC) {
@@ -225,7 +267,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     /* private mode */
   }
   function tone(f: number, d = 0.08, type: OscillatorType = "square", v = 0.06, slide = 0, delay = 0) {
-    if (MUTED) return;
+    if (MUTED || FX) return;
     const a = audio();
     if (!a) return;
     const t = a.currentTime + delay,
@@ -255,24 +297,22 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       tone(180, 0.12, "sawtooth", 0.07);
       tone(140, 0.16, "sawtooth", 0.07, 1, 0.1);
     },
-    tick: () => tone(1600, 0.03, "square", 0.03),
-    win: () => {
+    win: () => [523, 659, 784, 1046].forEach((f, i) => tone(f, 0.1, "square", 0.04, 1, i * 0.05)),
+    big: () => {
       [523, 659, 784, 1046, 1318, 1568, 2093].forEach((f, i) => tone(f, 0.14, "square", 0.05, 1, i * 0.07));
       for (let i = 0; i < 14; i++) tone(2400 + Math.random() * 1800, 0.05, "triangle", 0.03, 1, 0.5 + i * 0.05);
     },
-    lose: () => {
+    lose: () => tone(330, 0.25, "sawtooth", 0.04, 0.5),
+    cold: () => {
       tone(440, 0.5, "sawtooth", 0.06, 0.25);
       tone(330, 0.6, "square", 0.04, 0.3, 0.12);
     },
-    drop: () => tone(90, 0.18, "sine", 0.25, 0.5),
+    jump: () => tone(600, 0.08, "square", 0.04, 2),
+    crash: () => tone(200, 0.3, "sawtooth", 0.06, 0.3),
   };
 
-  /* ---------- fx ---------- */
-  const SPR = {
-    lynx: ["/arcade/lynx0.png", "/arcade/lynx1.png", "/arcade/lynx2.png", "/arcade/lynx3.png"],
-    coin0: "/arcade/coin0.png",
-    coin1: "/arcade/coin1.png",
-  };
+  /* ---------- fx: particles / coins / flash / toast ---------- */
+  const SPR = { coin0: "/arcade/coin0.png", coin1: "/arcade/coin1.png" };
   const coinImg = { b: new Image(), l: new Image() };
   coinImg.b.src = SPR.coin0;
   coinImg.l.src = SPR.coin1;
@@ -317,10 +357,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         if (p.img.complete && p.img.naturalWidth) fctx.drawImage(p.img, Math.round(p.x - w / 2), Math.round(p.y - h / 2), Math.round(w), Math.round(h));
       } else {
         fctx.fillStyle = p.col;
-        fctx.shadowColor = p.col;
-        fctx.shadowBlur = 10;
         fctx.fillRect(Math.round(p.x), Math.round(p.y), p.r | 0, p.r | 0);
-        fctx.shadowBlur = 0;
       }
     }
     fctx.globalAlpha = 1;
@@ -332,354 +369,59 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     void flashEl.offsetWidth;
     flashEl.classList.add("go");
   }
-  function shake() {
-    if (RM) return;
-    const c = $("#cab");
-    c.classList.remove("shake");
-    void c.offsetWidth;
-    c.classList.add("shake");
-  }
-  function press(el: any) {
-    el.classList.add("is-press");
-    setTimeout(() => el.classList.remove("is-press"), 120);
-  }
   function center(el: any) {
     const r = el.getBoundingClientRect();
     return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
   }
-  function splash(text: string, col: string) {
-    const d = document.createElement("div");
-    d.className = "splash";
-    d.style.setProperty("--sc", col);
-    d.innerHTML = `<div class="rays"></div><div class="num">${text}</div>`;
-    root.appendChild(d);
-    setTimeout(() => d.remove(), 2300);
+  let toastT: any;
+  function toast(m: string, bad?: boolean) {
+    const t = $("#toast");
+    t.textContent = m;
+    t.className = "v2toast" + (bad ? " bad" : "");
+    t.hidden = false;
+    clearTimeout(toastT);
+    toastT = setTimeout(() => (t.hidden = true), 2200);
   }
-
-  /* ---------- round timing (all times local, like the rest of the site) ---------- */
-  const fmtT = (d: Date, sec?: boolean) => pad(d.getHours()) + ":" + pad(d.getMinutes()) + (sec ? ":" + pad(d.getSeconds()) : "");
-  const ROUND_NAMES: Record<number, string> = { 30: "30 SECOND ROUND", 60: "1 MINUTE ROUND" };
-  function labelRound() {
-    const s = new Date(S.start),
-      e = new Date(S.start + S.dur * 1000);
-    $("#win").textContent = `${fmtT(s, true)}–${fmtT(e, true)}`;
-    $("#titleOpen").textContent = money(S.open);
-    $("#roundLbl").textContent = ROUND_NAMES[S.dur];
-  }
-  /** make `r` the live round: path, open, chart points up to now */
-  function adoptRound(r: ArcadeRoundRow) {
-    S.round = r;
-    S.dur = tfSeconds(r.tf);
-    S.start = new Date(r.start_at).getTime();
-    S.open = r.open_price;
-    S.path = arcadePath(r.seed, r.open_price, r.steps, r.sigma);
-    const at = now();
-    const n = Math.max(0, Math.min(r.steps, Math.floor((at - S.start) / ARCADE_STEP_MS)));
-    S.pts = [];
-    for (let i = 0; i <= n; i++) S.pts.push({ t: S.start + i * ARCADE_STEP_MS, p: S.path[i] });
-    S.price = arcadePriceAt(S.path, S.start, at);
-    S.marks = [];
-    S.orders = [];
-    S.pend.slice().forEach((p: any) => dropPend(p));
-    labelRound();
-    renderResult();
-    renderButtons();
-    meter(S.price - S.open);
-    scheduleReconcile();
-  }
-
-  /* ---------- pricing ---------- */
-  function cents() {
-    const rem = Math.max(0, (S.start + S.dur * 1000 - now()) / 1000) / S.dur;
-    const z = (S.price - S.open) / ((60 + 520 * rem) * K()),
-      up = Math.round(50 + 49 * Math.tanh(z));
-    return { u: Math.min(99, Math.max(1, up)), d: Math.min(99, Math.max(1, 100 - up)) };
-  }
-
-  /* ---------- chart ---------- */
-  const cv = $("#cv"),
-    ctx = cv.getContext("2d");
-  let CW = 0,
-    CH = 0;
-  const hov: any = { on: false, x: 0, pt: null };
-  function sizeCv() {
-    const r = cv.getBoundingClientRect(),
-      d = devicePixelRatio || 1;
-    CW = r.width;
-    CH = r.height;
-    cv.width = CW * d;
-    cv.height = CH * d;
-    ctx.setTransform(d, 0, 0, d, 0, 0);
-  }
-  const ro = new ResizeObserver(sizeCv);
-  ro.observe($("#plot"));
-  disposers.push(() => ro.disconnect());
-  function scale() {
-    let lo = S.open,
-      hi = S.open;
-    for (const p of S.pts) {
-      lo = Math.min(lo, p.p);
-      hi = Math.max(hi, p.p);
-    }
-    const u = 50 * K();
-    let step = u;
-    for (;;) {
-      const c = Math.round(S.open / step) * step,
-        a = c - 3 * step,
-        b = c + 3 * step;
-      if (a <= lo - step * 0.2 && b >= hi + step * 0.2) return { a, b, step };
-      step += u;
-    }
-  }
-  raf(() => {
-    if (!CW || !S.round) return;
-    ctx.clearRect(0, 0, CW, CH);
-    const gl = api.isMobile ? 36 : 52,
-      x0 = gl + 4,
-      x1 = CW - 34,
-      top = 8,
-      bot = CH - 8;
-    const X = (t: number) => x0 + ((t - S.start) / (S.dur * 1000)) * (x1 - x0);
-    const { a, b, step } = scale(),
-      Y = (v: number) => bot - ((v - a) / (b - a)) * (bot - top);
-    ctx.strokeStyle = "rgba(5,215,237,.07)";
-    ctx.lineWidth = 1;
-    for (let x = x0; x < CW; x += 32) {
-      ctx.beginPath();
-      ctx.moveTo(x + 0.5, top);
-      ctx.lineTo(x + 0.5, bot);
-      ctx.stroke();
-    }
-    ctx.font = api.isMobile ? "500 10px CPs, monospace" : "500 16px CPs, monospace";
-    ctx.textAlign = "left";
-    ctx.textBaseline = "middle";
-    for (let v = a; v <= b + 1; v += step) {
-      const y = Math.round(Y(v)) + 0.5;
-      ctx.strokeStyle = "rgba(240,245,255,.07)";
-      ctx.beginPath();
-      ctx.moveTo(x0, y);
-      ctx.lineTo(CW, y);
-      ctx.stroke();
-      ctx.fillStyle = "rgba(240,245,255,.4)";
-      ctx.fillText(api.isMobile ? (v >= 10000 ? (v / 1000).toFixed(2) + "k" : v.toFixed(K() < 0.05 ? 2 : 0)) : v.toLocaleString("en-US", { maximumFractionDigits: K() < 0.05 ? 2 : 0 }), 2, y);
-    }
-    ctx.strokeStyle = "rgba(240,245,255,.35)";
-    ctx.beginPath();
-    ctx.moveTo(x0 + 0.5, top);
-    ctx.lineTo(x0 + 0.5, bot);
-    ctx.lineTo(CW, bot + 0.5);
-    ctx.stroke();
-    const oy = Math.round(Y(S.open)) + 0.5;
-    ctx.setLineDash([6, 5]);
-    ctx.strokeStyle = "rgba(240,245,255,.7)";
-    ctx.beginPath();
-    ctx.moveTo(x0, oy);
-    ctx.lineTo(x1, oy);
-    ctx.stroke();
-    ctx.strokeStyle = "rgba(240,245,255,.6)";
-    ctx.beginPath();
-    ctx.moveTo(x1 + 0.5, top + 18);
-    ctx.lineTo(x1 + 0.5, bot);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.font = api.isMobile ? "500 12px CPs, monospace" : "500 19px CPs, monospace";
-    ctx.fillStyle = "#f0f5ff";
-    ctx.textBaseline = "alphabetic";
-    ctx.fillText("OPEN " + money(S.open), x0 + 16, oy - 8);
-    ctx.textAlign = "right";
-    ctx.fillText("CLOSE", Math.min(CW - 2, x1 + 20), top + 12);
-    ctx.textAlign = "left";
-    const vis = S.pts;
-    if (vis.length > 1) {
-      const above = S.price >= S.open,
-        col = above ? C.cy : C.dn;
-      const g = ctx.createLinearGradient(0, top, 0, bot);
-      g.addColorStop(0, above ? "rgba(5,215,237,.45)" : "rgba(207,255,74,.35)");
-      g.addColorStop(1, above ? "rgba(5,215,237,.02)" : "rgba(207,255,74,.02)");
-      ctx.beginPath();
-      ctx.moveTo(X(vis[0].t), bot);
-      for (const p of vis) ctx.lineTo(X(p.t), Y(p.p));
-      ctx.lineTo(X(vis[vis.length - 1].t), bot);
-      ctx.closePath();
-      ctx.fillStyle = g;
-      ctx.fill();
-      const path = () => {
-        ctx.beginPath();
-        vis.forEach((p: any, i: number) => (i ? ctx.lineTo(X(p.t), Y(p.p)) : ctx.moveTo(X(p.t), Y(p.p))));
-      };
-      ctx.lineJoin = "round";
-      ctx.save();
-      ctx.translate(-2, 0);
-      path();
-      ctx.strokeStyle = "rgba(51,214,255,.5)";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.restore();
-      ctx.save();
-      ctx.translate(2, 0);
-      path();
-      ctx.strokeStyle = "rgba(207,255,74,.4)";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.restore();
-      path();
-      ctx.strokeStyle = col;
-      ctx.shadowColor = col;
-      ctx.shadowBlur = 16;
-      ctx.lineWidth = 2.6;
-      ctx.stroke();
-      ctx.shadowBlur = 0;
-      ctx.strokeStyle = "rgba(255,255,255,.85)";
-      ctx.lineWidth = 1;
-      ctx.stroke();
-      const h = vis[vis.length - 1],
-        hx = X(h.t),
-        hy = Y(h.p),
-        pulse = 6 + 3 * Math.sin(now() / 160);
-      ctx.fillStyle = col;
-      ctx.shadowColor = col;
-      ctx.shadowBlur = 24;
-      ctx.beginPath();
-      ctx.arc(hx, hy, pulse, 0, 7);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = "#fff";
-      ctx.beginPath();
-      ctx.arc(hx, hy, 3, 0, 7);
-      ctx.fill();
-      ctx.strokeStyle = col;
-      ctx.globalAlpha = 0.45;
-      ctx.setLineDash([2, 4]);
-      ctx.beginPath();
-      ctx.moveTo(hx, hy);
-      ctx.lineTo(x1, hy);
-      ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.globalAlpha = 1;
-      if (hov.on) {
-        const t = S.start + ((hov.x - x0) / (x1 - x0)) * S.dur * 1000;
-        let best: any = null;
-        for (const p of vis) if (!best || Math.abs(p.t - t) < Math.abs(best.t - t)) best = p;
-        if (best && hov.x >= x0 && hov.x <= X(vis[vis.length - 1].t) + 6) {
-          const bx = X(best.t),
-            by = Y(best.p);
-          ctx.strokeStyle = "rgba(240,245,255,.55)";
-          ctx.setLineDash([3, 3]);
-          ctx.beginPath();
-          ctx.moveTo(bx + 0.5, top);
-          ctx.lineTo(bx + 0.5, bot);
-          ctx.moveTo(x0, by + 0.5);
-          ctx.lineTo(x1, by + 0.5);
-          ctx.stroke();
-          ctx.setLineDash([]);
-          ctx.fillStyle = "#fff";
-          ctx.fillRect(bx - 4, by - 4, 8, 8);
-          ctx.strokeStyle = "#07090f";
-          ctx.lineWidth = 2;
-          ctx.strokeRect(bx - 4, by - 4, 8, 8);
-          ctx.lineWidth = 1;
-          hov.pt = best;
-          const d = best.p - S.open;
-          showTip(`${fmtT(new Date(best.t), true)} · ${money(best.p)} · ${d >= 0 ? "<b>▲ +" : '<span class="w">▼ −'}${Math.abs(d).toFixed(2)}${d >= 0 ? "</b>" : "</span>"}`, hov.cx, hov.cy);
-        } else {
-          hov.pt = null;
-          hideTip();
-        }
-      }
-      for (const e of S.marks) {
-        ctx.fillStyle = e.s === "u" ? C.up : C.dn;
-        ctx.fillRect(X(e.t) - 5, Y(e.p) - 5, 10, 10);
-        ctx.strokeStyle = "#07090f";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(X(e.t) - 5, Y(e.p) - 5, 10, 10);
-        ctx.lineWidth = 1;
-      }
-    }
-  });
-
-  /* ---------- meter ---------- */
-  const SEGS = 24;
-  $("#bar").innerHTML = "<i></i>".repeat(SEGS);
-  const segEls = [...$("#bar").children] as HTMLElement[];
-  function meter(diff: number) {
-    const RG = 200 * K(),
-      half = SEGS / 2,
-      n = Math.min(half, Math.ceil((Math.abs(diff) / RG) * half));
-    segEls.forEach((s, i) => {
-      let on = false,
-        cls = "";
-      if (diff >= 0 && i < half && i >= half - n) {
-        on = true;
-        cls = "u";
-      }
-      if (diff < 0 && i >= half && i < half + n) {
-        on = true;
-        cls = "d";
-      }
-      s.className = on ? "on " + cls : "";
+  const eqEls = () => $$("#equity");
+  function bumpEq() {
+    eqEls().forEach((e) => {
+      e.textContent = money(S.bal);
+      e.classList.remove("bump");
+      void e.offsetWidth;
+      e.classList.add("bump");
     });
-    const mb = $("#mbody"),
-      H = mb.clientHeight,
-      y = H / 2 - (Math.max(-RG, Math.min(RG, diff)) / RG) * (H / 2);
-    const md = $("#mdiff");
-    md.style.top = Math.max(10, Math.min(H - 10, Math.abs(y - H / 2) < 14 ? (diff >= 0 ? H / 2 - 16 : H / 2 + 16) : y)) + "px";
-    md.textContent = `${diff >= 0 ? "▲ +" : "▼ −"}${Math.abs(diff).toFixed(2)}`;
-    md.style.color = diff >= 0 ? C.up : C.dn;
-    const zl = mb.querySelector(".zl");
-    if (zl) {
-      const a = md.getBoundingClientRect(),
-        b = zl.getBoundingClientRect();
-      if (a.height && !(a.bottom < b.top || a.top > b.bottom)) {
-        const cur = parseFloat(md.style.top) || H / 2,
-          shift = diff >= 0 ? -(a.bottom - b.top + 3) : b.bottom - a.top + 3;
-        md.style.top = Math.max(4, Math.min(H - 4, cur + shift)) + "px";
-      }
-    }
+  }
+  function setBal(v: number) {
+    S.bal = v;
+    bumpEq();
+    api.onBalance?.(v);
   }
 
-  /* ---------- history: resolved rounds of this table drive bead, road, stats ----------
-   * The roads follow the standard baccarat display rules (CPO 2026-10-19, "正常赌博网站的展示规则"):
-   *  · Bead plate (珠盘路): every result in order, 6 per column, top → bottom, then the next column to the
-   *    right. The plate keeps the last 6 columns and slides one whole column when the newest column fills;
-   *    the dashed cell is where the next result lands.
-   *  · Big road (大路): a result equal to the previous one stacks DOWN the same column (6 rows max); a change
-   *    opens a new column to the right at row 1. A streak that reaches the floor, or whose next cell is already
-   *    taken by an earlier streak, turns RIGHT and runs along its row (龙尾 / dragon tail); later columns still
-   *    start at row 1 and turn right themselves when they hit a tail. Two adjacent columns never share a colour,
-   *    so a long streak reads as one dragon, never as several short stacks. The road shows as many columns as
-   *    fit, newest on the right.
-   *  · Void rounds (close == open / halted) are not part of the history (fetchArcadeTable drops them), so no tie
-   *    mark; the derived roads (big eye / small / cockroach) are deliberately not drawn — they encode pattern
-   *    repetition, which a 30-second random stream has none of.
-   */
-  function streakInfo() {
-    const h = S.hist;
-    let best = { s: "u", n: 0 },
-      cur = { s: h[0], n: 0 };
-    for (const x of h) {
-      cur = cur.s === x ? { s: x, n: cur.n + 1 } : { s: x, n: 1 };
-      if (cur.n > best.n) best = { ...cur };
-    }
-    return { best, cur };
+  /* ---------- money math (研发稿 2.2, mirrored in arcadeCalls.ts) ---------- */
+  const fee = callFee,
+    payout = callPayout,
+    netWin = callNetWin;
+
+  /* ---------- the table's road (30 s wall-clock cells) ---------- */
+  const SLOT = 30000;
+  function rebuildRoad() {
+    S.hist = roadCells(S.roadRows, 120, now());
   }
-  type RoadCell = { i: number; s: Side; c: number; r: number; k: number; n: number };
-  function buildRoad(): { cells: RoadCell[]; cols: number } {
-    const cells: RoadCell[] = [],
+  function buildRoad(h: RoadCell[]) {
+    const cells: any[] = [],
       occ = new Set<string>();
     let head = -1,
       c = 0,
       r = 0,
-      prev: Side | null = null,
-      turned = false,
-      run: RoadCell[] = [];
-    S.hist.forEach((x: Side, i: number) => {
+      prev: any = null,
+      turned = false;
+    h.forEach((x, i) => {
       if (x !== prev) {
         head += 1;
         c = head;
         r = 0;
         turned = false;
         prev = x;
-        run = [];
         while (occ.has(c + ",0")) {
           c += 1;
           head = c;
@@ -691,768 +433,1146 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         c += 1;
       }
       occ.add(c + "," + r);
-      const cell: RoadCell = { i, s: x, c, r, k: run.length + 1, n: 0 };
-      run.push(cell);
-      cells.push(cell);
-      for (const q of run) q.n = run.length;
+      cells.push({ i, s: x, c, r });
     });
     return { cells, cols: cells.length ? cells[cells.length - 1].c + 1 : 0 };
   }
-  function renderBead(newest?: boolean) {
-    const el = $("#bead");
-    el.innerHTML = "";
-    const n = S.hist.length,
-      from = Math.max(0, Math.ceil((n + 1) / 6) - 6) * 6; // last 6 columns, the newest one still filling
-    for (let i = from; i < n; i++) {
-      const b = document.createElement("span");
-      b.className = "bead " + S.hist[i];
-      b.dataset.i = String(i);
-      if (newest && i === n - 1) b.classList.add("pop");
-      el.appendChild(b);
+  function renderRoads(newest?: boolean) {
+    const hist: RoadCell[] = S.hist,
+      n = hist.length;
+    for (const pre of ["", "m_"]) {
+      const b = $("#" + pre + "bead");
+      if (!b) continue;
+      const from = Math.max(0, Math.ceil((n + 1) / 6) - 6) * 6;
+      b.innerHTML = hist.slice(from).map((x, i) => `<span class="bead ${x}${newest && from + i === n - 1 ? " pop" : ""}"></span>`).join("") + '<span class="bead ghost"></span>';
+      $("#" + pre + "beadN").textContent = String(n - from);
+      const rd = $("#" + pre + "road"),
+        { cells, cols } = buildRoad(hist);
+      const fit = Math.max(6, Math.floor((rd.clientWidth + 2) / 11)),
+        first = Math.max(0, cols - fit);
+      rd.innerHTML = cells
+        .filter((q) => q.c >= first)
+        .map((q) => `<span class="cell ${q.s}${newest && q.i === n - 1 ? " pop" : ""}" style="grid-column:${q.c - first + 1};grid-row:${q.r + 1}"></span>`)
+        .join("");
+      const nu = hist.filter((x) => x === "u").length;
+      $("#" + pre + "nUp").textContent = String(nu);
+      $("#" + pre + "nDn").textContent = String(n - nu);
+      $("#" + pre + "nSlots").textContent = String(n);
+      let best = { s: "u", n: 0 },
+        cur = { s: hist[0], n: 0 };
+      for (const x of hist) {
+        cur = cur.s === x ? { s: x, n: cur.n + 1 } : { s: x, n: 1 };
+        if (cur.n > best.n) best = { ...cur };
+      }
+      $("#" + pre + "longest").textContent = n ? (best.s === "u" ? "Up" : "Down") + " ×" + best.n : "—";
     }
-    const g = document.createElement("span");
-    g.className = "bead ghost";
-    el.appendChild(g);
-    $("#beadN").textContent = String(n - from);
-  }
-  let roadW = -1;
-  function renderRoad(newest?: boolean) {
-    const el = $("#road");
-    el.innerHTML = "";
-    const { cells, cols } = buildRoad(),
-      last = S.hist.length - 1,
-      st = getComputedStyle(el),
-      pitch = (parseFloat(st.gridAutoColumns) || 9) + (parseFloat(st.columnGap) || 2),
-      w = el.clientWidth;
-    roadW = w;
-    const fit = w > 0 ? Math.max(6, Math.floor((w + 2) / pitch)) : 40,
-      first = Math.max(0, cols - fit);
-    for (const q of cells) {
-      if (q.c < first) continue;
-      const b = document.createElement("span");
-      b.className = "cell " + q.s;
-      b.dataset.i = String(q.i);
-      b.dataset.k = String(q.k);
-      b.dataset.n = String(q.n);
-      b.style.gridColumn = String(q.c - first + 1);
-      b.style.gridRow = String(q.r + 1);
-      if (newest && q.i === last) b.classList.add("pop");
-      el.appendChild(b);
+    const pk = $("#mPeekRoad");
+    if (pk) {
+      const h = hist.slice(-10).map((x) => `<i class="${x}"></i>`).join("");
+      if (pk.innerHTML !== h) pk.innerHTML = h;
     }
   }
-  {
-    const roadRo = new ResizeObserver(() => {
-      const el = $("#road");
-      if (el && el.clientWidth !== roadW) renderRoad();
-    });
-    roadRo.observe($("#road"));
-    disposers.push(() => roadRo.disconnect());
+  function slotLoop() {
+    const w = now();
+    const cur = Math.floor(w / SLOT) * SLOT;
+    if (cur !== S.slotStart) {
+      S.slotStart = cur;
+      S.slotOpen = null;
+      if (!FX) void loadRoad(true);
+    }
+    if (S.slotOpen == null && S.price) S.slotOpen = S.price; // first index of the slot (refined by the server road)
+    for (const pre of ["", "m_"]) {
+      const e = $("#" + pre + "slotLbl");
+      if (e) e.textContent = "THIS SLOT · " + (S.slotOpen != null && S.price ? (S.price >= S.slotOpen ? "▲ +" : "▼ −") + Math.abs(S.price - S.slotOpen).toFixed(2) + " · " : "") + Math.max(0, Math.ceil((cur + SLOT - w) / 1000)) + "s";
+    }
   }
-  function renderStats() {
-    S.nUp = S.hist.filter((x: Side) => x === "u").length;
-    S.nDn = S.hist.length - S.nUp;
-    const { best } = streakInfo();
-    S.longest = best.n;
-    S.longestS = best.s;
-    $("#nUp").textContent = String(S.nUp);
-    $("#nDn").textContent = String(S.nDn);
-    $("#longest").textContent = (best.s === "u" ? "Up" : "Down") + " ×" + best.n;
-  }
-  function renderTicks() {
-    const L = S.last.slice(-10);
-    $("#ticks").innerHTML = L.map((l: any, i: number) => `<span class="tick ${l.w ? l.s : "x"}" data-li="${i}">${l.w ? "✓" : "✕"}</span>`).join("");
-    const lp = $("#lastPnl"),
-      sum = L.reduce((a: number, l: any) => a + (l.pnl || 0), 0);
-    lp.textContent = signed(sum);
-    lp.classList.toggle("neg", sum < 0);
-    const mp = $("#mPeekS");
-    if (mp) mp.innerHTML = `<b style="color:${sum < 0 ? "var(--hot)" : "var(--lime)"};font-weight:600" title="Your last 10 rounds">${(sum < 0 ? "−" : "+") + whole(sum)}</b>`;
-    const mt = $("#mPeekTicks");
-    if (mt) mt.innerHTML = $("#ticks").innerHTML;
+  async function loadRoad(newest?: boolean) {
+    try {
+      S.roadRows = await data.road(120);
+      rebuildRoad();
+      renderRoads(newest);
+      if (newest) Lx.readRoad();
+    } catch (e) {
+      /* keep the last road */
+    }
   }
 
-  /* ---------- equity (spot balance) ---------- */
-  let eqShown = S.equity;
-  function eqTo(v: number) {
-    const from = eqShown,
-      t0 = performance.now(),
-      el = $("#equity"),
-      b = $("#equityBtn");
-    b.classList.remove("bump");
-    void b.offsetWidth;
-    b.classList.add("bump");
-    (function step(t: number) {
-      const k = Math.min(1, (t - t0) / 700),
-        e = 1 - Math.pow(1 - k, 3);
-      eqShown = from + (v - from) * e;
-      el.textContent = money(eqShown);
-      if (k < 1 && alive) requestAnimationFrame(step);
-    })(t0);
-    // background tabs pause rAF: land on the final figure regardless
-    setTimeout(() => {
-      if (!alive) return;
-      eqShown = v;
-      el.textContent = money(v);
-    }, 760);
-  }
-
-  /* ---------- trading ---------- */
-  const btnOf = (x: Side) => (x === "u" ? $("#btnU") : $("#btnD"));
-  function posValue() {
-    if (!S.pos) return 0;
-    const c = cents()[S.pos.side as Side] / 100;
-    return Math.max(0, S.pos.sh * c);
-  }
-  function toWin() {
-    return S.pos ? Math.max(0, S.pos.sh - S.pos.margin) : 0;
-  }
-  let toastT: any = 0;
-  function toast(html: string, warn?: boolean) {
-    const t = $("#toast"),
-      fr = ($(".m-q") || $(".feed")).getBoundingClientRect();
-    t.style.top = Math.max(8, fr.top + 10) + "px";
-    t.style.left = fr.left + fr.width / 2 + "px";
-    t.className = "toast" + (warn ? " warn" : "");
-    t.innerHTML = `<span class="ti">${warn ? "!" : "✓"}</span><span>${html}</span>`;
-    t.hidden = false;
-    clearTimeout(toastT);
-    toastT = setTimeout(() => (t.hidden = true), 3800);
-  }
-  function logOrder(o: any) {
-    S.orders.push({ t: now(), ...o });
-    renderOrders();
-  }
-  function deny(btn: any, msg: string) {
-    btn.classList.remove("deny");
-    void btn.offsetWidth;
-    btn.classList.add("deny");
+  /* ---------- placing ---------- */
+  let tmpId = 0;
+  const keyOf = (side: Side) => $(side === "u" ? "#btnU" : "#btnD");
+  function deny(side: Side, msg: string) {
+    const k = keyOf(side);
+    k.classList.remove("deny");
+    void k.offsetWidth;
+    k.classList.add("deny");
     sfx.deny();
-    toast(msg, true);
+    setPays(side, msg, true);
   }
-  function place(side: Side, fromPt?: { x: number; y: number }) {
+  async function place(side: Side) {
     audio();
-    const btn = btnOf(side),
-      margin = S.chip;
     if (!api.userId) {
-      deny(btn, "Sign in to play");
+      sfx.key();
       api.requireAuth();
       return;
     }
-    if (!S.round) return;
-    if (S.closed) return deny(btn, `${ARCADE_ASSETS[S.asset].name} is closed · next session ${nextUsSessionText()}`);
-    if (S.start + S.dur * 1000 - now() < 1200) return deny(btn, "Round is closing · wait for the next one");
-    if (ARCADE_FLIP === "net" && S.pos && S.pos.side !== side) {
-      /* fallthrough: net mode lets the spot rail reduce share-for-share */
-    }
-    const pendSum = S.pend.reduce((a: number, p: any) => a + p.margin, 0);
-    if (S.equity - pendSum < margin) return deny(btn, "Not enough Spot balance");
-    S.shareLast = null;
-    const p: any = { id: ++OID, side, margin, chip: S.chip };
-    S.pend.push(p);
-    const el = document.createElement("span");
-    el.className = "pend";
-    el.dataset.pid = String(p.id);
-    el.tabIndex = 0;
-    el.setAttribute("role", "button");
-    el.setAttribute("aria-label", `Cancel ${whole(margin)} order`);
-    el.innerHTML = `<svg viewBox="0 0 36 36"><circle class="bg" cx="18" cy="18" r="16" fill="none" stroke-width="3.5"/><circle class="fg" cx="18" cy="18" r="16" fill="none" stroke-width="3.5"/></svg><span class="mchip ${chipCls(p.chip)}">${p.chip}</span><span class="x">✕</span>`;
-    el.style.setProperty("--pend", ARCADE_PEND_MS + "ms");
-    (el as any)._t = now();
-    btn.querySelector(".pendrow").appendChild(el);
-    p.el = el;
-    p.timer = setTimeout(() => void fill(p), ARCADE_PEND_MS);
-    setTimeout(() => el.classList.add("armed"), 450);
-    press(btn);
-    sfx.chip();
-    const chipEl = $(`.chip[data-v="${S.chip}"]`),
-      from = fromPt || center(chipEl),
-      to = center(el);
-    const g = chipEl.cloneNode(true) as HTMLElement;
-    g.removeAttribute("aria-pressed");
-    g.className += " ghostchip";
-    g.style.left = from.x + "px";
-    g.style.top = from.y + "px";
-    g.style.animation = "none";
-    root.appendChild(g);
-    const midY = Math.min(from.y, to.y) - 90;
-    const anim = g.animate([{ transform: "translate(0,0) scale(1) rotate(0)" }, { transform: `translate(${(to.x - from.x) / 2}px,${midY - from.y}px) scale(1.1) rotate(180deg)` }, { transform: `translate(${to.x - from.x}px,${to.y - from.y}px) scale(.45) rotate(360deg)` }], { duration: RM ? 1 : 360, easing: "cubic-bezier(.3,.6,.4,1)" });
-    anim.onfinish = () => {
-      g.remove();
-      burst(to.x, to.y, side === "u" ? C.up : C.dn, 12);
-      tone(520, 0.05, "square", 0.04);
-    };
-    Lx.react("poke");
-    renderButtons();
-    renderResult();
-  }
-  function dropPend(p: any) {
-    S.pend = S.pend.filter((x: any) => x !== p);
-    clearTimeout(p.timer);
-    const el = p.el;
-    if (el) {
-      el.classList.add("out");
-      setTimeout(() => el.remove(), 260);
-    }
-  }
-  function cancelPend(id: number, quiet?: boolean) {
-    const p = S.pend.find((x: any) => x.id === id);
-    if (!p) return;
-    dropPend(p);
-    logOrder({ k: "cancel", side: p.side, txt: `${SIDE(p.side)} · ${whole(p.margin)} back in your hand` });
-    if (!quiet) {
-      toast(`Cancelled · ${whole(p.margin)} is back in your hand`);
-      sfx.deny();
-    }
-    renderButtons();
-    renderResult();
-  }
-  async function fill(p: any) {
-    if (!S.pend.includes(p) || !S.round) return;
-    dropPend(p);
-    if (S.busy) {
-      toast("One at a time · the previous chip is still filling", true);
+    if (S.ackKnown && !S.ack) {
+      openGate(true);
       return;
     }
-    const round: ArcadeRoundRow = S.round;
-    const c = cents();
-    const px = c[p.side as Side] / 100;
-    const f = fee(p.margin);
-    const sh = Math.floor((p.margin - f) / px);
-    if (sh <= 0) return deny(btnOf(p.side), "Chip too small for one share at this price");
-    const btn = btnOf(p.side);
-    S.busy = true;
-    let lead = "";
-    const netting = !!(S.pos && S.pos.side !== p.side && ARCADE_FLIP === "net");
+    if (S.paused) {
+      deny(side, S.paused === "full" ? "Table full · room opens as calls settle" : "Table paused");
+      return;
+    }
+    if (!liveQuote()) {
+      deny(side, "No price right now · try again in a second");
+      return;
+    }
+    const stake = openStake();
+    if (stake + S.chip > ARCADE_MAX_OPEN) {
+      deny(side, `$${ARCADE_MAX_OPEN} max open per account`);
+      toast(`$${ARCADE_MAX_OPEN} max open per account`, true);
+      return;
+    }
+    if (S.chip > S.bal + 1e-9) {
+      deny(side, "Not enough in your spot account");
+      return;
+    }
+    const p = side === "u" ? S.pUp : 1 - S.pUp,
+      g = S.chip,
+      t0 = now();
+    const c: Call = { id: "tmp" + ++tmpId, side, gross: g, p, t0, t1: t0 + ARCADE_DURATION_MS, s0: null, s1: null, pay: payout(g, p), status: "pending", pnl: 0 };
+    S.calls.push(c);
+    setBal(S.bal - g);
+    sfx.bet();
+    Lx.react("bet");
+    const k = keyOf(side),
+      ctr = center(k);
+    burst(ctr.x, ctr.y, side === "u" ? C.up : C.dn, 14);
+    render();
     try {
-      if (S.pos && S.pos.side !== p.side && ARCADE_FLIP === "close-then-open") {
-        const was: Side = S.pos.side;
-        const sellPx = c[was] / 100;
-        const r = await api.sell({ round, side: was, price: sellPx, qty: S.pos.sh });
-        const back = r.balanceDelta,
-          pnl = r.realizedPnl ?? back - S.pos.margin;
-        S.equity += back;
-        eqTo(S.equity);
-        S.today += pnl;
-        S.todayTouched = true;
-        logOrder({ k: "flip", side: was, txt: `Closed ${SIDE(was)} · ${whole(back)} back · ${signed(pnl)}` });
-        lead = `Flipped · ${SIDE(was)} closed ${signed(pnl)} · `;
-        S.pos = null;
+      const row = await data.place(side === "u" ? "up" : "down", g, S.quoteTs!);
+      const real = fromRow(row);
+      Object.assign(c, { id: real.id, t0: real.t0, t1: real.t1, p: real.p, pay: real.pay, status: "open" });
+      if (typeof row.balance === "number") {
+        S.bal = row.balance;
+        api.onBalance?.(row.balance);
+        eqEls().forEach((e) => (e.textContent = money(S.bal)));
       }
-      const r = await api.buy({ round, side: p.side, price: px, qty: sh, fee: f, amount: p.margin });
-      S.equity += r.balanceDelta;
-      eqTo(S.equity);
-      if (netting) {
-        // the spot rail reduced the held leg share-for-share and opened the rest: read back the truth
-        const was: Side = S.pos.side;
-        const before = S.pos.sh,
-          beforeCost = S.pos.margin;
-        const h = await api.loadHolding(round);
-        S.pos = h;
-        // plain words (CPO 2026-10-19): say what the player now holds, not the netting mechanics
-        const txt = h && h.side === p.side ? `Your ${SIDE(was)} is closed · ${whole(h.margin)} now riding on ${SIDE(p.side)}` : h ? `${whole(Math.max(0, beforeCost - h.margin))} off your ${SIDE(was)} · ${whole(h.margin)} still on` : `Your ${SIDE(was)} is closed · nothing on the table`;
-        S.marks.push({ s: p.side, t: now(), p: S.price });
-        logOrder({ k: "flip", side: p.side, txt: `${p.side === "u" ? "↑" : "↓"} ${whole(p.margin)} on ${SIDE(p.side)} · ${txt}` });
-        toast(`${whole(p.margin)} on ${SIDE(p.side)} · ${txt}`);
-        const to = center(btn),
-          col = p.side === "u" ? C.up : C.dn;
-        press(btn);
-        sfx.bet();
-        burst(to.x, to.y, col, 30);
-        flash(col);
-        Lx.react("bet");
-        void loadToday();
+      if (c.cancelWanted) void cancel(c);
+    } catch (e: any) {
+      S.calls = S.calls.filter((x: Call) => x !== c);
+      setBal(S.bal + g);
+      const m = String(e?.message || "Could not place that");
+      if (/Price moved/i.test(m)) flashCents();
+      deny(side, m);
+      if (/Accept the rules/i.test(m)) openGate(true);
+    }
+    render();
+  }
+  async function cancel(c: Call) {
+    if (c.status !== "open" && c.status !== "pending") return;
+    if (now() - c.t0 > ARCADE_CANCEL_MS - 150) return;
+    if (c.id.startsWith("tmp")) {
+      c.cancelWanted = true; // the accept is still in flight: cancel as soon as it lands
+      sfx.click();
+      return;
+    }
+    audio();
+    sfx.click();
+    try {
+      const r = await data.cancel(c.id);
+      c.status = "cancelled";
+      c.tDone = now();
+      S.bal = r.balance;
+      bumpEq();
+      api.onBalance?.(r.balance);
+      toast(`Cancelled · ${money(r.cancel_fee)} close fee`);
+    } catch (e: any) {
+      toast(String(e?.message || "Could not cancel"), true);
+    }
+    render();
+  }
+
+  /* ---------- settling ---------- */
+  let settleT: any = 0,
+    settleTries = 0;
+  function scheduleSettle(delay: number) {
+    if (FX) return;
+    clearTimeout(settleT);
+    settleT = setTimeout(runSettle, delay);
+  }
+  async function runSettle() {
+    settleT = 0;
+    if (!api.userId) return;
+    try {
+      const res = await data.settleMine();
+      for (const r of res) {
+        const c = S.calls.find((x: Call) => x.id === r.id);
+        if (c && (c.status === "open" || c.status === "settling")) applySettled(c, r.status as any, r.pnl, r.s0, r.s1);
+      }
+    } catch (e) {
+      /* retry below */
+    }
+    const due = S.calls.filter((c: Call) => c.status === "settling");
+    if (due.length && settleTries++ < 8) scheduleSettle(900);
+    else settleTries = 0;
+  }
+  function applySettled(c: Call, status: "won" | "lost" | "void", pnl: number, s0: number | null, s1: number | null) {
+    c.status = status;
+    c.pnl = pnl;
+    c.s0 = s0 ?? c.s0;
+    c.s1 = s1;
+    c.tDone = now();
+    c.settledAt = now();
+    const won = status === "won";
+    if (status !== "void") {
+      S.ses += pnl;
+      if (won) S.won++;
+      else S.lost++;
+      S.last.push(won);
+      if (S.last.length > 10) S.last.shift();
+      if (won) {
+        S.streakW++;
+        S.streakL = 0;
+      } else {
+        S.streakL++;
+        S.streakW = 0;
+      }
+    }
+    if (won) S.bal += c.pay - Math.round((c.pay - c.gross) * 5) / 100;
+    else if (status === "void") S.bal += c.gross;
+    flagFloat(c);
+    flyChip(c);
+    if (!coalesce) coalesce = setTimeout(() => {
+      coalesce = 0;
+      bumpEq();
+      api.onBalance?.(S.bal);
+    }, 60);
+    if (won) sfx.win();
+    else if (status === "lost") sfx.lose();
+    comboUpdate(status);
+    Lx.react(won ? "win" : status === "lost" ? "lose" : "bet");
+    S.done.unshift(c);
+    if (S.done.length > 12) S.done.pop();
+    S.bursts.push({ t: perf(), c });
+    render();
+  }
+  let coalesce: any = 0;
+  function loop() {
+    const t = now();
+    S.calls = S.calls.filter((c: Call) => !(c.tDone && c.t1 < t - 46000) && !(c.status === "cancelled" && t - c.tDone! > 1500));
+    S.bursts = S.bursts.filter((b: any) => perf() - b.t < 900);
+    let due = false;
+    for (const c of S.calls) {
+      // S0 = the first valid index after the server accepted the chip (the server re-derives it at settlement)
+      if (c.s0 == null && c.status === "open") {
+        const first = S.px.find((x: any) => x.t > c.t0);
+        if (first) c.s0 = first.p;
+      }
+      if (c.status === "open" && t >= c.t1) {
+        c.status = "settling";
+        due = true;
+      }
+    }
+    if (due && !settleT) scheduleSettle(650);
+  }
+  /** reconcile with the server every few seconds: cron settlements, other tabs, reloads */
+  async function reconcile() {
+    if (!api.userId) return;
+    try {
+      const rows = await data.myCalls(S.sessionStart);
+      for (const r of rows) {
+        const loc = S.calls.find((x: Call) => x.id === r.id);
+        const real = fromRow(r);
+        if (!loc) {
+          if (real.status === "open") S.calls.push(real);
+          else if (!S.done.find((x: Call) => x.id === r.id) && real.settledAt && now() - real.settledAt < 120000) {
+            // settled while we were away: count it, no fireworks
+            real.tDone = now();
+            S.done.unshift(real);
+            if (real.status !== "void" && real.status !== "cancelled") {
+              S.ses += real.pnl;
+              if (real.status === "won") S.won++;
+              else S.lost++;
+            }
+          }
+        } else if ((loc.status === "open" || loc.status === "settling") && (real.status === "won" || real.status === "lost" || real.status === "void")) {
+          applySettled(loc, real.status, real.pnl, real.s0, real.s1);
+        } else if (loc.status === "open" && real.status === "cancelled") {
+          loc.status = "cancelled";
+          loc.tDone = now();
+        } else if (loc.status === "open" && real.s0 != null && loc.s0 == null) loc.s0 = real.s0;
+      }
+      S.done.sort((a: Call, b: Call) => (b.settledAt || 0) - (a.settledAt || 0));
+      if (S.done.length > 12) S.done.length = 12;
+    } catch (e) {
+      /* next time */
+    }
+  }
+
+  /* ---------- combo HUD ---------- */
+  function comboUpdate(status: string) {
+    const hot = S.streakW >= 2,
+      cold = S.streakL >= 2,
+      n = hot ? S.streakW : cold ? S.streakL : 0;
+    $$(".combo").forEach((el) => {
+      const big = el.querySelector(".big"),
+        pips = el.querySelector(".pips"),
+        sub = el.querySelector(".sub");
+      if (status === "void") return;
+      if (!hot && !cold) {
+        if (el.classList.contains("on") && !el.classList.contains("break")) {
+          big.textContent = el.classList.contains("cold") ? "STREAK OVER" : "COMBO BREAK";
+          el.classList.add("break");
+          sub.textContent = "";
+          pips.innerHTML = "";
+          setTimeout(() => (el.className = "combo"), 700);
+        }
         return;
       }
-      const kind = S.pos ? "add" : lead ? "flip" : "open";
-      if (S.pos && S.pos.side === p.side) {
-        S.pos.margin += p.margin - f;
-        S.pos.sh += sh;
-        S.pos.chips.push(p.chip);
+      el.className = "combo on" + (cold ? " cold" : "");
+      big.textContent = (cold ? "LOST ×" : "COMBO ×") + n;
+      big.classList.remove("punch");
+      void big.offsetWidth;
+      big.classList.add("punch");
+      const next = Math.ceil(n / 3) * 3,
+        base = next - 3;
+      pips.innerHTML = [0, 1, 2].map((i) => `<i class="${n - base > i ? "on" : ""}"></i>`).join("");
+      sub.textContent = n % 3 === 0 ? (cold ? "ouch" : "bonus!") : `${next - n} more → ${cold ? "×" + next : "×" + next + " bonus"}`;
+    });
+    if (n && n % 3 === 0) {
+      mega(cold, n);
+      Lx.react(cold ? "cold" : "combo");
+      if (!cold) {
+        rain(C.dn, 70);
+        const e = eqEls()[0];
+        if (e) {
+          const c = center(e);
+          burst(c.x, c.y, C.dn, 30, true);
+        }
+        sfx.big();
       } else {
-        S.pos = { side: p.side, margin: p.margin - f, sh, chips: [p.chip], avg: px, positionId: r.positionId };
-      }
-      if (r.size != null && r.margin != null) {
-        S.pos.sh = r.size;
-        S.pos.margin = r.margin;
-      }
-      S.pos.avg = S.pos.margin / S.pos.sh;
-      S.marks.push({ s: p.side, t: now(), p: S.price });
-      logOrder({ k: kind === "flip" ? "open" : kind, side: p.side, txt: `${p.side === "u" ? "↑" : "↓"} ${SIDE(p.side)} · ${whole(p.margin)} in at ${(px * 100).toFixed(1)}¢ · wins +${whole(sh - p.margin)}` });
-      toast(`${lead}${SIDE(p.side)} · ${whole(p.margin)} in → win +${whole(toWin())} if ${S.asset} closes ${p.side === "u" ? "above" : "below"} ${money(S.open)}`);
-      const to = center(btn),
-        col = p.side === "u" ? C.up : C.dn;
-      press(btn);
-      sfx.bet();
-      shake();
-      burst(to.x, to.y, col, 46);
-      burst(to.x, to.y, col, 10, true);
-      flash(col);
-      setTimeout(sfx.drop, 120);
-      Lx.react("bet");
-      const pl = btn.querySelector(".posbtn");
-      pl.classList.remove("bump");
-      void pl.offsetWidth;
-      pl.classList.add("bump");
-    } catch (e: any) {
-      deny(btn, e?.message || "Order failed");
-    } finally {
-      S.busy = false;
-      lastStack = { u: "", d: "" };
-      renderButtons();
-      renderResult();
-    }
-  }
-  async function cashOut(silent: boolean, pct = 100) {
-    if (!S.pos || !S.round) return;
-    if (S.busy) return;
-    const P = S.pos,
-      all = pct >= 100 || P.sh <= 1,
-      shOut = all ? P.sh : Math.max(1, Math.min(P.sh - 1, Math.round((P.sh * pct) / 100))),
-      f = shOut / P.sh;
-    const sd: Side = P.side;
-    const px = cents()[sd] / 100;
-    S.busy = true;
-    try {
-      const r = await api.sell({ round: S.round, side: sd, price: px, qty: shOut });
-      const v = r.balanceDelta,
-        pnl = r.realizedPnl ?? v - P.margin * f;
-      S.equity += v;
-      eqTo(S.equity);
-      S.today += pnl;
-      S.todayTouched = true;
-      logOrder({ k: "cash", side: sd, txt: `Cashed out ${all ? "" : Math.round(f * 100) + "% of "}${SIDE(sd)} · ${whole(v)} back · ${signed(pnl)}` });
-      if (!silent) S.shareLast = { side: sd, put: P.margin * f, worth: v, live: false, cash: true, asset: S.asset, dur: S.dur };
-      if (all) S.pos = null;
-      else {
-        P.margin -= P.margin * f;
-        P.sh -= shOut;
-        P.avg = P.margin / P.sh;
-        const keep = Math.max(1, Math.round(P.chips.length * (1 - f)));
-        P.chips = P.chips.slice(-keep);
-      }
-      if (!silent) {
-        toast(`Cashed out ${all ? "" : Math.round(f * 100) + "% · "}${SIDE(sd)} · ${whole(v)} back · ${signed(pnl)}`, pnl < 0);
-        const c = center($("#cashBtn"));
-        burst(c.x, c.y, pnl >= 0 ? C.dn : C.hot, 30, pnl >= 0);
-        rain(pnl >= 0 ? C.dn : C.hot, all ? 24 : 12);
-        sfx[pnl >= 0 ? "bet" : "deny"]();
-      }
-    } catch (e: any) {
-      toast(e?.message || "Cash out failed", true);
-    } finally {
-      S.busy = false;
-      lastStack = { u: "", d: "" };
-      renderButtons();
-      renderResult();
-    }
-  }
-  /** local, optimistic: the server pays within ~30 s (roll_arcade_rounds) */
-  function settlePosition(r: Side) {
-    S.pend.slice().forEach((p: any) => cancelPend(p.id, true));
-    if (!S.pos) return;
-    const won = S.pos.side === r,
-      gross = won ? S.pos.sh : 0,
-      profit = gross - S.pos.margin,
-      wc = profit > 0 ? round2(0.05 * profit) : 0,
-      payout = round2(gross - wc),
-      pnl = round2(payout - S.pos.margin);
-    S.equity += payout;
-    eqTo(S.equity);
-    S.today += pnl;
-    S.todayTouched = true;
-    if (won) S.won++;
-    else S.lost++;
-    S.last.push({ s: S.pos.side, w: won, t: now(), pnl });
-    S.last = S.last.slice(-10);
-    renderTicks();
-    S.shareLast = { side: S.pos.side, put: S.pos.margin, worth: payout, live: false, asset: S.asset, dur: S.dur };
-    if (won) {
-      splash(signed(pnl), C.dn);
-      rain(C.dn);
-      rain(C.up, 40);
-      sfx.win();
-      flash(C.dn);
-      warp();
-      Lx.react("win");
-    } else {
-      splash(signed(pnl), C.hot);
-      flash(C.hot);
-      sfx.lose();
-      shake();
-      Lx.react("lose");
-    }
-    S.pos = null;
-    api.onSettled?.();
-  }
-  function voidRound(why: string) {
-    S.pend.slice().forEach((p: any) => cancelPend(p.id, true));
-    if (S.pos) {
-      const back = S.pos.margin;
-      S.equity += back;
-      eqTo(S.equity);
-      logOrder({ k: "void", side: S.pos.side, txt: `Round void · ${why} · ${whole(back)} returned` });
-      toast(`Round void · ${why} · ${whole(back)} returned to Spot`, true);
-      S.pos = null;
-    }
-    flash("#9aa4b2");
-  }
-  function settle() {
-    const r: ArcadeRoundRow = S.round;
-    const close = S.path[r.steps];
-    S.price = close;
-    if (close === S.open) voidRound("closed exactly at the open");
-    else {
-      const w: Side = close > S.open ? "u" : "d";
-      S.hist.push(w);
-      if (S.hist.length > 240) S.hist = S.hist.slice(-240);
-      S.histRounds.push({ ...r, close_price: close, winner: w === "u" ? "up" : "down" });
-      S.histRounds = S.histRounds.slice(-240);
-      renderBead(true);
-      renderRoad(true);
-      renderStats();
-      if (S.pos || S.pend.length) settlePosition(w);
-      else {
-        flash(w === "u" ? C.up : C.dn);
-        tone(w === "u" ? 880 : 440, 0.15, "triangle", 0.05);
+        flash(C.hot);
+        sfx.cold();
       }
     }
-    const nxt: ArcadeRoundRow = S.next && S.next.start_at === r.end_at ? S.next : arcadeNextOf(r);
-    S.next = null;
-    adoptRound(nxt);
-    void refreshTable(false);
   }
-  let lastStack: any = { u: "", d: "" };
-  function renderButtons() {
-    const bq = $("#betQuote");
-    if (bq) bq.textContent = `${whole(S.chip)} SELECTED`;
-    (["u", "d"] as Side[]).forEach((sd) => {
-      const btn = btnOf(sd),
-        wrap = sd === "u" ? $("#wrapU") : $("#wrapD"),
-        pays = sd === "u" ? $("#paysU") : $("#paysD");
-      const held = !!(S.pos && S.pos.side === sd),
-        opp = !!(S.pos && S.pos.side !== sd),
-        pend = S.pend.filter((p: any) => p.side === sd),
-        sum = pend.reduce((a: number, p: any) => a + p.margin, 0);
-      btn.classList.toggle("held", held);
-      wrap.classList.toggle("held", held);
-      const stackHtml = held ? stackHtmlOf(S.pos.chips, !!api.isMobile) : "";
-      if (stackHtml !== lastStack[sd]) {
-        btn.querySelector(".stack").innerHTML = stackHtml;
-        lastStack[sd] = stackHtml;
-      }
-      const pos = btn.querySelector(".posbtn");
-      pos.hidden = !held;
-      btn.querySelector(".tower").hidden = !held;
-      if (held) {
-        const v = whole(S.pos.margin),
-          b = pos.querySelector("b");
-        if (b.textContent !== v) b.textContent = v;
-      }
-      let txt: string,
-        cls = "";
-      if (pend.length) {
-        cls = "fill";
-        txt = opp ? (ARCADE_FLIP === "net" ? `${whole(sum)} comes off your ${SIDE(S.pos.side)} · tap chip to cancel` : `Flip to ${SIDE(sd)} · ${whole(sum)} · tap chip to cancel`) : `Filling ${whole(sum)} · tap chip to cancel`;
-        if (held) txt = `+${whole(sum)} · tap chip to cancel`;
-      } else if (held) {
-        cls = "hold";
-        txt = `${whole(S.pos.margin)} in · wins +${whole(toWin())} if ${SIDE(sd)}`;
-      } else if (opp) txt = ARCADE_FLIP === "net" ? `You're on ${SIDE(S.pos.side)} · a chip here comes off it` : `You hold ${SIDE(S.pos.side)} · a chip here flips it`;
-      else if (S.closed) txt = "Market closed";
-      else {
-        const px = cents()[sd] / 100,
-          sh = Math.max(1, Math.floor((S.chip - fee(S.chip)) / px));
-        txt = `${whole(S.chip)} in → win +${whole(sh - S.chip)} if ${SIDE(sd)}`;
-      }
-      if (pays.textContent !== txt) pays.textContent = txt;
-      pays.className = "pays" + (cls ? " " + cls : "");
+  function mega(cold: boolean, n: number) {
+    $$(".mega").forEach((el) => {
+      el.querySelector(".t").textContent = cold ? "×" + n + " LOST" : "×" + n + " COMBO";
+      el.querySelector(".s").textContent = cold ? "take a breath · streak resets on a win" : "keep it rolling · next bonus at ×" + (n + 3);
+      el.className = "mega on" + (cold ? " cold" : "");
+      clearTimeout(el._t);
+      el._t = setTimeout(() => (el.className = "mega"), 1600);
     });
   }
-  function renderResult() {
-    const n = $("#rNow"),
-      s = $("#rNowS"),
-      l = $("#rLive"),
-      ls = $("#rLiveS");
-    if (S.pos) {
-      const Pp = S.pos;
-      n.textContent = api.isMobile ? `${SIDE(Pp.side)} · ${whole(Pp.margin)} in` : `${SIDE(Pp.side)} · ${whole(Pp.margin)} on the table`;
-      n.className = "n " + (Pp.side === "u" ? "cu" : "cd");
-      const fl = S.pend.filter((x: any) => x.side !== Pp.side),
-        fs = fl.reduce((a: number, x: any) => a + x.margin, 0);
-      s.textContent = fl.length
-        ? ARCADE_FLIP === "net"
-          ? `${whole(fs)} on ${SIDE(fl[0].side)} comes off your ${SIDE(Pp.side)} · tap chip to cancel`
-          : `Flipping · closes your ${SIDE(Pp.side)} (${whole(posValue())} back) · then ${whole(fs)} on ${SIDE(fl[0].side)}`
-        : `in at ${(Pp.avg * 100).toFixed(1)}¢ · worth ${whole(posValue())} now`;
-      const v = posValue() - Pp.margin;
-      l.textContent = signed(v);
-      l.className = "n " + (v < 0 ? "neg" : "pos");
-      ls.innerHTML = `if ${SIDE(Pp.side)} wins <span style="color:var(--lime)">+${whole(toWin())}</span>`;
-    } else if (S.pend.length) {
-      n.textContent = "Filling…";
-      n.className = "n";
-      s.textContent = `${S.pend.length} chip${S.pend.length > 1 ? "s" : ""} on the button · tap to cancel`;
-      l.textContent = "-";
-      l.className = "n";
-      ls.textContent = "";
-    } else {
-      n.textContent = "-";
-      n.className = "n";
-      s.textContent = "Nothing on the table";
-      l.textContent = "-";
-      l.className = "n";
-      ls.textContent = "";
-    }
-    const cb = $("#cashBtn");
-    cb.disabled = !S.pos || S.busy;
-    cb.title = "";
-    $("#shareBtn").disabled = !(S.pos || S.shareLast);
-    const ob = $("#ordBtn");
-    ob.hidden = !S.orders.length;
-    $("#ordN").textContent = String(S.orders.length);
-    const t = $("#rToday");
-    if (S.todayTouched) {
-      t.textContent = (S.today < 0 ? "−" : "+") + whole(S.today);
-      t.className = "n " + (S.today < 0 ? "neg" : "pos");
-    } else {
-      t.textContent = "-";
-      t.className = "n";
-    }
-    $("#rTodayS").textContent = `${S.won} won · ${S.lost} lost`;
+
+  /* ---------- per-call feedback: float + fly ---------- */
+  function flagFloat(c: Call) {
+    const cv = $("#cv");
+    if (!cv) return;
+    const g = geom(cv);
+    const x = g.x(c.t1),
+      y = g.y(c.s1 ?? c.s0 ?? S.price);
+    const f = document.createElement("span");
+    f.className = "float";
+    f.style.cssText = `left:${x - 26}px;top:${y - 40}px;color:${c.status === "won" ? "var(--lime)" : c.status === "lost" ? "var(--hot)" : "#aab"}`;
+    f.textContent = c.status === "void" ? "VOID" : signed(c.pnl);
+    cv.parentElement.appendChild(f);
+    setTimeout(() => f.remove(), 1600);
   }
-  function renderLive() {
-    if (S.pos || S.pend.length) {
-      renderResult();
-      renderButtons();
-    }
-    if (!coM.hidden) renderCo();
-    if (!shM.hidden && shLive) renderShare();
+  function flyChip(c: Call) {
+    const key = keyOf(c.side),
+      eq = eqEls()[0];
+    if (!key || !eq) return;
+    const a = key.getBoundingClientRect(),
+      b = eq.getBoundingClientRect();
+    const ch = document.createElement("span");
+    ch.className = "mchip fly v" + c.gross;
+    ch.textContent = String(c.gross);
+    ch.style.cssText = `left:${a.left + a.width / 2}px;top:${a.top + a.height / 2}px;opacity:${c.status === "won" ? 1 : 0.5}`;
+    root.appendChild(ch);
+    requestAnimationFrame(() => {
+      ch.style.transform = `translate(${b.left + b.width / 2 - (a.left + a.width / 2)}px,${b.top + b.height / 2 - (a.top + a.height / 2)}px) scale(.5)`;
+      ch.style.opacity = "0";
+    });
+    setTimeout(() => ch.remove(), 600);
   }
-  /* orders log (per round) */
-  const ordEl = $("#orders"),
-    ordBtn = $("#ordBtn");
-  const KLBL: Record<string, string> = { open: "OPEN", add: "ADD", flip: "CLOSE", cancel: "CANCEL", cash: "CASH OUT", settle: "SETTLE", void: "VOID" };
-  function renderOrders() {
-    if (ordEl.hidden) return;
-    const rows = S.orders
-      .slice()
-      .reverse()
-      .map((o: any) => `<div class="orow"><span class="ot">${fmtT(new Date(o.t), true)}</span><span class="ok ${o.k}">${KLBL[o.k]}</span><span>${o.txt}</span></div>`)
+  function flashCents() {
+    $$(".dir .cents").forEach((e) => {
+      e.classList.remove("moved");
+      void e.offsetWidth;
+      e.classList.add("moved");
+    });
+  }
+  const paysT: Record<string, any> = {};
+  function setPays(side: Side, txt: string, warn?: boolean) {
+    const e = $(side === "u" ? "#btnpU" : "#btnpD");
+    if (!e) return;
+    e.textContent = txt;
+    e.className = "pays" + (warn ? " warn" : "");
+    clearTimeout(paysT[side]);
+    paysT[side] = setTimeout(() => {
+      e.className = "pays";
+      renderPays();
+    }, 1800);
+  }
+
+  /* ---------- chart ---------- */
+  function geom(cv: any) {
+    const W = cv.clientWidth,
+      H = cv.clientHeight,
+      t = now(),
+      t0 = t - 45000,
+      t1 = t + 32000;
+    const open = S.calls.filter((c: Call) => c.s0 != null);
+    const ps = S.px.filter((x: any) => x.t >= t0).map((x: any) => x.p).concat(open.map((c: Call) => c.s0));
+    let lo = Math.min(...ps),
+      hi = Math.max(...ps);
+    if (!isFinite(lo)) {
+      lo = (S.price || 0) - 30;
+      hi = (S.price || 0) + 30;
+    }
+    const pad = Math.max((hi - lo) * 0.25, 8);
+    lo -= pad;
+    hi += pad;
+    return { W, H, x: (tt: number) => ((tt - t0) / (t1 - t0)) * W, y: (p: number) => H - ((p - lo) / (hi - lo)) * (H - 8) - 4 };
+  }
+  function draw(cv: any) {
+    const ctx = cv.getContext("2d");
+    const dpr = devicePixelRatio || 1;
+    const W = cv.clientWidth,
+      H = cv.clientHeight;
+    if (!W || !H) return;
+    if (cv.width !== W * dpr || cv.height !== H * dpr) {
+      cv.width = W * dpr;
+      cv.height = H * dpr;
+    }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    const g = geom(cv),
+      t = now();
+    /* 30 s slot grid = the road's cells, shaded by result; the last one is the slot in progress */
+    const curStart = S.slotStart || Math.floor(t / SLOT) * SLOT;
+    for (let j = -2; j < 40; j++) {
+      const st = curStart - j * SLOT,
+        en = st + SLOT;
+      if (en < t - 45000 || st > t + 32000) continue;
+      const x0 = Math.max(0, g.x(st)),
+        x1 = Math.min(W, g.x(en));
+      const res = j >= 1 ? S.hist[S.hist.length - j] : null;
+      ctx.fillStyle = res === "u" ? "rgba(51,214,255,.07)" : res === "d" ? "rgba(207,255,74,.07)" : j === 0 ? "rgba(255,255,255,.035)" : "transparent";
+      ctx.fillRect(x0, 34, x1 - x0, H - 34);
+      ctx.font = "600 9px Chakra Petch";
+      if (j === 0) {
+        ctx.fillStyle = "#5d6676";
+        ctx.fillText("SLOT · " + Math.max(0, Math.ceil((en - t) / 1000)) + "s", x0 + 4, H - 6);
+      }
+      ctx.strokeStyle = "#1c2a33";
+      ctx.beginPath();
+      ctx.moveTo(g.x(st), 34);
+      ctx.lineTo(g.x(st), H);
+      ctx.stroke();
+      if (res) {
+        ctx.fillStyle = res === "u" ? C.up : C.dn;
+        ctx.font = "700 9px Chakra Petch";
+        ctx.fillText(res === "u" ? "▲" : "▼", x0 + 4, H - 6);
+      }
+    }
+    /* grid + now line */
+    ctx.strokeStyle = "#15262e";
+    ctx.lineWidth = 1;
+    for (let i = 1; i < 5; i++) {
+      ctx.beginPath();
+      ctx.moveTo(0, (H * i) / 5);
+      ctx.lineTo(W, (H * i) / 5);
+      ctx.stroke();
+    }
+    const xn = g.x(t);
+    ctx.fillStyle = "rgba(51,214,255,.06)";
+    ctx.fillRect(xn, 0, W - xn, H);
+    ctx.setLineDash([3, 3]);
+    ctx.strokeStyle = "#2a4a56";
+    ctx.beginPath();
+    ctx.moveTo(xn, 0);
+    ctx.lineTo(xn, H);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    /* price line: one point per valid second; gaps where the index was invalid */
+    const pts = S.px.filter((x: any) => x.t >= t - 45000);
+    if (pts.length > 1) {
+      ctx.strokeStyle = C.up;
+      ctx.lineWidth = 1.6;
+      ctx.shadowColor = "rgba(51,214,255,.6)";
+      ctx.shadowBlur = 6;
+      ctx.beginPath();
+      let prevT = 0;
+      pts.forEach((p: any, i: number) => {
+        const x = g.x(p.t),
+          y = g.y(p.p);
+        if (!i || p.t - prevT > 3500) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+        prevT = p.t;
+      });
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      const l = pts[pts.length - 1];
+      ctx.fillStyle = "#fff";
+      ctx.beginPath();
+      ctx.arc(g.x(l.t), g.y(l.p), 3, 0, 7);
+      ctx.fill();
+    }
+    /* calls: entry dot + open line, settled badges */
+    const live = S.calls.filter((c: Call) => c.s0 != null || c.status === "pending" || c.status === "open").sort((a: Call, b: Call) => a.t1 - b.t1);
+    live.forEach((c: Call, i: number) => {
+      const col = c.side === "u" ? C.up : C.dn;
+      const isLive = c.status === "open" || c.status === "settling" || c.status === "pending";
+      const s0 = c.s0 ?? S.price;
+      const ahead = c.side === "u" ? S.price > s0 : S.price < s0;
+      const x0 = g.x(c.t0),
+        x1 = g.x(c.t1),
+        y = g.y(s0);
+      ctx.setLineDash([4, 3]);
+      ctx.strokeStyle = isLive ? (c.s0 == null ? "#8a93a3" : ahead ? col : "#5a6676") : c.status === "won" ? C.dn : c.status === "lost" ? "#ff4d4d" : "#889";
+      ctx.globalAlpha = isLive ? (i < 6 ? 0.9 : 0.3) : 0.35;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x0, y);
+      ctx.lineTo(Math.min(x1, W), y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = col;
+      ctx.globalAlpha = i < 6 || !isLive ? (isLive ? 1 : 0.6) : 0.55;
+      ctx.beginPath();
+      ctx.moveTo(x0, y - 4);
+      ctx.lineTo(x0 + 4, y);
+      ctx.lineTo(x0, y + 4);
+      ctx.lineTo(x0 - 4, y);
+      ctx.closePath();
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      if (!isLive && c.s1 != null) {
+        const ys = g.y(c.s1);
+        const won = c.status === "won";
+        const bc = won ? C.dn : c.status === "lost" ? "#ff4d4d" : "#aab";
+        ctx.strokeStyle = bc;
+        ctx.globalAlpha = 0.5;
+        ctx.beginPath();
+        ctx.moveTo(x1, y);
+        ctx.lineTo(x1, ys);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = bc;
+        ctx.beginPath();
+        ctx.arc(x1, ys, 7, 0, 7);
+        ctx.fill();
+        ctx.fillStyle = "#020c10";
+        ctx.font = "700 10px Chakra Petch";
+        ctx.fillText(won ? "✓" : c.status === "lost" ? "✕" : "–", x1 - 4, ys + 4);
+      }
+    });
+    /* settle burst: expanding ring + the open line flashes solid */
+    for (const b of S.bursts) {
+      const k = (perf() - b.t) / 900,
+        c: Call = b.c;
+      if (c.s0 == null) continue;
+      const x1 = g.x(c.t1),
+        ys = g.y(c.s1 ?? c.s0),
+        col = c.status === "won" ? C.dn : c.status === "lost" ? "#ff4d4d" : "#aab";
+      ctx.strokeStyle = col;
+      ctx.globalAlpha = 1 - k;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(x1, ys, 8 + k * 26, 0, 7);
+      ctx.stroke();
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(g.x(c.t0), g.y(c.s0));
+      ctx.lineTo(x1, g.y(c.s0));
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+      ctx.lineWidth = 1;
+    }
+    /* flag lane: two rows (even / odd seconds) so neighbours never overlap */
+    const groups: Record<number, Call[]> = {};
+    for (const c of live) {
+      const k = Math.floor(c.t1 / 1000);
+      (groups[k] = groups[k] || []).push(c);
+    }
+    const keys = Object.keys(groups)
+      .map(Number)
+      .sort((a, b) => a - b);
+    ctx.fillStyle = "rgba(5,10,14,.55)";
+    ctx.fillRect(0, 0, W, 34);
+    keys.forEach((k, ki) => {
+      const cs = groups[k],
+        c = cs[0];
+      const x1 = g.x(c.t1);
+      if (x1 < -30 || x1 > W + 4) return;
+      const row = ki % 2,
+        y = 4 + row * 15;
+      const isLive = cs.some((z) => z.status === "open" || z.status === "settling" || z.status === "pending"),
+        settling = cs.some((z) => z.status === "settling");
+      const won = cs.filter((z) => z.status === "won").length,
+        lost = cs.filter((z) => z.status === "lost").length;
+      const fill = settling ? "#fff" : isLive ? (cs.every((z) => z.side === c.side) ? (c.side === "u" ? C.up : C.dn) : "#dfe6ee") : won && !lost ? C.dn : lost && !won ? "#ff4d4d" : "#aab";
+      ctx.fillStyle = fill;
+      ctx.fillRect(x1 - 1, y, 2, 13);
+      ctx.beginPath();
+      ctx.moveTo(x1, y);
+      ctx.lineTo(x1 + 28, y);
+      ctx.lineTo(x1 + 24, y + 6);
+      ctx.lineTo(x1 + 28, y + 12);
+      ctx.lineTo(x1, y + 12);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "#020c10";
+      ctx.font = "700 9px Chakra Petch";
+      const secs = Math.max(0, Math.ceil((c.t1 - t) / 1000));
+      const txt = settling ? "…" : isLive ? secs + "s" : won && !lost ? "✓" : lost && !won ? "✕" : won + "/" + cs.length;
+      ctx.fillText(txt + (cs.length > 1 ? " ×" + cs.length : ""), x1 + 3, y + 9);
+      if (isLive) {
+        for (const z of cs) {
+          const ye = g.y(z.s0 ?? S.price);
+          ctx.strokeStyle = z.side === "u" ? "rgba(51,214,255,.22)" : "rgba(207,255,74,.22)";
+          ctx.setLineDash([2, 3]);
+          ctx.beginPath();
+          ctx.moveTo(x1, y + 13);
+          ctx.lineTo(x1, ye);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.strokeStyle = z.side === "u" ? C.up : C.dn;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(x1, ye - 5);
+          ctx.lineTo(x1, ye + 5);
+          ctx.stroke();
+          ctx.lineWidth = 1;
+        }
+      }
+    });
+  }
+
+  /* ---------- render: keys, rail, boards, price ---------- */
+  const chipCls = (v: number) => "v" + v;
+  function stackHtml(chips: number[], max: number) {
+    const g: Record<number, number> = {},
+      last: Record<number, number> = {};
+    chips.forEach((v, i) => {
+      g[v] = (g[v] || 0) + 1;
+      last[v] = i;
+    });
+    let dens = Object.keys(g)
+      .map(Number)
+      .sort((a, b) => last[a] - last[b]);
+    let folded = 0;
+    if (dens.length > max) {
+      const cut = dens.slice(0, dens.length - max);
+      folded = cut.reduce((a, v) => a + g[v], 0);
+      dens = dens.slice(dens.length - max);
+    }
+    const size = dens.length + (folded ? 1 : 0);
+    return `<span class="stk s${size}">${folded ? `<span class="den"><span class="mchip more">+${folded}</span></span>` : ""}${dens
+      .map((v) => {
+        const n = g[v],
+          k = Math.min(5, n);
+        return `<span class="den">${Array.from({ length: k }, () => `<span class="mchip ${chipCls(v)}">${v}</span>`).join("")}${n > 1 ? `<span class="cnt">×${n}</span>` : ""}</span>`;
+      })
+      .join("")}</span>`;
+  }
+  function ringSvg(frac: number) {
+    const r = 17,
+      c = 2 * Math.PI * r;
+    return `<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="${r}" fill="none" stroke="rgba(2,12,16,.25)" stroke-width="3"/><circle cx="20" cy="20" r="${r}" fill="none" stroke="#020c10" stroke-width="3" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - frac)}" transform="rotate(-90 20 20)"/></svg>`;
+  }
+  function ringSvgLime(frac: number, side: Side) {
+    const r = 17,
+      c = 2 * Math.PI * r;
+    return `<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="${r}" fill="none" stroke="#1b2630" stroke-width="3"/><circle cx="20" cy="20" r="${r}" fill="none" stroke="${side === "u" ? C.up : C.dn}" stroke-width="3" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - frac)}" transform="rotate(-90 20 20)"/></svg>`;
+  }
+  const lastHtml: Record<string, string> = {};
+  function renderKeys() {
+    for (const side of ["u", "d"] as Side[]) {
+      const key = keyOf(side);
+      const live = S.calls.filter((c: Call) => c.side === side && (c.status === "open" || c.status === "pending" || c.status === "settling"));
+      const canc = live.filter((c: Call) => now() - c.t0 < ARCADE_CANCEL_MS - 150 && c.status !== "settling");
+      const chips = live.filter((c: Call) => !canc.includes(c)).map((c: Call) => c.gross);
+      const max = canc.length ? 4 : 5;
+      const st = key.querySelector(".stack"),
+        h = stackHtml(chips, max);
+      if (lastHtml[side] !== h) {
+        st.innerHTML = h;
+        lastHtml[side] = h;
+      }
+      const rw = key.querySelector(".ringwrap");
+      if (canc.length) {
+        const c = canc[canc.length - 1],
+          frac = 1 - (now() - c.t0) / (ARCADE_CANCEL_MS - 150);
+        rw.innerHTML = `<span class="ring" data-id="${c.id}" role="button" aria-label="Cancel">${ringSvg(frac)}<span class="mchip ${chipCls(c.gross)}">${c.gross}</span></span>`;
+      } else rw.innerHTML = "";
+      key.classList.toggle("off", !!S.paused || !liveQuote());
+      const p = side === "u" ? S.pUp : S.pUp == null ? null : 1 - S.pUp;
+      $(side === "u" ? "#btncU" : "#btncD").textContent = p == null || !liveQuote() ? "—" : cents(p);
+    }
+  }
+  function renderPays() {
+    for (const side of ["u", "d"] as Side[]) {
+      const e = $(side === "u" ? "#btnpU" : "#btnpD");
+      if (!e || e.classList.contains("warn")) continue;
+      const p = side === "u" ? S.pUp : S.pUp == null ? null : 1 - S.pUp;
+      const live = S.calls.filter((c: Call) => c.side === side && (c.status === "open" || c.status === "pending"));
+      const canc = live.filter((c: Call) => now() - c.t0 < ARCADE_CANCEL_MS - 150);
+      let txt: string;
+      if (S.paused === "full") txt = "Table full · room opens as calls settle";
+      else if (S.paused) txt = S.paused === "breaker" ? "Table paused · market moving too fast" : S.paused === "loss" ? "Table paused · daily limit reached" : S.paused === "off" ? "Table closed" : "Table paused · index invalid";
+      else if (!liveQuote() || p == null) txt = S.tick && S.tick.valid ? "Warming up · odds in a moment" : "Waiting for the price";
+      else if (canc.length) {
+        const c = canc[canc.length - 1];
+        txt = `tap chip to cancel · costs ${money(cancelFee(c.gross))}`;
+      } else txt = `${whole(S.chip)} in · fee ${money(fee(S.chip))} · wins +${money(netWin(S.chip, p))} if ${SIDE(side)}`;
+      if (e.textContent !== txt) e.textContent = txt;
+    }
+  }
+  function renderChips() {
+    const el = $("#chips");
+    if (!el) return;
+    const open = openStake();
+    const h = ARCADE_CHIPS_V2.map((v) => `<button class="chip${v === S.chip ? " on" : ""}${open + v > ARCADE_MAX_OPEN ? " off" : ""}" data-v="${v}" aria-pressed="${v === S.chip}"><sup>$</sup>${v}</button>`).join("");
+    if (lastHtml.chips !== h) {
+      el.innerHTML = h;
+      lastHtml.chips = h;
+    }
+    const sel = $("#dSel");
+    if (sel) sel.textContent = whole(S.chip) + " SELECTED";
+  }
+  let railTab = "auto";
+  function renderTable() {
+    const el = $("#dTable");
+    if (!el) return;
+    const t = now();
+    const rows = S.feed
+      .filter((o: ArcadeFeedRow) => ms(o.t1) > t - 500)
+      .slice(0, 9)
+      .map((o: ArcadeFeedRow) => {
+        const side = sideOf(o.side),
+          t0 = ms(o.t0),
+          t1 = ms(o.t1);
+        const frac = clip((t - t0) / ARCADE_DURATION_MS, 0, 1);
+        return `<div class="row other ${side}${o.mine ? " mine" : ""}"><span class="sd ${side}">${side === "u" ? "UP" : "DN"}</span><span class="mid"><b>${whole(o.gross)} @ ${cents(o.p)} <span class="who">· ${o.mine ? "you" : o.who}</span></b><span class="bar"><i style="width:${frac * 100}%"></i></span></span><span class="st lock">${Math.max(0, Math.ceil((t1 - t) / 1000))}s</span></div>`;
+      })
       .join("");
-    ordEl.innerHTML = `<h5>ORDERS THIS ROUND <span>${$("#win").textContent}</span></h5>${rows || '<div class="oempty">No orders yet</div>'}`;
+    if (el.innerHTML !== rows) el.innerHTML = rows;
+    const n = $("#dTableN");
+    if (n) n.textContent = String(S.feed.filter((o: ArcadeFeedRow) => ms(o.t1) > t - 500).length);
   }
-  let ordAnchor: any = null;
-  function placeOrders() {
-    const r = (ordAnchor || ordBtn).getBoundingClientRect(),
-      w = ordEl.offsetWidth;
-    ordEl.style.left = Math.max(12, Math.min(innerWidth - w - 12, r.left)) + "px";
-    ordEl.style.top = "";
-    ordEl.style.bottom = innerHeight - r.top + 10 + "px";
-  }
-  function openOrders(o: boolean, anchor?: any) {
-    ordAnchor = o ? anchor || null : null;
-    ordEl.hidden = !o;
-    ordBtn.setAttribute("aria-expanded", String(o && !anchor));
-    $$(".posbtn").forEach((b) => b.setAttribute("aria-expanded", String(o && b === anchor)));
-    if (o) {
-      renderOrders();
-      placeOrders();
+  function renderRail() {
+    const t = now();
+    const live = S.calls.filter((c: Call) => c.status !== "cancelled");
+    const open = myOpen();
+    const dOpenN = $("#dOpenN");
+    if (dOpenN) {
+      dOpenN.textContent = String(open.length);
+      $("#dOpenSum").textContent = whole(open.reduce((a: number, c: Call) => a + c.gross, 0));
+      renderTable();
+      const showTable = railTab === "table" || (railTab === "auto" && !live.length);
+      $("#dTable").hidden = !showTable;
+      $("#dList").hidden = showTable;
+      $("#dHint").hidden = !(showTable && !live.length && !S.feed.length);
+      $$(".tab").forEach((b) => b.classList.toggle("on", (b.dataset.tab === "table") === showTable));
+      const list = $("#dList");
+      const want = live.filter((c: Call) => !c.tDone || t - c.tDone < 1400).slice(-7).reverse();
+      const seen = new Set<string>();
+      want.forEach((c: Call, i: number) => {
+        const frac = clip((t - c.t0) / ARCADE_DURATION_MS, 0, 1);
+        const ahead = c.s0 != null && (c.side === "u" ? S.price > c.s0 : S.price < c.s0);
+        let st: string,
+          cls = "";
+        if (c.status === "pending") {
+          st = "open…";
+          cls = "pend";
+        } else if (c.status === "settling") {
+          st = "settling";
+          cls = "pend";
+        } else if (c.status === "won" || c.status === "lost") st = signed(c.pnl);
+        else if (c.status === "void") st = "VOID";
+        else if (t - c.t0 < ARCADE_CANCEL_MS - 150) {
+          st = "cancel";
+          cls = "lock";
+        } else if (c.s0 == null) {
+          st = "open…";
+          cls = "pend";
+        } else {
+          st = ahead ? "ahead" : "behind";
+          cls = ahead ? "ahead" : "behind";
+        }
+        let row = list.querySelector(`.row[data-id="${c.id}"]`);
+        seen.add(String(c.id));
+        if (!row) {
+          row = document.createElement("div");
+          row.dataset.id = c.id;
+          row.innerHTML = `<span class="sd ${c.side}">${c.side === "u" ? "UP" : "DN"}</span><span class="mid"><b>${whole(c.gross)} @ ${cents(c.p)} · wins +${money(netWin(c.gross, c.p))}</b><small></small><span class="bar"><i></i></span></span><span class="st"></span>`;
+        }
+        row.className = `row ${c.side} ${c.status}`;
+        const sm = row.querySelector("small"),
+          txt = `open ${c.s0 != null ? money(c.s0) : "pending"} · ${Math.max(0, Math.ceil((c.t1 - t) / 1000))}s`;
+        if (sm.textContent !== txt) sm.textContent = txt;
+        row.querySelector(".bar i").style.width = frac * 100 + "%";
+        const se = row.querySelector(".st");
+        if (se.textContent !== st) se.textContent = st;
+        se.className = "st " + cls;
+        if (list.children[i] !== row) list.insertBefore(row, list.children[i] || null);
+      });
+      [...list.children].forEach((r: any) => {
+        if (!seen.has(r.dataset.id)) r.remove();
+      });
+    }
+    const dDone = $("#dDone");
+    if (dDone) {
+      const dh = S.done
+        .slice(0, mobile ? 6 : 3)
+        .map(
+          (c: Call) =>
+            `<div class="row ${c.side}"><span class="sd ${c.side}">${c.side === "u" ? "UP" : "DN"}</span><span class="mid"><b>${whole(c.gross)} @ ${cents(c.p)} · ${c.status === "won" ? "won" : c.status === "lost" ? "lost" : c.status === "cancelled" ? "cancelled" : "void"}</b><small>${c.s0 != null && c.s1 != null ? `open ${money(c.s0)} · close ${money(c.s1)}` : c.status === "cancelled" ? "taken back within 2 s" : "no valid price · refunded"}</small></span><span class="st ${c.status === "won" ? "ahead" : c.status === "lost" ? "behind" : "pend"}">${c.status === "void" ? "VOID" : signed(c.pnl)}</span></div>`,
+        )
+        .join("");
+      if (dDone.innerHTML !== dh) dDone.innerHTML = dh;
+    }
+    /* mobile strip */
+    const strip = $("#mStrip");
+    if (strip) {
+      const mine = live.filter((c: Call) => !c.tDone || t - c.tDone < 1400);
+      let sh: string, lbl: string;
+      const feedLive = S.feed.filter((o: ArcadeFeedRow) => ms(o.t1) > t - 500);
+      if (mine.length) {
+        lbl = `MY CALLS<br>${mine.length}`;
+        sh = mine
+          .slice(-7)
+          .map((c: Call) => {
+            const frac = 1 - clip((t - c.t0) / ARCADE_DURATION_MS, 0, 1);
+            const done = c.status === "won" || c.status === "lost" || c.status === "void";
+            return `<span class="mc ${c.status}">${ringSvgLime(frac, c.side)}<span class="mchip ${chipCls(c.gross)}">${c.gross}</span>${done ? `<span class="fs">${c.status === "won" ? "✓" : c.status === "lost" ? "✕" : "–"}</span>` : `<span class="t">${c.status === "settling" ? "…" : Math.max(0, Math.ceil((c.t1 - t) / 1000))}</span>`}</span>`;
+          })
+          .join("");
+      } else if (feedLive.length) {
+        lbl = `TABLE<br>${feedLive.length}`;
+        sh = feedLive
+          .slice(0, 7)
+          .map((o: ArcadeFeedRow) => {
+            const frac = 1 - clip((t - ms(o.t0)) / ARCADE_DURATION_MS, 0, 1);
+            return `<span class="mc other">${ringSvgLime(frac, sideOf(o.side))}<span class="mchip ${chipCls(o.gross)}">${o.gross}</span><span class="t">${Math.max(0, Math.ceil((ms(o.t1) - t) / 1000))}</span></span>`;
+          })
+          .join("");
+      } else {
+        lbl = "MY CALLS<br>0";
+        sh = '<span class="hint">Tap UP or DOWN — your calls show here</span>';
+      }
+      if (strip.innerHTML !== sh) strip.innerHTML = sh;
+      const le = $("#mStripLbl");
+      if (le.innerHTML !== lbl) le.innerHTML = lbl;
     }
   }
-  on(ordBtn, "click", (e: Event) => {
-    e.stopPropagation();
-    audio();
-    sfx.key();
-    openOrders(ordEl.hidden);
-  });
-  on(document, "click", (e: any) => {
-    if (!ordEl.hidden && !e.target.closest("#orders,#ordBtn")) openOrders(false);
-  });
-  on(window, "resize", () => {
-    if (!ordEl.hidden) placeOrders();
-  });
-  ["#midU", "#midD"].forEach((id) => {
-    const m = $(id);
-    on(m, "click", (e: any) => {
-      const pc = e.target.closest(".pend");
-      if (pc && now() - pc._t > 450) {
-        e.stopPropagation();
-        e.preventDefault();
-        cancelPend(+pc.dataset.pid);
-      }
-    });
-    on(m, "keydown", (e: any) => {
-      const pc = e.target.closest(".pend");
-      if (pc && (e.key === "Enter" || e.key === " ")) {
-        e.stopPropagation();
-        e.preventDefault();
-        cancelPend(+pc.dataset.pid);
-      }
-    });
-  });
-
-  /* ---------- live ticks (deterministic path, no randomness) ---------- */
-  let lastPx = 0;
-  every(() => {
-    if (!S.round) return;
-    const at = now();
-    S.price = arcadePriceAt(S.path, S.start, at);
-    const n = Math.max(0, Math.min(S.round.steps, Math.floor((at - S.start) / ARCADE_STEP_MS)));
-    while (S.pts.length <= n) {
-      const i = S.pts.length;
-      S.pts.push({ t: S.start + i * ARCADE_STEP_MS, p: S.path[i] });
+  function renderBoard() {
+    const open = myOpen();
+    const stake = openStake();
+    const liveP = open.reduce((a: number, c: Call) => {
+      if (c.s0 == null) return a;
+      const ahead = c.side === "u" ? S.price > c.s0 : S.price < c.s0;
+      return a + (ahead ? netWin(c.gross, c.p) : -c.gross);
+    }, 0);
+    const nextS = open.length ? Math.max(0, Math.ceil((nextT1() - now()) / 1000)) : 0;
+    const set = (id: string, v: string) => {
+      const e = $(id);
+      if (e && e.textContent !== v) e.textContent = v;
+    };
+    set("#dOpenBig", open.length ? `${open.length} call${open.length > 1 ? "s" : ""} · ${whole(stake)} on the table` : "—");
+    set("#dOpenS", open.length ? `next settles in ${nextS}s` : "nothing on the table");
+    const l = $("#dLive");
+    if (l) {
+      l.textContent = open.length ? signed(liveP) : "—";
+      l.className = "n " + (liveP < 0 ? "neg" : open.length ? "pos" : "");
     }
-    const diff = S.price - S.open,
-      c = cents(),
-      up = diff >= 0;
+    const s = $("#dSes");
+    if (s) {
+      s.textContent = signed(S.ses);
+      s.className = "n " + (S.ses < 0 ? "neg" : S.ses > 0 ? "pos" : "");
+    }
+    set("#dSesS", `${S.won} won · ${S.lost} lost`);
+    const tk = $("#dTicks");
+    if (tk) {
+      const h = S.last.map((w: boolean) => `<span class="${w ? "w" : "l"}">${w ? "✓" : "✕"}</span>`).join("");
+      if (tk.innerHTML !== h) tk.innerHTML = h;
+    }
+    set("#dStreak", S.streakW >= 2 ? `${S.streakW} in a row` : S.streakL >= 2 ? `${S.streakL} lost in a row` : "");
+    set("#dNext", mobile ? (open.length ? "NEXT · " + nextS + "s" : "") : "NEXT SETTLE · " + (open.length ? nextS + "s" : "—"));
+    set("#mOpen", open.length ? `${open.length} · ${whole(stake)}` : "—");
+    $$("#dYourOpen").forEach((e) => (e.textContent = whole(stake) + " / $" + ARCADE_MAX_OPEN));
+  }
+  function renderPrice() {
+    const tk: ArcadeTick | null = S.tick;
+    const p = S.price;
+    const stale = !tk || now() - ms(tk.ts) > maxAge();
+    const set = (id: string, v: string) => {
+      const e = $(id);
+      if (e && e.textContent !== v) e.textContent = v;
+    };
+    set("#mPrice", p ? money(p) : "$—");
     const pe = $("#price");
-    pe.textContent = money(S.price);
-    pe.classList.toggle("up", S.price >= lastPx);
-    pe.classList.toggle("dn", S.price < lastPx);
-    lastPx = S.price;
-    const ch = $("#chg");
-    ch.textContent = `${up ? "▲ +" : "▼ −"}${money(diff)} ${up ? "above" : "below"} open`;
-    ch.classList.toggle("dn", !up);
-    $("#cU").textContent = c.u + "¢";
-    $("#cD").textContent = c.d + "¢";
-    meter(diff);
-    renderLive();
-  }, 100);
-  let lastSec = -1;
-  raf(() => {
-    if (!S.round) return;
-    const rem = S.start + S.dur * 1000 - now();
-    if (rem <= 0) settle();
-    const r = Math.max(0, rem),
-      sec = Math.ceil(r / 1000);
-    $("#clock").textContent = pad(Math.floor(sec / 60)) + ":" + pad(sec % 60);
-    const panic = sec <= 5 && sec > 0;
-    $("#timer").classList.toggle("panic", panic);
-    if (panic && sec !== lastSec && AC) sfx.tick();
-    lastSec = sec;
+    if (pe) {
+      pe.textContent = p ? money(p) : "$—";
+      pe.classList.toggle("up", p >= S.lastPx);
+      pe.classList.toggle("dn", p < S.lastPx);
+    }
+    const src = (v: number | null) => (v == null ? "—" : money(v));
+    set("#s1", tk ? src(tk.binance) : "—");
+    set("#s2", tk ? src(tk.hyperliquid) : "—");
+    set("#s3", tk ? src(tk.coinbase) : "—");
+    set("#mIdx", tk && tk.valid && !stale ? money(tk.idx!) : "INVALID");
+    const invalid = !tk || !tk.valid || stale;
+    const ds = $("#dSrc");
+    if (ds) ds.classList.toggle("paused", invalid);
+    const msrc = $("#mSrc");
+    if (msrc) msrc.classList.toggle("paused", invalid);
+    const nValid = tk ? [tk.binance, tk.hyperliquid, tk.coinbase].filter((v) => v != null).length : 0;
+    set("#dSrcState", invalid ? (tk && tk.reason ? "INDEX INVALID · " + tk.reason : "INDEX INVALID") : `LIVE · ${nValid} of 3`);
+    const ov = $("#dOv");
+    if (ov) {
+      const onv = !!S.paused;
+      ov.classList.toggle("on", onv);
+      if (onv) {
+        const r = S.paused;
+        set("#dOvT", r === "full" ? "TABLE FULL" : mobile ? "PAUSED" : "TABLE PAUSED");
+        set("#dOvS", r === "full" ? "Room opens as calls settle" : r === "breaker" ? "BTC is moving too fast · back in a moment" : r === "loss" ? "Daily limit reached · back tomorrow" : r === "off" ? "The table is closed" : mobile ? "Index invalid" : "Index invalid · waiting for the exchanges");
+      }
+    }
+  }
+  function render() {
+    renderKeys();
+    renderPays();
+    renderChips();
+    renderRail();
+    renderBoard();
+  }
+
+  /* ---------- data loops ---------- */
+  function adoptTick(tk: ArcadeTick, serverNow?: string) {
+    if (serverNow && !FX) {
+      const o = ms(serverNow) - Date.now();
+      off = off ? off * 0.7 + o * 0.3 : o;
+    }
+    if (S.lastTs && tk.ts <= S.lastTs) return;
+    S.lastTs = tk.ts;
+    S.tick = tk;
+    if (tk.valid && tk.idx != null) {
+      S.px.push({ t: ms(tk.ts), p: tk.idx });
+      if (S.px.length > 200) S.px.shift();
+      S.lastPx = S.price;
+      S.price = tk.idx;
+      if (tk.p_up != null) {
+        S.pUp = tk.p_up;
+        S.quoteTs = tk.ts;
+      } else {
+        S.pUp = null;
+        S.quoteTs = null;
+      }
+    }
+  }
+  async function poll() {
+    try {
+      const d = await data.tableNow();
+      const prevTs = S.lastTs;
+      if (d.tick) {
+        if (prevTs && ms(d.tick.ts) - ms(prevTs) > 1800) {
+          try {
+            const more = await data.ticksAfter(prevTs);
+            more.forEach((t) => adoptTick(t));
+          } catch (e) {
+            /* fall through to the latest */
+          }
+        }
+        adoptTick(d.tick, d.now);
+      } else if (d.now && !FX) off = ms(d.now) - Date.now();
+      if (d.params && Object.keys(d.params).length) S.params = d.params;
+      const wasPaused = S.paused;
+      S.paused = d.state?.paused_reason || null;
+      if (!S.paused && (!S.tick || !S.tick.valid || now() - ms(S.tick.ts) > maxAge())) S.paused = "index";
+      if (S.paused !== wasPaused) {
+        if (S.paused) Lx.gameStart();
+        else Lx.gameStop();
+      }
+      if (api.userId) {
+        S.ack = d.ack;
+        S.ackKnown = true;
+        if (!S.ack) openGate(true);
+      }
+      renderPrice();
+    } catch (e) {
+      if (S.tick && now() - ms(S.tick.ts) > maxAge() + 2000) {
+        S.paused = S.paused || "index";
+        renderPrice();
+      }
+    }
+  }
+  async function pollFeed() {
+    try {
+      S.feed = await data.feed();
+    } catch (e) {
+      /* keep */
+    }
+  }
+  async function boot() {
+    try {
+      const ticks = await data.ticks(60);
+      ticks.forEach((t) => adoptTick(t));
+    } catch (e) {
+      /* the poll fills it in */
+    }
+    await poll();
+    await loadRoad();
+    await pollFeed();
+    if (api.userId) {
+      try {
+        const rows = await data.myCalls(S.sessionStart);
+        rows.forEach((r) => {
+          const c = fromRow(r);
+          if (S.calls.find((x: Call) => x.id === c.id) || S.done.find((x: Call) => x.id === c.id)) return;
+          if (c.status === "open") S.calls.push(c);
+          else if (c.status !== "cancelled") S.done.push(c);
+        });
+        // last 10 from the whole record (persists across reloads)
+        const hist = await data.myCalls(null);
+        const settled = hist.filter((r) => r.status === "won" || r.status === "lost").sort((a, b) => ms(a.settled_at!) - ms(b.settled_at!));
+        S.last = settled.slice(-10).map((r) => r.status === "won");
+        let w = 0,
+          l = 0;
+        for (let i = settled.length - 1; i >= 0; i--) {
+          if (settled[i].status === "won") {
+            if (l) break;
+            w++;
+          } else {
+            if (w) break;
+            l++;
+          }
+        }
+        S.streakW = w;
+        S.streakL = l;
+        if (w >= 2 || l >= 2) comboUpdate("boot");
+      } catch (e) {
+        /* fresh session */
+      }
+    }
+    render();
+    renderPrice();
+  }
+
+  /* ---------- gate + rules + how-to ---------- */
+  const gate = $("#gate"),
+    rules = $("#rules");
+  function openGate(o: boolean) {
+    if (!gate) return;
+    gate.hidden = !o;
+  }
+  on($("#gateGo"), "click", async () => {
+    audio();
+    sfx.key();
+    if (!api.userId) {
+      openGate(false);
+      api.requireAuth();
+      return;
+    }
+    try {
+      S.ack = await data.acceptTerms();
+      openGate(false);
+      const c = center($("#gateGo"));
+      burst(c.x, c.y, C.dn, 24);
+    } catch (e: any) {
+      toast(String(e?.message || "Could not save that"), true);
+    }
+  });
+  const openRules = (e?: Event) => {
+    e?.preventDefault();
+    audio();
+    sfx.key();
+    rules.hidden = false;
+  };
+  $$("#rulesBtn,#gateRules").forEach((b) => on(b, "click", openRules));
+  on($("#rulesX"), "click", () => (rules.hidden = true));
+  on(rules, "click", (e: any) => {
+    if (e.target === rules) rules.hidden = true;
+  });
+  on(root, "click", (e: any) => {
+    const info = e.target.closest("#roadI,#m_roadI");
+    if (info) {
+      const ht = $(info.id === "roadI" ? "#howto" : "#m_howto");
+      ht.hidden = !ht.hidden;
+      return;
+    }
+    $$(".howto").forEach((ht) => {
+      if (!ht.hidden && !e.target.closest(".howto")) ht.hidden = true;
+    });
   });
 
-  /* ---------- controls ---------- */
-  $$("[data-dur]").forEach((b) =>
-    on(b, "click", () => {
+  /* ---------- wiring ---------- */
+  on(root, "click", (e: any) => {
+    const tab = e.target.closest(".tab");
+    if (tab) {
+      railTab = tab.dataset.tab;
+      render();
+      return;
+    }
+    const ring = e.target.closest(".ring");
+    if (ring) {
+      e.stopPropagation();
+      const c = S.calls.find((x: Call) => x.id == ring.dataset.id);
+      if (c) void cancel(c);
+      return;
+    }
+    const chip = e.target.closest(".chip");
+    if (chip) {
+      if (chip.classList.contains("off")) return;
       audio();
-      sfx.key();
-      const tf: ArcadeTf = +b.dataset.dur === 30 ? "30s" : "1m";
-      if (tf === S.tf) return;
-      $$("[data-dur]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
-      const c = center(b);
-      burst(c.x, c.y, C.cy, 22);
-      switchTable(S.asset, tf);
-    }),
-  );
-  ["#btnU", "#btnD"].forEach((id) => on($(id), "click", () => place($(id).dataset.side)));
-  on($("#cashBtn"), "click", (e: any) => {
-    if (!S.pos) return;
-    audio();
-    sfx.key();
-    press(e.currentTarget);
-    openCo();
-  });
-  on($("#shareBtn"), "click", (e: any) => {
-    if (e.currentTarget.disabled) return;
-    audio();
-    sfx.key();
-    press(e.currentTarget);
-    openShare();
+      S.chip = +chip.dataset.v;
+      sfx.chip();
+      const c = center(chip);
+      burst(c.x, c.y, C.dn, 14);
+      render();
+      return;
+    }
+    const key = e.target.closest(".dir");
+    if (key && !e.target.closest(".ring")) {
+      void place(key.dataset.side);
+      return;
+    }
   });
   on(window, "keydown", (e: KeyboardEvent) => {
     if ((e.target as any)?.closest?.("input,textarea,[contenteditable]")) return;
     if (e.key === "ArrowUp") {
       e.preventDefault();
-      place("u");
+      void place("u");
     }
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      place("d");
+      void place("d");
     }
     if (e.key === "Escape") {
-      openOrders(false);
-      openMenu(false);
-      closeModal(coM);
-      closeModal(shM);
+      if (rules) rules.hidden = true;
+      sheetOpen(false);
     }
-    if (e.key === "m" || e.key === "M") muteBtn.click();
+    if (e.key === "m" || e.key === "M") muteBtn?.click();
   });
-
-  /* chips: tap to select, drag onto UP / DOWN */
-  function selectChip(v: number) {
-    S.chip = v;
-    $$(".chip").forEach((x) => x.setAttribute("aria-pressed", String(+x.dataset.v === v)));
-    renderButtons();
-  }
-  function zoneAt(x: number, y: number): Side | null {
-    for (const id of ["#btnU", "#btnD"]) {
-      const r = $(id).getBoundingClientRect();
-      if (x >= r.left - 12 && x <= r.right + 12 && y >= r.top - 12 && y <= r.bottom + 12) return $(id).dataset.side;
-    }
-    return null;
-  }
-  $$(".chip").forEach((ch) => {
-    let sx = 0,
-      sy = 0,
-      drag: any = null,
-      id: any = null;
-    on(ch, "pointerdown", (e: PointerEvent) => {
-      audio();
-      sx = e.clientX;
-      sy = e.clientY;
-      id = e.pointerId;
-      ch.setPointerCapture(id);
-    });
-    on(ch, "pointermove", (e: PointerEvent) => {
-      if (id !== e.pointerId) return;
-      if (!drag && Math.hypot(e.clientX - sx, e.clientY - sy) > 6) {
-        selectChip(+ch.dataset.v);
-        sfx.chip();
-        drag = ch.cloneNode(true);
-        drag.removeAttribute("aria-pressed");
-        drag.className += " ghostchip drag";
-        drag.style.animation = "none";
-        root.appendChild(drag);
-      }
-      if (drag) {
-        drag.style.left = e.clientX + "px";
-        drag.style.top = e.clientY + "px";
-        const z = zoneAt(e.clientX, e.clientY);
-        $("#btnU").classList.toggle("hot", z === "u");
-        $("#btnD").classList.toggle("hot", z === "d");
-      }
-    });
-    const end = (e: PointerEvent) => {
-      if (id !== e.pointerId) return;
-      id = null;
-      if (drag) {
-        const z = zoneAt(e.clientX, e.clientY);
-        $("#btnU").classList.remove("hot");
-        $("#btnD").classList.remove("hot");
-        const pt = { x: e.clientX, y: e.clientY };
-        drag.remove();
-        drag = null;
-        if (z) place(z, pt);
-        else sfx.click();
-        ch.dataset.dragged = "1";
-        setTimeout(() => delete ch.dataset.dragged, 50);
-      }
-    };
-    on(ch, "pointerup", end);
-    on(ch, "pointercancel", end);
-    on(ch, "click", () => {
-      if (ch.dataset.dragged) return;
-      selectChip(+ch.dataset.v);
-      sfx.chip();
-      const c = center(ch);
-      burst(c.x, c.y, C.dn, 14);
-    });
+  on($("#depBtn"), "click", () => {
+    audio();
+    sfx.key();
+    api.deposit();
   });
-
-  /* ---------- mute / fullscreen / title plate ---------- */
+  on($("#xferBtn"), "click", () => {
+    audio();
+    sfx.key();
+    api.transfer();
+  });
   const muteBtn = $("#muteBtn");
   const syncMute = () => {
+    if (!muteBtn) return;
     muteBtn.setAttribute("aria-pressed", String(MUTED));
     muteBtn.setAttribute("aria-label", MUTED ? "Unmute sound" : "Mute sound");
   };
@@ -1465,567 +1585,78 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       /* private mode */
     }
     syncMute();
-    press(muteBtn);
     if (!MUTED) {
       audio();
       sfx.key();
     }
-    const c = center(muteBtn);
-    burst(c.x, c.y, MUTED ? C.hot : C.cy, 12);
   });
-  const fsBtn = $("#fsBtn");
-  if (fsBtn)
-    on(fsBtn, "click", () => {
-      audio();
-      sfx.key();
-      try {
-        document.fullscreenElement ? document.exitFullscreen() : root.requestFullscreen().catch(() => {});
-      } catch (e) {
-        /* unsupported */
-      }
-    });
-  const exitBtn = $("#exitBtn");
-  if (exitBtn)
-    on(exitBtn, "click", () => {
-      audio();
-      sfx.click();
-      api.exit();
-    });
-  on($("#logoPlate"), "click", (e: any) => {
+  on($("#fsBtn"), "click", () => {
+    audio();
+    sfx.key();
+    try {
+      document.fullscreenElement ? document.exitFullscreen() : root.requestFullscreen().catch(() => {});
+    } catch (e) {
+      /* unsupported */
+    }
+  });
+  const logo = $("#logoPlate");
+  on(logo, "click", (e: any) => {
     audio();
     sfx.key();
     const c = center(e.currentTarget);
     burst(c.x, c.y, C.cy, 24);
-    burst(c.x, c.y, C.dn, 10, true);
     setTimeout(() => api.exit(), 160);
   });
-  on($("#logoPlate"), "keydown", (e: KeyboardEvent) => {
+  on(logo, "keydown", (e: KeyboardEvent) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       api.exit();
     }
   });
 
-  /* ---------- asset picker ---------- */
-  const amenu = $("#amenu"),
-    catBtns = $$(".key.cat");
-  let menuTab = "crypto";
-  const lastOf: Record<string, string> = { crypto: "BTC", stock: "AAPL" };
-  const curCat = () => catBtns.find((b) => b.dataset.kind === ARCADE_ASSETS[S.asset].kind);
-  function renderCats() {
-    const kind = ARCADE_ASSETS[S.asset].kind;
-    catBtns.forEach((b) => {
-      const onK = b.dataset.kind === kind;
-      b.setAttribute("aria-pressed", String(onK));
-      b.innerHTML = onK ? `${dotHtml(S.asset, ARCADE_ASSETS[S.asset], "adot")}<span>${S.asset}</span><span class="car">▼</span>` : b.dataset.kind === "crypto" ? "CRYPTO" : "STOCK";
-      b.setAttribute("aria-label", onK ? `${ARCADE_ASSETS[S.asset].name} · choose another ${b.dataset.kind}` : `Switch to ${b.dataset.kind}`);
-    });
-  }
-  const dotHtml = (k: string, a: any, cls: string) => (a.kind === "stock" ? `<span class="${cls} tk" style="--c:${a.c}">${k[0]}</span>` : `<span class="${cls}" style="--c:${a.c}"></span>`);
-  function renderMenu() {
-    amenu.innerHTML = Object.values(ARCADE_ASSETS)
-      .filter((a) => a.kind === menuTab)
-      .map((a) => `<button class="arow" role="option" data-a="${a.symbol}" aria-selected="${a.symbol === S.asset}">${dotHtml(a.symbol, a, "mdot")}<span class="sym">${a.symbol}</span><span class="nm">${a.name}</span><span class="pct">${a.kind === "stock" ? (usSessionOpen() ? "1m · open" : "1m · closed") : "30s · 1m"}</span></button>`)
-      .join("");
-  }
-  function openMenu(o: boolean) {
-    amenu.hidden = !o;
-    catBtns.forEach((b) => b.setAttribute("aria-expanded", String(o && b === curCat())));
+  /* ---------- mobile sheet ---------- */
+  const sheet = $("#mSheet"),
+    scrim = $("#mScrim"),
+    peek = $("#mPeek");
+  function sheetOpen(o: boolean) {
+    if (!sheet) return;
+    sheet.hidden = !o;
+    scrim.hidden = !o;
+    peek.setAttribute("aria-expanded", String(o));
     if (o) {
-      menuTab = ARCADE_ASSETS[S.asset].kind;
-      renderMenu();
-      const k = curCat(),
-        w = amenu.parentNode.getBoundingClientRect(),
-        kr = k.getBoundingClientRect();
-      amenu.style.setProperty("--ml", Math.min(kr.left - w.left, innerWidth - w.left - amenu.offsetWidth - 12) + "px");
+      renderRoads();
+      render();
     }
   }
-  catBtns.forEach((b) =>
-    on(b, "click", (e: Event) => {
-      audio();
-      e.stopPropagation();
-      if (b.dataset.kind === ARCADE_ASSETS[S.asset].kind) {
-        sfx.key();
-        openMenu(amenu.hidden);
-      } else {
-        openMenu(false);
-        void setAsset(lastOf[b.dataset.kind]);
-      }
-    }),
-  );
-  on(amenu, "click", (e: any) => {
-    const r = e.target.closest(".arow");
-    if (!r) return;
-    e.stopPropagation();
-    void setAsset(r.dataset.a);
-    openMenu(false);
-  });
-  on(document, "click", (e: any) => {
-    if (!amenu.hidden && !e.target.closest(".assetwrap")) openMenu(false);
+  on(peek, "click", () => sheetOpen(true));
+  on(scrim, "click", () => sheetOpen(false));
+  on($("#mSheetX"), "click", () => sheetOpen(false));
+  on($("#mLynx"), "click", (e: any) => {
+    e.target.classList.remove("hop");
+    void e.target.offsetWidth;
+    e.target.classList.add("hop");
+    tone(880, 0.06, "square", 0.04, 1.5);
   });
 
-  /* ---------- US session gate ---------- */
-  function applyMarket() {
-    const a = ARCADE_ASSETS[S.asset],
-      stock = a.kind === "stock";
-    S.closed = stock && !usSessionOpen();
-    const ov = $("#closedOv");
-    if (ov) {
-      ov.hidden = !S.closed;
-      if (S.closed) {
-        $("#closedS").textContent = `${a.name} rounds run during the US cash session only. Crypto tables are open 24/7.`;
-        $("#closedN").textContent = nextUsSessionText();
-        if (!S.round) {
-          // no round to label — never show the markup's sample numbers
-          $("#titleOpen").textContent = "—";
-          $("#win").textContent = `opens ${nextUsSessionText()}`;
-          $("#roundLbl").textContent = ROUND_NAMES[S.dur];
-          ["#cU", "#cD"].forEach((q) => ($(q).textContent = "—"));
-          ["#paysU", "#paysD"].forEach((q) => ($(q).textContent = "Market closed"));
-          const bq = $("#betQuote");
-          if (bq) bq.textContent = `${whole(S.chip)} SELECTED`;
-        }
-      }
-    }
-    ["#btnU", "#btnD"].forEach((q) => {
-      const b = $(q);
-      if (b) {
-        b.classList.toggle("closed", S.closed);
-        b.disabled = S.closed;
-      }
-    });
-    $$('[data-dur="30"]').forEach((b) => {
-      b.disabled = stock;
-      b.title = stock ? "Stock tables run 1m rounds only" : "";
-    });
-    const fs = $("#feedSrc");
-    if (fs) fs.textContent = stock ? `LIVE · ${S.asset} · NASDAQ` : `LIVE · ${S.asset}/USD`;
-  }
-  every(applyMarket, 30000);
-
-  /* ---------- rules ⓘ ---------- */
-  function rulesHtml() {
-    const a = ARCADE_ASSETS[S.asset],
-      n = S.dur < 60 ? "30-second" : "1-minute";
-    return `<b>How a ${n} round settles</b><br>Every chip buys <b>Up</b> or <b>Down</b> shares at the price shown (e.g. 59¢). A share pays <b>$1.00</b> if your side wins, <b>$0</b> if not.<br><b>Up</b> wins when ${S.asset} closes the round above the open <b>${money(S.open)}</b>; <b>Down</b> wins when it closes below.<br>Closes <b>exactly at the open</b> → round void, every stake returned.<br>${a.kind === "stock" ? "Halted or outside the US cash session (09:30–16:00 ET) → round void, stakes returned.<br>" : ""}Cash out any time before the close at the live share price.<span class="k">SPOT ACCOUNT · NO BOOST · MAX LOSS = YOUR STAKE · FEE 0.15% · 5% ON WINNINGS</span>`;
-  }
-  (function rulesInit() {
-    const i = $("#rulesI"),
-      r = $("#rules");
-    if (!i) return;
-    const open = (o: boolean) => {
-      r.hidden = !o;
-      if (o) {
-        r.innerHTML = rulesHtml();
-        const b = i.getBoundingClientRect();
-        r.style.top = b.bottom + 8 + "px";
-        r.style.left = Math.min(b.left, innerWidth - r.offsetWidth - 12) + "px";
-      }
-    };
-    on(i, "click", (e: Event) => {
-      e.stopPropagation();
-      open(r.hidden);
-    });
-    on(i, "keydown", (e: KeyboardEvent) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        open(r.hidden);
-      }
-    });
-    on(document, "click", (e: any) => {
-      if (!r.hidden && !e.target.closest("#rules")) open(false);
-    });
-  })();
-
-  /* ---------- table switching + server sync ---------- */
-  let reconcileT: any = 0;
-  function scheduleReconcile() {
-    clearTimeout(reconcileT);
-    reconcileT = setTimeout(() => void refreshTable(false), 4000);
-  }
-  let loadSeq = 0;
-  async function refreshTable(full: boolean) {
-    const seq = ++loadSeq;
-    const symbol = S.asset,
-      tf = S.tf;
-    try {
-      const snap = opts.fixture ? opts.fixture.snapshot : await fetchArcadeTable(symbol, tf, 60);
-      if (!alive || seq !== loadSeq || symbol !== S.asset || tf !== S.tf) return;
-      if (snap.current) {
-        if (!S.round || S.round.id !== snap.current.id) {
-          // the server knows a different live round (first load, or we drifted)
-          adoptRound(snap.current);
-          if (api.userId) void loadHolding(snap.current);
-        }
-      } else if (!S.round && !S.closed) {
-        // nothing open on this table right now (stock session gap / job lag)
-        $("#clock").textContent = "--:--";
-      }
-      S.next = snap.next;
-      if (full || snap.history.length !== S.histRounds.length) {
-        S.histRounds = snap.history;
-        S.hist = snap.history.map((r) => (r.winner === "up" ? "u" : "d"));
-        renderBead();
-        renderRoad();
-        renderStats();
-      }
-    } catch (e) {
-      /* keep running on the deterministic stream; retry on the next reconcile */
-    }
-  }
-  async function loadHolding(round: ArcadeRoundRow) {
-    try {
-      const h = await api.loadHolding(round);
-      if (!alive || !S.round || S.round.id !== round.id) return;
-      S.pos = h;
-      lastStack = { u: "", d: "" };
-      renderButtons();
-      renderResult();
-    } catch (e) {
-      /* no holding */
-    }
-  }
-  async function loadToday() {
-    if (!api.userId) return;
-    try {
-      const t = await api.loadToday();
-      if (!alive) return;
-      S.today = t.net;
-      S.won = t.won;
-      S.lost = t.lost;
-      S.todayTouched = t.won + t.lost > 0;
-      S.last = t.last.slice(-10);
-      renderTicks();
-      renderResult();
-    } catch (e) {
-      /* stays at zero */
-    }
-  }
-  async function switchTable(symbol: string, tf: ArcadeTf) {
-    S.pend.slice().forEach((p: any) => cancelPend(p.id, true));
-    S.asset = symbol;
-    S.tf = tf;
-    S.dur = tfSeconds(tf);
-    S.round = null;
-    S.next = null;
-    S.pos = null;
-    S.pts = [];
-    S.hist = [];
-    S.histRounds = [];
-    lastStack = { u: "", d: "" };
-    $("#qsym").textContent = symbol;
-    const rg = Math.round(200 * K() * 100) / 100;
-    $("#mTop").textContent = "+$" + rg;
-    $("#mBot").textContent = "−$" + rg;
-    $$("[data-dur]").forEach((x) => x.setAttribute("aria-pressed", String((x.dataset.dur === "30") === (tf === "30s"))));
-    renderCats();
-    applyMarket();
-    renderBead();
-    renderRoad();
-    renderStats();
-    opts.onTableChange?.(symbol, tf);
-    await refreshTable(true);
-  }
-  async function setAsset(k: string) {
-    if (!ARCADE_ASSETS[k]) return;
-    if (k === S.asset) {
-      sfx.click();
-      return;
-    }
-    const a = ARCADE_ASSETS[k];
-    lastOf[a.kind] = k;
-    const tf: ArcadeTf = a.kind === "stock" ? "1m" : S.tf;
-    const cb = curCat();
-    await switchTable(k, tf);
-    const cc = curCat() || cb,
-      c = center(cc);
-    burst(c.x, c.y, a.c, 34);
-    flash(a.c);
-    sfx.bet();
-    Lx.react("bet");
-    press(cc);
-  }
-
-  /* ---------- modals ---------- */
-  const coM = $("#coModal"),
-    shM = $("#shModal");
-  let coPct = 100,
-    shLive = false,
-    lastFocus: any = null;
-  function openModal(m: any) {
-    lastFocus = document.activeElement;
-    m.hidden = false;
-    openOrders(false);
-    if (!amenu.hidden) openMenu(false);
-    setTimeout(() => m.querySelector("[data-close]").focus(), 30);
-  }
-  function closeModal(m: any) {
-    if (m.hidden) return;
-    m.hidden = true;
-    sfx.click();
-    if (lastFocus && lastFocus.focus) lastFocus.focus();
-  }
-  [coM, shM].forEach((m) =>
-    on(m, "click", (e: any) => {
-      if (e.target === m || e.target.closest("[data-close]")) closeModal(m);
-    }),
-  );
-  function setCo(p: number) {
-    coPct = Math.max(1, Math.min(100, Math.round(p)));
-    const r = $("#coRange");
-    r.value = coPct;
-    r.style.setProperty("--p", ((coPct - 1) / 99) * 100 + "%");
-    $$("[data-pct]").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.pct === coPct)));
-    renderCo();
-  }
-  function renderCo() {
-    if (!S.pos) {
-      closeModal(coM);
-      return;
-    }
-    const Pp = S.pos,
-      f = coPct >= 100 ? 1 : Math.max(1, Math.min(Pp.sh - 1, Math.round((Pp.sh * coPct) / 100))) / Pp.sh,
-      get = posValue() * f,
-      pnl = get - Pp.margin * f;
-    $("#coOut").textContent = coPct + "%";
-    $("#coInfo").innerHTML = `Cashing out <b>${coPct}%</b> of your <span class="sd${Pp.side}">${SIDE(Pp.side)}</span> call. You get back <span class="get">≈ ${money(get)}</span>`;
-    $("#coGo").textContent = `Cash out ≈ ${money(get)}`;
-    $("#coNote").innerHTML = `${coPct < 100 ? `Keeps ${whole(Pp.margin * (1 - f))} riding · ` : ""}<span style="color:${pnl < 0 ? "var(--hot)" : "var(--lime)"}">${signed(pnl)}</span> vs what you put in`;
-  }
-  function openCo() {
-    if (!S.pos) return;
-    openModal(coM);
-    setCo(100);
-  }
-  $$("[data-pct]").forEach((b) =>
-    on(b, "click", () => {
-      sfx.key();
-      press(b);
-      setCo(+b.dataset.pct);
-    }),
-  );
-  on($("#coRange"), "input", (e: any) => {
-    setCo(+e.target.value);
-    if (AC) tone(300 + coPct * 6, 0.025, "square", 0.025);
-  });
-  on($("#coGo"), "click", (e: any) => {
-    if (!S.pos) return;
-    press(e.currentTarget);
-    const p = coPct;
-    coM.hidden = true;
-    void cashOut(false, p);
-    if (lastFocus && lastFocus.focus) lastFocus.focus();
-  });
-  /* share */
-  function shareData() {
-    if (S.pos) {
-      const Pp = S.pos;
-      return { side: Pp.side, put: Pp.margin, worth: posValue(), live: true, asset: S.asset, dur: S.dur };
-    }
-    return S.shareLast;
-  }
-  const durTxt = (d: number) => (d < 60 ? d + "s" : d / 60 + "m");
-  const funLine = (roi: number) => (roi >= 100 ? "🔥 Absolute legend!" : roi >= 30 ? "💰 Nice gains!" : roi >= 0 ? "✨ Well played!" : roi <= -50 ? "😭 That's rough buddy..." : "📉 We go again!");
-  let shArtWin: boolean | null = null;
-  function renderShare() {
-    const D = shareData();
-    if (!D) return;
-    const pnl = D.worth - D.put,
-      roi = D.put ? (pnl / D.put) * 100 : 0,
-      win = pnl >= 0,
-      a = ARCADE_ASSETS[D.asset];
-    $("#shBox").classList.toggle("loss", !win);
-    $("#shTitle").textContent = win ? "Share Your Win 🏆" : "Share Your Trade";
-    $("#shSub").textContent = win ? "Show off your trading success" : "We go again next time!";
-    $("#shPill").textContent = D.live ? (win ? "⚡ Winning!" : "📉 Losing") : win ? (D.cash ? "💸 Cashed out" : "🏆 Won") : D.cash ? "💸 Cashed out" : "💀 Lost";
-    $("#shTag").textContent = D.live ? "LIVE CALL" : "SETTLED";
-    $("#shHeroL").textContent = (win ? "PROFIT" : "LOST") + (D.live ? " SO FAR" : "");
-    $("#shPv").textContent = signed(pnl);
-    $("#shRoi").textContent = `${roi >= 0 ? "+" : "−"}${Math.abs(roi).toFixed(1)}% ROI`;
-    $("#shFun").textContent = funLine(roi);
-    $("#shQ").textContent = `${a.name} — up or down?`;
-    $("#shD").innerHTML = `<span class="${D.side === "u" ? "mu" : "mdn"}">${SIDE(D.side)}</span> · ${durTxt(D.dur)} round`;
-    $("#shIn").textContent = money(D.put);
-    $("#shOutL").textContent = D.live ? "Now worth" : D.cash ? "Cashed out" : "Paid out";
-    $("#shOut").textContent = money(D.worth);
-    $("#shCta").textContent = win ? "Join & trade like a pro!" : "Join & do better than me 😅";
-    if (shArtWin !== win) {
-      shArtWin = win;
-      const im = $("#shArt");
-      im.src = win ? "/arcade/share-win.png" : "/arcade/share-lose.png";
-      im.alt = win ? "Lynx celebrating in a shower of gold coins" : "Lynx crying";
-    }
-  }
-  (function drawQr() {
-    const q = $("#shQr"),
-      x = q.getContext("2d"),
-      N = 25;
-    x.fillStyle = "#fff";
-    x.fillRect(0, 0, N, N);
-    x.fillStyle = "#07090f";
-    let r = 7531;
-    const rnd = () => (r = (r * 9301 + 49297) % 233280) / 233280;
-    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (rnd() < 0.5) x.fillRect(i, j, 1, 1);
-    [
-      [0, 0],
-      [N - 7, 0],
-      [0, N - 7],
-    ].forEach(([a, b]) => {
-      x.fillStyle = "#fff";
-      x.fillRect(a - 1 < 0 ? 0 : a - 1, b - 1 < 0 ? 0 : b - 1, 9, 9);
-      x.fillStyle = "#07090f";
-      x.fillRect(a, b, 7, 7);
-      x.fillStyle = "#fff";
-      x.fillRect(a + 1, b + 1, 5, 5);
-      x.fillStyle = "#07090f";
-      x.fillRect(a + 2, b + 2, 3, 3);
-    });
-  })();
-  $("#shAva").src = api.avatarUrl || SPR.lynx[0];
-  function fillShareIdentity() {
-    const shName = $("#shName");
-    if (shName) shName.textContent = api.username;
-    $("#shAva").src = api.avatarUrl || SPR.lynx[0];
-    const shRef = $("#shRef");
-    if (shRef) {
-      let code = "";
-      try {
-        code = new URL(api.referralLink).searchParams.get("ref") || "";
-      } catch {
-        code = "";
-      }
-      shRef.textContent = code || "—";
-      const line = shRef.closest(".ref") as HTMLElement | null;
-      if (line) line.style.visibility = code ? "" : "hidden";
-    }
-  }
-  fillShareIdentity();
-  function openShare() {
-    const D = shareData();
-    if (!D) return;
-    fillShareIdentity();
-    shLive = !!D.live;
-    shArtWin = null;
-    renderShare();
-    openModal(shM);
-    const win = D.worth >= D.put,
-      c = { x: innerWidth / 2, y: innerHeight * 0.35 };
-    if (win) {
-      burst(c.x, c.y, C.dn, 36, true);
-      rain(C.dn, 24);
-      tone(880, 0.08, "square", 0.05);
-    } else {
-      flash(C.hot);
-      tone(180, 0.18, "sawtooth", 0.05);
-    }
-  }
-  $$("[data-sh]").forEach((b) =>
-    on(b, "click", () => {
-      audio();
-      sfx.key();
-      press(b);
-      const k = b.dataset.sh,
-        link = api.referralLink;
-      if (k === "copy") {
-        try {
-          navigator.clipboard.writeText(link).then(
-            () => toast("Link copied · " + link),
-            () => toast("Link · " + link),
-          );
-        } catch (e) {
-          toast("Link · " + link);
-        }
-      } else if (k === "x") window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(`${$("#shPv").textContent} on ${S.asset} ${durTxt(S.dur)} Up/Down at OmenX Quick Play`)}&url=${encodeURIComponent(link)}`, "_blank", "noopener");
-      else if (k === "tg") window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(`${$("#shPv").textContent} on ${S.asset} at OmenX Quick Play`)}`, "_blank", "noopener");
-      else if (k === "save") toast("Long-press the card to save it");
-      else toast("More share options coming with the poster service");
-      const c = center(b);
-      burst(c.x, c.y, C.dn, 14);
-    }),
-  );
-
-  /* ---------- hover readouts ---------- */
-  const tip = $("#tip");
-  function showTip(html: string, x: number, y: number) {
-    tip.innerHTML = html;
-    tip.hidden = false;
-    const w = tip.offsetWidth,
-      h = tip.offsetHeight;
-    tip.style.left = Math.max(w / 2 + 8, Math.min(innerWidth - w / 2 - 8, x)) + "px";
-    tip.style.top = Math.max(h + 16, y) + "px";
-  }
-  function hideTip() {
-    tip.hidden = true;
-  }
-  const winOf = (r: ArcadeRoundRow) => `${fmtT(new Date(r.start_at), true)}–${fmtT(new Date(r.end_at), true)}`;
-  const sideTxt = (r: boolean) => (r ? `<b>Up won</b>` : `<span class="w">Down won</span>`);
-  function tipFor(t: any) {
-    const el = t.closest && t.closest(".bead:not(.ghost),.cell:not(.ghost),.tick,[data-tip]");
-    if (el && root.contains(el)) {
-      const r = el.getBoundingClientRect(),
-        x = r.left + r.width / 2,
-        y = r.top;
-      if (el.classList.contains("bead") || el.classList.contains("cell")) {
-        const i = +el.dataset.i,
-          rr: ArcadeRoundRow | undefined = S.histRounds[i],
-          up = el.classList.contains("u");
-        if (!rr) return hideTip();
-        const mv = (rr.close_price ?? rr.open_price) - rr.open_price;
-        if (el.classList.contains("cell")) return showTip(`${winOf(rr)} · ${sideTxt(up)} · streak ${el.dataset.k}/${el.dataset.n}`, x, y);
-        return showTip(`${winOf(rr)} · ${sideTxt(up)} · ${up ? "▲ +" : "▼ −"}$${Math.abs(mv).toFixed(2)}`, x, y);
-      }
-      if (el.classList.contains("tick")) {
-        const l = S.last.slice(-10)[+el.dataset.li];
-        if (!l) return hideTip();
-        const amt = Math.abs(l.pnl || 0).toFixed(2);
-        return showTip(`${fmtT(new Date(l.t || now()), true)} · ${l.s === "u" ? "↑ UP" : "↓ DOWN"} · ${l.w ? `<span class="w">won +$${amt}</span>` : `<span class="l">lost −$${amt}</span>`}`, x, y);
-      }
-      const k = el.dataset.tip,
-        tot = S.nUp + S.nDn;
-      if (k === "split") return showTip(tot ? `Last ${tot} rounds · <b>Up ${Math.round((S.nUp / tot) * 100)}%</b> · <span class="w">Down ${Math.round((S.nDn / tot) * 100)}%</span>` : "No rounds settled yet", x, y);
-      if (k === "longest") return showTip(`Longest ${S.longestS === "u" ? "Up" : "Down"} streak ×${S.longest} in the last ${tot} rounds`, x, y);
-      if (k === "pnl") {
-        const l = S.last.slice(-10),
-          w = l.filter((x: any) => x.w).length;
-        return showTip(`Your last ${l.length} rounds · <span class="w">${w} won</span> · <span class="l">${l.length - w} lost</span>`, x, y);
-      }
-    }
-    if (hov.on) return;
-    hideTip();
-  }
-  on(document, "mousemove", (e: any) => tipFor(e.target));
-  on(document, "pointerdown", (e: any) => {
-    if (e.pointerType !== "mouse") tipFor(e.target);
-  });
-  const plotEl = $("#plot");
-  on(plotEl, "mousemove", (e: MouseEvent) => {
-    const r = plotEl.getBoundingClientRect();
-    hov.on = true;
-    hov.x = e.clientX - r.left;
-    hov.cx = e.clientX;
-    hov.cy = e.clientY;
-  });
-  on(plotEl, "mouseleave", () => {
-    hov.on = false;
-    hov.pt = null;
-    hideTip();
-  });
-
-  /* ---------- lynx pilot ---------- */
+  /* ---------- the lynx (desktop dash) ---------- */
   const Lx = (() => {
     const el = $("#lynx"),
       img = $("#lynxImg"),
       emo = $("#emote"),
-      win = $(".window");
-    const V = SPR.lynx;
+      win = $("#dWin"),
+      sg = $("#sign");
+    const G: any = { on: false, rocks: [] as any[], t0: 0, score: 0, hi: 0, dead: false, jumpUntil: 0, next: 0 };
+    if (!el) return { react: (_k: string) => {}, readRoad: () => {}, gameStart: () => {}, gameStop: () => {}, gameTick: (_t: number, _c: any, _w: number, _h: number) => {}, G };
+    const V = ["/arcade/lynx0.png", "/arcade/lynx1.png", "/arcade/lynx2.png", "/arcade/lynx3.png"];
     let x = 60,
       tx = 60,
       dir = -1,
       mode = "idle",
       lockUntil = 0,
-      nextThink = performance.now() + 1500,
-      last = performance.now(),
-      seq: any[] = [];
+      nextThink = perf() + 1500,
+      last = perf(),
+      lastTouch = perf(),
+      mood = "flat";
     const W = () => win.clientWidth - el.offsetWidth - 8;
     function view(i: number, flip?: boolean) {
       img.src = V[i];
@@ -2033,7 +1664,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     }
     function setMode(m: string) {
       if (mode === m) return;
-      el.classList.remove("idle", "walk", "hop", "cheer", "sulk");
+      el.classList.remove("idle", "walk", "hop", "cheer", "sulk", "sleep", "strut", "mope", "run", "jump", "dead");
       void el.offsetWidth;
       el.classList.add(m);
       mode = m;
@@ -2044,287 +1675,419 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       void emo.offsetWidth;
       emo.classList.add("show");
     }
-    function think(now: number) {
+    let signT: any = 0;
+    function sign(t: string) {
+      sg.textContent = t;
+      sg.hidden = false;
+      clearTimeout(signT);
+      signT = setTimeout(() => (sg.hidden = true), 4000);
+    }
+    /* 1 · mood follows the session: up → struts, down → mopes, idle 60 s → sleeps */
+    const moodOf = () => (S.ses > 0.5 ? "up" : S.ses < -0.5 ? "down" : "flat");
+    function think(t: number) {
+      if (G.on) return;
+      const asleep = t - lastTouch > 60000;
+      if (asleep) {
+        if (mode !== "sleep") {
+          setMode("sleep");
+          view(1, dir > 0);
+        }
+        if (Math.random() < 0.5) emote("z");
+        nextThink = t + 1800;
+        return;
+      }
+      mood = moodOf();
       const r = Math.random();
-      if (r < 0.45) {
+      if (r < (mood === "up" ? 0.6 : 0.4)) {
         tx = 12 + Math.random() * Math.max(10, W() - 12);
         dir = tx < x ? -1 : 1;
-        setMode("walk");
+        setMode(mood === "up" ? "strut" : mood === "down" ? "mope" : "walk");
         view(2, dir > 0);
-      } else if (r < 0.65) {
+      } else if (r < 0.7) {
         setMode("idle");
-        view(1, Math.random() < 0.5);
-        lockUntil = now + 900;
-      } else if (r < 0.8) {
-        setMode("idle");
-        view(3);
-        lockUntil = now + 1600;
+        view(mood === "down" ? 1 : 0, dir > 0);
+      } else if (r < 0.82 && mood !== "down") {
+        setMode("hop");
+        view(3, dir > 0);
+        lockUntil = t + 500;
       } else {
         setMode("idle");
-        view(0);
+        view(mood === "down" ? 1 : 0, dir > 0);
       }
-      nextThink = now + 1600 + Math.random() * 2600;
+      nextThink = t + (mood === "up" ? 900 : mood === "down" ? 2200 : 1200) + Math.random() * 2000;
     }
-    raf((now) => {
-      const dt = Math.min(50, now - last);
-      last = now;
-      if (seq.length && now >= seq[0].t) {
-        const st = seq.shift();
-        st.f();
-      }
-      if (!seq.length && now > lockUntil) {
-        if (mode === "walk") {
-          const sp = 0.045 * dt;
-          x += Math.sign(tx - x) * Math.min(sp, Math.abs(tx - x));
-          if (Math.abs(tx - x) < 1) {
+    raf((t) => {
+      const dt = Math.min(50, t - last);
+      last = t;
+      if (!G.on && t >= lockUntil) {
+        if (mode === "walk" || mode === "strut" || mode === "mope") {
+          const v = mode === "strut" ? 0.075 : mode === "mope" ? 0.035 : 0.055;
+          x += dir * v * dt;
+          if ((dir > 0 && x >= tx) || (dir < 0 && x <= tx)) {
+            x = tx;
             setMode("idle");
-            view(0);
+            view(mood === "down" ? 1 : 0, dir > 0);
           }
-        } else if (mode !== "idle") {
-          setMode("idle");
-          view(0);
-        } else if (now > nextThink && !RM) think(now);
+        }
+        if (t >= nextThink && !RM) think(t);
       }
-      x = Math.max(4, Math.min(W(), x));
+      x = Math.max(4, Math.min(Math.max(4, W()), x));
       el.style.setProperty("--x", x + "px");
     });
-    function react(kind: string) {
-      const now = performance.now();
-      seq = [];
-      if (kind === "bet") {
-        view(0);
-        setMode("hop");
-        emote("!");
-        lockUntil = now + 600;
-        nextThink = now + 2000;
-      }
-      if (kind === "win") {
-        emote("★");
-        setMode("cheer");
-        const order = [
-          [0, 0],
-          [1, 0],
-          [2, 1],
-          [3, 0],
-          [2, 0],
-          [0, 0],
-          [1, 1],
-          [0, 0],
-        ];
-        order.forEach((v, i) => seq.push({ t: now + i * 220, f: () => view(v[0], !!v[1]) }));
-        seq.push({ t: now + order.length * 220, f: () => {} });
-        lockUntil = now + 1900;
-        nextThink = now + 3000;
-      }
-      if (kind === "lose") {
-        view(3);
-        setMode("sulk");
-        emote("…");
-        lockUntil = now + 1800;
-        nextThink = now + 2600;
-      }
-      if (kind === "poke") {
-        view(0);
-        setMode("hop");
-        emote("♪");
-        lockUntil = now + 500;
-        nextThink = now + 1500;
-        tone(880, 0.06, "square", 0.04, 1.5);
-        tone(1320, 0.08, "square", 0.035, 1.2, 0.06);
-      }
-    }
-    on(el, "click", () => {
-      audio();
-      react("poke");
-    });
-    return { react };
-  })();
-
-  /* ---------- space window (pixel art, 3× upscaled) ---------- */
-  const sp = $("#space"),
-    sctx = sp.getContext("2d");
-  let SW = 0,
-    SH = 0,
-    stars: any[] = [],
-    rocks: any[] = [],
-    warpT = 0;
-  const PX = 3;
-  function makeRock(cx: number, w: number, h: number, seed: number) {
-    const pts: any[] = [];
-    let r = seed;
-    const rnd = () => {
-      r = (r * 9301 + 49297) % 233280;
-      return r / 233280;
-    };
-    for (let x = -w / 2; x <= w / 2; x++) {
-      const k = 1 - Math.pow(Math.abs(x) / (w / 2), 1.6);
-      pts.push({ x: cx + x, h: Math.max(0, Math.round(h * k + (rnd() - 0.5) * 3)) });
-    }
-    const craters: any[] = [];
-    for (let i = 0; i < 6; i++) craters.push({ x: cx + (rnd() - 0.5) * w * 0.7, y: rnd() * h * 0.6, r: 1 + rnd() * 3 });
-    return { pts, craters };
-  }
-  function sizeSpace() {
-    const r = sp.getBoundingClientRect();
-    SW = Math.max(1, Math.floor(r.width / PX));
-    SH = Math.max(1, Math.floor(r.height / PX));
-    sp.width = SW;
-    sp.height = SH;
-    stars = Array.from({ length: Math.round((SW * SH) / 90) }, () => ({ x: Math.random() * SW, y: Math.random() * SH * 0.85, z: Math.random(), tw: Math.random() * 6 }));
-    rocks = [makeRock(SW * 0.2, SW * 0.34, SH * 0.5, 7), makeRock(SW * 0.82, SW * 0.3, SH * 0.62, 13), makeRock(SW * 0.52, SW * 0.1, SH * 0.16, 21)];
-  }
-  const ro2 = new ResizeObserver(sizeSpace);
-  ro2.observe($(".window"));
-  disposers.push(() => ro2.disconnect());
-  function warp() {
-    warpT = performance.now();
-  }
-  raf((t) => {
-    if (!SW) return;
-    sctx.fillStyle = "#00030a";
-    sctx.fillRect(0, 0, SW, SH);
-    const w = Math.max(0, 1 - (t - warpT) / 1600),
-      cx = SW / 2,
-      cy = SH * 0.4;
-    for (const s of stars) {
-      s.x -= (0.02 + s.z * 0.05) * (RM ? 0 : 1);
-      if (s.x < 0) s.x += SW;
-      const b = 0.5 + 0.5 * Math.sin(t / 400 + s.tw);
-      if (w > 0 && !RM) {
-        const dx = s.x - cx,
-          dy = s.y - cy,
-          len = w * 12 * (s.z + 0.3);
-        sctx.strokeStyle = s.z > 0.6 ? "#cfff4a" : "#9fe9ff";
-        sctx.globalAlpha = w;
-        sctx.beginPath();
-        sctx.moveTo(s.x, s.y);
-        sctx.lineTo(s.x + (dx * 0.08 * len) / 6, s.y + (dy * 0.08 * len) / 6);
-        sctx.stroke();
-        sctx.globalAlpha = 1;
-      }
-      if (s.z > 0.92) {
-        sctx.fillStyle = `rgba(255,240,170,${0.6 + 0.4 * b})`;
-        sctx.fillRect(s.x | 0, s.y | 0, 1, 1);
-        if (b > 0.7) {
-          sctx.fillRect((s.x | 0) - 1, s.y | 0, 3, 1);
-          sctx.fillRect(s.x | 0, (s.y | 0) - 1, 1, 3);
-        }
-      } else {
-        sctx.fillStyle = s.z > 0.6 ? `rgba(150,200,255,${0.4 + 0.5 * b})` : `rgba(255,255,255,${0.25 + 0.4 * b})`;
-        sctx.fillRect(s.x | 0, s.y | 0, 1, 1);
-      }
-    }
-    for (const r of rocks) {
-      for (const p of r.pts) {
-        if (!p.h) continue;
-        const y = SH - p.h;
-        sctx.fillStyle = "#8f96a6";
-        sctx.fillRect(p.x | 0, y, 1, p.h);
-        sctx.fillStyle = "#c5cad6";
-        sctx.fillRect(p.x | 0, y, 1, 1);
-        sctx.fillStyle = "#5f6575";
-        sctx.fillRect(p.x | 0, (y + Math.max(2, p.h * 0.55)) | 0, 1, p.h);
-      }
-      sctx.fillStyle = "#5f6575";
-      for (const c of r.craters) {
-        const base = r.pts.find((p: any) => Math.abs(p.x - c.x) < 1);
-        if (!base || base.h < c.y + 3) continue;
-        sctx.beginPath();
-        sctx.ellipse(c.x, SH - base.h + c.y + 2, c.r, c.r * 0.6, 0, 0, 7);
-        sctx.fill();
-      }
-    }
-  });
-
-  /* ---------- mobile: road & stats sheet + modals live inside the shell ---------- */
-  (function mobileSheet() {
-    const sh = $("#mSheet"),
-      scrim = $("#mScrim"),
-      peek = $("#mPeek"),
-      hd = $("#mSheetH");
-    if (!sh || !scrim || !peek || !hd) return;
-    const shell = $(".m-shell");
-    ["#orders", "#coModal", "#shModal", "#mScrim", "#mSheet"].forEach((q) => {
-      const el = $(q);
-      if (el && shell) shell.appendChild(el);
-    });
-    const open = (o: boolean) => {
-      sh.classList.toggle("open", o);
-      scrim.hidden = !o;
-      peek.setAttribute("aria-expanded", String(o));
-      sh.setAttribute("aria-hidden", String(!o));
-      sh.style.transform = "";
-      if (o) setTimeout(() => $("#mSheetX")?.focus(), 60);
-      else peek.focus();
-    };
-    on(peek, "click", () => open(true));
-    on(scrim, "click", () => open(false));
-    on($("#mSheetX"), "click", (e: Event) => {
+    on(el, "click", (e: any) => {
+      if (G.on) return;
       e.stopPropagation();
-      open(false);
+      audio();
+      lastTouch = perf();
+      setMode("hop");
+      view(3, dir > 0);
+      emote(["♥", "!", "meow", "?!", "✦"][Math.floor(Math.random() * 5)]);
+      tone(880, 0.06, "square", 0.04, 1.5);
+      tone(1320, 0.08, "square", 0.035, 1.2, 0.06);
+      lockUntil = perf() + 600;
+      nextThink = lockUntil + 200;
     });
-    on(window, "keydown", (e: KeyboardEvent) => {
-      if (e.key === "Escape" && sh.classList.contains("open")) open(false);
+    function react(kind: string) {
+      if (G.on) return;
+      const t = perf();
+      lastTouch = t;
+      if (kind === "win") {
+        setMode("hop");
+        view(3, dir > 0);
+        emote("+");
+        lockUntil = t + 500;
+      } else if (kind === "lose") {
+        setMode("idle");
+        view(1, dir > 0);
+        lockUntil = t + 700;
+      } else if (kind === "combo") {
+        setMode("cheer");
+        view(3, dir > 0);
+        emote("GG!");
+        lockUntil = t + 1900;
+      } else if (kind === "cold") {
+        setMode("sulk");
+        view(1, dir > 0);
+        emote("...");
+        lockUntil = t + 1400;
+      } else if (kind === "bet") {
+        setMode("hop");
+        view(2, dir > 0);
+        lockUntil = t + 450;
+      }
+      nextThink = lockUntil + 300;
+    }
+    /* 2 · reads the road: dragon ≥ 5 or chop ≥ 6 → holds up a sign */
+    let lastRoad = "";
+    function readRoad() {
+      const hist: RoadCell[] = S.hist;
+      if (!hist.length) return;
+      let run = 1;
+      for (let i = hist.length - 1; i > 0 && hist[i] === hist[i - 1]; i--) run++;
+      let alt = 1;
+      for (let i = hist.length - 1; i > 0 && hist[i] !== hist[i - 1]; i--) alt++;
+      const key = run >= 5 ? "d" + run : alt >= 6 ? "c" + alt : "";
+      if (key && key !== lastRoad) {
+        sign(run >= 5 ? `DRAGON ×${run} ${hist[hist.length - 1] === "u" ? "▲" : "▼"}` : "choppy…");
+        if (!G.on) {
+          setMode("hop");
+          view(3, dir > 0);
+          lockUntil = perf() + 500;
+        }
+      }
+      lastRoad = key;
+    }
+    try {
+      G.hi = +localStorage.getItem("lynxHi")! || 0;
+    } catch (e) {
+      /* private mode */
+    }
+    /* new here? → points at ⓘ once, 8 s in, if nothing has been played */
+    let hinted = false;
+    timers.push(
+      setTimeout(() => {
+        if (!hinted && !G.on && !S.done.length && !S.calls.length && !S.last.length && !FX) {
+          hinted = true;
+          sign("new here? tap ⓘ ↗");
+          setMode("hop");
+          view(3, true);
+          lockUntil = perf() + 600;
+        }
+      }, 8000),
+    );
+    /* 4 · runner game while the table is paused (Chrome-dino moment) */
+    const hud = $("#ghud"),
+      hudT = $("#ghudT"),
+      hudS = $("#ghudS");
+    function gameStart() {
+      if (G.on) return;
+      G.on = true;
+      G.rocks = [];
+      G.score = 0;
+      G.dead = false;
+      G.t0 = perf();
+      G.next = G.t0 + 900;
+      x = 36;
+      el.style.setProperty("--x", x + "px");
+      setMode("run");
+      view(2, true);
+      win.classList.add("game");
+      hud.hidden = false;
+      hudT.textContent = (S.paused === "full" ? "TABLE FULL" : "TABLE PAUSED") + " · TAP TO JUMP";
+    }
+    function gameStop() {
+      if (!G.on) return;
+      G.on = false;
+      G.rocks = [];
+      win.classList.remove("game");
+      hud.hidden = true;
+      setMode("idle");
+      view(0, dir > 0);
+      nextThink = perf() + 600;
+    }
+    function jump() {
+      if (!G.on) return;
+      const t = perf();
+      if (G.dead) {
+        G.on = false;
+        gameStart();
+        return;
+      }
+      if (t < G.jumpUntil) return;
+      G.jumpUntil = t + 520;
+      setMode("jump");
+      sfx.jump();
+      setTimeout(() => {
+        if (G.on && !G.dead) setMode("run");
+      }, 540);
+    }
+    on(win, "click", () => jump());
+    on(document, "keydown", (e: KeyboardEvent) => {
+      if (e.code === "Space" && G.on) {
+        e.preventDefault();
+        jump();
+      }
     });
-    let y0: number | null = null,
-      dy = 0;
-    on(hd, "pointerdown", (e: PointerEvent) => {
-      if ((e.target as any).closest("button")) return;
-      y0 = e.clientY;
-      dy = 0;
-      sh.classList.add("drag");
-      hd.setPointerCapture(e.pointerId);
-    });
-    on(hd, "pointermove", (e: PointerEvent) => {
-      if (y0 === null) return;
-      dy = Math.max(0, e.clientY - y0);
-      sh.style.transform = `translate(-50%,${dy}px)`;
-    });
-    const end = () => {
-      if (y0 === null) return;
-      y0 = null;
-      sh.classList.remove("drag");
-      sh.style.transform = "";
-      if (dy > 80) open(false);
-    };
-    on(hd, "pointerup", end);
-    on(hd, "pointercancel", end);
-    let py: number | null = null;
-    on(peek, "touchstart", (e: TouchEvent) => (py = e.touches[0].clientY), { passive: true });
-    on(peek, "touchend", (e: TouchEvent) => {
-      if (py !== null && py - e.changedTouches[0].clientY > 30) open(true);
-      py = null;
-    }, { passive: true });
+    /** draws the meteors in the space window's pixel space (PX-upscaled canvas) */
+    function gameTick(t: number, ctx: any, SW: number, SH: number, PX: number) {
+      if (!G.on) return;
+      const lx = x / PX,
+        lw = 60 / PX;
+      if (!G.dead) {
+        G.score = Math.floor((t - G.t0) / 100);
+        if (t >= G.next) {
+          G.rocks.push({ x: SW + 4, w: 5 + Math.random() * 3, h: 5 + Math.random() * 5 });
+          G.next = t + 900 + Math.random() * 900 - Math.min(500, (t - G.t0) / 40);
+        }
+        const sp = (0.16 + Math.min(0.14, (t - G.t0) / 60000)) * (16 / PX);
+        for (const r of G.rocks) r.x -= sp;
+        G.rocks = G.rocks.filter((r: any) => r.x > -14);
+        const air = t < G.jumpUntil - 120 && t > G.jumpUntil - 470;
+        for (const r of G.rocks) {
+          if (r.x < lx + lw * 0.75 && r.x + r.w > lx + lw * 0.25 && !air) {
+            G.dead = true;
+            setMode("dead");
+            sfx.crash();
+            hudT.textContent = "CRASH · TAP TO RETRY";
+            if (G.score > G.hi) {
+              G.hi = G.score;
+              try {
+                localStorage.setItem("lynxHi", String(G.hi));
+              } catch (e) {
+                /* private mode */
+              }
+            }
+          }
+        }
+      }
+      for (const r of G.rocks) {
+        const y = SH - 5 - r.h;
+        ctx.fillStyle = "rgba(255,120,40,.35)";
+        ctx.fillRect(r.x + r.w, y + 1, 6, r.h - 2);
+        ctx.fillStyle = "rgba(255,200,60,.5)";
+        ctx.fillRect(r.x + r.w, y + 2, 3, r.h - 4);
+        ctx.fillStyle = "#b9c2cf";
+        ctx.fillRect(r.x + 1, y, r.w - 2, r.h);
+        ctx.fillRect(r.x, y + 1, r.w, r.h - 2);
+        ctx.fillStyle = "#5b6478";
+        ctx.fillRect(r.x + 1, y + 1, 1, 1);
+      }
+      hudS.textContent = G.score + (G.hi ? " · HI " + G.hi : "");
+    }
+    return { react, readRoad, gameStart, gameStop, gameTick, G };
   })();
+
+  /* ---------- space window (designer's pixel art, 3× upscaled) ---------- */
+  (() => {
+    const sp = $("#space");
+    if (!sp) return;
+    const sctx = sp.getContext("2d");
+    let SW = 0,
+      SH = 0,
+      stars: any[] = [],
+      rocks: any[] = [];
+    const PX = 3;
+    function makeRock(cx: number, w: number, h: number, seed: number) {
+      const pts: any[] = [];
+      let r = seed;
+      const rnd = () => {
+        r = (r * 9301 + 49297) % 233280;
+        return r / 233280;
+      };
+      for (let xx = -w / 2; xx <= w / 2; xx++) {
+        const k = 1 - Math.pow(Math.abs(xx) / (w / 2), 1.6);
+        pts.push({ x: cx + xx, h: Math.max(0, Math.round(h * k + (rnd() - 0.5) * 3)) });
+      }
+      const craters: any[] = [];
+      for (let i = 0; i < 6; i++) craters.push({ x: cx + (rnd() - 0.5) * w * 0.7, y: rnd() * h * 0.6, r: 1 + rnd() * 3 });
+      return { pts, craters };
+    }
+    function sizeSpace() {
+      const r = sp.getBoundingClientRect();
+      SW = Math.max(1, Math.floor(r.width / PX));
+      SH = Math.max(1, Math.floor(r.height / PX));
+      sp.width = SW;
+      sp.height = SH;
+      stars = Array.from({ length: Math.round((SW * SH) / 90) }, () => ({ x: Math.random() * SW, y: Math.random() * SH * 0.85, z: Math.random(), tw: Math.random() * 6 }));
+      rocks = [makeRock(SW * 0.2, SW * 0.34, SH * 0.5, 7), makeRock(SW * 0.82, SW * 0.3, SH * 0.62, 13), makeRock(SW * 0.52, SW * 0.1, SH * 0.16, 21)];
+    }
+    const ro = new ResizeObserver(sizeSpace);
+    ro.observe($("#dWin"));
+    disposers.push(() => ro.disconnect());
+    raf((t) => {
+      if (!SW) return;
+      sctx.fillStyle = "#00030a";
+      sctx.fillRect(0, 0, SW, SH);
+      const game = Lx.G.on;
+      for (const s of stars) {
+        s.x -= (0.02 + s.z * 0.05) * (RM ? 0 : game ? 4 : 1);
+        if (s.x < 0) s.x += SW;
+        const b = 0.5 + 0.5 * Math.sin(t / 400 + s.tw);
+        if (s.z > 0.92) {
+          sctx.fillStyle = `rgba(255,240,170,${0.6 + 0.4 * b})`;
+          sctx.fillRect(s.x | 0, s.y | 0, 1, 1);
+          if (b > 0.7) {
+            sctx.fillRect((s.x | 0) - 1, s.y | 0, 3, 1);
+            sctx.fillRect(s.x | 0, (s.y | 0) - 1, 1, 3);
+          }
+        } else {
+          sctx.fillStyle = s.z > 0.6 ? `rgba(150,200,255,${0.4 + 0.5 * b})` : `rgba(255,255,255,${0.25 + 0.4 * b})`;
+          sctx.fillRect(s.x | 0, s.y | 0, 1, 1);
+        }
+      }
+      if (game) {
+        sctx.fillStyle = "#2a3a52";
+        sctx.fillRect(0, SH - 5, SW, 5);
+        Lx.gameTick(t, sctx, SW, SH, PX);
+        return;
+      }
+      for (const r of rocks) {
+        for (const p of r.pts) {
+          if (!p.h) continue;
+          const y = SH - p.h;
+          sctx.fillStyle = "#8f96a6";
+          sctx.fillRect(p.x | 0, y, 1, p.h);
+          sctx.fillStyle = "#c5cad6";
+          sctx.fillRect(p.x | 0, y, 1, 1);
+          sctx.fillStyle = "#5f6575";
+          sctx.fillRect(p.x | 0, (y + Math.max(2, p.h * 0.55)) | 0, 1, p.h);
+        }
+        sctx.fillStyle = "#5f6575";
+        for (const c of r.craters) {
+          const base = r.pts.find((p: any) => Math.abs(p.x - c.x) < 1);
+          if (!base || base.h < c.y + 3) continue;
+          sctx.beginPath();
+          sctx.ellipse(c.x, SH - base.h + c.y + 2, c.r, c.r * 0.6, 0, 0, 7);
+          sctx.fill();
+        }
+      }
+    });
+  })();
+
+  /* ---------- clocks ---------- */
+  const cv = $("#cv");
+  raf(() => draw(cv));
+  every(() => {
+    loop();
+    render();
+    slotLoop();
+  }, 250);
+  every(() => void poll(), 1000);
+  every(() => void pollFeed(), 2500);
+  every(() => void reconcile(), 6000);
+  every(() => renderRoads(), 30000);
+  const ro = new ResizeObserver(() => renderRoads());
+  const roadEl = $("#road");
+  if (roadEl) ro.observe(roadEl);
+  disposers.push(() => ro.disconnect());
 
   /* ---------- boot ---------- */
-  renderCats();
-  $("#equity").textContent = money(S.equity);
-  void switchTable(S.asset, S.tf).then(() => loadToday());
-  if (!opts.fixture) every(() => void refreshTable(false), 15000);
+  eqEls().forEach((e) => (e.textContent = money(S.bal)));
+  if (FX) {
+    FX.ticks.forEach((t) => adoptTick(t));
+    S.paused = FX.state?.paused_reason || null;
+    if (S.paused) Lx.gameStart();
+    S.feed = FX.feed || [];
+    S.roadRows = FX.road || [];
+    rebuildRoad();
+    S.slotStart = Math.floor(now() / SLOT) * SLOT;
+    FX.calls.forEach((r) => {
+      const c = fromRow(r);
+      if (c.status === "open" || c.status === "pending") S.calls.push(c);
+      else S.done.push(c);
+    });
+    if (FX.session) {
+      S.last = FX.session.last.slice();
+      S.won = S.last.filter(Boolean).length;
+      S.lost = S.last.length - S.won;
+      S.ses = S.done.reduce((a: number, c: Call) => a + c.pnl, 0);
+      let w = 0,
+        l = 0;
+      for (let i = S.last.length - 1; i >= 0; i--) {
+        if (S.last[i]) {
+          if (l) break;
+          w++;
+        } else {
+          if (w) break;
+          l++;
+        }
+      }
+      S.streakW = w;
+      S.streakL = l;
+      if (w >= 2 || l >= 2) comboUpdate("boot");
+    }
+    if (FX.ack === false) openGate(true);
+    renderRoads();
+    slotLoop();
+    render();
+    renderPrice();
+  } else void boot();
 
   /* ---------- public setters (React → engine) ---------- */
   (root as any).__arcade = {
     setBalance(v: number) {
-      if (Math.abs(v - S.equity) > 0.005) {
-        S.equity = v;
-        eqTo(v);
+      if (Math.abs(v - S.bal) > 0.005 && !S.calls.some((c: Call) => c.status === "pending")) {
+        S.bal = v;
+        eqEls().forEach((e) => (e.textContent = money(S.bal)));
       }
     },
     setUser() {
-      if (api.userId && S.round) {
-        void loadHolding(S.round);
-        void loadToday();
+      if (api.userId && !FX) {
+        S.ackKnown = false;
+        void boot();
       }
     },
   };
 
   return () => {
     alive = false;
-    timers.forEach(clearInterval);
-    clearTimeout(reconcileT);
+    timers.forEach((t) => {
+      clearInterval(t);
+      clearTimeout(t);
+    });
+    clearTimeout(settleT);
     clearTimeout(toastT);
-    S.pend.forEach((p: any) => clearTimeout(p.timer));
+    clearTimeout(coalesce);
     disposers.forEach((d) => d());
     delete (root as any).__arcade;
   };
