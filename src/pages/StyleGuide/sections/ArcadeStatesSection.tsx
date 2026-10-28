@@ -77,21 +77,21 @@ const MOBILE: SectionCase[] = [
 const BANNER: SectionCase[] = [
   {
     key: "arcade-ab1",
-    label: "AB-1 · Events All 入口横幅（桌面 V1-B 钢板）· 活体 / 指数无效",
+    label: "AB-1 · Events All 入口横幅（桌面 · 方案 C 像素夜景）· 活体 / 指数无效",
     note:
-      "Events「All」视图 chips 带之下、舞台之上；只在 All（非日历、非 watchlist）出现。读的是机柜同一条三所指数（`arcade_table_now` 每 2 秒 + 最近 45 秒 tick）：价格、`BTC · 3 EXCHANGES · ▲ +$x last 30s`、UP / DOWN 报价（模型 0.40–0.60）全部与点进去看到的一致；中间 `30 SEC` 徽章（没有局，所以没有倒计时）。指数无效显示 `PAUSED` / `INDEX INVALID · WAITING FOR THE EXCHANGES` 而不是假数字；不显示在线人数。整条可点 → `/arcade`。跑灯环开（CPO）。",
+      "CPO 2026-10-28 选入口比稿（artifact QeVaSA7hP2jwBpRXkoAJk4）的方案 C：一条 124px 的像素夜景——星空 + 流云 + 城市天际线向左滚、路面砖纹滚，猞猁在路面上走走停停、跳一下弹枚金币；指数线（辉光 + 面积 + 脉冲线头，涨青跌黄绿）横在天际线上方。左 HUD：`■ QUICK PLAY` + `BTC · 30-SECOND CALLS · 24/7` / 32px 像素大价 / `$x · ▲ +$y · last 30s`（30 秒前的指数 + 变化）。右 HUD：`TIME` 条 + `00:22`（**桌子的 30 秒墙钟格**，和机柜路单的格子同步，不是局）/ `▲ UP 51.2¢ | ▼ DOWN 48.8¢`（模型报价）/ PLAY ▸ 黄绿键（呼吸辉光 + 扫光）。只在 All（非日历、非 watchlist）出现，整条可点 → `/arcade`。指数无效：副行 `INDEX INVALID · WAITING FOR THE EXCHANGES`，时钟变红闪，报价 `—` 且盒子变暗。读的仍是机柜同一条三所指数（`arcade_table_now` 每 2 秒 + 最近 45 秒 tick）。标题字 Press Start 2P 已自托管。",
     spec: [
-      { state: "活体", when: "tick valid && p_up", visual: "钢板 170 / 1fr / auto / 150 四列；CRT 屏铺指数线；`UP 51.2¢ · 30 SEC · DOWN 48.8¢`", source: "ArcadeEntryBanner · useArcadeTicker" },
-      { state: "指数无效", when: "!live", visual: "价格位 `PAUSED`（有上一个价就显示价）、赔率 `—`", source: "同上" },
+      { state: "活体", when: "tick valid && p_up", visual: "夜景 + 指数线 + 猞猁；`TIME 00:22` 按墙钟 30 秒循环；`▲ UP 51.2¢ · ▼ DOWN 48.8¢`", source: "ArcadeEntryBanner · useArcadeTicker / useSlotClock" },
+      { state: "指数无效", when: "!live", visual: "大价留上一个价（没有就 `$—`）、副行红字 `INDEX INVALID…`、时钟红闪、报价 `—`", source: "同上（.qpc.off）" },
     ],
   },
   {
     key: "arcade-ab2",
-    label: "AB-2 · 入口横幅（移动 V1-A CRT）· 活体 / 指数无效",
-    note: "整块 CRT 屏折三行：QUICK PLAY + `30 SEC` / `BTC up or down in the next 30 seconds?` / 价格 + `▲ +$x · last 30s` + UP / DOWN 报价 + PLAY 键；高度 ~120px。",
+    label: "AB-2 · 入口横幅（移动 · 方案 C 竖排）· 活体 / 指数无效",
+    note: "同一条夜景折成一列：标题行 / 42px 大价 + 30 秒变化 / 84px 指数线 / `TIME` 条 + 倒数 / UP · DOWN 两盒 / 60px PLAY 键；底部留 78px 路面给猞猁走。",
     spec: [
-      { state: "活体", when: "live", visual: "三行；指数线做底（55% 透明）", source: "ArcadeEntryBanner (isMobile)" },
-      { state: "指数无效", when: "!live", visual: "`PAUSED` / 副行 `BTC · 30-SECOND CALLS · 24/7`、赔率 `—`", source: "同上" },
+      { state: "活体", when: "live", visual: "竖排六段；猞猁在底部路面", source: "ArcadeEntryBanner (isMobile · .qpc.m)" },
+      { state: "指数无效", when: "!live", visual: "同桌面：红副行、红时钟、报价 `—`", source: "同上" },
     ],
   },
 ];

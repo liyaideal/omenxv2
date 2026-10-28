@@ -1,29 +1,24 @@
 // ============================================================
 // Quick Play entry banner — Events "All" view, above the stage.
-// CPO 2026-10-19: desktop = V1-B steel panel, mobile = V1-A CRT strip
-// (entry 比稿 v4). It is a live readout of the BTC table: the same
-// three-exchange index and model quote the cabinet shows (arcade_table_now),
-// so the banner's price and Up/Down cents are what the player sees after the
-// click. Numbers are never placeholders — while the index is invalid the
-// banner says so instead of showing a fake price. No player counts (no source).
-// v2 (CPO 2026-10-28): no rounds any more — every chip is its own 30-second
-// call, so the countdown became a "30 SEC" badge.
+// CPO 2026-10-28: 方案 C「pixel night scene」from the entry 比稿
+// (artifact QeVaSA7hP2jwBpRXkoAJk4, scheme q) replaces the V1-B steel panel /
+// V1-A CRT strip. One strip: a pixel skyline scrolling behind, the live index
+// line glowing over it, the lynx walking the pavement, HUD left (title / price /
+// 30 s change), HUD right (the table's 30-second clock / UP · DOWN quote / PLAY).
+// It is a live readout of the BTC table: the same three-exchange index and
+// model quote the cabinet shows (arcade_table_now). Numbers are never
+// placeholders — while the index is invalid the banner says so.
+// v2 product: no rounds — every chip is its own 30-second call. The clock on
+// the right is the table's wall-clock 30 s slot (the road's cells), not a round.
 // ============================================================
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchTableNow, fetchTicks, type ArcadeTick } from "@/lib/arcade/arcadeCalls";
 import { ensureArcadeFonts } from "@/lib/arcade/arcadeFonts";
-
-/** V1-B+ ring of marquee lights (CPO 2026-10-19: on). */
-export const ARCADE_BANNER_LIGHTS = true; // CPO 2026-10-19: 横幅带灯
-
-const PIX = '"Jersey 10","VT323",ui-monospace,monospace';
-const LCD = '"CPs","Chakra Petch",system-ui,sans-serif';
-const UI = '"Chakra Petch","Arial Narrow",system-ui,sans-serif';
-const PX_CLIP =
-  "polygon(0 6px,3px 6px,3px 3px,6px 3px,6px 0,calc(100% - 6px) 0,calc(100% - 6px) 3px,calc(100% - 3px) 3px,calc(100% - 3px) 6px,100% 6px,100% calc(100% - 6px),calc(100% - 3px) calc(100% - 6px),calc(100% - 3px) calc(100% - 3px),calc(100% - 6px) calc(100% - 3px),calc(100% - 6px) 100%,6px 100%,6px calc(100% - 3px),3px calc(100% - 3px),3px calc(100% - 6px),0 calc(100% - 6px))";
+import "./arcade-entry.css";
 
 const money = (n: number) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const SLOT_MS = 30000;
 
 interface Tick {
   /** the index is valid and quoting */
@@ -87,283 +82,461 @@ export const useArcadeTicker = (enabled = true): Tick => {
 /** style-guide fixture: a frozen readout (no network, no clock) */
 export type ArcadeBannerFixture = Tick;
 
-const Spark = ({ pts, open, dim }: { pts: number[]; open: number; dim?: boolean }) => {
+/* ---------- the pixel skyline (2 px blocks): stars twinkle, clouds and buildings scroll, the pavement rolls ---------- */
+const Level = () => {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
-    const c = ref.current;
-    if (!c) return;
-    const r = c.getBoundingClientRect();
-    if (!r.width) return;
-    const d = devicePixelRatio || 1;
-    if (c.width !== r.width * d) {
-      c.width = r.width * d;
-      c.height = r.height * d;
-    }
-    const x = c.getContext("2d");
-    if (!x) return;
-    x.setTransform(d, 0, 0, d, 0, 0);
-    const W = r.width,
-      H = r.height;
-    x.clearRect(0, 0, W, H);
-    if (pts.length < 2) return;
-    const padY = dim ? H * 0.18 : 0;
-    const lo = Math.min(...pts, open) - 4,
-      hi = Math.max(...pts, open) + 4;
-    const X = (i: number) => (i / Math.max(1, pts.length - 1)) * W;
-    const Y = (v: number) => H - padY - ((v - lo) / (hi - lo)) * (H - padY * 2);
-    x.globalAlpha = dim ? 0.55 : 1;
-    x.strokeStyle = "rgba(51,214,255,.35)";
-    x.setLineDash([4, 4]);
-    x.beginPath();
-    x.moveTo(0, Y(open));
-    x.lineTo(W, Y(open));
-    x.stroke();
-    x.setLineDash([]);
-    const g = x.createLinearGradient(0, 0, 0, H);
-    g.addColorStop(0, "rgba(51,214,255,.35)");
-    g.addColorStop(1, "rgba(51,214,255,0)");
-    x.beginPath();
-    pts.forEach((v, i) => (i ? x.lineTo(X(i), Y(v)) : x.moveTo(X(i), Y(v))));
-    x.strokeStyle = "#fff";
-    x.lineWidth = 2.5;
-    x.shadowColor = "rgba(51,214,255,.8)";
-    x.shadowBlur = 8;
-    x.stroke();
-    x.shadowBlur = 0;
-    x.lineTo(X(pts.length - 1), H);
-    x.lineTo(0, H);
-    x.closePath();
-    x.fillStyle = g;
-    x.fill();
-    const lx = X(pts.length - 1),
-      ly = Y(pts[pts.length - 1]);
-    x.fillStyle = "#fff";
-    x.beginPath();
-    x.arc(lx, ly, 5, 0, 7);
-    x.fill();
-    x.fillStyle = "rgba(51,214,255,.5)";
-    x.beginPath();
-    x.arc(lx, ly, 10, 0, 7);
-    x.fill();
-    x.globalAlpha = 1;
-  }, [pts, open, dim]);
-  return <canvas ref={ref} style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} aria-hidden="true" />;
+    const cv = ref.current;
+    const host = cv?.parentElement;
+    if (!cv || !host) return;
+    const PX = 2;
+    let W = 0,
+      H = 0,
+      stars: { x: number; y: number; t: number }[] = [],
+      bld: { x: number; w: number; h: number; win: [number, number, boolean, number][] }[] = [],
+      clouds: { x: number; y: number; w: number }[] = [];
+    const size = () => {
+      W = Math.floor(host.clientWidth / PX);
+      H = Math.floor(host.clientHeight / PX);
+      if (!W || !H) return;
+      cv.width = W;
+      cv.height = H;
+      stars = Array.from({ length: 60 }, () => ({ x: Math.random() * W, y: 24 + Math.random() * (H * 0.45), t: Math.random() * 6 }));
+      bld = [];
+      let bx = 0;
+      while (bx < W + 60) {
+        const bw = 10 + Math.floor(Math.random() * 16),
+          bh = 8 + Math.floor(Math.random() * 18);
+        const win: [number, number, boolean, number][] = [];
+        for (let yy = 4; yy < bh - 3; yy += 4) for (let xx = 3; xx < bw - 3; xx += 4) if (Math.random() < 0.35) win.push([xx, yy, Math.random() < 0.5, Math.random() * 6]);
+        bld.push({ x: bx, w: bw, h: bh, win });
+        bx += bw + 2 + Math.floor(Math.random() * 6);
+      }
+      clouds = Array.from({ length: 4 }, (_, i) => ({ x: (i * W) / 4 + Math.random() * 40, y: 26 + Math.random() * 12, w: 18 + Math.random() * 14 }));
+    };
+    const ro = new ResizeObserver(size);
+    ro.observe(host);
+    size();
+    const rm = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let off = 0,
+      last = performance.now(),
+      raf = 0;
+    const draw = (t: number) => {
+      const dt = Math.min(0.05, (t - last) / 1000);
+      last = t;
+      const c = cv.getContext("2d");
+      if (W && c && bld.length) {
+        const g = c.createLinearGradient(0, 0, 0, H);
+        g.addColorStop(0, "#030913");
+        g.addColorStop(0.75, "#0a2233");
+        g.addColorStop(1, "#0f3346");
+        c.fillStyle = g;
+        c.fillRect(0, 0, W, H);
+        stars.forEach((s) => {
+          c.fillStyle = `rgba(200,240,255,${0.1 + 0.45 * Math.abs(Math.sin(t / 700 + s.t))})`;
+          c.fillRect(Math.round(s.x), Math.round(s.y), 1, 1);
+        });
+        if (!rm) off += dt * 3;
+        clouds.forEach((cl) => {
+          const x = Math.round((((cl.x - off * 1.6) % (W + 40)) + W + 40) % (W + 40)) - 30;
+          c.fillStyle = "rgba(30,70,95,.5)";
+          c.fillRect(x, cl.y, cl.w, 3);
+          c.fillRect(x + 3, cl.y - 2, cl.w - 8, 2);
+        });
+        const gy = H - 12;
+        const lastB = bld[bld.length - 1];
+        const span = lastB.x + lastB.w + 4;
+        bld.forEach((b) => {
+          const x = Math.round((((b.x - off) % span) + span) % span) - 20;
+          c.fillStyle = "#0b2232";
+          c.fillRect(x, gy - b.h, b.w, b.h);
+          c.fillStyle = "#10304a";
+          c.fillRect(x, gy - b.h, b.w, 1);
+          b.win.forEach(([wx, wy, cy, ph]) => {
+            if (Math.sin(t / 900 + ph) > -0.3) {
+              c.fillStyle = cy ? "rgba(5,215,237,.7)" : "rgba(223,230,244,.45)";
+              c.fillRect(x + wx, gy - b.h + wy, 1, 1);
+            }
+          });
+        });
+        c.fillStyle = "#2b3040";
+        c.fillRect(0, gy, W, 12);
+        c.fillStyle = "#a7b0c4";
+        c.fillRect(0, gy, W, 1);
+        c.fillStyle = "rgba(5,215,237,.35)";
+        c.fillRect(0, gy + 1, W, 1);
+        c.fillStyle = "#1c202b";
+        const so = Math.round(off * 2) % 10;
+        for (let y = gy + 2; y < H; y += 5) {
+          c.fillRect(0, y + 4, W, 1);
+          for (let x = (((y - gy) / 5) % 2) * 5 - so; x < W; x += 10) c.fillRect(x, y, 1, 4);
+        }
+      }
+      raf = requestAnimationFrame(draw);
+    };
+    raf = requestAnimationFrame(draw);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+    };
+  }, []);
+  return <canvas ref={ref} className="bg" aria-hidden="true" />;
 };
 
-const Badge = ({ size = 28, text = "30 SEC" }: { size?: number; text?: string }) => (
-  <span
-    style={{
-      display: "inline-grid",
-      placeItems: "center",
-      height: size + 6,
-      minWidth: size * 3,
-      padding: "0 8px",
-      font: `400 ${size}px/1 ${PIX}`,
-      letterSpacing: 1,
-      background: "#020b10",
-      color: "#05d7ed",
-      border: "2px solid #07090f",
-      boxShadow: "inset 0 0 0 2px #1b2a33,0 0 14px rgba(5,215,237,.25)",
-      textShadow: "0 0 8px rgba(5,215,237,.7)",
-      whiteSpace: "nowrap",
-    }}
-  >
-    {text}
-  </span>
-);
-
-const Odd = ({ side, cents, big }: { side: "up" | "down"; cents: string; big?: boolean }) => (
-  <span style={{ display: "flex", flexDirection: "column", alignItems: "center", font: `400 12px/1 ${LCD}`, letterSpacing: 1.5, color: side === "up" ? "#33d6ff" : "#cfff4a" }}>
-    <b style={{ font: `400 ${big ? 30 : 22}px/.8 ${PIX}`, marginBottom: 5 }}>{cents}¢</b>
-    {side === "up" ? "UP" : "DOWN"}
-  </span>
-);
-
-const PlayKey = ({ label = "Play ▸", wide }: { label?: string; wide?: boolean }) => (
-  <span
-    style={{
-      display: "inline-block",
-      background: "linear-gradient(180deg,#e6ff8a,#a6d61c)",
-      color: "#020c10",
-      border: "2px solid #07090f",
-      clipPath: PX_CLIP,
-      boxShadow: "inset 3px 3px 0 #efff9e,inset -3px -3px 0 #6f9a0a",
-      font: `600 ${wide ? 15 : 13}px/1 ${UI}`,
-      letterSpacing: ".06em",
-      padding: wide ? "16px 10px" : "12px 14px",
-      textTransform: "uppercase",
-      textAlign: "center",
-      whiteSpace: "nowrap",
-    }}
-  >
-    {label}
-  </span>
-);
-
-const Lights = ({ hostRef }: { hostRef: React.RefObject<HTMLElement> }) => {
-  const [bulbs, setBulbs] = useState<{ x: number; y: number }[]>([]);
-  const [t, setT] = useState(0);
+/* ---------- the index line: glow, open dashed line, area fill, pulsing head (entry 比稿 chart, nogrid · lw 3) ---------- */
+const Chart = ({ pts, open, live }: { pts: number[]; open: number; live: boolean }) => {
+  const ref = useRef<HTMLCanvasElement>(null);
+  const data = useRef({ pts, open, live });
+  data.current = { pts, open, live };
   useEffect(() => {
-    const el = hostRef.current;
-    if (!el) return;
-    const W = el.clientWidth,
-      H = el.clientHeight,
-      inset = 7,
-      gap = 20,
-      w = W - inset * 2,
-      h = H - inset * 2,
-      nx = Math.max(2, Math.round(w / gap)),
-      ny = Math.max(1, Math.round(h / gap));
-    const pts: { x: number; y: number }[] = [];
-    for (let i = 0; i < nx; i++) pts.push({ x: inset + (i / nx) * w, y: inset });
-    for (let i = 0; i < ny; i++) pts.push({ x: W - inset, y: inset + (i / ny) * h });
-    for (let i = 0; i < nx; i++) pts.push({ x: W - inset - (i / nx) * w, y: H - inset });
-    for (let i = 0; i < ny; i++) pts.push({ x: inset, y: H - inset - (i / ny) * h });
-    setBulbs(pts);
-    const iv = setInterval(() => setT((v) => v + 1), 220);
-    return () => clearInterval(iv);
-  }, [hostRef]);
+    const cv = ref.current;
+    if (!cv) return;
+    let raf = 0;
+    const draw = () => {
+      raf = requestAnimationFrame(draw);
+      const box = cv.parentElement?.getBoundingClientRect();
+      if (!box || !box.width) return;
+      const d = devicePixelRatio || 1;
+      const W = box.width,
+        H = box.height;
+      if (cv.width !== Math.round(W * d) || cv.height !== Math.round(H * d)) {
+        cv.width = Math.round(W * d);
+        cv.height = Math.round(H * d);
+      }
+      const x = cv.getContext("2d");
+      if (!x) return;
+      x.setTransform(d, 0, 0, d, 0, 0);
+      x.clearRect(0, 0, W, H);
+      const { pts, open, live } = data.current;
+      if (pts.length < 2) return;
+      let lo = open || pts[0],
+        hi = open || pts[0];
+      pts.forEach((p) => {
+        lo = Math.min(lo, p);
+        hi = Math.max(hi, p);
+      });
+      const pad = (hi - lo) * 0.18 + 1e-6;
+      lo -= pad;
+      hi += pad;
+      const top = 6,
+        bot = H - 6,
+        n = pts.length - 1;
+      const X = (i: number) => (i / n) * (W - 8);
+      const Y = (v: number) => bot - ((v - lo) / (hi - lo)) * (bot - top);
+      if (open) {
+        x.setLineDash([4, 4]);
+        x.strokeStyle = "rgba(238,242,248,.25)";
+        x.beginPath();
+        x.moveTo(0, Math.round(Y(open)) + 0.5);
+        x.lineTo(W, Math.round(Y(open)) + 0.5);
+        x.stroke();
+        x.setLineDash([]);
+      }
+      const last = pts[pts.length - 1];
+      const col = !live ? "#7f8a99" : last >= (open || last) ? "#33d6ff" : "#cfff4a";
+      const path = () => {
+        x.beginPath();
+        pts.forEach((p, i) => (i ? x.lineTo(X(i), Y(p)) : x.moveTo(X(i), Y(p))));
+      };
+      path();
+      x.lineWidth = 10;
+      x.strokeStyle = col + "1c";
+      x.stroke();
+      path();
+      x.lineWidth = 3;
+      x.lineJoin = "round";
+      x.strokeStyle = col;
+      x.shadowColor = col;
+      x.shadowBlur = 14;
+      x.stroke();
+      x.shadowBlur = 0;
+      const lx = X(n),
+        ly = Y(last);
+      x.lineTo(lx, bot);
+      x.lineTo(X(0), bot);
+      x.closePath();
+      const g = x.createLinearGradient(0, top, 0, bot);
+      g.addColorStop(0, col + "38");
+      g.addColorStop(1, col + "00");
+      x.fillStyle = g;
+      x.fill();
+      const pulse = 1 + 0.5 * Math.abs(Math.sin(performance.now() / 300));
+      x.fillStyle = col + "44";
+      x.beginPath();
+      x.arc(lx, ly, 5 * pulse, 0, 7);
+      x.fill();
+      x.fillStyle = col;
+      x.shadowColor = col;
+      x.shadowBlur = 6;
+      x.beginPath();
+      x.arc(lx, ly, 3, 0, 7);
+      x.fill();
+      x.shadowBlur = 0;
+    };
+    raf = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(raf);
+  }, []);
   return (
-    <span style={{ position: "absolute", inset: 0, pointerEvents: "none" }} aria-hidden="true">
-      {bulbs.map((b, i) => {
-        const k = (i + t) % 4;
-        const on = k === 0 || k === 2;
-        const col = k === 2 ? "#05d7ed" : "#cfff4a";
-        return <i key={i} style={{ position: "absolute", left: b.x - 2.5, top: b.y - 2.5, width: 5, height: 5, borderRadius: "50%", background: on ? col : "#2a3140", boxShadow: on ? `0 0 8px ${col}` : "none" }} />;
-      })}
+    <span className="chart" aria-hidden="true">
+      <canvas ref={ref} />
     </span>
   );
+};
+
+/* ---------- the lynx on the pavement: idle breathe · look · walk (dust) · hop · sit; now and then walks somewhere, hops and pops a coin ---------- */
+const SPR = { lynx0: "/arcade/lynx0.png", lynx1: "/arcade/lynx1.png", lynx2: "/arcade/lynx2.png", lynx3: "/arcade/lynx3.png", coin0: "/arcade/coin0.png", coin1: "/arcade/coin1.png" };
+type Act = { k: "idle" | "walk" | "look" | "hop" | "sit"; d: number; t: number; to?: number; then?: () => void; n?: number; h?: number; f?: number };
+const Stage = ({ mobile, zone }: { mobile: boolean; zone: [number, number] }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const z = useRef(zone);
+  z.current = zone;
+  useEffect(() => {
+    const box = ref.current;
+    if (!box) return;
+    const rm = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const w = 28,
+      ground = mobile ? 20 : 24,
+      speed = 30;
+    const el = document.createElement("img");
+    el.className = "lynx";
+    el.alt = "";
+    el.style.width = w + "px";
+    el.style.bottom = ground + "px";
+    box.appendChild(el);
+    const fx = (x: number, y: number, cls: string, html = "", dx = 0) => {
+      const e = document.createElement("span");
+      e.className = "fxp " + cls;
+      e.innerHTML = html;
+      e.style.left = x + "px";
+      e.style.top = y + "px";
+      if (dx) e.style.setProperty("--dx", dx + "px");
+      box.appendChild(e);
+      setTimeout(() => e.remove(), 1300);
+    };
+    const zoneNow = (): [number, number] => {
+      const cw = box.clientWidth;
+      const zz = mobile || cw < 760 ? [16, cw - 16] : z.current;
+      return [zz[0], Math.max(zz[0] + 20, zz[1]) - w];
+    };
+    let x: number | null = null,
+      dir = 1,
+      act: Act = { k: "idle", d: 1, t: 0 },
+      cur = "";
+    const set = (a: Act) => {
+      a.t = 0;
+      act = a;
+    };
+    const hop = (n = 1, h = 10, then?: () => void, d = 0.5) => set({ k: "hop", d, n, h, then, t: 0 });
+    const walkTo = (tx: number, then?: () => void) => {
+      const [a, b] = zoneNow();
+      set({ k: "walk", d: 0, to: Math.max(a, Math.min(b, tx)), then, t: 0 });
+    };
+    const head = () => box.clientHeight - ground - (w * 72) / 51;
+    const special = () => {
+      const [a, b] = zoneNow();
+      walkTo(a + Math.random() * (b - a), () => {
+        hop(1, 14);
+        setTimeout(() => {
+          if (x != null) fx(x + w / 2, head() - 4, "fx-coin", `<img alt="" src="${Math.random() < 0.5 ? SPR.coin0 : SPR.coin1}">`);
+        }, 180);
+      });
+    };
+    const pick = () => {
+      const [a, b] = zoneNow();
+      const q = Math.random();
+      if (q < 0.3) special();
+      else if (q < 0.55) walkTo(a + Math.random() * (b - a));
+      else if (q < 0.72) set({ k: "idle", d: 1 + Math.random() * 1.6, t: 0 });
+      else if (q < 0.84) set({ k: "look", d: 1.6, t: 0 });
+      else if (q < 0.93) hop(1, 10);
+      else set({ k: "sit", d: 1.3, t: 0 });
+    };
+    let last = performance.now(),
+      raf = 0;
+    const step = (t: number) => {
+      raf = requestAnimationFrame(step);
+      const dt = rm ? 0 : Math.min(0.05, (t - last) / 1000);
+      last = t;
+      if (!box.clientWidth) return;
+      {
+        const [za, zb] = zoneNow();
+        if (x == null || x < za - 40 || x > zb + 40) x = (za + zb) / 2;
+      }
+      let src = SPR.lynx0,
+        fl = 1,
+        sx = 1,
+        sy = 1,
+        y = 0;
+      act.t += dt;
+      const p = act.d ? Math.min(1, act.t / act.d) : 0;
+      switch (act.k) {
+        case "walk": {
+          const dd = (act.to ?? x) - x;
+          if (Math.abs(dd) < 1) {
+            x = act.to ?? x;
+            const th = act.then;
+            set({ k: "idle", d: 0.3 + Math.random() * 0.4, t: 0 });
+            th && th();
+            break;
+          }
+          dir = Math.sign(dd);
+          x += dir * Math.min(Math.abs(dd), speed * dt);
+          src = SPR.lynx2;
+          fl = -dir;
+          y = -Math.abs(Math.sin(t / 85)) * 1.6;
+          sy = 1 + 0.035 * Math.sin(t / 85);
+          if (Math.random() < dt * 2.2) fx(x + w / 2 - dir * w * 0.3, box.clientHeight - ground, "fx-dust", "", -dir * 6);
+          break;
+        }
+        case "idle":
+          sy = 1 + 0.025 * Math.sin(t / 320);
+          sx = 1 - 0.012 * Math.sin(t / 320);
+          break;
+        case "look":
+          if (act.f == null) act.f = Math.random() < 0.5 ? 1 : -1;
+          src = p < 0.85 ? SPR.lynx2 : SPR.lynx0;
+          fl = p < 0.85 ? -act.f : 1;
+          break;
+        case "sit":
+          src = SPR.lynx1;
+          sy = 0.86 + 0.02 * Math.sin(t / 200);
+          sx = 1.08;
+          break;
+        case "hop": {
+          const h = act.h ?? 10;
+          if (p < 0.16) {
+            const q = p / 0.16;
+            sy = 1 - 0.16 * q;
+            sx = 1 + 0.1 * q;
+            src = SPR.lynx1;
+          } else if (p < 0.86) {
+            const q = (p - 0.16) / 0.7;
+            y = -Math.sin(q * Math.PI) * h;
+            sy = 1.07 - 0.07 * q;
+            sx = 0.94 + 0.06 * q;
+            src = SPR.lynx0;
+          } else {
+            const q = (p - 0.86) / 0.14;
+            sy = 0.86 + 0.14 * q;
+            sx = 1.08 - 0.08 * q;
+            src = SPR.lynx1;
+          }
+          if (p >= 1) {
+            fx(x + w * 0.25, box.clientHeight - ground, "fx-dust", "", -8);
+            fx(x + w * 0.75, box.clientHeight - ground, "fx-dust", "", 8);
+            if ((act.n ?? 1) > 1) {
+              act.n = (act.n ?? 1) - 1;
+              act.t = 0;
+            } else {
+              const th = act.then;
+              set({ k: "idle", d: 0.5 + Math.random() * 0.6, t: 0 });
+              th && th();
+            }
+          }
+          break;
+        }
+      }
+      if (act.d && act.t >= act.d && act.k !== "hop" && act.k !== "walk") pick();
+      if (cur !== src) {
+        el.src = src;
+        cur = src;
+      }
+      el.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px) scale(${(fl * sx).toFixed(3)},${sy.toFixed(3)})`;
+    };
+    pick();
+    raf = requestAnimationFrame(step);
+    return () => {
+      cancelAnimationFrame(raf);
+      el.remove();
+    };
+  }, [mobile]);
+  return <div ref={ref} className="stage" aria-hidden="true" />;
+};
+
+/** The table's 30-second clock (wall-clock slots, the same cells as the cabinet's road). */
+const useSlotClock = (frozen?: number) => {
+  const [left, setLeft] = useState(frozen ?? 22);
+  useEffect(() => {
+    if (frozen != null) return;
+    const tick = () => setLeft(Math.ceil((SLOT_MS - (Date.now() % SLOT_MS)) / 1000));
+    tick();
+    const iv = setInterval(tick, 250);
+    return () => clearInterval(iv);
+  }, [frozen]);
+  return left;
 };
 
 export const ArcadeEntryBanner = ({ isMobile, fixture }: { isMobile: boolean; fixture?: ArcadeBannerFixture }) => {
   const liveTick = useArcadeTicker(!fixture);
   const t = fixture ?? liveTick;
+  const left = useSlotClock(fixture ? 22 : undefined);
   const host = useRef<HTMLAnchorElement>(null);
+  const [cw, setCw] = useState(1232);
   useEffect(() => {
     ensureArcadeFonts();
   }, []);
-  const chg = t.price - t.open;
-  const chgTxt = `${chg >= 0 ? "▲ +" : "▼ −"}${money(Math.abs(chg))}`;
+  useEffect(() => {
+    const el = host.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setCw(el.clientWidth));
+    ro.observe(el);
+    setCw(el.clientWidth);
+    return () => ro.disconnect();
+  }, []);
   const live = t.live;
-  const to = "/arcade";
-
-  if (isMobile) {
-    // V1-A · CRT strip folded into three rows
-    return (
-      <Link
-        to={to}
-        aria-label="Quick Play · BTC 30-second calls"
-        style={{
-          position: "relative",
-          display: "flex",
-          flexDirection: "column",
-          gap: 7,
-          padding: "10px 12px 12px",
-          marginBottom: 12,
-          background: "radial-gradient(130% 120% at 50% 40%,#06202a 0%,#04131b 55%,#020b10 100%)",
-          border: "3px solid #1b2a33",
-          boxShadow: "inset 0 0 0 2px #1b2a33,inset 0 0 28px rgba(5,215,237,.12)",
-          clipPath: PX_CLIP,
-          overflow: "hidden",
-          color: "#f0f5ff",
-          textDecoration: "none",
-        }}
-      >
-        <Spark pts={t.pts} open={t.open} dim />
-        <span style={{ position: "relative", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ font: `400 28px/.9 ${PIX}`, color: "#05d7ed", textShadow: "0 0 14px rgba(5,215,237,.6)" }}>QUICK PLAY</span>
-          {live ? <Badge size={22} /> : <span style={{ font: `400 13px/1 ${LCD}`, color: "#7f8a99", letterSpacing: 1 }}>PAUSED</span>}
-        </span>
-        <span style={{ position: "relative", font: `600 13.5px/1.25 ${UI}` }}>
-          <b style={{ color: "#cfff4a" }}>BTC</b> up or down in the next <b style={{ color: "#cfff4a" }}>30 seconds</b>?
-        </span>
-        <span style={{ position: "relative", display: "grid", gridTemplateColumns: "1fr auto auto", gap: 10, alignItems: "center" }}>
-          <span style={{ display: "flex", flexDirection: "column", gap: 3, font: `400 24px/.9 ${PIX}`, textShadow: "0 0 12px rgba(51,214,255,.6)" }}>
-            {live ? money(t.price) : "—"}
-            <small style={{ font: `400 13px/1 ${LCD}`, letterSpacing: 1, color: chg >= 0 ? "#33d6ff" : "#cfff4a" }}>{live ? chgTxt + " · last 30s" : "BTC · 30-SECOND CALLS · 24/7"}</small>
-          </span>
-          <span style={{ display: "flex", flexDirection: "column", gap: 4, font: `400 13px/1 ${LCD}`, letterSpacing: 1 }}>
-            <span style={{ color: "#33d6ff" }}>
-              UP <b style={{ font: `400 18px/.8 ${PIX}`, marginLeft: 4 }}>{live ? t.up.toFixed(1) : "—"}¢</b>
-            </span>
-            <span style={{ color: "#cfff4a" }}>
-              DOWN <b style={{ font: `400 18px/.8 ${PIX}`, marginLeft: 4 }}>{live ? (100 - t.up).toFixed(1) : "—"}¢</b>
-            </span>
-          </span>
-          <PlayKey />
-        </span>
-      </Link>
-    );
-  }
-
-  // V1-B · steel panel
+  const chg = t.price - t.open;
+  const up = chg >= 0;
+  const upC = live ? t.up.toFixed(1) : "—";
+  const dnC = live ? (100 - t.up).toFixed(1) : "—";
   return (
-    <Link
-      ref={host}
-      to={to}
-      aria-label="Quick Play · BTC 30-second calls"
-      style={{
-        position: "relative",
-        display: "grid",
-        gridTemplateColumns: "170px 1fr auto 150px",
-        gap: 14,
-        alignItems: "center",
-        padding: ARCADE_BANNER_LIGHTS ? "18px 22px" : "12px 16px",
-        marginBottom: 16,
-        minHeight: 104,
-        background: "linear-gradient(180deg,#3a4052,#2b3040)",
-        border: "3px solid #07090f",
-        clipPath: PX_CLIP,
-        color: "#f0f5ff",
-        textDecoration: "none",
-      }}
-    >
-      {ARCADE_BANNER_LIGHTS && <Lights hostRef={host} />}
-      <span style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-        <span style={{ font: `400 34px/.9 ${PIX}`, color: "#e9eefb" }}>QUICK PLAY</span>
-        <span style={{ font: `400 13px/1 ${LCD}`, letterSpacing: 1.5, color: "#9aa4b9" }}>BTC · 30-SECOND CALLS · 24/7</span>
-      </span>
-      <span
-        style={{
-          position: "relative",
-          height: 72,
-          padding: "0 14px",
-          display: "flex",
-          alignItems: "center",
-          background: "radial-gradient(130% 120% at 50% 40%,#06202a 0%,#04131b 55%,#020b10 100%)",
-          border: "3px solid #07090f",
-          boxShadow: "inset 0 0 0 2px #1b2a33,inset 0 0 28px rgba(5,215,237,.12)",
-          clipPath: PX_CLIP,
-          overflow: "hidden",
-          minWidth: 0,
-        }}
-      >
-        <Spark pts={t.pts} open={t.open} dim />
-        <span style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 5, font: `400 30px/.9 ${PIX}`, textShadow: "0 0 12px rgba(51,214,255,.6)" }}>
-          {live ? money(t.price) : t.price ? money(t.price) : "PAUSED"}
-          <small style={{ font: `400 15px/1 ${LCD}`, letterSpacing: 1, color: "#9ca3ac" }}>
-            {live ? <>BTC · 3 EXCHANGES · <span style={{ color: chg >= 0 ? "#33d6ff" : "#cfff4a" }}>{chgTxt} last 30s</span></> : "INDEX INVALID · WAITING FOR THE EXCHANGES"}
-          </small>
+    <Link ref={host} to="/arcade" className={`qpc${isMobile ? " m" : ""}${live ? "" : " off"}`} aria-label="Quick Play · BTC 30-second calls">
+      <Level />
+      <span className="vig" aria-hidden="true" />
+      <Chart pts={t.pts} open={t.open} live={live} />
+      <span className="lft">
+        <span className="hrow">
+          <span className="ttl">QUICK PLAY</span>
+          <span className="sb">BTC · 30-SECOND CALLS · 24/7</span>
+        </span>
+        <span className="px">{t.price ? money(t.price) : "$—"}</span>
+        <span className="op">
+          {live && t.open ? (
+            <>
+              {money(t.open)} · <span className={up ? "u" : "d"}>{up ? "▲ +" : "▼ −"}{money(Math.abs(chg))}</span> · last 30s
+            </>
+          ) : (
+            <span className="x">INDEX INVALID · WAITING FOR THE EXCHANGES</span>
+          )}
         </span>
       </span>
-      <span
-        style={{
-          height: 72,
-          padding: "0 16px",
-          display: "flex",
-          alignItems: "center",
-          gap: 14,
-          background: "radial-gradient(130% 120% at 50% 40%,#06202a 0%,#04131b 55%,#020b10 100%)",
-          border: "3px solid #07090f",
-          boxShadow: "inset 0 0 0 2px #1b2a33,inset 0 0 28px rgba(5,215,237,.12)",
-          clipPath: PX_CLIP,
-        }}
-      >
-        <Odd side="up" cents={live ? t.up.toFixed(1) : "—"} big />
-        <Badge />
-        <Odd side="down" cents={live ? (100 - t.up).toFixed(1) : "—"} big />
+      <span className="rgt">
+        <span className="stt">
+          <span className="tmc">
+            <small>TIME</small>
+            <i className="tb" style={{ ["--p" as string]: left / 30 }}>
+              <b />
+            </i>
+            <b>00:{String(left).padStart(2, "0")}</b>
+          </span>
+          <span className="ods">
+            <span className="od ou">
+              <small>▲ UP</small>
+              <b>{upC}¢</b>
+            </span>
+            <span className="od odn">
+              <small>▼ DOWN</small>
+              <b>{dnC}¢</b>
+            </span>
+          </span>
+        </span>
+        <i className="sep" aria-hidden="true" />
+        <span className="gbtn">
+          <span>
+            PLAY <i>▸</i>
+          </span>
+        </span>
       </span>
-      <PlayKey wide />
+      <Stage mobile={isMobile} zone={[310, cw - 490]} />
     </Link>
   );
 };

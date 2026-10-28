@@ -545,6 +545,7 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 | **6 calls · $125** / **next in 3s** / **none** | OPEN 行（右栏底部 `04 / YOUR RESULT`） | 10-28 v32 改短：一行放得下 |
 | **if settled now** / **+$4.63** | LIVE 行 | |
 | **UP · 4 $105** / **DOWN · 2 $110** | TABLE 页签顶部汇总 | 右上金额 = 桌面总额 |
+| **QUICK PLAY** / **BTC · 30-SECOND CALLS · 24/7** / **$81,466.92 · ▲ +$4.80 · last 30s** / **TIME 00:22** / **▲ UP 51.2¢ · ▼ DOWN 48.8¢** / **PLAY ▸** | Events All 入口横幅（方案 C 像素夜景，10-28） | `last 30s` = 30 秒前的指数与变化；`TIME` = 桌子的 30 秒墙钟格（不是局）；无效时副行 **INDEX INVALID · WAITING FOR THE EXCHANGES**、报价 `—` |
 | **SESSION +$83.57** / **2 won · 1 lost** | SESSION 牌 | 本次打开以来 |
 | **LAST 10** ✓✕ / **3 in a row** / **2 lost in a row** | LAST 10 牌 | 账号历史 |
 | **COMBO ×2** / **1 more → ×3 bonus** / **bonus!** / **COMBO BREAK** | COMBO HUD | 连输 `LOST ×2` / `ouch` / `STREAK OVER` |

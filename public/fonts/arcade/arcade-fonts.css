@@ -7,3 +7,5 @@
 /* "CPs" = the designer's Chakra Petch subset used for LCD readouts (size-adjust 80%) */
 @font-face{font-family:"CPs";src:url(/fonts/arcade/cps-500.woff2) format("woff2");font-weight:500;size-adjust:80%;font-display:swap}
 @font-face{font-family:"CPs";src:url(/fonts/arcade/cps-600.woff2) format("woff2");font-weight:600;size-adjust:80%;font-display:swap}
+/* Press Start 2P (OFL, fontsource 5.3.0) — the Quick Play entry banner title */
+@font-face{font-family:'Press Start 2P';font-style:normal;font-display:swap;font-weight:400;src:url(/fonts/arcade/press-start-2p-latin-400-normal.woff2) format('woff2')}

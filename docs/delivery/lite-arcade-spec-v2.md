@@ -91,6 +91,8 @@ v1 是"一局 30 秒，大家一起等开奖"。CPO 看了研发稿之后改成�
 | 可用结算现金 ≥ 1.10 × total_payout、关联账户组限额、异常胜率人工复核 | 未做（演示引擎没有 USDC 专户 / 关联账户数据） |
 | 损失熔断恢复 | 自动按 UTC 日重置，未做人工确认 |
 | Portfolio / 钱包流水 | 合约只进 `arcade_calls`（机柜 LAST SETTLED / LAST 10）；钱包 transactions 有 fee / profit / loss / commission 行；**CPO 10-28 定：Portfolio 加一个 Quick Play 页签放完整记录（下一轮做）**，机柜右栏的 `All settled calls → Portfolio` 已指向 `/portfolio` |
+| 入口横幅 | Events All 页横幅 10-28 换成入口比稿方案 C「像素夜景」（`src/components/lite/arcade/ArcadeEntryBanner.tsx` + `arcade-entry.css`）：读同一条指数；右侧 TIME 是桌子的 30 秒墙钟格，不是局；指数无效显示 INDEX INVALID，不出假数字 |
+| 演示引擎稳定性 | 10-28 观察到 pg_cron `arcade_feed` 每 10–15 分钟有一次 2–12 秒的停顿、11:04 一次 60 秒（与 Lovable 发布 / 重查询同时），停顿后一次性收多批应答会在同一秒写入多条不同价的 tick；待做：定期清理 `cron.job_run_details`（每秒一条、一天 8.6 万行）与 24 小时前的 `arcade_index_ticks`，并给 feed 加锁等待上限。真平台按研发稿自己的行情服务，不走 pg_net |
 | 展示线 | 内测版图上的线 = Binance 盘口实时流（为了一直在扭的手感）+ 指数基差；**主网直接画指数线**，Binance 流只是演示用，页面上不写说明（CPO 10-28） |
 | Share 海报 | 本轮未做（mock 里没有；待定） |
 | 文案 / 合规措辞、i18n key | 英文占位 |
