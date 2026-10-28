@@ -533,7 +533,7 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 | **MY CALLS 3** / **TABLE 7** / **$75** | 右栏页签 + 合计 | 不叫 MINE（CPO：像挖矿）、不叫 Open calls |
 | **Tap UP or DOWN — your calls land here** | 右栏空态 | 移动筹码带 `Tap UP or DOWN — your calls show here` |
 | **$25 @ 51.2¢ · wins +$21.46** / **open $81,155.30 · 12s** | MY CALLS 行 | 行尾 `cancel` → `open…` → `ahead` / `behind` → `settling` → `+$21.46` / `VOID` |
-| **$25 @ 51.0¢ · won · open 81,155.30 · close 81,194.73** | SETTLED 行 | `lost` / `void · no valid price · refunded` / `cancelled · taken back within 2 s` |
+| **$25 @ 51.0¢ · won · open 81,155.30 · close 81,194.73** | LAST SETTLED 行（只留最近一张；≥2 张已结时下面出 **All settled calls → Portfolio**） | `lost` / `void · no valid price · refunded` / `cancelled · taken back within 2 s` |
 | **$25 @ 51.2¢ · kz***88** | TABLE 行 | 自己的单标 `you` |
 | **YOUR STAKE · PER CHIP** / **$5 SELECTED** | 筹码盘 | $5 / 10 / 25 / 50 / 100 |
 | **$5 in · fee $0.15 · wins +$4.49 if Up** | UP / DOWN 底注 | `+$` 已扣 5% 佣金 |
@@ -542,8 +542,9 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 | **Table paused · index invalid** / **· market moving too fast** / **· daily limit reached** / **Table full · room opens as calls settle** / **Table closed** | 底注（暂停） | 遮罩 `TABLE PAUSED` + `Index invalid · waiting for the exchanges` / `BTC is moving too fast · back in a moment` / `Daily limit reached · back tomorrow` / `TABLE FULL · Room opens as calls settle` + `Open calls keep running and settle as normal` |
 | **Waiting for the price** / **Warming up · odds in a moment** | 底注（无 tick / 无报价） | |
 | **$500 max open per account** / **Too fast · 2 calls per second** / **Not enough in your spot account** / **Accept the rules first** / **Sign in to play** | 拒单 | 服务端 RAISE 原文直接显示 |
-| **6 calls · $125 on the table** / **next settles in 3s** / **nothing on the table** | OPEN 牌 | |
-| **if all settle now** / **+$4.63** | LIVE 牌 | |
+| **6 calls · $125** / **next in 3s** / **none** | OPEN 行（右栏底部 `04 / YOUR RESULT`） | 10-28 v32 改短：一行放得下 |
+| **if settled now** / **+$4.63** | LIVE 行 | |
+| **UP · 4 $105** / **DOWN · 2 $110** | TABLE 页签顶部汇总 | 右上金额 = 桌面总额 |
 | **SESSION +$83.57** / **2 won · 1 lost** | SESSION 牌 | 本次打开以来 |
 | **LAST 10** ✓✕ / **3 in a row** / **2 lost in a row** | LAST 10 牌 | 账号历史 |
 | **COMBO ×2** / **1 more → ×3 bonus** / **bonus!** / **COMBO BREAK** | COMBO HUD | 连输 `LOST ×2` / `ouch` / `STREAK OVER` |

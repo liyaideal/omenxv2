@@ -1,15 +1,15 @@
 
 /* ============================================================
-   Quick Play v2 — stream stage (CPO 2026-10-28, mock 6AmwMxsb3aNDUgVDZ8epWJ v26)
+   Quick Play v2 — stream stage (CPO 2026-10-28, mock 6AmwMxsb3aNDUgVDZ8epWJ v32)
    Every chip is its own 30-second contract: the stage is a time axis (−45 s … +30 s),
    calls settle in place, OPEN CALLS rail on the right, UP / chips / DOWN keys,
-   OPEN / LIVE / SESSION / LAST 10 boards, the lynx dash. Scoped under .arcade-root .v2
+   04 / YOUR RESULT (OPEN / LIVE / SESSION / LAST 10) at the bottom of the rail, the lynx dash. Scoped under .arcade-root .v2
    so the designer's shell rules above (steel / rivets / scr / key / dir / chip / mchip /
    stack / lynx / window / tip / toast / flash) keep applying; the round-era layout rules
    (.qscr .meter .timer .orders .coModal .shModal .amenu .cats …) are no longer referenced
    by the markup and are kept only for the git history of the designer's port.
    ============================================================ */
-.arcade-root .v2{display:grid;gap:8px;grid-template-rows:auto auto minmax(420px,1fr) auto auto}
+.arcade-root .v2{display:grid;gap:8px;grid-template-rows:72px auto minmax(400px,1fr) auto}
 :is(.arcade-root .v2,.arcade-root .v2m) .r1{display:grid;grid-template-columns:190px minmax(0,1fr) auto;gap:8px;height:72px}
 :is(.arcade-root .v2,.arcade-root .v2m) .r1 .ctrlplate{display:flex;align-items:center;gap:6px;padding:0 10px}
 /* header bar */
@@ -33,7 +33,7 @@
 /* road strip */
 :is(.arcade-root .v2,.arcade-root .v2m) .rr{padding:6px 12px;display:flex;flex-direction:column;gap:5px;overflow:visible;z-index:7;position:relative}
 .arcade-root .v2 .r2r{display:grid;grid-template-columns:160px auto minmax(0,1.3fr) minmax(0,1.1fr);gap:6px;padding:6px;flex-direction:row;overflow:visible}
-.arcade-root .v2 .r2r .scr{padding:6px 12px;display:flex;flex-direction:column;justify-content:center;gap:4px;min-height:0;overflow:visible}
+.arcade-root .v2 .r2r .scr{padding:5px 12px;display:flex;flex-direction:column;justify-content:center;gap:3px;min-height:0;overflow:visible}
 .arcade-root .v2 .r2r .tagscr .tag{font-size:22px}.arcade-root .v2 .r2r .tagscr .sub{font-size:15px}
 .arcade-root .v2 .r2r .tagscr{gap:8px}
 .arcade-root .v2 .r2r .beadscr,.arcade-root .v2 .r2r .roadscr{overflow:hidden}
@@ -61,30 +61,30 @@
 .arcade-root .v2m .msheet .rstats{padding:0;background:none;border:0;box-shadow:none}
 :is(.arcade-root .v2,.arcade-root .v2m) .rstats b{color:#fff;font-weight:500}:is(.arcade-root .v2,.arcade-root .v2m) .rstats small{color:var(--dim);font-size:10px;margin-left:4px}:is(.arcade-root .v2,.arcade-root .v2m) .rstats .cu{color:var(--up)}:is(.arcade-root .v2,.arcade-root .v2m) .rstats .cd{color:var(--lime)}
 /* row 2 · stage + rail */
-:is(.arcade-root .v2,.arcade-root .v2m) .r2{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:8px;min-height:420px;padding:0}
-:is(.arcade-root .v2,.arcade-root .v2m) .feedplate,:is(.arcade-root .v2,.arcade-root .v2m) .railplate{padding:6px}
-:is(.arcade-root .v2,.arcade-root .v2m) .feedplate .feed,:is(.arcade-root .v2,.arcade-root .v2m) .railplate .rail{height:100%}
+:is(.arcade-root .v2,.arcade-root .v2m) .r2{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:8px;min-height:0;padding:0}
+:is(.arcade-root .v2,.arcade-root .v2m) .feedplate,:is(.arcade-root .v2,.arcade-root .v2m) .railplate{padding:6px;position:relative;min-height:0}
+:is(.arcade-root .v2,.arcade-root .v2m) .feedplate .feed,:is(.arcade-root .v2,.arcade-root .v2m) .railplate .rail{position:absolute;inset:6px;height:auto}
 :is(.arcade-root .v2,.arcade-root .v2m) .feed{padding:10px 12px 8px;display:flex;flex-direction:column;gap:4px;position:relative}
 :is(.arcade-root .v2,.arcade-root .v2m) .feed-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;min-height:0}
-.arcade-root .v2 .feed-head{grid-template-columns:150px auto minmax(0,1fr) auto;align-items:start;gap:14px}
-.arcade-root .v2 .feed-head>.combo{grid-column:3;align-self:center}
-.arcade-root .v2 .feed-head>.lbl{grid-column:4}
+.arcade-root .v2 .feed-head{grid-template-columns:150px auto minmax(max-content,1fr) auto;align-items:center;gap:22px}
+.arcade-root .cab.v2 .feed-head>.combo{grid-column:3;align-self:center;justify-self:center;flex-direction:column;align-items:center;gap:4px}
+.arcade-root .v2 .feed-head>.combo .big{font-size:26px}
+.arcade-root .v2 .feed-head>.combo .meta{flex-direction:row;align-items:center;gap:8px}
+.arcade-root .v2 .feed-head>.combo .sub{color:var(--mute);letter-spacing:.6px;font-size:10px}
+.arcade-root .cab.v2 .feed-head>.lbl{grid-column:4;align-self:start;padding-top:4px}
 .arcade-root .v2 .feed-head .titles{display:flex;flex-direction:column;gap:6px;grid-column:1}
 .arcade-root .v2 .feed-head .tag{font-size:22px}
 .arcade-root .v2 .feed-head .sub{font-size:15px}
-.arcade-root .v2 .pricebox{grid-column:2;display:flex;flex-direction:column;gap:3px}
+.arcade-root .v2 .pricebox{grid-column:2;display:flex;flex-direction:column}
 .arcade-root .v2 .pricebox .price{font-size:44px;margin:0;line-height:.85}
-.arcade-root .v2 .pricebox .chg{font:500 12px/1 var(--f-ui);color:var(--mute)}
-.arcade-root .v2 .pricebox .chg.up{color:var(--up)}.arcade-root .v2 .pricebox .chg.dn{color:var(--lime)}
 :is(.arcade-root .v2,.arcade-root .v2m) .feed-head>:first-child{grid-column:1}:is(.arcade-root .v2,.arcade-root .v2m) .feed-head>.combo{grid-column:2;overflow:hidden}:is(.arcade-root .v2,.arcade-root .v2m) .feed-head>.lbl{grid-column:3;justify-self:end;white-space:nowrap}
+/* (.cab.v2 above out-specifies the shared .feed-head>.combo / >.lbl column rule below, which is the mobile layout) */
 /* the price keeps the designer's glow (.price.up / .price.dn in arcade.css), sized for the stage header */
 :is(.arcade-root .v2,.arcade-root .v2m) .chg.src{display:flex;gap:14px;align-items:baseline;margin-top:2px;font:500 12px/1 var(--f-ui);color:var(--mute)}
 :is(.arcade-root .v2,.arcade-root .v2m) .chg.src .s{display:inline-flex;gap:5px;align-items:baseline}
 :is(.arcade-root .v2,.arcade-root .v2m) .chg.src .s i{font:500 9px/1 var(--f-ui);color:var(--dim);letter-spacing:1px;text-transform:uppercase;font-style:normal}
 :is(.arcade-root .v2,.arcade-root .v2m) .chg.src .s b{font:500 12px/1 var(--f-ui);color:#aab4c2;font-weight:500}
 :is(.arcade-root .v2,.arcade-root .v2m) .chg.src .st b{color:var(--lime);font-size:10px;letter-spacing:1px}
-:is(.arcade-root .v2,.arcade-root .v2m) .chg.src .ln{margin-left:auto}
-:is(.arcade-root .v2,.arcade-root .v2m) .chg.src .ln b{font-size:10px;letter-spacing:1px;color:var(--dim)}
 :is(.arcade-root .v2,.arcade-root .v2m) .chg.src.paused .s b{color:var(--hot)}
 :is(.arcade-root .v2,.arcade-root .v2m) .plot{flex:1;min-height:0;position:relative;margin:0;padding:0}
 :is(.arcade-root .v2,.arcade-root .v2m) .plot canvas{width:100%;height:100%;display:block}
@@ -102,14 +102,30 @@
 :is(.arcade-root .v2,.arcade-root .v2m) .tab.on{color:#fff;border-color:var(--up);background:rgba(51,214,255,.08)}
 :is(.arcade-root .v2,.arcade-root .v2m) .tab b{font:400 15px/1 var(--f-pix);font-weight:400;color:inherit}
 :is(.arcade-root .v2,.arcade-root .v2m) .rail .hint{font:500 12px/1.4 var(--f-ui);color:var(--dim);text-align:center;padding:14px 8px;border:1px dashed #1c2a33}
+:is(.arcade-root .v2,.arcade-root .v2m) .rail .hint[hidden]{display:none}
 :is(.arcade-root .v2,.arcade-root .v2m) .rail .head .n{font:400 20px/1 var(--f-pix);color:#fff}
-:is(.arcade-root .v2,.arcade-root .v2m) .rail .list{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:4px}
+:is(.arcade-root .v2,.arcade-root .v2m) .rail .list{flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;display:flex;flex-direction:column;gap:4px}
+:is(.arcade-root .v2,.arcade-root .v2m) .rail .list::-webkit-scrollbar{display:none}
+:is(.arcade-root .v2,.arcade-root .v2m) .rail .list[hidden]{display:none}
+:is(.arcade-root .v2,.arcade-root .v2m) .rail .list.more{-webkit-mask-image:linear-gradient(#000 calc(100% - 22px),transparent);mask-image:linear-gradient(#000 calc(100% - 22px),transparent)}
+:is(.arcade-root .v2,.arcade-root .v2m) .tsum{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+:is(.arcade-root .v2,.arcade-root .v2m) .tsum[hidden]{display:none}
+:is(.arcade-root .v2,.arcade-root .v2m) .tsum>span{display:flex;justify-content:space-between;align-items:baseline;padding:6px 8px;border:1px solid #1c2a33;font:600 11px/1 var(--f-ui);letter-spacing:.6px;color:var(--mute)}
+:is(.arcade-root .v2,.arcade-root .v2m) .tsum>span b{font:400 16px/1 var(--f-pix);color:#fff;font-weight:400}
+:is(.arcade-root .v2,.arcade-root .v2m) .tsum>span.u,:is(.arcade-root .v2,.arcade-root .v2m) .tsum>span.d{background:none;box-shadow:none}
+:is(.arcade-root .v2,.arcade-root .v2m) .tsum>span.u{border-color:rgba(51,214,255,.35)}:is(.arcade-root .v2,.arcade-root .v2m) .tsum>span.u b{color:var(--up)}
+:is(.arcade-root .v2,.arcade-root .v2m) .tsum>span.d{border-color:rgba(207,255,74,.35)}:is(.arcade-root .v2,.arcade-root .v2m) .tsum>span.d b{color:var(--lime)}
 :is(.arcade-root .v2,.arcade-root .v2m) .row{flex:none;min-height:30px;display:grid;grid-template-columns:34px minmax(0,1fr) 62px;gap:8px;align-items:center;padding:3px 6px;border:1px solid #1c2a33;background:rgba(255,255,255,.02);position:relative;overflow:hidden;animation:v2rowIn .25s ease-out}
 @keyframes v2rowIn{from{transform:translateY(-8px);opacity:0}}
 :is(.arcade-root .v2,.arcade-root .v2m) .row.u,:is(.arcade-root .v2,.arcade-root .v2m) .row.d{background:rgba(255,255,255,.02);box-shadow:none}
 :is(.arcade-root .v2,.arcade-root .v2m) .row .sd{font:400 18px/1 var(--f-pix);padding-top:2px;background:none;box-shadow:none}
 :is(.arcade-root .v2,.arcade-root .v2m) .row .sd.u{color:var(--up)}:is(.arcade-root .v2,.arcade-root .v2m) .row .sd.d{color:var(--lime)}
+:is(.arcade-root .v2,.arcade-root .v2m) .row.other{grid-template-columns:34px minmax(0,1fr) 40px;min-height:30px;animation:none}
 :is(.arcade-root .v2,.arcade-root .v2m) .row.other .sd{font-size:14px;letter-spacing:.5px}
+:is(.arcade-root .v2,.arcade-root .v2m) .row.other .bar{display:none}
+:is(.arcade-root .v2,.arcade-root .v2m) .row.other .mid b{font-weight:500}
+:is(.arcade-root .v2,.arcade-root .v2m) .row.other .st{font:500 12px/1 var(--f-ui);color:var(--mute)}
+:is(.arcade-root .v2,.arcade-root .v2m) .row.other .st.soon{color:#fff}
 :is(.arcade-root .v2,.arcade-root .v2m) .row .who{font:600 11px/1 var(--f-ui);color:#aab4c2;letter-spacing:.3px}
 :is(.arcade-root .v2,.arcade-root .v2m) .row .mid{display:flex;flex-direction:column;gap:3px;min-width:0}
 :is(.arcade-root .v2,.arcade-root .v2m) .row .mid b{font:600 12px/1 var(--f-ui);color:#dfe6ee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -127,12 +143,14 @@
 :is(.arcade-root .v2,.arcade-root .v2m) .rail .done{display:flex;flex-direction:column;gap:3px}
 :is(.arcade-root .v2,.arcade-root .v2m) .rail .done .row{min-height:30px;padding:3px 6px;opacity:.9;grid-template-columns:34px minmax(0,1fr) auto}
 :is(.arcade-root .v2,.arcade-root .v2m) .rail .done .row .mid b{font-weight:500;color:#aab4c2}
+:is(.arcade-root .v2,.arcade-root .v2m) .rail .donehead[hidden],:is(.arcade-root .v2,.arcade-root .v2m) .rail .done[hidden]{display:none}
+:is(.arcade-root .v2,.arcade-root .v2m) .rail .plink{font:500 11px/1 var(--f-ui);color:var(--dim);letter-spacing:.5px;text-align:right;cursor:pointer;padding:0;background:none;border:0}:is(.arcade-root .v2,.arcade-root .v2m) .rail .plink:hover{color:#fff}:is(.arcade-root .v2,.arcade-root .v2m) .rail .plink[hidden]{display:none}
 /* row 3 · keys */
 :is(.arcade-root .v2,.arcade-root .v2m) .r3{padding:6px;min-height:0;flex:none;display:flex;flex-direction:column;gap:6px}
 .arcade-root .v2 .r3 .dirhead{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 14px;flex:none}
 .arcade-root .v2 .r3 .dirhead .sub{font-size:14px;color:var(--mute)}
 :is(.arcade-root .v2,.arcade-root .v2m) .r3 .row2{display:grid;grid-template-columns:minmax(0,1fr) 300px minmax(0,1fr);gap:8px;flex:1}
-:is(.arcade-root .v2,.arcade-root .v2m) .dir{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"side mid cents" "pays pays pays";grid-template-rows:auto auto;align-content:center;align-items:center;column-gap:8px;row-gap:7px;padding:10px 15px 9px;color:#020c10;border:3px solid var(--ink);min-height:100px;cursor:pointer;user-select:none;clip-path:polygon(0 6px,6px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0 calc(100% - 6px));transition:filter .15s,transform .06s;width:100%;height:100%;text-align:left}
+:is(.arcade-root .v2,.arcade-root .v2m) .dir{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"side mid cents" "pays pays pays";grid-template-rows:auto auto;align-content:center;align-items:center;column-gap:8px;row-gap:7px;padding:10px 15px 9px;color:#020c10;border:3px solid var(--ink);min-height:92px;cursor:pointer;user-select:none;clip-path:polygon(0 6px,6px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0 calc(100% - 6px));transition:filter .15s,transform .06s;width:100%;height:100%;text-align:left}
 :is(.arcade-root .v2,.arcade-root .v2m) .dir:active{transform:translateY(2px)}
 :is(.arcade-root .v2,.arcade-root .v2m) .dir.u{background:linear-gradient(180deg,#5aeeff 0%,#13e3fa 40%,var(--cy-lo) 100%);box-shadow:inset 4px 4px 0 var(--cy-hi),inset -4px -4px 0 #00809a}
 :is(.arcade-root .v2,.arcade-root .v2m) .dir.d{background:linear-gradient(180deg,#f0ffa8 0%,#dcff5c 40%,var(--lime-lo) 100%);box-shadow:inset 4px 4px 0 #f7ffd0,inset -4px -4px 0 #6f9a0a}
@@ -173,13 +191,14 @@
 :is(.arcade-root .v2,.arcade-root .v2m) .chip.on{background:linear-gradient(180deg,#e4ff8a,var(--lime));box-shadow:inset 2px 2px 0 #f4ffc8,inset -2px -2px 0 #8cb31a;animation:v2wob 1.6s ease-in-out infinite}
 :is(.arcade-root .v2,.arcade-root .v2m) .chip.off{opacity:.35;cursor:not-allowed;animation:none}
 @keyframes v2wob{50%{transform:translateY(-3px)}}
-/* row 4 · boards */
-:is(.arcade-root .v2,.arcade-root .v2m) .r4{display:grid;grid-template-columns:160px minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.4fr);gap:6px;padding:6px}
-.arcade-root .v2 .r4 .scr.head{display:flex;flex-direction:column;justify-content:center;gap:5px}
-:is(.arcade-root .v2,.arcade-root .v2m) .r4 .scr{padding:7px 14px;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;align-items:center;column-gap:10px;row-gap:4px;min-height:62px}
-:is(.arcade-root .v2,.arcade-root .v2m) .r4 .lbl{grid-area:1/1}
-:is(.arcade-root .v2,.arcade-root .v2m) .r4 .s{grid-area:1/2;justify-self:end;font:500 12px/1 var(--f-ui);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-:is(.arcade-root .v2,.arcade-root .v2m) .r4 .n{grid-area:2/1/3/3;font:400 30px/.9 var(--f-pix);color:#fff;white-space:nowrap}
+/* 04 / YOUR RESULT · scoreboard at the bottom of the rail (one line per board) */
+:is(.arcade-root .v2,.arcade-root .v2m) .r4.score{margin-top:auto;display:flex;flex-direction:column;gap:3px;padding-top:6px;border-top:1px solid #1c2a33}
+:is(.arcade-root .v2,.arcade-root .v2m) .r4 .shead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
+:is(.arcade-root .v2,.arcade-root .v2m) .r4 .shead .tag{font-size:16px}:is(.arcade-root .v2,.arcade-root .v2m) .r4 .shead .sub{color:var(--dim);font-size:10px;letter-spacing:1.5px;text-transform:uppercase}
+:is(.arcade-root .v2,.arcade-root .v2m) .r4 .kpi{padding:4px 8px;display:grid;grid-template-columns:62px minmax(0,1fr) auto;align-items:center;column-gap:8px;min-height:26px;border:1px solid #1c2a33;overflow:hidden}
+:is(.arcade-root .v2,.arcade-root .v2m) .r4 .kpi>.lbl{grid-area:1/1;white-space:nowrap;font-size:10px}
+:is(.arcade-root .v2,.arcade-root .v2m) .r4 .kpi>.n{grid-area:1/2;min-width:0;font:400 18px/.9 var(--f-pix);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:is(.arcade-root .v2,.arcade-root .v2m) .r4 .kpi>.s{grid-area:1/3;min-width:0;display:block;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;justify-self:end;font:500 10px/1 var(--f-ui);color:var(--mute)}
 :is(.arcade-root .v2,.arcade-root .v2m) .n.pos{color:var(--lime)}:is(.arcade-root .v2,.arcade-root .v2m) .n.neg{color:var(--hot)}
 :is(.arcade-root .v2,.arcade-root .v2m) .ticks{display:flex;gap:3px;align-items:center}
 :is(.arcade-root .v2,.arcade-root .v2m) .ticks span{width:14px;height:14px;border-radius:2px;display:grid;place-items:center;font:700 9px/1 var(--f-ui);color:#020c10;background:none;border:0}
@@ -235,7 +254,9 @@
 .arcade-root .rcols b{color:#fff}.arcade-root .rcols em{color:var(--lime);font-style:normal}
 .arcade-root .rx{width:40px;height:34px;font-size:20px;cursor:pointer}
 @media (max-width:700px){.arcade-root .rcols{grid-template-columns:1fr}}
-/* dash: the lynx (mood · road signs · runner game while paused) */
+/* dash: the lynx (mood · road signs · runner game while paused) · compact height so 03 + the lynx fit a 1080p screen */
+.arcade-root .cockpit:has(.v2) .dash{height:92px}
+
 :is(.arcade-root .v2,.arcade-root .v2m) ~ .dash .lynx .sign,.arcade-root .lynx .sign{position:absolute;left:100%;bottom:46px;margin-left:4px;white-space:nowrap;background:#e8edf2;color:#07090f;border:2px solid var(--ink);padding:3px 7px 2px;font:400 15px/1 var(--f-pix);letter-spacing:.5px;box-shadow:2px 2px 0 var(--ink);animation:v2signIn .3s cubic-bezier(.2,1.6,.4,1);z-index:4}
 .arcade-root .lynx .sign::before{content:"";position:absolute;left:-2px;bottom:-14px;width:2px;height:14px;background:#aab1bd}
 @keyframes v2signIn{from{transform:translateY(8px) rotate(-6deg);opacity:0}}
@@ -253,15 +274,13 @@
 /* ---------- desktop: fit the viewport (the cabinet fills the page, no site chrome) ---------- */
 @media (max-height:860px) and (min-width:1121px){
   :is(.arcade-root .v2,.arcade-root .v2m) .r2{min-height:360px}
-  .arcade-root .v2{grid-template-rows:auto auto minmax(360px,1fr) auto auto}
+  .arcade-root .v2{grid-template-rows:72px auto minmax(360px,1fr) auto}
   :is(.arcade-root .v2,.arcade-root .v2m) .hl h1{font-size:26px}
   :is(.arcade-root .v2,.arcade-root .v2m) .dir{min-height:84px}
-  :is(.arcade-root .v2,.arcade-root .v2m) .r4 .scr{min-height:54px}
 }
 @media (max-width:1120px){
   :is(.arcade-root .v2,.arcade-root .v2m) .r2{grid-template-columns:minmax(0,1fr) 260px}
   :is(.arcade-root .v2,.arcade-root .v2m) .r3 .row2{grid-template-columns:minmax(0,1fr) 220px minmax(0,1fr)}
-  :is(.arcade-root .v2,.arcade-root .v2m) .r4{grid-template-columns:1fr 1fr}
   .arcade-root .v2 .r2r{grid-template-columns:auto minmax(0,1fr) minmax(0,1fr)}
   .arcade-root .v2 .r2r .tagscr{display:none}
   :is(.arcade-root .v2,.arcade-root .v2m) .hbar{padding:0 12px}:is(.arcade-root .v2,.arcade-root .v2m) .stat{padding:0 12px}:is(.arcade-root .v2,.arcade-root .v2m) .keys{padding-left:12px}

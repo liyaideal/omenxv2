@@ -7,6 +7,7 @@
 //   • header bar: title · YOUR OPEN · AVAILABLE · Deposit / Transfer / Rules
 //   • road strip (the table's 30 s cells) · stage + OPEN CALLS rail
 //   • UP / chips / DOWN keys · OPEN / LIVE / SESSION / LAST 10 boards
+//   • 04 / YOUR RESULT lives at the bottom of the rail (CPO 2026-10-28, mock v32)
 //   • dash: the lynx (mood, road signs, runner game while paused)
 // The logo plate is the only exit (CPO 2026-10-19: no ✕).
 // ============================================================
@@ -91,12 +92,18 @@ export const ARCADE_DESKTOP = `<main>
       <!-- row 2 · stage + rail -->
       <div class="r2">
         <div class="feedplate steel rivets"><div class="feed scr crt">
-          <div class="feed-head"><div class="titles"><span class="tag">02 / LIVE FEED</span><span class="sub">WHAT'S HAPPENING</span></div><div class="pricebox"><div class="price up" id="price">$—</div><div class="chg" id="chg">—</div></div>${COMBO("dCombo")}<div class="lbl" id="dNext">NEXT SETTLE · —</div></div>
-          <div class="chg src" id="dSrc"><span class="s"><i>Binance</i><b id="s1">—</b></span><span class="s"><i>Hyperliquid</i><b id="s2">—</b></span><span class="s"><i>Coinbase</i><b id="s3">—</b></span><span class="s st"><b id="dSrcState">—</b></span><span class="s ln"><i>Line</i><b id="dLine">index</b></span></div>
+          <div class="feed-head"><div class="titles"><span class="tag">02 / LIVE FEED</span><span class="sub">WHAT'S HAPPENING</span></div><div class="pricebox"><div class="price up" id="price">$—</div></div>${COMBO("dCombo")}<div class="lbl" id="dNext">NEXT SETTLE · —</div></div>
+          <div class="chg src" id="dSrc"><span class="s"><i>Binance</i><b id="s1">—</b></span><span class="s"><i>Hyperliquid</i><b id="s2">—</b></span><span class="s"><i>Coinbase</i><b id="s3">—</b></span><span class="s st"><b id="dSrcState">—</b></span></div>
           <div class="plot" id="plot"><canvas id="cv"></canvas><div class="ov" id="dOv"><div><div class="t" id="dOvT">TABLE PAUSED</div><div class="s" id="dOvS"></div><div class="h">Open calls keep running and settle as normal</div></div></div></div>
           <div class="axis"><span>−45s</span><span>now</span><span>+30s · flags = settlement</span></div>${MEGA("dMega")}
         </div></div>
-        <div class="railplate steel rivets"><div class="rail scr"><div class="head"><span class="tabs"><button class="tab on" data-tab="mine">MY CALLS <b id="dOpenN">0</b></button><button class="tab" data-tab="table">TABLE <b id="dTableN">0</b></button></span><span class="n" id="dOpenSum">$0</span></div><div class="list" id="dList"></div><div class="list" id="dTable" hidden></div><div class="hint" id="dHint">Tap UP or DOWN — your calls land here</div><div class="donehead lbl">Settled</div><div class="done" id="dDone"></div></div></div>
+        <div class="railplate steel rivets"><div class="rail scr"><div class="head"><span class="tabs"><button class="tab on" data-tab="mine">MY CALLS <b id="dOpenN">0</b></button><button class="tab" data-tab="table">TABLE <b id="dTableN">0</b></button></span><span class="n" id="dOpenSum">$0</span></div><div class="hint" id="dHint">Tap UP or DOWN — your calls land here</div><div class="list" id="dList"></div><div class="tsum" id="dTsum" hidden></div><div class="list" id="dTable" hidden></div><div class="donehead lbl">Last settled</div><div class="done" id="dDone"></div><button class="plink" id="dPlink" hidden>All settled calls → Portfolio</button>
+          <div class="r4 score"><div class="shead"><span class="tag">04 / YOUR RESULT</span><span class="sub">SESSION</span></div>
+            <div class="kpi"><span class="lbl">Open</span><span class="n" id="dOpenBig">—</span><span class="s" id="dOpenS">none</span></div>
+            <div class="kpi"><span class="lbl">Live</span><span class="n" id="dLive">—</span><span class="s">if settled now</span></div>
+            <div class="kpi"><span class="lbl">Session</span><span class="n" id="dSes">$0.00</span><span class="s" id="dSesS">0 won · 0 lost</span></div>
+            <div class="kpi"><span class="lbl">Last 10</span><span class="n"><span class="ticks" id="dTicks"></span></span><span class="s" id="dStreak"></span></div>
+          </div></div></div>
       </div>
 
       <!-- row 3 · keys -->
@@ -109,14 +116,6 @@ export const ARCADE_DESKTOP = `<main>
         </div>
       </div>
 
-      <!-- row 4 · boards -->
-      <div class="r4 steel rivets">
-        <div class="scr head"><span class="tag">04 / YOUR RESULT</span><span class="sub">SESSION SCOREBOARD</span></div>
-        <div class="scr"><span class="lbl">Open</span><span class="s" id="dOpenS">nothing on the table</span><span class="n" id="dOpenBig">—</span></div>
-        <div class="scr"><span class="lbl">Live</span><span class="s">if all settle now</span><span class="n" id="dLive">—</span></div>
-        <div class="scr"><span class="lbl">Session</span><span class="s" id="dSesS">0 won · 0 lost</span><span class="n" id="dSes">$0.00</span></div>
-        <div class="scr"><span class="lbl">Last 10</span><span class="s" id="dStreak"></span><span class="n"><span class="ticks" id="dTicks"></span></span></div>
-      </div>
     </div>
 
     <div class="dash">

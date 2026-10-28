@@ -112,6 +112,8 @@ export interface ArcadeApi {
   exit: () => void;
   deposit: () => void;
   transfer: () => void;
+  /** "All settled calls → Portfolio" at the bottom of the rail */
+  portfolio?: () => void;
   username: string;
 }
 
@@ -937,11 +939,6 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     /* price line: one point per valid second, the head eased toward the latest index; gaps where the index was invalid */
     const useLive = liveOn();
     const pts = lineSeries(t - 45000);
-    const lineEl = $("#dLine");
-    if (lineEl) {
-      const lt = useLive ? "Binance live · settles on the index" : "index";
-      if (lineEl.textContent !== lt) lineEl.textContent = lt;
-    }
     if (pts.length > 1 || (pts.length && S.disp)) {
       const col = S.disp >= ref ? C.up : C.dn;
       const headX = Math.min(g.x(t), g.x(pts[pts.length - 1].t) + 40),
@@ -1226,19 +1223,32 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         row = document.createElement("div");
         row.dataset.id = o.id;
         row.className = `row other ${side}${o.mine ? " mine" : ""}`;
-        row.innerHTML = `<span class="sd ${side}">${side === "u" ? "UP" : "DN"}</span><span class="mid"><b>${whole(o.gross)} @ ${cents(o.p)} <span class="who">· ${o.mine ? "you" : o.who}</span></b><span class="bar"><i></i></span></span><span class="st lock"></span>`;
+        row.innerHTML = `<span class="sd ${side}">${side === "u" ? "UP" : "DN"}</span><span class="mid"><b>${whole(o.gross)} @ ${cents(o.p)} <span class="who">· ${o.mine ? "you" : o.who}</span></b></span><span class="st"></span>`;
       }
-      row.querySelector(".bar i").style.width = frac * 100 + "%";
+      const left = Math.max(0, Math.ceil((t1 - t) / 1000));
       const st = row.querySelector(".st"),
-        txt = Math.max(0, Math.ceil((t1 - t) / 1000)) + "s";
+        txt = left + "s";
       if (st.textContent !== txt) st.textContent = txt;
+      st.className = "st" + (left <= 5 ? " soon" : "");
       if (el.children[i] !== row) el.insertBefore(row, el.children[i] || null);
     });
     [...el.children].forEach((r: any) => {
       if (!seen.has(r.dataset.id)) r.remove();
     });
+    const all = S.feed.filter((o: ArcadeFeedRow) => ms(o.t1) > t - 500);
     const n = $("#dTableN");
-    if (n) n.textContent = String(S.feed.filter((o: ArcadeFeedRow) => ms(o.t1) > t - 500).length);
+    if (n) n.textContent = String(all.length);
+    const ts = $("#dTsum");
+    if (ts) {
+      const su = all.filter((o: ArcadeFeedRow) => sideOf(o.side) === "u"),
+        sd = all.filter((o: ArcadeFeedRow) => sideOf(o.side) === "d");
+      const sum = `<span class="u">UP · ${su.length}<b>${whole(su.reduce((a: number, o: ArcadeFeedRow) => a + o.gross, 0))}</b></span><span class="d">DOWN · ${sd.length}<b>${whole(sd.reduce((a: number, o: ArcadeFeedRow) => a + o.gross, 0))}</b></span>`;
+      if (ts.innerHTML !== sum) ts.innerHTML = sum;
+    }
+  }
+  function tableStake() {
+    const t = now();
+    return S.feed.filter((o: ArcadeFeedRow) => ms(o.t1) > t - 500).reduce((a: number, o: ArcadeFeedRow) => a + o.gross, 0);
   }
   function renderRail() {
     const t = now();
@@ -1249,13 +1259,24 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       dOpenN.textContent = String(open.length);
       $("#dOpenSum").textContent = whole(open.reduce((a: number, c: Call) => a + c.gross, 0));
       renderTable();
-      const showTable = railTab === "table" || (railTab === "auto" && !live.length);
+      const mine = live.filter((c: Call) => !c.tDone || t - c.tDone < 1400);
+      const showTable = railTab === "table" || (railTab === "auto" && !mine.length);
       $("#dTable").hidden = !showTable;
       $("#dList").hidden = showTable;
-      $("#dHint").hidden = !(showTable && !live.length && !S.feed.length);
+      /* MY CALLS tab: the hint sits on top while the list is empty; TABLE tab: the UP / DOWN summary, no hint, no settled block */
+      $("#dHint").hidden = showTable || !!mine.length;
+      const tsum = $("#dTsum");
+      if (tsum) tsum.hidden = !showTable;
+      const dHead = $(".rail .donehead"),
+        dPl = $("#dPlink");
+      if (dHead) dHead.hidden = showTable || !S.done.length;
+      if (dPl) dPl.hidden = showTable || S.done.length < 2;
+      const dD = $("#dDone");
+      if (dD && !mobile) dD.hidden = showTable;
+      if (showTable) $("#dOpenSum").textContent = whole(tableStake());
       $$(".tab").forEach((b) => b.classList.toggle("on", (b.dataset.tab === "table") === showTable));
       const list = $("#dList");
-      const want = live.filter((c: Call) => !c.tDone || t - c.tDone < 1400).slice(-7).reverse();
+      const want = mine.slice().reverse();
       const seen = new Set<string>();
       want.forEach((c: Call, i: number) => {
         const frac = clip((t - c.t0) / ARCADE_DURATION_MS, 0, 1);
@@ -1300,11 +1321,13 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       [...list.children].forEach((r: any) => {
         if (!seen.has(r.dataset.id)) r.remove();
       });
+      /* more rows below the fold → fade the bottom edge */
+      list.classList.toggle("more", list.scrollHeight > list.clientHeight + 2 && list.scrollTop + list.clientHeight < list.scrollHeight - 2);
     }
     const dDone = $("#dDone");
     if (dDone) {
       const dh = S.done
-        .slice(0, mobile ? 6 : 3)
+        .slice(0, mobile ? 6 : 1)
         .map(
           (c: Call) =>
             `<div class="row ${c.side}"><span class="sd ${c.side}">${c.side === "u" ? "UP" : "DN"}</span><span class="mid"><b>${whole(c.gross)} @ ${cents(c.p)} · ${c.status === "won" ? "won" : c.status === "lost" ? "lost" : c.status === "cancelled" ? "cancelled" : "void"}</b><small>${c.s0 != null && c.s1 != null ? `open ${money(c.s0)} · close ${money(c.s1)}` : c.status === "cancelled" ? "taken back within 2 s" : "no valid price · refunded"}</small></span><span class="st ${c.status === "won" ? "ahead" : c.status === "lost" ? "behind" : "pend"}">${c.status === "void" ? "VOID" : signed(c.pnl)}</span></div>`,
@@ -1359,8 +1382,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       const e = $(id);
       if (e && e.textContent !== v) e.textContent = v;
     };
-    set("#dOpenBig", open.length ? `${open.length} call${open.length > 1 ? "s" : ""} · ${whole(stake)} on the table` : "—");
-    set("#dOpenS", open.length ? `next settles in ${nextS}s` : "nothing on the table");
+    set("#dOpenBig", open.length ? `${open.length} call${open.length > 1 ? "s" : ""} · ${whole(stake)}` : "—");
+    set("#dOpenS", open.length ? `next in ${nextS}s` : "none");
     const l = $("#dLive");
     if (l) {
       l.textContent = open.length ? signed(liveP) : "—";
@@ -1660,6 +1683,11 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     audio();
     sfx.key();
     api.transfer();
+  });
+  on($("#dPlink"), "click", () => {
+    audio();
+    sfx.key();
+    api.portfolio?.();
   });
   const muteBtn = $("#muteBtn");
   const syncMute = () => {

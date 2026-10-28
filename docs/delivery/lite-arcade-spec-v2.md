@@ -9,7 +9,7 @@
 v1 是"一局 30 秒，大家一起等开奖"。CPO 看了研发稿之后改成：**没有"局"，每一枚筹码就是一张自己的 30 秒合约**——你什么时候落下去，就从那一刻开始数 30 秒，到点各自结算。于是整个舞台改成"流式"的：
 
 1. **图是一条时间轴**：左边 45 秒是过去的价格，右边 30 秒是未来。每张合约在图上是一个入场小菱形 + 一条开盘价虚线 + 右端一面到期小旗（写着还剩几秒）。到点旗子翻成 ✓ / ✕，原地飘一个 `+$4.29` / `−$5.00`，筹码从键上飞进余额，然后在图上留一个 ✓ / ✕ 小圆点直到滚出画面。
-2. **右边一栏 MY CALLS**：每张合约一行（方向 / 投入 @ 报价 / 开盘价 / 30 秒进度条 / 此刻领先还是落后），前 2 秒显示 `cancel`；到点那行闪一下滑进下面的 SETTLED。旁边 TABLE 页签看桌上其他人的单（匿名）。
+2. **右边一栏 MY CALLS**：每张合约一行（方向 / 投入 @ 报价 / 开盘价 / 30 秒进度条 / 此刻领先还是落后），前 2 秒显示 `cancel`；到点那行闪一下滑进下面的 LAST SETTLED（只留最近一张，完整记录去 Portfolio）。开着的合约全部都在列表里，装不下就在列表内滚。旁边 TABLE 页签看桌上其他人的单（匿名），顶部有 UP / DOWN 两边各压了多少的汇总。右栏底部是 04 / YOUR RESULT 四行记分板（OPEN / LIVE / SESSION / LAST 10）。
 3. **反馈分三级**，不再一局一场金币雨：每张合约 = 旗翻牌 + 数字飘 + 筹码飞；一秒内同时结的几张只 bump 一次余额；**连赢 ×3 才金币雨 + 大字 COMBO**，连输 ×3 红闪一次。跳舞机式 COMBO HUD 常驻在图表头：`COMBO ×2 · 1 more → ×3 bonus`。
 4. **键不锁**：结算过程中 UP / DOWN 照样能点。键上的筹码塔 = 这一边正在跑的合约（按面额归堆，最新一枚带 2 秒取消环）。
 5. **价格是真的**：Binance / Hyperliquid / Coinbase 三家中间价（都换算成 USDT 计价）取中位数，每秒一次写进库，机柜底下常驻显示三个来源价 + `LIVE · 3 of 3`。
@@ -37,10 +37,10 @@ v1 是"一局 30 秒，大家一起等开奖"。CPO 看了研发稿之后改成�
 |---|---|---|
 | 第一次进 `/arcade`（已登录） | 四行免责门 `BEFORE YOU PLAY` + `I GET IT · START PLAYING` + `How the price and odds are made →` | 点一次以后不再弹（`arcade_acks`） |
 | 未登录点 UP | 登录弹窗 → 登录后弹免责门 | |
-| 机柜 | 头条：`BTC · 30-second calls` / `YOUR OPEN $0 / $500` / `AVAILABLE · SPOT` / `+ Deposit` `⇄ Transfer` `Rules`；路单条（珠盘 + 大路 + Up/Down 统计 + ⓘ 怎么看）；舞台（大价 + 三来源 + `LIVE · 3 of 3` / COMBO HUD / `NEXT SETTLE · 12s`）；右栏 MY CALLS / TABLE + SETTLED；UP / 筹码 / DOWN；OPEN / LIVE / SESSION / LAST 10；猞猁窗 | 点 UP / DOWN |
+| 机柜 | 头条：`BTC · 30-second calls` / `YOUR OPEN $0 / $500` / `AVAILABLE · SPOT` / `+ Deposit` `⇄ Transfer` `Rules`；路单条（珠盘 + 大路 + Up/Down 统计 + ⓘ 怎么看）；舞台（一行：`02 / LIVE FEED` 题牌 / 大价 / COMBO HUD / `NEXT SETTLE · 12s`，第二行三来源 + `LIVE · 3 of 3`）；右栏 MY CALLS / TABLE + LAST SETTLED + `04 / YOUR RESULT`（OPEN / LIVE / SESSION / LAST 10）；UP / 筹码 / DOWN；猞猁窗。桌面只有这四行，图表行吃掉剩余高度（最矮 400px） | 点 UP / DOWN |
 | 落筹 0–2 秒 | 键上一枚带倒数环的筹码，底注 `tap chip to cancel · costs $0.01`；MY CALLS 行尾 `cancel`；图上入场菱形 + 虚线 + 右端 `30s` 小旗 | 点环取消 → toast `Cancelled · $0.01 close fee` |
 | 2–30 秒 | 筹码进塔（同面额归堆 ×N）；行尾 `ahead` / `behind`；LIVE 牌 `+$4.35`（此刻全结的话） | 可以继续落（同向 / 反向都行，各自独立） |
-| 到期 | 旗翻 ✓/✕ + `+$4.29` 飘字 + 筹码飞进余额 + 余额 bump；行闪后滑进 SETTLED（`$5 @ 50.9¢ · won · open 81,155.30 · close 81,194.73`）；LAST 10 打勾；图上留 ✓ 圆点 | — |
+| 到期 | 旗翻 ✓/✕ + `+$4.29` 飘字 + 筹码飞进余额 + 余额 bump；行闪后滑进 LAST SETTLED（`$5 @ 50.9¢ · won · open 81,155.30 · close 81,194.73`）；LAST 10 打勾；图上留 ✓ 圆点 | — |
 | 连赢 2 | 图表头 `COMBO ×2 · 1 more → ×3 bonus`（三格 pips） | — |
 | 连赢 3 / 6 / 9 | 金币雨 + 大字 `×3 COMBO · keep it rolling · next bonus at ×6` + 猞猁欢呼 | — |
 | 连输 2 / 3 | `LOST ×2` 红色 HUD；×3 红闪一次 + `×3 LOST · take a breath` | — |
@@ -90,7 +90,8 @@ v1 是"一局 30 秒，大家一起等开奖"。CPO 看了研发稿之后改成�
 | 采样节奏 500 ms、报价有效期 500 ms、600 s 历史门槛 | 演示引擎放宽（1.2 s / 2.5 s / 120 s，`arcade_params`），真平台照研发稿 |
 | 可用结算现金 ≥ 1.10 × total_payout、关联账户组限额、异常胜率人工复核 | 未做（演示引擎没有 USDC 专户 / 关联账户数据） |
 | 损失熔断恢复 | 自动按 UTC 日重置，未做人工确认 |
-| Portfolio / 钱包流水 | 合约只进 `arcade_calls`（机柜 SETTLED / LAST 10）；钱包 transactions 有 fee / profit / loss / commission 行；Portfolio 不展示这些合约（待 CPO 定是否要） |
+| Portfolio / 钱包流水 | 合约只进 `arcade_calls`（机柜 LAST SETTLED / LAST 10）；钱包 transactions 有 fee / profit / loss / commission 行；**CPO 10-28 定：Portfolio 加一个 Quick Play 页签放完整记录（下一轮做）**，机柜右栏的 `All settled calls → Portfolio` 已指向 `/portfolio` |
+| 展示线 | 内测版图上的线 = Binance 盘口实时流（为了一直在扭的手感）+ 指数基差；**主网直接画指数线**，Binance 流只是演示用，页面上不写说明（CPO 10-28） |
 | Share 海报 | 本轮未做（mock 里没有；待定） |
 | 文案 / 合规措辞、i18n key | 英文占位 |
 | ETH / SOL / 美股桌 | 隐藏（`ARCADE_LIVE_TABLES`），后端旧轮次流照跑给站内行情用 |

@@ -56,6 +56,7 @@ const ArcadePage = () => {
       exit: () => navigate("/events"),
       deposit: () => navigate("/deposit"),
       transfer: () => navigate("/wallet"),
+      portfolio: () => navigate("/portfolio"),
       username: username || "you",
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
