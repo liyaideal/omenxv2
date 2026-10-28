@@ -832,13 +832,16 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       t1 = t + 32000;
     const open = S.calls.filter((c: Call) => c.s0 != null);
     const ps = S.px.filter((x: any) => x.t >= t0).map((x: any) => x.p).concat(open.map((c: Call) => c.s0));
+    if (S.slotOpen != null) ps.push(S.slotOpen);
+    if (S.disp) ps.push(S.disp);
     let lo = Math.min(...ps),
       hi = Math.max(...ps);
     if (!isFinite(lo)) {
       lo = (S.price || 0) - 30;
       hi = (S.price || 0) + 30;
     }
-    const pad = Math.max((hi - lo) * 0.25, 8);
+    // fit the real range: BTC often moves only cents for a while — a $8 floor turned that into a flat line
+    const pad = Math.max((hi - lo) * 0.25, 1.5);
     lo -= pad;
     hi += pad;
     return { W, H, x: (tt: number) => ((tt - t0) / (t1 - t0)) * W, y: (p: number) => H - ((p - lo) / (hi - lo)) * (H - 8) - 4 };
