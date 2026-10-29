@@ -1434,11 +1434,12 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         if (!row) {
           row = document.createElement("div");
           row.dataset.id = c.id;
-          row.innerHTML = `<span class="sd ${c.side}">${c.side === "u" ? "UP" : "DN"}</span><span class="mid"><b>${whole(c.gross)} @ ${cents(c.p)} · wins +${money(netWin(c.gross, c.p))}</b><small></small><span class="bar"><i></i></span></span><span class="st"></span>`;
+          row.innerHTML = `<span class="sd ${c.side}">${c.side === "u" ? "UP" : "DN"}</span><span class="mid"><b>${whole(c.gross)} @ ${cents(c.p)}</b><small></small><span class="bar"><i></i></span></span><span class="st"></span>`;
         }
         row.className = `row ${c.side} ${c.status}`;
         const sm = row.querySelector("small"),
-          txt = `open ${c.s0 != null ? money(c.s0) : "pending"} · ${Math.max(0, Math.ceil((c.t1 - t) / 1000))}s`;
+          // the rail is 280px wide: the payout moves down here, the open price lives on the chart's dotted line
+          txt = `wins +${money(netWin(c.gross, c.p))} · ${Math.max(0, Math.ceil((c.t1 - t) / 1000))}s`;
         if (sm.textContent !== txt) sm.textContent = txt;
         row.querySelector(".bar i").style.width = frac * 100 + "%";
         const se = row.querySelector(".st");

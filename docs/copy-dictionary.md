@@ -532,7 +532,7 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 | **−45s / now / +30s · flags = settlement** | 图表轴 | |
 | **MY CALLS 3** / **TABLE 7** / **$75** | 右栏页签 + 合计 | 不叫 MINE（CPO：像挖矿）、不叫 Open calls |
 | **Tap UP or DOWN — your calls land here** | 右栏空态 | 移动筹码带 `Tap UP or DOWN — your calls show here` |
-| **$25 @ 51.2¢ · wins +$21.46** / **open $81,155.30 · 12s** | MY CALLS 行 | 行尾 `cancel` → `open…` → `ahead` / `behind` → `settling` → `+$21.46` / `VOID` |
+| **$25 @ 51.2¢** / **wins +$21.46 · 12s** | MY CALLS 行（10-29 改：派彩挪到第二行，开盘价看图上的虚线；280px 的右栏放不下一行） | 行尾 `cancel` → `open…` → `ahead` / `behind` → `settling` → `+$21.46` / `VOID` |
 | **$25 @ 51.0¢ · won · open 81,155.30 · close 81,194.73** | LAST SETTLED 行（只留最近一张；≥2 张已结时下面出 **All settled calls → Portfolio**） | `lost` / `void · no valid price · refunded` / `cancelled · taken back within 2 s` |
 | **$25 @ 51.2¢ · kz***88** | TABLE 行 | 自己的单标 `you` |
 | **YOUR STAKE · PER CHIP** / **$5 SELECTED** | 筹码盘 | $5 / 10 / 25 / 50 / 100 |

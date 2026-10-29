@@ -86,6 +86,7 @@ v1 是"一局 30 秒，大家一起等开奖"。CPO 看了研发稿之后改成�
 5. `update arcade_params set num = 0 where key = 'live'` → 机柜几秒内 `TABLE PAUSED · The table is closed`、猞猁跑酷；改回 1 恢复。
 6. Events All 横幅价格 / 赔率与 `/arcade` 同时刻一致。
 7. 场次（10-29）：alex_carter 登录后 `/portfolio?tab=settled` → Standard 里出现带 QUICK PLAY 小牌的行，数量 = `select count(*) from arcade_my_sessions()`（以 alex 身份）；点一行 → `/portfolio/quick-play/{key}`，三卡数字与 `arcade_my_sessions` 同行一致，ACTIVITY 条数 = 该场非 open 合约数（> 30 条出现 `Load more calls`）；机柜里闲 30 分钟后再下一单 → toast `New session`、SESSION 归零；刷新机柜 → 最近 30 分钟内的合约复原成同一场（SESSION 金额 = 这一场 pnl）。
+8. QA 回归（10-29）：未登录 `/arcade` 头条 `AVAILABLE · SPOT —` + `→ Sign in`；点 ⓘ 说明框完整可见（浮在钢板上）；点珠盘 / 大路任一格 → 白边 + `THIS SLOT` 位置 4 秒显示那格的时间 / 涨跌 / 开收；登录后不再误弹免责门（alex 已接受过）；MY CALLS 行两行 `$5 @ 49.8¢` / `wins +$4.49 · 18s`；DevTools Network 里不再刷 lynx*.png；站内行情条 BTC ≈ 机柜指数（`select open_price from arcade_rounds where symbol='BTC' order by start_at desc limit 1` ≈ 80k）。
 
 ## 边界 / 未了账
 
@@ -100,6 +101,7 @@ v1 是"一局 30 秒，大家一起等开奖"。CPO 看了研发稿之后改成�
 | 数据库负载（10-29） | Lovable 报 high load：小实例 CPU 被常驻后台工作占满（每秒取价任务 = 每秒 4 个 HTTP 请求 + 4 条应答 + 5 条 cron 记账；10-28 加的探针每 3 秒查 pg_stat_activity；realtime 的 WAL 轮询；老的站内演示任务每次 10–17 s）。已做：探针下线、取价改每 2 秒、报价有效期 / 结算取价容忍 4.5 s、指数过期 6 s（`20261029163000_arcade_load.sql`）。真平台不在 Supabase 上跑行情，不适用 |
 | 演示桌永远能交易 | CPO 10-28 晚拍板：演示桌不再因行情停顿而暂停——`arcade_table_now()` 发现 tick 超过 1.5 s 没来就服务端补一条合成 tick（±0.4 bps 随机步、`src_raw.synthetic=true`）并结算到期合约；熔断 / 亏损上限 / 全桌上限参数拨到够不着（`20261028213000_arcade_always_on.sql`）。暂停态只在 style-guide AR-3 看。**真平台不走这条**：按研发稿自己的行情与风控 |
 | 演示引擎停顿（续） | 10-28 晚再测：没有后台查询时也会停（12:53:21 UTC 一次 ~50 s，紧跟在一串下单之后；期间 pg_cron 把那次运行记成 running 但后端连接是空闲的），停顿中到期的合约按 void 退款。已加 `arcade_stall_probe`（每 3 秒，只在 tick 超过 4 秒没来时把 pg_stat_activity / 未授予的锁写进 `arcade_probe`），明天看记录定位 |
+| 真库 `roll_arcade_rounds` 漏更（10-29 发现） | 10-28 migration 里锚到指数的版本当时没在真库生效（库里还是 10-19 版），站内 BTC 价停在 $39k；10-29 按 migration 文本重新执行，之后每局开盘 = 指数。重放 migration 时留意 `CREATE OR REPLACE FUNCTION` 是否真的执行成功 |
 | 演示引擎稳定性 | 10-28 观察到 pg_cron `arcade_feed` 每 10–15 分钟有一次 2–12 秒的停顿、11:04 一次 60 秒（与 Lovable 发布 / 重查询同时），停顿后一次性收多批应答会在同一秒写入多条不同价的 tick；已做（CPO 10-28 批）：`arcade_housekeeping` 每 10 分钟跑一次——`cron.job_run_details` 两个秒级任务只留 1 小时、其余任务留 7 天（当时 40 万行 / 76 MB → 4 万行）、`arcade_index_ticks` 留 24 小时、`arcade_feed_req` 丢 2 分钟前没回的批次（migration `20261028190000_arcade_housekeeping.sql`）；feed 的锁等待上限仍待做，先观察清理后停顿是否消失。真平台按研发稿自己的行情服务，不走 pg_net |
 | 展示线 | 内测版图上的线 = Binance 盘口实时流（为了一直在扭的手感）+ 指数基差；**主网直接画指数线**，Binance 流只是演示用，页面上不写说明（CPO 10-28） |
 | Share 海报 | 10-28 已做：按场分享，入口只在 04 的 `⇪ SHARE` 键（≥1 笔结算才亮，不主动弹）；海报 = Lite 晒单海报家族 + Quick Play 身份（`ArcadeRunPoster` / `ArcadeShareCard`，弹层复用 ShareModal）；文案只写净利与对了几次，不写 ROI；二维码 → `/arcade?ref=code` |
