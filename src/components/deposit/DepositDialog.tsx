@@ -20,9 +20,11 @@ interface DepositDialogProps {
   onOpenChange: (open: boolean) => void;
   /** Open straight on a card order's tracking state (Wallet ledger "View order status"). */
   cardOrderTransactionId?: string | null;
+  /** Pre-select the account the opener funds (Quick Play plays from spot). Overrides the remembered pick while open. */
+  initialAccount?: AccountKind;
 }
 
-export const DepositDialog = ({ open, onOpenChange, cardOrderTransactionId = null }: DepositDialogProps) => {
+export const DepositDialog = ({ open, onOpenChange, cardOrderTransactionId = null, initialAccount }: DepositDialogProps) => {
   // Card tab only where MoonPay can take cards (rule 3); first + default when it can.
   const region = useCardRegion();
   const cardAvailable = region?.isBuyAllowed === true;
@@ -35,6 +37,10 @@ export const DepositDialog = ({ open, onOpenChange, cardOrderTransactionId = nul
   }, [open, cardAvailable, tabTouched, cardOrderTransactionId]);
   const { account, setAccount } = useAccountPreference('deposit');
   const [editingAccount, setEditingAccount] = useState(false);
+  useEffect(() => {
+    if (open && initialAccount) setAccount(initialAccount);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, initialAccount]);
 
   const handleClose = () => {
     setActiveTab(cardAvailable ? 'card' : 'wallet');

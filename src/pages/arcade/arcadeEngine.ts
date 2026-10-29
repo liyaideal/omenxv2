@@ -1966,15 +1966,6 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       sfx.key();
     }
   });
-  on($("#fsBtn"), "click", () => {
-    audio();
-    sfx.key();
-    try {
-      document.fullscreenElement ? document.exitFullscreen() : root.requestFullscreen().catch(() => {});
-    } catch (e) {
-      /* unsupported */
-    }
-  });
   const logo = $("#logoPlate");
   on(logo, "click", (e: any) => {
     audio();

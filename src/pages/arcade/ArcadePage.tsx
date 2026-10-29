@@ -22,6 +22,8 @@ import { ensureArcadeFonts } from "@/lib/arcade/arcadeFonts";
 import { ARCADE_DESKTOP, ARCADE_MOBILE, ARCADE_OVERLAYS } from "./arcadeMarkup";
 import { mountArcade, type ArcadeApi, type ArcadeRunShare } from "./arcadeEngine";
 import { ArcadeShareCard } from "@/components/lite/arcade/ArcadeShareCard";
+import { DepositDialog } from "@/components/deposit/DepositDialog";
+import { TransferDialog } from "@/components/wallet/TransferDialog";
 import "./arcade.css";
 import "./arcade-v2.css";
 
@@ -35,6 +37,10 @@ const ArcadePage = () => {
   const navigate = useNavigate();
   const [authOpen, setAuthOpen] = useState(false);
   const [shareRun, setShareRun] = useState<ArcadeRunShare | null>(null);
+  // Deposit / Transfer open in place on desktop (CPO 2026-10-29: leaving for
+  // /wallet broke the flow); phones keep the full-screen deposit flow.
+  const [depositOpen, setDepositOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<ArcadeApi | null>(null);
 
@@ -56,8 +62,8 @@ const ArcadePage = () => {
       getBalance: () => spotBalance,
       onBalance,
       exit: () => navigate("/events"),
-      deposit: () => navigate("/deposit"),
-      transfer: () => navigate("/wallet"),
+      deposit: () => (isMobile ? navigate("/deposit") : setDepositOpen(true)),
+      transfer: () => (isMobile ? navigate("/wallet") : setTransferOpen(true)),
       portfolio: () => navigate("/portfolio?tab=settled&from=quick-play"),
       share: (run) => setShareRun(run),
       username: username || "you",
@@ -102,6 +108,26 @@ const ArcadePage = () => {
       <div ref={rootRef} className={`arcade-root${isMobile ? " is-m" : ""}`} style={isMobile ? ({ "--arcade-top": "0px" } as React.CSSProperties) : undefined} />
       <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
       <ArcadeShareCard run={shareRun} onClose={() => setShareRun(null)} />
+      {!isMobile && (
+        <>
+          <DepositDialog
+            open={depositOpen}
+            initialAccount="spot"
+            onOpenChange={(o) => {
+              setDepositOpen(o);
+              if (!o) onBalance();
+            }}
+          />
+          <TransferDialog
+            open={transferOpen}
+            onOpenChange={(o) => {
+              setTransferOpen(o);
+              if (!o) onBalance();
+            }}
+            initialDirection="to_spot"
+          />
+        </>
+      )}
     </div>
   );
 };

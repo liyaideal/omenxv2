@@ -20,7 +20,7 @@ const CABINET: SectionCase[] = [
     spec: [
       { state: "免责门", when: "userId && !ack", visual: "钢板盒 + CRT 屏四行 + 黄绿大键；接受后不再弹", source: "arcadeEngine · openGate / data.acceptTerms" },
       { state: "RULES 弹层", when: "Rules 键 / 门上链接", visual: "两列六段：1 The price · 2 Open and close · 3 The odds · 4 Payout & fees（$100 @ 53.0¢ 例：派彩 183.01、利润 83.01 − 5% = 78.86）· 5 Limits & pauses · 6 Your record", source: "arcadeMarkup · ARCADE_OVERLAYS #rules" },
-      { state: "头条", when: "always", visual: "`YOUR OPEN $0 / $500` 随未到期总额更新；`AVAILABLE · SPOT` 现货余额，入账 bump；三键 Deposit（黄绿）/ Transfer / Rules（青）", source: "renderBoard / bumpEq" },
+      { state: "头条", when: "always", visual: "`YOUR OPEN $0 / $500` 随未到期总额更新；`AVAILABLE · SPOT` 现货余额，入账 bump；三键 Deposit（黄绿）/ Transfer / Rules（青）；桌面 Deposit / Transfer 就地弹站内 DepositDialog（默认 Standard 账户）/ TransferDialog（默认转入现货），关掉刷新余额，不离开机柜；手机 Deposit 走全屏入金流程（10-29）；右上只剩静音键，全屏键已删（页面本身全屏）", source: "renderBoard / bumpEq / ArcadePage" },
       { state: "三来源价", when: "always", visual: "大价下一行 `BINANCE $x · HYPERLIQUID $x · COINBASE $x · LIVE · 3 of 3`；某家缺 → `—`；指数无效整行变红 `INDEX INVALID · 原因`", source: "renderPrice" },
       { state: "筹码盘", when: "always", visual: "`YOUR STAKE · PER CHIP` + `$5 SELECTED`；$5 / 10 / 25 / 50 / 100（$500 已删），超单账户 $500 的档位置灰", source: "renderChips" },
     ],
