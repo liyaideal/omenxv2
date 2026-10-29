@@ -977,24 +977,48 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     const a = anchorFor(t);
     return a ? a.p + (mid - a.mid) : mid + S.basis;
   }
-  /** what the line is drawn from: index ticks up to where the live feed starts, then the anchored live book */
+  /** what the line is drawn from: index ticks up to where the live feed starts, then the live book
+      bridged between index prints — inside a segment the point is the straight line between the two
+      prints plus Binance's deviation from its own straight line over the same segment (zero at both
+      ends), so the line goes through every print exactly; after the latest print it rides the print
+      plus Binance's move since. */
   function lineSeries(from: number): { t: number; p: number }[] {
     if (!liveOn()) return S.px.filter((x: any) => x.t >= from);
     const first = S.live[0].t;
     const head = S.px.filter((x: any) => x.t >= from && x.t < first - 200);
-    // walk ticks and live points together (both sorted by time) so each point takes the right anchor
+    const ticks = S.px.filter((x: any) => x.mid != null);
     const out: { t: number; p: number }[] = [];
-    let k = 0,
-      a: any = anchorFor(-Infinity);
+    let k = 0;
     for (const x of S.live) {
-      while (k < S.px.length && S.px[k].t <= x.t) {
-        if (S.px[k].mid != null) a = S.px[k];
-        k++;
+      while (k + 1 < ticks.length && ticks[k + 1].t <= x.t) k++;
+      if (x.t < from) continue;
+      const a = ticks[k];
+      if (!a) {
+        out.push({ t: x.t, p: x.m + S.basis });
+        continue;
       }
-      if (x.t >= from) out.push({ t: x.t, p: a ? a.p + (x.m - a.mid) : x.m + S.basis });
+      const b = ticks[k + 1];
+      if (x.t < a.t || !b) {
+        // before the first anchor, or after the latest print
+        out.push({ t: x.t, p: a.p + (x.m - a.mid) });
+      } else {
+        const u = Math.max(0, Math.min(1, (x.t - a.t) / Math.max(1, b.t - a.t)));
+        out.push({ t: x.t, p: a.p + (b.p - a.p) * u + (x.m - (a.mid + (b.mid - a.mid) * u)) });
+      }
     }
     return head.concat(out);
   }
+  /** the time of the index print a call was opened / settled on, so its marker sits on the line */
+  const printTime = (price: number | null | undefined, after: number, fallback: number) => {
+    if (price == null) return fallback;
+    const hit = S.px.find((x: any) => x.t > after && Math.abs(x.p - price) < 1e-6);
+    return hit ? hit.t : fallback;
+  };
+  const printTimeBefore = (price: number | null | undefined, before: number, fallback: number) => {
+    if (price == null) return fallback;
+    for (let i = S.px.length - 1; i >= 0; i--) if (S.px[i].t <= before && Math.abs(S.px[i].p - price) < 1e-6) return S.px[i].t;
+    return fallback;
+  };
   function geom(cv: any) {
     const W = cv.clientWidth,
       H = cv.clientHeight,
@@ -1148,7 +1172,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       const isLive = c.status === "open" || c.status === "settling" || c.status === "pending";
       const s0 = c.s0 ?? S.price;
       const ahead = c.side === "u" ? S.price > s0 : S.price < s0;
-      const x0 = g.x(c.t0),
+      // the entry diamond sits on the print that opened the call (the first index after the server took the chip)
+      const x0 = g.x(c.s0 != null ? printTime(c.s0, c.t0 - 1, c.t0) : c.t0),
         x1 = g.x(c.t1),
         y = g.y(s0);
       ctx.setLineDash([4, 3]);
@@ -1172,23 +1197,25 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       ctx.fill();
       ctx.globalAlpha = 1;
       if (!isLive && c.s1 != null) {
+        // the result badge sits on the print the call settled on (the last index at or before t1)
+        const xs = g.x(printTimeBefore(c.s1, c.t1 + 1, c.t1));
         const ys = g.y(c.s1);
         const won = c.status === "won";
         const bc = won ? C.dn : c.status === "lost" ? "#ff4d4d" : "#aab";
         ctx.strokeStyle = bc;
         ctx.globalAlpha = 0.5;
         ctx.beginPath();
-        ctx.moveTo(x1, y);
-        ctx.lineTo(x1, ys);
+        ctx.moveTo(xs, y);
+        ctx.lineTo(xs, ys);
         ctx.stroke();
         ctx.globalAlpha = 1;
         ctx.fillStyle = bc;
         ctx.beginPath();
-        ctx.arc(x1, ys, 7, 0, 7);
+        ctx.arc(xs, ys, 7, 0, 7);
         ctx.fill();
         ctx.fillStyle = "#020c10";
         ctx.font = "700 10px Chakra Petch";
-        ctx.fillText(won ? "✓" : c.status === "lost" ? "✕" : "–", x1 - 4, ys + 4);
+        ctx.fillText(won ? "✓" : c.status === "lost" ? "✕" : "–", xs - 4, ys + 4);
       }
     });
     /* settle burst: expanding ring + the open line flashes solid */
@@ -2501,7 +2528,13 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       }
     },
     /** QA peek at the price seams (index vs the drawn line); not used by the page */
-    debug: () => ({ index: S.price, tick: S.px[S.px.length - 1] || null, line: S.liveP, basis: S.basis, basisTarget: S.basisT, binanceMid: S.wsMid, tickAgeMs: S.tick ? now() - ms(S.tick.ts) : null }),
+    debug: () => ({
+      index: S.price,
+      tick: S.px[S.px.length - 1] || null,
+      line: S.liveP,
+      // every call: does its open / settle print exist in the tick history the line is drawn from?
+      calls: S.calls.map((c: Call) => ({ id: c.id, status: c.status, t0: c.t0, s0: c.s0, s0OnLine: c.s0 != null && printTime(c.s0, c.t0 - 1, 0) > 0, s1: c.s1, s1OnLine: c.s1 != null && printTimeBefore(c.s1, c.t1 + 1, 0) > 0 })),
+      series: lineSeries(now() - 45000).length, basis: S.basis, basisTarget: S.basisT, binanceMid: S.wsMid, tickAgeMs: S.tick ? now() - ms(S.tick.ts) : null }),
     setUser() {
       renderAuth();
       if (api.userId && !FX) {

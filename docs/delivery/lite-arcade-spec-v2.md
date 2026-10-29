@@ -103,6 +103,7 @@ v1 是"一局 30 秒，大家一起等开奖"。CPO 看了研发稿之后改成�
 | 演示引擎停顿（续） | 10-28 晚再测：没有后台查询时也会停（12:53:21 UTC 一次 ~50 s，紧跟在一串下单之后；期间 pg_cron 把那次运行记成 running 但后端连接是空闲的），停顿中到期的合约按 void 退款。已加 `arcade_stall_probe`（每 3 秒，只在 tick 超过 4 秒没来时把 pg_stat_activity / 未授予的锁写进 `arcade_probe`），明天看记录定位 |
 | 真库 `roll_arcade_rounds` 漏更（10-29 发现） | 10-28 migration 里锚到指数的版本当时没在真库生效（库里还是 10-19 版），站内 BTC 价停在 $39k；10-29 按 migration 文本重新执行，之后每局开盘 = 指数。重放 migration 时留意 `CREATE OR REPLACE FUNCTION` 是否真的执行成功 |
 | 演示引擎稳定性 | 10-28 观察到 pg_cron `arcade_feed` 每 10–15 分钟有一次 2–12 秒的停顿、11:04 一次 60 秒（与 Lovable 发布 / 重查询同时），停顿后一次性收多批应答会在同一秒写入多条不同价的 tick；已做（CPO 10-28 批）：`arcade_housekeeping` 每 10 分钟跑一次——`cron.job_run_details` 两个秒级任务只留 1 小时、其余任务留 7 天（当时 40 万行 / 76 MB → 4 万行）、`arcade_index_ticks` 留 24 小时、`arcade_feed_req` 丢 2 分钟前没回的批次（migration `20261028190000_arcade_housekeeping.sql`）；feed 的锁等待上限仍待做，先观察清理后停顿是否消失。真平台按研发稿自己的行情服务，不走 pg_net |
+| 展示线（10-29 改逐段锚定） | 线必须穿过每一个指数点：两点之间 = 连线 + Binance 相对自己连线的偏离，最新点之后 = 该点 + Binance 自那一刻的变化；入场 / 结算标记画在对应指数点的时刻。QA 口：`document.querySelector('.arcade-root').__arcade.debug()` → `calls[].s0OnLine / s1OnLine` 全 true |
 | 展示线 | 内测版图上的线 = Binance 盘口实时流（为了一直在扭的手感）+ 指数基差；**主网直接画指数线**，Binance 流只是演示用，页面上不写说明（CPO 10-28） |
 | Share 海报 | 10-28 已做：按场分享，入口只在 04 的 `⇪ SHARE` 键（≥1 笔结算才亮，不主动弹）；海报 = Lite 晒单海报家族 + Quick Play 身份（`ArcadeRunPoster` / `ArcadeShareCard`，弹层复用 ShareModal）；文案只写净利与对了几次，不写 ROI；二维码 → `/arcade?ref=code` |
 | 文案 / 合规措辞、i18n key | 英文占位 |
