@@ -959,11 +959,41 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   }
 
   /* ---------- chart ---------- */
-  /** what the line is drawn from: index ticks up to where the live feed starts, then the live book */
+  /** The live line is Binance's book pinned to the index tick by tick: a point at time t is
+      (index of the latest tick at or before t) + (Binance mid now − Binance mid when that tick
+      arrived). So the line passes through every index print and still wiggles in between.
+      Before the first tick that carries a mid, the first such tick anchors (no cliff at boot). */
+  function anchorFor(t: number): { p: number; mid: number } | null {
+    let a: any = null;
+    for (let i = S.px.length - 1; i >= 0; i--) {
+      const x = S.px[i];
+      if (x.mid == null) continue;
+      if (x.t <= t) return x;
+      a = x;
+    }
+    return a;
+  }
+  function anchored(mid: number, t: number): number {
+    const a = anchorFor(t);
+    return a ? a.p + (mid - a.mid) : mid + S.basis;
+  }
+  /** what the line is drawn from: index ticks up to where the live feed starts, then the anchored live book */
   function lineSeries(from: number): { t: number; p: number }[] {
     if (!liveOn()) return S.px.filter((x: any) => x.t >= from);
     const first = S.live[0].t;
-    return S.px.filter((x: any) => x.t >= from && x.t < first - 200).concat(S.live.filter((x: any) => x.t >= from));
+    const head = S.px.filter((x: any) => x.t >= from && x.t < first - 200);
+    // walk ticks and live points together (both sorted by time) so each point takes the right anchor
+    const out: { t: number; p: number }[] = [];
+    let k = 0,
+      a: any = anchorFor(-Infinity);
+    for (const x of S.live) {
+      while (k < S.px.length && S.px[k].t <= x.t) {
+        if (S.px[k].mid != null) a = S.px[k];
+        k++;
+      }
+      if (x.t >= from) out.push({ t: x.t, p: a ? a.p + (x.m - a.mid) : x.m + S.basis });
+    }
+    return head.concat(out);
   }
   function geom(cv: any) {
     const W = cv.clientWidth,
@@ -1609,7 +1639,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     S.lastTs = tk.ts;
     S.tick = tk;
     if (tk.valid && tk.idx != null) {
-      S.px.push({ t: ms(tk.ts), p: tk.idx });
+      S.px.push({ t: ms(tk.ts), p: tk.idx, mid: S.wsMid || null });
       if (S.px.length > 200) S.px.shift();
       S.lastPx = S.price;
       S.price = tk.idx;
@@ -2348,14 +2378,13 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         if (!mid) return;
         wsAlive = perf();
         S.wsMid = mid;
-        const p = mid + S.basis,
-          t = now();
-        S.liveP = p;
+        const t = now();
+        S.liveP = anchored(mid, t);
         const last = S.live[S.live.length - 1];
         if (!last || t - last.t >= 100) {
-          S.live.push({ t, p });
+          S.live.push({ t, m: mid });
           if (S.live.length > 600) S.live.shift();
-        } else last.p = p;
+        } else last.m = mid;
       } catch (err) {
         /* ignore a bad frame */
       }
@@ -2472,7 +2501,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       }
     },
     /** QA peek at the price seams (index vs the drawn line); not used by the page */
-    debug: () => ({ index: S.price, line: S.liveP, basis: S.basis, basisTarget: S.basisT, binanceMid: S.wsMid, tickAgeMs: S.tick ? now() - ms(S.tick.ts) : null }),
+    debug: () => ({ index: S.price, tick: S.px[S.px.length - 1] || null, line: S.liveP, basis: S.basis, basisTarget: S.basisT, binanceMid: S.wsMid, tickAgeMs: S.tick ? now() - ms(S.tick.ts) : null }),
     setUser() {
       renderAuth();
       if (api.userId && !FX) {
