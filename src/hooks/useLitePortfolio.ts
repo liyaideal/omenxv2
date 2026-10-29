@@ -21,6 +21,8 @@ import { monthGroupLabel, monthKey, settledDayLabel } from "@/lib/settleLabel";
 import type { SeriesDetailVM, SeriesRoundVM } from "@/components/portfolio/lite/SeriesDetailView";
 import { liteTradePath } from "@/lib/liteTradePath";
 import { INTRADAY_SUBTYPES } from "@/components/lite/intraday/intradayData";
+import { useArcadeSessions } from "@/hooks/useArcadeSessions";
+import { quickPlayRow } from "@/lib/arcade/quickPlayPortfolio";
 
 export type LiteSegment = "boost" | "standard";
 
@@ -69,6 +71,11 @@ export interface LiteSettledRow {
   isSeries: boolean;
   seriesId?: string;
   won: boolean;
+  /** Quick Play session row (Settled › Standard) — one sitting of 30-second calls. */
+  kind?: "quickplay";
+  sessionKey?: string;
+  /** Phone-width copy: the tag already says Quick Play, so the title is the time span and BTC moves to the meta line. */
+  mobile?: { title: string; metaParts: string[] };
 }
 
 export interface LiteMonthGroup {
@@ -97,6 +104,9 @@ export const useLitePortfolio = () => {
   const { getRealtimeMarkPrice, calculateRealtimePnL } = useRealtimePositionsPnL();
   const risk = useRealtimeRiskMetrics();
   const { grantedVouchers } = usePositionVouchers();
+  // Quick Play sessions sit in Settled › Standard as one row per sitting
+  // (CPO 2026-10-29); their calls count in the settled KPI like any leg.
+  const { data: sessions = [] } = useArcadeSessions();
 
   // `useActiveEvents` hides sports fixture siblings (handicap / total lines),
   // so a leg opened on a line market finds no event and loses its metadata.
@@ -325,21 +335,25 @@ export const useLitePortfolio = () => {
       });
     }
 
+    sessions.forEach((s) => rows.push(quickPlayRow(s)));
     return rows.sort((a, b) => (a.closedAt < b.closedAt ? 1 : -1));
-  }, [settlements, eventByName]);
+  }, [settlements, eventByName, sessions]);
 
 
   const settledKpi = useMemo(() => {
-    const wins = settlements.filter((s) => s.pnlValue > 0).length;
-    const total = settlements.length;
+    const qpWins = sessions.reduce((a, s) => a + s.won, 0);
+    const qpTotal = sessions.reduce((a, s) => a + s.won + s.lost, 0);
+    const qpNet = sessions.reduce((a, s) => a + s.pnl, 0);
+    const wins = settlements.filter((s) => s.pnlValue > 0).length + qpWins;
+    const total = settlements.length + qpTotal;
     return {
       winRate: total > 0 ? Math.round((wins / total) * 100) : 0,
       wins,
       losses: total - wins,
       total,
-      net: settlements.reduce((s, i) => s + i.pnlValue, 0),
+      net: settlements.reduce((s, i) => s + i.pnlValue, 0) + qpNet,
     };
-  }, [settlements]);
+  }, [settlements, sessions]);
 
   const settledCounts = useMemo(
     () => ({

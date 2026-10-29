@@ -9,6 +9,7 @@ import { Navigate, useNavigationType } from "react-router-dom";
 import { useSurface } from "@/contexts/SurfaceContext";
 import LitePortfolio from "./lite/LitePortfolio";
 import LiteSettlementDetail from "./lite/LiteSettlementDetail";
+import LiteQuickPlaySession from "./lite/LiteQuickPlaySession";
 import { takePortfolioReturnSurface } from "@/lib/portfolioReturn";
 
 export const PortfolioRoute = () => {
@@ -36,3 +37,6 @@ export const PortfolioSettlementsRoute = () => (
 export const PortfolioAirdropsRoute = () => <Navigate to="/portfolio" replace />;
 
 export const SettlementDetailRoute = () => <LiteSettlementDetail />;
+
+/** One Quick Play session — a sitting of 30-second calls (CPO 2026-10-29). */
+export const QuickPlaySessionRoute = () => <LiteQuickPlaySession />;

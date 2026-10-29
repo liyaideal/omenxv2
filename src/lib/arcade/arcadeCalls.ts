@@ -243,3 +243,62 @@ export function roadCells(rows: RoadSlot[], slots: number, nowMs: number): RoadC
   }
   return cells;
 }
+
+/* ---------- Quick Play sessions (CPO 2026-10-29) ----------
+ * One sitting = a session; it ends after 30 minutes without a call
+ * (src/lib/arcade/session.ts). Both RPCs group the user's own calls on the
+ * server with that rule — nothing is stored. */
+export interface ArcadeSession {
+  session_key: string;
+  started_at: string;
+  ended_at: string;
+  last_settled_at: string | null;
+  /** went to settlement (won + lost) */
+  calls: number;
+  won: number;
+  lost: number;
+  refunded: number;
+  cancelled: number;
+  best_run: number;
+  staked: number;
+  payout: number;
+  fees: number;
+  commission: number;
+  pnl: number;
+  biggest_win: number;
+  min_stake: number | null;
+  max_stake: number | null;
+  /** last call under 30 min ago, or a call still open */
+  active: boolean;
+}
+
+const normSession = (r: any): ArcadeSession => ({
+  ...r,
+  calls: num(r.calls),
+  won: num(r.won),
+  lost: num(r.lost),
+  refunded: num(r.refunded),
+  cancelled: num(r.cancelled),
+  best_run: num(r.best_run),
+  staked: num(r.staked),
+  payout: num(r.payout),
+  fees: num(r.fees),
+  commission: num(r.commission),
+  pnl: num(r.pnl),
+  biggest_win: num(r.biggest_win),
+  min_stake: numOrNull(r.min_stake),
+  max_stake: numOrNull(r.max_stake),
+  active: !!r.active,
+});
+
+export async function fetchMySessions(limit = 100): Promise<ArcadeSession[]> {
+  const { data, error } = await db().rpc("arcade_my_sessions", { p_limit: limit });
+  if (error) throw error;
+  return (data || []).map(normSession);
+}
+
+export async function fetchMySessionCalls(sessionKey: string, limit = 30, offset = 0): Promise<ArcadeCall[]> {
+  const { data, error } = await db().rpc("arcade_my_session_calls", { p_key: sessionKey, p_limit: limit, p_offset: offset });
+  if (error) throw error;
+  return (data || []).map(normCall);
+}

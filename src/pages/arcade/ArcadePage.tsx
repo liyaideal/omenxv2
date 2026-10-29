@@ -58,7 +58,7 @@ const ArcadePage = () => {
       exit: () => navigate("/events"),
       deposit: () => navigate("/deposit"),
       transfer: () => navigate("/wallet"),
-      portfolio: () => navigate("/portfolio"),
+      portfolio: () => navigate("/portfolio?tab=settled&from=quick-play"),
       share: (run) => setShareRun(run),
       username: username || "you",
     }),

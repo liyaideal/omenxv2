@@ -76,10 +76,14 @@ export default function LitePortfolio() {
   const [params, setParams] = useSearchParams();
   const tab = params.get("tab") === "settled" ? "settled" : "live";
   const series = params.get("series");
+  // Sent here by the cabinet's "All settled calls → Portfolio": land on
+  // Standard and wash the newest Quick Play row (CPO 2026-10-29).
+  const fromQuickPlay = params.get("from") === "quick-play";
   const restoredSegment = useRef<string | null>(readPortfolioSegment());
   const [segment, setSegment] = useState<LiteSegment>(
-    restoredSegment.current === "standard" ? "standard" : "boost",
+    fromQuickPlay || restoredSegment.current === "standard" ? "standard" : "boost",
   );
+  const [highlightId, setHighlightId] = useState<string | null>(null);
 
   // Remember the segment so a round-trip into a market comes back the same.
   useEffect(() => {
@@ -88,6 +92,19 @@ export default function LitePortfolio() {
 
   const p = useLitePortfolio();
   const { user } = useAuth();
+
+  // Once the Quick Play rows are in, pick the newest one to highlight and
+  // drop the flag from the address so a reload doesn't repeat it.
+  useEffect(() => {
+    if (!fromQuickPlay) return;
+    const latest = p.settledRows.find((r) => r.kind === "quickplay");
+    if (!latest) return;
+    setHighlightId(latest.id);
+    const next = new URLSearchParams(params);
+    next.delete("from");
+    setParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fromQuickPlay, p.settledRows]);
   const { positions, closePosition, refetch } = usePositions();
   const [manualShare, setManualShare] = useState<LiteManualShareSnap | null>(null);
 
@@ -409,7 +426,7 @@ export default function LitePortfolio() {
     </>
   );
 
-  const settledBody = series ? seriesView : <SettledList groups={p.monthGroups(segment)} />;
+  const settledBody = series ? seriesView : <SettledList groups={p.monthGroups(segment)} highlightId={highlightId} />;
 
   const content = (
     <>

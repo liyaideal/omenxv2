@@ -98,10 +98,10 @@ export const ARCADE_DESKTOP = `<main>
           <div class="axis"><span>−45s</span><span>now</span><span>+30s · flags = settlement</span></div>${MEGA("dMega")}
         </div></div>
         <div class="railplate steel rivets"><div class="rail scr"><div class="head"><span class="tabs"><button class="tab on" data-tab="mine">MY CALLS <b id="dOpenN">0</b></button><button class="tab" data-tab="table">TABLE <b id="dTableN">0</b></button></span><span class="n" id="dOpenSum">$0</span></div><div class="hint" id="dHint">Tap UP or DOWN — your calls land here</div><div class="list" id="dList"></div><div class="tsum" id="dTsum" hidden></div><div class="list" id="dTable" hidden></div><div class="donehead lbl">Last settled</div><div class="done" id="dDone"></div><button class="plink" id="dPlink" hidden>All settled calls → Portfolio</button>
-          <div class="r4 score"><div class="shead"><span class="tag">04 / YOUR RESULT</span><span class="sr"><span class="sub">SESSION</span><button class="key sharekey" id="shareKey" disabled>⇪ SHARE</button></span></div>
+          <div class="r4 score"><div class="shead"><span class="tag">04 / YOUR RESULT</span><span class="sr"><span class="sub seslbl">SESSION</span><button class="key sharekey" id="shareKey" disabled>⇪ SHARE</button></span></div>
             <div class="kpi"><span class="lbl">Open</span><span class="n" id="dOpenBig">—</span><span class="s" id="dOpenS">none</span></div>
             <div class="kpi"><span class="lbl">Live</span><span class="n" id="dLive">—</span><span class="s">if settled now</span></div>
-            <div class="kpi"><span class="lbl">Session</span><span class="n" id="dSes">$0.00</span><span class="s" id="dSesS">0 won · 0 lost</span></div>
+            <div class="kpi"><span class="lbl seslbl">Session</span><span class="n" id="dSes">$0.00</span><span class="s" id="dSesS">0 won · 0 lost</span></div>
             <div class="kpi"><span class="lbl">Last 10</span><span class="n"><span class="ticks" id="dTicks"></span></span><span class="s" id="dStreak"></span></div>
           </div></div></div>
       </div>
@@ -152,7 +152,7 @@ export const ARCADE_MOBILE = `<main class="m-app v2m">
   <section class="msheet steel" id="mSheet" role="dialog" aria-modal="true" aria-label="Road and stats" hidden>
     <div class="msh" id="mSheetH"><span class="grip" aria-hidden="true"></span><span class="tag">ROAD &amp; STATS</span><button class="key mx mxk" id="mSheetX" aria-label="Close">✕</button></div>
     <div class="scr rr" id="mRoads">${ROAD_STRIP.replace(/id="/g, 'id="m_')}</div>
-    <div class="scr r4m"><span class="lbl">Session</span><span class="s" id="dSesS">0 won · 0 lost</span><button class="key sharekey" id="shareKey" disabled>⇪ SHARE</button><span class="lbl">Last 10</span><span class="n"><span class="ticks" id="dTicks"></span></span><span class="s" id="dStreak"></span></div>
+    <div class="scr r4m"><span class="lbl seslbl">Session</span><span class="s" id="dSesS">0 won · 0 lost</span><button class="key sharekey" id="shareKey" disabled>⇪ SHARE</button><span class="lbl">Last 10</span><span class="n"><span class="ticks" id="dTicks"></span></span><span class="s" id="dStreak"></span></div>
     <div class="scr msettled"><span class="lbl">Settled</span><div id="dDone"></div></div>
     <div class="mwin" id="mWin"><img class="mlynx" id="mLynx" src="/arcade/lynx0.png" alt=""></div>
   </section>

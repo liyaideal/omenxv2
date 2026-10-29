@@ -5,18 +5,20 @@
 // component): tap/click the header to hide or show that month's rows.
 // ============================================================
 import { t } from "@/i18n";
-import { forwardRef, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import { savePortfolioScroll } from "@/lib/portfolioReturn";
+import { useIsMobile } from "@/hooks/use-mobile";
 import type { LiteMonthGroup, LiteSettledRow } from "@/hooks/useLitePortfolio";
 import { RED, signedMoney, pnlColor } from "./parts";
 import { PortfolioEmptySettled } from "./PortfolioAsyncStates";
+import { QuickPlayTag } from "./QuickPlayTag";
 
-const MetaLine = forwardRef<HTMLDivElement, { row: LiteSettledRow }>(({ row }, ref) => (
+const MetaLine = forwardRef<HTMLDivElement, { row: LiteSettledRow; parts?: string[] }>(({ row, parts = row.metaParts }, ref) => (
   <div ref={ref} className="truncate text-[11px] text-[#6B7280]">
-    {row.metaParts.map((p, i) => {
-      const last = i === row.metaParts.length - 1;
+    {parts.map((p, i) => {
+      const last = i === parts.length - 1;
       const isRemark = last && row.remark !== "none";
       return (
         <span key={p + i} style={isRemark && row.remark === "auto_close" ? { color: RED } : undefined}>
@@ -29,10 +31,13 @@ const MetaLine = forwardRef<HTMLDivElement, { row: LiteSettledRow }>(({ row }, r
 ));
 MetaLine.displayName = "MetaLine";
 
-export const SettledRow = forwardRef<HTMLButtonElement, { row: LiteSettledRow }>(({ row }, ref) => {
+export const SettledRow = forwardRef<HTMLButtonElement, { row: LiteSettledRow; highlight?: boolean }>(({ row, highlight }, ref) => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
+  const narrow = isMobile && row.mobile ? row.mobile : null;
   const go = () => {
     savePortfolioScroll();
+    if (row.kind === "quickplay") return navigate(`/portfolio/quick-play/${row.sessionKey}`);
     return row.isSeries
       ? navigate(`/portfolio?tab=settled&series=${encodeURIComponent(row.seriesId ?? "")}`)
       : navigate(`/portfolio/settlement/${row.id}`);
@@ -43,12 +48,20 @@ export const SettledRow = forwardRef<HTMLButtonElement, { row: LiteSettledRow }>
       type="button"
       onClick={go}
       className="flex w-full items-center gap-3 px-4 py-[13px] text-left"
-      style={{ borderBottom: "1px solid rgba(28,31,38,.8)" }}
+      style={{
+        borderBottom: "1px solid rgba(28,31,38,.8)",
+        // the row the cabinet just sent you to — a short lime wash, then gone
+        background: highlight ? "rgba(207,255,74,.08)" : "transparent",
+        transition: "background 1.2s ease",
+      }}
     >
 
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[13.5px] font-semibold text-[#F2F3F5]">{row.title}</div>
-        <MetaLine row={row} />
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="truncate text-[13.5px] font-semibold text-[#F2F3F5]">{narrow ? narrow.title : row.title}</span>
+          {row.kind === "quickplay" && <QuickPlayTag />}
+        </div>
+        <MetaLine row={row} parts={narrow ? narrow.metaParts : undefined} />
       </div>
       <span
         className="font-mono text-[14px] font-bold"
@@ -63,8 +76,16 @@ export const SettledRow = forwardRef<HTMLButtonElement, { row: LiteSettledRow }>
 SettledRow.displayName = "SettledRow";
 
 
-export const SettledList = ({ groups }: { groups: LiteMonthGroup[] }) => {
+export const SettledList = ({ groups, highlightId }: { groups: LiteMonthGroup[]; highlightId?: string | null }) => {
   const [visible, setVisible] = useState(2);
+  // The highlighted row (arrived from the cabinet) washes lime for ~2 s.
+  const [hl, setHl] = useState<string | null>(highlightId ?? null);
+  useEffect(() => {
+    setHl(highlightId ?? null);
+    if (!highlightId) return;
+    const t = setTimeout(() => setHl(null), 2200);
+    return () => clearTimeout(t);
+  }, [highlightId]);
   // Collapsed month keys. Default: every group expanded; not persisted.
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const toggle = (key: string) =>
@@ -106,7 +127,7 @@ export const SettledList = ({ groups }: { groups: LiteMonthGroup[] }) => {
               />
             </button>
             {!isCollapsed && g.rows.map((r) => (
-              <SettledRow key={r.id} row={r} />
+              <SettledRow key={r.id} row={r} highlight={hl === r.id} />
             ))}
           </div>
         );

@@ -54,6 +54,7 @@ import {
   type RoadCell,
   type RoadSlot,
 } from "@/lib/arcade/arcadeCalls";
+import { ARCADE_SESSION_GAP_MS, ARCADE_SESSION_NEW, ARCADE_SESSION_NOTE } from "@/lib/arcade/session";
 
 export type Side = "u" | "d";
 
@@ -66,7 +67,7 @@ export interface ArcadeData {
   place: (side: "up" | "down", gross: number, quoteTs: string) => Promise<ArcadeCall & { balance: number }>;
   cancel: (id: string) => Promise<{ cancel_fee: number; balance: number }>;
   settleMine: () => Promise<{ id: string; status: string; pnl: number; s0: number | null; s1: number | null }[]>;
-  myCalls: (since: string | null) => Promise<ArcadeCall[]>;
+  myCalls: (since: string | null, limit?: number) => Promise<ArcadeCall[]>;
   feed: () => Promise<ArcadeFeedRow[]>;
   acceptTerms: () => Promise<string>;
 }
@@ -79,7 +80,7 @@ export const realData: ArcadeData = {
   place: placeCall,
   cancel: cancelCall,
   settleMine,
-  myCalls: (since) => fetchMyCalls(since),
+  myCalls: (since, limit) => fetchMyCalls(since, limit),
   feed: fetchTableFeed,
   acceptTerms,
 };
@@ -266,6 +267,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     bigWin: 0,
     sesStakes: [] as number[],
     sesStart: now(),
+    /** when the last call went down — 30 min without one closes the session (CPO 2026-10-29) */
+    lastCallAt: 0,
     ack: null as string | null,
     ackKnown: false,
     sessionStart: new Date(now()).toISOString(),
@@ -570,6 +573,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       deny(side, "Not enough in your spot account");
       return;
     }
+    if (S.lastCallAt && now() - S.lastCallAt > ARCADE_SESSION_GAP_MS) newSession();
+    S.lastCallAt = now();
     const p = side === "u" ? S.pUp : 1 - S.pUp,
       g = S.chip,
       t0 = now();
@@ -650,6 +655,75 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     if (due.length && settleTries++ < 8) scheduleSettle(900);
     else settleTries = 0;
   }
+  /** Thirty minutes without a call closes the sitting: 04 / YOUR RESULT starts over (CPO 2026-10-29). */
+  function newSession() {
+    S.ses = 0;
+    S.won = 0;
+    S.lost = 0;
+    S.last = [];
+    S.streakW = 0;
+    S.streakL = 0;
+    S.bestRun = 0;
+    S.bigWin = 0;
+    S.sesStakes = [];
+    S.done = [];
+    S.sesStart = now();
+    S.sessionStart = new Date(now()).toISOString();
+    $$(".combo").forEach((el) => {
+      el.className = "combo";
+      const sub = el.querySelector(".sub"),
+        pips = el.querySelector(".pips");
+      if (sub) sub.textContent = "";
+      if (pips) pips.innerHTML = "";
+    });
+    toast(ARCADE_SESSION_NEW);
+    render();
+  }
+
+  /** Rebuild 04 / YOUR RESULT from the calls of the current sitting (same 30-minute rule as the server). */
+  function restoreSession(hist: ArcadeCall[]) {
+    const asc = hist.slice().sort((a, b) => ms(a.created_at) - ms(b.created_at));
+    if (!asc.length || now() - ms(asc[asc.length - 1].created_at) > ARCADE_SESSION_GAP_MS) return;
+    let i = asc.length - 1;
+    while (i > 0 && ms(asc[i].created_at) - ms(asc[i - 1].created_at) <= ARCADE_SESSION_GAP_MS) i--;
+    const ses = asc.slice(i);
+    S.lastCallAt = ms(ses[ses.length - 1].created_at);
+    S.sesStart = ms(ses[0].created_at);
+    S.sessionStart = ses[0].created_at;
+    ses.forEach((r) => {
+      const c = fromRow(r);
+      if (S.calls.find((x: Call) => x.id === c.id) || S.done.find((x: Call) => x.id === c.id)) return;
+      if (c.status === "open") S.calls.push(c);
+      else if (c.status !== "cancelled") S.done.push(c);
+    });
+    const settled = ses.filter((r) => r.status === "won" || r.status === "lost");
+    S.ses = settled.reduce((a, r) => a + (r.pnl ?? 0), 0);
+    S.won = settled.filter((r) => r.status === "won").length;
+    S.lost = settled.length - S.won;
+    S.last = settled.slice(-10).map((r) => r.status === "won");
+    S.sesStakes = settled.map((r) => r.gross);
+    S.bigWin = settled.reduce((a, r) => (r.status === "won" ? Math.max(a, r.pnl ?? 0) : a), 0);
+    let w = 0,
+      l = 0;
+    for (let k = settled.length - 1; k >= 0; k--) {
+      if (settled[k].status === "won") {
+        if (l) break;
+        w++;
+      } else {
+        if (w) break;
+        l++;
+      }
+    }
+    S.streakW = w;
+    S.streakL = l;
+    let run = 0;
+    settled.forEach((r) => {
+      run = r.status === "won" ? run + 1 : 0;
+      S.bestRun = Math.max(S.bestRun, run);
+    });
+    if (w >= 2 || l >= 2) comboUpdate("boot");
+  }
+
   function applySettled(c: Call, status: "won" | "lost" | "void", pnl: number, s0: number | null, s1: number | null) {
     c.status = status;
     c.pnl = pnl;
@@ -1577,31 +1651,10 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     await pollFeed();
     if (api.userId) {
       try {
-        const rows = await data.myCalls(S.sessionStart);
-        rows.forEach((r) => {
-          const c = fromRow(r);
-          if (S.calls.find((x: Call) => x.id === c.id) || S.done.find((x: Call) => x.id === c.id)) return;
-          if (c.status === "open") S.calls.push(c);
-          else if (c.status !== "cancelled") S.done.push(c);
-        });
-        // last 10 from the whole record (persists across reloads)
-        const hist = await data.myCalls(null);
-        const settled = hist.filter((r) => r.status === "won" || r.status === "lost").sort((a, b) => ms(a.settled_at!) - ms(b.settled_at!));
-        S.last = settled.slice(-10).map((r) => r.status === "won");
-        let w = 0,
-          l = 0;
-        for (let i = settled.length - 1; i >= 0; i--) {
-          if (settled[i].status === "won") {
-            if (l) break;
-            w++;
-          } else {
-            if (w) break;
-            l++;
-          }
-        }
-        S.streakW = w;
-        S.streakL = l;
-        if (w >= 2 || l >= 2) comboUpdate("boot");
+        // the sitting survives a reload: every board in 04 is rebuilt from the
+        // calls of the current session (30 min without a call = a new one)
+        const hist = await data.myCalls(null, 400);
+        restoreSession(hist);
       } catch (e) {
         /* fresh session */
       }
@@ -1714,6 +1767,10 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     audio();
     sfx.key();
     api.transfer();
+  });
+  $$(".seslbl").forEach((el) => {
+    el.title = ARCADE_SESSION_NOTE;
+    on(el, "click", () => toast(ARCADE_SESSION_NOTE));
   });
   on($("#shareKey"), "click", () => {
     if (!(S.won + S.lost)) return;

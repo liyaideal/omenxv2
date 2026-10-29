@@ -270,6 +270,12 @@ export const previewRegistry: Record<string, Loader> = {
   "portfolio-lite-series-detail": pick(portfolio, "SettlementSeriesDetailPreview"),
   "portfolio-lite-series-extremes": pick(portfolio, "SettlementSeriesExtremesPreview"),
   "portfolio-lite-series-mobile-page": pick(portfolio, "SeriesMobilePagePreview"),
+  "portfolio-lite-quickplay-rows": pick(portfolio, "PortfolioQuickPlayRowsPreview"),
+  "portfolio-lite-quickplay-rows-mobile": pick(portfolio, "PortfolioQuickPlayRowsPreview"),
+  "portfolio-lite-quickplay-detail": pick(portfolio, "QuickPlaySessionWonPreview"),
+  "portfolio-lite-quickplay-detail-mobile": pick(portfolio, "QuickPlaySessionWonMobilePreview"),
+  "portfolio-lite-quickplay-detail-lost": pick(portfolio, "QuickPlaySessionLostPreview"),
+  "portfolio-lite-quickplay-detail-lost-mobile": pick(portfolio, "QuickPlaySessionLostMobilePreview"),
 
   "portfolio-lite-airdrop-tag-rows": pick(portfolio, "PortfolioAirdropTagRowsPreview"),
   "portfolio-lite-airdrop-tag-cards": pick(portfolio, "PortfolioAirdropTagCardsPreview"),

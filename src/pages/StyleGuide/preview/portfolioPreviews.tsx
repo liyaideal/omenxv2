@@ -44,6 +44,9 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { LiteAuthGate } from "@/components/auth/LiteAuthGate";
 import { MobileHeader } from "@/components/MobileHeader";
 import { settledDayLabel, monthGroupLabel, monthKey } from "@/lib/settleLabel";
+import { QuickPlaySessionDesktop, QuickPlaySessionMobile } from "@/components/portfolio/lite/QuickPlaySessionView";
+import { quickPlayRow, quickPlaySessionVM } from "@/lib/arcade/quickPlayPortfolio";
+import type { ArcadeCall, ArcadeSession } from "@/lib/arcade/arcadeCalls";
 import { useState } from "react";
 
 /** Fixture dates stay relative so settleLabel() output never goes stale. */
@@ -1406,5 +1409,168 @@ export const PortfolioFetchErrorPreview = () => {
 export const SettlementDetailNotFoundPreview = () => (
   <div className="bg-background p-4">
     <PortfolioNotFound />
+  </div>
+);
+
+/* ============ Ⓛ Quick Play 场次（PF-39 … PF-41） ============
+ * 一场 = 一坐下来玩的这一把（30 分钟没下单就结束）。列表行走生产 SettledRow，
+ * 详情走生产 QuickPlaySession 视图；fixture 由 quickPlayRow / quickPlaySessionVM
+ * 从同一份 ArcadeSession 派生，文案与线上一字不差。
+ */
+const minutesAgoAt = (min: number) => new Date(Date.now() - min * 60_000).toISOString();
+
+const qpSessionWon: ArcadeSession = {
+  session_key: "1793200000000",
+  started_at: daysAgoAt(1, 16, 47),
+  ended_at: daysAgoAt(1, 16, 53),
+  last_settled_at: daysAgoAt(1, 16, 53),
+  calls: 8,
+  won: 5,
+  lost: 3,
+  refunded: 1,
+  cancelled: 1,
+  best_run: 3,
+  staked: 70,
+  payout: 82.06,
+  fees: 0.08,
+  commission: 0.55,
+  pnl: 12.06,
+  biggest_win: 23.87,
+  min_stake: 5,
+  max_stake: 25,
+  active: false,
+};
+
+const qpSessionLost: ArcadeSession = {
+  ...qpSessionWon,
+  session_key: "1793100000000",
+  started_at: daysAgoAt(2, 23, 50),
+  ended_at: daysAgoAt(1, 0, 12),
+  last_settled_at: daysAgoAt(1, 0, 12),
+  calls: 5,
+  won: 1,
+  lost: 4,
+  refunded: 0,
+  cancelled: 0,
+  best_run: 1,
+  staked: 500,
+  payout: 189.3,
+  fees: 0.5,
+  commission: 4.7,
+  pnl: -310.7,
+  biggest_win: 89.3,
+  min_stake: 100,
+  max_stake: 100,
+};
+
+const qpSessionLive: ArcadeSession = {
+  ...qpSessionWon,
+  session_key: "1793300000000",
+  started_at: minutesAgoAt(9),
+  ended_at: minutesAgoAt(2),
+  last_settled_at: minutesAgoAt(2),
+  calls: 7,
+  won: 6,
+  lost: 1,
+  refunded: 0,
+  cancelled: 0,
+  best_run: 6,
+  staked: 35,
+  payout: 57.53,
+  fees: 0.04,
+  commission: 1.2,
+  pnl: 22.53,
+  biggest_win: 4.1,
+  min_stake: 5,
+  max_stake: 5,
+  active: true,
+};
+
+const qpCall = (o: Partial<ArcadeCall> & { minsAgo: number; secs?: number }): ArcadeCall => {
+  const { minsAgo, secs = 0, ...rest } = o;
+  const t0 = new Date(Date.now() - minsAgo * 60_000 - secs * 1000);
+  return {
+    id: `qp-${minsAgo}-${secs}`,
+    user_id: "u",
+    side: "up",
+    gross: 5,
+    fee: 0.01,
+    net: 4.99,
+    p: 0.509,
+    p_up: 0.509,
+    win_payout: 9.8,
+    quote_ts: t0.toISOString(),
+    quote_idx: 81155.3,
+    t0: t0.toISOString(),
+    t1: new Date(t0.getTime() + 30_000).toISOString(),
+    s0: 81155.3,
+    s1: 81194.73,
+    status: "won",
+    pnl: 4.29,
+    commission: 0.24,
+    cancel_fee: null,
+    settled_at: new Date(t0.getTime() + 32_000).toISOString(),
+    created_at: t0.toISOString(),
+    ...rest,
+  };
+};
+
+const qpCallsWon: ArcadeCall[] = [
+  qpCall({ minsAgo: 1, secs: 2 }),
+  qpCall({ minsAgo: 1, secs: 40, side: "down", gross: 10, p: 0.472, status: "lost", pnl: -10, commission: null }),
+  qpCall({ minsAgo: 2, secs: 30, p: 0.52, status: "void", pnl: 0, commission: null }),
+  qpCall({ minsAgo: 3, secs: 10, gross: 25, p: 0.496, status: "won", pnl: 23.87, commission: 1.26 }),
+  qpCall({ minsAgo: 3, secs: 45, side: "down", p: 0.488, status: "cancelled", pnl: -0.01, cancel_fee: 0.01, commission: null }),
+  qpCall({ minsAgo: 4, secs: 20, p: 0.502, status: "lost", pnl: -5, commission: null }),
+];
+
+const qpCallsLost: ArcadeCall[] = [
+  qpCall({ minsAgo: 1, secs: 5, gross: 100, p: 0.468, side: "down", status: "lost", pnl: -100, commission: null }),
+  qpCall({ minsAgo: 2, secs: 0, gross: 100, p: 0.531, status: "won", pnl: 89.3, commission: 4.7 }),
+  qpCall({ minsAgo: 3, secs: 15, gross: 100, p: 0.512, status: "lost", pnl: -100, commission: null }),
+  qpCall({ minsAgo: 4, secs: 30, gross: 100, p: 0.49, side: "down", status: "lost", pnl: -100, commission: null }),
+  qpCall({ minsAgo: 5, secs: 45, gross: 100, p: 0.503, status: "lost", pnl: -100, commission: null }),
+];
+
+const qpGroups: LiteMonthGroup[] = groupByMonth([
+  quickPlayRow(qpSessionLive),
+  settled({ daysAgo: 1, title: "BTC — up or down? (30s · 13:26:30 UTC)", metaHead: ["Up"], net: 9.89, segment: "standard" }),
+  quickPlayRow(qpSessionWon),
+  settled({ daysAgo: 1, title: "Xiaomi (1810.HK) — will close higher today?", metaHead: ["Series", "won 4 of 10"], net: -61.02, segment: "standard", isSeries: true, seriesId: "xiaomi", won: false }),
+  quickPlayRow(qpSessionLost),
+  settled({ daysAgo: 3, title: "AMD (AMD) — will close higher today?", metaHead: ["Series", "won 5 of 10"], net: -4.09, segment: "standard", isSeries: true, seriesId: "amd", won: false }),
+]);
+
+export const PortfolioQuickPlayRowsPreview = () => (
+  <div className="pb-4">
+    <p className="px-4 pt-3 text-[11px] text-[#6B7280]">
+      Settled › Standard 里的三种 Quick Play 行：刚玩完（赢）/ 有退款和取消（赢）/ 跨零点（输）。第一行带「刚从机柜过来」的 2 秒亮边。
+    </p>
+    <SettledList groups={qpGroups} highlightId={`qp-${qpSessionLive.session_key}`} />
+  </div>
+);
+
+const qpActions = { onOpenQuickPlay: () => {}, onShare: () => {}, onLoadMore: () => {} };
+
+export const QuickPlaySessionWonPreview = () => (
+  <div className="p-4">
+    <QuickPlaySessionDesktop vm={quickPlaySessionVM(qpSessionWon, qpCallsWon, { hasMore: true, loading: false })} actions={qpActions} />
+  </div>
+);
+export const QuickPlaySessionWonMobilePreview = () => (
+  <div className="min-h-[560px]">
+    <MobileHeader variant="inner" title="Quick Play" showBack backTo="/portfolio?tab=settled" />
+    <QuickPlaySessionMobile vm={quickPlaySessionVM(qpSessionWon, qpCallsWon, { hasMore: true, loading: false })} actions={qpActions} />
+  </div>
+);
+export const QuickPlaySessionLostPreview = () => (
+  <div className="p-4">
+    <QuickPlaySessionDesktop vm={quickPlaySessionVM(qpSessionLost, qpCallsLost, { hasMore: false, loading: false })} actions={qpActions} />
+  </div>
+);
+export const QuickPlaySessionLostMobilePreview = () => (
+  <div className="min-h-[560px]">
+    <MobileHeader variant="inner" title="Quick Play" showBack backTo="/portfolio?tab=settled" />
+    <QuickPlaySessionMobile vm={quickPlaySessionVM(qpSessionLost, qpCallsLost, { hasMore: false, loading: false })} actions={qpActions} />
   </div>
 );

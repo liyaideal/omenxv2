@@ -68,7 +68,7 @@ const FeesSubLine = ({ vm }: { vm: SettlementDetailVM }) => (
   </div>
 );
 
-const Row = ({ k, v, color }: { k: string; v: string; color?: string }) => (
+export const Row = ({ k, v, color }: { k: string; v: string; color?: string }) => (
   <div className="flex items-center justify-between border-b border-b-[rgba(28,31,38,.8)] py-3 text-[13px] last:border-b-0">
     <span className="text-[#6B7280]">{k}</span>
     <span className="font-mono font-semibold" style={{ color: color ?? "#F2F3F5" }}>
@@ -231,16 +231,22 @@ export const DetailCard = ({ title, children }: { title: string; children: React
 
 export const DetailTitleRow = ({
   title,
+  badge,
   onViewEvent,
+  viewEventLabel = "View event ›",
   onShare,
 }: {
   title: string;
+  /** Sits to the right of the title (the Quick Play tag). */
+  badge?: React.ReactNode;
   onViewEvent?: () => void;
+  viewEventLabel?: string;
   onShare?: () => void;
 }) => (
   <div className="mt-3 flex items-center justify-between gap-4">
     <h1 className="text-[22px] font-bold text-[#F2F3F5]" style={{ letterSpacing: "-0.2px" }}>
       {title}
+      {badge}
     </h1>
     <div className="flex shrink-0 items-center gap-3">
       {onShare && (
@@ -259,7 +265,7 @@ export const DetailTitleRow = ({
           onClick={onViewEvent}
           className="shrink-0 text-[13px] font-semibold text-primary"
         >
-          View event ›
+          {viewEventLabel}
         </button>
       )}
     </div>

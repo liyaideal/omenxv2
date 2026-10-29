@@ -775,6 +775,63 @@ const SERIES_MOBILE_MIRRORS: SectionCase[] = (
   return { ...base, key, label: `${base.label}（移动）` };
 });
 
+/* ---------------- Ⓛ Quick Play 场次（PF-39 … PF-41） ---------------- */
+
+const QUICKPLAY_CASES: SectionCase[] = [
+  {
+    key: "portfolio-lite-quickplay-rows",
+    label: "PF-39 · Quick Play 场次行（SettledRow · kind = quickplay）",
+    note: "一场 = 一坐下来玩的这一把：两次下单间隔超过 30 分钟就算下一场（ARCADE_SESSION_GAP_MIN，服务端 arcade_my_sessions 用同一个数）。归 Standard，不另立 chip；chip 计数按场加 1；Win rate / Net profit / Record 三格把场里的合约一起算。桌面标题 `BTC 30-second calls · Oct 28, 16:47 – 16:53` + 标题右侧 QUICK PLAY 小牌；移动端标题只留时间段，BTC 挪到副行开头（小牌已经说了 Quick Play）。",
+    spec: [
+      { state: "场次行", when: 'row.kind === "quickplay"', visual: "标题 + QUICK PLAY 小牌（lime 10px，标题左缘与其他行对齐）；副行 `8 calls · won 5 of 8 · best run 3 · $5 – $25 a call`；右侧当天净利 + 右箭头", source: "quickPlayRow()" },
+      { state: "退款 / 取消", when: "refunded > 0 || cancelled > 0", visual: "副行末追加 `· 1 refunded` / `· 1 cancelled`", source: "quickPlayRow()" },
+      { state: "单一面额", when: "min_stake === max_stake", visual: "`$5 a call`", source: "quickPlayStakeLine()" },
+      { state: "best run 不足 2", when: "best_run < 2", visual: "副行不出现 best run", source: "quickPlayRow()" },
+      { state: "跨零点", when: "started_at 与 ended_at 不同日", visual: "标题时间段写两端日期 `Oct 28 23:50 – Oct 29 00:12`", source: "arcadeSessionSpan()" },
+      { state: "排序", when: "始终", visual: "按这一场最后一张结算时间排进当月顺序", source: "closedAt = last_settled_at" },
+      { state: "从机柜过来", when: "?from=quick-play", visual: "落 Standard，最近一场的行 2.2 s lime 底色（rgba(207,255,74,.08)）后淡出；地址栏随即去掉 from", source: "LitePortfolio highlightId" },
+      { state: "点击去向", when: "点击整行", visual: "进 `/portfolio/quick-play/{session_key}`（key = 第一张下单的 epoch ms）", source: "SettledRow onClick" },
+    ],
+  },
+  {
+    key: "portfolio-lite-quickplay-detail",
+    label: "PF-40 · 场次详情 · won（QuickPlaySessionDesktop / Mobile）",
+    note: "直接套单仓结算详情的版式（PF-24）：标题 + 小牌 / `Settled …` 戳 / Share + `Open Quick Play ›`；三卡 Result · Staked · Payout；Details + ACTIVITY 两栏，一张合约一行、最新在上、30 条一页 `Load more calls`。Details 栏底下一行灰字：`A session ends after 30 minutes without a call.`。",
+    spec: [
+      { state: "Result 卡", when: "calls > 0", visual: "净利着色，副行 `Won · 5 of 8 calls right` / `Lost · 1 of 5 calls right`", source: "resultSub()" },
+      { state: "Staked 卡", when: "始终", visual: "`$70.00`，副行 `8 calls @ $5 – $25`", source: "quickPlayStakeSub()" },
+      { state: "Payout 卡", when: "payout > 0", visual: "`$82.06`，副行 `after $0.63 fees` + `Trading fee $0.08 · Winning commission $0.55`", source: "fees + commission" },
+      { state: "Payout 为 0", when: "payout === 0", visual: "副行 `nothing returned`", source: "QuickPlaySessionDesktop" },
+      { state: "Details 行", when: "始终", visual: "Market / Calls / Record `5 won · 3 lost` / Best run `3 in a row` / Stake / Started / Ended；有退款取消时多一行 `Not settled 1 refunded · 1 cancelled`", source: "QuickPlaySessionView" },
+      { state: "ACTIVITY 行", when: "每张合约", visual: "`16:52:41 · Up · $5.00 @ 50.9¢` → 右侧盈亏着色；void → `$0.00 · refunded`（灰）；cancelled → `-$0.01 · cancelled`（灰）", source: "callLeft() / callRight()" },
+      { state: "翻页", when: "hasMore", visual: "ACTIVITY 底部整宽描边按钮 `Load more calls`，加载中禁用并显示 Loading…", source: "useArcadeSessionCalls" },
+      { state: "Share", when: "signed in && calls > 0", visual: "右上 Share → 「Share your run」海报，数字取这一场（分钟数 = 首尾下单间隔）", source: "quickPlayShareRun()" },
+      { state: "移动端", when: "isMobile", visual: "inner header `Quick Play` + 返回 + 右上分享；居中 `SETTLED · OCT 28` + `Won +$12.06` + 时间段与小牌；键值行；ACTIVITY；底部 `Open Quick Play ›`", source: "QuickPlaySessionMobile" },
+    ],
+  },
+  {
+    key: "portfolio-lite-quickplay-detail-lost",
+    label: "PF-41 · 场次详情 · lost · 跨零点 · 单一面额",
+    spec: [
+      { state: "lost", when: "pnl < 0", visual: "Result 红，`Lost · 1 of 5 calls right`；Best run `1` 时只写 `1`，为 0 写 `—`", source: "bestRunLine()" },
+      { state: "单一面额", when: "min_stake === max_stake", visual: "Staked 副行 `5 calls @ $100`，Details Stake `$100 a call`", source: "quickPlayStakeSub()" },
+      { state: "无退款取消", when: "refunded + cancelled === 0", visual: "Details 不出现 Not settled 行", source: "extrasLine()" },
+      { state: "到底", when: "!hasMore", visual: "没有 Load more calls 按钮", source: "QuickPlaySessionView" },
+    ],
+  },
+];
+
+const QUICKPLAY_MOBILE_MIRRORS: SectionCase[] = (
+  [
+    ["portfolio-lite-quickplay-rows", "portfolio-lite-quickplay-rows-mobile"],
+    ["portfolio-lite-quickplay-detail", "portfolio-lite-quickplay-detail-mobile"],
+    ["portfolio-lite-quickplay-detail-lost", "portfolio-lite-quickplay-detail-lost-mobile"],
+  ] as const
+).map(([from, key]) => {
+  const base = QUICKPLAY_CASES.find((c) => c.key === from)!;
+  return { ...base, key, label: `${base.label}（移动）` };
+});
+
 /* ---------------- Ⓚ 空态 / 门禁 / 异步 / 错误（PF-33 … PF-38） ---------------- */
 
 const STATE_CASES: SectionCase[] = [
@@ -967,6 +1024,8 @@ const ALL_CASES: SectionCase[] = [
   ...DETAIL_MOBILE_MIRRORS,
   ...SERIES_CASES,
   ...SERIES_MOBILE_MIRRORS,
+  ...QUICKPLAY_CASES,
+  ...QUICKPLAY_MOBILE_MIRRORS,
   ...STATE_CASES,
 ];
 
@@ -1004,8 +1063,8 @@ const READ_ME =
 export const PortfolioStatesSection = () => (
   <SectionWrapper
     id="portfolio-states"
-    title="Portfolio · 状态字典（PF-1…PF-38 · Ⓐ–Ⓚ 区）"
-    description="分区序 = 生产模块序：Ⓐ页面外壳 · ⒷKPI · ⒸBoost check · ⒹLive 列表 · Ⓔ挂单行 · Ⓕ批量平仓 · ⒼSettled 列表 · Ⓗ单仓结算详情 · Ⓘ系列结算详情 · Ⓚ空态/门禁/异步/错误。每个 case 双帧（desktop 1280 / mobile 375），同一编号两帧各挂各端生产真组件；fixture 只注数据与状态，一律确定性注入（禁止运行时 fetch、禁止绝对日期、禁止随机 id）。表里没有列出的组合视为不存在，不要自行发挥。"
+    title="Portfolio · 状态字典（PF-1…PF-41 · Ⓐ–Ⓛ 区）"
+    description="分区序 = 生产模块序：Ⓐ页面外壳 · ⒷKPI · ⒸBoost check · ⒹLive 列表 · Ⓔ挂单行 · Ⓕ批量平仓 · ⒼSettled 列表 · Ⓗ单仓结算详情 · Ⓘ系列结算详情 · Ⓚ空态/门禁/异步/错误 · ⓁQuick Play 场次。每个 case 双帧（desktop 1280 / mobile 375），同一编号两帧各挂各端生产真组件；fixture 只注数据与状态，一律确定性注入（禁止运行时 fetch、禁止绝对日期、禁止随机 id）。表里没有列出的组合视为不存在，不要自行发挥。"
   >
     <div className="space-y-12">
       <div className="rounded-lg border border-border/40 bg-muted/10 p-3 text-[11px] leading-relaxed text-muted-foreground">
@@ -1186,6 +1245,15 @@ export const PortfolioStatesSection = () => (
           )}
           desktopMin={1000}
           mobileMin={1100}
+        />
+      </SubSection>
+
+      <SubSection title="Ⓛ Quick Play 场次（PF-39 … PF-41）" description="一坐下来玩的这一把 = 一场（30 分钟没下单就结束，机柜 04 的 SESSION 和分享海报用同一条规则）。场次行归 Settled › Standard，详情页套单仓结算详情的版式。">
+        <Pair
+          cases={byKey("portfolio-lite-quickplay-rows", "portfolio-lite-quickplay-detail", "portfolio-lite-quickplay-detail-lost")}
+          mobileCases={byKey("portfolio-lite-quickplay-rows-mobile", "portfolio-lite-quickplay-detail-mobile", "portfolio-lite-quickplay-detail-lost-mobile")}
+          desktopMin={1000}
+          mobileMin={1200}
         />
       </SubSection>
 

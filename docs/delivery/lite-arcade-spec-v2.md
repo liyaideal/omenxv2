@@ -50,6 +50,7 @@ v1 是"一局 30 秒，大家一起等开奖"。CPO 看了研发稿之后改成�
 | 猞猁 | 会话赚钱时昂首阔步、亏钱时耷拉；60 秒没人碰就打盹（zzz）；大路同色 ≥5 格举牌 `DRAGON ×5 ▲`、交替 ≥6 格举牌 `choppy…`；新手 8 秒没下单时举牌 `new here? tap ⓘ ↗` | 点它有表情 |
 | 移动端 | 顶栏（logo / Available / + / RULES / 静音）→ `BTC · 30s calls · $价` + `YOUR OPEN` → 四格来源价 → 舞台 → `MY CALLS` 筹码带（没有自己的单时显示 `TABLE N` 别人的）→ OPEN / LIVE / SESSION → 筹码 → UP / DOWN → 底部 `ROAD & STATS` 窥条（最近 10 格）→ 抽屉：路单 + SESSION / LAST 10 + SETTLED + 猞猁 | 同桌面 |
 | Events「All」横幅 | `QUICK PLAY · BTC · 30-SECOND CALLS · 24/7` + 实时指数价格线 + `UP 51.2¢ / 30 SEC / DOWN 48.8¢` + PLAY；指数无效显示 `PAUSED` | 点整条进专区 |
+| Portfolio › Settled › Standard（10-29） | 一场一行：`BTC 30-second calls · Oct 28, 16:47 – 16:53` + QUICK PLAY 小牌，副行 `8 calls · won 5 of 8 · best run 3 · $5 – $25 a call`，右侧这一场净利。一场 = 一坐下来玩的这一把（30 分钟没下单就结束）。三格 KPI 把合约一起算 | 点行进场次详情：Result / Staked / Payout 三卡 + Details + ACTIVITY（一张合约一行，30 条一页 `Load more calls`），右上 Share（这一场的海报）与 `Open Quick Play ›` |
 
 ## 研发 / 测试视角
 
@@ -64,6 +65,7 @@ v1 是"一局 30 秒，大家一起等开奖"。CPO 看了研发稿之后改成�
 - **读接口**：`arcade_table_now()`（最新 tick + 桌态 + 参数 + 我的未到期总额 + 免责时间，一次 RPC，前端每秒轮询）、`arcade_index_ticks`（RLS 全开只读，图表拉最近 60 s + 增量）、`arcade_road(120)`（30 秒格的 open / close，路单）、`arcade_my_calls(since)`、`arcade_table_feed()`（全桌未到期，用户名打码 `al***er`）、`arcade_accept_terms()`。
 - **站内其他页的 BTC 价**：`roll_arcade_rounds` 每 30 秒开新 BTC 局时 open 改取 `arcade_real_btc()`（最近 10 秒内的有效指数），所以首页行情条 / 5m 15m 1h 4h 1d 快轮 / 横幅都跟着真价走；ETH / SOL / 美股仍是演示 LCG 流。
 - 审计：每张合约存 quote_ts / quote_idx / t0 / t1 / s0 / s0_ts / s1 / s1_ts / p / p_up / fee / net / win_payout / commission / pnl；每条 tick 存三家 bid-ask 原始值（`src_raw`）。
+- **场次（10-29，`supabase/migrations/20261029190000_arcade_sessions.sql`）**：`arcade_my_sessions(p_limit)` 把 auth.uid() 的合约按下单时间排序，相邻两张间隔 > 30 分钟就断成新一场（lag + 累加窗口），每场一行：`session_key`（第一张下单的 epoch ms，字符串）、started_at / ended_at（首尾下单）、last_settled_at、calls（won + lost）、won / lost / refunded（void）/ cancelled、best_run（场内按顺序的最长连赢）、staked（won + lost 的 gross 合计）、payout（won + lost 的 gross + pnl 合计 = 拿回的现金）、fees（won + lost 的 fee + 取消手续费）、commission、pnl（所有非 open 合约的 pnl 合计）、biggest_win、min_stake / max_stake、active（最后一张 < 30 分钟前或还有 open）。只返回至少有一张非 open 的场。`arcade_my_session_calls(p_key, p_limit = 30, p_offset = 0)` 返回那一场的全部非 open 合约（`SETOF arcade_calls`），最新在上。两个函数 STABLE SECURITY DEFINER，只给 authenticated。30 分钟这个数与前端 `ARCADE_SESSION_GAP_MIN` 必须同步改。
 
 ### 前端
 
@@ -72,6 +74,7 @@ v1 是"一局 30 秒，大家一起等开奖"。CPO 看了研发稿之后改成�
 - `src/lib/arcade/arcadeCalls.ts`：RPC 封装 + 费用 / 派彩算式（与 SQL 同口径：`callFee / callNet / callPayout / callCredit / callNetWin / cancelFee`）+ `roadCells`。
 - 时钟：所有倒计时 / 旗子 / 图表都按**服务器时间**（`arcade_table_now().now − Date.now()` 做偏移），所以本机时间不准也不影响。
 - 入口横幅 `ArcadeEntryBanner.tsx` 改读 `arcade_table_now` + `arcade_index_ticks`（每 2 秒），倒计时换成 `30 SEC` 徽章。
+- **场次（10-29）**：`src/lib/arcade/session.ts`（`ARCADE_SESSION_GAP_MIN` = 30、说明句 `ARCADE_SESSION_NOTE`、`arcadeSessionSpan()` 标题时间段）；机柜 `arcadeEngine.ts`：下单时距上一张 > 30 分钟 → `newSession()` 归零 04 的 SESSION / LAST 10 / 连击 HUD / LAST SETTLED 并 toast `New session`；启动时 `restoreSession()` 从 `arcade_my_calls(null, 400)` 倒推最近 30 分钟内连成一片的合约复原这一场（SESSION 金额、胜负、Last 10、连击、best run、biggest win、分享）；SESSION 标签（`.seslbl`）title + 点击 toast 说明句。Portfolio：`src/hooks/useArcadeSessions.ts`（`arcade_my_sessions` react-query + 场内合约 30 条翻页）、`src/lib/arcade/quickPlayPortfolio.ts`（行 / 详情 / 海报的 view-model 与文案规则）、`useLitePortfolio.ts` 把场次行并进 settledRows（segment = standard，`kind = "quickplay"`，closedAt = last_settled_at）并计入 settledKpi、`SettledList.tsx`（标题右侧 `QuickPlayTag`、移动端用 `row.mobile` 短标题、`highlightId` 2.2 s lime 底色）、`LitePortfolio.tsx`（`?from=quick-play` → Standard + 高亮最新一场，随即去掉参数）、新页 `src/pages/lite/LiteQuickPlaySession.tsx` + 纯视图 `src/components/portfolio/lite/QuickPlaySessionView.tsx`（桌面 / 移动，套 `SettlementDetailView` 的 `DetailTitleRow`（新增 `badge` / `viewEventLabel`）/ `DetailCard` / `Row`），路由 `/portfolio/quick-play/:sessionKey`（`PortfolioRoutes.QuickPlaySessionRoute`）；分享复用 `ArcadeShareCard`，数字来自 `quickPlayShareRun()`。`ArcadePage` 的 `portfolio()` 改指 `/portfolio?tab=settled&from=quick-play`。style-guide Portfolio 字典 Ⓛ PF-39 … PF-41（`portfolio-lite-quickplay-rows / -detail / -detail-lost` 各带 `-mobile`）。
 - style-guide：交易页「/arcade · Quick Play」节 AR-1（免责门）/ AR-2（6 张未到期 + 3 张已结 + 会话）/ AR-3（指数无效 → 跑酷）/ AR-4（移动空桌）/ AR-5（移动持仓）/ AB-1 / AB-2，引擎 fixture 模式（`opts.fixture = {nowMs, ticks, calls, feed, road, state, ack, session}`，零网络）。
 
 ### 验证方法
@@ -82,6 +85,7 @@ v1 是"一局 30 秒，大家一起等开奖"。CPO 看了研发稿之后改成�
 4. 30 秒后 ≤ 2 s：status won / lost / void，s0 = t0 后第一条 tick 的 idx，s1 = t1 前最近一条；赢时余额 +（win_payout − commission）；页面 SETTLED 行 open / close 与 s0 / s1 一致（10-28 实测：$5 @ 50.9¢ 赢 → 派彩 9.52、佣金 0.23、入账 9.29、pnl +4.29）。
 5. `update arcade_params set num = 0 where key = 'live'` → 机柜几秒内 `TABLE PAUSED · The table is closed`、猞猁跑酷；改回 1 恢复。
 6. Events All 横幅价格 / 赔率与 `/arcade` 同时刻一致。
+7. 场次（10-29）：alex_carter 登录后 `/portfolio?tab=settled` → Standard 里出现带 QUICK PLAY 小牌的行，数量 = `select count(*) from arcade_my_sessions()`（以 alex 身份）；点一行 → `/portfolio/quick-play/{key}`，三卡数字与 `arcade_my_sessions` 同行一致，ACTIVITY 条数 = 该场非 open 合约数（> 30 条出现 `Load more calls`）；机柜里闲 30 分钟后再下一单 → toast `New session`、SESSION 归零；刷新机柜 → 最近 30 分钟内的合约复原成同一场（SESSION 金额 = 这一场 pnl）。
 
 ## 边界 / 未了账
 
@@ -90,7 +94,7 @@ v1 是"一局 30 秒，大家一起等开奖"。CPO 看了研发稿之后改成�
 | 采样节奏 500 ms、报价有效期 500 ms、600 s 历史门槛 | 演示引擎放宽（1.2 s / 2.5 s / 120 s，`arcade_params`），真平台照研发稿 |
 | 可用结算现金 ≥ 1.10 × total_payout、关联账户组限额、异常胜率人工复核 | 未做（演示引擎没有 USDC 专户 / 关联账户数据） |
 | 损失熔断恢复 | 自动按 UTC 日重置，未做人工确认 |
-| Portfolio / 钱包流水 | 合约只进 `arcade_calls`（机柜 LAST SETTLED / LAST 10）；钱包 transactions 有 fee / profit / loss / commission 行；**CPO 10-28 定：Portfolio 加一个 Quick Play 页签放完整记录（下一轮做）**，机柜右栏的 `All settled calls → Portfolio` 已指向 `/portfolio` |
+| Portfolio / 钱包流水 | 合约只进 `arcade_calls`（机柜 LAST SETTLED / LAST 10）；钱包 transactions 有 fee / profit / loss / commission 行；**10-29 已做：不另立页签，一场一行进 Settled › Standard + 场次详情页（见上）**，机柜右栏 `All settled calls → Portfolio` 指向 `/portfolio?tab=settled&from=quick-play`（落 Standard、高亮最新一场） |
 | 入口横幅 | Events All 页横幅 10-28 换成入口比稿方案 C「像素夜景」（`src/components/lite/arcade/ArcadeEntryBanner.tsx` + `arcade-entry.css`）：读同一条指数；右侧 TIME 是桌子的 30 秒墙钟格，不是局；指数无效显示 INDEX INVALID，不出假数字 |
 | 演示行情改模拟（10-29） | CPO 拍板不升级数据库、Lovable 只保手感：真三所取价任务下线，改 `arcade_sim_feed` 每 2 秒生成一条模拟 tick（上一条价格走 ~0.06% 随机步，向每分钟取一次的 Binance 真价锚靠拢，三家来源价 = 模拟价 ± 微小偏移），报价模型 / 路单 / 结算 / 匿名桌不变；浏览器直连 Binance 的展示线不变。老的 `arcade_rounds_30s` 改每分钟（`20261029170000_arcade_sim_feed.sql`）。**真平台照研发稿接真行情，这套只是演示** |
 | 数据库负载（10-29） | Lovable 报 high load：小实例 CPU 被常驻后台工作占满（每秒取价任务 = 每秒 4 个 HTTP 请求 + 4 条应答 + 5 条 cron 记账；10-28 加的探针每 3 秒查 pg_stat_activity；realtime 的 WAL 轮询；老的站内演示任务每次 10–17 s）。已做：探针下线、取价改每 2 秒、报价有效期 / 结算取价容忍 4.5 s、指数过期 6 s（`20261029163000_arcade_load.sql`）。真平台不在 Supabase 上跑行情，不适用 |

@@ -30,6 +30,7 @@ import {
   PortfolioSettlementsRoute,
   PortfolioAirdropsRoute,
   SettlementDetailRoute,
+  QuickPlaySessionRoute,
 } from "./pages/PortfolioRoutes";
 import Wallet from "./pages/Wallet";
 import Deposit from "./pages/Deposit";
@@ -249,6 +250,7 @@ const App = () => (
               <Route path="/portfolio/settlements" element={<PortfolioSettlementsRoute />} />
               <Route path="/portfolio/airdrops" element={<PortfolioAirdropsRoute />} />
               <Route path="/portfolio/settlement/:settlementId" element={<SettlementDetailRoute />} />
+              <Route path="/portfolio/quick-play/:sessionKey" element={<QuickPlaySessionRoute />} />
               <Route path="/wallet" element={<Wallet />} />
               <Route path="/deposit" element={<Deposit />} />
               <Route path="/withdraw" element={<Withdraw />} />
