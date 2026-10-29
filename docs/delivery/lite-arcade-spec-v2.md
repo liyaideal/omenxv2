@@ -92,6 +92,7 @@ v1 是"一局 30 秒，大家一起等开奖"。CPO 看了研发稿之后改成�
 | 损失熔断恢复 | 自动按 UTC 日重置，未做人工确认 |
 | Portfolio / 钱包流水 | 合约只进 `arcade_calls`（机柜 LAST SETTLED / LAST 10）；钱包 transactions 有 fee / profit / loss / commission 行；**CPO 10-28 定：Portfolio 加一个 Quick Play 页签放完整记录（下一轮做）**，机柜右栏的 `All settled calls → Portfolio` 已指向 `/portfolio` |
 | 入口横幅 | Events All 页横幅 10-28 换成入口比稿方案 C「像素夜景」（`src/components/lite/arcade/ArcadeEntryBanner.tsx` + `arcade-entry.css`）：读同一条指数；右侧 TIME 是桌子的 30 秒墙钟格，不是局；指数无效显示 INDEX INVALID，不出假数字 |
+| 演示行情改模拟（10-29） | CPO 拍板不升级数据库、Lovable 只保手感：真三所取价任务下线，改 `arcade_sim_feed` 每 2 秒生成一条模拟 tick（上一条价格走 ~0.06% 随机步，向每分钟取一次的 Binance 真价锚靠拢，三家来源价 = 模拟价 ± 微小偏移），报价模型 / 路单 / 结算 / 匿名桌不变；浏览器直连 Binance 的展示线不变。老的 `arcade_rounds_30s` 改每分钟（`20261029170000_arcade_sim_feed.sql`）。**真平台照研发稿接真行情，这套只是演示** |
 | 数据库负载（10-29） | Lovable 报 high load：小实例 CPU 被常驻后台工作占满（每秒取价任务 = 每秒 4 个 HTTP 请求 + 4 条应答 + 5 条 cron 记账；10-28 加的探针每 3 秒查 pg_stat_activity；realtime 的 WAL 轮询；老的站内演示任务每次 10–17 s）。已做：探针下线、取价改每 2 秒、报价有效期 / 结算取价容忍 4.5 s、指数过期 6 s（`20261029163000_arcade_load.sql`）。真平台不在 Supabase 上跑行情，不适用 |
 | 演示桌永远能交易 | CPO 10-28 晚拍板：演示桌不再因行情停顿而暂停——`arcade_table_now()` 发现 tick 超过 1.5 s 没来就服务端补一条合成 tick（±0.4 bps 随机步、`src_raw.synthetic=true`）并结算到期合约；熔断 / 亏损上限 / 全桌上限参数拨到够不着（`20261028213000_arcade_always_on.sql`）。暂停态只在 style-guide AR-3 看。**真平台不走这条**：按研发稿自己的行情与风控 |
 | 演示引擎停顿（续） | 10-28 晚再测：没有后台查询时也会停（12:53:21 UTC 一次 ~50 s，紧跟在一串下单之后；期间 pg_cron 把那次运行记成 running 但后端连接是空闲的），停顿中到期的合约按 void 退款。已加 `arcade_stall_probe`（每 3 秒，只在 tick 超过 4 秒没来时把 pg_stat_activity / 未授予的锁写进 `arcade_probe`），明天看记录定位 |
