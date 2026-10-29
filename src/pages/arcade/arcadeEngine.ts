@@ -251,6 +251,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     basis: 0,
     /** where the basis is heading — eased in the frame loop so a 2 s index step glides instead of stair-stepping */
     basisT: 0,
+    /** latest Binance mid seen over the WebSocket (what the live line is drawn from) */
+    wsMid: 0,
     histInfo: [] as RoadSlotInfo[],
     /** a tapped road cell holds THIS SLOT until this time (perf ms) */
     peekUntil: 0,
@@ -1611,8 +1613,12 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       if (S.px.length > 200) S.px.shift();
       S.lastPx = S.price;
       S.price = tk.idx;
-      if (tk.binance != null) {
-        S.basisT = tk.idx - tk.binance; // index − Binance mid: shifts the live line onto the index
+      // index − Binance mid: shifts the live line onto the index. Measured against the
+      // mid THIS browser is plotting, not the server's binance field — on the demo
+      // table that field is simulated and the line drifted away from the index (QA 2026-10-29).
+      const mid = S.wsMid || tk.binance;
+      if (mid != null) {
+        S.basisT = tk.idx - mid;
         if (!S.basis) S.basis = S.basisT;
       }
       if (!S.disp || FX) S.disp = tk.idx;
@@ -2341,6 +2347,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         const mid = (+d.b + +d.a) / 2;
         if (!mid) return;
         wsAlive = perf();
+        S.wsMid = mid;
         const p = mid + S.basis,
           t = now();
         S.liveP = p;
@@ -2464,6 +2471,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         eqEls().forEach((e) => (e.textContent = money(S.bal)));
       }
     },
+    /** QA peek at the price seams (index vs the drawn line); not used by the page */
+    debug: () => ({ index: S.price, line: S.liveP, basis: S.basis, basisTarget: S.basisT, binanceMid: S.wsMid, tickAgeMs: S.tick ? now() - ms(S.tick.ts) : null }),
     setUser() {
       renderAuth();
       if (api.userId && !FX) {
