@@ -244,6 +244,36 @@ export function roadCells(rows: RoadSlot[], slots: number, nowMs: number): RoadC
   return cells;
 }
 
+/** What each road cell stands for — same walk as roadCells(), so index i matches. */
+export interface RoadSlotInfo {
+  /** slot start, ms */
+  t: number;
+  open: number | null;
+  close: number | null;
+  /** true when the slot had no data and repeats the previous colour */
+  carried: boolean;
+}
+export function roadSlotInfo(rows: RoadSlot[], slots: number, nowMs: number): RoadSlotInfo[] {
+  const SLOT = 30000;
+  const cur = Math.floor(nowMs / SLOT) * SLOT;
+  const first = cur - slots * SLOT;
+  const by = new Map<number, RoadSlot>();
+  rows.forEach((r) => by.set(new Date(r.slot_start).getTime(), r));
+  const out: RoadSlotInfo[] = [];
+  let seen = false;
+  for (let i = 0; i < slots; i++) {
+    const t = first + i * SLOT;
+    const r = by.get(t);
+    if (!r) {
+      if (seen) out.push({ t, open: null, close: null, carried: true });
+      continue;
+    }
+    seen = true;
+    out.push({ t, open: r.open_idx, close: r.close_idx, carried: false });
+  }
+  return out;
+}
+
 /* ---------- Quick Play sessions (CPO 2026-10-29) ----------
  * One sitting = a session; it ends after 30 minutes without a call
  * (src/lib/arcade/session.ts). Both RPCs group the user's own calls on the

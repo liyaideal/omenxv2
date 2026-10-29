@@ -55,6 +55,8 @@ import {
   type RoadSlot,
 } from "@/lib/arcade/arcadeCalls";
 import { ARCADE_SESSION_GAP_MS, ARCADE_SESSION_NEW, ARCADE_SESSION_NOTE } from "@/lib/arcade/session";
+import { roadSlotInfo, type RoadSlotInfo } from "@/lib/arcade/arcadeCalls";
+import { spriteUrls } from "@/lib/arcade/sprites";
 
 export type Side = "u" | "d";
 
@@ -247,6 +249,13 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     live: [] as { t: number; p: number }[],
     liveP: 0,
     basis: 0,
+    /** where the basis is heading — eased in the frame loop so a 2 s index step glides instead of stair-stepping */
+    basisT: 0,
+    histInfo: [] as RoadSlotInfo[],
+    /** a tapped road cell holds THIS SLOT until this time (perf ms) */
+    peekUntil: 0,
+    /** polls in a row that saw no accepted notice — the gate waits for two (the first after sign-in can race the token) */
+    noAck: 0,
     bal: api.getBalance(),
     chip: 5,
     calls: [] as Call[],
@@ -415,7 +424,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     clearTimeout(toastT);
     toastT = setTimeout(() => (t.hidden = true), 2200);
   }
-  const eqEls = () => $$("#equity");
+  // signed out there is no balance to paint — the strip shows a dash (renderAuth)
+  const eqEls = () => (api.userId ? $$("#equity") : []);
   function bumpEq() {
     eqEls().forEach((e) => {
       e.textContent = money(S.bal);
@@ -439,6 +449,20 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   const SLOT = 30000;
   function rebuildRoad() {
     S.hist = roadCells(S.roadRows, 120, now());
+    S.histInfo = roadSlotInfo(S.roadRows, 120, now());
+  }
+  const clockOf = (t: number) => {
+    const d = new Date(t);
+    return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}`;
+  };
+  /** "12:34:00 · ▲ +$39.46 · $80,101.44 → $80,140.90" — what one road cell was */
+  function slotText(i: number): string {
+    const info: RoadSlotInfo | undefined = S.histInfo[i];
+    const cell = S.hist[i];
+    if (!info) return "";
+    if (info.carried || info.open == null || info.close == null) return `${clockOf(info.t)} · no index print · colour carried over`;
+    const d = info.close - info.open;
+    return `${clockOf(info.t)} · ${cell === "u" ? "▲ +" : "▼ −"}$${Math.abs(d).toFixed(2)} · ${money(info.open)} → ${money(info.close)}`;
   }
   function buildRoad(h: RoadCell[]) {
     const cells: any[] = [],
@@ -477,7 +501,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       const b = $("#" + pre + "bead");
       if (!b) continue;
       const from = Math.max(0, Math.ceil((n + 1) / 6) - 6) * 6;
-      b.innerHTML = hist.slice(from).map((x, i) => `<span class="bead ${x}${newest && from + i === n - 1 ? " pop" : ""}"></span>`).join("") + '<span class="bead ghost"></span>';
+      b.innerHTML = hist.slice(from).map((x, i) => `<span class="bead ${x}${newest && from + i === n - 1 ? " pop" : ""}" data-i="${from + i}" title="${slotText(from + i)}"></span>`).join("") + '<span class="bead ghost"></span>';
       $("#" + pre + "beadN").textContent = String(n - from);
       const rd = $("#" + pre + "road"),
         { cells, cols } = buildRoad(hist);
@@ -485,7 +509,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         first = Math.max(0, cols - fit);
       rd.innerHTML = cells
         .filter((q) => q.c >= first)
-        .map((q) => `<span class="cell ${q.s}${newest && q.i === n - 1 ? " pop" : ""}" style="grid-column:${q.c - first + 1};grid-row:${q.r + 1}"></span>`)
+        .map((q) => `<span class="cell ${q.s}${newest && q.i === n - 1 ? " pop" : ""}" data-i="${q.i}" title="${slotText(q.i)}" style="grid-column:${q.c - first + 1};grid-row:${q.r + 1}"></span>`)
         .join("");
       const nu = hist.filter((x) => x === "u").length;
       $("#" + pre + "nUp").textContent = String(nu);
@@ -517,6 +541,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       const first = S.px.find((x: any) => x.t >= cur);
       S.slotOpen = first ? first.p : S.price; // first index of the slot
     }
+    if (S.peekUntil > perf()) return;
     for (const pre of ["", "m_"]) {
       const e = $("#" + pre + "slotLbl");
       if (e) e.textContent = "THIS SLOT · " + (S.slotOpen != null && S.price ? (S.price >= S.slotOpen ? "▲ +" : "▼ −") + Math.abs(S.price - S.slotOpen).toFixed(2) + " · " : "") + Math.max(0, Math.ceil((cur + SLOT - w) / 1000)) + "s";
@@ -1585,7 +1610,10 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       if (S.px.length > 200) S.px.shift();
       S.lastPx = S.price;
       S.price = tk.idx;
-      if (tk.binance != null) S.basis = tk.idx - tk.binance; // index − Binance mid: shifts the live line onto the index
+      if (tk.binance != null) {
+        S.basisT = tk.idx - tk.binance; // index − Binance mid: shifts the live line onto the index
+        if (!S.basis) S.basis = S.basisT;
+      }
       if (!S.disp || FX) S.disp = tk.idx;
       if (tk.p_up != null) {
         S.pUp = tk.p_up;
@@ -1622,7 +1650,15 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       if (api.userId) {
         S.ack = d.ack;
         S.ackKnown = true;
-        if (!S.ack) openGate(true);
+        if (!S.ack) {
+          // right after sign-in the first poll can go out before the session
+          // token is attached and come back without the notice — ask twice
+          S.noAck += 1;
+          if (S.noAck >= 2) openGate(true);
+        } else {
+          S.noAck = 0;
+          if (gate && !gate.hidden) openGate(false);
+        }
       }
       renderPrice();
     } catch (e) {
@@ -1678,13 +1714,21 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       api.requireAuth();
       return;
     }
+    const go = $("#gateGo") as HTMLButtonElement;
+    const label = go.textContent;
+    go.disabled = true;
+    go.textContent = "SAVING…";
     try {
       S.ack = await data.acceptTerms();
+      S.noAck = 0;
       openGate(false);
-      const c = center($("#gateGo"));
+      const c = center(go);
       burst(c.x, c.y, C.dn, 24);
     } catch (e: any) {
-      toast(String(e?.message || "Could not save that"), true);
+      toast(String(e?.message || "Could not save that · try again"), true);
+    } finally {
+      go.disabled = false;
+      go.textContent = label;
     }
   });
   const openRules = (e?: Event) => {
@@ -1698,16 +1742,43 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   on(rules, "click", (e: any) => {
     if (e.target === rules) rules.hidden = true;
   });
+  // The note lives outside the steel plates: the plates clip their corners with
+  // clip-path, which also clipped the note (QA 2026-10-29). It is placed under
+  // the ⓘ that opened it, fixed to the viewport.
+  $$(".howto").forEach((ht) => root.appendChild(ht));
   on(root, "click", (e: any) => {
     const info = e.target.closest("#roadI,#m_roadI");
     if (info) {
       const ht = $(info.id === "roadI" ? "#howto" : "#m_howto");
-      ht.hidden = !ht.hidden;
+      if (!ht) return;
+      const open = ht.hidden;
+      $$(".howto").forEach((h) => (h.hidden = true));
+      if (open) {
+        const r = info.getBoundingClientRect();
+        const w = Math.min(520, window.innerWidth - 24);
+        ht.style.width = w + "px";
+        ht.style.left = Math.max(12, Math.min(window.innerWidth - w - 12, r.left - 12)) + "px";
+        ht.hidden = false;
+        // below the ⓘ when there is room, else above it, never off the bottom
+        const h = ht.offsetHeight;
+        ht.style.top = (r.bottom + 8 + h <= window.innerHeight - 12 ? r.bottom + 8 : Math.max(12, r.top - 8 - h)) + "px";
+      }
       return;
     }
     $$(".howto").forEach((ht) => {
       if (!ht.hidden && !e.target.closest(".howto")) ht.hidden = true;
     });
+    const cell = e.target.closest(".road .cell[data-i], .beads .bead[data-i]");
+    if (cell) {
+      // a tapped cell tells what that 30-second slot did, for a few seconds
+      const i = Number(cell.dataset.i);
+      $$(".cell.sel, .bead.sel").forEach((c) => c.classList.remove("sel"));
+      $$(`.cell[data-i="${i}"], .bead[data-i="${i}"]`).forEach((c) => c.classList.add("sel"));
+      const txt = slotText(i);
+      S.peekUntil = perf() + 4000;
+      $$("#slotLbl,#m_slotLbl").forEach((l) => (l.textContent = txt));
+      setTimeout(() => $$(".cell.sel, .bead.sel").forEach((c) => c.classList.remove("sel")), 4000);
+    }
   });
 
   /* ---------- wiring ---------- */
@@ -1761,8 +1832,26 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   on($("#depBtn"), "click", () => {
     audio();
     sfx.key();
+    if (!api.userId) {
+      api.requireAuth();
+      return;
+    }
     api.deposit();
   });
+  /** Signed out, the money strip is not an empty account: no balance, no Deposit / Transfer, one Sign in key. */
+  function renderAuth() {
+    const out = !api.userId;
+    const dep = $("#depBtn") as HTMLButtonElement | null;
+    if (dep) {
+      dep.classList.toggle("signin", out);
+      dep.textContent = out ? (api.isMobile ? "SIGN IN" : "→ Sign in") : api.isMobile ? "+" : "+ Deposit";
+      dep.title = out ? "Sign in to play" : api.isMobile ? "Deposit" : "Buy USDC with card or deposit on Base";
+    }
+    const x = $("#xferBtn");
+    if (x) x.hidden = out;
+    $$("#equity").forEach((e) => (e.textContent = out ? "—" : money(S.bal)));
+  }
+  renderAuth();
   on($("#xferBtn"), "click", () => {
     audio();
     sfx.key();
@@ -1871,6 +1960,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     const G: any = { on: false, rocks: [] as any[], t0: 0, score: 0, hi: 0, dead: false, jumpUntil: 0, next: 0 };
     if (!el) return { react: (_k: string) => {}, readRoad: () => {}, gameStart: () => {}, gameStop: () => {}, gameTick: (_t: number, _c: any, _w: number, _h: number) => {}, G };
     const V = ["/arcade/lynx0.png", "/arcade/lynx1.png", "/arcade/lynx2.png", "/arcade/lynx3.png"];
+    void spriteUrls(V).then((u) => u.forEach((x, i) => (V[i] = x)));
     let x = 60,
       tx = 60,
       dir = -1,
@@ -2292,6 +2382,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     const dt = Math.min(100, tf - lastF);
     lastF = tf;
     if (!FX) {
+      if (S.basisT !== S.basis) S.basis += (S.basisT - S.basis) * Math.min(1, dt / 700);
       const target = liveOn() ? S.liveP : S.price;
       if (target) S.disp += (target - S.disp) * Math.min(1, dt / (liveOn() ? 120 : 420)); // ease the head toward the latest print
     }
@@ -2306,7 +2397,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   }, 250);
   every(() => void poll(), 1000);
   every(() => void pollFeed(), 2500);
-  every(() => void reconcile(), 6000);
+  every(() => void reconcile(), 15000);
   every(() => renderRoads(), 30000);
   const ro = new ResizeObserver(() => renderRoads());
   const roadEl = $("#road");
@@ -2366,14 +2457,17 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   /* ---------- public setters (React → engine) ---------- */
   (root as any).__arcade = {
     setBalance(v: number) {
+      if (!api.userId) return;
       if (Math.abs(v - S.bal) > 0.005 && !S.calls.some((c: Call) => c.status === "pending")) {
         S.bal = v;
         eqEls().forEach((e) => (e.textContent = money(S.bal)));
       }
     },
     setUser() {
+      renderAuth();
       if (api.userId && !FX) {
         S.ackKnown = false;
+        S.noAck = 0;
         void boot();
       }
     },

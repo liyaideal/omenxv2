@@ -11,6 +11,7 @@
 // v2 product: no rounds — every chip is its own 30-second call. The clock on
 // the right is the table's wall-clock 30 s slot (the road's cells), not a round.
 // ============================================================
+import { spriteUrls } from "@/lib/arcade/sprites";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchTableNow, fetchTicks, type ArcadeTick } from "@/lib/arcade/arcadeCalls";
@@ -285,6 +286,11 @@ const Chart = ({ pts, open, live }: { pts: number[]; open: number; live: boolean
 
 /* ---------- the lynx on the pavement: idle breathe · look · walk (dust) · hop · sit; now and then walks somewhere, hops and pops a coin ---------- */
 const SPR = { lynx0: "/arcade/lynx0.png", lynx1: "/arcade/lynx1.png", lynx2: "/arcade/lynx2.png", lynx3: "/arcade/lynx3.png", coin0: "/arcade/coin0.png", coin1: "/arcade/coin1.png" };
+// frames become blob URLs once fetched, so swapping src never hits the network again
+if (typeof window !== "undefined") {
+  const keys = Object.keys(SPR) as (keyof typeof SPR)[];
+  void spriteUrls(keys.map((k) => SPR[k])).then((u) => u.forEach((x, i) => (SPR[keys[i]] = x)));
+}
 type Act = { k: "idle" | "walk" | "look" | "hop" | "sit"; d: number; t: number; to?: number; then?: () => void; n?: number; h?: number; f?: number };
 const Stage = ({ mobile, zone }: { mobile: boolean; zone: [number, number] }) => {
   const ref = useRef<HTMLDivElement>(null);

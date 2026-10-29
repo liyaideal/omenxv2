@@ -156,6 +156,29 @@ export const Ar4Preview = () => <Cabinet mobile fixture={base()} width={375} hei
 /* ---------- AR-5 mobile · live with calls ---------- */
 export const Ar5Preview = () => <Cabinet mobile fixture={FX_LIVE} width={375} height={760} />;
 
+/* ---------- AR-6 · signed out, desktop + mobile: no balance, no Deposit / Transfer, one Sign in key ---------- */
+const Guest = ({ mobile, width, height }: { mobile?: boolean; width: number; height: number }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+    ensureArcadeFonts();
+    root.innerHTML = ARCADE_OVERLAYS + (mobile ? ARCADE_MOBILE : ARCADE_DESKTOP);
+    const un = mountArcade(root, stubApi({ isMobile: !!mobile, userId: null }), { fixture: base() });
+    return () => {
+      un();
+      root.innerHTML = "";
+    };
+  }, [mobile]);
+  return (
+    <div className="relative overflow-hidden" style={{ width, height }}>
+      <div ref={ref} className={`arcade-root${mobile ? " is-m" : ""}`} style={mobile ? ({ "--arcade-top": "0px", height } as React.CSSProperties) : { transform: "scale(.72)", transformOrigin: "0 0", width: 1440 }} />
+    </div>
+  );
+};
+export const Ar6Preview = () => <Guest width={1040} height={700} />;
+export const Ar6MobilePreview = () => <Guest mobile width={375} height={760} />;
+
 /* ---------- AB-1 / AB-2 entry banner, desktop + mobile (same index readout as the cabinet) ---------- */
 const BANNER_TICK: ArcadeBannerFixture = { live: true, price: ticksFx[ticksFx.length - 1].idx!, open: ticksFx[ticksFx.length - 31].idx!, up: 51.2, pts: ticksFx.slice(-45).map((t) => t.idx!) };
 const BANNER_OPENING: ArcadeBannerFixture = { live: false, price: 0, open: 0, up: 50, pts: [] };

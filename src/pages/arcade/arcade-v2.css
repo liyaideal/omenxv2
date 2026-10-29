@@ -385,3 +385,18 @@
   .arcade-root .v2m .chip{height:34px;font-size:18px}
   .arcade-root .v2m .sb{height:44px}
 }
+
+/* ---- QA 2026-10-29 ---- */
+/* the road note sits outside the clipped plates, under the ⓘ that opened it */
+.arcade-root > .howto{position:fixed;left:12px;top:120px;z-index:60;width:520px;max-width:calc(100vw - 24px);background:#0b1116;border:2px solid var(--lime);padding:10px 12px;display:flex;flex-direction:column;gap:6px;font:500 12px/1.4 var(--f-ui);color:#dfe6ee;box-shadow:0 10px 30px rgba(0,0,0,.6)}
+.arcade-root > .howto b{font:400 18px/1 var(--f-pix);color:var(--lime);letter-spacing:1px}
+.arcade-root > .howto .k{font-style:normal;color:#fff;font-weight:700;margin-right:6px}
+.arcade-root > .howto .n{color:var(--mute);border-top:1px dashed #1c2a33;padding-top:6px}
+/* road cells answer a tap: the tapped slot lights up while THIS SLOT shows what it did */
+:is(.arcade-root .v2,.arcade-root .v2m) .road .cell[data-i],:is(.arcade-root .v2,.arcade-root .v2m) .beads .bead[data-i]{cursor:pointer}
+:is(.arcade-root .v2,.arcade-root .v2m) .cell.sel,:is(.arcade-root .v2,.arcade-root .v2m) .bead.sel{outline:2px solid #fff;outline-offset:1px;box-shadow:0 0 8px #fff}
+/* signed out: the money key becomes Sign in */
+.arcade-root .v2 .key.hk.dep.signin{min-width:96px}
+.arcade-root .v2m .key.mkey.dep.signin{font-size:12px;padding:0 10px;width:auto;letter-spacing:.5px}
+/* MY CALLS rows: let the first line wrap instead of cutting "wins +$4.49" short in a 280px rail */
+:is(.arcade-root .v2,.arcade-root .v2m) .rail .row .mid b{white-space:normal;line-height:1.15;overflow:visible;text-overflow:clip}

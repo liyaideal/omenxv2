@@ -74,6 +74,21 @@ const MOBILE: SectionCase[] = [
   },
 ];
 
+const GUEST: SectionCase[] = [
+  {
+    key: "arcade-ar6",
+    label: "AR-6 · 未登录进机柜（桌面 / 移动）· 路单可点 · ⓘ 说明",
+    note: "未登录不是一个空账户：`AVAILABLE · SPOT` 显示 `—`，Deposit / Transfer 两键换成一枚 `→ Sign in`（移动端 `SIGN IN`），点它和点 UP / DOWN 一样弹登录；登录后头条按正常态重画（QA 2026-10-29）。同一轮修的：路单每格可点 / 悬停，`How to read the road` 说明不再被钢板裁掉。",
+    spec: [
+      { state: "未登录头条", when: "!api.userId", visual: "`AVAILABLE · SPOT —`；键区只剩 `→ Sign in`（黄绿）+ Rules；移动端顶栏 `SIGN IN` + RULES", source: "renderAuth()" },
+      { state: "点 UP / DOWN / Sign in", when: "!api.userId", visual: "站内登录弹窗；登录成功后头条换回余额与三键，并开始拉自己的合约", source: "api.requireAuth / setUser" },
+      { state: "免责门", when: "登录后前两次轮询都没有接受记录", visual: "才弹 `BEFORE YOU PLAY`；第一次轮询可能还没带上登录态，不算（之前登录后会误弹一次）；接受记录一到，门自动关；`I GET IT` 点下去变 `SAVING…` 直到服务端回话", source: "poll / gateGo" },
+      { state: "路单格子", when: "tap / hover 珠盘或大路的任一格", visual: "格子亮白边 4 秒，`THIS SLOT` 位置改显示那 30 秒做了什么：`12:34:00 · ▲ +$39.46 · $80,101.44 → $80,140.90`；没有行情的格子写 `no index print · colour carried over`；桌面悬停也出同一句 tooltip", source: "slotText / roadSlotInfo" },
+      { state: "ⓘ 说明", when: "点 ⓘ", visual: "说明框贴在 ⓘ 下方（放不下就在上方），浮在所有钢板之上，宽 520（手机 = 屏宽 − 24）；点别处关", source: "howto 挂在 .arcade-root 下、position: fixed" },
+    ],
+  },
+];
+
 const SHARE: SectionCase[] = [
   {
     key: "arcade-as1",
@@ -124,7 +139,7 @@ const Mob = ({ cases, min }: { cases: SectionCase[]; min: number }) => (
 export const ArcadeStatesSection = () => (
   <SectionWrapper
     id="arcade-states"
-    title="/arcade · Quick Play v2（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-5 · AB-1 / AB-2 · AS-1）"
+    title="/arcade · Quick Play v2（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-6 · AB-1 / AB-2 · AS-1）"
     description="2026-10-27 / 10-28 CPO 拍板（研发稿 v1.0 + 修订）：先只上 BTC；没有「局」，每一枚筹码就是一张自己的 30 秒合约；价格 = Binance / Hyperliquid / Coinbase 三所中间价中位数（pg_cron + pg_net 每秒采样，真价）；报价 = 研发稿模型 0.40–0.60 三位小数；3% 开仓费含在筹码里、2 秒内可取消（0.15%）、不可平仓、盈利扣 5% 佣金、平局全退；$5–100 一注、单账户未到期 ≤ $500、全桌最坏损失 ≤ $10,000；指数无效 / 熔断 / 亏损触顶 / 满额暂停新单。交互按 mock v26（claude.ai/artifact/6AmwMxsb3aNDUgVDZ8epWJ）复刻在设计师钢板壳上。ETH / SOL / 美股桌隐藏。文案英文占位。"
   >
     <div className="rounded-lg border border-[#FF8A3D]/30 bg-[#FF8A3D]/5 px-3 py-2 text-[12px] text-foreground">
@@ -136,6 +151,10 @@ export const ArcadeStatesSection = () => (
     </SubSection>
     <SubSection title="移动版（AR-4 / AR-5）">
       <Mob cases={MOBILE} min={780} />
+    </SubSection>
+    <SubSection title="未登录 / 路单可点（AR-6）">
+      <Desk cases={GUEST} min={700} />
+      <Mob cases={[{ ...GUEST[0], key: "arcade-ar6-mobile", label: `${GUEST[0].label}（移动）` }]} min={780} />
     </SubSection>
     <SubSection title="入口横幅（AB-1 / AB-2）">
       <Desk cases={[BANNER[0]]} min={280} />
