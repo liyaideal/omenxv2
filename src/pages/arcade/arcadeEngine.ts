@@ -1249,8 +1249,11 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     const keys = Object.keys(groups)
       .map(Number)
       .sort((a, b) => a - b);
-    ctx.fillStyle = "rgba(5,10,14,.55)";
-    ctx.fillRect(0, 0, W, 34);
+    // the lane only shows its dark bed when a flag is in view — idle, the chart stays one piece (CPO 2026-10-30)
+    if (keys.some((k) => { const x = g.x(groups[k][0].t1); return x >= -30 && x <= W + 4; })) {
+      ctx.fillStyle = "rgba(5,10,14,.55)";
+      ctx.fillRect(0, 0, W, 34);
+    }
     keys.forEach((k, ki) => {
       const cs = groups[k],
         c = cs[0];

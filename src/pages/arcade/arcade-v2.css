@@ -293,8 +293,8 @@
    ============================================================ */
 .arcade-root .v2m{min-height:100dvh;display:flex;flex-direction:column}
 .arcade-root .v2m .m-shell{flex:1;display:flex;flex-direction:column;gap:6px;padding:8px;min-height:0}
-.arcade-root .v2m .m-top{display:grid;grid-template-columns:78px minmax(0,1fr) 44px 60px 44px;gap:6px;height:44px;align-items:stretch}
-.arcade-root .v2m .m-top .logoplate{height:auto;padding:0 6px}
+.arcade-root .v2m .m-top{display:grid;grid-template-columns:92px minmax(0,1fr) 40px 56px 40px;gap:6px;height:44px;align-items:stretch}
+.arcade-root .v2m .m-top .logoplate{height:auto;padding:0 10px}
 .arcade-root .v2m .m-top .logoplate svg{width:66px;height:auto}
 .arcade-root .v2m .eqscr{display:flex;flex-direction:column;justify-content:center;gap:2px;padding:0 10px;height:auto}
 .arcade-root .v2m .m-top .eqscr .lbl{font-size:10px;white-space:nowrap;letter-spacing:1px}
