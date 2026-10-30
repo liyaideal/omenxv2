@@ -325,10 +325,10 @@
 .arcade-root .v2m .price{font-size:30px;margin-top:0}
 .arcade-root .v2m .feed .feed-head .chg{font:500 11px/1 var(--f-ui);color:var(--mute);margin-top:3px}
 .arcade-root .v2m .feed .chg.up{color:var(--up)}.arcade-root .v2m .feed .chg.dn{color:var(--lime)}
-.arcade-root .v2m .calls{height:56px;padding:4px 8px;display:flex;align-items:center;gap:8px;overflow:hidden;flex:none}
+.arcade-root .v2m .calls{height:58px;padding:4px 8px;display:flex;align-items:center;gap:8px;overflow:hidden;flex:none}
 .arcade-root .v2m .calls .lbl{font-size:9px;flex:none;width:52px;line-height:1.3}
 .arcade-root .v2m .calls .hint{font:500 11px/1.3 var(--f-ui);color:var(--dim);flex:1;text-align:center}
-.arcade-root .v2m .calls .strip{display:flex;gap:6px;flex:1;min-width:0;overflow:hidden;align-items:center}
+.arcade-root .v2m .calls .strip{display:flex;gap:8px;flex:1;min-width:0;height:48px;overflow:hidden;align-items:center;padding-right:4px}
 .arcade-root .v2m .mc{position:relative;width:38px;height:38px;flex:none;display:grid;place-items:center}
 .arcade-root .v2m .mc svg{position:absolute;inset:0}
 .arcade-root .v2m .mc .mchip{width:26px;height:26px;font-size:8px}
