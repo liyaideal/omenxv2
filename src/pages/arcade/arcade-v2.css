@@ -397,7 +397,8 @@
 :is(.arcade-root .v2,.arcade-root .v2m) .cell.sel,:is(.arcade-root .v2,.arcade-root .v2m) .bead.sel{outline:2px solid #fff;outline-offset:1px;box-shadow:0 0 8px #fff}
 /* signed out: the money key becomes Sign in */
 .arcade-root .v2 .key.hk.dep.signin{min-width:96px}
-.arcade-root .v2m .key.mkey.dep.signin{font-size:12px;padding:0 10px;width:auto;letter-spacing:.5px}
+.arcade-root .v2m .key.mkey.dep.signin{font-size:12px;padding:0 10px;width:auto;letter-spacing:.5px;white-space:nowrap}
+.arcade-root .v2m .m-top.guest{grid-template-columns:92px minmax(0,1fr) auto 56px 40px}
 /* MY CALLS rows: let the first line wrap instead of cutting "wins +$4.49" short in a 280px rail */
 :is(.arcade-root .v2,.arcade-root .v2m) .rail .row .mid b{white-space:normal;line-height:1.15;overflow:visible;text-overflow:clip}
 

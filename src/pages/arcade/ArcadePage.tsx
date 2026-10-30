@@ -18,6 +18,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AuthDialog } from "@/components/auth/AuthDialog";
+import { AuthSheet } from "@/components/auth/AuthSheet";
 import { ensureArcadeFonts } from "@/lib/arcade/arcadeFonts";
 import { ARCADE_DESKTOP, ARCADE_MOBILE, ARCADE_OVERLAYS } from "./arcadeMarkup";
 import { mountArcade, type ArcadeApi, type ArcadeRunShare } from "./arcadeEngine";
@@ -106,7 +107,8 @@ const ArcadePage = () => {
   return (
     <div className="min-h-screen bg-black">
       <div ref={rootRef} className={`arcade-root${isMobile ? " is-m" : ""}`} style={isMobile ? ({ "--arcade-top": "0px" } as React.CSSProperties) : undefined} />
-      <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
+      {/* phones get the site's bottom-sheet sign-in, desktop the dialog (QA 2026-10-30) */}
+      {isMobile ? <AuthSheet open={authOpen} onOpenChange={setAuthOpen} /> : <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />}
       <ArcadeShareCard run={shareRun} onClose={() => setShareRun(null)} />
       {!isMobile && (
         <>

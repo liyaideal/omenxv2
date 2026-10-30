@@ -81,7 +81,7 @@ const GUEST: SectionCase[] = [
     note: "未登录不是一个空账户：`AVAILABLE · SPOT` 显示 `—`，Deposit / Transfer 两键换成一枚 `→ Sign in`（移动端 `SIGN IN`），点它和点 UP / DOWN 一样弹登录；登录后头条按正常态重画（QA 2026-10-29）。同一轮修的：路单每格可点 / 悬停，`How to read the road` 说明不再被钢板裁掉。",
     spec: [
       { state: "未登录头条", when: "!api.userId", visual: "`AVAILABLE · SPOT —`；键区只剩 `→ Sign in`（黄绿）+ Rules；移动端顶栏 `SIGN IN` + RULES", source: "renderAuth()" },
-      { state: "点 UP / DOWN / Sign in", when: "!api.userId", visual: "站内登录弹窗；登录成功后头条换回余额与三键，并开始拉自己的合约", source: "api.requireAuth / setUser" },
+      { state: "点 UP / DOWN / Sign in", when: "!api.userId", visual: "桌面站内登录弹窗 / 手机站内底部抽屉（AuthSheet）；登录成功后头条换回余额与三键，并开始拉自己的合约", source: "api.requireAuth / setUser" },
       { state: "免责门", when: "登录后前两次轮询都没有接受记录", visual: "才弹 `BEFORE YOU PLAY`；第一次轮询可能还没带上登录态，不算（之前登录后会误弹一次）；接受记录一到，门自动关；`I GET IT` 点下去变 `SAVING…` 直到服务端回话", source: "poll / gateGo" },
       { state: "路单格子", when: "tap / hover 珠盘或大路的任一格", visual: "格子亮白边 4 秒，`THIS SLOT` 位置改显示那 30 秒做了什么：`12:34:00 · ▲ +$39.46 · $80,101.44 → $80,140.90`；没有行情的格子写 `no index print · colour carried over`；桌面悬停也出同一句 tooltip", source: "slotText / roadSlotInfo" },
       { state: "ⓘ 说明", when: "点 ⓘ", visual: "说明框贴在 ⓘ 下方（放不下就在上方），浮在所有钢板之上，宽 520（手机 = 屏宽 − 24）；点别处关", source: "howto 挂在 .arcade-root 下、position: fixed" },
