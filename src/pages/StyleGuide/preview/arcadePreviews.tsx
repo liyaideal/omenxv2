@@ -112,7 +112,7 @@ const stubApi = (over: Partial<ArcadeApi> = {}): ArcadeApi => ({
   ...over,
 });
 
-const Cabinet = ({ mobile, fixture, width, height }: { mobile?: boolean; fixture: ArcadeFixture; width: number; height: number }) => {
+const Cabinet = ({ mobile, fixture, width, height, after }: { mobile?: boolean; fixture: ArcadeFixture; width: number; height: number; /** runs once the engine is up — clicks the production controls to show an opened state */ after?: (root: HTMLElement) => void }) => {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const root = ref.current;
@@ -120,11 +120,13 @@ const Cabinet = ({ mobile, fixture, width, height }: { mobile?: boolean; fixture
     ensureArcadeFonts();
     root.innerHTML = ARCADE_OVERLAYS + (mobile ? ARCADE_MOBILE : ARCADE_DESKTOP);
     const un = mountArcade(root, stubApi({ isMobile: !!mobile }), { fixture });
+    const t = after ? setTimeout(() => after(root), 250) : 0;
     return () => {
+      clearTimeout(t);
       un();
       root.innerHTML = "";
     };
-  }, [mobile, fixture]);
+  }, [mobile, fixture, after]);
   return (
     <div className="relative overflow-hidden" style={{ width, height }}>
       <div ref={ref} className={`arcade-root${mobile ? " is-m" : ""}`} style={mobile ? ({ "--arcade-top": "0px", height } as React.CSSProperties) : { transform: "scale(.72)", transformOrigin: "0 0", width: 1440 }} />
@@ -155,6 +157,34 @@ export const Ar4Preview = () => <Cabinet mobile fixture={base()} width={375} hei
 
 /* ---------- AR-5 mobile · live with calls ---------- */
 export const Ar5Preview = () => <Cabinet mobile fixture={FX_LIVE} width={375} height={760} />;
+
+/* ---------- AR-7 desktop · nothing of mine open: TABLE tab, LAST SETTLED + Portfolio link, a cold streak ---------- */
+const FX_TABLE = base({
+  calls: [mkCall("e1", "up", 25, 0.51, NOW - 110000, "lost"), mkCall("e2", "down", 10, 0.49, NOW - 95000, "lost"), mkCall("e3", "up", 5, 0.512, NOW - 70000, "lost")],
+  session: { last: [true, true, false, false, false] },
+});
+export const Ar7Preview = () => <Cabinet fixture={FX_TABLE} width={1040} height={700} />;
+
+/* ---------- AR-8 desktop · the road note open + a tapped cell ---------- */
+// a tapped cell un-highlights after 4 s and any tap closes the note, so the frame re-taps both every 3 s
+const openNote = (root: HTMLElement) => {
+  const tap = () => {
+    (root.querySelector(".road .cell[data-i]:nth-last-child(6)") as HTMLElement | null)?.click();
+    (root.querySelector("#roadI") as HTMLElement | null)?.click();
+  };
+  tap();
+  const t = setInterval(() => (root.isConnected ? tap() : clearInterval(t)), 3000);
+};
+export const Ar8Preview = () => <Cabinet fixture={FX_LIVE} width={1040} height={700} after={openNote} />;
+
+/* ---------- AR-9 desktop · RULES ---------- */
+const openRules = (root: HTMLElement) => (root.querySelector("#rulesBtn") as HTMLElement | null)?.click();
+export const Ar9Preview = () => <Cabinet fixture={base()} width={1040} height={700} after={openRules} />;
+
+/* ---------- AR-10 mobile · ROAD & STATS drawer open · AR-11 mobile · the notice gate ---------- */
+const openSheet = (root: HTMLElement) => (root.querySelector("#mPeek") as HTMLElement | null)?.click();
+export const Ar10Preview = () => <Cabinet mobile fixture={FX_LIVE} width={375} height={760} after={openSheet} />;
+export const Ar11Preview = () => <Cabinet mobile fixture={FX_GATE} width={375} height={760} />;
 
 /* ---------- AR-6 · signed out, desktop + mobile: no balance, no Deposit / Transfer, one Sign in key ---------- */
 const Guest = ({ mobile, width, height }: { mobile?: boolean; width: number; height: number }) => {

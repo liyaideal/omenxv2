@@ -89,6 +89,55 @@ const GUEST: SectionCase[] = [
   },
 ];
 
+const MORE_DESK: SectionCase[] = [
+  {
+    key: "arcade-ar7",
+    label: "AR-7 · 自己没有开着的单：TABLE 页签 · 连输 HUD",
+    note: "自己没有开着的单时右栏自动切到 TABLE（别人的匿名单，带 UP / DOWN 汇总），读数框变灰基调；LAST SETTLED 和 `All settled calls → Portfolio` 只在 MY CALLS 页签下显示（点 MY CALLS 键切回去就有，AR-2 / AR-8 的帧里能看到：标题 `文字 + 横线`，链接在同一行右端，2 笔以上已结才出现）；连输 ≥ 2 → `LOST ×N` 红色 HUD。设计师 2026-10-30 版式。",
+    spec: [
+      { state: "TABLE 页签", when: "mine.length === 0 && 别人有开着的单", visual: "两枚立体键里 TABLE 亮；列表是别人的单（`$25 @ 50.6¢ · sa***ra · 2s`），上方 `UP · N $x · DOWN · N $y` 汇总", source: "renderRail · showTable" },
+      { state: "读数框", when: "TABLE 态", visual: "左边条和 `$` 变灰（`.rail:has(.tab.on[data-tab=table])`）", source: "arcade-v2.css" },
+      { state: "LAST SETTLED", when: "MY CALLS 页签 && S.done.length", visual: "`文字 + 横线` 标题，一行 28px 淡底；`All settled calls → Portfolio` 右端 10px（≥ 2 笔已结），点了去 `/portfolio?tab=settled&from=quick-play`；TABLE 页签下整块隐藏", source: "renderRail / api.portfolio" },
+      { state: "连输 HUD", when: "streakL ≥ 2", visual: "图表头 `LOST ×2` 红；×3 红闪 + `×3 LOST · take a breath`", source: "comboUpdate" },
+    ],
+  },
+  {
+    key: "arcade-ar8",
+    label: "AR-8 · 路单 ⓘ 说明打开 + 点中一格",
+    note: "ⓘ 的说明框挂在机柜最外层、贴 ⓘ 下方浮在钢板之上（放不下就上方）；点珠盘 / 大路任一格 → 白边 4 秒，`THIS SLOT` 位置显示那 30 秒做了什么。",
+    spec: [
+      { state: "说明框", when: "点 ⓘ", visual: "520px 黑底黄绿边框：Dragon / Chop / Break 三段 + 一句底注；点别处关", source: "howto · position: fixed" },
+      { state: "选中格", when: "点格子", visual: "白色 2px 外框 + 白光；`THIS SLOT` 改显示 `12:34:00 · ▲ +$39.46 · $80,101.44 → $80,140.90`，4 秒后恢复倒数", source: "slotText / peekUntil" },
+      { state: "悬停", when: "桌面 hover 格子", visual: "同一句做 tooltip", source: "cell[title]" },
+    ],
+  },
+  {
+    key: "arcade-ar9",
+    label: "AR-9 · RULES 弹层",
+    spec: [
+      { state: "RULES", when: "Rules 键 / 免责门上的链接", visual: "两列六段：1 The price · 2 Open and close · 3 The odds · 4 Payout & fees · 5 Limits & pauses · 6 Your record；✕ / 点遮罩 / Esc 关", source: "openRules" },
+    ],
+  },
+];
+
+const MORE_MOB: SectionCase[] = [
+  {
+    key: "arcade-ar10",
+    label: "AR-10 · 移动版 · ROAD & STATS 抽屉打开",
+    spec: [
+      { state: "抽屉", when: "点窥条", visual: "钢板 sheet 从底部升起：路单条（珠盘 + 大路 + 统计 + ⓘ）→ SESSION / LAST 10 / SHARE → SETTLED 列表 → 猞猁；✕ / 遮罩 / Esc 关", source: "sheetOpen" },
+      { state: "ⓘ 说明", when: "抽屉里点 ⓘ", visual: "同 AR-8，宽 = 屏宽 − 24，浮在抽屉之上", source: "howto" },
+    ],
+  },
+  {
+    key: "arcade-ar11",
+    label: "AR-11 · 移动版 · 免责门",
+    spec: [
+      { state: "免责门", when: "userId && !ack（连续两次轮询）", visual: "同 AR-1 的四行门，钢板盒按 375 宽排", source: "openGate" },
+    ],
+  },
+];
+
 const SHARE: SectionCase[] = [
   {
     key: "arcade-as1",
@@ -139,7 +188,7 @@ const Mob = ({ cases, min }: { cases: SectionCase[]; min: number }) => (
 export const ArcadeStatesSection = () => (
   <SectionWrapper
     id="arcade-states"
-    title="/arcade · Quick Play v2（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-6 · AB-1 / AB-2 · AS-1）"
+    title="/arcade · Quick Play v2（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-11 · AB-1 / AB-2 · AS-1）"
     description="2026-10-27 / 10-28 CPO 拍板（研发稿 v1.0 + 修订）：先只上 BTC；没有「局」，每一枚筹码就是一张自己的 30 秒合约；价格 = Binance / Hyperliquid / Coinbase 三所中间价中位数（pg_cron + pg_net 每秒采样，真价）；报价 = 研发稿模型 0.40–0.60 三位小数；3% 开仓费含在筹码里、2 秒内可取消（0.15%）、不可平仓、盈利扣 5% 佣金、平局全退；$5–100 一注、单账户未到期 ≤ $500、全桌最坏损失 ≤ $10,000；指数无效 / 熔断 / 亏损触顶 / 满额暂停新单。交互按 mock v26（claude.ai/artifact/6AmwMxsb3aNDUgVDZ8epWJ）复刻在设计师钢板壳上。ETH / SOL / 美股桌隐藏。文案英文占位。"
   >
     <div className="rounded-lg border border-[#FF8A3D]/30 bg-[#FF8A3D]/5 px-3 py-2 text-[12px] text-foreground">
@@ -151,6 +200,12 @@ export const ArcadeStatesSection = () => (
     </SubSection>
     <SubSection title="移动版（AR-4 / AR-5）">
       <Mob cases={MOBILE} min={780} />
+    </SubSection>
+    <SubSection title="TABLE 页签 / 说明框 / RULES（AR-7 … AR-9，桌面）">
+      <Desk cases={MORE_DESK} min={700} />
+    </SubSection>
+    <SubSection title="移动版 · 抽屉 / 免责门（AR-10 / AR-11）">
+      <Mob cases={MORE_MOB} min={780} />
     </SubSection>
     <SubSection title="未登录 / 路单可点（AR-6）">
       <Desk cases={GUEST} min={700} />
