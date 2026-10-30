@@ -129,7 +129,7 @@ const Cabinet = ({ mobile, fixture, width, height, after }: { mobile?: boolean; 
   }, [mobile, fixture, after]);
   return (
     <div className="relative overflow-hidden" style={{ width, height }}>
-      <div ref={ref} className={`arcade-root${mobile ? " is-m" : ""}`} style={mobile ? ({ "--arcade-top": "0px", height } as React.CSSProperties) : { transform: "scale(.72)", transformOrigin: "0 0", width: 1440 }} />
+      <div ref={ref} className={`arcade-root${mobile ? " is-m" : ""}`} style={mobile ? ({ "--arcade-top": "0px", height, transform: "translateZ(0)" } as React.CSSProperties) : { transform: "scale(.72)", transformOrigin: "0 0", width: 1440 }} />
     </div>
   );
 };
@@ -202,7 +202,7 @@ const Guest = ({ mobile, width, height }: { mobile?: boolean; width: number; hei
   }, [mobile]);
   return (
     <div className="relative overflow-hidden" style={{ width, height }}>
-      <div ref={ref} className={`arcade-root${mobile ? " is-m" : ""}`} style={mobile ? ({ "--arcade-top": "0px", height } as React.CSSProperties) : { transform: "scale(.72)", transformOrigin: "0 0", width: 1440 }} />
+      <div ref={ref} className={`arcade-root${mobile ? " is-m" : ""}`} style={mobile ? ({ "--arcade-top": "0px", height, transform: "translateZ(0)" } as React.CSSProperties) : { transform: "scale(.72)", transformOrigin: "0 0", width: 1440 }} />
     </div>
   );
 };
