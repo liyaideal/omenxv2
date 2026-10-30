@@ -471,3 +471,6 @@
 .arcade-root .v2 .r4 .kpi:last-child{min-height:19px}
 .arcade-root .v2 .r4 .sharekey{white-space:nowrap}
 @media (max-width:1120px){.arcade-root .cab.v2{grid-template-rows:auto auto minmax(360px,1fr) auto}.arcade-root .v2 .r1{grid-template-columns:150px minmax(0,1fr) auto;height:auto}.arcade-root .v2 .r1>.logoplate,.arcade-root .v2 .r1>.hbar{height:64px}.arcade-root .v2 .r1 .ctrlplate{grid-column:auto;grid-row:1;grid-column:3}.arcade-root .v2 .r1 .keyplate{grid-column:1/-1;grid-row:2;justify-content:flex-end;height:50px}.arcade-root .v2 .hl h1{font-size:24px}.arcade-root .v2 .rail .tabs{gap:4px}.arcade-root .v2 .rail .tab{padding:3px 5px 0;font-size:10px;letter-spacing:.5px;gap:5px}.arcade-root .v2 .rail .tab b{font-size:16px}.arcade-root .v2 .rail .head .n{min-width:54px;font-size:22px;padding:3px 7px 0}.arcade-root .v2 .chip,.arcade-root .v2 .chip sup{font-size:18px}.arcade-root .v2 .chips{gap:4px}.arcade-root .v2 .bethead b{font-size:11px;white-space:nowrap}}
+/* the v2 cabinet's bottom stage is 92px tall: the lynx is always the small cut (52×73), not only under
+   short windows — the designer's mock was viewed in one and this is the size that fits (2026-10-30) */
+.arcade-root .cockpit:has(.v2) .lynx{width:52px;height:73px}
