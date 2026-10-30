@@ -133,7 +133,7 @@ const MORE_MOB: SectionCase[] = [
     key: "arcade-ar11",
     label: "AR-11 · 移动版 · 免责门",
     spec: [
-      { state: "免责门", when: "userId && !ack（连续两次轮询）", visual: "同 AR-1 的四行门，钢板盒按 375 宽排", source: "openGate" },
+      { state: "免责门", when: "userId && !ack（连续两次轮询）", visual: "同 AR-1 的四行内容，但在手机上是**底部抽屉**（钢板从底部升起、顶部一条抓手、通栏宽），不是居中弹窗；RULES 在手机上同样是底部抽屉（2026-10-30）", source: "openGate · .is-m .gate" },
     ],
   },
 ];

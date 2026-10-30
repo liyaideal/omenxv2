@@ -475,3 +475,8 @@
 /* the v2 cabinet's bottom stage is 92px tall: the lynx is always the small cut (52×73), not only under
    short windows — the designer's mock was viewed in one and this is the size that fits (2026-10-30) */
 .arcade-root .cockpit:has(.v2) .lynx{width:52px;height:73px}
+/* phones: the notice gate and RULES are bottom sheets, like every other panel on mobile (CPO 2026-10-30 "这不还是个弹窗吗") */
+.arcade-root.is-m .gate,.arcade-root.is-m .rmodal{place-items:end stretch;padding:0}
+.arcade-root.is-m .gbox,.arcade-root.is-m .rbox{width:100%;max-width:none;max-height:88dvh;overflow:auto;padding:14px 10px calc(12px + env(safe-area-inset-bottom,0px));animation:v2sheetIn .25s ease-out;position:relative}
+.arcade-root.is-m .gbox:before,.arcade-root.is-m .rbox:before{content:"";display:block;width:44px;height:4px;margin:0 auto 10px;background:#3a4052;border-radius:2px}
+.arcade-root.is-m .gh{flex-direction:column;align-items:flex-start;gap:4px}
