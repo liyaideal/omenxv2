@@ -129,13 +129,14 @@ const PreviewFrame = ({
  * required — it is the only way `md:` breakpoints resolve against a real
  * 375px viewport.
  *
- * `layout="row"` (CPO 2026-10-30): for FULL-SCREEN phone states (a cabinet, a
- * gate, an opened drawer — each case is a whole 375×760 screen) stacking the
- * cases in one 375px column hides every state but the first below the fold,
- * and nobody scrolls a phone picture to discover there is a second one. Those
- * sections get one iframe per case, side by side, with the case label above
- * each frame so all states are visible at a glance. Costs one extra boot per
- * case, so it is opt-in for the few sections whose cases are whole screens.
+ * Phone frames are laid out as a ROW (CPO 2026-10-30, DESIGN.md §style-guide
+ * "手机帧并排"): one iframe per case, side by side, with the case label above
+ * each frame. Stacking phone states in one 375px column hid every state but
+ * the first below the fold, and nobody scrolls a phone picture to discover
+ * there is a second one. Desktop frames stay batched in one iframe (full
+ * width, each case labelled inside) — the stack reads fine there. `layout`
+ * overrides either default. The row costs one boot per case; only the
+ * current style-guide page mounts, lazily, so it stays cheap.
  *
  * Mounted lazily on approach, never unmounted (mount-once).
  */
@@ -143,15 +144,15 @@ export const SectionFrame = ({
   cases,
   device,
   minHeight = 320,
-  layout = "stack",
+  layout,
 }: {
   cases: SectionCase[];
   device: Device;
   minHeight?: number;
-  /** `stack` (default): all cases in one iframe, one below another. `row`: one iframe per case, side by side. */
+  /** `stack`: all cases in one iframe, one below another (desktop default). `row`: one iframe per case, side by side (mobile default). */
   layout?: "stack" | "row";
 }) => {
-  const row = layout === "row" && cases.length > 1;
+  const row = (layout ?? (device === "mobile" ? "row" : "stack")) === "row" && cases.length > 1;
 
   return (
     <div className="space-y-3">

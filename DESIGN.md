@@ -1304,6 +1304,8 @@ For informational purposes only. Not financial advice. Trading involves risk of 
 
 Desktop/mobile side-by-side previews in `/style-guide` MUST render through `<DeviceFrame>` / `<DualDevicePreview>` (`src/pages/StyleGuide/components/DeviceFrame.tsx`), which mounts the case inside a same-origin `<iframe>` sized to 375px for mobile and 100% for desktop. Only an iframe gives the component a **real viewport** so Tailwind `md:` breakpoints and `useIsMobile()` resolve honestly (e.g. `CreateKeyFlow` actually swaps Dialog → MobileDrawer, `TierTrack` actually stacks). **Never** simulate mobile by shrinking a parent `<div>` — container width does not trigger media queries, so the mobile view is a lie. New cases register in `src/pages/StyleGuide/preview/registry.tsx` and are consumed via the `/style-guide/preview?c=<key>` route.
 
+**手机帧并排（CPO 2026-10-30）.** A section's mobile cases (`<SectionFrame device="mobile">`) render as a **row of phones — one 375px iframe per case, side by side, the case label above each frame** (wrapping when the page is narrower than two phones). Never stack several phone states in one 375px column: a whole-screen state (a cabinet, a gate, an opened drawer, a page) fills the column, every state after the first sits below the fold, and nothing tells the reader there is another one — "谁会在那对着一个图上下滚". Desktop cases stay batched in one full-width iframe, each case labelled inside, because at full width the stack reads top-down like a document. `SectionFrame` applies both defaults; `layout="stack" | "row"` overrides per section. The spec tables (状态 / 触发条件 / 视觉结果 / 数据来源) still follow the frames, one block per case, with `data-case` anchors for the search box.
+
 
 
 
