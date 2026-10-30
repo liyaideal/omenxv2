@@ -30,25 +30,18 @@ export type SectionCase = {
 };
 
 /**
- * ONE iframe for a whole style-guide section (per device).
- *
- * Rationale: each iframe is an independent document + React root. Rendering a
- * frame per case meant a 12-case section paid 12 boots. Batching the section
- * into a single `/style-guide/preview?c=k1,k2,...` document collapses that to
- * one boot, and cases sharing a chunk evaluate it once. The iframe is still
- * required — it is the only way `md:` breakpoints resolve against a real
- * 375px viewport.
- *
- * Mounted lazily on approach, never unmounted (mount-once).
+ * The iframe itself: one `/style-guide/preview` document holding one or more
+ * cases, lazily mounted on approach, never unmounted, auto-sized from the
+ * height the document reports back.
  */
-export const SectionFrame = ({
+const PreviewFrame = ({
   cases,
   device,
-  minHeight = 320,
+  minHeight,
 }: {
   cases: SectionCase[];
   device: Device;
-  minHeight?: number;
+  minHeight: number;
 }) => {
   const holderRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLIFrameElement>(null);
@@ -103,29 +96,83 @@ export const SectionFrame = ({
   const src = `/style-guide/preview?c=${encodeURIComponent(keyParam)}&l=${encodeURIComponent(labelParam)}&fid=${encodeURIComponent(fid)}`;
 
   return (
-    <div className="space-y-3">
-      <div className="rounded-lg border border-border/40 bg-background/40 p-3 overflow-x-auto">
-        <div ref={holderRef} className="mx-auto" style={width ? { width, maxWidth: width } : undefined}>
-          {mounted ? (
-            <iframe
-              ref={frameRef}
-              title={`section-preview-${device}-${keyParam}`}
-              src={src}
-              loading="lazy"
-              className="w-full block border-0 rounded-md bg-background"
-              style={{ height }}
-            />
-          ) : (
-            <div
-              className="w-full rounded-md border border-dashed border-border/40 bg-muted/20 animate-pulse"
-              style={{ height }}
-              aria-hidden
-            />
-          )}
-        </div>
+    <div className="rounded-lg border border-border/40 bg-background/40 p-3 overflow-x-auto">
+      <div ref={holderRef} className="mx-auto" style={width ? { width, maxWidth: width } : undefined}>
+        {mounted ? (
+          <iframe
+            ref={frameRef}
+            title={`section-preview-${device}-${keyParam}`}
+            src={src}
+            loading="lazy"
+            className="w-full block border-0 rounded-md bg-background"
+            style={{ height }}
+          />
+        ) : (
+          <div
+            className="w-full rounded-md border border-dashed border-border/40 bg-muted/20 animate-pulse"
+            style={{ height }}
+            aria-hidden
+          />
+        )}
       </div>
+    </div>
+  );
+};
+
+/**
+ * ONE iframe for a whole style-guide section (per device).
+ *
+ * Rationale: each iframe is an independent document + React root. Rendering a
+ * frame per case meant a 12-case section paid 12 boots. Batching the section
+ * into a single `/style-guide/preview?c=k1,k2,...` document collapses that to
+ * one boot, and cases sharing a chunk evaluate it once. The iframe is still
+ * required — it is the only way `md:` breakpoints resolve against a real
+ * 375px viewport.
+ *
+ * `layout="row"` (CPO 2026-10-30): for FULL-SCREEN phone states (a cabinet, a
+ * gate, an opened drawer — each case is a whole 375×760 screen) stacking the
+ * cases in one 375px column hides every state but the first below the fold,
+ * and nobody scrolls a phone picture to discover there is a second one. Those
+ * sections get one iframe per case, side by side, with the case label above
+ * each frame so all states are visible at a glance. Costs one extra boot per
+ * case, so it is opt-in for the few sections whose cases are whole screens.
+ *
+ * Mounted lazily on approach, never unmounted (mount-once).
+ */
+export const SectionFrame = ({
+  cases,
+  device,
+  minHeight = 320,
+  layout = "stack",
+}: {
+  cases: SectionCase[];
+  device: Device;
+  minHeight?: number;
+  /** `stack` (default): all cases in one iframe, one below another. `row`: one iframe per case, side by side. */
+  layout?: "stack" | "row";
+}) => {
+  const row = layout === "row" && cases.length > 1;
+
+  return (
+    <div className="space-y-3">
+      {row ? (
+        <div className="flex flex-wrap items-start gap-4">
+          {cases.map((c) => (
+            <div key={c.key} data-frame-case={c.key} className="space-y-2" style={{ width: device === "mobile" ? 375 + 26 : undefined }}>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/70">{c.label}</span>
+                <span className="h-px flex-1 bg-border/40" />
+              </div>
+              <PreviewFrame cases={[c]} device={device} minHeight={minHeight} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <PreviewFrame cases={cases} device={device} minHeight={minHeight} />
+      )}
       <div className="text-[10px] font-mono text-muted-foreground/70">
-        1 iframe · {cases.length} cases · {device === "mobile" ? "375px" : "100%"} · real breakpoint
+        {row ? `${cases.length} iframes · 1 case each · side by side` : `1 iframe · ${cases.length} cases`} ·{" "}
+        {device === "mobile" ? "375px" : "100%"} · real breakpoint
       </div>
       <div className="space-y-5">
         {cases

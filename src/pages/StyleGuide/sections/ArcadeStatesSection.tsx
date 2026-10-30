@@ -179,9 +179,11 @@ const Desk = ({ cases, min }: { cases: SectionCase[]; min: number }) => (
     <SectionFrame cases={cases} device="desktop" minHeight={min} />
   </div>
 );
+// Phone states are whole screens — one frame per state, side by side, so every
+// state is visible without scrolling a 375px column (CPO 2026-10-30).
 const Mob = ({ cases, min }: { cases: SectionCase[]; min: number }) => (
   <div className="space-y-3">
-    <SectionFrame cases={cases} device="mobile" minHeight={min} />
+    <SectionFrame cases={cases} device="mobile" minHeight={min} layout="row" />
   </div>
 );
 
