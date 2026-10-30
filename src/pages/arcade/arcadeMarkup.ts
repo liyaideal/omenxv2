@@ -73,9 +73,10 @@ export const ARCADE_DESKTOP = `<main>
           <div class="hr">
             <div class="stat"><span class="lbl">Your open</span><b id="dYourOpen">$0 / $500</b></div>
             <div class="stat"><span class="lbl">Available · spot</span><b class="lime" id="equity">$0.00</b></div>
-            <div class="keys"><button class="key hk dep" id="depBtn" title="Buy USDC with card or deposit on Base">+ Deposit</button><button class="key hk" id="xferBtn" title="Move funds between futures and spot">⇄ Transfer</button><button class="key hk rk" id="rulesBtn" title="How it works">Rules</button></div>
           </div>
         </div>
+        <!-- designer 2026-10-30: the money keys on their own plate, bigger and thicker -->
+        <div class="keyplate steel rivets"><div class="keys"><button class="key hk dep" id="depBtn" title="Buy USDC with card or deposit on Base">+ Deposit</button><button class="key hk" id="xferBtn" title="Move funds between futures and spot">⇄ Transfer</button><button class="key hk rk" id="rulesBtn" title="How it works">Rules</button></div></div>
         <div class="ctrlplate steel rivets">${MUTE_BTN}</div>
       </div>
 

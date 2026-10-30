@@ -400,3 +400,74 @@
 .arcade-root .v2m .key.mkey.dep.signin{font-size:12px;padding:0 10px;width:auto;letter-spacing:.5px}
 /* MY CALLS rows: let the first line wrap instead of cutting "wins +$4.49" short in a 280px rail */
 :is(.arcade-root .v2,.arcade-root .v2m) .rail .row .mid b{white-space:normal;line-height:1.15;overflow:visible;text-overflow:clip}
+
+/* ==== 2026-10-30 designer pass (mock claude.ai/artifact/7qNBdW1tmAmjASypyaS3sN) ====
+   ① the three money keys get their own steel plate, bigger and thicker
+   ② rail re-cut: MY CALLS / TABLE as keys + readout box, taller rows, result block compressed
+   ③ chips read "$5" on one line
+   Rules copied from the designer's stylesheet verbatim; only the selectors' order is ours. */
+.arcade-root .v2 .r1{grid-template-columns:190px minmax(0,1fr) auto auto}
+.arcade-root .v2 .keyplate{display:flex;align-items:center;gap:8px;padding:0 12px}
+.arcade-root .v2 .keyplate .keys{display:flex;gap:8px;padding:0;border:0}
+.arcade-root .v2 .keyplate .key.hk{height:38px;padding:3px 14px 0;font:600 13px/1 var(--f-ui);letter-spacing:.4px;
+  --hi:#7a849c;--lo:#2b3040;background:linear-gradient(180deg,#5a6379,#434b5e);color:var(--fg,#eef2f8);
+  box-shadow:inset 3px 3px 0 var(--hi),inset -3px -3px 0 var(--lo)}
+.arcade-root .v2 .keyplate .key.hk.dep{--hi:var(--lime-hi,#f4ffc8);--lo:#6f9a0a;background:linear-gradient(180deg,#e6ff8a,var(--lime-lo,#a8d420));color:#07090f}
+.arcade-root .v2 .keyplate .key.hk.rk{--hi:var(--cy-hi,#9ff6ff);--lo:#00809a;background:linear-gradient(180deg,#13e3fa,var(--cy-lo,#05b8d0));color:#07090f}
+.arcade-root .v2 .keyplate .key.hk:active{box-shadow:inset 3px 3px 0 var(--lo),inset -3px -3px 0 var(--hi)}
+.arcade-root .v2 .chip,.arcade-root .v2m .chip{flex-direction:row;align-items:center;gap:0;font-size:24px;letter-spacing:.5px}
+.arcade-root .v2 .chip sup,.arcade-root .v2m .chip sup{font-size:inherit;vertical-align:baseline;position:static;line-height:1;margin-right:1px;top:0}
+.arcade-root .v2 .rail{gap:7px}
+.arcade-root .v2 .rail .head{gap:8px;align-items:stretch}
+.arcade-root .v2 .rail .tabs{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:6px;min-width:0}
+.arcade-root .v2 .rail .tab{height:32px;justify-content:center;gap:7px;padding:3px 8px 0;font:600 11px/1 var(--f-ui);letter-spacing:1px;
+  --hi:#7a849c;--lo:#2b3040;background:linear-gradient(180deg,#5a6379,#434b5e);color:var(--fg,#eef2f8);border:2px solid var(--ink,#07090f);
+  clip-path:var(--px);box-shadow:inset 3px 3px 0 var(--hi),inset -3px -3px 0 var(--lo);transition:transform .05s,filter .15s}
+.arcade-root .v2 .rail .tab:hover{filter:brightness(1.12)}
+.arcade-root .v2 .rail .tab b{font:400 18px/1 var(--f-pix);margin-top:-2px}
+.arcade-root .v2 .rail .tab.on{--hi:var(--cy-hi,#9ff6ff);--lo:#00809a;background:linear-gradient(180deg,#13e3fa,var(--cy-lo,#05b8d0));color:#07090f;transform:translateY(1px)}
+.arcade-root .v2 .rail .head .n{flex:none;min-width:66px;height:32px;display:flex;align-items:center;justify-content:flex-end;padding:3px 10px 0 9px;
+  font:400 26px/1 var(--f-pix);color:#fff;letter-spacing:.5px;background:#02070a;border:1px solid #22323d;
+  box-shadow:inset 0 2px 0 #000c,inset 2px 0 0 #000a,inset 0 0 12px #33d6ff14;border-left:3px solid var(--up);text-shadow:0 0 8px #ffffff2e}
+.arcade-root .v2 .rail .head .n::first-letter{font-size:16px;color:var(--up);vertical-align:3px;margin-right:2px}
+.arcade-root .v2 .rail:has(.tab.on[data-tab="table"]) .head .n{border-left-color:#7a849c;box-shadow:inset 0 2px 0 #000c,inset 2px 0 0 #000a}
+.arcade-root .v2 .rail:has(.tab.on[data-tab="table"]) .head .n::first-letter{color:var(--mute)}
+.arcade-root .v2 .rail .hint{padding:10px 8px}
+.arcade-root .v2 .r4.score{gap:0;padding-top:5px}
+.arcade-root .v2 .r4 .shead{margin-bottom:2px;align-items:center}
+.arcade-root .v2 .r4 .shead .tag{font-size:14px}
+.arcade-root .v2 .r4 .shead .sub{font-size:9px}
+.arcade-root .v2 .r4 .sharekey{height:20px;padding:0 8px;font-size:9px}
+.arcade-root .v2 .r4 .kpi{min-height:21px;padding:1px 2px;border:0;border-top:1px solid #16232b;background:none;grid-template-columns:54px minmax(0,1fr) auto}
+.arcade-root .v2 .r4 .kpi>.lbl{font-size:9px;letter-spacing:1.2px}
+.arcade-root .v2 .r4 .kpi>.n{font-size:16px}
+.arcade-root .v2 .r4 .kpi>.s{font-size:9.5px}
+.arcade-root .v2 .r4 .ticks span{width:12px;height:12px;font-size:8px}
+.arcade-root .v2 .rail>.donehead,.arcade-root .v2 .rail>.done,.arcade-root .v2 .rail>.r4{order:2}
+.arcade-root .v2 .rail>.plink{order:1;align-self:flex-end;margin-bottom:-17px;height:10px;position:relative;z-index:1;padding:0 0 0 8px;background:#08141a}
+.arcade-root .v2 .row{grid-template-columns:26px minmax(0,1fr) auto;gap:7px;padding:4px 7px}
+.arcade-root .v2 .row .sd{font-size:16px}
+.arcade-root .v2 .row .mid b{font-size:11.5px;letter-spacing:-.1px}
+.arcade-root .v2 #dList .row{min-height:40px;padding:6px 9px 9px}
+.arcade-root .v2 .rail .list{gap:6px}
+.arcade-root .v2 #dList .row .mid{gap:4px}
+.arcade-root .v2 .row .bar{position:absolute;left:0;right:0;bottom:0;top:auto;width:auto;height:2px;margin:0;background:#ffffff0d}
+.arcade-root .v2 .row .st{min-width:40px;font-size:16px}
+.arcade-root .v2 .row.other{grid-template-columns:26px minmax(0,1fr) 34px}
+.arcade-root .v2 .rail .donehead{font:500 10px/1 var(--f-ui);letter-spacing:1.4px;color:var(--dim);margin-top:2px;
+  display:flex;align-items:center;gap:8px}
+.arcade-root .v2 .rail .donehead:after{content:"";flex:1;height:1px;background:#1c2a33}
+.arcade-root .v2 .rail .donehead[hidden]{display:none}
+.arcade-root .v2 .rail .done .row{min-height:28px;padding:3px 9px;border-color:transparent;background:#ffffff04!important;opacity:1;animation:none}
+.arcade-root .v2 .rail .done .row .sd{font-size:13px;opacity:.8}
+.arcade-root .v2 .rail .done .row .mid{gap:2px}
+.arcade-root .v2 .rail .done .row .mid b{font-size:11px;color:#9aa5b4}
+.arcade-root .v2 .rail .done .row .mid small{font-size:9.5px}
+.arcade-root .v2 .rail .done .row .st{font-size:14px}
+.arcade-root .v2 .rail .plink{font-size:10px}
+@media (min-width:1121px){.arcade-root .cab.v2{grid-template-rows:72px auto minmax(clamp(240px,calc(100dvh - 392px),400px),1fr) auto}.arcade-root .cab.v2 .r2{min-height:0}}
+.arcade-root .v2 .railplate .rail{padding:7px 10px 3px}
+.arcade-root .v2 .r4.score{padding-bottom:0}
+.arcade-root .v2 .r4 .kpi:last-child{min-height:19px}
+.arcade-root .v2 .r4 .sharekey{white-space:nowrap}
+@media (max-width:1120px){.arcade-root .cab.v2{grid-template-rows:auto auto minmax(360px,1fr) auto}.arcade-root .v2 .r1{grid-template-columns:150px minmax(0,1fr) auto;height:auto}.arcade-root .v2 .r1>.logoplate,.arcade-root .v2 .r1>.hbar{height:64px}.arcade-root .v2 .r1 .ctrlplate{grid-column:auto;grid-row:1;grid-column:3}.arcade-root .v2 .r1 .keyplate{grid-column:1/-1;grid-row:2;justify-content:flex-end;height:50px}.arcade-root .v2 .hl h1{font-size:24px}.arcade-root .v2 .rail .tabs{gap:4px}.arcade-root .v2 .rail .tab{padding:3px 5px 0;font-size:10px;letter-spacing:.5px;gap:5px}.arcade-root .v2 .rail .tab b{font-size:16px}.arcade-root .v2 .rail .head .n{min-width:54px;font-size:22px;padding:3px 7px 0}.arcade-root .v2 .chip,.arcade-root .v2 .chip sup{font-size:18px}.arcade-root .v2 .chips{gap:4px}.arcade-root .v2 .bethead b{font-size:11px;white-space:nowrap}}
