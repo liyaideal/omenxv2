@@ -5,7 +5,7 @@
 // component): tap/click the header to hide or show that month's rows.
 // ============================================================
 import { t } from "@/i18n";
-import { forwardRef, useEffect, useState } from "react";
+import { forwardRef, useEffect, useState, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import { savePortfolioScroll } from "@/lib/portfolioReturn";
@@ -15,16 +15,23 @@ import { RED, signedMoney, pnlColor } from "./parts";
 import { PortfolioEmptySettled } from "./PortfolioAsyncStates";
 import { QuickPlayTag } from "./QuickPlayTag";
 
-const MetaLine = forwardRef<HTMLDivElement, { row: LiteSettledRow; parts?: string[] }>(({ row, parts = row.metaParts }, ref) => (
-  <div ref={ref} className="truncate text-[11px] text-[#6B7280]">
+// `wrap`: the phone variant of a Quick Play session row may run to two lines
+// (`BTC · 5 calls · won 1 of 5 · $100 a call · 1 cancelled` does not fit 375)
+// instead of losing its tail to an ellipsis (CPO 2026-10-31).
+const MetaLine = forwardRef<HTMLDivElement, { row: LiteSettledRow; parts?: string[]; wrap?: boolean }>(({ row, parts = row.metaParts, wrap }, ref) => (
+  <div ref={ref} className={`${wrap ? "" : "truncate "}text-[11px] leading-[15px] text-[#6B7280]`}>
     {parts.map((p, i) => {
       const last = i === parts.length - 1;
       const isRemark = last && row.remark !== "none";
+      // Separator outside the part, with a no-break space before the dot: a
+      // wrapped line can only break after "· ", never inside "$5 – $25 a call".
       return (
-        <span key={p + i} style={isRemark && row.remark === "auto_close" ? { color: RED } : undefined}>
-          {i > 0 ? " · " : ""}
-          {p}
-        </span>
+        <Fragment key={p + i}>
+          {i > 0 ? "\u00a0· " : ""}
+          <span className={wrap ? "whitespace-nowrap" : undefined} style={isRemark && row.remark === "auto_close" ? { color: RED } : undefined}>
+            {p}
+          </span>
+        </Fragment>
       );
     })}
   </div>
@@ -61,7 +68,7 @@ export const SettledRow = forwardRef<HTMLButtonElement, { row: LiteSettledRow; h
           <span className="truncate text-[13.5px] font-semibold text-[#F2F3F5]">{narrow ? narrow.title : row.title}</span>
           {row.kind === "quickplay" && <QuickPlayTag />}
         </div>
-        <MetaLine row={row} parts={narrow ? narrow.metaParts : undefined} />
+        <MetaLine row={row} parts={narrow ? narrow.metaParts : undefined} wrap={!!narrow} />
       </div>
       <span
         className="font-mono text-[14px] font-bold"
