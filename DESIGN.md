@@ -2365,7 +2365,7 @@ CPO 2026-10-13 方案 v0 D1–D12 + mock v1 M1–M8（桌面入口方案 A）。
 
 ## §Addendum 2026-10-28 · Quick Play v2 · 每一枚筹码一张 30 秒合约（流式舞台，LOCKED · 内测）
 
-> 取代 §Addendum 2026-10-19 第 3 / 4 / 5 / 6 / 7 / 8 条对 BTC 桌的规定（第 1 / 2 / 11 / 12 / 14 条继续有效）。CPO 2026-10-27 读研发稿《BTCUSDT_30秒与1分钟涨跌产品设计_v1.0》后改后端设计，10-28 看完流式舞台 mock（claude.ai/artifact/6AmwMxsb3aNDUgVDZ8epWJ v26）拍"直接落地"。交付文档 `docs/delivery/lite-arcade-spec-v2.md`；后端 `supabase/migrations/20261028120000_arcade_calls.sql`。
+> 取代 §Addendum 2026-10-19 第 3 / 4 / 5 / 6 / 7 / 8 条对 BTC 桌的规定（第 1 / 2 / 11 / 12 / 14 条继续有效）。CPO 2026-10-27 读研发稿《BTCUSDT_30秒与1分钟涨跌产品设计_v1.0》后改后端设计，10-28 看完流式舞台 mock（claude.ai/artifact/6AmwMxsb3aNDUgVDZ8epWJ v26）拍"直接落地"。交付文档 `docs/delivery/quick-play-v1.md`；后端 `supabase/migrations/20261028120000_arcade_calls.sql`。
 
 1. **没有"局"**：每一枚筹码就是一张独立的 30 秒合约，t0 = 服务端接单时刻，t1 = t0 + 30 s；同向可连开、涨跌可同时持有，各自到期各自结。先只上 BTC（ETH / SOL / 美股桌隐藏 `ARCADE_LIVE_TABLES`，后端旧轮次流只剩站内行情一个用途，BTC 开盘改锚真指数）。
 2. **价格是真的**：Binance BTC/USDT · Hyperliquid 现货 UBTC/USDC（`@142`，不是永续）· Coinbase BTC-USD，USD / USDC 报价按 Coinbase USDT-USD 实时汇率换成 USDT 计价后取中位数；点差 > 2 bps 的来源剔除，≥2 源才有效（只剩两源且偏差 > 5 bps 无效）。pg_cron + pg_net 每秒采样（实测 ≈ 1.2 s 一条）。机柜底下**常驻三个来源价 + `LIVE · 3 of 3`**，无效整行变红 `INDEX INVALID · 原因`——用户随时看得见价格是怎么来的（CPO：机柜要展示三个价格源）。

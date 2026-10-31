@@ -17,7 +17,7 @@
 | ⚠️ | 阻塞 / 有疑问（在 Notes 写原因） |
 | ➖ | 不适用 / 已废弃（不需要研发处理） |
 
-## 2026-10-30 — Quick Play 专区 v2（/arcade · BTC 30 秒合约 + 场次）QP-1（[文档](../delivery/lite-arcade-spec-v2.md)）
+## 2026-10-31 — Quick Play 专区（/arcade · BTC 30 秒合约 + 场次）QP-1（[文档](../delivery/quick-play-v1.md)）
 
 | 编号 | 项 | Lovable | 正式版 |
 |---|---|---|---|

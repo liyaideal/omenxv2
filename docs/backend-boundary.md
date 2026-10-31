@@ -273,11 +273,11 @@
 | 公告多语言 | 预留 | v2 只有 en 正文；`locale` 列在；正式版按 locale 多副本 |
 | **回填守卫**（2026-10-14）：`notif_transaction` 对 INSERT 且 `created_at < now() − 1h` 的行不发通知 | 🟢 A | "导入 / 回填 / 重跑的历史记录不算新事件" 是需求——正式版任何批量回填、对账重放、迁移都不得触发用户通知；Lovable 的触发源是演示引擎 `roll_demo_campaign_daily` 每晚重插历史 bonus |
 
-## 2026-10-30 Quick Play v2 · BTC 30 秒合约 + 场次（append-only 补录）
+## 2026-10-30 Quick Play · BTC 30 秒合约 + 场次（append-only 补录）
 
 | 项 | 标记 | 说明 |
 |---|---|---|
-| `arcade_params`（费率 3% / 0.15% / 5%、筹码档位、单账户未到期 ≤ $500、每秒 ≤ 2 笔、全桌最坏损失 ≤ $10,000、熔断 10 bps、模型系数、报价钳位 0.40–0.60） | 🟢 A | 数值照抄研发稿 + CPO 修订（`docs/delivery/lite-arcade-spec-v2.md` §3.1）；存成表还是配置自选 |
+| `arcade_params`（费率 3% / 0.15% / 5%、筹码档位、单账户未到期 ≤ $500、每秒 ≤ 2 笔、全桌最坏损失 ≤ $10,000、熔断 10 bps、模型系数、报价钳位 0.40–0.60） | 🟢 A | 数值照抄研发稿 + CPO 修订（`docs/delivery/quick-play-v1.md` §3.1）；存成表还是配置自选 |
 | `arcade_place(side, gross, quote_ts)`：按用户看到的报价成交、校验链、t0 = 接单时刻、派彩当场锁定、失败不扣钱 | 🟢 A | 校验顺序与拒单文案是需求（词典「Quick Play v2」）；`quote_ts` 对账 + 指数漂移 ≤ 1 bp 是防"抢价"的硬规则 |
 | `arcade_cancel(id)`：2 秒内、退 `gross − 0.15%`、开仓费一起退 | 🟢 A | 照抄 |
 | `arcade_settle_due()`：S0 = t0 后第一条有效指数、S1 = t1 前最近一条（等 ≤ 2 s）、平局 / 无价 void 全退、赢扣 5% 利润；幂等 | 🟢 A | 口径照抄；调度（每 tick 扫 + 客户端到点 `arcade_settle_mine()`）自选 |
@@ -285,8 +285,8 @@
 | 报价模型 `p = clip(sigmoid(a + b·z30 + c·z60), 0.40, 0.60)`，600 s 历史起报 | 🟡 B | 系数是研发稿候选值，模型归研发 |
 | 桌态 `arcade_table_state`（index / breaker / loss / full / off）与"已开的照常结算" | 🟢 A | 暂停触发条件照抄；Lovable 把阈值拨到够不着（见下） |
 | `arcade_acks` 免责接受记录（每账号一次） | 🟢 A | 照抄 |
-| `arcade_my_sessions()` / `arcade_my_session_calls()`：30 分钟断场、字段口径（calls = won + lost、payout = staked + pnl） | 🟢 A | 口径照抄（spec v2 §2.2）；窗口函数实现自选 |
+| `arcade_my_sessions()` / `arcade_my_session_calls()`：30 分钟断场、字段口径（calls = won + lost、payout = staked + pnl） | 🟢 A | 口径照抄（quick-play-v1 §2.2）；窗口函数实现自选 |
 | `arcade_table_feed()` 匿名化 `al***er`；`arcade_sim_tick` 匿名模拟单 | 🟡 B / 🔴 | 打码规则照抄；模拟单是演示（运营决定正式版要不要） |
-| `arcade_sim_feed` 每 2 秒模拟 tick、`arcade_synth_tick` 补合成 tick、`arcade_always_on` 阈值拨开、`arcade_housekeeping`、`arcade_probe` / `arcade_stall_probe`、`arcade_feed_req` | 🔴 演示专用 | 正式版禁止参考；Lovable 小实例跑不动真取价才改的（spec v2 §3.2） |
+| `arcade_sim_feed` 每 2 秒模拟 tick、`arcade_synth_tick` 补合成 tick、`arcade_always_on` 阈值拨开、`arcade_housekeeping`、`arcade_probe` / `arcade_stall_probe`、`arcade_feed_req` | 🔴 演示专用 | 正式版禁止参考；Lovable 小实例跑不动真取价才改的（quick-play-v1 §3.2） |
 | 站内其他页 BTC 价锚指数（`roll_arcade_rounds` → `arcade_real_btc()`）；`arcade_rounds` 旧轮次流 | 🔴 演示专用 | 正式版各页读同一行情服务 |
 | 钱包流水 description（`Quick Play fee · 3% · …` 等六种） | 🟢 A | 文案照抄（词典） |

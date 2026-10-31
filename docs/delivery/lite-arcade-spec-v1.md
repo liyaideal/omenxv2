@@ -1,6 +1,6 @@
 # Quick Play 专区（/arcade · 30s / 1m Up/Down）— 交付说明 v1
 
-> **已并入 `lite-arcade-spec-v2.md`（总文档），本文只留档。** BTC 桌的「局」玩法（第 3–8 条）已作废；仍有效的只剩组件术语与 `arcade_rounds` 站内行情流。
+> **已并入 `quick-play-v1.md`（研发交付用的总文档），本文只留内部记录。** BTC 桌的「局」玩法（第 3–8 条）已作废；仍有效的只剩组件术语与 `arcade_rounds` 站内行情流。
 
 日期：2026-10-19 · 范围：新页面 `/arcade`（桌面 + 移动）+ Events「All」入口横幅 + 后端轮次 / 结算 · 决策：Liya（CPO）2026-10-19 拍板 · Lovable commit `2893c674`（后端 + 页面）/ 本轮第二笔（入口 + style-guide + 文档）· 状态：**内测可玩，真数据真下单；文案占位**
 

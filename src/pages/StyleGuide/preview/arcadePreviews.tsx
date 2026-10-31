@@ -1,5 +1,5 @@
 // ============================================================
-// /arcade · Quick Play v2（BTC 30 秒合约 · 流式舞台）状态字典 previews。
+// /arcade · Quick Play（BTC 30 秒合约 · 流式舞台）状态字典 previews。
 // 铁律同 SP / TB 系列：只挂生产件（ArcadePage 的引擎 + 入口横幅），数据一律
 // fixture 确定性注入——时钟冻结在 nowMs、指数序列由固定 LCG 生成、合约 / 路单 /
 // 桌面 feed 全部写死、零网络（引擎 fixture 模式跳过 supabase 拉取；api 全部为桩）。

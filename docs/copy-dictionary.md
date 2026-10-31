@@ -29,13 +29,13 @@ Single source of truth for user-visible field names across the app.
 | 多轮同名事件 / 回合 | **Series**（≥2 条已结算记录聚合）/ **Round**（其中每一条）；日内事件写 `daily rounds` | Portfolio (Lite) 节 Series 行 |
 | 试玩仓 / 赠送仓 | **Voucher**（volt）/ **Airdrop**（pulse，含 welcome gift） | H2E 节；DESIGN.md Addendum 2026-08-26 A |
 | 时区 / UTC / ET / HKT | 不显示。用户本地 24h，无时区后缀 | Settlement time wording 节 |
-| 二元期权 / 30 秒合约 / 一注（Quick Play） | **call**（`one 30-second call`、`8 calls`）；专区名 **Quick Play**，不说 Arcade / Casino / Bet / option | Quick Play v2 节 |
-| 开盘价 / 收盘价 / S0 / S1 | **open** / **close**（`open 81,155.30 · close 81,194.73`） | Quick Play v2 节概念表 |
-| 赔率 / 定价 | **51.2¢**（买 Up 一侧的价格，Up + Down = $1.00） | Quick Play v2 节 |
-| 派彩 / 赢额 | **wins +$4.49**（已扣 5% 利润佣金）；场次卡 **Payout** = 拿回的现金 | Quick Play v2 节概念表 |
-| 开仓手续费 / 利润佣金 | **3% in · 5% of profit out**（底注 `fee $0.15`、流水 `Winning commission`） | Quick Play v2 节 |
-| 撤单 / 平局退款 | **cancel**（2 秒内，`costs $0.01`）/ **refunded** | Quick Play v2 节概念表 |
-| 会话 / 场 / 一局 | **session**（`A session ends after 30 minutes without a call.`） | Quick Play v2 节概念表 |
+| 二元期权 / 30 秒合约 / 一注（Quick Play） | **call**（`one 30-second call`、`8 calls`）；专区名 **Quick Play**，不说 Arcade / Casino / Bet / option | Quick Play 节 |
+| 开盘价 / 收盘价 / S0 / S1 | **open** / **close**（`open 81,155.30 · close 81,194.73`） | Quick Play 节概念表 |
+| 赔率 / 定价 | **51.2¢**（买 Up 一侧的价格，Up + Down = $1.00） | Quick Play 节 |
+| 派彩 / 赢额 | **wins +$4.49**（已扣 5% 利润佣金）；场次卡 **Payout** = 拿回的现金 | Quick Play 节概念表 |
+| 开仓手续费 / 利润佣金 | **3% in · 5% of profit out**（底注 `fee $0.15`、流水 `Winning commission`） | Quick Play 节 |
+| 撤单 / 平局退款 | **cancel**（2 秒内，`costs $0.01`）/ **refunded** | Quick Play 节概念表 |
+| 会话 / 场 / 一局 | **session**（`A session ends after 30 minutes without a call.`） | Quick Play 节概念表 |
 
 
 ---
@@ -524,24 +524,24 @@ and stay as-is — they are a different noun from the selector label.
 
 Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follows the event kind); the time clause goes on the header countdown row — `· 15:30–15:45 ⓘ` / `· Base Fri 04:00 ⓘ` — and the ⓘ popover carries the full `Base: $X · as of … (Oct 15 close)` line, the settle rule and the schedule rows. No `(Oct 15 close)` on the row itself (375 width, zero truncation).
 
-### Quick Play v2（/arcade · BTC 30 秒合约 · 流式舞台，2026-10-28 · 占位措辞）
+### Quick Play（/arcade · BTC 30 秒合约 · 流式舞台，2026-10-28 · 占位措辞）
 
-> 状态：**占位**。取代下面 v1 节；全部英文待合规措辞轮，i18n key 下一轮接。字典 AR-1…AR-11 / AB-1 / AB-2 / AS-1 见 `/style-guide` 交易页，PF-39…41 见 Portfolio。交付文档 `docs/delivery/lite-arcade-spec-v2.md`（总文档）。
+> 状态：**占位**。全部英文待合规措辞轮，i18n key 下一轮接。字典 AR-1…AR-11 / AB-1 / AB-2 / AS-1 见 `/style-guide` 交易页，PF-39…41 见 Portfolio。交付文档 `docs/delivery/quick-play-v1.md`（总文档）。
 
 概念（一句定义 / 判定表达式 / 出处）：
 
 | 词 | 一句定义 | 判定表达式 | 出处 |
 |---|---|---|---|
-| **call** | 一枚筹码 = 一张自己的 30 秒二元合约 | `arcade_calls` 一行，`t1 = t0 + 30 s` | spec v2 §2.1 |
-| **open / close**（S0 / S1） | 开盘价 = 服务端接单后第一条有效指数；收盘价 = 到期时刻及之前最近一条有效指数 | `s0 = first valid tick ts > t0`；`s1 = last valid tick ts ≤ t1`（等 ≤ 2 s） | spec v2 §3.1 |
-| **wins +$x**（派彩） | 赢了入账的净利：派彩 − 本金 − 5% 利润佣金 | `floor(gross×0.97 ÷ p ×100)/100 − gross − 5%×利润` | spec v2 概念词典 |
-| **cancel** | 落筹 2 秒内撤回，退本金减 0.15% | `now ≤ t0 + 2 s` | spec v2 §2.1 |
-| **refunded**（void） | 平局或没有有效价，整枚筹码连费退回 | `s0 IS NULL OR s1 IS NULL OR s0 = s1` | spec v2 §2.1 |
-| **session**（一场） | 一坐下来玩的这一把，30 分钟没下单就结束；机柜 04 / 海报 / Portfolio 同一条规则 | 相邻两张下单间隔 `> 30 min` 断场（`ARCADE_SESSION_GAP_MIN` = SQL `interval '30 minutes'`） | spec v2 §2.2 |
-| **calls / staked / payout**（场） | 到期结算的张数 / 这些张的筹码 / 这些张拿回的现金 | `calls = won + lost`；`payout = staked + pnl(won+lost)` | spec v2 §2.2 |
-| **best run** | 场内按顺序的最长连赢 | 连续 won 的最大长度 | spec v2 §2.2 |
-| **COMBO ×n** | 当前连赢数，×3 / ×6 / ×9 金币雨 | 场内连续 won 计数，输一张归零 | spec v2 §4.3 |
-| **THIS SLOT** | 路单当前 30 秒格；点任一格 4 秒内改显示那格 | 格 = 30 秒墙钟 | spec v2 §4.1 |铁律不变：机柜内不出现 `sh` / 份额数，所有金额讲钱、所有提示讲人话。
+| **call** | 一枚筹码 = 一张自己的 30 秒二元合约 | `arcade_calls` 一行，`t1 = t0 + 30 s` | quick-play-v1 §2.1 |
+| **open / close**（S0 / S1） | 开盘价 = 服务端接单后第一条有效指数；收盘价 = 到期时刻及之前最近一条有效指数 | `s0 = first valid tick ts > t0`；`s1 = last valid tick ts ≤ t1`（等 ≤ 2 s） | quick-play-v1 §3.1 |
+| **wins +$x**（派彩） | 赢了入账的净利：派彩 − 本金 − 5% 利润佣金 | `floor(gross×0.97 ÷ p ×100)/100 − gross − 5%×利润` | quick-play-v1 概念词典 |
+| **cancel** | 落筹 2 秒内撤回，退本金减 0.15% | `now ≤ t0 + 2 s` | quick-play-v1 §2.1 |
+| **refunded**（void） | 平局或没有有效价，整枚筹码连费退回 | `s0 IS NULL OR s1 IS NULL OR s0 = s1` | quick-play-v1 §2.1 |
+| **session**（一场） | 一坐下来玩的这一把，30 分钟没下单就结束；机柜 04 / 海报 / Portfolio 同一条规则 | 相邻两张下单间隔 `> 30 min` 断场（`ARCADE_SESSION_GAP_MIN` = SQL `interval '30 minutes'`） | quick-play-v1 §2.2 |
+| **calls / staked / payout**（场） | 到期结算的张数 / 这些张的筹码 / 这些张拿回的现金 | `calls = won + lost`；`payout = staked + pnl(won+lost)` | quick-play-v1 §2.2 |
+| **best run** | 场内按顺序的最长连赢 | 连续 won 的最大长度 | quick-play-v1 §2.2 |
+| **COMBO ×n** | 当前连赢数，×3 / ×6 / ×9 金币雨 | 场内连续 won 计数，输一张归零 | quick-play-v1 §4.3 |
+| **THIS SLOT** | 路单当前 30 秒格；点任一格 4 秒内改显示那格 | 格 = 30 秒墙钟 | quick-play-v1 §4.1 |铁律不变：机柜内不出现 `sh` / 份额数，所有金额讲钱、所有提示讲人话。
 
 | Canonical | Where | Note |
 |---|---|---|
@@ -589,7 +589,7 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 | **Settled Oct 28, 2026 · 16:53** / **Open Quick Play ›** / **Result** · **Won · 5 of 8 calls right** / **Staked** · **8 calls @ $5 – $25** / **Payout** · **after $0.63 fees** · **Trading fee $0.08 · Winning commission $0.55** / **nothing returned** / **Market** · **BTC · 30-second calls** / **Calls** / **Record** · **5 won · 3 lost** / **Best run** · **3 in a row** / **Stake** / **Not settled** · **1 refunded · 1 cancelled** / **Started** / **Ended** / **ACTIVITY** · **16:52:41 · Up · $5.00 @ 50.9¢** / **$0.00 · refunded** / **-$0.01 · cancelled** / **Load more calls** / **No calls to show** / **SETTLED · OCT 28** · **Won +$12.06** | 场次详情页 `/portfolio/quick-play/{key}`（10-29） | 版式 = 单仓结算详情；移动端 inner header 标题 **Quick Play** |
 | **Quick Play fee · 3% · Up · BTC 30-second call** / **Quick Play cancel · 0.15% · …** / **Quick Play fee returned · cancelled within 2 s** / **Quick Play · Up · Won · open 81155.30 → close 81194.73** / **Winning commission · 5% · Quick Play · Up** / **Quick Play · Up · tie · chip and fee returned** | 钱包流水 description | |
 
-### Quick Play v1（/arcade · 30s / 1m 轮次版，2026-10-19 · 已被 v2 取代，仅留组件术语）
+### Quick Play · 轮次版旧组件术语（2026-10-19 · 已被上节取代，仅留档）
 
 > 状态：**作废（2026-10-28）**。BTC 桌已改为每筹一合约（见上节）；本节只为 ETH / SOL / 美股桌的旧轮次形态留档。取代下面 Table 节在 5m / 15m 上的用法（Table 节保留给组件术语）。全部英文待合规措辞轮；i18n key 下一轮接。字典 AR-1…AR-4 / AB-1 / AB-2 见 `/style-guide` 交易页。
 

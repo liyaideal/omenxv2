@@ -1,5 +1,7 @@
 # Quick Play 专区（/arcade · BTC 30 秒合约 · 流式舞台 + Portfolio 场次）— 交付说明 v2（总文档）
 
+> **已并入 `quick-play-v1.md`（研发交付用的总文档），本文只留内部记录。**
+
 > **研发交付用的唯一总文档**。范围：`/arcade` 整页（桌面 + 移动）· 每一枚筹码一张 30 秒合约的下单 / 取消 / 结算后端 · 三所指数价格流（正式版规格）与 Lovable 演示引擎（模拟 tick）· Events「All」入口横幅 · 按「场」分享的海报 · Portfolio › Settled 一场一行 + 场次详情页 · 2026-10-29 / 10-30 的全链路 QA 修正与设计师细节回流。
 > 决策：Liya（CPO）2026-10-27 / 10-28 拍板（研发稿《BTCUSDT_30秒与1分钟涨跌产品设计_v1.0》+ 她的修订；交互按 mock claude.ai/artifact/6AmwMxsb3aNDUgVDZ8epWJ v26 逐条复刻），10-29 场次（mock claude.ai/artifact/23fURQjk1rc1EyFZo11aP9 v5），10-30 设计师细节（artifact 7qNBdW1tmAmjASypyaS3sN）。
 > 状态：**Lovable 内测可玩，真下单真记账；行情在 Lovable 是模拟 tick（正式版接真三所指数，见 §3.1）；文案英文占位。**

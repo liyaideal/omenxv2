@@ -1,5 +1,5 @@
 /**
- * /arcade · Quick Play v2（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-5 + AB-1 / AB-2）。
+ * /arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-5 + AB-1 / AB-2）。
  *
  * 规则（Liya 2026-10-27 / 10-28 拍板，研发稿 v1.0 + 她的修订）：先只上 BTC；没有「局」，每一枚筹码就是一张
  * 自己的 30 秒合约（t0 = 服务端接单时刻）；价格 = Binance / Hyperliquid / Coinbase 三所中间价（USDT 计价）
@@ -188,7 +188,7 @@ const Mob = ({ cases, min }: { cases: SectionCase[]; min: number }) => (
 export const ArcadeStatesSection = () => (
   <SectionWrapper
     id="arcade-states"
-    title="/arcade · Quick Play v2（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-11 · AB-1 / AB-2 · AS-1）"
+    title="/arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-11 · AB-1 / AB-2 · AS-1）"
     description="2026-10-27 / 10-28 CPO 拍板（研发稿 v1.0 + 修订）：先只上 BTC；没有「局」，每一枚筹码就是一张自己的 30 秒合约；价格 = Binance / Hyperliquid / Coinbase 三所中间价中位数（pg_cron + pg_net 每秒采样，真价）；报价 = 研发稿模型 0.40–0.60 三位小数；3% 开仓费含在筹码里、2 秒内可取消（0.15%）、不可平仓、盈利扣 5% 佣金、平局全退；$5–100 一注、单账户未到期 ≤ $500、全桌最坏损失 ≤ $10,000；指数无效 / 熔断 / 亏损触顶 / 满额暂停新单。交互按 mock v26（claude.ai/artifact/6AmwMxsb3aNDUgVDZ8epWJ）复刻在设计师钢板壳上。ETH / SOL / 美股桌隐藏。文案英文占位。"
   >
     <div className="rounded-lg border border-[#FF8A3D]/30 bg-[#FF8A3D]/5 px-3 py-2 text-[12px] text-foreground">
