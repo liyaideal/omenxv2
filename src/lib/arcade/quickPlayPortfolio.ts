@@ -33,14 +33,17 @@ export const quickPlayTitle = (s: Pick<ArcadeSession, "started_at" | "ended_at">
 
 /** The Settled › Standard row for one session. */
 export const quickPlayRow = (s: ArcadeSession): LiteSettledRow => {
+  // The list says only how many calls and how many won (CPO 2026-10-31: "大致写清楚就可以了");
+  // best run, stake, refunds and cancels live on the detail page. A session with nothing
+  // settled (only refunded / cancelled calls) still needs a line, so those counts show then.
   const meta: string[] = [];
   if (s.calls > 0) {
     meta.push(`${s.calls} call${s.calls === 1 ? "" : "s"}`, `won ${s.won} of ${s.calls}`);
-    if (s.best_run >= 2) meta.push(`best run ${s.best_run}`);
-    // the stake range stays on the detail page (CPO 2026-10-31: not a list field)
+  } else {
+    meta.push("no calls settled");
+    if (s.refunded) meta.push(`${s.refunded} refunded`);
+    if (s.cancelled) meta.push(`${s.cancelled} cancelled`);
   }
-  if (s.refunded) meta.push(`${s.refunded} refunded`);
-  if (s.cancelled) meta.push(`${s.cancelled} cancelled`);
   return {
     id: `qp-${s.session_key}`,
     title: quickPlayTitle(s),

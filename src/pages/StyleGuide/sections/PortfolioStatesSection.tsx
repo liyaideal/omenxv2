@@ -783,10 +783,9 @@ const QUICKPLAY_CASES: SectionCase[] = [
     label: "PF-39 · Quick Play 场次行（SettledRow · kind = quickplay）",
     note: "一场 = 一坐下来玩的这一把：两次下单间隔超过 30 分钟就算下一场（ARCADE_SESSION_GAP_MIN，服务端 arcade_my_sessions 用同一个数）。归 Standard，不另立 chip；chip 计数按场加 1；Win rate / Net profit / Record 三格把场里的合约一起算。桌面标题 `BTC 30-second calls · Oct 28, 16:47 – 16:53` + 标题右侧 QUICK PLAY 小牌；移动端标题只留时间段，BTC 挪到副行开头（小牌已经说了 Quick Play）。",
     spec: [
-      { state: "场次行", when: 'row.kind === "quickplay"', visual: "标题 + QUICK PLAY 小牌（lime 10px，标题左缘与其他行对齐）；副行 `8 calls · won 5 of 8 · best run 3`（每注金额只在详情页，10-31 从列表去掉）；右侧这一场净利 + 右箭头", source: "quickPlayRow()" },
-      { state: "退款 / 取消", when: "refunded > 0 || cancelled > 0", visual: "副行末追加 `· 1 refunded` / `· 1 cancelled`", source: "quickPlayRow()" },
+      { state: "场次行", when: 'row.kind === "quickplay" && calls > 0', visual: "标题 + QUICK PLAY 小牌（lime 10px，标题左缘与其他行对齐）；副行只写 `8 calls · won 5 of 8`（手机前面加 `BTC ·`）——best run / 每注金额 / 退款 / 取消都只在详情页（CPO 10-31）；右侧这一场净利 + 右箭头", source: "quickPlayRow()" },
+      { state: "没有结算的一场", when: "calls === 0（只有退款 / 取消）", visual: "副行 `no calls settled · 1 refunded · 1 cancelled`", source: "quickPlayRow()" },
       { state: "手机折行", when: "isMobile && row.mobile", visual: "标题只留时间段（只在 ` – ` 处断）、小牌跟在标题末尾；副行以 `BTC` 开头，放不下就在「·」后折两行，不截断（10-31）", source: "SettledRow narrow / MetaLine wrap" },
-      { state: "best run 不足 2", when: "best_run < 2", visual: "副行不出现 best run", source: "quickPlayRow()" },
       { state: "跨零点", when: "started_at 与 ended_at 不同日", visual: "标题时间段写两端日期 `Oct 28 23:50 – Oct 29 00:12`", source: "arcadeSessionSpan()" },
       { state: "排序", when: "始终", visual: "按这一场最后一张结算时间排进当月顺序", source: "closedAt = last_settled_at" },
       { state: "从机柜过来", when: "?from=quick-play", visual: "落 Standard，最近一场的行 2.2 s lime 底色（rgba(207,255,74,.08)）后淡出；地址栏随即去掉 from", source: "LitePortfolio highlightId" },
