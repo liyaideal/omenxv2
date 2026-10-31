@@ -64,10 +64,25 @@ export const SettledRow = forwardRef<HTMLButtonElement, { row: LiteSettledRow; h
     >
 
       <div className="min-w-0 flex-1">
-        <div className="flex min-w-0 items-center gap-2">
-          <span className="truncate text-[13.5px] font-semibold text-[#F2F3F5]">{narrow ? narrow.title : row.title}</span>
-          {row.kind === "quickplay" && <QuickPlayTag />}
-        </div>
+        {narrow ? (
+          // Phone Quick Play row: the time span is the row's identity, so it wraps
+          // (breaking only at " – ") with the tag flowing after it on the last line
+          // instead of being cut to "Oct 29 23:50 – Oct…" (CPO 2026-10-31).
+          <div className="min-w-0 text-[13.5px] font-semibold leading-[18px] text-[#F2F3F5]">
+            {narrow.title.split(" – ").map((part, i) => (
+              <Fragment key={i}>
+                {i > 0 ? "\u00a0– " : ""}
+                <span className="whitespace-nowrap">{part}</span>
+              </Fragment>
+            ))}
+            {row.kind === "quickplay" && <QuickPlayTag className="ml-2 align-middle" />}
+          </div>
+        ) : (
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="truncate text-[13.5px] font-semibold text-[#F2F3F5]">{row.title}</span>
+            {row.kind === "quickplay" && <QuickPlayTag />}
+          </div>
+        )}
         <MetaLine row={row} parts={narrow ? narrow.metaParts : undefined} wrap={!!narrow} />
       </div>
       <span

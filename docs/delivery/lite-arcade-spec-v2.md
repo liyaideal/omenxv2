@@ -207,7 +207,7 @@ Portfolio：arcade_my_sessions() 把同一账号的合约按 30 分钟间隔切�
 
 ### 4.6 Portfolio
 
-- **Settled › Standard 一场一行**（不另立页签；chip 计数按场 +1；Win rate / Net profit / Record 把场里的合约一起算）：标题 `BTC 30-second calls · Oct 28, 16:47 – 16:53` + 右侧 QUICK PLAY 小牌（标题左缘与其他行对齐；移动端标题只留时间段、`BTC` 挪进副行），副行 `8 calls · won 5 of 8 · best run 3 · $5 – $25 a call[ · 1 refunded][ · 1 cancelled]`（best run < 2 不写；**手机上副行允许折成两行**，不截断——CPO 10-31），右侧这一场净利，› 进详情。从机柜 `All settled calls → Portfolio` 过来：落 Standard，最新一场 2.2 s lime 底色后淡出，URL 参数随即去掉。
+- **Settled › Standard 一场一行**（不另立页签；chip 计数按场 +1；Win rate / Net profit / Record 把场里的合约一起算）：标题 `BTC 30-second calls · Oct 28, 16:47 – 16:53` + 右侧 QUICK PLAY 小牌（标题左缘与其他行对齐；移动端标题只留时间段、`BTC` 挪进副行），副行 `8 calls · won 5 of 8 · best run 3 · $5 – $25 a call[ · 1 refunded][ · 1 cancelled]`（best run < 2 不写；**手机上标题与副行都允许折成两行**，不截断，标题只在 ` – ` 处断、小牌跟在标题末尾——CPO 10-31），右侧这一场净利，› 进详情。从机柜 `All settled calls → Portfolio` 过来：落 Standard，最新一场 2.2 s lime 底色后淡出，URL 参数随即去掉。
 - **场次详情 `/portfolio/quick-play/<key>`**：套单仓结算详情的版式——标题 + 小牌 / `Settled Oct 28, 2026 · 16:53` / Share + `Open Quick Play ›`；三卡 Result（净利 + `Won · 5 of 8 calls right`）/ Staked（`$70.00` + `8 calls @ $5 – $25`）/ Payout（`$82.06` + `after $0.63 fees` + `Trading fee $0.08 · Winning commission $0.55`，0 写 `nothing returned`）；Details（Market `BTC · 30-second calls` / Calls / Record `5 won · 3 lost` / Best run `3 in a row` / Stake / Not settled `1 refunded · 1 cancelled` / Started / Ended + 底注 `A session ends after 30 minutes without a call.`）+ ACTIVITY（一张合约一行 `16:52:41 · Up · $5.00 @ 50.9¢` → `+$4.29`；`$0.00 · refunded` / `-$0.01 · cancelled` 灰字；最新在上，30 条一页 `Load more calls`；空 `No calls to show`）。移动端 inner header 标题 `Quick Play`，右上 Share 图标；顶部 `SETTLED · OCT 28` / `Won +$12.06` / 标题 + 小牌，下面同一组 Row。别人的 key / 不存在的 key 同一张「not found」。
 
 ## 5. 已删除 / 已废弃
@@ -278,7 +278,7 @@ Portfolio：arcade_my_sessions() 把同一账号的合约按 30 分钟间隔切�
 10. 桌面头条 `+ Deposit` → 站内 Deposit 弹窗且账户预选 Standard；`⇄ Transfer` → Transfer 弹窗预选转入现货；关掉余额刷新。移动端 `+` → `/deposit`。
 11. 移动端 375：免责门、RULES、ROAD & STATS、登录全部从底部升起；MY CALLS 筹码带不被裁切。
 12. 站内行情条 BTC ≈ 机柜指数（`select open_price from arcade_rounds where symbol='BTC' order by start_at desc limit 1`）。
-13. 字典：`/style-guide` 交易页 + Portfolio 节点，`scripts/sg-overflow-scan.js` 除 Radix sr-only "Close" 外 0 命中；PF-39 手机帧第三行副行两行显示、末尾 `1 cancelled` 可见。
+13. 字典：`/style-guide` 交易页 + Portfolio 节点，`scripts/sg-overflow-scan.js` 除 Radix sr-only "Close" 外 0 命中；PF-39 手机帧第二条副行两行显示、末尾 `1 cancelled` 可见；第三条跨零点标题两行 `Oct 29 23:50 –` / `Oct 30 00:12` + 小牌，无 `…`。
 
 ## 10. 未变更项
 

@@ -30,7 +30,7 @@
 | QP-7 | 按场分享海报 + ShareModal | ✅ | ⬜ |
 | QP-8 | 场次：30 分钟断场；机柜 04 / 海报 / Portfolio 行 + 详情页同一规则 | ✅ | ⬜ `arcade_my_sessions` 口径照抄 |
 | QP-9 | 文案合规终稿 + i18n key | ⬜ 英文占位 | ⬜ |
-| QP-10 | Portfolio 移动端场次行副行允许折两行（不截断） | ✅ | ⬜ 前端照抄 |
+| QP-10 | Portfolio 移动端场次行标题与副行允许折两行（不截断） | ✅ | ⬜ 前端照抄 |
 
 ## 2026-10-23 — 法币入金 · Card tab（MoonPay）FM-1（[文档](../delivery/fiat-moonpay-spec-v1.md)）
 
