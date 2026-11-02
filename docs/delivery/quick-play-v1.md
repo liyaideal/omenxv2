@@ -219,7 +219,9 @@ Portfolio：arcade_my_sessions() 把同一账号的合约按 30 分钟间隔切�
 
 ### 4.5 分享海报「Share your run」
 
-按场分享，入口只有 04 的 `⇪ SHARE`（移动端在 ROAD & STATS 抽屉的 04 同位置；连赢 / 大赢都不主动弹）。海报 = Lite 晒单海报家族（恒 400px 内联样式）+ Quick Play 身份：徽章 `⚡ 7 of 10 right`（亏 `📉`）、`PROFIT` / `LOST` + 等宽大字、`Called Bitcoin up or down, 30 seconds at a time`、`23 minutes · 10 calls · $5 each`（面额不一样写 `$80 staked`）、两格 `Best run · 4 in a row` / `Biggest win · +$9.20`、推荐码 + logo + CTA `Pick UP or DOWN · from $5` + 二维码 → `/arcade?ref=code`。只写净利（已扣佣金）与对了几次，不写 ROI、不出 SESSION / COMBO / LAST 10。弹层 = 站点 ShareModal。场次详情页右上 Share 出同一张海报，数字来自那一场。
+按场分享，入口只有 04 的 `⇪ SHARE`（移动端在 ROAD & STATS 抽屉的 04 同位置；连赢 / 大赢都不主动弹）。海报 = Lite 晒单海报家族（恒 400px 内联样式）+ Quick Play 身份：徽章 `⚡ 7 of 10 right`（亏 `📉`）、`PROFIT` / `LOST` + 等宽大字、`Called Bitcoin up or down, 30 seconds at a time`、`23 minutes · 10 calls · $5 each`（面额不一样写 `$80 staked`）、两格 `Best run · 4 in a row` / `Biggest win · +$9.20`、推荐码 + logo + CTA `Pick UP or DOWN · from $2` + 二维码 → `/arcade?ref=code`。只写净利（已扣佣金）与对了几次，不写 ROI、不出 SESSION / COMBO / LAST 10。
+
+**11-02 设计师稿（Figma omenx_lite 1283:1437 桌面 · 1283:1841 / 1283:2110 手机）**：海报做成像素掌机——机壳 → 黑边框 → 屏幕（像素夜空 + 山 + 猞猁）→ 十字键 / 电源灯 / A·B 键 → 推荐码页脚；赢黄绿 #CFFF4A、亏珊瑚红 #FF8B80，`QUICK PLAY` 框恒青色。大字与两格数值、推荐码用 Jersey 10；金额超过 7 个字符缩到 52 / 44px，猞猁在文字下层。弹层 = 站点 ShareModal 的 `arcade` 外观：Jersey 10 标题、深色按键、整行黄绿 `More Options`；**手机是底部抽屉**（宽 min(356, 100% − 34)，上圆角）。保存的 PNG 里像素字是真字体（导出时把站内自托管的 woff2 嵌进去，`arcadePosterFontCSS`）。combo 分享用同一个弹层外观，海报仍是过渡版。字典 AS-1 / AS-3 / AS-4。场次详情页右上 Share 出同一张海报，数字来自那一场。
 
 ### 4.6 Portfolio
 
@@ -276,6 +278,8 @@ Portfolio：arcade_my_sessions() 把同一账号的合约按 30 分钟间隔切�
 | AB-1 / AB-2 | `arcade-ab1` / `arcade-ab2` | 入口横幅 桌面 / 移动 · 活体 + 指数无效 |
 | AS-1 | `arcade-as1` | 分享海报 · 赚 / 亏 |
 | AS-2 | `arcade-as2` | combo 海报（过渡版） |
+| AS-3 | `arcade-as3-win` / `arcade-as3-lose` | 分享弹窗（桌面）赚 / 亏 |
+| AS-4 | `arcade-as4-win` / `arcade-as4-lose` | 分享抽屉（手机）赚 / 亏 |
 | PF-39 | `portfolio-lite-quickplay-rows` / `-mobile` | Settled › Standard 里的三种 Quick Play 行（刚玩完 / 退款和取消 / 跨零点） |
 | PF-40 | `portfolio-lite-quickplay-detail` / `-mobile` | 场次详情 · won |
 | PF-41 | `portfolio-lite-quickplay-detail-lost` / `-mobile` | 场次详情 · lost · 跨零点 · 单一面额 |

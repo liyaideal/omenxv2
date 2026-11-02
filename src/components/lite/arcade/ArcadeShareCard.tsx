@@ -9,10 +9,12 @@
 // title, dark keys, bottom sheet on phones) + handheld poster, pixel font
 // embedded in the saved PNG. Figma omenx_lite 1283:1437 / 1283:1841 / 1283:2110.
 // ============================================================
+import { useEffect } from "react";
 import { ShareModal } from "@/components/ShareModal";
 import { useAuth } from "@/hooks/useAuth";
 import { useReferral } from "@/hooks/useReferral";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { ensureArcadeFonts } from "@/lib/arcade/arcadeFonts";
 import { arcadePosterFontCSS } from "@/lib/arcade/posterFonts";
 import { SITE_URL } from "@/lib/site";
 import type { ArcadeComboShare, ArcadeRunShare } from "@/pages/arcade/arcadeEngine";
@@ -37,6 +39,8 @@ export const ArcadeRunShareSheet = ({
   isDataReady?: boolean;
   onClose: () => void;
 }) => {
+  // the Portfolio session page opens this too, where the cabinet's pixel font isn't loaded yet
+  useEffect(() => ensureArcadeFonts(), []);
   const isWin = run.pnl >= 0;
   const amount = `$${Math.abs(run.pnl).toFixed(2)}`;
   const shareText = isWin
