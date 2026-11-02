@@ -1825,7 +1825,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         .slice(0, mobile ? 6 : 30)
         .map(
           (c: Call) =>
-            `<div class="row ${c.side} ${c.status}"><span class="sd ${c.side}">${c.side === "u" ? "▲ UP" : "▼ DN"}</span><span class="mid"><b>${whole(c.gross)} @ ${cents(c.p)} · ${c.status === "won" ? "won" : c.status === "lost" ? "lost" : c.status === "cancelled" ? "cancelled" : "void"}</b><small>${c.s0 != null && c.s1 != null ? `open ${fmt(c.s0)} · close ${fmt(c.s1)}` : c.status === "cancelled" ? "taken back within 2 s" : "no valid price · refunded"}</small></span><span class="st ${c.status === "won" ? "pos" : c.status === "lost" ? "neg" : "pend"}">${c.status === "void" ? "VOID" : signed(c.pnl)}</span></div>`,
+            `<div class="row ${c.side} ${c.status}"><span class="sd ${c.side}">${c.side === "u" ? "▲ UP" : "▼ DN"}</span><span class="mid"><b>${whole(c.gross)} @ ${cents(c.p)} · ${c.status === "won" ? "won" : c.status === "lost" ? "lost" : c.status === "cancelled" ? "cancelled" : "void"}</b><small>${c.s0 != null && c.s1 != null ? `<span class="nw">open ${fmt(c.s0)} ·</span> <span class="nw">close ${fmt(c.s1)}</span>` : c.status === "cancelled" ? "taken back within 2 s" : "no valid price · refunded"}</small></span><span class="st ${c.status === "won" ? "pos" : c.status === "lost" ? "neg" : "pend"}">${c.status === "void" ? "VOID" : signed(c.pnl)}</span></div>`,
         )
         .join("");
       if (dDone.innerHTML !== dh) dDone.innerHTML = dh;

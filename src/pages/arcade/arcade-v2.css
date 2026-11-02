@@ -654,3 +654,6 @@
 .arcade-root .v2m .m-top .logoplate svg{width:56px}
 .arcade-root .cockpit .cab.v2 #dDonePane .row .mid small{white-space:normal;line-height:1.25}
 @media (max-width:1120px){.arcade-root .cockpit .cab.v2 .r2r>.tagscr{display:none}}
+.arcade-root :is(.cab.v2,.v2m) .row small .nw{white-space:nowrap}
+/* phone: while the combo HUD is up it owns the right of the price block; the 30 s change steps aside */
+.arcade-root .v2m .feed-head:has(.combo.on) .chg30{display:none}
