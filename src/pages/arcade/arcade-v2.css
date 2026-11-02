@@ -674,3 +674,14 @@
 .arcade-root .v2m .msheet>*{flex:none}
 .arcade-root .v2m .msheet>.msettled{flex:1 1 auto;min-height:64px;overflow-y:auto}
 @media (max-height:700px){.arcade-root .v2m .msheet>.mwin{display:none}}
+/* RULES: one column — number + title on the left, text on the right; heights follow the text (CPO 2026-11-02) */
+.arcade-root .rmodal .rcols{display:flex;flex-direction:column;gap:6px;max-height:min(640px,calc(100dvh - 140px));overflow-y:auto}
+.arcade-root .rmodal .rcols section{display:grid;grid-template-columns:168px minmax(0,1fr);gap:16px;padding:12px 16px;flex:none}
+.arcade-root .rmodal .rcols h4{margin:0;line-height:1.05}
+.arcade-root .rmodal .rcols p{margin:0;font-size:12.5px;line-height:1.55}
+.arcade-root .rmodal .rcols p+p{margin-top:6px}
+.arcade-root .rmodal .rcols p.ex{color:var(--mute)}
+.arcade-root.is-m .rmodal .rcols{max-height:none;overflow:visible}
+.arcade-root.is-m .rmodal .rcols section{grid-template-columns:1fr;gap:6px;padding:10px 12px}
+/* RULES head on phones: title + ✕ on one row (2026-11-02 QA) */
+.arcade-root.is-m .rmodal .gh{flex-direction:row;align-items:center;justify-content:space-between;gap:12px}

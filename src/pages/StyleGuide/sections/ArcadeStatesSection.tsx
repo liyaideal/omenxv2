@@ -108,7 +108,7 @@ const MORE_DESK: SectionCase[] = [
   {
     key: "arcade-ar9",
     label: "AR-9 · RULES 弹层",
-    spec: [{ state: "RULES", when: "Rules 键 / 免责门上的链接", visual: "两列六段；第 5 段 `$2–50 per call · $500 open per account`", source: "#rules" }],
+    spec: [{ state: "RULES", when: "Rules 键 / 免责门上的链接", visual: "一栏七段（2026-11-02 起）：左边编号 + 标题、右边正文，高度跟内容走，超出在框内滚动；1 The price · 2 Open and close · 3 The odds · 4 Payout & fees（例：$50 @ 53.0¢ → 净赚 $39.42 = 键上 to win $89.42；undo 0.15%）· 5 Limits & pauses（$2–50）· 6 Your record（Settled 页签 + Portfolio + 30 分钟一场）· 7 Combo vouchers；手机是底部抽屉，标题在正文上面", source: "#rules" }],
   },
   {
     key: "arcade-ar12",

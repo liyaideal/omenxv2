@@ -583,7 +583,7 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 | **+$4.29** / **−$5.00** / **VOID** | 图上飘字 | |
 | **01 / REPLAY · WHAT HAPPENED** + **▲ Up ▼ Down** / **BEAD · LAST 36** · **← 15:36 · now →** / **BIG ROAD ⓘ · BTC's direction, every 30 seconds** / **LAST 30 MIN** · **▲ Up 28 · 16 Down ▼** · **longest run ▲ Up ×7** · **Now ▼ −$7.40 · 13s left** / 格子提示 **▲ Up +$12.00** · **07:49:00 – 07:49:30** / **No index print · colour carried over** | 路单条（11-02） | 删 `THIS SLOT` 与 `Market · every cell …` |
 | **BEFORE YOU PLAY** 四行 + **I GET IT · START PLAYING** + **How the price and odds are made →** | 免责门 | 见 AR-1 |
-| **HOW IT WORKS** 六段 | RULES 弹层 | 1 The price · 2 Open and close · 3 The odds · 4 Payout & fees · 5 Limits & pauses · 6 Your record |
+| **HOW IT WORKS** 七段 | RULES 弹层（2026-11-02 改一栏 + 新逻辑） | 1 The price · 2 Open and close · 3 The odds · 4 Payout & fees · 5 Limits & pauses · 6 Your record · 7 Combo vouchers；全文以 `arcadeMarkup.ts` 为准（mock claude.ai/artifact/RdKv8YFovi96fpDbmV4zYF） |
 | **TABLE PAUSED · TAP TO JUMP** / **CRASH · TAP TO RETRY** / **41 · HI 58** | 跑酷 HUD | |
 | **DRAGON ×5 ▲** / **choppy…** / **new here? tap ⓘ ↗** | 猞猁举牌 | |
 | **ROAD & STATS** | 移动窥条 / 抽屉标题 | |
