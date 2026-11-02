@@ -37,6 +37,8 @@ export interface PositionVoucher {
 }
 
 const QUERY_KEY = ["position-vouchers"];
+/** source line of a voucher dropped by a Quick Play combo (CPO 2026-11-02) */
+export const ARCADE_COMBO_VOUCHER_LABEL = "Quick Play — 3 wins in a row";
 
 const mapRow = (row: any): PositionVoucher => ({
   id: row.id,
@@ -106,7 +108,12 @@ export const usePositionVouchers = () => {
         });
       }
       (data as any[]).forEach((row, i) => {
-        mapped[i].sourceLabel = row.source_entry_id ? sourceById.get(row.source_entry_id) ?? null : null;
+        // Quick Play combo vouchers (every 3 wins in a row) carry the call that completed the streak
+        mapped[i].sourceLabel = row.source_entry_id
+          ? sourceById.get(row.source_entry_id) ?? null
+          : row.source_arcade_call_id
+            ? ARCADE_COMBO_VOUCHER_LABEL
+            : null;
       });
 
       // Enrich with linked airdrop_positions.status so we can show "closed"
