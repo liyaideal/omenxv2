@@ -556,6 +556,7 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 | **NEXT SETTLE · 12s** | 图表头右上 | 没单 `—`；移动 `NEXT · 12s` |
 | **← last 45 seconds** / **each call settles 30s after you tap →** / **NOW** / **15:52:30** | 图表底注 + 时间刻度（11-02） | 刻度每 15 秒，真实时钟；移动只写 `52:30` |
 | **if you call now · settles here** / **▲ UP wins if BTC ends above** / **▼ DOWN wins if BTC ends below** | 预览线旗 + hover 文案（11-02） | 移动旗 `30s`、`▲ UP wins above` / `▼ DOWN wins below` |
+| **▲ 23s** / **▲▼ 23s ×6** / **…** / **✓** / **✕** / **void** / **✓3 ✕1 · ▲▼ 1s** / **✓4 ✕2** | 图上旗道标签（11-02 方案 A：一单一根杆，挨近的共用一个标签） | 23s = 组里最早到期那单还剩几秒；×N = 这组几单（超过 10 根杆后面的只计数）；同方向写 ▲ 或 ▼，混合写 ▲▼；翻牌中 = 已翻的计数 + 下一张的倒数；数为 0 的一侧不写（`✓2`）；挨近 = 桌面 3 秒 / 手机 9 秒内到期 |
 | **▲ +$136.86 in the last 30s** | 大价下（自己没单时，11-02） | |
 | **LIVE TABLE 7** · **everyone's open calls** / **Tap UP or DOWN to start — your calls and results show here** | 右栏 · 这一场还没下过单（11-02） | 移动筹码带 `LIVE TABLE 7` |
 | **YOUR CALLS** · **only you see these** / **Open 3** · **$75 in play** / **Settled 5** | 右栏 · 第一笔之后（11-02，取代 MY CALLS / TABLE 页签） | 不叫 MINE |

@@ -217,6 +217,18 @@ export const Ar17Preview = () => <Cabinet mobile fixture={base({ calls: WIN3, se
 const openTip = (root: HTMLElement) => (root.querySelector('.info[data-tip="inplay"]') as HTMLElement | null)?.click();
 export const Ar18Preview = () => <Cabinet mobile fixture={base()} width={375} height={760} after={openTip} />;
 
+/* ---------- AR-20 … AR-23 · flag lane, a burst of 6 calls in 5 s (CPO 2026-11-02 option A,
+   mock claude.ai/artifact/FFVTERd2KCS1cTfEiACpAA): one pole + pennant per call, one shared label ---------- */
+const BURST_DT = [0, 900, 1800, 2900, 3800, 4900];
+const BURST_SIDE: ("up" | "down")[] = ["up", "up", "down", "up", "up", "down"];
+const BURST_LIVE: ArcadeCall[] = BURST_DT.map((d, i) => mkCall("b" + i, BURST_SIDE[i], 5, BURST_SIDE[i] === "up" ? 0.512 : 0.488, NOW - 7000 + d));
+// mid-flip: four expired and flipped (✓ ✓ ✕ ✓), two still open → "✓3 ✕1 · ▲▼ 1s"
+const BURST_FLIP: ArcadeCall[] = BURST_DT.map((d, i) => mkCall("b" + i, BURST_SIDE[i], 5, BURST_SIDE[i] === "up" ? 0.512 : 0.488, NOW - 33600 + d, i < 4 ? (i === 2 ? "lost" : "won") : "open"));
+export const Ar20Preview = () => <Cabinet fixture={base({ calls: BURST_LIVE })} width={1040} height={700} />;
+export const Ar21Preview = () => <Cabinet fixture={base({ calls: BURST_FLIP })} width={1040} height={700} />;
+export const Ar22Preview = () => <Cabinet mobile fixture={base({ calls: BURST_LIVE })} width={375} height={760} />;
+export const Ar23Preview = () => <Cabinet mobile fixture={base({ calls: BURST_FLIP })} width={375} height={760} />;
+
 /* ---------- AR-6 · signed out, desktop + mobile: no balance, no Deposit / Transfer, one Sign in key ---------- */
 const Guest = ({ mobile, width, height }: { mobile?: boolean; width: number; height: number }) => {
   const ref = useRef<HTMLDivElement>(null);

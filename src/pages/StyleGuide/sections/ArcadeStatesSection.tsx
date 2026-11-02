@@ -1,5 +1,5 @@
 /**
- * /arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-19 · AB-1 / AB-2 · AS-1 / AS-2）。
+ * /arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-23 · AB-1 / AB-2 · AS-1 / AS-2）。
  *
  * 规则（Liya 2026-10-27 / 10-28 拍板，研发稿 v1.0 + 她的修订；2026-11-02 James 反馈轮修订）：先只上 BTC；没有「局」，
  * 每一枚筹码就是一张自己的 30 秒合约（t0 = 服务端接单时刻）；价格 = Binance / Hyperliquid / Coinbase 三所中间价
@@ -31,7 +31,7 @@ const CABINET: SectionCase[] = [
     key: "arcade-ar2",
     label: "AR-2 · 开着 6 张合约（最新一张在 2 秒 UNDO 里）· COMBO ×2 · 券 $4 / $10",
     note:
-      "图只画你自己的单：白色价格线（不按涨跌变色）、真实时间刻度每 15 秒、右侧价格刻度——白签 = 现价，青 / 绿签 = 最近 3 张未到期单的开仓价（带 ▲▼）。每张单 = 入场菱形 + 开仓虚线（领先 = 本方向色，落后 = 灰）+ 旗道一面旗 `▲ 23s`（同一秒到期合并 `2 calls`）。到期：赢 = 本方向色实心圆 ✓，输 = 灰空心圈 ✕，平局 = 灰横杠；结算旗 1.5 秒后收走。右栏第一笔起换成 `YOUR CALLS · only you see these`（黄绿标题闪一下），页签 `Open 6 · $125 in play` ｜ `Settled 3`；`04 / YOUR RESULT` 另起一块钢板放在右栏下面，内容和线上一样。",
+      "图只画你自己的单：白色价格线（不按涨跌变色）、真实时间刻度每 15 秒、右侧价格刻度——白签 = 现价，青 / 绿签 = 最近 3 张未到期单的开仓价（带 ▲▼）。每张单 = 入场菱形 + 开仓虚线（领先 = 本方向色，落后 = 灰）+ 旗道里每张单一根杆 + 杆顶小三角（▲ 青 / ▼ 绿）+ 标签 `▲ 23s`；到期时间挨得近的共用一个标签 `▲▼ 23s ×2`（见 AR-20 … AR-23）。到期：赢 = 本方向色实心圆 ✓，输 = 灰空心圈 ✕，平局 = 灰横杠；结算旗 1.5 秒后收走。右栏第一笔起换成 `YOUR CALLS · only you see these`（黄绿标题闪一下），页签 `Open 6 · $125 in play` ｜ `Settled 3`；`04 / YOUR RESULT` 另起一块钢板放在右栏下面，内容和线上一样。",
     spec: [
       { state: "落筹", when: "tap UP / DOWN", visual: "筹码**立刻**进键上的堆（2 秒 UNDO 期内也在）；键上方弹白底 `+$5 ▲` 飘起", source: "place / tapFloat / renderKeys" },
       { state: "UNDO", when: "t − t0 < 2 s", visual: "键右下黑色 `UNDO 1.6s`（底部金色进度条倒数）；2 秒内连下几笔 `UNDO (3)`，点一下撤最近一笔；底注 `Placed ✓ · undo costs $0.0075` / `3 placed ✓ · undo removes the latest`；撤后 toast `Cancelled · $0.0075 close fee`", source: "renderKeys / renderPays / cancel" },
@@ -223,10 +223,28 @@ const Mob = ({ cases, min }: { cases: SectionCase[]; min: number }) => (
   </div>
 );
 
+/* flag lane · a burst (CPO 2026-11-02 option A) */
+const FLAG_SPEC = [
+  { state: "杆", when: "每张未到期 / 刚结算的单", visual: "在自己的到期时刻立一根杆；杆与杆至少隔 4px（桌面 1 秒 ≈ 13px 用不到，手机 1 秒 ≈ 3.5px，同一秒连点两单时推开）；一组最多画 10 根，其余只计数", source: "draw() · flag lane" },
+  { state: "杆顶记号", when: "杆顶", visual: "进行中：无字小三角，▲ 青朝上 / ▼ 绿朝下；结算中白三角；翻牌后变成价格线上同款记号——赢 = 本方向色实心点、输 = 灰空心圈、void = 灰横杠", source: "draw()" },
+  { state: "开仓刻度", when: "未到期", visual: "价格线上每张单一个短竖线 + 一条淡虚线连到自己的杆（以前全叠在第一单位置）", source: "draw()" },
+  { state: "标签 · 单独一张", when: "前后 3 秒（桌面）/ 9 秒（手机）内没有别的单", visual: "`▲ 23s` → 结算中 `…` → `✓` / `✕`", source: "draw()" },
+  { state: "标签 · 一组", when: "到期时间相差 3 秒（桌面）/ 9 秒（手机）以内", visual: "进行中 `▲▼ 23s ×6`（23s = 这组最早到期那单，同方向写 ▲ 或 ▼）；翻牌中 `✓3 ✕1 · ▲▼ 1s`；全翻完 `✓4 ✕2`；标签不互相压，靠右边界时往左收", source: "draw()" },
+  { state: "结算节奏", when: "每张到期", visual: "每根杆在自己的到期时刻翻、各飘一个 +$ / −$；整组在最后一根翻完 1.5 秒后一起离开", source: "reveal / flagFloat / draw()" },
+];
+const FLAGS_DESK: SectionCase[] = [
+  { key: "arcade-ar20", label: "AR-20 · 旗道 · 5 秒连点 6 单（进行中）", note: "6 根杆排成梳子，开仓刻度各在各的位置；桌面 3 秒内到期的共用一个标签，所以这一串分成两段。", spec: FLAG_SPEC },
+  { key: "arcade-ar21", label: "AR-21 · 旗道 · 同一串翻牌中（4 张已翻、2 张还开着）", note: "到期的四张已翻：小三角变成和价格线一样的记号——赢 = 本方向色实心点、输 = 灰空心圈（void = 灰横杠），留在原位；桌面这一串分两段标签：已翻完的一段 `✓3 ✕1`，还开着的一段 `▲▼ 1s ×2`（一段里有翻有开时，标签是已翻的计数 + 下一张的倒数，例如手机 AR-23 的 `✓3 ✕1 · ▲▼ 1s`）。整组在最后一张翻完 1.5 秒后一起离开。", spec: FLAG_SPEC },
+];
+const FLAGS_MOB: SectionCase[] = [
+  { key: "arcade-ar22", label: "AR-22 · 移动版 · 5 秒连点 6 单", note: "手机 1 秒约 3.5px：6 根杆挤成一束（约 18px），一个标签 `▲▼ 23s ×6`。", spec: FLAG_SPEC },
+  { key: "arcade-ar23", label: "AR-23 · 移动版 · 翻牌中", note: "手机上 6 张同属一组：标签 `✓3 ✕1 · ▲▼ 1s`，四个点 / 圈 + 两个还开着的小三角挤成一束。", spec: FLAG_SPEC },
+];
+
 export const ArcadeStatesSection = () => (
   <SectionWrapper
     id="arcade-states"
-    title="/arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-19 · AB-1 / AB-2 · AS-1 / AS-2）"
+    title="/arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-23 · AB-1 / AB-2 · AS-1 / AS-2）"
     description="CPO 2026-10-27 / 10-28 拍板 + 2026-11-02 James 反馈轮（mock claude.ai/artifact/1hCirCctvs2VNkP2J5bUfC v17c）：先只上 BTC；每一枚筹码一张 30 秒合约；三所中位数指数；报价 0.40–0.60；3% 开仓费、2 秒可撤（0.15%，4 位小数）、不可平仓、盈利扣 5% 佣金、平局全退；$2–50 一注、单账户未到期 ≤ $500；连赢每 3 把一张 $2 有门槛仓位券、每天 ≤ $10。颜色只表示方向（青涨 / 柠檬绿跌），输赢看实心 / 空心与 ✓ / ✕。ETH / SOL / 美股桌隐藏。文案英文占位。"
   >
     <div className="rounded-lg border border-[#FF8A3D]/30 bg-[#FF8A3D]/5 px-3 py-2 text-[12px] text-foreground">
@@ -238,6 +256,10 @@ export const ArcadeStatesSection = () => (
     </SubSection>
     <SubSection title="移动版（AR-4 / AR-5）">
       <Mob cases={MOBILE} min={780} />
+    </SubSection>
+    <SubSection title="旗道 · 连发（AR-20 / AR-21 桌面 · AR-22 / AR-23 移动）">
+      <Desk cases={FLAGS_DESK} min={700} />
+      <Mob cases={FLAGS_MOB} min={780} />
     </SubSection>
     <SubSection title="右栏 / 预览线 / 上限 / combo 与券 / 说明框 / RULES（AR-7 … AR-9 · AR-12 … AR-16 · AR-19，桌面）">
       <Desk cases={MORE_DESK} min={700} />

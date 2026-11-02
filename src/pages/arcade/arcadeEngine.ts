@@ -1555,80 +1555,167 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       ctx.globalAlpha = 1;
       ctx.lineWidth = 1;
     }
-    /* flag lane: ▲ / ▼ + seconds left; ✓ / ✕ for 1.5 s once settled, then the flag leaves */
-    // flags closer than one flag's width merge into one ("▲▼ 24s  3 calls"), so rapid taps never pile up in the lane
-    const groups: Record<number, Call[]> = {};
-    let gk = -1,
-      gx = -1e9;
+    /* flag lane (CPO 2026-11-02 option A · mock claude.ai/artifact/FFVTERd2KCS1cTfEiACpAA):
+       every call keeps its own pole + pennant at its own t1 and its own open tick on the line, so six taps
+       read as six. Only the text label is shared, by calls whose expiries sit within one label's width
+       (40 px on desktop ≈ 3 s, 30 px on a phone ≈ 9 s). Poles stay ≥ 4 px apart (only bites on a phone,
+       two taps in the same second); a group draws its first 10 poles and the label counts them all.
+       Live label "▲ 23s" / "▲▼ 23s ×6" (seconds = the group's soonest call); settling "…"; settled
+       "✓" / "✕" alone, "✓4 ✕2" for a group ("✓2 ✕1 · ▲ 3s" while the rest are still open). Each pole flips
+       on its own at its own t1; the group leaves together 1.5 s after its last flip. */
+    type FlagGroup = { cs: Call[]; xs: number[] };
+    const inPlay = (z: Call) => z.status === "open" || z.status === "settling" || z.status === "pending";
+    // group by expiry; a settled call keeps its pole while anything in its group is still in play, and the
+    // whole group leaves 1.5 s after its last flip — so a burst ends on one full tally ("✓4 ✕2")
+    const raw: Call[][] = [];
+    let anchorX = -1e9;
     for (const c of live) {
-      const on = c.status === "open" || c.status === "settling" || c.status === "pending" || (c.tDone && t - c.tDone < 1500);
-      if (!on) continue;
+      if (!inPlay(c) && !(c.tDone && (c.status === "won" || c.status === "lost" || c.status === "void") && t - c.tDone < 12000)) continue;
       const x = g.x(c.t1);
-      if (gk < 0 || x - gx > (narrow ? 30 : 40)) {
-        gk = c.t1;
-        gx = x;
+      if (!raw.length || x - anchorX > (narrow ? 30 : 40)) {
+        raw.push([]);
+        anchorX = x;
       }
-      (groups[gk] = groups[gk] || []).push(c);
+      raw[raw.length - 1].push(c);
     }
-    const keys = Object.keys(groups)
-      .map(Number)
-      .sort((a, b) => a - b);
-    if (keys.length) {
+    const fgs: FlagGroup[] = [];
+    let lastX = -1e9;
+    for (const cs of raw) {
+      if (!cs.some((z) => inPlay(z) || (z.tDone && t - z.tDone < 1500))) continue;
+      const xs: number[] = [];
+      for (const z of cs.slice(0, 10)) {
+        lastX = Math.max(g.x(z.t1), lastX + 4);
+        xs.push(lastX);
+      }
+      fgs.push({ cs, xs });
+    }
+    if (fgs.length) {
       ctx.fillStyle = "rgba(5,10,14,.55)";
       ctx.fillRect(0, 0, PW, g.TOP - 2);
     }
-    keys.forEach((k, ki) => {
-      const cs = groups[k],
-        c = cs[0];
-      const x1 = g.x(c.t1);
-      if (x1 < -40 || x1 > PW + 4) return;
-      const y = 3 + (ki % 2) * 15;
-      const isLive = cs.some((z) => z.status === "open" || z.status === "settling" || z.status === "pending"),
-        settling = cs.some((z) => z.status === "settling");
+    const LBL_Y = 2,
+      PEN_Y = 16,
+      POLE_END = g.TOP - 2;
+    const isLiveC = (z: Call) => z.status === "open" || z.status === "pending";
+    /* labels: text + colours first, then laid out left → right without overlapping, kept inside the plot */
+    ctx.font = "700 9px Chakra Petch";
+    const labels = fgs.map((grp) => {
+      const cs = grp.cs,
+        n = cs.length,
+        c0 = cs[0];
       const won = cs.filter((z) => z.status === "won").length,
-        lost = cs.filter((z) => z.status === "lost").length;
-      const same = cs.every((z) => z.side === c.side);
-      const sideCol = c.side === "u" ? C.up : C.dn;
-      const fill = settling ? "#fff" : isLive ? (same ? sideCol : "#dfe6ee") : won && !lost ? (same ? sideCol : "#e8edf2") : lost && !won ? "#2a323d" : "#aab";
-      const secs = Math.min(30, Math.max(0, Math.ceil((c.t1 - t) / 1000)));
-      const arrow = same ? (c.side === "u" ? "▲" : "▼") : "▲▼";
-      const txt = settling ? "…" : isLive ? arrow + " " + secs + "s" : won && !lost ? "✓" : lost && !won ? "✕" : won + "/" + cs.length;
-      const full = txt + (cs.length > 1 ? "  " + cs.length + " calls" : "");
-      ctx.font = "700 9px Chakra Petch";
-      const fw = Math.max(28, ctx.measureText(full).width + 10);
-      // near the price scale the flag flies to the left of its pole, so it never runs under the scale
-      const fd = x1 + fw > PW - 2 ? -1 : 1;
-      ctx.fillStyle = fill;
-      ctx.fillRect(x1 - 1, y, 2, 13);
-      ctx.beginPath();
-      ctx.moveTo(x1, y);
-      ctx.lineTo(x1 + fd * fw, y);
-      ctx.lineTo(x1 + fd * (fw - 4), y + 6);
-      ctx.lineTo(x1 + fd * fw, y + 12);
-      ctx.lineTo(x1, y + 12);
-      ctx.closePath();
-      ctx.fill();
-      ctx.fillStyle = !isLive && lost && !won ? "#aab4c2" : "#020c10";
-      ctx.fillText(full, fd > 0 ? x1 + 3 : x1 - fw + 7, y + 9);
-      if (isLive) {
-        for (const z of cs) {
+        lost = cs.filter((z) => z.status === "lost").length,
+        done = cs.filter((z) => !isLiveC(z) && z.status !== "settling").length,
+        anyLive = cs.some(isLiveC);
+      const same = cs.every((z) => z.side === c0.side);
+      const sideCol = c0.side === "u" ? C.up : C.dn;
+      let txt: string,
+        bg: string,
+        fg = "#020c10";
+      const liveCs = cs.filter(isLiveC),
+        lead = liveCs[0];
+      const clock = lead ? (liveCs.every((z) => z.side === lead.side) ? (lead.side === "u" ? "▲" : "▼") : "▲▼") + " " + Math.min(30, Math.max(0, Math.ceil((lead.t1 - t) / 1000))) + "s" : "";
+      const tally = [won ? "✓" + won : "", lost ? "✕" + lost : ""].filter(Boolean).join(" ") || "void";
+      if (!done) {
+        if (!anyLive) {
+          txt = "…";
+          bg = "#fff";
+        } else {
+          txt = (same ? (c0.side === "u" ? "▲" : "▼") : "▲▼") + clock.slice(clock.indexOf(" ")) + (n > 1 ? " ×" + n : "");
+          bg = same ? sideCol : "#dfe6ee";
+        }
+      } else if (n === 1) {
+        txt = won ? "✓" : lost ? "✕" : "void";
+        bg = won ? sideCol : lost ? "#2a323d" : "#aab";
+        if (lost) fg = "#aab4c2";
+      } else {
+        // a burst mid-flip: running tally, plus the next call's clock while some are still open ("✓2 ✕1 · ▲ 3s")
+        txt = tally + (anyLive ? " · " + clock : "");
+        bg = lost && !won ? "#2a323d" : "#e8edf2";
+        if (lost && !won) fg = "#aab4c2";
+      }
+      const w = Math.max(18, ctx.measureText(txt).width + 8);
+      return { txt, bg, fg, w, x: grp.xs[0] - 1 };
+    });
+    // right pass: stay inside the plot and clear of the next label; left pass: clear of the previous one
+    for (let k = labels.length - 1; k >= 0; k--) {
+      const lim = k < labels.length - 1 ? labels[k + 1].x - 4 : PW - 2;
+      labels[k].x = Math.min(labels[k].x, lim - labels[k].w);
+    }
+    for (let k = 1; k < labels.length; k++) labels[k].x = Math.max(labels[k].x, labels[k - 1].x + labels[k - 1].w + 4);
+    fgs.forEach((grp, gi) => {
+      const xs = grp.xs;
+      if (xs[xs.length - 1] < -40 || xs[0] > PW + 4) return;
+      grp.cs.slice(0, xs.length).forEach((z, i) => {
+        const x = xs[i],
+          zLive = isLiveC(z),
+          zSet = z.status === "settling",
+          won = z.status === "won",
+          lost = z.status === "lost",
+          up = z.side === "u",
+          col = up ? C.up : C.dn;
+        // pole
+        ctx.fillStyle = zLive ? col : zSet ? "#fff" : won ? col : "#3a424e";
+        ctx.fillRect(x - 0.75, zLive || zSet ? PEN_Y + 5 : PEN_Y + 6, 1.5, POLE_END - PEN_Y - (zLive || zSet ? 5 : 6));
+        // pennant while in play: ▲ points up, ▼ points down (white while settling). At the flip it turns into the
+        // same mark as the line: won = filled dot in its colour, lost = grey ring, void = grey bar — so a
+        // burst visibly flips one by one
+        const pc = PEN_Y + 2,
+          hw = narrow ? 2.5 : 3.5; // marks are 5 px wide on a phone, where poles can sit 4 px apart
+        if (zLive || zSet) {
+          ctx.beginPath();
+          if (up) {
+            ctx.moveTo(x, PEN_Y - 1);
+            ctx.lineTo(x + hw, PEN_Y + 5);
+            ctx.lineTo(x - hw, PEN_Y + 5);
+          } else {
+            ctx.moveTo(x - hw, PEN_Y - 1);
+            ctx.lineTo(x + hw, PEN_Y - 1);
+            ctx.lineTo(x, PEN_Y + 5);
+          }
+          ctx.closePath();
+          ctx.fillStyle = zSet ? "#fff" : col;
+          ctx.fill();
+        } else if (won || lost) {
+          ctx.beginPath();
+          ctx.arc(x, pc, won ? hw : hw - 0.5, 0, Math.PI * 2);
+          if (won) {
+            ctx.fillStyle = col;
+            ctx.fill();
+          } else {
+            ctx.strokeStyle = "#6c7480";
+            ctx.lineWidth = 1.4;
+            ctx.stroke();
+            ctx.lineWidth = 1;
+          }
+        } else {
+          ctx.fillStyle = "#6c7480";
+          ctx.fillRect(x - hw, pc - 1, hw * 2, 2);
+        }
+        // each live call: dashed drop to its own open price + its own open tick
+        if (zLive || zSet) {
           const ye = g.y(z.s0 ?? S.price);
-          ctx.strokeStyle = z.side === "u" ? "rgba(51,214,255,.22)" : "rgba(207,255,74,.22)";
+          ctx.strokeStyle = up ? "rgba(51,214,255,.22)" : "rgba(207,255,74,.22)";
           ctx.setLineDash([2, 3]);
           ctx.beginPath();
-          ctx.moveTo(x1, y + 13);
-          ctx.lineTo(x1, ye);
+          ctx.moveTo(x, POLE_END);
+          ctx.lineTo(x, ye);
           ctx.stroke();
           ctx.setLineDash([]);
-          ctx.strokeStyle = z.side === "u" ? C.up : C.dn;
+          ctx.strokeStyle = col;
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(x1, ye - 5);
-          ctx.lineTo(x1, ye + 5);
+          ctx.moveTo(x, ye - 5);
+          ctx.lineTo(x, ye + 5);
           ctx.stroke();
           ctx.lineWidth = 1;
         }
-      }
+      });
+      const L = labels[gi];
+      ctx.fillStyle = L.bg;
+      ctx.fillRect(L.x, LBL_Y, L.w, 11);
+      ctx.fillStyle = L.fg;
+      ctx.fillText(L.txt, L.x + 4, LBL_Y + 8.5);
     });
     /* right-hand price scale: ticks + the live price tag + the open price of your 3 soonest calls (James #5) */
     ctx.fillStyle = "#08100f";
@@ -2949,7 +3036,14 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     FX.calls.forEach((r) => {
       const c = fromRow(r);
       if (c.status === "open" || c.status === "pending") S.calls.push(c);
-      else S.done.push(c);
+      else {
+        S.done.push(c);
+        // style guide only: a call settled in the last 12 s still stands in the flag lane (production stamps tDone at the flip)
+        if (c.settledAt && now() - c.settledAt < 12000 && c.status !== "cancelled") {
+          c.tDone = c.settledAt;
+          S.calls.push(c);
+        }
+      }
     });
     if (FX.session) {
       S.last = FX.session.last.slice();
