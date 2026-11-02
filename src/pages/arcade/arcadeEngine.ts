@@ -1596,18 +1596,20 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       const full = txt + (cs.length > 1 ? "  " + cs.length + " calls" : "");
       ctx.font = "700 9px Chakra Petch";
       const fw = Math.max(28, ctx.measureText(full).width + 10);
+      // near the price scale the flag flies to the left of its pole, so it never runs under the scale
+      const fd = x1 + fw > PW - 2 ? -1 : 1;
       ctx.fillStyle = fill;
       ctx.fillRect(x1 - 1, y, 2, 13);
       ctx.beginPath();
       ctx.moveTo(x1, y);
-      ctx.lineTo(x1 + fw, y);
-      ctx.lineTo(x1 + fw - 4, y + 6);
-      ctx.lineTo(x1 + fw, y + 12);
+      ctx.lineTo(x1 + fd * fw, y);
+      ctx.lineTo(x1 + fd * (fw - 4), y + 6);
+      ctx.lineTo(x1 + fd * fw, y + 12);
       ctx.lineTo(x1, y + 12);
       ctx.closePath();
       ctx.fill();
       ctx.fillStyle = !isLive && lost && !won ? "#aab4c2" : "#020c10";
-      ctx.fillText(full, x1 + 3, y + 9);
+      ctx.fillText(full, fd > 0 ? x1 + 3 : x1 - fw + 7, y + 9);
       if (isLive) {
         for (const z of cs) {
           const ye = g.y(z.s0 ?? S.price);
@@ -1636,30 +1638,34 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     ctx.moveTo(PW + 0.5, 0);
     ctx.lineTo(PW + 0.5, H);
     ctx.stroke();
-    ctx.font = "500 9px Chakra Petch";
-    ctx.fillStyle = "#5d6676";
     const dp = narrow ? 0 : 1;
-    for (let i = 0; i <= 4; i++) {
-      const p = g.lo + ((g.hi - g.lo) * (i + 0.5)) / 5;
-      ctx.fillText(fmtP(p, dp), PW + 6, g.y(p) + 3);
-    }
-    const used: number[] = [];
-    const slot = (y0: number) => {
-      // step away from the taken tags in one direction (toward the roomier half) so it never ping-pongs
-      const step = y0 > H / 2 ? -17 : 17;
-      let yy = y0;
-      for (let k = 0; k < 8; k++) {
-        if (used.every((u) => Math.abs(u - yy) >= 17)) break;
-        yy += step;
-      }
-      used.push(yy);
-      return yy;
-    };
-    if (S.disp || S.price) priceTag(ctx, g, slot(headY), fmtP(S.disp || S.price, dp), "#e8edf2");
+    /* tags: the live price + the open price of your 3 soonest calls, laid out in price order and pushed apart
+       just enough not to overlap (17 px), kept inside the plot */
+    const tags: { y: number; txt: string; bg: string }[] = [];
+    if (S.disp || S.price) tags.push({ y: headY, txt: fmtP(S.disp || S.price, dp), bg: "#e8edf2" });
     live
       .filter((c: Call) => c.status === "open" && c.s0 != null)
       .slice(0, 3)
-      .forEach((c: Call) => priceTag(ctx, g, slot(g.y(c.s0!)), (c.side === "u" ? "▲" : "▼") + fmtP(c.s0!, narrow ? 0 : 1), c.side === "u" ? C.up : C.dn));
+      .forEach((c: Call) => tags.push({ y: g.y(c.s0!), txt: (c.side === "u" ? "▲" : "▼") + fmtP(c.s0!, dp), bg: c.side === "u" ? C.up : C.dn }));
+    tags.sort((a, b) => a.y - b.y);
+    const TG = 17,
+      yMin = 10,
+      yMax = H - g.BOT - 10;
+    for (let k = 0; k < tags.length; k++) tags[k].y = Math.max(tags[k].y, k ? tags[k - 1].y + TG : yMin);
+    if (tags.length && tags[tags.length - 1].y > yMax) {
+      tags[tags.length - 1].y = yMax;
+      for (let k = tags.length - 2; k >= 0; k--) tags[k].y = Math.min(tags[k].y, tags[k + 1].y - TG);
+    }
+    /* scale ticks, skipping any that a tag would cover */
+    ctx.font = "500 9px Chakra Petch";
+    ctx.fillStyle = "#5d6676";
+    for (let i = 0; i <= 4; i++) {
+      const p = g.lo + ((g.hi - g.lo) * (i + 0.5)) / 5;
+      const yy = g.y(p);
+      if (tags.some((tg) => Math.abs(tg.y - yy) < 12)) continue;
+      ctx.fillText(fmtP(p, dp), PW + 6, yy + 3);
+    }
+    tags.forEach((tg) => priceTag(ctx, g, tg.y, tg.txt, tg.bg));
   }
 
   /* ---------- render: keys, rail, boards, price ---------- */
@@ -1921,6 +1927,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         )
         .join("");
       if (dDone.innerHTML !== dh) dDone.innerHTML = dh;
+      if (!mobile) dDone.classList.toggle("more", dDone.scrollHeight > dDone.clientHeight + 2 && dDone.scrollTop + dDone.clientHeight < dDone.scrollHeight - 2);
     }
     /* mobile strip */
     const strip = $("#mStrip");

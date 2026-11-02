@@ -664,3 +664,9 @@
 .arcade-root :is(.cab.v2,.v2m) :is(#dList,#dDone) .row .mid>b{grid-area:b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15}
 .arcade-root :is(.cab.v2,.v2m) :is(#dList,#dDone) .row .mid>small{grid-area:sm;white-space:nowrap;overflow:hidden;text-overflow:clip;line-height:1.2}
 .arcade-root :is(.cab.v2,.v2m) :is(#dList,#dDone) .row .st{grid-area:st}
+/* header: both stat labels sit on the same line whether or not they carry an ⓘ */
+.arcade-root .cockpit .cab.v2 .stat .lbl{height:14px}
+/* a stack with a ×N badge keeps clear of the next stack */
+.arcade-root :is(.cab.v2,.v2m) .stk .den:has(.cnt){margin-right:9px}
+/* the phone sheet scrolls; its cards keep their height instead of being squeezed */
+.arcade-root .v2m .msheet>*{flex:none}
