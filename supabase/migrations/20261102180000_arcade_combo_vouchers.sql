@@ -135,3 +135,6 @@ END $patch$;
 --     Main-net spec keeps settle_wait_ms = 2000 and a 500 ms feed.
 UPDATE public.arcade_params SET num = 0 WHERE key = 'settle_wait_ms';
 SELECT cron.alter_job(job_id := (SELECT jobid FROM cron.job WHERE jobname = 'arcade_sim_feed'), schedule := '1 seconds');
+-- 7 · Lovable demo: a 1 s feed moved the index past 1 bp between quote and accept on a third of taps
+--     ("Price moved · tap again"); the demo allows 5 bps. Main-net spec: 1 bp.
+UPDATE public.arcade_params SET num = 5 WHERE key = 'drift_max_bps';

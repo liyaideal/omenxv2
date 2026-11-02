@@ -715,6 +715,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       const row = await data.place(side === "u" ? "up" : "down", g, S.quoteTs!);
       const real = fromRow(row);
       Object.assign(c, { id: real.id, t0: real.t0, t1: real.t1, p: real.p, pay: real.pay, status: "open" });
+      armSettle(c);
       if (typeof row.balance === "number") {
         S.bal = row.balance;
         api.onBalance?.(row.balance);
@@ -790,9 +791,25 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     } catch (e) {
       /* retry below */
     }
+    // the server's own sweep (every second) may have settled them first — then settleMine returns nothing for
+    // them; read them back instead of waiting for the 15 s reconcile
+    if (S.calls.some((c: Call) => c.status === "settling" && !(c as any).held)) await reconcile();
     const due = S.calls.filter((c: Call) => c.status === "settling" && !(c as any).held);
     if (due.length && settleTries++ < 25) scheduleSettle(300);
     else settleTries = 0;
+  }
+  /** at t1 sharp (not on the next 250 ms tick): the flag turns "…" and the server is asked right away */
+  function armSettle(c: Call) {
+    if (FX) return;
+    timers.push(
+      setTimeout(() => {
+        if (c.status !== "open") return;
+        c.status = "settling";
+        c.revealAt = c.t1 + 500 + Math.random() * 700;
+        render();
+        if (!settleT) scheduleSettle(0);
+      }, Math.max(0, c.t1 - now() + 20)),
+    );
   }
   /** The flag shows "…" for 0.5–1.2 s after t1, then flips — the approved mock's beat (CPO 2026-11-02 "跟 mock 一样").
       A result that arrives earlier is held until then; one that arrives later shows at once. */
