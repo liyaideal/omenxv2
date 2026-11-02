@@ -32,9 +32,9 @@ Single source of truth for user-visible field names across the app.
 | 二元期权 / 30 秒合约 / 一注（Quick Play） | **call**（`one 30-second call`、`8 calls`）；专区名 **Quick Play**，不说 Arcade / Casino / Bet / option | Quick Play 节 |
 | 开盘价 / 收盘价 / S0 / S1 | **open** / **close**（`open 81,155.30 · close 81,194.73`） | Quick Play 节概念表 |
 | 赔率 / 定价 | **51.2¢**（买 Up 一侧的价格，Up + Down = $1.00） | Quick Play 节 |
-| 派彩 / 赢额 | **wins +$4.49**（已扣 5% 利润佣金）；场次卡 **Payout** = 拿回的现金 | Quick Play 节概念表 |
+| 派彩 / 赢额 | **to win $9.49**（拿回的钱，含本金，已扣 5% 利润佣金；11-02 起）；场次卡 **Payout** = 拿回的现金 | Quick Play 节概念表 |
 | 开仓手续费 / 利润佣金 | **3% in · 5% of profit out**（底注 `fee $0.15`、流水 `Winning commission`） | Quick Play 节 |
-| 撤单 / 平局退款 | **cancel**（2 秒内，`costs $0.01`）/ **refunded** | Quick Play 节概念表 |
+| 撤单 / 平局退款 | **undo**（2 秒内，`undo costs $0.0075`）/ **refunded** | Quick Play 节概念表 |
 | 会话 / 场 / 一局 | **session**（`A session ends after 30 minutes without a call.`） | Quick Play 节概念表 |
 
 
@@ -526,7 +526,7 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 
 ### Quick Play（/arcade · BTC 30 秒合约 · 流式舞台，2026-10-28 · 占位措辞）
 
-> 状态：**占位**。全部英文待合规措辞轮，i18n key 下一轮接。字典 AR-1…AR-11 / AB-1 / AB-2 / AS-1 见 `/style-guide` 交易页，PF-39…41 见 Portfolio。交付文档 `docs/delivery/quick-play-v1.md`（总文档）。
+> 状态：**占位**。全部英文待合规措辞轮，i18n key 下一轮接。字典 AR-1…AR-19 / AB-1 / AB-2 / AS-1 / AS-2 见 `/style-guide` 交易页，PF-39…41 见 Portfolio。交付文档 `docs/delivery/quick-play-v1.md`（总文档）。
 
 概念（一句定义 / 判定表达式 / 出处）：
 
@@ -534,32 +534,40 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 |---|---|---|---|
 | **call** | 一枚筹码 = 一张自己的 30 秒二元合约 | `arcade_calls` 一行，`t1 = t0 + 30 s` | quick-play-v1 §2.1 |
 | **open / close**（S0 / S1） | 开盘价 = 服务端接单后第一条有效指数；收盘价 = 到期时刻及之前最近一条有效指数 | `s0 = first valid tick ts > t0`；`s1 = last valid tick ts ≤ t1`（等 ≤ 2 s） | quick-play-v1 §3.1 |
-| **wins +$x**（派彩） | 赢了入账的净利：派彩 − 本金 − 5% 利润佣金 | `floor(gross×0.97 ÷ p ×100)/100 − gross − 5%×利润` | quick-play-v1 概念词典 |
-| **cancel** | 落筹 2 秒内撤回，退本金减 0.15% | `now ≤ t0 + 2 s` | quick-play-v1 §2.1 |
+| **to win $x**（11-02 起，取代 wins +$x） | 赢了拿回的钱：派彩 − 5% 利润佣金（含本金；和主站 To win 同口径）；结算后的 `+$x` 仍是净利 | `callCredit = floor(gross×0.97 ÷ p ×100)/100 − 5%×利润`；净利 = callCredit − gross | quick-play-v1 概念词典 |
+| **undo**（cancel） | 落筹 2 秒内撤回，退本金减 0.15%（4 位小数：$5 → $0.0075） | `now ≤ t0 + 2 s` | quick-play-v1 §2.1 |
 | **refunded**（void） | 平局或没有有效价，整枚筹码连费退回 | `s0 IS NULL OR s1 IS NULL OR s0 = s1` | quick-play-v1 §2.1 |
 | **session**（一场） | 一坐下来玩的这一把，30 分钟没下单就结束；机柜 04 / 海报 / Portfolio 同一条规则 | 相邻两张下单间隔 `> 30 min` 断场（`ARCADE_SESSION_GAP_MIN` = SQL `interval '30 minutes'`） | quick-play-v1 §2.2 |
 | **calls / staked / payout**（场） | 到期结算的张数 / 这些张的筹码 / 这些张拿回的现金 | `calls = won + lost`；`payout = staked + pnl(won+lost)` | quick-play-v1 §2.2 |
 | **best run** | 场内按顺序的最长连赢 | 连续 won 的最大长度 | quick-play-v1 §2.2 |
-| **COMBO ×n** | 当前连赢数，×3 / ×6 / ×9 金币雨 | 场内连续 won 计数，输一张归零 | quick-play-v1 §4.3 |
-| **THIS SLOT** | 路单当前 30 秒格；点任一格 4 秒内改显示那格 | 格 = 30 秒墙钟 | quick-play-v1 §4.1 |铁律不变：机柜内不出现 `sh` / 份额数，所有金额讲钱、所有提示讲人话。
+| **COMBO ×n** | 当前连赢数（≥2 才显示）；每满 3 把掉一张 $2 有门槛仓位券，每天 ≤ $10 | 场内按结算顺序连续 won 计数，输一张归零、void 不算；服务端 `arcade_combo_vouchers` 同规则 |
+| **combo voucher** | 连赢 ×3 / ×6 / ×9… 掉的 $2 tiered Position Voucher，Rewards › Vouchers 来源 `From Quick Play — 3 wins in a row` | `position_vouchers.source_arcade_call_id` = 凑满那一张；UTC 日合计 ≤ `combo_voucher_cap_day` |
+| **preview line** | 自己没单（或 hover 一个键）时，图上从现价往右 30 秒的那条线：现在下单会在哪结算 | `!anyLive \|\| hover` |
+| **LIVE TABLE / YOUR CALLS** | 右栏：这一场第一笔之前看全桌，之后只看自己的 | `played && !(无未到期 && 距上一笔 > 30 min)` | quick-play-v1 §4.3 |
+| **Now · Ns left**（原 THIS SLOT） | 路单 LAST 30 MIN 卡底的当前 30 秒格：涨跌 + 还剩几秒；点 / hover 任一格弹提示 | 格 = 30 秒墙钟 | quick-play-v1 §4.1 |铁律不变：机柜内不出现 `sh` / 份额数，所有金额讲钱、所有提示讲人话。
 
 | Canonical | Where | Note |
 |---|---|---|
-| **BTC · 30-second calls** / **Price from 3 exchanges · settles in 30s** | 头条题牌 + 副行 | 移动 `BTC · 30s calls · $81,155.30` |
-| **YOUR OPEN $25 / $500** | 头条 / 移动副行 | 未到期总额 / 单账户上限 |
-| **AVAILABLE · SPOT $2,753.89** | 头条 | 移动只写 `AVAILABLE` |
+| **BTC · 30-second calls** / **Settles on the BTC Index ⓘ** | 头条题牌 + 副行（11-02） | ⓘ `The BTC Index turns the live BTC prices from Binance, Hyperliquid and Coinbase into one price, updated every second. Every call opens and settles on it, so a glitch on any single exchange can't swing your result.`；移动 `BTC · 30s calls · $81,155.30` |
+| **TOTAL OPEN POSITIONS ⓘ** / **Current $25 / Max $500** | 头条（11-02，取代 YOUR OPEN） | ⓘ `You can have up to $500 in open calls at once. Room frees up as your calls settle.`；移动 `OPEN POSITIONS $25 / $500 ⓘ` |
+| **AVAILABLE · SPOT $2,753.89** | 头条 | 移动同样写 `AVAILABLE · SPOT`（不折行） |
 | **+ Deposit** / **⇄ Transfer** / **Rules** | 头条三键 | 移动 `+` / `RULES` |
-| **BINANCE $x · HYPERLIQUID $x · COINBASE $x · LIVE · 3 of 3** | 大价下一行 | 无效 `INDEX INVALID · fewer than two sources` / `two sources disagree` / `no USDT-USD rate`；移动四格第四格 `INDEX` |
+| **BTC INDEX** + **FROM Binance $x · Hyperliquid $x · Coinbase $x** | 桌面大价上方小标 + 大价下一行（11-02，单独的来源行删掉） | 缺一家 `—`；指数无效整行红；移动保持四格 BINANCE / HYPERLIQ. / COINBASE / BTC INDEX |
 | **NEXT SETTLE · 12s** | 图表头右上 | 没单 `—`；移动 `NEXT · 12s` |
-| **−45s / now / +30s · flags = settlement** | 图表轴 | |
-| **MY CALLS 3** / **TABLE 7** / **$75** | 右栏页签 + 合计 | 不叫 MINE（CPO：像挖矿）、不叫 Open calls |
-| **Tap UP or DOWN — your calls land here** | 右栏空态 | 移动筹码带 `Tap UP or DOWN — your calls show here` |
-| **$25 @ 51.2¢** / **wins +$21.46 · 12s** | MY CALLS 行（10-29 改：派彩挪到第二行，开盘价看图上的虚线；280px 的右栏放不下一行） | 行尾 `cancel` → `open…` → `ahead` / `behind` → `settling` → `+$21.46` / `VOID` |
-| **$25 @ 51.0¢ · won · open 81,155.30 · close 81,194.73** | LAST SETTLED 行（只留最近一张；≥2 张已结时下面出 **All settled calls → Portfolio**） | `lost` / `void · no valid price · refunded` / `cancelled · taken back within 2 s` |
-| **$25 @ 51.2¢ · kz***88** | TABLE 行 | 自己的单标 `you` |
-| **YOUR STAKE · PER CHIP** / **$5 SELECTED** | 筹码盘 | $5 / 10 / 25 / 50 / 100 |
-| **$5 in · fee $0.15 · wins +$4.49 if Up** | UP / DOWN 底注 | `+$` 已扣 5% 佣金 |
-| **tap chip to cancel · costs $0.01** | 底注（前 2 秒） | 取消 toast `Cancelled · $0.01 close fee` |
+| **← last 45 seconds** / **each call settles 30s after you tap →** / **NOW** / **15:52:30** | 图表底注 + 时间刻度（11-02） | 刻度每 15 秒，真实时钟；移动只写 `52:30` |
+| **if you call now · settles here** / **▲ UP wins if BTC ends above** / **▼ DOWN wins if BTC ends below** | 预览线旗 + hover 文案（11-02） | 移动旗 `30s`、`▲ UP wins above` / `▼ DOWN wins below` |
+| **▲ +$136.86 in the last 30s** | 大价下（自己没单时，11-02） | |
+| **LIVE TABLE 7** · **everyone's open calls** / **Tap UP or DOWN to start — your calls and results show here** | 右栏 · 这一场还没下过单（11-02） | 移动筹码带 `LIVE TABLE 7` |
+| **YOUR CALLS** · **only you see these** / **Open 3** · **$75 in play** / **Settled 5** | 右栏 · 第一笔之后（11-02，取代 MY CALLS / TABLE 页签） | 不叫 MINE |
+| **No open calls · tap UP or DOWN** / **Nothing settled yet this session** / **↓ 3 more** | Open / Settled 空态、列表溢出（11-02） | 移动筹码带 `Tap UP or DOWN — your calls show here` |
+| **$25 · to win $46.46** / **@ 51.2¢ · open $80,900.87 · 12s** | Open 行（11-02：to win = 赢了拿回的钱，含本金、已扣佣金，同主站 To win） | 行尾 `undo…` → `open…` → `ahead`（白）/ `behind`（灰）→ `+$21.46` / `−$25.00` |
+| **$25 @ 51.0¢ · won** / **open 81,155.30 · close 81,194.73** | Settled 页签行（最多 30 条）+ **All settled calls → Portfolio** | `lost` / `void` · `no valid price · refunded` / `cancelled` · `taken back within 2 s` |
+| **▲ UP** / **▼ DN** · **$25 @ 51.2¢ · kz***88** | LIVE TABLE 行（11-02 方向都带 ▲▼） | |
+| **YOUR STAKE · PER CHIP** / **$5 SELECTED** | 筹码盘 | **$2 / 5 / 10 / 25 / 50**（11-02：删 $100、加 $2） |
+| **Win 3 in a row = $2 voucher · up to $10 a day** / **Vouchers today $4 / $10 · View ›** / **Today's $10 of vouchers claimed · resets 00:00 UTC** | 03 标题行券条（11-02） | 移动 `3 wins in a row = $2 voucher` / `Vouchers $4 / $10 today ›` / `Today's $10 vouchers claimed` |
+| **$5 in · fee $0.15 · to win $9.49 if Up** | UP / DOWN 底注（11-02） | to win 含本金、已扣 5% 佣金 |
+| **UNDO 1.6s** / **UNDO (3)** / **Placed ✓ · undo costs $0.0075** / **3 placed ✓ · undo removes the latest** / **+$5 ▲** | UNDO 键 + 底注（前 2 秒）+ 落筹飘字（11-02） | 撤单费 4 位小数；toast `Cancelled · $0.0075 close fee` |
+| **Limit reached · $500 in play · room frees up as your calls settle** | 到上限的底注 + toast（11-02，取代 `$500 max open per account`） | |
 | **Price moved · tap again** | 底注（拒单） | 键上价闪白；不扣钱 |
 | **Table paused · index invalid** / **· market moving too fast** / **· daily limit reached** / **Table full · room opens as calls settle** / **Table closed** | 底注（暂停） | 遮罩 `TABLE PAUSED` + `Index invalid · waiting for the exchanges` / `BTC is moving too fast · back in a moment` / `Daily limit reached · back tomorrow` / `TABLE FULL · Room opens as calls settle` + `Open calls keep running and settle as normal` |
 | **Waiting for the price** / **Warming up · odds in a moment** | 底注（无 tick / 无报价） | |
@@ -569,18 +577,18 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 | **UP · 4 $105** / **DOWN · 2 $110** | TABLE 页签顶部汇总 | 右上金额 = 桌面总额 |
 | **QUICK PLAY** / **BTC · 30-SECOND CALLS · 24/7** / **$81,466.92 · ▲ +$4.80 · last 30s** / **TIME 00:22** / **▲ UP 51.2¢ · ▼ DOWN 48.8¢** / **PLAY ▸** | Events All 入口横幅（方案 C 像素夜景，10-28） | `last 30s` = 30 秒前的指数与变化；`TIME` = 桌子的 30 秒墙钟格（不是局）；无效时副行 **INDEX INVALID · WAITING FOR THE EXCHANGES**、报价 `—` |
 | **SESSION +$83.57** / **2 won · 1 lost** | SESSION 牌 | 本次打开以来 |
-| **LAST 10** ✓✕ / **3 in a row** / **2 lost in a row** | LAST 10 牌 | 账号历史 |
-| **COMBO ×2** / **1 more → ×3 bonus** / **bonus!** / **COMBO BREAK** | COMBO HUD | 连输 `LOST ×2` / `ouch` / `STREAK OVER` |
-| **×3 COMBO** / **keep it rolling · next bonus at ×6** | 大字 | 连输 `×3 LOST` / `take a breath · streak resets on a win` |
+| **LAST 10** ✓✕ / **3 in a row** | LAST 10 牌 | 11-02：赢 = 白底 ✓、输 = 灰框 ✕；删 `2 lost in a row` |
+| **COMBO ×2** / **⇪ SHARE** / **win 1 more → free $2 voucher** / **you got a $2 voucher!** / **vouchers maxed today · keep it going** | COMBO HUD（11-02） | 删 `1 more → ×3 bonus` / `bonus!` / `COMBO BREAK` / `LOST ×N`；连输什么都不显示 |
+| **×3 COMBO** / **+$2 voucher · in your Vouchers** / **on fire** · **unstoppable** · **legendary** / **+$2 VOUCHER** | 大字（每 ×3 倍数、×5、×8）+ 飞向券条的牌（11-02） | 档位 ×3 ON FIRE / ×5 UNSTOPPABLE / ×8 LEGENDARY |
 | **+$4.29** / **−$5.00** / **VOID** | 图上飘字 | |
-| **Market · every cell = 30 seconds of BTC** / **THIS SLOT · ▲ +5.29 · 21s** / **BEAD · 36** / **Big road · same result stacks down, a change starts a new column** / **Up 31 · Down 25 last 56 slots** / **Longest Up ×9** | 路单条 | ⓘ → `How to read the road`（Dragon / Chop / Break + `The road is context, not a forecast…`） |
+| **01 / REPLAY · WHAT HAPPENED** + **▲ Up ▼ Down** / **BEAD · LAST 36** · **← 15:36 · now →** / **BIG ROAD ⓘ · BTC's direction, every 30 seconds** / **LAST 30 MIN** · **▲ Up 28 · 16 Down ▼** · **longest run ▲ Up ×7** · **Now ▼ −$7.40 · 13s left** / 格子提示 **▲ Up +$12.00** · **07:49:00 – 07:49:30** / **No index print · colour carried over** | 路单条（11-02） | 删 `THIS SLOT` 与 `Market · every cell …` |
 | **BEFORE YOU PLAY** 四行 + **I GET IT · START PLAYING** + **How the price and odds are made →** | 免责门 | 见 AR-1 |
 | **HOW IT WORKS** 六段 | RULES 弹层 | 1 The price · 2 Open and close · 3 The odds · 4 Payout & fees · 5 Limits & pauses · 6 Your record |
 | **TABLE PAUSED · TAP TO JUMP** / **CRASH · TAP TO RETRY** / **41 · HI 58** | 跑酷 HUD | |
 | **DRAGON ×5 ▲** / **choppy…** / **new here? tap ⓘ ↗** | 猞猁举牌 | |
 | **ROAD & STATS** | 移动窥条 / 抽屉标题 | |
 | **QUICK PLAY** / **BTC · 30-SECOND CALLS · 24/7** / **BTC · 3 EXCHANGES · ▲ +$12.40 last 30s** / **30 SEC** / **PAUSED** | 入口横幅（10-19 V1-B / V1-A，10-28 作废，见上面方案 C 行） | |
-| **⇪ SHARE** | 04 / YOUR RESULT 右上小键（10-28） | ≥1 笔结算才亮 |
+| **⇪ SHARE** | 04 / YOUR RESULT 右上小键（10-28）；COMBO HUD 里也有一枚（11-02，开 combo 海报） | ≥1 笔结算才亮 |
 | **Share your run** / **Save the card or post it straight to X / Telegram** / **Rough one — share it anyway, we go again** | 分享弹层标题 / 副标题（赚 / 亏） | |
 | **⚡ 7 of 10 right** / **📉 3 of 10 right** / **QUICK PLAY** / **Profit** / **Lost** / **Called Bitcoin up or down, 30 seconds at a time** / **23 minutes · 10 calls · $5 each** / **$80 staked** / **Best run · 4 in a row** / **Biggest win · +$9.20** / **Pick UP or DOWN · from $5** | 分享海报 | 净利已扣佣金；不写 ROI |
 | **Called Bitcoin up or down for 23 min on OmenX Quick Play — 7 of 10 right, +$83.57 ⚡** / **… −$21.40. We go again 😅** | 分享文案（X / Telegram / 系统分享） | |

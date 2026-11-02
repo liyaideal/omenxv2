@@ -279,7 +279,8 @@
 |---|---|---|
 | `arcade_params`（费率 3% / 0.15% / 5%、筹码档位、单账户未到期 ≤ $500、每秒 ≤ 2 笔、全桌最坏损失 ≤ $10,000、熔断 10 bps、模型系数、报价钳位 0.40–0.60） | 🟢 A | 数值照抄研发稿 + CPO 修订（`docs/delivery/quick-play-v1.md` §3.1）；存成表还是配置自选 |
 | `arcade_place(side, gross, quote_ts)`：按用户看到的报价成交、校验链、t0 = 接单时刻、派彩当场锁定、失败不扣钱 | 🟢 A | 校验顺序与拒单文案是需求（词典「Quick Play v2」）；`quote_ts` 对账 + 指数漂移 ≤ 1 bp 是防"抢价"的硬规则 |
-| `arcade_cancel(id)`：2 秒内、退 `gross − 0.15%`、开仓费一起退 | 🟢 A | 照抄 |
+| `arcade_cancel(id)`：2 秒内、退 `gross − 0.15%`（**4 位小数**，2026-11-02：`cancel_fee` / `pnl` 为 numeric(12,4)）、开仓费一起退 | 🟢 A | 照抄 |
+| `arcade_combo_vouchers(user)`（2026-11-02）：按 t1 顺序重算连赢（void / 撤单不算、30 分钟断场），每满 `combo_voucher_every`(3) 发一张 `combo_voucher_face`($2) tiered 仓位券，UTC 日 ≤ `combo_voucher_cap_day`($10)；`position_vouchers.source_arcade_call_id` 唯一 = 幂等；`arcade_settle_due` 结完赢单即调；`arcade_table_now().combo_today` 回给机柜 | 🟢 A | 规则照抄；调用时机自选（结算同事务最好）。全站每日券池要不要扣待 CPO 定 |
 | `arcade_settle_due()`：S0 = t0 后第一条有效指数、S1 = t1 前最近一条（等 ≤ 2 s）、平局 / 无价 void 全退、赢扣 5% 利润；幂等 | 🟢 A | 口径照抄；调度（每 tick 扫 + 客户端到点 `arcade_settle_mine()`）自选 |
 | 指数：Binance / Hyperliquid（现货 `@142`）/ Coinbase 三家中间价换算 USDT 取中位数，点差 ≤ 2 bps、≥2 源、2 源偏差 > 5 bps 判无效；500 ms 采样 | 🟡 B | 规则在此（`arcade_feed_tick()` 是参考实现）；正式版用自己的行情服务，**不走 pg_cron + pg_net** |
 | 报价模型 `p = clip(sigmoid(a + b·z30 + c·z60), 0.40, 0.60)`，600 s 历史起报 | 🟡 B | 系数是研发稿候选值，模型归研发 |
