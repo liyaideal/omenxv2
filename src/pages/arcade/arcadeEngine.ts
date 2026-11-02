@@ -2281,7 +2281,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     if (dep) {
       dep.classList.toggle("signin", out);
       dep.closest(".m-top")?.classList.toggle("guest", out);
-      dep.textContent = out ? (api.isMobile ? "SIGN IN" : "→ Sign in") : api.isMobile ? "+" : "+ Deposit";
+      dep.textContent = out ? (api.isMobile ? "SIGN IN" : "Sign in") : api.isMobile ? "+" : "+ Deposit";
       dep.title = out ? "Sign in to play" : api.isMobile ? "Deposit" : "Buy USDC with card or deposit on Base";
     }
     const x = $("#xferBtn");

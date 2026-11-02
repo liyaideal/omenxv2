@@ -116,6 +116,63 @@ export type Database = {
           },
         ]
       }
+      announcements: {
+        Row: {
+          affects: string | null
+          body_md: string
+          created_at: string
+          cta_href: string | null
+          cta_label: string | null
+          id: string
+          kind: string
+          locale: string
+          not_affected: string | null
+          published_at: string | null
+          status: string
+          summary: string
+          title: string
+          updated_at: string
+          window_ends_at: string | null
+          window_starts_at: string | null
+        }
+        Insert: {
+          affects?: string | null
+          body_md?: string
+          created_at?: string
+          cta_href?: string | null
+          cta_label?: string | null
+          id?: string
+          kind: string
+          locale?: string
+          not_affected?: string | null
+          published_at?: string | null
+          status?: string
+          summary: string
+          title: string
+          updated_at?: string
+          window_ends_at?: string | null
+          window_starts_at?: string | null
+        }
+        Update: {
+          affects?: string | null
+          body_md?: string
+          created_at?: string
+          cta_href?: string | null
+          cta_label?: string | null
+          id?: string
+          kind?: string
+          locale?: string
+          not_affected?: string | null
+          published_at?: string | null
+          status?: string
+          summary?: string
+          title?: string
+          updated_at?: string
+          window_ends_at?: string | null
+          window_starts_at?: string | null
+        }
+        Relationships: []
+      }
       api_keys: {
         Row: {
           created_at: string
@@ -155,6 +212,321 @@ export type Database = {
           status?: string
           tier?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      arcade_acks: {
+        Row: {
+          accepted_at: string
+          user_id: string
+          version: number
+        }
+        Insert: {
+          accepted_at?: string
+          user_id: string
+          version?: number
+        }
+        Update: {
+          accepted_at?: string
+          user_id?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      arcade_calls: {
+        Row: {
+          bot_name: string | null
+          cancel_fee: number | null
+          commission: number | null
+          created_at: string
+          fee: number
+          gross: number
+          id: string
+          net: number
+          p: number
+          p_up: number
+          pnl: number | null
+          quote_idx: number
+          quote_ts: string
+          s0: number | null
+          s0_ts: string | null
+          s1: number | null
+          s1_ts: string | null
+          settled_at: string | null
+          side: string
+          status: string
+          t0: string
+          t1: string
+          user_id: string | null
+          win_payout: number
+        }
+        Insert: {
+          bot_name?: string | null
+          cancel_fee?: number | null
+          commission?: number | null
+          created_at?: string
+          fee: number
+          gross: number
+          id?: string
+          net: number
+          p: number
+          p_up: number
+          pnl?: number | null
+          quote_idx: number
+          quote_ts: string
+          s0?: number | null
+          s0_ts?: string | null
+          s1?: number | null
+          s1_ts?: string | null
+          settled_at?: string | null
+          side: string
+          status?: string
+          t0: string
+          t1: string
+          user_id?: string | null
+          win_payout: number
+        }
+        Update: {
+          bot_name?: string | null
+          cancel_fee?: number | null
+          commission?: number | null
+          created_at?: string
+          fee?: number
+          gross?: number
+          id?: string
+          net?: number
+          p?: number
+          p_up?: number
+          pnl?: number | null
+          quote_idx?: number
+          quote_ts?: string
+          s0?: number | null
+          s0_ts?: string | null
+          s1?: number | null
+          s1_ts?: string | null
+          settled_at?: string | null
+          side?: string
+          status?: string
+          t0?: string
+          t1?: string
+          user_id?: string | null
+          win_payout?: number
+        }
+        Relationships: []
+      }
+      arcade_feed_req: {
+        Row: {
+          batch: string
+          req_id: number | null
+          src: string
+        }
+        Insert: {
+          batch: string
+          req_id?: number | null
+          src: string
+        }
+        Update: {
+          batch?: string
+          req_id?: number | null
+          src?: string
+        }
+        Relationships: []
+      }
+      arcade_index_ticks: {
+        Row: {
+          binance: number | null
+          coinbase: number | null
+          hyperliquid: number | null
+          idx: number | null
+          p_up: number | null
+          r1: number | null
+          r30: number | null
+          r60: number | null
+          reason: string | null
+          rv600: number | null
+          src_raw: Json | null
+          ts: string
+          usdt_usd: number | null
+          valid: boolean
+        }
+        Insert: {
+          binance?: number | null
+          coinbase?: number | null
+          hyperliquid?: number | null
+          idx?: number | null
+          p_up?: number | null
+          r1?: number | null
+          r30?: number | null
+          r60?: number | null
+          reason?: string | null
+          rv600?: number | null
+          src_raw?: Json | null
+          ts: string
+          usdt_usd?: number | null
+          valid?: boolean
+        }
+        Update: {
+          binance?: number | null
+          coinbase?: number | null
+          hyperliquid?: number | null
+          idx?: number | null
+          p_up?: number | null
+          r1?: number | null
+          r30?: number | null
+          r60?: number | null
+          reason?: string | null
+          rv600?: number | null
+          src_raw?: Json | null
+          ts?: string
+          usdt_usd?: number | null
+          valid?: boolean
+        }
+        Relationships: []
+      }
+      arcade_params: {
+        Row: {
+          key: string
+          note: string | null
+          num: number | null
+          txt: string | null
+        }
+        Insert: {
+          key: string
+          note?: string | null
+          num?: number | null
+          txt?: string | null
+        }
+        Update: {
+          key?: string
+          note?: string | null
+          num?: number | null
+          txt?: string | null
+        }
+        Relationships: []
+      }
+      arcade_probe: {
+        Row: {
+          acts: Json | null
+          at: string | null
+          locks: Json | null
+          tick_age_s: number | null
+        }
+        Insert: {
+          acts?: Json | null
+          at?: string | null
+          locks?: Json | null
+          tick_age_s?: number | null
+        }
+        Update: {
+          acts?: Json | null
+          at?: string | null
+          locks?: Json | null
+          tick_age_s?: number | null
+        }
+        Relationships: []
+      }
+      arcade_rounds: {
+        Row: {
+          close_price: number | null
+          created_at: string
+          end_at: string
+          id: string
+          kind: string
+          open_price: number
+          seed: number
+          sigma: number
+          start_at: string
+          steps: number
+          symbol: string
+          tf: string
+          winner: string | null
+        }
+        Insert: {
+          close_price?: number | null
+          created_at?: string
+          end_at: string
+          id: string
+          kind: string
+          open_price: number
+          seed: number
+          sigma: number
+          start_at: string
+          steps: number
+          symbol: string
+          tf: string
+          winner?: string | null
+        }
+        Update: {
+          close_price?: number | null
+          created_at?: string
+          end_at?: string
+          id?: string
+          kind?: string
+          open_price?: number
+          seed?: number
+          sigma?: number
+          start_at?: string
+          steps?: number
+          symbol?: string
+          tf?: string
+          winner?: string | null
+        }
+        Relationships: []
+      }
+      arcade_sim_state: {
+        Row: {
+          anchor: number | null
+          anchor_at: string | null
+          id: number
+          req_at: string | null
+        }
+        Insert: {
+          anchor?: number | null
+          anchor_at?: string | null
+          id?: number
+          req_at?: string | null
+        }
+        Update: {
+          anchor?: number | null
+          anchor_at?: string | null
+          id?: number
+          req_at?: string | null
+        }
+        Relationships: []
+      }
+      arcade_table_state: {
+        Row: {
+          breaker_until: string | null
+          id: number
+          loss_60m: number
+          loss_day: number
+          open_calls: number
+          open_stake: number
+          paused_reason: string | null
+          updated_at: string
+          worst_loss: number
+        }
+        Insert: {
+          breaker_until?: string | null
+          id?: number
+          loss_60m?: number
+          loss_day?: number
+          open_calls?: number
+          open_stake?: number
+          paused_reason?: string | null
+          updated_at?: string
+          worst_loss?: number
+        }
+        Update: {
+          breaker_until?: string | null
+          id?: number
+          loss_60m?: number
+          loss_day?: number
+          open_calls?: number
+          open_stake?: number
+          paused_reason?: string | null
+          updated_at?: string
+          worst_loss?: number
         }
         Relationships: []
       }
@@ -765,6 +1137,78 @@ export type Database = {
         }
         Relationships: []
       }
+      fiat_orders: {
+        Row: {
+          account: string
+          card_brand: string | null
+          card_last4: string | null
+          completed_at: string | null
+          confirmed_at: string | null
+          created_at: string
+          failure_reason: string | null
+          fiat_amount: number
+          fiat_code: string
+          id: string
+          paid_at: string | null
+          payment_method: string
+          provider: string
+          provider_tx_id: string | null
+          quote_amount: number
+          status: string
+          total_fee: number
+          transaction_id: string | null
+          updated_at: string
+          user_id: string
+          wallet_address: string | null
+        }
+        Insert: {
+          account?: string
+          card_brand?: string | null
+          card_last4?: string | null
+          completed_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          failure_reason?: string | null
+          fiat_amount: number
+          fiat_code: string
+          id?: string
+          paid_at?: string | null
+          payment_method?: string
+          provider?: string
+          provider_tx_id?: string | null
+          quote_amount: number
+          status?: string
+          total_fee?: number
+          transaction_id?: string | null
+          updated_at?: string
+          user_id: string
+          wallet_address?: string | null
+        }
+        Update: {
+          account?: string
+          card_brand?: string | null
+          card_last4?: string | null
+          completed_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          failure_reason?: string | null
+          fiat_amount?: number
+          fiat_code?: string
+          id?: string
+          paid_at?: string | null
+          payment_method?: string
+          provider?: string
+          provider_tx_id?: string | null
+          quote_amount?: number
+          status?: string
+          total_fee?: number
+          transaction_id?: string | null
+          updated_at?: string
+          user_id?: string
+          wallet_address?: string | null
+        }
+        Relationships: []
+      }
       h2e_fund: {
         Row: {
           active_airdrops_count: number
@@ -825,6 +1269,48 @@ export type Database = {
           id?: string
           is_yes?: boolean | null
           option_label?: string | null
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          category: string
+          created_at: string
+          dedupe_key: string
+          deep_link: string | null
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          params: Json
+          read_at: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          dedupe_key: string
+          deep_link?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          params?: Json
+          read_at?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          dedupe_key?: string
+          deep_link?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          params?: Json
+          read_at?: string | null
+          type?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -1020,6 +1506,7 @@ export type Database = {
           redeemed_event_id: string | null
           redeemed_option_id: string | null
           redeemed_side: string | null
+          source_arcade_call_id: string | null
           source_entry_id: string | null
           status: string
           tiered_credited_at: string | null
@@ -1046,6 +1533,7 @@ export type Database = {
           redeemed_event_id?: string | null
           redeemed_option_id?: string | null
           redeemed_side?: string | null
+          source_arcade_call_id?: string | null
           source_entry_id?: string | null
           status?: string
           tiered_credited_at?: string | null
@@ -1072,6 +1560,7 @@ export type Database = {
           redeemed_event_id?: string | null
           redeemed_option_id?: string | null
           redeemed_side?: string | null
+          source_arcade_call_id?: string | null
           source_entry_id?: string | null
           status?: string
           tiered_credited_at?: string | null
@@ -1084,6 +1573,13 @@ export type Database = {
             columns: ["redeemed_airdrop_position_id"]
             isOneToOne: false
             referencedRelation: "airdrop_positions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "position_vouchers_source_arcade_call_id_fkey"
+            columns: ["source_arcade_call_id"]
+            isOneToOne: true
+            referencedRelation: "arcade_calls"
             referencedColumns: ["id"]
           },
           {
@@ -1971,6 +2467,185 @@ export type Database = {
             }
             Returns: number
           }
+      arcade_accept_terms: { Args: never; Returns: string }
+      arcade_advance: { Args: { p_n: number; p_seed: number }; Returns: number }
+      arcade_cancel: { Args: { p_id: string }; Returns: Json }
+      arcade_close: {
+        Args: {
+          p_open: number
+          p_seed: number
+          p_sigma: number
+          p_steps: number
+        }
+        Returns: number
+      }
+      arcade_combo_vouchers: { Args: { p_user: string }; Returns: number }
+      arcade_feed_tick: { Args: never; Returns: undefined }
+      arcade_housekeeping: { Args: never; Returns: undefined }
+      arcade_median3: {
+        Args: { a: number; b: number; c: number }
+        Returns: number
+      }
+      arcade_my_calls: {
+        Args: { p_limit?: number; p_since?: string }
+        Returns: {
+          bot_name: string | null
+          cancel_fee: number | null
+          commission: number | null
+          created_at: string
+          fee: number
+          gross: number
+          id: string
+          net: number
+          p: number
+          p_up: number
+          pnl: number | null
+          quote_idx: number
+          quote_ts: string
+          s0: number | null
+          s0_ts: string | null
+          s1: number | null
+          s1_ts: string | null
+          settled_at: string | null
+          side: string
+          status: string
+          t0: string
+          t1: string
+          user_id: string | null
+          win_payout: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "arcade_calls"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      arcade_my_session_calls: {
+        Args: { p_key: string; p_limit?: number; p_offset?: number }
+        Returns: {
+          bot_name: string | null
+          cancel_fee: number | null
+          commission: number | null
+          created_at: string
+          fee: number
+          gross: number
+          id: string
+          net: number
+          p: number
+          p_up: number
+          pnl: number | null
+          quote_idx: number
+          quote_ts: string
+          s0: number | null
+          s0_ts: string | null
+          s1: number | null
+          s1_ts: string | null
+          settled_at: string | null
+          side: string
+          status: string
+          t0: string
+          t1: string
+          user_id: string | null
+          win_payout: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "arcade_calls"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      arcade_my_sessions: {
+        Args: { p_limit?: number }
+        Returns: {
+          active: boolean
+          best_run: number
+          biggest_win: number
+          calls: number
+          cancelled: number
+          commission: number
+          ended_at: string
+          fees: number
+          last_settled_at: string
+          lost: number
+          max_stake: number
+          min_stake: number
+          payout: number
+          pnl: number
+          refunded: number
+          session_key: string
+          staked: number
+          started_at: string
+          won: number
+        }[]
+      }
+      arcade_open_round: {
+        Args: {
+          p_kind: string
+          p_name: string
+          p_open: number
+          p_seed: number
+          p_start: string
+          p_symbol: string
+          p_tf: string
+        }
+        Returns: boolean
+      }
+      arcade_param: { Args: { p_key: string }; Returns: number }
+      arcade_path: {
+        Args: {
+          p_open: number
+          p_seed: number
+          p_sigma: number
+          p_steps: number
+        }
+        Returns: number[]
+      }
+      arcade_place: {
+        Args: { p_gross: number; p_quote_ts: string; p_side: string }
+        Returns: Json
+      }
+      arcade_real_btc: { Args: never; Returns: number }
+      arcade_road: {
+        Args: { p_slots?: number }
+        Returns: {
+          close_idx: number
+          open_idx: number
+          slot_start: string
+        }[]
+      }
+      arcade_round_half_up: {
+        Args: { p: number; p_scale: number }
+        Returns: number
+      }
+      arcade_settle_due: { Args: { p_user?: string }; Returns: Json }
+      arcade_settle_mine: { Args: never; Returns: Json }
+      arcade_sim_feed: { Args: never; Returns: undefined }
+      arcade_sim_tick: {
+        Args: { p_pup: number; p_ts: string }
+        Returns: undefined
+      }
+      arcade_stall_probe: { Args: never; Returns: undefined }
+      arcade_state_at: {
+        Args: { p_at: string; p_symbol: string }
+        Returns: Record<string, unknown>
+      }
+      arcade_synth_tick: { Args: never; Returns: undefined }
+      arcade_table_feed: {
+        Args: never
+        Returns: {
+          gross: number
+          id: string
+          mine: boolean
+          p: number
+          side: string
+          t0: string
+          t1: string
+          who: string
+        }[]
+      }
+      arcade_table_now: { Args: never; Returns: Json }
       archive_sports_result: { Args: { p_id: string }; Returns: undefined }
       campaign_hold_sweep: { Args: never; Returns: number }
       campaign_metric_value: {
@@ -2026,6 +2701,10 @@ export type Database = {
         Returns: boolean
       }
       ensure_soccer_lines: { Args: { p_fixture_id: string }; Returns: number }
+      ensure_us_sport_lines: {
+        Args: { fx: string; hcp: number; tot: number }
+        Returns: number
+      }
       ensure_voucher_pool_today: { Args: never; Returns: undefined }
       freeze_expired_events: { Args: never; Returns: number }
       gen_voucher_code: { Args: never; Returns: string }
@@ -2128,17 +2807,51 @@ export type Database = {
           referrer_id: string
         }[]
       }
+      mark_notifications_read: { Args: { p_ids?: string[] }; Returns: number }
+      notif_session_date: { Args: { p_option_id: string }; Returns: string }
+      notification_category: { Args: { p_type: string }; Returns: string }
+      notify: {
+        Args: {
+          p_dedupe?: string
+          p_deep_link?: string
+          p_entity_id?: string
+          p_entity_type?: string
+          p_params?: Json
+          p_type: string
+          p_user: string
+        }
+        Returns: string
+      }
+      notify_campaign_ending: { Args: never; Returns: number }
+      notify_expiring: { Args: never; Returns: number }
+      notify_self: {
+        Args: { p_dedupe?: string; p_params?: Json; p_type: string }
+        Returns: string
+      }
+      notify_watchlist_live: { Args: never; Returns: number }
+      position_side_labels: { Args: { p_option_id: string }; Returns: Json }
+      position_trade_link: { Args: { p_option_id: string }; Returns: string }
+      purge_notifications: { Args: never; Returns: number }
       reprice_soccer_lines: { Args: { p_fixture_id: string }; Returns: number }
+      roll_arcade_rounds: { Args: never; Returns: Json }
       roll_crypto_quick_rounds: { Args: never; Returns: Json }
       roll_daily_hk_stock_events: { Args: never; Returns: number }
       roll_daily_stock_events: { Args: never; Returns: number }
       roll_demo_campaign_daily: { Args: never; Returns: undefined }
       roll_demo_positions: { Args: never; Returns: Json }
       roll_sports_matches: { Args: never; Returns: Json }
+      settle_arcade_round: {
+        Args: { p_event_id: string; p_void?: boolean }
+        Returns: number
+      }
       settle_futures_event: { Args: { p_event_id: string }; Returns: number }
       settle_futures_sweep: { Args: never; Returns: number }
       settle_prior_stock_session: {
         Args: { _subtype: string }
+        Returns: number
+      }
+      settle_quick_contract_round: {
+        Args: { p_event_id: string }
         Returns: number
       }
       settle_spot_event: { Args: { p_event_id: string }; Returns: number }
@@ -2160,7 +2873,9 @@ export type Database = {
       tick_demo_showcase: { Args: never; Returns: Json }
       tick_demo_wta: { Args: never; Returns: Json }
       tick_live_matches: { Args: never; Returns: Json }
+      tick_live_us_sports: { Args: never; Returns: Json }
       top_up_demo_voucher_volume: { Args: never; Returns: Json }
+      us_session_open: { Args: { p_at?: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
