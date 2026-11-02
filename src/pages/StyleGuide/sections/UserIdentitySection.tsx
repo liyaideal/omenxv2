@@ -313,7 +313,7 @@ const randomAvatar = getRandomAvatarUrl();`}</code>
               <CardTitle className="text-base">GoogleAccountChooser</CardTitle>
             </div>
             <CardDescription className="text-sm">
-              固定账号 Alex Carter → matched · Mia Reyes → welcome · Use another account → 走匿名新号流程。
+              固定账号 Alex Carter → matched · Mia Reyes → welcome · James → james（2026-11-02 新增：第一次点选时建号并入账 Spot $10,000 + 交易账户 $10,000）· Use another account → 走匿名新号流程。
               桌面 Dialog / 移动 bottom sheet 自动切换。
             </CardDescription>
           </CardHeader>

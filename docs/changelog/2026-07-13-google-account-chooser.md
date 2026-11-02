@@ -25,6 +25,7 @@
 |---|---|---|---|---|
 | Alex Carter · alex.carter@gmail.com | `matched` | `demo.matched@omenx.dev` | `alex.carter@gmail.com` | dicebear seed=felix bg=b6e3f4 |
 | Mia Reyes · mia.reyes@gmail.com | `welcome` | `demo.welcome@omenx.dev` | `mia.reyes@gmail.com` | dicebear seed=mia bg=ffd5dc |
+| James · james.omenx@gmail.com（2026-11-02 CPO 加，给 James 整体走一遍用） | `james` | `demo.james@omenx.dev` | `james.omenx@gmail.com` | dicebear seed=james bg=c0aede；`ensure-demo-user` 第一次建号时入账 Spot $10,000 + 交易账户 $10,000（各记一笔 completed deposit），preferred_surface = lite；username `james`、profile.email / avatar 同 Chooser 显示，由函数在建号时一次写好 |
 
 - `profiles.username / email / avatar_url` 已由 PM 手工更新，登录后全站身份显示一致
 - `useAirdropPositions` 的 `pickMockByEmail` 依赖的仍是 **auth email**（`demo.*@omenx.dev`），因此空投弹窗行为不变

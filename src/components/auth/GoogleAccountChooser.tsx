@@ -12,7 +12,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { PROFILE_QUERY_KEY } from "@/hooks/useUserProfile";
 
 export interface FixedAccount {
-  scenario: "matched" | "welcome";
+  scenario: "matched" | "welcome" | "james";
   displayName: string;
   email: string;
   avatarUrl: string;
@@ -32,6 +32,14 @@ export const FIXED_ACCOUNTS: FixedAccount[] = [
     email: "mia.reyes@gmail.com",
     avatarUrl:
       "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=mia&backgroundColor=ffd5dc",
+  },
+  // CPO 2026-11-02: fresh account for James's walkthrough — created on first pick with $10,000 spot + $10,000 trade
+  {
+    scenario: "james",
+    displayName: "James",
+    email: "james.omenx@gmail.com",
+    avatarUrl:
+      "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=james&backgroundColor=c0aede",
   },
 ];
 
