@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { X, Download, Copy, Send, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import * as htmlToImage from "html-to-image";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 /** 海报出图基准宽度。被截图的节点永远按这个宽度布局，导出尺寸与视口无关。 */
 const POSTER_CAPTURE_WIDTH = 400;
@@ -18,6 +19,11 @@ interface ShareModalProps {
   fileName: string;
   children: ReactNode; // The content to be rendered as the share card
   isDataReady?: boolean; // Optional flag to delay image generation until data is ready
+  /** "arcade" = the Quick Play share sheet (Figma omenx_lite 1283:1437 desktop / 1283:1841 phone, CPO 2026-11-02):
+      pixel title, dark keys, bottom sheet on phones. Default = the site's share dialog, unchanged. */
+  variant?: "default" | "arcade";
+  /** @font-face CSS (data URLs) embedded into the exported PNG; without it the export skips web fonts as before */
+  fontEmbedCSS?: () => Promise<string>;
 }
 
 export const ShareModal = ({ 
@@ -30,7 +36,10 @@ export const ShareModal = ({
   fileName,
   children,
   isDataReady = true,
+  variant = "default",
+  fontEmbedCSS,
 }: ShareModalProps) => {
+  const isMobile = useIsMobile();
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [imageBlob, setImageBlob] = useState<Blob | null>(null);
@@ -39,6 +48,7 @@ export const ShareModal = ({
   const previewBoxRef = useRef<HTMLDivElement>(null);
   const [posterScale, setPosterScale] = useState(1);
   const [scaledHeight, setScaledHeight] = useState<number | undefined>(undefined);
+  const [posterOffset, setPosterOffset] = useState(0);
 
   // Generate image when modal opens
   const generateImage = async () => {
@@ -46,12 +56,14 @@ export const ShareModal = ({
     
     setIsGenerating(true);
     try {
+      const embed = fontEmbedCSS ? await fontEmbedCSS().catch(() => undefined) : undefined;
+      if (embed && typeof document !== "undefined" && document.fonts) await document.fonts.ready;
       const blob = await htmlToImage.toBlob(cardRef.current, {
         quality: 1,
         pixelRatio: 2,
         backgroundColor: '#0a0c14',
-        skipFonts: true,
         cacheBust: true,
+        ...(embed ? { fontEmbedCSS: embed } : { skipFonts: true }),
       });
       if (blob) {
         setImageBlob(blob);
@@ -83,6 +95,7 @@ export const ShareModal = ({
       const next = available > 0 ? Math.min(1, available / POSTER_CAPTURE_WIDTH) : 1;
       setPosterScale(next);
       setScaledHeight(card.offsetHeight * next);
+      setPosterOffset(Math.max(0, (available - POSTER_CAPTURE_WIDTH * next) / 2));
     };
     measure();
     const card = cardRef.current;
@@ -155,6 +168,89 @@ export const ShareModal = ({
       }
     }
   };
+
+  if (variant === "arcade") {
+    const m = !!isMobile;
+    const ARC_PIX = "'Jersey 10', 'VT323', monospace";
+    const key = m
+      ? "flex items-center justify-center gap-2 p-3 rounded-[12px] border border-[#1C1F26] bg-[#1B2228] hover:bg-[#222A31] transition-colors disabled:opacity-50"
+      : "flex items-center justify-center gap-2.5 p-[15px] rounded-[15px] border border-[#1C1F26] bg-[#1B2228] hover:bg-[#222A31] transition-colors disabled:opacity-50";
+    const keyText = m ? "text-[14px] leading-5 font-medium text-white" : "text-[17.8px] leading-[25px] font-medium text-white";
+    const ico = m ? "w-4 h-4 text-white" : "w-5 h-5 text-white";
+    return createPortal(
+      <div className={`fixed inset-0 z-[200] flex justify-center ${m ? "items-end" : "items-center p-4"}`}>
+        <div className="absolute inset-0" style={{ background: "rgba(9,10,11,0.8)", backdropFilter: "blur(4px)" }} onClick={onClose} />
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={title}
+          className={`relative flex flex-col overflow-y-auto bg-[#14161A] border-[#1E2630] ${m ? "border-x border-t rounded-t-[14.5px] gap-[14px] animate-in slide-in-from-bottom duration-200" : "border rounded-[18px] p-[18px] gap-[14px] animate-scale-in"}`}
+          style={
+            m
+              ? { width: "min(356px, calc(100% - 34px))", maxHeight: "92dvh", padding: "14.5px 14.5px calc(24px + env(safe-area-inset-bottom))" }
+              : { width: "440px", maxWidth: "100%", maxHeight: "90vh" }
+          }
+        >
+          <div className="relative pr-9">
+            <div
+              style={{ fontFamily: ARC_PIX, fontSize: m ? "24px" : "28px", lineHeight: m ? "19.4px" : "24px", letterSpacing: m ? "0.4px" : "0.5px", textTransform: "capitalize", color: "#ffffff" }}
+            >
+              {title}
+            </div>
+            <p className="mt-1.5 text-[12px] font-medium text-[#94A0AD]">{subtitle}</p>
+            <button onClick={onClose} aria-label="Close" className="absolute right-0 top-0 rounded-full p-1 hover:bg-white/5 transition-colors">
+              <X className={m ? "w-5 h-5 text-[#94A0AD]" : "w-[23px] h-[23px] text-[#94A0AD]"} />
+            </button>
+          </div>
+
+          {/* the poster: captured at 400px, only the outer box scales; centred like the design's card frame */}
+          <div ref={previewBoxRef} className="relative overflow-hidden" style={{ height: scaledHeight }}>
+            <div className="origin-top-left" style={{ width: `${POSTER_CAPTURE_WIDTH}px`, marginLeft: posterOffset, transform: `scale(${posterScale})` }}>
+              <div ref={cardRef}>{children}</div>
+            </div>
+            {isGenerating && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/50">
+                <div className="w-8 h-8 border-2 border-[#CFFF4A] border-t-transparent rounded-full animate-spin" />
+              </div>
+            )}
+          </div>
+
+          <div className={`grid grid-cols-2 ${m ? "gap-2" : "gap-2.5"}`}>
+            <button onClick={handleDownload} disabled={!imageBlob || isGenerating} className={key}>
+              <Download className={ico} />
+              <span className={keyText}>{t("common.save")}</span>
+            </button>
+            <button onClick={handleCopyLink} className={key}>
+              {copied ? <Check className={`${ico} !text-[#CFFF4A]`} /> : <Copy className={ico} />}
+              <span className={keyText}>{copied ? "Copied" : "Copy Link"}</span>
+            </button>
+            <button onClick={handleShareX} className={key}>
+              <svg className={ico} viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+              <span className={keyText}>X</span>
+            </button>
+            <button onClick={handleShareTelegram} className={key}>
+              <Send className={ico} />
+              <span className={keyText}>{t("common.screen.shared.ShareModal.telegram")}</span>
+            </button>
+          </div>
+
+          {typeof navigator !== "undefined" && navigator.share && (
+            <button
+              onClick={handleNativeShare}
+              disabled={isGenerating}
+              className={`w-full flex items-center justify-center gap-2 bg-[#CFFF4A] text-[#0A0C14] hover:opacity-90 transition-opacity disabled:opacity-50 ${m ? "p-3 rounded-[12px]" : "p-[15px] rounded-[15px]"}`}
+            >
+              <Send className={m ? "w-4 h-4" : "w-5 h-5"} />
+              <span className={m ? "text-[14px] leading-5 font-semibold" : "text-[17.8px] leading-[25px] font-semibold"}>{t("common.more_options")}</span>
+            </button>
+          )}
+        </div>
+      </div>,
+      document.body,
+    );
+  }
 
   return createPortal(
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 pb-20 md:pb-4">

@@ -10,6 +10,7 @@ import { ARCADE_DESKTOP, ARCADE_MOBILE, ARCADE_OVERLAYS } from "@/pages/arcade/a
 import { ArcadeEntryBanner, type ArcadeBannerFixture } from "@/components/lite/arcade/ArcadeEntryBanner";
 import { ArcadeRunPoster } from "@/components/lite/arcade/ArcadeRunPoster";
 import { ArcadeComboPoster } from "@/components/lite/arcade/ArcadeComboPoster";
+import { ArcadeRunShareSheet } from "@/components/lite/arcade/ArcadeShareCard";
 import type { ArcadeCall, ArcadeFeedRow, ArcadeTick, RoadSlot } from "@/lib/arcade/arcadeCalls";
 import { callPayout } from "@/lib/arcade/arcadeCalls";
 import { ensureArcadeFonts } from "@/lib/arcade/arcadeFonts";
@@ -283,9 +284,30 @@ export const As2Preview = () => (
     <ArcadeComboPoster combo={{ n: 8, pnl: 37.12, stake: 40, biggestWin: 4.9 }} username="alex_carter" referralCode="ALEX7K" />
   </div>
 );
+const ALEX_AVATAR = "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=aneka&backgroundColor=ffdfbf";
+// the longest amount a 30-minute session can plausibly show — the big number steps down so it never runs under the lynx
+const RUN_BIG = { pnl: 1234.56, won: 41, lost: 12, bestRun: 9, biggestWin: 48.5, minutes: 30, calls: 53, stakeLine: "$25 – $50" };
+const Fonts = ({ children }: { children: React.ReactNode }) => {
+  useEffect(() => ensureArcadeFonts(), []);
+  return <>{children}</>;
+};
 export const As1Preview = () => (
-  <div className="flex flex-wrap gap-6 p-4">
-    <ArcadeRunPoster run={RUN_WIN} username="alex_carter" referralCode="ALEX7K" />
-    <ArcadeRunPoster run={RUN_LOSS} username="alex_carter" referralCode="ALEX7K" />
-  </div>
+  <Fonts>
+    <div className="flex flex-wrap gap-6 p-4">
+      <ArcadeRunPoster run={RUN_WIN} username="alex_carter" avatarUrl={ALEX_AVATAR} referralCode="ALEX7K" />
+      <ArcadeRunPoster run={RUN_LOSS} username="alex_carter" avatarUrl={ALEX_AVATAR} referralCode="ALEX7K" />
+      <ArcadeRunPoster run={RUN_BIG} username="alex_carter" avatarUrl={ALEX_AVATAR} referralCode="ALEX7K" />
+    </div>
+  </Fonts>
 );
+/* ---------- AS-3 / AS-4 · the share sheet open (Figma 1283:1437 desktop · 1283:1841 / 1283:2110 phone) ----------
+   presentational mount: isDataReady=false keeps html-to-image off; one sheet per frame (it portals to the frame's body) */
+const Sheet = ({ run }: { run: typeof RUN_WIN }) => (
+  <Fonts>
+    <ArcadeRunShareSheet run={run} username="alex_carter" avatarUrl={ALEX_AVATAR} referralCode="ALEX7K" isDataReady={false} onClose={() => {}} />
+  </Fonts>
+);
+export const As3WinPreview = () => <Sheet run={RUN_WIN} />;
+export const As3LosePreview = () => <Sheet run={RUN_LOSS} />;
+export const As4WinPreview = () => <Sheet run={RUN_WIN} />;
+export const As4LosePreview = () => <Sheet run={RUN_LOSS} />;

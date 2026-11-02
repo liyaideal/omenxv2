@@ -1,5 +1,5 @@
 /**
- * /arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-23 · AB-1 / AB-2 · AS-1 / AS-2）。
+ * /arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-23 · AB-1 / AB-2 · AS-1 … AS-4）。
  *
  * 规则（Liya 2026-10-27 / 10-28 拍板，研发稿 v1.0 + 她的修订；2026-11-02 James 反馈轮修订）：先只上 BTC；没有「局」，
  * 每一枚筹码就是一张自己的 30 秒合约（t0 = 服务端接单时刻）；价格 = Binance / Hyperliquid / Coinbase 三所中间价
@@ -177,11 +177,13 @@ const MORE_MOB: SectionCase[] = [
 const SHARE: SectionCase[] = [
   {
     key: "arcade-as1",
-    label: "AS-1 · 分享海报「Share your run」· 赚 / 亏",
-    note: "按场分享，入口只有 `04 / YOUR RESULT` 标题行的 `⇪ SHARE`（≥1 笔结算才亮；手机在 ROAD & STATS 抽屉）。CTA `Pick UP or DOWN · from $2`。",
+    label: "AS-1 · 分享海报「Share your run」· 赚 / 亏 / 长金额",
+    note: "设计师掌机稿（Figma omenx_lite 1283:1437，CPO 2026-11-02）：机壳渐变 → 黑色边框 → 屏幕（像素夜空 + 山）里放头像 + `⚡ 7 of 10 right` 徽章、青色 `QUICK PLAY` 框、`PROFIT` / `LOST` + Jersey 10 大字、人话两行 + `23 minutes · 10 calls · $5 each`、`Best run` / `Biggest win` 两格、猞猁；屏幕下 十字键 / 电源灯 / A·B 键；底部 `Referral: ALEX7K` + OmenX 字标 + `Pick UP or DOWN · from $2` + 二维码。按场分享，入口只有 `04 / YOUR RESULT` 标题行的 `⇪ SHARE`（≥1 笔结算才亮；手机在 ROAD & STATS 抽屉）。",
     spec: [
-      { state: "赚", when: "pnl ≥ 0", visual: "黄绿：`Profit +$83.57`、徽章 ⚡、撒金币猞猁", source: "ArcadeRunPoster" },
-      { state: "亏", when: "pnl < 0", visual: "红：`Lost −$21.40`、徽章 📉、哭的猞猁", source: "ArcadeRunPoster" },
+      { state: "赚", when: "pnl ≥ 0", visual: "黄绿 #CFFF4A：头像框、徽章 ⚡、PROFIT 大字（18px 同色光晕）、Best run 值、电源灯、B 键、CTA；撒金币猞猁", source: "ArcadeRunPoster" },
+      { state: "亏", when: "pnl < 0", visual: "珊瑚红 #FF8B80：同上各处换色、徽章 📉、LOST；哭的猞猁（比赢的小一号、靠右下）", source: "ArcadeRunPoster" },
+      { state: "长金额", when: "金额字符 > 7", visual: "大字 60 → 52（≤ 9 字符）→ 44px，永远不压到猞猁；猞猁在文字下层", source: "ArcadeRunPoster.bigSize" },
+      { state: "导出", when: "Save / More Options", visual: "PNG 里 Jersey 10 / Archivo 是真字体（导出时把站内自托管的 woff2 以 data URL 嵌入），和预览一致", source: "arcadePosterFontCSS → ShareModal.fontEmbedCSS" },
     ],
   },
   {
@@ -190,6 +192,23 @@ const SHARE: SectionCase[] = [
     note: "字段 = 和 Liya 定给设计的那份：N 连对、这次 combo 赚了多少（净）、一句人话、本金、最大一笔、用户名 / QUICK PLAY / 推荐码 / 二维码 / logo。设计方向 B · Fever / E · Arcade score screen。",
     spec: [{ state: "combo", when: "HUD `⇪ SHARE`", visual: "徽章 `🔥 3 in a row`；小标 `COMBO ×3 · ON FIRE`；大字 `+$13.92`；`Called Bitcoin up or down — 3 right in a row`；`30 seconds a call · $15 staked`；两格 `Combo ×3` / `Biggest win +$4.71`", source: "ArcadeComboPoster / ArcadeComboShareCard" }],
   },
+];
+
+/* AS-3 / AS-4 · the share sheet open — one frame per case (the sheet portals to its frame's body) */
+const SHEET_SPEC = [
+  { state: "外壳", when: "桌面", visual: "440 宽、底 #14161A、描边 #1E2630、r18、padding 18、间距 14；遮罩 rgba(9,10,11,.8) + 4px 模糊", source: "ShareModal variant=\"arcade\"" },
+  { state: "外壳", when: "手机", visual: "底部抽屉：宽 min(356, 100% − 34)、上圆角 14.5、左右上描边、底部留 24 + 安全区；海报按宽度等比缩小（≈ 0.82）", source: "同上" },
+  { state: "标题", when: "always", visual: "Jersey 10 白字 `Share Your Run`（桌面 28 / 手机 24）；副标 12/500 #94A0AD——赚 `Save the card or post it straight to X / Telegram`，亏 `Rough one — share it anyway, we go again`；右上 ✕", source: "ArcadeRunShareSheet" },
+  { state: "按键", when: "always", visual: "两列：Save · Copy Link / X · Telegram，底 #1B2228、描边 #1C1F26（桌面 r15 / 18px 字，手机 r12 / 14px 字）；整行 `More Options` 黄绿 #CFFF4A（系统支持分享时才有）", source: "ShareModal" },
+  { state: "combo", when: "HUD `⇪ SHARE`", visual: "同一套外壳，里面是 AS-2 的过渡海报", source: "ArcadeComboShareCard" },
+];
+const SHEET_DESK: SectionCase[] = [
+  { key: "arcade-as3-win", label: "AS-3 · 分享弹窗（桌面）· 赚", note: "Figma 1283:1437 左。", spec: SHEET_SPEC },
+  { key: "arcade-as3-lose", label: "AS-3 · 分享弹窗（桌面）· 亏", note: "Figma 1283:1437 右。", spec: SHEET_SPEC },
+];
+const SHEET_MOB: SectionCase[] = [
+  { key: "arcade-as4-win", label: "AS-4 · 分享抽屉（手机）· 赚", note: "Figma 1283:1841。", spec: SHEET_SPEC },
+  { key: "arcade-as4-lose", label: "AS-4 · 分享抽屉（手机）· 亏", note: "Figma 1283:2110。", spec: SHEET_SPEC },
 ];
 
 const BANNER: SectionCase[] = [
@@ -244,7 +263,7 @@ const FLAGS_MOB: SectionCase[] = [
 export const ArcadeStatesSection = () => (
   <SectionWrapper
     id="arcade-states"
-    title="/arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-23 · AB-1 / AB-2 · AS-1 / AS-2）"
+    title="/arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-23 · AB-1 / AB-2 · AS-1 … AS-4）"
     description="CPO 2026-10-27 / 10-28 拍板 + 2026-11-02 James 反馈轮（mock claude.ai/artifact/1hCirCctvs2VNkP2J5bUfC v17c）：先只上 BTC；每一枚筹码一张 30 秒合约；三所中位数指数；报价 0.40–0.60；3% 开仓费、2 秒可撤（0.15%，4 位小数）、不可平仓、盈利扣 5% 佣金、平局全退；$2–50 一注、单账户未到期 ≤ $500；连赢每 3 把一张 $2 有门槛仓位券、每天 ≤ $10。颜色只表示方向（青涨 / 柠檬绿跌），输赢看实心 / 空心与 ✓ / ✕。ETH / SOL / 美股桌隐藏。文案英文占位。"
   >
     <div className="rounded-lg border border-[#FF8A3D]/30 bg-[#FF8A3D]/5 px-3 py-2 text-[12px] text-foreground">
@@ -277,6 +296,14 @@ export const ArcadeStatesSection = () => (
     </SubSection>
     <SubSection title="分享海报（AS-1 · AS-2）">
       <Desk cases={SHARE} min={520} />
+    </SubSection>
+    <SubSection title="分享弹窗 / 抽屉（AS-3 桌面 · AS-4 手机，一态一帧）">
+      {SHEET_DESK.map((c) => (
+        <Desk key={c.key} cases={[c]} min={900} />
+      ))}
+      {SHEET_MOB.map((c) => (
+        <Mob key={c.key} cases={[c]} min={820} />
+      ))}
     </SubSection>
     <SubSection title="附注 · 本轮不做 / 演示引擎放宽">
       <ul className="list-disc space-y-1 pl-5 text-[12px] text-muted-foreground">
