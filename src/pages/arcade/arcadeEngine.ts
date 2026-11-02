@@ -1115,7 +1115,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     const a = key.getBoundingClientRect(),
       b = eq.getBoundingClientRect();
     const ch = document.createElement("span");
-    ch.className = "mchip fly v" + c.gross;
+    ch.className = "mchip fly " + chipCls(c.gross);
     ch.textContent = String(c.gross);
     ch.style.cssText = `left:${a.left + a.width / 2}px;top:${a.top + a.height / 2}px;opacity:${c.status === "won" ? 1 : 0.5}`;
     root.appendChild(ch);
@@ -1622,7 +1622,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   }
 
   /* ---------- render: keys, rail, boards, price ---------- */
-  const chipCls = (v: number) => "v" + v;
+  /** chip colour class; $2 is "d2" because "v2" is the cabinet's own class (.cab.v2) and every .v2 layout rule hit the chip */
+  const chipCls = (v: number) => (v === 2 ? "d2" : "v" + v);
   function stackHtml(chips: number[], max: number) {
     const g: Record<number, number> = {},
       last: Record<number, number> = {};

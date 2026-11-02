@@ -578,7 +578,7 @@
 .arcade-root :is(.cab.v2,.v2m) .ticks .l{background:transparent;border:1px solid #3a4350;color:#6b7584}
 .arcade-root .v2m .mc .fs{color:#fff}.arcade-root .v2m .mc.lost .fs{color:#8a93a3}.arcade-root .v2m .mc.won .t{color:#fff}.arcade-root .v2m .mc.lost .t{color:#8a93a3}
 /* ⑤ keys: UNDO, the tap pop, $2 chip, voucher chip */
-.arcade-root :is(.cab.v2,.v2m) .mchip.v2{--cc:#c9a8ff;--ci:#1a0f2e;--cr:#f1e8ff}
+.arcade-root :is(.cab.v2,.v2m) .mchip.d2,.arcade-root .mchip.fly.d2{--cc:#c9a8ff;--ci:#1a0f2e;--cr:#f1e8ff}
 .arcade-root :is(.cab.v2,.v2m) .dir .side{white-space:nowrap}
 .arcade-root .v2m .dir .side{font-size:26px}
 .arcade-root :is(.cab.v2,.v2m) .undo{flex:none;position:relative;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px 0 9px;background:#020c10;color:#fff;border:2px solid #020c10;cursor:pointer;overflow:hidden;font:700 11px/1 var(--f-ui);letter-spacing:.8px;box-shadow:0 2px 0 rgba(0,0,0,.35)}
