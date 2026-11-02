@@ -129,7 +129,9 @@ const Cabinet = ({ mobile, fixture, width, height, after }: { mobile?: boolean; 
     };
   }, [mobile, fixture, after]);
   return (
-    <div className="relative overflow-hidden" style={{ width, height }}>
+    // the preview document pads every frame 16 px; a phone cabinet is the whole 375 screen, so it cancels that
+    // padding sideways instead of spilling 16 px past the frame's right edge (QA 2026-11-02)
+    <div className="relative overflow-hidden" style={{ width, height, margin: mobile ? "0 -16px" : undefined }}>
       <div ref={ref} className={`arcade-root${mobile ? " is-m" : ""}`} style={mobile ? ({ "--arcade-top": "0px", height, transform: "translateZ(0)" } as React.CSSProperties) : { transform: "scale(.72)", transformOrigin: "0 0", width: 1440 }} />
     </div>
   );
@@ -244,7 +246,9 @@ const Guest = ({ mobile, width, height }: { mobile?: boolean; width: number; hei
     };
   }, [mobile]);
   return (
-    <div className="relative overflow-hidden" style={{ width, height }}>
+    // the preview document pads every frame 16 px; a phone cabinet is the whole 375 screen, so it cancels that
+    // padding sideways instead of spilling 16 px past the frame's right edge (QA 2026-11-02)
+    <div className="relative overflow-hidden" style={{ width, height, margin: mobile ? "0 -16px" : undefined }}>
       <div ref={ref} className={`arcade-root${mobile ? " is-m" : ""}`} style={mobile ? ({ "--arcade-top": "0px", height, transform: "translateZ(0)" } as React.CSSProperties) : { transform: "scale(.72)", transformOrigin: "0 0", width: 1440 }} />
     </div>
   );
@@ -255,14 +259,15 @@ export const Ar6MobilePreview = () => <Guest mobile width={375} height={760} />;
 /* ---------- AB-1 / AB-2 entry banner, desktop + mobile (same index readout as the cabinet) ---------- */
 const BANNER_TICK: ArcadeBannerFixture = { live: true, price: ticksFx[ticksFx.length - 1].idx!, open: ticksFx[ticksFx.length - 31].idx!, up: 51.2, pts: ticksFx.slice(-45).map((t) => t.idx!) };
 const BANNER_OPENING: ArcadeBannerFixture = { live: false, price: 0, open: 0, up: 50, pts: [] };
+// banners follow the frame's width like the Events container does (a fixed 1120 px wrapper clipped PLAY, QA 2026-11-02)
 export const Ab1Preview = () => (
-  <div className="p-4" style={{ width: 1120 }}>
+  <div className="space-y-4">
     <ArcadeEntryBanner isMobile={false} fixture={BANNER_TICK} />
     <ArcadeEntryBanner isMobile={false} fixture={BANNER_OPENING} />
   </div>
 );
 export const Ab2Preview = () => (
-  <div className="p-4" style={{ width: 375 }}>
+  <div className="space-y-4">
     <ArcadeEntryBanner isMobile fixture={BANNER_TICK} />
     <ArcadeEntryBanner isMobile fixture={BANNER_OPENING} />
   </div>
