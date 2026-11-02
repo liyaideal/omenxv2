@@ -9,6 +9,11 @@
 //   • UP / chips / DOWN keys · OPEN / LIVE / SESSION / LAST 10 boards
 //   • 04 / YOUR RESULT lives at the bottom of the rail (CPO 2026-10-28, mock v32)
 //   • dash: the lynx (mood, road signs, runner game while paused)
+// James feedback round (CPO 2026-11-02, mock claude.ai/artifact/1hCirCctvs2VNkP2J5bUfC v17c):
+//   header "Settles on the BTC Index ⓘ" + TOTAL OPEN POSITIONS · 01 strip = legend / bead /
+//   big road / last-30-min cards with time feet · sources under the big price · LIVE TABLE
+//   until the first call, then YOUR CALLS (Open | Settled) · 04 on its own plate ·
+//   UNDO key · voucher chip on 03 · $2–50 chips.
 // The logo plate is the only exit (CPO 2026-10-19: no ✕).
 // ============================================================
 
@@ -18,17 +23,22 @@ const LOGO_SVG = (fill: string, clip: string) =>
 const MUTE_BTN = `<button class="key fsbtn mutebtn" id="muteBtn" aria-pressed="false" aria-label="Mute sound" title="Sound on / off"><svg class="on" width="20" height="18" viewBox="0 0 20 18" fill="#020c10"><path d="M1 6h4l5-4v14l-5-4H1z"/><path d="M13 5h2v8h-2zM16 2h2v14h-2z"/></svg><svg class="off" width="20" height="18" viewBox="0 0 20 18" fill="#fff"><path d="M1 6h4l5-4v14l-5-4H1z"/><path d="M12 5h2v2h-2zM16 5h2v2h-2zM14 7h2v2h-2zM12 9h2v2h-2zM16 9h2v2h-2z"/></svg></button>`;
 
 const HOWTO = `<div class="howto" id="howto" hidden><b>How to read the road</b><span><i class="k">Dragon</i> — one colour stacking down a column: BTC has been going the same way for several 30-second slots. Trend-followers are getting paid.</span><span><i class="k">Chop</i> — colours alternating every cell: the market is flip-flopping. Chasing gets punished; size down or wait.</span><span><i class="k">Break</i> — a long column just switched colour: the direction just changed. Loudest moment, easiest to get shaken out.</span><span class="n">The road is context, not a forecast. Each cell is the same 30-second horizon as your call, so it tells you the market's mood at the horizon you are betting on — nothing more.</span></div>`;
-/** the road strip in the mobile sheet */
-const ROAD_STRIP = `<div class="howto" id="howto" hidden><b>How to read the road</b><span><i class="k">Dragon</i> — one colour stacking down a column: BTC has been going the same way for several 30-second slots. Trend-followers are getting paid.</span><span><i class="k">Chop</i> — colours alternating every cell: the market is flip-flopping. Chasing gets punished; size down or wait.</span><span><i class="k">Break</i> — a long column just switched colour: the direction just changed. Loudest moment, easiest to get shaken out.</span><span class="n">The road is context, not a forecast. Each cell is the same 30-second horizon as your call, so it tells you the market's mood at the horizon you are betting on — nothing more.</span></div><div class="rh"><span class="lbl">Market<span class="x"> · every cell = 30 seconds of BTC</span> <i class="info" id="roadI" tabindex="0" role="button" aria-label="How to read the road">i</i></span><span class="lbl" id="slotLbl">THIS SLOT · —</span></div><div class="roads"><div class="beadscr"><span class="lbl">BEAD · <span id="beadN">0</span></span><div class="beads" id="bead"></div></div><div class="roadscr"><span class="lbl">Big road<span class="x"> · same result stacks down, a change starts a new column</span></span><div class="road" id="road"></div></div><div class="rstats"><span>Up <b class="cu" id="nUp">0</b> · Down <b class="cd" id="nDn">0</b> <small>last <span id="nSlots">0</span> slots</small></span><span>Longest <b id="longest">—</b></span></div></div>`;
+/** the mobile ROAD & STATS sheet: three cards (last 30 min · big road · bead), same ids as desktop with m_ */
+const ROAD_CARDS = `<div class="scr mcard rs2" id="m_stats"><div class="rshead"><span class="lbl">Last 30 min</span><span class="rslong">longest run <b id="m_longest">—</b></span></div><div class="rsmid"><div class="rsnum"><span class="cu">▲ Up <b id="m_nUp">0</b></span><span class="cd"><b id="m_nDn">0</b> Down ▼</span></div><div class="rsbar"><i id="m_rsBar"></i></div></div><div class="rsfoot"><span id="m_slotLbl">—</span><span class="rsprog"><i id="m_slotProg"></i></span></div></div>
+<div class="scr mcard"><div class="mch"><span class="lbl">Big road <i class="info" id="m_roadI" tabindex="0" role="button" aria-label="How to read the road">i</i></span><span class="msub">BTC's direction, every 30 seconds</span></div><div class="road" id="m_road"></div><div class="mfoot"><span id="m_rax0">←</span><span>now →</span></div></div>
+<div class="scr mcard"><div class="mch"><span class="lbl">Bead</span></div><div class="beads" id="m_bead"></div><div class="mfoot"><span id="m_bax0">←</span><span>now →</span></div></div>`;
+const HOWTO_M = HOWTO.replace('id="howto"', 'id="m_howto"');
 
-const COMBO = (id: string) => `<div class="combo" id="${id}"><div class="big"></div><div class="meta"><div class="pips"></div><div class="sub"></div></div></div>`;
+/** combo HUD: COMBO ×N + ⇪ SHARE (no pop-up — the share sheet opens only on tap) + the voucher line */
+const COMBO = (id: string, share: string) => `<div class="combo" id="${id}"><div class="crow"><div class="big"></div><button class="cshare" type="button" aria-label="Share this combo">${share}</button></div><div class="meta"><div class="sub"></div></div></div>`;
 const MEGA = (id: string) => `<div class="mega" id="${id}"><div><div class="t"></div><div class="s"></div></div></div>`;
 
 const DIR = (side: "u" | "d", prefix: string) =>
-  `<button class="dir ${side}" id="${prefix}${side === "u" ? "U" : "D"}" data-side="${side}"><span class="side">${side === "u" ? "UP" : "DOWN"}</span><span class="mid"><span class="stack"></span><span class="ringwrap"></span></span><span class="cents" id="${prefix}c${side === "u" ? "U" : "D"}">—</span><span class="pays" id="${prefix}p${side === "u" ? "U" : "D"}"></span></button>`;
+  `<button class="dir ${side}" id="${prefix}${side === "u" ? "U" : "D"}" data-side="${side}"><span class="side">${side === "u" ? "▲ UP" : "▼ DOWN"}</span><span class="mid"><span class="stack"></span><span class="ringwrap"></span></span><span class="cents" id="${prefix}c${side === "u" ? "U" : "D"}">—</span><span class="pays" id="${prefix}p${side === "u" ? "U" : "D"}"></span></button>`;
 
 export const ARCADE_OVERLAYS = `<canvas id="fx" aria-hidden="true"></canvas>
 <div class="tip" id="tip" role="tooltip" hidden></div>
+<div class="tipbox" id="qtip" role="tooltip" hidden></div>
 <div class="v2toast" id="toast" role="status" aria-live="polite" hidden></div>
 <div class="flash" id="flash" aria-hidden="true"></div>
 <div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateT" hidden><div class="gbox steel rivets">
@@ -37,7 +47,7 @@ export const ARCADE_OVERLAYS = `<canvas id="fx" aria-hidden="true"></canvas>
     <li><i>⏱</i><span><b>Each chip = one 30-second call.</b> Up or Down vs the price when you tap.</span></li>
     <li><i>🔒</i><span><b>2 seconds to cancel.</b> Then it's locked — no cash-out.</span></li>
     <li><i>%</i><span><b>3% in · 5% of profit out.</b> Ties refund in full.</span></li>
-    <li><i>⚠</i><span><b>High risk.</b> $5–100 a call · $500 open max.</span></li>
+    <li><i>⚠</i><span><b>High risk.</b> $2–50 a call · $500 open max.</span></li>
   </ul>
   <button class="gbtn" id="gateGo">I GET IT · START PLAYING</button>
   <a href="#" class="gmore" id="gateRules">How the price and odds are made →</a>
@@ -49,7 +59,7 @@ export const ARCADE_OVERLAYS = `<canvas id="fx" aria-hidden="true"></canvas>
     <section class="scr"><h4>2 · Open and close</h4><p><b>Open (S0)</b> = the first valid index <em>after</em> the server accepts your chip — never a price from before you tapped, so nobody can front-run a move they already saw. <b>Close (S1)</b> = the last valid index at or before the 30-second mark (we wait up to 2 s for late data, and never use a price from after the mark). S1 &gt; S0 → Up wins. S1 &lt; S0 → Down wins. Equal, or no valid S0 / S1 → the call is void and you get everything back, fees included.</p></section>
     <section class="scr"><h4>3 · The odds</h4><p>The cents on UP / DOWN are a probability from our pricing model, built from the last 10 minutes of index moves. It is clipped to <b>40–60¢</b> and UP + DOWN always add to $1.00. A quote lives for about a second; your chip is filled at the exact quote you saw, and the payout is locked then. If the price moved too much in between, the chip is refused and you simply tap again — we never fill at a price you didn't see.</p></section>
     <section class="scr"><h4>4 · Payout &amp; fees</h4><p><b>Fee:</b> 3% of the chip, taken on entry. <b>Payout if you win:</b> (chip − fee) ÷ odds, rounded down to the cent, minus <b>5%</b> of the profit. Example: $100 on Up at 53.0¢ → fee $3 → working $97 → payout $183.01 → profit $83.01 − 5% = <b>$78.86</b>. <b>Cancel within 2 s:</b> chip returned minus 0.15%. <b>Lose:</b> the chip is gone.</p></section>
-    <section class="scr"><h4>5 · Limits &amp; pauses</h4><p>$5–100 per call · $500 open per account · 2 calls per second. The table pauses new calls (open ones still settle) when the index is invalid, when BTC moves more than 10 bps in one second, when our daily loss limit is hit, or when the table's risk room is full. You always see why on the chart.</p></section>
+    <section class="scr"><h4>5 · Limits &amp; pauses</h4><p>$2–50 per call · $500 open per account · 2 calls per second. The table pauses new calls (open ones still settle) when the index is invalid, when BTC moves more than 10 bps in one second, when our daily loss limit is hit, or when the table's risk room is full. You always see why on the chart.</p></section>
     <section class="scr"><h4>6 · Your record</h4><p>Every call stores its accept time, open, close, quote, fee and payout. The SETTLED list under your open calls shows open → close for each one. Disputes: support@omenx.com with the time of the call.</p></section>
   </div>
 </div></div>
@@ -69,9 +79,9 @@ export const ARCADE_DESKTOP = `<main>
       <div class="r1">
         <div class="logoplate steel rivets" id="logoPlate" role="link" tabindex="0" aria-label="OmenX · back to Events"><span class="pipe" aria-hidden="true"></span>${LOGO_SVG("#07090f", "clipL")}</div>
         <div class="scr hbar">
-          <div class="hl"><h1>BTC · 30-second calls</h1><span class="meta">Price from 3 exchanges · settles in 30s</span></div>
+          <div class="hl"><h1>BTC · 30-second calls</h1><span class="meta">Settles on the BTC Index <i class="info" data-tip="idx" tabindex="0" role="button" aria-label="What is the BTC Index">i</i></span></div>
           <div class="hr">
-            <div class="stat"><span class="lbl">Your open</span><b id="dYourOpen">$0 / $500</b></div>
+            <div class="stat opos"><span class="lbl">Total open positions <i class="info" data-tip="inplay" tabindex="0" role="button" aria-label="About the open limit">i</i></span><b id="dYourOpen">Current $0 / Max $500</b></div>
             <div class="stat"><span class="lbl">Available · spot</span><b class="lime" id="equity">$0.00</b></div>
           </div>
         </div>
@@ -82,33 +92,42 @@ export const ARCADE_DESKTOP = `<main>
 
       <!-- row 2 · the table's road (01 / REPLAY) -->
       <div class="r2r steel rivets rr">
-        <div class="scr tagscr"><span class="tag">01 / REPLAY</span><span class="sub">WHAT HAPPENED</span></div>
-        <div class="scr beadscr"><span class="lbl">BEAD · <span id="beadN">0</span></span><div class="beads" id="bead"></div></div>
-        <div class="scr roadscr"><span class="lbl">Big road <i class="info" id="roadI" tabindex="0" role="button" aria-label="How to read the road">i</i></span><div class="road" id="road"></div></div>
-        <div class="scr rstats"><span>Up <b class="cu" id="nUp">0</b> · Down <b class="cd" id="nDn">0</b> <small>last <span id="nSlots">0</span> slots</small></span><span>Longest <b id="longest">—</b></span><span class="lbl" id="slotLbl">THIS SLOT · —</span></div>
+        <div class="scr tagscr"><span class="tag">01 / REPLAY</span><span class="sub">WHAT HAPPENED</span><span class="rkey"><b class="lu">▲ Up</b><b class="ld">▼ Down</b></span></div>
+        <div class="scr beadscr"><span class="lbl">Bead · last <span id="beadN">0</span></span><div class="beads" id="bead"></div><span class="bfoot"><span id="bax0">←</span><span>now →</span></span></div>
+        <div class="scr roadscr"><span class="rt lbl">Big road <i class="info" id="roadI" tabindex="0" role="button" aria-label="How to read the road">i</i> <span class="rsub">· BTC's direction, every 30 seconds</span></span><div class="road" id="road"></div><span class="rs"><span id="rax0">←</span></span><span class="rn">now →</span></div>
+        <div class="scr rstats rs2"><div class="rshead"><span class="lbl">Last 30 min</span><span class="rslong">longest run <b id="longest">—</b></span></div><div class="rsmid"><div class="rsnum"><span class="cu">▲ Up <b id="nUp">0</b></span><span class="cd"><b id="nDn">0</b> Down ▼</span></div><div class="rsbar"><i id="rsBar"></i></div></div><div class="rsfoot"><span id="slotLbl">—</span><span class="rsprog"><i id="slotProg"></i></span></div></div>
         ${HOWTO}
       </div>
 
       <!-- row 2 · stage + rail -->
       <div class="r2">
         <div class="feedplate steel rivets"><div class="feed scr crt">
-          <div class="feed-head"><div class="titles"><span class="tag">02 / LIVE FEED</span><span class="sub">WHAT'S HAPPENING</span></div><div class="pricebox"><div class="price up" id="price">$—</div></div>${COMBO("dCombo")}<div class="lbl" id="dNext">NEXT SETTLE · —</div></div>
-          <div class="chg src" id="dSrc"><span class="s"><i>Binance</i><b id="s1">—</b></span><span class="s"><i>Hyperliquid</i><b id="s2">—</b></span><span class="s"><i>Coinbase</i><b id="s3">—</b></span><span class="s st"><b id="dSrcState">—</b></span></div>
+          <div class="feed-head"><div class="titles"><span class="tag">02 / LIVE FEED</span><span class="sub">WHAT'S HAPPENING</span></div><div class="pricebox"><span class="lbl">BTC Index</span><div class="price"><span id="price">$—</span><span class="parr" id="dArr"></span></div><div class="srcA" id="srcA"><span class="k">from</span><span>Binance <b id="s1">—</b></span><span class="dot">·</span><span>Hyperliquid <b id="s2">—</b></span><span class="dot">·</span><span>Coinbase <b id="s3">—</b></span></div><span class="chg30" id="d30"></span></div>${COMBO("dCombo", "⇪ SHARE")}<div class="lbl" id="dNext">NEXT SETTLE · —</div></div>
           <div class="plot" id="plot"><canvas id="cv"></canvas><div class="ov" id="dOv"><div><div class="t" id="dOvT">TABLE PAUSED</div><div class="s" id="dOvS"></div><div class="h">Open calls keep running and settle as normal</div></div></div></div>
-          <div class="axis"><span>−45s</span><span>now</span><span>+30s · flags = settlement</span></div>${MEGA("dMega")}
+          <div class="axis"><span>← last 45 seconds</span><span>each call settles 30s after you tap →</span></div>${MEGA("dMega")}
         </div></div>
-        <div class="railplate steel rivets"><div class="rail scr"><div class="head"><span class="tabs"><button class="tab on" data-tab="mine">MY CALLS <b id="dOpenN">0</b></button><button class="tab" data-tab="table">TABLE <b id="dTableN">0</b></button></span><span class="n" id="dOpenSum">$0</span></div><div class="hint" id="dHint">Tap UP or DOWN — your calls land here</div><div class="list" id="dList"></div><div class="tsum" id="dTsum" hidden></div><div class="list" id="dTable" hidden></div><div class="donehead lbl">Last settled</div><div class="done" id="dDone"></div><button class="plink" id="dPlink" hidden>All settled calls → Portfolio</button>
-          <div class="r4 score"><div class="shead"><span class="tag">04 / YOUR RESULT</span><span class="sr"><span class="sub seslbl">SESSION</span><button class="key sharekey" id="shareKey" disabled>⇪ SHARE</button></span></div>
+        <div class="rcol">
+          <div class="railplate steel rivets"><div class="rail scr">
+            <div class="rsec" id="dTblWrap"><div class="ohead"><span class="ot">LIVE TABLE <b id="dTableN">0</b></span><span class="os">everyone's open calls</span></div><div class="tsum" id="dTsum"></div><div class="list" id="dTable"></div><div class="ohint">Tap UP or DOWN to start — your calls and results show here</div></div>
+            <div class="rsec" id="dMineWrap" hidden>
+              <div class="ohead yours" id="dYoursHead"><span class="ot">YOUR CALLS</span><span class="os">only you see these</span></div>
+              <div class="head"><span class="tabs"><button class="tab on" data-tab="open">Open <b id="dOpenN">0</b><em id="dOpenSum">$0 in play</em></button><button class="tab" data-tab="settled">Settled <b id="dDoneN">0</b></button></span></div>
+              <div class="rsec" id="dOpenPane"><div class="list" id="dList"></div><button class="morepill" id="dMore" type="button" hidden></button><div class="ohint" id="dHint" hidden>No open calls · tap UP or DOWN</div></div>
+              <div class="rsec" id="dDonePane" hidden><div class="list" id="dDone"></div><div class="ohint" id="dDoneHint" hidden>Nothing settled yet this session</div><button class="plink" id="dPlink">All settled calls → Portfolio</button></div>
+            </div>
+          </div></div>
+          <div class="resplate steel rivets" id="dResPlate" hidden><div class="r4 score scr"><div class="shead"><span class="tag">04 / YOUR RESULT</span><span class="sr"><span class="sub seslbl">SESSION</span><button class="key sharekey" id="shareKey" disabled>⇪ SHARE</button></span></div>
             <div class="kpi"><span class="lbl">Open</span><span class="n" id="dOpenBig">—</span><span class="s" id="dOpenS">none</span></div>
             <div class="kpi"><span class="lbl">Live</span><span class="n" id="dLive">—</span><span class="s">if settled now</span></div>
             <div class="kpi"><span class="lbl seslbl">Session</span><span class="n" id="dSes">$0.00</span><span class="s" id="dSesS">0 won · 0 lost</span></div>
             <div class="kpi"><span class="lbl">Last 10</span><span class="n"><span class="ticks" id="dTicks"></span></span><span class="s" id="dStreak"></span></div>
-          </div></div></div>
+          </div></div>
+        </div>
       </div>
 
       <!-- row 3 · keys -->
       <div class="r3 dirplate steel rivets">
-        <div class="dirhead scr"><span class="tag">03 / SELECT YOUR DIRECTION</span><span class="sub" id="dirSub">EVERY CHIP IS ITS OWN 30-SECOND CALL</span></div>
+        <div class="dirhead scr"><span class="tag">03 / SELECT YOUR DIRECTION</span><a class="vchip" id="vouChip" href="/rewards?tab=vouchers" title="Opens your Position Vouchers"></a><span class="sub" id="dirSub">EVERY CHIP IS ITS OWN 30-SECOND CALL</span></div>
         <div class="row2">
           ${DIR("u", "btn")}
           <div class="bet scr"><div class="bethead"><span>Your stake · per chip</span><b id="dSel">$5 SELECTED</b></div><div class="chips" id="chips"></div></div>
@@ -136,12 +155,12 @@ export const ARCADE_MOBILE = `<main class="m-app v2m">
       <button class="key mkey" id="rulesBtn">RULES</button>
       ${MUTE_BTN}
     </header>
-    <section class="scr q"><h1>BTC · 30s calls · <span class="amt" id="mPrice">$—</span></h1><div class="meta"><span>Your open <b id="dYourOpen">$0 / $500</b></span><span>$5–100 a call</span></div></section>
-    <div class="scr src" id="mSrc"><div class="s"><i>Binance</i><b id="s1">—</b></div><div class="s"><i>Hyperliq.</i><b id="s2">—</b></div><div class="s"><i>Coinbase</i><b id="s3">—</b></div><div class="s"><i>Index</i><b class="idx" id="mIdx">—</b></div></div>
-    <div class="scr feed crt"><div class="feed-head"><div><div class="price up" id="price">$—</div><div class="chg" id="chg">—</div></div>${COMBO("dCombo")}<div class="lbl" id="dNext"></div></div>${MEGA("dMega")}<div class="plot" id="plot"><canvas id="cv"></canvas><div class="ov" id="dOv"><div><div class="t" id="dOvT">PAUSED</div><div class="s" id="dOvS"></div></div></div></div></div>
+    <section class="scr q"><h1>BTC · 30s calls · <span class="amt" id="mPrice">$—</span></h1><div class="meta"><span>Open positions <b id="dYourOpen">$0 / $500</b> <i class="info" data-tip="inplay" tabindex="0" role="button" aria-label="About the open limit">i</i></span></div></section>
+    <div class="scr src" id="mSrc"><div class="s"><i>Binance</i><b id="s1">—</b></div><div class="s"><i>Hyperliq.</i><b id="s2">—</b></div><div class="s"><i>Coinbase</i><b id="s3">—</b></div><div class="s"><i>BTC Index</i><b class="idx" id="mIdx">—</b></div></div>
+    <div class="scr feed crt"><div class="feed-head"><div><div class="price" id="price">$—</div><span class="chg30" id="d30"></span></div>${COMBO("dCombo", "⇪")}<div class="lbl" id="dNext"></div></div>${MEGA("dMega")}<div class="plot" id="plot"><canvas id="cv"></canvas><div class="ov" id="dOv"><div><div class="t" id="dOvT">PAUSED</div><div class="s" id="dOvS"></div></div></div></div></div>
     <div class="scr calls"><span class="lbl" id="mStripLbl">My calls</span><div class="strip" id="mStrip"></div></div>
-    <div class="sb"><div class="scr"><span class="lbl">Open</span><span class="n" id="mOpen">—</span></div><div class="scr"><span class="lbl">Live</span><span class="n" id="dLive">—</span></div><div class="scr"><span class="lbl">Session</span><span class="n" id="dSes">$0.00</span></div></div>
-    <div class="scr bet"><div class="bethead"><span>Your stake</span><b id="dSel">$5 SELECTED</b></div><div class="chips" id="chips"></div></div>
+    <div class="sb" id="mSb" hidden><div class="scr"><span class="lbl">Open</span><span class="n" id="mOpen">—</span></div><div class="scr"><span class="lbl">Live</span><span class="n" id="dLive">—</span></div><div class="scr"><span class="lbl">Session</span><span class="n" id="dSes">$0.00</span></div></div>
+    <div class="scr bet"><div class="bethead"><span>Your stake</span><a class="mvou" id="vouChip" href="/rewards?tab=vouchers"></a></div><div class="chips" id="chips"></div></div>
     <div class="dirs">
       ${DIR("u", "btn")}
       ${DIR("d", "btn")}
@@ -150,10 +169,10 @@ export const ARCADE_MOBILE = `<main class="m-app v2m">
   </div>
   <div class="mscrim" id="mScrim" hidden></div>
   <section class="msheet steel" id="mSheet" role="dialog" aria-modal="true" aria-label="Road and stats" hidden>
-    <div class="msh" id="mSheetH"><span class="grip" aria-hidden="true"></span><span class="tag">ROAD &amp; STATS</span><button class="key mx mxk" id="mSheetX" aria-label="Close">✕</button></div>
-    <div class="scr rr" id="mRoads">${ROAD_STRIP.replace(/id="/g, 'id="m_')}</div>
+    <div class="msh" id="mSheetH"><span class="grip" aria-hidden="true"></span><span class="tag">ROAD &amp; STATS</span><span class="mleg"><b class="lu">▲ Up</b><b class="ld">▼ Down</b></span><button class="key mx mxk" id="mSheetX" aria-label="Close">✕</button></div>
+    <div class="mroads" id="mRoads">${ROAD_CARDS}</div>${HOWTO_M}
     <div class="scr r4m"><span class="lbl seslbl">Session</span><span class="s" id="dSesS">0 won · 0 lost</span><button class="key sharekey" id="shareKey" disabled>⇪ SHARE</button><span class="lbl">Last 10</span><span class="n"><span class="ticks" id="dTicks"></span></span><span class="s" id="dStreak"></span></div>
     <div class="scr msettled"><span class="lbl">Settled</span><div id="dDone"></div></div>
-    <div class="mwin" id="mWin"><img class="mlynx" id="mLynx" src="/arcade/lynx0.png" alt=""></div>
+    <div class="mwin" id="mWin"><img class="mlynx" id="mLynx" src="/arcade/lynx0.png" alt=""><div class="msay" id="mSay"></div></div>
   </section>
 </main>`;

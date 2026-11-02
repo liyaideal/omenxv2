@@ -24,6 +24,13 @@
 // canvases, particles, a mascot and a 1 Hz data loop. Data seams go through
 // `api` (React) and `opts.data` (network or style-guide fixture).
 //
+// James feedback round (CPO 2026-11-02, mock claude.ai/artifact/1hCirCctvs2VNkP2J5bUfC v17c):
+//   the chart is about YOUR calls only — white price line, real-clock ticks, a right-hand
+//   price scale with tags, a preview line ("if you call now · settles here") when nothing is
+//   open or a key is hovered; colour = direction, never win/lose; UNDO key (2 s) instead of
+//   the ring; chips land in the stack at once; LIVE TABLE until the first call; combo tiers
+//   with a $2 Position Voucher every 3 wins in a row (server: arcade_combo_vouchers).
+//
 // Clock: everything runs on SERVER time (arcade_table_now().now − Date.now()
 // gives the offset) so t0 / t1 / tick timestamps line up with the chart.
 // ============================================================
@@ -33,6 +40,7 @@ import {
   ARCADE_DURATION_MS,
   ARCADE_MAX_OPEN,
   acceptTerms,
+  callCredit,
   callFee,
   callNetWin,
   callPayout,
@@ -44,6 +52,7 @@ import {
   fetchTableNow,
   fetchTicks,
   fetchTicksAfter,
+  feeText,
   placeCall,
   roadCells,
   settleMine,
@@ -89,7 +98,7 @@ export const realData: ArcadeData = {
 
 /** style-guide stand-in: nothing leaves the page */
 const previewData: ArcadeData = {
-  tableNow: async () => ({ tick: null, state: null, params: {}, now: new Date().toISOString(), my_open: 0, ack: null }),
+  tableNow: async () => ({ tick: null, state: null, params: {}, now: new Date().toISOString(), my_open: 0, ack: null, combo_today: 0 }),
   ticks: async () => [],
   ticksAfter: async () => [],
   road: async () => [],
@@ -119,7 +128,23 @@ export interface ArcadeApi {
   portfolio?: () => void;
   /** 04 / YOUR RESULT · Share key → the page opens the run poster (CPO 2026-10-28) */
   share?: (run: ArcadeRunShare) => void;
+  /** combo HUD · ⇪ SHARE → the combo poster (CPO 2026-11-02); nothing pops up on its own */
+  shareCombo?: (combo: ArcadeComboShare) => void;
+  /** the voucher chip on 03 → Rewards › Position Vouchers */
+  vouchers?: () => void;
   username: string;
+}
+
+/** What the combo poster says: the run of wins that is on right now */
+export interface ArcadeComboShare {
+  /** wins in a row */
+  n: number;
+  /** net profit of those wins, commission already taken */
+  pnl: number;
+  /** chips staked on those wins */
+  stake: number;
+  /** largest single net win in the run */
+  biggestWin: number;
 }
 
 /** What the share poster says about this run (this session of the cabinet, settled calls only) */
@@ -151,6 +176,12 @@ export interface ArcadeFixture {
   ack?: boolean;
   /** pre-baked session numbers so the boards and combo have something to show */
   session?: { last: boolean[] };
+  /** USD of combo vouchers already dropped today (the voucher chip on 03) */
+  vouchersToday?: number;
+  /** a key is hovered (desktop): the chart shades the winning side of the preview line */
+  hover?: Side;
+  /** replay the combo effects of the last settled win (the ×3 voucher drop) once the frame is up */
+  comboEvent?: "won";
 }
 
 export interface ArcadeMountOptions {
@@ -177,6 +208,13 @@ interface Call {
 }
 
 const C = { up: "#33d6ff", dn: "#cfff4a", cy: "#05d7ed", hot: "#ff5c5c" };
+/** the $500 cap, said once in the key note and the toast (James #15) */
+const LIMIT_TEXT = `Limit reached · $${ARCADE_MAX_OPEN} in play · room frees up as your calls settle`;
+/** ⓘ notes (header, phone header) */
+const TIPS: Record<string, string> = {
+  inplay: `You can have up to $${ARCADE_MAX_OPEN} in open calls at once. Room frees up as your calls settle.`,
+  idx: "The BTC Index turns the live BTC prices from Binance, Hyperliquid and Coinbase into one price, updated every second. Every call opens and settles on it, so a glitch on any single exchange can't swing your result.",
+};
 const money = (n: number) => "$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const signed = (n: number) => (n < 0 ? "−" : "+") + money(n);
 const whole = (n: number) => "$" + Math.round(Math.abs(n)).toLocaleString("en-US");
@@ -254,8 +292,6 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     /** latest Binance mid seen over the WebSocket (what the live line is drawn from) */
     wsMid: 0,
     histInfo: [] as RoadSlotInfo[],
-    /** a tapped road cell holds THIS SLOT until this time (perf ms) */
-    peekUntil: 0,
     /** polls in a row that saw no accepted notice — the gate waits for two (the first after sign-in can race the token) */
     noAck: 0,
     bal: api.getBalance(),
@@ -285,12 +321,33 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     sessionStart: new Date(now()).toISOString(),
     busy: 0,
     params: {} as Record<string, number | null>,
+    /** a call went down this session → the rail shows YOUR CALLS instead of the LIVE TABLE */
+    played: false,
+    /** the key under the mouse (desktop) → the chart shades that side of the preview line */
+    hover: null as Side | null,
+    /** combo vouchers today (USD), from arcade_table_now().combo_today; a fresh drop holds until perf ms vHold */
+    vToday: 0,
+    vHold: 0,
+    /** the run of wins on right now: profit, stake, biggest win (the combo poster) */
+    runPnl: 0,
+    runStake: 0,
+    runBig: 0,
   };
   const myOpen = () => S.calls.filter((c: Call) => c.status === "open" || c.status === "pending" || c.status === "settling");
   const openStake = () => myOpen().reduce((a: number, c: Call) => a + c.gross, 0);
   const nextT1 = () => Math.min(...myOpen().map((c: Call) => c.t1));
   const maxAge = () => Number(S.params?.tick_max_age_ms) || 4000;
   const liveQuote = () => !!(S.tick && S.tick.valid && S.pUp != null && now() - ms(S.tick.ts) < maxAge());
+  /** combo voucher rules live in arcade_params (combo_voucher_every / _face / _cap_day) */
+  const vEvery = () => Number(S.params?.combo_voucher_every) || 3;
+  const vFace = () => Number(S.params?.combo_voucher_face) || 2;
+  const vCap = () => Number(S.params?.combo_voucher_cap_day) || 10;
+  /** YOUR CALLS replaces the LIVE TABLE from the first call until the session ends (30 min without a call) */
+  const mineView = () => S.played && !(myOpen().length === 0 && S.lastCallAt && now() - S.lastCallAt > ARCADE_SESSION_GAP_MS);
+  const hhmm = (t: number) => {
+    const d = new Date(t);
+    return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  };
 
   /* ---------- audio (designer's tones) ---------- */
   let AC: AudioContext | null = null;
@@ -457,15 +514,6 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     const d = new Date(t);
     return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}`;
   };
-  /** "12:34:00 · ▲ +$39.46 · $80,101.44 → $80,140.90" — what one road cell was */
-  function slotText(i: number): string {
-    const info: RoadSlotInfo | undefined = S.histInfo[i];
-    const cell = S.hist[i];
-    if (!info) return "";
-    if (info.carried || info.open == null || info.close == null) return `${clockOf(info.t)} · no index print · colour carried over`;
-    const d = info.close - info.open;
-    return `${clockOf(info.t)} · ${cell === "u" ? "▲ +" : "▼ −"}$${Math.abs(d).toFixed(2)} · ${money(info.open)} → ${money(info.close)}`;
-  }
   function buildRoad(h: RoadCell[]) {
     const cells: any[] = [],
       occ = new Set<string>();
@@ -499,37 +547,75 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   function renderRoads(newest?: boolean) {
     const hist: RoadCell[] = S.hist,
       n = hist.length;
+    const tOf = (i: number) => (S.histInfo[i] ? (S.histInfo[i] as RoadSlotInfo).t : 0);
     for (const pre of ["", "m_"]) {
       const b = $("#" + pre + "bead");
       if (!b) continue;
-      const from = Math.max(0, Math.ceil((n + 1) / 6) - 6) * 6;
-      b.innerHTML = hist.slice(from).map((x, i) => `<span class="bead ${x}${newest && from + i === n - 1 ? " pop" : ""}" data-i="${from + i}" title="${slotText(from + i)}"></span>`).join("") + '<span class="bead ghost"></span>';
-      $("#" + pre + "beadN").textContent = String(n - from);
+      // desktop: a 6-column bead plate; the phone sheet card fills its width
+      const colsB = pre ? Math.max(6, Math.floor((b.clientWidth + 2) / 11)) : 6;
+      const from = Math.max(0, Math.ceil((n + 1) / 6) - colsB) * 6;
+      b.innerHTML = hist.slice(from).map((x, i) => `<span class="bead ${x}${newest && from + i === n - 1 ? " pop" : ""}" data-i="${from + i}"></span>`).join("") + '<span class="bead ghost"></span>';
+      const bn = $("#" + pre + "beadN");
+      if (bn) bn.textContent = String(n - from);
+      const bx = $("#" + pre + "bax0");
+      if (bx) bx.textContent = n && tOf(from) ? "← " + hhmm(tOf(from)) : "←";
       const rd = $("#" + pre + "road"),
         { cells, cols } = buildRoad(hist);
       const fit = Math.max(6, Math.floor((rd.clientWidth + 2) / 11)),
         first = Math.max(0, cols - fit);
-      rd.innerHTML = cells
-        .filter((q) => q.c >= first)
-        .map((q) => `<span class="cell ${q.s}${newest && q.i === n - 1 ? " pop" : ""}" data-i="${q.i}" title="${slotText(q.i)}" style="grid-column:${q.c - first + 1};grid-row:${q.r + 1}"></span>`)
-        .join("");
-      const nu = hist.filter((x) => x === "u").length;
+      const vis = cells.filter((q) => q.c >= first);
+      rd.innerHTML = vis.map((q) => `<span class="cell ${q.s}${newest && q.i === n - 1 ? " pop" : ""}" data-i="${q.i}" style="grid-column:${q.c - first + 1};grid-row:${q.r + 1}"></span>`).join("");
+      const ax = $("#" + pre + "rax0");
+      if (ax) {
+        const i0 = vis.length ? Math.min(...vis.map((q) => q.i)) : 0;
+        ax.textContent = vis.length && tOf(i0) ? "← " + hhmm(tOf(i0)) : "←";
+      }
+      // LAST 30 MIN = the last 60 cells
+      const h60 = hist.slice(-60);
+      const nu = h60.filter((x) => x === "u").length;
       $("#" + pre + "nUp").textContent = String(nu);
-      $("#" + pre + "nDn").textContent = String(n - nu);
-      $("#" + pre + "nSlots").textContent = String(n);
+      $("#" + pre + "nDn").textContent = String(h60.length - nu);
+      const bar = $("#" + pre + "rsBar");
+      if (bar) bar.style.width = (h60.length ? (nu / h60.length) * 100 : 50) + "%";
       let best = { s: "u", n: 0 },
         cur = { s: hist[0], n: 0 };
       for (const x of hist) {
         cur = cur.s === x ? { s: x, n: cur.n + 1 } : { s: x, n: 1 };
         if (cur.n > best.n) best = { ...cur };
       }
-      $("#" + pre + "longest").textContent = n ? (best.s === "u" ? "Up" : "Down") + " ×" + best.n : "—";
+      const lg = $("#" + pre + "longest");
+      if (lg) {
+        lg.textContent = n ? (best.s === "u" ? "▲ Up" : "▼ Down") + " ×" + best.n : "—";
+        lg.style.color = n ? (best.s === "u" ? "var(--up)" : "var(--lime)") : "";
+      }
     }
     const pk = $("#mPeekRoad");
     if (pk) {
       const h = hist.slice(-10).map((x) => `<i class="${x}"></i>`).join("");
       if (pk.innerHTML !== h) pk.innerHTML = h;
     }
+    const say = $("#mSay");
+    if (say) {
+      const t = roadSay();
+      if (say.innerHTML !== t) say.innerHTML = t;
+    }
+  }
+  /** the lynx in the phone sheet says what the road is doing, in words */
+  function roadSay(): string {
+    const hist: RoadCell[] = S.hist;
+    if (!hist.length) return "";
+    let run = 1;
+    for (let i = hist.length - 1; i > 0 && hist[i] === hist[i - 1]; i--) run++;
+    let alt = 1;
+    for (let i = hist.length - 1; i > 0 && hist[i] !== hist[i - 1]; i--) alt++;
+    const dir = hist[hist.length - 1] === "u" ? '<b class="cu">▲ Up</b>' : '<b class="cd">▼ Down</b>';
+    if (run >= 4) return `${dir} ${run} boxes in a row — a streak is running.`;
+    if (alt >= 5) return `Flip-flopping for ${alt} boxes — no clear direction.`;
+    const h = hist.slice(-20),
+      u = h.filter((x) => x === "u").length;
+    if (u >= 13) return `Mostly <b class="cu">▲ Up</b> lately — ${u} of the last ${h.length} boxes.`;
+    if (h.length - u >= 13) return `Mostly <b class="cd">▼ Down</b> lately — ${h.length - u} of the last ${h.length} boxes.`;
+    return `Mixed — ${u} up, ${h.length - u} down in the last ${h.length} boxes.`;
   }
   function slotLoop() {
     const w = now();
@@ -543,10 +629,17 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       const first = S.px.find((x: any) => x.t >= cur);
       S.slotOpen = first ? first.p : S.price; // first index of the slot
     }
-    if (S.peekUntil > perf()) return;
+    const up = S.slotOpen == null || S.price >= S.slotOpen;
+    const mv = S.slotOpen != null && S.price ? `<b class="${up ? "cu" : "cd"}">${up ? "▲ +$" : "▼ −$"}${Math.abs(S.price - S.slotOpen).toFixed(2)}</b>` : "<b>—</b>";
+    const html = `Now ${mv} · ${Math.max(0, Math.ceil((cur + SLOT - w) / 1000))}s left`;
     for (const pre of ["", "m_"]) {
       const e = $("#" + pre + "slotLbl");
-      if (e) e.textContent = "THIS SLOT · " + (S.slotOpen != null && S.price ? (S.price >= S.slotOpen ? "▲ +" : "▼ −") + Math.abs(S.price - S.slotOpen).toFixed(2) + " · " : "") + Math.max(0, Math.ceil((cur + SLOT - w) / 1000)) + "s";
+      if (e && e.innerHTML !== html) e.innerHTML = html;
+      const pg = $("#" + pre + "slotProg");
+      if (pg) {
+        pg.style.width = Math.min(100, ((w - cur) / SLOT) * 100) + "%";
+        pg.className = up ? "cu" : "cd";
+      }
     }
   }
   async function loadRoad(newest?: boolean) {
@@ -592,8 +685,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     }
     const stake = openStake();
     if (stake + S.chip > ARCADE_MAX_OPEN) {
-      deny(side, `$${ARCADE_MAX_OPEN} max open per account`);
-      toast(`$${ARCADE_MAX_OPEN} max open per account`, true);
+      deny(side, LIMIT_TEXT);
+      toast(LIMIT_TEXT, true);
       return;
     }
     if (S.chip > S.bal + 1e-9) {
@@ -602,6 +695,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     }
     if (S.lastCallAt && now() - S.lastCallAt > ARCADE_SESSION_GAP_MS) newSession();
     S.lastCallAt = now();
+    S.played = true;
     const p = side === "u" ? S.pUp : 1 - S.pUp,
       g = S.chip,
       t0 = now();
@@ -613,6 +707,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     const k = keyOf(side),
       ctr = center(k);
     burst(ctr.x, ctr.y, side === "u" ? C.up : C.dn, 14);
+    tapFloat(side, g);
     render();
     try {
       const row = await data.place(side === "u" ? "up" : "down", g, S.quoteTs!);
@@ -651,11 +746,26 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       S.bal = r.balance;
       bumpEq();
       api.onBalance?.(r.balance);
-      toast(`Cancelled · ${money(r.cancel_fee)} close fee`);
+      toast(`Cancelled · ${feeText(r.cancel_fee)} close fee`);
     } catch (e: any) {
       toast(String(e?.message || "Could not cancel"), true);
     }
     render();
+  }
+
+  /** "+$5 ▲" pops above the key on every tap — each chip is seen landing (James #9) */
+  function tapFloat(side: Side, g: number) {
+    const k = keyOf(side);
+    if (!k) return;
+    const r = k.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > innerHeight) return;
+    const f = document.createElement("span");
+    f.className = "tapf";
+    f.textContent = "+" + whole(g) + (side === "u" ? " ▲" : " ▼");
+    f.style.left = r.left + r.width / 2 + "px";
+    f.style.top = r.top + 8 + "px";
+    root.appendChild(f);
+    setTimeout(() => f.remove(), 900);
   }
 
   /* ---------- settling ---------- */
@@ -694,14 +804,16 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     S.bigWin = 0;
     S.sesStakes = [];
     S.done = [];
+    S.played = false;
+    S.runPnl = 0;
+    S.runStake = 0;
+    S.runBig = 0;
     S.sesStart = now();
     S.sessionStart = new Date(now()).toISOString();
     $$(".combo").forEach((el) => {
       el.className = "combo";
-      const sub = el.querySelector(".sub"),
-        pips = el.querySelector(".pips");
+      const sub = el.querySelector(".sub");
       if (sub) sub.textContent = "";
-      if (pips) pips.innerHTML = "";
     });
     toast(ARCADE_SESSION_NEW);
     render();
@@ -715,6 +827,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     while (i > 0 && ms(asc[i].created_at) - ms(asc[i - 1].created_at) <= ARCADE_SESSION_GAP_MS) i--;
     const ses = asc.slice(i);
     S.lastCallAt = ms(ses[ses.length - 1].created_at);
+    S.played = true;
     S.sesStart = ms(ses[0].created_at);
     S.sessionStart = ses[0].created_at;
     ses.forEach((r) => {
@@ -743,12 +856,16 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     }
     S.streakW = w;
     S.streakL = l;
+    const runRows = w ? settled.slice(-w) : [];
+    S.runPnl = runRows.reduce((a, r) => a + (r.pnl ?? 0), 0);
+    S.runStake = runRows.reduce((a, r) => a + r.gross, 0);
+    S.runBig = runRows.reduce((a, r) => Math.max(a, r.pnl ?? 0), 0);
     let run = 0;
     settled.forEach((r) => {
       run = r.status === "won" ? run + 1 : 0;
       S.bestRun = Math.max(S.bestRun, run);
     });
-    if (w >= 2 || l >= 2) comboUpdate("boot");
+    if (w >= 2) comboUpdate("boot");
   }
 
   function applySettled(c: Call, status: "won" | "lost" | "void", pnl: number, s0: number | null, s1: number | null) {
@@ -768,6 +885,14 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       if (won) {
         S.streakW++;
         S.streakL = 0;
+        if (S.streakW === 1) {
+          S.runPnl = 0;
+          S.runStake = 0;
+          S.runBig = 0;
+        }
+        S.runPnl += pnl;
+        S.runStake += c.gross;
+        S.runBig = Math.max(S.runBig, pnl);
       } else {
         S.streakL++;
         S.streakW = 0;
@@ -790,7 +915,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     comboUpdate(status);
     Lx.react(won ? "win" : status === "lost" ? "lose" : "bet");
     S.done.unshift(c);
-    if (S.done.length > 12) S.done.pop();
+    if (S.done.length > 30) S.done.pop();
     S.bursts.push({ t: perf(), c });
     render();
   }
@@ -843,68 +968,130 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         } else if (loc.status === "open" && real.s0 != null && loc.s0 == null) loc.s0 = real.s0;
       }
       S.done.sort((a: Call, b: Call) => (b.settledAt || 0) - (a.settledAt || 0));
-      if (S.done.length > 12) S.done.length = 12;
+      if (S.done.length > 30) S.done.length = 30;
     } catch (e) {
       /* next time */
     }
   }
 
-  /* ---------- combo HUD ---------- */
+  /* ---------- combo HUD ----------
+     COMBO ×N from 2 wins in a row; every vEvery()-th win drops a $2 Position Voucher (server-side,
+     arcade_combo_vouchers; max $10 a UTC day). The HUD says how far the next voucher is; tiers
+     ×3 ON FIRE · ×5 UNSTOPPABLE · ×8 LEGENDARY punch harder. A loss ends the combo quietly —
+     no COMBO BREAK, no LOST ×N (James #16 / #17). */
+  const comboWord = (n: number) => (n >= 8 ? "legendary" : n >= 5 ? "unstoppable" : n >= 3 ? "on fire" : "");
+  const comboTier = (n: number) => (n >= 8 ? 4 : n >= 5 ? 3 : n >= 3 ? 2 : 1);
+  const isMega = (n: number) => n % vEvery() === 0 || n === 5 || n === 8;
   function comboUpdate(status: string) {
-    const hot = S.streakW >= 2,
-      cold = S.streakL >= 2,
-      n = hot ? S.streakW : cold ? S.streakL : 0;
+    if (status === "void") return;
+    const n = S.streakW >= 2 ? S.streakW : 0;
+    const face = vFace();
+    let dropped = false;
+    if (status === "won" && n && n % vEvery() === 0 && S.vToday + face <= vCap() + 1e-9) {
+      // the server issues it on the same settlement; hold the optimistic total until its poll catches up
+      S.vToday += face;
+      S.vHold = perf() + 8000;
+      dropped = true;
+    }
+    const left = vEvery() - (n % vEvery());
+    const sub = !n
+      ? ""
+      : dropped
+        ? `you got a ${whole(face)} voucher!`
+        : S.vToday + face > vCap() + 1e-9
+          ? "vouchers maxed today · keep it going"
+          : `win ${left} more → free ${whole(face)} voucher`;
     $$(".combo").forEach((el) => {
       const big = el.querySelector(".big"),
-        pips = el.querySelector(".pips"),
-        sub = el.querySelector(".sub");
-      if (status === "void") return;
-      if (!hot && !cold) {
-        if (el.classList.contains("on") && !el.classList.contains("break")) {
-          big.textContent = el.classList.contains("cold") ? "STREAK OVER" : "COMBO BREAK";
-          el.classList.add("break");
-          sub.textContent = "";
-          pips.innerHTML = "";
-          setTimeout(() => (el.className = "combo"), 700);
-        }
+        sb = el.querySelector(".sub");
+      if (!n) {
+        el.className = "combo";
         return;
       }
-      el.className = "combo on" + (cold ? " cold" : "");
-      big.textContent = (cold ? "LOST ×" : "COMBO ×") + n;
+      el.className = "combo on t" + comboTier(n);
+      big.textContent = "COMBO ×" + n;
+      big.style.setProperty("--p", String(1.6 + Math.min(n, 10) * 0.14));
       big.classList.remove("punch");
       void big.offsetWidth;
       big.classList.add("punch");
-      const next = Math.ceil(n / 3) * 3,
-        base = next - 3;
-      pips.innerHTML = [0, 1, 2].map((i) => `<i class="${n - base > i ? "on" : ""}"></i>`).join("");
-      sub.textContent = n % 3 === 0 ? (cold ? "ouch" : "bonus!") : `${next - n} more → ${cold ? "×" + next : "×" + next + " bonus"}`;
+      if (sb) sb.textContent = sub;
     });
-    if (n && n % 3 === 0 && status !== "boot") {
-      // a streak restored from history shows the HUD but earns no fireworks
-      mega(cold, n);
-      Lx.react(cold ? "cold" : "combo");
-      if (!cold) {
-        rain(C.dn, 70);
-        const e = eqEls()[0];
-        if (e) {
-          const c = center(e);
-          burst(c.x, c.y, C.dn, 30, true);
+    if (status === "won" && n && isMega(n)) {
+      // a streak restored from history shows the HUD but earns no fireworks ("boot")
+      mega(n, dropped);
+      Lx.react("combo");
+      rain(C.dn, n >= 5 ? 120 : 70);
+      const e = eqEls()[0];
+      if (e) {
+        const c = center(e);
+        burst(c.x, c.y, C.dn, n >= 5 ? 48 : 30, true);
+      }
+      sfx.big();
+      if (n >= 5 && !RM) {
+        const cab = $("#cab");
+        if (cab) {
+          cab.classList.remove("shake");
+          void cab.offsetWidth;
+          cab.classList.add("shake");
         }
-        sfx.big();
-      } else {
-        flash(C.hot);
-        sfx.cold();
       }
     }
+    if (dropped) voucherFly();
+    renderVouchers();
   }
-  function mega(cold: boolean, n: number) {
+  function mega(n: number, dropped: boolean) {
     $$(".mega").forEach((el) => {
-      el.querySelector(".t").textContent = cold ? "×" + n + " LOST" : "×" + n + " COMBO";
-      el.querySelector(".s").textContent = cold ? "take a breath · streak resets on a win" : "keep it rolling · next bonus at ×" + (n + 3);
-      el.className = "mega on" + (cold ? " cold" : "");
+      el.querySelector(".t").textContent = "×" + n + " COMBO";
+      el.querySelector(".s").textContent = dropped ? `+${whole(vFace())} voucher · in your Vouchers` : comboWord(n);
+      el.className = "mega on";
       clearTimeout(el._t);
       el._t = setTimeout(() => (el.className = "mega"), 1600);
     });
+  }
+  /** "+$2 VOUCHER" flies from the combo HUD to the voucher chip */
+  function voucherFly() {
+    const a = $("#dCombo"),
+      b = $("#vouChip");
+    if (!a || !b) return;
+    const from = a.getBoundingClientRect(),
+      to = b.getBoundingClientRect();
+    const v = document.createElement("span");
+    v.className = "vfly";
+    v.textContent = `+${whole(vFace())} VOUCHER`;
+    v.style.left = from.left + from.width / 2 + "px";
+    v.style.top = from.top + from.height / 2 + "px";
+    root.appendChild(v);
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        v.style.transform = `translate(calc(-50% + ${to.left + to.width / 2 - (from.left + from.width / 2)}px),calc(-50% + ${to.top + to.height / 2 - (from.top + from.height / 2)}px)) scale(.7)`;
+        v.style.opacity = ".2";
+      }),
+    );
+    setTimeout(() => {
+      v.remove();
+      b.classList.remove("bump");
+      void b.offsetWidth;
+      b.classList.add("bump");
+    }, 1100);
+  }
+  /** the voucher chip on 03 (desktop) / next to YOUR STAKE (phone): three states */
+  function renderVouchers() {
+    const e = $("#vouChip");
+    if (!e) return;
+    const cap = vCap(),
+      v = S.vToday;
+    const h = mobile
+      ? v + 1e-9 >= cap
+        ? `Today's <b>${whole(cap)}</b> vouchers claimed`
+        : v
+          ? `Vouchers <b>${whole(v)} / ${whole(cap)}</b> today ›`
+          : `<b>${vEvery()} wins in a row</b> = ${whole(vFace())} voucher`
+      : v + 1e-9 >= cap
+        ? `Today's <b>${whole(cap)}</b> of vouchers claimed · resets 00:00 UTC`
+        : v
+          ? `Vouchers today <b>${whole(v)} / ${whole(cap)}</b> · View ›`
+          : `Win <b>${vEvery()} in a row</b> = ${whole(vFace())} voucher · up to ${whole(cap)} a day`;
+    if (e.innerHTML !== h) e.innerHTML = h;
   }
 
   /* ---------- per-call feedback: float + fly ---------- */
@@ -1019,15 +1206,19 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     for (let i = S.px.length - 1; i >= 0; i--) if (S.px[i].t <= before && Math.abs(S.px[i].p - price) < 1e-6) return S.px[i].t;
     return fallback;
   };
+  /** right-hand price scale width */
+  const gut = (cv: any) => (cv.clientWidth < 420 ? 52 : 66);
   function geom(cv: any) {
     const W = cv.clientWidth,
       H = cv.clientHeight,
+      PW = W - gut(cv),
+      TOP = 34,
+      BOT = 16,
       t = now(),
       t0 = t - 45000,
       t1 = t + 32000;
     const open = S.calls.filter((c: Call) => c.s0 != null);
     const ps = lineSeries(t0).map((x: any) => x.p).concat(open.map((c: Call) => c.s0));
-    if (S.slotOpen != null) ps.push(S.slotOpen);
     if (S.disp) ps.push(S.disp);
     let lo = Math.min(...ps),
       hi = Math.max(...ps);
@@ -1039,8 +1230,29 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     const pad = Math.max((hi - lo) * 0.25, 1.5);
     lo -= pad;
     hi += pad;
-    return { W, H, x: (tt: number) => ((tt - t0) / (t1 - t0)) * W, y: (p: number) => H - ((p - lo) / (hi - lo)) * (H - 8) - 4 };
+    return { W, H, PW, TOP, BOT, lo, hi, x: (tt: number) => ((tt - t0) / (t1 - t0)) * PW, y: (p: number) => H - BOT - ((p - lo) / (hi - lo)) * (H - BOT - TOP - 6) - 3 };
   }
+  const fmtP = (p: number, dp: number) => p.toLocaleString("en-US", { minimumFractionDigits: dp, maximumFractionDigits: dp });
+  function priceTag(ctx: any, g: any, y: number, txt: string, bg: string) {
+    const x = g.PW + 2,
+      w = g.W - g.PW - 3;
+    ctx.fillStyle = bg;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + 6, y - 8);
+    ctx.lineTo(x + w, y - 8);
+    ctx.lineTo(x + w, y + 8);
+    ctx.lineTo(x + 6, y + 8);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "#020c10";
+    ctx.font = "700 10px Chakra Petch";
+    ctx.fillText(txt, x + 8, y + 4);
+  }
+  /** The stage only draws YOUR calls (James #1–#5): a neutral white price line, real-clock ticks every
+      15 s, a right-hand scale with price tags, and — when nothing of yours is open, or a key is hovered —
+      a preview of the call you would make now. Colour means direction only; won = filled ✓ in the
+      call's colour, lost = grey ring ✕, tie = grey bar; a settled flag leaves the lane after 1.5 s. */
   function draw(cv: any) {
     const ctx = cv.getContext("2d");
     const dpr = devicePixelRatio || 1;
@@ -1054,79 +1266,54 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, W, H);
     const g = geom(cv),
-      t = now();
-    /* 30 s slot grid = the road's cells, shaded by result; the last one is the slot in progress */
-    const curStart = S.slotStart || Math.floor(t / SLOT) * SLOT;
-    for (let j = -2; j < 40; j++) {
-      const st = curStart - j * SLOT,
-        en = st + SLOT;
-      if (en < t - 45000 || st > t + 32000) continue;
-      const x0 = Math.max(0, g.x(st)),
-        x1 = Math.min(W, g.x(en));
-      const res = j >= 1 ? S.hist[S.hist.length - j] : null;
-      ctx.fillStyle = res === "u" ? "rgba(51,214,255,.07)" : res === "d" ? "rgba(207,255,74,.07)" : j === 0 ? "rgba(255,255,255,.035)" : "transparent";
-      ctx.fillRect(x0, 34, x1 - x0, H - 34);
-      ctx.font = "600 9px Chakra Petch";
-      if (j === 0) {
-        ctx.fillStyle = "#5d6676";
-        ctx.fillText("SLOT · " + Math.max(0, Math.ceil((en - t) / 1000)) + "s", x0 + 4, H - 6);
-      }
-      ctx.strokeStyle = "#1c2a33";
-      ctx.beginPath();
-      ctx.moveTo(g.x(st), 34);
-      ctx.lineTo(g.x(st), H);
-      ctx.stroke();
-      if (res) {
-        ctx.fillStyle = res === "u" ? C.up : C.dn;
-        ctx.font = "700 9px Chakra Petch";
-        ctx.fillText(res === "u" ? "▲" : "▼", x0 + 4, H - 6);
-      }
-    }
-    /* grid + now line */
+      t = now(),
+      PW = g.PW,
+      narrow = W < 420;
+    /* grid */
     ctx.strokeStyle = "#15262e";
     ctx.lineWidth = 1;
     for (let i = 1; i < 5; i++) {
+      const yy = g.TOP + ((H - g.TOP - g.BOT) * i) / 5;
       ctx.beginPath();
-      ctx.moveTo(0, (H * i) / 5);
-      ctx.lineTo(W, (H * i) / 5);
+      ctx.moveTo(0, yy);
+      ctx.lineTo(PW, yy);
       ctx.stroke();
     }
+    /* real-clock ticks every 15 s */
     const xn = g.x(t);
-    ctx.fillStyle = "rgba(51,214,255,.06)";
-    ctx.fillRect(xn, 0, W - xn, H);
+    ctx.font = "500 9px Chakra Petch";
+    ctx.fillStyle = "#5d6676";
+    for (let w = Math.ceil((t - 45000) / 15000) * 15000; w < t + 32000; w += 15000) {
+      const x = g.x(w);
+      if (x < 14 || x > PW - 30) continue;
+      ctx.strokeStyle = "#121e25";
+      ctx.beginPath();
+      ctx.moveTo(x, g.TOP);
+      ctx.lineTo(x, H - g.BOT);
+      ctx.stroke();
+      if (Math.abs(x - xn) > 34) ctx.fillText(clockOf(w).slice(narrow ? 3 : 0), x - (narrow ? 12 : 20), H - 4);
+    }
+    /* now */
+    ctx.fillStyle = "rgba(51,214,255,.05)";
+    ctx.fillRect(xn, 0, PW - xn, H - g.BOT);
     ctx.setLineDash([3, 3]);
     ctx.strokeStyle = "#2a4a56";
     ctx.beginPath();
     ctx.moveTo(xn, 0);
-    ctx.lineTo(xn, H);
+    ctx.lineTo(xn, H - g.BOT);
     ctx.stroke();
     ctx.setLineDash([]);
-    /* faint vertical grid (designer's CRT feed) */
-    ctx.strokeStyle = "rgba(51,214,255,.05)";
-    for (let gx = 0; gx < W; gx += 24) {
-      ctx.beginPath();
-      ctx.moveTo(gx + 0.5, 34);
-      ctx.lineTo(gx + 0.5, H);
-      ctx.stroke();
-    }
-    /* the slot's open: dashed reference, the line is cyan above it and lime below */
-    const ref = S.slotOpen ?? S.price;
-    if (ref) {
-      ctx.setLineDash([4, 4]);
-      ctx.strokeStyle = "rgba(238,242,248,.22)";
-      ctx.beginPath();
-      ctx.moveTo(0, Math.round(g.y(ref)) + 0.5);
-      ctx.lineTo(W, Math.round(g.y(ref)) + 0.5);
-      ctx.stroke();
-      ctx.setLineDash([]);
-    }
-    /* price line: one point per valid second, the head eased toward the latest index; gaps where the index was invalid */
+    ctx.fillStyle = "#dfe6ee";
+    ctx.font = "700 9px Chakra Petch";
+    ctx.fillText("NOW", xn - 10, H - 4);
+    /* price line — one neutral colour; it says nothing about winning or losing.
+       One point per valid second, the head eased toward the latest index; gaps where the index was invalid */
     const useLive = liveOn();
     const pts = lineSeries(t - 45000);
+    let headX = xn,
+      headY = g.y(S.disp || S.price);
     if (pts.length > 1 || (pts.length && S.disp)) {
-      const col = S.disp >= ref ? C.up : C.dn;
-      const headX = Math.min(g.x(t), g.x(pts[pts.length - 1].t) + 40),
-        headY = g.y(S.disp);
+      headX = Math.min(xn, g.x(pts[pts.length - 1].t) + 40);
       ctx.beginPath();
       let prevT = 0;
       pts.forEach((p: any, i: number) => {
@@ -1137,25 +1324,24 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         prevT = p.t;
       });
       if (t - prevT < 3500) ctx.lineTo(headX, headY);
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 1.8;
       ctx.lineJoin = "round";
-      ctx.strokeStyle = col;
-      ctx.shadowColor = col;
+      ctx.strokeStyle = "#e8edf2";
+      ctx.shadowColor = "rgba(220,235,255,.45)";
       ctx.shadowBlur = 6;
       ctx.stroke();
       ctx.shadowBlur = 0;
-      /* area under the line */
-      ctx.lineTo(headX, H);
-      ctx.lineTo(g.x(pts[0].t), H);
+      ctx.lineTo(headX, H - g.BOT);
+      ctx.lineTo(g.x(pts[0].t), H - g.BOT);
       ctx.closePath();
-      const grad = ctx.createLinearGradient(0, 34, 0, H);
-      grad.addColorStop(0, col + "38");
-      grad.addColorStop(1, col + "00");
+      const grad = ctx.createLinearGradient(0, g.TOP, 0, H);
+      grad.addColorStop(0, "rgba(232,237,242,.12)");
+      grad.addColorStop(1, "rgba(232,237,242,0)");
       ctx.fillStyle = grad;
       ctx.fill();
-      ctx.fillStyle = col;
+      ctx.fillStyle = "#fff";
       ctx.beginPath();
-      ctx.arc(headX, headY, 3, 0, 7);
+      ctx.arc(headX, headY, 3.2, 0, 7);
       ctx.fill();
       if (useLive) {
         ctx.fillStyle = "rgba(238,242,248,.45)";
@@ -1165,8 +1351,44 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         }
       }
     }
-    /* calls: entry dot + open line, settled badges */
     const live = S.calls.filter((c: Call) => c.s0 != null || c.status === "pending" || c.status === "open").sort((a: Call, b: Call) => a.t1 - b.t1);
+    const anyLive = live.some((c: Call) => c.status === "open" || c.status === "settling" || c.status === "pending");
+    /* preview: "if you call now" — when nothing of yours is open, and whenever a key is hovered (James #4) */
+    const hs: Side | null = FX?.hover ?? S.hover;
+    if ((!anyLive || hs) && (S.disp || S.price) && !S.paused) {
+      const yp = headY,
+        xe = g.x(t + ARCADE_DURATION_MS);
+      if (hs) {
+        ctx.fillStyle = hs === "u" ? "rgba(51,214,255,.10)" : "rgba(207,255,74,.09)";
+        if (hs === "u") ctx.fillRect(xn, g.TOP, xe - xn, yp - g.TOP);
+        else ctx.fillRect(xn, yp, xe - xn, H - g.BOT - yp);
+        ctx.fillStyle = hs === "u" ? C.up : C.dn;
+        ctx.font = "700 11px Chakra Petch";
+        ctx.fillText(narrow ? (hs === "u" ? "▲ UP wins above" : "▼ DOWN wins below") : hs === "u" ? "▲ UP wins if BTC ends above" : "▼ DOWN wins if BTC ends below", xn + 8, hs === "u" ? yp - 8 : yp + 16);
+      }
+      ctx.setLineDash([5, 4]);
+      ctx.strokeStyle = hs === "u" ? C.up : hs === "d" ? C.dn : "rgba(238,242,248,.55)";
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(xn, yp);
+      ctx.lineTo(xe, yp);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = ctx.fillStyle = hs === "u" ? C.up : hs === "d" ? C.dn : "#aab4c2";
+      ctx.beginPath();
+      ctx.moveTo(xe, yp);
+      ctx.lineTo(xe, g.TOP + 2);
+      ctx.stroke();
+      const lbl = narrow ? "30s" : "if you call now · settles here";
+      ctx.font = "700 9px Chakra Petch";
+      const tw = ctx.measureText(lbl).width + 12;
+      const fx0 = Math.min(xe, PW - tw - 2);
+      ctx.fillRect(fx0, g.TOP - 14, tw, 13);
+      ctx.fillStyle = "#020c10";
+      ctx.fillText(lbl, fx0 + 6, g.TOP - 4);
+    }
+    /* calls: entry diamond + open line; colour = your side while you are ahead, grey while behind */
     live.forEach((c: Call, i: number) => {
       const col = c.side === "u" ? C.up : C.dn;
       const isLive = c.status === "open" || c.status === "settling" || c.status === "pending";
@@ -1177,57 +1399,66 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         x1 = g.x(c.t1),
         y = g.y(s0);
       ctx.setLineDash([4, 3]);
-      ctx.strokeStyle = isLive ? (c.s0 == null ? "#8a93a3" : ahead ? col : "#5a6676") : c.status === "won" ? C.dn : c.status === "lost" ? "#ff4d4d" : "#889";
+      ctx.strokeStyle = isLive ? (c.s0 != null && ahead ? col : "#5a6676") : c.status === "won" ? col : "#5a6676";
       ctx.globalAlpha = isLive ? (i < 6 ? 0.9 : 0.3) : 0.35;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(x0, y);
-      ctx.lineTo(Math.min(x1, W), y);
+      ctx.lineTo(Math.min(x1, PW), y);
       ctx.stroke();
       ctx.setLineDash([]);
-      ctx.globalAlpha = 1;
-      ctx.fillStyle = col;
       ctx.globalAlpha = i < 6 || !isLive ? (isLive ? 1 : 0.6) : 0.55;
+      ctx.fillStyle = col;
       ctx.beginPath();
-      ctx.moveTo(x0, y - 4);
-      ctx.lineTo(x0 + 4, y);
-      ctx.lineTo(x0, y + 4);
-      ctx.lineTo(x0 - 4, y);
+      ctx.moveTo(x0, y - 5);
+      ctx.lineTo(x0 + 5, y);
+      ctx.lineTo(x0, y + 5);
+      ctx.lineTo(x0 - 5, y);
       ctx.closePath();
       ctx.fill();
       ctx.globalAlpha = 1;
+      if (isLive && i < 3 && !narrow) {
+        ctx.font = "700 10px Chakra Petch";
+        ctx.fillText(c.side === "u" ? "▲" : "▼", x0 - 4, c.side === "u" ? y - 8 : y + 16);
+      }
       if (!isLive && c.s1 != null) {
-        // the result badge sits on the print the call settled on (the last index at or before t1)
+        // the result mark sits on the print the call settled on (the last index at or before t1)
         const xs = g.x(printTimeBefore(c.s1, c.t1 + 1, c.t1));
         const ys = g.y(c.s1);
-        const won = c.status === "won";
-        const bc = won ? C.dn : c.status === "lost" ? "#ff4d4d" : "#aab";
-        ctx.strokeStyle = bc;
-        ctx.globalAlpha = 0.5;
-        ctx.beginPath();
-        ctx.moveTo(xs, y);
-        ctx.lineTo(xs, ys);
-        ctx.stroke();
-        ctx.globalAlpha = 1;
-        ctx.fillStyle = bc;
-        ctx.beginPath();
-        ctx.arc(xs, ys, 7, 0, 7);
-        ctx.fill();
-        ctx.fillStyle = "#020c10";
-        ctx.font = "700 10px Chakra Petch";
-        ctx.fillText(won ? "✓" : c.status === "lost" ? "✕" : "–", xs - 4, ys + 4);
+        if (c.status === "won") {
+          ctx.fillStyle = col;
+          ctx.beginPath();
+          ctx.arc(xs, ys, 6.5, 0, 7);
+          ctx.fill();
+          ctx.fillStyle = "#020c10";
+          ctx.font = "700 9px Chakra Petch";
+          ctx.fillText("✓", xs - 3.6, ys + 3.4);
+        } else if (c.status === "lost") {
+          ctx.strokeStyle = "#6b7584";
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(xs, ys, 5, 0, 7);
+          ctx.stroke();
+          ctx.lineWidth = 1;
+          ctx.fillStyle = "#8a93a3";
+          ctx.font = "700 7px Chakra Petch";
+          ctx.fillText("✕", xs - 2.6, ys + 2.6);
+        } else {
+          ctx.fillStyle = "#8a93a3";
+          ctx.fillRect(xs - 4, ys - 1, 8, 2);
+        }
       }
     });
-    /* settle burst: expanding ring + the open line flashes solid */
+    /* settle burst: expanding ring + the open line flashes solid (your colour on a win, grey otherwise) */
     for (const b of S.bursts) {
       const k = (perf() - b.t) / 900,
         c: Call = b.c;
       if (c.s0 == null) continue;
       const x1 = g.x(c.t1),
         ys = g.y(c.s1 ?? c.s0),
-        col = c.status === "won" ? C.dn : c.status === "lost" ? "#ff4d4d" : "#aab";
+        col = c.status === "won" ? (c.side === "u" ? C.up : C.dn) : "#6b7584";
       ctx.strokeStyle = col;
-      ctx.globalAlpha = 1 - k;
+      ctx.globalAlpha = Math.max(0, 1 - k);
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.arc(x1, ys, 8 + k * 26, 0, 7);
@@ -1240,47 +1471,52 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       ctx.globalAlpha = 1;
       ctx.lineWidth = 1;
     }
-    /* flag lane: two rows (even / odd seconds) so neighbours never overlap */
+    /* flag lane: ▲ / ▼ + seconds left; ✓ / ✕ for 1.5 s once settled, then the flag leaves */
     const groups: Record<number, Call[]> = {};
     for (const c of live) {
+      const on = c.status === "open" || c.status === "settling" || c.status === "pending" || (c.tDone && t - c.tDone < 1500);
+      if (!on) continue;
       const k = Math.floor(c.t1 / 1000);
       (groups[k] = groups[k] || []).push(c);
     }
     const keys = Object.keys(groups)
       .map(Number)
       .sort((a, b) => a - b);
-    // the lane only shows its dark bed when a flag is in view — idle, the chart stays one piece (CPO 2026-10-30)
-    if (keys.some((k) => { const x = g.x(groups[k][0].t1); return x >= -30 && x <= W + 4; })) {
+    if (keys.length) {
       ctx.fillStyle = "rgba(5,10,14,.55)";
-      ctx.fillRect(0, 0, W, 34);
+      ctx.fillRect(0, 0, PW, g.TOP - 2);
     }
     keys.forEach((k, ki) => {
       const cs = groups[k],
         c = cs[0];
       const x1 = g.x(c.t1);
-      if (x1 < -30 || x1 > W + 4) return;
-      const row = ki % 2,
-        y = 4 + row * 15;
+      if (x1 < -40 || x1 > PW + 4) return;
+      const y = 3 + (ki % 2) * 15;
       const isLive = cs.some((z) => z.status === "open" || z.status === "settling" || z.status === "pending"),
         settling = cs.some((z) => z.status === "settling");
       const won = cs.filter((z) => z.status === "won").length,
         lost = cs.filter((z) => z.status === "lost").length;
-      const fill = settling ? "#fff" : isLive ? (cs.every((z) => z.side === c.side) ? (c.side === "u" ? C.up : C.dn) : "#dfe6ee") : won && !lost ? C.dn : lost && !won ? "#ff4d4d" : "#aab";
+      const same = cs.every((z) => z.side === c.side);
+      const sideCol = c.side === "u" ? C.up : C.dn;
+      const fill = settling ? "#fff" : isLive ? (same ? sideCol : "#dfe6ee") : won && !lost ? (same ? sideCol : "#e8edf2") : lost && !won ? "#2a323d" : "#aab";
+      const secs = Math.max(0, Math.ceil((c.t1 - t) / 1000));
+      const arrow = same ? (c.side === "u" ? "▲" : "▼") : "▲▼";
+      const txt = settling ? "…" : isLive ? arrow + " " + secs + "s" : won && !lost ? "✓" : lost && !won ? "✕" : won + "/" + cs.length;
+      const full = txt + (cs.length > 1 ? "  " + cs.length + " calls" : "");
+      ctx.font = "700 9px Chakra Petch";
+      const fw = Math.max(28, ctx.measureText(full).width + 10);
       ctx.fillStyle = fill;
       ctx.fillRect(x1 - 1, y, 2, 13);
       ctx.beginPath();
       ctx.moveTo(x1, y);
-      ctx.lineTo(x1 + 28, y);
-      ctx.lineTo(x1 + 24, y + 6);
-      ctx.lineTo(x1 + 28, y + 12);
+      ctx.lineTo(x1 + fw, y);
+      ctx.lineTo(x1 + fw - 4, y + 6);
+      ctx.lineTo(x1 + fw, y + 12);
       ctx.lineTo(x1, y + 12);
       ctx.closePath();
       ctx.fill();
-      ctx.fillStyle = "#020c10";
-      ctx.font = "700 9px Chakra Petch";
-      const secs = Math.max(0, Math.ceil((c.t1 - t) / 1000));
-      const txt = settling ? "…" : isLive ? secs + "s" : won && !lost ? "✓" : lost && !won ? "✕" : won + "/" + cs.length;
-      ctx.fillText(txt + (cs.length > 1 ? " ×" + cs.length : ""), x1 + 3, y + 9);
+      ctx.fillStyle = !isLive && lost && !won ? "#aab4c2" : "#020c10";
+      ctx.fillText(full, x1 + 3, y + 9);
       if (isLive) {
         for (const z of cs) {
           const ye = g.y(z.s0 ?? S.price);
@@ -1301,6 +1537,36 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         }
       }
     });
+    /* right-hand price scale: ticks + the live price tag + the open price of your 3 soonest calls (James #5) */
+    ctx.fillStyle = "#08100f";
+    ctx.fillRect(PW, 0, W - PW, H);
+    ctx.strokeStyle = "#1c2a33";
+    ctx.beginPath();
+    ctx.moveTo(PW + 0.5, 0);
+    ctx.lineTo(PW + 0.5, H);
+    ctx.stroke();
+    ctx.font = "500 9px Chakra Petch";
+    ctx.fillStyle = "#5d6676";
+    const dp = narrow ? 0 : 1;
+    for (let i = 0; i <= 4; i++) {
+      const p = g.lo + ((g.hi - g.lo) * (i + 0.5)) / 5;
+      ctx.fillText(fmtP(p, dp), PW + 6, g.y(p) + 3);
+    }
+    const used: number[] = [];
+    const slot = (y0: number) => {
+      let yy = y0;
+      for (let k = 0; k < 6; k++) {
+        if (used.every((u) => Math.abs(u - yy) > 17)) break;
+        yy += yy > H / 2 ? -17 : 17;
+      }
+      used.push(yy);
+      return yy;
+    };
+    if (S.disp || S.price) priceTag(ctx, g, slot(headY), fmtP(S.disp || S.price, dp), "#e8edf2");
+    live
+      .filter((c: Call) => c.status === "open" && c.s0 != null)
+      .slice(0, 3)
+      .forEach((c: Call) => priceTag(ctx, g, slot(g.y(c.s0!)), (c.side === "u" ? "▲" : "▼") + fmtP(c.s0!, narrow ? 0 : 1), c.side === "u" ? C.up : C.dn));
   }
 
   /* ---------- render: keys, rail, boards, price ---------- */
@@ -1330,36 +1596,45 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       })
       .join("")}</span>`;
   }
-  function ringSvg(frac: number) {
-    const r = 17,
-      c = 2 * Math.PI * r;
-    return `<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="${r}" fill="none" stroke="rgba(2,12,16,.25)" stroke-width="3"/><circle cx="20" cy="20" r="${r}" fill="none" stroke="#020c10" stroke-width="3" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - frac)}" transform="rotate(-90 20 20)"/></svg>`;
-  }
   function ringSvgLime(frac: number, side: Side) {
     const r = 17,
       c = 2 * Math.PI * r;
     return `<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="${r}" fill="none" stroke="#1b2630" stroke-width="3"/><circle cx="20" cy="20" r="${r}" fill="none" stroke="${side === "u" ? C.up : C.dn}" stroke-width="3" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - frac)}" transform="rotate(-90 20 20)"/></svg>`;
   }
   const lastHtml: Record<string, string> = {};
+  /** the UNDO key: 2-second window, counts the chips still inside it; updated in place so a tap never lands on a
+      node that was just replaced (that would fall through to the key and place another chip) */
   function renderKeys() {
+    const win = ARCADE_CANCEL_MS - 150;
     for (const side of ["u", "d"] as Side[]) {
       const key = keyOf(side);
+      if (!key) continue;
       const live = S.calls.filter((c: Call) => c.side === side && (c.status === "open" || c.status === "pending" || c.status === "settling"));
-      const canc = live.filter((c: Call) => now() - c.t0 < ARCADE_CANCEL_MS - 150 && c.status !== "settling");
-      const chips = live.filter((c: Call) => !canc.includes(c)).map((c: Call) => c.gross);
-      const max = canc.length ? 4 : 5;
+      const canc = live.filter((c: Call) => now() - c.t0 < win && c.status !== "settling");
+      // every chip lands in the stack the moment it is tapped, the undo window included (James #9)
+      const chips = live.map((c: Call) => c.gross);
       const st = key.querySelector(".stack"),
-        h = stackHtml(chips, max);
+        h = stackHtml(chips, canc.length ? 3 : 5);
       if (lastHtml[side] !== h) {
         st.innerHTML = h;
         lastHtml[side] = h;
       }
       const rw = key.querySelector(".ringwrap");
+      key.classList.toggle("hasundo", !!canc.length);
       if (canc.length) {
         const c = canc[canc.length - 1],
-          frac = 1 - (now() - c.t0) / (ARCADE_CANCEL_MS - 150);
-        rw.innerHTML = `<span class="ring" data-id="${c.id}" role="button" aria-label="Cancel">${ringSvg(frac)}<span class="mchip ${chipCls(c.gross)}">${c.gross}</span></span>`;
-      } else rw.innerHTML = "";
+          left = Math.max(0, ARCADE_CANCEL_MS - (now() - c.t0));
+        let u = rw.querySelector(".undo");
+        if (!u) {
+          rw.innerHTML = `<span class="undo" role="button" aria-label="Undo your latest chip" title="Take back your latest chip"><b></b><i></i><u></u></span>`;
+          u = rw.querySelector(".undo");
+        }
+        u.dataset.id = c.id;
+        const lbl = "UNDO" + (canc.length > 1 ? " (" + canc.length + ")" : "");
+        if (u.firstChild.textContent !== lbl) u.firstChild.textContent = lbl;
+        u.children[1].textContent = (left / 1000).toFixed(1) + "s";
+        u.children[2].style.width = (left / ARCADE_CANCEL_MS) * 100 + "%";
+      } else if (rw.firstChild) rw.innerHTML = "";
       key.classList.toggle("off", !!S.paused || !liveQuote());
       const p = side === "u" ? S.pUp : S.pUp == null ? null : 1 - S.pUp;
       $(side === "u" ? "#btncU" : "#btncD").textContent = p == null || !liveQuote() ? "—" : cents(p);
@@ -1378,8 +1653,11 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       else if (!liveQuote() || p == null) txt = S.tick && S.tick.valid ? "Warming up · odds in a moment" : "Waiting for the price";
       else if (canc.length) {
         const c = canc[canc.length - 1];
-        txt = `tap chip to cancel · costs ${money(cancelFee(c.gross))}`;
-      } else txt = `${whole(S.chip)} in · fee ${money(fee(S.chip))} · wins +${money(netWin(S.chip, p))} if ${SIDE(side)}`;
+        // "Placed ✓" first: the chip is already down, undo is the option (James #11)
+        txt = canc.length > 1 ? `${canc.length} placed ✓ · undo removes the latest` : `Placed ✓ · undo costs ${feeText(cancelFee(c.gross))}`;
+      } else if (openStake() + S.chip > ARCADE_MAX_OPEN) txt = LIMIT_TEXT;
+      // "to win" = what comes back if it wins, chip included (same as the main site's To win)
+      else txt = `${whole(S.chip)} in · fee ${money(fee(S.chip))} · to win ${money(callCredit(S.chip, p))} if ${SIDE(side)}`;
       if (e.textContent !== txt) e.textContent = txt;
     }
   }
@@ -1395,7 +1673,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     const sel = $("#dSel");
     if (sel) sel.textContent = whole(S.chip) + " SELECTED";
   }
-  let railTab = "auto";
+  /** YOUR CALLS tab: "open" | "settled" */
+  let railTab = "open";
   function renderTable() {
     const el = $("#dTable");
     if (!el) return;
@@ -1413,7 +1692,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         row = document.createElement("div");
         row.dataset.id = o.id;
         row.className = `row other ${side}${o.mine ? " mine" : ""}`;
-        row.innerHTML = `<span class="sd ${side}">${side === "u" ? "UP" : "DN"}</span><span class="mid"><b>${whole(o.gross)} @ ${cents(o.p)} <span class="who">· ${o.mine ? "you" : o.who}</span></b></span><span class="st"></span>`;
+        row.innerHTML = `<span class="sd ${side}">${side === "u" ? "▲ UP" : "▼ DN"}</span><span class="mid"><b>${whole(o.gross)} @ ${cents(o.p)} <span class="who">· ${o.mine ? "you" : o.who}</span></b></span><span class="st"></span>`;
       }
       const left = Math.max(0, Math.ceil((t1 - t) / 1000));
       const st = row.querySelector(".st"),
@@ -1432,7 +1711,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     if (ts) {
       const su = all.filter((o: ArcadeFeedRow) => sideOf(o.side) === "u"),
         sd = all.filter((o: ArcadeFeedRow) => sideOf(o.side) === "d");
-      const sum = `<span class="u">UP · ${su.length}<b>${whole(su.reduce((a: number, o: ArcadeFeedRow) => a + o.gross, 0))}</b></span><span class="d">DOWN · ${sd.length}<b>${whole(sd.reduce((a: number, o: ArcadeFeedRow) => a + o.gross, 0))}</b></span>`;
+      const sum = `<span class="u">▲ UP · ${su.length}<b>${whole(su.reduce((a: number, o: ArcadeFeedRow) => a + o.gross, 0))}</b></span><span class="d">▼ DOWN · ${sd.length}<b>${whole(sd.reduce((a: number, o: ArcadeFeedRow) => a + o.gross, 0))}</b></span>`;
       if (ts.innerHTML !== sum) ts.innerHTML = sum;
     }
   }
@@ -1444,29 +1723,38 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     const t = now();
     const live = S.calls.filter((c: Call) => c.status !== "cancelled");
     const open = myOpen();
+    const mineV = mineView();
+    /* phone: the OPEN / LIVE / SESSION boards appear with the first call */
+    const sb = $("#mSb");
+    if (sb) sb.hidden = !mineV;
     const dOpenN = $("#dOpenN");
     if (dOpenN) {
-      dOpenN.textContent = String(open.length);
-      $("#dOpenSum").textContent = whole(open.reduce((a: number, c: Call) => a + c.gross, 0));
+      /* before the first call the rail is the LIVE TABLE; from the first call it is YOURS for the session,
+         OPEN | SETTLED, and 04 / YOUR RESULT gets its own plate underneath (James #18) */
       renderTable();
-      const mine = live.filter((c: Call) => !c.tDone || t - c.tDone < 1400);
-      const showTable = railTab === "table" || (railTab === "auto" && !mine.length);
-      $("#dTable").hidden = !showTable;
-      $("#dList").hidden = showTable;
-      /* MY CALLS tab: the hint sits on top while the list is empty; TABLE tab: the UP / DOWN summary, no hint, no settled block */
-      $("#dHint").hidden = showTable || !!mine.length;
-      const tsum = $("#dTsum");
-      if (tsum) tsum.hidden = !showTable;
-      const dHead = $(".rail .donehead"),
-        dPl = $("#dPlink");
-      if (dHead) dHead.hidden = showTable || !S.done.length;
-      if (dPl) dPl.hidden = showTable || S.done.length < 2;
-      const dD = $("#dDone");
-      if (dD && !mobile) dD.hidden = showTable;
-      if (showTable) $("#dOpenSum").textContent = whole(tableStake());
-      $$(".tab").forEach((b) => b.classList.toggle("on", (b.dataset.tab === "table") === showTable));
+      const head = $("#dYoursHead");
+      if (mineV && !S.wasMine && head) {
+        head.classList.remove("pop");
+        void head.offsetWidth;
+        head.classList.add("pop");
+      }
+      S.wasMine = mineV;
+      $("#dTblWrap").hidden = mineV;
+      $("#dMineWrap").hidden = !mineV;
+      const res = $("#dResPlate");
+      if (res) res.hidden = !mineV;
+      if (!mineV) railTab = "open";
+      $("#dOpenPane").hidden = railTab !== "open";
+      $("#dDonePane").hidden = railTab !== "settled";
+      $$("#dMineWrap .tab").forEach((b) => b.classList.toggle("on", b.dataset.tab === railTab));
+      dOpenN.textContent = String(open.length);
+      $("#dOpenSum").textContent = whole(open.reduce((a: number, c: Call) => a + c.gross, 0)) + " in play";
+      $("#dDoneN").textContent = String(S.done.length);
+      $("#dDoneHint").hidden = !!S.done.length;
+      $("#dPlink").hidden = !S.done.length;
       const list = $("#dList");
-      const want = mine.slice().reverse();
+      const want = live.filter((c: Call) => !c.tDone || t - c.tDone < 1400).reverse();
+      $("#dHint").hidden = !!want.length;
       const seen = new Set<string>();
       want.forEach((c: Call, i: number) => {
         const frac = clip((t - c.t0) / ARCADE_DURATION_MS, 0, 1);
@@ -1479,10 +1767,12 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         } else if (c.status === "settling") {
           st = "settling";
           cls = "pend";
-        } else if (c.status === "won" || c.status === "lost") st = signed(c.pnl);
-        else if (c.status === "void") st = "VOID";
+        } else if (c.status === "won" || c.status === "lost") {
+          st = signed(c.pnl);
+          cls = c.status === "won" ? "pos" : "neg";
+        } else if (c.status === "void") st = "VOID";
         else if (t - c.t0 < ARCADE_CANCEL_MS - 150) {
-          st = "cancel";
+          st = "undo…";
           cls = "lock";
         } else if (c.s0 == null) {
           st = "open…";
@@ -1496,12 +1786,14 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         if (!row) {
           row = document.createElement("div");
           row.dataset.id = c.id;
-          row.innerHTML = `<span class="sd ${c.side}">${c.side === "u" ? "UP" : "DN"}</span><span class="mid"><b>${whole(c.gross)} @ ${cents(c.p)}</b><small></small><span class="bar"><i></i></span></span><span class="st"></span>`;
+          row.innerHTML = `<span class="sd ${c.side}">${c.side === "u" ? "▲ UP" : "▼ DN"}</span><span class="mid"><b></b><small></small><span class="bar"><i></i></span></span><span class="st"></span>`;
         }
         row.className = `row ${c.side} ${c.status}`;
+        // "to win" = what comes back if it wins, chip included (James #12)
+        const b = `${whole(c.gross)} · to win ${money(callCredit(c.gross, c.p))}`;
+        if (row.firstChild.nextSibling.firstChild.textContent !== b) row.firstChild.nextSibling.firstChild.textContent = b;
         const sm = row.querySelector("small"),
-          // the rail is 280px wide: the payout moves down here, the open price lives on the chart's dotted line
-          txt = `wins +${money(netWin(c.gross, c.p))} · ${Math.max(0, Math.ceil((c.t1 - t) / 1000))}s`;
+          txt = `@ ${cents(c.p)} · open ${c.s0 != null ? money(c.s0) : "…"} · ${Math.max(0, Math.ceil((c.t1 - t) / 1000))}s`;
         if (sm.textContent !== txt) sm.textContent = txt;
         row.querySelector(".bar i").style.width = frac * 100 + "%";
         const se = row.querySelector(".st");
@@ -1512,16 +1804,26 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       [...list.children].forEach((r: any) => {
         if (!seen.has(r.dataset.id)) r.remove();
       });
-      /* more rows below the fold → fade the bottom edge */
+      /* more rows below the fold → fade the bottom edge + "↓ 3 more" (James #19) */
+      let hid = 0;
+      const lb = list.scrollTop + list.clientHeight;
+      [...list.children].forEach((r: any) => {
+        if (r.offsetTop - list.offsetTop + r.offsetHeight > lb + 2) hid++;
+      });
+      const mp = $("#dMore");
+      const showM = railTab === "open" && hid > 0;
+      mp.hidden = !showM;
+      if (showM) mp.textContent = "↓ " + hid + " more";
       list.classList.toggle("more", list.scrollHeight > list.clientHeight + 2 && list.scrollTop + list.clientHeight < list.scrollHeight - 2);
     }
     const dDone = $("#dDone");
     if (dDone) {
+      const fmt = (v: number) => v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       const dh = S.done
-        .slice(0, mobile ? 6 : 1)
+        .slice(0, mobile ? 6 : 30)
         .map(
           (c: Call) =>
-            `<div class="row ${c.side}"><span class="sd ${c.side}">${c.side === "u" ? "UP" : "DN"}</span><span class="mid"><b>${whole(c.gross)} @ ${cents(c.p)} · ${c.status === "won" ? "won" : c.status === "lost" ? "lost" : c.status === "cancelled" ? "cancelled" : "void"}</b><small>${c.s0 != null && c.s1 != null ? `open ${money(c.s0)} · close ${money(c.s1)}` : c.status === "cancelled" ? "taken back within 2 s" : "no valid price · refunded"}</small></span><span class="st ${c.status === "won" ? "ahead" : c.status === "lost" ? "behind" : "pend"}">${c.status === "void" ? "VOID" : signed(c.pnl)}</span></div>`,
+            `<div class="row ${c.side} ${c.status}"><span class="sd ${c.side}">${c.side === "u" ? "▲ UP" : "▼ DN"}</span><span class="mid"><b>${whole(c.gross)} @ ${cents(c.p)} · ${c.status === "won" ? "won" : c.status === "lost" ? "lost" : c.status === "cancelled" ? "cancelled" : "void"}</b><small>${c.s0 != null && c.s1 != null ? `open ${fmt(c.s0)} · close ${fmt(c.s1)}` : c.status === "cancelled" ? "taken back within 2 s" : "no valid price · refunded"}</small></span><span class="st ${c.status === "won" ? "pos" : c.status === "lost" ? "neg" : "pend"}">${c.status === "void" ? "VOID" : signed(c.pnl)}</span></div>`,
         )
         .join("");
       if (dDone.innerHTML !== dh) dDone.innerHTML = dh;
@@ -1542,8 +1844,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
             return `<span class="mc ${c.status}">${ringSvgLime(frac, c.side)}<span class="mchip ${chipCls(c.gross)}">${c.gross}</span>${done ? `<span class="fs">${c.status === "won" ? "✓" : c.status === "lost" ? "✕" : "–"}</span>` : `<span class="t">${c.status === "settling" ? "…" : Math.max(0, Math.ceil((c.t1 - t) / 1000))}</span>`}</span>`;
           })
           .join("");
-      } else if (feedLive.length) {
-        lbl = `TABLE<br>${feedLive.length}`;
+      } else if (!mineView() && feedLive.length) {
+        lbl = `LIVE TABLE<br>${feedLive.length}`;
         sh = feedLive
           .slice(0, 7)
           .map((o: ArcadeFeedRow) => {
@@ -1553,7 +1855,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
           .join("");
       } else {
         lbl = "MY CALLS<br>0";
-        sh = '<span class="hint">Tap UP or DOWN — your calls show here</span>';
+        sh = `<span class="hint">${mineView() ? "No open calls · tap UP or DOWN" : "Tap UP or DOWN — your calls show here"}</span>`;
       }
       if (strip.innerHTML !== sh) strip.innerHTML = sh;
       const le = $("#mStripLbl");
@@ -1593,28 +1895,41 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       const h = S.last.map((w: boolean) => `<span class="${w ? "w" : "l"}">${w ? "✓" : "✕"}</span>`).join("");
       if (tk.innerHTML !== h) tk.innerHTML = h;
     }
-    set("#dStreak", S.streakW >= 2 ? `${S.streakW} in a row` : S.streakL >= 2 ? `${S.streakL} lost in a row` : "");
+    set("#dStreak", S.streakW >= 2 ? `${S.streakW} in a row` : "");
     set("#dNext", mobile ? (open.length ? "NEXT · " + nextS + "s" : "") : "NEXT SETTLE · " + (open.length ? nextS + "s" : "—"));
     set("#mOpen", open.length ? `${open.length} · ${whole(stake)}` : "—");
-    $$("#dYourOpen").forEach((e) => (e.textContent = whole(stake) + " / $" + ARCADE_MAX_OPEN));
+    $$("#dYourOpen").forEach((e) => (e.textContent = mobile ? `${whole(stake)} / $${ARCADE_MAX_OPEN}` : `Current ${whole(stake)} / Max $${ARCADE_MAX_OPEN}`));
+    renderVouchers();
   }
+  /** price `secs` ago (index prints) */
+  const priceAgo = (secs: number) => {
+    const tt = now() - secs * 1000;
+    for (let i = S.px.length - 1; i >= 0; i--) if (S.px[i].t <= tt) return S.px[i].p;
+    return null;
+  };
   function renderPriceBig() {
     const p = S.disp || S.price;
     const pe = $("#price");
     if (!pe) return;
     const txt = p ? money(p) : "$—";
     if (pe.textContent !== txt) pe.textContent = txt;
-    const ref = S.slotOpen;
-    const up = ref == null || p >= ref;
-    pe.classList.toggle("up", up);
-    pe.classList.toggle("dn", !up);
-    const ch = $("#chg");
-    if (ch) {
-      const diff = ref == null ? 0 : p - ref;
-      const ct = ref == null || !p ? "—" : `${up ? "▲ +" : "▼ −"}${money(diff)} this slot`;
-      if (ch.textContent !== ct) ch.textContent = ct;
-      ch.classList.toggle("up", up && ref != null);
-      ch.classList.toggle("dn", !up);
+    /* ▲▼ beside the big price: the last second's tick */
+    const ar = $("#dArr");
+    if (ar) {
+      const p1 = priceAgo(1);
+      const up = p1 == null || p >= p1;
+      const a = p ? (up ? "▲" : "▼") : "";
+      if (ar.textContent !== a) ar.textContent = a;
+      ar.className = "parr " + (up ? "cu" : "cd");
+    }
+    /* "▲ +$136.86 in the last 30s" — only while nothing of yours is open (the chart then speaks for your calls) */
+    const d30 = $("#d30");
+    if (d30) {
+      const p30 = priceAgo(30);
+      const d = p30 == null || !p ? null : p - p30;
+      const ct = myOpen().length || d == null ? "" : `${d >= 0 ? "▲ +" : "▼ −"}$${Math.abs(d).toFixed(2)} in the last 30s`;
+      if (d30.textContent !== ct) d30.textContent = ct;
+      d30.className = "chg30 " + (d != null && d < 0 ? "cd" : "cu");
     }
     const mp = $("#mPrice");
     if (mp && mp.textContent !== txt) mp.textContent = txt;
@@ -1634,12 +1949,10 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     set("#s3", tk ? src(tk.coinbase) : "—");
     set("#mIdx", tk && tk.valid && !stale ? money(tk.idx!) : "INVALID");
     const invalid = !tk || !tk.valid || stale;
-    const ds = $("#dSrc");
+    const ds = $("#srcA");
     if (ds) ds.classList.toggle("paused", invalid);
     const msrc = $("#mSrc");
     if (msrc) msrc.classList.toggle("paused", invalid);
-    const nValid = tk ? [tk.binance, tk.hyperliquid, tk.coinbase].filter((v) => v != null).length : 0;
-    set("#dSrcState", invalid ? (tk && tk.reason ? "INDEX INVALID · " + tk.reason : "INDEX INVALID") : `LIVE · ${nValid} of 3`);
     const ov = $("#dOv");
     if (ov) {
       const onv = !!S.paused;
@@ -1707,6 +2020,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         adoptTick(d.tick, d.now);
       } else if (d.now && !FX) off = ms(d.now) - Date.now();
       if (d.params && Object.keys(d.params).length) S.params = d.params;
+      if (api.userId && typeof d.combo_today === "number") S.vToday = perf() < S.vHold ? Math.max(S.vToday, d.combo_today) : d.combo_today;
       const wasPaused = S.paused;
       S.paused = d.state?.paused_reason || null;
       if (!S.paused && (!S.tick || !S.tick.valid || now() - ms(S.tick.ts) > maxAge())) S.paused = "index";
@@ -1835,17 +2149,44 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     $$(".howto").forEach((ht) => {
       if (!ht.hidden && !e.target.closest(".howto")) ht.hidden = true;
     });
-    const cell = e.target.closest(".road .cell[data-i], .beads .bead[data-i]");
-    if (cell) {
-      // a tapped cell tells what that 30-second slot did, for a few seconds
-      const i = Number(cell.dataset.i);
-      $$(".cell.sel, .bead.sel").forEach((c) => c.classList.remove("sel"));
-      $$(`.cell[data-i="${i}"], .bead[data-i="${i}"]`).forEach((c) => c.classList.add("sel"));
-      const txt = slotText(i);
-      S.peekUntil = perf() + 4000;
-      $$("#slotLbl,#m_slotLbl").forEach((l) => (l.textContent = txt));
-      setTimeout(() => $$(".cell.sel, .bead.sel").forEach((c) => c.classList.remove("sel")), 4000);
-    }
+    // a tap on a ⓘ or a road cell (phones have no hover) shows the same note as the hover
+    const tipEl = e.target.closest(".info[data-tip], .road .cell[data-i], .beads .bead[data-i]");
+    if (tipEl) showTipFor(tipEl);
+    else hideTip();
+  });
+  /* ⓘ notes + what one road cell was: "▲ Up +$12.40" · "12:03:00 – 12:03:30" (James #6, #13, #14) */
+  const qtip = $("#qtip");
+  function showTip(el: any, html: string) {
+    if (!qtip) return;
+    qtip.innerHTML = html;
+    qtip.hidden = false;
+    const r = el.getBoundingClientRect();
+    const w = Math.min(300, innerWidth - 16);
+    qtip.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left - 20)) + "px";
+    const h = qtip.offsetHeight;
+    qtip.style.top = (r.bottom + 8 + h <= innerHeight - 8 ? r.bottom + 8 : Math.max(8, r.top - 8 - h)) + "px";
+  }
+  const hideTip = () => {
+    if (qtip) qtip.hidden = true;
+  };
+  function cellTip(i: number): string {
+    const info: RoadSlotInfo | undefined = S.histInfo[i];
+    const x = S.hist[i];
+    if (!info) return "";
+    const range = `${clockOf(info.t)} – ${clockOf(info.t + SLOT)}`;
+    if (info.carried || info.open == null || info.close == null) return `<b>No index print</b><br>${range} · colour carried over`;
+    const d = info.close - info.open;
+    return `<b style="color:${x === "u" ? C.up : C.dn}">${x === "u" ? "▲ Up" : "▼ Down"} ${d >= 0 ? "+" : "−"}$${Math.abs(d).toFixed(2)}</b><br>${range}`;
+  }
+  function showTipFor(el: any) {
+    if (el.dataset.tip) return showTip(el, TIPS[el.dataset.tip] || "");
+    const h = cellTip(Number(el.dataset.i));
+    if (h) showTip(el, h);
+  }
+  on(root, "mouseover", (e: any) => {
+    const el = e.target.closest(".info[data-tip], .road .cell[data-i], .beads .bead[data-i]");
+    if (el) showTipFor(el);
+    else if (qtip && !qtip.hidden) hideTip();
   });
 
   /* ---------- wiring ---------- */
@@ -1856,11 +2197,30 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       render();
       return;
     }
-    const ring = e.target.closest(".ring");
-    if (ring) {
+    const undo = e.target.closest(".undo");
+    if (undo) {
       e.stopPropagation();
-      const c = S.calls.find((x: Call) => x.id == ring.dataset.id);
+      e.preventDefault();
+      const c = S.calls.find((x: Call) => x.id == undo.dataset.id);
       if (c) void cancel(c);
+      return;
+    }
+    if (e.target.closest("#dMore")) {
+      const l = $("#dList");
+      l.scrollTo({ top: l.scrollHeight, behavior: "smooth" });
+      return;
+    }
+    if (e.target.closest(".cshare")) {
+      audio();
+      sfx.key();
+      api.shareCombo?.({ n: S.streakW, pnl: S.runPnl, stake: S.runStake, biggestWin: S.runBig });
+      return;
+    }
+    if (e.target.closest("#vouChip")) {
+      e.preventDefault();
+      audio();
+      sfx.key();
+      api.vouchers?.();
       return;
     }
     const chip = e.target.closest(".chip");
@@ -1875,11 +2235,17 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       return;
     }
     const key = e.target.closest(".dir");
-    if (key && !e.target.closest(".ring")) {
+    if (key && !e.target.closest(".undo")) {
       void place(key.dataset.side);
       return;
     }
   });
+  /* hovering a key previews that call on the chart (mouse only — a tap on a phone is a call, not a hover) */
+  if (matchMedia("(hover: hover)").matches)
+    $$(".dir").forEach((k) => {
+      on(k, "mouseenter", () => (S.hover = k.dataset.side));
+      on(k, "mouseleave", () => (S.hover = null));
+    });
   on(window, "keydown", (e: KeyboardEvent) => {
     if ((e.target as any)?.closest?.("input,textarea,[contenteditable]")) return;
     if (e.key === "ArrowUp") {
@@ -2504,8 +2870,15 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       S.bigWin = S.done.reduce((a: number, c: Call) => (c.status === "won" ? Math.max(a, c.pnl) : a), 0);
       S.sesStakes = S.done.filter((c: Call) => c.status === "won" || c.status === "lost").map((c: Call) => c.gross);
       S.sesStart = now() - 23 * 60000;
-      if (w >= 2 || l >= 2) comboUpdate("boot");
+      S.played = true;
+      const runCalls = S.done.filter((c: Call) => c.status === "won").slice(0, w);
+      S.runPnl = runCalls.reduce((a: number, c: Call) => a + c.pnl, 0);
+      S.runStake = runCalls.reduce((a: number, c: Call) => a + c.gross, 0);
+      S.runBig = runCalls.reduce((a: number, c: Call) => Math.max(a, c.pnl), 0);
     }
+    if (FX.calls.length) S.played = true;
+    S.vToday = FX.vouchersToday || 0;
+    if (FX.session && S.streakW >= 2) comboUpdate(FX.comboEvent || "boot");
     if (FX.ack === false) openGate(true);
     renderRoads();
     slotLoop();

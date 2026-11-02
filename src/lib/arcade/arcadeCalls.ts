@@ -45,6 +45,8 @@ export interface ArcadeTableNow {
   now: string;
   my_open: number;
   ack: string | null;
+  /** USD of combo vouchers this account got today (UTC) — every 3 wins in a row = $2, max $10 (CPO 2026-11-02) */
+  combo_today: number;
 }
 
 export interface ArcadeCall {
@@ -82,7 +84,8 @@ export interface ArcadeFeedRow {
   mine: boolean;
 }
 
-export const ARCADE_CHIPS_V2 = [5, 10, 25, 50, 100] as const;
+/** $2 added, $100 retired (CPO 2026-11-02) */
+export const ARCADE_CHIPS_V2 = [2, 5, 10, 25, 50] as const;
 export const ARCADE_FEE_RATE_V2 = 0.03;
 export const ARCADE_CANCEL_FEE_RATE = 0.0015;
 export const ARCADE_COMMISSION_RATE = 0.05;
@@ -101,7 +104,10 @@ export const callCredit = (gross: number, p: number) => {
 };
 /** the +$ shown on the key: profit after commission */
 export const callNetWin = (gross: number, p: number) => Math.round((callCredit(gross, p) - gross) * 100) / 100;
-export const cancelFee = (gross: number) => roundHalfUpCent(gross * ARCADE_CANCEL_FEE_RATE);
+/** the 2-second undo fee is charged and shown to 4 decimals: $5 → $0.0075, $2 → $0.003 (CPO 2026-11-02) */
+export const cancelFee = (gross: number) => Math.floor(gross * ARCADE_CANCEL_FEE_RATE * 10000 + 0.5) / 10000;
+/** "$0.0075" — 4 decimals, trailing zeros dropped */
+export const feeText = (n: number) => "$" + String(+n.toFixed(4));
 
 // The tables/functions are newer than the generated Supabase types: go through `any`.
 const db = () => supabase as any;
@@ -137,6 +143,7 @@ export async function fetchTableNow(): Promise<ArcadeTableNow> {
     now: d.now,
     my_open: num(d.my_open),
     ack: d.ack ?? null,
+    combo_today: num(d.combo_today),
   };
 }
 

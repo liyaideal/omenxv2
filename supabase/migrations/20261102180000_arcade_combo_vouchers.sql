@@ -117,3 +117,15 @@ begin
   );
 end;
 $function$;
+
+-- 5 · the 2-second undo fee is shown to 4 decimals ("undo costs $0.0075", CPO 2026-11-02),
+--     so it is charged to 4 decimals too — a $2 chip costs $0.003 to take back, not $0.00
+ALTER TABLE public.arcade_calls ALTER COLUMN cancel_fee TYPE numeric(12,4), ALTER COLUMN pnl TYPE numeric(12,4);
+DO $patch$
+DECLARE d text; n text;
+BEGIN
+  d := pg_get_functiondef('public.arcade_cancel'::regproc);
+  n := replace(d, $q$v_fee := public.arcade_round_half_up(c.gross * public.arcade_param('cancel_fee_rate')::numeric, 2);$q$,
+                  $q$v_fee := public.arcade_round_half_up(c.gross * public.arcade_param('cancel_fee_rate')::numeric, 4);$q$);
+  IF n <> d THEN EXECUTE n; END IF;
+END $patch$;

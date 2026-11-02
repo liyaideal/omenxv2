@@ -11,7 +11,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useReferral } from "@/hooks/useReferral";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { SITE_URL } from "@/lib/site";
-import type { ArcadeRunShare } from "@/pages/arcade/arcadeEngine";
+import type { ArcadeComboShare, ArcadeRunShare } from "@/pages/arcade/arcadeEngine";
+import { ArcadeComboPoster } from "./ArcadeComboPoster";
 import { ArcadeRunPoster } from "./ArcadeRunPoster";
 
 export const ArcadeShareCard = ({ run, onClose }: { run: ArcadeRunShare | null; onClose: () => void }) => {
@@ -36,6 +37,29 @@ export const ArcadeShareCard = ({ run, onClose }: { run: ArcadeRunShare | null; 
       isDataReady={!isLoading && !!referralCode}
     >
       <ArcadeRunPoster run={run} username={username ?? undefined} avatarUrl={avatarUrl ?? undefined} referralCode={referralCode || undefined} />
+    </ShareModal>
+  );
+};
+
+/** the combo HUD's ⇪ SHARE (CPO 2026-11-02): same share sheet, the combo poster inside */
+export const ArcadeComboShareCard = ({ combo, onClose }: { combo: ArcadeComboShare | null; onClose: () => void }) => {
+  const { user } = useAuth();
+  const { referralCode } = useReferral();
+  const { username, avatarUrl, isLoading } = useUserProfile();
+  if (!combo || !user) return null;
+  const shareText = `${combo.n} Bitcoin calls right in a row on OmenX Quick Play — COMBO ×${combo.n}, +$${Math.abs(combo.pnl).toFixed(2)} 🔥`;
+  return (
+    <ShareModal
+      isOpen
+      onClose={onClose}
+      title="Share your combo"
+      subtitle="Save the card or post it straight to X / Telegram"
+      shareText={shareText}
+      shareUrl={`${SITE_URL}/arcade${referralCode ? `?ref=${referralCode}` : ""}`}
+      fileName="omenx-quick-play-combo"
+      isDataReady={!isLoading && !!referralCode}
+    >
+      <ArcadeComboPoster combo={combo} username={username ?? undefined} avatarUrl={avatarUrl ?? undefined} referralCode={referralCode || undefined} />
     </ShareModal>
   );
 };

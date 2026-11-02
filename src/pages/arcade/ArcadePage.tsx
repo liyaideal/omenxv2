@@ -21,8 +21,8 @@ import { AuthDialog } from "@/components/auth/AuthDialog";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { ensureArcadeFonts } from "@/lib/arcade/arcadeFonts";
 import { ARCADE_DESKTOP, ARCADE_MOBILE, ARCADE_OVERLAYS } from "./arcadeMarkup";
-import { mountArcade, type ArcadeApi, type ArcadeRunShare } from "./arcadeEngine";
-import { ArcadeShareCard } from "@/components/lite/arcade/ArcadeShareCard";
+import { mountArcade, type ArcadeApi, type ArcadeComboShare, type ArcadeRunShare } from "./arcadeEngine";
+import { ArcadeComboShareCard, ArcadeShareCard } from "@/components/lite/arcade/ArcadeShareCard";
 import { DepositDialog } from "@/components/deposit/DepositDialog";
 import { TransferDialog } from "@/components/wallet/TransferDialog";
 import "./arcade.css";
@@ -38,6 +38,7 @@ const ArcadePage = () => {
   const navigate = useNavigate();
   const [authOpen, setAuthOpen] = useState(false);
   const [shareRun, setShareRun] = useState<ArcadeRunShare | null>(null);
+  const [shareCombo, setShareCombo] = useState<ArcadeComboShare | null>(null);
   // Deposit / Transfer open in place on desktop (CPO 2026-10-29: leaving for
   // /wallet broke the flow); phones keep the full-screen deposit flow.
   const [depositOpen, setDepositOpen] = useState(false);
@@ -67,6 +68,9 @@ const ArcadePage = () => {
       transfer: () => (isMobile ? navigate("/wallet") : setTransferOpen(true)),
       portfolio: () => navigate("/portfolio?tab=settled&from=quick-play"),
       share: (run) => setShareRun(run),
+      shareCombo: (combo) => setShareCombo(combo),
+      // combo vouchers (every 3 wins in a row) live in Rewards › Position Vouchers (CPO 2026-11-02)
+      vouchers: () => navigate("/rewards?tab=vouchers"),
       username: username || "you",
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -110,6 +114,7 @@ const ArcadePage = () => {
       {/* phones get the site's bottom-sheet sign-in, desktop the dialog (QA 2026-10-30) */}
       {isMobile ? <AuthSheet open={authOpen} onOpenChange={setAuthOpen} /> : <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />}
       <ArcadeShareCard run={shareRun} onClose={() => setShareRun(null)} />
+      <ArcadeComboShareCard combo={shareCombo} onClose={() => setShareCombo(null)} />
       {!isMobile && (
         <>
           <DepositDialog

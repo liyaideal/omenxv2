@@ -151,7 +151,7 @@ export const ArcadeRunPoster = forwardRef<HTMLDivElement, ArcadeRunPosterProps>(
               <span style={{ fontFamily: MONO, fontWeight: 700, fontSize: "14px", letterSpacing: "2px", color: "#ffffff", marginLeft: "6px" }}>{referralCode}</span>
             </div>
             <img src={omenxLogo} alt="OmenX" style={{ display: "block", height: "18px", width: "auto", margin: "10px 0 6px" }} />
-            <div style={{ fontSize: "13px", fontWeight: 600, lineHeight: "16px", color: t.accent }}>Pick UP or DOWN · from $5</div>
+            <div style={{ fontSize: "13px", fontWeight: 600, lineHeight: "16px", color: t.accent }}>Pick UP or DOWN · from $2</div>
           </div>
           <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
             <div style={{ padding: "5px", background: "#ffffff", borderRadius: "6px", lineHeight: 0 }}>
