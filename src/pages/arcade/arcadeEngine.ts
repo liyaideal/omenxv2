@@ -1291,7 +1291,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     return fallback;
   };
   /** right-hand price scale width */
-  const gut = (cv: any) => (cv.clientWidth < 420 ? 52 : 66);
+  const gut = (cv: any) => (cv.clientWidth < 420 ? 60 : 66);
   function geom(cv: any) {
     const W = cv.clientWidth,
       H = cv.clientHeight,
@@ -1330,7 +1330,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     ctx.closePath();
     ctx.fill();
     ctx.fillStyle = "#020c10";
-    ctx.font = "700 10px Chakra Petch";
+    ctx.font = g.W < 420 ? "700 9px Chakra Petch" : "700 10px Chakra Petch";
     ctx.fillText(txt, x + 8, y + 4);
   }
   /** The stage only draws YOUR calls (James #1–#5): a neutral white price line, real-clock ticks every
