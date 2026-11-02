@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { SITE_URL } from "@/lib/site";
+import { useAuth } from "@/hooks/useAuth";
 
 export interface ReferralCode {
   id: string;
@@ -38,10 +39,16 @@ const generateReferralCode = (): string => {
 
 export const useReferral = () => {
   const queryClient = useQueryClient();
+  // Keyed by the signed-in user (fix 2026-11-02): the key used to be user-less, so a page opened signed out
+  // cached "no code" and kept it after signing in on the page — share posters showed the OMENX2025 fallback
+  // and Save never enabled until a reload.
+  const { user } = useAuth();
+  const uid = user?.id ?? null;
 
   // Fetch user's referral code
   const { data: referralCode, isLoading: isLoadingCode } = useQuery({
-    queryKey: ['referral-code'],
+    queryKey: ['referral-code', uid],
+    enabled: !!uid,
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
@@ -79,7 +86,8 @@ export const useReferral = () => {
 
   // Fetch user's referrals (people they've invited)
   const { data: referrals, isLoading: isLoadingReferrals } = useQuery({
-    queryKey: ['my-referrals'],
+    queryKey: ['my-referrals', uid],
+    enabled: !!uid,
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
