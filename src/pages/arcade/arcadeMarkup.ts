@@ -150,7 +150,7 @@ export const ARCADE_MOBILE = `<main class="m-app v2m">
   <div class="cab v2 m-shell" id="cab">
     <header class="m-top">
       <div class="logoplate steel rivets" id="logoPlate" role="link" tabindex="0" aria-label="OmenX · back to Events">${LOGO_SVG("#07090f", "clipM")}</div>
-      <div class="eqscr scr"><span class="lbl">Available</span><strong id="equity">$0.00</strong></div>
+      <div class="eqscr scr"><span class="lbl">Available · spot</span><strong id="equity">$0.00</strong></div>
       <button class="key mkey dep" id="depBtn" aria-label="Deposit" title="Deposit">+</button>
       <button class="key mkey" id="rulesBtn">RULES</button>
       ${MUTE_BTN}

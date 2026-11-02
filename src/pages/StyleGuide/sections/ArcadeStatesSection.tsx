@@ -1,5 +1,5 @@
 /**
- * /arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-18 · AB-1 / AB-2 · AS-1 / AS-2）。
+ * /arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-19 · AB-1 / AB-2 · AS-1 / AS-2）。
  *
  * 规则（Liya 2026-10-27 / 10-28 拍板，研发稿 v1.0 + 她的修订；2026-11-02 James 反馈轮修订）：先只上 BTC；没有「局」，
  * 每一枚筹码就是一张自己的 30 秒合约（t0 = 服务端接单时刻）；价格 = Binance / Hyperliquid / Coinbase 三所中间价
@@ -97,11 +97,13 @@ const MORE_DESK: SectionCase[] = [
   },
   {
     key: "arcade-ar8",
-    label: "AR-8 · 点中一格 + 路单 ⓘ 说明打开",
-    spec: [
-      { state: "格子提示", when: "hover / tap 格子", visual: "青边黑底小框：`▲ Up +$12.00`（方向色）+ 时段；点别处关", source: "showTip" },
-      { state: "说明框", when: "点 Big road 的 ⓘ", visual: "520px 黑底黄绿边：Dragon / Chop / Break + 底注", source: "howto · position: fixed" },
-    ],
+    label: "AR-8 · 点中（或 hover）路单一格",
+    spec: [{ state: "格子提示", when: "hover / tap 格子", visual: "青边黑底小框：`▲ Up +$12.00`（方向色）+ `07:49:00 – 07:49:30`；没有指数的格 `No index print · colour carried over`；点别处关", source: "cellTip / showTip" }],
+  },
+  {
+    key: "arcade-ar19",
+    label: "AR-19 · Big road ⓘ：路单说明打开",
+    spec: [{ state: "说明框", when: "点 Big road 的 ⓘ（同时收起格子提示）", visual: "520px 黑底黄绿边：Dragon / Chop / Break + 底注；点别处关", source: "howto · position: fixed" }],
   },
   {
     key: "arcade-ar9",
@@ -224,7 +226,7 @@ const Mob = ({ cases, min }: { cases: SectionCase[]; min: number }) => (
 export const ArcadeStatesSection = () => (
   <SectionWrapper
     id="arcade-states"
-    title="/arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-18 · AB-1 / AB-2 · AS-1 / AS-2）"
+    title="/arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-19 · AB-1 / AB-2 · AS-1 / AS-2）"
     description="CPO 2026-10-27 / 10-28 拍板 + 2026-11-02 James 反馈轮（mock claude.ai/artifact/1hCirCctvs2VNkP2J5bUfC v17c）：先只上 BTC；每一枚筹码一张 30 秒合约；三所中位数指数；报价 0.40–0.60；3% 开仓费、2 秒可撤（0.15%，4 位小数）、不可平仓、盈利扣 5% 佣金、平局全退；$2–50 一注、单账户未到期 ≤ $500；连赢每 3 把一张 $2 有门槛仓位券、每天 ≤ $10。颜色只表示方向（青涨 / 柠檬绿跌），输赢看实心 / 空心与 ✓ / ✕。ETH / SOL / 美股桌隐藏。文案英文占位。"
   >
     <div className="rounded-lg border border-[#FF8A3D]/30 bg-[#FF8A3D]/5 px-3 py-2 text-[12px] text-foreground">
@@ -237,7 +239,7 @@ export const ArcadeStatesSection = () => (
     <SubSection title="移动版（AR-4 / AR-5）">
       <Mob cases={MOBILE} min={780} />
     </SubSection>
-    <SubSection title="右栏 / 预览线 / 上限 / combo 与券 / 说明框 / RULES（AR-7 … AR-9 · AR-12 … AR-16，桌面）">
+    <SubSection title="右栏 / 预览线 / 上限 / combo 与券 / 说明框 / RULES（AR-7 … AR-9 · AR-12 … AR-16 · AR-19，桌面）">
       <Desk cases={MORE_DESK} min={700} />
     </SubSection>
     <SubSection title="移动版 · 抽屉 / 免责门 / 掉券 / ⓘ（AR-10 / AR-11 / AR-17 / AR-18）">

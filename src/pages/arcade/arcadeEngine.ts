@@ -1554,10 +1554,12 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     }
     const used: number[] = [];
     const slot = (y0: number) => {
+      // step away from the taken tags in one direction (toward the roomier half) so it never ping-pongs
+      const step = y0 > H / 2 ? -17 : 17;
       let yy = y0;
-      for (let k = 0; k < 6; k++) {
-        if (used.every((u) => Math.abs(u - yy) > 17)) break;
-        yy += yy > H / 2 ? -17 : 17;
+      for (let k = 0; k < 8; k++) {
+        if (used.every((u) => Math.abs(u - yy) >= 17)) break;
+        yy += step;
       }
       used.push(yy);
       return yy;
@@ -2132,6 +2134,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     if (info) {
       const ht = $(info.id === "roadI" ? "#howto" : "#m_howto");
       if (!ht) return;
+      hideTip();
       const open = ht.hidden;
       $$(".howto").forEach((h) => (h.hidden = true));
       if (open) {

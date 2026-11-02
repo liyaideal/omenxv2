@@ -168,12 +168,12 @@ const FX_TABLE = base({
 export const Ar7Preview = () => <Cabinet fixture={FX_TABLE} width={1040} height={700} />;
 
 /* ---------- AR-8 desktop · the road note open + a tapped cell ---------- */
-// a tapped cell shows what that 30 s did ("▲ Up +$12.00 · 07:49:00 – 07:49:30"); then the ⓘ opens the road note
-const openNote = (root: HTMLElement) => {
-  (root.querySelector(".road .cell[data-i]:nth-last-child(6)") as HTMLElement | null)?.click();
-  (root.querySelector("#roadI") as HTMLElement | null)?.click();
-};
-export const Ar8Preview = () => <Cabinet fixture={FX_LIVE} width={1040} height={700} after={openNote} />;
+// AR-8: a tapped road cell shows what that 30 s did ("▲ Up +$12.00 · 07:49:00 – 07:49:30")
+const tapCell = (root: HTMLElement) => (root.querySelector(".road .cell[data-i]:nth-last-child(6)") as HTMLElement | null)?.click();
+export const Ar8Preview = () => <Cabinet fixture={FX_LIVE} width={1040} height={700} after={tapCell} />;
+// AR-19: the Big road ⓘ opens the road note
+const openNote = (root: HTMLElement) => (root.querySelector("#roadI") as HTMLElement | null)?.click();
+export const Ar19Preview = () => <Cabinet fixture={FX_LIVE} width={1040} height={700} after={openNote} />;
 
 /* ---------- AR-9 desktop · RULES ---------- */
 const openRules = (root: HTMLElement) => (root.querySelector("#rulesBtn") as HTMLElement | null)?.click();
