@@ -129,3 +129,9 @@ BEGIN
                   $q$v_fee := public.arcade_round_half_up(c.gross * public.arcade_param('cancel_fee_rate')::numeric, 4);$q$);
   IF n <> d THEN EXECUTE n; END IF;
 END $patch$;
+
+-- 6 · Lovable demo pace (CPO 2026-11-02 "结算跟 mock 一样"): the demo feed ticks every second and settlement
+--     no longer waits for late data; the client shows the mock's 0.5–1.2 s "…" before the result.
+--     Main-net spec keeps settle_wait_ms = 2000 and a 500 ms feed.
+UPDATE public.arcade_params SET num = 0 WHERE key = 'settle_wait_ms';
+SELECT cron.alter_job(job_id := (SELECT jobid FROM cron.job WHERE jobname = 'arcade_sim_feed'), schedule := '1 seconds');

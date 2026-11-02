@@ -652,8 +652,15 @@
 .arcade-root .v2m .chg30{white-space:nowrap}
 .arcade-root .v2m .m-top .logoplate{padding:0 6px}
 .arcade-root .v2m .m-top .logoplate svg{width:56px}
-.arcade-root .cockpit .cab.v2 #dDonePane .row .mid small{white-space:normal;line-height:1.25}
 @media (max-width:1120px){.arcade-root .cockpit .cab.v2 .r2r>.tagscr{display:none}}
 .arcade-root :is(.cab.v2,.v2m) .row small .nw{white-space:nowrap}
 /* phone: while the combo HUD is up it owns the right of the price block; the 30 s change steps aside */
 .arcade-root .v2m .feed-head:has(.combo.on) .chg30{display:none}
+/* rows in YOUR CALLS (open + settled) and the phone's SETTLED: the small line runs under the result column too,
+   so "open 78,105.31 · close 78,107.62" / "@ 51.3¢ · open $80,900.87 · 23s" always sit on one line (no wrap on some rows and not others) */
+.arcade-root :is(.cab.v2,.v2m) :is(#dList,#dDone) .row{grid-template-columns:40px minmax(0,1fr) auto;grid-template-areas:"sd b st" "sd sm sm";row-gap:4px;column-gap:8px;align-items:center}
+.arcade-root :is(.cab.v2,.v2m) :is(#dList,#dDone) .row .mid{display:contents}
+.arcade-root :is(.cab.v2,.v2m) :is(#dList,#dDone) .row .sd{grid-area:sd}
+.arcade-root :is(.cab.v2,.v2m) :is(#dList,#dDone) .row .mid>b{grid-area:b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15}
+.arcade-root :is(.cab.v2,.v2m) :is(#dList,#dDone) .row .mid>small{grid-area:sm;white-space:nowrap;overflow:hidden;text-overflow:clip;line-height:1.2}
+.arcade-root :is(.cab.v2,.v2m) :is(#dList,#dDone) .row .st{grid-area:st}

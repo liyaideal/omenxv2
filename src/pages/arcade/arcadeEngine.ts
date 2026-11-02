@@ -205,6 +205,8 @@ interface Call {
   tDone?: number;
   settledAt?: number;
   cancelWanted?: boolean;
+  /** server ms when the result is revealed: t1 + 0.5–1.2 s, the mock's settle beat */
+  revealAt?: number;
 }
 
 const C = { up: "#33d6ff", dn: "#cfff4a", cy: "#05d7ed", hot: "#ff5c5c" };
@@ -783,14 +785,28 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       const res = await data.settleMine();
       for (const r of res) {
         const c = S.calls.find((x: Call) => x.id === r.id);
-        if (c && (c.status === "open" || c.status === "settling")) applySettled(c, r.status as any, r.pnl, r.s0, r.s1);
+        if (c && (c.status === "open" || c.status === "settling")) reveal(c, r.status as any, r.pnl, r.s0, r.s1);
       }
     } catch (e) {
       /* retry below */
     }
-    const due = S.calls.filter((c: Call) => c.status === "settling");
-    if (due.length && settleTries++ < 8) scheduleSettle(900);
+    const due = S.calls.filter((c: Call) => c.status === "settling" && !(c as any).held);
+    if (due.length && settleTries++ < 25) scheduleSettle(300);
     else settleTries = 0;
+  }
+  /** The flag shows "…" for 0.5–1.2 s after t1, then flips — the approved mock's beat (CPO 2026-11-02 "跟 mock 一样").
+      A result that arrives earlier is held until then; one that arrives later shows at once. */
+  function reveal(c: Call, status: "won" | "lost" | "void", pnl: number, s0: number | null, s1: number | null) {
+    const at = c.revealAt ?? c.t1 + 500 + Math.random() * 700;
+    const wait = at - now();
+    if (wait <= 0 || FX) return applySettled(c, status, pnl, s0, s1);
+    (c as any).held = true;
+    timers.push(
+      setTimeout(() => {
+        (c as any).held = false;
+        if (c.status === "settling" || c.status === "open") applySettled(c, status, pnl, s0, s1);
+      }, wait),
+    );
   }
   /** Thirty minutes without a call closes the sitting: 04 / YOUR RESULT starts over (CPO 2026-10-29). */
   function newSession() {
@@ -933,10 +949,11 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       }
       if (c.status === "open" && t >= c.t1) {
         c.status = "settling";
+        c.revealAt = c.t1 + 500 + Math.random() * 700;
         due = true;
       }
     }
-    if (due && !settleT) scheduleSettle(650);
+    if (due && !settleT) scheduleSettle(0);
   }
   /** reconcile with the server every few seconds: cron settlements, other tabs, reloads */
   async function reconcile() {
@@ -960,8 +977,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
               S.sesStakes.push(real.gross);
             }
           }
-        } else if ((loc.status === "open" || loc.status === "settling") && (real.status === "won" || real.status === "lost" || real.status === "void")) {
-          applySettled(loc, real.status, real.pnl, real.s0, real.s1);
+        } else if ((loc.status === "open" || loc.status === "settling") && !(loc as any).held && (real.status === "won" || real.status === "lost" || real.status === "void")) {
+          reveal(loc, real.status, real.pnl, real.s0, real.s1);
         } else if (loc.status === "open" && real.status === "cancelled") {
           loc.status = "cancelled";
           loc.tDone = now();
