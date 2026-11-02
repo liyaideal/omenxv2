@@ -9,6 +9,7 @@ import { mountArcade, type ArcadeApi, type ArcadeFixture } from "@/pages/arcade/
 import { ARCADE_DESKTOP, ARCADE_MOBILE, ARCADE_OVERLAYS } from "@/pages/arcade/arcadeMarkup";
 import { ArcadeEntryBanner, type ArcadeBannerFixture } from "@/components/lite/arcade/ArcadeEntryBanner";
 import { ArcadeRunPoster } from "@/components/lite/arcade/ArcadeRunPoster";
+import { ArcadeComboPoster } from "@/components/lite/arcade/ArcadeComboPoster";
 import type { ArcadeCall, ArcadeFeedRow, ArcadeTick, RoadSlot } from "@/lib/arcade/arcadeCalls";
 import { callPayout } from "@/lib/arcade/arcadeCalls";
 import { ensureArcadeFonts } from "@/lib/arcade/arcadeFonts";
@@ -95,7 +96,7 @@ const CALLS_LIVE: ArcadeCall[] = [
 ];
 const FEED: ArcadeFeedRow[] = [
   { id: "f1", who: "al***er", side: "up", gross: 25, p: 0.512, t0: iso(NOW - 22000), t1: iso(NOW + 8000), mine: false },
-  { id: "f2", who: "kz***88", side: "down", gross: 100, p: 0.488, t0: iso(NOW - 14000), t1: iso(NOW + 16000), mine: false },
+  { id: "f2", who: "kz***88", side: "down", gross: 50, p: 0.488, t0: iso(NOW - 14000), t1: iso(NOW + 16000), mine: false },
   { id: "f3", who: "sa***ra", side: "up", gross: 5, p: 0.511, t0: iso(NOW - 6000), t1: iso(NOW + 24000), mine: false },
   { id: "f4", who: "mi***to", side: "up", gross: 10, p: 0.513, t0: iso(NOW - 2000), t1: iso(NOW + 28000), mine: false },
 ];
@@ -140,8 +141,9 @@ const base = (over: Partial<ArcadeFixture> = {}): ArcadeFixture => ({ nowMs: NOW
 const FX_GATE = base({ ack: false });
 export const Ar1Preview = () => <Cabinet fixture={FX_GATE} width={1040} height={700} />;
 
-/* ---------- AR-2 desktop · live: 6 open calls (one still cancellable), 3 settled, session +$ ---------- */
-const FX_LIVE = base({ calls: CALLS_LIVE, session: { last: [true, false, true, true, false, true, true] } });
+/* ---------- AR-2 desktop · live: YOUR CALLS · Open (6, the newest inside its 2 s UNDO), 04 on its own plate,
+   COMBO ×2 ("win 1 more → free $2 voucher"), voucher chip $4 / $10 ---------- */
+const FX_LIVE = base({ calls: CALLS_LIVE, session: { last: [true, false, true, true, false, true, true] }, vouchersToday: 4 });
 export const Ar2Preview = () => <Cabinet fixture={FX_LIVE} width={1040} height={700} />;
 
 /* ---------- AR-3 desktop · table paused (index invalid) → the lynx runner ---------- */
@@ -158,7 +160,7 @@ export const Ar4Preview = () => <Cabinet mobile fixture={base()} width={375} hei
 /* ---------- AR-5 mobile · live with calls ---------- */
 export const Ar5Preview = () => <Cabinet mobile fixture={FX_LIVE} width={375} height={760} />;
 
-/* ---------- AR-7 desktop · nothing of mine open: TABLE tab, LAST SETTLED + Portfolio link, a cold streak ---------- */
+/* ---------- AR-7 desktop · played, nothing open: YOUR CALLS · Open empty ("No open calls"), three losses in a row — no LOST ×3, nothing shown ---------- */
 const FX_TABLE = base({
   calls: [mkCall("e1", "up", 25, 0.51, NOW - 110000, "lost"), mkCall("e2", "down", 10, 0.49, NOW - 95000, "lost"), mkCall("e3", "up", 5, 0.512, NOW - 70000, "lost")],
   session: { last: [true, true, false, false, false] },
@@ -166,14 +168,10 @@ const FX_TABLE = base({
 export const Ar7Preview = () => <Cabinet fixture={FX_TABLE} width={1040} height={700} />;
 
 /* ---------- AR-8 desktop · the road note open + a tapped cell ---------- */
-// a tapped cell un-highlights after 4 s and any tap closes the note, so the frame re-taps both every 3 s
+// a tapped cell shows what that 30 s did ("▲ Up +$12.00 · 07:49:00 – 07:49:30"); then the ⓘ opens the road note
 const openNote = (root: HTMLElement) => {
-  const tap = () => {
-    (root.querySelector(".road .cell[data-i]:nth-last-child(6)") as HTMLElement | null)?.click();
-    (root.querySelector("#roadI") as HTMLElement | null)?.click();
-  };
-  tap();
-  const t = setInterval(() => (root.isConnected ? tap() : clearInterval(t)), 3000);
+  (root.querySelector(".road .cell[data-i]:nth-last-child(6)") as HTMLElement | null)?.click();
+  (root.querySelector("#roadI") as HTMLElement | null)?.click();
 };
 export const Ar8Preview = () => <Cabinet fixture={FX_LIVE} width={1040} height={700} after={openNote} />;
 
@@ -185,6 +183,39 @@ export const Ar9Preview = () => <Cabinet fixture={base()} width={1040} height={7
 const openSheet = (root: HTMLElement) => (root.querySelector("#mPeek") as HTMLElement | null)?.click();
 export const Ar10Preview = () => <Cabinet mobile fixture={FX_LIVE} width={375} height={760} after={openSheet} />;
 export const Ar11Preview = () => <Cabinet mobile fixture={FX_GATE} width={375} height={760} />;
+
+/* ---------- AR-12 desktop · first visit, a key hovered: LIVE TABLE rail, the preview line shaded for UP ---------- */
+export const Ar12Preview = () => <Cabinet fixture={base({ hover: "u" })} width={1040} height={700} />;
+
+/* ---------- AR-13 desktop · YOUR CALLS · Settled tab (results, open → close, Portfolio link) ---------- */
+const openSettled = (root: HTMLElement) => (root.querySelector('.tab[data-tab="settled"]') as HTMLElement | null)?.click();
+const SETTLED = [
+  mkCall("s1", "up", 5, 0.512, NOW - 160000, "won"),
+  mkCall("s2", "down", 2, 0.488, NOW - 150000, "lost"),
+  mkCall("s3", "up", 10, 0.51, NOW - 140000, "won"),
+  mkCall("s4", "up", 25, 0.513, NOW - 130000, "lost"),
+  mkCall("s5", "down", 50, 0.49, NOW - 120000, "won"),
+  mkCall("s6", "up", 5, 0.511, NOW - 100000, "void"),
+];
+export const Ar13Preview = () => <Cabinet fixture={base({ calls: SETTLED, session: { last: [true, false, true, false, true] }, vouchersToday: 0 })} width={1040} height={700} after={openSettled} />;
+
+/* ---------- AR-14 desktop · at the $500 cap: "Limit reached · …" on both keys, chips greyed, "↓ N more" under the list ---------- */
+const CAP_CALLS: ArcadeCall[] = Array.from({ length: 18 }, (_, i) => mkCall("m" + i, i % 3 ? "up" : "down", i < 16 ? 25 : 50, 0.51, NOW - 28000 + i * 1500));
+export const Ar14Preview = () => <Cabinet fixture={base({ calls: CAP_CALLS })} width={1040} height={700} />;
+
+/* ---------- AR-15 desktop · ×3 COMBO: the $2 voucher drops (mega + "+$2 VOUCHER" flies to the chip), ⇪ SHARE in the HUD ---------- */
+const WIN3 = [mkCall("w1", "up", 5, 0.51, NOW - 120000, "won"), mkCall("w2", "down", 5, 0.49, NOW - 90000, "won"), mkCall("w3", "up", 5, 0.51, NOW - 60000, "won")];
+export const Ar15Preview = () => <Cabinet fixture={base({ calls: WIN3, session: { last: [false, true, true, true] }, vouchersToday: 2, comboEvent: "won" })} width={1040} height={700} />;
+
+/* ---------- AR-16 desktop · ×5 UNSTOPPABLE with today's $10 already claimed ("vouchers maxed today · keep it going") ---------- */
+export const Ar16Preview = () => <Cabinet fixture={base({ calls: WIN3, session: { last: [true, true, true, true, true] }, vouchersToday: 10 })} width={1040} height={700} />;
+
+/* ---------- AR-17 mobile · combo HUD + ⇪, voucher chip by YOUR STAKE ---------- */
+export const Ar17Preview = () => <Cabinet mobile fixture={base({ calls: WIN3, session: { last: [false, true, true, true] }, vouchersToday: 2, comboEvent: "won" })} width={375} height={760} />;
+
+/* ---------- AR-18 mobile · an ⓘ note is a bottom sheet (TOTAL OPEN POSITIONS) ---------- */
+const openTip = (root: HTMLElement) => (root.querySelector('.info[data-tip="inplay"]') as HTMLElement | null)?.click();
+export const Ar18Preview = () => <Cabinet mobile fixture={base()} width={375} height={760} after={openTip} />;
 
 /* ---------- AR-6 · signed out, desktop + mobile: no balance, no Deposit / Transfer, one Sign in key ---------- */
 const Guest = ({ mobile, width, height }: { mobile?: boolean; width: number; height: number }) => {
@@ -228,6 +259,13 @@ export const Ab2Preview = () => (
 /* ---------- AS-1 run poster · win / loss (the 400px card the Share key exports) ---------- */
 const RUN_WIN = { pnl: 83.57, won: 7, lost: 3, bestRun: 4, biggestWin: 9.2, minutes: 23, calls: 10, stakeLine: "$5 each" };
 const RUN_LOSS = { pnl: -21.4, won: 3, lost: 7, bestRun: 2, biggestWin: 4.6, minutes: 12, calls: 10, stakeLine: "$5 each" };
+/* ---------- AS-2 combo poster (interim — the designer's B / E poster replaces it) ---------- */
+export const As2Preview = () => (
+  <div className="flex flex-wrap gap-6 p-4">
+    <ArcadeComboPoster combo={{ n: 3, pnl: 13.92, stake: 15, biggestWin: 4.71 }} username="alex_carter" referralCode="ALEX7K" />
+    <ArcadeComboPoster combo={{ n: 8, pnl: 37.12, stake: 40, biggestWin: 4.9 }} username="alex_carter" referralCode="ALEX7K" />
+  </div>
+);
 export const As1Preview = () => (
   <div className="flex flex-wrap gap-6 p-4">
     <ArcadeRunPoster run={RUN_WIN} username="alex_carter" referralCode="ALEX7K" />
