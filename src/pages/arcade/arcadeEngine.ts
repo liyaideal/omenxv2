@@ -1590,7 +1590,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       const same = cs.every((z) => z.side === c.side);
       const sideCol = c.side === "u" ? C.up : C.dn;
       const fill = settling ? "#fff" : isLive ? (same ? sideCol : "#dfe6ee") : won && !lost ? (same ? sideCol : "#e8edf2") : lost && !won ? "#2a323d" : "#aab";
-      const secs = Math.max(0, Math.ceil((c.t1 - t) / 1000));
+      const secs = Math.min(30, Math.max(0, Math.ceil((c.t1 - t) / 1000)));
       const arrow = same ? (c.side === "u" ? "▲" : "▼") : "▲▼";
       const txt = settling ? "…" : isLive ? arrow + " " + secs + "s" : won && !lost ? "✓" : lost && !won ? "✕" : won + "/" + cs.length;
       const full = txt + (cs.length > 1 ? "  " + cs.length + " calls" : "");
@@ -1794,7 +1794,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         row.className = `row other ${side}${o.mine ? " mine" : ""}`;
         row.innerHTML = `<span class="sd ${side}">${side === "u" ? "▲ UP" : "▼ DN"}</span><span class="mid"><b>${whole(o.gross)} @ ${cents(o.p)} <span class="who">· ${o.mine ? "you" : o.who}</span></b></span><span class="st"></span>`;
       }
-      const left = Math.max(0, Math.ceil((t1 - t) / 1000));
+      const left = Math.min(30, Math.max(0, Math.ceil((t1 - t) / 1000)));
       const st = row.querySelector(".st"),
         txt = left + "s";
       if (st.textContent !== txt) st.textContent = txt;
@@ -1893,7 +1893,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         const b = `${whole(c.gross)} · to win ${money(callCredit(c.gross, c.p))}`;
         if (row.firstChild.nextSibling.firstChild.textContent !== b) row.firstChild.nextSibling.firstChild.textContent = b;
         const sm = row.querySelector("small"),
-          txt = `@ ${cents(c.p)} · open ${c.s0 != null ? money(c.s0) : "…"} · ${Math.max(0, Math.ceil((c.t1 - t) / 1000))}s`;
+          txt = `@ ${cents(c.p)} · open ${c.s0 != null ? money(c.s0) : "…"} · ${Math.min(30, Math.max(0, Math.ceil((c.t1 - t) / 1000)))}s`;
         if (sm.textContent !== txt) sm.textContent = txt;
         row.querySelector(".bar i").style.width = frac * 100 + "%";
         const se = row.querySelector(".st");
@@ -1942,7 +1942,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
           .map((c: Call) => {
             const frac = 1 - clip((t - c.t0) / ARCADE_DURATION_MS, 0, 1);
             const done = c.status === "won" || c.status === "lost" || c.status === "void";
-            return `<span class="mc ${c.status}">${ringSvgLime(frac, c.side)}<span class="mchip ${chipCls(c.gross)}">${c.gross}</span>${done ? `<span class="fs">${c.status === "won" ? "✓" : c.status === "lost" ? "✕" : "–"}</span>` : `<span class="t">${c.status === "settling" ? "…" : Math.max(0, Math.ceil((c.t1 - t) / 1000))}</span>`}</span>`;
+            return `<span class="mc ${c.status}">${ringSvgLime(frac, c.side)}<span class="mchip ${chipCls(c.gross)}">${c.gross}</span>${done ? `<span class="fs">${c.status === "won" ? "✓" : c.status === "lost" ? "✕" : "–"}</span>` : `<span class="t">${c.status === "settling" ? "…" : Math.min(30, Math.max(0, Math.ceil((c.t1 - t) / 1000)))}</span>`}</span>`;
           })
           .join("");
       } else if (!mineView() && feedLive.length) {
@@ -1951,7 +1951,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
           .slice(0, 7)
           .map((o: ArcadeFeedRow) => {
             const frac = 1 - clip((t - ms(o.t0)) / ARCADE_DURATION_MS, 0, 1);
-            return `<span class="mc other">${ringSvgLime(frac, sideOf(o.side))}<span class="mchip ${chipCls(o.gross)}">${o.gross}</span><span class="t">${Math.max(0, Math.ceil((ms(o.t1) - t) / 1000))}</span></span>`;
+            return `<span class="mc other">${ringSvgLime(frac, sideOf(o.side))}<span class="mchip ${chipCls(o.gross)}">${o.gross}</span><span class="t">${Math.min(30, Math.max(0, Math.ceil((ms(o.t1) - t) / 1000)))}</span></span>`;
           })
           .join("");
       } else {
@@ -1971,7 +1971,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       const ahead = c.side === "u" ? S.price > c.s0 : S.price < c.s0;
       return a + (ahead ? netWin(c.gross, c.p) : -c.gross);
     }, 0);
-    const nextS = open.length ? Math.max(0, Math.ceil((nextT1() - now()) / 1000)) : 0;
+    const nextS = open.length ? Math.min(30, Math.max(0, Math.ceil((nextT1() - now()) / 1000))) : 0;
     const set = (id: string, v: string) => {
       const e = $(id);
       if (e && e.textContent !== v) e.textContent = v;

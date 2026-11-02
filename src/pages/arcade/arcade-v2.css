@@ -668,5 +668,9 @@
 .arcade-root .cockpit .cab.v2 .stat .lbl{height:14px}
 /* a stack with a ×N badge keeps clear of the next stack */
 .arcade-root :is(.cab.v2,.v2m) .stk .den:has(.cnt){margin-right:9px}
-/* the phone sheet scrolls; its cards keep their height instead of being squeezed */
+/* the phone sheet: the road cards, Session / Last 10 and the lynx keep their height; only SETTLED gives way and
+   scrolls inside itself (an outer scroll lost the steel background) */
+.arcade-root .v2m .msheet{overflow:hidden}
 .arcade-root .v2m .msheet>*{flex:none}
+.arcade-root .v2m .msheet>.msettled{flex:1 1 auto;min-height:64px;overflow-y:auto}
+@media (max-height:700px){.arcade-root .v2m .msheet>.mwin{display:none}}
