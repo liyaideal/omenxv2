@@ -1556,12 +1556,19 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       ctx.lineWidth = 1;
     }
     /* flag lane: ▲ / ▼ + seconds left; ✓ / ✕ for 1.5 s once settled, then the flag leaves */
+    // flags closer than one flag's width merge into one ("▲▼ 24s  3 calls"), so rapid taps never pile up in the lane
     const groups: Record<number, Call[]> = {};
+    let gk = -1,
+      gx = -1e9;
     for (const c of live) {
       const on = c.status === "open" || c.status === "settling" || c.status === "pending" || (c.tDone && t - c.tDone < 1500);
       if (!on) continue;
-      const k = Math.floor(c.t1 / 1000);
-      (groups[k] = groups[k] || []).push(c);
+      const x = g.x(c.t1);
+      if (gk < 0 || x - gx > (narrow ? 30 : 40)) {
+        gk = c.t1;
+        gx = x;
+      }
+      (groups[gk] = groups[gk] || []).push(c);
     }
     const keys = Object.keys(groups)
       .map(Number)
