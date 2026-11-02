@@ -1169,7 +1169,57 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       prints plus Binance's deviation from its own straight line over the same segment (zero at both
       ends), so the line goes through every print exactly; after the latest print it rides the print
       plus Binance's move since. */
+  /* ---------- display texture (CPO 2026-11-02) ----------
+     Lovable's index is a demo feed (~1 print / 2 s) and Binance's top of book barely moves, so the bare line
+     read as straight segments. The approved mock's line moves 10 times a second; CPO: "做成 mock 那个样子，
+     研发按真实价格实现成这个效果". So on Lovable the line between two index prints is a seeded random walk
+     (the mock's own step: r·1.2e-4 + momentum·4e-5 of price, every 100 ms) bridged to pass exactly through
+     both prints; after the latest print it keeps walking until the next one lands. Calls' open / settle
+     marks, the ✓ / ✕ and every number the server uses stay on the index prints.
+     Main-net: draw the real feed at ≥ 10 Hz to get this look — no synthetic texture. arcade_params.display_texture = 0 turns it off. */
+  const texOn = () => S.params?.display_texture !== 0;
+  const TEX_STEP = 100;
+  function texWalk(seedT: number, n: number, price: number): number[] {
+    let x = Math.floor(seedT) % 2147483647 || 1;
+    const rnd = () => {
+      x = (x * 48271) % 2147483647;
+      return x / 2147483647;
+    };
+    const w = [0];
+    let mom = 0,
+      v = 0;
+    for (let i = 1; i <= n; i++) {
+      const r = (rnd() - 0.5) * 2;
+      mom = mom * 0.9 + r * 0.1;
+      v += price * (r * 0.00012 + mom * 0.00004);
+      w.push(v);
+    }
+    return w;
+  }
+  function texSeries(from: number): { t: number; p: number }[] {
+    const ticks = S.px.filter((x: any) => x.t >= from - 4000);
+    const out: { t: number; p: number }[] = [];
+    const tNow = now();
+    for (let k = 0; k < ticks.length; k++) {
+      const a = ticks[k],
+        b = ticks[k + 1];
+      if (a.t >= from) out.push({ t: a.t, p: a.p });
+      if (b && b.t - a.t > 3500) continue; // a gap in the index stays a gap
+      const end = b ? b.t : tNow;
+      const n = Math.max(1, Math.round((end - a.t) / TEX_STEP));
+      const w = texWalk(a.t, n, a.p);
+      const last = b ? n - 1 : Math.min(n, Math.floor((tNow - a.t) / TEX_STEP));
+      for (let i = 1; i <= last; i++) {
+        const t = a.t + i * TEX_STEP;
+        if (t < from) continue;
+        const p = b ? a.p + w[i] - (w[n] - (b.p - a.p)) * (i / n) : a.p + w[i];
+        out.push({ t, p });
+      }
+    }
+    return out;
+  }
   function lineSeries(from: number): { t: number; p: number }[] {
+    if (texOn() && S.px.length) return texSeries(from);
     if (!liveOn()) return S.px.filter((x: any) => x.t >= from);
     const first = S.live[0].t;
     const head = S.px.filter((x: any) => x.t >= from && x.t < first - 200);
@@ -1227,7 +1277,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       hi = (S.price || 0) + 30;
     }
     // fit the real range: BTC often moves only cents for a while — a $8 floor turned that into a flat line
-    const pad = Math.max((hi - lo) * 0.25, 1.5);
+    const pad = Math.max((hi - lo) * 0.25, texOn() ? 8 : 1.5);
     lo -= pad;
     hi += pad;
     return { W, H, PW, TOP, BOT, lo, hi, x: (tt: number) => ((tt - t0) / (t1 - t0)) * PW, y: (p: number) => H - BOT - ((p - lo) / (hi - lo)) * (H - BOT - TOP - 6) - 3 };
@@ -1343,7 +1393,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       ctx.beginPath();
       ctx.arc(headX, headY, 3.2, 0, 7);
       ctx.fill();
-      if (useLive) {
+      if (useLive && !texOn()) {
         ctx.fillStyle = "rgba(238,242,248,.45)";
         for (const p of S.px) {
           if (p.t < t - 45000) continue;
@@ -2281,7 +2331,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     if (dep) {
       dep.classList.toggle("signin", out);
       dep.closest(".m-top")?.classList.toggle("guest", out);
-      dep.textContent = out ? (api.isMobile ? "SIGN IN" : "Sign in") : api.isMobile ? "+" : "+ Deposit";
+      dep.textContent = out ? (api.isMobile ? "SIGN IN" : "→ Sign in") : api.isMobile ? "+" : "+ Deposit";
       dep.title = out ? "Sign in to play" : api.isMobile ? "Deposit" : "Buy USDC with card or deposit on Base";
     }
     const x = $("#xferBtn");
@@ -2811,8 +2861,13 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     lastF = tf;
     if (!FX) {
       if (S.basisT !== S.basis) S.basis += (S.basisT - S.basis) * Math.min(1, dt / 700);
-      const target = liveOn() ? S.liveP : S.price;
-      if (target) S.disp += (target - S.disp) * Math.min(1, dt / (liveOn() ? 120 : 420)); // ease the head toward the latest print
+      // the head (big price, dot, price tag) rides the drawn line, like the mock
+      let target = liveOn() ? S.liveP : S.price;
+      if (texOn() && S.px.length) {
+        const ser = texSeries(now() - 1000);
+        if (ser.length) target = ser[ser.length - 1].p;
+      }
+      if (target) S.disp += (target - S.disp) * Math.min(1, dt / (texOn() ? 60 : liveOn() ? 120 : 420)); // ease the head toward the latest print
     }
     draw(cv);
   });
