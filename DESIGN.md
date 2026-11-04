@@ -1221,7 +1221,7 @@ Active（`MarketCard`）和 Resolved（`ResolvedEventCard`）移动端卡片 **�
 
 | 栏位 | 内容 |
 |------|------|
-| Brand | `<Logo size="xl" showMainnetBadge={false} />` + tagline + 社交 pill（X / Discord）+ `support@omenx.com`（Connect 已并入品牌区，不再独立成列） |
+| Brand | `<Logo size="xl" showMainnetBadge={false} />` + tagline + 社交 pill（X / Discord / Telegram）+ `support@omenx.com`（Connect 已并入品牌区，不再独立成列） |
 | Platform | Events / Leaderboard / Insights；**Resolved 仅 Pro 面渲染**（Lite 无 Resolved 页） |
 | Learn | About / FAQ / Glossary / Methodology |
 | Resources | Developers / On-Chain Transparency |
@@ -1246,7 +1246,25 @@ Active（`MarketCard`）和 Resolved（`ResolvedEventCard`）移动端卡片 **�
 |------|----------|
 | X (Twitter) | `https://x.com/OmenX_Official` |
 | Discord | `https://discord.gg/qXssm2crf9` |
+| Telegram · English / Global | `https://t.me/omenx_news` |
+| Telegram · 中文 | `https://t.me/+hcIqv6toxwdhY2Fh` |
+| Telegram · Русский / CIS | `https://t.me/omenx_news_ru` |
+| Telegram · Tiếng Việt | `https://t.me/omenxvietnam` |
 | Email | `support@omenx.com` |
+
+### Telegram 入口（footer-telegram-v1 · 2026-11-04 · LOCKED）
+
+来源：CPO 2026-11-04 批 R1–R9 + 视觉 mock；规格 `docs/delivery/footer-telegram-v1.md`；字典 Common UI › Site-wide Footer **FT-TG1…3**。组件 `src/components/seo/TelegramGroupsMenu.tsx`（列表只此一份）。
+
+1. **位置**：社交行 X · Discord · Telegram，Telegram 最后；桌面与移动同。
+2. **图标**：单色纸飞机（`TelegramGlyph`，`fill-current`），同 `SOCIAL_CLASS` 34px 描边圆钮；蓝底 `TelegramIcon`（登录方式用）不进 footer。
+3. **桌面**：点 pill → `DropdownMenu` `side="top" align="start" sideOffset=8` `w-[220px]`，上方不够时自动翻下；点外面 / Esc 关闭。眉标 `DropdownMenuLabel` 10px mono 大写 muted；行 = 灰色短码 `w-6 font-mono text-[11px]` + 本名 + （EN / RU）灰色地区 `text-[11px]` + `ArrowUpRight` 12px。开着时 pill = `text-foreground border-border bg-muted/40`。
+4. **移动**：点 pill → `MobileDrawer`（title + description），纯选择抽屉无 footer；行样式同 `LanguageDrawer`（`px-4 py-3 rounded-xl text-sm font-medium`，按下 `bg-muted`），右侧地区 `text-xs` + `ArrowUpRight` 16px。
+5. **四行固定顺序** EN English · Global / ZH 中文 / RU Русский · CIS / VI Tiếng Việt；群名用各自文字、不翻译。
+6. **每行是真 `<a target="_blank" rel="noopener noreferrer">`**，点了新标签页打开、菜单 / 抽屉关闭。
+7. **推荐行**：站点语言 zh-CN / zh-TW → ZH，ru → RU，vi → VI，其余（en / ja / ko）→ EN；推荐行加底色（桌面 `bg-muted`、移动 `bg-muted/40`），**不打 ✓、不改顺序**（✓ 只表示"已选中的设置"）。
+8. **文案**：仅 `legal.footer.telegram.title` / `.description` 进 7 语词典。
+9. **作用域**：本轮只有 footer；头像菜单「Join Discord」行、移动首页顶栏 Discord 图标不变。将来别处要加 Telegram，复用 `TelegramGroupsMenu` / `TELEGRAM_GROUPS`，❌ 禁止手写第二份群列表。
 
 ### 底栏三行（牌照合规 FROZEN）
 

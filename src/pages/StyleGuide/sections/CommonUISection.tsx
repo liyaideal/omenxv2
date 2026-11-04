@@ -22,6 +22,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { SeoFooter } from "@/components/seo/SeoFooter";
 import { toast } from "sonner";
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
+import { SectionFrame, type SectionCase } from "../components/SectionFrame";
 import { CodePreview } from "../components/CodePreview";
 import { TradingHeaderPlayground } from "../components/TradingHeaderPlayground";
 import {
@@ -2234,6 +2235,44 @@ const SettingsCardSection = () => {
   );
 };
 
+// Footer · Telegram entry (CPO 2026-11-04, docs/delivery/footer-telegram-v1.md)
+const FOOTER_TELEGRAM_CASES: SectionCase[] = [
+  {
+    key: "footer-tg-default",
+    label: "FT-TG1 · Telegram pill · 默认（X · Discord · Telegram）",
+    note: "R1/R2：Telegram 排在社交行最后，单色纸飞机，与 X / Discord 同一颗 34px 描边圆钮（SOCIAL_CLASS）。悬停态（描边 border + 图标 foreground）与 X / Discord 一致，静态帧不展示，鼠标移上去看。",
+    spec: [
+      { state: "default", when: "始终", visual: "w-[34px] h-[34px] rounded-full border-border/30，图标 16px muted-foreground", source: "SeoFooter.tsx → TelegramGroupsMenu" },
+      { state: "hover", when: "鼠标悬停", visual: "描边 border-border、图标 foreground（同 X / Discord）", source: "SOCIAL_CLASS" },
+      { state: "open", when: "菜单或抽屉开着", visual: "描边 border-border + bg-muted/40 + 图标 foreground", source: "TelegramGroupsMenu PILL_OPEN" },
+    ],
+  },
+  {
+    key: "footer-tg-menu-open",
+    label: "FT-TG2 · 桌面下拉展开（站点 简体中文 → ZH 行高亮）",
+    note: "R3/R5/R6/R7：220px DropdownMenu，默认在 pill 上方弹出，上方放不下时 Radix 自动翻到下方；点外面或 Esc 关闭。四行顺序固定，每行是真链接、新标签页打开对应群并关闭菜单。与站点语言对应的行加 bg-muted 底色，不打 ✓、不换顺序。",
+    spec: [
+      { state: "label", when: "始终", visual: "眉标 `Join our Telegram`（10px mono 大写，muted），随站点语言翻译", source: "legal.footer.telegram.title" },
+      { state: "row", when: "始终", visual: "灰色 2 字母短码 + 群语言本名 + （EN/RU）灰色地区 Global / CIS + ↗ 12px", source: "TELEGRAM_GROUPS" },
+      { state: "suggested", when: "站点语言 zh-CN / zh-TW → ZH；ru → RU；vi → VI；en / ja / ko → EN", visual: "该行 bg-muted 底色（与悬停同色），其余行无底色", source: "suggestedTelegramGroup(useT().code)" },
+      { state: "pick", when: "点击某行", visual: "新标签页打开 t.me 群链接，菜单关闭", source: "<a target=_blank rel=noopener>" },
+    ],
+  },
+  {
+    key: "footer-tg-drawer-open",
+    label: "FT-TG3 · 移动底部抽屉展开（站点 Русский → RU 行高亮）",
+    note: "R4：手机端 = MobileDrawer，标题 + 一句说明，只有选项没有按钮（纯选择抽屉，DESIGN §5）；点遮罩、下拉或右上关闭。行样式与 LanguageDrawer 同（px-4 py-3 rounded-xl text-sm），推荐行 bg-muted/40，按下 bg-muted。",
+    spec: [
+      { state: "header", when: "始终", visual: "标题 `Join our Telegram` + 说明 `Pick the group in your language.`，随站点语言翻译", source: "legal.footer.telegram.title / .description" },
+      { state: "suggested", when: "同 FT-TG2", visual: "该行 bg-muted/40", source: "suggestedTelegramGroup" },
+      { state: "pick", when: "点击某行", visual: "打开 t.me 群（装了 Telegram 的手机直接跳 App），抽屉关闭", source: "<a target=_blank> + onClick close" },
+    ],
+  },
+];
+
+const byKey = (...keys: string[]): SectionCase[] =>
+  keys.map((k) => FOOTER_TELEGRAM_CASES.find((c) => c.key === k)!).filter(Boolean);
+
 // Site-wide Footer Section Component
 const SiteFooterSection = () => {
   return (
@@ -2256,6 +2295,14 @@ const SiteFooterSection = () => {
         </CardContent>
       </Card>
 
+      {/* Telegram entry — FT-TG1…3 */}
+      <SubSection title="Telegram 入口（FT-TG1 … FT-TG3）· footer-telegram-v1" platform="shared" className="mb-6">
+        <SectionFrame cases={byKey("footer-tg-default", "footer-tg-menu-open")} device="desktop" minHeight={560} />
+        <div className="mt-3">
+          <SectionFrame cases={byKey("footer-tg-default", "footer-tg-drawer-open")} device="mobile" minHeight={640} />
+        </div>
+      </SubSection>
+
       {/* Structure */}
       <SubSection title="Desktop Layout — 5-column Grid">
         <div className="grid grid-cols-5 gap-3 text-xs">
@@ -2264,7 +2311,7 @@ const SiteFooterSection = () => {
             { col: "Platform", desc: "Events, Resolved, Leaderboard, Insights" },
             { col: "Learn More", desc: "About, FAQ, Glossary, Methodology, Transparency" },
             { col: "Legal", desc: "Privacy Policy, Terms of Service" },
-            { col: "Connect", desc: "X + Discord icons + support email" },
+            { col: "Connect", desc: "X + Discord + Telegram icons + support email (Telegram opens a language picker)" },
           ].map((c) => (
             <div key={c.col} className="rounded-lg border border-border/50 bg-muted/20 p-3">
               <div className="text-sm font-semibold text-foreground mb-1">{c.col}</div>
@@ -2310,6 +2357,22 @@ const SiteFooterSection = () => {
               <tr>
                 <td className="px-4 py-2 font-medium">Discord</td>
                 <td className="px-4 py-2 font-mono text-xs text-muted-foreground">https://discord.gg/qXssm2crf9</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 font-medium">Telegram · English / Global</td>
+                <td className="px-4 py-2 font-mono text-xs text-muted-foreground">https://t.me/omenx_news</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 font-medium">Telegram · 中文</td>
+                <td className="px-4 py-2 font-mono text-xs text-muted-foreground">https://t.me/+hcIqv6toxwdhY2Fh</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 font-medium">Telegram · Русский / CIS</td>
+                <td className="px-4 py-2 font-mono text-xs text-muted-foreground">https://t.me/omenx_news_ru</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 font-medium">Telegram · Tiếng Việt</td>
+                <td className="px-4 py-2 font-mono text-xs text-muted-foreground">https://t.me/omenxvietnam</td>
               </tr>
               <tr>
                 <td className="px-4 py-2 font-medium">Email</td>

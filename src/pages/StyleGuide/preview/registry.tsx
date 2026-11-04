@@ -38,6 +38,7 @@ const h2e = () => import("./h2ePreviews");
 const autoClose = () => import("./autoClosePreviews");
 const auth = () => import("./authPreviews");
 const settings = () => import("./settingsPreviews");
+const footer = () => import("./footerPreviews");
 const notifications = () => import("./notificationsPreviews");
 const announcements = () => import("./announcementsPreviews");
 const insights = () => import("./insightsPreviews");
@@ -214,6 +215,10 @@ export const previewRegistry: Record<string, Loader> = {
 
   /* -------- Foundations · Desktop Subpage Header (DSH v1) -------- */
   "foundations-dsh-header": pick(dshHeader, "DshHeaderPreview"),
+  // Footer · Telegram entry (FT-TG1…3, footer-telegram-v1)
+  "footer-tg-default": pick(footer, "FooterTelegramDefaultPreview"),
+  "footer-tg-menu-open": pick(footer, "FooterTelegramMenuOpenPreview"),
+  "footer-tg-drawer-open": pick(footer, "FooterTelegramDrawerOpenPreview"),
   "foundations-surface-switch": pick(surfaceSwitch, "SurfaceSwitchPreview"),
 
   /* -------- Mobile header system -------- */

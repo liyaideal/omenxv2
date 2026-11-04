@@ -4,6 +4,8 @@ import { ChevronDown } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useT, t } from "@/i18n";
 import { HELP_CENTER_URL, HELP_FAQ_URL, HELP_GUIDE_URL } from "@/lib/site";
+import type { LanguageCode } from "@/lib/languages";
+import { TelegramGroupsMenu } from "./TelegramGroupsMenu";
 
 type FooterLink = { label: string; path: string; external?: boolean };
 
@@ -66,7 +68,12 @@ const FooterAccordion = ({ heading, links }: { heading: string; links: FooterLin
   );
 };
 
-export const SeoFooter = () => {
+/** Style-guide only (FT-TG1…3): open the Telegram list in one layout, as if the site were in `code`. */
+export interface SeoFooterPreviewProps {
+  telegramPreview?: { open?: "menu" | "drawer"; code?: LanguageCode };
+}
+
+export const SeoFooter = ({ telegramPreview }: SeoFooterPreviewProps = {}) => {
   const { t } = useT();
   // D6'-1: no Resolved page any more — /resolved bounces back to /events.
   const platformLinks: FooterLink[] = [
@@ -106,7 +113,9 @@ export const SeoFooter = () => {
     },
   ];
 
-  const socialRow = (
+  // X · Discord · Telegram (footer-telegram-v1 R1). Telegram opens a language picker:
+  // a dropdown in the desktop layout, a bottom drawer in the mobile layout (R3/R4).
+  const socialRow = (telegram: "menu" | "drawer") => (
     <div className="flex items-center gap-3">
       {socialLinks.map((s) => (
         <a
@@ -120,6 +129,12 @@ export const SeoFooter = () => {
           {s.icon}
         </a>
       ))}
+      <TelegramGroupsMenu
+        variant={telegram}
+        pillClassName={SOCIAL_CLASS}
+        previewOpen={telegramPreview?.open === telegram}
+        previewCode={telegramPreview?.code}
+      />
     </div>
   );
 
@@ -136,7 +151,7 @@ export const SeoFooter = () => {
             <p className="text-xs text-muted-foreground leading-relaxed max-w-[240px]">
               {t("legal.footer.brand_description")}
             </p>
-            <div className="mt-4">{socialRow}</div>
+            <div className="mt-4">{socialRow("menu")}</div>
             <a href="mailto:support@omenx.com" className={`${LINK_CLASS} mt-3 inline-block`}>
               {t("seo.screen.seo_footer.support_omenx_com")}
             </a>
@@ -176,7 +191,7 @@ export const SeoFooter = () => {
               {t("legal.footer.brand_description")}
             </p>
             <div className="mt-4 flex items-center gap-4">
-              {socialRow}
+              {socialRow("drawer")}
               <a href="mailto:support@omenx.com" className={LINK_CLASS}>
                 {t("seo.screen.seo_footer.support_omenx_com")}
               </a>
