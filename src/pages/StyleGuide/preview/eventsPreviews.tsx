@@ -1319,6 +1319,7 @@ export const Ev45Preview = () => (
     <ClickAfterMount selector="[data-remind]">
       <StreamsDemo matches={PREVIEW_ONE} guest />
     </ClickAfterMount>
-    <AuthPromptHost />
+    {/* login step locked: a signed-in viewer would otherwise jump to Create your wallet */}
+    <AuthPromptHost previewStep="login" />
   </Stage>
 );
