@@ -692,3 +692,47 @@
 .arcade-root :is(.cab.v2,.v2m) :is(.vchip,.mvou).max{border-color:rgba(207,255,74,.35);background:rgba(207,255,74,.05);color:var(--mute)}
 .arcade-root :is(.cab.v2,.v2m) :is(.vchip,.mvou).max .vtk{color:rgba(207,255,74,.5)}
 .arcade-root :is(.cab.v2,.v2m) .vchip:hover{background:rgba(207,255,74,.18)}
+
+/* ⑦ 01 / REPLAY as one screen (CPO 2026-11-04, canvas option 2 + 3): the tag plate + ONE screen whose head says the
+   window once ("LAST 30 MIN · 15:22 → now · 60 results — each dot or box = …"); inside, three panes read the same 60
+   results — Bead · in order / Big road · in streaks / Up vs Down · the count. Bead and road look exactly as before; the
+   first mark of each is pinned with the window's start, the latest result is ringed and pinned NOW. */
+.arcade-root .cockpit .cab.v2 .r2r{grid-template-columns:160px minmax(0,1fr)}
+@media (max-width:1120px){.arcade-root .cockpit .cab.v2 .r2r{grid-template-columns:minmax(0,1fr)}}
+.arcade-root .cockpit .cab.v2 .r2r .tagscr .sub{font-size:13px;line-height:16px;letter-spacing:.8px}
+.arcade-root .cockpit .cab.v2 .r2r>.scr.rscreen{display:flex;flex-direction:column;padding:0;gap:0}
+:is(.arcade-root .v2,.arcade-root .v2m) .rhead{display:flex;align-items:center;gap:10px;padding:6px 14px;border-bottom:1px solid #1d2c37;font:600 12px/1 var(--f-ui);letter-spacing:1.2px;color:#fff;text-transform:uppercase;white-space:nowrap;min-width:0}
+:is(.arcade-root .v2,.arcade-root .v2m) .rhead .rwin{font:400 18px/1 var(--f-pix);color:var(--lime);letter-spacing:1px}
+:is(.arcade-root .v2,.arcade-root .v2m) .rhead .rexp{text-transform:none;letter-spacing:.3px;font-weight:500;font-size:11px;color:#b9c2cd;overflow:hidden;text-overflow:ellipsis}
+:is(.arcade-root .v2,.arcade-root .v2m) .rhead .rexp::before{content:"· ";color:#6f7a88}
+:is(.arcade-root .v2,.arcade-root .v2m) .rpanes{display:grid;grid-template-columns:auto minmax(0,1.3fr) minmax(0,1.1fr);min-height:0;flex:1}
+:is(.arcade-root .v2,.arcade-root .v2m) .rpane{padding:6px 14px 8px;display:flex;flex-direction:column;gap:4px;min-width:0;overflow:visible}
+:is(.arcade-root .v2,.arcade-root .v2m) .rpane+.rpane{border-left:1px dashed #2b3a48}
+.arcade-root .cockpit .cab.v2 .r2r .rpane>.lbl,.arcade-root .cockpit .cab.v2 .r2r .rpane .rt{height:18px;line-height:18px}
+.arcade-root .cockpit .cab.v2 .r2r .rpane .rshead{height:18px}
+:is(.arcade-root .v2,.arcade-root .v2m) .rpane .psub{text-transform:none;letter-spacing:.3px;color:#6f7a88;font-weight:500}
+:is(.arcade-root .v2,.arcade-root .v2m) .rpane :is(.beads,.road){overflow:visible}
+:is(.arcade-root .v2,.arcade-root .v2m) .pins{position:relative;padding-top:16px}
+:is(.arcade-root .v2,.arcade-root .v2m) .pin{position:absolute;top:0;left:0;font:600 9px/1 var(--f-ui);letter-spacing:.6px;padding:2px 4px;border-radius:2px;white-space:nowrap}
+:is(.arcade-root .v2,.arcade-root .v2m) .pin.a{background:#1d2a35;color:#dfe6ee}
+:is(.arcade-root .v2,.arcade-root .v2m) .pin.n{background:#fff;color:#07090f;min-width:22px;text-align:center}
+:is(.arcade-root .v2,.arcade-root .v2m) :is(.bead,.cell).last{box-shadow:0 0 0 2px var(--scr),0 0 0 3.5px #fff,0 0 10px rgba(255,255,255,.6)}
+:is(.arcade-root .v2,.arcade-root .v2m) .rsnum .op{color:var(--dim);font-weight:500}
+:is(.arcade-root .v2,.arcade-root .v2m) .rsnum .tot{color:#fff}
+/* phone: the same screen in the ROAD & STATS sheet, panes stacked (count · big road · bead) */
+.arcade-root .v2m .rscreen.m{padding:0;display:flex;flex-direction:column}
+.arcade-root .v2m .rscreen.m .rhead{padding:9px 12px 4px;border-bottom:0}
+.arcade-root .v2m .rscreen.m .rexp-l{display:none}
+.arcade-root .v2m .rexp.m{padding:0 12px 9px;border-bottom:1px solid #1d2c37;font:500 11px/1.35 var(--f-ui);color:#b9c2cd}
+.arcade-root .v2m .rscreen.m .rpanes{grid-template-columns:minmax(0,1fr)}
+.arcade-root .v2m .rscreen.m .rpane{padding:10px 12px}
+.arcade-root .v2m .rscreen.m .rpane+.rpane{border-left:0;border-top:1px dashed #2b3a48}
+.arcade-root .cockpit .cab.v2 .r2r>.scr.rscreen>*{align-self:stretch}
+:is(.arcade-root .v2,.arcade-root .v2m) .road.tight{grid-template-rows:repeat(6,7px);grid-auto-columns:7px}
+:is(.arcade-root .v2,.arcade-root .v2m) .road.tight .cell{width:7px;height:7px;border-width:1.5px}
+:is(.arcade-root .v2,.arcade-root .v2m) .rpane .rsmid{align-self:stretch}
+:is(.arcade-root .v2,.arcade-root .v2m) .rpane .rsnum{justify-content:flex-start;gap:10px}
+/* keep the strip no taller than before: the head and the pin row take what the time feet used to */
+.arcade-root .cockpit .cab.v2 .r2r .rhead{padding:4px 14px}
+.arcade-root .cockpit .cab.v2 .r2r .rpane{padding:4px 14px 6px}
+.arcade-root .cockpit .cab.v2 .r2r .pins{padding-top:14px}

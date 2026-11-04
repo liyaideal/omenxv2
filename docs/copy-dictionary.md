@@ -628,7 +628,7 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 | **combo voucher** | 连赢 ×3 / ×6 / ×9… 掉的 $2 tiered Position Voucher，Rewards › Vouchers 来源 `From Quick Play — 3 wins in a row` | `position_vouchers.source_arcade_call_id` = 凑满那一张；UTC 日合计 ≤ `combo_voucher_cap_day` |
 | **preview line** | 自己没单（或 hover 一个键）时，图上从现价往右 30 秒的那条线：现在下单会在哪结算 | `!anyLive \|\| hover` |
 | **LIVE TABLE / YOUR CALLS** | 右栏：这一场第一笔之前看全桌，之后只看自己的 | `played && !(无未到期 && 距上一笔 > 30 min)` | quick-play-v1 §4.3 |
-| **Now · Ns left**（原 THIS SLOT） | 路单 LAST 30 MIN 卡底的当前 30 秒格：涨跌 + 还剩几秒；点 / hover 任一格弹提示 | 格 = 30 秒墙钟 | quick-play-v1 §4.1 |铁律不变：机柜内不出现 `sh` / 份额数，所有金额讲钱、所有提示讲人话。
+| **This 30s so far ▼ −$7.40 · 13s left**（原 `Now · Ns left` / `THIS SLOT`） | 01 屏 UP VS DOWN 格底：正在形成的这 30 秒涨跌 + 还剩几秒（2026-11-04 改写，原 `Now` 被读成和上面无关）；点 / hover 任一格弹提示 | 格 = 30 秒墙钟 | quick-play-v1 §4.8 |铁律不变：机柜内不出现 `sh` / 份额数，所有金额讲钱、所有提示讲人话。
 
 | Canonical | Where | Note |
 |---|---|---|
@@ -666,7 +666,7 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 | **COMBO ×2** / **⇪ SHARE** / **win 1 more → free $2 voucher** / **you got a $2 voucher!** / **vouchers maxed today · keep it going** | COMBO HUD（11-02） | 删 `1 more → ×3 bonus` / `bonus!` / `COMBO BREAK` / `LOST ×N`；连输什么都不显示 |
 | **×3 COMBO** / **+$2 voucher · in your Vouchers** / **on fire** · **unstoppable** · **legendary** / **+$2 VOUCHER** | 大字（每 ×3 倍数、×5、×8）+ 飞向券条的牌（11-02） | 档位 ×3 ON FIRE / ×5 UNSTOPPABLE / ×8 LEGENDARY |
 | **+$4.29** / **−$5.00** / **VOID** | 图上飘字 | |
-| **01 / REPLAY · WHAT HAPPENED** + **▲ Up ▼ Down** / **BEAD · LAST 36** · **← 15:36 · now →** / **BIG ROAD ⓘ · BTC's direction, every 30 seconds** / **LAST 30 MIN** · **▲ Up 28 · 16 Down ▼** · **longest run ▲ Up ×7** · **Now ▼ −$7.40 · 13s left** / 格子提示 **▲ Up +$12.00** · **07:49:00 – 07:49:30** / **No index print · colour carried over** | 路单条（11-02） | 删 `THIS SLOT` 与 `Market · every cell …` |
+| **01 / REPLAY · BTC EVERY 30 SECONDS** + **▲ Up ▼ Down** / 屏头 **LAST 30 MIN** · **15:22 → NOW** · **60 results — each dot or box = did BTC go up or down in that 30 seconds**（手机拆两行：`LAST 30 MIN 15:22 → NOW · 60 results` / `Each dot or box = did BTC go up or down in that 30 seconds`）/ **BEAD · in order** · **BIG ROAD ⓘ · in streaks** · **UP VS DOWN · the count** / 钉 **15:22** · **NOW** / **▲ Up 37 + 23 Down ▼ = 60** · **longest streak ▲ Up ×7** / 格子提示 **▲ Up +$12.00** · **07:49:00 – 07:49:30** / **No index print · colour carried over** | 01 路单条（2026-11-04 改成一块屏，取代 11-02 的四块独立屏写法） | 三格读同一批最近 60 个结果（30 分钟）；删 `WHAT HAPPENED`、`BEAD · LAST N`、`BTC's direction, every 30 seconds`、各块时间脚 `← 15:36 · now →`、`longest run`、`Now ▼ …` |
 | **BEFORE YOU PLAY** 四行 + **I GET IT · START PLAYING** + **How the price and odds are made →** | 免责门 | 见 AR-1 |
 | **HOW IT WORKS** 七段 | RULES 弹层（2026-11-02 改一栏 + 新逻辑） | 1 The price · 2 Open and close · 3 The odds · 4 Payout & fees · 5 Limits & pauses · 6 Your record · 7 Combo vouchers；全文以 `arcadeMarkup.ts` 为准（mock claude.ai/artifact/RdKv8YFovi96fpDbmV4zYF） |
 | **TABLE PAUSED · TAP TO JUMP** / **CRASH · TAP TO RETRY** / **41 · HI 58** | 跑酷 HUD | |
@@ -723,7 +723,7 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 | **margin** | 结果行副文案 `$50 margin` | 筹码值 |
 | **Boost 账户** | 快轮（全部周期）2026-10-09 起为合约，资金走 Boost 账户，页面在 `/trade` | 旧 `/spot` 链接自动跳转 |
 | ① what happened / ② what's happening / ③ decide · drag a chip up or down / ④ your result | 四行步骤标签（10px uppercase） | 单行不换行 |
-| Bead · N / Big road | 路单两块标签 | 术语先保留百家乐原名，合规轮再定 |
+| Bead · in order / Big road · in streaks / Up vs Down · the count | 01 屏三格标签（2026-11-04） | 百家乐原名照旧保留，后半句说明这一格怎么读同一批结果 |
 | `Up ×N in a row` | streak 胶囊（N ≥ 3） | |
 | `You last 10` | 路单右侧统计 | |
 | `OPEN 67,412` · `OPEN · $67,412.00` | 梯子胶囊 / 图上标签 | 价格走 `formatPrice` |

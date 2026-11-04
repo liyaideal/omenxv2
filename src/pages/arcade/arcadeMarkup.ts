@@ -14,7 +14,8 @@
 //   big road / last-30-min cards with time feet · sources under the big price · LIVE TABLE
 //   until the first call, then YOUR CALLS (Open | Settled) · 04 on its own plate ·
 //   voucher chip on 03 · $2–50 chips. (UNDO key removed 2026-11-04: a tap is a call.)
-// James round 2 (CPO 2026-11-04): the voucher chip becomes a meter (ticket · one pip per win · today's total).
+// James round 2 (CPO 2026-11-04): the voucher chip becomes a meter (ticket · one pip per win · today's total);
+//   01 strip = one screen (the same last 30 min, read three ways) with 15:22 / NOW pins (canvas option 2 + 3).
 // The logo plate is the only exit (CPO 2026-10-19: no ✕).
 // ============================================================
 
@@ -25,9 +26,13 @@ const MUTE_BTN = `<button class="key fsbtn mutebtn" id="muteBtn" aria-pressed="f
 
 const HOWTO = `<div class="howto" id="howto" hidden><b>How to read the road</b><span><i class="k">Dragon</i> — one colour stacking down a column: BTC has been going the same way for several 30-second slots. Trend-followers are getting paid.</span><span><i class="k">Chop</i> — colours alternating every cell: the market is flip-flopping. Chasing gets punished; size down or wait.</span><span><i class="k">Break</i> — a long column just switched colour: the direction just changed. Loudest moment, easiest to get shaken out.</span><span class="n">The road is context, not a forecast. Each cell is the same 30-second horizon as your call, so it tells you the market's mood at the horizon you are betting on — nothing more.</span></div>`;
 /** the mobile ROAD & STATS sheet: three cards (last 30 min · big road · bead), same ids as desktop with m_ */
-const ROAD_CARDS = `<div class="scr mcard rs2" id="m_stats"><div class="rshead"><span class="lbl">Last 30 min</span><span class="rslong">longest run <b id="m_longest">—</b></span></div><div class="rsmid"><div class="rsnum"><span class="cu">▲ Up <b id="m_nUp">0</b></span><span class="cd"><b id="m_nDn">0</b> Down ▼</span></div><div class="rsbar"><i id="m_rsBar"></i></div></div><div class="rsfoot"><span id="m_slotLbl">—</span><span class="rsprog"><i id="m_slotProg"></i></span></div></div>
-<div class="scr mcard"><div class="mch"><span class="lbl">Big road <i class="info" id="m_roadI" tabindex="0" role="button" aria-label="How to read the road">i</i></span><span class="msub">BTC's direction, every 30 seconds</span></div><div class="road" id="m_road"></div><div class="mfoot"><span id="m_rax0">←</span><span>now →</span></div></div>
-<div class="scr mcard"><div class="mch"><span class="lbl">Bead</span></div><div class="beads" id="m_bead"></div><div class="mfoot"><span id="m_bax0">←</span><span>now →</span></div></div>`;
+const PANES = (p: string) => `<div class="rpane rstats rs2" id="${p}stats"><div class="rshead"><span class="lbl">Up vs Down <span class="psub">· the count</span></span><span class="rslong">longest streak <b id="${p}longest">—</b></span></div><div class="rsmid"><div class="rsnum"><span class="cu">▲ Up <b id="${p}nUp">0</b></span><span class="op">+</span><span class="cd"><b id="${p}nDn">0</b> Down ▼</span><span class="op">=</span><span class="tot"><b id="${p}nTot">0</b></span></div><div class="rsbar"><i id="${p}rsBar"></i></div></div><div class="rsfoot"><span id="${p}slotLbl">—</span><span class="rsprog"><i id="${p}slotProg"></i></span></div></div>`;
+const BEAD_PANE = (p: string) => `<div class="rpane beadscr"><span class="lbl">Bead <span class="psub">· in order</span></span><div class="pins"><span class="pin a" id="${p}beadFrom">—</span><span class="pin n" id="${p}beadNow">NOW</span><div class="beads" id="${p}bead"></div></div></div>`;
+const ROAD_PANE = (p: string, info: string) => `<div class="rpane roadscr"><span class="rt lbl">Big road <i class="info" id="${info}" tabindex="0" role="button" aria-label="How to read the road">i</i> <span class="psub">· in streaks</span></span><div class="pins"><span class="pin a" id="${p}roadFrom">—</span><span class="pin n" id="${p}roadNow">NOW</span><div class="road" id="${p}road"></div></div></div>`;
+/** the 01 strip as one screen: one head says the window once, three panes read the same 60 results (CPO 2026-11-04) */
+const RHEAD = (p: string) => `<div class="rhead"><b class="rwin">Last 30 min</b><span class="rspan"><span id="${p}spanFrom">—</span> → now</span><span class="rexp"><span id="${p}spanN">0</span> results<span class="rexp-l"> — each dot or box = did BTC go up or down in that 30 seconds</span></span></div>`;
+/** the mobile ROAD & STATS sheet: the same screen, panes stacked (count · big road · bead) */
+const ROAD_CARDS = `<div class="scr rscreen m">${RHEAD("m_")}<div class="rexp m">Each dot or box = did BTC go up or down in that 30 seconds</div><div class="rpanes">${PANES("m_")}${ROAD_PANE("m_", "m_roadI")}${BEAD_PANE("m_")}</div></div>`;
 const HOWTO_M = HOWTO.replace('id="howto"', 'id="m_howto"');
 
 /** combo HUD: COMBO ×N + ⇪ SHARE (no pop-up — the share sheet opens only on tap) + the voucher line */
@@ -94,10 +99,8 @@ export const ARCADE_DESKTOP = `<main>
 
       <!-- row 2 · the table's road (01 / REPLAY) -->
       <div class="r2r steel rivets rr">
-        <div class="scr tagscr"><span class="tag">01 / REPLAY</span><span class="sub">WHAT HAPPENED</span><span class="rkey"><b class="lu">▲ Up</b><b class="ld">▼ Down</b></span></div>
-        <div class="scr beadscr"><span class="lbl">Bead · last <span id="beadN">0</span></span><div class="beads" id="bead"></div><span class="bfoot"><span id="bax0">←</span><span>now →</span></span></div>
-        <div class="scr roadscr"><span class="rt lbl">Big road <i class="info" id="roadI" tabindex="0" role="button" aria-label="How to read the road">i</i> <span class="rsub">· BTC's direction, every 30 seconds</span></span><div class="road" id="road"></div><span class="rs"><span id="rax0">←</span></span><span class="rn">now →</span></div>
-        <div class="scr rstats rs2"><div class="rshead"><span class="lbl">Last 30 min</span><span class="rslong">longest run <b id="longest">—</b></span></div><div class="rsmid"><div class="rsnum"><span class="cu">▲ Up <b id="nUp">0</b></span><span class="cd"><b id="nDn">0</b> Down ▼</span></div><div class="rsbar"><i id="rsBar"></i></div></div><div class="rsfoot"><span id="slotLbl">—</span><span class="rsprog"><i id="slotProg"></i></span></div></div>
+        <div class="scr tagscr"><span class="tag">01 / REPLAY</span><span class="sub">BTC EVERY<br>30 SECONDS</span><span class="rkey"><b class="lu">▲ Up</b><b class="ld">▼ Down</b></span></div>
+        <div class="scr rscreen">${RHEAD("")}<div class="rpanes">${BEAD_PANE("")}${ROAD_PANE("", "roadI")}${PANES("")}</div></div>
         ${HOWTO}
       </div>
 

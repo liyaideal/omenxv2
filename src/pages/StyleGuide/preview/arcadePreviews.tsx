@@ -44,7 +44,8 @@ const PX_AT = (t: number) => {
 };
 
 /** the table's road: 60 wall-clock slots before NOW with a fixed u/d sequence */
-const ROAD_SEQ = "ud uu d uuu dd u d uuuu d uuuuuu u dd uu d u ddd u dd uuu d u udu".replace(/ /g, "");
+// 63 results: a 24/7 table always has a full half hour behind it, so the 01 strip shows its real 60 (CPO 2026-11-04)
+const ROAD_SEQ = "dd uuu d u d ddd uuu d uu d u ud uu d uuu dd u d uuuu d uuuuuu u dd uu d u ddd u dd uuu d u udu".replace(/ /g, "");
 const roadFx: RoadSlot[] = (() => {
   const cur = Math.floor(NOW / 30000) * 30000;
   return ROAD_SEQ.split("").map((c, i) => {

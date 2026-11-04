@@ -29,7 +29,7 @@ const CABINET: SectionCase[] = [
     spec: [
       { state: "免责门", when: "userId && !ack", visual: "钢板盒 + CRT 屏四行 + 黄绿大键；接受后不再弹", source: "arcadeEngine · openGate / data.acceptTerms" },
       { state: "头条", when: "always", visual: "题牌 26px；副题 `Settles on the BTC Index ⓘ`（ⓘ = BTC Index 怎么来的一句话）；`TOTAL OPEN POSITIONS ⓘ` 下 `Current $x / Max $500`（ⓘ = `You can have up to $500 in open calls at once. Room frees up as your calls settle.`）；`AVAILABLE · SPOT` 现货余额", source: "arcadeMarkup · .hbar / renderBoard / TIPS" },
-      { state: "01 路单条", when: "always", visual: "四块同一骨架：标题行 / 内容 / 时间脚。`01 / REPLAY · WHAT HAPPENED` 下图例 `▲ Up ▼ Down`（珠盘和大路共用）；`BEAD · LAST N` 6 列 + `← 07:45 · now →`；`BIG ROAD ⓘ · BTC's direction, every 30 seconds` + `← 07:40 · now →`；`LAST 30 MIN`（最近 60 格）`▲ Up 28 · 32 Down ▼` + 比例条 + `longest run ▼ Down ×7`（按方向着色）+ 脚 `Now ▲ +$10.90 · 7s left` + 本格进度条", source: "renderRoads / slotLoop" },
+      { state: "01 路单条", when: "always", visual: "2026-11-04 起：题牌 `01 / REPLAY · BTC EVERY 30 SECONDS` + 图例 `▲ Up ▼ Down`，右边一整块屏。屏头写一次时间段：`LAST 30 MIN` `15:22 → NOW` · `60 results — each dot or box = did BTC go up or down in that 30 seconds`。下面虚线分三格，读的是同一批最近 60 个结果：`BEAD · in order`（珠盘画满 60 个）/ `BIG ROAD ⓘ · in streaks`（列太多时格子 9 → 7px）/ `UP VS DOWN · the count`（`▲ Up 37 + 23 Down ▼ = 60` + 比例条 + `longest streak ▲ Up ×7` + `This 30s so far ▼ −$7.40 · 13s left` + 本格进度条）。珠盘、大路第一格上方钉起点时间，最新一个结果套白圈、上方钉 `NOW`；大路挤不下时起点钉写它真正的起点。珠盘、大路的点 / 格样子不变", source: "renderRoads / slotLoop" },
       { state: "大价 + 来源", when: "always", visual: "`BTC INDEX` 小标 + 白色大价 + 上一秒涨跌 ▲▼；下一行 `FROM Binance $x · Hyperliquid $x · Coinbase $x`（某家缺 → `—`，指数无效整行红）；自己没单时再一行 `▲ +$136.86 in the last 30s`", source: "renderPriceBig / renderPrice" },
       { state: "预览线", when: "自己没有开着的单（或 hover 一个键）", visual: "从现价往右 30 秒一条白虚线，终点竖线 + 旗 `if you call now · settles here`", source: "draw()" },
       { state: "右栏 · LIVE TABLE", when: "这一场还没下过单", visual: "`LIVE TABLE N · everyone's open calls` + `▲ UP · n $x` / `▼ DOWN · n $x` + 别人的匿名单 + 底部虚线框 `Tap UP or DOWN to start — your calls and results show here`；04 不显示", source: "renderRail / renderTable" },
@@ -163,7 +163,7 @@ const MORE_MOB: SectionCase[] = [
     key: "arcade-ar10",
     label: "AR-10 · 移动版 · ROAD & STATS 抽屉打开",
     spec: [
-      { state: "抽屉", when: "点窥条", visual: "钢板 sheet：标题行右侧图例 `▲ Up ▼ Down` → 三张卡（LAST 30 MIN · BIG ROAD ⓘ · BEAD，各带时间脚）→ SESSION / LAST 10 / ⇪ SHARE → SETTLED → 猞猁 + 气泡（`▼ Down 4 boxes in a row — a streak is running.` / `Flip-flopping …` / `Mostly ▲ Up lately …` / `Mixed …`）", source: "sheetOpen / renderRoads / roadSay" },
+      { state: "抽屉", when: "点窥条", visual: "钢板 sheet：标题行右侧图例 `▲ Up ▼ Down` → 一整块屏（2026-11-04）：屏头 `LAST 30 MIN 15:22 → NOW · 60 results` + 第二行 `Each dot or box = did BTC go up or down in that 30 seconds` → 虚线分三格 UP VS DOWN · BIG ROAD ⓘ · BEAD（同一批 60 个，带首尾钉）→ SESSION / LAST 10 / ⇪ SHARE → SETTLED → 猞猁 + 气泡（`▼ Down 4 times in a row — a streak is running.` / `Flip-flopping for the last 6 …` / `Mostly ▲ Up lately — 14 of the last 20.` / `Mixed — 10 up, 10 down in the last 20.`）", source: "sheetOpen / renderRoads / roadSay" },
     ],
   },
   {

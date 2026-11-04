@@ -536,49 +536,71 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     });
     return { cells, cols: cells.length ? cells[cells.length - 1].c + 1 : 0 };
   }
+  /** the 01 strip shows ONE window on all three cards (James / CPO 2026-11-04: the bead, the big road and the
+      count used to start at three different times) — the last 30 minutes = the last 60 results */
+  const WIN = 60;
   function renderRoads(newest?: boolean) {
     const hist: RoadCell[] = S.hist,
       n = hist.length;
     const tOf = (i: number) => (S.histInfo[i] ? (S.histInfo[i] as RoadSlotInfo).t : 0);
+    const off = Math.max(0, n - WIN),
+      hw = hist.slice(off);
     for (const pre of ["", "m_"]) {
       const b = $("#" + pre + "bead");
       if (!b) continue;
-      // desktop: a 6-column bead plate; the phone sheet card fills its width
-      const colsB = pre ? Math.max(6, Math.floor((b.clientWidth + 2) / 11)) : 6;
-      const from = Math.max(0, Math.ceil((n + 1) / 6) - colsB) * 6;
-      b.innerHTML = hist.slice(from).map((x, i) => `<span class="bead ${x}${newest && from + i === n - 1 ? " pop" : ""}" data-i="${from + i}"></span>`).join("") + '<span class="bead ghost"></span>';
-      const bn = $("#" + pre + "beadN");
-      if (bn) bn.textContent = String(n - from);
-      const bx = $("#" + pre + "bax0");
-      if (bx) bx.textContent = n && tOf(from) ? "← " + hhmm(tOf(from)) : "←";
+      // the bead: all of the window, 6 a column (desktop grows to 10 columns)
+      b.innerHTML = hw.map((x, i) => `<span class="bead ${x}${i === hw.length - 1 ? " last" : ""}${newest && off + i === n - 1 ? " pop" : ""}" data-i="${off + i}"></span>`).join("") + '<span class="bead ghost"></span>';
+      // the screen head says the window once (CPO 2026-11-04): Last 30 min · 15:22 → now · 60 results
+      const from = hw.length && tOf(off) ? hhmm(tOf(off)) : "—";
+      const sf = $("#" + pre + "spanFrom");
+      if (sf) sf.textContent = from;
+      const sn = $("#" + pre + "spanN");
+      if (sn) sn.textContent = String(hw.length);
+      // the big road: the same window; cells shrink (9 → 7 px) before the oldest columns would have to go
       const rd = $("#" + pre + "road"),
-        { cells, cols } = buildRoad(hist);
-      const fit = Math.max(6, Math.floor((rd.clientWidth + 2) / 11)),
+        { cells, cols } = buildRoad(hw);
+      const wide = (rd.clientWidth + 2) / 11 >= cols;
+      rd.classList.toggle("tight", !wide);
+      const pitch = wide ? 11 : 9;
+      const fit = Math.max(6, Math.floor((rd.clientWidth + 2) / pitch)),
         first = Math.max(0, cols - fit);
       const vis = cells.filter((q) => q.c >= first);
-      rd.innerHTML = vis.map((q) => `<span class="cell ${q.s}${newest && q.i === n - 1 ? " pop" : ""}" data-i="${q.i}" style="grid-column:${q.c - first + 1};grid-row:${q.r + 1}"></span>`).join("");
-      const ax = $("#" + pre + "rax0");
-      if (ax) {
-        const i0 = vis.length ? Math.min(...vis.map((q) => q.i)) : 0;
-        ax.textContent = vis.length && tOf(i0) ? "← " + hhmm(tOf(i0)) : "←";
+      rd.innerHTML = vis.map((q) => `<span class="cell ${q.s}${q.i === hw.length - 1 ? " last" : ""}${newest && off + q.i === n - 1 ? " pop" : ""}" data-i="${off + q.i}" style="grid-column:${q.c - first + 1};grid-row:${q.r + 1}"></span>`).join("");
+      // pins (canvas option 3): the first mark of the bead and of the road is pinned with the window's start, the latest
+      // result is ringed and pinned NOW. Only a market flipping every 30 s for the whole half hour pushes the road's
+      // oldest columns out — then its start pin says where the road really starts.
+      const i0 = first && vis.length ? Math.min(...vis.map((q) => q.i)) : 0;
+      const rf = $("#" + pre + "roadFrom");
+      if (rf) rf.textContent = !first ? from : tOf(off + i0) ? hhmm(tOf(off + i0)) : "—";
+      const bf = $("#" + pre + "beadFrom");
+      if (bf) bf.textContent = from;
+      for (const [box, pin] of [[b, "#" + pre + "beadNow"], [rd, "#" + pre + "roadNow"]] as [HTMLElement, string][]) {
+        const last = box.querySelector(".last") as HTMLElement | null,
+          pn = $(pin);
+        if (!pn) continue;
+        pn.hidden = !last;
+        // centre NOW over the latest mark, kept inside the pane
+        if (last) pn.style.left = Math.max(0, Math.min(box.clientWidth - 30, last.offsetLeft + last.offsetWidth / 2 - 15)) + "px";
       }
-      // LAST 30 MIN = the last 60 cells
-      const h60 = hist.slice(-60);
-      const nu = h60.filter((x) => x === "u").length;
+      // the count: the same window
+      const nu = hw.filter((x) => x === "u").length;
       $("#" + pre + "nUp").textContent = String(nu);
-      $("#" + pre + "nDn").textContent = String(h60.length - nu);
+      $("#" + pre + "nDn").textContent = String(hw.length - nu);
       const bar = $("#" + pre + "rsBar");
-      if (bar) bar.style.width = (h60.length ? (nu / h60.length) * 100 : 50) + "%";
+      if (bar) bar.style.width = (hw.length ? (nu / hw.length) * 100 : 50) + "%";
+      const nt = $("#" + pre + "nTot");
+      if (nt) nt.textContent = String(hw.length);
+      // longest streak inside the same window (it used to scan the whole hour)
       let best = { s: "u", n: 0 },
-        cur = { s: hist[0], n: 0 };
-      for (const x of hist) {
+        cur = { s: hw[0], n: 0 };
+      for (const x of hw) {
         cur = cur.s === x ? { s: x, n: cur.n + 1 } : { s: x, n: 1 };
         if (cur.n > best.n) best = { ...cur };
       }
       const lg = $("#" + pre + "longest");
       if (lg) {
-        lg.textContent = n ? (best.s === "u" ? "▲ Up" : "▼ Down") + " ×" + best.n : "—";
-        lg.style.color = n ? (best.s === "u" ? "var(--up)" : "var(--lime)") : "";
+        lg.textContent = hw.length ? (best.s === "u" ? "▲ Up" : "▼ Down") + " ×" + best.n : "—";
+        lg.style.color = hw.length ? (best.s === "u" ? "var(--up)" : "var(--lime)") : "";
       }
     }
     const pk = $("#mPeekRoad");
@@ -601,13 +623,13 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     let alt = 1;
     for (let i = hist.length - 1; i > 0 && hist[i] !== hist[i - 1]; i--) alt++;
     const dir = hist[hist.length - 1] === "u" ? '<b class="cu">▲ Up</b>' : '<b class="cd">▼ Down</b>';
-    if (run >= 4) return `${dir} ${run} boxes in a row — a streak is running.`;
-    if (alt >= 5) return `Flip-flopping for ${alt} boxes — no clear direction.`;
+    if (run >= 4) return `${dir} ${run} times in a row — a streak is running.`;
+    if (alt >= 5) return `Flip-flopping for the last ${alt} — no clear direction.`;
     const h = hist.slice(-20),
       u = h.filter((x) => x === "u").length;
-    if (u >= 13) return `Mostly <b class="cu">▲ Up</b> lately — ${u} of the last ${h.length} boxes.`;
-    if (h.length - u >= 13) return `Mostly <b class="cd">▼ Down</b> lately — ${h.length - u} of the last ${h.length} boxes.`;
-    return `Mixed — ${u} up, ${h.length - u} down in the last ${h.length} boxes.`;
+    if (u >= 13) return `Mostly <b class="cu">▲ Up</b> lately — ${u} of the last ${h.length}.`;
+    if (h.length - u >= 13) return `Mostly <b class="cd">▼ Down</b> lately — ${h.length - u} of the last ${h.length}.`;
+    return `Mixed — ${u} up, ${h.length - u} down in the last ${h.length}.`;
   }
   function slotLoop() {
     const w = now();
@@ -623,7 +645,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     }
     const up = S.slotOpen == null || S.price >= S.slotOpen;
     const mv = S.slotOpen != null && S.price ? `<b class="${up ? "cu" : "cd"}">${up ? "▲ +$" : "▼ −$"}${Math.abs(S.price - S.slotOpen).toFixed(2)}</b>` : "<b>—</b>";
-    const html = `Now ${mv} · ${Math.max(0, Math.ceil((cur + SLOT - w) / 1000))}s left`;
+    // the 30 seconds being counted right now (James 2026-11-04: "Now" read as unrelated to the cards above)
+    const html = `This 30s so far ${mv} · ${Math.max(0, Math.ceil((cur + SLOT - w) / 1000))}s left`;
     for (const pre of ["", "m_"]) {
       const e = $("#" + pre + "slotLbl");
       if (e && e.innerHTML !== html) e.innerHTML = html;
