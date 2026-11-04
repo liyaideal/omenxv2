@@ -212,6 +212,12 @@ const TIPS: Record<string, string> = {
 const money = (n: number) => "$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const signed = (n: number) => (n < 0 ? "−" : "+") + money(n);
 const whole = (n: number) => "$" + Math.round(Math.abs(n)).toLocaleString("en-US");
+/** the daily voucher reset (00:00 UTC) in the player's own clock, 24h, no zone suffix (Lite: never show a time zone; CPO 2026-11-04) */
+const resetLocal = () => {
+  const d = new Date();
+  d.setUTCHours(24, 0, 0, 0);
+  return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+};
 const cents = (p: number) => (p * 100).toFixed(1) + "¢";
 const clip = (x: number, a: number, b: number) => Math.max(a, Math.min(b, x));
 const SIDE = (x: Side) => (x === "u" ? "Up" : "Down");
@@ -1134,7 +1140,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       h = mobile ? `${TICKET}${pips}<span class="vtx"><b>+${face}</b> · ${whole(v)} / ${whole(cap)} ›</span>` : `${TICKET}${pips}<span class="vtx"><b>+${face} voucher</b> · it's in your Vouchers</span>${today}`;
     } else if (maxed) {
       st = "max";
-      h = mobile ? `${TICKET}<span class="vtx"><b>${whole(cap)}</b> claimed today</span>` : `${TICKET}<span class="vtx">Today's <b>${whole(cap)}</b> of vouchers claimed · more from 00:00 UTC</span>`;
+      h = mobile ? `${TICKET}<span class="vtx"><b>${whole(cap)}</b> claimed today</span>` : `${TICKET}<span class="vtx">Today's <b>${whole(cap)}</b> of vouchers claimed · more from ${resetLocal()}</span>`;
     } else {
       st = "";
       h = mobile ? `${TICKET}${pips}<span class="vtx"><b>${whole(v)}</b> / ${whole(cap)} today ›</span>` : `${TICKET}${pips}<span class="vtx"><b>${left} more win${left > 1 ? "s" : ""}</b> → ${face} voucher</span>${today}`;
@@ -2265,6 +2271,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   /* ---------- gate + rules + how-to ---------- */
   const gate = $("#gate"),
     rules = $("#rules");
+  $$(".vreset").forEach((e) => (e.textContent = resetLocal()));
   function openGate(o: boolean) {
     if (!gate) return;
     gate.hidden = !o;
