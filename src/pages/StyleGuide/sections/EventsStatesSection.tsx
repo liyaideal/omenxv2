@@ -180,6 +180,7 @@ const SPORTS_CASES: SectionCase[] = [
       { state: "抢七盘已决", when: "sport === \"tennis\" && 该盘 7–6/6–7 且带括号点数", visual: "`5–7, 7–6², 2–1`——输方数字后上标输方点数；上标 = 主字号 ×0.5 / 600 / top −(主字号 ×0.35) / opacity .85", source: "TennisScoreText" },
       { state: "抢七进行中", when: "sport === \"tennis\" && 最后一盘 6–6", visual: "比分串写 `6–6`（点数不进列表），联赛行追加橙色 ` · Tiebreak`（#FF8A3D）", source: "isTennisTiebreakLive" },
       { state: "网球主字号", when: "sport === \"tennis\"", visual: "列表卡 32→26、舞台卡 24→20、移动卡 20→16；行内场景（Home / Calendar）不缩", source: "MatchScoreText tennisBase" },
+      { state: "移动卡球员名", when: "MobileSportsModule Playing now", visual: "队徽 26、间距 6 / 8，`Prozorova` / `Costoulas` 完整显示不截断；多词长名放不下折两行，卡高保持 148（CPO 2026-11-04）", source: "MobileSportsModule LiveMatchCard" },
       { state: "非网球", when: "sport !== \"tennis\"", visual: "原样 `1 – 0`，零变化", source: "MatchScoreText" },
       { state: "解析失败", when: "parseTennisScore(score) === null", visual: "回退原串", source: "TennisScoreText" },
     ],

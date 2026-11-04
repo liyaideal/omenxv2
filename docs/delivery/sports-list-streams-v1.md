@@ -118,4 +118,4 @@
 - 本节新增界面文案（区头、`Remind me`、倒计时 lead 等）目前只有英文，与同页既有 `Playing now` 一致；通知文案已有 7 语。
 - 首页 Sports 模块的 `Watch live` / `Stream at kickoff` 芯片不变（`HomeSportsCard`）；三种直播入口已抽成公共组件 `src/components/lite/sports/streamChips.tsx`。
 - Lovable 演示库同时只有一场「直播中且有流」的比赛，生产页看不到多路切换；切换条的样子以字典 EV-37 / 37b 为准。
-- 同日追加：手机列表未开赛卡的长比赛名折成两行、不再用省略号（DESIGN §Addendum 2026-11-04 第 13 条，字典 EV-42 手机帧）；功能入口要登录统一走公共登录开关（第 14 条）。
+- 同日追加：手机列表未开赛卡的长比赛名折成两行、不再用省略号；手机 Playing now 卡队徽 30→26、间距收紧，网球长比分串旁的球员名不再被截（卡高不变，多词长名才折两行）（DESIGN §Addendum 2026-11-04 第 13 条，字典 EV-9t / EV-42 手机帧）；功能入口要登录统一走公共登录开关（第 14 条）。

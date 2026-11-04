@@ -334,10 +334,13 @@ const LiveMatchCard = ({ match }: { match: SportsMatch }) => {
         </span>
       </div>
 
-      <div className="flex items-center" style={{ gap: 10 }}>
-        <span className="flex min-w-0 flex-1 items-center" style={{ gap: 8 }}>
-          <Crest abbr={match.homeAbbr} size={30} />
-          <span className="truncate" style={{ fontSize: 13, color: "#fff", fontWeight: 600 }} title={match.home}>
+      {/* Names are identity: crest 26 / gaps 6–8 leave the name room next to a wide
+          tennis set string; a multi-word name that still doesn't fit wraps to two
+          lines (never ellipsis). Cards whose names fit keep their height. */}
+      <div className="flex items-center" style={{ gap: 8, minHeight: 30 }}>
+        <span className="flex min-w-0 flex-1 items-center" style={{ gap: 6 }}>
+          <Crest abbr={match.homeAbbr} size={26} />
+          <span className="line-clamp-2 min-w-0" style={{ fontSize: 13, lineHeight: 1.2, color: "#fff", fontWeight: 600 }} title={match.home}>
             {match.homeShort || match.home}
           </span>
         </span>
@@ -356,12 +359,12 @@ const LiveMatchCard = ({ match }: { match: SportsMatch }) => {
         </span>
         <span
           className="flex min-w-0 flex-1 items-center justify-end"
-          style={{ gap: 8 }}
+          style={{ gap: 6 }}
         >
-          <span className="truncate" style={{ fontSize: 13, color: "#fff", fontWeight: 600 }} title={match.away}>
+          <span className="line-clamp-2 min-w-0 text-right" style={{ fontSize: 13, lineHeight: 1.2, color: "#fff", fontWeight: 600 }} title={match.away}>
             {match.awayShort || match.away}
           </span>
-          <Crest abbr={match.awayAbbr} size={30} />
+          <Crest abbr={match.awayAbbr} size={26} />
         </span>
       </div>
 
