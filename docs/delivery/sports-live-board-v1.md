@@ -19,7 +19,7 @@
 | 位置 | 用户看到什么 | 组件 |
 |---|---|---|
 | 首页 `/` 的 Sports 模块 | 正在打的比赛是一张亮橙边的卡，带比分和一枚 `Watch live`；还没开打但有直播源的带一枚 `Stream at kickoff` | `HomeSportsCard` |
-| 赛事列表 `/events` | 每场比赛一行，只有「谁赢」这一个市场 | `SportsStageCard` / 列表行 |
+| Sports 品类页 `/events?sector=sports` | 顶部：直播舞台（有直播的正在打比赛）→ 直播预告排（48 小时内会直播）→ 其他正在打的比赛；下面每场比赛一行，只有「谁赢」这一个市场。**2026-11-04 起直播与预告的展示见 `sports-list-streams-v1.md`** | `LiteSportsView`（桌面）/ `MobileSportsModule`（手机） |
 | 交易页 `/trade?event={id}` | 从上往下三块：**直播画面 → 记分牌 → 分段盘口板** | `LiveStage` / `LiveMatchboard` / `LiteContractTrade` 的分段板 |
 
 交易页那三块是这个特性的主体，下面 §4 §5 §6 分别讲。三块共用同一份比赛数据，**同一个数字只有一处实现**（§4 末尾的红线）。
@@ -256,7 +256,8 @@
 ## §8 首页与列表
 
 - **首页 Sports 模块**：正在打的比赛是一张**橙色描边**的卡，带比分（中间是短横 `–`，等宽数字对齐）和一枚**实心橙** `Watch live` 芯片，点进去直达带直播的交易页。还没开打但有直播源的比赛，带一枚**描边**的 `Stream at kickoff`。实心表示「现在能点」，描边表示「只是状态」。
-- **赛事列表 `/events`**：每场比赛只出现「谁赢」一行。子市场不外泄，见 §2.2。
+- **Sports 品类页列表**：每场比赛只出现「谁赢」一行。子市场不外泄，见 §2.2。有直播的未开赛比赛行带描边 `Stream at kickoff`。
+- **Sports 品类页顶部的直播与预告**（2026-11-04 追加）：直播舞台 + 预告排 + Remind me，全部规则见 [`sports-list-streams-v1.md`](./sports-list-streams-v1.md)。
 
 ## §9 常驻演示赛事（运维必读）
 

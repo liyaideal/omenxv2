@@ -281,6 +281,49 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 
 ---
 
+## Sports 列表 · 直播与预告（Sports 品类页，2026-11-04）
+
+规则与视觉：DESIGN §Addendum 2026-11-04；字典 Events 列表 ⑥b EV-36…EV-45；交付 `docs/delivery/sports-list-streams-v1.md`。
+
+### 概念
+
+| 词 | 一句定义 | 判定表达式 | 出处 |
+|---|---|---|---|
+| **直播（on stream）** | 正在打、并且我们有直播画面的比赛 | `isFixtureLive(e) && metadata.stream_url` 非空 | `LiteSportsView` / `MobileSportsModule` `streamed` |
+| **直播预告（stream preview）** | 还没开赛、会直播、48 小时内开赛的比赛 | `!live && stream_url && 0 < kickoff − now ≤ 48h`（`PREVIEW_WINDOW_MS`），按开赛时间升序，不设上限 | `upcomingStreams()` |
+| **kickoff** | 开赛时间 | `metadata.kickoff_at`，没有时回落 `events.start_date` | `sportsData` / `notify_stream_reminders()` |
+| **提醒（stream reminder）** | 用户在某场预告上点了 Remind me；开赛时变成一条通知 | `stream_reminders(user_id, event_id)` 一行；到点 = kickoff 已过且在 30 分钟内、未结算、仍有 `stream_url` | `useStreamReminders` / `notify_stream_reminders()` |
+
+### 文案
+
+| Canonical | 出现位置 / 规则 |
+|---|---|
+| **Live on stream · n** | 直播舞台区头（红点 LivePulse），n = 有直播的正在打比赛数 |
+| **LIVE** | 舞台视频左上橙底角标；只写 LIVE，不写时钟 |
+| **Live streams · n** | 舞台切换条区头（多于一路时出现） |
+| `ARS 1 – 0 RMA` + `63'` | 切换标签：主队缩写 比分 客队缩写 + 比赛时钟（`liveLabel` 优先，否则 `minute'`） |
+| **`$4.2M traded`** | 舞台右栏底行成交额（`compactVolume`） |
+| **Open match →** | 舞台右栏底行，进交易页 |
+| **Coming up on stream · n** + **Next 48 hours** | 预告排区头 |
+| **Stream** | 海报左上描边胶囊 |
+| **Stream starts in** / **Stream starts** | 海报倒计时 lead：< 24h 用 in，≥ 24h 用 starts |
+| `37:53` / `5h 20m` / `Tomorrow 19:14` | 倒计时值：< 1h 秒级跳、橙色；1–24h；≥ 24h 写开赛时间（`streamCountdown`） |
+| `Today 12:55` / `Tmrw 10:15` / `Fri 19:15` | 预告卡 meta 行开赛时间（`kickoffShort`） |
+| **Remind me** / **Reminder set** | 预告卡按钮未设 / 已设；再点取消 |
+| **Couldn't update the reminder** · `Please try again.` | 写库失败 toast（乐观更新已回滚） |
+| **Playing now · n** | 正在打、没有直播的比赛区头 |
+| **Stream at kickoff** | 列表行描边芯片：有直播的未开赛比赛（含 48h 内与之外） |
+
+### helper 家族（`src/components/lite/sports/UpcomingStreams.tsx`，成对入典）
+
+| 函数 | 作用 |
+|---|---|
+| `upcomingStreams(rows, now)` | 预告集合（判定见上） |
+| `streamCountdown(kickoff, now)` | 海报倒计时 `{ lead, value, soon }` |
+| `kickoffShort(kickoff, now)` | 卡片 meta 行短开赛时间 |
+| `useNowTick(frozen?)` | 每秒刷新的时钟；字典传冻结时钟 |
+| `chipLabel(m, label, i)` | 预告卡按钮名：首 = 主队缩写、末 = 客队缩写、中间原样 |
+
 ## Sports live stage (`/trade` 直播舞台，2026-09-01)
 
 | Canonical | 出现位置 / 规则 |
@@ -293,8 +336,8 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | **In review · result pending** | `LiveMatchboard.ReviewBadge` — FINISHED 态桌面右侧 |
 | **Scorecards sealed until the decision** | `LiveMatchboard` — MMA 专用，live / break 态 |
 | **Watch** | `LiveMatchboard` 顶栏按钮，唤回被收起的舞台 |
-| **Watch live** | `HomeSportsCard` 实心橙芯片，有流的 live 卡 |
-| **Stream at kickoff** | `HomeSportsCard` 描边芯片，赛前有流 |
+| **Watch live** | `HomeSportsCard` 实心橙芯片，有流的 live 卡（仅首页；Sports 品类页的直播进舞台，见「Sports 列表 · 直播与预告」） |
+| **Stream at kickoff** | `HomeSportsCard` 描边芯片，赛前有流；Sports 品类页列表行同款 |
 | **Back to stage** | `LiveStage` 迷你窗回舞台 |
 | 比分分隔符 | en dash `–`（U+2013），Space Grotesk + `tabular-nums` |
 
@@ -1177,6 +1220,7 @@ icon · 色 列与 `src/lib/notifications.ts` NOTIFICATION_TYPES 同源，渲染
 | Updates | `system.campaign_live` | `Gift` primary | campaigns → live（广播全员，v2） | `New campaign: {{campaign}}` | `{{task}}{{ends}}`（`ends` = ` · ends Oct 31, 23:59`，无 ends_at 省略） | `/rewards/campaign/:id` | ✓ |
 | Updates | `system.campaign_ending` | `Hourglass` yellow | 活动结束前 24h（cron，只给参与者，v2） | `{{campaign}} ends in 24h` | `claim before {{deadline}}` | `/rewards/campaign/:id` | ✓ |
 | Updates | `system.watchlist_live` | `Star` primary | 星标赛事到开赛时间（cron，v2） | `{{event}} is live` | `a starred event just opened · tap to trade` | `/trade?event=` | ✓ |
+| Updates | `system.stream_live` | `Tv` primary | Sports 列表预告点了 Remind me，开赛后 30 分钟内（cron 每分钟，2026-11-04） | `{{event}} stream is live` | `the stream you asked to be reminded about just started · tap to watch and trade` | `/trade?event=` | ✓ |
 
 插值格式（`lib/notifications.ts notificationVars()`）：`{{pnl}}` / `{{net}}` = `signedUsd()`（`+$38.20` / `−$25.00`，U+2212）；`{{cost}}` / `{{amount}}` = `$1,234.56`；`{{face}}` = `faceUsd()`（整数无小数 `$25`）；`{{side}}` = `legTitle(resolveLegSide(option_label, side, side_labels))`（Yes / No / Up / Down / 别名）；`{{boost}}` = `` / ` · 2× Boost`（1× 不显示，与 `boostSuffix()` 同规则）；`{{ratio}}` = `83%`；`{{deadline}}` = `notifDeadline()` `Oct 14, 09:00`；`{{kind}}` = `Voucher` / `USDC`；`{{account}}` = `Standard Account` / `Boost Account`；`{{where}}` = `device · location`（空项省略）。未知 type → 标题 = 原样 type，无正文。
 

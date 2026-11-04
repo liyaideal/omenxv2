@@ -291,3 +291,12 @@
 | `arcade_sim_feed` 每 2 秒模拟 tick、`arcade_synth_tick` 补合成 tick、`arcade_always_on` 阈值拨开、`arcade_housekeeping`、`arcade_probe` / `arcade_stall_probe`、`arcade_feed_req` | 🔴 演示专用 | 正式版禁止参考；Lovable 小实例跑不动真取价才改的（quick-play-v1 §3.2） |
 | 站内其他页 BTC 价锚指数（`roll_arcade_rounds` → `arcade_real_btc()`）；`arcade_rounds` 旧轮次流 | 🔴 演示专用 | 正式版各页读同一行情服务 |
 | 钱包流水 description（`Quick Play fee · 3% · …` 等六种） | 🟢 A | 文案照抄（词典） |
+
+## 2026-11-04 Sports 列表 · 直播提醒（append-only 补录）
+
+| 项 | 标记 | 说明 |
+|---|---|---|
+| `stream_reminders` 表（`user_id` × `event_id` 主键、`created_at`、`notified_at`），RLS 只读写本人行 | 🟡 B | "一人一场一条、可取消、游客不能设"是需求；存储自选 |
+| `notify_stream_reminders()` cron 每分钟：kickoff（`metadata.kickoff_at`，否则 `start_date`）已过且在 30 分钟内、未结算、仍有 `stream_url` → `notify(…, 'system.stream_live', …, dedupe 'stream:<event_id>')` + 盖 `notified_at`；过了 30 分钟没发的直接盖章不补发 | 🟡 B | "开播时提醒、只提醒一次、不迟发"是需求；正式版由提醒服务按直播开始事件推（不必轮询） |
+| `metadata.stream_url`（HLS `.m3u8`） | 🔴 演示专用 | Lovable 用 mux 测试流种在演示赛事上；正式版由直播源服务提供，CPO 口径「LoL 与大的足球比赛都有直播」 |
+| 演示：alex 一条待开播提醒（`sp-ucl-mci-int`）+ 一条已发出的 `system.stream_live`（`demo-live-cs2`）——`supabase/migrations/20261104130500_stream_demo_seed.sql` | 🔴 演示专用 | 清理 SQL 写在文件尾 |
