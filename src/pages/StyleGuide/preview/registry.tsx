@@ -369,6 +369,10 @@ export const previewRegistry: Record<string, Loader> = {
   "trade-tr27b": pick(trade, "Tr27bPreview"),
   "trade-tr27c": pick(trade, "Tr27cPreview"),
   "trade-tr28": pick(trade, "Tr28Preview"),
+  "trade-tr29": pick(trade, "Tr29Preview"),
+  "trade-tr29b": pick(trade, "Tr29bPreview"),
+  "trade-tr29c": pick(trade, "Tr29cPreview"),
+  "trade-tr29d": pick(trade, "Tr29dPreview"),
   "trade-tr19": pick(trade, "Tr19Preview"),
   "trade-tr20": pick(trade, "Tr20Preview"),
   "trade-tr21": pick(trade, "Tr21Preview"),
@@ -449,6 +453,8 @@ export const previewRegistry: Record<string, Loader> = {
   "event-selector-favorites-empty": pick(eventSelector, "EventSelectorFavoritesEmpty"),
   "event-selector-search-empty": pick(eventSelector, "EventSelectorSearchEmpty"),
   "event-selector-drawer": pick(eventSelector, "EventSelectorDrawer"),
+  "event-selector-sports": pick(eventSelector, "EventSelectorSports"),
+  "event-selector-drawer-sports": pick(eventSelector, "EventSelectorDrawerSports"),
 
   /* -------- SL-P · fixture market row (Pro terminal) -------- */
   "pro-market-row-esports": pick(marketRow, "MarketRowEsports"),

@@ -28,6 +28,8 @@ export interface SportsMatch {
   kickoff: Date | null;
   endDate: Date | null;
   live: boolean;
+  /** Finished per the feed (or the watchdog), result not settled yet — In review. */
+  final?: boolean;
   minute: number | null;
   phase: string | null;
   /** metadata.score — 供应商比分串。网球串形如 `5-7, 7-6(7-2), 6-6`，展示前必须经 tennisScore formatter，禁止原样渲染。 */
@@ -78,6 +80,12 @@ interface RawMeta {
   outs?: number | null;
   possession?: string | null;
   stream_url?: string | null;
+  /**
+   * Match status from the sports data feed (CPO 2026-11-04): the ONLY source
+   * for "has this match finished". `end_date` is an estimate and never ends a
+   * match, closes trading or drives a countdown. Absent ⇒ derived (below).
+   */
+  match_status?: "scheduled" | "live" | "final" | "postponed" | "cancelled" | null;
 }
 
 export type FixtureMeta = RawMeta;
@@ -87,32 +95,65 @@ export const fixtureMeta = (e: { metadata?: unknown } | null | undefined): Fixtu
   ((e?.metadata as FixtureMeta | null) || {}) as FixtureMeta;
 
 /**
- * Single source of truth for "is this fixture in play".
- * `metadata.live` is engine debug output and is never read by the UI.
+ * Sports fixture phase (CPO 2026-11-04 · "比赛打没打完只看比赛状态"):
+ *   settled   is_resolved
+ *   final     lifecycle REVIEW, or match_status final / cancelled, or the
+ *             watchdog (still not over 3h after the estimated end — the feed
+ *             probably went quiet; stop trading, show In review)
+ *   upcoming  match_status scheduled / postponed, or kickoff still ahead
+ *   live      everything else after kickoff — including past the estimated end
+ * `end_date` only feeds the watchdog. Rows without a kickoff are not fixtures.
  */
-export const isFixtureLive = (
-  e:
-    | {
-        start_date?: string | null;
-        end_date?: string | null;
-        is_resolved?: boolean | null;
-        metadata?: unknown;
-      }
-    | null
-    | undefined,
-  now: number = Date.now(),
-): boolean => {
-  if (!e || e.is_resolved) return false;
+export const SPORTS_WATCHDOG_MS = 3 * 3_600_000;
+export type MatchPhase = "upcoming" | "live" | "final" | "settled";
+
+type PhaseInput = {
+  start_date?: string | null;
+  end_date?: string | null;
+  is_resolved?: boolean | null;
+  lifecycle_status?: string | null;
+  metadata?: unknown;
+  /** TradingEvent spellings (useEvents). */
+  endTime?: Date | null;
+  isResolved?: boolean | null;
+  lifecycle?: string | null;
+};
+
+/** True for sports fixtures (and their handicap / total / map siblings). */
+export const isSportsFixture = (e: { metadata?: unknown } | null | undefined) => !!fixtureMeta(e).kickoff_at;
+
+export const fixtureKickoffMs = (e: PhaseInput | null | undefined): number => {
   const meta = fixtureMeta(e);
-  const kickoff = meta.kickoff_at
+  return meta.kickoff_at
     ? new Date(meta.kickoff_at).getTime()
-    : e.start_date
+    : e?.start_date
       ? new Date(e.start_date).getTime()
       : NaN;
-  const end = e.end_date ? new Date(e.end_date).getTime() : NaN;
-  if (!Number.isFinite(kickoff) || !Number.isFinite(end)) return false;
-  return kickoff <= now && now < end;
 };
+
+export const matchPhase = (e: PhaseInput | null | undefined, now: number = Date.now()): MatchPhase | null => {
+  if (!e) return null;
+  if (e.is_resolved || e.isResolved) return "settled";
+  const lifecycle = e.lifecycle_status ?? e.lifecycle ?? null;
+  if (lifecycle === "REVIEW") return "final";
+  const status = fixtureMeta(e).match_status ?? null;
+  if (status === "final" || status === "cancelled") return "final";
+  const kickoff = fixtureKickoffMs(e);
+  if (!Number.isFinite(kickoff)) return null;
+  if (status === "scheduled" || status === "postponed") return "upcoming";
+  if (status !== "live" && kickoff > now) return "upcoming";
+  const end = e.endTime ? e.endTime.getTime() : e.end_date ? new Date(e.end_date).getTime() : NaN;
+  if (Number.isFinite(end) && now > end + SPORTS_WATCHDOG_MS) return "final";
+  return "live";
+};
+
+/**
+ * Single source of truth for "is this fixture in play" — the match phase,
+ * never the estimated end time. `metadata.live` is engine debug output and is
+ * never read by the UI.
+ */
+export const isFixtureLive = (e: PhaseInput | null | undefined, now: number = Date.now()): boolean =>
+  matchPhase(e, now) === "live";
 
 
 /**
@@ -359,7 +400,7 @@ export const groupSegmentedMarkets = <T extends { id?: string; metadata?: unknow
 
 /** Live matches age their own clock off the kickoff timestamp. */
 /** 列表卡的 live 分钟。足球钳在 90（常规时间）；其他运动没有 90 分钟这回事，按真实已进行分钟显示。 */
-const liveMinute = (kickoff: Date | null, sport: string | null | undefined): number | null => {
+export const liveMinute = (kickoff: Date | null, sport: string | null | undefined): number | null => {
   if (!kickoff) return null;
   const m = Math.floor((Date.now() - kickoff.getTime()) / 60_000);
   const cap = (sport || "soccer") === "soccer" ? 90 : Number.POSITIVE_INFINITY;
@@ -383,7 +424,7 @@ export const useSportsMatches = () => {
       const { data } = await supabase
         .from("events")
         .select(
-          "id, name, start_date, end_date, volume, metadata, event_options(id, label, price)",
+          "id, name, start_date, end_date, volume, metadata, lifecycle_status, event_options(id, label, price)",
         )
         .eq("event_subtype", SPORTS_SUBTYPE)
         .eq("is_resolved", false)
@@ -404,9 +445,10 @@ export const useSportsMatches = () => {
             ? new Date(e.start_date)
             : null;
         const endDate = e.end_date ? new Date(e.end_date) : null;
-        // In play = the clock says so (single source of truth: isFixtureLive).
+        // In play = the match phase says so (single source of truth: matchPhase).
         // `metadata.live` is engine debug output and is never read here.
-        const isLive = isFixtureLive(e as Parameters<typeof isFixtureLive>[0]);
+        const phaseNow = matchPhase(e as Parameters<typeof matchPhase>[0]);
+        const isLive = phaseNow === "live";
 
         const opts = ((e.event_options || []) as {
           id: string;
@@ -429,6 +471,7 @@ export const useSportsMatches = () => {
           kickoff,
           endDate,
           live: isLive,
+          final: phaseNow === "final",
           minute: isLive ? liveMinute(kickoff, meta.sport) : null,
           liveLabel: isLive ? liveLabelFor(meta, liveMinute(kickoff, meta.sport)) : null,
           phase: meta.phase ?? null,
@@ -486,13 +529,17 @@ export const isUpcoming = (m: SportsMatch, now: number = Date.now()) =>
 /**
  * In play at `now`, re-derived every tick instead of only at fetch time, so a
  * match leaves the preview rail and joins the live sections in the same second
- * (CPO 2026-11-04). Same rule as isFixtureLive (kickoff ≤ now < end). A row
- * fetched as live stays live until the next fetch drops it (≤ 30s).
+ * (CPO 2026-11-04). Same rule as matchPhase: in play from kickoff until the
+ * feed says final (or the watchdog). A row fetched as live stays live until
+ * the next fetch drops it (≤ 30s); a row fetched as final never comes back.
  */
 export const liveAt = (m: SportsMatch, now: number = Date.now()) => {
   if (m.live) return true;
+  if (m.final) return false;
   if (!m.kickoff || !m.endDate) return false;
-  return m.kickoff.getTime() <= now && now < m.endDate.getTime();
+  // Same rule as matchPhase: past the estimated end still counts, until the
+  // watchdog. (A finished match never reaches here — the fetch drops it.)
+  return m.kickoff.getTime() <= now && now <= m.endDate.getTime() + SPORTS_WATCHDOG_MS;
 };
 
 const DAY_MS = 86_400_000;

@@ -15,6 +15,7 @@ import {
 import { LiteSentimentBar } from "@/components/lite/contract/LiteSentimentBar";
 import { LiteContractChart } from "@/components/lite/contract/LiteContractChart";
 import { LiteContractOrderPanel } from "@/components/lite/contract/LiteContractOrderPanel";
+import { SportsClockLabel, type SportsClock } from "@/components/lite/sports/sportsClock";
 import { LitePositionCard } from "@/components/lite/contract/LitePositionCard";
 import {
   LiteMarketActivity,
@@ -99,6 +100,7 @@ const Panel = ({
   limitHint,
   yesLabel = "Yes",
   noLabel = "No",
+  sportsClock,
 }: {
   side0?: "yes" | "no";
   amount0?: string;
@@ -119,6 +121,8 @@ const Panel = ({
   /** TR-27c：多 market 选项名。 */
   yesLabel?: string;
   noLabel?: string;
+  /** TR-29：体育比赛的时间位（生产 SportsClockLabel card 变体）。 */
+  sportsClock?: SportsClock;
 }) => {
   const isMobile = useIsMobile();
   const [side, setSide] = useState<"yes" | "no">(side0);
@@ -149,6 +153,7 @@ const Panel = ({
         boostMax={20}
         boostTiers={[1, 2, 5, 10, 20]}
         countdownText={countdown}
+        timeSlot={sportsClock ? <SportsClockLabel clock={sportsClock} variant="card" /> : undefined}
         variant={isMobile ? "mobile" : "desktop"}
         previewLimitHint={limitHint}
         heldSideLabel={heldSideLabel}
@@ -176,6 +181,12 @@ export const Tr27bPreview = () => <Panel limitHint amount0="25" />;
 export const Tr27cPreview = () => <Panel limitHint yesLabel="Charles Leclerc" noLabel="Not Leclerc" />;
 /** TR-28 · Boost limit reached（Pro RESTRICTION 档 Risk ≥ 95% 的 Lite 写法）：CTA 置灰。 */
 export const Tr28Preview = () => <Panel amount0="25" blocked blockedReason="Boost limit reached — close a position first" />;
+/* TR-29 · sports fixtures: the time slot follows the match phase, never the estimated end (CPO 2026-11-04). */
+const HOCKEY = { yesLabel: "Maple Leafs", noLabel: "Kraken" };
+export const Tr29Preview = () => <Panel {...HOCKEY} yesPrice={0.34} sportsClock={{ phase: "upcoming", kickoffInMs: (2 * 60 + 10) * 60_000, liveClock: null }} />;
+export const Tr29bPreview = () => <Panel {...HOCKEY} yesPrice={0.34} sportsClock={{ phase: "live", kickoffInMs: 0, liveClock: "P2 12:04" }} />;
+export const Tr29cPreview = () => <Panel {...HOCKEY} yesPrice={0.41} sportsClock={{ phase: "live", kickoffInMs: 0, liveClock: "OT 3:21" }} />;
+export const Tr29dPreview = () => <Panel {...HOCKEY} yesPrice={0.41} blocked blockedReason={IN_REVIEW_BADGE} sportsClock={{ phase: "final", kickoffInMs: 0, liveClock: null }} />;
 export const Tr6Preview = () => <Panel side0="no" amount0="25" />;
 export const Tr7Preview = () => <Panel amount0="25" boost0={7} boostTrayOpen />;
 export const Tr8Preview = () => (

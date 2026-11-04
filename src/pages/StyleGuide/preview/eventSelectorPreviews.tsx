@@ -58,8 +58,31 @@ export const EVENTS: TradingEvent[] = [
   ev("sg-cpi", "Will September CPI come in under 3.0% YoY?", 25 * DAY, "$687K", ["futures"]),
 ];
 
+/* ES-D5 / ES-M2 · sports rows follow the match phase, never the estimated end (CPO 2026-11-04). */
+const sport = (
+  id: string,
+  name: string,
+  kickoffIn: number,
+  estEndIn: number,
+  volume: string,
+  extra: { match_status?: string; lifecycle?: string } = {},
+): TradingEvent => ({
+  ...ev(id, name, estEndIn, volume, ["contract"]),
+  metadata: { kickoff_at: at(kickoffIn).toISOString(), sport: "hockey", league: "NHL", ...(extra.match_status ? { match_status: extra.match_status } : null) },
+  lifecycle: extra.lifecycle ?? "TRADING",
+});
+export const SPORTS_EVENTS: TradingEvent[] = [
+  sport("sg-nhl-up", "【Hockey.NHL】Maple Leafs vs. Canadiens", 2 * DAY + 19 * HOUR, 2 * DAY + 22 * HOUR, "$126"),
+  sport("sg-nhl-soon", "【Hockey.NHL】Bruins vs. Rangers", 38 * MIN, 3 * HOUR + 38 * MIN, "$2.1K"),
+  sport("sg-nhl-live", "【Hockey.NHL】Oilers vs. Flames", -70 * MIN, 80 * MIN, "$18K"),
+  sport("sg-nhl-ot", "【Hockey.NHL】Maple Leafs vs. Kraken", -170 * MIN, -20 * MIN, "$32K", { match_status: "live" }),
+  sport("sg-nhl-final", "【Hockey.NHL】Jets vs. Wild", -175 * MIN, -10 * MIN, "$9.4K", { lifecycle: "REVIEW" }),
+];
+
 type Fixture = {
   tab: ProductTab;
+  /** Event list override (ES-D5 / ES-M2 sports rows). */
+  list?: TradingEvent[];
   favorites?: string[];
   favoritesOnly?: boolean;
   search?: string;
@@ -81,7 +104,7 @@ const useFixtureSelector = (f: Fixture): UseEventSelectorReturn => {
     });
   };
   const q = search.trim().toLowerCase();
-  const events = EVENTS.filter((e) => eventOnTab(e.productLines, tab))
+  const events = (f.list ?? EVENTS).filter((e) => eventOnTab(e.productLines, tab))
     .filter((e) => !favoritesOnly || favorites.has(e.id))
     .filter((e) => !q || e.name.toLowerCase().includes(q));
   return {
@@ -135,6 +158,9 @@ export const EventSelectorBoost = () => <Dropdown tab="boost" favorites={["sg-de
 /** ES-D3 · Favourites filter on, nothing starred. */
 export const EventSelectorFavoritesEmpty = () => <Dropdown tab="boost" favoritesOnly />;
 
+/** ES-D5 · Boost tab, sports rows: Starts / ● Live (incl. past the estimated end) / Final. */
+export const EventSelectorSports = () => <Dropdown tab="boost" list={SPORTS_EVENTS} currentEventId="sg-nhl-ot" />;
+
 /** ES-D4 · Search with no match. */
 export const EventSelectorSearchEmpty = () => <Dropdown tab="standard" search="xyz" />;
 
@@ -144,6 +170,16 @@ export const EventSelectorDrawer = () => {
   return (
     <div style={{ width: 375, height: 640 }}>
       <EventSelectorSheet open onOpenChange={() => undefined} selector={s} currentEventId="crypto-btc-updown-5m-202609240400" onSelect={() => undefined} />
+    </div>
+  );
+};
+
+/** ES-M2 · Mobile drawer (375), sports rows. */
+export const EventSelectorDrawerSports = () => {
+  const s = useFixtureSelector({ tab: "boost", list: SPORTS_EVENTS, currentEventId: "sg-nhl-ot" });
+  return (
+    <div style={{ width: 375, height: 640 }}>
+      <EventSelectorSheet open onOpenChange={() => undefined} selector={s} currentEventId="sg-nhl-ot" onSelect={() => undefined} />
     </div>
   );
 };

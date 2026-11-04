@@ -366,6 +366,43 @@ const Pair = ({
   </div>
 );
 
+/* TR-29 · sports fixtures · time slot (CPO 2026-11-04) */
+const SRC_CLOCK = "DESIGN §Addendum 2026-11-04b · 体育比赛的交易时间";
+const SPORTS_CLOCK_CASES: SectionCase[] = [
+  {
+    key: "trade-tr29",
+    label: "TR-29 · 体育下单卡 · 开赛前（SportsClockLabel · upcoming）",
+    note: "体育比赛（metadata.kickoff_at 存在，含让分 / 大小分子盘）的下单卡右上不再写 `<倒计时> left`：比赛打没打完只听比赛状态，预计结束时间 end_date 不显示、不关交易。四态见 TR-29 … 29d；手机同一句在下单抽屉标题下一行（LiteContractTrade，line 变体），Pro 页头与赛事下拉同口径（ES-D5 / ES-M2）。",
+    spec: [
+      { state: "开赛前", when: 'matchPhase(e) === "upcoming"（match_status scheduled / postponed，或 kickoff > now）', visual: "`Starts in 2h 10m`（≥1 天 `2d 19h`、<1 小时 `38:12` 按秒跳），mono 11 muted；可以交易", source: "sportsClock.tsx kickoffInShort · " + SRC_CLOCK },
+    ],
+  },
+  {
+    key: "trade-tr29b",
+    label: "TR-29b · 体育下单卡 · 比赛中（● LIVE · 比赛时钟）",
+    spec: [
+      { state: "比赛中", when: 'matchPhase(e) === "live"（kickoff 已过、数据源未报结束、未过兜底）', visual: "红点脉动 + `LIVE · P2 12:04`；时钟与记分牌同一个值（liveLabelFor），数据源没给时钟只写 `● LIVE`；可以交易", source: "SportsClockLabel card · liveLabelFor" },
+    ],
+  },
+  {
+    key: "trade-tr29c",
+    label: "TR-29c · 体育下单卡 · 比赛中、已过预计结束（加时 / 拖延）",
+    note: "这就是原来出 `00:00 left` 的情况。end_date 过了但数据源仍报在打 → 照样是 TR-29b 的样子，照样能交易。演示赛：Toronto Maple Leafs vs Seattle Kraken（demo-live-ot-nhl，加时中、预计结束已过 20 分钟）。",
+    spec: [
+      { state: "过了预计结束", when: 'now > end_date && matchPhase(e) === "live"', visual: "`● LIVE · OT 3:21`；任何时候都不会出现 00:00", source: SRC_CLOCK },
+      { state: "兜底", when: "now > end_date + 3 小时 且仍没收到结束信号", visual: "自动按打完处理 → TR-29d（防数据源掉线时交易一直开着）", source: "sportsData SPORTS_WATCHDOG_MS" },
+    ],
+  },
+  {
+    key: "trade-tr29d",
+    label: "TR-29d · 体育下单卡 · 打完等结果（Final · In review）",
+    spec: [
+      { state: "打完等结果", when: 'matchPhase(e) === "final"（lifecycle REVIEW、match_status final / cancelled、或兜底）', visual: "右上 `Final ·` + 描边胶囊 `IN REVIEW`；CTA 置灰印 `In review`，页面下单区换成 InReviewCard（TR-18 同一张）", source: "LiteContractTrade inReview · contractGate" },
+      { state: "已结算", when: "is_resolved", visual: "现有 Settled 结算卡，不变", source: "TR-15 / TR-16" },
+    ],
+  },
+];
+
 export const TradeStatesSection = () => (
   <SectionWrapper
     id="trade-states"
@@ -398,6 +435,11 @@ export const TradeStatesSection = () => (
 
     <SubSection title="⑦ Boost 全档（TR-24）">
       <Pair cases={BOOST_CASES} desktopMin={1200} mobileMin={1400} />
+    </SubSection>
+
+    {/* Desktop only: the mobile order panel has no header row — the same words sit in the order drawer title line. */}
+    <SubSection title="⑧ 体育比赛的时间位（TR-29 … TR-29d · 只有桌面帧）">
+      <SectionFrame cases={SPORTS_CLOCK_CASES} device="desktop" minHeight={900} />
     </SubSection>
   </SectionWrapper>
 );

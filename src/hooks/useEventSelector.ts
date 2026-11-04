@@ -7,6 +7,7 @@
 // localStorage key with `useEvents`; a page that already holds favourites
 // state (the contract pages) passes it in so the two never drift.
 // ============================================================
+import { isSportsFixture, matchPhase } from "@/components/lite/sports/sportsData";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useActiveEvents } from "@/hooks/useActiveEvents";
 import {
@@ -100,7 +101,13 @@ export const useEventSelector = ({
 
   const events = useMemo(() => {
     // Ended rows (end_date passed, not yet resolved) cannot be traded — keep them out of the picker.
-    let result = all.filter((e) => eventOnTab(e.productLines, tab) && e.endTime.getTime() > now);
+    // Sports fixtures: end_date is only an estimate — the match phase decides; a finished match stays
+    // listed as `Final` until it settles (CPO 2026-11-04).
+    let result = all.filter((e) => {
+      if (!eventOnTab(e.productLines, tab)) return false;
+      if (isSportsFixture(e)) return matchPhase(e, now) !== "settled";
+      return e.endTime.getTime() > now;
+    });
     if (showFavoritesOnly) result = result.filter((e) => favorites.has(e.id));
     const q = search.trim().toLowerCase();
     if (q) result = result.filter((e) => e.name.toLowerCase().includes(q));

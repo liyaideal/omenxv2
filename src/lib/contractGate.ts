@@ -6,9 +6,12 @@
 // 研发问题 #16 (2026-09-24): SUSPENDED dropped from the design — the backend has
 // no such lifecycle state; an unknown lifecycle falls through to the time gate.
 // Spot keeps its own gate in useSpotTerminal (lifecycle states + freeze).
+// Sports fixtures (CPO 2026-11-04): end_date is only an estimate — it never
+// closes trading. The match phase does: final (feed / 3h watchdog) → In review.
 // ============================================================
 import { useEffect, useState } from "react";
 import type { TradingEvent } from "@/hooks/useEvents";
+import { isSportsFixture, matchPhase } from "@/components/lite/sports/sportsData";
 
 export interface ContractGate {
   blocked: boolean;
@@ -20,6 +23,11 @@ export const contractGate = (event: TradingEvent | null | undefined, now: number
   if (!event) return { blocked: false, reason: "" };
   if (event.isResolved) return { blocked: true, reason: "Settled" };
   if (event.lifecycle === "REVIEW") return { blocked: true, reason: "In review" };
+  if (isSportsFixture(event)) {
+    if (matchPhase(event, now) === "final") return { blocked: true, reason: "In review" };
+    const freeze = event.freezeTime?.getTime();
+    return freeze && freeze <= now ? { blocked: true, reason: "Closed" } : { blocked: false, reason: "" };
+  }
   const freezeAt = event.freezeTime?.getTime();
   const endAt = event.endTime?.getTime();
   if ((freezeAt && freezeAt <= now) || (endAt && endAt <= now)) return { blocked: true, reason: "Closed" };

@@ -48,7 +48,7 @@ const BOARD_CASES: SectionCase[] = [
     spec: [
       {
         state: "finished",
-        when: "!live && !is_resolved && kickoff <= now",
+        when: 'matchPhase(e) === "final"（REVIEW / match_status final / 过预计结束 3h 兜底）；过了 end_date 但仍在打不算',
         visual: "FINISHED 药丸 + 右上 `In review · result pending` 橙边徽章",
         source: "buildModel status = finished",
       },
@@ -380,7 +380,7 @@ const STAGE_CASES: SectionCase[] = [
     spec: [
       {
         state: "finished",
-        when: "is_resolved || end_date <= now || 无 stream_url",
+        when: "比赛不在 live（matchPhase）|| 无 stream_url",
         visual: "生产：LiveStage 返回 null，记分牌留在原位",
         source: "LiveStage 早退分支",
       },

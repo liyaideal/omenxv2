@@ -102,6 +102,8 @@ export const M4Preview = () => (
         "sg-cs2-m4",
         {
           ...cs2Base,
+          // The feed reports the match over (2026-11-04: a match ends on its status, never on end_date).
+          match_status: "final",
           segment_index: 3,
           segment_results: [
             { home: 13, away: 8 },

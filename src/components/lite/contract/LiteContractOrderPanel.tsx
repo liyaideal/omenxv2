@@ -71,6 +71,8 @@ export interface LiteContractOrderPanelProps {
   boostMax: number;
   boostTiers: number[];
   countdownText: string;
+  /** Sports fixtures: replaces `<countdown> left` (Starts in / ● LIVE · clock / Final · In review). */
+  timeSlot?: React.ReactNode;
   variant: "desktop" | "mobile";
   /** Style-guide only: force the `Want to place a limit order? Pro ›` line. */
   previewLimitHint?: boolean;
@@ -135,6 +137,7 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
     boostMax,
     boostTiers,
     countdownText,
+    timeSlot,
     variant,
     previewLimitHint,
     heldSideLabel,
@@ -403,9 +406,11 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
       {variant === "desktop" && (
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold">{t("trade.screen.lite.lite_contract_order_panel.make_your_call")}</h3>
-          <span className="font-mono text-[11px] text-muted-foreground">
-            {countdownText} left
-          </span>
+          {timeSlot ?? (
+            <span className="font-mono text-[11px] text-muted-foreground">
+              {countdownText} left
+            </span>
+          )}
         </div>
       )}
 

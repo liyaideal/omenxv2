@@ -18,6 +18,7 @@ import { ExpiredEventFallback } from "@/components/ExpiredEventFallback";
 import { useAuth } from "@/hooks/useAuth";
 import { useEventBusinessMeta } from "@/hooks/useEventBusinessMeta";
 import { ScheduleInfo } from "@/components/pro/ScheduleInfo";
+import { sportsClockText, useSportsClock } from "@/components/lite/sports/sportsClock";
 import { PriceRefEventInfo } from "@/components/pro/PriceRefEventInfo";
 
 
@@ -48,7 +49,7 @@ interface MobileTradingLayoutProps {
   /** SP-2-FIX1: pre-formatted countdown text (single clock owned by the caller). */
   countdownText?: string;
   countdownLabel?: string;
-  countdownUrgency?: "muted" | "yellow" | "red";
+  countdownUrgency?: "muted" | "yellow" | "red" | "live";
   /** SP-2: extra inline content in the header stats row (schedule ⓘ). */
   statsExtra?: React.ReactNode;
   /** SP-2: replaces the default Star + Share cluster in the header. */
@@ -97,7 +98,7 @@ function TradingShell({
   endTime?: Date;
   countdownText?: string;
   countdownLabel?: string;
-  countdownUrgency?: "muted" | "yellow" | "red";
+  countdownUrgency?: "muted" | "yellow" | "red" | "live";
   statsExtra?: React.ReactNode;
   headerRight?: React.ReactNode;
   eventInfo?: React.ReactNode;
@@ -312,6 +313,8 @@ function PerpTradingLayout({
   );
   const currentLineKey = selectedEvent ? currentLineId(fixtureMarkets, selectedEvent.id, selectedOption) : "";
   const currentLine = selectedEvent ? fixtureMarkets?.byId.get(currentLineKey)?.line ?? null : null;
+  // Sports: Starts in / LIVE · clock / Final · In review — never `Ends in` the estimated end (CPO 2026-11-04).
+  const sportsClock = useSportsClock(selectedEvent);
   const orderBase = activeTab === "Charts" ? "/trade" : "/trade/order";
   useEffect(() => {
     if (!selectedEvent || !fixtureMarkets) return;
@@ -410,8 +413,13 @@ function PerpTradingLayout({
         isSpot={false}
         activeEvent={fixtureMarkets ? { ...selectedEvent, name: fixtureMarkets.fixture.name } : selectedEvent}
         endTime={endTimeOverride ?? selectedEvent.endTime}
-        countdownLabel={currentLine ? `${currentLine.caption} · ${countdownLabel ?? "Ends in"}` : countdownLabel}
-        countdownUrgency={countdownUrgency}
+        countdownText={sportsClock ? sportsClockText(sportsClock, "pro") : undefined}
+        countdownLabel={
+          sportsClock
+            ? (currentLine?.caption ?? "")
+            : currentLine ? `${currentLine.caption} · ${countdownLabel ?? "Ends in"}` : countdownLabel
+        }
+        countdownUrgency={sportsClock ? (sportsClock.phase === "live" ? "live" : "muted") : countdownUrgency}
         statsExtra={scheduleTail}
         eventInfo={
           eventInfo ??

@@ -69,7 +69,7 @@ interface MobileHeaderProps {
   /** SP-2: countdown row wording. Defaults to the locked `Ends in`. */
   countdownLabel?: string;
   /** SP-2: 3-tier urgency colour for the countdown row. Defaults to red. */
-  countdownUrgency?: "muted" | "yellow" | "red";
+  countdownUrgency?: "muted" | "yellow" | "red" | "live";
   /** SP-2: extra inline content in the stats row (e.g. the schedule ⓘ). */
   statsExtra?: ReactNode;
 }
@@ -295,6 +295,8 @@ export const MobileHeader = ({
                   countdownUrgency === "red" && "bg-trading-red animate-pulse",
                   countdownUrgency === "yellow" && "bg-trading-yellow",
                   countdownUrgency === "muted" && "bg-muted-foreground",
+                  // Sports in play: pulsing red dot, plain (white) text — the match clock is not a deadline.
+                  countdownUrgency === "live" && "bg-trading-red animate-pulse",
                 )}
               />
               <span className="text-xs text-muted-foreground">{countdownLabel}</span>
@@ -303,7 +305,7 @@ export const MobileHeader = ({
                   "text-xs font-mono font-medium",
                   countdownUrgency === "red" && "text-trading-red",
                   countdownUrgency === "yellow" && "text-trading-yellow",
-                  countdownUrgency === "muted" && "text-foreground",
+                  (countdownUrgency === "muted" || countdownUrgency === "live") && "text-foreground",
                 )}
               >
                 {displayTime}

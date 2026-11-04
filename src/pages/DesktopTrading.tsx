@@ -64,6 +64,7 @@ import { terminalPath, type ProductTab } from "@/lib/eventSelector";
 import { consumeOpenLimit } from "@/lib/proHandoff";
 import { buildFixtureMarkets, currentLineId, fixtureIdOf, fixtureLinePath, parseLineId } from "@/lib/fixtureMarkets";
 import { useContractGate } from "@/lib/contractGate";
+import { SportsClockLabel, useSportsClock } from "@/components/lite/sports/sportsClock";
 import { MarketLineRow } from "@/components/pro/MarketLineRow";
 import { isSingleMarketBinary, getBinarySideLabels, getYesNoOptions, getBinaryOutcome } from "@/lib/eventUtils";
 import { useEventBusinessMeta, basePriceText } from "@/hooks/useEventBusinessMeta";
@@ -404,6 +405,8 @@ export default function DesktopTrading() {
   const eventSelector = useEventSelector({ terminal: "boost", favorites, toggleFavorite: toggleFavoriteBase });
   
   const countdown = useCountdown(selectedEvent?.endTime);
+  // Sports: Starts in / ● LIVE · clock / Final · In review instead of `Ends in` (CPO 2026-11-04).
+  const sportsClock = useSportsClock(selectedEvent);
 
   // Wrapper to update URL when switching events
   const handleEventSelect = (event: NonNullable<typeof selectedEvent>) => {
@@ -1075,15 +1078,23 @@ export default function DesktopTrading() {
                 <ChevronDown className={`w-4 h-4 text-muted-foreground flex-shrink-0 transition-transform ${eventDropdownOpen ? 'rotate-180' : ''}`} />
               </div>
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
-                <span className="w-1.5 h-1.5 bg-trading-red rounded-full animate-pulse" />
+                {(!sportsClock || sportsClock.phase === "live") && (
+                  <span className="w-1.5 h-1.5 bg-trading-red rounded-full animate-pulse" />
+                )}
                 {currentLine && (
                   <>
                     <span className="text-foreground/80">{currentLine.caption}</span>
                     <span>·</span>
                   </>
                 )}
-                <span>{t("market.ends_in")}</span>
-                <span className="text-trading-red font-mono font-medium">{countdown}</span>
+                {sportsClock ? (
+                  <SportsClockLabel clock={sportsClock} variant="header" />
+                ) : (
+                  <>
+                    <span>{t("market.ends_in")}</span>
+                    <span className="text-trading-red font-mono font-medium">{countdown}</span>
+                  </>
+                )}
               </div>
             </div>
           </button>

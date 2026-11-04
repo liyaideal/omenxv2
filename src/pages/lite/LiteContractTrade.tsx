@@ -5,6 +5,8 @@
 //
 // P0 notes:
 //   3/6. Gating is derived from is_resolved / end_date / freeze_time only.
+//        Sports fixtures (CPO 2026-11-04): end_date is an estimate — it never
+//        closes trading or shows a countdown; the match phase does (sportsClock).
 //        We deliberately do NOT use usStockSessions here — that module
 //        models US cash-session lifecycles (its ORDERABLE_STATES has no
 //        'ACTIVE'), which every futures event in this product uses.
@@ -97,6 +99,7 @@ import {
 import { LiteBoardGroupHeader as GroupHeader } from "@/components/lite/multi/LiteBoardGroupHeader";
 
 import { useTradeCountdown } from "@/components/lite/intraday/intradayData";
+import { SportsClockLabel, useSportsClock } from "@/components/lite/sports/sportsClock";
 import { LiteCrowdOverview } from "@/components/lite/multi/LiteCrowdOverview";
 import { EmptyState } from "@/components/states";
 import { SeoFooter } from "@/components/seo/SeoFooter";
@@ -405,12 +408,16 @@ const LiteContractTrade = () => {
   const endDate = event?.end_date ? new Date(event.end_date) : null;
   const freezeAt = event?.freeze_time ? new Date(event.freeze_time) : null;
   const { text: countdown } = useTradeCountdown(freezeAt ?? endDate, { days: true });
+  // Sports: Starts in / ● LIVE · clock / Final — never a countdown to the estimated end.
+  const sportsClock = useSportsClock(event as Parameters<typeof useSportsClock>[0]);
 
   const resolved = !!event?.is_resolved;
   // Intermediate state between trading close and settlement — the result is
   // being checked and can stay here for a long time. Settled always wins.
-  const inReview = !resolved && (event as any)?.lifecycle_status === "REVIEW";
-  const pastEnd = endDate ? endDate.getTime() <= Date.now() : false;
+  // Sports: the match is over (feed final / watchdog) → the same In review.
+  const inReview =
+    !resolved && ((event as any)?.lifecycle_status === "REVIEW" || sportsClock?.phase === "final");
+  const pastEnd = !sportsClock && endDate ? endDate.getTime() <= Date.now() : false;
   const pastFreeze = freezeAt ? freezeAt.getTime() <= Date.now() : false;
   // 交易页收尾 #6 (RM-1 RESTRICTION tier, Risk ≥ 95%): no new exposure until a
   // position is closed. Lite wording — never "Risk" / "Margin" on this surface.
@@ -1539,6 +1546,7 @@ const LiteContractTrade = () => {
     boostMax: boostCfg.maxBoost,
     boostTiers: tiers,
     countdownText: countdown,
+    timeSlot: sportsClock ? <SportsClockLabel clock={sportsClock} variant="card" /> : undefined,
     heldSideLabel: heldPos ? (heldIsYes ? yesLabel : noLabel) : null,
     heldCurrentValue: heldPos ? heldNowWorth : null,
     heldQty: heldPos ? heldPos.sizeNum : null,
@@ -1765,7 +1773,7 @@ const LiteContractTrade = () => {
                 </span>
               </div>
               <div className="mt-1 text-[11px] text-muted-foreground">
-                {countdown} left ·{" "}
+                {sportsClock ? <SportsClockLabel clock={sportsClock} variant="line" /> : `${countdown} left`} ·{" "}
                 {Math.round(
                   (side === "yes" ? panelProps.yesPrice : panelProps.noPrice) * 100,
                 )}

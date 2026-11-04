@@ -11,6 +11,7 @@
 import { t } from "@/i18n";
 import { Search, Star, X } from "lucide-react";
 import type { TradingEvent } from "@/hooks/useEvents";
+import { SportsClockCell, sportsClockAt } from "@/components/lite/sports/sportsClock";
 import { cn } from "@/lib/utils";
 import { quickRoundLabel } from "@/components/lite/intraday/intradayData";
 
@@ -161,6 +162,8 @@ export function EventSelectorPanel(p: EventSelectorPanelProps) {
             ) : (
               p.events.map((event) => {
                 const ends = formatEndsIn(event.endTime, event.freezeTime, p.now);
+                // Sports: Starts / ● Live / Final — never the estimated end (CPO 2026-11-04).
+                const sports = sportsClockAt(event, p.now);
                 const isCurrent = p.currentEventId === event.id;
                 return (
                   <button
@@ -181,10 +184,14 @@ export function EventSelectorPanel(p: EventSelectorPanelProps) {
                         {quickRoundLabel(event.id) && <span className="ml-1.5 inline-flex align-middle"><RoundChip id={event.id} /></span>}
                       </p>
                       <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
-                        <span>
-                          {ends.frozen || ends.text === "Ended" ? "" : "Ends in "}
-                          <span className={cn("font-mono", URGENCY_CLASS[ends.urgency])}>{ends.text}</span>
-                        </span>
+                        {sports ? (
+                          <SportsClockCell clock={sports} />
+                        ) : (
+                          <span>
+                            {ends.frozen || ends.text === "Ended" ? "" : "Ends in "}
+                            <span className={cn("font-mono", URGENCY_CLASS[ends.urgency])}>{ends.text}</span>
+                          </span>
+                        )}
                         <span>Volume: {formatListVolume(event.volume)}</span>
                       </div>
                     </div>
@@ -222,6 +229,7 @@ export function EventSelectorPanel(p: EventSelectorPanelProps) {
         ) : (
           p.events.map((event) => {
             const ends = formatEndsIn(event.endTime, event.freezeTime, p.now);
+            const sports = sportsClockAt(event, p.now);
             const isCurrent = p.currentEventId === event.id;
             return (
               <button
@@ -238,7 +246,13 @@ export function EventSelectorPanel(p: EventSelectorPanelProps) {
                   <span className="text-sm font-medium truncate">{event.name}</span>
                   <RoundChip id={event.id} />
                 </div>
-                <span className={cn("text-xs font-mono text-right", URGENCY_CLASS[ends.urgency])}>{ends.text}</span>
+                {sports ? (
+                  <span className="text-xs text-right">
+                    <SportsClockCell clock={sports} />
+                  </span>
+                ) : (
+                  <span className={cn("text-xs font-mono text-right", URGENCY_CLASS[ends.urgency])}>{ends.text}</span>
+                )}
                 <span className="text-xs font-mono text-right">{formatListVolume(event.volume)}</span>
               </button>
             );
