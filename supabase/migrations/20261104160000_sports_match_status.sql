@@ -55,6 +55,9 @@ BEGIN
          end_date = now() - interval '20 minutes',
          is_resolved = false,
          lifecycle_status = 'TRADING',
+         side_labels = jsonb_build_object('yes', 'Maple Leafs', 'no', 'Kraken'),
+         description = 'NHL · Toronto Maple Leafs vs Seattle Kraken. Winning shares pay $1, losing shares pay $0.',
+         rules = 'Settles on the official result of Toronto Maple Leafs vs Seattle Kraken (NHL), overtime included. Winning shares pay $1.',
          metadata = metadata || jsonb_build_object(
            'fixture_id', 'demo-live-ot-nhl',
            'home', 'Toronto Maple Leafs', 'away', 'Seattle Kraken',
@@ -62,6 +65,7 @@ BEGIN
            'kickoff_at', to_char(ko at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"'),
            'match_status', 'live',
            'live', true,
+           'phase', NULL,
            'segment_index', 4,
            'clock', 201,
            'score', '2-2',
@@ -69,7 +73,7 @@ BEGIN
              jsonb_build_object('home', 1, 'away', 1),
              jsonb_build_object('home', 1, 'away', 0),
              jsonb_build_object('home', 0, 'away', 1),
-             NULL))
+             jsonb_build_object('home', 0, 'away', 0)))
    WHERE id = 'demo-live-ot-nhl';
 END $fn$;
 

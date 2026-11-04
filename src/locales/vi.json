@@ -1118,7 +1118,7 @@
   "screen.simple.sports_clock.starts": "Sau {{time}}",
   "screen.simple.sports_clock.live_word": "Đang diễn ra",
   "screen.simple.sports_clock.final": "Kết thúc",
-  "screen.simple.sports_clock.in_review": "Đang xác nhận kết quả",
+  "screen.simple.sports_clock.in_review": "Chờ kết quả",
   "screen.simple.sports_clock.settled": "Đã thanh toán",
   "screen.simple.skeletons.events_loading_skeletons.loading_markets": "Đang tải thị trường",
   "screen.simple.skeletons.events_loading_skeletons.loading_featured_markets": "Đang tải thị trường nổi bật",

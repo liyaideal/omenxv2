@@ -404,7 +404,8 @@ export const LiteContractOrderPanel = (props: LiteContractOrderPanelProps) => {
   return (
     <div className={wrapClass}>
       {variant === "desktop" && (
-        <div className="flex items-center justify-between">
+        // flex-wrap: a long translation drops the time slot to a second line instead of overflowing.
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
           <h3 className="text-sm font-semibold">{t("trade.screen.lite.lite_contract_order_panel.make_your_call")}</h3>
           {timeSlot ?? (
             <span className="font-mono text-[11px] text-muted-foreground">
