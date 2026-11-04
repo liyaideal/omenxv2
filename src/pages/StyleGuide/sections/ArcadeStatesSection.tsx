@@ -34,7 +34,7 @@ const CABINET: SectionCase[] = [
       { state: "大价 + 来源", when: "always", visual: "`BTC INDEX` 小标 + 白色大价 + 上一秒涨跌 ▲▼；下一行 `FROM Binance $x · Hyperliquid $x · Coinbase $x`（某家缺 → `—`，指数无效整行红）；自己没单时再一行 `▲ +$136.86 in the last 30s`", source: "renderPriceBig / renderPrice" },
       { state: "预览线", when: "自己没有开着的单（或 hover 一个键）", visual: "从现价往右 30 秒一条白虚线，终点竖线 + 旗 `if you call now · settles here`", source: "draw()" },
       { state: "右栏 · LIVE TABLE", when: "这一场还没下过单", visual: "`LIVE TABLE N · everyone's open calls` + `▲ UP · n $x` / `▼ DOWN · n $x` + 别人的匿名单 + 底部虚线框 `Tap UP or DOWN to start — your calls and results show here`；04 不显示", source: "renderRail / renderTable" },
-      { state: "筹码盘 + 券计量条", when: "always", visual: "`$2 / 5 / 10 / 25 / 50`（$100 已删，$2 紫色筹码）；03 标题行右侧券计量条（2026-11-04 起实线亮框）：券图标 + 3 格（本场连赢数 % 3）+ `3 more wins → $2 voucher` ｜ `$0 / $10 today ›`，点 → Rewards › Vouchers。各态见下面「券计量条」", source: "renderChips / renderVouchers" },
+      { state: "筹码盘 + 券计量条", when: "always", visual: "`$2 / 5 / 10 / 25 / 50`（$100 已删，$2 紫色筹码）；标头 `YOUR STAKE · PER CHIP` + `$5 SELECTED`，窄桌面（≤ 1120，本节 1040 宽的帧都是）只留 `YOUR STAKE · PER CHIP`、不显示 `$5 SELECTED`（选中的筹码自己高亮；2026-11-04 起，原来会被截成 `$5 S…`）；03 标题行右侧券计量条（2026-11-04 起实线亮框）：券图标 + 3 格（本场连赢数 % 3）+ `3 more wins → $2 voucher` ｜ `$0 / $10 today ›`，点 → Rewards › Vouchers。各态见下面「券计量条」", source: "renderChips / renderVouchers" },
     ],
   },
   {
