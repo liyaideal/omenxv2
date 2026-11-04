@@ -78,7 +78,7 @@
 
 ## 5. Remind me（前端 + 后端）
 
-**前端**（`src/hooks/useStreamReminders.ts`）：登录用户读本人 `stream_reminders`；点击乐观切换 `Remind me ⇄ Reminder set`，写库失败回滚 + toast `Couldn't update the reminder`。游客点击 = 桌面 `AuthDialog` / 手机 `AuthSheet`，不在本地存，登录后需再点一次。
+**前端**（`src/hooks/useStreamReminders.ts`）：登录用户读本人 `stream_reminders`；点击乐观切换 `Remind me ⇄ Reminder set`，写库失败回滚 + toast `Couldn't update the reminder`。游客点击 = 调全站公共登录开关 `useAuthFlowStore.openPrompt()`，由 `AuthPromptHost`（`App` 挂一次）打开站内标准登录框（桌面 `AuthDialog` / 手机 `AuthSheet`，原样不改文字）；不在本地存，登录后需再点一次。自选星标走同一条路（原来只弹 toast、不开登录的问题同轮修掉，toast 删除）。
 
 **后端**（`supabase/migrations/20261104130000_stream_reminders.sql`）：
 - 表 `stream_reminders(user_id, event_id, created_at, notified_at)`，主键 `(user_id, event_id)`，RLS 只读写本人行（select / insert / delete）。
@@ -118,3 +118,4 @@
 - 本节新增界面文案（区头、`Remind me`、倒计时 lead 等）目前只有英文，与同页既有 `Playing now` 一致；通知文案已有 7 语。
 - 首页 Sports 模块的 `Watch live` / `Stream at kickoff` 芯片不变（`HomeSportsCard`）；三种直播入口已抽成公共组件 `src/components/lite/sports/streamChips.tsx`。
 - Lovable 演示库同时只有一场「直播中且有流」的比赛，生产页看不到多路切换；切换条的样子以字典 EV-37 / 37b 为准。
+- 同日追加：手机列表未开赛卡的长比赛名折成两行、不再用省略号（DESIGN §Addendum 2026-11-04 第 13 条，字典 EV-42 手机帧）；功能入口要登录统一走公共登录开关（第 14 条）。

@@ -1248,6 +1248,7 @@ const STREAM_CASES: SectionCase[] = [
       { state: "> 48 小时", when: "kickoff − now > 48h && streamUrl", visual: "不进预告排；列表行带描边 `▶ Stream at kickoff`", source: "upcomingStreams · StreamAtKickoffChip" },
       { state: "卡片按钮名", when: "始终", visual: "按位置取：第一个 = 主队缩写，最后一个 = 客队缩写，中间 `Draw`", source: "chipLabel" },
       { state: "列表不动", when: "始终", visual: "预告里的比赛照旧出现在下面列表（预告是挑出来重点展示，不是搬走）", source: SRC_STREAMS },
+      { state: "手机列表长比赛名", when: "isMobile && 比赛名一行放不下", visual: "未开赛卡标题折成两行（`Barcelona vs Paris / Saint-Germain`），不用省略号；放得下的卡高度不变", source: "MobileSportsModule UpcomingMatchCard line-clamp-2" },
     ],
   },
   {
@@ -1270,9 +1271,9 @@ const STREAM_CASES: SectionCase[] = [
   {
     key: "events-ev45",
     label: "EV-45 · Remind me · 未登录点击 → 登录（AuthDialog / AuthSheet）",
-    note: "挂载后点击第一枚 Remind me（`[data-remind]`，访客 fixture）。桌面打开 AuthDialog，手机打开底部抽屉 AuthSheet；不在本地存任何提醒。",
+    note: "挂载后点击第一枚 Remind me（`[data-remind]`，访客 fixture）。走全站公共登录开关 openPrompt()（自选星标同一条路）：桌面打开 AuthDialog，手机打开底部抽屉 AuthSheet，都是站内现有登录框原样；不在本地存任何提醒。",
     spec: [
-      { state: "访客点击", when: "!user", visual: "桌面 AuthDialog / 手机 AuthSheet；提醒不保存，登录后需再点一次", source: "useStreamReminders authUi" },
+      { state: "访客点击", when: "!user", visual: "站内标准登录框，不改文字：桌面 AuthDialog / 手机 AuthSheet；提醒不保存，登录后需再点一次", source: "useAuthFlowStore.openPrompt() → AuthPromptHost" },
     ],
   },
 ];

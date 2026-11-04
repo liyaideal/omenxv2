@@ -311,6 +311,7 @@ Natural-language copy (warnings, tooltips) may paraphrase, e.g. `Profits are cap
 | `Today 12:55` / `Tmrw 10:15` / `Fri 19:15` | 预告卡 meta 行开赛时间（`kickoffShort`） |
 | **Remind me** / **Reminder set** | 预告卡按钮未设 / 已设；再点取消 |
 | **Couldn't update the reminder** · `Please try again.` | 写库失败 toast（乐观更新已回滚） |
+| （游客点击无文案） | 直接打开站内标准登录框，不弹 toast、不改登录框文字；自选星标同规则（原 `Sign in to use Watchlist` toast 已删除，2026-11-04） |
 | **Playing now · n** | 正在打、没有直播的比赛区头 |
 | **Stream at kickoff** | 列表行描边芯片：有直播的未开赛比赛（含 48h 内与之外） |
 

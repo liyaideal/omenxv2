@@ -430,8 +430,9 @@ const UpcomingMatchCard = ({ match }: { match: SportsMatch }) => {
           <Crest abbr={match.awayAbbr} size={28} overlap />
         </span>
         <span className="flex min-w-0 flex-1 flex-col" style={{ gap: 2 }}>
+          {/* Match name is identity — wraps to two lines on narrow screens, never ellipsis (CPO 2026-11-04). */}
           <span
-            className="truncate"
+            className="line-clamp-2"
             style={{ fontSize: 13, color: "#fff", fontWeight: 600, lineHeight: 1.25 }}
             title={match.name}
           >
@@ -677,7 +678,6 @@ export const MobileSportsModule = ({
       )}
         </>
       )}
-      {filters && reminders.authUi}
     </section>
   );
 };
