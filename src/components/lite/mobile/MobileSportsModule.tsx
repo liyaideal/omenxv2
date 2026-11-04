@@ -179,7 +179,8 @@ const MobileLiveStreamStage = ({
         <div className="flex items-center" style={{ gap: 10 }}>
           <span className="flex min-w-0 flex-1 items-center" style={{ gap: 8 }}>
             <Crest abbr={m.homeAbbr} size={34} />
-            <span className="truncate" style={{ fontSize: 14, color: "#fff", fontWeight: 600 }}>
+            {/* Team names are identity — wrap to two lines on narrow screens, never ellipsis. */}
+            <span className="line-clamp-2 min-w-0" style={{ fontSize: 14, lineHeight: 1.2, color: "#fff", fontWeight: 600 }}>
               {m.homeShort || m.home}
             </span>
           </span>
@@ -190,7 +191,7 @@ const MobileLiveStreamStage = ({
             <MatchScoreText sport={m.sport} score={m.score} base={26} tennisBase={18} />
           </span>
           <span className="flex min-w-0 flex-1 items-center justify-end" style={{ gap: 8 }}>
-            <span className="truncate" style={{ fontSize: 14, color: "#fff", fontWeight: 600 }}>
+            <span className="line-clamp-2 min-w-0 text-right" style={{ fontSize: 14, lineHeight: 1.2, color: "#fff", fontWeight: 600 }}>
               {m.awayShort || m.away}
             </span>
             <Crest abbr={m.awayAbbr} size={34} />
