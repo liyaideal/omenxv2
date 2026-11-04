@@ -34,21 +34,21 @@
 **一分钟看懂**——这不是"一局 30 秒、大家一起等开奖"的轮次产品：**没有"局"，每一枚筹码就是一张自己的 30 秒合约**——你什么时候落下去，就从那一刻开始数 30 秒，到点各自结算。所以整个舞台是"流式"的：
 
 1. **图是一条时间轴**：左边是过去的价格，右边 30 秒是未来。每张合约在图上是一个入场小菱形 + 一条开盘价虚线 + 右端一根到期小杆（杆顶小三角；到期时间挨近的几张共用一个写着还剩几秒的标签，见 §4.3「连点好几单」）。到点杆顶翻成实心点 / 空心圈，原地飘一个 `+$4.29` / `−$5.00`，筹码从键上飞进余额，然后在图上留一个 ✓ / ✕ 小圆点直到滚出画面。线一直在扭（浏览器直连 Binance 盘口），但**穿过每一个指数点**，入场 / 结算标记都落在线上；开 / 收 / 结算只读指数。
-2. **右边一栏 MY CALLS**：每张合约一行（方向 / 投入 @ 报价 / 派彩 / 30 秒进度条 / 此刻领先还是落后），前 2 秒显示 `cancel`；到点那行闪一下滑进下面的 LAST SETTLED（只留最近一张，完整记录去 Portfolio）。开着的合约全部都在列表里，装不下就在列表内滚。旁边 TABLE 页签看桌上其他人的单（匿名），顶部有 UP / DOWN 两边各压了多少的汇总。右栏底部是 04 / YOUR RESULT 四行记分板（OPEN / LIVE / SESSION / LAST 10）+ `⇪ SHARE`。
+2. **右边一栏 MY CALLS**：每张合约一行（方向 / 投入 @ 报价 / 派彩 / 30 秒进度条 / 此刻领先还是落后，第一秒起就显示；2026-11-04 起没有撤销）；到点那行闪一下滑进下面的 LAST SETTLED（只留最近一张，完整记录去 Portfolio）。开着的合约全部都在列表里，装不下就在列表内滚。旁边 TABLE 页签看桌上其他人的单（匿名），顶部有 UP / DOWN 两边各压了多少的汇总。右栏底部是 04 / YOUR RESULT 四行记分板（OPEN / LIVE / SESSION / LAST 10）+ `⇪ SHARE`。
 3. **反馈分三级**，不再一局一场金币雨：每张合约 = 旗翻牌 + 数字飘 + 筹码飞；一秒内同时结的几张只 bump 一次余额；**连赢 ×3 才金币雨 + 大字 COMBO**，连输 ×3 红闪一次。跳舞机式 COMBO HUD 常驻在图表头：`COMBO ×2 · 1 more → ×3 bonus`。
-4. **键不锁**：结算过程中 UP / DOWN 照样能点。键上的筹码塔 = 这一边正在跑的合约（按面额归堆，最新一枚带 2 秒取消环）。
+4. **键不锁**：结算过程中 UP / DOWN 照样能点。键上的筹码塔 = 这一边正在跑的合约（按面额归堆）。点下去就锁定，没有撤销（2026-11-04）。
 5. **记账单位是「一场」**：一坐下来玩的这一把；两次下单间隔超过 30 分钟就算下一场。机柜 04 的 SESSION / LAST 10 / SHARE、分享海报、Portfolio 的一行，三处同一条规则。
 6. **价格**：正式版 = Binance / Hyperliquid / Coinbase 三家中间价（换算成 USDT 计价）取中位数，机柜底下常驻显示三个来源价 + `LIVE · 3 of 3`。Lovable 演示引擎每 2 秒生成一条模拟 tick（锚在每分钟一次的 Binance 真价上）；页面与文案按正式版口径写——它们是给研发看的规格。
 
 ```
 用户点 UP ── arcade_place(side, gross, quote_ts) ──► arcade_calls（open，t0 = 接单时刻，t1 = t0 + 30 s，p / 派彩当场锁定）
-                                                   │  ← 2 s 内 arcade_cancel(id)：退 gross − 0.15%，status = cancelled
+                                                   │  （arcade_cancel 已于 2026-11-04 关闭：没有撤销）
 指数 tick（arcade_index_ticks，每 1–2 s 一条）──► arcade_settle_due()：S0 = t0 后第一条有效 tick，S1 = t1 前最近一条
                                                    └──► won（入账 派彩 − 5% 利润）/ lost / void（全退）──► transactions + spot_balance
 Portfolio：arcade_my_sessions() 把同一账号的合约按 30 分钟间隔切成「场」──► Settled › Standard 一场一行 ──► /portfolio/quick-play/<key>
 ```
 
-**一条故事线**（用户小 A）：① 第一次进 `/arcade`，先过四行免责门，点 `I GET IT · START PLAYING`，以后不再弹；② 选 $5 点 UP，键上出现一枚带 2 秒倒数环的筹码，右栏 MY CALLS 多一行 `$5 @ 50.9¢ / wins +$4.49 · 30s`，图上一个菱形 + 一面 `30s` 小旗；③ 他后悔了，2 秒内点环 → `Cancelled · $0.01 close fee`，退 $4.99；④ 再点 UP，这次不管了；行尾变 `ahead`，LIVE 牌写 `+$4.35`；⑤ 30 秒到，旗翻 ✓、`+$4.29` 飘出来、筹码飞进余额，那行滑进 LAST SETTLED，LAST 10 打一个勾；⑥ 连赢三张，金币雨 + 大字 `×3 COMBO`；⑦ 去吃饭，40 分钟后回来再下一单 → toast `New session`，04 的板子归零；⑧ 晚上在 Portfolio › Settled 看到两行带 QUICK PLAY 小牌的记录，点进去是三卡 + 每一张合约的明细；⑨ 点右上 Share，海报写 `7 of 10 right · Profit +$31.20`。
+**一条故事线**（用户小 A）：① 第一次进 `/arcade`，先过四行免责门，点 `I GET IT · START PLAYING`，以后不再弹；② 选 $5 点 UP，筹码立刻进键上的塔，键底注 `Placed ✓ · locked in, settles in 30s`，右栏 MY CALLS 多一行 `$5 @ 50.9¢ / wins +$4.49 · 30s`，图上一个菱形 + 一面 `30s` 小旗；③ 后悔也撤不了：点下去就是一张 30 秒合约（2026-11-04 起没有撤销）；④ 再点一张 UP；行尾变 `ahead`，LIVE 牌写 `+$4.35`；⑤ 30 秒到，旗翻 ✓、`+$4.29` 飘出来、筹码飞进余额，那行滑进 LAST SETTLED，LAST 10 打一个勾；⑥ 连赢三张，金币雨 + 大字 `×3 COMBO`；⑦ 去吃饭，40 分钟后回来再下一单 → toast `New session`，04 的板子归零；⑧ 晚上在 Portfolio › Settled 看到两行带 QUICK PLAY 小牌的记录，点进去是三卡 + 每一张合约的明细；⑨ 点右上 Share，海报写 `7 of 10 right · Profit +$31.20`。
 
 **概念词典**（每条在 copy-dictionary 有定义行）
 
@@ -58,7 +58,7 @@ Portfolio：arcade_my_sessions() 把同一账号的合约按 30 分钟间隔切�
 | 报价 p | 买 Up 或 Down 一侧的价格，三位小数，Up + Down = $1.00 | `p_up = sigmoid(…)` 钳在 0.40–0.60；`p_down = 1 − p_up` | 赔率 |
 | S0 / S1 | 开盘价 = 服务端接单后第一条有效指数；收盘价 = 到期时刻及之前最近一条有效指数 | `s0 = first tick ts > t0`；`s1 = last valid tick ts ≤ t1`（等 ≤ 2 s 迟到行情） | 裁判看的两张照片 |
 | 派彩 win_payout | 赢了能拿回的现金（含本金），扣利润 5% 后入账 | `floor((gross × 0.97) ÷ p × 100) / 100`；入账 `= win_payout − 5% × (win_payout − gross)` | 彩票面值 |
-| 取消 | 落筹 2 秒内撤回，退本金减 0.15% | `clock_timestamp() ≤ t0 + 2 s`；退 `gross − round(gross × 0.0015)` | 后悔窗 |
+| ~~取消~~ | **2026-11-04 删除**（§4.8）。原：落筹 2 秒内撤回，退本金减 0.15% | — | — |
 | void（退款） | 平局或没有有效价，整枚筹码连费退回 | `s0 IS NULL OR s1 IS NULL OR s0 = s1` | 比赛取消退票 |
 | 一场 session | 一坐下来玩的这一把 | 相邻两张下单间隔 `> 30 min` 断场（`ARCADE_SESSION_GAP_MIN` = SQL `interval '30 minutes'`） | 一局麻将 |
 | calls / staked / payout / pnl（场） | 到期结算的张数 / 这些张的筹码 / 这些张拿回的现金 / 所有已结合约的净额（含取消手续费） | `calls = won + lost`；`staked = Σ gross(won+lost)`；`payout = Σ (gross + pnl)(won+lost)`；`pnl = Σ pnl(非 open)` | 一局的进出账 |
@@ -69,9 +69,9 @@ Portfolio：arcade_my_sessions() 把同一账号的合约按 30 分钟间隔切�
 
 ### 一句话规则
 
-- 进来先过一次免责门（每个账号只弹一次）：`Each chip = one 30-second call · 2 seconds to cancel · 3% in · 5% of profit out · High risk · $2–50 a call · $500 open max`。RULES 键 / `How the price and odds are made →` 打开六段完整规则。手机上免责门与 RULES 都是**底部抽屉**。
+- 进来先过一次免责门（每个账号只弹一次）：`Each chip = one 30-second call · Locked once you tap (no undo) · 3% in · 5% of profit out · High risk · $2–50 a call · $500 open max`。RULES 键 / `How the price and odds are made →` 打开六段完整规则。手机上免责门与 RULES 都是**底部抽屉**。
 - 选筹码（$2 / 5 / 10 / 25 / 50）→ 点 UP 或 DOWN → 服务端按你看到的那个报价成交（报价 0.40–0.60，三位小数，UP + DOWN = $1.00）；筹码里含 3% 开仓费。
-- 2 秒内点键上的 `UNDO` 撤回最近一枚：按开盘价原价平掉，只收平台平仓费 0.15%（4 位小数，$5 → $0.0075；开仓费一起退）。2 秒后锁定，**没有 Cash out**。
+- **没有撤销**（2026-11-04 起）：点下去就是一张合约，锁定 30 秒，**没有 Cash out**。原来 2 秒内可以 `UNDO`，因为“先看 1 秒行情再决定撤不撤”能让玩家期望转正，已删除，后台接口一并关闭（§4.8）。
 - 连赢每满 3 把掉一张 $2 有门槛仓位券（每天 ≤ $10，UTC 零点重置），在 Rewards › Vouchers 里领。
 - 30 秒后结算：S0 = 服务端接单后第一条有效指数（不是你点之前的价）；S1 = 到期时刻及之前最近一条有效指数（最多等 2 秒迟到行情）。S1 > S0 → Up 赢。赢 = (筹码 − 3%) ÷ 报价 向下取分，再扣利润的 5%；输 = 筹码没了；平局或没有有效价 → 全额退款含费。
 - 限额：单笔 $2–50、单账户未到期 ≤ $500、每秒 ≤ 2 笔；全桌最坏损失 ≤ $10,000（满了显示 TABLE FULL）；指数无效 / 一秒跳超 10 bps / 平台当日亏损触顶 → TABLE PAUSED（已开的照常结算）。暂停时猞猁窗口变成小恐龙跑酷。**Lovable 演示桌这些触发器拨到够不着，只留人工关桌**（§3.2）。
@@ -98,8 +98,8 @@ Portfolio：arcade_my_sessions() 把同一账号的合约按 30 分钟间隔切�
 
 | status | 含义 | 触发方 | 机柜上 |
 |---|---|---|---|
-| open | 已接单、未到期 | `arcade_place` | MY CALLS 行 + 图上菱形 / 虚线 / 小旗；前 2 秒行尾 `cancel`、筹码带倒数环 |
-| cancelled | 2 秒内撤回 | `arcade_cancel` | 行消失、筹码飞回；toast `Cancelled · $0.01 close fee`；不进 LAST 10 |
+| open | 已接单、未到期 | `arcade_place` | MY CALLS 行 + 图上菱形 / 虚线 / 小旗；行尾第一秒起 `ahead` / `behind` |
+| cancelled | **只剩历史数据**（2026-11-04 前 2 秒内撤回的单） | ~~`arcade_cancel`~~（已关闭） | Portfolio / 场次详情照常显示 `cancelled`；不进 LAST 10 |
 | won / lost | 到期按 S0 / S1 判 | `arcade_settle_due` / `arcade_settle_mine` | 旗翻 ✓ / ✕、飘字、筹码飞进余额、行滑进 LAST SETTLED、LAST 10 一格 |
 | void | 平局或无有效价，全退 | 同上 | 旗翻 `—`、`refunded`；不进 LAST 10、不算 calls |
 
@@ -129,7 +129,7 @@ Portfolio：arcade_my_sessions() 把同一账号的合约按 30 分钟间隔切�
 - **价格流 `arcade_feed_tick()`**（正式版口径；Lovable 已停用其调度，见 §3.2）：① 收上一批 pg_net 应答（Binance bookTicker / Hyperliquid l2Book `@142` / Coinbase BTC-USD ticker / Coinbase USDT-USD ticker，FIFO、四个都到或超 3 秒才收，一批一 tick；同一秒的重复批丢弃）→ ② 算 mid、点差 ≤ 2 bps 过滤、USD → USDT 换算、≥2 源取中位数（只剩 2 源且偏差 > 5 bps 判无效）→ ③ 写 `arcade_index_ticks`（含 r1 / r30 / r60 / RV600 / `p_up` 模型报价 / 原始 bid-ask 快照 `src_raw`）→ ④ 更新 `arcade_table_state`（paused_reason；worst_loss；60 分钟 / 当日平台净亏）→ ⑤ `arcade_settle_due()` 结到期合约 → ⑥ 桌子冷清时 `arcade_sim_tick` 补匿名单 → ⑦ 发下一批请求。整个 tick 用 advisory lock 防重入。
 - **报价模型**（研发稿 2.1，参数全在 `arcade_params`）：`z30 = clip(r30 / sqrt(max(RV600·30/600, 1e-12)), −5, 5)`，`p = round_3(clip(sigmoid(0.010495 + 0.106198·z30 + 0.030205·z60), 0.40, 0.60))`；历史不足 `min_history_sec` 或 30 / 60 秒点缺失 → `p_up = NULL` → 前端 `Warming up · odds in a moment`、键置灰。
 - **下单 `arcade_place(side, gross, quote_ts)`**（SECURITY DEFINER，auth.uid()）：校验免责已接受 / 筹码档位 / 桌子未暂停 / 最新 tick 有效且未过期 / 报价 tick 存在且在有效期 / 指数漂移 ≤ 1 bp / 单账户未到期 ≤ $500 / 每秒 ≤ 2 笔 / 全桌 worst_loss ≤ $10,000 / 余额够 → 扣 `spot_balance` 整枚筹码 → 写 transactions `fee −3%` → 插 `arcade_calls`（t0 = `clock_timestamp()`，t1 = t0 + 30 s，p / win_payout 当场锁定）→ 返回整行 + 新余额。任一校验失败 RAISE 人话（`Price moved · tap again` / `$500 max open per account` / `Table full · room opens as calls settle` …），不扣钱。
-- **取消 `arcade_cancel(id)`**：本人、status = open、`clock_timestamp() ≤ t0 + 2 s`；退 `gross − round(gross × 0.15%)`，status = cancelled，transactions 两行（`cancel −0.15%` / `fee returned +3%`）。
+- **取消 `arcade_cancel(id)` —— 2026-11-04 关闭**（`cancel_window_ms = 0` + 收回 EXECUTE，§4.8；正式版不做）。原逻辑：本人、status = open、`clock_timestamp() ≤ t0 + 2 s`；退 `gross − round(gross × 0.15%)`，status = cancelled，transactions 两行（`cancel −0.15%` / `fee returned +3%`）。
 - **结算 `arcade_settle_due(user)`**：到期合约（t1 ≤ now）在"已有 ts ≥ t1 的 tick"或"t1 + 2 s"后结：S0 = t0 之后第一条有效 tick，S1 = t1 及之前 `settle_src_age_ms` 内最近一条有效 tick；无 S0 / S1 或相等 → void 退 gross；赢 → `credit = win_payout − round(5% × (win_payout − gross))` 进余额，transactions `trade_profit` + `winning_commission`；输 → `trade_loss −net`。`FOR UPDATE SKIP LOCKED` + status 检查 → **幂等**（连跑两次第二次零副作用）。cron 每 tick 扫全部；客户端到点调 `arcade_settle_mine()` 只结自己的，结果立刻返回。
 - **读接口**：`arcade_table_now()`（最新 tick + 桌态 + 参数 + 我的未到期总额 + 免责时间，一次 RPC，前端每秒轮询）、`arcade_index_ticks`（RLS 全开只读，图表拉最近 60 s + 增量）、`arcade_road(120)`（30 秒格的 open / close，路单）、`arcade_my_calls(since, limit)`、`arcade_table_feed()`（全桌未到期，用户名打码 `al***er`）、`arcade_accept_terms()`（写 `arcade_acks`）。
 - **场次**（`supabase/migrations/20261029190000_arcade_sessions.sql`）：`arcade_my_sessions(p_limit)` 把 auth.uid() 的合约按下单时间排序，相邻两张间隔 > 30 分钟就断成新一场（lag + 累加窗口），每场一行（字段见 §2.2）；只返回至少有一张非 open 的场。`arcade_my_session_calls(p_key, p_limit = 30, p_offset = 0)` 返回那一场的全部非 open 合约（`SETOF arcade_calls`），最新在上。两个函数 STABLE SECURITY DEFINER，只给 authenticated。**30 分钟与前端 `ARCADE_SESSION_GAP_MIN` 必须同步改。**
@@ -178,7 +178,7 @@ Portfolio：arcade_my_sessions() 把同一账号的合约按 30 分钟间隔切�
 | 头条 72px | logo / `BTC · 30-second calls` + 副题 `Settles on the BTC Index ⓘ`（ⓘ：`The BTC Index turns the live BTC prices from Binance, Hyperliquid and Coinbase into one price, updated every second. Every call opens and settles on it, so a glitch on any single exchange can't swing your result.`）/ `TOTAL OPEN POSITIONS ⓘ` + `Current $125 / Max $500`（ⓘ：`You can have up to $500 in open calls at once. Room frees up as your calls settle.`）/ `AVAILABLE · SPOT $6,249.09` / 键板 `+ Deposit` `⇄ Transfer` `Rules`（Deposit / Transfer 就地弹站内弹窗）/ 静音 |
 | 01 / REPLAY · 路单条 | 四块同一骨架（标题行 / 内容 / 时间脚）：`01 / REPLAY · WHAT HAPPENED` + 图例 `▲ Up ▼ Down`（珠盘、大路共用）· `BEAD · LAST 32`（6 列）+ `← 15:36 · now →` · `BIG ROAD ⓘ · BTC's direction, every 30 seconds` + `← 15:30 · now →` · `LAST 30 MIN`（最近 60 格）`▲ Up 28 · 16 Down ▼` + 比例条 + `longest run ▲ Up ×7`（按方向着色）+ 脚 `Now ▼ −$7.40 · 13s left` + 本格进度条。格子 hover（手机 tap）弹提示 `▲ Up +$12.00` + `07:49:00 – 07:49:30`；ⓘ 打开 Dragon / Chop / Break 说明 |
 | 02 / LIVE FEED · 舞台 + 右栏 | 舞台头：题牌 / `BTC INDEX` 小标 + 白色 44px 大价 + 上一秒 ▲▼ / 下一行 `FROM Binance $x · Hyperliquid $x · Coinbase $x`（缺 → `—`，指数无效整行红）/ 自己没单时再一行 `▼ −$19.72 in the last 30s` / COMBO HUD / `NEXT SETTLE · 12s`。图：白色价格线（不按涨跌变色）、真实时间刻度每 15 秒 + `NOW`、右侧价格刻度（白签 = 现价，青 / 绿签 = 最近 3 张未到期单的开仓价带 ▲▼）；自己没有开着的单时画**预览线**（现价往右 30 秒白虚线 + 旗 `if you call now · settles here`），鼠标停在 UP / DOWN 上把赢的那一侧染色并写 `▲ UP wins if BTC ends above` / `▼ DOWN wins if BTC ends below`；底注 `← last 45 seconds` / `each call settles 30s after you tap →`。没有 30 秒格阴影、没有格子开盘线（格子只活在路单里）。<br>右栏：**这一场还没下过单** = `LIVE TABLE N · everyone's open calls` + `▲ UP · n $x` / `▼ DOWN · n $x` + 别人的匿名单 + `Tap UP or DOWN to start — your calls and results show here`；**第一笔起到这一场结束（30 分钟没下单）** = `YOUR CALLS · only you see these`（黄绿标题闪一下）+ 页签 `Open N · $x in play` ｜ `Settled N`。Open 行：`▲ UP` / `$5 · to win $9.23` / 小字 `@ 51.3¢ · open $80,900.87 · 23s` / 进度条 / 右侧 `undo…` → `ahead`（白）/ `behind`（灰）→ 结算后 `+$4.23` / `−$5.00`；放不下时底部渐隐 + `↓ 3 more`；空 `No open calls · tap UP or DOWN`。Settled 行：`$5 @ 51.2¢ · won` + `open 80,933.97 · close 80,950.10` + 盈亏，最多 30 条，空 `Nothing settled yet this session`，底部 `All settled calls → Portfolio`。`04 / YOUR RESULT` 内容不变，另起一块钢板放在右栏下面，第一笔之后才出现 |
-| 03 / SELECT YOUR DIRECTION | 标题行右侧券条（三态：`Win 3 in a row = $2 voucher · up to $10 a day` / `Vouchers today $4 / $10 · View ›` / `Today's $10 of vouchers claimed · resets 00:00 UTC`，点 → Rewards › Vouchers）。`▲ UP`（青）/ 筹码 **$2 5 10 25 50** / `▼ DOWN`（黄绿）；键上筹码塔 = 这一边正在跑的合约，**点下去立刻进塔**（2 秒内也在）+ 键上方弹 `+$5 ▲`；2 秒内右下角黑色 `UNDO 1.6s`（金色进度条，连下几笔 `UNDO (3)`，点一下撤最近一笔）。底注：平时 `$5 in · fee $0.15 · to win $9.25 if Up`（to win = 赢了拿回的钱，含本金、已扣佣金，和主站 To win 同口径）/ 2 秒内 `Placed ✓ · undo costs $0.0075`、多笔 `3 placed ✓ · undo removes the latest` / 到上限 `Limit reached · $500 in play · room frees up as your calls settle` |
+| 03 / SELECT YOUR DIRECTION | 标题行右侧券计量条（2026-11-04 起，四态见 §4.8，点 → Rewards › Vouchers）。`▲ UP`（青）/ 筹码 **$2 5 10 25 50** / `▼ DOWN`（黄绿）；键上筹码塔 = 这一边正在跑的合约，**点下去立刻进塔** + 键上方弹 `+$5 ▲`；没有撤销。底注：平时 `$5 in · fee $0.15 · to win $9.25 if Up`（to win = 赢了拿回的钱，含本金、已扣佣金，和主站 To win 同口径）/ 下单后 1.5 秒 `Placed ✓ · locked in, settles in 30s`、多笔 `3 placed ✓ · each settles in 30s` / 到上限 `Limit reached · $500 in play · room frees up as your calls settle` |
 
 四态：**未登录**——头条 `AVAILABLE · SPOT —` + 一枚 `→ Sign in` 键，点它或点 UP / DOWN 弹站内登录；右栏 LIVE TABLE，预览线照画。**空**——没下过单 = LIVE TABLE；下过单没开着的 = Open 空提示。**加载 / 出错**——没价 `Waiting for the price`、历史不够 `Warming up · odds in a moment`、暂停遮罩 `TABLE PAUSED` + 原因 + `Open calls keep running and settle as normal`（预览线不画）。
 
@@ -190,8 +190,8 @@ Portfolio：arcade_my_sessions() 把同一账号的合约按 30 分钟间隔切�
 
 | 场景 | 看到什么 |
 |---|---|
-| 落筹 0–2 秒 | 筹码立刻进塔 + `+$5 ▲` 飘起；`UNDO` 键倒数；底注 `Placed ✓ · undo costs $0.0075`；Open 行尾 `undo…`；图上入场菱形 + 虚线 + 旗道 `▲ 30s` |
-| 2–30 秒 | 行尾 `ahead` / `behind`；开仓虚线领先 = 本方向色、落后 = 灰；右侧价签 |
+| 落筹 0–1.5 秒 | 筹码立刻进塔 + `+$5 ▲` 飘起；底注 `Placed ✓ · locked in, settles in 30s`；Open 行尾第一秒起就是 `ahead` / `behind`；图上入场菱形 + 虚线 + 旗道 `▲ 30s` |
+| 1.5–30 秒 | 底注回到 `$5 in · fee … · to win …`；行尾 `ahead` / `behind`；开仓虚线领先 = 本方向色、落后 = 灰；右侧价签 |
 | 到期 | 每根杆在自己的到期时刻：小三角变白 `…` → 翻成实心点（赢，本方向色）/ 灰空心圈（输）/ 灰横杠（void）；`+$4.29` 飘字 + 筹码飞进余额 + 余额 bump；图上价格线留 ✓ / ✕ 圆点；LAST 10 白底 ✓ / 灰框 ✕；一组里最后一张翻完 1.5 秒后整组离开 |
 | 连点好几单 | **一单一根杆，只合并文字标签**（CPO 2026-11-02 方案 A，mock claude.ai/artifact/FFVTERd2KCS1cTfEiACpAA）。图上 1 秒 ≈ 桌面 13px / 手机 3.5px；一个标签约 35px 宽，所以到期时间相差 3 秒（桌面）/ 9 秒（手机）以内的单共用一个标签。见下表 |
 | 连赢 2 | `COMBO ×2` + `⇪ SHARE` + 白字 `win 1 more → free $2 voucher` |
@@ -233,6 +233,21 @@ Portfolio：arcade_my_sessions() 把同一账号的合约按 30 分钟间隔切�
 - **combo 海报**：HUD 的 `⇪ SHARE` → 站点 ShareModal（`Share your combo`），海报暂用场次海报家族（`ArcadeComboPoster`）：徽章 `🔥 3 in a row`、`COMBO ×3 · ON FIRE`、大字 `+$13.92`（这一串连赢的净利，已扣佣金）、`Called Bitcoin up or down — 3 right in a row`、`30 seconds a call · $15 staked`、两格 `Combo ×3` / `Biggest win +$4.71`、推荐码 / logo / 二维码。**过渡版**：设计按 Liya 定的字段出 B · Fever / E · Arcade score screen 方向的正式稿后整张替换。不会自己弹。
 - **combo 券**：连赢每满 3 把（×3 / ×6 / ×9 …）掉一张 **$2 有门槛（tiered）仓位券**，每个账号每个 UTC 日最多 $10。参数与 referral 发的券一致（50% 封顶、持仓 ≤ 72 h、入场价 0.20–0.80、距结算 ≥ 12 h），状态 `granted`（Rewards › Vouchers 里 `Claim voucher`），30 天内领取，来源行 `From Quick Play — 3 wins in a row`。**服务端说了算**：`arcade_settle_due` 每结完一个用户的赢单就调 `arcade_combo_vouchers(user)`——按 t1 顺序重算这个用户的连赢（void / 撤单不算，30 分钟没下单断场），每个凑满 3 的那张赢单发一张（`position_vouchers.source_arcade_call_id` 唯一，重复跑零副作用）。机柜从 `arcade_table_now().combo_today` 读今天已得，掉券那一刻先乐观 +$2，8 秒内以服务端为准。
 
+### 4.8 James 第二轮（2026-11-04）：没有撤销 · 券计量条
+
+**没有撤销。** 用 dev 约 67 小时的真实指数模拟：“先看 1 秒行情，跌了就撤”能把玩家每单期望从负的变成正的（撤单退回 3% 开仓费、只收 0.15%，而前 1 秒的走势和 30 秒结果有相关性）。所以删掉：键上没有 `UNDO`，下单后 1.5 秒键底注 `Placed ✓ · locked in, settles in 30s`；免责门第二行 `Locked once you tap. No undo, no cash-out.`；RULES §4 `No undo: a tapped chip is a call and runs its full 30 seconds.`。后台：`arcade_params.cancel_window_ms = 0` + 收回 `arcade_cancel` 的调用权限（`20261104170000_arcade_no_undo.sql`），绕过界面直接调接口也撤不了。**正式版：不做撤单接口。** 以后要防误触，只能做“点下去等 1 秒、等完再按当时报价成交”，不能做“先按旧价成交、再给时间撤”。历史上撤过的单在 Portfolio 里照常显示 `cancelled`。
+
+**券计量条**（桌面 03 标题行右侧 / 手机 YOUR STAKE 右侧，点 → Rewards › Vouchers）：
+
+| 态 | 什么时候 | 桌面 | 手机 |
+|---|---|---|---|
+| 未登录 | 没登录 | 图标 + `Win 3 in a row = $2 voucher · up to $10 a day` | 图标 + `3 in a row = $2 voucher` |
+| 计数中 | 登录、今天没满 | 图标 + 3 格（亮 `连赢 % 3` 格）+ `3 more wins` / `2 more wins` / `1 more win → $2 voucher` ｜ `$4 / $10 today ›` | 图标 + 3 格 + `$4 / $10 today ›` |
+| 刚掉券 | 掉券后 8 秒 | 3 格全亮、框发光 + `+$2 voucher · it's in your Vouchers` ｜ `$6 / $10 today ›` | 3 格全亮 + `+$2 · $6 / $10 ›` |
+| 今天满了 | 今日 ≥ $10 | 框变暗、没格子 + `Today's $10 of vouchers claimed · more from 00:00 UTC` | `$10 claimed today` |
+
+连赢的口径和服务端发券同一套：按结算顺序数连续 won，输一把清零，void 不算，一场结束（30 分钟没下单）清零。字典：AR-2（计数中）· AR-15（刚掉券）· AR-16（满了）· AR-6（未登录）· 手机 AR-5 / AR-17 / AR-24 / AR-6 移动。
+
 ## 5. Lovable / 正式版边界与未了账
 
 | 项 | 状态 |
@@ -253,7 +268,7 @@ Portfolio：arcade_my_sessions() 把同一账号的合约按 30 分钟间隔切�
 | 编号 | key | 态 |
 |---|---|---|
 | AR-1 | `arcade-ar1` | 第一次进来：免责门（桌面） |
-| AR-2 | `arcade-ar2` | YOUR CALLS · Open 6（最新一张在 UNDO 里）· 04 独立钢板 · COMBO ×2 · 券 $4 / $10 |
+| AR-2 | `arcade-ar2` | YOUR CALLS · Open 6（最新一张刚下）· 04 独立钢板 · COMBO ×2 · 券 $4 / $10 |
 | AR-3 | `arcade-ar3` | 桌子暂停（指数无效）· 猞猁跑酷 |
 | AR-4 | `arcade-ar4` | 移动 · 没下过单（LIVE TABLE 筹码带） |
 | AR-5 | `arcade-ar5` | 移动 · 开着 6 张合约 |
@@ -275,6 +290,7 @@ Portfolio：arcade_my_sessions() 把同一账号的合约按 30 分钟间隔切�
 | AR-21 | `arcade-ar21` | 旗道 · 翻牌中（桌面）|
 | AR-22 | `arcade-ar22` | 旗道 · 5 秒连点 6 单（移动）|
 | AR-23 | `arcade-ar23` | 旗道 · 翻牌中（移动）|
+| AR-24 | `arcade-ar24` | 券计量条 · 今天 $10 已满（移动）|
 | AB-1 / AB-2 | `arcade-ab1` / `arcade-ab2` | 入口横幅 桌面 / 移动 · 活体 + 指数无效 |
 | AS-1 | `arcade-as1` | 分享海报 · 赚 / 亏 |
 | AS-2 | `arcade-as2` | combo 海报（过渡版） |
@@ -296,7 +312,7 @@ Portfolio：arcade_my_sessions() 把同一账号的合约按 30 分钟间隔切�
 
 1. 行情：`select to_char(ts,'HH24:MI:SS.MS'), idx, valid, p_up, src_raw->>'synthetic' from arcade_index_ticks order by ts desc limit 5` —— Lovable 每 ~2 s 一条、valid、p_up 在 0.40–0.60；机柜大价 = 最新 `idx`。
 2. alex_carter 落一枚 $5 Up → `arcade_calls` 新行（status open，t1 = t0 + 30 s，p = 当时 `p_up`，win_payout = floor(4.85 / p × 100) / 100）；`profiles.spot_balance` 减 5；transactions 多一行 `fee −0.15`。
-3. 2 秒内点环 → status cancelled，余额回 +4.99，transactions `−0.01` 与 `+0.15`。
+3. 撤不了：`select public.arcade_cancel('<刚下的 id>')` 以 authenticated 身份调用 → permission denied；`select num from arcade_params where key = 'cancel_window_ms'` = 0。
 4. 30 秒后 ≤ 2 s：status won / lost / void，s0 = t0 后第一条 tick 的 idx，s1 = t1 前最近一条；赢时余额 +（win_payout − commission）；LAST SETTLED 行 open / close 与 s0 / s1 一致（实测：$5 @ 50.9¢ 赢 → 派彩 9.52、佣金 0.23、入账 9.29、pnl +4.29）。结算函数连跑两次，第二次零副作用。
 5. `update arcade_params set num = 0 where key = 'live'` → 机柜几秒内 `TABLE PAUSED · The table is closed`、猞猁跑酷；改回 1 恢复。
 6. Events All 横幅价格 / 赔率与 `/arcade` 同时刻一致。

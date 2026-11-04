@@ -144,7 +144,7 @@ const base = (over: Partial<ArcadeFixture> = {}): ArcadeFixture => ({ nowMs: NOW
 const FX_GATE = base({ ack: false });
 export const Ar1Preview = () => <Cabinet fixture={FX_GATE} width={1040} height={700} />;
 
-/* ---------- AR-2 desktop · live: YOUR CALLS · Open (6, the newest inside its 2 s UNDO), 04 on its own plate,
+/* ---------- AR-2 desktop · live: YOUR CALLS · Open (6, the newest just placed — no undo since 2026-11-04), 04 on its own plate,
    COMBO ×2 ("win 1 more → free $2 voucher"), voucher chip $4 / $10 ---------- */
 const FX_LIVE = base({ calls: CALLS_LIVE, session: { last: [true, false, true, true, false, true, true] }, vouchersToday: 4 });
 export const Ar2Preview = () => <Cabinet fixture={FX_LIVE} width={1040} height={700} />;
@@ -218,6 +218,8 @@ export const Ar17Preview = () => <Cabinet mobile fixture={base({ calls: WIN3, se
 
 /* ---------- AR-18 mobile · an ⓘ note is a bottom sheet (TOTAL OPEN POSITIONS) ---------- */
 const openTip = (root: HTMLElement) => (root.querySelector('.info[data-tip="inplay"]') as HTMLElement | null)?.click();
+/* ---------- AR-24 mobile · the voucher meter at today's cap ---------- */
+export const Ar24Preview = () => <Cabinet mobile fixture={base({ calls: WIN3, session: { last: [true, true, true, true, true] }, vouchersToday: 10 })} width={375} height={760} />;
 export const Ar18Preview = () => <Cabinet mobile fixture={base()} width={375} height={760} after={openTip} />;
 
 /* ---------- AR-20 … AR-23 · flag lane, a burst of 6 calls in 5 s (CPO 2026-11-02 option A,

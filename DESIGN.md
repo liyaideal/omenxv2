@@ -2423,6 +2423,13 @@ CPO 2026-10-13 方案 v0 D1–D12 + mock v1 M1–M8（桌面入口方案 A）。
 8. **旗道 · 一单一根杆，只合并文字标签**（CPO 2026-11-02 批方案 A，mock claude.ai/artifact/FFVTERd2KCS1cTfEiACpAA；取代「挨近就合并成一面旗」）：每张单在自己的到期时刻立一根杆，杆顶无字小三角（▲ 青朝上 / ▼ 绿朝下，结算中白），价格线上的开仓刻度也各在各的位置；杆与杆至少 4px（只在手机同一秒连点时起作用），一组最多画 10 根。到期时间相差 ≤ 40px（桌面 1440 ≈ 3 秒 / 手机 ≈ 9 秒）的单共用一个文字标签：`▲ 23s` / `▲▼ 23s ×6`（秒数 = 组里最早到期那单）→ 翻牌中 `✓3 ✕1 · ▲▼ 1s` → `✓4 ✕2`；标签不互相压、靠右边界往左收。每根杆在自己的到期时刻翻：小三角变成价格线同款记号（赢 = 本方向色实心点、输 = 灰空心圈、void = 灰横杠，手机 5px / 桌面 7px），各飘 +$ / −$；**整组在最后一张翻完 1.5 秒后一起离开**。字典 AR-20 … AR-23。
 9. **分享海报 + 分享弹层 = 设计师掌机稿**（CPO 2026-11-02「用设计师的最新设计」，Figma omenx_lite 1283:1437 / 1283:1841 / 1283:2110）：海报 400px 像素掌机（机壳渐变 #20252D→#1A2127、黑边框 #0C0F13、屏幕夜空图、十字键 #0F1216、A/B 键、电源灯），赢 #CFFF4A / 亏 #FF8B80，`QUICK PLAY` 框 #33D6FF；数字类一律 Jersey 10，正文 Archivo。弹层走 ShareModal `variant="arcade"`：底 #14161A、描边 #1E2630、桌面 440 宽 r18，手机底部抽屉；按键底 #1B2228、描边 #1C1F26。导出 PNG 嵌入 Jersey 10 / Archivo（`fontEmbedCSS`），站点默认分享弹层不变。设计稿的 `from $5` 按现行筹码写 `from $2`；`PROFIT` 小标设计用 Inter、手机稿个别字号放大，统一按桌面稿等比缩放并用 Archivo（站内无 Inter）。字典 AS-1 / AS-3 / AS-4。
 
+## §Addendum 2026-11-04 · Quick Play · James 第二轮（LOCKED · 内测）
+
+> 修订 §Addendum 2026-11-02 第 4、5 条。CPO 2026-11-04 批 A / B（mock claude.ai/artifact/WThp74V4FmNs6gHiYfFLfZ）；交付 `docs/delivery/quick-play-v1.md` §4.8；字典 AR-2 / AR-15 / AR-16 / AR-17 / AR-24。作用域：`.arcade-root` 机柜（桌面 `.cockpit .cab.v2`、手机 `.v2m`）。
+
+1. **没有撤销**：UP / DOWN 键上不再有 `UNDO` 键（黑键 + 金色倒数条整体删除），点一下就是一张 30 秒合约。下单后 1.5 秒内键底注 `Placed ✓ · locked in, settles in 30s`（多笔 `3 placed ✓ · each settles in 30s`），之后回到平时底注；YOUR CALLS 新单第一秒起就是 `ahead` / `behind`。后台撤单接口同时关闭。取代 11-02 第 4 条的 UNDO 部分。
+2. **券计量条**（取代 11-02 第 5 条的虚线券条）：位置不变（桌面 03 标题行右侧、手机 YOUR STAKE 右侧）；实线框 `1px rgba(207,255,74,.7)` + 底 `rgba(207,255,74,.10)`，桌面高 30 / 字 12px，手机高 22 / 字 10.5px；内容 = 黄绿券图标（16×11，手机 13×9）+ 3 个方格（9px，手机 7px；亮 = 实心黄绿 + 光，暗 = 描边）+ 文案 + 竖分隔线 + 今日 `$4 / $10 today ›`。亮几格 = 本场连赢数 % 3；掉券那一刻 3 格全亮、框变亮发光 8 秒；今天满了 = 框变暗、没有格子；未登录 = 只有图标 + 规则一句。
+
 ## §Addendum 2026-11-04 · Sports 列表直播与预告（LOCKED）
 
 CPO 2026-11-04 逐条批（直播样式 → 预告样式 → 去掉预告大卡）。作用域 = Sports 品类页（桌面 `LiteSportsView`、手机 `MobileSportsModule` 的品类页模式，即传了 `filters` 的那一种；首页 Sports 卡不在本节）顶部「正在打 / 即将开打」区；**下面的 day strip 与比赛列表一像素不动**（唯一例外：今天日期头的计数措辞，见第 15 条）。首页 Sports 模块（`HomeSportsCard`，`Watch live` / `Stream at kickoff` 芯片）不受本节影响。字典 Events 列表 ⑥b EV-36…EV-46；词典「Sports 列表 · 直播与预告」；交付 `docs/delivery/sports-list-streams-v1.md`。

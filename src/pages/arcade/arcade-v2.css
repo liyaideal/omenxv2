@@ -577,25 +577,14 @@
 .arcade-root :is(.cab.v2,.v2m) .ticks .w{background:#e8edf2;color:#020c10}
 .arcade-root :is(.cab.v2,.v2m) .ticks .l{background:transparent;border:1px solid #3a4350;color:#6b7584}
 .arcade-root .v2m .mc .fs{color:#fff}.arcade-root .v2m .mc.lost .fs{color:#8a93a3}.arcade-root .v2m .mc.won .t{color:#fff}.arcade-root .v2m .mc.lost .t{color:#8a93a3}
-/* ⑤ keys: UNDO, the tap pop, $2 chip, voucher chip */
+/* ⑤ keys: the tap pop, $2 chip, voucher chip (UNDO removed 2026-11-04) */
 .arcade-root :is(.cab.v2,.v2m) .mchip.d2,.arcade-root .mchip.fly.d2{--cc:#c9a8ff;--ci:#1a0f2e;--cr:#f1e8ff}
 .arcade-root :is(.cab.v2,.v2m) .dir .side{white-space:nowrap}
 .arcade-root .v2m .dir .side{font-size:26px}
-.arcade-root :is(.cab.v2,.v2m) .undo{flex:none;position:relative;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px 0 9px;background:#020c10;color:#fff;border:2px solid #020c10;cursor:pointer;overflow:hidden;font:700 11px/1 var(--f-ui);letter-spacing:.8px;box-shadow:0 2px 0 rgba(0,0,0,.35)}
-.arcade-root :is(.cab.v2,.v2m) .undo b{font:400 17px/1 var(--f-pix);font-weight:400;letter-spacing:.5px;padding-top:2px}
-.arcade-root :is(.cab.v2,.v2m) .undo i{font:700 12px/1 var(--f-ui);font-style:normal;color:var(--gold);min-width:24px;text-align:right}
-.arcade-root :is(.cab.v2,.v2m) .undo u{position:absolute;left:0;bottom:0;height:3px;background:var(--gold);text-decoration:none}
-.arcade-root :is(.cab.v2,.v2m) .undo:hover{background:#18222a}
-.arcade-root .v2m .undo{height:26px;padding:0 7px}.arcade-root .v2m .undo b{font-size:14px}.arcade-root .v2m .undo i{font-size:10px;min-width:18px}
 .arcade-root .cockpit .cab.v2 .dir .ringwrap{position:absolute;right:12px;bottom:7px}
-.arcade-root .cockpit .cab.v2 .dir.hasundo .pays{padding-right:118px}
 .arcade-root .tapf{position:fixed;z-index:55;pointer-events:none;font:400 26px/1 var(--f-pix);color:#020c10;background:#fff;border:2px solid var(--ink);padding:2px 7px 0;animation:v2tapf .9s ease-out forwards;white-space:nowrap}
 @keyframes v2tapf{0%{transform:translate(-50%,0) scale(.7);opacity:0}15%{transform:translate(-50%,-6px) scale(1.1);opacity:1}100%{transform:translate(-50%,-46px);opacity:0}}
 .arcade-root .cockpit .cab.v2 .r3 .dirhead{gap:16px}
-.arcade-root :is(.cab.v2,.v2m) .vchip{margin-left:auto;margin-right:18px;display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border:1px dashed rgba(207,255,74,.55);background:rgba(207,255,74,.06);font:500 11px/1 var(--f-ui);color:#dfe6ee;text-decoration:none;white-space:nowrap;letter-spacing:.3px;text-transform:none}
-.arcade-root :is(.cab.v2,.v2m) .vchip b,.arcade-root .v2m .mvou b{color:var(--lime);font-weight:700}
-.arcade-root :is(.cab.v2,.v2m) .vchip:hover{background:rgba(207,255,74,.14)}
-.arcade-root .v2m .bethead .mvou{font:500 10px/1 var(--f-ui);letter-spacing:.3px;text-transform:none;color:#dfe6ee;text-decoration:none;border:1px dashed rgba(207,255,74,.55);padding:3px 6px;background:rgba(207,255,74,.06)}
 .arcade-root :is(.cab.v2,.v2m) .vchip.bump,.arcade-root .v2m .mvou.bump{animation:v2vbump .7s cubic-bezier(.2,1.8,.4,1)}
 @keyframes v2vbump{30%{transform:scale(1.15);box-shadow:0 0 18px rgba(207,255,74,.8)}}
 .arcade-root .vfly{position:fixed;z-index:60;pointer-events:none;transform:translate(-50%,-50%);font:400 20px/1 var(--f-pix);color:#07090f;background:var(--lime);border:2px dashed #07090f;padding:4px 10px 2px;box-shadow:0 0 18px rgba(207,255,74,.8);transition:transform 1s cubic-bezier(.4,.1,.3,1),opacity 1s ease-in;white-space:nowrap}
@@ -685,3 +674,21 @@
 .arcade-root.is-m .rmodal .rcols section{grid-template-columns:1fr;gap:6px;padding:10px 12px}
 /* RULES head on phones: title + ✕ on one row (2026-11-02 QA) */
 .arcade-root.is-m .rmodal .gh{flex-direction:row;align-items:center;justify-content:space-between;gap:12px}
+
+/* ⑥ James round 2 (CPO 2026-11-04) — the voucher meter: ticket + one pip per win in the current run + today's total
+   (desktop 03 head / phone stake head) */
+.arcade-root :is(.cab.v2,.v2m) :is(.vchip,.mvou){display:inline-flex;align-items:center;gap:8px;text-decoration:none;text-transform:none;white-space:nowrap;color:#dfe6ee;background:rgba(207,255,74,.10);border:1px solid rgba(207,255,74,.7);box-shadow:inset 0 0 0 1px rgba(0,0,0,.4)}
+.arcade-root :is(.cab.v2,.v2m) .vchip{margin-left:auto;margin-right:18px;height:30px;padding:0 12px 0 10px;font:500 12px/1 var(--f-ui);letter-spacing:.3px}
+.arcade-root .v2m .bethead .mvou{height:22px;padding:0 7px;gap:6px;font:500 10.5px/1 var(--f-ui);letter-spacing:.2px}
+.arcade-root :is(.cab.v2,.v2m) :is(.vchip,.mvou) .vtk{width:16px;height:11px;color:var(--lime);flex:none}
+.arcade-root .v2m .mvou .vtk{width:13px;height:9px}
+.arcade-root :is(.cab.v2,.v2m) :is(.vchip,.mvou) .vpips{display:inline-flex;gap:3px}
+.arcade-root :is(.cab.v2,.v2m) :is(.vchip,.mvou) .vpips i{width:9px;height:9px;border:1px solid rgba(207,255,74,.7);background:#0b1a10}
+.arcade-root .v2m .mvou .vpips i{width:7px;height:7px}
+.arcade-root :is(.cab.v2,.v2m) :is(.vchip,.mvou) .vpips i.on{background:var(--lime);box-shadow:0 0 6px rgba(207,255,74,.7)}
+.arcade-root :is(.cab.v2,.v2m) :is(.vchip,.mvou) b{color:var(--lime);font-weight:700}
+.arcade-root :is(.cab.v2,.v2m) .vchip .vday{padding-left:10px;border-left:1px solid rgba(207,255,74,.35);color:var(--mute)}
+.arcade-root :is(.cab.v2,.v2m) :is(.vchip,.mvou).fresh{background:rgba(207,255,74,.22);box-shadow:0 0 14px rgba(207,255,74,.45)}
+.arcade-root :is(.cab.v2,.v2m) :is(.vchip,.mvou).max{border-color:rgba(207,255,74,.35);background:rgba(207,255,74,.05);color:var(--mute)}
+.arcade-root :is(.cab.v2,.v2m) :is(.vchip,.mvou).max .vtk{color:rgba(207,255,74,.5)}
+.arcade-root :is(.cab.v2,.v2m) .vchip:hover{background:rgba(207,255,74,.18)}

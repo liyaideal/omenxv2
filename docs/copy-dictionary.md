@@ -34,7 +34,7 @@ Single source of truth for user-visible field names across the app.
 | 赔率 / 定价 | **51.2¢**（买 Up 一侧的价格，Up + Down = $1.00） | Quick Play 节 |
 | 派彩 / 赢额 | **to win $9.49**（拿回的钱，含本金，已扣 5% 利润佣金；11-02 起）；场次卡 **Payout** = 拿回的现金 | Quick Play 节概念表 |
 | 开仓手续费 / 利润佣金 | **3% in · 5% of profit out**（底注 `fee $0.15`、流水 `Winning commission`） | Quick Play 节 |
-| 撤单 / 平局退款 | **undo**（2 秒内，`undo costs $0.0075`）/ **refunded** | Quick Play 节概念表 |
+| ~~撤单~~ / 平局退款 | ~~**undo**~~（2026-11-04 删除：点下去就是一张合约，锁定 30 秒）/ **refunded** | Quick Play 节概念表 |
 | 会话 / 场 / 一局 | **session**（`A session ends after 30 minutes without a call.`） | Quick Play 节概念表 |
 
 
@@ -583,7 +583,7 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 | **call** | 一枚筹码 = 一张自己的 30 秒二元合约 | `arcade_calls` 一行，`t1 = t0 + 30 s` | quick-play-v1 §2.1 |
 | **open / close**（S0 / S1） | 开盘价 = 服务端接单后第一条有效指数；收盘价 = 到期时刻及之前最近一条有效指数 | `s0 = first valid tick ts > t0`；`s1 = last valid tick ts ≤ t1`（等 ≤ 2 s） | quick-play-v1 §3.1 |
 | **to win $x**（11-02 起，取代 wins +$x） | 赢了拿回的钱：派彩 − 5% 利润佣金（含本金；和主站 To win 同口径）；结算后的 `+$x` 仍是净利 | `callCredit = floor(gross×0.97 ÷ p ×100)/100 − 5%×利润`；净利 = callCredit − gross | quick-play-v1 概念词典 |
-| **undo**（cancel） | 落筹 2 秒内撤回，退本金减 0.15%（4 位小数：$5 → $0.0075） | `now ≤ t0 + 2 s` | quick-play-v1 §2.1 |
+| ~~**undo**（cancel）~~ | **2026-11-04 删除**（CPO：先看 1 秒行情再撤会让玩家期望转正）。原规则：落筹 2 秒内撤回，退本金减 0.15%。历史 `cancelled` 单照常显示 | — | quick-play-v1 §2.1 |
 | **refunded**（void） | 平局或没有有效价，整枚筹码连费退回 | `s0 IS NULL OR s1 IS NULL OR s0 = s1` | quick-play-v1 §2.1 |
 | **session**（一场） | 一坐下来玩的这一把，30 分钟没下单就结束；机柜 04 / 海报 / Portfolio 同一条规则 | 相邻两张下单间隔 `> 30 min` 断场（`ARCADE_SESSION_GAP_MIN` = SQL `interval '30 minutes'`） | quick-play-v1 §2.2 |
 | **calls / staked / payout**（场） | 到期结算的张数 / 这些张的筹码 / 这些张拿回的现金 | `calls = won + lost`；`payout = staked + pnl(won+lost)` | quick-play-v1 §2.2 |
@@ -609,13 +609,13 @@ Mobile: the price lives in the 32px stats strip (`OPEN` / `BASE` cell word follo
 | **LIVE TABLE 7** · **everyone's open calls** / **Tap UP or DOWN to start — your calls and results show here** | 右栏 · 这一场还没下过单（11-02） | 移动筹码带 `LIVE TABLE 7` |
 | **YOUR CALLS** · **only you see these** / **Open 3** · **$75 in play** / **Settled 5** | 右栏 · 第一笔之后（11-02，取代 MY CALLS / TABLE 页签） | 不叫 MINE |
 | **No open calls · tap UP or DOWN** / **Nothing settled yet this session** / **↓ 3 more** | Open / Settled 空态、列表溢出（11-02） | 移动筹码带 `Tap UP or DOWN — your calls show here` |
-| **$25 · to win $46.46** / **@ 51.2¢ · open $80,900.87 · 12s** | Open 行（11-02：to win = 赢了拿回的钱，含本金、已扣佣金，同主站 To win） | 行尾 `undo…` → `open…` → `ahead`（白）/ `behind`（灰）→ `+$21.46` / `−$25.00` |
+| **$25 · to win $46.46** / **@ 51.2¢ · open $80,900.87 · 12s** | Open 行（11-02：to win = 赢了拿回的钱，含本金、已扣佣金，同主站 To win） | 行尾 `open…` → `ahead`（白）/ `behind`（灰）→ `+$21.46` / `−$25.00` |
 | **$25 @ 51.0¢ · won** / **open 81,155.30 · close 81,194.73** | Settled 页签行（最多 30 条）+ **All settled calls → Portfolio** | `lost` / `void` · `no valid price · refunded` / `cancelled` · `taken back within 2 s` |
 | **▲ UP** / **▼ DN** · **$25 @ 51.2¢ · kz***88** | LIVE TABLE 行（11-02 方向都带 ▲▼） | |
 | **YOUR STAKE · PER CHIP** / **$5 SELECTED** | 筹码盘 | **$2 / 5 / 10 / 25 / 50**（11-02：删 $100、加 $2） |
-| **Win 3 in a row = $2 voucher · up to $10 a day** / **Vouchers today $4 / $10 · View ›** / **Today's $10 of vouchers claimed · resets 00:00 UTC** | 03 标题行券条（11-02） | 移动 `3 wins in a row = $2 voucher` / `Vouchers $4 / $10 today ›` / `Today's $10 vouchers claimed` |
+| **Win 3 in a row = $2 voucher · up to $10 a day**（未登录）/ **3 more wins → $2 voucher** · **2 more wins …** · **1 more win → $2 voucher** ｜ **$4 / $10 today ›**（计数中）/ **+$2 voucher · it's in your Vouchers**（刚掉券 8 秒）/ **Today's $10 of vouchers claimed · more from 00:00 UTC**（满了） | 03 标题行券计量条（2026-11-04 James 第二轮，取代 11-02 虚线券条）：券图标 + 3 格（亮 = 本场连赢数 % 3，掉券时全亮 8 秒）+ 文案 + 今日数 | 移动（YOUR STAKE 右边）：`3 in a row = $2 voucher` / 3 格 + `$4 / $10 today ›` / 3 格 + `+$2 · $6 / $10 ›` / `$10 claimed today`；点 → Rewards › Vouchers |
 | **$5 in · fee $0.15 · to win $9.49 if Up** | UP / DOWN 底注（11-02） | to win 含本金、已扣 5% 佣金 |
-| **UNDO 1.6s** / **UNDO (3)** / **Placed ✓ · undo costs $0.0075** / **3 placed ✓ · undo removes the latest** / **+$5 ▲** | UNDO 键 + 底注（前 2 秒）+ 落筹飘字（11-02） | 撤单费 4 位小数；toast `Cancelled · $0.0075 close fee` |
+| **Placed ✓ · locked in, settles in 30s** / **3 placed ✓ · each settles in 30s** / **+$5 ▲** | 下单后 1.5 秒的键底注 + 落筹飘字（2026-11-04：UNDO 键、`Placed ✓ · undo costs $0.0075`、toast `Cancelled · … close fee` 全部删除） | 免责门第二行 `Locked once you tap. No undo, no cash-out.`；RULES §4 `No undo: a tapped chip is a call and runs its full 30 seconds.`、§7 `Voids don't count` |
 | **Limit reached · $500 in play · room frees up as your calls settle** | 到上限的底注 + toast（11-02，取代 `$500 max open per account`） | |
 | **Price moved · tap again** | 底注（拒单） | 键上价闪白；不扣钱 |
 | **Table paused · index invalid** / **· market moving too fast** / **· daily limit reached** / **Table full · room opens as calls settle** / **Table closed** | 底注（暂停） | 遮罩 `TABLE PAUSED` + `Index invalid · waiting for the exchanges` / `BTC is moving too fast · back in a moment` / `Daily limit reached · back tomorrow` / `TABLE FULL · Room opens as calls settle` + `Open calls keep running and settle as normal` |

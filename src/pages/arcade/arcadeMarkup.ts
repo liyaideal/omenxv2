@@ -13,7 +13,8 @@
 //   header "Settles on the BTC Index ⓘ" + TOTAL OPEN POSITIONS · 01 strip = legend / bead /
 //   big road / last-30-min cards with time feet · sources under the big price · LIVE TABLE
 //   until the first call, then YOUR CALLS (Open | Settled) · 04 on its own plate ·
-//   UNDO key · voucher chip on 03 · $2–50 chips.
+//   voucher chip on 03 · $2–50 chips. (UNDO key removed 2026-11-04: a tap is a call.)
+// James round 2 (CPO 2026-11-04): the voucher chip becomes a meter (ticket · one pip per win · today's total).
 // The logo plate is the only exit (CPO 2026-10-19: no ✕).
 // ============================================================
 
@@ -45,7 +46,7 @@ export const ARCADE_OVERLAYS = `<canvas id="fx" aria-hidden="true"></canvas>
   <div class="gh scr"><span class="tag" id="gateT">BEFORE YOU PLAY</span><span class="sub">BTC · 30-second calls</span></div>
   <ul class="gl scr">
     <li><i>⏱</i><span><b>Each chip = one 30-second call.</b> Up or Down vs the price when you tap.</span></li>
-    <li><i>🔒</i><span><b>2 seconds to cancel.</b> Then it's locked — no cash-out.</span></li>
+    <li><i>🔒</i><span><b>Locked once you tap.</b> No undo, no cash-out.</span></li>
     <li><i>%</i><span><b>3% in · 5% of profit out.</b> Ties refund in full.</span></li>
     <li><i>⚠</i><span><b>High risk.</b> $2–50 a call · $500 open max.</span></li>
   </ul>
@@ -58,10 +59,10 @@ export const ARCADE_OVERLAYS = `<canvas id="fx" aria-hidden="true"></canvas>
     <section class="scr"><h4>1 · The price</h4><div><p>The <b>BTC Index</b> is the median of three exchanges' mid prices (best bid + best ask ÷ 2) in USDT terms: <b>Binance</b> BTC/USDT, <b>Hyperliquid</b> BTC/USDC and <b>Coinbase</b> BTC-USD (both converted at the live USDT-USD rate). A snapshot counts only when at least two sources are fresh, no book is crossed and every spread is ≤ 2 bps; with just two sources they must agree within 5 bps. If that fails the index is <b>invalid</b> for that second and we stop taking new calls (open ones still settle).</p><p>The three live prices sit right under the BTC Index price. The chart line moves many times a second; every open, close and settlement uses the index only.</p></div></section>
     <section class="scr"><h4>2 · Open and close</h4><div><p><b>Open (S0)</b> = the first valid index <em>after</em> the server accepts your chip — never a price from before you tapped, so nobody can front-run a move they already saw. <b>Close (S1)</b> = the last valid index at or before the 30-second mark (we wait up to 2 s for late data, and never use a price from after the mark). The result shows about a second after the mark.</p><p>S1 &gt; S0 → Up wins. S1 &lt; S0 → Down wins. Equal, or no valid S0 / S1 → the call is void and you get everything back, fees included.</p></div></section>
     <section class="scr"><h4>3 · The odds</h4><div><p>The cents on UP / DOWN are a probability from our pricing model, built from the last 10 minutes of index moves. It is clipped to <b>40–60¢</b> and UP + DOWN always add to $1.00. A quote lives for about a second; your chip is filled at the exact quote you saw, and the payout is locked then. If the price moved too much in between, the chip is refused and you simply tap again — we never fill at a price you didn't see.</p></div></section>
-    <section class="scr"><h4>4 · Payout &amp; fees</h4><div><p><b>Fee:</b> 3% of the chip, taken on entry. <b>Payout if you win:</b> (chip − fee) ÷ odds, rounded down to the cent, minus <b>5%</b> of the profit. <b>Lose:</b> the chip is gone.</p><p class="ex">Example: $50 on Up at 53.0¢ → fee $1.50 → working $48.50 → payout $91.50 → profit $41.50 − 5% ($2.08) = <b>$39.42</b>. The key shows this as <b>to win $89.42</b> — what comes back, chip included.</p><p><b>Undo within 2 s:</b> chip returned minus 0.15% (a $5 chip costs $0.0075).</p></div></section>
+    <section class="scr"><h4>4 · Payout &amp; fees</h4><div><p><b>Fee:</b> 3% of the chip, taken on entry. <b>Payout if you win:</b> (chip − fee) ÷ odds, rounded down to the cent, minus <b>5%</b> of the profit. <b>Lose:</b> the chip is gone.</p><p class="ex">Example: $50 on Up at 53.0¢ → fee $1.50 → working $48.50 → payout $91.50 → profit $41.50 − 5% ($2.08) = <b>$39.42</b>. The key shows this as <b>to win $89.42</b> — what comes back, chip included.</p><p><b>No undo:</b> a tapped chip is a call and runs its full 30 seconds.</p></div></section>
     <section class="scr"><h4>5 · Limits &amp; pauses</h4><div><p>$2–50 per call · $500 open per account · 2 calls per second. The table pauses new calls (open ones still settle) when the index is invalid, when BTC moves more than 10 bps in one second, when our daily loss limit is hit, or when the table's risk room is full. You always see why on the chart.</p></div></section>
     <section class="scr"><h4>6 · Your record</h4><div><p>Every call stores its accept time, open, close, quote, fee and payout. The <b>Settled</b> tab next to Open shows open → close for each call this session; every call is also in Portfolio. A session ends after 30 minutes without a call. Disputes: support@omenx.com with the time of the call.</p></div></section>
-    <section class="scr"><h4>7 · Combo vouchers</h4><div><p>Win <b>3 calls in a row</b> and you get a <b>$2 Position Voucher</b>; every 3 more wins in the same run, another one — up to <b>$10 a day</b> (resets 00:00 UTC). Voids and undone calls don't count, a loss starts the count over, and so does a new session. Your vouchers are in Rewards › Vouchers.</p></div></section>
+    <section class="scr"><h4>7 · Combo vouchers</h4><div><p>Win <b>3 calls in a row</b> and you get a <b>$2 Position Voucher</b>; every 3 more wins in the same run, another one — up to <b>$10 a day</b> (resets 00:00 UTC). Voids don't count, a loss starts the count over, and so does a new session. Your vouchers are in Rewards › Vouchers.</p></div></section>
   </div>
 </div></div>
 `;

@@ -1,5 +1,5 @@
 /**
- * /arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-23 · AB-1 / AB-2 · AS-1 … AS-4）。
+ * /arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-24 · AB-1 / AB-2 · AS-1 … AS-4）。
  *
  * 规则（Liya 2026-10-27 / 10-28 拍板，研发稿 v1.0 + 她的修订；2026-11-02 James 反馈轮修订）：先只上 BTC；没有「局」，
  * 每一枚筹码就是一张自己的 30 秒合约（t0 = 服务端接单时刻）；价格 = Binance / Hyperliquid / Coinbase 三所中间价
@@ -11,12 +11,21 @@
 import { SectionWrapper, SubSection } from "../components/SectionWrapper";
 import { SectionFrame, type SectionCase } from "../components/SectionFrame";
 
+/* the voucher meter (James round 2, CPO 2026-11-04): one table, referenced by the frames that show each state */
+const VOUCHER_SPEC = [
+  { state: "未登录", when: "!userId", visual: "桌面 `Win 3 in a row = $2 voucher · up to $10 a day`；手机 `3 in a row = $2 voucher`；只有券图标，没有格子", source: "renderVouchers" },
+  { state: "计数中", when: "登录 && vToday < cap", visual: "3 格亮 `streakW % 3` 格（输一把清零、void 不算、新一场清零——同服务端发券口径）；桌面 `3 more wins` / `2 more wins` / `1 more win → $2 voucher` ｜ `$4 / $10 today ›`；手机只有格子 + `$4 / $10 today ›`", source: "renderVouchers" },
+  { state: "刚掉券", when: "掉券后 8 秒（vHold）", visual: "3 格全亮、框变亮发光；桌面 `+$2 voucher · it's in your Vouchers` ｜ `$6 / $10 today ›`；手机 `+$2 · $6 / $10 ›`；`+$2 VOUCHER` 飞牌落在框上", source: "comboUpdate / voucherFly" },
+  { state: "今天满了", when: "vToday ≥ cap", visual: "框变暗、没有格子；桌面 `Today's $10 of vouchers claimed · more from 00:00 UTC`；手机 `$10 claimed today`", source: "renderVouchers" },
+  { state: "点击", when: "任一态", visual: "→ Rewards › Vouchers", source: "api.vouchers" },
+];
+
 const CABINET: SectionCase[] = [
   {
     key: "arcade-ar1",
     label: "AR-1 · 第一次进来：免责门（每个账号只弹一次）",
     note:
-      "登录后第一次进 `/arcade` 弹四行门：`Each chip = one 30-second call` / `2 seconds to cancel · no cash-out` / `3% in · 5% of profit out · ties refund` / `High risk · $2–50 a call · $500 open max`，一键 `I GET IT · START PLAYING`（写 `arcade_acks`），下面 `How the price and odds are made →` 打开六段完整规则。门后面是机柜本体：头条（`BTC · 30-second calls` + `Settles on the BTC Index ⓘ` / `TOTAL OPEN POSITIONS ⓘ Current $0 / Max $500` / `AVAILABLE · SPOT` / Deposit · Transfer · Rules）→ `01 / REPLAY` 路单条 → `02 / LIVE FEED` 舞台 + 右栏 → `03 / SELECT YOUR DIRECTION` → 猞猁窗。logo 板是唯一出口（无 ✕）。",
+      "登录后第一次进 `/arcade` 弹四行门：`Each chip = one 30-second call` / `Locked once you tap · no undo, no cash-out`（2026-11-04 起；原 `2 seconds to cancel`） / `3% in · 5% of profit out · ties refund` / `High risk · $2–50 a call · $500 open max`，一键 `I GET IT · START PLAYING`（写 `arcade_acks`），下面 `How the price and odds are made →` 打开六段完整规则。门后面是机柜本体：头条（`BTC · 30-second calls` + `Settles on the BTC Index ⓘ` / `TOTAL OPEN POSITIONS ⓘ Current $0 / Max $500` / `AVAILABLE · SPOT` / Deposit · Transfer · Rules）→ `01 / REPLAY` 路单条 → `02 / LIVE FEED` 舞台 + 右栏 → `03 / SELECT YOUR DIRECTION` → 猞猁窗。logo 板是唯一出口（无 ✕）。",
     spec: [
       { state: "免责门", when: "userId && !ack", visual: "钢板盒 + CRT 屏四行 + 黄绿大键；接受后不再弹", source: "arcadeEngine · openGate / data.acceptTerms" },
       { state: "头条", when: "always", visual: "题牌 26px；副题 `Settles on the BTC Index ⓘ`（ⓘ = BTC Index 怎么来的一句话）；`TOTAL OPEN POSITIONS ⓘ` 下 `Current $x / Max $500`（ⓘ = `You can have up to $500 in open calls at once. Room frees up as your calls settle.`）；`AVAILABLE · SPOT` 现货余额", source: "arcadeMarkup · .hbar / renderBoard / TIPS" },
@@ -24,21 +33,21 @@ const CABINET: SectionCase[] = [
       { state: "大价 + 来源", when: "always", visual: "`BTC INDEX` 小标 + 白色大价 + 上一秒涨跌 ▲▼；下一行 `FROM Binance $x · Hyperliquid $x · Coinbase $x`（某家缺 → `—`，指数无效整行红）；自己没单时再一行 `▲ +$136.86 in the last 30s`", source: "renderPriceBig / renderPrice" },
       { state: "预览线", when: "自己没有开着的单（或 hover 一个键）", visual: "从现价往右 30 秒一条白虚线，终点竖线 + 旗 `if you call now · settles here`", source: "draw()" },
       { state: "右栏 · LIVE TABLE", when: "这一场还没下过单", visual: "`LIVE TABLE N · everyone's open calls` + `▲ UP · n $x` / `▼ DOWN · n $x` + 别人的匿名单 + 底部虚线框 `Tap UP or DOWN to start — your calls and results show here`；04 不显示", source: "renderRail / renderTable" },
-      { state: "筹码盘 + 券条", when: "always", visual: "`$2 / 5 / 10 / 25 / 50`（$100 已删，$2 紫色筹码）；03 标题行右侧虚线券条 `Win 3 in a row = $2 voucher · up to $10 a day`，点 → Rewards › Vouchers", source: "renderChips / renderVouchers" },
+      { state: "筹码盘 + 券计量条", when: "always", visual: "`$2 / 5 / 10 / 25 / 50`（$100 已删，$2 紫色筹码）；03 标题行右侧券计量条（2026-11-04 起实线亮框）：券图标 + 3 格（本场连赢数 % 3）+ `3 more wins → $2 voucher` ｜ `$0 / $10 today ›`，点 → Rewards › Vouchers。各态见下面「券计量条」", source: "renderChips / renderVouchers" },
     ],
   },
   {
     key: "arcade-ar2",
-    label: "AR-2 · 开着 6 张合约（最新一张在 2 秒 UNDO 里）· COMBO ×2 · 券 $4 / $10",
+    label: "AR-2 · 开着 6 张合约（最新一张刚下）· COMBO ×2 · 券 $4 / $10",
     note:
       "图只画你自己的单：白色价格线（不按涨跌变色）、真实时间刻度每 15 秒、右侧价格刻度——白签 = 现价，青 / 绿签 = 最近 3 张未到期单的开仓价（带 ▲▼）。每张单 = 入场菱形 + 开仓虚线（领先 = 本方向色，落后 = 灰）+ 旗道里每张单一根杆 + 杆顶小三角（▲ 青 / ▼ 绿）+ 标签 `▲ 23s`；到期时间挨得近的共用一个标签 `▲▼ 23s ×2`（见 AR-20 … AR-23）。到期：赢 = 本方向色实心圆 ✓，输 = 灰空心圈 ✕，平局 = 灰横杠；结算旗 1.5 秒后收走。右栏第一笔起换成 `YOUR CALLS · only you see these`（黄绿标题闪一下），页签 `Open 6 · $125 in play` ｜ `Settled 3`；`04 / YOUR RESULT` 另起一块钢板放在右栏下面，内容和线上一样。",
     spec: [
-      { state: "落筹", when: "tap UP / DOWN", visual: "筹码**立刻**进键上的堆（2 秒 UNDO 期内也在）；键上方弹白底 `+$5 ▲` 飘起", source: "place / tapFloat / renderKeys" },
-      { state: "UNDO", when: "t − t0 < 2 s", visual: "键右下黑色 `UNDO 1.6s`（底部金色进度条倒数）；2 秒内连下几笔 `UNDO (3)`，点一下撤最近一笔；底注 `Placed ✓ · undo costs $0.0075` / `3 placed ✓ · undo removes the latest`；撤后 toast `Cancelled · $0.0075 close fee`", source: "renderKeys / renderPays / cancel" },
+      { state: "落筹", when: "tap UP / DOWN", visual: "筹码**立刻**进键上的堆；键上方弹白底 `+$5 ▲` 飘起。没有撤销（2026-11-04 起）：点下去就是一张 30 秒合约", source: "place / tapFloat / renderKeys" },
+      { state: "刚下单", when: "t − t0 < 1.5 s", visual: "键底注 `Placed ✓ · locked in, settles in 30s`；1.5 秒内连下几笔 `3 placed ✓ · each settles in 30s`；之后回到平时底注。原 2 秒 UNDO 键与 0.15% 撤单费 2026-11-04 删除", source: "renderPays · PLACED_MS" },
       { state: "键底注 · 平时", when: "always", visual: "`$5 in · fee $0.15 · to win $9.43 if Up`（to win = 赢了拿回的钱，含本金，扣过佣金）", source: "renderPays · callCredit" },
-      { state: "OPEN 行", when: "未到期", visual: "`▲ UP` + `$5 · to win $9.43` + 小字 `@ 51.2¢ · open $80,934.75 · 23s` + 进度条；右侧 `undo…` / `ahead`（白）/ `behind`（灰）/ 结算后 `+$4.43`（绿）/ `−$5.00`（红）", source: "renderRail" },
+      { state: "OPEN 行", when: "未到期", visual: "`▲ UP` + `$5 · to win $9.43` + 小字 `@ 51.2¢ · open $80,934.75 · 23s` + 进度条；右侧 `ahead`（白，第一秒起就显示）/ `behind`（灰）/ 结算后 `+$4.43`（绿）/ `−$5.00`（红）", source: "renderRail" },
       { state: "COMBO ×2", when: "连赢 2", visual: "图表头 `COMBO ×2` + `⇪ SHARE` 小键 + 白字 `WIN 1 MORE → FREE $2 VOUCHER`；输一把 HUD 直接消失（无 COMBO BREAK、无 LOST ×N）", source: "comboUpdate" },
-      { state: "券条 · 今天已得", when: "0 < vToday < 10", visual: "`Vouchers today $4 / $10 · View ›`", source: "renderVouchers · combo_today" },
+      { state: "券计量条 · 计数中", when: "登录 && vToday < 10", visual: "实线亮框：券图标 + 3 格亮 2 格 + `1 more win → $2 voucher` ｜ `$4 / $10 today ›`", source: "renderVouchers · streakW % 3 / combo_today" },
     ],
   },
   {
@@ -65,7 +74,7 @@ const MOBILE: SectionCase[] = [
   {
     key: "arcade-ar5",
     label: "AR-5 · 移动版 · 开着 6 张合约",
-    note: "筹码带切到 `MY CALLS 6`：每枚筹码外圈倒数环（方向色）+ 角标秒数；到期盖 ✓（白）/ ✕（灰）。键上 UNDO 26px 高。",
+    note: "筹码带切到 `MY CALLS 6`：每枚筹码外圈倒数环（方向色）+ 角标秒数；到期盖 ✓（白）/ ✕（灰）。YOUR STAKE 右边券计量条：3 格 + `$4 / $10 today ›`。",
     spec: [
       { state: "筹码带", when: "mine.length", visual: "最近 7 枚，环色 = 方向色，角标秒数 / `…` 结算中 / ✓ ✕ 已结", source: "renderRail · mobile strip" },
       { state: "券条", when: "vToday > 0", visual: "`Vouchers $4 / $10 today ›`", source: "renderVouchers" },
@@ -135,7 +144,7 @@ const MORE_DESK: SectionCase[] = [
     key: "arcade-ar15",
     label: "AR-15 · ×3 COMBO：掉一张 $2 券",
     spec: [
-      { state: "掉券", when: "赢 && streak % 3 === 0 && 今天 + $2 ≤ $10", visual: "大字 `×3 COMBO` + `+$2 VOUCHER · IN YOUR VOUCHERS`；金币雨；黄绿 `+$2 VOUCHER` 从 HUD 飞到券条，券条弹一下变 `$4 / $10`；HUD 副行 `YOU GOT A $2 VOUCHER!`。服务端在同一次结算发券（`arcade_combo_vouchers`，Rewards › Vouchers 里显示 `From Quick Play — 3 wins in a row`）", source: "comboUpdate / mega / voucherFly" },
+      { state: "掉券", when: "赢 && streak % 3 === 0 && 今天 + $2 ≤ $10", visual: "大字 `×3 COMBO` + `+$2 VOUCHER · IN YOUR VOUCHERS`；金币雨；黄绿 `+$2 VOUCHER` 从 HUD 飞到券计量条，计量条弹一下、3 格全亮、变 `+$2 voucher · it's in your Vouchers` ｜ `$4 / $10 today ›`，亮 8 秒后回到计数（`3 more wins → $2 voucher`）；HUD 副行 `YOU GOT A $2 VOUCHER!`。服务端在同一次结算发券（`arcade_combo_vouchers`，Rewards › Vouchers 里显示 `From Quick Play — 3 wins in a row`）", source: "comboUpdate / mega / voucherFly" },
       { state: "档位", when: "×3 / ×5 / ×8", visual: "×3 ON FIRE（闪）· ×5 UNSTOPPABLE（白热光 + 双倍金币 + 机柜抖）· ×8 LEGENDARY（流光字）；之后每 ×3 倍数再来", source: "comboTier / isMega" },
       { state: "分享", when: "HUD 亮着", visual: "`⇪ SHARE` → 站点 ShareModal + combo 海报（AS-2）；不会自己弹", source: "api.shareCombo" },
     ],
@@ -144,7 +153,7 @@ const MORE_DESK: SectionCase[] = [
     key: "arcade-ar16",
     label: "AR-16 · ×5 · 今天 $10 已满",
     spec: [
-      { state: "满额", when: "vToday ≥ 10", visual: "HUD 副行 `VOUCHERS MAXED TODAY · KEEP IT GOING`；券条 `Today's $10 of vouchers claimed · resets 00:00 UTC`", source: "comboUpdate / renderVouchers" },
+      { state: "满额", when: "vToday ≥ 10", visual: "HUD 副行 `VOUCHERS MAXED TODAY · KEEP IT GOING`；券计量条变暗、不显示格子：`Today's $10 of vouchers claimed · more from 00:00 UTC`", source: "comboUpdate / renderVouchers" },
     ],
   },
 ];
@@ -165,12 +174,18 @@ const MORE_MOB: SectionCase[] = [
   {
     key: "arcade-ar17",
     label: "AR-17 · 移动版 · ×3 掉券",
-    spec: [{ state: "HUD", when: "streak ≥ 2", visual: "右上小盒：`COMBO ×3` + `⇪` + 两行小字；券飞到 YOUR STAKE 旁的券条", source: "comboUpdate" }],
+    spec: [{ state: "HUD", when: "streak ≥ 2", visual: "右上小盒：`COMBO ×3` + `⇪` + 两行小字；券飞到 YOUR STAKE 旁的券计量条，计量条 3 格全亮 + `+$2 · $4 / $10 ›` 8 秒", source: "comboUpdate" }],
   },
   {
     key: "arcade-ar18",
     label: "AR-18 · 移动版 · ⓘ 说明是底部抽屉",
     spec: [{ state: "ⓘ", when: "点 ⓘ / 路单格", visual: "手机上 ⓘ 说明、格子提示、路单说明一律从底部升起（抓手 + 通栏），点别处关", source: ".is-m .tipbox / .is-m > .howto" }],
+  },
+  {
+    key: "arcade-ar24",
+    label: "AR-24 · 移动版 · 今天 $10 券已满",
+    note: "James 第二轮（2026-11-04）：券计量条四态——未登录（AR-6 移动）/ 计数中（AR-5）/ 刚掉券（AR-17）/ 今天满了（本帧）。",
+    spec: VOUCHER_SPEC,
   },
 ];
 
@@ -263,7 +278,7 @@ const FLAGS_MOB: SectionCase[] = [
 export const ArcadeStatesSection = () => (
   <SectionWrapper
     id="arcade-states"
-    title="/arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-23 · AB-1 / AB-2 · AS-1 … AS-4）"
+    title="/arcade · Quick Play（BTC 30 秒合约 · 流式舞台 · 机柜皮肤）· 状态字典（AR-1 … AR-24 · AB-1 / AB-2 · AS-1 … AS-4）"
     description="CPO 2026-10-27 / 10-28 拍板 + 2026-11-02 James 反馈轮（mock claude.ai/artifact/1hCirCctvs2VNkP2J5bUfC v17c）：先只上 BTC；每一枚筹码一张 30 秒合约；三所中位数指数；报价 0.40–0.60；3% 开仓费、2 秒可撤（0.15%，4 位小数）、不可平仓、盈利扣 5% 佣金、平局全退；$2–50 一注、单账户未到期 ≤ $500；连赢每 3 把一张 $2 有门槛仓位券、每天 ≤ $10。颜色只表示方向（青涨 / 柠檬绿跌），输赢看实心 / 空心与 ✓ / ✕。ETH / SOL / 美股桌隐藏。文案英文占位。"
   >
     <div className="rounded-lg border border-[#FF8A3D]/30 bg-[#FF8A3D]/5 px-3 py-2 text-[12px] text-foreground">

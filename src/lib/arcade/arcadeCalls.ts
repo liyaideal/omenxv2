@@ -3,7 +3,7 @@
 // index (CPO 2026-10-27/28). Mirrors supabase/migrations/20261028120000_arcade_calls.sql:
 //   arcade_table_now()        latest tick + table state + params + my exposure (poll 1 Hz)
 //   arcade_index_ticks        the 1-second index history (chart + table road)
-//   arcade_place / _cancel    one chip = one 30 s contract; 2 s cancel at the open price
+//   arcade_place              one chip = one 30 s contract (no undo: arcade_cancel is closed since CPO 2026-11-04)
 //   arcade_settle_mine()      settle my due calls now (the cron sweep covers everyone)
 //   arcade_my_calls()         my record (open + settled)
 //   arcade_table_feed()       everyone's open calls, anonymised (TABLE tab)
@@ -104,7 +104,7 @@ export const callCredit = (gross: number, p: number) => {
 };
 /** the +$ shown on the key: profit after commission */
 export const callNetWin = (gross: number, p: number) => Math.round((callCredit(gross, p) - gross) * 100) / 100;
-/** the 2-second undo fee is charged and shown to 4 decimals: $5 → $0.0075, $2 → $0.003 (CPO 2026-11-02) */
+/** history only (undo removed 2026-11-04): the old 2-second undo fee, charged and shown to 4 decimals: $5 → $0.0075, $2 → $0.003 (CPO 2026-11-02) */
 export const cancelFee = (gross: number) => Math.floor(gross * ARCADE_CANCEL_FEE_RATE * 10000 + 0.5) / 10000;
 /** "$0.0075" — 4 decimals, trailing zeros dropped */
 export const feeText = (n: number) => "$" + String(+n.toFixed(4));
@@ -178,11 +178,6 @@ export async function placeCall(side: CallSide, gross: number, quoteTs: string):
   return { ...normCall(data), balance: num(data.balance) };
 }
 
-export async function cancelCall(id: string): Promise<{ cancel_fee: number; balance: number }> {
-  const { data, error } = await db().rpc("arcade_cancel", { p_id: id });
-  if (error) throw new Error(cleanErr(error.message));
-  return { cancel_fee: num(data.cancel_fee), balance: num(data.balance) };
-}
 
 export async function settleMine(): Promise<{ id: string; status: CallStatus; pnl: number; s0: number | null; s1: number | null }[]> {
   const { data, error } = await db().rpc("arcade_settle_mine");

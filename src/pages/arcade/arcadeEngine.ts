@@ -13,7 +13,7 @@
 //   • feedback has three levels: per call (flag · float · fly), per second
 //     (one balance bump), per event (combo ×3 → coins / confetti + mega,
 //     lost ×3 → red flash). Keys never lock.
-//   • right rail: MY CALLS (open rows, 2-second cancel, ahead/behind) and
+//   • right rail: MY CALLS (open rows, ahead/behind; no undo — CPO 2026-11-04) and
 //     TABLE (everyone's open calls, anonymised); SETTLED under it
 //   • road strip: the table's own road — 30 s wall-clock cells of the index
 //   • first-entry gate (once per account) + RULES modal + ⓘ how-to
@@ -27,8 +27,8 @@
 // James feedback round (CPO 2026-11-02, mock claude.ai/artifact/1hCirCctvs2VNkP2J5bUfC v17c):
 //   the chart is about YOUR calls only — white price line, real-clock ticks, a right-hand
 //   price scale with tags, a preview line ("if you call now · settles here") when nothing is
-//   open or a key is hovered; colour = direction, never win/lose; UNDO key (2 s) instead of
-//   the ring; chips land in the stack at once; LIVE TABLE until the first call; combo tiers
+//   open or a key is hovered; colour = direction, never win/lose; (the 2 s UNDO key was
+//   removed 2026-11-04 — a tap is a call); chips land in the stack at once; LIVE TABLE until the first call; combo tiers
 //   with a $2 Position Voucher every 3 wins in a row (server: arcade_combo_vouchers).
 //
 // Clock: everything runs on SERVER time (arcade_table_now().now − Date.now()
@@ -36,7 +36,6 @@
 // ============================================================
 import {
   ARCADE_CHIPS_V2,
-  ARCADE_CANCEL_MS,
   ARCADE_DURATION_MS,
   ARCADE_MAX_OPEN,
   acceptTerms,
@@ -44,15 +43,12 @@ import {
   callFee,
   callNetWin,
   callPayout,
-  cancelCall,
-  cancelFee,
   fetchMyCalls,
   fetchRoad,
   fetchTableFeed,
   fetchTableNow,
   fetchTicks,
   fetchTicksAfter,
-  feeText,
   placeCall,
   roadCells,
   settleMine,
@@ -76,7 +72,6 @@ export interface ArcadeData {
   ticksAfter: (afterTs: string) => Promise<ArcadeTick[]>;
   road: (slots: number) => Promise<RoadSlot[]>;
   place: (side: "up" | "down", gross: number, quoteTs: string) => Promise<ArcadeCall & { balance: number }>;
-  cancel: (id: string) => Promise<{ cancel_fee: number; balance: number }>;
   settleMine: () => Promise<{ id: string; status: string; pnl: number; s0: number | null; s1: number | null }[]>;
   myCalls: (since: string | null, limit?: number) => Promise<ArcadeCall[]>;
   feed: () => Promise<ArcadeFeedRow[]>;
@@ -89,7 +84,6 @@ export const realData: ArcadeData = {
   ticksAfter: fetchTicksAfter,
   road: fetchRoad,
   place: placeCall,
-  cancel: cancelCall,
   settleMine,
   myCalls: (since, limit) => fetchMyCalls(since, limit),
   feed: fetchTableFeed,
@@ -104,9 +98,6 @@ const previewData: ArcadeData = {
   road: async () => [],
   place: async () => {
     throw new Error("Preview only · play it on /arcade");
-  },
-  cancel: async () => {
-    throw new Error("Preview only");
   },
   settleMine: async () => [],
   myCalls: async () => [],
@@ -204,7 +195,6 @@ interface Call {
   pnl: number;
   tDone?: number;
   settledAt?: number;
-  cancelWanted?: boolean;
   /** server ms when the result is revealed: t1 + 0.5–1.2 s, the mock's settle beat */
   revealAt?: number;
 }
@@ -656,6 +646,8 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
   }
 
   /* ---------- placing ---------- */
+  /** how long a key says "Placed ✓" after a tap */
+  const PLACED_MS = 1500;
   let tmpId = 0;
   const keyOf = (side: Side) => $(side === "u" ? "#btnU" : "#btnD");
   function deny(side: Side, msg: string) {
@@ -721,7 +713,6 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
         api.onBalance?.(row.balance);
         eqEls().forEach((e) => (e.textContent = money(S.bal)));
       }
-      if (c.cancelWanted) void cancel(c);
     } catch (e: any) {
       S.calls = S.calls.filter((x: Call) => x !== c);
       setBal(S.bal + g);
@@ -732,30 +723,6 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     }
     render();
   }
-  async function cancel(c: Call) {
-    if (c.status !== "open" && c.status !== "pending") return;
-    if (now() - c.t0 > ARCADE_CANCEL_MS - 150) return;
-    if (c.id.startsWith("tmp")) {
-      c.cancelWanted = true; // the accept is still in flight: cancel as soon as it lands
-      sfx.click();
-      return;
-    }
-    audio();
-    sfx.click();
-    try {
-      const r = await data.cancel(c.id);
-      c.status = "cancelled";
-      c.tDone = now();
-      S.bal = r.balance;
-      bumpEq();
-      api.onBalance?.(r.balance);
-      toast(`Cancelled · ${feeText(r.cancel_fee)} close fee`);
-    } catch (e: any) {
-      toast(String(e?.message || "Could not cancel"), true);
-    }
-    render();
-  }
-
   /** "+$5 ▲" pops above the key on every tap — each chip is seen landing (James #9) */
   function tapFloat(side: Side, g: number) {
     const k = keyOf(side);
@@ -1108,23 +1075,40 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       b.classList.add("bump");
     }, 1100);
   }
-  /** the voucher chip on 03 (desktop) / next to YOUR STAKE (phone): three states */
+  /** the voucher meter on 03 (desktop) / next to YOUR STAKE (phone), James 2026-11-04: a ticket + one pip per
+      win in the current run towards the next voucher + today's total. States: signed out (the rule) · counting ·
+      just dropped (all pips lit, 8 s) · today's cap reached. */
+  const TICKET = `<svg class="vtk" viewBox="0 0 16 11" aria-hidden="true"><path fill="currentColor" d="M0 0h16v3.5a2 2 0 0 0 0 4V11H0V7.5a2 2 0 0 0 0-4z"/><path fill="#07090f" d="M10 1h1v1h-1zM10 3h1v1h-1zM10 5h1v1h-1zM10 7h1v1h-1zM10 9h1v1h-1z"/></svg>`;
   function renderVouchers() {
     const e = $("#vouChip");
     if (!e) return;
     const cap = vCap(),
-      v = S.vToday;
-    const h = mobile
-      ? v + 1e-9 >= cap
-        ? `Today's <b>${whole(cap)}</b> vouchers claimed`
-        : v
-          ? `Vouchers <b>${whole(v)} / ${whole(cap)}</b> today ›`
-          : `<b>${vEvery()} wins in a row</b> = ${whole(vFace())} voucher`
-      : v + 1e-9 >= cap
-        ? `Today's <b>${whole(cap)}</b> of vouchers claimed · resets 00:00 UTC`
-        : v
-          ? `Vouchers today <b>${whole(v)} / ${whole(cap)}</b> · View ›`
-          : `Win <b>${vEvery()} in a row</b> = ${whole(vFace())} voucher · up to ${whole(cap)} a day`;
+      v = S.vToday,
+      every = vEvery(),
+      face = whole(vFace());
+    const maxed = v + 1e-9 >= cap,
+      fresh = perf() < S.vHold,
+      got = S.streakW % every,
+      lit = fresh ? every : got,
+      left = every - got;
+    const pips = `<span class="vpips">${Array.from({ length: every }, (_, i) => `<i${i < lit ? ' class="on"' : ""}></i>`).join("")}</span>`;
+    const today = `<span class="vday"><b>${whole(v)}</b> / ${whole(cap)} today ›</span>`;
+    let st: string, h: string;
+    if (!api.userId) {
+      st = "guest";
+      h = mobile ? `${TICKET}<span class="vtx"><b>${every} in a row</b> = ${face} voucher</span>` : `${TICKET}<span class="vtx">Win <b>${every} in a row</b> = ${face} voucher · up to ${whole(cap)} a day</span>`;
+    } else if (fresh) {
+      st = "fresh";
+      h = mobile ? `${TICKET}${pips}<span class="vtx"><b>+${face}</b> · ${whole(v)} / ${whole(cap)} ›</span>` : `${TICKET}${pips}<span class="vtx"><b>+${face} voucher</b> · it's in your Vouchers</span>${today}`;
+    } else if (maxed) {
+      st = "max";
+      h = mobile ? `${TICKET}<span class="vtx"><b>${whole(cap)}</b> claimed today</span>` : `${TICKET}<span class="vtx">Today's <b>${whole(cap)}</b> of vouchers claimed · more from 00:00 UTC</span>`;
+    } else {
+      st = "";
+      h = mobile ? `${TICKET}${pips}<span class="vtx"><b>${whole(v)}</b> / ${whole(cap)} today ›</span>` : `${TICKET}${pips}<span class="vtx"><b>${left} more win${left > 1 ? "s" : ""}</b> → ${face} voucher</span>${today}`;
+    }
+    const cls = (mobile ? "mvou" : "vchip") + (st ? " " + st : "") + (e.classList.contains("bump") ? " bump" : "");
+    if (e.className !== cls) e.className = cls;
     if (e.innerHTML !== h) e.innerHTML = h;
   }
 
@@ -1789,39 +1773,20 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
     return `<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="${r}" fill="none" stroke="#1b2630" stroke-width="3"/><circle cx="20" cy="20" r="${r}" fill="none" stroke="${side === "u" ? C.up : C.dn}" stroke-width="3" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - frac)}" transform="rotate(-90 20 20)"/></svg>`;
   }
   const lastHtml: Record<string, string> = {};
-  /** the UNDO key: 2-second window, counts the chips still inside it; updated in place so a tap never lands on a
-      node that was just replaced (that would fall through to the key and place another chip) */
+  /** the chip stack on each key. No undo (CPO 2026-11-04): a tap is a call, locked for its 30 seconds. */
   function renderKeys() {
-    const win = ARCADE_CANCEL_MS - 150;
     for (const side of ["u", "d"] as Side[]) {
       const key = keyOf(side);
       if (!key) continue;
       const live = S.calls.filter((c: Call) => c.side === side && (c.status === "open" || c.status === "pending" || c.status === "settling"));
-      const canc = live.filter((c: Call) => now() - c.t0 < win && c.status !== "settling");
-      // every chip lands in the stack the moment it is tapped, the undo window included (James #9)
+      // every chip lands in the stack the moment it is tapped (James #9)
       const chips = live.map((c: Call) => c.gross);
       const st = key.querySelector(".stack"),
-        h = stackHtml(chips, canc.length ? 3 : 5);
+        h = stackHtml(chips, 5);
       if (lastHtml[side] !== h) {
         st.innerHTML = h;
         lastHtml[side] = h;
       }
-      const rw = key.querySelector(".ringwrap");
-      key.classList.toggle("hasundo", !!canc.length);
-      if (canc.length) {
-        const c = canc[canc.length - 1],
-          left = Math.max(0, ARCADE_CANCEL_MS - (now() - c.t0));
-        let u = rw.querySelector(".undo");
-        if (!u) {
-          rw.innerHTML = `<span class="undo" role="button" aria-label="Undo your latest chip" title="Take back your latest chip"><b></b><i></i><u></u></span>`;
-          u = rw.querySelector(".undo");
-        }
-        u.dataset.id = c.id;
-        const lbl = "UNDO" + (canc.length > 1 ? " (" + canc.length + ")" : "");
-        if (u.firstChild.textContent !== lbl) u.firstChild.textContent = lbl;
-        u.children[1].textContent = (left / 1000).toFixed(1) + "s";
-        u.children[2].style.width = (left / ARCADE_CANCEL_MS) * 100 + "%";
-      } else if (rw.firstChild) rw.innerHTML = "";
       key.classList.toggle("off", !!S.paused || !liveQuote());
       const p = side === "u" ? S.pUp : S.pUp == null ? null : 1 - S.pUp;
       $(side === "u" ? "#btncU" : "#btncD").textContent = p == null || !liveQuote() ? "—" : cents(p);
@@ -1833,16 +1798,13 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       if (!e || e.classList.contains("warn")) continue;
       const p = side === "u" ? S.pUp : S.pUp == null ? null : 1 - S.pUp;
       const live = S.calls.filter((c: Call) => c.side === side && (c.status === "open" || c.status === "pending"));
-      const canc = live.filter((c: Call) => now() - c.t0 < ARCADE_CANCEL_MS - 150);
+      // the last ~1.5 s of taps on this key: say they are in (James #11) — there is no undo (CPO 2026-11-04)
+      const fresh = live.filter((c: Call) => now() - c.t0 < PLACED_MS);
       let txt: string;
       if (S.paused === "full") txt = "Table full · room opens as calls settle";
       else if (S.paused) txt = S.paused === "breaker" ? "Table paused · market moving too fast" : S.paused === "loss" ? "Table paused · daily limit reached" : S.paused === "off" ? "Table closed" : "Table paused · index invalid";
       else if (!liveQuote() || p == null) txt = S.tick && S.tick.valid ? "Warming up · odds in a moment" : "Waiting for the price";
-      else if (canc.length) {
-        const c = canc[canc.length - 1];
-        // "Placed ✓" first: the chip is already down, undo is the option (James #11)
-        txt = canc.length > 1 ? `${canc.length} placed ✓ · undo removes the latest` : `Placed ✓ · undo costs ${feeText(cancelFee(c.gross))}`;
-      } else if (openStake() + S.chip > ARCADE_MAX_OPEN) txt = LIMIT_TEXT;
+      else if (fresh.length) txt = fresh.length > 1 ? `${fresh.length} placed ✓ · each settles in 30s` : "Placed ✓ · locked in, settles in 30s"; else if (openStake() + S.chip > ARCADE_MAX_OPEN) txt = LIMIT_TEXT;
       // "to win" = what comes back if it wins, chip included (same as the main site's To win)
       else txt = `${whole(S.chip)} in · fee ${money(fee(S.chip))} · to win ${money(callCredit(S.chip, p))} if ${SIDE(side)}`;
       if (e.textContent !== txt) e.textContent = txt;
@@ -1958,10 +1920,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
           st = signed(c.pnl);
           cls = c.status === "won" ? "pos" : "neg";
         } else if (c.status === "void") st = "VOID";
-        else if (t - c.t0 < ARCADE_CANCEL_MS - 150) {
-          st = "undo…";
-          cls = "lock";
-        } else if (c.s0 == null) {
+        else if (c.s0 == null) {
           st = "open…";
           cls = "pend";
         } else {
@@ -2386,14 +2345,6 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       render();
       return;
     }
-    const undo = e.target.closest(".undo");
-    if (undo) {
-      e.stopPropagation();
-      e.preventDefault();
-      const c = S.calls.find((x: Call) => x.id == undo.dataset.id);
-      if (c) void cancel(c);
-      return;
-    }
     if (e.target.closest("#dMore")) {
       const l = $("#dList");
       l.scrollTo({ top: l.scrollHeight, behavior: "smooth" });
@@ -2424,7 +2375,7 @@ export function mountArcade(root: HTMLElement, api: ArcadeApi, opts: ArcadeMount
       return;
     }
     const key = e.target.closest(".dir");
-    if (key && !e.target.closest(".undo")) {
+    if (key) {
       void place(key.dataset.side);
       return;
     }
